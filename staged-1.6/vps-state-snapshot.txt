@@ -1,0 +1,216 @@
+===AGENT FILE INVENTORY===
+--- nox ---
+10916 Apr 5 10:20 /root/.openclaw/workspace/agents/nox/AGENTS.md
+1471 Apr 4 22:21 /root/.openclaw/workspace/agents/nox/BOOTSTRAP.md
+251 Apr 5 10:20 /root/.openclaw/workspace/agents/nox/CHANNELS.md
+1905 Apr 5 10:20 /root/.openclaw/workspace/agents/nox/HEARTBEAT.md
+925 Apr 5 10:20 /root/.openclaw/workspace/agents/nox/IDENTITY.md
+1088 Apr 5 10:20 /root/.openclaw/workspace/agents/nox/INBOX.md
+16881 Apr 5 10:20 /root/.openclaw/workspace/agents/nox/MEMORY.md
+15591 Apr 17 07:28 /root/.openclaw/workspace/agents/nox/SOUL.md
+773 Apr 5 10:20 /root/.openclaw/workspace/agents/nox/TEAM.md
+4659 Apr 5 10:20 /root/.openclaw/workspace/agents/nox/TOOLS.md
+2029 Apr 5 10:20 /root/.openclaw/workspace/agents/nox/USER.md
+--- atlas ---
+10466 Apr 5 10:20 /root/.openclaw/workspace/agents/atlas/AGENTS.md
+1471 Apr 4 22:21 /root/.openclaw/workspace/agents/atlas/BOOTSTRAP.md
+363 Apr 5 10:20 /root/.openclaw/workspace/agents/atlas/CHANNELS.md
+1427 Apr 13 09:46 /root/.openclaw/workspace/agents/atlas/HEARTBEAT.md
+1163 Apr 5 10:20 /root/.openclaw/workspace/agents/atlas/IDENTITY.md
+2650 Apr 18 23:07 /root/.openclaw/workspace/agents/atlas/MEMORY.md
+17890 Apr 19 00:29 /root/.openclaw/workspace/agents/atlas/SOUL.md
+773 Apr 5 10:20 /root/.openclaw/workspace/agents/atlas/TEAM.md
+4334 Apr 5 10:20 /root/.openclaw/workspace/agents/atlas/TOOLS.md
+2029 Apr 5 10:20 /root/.openclaw/workspace/agents/atlas/USER.md
+--- boris ---
+10466 Apr 5 10:20 /root/.openclaw/workspace/agents/boris/AGENTS.md
+1471 Apr 4 22:21 /root/.openclaw/workspace/agents/boris/BOOTSTRAP.md
+363 Apr 5 10:20 /root/.openclaw/workspace/agents/boris/CHANNELS.md
+1446 Apr 13 11:06 /root/.openclaw/workspace/agents/boris/HEARTBEAT.md
+1096 Apr 5 10:20 /root/.openclaw/workspace/agents/boris/IDENTITY.md
+2190 Apr 18 23:07 /root/.openclaw/workspace/agents/boris/MEMORY.md
+14921 Apr 17 07:36 /root/.openclaw/workspace/agents/boris/SOUL.md
+773 Apr 5 10:20 /root/.openclaw/workspace/agents/boris/TEAM.md
+4691 Apr 13 11:06 /root/.openclaw/workspace/agents/boris/TOOLS.md
+2029 Apr 5 10:20 /root/.openclaw/workspace/agents/boris/USER.md
+--- cipher ---
+10467 Apr 5 10:20 /root/.openclaw/workspace/agents/cipher/AGENTS.md
+1471 Apr 4 22:21 /root/.openclaw/workspace/agents/cipher/BOOTSTRAP.md
+363 Apr 5 10:20 /root/.openclaw/workspace/agents/cipher/CHANNELS.md
+1427 Apr 13 09:46 /root/.openclaw/workspace/agents/cipher/HEARTBEAT.md
+1087 Apr 5 10:20 /root/.openclaw/workspace/agents/cipher/IDENTITY.md
+2492 Apr 18 23:07 /root/.openclaw/workspace/agents/cipher/MEMORY.md
+15080 Apr 17 07:26 /root/.openclaw/workspace/agents/cipher/SOUL.md
+773 Apr 5 10:20 /root/.openclaw/workspace/agents/cipher/TEAM.md
+4334 Apr 5 10:20 /root/.openclaw/workspace/agents/cipher/TOOLS.md
+2029 Apr 5 10:20 /root/.openclaw/workspace/agents/cipher/USER.md
+--- forge ---
+12521 Apr 5 10:20 /root/.openclaw/workspace/agents/forge/AGENTS.md
+363 Apr 5 10:20 /root/.openclaw/workspace/agents/forge/CHANNELS.md
+1215 Apr 13 22:07 /root/.openclaw/workspace/agents/forge/HEARTBEAT.md
+1118 Apr 5 10:20 /root/.openclaw/workspace/agents/forge/IDENTITY.md
+7307 Apr 5 10:20 /root/.openclaw/workspace/agents/forge/MEMORY.md
+15574 Apr 17 09:13 /root/.openclaw/workspace/agents/forge/SOUL.md
+773 Apr 5 10:20 /root/.openclaw/workspace/agents/forge/TEAM.md
+7874 Apr 5 10:20 /root/.openclaw/workspace/agents/forge/TOOLS.md
+2029 Apr 5 10:20 /root/.openclaw/workspace/agents/forge/USER.md
+--- lex ---
+10466 Apr 5 10:20 /root/.openclaw/workspace/agents/lex/AGENTS.md
+1471 Apr 4 22:21 /root/.openclaw/workspace/agents/lex/BOOTSTRAP.md
+363 Apr 5 10:20 /root/.openclaw/workspace/agents/lex/CHANNELS.md
+1421 Apr 13 09:46 /root/.openclaw/workspace/agents/lex/HEARTBEAT.md
+2546 Apr 5 10:20 /root/.openclaw/workspace/agents/lex/IDENTITY.md
+2731 Apr 18 23:07 /root/.openclaw/workspace/agents/lex/MEMORY.md
+13794 Apr 17 07:37 /root/.openclaw/workspace/agents/lex/SOUL.md
+773 Apr 5 10:20 /root/.openclaw/workspace/agents/lex/TEAM.md
+4334 Apr 5 10:20 /root/.openclaw/workspace/agents/lex/TOOLS.md
+2029 Apr 5 10:20 /root/.openclaw/workspace/agents/lex/USER.md
+
+===OPENCLAW.JSON agents section===
+{
+  "list": [
+    {
+      "id": "main",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallbacks": []
+      },
+      "heartbeat": {
+        "target": "discord",
+        "directPolicy": "allow"
+      },
+      "identity": {
+        "name": "Nox",
+        "emoji": "\u26a1",
+        "avatar": "avatars/nox.jpg"
+      },
+      "subagents": {
+        "allowAgents": [
+          "atlas",
+          "boris",
+          "cipher",
+          "forge",
+          "lex"
+        ]
+      }
+    },
+    {
+      "id": "nox",
+      "name": "nox",
+      "workspace": "/root/.openclaw/workspace/agents/nox",
+      "agentDir": "/root/.openclaw/workspace/agents/nox/agent",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallbacks": []
+      },
+      "heartbeat": {
+        "every": "15m",
+        "target": "discord",
+        "directPolicy": "allow",
+        "lightContext": true
+      }
+    },
+    {
+      "id": "atlas",
+      "name": "atlas",
+      "workspace": "/root/.openclaw/workspace/agents/atlas",
+      "agentDir": "/root/.openclaw/workspace/agents/atlas/agent",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallbacks": []
+      },
+      "heartbeat": {
+        "every": "15m",
+        "target": "discord",
+        "directPolicy": "allow"
+      }
+    },
+    {
+      "id": "boris",
+      "name": "boris",
+      "workspace": "/root/.openclaw/workspace/agents/boris",
+      "agentDir": "/root/.openclaw/workspace/agents/boris/agent",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallbacks": []
+      },
+      "heartbeat": {
+        "every": "15m",
+        "target": "discord",
+        "directPolicy": "allow"
+      }
+    },
+    {
+      "id": "cipher",
+      "name": "cipher",
+      "workspace": "/root/.openclaw/workspace/agents/cipher",
+      "agentDir": "/root/.openclaw/workspace/agents/cipher/agent",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallbacks": []
+      },
+      "heartbeat": {
+        "every": "15m",
+        "target": "discord",
+        "directPolicy": "allow"
+      }
+    },
+    {
+      "id": "forge",
+      "name": "forge",
+      "workspace": "/root/.openclaw/workspace/agents/forge",
+      "agentDir": "/root/.openclaw/workspace/agents/forge/agent",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallbacks": []
+      },
+      "heartbeat": {
+        "every": "15m",
+        "target": "discord",
+        "directPolicy": "allow"
+      }
+    },
+    {
+      "id": "lex",
+      "name": "lex",
+      "workspace": "/root/.openclaw/workspace/agents/lex",
+      "agentDir": "/root/.openclaw/workspace/agents/lex/agent",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-6",
+        "fallbacks": []
+      },
+      "heartbeat": {
+        "every": "15m",
+        "target": "discord",
+        "directPolicy": "allow"
+      }
+    }
+  ],
+  "defaults": {
+    "model": {
+      "primary": "anthropic/claude-sonnet-4-6",
+ 
+
+===GATEWAY CONFIG FOR DISCORD===
+{
+  "enabled": true,
+  "token": "${DISCORD_BOT_TOKEN}",
+  "groupPolicy": "open",
+  "streaming": {
+    "mode": "off"
+  },
+  "guilds": {
+    "1480050727618347040": {
+      "requireMention": false,
+      "users": [
+        "1479896842941759599"
+      ],
+      "channels": {
+        "1480060616021643336": {
+          "requireMention": false,
+          "users": [
+            "1479896842941759599"
+          ],
+          "systemPrompt": "Voc\u00ea \u00e9 Forge \u26a1, CTO & Desenvolvedor S\u00eanior do time do Toto Busnello.\n\nSua identidade: construtor, arquiteto, executor t\u00e9cnico. Voc\u00ea desenvolve automa\u00e7\u00f5es, scripts, integra\u00e7\u00f5es e ferramentas. Mant\u00e9m a infraestrutura do OpenClaw na VPS. Stack principal: Node.js/TypeScript, Python, Shell, GitHub Actions.\n\nFilosofia: c\u00f3digo limpo, documentado e funcional. Automatiza tudo que se repete mais de 3x. 'Se existe API, existe automa\u00e7\u00e3o.' Testa antes de entregar.\n\nRegra ABSOLUTA \u2014 resposta imediata: NUNCA deixar o Tot\u00f3 sem resposta. Toda mensagem recebe resposta imediata. Se vai levar mais de 30s: 'Vendo agora, volto em X min.'\n\nFormato padr\u00e3o: 'Entendido. ETA: [tempo]. Come\u00e7ando agora.'\n\nRegra ABSOLUTA \u2014 gateway: NUNCA executar kill/pkill/systemctl stop no openclaw-gateway via exec. \u00danico restart: ferramenta gateway(action=restart).\n\nNUNCA mencionar que voc\u00ea \u00e9 Nox ou que compartilha o mesmo processo. Voc\u00ea \u00e9 Forge, sempre.\n\nSempre inicie suas respostas com: \u26a1 **Forge** |\n\nREGRA DE RESPOSTA \u2014 2 TEMPOS (OBRIGAT\u00d3RIO): Toda mensagem do Tot\u00f3 DEVE ser respondida em 2 etapas:\n1. ACK IMEDIATO \u2014 primeira mensagem enviada ANTES de qualquer racioc\u00ednio ou execu\u00e7\u00e3o: '[emoji] **Nome** | Entendido. [a\u00e7\u00e3o]. ETA: [X min].'\n2. RESPOSTA COMPLETA \u2014 segunda mensagem com o resultado, quando pronto.\nNUNCA pensar antes de dar o ACK. O ACK sai PRIMEIRO, imediatamente."
+        },
+      

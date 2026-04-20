@@ -1,0 +1,64 @@
+DATA DE HOJE: use `session_status` para confirmar a data atual antes de qualquer referência temporal.
+
+Gere o briefing matinal do Toto. Formato limpo, sem enrolação. Máximo 75 linhas.
+
+REGRAS CRÍTICAS DE FORMATO (NÃO QUEBRAR):
+1. Sua resposta final é UNICA E EXCLUSIVAMENTE o briefing formatado abaixo. Nada antes, nada depois.
+2. NÃO use a tool `message` — o sistema entrega sua resposta automaticamente ao WhatsApp e Discord.
+3. NÃO narre o que está fazendo ("vou gerar...", "agora compondo...", "briefing entregue ✅"). Silêncio executivo: coleta os dados e entrega o briefing direto.
+4. NÃO inclua meta-resumo no fim ("Destaques:", "Resumo do que foi enviado:"). A última linha é o comentário humano curto do dia, e ACABOU.
+5. Se qualquer fonte falhar, reportar '⚠️ [Fonte] indisponível' DENTRO do briefing — não fora.
+
+NUMERAÇÃO: use EXATAMENTE os números do arquivo /tmp/briefing-items.txt. NÃO renumere, NÃO altere a ordem. O arquivo já tem a numeração correta e contínua entre todas as seções.
+
+ESTRUTURA OBRIGATÓRIA (exatamente nesta ordem):
+
+🧠 *Nox* | Briefing Matinal — [Dia da semana, DD de mês de AAAA]
+
+---
+
+🔧 *SYSTEM HEALTH*
+Leia /tmp/notion-health-summary.txt. Se não existir: execute `openclaw status 2>/dev/null | grep -E 'Gateway|WhatsApp|Discord'` e `df -h / | tail -1`.
+Formato: bullets com ✅/⚠️/❌
+
+---
+
+🌤 *CLIMA SP*
+bash /root/.openclaw/scripts/weather-sp.sh
+
+---
+
+🎂 *ANIVERSÁRIOS* (omitir seção inteira se vazio)
+GOG_KEYRING_PASSWORD=openclaw gog calendar list c_4go4fk4vavssihrihssa2svb68@group.calendar.google.com --today -a lab@nuvini.ai
+
+---
+
+📅 *AGENDA — DD/MM*
+GOG_KEYRING_PASSWORD=openclaw gog calendar list --today -a lab@nuvini.ai
+GOG_KEYRING_PASSWORD=openclaw gog calendar list --today -a lab@generantis.com.br
+GOG_KEYRING_PASSWORD=openclaw gog calendar list --today -a lab@ppr.live
+Se vazio: 'Agenda livre'.
+
+---
+
+📧 *EMAILS URGENTES* (omitir seção se nenhum urgente)
+GOG_KEYRING_PASSWORD=openclaw GOG_KEYRING_BACKEND=file gog gmail list --query 'in:inbox newer_than:1d' -a lab@nuvini.ai
+GOG_KEYRING_PASSWORD=openclaw GOG_KEYRING_BACKEND=file gog gmail list --query 'in:inbox newer_than:1d' -a lab@generantis.com.br
+GOG_KEYRING_PASSWORD=openclaw GOG_KEYRING_BACKEND=file gog gmail list --query 'in:inbox newer_than:1d' -a lab@ppr.live
+SÓ emails urgentes (parceiro, investidor, regulador, advogado, deadline).
+
+Também verificar MPDM Slack:
+mcp__slack__slack_search_messages query: in:mpdm-roberto--ricardo--lab--pschumacher--sorensen--m.difiglio--j.corona-1
+Últimas 10, filtrar 24h. Se nenhum: omitir.
+
+---
+
+🗂 *TAREFAS, PENDÊNCIAS, SLACK & BVV*
+cat /tmp/briefing-items.txt
+COPIE o conteúdo EXATAMENTE com a numeração global. Mantenha emojis (🔄 em andamento, ⏳ pendente, 🏗️ BVV). Mantenha cabeçalhos de subseção.
+
+---
+
+[COMENTÁRIO FINAL — 1 linha curta, tom humano sobre o dia. Exemplo: "Dia leve, domingo tranquilo." ou "3 reuniões pesadas, foco no deck Galapagos."]
+
+[FIM DA RESPOSTA — não escreva nada depois do comentário final]
