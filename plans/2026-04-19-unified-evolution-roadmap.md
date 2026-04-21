@@ -1,10 +1,10 @@
 # Unified Evolution Roadmap — nox-mem Memory System
 
-**Versão:** 1.2 (2026-04-21)
-**Status:** v3.6c deployado. Fases 24h, 2.5, Path A aposentadas (evidência produção).
-**Fonte estratégica:** `docs/nox-neural-memory.md` (v12)
+**Versão:** 1.3 (2026-04-21)
+**Status:** v3.6d deployado. Fase 1.7b detalhada em 3 sub-fases (a/b/c) pós-análise do paper "Claude Memory Setup". 1.7b-a adiantada pra rodar junto com IM.
+**Fonte estratégica:** `docs/nox-neural-memory.md` (v13)
 **Fonte de execução:** este arquivo — **source of truth daqui em diante**
-**Última auditoria completa:** 2026-04-21 (sessão audit sistêmica — 17 fixes)
+**Última auditoria completa:** 2026-04-21 (sessão audit sistêmica — 18 fixes + análise paper)
 
 ---
 
@@ -21,7 +21,7 @@ Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 
 - Delegação inter-agente validada end-to-end (D3 passou)
 - 6 serviços active, 0 restarts desde 07:56, logrotate configurado
 
-**Próximos movimentos:** (1) importar repos locais pra nox-mem (plano original, ~45 min), (2) Fase 2 Graphify scale de 3 → 15 repos, (3) Fase 1.7b Memory Quality advanced.
+**Próximos movimentos:** (1) **IM + 1.7b-a juntos** — importar repos locais (~45min) com typed retention matrix já ativa (2h) — novos repos entram com retention correto, sem backfill depois; (2) Fase 2 Graphify scale 3→15 repos; (3) **1.7b-b Salience formula** (4h) shadow-mode 1 semana; (4) **1.7b-c Compiled truth + timeline** (1-2d, arquitetural) finalizando Fase 1.7b.
 
 ---
 
@@ -39,10 +39,13 @@ Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 
 | D1-D4 | Audit sistêmica + pendências | ✅ DONE (2026-04-21) | — | 2.5 | 17 fixes aplicados, check-discord-heartbeat-validation criado, cron session-distill fix, delegação Nox→Atlas validada |
 | Path A | Write coordinator | 🟡 REATIVO (não mais PRE-REQ) | 3-5d (fast) se precisar | — | SQLITE_BUSY aparecer em produção = ativar. Trigger busy_timeout=5000 (v3.3) + trg_chunks_delete_cascade tem evitado até agora |
 | RP | RelayPlane de verdade | ✅ DONE (2026-04-21 v3.6c) | — | — | `providers.anthropic.baseUrl: "http://127.0.0.1:4100"` + ANTHROPIC_BASE_URL env; requests subiram de 1 (12 dias) pra >6 em 1h; Sonnet+Haiku roteados; budget cap $5/dia/$1/h/$0.50/req efetivo |
-| IM | Import repos locais | ⏳ READY | ~45min | RP | Plano em `plans/2026-04-21-session-start.md` — docs-only (*.md) de 10 projetos ~/Claude/Projetos/ + raiz |
-| 2 | Graphify + GitHub repos | 🔧 IN PROGRESS (3/~15 repos) | escalando | IM | GRAPH_REPORT.md indexado; query "o que tem no repo X?" responde |
-| 1.7b | Memory Quality advanced | 🔒 BLOCKED | 4-6h | 2 | Conflicts detectados; inline entity real-time |
-| 3 | HD rsync + enrichment tiered | 🔒 BLOCKED | 1h + tempo rsync | 1.7b | 50+ docs indexados com Tier 1/2/3 |
+| IM | Import repos locais | ⏳ READY | ~45min | RP | Plano em `plans/2026-04-21-session-start.md` — docs-only (*.md) de 10 projetos ~/Claude/Projetos/ + raiz. **Rodar junto com 1.7b-a pra novos repos já entrarem com retention correto** |
+| **1.7b-a** | **Typed source retention matrix** | ⏳ READY (adiantada) | 2h | — (junto com IM) | `retention_days` por chunk_type; feedback+person never-decay; lesson 180d; research 60d. Migration v8 + backfill nos 2073 chunks existentes. Deriva do paper "Claude Memory Setup" (ver `plans/2026-04-21-claude-memory-setup-gaps.md`) |
+| 2 | Graphify + GitHub repos | 🔧 IN PROGRESS (3/~15 repos) | escalando | IM + 1.7b-a | GRAPH_REPORT.md indexado; query "o que tem no repo X?" responde |
+| **1.7b-b** | **Salience formula formal** | 🔒 BLOCKED | 4h | 2 | `salience = recency × pain × importance`; novo campo `pain REAL`; thresholds (≥0.7 promote, <0.15 archive). Shadow-mode 1 semana antes de ativar no ranking. Deriva do paper |
+| **1.7b-c** | **Compiled truth + timeline format** | 🔒 BLOCKED | 1-2d | 1.7b-b | `memory/entities/<type>/<entity>.md` com compiled (rewritten) + timeline (append-only); `/memory-recompile` skill; search prioriza compiled pra "status atual". Finaliza Fase 1.7b. Deriva do paper |
+| 1.7b (original) | Memory Quality advanced — conflicts + inline entity | ✅ SUBSTITUÍDA | — | — | Escopo original absorvido nas sub-fases 1.7b-a/b/c via paper "Claude Memory Setup" (análise em 2026-04-21) |
+| 3 | HD rsync + enrichment tiered | 🔒 BLOCKED | 1h + tempo rsync | 1.7b-c | 50+ docs indexados com Tier 1/2/3 |
 | 3.5 | Fathom API | 🔒 BLOCKED (opcional) | 3-4h | pré-req API | Reunião indexada <24h |
 | 4 | Obsidian view-only | 🔒 BLOCKED | 1h | 3 | Galáxia 3D no Mac |
 | Path B-lite | Semantic reflect cache | 🔒 BLOCKED | 2-3h | 1.7a + telemetria | Hit rate ≥40% over 7d |
@@ -53,6 +56,30 @@ Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 
 | P | Productização nox-supermem | 🔒 HORIZONTE 60d+ | semanas | 4 estável 30d | v3.3 paridade no produto |
 
 Legenda: ✅ done / 🔧 in progress / ⏳ ready / 🟡 reativo (só ativa se sintoma aparecer) / 🔒 blocked
+
+---
+
+## Changelog v1.3 (2026-04-21 noite)
+
+Pós-análise do paper externo "Claude Memory Setup" (`/Users/lab/Desktop/claude-memory-setup copy.pdf`):
+
+**Fase 1.7b expandida em 3 sub-fases** (plano detalhado em `plans/2026-04-21-claude-memory-setup-gaps.md`):
+- **1.7b-a — Typed source retention matrix** (2h, READY, adiantada pra rodar junto com IM)
+  - `retention_days` por `chunk_type` — feedback+person never-decay, lesson 180d, research 60d
+  - Novos repos importados pelo IM já entram com retention correto (zero-cost)
+- **1.7b-b — Salience formula formal** (4h, BLOCKED by Fase 2)
+  - `salience = recency × pain × importance` (cada 0-1), thresholds paper
+  - Novo campo `pain REAL` — heurística populator (crash=1.0, bug=0.5, trivial=0.1)
+  - Integração em `tiers evaluate` + hybrid search ranking (shadow-mode 1 sem antes de ativar)
+- **1.7b-c — Compiled truth + timeline append-only** (1-2d, BLOCKED by 1.7b-b)
+  - `memory/entities/<type>/<entity>.md` — compiled rewritten + timeline append-only
+  - `/memory-recompile` skill (Gemini Flash-Lite reescreve compiled)
+  - Search prioriza compiled pra "status atual", timeline pra "histórico"
+  - **Finaliza Fase 1.7b**
+
+**Fase 1.7b original aposentada** — escopo absorvido nas sub-fases.
+
+Próximo fluxo: **IM + 1.7b-a juntos** → Fase 2 Graphify scale → 1.7b-b → 1.7b-c → Fase 3 → ...
 
 ---
 

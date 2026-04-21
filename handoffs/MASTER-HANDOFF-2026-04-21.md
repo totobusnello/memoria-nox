@@ -37,24 +37,30 @@ Sistema nox-mem hoje está **de ponta**: 2073 chunks 100% embedded, hybrid searc
 ```
 v3.6d (estado atual)
    ↓
-IM — Import repos locais pra nox-mem                [⏳ READY, ~45min]
+IM + 1.7b-a (typed retention matrix) JUNTOS          [⏳ READY, ~45min + 2h]
+  └─ novos repos entram com retention correto (zero-cost)
    ↓
-C — Auditoria detalhada Fases 1.6/1.7a/1.8/2.5/2    [pendente, checklist grande em plans/2026-04-20-next-session-checklist.md]
+C — Auditoria detalhada Fases 1.6/1.7a/1.8/2.5/2    [pendente, checklist em plans/2026-04-20-next-session-checklist.md]
    ↓
-Fase 2 — Graphify scale 3 repos → 15               [🔧 IN PROGRESS]
+Fase 2 — Graphify scale 3 repos → 15                 [🔧 IN PROGRESS]
    ↓
-Fase 1.7b — Memory Quality advanced                 [🔒 BLOCKED by 2]
+Fase 1.7b-b — Salience formula formal                [🔒 BLOCKED by 2, 4h shadow-mode 1 sem]
    ↓
-Fase 3 — HD rsync + enrichment tiered              [🔒 BLOCKED by 1.7b]
+Fase 1.7b-c — Compiled truth + timeline format       [🔒 BLOCKED by 1.7b-b, 1-2d arquitetural]
+  └─ FINALIZA Fase 1.7b
    ↓
-Fase 4 — Obsidian view-only                        [🔒 BLOCKED by 3]
+Fase 3 — HD rsync + enrichment tiered                [🔒 BLOCKED by 1.7b-c]
+   ↓
+Fase 4 — Obsidian view-only                          [🔒 BLOCKED by 3]
    ↓
 Path B-lite — Semantic reflect cache, Path C — WAL shipping, SEH — Self-Evolving Hooks
    ↓
    ↓  (tudo estável 30+ dias)
    ↓
-P — Produtização NOX-Supermem                       [🔒 HORIZONTE FINAL]
+P — Produtização NOX-Supermem                        [🔒 HORIZONTE FINAL]
 ```
+
+**Ref externo:** plano detalhado das 3 sub-fases de 1.7b (derivadas do paper "Claude Memory Setup") em `plans/2026-04-21-claude-memory-setup-gaps.md`.
 
 **Regra do Toto (reiterada 2026-04-21):** *"B (produtização supermem) deve ser a última coisa depois de todo o plano implementado e funcionando."*
 
@@ -177,11 +183,11 @@ Fechou os 5 pendentes do `Handoff_20.04.docx`:
 
 ### Próxima janela deve escolher (em ordem de prioridade)
 
-**1º — Executar plano operacional (IM — Import repos locais)**
-- Plano em `plans/2026-04-21-session-start.md` (intacto)
-- Escopo: docs-only (*.md) de 10 projetos ~/Claude/Projetos/ + raiz
-- 4 fases: Inventário → Pilot → Batch → KG rebuild
-- Estimativa: 45 min
+**1º — IM + 1.7b-a JUNTOS (aprovado 2026-04-21 noite)**
+- IM em `plans/2026-04-21-session-start.md` (docs-only *.md de 10 projetos + raiz, ~45min)
+- 1.7b-a em `plans/2026-04-21-claude-memory-setup-gaps.md` (typed retention matrix, 2h)
+- **Sequência aprovada:** aplicar 1.7b-a PRIMEIRO (schema v8 + RETENTION_BY_TYPE map + backfill) → depois rodar IM importando com retention já correto → zero-cost, zero backfill depois
+- Total: ~3h execução
 
 **2º — Auditoria detalhada (checklist pendente)**
 - Arquivo: `plans/2026-04-20-next-session-checklist.md`
