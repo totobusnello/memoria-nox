@@ -219,9 +219,31 @@ Heartbeat: zero queimando hoje (falhava antes do LLM). Quando task disparar real
 
 ---
 
+## 🤝 Também aplicado em paralelo nesta sessão (por outro agente/tarefa)
+
+**Agent-map + delegação inter-agente** (feito ~15h-17h no dia):
+
+- Criado `/root/.openclaw/workspace/shared/agent-map.md` (VPS) — fonte de verdade com sessionKeys do time
+- Todos os 6 SOUL.md atualizados (nox, atlas, boris, cipher, forge, lex) com instruções de delegação
+- Padrão estabelecido: **sempre `sessions_send()`** pro canal persistente; **NUNCA `sessions_spawn()`** (cria subagente efêmero sem memória)
+- Fluxos documentados: Pesquisa → Implementação (Atlas → Forge), Pesquisa → Auditoria → Implementação (Atlas → Cipher → Forge), etc
+
+SessionKeys do time:
+```
+agent:nox:discord:channel:1480051272508772372     (Chief of Staff)
+agent:atlas:discord:channel:1480059433324380160   (Pesquisador Sênior)
+agent:boris:discord:channel:1480059552719306842   (Jornalista)
+agent:cipher:discord:channel:1480060305697673317  (Segurança)
+agent:forge:discord:channel:1480060616021643336   (CTO/Dev)
+agent:lex:discord:channel:1480261696722567348     (Jurídico)
+```
+
+Isso se integra bem com o Discord heartbeat `to` que configuramos (mesmo channel IDs). Quando heartbeat disparar real, agentes aparecem no próprio canal; delegação inter-agente pelo `sessions_send` também usa o mesmo canal.
+
 ## Próxima sessão: plano de ataque
 
 1. Rodar `scripts/check-discord-heartbeat-validation.sh` (criado nesta sessão)
 2. Decidir RelayPlane (A ou B)
 3. Investigar 2 crons em error state se fizer sentido
-4. Se tudo OK: fechar o roadmap v3.5 no CLAUDE.md
+4. Testar delegação inter-agente via `sessions_send` (ex: pedir Nox pra delegar pro Atlas e ver se volta)
+5. Se tudo OK: fechar o roadmap v3.5 no CLAUDE.md
