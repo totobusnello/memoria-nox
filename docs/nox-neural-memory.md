@@ -1,10 +1,12 @@
 # Nox Neural Memory — Segundo Cérebro do Toto Busnello
 
-> Documento de visão — v12 (2026-04-18)
-> **Status:** Fases 1, 1.5 e **0.5 (Foundation Repair)** concluídas. Decisões de arquitetura fechadas. Estratégia hot/warm/cold definida. Sequência revisada: **0.5 → 1.6 → 1.7a → 2.5 → 2 → 1.7b**. Features do gbrain (garrytan) priorizadas.
+> Documento de visão — v13 (2026-04-21)
+> **Status:** Fases 1, 1.5, **0.5 (Foundation Repair)**, **24h obs**, **1.6**, **1.7a**, **2.5 (graph-memory)**, **D1-D4 (audit sistêmica)**, **RP (RelayPlane ativo)** concluídas. Sistema em **v3.6d**, produção estável. Próxima fase aprovada: **IM (Import repos locais)** → Fase 2 (Graphify scale) → Fase 1.7b → Fase 3 → Fase 4. Produtização NOX-Supermem fica POR ÚLTIMO.
 >
-> **Plano de execução:** `memoria-nox/plans/2026-04-19-unified-evolution-roadmap.md` — este doc é a **visão estratégica**; o plano é o que **executa**.
-> **Correção crítica (v12):** a v11 afirmava "Semantic search 3588 vetores — Operacional". Isso era **falso há semanas** — 100% dos vetores eram órfãos, Layer 2 estava morta silenciosamente. Fase 0.5 corrigiu.
+> **Plano de execução:** `memoria-nox/plans/2026-04-19-unified-evolution-roadmap.md` (v1.2) — este doc é a **visão estratégica**; o plano é o que **executa**.
+> **Master handoff:** `memoria-nox/handoffs/MASTER-HANDOFF-2026-04-21.md` — leitura única pra retomar sessão.
+> **Correção crítica (v13):** incident 2026-04-21 — reindex às 01:09 UTC cascadeou `DELETE FROM chunks` via trigger sem auto-vectorize → cegueira semântica 5h detectada por canary. **Fix arquitetural na raiz:** `dist/reindex.js` patchado pra chamar `vectorize()` inline após restore metadata. Defesa em camadas: Fix A (reindex.js inline) + Fix B (nightly Phase 6 diário) + Fix C (canary self-heal */30min). Zero janela de cegueira semântica agora.
+> **Correção v12 (histórica):** v11 afirmava "3588 vetores Operacional" — era 100% órfãos. Fase 0.5 (Apr 18) corrigiu.
 
 ---
 
@@ -22,24 +24,32 @@ Nox responde na hora, com fonte citada.
 
 ## O que já temos (base)
 
-| Componente | Status verificado (2026-04-18) |
+| Componente | Status verificado (2026-04-21) |
 |---|---|
 | `memory/*.md` — decisions, lessons, pending, wip, people, projects | ✅ Operacional |
-| **nox-mem v3.3** — FTS5 + Gemini embeddings + RRF fusion, **1.951 chunks** | ✅ Operacional |
-| **Knowledge Graph v2** — ~371 entidades, ~500 relações, extração via Gemini 2.5 Flash | ✅ Operacional (migrado 2026-04-11) |
-| **Semantic search** — sqlite-vec, **1.951 / 1.951 (100% coverage)**, Gemini embeddings 3072d | ✅ Operacional (**restaurado em 2026-04-18** — estava morto há semanas, ver Fase 0.5) |
-| **Hermes upgrades** — reflect (KG synthesis) + crystallize (procedures searchable) | ✅ Operacional (deployado 2026-04-13, MCP rebuild 2026-04-18) |
-| **Agent Expertise Map** — `shared/agent-expertise.md`, roteamento via SOUL.md | ✅ Operacional |
+| **nox-mem v3.6d** — FTS5 + Gemini embeddings + RRF fusion, **2.073 chunks** | ✅ Operacional |
+| **Knowledge Graph v2** — **~397 entidades, ~516 relações**, extração via Gemini 2.5 Flash | ✅ Operacional (migrado 2026-04-11) |
+| **Semantic search** — sqlite-vec, **2.073 / 2.073 (100% coverage)**, Gemini embeddings 3072d | ✅ Operacional |
+| **Reindex com auto-vectorize inline** — `dist/reindex.js` patched 2026-04-21 | ✅ Operacional (fix arquitetural da raiz — elimina janela de cegueira pós-reindex) |
+| **Hermes upgrades** — reflect (KG synthesis) + crystallize (procedures searchable) | ✅ Operacional (deployado 2026-04-13) |
+| **Agent Expertise Map** — `shared/agent-expertise.md`, roteamento via SOUL.md + `agent-map.md` | ✅ Operacional |
 | **HTTP API** — porta **18802** (Chrome squata 18800), **10 endpoints** JSON | ✅ Operacional |
 | **MCP Server** — **16 tools** via JSON-RPC 2.0 stdio | ✅ Operacional |
-| **Trigger `trg_chunks_delete_cascade`** — AFTER DELETE ON chunks limpa vec_chunks + map | ✅ Instalado 2026-04-18 (previne recorrência de órfãos) |
-| **Semantic canary** (`/root/.openclaw/scripts/semantic-canary.sh`) — valida Layer 2 diariamente | ✅ Ativo às 06:00 (alerta Discord `#nox-chief-of-staff`) |
-| **Morning report** (`/root/.openclaw/scripts/morning-report.sh`) — resumo de saúde do sistema | ✅ Ativo às 06:30 (alerta Discord) |
-| `end-of-day` (22h) + `nightly-maintenance.sh` (23h) — consolida, reindex, kg-build | ✅ Operacional |
-| `wip.md`, `feedback/approved.json`, L1 índices, USER-PROFILE pendente | ✅ Base (Fase 1) |
-| GitHub `totobusnello/nox-workspace` — backup automático | ✅ Operacional |
-| Time de 6 agentes via Discord | ✅ Operacional |
+| **Trigger `trg_chunks_delete_cascade`** — AFTER DELETE ON chunks limpa vec_chunks + map | ✅ Instalado 2026-04-18 no workspace + **2026-04-21 em 6 DBs de agente** (atlas, boris, cipher, forge, lex, nox) |
+| **Semantic canary + self-heal** (`/root/.openclaw/scripts/semantic-canary.sh`) | ✅ Ativo **`*/30min`** com auto-recovery (vectorize + retry em `total=0` ou `semantic=0`) |
+| **Discord heartbeat validation** (`check-discord-heartbeat-validation.sh`) | ✅ Ativo `*/30min` — valida bot Maestro + 6 channels + zero "Unknown Channel" events |
+| **Morning report** (`morning-report.sh`) | ✅ Ativo às 06:30 (alerta Discord) |
+| **Nightly maintenance** (`nightly-maintenance.sh`) | ✅ Phase 1-6 diárias — Phase 6 diário de vectorize (idempotente) é safety net pro reindex |
+| **Heartbeat-sync** — gera HEARTBEAT.md por agente inferindo de session mtime | ✅ `*/15min` (bash+find, zero-custo) |
+| **RelayPlane proxy** (`:4100`) — roteando tráfego Anthropic real | ✅ Ativo 2026-04-21 — budget cap $5/dia / $1/hora / $0.50/req + cascade Sonnet→Haiku→DeepSeek R1→Qwen3→Llama 70B. Requer BOTH `ANTHROPIC_BASE_URL` no env **E** `providers.anthropic.baseUrl` no `openclaw.json` |
+| **active-memory plugin** — recall pré-turn por agente | ✅ Migrado Haiku→Gemini Flash-Lite 2026-04-21 (10x mais barato, timeout 15s, plugin contribui de verdade agora) |
+| **graph-memory plugin** — session continuity + vector search | ✅ Em produção com `afterTurn` events validados |
+| **Cross-agent Intelligence** — 7 DBs (workspace + 6 agentes) via `nox-mem cross-stats`/`cross-search`/`cross-kg` | ✅ Operacional (revivido 2026-04-21 com trigger + vetores em 6 DBs) |
+| `wip.md`, `feedback/approved.json`, L1 índices, USER-PROFILE | ✅ Base (Fase 1) |
+| GitHub `totobusnello/memoria-nox` (este repo) + `totobusnello/nox-workspace` | ✅ Operacional — CLAUDE.md v3.6d pushed 2026-04-21 |
+| Time de 6 agentes via Discord — delegação inter-agente via `sessions_send` | ✅ Operacional (validado end-to-end 2026-04-21: Nox→Atlas→resposta) |
 | Tailscale Mac (`100.119.65.10`) ↔ VPS (`100.87.8.44`) | ✅ Operacional |
+| Logrotate em 9 logs nox-* | ✅ Ativo 2026-04-21 (daily, 14 rotations) |
 
 ---
 
@@ -111,17 +121,21 @@ agentes leem GRAPH_REPORT.md no boot → contexto completo
 
 ### 3. Cross-Agent Intelligence — real vs aspiracional
 
-**O que existe hoje:**
-- Todos os 6 agentes leem o mesmo banco nox-mem (workspace compartilhado)
+**O que existe hoje (atualizado 2026-04-21):**
+- Todos os 6 agentes leem o **banco workspace** (compartilhado) — principal fluxo de conhecimento
+- **DBs isolados por agente existem** mas são snapshots estáticos (last chunk: Mar 22 / Apr 1) — criados originalmente e congelados porque o pipeline de ingest não roda por-agente. Foram ressuscitados em 2026-04-21 com trigger + vetores pra feature `cross-search`/`cross-stats`/`cross-kg` funcionar
 - Especialização via SOUL.md de cada agente — Nox roteia manualmente
-- `shared/agent-expertise.md` — mapa de expertise por agente, lido no boot
+- `shared/agent-expertise.md` + `shared/agent-map.md` — mapa de SessionKeys Discord pra delegação via `sessions_send("agent:X:discord:channel:ID", "msg")`
+- **Delegação inter-agente validada end-to-end** em 2026-04-21: Nox recebe prompt → chama `sessions_send` pro Atlas → Atlas responde → Nox reporta de volta. Ambos turns passam pelo RelayPlane com budget cap.
 
 **O que NÃO existe hoje (e não é necessário agora):**
-- DBs isolados por agente ❌
 - Expertise profiling automático ❌
 - Roteamento algorítmico ❌
+- Agentes escrevendo nos próprios DBs via watcher automático ❌ (pipeline atual só escreve no workspace DB)
 
-**Quando faz sentido evoluir:** time com 20+ agentes e sobreposição de especialidades. Hoje é over-engineering.
+**Quando faz sentido evoluir:**
+- Expertise automático: time com 20+ agentes (hoje são 6 com papéis fixos)
+- Agent DBs ativos: refatorar watcher pra monitorar `/agents/*/memory/*.md` + session-distill por-agente (trabalho de dias, não prioritário hoje)
 
 ---
 
@@ -303,7 +317,7 @@ nox-mem hybrid search + graph-memory recall → Nox responde com contexto comple
 │                    VISUALIZAÇÃO                                   │
 │                                                                   │
 │  Obsidian 3D (view-only) ← graphify vault via rsync             │
-│  Dashboard React ← nox-mem HTTP API (:18800)                     │
+│  Dashboard React ← nox-mem HTTP API (:18802)                     │
 │  WhatsApp/Discord ← agentes com contexto completo               │
 │  graph.html — grafo interativo no browser                        │
 └─────────────────────────────────────────────────────────────────┘
@@ -890,7 +904,7 @@ Ideias estudadas que fazem sentido quando o sistema crescer, mas são over-engin
 2. **`dream.js`** (Background worker) — A cada 4h+ com 3+ sessões novas, spawna `claude -p --model haiku` que analisa padrões de correções e escreve regras em `.claude/learning/global.md` ou por agente/skill. Max 5 regras/run. 1 sessão = ruído, 2+ = regra.
 3. **`subagent-start.js`** (PreToolUse: Agent) — Injeta regras aprendidas no boot de cada subagent.
 
-**Bridge Local → VPS:** O dream worker pode opcionalmente ingerir regras no nox-mem via HTTP API (:18800), fechando o loop: correções no Mac → regras para agentes na VPS.
+**Bridge Local → VPS:** O dream worker pode opcionalmente ingerir regras no nox-mem via HTTP API (:18802), fechando o loop: correções no Mac → regras para agentes na VPS.
 
 **Princípios:** User é ground truth (não avaliador AI), captura raw / interpreta depois, noise filtering (2+ sessões), auto-limitação (max 5 regras/run, cooldown 4h).
 
@@ -941,5 +955,6 @@ Ideias estudadas que fazem sentido quando o sistema crescer, mas são over-engin
 ---
 
 *Documento vivo — atualizado após cada fase concluída.*
-*Última atualização: 2026-04-18 v12 — Fase 0.5 (Foundation Repair) concluída e registrada; correção da afirmação falsa sobre Layer 2 operacional na v11; status do sistema re-verificado com valores reais (1.951 chunks, 100% coverage, 16 MCP tools, porta 18802, trigger CASCADE ativo, canary + morning report automáticos); Fase P (productização nox-supermem) adicionada ao horizonte pós-Fase 4; referência ao plano executável unificado em `memoria-nox/plans/2026-04-19-unified-evolution-roadmap.md`.*
+*Última atualização: **2026-04-21 v13** — sessão de audit completa, 22 tasks, 18 fixes em 4 rounds (incident recovery + audit sistêmica + RelayPlane fix + item D + active-memory migration). Sistema em **v3.6d**: 2.073 chunks 100% embedded, 397 entidades KG, canary **`*/30min` com self-heal**, reindex auto-vectorize inline (fix arquitetural), RelayPlane ativo roteando Sonnet+Haiku com budget cap real, delegação inter-agente validada end-to-end, cross-agent com 7 DBs operacionais, active-memory Gemini Flash-Lite (10x mais barato), 6 serviços active, zero drift de docs. Ordem de prioridade reiterada: **plano operacional → auditoria detalhada → Fase 2 Graphify scale → (estável 30d) → produtização NOX-Supermem POR ÚLTIMO**. Master handoff em `handoffs/MASTER-HANDOFF-2026-04-21.md`.*
+*v12 (2026-04-18): Fase 0.5 Foundation Repair concluída; correção da afirmação falsa sobre Layer 2 operacional na v11; status re-verificado (1.951 chunks, 100% coverage, 16 MCP tools, porta 18802, trigger CASCADE ativo, canary + morning report automáticos); Fase P productização adicionada ao horizonte.*
 *v11 original: 2026-04-12 — config `expansionEnabled` na Fase 1.6; motivos explícitos para não adotar gbrain git-as-source-of-truth e engine pluggável; decisão Notion documentada.*
