@@ -1,16 +1,27 @@
 # Unified Evolution Roadmap — nox-mem Memory System
 
-**Versão:** 1.1 (2026-04-19)
-**Status:** Fase 1.6 concluída. Ready to execute Fase 1.7a.
+**Versão:** 1.2 (2026-04-21)
+**Status:** v3.6c deployado. Fases 24h, 2.5, Path A aposentadas (evidência produção).
 **Fonte estratégica:** `docs/nox-neural-memory.md` (v12)
 **Fonte de execução:** este arquivo — **source of truth daqui em diante**
-**Última auditoria completa:** 2026-04-18 (4 agentes specialists)
+**Última auditoria completa:** 2026-04-21 (sessão audit sistêmica — 17 fixes)
 
 ---
 
 ## Executive Summary
 
-Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 6 agentes do Totó acessados via WhatsApp/Discord. Estado atual: v3.3, 1.951 chunks 100% embedded, hybrid search funcional pela primeira vez, autodefesa diária ativa. Próximos 3 movimentos: (1) bake telemetria leve em Fase 1.6, (2) executar Fase 1.6 (query expansion + dedup — +30-40% recall, 2h, zero risco), (3) Fase 1.7a (User Profile + ontology — economia de API + boot de agentes com contexto rico).
+Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 6 agentes do Totó acessados via WhatsApp/Discord.
+
+**Estado atual (2026-04-21, v3.6c):**
+- 2073 chunks 100% embedded, zero orphans
+- Hybrid search + canary */30min com self-heal
+- Reindex com auto-vectorize inline (fix arquitetural — raiz do bug Apr 21)
+- Cross-agent operacional (7 DBs com trigger+vetores)
+- RelayPlane ATIVO, roteando Sonnet+Haiku real, budget caps efetivos
+- Delegação inter-agente validada end-to-end (D3 passou)
+- 6 serviços active, 0 restarts desde 07:56, logrotate configurado
+
+**Próximos movimentos:** (1) importar repos locais pra nox-mem (plano original, ~45 min), (2) Fase 2 Graphify scale de 3 → 15 repos, (3) Fase 1.7b Memory Quality advanced.
 
 ---
 
@@ -21,12 +32,15 @@ Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 
 | 1 | Quick Wins (wip, feedback, L1) | ✅ DONE | — | — | Concluída 2026-04-11 |
 | 1.5 | KG Migration Ollama→Gemini | ✅ DONE | — | 1 | 1489 entities extraídas |
 | **0.5** | **Foundation Repair** | ✅ DONE | — | 1.5 | 1951/1951 embedded, canary+morning ativos |
-| 24h | Observação pós-Fase 0.5 | 🔧 IN PROGRESS | passivo | 0.5 | Nightly 23h passa limpo; canary 06:00 OK |
+| 24h | Observação pós-Fase 0.5 | ✅ DONE (2026-04-21) | — | 0.5 | Concluída 3d estável — canary 5 OKs consecutivos, nightly limpo, 0 restarts anômalos |
 | 1.6 | Search Quality (expansion + dedup) | ✅ DONE | — | 24h | Concluída 2026-04-19 (ver rodapé) |
 | 1.7a | Core Memory Quality | ✅ DONE | — | 1.6 | Concluída 2026-04-19 (ver rodapé) |
-| 2.5 | graph-memory plugin | 🔧 IN OBSERVATION | 30 min setup + 7d obs | 1.7a | Concluído setup 2026-04-19; exit após 1 semana real-world |
-| Path A | Write coordinator | 🟡 REATIVO (não mais PRE-REQ) | 3-5d (fast) se precisar | — | SQLITE_BUSY aparecer em produção = ativar |
-| 2 | Graphify + GitHub repos | 🔧 IN PROGRESS (3/~15 repos) | escalando | 2.5 estável 7d | GRAPH_REPORT.md indexado; query "o que tem no repo X?" responde |
+| 2.5 | graph-memory plugin | ✅ DONE (2026-04-21) | — | 1.7a | Plugin ativo em produção — afterTurn events validados nos logs, provider=anthropic model=claude-sonnet-4-6 ok, vector search ready |
+| D1-D4 | Audit sistêmica + pendências | ✅ DONE (2026-04-21) | — | 2.5 | 17 fixes aplicados, check-discord-heartbeat-validation criado, cron session-distill fix, delegação Nox→Atlas validada |
+| Path A | Write coordinator | 🟡 REATIVO (não mais PRE-REQ) | 3-5d (fast) se precisar | — | SQLITE_BUSY aparecer em produção = ativar. Trigger busy_timeout=5000 (v3.3) + trg_chunks_delete_cascade tem evitado até agora |
+| RP | RelayPlane de verdade | ✅ DONE (2026-04-21 v3.6c) | — | — | `providers.anthropic.baseUrl: "http://127.0.0.1:4100"` + ANTHROPIC_BASE_URL env; requests subiram de 1 (12 dias) pra >6 em 1h; Sonnet+Haiku roteados; budget cap $5/dia/$1/h/$0.50/req efetivo |
+| IM | Import repos locais | ⏳ READY | ~45min | RP | Plano em `plans/2026-04-21-session-start.md` — docs-only (*.md) de 10 projetos ~/Claude/Projetos/ + raiz |
+| 2 | Graphify + GitHub repos | 🔧 IN PROGRESS (3/~15 repos) | escalando | IM | GRAPH_REPORT.md indexado; query "o que tem no repo X?" responde |
 | 1.7b | Memory Quality advanced | 🔒 BLOCKED | 4-6h | 2 | Conflicts detectados; inline entity real-time |
 | 3 | HD rsync + enrichment tiered | 🔒 BLOCKED | 1h + tempo rsync | 1.7b | 50+ docs indexados com Tier 1/2/3 |
 | 3.5 | Fathom API | 🔒 BLOCKED (opcional) | 3-4h | pré-req API | Reunião indexada <24h |
@@ -39,6 +53,30 @@ Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 
 | P | Productização nox-supermem | 🔒 HORIZONTE 60d+ | semanas | 4 estável 30d | v3.3 paridade no produto |
 
 Legenda: ✅ done / 🔧 in progress / ⏳ ready / 🟡 reativo (só ativa se sintoma aparecer) / 🔒 blocked
+
+---
+
+## Changelog v1.2 (2026-04-21)
+
+Fases fechadas com evidência da sessão de audit de hoje:
+- **24h observação** → ✅ DONE (canary passou 5 vezes consecutivas hoje, 0 restarts desde 07:56, nightly Apr 20 rodou limpo)
+- **2.5 graph-memory** → ✅ DONE (validado em logs como ativo processando afterTurn events + provider=anthropic)
+- **RelayPlane (novo)** → ✅ DONE (fix crítico do baseUrl no openclaw.json — env var sozinho não basta)
+- **D1-D4 (novo)** → ✅ DONE (audit sistêmica do Toto: 17 fixes infra no dia)
+- **Import repos (IM, novo)** → ⏳ READY (próxima ação do plano original)
+
+Outras mudanças:
+- `dist/reindex.js` patchado pra auto-vectorize inline (fix arquitetural da raiz)
+- Canary cron `0 6 → */30` com self-heal automático
+- `nightly-maintenance.sh` Phase 6 diário de vectorize (safety net)
+- `nox-mem-session-distill` cron corrigido (timeout 3600s, max-sessions 20)
+- `discovery.mdns.mode: "off"` explícito no openclaw.json
+- Agent DBs (atlas/boris/cipher/forge/lex/nox) ressuscitados com trigger + vetores
+- Logrotate ativo em 9 logs nox-*
+- `.gitignore` do memoria-nox corrigido (tinha `\n` literal)
+- `.claude/CLAUDE.md` espelho deletado, source-of-truth único: `memoria-nox/CLAUDE.md`
+
+Tudo detalhado em `handoffs/2026-04-21-session-handoff.md` + `CLAUDE.md` v3.6c.
 
 ---
 

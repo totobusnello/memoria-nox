@@ -1,1 +1,6 @@
-.DS_Store\nnode_modules/\n*.log
+.DS_Store
+node_modules/
+*.log
+
+# Local session scratch — logs, pids, temp state (not for version control)
+.remember/
