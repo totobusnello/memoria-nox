@@ -36,9 +36,10 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 - `relayplane-proxy` :4100 — desativado após migração pro CLI backend. Reativar só se CLI falhar permanentemente.
 
 ### Schema (V7)
-- `chunks` + `chunks_fts` (FTS5) — **2.5k+ chunks** ativos
+- `chunks` + `chunks_fts` (FTS5) — **6.3k+ chunks** ativos (pós-IM 2026-04-23: importados ~4.2k chunks de 147 docs dos 10 projetos locais + raiz ~/Claude)
 - `vec_chunks` + `vec_chunk_map` (sqlite-vec, 3072d) — 100% coverage
-- `kg_entities` (~397) + `kg_relations` (~516) — Gemini 2.5 Flash extraction
+- `kg_entities` (~402) + `kg_relations` (~544) — Gemini 2.5 Flash extraction (processando incrementalmente via nightly)
+- `retention_days` (schema v8, 2026-04-23) — typed retention por chunk_type (feedback/person=NULL never-decay, lesson 180d, decision/project 365d, team 120d, daily 90d, pending 30d, graph_node 60d, default 90d). Distribuição hoje: 23 never-decay, 9 expiring_30d, 908 expiring_90d, 5361 expiring_365d
 - **Trigger `trg_chunks_delete_cascade`** — DELETE em chunks limpa vetores (não remover)
 
 ### Hybrid Search (3 camadas)
