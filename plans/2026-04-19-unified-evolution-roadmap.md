@@ -35,7 +35,7 @@ Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 
 | 24h | Observação pós-Fase 0.5 | ✅ DONE (2026-04-21) | — | 0.5 | Concluída 3d estável — canary 5 OKs consecutivos, nightly limpo, 0 restarts anômalos |
 | 1.6 | Search Quality (expansion + dedup) | ✅ DONE | — | 24h | Concluída 2026-04-19 (ver rodapé) |
 | 1.7a | Core Memory Quality | ✅ DONE | — | 1.6 | Concluída 2026-04-19 (ver rodapé) |
-| 2.5 | graph-memory plugin | ✅ DONE (2026-04-21) | — | 1.7a | Plugin ativo em produção — afterTurn events validados nos logs, provider=anthropic model=claude-sonnet-4-6 ok, vector search ready |
+| 2.5 | graph-memory plugin | ✅ DONE (patched 2026-04-23) | — | 1.7a | **Zombie DONE até 2026-04-23**: plugin v1.5.8 esperava hook `ingest()` que OpenClaw 2026.4.21 não chama mais; gm_messages ficou 0 por 4 dias apesar de afterTurn logs. Fix: patch local em `index.ts` dentro de afterTurn → `for (const m of newMessages) ingestMessage(sessionId, m)`. Validado: gm_messages 0→25 em minutos. Provider=claude-cli, vector search ready. Issue upstream pendente. **Observação 7d reiniciada em 2026-04-23** — exit criteria só medirá agora que há dados. Detalhes: `docs/INCIDENTS.md#2026-04-23`. |
 | D1-D4 | Audit sistêmica + pendências | ✅ DONE (2026-04-21) | — | 2.5 | 17 fixes aplicados, check-discord-heartbeat-validation criado, cron session-distill fix, delegação Nox→Atlas validada |
 | Path A | Write coordinator | 🟡 REATIVO (não mais PRE-REQ) | 3-5d (fast) se precisar | — | SQLITE_BUSY aparecer em produção = ativar. Trigger busy_timeout=5000 (v3.3) + trg_chunks_delete_cascade tem evitado até agora |
 | RP | RelayPlane de verdade | ✅ DONE (2026-04-21 v3.6c) | — | — | `providers.anthropic.baseUrl: "http://127.0.0.1:4100"` + ANTHROPIC_BASE_URL env; requests subiram de 1 (12 dias) pra >6 em 1h; Sonnet+Haiku roteados; budget cap $5/dia/$1/h/$0.50/req efetivo |
@@ -56,6 +56,23 @@ Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 
 | P | Productização nox-supermem | 🔒 HORIZONTE 60d+ | semanas | 4 estável 30d | v3.3 paridade no produto |
 
 Legenda: ✅ done / 🔧 in progress / ⏳ ready / 🟡 reativo (só ativa se sintoma aparecer) / 🔒 blocked
+
+---
+
+## Changelog v1.4 (2026-04-23)
+
+Auditoria rápida descobriu que Fase 2.5 (graph-memory) era **zombie DONE**: marcada como concluída em 21/Abr baseado em logs `afterTurn`, mas `gm_messages=0` por 4 dias. Incompatibilidade entre plugin v1.5.8 (esperava hook `ingest()`) e core OpenClaw 2026.4.21 (não chama mais `ingest()`).
+
+**Fix aplicado:** patch local em `/root/.openclaw/extensions/graph-memory/index.ts` dentro de `afterTurn` chamando `ingestMessage` diretamente. Validado com `gm_messages 0 → 25` em minutos.
+
+**Consequências no roadmap:**
+- Observação 7d da Fase 2.5 **reiniciada em 2026-04-23** (dia 1/7 de dados reais). Antes rodava no vácuo.
+- Fase 2 (Graphify scale 3→15) continua bloqueada por IM+1.7b-a (não pela observação 2.5)
+- Exit criteria da Fase 2.5 (R7 ≤30K tokens, compressão 75%, recall cross-session) só poderá ser medido após 2026-04-30
+
+**Também descoberto:** `openclaw models auth login` tem efeitos colaterais não documentados — reinstala `/usr/lib/node_modules/openclaw/dist/` destruindo o monkey-patch Issue #62028 e remove entries de `agents.defaults.models`. Ambos agora cobertos em CLAUDE.md regra #6 (atualizada) e memory feedback permanentes.
+
+Detalhes completos: `docs/INCIDENTS.md#2026-04-23`.
 
 ---
 

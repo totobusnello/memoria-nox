@@ -16,21 +16,24 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 | Audits de infra | `audits/*.md` |
 | Paper técnico | `paper-tecnico-nox-mem.md` / `.docx` |
 
-## Infraestrutura (estado atual — v3.6d, Abr 21)
+## Infraestrutura (estado atual — v3.7, Abr 22)
 
 - **VPS:** `ssh root@100.87.8.44` (Tailscale) ou `187.77.234.79` (público); Hostinger KVM 4
 - **Path:** `/root/.openclaw/workspace/tools/nox-mem/`
 - **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings (3072d), inotifywait, systemd
 - **OpenClaw:** v2026.4.15 (binário; requer Node.js 22.12+; **monkey-patched** em `dist/restart-stale-pids-*.js` pra Issue #62028)
 - **Node.js:** v22.22.2 com wrapper `--no-warnings` em `/usr/bin/node`
-- **RelayPlane:** v1.8.37 ativo em :4100 (budget caps $5/d, $1/h, $0.50/req)
+- **Claude Code CLI:** v2.1.88 em `/usr/bin/claude` — **backend primário dos agents via OAuth Max/Pro** (zero cobrança de API)
+- **RelayPlane:** v1.8.37 **INATIVO** (parado 2026-04-22 — substituído pelo CLI direto). Mantido instalado como fallback opcional.
 
-### Serviços ativos (4 + tailscale)
-- `openclaw-gateway` :18789 WS → RelayPlane :4100 → providers
+### Serviços ativos (3 + tailscale)
+- `openclaw-gateway` :18789 WS → **claude-cli subprocess** → Anthropic (via plan flat)
 - `nox-mem-api` :18802 HTTP (porta via `NOX_API_PORT` no .env)
 - `nox-mem-watcher` (inotifywait, debounce 15s) — **único**, watcher legado disabled
-- `relayplane-proxy` :4100 (cascade sonnet→haiku→deepseek-r1→qwen3→llama-70b)
 - `tailscaled` 100.87.8.44
+
+### Inativos (mas instalados)
+- `relayplane-proxy` :4100 — desativado após migração pro CLI backend. Reativar só se CLI falhar permanentemente.
 
 ### Schema (V7)
 - `chunks` + `chunks_fts` (FTS5) — **2.5k+ chunks** ativos
@@ -65,9 +68,16 @@ main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível
 
 4. **Modelo Gemini padrão: `gemini/gemini-2.5-flash-lite`.** NUNCA voltar pra `gemini-2.5-flash` (quota 3M/d estoura) nem `gemini-2.0-flash` (deprecated, shutdown 2026-06-01). KG extraction pode usar `gemini-2.5-flash` full enquanto volume baixo.
 
-5. **RelayPlane requer DOIS pontos de config:** (a) `ANTHROPIC_BASE_URL=http://127.0.0.1:4100` no `.env`; (b) `providers.anthropic.baseUrl: "http://127.0.0.1:4100"` no `openclaw.json` (sem isso o JSON sobrescreve o env). Crítico pro OAuth Claude MAX (pós-política Anthropic 2026, extra usage cobrado).
+5. **Claude CLI backend é o provider primário dos agents** (desde 2026-04-22). `agents.defaults.model.primary = "claude-cli/claude-sonnet-4-6"` usa o CLI `/usr/bin/claude` como subprocess via OAuth da subscription Max/Pro — **zero cobrança de API**. Requer SETE coisas juntas, nessa ordem:
+   - `/root/.claude/.credentials.json` populado pelo `claude setup-token` (token Max válido)
+   - Só DEPOIS `chattr +i ~/.claude/.credentials.json` (ordem importa — antes, o setup-token não consegue gravar)
+   - `CLAUDE_CODE_OAUTH_TOKEN` **NÃO pode** estar no `.env` (comentar como `#DISABLED_...`). O subprocess Claude DEVE ler só do credentials.json; env var conflita e gera 401.
+   - Profile `anthropic:claude-cli` em `agents/main/agent/auth-profiles.json` com APENAS `{type:"oauth", provider:"claude-cli"}` — **sem apiKey, sem key**. Com apiKey, gateway passa ao subprocess e gera conflito.
+   - Systemd drop-in `/etc/systemd/system/openclaw-gateway.service.d/override.conf` com `Environment=IS_SANDBOX=1` (gateway roda como root; sem essa var o CLI bloqueia `bypassPermissions`)
+   - **NUNCA** criar bloco `agents.defaults.cliBackends.claude-cli` — OpenClaw tem backend nativo auto-carregado. Configs customizadas (incl. as do vídeo do Ziwen) têm `output:"json"` + `input:"arg"` que QUEBRA o parser; built-in usa `output:"jsonl"` + `input:"stdin"`.
+   - `agents.defaults.model.fallbacks` **SEM** entries `anthropic/*` (senão fallback mascara falha CLI e volta pro bill pay-per-token). `ANTHROPIC_API_KEY` e `ANTHROPIC_BASE_URL` comentados no `.env`.
 
-6. **Gateway fratricide (Issue #62028, v2026.4.14+):** monkey-patch em `/usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js` fazendo `cleanStaleGatewayProcessesSync` retornar `[]`. Wrapper em `/usr/local/bin/openclaw-gateway-wrapper` (imutável com `chattr +i`) unset `OPENCLAW_SERVICE_MARKER/KIND`. Config `commands.restart=false` + `gateway.reload.mode=off` + `discovery.mdns.mode=off`. Antes de `npm update -g openclaw`, checar Issue #62028 + re-aplicar patch (hash do arquivo muda).
+6. **Gateway fratricide (Issue #62028, v2026.4.14+):** monkey-patch em `/usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js` fazendo `cleanStaleGatewayProcessesSync` retornar `[]`. Wrapper em `/usr/local/bin/openclaw-gateway-wrapper` (imutável com `chattr +i`) unset `OPENCLAW_SERVICE_MARKER/KIND`. Config `commands.restart=false` + `gateway.reload.mode=off` + `discovery.mdns.mode=off`. **Comandos que invalidam o patch** (precisam checar + reaplicar ANTES do próximo restart): `npm update -g openclaw`, `openclaw models auth {add,login,paste-token,setup-token}` (confirmado 2026-04-23 — reinstala node_modules/dist/). Sintoma de patch perdido: 15+ restarts/5min, SIGTERM loop, "Gateway already running locally" nos logs. Fix emergencial em memory `feedback_models_auth_login_reinstalls_node_modules.md`.
 
 7. **`nox-mem-api` escuta em :18802** (não 18800 — Chrome squata). Nunca hardcode; ler `NOX_API_PORT` do .env.
 
@@ -76,6 +86,14 @@ main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível
 9. **Nunca editar `openclaw.json` removendo `agents.defaults`** (fallback chain, heartbeat, compaction). Nunca adicionar chaves root novas sem verificar versão do binário na VPS.
 
 10. **Node.js wrapper obrigatório:** `/usr/bin/node` é wrapper bash → `/usr/bin/node.bin --no-warnings`. Sem isso, DEP0040 (punycode) causa crash loop. Se `apt upgrade nodejs` rodar, recriar wrapper (renomear binary para `node.bin`).
+
+11. **Sessions.json pode grudar em fallback model.** O gateway persiste em `agents/main/sessions/sessions.json` o model do último turn bem-sucedido por canal/session. Se o CLI falha uma vez e cai em gemini/gpt, o canal fica grudado. Fix: `jq 'with_entries(select(.value.model | startswith("claude-")))'` filtra só as sessions válidas; ou `echo '{}' > sessions.json` pra resetar tudo. Sempre que mudar `model.primary`, considerar reset.
+
+12. **`.credentials.json` do Claude CLI trunca ciclicamente (~8h).** O CLI, quando spawned como subprocess sem TTY em condições de erro, faz "self-fix" zerando `~/.claude/.credentials.json`. Consequência: próximo turn falha "Not logged in". Mitigação obrigatória: `chattr +i ~/.claude/.credentials.json` após popular do `.credentials.json.bak`. Pra atualizar legitimamente no futuro: `chattr -i` → edit → `chattr +i`.
+
+13. **Dois tokens distintos no fluxo do Claude CLI.** `setup-token` imprime na tela um **long-lived OAuth token** (pra uso em env vars/API externa). Ao mesmo tempo ele persiste um **session credential** em `.credentials.json` pro uso local do subprocess. **DEVEM ser o mesmo valor.** Se divergirem (por restore do .bak antigo, edit manual inconsistente, etc), `claude auth status` retorna `loggedIn:true` (usando env var) mas chamadas reais falham HTTP 401 "Invalid authentication credentials" (porque subprocess usa credentials.json). Validação: `jq -r '.claudeAiOauth.accessToken[0:15]' ~/.claude/.credentials.json` deve bater com os primeiros 15 chars do token que setup-token imprimiu. Token tem validade de 1 ano — adicionar reminder no calendário pra renovação anual.
+
+14. **Delivery-queue órfã pode gerar 15+ "Unknown Channel" por restart.** Canais Discord/Telegram removidos do teu servidor deixam mensagens travadas em `/root/.openclaw/delivery-queue/*.json` que o `[delivery-recovery]` re-tenta a cada restart do gateway. Script `/root/.openclaw/workspace/tools/delivery-queue-cleanup.sh` limpa automaticamente (detecta "Unknown Channel" + "recovery time budget exceeded" + >7 dias). Rodar após qualquer série de restarts anômalos ou mudança de canais Discord. Main agent **não deve ter heartbeat configurado** (target=discord sem `to` gera "Unknown Channel" persistente) — só as 6 personas (nox/atlas/boris/cipher/forge/lex) têm heartbeat válido.
 
 ## Produto NOX-Supermem
 

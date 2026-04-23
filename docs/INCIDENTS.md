@@ -2,6 +2,83 @@
 
 > Histórico completo de incidents, com causa raiz e aprendizados. CLAUDE.md só menciona os 3 mais recentes/representativos em forma sumária; detalhe mora aqui.
 
+## 2026-04-23 ~10:30-11:05 (~35min recovery) — Double-failure: models auth login overwrite + graph-memory zombie
+
+Incident composto descoberto durante sessão de auditoria rápida. Dois problemas independentes, um deles latente há 4 dias.
+
+### Failure 1 — `openclaw models auth login` disparou fratricide crash loop
+
+**Trigger:** Toto rodou `openclaw models auth login --provider openai-codex` (~10:31) pra re-autenticar o fallback tier 2 (Codex token expirado).
+
+**Causa raiz:** o comando faz DOIS overwrites destrutivos não documentados:
+1. Remove 4 entries vazias de `agents.defaults.models` em `openclaw.json` (claude-cli/claude-opus-4-6, claude-cli/claude-sonnet-4-6, gemini/gemini-2.5-flash-lite, gemini/gemini-2.5-pro) — deixando só o openai-codex recém-adicionado
+2. **Reinstala `/usr/lib/node_modules/openclaw/dist/`**, sobrescrevendo o monkey-patch da Issue #62028 em `restart-stale-pids-BvLkOxHa.js`
+
+**Timeline:**
+- 10:31 UTC — Toto roda `models auth login --provider openai-codex` (69 paths alterados; backup `.bak` gerado automaticamente)
+- 10:32 — diagnóstico mostra registry com 4 entries faltando; restauradas via jq antes de restartar (evitou falha do primary Claude CLI)
+- 10:33 — `systemctl restart openclaw-gateway` → inicia normalmente, graph-memory ready, fallback chain nova (claude-cli → codex → gemini-pro) ativa
+- 10:56-11:00 — segundo restart (pós-patch graph-memory) → crash loop: 17 restarts em 5min, SIGTERM a cada ~20s, "Gateway already running locally" nos logs. Segundo processo de gateway (fratricide) tentando tomar porta 18789
+- 11:00 — root cause confirmada: `grep cleanStaleGatewayProcessesSync` mostra função original restaurada, sem `return []`
+- 11:01 — drop-in `Restart=no` em `/etc/systemd/system/openclaw-gateway.service.d/no-restart.conf` pra parar o loop; kill -9 em todos gateway procs
+- 11:02 — monkey-patch reaplicado via python replace; backup `.bak-prepatch-20260423-1102`
+- 11:03 — drop-in removido, `systemctl start` limpo; 30s observation: 0 restarts, 0 SIGTERM, graph-memory ready
+
+**Fix:** monkey-patch reaplicado. Função `cleanStaleGatewayProcessesSync` agora retorna `[]` direto. Backup preservado.
+
+**Aprendizado:**
+- CLAUDE.md regra #6 precisa incluir `openclaw models auth *` como trigger de invalidação do patch (até agora só mencionava `npm update -g openclaw`) — **atualizada 2026-04-23**
+- Sintoma claro de patch perdido: "Gateway already running locally" + SIGTERM em ~20s + NRestarts subindo rápido
+- Emergency stop: drop-in `Restart=no` dá janela pra intervenção sem systemd spawning novos processes
+
+### Failure 2 — Fase 2.5 graph-memory era "zombie DONE" há 4 dias
+
+**Causa raiz:** plugin `graph-memory@1.5.8` espera que OpenClaw core chame hook `ingest()` pra persistir mensagens em `gm_messages`. OpenClaw 2026.4.21 **não chama mais `ingest()`** — mudou a API do contextEngine. O plugin só tem hook `afterTurn`, `assemble`, `compact`, `bootstrap` sendo chamados, mas `afterTurn` assumia que `ingest()` já havia gravado. Comentário revelador no código:
+```ts
+// Messages are already persisted by ingest() — only slice to
+// determine the new-message count for extraction triggering.
+const newMessages = messages.slice(prePromptMessageCount ?? 0);
+```
+
+**Sintoma observável (ignorado por 4 dias):**
+- `gm_messages=0` rows desde instalação (19/Abr)
+- `graph-memory.db` mtime congelado em 2026-04-19 12:09
+- Logs mostram `afterTurn sid=X newMsgs=N totalMsgs=0` — `totalMsgs=0` é a pista: ninguém incrementou `msgSeq`
+- `journalctl | grep "graph-memory.*ingest"` retorna vazio em 7 dias → hook `ingest` nunca disparou
+
+**Por que passou 4 dias:** Fase 2.5 foi marcada ✅ DONE em 2026-04-21 com evidence="afterTurn events validados nos logs". Validação olhou só linha de log, não contou rows no DB. Classic false-positive de log-only validation.
+
+**Fix:** patch local em `/root/.openclaw/extensions/graph-memory/index.ts` dentro de `afterTurn`:
+```ts
+// PATCH 2026-04-23: OpenClaw 2026.4.21+ does not call hooks.ingest() —
+// persist messages here so gm_messages actually populates.
+const newMessages = messages.slice(prePromptMessageCount ?? 0);
+for (const m of newMessages) ingestMessage(sessionId, m);
+```
+Backup: `index.ts.bak-pre-ingest-fix-20260423`.
+
+**Validação pós-patch:** `gm_messages` foi de 0 → 3 → 25 em poucos minutos de tráfego natural. DB file mtime updated, WAL ativo.
+
+**Aprendizado:**
+- Nunca marcar feature como DONE só com base em logs — sempre validar com query direta ao DB ou endpoint com rowcount
+- Plugin upstream v1.5.8 está incompatível com core 2026.4.21 (API mudou). Registrar issue upstream quando houver janela.
+- Observação 7d da Fase 2.5 rodou no vácuo — exit criteria (R7 ≤30K tokens, compressão 75%) nunca mediriam nada pois não havia dados pra comprimir
+- Roadmap precisa marcar Fase 2.5 como `✅ DONE (patched 2026-04-23, vendor v1.5.8 incompatible with core 2026.4.21)`
+
+### Escopo combinado das ações tomadas
+1. `chmod 600 openclaw.json` (perms regridiam após overwrite)
+2. `delivery-queue-cleanup.sh` (0 órfãos)
+3. `sessions cleanup --fix-missing` (52 → 30 sessions)
+4. `openclaw doctor --fix`
+5. Registry restore via jq (4 entries)
+6. Monkey-patch #62028 reaplicado
+7. graph-memory `afterTurn` patch aplicado
+8. Gateway restart limpo
+
+Duração total: ~35 min de diagnóstico + fix.
+
+---
+
 ## 2026-04-21 ~15:30-18:00 — Gemini + Perplexity keys exposed/revoked
 **Causa raiz:** chave Gemini `AIzaSyBh...SppQCA` revogada pelo Google (scanner detectou exposição). Chave estava hardcoded em `openclaw.json:120,338` + 6 `agents/*/agent/models.json` + em chunks ingested do nox-mem (dados) + backups nightly. Mesmo vetor comprometeu chave Perplexity `pplx-cwAGwoJ0...`.
 
