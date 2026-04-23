@@ -39,9 +39,10 @@ Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 
 | D1-D4 | Audit sistêmica + pendências | ✅ DONE (2026-04-21) | — | 2.5 | 17 fixes aplicados, check-discord-heartbeat-validation criado, cron session-distill fix, delegação Nox→Atlas validada |
 | Path A | Write coordinator | 🟡 REATIVO (não mais PRE-REQ) | 3-5d (fast) se precisar | — | SQLITE_BUSY aparecer em produção = ativar. Trigger busy_timeout=5000 (v3.3) + trg_chunks_delete_cascade tem evitado até agora |
 | RP | RelayPlane de verdade | ✅ DONE (2026-04-21 v3.6c) | — | — | `providers.anthropic.baseUrl: "http://127.0.0.1:4100"` + ANTHROPIC_BASE_URL env; requests subiram de 1 (12 dias) pra >6 em 1h; Sonnet+Haiku roteados; budget cap $5/dia/$1/h/$0.50/req efetivo |
-| IM | Import repos locais | ⏳ READY | ~45min | RP | Plano em `plans/2026-04-21-session-start.md` — docs-only (*.md) de 10 projetos ~/Claude/Projetos/ + raiz. **Rodar junto com 1.7b-a pra novos repos já entrarem com retention correto** |
-| **1.7b-a** | **Typed source retention matrix** | ⏳ READY (adiantada) | 2h | — (junto com IM) | `retention_days` por chunk_type; feedback+person never-decay; lesson 180d; research 60d. Migration v8 + backfill nos 2073 chunks existentes. Deriva do paper "Claude Memory Setup" (ver `plans/2026-04-21-claude-memory-setup-gaps.md`) |
-| 2 | Graphify + GitHub repos | 🔧 IN PROGRESS (3/~15 repos) | escalando | IM + 1.7b-a | GRAPH_REPORT.md indexado; query "o que tem no repo X?" responde |
+| IM | Import repos locais | ✅ DONE (2026-04-23) | ~25min | RP | 147 docs ingestados de 10 projetos + raiz ~/Claude. Chunks 2106→6301, 100% vectorized. Zero-cost bonus: todos entraram com retention correto automaticamente via 1.7b-a já ativo |
+| **1.7b-a** | **Typed source retention matrix** | ✅ DONE (2026-04-23) | ~12min (vs 2h est) | — | Schema v8 + retention.ts novo + backfill 2106 chunks. never_decay=84 (feedback+person+core), endpoint /api/health.retentionDistribution ativo, archiveCandidates=0. Core-tier preservation contract enforced (evaluateTiers zera retention em promoções) |
+| Stabilization | 5-agent audit + 10 fixes | ✅ DONE (2026-04-23) | ~40min | 1.7b-a | code-reviewer + security + architect + qa-expert + devops. 10 fixes aplicados: /api/health localhost, untrusted-recall wrapper, CRLF fix, narrow catch, core preservation, circuit breaker, 2 canários hourly, runbook. Nenhum BLOCK, verdict APPROVE WITH MINOR |
+| 2 | Graphify + GitHub repos | 🔜 READY (desbloqueada 2026-04-23) | escalando | IM + 1.7b-a | GRAPH_REPORT.md indexado; query "o que tem no repo X?" responde. Rate-limited (batch 500 + pause 5min, janela proibida 22:30-01:30 BRT) |
 | **1.7b-b** | **Salience formula formal** | 🔒 BLOCKED | 4h | 2 | `salience = recency × pain × importance`; novo campo `pain REAL`; thresholds (≥0.7 promote, <0.15 archive). Shadow-mode 1 semana antes de ativar no ranking. Deriva do paper |
 | **1.7b-c** | **Compiled truth + timeline format** | 🔒 BLOCKED | 1-2d | 1.7b-b | `memory/entities/<type>/<entity>.md` com compiled (rewritten) + timeline (append-only); `/memory-recompile` skill; search prioriza compiled pra "status atual". Finaliza Fase 1.7b. Deriva do paper |
 | 1.7b (original) | Memory Quality advanced — conflicts + inline entity | ✅ SUBSTITUÍDA | — | — | Escopo original absorvido nas sub-fases 1.7b-a/b/c via paper "Claude Memory Setup" (análise em 2026-04-21) |
@@ -56,6 +57,80 @@ Objetivo: sistema de memória hyper-eficiente, confiável e persistente para os 
 | P | Productização nox-supermem | 🔒 HORIZONTE 60d+ | semanas | 4 estável 30d | v3.3 paridade no produto |
 
 Legenda: ✅ done / 🔧 in progress / ⏳ ready / 🟡 reativo (só ativa se sintoma aparecer) / 🔒 blocked
+
+---
+
+## Changelog v1.5 (2026-04-23, sprint consolidado completo)
+
+Dia de muita mudança. Do handoff da noite anterior até liberação da Fase 2:
+
+### ✅ Fase 1.7b-a — Typed Source Retention Matrix (CONCLUÍDA, ~12min vs estimativa 2h)
+
+Schema v8 em produção: `chunks.retention_days INTEGER` + partial index. 6 arquivos TS patchados (db, retention.ts novo, ingest, graphify-ingest, tier-manager, api-server) + build TS limpo. Backfill em 2106 chunks pré-IM batido com distribuição esperada (feedback/person=NULL, lesson 180d, decision/project 365d, daily 90d, team 120d, pending 30d, digest 180d, graph_node 60d, other 90d).
+
+Endpoint `/api/health` expõe agora `retentionDistribution` (5 buckets) + `archiveCandidates` (read-only, archive real fica pra 1.7b-b).
+
+### ✅ IM — Import repos locais (CONCLUÍDO, ~25min vs estimativa 45min)
+
+147 docs ingestados dos 10 projetos locais + raiz `~/Claude/`:
+- Pilot daily-tech-digest validado com search semantic hit
+- Batch 140 arquivos em 10s (zero erros)
+- Chunks 2106 → **6301** (+4195, zero-cost bonus: todos entraram com retention correto automaticamente)
+- 100% vectorized, canary exit=0, KG +5 entities/+28 relations (nightly processa o resto)
+
+**Bug corrigido meio-do-caminho:** regex de `parseRetentionOverride` matchava `<!-- retention: never -->` dentro de texto descritivo da documentação (28 chunks afetados em 2 arquivos). Fix: exigir comment sozinho na linha + limite 30 linhas + normalização CRLF.
+
+### ✅ Infra double-failure recovery (~35min)
+
+1. `openclaw models auth login --provider openai-codex` removeu 4 entries de `agents.defaults.models` **e** reinstalou `/usr/lib/node_modules/openclaw/dist/` destruindo o monkey-patch Issue #62028 → gateway entrou em crash loop (17 restarts/5min).
+2. Fase 2.5 graph-memory descoberta como "zombie DONE" há 4 dias (gm_messages=0 apesar de afterTurn logs): plugin v1.5.8 esperava hook `ingest()` que OpenClaw 2026.4.21 não chama mais. Patch local em `afterTurn` → `ingestMessage` inline. Validado: gm_messages 0 → 25+ em minutos.
+
+### ✅ Stabilization sprint pós-5-agent-review (~40min)
+
+Antes de abrir Fase 2, lançados 5 agents paralelos (code-reviewer, security-reviewer, architect-reviewer, qa-expert, devops-incident). Verdict consolidado: APPROVE WITH MINOR (nenhum BLOCK). 10 fixes aplicados:
+
+**Security:**
+- `/api/health` bind `127.0.0.1` only (era 0.0.0.0) — info-leak via VPS pública mitigado
+- `<untrusted-recall>` wrapper em graph-memory assemble — prompt-injection de Discord/Telegram evitado
+
+**Code quality (HIGH):**
+- CRLF normalization em parseRetentionOverride
+- Narrow catch na migrateToV8 ALTER TABLE (não swallow disk full/locked)
+
+**Architecture:**
+- Core-tier preservation contract: `evaluateTiers` zera `retention_days` ao promover working→core. Backfill aplicado aos 61 chunks existentes. never_decay: 23 → 84.
+
+**Operability (MUST):**
+- systemd drop-in `circuit-breaker.conf`: StartLimitBurst=5 (auto-estanca crash loop)
+- `check-monkey-patch.sh` canary (hourly cron): alerta via syslog se Issue #62028 patch for invalidado
+- `check-gm-messages.sh` canary (hourly cron): detecta regressão graph-memory zombie em <1h (vs 4 dias dessa vez)
+- Runbook `runbooks/2026-04-23-post-incident-validation.md` completo
+
+### 📋 Backlog resultante (para pós-Fase 2)
+
+| Item | Origem review | Esforço | Prioridade |
+|------|---------------|---------|------------|
+| Unit tests `parseRetentionOverride` (8 casos) | qa-expert | 30min | Média |
+| Daily retention telemetry log em `daily_metrics` | architect O1 | 15min | Média |
+| `expires_at` generated column indexed (sargable) | architect S1 | 1-2h | Agendar 1.7b-b |
+| Issue upstream graph-memory v1.5.8 vs core 2026.4.21 | QA+devops | 30min | Baixa |
+| Docs "como adicionar chunk_type" em CONVENTIONS.md | architect M2 | 15min | Baixa |
+| Canários como MCP tools no nox-mem | devops NICE | 1-2h | Baixa |
+| Monkey-patch orphan process alert (weekly cron) | security M3 | 10min | Baixa |
+| Rollback playbooks formais por fix | devops | 15min | Nice |
+
+### 🎯 Roadmap status atualizado
+
+| # | Fase | Status |
+|---|------|--------|
+| 1.7b-a | Typed retention matrix | ✅ **DONE 2026-04-23** |
+| IM | Import repos locais | ✅ **DONE 2026-04-23** (6301 chunks) |
+| 2.5 | graph-memory plugin | ✅ DONE (patched 2026-04-23) |
+| Stabilization | 5-agent review + 10 fixes | ✅ **DONE 2026-04-23** |
+| **2** | **Graphify scale 3→15 repos** | 🔜 **LIBERADA** (próxima ação) |
+| 1.7b-b | Salience formula | 🔒 blocked by Fase 2 |
+
+Detalhes completos: `docs/INCIDENTS.md#2026-04-23`.
 
 ---
 
