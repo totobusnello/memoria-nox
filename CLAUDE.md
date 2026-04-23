@@ -36,10 +36,14 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 - `relayplane-proxy` :4100 — desativado após migração pro CLI backend. Reativar só se CLI falhar permanentemente.
 
 ### Schema (V7)
-- `chunks` + `chunks_fts` (FTS5) — **6.3k+ chunks** ativos (pós-IM 2026-04-23: importados ~4.2k chunks de 147 docs dos 10 projetos locais + raiz ~/Claude)
-- `vec_chunks` + `vec_chunk_map` (sqlite-vec, 3072d) — 100% coverage
+- `chunks` + `chunks_fts` (FTS5) — **7.3k+ chunks** ativos (pós-IM + Fase 2 Graphify 2026-04-23: 147 docs + 9 repos com código via graphify + 2 entities piloto)
+- `vec_chunks` + `vec_chunk_map` (sqlite-vec, 3072d) — 100% coverage (7367/7367)
 - `kg_entities` (~402) + `kg_relations` (~544) — Gemini 2.5 Flash extraction (processando incrementalmente via nightly)
-- `retention_days` (schema v8, 2026-04-23) — typed retention por chunk_type (feedback/person=NULL never-decay, lesson 180d, decision/project 365d, team 120d, daily 90d, pending 30d, graph_node 60d, default 90d). Distribuição hoje: 23 never-decay, 9 expiring_30d, 908 expiring_90d, 5361 expiring_365d
+- **Schema v10** (2026-04-23): `retention_days` v8 + `pain` v9 + `section` v10
+  - `retention_days` — typed retention (feedback/person=NULL never-decay, lesson 180d, decision/project 365d, team 120d, daily 90d, pending 30d, graph_node 60d, default 90d). Distribuição: 92 never-decay, 9 em 30d, 1954 em 90d, 5312 em 365d. `<!-- retention: X -->` override via frontmatter em linha isolada.
+  - `pain` REAL DEFAULT 0.2 — severity 0.1 trivial → 1.0 prod-outage. Backfill heurístico: 256 chunks pain=1.0 (crash/outage/rollback), 43 pain=0.8 (lesson), 469 pain=0.5 (bug/error), 105 pain=0.3 (warn/deprec), 6474 pain=0.2 default.
+  - `section` TEXT + `section_boost` REAL — entity file format (compiled/frontmatter/timeline/NULL). SECTION_BOOST={compiled:2.0, frontmatter:1.5, timeline:0.8, legacy:1.0}. 2 entities piloto ingestadas: `memory/entities/agents/nox.md` + `memory/entities/systems/nox-mem.md`.
+- **Salience formula (Fase 1.7b-b, shadow-mode)**: `salience = recency × pain × importance` exposta em /api/health.salience. NOX_SALIENCE_MODE=shadow default (não aplica no ranking). Baseline 2026-04-23: 207 promote_candidates, 1886 archive_candidates, median=0.16. Ativação após ≥7d observação.
 - **Trigger `trg_chunks_delete_cascade`** — DELETE em chunks limpa vetores (não remover)
 
 ### Hybrid Search (3 camadas)

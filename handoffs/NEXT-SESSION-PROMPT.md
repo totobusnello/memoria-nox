@@ -1,99 +1,87 @@
 # Prompt pra próxima sessão — nox-mem
 
-**Gerado:** 2026-04-21 (noite, pós-roadmap v1.3)
+**Gerado:** 2026-04-23 final de dia (pós Fase 1.7b-a + IM + Fase 2 + 1.7b-b + 1.7b-c foundation)
 **Uso:** copiar o bloco abaixo, colar na próxima janela Claude Code
 
 ---
 
 ```
-Olá! Estou retomando a execução do plano nox-mem (roadmap v1.3).
-Sessão anterior: 2026-04-21 — audit sistêmica completa + análise do paper "Claude Memory Setup".
+Olá! Retomando nox-mem pós dia 2026-04-23 (sessão pesada — 4h15min dev, 10 commits, chunks 2073→7367, schema v7→v10).
 
-CONTEXTO OBRIGATÓRIO (leia antes de qualquer ação):
-1. /Users/lab/Claude/Projetos/memoria-nox/handoffs/MASTER-HANDOFF-2026-04-21.md (leitura única consolidada)
-2. /Users/lab/Claude/Projetos/memoria-nox/CLAUDE.md (v3.6d — Evolution + Incident Log + Convenções)
-3. /Users/lab/Claude/Projetos/memoria-nox/plans/2026-04-19-unified-evolution-roadmap.md (v1.3 — Phase Matrix atualizada)
-4. /Users/lab/Claude/Projetos/memoria-nox/plans/2026-04-21-claude-memory-setup-gaps.md (plan detalhado das sub-fases 1.7b-a/b/c)
+CONTEXTO OBRIGATÓRIO — ler ANTES de qualquer ação:
+1. /Users/lab/Claude/Projetos/memoria-nox/handoffs/MASTER-HANDOFF-2026-04-23.md  (leitura única)
+2. /Users/lab/Claude/Projetos/memoria-nox/CLAUDE.md  (estado + 14 regras críticas)
+3. /Users/lab/Claude/Projetos/memoria-nox/plans/2026-04-19-unified-evolution-roadmap.md  (v1.5 — Phase Matrix)
 
-ORDEM DE PRIORIDADE (reiterada pelo Toto):
-Plano operacional primeiro → auditoria detalhada → Fase 2 scale → 1.7b-b → 1.7b-c → Fase 3+ → (estável 30d+) → produtização NOX-Supermem POR ÚLTIMO.
+SANITY CHECK (1 comando — esperar tudo verde):
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, retention:.retentionDistribution, salience:.salience, section:.sectionDistribution}"'
+# Esperado: total=7367+, vc.embedded=vc.total, salience.mode=shadow, section.compiled=2
 
 ESTADO ATUAL:
-- Sistema v3.6d em produção estável
-- 2073 chunks 100% embedded, canary */30min OK, RelayPlane ativo com budget cap
-- Git em sync com GitHub (commits 7f5d0c4, 8d6c4a6, f53a121, 6e9e688 já pushed)
-- Zero pendência crítica ou alta
+- 7367 chunks, 100% embedded, 0 orphans
+- Schema v10 (retention_days v8 + pain v9 + section v10)
+- Claude CLI backend OAuth (zero API bill), fallback chain sem anthropic/*
+- Canários hourly ativos (monkey-patch integrity, gm_messages growth)
+- 2 entities piloto em memory/entities/ (agents/nox.md + systems/nox-mem.md)
+- Salience em shadow-mode (baseline: 207 promote_candidates, 1886 archive)
+- Zero pendência crítica
 
-PRÓXIMO PASSO APROVADO: IM + 1.7b-a JUNTOS (~3h total)
+PRÓXIMA AÇÃO — 3 OPÇÕES (Toto escolhe):
 
-Ordem de execução DENTRO desta sessão:
+OPÇÃO A — Fechar Fase 1.7b-c completa (4-6h) — RECOMENDADA
+  Migração massiva memory/*.md → memory/entities/*.md:
+  [ ] Script parse memory/projects.md (15+ projects) → entities/projects/<slug>.md
+      cada um com frontmatter + compiled + timeline extraído
+  [ ] Script parse memory/decisions.md (135 decisions) → agrupar por entidade
+  [ ] Script parse memory/lessons.md (45 lessons) → entities/lessons/*.md
+  [ ] /memory-recompile <entity> skill (Gemini Flash-Lite reescreve compiled)
+  [ ] Shadow-mode search ranking aplica section_boost (log, não aplica 7d)
+  [ ] A/B top-5 queries típicas antes/depois
+  [ ] Finaliza Fase 1.7b como um todo
+  (Pode ativar 1.7b-b junto: NOX_SALIENCE_MODE=active + restart)
 
-[FASE A] — 1.7b-a: Typed source retention matrix (2h, FAZER PRIMEIRO)
-  Plan: plans/2026-04-21-claude-memory-setup-gaps.md, seção "Proposta 1"
-  Entregáveis:
-  [ ] Schema migration v8: adicionar `retention_days INTEGER` + `expires_at` virtual + index
-  [ ] RETENTION_BY_TYPE map em src/retention.ts:
-      feedback=null, person=null (never), lesson=180, decision=365, project=365,
-      daily=90, team=120, digest=180, pending=30, other=90
-  [ ] Backfill nos 2073 chunks existentes (UPDATE ... SET retention_days = CASE chunk_type ...)
-  [ ] Ingest logic (ingest.ts + graphify-ingest.ts) popula retention_days no insert
-  [ ] User override via HTML comment: <!-- retention: never --> ou <!-- retention: 365 -->
-  [ ] Tier evaluation considera expires_at (archive candidates = expires_at < now AND tier != 'core')
-  [ ] Novo endpoint /api/health.retentionDistribution (quantos chunks expiram em 30d/90d/etc)
-  [ ] Validar: zero feedback arquivado; canary continua OK; build do nox-mem passa
-  [ ] Commit + push
+OPÇÃO B — Pular pra Fase 3 (HD Mac rsync + enrichment tiered, ~1h + rsync)
+  Aceitar 1.7b-c foundation como close. Partir pra Fase 3:
+  [ ] rsync 21GB de ~/Documents pro VPS
+  [ ] graphify incremental + enrichment tiered (Tier 1/2/3)
+  [ ] Monitorar SQLITE_BUSY — se aparecer, ativar Path A reativo
+  Risco: volume alto de writes, possível regressão em performance
 
-[FASE B] — IM: Import repos locais (45min, FAZER DEPOIS de A)
-  Plan: plans/2026-04-21-session-start.md (intacto)
-  Escopo: docs-only (*.md) de 10 projetos ~/Claude/Projetos/ + raiz ~/Claude/
-  4 fases:
-  [ ] Fase 1 Inventário (5min): listar *.md por projeto, identificar duplicados, escolher pilot
-  [ ] Fase 2 Pilot (10min): scp docs do pilot → ingest → vectorize → validar search semantic
-  [ ] Fase 3 Batch (25min): iterate 9 projetos restantes + raiz, 1 query validação por projeto
-  [ ] Fase 4 KG + docs (5min): nox-mem kg-build + update CLAUDE.md com métricas finais
-  [ ] Commit + push
+OPÇÃO C — Activation 1.7b-b + observação passiva (~30min trabalho)
+  Só ativar salience (NOX_SALIENCE_MODE=active) + monitorar 48h impact.
+  Baseline já coletada hoje. Baixo risco, rollback trivial.
+  Depois voltar pra A/B em sessão dedicada.
 
-[ZERO-COST BONUS]: novos repos importados em [FASE B] já entram com retention_days correto
-porque [FASE A] está aplicada — nenhum backfill depois.
+CONVENÇÕES OBRIGATÓRIAS (não mudou desde ontem):
+- set -a; source /root/.openclaw/.env; set +a; antes de CLI nox-mem via SSH
+- Nunca confiar última linha CLI — validar via /api/health pós-operação
+- Schema changes: migration + backfill, nunca ALTER TABLE solto
+- Features novas que mudam ranking → SHADOW MODE primeiro (1 semana baseline)
+- openclaw models auth * invalida monkey-patch E registry — diff+reapply ANTES de restart
+- Backup .bak-pre-<feature>-<date> antes de editar arquivos produção
+- Validar features com DB state, NUNCA só com logs (graph-memory zombie 4d lesson)
 
-ANTES DE COMEÇAR — SANITY CHECK (2 comandos):
-  ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | python3 -c "import sys,json; d=json.load(sys.stdin); print(json.dumps(d[\"vectorCoverage\"]))"'
-  (esperado: embedded=2073 total=2073 orphans=0)
+MEMÓRIAS NOVAS SALVAS HOJE (auto-memory, carrega nas próximas sessões):
+- models auth login wipes registry + monkey-patches (2 efeitos colaterais)
+- graph-memory probe errors in doctor are stale (runtime pode estar ok)
+- heartbeat "Unknown Channel" regression = janela rolante 24h artifact
+- Validate features com DB state, não logs sozinhos
+- VPS infra triage command bundle (7 comandos read-only)
 
-  ssh root@100.87.8.44 'tail -3 /var/log/nox-canary.log'
-  (esperado: OKs consecutivos)
-
-CONVENÇÕES OBRIGATÓRIAS:
-- Sempre carregar .env antes de CLI nox-mem via SSH: set -a; source /root/.openclaw/.env; set +a
-- Nunca confiar só na última linha do CLI — validar via /api/health pós-operação
-- Schema changes: migration script + backfill, NUNCA ALTER TABLE solto sem testar em cópia
-- Gemini Flash-Lite é o modelo default (heartbeats, crons, active-memory) — nunca voltar pra 2.5 Flash full
-- Monkey-patch Issue #62028 ativo em dist/restart-stale-pids-*.js — reaplicar após npm update
-- Backup sempre com .bak-pre-<feature>-<date> antes de editar arquivos produção
-
-DEPOIS DA FASE A + B:
-Após commitar e pushar ambas, estado próximo é:
-  → Audit detalhada do checklist plans/2026-04-20-next-session-checklist.md
-  → Fase 2 Graphify scale 3→15 repos
-  → Fase 1.7b-b (Salience formula, 4h shadow-mode 1 semana)
-  → Fase 1.7b-c (Compiled truth + timeline, 1-2d, FINALIZA Fase 1.7b)
-
-Pergunta pro Toto ANTES de começar: quer que eu execute [FASE A] + [FASE B] direto,
-ou prefere revisar meu plano de migração v8 primeiro?
+Pergunta pro Toto ANTES de começar: A / B / C?
 ```
 
 ---
 
 ## Uso alternativo — prompt curto (emergência)
 
-Se só quiser retomar rápido, cole isto:
-
 ```
-Retomando nox-mem v3.6d. Leia MASTER-HANDOFF-2026-04-21.md + roadmap v1.3.
-Próximo: IM + 1.7b-a juntos (detalhes em claude-memory-setup-gaps.md e session-start.md).
-Posso começar?
+Retomando nox-mem v3.7+ (schema v10). Leia handoffs/MASTER-HANDOFF-2026-04-23.md.
+Próximo: Fase 1.7b-c close (migração memory/*.md → entities/) OU Fase 3 (HD rsync).
+Sanity: ssh 100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .chunks.total'
+Esperado 7367+.
 ```
 
 ---
 
-*Este arquivo é só um lembrete — o conteúdo real vai via copy-paste pra próxima sessão. Atualizar aqui se o plano mudar antes da próxima janela abrir.*
+*Esse arquivo é só um lembrete — copiar o conteúdo pra próxima sessão. Atualizar aqui se o plano mudar antes da próxima janela abrir.*
