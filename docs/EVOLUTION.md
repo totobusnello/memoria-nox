@@ -2,6 +2,26 @@
 
 > Timeline completa das versões do nox-mem. CLAUDE.md só referencia a **versão atual** (v3.6d) — detalhe de versões anteriores mora aqui.
 
+## v3.7b (Apr 24 18:20) — Routing rework + auth hardening + thinking=max
+
+Continuação da v3.7a após probe revelar que **cipher/forge/lex rodavam em openai-codex/gpt-5.4 (pay-per-token)** apesar do `openclaw.json` dizer claude-cli — sessions.json grudou em fallback (regra 11).
+
+Descoberta paralela: **Tier 2 tinha sido parcialmente revertido** — edits manuais em `openclaw.json` não sobrevivem ao restart porque gateway tem in-memory state canonical que sobrescreve o arquivo. Solução: usar `openclaw config set` + `validate` + restart.
+
+**Via CLI oficial:** `bootstrapMaxChars=12000`, `thinkingDefault=max`, google removido de `plugins.allow`/`entries`, `llm-task.model=gemini-2.5-flash-lite`.
+
+**Via edit agents/\*/auth-profiles.json:** removido `apiKey` de `anthropic:default` em nox/atlas/boris/cipher/forge/lex (type→token). Era bomba-relógio — gateway poderia passar ao subprocess em fallback path e gerar 401.
+
+**Sessions.json reset** pra 6 agentes — removidas entries não-claude pra quebrar stickiness.
+
+**Routing canônico final:** nox+forge=opus, atlas+boris+cipher+lex=sonnet, todos via claude-cli. Thinking=max (efetivo `high`, limite dos modelos). Zero Codex.
+
+Probe pós-restart confirmou: todos claude-cli, graph-memory em gemini/flash-lite (log fix da v3.7a continuou funcionando), bootstrap 12000 respeitado, fratricide zero, monkey-patch #62028 intacto.
+
+Backup: `/root/backups/config-rework-20260424-181356/` (openclaw.json + 7× auth + 7× sessions).
+
+CLAUDE.md regra 5 atualizada pra schema novo (`anthropic-max:default` canônico, não `anthropic:claude-cli`). Detalhes: `docs/OPTIMIZATION-2026-04-24.md` addendum.
+
 ## v3.7a (Apr 24 tarde) — Agent performance optimization Tier 1+2 + graph-memory log fix
 
 **Contexto:** audit de performance dos agentes identificou plugins quebrados em retry loop, bootstrap inflado, thinking sempre on, e log do graph-memory reportando opus (suspeita de rodar em modelo caro).

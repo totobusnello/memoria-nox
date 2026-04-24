@@ -185,3 +185,83 @@ Novo item de memory: `feedback_graph_memory_startup_log_is_misleading.md` atuali
 **Memory:**
 - `/Users/lab/.claude/projects/-Users-lab-Claude-Projetos-memoria-nox/memory/feedback_graph_memory_startup_log_is_misleading.md` (atualizado)
 - `/Users/lab/.claude/projects/-Users-lab-Claude-Projetos-memoria-nox/memory/MEMORY.md` (entry atualizada)
+
+---
+
+## Addendum tarde — rework completo de routing + auth + thinking (18:20 GMT-3)
+
+Depois do Tier 1+2 inicial, audit via `openclaw agent --json --agent <id>` nos 6 agentes revelou:
+- **cipher/forge/lex rodavam em `openai-codex/gpt-5.4`** (pay-per-token) apesar de `openclaw.json` dizer claude-cli. Causa: `sessions.json` grudou em codex após falha antiga (regra 11).
+- **Tier 2 parcialmente reverteu:** `bootstrapMaxChars` voltou pra 25000 porque o gateway sobrescreve `openclaw.json` no startup via in-memory state. Edits manuais (`jq`+`mv`) NÃO persistem; só `openclaw config set` sobrevive.
+
+### Mudanças aplicadas
+
+**Via `openclaw config set`:**
+```
+agents.defaults.bootstrapMaxChars = 12000
+agents.defaults.thinkingDefault = max        # antes: não existia
+plugins.allow -= "google"
+plugins.entries.google removido
+plugins.entries."llm-task".config.model = "gemini/gemini-2.5-flash-lite"
+```
+
+**Via edit direto em `auth-profiles.json`** de nox/atlas/boris/cipher/forge/lex:
+```
+profiles["anthropic:default"].apiKey removido
+profiles["anthropic:default"].type = "token"  (era "api_key" com sk-ant-oat…)
+```
+Motivo: apiKey em `anthropic:default` era passada ao subprocess claude-cli gerando conflito latente.
+
+**Sessions.json reset** pra 6 agentes — removidas entries com `model != claude-*` pra quebrar stickiness em codex/gemini/outros fallbacks.
+
+### Routing final (canônico)
+
+| Agente | Model primary | Thinking |
+|---|---|---|
+| main | claude-cli/claude-opus-4-6 | max |
+| nox | claude-cli/claude-opus-4-6 | max |
+| forge | claude-cli/claude-opus-4-6 | max (efetivo: high) |
+| atlas | claude-cli/claude-sonnet-4-6 | max (efetivo: high) |
+| boris | claude-cli/claude-sonnet-4-6 | max (efetivo: high) |
+| cipher | claude-cli/claude-sonnet-4-6 | max (efetivo: high) |
+| lex | claude-cli/claude-sonnet-4-6 | max (efetivo: high) |
+
+Thinking=max resulta em `high` efetivo nos probes (limite dos modelos atuais). Fallback chain default: `[claude-cli/sonnet, openai-codex/gpt-5.5, gemini/2.5-pro]`.
+
+### Validação pós-restart
+
+Probe nos 6 agentes após restart do gateway:
+```
+nox     provider=claude-cli  model=claude-opus-4-6     bootstrapMaxChars=12000
+cipher  provider=claude-cli  model=claude-sonnet-4-6   thinking=high
+forge   provider=claude-cli  model=claude-opus-4-6     thinking=high
+lex     provider=claude-cli  model=claude-sonnet-4-6   thinking=high
+```
+
+**Zero codex. Zero pay-per-token. Zero 401.** graph-memory log continua correto: `provider=gemini | model=gemini-2.5-flash-lite`.
+
+### Backup
+
+`/root/backups/config-rework-20260424-181356/` contém:
+- `openclaw.json.bak` + 7x `<agent>-auth-profiles.json.bak` + 7x `<agent>-sessions.json.bak`
+
+### Rollback emergencial
+
+```bash
+BK=/root/backups/config-rework-20260424-181356
+cp $BK/openclaw.json.bak /root/.openclaw/openclaw.json
+for a in main nox atlas boris cipher forge lex; do
+  cp $BK/${a}-auth-profiles.json.bak /root/.openclaw/agents/$a/agent/auth-profiles.json
+  cp $BK/${a}-sessions.json.bak /root/.openclaw/agents/$a/sessions/sessions.json
+done
+systemctl restart openclaw-gateway
+```
+
+### Regras novas descobertas nesta sessão
+
+1. **Gateway sobrescreve openclaw.json no restart** — usar `openclaw config set` + `openclaw config validate`, nunca edit direto+restart.
+2. **Schema auth profile mudou** — `anthropic-max:default` com apiKey é o canônico (não `anthropic:claude-cli` como CLAUDE.md regra 5 antiga descrevia).
+3. **`anthropic:default.apiKey` é bomba-relógio** — mesmo sem CLI falhar agora, gateway pode passar a key ao subprocess em fallback path e quebrar 401. Manter sempre vazio (`type=token`, sem `apiKey`).
+4. **Sessions stickiness obriga reset** após qualquer mudança de `model.primary` ou credencial.
+
+CLAUDE.md regra 5 atualizada pra refletir schema atual.
