@@ -50,7 +50,7 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 FTS5 BM25 → Gemini semantic (gemini-embedding-001) → RRF fusion (k=60)
 
 ### Interfaces
-- **CLI (25+ cmds):** search/ingest/reindex/vectorize/kg-*/cross-*/reflect/crystallize... (`nox-mem --help`)
+- **CLI (26+ cmds):** search/ingest/**ingest-entity**/reindex/vectorize/kg-*/cross-*/reflect/crystallize... (`nox-mem --help`). **Entry point é `dist/index.js`** (package.json.bin), não cli.js — confusão comum. `ingest-entity <file>` adicionado 2026-04-24 pra ingestar memory/entities/<type>/<slug>.md (3-section format).
 - **MCP Server (16 tools):** `nox_mem_search`, `stats`, `kg_build`, `cross_search`, `reflect`, etc.
 - **HTTP API (porta 18802):** `/api/{health,search,kg,kg/path,agents,cross-kg,reflect,procedures}` + `POST /api/crystallize{,/validate}`
 - **Dashboard:** github.com/totobusnello/agent-hub-dashboard (4 páginas nox-mem)
