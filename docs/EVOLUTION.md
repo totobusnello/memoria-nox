@@ -2,6 +2,33 @@
 
 > Timeline completa das versões do nox-mem. CLAUDE.md só referencia a **versão atual** (v3.6d) — detalhe de versões anteriores mora aqui.
 
+## v3.7a (Apr 24 tarde) — Agent performance optimization Tier 1+2 + graph-memory log fix
+
+**Contexto:** audit de performance dos agentes identificou plugins quebrados em retry loop, bootstrap inflado, thinking sempre on, e log do graph-memory reportando opus (suspeita de rodar em modelo caro).
+
+**Tier 1 (broken plugins):**
+- `plugins.entries.google` removido de `openclaw.json`
+- `amazon-bedrock` + `google` já estavam `mv`d pra `/tmp/` (confirmado)
+- allowlist reduzida pra 21 items
+
+**Tier 2 (config tuning):**
+- `bootstrapMaxChars: 25000 → 12000` (~3k tokens/turn economizados)
+- `agents.defaults.thinking.mode: on → off` (operacional não precisa CoT)
+- `llm-task.model: anthropic/claude-haiku-4-5 → gemini/gemini-2.5-flash-lite` (10x mais barato)
+
+**Validação graph-memory:**
+- Código-fonte confirma **Path A** (direct OpenAI-compat via `cfg.llm.baseURL`) vence sobre `agents.defaults.primary`
+- Latência real 1.7-3.3s/extração = flash-lite range (opus seria 5-10s)
+- **Log estava mentindo há meses** — reportando `agents.defaults.primary` (claude-opus-4-6) em vez do que realmente rodava
+
+**Fix cosmético aplicado:** patch local em `/root/.openclaw/extensions/graph-memory/index.ts` (~L756) introduz bloco `effProvider/effModel` que inspeciona `cfg.llm.baseURL` host e reporta valor real. Log agora diz `provider=gemini | model=gemini-2.5-flash-lite`.
+
+**Backups:** `/root/backups/optimize-20260424-173248/{openclaw.json,sessions-main.json}.bak` + `index.ts.bak-log-fix-20260424-*`.
+
+**Invariantes pós-restart:** monkey-patch #62028 intacto (`CegQx-K9`), vec coverage 9538/9541, salience shadow, sem fratricide.
+
+**Detalhes completos:** `docs/OPTIMIZATION-2026-04-24.md`.
+
 ## v3.6d (Apr 21 final) — Item D fechado + active-memory plugin migrado
 Fechou os 5 pendentes do handoff.docx:
 - **D1:** `check-discord-heartbeat-validation.sh` criado + cron `*/30min` + exit=0
