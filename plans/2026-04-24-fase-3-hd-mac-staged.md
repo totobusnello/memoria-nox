@@ -133,12 +133,25 @@ Pre-req: lista de PDFs Tier 2 que retornaram texto vazio ou <20 words.
 
 ---
 
-## Status atual
+## Status atual (2026-04-24 14:00 BRT)
 
 - ✅ Discovery completo (22GB, breakdown por tipo)
-- 🎯 **Tier 1 aguarda execução MANUAL pelo Toto** (comando abaixo)
+- ✅ **Tier 1 EXECUTADO**: 550 files, 2697 chunks, 100% vectorized
 - ⏸️ Tier 2 planejado (PDFs text-layer)
 - ⏸️ Tier 3 deferred (OCR opcional)
+
+## Tier 1 — Resultados reais
+
+- Rsync: 550 files, 131MB em 20s (6.4MB/s)
+- Pandoc conversion: 532/539 docx → md (98.7% success, 7 falhas silenciosas)
+- Watcher auto-ingest disparou em paralelo (via modify events)
+- Chunks criados: 2697 (média ~5 chunks/file)
+- Vectorize: 2697/2697 em 161s via Gemini batchEmbedContents
+- DB size: 121 → 170MB (+49MB)
+- Search validado: "contrato mercos nuvini" retorna Term Sheet Forseti, NDAs, entity
+- Backup preservado (backups/nox-mem-pre-source-archive-*.db de antes)
+
+**Lesson**: Watcher **É** async e processa modify events do rsync corretamente — apenas demora alguns minutos até o debounce + pipeline completar. Force-ingest pré-watcher é redundante (e causa ENOENT em paths com espaço se shell splitting errado).
 
 ---
 
