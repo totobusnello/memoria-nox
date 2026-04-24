@@ -19,16 +19,20 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.ch
 # Esperado: total=6328+, vc.embedded=vc.total, salience.mode=shadow, section.compiled=2
 # NOTA: total caiu de 7367→6328 vs ontem por consolidation noturno — comportamento esperado
 
-ESTADO ATUAL (2026-04-24 12:00):
-- 6328 chunks, 100% embedded, 0 orphans
+ESTADO ATUAL (2026-04-24 12:40 pós-Opção-C):
+- 6335 chunks, 100% embedded, 0 orphans
 - Schema v10 mantido (retention_days v8 + pain v9 + section v10)
-- DB WAL zero (checkpoint feito hoje — liberou 96MB)
-- shared-memory.db (obsoleto 28KB) arquivado em /tmp
-- CLI `nox-mem ingest-entity <file>` ADICIONADO hoje (era gap da 1.7b-c)
-- Claude CLI backend OAuth ativo, fallback chain sem anthropic/*
+- DB 121 MB (WAL zero pós-checkpoint)
+- never_decay=104 (restaurado de 23 via core-tier fix + nox-mem.md override)
+- Core-tier preservation ARQUITETURAL corrigido (reindex.ts patch) — próximos nightlies não regridem
+- WAL checkpoint TRUNCATE agora é Phase 7 do nightly-maintenance.sh
+- shared-memory.db arquivado em /tmp
+- Daily notes 23/04 + 24/04 criadas e auto-ingestadas
+- CLI `nox-mem ingest-entity <file>` ativo (adicionado hoje)
+- 2 entities piloto (agents/nox.md + systems/nox-mem.md) com retention=NULL
+- Claude CLI backend OAuth, fallback sem anthropic/*
 - Canários hourly OK
-- 2 entities piloto em memory/entities/ (agents/nox.md + systems/nox-mem.md)
-- Salience em shadow-mode (baseline 207 promote / 1886 archive)
+- Salience shadow-mode (baseline ~1d — esperar 6d mais pra activation)
 
 PRÓXIMA AÇÃO — 3 OPÇÕES (Toto escolhe):
 
@@ -49,12 +53,8 @@ OPÇÃO B — Pular pra Fase 3 (HD Mac rsync + enrichment tiered, ~1h + rsync)
   [ ] graphify incremental + enrichment tiered (Tier 1/2/3)
   [ ] Monitorar SQLITE_BUSY — se aparecer, ativar Path A reativo
 
-OPÇÃO C — Cleanup pós-Cipher + observação (~30min)
-  Investigar pendências deixadas pela sessão manhã:
-  [ ] Verificar daily notes 23/04 e 24/04 em /root/.openclaw/workspace/memory/daily/
-  [ ] Revisar se nightly-maintenance.sh faz `source .env` antes do consolidate_retry.sh
-  [ ] Adicionar `PRAGMA wal_checkpoint(TRUNCATE)` no nightly (evitar WAL bloat futuro)
-  [ ] Responder Cipher com retratação dos diagnósticos incorretos
+OPÇÃO C — CONCLUÍDA (2026-04-24 12:40). Base limpa pra A.
+  Se aparecer nova anomalia, retomar triagem com /api/health antes de agir.
 
 CONVENÇÕES OBRIGATÓRIAS (não mudou):
 - set -a; source /root/.openclaw/.env; set +a; antes de CLI nox-mem via SSH

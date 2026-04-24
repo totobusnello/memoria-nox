@@ -187,51 +187,77 @@ ssh root@100.87.8.44 'ls -lh /root/.openclaw/workspace/tools/nox-mem/nox-mem.db-
 
 ---
 
-## 6. COMMITS PENDENTES (não pushed ainda)
+## 6. SESSÃO ATUALIZADA — HOUSEKEEPING OPÇÃO C CONCLUÍDA (2026-04-24 12:35)
+
+Após primeiro pass do handoff, Toto escolheu **Opção C** e executamos as 4 investigações + 4 fixes adicionais:
+
+### Fixes aplicados nesta segunda rodada
+
+| # | Fix | Arquivo / Ação |
+|---|-----|----------------|
+| C1 | **Core-tier retention restore (imediato)** | `UPDATE chunks SET retention_days=NULL WHERE tier='core'` — 61 chunks restaurados. Backup: `nox-mem-pre-core-retention-fix-20260424-121953.db` |
+| C2 | **Core-tier preservation (arquitetural)** | `src/reindex.ts` +5 linhas: `db.exec("UPDATE chunks SET retention_days = NULL WHERE tier = 'core'")` antes do return. Backup: `src/reindex.ts.bak-20260424-123000`. Rebuild tsc clean, dist/reindex.js linha 83 confirma. Próximo nightly não vai regredir. |
+| C3 | **WAL checkpoint no nightly** | `/root/.openclaw/scripts/nightly-maintenance.sh` Phase 7 adicionada. Backup: `.bak-20260424-122500`. |
+| C4 | **nox-mem.md entity retention override** | HTML comment `<!-- retention: never -->` adicionado após frontmatter. Re-ingest: 12 chunks agora com retention=NULL (era 90). |
+| C5 | **Daily notes 23/04 + 24/04 criadas** | `/root/.openclaw/workspace/memory/2026-04-{23,24}.md` escritas com conteúdo do histórico + retention=365 (23) e 180 (24). Watcher auto-ingestou: 2+5 chunks. |
+
+### Descobertas auxiliares
+
+- **`consolidate_retry.sh`** é invocado via OpenClaw cron `memory-consolidation-retry` (`30 0 * * *` BRT). Erro 03:31 UTC = 00:31 BRT bate exatamente. Causa específica não identificada (manual rerun OK). **Não crítico** — investigação pode esperar.
+- **`backup-all.sh`** (02:00 BRT) JÁ fazia `PRAGMA wal_checkpoint(RESTART)` — mas RESTART só commita, não trunca. Phase 7 (TRUNCATE) agora shrink o arquivo ativamente.
+- **nox.md YAML `retention: never`** não é lido pelo parser — só HTML comment. nox.md funcionou por coincidência (agents/→person→null default). Padronizar: sempre `<!-- retention: X -->` na frente.
+
+### Estado final VPS
 
 ```
-feat(cli): add nox-mem ingest-entity <file> subcommand
-
-Fecha o gap da 1.7b-c foundation — entity ingest agora tem entry point
-formal no CLI, não precisa mais de node -e hack.
-
-- Import ingestEntityFile em src/index.ts
-- Register subcommand (~10 lines) antes de reindex
-- Rebuild via tsc (clean)
-- Re-ingest 2 entities piloto: 8 chunks (nox) + 12 chunks (nox-mem)
-- Backup: src/index.ts.bak-20260424-115355
-
-Validação: nox-mem ingest-entity --help OK, hybrid search retorna
-section=compiled top hit para "role of nox agent".
-```
-
-```
-chore(ops): 2026-04-24 housekeeping
-
-- PRAGMA wal_checkpoint(TRUNCATE) — 96MB recuperados
-- Archive shared-memory.db (28KB legacy) em /tmp/
-- Cipher diagnostic revisão: 2/5 alegações reais
-
-Pendências identificadas (próxima sessão):
-- Adicionar WAL checkpoint ao nightly-maintenance.sh
-- Auditar ENV sourcing no consolidate_retry.sh call
-- Verificar daily notes fs 23/04 e 24/04
+total:     6335 chunks (+7 daily notes ingestadas)
+vectors:   6335/6335 (100%)
+never_decay: 104   (era 23 início da sessão, +81 fixes)
+sections:  compiled:2, frontmatter:2, timeline:16, legacy:6315
+db:        121 MB (WAL zero)
 ```
 
 ---
 
-## 7. PRÓXIMA SESSÃO — OPÇÕES DE ENTRADA
+## 7. COMMITS PENDENTES
 
-### A — Fechar Fase 1.7b-c completa (4-6h, recomendada)
+Sessão já tem 2 commits pushed:
+- `8ab3f98 feat(roadmap): 1.7b-c ganha CLI formal`
+- `67fa926 docs(handoff): MASTER-HANDOFF-2026-04-24 + Cipher diagnostic session log`
+
+**Próximo commit** (após este update do handoff):
+
+```
+chore(ops): housekeeping ops Opção C completa
+
+- fix(retention): core-tier preservation em reindex.ts (bug arquitetural)
+- fix(ops): WAL checkpoint TRUNCATE como Phase 7 do nightly-maintenance.sh
+- fix(entity): <!-- retention: never --> HTML comment em nox-mem.md
+- chore(memory): daily notes 2026-04-{23,24} criadas
+- docs(handoff): MASTER-HANDOFF-2026-04-24 atualizado com Opção C
+
+VPS side:
+- 61 core-tier chunks restored to retention_days=NULL (one-off UPDATE)
+- reindex.ts rebuilt, dist/reindex.js now preserves core contract
+- nox-mem.md re-ingested: 12 chunks retention=NULL (was 90)
+
+Health: never_decay 23→104, 100% vec coverage mantida, DB 134→121 MB.
+```
+
+---
+
+## 8. PRÓXIMA SESSÃO — OPÇÕES DE ENTRADA
+
+### A — Fechar Fase 1.7b-c completa (4-6h, RECOMENDADA agora com base limpa)
 
 **Escopo:**
 1. Script parse `memory/projects.md` (15+ projects) → `memory/entities/projects/<slug>.md`
-   - Agora invoca `nox-mem ingest-entity` (formal, não hack)
+   - Invoca `nox-mem ingest-entity` (formal, não hack)
 2. Similar pra `memory/decisions.md` (135 decisions) e `memory/lessons.md` (45 lessons)
 3. `/memory-recompile <entity>` skill (Gemini Flash-Lite)
 4. Search ranking aplica `section_boost` em SHADOW MODE (logado, não aplicado 7d)
 
-**Pré-requisito**: investigar drop do `never_decay` (92→23) antes de migrar — pode indicar bug no consolidation.
+**Pré-requisitos — TODOS resolvidos nesta sessão (Opção C)**: never_decay restaurado + core-preservation arquitetural + CLI formal + entity file format padronizado.
 
 ### B — Pular pra Fase 3 (HD Mac rsync)
 
