@@ -21,7 +21,7 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 - **VPS:** `ssh root@100.87.8.44` (Tailscale) ou `187.77.234.79` (público); Hostinger KVM 4
 - **Path:** `/root/.openclaw/workspace/tools/nox-mem/`
 - **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings (3072d), inotifywait, systemd
-- **OpenClaw:** v2026.4.15 (binário; requer Node.js 22.12+; **monkey-patched** em `dist/restart-stale-pids-*.js` pra Issue #62028)
+- **OpenClaw:** v2026.4.23 (binário; requer Node.js 22.12+; **monkey-patched** em `dist/restart-stale-pids-*.js` pra Issue #62028 — arquivo com hash muda a cada upgrade, patch idempotente em `/root/reapply-monkey-patch.sh`)
 - **Node.js:** v22.22.2 com wrapper `--no-warnings` em `/usr/bin/node`
 - **Claude Code CLI:** v2.1.88 em `/usr/bin/claude` — **backend primário dos agents via OAuth Max/Pro** (zero cobrança de API)
 - **RelayPlane:** v1.8.37 **INATIVO** (parado 2026-04-22 — substituído pelo CLI direto). Mantido instalado como fallback opcional.
@@ -37,7 +37,7 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 
 ### Schema (V7)
 - `chunks` + `chunks_fts` (FTS5) — **7.3k+ chunks** ativos (pós-IM + Fase 2 Graphify 2026-04-23: 147 docs + 9 repos com código via graphify + 2 entities piloto)
-- `vec_chunks` + `vec_chunk_map` (sqlite-vec, 3072d) — 100% coverage (7367/7367)
+- `vec_chunks` + `vec_chunk_map` (sqlite-vec, 3072d) — ~100% coverage (9538/9541 2026-04-24)
 - `kg_entities` (~402) + `kg_relations` (~544) — Gemini 2.5 Flash extraction (processando incrementalmente via nightly)
 - **Schema v10** (2026-04-23): `retention_days` v8 + `pain` v9 + `section` v10
   - `retention_days` — typed retention (feedback/person=NULL never-decay, lesson 180d, decision/project 365d, team 120d, daily 90d, pending 30d, graph_node 60d, default 90d). Distribuição: 92 never-decay, 9 em 30d, 1954 em 90d, 5312 em 365d. `<!-- retention: X -->` override via frontmatter em linha isolada.
@@ -82,7 +82,7 @@ main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível
    - **NUNCA** criar bloco `agents.defaults.cliBackends.claude-cli` — OpenClaw tem backend nativo auto-carregado. Configs customizadas (incl. as do vídeo do Ziwen) têm `output:"json"` + `input:"arg"` que QUEBRA o parser; built-in usa `output:"jsonl"` + `input:"stdin"`.
    - `agents.defaults.model.fallbacks` **SEM** entries `anthropic/*` (senão fallback mascara falha CLI e volta pro bill pay-per-token). `ANTHROPIC_API_KEY` e `ANTHROPIC_BASE_URL` comentados no `.env`.
 
-6. **Gateway fratricide (Issue #62028, v2026.4.14+):** monkey-patch em `/usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js` fazendo `cleanStaleGatewayProcessesSync` retornar `[]`. Wrapper em `/usr/local/bin/openclaw-gateway-wrapper` (imutável com `chattr +i`) unset `OPENCLAW_SERVICE_MARKER/KIND`. Config `commands.restart=false` + `gateway.reload.mode=off` + `discovery.mdns.mode=off`. **Comandos que invalidam o patch** (precisam checar + reaplicar ANTES do próximo restart): `npm update -g openclaw`, `openclaw models auth {add,login,paste-token,setup-token}` (confirmado 2026-04-23 — reinstala node_modules/dist/). Sintoma de patch perdido: 15+ restarts/5min, SIGTERM loop, "Gateway already running locally" nos logs. Fix emergencial em memory `feedback_models_auth_login_reinstalls_node_modules.md`.
+6. **Gateway fratricide (Issue #62028, v2026.4.14+):** monkey-patch em `/usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js` fazendo `cleanStaleGatewayProcessesSync` retornar `[]`. **O hash do nome do arquivo muda a cada versão** (ex: v4.22=`BUk5aJLm`, v4.23=`CegQx-K9`) — usar glob `restart-stale-pids-*.js`. Wrapper em `/usr/local/bin/openclaw-gateway-wrapper` (imutável com `chattr +i`) unset `OPENCLAW_SERVICE_MARKER/KIND`. Config `commands.restart=false` + `gateway.reload.mode=off` + `discovery.mdns.mode=off`. **Comandos que invalidam o patch** (precisam checar + reaplicar ANTES do próximo restart): `npm install/update -g openclaw`, `openclaw models auth {add,login,paste-token,setup-token}` (confirmado 2026-04-23 — reinstala node_modules/dist/). **Reapplicação automática:** `bash /root/reapply-monkey-patch.sh` (idempotente, Python regex). Upgrade completo: `bash /root/upgrade-<VERSION>.sh` + rollback: `bash /root/rollback-<VERSION>.sh`. Sintoma de patch perdido: 15+ restarts/5min, SIGTERM loop, "Gateway already running locally" nos logs. Fix emergencial em memory `feedback_models_auth_login_reinstalls_node_modules.md`.
 
 7. **`nox-mem-api` escuta em :18802** (não 18800 — Chrome squata). Nunca hardcode; ler `NOX_API_PORT` do .env.
 
