@@ -84,7 +84,7 @@ Nox responde na hora, com fonte citada.
 | **3 Tier 1** | HD Mac md+docx | ✅ DONE | 2026-04-24 | 2697 chunks via pandoc + watcher |
 | **A0** | Query logging + golden-tag | ✅ DONE | 2026-04-25 ~10:45 BRT | Migration aditiva search_telemetry +4 cols, opt-in via NOX_SEARCH_LOG_TEXT |
 | **A1** | Audit log + snapshot pré-op atômico | ✅ DONE | 2026-04-25 ~12:50 BRT | src/lib/op-audit.ts withOpAudit() em reindex+compact, retention 7d, /api/health.opsAudit |
-| **A2** | Ingest-router unified (single dispatch) | 🔜 PRE-GATE | até 2026-04-29 | 3h, débito arquitetural |
+| **A2** | Ingest-router unified (single dispatch) | ✅ DONE | 2026-04-25 ~14:00 BRT | src/lib/ingest-router.ts routeIngest() em 4 callers; defesa em camadas |
 | GATE | Salience activation | ⏳ GATE | 2026-04-30 | `activate-salience.sh --apply` |
 | GATE | Section_boost decision | ⏳ GATE | 2026-05-01 | `analyze-shadow-telemetry.sh 7` |
 | **A3** | Unit tests parseRetentionOverride | ⏳ POST-GATE | 2026-05-02+ | 30min, backlog #1 (teria pego incident) |
