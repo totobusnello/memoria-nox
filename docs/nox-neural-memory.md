@@ -83,7 +83,7 @@ Nox responde na hora, com fonte citada.
 | **1.7b-c** | Compiled truth + timeline | ✅ DONE | 2026-04-24 | schema v10, 181 entities |
 | **3 Tier 1** | HD Mac md+docx | ✅ DONE | 2026-04-24 | 2697 chunks via pandoc + watcher |
 | **A0** | Query logging + golden-tag | ✅ DONE | 2026-04-25 ~10:45 BRT | Migration aditiva search_telemetry +4 cols, opt-in via NOX_SEARCH_LOG_TEXT |
-| **A1** | Audit log + snapshot pré-op atômico | ✅ DONE | 2026-04-25 ~12:50 BRT | src/lib/op-audit.ts withOpAudit() em reindex+compact, retention 7d, /api/health.opsAudit |
+| **A1** | Audit log + snapshot pré-op atômico (v2 hardened) | ✅ DONE | 2026-04-25 ~12:50 BRT (v1) + ~16:30 BRT (v2) | src/lib/op-audit.ts: withOpAudit() fail-closed + safeRestore() + reapZombies(); audit duplo expôs 27 findings, 5 CRITICAL/HIGH fixados (filename collision/path traversal/VACUUM atomicity/schema version/WAL órfãos); ver audits/2026-04-25-A1-A2-review.md + runbooks/recovery-from-snapshot.md |
 | **A2** | Ingest-router unified (single dispatch) | ✅ DONE | 2026-04-25 ~14:00 BRT | src/lib/ingest-router.ts routeIngest() em 4 callers; defesa em camadas |
 | GATE | Salience activation | ⏳ GATE | 2026-04-30 | `activate-salience.sh --apply` |
 | GATE | Section_boost decision | ⏳ GATE | 2026-05-01 | `analyze-shadow-telemetry.sh 7` |

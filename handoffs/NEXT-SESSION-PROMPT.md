@@ -33,11 +33,15 @@ ESTADO ATUAL (2026-04-25 16:45):
   * NOX_SALIENCE_MODE=shadow (ativação 2026-04-30)
   * NOX_SEARCH_LOG_TEXT=1 (NOVO A0, opt-in pra eval harness futura)
 - Claude CLI backend OAuth, fallback sem anthropic/*
-- 5 camadas de defesa ativas: semantic-canary + schema-invariants + ops_audit + withOpAudit + --dry-run
-- Pre-gate hardening A0+A1+A2 completo
+- 5 camadas de defesa hardened (semantic-canary + schema-invariants + ops_audit v2 + withOpAudit fail-closed + --dry-run + safeRestore recovery)
+- Pre-gate hardening A0+A1+A2 completo + audit duplo + 5 CRITICAL/HIGH fixados
 - Post-gate parcial A3+A4+A5 antecipado
+- A1 op-audit v2: filename collision-resistant (pid+uuid), fail-closed semantics, path traversal protection, atomic VACUUM .tmp+integrity_check+rename, reapZombies on startup, safeRestore helper
 
-6 COMMITS PUSHED HOJE (2026-04-25):
+9 COMMITS PUSHED HOJE (2026-04-25):
+0534095 docs+ops(safety): close 2 pendências A1 v2 — reapZombies + runbook
+86147b4 fix(safety): A1 op-audit v2 — fix 5 CRITICAL/HIGH do code+security review
+ff9da9c docs(handoff): MASTER-HANDOFF-2026-04-25 + NEXT-SESSION-PROMPT
 942dcf7 feat(safety): A5 dry-run mode em reindex+consolidate
 2b29d06 test+ops(safety): A3 retention tests + A4 schema invariants canary
 9da8f7c feat(arch): A2 ingest-router — single dispatch entry point
@@ -88,7 +92,7 @@ ESTILO PT-BR (lembrete): use "você", não "tu" (PT-BR business register, audien
 
 MEMÓRIAS NOVAS (auto-memory, carregam):
 - A0 query logging extension (search_telemetry +4 cols)
-- A1 op-audit module (withOpAudit wrapper, ops_audit table)
+- A1 op-audit module v2 (atomic VACUUM, fail-closed, safeRestore, reapZombies, schema_version)
 - A2 ingest-router (single dispatch entry point)
 - A3+A4 retention tests + schema invariants canary (4 invariants */15min)
 - A5 dry-run mode (reindex+consolidate)
@@ -96,6 +100,10 @@ MEMÓRIAS NOVAS (auto-memory, carregam):
 - end-of-day OpenClaw cron drives daily reindex (incident lesson)
 - User-level systemd units can run rogue (incident lesson)
 - Use você não tu (estilo PT-BR)
+
+DOCS/RUNBOOKS NOVOS:
+- audits/2026-04-25-A1-A2-review.md (audit findings + fix status)
+- runbooks/recovery-from-snapshot.md (decision tree + safeRestore procedure)
 
 Pergunta pro Toto ANTES de começar: qual data hoje? Se 04-30+ → A. Se 05-01+ → B. Senão → C ou D.
 ```

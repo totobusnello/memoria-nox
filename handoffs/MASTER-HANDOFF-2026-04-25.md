@@ -12,14 +12,16 @@
 
 ## TL;DR EXECUTIVO
 
-Dia começou com sanity check expondo regressão crítica: section/retention metadata zerados em 183 entities (incident 2026-04-25). Recovery em 12min. A partir daí, **6 fases de hardening + 4 documentos de roadmap consolidados em ~7h reais** (vs 8-9h estimado).
+Dia começou com sanity check expondo regressão crítica: section/retention metadata zerados em 183 entities (incident 2026-04-25). Recovery em 12min. A partir daí, **6 fases de hardening + audit duplo + 2 pendências fechadas + 4 documentos de roadmap consolidados em ~9h reais**.
 
 **Cronologia:**
 1. 🔴 **Incident 2026-04-25** — `nox-mem reindex` (disparado pelo cron OpenClaw `end-of-day` 22:00 BRT diário) wipou section=0/retention.never_decay=25 de 183 entities. Recovery 12min via patch arquitetural em `ingestFile()`.
 2. 📋 **Roadmap v1.6 + v14** — 4 rodadas de revisão por agents (architect, critic, planner, architect-reviewer) culminaram em roadmap canônico promovido com **Memory Graph Maturity Waves** (Wave 1/2/3, Maio-Ago 2026).
 3. ✅ **6 fases entregues:** A0 + A1 + A2 + A3 + A4 + A5 — pre-gate completo + 3 itens post-gate antecipados.
+4. 🔍 **Audit duplo independente** (code-reviewer + security-reviewer) detectou 27 findings em A1+A2; 5 CRITICAL/HIGH fixados na mesma sessão (módulo cresceu 130→285 LOC); regra #15 agora honrada com fail-closed semantics + atomic VACUUM + safeRestore() helper.
+5. ✅ **2 pendências fechadas:** `reapZombies()` no startup do nox-mem-api + `runbooks/recovery-from-snapshot.md` (216 linhas, decision tree + 7-step procedure + 4 cenários).
 
-**Estado pós-sessão:** sistema com **5 camadas de defesa** (semantic-canary, schema-invariants, ops_audit, withOpAudit, --dry-run). Próximo incident como o de hoje seria **detectável + recuperável + preventível**.
+**Estado pós-sessão:** sistema com **5 camadas de defesa hardened** (semantic-canary, schema-invariants, ops_audit v2, withOpAudit fail-closed, --dry-run + safeRestore recovery). Próximo incident como o de hoje seria **detectável + recuperável + preventível** — e auditado.
 
 ---
 
@@ -82,6 +84,14 @@ User-level systemd órfão rodando openclaw-gateway v4.15 em restart loop ~40% C
 | **A4** | Schema invariants canary | 30min | ~30min | `2b29d06` | `check-schema-invariants.sh` cron */15min. 4 invariants: section NOT NULL ≥600, feedback never_decay, ops_audit zero fails, section_boost values consistentes. Discord alert. |
 | **A5** | Dry-run mode reindex+consolidate | 3h | ~1h | `942dcf7` | `nox-mem reindex --dry-run` + `nox-mem consolidate --dry-run` produzem JSON preview (wouldDelete/wouldProcess/protected/estimatedDuration). Compact já tinha dryRun nativo. Crystallize defer. |
 | **TOTAL** | — | **~12h** | **~7h** | 5 commits | **1.7x mais rápido** que estimativa |
+
+### Bonus: Audit duplo + 2 pendências fechadas (~2h adicional)
+
+| # | Atividade | Tempo | Commit | Notas |
+|---|---|---|---|---|
+| **AUDIT** | code-reviewer + security-reviewer paralelos em A1+A2 | ~25min | — | 27 findings: 4 CRIT + 9 HIGH + 8 MED + 6 LOW. Verdict ambos: REQUEST CHANGES. |
+| **FIX v2** | 5 CRITICAL/HIGH fixados em A1 op-audit | ~45min | `86147b4` | Filename collision (pid+uuid), fail-closed snapshot, path traversal protection, zombie reaper, VACUUM .tmp + integrity_check + rename, safeRestore() helper, schema version validation. Módulo: 130→285 LOC. |
+| **OPS** | reapZombies() on startup + runbooks/recovery-from-snapshot.md | ~30min | `0534095` | Smoke test passou: zumbi marcado crashed automaticamente. Runbook 216 linhas com decision tree + 7-step procedure + 4 cenários. |
 
 ---
 
@@ -162,9 +172,12 @@ reference_a5_dry_run_mode.md
 
 ---
 
-## 6. COMMITS PUSHED HOJE (6)
+## 6. COMMITS PUSHED HOJE (9)
 
 ```
+0534095 docs+ops(safety): close 2 pendências A1 v2 — reapZombies + runbook
+86147b4 fix(safety): A1 op-audit v2 — fix 5 CRITICAL/HIGH do code+security review
+ff9da9c docs(handoff): MASTER-HANDOFF-2026-04-25 + NEXT-SESSION-PROMPT
 942dcf7 feat(safety): A5 dry-run mode em reindex+consolidate
 2b29d06 test+ops(safety): A3 retention tests + A4 schema invariants canary
 9da8f7c feat(arch): A2 ingest-router — single dispatch entry point
@@ -300,17 +313,22 @@ ssh root@100.87.8.44 'bash /root/.openclaw/scripts/activate-salience.sh check'
 
 ## 11. CLOSING NOTE
 
-Dia épico. Saímos de um incident em produção (section/retention wipe) → hardening completo de 5 camadas em 7h. Roadmap consolidado em v1.6 canônico após 4 rodadas de revisão arquitetural. v14 do nox-neural-memory atualizado com 3 decisões novas (Affective Ranking, Compiled Truth+Timeline, Bridge Mode).
+Dia épico. Saímos de um incident em produção (section/retention wipe) → hardening completo de 5 camadas em 7h → audit duplo independente expôs 27 findings → 5 CRITICAL/HIGH fixados na mesma sessão → 2 pendências de UX/runbook fechadas. Roadmap consolidado em v1.6 canônico após 4 rodadas de revisão arquitetural. v14 do nox-neural-memory atualizado com 3 decisões novas (Affective Ranking, Compiled Truth+Timeline, Bridge Mode).
 
 **Sistema agora tem:**
-- ✅ Snapshot atômico pré-op (qualquer destrutiva tem rede de proteção)
-- ✅ Audit log per-op (toda mutação rastreada)
-- ✅ Ingest-router unified (débito arquitetural pago)
-- ✅ Schema invariants canary (detecta wipe em <15min)
-- ✅ Dry-run preview (mexer com confiança)
-- ✅ Tests pra parser crítico (regressão guard)
+- ✅ Snapshot atômico pré-op fail-closed (VACUUM .tmp + integrity_check + rename)
+- ✅ Filename collision-resistant (pid + uuid)
+- ✅ Path traversal protection no env var
+- ✅ Audit log per-op com schema_version + pid + snapshot_bytes
+- ✅ Zombie reaper automático no startup (status='crashed' marcado)
+- ✅ `safeRestore()` helper exportado (valida user_version + remove WAL/SHM órfãos)
+- ✅ Ingest-router unified (débito arquitetural pago, guard duplicado removido)
+- ✅ Schema invariants canary (detecta wipe em <15min, 4 invariants)
+- ✅ Dry-run preview em reindex/consolidate
+- ✅ Tests pra parser crítico (14 cases via node:test)
+- ✅ Recovery runbook documentado (decision tree + 7-step + 4 cenários)
 
-**6 commits pushed hoje:** 398ad7e (docs) → 2d47158 (A0) → b5fba08 (A1) → 9da8f7c (A2) → 2b29d06 (A3+A4) → 942dcf7 (A5).
+**9 commits pushed hoje:** 398ad7e → 2d47158 (A0) → b5fba08 (A1) → 9da8f7c (A2) → 2b29d06 (A3+A4) → 942dcf7 (A5) → ff9da9c (handoff) → 86147b4 (audit fix v2) → 0534095 (close pendências).
 
 **Próxima janela abre com:**
 ```bash
@@ -323,4 +341,4 @@ Descansa. 🧠
 
 ---
 
-*Documento gerado: 2026-04-25 ~16:45 BRT. Próxima janela sugerida: 2026-04-30 manhã (gate salience).*
+*Documento gerado: 2026-04-25 ~16:45 BRT, atualizado ~17:30 BRT pós-audit fix + pendências. Próxima janela sugerida: 2026-04-30 manhã (gate salience).*
