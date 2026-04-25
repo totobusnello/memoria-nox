@@ -82,7 +82,7 @@ Nox responde na hora, com fonte citada.
 | **1.7b-b** | Salience formula formal | ✅ DONE shadow | 2026-04-23 | schema v9, pain REAL |
 | **1.7b-c** | Compiled truth + timeline | ✅ DONE | 2026-04-24 | schema v10, 181 entities |
 | **3 Tier 1** | HD Mac md+docx | ✅ DONE | 2026-04-24 | 2697 chunks via pandoc + watcher |
-| **A0** | Query logging + golden-tag | 🔜 PRE-GATE | até 2026-04-29 | 1h, extends search_telemetry |
+| **A0** | Query logging + golden-tag | ✅ DONE | 2026-04-25 ~10:45 BRT | Migration aditiva search_telemetry +4 cols, opt-in via NOX_SEARCH_LOG_TEXT |
 | **A1** | Audit log + snapshot pré-op atômico | 🔜 PRE-GATE | até 2026-04-29 | 4h, cura incident 2026-04-25 |
 | **A2** | Ingest-router unified (single dispatch) | 🔜 PRE-GATE | até 2026-04-29 | 3h, débito arquitetural |
 | GATE | Salience activation | ⏳ GATE | 2026-04-30 | `activate-salience.sh --apply` |

@@ -91,7 +91,7 @@ Pré-gate enxuto: **só Fases A0 + A1**. Outras fases hardening movem pra pós-g
 
 | # | Fase | Origem | Esforço | Justificativa |
 |---|---|---|---|---|
-| **A0** | Query logging + golden-tag (extends search_telemetry) | Crítica | 1h | Pré-req da Fase 10 eval harness |
+| **A0** ✅ | Query logging + golden-tag (extends search_telemetry) | Crítica | **DONE 2026-04-25 ~10:45 BRT (~1h)** | Migration aditiva: 4 colunas em search_telemetry (`query_text`, `golden_id`, `top_chunk_ids`, `top_scores`) + index parcial em `golden_id`. Patch `search.ts` logTelemetry: opt-in via env `NOX_SEARCH_LOG_TEXT=1` (privacy default OFF). Backup `pre-A0-20260425-093920.db` (172MB). Validado: query 363 logou texto + top 5 chunk IDs + scores. /api/health.searchTelemetry agregações intactas. Zero regressão (canary OK, vc 100%). |
 | **A1** | Audit log + snapshot pré-op atômico | Crítica + incident hoje | 4h | **Cura imediata do incident reindex.ts** — proteção de salience activation |
 | **A2** | Ingest-router unified (single dispatch ingestFile/ingestEntity/graphify) | Crítica + incident | 3h | Paga débito arquitetural; **roda DEPOIS de A1** pra ter rollback se regredir |
 
