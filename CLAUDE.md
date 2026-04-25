@@ -102,6 +102,12 @@ main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível
 
 14. **Delivery-queue órfã pode gerar 15+ "Unknown Channel" por restart.** Canais Discord/Telegram removidos do teu servidor deixam mensagens travadas em `/root/.openclaw/delivery-queue/*.json` que o `[delivery-recovery]` re-tenta a cada restart do gateway. Script `/root/.openclaw/workspace/tools/delivery-queue-cleanup.sh` limpa automaticamente (detecta "Unknown Channel" + "recovery time budget exceeded" + >7 dias). Rodar após qualquer série de restarts anômalos ou mudança de canais Discord. Main agent **não deve ter heartbeat configurado** (target=discord sem `to` gera "Unknown Channel" persistente) — só as 6 personas (nox/atlas/boris/cipher/forge/lex) têm heartbeat válido.
 
+15. **Operações destrutivas em chunks só com `--dry-run` ou snapshot atômico.** Lição do incident 2026-04-25 (reindex.ts wipou section/retention de 183 entities; root cause = end-of-day cron diário rodava `nox-mem reindex` sem rede de proteção). Antes de `reindex`, `consolidate`, `compact`, `crystallize`, `kg-prune` em prod: ou rodar com `--dry-run` (preview JSON, não muta) OU criar snapshot atômico em `/var/backups/nox-mem/pre-op/<op>-<ts>.db` (retention 7d). Backup-all.sh 02:00 NÃO conta — é diário, não pré-op. Ingest-router unified (Fase A2 v1.6) rota entity files via `ingestEntityFile()` automaticamente; sem ele, `ingestFile()` genérico zera section/retention. Validar pós-op com `/api/health.sectionDistribution.compiled == 183`. Detalhes incident: `docs/INCIDENTS.md#2026-04-25`.
+
+## Roadmap canônico
+
+Phase Matrix + sequência cronológica + Memory Graph Maturity Waves (Maio-Ago 2026) em `plans/2026-04-25-integration-roadmap-v1.6.md` (canônico desde 2026-04-25). Cross-cutting concerns / Decisões Válidas / "NÃO FAZEMOS" continuam em `plans/2026-04-19-unified-evolution-roadmap.md` (v1.5, referência histórica). Visão estratégica em `docs/nox-neural-memory.md` v14.
+
 ## Produto NOX-Supermem
 
 Repo `github.com/totobusnello/nox-supermem` (private), local `~/Claude/Projetos/nox-supermem/`. Mercado Brasil (PT-BR, Hotmart). Tiers A/B/C R$147/197/227 + R$30/sem suporte. Plan de 24 tasks em 4 chunks.

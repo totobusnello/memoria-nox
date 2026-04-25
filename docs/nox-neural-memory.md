@@ -1,12 +1,13 @@
 # Nox Neural Memory — Segundo Cérebro do Toto Busnello
 
-> Documento de visão — v13 (2026-04-21)
-> **Status:** Fases 1, 1.5, **0.5 (Foundation Repair)**, **24h obs**, **1.6**, **1.7a**, **2.5 (graph-memory)**, **D1-D4 (audit sistêmica)**, **RP (RelayPlane ativo)** concluídas. Sistema em **v3.6d**, produção estável. Próxima fase aprovada: **IM (Import repos locais)** → Fase 2 (Graphify scale) → Fase 1.7b → Fase 3 → Fase 4. Produtização NOX-Supermem fica POR ÚLTIMO.
+> Documento de visão — **v14 (2026-04-25)**
+> **Status:** Sistema em **v3.7+**, **9540 chunks** 100% embedded, schema **v10** (retention_days/pain/section/section_boost). Phases 1, 1.5, 0.5, 24h, 1.6, 1.7a, 2.5, D1-D4, RP, IM, 1.7b-a, Stab, Fase 2, 1.7b-b shadow, 1.7b-c, Fase 3 Tier 1 **CONCLUÍDAS**. Próximo bloco: **Pre-gate hardening (A0-A2)** → gates 04-30/05-01 → Fase 4 Obsidian + Tier 2 PDFs paralelos → Memory Graph Maturity Waves (Maio-Ago 2026).
 >
-> **Plano de execução:** `memoria-nox/plans/2026-04-19-unified-evolution-roadmap.md` (v1.2) — este doc é a **visão estratégica**; o plano é o que **executa**.
-> **Master handoff:** `memoria-nox/handoffs/MASTER-HANDOFF-2026-04-21.md` — leitura única pra retomar sessão.
-> **Correção crítica (v13):** incident 2026-04-21 — reindex às 01:09 UTC cascadeou `DELETE FROM chunks` via trigger sem auto-vectorize → cegueira semântica 5h detectada por canary. **Fix arquitetural na raiz:** `dist/reindex.js` patchado pra chamar `vectorize()` inline após restore metadata. Defesa em camadas: Fix A (reindex.js inline) + Fix B (nightly Phase 6 diário) + Fix C (canary self-heal */30min). Zero janela de cegueira semântica agora.
-> **Correção v12 (histórica):** v11 afirmava "3588 vetores Operacional" — era 100% órfãos. Fase 0.5 (Apr 18) corrigiu.
+> **Plano de execução canônico:** `memoria-nox/plans/2026-04-25-integration-roadmap-v1.6.md` (v1.6) — Phase Matrix consolidada + Wave Roadmap evolutivo. Este doc é **visão estratégica**; o plano é o que **executa**. Roadmap v1.5 (`2026-04-19-unified-evolution-roadmap.md`) permanece referência ativa pra Cross-Cutting Concerns + Decisões Válidas + "NÃO FAZEMOS".
+> **Master handoff:** `memoria-nox/handoffs/MASTER-HANDOFF-2026-04-24.md` — sessão completa de migração entities.
+> **Correção crítica (v14):** incident 2026-04-25 — `nox-mem reindex` (disparado pelo cron OpenClaw `end-of-day` 22:00 BRT diário) zerou section/retention de 183 entities porque `ingestFile()` genérico não rotava entity files via `ingestEntityFile()`. Recovery 12min. **Fix arquitetural:** guard no topo de `ingestFile()` rota `memory/entities/<type>/*.md` automaticamente; cron `end-of-day` editado pra `consolidate` em vez de `reindex`; **regra #15 CLAUDE.md**: ops destrutivas só com `--dry-run` ou snapshot atômico. Pendência menor: user-level systemd órfão rodando v4.15 em restart loop ~40% CPU também resolvido (stop+disable). Detalhes: `docs/INCIDENTS.md#2026-04-25`.
+> **Correção v13 (histórica):** incident 2026-04-21 reindex sem auto-vectorize → cegueira semântica 5h. Fix em camadas.
+> **Correção v12 (histórica):** v11 afirmava "3588 vetores Operacional" — era 100% órfãos. Fase 0.5 corrigiu.
 
 ---
 
@@ -24,32 +25,86 @@ Nox responde na hora, com fonte citada.
 
 ## O que já temos (base)
 
-| Componente | Status verificado (2026-04-21) |
+| Componente | Status verificado (2026-04-25) |
 |---|---|
-| `memory/*.md` — decisions, lessons, pending, wip, people, projects | ✅ Operacional |
-| **nox-mem v3.6d** — FTS5 + Gemini embeddings + RRF fusion, **2.073 chunks** | ✅ Operacional |
-| **Knowledge Graph v2** — **~397 entidades, ~516 relações**, extração via Gemini 2.5 Flash | ✅ Operacional (migrado 2026-04-11) |
-| **Semantic search** — sqlite-vec, **2.073 / 2.073 (100% coverage)**, Gemini embeddings 3072d | ✅ Operacional |
-| **Reindex com auto-vectorize inline** — `dist/reindex.js` patched 2026-04-21 | ✅ Operacional (fix arquitetural da raiz — elimina janela de cegueira pós-reindex) |
+| `memory/*.md` — decisions, lessons, pending, wip, people, projects | ✅ Operacional + **3 source files arquivados 2026-04-25** (decisions/lessons/projects.md → entities) |
+| **nox-mem v3.7+** — FTS5 + Gemini embeddings + RRF fusion, **9540 chunks** (+360% volume desde v3.6d) | ✅ Operacional |
+| **Schema v10** — retention_days (v8) + pain (v9) + section/section_boost (v10) | ✅ Operacional 2026-04-23/24 |
+| **Knowledge Graph v2** — **~402 entidades**, ~544 relações, extração via Gemini 2.5 Flash | ✅ Operacional |
+| **Semantic search** — sqlite-vec, **9540 / 9540 (100% coverage)**, Gemini embeddings 3072d | ✅ Operacional |
+| **Reindex com auto-vectorize + entity routing** — `dist/reindex.js` + `dist/ingest.js` patched 2026-04-25 | ✅ Operacional (entity files → ingestEntityFile automático; fix arquitetural elimina classe inteira de bug) |
 | **Hermes upgrades** — reflect (KG synthesis) + crystallize (procedures searchable) | ✅ Operacional (deployado 2026-04-13) |
-| **Agent Expertise Map** — `shared/agent-expertise.md`, roteamento via SOUL.md + `agent-map.md` | ✅ Operacional |
-| **HTTP API** — porta **18802** (Chrome squata 18800), **10 endpoints** JSON | ✅ Operacional |
+| **Compiled Truth + Timeline** — entity 3-section format, 183 entities migradas (12 projects + 42 lessons + 127 decisions + 2 agents) | ✅ Operacional 2026-04-24 (1.7b-c) — 732 chunks (compiled=183, frontmatter=183, timeline=366) |
+| **Affective Ranking (pain-weighted)** — schema v9, baseline 207 promote/1886 archive candidates | ✅ Shadow-mode (NOX_SALIENCE_MODE=shadow), ativação prevista 2026-04-30 |
+| **Section Boost** — compiled=2.0x, frontmatter=1.5x, timeline=0.8x | ✅ Shadow-mode (NOX_SECTION_BOOST_MODE=shadow), ativação prevista 2026-05-01 |
+| **Typed Source Retention** — feedback/person=NULL never-decay, lesson 180d, decision/project 365d, default 90d, override via HTML comment | ✅ Operacional 2026-04-23 (1.7b-a) |
+| **HTTP API** — porta **18802**, 10 endpoints incl. /salience + /sectionDistribution | ✅ Operacional |
 | **MCP Server** — **16 tools** via JSON-RPC 2.0 stdio | ✅ Operacional |
-| **Trigger `trg_chunks_delete_cascade`** — AFTER DELETE ON chunks limpa vec_chunks + map | ✅ Instalado 2026-04-18 no workspace + **2026-04-21 em 6 DBs de agente** (atlas, boris, cipher, forge, lex, nox) |
-| **Semantic canary + self-heal** (`/root/.openclaw/scripts/semantic-canary.sh`) | ✅ Ativo **`*/30min`** com auto-recovery (vectorize + retry em `total=0` ou `semantic=0`) |
-| **Discord heartbeat validation** (`check-discord-heartbeat-validation.sh`) | ✅ Ativo `*/30min` — valida bot Maestro + 6 channels + zero "Unknown Channel" events |
-| **Morning report** (`morning-report.sh`) | ✅ Ativo às 06:30 (alerta Discord) |
-| **Nightly maintenance** (`nightly-maintenance.sh`) | ✅ Phase 1-6 diárias — Phase 6 diário de vectorize (idempotente) é safety net pro reindex |
-| **Heartbeat-sync** — gera HEARTBEAT.md por agente inferindo de session mtime | ✅ `*/15min` (bash+find, zero-custo) |
-| **RelayPlane proxy** (`:4100`) — roteando tráfego Anthropic real | ✅ Ativo 2026-04-21 — budget cap $5/dia / $1/hora / $0.50/req + cascade Sonnet→Haiku→DeepSeek R1→Qwen3→Llama 70B. Requer BOTH `ANTHROPIC_BASE_URL` no env **E** `providers.anthropic.baseUrl` no `openclaw.json` |
-| **active-memory plugin** — recall pré-turn por agente | ✅ Migrado Haiku→Gemini Flash-Lite 2026-04-21 (10x mais barato, timeout 15s, plugin contribui de verdade agora) |
-| **graph-memory plugin** — session continuity + vector search | ✅ Em produção com `afterTurn` events validados |
-| **Cross-agent Intelligence** — 7 DBs (workspace + 6 agentes) via `nox-mem cross-stats`/`cross-search`/`cross-kg` | ✅ Operacional (revivido 2026-04-21 com trigger + vetores em 6 DBs) |
-| `wip.md`, `feedback/approved.json`, L1 índices, USER-PROFILE | ✅ Base (Fase 1) |
-| GitHub `totobusnello/memoria-nox` (este repo) + `totobusnello/nox-workspace` | ✅ Operacional — CLAUDE.md v3.6d pushed 2026-04-21 |
-| Time de 6 agentes via Discord — delegação inter-agente via `sessions_send` | ✅ Operacional (validado end-to-end 2026-04-21: Nox→Atlas→resposta) |
+| **CLI** — 26+ subcomandos incl. `ingest-entity` (NOVO 2026-04-24) | ✅ Operacional |
+| **Trigger `trg_chunks_delete_cascade`** — AFTER DELETE ON chunks limpa vec_chunks + map | ✅ Instalado 2026-04-18 + propagado 6 DBs agentes 2026-04-21 |
+| **Semantic canary + self-heal** (`semantic-canary.sh`) | ✅ Ativo `*/30min` com auto-recovery |
+| **Section shadow telemetry** (`section-shadow-telemetry`) | ✅ Ativo daily 23:45 BRT — JSON em `/var/log/nox-section-shadow-daily.log` |
+| **Discord heartbeat validation** | ✅ Ativo `*/30min` — 6 channels + zero "Unknown Channel" |
+| **Morning report** (`morning-report.sh`) | ✅ Ativo 06:30 BRT |
+| **Nightly maintenance** (`nightly-maintenance.sh`) | ✅ 7 phases (incl. Phase 7 WAL checkpoint TRUNCATE add 2026-04-24) |
+| **Heartbeat-sync** | ✅ `*/15min` |
+| **Claude CLI backend (zero pay-per-token)** — agents.defaults via OAuth Max | ✅ Operacional desde 2026-04-22, routing per-agent v3.7b 2026-04-24 (nox+forge=opus, atlas+boris+cipher+lex=sonnet) |
+| **OpenClaw v2026.4.23** + monkey-patch Issue #62028 + upgrade scripts idempotent | ✅ Operacional |
+| **active-memory plugin** — Gemini Flash-Lite, recall pré-turn | ✅ Operacional |
+| **graph-memory plugin** — session continuity, log misleading patched 2026-04-24 | ✅ Operacional |
+| **Cross-agent Intelligence** — 7 DBs (workspace + 6 agentes) | ✅ Operacional |
+| **Bridge Mode** (CLI + MCP + HTTP API + dashboard sobre mesma SQLite) | ✅ Operacional (formalização docs prevista Wave 3) |
+| **HD Mac Tier 1** — md+docx via pandoc + watcher async | ✅ 543 files / 2697 chunks ingestados 2026-04-24 |
+| **Snapshot pré-op atômico** + audit log + ingest-router unified | 🟡 Pre-gate hardening A0-A2 (executar até 2026-04-29) |
 | Tailscale Mac (`100.119.65.10`) ↔ VPS (`100.87.8.44`) | ✅ Operacional |
-| Logrotate em 9 logs nox-* | ✅ Ativo 2026-04-21 (daily, 14 rotations) |
+
+---
+
+## Phase Matrix (status canônico embedded — v1.6)
+
+> Tabela autossuficiente pra entender estado real sem abrir o plano. Detalhes operacionais (sequência, esforços, gates) em `plans/2026-04-25-integration-roadmap-v1.6.md`.
+
+| # | Fase | Status | Conclusão | Notas |
+|---|---|---|---|---|
+| 1 | Quick Wins (wip, feedback, L1) | ✅ DONE | 2026-04-11 | — |
+| 1.5 | KG Migration Ollama→Gemini | ✅ DONE | 2026-04-11 | 1489 entities |
+| 0.5 | Foundation Repair | ✅ DONE | 2026-04-18 | 1951/1951 embedded |
+| 24h | Observação pós-Foundation | ✅ DONE | 2026-04-21 | 3d estável |
+| 1.6 | Search Quality (expansion + dedup) | ✅ DONE | 2026-04-19 | wrapper puro |
+| 1.7a | Core Memory Quality | ✅ DONE | 2026-04-19 | ontology, USER-PROFILE |
+| 2.5 | graph-memory plugin | ✅ DONE (patched) | 2026-04-23 | log misleading 2026-04-24 |
+| D1-D4 | Audit sistêmica | ✅ DONE | 2026-04-21 | 17 fixes |
+| RP | RelayPlane | ✅ DONE | 2026-04-21 | INATIVO desde 04-22 (substituído pelo Claude CLI) |
+| IM | Import repos locais | ✅ DONE | 2026-04-23 | 147 docs + 9 repos |
+| **1.7b-a** | Typed retention matrix | ✅ DONE | 2026-04-23 | schema v8 |
+| Stab | 5-agent audit + 10 fixes | ✅ DONE | 2026-04-23 | APPROVE WITH MINOR |
+| **2** | Graphify scale | ✅ DONE (9 repos) | 2026-04-23 | 1046 graph_node chunks |
+| **1.7b-b** | Salience formula formal | ✅ DONE shadow | 2026-04-23 | schema v9, pain REAL |
+| **1.7b-c** | Compiled truth + timeline | ✅ DONE | 2026-04-24 | schema v10, 181 entities |
+| **3 Tier 1** | HD Mac md+docx | ✅ DONE | 2026-04-24 | 2697 chunks via pandoc + watcher |
+| **A0** | Query logging + golden-tag | 🔜 PRE-GATE | até 2026-04-29 | 1h, extends search_telemetry |
+| **A1** | Audit log + snapshot pré-op atômico | 🔜 PRE-GATE | até 2026-04-29 | 4h, cura incident 2026-04-25 |
+| **A2** | Ingest-router unified (single dispatch) | 🔜 PRE-GATE | até 2026-04-29 | 3h, débito arquitetural |
+| GATE | Salience activation | ⏳ GATE | 2026-04-30 | `activate-salience.sh --apply` |
+| GATE | Section_boost decision | ⏳ GATE | 2026-05-01 | `analyze-shadow-telemetry.sh 7` |
+| **A3** | Unit tests parseRetentionOverride | ⏳ POST-GATE | 2026-05-02+ | 30min, backlog #1 (teria pego incident) |
+| **A4** | Canary invariants extension | ⏳ POST-GATE | 2026-05-02+ | 30min, +section/retention NOT NULL |
+| **A5** | Dry-run mode em ops destrutivas | ⏳ POST-GATE | 2026-05-02+ | 3h, antes de migration v11+ |
+| 4 | Obsidian view-only | ⏳ POST-GATE | 2026-05-02+ | 1h, **destrava Fase P** |
+| 3 Tier 2 | PDFs text-layer (4432 PDFs) | ⏳ POST-GATE (paralelo) | 2026-05-02+ | dias |
+| Backlog | #4 issue + #5 docs + #7 alert + #8 playbooks | ⏳ POST-GATE | 2026-05-02+ | 1h45 |
+| **W1** | Memory Graph Maturity Wave 1 (edge typing, detect-changes, impact, api_impact) | 🔮 Maio 2026 | gated por métricas | 27-30h |
+| **W2** | Wave 2 (eval harness completo) | 🔮 Jun-Jul 2026 | depende W1 + golden curated | 14-20h |
+| **W3** | Wave 3 (paper v2: Affective + Federation + Bridge Mode) | 🔮 Ago 2026 | depende W2 nDCG baseline | 5-8h |
+| 3 Tier 3 | OCR Gemini PDFs scanned (opcional) | 🔒 OPCIONAL | — | dias |
+| 3.5 | Fathom API | 🔒 OPCIONAL | — | 3-4h |
+| Path B-lite | Semantic reflect cache | 🔒 BLOCKED | depende telemetria reflect | 2-3h |
+| Path C | WAL shipping + cold tier | 🔒 BLOCKED | depende Fase 4 estável 30d | dias |
+| 4b/5 | Obsidian write + bidirectional | 🔒 FUTURO | depende Fase 4 + 2-4 sem | semanas |
+| SEH | Self-Evolving Hooks | 🔒 INDEPENDENTE | — | 2h |
+| **P** | Productização NOX-Supermem | 🔒 HORIZONTE 60d+ | depende Fase 4 estável 30d | semanas |
+
+Legenda: ✅ DONE / 🔜 PRE-GATE (HOJE→04-29) / ⏳ GATE ou POST-GATE / 🔮 WAVE FUTURA (gated por métricas) / 🔒 BLOCKED ou FUTURO / 🟡 EM ANDAMENTO
 
 ---
 
@@ -239,6 +294,28 @@ nox-mem hybrid search + graph-memory recall → Nox responde com contexto comple
 4. **Vectorização lazy** — vetorizar os 1000 chunks mais acessados primeiro, expandir sob demanda
 5. **GRAPH_REPORT.md como cache** — agentes leem resumo no boot (20 top entities), não fazem query no grafo completo
 6. **DBs separados por camada** — graph-memory.db (hot), nox-mem.db (warm), graphify graph.json (cold). Nunca mergear tudo num banco só
+
+### 8. Affective Ranking — pain-weighted retrieval (NOVO v14)
+
+**Decisão:** chunks têm peso afetivo (`pain` REAL 0.1-1.0) que pondera o ranking — crash em prod pesa mais que warning. Validado experimentalmente via `salience = recency × pain × importance`.
+
+**Por que é diferencial:** RAGs convencionais ranqueiam por relevância semântica + frequência. Nox-mem v3.7+ adiciona **dimensão emocional/operacional** — incidentes pesam mais, lessons sobre crashes ficam visíveis quando relevantes mesmo após 6 meses.
+
+**Estado atual:** schema v9 deployado 2026-04-23. Backfill heurístico: 256 chunks pain=1.0 (prod-outage/crash), 43 pain=0.8 (lesson), 469 pain=0.5 (bug/error), 105 pain=0.3 (warn/deprec), 6474 pain=0.2 (default). Shadow-mode rodando, ativação prevista 2026-04-30.
+
+### 9. Compiled Truth + Timeline — entity 3-section format (NOVO v14)
+
+**Decisão:** entities (`memory/entities/<type>/<slug>.md`) têm 3 seções: **frontmatter** (metadata), **compiled truth** (verdade atual reescrita conforme evidência muda), **timeline** (append-only, fatos datados). Cada arquivo gera N+2 chunks com `section_boost` diferenciado.
+
+**Por que é diferencial:** code-intelligence externa indexa código atemporal. Nox-mem v3.7+ tracha **temporalidade epistêmica** — sabe que "X era verdade ontem mas hoje mudou". Compiled é rewritável (Toto via `/memory-recompile` skill); timeline é append-only (histórico imutável).
+
+**Estado atual:** 183 entities migradas 2026-04-24 (12 projects + 42 lessons + 127 decisions + 2 agents). Distribuição: compiled=183, frontmatter=183, timeline=366. `section_boost`: compiled=2.0x, frontmatter=1.5x, timeline=0.8x. Shadow-mode telemetry coletando A/B desde 04-24, ativação prevista 2026-05-01.
+
+### 10. Bridge Mode — uma indexação, múltiplos consumidores (NOVO v14)
+
+**Decisão:** mesma SQLite (`nox-mem.db`) consumida via 4 interfaces equivalentes: CLI (26+ subcomandos), MCP (16 tools), HTTP API (porta 18802, 10 endpoints), agent-hub-dashboard (4 páginas). Zero duplicação de indexação.
+
+**Por que é diferencial:** muitos sistemas de memória têm 1 cliente fixo (chatbot OU dashboard OU CLI). Bridge Mode permite Nox no WhatsApp, Forge no Discord, Toto na CLI, painel visual no browser — todos na mesma fonte de verdade. **Já implementado** desde Fase 1.6, mas formalização docs prevista pra Wave 3 (paper v2).
 
 ---
 
@@ -779,6 +856,9 @@ Plugin Obsidian que conecta na porta 18789 (gateway) e sincroniza a cada 5 minut
 | gbrain engine pluggável | Não adotar (PGLite/Postgres) | **Motivo explícito:** o gbrain suporta PGLite e Postgres como engines alternativos ao SQLite. Migrar o nox-mem para Postgres adicionaria um serviço extra (daemon, backup, autovacuum), aumentaria complexidade operacional e não traria benefício mensurável abaixo de 500K entidades. O SQLite com WAL mode performa em <5ms para os volumes atuais. Revisitar se/quando migrar para Memgraph (>500K entidades). |
 | gbrain git-as-source-of-truth | Não adotar (markdown-as-code) | **Motivo explícito:** o gbrain usa markdown files versionados em git como banco primário — cada entidade é um arquivo `.md` com frontmatter YAML. O nox-mem usa SQLite com FTS5 + sqlite-vec + schema relacional. São filosofias de storage opostas. Adotar o modelo gbrain significaria reescrever o nox-mem do zero (novo schema, novo chunker, novo indexer, novo search). As features individuais (query expansion, dedup, semantic chunking, source attribution) são portáveis e foram adotadas. A arquitetura de storage não é. |
 | gbrain 30 MCP tools | Manter 14 tools atuais | Mais tools = mais manutenção. Novos capabilities via search quality + enrichment |
+| **Regra #15 — ops destrutivas** (v14) | `--dry-run` ou snapshot atômico OBRIGATÓRIO | Lição incident 2026-04-25 — `nox-mem reindex` zerou metadados de 183 entities. backup-all.sh diário 02:00 NÃO conta como pré-op. CLAUDE.md regra #15 detalha. |
+| **Inspirações externas (v14): incorporar conceitos, não migrar arquitetura** | Filtrar por valor mensurável no domínio nox-mem (memória conceitual multi-agent) | Padrões de code-intelligence externos têm domínio diferente (código, atemporal, single-user). Ideias portáveis (edge typing, dry-run, eval harness, impact analysis) viram Memory Graph Maturity Waves. License/stack externa NÃO entra. |
+| **Group routing (v14)** | CORTADO definitivamente — qualquer formato | Viola Decisão #4 SOUL.md (cross-Agent não-algorítmico). `cross-search --agents X,Y` já cobre. Frontmatter tag também cortado (algorithmic routing disfarçado). |
 
 ---
 
@@ -794,6 +874,9 @@ Plugin Obsidian que conecta na porta 18789 (gateway) e sincroniza a cada 5 minut
 | **inotifywait + symlinks** — watcher pode não seguir symlinks | Vault não monitorado | Testar com `-r` na Fase 2, fallback: cron em vez de watch |
 | **Escala 20K-70K entidades** — graph traversal fica lento | Queries >2s no WhatsApp | Camadas hot/warm/cold, TTL 90d, max depth=2, extração incremental |
 | **KG extraction batch** — 50K docs via Gemini = horas | Custo API, rate limit | SHA256 cache (só novos), vectorização lazy (top 1000 primeiro) |
+| **Reindex sem snapshot pré-op** (v14) | Wipe de metadados em produção (incident 2026-04-25 wipou 183 entities) | Regra #15 obrigatória + Fase A1 hardening (snapshot atômico em `/var/backups/nox-mem/pre-op/` retention 7d) |
+| **End-of-day cron disparando reindex daily** (v14) | Toda noite 22:00 BRT redo full DELETE+INSERT, expondo qualquer bug arquitetural | Cron `end-of-day` editado 2026-04-25 pra `nox-mem consolidate` (não muta chunks; só `consolidated_files.status`). Reindex full continua via nightly Phase 2 (odd DOM, agent workspaces) |
+| **User-level systemd órfão** (v14) | Servicio v4.15 antigo em restart loop ~40% CPU paralelo ao system gateway v4.23 | Stop+disable+rename do `~/.config/systemd/user/openclaw-gateway.service` (load avg 0.95→0.56 imediato) — **regra**: após upgrades OpenClaw, `loginctl user-status root` pra detectar duplicatas |
 
 ---
 
@@ -863,6 +946,33 @@ Cada fase habilita novas perguntas reais. Teste esses exemplos para validar que 
 ## Evoluções Futuras (não prioritárias agora)
 
 Ideias estudadas que fazem sentido quando o sistema crescer, mas são over-engineering hoje.
+
+### Memory Graph Maturity Waves (Maio-Ago 2026) — NOVO v14
+
+Roadmap evolutivo em 3 waves, distribuído em ~50h ao longo de 4 meses, **gated por métricas (não calendário)**. Detalhes operacionais completos em `plans/2026-04-25-integration-roadmap-v1.6.md` Seção 7. Resumo:
+
+**WAVE 1 (Maio 2026, paralelo a Tier 2 PDFs) — 27-30h**
+- W1.1 Edge typing FULL: `relation_reason` enum 7 + `confidence` REAL em `kg_relations`. Migration v11. Vocabulário enum CLOSED (sem free-form, sem query DSL — respeita NÃO FAZEMOS Text2Cypher). 12-14h.
+- W1.2 `nox-mem detect-changes --since=<commit>`: git diff → entities/chunks afetados. READ-ONLY, sem hook automático. 5-6h.
+- W1.3 `nox-mem impact <entity>`: 1-hop blast radius via kg_relations. Risk summary por chunk_type. SQL fixa, sem DSL. 6h.
+- W1.4 `nox-mem api_impact <signature>`: multi-arquivo via grep + import graph. Cobre classe que W1.3 não cobre (bug arquitetural). 4h.
+
+**WAVE 2 (Jun-Jul 2026) — 14-20h**
+- W2.1 Eval harness completo: 50 golden queries + nDCG@10 + MRR. Migration v12 com `eval_queries` table. CLI `nox-mem eval run` + JSONL out. CI gate opcional. 14-20h.
+
+**WAVE 3 (Ago 2026, pré-NOX-Supermem) — 5-8h**
+- W3.1 Paper v2 update: Affective Ranking + Multi-Agent Memory Federation + Bridge Mode. Update `paper-tecnico-nox-mem.md/.docx` v3.0.0 stale. 5-6h.
+
+**Cortados definitivamente (4 ideias eliminadas pós-validação):**
+- ~~W2.2 Bridge mode docs standalone~~ → fundido em W3.1
+- ~~W2.3 Tool/Skill map~~ → DEFER ≥6mo (sem consumer real, premature polish)
+- ~~W3.2 Plugin hooks~~ → YAGNI (n=1 consumer = graphify), aproxima "30 MCP tools"
+- ~~W3.3 Group routing v2~~ → viola Decisão #4 SOUL.md
+
+**Wave gating métrico (não-calendário):**
+- W1→W2: ≥80% rels classificadas com confidence ≥0.7 em shadow 7d + 50 golden curated
+- W2→W3: nDCG@10 baseline publicado + 1 incident-free month + Affective Ranking validado
+- Kill switches: features não usadas ≥3x/sem após 30d → archive; queries golden <50 em 2 sem → reduzir pra 20
 
 ### Graph database dedicado (Memgraph ou Neo4j)
 **Quando:** KG ultrapassar 500K entidades com queries multi-hop complexas em real-time.
@@ -955,6 +1065,7 @@ Ideias estudadas que fazem sentido quando o sistema crescer, mas são over-engin
 ---
 
 *Documento vivo — atualizado após cada fase concluída.*
-*Última atualização: **2026-04-21 v13** — sessão de audit completa, 22 tasks, 18 fixes em 4 rounds (incident recovery + audit sistêmica + RelayPlane fix + item D + active-memory migration). Sistema em **v3.6d**: 2.073 chunks 100% embedded, 397 entidades KG, canary **`*/30min` com self-heal**, reindex auto-vectorize inline (fix arquitetural), RelayPlane ativo roteando Sonnet+Haiku com budget cap real, delegação inter-agente validada end-to-end, cross-agent com 7 DBs operacionais, active-memory Gemini Flash-Lite (10x mais barato), 6 serviços active, zero drift de docs. Ordem de prioridade reiterada: **plano operacional → auditoria detalhada → Fase 2 Graphify scale → (estável 30d) → produtização NOX-Supermem POR ÚLTIMO**. Master handoff em `handoffs/MASTER-HANDOFF-2026-04-21.md`.*
-*v12 (2026-04-18): Fase 0.5 Foundation Repair concluída; correção da afirmação falsa sobre Layer 2 operacional na v11; status re-verificado (1.951 chunks, 100% coverage, 16 MCP tools, porta 18802, trigger CASCADE ativo, canary + morning report automáticos); Fase P productização adicionada ao horizonte.*
+*Última atualização: **2026-04-25 v14** — incorporação completa do salto v3.6d→v3.7+ (5 dias). Phase Matrix tabular embedded (autossuficiente). Adicionadas 3 decisões arquiteturais novas (Affective Ranking, Compiled Truth+Timeline, Bridge Mode). Memory Graph Maturity Waves (Maio-Ago 2026) consolidado em Evoluções Futuras. Regra #15 ops destrutivas (lição incident 2026-04-25 reindex wipe). 3 riscos novos catalogados (reindex sem snapshot, end-of-day cron, user-level systemd órfão). 2 cortes definitivos: Group routing (todas formas), Plugin hooks (YAGNI). Plano de execução canônico atualizado pra `plans/2026-04-25-integration-roadmap-v1.6.md`. Sistema em **v3.7+**: 9540 chunks 100% embedded, schema v10 (retention/pain/section), 184 entities migradas (compiled+frontmatter+timeline), HD Mac Tier 1 (2697 chunks md+docx), Claude CLI backend OAuth zero pay-per-token, OpenClaw v2026.4.23 + monkey-patch, 4/4 services active (load 0.56). Master handoff em `handoffs/MASTER-HANDOFF-2026-04-24.md`.*
+*v13 (2026-04-21): sessão de audit completa, 22 tasks, 18 fixes em 4 rounds. v3.6d com 2073 chunks, RelayPlane ativo, canary self-heal, reindex auto-vectorize inline.*
+*v12 (2026-04-18): Fase 0.5 Foundation Repair concluída; correção da afirmação falsa sobre Layer 2 operacional na v11; status re-verificado (1951 chunks, 100% coverage, 16 MCP tools); Fase P productização adicionada ao horizonte.*
 *v11 original: 2026-04-12 — config `expansionEnabled` na Fase 1.6; motivos explícitos para não adotar gbrain git-as-source-of-truth e engine pluggável; decisão Notion documentada.*

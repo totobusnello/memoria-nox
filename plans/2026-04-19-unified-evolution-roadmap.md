@@ -1,9 +1,9 @@
 # Unified Evolution Roadmap — nox-mem Memory System
 
-**Versão:** 1.3 (2026-04-21)
-**Status:** v3.6d deployado. Fase 1.7b detalhada em 3 sub-fases (a/b/c) pós-análise do paper "Claude Memory Setup". 1.7b-a adiantada pra rodar junto com IM.
+**Versão:** 1.5 (2026-04-23) — **REFERÊNCIA HISTÓRICA**
+**Status:** Phase Matrix + Sequência Cronológica + Wave Roadmap migraram pra v1.6 em `plans/2026-04-25-integration-roadmap-v1.6.md` (canônico desde 2026-04-25). **Permanecem REFERÊNCIA ATIVA neste arquivo:** Cross-Cutting Concerns, Decisões Ainda Válidas (13 numbered), "Explicitamente NÃO FAZEMOS" (9 itens), Ritual de Progressão.
 **Fonte estratégica:** `docs/nox-neural-memory.md` (v13)
-**Fonte de execução:** este arquivo — **source of truth daqui em diante**
+**Fonte de execução atual:** `plans/2026-04-25-integration-roadmap-v1.6.md`
 **Última auditoria completa:** 2026-04-21 (sessão audit sistêmica — 18 fixes + análise paper)
 
 ---
