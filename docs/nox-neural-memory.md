@@ -87,8 +87,8 @@ Nox responde na hora, com fonte citada.
 | **A2** | Ingest-router unified (single dispatch) | ✅ DONE | 2026-04-25 ~14:00 BRT | src/lib/ingest-router.ts routeIngest() em 4 callers; defesa em camadas |
 | GATE | Salience activation | ⏳ GATE | 2026-04-30 | `activate-salience.sh --apply` |
 | GATE | Section_boost decision | ⏳ GATE | 2026-05-01 | `analyze-shadow-telemetry.sh 7` |
-| **A3** | Unit tests parseRetentionOverride | ⏳ POST-GATE | 2026-05-02+ | 30min, backlog #1 (teria pego incident) |
-| **A4** | Canary invariants extension | ⏳ POST-GATE | 2026-05-02+ | 30min, +section/retention NOT NULL |
+| **A3** | Unit tests parseRetentionOverride (14 cases) | ✅ DONE | 2026-04-25 ~15:55 BRT | node:test built-in, 14/14 pass |
+| **A4** | Canary invariants extension (4 invariants */15min) | ✅ DONE | 2026-04-25 ~16:01 BRT | check-schema-invariants.sh com Discord alert |
 | **A5** | Dry-run mode em ops destrutivas | ⏳ POST-GATE | 2026-05-02+ | 3h, antes de migration v11+ |
 | 4 | Obsidian view-only | ⏳ POST-GATE | 2026-05-02+ | 1h, **destrava Fase P** |
 | 3 Tier 2 | PDFs text-layer (4432 PDFs) | ⏳ POST-GATE (paralelo) | 2026-05-02+ | dias |

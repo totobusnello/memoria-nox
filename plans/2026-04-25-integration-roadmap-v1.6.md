@@ -116,8 +116,8 @@ Prioridade: **destravar Fase P + entregar valor visível ao Toto, paralelo a inf
 
 | # | Fase | Origem | Esforço | Bloqueia |
 |---|---|---|---|---|
-| **A3** | Unit tests `parseRetentionOverride` (8 casos) | Backlog #1 | 30min | — (teria pego o incident de hoje) |
-| **A4** | Canary invariants extension (+section/retention NOT NULL) | Crítica | 30min | — |
+| **A3** ✅ | Unit tests `parseRetentionOverride` (14 casos) | Backlog #1 | **DONE 2026-04-25 ~15:55 BRT (~25min)** | `src/__tests__/retention.test.ts` via `node:test` built-in (zero deps novas). 14 cases: never/numeric/CRLF/case-insensitive/edge cases/regression guards. **14/14 pass.** |
+| **A4** ✅ | Canary invariants extension (+section/retention NOT NULL) | Crítica | **DONE 2026-04-25 ~16:01 BRT (~30min)** | `check-schema-invariants.sh` cron `*/15min` com 4 invariants: section NOT NULL ≥600, compiled ~183, feedback/person never_decay, ops_audit zero fails 24h, section_boost values consistentes (compiled=2.0/frontmatter=1.5/timeline=0.8). Exit code = violation count. Discord alert via webhook. Log `/var/log/nox-schema-invariants.log`. Smoke test: `OK section_nonnull=732 compiled=183 feedback_wrong=0 ops_failed=0 boost_mismatch=0`. |
 | **A5** | Dry-run mode em reindex/consolidate/crystallize | Pattern externo | 3h | Antes de qualquer migration v11+ |
 | **B1** | **Fase 4 Obsidian view-only** | v1.5 | 1h | **Destrava Fase P** |
 | **B2** | Fase 3 Tier 2 — PDFs text-layer (paralelo) | v1.5 | dias | Fase 4 estabilizar |
