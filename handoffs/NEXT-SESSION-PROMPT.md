@@ -1,100 +1,103 @@
 # Prompt pra próxima sessão — nox-mem
 
-**Gerado:** 2026-04-24 ~14:05 BRT (dia épico: 10 commits, 6335→9541 chunks, Fase 1.7b-c 100%, HD Mac Tier 1)
+**Gerado:** 2026-04-25 ~16:45 BRT (sessão de incident recovery + 6 fases hardening)
 **Uso:** copiar o bloco abaixo, colar na próxima janela Claude Code
 
 ---
 
 ```
-Retomando nox-mem pós-sessão 2026-04-24 (dia cheio: Cipher triage, 1.7b-c COMPLETA, HD Mac Tier 1).
+Retomando nox-mem pós-sessão 2026-04-25 (incident recovery + pre-gate hardening completo + 3 itens post-gate antecipados).
 
 CONTEXTO OBRIGATÓRIO — ler ANTES de qualquer ação:
-1. /Users/lab/Claude/Projetos/memoria-nox/handoffs/MASTER-HANDOFF-2026-04-24.md  (leitura única — este é o fresh, não o de 23/04)
-2. /Users/lab/Claude/Projetos/memoria-nox/CLAUDE.md  (estado + 14 regras críticas)
-3. /Users/lab/Claude/Projetos/memoria-nox/plans/2026-04-19-unified-evolution-roadmap.md  (Phase Matrix, Fase 1.7b-c agora ✅ DONE)
-4. /Users/lab/Claude/Projetos/memoria-nox/plans/2026-04-24-fase-3-hd-mac-staged.md  (Tier 2/3 PDFs pendente)
+1. /Users/lab/Claude/Projetos/memoria-nox/handoffs/MASTER-HANDOFF-2026-04-25.md  (FRESH — leitura única)
+2. /Users/lab/Claude/Projetos/memoria-nox/CLAUDE.md  (estado + 15 regras críticas — regra #15 é nova: ops destrutivas só com --dry-run ou snapshot atômico)
+3. /Users/lab/Claude/Projetos/memoria-nox/plans/2026-04-25-integration-roadmap-v1.6.md  (CANÔNICO desde 04-25; substitui Phase Matrix do v1.5)
+4. /Users/lab/Claude/Projetos/memoria-nox/docs/nox-neural-memory.md  (v14, visão estratégica com Phase Matrix tabular embedded + 3 decisões novas)
 
 SANITY CHECK (1 comando — esperar tudo verde):
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, salience:.salience.mode, section:.sectionDistribution, retention:.retentionDistribution, db:.dbSizeMB}"'
-# Esperado: total≥9541, embedded=total, salience.mode=shadow, section.compiled=183, db_mb≈170
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, salience:.salience.mode, section:.sectionDistribution, opsAudit:.opsAudit, db:.dbSizeMB}"'
+# Esperado: total=9540, embedded=9540, salience=shadow, section.compiled=183, opsAudit (active), db≈172
 
-SHADOW TELEMETRY (novo — rodou 23:45 BRT ontem):
-ssh root@100.87.8.44 'tail -3 /var/log/nox-section-shadow-daily.log | jq .'
-# Esperado: entries JSON com by_section (compiled/frontmatter/timeline)
+SCHEMA INVARIANTS (NOVO canário A4 — */15min):
+ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
+# Esperado: 3 entries OK (section_nonnull≥600 compiled≈183 feedback_wrong=0 ops_failed=0 boost_mismatch=0)
 
-ESTADO ATUAL (2026-04-24 14:05):
-- 9541 chunks, 100% embedded, 0 orphans, DB 170MB
-- 184 entities ingestadas (2 agents + 1 system + 12 projects + 42 lessons + 127 decisions)
-- 2697 chunks em memory/mac-docs/ (HD Mac Tier 1 md+docx)
-- Source .md files (projects/decisions/lessons) arquivados — entities substituem
-- Schema v10 totalmente utilizado (sections: compiled:183, frontmatter:183, timeline:366, legacy:8809)
-- never_decay=104 (core + feedback + person + entity overrides)
+ESTADO ATUAL (2026-04-25 16:45):
+- 9540 chunks, 100% embedded, 0 orphans, DB ~172MB
+- 184 entities ingestadas (compiled=183, frontmatter=183, timeline=366)
+- 2697 chunks em memory/mac-docs/ (HD Mac Tier 1)
+- Source .md files arquivados — entities substituem
+- Schema v10 + 4 cols A0 + ops_audit table A1
 - Shadow modes ativos:
-  * NOX_SECTION_BOOST_MODE=shadow (active em 7d se baseline OK, ~2026-05-01)
-  * NOX_SALIENCE_MODE=shadow (active em 2026-04-30 via activate-salience.sh)
+  * NOX_SECTION_BOOST_MODE=shadow (decisão 2026-05-01)
+  * NOX_SALIENCE_MODE=shadow (ativação 2026-04-30)
+  * NOX_SEARCH_LOG_TEXT=1 (NOVO A0, opt-in pra eval harness futura)
 - Claude CLI backend OAuth, fallback sem anthropic/*
-- Canários hourly + daily OK
-- Arquitetura: core-tier preservation em reindex (bug fixado ontem)
-- CLI: nox-mem ingest-entity <file> disponível
+- 5 camadas de defesa ativas: semantic-canary + schema-invariants + ops_audit + withOpAudit + --dry-run
+- Pre-gate hardening A0+A1+A2 completo
+- Post-gate parcial A3+A4+A5 antecipado
 
-10 COMMITS PUSHED HOJE:
-c45c207 Fase 3 Tier 1 EXECUTADO (HD Mac 2697 chunks)
-edefba5 itens 2+3+4 pós-close 1.7b-c
-288d697 telemetria 7d section_boost shadow-mode
-63e454a Fase 1.7b-c Chunk 4 — section_boost + /memory-recompile
-10c1b92 Fase 1.7b-c chunks 1-3 — migração massiva
-dd0484c Opção C housekeeping + core-tier preservation fix
-67fa926 MASTER-HANDOFF-2026-04-24 + Cipher diagnostic
-8ab3f98 1.7b-c ganha CLI formal (nox-mem ingest-entity)
+6 COMMITS PUSHED HOJE (2026-04-25):
+942dcf7 feat(safety): A5 dry-run mode em reindex+consolidate
+2b29d06 test+ops(safety): A3 retention tests + A4 schema invariants canary
+9da8f7c feat(arch): A2 ingest-router — single dispatch entry point
+b5fba08 feat(safety): A1 op-audit module — atomic snapshot + audit log
+2d47158 feat(observability): A0 query logging extension — search_telemetry +4 cols
+398ad7e docs(memory): v3.7+ consolidação — v1.6 roadmap + v14 vision + #15 + incident
 
 PRÓXIMA AÇÃO — 3 OPÇÕES (Toto escolhe):
 
-OPÇÃO A — Fase 3 Tier 2 (PDFs text-layer, ~4-5h) — RECOMENDADA
+OPÇÃO A — Salience activation gate (RECOMENDADA se for 2026-04-30+)
+  bash /root/.openclaw/scripts/activate-salience.sh check
+  # Se "READY: baseline 7d OK" → bash activate-salience.sh --apply
+  # Se "NOT READY" → aguardar mais dias
+
+OPÇÃO B — Section_boost decision gate (se for 2026-05-01+)
+  ssh root@100.87.8.44 'bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7'
+  # Decidir ativar via NOX_SECTION_BOOST_MODE=active no .env + restart api
+
+OPÇÃO C — Continuar post-gate remanescente (~3h estimado, ~2h real)
+  - B1 Fase 4 Obsidian view-only (1h, destrava Fase P)
+  - B3 Backlog #4 issue + #5 docs + #7 alert + #8 playbooks (1h45)
+  - Arquivar 3 source files (.archived-20260502, 5min)
+
+OPÇÃO D — Iniciar Fase 3 Tier 2 (PDFs text-layer, ~4-5h)
   4432 PDFs do HD Mac → pdftotext → .md → watcher auto-ingest
-  [ ] rsync -ah --include='*.pdf' Documents/ VPS:/root/.openclaw/workspace/memory/mac-pdfs-raw/
-  [ ] apt-get install poppler-utils (se não tiver)
-  [ ] scripts/pdf-text-extract.sh criar (pdftotext loop, skip empty/<20w)
-  [ ] Expected: +5000-15000 chunks, DB 170MB → talvez 400MB
-  [ ] Monitorar SQLITE_BUSY e vectorize throughput
-
-OPÇÃO B — Enriquecer entities com /memory-recompile (~1-2h)
-  Rodar skill em 5-10 entities piloto:
-  [ ] /memory-recompile nuvini (project entity)
-  [ ] /memory-recompile casa-b-04-boa-vista-village
-  [ ] /memory-recompile 2026-04-22-migracao-pro-claude-cli-backend-zero (lesson)
-  [ ] Comparar compiled antes/depois, validar Gemini Flash-Lite prompt
-  [ ] Search quality A/B vs shadow-mode telemetry
-
-OPÇÃO C — Observar + pequenos Tier 2 incrementais (~30min/dia)
-  [ ] Deixar shadow telemetry acumular mais dias
-  [ ] Processar ~500 PDFs por vez
-  [ ] Sem pressa, sem risco de overload
+  Aguardar gates A+B passarem antes pra não contaminar baseline
 
 EVENTOS AGENDADOS:
-- 2026-04-30: salience activation (bash activate-salience.sh --apply) — 7d baseline atingido
-- 2026-05-01: shadow telemetry analysis (analyze-shadow-telemetry.sh 7) → decidir ativar section_boost
-- 2026-05-01: review decisão ativar section_boost active baseado em agregação 7d
+- 2026-04-30: salience activation (--apply se baseline 7d OK)
+- 2026-05-01: section_boost decision (analyze-shadow-telemetry.sh 7)
+- 2026-05-02+: arquivar 3 source files + iniciar B1/B3/D
+- Maio-Ago 2026: Memory Graph Maturity Waves W1/W2/W3 (gated por métricas)
 
-CONVENÇÕES OBRIGATÓRIAS:
-- set -a; source /root/.openclaw/.env; set +a; antes de CLI nox-mem via SSH
+CONVENÇÕES OBRIGATÓRIAS (CLAUDE.md regras 1-15):
+- set -a; source /root/.openclaw/.env; set +a antes de CLI nox-mem
 - Nunca confiar última linha CLI — validar via /api/health pós-operação
-- Schema changes: migration + backfill, nunca ALTER TABLE solto
-- Features que mudam ranking → SHADOW MODE primeiro (1 semana baseline)
-- openclaw models auth * invalida monkey-patch E registry — diff+reapply ANTES de restart
+- Schema changes: aditivas + backfill, nunca ALTER TABLE solto
+- Features que mudam ranking → SHADOW MODE 1 semana baseline
+- openclaw models auth * invalida monkey-patch E registry
 - Backup .bak-pre-<feature>-<date> antes de editar arquivos produção
 - Validar features com DB state, NUNCA só com logs
-- Validar alegações de agents secundários (Cipher/Atlas/etc) ANTES de agir
-- Entry point CLI é dist/index.js (não cli.js) — ler package.json.bin
+- Entry point CLI é dist/index.js (não cli.js)
 - <!-- retention: X --> HTML comment na frente, NÃO YAML
+- Editar openclaw.json via `openclaw config set`, NÃO jq+mv
+- **Regra #15 (NOVA):** ops destrutivas (reindex/consolidate/compact/crystallize) só com --dry-run OU snapshot atômico. backup-all.sh diário NÃO conta como pré-op.
+
+ESTILO PT-BR (lembrete): use "você", não "tu" (PT-BR business register, audience NOX-Supermem product).
 
 MEMÓRIAS NOVAS (auto-memory, carregam):
-- Cipher diagnostic requer validação independente
-- nox-mem CLI entry é dist/index.js + ingest-entity subcommand
-- Core-tier preservation exige chamada explícita em reindex/consolidate
-- Watcher async processa modify events de rsync automaticamente
-- Shadow-mode precisa telemetria real pra decisão informada
+- A0 query logging extension (search_telemetry +4 cols)
+- A1 op-audit module (withOpAudit wrapper, ops_audit table)
+- A2 ingest-router (single dispatch entry point)
+- A3+A4 retention tests + schema invariants canary (4 invariants */15min)
+- A5 dry-run mode (reindex+consolidate)
+- Reindex/watcher must route entity files via ingestEntityFile (incident lesson)
+- end-of-day OpenClaw cron drives daily reindex (incident lesson)
+- User-level systemd units can run rogue (incident lesson)
+- Use você não tu (estilo PT-BR)
 
-Pergunta pro Toto ANTES de começar: A (Tier 2 PDFs) / B (recompile entities) / C (observar)?
+Pergunta pro Toto ANTES de começar: qual data hoje? Se 04-30+ → A. Se 05-01+ → B. Senão → C ou D.
 ```
 
 ---
@@ -102,12 +105,13 @@ Pergunta pro Toto ANTES de começar: A (Tier 2 PDFs) / B (recompile entities) / 
 ## Uso alternativo — prompt curto (emergência)
 
 ```
-Retomando nox-mem v3.7+ (schema v10, 9541 chunks). Leia handoffs/MASTER-HANDOFF-2026-04-24.md.
-Próximo: Fase 3 Tier 2 (4432 PDFs text-layer) OU /memory-recompile entities piloto.
-Sanity: ssh 100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .chunks.total'
-Esperado: 9541+.
-Shadow telemetry: tail /var/log/nox-section-shadow-daily.log
-Salience activation (2026-04-30): bash /root/.openclaw/scripts/activate-salience.sh --apply
+Retomando nox-mem v3.7+ (schema v10 + ops_audit, 9540 chunks, 5 camadas defesa).
+Leia handoffs/MASTER-HANDOFF-2026-04-25.md.
+Sanity: ssh 100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total,opsAudit:.opsAudit,section:.sectionDistribution}"'
+Esperado: 9540, opsAudit active, section.compiled=183.
+Schema invariants: tail /var/log/nox-schema-invariants.log
+Próximo gate: 2026-04-30 salience activation (bash /root/.openclaw/scripts/activate-salience.sh check).
+PT-BR: "você" não "tu".
 ```
 
 ---
