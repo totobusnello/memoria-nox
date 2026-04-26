@@ -231,3 +231,23 @@ Ordem de notificação após este doc virar canônico (do planner):
 3. ⏭ **Plano de comunicação executar:** Toto ack hoje → Forge/Cipher quando A1/A2 forem shipados → dashboard quando v1.6 chegar a `main`
 4. ⏭ **Anexar v1.6-review.md + section7-validation.md** (ambos no diretório `plans/`) como histórico de decisão
 5. ⏭ Atualizar header de `2026-04-19-unified-evolution-roadmap.md` apontando que Phase Matrix está agora canonicalizada em v1.6, mas v1.5 permanece como referência histórica + cross-cutting/decisões válidas/não-fazemos
+
+---
+
+## 9. Candidate Items — Pending POC (ClawMem analysis 2026-04-26)
+
+**Status:** investigation, **NÃO** committed scope. Detalhes em `plans/2026-04-26-clawmem-analysis.md`.
+
+Após análise comparativa de `github.com/yoloshii/ClawMem` (MIT, mesmo nicho OpenClaw) com validation paralela (researcher fact-check + architect + critic), identificados 5 itens candidatos. **Não bumpamos v1.6 nem visão v14** — promoção condicional aos triggers individuais.
+
+| ID candidate | Origem ClawMem | Encaixe interno | Trigger de promoção |
+|---|---|---|---|
+| **A6 candidate** | Entity-Facts SPO Injection (`<vault-facts>` block) | NOVO — sem overlap | Pós-gate (≥05-02) + POC 3h + 7d subjective utility report |
+| **A7 candidate** | Session Focus Topic Boost (1.4× match / 0.75× demote) | NOVO — sem overlap | Pós-gate + 7d shadow telemetry obrigatório (delta recall ≥3% OU clear subjective) |
+| **W1.5 candidate** | A-MEM auto-keywords/links no ingest | **Funde com Fase 1.7b dormente** (Hierarchical Tagging + Multi-Stage Extraction) | Maio 2026 paralelo a Tier 2; decisão prévia: 1.7b morta vs W1.5 é a versão executável |
+| **W2.2 candidate** | Consolidation merge + contradiction detection | **Funde com W1.1** (`relation_reason` enum já inclui `contradicts`) | Pós-W2.1 (eval harness com nDCG@10); mandatory `withOpAudit()` + dry-run + canary extension |
+| **Q5 deferred** | Cross-encoder reranker (Qwen3-0.6B local) | Sem overlap, mas viola SLA L2 + stack lean | Wave 4 hipotética (Set+); trigger: W2.1 baseline ≥0.6 + caso concreto de query mal-rankeada |
+
+**4 NÃO FAZEMOS adicionados em `plans/2026-04-19-unified-evolution-roadmap.md`** (Phase 3 deductive synthesis, Phase 4 recall stats worker, heavy-lane quiet-window, silos schema docs+observations+KG).
+
+**Capacity nota:** W1+W2+W3 já é 46-58h pra ~50h disponíveis. Promover candidates sem cortar W1.4 (`api_impact`, 4h, nice-to-have) ou recompactar W3.1 é fantasia.
