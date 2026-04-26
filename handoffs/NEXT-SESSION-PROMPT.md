@@ -1,55 +1,43 @@
 # Prompt pra próxima sessão — nox-mem
 
-**Gerado:** 2026-04-25 ~16:45 BRT (sessão de incident recovery + 6 fases hardening)
+**Gerado:** 2026-04-26 ~17:30 BRT (sessão de sanity check 24h → audit triplo → 11 HIGH fechados → Wave 2 cleanup → E2E test suite)
 **Uso:** copiar o bloco abaixo, colar na próxima janela Claude Code
 
----
-
 ```
-Retomando nox-mem pós-sessão 2026-04-25 (incident recovery + pre-gate hardening completo + 3 itens post-gate antecipados).
+Retomando nox-mem pós-sessão 2026-04-26 (sanity check 24h → audit triplo → 11 HIGH fechados → Wave 2 cleanup → E2E test suite).
 
 CONTEXTO OBRIGATÓRIO — ler ANTES de qualquer ação:
-1. /Users/lab/Claude/Projetos/memoria-nox/handoffs/MASTER-HANDOFF-2026-04-25.md  (FRESH — leitura única)
-2. /Users/lab/Claude/Projetos/memoria-nox/CLAUDE.md  (estado + 15 regras críticas — regra #15 é nova: ops destrutivas só com --dry-run ou snapshot atômico)
-3. /Users/lab/Claude/Projetos/memoria-nox/plans/2026-04-25-integration-roadmap-v1.6.md  (CANÔNICO desde 04-25; substitui Phase Matrix do v1.5)
-4. /Users/lab/Claude/Projetos/memoria-nox/docs/nox-neural-memory.md  (v14, visão estratégica com Phase Matrix tabular embedded + 3 decisões novas)
+1. /Users/lab/Claude/Projetos/memoria-nox/handoffs/MASTER-HANDOFF-2026-04-26.md  (FRESH — leitura única)
+2. /Users/lab/Claude/Projetos/memoria-nox/CLAUDE.md  (estado + 15 regras críticas — regra #15 atualizada hoje com NOX_ALLOW_NO_SNAPSHOT + ops_audit append-only)
+3. /Users/lab/Claude/Projetos/memoria-nox/plans/2026-04-25-integration-roadmap-v1.6.md  (CANÔNICO)
+4. /Users/lab/Claude/Projetos/memoria-nox/docs/nox-neural-memory.md  (v14)
 
-SANITY CHECK (1 comando — esperar tudo verde):
+SANITY CHECK (3 comandos — esperar tudo verde):
 ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, salience:.salience.mode, section:.sectionDistribution, opsAudit:.opsAudit, db:.dbSizeMB}"'
-# Esperado: total=9540, embedded=9540, salience=shadow, section.compiled=183, opsAudit (active), db≈172
+# Esperado: total=9692+, embedded=total, salience=shadow, section.compiled=183, db≈172
 
-SCHEMA INVARIANTS (NOVO canário A4 — */15min):
-ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
-# Esperado: 3 entries OK (section_nonnull≥600 compiled≈183 feedback_wrong=0 ops_failed=0 boost_mismatch=0)
+ssh root@100.87.8.44 'tail -5 /var/log/nox-schema-invariants.log'
+# Esperado: 5 entries OK (5 invariants verdes — section_nonnull≥600 compiled≈183 feedback_wrong=0 ops_failed=0 boost_mismatch=0)
 
-ESTADO ATUAL (2026-04-25 16:45):
-- 9540 chunks, 100% embedded, 0 orphans, DB ~172MB
+ssh root@100.87.8.44 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
+# Esperado: 27 pass 0 fail (14 retention + 7 E2E + 6 outros)
+
+ESTADO ATUAL (2026-04-26 ~17:00 BRT):
+- 9692 chunks, 100% embedded, 0 orphans, DB ~172MB
 - 184 entities ingestadas (compiled=183, frontmatter=183, timeline=366)
-- 2697 chunks em memory/mac-docs/ (HD Mac Tier 1)
-- Source .md files arquivados — entities substituem
-- Schema v10 + 4 cols A0 + ops_audit table A1
-- Shadow modes ativos:
-  * NOX_SECTION_BOOST_MODE=shadow (decisão 2026-05-01)
-  * NOX_SALIENCE_MODE=shadow (ativação 2026-04-30)
-  * NOX_SEARCH_LOG_TEXT=1 (NOVO A0, opt-in pra eval harness futura)
-- Claude CLI backend OAuth, fallback sem anthropic/*
-- 5 camadas de defesa hardened (semantic-canary + schema-invariants + ops_audit v2 + withOpAudit fail-closed + --dry-run + safeRestore recovery)
-- Pre-gate hardening A0+A1+A2 completo + audit duplo + 5 CRITICAL/HIGH fixados
-- Post-gate parcial A3+A4+A5 antecipado
-- A1 op-audit v2: filename collision-resistant (pid+uuid), fail-closed semantics, path traversal protection, atomic VACUUM .tmp+integrity_check+rename, reapZombies on startup, safeRestore helper
+- Schema v10 + ops_audit table com 2 triggers append-only (CWE-693)
+- 0 HIGH abertos (12 fechados em 24h via 5 commits hoje)
+- Shadow modes: salience (gate 04-30), section_boost (gate 05-01)
+- 5 camadas defesa hardened + 27 fixes adicionais
 
-9 COMMITS PUSHED HOJE (2026-04-25):
-0534095 docs+ops(safety): close 2 pendências A1 v2 — reapZombies + runbook
-86147b4 fix(safety): A1 op-audit v2 — fix 5 CRITICAL/HIGH do code+security review
-ff9da9c docs(handoff): MASTER-HANDOFF-2026-04-25 + NEXT-SESSION-PROMPT
-942dcf7 feat(safety): A5 dry-run mode em reindex+consolidate
-2b29d06 test+ops(safety): A3 retention tests + A4 schema invariants canary
-9da8f7c feat(arch): A2 ingest-router — single dispatch entry point
-b5fba08 feat(safety): A1 op-audit module — atomic snapshot + audit log
-2d47158 feat(observability): A0 query logging extension — search_telemetry +4 cols
-398ad7e docs(memory): v3.7+ consolidação — v1.6 roadmap + v14 vision + #15 + incident
+5 COMMITS PUSHED HOJE (2026-04-26):
+e3b1b31 test(safety)+docs(handoff): E2E test suite + MASTER-HANDOFF-2026-04-26
+b3eedd0 fix(safety+quality): Wave 2 cleanup — 11 MEDIUM/LOW fechados
+880cbe7 fix(safety+audit): 7 HIGH follow-up — todos fechados (0 HIGH abertos)
+e3654d9 fix(safety+audit): audit triplo A1v2+A3+A4+A5 — 4 HIGH fixados (47 findings)
+143cab6 fix(safety): B1+B2 — reaper coverage gap + closeDb mid-function bug
 
-PRÓXIMA AÇÃO — 3 OPÇÕES (Toto escolhe):
+PRÓXIMA AÇÃO — 5 OPÇÕES (Toto escolhe):
 
 OPÇÃO A — Salience activation gate (RECOMENDADA se for 2026-04-30+)
   bash /root/.openclaw/scripts/activate-salience.sh check
@@ -60,14 +48,22 @@ OPÇÃO B — Section_boost decision gate (se for 2026-05-01+)
   ssh root@100.87.8.44 'bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7'
   # Decidir ativar via NOX_SECTION_BOOST_MODE=active no .env + restart api
 
-OPÇÃO C — Continuar post-gate remanescente (~3h estimado, ~2h real)
-  - B1 Fase 4 Obsidian view-only (1h, destrava Fase P)
-  - B3 Backlog #4 issue + #5 docs + #7 alert + #8 playbooks (1h45)
-  - Arquivar 3 source files (.archived-20260502, 5min)
+OPÇÃO C — Wave 3 cleanup (~2h, opcional pré-gate)
+  6 MEDIUM + 5 LOW cosmetic restantes:
+  - ts uniqueness via process.hrtime.bigint()
+  - Authorization layer (geteuid + chmod 700 binary)
+  - accessSnapshot streaming via temp table
+  - Crystallize wrap em withOpAudit (antes de qualquer cron)
+  - log curl exit code em discord (visibility webhook rotation)
+  - regex ordering em scrubSecrets (cosmetic "Bearer [REDACTED][REDACTED]")
+  - statvfs cross-FS edge cases handling
 
-OPÇÃO D — Iniciar Fase 3 Tier 2 (PDFs text-layer, ~4-5h)
-  4432 PDFs do HD Mac → pdftotext → .md → watcher auto-ingest
+OPÇÃO D — Setup Fase 3 Tier 2 (4432 PDFs HD Mac, ~4-5h I/O)
+  Preparar pipeline pdftotext → .md → watcher
   Aguardar gates A+B passarem antes pra não contaminar baseline
+
+OPÇÃO E — B1 Fase 4 Obsidian view-only (1h, destrava Fase P)
+  Originalmente listado pós-gate mas pode antecipar
 
 EVENTOS AGENDADOS:
 - 2026-04-30: salience activation (--apply se baseline 7d OK)
@@ -86,42 +82,32 @@ CONVENÇÕES OBRIGATÓRIAS (CLAUDE.md regras 1-15):
 - Entry point CLI é dist/index.js (não cli.js)
 - <!-- retention: X --> HTML comment na frente, NÃO YAML
 - Editar openclaw.json via `openclaw config set`, NÃO jq+mv
-- **Regra #15 (NOVA):** ops destrutivas (reindex/consolidate/compact/crystallize) só com --dry-run OU snapshot atômico. backup-all.sh diário NÃO conta como pré-op.
+- **Regra #15 (atualizada 04-26):** ops destrutivas só com --dry-run OU withOpAudit snapshot. ops_audit append-only (DELETE/UPDATE-terminal blocked). NOX_ALLOW_NO_SNAPSHOT=1 override emergencial. closeDb pertence ao caller, NUNCA mid-op.
 
-ESTILO PT-BR (lembrete): use "você", não "tu" (PT-BR business register, audience NOX-Supermem product).
+ESTILO PT-BR (lembrete): use "você", não "tu" (PT-BR business register).
 
-MEMÓRIAS NOVAS (auto-memory, carregam):
-- A0 query logging extension (search_telemetry +4 cols)
-- A1 op-audit module v2 (atomic VACUUM, fail-closed, safeRestore, reapZombies, schema_version)
-- A2 ingest-router (single dispatch entry point)
-- A3+A4 retention tests + schema invariants canary (4 invariants */15min)
-- A5 dry-run mode (reindex+consolidate)
-- Reindex/watcher must route entity files via ingestEntityFile (incident lesson)
-- end-of-day OpenClaw cron drives daily reindex (incident lesson)
-- User-level systemd units can run rogue (incident lesson)
-- Use você não tu (estilo PT-BR)
+MEMÓRIAS NOVAS HOJE (auto-memory, carregam):
+- closeDb mid-function invalidates withOpAudit (B2 lesson)
+- Audit must verify prod state, not only code (SEC HIGH #1 lesson)
 
 DOCS/RUNBOOKS NOVOS:
-- audits/2026-04-25-A1-A2-review.md (audit findings + fix status)
-- runbooks/recovery-from-snapshot.md (decision tree + safeRestore procedure)
+- audits/2026-04-26-B1-B2-zombie-fix.md
+- audits/2026-04-26-A1v2-A3-A4-A5-review.md (47 findings consolidados)
+- audits/2026-04-26-7highs-followup-fix.md
+- audits/2026-04-26-W2-cleanup.md
 
-Pergunta pro Toto ANTES de começar: qual data hoje? Se 04-30+ → A. Se 05-01+ → B. Senão → C ou D.
+Pergunta pro Toto ANTES de começar: qual data hoje? Se 04-30+ → A. Se 05-01+ → B. Senão → C/D/E.
 ```
-
----
 
 ## Uso alternativo — prompt curto (emergência)
 
 ```
-Retomando nox-mem v3.7+ (schema v10 + ops_audit, 9540 chunks, 5 camadas defesa).
-Leia handoffs/MASTER-HANDOFF-2026-04-25.md.
+Retomando nox-mem v3.7+ (schema v10 + ops_audit append-only, 9692 chunks, 5 camadas defesa + 27 fixes, 27 tests).
+Leia handoffs/MASTER-HANDOFF-2026-04-26.md.
 Sanity: ssh 100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total,opsAudit:.opsAudit,section:.sectionDistribution}"'
-Esperado: 9540, opsAudit active, section.compiled=183.
+Esperado: 9692+, opsAudit active, section.compiled=183.
 Schema invariants: tail /var/log/nox-schema-invariants.log
+Tests: ssh 100.87.8.44 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
 Próximo gate: 2026-04-30 salience activation (bash /root/.openclaw/scripts/activate-salience.sh check).
 PT-BR: "você" não "tu".
 ```
-
----
-
-*Esse arquivo é só um lembrete — copiar o conteúdo pra próxima sessão. Atualizar aqui se o plano mudar antes da próxima janela abrir.*
