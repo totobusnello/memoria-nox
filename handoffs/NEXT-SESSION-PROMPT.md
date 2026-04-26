@@ -1,10 +1,10 @@
 # Prompt pra próxima sessão — nox-mem
 
-**Gerado:** 2026-04-26 ~17:30 BRT (sessão de sanity check 24h → audit triplo → 11 HIGH fechados → Wave 2 cleanup → E2E test suite)
+**Gerado:** 2026-04-26 ~20:00 BRT (sessão completa: hardening + audit triplo + Wave 2 + E2E + Fase 4 Obsidian + B3 backlog + theming + sync fix)
 **Uso:** copiar o bloco abaixo, colar na próxima janela Claude Code
 
 ```
-Retomando nox-mem pós-sessão 2026-04-26 (sanity check 24h → audit triplo → 11 HIGH fechados → Wave 2 cleanup → E2E test suite).
+Retomando nox-mem pós-sessão 2026-04-26 (sanity 24h → audit triplo 47 findings → 11 HIGH fechados → Wave 2 cleanup → E2E test → Fase 4 Obsidian DONE → B3 backlog 7/8 → 5 graph snippets + Things theme + Juggl/3D Graph instalados).
 
 CONTEXTO OBRIGATÓRIO — ler ANTES de qualquer ação:
 1. /Users/lab/Claude/Projetos/memoria-nox/handoffs/MASTER-HANDOFF-2026-04-26.md  (FRESH — leitura única)
@@ -30,12 +30,26 @@ ESTADO ATUAL (2026-04-26 ~17:00 BRT):
 - Shadow modes: salience (gate 04-30), section_boost (gate 05-01)
 - 5 camadas defesa hardened + 27 fixes adicionais
 
-5 COMMITS PUSHED HOJE (2026-04-26):
+9 COMMITS PUSHED HOJE (2026-04-26):
+<NEW> docs+ops(closing): final handoff + Phase Matrix Fase 4 ✅ + sync excludes fix + theming docs
+d809416 docs+ops(B3): backlog sprint #4+#5+#7+#8 + Phase Matrix Fase 4 ✅ DONE
+d2d8340 feat(obsidian): launchd plist Mac auto-sync 03:00 BRT
+409cb08 feat(obsidian): B1 Fase 4 view-only vault — DONE (destrava Fase P)
+a0b9b4e docs(handoff): update NEXT-SESSION-PROMPT pra estado pós-04-26
 e3b1b31 test(safety)+docs(handoff): E2E test suite + MASTER-HANDOFF-2026-04-26
 b3eedd0 fix(safety+quality): Wave 2 cleanup — 11 MEDIUM/LOW fechados
 880cbe7 fix(safety+audit): 7 HIGH follow-up — todos fechados (0 HIGH abertos)
 e3654d9 fix(safety+audit): audit triplo A1v2+A3+A4+A5 — 4 HIGH fixados (47 findings)
 143cab6 fix(safety): B1+B2 — reaper coverage gap + closeDb mid-function bug
+
+OBSIDIAN VAULT (Mac, ~/ObsidianVault):
+- 199 .md (sync VPS→Mac diário 03:00 BRT via launchd + Tailscale)
+- Things 2 theme + dark mode
+- 5 plugins: Dataview + 3D Graph + BRAT + Graph Analysis + Juggl
+- 5 graph snippets pra alternar vibe: galaxy-nox (default), cyberpunk, retrowave, minimal-pro, matrix
+- Color groups por tag (singular): project/decision/lesson/agent/system/kg/index
+- Cmd+G grafo 2D, Cmd+P "Open 3D Graph (global)" pra galáxia 3D
+- Sync excludes preservam customizações locais (themes/plugins/snippets/community-plugins/appearance/graph.json)
 
 PRÓXIMA AÇÃO — 5 OPÇÕES (Toto escolhe):
 

@@ -4,11 +4,27 @@
 #
 # Behavior:
 #   - rsync VPS:/root/ObsidianVault-build/ → ~/ObsidianVault/
-#   - --delete to keep parity (vault is view-only, edits get overwritten)
-#   - .obsidian/workspace*.json EXCLUDED from delete to preserve local UI state
+#   - --delete to keep parity for content (Entities/, Knowledge Graph/, README.md)
+#   - PRESERVE local-only customizations (themes, plugins, snippets, settings)
 #
-# Read-only safeguard: this only runs `rsync --recursive --delete` on the VPS-built dir.
-# Source files on VPS in /root/.openclaw/workspace/memory/entities/ are NEVER touched.
+# Read-only safeguard: rsync --delete só toca o conteúdo gerado pela VPS.
+# Source files on VPS em /root/.openclaw/workspace/memory/entities/ NUNCA são tocados.
+#
+# Excludes (sobrevivem ao --delete):
+#   .obsidian/workspace*.json    — UI state (open tabs, sidebar layout) local-only
+#   .obsidian/cache              — Obsidian internal cache
+#   .obsidian/themes/            — themes instalados localmente (Things, AnuPpuccin, etc)
+#   .obsidian/plugins/           — community plugins (Dataview, Juggl, BRAT, 3D Graph, etc)
+#   .obsidian/snippets/          — CSS snippets (galaxy-nox, cyberpunk, retrowave, etc)
+#   .obsidian/community-plugins.json  — lista de plugins habilitados
+#   .obsidian/appearance.json    — theme + dark mode + snippets enabled
+#   .obsidian/hotkeys.json       — custom keybindings
+#   .obsidian/types.json         — frontmatter type customizations
+#   .obsidian/graph.json         — color groups + graph view settings
+#   .obsidian/plugins/3d-graph/data.json  — 3d graph config
+#
+# IMPORTANTE: VPS gera só o CONTEÚDO (.md). Configs visuais, plugins, themes vivem
+# 100% no Mac. Esse design preserva customização visual entre re-syncs diários.
 
 set -euo pipefail
 
@@ -36,8 +52,20 @@ ts() { date '+%Y-%m-%d %H:%M:%S'; }
   rsync -av --delete \
     --exclude='.obsidian/workspace*.json' \
     --exclude='.obsidian/cache' \
+    --exclude='.obsidian/themes/' \
+    --exclude='.obsidian/plugins/' \
+    --exclude='.obsidian/snippets/' \
+    --exclude='.obsidian/community-plugins.json' \
+    --exclude='.obsidian/appearance.json' \
+    --exclude='.obsidian/hotkeys.json' \
+    --exclude='.obsidian/types.json' \
+    --exclude='.obsidian/graph.json' \
+    --exclude='.obsidian/types/' \
     "$VPS_HOST:$REMOTE_VAULT" "$LOCAL_VAULT"
 
   COUNT=$(find "$LOCAL_VAULT" -name '*.md' | wc -l | tr -d ' ')
-  echo "[$(ts)] sync OK — $COUNT .md files in $LOCAL_VAULT"
+  THEMES=$(ls "$LOCAL_VAULT/.obsidian/themes" 2>/dev/null | wc -l | tr -d ' ')
+  PLUGINS=$(ls "$LOCAL_VAULT/.obsidian/plugins" 2>/dev/null | wc -l | tr -d ' ')
+  SNIPPETS=$(ls "$LOCAL_VAULT/.obsidian/snippets" 2>/dev/null | wc -l | tr -d ' ')
+  echo "[$(ts)] sync OK — $COUNT .md files | themes=$THEMES plugins=$PLUGINS snippets=$SNIPPETS"
 } 2>&1 | tee -a "$LOG"

@@ -1,8 +1,8 @@
 # MASTER HANDOFF — memoria-nox (2026-04-26)
 
-**Documento consolidado. Sessão de **observation + hardening + audit triplo + Wave 2 cleanup + E2E test**.**
+**Documento consolidado. Sessão de **observation + hardening + audit triplo + Wave 2 cleanup + E2E test + Fase 4 Obsidian + B3 backlog + theming**.**
 
-**Data:** 2026-04-26 (domingo, ~6h reais — sanity check 24h escalou pra hardening completo)
+**Data:** 2026-04-26 (domingo, ~9h reais — sanity check 24h escalou pra hardening completo + Fase 4 antecipada + visual customization)
 **Sessão anterior:** 2026-04-25 (`MASTER-HANDOFF-2026-04-25.md`)
 **Versão do sistema:** nox-mem v3.7+, schema v10, **9692 chunks 100% embedded**, ops_audit append-only
 **Roadmap canônico:** `plans/2026-04-25-integration-roadmap-v1.6.md`
@@ -12,7 +12,9 @@
 
 ## TL;DR EXECUTIVO
 
-Sessão começou com sanity check 24h pós-hardening de 04-25. Anomalia detectada (6 snapshots órfãos + 6 zombie rows em agent DBs) escalou pra investigação → bugs B1+B2 fixados → audit triplo (4 reviewers paralelos, 47 findings) → **11 HIGH fechados em 2 commits** → **11 MEDIUM/LOW Wave 2 cleanup** → **E2E test suite 7/7 com regression guard pro B2**.
+Sessão começou com sanity check 24h pós-hardening de 04-25. Anomalia detectada (6 snapshots órfãos + 6 zombie rows em agent DBs) escalou pra investigação → bugs B1+B2 fixados → audit triplo (4 reviewers paralelos, 47 findings) → **11 HIGH fechados em 2 commits** → **11 MEDIUM/LOW Wave 2 cleanup** → **E2E test suite 7/7 com regression guard pro B2** → **Fase 4 Obsidian view-only DONE (era POST-GATE 05-02+)** → **B3 backlog 7/8 fechados** → **5 themes + 5 graph snippets + Juggl/3D Graph/Dataview/Graph Analysis instalados no Mac** + **bug crítico no sync script (rsync --delete eliminaria customizações) detectado e fixado**.
+
+**8 commits pushed.** Fase P (productização NOX-Supermem) **destravada** — precisa "Fase 4 estável 30d" agora.
 
 **Cronologia:**
 1. 🔍 **Sanity check 24h** detectou 6 snapshots `reindex-2026042602*` + ops_audit_24h=0 → investigação revelou bugs B1+B2 reais
@@ -21,7 +23,12 @@ Sessão começou com sanity check 24h pós-hardening de 04-25. Anomalia detectad
 4. 🔧 **4 SEC/A4 HIGH fixados** (`e3654d9`): snapshot dir leak (755→700, 644→600), safeRestore path validation, canary pipefail+dedup
 5. 🔧 **7 HIGH follow-up** (`880cbe7`): symlink protection, TOCTOU mitigation, scrub secrets, preAction reapZombies, typed result, PID liveness probe, dry-run accuracy
 6. 🔧 **Wave 2 cleanup** (`b3eedd0`): 11 MEDIUM/LOW (ops_audit append-only triggers, DB_PATH allowlist, free space DoS check, safeRestore reorder, exit safety net, configurable canary, early-zombie WARN, +6 retention adversarial tests)
-7. 🧪 **E2E test suite** (`<NEXT_COMMIT>`): 7 tests cobrindo happy/fail/B2-regression/W2-1/SEC#2 paths
+7. 🧪 **E2E test suite** (`e3b1b31`): 7 tests cobrindo happy/fail/B2-regression/W2-1/SEC#2 paths
+8. 🎨 **Fase 4 Obsidian view-only DONE** (`409cb08`): Python generator (430 LOC) gera 199 .md vault em `/root/ObsidianVault-build/`; cron 02:30 BRT VPS + launchd 03:00 BRT Mac (rsync via Tailscale)
+9. 🍎 **launchd Mac auto-sync** (`d2d8340`): plist em `~/Library/LaunchAgents/`
+10. 📚 **B3 backlog sprint 7/8** (`d809416`): #4 graph-memory issue draft + #5 CONVENTIONS.md chunk_type + #7 monkey-patch alert (já existia) + #8 3 rollback playbooks; Phase Matrix Fase 4 ✅ DONE
+11. 🌌 **Themes + graph snippets** (este commit): Things 2 ativo + 5 graph snippets (galaxy-nox, cyberpunk, retrowave, minimal-pro, matrix) + Juggl + Graph Analysis + 3D Graph + Dataview + BRAT habilitados
+12. 🐛 **Sync excludes fix** (este commit): rsync --delete antes apagaria themes/plugins/snippets local-only (existem só no Mac, não na VPS) — adicionados excludes pra preservar customizações
 
 **Estado pós-sessão:**
 - ✅ **0 HIGH abertos** (12 fechados em 24h)
