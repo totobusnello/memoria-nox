@@ -645,6 +645,10 @@ Teste `match_type: "semantic"` em resultado de search é **o** canário de sanid
 | Expertise profiling automático | Over-engineering para 6 agentes com papéis fixos |
 | Text2Cypher | Sem graph DB, não há Cypher |
 | Productizar nox-supermem em paralelo com evolução interna | Divergência acumulada já é 6 meses. Priorizar paridade antes |
+| Phase 3 deductive synthesis cross-session (ClawMem-style) | LLM gera "insights sintéticos" a partir de N observações sem citation chain rastreável; risco de poluição KG. Preferimos crystallize manual gated. _Adicionado 2026-04-26 pós-análise ClawMem; ver `plans/2026-04-26-clawmem-analysis.md`_ |
+| Phase 4 recall stats como worker dedicado (ClawMem-style) | Já temos `search_telemetry` + `/api/health.searchTelemetry`; worker separado adiciona overhead op sem ganho. _Adicionado 2026-04-26_ |
+| Heavy-lane quiet-window worker (`worker_leases` DB + query-rate gates + hour windows) | Overhead operacional alto; cron 23:00 unificado + canary `*/15min` cobre o caso com 10% da complexidade. _Adicionado 2026-04-26_ |
+| Silos schema separados (docs + observations + KG em 3 tabelas independentes, ClawMem-style) | Nosso `chunks` canônico com `kg_entities`/`kg_relations` derivados é mais normalizado e evita 3-way drift. _Adicionado 2026-04-26_ |
 
 ---
 
