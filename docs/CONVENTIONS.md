@@ -188,3 +188,43 @@ Checkbox tasks, chunk boundaries.
 ### Todos os módulos respeitam `OPENCLAW_WORKSPACE` env var
 
 ### Forge agent faz code review via PRs no GitHub
+
+## chunk_type — enum canônico (B3-5, 2026-04-26)
+
+> Tipos de chunk são uma **decisão de design**: cada tipo carrega retention default + behavior de ingest + relevância pra crons (consolidate filtra `daily`, etc). Não criar tipo novo sem atualizar matriz aqui + `src/retention.ts:RETENTION_BY_TYPE` + `migrateToV8` no `db.ts`.
+
+### Tipos canônicos (schema v10)
+
+| `chunk_type` | retention default | Origem (ingest) | Notes |
+|---|---|---|---|
+| `feedback` | NULL (never-decay) | `memory/feedback.md` ou via `--type=feedback` no ingest | Evidência preservada — user feedback, lições críticas |
+| `person` | NULL (never-decay) | `memory/people.md`, entity files type=person | Ontologia estável de pessoas |
+| `lesson` | 180d | `memory/lessons.md`, entity files type=lesson | Mistakes caros merecem 6 meses |
+| `decision` | 365d | `memory/decisions.md`, entity files type=decision | Decisões têm lifespan longo |
+| `project` | 365d | `memory/projects.md`, entity files type=project | Projetos ativos |
+| `daily` | 90d | session daily notes (`memory/2026-MM-DD.md`) | Único iterado pelo `consolidate` loop real |
+| `team` | 120d | shared/notes per-team | Estado de time evolui |
+| `digest` | 180d | output do `nox-mem digest` (weekly) | Consolidação semanal |
+| `pending` | 30d | `memory/pending.md`, entity files type=pending | Se 30d sem resolver, escala pra review |
+| `graph_node` | 60d | `graphify-ingest` em repos externos | Research-like, decay rápido |
+| `other` | 90d (default) | Qualquer file não classificável | Fallback do `RETENTION_BY_TYPE` |
+
+### Adicionar tipo novo (workflow)
+
+1. Adicionar entry em `src/retention.ts:RETENTION_BY_TYPE` com retention apropriada
+2. Atualizar `migrateToV8` em `src/db.ts` se houver backfill heurístico (UPDATE por `source_file LIKE`)
+3. Atualizar tabela acima neste arquivo
+4. Se o ingest precisa de path-based dispatch: adicionar handler em `src/lib/ingest-router.ts:routeIngest()` (Fase A2 v1.6)
+5. Atualizar canary `check-schema-invariants.sh` se houver invariant pra esse tipo (ex: feedback NULL sempre)
+6. Bumpar `SCHEMA_VERSION` em `db.ts` SE estiver mudando schema (não só seed)
+
+### Ingest-router unified (Fase A2 v1.6, 2026-04-25)
+
+Single dispatch point: `src/lib/ingest-router.ts:routeIngest(file, opts)` rota automaticamente:
+- `memory/entities/<type>/*.md` → `ingestEntityFile()` (3-section format: frontmatter + compiled + timeline)
+- `*.md` (genérico) → `ingestFile()` com chunk_type inferido por path/frontmatter
+- `*.json` → `ingestFile()` com chunk_type=`other`
+- `--force-kind=graphify` (futuro) → `graphifyIngest()` (não wrapped ainda — Wave 2)
+
+Callers: watch.ts (file events), reindex.ts (loop), index.ts CLI `ingest`/`ingest-entity`, mcp-server.ts.
+**Nunca** chamar `ingestFile()` diretamente em loop sem passar pelo router — A2 fix do incident 2026-04-25 expôs isso.
