@@ -122,6 +122,7 @@ Prioridade: **destravar Fase P + entregar valor visível ao Toto, paralelo a inf
 | **B1** | **Fase 4 Obsidian view-only** | v1.5 | 1h | **Destrava Fase P** |
 | **B2** | Fase 3 Tier 2 — PDFs text-layer (paralelo) | v1.5 | dias | Fase 4 estabilizar |
 | **B3** | Backlog #4, #5, #7, #8 sprint (issue upstream + docs CONVENTIONS + monkey-patch alert + rollback playbooks) | Backlog | 1h45 | — |
+| **(candidates)** | **A6** (Entity-Facts SPO Injection) + **A7** (Session Focus Topic Boost) | ClawMem analysis 04-26 | ~6h total | ver **Section 9** + `plans/2026-04-26-clawmem-analysis.md` |
 
 ### Bloco IV — Memory Graph Maturity Waves (Maio-Ago 2026) — ver Seção 7
 
@@ -173,12 +174,14 @@ Ordem de notificação após este doc virar canônico (do planner):
 | **W1.2** | `nox-mem detect-changes --since=<commit>` — git diff → entities/chunks afetados | **5-6h** | **READ-ONLY**, sem hook automático de reingest (senão viola "git-as-source-of-truth"). Cruza paths→`chunks.source_file`→entities. Útil pra "o que mudou desde última sessão Toto?". |
 | **W1.3** | `nox-mem impact <entity>` — 1-hop blast radius via `kg_relations` | **6h** | Upstream (callers) + downstream (callees). Risk summary: count por chunk_type. **Sem DSL, traversal SQL fixa.** Cap em 1-hop pra MVP; multi-hop = Wave 4 se valor provar-se. |
 | **W1.4** | `nox-mem api_impact <signature-change>` — multi-arquivo via grep + import graph | **4h** (NOVO — adicionado pós-architect) | Cobre a classe que W1.3 NÃO cobre: bug arquitetural tipo o de hoje (DELETE+rewrite no DB, não relação faltante). |
+| **(candidate)** | **W1.5** — A-MEM auto-keywords/links no ingest (funde Fase 1.7b dormente) | **6-8h líquidos** | ver **Section 9** + analysis note. Decisão prévia: 1.7b morta vs W1.5 é versão executável. |
 
 ### WAVE 2 — Jun-Jul 2026 (depende eval harness ready) — 14-20h
 
 | ID | Item | Esforço | Notas |
 |---|---|---|---|
 | **W2.1** | Eval harness completo — 50 golden queries + nDCG@10 + MRR | **14-20h** (subestimado original 10h) | Schema migration v12: tabela `eval_queries(id, text, expected_chunk_ids, tags)`. Curadoria 50 queries (Toto sozinho ~6h, ou crowdsource Cipher/Atlas). Self-judge bias documentado. Baseline FTS-only vs hybrid. CLI `nox-mem eval run` + JSONL out. CI gate opcional. |
+| **(candidate)** | **W2.2** — Consolidation merge + contradiction detection (funde W1.1) | **+3-4h líquidos** | ver **Section 9** + analysis note. Mandatory `withOpAudit()` + dry-run + canary extension. Depende W2.1 publicar nDCG@10. |
 
 **Cortado:**
 - ~~W2.2 Bridge mode docs~~ → fundido em W3.1 (paper v2)
@@ -240,14 +243,65 @@ Ordem de notificação após este doc virar canônico (do planner):
 
 Após análise comparativa de `github.com/yoloshii/ClawMem` (MIT, mesmo nicho OpenClaw) com validation paralela (researcher fact-check + architect + critic), identificados 5 itens candidatos. **Não bumpamos v1.6 nem visão v14** — promoção condicional aos triggers individuais.
 
-| ID candidate | Origem ClawMem | Encaixe interno | Trigger de promoção |
-|---|---|---|---|
-| **A6 candidate** | Entity-Facts SPO Injection (`<vault-facts>` block) | NOVO — sem overlap | Pós-gate (≥05-02) + POC 3h + 7d subjective utility report |
-| **A7 candidate** | Session Focus Topic Boost (1.4× match / 0.75× demote) | NOVO — sem overlap | Pós-gate + 7d shadow telemetry obrigatório (delta recall ≥3% OU clear subjective) |
-| **W1.5 candidate** | A-MEM auto-keywords/links no ingest | **Funde com Fase 1.7b dormente** (Hierarchical Tagging + Multi-Stage Extraction) | Maio 2026 paralelo a Tier 2; decisão prévia: 1.7b morta vs W1.5 é a versão executável |
-| **W2.2 candidate** | Consolidation merge + contradiction detection | **Funde com W1.1** (`relation_reason` enum já inclui `contradicts`) | Pós-W2.1 (eval harness com nDCG@10); mandatory `withOpAudit()` + dry-run + canary extension |
-| **Q5 deferred** | Cross-encoder reranker (Qwen3-0.6B local) | Sem overlap, mas viola SLA L2 + stack lean | Wave 4 hipotética (Set+); trigger: W2.1 baseline ≥0.6 + caso concreto de query mal-rankeada |
+### 9.1. Onde cada candidate encaixa no timeline existente
 
-**4 NÃO FAZEMOS adicionados em `plans/2026-04-19-unified-evolution-roadmap.md`** (Phase 3 deductive synthesis, Phase 4 recall stats worker, heavy-lane quiet-window, silos schema docs+observations+KG).
+```
+HOJE 04-26 ──────┐
+                 │ Bloco I (pré-gate)         ✅ A0 A1 A2 A3 A4 A5 DONE
+                 │   [holding pattern]
+                 │
+                 │ Bloco II (gates)            ─── observação shadow ───
+                 ├── 04-30  salience activation
+                 │   05-01  section_boost decision
+                 │   05-02  arquivar 3 source files
+                 │
+                 │ Bloco III (post-gate)       ◀── A6 + A7 candidates
+                 ├── B1 Fase 4 Obsidian (1h)        plug aqui (~05-02→05-08)
+                 │   B2 Fase 3 Tier 2 PDFs (dias)
+                 │   B3 Backlog #4/#5/#7/#8 (1h45)
+                 │   ▸ A6 Entity-Facts SPO Injection (3h)
+                 │   ▸ A7 Session Focus Topic Boost (3h + shadow 7d)
+                 │
+                 │ Wave 1 — Maio 2026          ◀── W1.5 candidate
+                 │   W1.1 Edge typing (12-14h)      plug aqui
+                 │   W1.2 detect-changes (5-6h)
+                 │   W1.3 impact (6h)
+                 │   W1.4 api_impact (4h)
+                 │   ▸ W1.5 A-MEM keywords (6-8h, funde 1.7b dormente)
+                 │
+                 │ Wave 2 — Jun-Jul 2026       ◀── W2.2 candidate
+                 │   W2.1 Eval harness (14-20h)     plug aqui
+                 │   ▸ W2.2 merge+contradiction (3-4h líquidos, funde W1.1)
+                 │
+                 │ Wave 3 — Ago 2026
+                 │   W3.1 Paper v2 (5-6h)
+                 │
+                 │ Wave 4 hipotética — Set+    ◀── Q5 deferred
+                 └── ▸ Q5 Cross-encoder reranker (gated nDCG ≥0.6)
+```
 
-**Capacity nota:** W1+W2+W3 já é 46-58h pra ~50h disponíveis. Promover candidates sem cortar W1.4 (`api_impact`, 4h, nice-to-have) ou recompactar W3.1 é fantasia.
+### 9.2. Tabela detalhada (4 colunas separadas pra clareza)
+
+| ID | Origem ClawMem (resumo 1-linha) | Encaixe (seção/bloco) | Janela temporal | Métrica de promoção | Decisão prévia |
+|---|---|---|---|---|---|
+| **A6** candidate | Entity-Facts SPO Injection — bloco `<vault-facts>` no context surface usando KG existente | Bloco III (Section 5), pós-B1/B2/B3 | ≥**2026-05-02** | POC 3h + 7d subjective utility report do Toto | nenhuma — additive, sem overlap |
+| **A7** candidate | Session Focus Topic Boost — `focus set <topic>` aplica 1.4× match / 0.75× demote por session | Bloco III (Section 5), pós-B1/B2/B3 | ≥**2026-05-02** | POC 3h + 7d shadow obrigatório → delta recall ≥3% OU clear subjective | nenhuma — fail-open, isolado por session |
+| **W1.5** candidate | A-MEM auto-keywords/links — LLM enrich chunks no ingest | Wave 1 (Section 7), funde **Fase 1.7b dormente** (Hierarchical Tagging + Multi-Stage Extraction, `docs/nox-neural-memory.md:660-694`) | **Maio 2026**, paralelo a Tier 2 | shadow 7d obrigatório + feature flag `NOX_AMEM_KEYWORDS=shadow\|active` | **Fase 1.7b está morta ou W1.5 é versão executável dela?** Documentar antes |
+| **W2.2** candidate | Consolidation merge + contradiction detection — entity-anchor validation bloqueia merge "Alice/Bob decidiu X" | Wave 2 (Section 7), funde **W1.1** (`relation_reason` enum já inclui `contradicts`) | **Jun-Jul 2026**, depois W2.1 | nDCG@10 publicado em `/api/health.evalMetrics` ≥0.6 + zero false-positive em dry-run 100 chunks | Mandatory `withOpAudit()` + dry-run + canary invariants extension (regra #15) |
+| **Q5** deferred | Cross-encoder reranker (Qwen3-Reranker-0.6B via llama-server local) post-RRF | Wave 4 hipotética (não está em Section 7) | ≥**Set 2026** | W2.1 baseline ≥0.6 + caso concreto de query ambígua mal-rankeada documentado | **llama-server local vs cloud API?** + viola SLA L2 (`<2s`) — confirmar trade-off |
+
+### 9.3. NÃO FAZEMOS adicionados (em `plans/2026-04-19-unified-evolution-roadmap.md`)
+
+| Item | Razão (1-linha) |
+|---|---|
+| Phase 3 deductive synthesis cross-session | LLM confabula sem citation chain rastreável |
+| Phase 4 recall stats worker dedicado | `search_telemetry` + `/api/health.searchTelemetry` já cobrem |
+| Heavy-lane quiet-window worker | Cron 23:00 unificado + canary `*/15min` cobrem com 10% complexidade |
+| Silos schema docs+observations+KG separados | `chunks` canônico evita 3-way drift |
+
+### 9.4. Capacity reality
+
+W1+W2+W3 atuais = **46-58h** pra **~50h** disponíveis até Set/2026. Promover **todos** os 5 candidates sem cortar/recompactar é fantasia. Candidatos a corte/defer se capacity apertar:
+- **W1.4** (`api_impact`, 4h, nice-to-have) — primeiro candidato a defer
+- **W3.1** (paper v2, 5-6h) — recompactável pra 3-4h sem dados eval
+- **Q5** já deferred — não conta no orçamento
