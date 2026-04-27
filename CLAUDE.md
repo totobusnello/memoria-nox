@@ -5,16 +5,33 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 
 ## Onde fica cada coisa
 
+**Canônicos (ler nessa ordem pra retomar):**
+
 | Conteúdo | Arquivo |
 |---|---|
-| Estado atual + regras críticas | **este arquivo** |
+| Estado vivo + próxima ação | **`docs/HANDOFF.md`** ← começar aqui |
+| Roadmap (o que vem, capacity, gates) | **`docs/ROADMAP.md`** ← single source of truth |
+| Decisões + NÃO FAZEMOS + razões | **`docs/DECISIONS.md`** |
+| Regras críticas operacionais 1-15 | **este arquivo** |
+| Visão estratégica (longo prazo) | `docs/nox-neural-memory.md` (v14) |
+
+**Referência:**
+
+| Conteúdo | Arquivo |
+|---|---|
 | Histórico de versões (v1.0 → v3.6d) | `docs/EVOLUTION.md` |
 | Incident log completo | `docs/INCIDENTS.md` |
-| Convenções detalhadas (todas, com contexto) | `docs/CONVENTIONS.md` |
+| Convenções detalhadas | `docs/CONVENTIONS.md` |
 | Specs técnicos | `specs/*.md` |
-| Plans de execução | `plans/*.md` |
 | Audits de infra | `audits/*.md` |
 | Paper técnico | `paper-tecnico-nox-mem.md` / `.docx` |
+
+**Histórico arquivado (referência só, não operacional):**
+
+| Conteúdo | Arquivo |
+|---|---|
+| Plans antigos (25 arquivos, v1.5/v1.6/ClawMem/sessões) | `plans/_archive/` |
+| Handoffs antigos (9 arquivos MASTER-HANDOFF-<date>) | `handoffs/_archive/` |
 
 ## Infraestrutura (estado atual — v3.7, Abr 22)
 
@@ -106,7 +123,13 @@ main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível
 
 ## Roadmap canônico
 
-Phase Matrix + sequência cronológica + Memory Graph Maturity Waves (Maio-Ago 2026) em `plans/2026-04-25-integration-roadmap-v1.6.md` (canônico desde 2026-04-25). Cross-cutting concerns / Decisões Válidas / "NÃO FAZEMOS" continuam em `plans/2026-04-19-unified-evolution-roadmap.md` (v1.5, referência histórica). Visão estratégica em `docs/nox-neural-memory.md` v14.
+**Single source of truth:** `docs/ROADMAP.md` (canônico desde 2026-04-27 — substitui v1.6 + ClawMem analysis como referência operacional).
+- "O que vem, ordem cronológica, capacity, gates" → `docs/ROADMAP.md`
+- "Por quê / NÃO FAZEMOS / decisões arquiteturais" → `docs/DECISIONS.md`
+- "Estado vivo + próxima ação" → `docs/HANDOFF.md`
+- "Visão estratégica longo prazo" → `docs/nox-neural-memory.md` (v14)
+
+Histórico de pensamento (não operacional) em `plans/_archive/`: v1.6, v1.5, ClawMem analysis, session handoffs antigos.
 
 ## Produto NOX-Supermem
 
