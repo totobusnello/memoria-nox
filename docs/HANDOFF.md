@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-04-27 manhã BRT (pós-consolidação documental + review triplo)
+> **Atualizado:** 2026-04-27 manhã BRT (pós-Sprint A1 ingestão massiva GitHub repos + Claude workspace)
 > Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
 > Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
 
@@ -19,14 +19,14 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
 }"'
 ```
 
-**Última leitura (2026-04-27 07:00 BRT):**
+**Última leitura (2026-04-27 ~10:00 BRT pós-A1):**
 ```
-total:    20831 chunks
-embedded: 20662 / 20831 (99.2%)
+total:    39901 chunks (+19070 vs baseline manhã)
+embedded: vectorize em curso ETA ~14min (após: 100%)
 salience: shadow (gate G01 04-30)
-section:  compiled=183, frontmatter=183, timeline=366, legacy=20099
+section:  compiled=183, frontmatter=183, timeline=366, legacy=39169
 opsAudit: 1 op 24h (compact 02:00 ✓)
-db:       318MB
+db:       ~440MB (era 318MB pré-A1)
 ```
 
 ## 2. Improvements audit
@@ -46,8 +46,15 @@ Sessões 2026-04-25/26/27 entregaram:
 - **Sistema unificado de IDs** F/E/R/P/G/D (substitui 6+ namespaces antigos)
 - **Reorganização repo:** plans/_archive (25), handoffs/_archive (9)
 - Review triplo (architect + critic + architect-reviewer): 14 mudanças aplicadas no ROADMAP (capacity recalibrada, R01 split skeleton/curation, E03/E04 split implement/activate, F09-F16 gaps adicionados)
+- **R01a Eval Harness design spec** ✅ commit 3d85ffd (424 linhas, schema v12 + CLI + métricas)
+- **Sprint A1 ingestão massiva** ✅ +19.070 chunks (graphify-ingest 9 repos + 7 repos pequenos + Claude workspace scope curado)
+  - Fase 1: graphify-ingest 9 repos com graphify-out → +1.046 graph_nodes
+  - Fase 2a: clone+ingest 7 repos pequenos (biolab-ai, curso-ai, posts-linkedin, grancoffee, superfrio, fake-news-check, claude-project-template) → +304 markdown chunks
+  - Fase 2b: Claude workspace scope curado (docs+agents+skills+commands+Projetos, _retired excluído) → +17.714 chunks de 1.356 md
+  - Decisão: SKIP powerpoint-templates (114MB visual, gated Tier 3 OCR), SKIP nox-workspace (257MB, scope decision posterior)
+  - F09 off-site backup ainda pending — mais crítico agora porque DB cresceu 38% (318MB→440MB)
 
-Sistema saudável. Em **holding pattern** até G01 (3 dias).
+Sistema saudável e mais rico. Em **holding pattern** até G01 (3 dias).
 
 ## 4. Próxima ação concreta
 

@@ -213,3 +213,21 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **5 candidates promovidos a CANDIDATE** (não committed) — A6, A7, W1.5, W2.2, Q5
 - **NÃO bumpar v1.6→v1.7 nem v14→v15** — subagents leriam Q1-Q5 como decididos
 - **4 NÃO FAZEMOS adicionados** (Phase 3 deductive synth, Phase 4 worker, heavy-lane worker, silos schema)
+
+### 2026-04-27 (Sprint A1 — backfill ingestão pré-R01a)
+- **Re-ordering decision:** ingestão massiva ANTES de R01a, motivada por 3 razões:
+  1. Curadoria R01b (50 golden queries, 8-10h cognitive floor) ficaria stale se corpus crescer 50% depois
+  2. Baseline R01c em corpus parcial vira obsoleto assim que Tier 2/Tier 3 completarem
+  3. E07 impact + E10 consolidation precisam do grafo completo pra blast radius correto
+- **Trade-off aceito:** G01 baseline 7d shadow pode shift 2-3 dias se distribuição salience mudar significativamente pós-A1. Não é catástrofe, é ajuste de cronograma.
+- **Sprint A1 Fase 1 — graphify-ingest 9 repos com graphify-out já gerado:** +1.046 graph_nodes (Future-Farm 34 + GalapagosApp 150 + Granix-App 163 + agent-hub-dashboard 240 + daily-tech-digest 112 + memoria-nox 50 + nox-supermem 56 + projeto-ai-galapagos 147 + sao-thiago-fii 94)
+- **Sprint A1 Fase 2a — clone+ingest 7 repos pequenos:** +304 chunks (biolab-ai, curso-ai, posts-linkedin, grancoffee, superfrio, fake-news-check, claude-project-template)
+- **Sprint A1 Fase 2b — Claude workspace scope curado (Plano A):** +17.714 chunks de 1.356 md (docs+agents+skills+commands+Projetos)
+- **Scope cuts deliberados:**
+  - **SKIP `_retired/` 502 md** — deprecated/arquivado, ruído
+  - **SKIP `prompts/` 43 md** — baixo signal-to-noise
+  - **SKIP `powerpoint-templates` 114MB** — visual content, gated Tier 3 OCR (E12 opcional)
+  - **SKIP `nox-workspace` 257MB** — scope decision posterior (config + skills + agents misturados)
+- **Implicação F09:** off-site backup vira mais crítico (DB +38%: 318MB → ~440MB). Re-priorizar quando voltar atenção pós-G01.
+- **Implicação watcher:** inotifywait race em `git clone` rápido (15 md files perdidos no event stream); ingestão manual via `nox-mem ingest` foi necessária. Não é regressão, é limitação conhecida do filtro `--include`.
+- **Não-mudança intencional:** `_retired/` ficará permanentemente excluído mesmo em re-runs (ruído arquivado).

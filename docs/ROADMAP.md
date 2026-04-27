@@ -10,14 +10,25 @@
 
 ```
 Sistema:        nox-mem v3.7+, schema v10, ops_audit append-only
-Chunks:         20831 (99.2% embedded, 0 orphans)
-DB size:        318MB
+Chunks:         39901 (pós-Sprint A1 GitHub+Claude ingest, target 100% embedded)
+DB size:        ~440MB (era 318MB pré-A1, +38%)
 Agentes:        7 (1 main Maestro + 6 personas: nox/atlas/boris/cipher/forge/lex)
 OpenClaw:       v2026.4.23 (.24 quebrado, .25-stable aguardada)
 Improvements:   13/13 OK (audit baseline)
 Capacity:       ~6h/semana realista até Set/2026 (CEO em 5 frentes)
 Margem incident: 20h reservadas (histórico: 4 incidents em 2 dias 04-25/26)
 ```
+
+### Sprint A1 delivered (2026-04-27)
+
+Ingestão massiva GitHub repos + Claude workspace, **pré-R01a (baseline-first em corpus completo)**:
+- **+1.046 graph_nodes** via `graphify-ingest` em 9 repos com graphify-out já gerados (Future-Farm, GalapagosApp, Granix-App, agent-hub-dashboard, daily-tech-digest, memoria-nox, nox-supermem, projeto-ai-galapagos, sao-thiago-fii)
+- **+304 markdown chunks** via clone+ingest de 7 repos pequenos (biolab-ai, curso-ai, posts-linkedin, grancoffee, superfrio, fake-news-check, claude-project-template)
+- **+17.714 chunks** via Claude workspace scope curado (1.356 md de docs+agents+skills+commands+Projetos)
+- **Scope cut:** _retired/, prompts/, powerpoint-templates (Tier 3 OCR), nox-workspace (257MB scope decision posterior)
+- **Total:** +19.070 chunks (DB +38%)
+- Implicação: F09 off-site backup vira **mais crítico** (mais dados = exposição maior em disk failure)
+- Implicação: G01 baseline 7d pode shift 2-3 dias se distribuição salience mudar significativamente
 
 ## 2. Sistema unificado de IDs
 
