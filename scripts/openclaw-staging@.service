@@ -1,0 +1,29 @@
+# Systemd template unit for OpenClaw staging instances
+# Usage: systemctl start openclaw-staging@2026.4.25
+# The %i parameter is the target version string.
+# Assumes staging module path: /opt/openclaw-staging/node_modules/openclaw
+# and staging workspace: /tmp/openclaw-staging-workspace
+
+[Unit]
+Description=OpenClaw Gateway (staging — version %i)
+After=network.target
+# Do NOT conflict with production unit
+
+[Service]
+Type=simple
+User=root
+Environment=IS_SANDBOX=1
+Environment=OPENCLAW_WORKSPACE=/tmp/openclaw-staging-workspace
+EnvironmentFile=/root/.openclaw/.env
+# Staging listens on 18790, never 18789
+ExecStartPre=-/usr/bin/fuser -k 18790/tcp
+ExecStart=/opt/openclaw-staging/node_modules/openclaw/dist/index.js gateway run --bind loopback
+ExecStop=/usr/bin/fuser -k 18790/tcp
+Restart=no
+# Do NOT auto-restart staging — failure = abort upgrade
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+# Do not enable permanently — start manually for upgrade window only
+WantedBy=multi-user.target

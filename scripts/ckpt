@@ -1,0 +1,310 @@
+#!/usr/bin/env bash
+# ckpt — OpenClaw checkpoint system
+# Source-of-truth: ~/Claude/Projetos/memoria-nox/scripts/ckpt
+# Deployed to: /root/bin/ckpt on VPS via deploy-ckpt.sh
+
+set -euo pipefail
+CKPT_DIR=/root/.openclaw/checkpoints
+WORKSPACE=/root/.openclaw/workspace
+OPENCLAW_JSON=/root/.openclaw/openclaw.json
+CRED_FILE=/root/.claude/.credentials.json
+AGENTS_WITH_AUTH=(nox atlas boris cipher forge lex)
+AGENTS_WITH_SESSIONS=(main nox atlas boris cipher forge lex)
+
+ensure_jq() { command -v jq >/dev/null || { echo "jq required" >&2; exit 1; }; }
+
+cmd_save() {
+  local reason="${1:-manual}"
+  local ts=$(date +%Y%m%d-%H%M%S)
+  local id="${ts}-$(echo "$reason" | tr ' /' '-' | tr -cd '[:alnum:]-_')"
+  local dir="$CKPT_DIR/$id"
+
+  # SECURITY: snapshot may contain secrets (auth-profiles, claude credentials,
+  # cron payloads with keyring passwords). Restrictive umask + dir perms enforced.
+  umask 077
+  install -d -m 0700 "$CKPT_DIR"
+  install -d -m 0700 "$dir" "$dir/auth-profiles" "$dir/sessions"
+
+  install -m 0600 "$OPENCLAW_JSON" "$dir/openclaw.json"
+
+  for a in "${AGENTS_WITH_AUTH[@]}"; do
+    local f="$WORKSPACE/agents/$a/agent/auth-profiles.json"
+    [[ -f "$f" ]] && install -m 0600 "$f" "$dir/auth-profiles/$a.json"
+  done
+
+  for a in "${AGENTS_WITH_SESSIONS[@]}"; do
+    local f="$WORKSPACE/agents/$a/sessions/sessions.json"
+    [[ -f "$f" ]] && install -m 0600 "$f" "$dir/sessions/$a.json"
+  done
+
+  [[ -f "$CRED_FILE" ]] && install -m 0600 "$CRED_FILE" "$dir/claude-credentials.json"
+
+  local patch_file
+  patch_file=$(ls /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js 2>/dev/null | head -1)
+  [[ -n "${patch_file:-}" ]] && install -m 0644 "$patch_file" "$dir/$(basename "$patch_file")"
+
+  [[ -f /etc/systemd/system/openclaw-gateway.service.d/override.conf ]] && \
+    install -m 0644 /etc/systemd/system/openclaw-gateway.service.d/override.conf "$dir/systemd-override.conf"
+
+  # cron payloads can contain inline keyring passwords / commands → 0600
+  ( umask 077; openclaw cron list --json > "$dir/cron-jobs.json" 2>/dev/null || echo "[]" > "$dir/cron-jobs.json" )
+  chmod 0600 "$dir/cron-jobs.json"
+
+  local version dist_hash patch_count gw_pid
+  version=$(openclaw --version 2>&1 | awk '{print $2}')
+  dist_hash=$(find /usr/lib/node_modules/openclaw/dist -type f -name '*.js' -exec sha256sum {} + 2>/dev/null | sha256sum | cut -d' ' -f1)
+  patch_count=$(grep -c "MONKEY-PATCH" /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js 2>/dev/null | head -1 || echo 0)
+  gw_pid=$(systemctl show -p MainPID --value openclaw-gateway 2>/dev/null || echo "0")
+
+  ( umask 077; cat > "$dir/manifest.json" <<EOF
+{
+  "id": "$id",
+  "reason": "$reason",
+  "timestamp": "$(date -Is)",
+  "openclaw_version": "$version",
+  "openclaw_dist_hash": "$dist_hash",
+  "monkey_patch_marker_count": $patch_count,
+  "gateway_pid_at_save": "$gw_pid",
+  "agents_with_auth_profile": $(printf '%s\n' "${AGENTS_WITH_AUTH[@]}" | jq -R . | jq -s .),
+  "agents_with_session": $(printf '%s\n' "${AGENTS_WITH_SESSIONS[@]}" | jq -R . | jq -s .),
+  "pinned": false
+}
+EOF
+  )
+  chmod 0640 "$dir/manifest.json"
+
+  local size
+  size=$(du -sh "$dir" 2>/dev/null | awk '{print $1}')
+  echo "✓ Checkpoint saved: $id"
+  echo "  Reason : $reason"
+  echo "  Version: $version"
+  echo "  Size   : $size"
+  echo "  Path   : $dir"
+}
+
+cmd_list() {
+  ensure_jq
+  if [[ ! -d "$CKPT_DIR" ]] || [[ -z "$(ls -A "$CKPT_DIR" 2>/dev/null)" ]]; then
+    echo "No checkpoints yet. Try: ckpt save \"baseline\""
+    return 0
+  fi
+  printf "%-32s %-14s %-46s %s\n" "ID" "VERSION" "REASON" "PIN"
+  echo "─────────────────────────────────────────────────────────────────────────────────────────────────"
+  for d in $(ls -dt "$CKPT_DIR"/*/ 2>/dev/null); do
+    local m="$d/manifest.json"
+    [[ -f "$m" ]] || continue
+    local id ver rsn pin
+    id=$(jq -r '.id // "?"' "$m")
+    ver=$(jq -r '.openclaw_version // "?"' "$m")
+    rsn=$(jq -r '.reason // "?"' "$m" | cut -c1-44)
+    pin=$(jq -r 'if .pinned then "★" else " " end' "$m")
+    printf "%-32s %-14s %-46s %s\n" "$id" "$ver" "$rsn" "$pin"
+  done
+}
+
+cmd_show() {
+  ensure_jq
+  local id="${1:?Usage: ckpt show <id>}"
+  local dir="$CKPT_DIR/$id"
+  [[ -d "$dir" ]] || { echo "Checkpoint not found: $id"; exit 1; }
+  jq . "$dir/manifest.json"
+  echo ""
+  echo "Contents:"
+  ls -la "$dir"
+}
+
+cmd_diff() {
+  ensure_jq
+  local a="${1:?Usage: ckpt diff <id1> <id2>}"
+  local b="${2:?Usage: ckpt diff <id1> <id2>}"
+  [[ -d "$CKPT_DIR/$a" ]] || { echo "Not found: $a"; exit 1; }
+  [[ -d "$CKPT_DIR/$b" ]] || { echo "Not found: $b"; exit 1; }
+  # NOTE: only diffs manifest + openclaw.json (which uses ${VAR} env refs).
+  # Auth-profiles + sessions + credentials are deliberately NOT diffed —
+  # they contain literal secrets and diff output could leak via terminal/logs.
+  echo "=== manifest diff ($a → $b) ==="
+  diff <(jq -S . "$CKPT_DIR/$a/manifest.json") <(jq -S . "$CKPT_DIR/$b/manifest.json") || true
+  echo ""
+  echo "=== openclaw.json diff (env refs only — no literal secrets) ==="
+  diff <(jq -S . "$CKPT_DIR/$a/openclaw.json") <(jq -S . "$CKPT_DIR/$b/openclaw.json") | head -100 || true
+  echo ""
+  echo "(auth-profiles/sessions/credentials excluded by design — contain raw secrets)"
+}
+
+cmd_restore() {
+  local id="${1:?Usage: ckpt restore <id>}"
+  local skip_confirm="${2:-}"
+  local dir="$CKPT_DIR/$id"
+  [[ -d "$dir" ]] || { echo "Checkpoint not found: $id"; exit 1; }
+
+  echo "⚠️  Restore checkpoint: $id"
+  jq -r '"  Reason  : " + .reason + "\n  Version : " + .openclaw_version + "\n  Saved at: " + .timestamp' "$dir/manifest.json"
+  echo ""
+  echo "Will:"
+  echo "  - Auto-snapshot current state (pre-restore safety net)"
+  echo "  - Stop openclaw-gateway"
+  echo "  - Restore openclaw.json + auth-profiles + sessions + claude-credentials"
+  echo "  - Restart openclaw-gateway"
+  echo "  - 30s smoke test"
+  echo ""
+  if [[ "$skip_confirm" != "--yes" ]]; then
+    read -p "Proceed? [y/N] " yn
+    [[ "$yn" =~ ^[Yy]$ ]] || { echo "Aborted."; exit 1; }
+  fi
+
+  echo ""
+  echo "[1/6] Auto-checkpoint current state..."
+  cmd_save "pre-restore-of-$id" >/dev/null
+
+  echo "[2/6] Stopping gateway..."
+  systemctl stop openclaw-gateway || true
+  sleep 2
+
+  echo "[3/6] Restoring openclaw.json..."
+  cp "$dir/openclaw.json" "$OPENCLAW_JSON"
+
+  echo "[4/6] Restoring auth-profiles + sessions..."
+  for a in "${AGENTS_WITH_AUTH[@]}"; do
+    local src="$dir/auth-profiles/$a.json"
+    [[ -f "$src" ]] && cp "$src" "$WORKSPACE/agents/$a/agent/auth-profiles.json"
+  done
+  for a in "${AGENTS_WITH_SESSIONS[@]}"; do
+    local src="$dir/sessions/$a.json"
+    [[ -f "$src" ]] && cp "$src" "$WORKSPACE/agents/$a/sessions/sessions.json"
+  done
+
+  if [[ -f "$dir/claude-credentials.json" ]] && [[ -f "$CRED_FILE" ]]; then
+    if lsattr "$CRED_FILE" 2>/dev/null | grep -q 'i'; then
+      echo "  [skip] credentials.json is immutable; manual: chattr -i, replace, chattr +i"
+    else
+      cp "$dir/claude-credentials.json" "$CRED_FILE"
+    fi
+  fi
+
+  echo "[5/6] Starting gateway..."
+  systemctl start openclaw-gateway
+  sleep 8
+
+  echo "[6/6] Smoke test..."
+  if ! systemctl is-active openclaw-gateway >/dev/null; then
+    echo "✗ Gateway failed to start. Manual intervention needed."
+    echo "  Check: journalctl -u openclaw-gateway --since '1 min ago' | tail -30"
+    exit 1
+  fi
+
+  local errs
+  errs=$(journalctl -u openclaw-gateway --since "30 sec ago" --no-pager 2>/dev/null \
+    | grep -cE "error|fail|harness.*not registered" || true)
+  if [[ "${errs:-0}" -eq 0 ]]; then
+    echo "✓ Restore complete. Gateway healthy. 0 errors in last 30s."
+  else
+    echo "⚠ Restore done but $errs error-lines in last 30s — investigate before declaring OK."
+    echo "  journalctl -u openclaw-gateway --since '1 min ago' | grep -iE 'error|fail|harness'"
+  fi
+}
+
+cmd_pin() {
+  ensure_jq
+  local id="${1:?Usage: ckpt pin <id>}"
+  local m="$CKPT_DIR/$id/manifest.json"
+  [[ -f "$m" ]] || { echo "Not found: $id"; exit 1; }
+  jq '.pinned = true' "$m" > "$m.tmp" && mv "$m.tmp" "$m"
+  echo "✓ Pinned: $id (won't be auto-pruned)"
+}
+
+cmd_unpin() {
+  ensure_jq
+  local id="${1:?Usage: ckpt unpin <id>}"
+  local m="$CKPT_DIR/$id/manifest.json"
+  [[ -f "$m" ]] || { echo "Not found: $id"; exit 1; }
+  jq '.pinned = false' "$m" > "$m.tmp" && mv "$m.tmp" "$m"
+  echo "✓ Unpinned: $id"
+}
+
+cmd_prune() {
+  ensure_jq
+  local days="${1:-30}"
+  local now cutoff removed=0
+  now=$(date +%s)
+  cutoff=$((now - days*86400))
+  for d in "$CKPT_DIR"/*/; do
+    [[ -d "$d" ]] || continue
+    local m="$d/manifest.json"
+    [[ -f "$m" ]] || continue
+    local pinned ts ts_epoch
+    pinned=$(jq -r '.pinned' "$m")
+    [[ "$pinned" == "true" ]] && continue
+    ts=$(jq -r '.timestamp' "$m")
+    ts_epoch=$(date -d "$ts" +%s 2>/dev/null || echo 0)
+    if (( ts_epoch < cutoff )); then
+      rm -rf "$d"
+      echo "Removed: $(basename "$d")"
+      removed=$((removed+1))
+    fi
+  done
+  echo "✓ Pruned $removed checkpoints older than $days days (pinned kept)"
+}
+
+cmd_help() {
+  cat <<'EOF'
+ckpt — OpenClaw checkpoint system
+
+USAGE:
+  ckpt save <reason>          Snapshot config + auth + sessions + creds + cron
+  ckpt list                   Show all checkpoints (newest first)
+  ckpt show <id>              Show manifest of one checkpoint
+  ckpt diff <id1> <id2>       Diff manifests + openclaw.json
+  ckpt restore <id> [--yes]   Restore checkpoint (auto-snapshots first)
+  ckpt pin <id>               Mark as good-known-state (won't auto-prune)
+  ckpt unpin <id>             Allow auto-prune
+  ckpt prune [days]           Remove unpinned >N days (default 30)
+  ckpt help                   This text
+
+SNAPSHOT INCLUDES (with permissions):
+  - openclaw.json                                0600  (config, env refs only — no literal secrets)
+  - workspace/agents/*/agent/auth-profiles.json  0600  (LITERAL SECRETS — sk-ant-oat, sk-or, etc)
+  - workspace/agents/*/sessions/sessions.json    0600  (session state, model stickiness)
+  - ~/.claude/.credentials.json                  0600  (Claude CLI Max OAuth token — LITERAL SECRET)
+  - dist/restart-stale-pids-*.js                 0644  (monkey-patch state, forensic; no secrets)
+  - systemd-override.conf                        0644  (IS_SANDBOX=1, etc; no secrets)
+  - cron-jobs.json                               0600  (cron payloads can contain inline keyring pwds)
+  - manifest.json                                0640  (hashes + version; no secrets)
+
+SECURITY:
+  - Checkpoint dir /root/.openclaw/checkpoints   0700  (root-only)
+  - Each checkpoint subdir                       0700  (root-only)
+  - Snapshots NEVER leave the VPS — DO NOT scp/rsync to laptop or cloud
+  - DO NOT commit checkpoint files to git (.gitignore enforced in repo)
+
+NOT INCLUDED (intentional):
+  - openclaw npm binary (separate concern, handled by upgrade script)
+  - graph-memory.db                            (large, restore from backup-all.sh)
+  - nox-mem.db                                 (large, separate backup chain)
+
+AUTO-CHECKPOINTS (no manual save needed):
+  - Daily 02:00 BRT (passive)        cron 0 2 * * *
+  - Pre-systemctl restart            via wrapper hook
+  - Pre-npm install openclaw         via wrapper hook
+  - Pre-ckpt restore                 always
+
+EXAMPLES:
+  ckpt save "before testing new plugin"
+  ckpt list
+  ckpt restore 20260427-094512-before-testing-new-plugin
+  ckpt diff 20260426-203847-pre-session 20260427-094512-current
+EOF
+}
+
+ensure_jq
+case "${1:-help}" in
+  save)    shift; cmd_save "$@" ;;
+  list)    shift; cmd_list "$@" ;;
+  show)    shift; cmd_show "$@" ;;
+  diff)    shift; cmd_diff "$@" ;;
+  restore) shift; cmd_restore "$@" ;;
+  pin)     shift; cmd_pin "$@" ;;
+  unpin)   shift; cmd_unpin "$@" ;;
+  prune)   shift; cmd_prune "$@" ;;
+  help|-h|--help) cmd_help ;;
+  *)       echo "Unknown: $1" >&2; cmd_help; exit 1 ;;
+esac

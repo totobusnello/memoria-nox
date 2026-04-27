@@ -1,0 +1,246 @@
+#!/usr/bin/env bash
+# oc-upgrade — OpenClaw safe upgrade orchestrator
+# Wires together: ckpt + improvements + upgrade-zero-downtime.sh + notifications
+#
+# Source-of-truth: ~/Claude/Projetos/memoria-nox/scripts/oc-upgrade
+# Deployed to:     /root/bin/oc-upgrade
+#
+# Usage:
+#   oc-upgrade <version>            Full upgrade with auto-rollback gate
+#   oc-upgrade <version> --dry-run  Pre-flight + staging + smoke tests, NO swap
+#   oc-upgrade --status             Show last upgrade attempt + current state
+#
+# Pipeline:
+#   1. Notify start (WhatsApp + Discord forge-dev)
+#   2. ckpt save "pre-upgrade-<version>" (formal snapshot, pinned automatically)
+#   3. Baseline improvements check (snapshot pre-upgrade state)
+#   4. Run upgrade-zero-downtime.sh (Phase 0-5: pre-flight → staging → smoke → swap → watch)
+#   5. Post-swap improvements check (gate)
+#   6. If CRITICAL violation: ckpt restore <pre-upgrade-id> + notify failure
+#   7. Else: notify success + pin checkpoint
+#
+# Notifications include: version delta, duration, # checkpoint, audit results
+
+set -euo pipefail
+
+WHATSAPP_TO="+5511982022121"
+DISCORD_FORGE="1480060616021643336"
+LOG_DIR=/var/log
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+LOG_FILE="$LOG_DIR/oc-upgrade-$TIMESTAMP.log"
+
+usage() {
+  cat <<EOF
+oc-upgrade — OpenClaw safe upgrade orchestrator
+
+USAGE:
+  oc-upgrade <version>            Full upgrade with auto-rollback gate
+  oc-upgrade <version> --dry-run  Pre-flight + staging + smoke (no swap)
+  oc-upgrade --status             Show last upgrade attempt + state
+  oc-upgrade --help               This text
+
+EXAMPLES:
+  oc-upgrade 2026.4.25            # actual upgrade .23 → .25
+  oc-upgrade 2026.4.25 --dry-run  # validates without touching prod
+
+PRE-REQUISITES:
+  - /root/bin/ckpt installed (Sprint 1)
+  - /root/bin/improvements installed (Sprint 2)
+  - /root/upgrade-zero-downtime.sh installed (deployment-engineer Sprint)
+  - openclaw message send working (WhatsApp + Discord)
+EOF
+}
+
+notify() {
+  local msg="$1"
+  echo ""
+  echo "── notify ──────────────────────────"
+  echo "$msg"
+  echo "────────────────────────────────────"
+  openclaw message send --channel whatsapp --target "$WHATSAPP_TO" --message "$msg" >/dev/null 2>&1 || \
+    echo "[notify] WhatsApp send failed (continuing)"
+  openclaw message send --channel discord --target "$DISCORD_FORGE" --message "$msg" >/dev/null 2>&1 || \
+    echo "[notify] Discord send failed (continuing)"
+}
+
+cmd_status() {
+  echo "=== oc-upgrade status ==="
+  echo ""
+  echo "Current OpenClaw version:"
+  openclaw --version 2>&1 | head -1
+  echo ""
+  echo "Latest 3 checkpoints:"
+  ckpt list 2>/dev/null | head -5
+  echo ""
+  echo "Improvements audit:"
+  improvements check 2>&1 | grep -E "^(✓|✗|⚠|OpenClaw|All|Critical:|Overall:)" | head -20
+  echo ""
+  echo "Last upgrade log:"
+  ls -t /var/log/oc-upgrade-*.log 2>/dev/null | head -1 | xargs -r tail -20 2>/dev/null
+}
+
+cmd_upgrade() {
+  local TARGET="$1"
+  local DRY_RUN="${2:-}"
+  local CURRENT
+  CURRENT=$(openclaw --version 2>&1 | awk '{print $2}')
+
+  exec > >(tee -a "$LOG_FILE") 2>&1
+
+  echo "=================================================================="
+  echo "  OpenClaw Safe Upgrade Orchestrator"
+  echo "  $(date -Is)"
+  echo "  $CURRENT  →  $TARGET   $([[ -n "$DRY_RUN" ]] && echo "[DRY-RUN]" || echo "[LIVE]")"
+  echo "  Log: $LOG_FILE"
+  echo "=================================================================="
+
+  # ── Step 1: notify start ──
+  notify "🔧 *Upgrade OpenClaw iniciado*
+  • De: \`$CURRENT\`
+  • Para: \`$TARGET\`
+  • Mode: $([[ -n "$DRY_RUN" ]] && echo "DRY-RUN (no swap)" || echo "LIVE")
+  • Log: \`$LOG_FILE\`"
+
+  # ── Step 2: formal checkpoint ──
+  echo ""
+  echo "━━━ STEP 1: ckpt save (pre-upgrade snapshot) ━━━"
+  CKPT_REASON="pre-upgrade-${TARGET}"
+  /root/bin/ckpt save "$CKPT_REASON"
+  CKPT_ID=$(ls -t /root/.openclaw/checkpoints/ | head -1)
+  /root/bin/ckpt pin "$CKPT_ID"
+  echo "  Checkpoint pinned: $CKPT_ID"
+
+  # ── Step 3: baseline improvements ──
+  echo ""
+  echo "━━━ STEP 2: baseline improvements audit ━━━"
+  BASELINE_AUDIT=$(/root/bin/improvements check --json 2>/dev/null || echo '[]')
+  BASELINE_PASS=$(echo "$BASELINE_AUDIT" | jq '[.[] | select(.pass == true)] | length')
+  BASELINE_TOTAL=$(echo "$BASELINE_AUDIT" | jq 'length')
+  BASELINE_CRIT_FAIL=$(echo "$BASELINE_AUDIT" | jq '[.[] | select(.pass == false and .category == "critical")] | length')
+  echo "  Baseline: $BASELINE_PASS/$BASELINE_TOTAL OK (critical fails: $BASELINE_CRIT_FAIL)"
+  if [[ "$BASELINE_CRIT_FAIL" -gt 0 ]]; then
+    echo "  ABORTING: baseline already has critical violations — fix before upgrading"
+    notify "❌ *Upgrade abortado:* baseline tem $BASELINE_CRIT_FAIL critical violations. Não prossegue até corrigir."
+    exit 2
+  fi
+
+  # ── Step 4: run upgrade-zero-downtime.sh ──
+  echo ""
+  echo "━━━ STEP 3: running upgrade-zero-downtime.sh ━━━"
+  if [[ ! -x /root/upgrade-zero-downtime.sh ]]; then
+    echo "ERROR: /root/upgrade-zero-downtime.sh not found or not executable"
+    notify "❌ *Upgrade abortado:* upgrade-zero-downtime.sh não encontrado em /root/"
+    exit 3
+  fi
+
+  UPGRADE_ARGS=("$TARGET")
+  [[ -n "$DRY_RUN" ]] && UPGRADE_ARGS+=("--dry-run")
+
+  set +e
+  bash /root/upgrade-zero-downtime.sh "${UPGRADE_ARGS[@]}"
+  UPGRADE_RC=$?
+  set -e
+
+  echo ""
+  echo "  upgrade-zero-downtime.sh exit code: $UPGRADE_RC"
+
+  # ── Step 5: dry-run path stops here ──
+  if [[ -n "$DRY_RUN" ]]; then
+    if [[ "$UPGRADE_RC" -eq 0 ]]; then
+      notify "✅ *Dry-run completou OK* ($CURRENT → $TARGET)
+  • Pre-flight + staging + smoke tests passaram
+  • Production NÃO foi tocada
+  • Pra upgrade real: \`oc-upgrade $TARGET\` (sem --dry-run)"
+    else
+      notify "⚠️ *Dry-run falhou* (exit $UPGRADE_RC)
+  • Production NÃO foi tocada
+  • Investigue: \`tail -100 $LOG_FILE\`"
+    fi
+    exit "$UPGRADE_RC"
+  fi
+
+  # ── Step 6: post-swap audit gate ──
+  if [[ "$UPGRADE_RC" -ne 0 ]]; then
+    echo ""
+    echo "━━━ STEP 4: upgrade script failed — checking if rollback already happened ━━━"
+    POST_VERSION=$(openclaw --version 2>&1 | awk '{print $2}')
+    if [[ "$POST_VERSION" == "$CURRENT" ]]; then
+      echo "  Version still $CURRENT — upgrade-zero-downtime.sh self-rolled-back. Good."
+      notify "🔄 *Upgrade rolled back automaticamente* ($CURRENT mantida)
+  • Razão: phase falhou no upgrade-zero-downtime.sh
+  • Checkpoint pinado: \`$CKPT_ID\`
+  • Log: \`$LOG_FILE\`"
+      exit "$UPGRADE_RC"
+    fi
+    echo "  Version is now $POST_VERSION but upgrade exited with error — manual restore via ckpt"
+    notify "🚨 *Upgrade falhou em estado inconsistente!*
+  • Versão atual: $POST_VERSION
+  • Esperado: rollback automático (não aconteceu)
+  • Restore manual: \`ckpt restore $CKPT_ID\`
+  • Log: \`$LOG_FILE\`"
+    exit "$UPGRADE_RC"
+  fi
+
+  # ── Step 7: post-swap improvements ──
+  echo ""
+  echo "━━━ STEP 4: post-swap improvements audit ━━━"
+  sleep 5
+  POST_AUDIT=$(/root/bin/improvements check --json 2>/dev/null || echo '[]')
+  POST_PASS=$(echo "$POST_AUDIT" | jq '[.[] | select(.pass == true)] | length')
+  POST_TOTAL=$(echo "$POST_AUDIT" | jq 'length')
+  POST_CRIT_FAIL=$(echo "$POST_AUDIT" | jq '[.[] | select(.pass == false and .category == "critical")] | length')
+  POST_CRIT_DETAIL=$(echo "$POST_AUDIT" | jq -r '[.[] | select(.pass == false and .category == "critical")] | .[] | "  - " + .id + ": " + (.failures | join("; "))')
+  echo "  Post-swap: $POST_PASS/$POST_TOTAL OK (critical fails: $POST_CRIT_FAIL)"
+
+  if [[ "$POST_CRIT_FAIL" -gt 0 ]]; then
+    echo ""
+    echo "━━━ STEP 5: CRITICAL VIOLATIONS — auto-rollback via ckpt ━━━"
+    echo "$POST_CRIT_DETAIL"
+    echo ""
+    /root/bin/ckpt restore "$CKPT_ID" --yes
+    POST_RESTORE_VERSION=$(openclaw --version 2>&1 | awk '{print $2}')
+    notify "🚨 *Upgrade rolled back!* Improvements críticos violados.
+  • Restaurado para: \`$POST_RESTORE_VERSION\`
+  • Checkpoint usado: \`$CKPT_ID\`
+  • Violations:
+$POST_CRIT_DETAIL
+  • Log: \`$LOG_FILE\`"
+    exit 4
+  fi
+
+  # ── Step 8: success ──
+  POST_VERSION=$(openclaw --version 2>&1 | awk '{print $2}')
+  notify "✅ *Upgrade concluído* ($CURRENT → $POST_VERSION)
+  • Improvements: $POST_PASS/$POST_TOTAL OK
+  • Checkpoint pré-upgrade pinado: \`$CKPT_ID\`
+  • Pra rollback manual se algo bizarro: \`ckpt restore $CKPT_ID\`
+  • Log: \`$LOG_FILE\`"
+
+  # Auto-pin a NEW checkpoint as good-known-state
+  /root/bin/ckpt save "post-upgrade-${POST_VERSION}-success" >/dev/null
+  NEW_CKPT_ID=$(ls -t /root/.openclaw/checkpoints/ | head -1)
+  /root/bin/ckpt pin "$NEW_CKPT_ID"
+  echo "  New good-known-state pinned: $NEW_CKPT_ID"
+
+  echo ""
+  echo "✓ ALL DONE."
+}
+
+# ── Main ──
+case "${1:-}" in
+  --help|-h|help|"")
+    usage
+    exit 0
+    ;;
+  --status)
+    cmd_status
+    exit 0
+    ;;
+  *)
+    TARGET="$1"
+    shift || true
+    DRY_RUN=""
+    [[ "${1:-}" == "--dry-run" ]] && DRY_RUN="--dry-run"
+    cmd_upgrade "$TARGET" "$DRY_RUN"
+    ;;
+esac

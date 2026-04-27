@@ -1,0 +1,373 @@
+#!/usr/bin/env python3
+"""
+improvements — validate Toto/Nox OpenClaw invariants
+Source-of-truth: ~/Claude/Projetos/memoria-nox/scripts/improvements
+Deployed to:     /root/bin/improvements
+"""
+import sys, os, subprocess, json, re, glob, argparse
+
+try:
+    import yaml
+except ImportError:
+    print("ERROR: PyYAML required. Install: apt install python3-yaml", file=sys.stderr)
+    sys.exit(3)
+
+MANIFEST = "/root/.openclaw/our-improvements.yml"
+OPENCLAW_JSON = "/root/.openclaw/openclaw.json"
+
+
+def load_config():
+    with open(OPENCLAW_JSON) as f:
+        return json.load(f)
+
+
+def get_path(obj, path):
+    for k in path.split('.'):
+        if obj is None:
+            return None
+        obj = obj.get(k) if isinstance(obj, dict) else None
+    return obj
+
+
+# === Check implementations ===
+
+def chk_systemd_active(c):
+    r = subprocess.run(['systemctl', 'is-active', c['unit']], capture_output=True)
+    s = r.stdout.decode().strip()
+    return r.returncode == 0, f"systemctl is-active {c['unit']} = {s}"
+
+
+def chk_log_grep(c):
+    since = c.get('within', '5 minutes')
+    r = subprocess.run(
+        ['journalctl', '-u', c['unit'], f'--since={since} ago', '--no-pager'],
+        capture_output=True
+    )
+    text = r.stdout.decode()
+    found = bool(re.search(c['pattern'], text))
+    must = c.get('must_match', True)
+    if must:
+        return found, f"pattern {'found' if found else 'NOT found'} in {since}"
+    return not found, f"pattern {'unexpectedly found' if found else 'absent (good)'}"
+
+
+def chk_log_must_not_contain(c):
+    since = c.get('within', '5 minutes')
+    r = subprocess.run(
+        ['journalctl', '-u', c['unit'], f'--since={since} ago', '--no-pager'],
+        capture_output=True
+    )
+    text = r.stdout.decode()
+    bad = []
+    for p in c['patterns']:
+        if re.search(p, text):
+            bad.append(p)
+    if bad:
+        return False, f"forbidden patterns found: {bad}"
+    return True, "no forbidden patterns"
+
+
+def chk_file_attr(c):
+    p = c['path']
+    if not os.path.exists(p):
+        return False, f"{p} does not exist"
+    mode = oct(os.stat(p).st_mode & 0o777)[2:]
+    expected = c['mode'].lstrip('0o').lstrip('0')
+    return mode == expected, f"{p} mode={mode}, expected={expected}"
+
+
+def chk_file_attr_chattr(c):
+    if not os.path.exists(c['path']):
+        return False, f"{c['path']} does not exist"
+    r = subprocess.run(['lsattr', c['path']], capture_output=True)
+    if r.returncode != 0:
+        return False, f"lsattr failed: {r.stderr.decode().strip()}"
+    flags = r.stdout.decode().split()[0] if r.stdout else ''
+    has = c['flag'] in flags
+    return has, f"flags={flags!r}, looking for '{c['flag']}'"
+
+
+def chk_env_must_have(c):
+    f = c['file']
+    if not os.path.exists(f):
+        return False, f"{f} not found"
+    with open(f) as fh:
+        text = fh.read()
+    keys = c.get('keys', [c.get('key')]) if c.get('key') else c.get('keys', [])
+    for k in keys:
+        if not re.search(rf"^{re.escape(k)}=", text, re.M):
+            return False, f"{k} missing in {f}"
+    return True, f"all required keys present"
+
+
+def chk_env_must_not_have(c):
+    f = c['file']
+    if not os.path.exists(f):
+        return True, f"{f} not found (vacuously OK)"
+    with open(f) as fh:
+        text = fh.read()
+    keys = c.get('keys', [c.get('key')] if c.get('key') else [])
+    bad = []
+    for k in keys:
+        if re.search(rf"^{re.escape(k)}=", text, re.M):
+            bad.append(k)
+    if bad:
+        return False, f"forbidden keys present (uncomment to fix): {bad}"
+    return True, "all forbidden keys absent or commented"
+
+
+def chk_file_glob_contains(c):
+    files = glob.glob(c['pattern'])
+    if not files:
+        return False, f"no files match {c['pattern']}"
+    needle = c['contains']
+    matched = []
+    for f in files:
+        try:
+            with open(f) as fh:
+                if needle in fh.read():
+                    matched.append(f)
+        except Exception:
+            pass
+    if matched:
+        return True, f"{len(matched)} file(s) contain '{needle}'"
+    return False, f"no file matching {c['pattern']} contains '{needle}'"
+
+
+def chk_file_contains(c):
+    p = c['path']
+    if not os.path.exists(p):
+        return False, f"{p} not found"
+    with open(p) as fh:
+        text = fh.read()
+    return c['pattern'] in text, f"'{c['pattern']}' {'found' if c['pattern'] in text else 'NOT found'} in {p}"
+
+
+def chk_file_exists(c):
+    return os.path.exists(c['path']), c['path']
+
+
+def chk_dir_exists(c):
+    return os.path.isdir(c['path']), c['path']
+
+
+def chk_plugin_enabled(c):
+    cfg = load_config()
+    entry = cfg.get('plugins', {}).get('entries', {}).get(c['plugin'])
+    if entry is None:
+        return False, f"plugin {c['plugin']} not in entries"
+    enabled = entry.get('enabled', True)
+    return bool(enabled), f"{c['plugin']}.enabled={enabled}"
+
+
+def chk_plugin_disabled_or_absent(c):
+    cfg = load_config()
+    entries = cfg.get('plugins', {}).get('entries', {})
+    bad = []
+    for p in c['plugins']:
+        e = entries.get(p)
+        if e is not None and e.get('enabled', True):
+            bad.append(p)
+    return not bad, "all clean" if not bad else f"still enabled: {bad}"
+
+
+def chk_plugin_count_max(c):
+    cfg = load_config()
+    n = len(cfg.get('plugins', {}).get('entries', {}))
+    return n <= c['count'], f"plugin count={n}, max={c['count']}"
+
+
+def chk_config_min(c):
+    cfg = load_config()
+    val = get_path(cfg, c['path'])
+    if val is None:
+        return False, f"{c['path']} not set"
+    try:
+        return val >= c['min'], f"value={val}, min={c['min']}"
+    except TypeError:
+        return False, f"{c['path']}={val} not comparable"
+
+
+def chk_config_no_match(c):
+    cfg = load_config()
+    val = get_path(cfg, c['path'])
+    if val is None:
+        return True, f"{c['path']} not set (vacuously OK)"
+    if isinstance(val, list):
+        bad = [v for v in val if re.match(c['pattern'], str(v))]
+        return not bad, "clean" if not bad else f"matches: {bad}"
+    return not bool(re.match(c['pattern'], str(val))), str(val)
+
+
+def _cron_jobs():
+    """Returns list of cron job dicts from `openclaw cron list --json`.
+    Schema (v2026.4.23): {jobs:[...], total, offset, limit, ...}"""
+    r = subprocess.run(['openclaw', 'cron', 'list', '--json'],
+                       capture_output=True, env={**os.environ, 'NODE_NO_WARNINGS': '1'})
+    if r.returncode != 0:
+        return None, f"openclaw cron list failed: {r.stderr.decode().strip()[:200]}"
+    try:
+        d = json.loads(r.stdout.decode())
+    except Exception as e:
+        return None, f"json parse failed: {e}"
+    if isinstance(d, dict) and 'jobs' in d:
+        return d['jobs'], None
+    if isinstance(d, list):
+        return d, None
+    return None, f"unexpected schema: keys={list(d.keys()) if isinstance(d, dict) else type(d).__name__}"
+
+
+def chk_cron_count_min(c):
+    jobs, err = _cron_jobs()
+    if err:
+        return False, err
+    n = len(jobs)
+    return n >= c['count'], f"cron count={n}, min={c['count']}"
+
+
+def chk_cron_must_exist(c):
+    jobs, err = _cron_jobs()
+    if err:
+        return False, err
+    names = {j.get('name') for j in jobs if isinstance(j, dict)}
+    missing = [n for n in c['names'] if n not in names]
+    return not missing, "all present" if not missing else f"missing: {missing}"
+
+
+CHECKERS = {
+    'systemd_active': chk_systemd_active,
+    'log_grep': chk_log_grep,
+    'log_must_not_contain': chk_log_must_not_contain,
+    'file_attr': chk_file_attr,
+    'file_attr_chattr': chk_file_attr_chattr,
+    'env_must_have': chk_env_must_have,
+    'env_must_not_have': chk_env_must_not_have,
+    'file_glob_contains': chk_file_glob_contains,
+    'file_contains': chk_file_contains,
+    'file_exists': chk_file_exists,
+    'dir_exists': chk_dir_exists,
+    'plugin_enabled': chk_plugin_enabled,
+    'plugin_disabled_or_absent': chk_plugin_disabled_or_absent,
+    'plugin_count_max': chk_plugin_count_max,
+    'config_min': chk_config_min,
+    'config_no_match': chk_config_no_match,
+    'cron_count_min': chk_cron_count_min,
+    'cron_must_exist': chk_cron_must_exist,
+}
+
+
+def run_checks(manifest):
+    results = []
+    for imp in manifest['improvements']:
+        check_results = []
+        for chk in imp.get('checks', []):
+            t = chk.get('type')
+            checker = CHECKERS.get(t)
+            if not checker:
+                check_results.append((False, f"unknown checker: {t}"))
+                continue
+            try:
+                ok, msg = checker(chk)
+                check_results.append((bool(ok), msg))
+            except Exception as e:
+                check_results.append((False, f"checker error: {type(e).__name__}: {e}"))
+        all_ok = all(r[0] for r in check_results)
+        results.append({
+            'id': imp['id'],
+            'category': imp['category'],
+            'description': imp['description'],
+            'on_violation': imp.get('on_violation', 'warn'),
+            'pass': all_ok,
+            'checks': check_results,
+        })
+    return results
+
+
+def cmd_check(args, manifest):
+    results = run_checks(manifest)
+
+    if args.json:
+        out = []
+        for r in results:
+            out.append({
+                'id': r['id'],
+                'category': r['category'],
+                'description': r['description'],
+                'pass': r['pass'],
+                'on_violation': r['on_violation'],
+                'failures': [m for ok, m in r['checks'] if not ok],
+                'all_messages': [{'pass': ok, 'msg': m} for ok, m in r['checks']],
+            })
+        print(json.dumps(out, indent=2, ensure_ascii=False))
+    else:
+        pass_count = sum(1 for r in results if r['pass'])
+        total = len(results)
+        crit_total = sum(1 for r in results if r['category'] == 'critical')
+        crit_pass = sum(1 for r in results if r['pass'] and r['category'] == 'critical')
+
+        print(f"\n{'='*72}")
+        print(f"OpenClaw Improvements Audit")
+        print(f"  Critical: {crit_pass}/{crit_total}    Overall: {pass_count}/{total}")
+        print(f"{'='*72}\n")
+
+        for r in results:
+            if r['pass']:
+                icon = "✓"
+            elif r['category'] == 'critical':
+                icon = "✗"
+            else:
+                icon = "⚠"
+            cat = f"[{r['category']:8s}]"
+            print(f"{icon} {cat} {r['id']:30s} {r['description']}")
+            if not r['pass']:
+                for ok, msg in r['checks']:
+                    if not ok:
+                        print(f"      └─ FAIL: {msg}")
+                print(f"      ✦ on_violation: {r['on_violation']}")
+            print()
+
+    crit_fails = [r for r in results if not r['pass'] and r['category'] == 'critical']
+    if crit_fails:
+        if not args.json:
+            print(f"⚠️  {len(crit_fails)} CRITICAL violation(s) — orchestrator would auto-rollback.\n")
+        sys.exit(1)
+    warn_fails = [r for r in results if not r['pass']]
+    if warn_fails:
+        if not args.json:
+            print(f"ℹ️  {len(warn_fails)} warn-only violation(s) — informational, not blocking.\n")
+        sys.exit(2)
+    if not args.json:
+        print("✓ All improvements OK.\n")
+    sys.exit(0)
+
+
+def cmd_list(args, manifest):
+    print(f"\n{manifest['description']}")
+    print(f"Last reviewed: {manifest.get('last_reviewed', '?')}\n")
+    for imp in manifest['improvements']:
+        print(f"  {imp['category']:9s} {imp['id']:30s}  {imp['description']}")
+        print(f"  {'':9s} {'':30s}  → on_violation: {imp.get('on_violation', 'warn')}")
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.strip())
+    ap.add_argument('action', choices=['check', 'list'], default='check', nargs='?')
+    ap.add_argument('--manifest', default=MANIFEST)
+    ap.add_argument('--json', action='store_true', help='output JSON (for orchestrator consumption)')
+    args = ap.parse_args()
+
+    if not os.path.exists(args.manifest):
+        print(f"ERROR: manifest not found at {args.manifest}", file=sys.stderr)
+        sys.exit(3)
+
+    with open(args.manifest) as f:
+        manifest = yaml.safe_load(f)
+
+    if args.action == 'list':
+        cmd_list(args, manifest)
+    else:
+        cmd_check(args, manifest)
+
+
+if __name__ == '__main__':
+    main()

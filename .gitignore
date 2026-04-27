@@ -9,3 +9,19 @@ node_modules/
 # Source of truth vive em /root/vault/projetos/<repo>/graphify-out/ na VPS,
 # ingestados no nox-mem como chunk_type=graph_node. Localmente é derivado.
 graphify-out/
+
+# Checkpoint snapshots — contain raw secrets (auth-profiles, claude credentials,
+# cron payloads with keyring passwords). Live ONLY on VPS at /root/.openclaw/checkpoints/.
+# NEVER commit, scp, or rsync to laptop.
+checkpoints/
+*.checkpoint
+ckpt-snapshots/
+
+# Local secret refs — ensure no .env-like or credentials file leaks via this repo
+.env
+.env.local
+.env.*.local
+*.credentials.json
+gmeet-token.json
+auth-profiles.json
+claude-credentials.json

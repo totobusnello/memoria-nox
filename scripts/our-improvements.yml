@@ -1,0 +1,191 @@
+# Toto/Nox OpenClaw Improvements Manifest
+# Source-of-truth: ~/Claude/Projetos/memoria-nox/scripts/our-improvements.yml
+# Deployed to:     /root/.openclaw/our-improvements.yml
+#
+# Categories:
+#   critical = if violated, auto-rollback (orchestrator hard-fails)
+#   warn     = informational only (orchestrator continues)
+#
+# on_violation values:
+#   rollback                       — orchestrator triggers ckpt restore
+#   reapply_then_rollback_if_fails — try fix_command first, rollback if still failing
+#   warn                           — log + notify, do not block
+#
+# Toto reviews this file periodically and adjusts category/on_violation.
+
+version: 1
+last_reviewed: "2026-04-27"
+description: "Invariants of the Toto/Nox OpenClaw setup that upgrades MUST preserve"
+
+improvements:
+  # ============================================================
+  # CRITICAL — production breaks if violated
+  # ============================================================
+
+  - id: claude_cli_zero_cost
+    category: critical
+    description: "Claude CLI subprocess via Max OAuth (zero pay-per-token cost)"
+    checks:
+      - type: log_grep
+        unit: openclaw-gateway
+        pattern: "claude live session start: provider=claude-cli"
+        within: "30 minutes"
+        must_match: true
+      - type: file_attr
+        path: /root/.claude/.credentials.json
+        mode: "600"
+      - type: file_attr_chattr
+        path: /root/.claude/.credentials.json
+        flag: "i"
+      - type: env_must_not_have
+        file: /root/.openclaw/.env
+        keys:
+          - CLAUDE_CODE_OAUTH_TOKEN
+          - ANTHROPIC_API_KEY
+          - ANTHROPIC_BASE_URL
+    on_violation: rollback
+
+  - id: monkey_patch_62028
+    category: critical
+    description: "Issue #62028 fratricide fix in restart-stale-pids-*.js"
+    checks:
+      - type: file_glob_contains
+        pattern: /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js
+        contains: "MONKEY-PATCH"
+    on_violation: reapply_then_rollback_if_fails
+    fix_command: "bash /root/reapply-monkey-patch.sh"
+
+  - id: gateway_health
+    category: critical
+    description: "Gateway active, no harness errors, no module-not-found"
+    checks:
+      - type: systemd_active
+        unit: openclaw-gateway
+      - type: log_must_not_contain
+        unit: openclaw-gateway
+        patterns:
+          - "harness.*not registered"
+          - "ERR_MODULE_NOT_FOUND"
+          - "Cannot find module"
+        within: "10 minutes"
+    on_violation: rollback
+
+  - id: systemd_sandbox
+    category: critical
+    description: "IS_SANDBOX=1 set (required for claude-cli bypassPermissions)"
+    checks:
+      - type: file_contains
+        path: /etc/systemd/system/openclaw-gateway.service.d/override.conf
+        pattern: "IS_SANDBOX=1"
+    on_violation: rollback
+
+  - id: gateway_wrapper_immutable
+    category: critical
+    description: "openclaw-gateway-wrapper has chattr +i (prevents tampering during upgrade)"
+    checks:
+      - type: file_attr_chattr
+        path: /usr/local/bin/openclaw-gateway-wrapper
+        flag: "i"
+    on_violation: warn  # fix is `chattr +i`, not rollback
+
+  - id: cron_jobs_count
+    category: critical
+    description: "All key crons exist (briefings + Boris curadoria + nox-mem maintenance)"
+    checks:
+      - type: cron_count_min
+        count: 28
+      - type: cron_must_exist
+        names:
+          - daily-briefing
+          - afternoon-briefing
+          - boris-curadoria-matinal
+          - nox-mem-vectorize-weekly
+          - end-of-day
+    on_violation: warn
+
+  - id: secrets_perms
+    category: critical
+    description: "Secret files have restrictive permissions"
+    checks:
+      - type: file_attr
+        path: /root/.openclaw/.env
+        mode: "600"
+      - type: file_attr
+        path: /root/.openclaw/secrets
+        mode: "700"
+      - type: file_attr
+        path: /root/.openclaw/checkpoints
+        mode: "700"
+      - type: file_attr
+        path: /root/meet-oauth.py
+        mode: "700"
+    on_violation: warn  # warn so we can see drift; user fixes manually
+
+  # ============================================================
+  # WARN — context bloat / quality of life (not blocking)
+  # ============================================================
+
+  - id: single_memory_plugin
+    category: warn
+    description: "Only graph-memory enabled (memory-core/wiki/active-memory disabled to avoid bloat)"
+    checks:
+      - type: plugin_enabled
+        plugin: graph-memory
+      - type: plugin_disabled_or_absent
+        plugins:
+          - memory-core
+          - memory-wiki
+          - active-memory
+    on_violation: warn
+
+  - id: plugin_count_reasonable
+    category: warn
+    description: "Plugin count <= 12 (post-cleanup baseline)"
+    checks:
+      - type: plugin_count_max
+        count: 12
+    on_violation: warn
+
+  - id: compaction_config
+    category: warn
+    description: "compaction.keepRecentTokens >= 4000 (honored in v.24+; benign in v.23)"
+    checks:
+      - type: config_min
+        path: agents.defaults.compaction.keepRecentTokens
+        min: 4000
+    on_violation: warn
+
+  - id: fallback_chain_safe
+    category: warn
+    description: "fallback chain has no anthropic/* (regra 5 — would mask CLI failure → pay-per-token)"
+    checks:
+      - type: config_no_match
+        path: agents.defaults.model.fallbacks
+        pattern: "^anthropic/"
+    on_violation: warn
+
+  - id: google_oauth_ready
+    category: warn
+    description: "Google OAuth (Meet+Calendar+Gmail) configured + secured"
+    checks:
+      - type: file_exists
+        path: /root/.openclaw/secrets/gmeet-token.json
+      - type: file_attr
+        path: /root/.openclaw/secrets/gmeet-token.json
+        mode: "600"
+      - type: env_must_have
+        file: /root/.openclaw/.env
+        key: GMEET_REFRESH_TOKEN
+    on_violation: warn
+
+  - id: memory_archive
+    category: warn
+    description: "Daily memory archived (Jan-Mar 2026 out of hot context path)"
+    checks:
+      - type: dir_exists
+        path: /root/.openclaw/workspace/agents/nox/memory/_archive
+      - type: dir_exists
+        path: /root/.openclaw/workspace/agents/forge/memory/_archive
+      - type: dir_exists
+        path: /root/.openclaw/workspace/agents/boris/memory/_archive
+    on_violation: warn
