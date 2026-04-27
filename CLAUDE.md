@@ -13,7 +13,7 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 | Roadmap (o que vem, capacity, gates) | **`docs/ROADMAP.md`** ← single source of truth |
 | Decisões + NÃO FAZEMOS + razões | **`docs/DECISIONS.md`** |
 | Regras críticas operacionais 1-15 | **este arquivo** |
-| Visão estratégica (longo prazo) | `docs/nox-neural-memory.md` (v14) |
+| Visão estratégica (longo prazo) | `docs/VISION.md` (v14) |
 
 **Referência:**
 
@@ -24,7 +24,7 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 | Convenções detalhadas | `docs/CONVENTIONS.md` |
 | Specs técnicos | `specs/*.md` |
 | Audits de infra | `audits/*.md` |
-| Paper técnico | `paper-tecnico-nox-mem.md` / `.docx` |
+| Paper técnico | `paper/paper-tecnico-nox-mem.md` / `.docx` |
 
 **Histórico arquivado (referência só, não operacional):**
 
@@ -127,7 +127,7 @@ main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível
 - "O que vem, ordem cronológica, capacity, gates" → `docs/ROADMAP.md`
 - "Por quê / NÃO FAZEMOS / decisões arquiteturais" → `docs/DECISIONS.md`
 - "Estado vivo + próxima ação" → `docs/HANDOFF.md`
-- "Visão estratégica longo prazo" → `docs/nox-neural-memory.md` (v14)
+- "Visão estratégica longo prazo" → `docs/VISION.md` (v14)
 
 Histórico de pensamento (não operacional) em `plans/_archive/`: v1.6, v1.5, ClawMem analysis, session handoffs antigos.
 

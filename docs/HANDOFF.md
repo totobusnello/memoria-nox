@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-04-27 manhã BRT
+> **Atualizado:** 2026-04-27 manhã BRT (pós-consolidação documental + review triplo)
 > Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
 > Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
 
@@ -23,7 +23,7 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
 ```
 total:    20831 chunks
 embedded: 20662 / 20831 (99.2%)
-salience: shadow (gate 04-30)
+salience: shadow (gate G01 04-30)
 section:  compiled=183, frontmatter=183, timeline=366, legacy=20099
 opsAudit: 1 op 24h (compact 02:00 ✓)
 db:       318MB
@@ -39,62 +39,67 @@ ssh root@100.87.8.44 '/root/bin/improvements check'
 
 ## 3. Onde paramos
 
-Sessão 2026-04-26 entregou:
-- Hardening total (audit triplo 47 findings → 11 HIGH fechados; Wave 2 cleanup 11 MEDIUM/LOW)
-- E2E test suite (27 tests pass)
-- Fase 4 Obsidian view-only (antecipado de 05-02 pra 04-26)
-- B3 backlog 7/8
+Sessões 2026-04-25/26/27 entregaram:
+- **F01-F08** ✅ Bloco I hardening completo + B1 Obsidian + B3 backlog
+- **F07** ✅ OpenClaw upgrade defense system (commit 3b9e23c, pushed)
+- **Consolidação documental** ✅ ROADMAP/DECISIONS/HANDOFF (3 arquivos canônicos) + README + ARCHITECTURE + RUNBOOKS + CONTRIBUTING (4 docs novos via agents)
+- **Sistema unificado de IDs** F/E/R/P/G/D (substitui 6+ namespaces antigos)
+- **Reorganização repo:** plans/_archive (25), handoffs/_archive (9)
+- Review triplo (architect + critic + architect-reviewer): 14 mudanças aplicadas no ROADMAP (capacity recalibrada, R01 split skeleton/curation, E03/E04 split implement/activate, F09-F16 gaps adicionados)
 
-Sessão 2026-04-27 entregou:
-- **OpenClaw upgrade defense system** completo (commit 3b9e23c, pushed) — 4 sprints: ckpt + improvements + watcher + orchestrator
-- **Consolidação documental** — ROADMAP.md + DECISIONS.md + HANDOFF.md (este) como single source of truth
-- Move 25 plans + 9 handoffs antigos pra `_archive/`
-
-Sistema saudável. Em **holding pattern** até gate 04-30.
+Sistema saudável. Em **holding pattern** até G01 (3 dias).
 
 ## 4. Próxima ação concreta
 
-Hoje é **2026-04-27** (segunda). 3 dias até gate.
+Hoje é **2026-04-27** (segunda). 3 dias até G01 salience activation.
 
-**Opção 1 — esperar gates** (recomendado se ocupado):
-- Gates 04-30 / 05-01 / 05-02 são automáticos (cron + script)
-- Sistema mantém shadow telemetry sozinho
-- Reabrir sessão em **2026-04-30 manhã** com:
-  ```bash
-  ssh root@100.87.8.44 'bash /root/.openclaw/scripts/activate-salience.sh check'
-  # Se "READY" → activate-salience.sh --apply
-  ```
+### 🔴 P0 — fazer ANTES de G01 (04-30)
 
-**Opção 2 — pre-gate productive** (se quiser avançar):
+| ID | Item | Esforço | Por que P0 |
+|---|---|---|---|
+| **F09** | Off-site backup rclone → B2/R2 (retention 30d remoto) | 1h | Risco catastrófico (single VPS = disk failure apaga 7.3k chunks). Custo trivial (US$1-2/mês) vs perda total. Architect review flag P0. |
 
-| # | Trabalho | Esforço (recalibrado) | Valor | Risco |
-|---|---|---|---|---|
-| 1 | Design A6 POC spec (Entity-Facts SPO Injection) | ~40min | Alto (próximo step) | Zero |
-| 2 | Design A7 POC spec (Session Focus Boost) | ~40min | Alto | Zero |
-| 3 | Decisão "1.7b dormente vs W1.5 executável" | ~30min | Médio (destrava Maio) | Zero |
-| 4 | B3 #8 último item residual | ~20min | Baixo | Zero |
-| 5 | Wave 3 cleanup (test isolation + 5 LOW polish) | ~1h | Médio (hygiene) | Baixo |
+### 🟡 Opcional pre-gate (avançar designs)
 
-Combo recomendado: **#1 + #2 + #3** (~2h totais) → 3 design docs prontos pra executar 05-02.
+| ID | Trabalho | Esforço | Valor |
+|---|---|---|---|
+| E03a/E04a | Design specs A6 SPO Injection + A7 Focus Boost | ~40min cada | Alto — execução rápida pós-G03 |
+| E09 | Decisão "Fase 1.7b dormente vs E09 executável" | ~30min | Médio (destrava Maio) |
+| F08.last | B3 #8 último item residual | ~20min | Baixo |
+| (cleanup) | Test isolation fix (--test dir glob) + 5 LOW polish | ~1h | Médio (hygiene) |
 
-## 5. Eventos agendados
+### Combo recomendado pré-G01
+1. **F09 backup hoje** (1h) — não negociável
+2. **E03a + E04a designs** (~80min) — prepara execução pós-G03
+3. **E09 decision** (~30min) — destrava Maio Wave 1
 
-- **2026-04-30** terça — `gate.salience` (`activate-salience.sh check` → `--apply` se READY)
-- **2026-05-01** quarta — `gate.section_boost` (`analyze-shadow-telemetry.sh 7`)
-- **2026-05-02** quinta — `gate.archive_3files` + iniciar Bloco III (B2 PDFs + A6/A7)
-- **Maio 2026** — Wave 1 (W1.1 + W1.2 + W1.3 + W1.5 candidate)
-- **Jun-Jul 2026** — Wave 2 (W2.1 + W2.2 candidate)
-- **Ago 2026** — Wave 3 (W3.1 paper)
+Total: ~3h de trabalho que prepara as próximas 3 semanas.
+
+## 5. Eventos agendados (gates + waves)
+
+- **2026-04-30** terça — **G01** Salience activation (`activate-salience.sh check` → `--apply` se READY)
+- **2026-05-01** quarta — **G02** Section_boost decision (`analyze-shadow-telemetry.sh 7`)
+- **2026-05-02** quinta — **G03** Archive 3 source files + iniciar E02 + E03a + E04a paralelo
+- **05-09** quinta — **E03b + E04b activate** (após shadow 7d)
+- **Maio 2026** — Wave 1 (E05 → E06/E07/E08) + R01a eval skeleton (antecipado!)
+- **Jun-Jul 2026** — R01b curadoria 50 queries + R01c baseline + E10 candidate (gated)
+- **Ago 2026** — R02 paper v2
+- **Set+ 2026** — E11 reflect cache + F15 SEH + **P01 NOX-Supermem productização**
 
 ## 6. Contexto necessário pra retomar
 
 **Mínimo absoluto (3 arquivos):**
 1. Este arquivo (`docs/HANDOFF.md`) — estado atual
-2. `docs/ROADMAP.md` — o que vem, capacity, gates
+2. `docs/ROADMAP.md` — o que vem, capacity, gates, IDs unificados
 3. `CLAUDE.md` — regras críticas operacionais 1-15
 
-**Quando precisar entender "por que":**
+**Quando precisar entender "por quê":**
 4. `docs/DECISIONS.md` — NÃO FAZEMOS, decisões arquiteturais, lições
+
+**Quando precisar profundidade:**
+5. `docs/ARCHITECTURE.md` — system design + ASCII diagrams
+6. `docs/VISION.md` — long-term thesis (nox-neural-memory v14)
+7. `docs/RUNBOOKS.md` — incident playbooks (10 cenários)
 
 **Quando precisar referência histórica:**
 - `plans/_archive/2026-04-25-integration-roadmap-v1.6.md` — v1.6 original
@@ -107,7 +112,7 @@ Combo recomendado: **#1 + #2 + #3** (~2h totais) → 3 design docs prontos pra e
 ## 7. Comandos úteis quick-ref
 
 ```bash
-# Sanity check
+# Sanity check completo
 ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .'
 
 # Improvements audit (13/13 baseline)
@@ -130,6 +135,12 @@ ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "10 min ago" --no-p
 
 # CLI nox-mem (lembrar source env primeiro)
 ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem --help'
+
+# Salience activation gate (G01 04-30)
+ssh root@100.87.8.44 'bash /root/.openclaw/scripts/activate-salience.sh check'
+
+# Section_boost analysis (G02 05-01)
+ssh root@100.87.8.44 'bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7'
 ```
 
 ## 8. Convenções obrigatórias (lembrete rápido)

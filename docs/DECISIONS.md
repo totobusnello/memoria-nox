@@ -35,7 +35,7 @@
 Por que **Q5 (Qwen3-Reranker-0.6B local via llama-server)** está deferred (não cortado):
 
 1. **ROI claim "+15% recall" sem baseline** — W2.1 (eval harness) ainda não rodou; nDCG@10 inexistente; comparação é vibe-check
-2. **Latência +200ms quebra SLA L2** (`<2s` definido em `docs/nox-neural-memory.md:282`)
+2. **Latência +200ms quebra SLA L2** (`<2s` definido em `docs/VISION.md:282`)
 3. **Infra nova heavy** — llama-server + Qwen3-Reranker-0.6B comendo 2-3GB RAM na VPS Hostinger KVM 4 (compete com OpenClaw + nox-mem-api + nightly)
 4. **Ranking change permanente sem shadow-mode** — viola precedente salience/section_boost + regra `feedback_shadow_mode_for_ranking_changes.md`
 5. **Stack lean violation** — adiciona dep heavy (CPU/GPU inference) ao stack TS+SQLite+Gemini API atual
@@ -176,7 +176,27 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 
 ### 2026-04-27
 - **Consolidação documental** — criados ROADMAP.md + DECISIONS.md + HANDOFF.md como single source of truth. Move 25 plans/ + 9 handoffs/ pra `_archive/` (referência histórica).
-- **Recalibração de horas** — todos estimates em ROADMAP.md aplicaram velocity real medida (feature work ~0.4×, hardening ~1.0×, I/O bound ~0.6×).
+- **Recalibração de horas v1** (manhã) — todos estimates aplicaram velocity ingênua (~0.4× uniforme).
+
+### 2026-04-27 (tarde — review triplo + sistema unificado)
+- **Sistema unificado de IDs F/E/R/P/G/D** substitui 6+ namespaces (A/B/W/Q/Fase/Phase/Wave/Bloco). Cross-ref em ROADMAP.md §8.
+- **Review triplo aplicado** (architect + critic + architect-reviewer) — 14 mudanças no ROADMAP:
+  - **F09 off-site backup** adicionado P0 (architect: gap crítico — single VPS = disk failure apaga 7.3k chunks; rclone B2/R2 1h)
+  - **F10/F12/F13/F14/F16** gaps adicionados (observability dashboard, Gemini SPOF playbook, cost projection alt, DR drill trimestral, telegram rollback bot)
+  - **R01 dividido em R01a/R01b/R01c** (skeleton Maio + curation Jun-Jul + baseline) — antecipação por architect-reviewer pra baseline-first antes de E05 mudar ranking
+  - **E03/E04 (A6/A7) dividido em implement/activate** — captura latência shadow 7d wall-clock (critic apontou: viola própria regra `feedback_shadow_mode_for_ranking_changes.md`)
+  - **Velocity bucketada** (greenfield 0.7×, hardening 0.4×, cognitive floor não comprime) — critic apontou: 0.4× uniforme em curadoria 50 queries é fantasia
+  - **Capacity recalibrada** 6h/sem realista × 22 sem = 132h (era 10h/sem × 5 meses = 50h fantasia); margem incident 5h → 20h baseado em histórico (4 incidents 2 dias 04-25/26)
+  - **D02 promovido CUT → DEFERRED** (W3.2 plugin hooks): pré-req arquitetural pra multi-tenancy P01, não cortar permanente
+  - **D01 trigger antecipado** (Q5 reranker): "2 PRs com query mal-rankeada documentadas" como early trigger além do R01c
+- **Reorganização professional do repo:**
+  - `paper/` ← top-level (era em `archive/`)
+  - `docs/VISION.md` ← renomeado de `nox-neural-memory.md` (convenção)
+  - `docs/ARCHITECTURE.md` ← NOVO (system design + ASCII diagrams)
+  - `docs/RUNBOOKS.md` ← NOVO (10 incident playbooks RB-01 a RB-10)
+  - `docs/CONTRIBUTING.md` ← NOVO (standards + PR process + AI assistant rules)
+  - `README.md` ← reescrito profissional (badges + arch diagram + doc map)
+- **NÃO foi mudado:** decisões arquiteturais §3, constraints §5, lições §4 — todos permanecem válidos.
 
 ### 2026-04-26
 - **OpenClaw upgrade defense system** construído (commit 3b9e23c) — 4 sprints: ckpt + improvements manifest + release watcher + oc-upgrade orchestrator. Commit pushed origin/main.
