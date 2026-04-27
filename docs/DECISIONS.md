@@ -235,4 +235,12 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **A3 scope cuts:**
   - SKIP A2 (`~/Desktop/*`) — usuário declarou "transitório"
   - SKIP outros 240 md de `~/Claude/Projetos/*` — duplicariam shared/imports/<repo>/ já ingestado (memoria-nox, Granix-App, nox-supermem, etc)
-- **Implicação F09 atualizada:** DB cresceu 85% pós-A1+A3 (318MB → 587MB). Re-priorizar pós-G01.
+- **Sprint A4 — ~/Documents office files (mesmo dia):** +2.469 chunks via rsync seletivo docx+xlsx+pptx + conversion pipeline expandido
+  - 6 dirs sincronizadas: NUVIVI, PPR, PESSOAL, CONTRATOS, BANCOS, EMPRESAS Cont
+  - 972 xlsx → md (libreoffice-calc → csv → markdown wrapper) → +1.860 chunks
+  - 81/83 pptx → md (markitdown, Microsoft Python) → +609 chunks
+  - 6 docx idempotent updates
+  - **Stack expandido permanentemente:** `libreoffice-core/calc/impress` + `markitdown[pptx]` (PyPI 0.1.5)
+  - **markitdown adotado oficialmente** — substitui libreoffice-impress que tem filter txt missing; cobre PPTX/PDF/DOCX/XLSX/Images-OCR/Audio/HTML/CSV/JSON/XML/ZIP/EPubs. Future: avaliar substituir todo pipeline (libreoffice + pandoc) por markitdown unified
+  - SKIP fotos/videos (não-textual em ~/Documents) — usuário declarou
+- **Implicação F09 atualizada:** DB cresceu 99% (DOBROU) pós-A1+A3+A4 (318MB → 631MB). Re-priorizar urgentemente pós-G01.

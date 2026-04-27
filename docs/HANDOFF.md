@@ -19,15 +19,15 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
 }"'
 ```
 
-**Última leitura (2026-04-27 ~10:45 BRT pós-A1+A3):**
+**Última leitura (2026-04-27 ~12:00 BRT pós-A1+A3+A4):**
 ```
-total:    40764 chunks (+19933 vs baseline manhã = +96%)
-embedded: 40764 / 40764 (100%, gap=0)
+total:    43234 chunks (+22403 vs baseline manhã = +108%)
+embedded: 43234 / 43234 (100%, gap=0)
 salience: shadow (gate G01 04-30)
-section:  compiled=183, frontmatter=183, timeline=366, legacy=40032
+section:  compiled=183, frontmatter=183, timeline=366, legacy=42502
 opsAudit: 1 op 24h (compact 02:00 ✓)
-db:       587.6 MB (era 318MB pré-A1, +85%)
-search:   smoke OK em Granix-App, Claude skills, biolab-ai, agent-orchestrator (semantic + FTS)
+db:       631.6 MB (era 318MB pré-A1, +99%)
+search:   smoke OK em Granix-App, Claude skills, biolab-ai, agent-orchestrator, NUVIVI, PPR (xlsx+pptx)
 ```
 
 ## 2. Improvements audit
@@ -57,7 +57,14 @@ Sessões 2026-04-25/26/27 entregaram:
   - rsync `~/Claude/Projetos/agent-orchestrator/` → VPS shared/imports/ (143MB, exclude .git/node_modules)
   - 106 md ingestados manualmente (watcher race em rsync rápido)
   - Outros 240 md de ~/Claude/Projetos/* duplicariam shared/imports/<repo>/, scope cut
-  - F09 off-site backup ainda pending — DB cresceu 85% (318MB→587MB)
+- **Sprint A4 ~/Documents office files (docx+xlsx+pptx)** ✅ +2.469 chunks
+  - rsync seletivo: 536 docx + 976 xlsx + 83 pptx → VPS mac-docs/ (NUVIVI, PPR, PESSOAL, CONTRATOS, BANCOS, EMPRESAS Cont)
+  - Conversão pipeline expandido: pandoc (docx) + libreoffice-calc (xlsx→csv) + **markitdown[pptx]** (pptx→md)
+  - markitdown novo na stack (Microsoft, 117k stars, MIT, Python) — resolveu pptx que libreoffice-impress sem filtro txt
+  - 972 xlsx convertidos → +1.860 chunks
+  - 81 pptx convertidos → +609 chunks (2 errors, baixíssimo)
+  - 6 docx errors no convert script (idempotent skip de 532)
+  - F09 off-site backup ainda pending — DB cresceu 99% (318MB → 631MB) DOBROU em uma manhã
 
 Sistema saudável e mais rico. Em **holding pattern** até G01 (3 dias).
 

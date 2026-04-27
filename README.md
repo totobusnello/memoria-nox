@@ -311,6 +311,7 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 | 3 Tier 1 | HD Mac md+docx | ✅ DONE | 2026-04-24 | 2.697 chunks via pandoc + watcher |
 | **Sprint A1** | **GitHub repos + Claude workspace ingest** (graphify-ingest 9 repos + 7 repos pequenos + Claude scope curado docs/agents/skills/commands/Projetos) | ✅ **DONE** | **2026-04-27** | **+19.070 chunks** (1.046 graph_nodes + 304 small repos md + 17.714 Claude workspace md). Scope cut: _retired/, prompts/, powerpoint-templates, nox-workspace |
 | **Sprint A3** | **Mac local ~/Claude/Projetos delta** (rsync agent-orchestrator local-only, 143MB → VPS) | ✅ **DONE** | **2026-04-27** | **+863 chunks** (106 md). Outros ~/Claude/Projetos/* duplicariam shared/imports, scope cut. Skip A2 (~/Desktop transitório) |
+| **Sprint A4** | **~/Documents office files docx+xlsx+pptx** (NUVIVI, PPR, PESSOAL, CONTRATOS, BANCOS, EMPRESAS Cont — sem PDFs/fotos/videos) | ✅ **DONE** | **2026-04-27** | **+2.469 chunks** (972 xlsx + 81 pptx + 2 docx novos). Stack expandido: pandoc + libreoffice-calc + **markitdown[pptx]** (Microsoft 117k stars MIT, novo na stack). Erros mínimos: 6 docx + 2 pptx |
 | **F01** | Query logging + golden-tag (search_telemetry +4 cols) | ✅ DONE | 2026-04-25 | extends search_telemetry, opt-in NOX_SEARCH_LOG_TEXT=1 |
 | **F02** | Audit log + `withOpAudit` snapshot pre-op atomico | ✅ DONE | 2026-04-26 | cura incident 04-25, ops_audit append-only triggers |
 | **F03** | Ingest-router unified (single dispatch `routeIngest`) | ✅ DONE | 2026-04-26 | debito arquitetural cleared |
