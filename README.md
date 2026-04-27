@@ -102,13 +102,268 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem searc
 
 ## Estado atual
 
-Para estado vivo e proxima acao: [docs/HANDOFF.md](docs/HANDOFF.md)
+Para estado vivo e proxima acao: [docs/HANDOFF.md](docs/HANDOFF.md). Para roadmap completo + capacity tracker: [docs/ROADMAP.md](docs/ROADMAP.md).
 
-| Periodo | Items |
-|---|---|
-| **DONE (Abr 2026)** | Hardening triplo (47 findings → 11 HIGH fechados), E2E test suite (27 tests), Fase 4 Obsidian view-only, upgrade defense system (ckpt + improvements + watcher + orchestrator), consolidacao documental |
-| **EM ESPERA (gates)** | `gate.salience` 2026-04-30, `gate.section_boost` 2026-05-01, archive 3 source files 2026-05-02 |
-| **PROXIMO (pos-gates)** | A6 Entity-Facts SPO Injection, A7 Session Focus Boost, B2 PDF ingest (4.432 PDFs), W1.1 edge typing FULL |
+## Fases do projeto
+
+Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupado por fases historicas (v1.0 → v3.7+) e fases futuras (Wave 1-3 + Productizacao).
+
+### Fase 1.0-1.5 — Foundation (v1.0 → v3.3, Mar/Abr 2026) ✅ DONE
+
+**Goal:** Sistema de memoria minimo viavel pros 6 agentes da VPS — chunks indexados, hybrid search funcional, autodefesa diaria.
+
+**Foi feito:**
+- Schema v1-v7: tabelas `chunks`, `chunks_fts` (FTS5/BM25), `vec_chunks` (sqlite-vec 3072d), `kg_entities`, `kg_relations`
+- Hybrid search (FTS5 BM25 + Gemini semantic + RRF k=60) integrado e validado
+- 26+ comandos CLI (`search`, `ingest`, `reindex`, `vectorize`, `kg-build`, `cross-search`, `reflect`)
+- 16 MCP tools + HTTP API porta 18802 (`/api/health`, `/api/search`, `/api/kg`, `/api/cross-kg`)
+- Multi-agent rollout: 6 personas (nox/atlas/boris/cipher/forge/lex) com DBs isolados
+- Cron nightly 23:00 (reindex + consolidate + vectorize + kg-build + kg-prune + session-distill)
+- Canary semantic */30min + health probe */5min + backup diario 02:00
+- Foundation Repair Tier 0+1 (1.951 chunks 100% embedded baseline)
+
+### Fase 1.6 — Search Quality Upgrade (Abr 2026) ✅ DONE
+
+**Goal:** +30-40% recall em queries ambiguas via query expansion + dedup 4-layer + telemetria.
+
+**Foi feito:**
+- Query expansion multi-query rewrite (inspirado em [garrytan/gbrain](https://github.com/garrytan/gbrain))
+- Dedup 4-layer (exact / near-dup / cosine / MMR λ=0.7)
+- Search telemetry baseline (`search_telemetry` table)
+- Validacao com 15 queries de aceitacao
+
+### Fase 1.7a — Core Memory Quality (Abr 2026) ✅ DONE
+
+**Goal:** Entidades ricas + economia de API + User Profile carregado no boot dos agentes.
+
+**Foi feito:**
+- KG extraction Gemini 2.5 Flash com schema fechado de 7 tipos de relacao
+- ~402 entidades + ~544 relacoes acumuladas
+- Compiled truth + source attribution per entity (inspirado em [topoteretes/cognee](https://github.com/topoteretes/cognee), [garrytan/gbrain](https://github.com/garrytan/gbrain))
+- User profile injection no boot dos agents
+- Reflective loops (consolidacao + crystallize)
+
+### Fase 1.7b — Memory Quality Advanced 🛑 DORMENTE → migrou para E09
+
+**Goal original:** Deteccao de contradicoes + versionamento de fatos + auto-esquecimento + entity detection real-time.
+
+**Status:** Dormente apos analise ClawMem (2026-04-26). Funcionalidade reabsorvida em **E09 A-MEM auto-keywords/links no ingest** (5-6h, gated em E05 active obrigatorio + shadow 7d). Trigger pra resurrect: enum CLOSED estavel via E05 ranking-active.
+
+### Fase 2 — Graphify + GitHub Repos (Abr 2026) ✅ DONE
+
+**Goal:** Primeiro grafo real sobre os projetos do Toto via [safishamsi/graphify](https://github.com/safishamsi/graphify) (71.5x menos tokens via Claude Vision).
+
+**Foi feito:**
+- 9 repos GitHub processados via graphify
+- 147 docs + 2 entities piloto ingestados
+- 7.300+ chunks ativos pos-IM + Fase 2 Graphify
+- Router `routeIngest` unificado (graphify + entity + markdown)
+
+### Fase 2.5 — graph-memory Plugin (Abr 2026) ✅ DONE
+
+**Goal:** Memoria de curto prazo + compressao de contexto (~75%) + recall cross-session via [adoresever/graph-memory](https://github.com/adoresever/graph-memory).
+
+**Foi feito:** Plugin instalado, validado em producao, log startup patchado para mostrar gemini/flash-lite real (vs default mascarado).
+
+### Fase 3 — HD Mac rsync + Enrichment Tiered (Abr 2026) ✅ DONE (parcial)
+
+**Goal:** Documentos pessoais (PPTX/PDF/XLSX/DOCX) do Mac indexados.
+
+**Foi feito:**
+- Script `~/sync-vault.sh` no Mac (rsync via Tailscale, filtro por extensao)
+- Tier 1 (markdown/text) ingest funcional
+- Pipeline de enrichment classificado por importancia
+
+**Falta (E02):** Tier 2 PDFs (4.432 PDFs HD Mac) — 15-25h I/O bound, gated em G03 archive.
+
+### Fase 4 — Obsidian View-Only (Abr 2026) ✅ DONE
+
+**Goal:** Visualizar segundo cerebro no Mac como galaxia 3D — read-only, zero risco de corrupcao.
+
+**Foi feito:**
+- Python gen 430 LOC produz `graphify-out/obsidian/` como vault pronto
+- Cron + launchd ativo
+- Vault Obsidian sincronizado com chunks + entities + KG
+- 30 dias de estabilidade exigidos antes de habilitar Fase 4b
+
+### Hardening Triplo (Abr 25-27 2026) ✅ DONE
+
+**Goal:** Sistema resistente a upgrades de infra, ops destrutivas, drift de schema, incidents.
+
+**Foi feito:**
+- 47 findings de audit → 11 HIGH fechados
+- Audit log `ops_audit` append-only com SQL triggers (CWE-693)
+- `withOpAudit()` wrapper cria snapshot atomico VACUUM INTO antes de op destrutiva
+- Dry-run mode em `reindex` e `consolidate`
+- Canary invariants */15min com alert Discord
+- E2E test suite (27 tests passando)
+- Schema v10 (retention_days + pain + section + section_boost)
+
+### Upgrade Defense System (Abr 27 2026) ✅ DONE
+
+**Goal:** Aplicar upgrades OpenClaw sem destruir monkey-patch Issue #62028 ou improvements deployados.
+
+**Foi feito:**
+- `ckpt` script (492 LOC) com save/list/show/diff/restore/pin/unpin/prune
+- `improvements` Python runner com 13 invariantes (7 critical + 6 warn)
+- `release-watcher.sh` cron diario 12:00 BRT (notifica WhatsApp + Discord)
+- `oc-upgrade` orchestrator com auto-rollback em violacao critical
+- `upgrade-zero-downtime.sh` 5-fase pipeline (pre-flight → staging port 18790 → smoke → swap → 5min watch)
+
+### Consolidacao Documental (Abr 27 2026) ✅ DONE
+
+**Goal:** Repo profissional com single source of truth, sem sprawl de 25 plans + 9 handoffs.
+
+**Foi feito:**
+- 3 docs canonicos vivos: `HANDOFF.md` + `ROADMAP.md` + `DECISIONS.md`
+- 4 docs novos via agents: `ARCHITECTURE.md` + `RUNBOOKS.md` + `CONTRIBUTING.md` + `README.md` profissional
+- Sistema unificado de IDs F/E/R/P/G/D substitui 6+ namespaces antigos (A/B/W/Q/Fase/Phase)
+- 25 plans + 9 handoffs antigos arquivados em `plans/_archive/` e `handoffs/_archive/`
+- Review triplo (architect + critic + architect-reviewer) com 14 correcoes aplicadas
+- Cross-ref VISION.md em todos os items do roadmap
+
+---
+
+### 🔴 Fase atual — Pre-Gate (04-27 → 04-30) 🟡 IN-PROGRESS
+
+**Goal:** Sistema saudavel em holding pattern + 1 P0 critico antes do gate G01.
+
+**Em curso:**
+- **F09 off-site backup rclone → B2/R2** (1h, P0 antes G01) — risco catastrofico vs custo trivial (US$1-2/mes)
+- Opcional: design specs E03a + E04a (~80min)
+- Opcional: decisao "Fase 1.7b dormente vs E09 executavel" (~30min)
+
+### ⏳ G01-G03 Window (04-30 → 05-02) — gates ATIVOS
+
+**Goal:** Validar 3 features em shadow-mode 7d e ativar/decidir.
+
+**Sera feito:**
+- **G01 Salience activation** (04-30): `activate-salience.sh check` → `--apply` se baseline 7d OK
+- **G02 Section_boost decision** (05-01): `analyze-shadow-telemetry.sh 7` → ativar boost se delta recall positivo
+- **G03 Archive 3 source files** (05-02): mover projects/decisions/lessons.md para `.archived-20260502`
+
+### 📋 Wave 1 — Memory Graph Maturity (Maio-Jun 2026)
+
+**Goal:** Edge typing rico + impact analysis + change detection sobre KG existente.
+
+**Sera feito:**
+- **E02 Tier 2 PDFs ingest** (15-25h I/O paralelo) — 4.432 PDFs do HD Mac
+- **E03a/b A6 Entity-Facts SPO Injection** (1.7h) — `<vault-facts>` block via KG, shadow 7d
+- **E04a/b A7 Session Focus Topic Boost** (1.8h) — `focus set <topic>` 1.4×/0.75×, shadow 7d
+- **E05 Edge typing FULL** (8-10h) — `relation_reason` enum 7 + `confidence REAL`, kg_relations v11
+- **R01a Eval harness skeleton** (4-6h) — schema v12 + tabela `eval_queries` + nDCG@10/MRR + CLI
+
+### 📋 Wave 2 — Eval + Impact CLI (Jun-Jul 2026)
+
+**Goal:** Baseline cientifico de busca + ferramentas de impact analysis.
+
+**Sera feito:**
+- **E06 detect-changes** (2-3h) — `nox-mem detect-changes --since=<commit>` read-only git diff→entities
+- **E07 impact** (2.5h) — `nox-mem impact <entity>` 1-hop blast radius via kg_relations
+- **E08 api_impact** (1.5h) — multi-arquivo grep + import graph (nice-to-have)
+- **R01b Curadoria 50 golden queries** (8-10h cognitive floor, spread Jun-Jul)
+- **R01c Baseline FTS-only vs hybrid** + publish nDCG@10 em `/api/health.evalMetrics`
+- **E10 Consolidation merge candidate** (3-4h, gated nDCG≥0.6)
+
+### 📋 Wave 3 — Paper + Fase Cognitiva (Ago 2026)
+
+**Goal:** Documentar evolucao via paper academico + features cognitivas avancadas.
+
+**Sera feito:**
+- **R02 Paper v2** (5-6h) — Affective Ranking + Multi-Agent Federation + Bridge Mode
+- **E09 A-MEM auto-keywords/links** (5-6h, candidate, gated em E05 active)
+
+### 🚀 Productizacao + Bloco V (Set+ 2026)
+
+**Goal:** Empacotar nox-mem como produto comercial Hotmart + features finais.
+
+**Sera feito:**
+- **E11 Reflect cache** (1.5h) — semantic key cache pra reflect operations
+- **F15 SEH Self-Evolving Hooks** (1h) — auto-evolution de regras operacionais
+- **E12 Tier 3 OCR + Fathom + Path C** (dias, opcional) — PDFs scaneados + reunioes
+- **P01 NOX-Supermem productizacao** (semanas) — Fase 4b → 5 → P, mercado Brasil/Hotmart, tiers A/B/C R$147/197/227 + R$30/sem suporte
+
+> **Fase 4b/5 (futuro):** Obsidian Write + Bidirectional Sync via [YearsAlso/openclaw-memory-sync](https://github.com/YearsAlso/openclaw-memory-sync). Pre-requisito: 30 dias estavel em view-only sentindo falta.
+
+---
+
+## Phase Matrix (status canonico embedded — v3.7+)
+
+> Tabela autossuficiente para entender o estado real sem abrir o plano. Detalhes operacionais (sequencia, esforcos, gates, dependencias) em [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+| # | Fase | Status | Conclusao | Notas |
+|---|---|---|---|---|
+| 1 | Quick Wins (wip, feedback, L1) | ✅ DONE | 2026-04-11 | — |
+| 1.5 | KG Migration Ollama→Gemini | ✅ DONE | 2026-04-11 | 1.489 entities |
+| 0.5 | Foundation Repair | ✅ DONE | 2026-04-18 | 1.951/1.951 embedded |
+| 24h | Observacao pos-Foundation | ✅ DONE | 2026-04-21 | 3d estavel |
+| 1.6 | Search Quality (expansion + dedup) | ✅ DONE | 2026-04-19 | wrapper puro |
+| 1.7a | Core Memory Quality | ✅ DONE | 2026-04-19 | ontology, USER-PROFILE |
+| 2.5 | graph-memory plugin | ✅ DONE (patched) | 2026-04-23 | log misleading 04-24 |
+| D1-D4 | Audit sistemica | ✅ DONE | 2026-04-21 | 17 fixes |
+| RP | RelayPlane | ✅ DONE | 2026-04-21 | INATIVO desde 04-22 (substituido pelo Claude CLI) |
+| IM | Import repos locais | ✅ DONE | 2026-04-23 | 147 docs + 9 repos |
+| 1.7b-a | Typed retention matrix | ✅ DONE | 2026-04-23 | schema v8 |
+| Stab | 5-agent audit + 10 fixes | ✅ DONE | 2026-04-23 | APPROVE WITH MINOR |
+| 2 | Graphify scale | ✅ DONE (9 repos) | 2026-04-23 | 1.046 graph_node chunks |
+| 1.7b-b | Salience formula formal | ✅ DONE shadow | 2026-04-23 | schema v9, pain REAL |
+| 1.7b-c | Compiled truth + timeline | ✅ DONE | 2026-04-24 | schema v10, 181 entities |
+| 3 Tier 1 | HD Mac md+docx | ✅ DONE | 2026-04-24 | 2.697 chunks via pandoc + watcher |
+| **F01** | Query logging + golden-tag (search_telemetry +4 cols) | ✅ DONE | 2026-04-25 | extends search_telemetry, opt-in NOX_SEARCH_LOG_TEXT=1 |
+| **F02** | Audit log + `withOpAudit` snapshot pre-op atomico | ✅ DONE | 2026-04-26 | cura incident 04-25, ops_audit append-only triggers |
+| **F03** | Ingest-router unified (single dispatch `routeIngest`) | ✅ DONE | 2026-04-26 | debito arquitetural cleared |
+| **F04** | Unit tests parseRetentionOverride (20 cases) | ✅ DONE | 2026-04-26 | backlog #1, teria pego incident |
+| **F05** | Canary invariants extension (5 invariants */15min Discord) | ✅ DONE | 2026-04-26 | +section/retention NOT NULL |
+| **F06** | Dry-run mode em ops destrutivas (reindex/consolidate) | ✅ DONE | 2026-04-26 | antes migration v11+ |
+| **F07** | OpenClaw upgrade defense (ckpt + improvements + watcher + orchestrator) | ✅ DONE | 2026-04-27 | destrava upgrades futuros |
+| **F08** | B3 backlog sprint 7/8 (issue + CONVENTIONS + alerts + playbooks) | ✅ DONE | 2026-04-27 | 1h45m total |
+| **F11** | RUNBOOKS.md formalizado (RB-01 a RB-10 incident playbooks) | ✅ DONE | 2026-04-27 | 902 LOC, 10 cenarios |
+| **E01 / 4** | Obsidian view-only (Python gen 430 LOC + cron+launchd) | ✅ DONE | 2026-04-26 | destrava Fase P em 30d |
+| **F09** ⭐ | Off-site backup rclone → B2/R2 (retention 30d remoto) | 🚀 PRE-GATE P0 | ate 2026-04-29 | 1h, risco catastrofico vs custo trivial |
+| **G01** | Salience activation | ⏳ GATE | **2026-04-30** | `activate-salience.sh --apply` se baseline 7d OK |
+| **G02** | Section_boost decision | ⏳ GATE | **2026-05-01** | `analyze-shadow-telemetry.sh 7` |
+| **G03** | Archive 3 source files (.archived-20260502) | ⏳ GATE | **2026-05-02** | projects/decisions/lessons.md |
+| **E02 / 3 Tier 2** | Tier 2 PDFs text-layer (4.432 PDFs HD Mac) | 📋 POST-GATE (paralelo) | 2026-05-02+ | dias I/O bound, rate-limit Gemini risk |
+| **E03a/b** | A6 Entity-Facts SPO Injection (`<vault-facts>` block via KG) | 🤔 CANDIDATE | 2026-05-02+ | 1.5h impl + 7d wall + 0.2h activate |
+| **E04a/b** | A7 Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×) | 🤔 CANDIDATE | 2026-05-02+ | 1.5h impl + 7d shadow + 0.3h activate |
+| **E05 / W1.1** | Edge typing FULL (relation_reason enum 7 + confidence REAL, kg_relations v11) | 🟣 WAVE 1 Maio-Jun | gated por metricas | 8-10h, shadow 7d antes ranking |
+| **E06 / W1.2** | `nox-mem detect-changes --since=<commit>` read-only git diff→entities | 🟣 WAVE 1 Jun | depende E05 | 2-3h |
+| **E07 / W1.3** | `nox-mem impact <entity>` 1-hop blast radius via kg_relations | 🟣 WAVE 1 Jun-Jul | E05 active (nao shadow) | 2.5h |
+| **E08 / W1.4** | `nox-mem api_impact <signature-change>` multi-arquivo grep + import graph | 🟣 WAVE 1 Jul | nice-to-have | 1.5h |
+| **R01a / W2.1** | Eval harness skeleton (schema v12 + `eval_queries` + nDCG@10/MRR + CLI) | 🟣 WAVE 2 Maio | F01 corpus ready | 4-6h, MOVED earlier baseline-first |
+| **R01b** | Curadoria 50 golden queries (cognitive floor, nao comprime) | 🟣 WAVE 2 Jun-Jul | spread Jun-Jul | 8-10h humano |
+| **R01c** | Baseline FTS-only vs hybrid + publish nDCG@10 em /api/health.evalMetrics | 🟣 WAVE 2 Jul | R01a + R01b | 1-2h |
+| **E09 / W1.5** | A-MEM auto-keywords/links no ingest (funde Fase 1.7b dormente) | 🤔 CANDIDATE Ago | E05 active obrigatorio | 5-6h |
+| **E10 / W2.2** | Consolidation merge + contradiction detection (entity-anchor val) | 🤔 CANDIDATE Jul | gated nDCG≥0.6 + dry-run zero FP | 3-4h |
+| **R02 / W3.1** | Paper v2 (Affective Ranking + Multi-Agent Federation + Bridge Mode) | 🟣 WAVE 3 Ago | depende R01c baseline | 5-6h cognitive floor |
+| **F10** | Observability dashboard (Grafana ou /api/health time-series) | 📋 QUEUED Maio | — | 2-3h |
+| **F12** | Embedding model migration playbook (Gemini SPOF mitigation) | 📋 QUEUED Maio | shadow-index trimestral | 1h |
+| **F13** | Cost projection pay-per-token alternative (Max OAuth backup) | 📋 QUEUED Maio | — | 1h |
+| **F14** | DR drill trimestral (restore snapshot + smoke check) | 📋 QUEUED | Jul/Out/Jan | 1h × 3 |
+| **3 Tier 3** | OCR Gemini PDFs scaneados (opcional) | 🔒 OPCIONAL | — | dias |
+| **3.5** | Fathom API (opcional, paralela) | 🔒 OPCIONAL | — | 3-4h |
+| **E11 / Path B-lite** | Reflect cache (semantic key) | 🔒 BLOCKED Set+ | depende telemetria reflect | 1.5-3h |
+| **Path C** | WAL shipping + cold tier | 🔒 BLOCKED | depende Fase 4 estavel 30d | dias |
+| **4b/5** | Obsidian write + bidirectional | 🔒 FUTURO | depende Fase 4 + 2-4 sem | semanas |
+| **F15 / SEH** | Self-Evolving Hooks | 🔒 INDEPENDENTE Set+ | — | 1-2h |
+| **F16** | Telegram bot rollback automatico (health-check 30min) | 🔒 BACKLOG | fora orcamento atual | 4h |
+| **P01 / Fase P** | Productizacao NOX-Supermem (Fase 4b → 5 → P) | 🔒 HORIZONTE 60d+ | depende Fase 4 estavel 30d (>= 05-26) | semanas |
+
+**Legenda:** ✅ DONE / 🚀 PRE-GATE (HOJE→04-29) / ⏳ GATE / 📋 POST-GATE / 🟣 WAVE FUTURA (gated por metricas) / 🤔 CANDIDATE (POC + 7d shadow) / 🔒 BLOCKED ou FUTURO / 🟡 EM ANDAMENTO
+
+**Sistema unificado de IDs F/E/R/P/G/D** substitui 6+ namespaces antigos (A/B/W/Q/Fase/Phase). Cross-ref completo em [`docs/ROADMAP.md §8`](docs/ROADMAP.md). Items DEFERRED/CUT (D01-D21) em [`docs/ROADMAP.md §4`](docs/ROADMAP.md#4-tabela-mestre-cronologica).
+
+### Capacity overview
+
+```
+Disponivel 04-27 → 09-30:    ~22 semanas × 6h/sem = 132h
+Margem incident:             -20h reservadas (4 incidents em 2 dias 04-25/26)
+Capacity liquida:            ~112h
+Compromissado nucleo:         53-72h
+Candidates (E03a/b, E04a/b, E09, E10):  11.5-13.5h
+Bloco V (Set+):               2.5h pequeno + dias-semanas E12/P01
+Sobra realista:               +23 a +45h
+```
 
 ---
 

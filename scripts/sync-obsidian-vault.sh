@@ -61,6 +61,10 @@ ts() { date '+%Y-%m-%d %H:%M:%S'; }
     --exclude='.obsidian/types.json' \
     --exclude='.obsidian/graph.json' \
     --exclude='.obsidian/types/' \
+    --exclude='00-Toto/' \
+    --exclude='TaskNotes/Views/' \
+    --exclude='.obsidian/daily-notes.json' \
+    --exclude='.obsidian/core-plugins.json' \
     "$VPS_HOST:$REMOTE_VAULT" "$LOCAL_VAULT"
 
   COUNT=$(find "$LOCAL_VAULT" -name '*.md' | wc -l | tr -d ' ')

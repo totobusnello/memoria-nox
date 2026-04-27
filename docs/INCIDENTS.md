@@ -2,6 +2,34 @@
 
 > Histórico completo de incidents, com causa raiz e aprendizados. CLAUDE.md só menciona os 3 mais recentes/representativos em forma sumária; detalhe mora aqui.
 
+## 2026-04-27 06:48 BRT (~15min recovery) — Vector coverage 54% gap por session-distill hung 8h (N² em checkpoints HEARTBEAT)
+
+**Sintoma:** morning report às 06:30 BRT alertou `🔴 vectorCoverage: 9390/20201 embedded (54% gap — vectorize not running)`. Health endpoint confirmou `{embedded: 9390, total: 20548, orphans: 0}` — sem corrupção, mas embedded congelado enquanto total cresceu via watcher.
+
+**Root cause:** Phase 4 do `nightly-maintenance.sh` (Sunday tasks, DOW=7) roda `nox-mem session-distill` ANTES do Phase 6 Daily Vectorize. Domingo 26/04 23:00 BRT, session-distill iniciou e ficou pendurado 7h48min (PID 1799773 + 1800385) segurando `/tmp/nox-maintenance.lock`. Phases 5/6/7 nunca executaram. Watcher continuou ingestando chunks normais (digests, USER-PROFILE, sessions wrap-ups) — total foi de 9390 → 20548 sem nenhum embedding novo.
+
+**Causa do hang em session-distill:** algoritmo é O(N²) — para cada candidato extraído pelo LLM Gemini, roda cosine similarity contra todos os chunks distilled existentes. Sessões `cipher:650b0642` (27 checkpoints, 4.5-6MB cada, voltando até 8/abr) e `atlas:cd72e874` (30 checkpoints) acumularam meses de heartbeats redundantes. Filtro de noise em `extractMessages()` cobria SOMENTE `role === "user"` (linha 148, `text.startsWith("HEARTBEAT")`) — respostas do assistant paraphrasing HEARTBEAT.md (`"The user wants the agent to read the file..."`, `"A pending task for Cipher in Notion is..."`, `"HEARTBEAT_OK"`) passavam pelo filtro, eram enviadas ao LLM, viravam memórias candidatas, e cada uma rodava cosine contra o pool inteiro. Log da maintenance virou 2.1MB de `[DEDUP] Suppressed (cosine=9X%)` — dedup funcionando, mas custo CPU explosivo. 4576 dedup events vieram só de `cipher:650b0642`, 1966 de `atlas:cd72e874`.
+
+**Trigger temporal:** primeira execução pós-acúmulo crítico de checkpoints. Não havia timeout no `session-distill` invocation — `|| true` capturava erros mas não duração. Cada checkpoint adicional aumentava N² quadraticamente; o 27º checkpoint do cipher (combinado com o 30º do atlas) cruzou o limite onde a run não termina em 24h.
+
+**Why not flagged earlier:** morning-report.sh checa `vectorCoverage` diariamente, mas dependia do nightly fechar 100%. Como o gap de domingo só virou visível na segunda às 06:30 (com 11k chunks novos), foi a primeira oportunidade de detectar. Salience shadow stats (`archive_candidates=8149`) indiretamente sinalizavam coverage parcial mas ninguém lê esse campo no morning report.
+
+**Recovery (07:00-07:15 BRT 27/04):**
+1. `kill 1799772 1799773 1800385` → script + session-distill mortos sem corromper DB (idempotente)
+2. `rm /tmp/nox-maintenance.lock` → libera próximo nightly
+3. `nox-mem vectorize` foreground → 11272 embedded, 0 erros, 518s; vectorCoverage 20662/20662 (100%) confirmado via `/api/health`
+
+**Fixes preventivos (mesma sessão):**
+1. **Prune de checkpoints velhos:** mtime>14d em cipher+atlas → `/var/backups/checkpoints-pruned/{cipher,atlas}/` (115MB total, restore via `mv`). Cipher 27→18, Atlas 30→23. Reduz ~60% do trabalho do próximo session-distill.
+2. **Hard timeout 30min em session-distill:** `nightly-maintenance.sh:75` agora `timeout 1800 nox-mem session-distill ... || log "TIMEOUT/ERROR — continuing"`. Soft-fail garante Phases 5/6/7 sempre rodam mesmo se distill estourar tempo. Backup do script em `.bak-20260427`.
+3. **Filtro HEARTBEAT extendido:** `src/session-distill.ts:147-160` — `extractMessages()` filtra agora **user E assistant** (era só user). Cobre `[cron:`, `HEARTBEAT*`, regex `/^heartbeat[_ ]ok\b/i`, conversation history, text<5chars. Build TypeScript OK. Backup em `.bak-pre-heartbeat-filter-20260427`.
+
+**Aprendizados:**
+- Pipelines seriais **sem timeout por step** = uma fase travada congela tudo downstream. Cada `>> "$LOG" 2>&1 || true` precisa ser `timeout N ... || log_fallback`.
+- Filtros de noise devem cobrir TODOS os roles, não só `user`. LLM extrai memórias de respostas do assistant também — heartbeat-loops paraphrasados pelo LLM são tóxicos pro dedup downstream.
+- Algoritmos O(N²) em nightlies acumulam tech debt invisível — um threshold de "max candidates per run" é defesa em profundidade que precisa entrar em V1.7.
+- Morning-report deveria expor não só `vectorCoverage` mas TAMBÉM "última nightly completou? duração? Phases pendentes?" — ausência dessa visibilidade atrasou detecção em ~7h.
+
 ## 2026-04-25 ~07:00 BRT (~12min recovery) — Section/retention metadata wipe via reindex (não-nightly)
 
 **Sintoma:** sanity check matinal mostrou `sectionDistribution.compiled=0, frontmatter=0, timeline=0` (esperado 183/183/366), `retention.never_decay=25` (esperado 104), total 9173 vs 9541. Shadow telemetry às 23:45 BRT 24/04 ainda mostrava sections populadas — regressão entre 23:45 e o próximo sanity check.
