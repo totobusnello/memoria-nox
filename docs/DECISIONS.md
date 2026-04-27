@@ -243,4 +243,13 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - **Stack expandido permanentemente:** `libreoffice-core/calc/impress` + `markitdown[pptx]` (PyPI 0.1.5)
   - **markitdown adotado oficialmente** — substitui libreoffice-impress que tem filter txt missing; cobre PPTX/PDF/DOCX/XLSX/Images-OCR/Audio/HTML/CSV/JSON/XML/ZIP/EPubs. Future: avaliar substituir todo pipeline (libreoffice + pandoc) por markitdown unified
   - SKIP fotos/videos (não-textual em ~/Documents) — usuário declarou
-- **Implicação F09 atualizada:** DB cresceu 99% (DOBROU) pós-A1+A3+A4 (318MB → 631MB). Re-priorizar urgentemente pós-G01.
+- **F09 off-site backup REJEITADO permanentemente** — VPS Hostinger nativo basta. User declarou 2x ("já disse, VPS tem backup", "não vamos gastar tempo e espaço nisso"). Não sugerir mais como next action mesmo quando DB cresce.
+- **Sprint A5 — Pipeline unified (mesmo dia):** `convert-office-to-md.sh` refatorado pra markitdown primary + fallback. `pdf-batch.sh` standalone reusável em `/root/.openclaw/scripts/`. Idempotente.
+- **Sprint A6 — PDF batch Tier 2 antecipado (mesmo dia):** +19.602 chunks de 4.494 PDFs `~/Documents` (NUVIVI 546 + PPR 1807 + PESSOAL 1163 + CONTRATOS 689 + BANCOS 142). 1.444 text-layer convertidos com sucesso; 781 scanned/imagem descartados (esperam OCR Tier 3 / E12).
+- **Lições incident A6 (3 tentativas):**
+  - **Tentativa 1:** SSH command com `nohup ... &` — parent-shell death matou children apesar nohup. Lesson: `disown` necessário ou usar systemd-run/tmux
+  - **Tentativa 2:** systemd-run com bash inline — `${f%.pdf}` interpretado como env var pelo systemd quoting hell. Lesson: scripts standalone em arquivo, NÃO inline em systemd-run
+  - **Tentativa 3:** Watchdog próprio (`pdf-batch-watchdog.service`) — pgrep regex falsa positiva spawnou 69 markitdown simultâneos, sufocou VPS (load 22, OOM-like comportamento). Lesson: NÃO escrever watchdog próprio se systemd-run + Restart=on-failure resolve
+  - **Tentativa 4 (final ✅):** `tmux new-session -d` chamando script standalone. Estável, sobrevive SSH disconnect, sem complexidade extra.
+- **Adoção markitdown ampliada:** `markitdown[pdf,docx,xlsx,pptx]` instalado. PDF batch 2.66s/PDF média sem OCR. OCR (precisa OpenAI key) fica gated em E12.
+- **Resultado total dia 2026-04-27:** corpus triplicou (20.831 → 62.836 chunks, DB 318MB → 1.016 GB). Pré-R01a baseline em corpus completo cumprido.
