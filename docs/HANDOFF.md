@@ -19,15 +19,15 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
 }"'
 ```
 
-**Última leitura (2026-04-27 ~10:30 BRT pós-A1 vectorize complete):**
+**Última leitura (2026-04-27 ~10:45 BRT pós-A1+A3):**
 ```
-total:    39901 chunks (+19070 vs baseline manhã = +91%)
-embedded: 39901 / 39901 (100%, gap=0)
+total:    40764 chunks (+19933 vs baseline manhã = +96%)
+embedded: 40764 / 40764 (100%, gap=0)
 salience: shadow (gate G01 04-30)
-section:  compiled=183, frontmatter=183, timeline=366, legacy=39169
+section:  compiled=183, frontmatter=183, timeline=366, legacy=40032
 opsAudit: 1 op 24h (compact 02:00 ✓)
-db:       574.3 MB (era 318MB pré-A1, +81%)
-search:   smoke OK em Granix-App, Claude skills, biolab-ai (semantic + FTS)
+db:       587.6 MB (era 318MB pré-A1, +85%)
+search:   smoke OK em Granix-App, Claude skills, biolab-ai, agent-orchestrator (semantic + FTS)
 ```
 
 ## 2. Improvements audit
@@ -52,8 +52,12 @@ Sessões 2026-04-25/26/27 entregaram:
   - Fase 1: graphify-ingest 9 repos com graphify-out → +1.046 graph_nodes
   - Fase 2a: clone+ingest 7 repos pequenos (biolab-ai, curso-ai, posts-linkedin, grancoffee, superfrio, fake-news-check, claude-project-template) → +304 markdown chunks
   - Fase 2b: Claude workspace scope curado (docs+agents+skills+commands+Projetos, _retired excluído) → +17.714 chunks de 1.356 md
-  - Decisão: SKIP powerpoint-templates (114MB visual, gated Tier 3 OCR), SKIP nox-workspace (257MB, scope decision posterior)
-  - F09 off-site backup ainda pending — mais crítico agora porque DB cresceu 38% (318MB→440MB)
+  - Decisão: SKIP powerpoint-templates (114MB visual, gated Tier 3 OCR), SKIP nox-workspace (257MB, scope decision posterior), SKIP A2 ~/Desktop (transitório)
+- **Sprint A3 Mac local Claude/Projetos delta** ✅ +863 chunks
+  - rsync `~/Claude/Projetos/agent-orchestrator/` → VPS shared/imports/ (143MB, exclude .git/node_modules)
+  - 106 md ingestados manualmente (watcher race em rsync rápido)
+  - Outros 240 md de ~/Claude/Projetos/* duplicariam shared/imports/<repo>/, scope cut
+  - F09 off-site backup ainda pending — DB cresceu 85% (318MB→587MB)
 
 Sistema saudável e mais rico. Em **holding pattern** até G01 (3 dias).
 

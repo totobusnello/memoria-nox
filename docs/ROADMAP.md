@@ -10,8 +10,8 @@
 
 ```
 Sistema:        nox-mem v3.7+, schema v10, ops_audit append-only
-Chunks:         39901 (100% embedded, 0 gap) — pós-Sprint A1 GitHub+Claude ingest
-DB size:        574.3 MB (era 318MB pré-A1, +81%)
+Chunks:         40764 (100% embedded, 0 gap) — pós-Sprint A1+A3 ingest
+DB size:        587.6 MB (era 318MB pré-A1, +85%)
 Agentes:        7 (1 main Maestro + 6 personas: nox/atlas/boris/cipher/forge/lex)
 OpenClaw:       v2026.4.23 (.24 quebrado, .25-stable aguardada)
 Improvements:   13/13 OK (audit baseline)
@@ -19,14 +19,15 @@ Capacity:       ~6h/semana realista até Set/2026 (CEO em 5 frentes)
 Margem incident: 20h reservadas (histórico: 4 incidents em 2 dias 04-25/26)
 ```
 
-### Sprint A1 delivered (2026-04-27)
+### Sprint A1 + A3 delivered (2026-04-27)
 
-Ingestão massiva GitHub repos + Claude workspace, **pré-R01a (baseline-first em corpus completo)**:
-- **+1.046 graph_nodes** via `graphify-ingest` em 9 repos com graphify-out já gerados (Future-Farm, GalapagosApp, Granix-App, agent-hub-dashboard, daily-tech-digest, memoria-nox, nox-supermem, projeto-ai-galapagos, sao-thiago-fii)
-- **+304 markdown chunks** via clone+ingest de 7 repos pequenos (biolab-ai, curso-ai, posts-linkedin, grancoffee, superfrio, fake-news-check, claude-project-template)
-- **+17.714 chunks** via Claude workspace scope curado (1.356 md de docs+agents+skills+commands+Projetos)
-- **Scope cut:** _retired/, prompts/, powerpoint-templates (Tier 3 OCR), nox-workspace (257MB scope decision posterior)
-- **Total:** +19.070 chunks (DB +38%)
+Ingestão massiva GitHub repos + Claude workspace + Mac local delta, **pré-R01a (baseline-first em corpus completo)**:
+- **A1 Fase 1: +1.046 graph_nodes** via `graphify-ingest` em 9 repos com graphify-out já gerados (Future-Farm, GalapagosApp, Granix-App, agent-hub-dashboard, daily-tech-digest, memoria-nox, nox-supermem, projeto-ai-galapagos, sao-thiago-fii)
+- **A1 Fase 2a: +304 markdown chunks** via clone+ingest de 7 repos pequenos (biolab-ai, curso-ai, posts-linkedin, grancoffee, superfrio, fake-news-check, claude-project-template)
+- **A1 Fase 2b: +17.714 chunks** via Claude workspace scope curado (1.356 md de docs+agents+skills+commands+Projetos)
+- **A3: +863 chunks** via Mac local `~/Claude/Projetos/agent-orchestrator/` (106 md, único projeto local-only não-duplicado)
+- **Scope cut:** _retired/, prompts/, powerpoint-templates (Tier 3 OCR), nox-workspace (257MB scope decision posterior), ~/Desktop (transitório), outros ~/Claude/Projetos/* (duplicam shared/imports)
+- **Total:** +19.933 chunks (DB +85%)
 - Implicação: F09 off-site backup vira **mais crítico** (mais dados = exposição maior em disk failure)
 - Implicação: G01 baseline 7d pode shift 2-3 dias se distribuição salience mudar significativamente
 

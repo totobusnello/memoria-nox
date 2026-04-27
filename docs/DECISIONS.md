@@ -231,3 +231,8 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **Implicação F09:** off-site backup vira mais crítico (DB +38%: 318MB → ~440MB). Re-priorizar quando voltar atenção pós-G01.
 - **Implicação watcher:** inotifywait race em `git clone` rápido (15 md files perdidos no event stream); ingestão manual via `nox-mem ingest` foi necessária. Não é regressão, é limitação conhecida do filtro `--include`.
 - **Não-mudança intencional:** `_retired/` ficará permanentemente excluído mesmo em re-runs (ruído arquivado).
+- **Sprint A3 — Mac local Claude/Projetos delta (mesmo dia):** +863 chunks via rsync `~/Claude/Projetos/agent-orchestrator/` → shared/imports/ (106 md). Único projeto local-only que não duplica shared/imports/<repo>/.
+- **A3 scope cuts:**
+  - SKIP A2 (`~/Desktop/*`) — usuário declarou "transitório"
+  - SKIP outros 240 md de `~/Claude/Projetos/*` — duplicariam shared/imports/<repo>/ já ingestado (memoria-nox, Granix-App, nox-supermem, etc)
+- **Implicação F09 atualizada:** DB cresceu 85% pós-A1+A3 (318MB → 587MB). Re-priorizar pós-G01.
