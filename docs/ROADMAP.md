@@ -10,8 +10,8 @@
 
 ```
 Sistema:        nox-mem v3.7+, schema v10, ops_audit append-only
-Chunks:         39901 (pós-Sprint A1 GitHub+Claude ingest, target 100% embedded)
-DB size:        ~440MB (era 318MB pré-A1, +38%)
+Chunks:         39901 (100% embedded, 0 gap) — pós-Sprint A1 GitHub+Claude ingest
+DB size:        574.3 MB (era 318MB pré-A1, +81%)
 Agentes:        7 (1 main Maestro + 6 personas: nox/atlas/boris/cipher/forge/lex)
 OpenClaw:       v2026.4.23 (.24 quebrado, .25-stable aguardada)
 Improvements:   13/13 OK (audit baseline)

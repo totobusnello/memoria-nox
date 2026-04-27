@@ -19,14 +19,15 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
 }"'
 ```
 
-**Última leitura (2026-04-27 ~10:00 BRT pós-A1):**
+**Última leitura (2026-04-27 ~10:30 BRT pós-A1 vectorize complete):**
 ```
-total:    39901 chunks (+19070 vs baseline manhã)
-embedded: vectorize em curso ETA ~14min (após: 100%)
+total:    39901 chunks (+19070 vs baseline manhã = +91%)
+embedded: 39901 / 39901 (100%, gap=0)
 salience: shadow (gate G01 04-30)
 section:  compiled=183, frontmatter=183, timeline=366, legacy=39169
 opsAudit: 1 op 24h (compact 02:00 ✓)
-db:       ~440MB (era 318MB pré-A1)
+db:       574.3 MB (era 318MB pré-A1, +81%)
+search:   smoke OK em Granix-App, Claude skills, biolab-ai (semantic + FTS)
 ```
 
 ## 2. Improvements audit
