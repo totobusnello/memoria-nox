@@ -1,8 +1,24 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-04-27 manhã BRT (pós-Sprint A1 ingestão massiva GitHub repos + Claude workspace)
+> **Atualizado:** 2026-04-29 ~10:30 BRT (sync-verify patch + cron 5:30 cross-agent-sync heartbeat + docs sync F09→CUT + audit pós-marathon iniciado)
 > Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
 > Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
+
+## Última sessão (2026-04-28) — Optimization Marathon
+
+| Métrica chave | Antes | Depois |
+|---|---|---|
+| OpenClaw | 2026.4.25 | **2026.4.26** |
+| Turn latency | 39.8s | **10.4s** (-74%) |
+| Boot gateway | ~10s | 5.7s |
+| `.git` workspace | 11GB | **134MB** (-99%) |
+| Skills missing | 39 | **0** |
+| Heartbeats/dia | 384 | 144 (-62.5%) |
+| Token revogado 6 personas | sim (silent 401) | resolvido |
+| Disk free `/` | 114GB | 116GB |
+
+**Documentação completa:** `docs/RUNBOOKS/2026-04-28-optimization-marathon.md` (458 linhas, reproduzível).
+**Plan original:** `plans/2026-04-28-openclaw-v2026.4.26-upgrade.md`.
 
 ---
 
@@ -78,29 +94,36 @@ Sistema saudável e mais rico. Em **holding pattern** até G01 (3 dias).
 
 ## 4. Próxima ação concreta
 
-Hoje é **2026-04-27** (segunda). 3 dias até G01 salience activation.
+Hoje é **2026-04-29** (quarta). **G01 amanhã 04-30.**
 
-### 🔴 P0 — fazer ANTES de G01 (04-30)
+### 🔴 P0 — em andamento agora
+- **Audit pós-marathon** (3 agents paralelos rodando) — architect drift + security regressões + code review A1-A6
+- **Output:** `audits/2026-04-29-post-marathon-audit.md` consolidado
+- **Decisão:** go/no-go pra G01 amanhã baseado em findings
 
-| ID | Item | Esforço | Por que P0 |
-|---|---|---|---|
-| **F09** | Off-site backup rclone → B2/R2 (retention 30d remoto) | 1h | Risco catastrófico (single VPS = disk failure apaga 7.3k chunks). Custo trivial (US$1-2/mês) vs perda total. Architect review flag P0. |
+### F09 → ❌ CUT (D22)
+~~Off-site backup rclone~~ — user rejeitou 2x. Decisão registrada em DECISIONS.md linha 246. Movido pra D22 no roadmap.
 
-### 🟡 Opcional pre-gate (avançar designs)
+### 🟡 Opcional pre-G01 (se sobra tempo após audit)
 
 | ID | Trabalho | Esforço | Valor |
 |---|---|---|---|
 | E03a/E04a | Design specs A6 SPO Injection + A7 Focus Boost | ~40min cada | Alto — execução rápida pós-G03 |
 | E09 | Decisão "Fase 1.7b dormente vs E09 executável" | ~30min | Médio (destrava Maio) |
-| F08.last | B3 #8 último item residual | ~20min | Baixo |
 | (cleanup) | Test isolation fix (--test dir glob) + 5 LOW polish | ~1h | Médio (hygiene) |
 
 ### Combo recomendado pré-G01
-1. **F09 backup hoje** (1h) — não negociável
-2. **E03a + E04a designs** (~80min) — prepara execução pós-G03
-3. **E09 decision** (~30min) — destrava Maio Wave 1
+1. **Audit consolidado** (em andamento) — primeira prioridade
+2. **Fix critical/high findings** se houver
+3. **E03a + E04a designs** (~80min) se restar tempo
+4. **G01 amanhã** com sistema validado
 
-Total: ~3h de trabalho que prepara as próximas 3 semanas.
+### Atividade 2026-04-29 (esta sessão)
+- ✅ sync-verify cross-agent-sync.sh patched: HEARTBEAT line escrita sempre, mesmo TOTAL=0
+- ✅ cron 5:30 BRT adicionado (`30 5 * * *`) antes do sync-verify 6:00
+- ✅ activity log heartbeat validado: `2026-04-29T10:20:03Z [SYSTEM] HEARTBEAT`
+- ✅ ROADMAP/HANDOFF sync: F09 → D22 CUT, datas atualizadas
+- 🔄 Audit pós-marathon (3 agents paralelos)
 
 ## 5. Eventos agendados (gates + waves)
 

@@ -3,7 +3,7 @@
 > **Última atualização:** 2026-04-27
 > **Maintainer:** Toto (bus factor = 1)
 > **Sistema:** VPS Hostinger KVM 4, `root@100.87.8.44` (Tailscale) / `187.77.234.79` (público)
-> **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings, systemd, OpenClaw v2026.4.23+
+> **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings, systemd, OpenClaw v2026.4.25+
 
 ---
 
@@ -21,6 +21,7 @@
 | Disco `/root/.openclaw/` >90% cheio | [RB-08](#rb-08-disk-space-critical-p1) |
 | Embedding API errors em `/api/health` recorrentes | [RB-09](#rb-09-graph-memory-probe-failure-recorrente-p2) |
 | Discord `Unknown Channel` / delivery failures | [RB-10](#rb-10-heartbeat-queue-orfa-unknown-channel-p2) |
+| Upgrade planejado de versão OpenClaw | [RB-11](RUNBOOKS/openclaw-upgrade-runbook.md) |
 
 ---
 
@@ -36,6 +37,7 @@
 - [RB-08: Disk space critical (P1)](#rb-08-disk-space-critical-p1)
 - [RB-09: Graph-memory probe failure recorrente (P2)](#rb-09-graph-memory-probe-failure-recorrente-p2)
 - [RB-10: Heartbeat queue órfã / Unknown Channel (P2)](#rb-10-heartbeat-queue-orfa-unknown-channel-p2)
+- [RB-11: OpenClaw version upgrade — runbook completo](RUNBOOKS/openclaw-upgrade-runbook.md)
 
 ---
 

@@ -373,7 +373,7 @@ CLI: nox-mem ingest-entity memory/entities/systems/nox-mem.md
                                   INSERT INTO vec_chunk_map
                                           │
                                           ▼
-                                  ops_audit: status=completed
+                                  ops_audit: status=success
                                   (se wrapped por withOpAudit)
 ```
 
@@ -718,16 +718,16 @@ O dashboard consome exclusivamente a HTTP API do nox-mem. Não acessa o SQLite d
 │     │    ACL: 0600 arquivo, 0700 diretório                       │  │
 │     │    validation: realpathSync (symlink-aware, TOCTOU)        │  │
 │     │    free space: statfsSync ≥ 2× DB antes de VACUUM         │  │
-│     │ 2. Registra início em ops_audit (status=running)           │  │
+│     │ 2. Registra início em ops_audit (status=started)           │  │
 │     │ 3. Executa operação                                        │  │
-│     │ 4. Atualiza ops_audit (status=completed/failed)            │  │
+│     │ 4. Atualiza ops_audit (status=success/failed/crashed)      │  │
 │     │ 5. reapZombies() no preAction hook                         │  │
 │     └────────────────────────────────────────────────────────────┘  │
 │  L2 ┌────────────────────────────────────────────────────────────┐  │
 │     │ ops_audit append-only (SQL triggers — CWE-693)             │  │
 │     │ trg_ops_audit_no_delete: DELETE → ABORT                    │  │
-│     │ trg_ops_audit_terminal_immutable: UPDATE em completed/     │  │
-│     │   failed/rolled_back → ABORT                               │  │
+│     │ trg_ops_audit_terminal_immutable: UPDATE em success/       │  │
+│     │   failed/crashed → ABORT                                   │  │
 │     └────────────────────────────────────────────────────────────┘  │
 │  L1 ┌────────────────────────────────────────────────────────────┐  │
 │     │ Schema invariants canary */15min                           │  │
@@ -750,10 +750,11 @@ END;
 -- L2: impede UPDATE de status terminal (imutabilidade de conclusões)
 CREATE TRIGGER trg_ops_audit_terminal_immutable
 BEFORE UPDATE OF status ON ops_audit
-WHEN OLD.status IN ('completed', 'failed', 'rolled_back')
+WHEN OLD.status IN ('success', 'failed', 'crashed')
 BEGIN
     SELECT RAISE(ABORT, 'ops_audit terminal status is immutable');
 END;
+-- Status enum válido: 'started' (inicial), 'success' (terminal OK), 'failed' (terminal erro app), 'crashed' (terminal erro sistema)
 ```
 
 Ops destrutivas sem wrapper: usar `NOX_ALLOW_NO_SNAPSHOT=1` **somente** em emergência com motivo legítimo documentado (ex: disk full + reindex urgente). Nunca como atalho rotineiro.

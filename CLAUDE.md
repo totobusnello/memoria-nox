@@ -38,7 +38,7 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 - **VPS:** `ssh root@100.87.8.44` (Tailscale) ou `187.77.234.79` (público); Hostinger KVM 4
 - **Path:** `/root/.openclaw/workspace/tools/nox-mem/`
 - **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings (3072d), inotifywait, systemd
-- **OpenClaw:** v2026.4.23 (binário; requer Node.js 22.12+; **monkey-patched** em `dist/restart-stale-pids-*.js` pra Issue #62028 — arquivo com hash muda a cada upgrade, patch idempotente em `/root/reapply-monkey-patch.sh`)
+- **OpenClaw:** v2026.4.26 (binário; requer Node.js 22.12+; **monkey-patched** em `dist/restart-stale-pids-*.js` pra Issue #62028 — arquivo com hash muda a cada upgrade, patch idempotente em `/root/reapply-monkey-patch.sh`. Histórico: v.24 quebrado, v.25 wizard adoption, v.26 atual pós optimization marathon 2026-04-28.)
 - **Node.js:** v22.22.2 com wrapper `--no-warnings` em `/usr/bin/node`
 - **Claude Code CLI:** v2.1.88 em `/usr/bin/claude` — **backend primário dos agents via OAuth Max/Pro** (zero cobrança de API)
 - **RelayPlane:** v1.8.37 **INATIVO** (parado 2026-04-22 — substituído pelo CLI direto). Mantido instalado como fallback opcional.
@@ -72,8 +72,32 @@ FTS5 BM25 → Gemini semantic (gemini-embedding-001) → RRF fusion (k=60)
 - **HTTP API (porta 18802):** `/api/{health,search,kg,kg/path,agents,cross-kg,reflect,procedures}` + `POST /api/crystallize{,/validate}`
 - **Dashboard:** github.com/totobusnello/agent-hub-dashboard (4 páginas nox-mem)
 
-### Cron
-Runner único às 23:00 via `/root/.openclaw/scripts/nightly-maintenance.sh` (serializa reindex → consolidate → vectorize → kg-build → kg-prune → session-distill). Canário semantic `*/30min`. Health probe `*/5min`. Backup diário 02:00 (7d retention). Logrotate em `/etc/logrotate.d/nox`.
+### Cron (inventário 2026-04-29)
+
+**Diários:**
+- `02:00` backup-all.sh (7d retention)
+- `02:01` workspace auto-commit + push (gera commits `backup: auto-commit YYYY-MM-DD`)
+- `02:30` export-obsidian-vault.py
+- `03:30` prune-pre-op-snapshots.sh (ops_audit retention 7d)
+- `05:00` ckpt save daily-passive
+- `05:30` cross-agent-sync.sh (heartbeat sempre, mesmo TOTAL=0 — ver `reference_sync_verify_activity_log.md`)
+- `06:00` sync-verify.sh (alerta Discord se diverg)
+- `12:00` upgrade-watcher/check.sh (release-watcher passive)
+- `22:00` end-of-day OpenClaw cron (consolidate, NÃO reindex desde patch 2026-04-25)
+- `23:00` nightly-maintenance.sh (serializa reindex → consolidate → vectorize → kg-build → kg-prune → session-distill)
+
+**Periódicos:**
+- `*/5min` health-probe.sh
+- `*/15min` canary-bundle-15min.sh + bvv-extract.py + check-gm-messages.sh + check-schema-invariants.sh + check-discord-heartbeat-validation.sh + heartbeat-sync.sh
+- `*/30min` canary semantic + check-discord-heartbeat-validation
+
+**Semanais:**
+- `Dom 04:00` weekly vectorize
+- `Dom 05:00` session-distill
+- `Seg 03:00` tiers evaluate
+- `Seg 09:00` forge-cc-token-check
+
+Logrotate em `/etc/logrotate.d/nox`. Crontab rebuilder: `/root/.openclaw/scripts/crontab-rebuild.sh` (idempotente).
 
 ### Multi-agent (6 agentes, DBs isolados)
 main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível via `nox-mem cross-*`.
@@ -101,7 +125,7 @@ main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível
    - **Sessions stickiness (regra 11):** se um agente cair no fallback por qualquer razão, `sessions.json` gruda no model do sucesso. Após mudar `model.primary` ou limpar creds, resetar: `jq 'with_entries(select(.value.model | startswith("claude-")))' sessions.json` para cada agente, OU `echo '{}' > sessions.json`.
    - **Editar config via CLI oficial, NÃO `jq` + `mv`:** o gateway tem in-memory canonical state que sobrescreve `openclaw.json` no startup, revertendo edits manuais. Usar `openclaw config set <path> <val>` + `openclaw config validate` antes de restart.
 
-6. **Gateway fratricide (Issue #62028, v2026.4.14+):** monkey-patch em `/usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js` fazendo `cleanStaleGatewayProcessesSync` retornar `[]`. **O hash do nome do arquivo muda a cada versão** (ex: v4.22=`BUk5aJLm`, v4.23=`CegQx-K9`) — usar glob `restart-stale-pids-*.js`. Wrapper em `/usr/local/bin/openclaw-gateway-wrapper` (imutável com `chattr +i`) unset `OPENCLAW_SERVICE_MARKER/KIND`. Config `commands.restart=false` + `gateway.reload.mode=off` + `discovery.mdns.mode=off`. **Comandos que invalidam o patch** (precisam checar + reaplicar ANTES do próximo restart): `npm install/update -g openclaw`, `openclaw models auth {add,login,paste-token,setup-token}` (confirmado 2026-04-23 — reinstala node_modules/dist/). **Reapplicação automática:** `bash /root/reapply-monkey-patch.sh` (idempotente, Python regex). Upgrade completo: `bash /root/upgrade-<VERSION>.sh` + rollback: `bash /root/rollback-<VERSION>.sh`. Sintoma de patch perdido: 15+ restarts/5min, SIGTERM loop, "Gateway already running locally" nos logs. Fix emergencial em memory `feedback_models_auth_login_reinstalls_node_modules.md`.
+6. **Gateway fratricide (Issue #62028, v2026.4.14+):** monkey-patch em `/usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js` fazendo `cleanStaleGatewayProcessesSync` retornar `[]`. **O hash do nome do arquivo muda a cada versão** (ex: v4.22=`BUk5aJLm`, v4.23=`CegQx-K9`, v4.26=`BQxFGeFd`) — usar glob `restart-stale-pids-*.js` e nunca confiar no hash hardcoded. Wrapper em `/usr/local/bin/openclaw-gateway-wrapper` (imutável com `chattr +i`) unset `OPENCLAW_SERVICE_MARKER/KIND`. Config `commands.restart=false` + `gateway.reload.mode=off` + `discovery.mdns.mode=off`. **Comandos que invalidam o patch** (precisam checar + reaplicar ANTES do próximo restart): `npm install/update -g openclaw`, `openclaw models auth {add,login,paste-token,setup-token}` (confirmado 2026-04-23 — reinstala node_modules/dist/). **Reapplicação automática:** `bash /root/reapply-monkey-patch.sh` (idempotente, Python regex). Upgrade completo: `bash /root/upgrade-<VERSION>.sh` + rollback: `bash /root/rollback-<VERSION>.sh`. Sintoma de patch perdido: 15+ restarts/5min, SIGTERM loop, "Gateway already running locally" nos logs. Fix emergencial em memory `feedback_models_auth_login_reinstalls_node_modules.md`.
 
 7. **`nox-mem-api` escuta em :18802** (não 18800 — Chrome squata). Nunca hardcode; ler `NOX_API_PORT` do .env.
 
@@ -119,7 +143,7 @@ main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível
 
 14. **Delivery-queue órfã pode gerar 15+ "Unknown Channel" por restart.** Canais Discord/Telegram removidos do teu servidor deixam mensagens travadas em `/root/.openclaw/delivery-queue/*.json` que o `[delivery-recovery]` re-tenta a cada restart do gateway. Script `/root/.openclaw/workspace/tools/delivery-queue-cleanup.sh` limpa automaticamente (detecta "Unknown Channel" + "recovery time budget exceeded" + >7 dias). Rodar após qualquer série de restarts anômalos ou mudança de canais Discord. Main agent **não deve ter heartbeat configurado** (target=discord sem `to` gera "Unknown Channel" persistente) — só as 6 personas (nox/atlas/boris/cipher/forge/lex) têm heartbeat válido.
 
-15. **Operações destrutivas em chunks só com `--dry-run` ou snapshot atômico.** Lição do incident 2026-04-25 (reindex.ts wipou section/retention de 183 entities; root cause = end-of-day cron diário rodava `nox-mem reindex` sem rede de proteção). Antes de `reindex`, `consolidate`, `compact`, `crystallize`, `kg-prune` em prod: ou rodar com `--dry-run` (preview JSON, não muta) OU usar `withOpAudit()` wrapper que cria snapshot atômico em `/var/backups/nox-mem/pre-op/<op>-<ts>-<pid>-<uuid>.db` (retention 7d, ACL 0600, dir 0700, snapshot path validation symlink-aware via realpathSync). Backup-all.sh 02:00 NÃO conta — é diário, não pré-op. Ingest-router unified (Fase A2 v1.6) rota entity files via `ingestEntityFile()` automaticamente; sem ele, `ingestFile()` genérico zera section/retention. Validar pós-op com `/api/health.sectionDistribution.compiled == 183`. **Recovery via `safeRestore()`** em `src/lib/op-audit.ts` — valida `user_version` match + restaura main DB primeiro + remove WAL/SHM órfãos depois (W2-4 fix 04-26: ordem importa). NÃO fazer `cp snapshot.db nox-mem.db` direto (corrompe se WAL stale). **Override emergencial:** `NOX_ALLOW_NO_SNAPSHOT=1` no env permite rodar op destrutiva mesmo se snapshot falhar (ex: disk full + emergency reindex) — usar SÓ se snapshot falhou por motivo legítimo conhecido, nunca como atalho. Audit log `ops_audit` é **append-only** (W2-1 trigger CWE-693): DELETE bloqueado, UPDATE bloqueado em rows com status terminal. Detalhes incident: `docs/INCIDENTS.md#2026-04-25`. Audits pós-fix: `audits/2026-04-25-A1-A2-review.md` + `audits/2026-04-26-{A1v2-A3-A4-A5-review,7highs-followup-fix,W2-cleanup}.md`.
+15. **Operações destrutivas em chunks só com `--dry-run` ou snapshot atômico.** Lição do incident 2026-04-25 (reindex.ts wipou section/retention de 183 entities; root cause = end-of-day cron diário rodava `nox-mem reindex` sem rede de proteção). Antes de `reindex`, `consolidate`, `compact`, `crystallize`, `kg-prune` em prod: ou rodar com `--dry-run` (preview JSON, não muta) OU usar `withOpAudit()` wrapper que cria snapshot atômico em `/var/backups/nox-mem/pre-op/<op>-<ts>-<pid>-<uuid>.db` (retention 7d, ACL 0600, dir 0700, snapshot path validation symlink-aware via realpathSync). Backup-all.sh 02:00 NÃO conta — é diário, não pré-op. Ingest-router unified (Fase A2 v1.6) rota entity files via `ingestEntityFile()` automaticamente; sem ele, `ingestFile()` genérico zera section/retention. Validar pós-op com `/api/health.sectionDistribution.compiled == 183`. **Recovery via `safeRestore()`** em `src/lib/op-audit.ts` — valida `user_version` match + restaura main DB primeiro + remove WAL/SHM órfãos depois (W2-4 fix 04-26: ordem importa). NÃO fazer `cp snapshot.db nox-mem.db` direto (corrompe se WAL stale). **Override emergencial:** `NOX_ALLOW_NO_SNAPSHOT=1` no env permite rodar op destrutiva mesmo se snapshot falhar (ex: disk full + emergency reindex) — usar SÓ se snapshot falhou por motivo legítimo conhecido, nunca como atalho. Audit log `ops_audit` é **append-only** (W2-1 trigger CWE-693): DELETE bloqueado, UPDATE bloqueado em rows com status terminal. **Status enum válido (validado via DB triggers 2026-04-29):** `'started'` (inicial), `'success'` (terminal OK), `'failed'` (terminal erro app), `'crashed'` (terminal erro sistema). `'completed'` e `'rolled_back'` NÃO são status válidos apesar de docs antigas mencionarem. Detalhes incident: `docs/INCIDENTS.md#2026-04-25`. Audits pós-fix: `audits/2026-04-25-A1-A2-review.md` + `audits/2026-04-26-{A1v2-A3-A4-A5-review,7highs-followup-fix,W2-cleanup}.md`.
 
 ## Roadmap canônico
 

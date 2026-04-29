@@ -13,7 +13,7 @@ Sistema:        nox-mem v3.7+, schema v10, ops_audit append-only
 Chunks:         62836 (100% embedded, 0 gap) — pós-Sprint A1+A3+A4+A5+A6 ingest
 DB size:        1.016 GB (era 318MB pré-A1, +220% / TRIPLICOU)
 Agentes:        7 (1 main Maestro + 6 personas: nox/atlas/boris/cipher/forge/lex)
-OpenClaw:       v2026.4.23 (.24 quebrado, .25-stable aguardada)
+OpenClaw:       v2026.4.26 (.24 quebrado, .25 wizard adoption, .26 pós optimization marathon 04-28)
 Improvements:   13/13 OK (audit baseline)
 Capacity:       ~6h/semana realista até Set/2026 (CEO em 5 frentes)
 Margem incident: 20h reservadas (histórico: 4 incidents em 2 dias 04-25/26)
@@ -73,7 +73,7 @@ Velocity buckets aplicados (corrigidos pós-review crítico):
 | **F06** | §15 | Dry-run mode reindex/consolidate | ✅ DONE | 1 | — |
 | **F07** | (ops) | OpenClaw upgrade defense system (ckpt + improvements + watcher + orchestrator) | ✅ DONE | 4 | OpenClaw .24 break |
 | **F08** | (backlog) | B3 backlog sprint 7/8 (issue + CONVENTIONS + alert + playbooks) | ✅ DONE | 1.5 | — |
-| **F09** ⭐ | §3,resilience | **Off-site backup rclone → B2/R2** (retention 30d remoto + alerta upload fail) | 📋 QUEUED P0 | 1 | **antes G01 04-30** |
+| **F09** ⭐ | §3,resilience | ~~Off-site backup rclone → B2/R2~~ → moved to **D22 ❌ CUT** (user rejected 2x — VPS Hostinger native backup suffices) | ❌ CUT | — | — |
 | **F10** | §10 | Observability dashboard (Grafana + SQLite plugin OR `/api/health` time-series no agent-hub-dashboard) | 📋 QUEUED | 2-3 | Maio |
 | **F11** | (incident) | RUNBOOKS.md formalizado (cobre RB-01 a RB-10 — incident playbooks) | ✅ DONE | 2 | — |
 | **F12** | (resilience) | Embedding model migration playbook (Gemini SPOF mitigation, shadow-index trimestral com Voyage/OpenAI) | 📋 QUEUED | 1 | Maio |
@@ -155,6 +155,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | **D19** | Tier 3 OCR no critical path Fase 4 | 🛑 OPCIONAL | Volume PDF scaneado >50 docs |
 | **D20** | git-as-source-of-truth | ❌ CUT | Nunca (incompatível) |
 | **D21** | W2.3 Tool/Skill map | 🛑 DEFER ≥6mo | Caso de uso concreto aparecer |
+| **D22** | F09 Off-site backup rclone → B2/R2 | ❌ CUT (2026-04-29) | Permanente — user declarou 2x ("VPS Hostinger backup basta", "não vamos gastar tempo e espaço"). Ver DECISIONS.md linha 246. |
 
 ---
 
@@ -166,7 +167,7 @@ Margem incident:                 -20h reservadas (histórico: 4 incidents 2 dias
 Capacity líquida:                ~112h
 
 Compromissado núcleo (estimates honestos pós-review):
-  F09 off-site backup:           1h     ← P0 antes G01
+  F09 off-site backup:           ❌ CUT (D22) — não conta
   F10 observability dashboard:   2-3h
   F12 Gemini SPOF playbook:      1h
   F13 cost projection alt:       1h
@@ -181,7 +182,7 @@ Compromissado núcleo (estimates honestos pós-review):
   R01c baseline + publish:       1-2h
   R02 paper v2:                  5-6h   ← writing tem floor
                                  ───────
-Subtotal núcleo:                 53-72h
+Subtotal núcleo:                 52-71h (sem F09)
 
 Candidates Section 9:
   E03a/b A6 implement+activate:  1.7h
@@ -212,7 +213,7 @@ Sobra realista:                  +23 a +45h (margem confortável)
 - ✅ **Recompactar R02** pra 4-5h se sem dados eval completos
 - ✅ **Promover E03/E04 (A6/A7) candidates** post-G03 — 3.5h total, additive, baixo risco
 - 🤔 **E09/E10 candidates entram se sobrar tempo pós-Wave 1 core** (60-70% likely com capacity nova)
-- ✅ **F09 off-site backup ANTES de G01 04-30** — risco catastrófico vs custo trivial
+- ❌ **F09 off-site backup CUT (D22)** — user rejected 2x; VPS Hostinger native backup suffices
 
 ## 6. Wave gating métrico (não calendário)
 
@@ -236,8 +237,8 @@ Sobra realista:                  +23 a +45h (margem confortável)
 ## 7. Critical path & ordering (revisado)
 
 ```
-HOJE 04-27 ──┐
-             │ F09 off-site backup (1h) ◀── P0 NOVO antes G01
+HOJE 04-29 ──┐
+             │ (F09 CUT — sem prerequisite)
              ▼
 [G01 salience activation 04-30] ──→ [G02 section_boost 05-01] ──→ [G03 archive 05-02]   0.5h serial / 5d wall
              │
@@ -374,10 +375,11 @@ Próximo update VISION.md: pós-G01/G02/G03 (capturar resultado dos gates).
 
 ## 10. Próxima ação concreta (referência rápida)
 
-Hoje é **2026-04-27** (segunda).
+Hoje é **2026-04-29** (quarta).
 
-### Antes de G01 (próximos 3 dias)
-- **F09 off-site backup** (1h) — **P0** antes do gate; risco catastrófico vs custo trivial
+### Antes de G01 (amanhã!)
+- ~~F09 off-site backup~~ ❌ CUT (D22)
+- **Audit pós-marathon** (em andamento 2026-04-29) — drift docs + security + code review A1-A6
 - Opcional: design specs E03a + E04a (A6/A7 implementation, ~1h cada)
 - Opcional: investigar 1.7b dormente vs E09 (1h)
 
