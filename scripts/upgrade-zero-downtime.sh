@@ -157,7 +157,7 @@ echo "    installed: $STAGING_VERSION"
 
 echo "[1b] Monkey-patching staging installation..."
 STAGING_PATCH=$(ls "$STAGING_MODULES/node_modules/openclaw/dist/restart-stale-pids-"*.js | head -1)
-python3 /root/reapply-monkey-patch.sh "$STAGING_PATCH" 2>/dev/null || \
+bash /root/reapply-monkey-patch.sh "$STAGING_PATCH" 2>/dev/null || \
   python3 - "$STAGING_PATCH" <<'PY'
 import re, sys
 p = sys.argv[1]
