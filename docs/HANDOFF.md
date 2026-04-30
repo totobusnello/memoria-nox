@@ -1,8 +1,42 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-04-29 ~10:30 BRT (sync-verify patch + cron 5:30 cross-agent-sync heartbeat + docs sync F09→CUT + audit pós-marathon iniciado)
+> **Atualizado:** 2026-04-30 ~13:30 BRT (kernel upgrade + reboot + **G01 Salience activated** + P1 HIGH cleanup + bonus polish)
 > Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
 > Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
+
+## Sessão atual (2026-04-30) — G01 + cleanup
+
+### Manutenção infra
+- **Ubuntu 25.10 + kernel `6.17.0-22-generic`** (era `6.17.0-20`) — apt upgrade + reboot zero-downtime, 0 fratricide pós, monkey-patch íntegro, creds `chattr +i` preservado
+- **`nox-mem-watcher` agora `enabled`** (era `disabled` rodando manual; persiste em próximos reboots)
+- "CVE-2026-31431 / Copy Fail" mensagem recebida → confirmado **scam** (sem fonte oficial NVD/distro)
+
+### G01 Salience activation ✅ ATIVO
+```
+mode: shadow → active
+promote_candidates: 191
+retain: 63
+review_needed: 16608
+archive_candidates: 45743
+mean: 0.1106 / median: 0.078
+```
+Comando: `bash /root/.openclaw/scripts/activate-salience.sh --apply`. Pre-snapshot saved. Rollback disponível (`--rollback`). **Monitor 48h** /api/health.salience + telemetria search.
+
+### P1 HIGH cleanup (3 fixes em scripts VPS)
+- **CODE-5** `/root/.openclaw/scripts/pdf-batch.sh` — log paths SCANNED/ERR + real exit code (1 se ERR>0)
+- **CODE-6** `/root/.openclaw/upgrade-watcher/check.sh` — gh CLI auth/network failure detectado + meta-alert Discord (não mais silent exit 0)
+- **CODE-8** `/root/upgrade-zero-downtime.sh` Phase 4 — journalctl 1× por iteração + sentinel pra falha (auto-rollback gate não fica cego se journal quebrar)
+- Backups `*.bak-CODE{5,6,8}-20260430-130927`
+
+### Bonus cleanup
+- **CODE-18** `cross-agent-sync.sh` — header doc GNU PCRE dependency
+- **CODE-19** `sync-verify.sh` — `printf %s\n` real newlines + MSG via `printf` (Discord render multi-line)
+- **CODE-17** já fixed em commits anteriores (linhas 61/63 já com `[notify]` prefix)
+- **CODE-20** mantido (LOW informativo — emojis OK em Discord/WhatsApp UTF-8; SSH terminal raro)
+- **Test invocation fix:** `package.json.scripts.test = "node --test dist/__tests__/*.test.js"` (Node 22 quebra `--test <dir>`); `npm run test:retention` 20/20 pass
+
+### Issue residual identificada (não bloqueia G02)
+- **op-audit-e2e tests:** 2/27 fails em `npm test` (success path INSERT row + failure path snapshot preserved). Erro: `'snapshot file on disk' actual: false`. Sintoma: env `NOX_PRE_OP_SNAPSHOT_DIR` honored em `op-audit.ts:43` mas snapshot não cria no path setado. Triagem próxima sessão (não bloqueia G02 amanhã).
 
 ## Última sessão (2026-04-28) — Optimization Marathon
 
@@ -94,42 +128,34 @@ Sistema saudável e mais rico. Em **holding pattern** até G01 (3 dias).
 
 ## 4. Próxima ação concreta
 
-Hoje é **2026-04-29** (quarta). **G01 amanhã 04-30.**
+Hoje é **2026-04-30** (quinta). **G01 ✅ DONE. G02 amanhã 05-01.**
 
-### 🔴 P0 — em andamento agora
-- **Audit pós-marathon** (3 agents paralelos rodando) — architect drift + security regressões + code review A1-A6
-- **Output:** `audits/2026-04-29-post-marathon-audit.md` consolidado
-- **Decisão:** go/no-go pra G01 amanhã baseado em findings
+### 🔴 P0 — G02 amanhã (Section_boost decision)
+```bash
+bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7
+```
+Decidir: ativar `section_boost` no ranking ou manter shadow-mode.
 
-### F09 → ❌ CUT (D22)
-~~Off-site backup rclone~~ — user rejeitou 2x. Decisão registrada em DECISIONS.md linha 246. Movido pra D22 no roadmap.
-
-### 🟡 Opcional pre-G01 (se sobra tempo após audit)
-
+### 🟡 Hoje opcional (se houver tempo)
 | ID | Trabalho | Esforço | Valor |
 |---|---|---|---|
-| E03a/E04a | Design specs A6 SPO Injection + A7 Focus Boost | ~40min cada | Alto — execução rápida pós-G03 |
+| E03a | Design spec A6 SPO Injection (`<vault-facts>` block via KG) | ~1.5h | Alto — execução rápida pós-G03 |
+| E04a | Design spec A7 Session Focus Boost (`focus set <topic>` 1.4×/0.75×) | ~1.5h | Alto |
 | E09 | Decisão "Fase 1.7b dormente vs E09 executável" | ~30min | Médio (destrava Maio) |
-| (cleanup) | Test isolation fix (--test dir glob) + 5 LOW polish | ~1h | Médio (hygiene) |
+| op-audit-e2e | Triar 2 fails em snapshot path/env | ~30min | Médio (hygiene) |
 
-### Combo recomendado pré-G01
-1. **Audit consolidado** (em andamento) — primeira prioridade
-2. **Fix critical/high findings** se houver
-3. **E03a + E04a designs** (~80min) se restar tempo
-4. **G01 amanhã** com sistema validado
-
-### Atividade 2026-04-29 (esta sessão)
-- ✅ sync-verify cross-agent-sync.sh patched: HEARTBEAT line escrita sempre, mesmo TOTAL=0
-- ✅ cron 5:30 BRT adicionado (`30 5 * * *`) antes do sync-verify 6:00
-- ✅ activity log heartbeat validado: `2026-04-29T10:20:03Z [SYSTEM] HEARTBEAT`
-- ✅ ROADMAP/HANDOFF sync: F09 → D22 CUT, datas atualizadas
-- 🔄 Audit pós-marathon (3 agents paralelos)
+### Atividade 2026-04-30 (esta sessão) — RESUMO
+- ✅ Manutenção infra: kernel upgrade + reboot zero-downtime
+- ✅ **G01 Salience activated** (mode shadow → active)
+- ✅ 3 P1 HIGH (CODE-5/6/8) — pdf-batch logging, release-watcher gh-fail, upgrade-zero-downtime journalctl
+- ✅ Bonus: CODE-18/19, npm test invocation fix
+- ⚠️ 2 op-audit-e2e tests failing (snapshot env override) — flag follow-up
 
 ## 5. Eventos agendados (gates + waves)
 
-- **2026-04-30** terça — **G01** Salience activation (`activate-salience.sh check` → `--apply` se READY)
-- **2026-05-01** quarta — **G02** Section_boost decision (`analyze-shadow-telemetry.sh 7`)
-- **2026-05-02** quinta — **G03** Archive 3 source files + iniciar E02 + E03a + E04a paralelo
+- ~~**2026-04-30** quinta — **G01** Salience activation~~ ✅ DONE 13:11 BRT (mode=active)
+- **2026-05-01** sexta — **G02** Section_boost decision (`analyze-shadow-telemetry.sh 7`)
+- **2026-05-02** sábado — **G03** Archive 3 source files + iniciar E02 + E03a + E04a paralelo
 - **05-09** quinta — **E03b + E04b activate** (após shadow 7d)
 - **Maio 2026** — Wave 1 (E05 → E06/E07/E08) + R01a eval skeleton (antecipado!)
 - **Jun-Jul 2026** — R01b curadoria 50 queries + R01c baseline + E10 candidate (gated)
