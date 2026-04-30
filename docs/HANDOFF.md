@@ -39,6 +39,17 @@
 - Smoke manual cada persona via Discord
 - Update `MEMORY.md` com observation v.29 upgrade success
 
+### Bonus: config drift correction pós-upgrade (descoberto durante validação)
+`npm install -g openclaw@2026.4.29` reescreveu `openclaw.json` defaults — RelayPlane reativou em :4100 + `models.providers.anthropic.baseUrl` voltou pra `http://127.0.0.1:4100` (proxy redundante). Correção:
+- `openclaw config set models.providers.anthropic.baseUrl "https://api.anthropic.com"` → API oficial direto
+- `openclaw config set agents.defaults.model.primary "anthropic/claude-opus-4-6"` → confirmed Max OAuth
+- `openclaw config set agents.defaults.model.fallbacks '["claude-cli/claude-sonnet-4-6","openai-codex/gpt-5.5","gemini/gemini-2.5-pro"]'` → ordem zero-cost → paid → paid
+- `systemctl stop relayplane-proxy && systemctl disable relayplane-proxy` → permanente (NÃO REATIVAR)
+- Sessions reset (regra 11): main 28→10, nox 5→1, atlas 1→0, boris 4→1, cipher 1→0, forge 4→0, lex 1→0 — purgou 24 sessions stuck em Gemini fallback
+- Backup pré-correção: `/root/.openclaw/openclaw.json.bak-pre-relayplane-disable-20260430` + `/tmp/sessions-bak-pre-reset-20260430/`
+
+**Auto-prevenção em upgrades futuros:** `upgrade-zero-downtime.sh` Phase 5/6 + `upgrade-v29-deltas.sh --post` agora detectam + auto-remediam esse drift (baseUrl, RelayPlane state, fallback leak, sessions stickiness).
+
 ---
 
 ## Sessão anterior (2026-04-30 manhã) — G01 + cleanup

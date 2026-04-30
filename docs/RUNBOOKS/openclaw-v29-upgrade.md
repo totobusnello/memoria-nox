@@ -155,6 +155,36 @@ Investigar causa via `/var/log/openclaw-upgrade-*.log`.
 
 ---
 
+## 5.4 ⚠️ Config drift pós-`npm install -g` (CRÍTICO)
+
+**Sintoma:** `npm install -g openclaw@<version>` reescreve `openclaw.json` com defaults da nova versão, frequentemente revertendo:
+- `models.providers.anthropic.baseUrl: "https://api.anthropic.com"` → `"http://127.0.0.1:4100"` (ativa RelayPlane redundante!)
+- `agents.defaults.model.primary` → algum default que pode não bater com setup
+- `agents.defaults.model.fallbacks` → pode incluir `anthropic/*` (mascara falha primary → bill)
+- `relayplane-proxy.service` → reativada `enabled` mesmo que parada antes
+
+**Detecção automática:** `upgrade-zero-downtime.sh` Phase 5 (final validation) detecta drift e Phase 6 auto-remedia. `upgrade-v29-deltas.sh --post` também valida via `[config-drift]` block.
+
+**Fix manual (se script não rodou):**
+```bash
+openclaw config set models.providers.anthropic.baseUrl "https://api.anthropic.com"
+openclaw config set agents.defaults.model.primary "anthropic/claude-opus-4-6"
+openclaw config set agents.defaults.model.fallbacks '["claude-cli/claude-sonnet-4-6","openai-codex/gpt-5.5","gemini/gemini-2.5-pro"]'
+systemctl stop relayplane-proxy
+systemctl disable relayplane-proxy
+systemctl restart openclaw-gateway
+```
+
+**Reset sessions stuck em fallback (regra 11):**
+```bash
+for a in main nox atlas boris cipher forge lex; do
+  jq 'with_entries(select(.value.model | test("^(claude-|anthropic-|opus|sonnet|haiku)")))' \
+    /root/.openclaw/agents/$a/sessions/sessions.json > /tmp/clean.json && \
+    mv /tmp/clean.json /root/.openclaw/agents/$a/sessions/sessions.json
+done
+systemctl restart openclaw-gateway
+```
+
 ## 6. Phase 5 — Post-swap delta validation
 
 ```bash

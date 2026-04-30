@@ -271,6 +271,52 @@ if [[ "$MODE" == "--post" ]]; then
     pass "channels: no orphan delivery queue issues"
   fi
 
+  # ─── Config drift checks (npm install -g resets defaults to RelayPlane!) ────
+  echo ""
+  echo "[config-drift] post-upgrade integrity (regra 5 do CLAUDE.md)"
+  BASEURL=$(jq -r '.models.providers.anthropic.baseUrl // ""' /root/.openclaw/openclaw.json)
+  if [[ "$BASEURL" == "https://api.anthropic.com" ]]; then
+    pass "anthropic.baseUrl = api.anthropic.com (not RelayPlane :4100)"
+  else
+    fail "anthropic.baseUrl = $BASEURL — should be https://api.anthropic.com"
+    echo "    Fix: openclaw config set models.providers.anthropic.baseUrl 'https://api.anthropic.com'"
+  fi
+
+  if systemctl is-active --quiet relayplane-proxy 2>/dev/null; then
+    fail "relayplane-proxy ACTIVE — should be inactive+disabled (redundant)"
+    echo "    Fix: systemctl stop relayplane-proxy && systemctl disable relayplane-proxy"
+  else
+    pass "relayplane-proxy inactive"
+  fi
+
+  PRIMARY=$(jq -r '.agents.defaults.model.primary // ""' /root/.openclaw/openclaw.json)
+  if [[ "$PRIMARY" =~ ^(anthropic|claude-cli)/claude-(opus|sonnet) ]]; then
+    pass "model.primary = $PRIMARY (Max OAuth)"
+  else
+    fail "model.primary = $PRIMARY — should be anthropic/claude-{opus,sonnet}-*"
+  fi
+
+  FALLBACK_LEAK=$(jq -r '.agents.defaults.model.fallbacks // [] | map(select(startswith("anthropic/"))) | length' /root/.openclaw/openclaw.json)
+  if [[ "$FALLBACK_LEAK" == "0" ]]; then
+    pass "fallbacks: no anthropic/* leak (would mask primary failure)"
+  else
+    fail "fallbacks contain $FALLBACK_LEAK anthropic/* entry — would mask CLI failure → bill"
+  fi
+
+  STUCK=0
+  for a in main nox atlas boris cipher forge lex; do
+    SF="/root/.openclaw/agents/$a/sessions/sessions.json"
+    [[ -f "$SF" ]] || continue
+    SC=$(jq -r '[.[] | select(.model | test("^(gemini|openai|gpt-)"))] | length' "$SF" 2>/dev/null || echo 0)
+    [[ "$SC" -gt 0 ]] && { STUCK=$((STUCK+SC)); echo "    $a: $SC sessions stuck on fallback"; }
+  done
+  if [[ "$STUCK" == "0" ]]; then
+    pass "sessions: no fallback stickiness"
+  else
+    warn "sessions: $STUCK total sessions stuck on Gemini/GPT fallback"
+    echo "    Fix: reset stuck sessions per agent (regra 11 do CLAUDE.md)"
+  fi
+
   echo ""
   if [[ "$FAILS" -eq 0 ]]; then
     echo "━━━ POST-SWAP DELTAS: ALL PASS ━━━"
