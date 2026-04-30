@@ -55,11 +55,13 @@ fi
 echo "previously_notified_about: ${PREV_NOTIFIED:-<none>}"
 
 # 4. Improvements audit — capture critical/warn drift
+# Note: `improvements check --json` emits 2 JSON arrays concatenated (binary bug).
+# Using jq -s '.[0]' slurps both and takes only the first (the real result).
 IMPROV_OUTPUT=$(/root/bin/improvements check --json 2>/dev/null || echo '[]')
-IMPROV_TOTAL=$(echo "$IMPROV_OUTPUT" | jq -r 'length')
-IMPROV_PASS=$(echo "$IMPROV_OUTPUT" | jq -r '[.[] | select(.pass == true)] | length')
-IMPROV_FAIL=$(echo "$IMPROV_OUTPUT" | jq -r '[.[] | select(.pass == false)] | length')
-IMPROV_CRIT_FAIL=$(echo "$IMPROV_OUTPUT" | jq -r '[.[] | select(.pass == false and .category == "critical")] | length')
+IMPROV_TOTAL=$(echo "$IMPROV_OUTPUT" | jq -sr '.[0] | length' 2>/dev/null); IMPROV_TOTAL=${IMPROV_TOTAL:-0}
+IMPROV_PASS=$(echo "$IMPROV_OUTPUT" | jq -sr '.[0] | [.[] | select(.pass == true)] | length' 2>/dev/null); IMPROV_PASS=${IMPROV_PASS:-0}
+IMPROV_FAIL=$(echo "$IMPROV_OUTPUT" | jq -sr '.[0] | [.[] | select(.pass == false)] | length' 2>/dev/null); IMPROV_FAIL=${IMPROV_FAIL:-0}
+IMPROV_CRIT_FAIL=$(echo "$IMPROV_OUTPUT" | jq -sr '.[0] | [.[] | select(.pass == false and .category == "critical")] | length' 2>/dev/null); IMPROV_CRIT_FAIL=${IMPROV_CRIT_FAIL:-0}
 echo "improvements: pass=$IMPROV_PASS/$IMPROV_TOTAL, critical_fails=$IMPROV_CRIT_FAIL"
 
 # 5. Should we alert?
@@ -101,13 +103,30 @@ if $NEW_RELEASE; then
     ALERT+="*Highlights:*"$'\n'"$HIGHLIGHTS"$'\n'$'\n'
   fi
 
+  # Compatibility pre-check: if v29-deltas.sh exists, run --pre and surface D1-D4 results
+  # Auto-skips if script absent (e.g., older VPS provisioned before 2026-04-30)
+  if [[ -x /root/upgrade-v29-deltas.sh ]]; then
+    DELTA_LOG=$(timeout 90 bash /root/upgrade-v29-deltas.sh --pre 2>&1 || true)
+    DELTA_SUMMARY=$(echo "$DELTA_LOG" | grep -E "^\s+(PASS|FAIL|WARN):" | head -8 | sed 's/^/   /')
+    DELTA_VERDICT=$(echo "$DELTA_LOG" | grep -E "ALL PASS|FAILURES" | tail -1)
+    DELTA_FAILS=$(echo "$DELTA_LOG" | grep -cE "^[[:space:]]+FAIL:" 2>/dev/null || true); DELTA_FAILS=${DELTA_FAILS:-0}
+    if [[ -n "$DELTA_SUMMARY" ]]; then
+      ALERT+="*Compat pre-check:*"$'\n'"$DELTA_SUMMARY"$'\n'
+      [[ -n "$DELTA_VERDICT" ]] && ALERT+="   ${DELTA_VERDICT}"$'\n'
+      if [[ "$DELTA_FAILS" -gt 0 ]]; then
+        ALERT+="   🔴 *P0:* fix necessário antes do upgrade — review reapply-monkey-patch.sh"$'\n'
+      fi
+      ALERT+=$'\n'
+    fi
+  fi
+
   ALERT+="*Próximo passo:* responda \`go\` pra rodar o orchestrator (ckpt → staging → smoke → swap → watch)."$'\n'
   ALERT+="Detalhes do release: https://github.com/$GITHUB_REPO/releases/tag/v$LATEST_STABLE"$'\n'$'\n'
 fi
 
 if $DRIFT_DETECTED; then
   ALERT+="⚠️ *Improvements drift detectado:*"$'\n'
-  ALERT+="$(echo "$IMPROV_OUTPUT" | jq -r '
+  ALERT+="$(echo "$IMPROV_OUTPUT" | jq -sr '.[0] |
     [.[] | select(.pass == false and .category == "critical")]
     | .[]
     | "   • [crit] " + .id + ": " + (.failures | join("; "))' | head -10)"$'\n'$'\n'

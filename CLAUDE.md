@@ -38,7 +38,7 @@ Documentação, specs, plans e paper técnico do sistema **nox-mem** (deployado 
 - **VPS:** `ssh root@100.87.8.44` (Tailscale) ou `187.77.234.79` (público); Hostinger KVM 4
 - **Path:** `/root/.openclaw/workspace/tools/nox-mem/`
 - **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings (3072d), inotifywait, systemd
-- **OpenClaw:** v2026.4.26 (binário; requer Node.js 22.12+; **monkey-patched** em `dist/restart-stale-pids-*.js` pra Issue #62028 — arquivo com hash muda a cada upgrade, patch idempotente em `/root/reapply-monkey-patch.sh`. Histórico: v.24 quebrado, v.25 wizard adoption, v.26 atual pós optimization marathon 2026-04-28.)
+- **OpenClaw:** v2026.4.29 (binário; requer Node.js 22.12+; **monkey-patched** em `dist/restart-stale-pids-DNoLLjzi.js` (impl) pra Issue #62028 — desde v.27 bundle ships 2 arquivos: `BxD39Nsb.js` (re-export wrapper, 2 linhas) + `DNoLLjzi.js` (impl, 510 linhas). Patch via `grep -l` filtra impl file (não confiar em `ls | head -1` que pega wrapper alfabeticamente). Patch idempotente em `/root/reapply-monkey-patch.sh`. Histórico: v.24 quebrado, v.25 wizard, v.26 marathon, v.27/v.29 multi-file restart-stale-pids.)
 - **Node.js:** v22.22.2 com wrapper `--no-warnings` em `/usr/bin/node`
 - **Claude Code CLI:** v2.1.88 em `/usr/bin/claude` — **backend primário dos agents via OAuth Max/Pro** (zero cobrança de API)
 - **RelayPlane:** v1.8.37 **INATIVO** (parado 2026-04-22 — substituído pelo CLI direto). Mantido instalado como fallback opcional.

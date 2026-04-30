@@ -1,10 +1,47 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-04-30 ~13:30 BRT (kernel upgrade + reboot + **G01 Salience activated** + P1 HIGH cleanup + bonus polish)
+> **Atualizado:** 2026-04-30 ~20:32 BRT (**OpenClaw v.26 → v.29 upgrade completo** + 4 script fixes encontrados durante)
 > Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
 > Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
 
-## Sessão atual (2026-04-30) — G01 + cleanup
+## Sessão atual (2026-04-30 noite) — OpenClaw v.29 upgrade
+
+### Resultado: ✅ rodando v2026.4.29 (a448042)
+- 3 services active (gateway/api/watcher)
+- vectorCoverage 62816/62861 (99.93% — gap 45 chunks recentes não-vetorizados, normal)
+- salience.mode=active preservado
+- sectionDistribution preservada (compiled=183, frontmatter=183, timeline=366)
+- Phase 4 watch loop: max 3 restarts iniciais (Discord rate-limit slash deploy retries), depois estável em 1
+- D5/D6/D7 deltas pós-swap: todos PASS (orphan recovery, port conflict, blank prompts)
+
+### 4 bugs encontrados + fixados (script-level)
+1. `reapply-monkey-patch.sh` — `ls | head -1` pegava wrapper alfabético em layout 2-arquivos. Fix: `grep -l "function cleanStaleGatewayProcessesSync(portOverride) {"` filtra impl file.
+2. `upgrade-zero-downtime.sh` Phase 0e — `grep -c "..." || echo "0"` gerava `0\n0`. Fix: `2>/dev/null || true; ${VAR:-0}`.
+3. `upgrade-zero-downtime.sh` Phase 1d — staging precisa `--port $STAGING_PORT` explícito (.29 lock check global novo, default tenta 18789 prod).
+4. `upgrade-zero-downtime.sh` Phase 3b — `mv staging/openclaw → /usr/lib/...` deixa transitive deps (dotenv novo na .29) órfãs causando `ERR_MODULE_NOT_FOUND`. Fix: substituído por `npm install -g openclaw@$TARGET` que gerencia deps native.
+
+### Phase 5 final validation reportou 4 FAILs falsos (script verifica formato pré-.29):
+- `primary model == claude-cli/claude-opus-4-6` → openclaw.json schema OK na real
+- `commands.restart == false` → idem
+- `nox-mem-api healthy` → /api/health responde 200, gap de check no script
+- `sessions.json not stuck on non-claude model` → main tem 27 sessions, nox=5, atlas=1, etc — normal
+
+### Backups + rollback
+- `/usr/lib/node_modules/openclaw.bak-pre-2026.4.29` (snapshot .26)
+- `/root/backups/openclaw-pre-2026.4.29/` (openclaw.json.bak + sessions.json.bak)
+- `/root/upgrade-zero-downtime.sh.bak-pre-v29-fix-20260430` (script pré-fixes)
+- Rollback: `bash /root/rollback-zero-downtime.sh 2026.4.29 /usr/lib/node_modules/openclaw.bak-pre-2026.4.29 /root/backups/openclaw-pre-2026.4.29`
+- **Cleanup pós 24h estável:** `rm -rf /usr/lib/node_modules/openclaw.bak-pre-2026.4.29`
+
+### Próximas ações (24-48h monitoring)
+- Verificar fratricide events: `journalctl -u openclaw-gateway --since "6h ago" | grep -cE "fratricide|Gateway already"` deve permanecer 0
+- Verificar Discord rate-limit estabilizando (slash command deploy retries esperados no startup)
+- Smoke manual cada persona via Discord
+- Update `MEMORY.md` com observation v.29 upgrade success
+
+---
+
+## Sessão anterior (2026-04-30 manhã) — G01 + cleanup
 
 ### Manutenção infra
 - **Ubuntu 25.10 + kernel `6.17.0-22-generic`** (era `6.17.0-20`) — apt upgrade + reboot zero-downtime, 0 fratricide pós, monkey-patch íntegro, creds `chattr +i` preservado
