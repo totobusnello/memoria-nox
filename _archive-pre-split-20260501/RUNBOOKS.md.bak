@@ -1,0 +1,910 @@
+# nox-mem — Incident Runbooks
+
+> **Última atualização:** 2026-05-01 — schema v.29 corrigido
+> **Maintainer:** Toto (bus factor = 1)
+> **Sistema:** VPS Hostinger KVM 4, `root@100.87.8.44` (Tailscale) / `187.77.234.79` (público)
+> **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings, systemd, OpenClaw v2026.4.29
+>
+> ⚠️ **Schema migration nota (v.26+):** provider `claude-cli/*` foi REMOVIDO. Hoje:
+> - `agents.defaults.model.primary` = `anthropic/<model>` (Max OAuth = zero-cost)
+> - `agents.list[].agentRuntime.id` = `pi` (built-in; `claude-cli` causa erro "harness not registered")
+> - Fallback chain canônica = `[openai-codex/gpt-5.5, gemini/gemini-2.5-pro]` (sem duplicar primary)
+> - Refs `claude-cli/*` abaixo são histórico de incidents — leitura cuidadosa
+
+---
+
+## Índice rápido por sintoma
+
+| Sintoma | Runbook |
+|---------|---------|
+| Agents Discord/WhatsApp não respondem | [RB-01](#rb-01-gateway-openclaw-down-p0) |
+| `vectorCoverage <95%` ou embedding congelado | [RB-02](#rb-02-vector-coverage-drop-p1) |
+| Alerta Discord `[schema-invariants]` | [RB-03](#rb-03-schema-invariants-violation-p1) |
+| Search retorna lixo após ativação de salience | [RB-04](#rb-04-salience-activation-degradou-ranking-p0) |
+| Agents falham "Not logged in" / 401 | [RB-05](#rb-05-claude-cli-auth-flap-p1) |
+| Gateway restarta >3x em 5min / "fratricide" | [RB-06](#rb-06-monkey-patch-62028-invalidado-p1) |
+| `harness not registered` / `ERR_MODULE_NOT_FOUND` | [RB-07](#rb-07-openclaw-upgrade-quebrou-p0) |
+| Disco `/root/.openclaw/` >90% cheio | [RB-08](#rb-08-disk-space-critical-p1) |
+| Embedding API errors em `/api/health` recorrentes | [RB-09](#rb-09-graph-memory-probe-failure-recorrente-p2) |
+| Discord `Unknown Channel` / delivery failures | [RB-10](#rb-10-heartbeat-queue-orfa-unknown-channel-p2) |
+| Upgrade planejado de versão OpenClaw | [RB-11](RUNBOOKS/openclaw-upgrade-runbook.md) |
+
+---
+
+## TOC
+
+- [RB-01: Gateway openclaw down (P0)](#rb-01-gateway-openclaw-down-p0)
+- [RB-02: Vector coverage drop <95% (P1)](#rb-02-vector-coverage-drop-p1)
+- [RB-03: Schema invariants violation (P1)](#rb-03-schema-invariants-violation-p1)
+- [RB-04: Salience activation degradou ranking (P0)](#rb-04-salience-activation-degradou-ranking-p0)
+- [RB-05: Claude CLI auth flap recurrence (P1)](#rb-05-claude-cli-auth-flap-p1)
+- [RB-06: Monkey-patch #62028 invalidado (P1)](#rb-06-monkey-patch-62028-invalidado-p1)
+- [RB-07: OpenClaw upgrade quebrou (P0)](#rb-07-openclaw-upgrade-quebrou-p0)
+- [RB-08: Disk space critical (P1)](#rb-08-disk-space-critical-p1)
+- [RB-09: Graph-memory probe failure recorrente (P2)](#rb-09-graph-memory-probe-failure-recorrente-p2)
+- [RB-10: Heartbeat queue órfã / Unknown Channel (P2)](#rb-10-heartbeat-queue-orfa-unknown-channel-p2)
+- [RB-11: OpenClaw version upgrade — runbook completo](RUNBOOKS/openclaw-upgrade-runbook.md)
+
+---
+
+## RB-01: Gateway openclaw down (P0)
+
+**Severity:** P0 — prod down, todos os 6 agentes inacessíveis
+**Tempo médio resolução:** 2-10min
+**Última ocorrência:** 2026-04-25 (user-level systemd duplicado; 2026-04-23 fratricide pós models-auth)
+
+### Sintoma
+
+- Nenhum agent responde no Discord/WhatsApp
+- `systemctl status openclaw-gateway` retorna `inactive`, `failed`, ou `activating` em loop
+- Alerta Discord `[health-probe]` ou `[gateway-drift]`
+- Log mostra reinícios repetidos (`Started openclaw-gateway` múltiplas vezes)
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'systemctl status openclaw-gateway --no-pager -l | head -30'
+ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "10 min ago" --no-pager | tail -40'
+ssh root@100.87.8.44 'ps aux | grep -E "openclaw|node" | grep -v grep'
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .status 2>/dev/null || echo "API DOWN"'
+```
+
+### Decision tree
+
+```
+Logs mostram "harness 'claude-cli' not registered" ou "ERR_MODULE_NOT_FOUND"?
+  → SIM: ver RB-07 (upgrade quebrou)
+
+Logs mostram "Gateway already running locally" + restarts >3x em 5min?
+  → SIM: ver RB-06 (monkey-patch invalidado — fratricide)
+
+Logs mostram "ENOMEM" ou processo node com >90% mem?
+  → SIM: kill -9 processos pesados (session-distill, nightly se pendurados) → restart
+
+Logs mostram "Not logged in" ou "401" no claude-cli subprocess?
+  → SIM: ver RB-05 (auth flap)
+
+`ps aux` mostra DOIS processos openclaw-gateway (PIDs diferentes)?
+  → SIM: user-level systemd duplicado → seção "Duplo gateway" abaixo
+
+Nenhum dos acima (log limpo ou apenas EADDRINUSE)?
+  → Tentar restart simples primeiro
+```
+
+### Mitigação
+
+```bash
+# Tentativa 1: restart simples
+ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 8 && systemctl is-active openclaw-gateway'
+
+# Tentativa 2: porta 18789 presa por orphan
+ssh root@100.87.8.44 'fuser -k 18789/tcp; sleep 2; systemctl restart openclaw-gateway'
+
+# Duplo gateway (user-level systemd):
+ssh root@100.87.8.44 'XDG_RUNTIME_DIR=/run/user/0 systemctl --user list-units | grep openclaw'
+# Se aparecer openclaw-gateway.service no user scope:
+ssh root@100.87.8.44 'XDG_RUNTIME_DIR=/run/user/0 systemctl --user stop openclaw-gateway && \
+  XDG_RUNTIME_DIR=/run/user/0 systemctl --user disable openclaw-gateway && \
+  mv /root/.config/systemd/user/openclaw-gateway.service /root/.config/systemd/user/openclaw-gateway.service.disabled'
+ssh root@100.87.8.44 'systemctl restart openclaw-gateway'
+
+# Fallback: rollback via ckpt (se upgrade recente causou)
+ssh root@100.87.8.44 'ckpt list | head -3'
+# Pegar ID do último ckpt saudável e rodar:
+ssh root@100.87.8.44 'bash /root/rollback-<VERSION>.sh'
+```
+
+### Pós-fix verificação
+
+```bash
+# Gateway respondendo?
+ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "2 min ago" --no-pager | grep "ready"'
+# Esperado: "[gateway] ready (X plugins: ...; Ys)"
+
+# Nenhum restart nos últimos 2min?
+ssh root@100.87.8.44 'systemctl status openclaw-gateway --no-pager | grep -E "Active:|restarts"'
+
+# nox-mem-api ainda up?
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .status'
+```
+
+### Prevenção
+
+- `improvements check` — se 13/13 OK, o baseline de defesas está ativo (inclui health-probe `*/5min`)
+- Manter `ckpt save` antes de qualquer mudança em `/usr/lib/node_modules/openclaw/`
+- Nunca rodar `openclaw models auth *` sem ler RB-06 antes (invalida monkey-patch)
+- Upgrade OpenClaw SOMENTE via `bash /root/upgrade-<VERSION>.sh` (inclui auto-rollback em fratricide)
+
+---
+
+## RB-02: Vector coverage drop (P1)
+
+**Severity:** P1 — search degradado (FTS-only, sem semântico), briefings incompletos
+**Tempo médio resolução:** 5-20min (depende de volume a embedar)
+**Última ocorrência:** 2026-04-27 (session-distill travou 8h, 11k chunks sem embedding)
+
+### Sintoma
+
+- Morning report mostra `vectorCoverage: X/Y embedded` com gap >5%
+- `/api/health` retorna `embedded < total - 100`
+- Busca semântica retorna resultados ruins ou `match_type: "fts"` em todos os resultados
+- Canário `*/30min` falha (`Canary: FAIL` no Discord)
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total, orphans: .vectorCoverage.orphans}"'
+# Checar se nightly travou (lock preso)
+ssh root@100.87.8.44 'ls -la /tmp/nox-maintenance.lock 2>/dev/null && echo "LOCK ATIVO" || echo "lock ok"'
+# Checar se session-distill ou outro step está pendurado
+ssh root@100.87.8.44 'ps aux | grep -E "nox-mem|session-distill" | grep -v grep'
+ssh root@100.87.8.44 'tail -20 /var/log/nox-maintenance.log'
+```
+
+### Decision tree
+
+```
+Lock /tmp/nox-maintenance.lock existe + ps mostra session-distill rodando há horas?
+  → SIM: matar session-distill + liberar lock → rodar vectorize manual
+
+Lock existe mas processo morreu (orphan lock)?
+  → SIM: só remover lock → nightly vai funcionar no próximo run
+
+embedded congelado (não cresceu em 24h) mas sem lock + sem nightly ativo?
+  → Checar env vars: `env | grep GEMINI` deve retornar GEMINI_API_KEY
+  → Se vazio: source env ausente (ver Mitigação)
+
+Orphans > 0?
+  → Trigger cascade ausente ou inconsistência: checar RB-03 (schema invariants)
+```
+
+### Mitigação
+
+```bash
+# Se session-distill pendurado (kill + liberar lock):
+ssh root@100.87.8.44 'pids=$(ps aux | grep "session-distill\|nox-maintenance" | grep -v grep | awk "{print \$2}"); kill $pids 2>/dev/null; rm -f /tmp/nox-maintenance.lock; echo "Limpo"'
+
+# Rodar vectorize manual (SEMPRE com env source):
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
+
+# Se vectorize falha silenciosamente (Done: 0 embedded, N errors):
+# Validar chave Gemini antes de tudo:
+ssh root@100.87.8.44 'grep GEMINI_API_KEY /root/.openclaw/.env | head -1'
+# Se vazia ou chave revogada: atualizar .env com chave nova → restart nox-mem-api
+ssh root@100.87.8.44 'systemctl restart nox-mem-api nox-mem-watcher'
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
+```
+
+### Pós-fix verificação
+
+```bash
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total}"'
+# Esperado: embedded == total (ou gap < 50 — recém-ingestados)
+
+# Canário manual:
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "nox-mem sistema de memória" --hybrid 2>&1 | head -5'
+# Esperado: match_type incluindo "semantic"
+```
+
+### Prevenção
+
+- Nightly `nightly-maintenance.sh` agora tem `timeout 1800` em session-distill (fix 2026-04-27)
+- Filtro HEARTBEAT em `src/session-distill.ts` cobre user + assistant (fix 2026-04-27) — reduz O(N²)
+- Morning report deve incluir campo "última nightly: duração + phases OK" (backlog item)
+- Poda de checkpoints velhos (mtime>14d): rodar manualmente se checkpoints crescerem novamente
+
+---
+
+## RB-03: Schema invariants violation (P1)
+
+**Severity:** P1 — dados corrompidos, entity sections perdidas, retries/prune funcionando errado
+**Tempo médio resolução:** 5-30min (depende de qual invariante quebrou)
+**Última ocorrência:** 2026-04-25 (section/retention wipe via reindex, 183 entities afetadas)
+
+### Sintoma
+
+- Alerta Discord `[schema-invariants]` (canary `*/15min` em `/var/log/nox-schema-invariants.log`)
+- `/api/health.sectionDistribution.compiled` < 183
+- `retention.never_decay` abaixo de 92
+- Chunks de entity files retornando sem `section` em search results
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'tail -10 /var/log/nox-schema-invariants.log'
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{section: .sectionDistribution, retention: .retention, total: .chunks.total}"'
+# Checar se reindex rodou recentemente:
+ssh root@100.87.8.44 'journalctl -u nox-mem-watcher --since "1 hour ago" --no-pager | grep -i "reindex\|ingest" | tail -20'
+ssh root@100.87.8.44 'openclaw cron list 2>/dev/null | grep -i reindex'
+```
+
+### Decision tree
+
+```
+compiled == 0 (ou muito abaixo de 183)?
+  → reindex rodou com ingestFile() genérico (não ingestEntityFile)
+  → Checar se ingest-router está ativo: `grep routeIngest /root/.openclaw/workspace/tools/nox-mem/dist/lib/ingest-router.js | wc -l`
+  → Se 0: build pode estar desatualizado → rebuild + reingest entities
+
+never_decay muito abaixo de 92?
+  → Chunks feedback/person foram recriados sem retention override
+  → Checar cron end-of-day: `openclaw cron list | grep ee15b430`
+  → Se step ainda for "reindex": mudar pra "consolidate" (ver Fix #2 do incident 2026-04-25)
+
+ops_audit mostra op recente com status "failed" ou "running" há horas?
+  → withOpAudit() não fechou corretamente → checar RB (closeDb mid-function)
+```
+
+### Mitigação
+
+```bash
+# Reingestar todos os entity files (após confirmar que ingest-router está correto no build):
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+  find /root/.openclaw/workspace/tools/nox-mem/memory/entities -name "*.md" | \
+  while read f; do nox-mem ingest-entity "$f"; done 2>&1 | tail -10'
+
+# Vectorizar os novos chunks:
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
+
+# Se cron end-of-day (ee15b430) ainda tem "reindex" no step 11:
+ssh root@100.87.8.44 'openclaw cron list | grep ee15b430'
+# Se necessário corrigir: (UNTESTED — usar com cuidado)
+# openclaw cron edit ee15b430-ec10-4698-b25f-7fc4e1169417 --step 11 "Execute: nox-mem consolidate"
+```
+
+### Pós-fix verificação
+
+```bash
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{compiled: .sectionDistribution.compiled, never_decay: .retention.never_decay}"'
+# Esperado: compiled=183, never_decay>=92
+
+ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
+# Esperado: "All invariants OK" no próximo ciclo de 15min
+```
+
+### Prevenção
+
+- Canary `*/15min` em `/etc/cron.d/nox-invariants` (já ativo)
+- Guard em `ingestFile()` garante routing entity files → `ingestEntityFile()` automaticamente
+- Cron end-of-day mudado de `reindex` → `consolidate` (fix 2026-04-25, confirmar ativo)
+- Antes de qualquer reindex manual: `nox-mem reindex --dry-run` primeiro, validar output
+
+---
+
+## RB-04: Salience activation degradou ranking (P0)
+
+**Severity:** P0 — search retorna resultados errados, briefings corrompidos com lixo de alta dor
+**Tempo médio resolução:** 2min (rollback é instantâneo)
+**Última ocorrência:** Ainda não ocorreu em prod (shadow-mode ativo; gate 2026-04-30)
+
+### Sintoma
+
+- Após rodar `activate-salience.sh --apply` ou setar `NOX_SALIENCE_MODE=active`
+- Resultados de search claramente piores (chunks triviais no top, conteúdo importante enterrado)
+- `/api/health.salience.mode` mostra `active` mas promote/archive stats parecem incoerentes
+- Usuário reporta "memórias erradas" nas respostas dos agents
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{salience: .salience, searchTelemetry: .searchTelemetry}"'
+# Verificar quando foi ativado:
+ssh root@100.87.8.44 'journalctl -u nox-mem-api --since "30 min ago" --no-pager | grep -i "salience\|NOX_SALIENCE" | tail -20'
+# Baseline shadow antes da ativação (para comparação):
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.stats"'
+```
+
+### Decision tree
+
+```
+NOX_SALIENCE_MODE está como "active" no env?
+  → SIM: rollback imediato pra "shadow" (ver Mitigação)
+
+NOX_SALIENCE_MODE está "shadow" mas ranking ainda ruim?
+  → Outro fator causando degradação (boost stacking? section_boost ativado errado?)
+  → Checar NOX_SECTION_BOOST_MODE no env
+  → Checar se houve commit recente em search.ts com boost multiplicativo
+
+Stats mostram archive_candidates absurdamente alto (ex: >50% do corpus)?
+  → Formula errada — pain/recency mal calibrado
+  → Shadow rollback + análise antes de reativar
+```
+
+### Mitigação
+
+```bash
+# Rollback salience para shadow-mode (IMEDIATO):
+ssh root@100.87.8.44 'grep -n "NOX_SALIENCE_MODE" /root/.openclaw/.env'
+# Editar .env: NOX_SALIENCE_MODE=shadow
+ssh root@100.87.8.44"sed -i 's/^NOX_SALIENCE_MODE=active/NOX_SALIENCE_MODE=shadow/' /root/.openclaw/.env"
+ssh root@100.87.8.44 'systemctl restart nox-mem-api && sleep 3 && curl -s http://127.0.0.1:18802/api/health | jq .salience.mode'
+# Esperado: "shadow"
+
+# Se section_boost também foi ativado:
+ssh root@100.87.8.44"sed -i 's/^NOX_SECTION_BOOST_MODE=active/NOX_SECTION_BOOST_MODE=shadow/' /root/.openclaw/.env"
+ssh root@100.87.8.44 'systemctl restart nox-mem-api'
+```
+
+### Pós-fix verificação
+
+```bash
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.mode"'
+# Esperado: "shadow"
+
+# Teste de sanidade de ranking (query de referência conhecida):
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+  nox-mem search "openclaw gateway fratricide issue 62028" --limit 3 2>&1'
+# Esperado: resultado relevante sobre o monkey-patch no top 3
+```
+
+### Prevenção
+
+- Nunca ativar salience sem ≥7 dias de shadow baseline documentado
+- Gate `activate-salience.sh check` DEVE retornar "READY" antes de `--apply`
+- Ranking changes SEMPRE em commit separado com prefix `tune(search):` ou `feat(search):`
+- Boost multiplicativo empilhável é proibido — usar aditivo (lição do incident v3.4)
+- Manter rollback via env var (não hardcode) para reversão em <2min
+
+---
+
+## RB-05: Claude CLI auth flap (P1)
+
+**Severity:** P1 — agents falham em turns; fallback pode queimar codex/gemini (custo ou quota)
+**Tempo médio resolução:** 3-10min
+**Última ocorrência:** 2026-04-23 (credentials.json truncado ciclicamente)
+
+### Sintoma
+
+- Agents retornam "Not logged in" ou HTTP 401 no log do gateway
+- `journalctl -u openclaw-gateway | grep "401\|Not logged in\|Invalid authentication"` tem hits recentes
+- `/root/.openclaw/agents/main/sessions/sessions.json` mostra model diferente de `claude-cli/*` (grudou no fallback)
+- `CLAUDE_CODE_OAUTH_TOKEN` aparece no env (conflita com credentials.json)
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "10 min ago" --no-pager | grep -i "401\|not logged\|invalid auth\|fallback" | tail -20'
+ssh root@100.87.8.44 'ls -la /root/.claude/.credentials.json && wc -c /root/.claude/.credentials.json'
+# Se wc mostra 0 ou <100 bytes: arquivo foi truncado (truncação cíclica ~8h)
+ssh root@100.87.8.44 'lsattr /root/.claude/.credentials.json'
+# Esperado: "----i---" (imutável via chattr +i)
+ssh root@100.87.8.44 'env | grep CLAUDE_CODE_OAUTH'
+# Esperado: linha em branco (variável NÃO deve existir no env)
+```
+
+### Decision tree
+
+```
+lsattr mostra sem "i" (arquivo mutável)?
+  → credentials.json não está protegido → pode ter sido truncado
+  → Ver: `wc -c /root/.claude/.credentials.json`
+  → Se <100 bytes: restaurar do backup e aplicar chattr +i
+
+CLAUDE_CODE_OAUTH_TOKEN está no env (mesmo comentado mas sem #)?
+  → Conflito: subprocess Claude CLI usa env var em vez de credentials.json → 401
+  → Garantir que está comentado como #DISABLED_CLAUDE_CODE_OAUTH_TOKEN= no .env
+
+Sessions.json grudou em gemini ou codex?
+  → Reset de sessions necessário (ver Mitigação)
+
+credentials.json OK mas still 401?
+  → Token pode ter expirado (validade ~1 ano) → renovar via claude setup-token
+```
+
+### Mitigação
+
+```bash
+# Checar se credentials.json está íntegro:
+ssh root@100.87.8.44 'cat /root/.claude/.credentials.json | jq ".claudeAiOauth.accessToken" | cut -c1-20'
+
+# Restaurar de backup se truncado:
+ssh root@100.87.8.44 'chattr -i /root/.claude/.credentials.json && \
+  cp /root/.claude/.credentials.json.bak /root/.claude/.credentials.json && \
+  chattr +i /root/.claude/.credentials.json && \
+  echo "Restaurado e protegido"'
+
+# Validar que env não tem conflito:
+ssh root@100.87.8.44 'grep -n "CLAUDE_CODE_OAUTH_TOKEN" /root/.openclaw/.env'
+# Se não tiver # no início: comentar a linha
+ssh root@100.87.8.44 "sed -i 's/^CLAUDE_CODE_OAUTH_TOKEN=/#DISABLED_CLAUDE_CODE_OAUTH_TOKEN=/' /root/.openclaw/.env"
+
+# Resetar sessions.json se preso em fallback:
+ssh root@100.87.8.44 'echo "{}" > /root/.openclaw/agents/main/sessions/sessions.json'
+# Para todos os agentes (se necessário):
+ssh root@100.87.8.44 'for agent in main nox atlas boris cipher forge lex; do
+  f="/root/.openclaw/agents/$agent/sessions/sessions.json"
+  [ -f "$f" ] && echo "{}" > "$f" && echo "Reset $agent"
+done'
+
+# Restart gateway após correções:
+ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 5 && \
+  journalctl -u openclaw-gateway --since "30 sec ago" --no-pager | grep -E "ready|claude-cli|401"'
+```
+
+### Pós-fix verificação
+
+```bash
+# Validar que CLI está autenticado:
+ssh root@100.87.8.44 'claude auth status 2>&1 | head -5'
+# Esperado: "Logged in" com email
+
+# Verificar que sessions voltaram para claude-cli:
+ssh root@100.87.8.44 'cat /root/.openclaw/agents/main/sessions/sessions.json | jq "to_entries | .[0] | .value.model" 2>/dev/null || echo "Sessions vazio (OK)"'
+
+# Monitorar 5min para garantir que não flap:
+ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "3 min ago" --no-pager | grep -c "401" && echo "401 errors" || echo "0 auth errors"'
+```
+
+### Prevenção
+
+- `chattr +i /root/.claude/.credentials.json` APÓS cada `claude setup-token` (imutabilidade = proteção contra truncação cíclica)
+- `CLAUDE_CODE_OAUTH_TOKEN` NUNCA no env ativo (comentado como `#DISABLED_...`)
+- `improvements check` verifica imutabilidade do arquivo — se falhar, executar chattr novamente
+- Reminder anual para renovação do token (validade ~1 ano a partir do setup-token)
+
+---
+
+## RB-06: Monkey-patch #62028 invalidado (P1)
+
+**Severity:** P1 — gateway em fratricide crash loop, todos agents inacessíveis até fix
+**Tempo médio resolução:** 3-5min
+**Última ocorrência:** 2026-04-23 (pós `openclaw models auth login`); 2026-04-20 (discovery inicial)
+
+### Sintoma
+
+- Gateway reinicia >3 vezes em 5 minutos
+- Log mostra `"Gateway already running locally"` + SIGTERM periódico (~20s)
+- `systemctl status openclaw-gateway | grep restarts` subindo rapidamente
+- Log mostra `Started openclaw-gateway` múltiplas vezes em sequência
+- `grep "return \[\]" /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js` retorna vazio [UNTESTED: grep-count é false positive — sempre validar o corpo da função]
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "5 min ago" --no-pager | grep -c "Started openclaw-gateway"'
+# Se > 3: fratricide loop
+
+ssh root@100.87.8.44 'cat /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js | grep -A5 "cleanStaleGatewayProcessesSync" | head -15'
+# Esperado: função deve retornar "return [];" imediatamente
+# Se não retornar []: patch perdido
+
+ssh root@100.87.8.44 'ls /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js'
+# O hash no nome muda a cada versão (ex: BUk5aJLm, CegQx-K9, etc.)
+```
+
+### Decision tree
+
+```
+Patch está ausente (grep não acha "return []" no corpo da função)?
+  → Reaplicar monkey-patch via script idempotente
+
+Patch está presente mas loop ainda ocorre?
+  → Outro mecanismo de fratricide ativo
+  → Checar se wrapper /usr/local/bin/openclaw-gateway-wrapper está imutável:
+    `lsattr /usr/local/bin/openclaw-gateway-wrapper`
+
+Gateway em loop mas você precisa de janela para intervenção?
+  → Drop-in de emergência "Restart=no" para parar o loop primeiro
+```
+
+### Mitigação
+
+```bash
+# Parar loop de emergência (dá janela para intervenção sem novos spawns):
+ssh root@100.87.8.44 'mkdir -p /etc/systemd/system/openclaw-gateway.service.d/ && \
+  echo -e "[Service]\nRestart=no" > /etc/systemd/system/openclaw-gateway.service.d/no-restart.conf && \
+  systemctl daemon-reload'
+
+# Matar todos os processos gateway:
+ssh root@100.87.8.44 'pkill -9 -f "openclaw-gateway" 2>/dev/null; fuser -k 18789/tcp 2>/dev/null; echo "Limpo"'
+
+# Reaplicar monkey-patch (idempotente):
+ssh root@100.87.8.44 'bash /root/reapply-monkey-patch.sh'
+
+# Validar que patch foi aplicado (verificar corpo da função, não só grep-count):
+ssh root@100.87.8.44 'cat /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js | grep -A3 "cleanStaleGatewayProcessesSync" | head -8'
+# Esperado: primeira linha do corpo = "return [];"
+
+# Remover drop-in de emergência:
+ssh root@100.87.8.44 'rm /etc/systemd/system/openclaw-gateway.service.d/no-restart.conf && systemctl daemon-reload'
+
+# Iniciar gateway:
+ssh root@100.87.8.44 'systemctl start openclaw-gateway && sleep 10 && systemctl status openclaw-gateway --no-pager | head -10'
+```
+
+### Pós-fix verificação
+
+```bash
+# 3 minutos de observação (fratricide cicla a cada ~20s, 3min = 9 ciclos potenciais):
+ssh root@100.87.8.44 'sleep 30 && journalctl -u openclaw-gateway --since "35 sec ago" --no-pager | grep -c "Started openclaw-gateway"'
+# Esperado: 0 ou 1 (apenas o start inicial)
+
+ssh root@100.87.8.44 'systemctl status openclaw-gateway --no-pager | grep "Active:"'
+# Esperado: "Active: active (running) since..."
+```
+
+### Prevenção
+
+- Comandos que invalidam o patch (verificar + reaplicar ANTES do próximo restart):
+  - `npm install/update -g openclaw`
+  - `openclaw models auth {add,login,paste-token,setup-token}` (reinstala node_modules/dist/)
+  - Qualquer script de upgrade OpenClaw que não use `/root/upgrade-<VERSION>.sh`
+- `improvements check` inclui validação do patch — rodar após qualquer um dos comandos acima
+- Upgrade OpenClaw SOMENTE via `bash /root/upgrade-<VERSION>.sh` (idempotente, inclui reapply)
+
+---
+
+## RB-07: OpenClaw upgrade quebrou (P0)
+
+**Severity:** P0 — gateway não sobe, todos agents inacessíveis
+**Tempo médio resolução:** 5min (rollback) ou 20-60min (debug manual)
+**Última ocorrência:** 2026-04-23 (v4.22 → v4.23, fratricide loop; resolvido via upgrade-script)
+
+### Sintoma
+
+- Após upgrade, gateway não sobe ou sobe e cai
+- Log mostra `harness 'claude-cli' not registered` ou `ERR_MODULE_NOT_FOUND`
+- `improvements check` falha em múltiplos pontos
+- Log mostra `Unrecognized keys` no config parse (nova versão tem schema diferente)
+- `openclaw --version` retorna versão inesperada
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "15 min ago" --no-pager | grep -E "ERR_MODULE|harness|Unrecognized|Error" | head -20'
+ssh root@100.87.8.44 'openclaw --version 2>/dev/null || echo "openclaw binary erro"'
+ssh root@100.87.8.44 'ckpt list | head -5'
+# Checar se rollback script existe para versão anterior:
+ssh root@100.87.8.44 'ls /root/rollback-*.sh 2>/dev/null | head -5'
+ssh root@100.87.8.44 'cat /root/.openclaw/upgrade-watcher/state.json 2>/dev/null | jq "{current, previous, lastUpgrade}"'
+```
+
+### Decision tree
+
+```
+ckpt list mostra checkpoint saudável recente?
+  → SIM: rollback via ckpt (mais seguro, <2min)
+  → NÃO: rollback manual via npm install versão anterior
+
+Log mostra "harness not registered"?
+  → claude-cli backend não carregado após upgrade
+  → Verificar: `ls /usr/lib/node_modules/openclaw/dist/ | grep -i "claude\|harness"`
+  → Se arquivo sumiu: rollback
+
+Log mostra "Unrecognized keys" no openclaw.json?
+  → Schema do config mudou na nova versão
+  → Comparar com .bak: `diff /root/.openclaw/openclaw.json /root/.openclaw/openclaw.json.bak`
+  → Remover chaves não reconhecidas
+
+Monkey-patch também precisa ser reaplicado?
+  → SEMPRE após upgrade — ver RB-06 Mitigação
+```
+
+### Mitigação
+
+```bash
+# Opção 1: Rollback via ckpt (preferido se checkpoint existe):
+ssh root@100.87.8.44 'ckpt list | head -3'
+# Pegar ID do último ckpt antes do upgrade:
+ssh root@100.87.8.44 'ckpt restore <checkpoint-id>'
+ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 8 && systemctl is-active openclaw-gateway'
+
+# Opção 2: Rollback via script dedicado:
+ssh root@100.87.8.44 'ls /root/rollback-*.sh'
+ssh root@100.87.8.44 'bash /root/rollback-<VERSION_ANTERIOR>.sh'
+
+# Opção 3: Rollback manual npm (UNTESTED — usar só se sem ckpt):
+ssh root@100.87.8.44 'npm install -g openclaw@<VERSION_ANTERIOR> && \
+  bash /root/reapply-monkey-patch.sh && \
+  systemctl restart openclaw-gateway'
+
+# Após qualquer rollback, validar monkey-patch (ver RB-06):
+ssh root@100.87.8.44 'bash /root/reapply-monkey-patch.sh'
+
+# Se novo upgrade é inevitável (não reverter):
+# Usar APENAS o script dedicado que inclui auto-rollback em fratricide:
+ssh root@100.87.8.44 'bash /root/upgrade-<NEW_VERSION>.sh'
+```
+
+### Pós-fix verificação
+
+```bash
+ssh root@100.87.8.44 'openclaw --version'
+ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "2 min ago" --no-pager | grep "ready"'
+ssh root@100.87.8.44 '/root/bin/improvements check 2>/dev/null | tail -5'
+# Esperado: 13/13 OK (ou próximo disso)
+```
+
+### Prevenção
+
+- Upgrade SOMENTE via `bash /root/upgrade-<VERSION>.sh` — inclui ckpt pré-upgrade + rollback automático em fratricide
+- `improvements check` pós-upgrade antes de considerar upgrade concluído
+- Verificar release notes ANTES de upgrade: mudanças de schema em `openclaw.json` exigem migração manual
+- `ckpt save "pre-upgrade-$(date +%Y%m%d)"` como primeiro passo de qualquer manutenção maior
+
+---
+
+## RB-08: Disk space critical (P1)
+
+**Severity:** P1 — risco de DB corruption se disco cheio durante write; nightly falha silenciosamente
+**Tempo médio resolução:** 5-15min
+**Última ocorrência:** Não documentada como incident formal (preventivo)
+
+### Sintoma
+
+- Alerta de disco >90% (se configurado no cron de monitoramento)
+- `df -h /root` mostra >90% usado
+- Nightly falha com erros de write ou `SQLITE_FULL`
+- `/api/health` mostra `db: >400MB` (baseline atual 318MB)
+- `withOpAudit()` falha ao criar snapshot (não tem espaço) — vira erro em vez de criar snapshot
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'df -h /root /var /tmp'
+ssh root@100.87.8.44 'du -sh /root/.openclaw/workspace/tools/nox-mem/backups/ 2>/dev/null; \
+  du -sh /var/backups/nox-mem/pre-op/ 2>/dev/null; \
+  du -sh /root/.openclaw/ 2>/dev/null; \
+  du -sh /var/log/nox-*.log 2>/dev/null'
+ssh root@100.87.8.44 'ls -lh /var/backups/nox-mem/pre-op/ 2>/dev/null | tail -20'
+ssh root@100.87.8.44 'ls -lh /root/.openclaw/backups/*.db 2>/dev/null | tail -10'
+```
+
+### Decision tree
+
+```
+/var/backups/nox-mem/pre-op/ tem arquivos >7 dias?
+  → SIM: snapshots pré-op não foram purgados — purgar manualmente
+
+/root/.openclaw/backups/ tem DBs antigos acumulados?
+  → SIM: backup diário (02:00) com retention 7d pode estar com bug de purge
+
+Checkpoints (ckpt) acumulados ocupando espaço?
+  → SIM: `ckpt list` — remover checkpoints >14 dias com `ckpt prune`
+
+node_modules em /root/.openclaw/extensions/* ocupando muito?
+  → Plugin-runtime-deps podem ter acumulado — purge de extensões desativadas
+
+/var/log/nox-*.log crescendo descontrolado?
+  → Logrotate pode não estar rodando — checar `/etc/logrotate.d/nox`
+```
+
+### Mitigação
+
+```bash
+# Purgar snapshots pré-op vencidos (>7 dias):
+ssh root@100.87.8.44 'find /var/backups/nox-mem/pre-op/ -name "*.db" -mtime +7 -exec rm -v {} \; 2>/dev/null'
+
+# Purgar backups diários vencidos (>7 dias, se cron de purge falhou):
+ssh root@100.87.8.44 'find /root/.openclaw/backups/ -name "*.db" -mtime +7 -exec rm -v {} \; 2>/dev/null'
+
+# Purgar logs grandes (logrotate manual se necessário):
+ssh root@100.87.8.44 'logrotate -f /etc/logrotate.d/nox 2>/dev/null && echo "Logrotate OK"'
+
+# Purgar checkpoints antigos (ckpt) [UNTESTED — validar sintaxe do ckpt cli]:
+ssh root@100.87.8.44 'ckpt list'
+# Para cada ckpt >14 dias não crítico: ckpt remove <id>
+
+# Purgar plugin-runtime-deps de extensões desativadas:
+ssh root@100.87.8.44 'du -sh /root/.openclaw/extensions/*/node_modules 2>/dev/null | sort -hr | head -10'
+# Se extensão desativada tem node_modules pesados: rm -rf node_modules dentro dela
+
+# Verificar espaço recuperado:
+ssh root@100.87.8.44 'df -h /root'
+```
+
+### Pós-fix verificação
+
+```bash
+ssh root@100.87.8.44 'df -h /root | grep -v Filesystem'
+# Esperado: < 80% usado
+
+# Nightly vai funcionar no próximo run — validar amanhã:
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .dbSizeMB'
+# Baseline atual: ~318MB
+```
+
+### Prevenção
+
+- Cron de alerta de disco (adicionar se não existir): `*/30 * * * * df /root | awk 'NR==2{if($5+0>90) print "DISCO ALERTA: "$5}' | grep ALERTA && curl -s http://discord-webhook...`
+- Purge automático de snapshots pré-op >7d já está no cron nightly (validar que está ativo)
+- Baseline para alertar: `/api/health.dbSizeMB > 600MB` indica crescimento acelerado
+- `NOX_ALLOW_NO_SNAPSHOT=1` como escape hatch se disco cheio impedindo withOpAudit (usar só se confirmado que é o motivo)
+
+---
+
+## RB-09: Graph-memory probe failure recorrente (P2)
+
+**Severity:** P2 — embeddings API com erros, KG extraction degradada ou parada
+**Tempo médio resolução:** 5-15min
+**Última ocorrência:** 2026-04-23 (probe errors eram stale — processo separado, não refletiam runtime real)
+
+### Sintoma
+
+- `/api/health` mostra erros em `embeddingApi` ou `kgExtraction`
+- Discord alerta `[nox-mem-api]` com embedding failures
+- `nox-mem vectorize` retorna `Done: 0 embedded, N errors` (com env carregado)
+- Logs de KG extraction mostram quota exceeded ou authentication errors
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{embedding: .embeddingApi, kg: .kgExtraction, salience: .salience.mode}"'
+# IMPORTANTE: probe errors no health endpoint vêm de processo separado — podem ser stale
+# Validar com teste real em runtime:
+ssh root@100.87.8.44 'journalctl -u nox-mem-api --since "10 min ago" --no-pager | grep -iE "gemini|embedding|quota|rate.limit|401|403" | tail -20'
+# Checar modelo Gemini configurado:
+ssh root@100.87.8.44 'grep -E "GEMINI|gemini" /root/.openclaw/.env | grep -v "^#" | head -10'
+```
+
+### Decision tree
+
+```
+Erros mostram "RESOURCE_EXHAUSTED" ou "quota exceeded"?
+  → SIM: quota diária Gemini 2.5-flash-lite estourada
+  → Checar se alguém mudou o modelo: `grep NOX_EMBED_MODEL /root/.openclaw/.env`
+  → Se modelo é gemini-2.5-flash (não flash-lite): rollback pra flash-lite IMEDIATO
+
+Erros mostram "API_KEY_INVALID" ou "401"?
+  → Chave Gemini foi revogada (como incident 2026-04-21)
+  → Gerar nova chave no Google AI Studio → atualizar .env → restart serviços
+
+Erros são apenas no probe do /api/health mas runtime logs estão limpos?
+  → Stale probe errors — processo de probe separado pode ter estado desatualizado
+  → Testar com vectorize real (ver Mitigação) antes de agir
+
+Erros mostram "DEPRECATED" ou model não encontrado?
+  → Modelo gemini-2.0-flash pode ter sido usado — shutdown foi 2026-06-01
+  → Garantir NOX_EMBED_MODEL=gemini/gemini-2.5-flash-lite no .env
+```
+
+### Mitigação
+
+```bash
+# Validar chave Gemini com teste real (SEMPRE source env antes):
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+  nox-mem vectorize --limit 1 2>&1'
+# Se "Done: 1 embedded, 0 errors": probe era stale, não há problema real
+
+# Se chave revogada: atualizar .env + restart:
+# 1. Obter nova chave no Google AI Studio (externo — não automatizável)
+# 2. ssh root@100.87.8.44 'sed -i "s/^GEMINI_API_KEY=.*/GEMINI_API_KEY=<NOVA_CHAVE>/" /root/.openclaw/.env'
+# 3. systemctl restart nox-mem-api nox-mem-watcher
+# 4. set -a; source .env; set +a; nox-mem vectorize 2>&1 | tail -3
+
+# Se modelo errado (flash vs flash-lite):
+ssh root@100.87.8.44 'grep -n "gemini" /root/.openclaw/.env | head -10'
+# Corrigir para flash-lite:
+ssh root@100.87.8.44"sed -i 's/gemini-2\.5-flash\b/gemini-2.5-flash-lite/g' /root/.openclaw/.env"
+ssh root@100.87.8.44 'systemctl restart nox-mem-api nox-mem-watcher'
+```
+
+### Pós-fix verificação
+
+```bash
+# Vectorize real com ≥5 chunks:
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize --limit 5 2>&1 | tail -3'
+# Esperado: "Done: 5 embedded, 0 errors"
+
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".vectorCoverage"'
+# Confirmar embedded próximo de total
+```
+
+### Prevenção
+
+- Modelo Gemini default = `gemini/gemini-2.5-flash-lite` — NUNCA voltar pro flash completo (quota 3M/d estoura)
+- `improvements check` valida o modelo configurado
+- Probe errors no `/api/health` NÃO são fonte de verdade — sempre validar com `nox-mem vectorize --limit 1` real
+- Chaves em `.env` como `${GEMINI_API_KEY}` (envsub) — gitleaks pre-commit impede exposição acidental
+
+---
+
+## RB-10: Heartbeat queue órfã / Unknown Channel (P2)
+
+**Severity:** P2 — Discord delivery failures não-críticos, mas geram ruído e restarts repetidos
+**Tempo médio resolução:** 5-10min
+**Última ocorrência:** 2026-04-23 (cleanup de delivery-queue); 2026-04-20 (323 "Unknown Channel" em 14d)
+
+### Sintoma
+
+- Log do gateway mostra `Unknown Channel` ou `recovery time budget exceeded` repetidamente
+- `[delivery-recovery]` tentando reenviar mensagens a cada restart
+- `/root/.openclaw/delivery-queue/` tem arquivos .json acumulados com erros antigos
+- Agent `main` enviando heartbeats para canal inválido (sem target configurado)
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "30 min ago" --no-pager | grep -c "Unknown Channel"'
+ssh root@100.87.8.44 'ls -la /root/.openclaw/delivery-queue/*.json 2>/dev/null | wc -l && echo "arquivos na fila"'
+ssh root@100.87.8.44 'ls -lat /root/.openclaw/delivery-queue/*.json 2>/dev/null | head -10'
+# Checar heartbeat do main agent (não deve ter target):
+ssh root@100.87.8.44 'grep -A10 '"'"'heartbeat'"'"' /root/.openclaw/openclaw.json | head -15'
+```
+
+### Decision tree
+
+```
+Arquivos na delivery-queue com mtime >7 dias?
+  → SIM: cleanup via script dedicado
+
+Arquivos recentes (mtime <1h) causando Unknown Channel?
+  → Canal Discord foi removido recentemente mas agent ainda tenta enviar
+  → Identificar qual agent/canal → atualizar config do heartbeat
+
+main agent tem heartbeat com target configurado?
+  → SIM: main agent NÃO deve ter heartbeat target
+  → Só as 6 personas (nox/atlas/boris/cipher/forge/lex) têm heartbeats válidos
+  → Remover target do heartbeat do main via openclaw config set
+
+Erros diminuem sozinhos (mtime dos arquivos é antigo, sem novos)?
+  → Stale artifact — vão envelhecer (>7d) e ser limpados automaticamente
+  → Confirmar via correlação com live gateway logs antes de agir (ver nota abaixo)
+```
+
+**Nota:** "Unknown Channel" regression pode ser artifact rolling 24h — correlacionar com delivery-queue + live logs antes de agir. Stale events envelhecem sozinhos.
+
+### Mitigação
+
+```bash
+# Cleanup automático de órfãos (>7 dias, Unknown Channel, recovery budget exceeded):
+ssh root@100.87.8.44 'bash /root/.openclaw/workspace/tools/delivery-queue-cleanup.sh'
+
+# Cleanup manual se script não existe:
+ssh root@100.87.8.44 'find /root/.openclaw/delivery-queue/ -name "*.json" -mtime +7 -exec rm -v {} \; 2>/dev/null'
+
+# Se heartbeat do main agent está causando Unknown Channel:
+# Verificar config atual:
+ssh root@100.87.8.44 'openclaw config get agents.main.heartbeat 2>/dev/null'
+# Se tem target discord sem canal válido: remover target
+# (UNTESTED — validar com `openclaw config --help` antes)
+# ssh root@100.87.8.44 'openclaw config set agents.main.heartbeat.enabled false'
+
+# Após cleanup, restart para limpar estado de delivery-recovery em memória:
+ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 5 && \
+  journalctl -u openclaw-gateway --since "30 sec ago" --no-pager | grep -c "Unknown Channel" && \
+  echo "Unknown Channel events após restart (esperado: 0)"'
+```
+
+### Pós-fix verificação
+
+```bash
+# Verificar que fila está limpa:
+ssh root@100.87.8.44 'ls /root/.openclaw/delivery-queue/*.json 2>/dev/null | wc -l'
+# Esperado: 0 ou poucos arquivos recentes (< 1h)
+
+# Verificar que log não está acumulando novos Unknown Channel:
+ssh root@100.87.8.44 'sleep 60 && journalctl -u openclaw-gateway --since "65 sec ago" --no-pager | grep "Unknown Channel" | wc -l'
+# Esperado: 0
+```
+
+### Prevenção
+
+- Só as 6 personas (nox/atlas/boris/cipher/forge/lex) devem ter `heartbeat.to` configurado
+- Agent `main` não deve ter heartbeat configurado (gera Unknown Channel persistente)
+- `delivery-queue-cleanup.sh` pode ser adicionado ao nightly-maintenance.sh como step final
+- Ao remover canal Discord do servidor: atualizar `heartbeat.to` nos agents que apontam pra ele ANTES de remover o canal
+
+---
+
+*Arquivo gerado 2026-04-27. Incidents fonte: `docs/INCIDENTS.md`. Regras operacionais: `CLAUDE.md` (regras 1-15). Para "por quê" das decisões: `docs/DECISIONS.md`.*
