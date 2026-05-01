@@ -1,10 +1,49 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-04-30 ~20:32 BRT (**OpenClaw v.26 → v.29 upgrade completo** + 4 script fixes encontrados durante)
+> **Atualizado:** 2026-05-01 ~10:30 BRT (**Marathon session — 56 tasks, schema v.29 canonical, drift loop morto, search 5x faster, Slack rotation, DB recovery**)
 > Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
 > Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
 
-## Sessão atual (2026-04-30 noite) — OpenClaw v.29 upgrade
+## Sessão atual (2026-05-01 manhã) — Marathon stability + performance
+
+### Resultado: ✅ sistema 5x mais rápido + 100% schema v.29 canonical
+
+**Métricas pós-sessão:**
+- Gateway estável (PID atual, 9 plugins), drift OK contínuo desde 08:50 BRT
+- Search p50: 3000ms → **620ms** (FTS5 optimize após Graphify de 04-27)
+- Restart loop: 4/h → **0** (drift script bug fix: pgrep regex → systemctl MainPID)
+- 300s timeouts/48h: 3 → 0
+- nox-mem.db: 62.905 chunks, vectorCoverage 100%, KG 402 entities + 544 relations
+- SOUL.md bootstrap chars (6 agents): 88K → 26K (**-70%** via slim per-agent)
+- Slack token: rotacionado completo (old HTTP 401 revoked, new xoxp+xoxb live)
+- Anthropic Max OAuth zero-cost mantido ($0/30d billing primary)
+- Schema v.29: agentRuntime=`pi` (era `claude-cli` morto), anthropic.baseUrl=api.anthropic.com (era :4100), fallback `[gpt-5.5, gemini-2.5-pro]` sem dup primary
+
+**56 tasks completadas** — categorias:
+- 8 bugfixes críticos (drift, agentRuntime, baseUrl, version-check cron, vectorize-weekly harness, etc)
+- 7 performance (FTS5 optimize, VACUUM, plugins disable, cache resize, bootstrap reduce, graph-memory compact, monthly schedule)
+- 6 security (Slack rotation, pre-commit hook local, Gemini key sanitize, gitleaks confirmed, Anthropic stale 401)
+- 6 memória cleanup (pending.md 15→10, vestigial archives 5 agents, prepare-briefing 10→15, CLAUDE.md fontes corrigidas)
+- 6 SOUL.md slim per-agent
+- 8 docs reescritos (CLAUDE.md, ARCHITECTURE, HANDOFF, DECISIONS, RUNBOOKS, OPTIMIZATION-04-24 banner, V25/V26 banner, v29-upgrade)
+- 1 incident próprio recovered (DB corruption por sed-i em SQLite, lição salva)
+- 1 cron follow-up agendado VPS (5 dias)
+
+**Lições salvas (memory):**
+- `feedback_gateway_drift_pgrep_regex_bug.md` — drift watchers usar systemctl MainPID
+- `feedback_never_sed_binary_files.md` — sweep secrets sempre filtrar tipo arquivo
+- `project_2026_05_01_marathon_session.md` — recap completo
+
+**Audit completo:** `audits/2026-05-01-marathon-session.md` (10.5K chars).
+**Lição na VPS nox-mem:** `shared/lessons/2026-05-01-marathon-session.md` (15 chunks ingestados, searchable).
+
+**Carry-over monitoring:**
+- Cron VPS `0 9 2-6 5 *` → `/root/.openclaw/scripts/marathon-followup-check.sh` rodando 5 dias
+- Reporta Discord channel 1480060616021643336 + WhatsApp Toto no dia 5 ou all-clear
+
+---
+
+## Sessão anterior (2026-04-30 noite) — OpenClaw v.29 upgrade
 
 ### Resultado: ✅ rodando v2026.4.29 (a448042)
 - 3 services active (gateway/api/watcher)
