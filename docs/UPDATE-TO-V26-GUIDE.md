@@ -1,5 +1,7 @@
 # Update to OpenClaw v.26 — Guia Incremental
 
+> ⚠️ **NOTA HISTÓRICA (2026-05-01):** este guia foi escrito durante a transição v.25→v.26 quando ainda existia ambiguidade sobre `agentRuntime.id` e prefixo `claude-cli/*`. Em produção pós-v.29 (validado 2026-05-01): provider `claude-cli` **NÃO existe** no schema, todos os routings usam `anthropic/<model>` + auth-profile `anthropic-max`. Validações que mencionam `agentRuntime.id == claude-cli` ou `[claude-cli] ready` no boot log são obsoletas — em vez disso validar `[plugins] anthropic ready` e `openclaw config get models.providers.anthropic.baseUrl == https://api.anthropic.com`. Para schema canônico atual, ver `CLAUDE.md` regra #5.
+>
 > Status: pendente validação em produção (target 2026-04-28 22h BRT)
 > Versão alvo: 2026.4.26
 > Versão de origem: 2026.4.25

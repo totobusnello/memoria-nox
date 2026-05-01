@@ -1,9 +1,15 @@
 # nox-mem — Incident Runbooks
 
-> **Última atualização:** 2026-04-27
+> **Última atualização:** 2026-05-01 — schema v.29 corrigido
 > **Maintainer:** Toto (bus factor = 1)
 > **Sistema:** VPS Hostinger KVM 4, `root@100.87.8.44` (Tailscale) / `187.77.234.79` (público)
-> **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings, systemd, OpenClaw v2026.4.25+
+> **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings, systemd, OpenClaw v2026.4.29
+>
+> ⚠️ **Schema migration nota (v.26+):** provider `claude-cli/*` foi REMOVIDO. Hoje:
+> - `agents.defaults.model.primary` = `anthropic/<model>` (Max OAuth = zero-cost)
+> - `agents.list[].agentRuntime.id` = `pi` (built-in; `claude-cli` causa erro "harness not registered")
+> - Fallback chain canônica = `[openai-codex/gpt-5.5, gemini/gemini-2.5-pro]` (sem duplicar primary)
+> - Refs `claude-cli/*` abaixo são histórico de incidents — leitura cuidadosa
 
 ---
 

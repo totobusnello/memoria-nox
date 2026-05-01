@@ -21,7 +21,7 @@
 4. `upgrade-zero-downtime.sh` Phase 3b — `mv staging/openclaw → /usr/lib/...` deixa transitive deps (dotenv novo na .29) órfãs causando `ERR_MODULE_NOT_FOUND`. Fix: substituído por `npm install -g openclaw@$TARGET` que gerencia deps native.
 
 ### Phase 5 final validation reportou 4 FAILs falsos (script verifica formato pré-.29):
-- `primary model == claude-cli/claude-opus-4-6` → openclaw.json schema OK na real
+- `primary model == anthropic/claude-sonnet-4-6` → openclaw.json schema OK na real (script ainda procurava `claude-cli/*` deprecado em v.26)
 - `commands.restart == false` → idem
 - `nox-mem-api healthy` → /api/health responde 200, gap de check no script
 - `sessions.json not stuck on non-claude model` → main tem 27 sessions, nox=5, atlas=1, etc — normal
@@ -42,8 +42,8 @@
 ### Bonus: config drift correction pós-upgrade (descoberto durante validação)
 `npm install -g openclaw@2026.4.29` reescreveu `openclaw.json` defaults — RelayPlane reativou em :4100 + `models.providers.anthropic.baseUrl` voltou pra `http://127.0.0.1:4100` (proxy redundante). Correção:
 - `openclaw config set models.providers.anthropic.baseUrl "https://api.anthropic.com"` → API oficial direto
-- `openclaw config set agents.defaults.model.primary "anthropic/claude-opus-4-6"` → confirmed Max OAuth
-- `openclaw config set agents.defaults.model.fallbacks '["claude-cli/claude-sonnet-4-6","openai-codex/gpt-5.5","gemini/gemini-2.5-pro"]'` → ordem zero-cost → paid → paid
+- `openclaw config set agents.defaults.model.primary "anthropic/claude-sonnet-4-6"` → Max OAuth zero-cost (Forge override = `anthropic/claude-opus-4-7` em `agents.list[forge]`)
+- `openclaw config set agents.defaults.model.fallbacks '["openai-codex/gpt-5.5","gemini/gemini-2.5-pro"]'` → 2 paid backups (provider `claude-cli` removido em v.26; `anthropic/*` na primary já é Max OAuth)
 - `systemctl stop relayplane-proxy && systemctl disable relayplane-proxy` → permanente (NÃO REATIVAR)
 - Sessions reset (regra 11): main 28→10, nox 5→1, atlas 1→0, boris 4→1, cipher 1→0, forge 4→0, lex 1→0 — purgou 24 sessions stuck em Gemini fallback
 - Backup pré-correção: `/root/.openclaw/openclaw.json.bak-pre-relayplane-disable-20260430` + `/tmp/sessions-bak-pre-reset-20260430/`
@@ -275,7 +275,7 @@ Ver `CLAUDE.md` para detalhes completos das 15 regras. Top 5:
 2. **Antes de CLI nox-mem em SSH/cron:** `set -a; source /root/.openclaw/.env; set +a`
 3. **Validar features com DB state, não só logs** (`/api/health` JOIN é a fonte)
 4. **Modelo Gemini default = `gemini-2.5-flash-lite`** (flash full estoura quota)
-5. **claude-cli backend zero-cost** — `chattr +i` em `.credentials.json`, NO `CLAUDE_CODE_OAUTH_TOKEN` em env
+5. **Anthropic via Max OAuth = zero-cost** — provider `anthropic` (auth-profile `anthropic-max`) usa subprocess CLI; `chattr +i` em `.credentials.json`; NO `CLAUDE_CODE_OAUTH_TOKEN` em env. Provider `claude-cli/*` foi removido em v.26.
 
 **PT-BR:** "você" não "tu". Registro Brasil/Hotmart.
 

@@ -114,19 +114,33 @@ main + nox/atlas/boris/cipher/forge/lex. Cross-agent search/stats/KG disponível
 
 4. **Modelo Gemini padrão: `gemini/gemini-2.5-flash-lite`.** NUNCA voltar pra `gemini-2.5-flash` (quota 3M/d estoura) nem `gemini-2.0-flash` (deprecated, shutdown 2026-06-01). KG extraction pode usar `gemini-2.5-flash` full enquanto volume baixo.
 
-5. **Claude CLI backend é o provider primário dos agents** (desde 2026-04-22; schema canônico evoluído em 2026-04-30 pós-v.29). `agents.defaults.model.primary = "anthropic/claude-opus-4-6"` aponta pro provider `anthropic` em `models.providers.anthropic` que tem `baseUrl: "https://api.anthropic.com"` (NÃO `:4100`). Subprocess CLI roda como child do gateway via OAuth Max — **zero cobrança de API**. Token `ANTHROPIC_MAX_API_KEY=sk-ant-oat01-…` no `.env`. Requer estas coisas juntas, nessa ordem:
-   - `/root/.claude/.credentials.json` populado pelo `claude setup-token` (token Max válido)
-   - Só DEPOIS `chattr +i ~/.claude/.credentials.json` (ordem importa — antes, o setup-token não consegue gravar)
-   - `CLAUDE_CODE_OAUTH_TOKEN` **NÃO pode** estar no `.env` (comentar como `#DISABLED_...`). O subprocess Claude DEVE ler só do credentials.json; env var conflita e gera 401.
-   - **Schema v.29:** prefix `claude-cli/*` foi DEPRECADO — todo `model.primary`/`fallbacks` usa `anthropic/<model-name>`, `openai-codex/<model>`, `gemini/<model>`. Per-agent overrides em `agents/*/agent/auth-profiles.json` (`type=api_key, provider=anthropic-max, apiKey=sk-ant-oat…`).
-   - **`models.providers.anthropic.baseUrl` DEVE ser `https://api.anthropic.com`.** O `npm install -g openclaw@<version>` durante upgrade pode reescrever pra `http://127.0.0.1:4100` (ativando RelayPlane redundante). Validar pós-upgrade: `openclaw config get models.providers.anthropic.baseUrl`. Fix: `openclaw config set models.providers.anthropic.baseUrl "https://api.anthropic.com"`.
+5. **Modelos via Max OAuth (zero billing) — schema canônico v.29 pós-2026-05-01.** `agents.defaults.model.primary = "anthropic/claude-sonnet-4-6"` aponta pro provider `anthropic` em `models.providers.anthropic` (`baseUrl: "https://api.anthropic.com"`, `api: "anthropic-messages"`). Auth via `auth-profiles.json` profile `anthropic-max` (apiKey = token Max OAuth `sk-ant-oat01-…`). Subprocess CLI Claude roda como child do gateway, billing = $0. **Provider `claude-cli/*` foi REMOVIDO em v.26** — não existe no schema atual; usar `anthropic/<model>` (mesmo path funcional, nomenclatura nova). Per-agent override fica em `agents.list[].model` (array), não `agents.<id>.model` (object não existe).
+
+   **Fallback chain canônica (validada 2026-05-01):**
+   ```yaml
+   primary: anthropic/claude-sonnet-4-6      # Max OAuth, $0
+   fallbacks:
+     - openai-codex/gpt-5.5                  # paid, runtime catalog (não em config registry)
+     - gemini/gemini-2.5-pro                 # paid, último recurso
+   ```
+   **Forge override:** `agents.list[forge].model.primary = anthropic/claude-opus-4-7` (o único agent que precisa raciocínio profundo).
+
+   **Pré-requisitos críticos pra Max OAuth funcionar — ordem importa:**
+   - `/root/.claude/.credentials.json` populado pelo `claude setup-token` (token Max válido, expira anualmente — atual válido até 2027-04-21)
+   - Só DEPOIS `chattr +i ~/.claude/.credentials.json` (ordem importa — antes, setup-token não consegue gravar)
+   - `CLAUDE_CODE_OAUTH_TOKEN` **NÃO pode** estar no `.env` (comentar `#DISABLED_...`). Subprocess Claude DEVE ler só do credentials.json; env var conflita e gera 401.
+   - `models.providers.anthropic.baseUrl == https://api.anthropic.com` (NÃO `:4100`). `npm install -g openclaw@<version>` pode reescrever pra `http://127.0.0.1:4100` ativando RelayPlane redundante. Validar pós-upgrade: `openclaw config get models.providers.anthropic.baseUrl`.
    - **RelayPlane (`relayplane-proxy` :4100) DESATIVADO + DISABLED desde 2026-04-30.** Não reativar. Se aparecer `active`, `systemctl stop relayplane-proxy && systemctl disable relayplane-proxy`.
    - Systemd drop-in `/etc/systemd/system/openclaw-gateway.service.d/override.conf` com `Environment=IS_SANDBOX=1` (gateway roda como root; sem essa var o CLI bloqueia `bypassPermissions`)
-   - **NUNCA** criar bloco `agents.defaults.cliBackends.claude-cli` — OpenClaw tem backend nativo auto-carregado.
-   - **Fallback chain canônica (2026-04-30):** `[claude-cli/claude-sonnet-4-6, openai-codex/gpt-5.5, gemini/gemini-2.5-pro]` (Sonnet via Max OAuth zero-cost, depois GPT-5.5 paid, depois Gemini paid). NÃO incluir `anthropic/*` em fallback (mascara falha primary e gera bill).
-   - **Sessions stickiness (regra 11):** se um agente cair no fallback por qualquer razão, `sessions.json` gruda no model do sucesso. Após mudar `model.primary` ou limpar creds, resetar: `jq 'with_entries(select(.value.model | test("^(claude-|anthropic-|opus|sonnet|haiku)")))' sessions.json` para cada agente, OU `echo '{}' > sessions.json`.
-   - **Editar config via CLI oficial, NÃO `jq` + `mv`:** o gateway tem in-memory canonical state que sobrescreve `openclaw.json` no startup, revertendo edits manuais. Usar `openclaw config set <path> <val>` + `openclaw config validate` antes de restart.
-   - **Pós upgrade (Phase 6 mandatório):** validar 4 invariants — `(a)` `model.primary` aponta pra anthropic provider Max OAuth, `(b)` `models.providers.anthropic.baseUrl == https://api.anthropic.com`, `(c)` `relayplane-proxy` inactive+disabled, `(d)` sessions sem fallback grudado. Se qualquer uma drift: corrigir + restart gateway.
+   - **NUNCA** incluir `anthropic/*` na fallback chain DUPLICANDO o primary (mascara falha real). Tudo bem ter `anthropic/*` como primary; só não duplicar em fallbacks[0].
+
+   **`gpt-5.5` está no runtime catalog mas NÃO em `models.providers.openai-codex.models` (config registry estático).** O gateway expõe gpt-5.5 dinamicamente via Max OAuth Codex catalog. Validar com `openclaw models list | grep gpt-5.5` (deve mostrar `configured`), não com `openclaw config get models.providers.openai-codex.models` (só mostra gpt-5.4).
+
+   **Sessions stickiness:** se um agente cair em fallback (gemini/codex), `sessions.json` gruda nesse model. Reset: `jq 'with_entries(select(.value.model | test("^claude-")))' agents/<id>/sessions/sessions.json`. Crons em haiku-4-5 são DESIGN (heartbeat barato), não tocar.
+
+   **Editar config via CLI oficial, NÃO `jq` + `mv`:** o gateway tem in-memory canonical state que sobrescreve `openclaw.json` no startup. Usar `openclaw config set <path> <val>` + `openclaw config validate` antes de restart.
+
+   **Pós upgrade (Phase 6 mandatório):** validar 5 invariants — `(a)` `model.primary` = `anthropic/<model>`, `(b)` `models.providers.anthropic.baseUrl == https://api.anthropic.com`, `(c)` `relayplane-proxy` inactive+disabled, `(d)` fallback chain = `[openai-codex/gpt-5.5, gemini/gemini-2.5-pro]` (sem duplicar primary), `(e)` sessions sem fallback grudado. Se qualquer uma drift: corrigir + restart gateway uma vez.
 
 6. **Gateway fratricide (Issue #62028, v2026.4.14+):** monkey-patch em `/usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js` fazendo `cleanStaleGatewayProcessesSync` retornar `[]`. **O hash do nome do arquivo muda a cada versão** (ex: v4.22=`BUk5aJLm`, v4.23=`CegQx-K9`, v4.26=`BQxFGeFd`) — usar glob `restart-stale-pids-*.js` e nunca confiar no hash hardcoded. Wrapper em `/usr/local/bin/openclaw-gateway-wrapper` (imutável com `chattr +i`) unset `OPENCLAW_SERVICE_MARKER/KIND`. Config `commands.restart=false` + `gateway.reload.mode=off` + `discovery.mdns.mode=off`. **Comandos que invalidam o patch** (precisam checar + reaplicar ANTES do próximo restart): `npm install/update -g openclaw`, `openclaw models auth {add,login,paste-token,setup-token}` (confirmado 2026-04-23 — reinstala node_modules/dist/). **Reapplicação automática:** `bash /root/reapply-monkey-patch.sh` (idempotente, Python regex). Upgrade completo: `bash /root/upgrade-<VERSION>.sh` + rollback: `bash /root/rollback-<VERSION>.sh`. Sintoma de patch perdido: 15+ restarts/5min, SIGTERM loop, "Gateway already running locally" nos logs. Fix emergencial em memory `feedback_models_auth_login_reinstalls_node_modules.md`.
 
@@ -168,5 +182,12 @@ Repo `github.com/totobusnello/nox-supermem` (private), local `~/Claude/Projetos/
 - Todos os módulos respeitam `OPENCLAW_WORKSPACE` env var
 - Hybrid search é o padrão (`--no-hybrid` para desabilitar)
 - Forge faz code review via PRs no GitHub
-- **SESSION-STATE.md é a fonte única de estado** (`session-context.json` e `active-tasks.md` deprecated)
+- **Fontes de verdade da memória dos agentes (validado 2026-05-01):**
+  - `agents/<id>/memory/active-tasks.md` — pendências Toto + crons + bloqueios + concluídos. Atualizado quase diário pelo agente. **É a lista que o daily-briefing deve ler** (regra anterior "deprecated" estava errada — esse arquivo está vivo).
+  - `agents/<id>/memory/session-context.json` — state operacional: `currentFocus`, `carryOver[]`, `nextActions[]`, `openIssues[]`, `systemState`. Atualizado pelo cron 05:00 BRT diário. **NÃO é deprecated**.
+  - `agents/<id>/memory/core-memory.json` — config estável (perfil Toto, integrações Notion/Slack, IDs). Update raro.
+  - `agents/<id>/memory/pending.md` — lista informal de pendências mistas (ele + Toto + Forge etc). Pode divergir de active-tasks.md; consolidar via cron quando estável.
+  - `workspace/memory/SESSION-STATE.md` — **fonte VIVA** (auto-update via `nox-mem update-session` no end-of-day/consolidate). Tem `Tarefa Ativa`, `Decisões Recentes`, `Pendências` (mirrored). Compartilhado entre agents.
+  - `agents/<id>/memory/SESSION-STATE.md` — **VESTIGIAL** (versão privada por agente que ficava stale; archived 2026-05-01 em `_archive/legacy-state-files/`). Usar `workspace/memory/SESSION-STATE.md` em vez.
+  - `agents/<id>/memory/2026-MM-DD.md` — daily notes. Retention sugerida: archive >30d em `_archive/daily/`.
 - Scripts permanentes em `/root/.openclaw/scripts/` (nunca /tmp/)

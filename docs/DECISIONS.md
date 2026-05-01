@@ -90,19 +90,19 @@ Origem: `plans/2026-04-26-clawmem-analysis.md` §3.
 12. **Validar features com DB state, não logs alone** — graph-memory rodou zombie 4 dias porque afterTurn logs fired mas gm_messages stayed empty. Sempre query persistent state directly.
     *Origem:* `feedback_validate_features_with_db_not_logs.md`
 
-### OpenClaw / Claude CLI
+### OpenClaw / Anthropic Max OAuth (schema canônico v.29 pós-2026-05-01)
 
-13. **claude-cli backend zero-cost via Max OAuth** — subprocess `/usr/bin/claude` lê **só** de `.credentials.json` (NÃO env var conflitante). `chattr +i` após `setup-token`. Fallback chain SEM `anthropic/*` direto (mascara CLI failure → bill pay-per-token).
-    *Origem:* `CLAUDE.md regra 5`; `feedback_openclaw_fallback_should_include_claude_cli_sonnet.md`
+13. **Anthropic via Max OAuth = zero-cost backend** — provider `anthropic` (`baseUrl: https://api.anthropic.com`) com auth-profile `anthropic-max` usa subprocess CLI Claude que lê **só** de `.credentials.json` (NÃO env var `CLAUDE_CODE_OAUTH_TOKEN` conflitante). `chattr +i` após `setup-token`. Fallback chain canônica = `[openai-codex/gpt-5.5, gemini/gemini-2.5-pro]` (sem duplicar primary; provider `claude-cli/*` foi removido em v.26 — usar `anthropic/<model>`).
+    *Origem:* `CLAUDE.md regra 5` (reescrita 2026-05-01); audits sessão de 2026-05-01
 
 14. **Editar `openclaw.json` via `openclaw config set`, NÃO `jq + mv`** — gateway tem in-memory canonical state que sobrescreve edits manuais no startup.
     *Origem:* `CLAUDE.md regra 5`; `feedback_openclaw_config_set_required_for_persistence.md`
 
-15. **`agents.defaults.cliBackends.claude-cli` NUNCA criar bloco** — OpenClaw tem backend nativo auto-carregado. Configs customizadas têm `output:"json"` + `input:"arg"` que QUEBRA o parser; built-in usa `output:"jsonl"` + `input:"stdin"`.
-    *Origem:* `CLAUDE.md regra 5`
+15. **`agentRuntime.id` deve ser `pi` (não `claude-cli`)** — schema v.26 removeu provider `claude-cli`. `agentRuntime.id = "claude-cli"` causa erro `Requested agent harness "claude-cli" is not registered` em crons isolated. Fix universal: `for i in 0..6: openclaw config set agents.list.$i.agentRuntime.id pi`.
+    *Origem:* fix sessão 2026-05-01 (vectorize-weekly broken 7+ dias)
 
 16. **OpenClaw v.24 NÃO atualizar até .25 stable** — bug #71957 (claude-cli harness race) deprecou choiceId; fix em .25-beta.4. Defesa: `oc-upgrade <version>` orchestrator com pre-flight check + auto-rollback.
-    *Origem:* `feedback_openclaw_24_breaks_claude_cli_harness.md`; commit `3b9e23c`
+    *Origem:* `feedback_openclaw_24_breaks_claude_cli_harness.md`; commit `3b9e23c` (referência histórica — schema mudou em v.26+)
 
 17. **Sessions.json filtrar pós-mudança model.primary** — `jq 'with_entries(select(.value.model | startswith("claude-")))'` ou reset `{}`. Sem isso, sessions stuck em fallback model.
     *Origem:* `CLAUDE.md regra 11`

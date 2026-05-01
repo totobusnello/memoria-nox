@@ -847,9 +847,10 @@ Invariants do `improvements check` (13 total):
 │  - sessions_send("agent:X:discord:channel:ID", "msg")              │
 │  - NÃO há routing algorítmico (over-engineering pra 6 agentes)     │
 │                                                                     │
-│  nox + forge = claude-opus-4-6   (raciocínio complexo)             │
-│  atlas + boris + cipher + lex = claude-sonnet-4-6  (operacional)   │
-│  todos via claude-cli (zero custo API, OAuth Max/Pro)              │
+│  forge = anthropic/claude-opus-4-7  (raciocínio profundo)          │
+│  nox + atlas + boris + cipher + lex + main = anthropic/sonnet-4-6  │
+│  todos via provider anthropic + auth-profile anthropic-max         │
+│  (subprocess CLI + OAuth Max → zero custo API)                     │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -862,7 +863,7 @@ Ubuntu Linux — /root/.openclaw/
 Serviços ativos (systemd):
 ┌──────────────────────────────────────────────────────────────┐
 │ openclaw-gateway  :18789 WebSocket                           │
-│   └── claude-cli subprocess (via anthropic-max OAuth)        │
+│   └── provider anthropic + auth anthropic-max → CLI subprocess│
 │   └── monkey-patch Issue #62028 aplicado                     │
 │   └── drop-in: Environment=IS_SANDBOX=1                      │
 │                                                              │
@@ -879,7 +880,8 @@ Serviços ativos (systemd):
 └──────────────────────────────────────────────────────────────┘
 
 Serviços inativos (instalados como fallback):
-│ relayplane-proxy  :4100  — substituído pelo claude-cli direto
+│ relayplane-proxy  :4100  — DESATIVADO + DISABLED 2026-04-30
+│                            (substituído por anthropic provider direto)
 ```
 
 Toda configuração de segredos via `/root/.openclaw/.env` (perms 0600). Nenhuma chave em hardcode — gitleaks pre-commit global bloqueia.
@@ -985,7 +987,7 @@ openclaw-gateway
                         (sk-ant-oat… OAuth token, não API key paga)
 ```
 
-Fallback chain por agente: `claude-cli/sonnet-4-6` → `openai-codex/gpt-5.5` → `gemini/2.5-pro`. Sem `anthropic/*` direto na chain (mascararia falha CLI e geraria cobrança pay-per-token).
+Fallback chain canônica (validada 2026-05-01): `anthropic/<primary-model>` (Max OAuth, $0) → `openai-codex/gpt-5.5` (paid) → `gemini/gemini-2.5-pro` (paid). O provider `anthropic` na primary é zero-cost via auth-profile `anthropic-max` (regra anterior "sem `anthropic/*` na chain" era da era v.23 quando provider `anthropic` = pay-per-token; obsoleta desde v.26 quando schema unificou). NÃO duplicar primary em fallbacks[0] — mascara falha real.
 
 ### 9.3 OpenClaw gateway
 

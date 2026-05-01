@@ -1,5 +1,7 @@
 # Agent Performance Optimization — 2026-04-24
 
+> ⚠️ **NOTA HISTÓRICA (atualizada 2026-05-01):** este documento é snapshot da sessão de optimization de 2026-04-24, quando o schema usava prefix `claude-cli/*`. A partir de **v.26 (final de abril/26) o provider `claude-cli` foi REMOVIDO** — schema atual usa `anthropic/<model>` com auth-profile `anthropic-max` (mesmo path funcional, zero billing). As tabelas e logs abaixo permanecem como referência histórica. Para nomenclatura e fallback chain canônicos atuais, ver `CLAUDE.md` regra #5 (reescrita 2026-05-01).
+>
 > **TL;DR:** Tier 1+2 aplicado na VPS. Gateway mais leve (~3k tokens/turn a menos), plugins quebrados removidos, KG extraction confirmada em `gemini-2.5-flash-lite`, log do graph-memory patched pra refletir realidade.
 >
 > Status: **produção estável** — 9541 chunks, 99.97% vec coverage, monkey-patch #62028 intacto, 0 fratricides.
@@ -265,3 +267,5 @@ systemctl restart openclaw-gateway
 4. **Sessions stickiness obriga reset** após qualquer mudança de `model.primary` ou credencial.
 
 CLAUDE.md regra 5 atualizada pra refletir schema atual.
+
+> **Update 2026-05-01:** schema evoluiu de novo em v.26 — `claude-cli/*` removido, normalizar tudo pra `anthropic/<model>`. Tabela "model primary" acima fica como `anthropic/claude-opus-4-7` para forge e `anthropic/claude-sonnet-4-6` para os demais 6. Fallback canônico: `[openai-codex/gpt-5.5, gemini/gemini-2.5-pro]` (sem duplicar primary, sem `claude-cli/*`).

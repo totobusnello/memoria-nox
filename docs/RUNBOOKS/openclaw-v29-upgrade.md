@@ -168,8 +168,10 @@ Investigar causa via `/var/log/openclaw-upgrade-*.log`.
 **Fix manual (se script não rodou):**
 ```bash
 openclaw config set models.providers.anthropic.baseUrl "https://api.anthropic.com"
-openclaw config set agents.defaults.model.primary "anthropic/claude-opus-4-6"
-openclaw config set agents.defaults.model.fallbacks '["claude-cli/claude-sonnet-4-6","openai-codex/gpt-5.5","gemini/gemini-2.5-pro"]'
+openclaw config set agents.defaults.model.primary "anthropic/claude-sonnet-4-6"
+openclaw config set agents.defaults.model.fallbacks '["openai-codex/gpt-5.5","gemini/gemini-2.5-pro"]'  # claude-cli/* removido em v.26
+# Forge override (raciocínio profundo): openclaw config set agents.list.5.model.primary "anthropic/claude-opus-4-7"
+# agentRuntime: openclaw config set agents.list.<i>.agentRuntime.id pi  # NÃO claude-cli (não registered em v.26+)
 systemctl stop relayplane-proxy
 systemctl disable relayplane-proxy
 systemctl restart openclaw-gateway
