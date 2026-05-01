@@ -1,8 +1,28 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-01 ~10:30 BRT (**Marathon session — 56 tasks, schema v.29 canonical, drift loop morto, search 5x faster, Slack rotation, DB recovery**)
+> **Atualizado:** 2026-05-01 ~14:15 BRT (**Repo split: memoria-nox → openclaw-vps**)
 > Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
 > Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
+
+## Sessão atual (2026-05-01 tarde) — Split de repos
+
+### Resultado: ✅ memoria-nox enxuto, conteúdo OpenClaw migrado
+
+- Criado `~/Claude/Projetos/openclaw-vps/` (umbrella) com `infra/` + `nox-secretary/` + `_future/`
+- `memoria-nox/CLAUDE.md` slim 193→139 linhas (só memoria-nox core)
+- `memoria-nox/docs/INCIDENTS.md` slim — entries OpenClaw migrados pra `openclaw-vps/infra/docs/INCIDENTS.md`
+- 2 plans + 6 audits OpenClaw movidos pra `openclaw-vps/infra/{plans,audits}/`
+- 9 scripts OpenClaw (upgrade/rollback/monkey-patch) sincronizados da VPS pra `openclaw-vps/infra/scripts/`
+- 2 scripts secretário (morning-report, log-bvv-message) sincronizados pra `openclaw-vps/nox-secretary/scripts/`
+- Backups de antes do split em `_archive-pre-split-20260501/`
+- Routing global em `~/Claude/Projetos/CLAUDE.md` ensina Claude qual repo abrir por tema
+
+### Próxima ação memoria-nox
+Foco volta pra evolução pura: sair do schema v10 → v11 (TBD), continuar Fase 1.7 salience activation, refinar entity ingestion.
+
+---
+
+## Sessão anterior (2026-05-01 manhã) — Marathon stability + performance
 
 ## Sessão atual (2026-05-01 manhã) — Marathon stability + performance
 
