@@ -17,11 +17,32 @@
 
 ## Por que isso existe
 
-Agentes AI sem memória persistente repetem erros, perdem contexto entre sessões e tratam cada conversa como se fosse a primeira. Quando você escala pra 7 agentes com papéis distintos, o problema multiplica: memórias fragmentadas por agente, rankings de busca frágeis que quebram sem aviso, drift de schema em ops destrutivas.
+Agentes AI sem memória persistente repetem erros, perdem contexto entre sessões e tratam cada conversa como se fosse a primeira. Quando você escala pra **7 agentes** com papéis distintos (Maestro + nox/atlas/boris/cipher/forge/lex), o problema multiplica em três dimensões:
 
-**nox-mem** resolve isso com uma camada de memória canônica compartilhada: a tabela `chunks` é a fonte única de verdade. O knowledge graph (`kg_entities` + `kg_relations`) é derivado via extração Gemini — não um silo separado. Qualquer mudança de ranking passa por shadow-mode obrigatório de 7 dias antes de ativar. Ops destrutivas criam snapshot atômico pré-execução via `withOpAudit()`.
+1. **Memórias fragmentadas** — cada agente "vê" só sua história, não a coletiva
+2. **Rankings frágeis** — qualquer ajuste de busca pode quebrar resultados sem aviso, e sem baseline objetivo é impossível detectar regressão
+3. **Drift de schema** — operações destrutivas (reindex, consolidate, kg-prune) sem snapshot atômico levam a perda silenciosa de campos importantes (incident 2026-04-25 wipou `section`/`retention` de 183 entities)
 
-O resultado é um sistema que, na prática, resiste a upgrades de infra, patches de segurança, incidents reais e mudanças de equipe sem perder memória acumulada — **64.165 chunks, 100% embedded, 1.034 GB de DB** em produção na VPS, com gates G01/G02/G03 fechados (salience + section_boost ativos), 2 features novas em shadow-mode (SPO injection + focus boost), eval harness operacional (schema v11, baseline n=5 nDCG@10=0.699), 99/100 tests passando.
+**nox-mem** resolve com 5 escolhas arquiteturais não-negociáveis:
+
+- **Camada canônica compartilhada** — a tabela `chunks` é fonte única de verdade pros 7 agentes; nada de silos por agente
+- **KG derivado, não paralelo** — `kg_entities` + `kg_relations` extraídos via Gemini 2.5 Flash sobre os chunks; quando chunks mudam, KG re-deriva (não vira drift independente)
+- **Shadow-mode obrigatório 7d** — qualquer mudança que afete ranking (salience, section_boost, focus, edge typing) roda em paralelo computando+logando antes de surgir nos resultados; ativação só após análise de telemetria real
+- **Snapshot atômico pré-op** — `withOpAudit()` cria backup VACUUM INTO antes de qualquer destructive op; recovery em segundos via `safeRestore()` com PRAGMA sentinel
+- **Baseline-first em qualquer ranking change** — antes de ativar E05/E10/D01 reranker, mede nDCG@10 vs baseline atual via eval harness (R01a) com golden queries curadas; sem baseline, não merge
+
+O sistema é construído pra **resistir a upgrades de infra** (já sobreviveu OpenClaw v.24→v.25→v.26→v.29 sem perda de dados), **patches de segurança** (24+ feedback files documentando incidents resolvidos), e **mudanças de modelo** (Gemini Flash → Flash-Lite default por custo, com playbook RB-05 pra trocar provider em 1h se necessário).
+
+**Estado atual em produção** (VPS Hostinger, Tailscale-only, 2026-05-02):
+- **64.165 chunks** indexados / **100% embedded** (Gemini 3072d sqlite-vec) / **1.034 GB** DB
+- **402 entities + 544 relations** no KG (Gemini extraction nightly)
+- **Schema v11** (PRAGMA aligned, drift-recovery proof)
+- **Gates fechados:** G01 salience + G02 section_boost + G03 archive ✅
+- **Features em shadow:** SPO injection + Focus boost (activate 2026-05-09)
+- **Eval harness:** schema v11 + 5 CLI subcomandos + endpoint `/api/eval-metrics`; baseline n=5 hybrid **nDCG@10 = 0.699** vs FTS-only 0.000 (revela que pipeline hybrid+semantic+RRF é o que faz a busca funcionar em queries linguagem natural)
+- **Hardening:** 99/100 tests pass, 13/13 improvements OK, audit log append-only com triggers DB, op-audit + dry-run + canary invariants */15min Discord
+
+**Origem e endereço:** projeto pessoal de [@totobusnello](https://github.com/totobusnello) (Toto), CEO/CFO/CTO/CPO/CMO em 5 frentes simultâneas, incubando NOX-Supermem (produto comercial Brasil/Hotmart) sobre essa base. Capacity realista ~6h/sem; arquitetura calibrada pra essa restrição (escolhe simples sobre clever, prefere defer feature sobre tech debt).
 
 ---
 
