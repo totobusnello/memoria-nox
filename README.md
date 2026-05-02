@@ -42,7 +42,7 @@ O sistema é construído pra **resistir a upgrades de infra** (já sobreviveu Op
 - **Eval harness:** schema v11 + 5 CLI subcomandos + endpoint `/api/eval-metrics`; baseline n=5 hybrid **nDCG@10 = 0.699** vs FTS-only 0.000 (revela que pipeline hybrid+semantic+RRF é o que faz a busca funcionar em queries linguagem natural)
 - **Hardening:** 99/100 tests pass, 13/13 improvements OK, audit log append-only com triggers DB, op-audit + dry-run + canary invariants */15min Discord
 
-**Origem e endereço:** projeto pessoal de [@totobusnello](https://github.com/totobusnello) (Toto), CEO/CFO/CTO/CPO/CMO em 5 frentes simultâneas, incubando NOX-Supermem (produto comercial Brasil/Hotmart) sobre essa base. Capacity realista ~6h/sem; arquitetura calibrada pra essa restrição (escolhe simples sobre clever, prefere defer feature sobre tech debt).
+**Origem e endereço:** projeto pessoal de [@totobusnello](https://github.com/totobusnello) (Toto), construído solo. Capacity realista ~6h/sem; arquitetura calibrada pra essa restrição — escolhe simples sobre clever, prefere defer feature sobre tech debt.
 
 ---
 
