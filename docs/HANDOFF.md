@@ -1,10 +1,43 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-02 ~19:00 BRT (**Auditoria 2 dias + 5 fixes top-priority**)
-> Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
-> Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
+> **Atualizado:** 2026-05-02 ~19:18 BRT (**E03a SPO injection deployed shadow-mode**)
 
-## Sessão atual (2026-05-02 tarde) — Verificação retry E02 + auditoria 2 dias com 4 agents + 5 fixes
+## Sessão atual (2026-05-02 noite ~19:00→19:18 BRT) — E03a SPO injection ✅ DONE shadow-mode
+
+### Resultado: ✅ vault-facts compute+log rodando em prod, surface deferred pra E03b (7d)
+
+**Implementação (real ~1.2h vs estimate 1.5h):**
+- ✅ `src/lib/spo-injection.ts` (~210 LOC) — extract entities + lookup top-K com FK JOIN + format SPO + budget bimodal + sanitize (security M1) + orchestrator
+- ✅ `src/api-server.ts` patch — envelope `{ results, vaultFacts? }` em `/api/search` (mode active surface, shadow não)
+- ✅ `src/__tests__/spo-injection.test.ts` (~230 LOC) — 17 cenários cobrindo extract/lookup/format/budget/modes/sanitization
+- ✅ 3 env vars adicionadas (`NOX_VAULT_FACTS_MODE=shadow`, `_LOG=1`, `_K=8`)
+- ✅ Build limpa + `systemctl restart nox-mem-api` healthy
+
+**2 bugs achados durante impl + corrigidos mesma sessão:**
+1. **Schema mismatch spec vs realidade** — spec assumiu `kg_relations.subject/object/relation` inline strings; realidade são FK ids `source_entity_id/target_entity_id/relation_type` → kg_entities. Fix: SQL com JOIN dual.
+2. **Regex Unicode boundary bug** — `\b(por qu[eê])\b` falha em "por quê" porque JS regex sem flag `u` não trata `ê` como word char → boundary final inválida. Fix: lookbehind+lookahead `(?<=^|\s)(...)(?=\s|[.,?!]|$)`.
+
+**Smoke prod (mode=shadow):**
+```
+[vault-facts] mode=shadow query="qual modelo nox-mem" entities=1 triples=7 tokens=55 budget=200
+[vault-facts] mode=shadow query="Toto"                entities=1 triples=7 tokens=57 budget=200
+```
+
+**Testes totais:** 49/50 pass + 1 skip intencional (vec0 absent), 0 fail.
+
+**Backups:**
+- `src/api-server.ts.bak-pre-e03a-20260502-191XXX`
+- `/root/.openclaw/.env.bak-pre-e03a-20260502-191XXX`
+
+### Próxima ação
+- **E04a impl** (focus boost com cache hardened) — ~1.5h, schema zero-mudança
+- E03b activate gate: 2026-05-09 (7d wall-clock após shadow)
+  - Critério primary: Toto reporta utility ≥7/10 em ≥3 turns
+  - Critério secondary: ≥50 turns em 7d com `<vault-facts>` gerado, KG hit rate ≥30%
+
+---
+
+## Sessão anterior (2026-05-02 tarde) — Verificação retry E02 + auditoria 2 dias com 4 agents + 5 fixes
 
 ### Resultado: ✅ retry E02 finalizado + auditoria fechou 5 holes (1 CRITICAL, 1 HIGH security, 2 HIGH consistency, 1 fix prod)
 
