@@ -174,7 +174,7 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 - Tier 1 (markdown/text) ingest funcional
 - Pipeline de enrichment classificado por importancia
 
-**Falta (E02):** Tier 2 PDFs (4.432 PDFs HD Mac) — 15-25h I/O bound, gated em G03 archive.
+**Em progresso (E02 🔄):** Tier 2 PDFs — gap real 954 (não 2.269 estimados); cobertura A6 = 79% (3.541/4.495); retry NUVIVI+CONTRATOS rodando background (+1.236 chunks ingestados). Gap residual ~728 PDFs → E12 Tier 3 OCR (escopo expandido).
 
 ### Fase 4 — Obsidian View-Only (Abr 2026) ✅ DONE
 
@@ -224,23 +224,24 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 
 ---
 
-### 🔴 Fase atual — Pre-Gate (04-27 → 04-30) 🟡 IN-PROGRESS
+### ✅ Fase concluída — Pre-Gate + Gates G01-G03 (04-27 → 05-01)
 
-**Goal:** Sistema saudavel em holding pattern + 1 P0 critico antes do gate G01.
+**Resultado:** Sistema healthy + 3 gates fechados + 4 foundation items DONE + 5 design specs criadas.
 
-**Em curso:**
-- **F09 off-site backup rclone → B2/R2** (1h, P0 antes G01) — risco catastrofico vs custo trivial (US$1-2/mes)
-- Opcional: design specs E03a + E04a (~80min)
-- Opcional: decisao "Fase 1.7b dormente vs E09 executavel" (~30min)
+**Entregue:**
+- ✅ **G01 Salience activation** (04-30) — `recency × pain × importance` ativa em `/api/health.salience`
+- ✅ **G02 Section_boost** (05-01) — shadow→active após análise 7d (compiled +100% / frontmatter +49% / timeline -17%)
+- ✅ **G03 Archive 3 source files** (05-01) — `memory/{projects,decisions,lessons}.md → .archived-20260502` + 8 chunks órfãos cleanup
+- ✅ **F12 Gemini SPOF playbook** (05-01) — Tier 1/2/3 mitigation em `docs/RUNBOOKS.md`
+- ✅ **F13 Cost projection alt** (05-01) — 4 cenários 12mo + switch OpenAI 1h
+- ✅ **F14 DR drill** (05-01) — script + cron quarterly instalado, próxima execução auto 2026-07-06
+- ✅ **3 bug fixes** — `db.ts` honra `NOX_DB_PATH`, PRAGMA `user_version` aligned 10/10, 27/27 tests pass
+- 🤔 **5 design specs** — E03a / E04a / F10 / R01a revalidated / F14 quarterly (prontas pra impl Maio)
+- ❌ **F09 off-site backup CUT (D22)** — user rejected 2x (VPS Hostinger native suffices)
 
-### ⏳ G01-G03 Window (04-30 → 05-02) — gates ATIVOS
+### 🔄 Fase atual — Implementation Maio (post-gates)
 
-**Goal:** Validar 3 features em shadow-mode 7d e ativar/decidir.
-
-**Sera feito:**
-- **G01 Salience activation** (04-30): `activate-salience.sh check` → `--apply` se baseline 7d OK
-- **G02 Section_boost decision** (05-01): `analyze-shadow-telemetry.sh 7` → ativar boost se delta recall positivo
-- **G03 Archive 3 source files** (05-02): mover projects/decisions/lessons.md para `.archived-20260502`
+**Goal:** Implementar specs já validadas + finalizar E02 retry + Wave 1 core.
 
 ### 📋 Wave 1 — Memory Graph Maturity (Maio-Jun 2026)
 
@@ -324,13 +325,19 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 | **F08** | B3 backlog sprint 7/8 (issue + CONVENTIONS + alerts + playbooks) | ✅ DONE | 2026-04-27 | 1h45m total |
 | **F11** | RUNBOOKS.md formalizado (RB-01 a RB-10 incident playbooks) | ✅ DONE | 2026-04-27 | 902 LOC, 10 cenarios |
 | **E01 / 4** | Obsidian view-only (Python gen 430 LOC + cron+launchd) | ✅ DONE | 2026-04-26 | destrava Fase P em 30d |
-| **F09** ⭐ | Off-site backup rclone → B2/R2 (retention 30d remoto) | 🚀 PRE-GATE P0 | ate 2026-04-29 | 1h, risco catastrofico vs custo trivial |
-| **G01** | Salience activation | ⏳ GATE | **2026-04-30** | `activate-salience.sh --apply` se baseline 7d OK |
-| **G02** | Section_boost decision | ⏳ GATE | **2026-05-01** | `analyze-shadow-telemetry.sh 7` |
-| **G03** | Archive 3 source files (.archived-20260502) | ⏳ GATE | **2026-05-02** | projects/decisions/lessons.md |
-| **E02 / 3 Tier 2** | Tier 2 PDFs text-layer (4.432 PDFs HD Mac) | 📋 POST-GATE (paralelo) | 2026-05-02+ | dias I/O bound, rate-limit Gemini risk |
-| **E03a/b** | A6 Entity-Facts SPO Injection (`<vault-facts>` block via KG) | 🤔 CANDIDATE | 2026-05-02+ | 1.5h impl + 7d wall + 0.2h activate |
-| **E04a/b** | A7 Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×) | 🤔 CANDIDATE | 2026-05-02+ | 1.5h impl + 7d shadow + 0.3h activate |
+| **F09** ⭐ | ~~Off-site backup rclone → B2/R2~~ → **D22 ❌ CUT** (user rejected 2x — VPS Hostinger native backup suffices) | ❌ CUT | 2026-04-29 | ver `docs/DECISIONS.md` linha 246 |
+| **G01** | Salience activation `recency × pain × importance` em `/api/health.salience` | ✅ DONE | **2026-04-30** | `NOX_SALIENCE_MODE=active` aplicado pós-baseline 7d OK |
+| **G02** | Section_boost shadow→active (compiled +100% n=1252, frontmatter +49% n=315, timeline -17% n=11) | ✅ DONE | **2026-05-01** | `.env NOX_SECTION_BOOST_MODE=active` + services restarted |
+| **G03** | Archive 3 source files `memory/{projects,decisions,lessons}.md → .archived-20260502` + cleanup 8 chunks órfãos | ✅ DONE | **2026-05-01** | DB 62.927 → 62.919 via better-sqlite3 cascade |
+| **F12** | Embedding model migration playbook — Gemini SPOF mitigation Tier 1/2/3 | ✅ DONE | **2026-05-01** | RB-05 em `docs/RUNBOOKS.md` |
+| **F13** | Cost projection pay-per-token alternative (4 cenários 12mo + switch OpenAI 1h + 7 providers) | ✅ DONE | **2026-05-01** | `runbooks/cost-projection-alt-providers.md` |
+| **F14** | DR drill trimestral — script `dr-drill.sh` + cron `0 9 1 1,4,7,10 1` instalado, RTO 3s validado | ✅ DONE | **2026-05-01** | próxima execução auto 2026-07-06 |
+| **E02 / 3 Tier 2** | Tier 2 PDFs (gap real 954, cobertura A6 = 79% / 3.541 ingested + retry NUVIVI/CONTRATOS +1.236 chunks) | 🔄 IN-PROGRESS | 2026-05-01 | gap residual ~728 → E12 OCR; E12 escopo expandido |
+| **F10** | Observability dashboard (4 painéis IndexedDB ring buffer 7d no agent-hub-dashboard) | 🤔 SPEC READY | 2026-05-01 | spec `specs/2026-05-01-F10-observability-dashboard.md`, impl 2.5-3h Maio |
+| **E03a** | A6 Entity-Facts SPO Injection (`<vault-facts>` block via KG, top-K simples, schema zero-mudança) | 🤔 SPEC READY | 2026-05-01 | spec `specs/2026-05-01-E03a-spo-injection.md`, impl 1.5h |
+| **E03b** | A6 activate após 7d subjective utility report | 📋 QUEUED | post-E03a + 7d wall | 0.2h |
+| **E04a** | A7 Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×, cache TTL 7d) | 🤔 SPEC READY | 2026-05-01 | spec `specs/2026-05-01-E04a-focus-boost.md`, impl 1.5h |
+| **E04b** | A7 activate após 7d shadow + delta recall ≥3% | 📋 QUEUED | post-E04a + 7d shadow | 0.3h |
 | **E05 / W1.1** | Edge typing FULL (relation_reason enum 7 + confidence REAL, kg_relations v11) | 🟣 WAVE 1 Maio-Jun | gated por metricas | 8-10h, shadow 7d antes ranking |
 | **E06 / W1.2** | `nox-mem detect-changes --since=<commit>` read-only git diff→entities | 🟣 WAVE 1 Jun | depende E05 | 2-3h |
 | **E07 / W1.3** | `nox-mem impact <entity>` 1-hop blast radius via kg_relations | 🟣 WAVE 1 Jun-Jul | E05 active (nao shadow) | 2.5h |
@@ -341,10 +348,7 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 | **E09 / W1.5** | A-MEM auto-keywords/links no ingest (funde Fase 1.7b dormente) | 🤔 CANDIDATE Ago | E05 active obrigatorio | 5-6h |
 | **E10 / W2.2** | Consolidation merge + contradiction detection (entity-anchor val) | 🤔 CANDIDATE Jul | gated nDCG≥0.6 + dry-run zero FP | 3-4h |
 | **R02 / W3.1** | Paper v2 (Affective Ranking + Multi-Agent Federation + Bridge Mode) | 🟣 WAVE 3 Ago | depende R01c baseline | 5-6h cognitive floor |
-| **F10** | Observability dashboard (Grafana ou /api/health time-series) | 📋 QUEUED Maio | — | 2-3h |
-| **F12** | Embedding model migration playbook (Gemini SPOF mitigation) | 📋 QUEUED Maio | shadow-index trimestral | 1h |
-| **F13** | Cost projection pay-per-token alternative (Max OAuth backup) | 📋 QUEUED Maio | — | 1h |
-| **F14** | DR drill trimestral (restore snapshot + smoke check) | 📋 QUEUED | Jul/Out/Jan | 1h × 3 |
+| **E12 / 3 Tier 3** | Tier 3 OCR — escopo expandido inclui ~728 PDFs gap E02 (PPR 372 + PESSOAL 250 + size-rejected ~106) + Fathom + Path C | 📋 QUEUED | post-E02 | dias |
 | **3 Tier 3** | OCR Gemini PDFs scaneados (opcional) | 🔒 OPCIONAL | — | dias |
 | **3.5** | Fathom API (opcional, paralela) | 🔒 OPCIONAL | — | 3-4h |
 | **E11 / Path B-lite** | Reflect cache (semantic key) | 🔒 BLOCKED Set+ | depende telemetria reflect | 1.5-3h |
@@ -354,7 +358,7 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 | **F16** | Telegram bot rollback automatico (health-check 30min) | 🔒 BACKLOG | fora orcamento atual | 4h |
 | **P01 / Fase P** | Productizacao NOX-Supermem (Fase 4b → 5 → P) | 🔒 HORIZONTE 60d+ | depende Fase 4 estavel 30d (>= 05-26) | semanas |
 
-**Legenda:** ✅ DONE / 🚀 PRE-GATE (HOJE→04-29) / ⏳ GATE / 📋 POST-GATE / 🟣 WAVE FUTURA (gated por metricas) / 🤔 CANDIDATE (POC + 7d shadow) / 🔒 BLOCKED ou FUTURO / 🟡 EM ANDAMENTO
+**Legenda:** ✅ DONE / 🔄 IN-PROGRESS / 🤔 SPEC READY (impl pendente) / 📋 QUEUED / 🟣 WAVE FUTURA (gated por metricas) / 🤔 CANDIDATE (POC + 7d shadow) / 🔒 BLOCKED ou FUTURO / ❌ CUT
 
 **Sistema unificado de IDs F/E/R/P/G/D** substitui 6+ namespaces antigos (A/B/W/Q/Fase/Phase). Cross-ref completo em [`docs/ROADMAP.md §8`](docs/ROADMAP.md). Items DEFERRED/CUT (D01-D21) em [`docs/ROADMAP.md §4`](docs/ROADMAP.md#4-tabela-mestre-cronologica).
 

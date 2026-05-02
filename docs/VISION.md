@@ -86,14 +86,22 @@ Nox responde na hora, com fonte citada.
 | **A0** | Query logging + golden-tag | ✅ DONE | 2026-04-25 ~10:45 BRT | Migration aditiva search_telemetry +4 cols, opt-in via NOX_SEARCH_LOG_TEXT |
 | **A1** | Audit log + snapshot pré-op atômico (v2 hardened) | ✅ DONE | 2026-04-25 ~12:50 BRT (v1) + ~16:30 BRT (v2) | src/lib/op-audit.ts: withOpAudit() fail-closed + safeRestore() + reapZombies(); audit duplo expôs 27 findings, 5 CRITICAL/HIGH fixados (filename collision/path traversal/VACUUM atomicity/schema version/WAL órfãos); ver audits/2026-04-25-A1-A2-review.md + runbooks/recovery-from-snapshot.md |
 | **A2** | Ingest-router unified (single dispatch) | ✅ DONE | 2026-04-25 ~14:00 BRT | src/lib/ingest-router.ts routeIngest() em 4 callers; defesa em camadas |
-| GATE | Salience activation | ⏳ GATE | 2026-04-30 | `activate-salience.sh --apply` |
-| GATE | Section_boost decision | ⏳ GATE | 2026-05-01 | `analyze-shadow-telemetry.sh 7` |
+| **G01** | Salience activation `recency × pain × importance` em `/api/health.salience` | ✅ DONE | 2026-04-30 | `NOX_SALIENCE_MODE=active` aplicado pós-baseline 7d OK |
+| **G02** | Section_boost shadow→active (compiled +100% n=1252 / frontmatter +49% n=315 / timeline -17% n=11) | ✅ DONE | 2026-05-01 | `.env` `NOX_SECTION_BOOST_MODE=active` + services restarted |
+| **G03** | Archive 3 source files `memory/{projects,decisions,lessons}.md → .archived-20260502` + cleanup 8 chunks órfãos | ✅ DONE | 2026-05-01 | `mv` + DELETE via better-sqlite3 (vec0 cascade) |
 | **A3** | Unit tests parseRetentionOverride (14 cases) | ✅ DONE | 2026-04-25 ~15:55 BRT | node:test built-in, 14/14 pass |
 | **A4** | Canary invariants extension (4 invariants */15min) | ✅ DONE | 2026-04-25 ~16:01 BRT | check-schema-invariants.sh com Discord alert |
 | **A5** | Dry-run mode em reindex+consolidate | ✅ DONE | 2026-04-25 ~16:30 BRT | --dry-run flag CLI, JSON preview wouldDelete/wouldProcess/protected; compact já tinha; crystallize defer |
 | **4** | Obsidian view-only | ✅ DONE | 2026-04-26 | Antecipado pré-gate. Generator Python (`/root/.openclaw/scripts/export-obsidian-vault.py`, 430 LOC) gera vault em `/root/ObsidianVault-build/` (199 .md, 184 entities + KG index Dataview + by-type breakdowns). Cron 02:30 BRT VPS + launchd 03:00 BRT Mac (rsync via Tailscale `100.87.8.44`, excludes preservam customizações local-only). Mac vault: Things 2 theme + dark mode + 5 plugins (Dataview/BRAT/3D Graph/Graph Analysis/Juggl) + 5 graph snippets pra alternar vibe (galaxy-nox/cyberpunk/retrowave/minimal-pro/matrix). Color groups por tag singular (project/decision/lesson/agent/system/kg/index). **Fase P agora destravada** — precisa "Fase 4 estável 30d" antes de productizar. Audit doc: `audits/2026-04-26-B1-obsidian-view-only.md`. |
-| 3 Tier 2 | PDFs text-layer (4432 PDFs) | ⏳ POST-GATE (paralelo) | 2026-05-02+ | dias |
-| Backlog | #4 issue + #5 docs + #7 alert + #8 playbooks | ⏳ POST-GATE | 2026-05-02+ | 1h45 |
+| **E02** Tier 2 | PDFs text-layer (gap real 954, cobertura A6 = 79% / 3.541 ingested) | 🔄 IN-PROGRESS | 2026-05-01 | retry NUVIVI+CONTRATOS rodando background, +1.236 chunks já ingestados; gap residual ~728 → E12 OCR |
+| **F08** Backlog | #4 issue + #5 docs + #7 alert + #8 playbooks | ✅ DONE | 2026-04-27 | sprint B3 fechado |
+| **F11** RUNBOOKS | Incident playbooks RB-01 a RB-10 formalizados | ✅ DONE | 2026-04-29 | `docs/RUNBOOKS.md` |
+| **F12** | Gemini SPOF mitigation Tier 1/2/3 (FTS-fallback / OpenAI+Voyage / shadow-index trimestral) | ✅ DONE | 2026-05-01 | RB-05 em `docs/RUNBOOKS.md` |
+| **F13** | Cost projection alt providers (4 cenários 12mo + switch OpenAI 1h) | ✅ DONE | 2026-05-01 | `runbooks/cost-projection-alt-providers.md` |
+| **F14** | DR drill quarterly — script + cron `0 9 1 1,4,7,10 1` instalado, RTO 3s validado | ✅ DONE | 2026-05-01 | próxima execução auto 2026-07-06 |
+| **F10** | Observability dashboard (4 painéis IndexedDB ring buffer 7d) | 🤔 SPEC READY | 2026-05-01 | spec `specs/2026-05-01-F10-observability-dashboard.md`, impl 2.5-3h Maio |
+| **E03a** | A6 SPO Injection (`<vault-facts>` block via KG) | 🤔 SPEC READY | 2026-05-01 | spec `specs/2026-05-01-E03a-spo-injection.md`, impl 1.5h |
+| **E04a** | A7 Focus Boost (`focus set <topic>` 1.4×/0.75×) | 🤔 SPEC READY | 2026-05-01 | spec `specs/2026-05-01-E04a-focus-boost.md`, impl 1.5h |
 | **W1** | Memory Graph Maturity Wave 1 (edge typing, detect-changes, impact, api_impact) | 🔮 Maio 2026 | gated por métricas | 27-30h |
 | **W2** | Wave 2 (eval harness completo) | 🔮 Jun-Jul 2026 | depende W1 + golden curated | 14-20h |
 | **W3** | Wave 3 (paper v2: Affective + Federation + Bridge Mode) | 🔮 Ago 2026 | depende W2 nDCG baseline | 5-8h |
@@ -105,7 +113,7 @@ Nox responde na hora, com fonte citada.
 | SEH | Self-Evolving Hooks | 🔒 INDEPENDENTE | — | 2h |
 | **P** | Productização NOX-Supermem | 🔒 HORIZONTE 60d+ | depende Fase 4 estável 30d | semanas |
 
-Legenda: ✅ DONE / 🔜 PRE-GATE (HOJE→04-29) / ⏳ GATE ou POST-GATE / 🔮 WAVE FUTURA (gated por métricas) / 🔒 BLOCKED ou FUTURO / 🟡 EM ANDAMENTO
+Legenda: ✅ DONE / 🤔 SPEC READY (impl pendente) / 🔄 IN-PROGRESS / 🔮 WAVE FUTURA (gated por métricas) / 🔒 BLOCKED ou FUTURO / 🟡 EM ANDAMENTO
 
 ---
 

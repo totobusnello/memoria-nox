@@ -1,7 +1,7 @@
 # nox-mem ROADMAP — single source of truth
 
 > **Canônico desde 2026-04-27.** Sistema unificado de IDs (F/E/R/P/G/D) substitui os 6+ namespaces antigos (A/B/W/Q/Fase/Phase). Cross-ref em §8.
-> **Última atualização:** 2026-04-27 manhã, pós-review por architect + critic + architect-reviewer (correções aplicadas).
+> **Última atualização:** 2026-05-01 noite, pós-marathon (G01/G02/G03 fechados, F12/F13/F14 done, E02 IN-PROGRESS, 5 specs criadas, 3 bug fixes).
 > Para "por quê" de qualquer decisão → `docs/DECISIONS.md`. Para estado atual → `docs/HANDOFF.md`.
 
 ---
@@ -9,15 +9,36 @@
 ## 1. Estado atual
 
 ```
-Sistema:        nox-mem v3.7+, schema v10, ops_audit append-only
-Chunks:         62836 (100% embedded, 0 gap) — pós-Sprint A1+A3+A4+A5+A6 ingest
-DB size:        1.016 GB (era 318MB pré-A1, +220% / TRIPLICOU)
+Sistema:        nox-mem v3.7+, schema v10 (PRAGMA user_version aligned 10/10), ops_audit append-only
+Chunks:         64.155 (100% embedded, 0 gap) — pós-Sprint A1+A3+A4+A5+A6 + G03 cleanup + retry NUVIVI/CONTRATOS
+DB size:        ~1.05 GB
 Agentes:        7 (1 main Maestro + 6 personas: nox/atlas/boris/cipher/forge/lex)
-OpenClaw:       v2026.4.26 (.24 quebrado, .25 wizard adoption, .26 pós optimization marathon 04-28)
+OpenClaw:       v2026.4.29 (.24 quebrado, .25 wizard adoption, .26 optimization marathon 04-28, .29 zero-downtime upgrade 04-30)
+Salience:       active (G01 ✅ 2026-04-30) | Section_boost: active (G02 ✅ 2026-05-01)
+Tests:          27/27 pass (retention 20 + op-audit-e2e 7)
 Improvements:   13/13 OK (audit baseline)
 Capacity:       ~6h/semana realista até Set/2026 (CEO em 5 frentes)
 Margem incident: 20h reservadas (histórico: 4 incidents em 2 dias 04-25/26)
 ```
+
+### Sessão 2026-05-01 noite delivered (marathon ~20h30→21h30 BRT, 15 deliverables)
+
+Closeout de gates + foundation hardening + design specs Maio:
+- **G02 ✅ DONE** section_boost shadow→active após análise 7d (compiled +100% n=1252, frontmatter +49% n=315, timeline -17% n=11). `.env` `NOX_SECTION_BOOST_MODE=active`, services restarted.
+- **G03 ✅ DONE** archive `memory/{projects,decisions,lessons}.md → .archived-20260502`. 8 chunks órfãos cleanup via better-sqlite3 (cascade trigger). DB 62.927 → 62.919.
+- **F12 ✅ DONE** RB-05 Gemini SPOF playbook (Tier 1 FTS-fallback / Tier 2 OpenAI+Voyage / Tier 3 shadow-index trimestral) appended em `docs/RUNBOOKS.md`.
+- **F13 ✅ DONE** cost projection 4 cenários 12mo + switch plan emergencial OpenAI 1h + comparativo 7 providers em `runbooks/cost-projection-alt-providers.md`.
+- **F14 ✅ DONE** DR drill: script `dr-drill.sh` standalone idempotente (lockfile, JSON log, Discord webhook, dual schema check); cron `0 9 1 1,4,7,10 1` instalado; próxima execução auto 2026-07-06; smoke test OK.
+- **E02 🔄 IN-PROGRESS** audit revelou gap real 954 PDFs (não 2.269); cobertura A6 = 79% (3.541/4.495). Retry B-target NUVIVI+CONTRATOS (226 PDFs): 22 CONV / 12 ERR / 192 SCANNED → 23 .md gerados → +1.236 chunks ingestados. E12 escopo expandido pra ~728 PDFs gap residual.
+- **5 specs criadas:** E03a SPO injection (1.5h impl), E04a focus boost (1.5h impl), F10 observability dashboard (2.5-3h impl), R01a eval harness revalidated (5h estimate), F14 DR drill quarterly.
+- **3 bug fixes:** #1 `src/db.ts:7` honra `NOX_DB_PATH` env (priority NOX_DB_PATH > OPENCLAW_WORKSPACE > __dirname) + test setupDb refeito → 27/27 tests pass; #2 PRAGMA `user_version` aligned 0→10 com `meta.schema_version`; #3 cleanup 8 chunks órfãos G03.
+
+**Estado final pós-sessão:** chunks 64.155 / 100% embedded / salience active / section_boost active / schema v10 aligned / 27/27 tests pass.
+
+### Sessão 2026-04-30 delivered (G01 + audit fixes)
+- **G01 ✅ DONE** salience activation `recency × pain × importance` exposta em `/api/health.salience`. `NOX_SALIENCE_MODE=active` aplicado pós baseline 7d OK.
+- 7 CRITICAL fixes pós-marathon audit (apiKeys literais, gitleaks, db perms 644→640, 4 races/leaks).
+- **OpenClaw upgrade** v2026.4.26 → v2026.4.29 zero-downtime (script Phase 5/6 auto-restaura baseUrl + RelayPlane inactive).
 
 ### Sprint A1 + A3 delivered (2026-04-27)
 
@@ -86,9 +107,9 @@ Velocity buckets aplicados (corrigidos pós-review crítico):
 
 | ID | Data | Item | Status | h | Comando |
 |---|---|---|---|---|---|
-| **G01** | **2026-04-30** | Salience activation (`activate-salience.sh --apply` se baseline 7d OK) | ⏳ GATED | 0.1 | `bash /root/.openclaw/scripts/activate-salience.sh check` |
-| **G02** | **2026-05-01** | Section_boost decision | ⏳ GATED | 0.3 | `bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7` |
-| **G03** | **2026-05-02** | Archive 3 source files `.archived-20260502` (projects/decisions/lessons.md) | ⏳ GATED | 0.1 | manual `mv` |
+| **G01** | **2026-04-30** | Salience activation `recency × pain × importance` ativa em `/api/health.salience` | ✅ DONE | 0.1 | aplicado via `activate-salience.sh --apply` após baseline 7d OK |
+| **G02** | **2026-05-01** | Section_boost shadow→active (compiled +100% n=1252 / frontmatter +49% n=315 / timeline -17% n=11 confirmou ranking previsto) | ✅ DONE | 0.3 | `.env` `NOX_SECTION_BOOST_MODE=active` + services restarted |
+| **G03** | **2026-05-01** | Archive 3 source files `memory/{projects,decisions,lessons}.md → .archived-20260502` + cleanup 8 chunks órfãos | ✅ DONE | 0.1 | `mv` + DELETE via better-sqlite3 (vec0 cascade) |
 
 ### Evolution (Maio-Set)
 
@@ -159,20 +180,22 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 
 ---
 
-## 5. Capacity tracker (recalibrado pós-review)
+## 5. Capacity tracker (recalibrado pós-review + atualizado 2026-05-01)
 
 ```
-Disponível 04-27 → 09-30:        ~22 semanas × 6h/sem realista = 132h
+Disponível 05-02 → 09-30:        ~21 semanas × 6h/sem realista = 126h
 Margem incident:                 -20h reservadas (histórico: 4 incidents 2 dias)
-Capacity líquida:                ~112h
+Capacity líquida:                ~106h
+
+Já queimado (Abr 27 → Mai 01):   ~22h (gates G01-G03 + F12-F14 + F02-F08 + bug fixes + 5 specs)
 
 Compromissado núcleo (estimates honestos pós-review):
   F09 off-site backup:           ❌ CUT (D22) — não conta
-  F10 observability dashboard:   2-3h
-  F12 Gemini SPOF playbook:      1h
-  F13 cost projection alt:       1h
-  F14 DR drill (1 inicial):      1h
-  E02 Tier 2 PDFs (I/O):         15-25h ← paralelo possível
+  F10 observability dashboard:   2.5-3h ← spec ready, impl Maio
+  F12 Gemini SPOF playbook:      ✅ DONE 2026-05-01 (1h)
+  F13 cost projection alt:       ✅ DONE 2026-05-01 (1h)
+  F14 DR drill (1 inicial):      ✅ DONE 2026-05-01 (1.5h cron+script)
+  E02 Tier 2 PDFs (I/O):         15-25h IN-PROGRESS ← retry rodando background
   E05 Edge typing FULL:          8-10h  ← greenfield 0.7×
   E06 detect-changes:            2-3h
   E07 impact:                    2.5h
@@ -182,7 +205,7 @@ Compromissado núcleo (estimates honestos pós-review):
   R01c baseline + publish:       1-2h
   R02 paper v2:                  5-6h   ← writing tem floor
                                  ───────
-Subtotal núcleo:                 52-71h (sem F09)
+Subtotal núcleo:                 52-71h total (já 3.5h done = restam 48.5-67.5h)
 
 Candidates Section 9:
   E03a/b A6 implement+activate:  1.7h
@@ -198,9 +221,11 @@ Bloco V (Set+):
   E12/P01 dias-semanas:          out-of-budget Maio-Ago
                                  ───────
 
-TOTAL núcleo + candidates + small Set+:  67-89h vs 112h capacity líquida
+TOTAL núcleo + candidates + small Set+:  67-89h total vs 106h capacity restante (2026-05-02 forward)
 
-Sobra realista:                  +23 a +45h (margem confortável)
+Já entregue:                     ~22h queimadas (gates fechados, foundation)
+Restante a queimar:               ~45-67h
+Sobra realista:                  +39 a +61h (margem mais confortável que estimate inicial)
 ```
 
 **Diferença vs estimate ingênuo anterior:**
@@ -237,19 +262,17 @@ Sobra realista:                  +23 a +45h (margem confortável)
 ## 7. Critical path & ordering (revisado)
 
 ```
-HOJE 04-29 ──┐
-             │ (F09 CUT — sem prerequisite)
-             ▼
-[G01 salience activation 04-30] ──→ [G02 section_boost 05-01] ──→ [G03 archive 05-02]   0.5h serial / 5d wall
-             │
-             ▼
-[E02 Tier 2 PDFs 15-25h I/O paralelo] ════════════════════════════════════════════│
+HOJE 05-01 NOITE ──┐
+                   │ (Gates G01/G02/G03 ✅ DONE | F12/F13/F14 ✅ DONE | F09 CUT D22)
+                   ▼
+[E02 Tier 2 PDFs IN-PROGRESS — retry NUVIVI/CONTRATOS background] ═══════════════│
              │                                                                    │
-             ├──→ [E03a A6 implement 05-02] ──→ shadow 7d ──→ [E03b activate 05-09]
-             ├──→ [E04a A7 implement 05-02] ──→ shadow 7d ──→ [E04b activate 05-09]
+             ├──→ [E03a A6 implement 1.5h Maio] ──→ shadow 7d ──→ [E03b activate]
+             ├──→ [E04a A7 implement 1.5h Maio] ──→ shadow 7d ──→ [E04b activate]
+             ├──→ [F10 dashboard impl 2.5-3h Maio] (paralelo, agent-hub-dashboard)
              │
              ▼
-[R01a eval skeleton 4-6h MAIO] ◀── MOVED earlier pra baseline-first      │
+[R01a eval skeleton 4-6h MAIO] ◀── baseline-first                        │
              │                                                            │
              ▼                                                            │
 [E05 edge typing 8-10h] ──→ shadow 7d ──→ E05 active                     │
@@ -375,42 +398,63 @@ Próximo update VISION.md: pós-G01/G02/G03 (capturar resultado dos gates).
 
 ## 10. Próxima ação concreta (referência rápida)
 
-Hoje é **2026-04-29** (quarta).
+Hoje é **2026-05-01 noite** (sexta). Gates G01/G02/G03 ✅ fechados, F12/F13/F14 ✅ done. Foco shifta pra implementação Maio.
 
-### Antes de G01 (amanhã!)
-- ~~F09 off-site backup~~ ❌ CUT (D22)
-- **Audit pós-marathon** (em andamento 2026-04-29) — drift docs + security + code review A1-A6
-- Opcional: design specs E03a + E04a (A6/A7 implementation, ~1h cada)
-- Opcional: investigar 1.7b dormente vs E09 (1h)
+### O que já foi entregue (recap pós-marathon)
+- ✅ G01 salience active (04-30) | G02 section_boost active (05-01) | G03 archive done (05-01)
+- ✅ F12 Gemini SPOF playbook | F13 cost projection alt | F14 DR drill (cron quarterly instalado)
+- ✅ 5 specs (E03a / E04a / F10 / R01a revalidated / F14 quarterly) — prontas pra impl
+- ✅ 3 bug fixes (db.ts NOX_DB_PATH, PRAGMA user_version aligned 10/10, 8 chunks órfãos G03)
+- ✅ 27/27 tests pass | chunks 64.155 / 100% embedded
 
-### G01-G03 window (04-30 → 05-02)
-- 04-30 manhã: `bash /root/.openclaw/scripts/activate-salience.sh check`
-- 05-01 manhã: `bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7`
-- 05-02: archive 3 source files + iniciar E03a + E04a + E02
+### O que falta — fila imediata Maio (próxima janela ~6h/sem)
+1. **E02 retry NUVIVI/CONTRATOS** finalizar — verificar tmux session `pdf-retry-e02` na VPS, ingestar .md residuais (watcher pega automático ou `nox-mem reindex` se gap)
+2. **E03a impl** SPO injection (1.5h) — branch paralela, schema zero-mudança, env-var driven shadow→active
+3. **E04a impl** focus boost (1.5h) — branch paralela, cache `/tmp/nox-mem-focus-<session>.json` TTL 7d
+4. **R01a impl** eval harness skeleton (4-6h) — schema v11 (PRAGMA bump 10→11) + tabelas `eval_*` + 5 golden seed queries
+5. **F10 dashboard impl** (2.5-3h) — feat branch no `agent-hub-dashboard`, 4 painéis IndexedDB ring buffer 7d
 
-### Post-gate Maio (parallel-friendly)
-- E02 Tier 2 PDFs (I/O bound — fire-and-forget background)
-- R01a eval skeleton (4-6h, antecipado per architect-reviewer)
-- E05 edge typing (após R01a skeleton pra baseline-first)
-- E03b/E04b activate após shadow 7d
+### Activate gates pendentes (shadow 7d wall-clock após impl)
+- **E03b** — activate SPO após 7d subjective utility report (post-E03a impl)
+- **E04b** — activate focus boost após 7d shadow + delta recall ≥3% (post-E04a impl)
+
+### Wave 1 core (Maio-Jun, post-R01a)
+- **E05** Edge typing FULL (8-10h, greenfield 0.7×) — shadow 7d antes ranking
+- **E06** detect-changes (2-3h) — read-only git diff→entities
+- **E07** impact 1-hop blast radius (2.5h) — depende E05 active
+- **E08** api_impact (1.5h, defer 1º se apertar capacity)
 
 ### Jun-Jul
-- E06/E07 (post-E05 active)
-- R01b curadoria 50 queries (cognitive floor, spread)
-- R01c baseline publish
-- E10 candidate (gated nDCG≥0.6)
+- **R01b** curadoria 50 golden queries (8-10h, cognitive floor, spread)
+- **R01c** baseline FTS-only vs hybrid + publish nDCG@10 em `/api/health.evalMetrics`
+- **E10** consolidation merge candidate (3-4h, gated nDCG≥0.6 + dry-run zero FP)
+- **E12** Tier 3 OCR (escopo expandido ~728 PDFs gap E02 + Fathom + Path C)
 
 ### Ago
-- R02 paper v2
+- **R02** paper v2 (5-6h, writing tem floor cognitivo) — dependent R01c published
 
 ### Set+
-- E11 reflect cache
-- F15 SEH
-- **P01 NOX-Supermem productização** (elegível desde 05-26 + Wave 2 delivered)
+- **E11** reflect cache (1.5h) — depende telemetria reflect 7d
+- **F15** SEH Self-Evolving Hooks (1h)
+- **P01** NOX-Supermem productização (elegível desde 2026-05-26 = E01 estável 30d; Wave 2 NÃO bloqueador per architect-reviewer)
 
 ---
 
-## 11. Mudanças vs versão anterior do ROADMAP (2026-04-27 manhã)
+## 11. Mudanças vs versão anterior do ROADMAP
+
+### 2026-05-01 noite — Marathon closeout (sessão atual)
+
+Sincronização pós-trabalho da sessão noite (commit `9156f50`):
+1. ✅ **G01/G02/G03 todos DONE** — salience active 04-30, section_boost active 05-01, archive 3 files 05-01
+2. ✅ **F12/F13/F14 todos DONE** — Gemini SPOF playbook + cost projection alt + DR drill (cron quarterly instalado)
+3. 🔄 **E02 IN-PROGRESS** — gap real 954 PDFs (não 2.269); cobertura A6 = 79%; retry NUVIVI+CONTRATOS rodando em background (+1.236 chunks ingestados, +1.258 vectorized)
+4. 📋 **E12 escopo expandido** — inclui ~728 PDFs gap residual E02 (PPR 372 + PESSOAL 250 + size-rejected ~106) + Fathom + Path C
+5. 🤔 **E03a/E04a/F10 specs CANDIDATE** — design specs criadas, prontas pra impl Maio (1.5h + 1.5h + 2.5-3h)
+6. ✅ **3 bug fixes** — db.ts honra NOX_DB_PATH; PRAGMA user_version aligned 10/10; 8 chunks órfãos G03 cleanup
+7. ✅ **Estado vivo §1 atualizado** — chunks 62.836 → 64.155 / OpenClaw v.26 → v.29 / salience+section_boost active / 27/27 tests
+8. ✅ **§10 Próxima ação reformulada** — recap pós-marathon + fila imediata Maio (5 itens) + activate gates pendentes E03b/E04b
+
+### 2026-04-27 manhã — Sistema unificado de IDs
 
 Pós-review por 3 agents (architect, critic, architect-reviewer):
 
