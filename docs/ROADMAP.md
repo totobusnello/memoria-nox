@@ -95,7 +95,7 @@ Velocity buckets aplicados (corrigidos pós-review crítico):
 | **F07** | (ops) | OpenClaw upgrade defense system (ckpt + improvements + watcher + orchestrator) | ✅ DONE | 4 | OpenClaw .24 break |
 | **F08** | (backlog) | B3 backlog sprint 7/8 (issue + CONVENTIONS + alert + playbooks) | ✅ DONE | 1.5 | — |
 | **F09** ⭐ | §3,resilience | ~~Off-site backup rclone → B2/R2~~ → moved to **D22 ❌ CUT** (user rejected 2x — VPS Hostinger native backup suffices) | ❌ CUT | — | — |
-| **F10** | §10 | Observability dashboard — spec ready (`/api/health` time-series no agent-hub-dashboard, 4 painéis, IndexedDB ring buffer 7d) | 🤔 CANDIDATE | 2.5-3 | Maio; spec `specs/2026-05-01-F10-observability-dashboard.md` |
+| **F10** | §10 | Observability dashboard — spec ready (`/api/health` time-series no agent-hub-dashboard, 4 painéis, IndexedDB ring buffer 7d) | 🛑 DEFERRED | 2.5-3 (realista 4-5) | trigger: ≥2 features shadow-mode rodando (E03a/E04a) OR R01a publicar evalMetrics. User não usa dashboard agora; impl prematura sem dados pra plotar. Spec `specs/2026-05-01-F10-observability-dashboard.md` continua válido. |
 | **F11** | (incident) | RUNBOOKS.md formalizado (cobre RB-01 a RB-10 — incident playbooks) | ✅ DONE | 2 | — |
 | **F12** | (resilience) | Embedding model migration playbook — Gemini SPOF mitigation Tier 1/2/3 (FTS-fallback / OpenAI+Voyage switch / shadow-index trimestral) | ✅ DONE | 1 | RB-05 em `docs/RUNBOOKS.md` |
 | **F13** | (cost) | Cost projection pay-per-token alternative — 4 cenários 12mo, switch plan emergencial OpenAI 1h, comparativo 7 providers | ✅ DONE | 1 | `runbooks/cost-projection-alt-providers.md` |
@@ -191,7 +191,7 @@ Já queimado (Abr 27 → Mai 01):   ~22h (gates G01-G03 + F12-F14 + F02-F08 + bu
 
 Compromissado núcleo (estimates honestos pós-review):
   F09 off-site backup:           ❌ CUT (D22) — não conta
-  F10 observability dashboard:   2.5-3h ← spec ready, impl Maio
+  F10 observability dashboard:   🛑 DEFERRED 2026-05-02 (user não usa agora; trigger ≥2 features shadow OR R01a evalMetrics) — não conta
   F12 Gemini SPOF playbook:      ✅ DONE 2026-05-01 (1h)
   F13 cost projection alt:       ✅ DONE 2026-05-01 (1h)
   F14 DR drill (1 inicial):      ✅ DONE 2026-05-01 (1.5h cron+script)
@@ -205,7 +205,7 @@ Compromissado núcleo (estimates honestos pós-review):
   R01c baseline + publish:       1-2h
   R02 paper v2:                  5-6h   ← writing tem floor
                                  ───────
-Subtotal núcleo:                 52-71h total (já 3.5h done = restam 48.5-67.5h)
+Subtotal núcleo:                 49.5-68h total (já 3.5h done; F10 deferred -2.5/-3h = restam 46-64.5h)
 
 Candidates Section 9:
   E03a/b A6 implement+activate:  1.7h
@@ -221,11 +221,11 @@ Bloco V (Set+):
   E12/P01 dias-semanas:          out-of-budget Maio-Ago
                                  ───────
 
-TOTAL núcleo + candidates + small Set+:  67-89h total vs 106h capacity restante (2026-05-02 forward)
+TOTAL núcleo + candidates + small Set+:  64-86h total vs 106h capacity restante (2026-05-02 forward, pós-F10 defer)
 
 Já entregue:                     ~22h queimadas (gates fechados, foundation)
-Restante a queimar:               ~45-67h
-Sobra realista:                  +39 a +61h (margem mais confortável que estimate inicial)
+Restante a queimar:               ~42-64h
+Sobra realista:                  +42 a +64h (margem ampliada com F10 defer)
 ```
 
 **Diferença vs estimate ingênuo anterior:**
@@ -408,11 +408,11 @@ Hoje é **2026-05-01 noite** (sexta). Gates G01/G02/G03 ✅ fechados, F12/F13/F1
 - ✅ 27/27 tests pass | chunks 64.155 / 100% embedded
 
 ### O que falta — fila imediata Maio (próxima janela ~6h/sem)
-1. **E02 retry NUVIVI/CONTRATOS** finalizar — verificar tmux session `pdf-retry-e02` na VPS, ingestar .md residuais (watcher pega automático ou `nox-mem reindex` se gap)
+1. ~~**E02 retry NUVIVI/CONTRATOS**~~ ✅ DONE 2026-05-02 (22 CONV / 12 ERR / 192 SCANNED, 23 .md ingestados, +1.246 chunks)
 2. **E03a impl** SPO injection (1.5h) — branch paralela, schema zero-mudança, env-var driven shadow→active
-3. **E04a impl** focus boost (1.5h) — branch paralela, cache `/tmp/nox-mem-focus-<session>.json` TTL 7d
-4. **R01a impl** eval harness skeleton (4-6h) — schema v11 (PRAGMA bump 10→11) + tabelas `eval_*` + 5 golden seed queries
-5. **F10 dashboard impl** (2.5-3h) — feat branch no `agent-hub-dashboard`, 4 painéis IndexedDB ring buffer 7d
+3. **E04a impl** focus boost (1.5h) — branch paralela, cache hardened em `${OPENCLAW_WORKSPACE}/tools/nox-mem/focus/<sha256>.json` mode 0600/0700 (security review H1 mitigado em spec)
+4. **R01a impl** eval harness skeleton (4-6h) — schema v11 (PRAGMA já em 10 pós patch v2; bump 10→11 vai junto) + tabelas `eval_*` + 5 golden seed queries
+5. ~~F10 dashboard~~ 🛑 **DEFERRED** — rebaixado 2026-05-02; trigger: ≥2 features shadow rodando OR R01a publicar evalMetrics
 
 ### Activate gates pendentes (shadow 7d wall-clock após impl)
 - **E03b** — activate SPO após 7d subjective utility report (post-E03a impl)
