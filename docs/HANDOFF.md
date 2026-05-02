@@ -1,8 +1,43 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-02 ~20:30 BRT (**R01b 25/50 cured + baseline n=25 nDCG=0.714 + schedule shadow analysis 2026-05-09 set**)
+> **Atualizado:** 2026-05-02 ~20:35 BRT (**R01b 40/50 cured + baseline n=40 nDCG=0.674 + diagnostic ranking-é-o-problema**)
 
-## Sessão atual (2026-05-02 noite ~19:00→20:30 BRT) — Triple deploy + R01b 25/50 + shadow schedule
+## Sessão atual (2026-05-02 noite ~19:00→20:35 BRT) — Triple deploy + R01b 40/50 + diagnostic novo
+
+### R01b 40/50 cured + baseline n=40 (Run #6)
+
+**Batch 2 (15 queries adicionadas):** mix temporal/cross-agent/security/operational + 2 negative cases novos (Q78 smoke test, Q79 versão OpenClaw — ambos doc gaps reais).
+
+**Eval Run #6 (n=40 hybrid):**
+| Metric | n=25 (#5) | n=40 (#6) | Δ |
+|---|---|---|---|
+| nDCG@10 | 0.714 | **0.674** | -0.040 |
+| MRR | 0.683 | 0.617 | -0.066 |
+| Recall@10 | 0.840 | **0.850** | +0.010 ✅ |
+| Prec@5 | 0.336 | 0.330 | -0.006 |
+
+**By difficulty:** hard=0.768 (n=14), easy=0.689 (n=8), medium=0.593 (n=18)
+**By category:** decision=0.980 ⭐ / concept=0.840 / hard=0.768 / security=0.659 / cross-agent=0.629 / procedure=0.630 / entity=0.567 ⚠️ / temporal=0.417 ⚠️⚠️ / negative=0 ✅
+
+**Diagnostic novo (insight crítico):**
+- **Recall sobe** (0.840 → 0.850) + **MRR cai** (0.683 → 0.617) = sistema **encontra** os chunks certos mas **não rankeia no topo**
+- **Ranking é o problema**, não retrieval
+- Isso é exatamente o que **E05 edge typing FULL** + **D01 cross-encoder reranker** atacam
+
+**Pontos fracos descobertos** (candidatos pra E05/E10 melhorar):
+- **temporal queries** ("quando salience ativado", "primeira lição reindex") — sistema falha em datas + sequence
+- **entity queries fanout** (0.567) — múltiplos arquivos com refs parciais competindo
+- **negative cases** (5 queries com `[]` expected = 0 score esperado) puxam categorias entity/procedure pra baixo
+
+**Trigger D01 (Q5 cross-encoder reranker, ≥0.6) PERSISTE** em sample 8x maior. Aguardar n=50 pra commit definitivo.
+
+### Próxima ação
+- **E05 Edge typing FULL Phase 1** — schema v12 migration + relation_reason CHECK enum 7 + confidence REAL (~3h)
+- R01b restante 10 queries pode esperar Jun-Jul (sample n=40 já é statisticamente decente, prove o trigger D01)
+
+---
+
+## Sessão anterior (2026-05-02 noite ~19:00→20:30 BRT) — Triple deploy + R01b 25/50 + shadow schedule
 
 ### R01b 25/50 cured + baseline n=25
 
