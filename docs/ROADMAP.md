@@ -122,7 +122,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | **E12** | §11 (Tier 3) | Tier 3 OCR — escopo expandido inclui ~728 PDFs gap E02 (PPR 372 + PESSOAL 250 + size-rejected ~106) + Fathom + Path C | 📋 QUEUED | dias | — |
 | **E03a** | (ClawMem Q1) | **A6 implement** Entity-Facts SPO Injection (`<vault-facts>` block via KG) — `src/lib/spo-injection.ts` + envelope `/api/search`; shadow-mode active 2026-05-02 19:16 BRT; smoke OK 1 entity / 7 triples / 55 tokens; 17/17 tests pass | ✅ DONE | 1.5 (real ~1.2h incl. 2 bug fixes) | ≥G03 ✅; v1 sem confidence filter (top-K simples) |
 | **E03b** | — | **A6 activate** após 7d subjective utility report | 🤔 CANDIDATE | 0.2 | ≥E03a + 7d wall |
-| **E04a** | (ClawMem Q2) | **A7 implement** Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×) | 🤔 CANDIDATE | 1.5 | ≥G03 |
+| **E04a** | (ClawMem Q2) | **A7 implement** Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×) — `src/lib/focus.ts` (validação manual sem zod, sha256 session derivation, 0700/0600 perms) + CLI subcommands set/get/clear + search.ts pipeline pré-sort; shadow-mode active 2026-05-02 19:27 BRT; 22/22 tests pass | ✅ DONE | 1.5 (real ~1.0h) | ≥G03 ✅; v1 substring match 50% threshold |
 | **E04b** | — | **A7 activate** após 7d shadow + delta recall ≥3% | 🤔 CANDIDATE | 0.3 | ≥E04a + 7d shadow |
 | **E05** | §11 Wave 1 | Edge typing FULL — `relation_reason` enum 7 + `confidence REAL` (kg_relations v11) | 📋 QUEUED | **8-10** (greenfield 0.7×) | shadow 7d antes ranking |
 | **E06** | §11 | `nox-mem detect-changes --since=<commit>` (read-only git diff→entities) | 📋 QUEUED | 2-3 | — |

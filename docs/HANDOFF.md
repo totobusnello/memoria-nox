@@ -1,8 +1,51 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-02 ~19:18 BRT (**E03a SPO injection deployed shadow-mode**)
+> **Atualizado:** 2026-05-02 ~19:30 BRT (**E03a + E04a both deployed shadow-mode**)
 
-## Sessão atual (2026-05-02 noite ~19:00→19:18 BRT) — E03a SPO injection ✅ DONE shadow-mode
+## Sessão atual (2026-05-02 noite ~19:00→19:30 BRT) — E03a SPO + E04a Focus boost ✅ DONE shadow-mode
+
+### Resultado: ✅ 2 features novas em shadow-mode prod (gate activate em 7d / 2026-05-09)
+
+**E04a Focus Boost (~1.0h vs estimate 1.5h):**
+- ✅ `src/lib/focus.ts` (~250 LOC) — load/save/clear/match/computeBoost/applyFocusBoost/getSessionId; validação manual (sem zod dep nova); sha256 session derivation; perms 0700/0600 hardening (security review H1 mitigado); fail-open completo (corrupted/insecure perms/future set_at/>7d expires)
+- ✅ `src/index.ts` — CLI subcommands `focus set <topic>` / `focus get` / `focus clear` via commander
+- ✅ `src/search.ts` — `applyFocusBoost(allEntries, query)` chamado pré-sort; shadow=log only, active=mutate rrfScore
+- ✅ `src/__tests__/focus.test.ts` (~280 LOC) — 22 cenários: round-trip, perms, expire, match (on/off/neutral), fail-open (5 variantes tamper), session_id determinism + override, boost aditivo, shadow vs active vs off
+- ✅ 4 env vars: `NOX_FOCUS_MODE=shadow`, `NOX_FOCUS_LOG=1`, `NOX_FOCUS_TTL_DAYS=7`, `NOX_FOCUS_SESSION_SALT=<random hex>`, `NOX_FOCUS_SESSION=toto-shared-prod-default` (override pra CLI+API compartilharem session)
+
+**Smoke prod E2E (mode=shadow):**
+```
+$ nox-mem focus set "schema v11 edge typing kg relations"
+focus set: topic="schema v11 edge typing kg relations"
+session: 7cdca681b3e4... | expires: 2026-05-09 | mode: shadow
+
+# query on-topic:
+[focus-shadow] topic="schema v11 edge typing kg relations" query="kg relations schema"
+  matches: on=2 neutral=21 off=3 delta=+0.027
+
+# query off-topic:
+[focus-shadow] topic="..." query="Granix App vendas"
+  matches: on=0 neutral=0 off=28 delta=-0.110
+```
+
+**Testes totais nova baseline:** 71/72 pass + 1 skip (vec0 absent), 0 fail.
+
+**Backups:**
+- `src/search.ts.bak-pre-e04a-20260502-192549`
+- `src/index.ts.bak-pre-e04a-20260502-192549`
+- `/root/.openclaw/.env.bak-pre-e04a-20260502-192XXX`
+
+### Activate gates pendentes — 2026-05-09 (7d wall-clock)
+- **E03b** SPO surface — utility ≥7/10 em ≥3 turns OR ≥50 turns geraram `<vault-facts>`, KG hit rate ≥30%
+- **E04b** Focus apply — delta recall ≥3% positivo (analyze-focus-shadow.sh) OR utility ≥7/10 em ≥5 sessões
+
+### Próxima ação
+- **R01a** eval harness skeleton (4-6h, schema v11 + tabelas eval_*) — destrava E03b/E04b activate com baseline objetivo
+- 3 fixes residuais não-CRITICAL (F14 RTO docs, F10 stack, cost projection ambiguidade) — 30min
+
+---
+
+## Sessão anterior (2026-05-02 noite ~19:00→19:18 BRT) — E03a SPO injection ✅ DONE shadow-mode
 
 ### Resultado: ✅ vault-facts compute+log rodando em prod, surface deferred pra E03b (7d)
 
