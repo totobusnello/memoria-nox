@@ -313,13 +313,13 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 
 ### 🚀 Productizacao + Bloco V (Set+ 2026)
 
-**Goal:** Empacotar nox-mem como produto comercial Hotmart + features finais.
+**Goal:** Empacotar nox-mem como produto + features finais.
 
 **Sera feito:**
 - **E11 Reflect cache** (1.5h) — semantic key cache pra reflect operations
 - **F15 SEH Self-Evolving Hooks** (1h) — auto-evolution de regras operacionais
 - **E12 Tier 3 OCR + Fathom + Path C** (dias, opcional) — PDFs scaneados + reunioes
-- **P01 NOX-Supermem productizacao** (semanas) — Fase 4b → 5 → P, mercado Brasil/Hotmart, tiers A/B/C R$147/197/227 + R$30/sem suporte
+- **P01 NOX-Supermem productizacao** (semanas) — Fase 4b → 5 → P
 
 > **Fase 4b/5 (futuro):** Obsidian Write + Bidirectional Sync via [YearsAlso/openclaw-memory-sync](https://github.com/YearsAlso/openclaw-memory-sync). Pre-requisito: 30 dias estavel em view-only sentindo falta.
 
@@ -487,7 +487,7 @@ Baseline de saude: `ssh root@100.87.8.44 '/root/bin/improvements check'` deve re
 
 ## Projetos relacionados
 
-- **[nox-supermem](https://github.com/totobusnello/nox-supermem)** (privado) — produto comercial PT-BR baseado no nox-mem. Mercado Brasil, distribuicao Hotmart, tiers A/B/C. Em desenvolvimento apos Fase 4 estavel 30 dias.
+- **[nox-supermem](https://github.com/totobusnello/nox-supermem)** (privado) — produto PT-BR baseado no nox-mem. Em desenvolvimento apos Fase 4 estavel 30 dias.
 - **[agent-hub-dashboard](https://github.com/totobusnello/agent-hub-dashboard)** — dashboard UI com 4 paginas nox-mem (chunks, KG, search telemetry, health).
 
 ---
