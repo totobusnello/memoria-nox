@@ -138,7 +138,7 @@ Hoje agentes (Maestro/personas) rodam $0 via Anthropic Max OAuth. Se isso quebra
 Tokens/dia agentes (estimate):       ~5M in + 1.5M out
 Custo Sonnet 4.6 (assume):           $3/1M in + $15/1M out
 Daily:                               $15 + $22.50 = ~$37.50/dia
-Monthly:                             ~$1.125
+Monthly:                             ~$1,125 (mil cento e vinte e cinco dólares/mês)
 ```
 
 **Single-handedly justifies pivot** se Anthropic mudar termos. Trigger documentado em `feedback_openclaw_max_oauth_zero_cost.md` (memory).

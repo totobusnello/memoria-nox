@@ -36,13 +36,24 @@ Sem trend visualization:
 1. **Stack lean violation** — Grafana + Prometheus + node_exporter = +200MB RAM permanente na VPS
 2. **Bus factor** — mais um stack pra Toto manter solo
 3. **Setup time** — 8-15h vs 2-3h reuso
-4. **agent-hub-dashboard já existe** — React + Tailwind + Vercel deploy; consumindo `/api/health` direto
+4. **agent-hub-dashboard já existe** — stack canônica abaixo, consumindo `/api/health` direto
+
+### Stack canônica (agent-hub-dashboard, single source of truth)
+
+- **Framework:** Next.js 14 (Pages Router em `src/pages/`)
+- **UI:** React 18 + Tailwind CSS
+- **Charts:** recharts (dep já instalada)
+- **Persistence:** IndexedDB (idb-keyval) ring buffer 7d
+- **Deploy:** Vercel (preview por branch + prod)
+- **Acesso:** Tailscale ACL (já configurado pra hub)
+
+Toda menção de "Vercel + Next.js" / "React + Tailwind" abaixo se refere a esta stack única. Não há mistura — Pages Router é a única convenção (não App Router/`app/`).
 
 ### Arquitetura proposta
 
 ```
 ┌────────────────────────────────────────────────────────┐
-│ agent-hub-dashboard (Vercel + Next.js, existente)      │
+│ agent-hub-dashboard (Next.js 14 Pages Router)          │
 │ ┌──────────────────────────────────────────────────┐   │
 │ │ Página nox-mem-trends (NOVA)                     │   │
 │ │ ─────────────────────────                        │   │

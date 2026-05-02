@@ -99,7 +99,7 @@ Velocity buckets aplicados (corrigidos pós-review crítico):
 | **F11** | (incident) | RUNBOOKS.md formalizado (cobre RB-01 a RB-10 — incident playbooks) | ✅ DONE | 2 | — |
 | **F12** | (resilience) | Embedding model migration playbook — Gemini SPOF mitigation Tier 1/2/3 (FTS-fallback / OpenAI+Voyage switch / shadow-index trimestral) | ✅ DONE | 1 | RB-05 em `docs/RUNBOOKS.md` |
 | **F13** | (cost) | Cost projection pay-per-token alternative — 4 cenários 12mo, switch plan emergencial OpenAI 1h, comparativo 7 providers | ✅ DONE | 1 | `runbooks/cost-projection-alt-providers.md` |
-| **F14** | §10 | DR drill trimestral — initial executed 2026-05-01 (RTO 3s); user_version aligned 10/10; cron `0 9 1 1,4,7,10 1` Q1/Q2/Q3/Q4 09:00 BRT instalado; script `/root/.openclaw/scripts/dr-drill.sh` (Discord alert P0 em fail) | ✅ DONE | 1 + 0.5 cron | `runbooks/dr-drill-quarterly.md`; próxima execução auto 2026-07-06 |
+| **F14** | §10 | DR drill trimestral — initial executed 2026-05-01 (RTO validate snapshot ~5s = 1s VACUUM + 2s integrity_check + ~1s schema + ~1s invariants; recovery efetivo ~30s); user_version aligned 10/10; cron `0 9 1 1,4,7,10 1` Q1/Q2/Q3/Q4 09:00 BRT instalado; script `/root/.openclaw/scripts/dr-drill.sh` (Discord alert P0 em fail) | ✅ DONE | 1 + 0.5 cron | `runbooks/dr-drill-quarterly.md`; próxima execução auto 2026-07-06 |
 | **F15** | §11 | SEH Self-Evolving Hooks | 📋 QUEUED | 1 | Set+ |
 | **F16** | (bus factor) | Telegram bot rollback automático se health-check falha 30min | 📋 BACKLOG | 4 | gap urgente; fora orçamento atual |
 
