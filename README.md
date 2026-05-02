@@ -2,11 +2,16 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/totobusnello/memoria-nox)](https://github.com/totobusnello/memoria-nox/commits/main)
-[![Tests](https://img.shields.io/badge/tests-27%20passing-brightgreen)](docs/HANDOFF.md)
-[![Schema](https://img.shields.io/badge/schema-v10-blue)](CLAUDE.md)
-[![Improvements](https://img.shields.io/badge/improvements-13%2F13%20OK-brightgreen)](docs/HANDOFF.md)
+[![Tests](https://img.shields.io/badge/tests-99%2F100%20passing-brightgreen)](docs/HANDOFF.md)
+[![Schema](https://img.shields.io/badge/schema-v11-blue)](CLAUDE.md)
+[![Chunks](https://img.shields.io/badge/chunks-64.165-blue)](docs/HANDOFF.md)
+[![Salience](https://img.shields.io/badge/salience-active-brightgreen)](docs/DECISIONS.md)
+[![Section Boost](https://img.shields.io/badge/section__boost-active-brightgreen)](docs/DECISIONS.md)
+[![SPO Injection](https://img.shields.io/badge/SPO__injection-shadow-yellow)](specs/2026-05-01-E03a-spo-injection.md)
+[![Focus Boost](https://img.shields.io/badge/focus__boost-shadow-yellow)](specs/2026-05-01-E04a-focus-boost.md)
+[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.699_(n%3D5)-blue)](specs/2026-04-27-R01a-eval-harness.md)
 
-> Sistema de memória inteligente multi-agent com hybrid search, knowledge graph e backend claude-cli zero-cost.
+> Sistema de memória inteligente multi-agent com hybrid search, knowledge graph, eval harness e backend claude-cli zero-cost.
 
 ---
 
@@ -16,7 +21,7 @@ Agentes AI sem memória persistente repetem erros, perdem contexto entre sessõe
 
 **nox-mem** resolve isso com uma camada de memória canônica compartilhada: a tabela `chunks` é a fonte única de verdade. O knowledge graph (`kg_entities` + `kg_relations`) é derivado via extração Gemini — não um silo separado. Qualquer mudança de ranking passa por shadow-mode obrigatório de 7 dias antes de ativar. Ops destrutivas criam snapshot atômico pré-execução via `withOpAudit()`.
 
-O resultado é um sistema que, na prática, resiste a upgrades de infra, patches de segurança, incidents reais e mudanças de equipe sem perder memória acumulada — 20.831 chunks, 99,2% embedded, 318MB de DB em produção na VPS desde v1.0.
+O resultado é um sistema que, na prática, resiste a upgrades de infra, patches de segurança, incidents reais e mudanças de equipe sem perder memória acumulada — **64.165 chunks, 100% embedded, 1.034 GB de DB** em produção na VPS, com gates G01/G02/G03 fechados (salience + section_boost ativos), 2 features novas em shadow-mode (SPO injection + focus boost), eval harness operacional (schema v11, baseline n=5 nDCG@10=0.699), 99/100 tests passando.
 
 ---
 
@@ -239,20 +244,31 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 - 🤔 **5 design specs** — E03a / E04a / F10 / R01a revalidated / F14 quarterly (prontas pra impl Maio)
 - ❌ **F09 off-site backup CUT (D22)** — user rejected 2x (VPS Hostinger native suffices)
 
-### 🔄 Fase atual — Implementation Maio (post-gates)
+### ✅ Fase concluída — Triple deploy (2026-05-02)
 
-**Goal:** Implementar specs já validadas + finalizar E02 retry + Wave 1 core.
+**Resultado:** 3 features novas em produção + schema v11 + R01b 5/50 cured + 1ª eval baseline.
+
+**Entregue:**
+- ✅ **E03a SPO injection** (shadow) — `<vault-facts>` block via KG, top-K 8, sanitize anti-prompt-injection; smoke 1 entity / 7 triples / 55 tokens
+- ✅ **E04a Focus boost** (shadow) — CLI `focus set/get/clear`, cache hardened `${WORKSPACE}/focus/<sha256>.json` mode 0600/0700, zod-style validation, `NOX_FOCUS_SESSION` env override pra CLI+API sync; smoke on=2 / off=28 / delta±0.110
+- ✅ **R01a Eval harness** (live) — schema v11 (3 tabelas), 5 CLI subcomandos (`eval init/golden import/list/run/compare`), métricas nDCG@10/MRR/Recall@10/Precision@5, `/api/eval-metrics` endpoint, JSONL export
+- ✅ **R01b 5/50 cured** — 4 queries com chunks + 1 negative case (withOpAudit gap código TS); baseline hybrid nDCG=0.699 vs FTS=0.000
+- ✅ **3 fixes residuais** — F14 RTO breakdown (5s) / F10 stack canônica / cost projection escrito por extenso
+- ✅ **PRAGMA v2 patch** — ensureSchema realign antes early return (drift recovery proof)
+
+### 🔄 Fase atual — Shadow validation + R01b curation (Maio-Jul 2026)
+
+**Goal:** Validar SPO + Focus 7d shadow → activate gates 2026-05-09; R01b restante 45 queries cura spread Jun-Jul.
 
 ### 📋 Wave 1 — Memory Graph Maturity (Maio-Jun 2026)
 
 **Goal:** Edge typing rico + impact analysis + change detection sobre KG existente.
 
 **Sera feito:**
-- **E02 Tier 2 PDFs ingest** (15-25h I/O paralelo) — 4.432 PDFs do HD Mac
-- **E03a/b A6 Entity-Facts SPO Injection** (1.7h) — `<vault-facts>` block via KG, shadow 7d
-- **E04a/b A7 Session Focus Topic Boost** (1.8h) — `focus set <topic>` 1.4×/0.75×, shadow 7d
-- **E05 Edge typing FULL** (8-10h) — `relation_reason` enum 7 + `confidence REAL`, kg_relations v11
-- **R01a Eval harness skeleton** (4-6h) — schema v12 + tabela `eval_queries` + nDCG@10/MRR + CLI
+- **E02 Tier 2 PDFs ingest** (15-25h I/O paralelo) — gap residual ~728 PDFs (PPR + PESSOAL + size-rejected) → E12 OCR
+- **E03b SPO surface** activate (2026-05-09) — utility ≥7/10 em ≥3 turns OR ≥50 turns geraram bloco
+- **E04b Focus apply** activate (2026-05-09) — delta recall ≥3% OR utility ≥7/10 em ≥5 sessões
+- **E05 Edge typing FULL** (8-10h) — `relation_reason` enum 7 + `confidence REAL`, kg_relations v12 reservado
 
 ### 📋 Wave 2 — Eval + Impact CLI (Jun-Jul 2026)
 
@@ -262,9 +278,9 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 - **E06 detect-changes** (2-3h) — `nox-mem detect-changes --since=<commit>` read-only git diff→entities
 - **E07 impact** (2.5h) — `nox-mem impact <entity>` 1-hop blast radius via kg_relations
 - **E08 api_impact** (1.5h) — multi-arquivo grep + import graph (nice-to-have)
-- **R01b Curadoria 50 golden queries** (8-10h cognitive floor, spread Jun-Jul)
-- **R01c Baseline FTS-only vs hybrid** + publish nDCG@10 em `/api/health.evalMetrics`
-- **E10 Consolidation merge candidate** (3-4h, gated nDCG≥0.6)
+- **R01b Curadoria 50 golden queries** — 5/50 cured 2026-05-02; restante 45 spread Jun-Jul (cognitive floor)
+- **R01c Baseline FTS-only vs hybrid** — prelim n=5 hybrid=0.699 / FTS=0.000 (FTS5 vanilla AND-strict); aguarda n=50 pra significância
+- **E10 Consolidation merge candidate** (3-4h, gated nDCG≥0.6) — trigger D01 já passou em hybrid n=5 mas amostra pequena
 
 ### 📋 Wave 3 — Paper + Fase Cognitiva (Ago 2026)
 
@@ -331,20 +347,20 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 | **G03** | Archive 3 source files `memory/{projects,decisions,lessons}.md → .archived-20260502` + cleanup 8 chunks órfãos | ✅ DONE | **2026-05-01** | DB 62.927 → 62.919 via better-sqlite3 cascade |
 | **F12** | Embedding model migration playbook — Gemini SPOF mitigation Tier 1/2/3 | ✅ DONE | **2026-05-01** | RB-05 em `docs/RUNBOOKS.md` |
 | **F13** | Cost projection pay-per-token alternative (4 cenários 12mo + switch OpenAI 1h + 7 providers) | ✅ DONE | **2026-05-01** | `runbooks/cost-projection-alt-providers.md` |
-| **F14** | DR drill trimestral — script `dr-drill.sh` + cron `0 9 1 1,4,7,10 1` instalado, RTO 3s validado | ✅ DONE | **2026-05-01** | próxima execução auto 2026-07-06 |
-| **E02 / 3 Tier 2** | Tier 2 PDFs (gap real 954, cobertura A6 = 79% / 3.541 ingested + retry NUVIVI/CONTRATOS +1.236 chunks) | 🔄 IN-PROGRESS | 2026-05-01 | gap residual ~728 → E12 OCR; E12 escopo expandido |
-| **F10** | Observability dashboard (4 painéis IndexedDB ring buffer 7d no agent-hub-dashboard) | 🤔 SPEC READY | 2026-05-01 | spec `specs/2026-05-01-F10-observability-dashboard.md`, impl 2.5-3h Maio |
-| **E03a** | A6 Entity-Facts SPO Injection (`<vault-facts>` block via KG, top-K simples, schema zero-mudança) | 🤔 SPEC READY | 2026-05-01 | spec `specs/2026-05-01-E03a-spo-injection.md`, impl 1.5h |
-| **E03b** | A6 activate após 7d subjective utility report | 📋 QUEUED | post-E03a + 7d wall | 0.2h |
-| **E04a** | A7 Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×, cache TTL 7d) | 🤔 SPEC READY | 2026-05-01 | spec `specs/2026-05-01-E04a-focus-boost.md`, impl 1.5h |
-| **E04b** | A7 activate após 7d shadow + delta recall ≥3% | 📋 QUEUED | post-E04a + 7d shadow | 0.3h |
-| **E05 / W1.1** | Edge typing FULL (relation_reason enum 7 + confidence REAL, kg_relations v11) | 🟣 WAVE 1 Maio-Jun | gated por metricas | 8-10h, shadow 7d antes ranking |
+| **F14** | DR drill trimestral — script `dr-drill.sh` + cron `0 9 1 1,4,7,10 1` instalado, RTO 5s (1+2+<1+<1) | ✅ DONE | **2026-05-01** | próxima execução auto 2026-07-06 |
+| **E02 / 3 Tier 2** | Tier 2 PDFs (gap real 954, cobertura A6 = 79% / 3.541 + retry NUVIVI/CONTRATOS 23 .md +1.246 chunks) | 🔄 IN-PROGRESS | 2026-05-02 | gap residual ~728 → E12 OCR; E12 escopo expandido |
+| **F10** | Observability dashboard (4 painéis IndexedDB ring buffer 7d no agent-hub-dashboard) | 🛑 DEFERRED | — | trigger: ≥2 features shadow rodando OR R01a publicar evalMetrics; user não usa agora |
+| **E03a** | A6 Entity-Facts SPO Injection (`<vault-facts>` block via KG, top-K 8, sanitize anti-injection) | ✅ DONE shadow | **2026-05-02** | smoke 1 entity / 7 triples / 55 tokens; activate gate 2026-05-09 |
+| **E03b** | A6 activate após 7d subjective utility report | 📋 QUEUED | 2026-05-09 wall | 0.2h |
+| **E04a** | A7 Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×, cache hardened sha256+0600) | ✅ DONE shadow | **2026-05-02** | CLI set/get/clear; smoke on=2 / off=28 / delta±0.110; activate gate 2026-05-09 |
+| **E04b** | A7 activate após 7d shadow + delta recall ≥3% | 📋 QUEUED | 2026-05-09 wall | 0.3h |
+| **E05 / W1.1** | Edge typing FULL (relation_reason enum 7 + confidence REAL, kg_relations v12 reservado) | 🟣 WAVE 1 Maio-Jun | gated por metricas | 8-10h, shadow 7d antes ranking |
 | **E06 / W1.2** | `nox-mem detect-changes --since=<commit>` read-only git diff→entities | 🟣 WAVE 1 Jun | depende E05 | 2-3h |
 | **E07 / W1.3** | `nox-mem impact <entity>` 1-hop blast radius via kg_relations | 🟣 WAVE 1 Jun-Jul | E05 active (nao shadow) | 2.5h |
 | **E08 / W1.4** | `nox-mem api_impact <signature-change>` multi-arquivo grep + import graph | 🟣 WAVE 1 Jul | nice-to-have | 1.5h |
-| **R01a / W2.1** | Eval harness skeleton (schema v12 + `eval_queries` + nDCG@10/MRR + CLI) | 🟣 WAVE 2 Maio | F01 corpus ready | 4-6h, MOVED earlier baseline-first |
-| **R01b** | Curadoria 50 golden queries (cognitive floor, nao comprime) | 🟣 WAVE 2 Jun-Jul | spread Jun-Jul | 8-10h humano |
-| **R01c** | Baseline FTS-only vs hybrid + publish nDCG@10 em /api/health.evalMetrics | 🟣 WAVE 2 Jul | R01a + R01b | 1-2h |
+| **R01a / W2.1** | Eval harness skeleton (schema v11 + 3 tabelas + 5 CLI subcomandos + nDCG/MRR/Recall/Prec + endpoint) | ✅ DONE | **2026-05-02** | run #2 baseline n=5 hybrid=0.699 / fts=0.000 |
+| **R01b** | Curadoria 50 golden queries (cognitive floor, nao comprime) | 🔄 IN-PROGRESS (5/50) | 2026-05-02 cured 5; restante Jun-Jul | 8-10h humano |
+| **R01c** | Baseline FTS-only vs hybrid + publish nDCG@10 em /api/eval-metrics | 🔄 IN-PROGRESS (prelim n=5) | aguarda R01b n=50 | 1-2h |
 | **E09 / W1.5** | A-MEM auto-keywords/links no ingest (funde Fase 1.7b dormente) | 🤔 CANDIDATE Ago | E05 active obrigatorio | 5-6h |
 | **E10 / W2.2** | Consolidation merge + contradiction detection (entity-anchor val) | 🤔 CANDIDATE Jul | gated nDCG≥0.6 + dry-run zero FP | 3-4h |
 | **R02 / W3.1** | Paper v2 (Affective Ranking + Multi-Agent Federation + Bridge Mode) | 🟣 WAVE 3 Ago | depende R01c baseline | 5-6h cognitive floor |
