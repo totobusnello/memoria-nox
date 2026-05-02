@@ -1,10 +1,45 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-01 ~21:30 BRT (**Marathon noite: 15 deliverables + 3 bug fixes**)
+> **Atualizado:** 2026-05-02 ~19:00 BRT (**Auditoria 2 dias + 5 fixes top-priority**)
 > Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
 > Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
 
-## Sessão atual (2026-05-01 noite ~20h30→21h30 BRT) — G02 + G03 + 5 specs + 3 bug fixes + F12/F13/F14 DONE
+## Sessão atual (2026-05-02 tarde) — Verificação retry E02 + auditoria 2 dias com 4 agents + 5 fixes
+
+### Resultado: ✅ retry E02 finalizado + auditoria fechou 5 holes (1 CRITICAL, 1 HIGH security, 2 HIGH consistency, 1 fix prod)
+
+**1. Retry E02 verificado:**
+- Tmux `pdf-retry-e02` encerrado (22 CONV / 12 ERR / 192 SCANNED)
+- 23 .md gerados (19 CONTRATOS + 4 NUVIVI) ingestados via watcher
+- +1.246 chunks novos (62.919 → 64.165), gap=1 normal
+- Cobertura A6 atualizada (E02 IN-PROGRESS, gap residual ~728 PDFs vai pra E12 OCR)
+
+**2. Auditoria 4 agents paralelo:**
+- **code-reviewer**: PASS com follow-ups (2 HIGH doc inconsistency, 4 MEDIUM polish)
+- **security-reviewer**: SECURE com hardening (1 HIGH session hijacking, 4 MEDIUM)
+- **architect-reviewer**: APPROVED com housekeeping (5 follow-ups menores)
+- **critic**: MOSTLY OK com 4-5 holes (2 BROKEN docs, 3 SHALLOW fixes, 4 SUSPECT)
+
+**3. 5 fixes aplicados (ordem #1 #3 #4 #2 #5):**
+- ✅ **#1 HANDOFF reconciliado** — removida 2× `## Sessão atual` duplicada (linha 67 era copy-paste); chunks count atualizado pra 64.165 ground truth via /api/health (era stale 62.836)
+- ✅ **#3 R01a spec corrigido** — `PRAGMA user_version 12 → 11` em 4 ocorrências; v12 reservado pra E05 se rodar antes
+- ✅ **#4 E04a spec hardening completo** — cache `/tmp` → `${OPENCLAW_WORKSPACE}/tools/nox-mem/focus/<sha256>.json` mode 0600/0700; zod schema validation com sanity checks (set_at no futuro, expires_at >7d, perms 0644 reject); `NOX_FOCUS_SESSION` env override pra shared session intencional; `NOX_FOCUS_SESSION_SALT` random hex; risk table atualizada (probabilidade ppid colision baixa→média)
+- ✅ **#2 ensureSchema patch v2** — `src/db.ts` em prod (backup `.bak-pre-pragma-v2-20260502-185XXX`): PRAGMA user_version realign movido pra ANTES do early return + dentro do migration path. Cobre drift recovery (snapshot restore, manual override, corrupted DB). Idempotente.
+- ✅ **#5 pragma-alignment.test.ts** — 7 cenários cobrindo NOX_DB_PATH precedence + PRAGMA align/idempotência/recovery + cascade trigger (skip defensivo se vec0 ausente). **32/33 pass + 1 skip intencional, 0 fail.**
+
+**4. Validação prod pós-restart:**
+- nox-mem-api active, /api/health 200 OK
+- `PRAGMA user_version = 10` == `meta.schema_version = 10` ✅ aligned
+- chunks 64.165 / embedded 64.164 / salience active / DB 1.034 GB
+
+**Carry-over:**
+- F14 next DR drill auto 2026-07-06 (cron `0 9 1 1,4,7,10 1`) — vai validar PRAGMA alignment em DB real recovery
+- Telemetria focus shadow começa quando E04a impl rodar (Maio)
+- Pendentes residuais (não-CRITICAL): F14 RTO inconsistência docs (5s vs 3s), F10 stack mistura React/Next.js, cost projection $1.125 ambíguo — agendar pra próxima sessão
+
+---
+
+## Sessão anterior (2026-05-01 noite ~20h30→21h30 BRT) — G02 + G03 + 5 specs + 3 bug fixes + F12/F13/F14 DONE
 
 ### Resultado: ✅ section_boost ativo + 3 docs/specs novos + retry NUVIVI/CONTRATOS background
 
@@ -65,8 +100,6 @@ Foco volta pra evolução pura: sair do schema v10 → v11 (TBD), continuar Fase
 ---
 
 ## Sessão anterior (2026-05-01 manhã) — Marathon stability + performance
-
-## Sessão atual (2026-05-01 manhã) — Marathon stability + performance
 
 ### Resultado: ✅ sistema 5x mais rápido + 100% schema v.29 canonical
 
@@ -218,16 +251,20 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
 }"'
 ```
 
-**Última leitura (2026-04-27 ~19:00 BRT pós-A1+A3+A4+A5+A6):**
+**Última leitura (2026-05-02 ~17:35 BRT pós-G02/G03 + retry NUVIVI/CONTRATOS):**
 ```
-total:    62836 chunks (+42005 vs baseline manhã = +202% / TRIPLICOU)
-embedded: 62836 / 62836 (100%, gap=0)
-salience: shadow (gate G01 04-30)
-section:  compiled=183, frontmatter=183, timeline=366, legacy=62104
-opsAudit: 1 op 24h (compact 02:00 ✓)
-db:       1.016 GB (era 318MB pré-A1, +220% / >1GB)
-search:   smoke OK em Granix-App, Claude skills, biolab-ai, agent-orchestrator, NUVIVI (debenture/PDF), PPR (xlsx/pptx/PDF licitação)
+total:    64165 chunks (+1329 vs baseline 62836 pós-A6)
+embedded: 64164 / 64165 (gap=1, próximo ciclo absorve)
+salience: active (gate G01 ✅ 04-30)
+section:  active (gate G02 ✅ 05-01 — compiled +100% / frontmatter +49% / timeline -17%)
+db:       1.034 GB
+search:   última smoke OK em Granix-App, Claude skills, biolab-ai, agent-orchestrator, NUVIVI (debenture/PDF), PPR (xlsx/pptx/PDF licitação)
 ```
+
+**Histórico baseline:**
+- 2026-04-27 19:00: 62836 chunks (pós-A1+A3+A4+A5+A6, +42005 vs manhã/+202%)
+- 2026-05-01 noite: 62927 → 62919 chunks (G03 cleanup -8 órfãos)
+- 2026-05-02 17:35: 64165 chunks (+1246 retry NUVIVI/CONTRATOS .md ingestados via watcher)
 
 ## 2. Improvements audit
 

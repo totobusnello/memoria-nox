@@ -100,36 +100,65 @@ Equivale a: `adjustedScore = finalScore * focusFactor` matematicamente, MAS expr
 
 ### Persistência (cache file)
 
-Focus state vive em arquivo curto, não em DB:
+Focus state vive em arquivo curto, não em DB. **NÃO usar `/tmp`** (world-readable, session hijacking trivial via `hostname+ppid` enumeration).
 
 ```
-/tmp/nox-mem-focus-<session_id>.json
+${OPENCLAW_WORKSPACE}/tools/nox-mem/focus/<sha256(session_id)>.json
 {
   "topic": "schema v11 edge typing",
   "set_at": "2026-05-01T20:35:00-03:00",
   "expires_at": "2026-05-08T20:35:00-03:00",
-  "session_id": "abc123"
+  "session_id": "<derived hash, never raw>"
 }
 ```
 
+**Permissões:** dir `0700`, file `0600`. ACL hardening obrigatório.
 **TTL: 7 dias.** Após expiração, `focus get` retorna nada e search vira neutro.
-**Session ID:** derivado de hostname + ppid (process tree); reutilizável entre invocações curtas.
+**Session ID:** `sha256(hostname + ppid + uid + NOX_FOCUS_SESSION_SALT)`. Override via env `NOX_FOCUS_SESSION` permite shared session entre CLI + API quando intencional (workflow Toto roda ambos simultâneos com ppids diferentes).
+
+### Validação (zod schema)
+
+Antes de aplicar focus, validar shape + invariantes:
+
+```typescript
+import { z } from 'zod';
+
+const FocusStateSchema = z.object({
+  topic: z.string().min(1).max(200).regex(/^[\w\s\-.:]+$/),
+  set_at: z.string().datetime({ offset: true }),
+  expires_at: z.string().datetime({ offset: true }),
+  session_id: z.string().length(64), // sha256 hex
+}).refine(
+  (s) => new Date(s.expires_at) <= new Date(s.set_at).getTime() + 7 * 86400_000,
+  { message: 'expires_at > 7 days from set_at — possible tamper' }
+).refine(
+  (s) => new Date(s.set_at).getTime() <= Date.now(),
+  { message: 'set_at in future — possible tamper' }
+);
+```
 
 ### Fail-open
 
-Se cache file corrupto / unreadable / disk full → search ignora focus, comporta como neutral. Zero crash, zero degradação.
+Se cache file corrupto / unreadable / disk full / **validation fail** → search ignora focus, comporta como neutral. Tamper attempt → log warning + audit trail. Zero crash, zero degradação.
 
 ```typescript
 function loadFocus(): FocusState | null {
   try {
-    const path = `/tmp/nox-mem-focus-${getSessionId()}.json`;
-    if (!existsSync(path)) return null;
-    const raw = JSON.parse(readFileSync(path, 'utf8'));
-    if (Date.now() > new Date(raw.expires_at).getTime()) return null;
-    return raw;
+    const dir = path.join(process.env.OPENCLAW_WORKSPACE || '/root/.openclaw/workspace', 'tools/nox-mem/focus');
+    const file = path.join(dir, `${sha256(getSessionId())}.json`);
+    if (!existsSync(file)) return null;
+    const stat = statSync(file);
+    if ((stat.mode & 0o077) !== 0) {
+      console.error(`[focus] insecure perms ${stat.mode.toString(8)} on ${file} — ignoring`);
+      return null;
+    }
+    const raw = JSON.parse(readFileSync(file, 'utf8'));
+    const validated = FocusStateSchema.parse(raw); // throws on invalid
+    if (Date.now() > new Date(validated.expires_at).getTime()) return null;
+    return validated;
   } catch (e) {
-    // fail-open: log warning, return null
-    console.error(`[focus] failed to load: ${e.message}`);
+    // fail-open: log warning (incl. zod ValidationError), return null
+    console.error(`[focus] failed to load (tamper or corruption?): ${e.message}`);
     return null;
   }
 }
@@ -167,7 +196,7 @@ NOX_FOCUS_TTL_DAYS=7             # default expiration
 
 ### Schema mudanças
 
-**Nenhuma.** Cache file em `/tmp`, telemetria via journalctl.
+**Nenhuma.** Cache file em `${OPENCLAW_WORKSPACE}/tools/nox-mem/focus/` (mode 0700/0600), telemetria via journalctl.
 
 ---
 
@@ -226,7 +255,9 @@ focus cleared (was: "schema v11 edge typing", lasted 2h 14m)
 | Topic muito genérico ("nox") match em tudo → ranking constante 1.4× = ruído | Alta | Regra: topic ≥2 terms, cada term ≥3 chars; warn no `focus set` se 1 term |
 | Multi-term match heuristic 50% threshold inadequado | Média | v1 testar empiricamente; v2 ajusta para 33% se feedback "muito restrito" |
 | Boost stacking destrutivo com section_boost ativo | Baixa (regra aditiva já enforces) | Telemetria registra ambos boosts separadamente; sanity check `final/base ≤ 3.0` |
-| Cache file colide entre processes paralelos | Baixa | Session ID via hostname+ppid; lockfile opcional v2 |
+| Cache file colide entre processes paralelos (CLI + API simultâneos com ppids diferentes) | **Média** | Session ID = `sha256(hostname+ppid+uid+SALT)`; override `NOX_FOCUS_SESSION` env pra forçar shared session quando intencional; lockfile opcional v2 |
+| Session hijacking — atacante grava JSON malicioso prevendo `hostname+ppid` em world-readable `/tmp` | **Mitigada (security review H1 04-30)** | Cache movido pra `${OPENCLAW_WORKSPACE}/tools/nox-mem/focus/<sha256>.json` mode 0600, dir 0700; zod schema validation antes de aplicar; mtime/expires_at sanity check |
+| Tamper attempt detectado (perms inseguras / shape inválido / set_at no futuro) | Baixa | Log `[focus] insecure perms` ou zod ValidationError, fail-open + audit trail |
 | TTL 7d arbitrário (Toto esquece focus, ranking enviesa) | Média | `focus get` mostra TTL remaining; cron canary alerta se focus >5d active sem update |
 | Fail-open mascara bug real (focus nunca aplica) | Baixa | shadow log SEMPRE roda (mesmo se load falha) com tag `[focus-fail-open]` |
 
@@ -235,11 +266,13 @@ focus cleared (was: "schema v11 edge typing", lasted 2h 14m)
 ## Plano de execução (1.5h)
 
 ### Phase 1 — Implementação (45min)
-- [ ] Criar `src/lib/focus.ts` com 5 funções (load, save, match, expire, applyBoost)
+- [ ] Criar `src/lib/focus.ts` com 6 funções (load, save, match, expire, applyBoost, **getSessionId**)
 - [ ] Criar `src/cli/focus.ts` com subcommands set/get/clear
 - [ ] Modificar `src/search.ts` aplicando focus pós-RRF
-- [ ] Adicionar 3 env vars no `.env.example`
+- [ ] Adicionar 4 env vars no `.env.example`: `NOX_FOCUS_MODE`, `NOX_FOCUS_BOOST_ON`, `NOX_FOCUS_BOOST_OFF`, **`NOX_FOCUS_SESSION_SALT`** (random hex, gerado uma vez por instalação) + opcional `NOX_FOCUS_SESSION` (override)
 - [ ] Register CLI subcommand em `src/cli/index.ts`
+- [ ] Garantir dir creation com mode 0700: `mkdirSync(dir, { recursive: true, mode: 0o700 })`
+- [ ] `writeFileSync(file, data, { mode: 0o600 })` em todo save
 
 ### Phase 2 — Testes (30min)
 - [ ] `src/__tests__/focus.test.ts` cobrindo:
@@ -247,7 +280,8 @@ focus cleared (was: "schema v11 edge typing", lasted 2h 14m)
   - clear remove file
   - expire after TTL
   - match: on/neutral/off cases
-  - fail-open: corrupted file, missing dir, JSON parse error
+  - fail-open: corrupted file, missing dir, JSON parse error, **zod ValidationError, insecure perms (mode 0644), set_at no futuro, expires_at >7d set_at**
+  - **session_id derivation:** sha256 deterministic (mesmo hostname+ppid+uid+SALT = mesmo hash); diferente SALT = hash diferente; `NOX_FOCUS_SESSION` override força hash custom
   - boost aditivo (não multiplicativo stacking)
   - shadow vs active vs off modes
   - session_id derivation deterministic

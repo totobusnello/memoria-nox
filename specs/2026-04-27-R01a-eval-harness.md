@@ -1,6 +1,6 @@
 # R01a — Eval Harness Skeleton
 
-> Schema v12 + tabela `eval_queries` + métricas nDCG@10/MRR/Recall@k + CLI + JSONL output.
+> Schema v11 + tabela `eval_queries` + métricas nDCG@10/MRR/Recall@k + CLI + JSONL output.
 > Foundation pra medir delta de qualquer mudança de ranking (E05, E10, D01) cientificamente — baseline-first.
 
 **Status:** Proposto (design spec, impl scheduled pós-G03 05-02)
@@ -146,7 +146,7 @@ CREATE TABLE eval_results (
   PRIMARY KEY (run_id, query_id)
 );
 
-PRAGMA user_version = 12;
+PRAGMA user_version = 11;
 ```
 
 **Notas operacionais:**
@@ -154,6 +154,7 @@ PRAGMA user_version = 12;
 - `eval_runs` + `eval_results` crescem ~50 rows por run; com 1 run/dia = 18.250/ano = trivial
 - ON DELETE CASCADE pra runs limpa results órfãos
 - Sem `withOpAudit()` — eval não é destrutivo (write-only append)
+- **Versão schema:** R01a = v11 (prod alinhado em v10 desde 2026-05-01 PRAGMA bump). v12 reservado pra E05 edge typing FULL se rodar antes de R01a.
 
 ---
 
@@ -323,14 +324,14 @@ Estas 5 ficam em `seed_queries.jsonl` no repo, importadas no init:
 - **Idempotente:** `eval init` usa `CREATE TABLE IF NOT EXISTS` — re-rodar não quebra
 - **Sem op destrutiva:** `withOpAudit()` não necessário (write-only append a 3 tabelas novas)
 - **Backup:** snapshot diário 02:00 já cobre (eval_runs/eval_results em mesmo `nox-mem.db`)
-- **Schema invariant canary novo (F05 extension):** `SELECT user_version FROM pragma_user_version` deve ser `>= 12` após migration; se cair pra `< 12` Discord alert
-- **Rollback path:** `DROP TABLE eval_results; DROP TABLE eval_runs; DROP TABLE eval_queries; PRAGMA user_version = 11;` — destrutivo mas low-risk (dados sintéticos eval, não memória core)
+- **Schema invariant canary novo (F05 extension):** `SELECT user_version FROM pragma_user_version` deve ser `>= 11` após migration; se cair pra `< 11` Discord alert
+- **Rollback path:** `DROP TABLE eval_results; DROP TABLE eval_runs; DROP TABLE eval_queries; PRAGMA user_version = 10;` — destrutivo mas low-risk (dados sintéticos eval, não memória core)
 
 ---
 
 ## Critérios de aceitação (R01a entregue)
 
-- [ ] Schema v12 deployado em produção (`PRAGMA user_version = 12`)
+- [ ] Schema v11 deployado em produção (`PRAGMA user_version = 11`)
 - [ ] 3 tabelas criadas com CHECK constraints + FKs
 - [ ] CLI subcomandos `eval init`, `eval golden import`, `eval run`, `eval compare`, `eval list` funcionais
 - [ ] Métricas nDCG@10/MRR/Recall@10/Precision@5 testadas com 5 seed queries (manualmente curadas)
