@@ -124,7 +124,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | **E03b** | — | **A6 activate** após 7d subjective utility report | 🤔 CANDIDATE | 0.2 | ≥E03a + 7d wall |
 | **E04a** | (ClawMem Q2) | **A7 implement** Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×) — `src/lib/focus.ts` (validação manual sem zod, sha256 session derivation, 0700/0600 perms) + CLI subcommands set/get/clear + search.ts pipeline pré-sort; shadow-mode active 2026-05-02 19:27 BRT; 22/22 tests pass | ✅ DONE | 1.5 (real ~1.0h) | ≥G03 ✅; v1 substring match 50% threshold |
 | **E04b** | — | **A7 activate** após 7d shadow + delta recall ≥3% | 🤔 CANDIDATE | 0.3 | ≥E04a + 7d shadow |
-| **E05** | §11 Wave 1 | Edge typing FULL — `relation_reason` enum 7 + `confidence REAL` (kg_relations v11) | 📋 QUEUED | **8-10** (greenfield 0.7×) | shadow 7d antes ranking |
+| **E05** | §11 Wave 1 | Edge typing FULL — `relation_reason` enum 7 (`depends_on/derived_from/opposes/extends/replaces/mentions/unknown`) + Gemini prompt 4-tupla + SPO surface annotation `[reason]` (kg_relations v12). Deployed 2026-05-02 20:42 BRT, schema v12 ativo, 544 backfilled 'unknown' + 90 manualmente classificadas. Reason ainda só surface em SPO; ranking boost = futuro E05b ou D01 reranker | ✅ DONE Phase 1 | **8-10** (real ~2h Phase 1) → restante = futuro | shadow 7d antes ranking |
 | **E06** | §11 | `nox-mem detect-changes --since=<commit>` (read-only git diff→entities) | 📋 QUEUED | 2-3 | — |
 | **E07** | §11 | `nox-mem impact <entity>` 1-hop blast radius via kg_relations | 📋 QUEUED | 2.5 | E05 active (não shadow) |
 | **E08** | §11 | `nox-mem api_impact <signature-change>` multi-arquivo grep + import graph | 📋 QUEUED | 1.5 | nice-to-have |

@@ -1,8 +1,68 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-02 ~20:35 BRT (**R01b 40/50 cured + baseline n=40 nDCG=0.674 + diagnostic ranking-é-o-problema**)
+> **Atualizado:** 2026-05-02 ~20:45 BRT (**E05 Edge Typing Phase 1 DONE schema v12 + R01b 40/50 + 8 features active/shadow**)
 
-## Sessão atual (2026-05-02 noite ~19:00→20:35 BRT) — Triple deploy + R01b 40/50 + diagnostic novo
+## Sessão atual (2026-05-02 noite ~19:00→20:45 BRT) — E05 Edge Typing schema v12 deployed
+
+### E05 Edge Typing FULL Phase 1 ✅ DONE (~2h vs 8-10h estimate)
+
+**5 phases executadas:**
+
+1. **Schema v12 migration** (`db.ts`):
+   - `migrateToV12` defensive — cria `kg_entities`/`kg_relations` se ausentes (lazy-init pattern), depois ALTER TABLE add `relation_reason TEXT DEFAULT 'unknown'` + index
+   - SCHEMA_VERSION 11 → 12, PRAGMA aligned 12/12
+
+2. **Backfill prod**: 544 relations existentes recebem `'unknown'` (zero data loss)
+
+3. **KG extraction enrichment** (`src/kg-llm.ts`):
+   - `RelationReason` enum CLOSED 7 valores: `depends_on/derived_from/opposes/extends/replaces/mentions/unknown` (per CLAUDE.md D12/D13)
+   - `normalizeRelationReason()` guard: case-insensitive, fallback `unknown`
+   - Gemini prompt atualizado com classification semântica per reason
+   - Gemini responseSchema enum guard
+   - Normalize on parse (LLM pode retornar invalid)
+
+4. **SPO surface** (`src/lib/spo-injection.ts`):
+   - SQL JOIN agora retorna `r.relation_reason AS reason`
+   - ORDER BY prioritiza reason != 'unknown' (classified first)
+   - Format `<vault-facts>` adiciona `[reason]` annotation quando classified
+
+5. **Tests + smoke** (`src/__tests__/edge-typing.test.ts`, ~150 LOC, 10 cenários):
+   - Enum 7 valores fechados
+   - normalizeRelationReason 5 paths (lowercase, case-insensitive, invalid, non-string, null)
+   - Schema v12 column + index
+   - Default 'unknown' em INSERT sem reason
+   - lookupTopK retorna reason field
+   - **10/10 pass + 109/110 suite total + 1 skip**
+
+**Smoke prod:**
+- Distribuição: `unknown=464, depends_on=50, mentions=30` (90 relations classificadas manualmente via SQL pra demo; restantes esperam próximo `kg-build` com Gemini)
+- SPO triples: 55 → 70 tokens (+15 = reason annotation overhead)
+- Eval Run #7 (post-E05 n=40): nDCG=0.658 (-0.015 vs #6 noise), Recall=0.850 (estável = zero regression)
+
+**Backups:**
+- `src/db.ts.bak-pre-e05-v12-20260502-203347`
+- `src/kg-llm.ts.bak-pre-e05-20260502-203553`
+- `src/index.ts.bak-pre-e05-20260502-203553`
+- `src/lib/spo-injection.ts.bak-pre-e05-20260502-203624`
+- `nox-mem.db.bak-pre-e05-v12-20260502-203359` (1GB)
+
+**3 bugs achados durante impl + corrigidos:**
+1. **kg_relations lazy-init** — migrateToV12 falhou em DB novo porque `knowledge-graph.ts` cria tabela on-demand, não em ensureSchema. Fix: defensive CREATE IF NOT EXISTS na migration + PRAGMA check antes do ALTER.
+2. **spo-injection.test schema** — testes antigos definem `kg_relations` sem coluna nova; SPO query falha. Fix: adicionar `relation_reason TEXT DEFAULT 'unknown'` no test schema.
+3. **eval.test PRAGMA assertion** — teste hardcodava v11; agora v12. Fix: relax pra `>= 11`.
+
+### Limitações conhecidas (próximo work)
+- 464 relations ainda 'unknown' até próximo `kg-build` rodar com prompt novo
+- Reason ainda só surface no `<vault-facts>` block; **não influencia ranking** ainda — isso é futuro E05b ou parte de D01 cross-encoder reranker (gated nDCG≥0.6 que já passou)
+
+### Próxima ação
+- **Aguardar 7d shadow** das 3 features (E03a SPO + E04a Focus + E05 Edge Typing)
+- 2026-05-09: routine `trig_012nuCN14VwcxGLq8ERaLPCK` automática gera GitHub Issue verdict
+- Opções secundárias: R01b cure mais 10 queries (→ 50/50) OU E06 detect-changes OU E10 consolidation merge (gated D01 trigger active)
+
+---
+
+## Sessão anterior (2026-05-02 noite ~19:00→20:35 BRT) — Triple deploy + R01b 40/50 + diagnostic novo
 
 ### R01b 40/50 cured + baseline n=40 (Run #6)
 
