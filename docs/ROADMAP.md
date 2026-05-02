@@ -138,7 +138,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 
 | ID | Vision § | Item | Status | h | Dependências |
 |---|---|---|---|---|---|
-| **R01a** | §11 Wave 2 | **Eval harness skeleton** (schema v11 + tabelas `eval_queries`/`eval_runs`/`eval_results` + nDCG@10/MRR/Recall@10/Precision@5 + CLI 5 subcommands + JSONL out + `/api/eval-metrics` + 5 golden seed queries) — `src/lib/eval-metrics.ts` (pure funcs) + `src/lib/eval.ts` (orchestration) deployed 2026-05-02 19:43 BRT; run #2 baseline `query_count=5 nDCG=0` (expected_chunk_ids=[] = curador R01b enche); 28/28 eval tests + 99/100 suite total | ✅ DONE | 4-6 (real ~3h) | F01 corpus ready ✅ |
+| **R01a** | §11 Wave 2 | **Eval harness skeleton** (schema v11 + tabelas `eval_queries`/`eval_runs`/`eval_results` + nDCG@10/MRR/Recall@10/Precision@5 + CLI 6 subcomandos + JSONL out + `/api/eval-metrics` + 5 golden seed queries) — `src/lib/eval-metrics.ts` (pure funcs) + `src/lib/eval.ts` (orchestration) deployed 2026-05-02 19:43 BRT; baseline n=40 cured = hybrid 0.658 / Recall 0.850 (post-R01b batch2); 28/28 eval tests + 109/110 suite total pós-E05 | ✅ DONE | 4-6 (real ~3h) | F01 corpus ready ✅ |
 | **R01b** | — | **Curadoria 50 golden queries** (cognitive floor, não comprime) — **40/50 cured 2026-05-02** (5 seed + 20 batch1 + 15 batch2; cobre entity/decision/procedure/concept/temporal/cross-agent/security/negative); restante 10 queries pode rodar Jun-Jul | 🔄 IN-PROGRESS (40/50) | **8-10** (humano) | spread Jun-Jul |
 | **R01c** | — | Baseline FTS-only vs hybrid run + publish nDCG@10 em `/api/eval-metrics` — **n=40 cured: hybrid nDCG@10=0.674 / MRR=0.617 / Recall@10=0.850** (decision 0.980 top, temporal 0.417 ponto fraco, entity 0.567 fraco, concept 0.840, security 0.659); FTS-only n=5 = 0.000 (AND-strict). Trigger D01 (≥0.6) persiste em n=40 (sample 8x maior). Recall sobe + MRR cai = diagnostic: ranking é o problema, não retrieval | 🔄 IN-PROGRESS (n=40) | 1-2 | R01a ✅ + R01b 50q completo |
 | **R02** | §11 Wave 3 | Paper v2 update — Affective Ranking + Multi-Agent Federation + Bridge Mode | 📋 QUEUED | **5-6** (writing tem floor cognitivo) | R01c published |
@@ -405,33 +405,49 @@ Hoje é **2026-05-01 noite** (sexta). Gates G01/G02/G03 ✅ fechados, F12/F13/F1
 - ✅ F12 Gemini SPOF playbook | F13 cost projection alt | F14 DR drill (cron quarterly instalado)
 - ✅ 5 specs (E03a / E04a / F10 / R01a revalidated / F14 quarterly) — prontas pra impl
 - ✅ 3 bug fixes (db.ts NOX_DB_PATH, PRAGMA user_version aligned 10/10, 8 chunks órfãos G03)
-- ✅ 27/27 tests pass | chunks 64.155 / 100% embedded
+- ✅ 109/110 tests pass + 1 skip + 0 fail | chunks 64.165 / 100% embedded | schema v12
 
-### O que falta — fila imediata Maio (próxima janela ~6h/sem)
-1. ~~**E02 retry NUVIVI/CONTRATOS**~~ ✅ DONE 2026-05-02 (22 CONV / 12 ERR / 192 SCANNED, 23 .md ingestados, +1.246 chunks)
-2. **E03a impl** SPO injection (1.5h) — branch paralela, schema zero-mudança, env-var driven shadow→active
-3. **E04a impl** focus boost (1.5h) — branch paralela, cache hardened em `${OPENCLAW_WORKSPACE}/tools/nox-mem/focus/<sha256>.json` mode 0600/0700 (security review H1 mitigado em spec)
-4. **R01a impl** eval harness skeleton (4-6h) — schema v11 (PRAGMA já em 10 pós patch v2; bump 10→11 vai junto) + tabelas `eval_*` + 5 golden seed queries
-5. ~~F10 dashboard~~ 🛑 **DEFERRED** — rebaixado 2026-05-02; trigger: ≥2 features shadow rodando OR R01a publicar evalMetrics
+### O que já foi entregue (2026-05-02 marathon, ~10.4h)
+- ✅ E02 retry NUVIVI/CONTRATOS (+1.246 chunks)
+- ✅ E03a SPO injection deploy (shadow)
+- ✅ E04a Focus boost deploy (shadow)
+- ✅ R01a Eval Harness deploy (schema v12, 6 CLI subcomandos, endpoint)
+- ✅ R01b 40/50 cured (5 seed + 20 batch1 + 15 batch2; 8 categorias)
+- ✅ R01c prelim n=40: hybrid nDCG=0.658 / Recall=0.850 / FTS=0.000 (gap publicado)
+- ✅ E05 Edge Typing Phase 1 deploy (schema v12, relation_reason enum 7, SPO surface)
+- ✅ Schedule routine 2026-05-09 (verdict ACTIVATE/KEEP-SHADOW automático)
+- ✅ 3 fixes residuais (F14 RTO / F10 stack / cost projection)
+- ✅ PRAGMA v2 patch ensureSchema (drift recovery proof)
 
-### Activate gates pendentes (shadow 7d wall-clock após impl)
-- **E03b** — activate SPO após 7d subjective utility report (post-E03a impl)
-- **E04b** — activate focus boost após 7d shadow + delta recall ≥3% (post-E04a impl)
+### Próxima sessão (2026-05-03+) — fila imediata
+1. **R01c prelim oficial n=40 fts variant** (5min run + 15min análise) — publica baseline definitivo fts vs hybrid com sample 8x maior que primeira tentativa
+2. **kg-build incremental** (~30min) — valida E05 Phase 3 end-to-end com Gemini real (distribuição reason muda de unknown=464 → menos)
+3. **R01b cure 41-50** (~1h) — fecha milestone 50/50 → libera R01c definitivo
 
-### Wave 1 core (Maio-Jun, post-R01a)
-- **E05** Edge typing FULL (8-10h, greenfield 0.7×) — shadow 7d antes ranking
-- **E06** detect-changes (2-3h) — read-only git diff→entities
-- **E07** impact 1-hop blast radius (2.5h) — depende E05 active
+### Activate gates pendentes — auto 2026-05-09 sábado
+- **E03b** SPO surface — routine `trig_012nuCN14VwcxGLq8ERaLPCK` gera GitHub Issue verdict ACTIVATE/KEEP-SHADOW
+- **E04b** Focus apply — mesma routine
+- E05b ranking boost ainda não definido (depende análise pós-E05 Phase 1 + shadow telemetria)
+
+### Wave 1 restante (Maio-Jun)
+- **E06** detect-changes (2-3h) — read-only git diff→entities (Wave 1 next)
+- **E07** impact 1-hop blast radius (2.5h) — depende E05 active (não shadow)
 - **E08** api_impact (1.5h, defer 1º se apertar capacity)
+- **E11** Reflect cache (1.5h) — telemetria 7d cron já rodando, dado disponível
 
 ### Jun-Jul
-- **R01b** curadoria 50 golden queries (8-10h, cognitive floor, spread)
-- **R01c** baseline FTS-only vs hybrid + publish nDCG@10 em `/api/health.evalMetrics`
-- **E10** consolidation merge candidate (3-4h, gated nDCG≥0.6 + dry-run zero FP)
+- **R01b** restante 10 queries (até 50/50)
+- **R01c** definitivo após R01b 50/50 (1-2h, publish em `/api/eval-metrics`)
+- **E10** consolidation merge candidate (3-4h, gated nDCG≥0.6 + dry-run zero FP) — D01 trigger técnico já passou em hybrid n=40
 - **E12** Tier 3 OCR (escopo expandido ~728 PDFs gap E02 + Fathom + Path C)
+- **D01** cross-encoder reranker (Qwen3 local) — gated nDCG≥0.6 ✅ JÁ ATIVO em hybrid; aguardar R01b 50/50 pra commit
 
 ### Ago
 - **R02** paper v2 (5-6h, writing tem floor cognitivo) — dependent R01c published
+
+### Set+
+- **F15** SEH Self-Evolving Hooks
+- **P01** NOX-Supermem productizacao (elegível desde 2026-05-26 = E01 estável 30d)
 
 ### Set+
 - **E11** reflect cache (1.5h) — depende telemetria reflect 7d

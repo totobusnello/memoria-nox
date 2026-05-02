@@ -1,6 +1,70 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-02 ~20:45 BRT (**E05 Edge Typing Phase 1 DONE schema v12 + R01b 40/50 + 8 features active/shadow**)
+> **Atualizado:** 2026-05-02 ~21:00 BRT (**E05 schema v12 + R01b 40/50 + 8 features active/shadow + plano próximas sessões pronto**)
+
+---
+
+## 🚀 PLANO PRÓXIMAS SESSÕES (começar aqui amanhã)
+
+### 🌅 Amanhã 2026-05-03 — sanity check + R01c prelim oficial (~1h ideal)
+
+**Sanity check matinal (~3min):**
+```bash
+ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
+ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
+ssh root@187.77.234.79 'journalctl -u nox-mem-api --since "12h ago" 2>/dev/null | grep -cE "\[(vault-facts|focus-shadow)\]"'
+```
+Esperar: schema v12, 64.165 chunks 100% embedded, distribuição reason (unknown=464 / depends_on=50 / mentions=30), shadow events count >0.
+
+**Trabalho amanhã (priorizado):**
+
+| # | Trabalho | Esforço | Por quê fazer agora |
+|---|---|---|---|
+| **1** | **R01c prelim oficial n=40** — `nox-mem eval run --variant=fts` + comparar com hybrid Run #7 — publica baseline FTS vs hybrid n=40 | 5min run + 15min análise | Quick win com sample 8x maior que primeira tentativa (n=5); valida insight "FTS5 AND-strict" com significância |
+| **2** | **kg-build incremental valida E05 Phase 3** — rodar `nox-mem kg-build` em ~50 chunks recentes, verificar Gemini extrai `reason` corretamente (distribuição muda de unknown=464 → menos) | ~30min | Valida E05 end-to-end com Gemini real; mostra que prompt + schema funcionam em prod, não só em test |
+| **3** | **R01b cure 41-50** — fechar milestone 50/50 golden queries | ~1h | Fecha pendência R01b, libera R01c definitivo (não-prelim) |
+
+### 📅 Sessão #2 (qualquer dia esta semana, ~3h disponíveis)
+
+| Trabalho | Esforço | Notas |
+|---|---|---|
+| **E06 detect-changes** — `nox-mem detect-changes --since=<commit>` read-only git diff→entities | 2-3h | Wave 1 spec, baixo risco (read-only); útil pra pré-commit hooks detectando entidades mudadas |
+| OU **E11 Reflect cache** — semantic key cache pra `/api/reflect`, telemetria 7d cron já rodando | 1.5h | Performance optimization, dado já disponível |
+
+### 📅 2026-05-09 sábado — Activate gate (passivo, schedule auto)
+
+- **Routine `trig_012nuCN14VwcxGLq8ERaLPCK` roda automático** às 12:00 UTC (09:00 BRT)
+- Output: GitHub Issue automática no repo memoria-nox com **verdict ACTIVATE/KEEP-SHADOW** pra E03b SPO + E04b Focus
+- Você só decide e roda 1 comando do issue (ou ignora se KEEP-SHADOW)
+
+### 📅 Sessão #3-4 (Maio-Jun, ~4-6h)
+
+| Trabalho | Esforço | Pré-req |
+|---|---|---|
+| **E07 impact** — `nox-mem impact <entity>` 1-hop blast radius via kg_relations | 2.5h | E05 active (não shadow) — depende decisão futura E05b |
+| **E08 api_impact** — multi-arquivo grep + import graph | 1.5h | nice-to-have, defer 1º se apertar |
+| **R01c definitivo** — após R01b 50/50, baseline publicado em `/api/eval-metrics` | 1-2h | R01b 50/50 |
+| **E10 consolidation merge candidate** — entity-anchor validation | 3-4h | gated nDCG≥0.6 + dry-run zero FP — D01 trigger já passou em hybrid |
+
+### 📅 Jul-Ago — Wave 2 + Paper
+
+- **R02 paper v2** (5-6h cognitive floor) — escrever após R01c publicado
+- **D01 cross-encoder reranker** (Q5) — gated nDCG≥0.6 + 2 PRs mal-rankeadas; trigger TÉCNICO já passou em hybrid n=40 (0.658)
+
+### 📅 Set+ 2026 — Bloco V
+
+- **E11 reflect cache** (1.5h)
+- **F15 SEH Self-Evolving Hooks** (1h)
+- **E12 Tier 3 OCR** (dias) — escopo expandido inclui ~728 PDFs gap E02 (PPR + PESSOAL + size-rejected)
+- **P01 NOX-Supermem productizacao** (semanas) — elegível desde 2026-05-26 (E01 estável 30d)
+
+### ❌ NÃO fazer amanhã
+
+- ❌ Ativar E03b/E04b manualmente — espera os 7d completos (dia 2026-05-09)
+- ❌ Mudar boost factors de SPO/Focus em shadow — invalida análise telemetria
+- ❌ Forçar `kg-build` full re-extraction — caro Gemini quota; preferir incremental
+
+---
 
 ## Sessão atual (2026-05-02 noite ~19:00→20:45 BRT) — E05 Edge Typing schema v12 deployed
 

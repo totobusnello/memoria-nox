@@ -2,14 +2,16 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/totobusnello/memoria-nox)](https://github.com/totobusnello/memoria-nox/commits/main)
-[![Tests](https://img.shields.io/badge/tests-99%2F100%20passing-brightgreen)](docs/HANDOFF.md)
-[![Schema](https://img.shields.io/badge/schema-v11-blue)](CLAUDE.md)
+[![Tests](https://img.shields.io/badge/tests-109%2F110%20passing-brightgreen)](docs/HANDOFF.md)
+[![Schema](https://img.shields.io/badge/schema-v12-blue)](CLAUDE.md)
 [![Chunks](https://img.shields.io/badge/chunks-64.165-blue)](docs/HANDOFF.md)
 [![Salience](https://img.shields.io/badge/salience-active-brightgreen)](docs/DECISIONS.md)
 [![Section Boost](https://img.shields.io/badge/section__boost-active-brightgreen)](docs/DECISIONS.md)
 [![SPO Injection](https://img.shields.io/badge/SPO__injection-shadow-yellow)](specs/2026-05-01-E03a-spo-injection.md)
 [![Focus Boost](https://img.shields.io/badge/focus__boost-shadow-yellow)](specs/2026-05-01-E04a-focus-boost.md)
-[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.699_(n%3D5)-blue)](specs/2026-04-27-R01a-eval-harness.md)
+[![Edge Typing](https://img.shields.io/badge/edge__typing-shadow-yellow)](docs/ROADMAP.md)
+[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.658_(n%3D40)-blue)](specs/2026-04-27-R01a-eval-harness.md)
+[![R01b Cure](https://img.shields.io/badge/R01b__cured-40%2F50-blue)](docs/ROADMAP.md)
 
 > Sistema de memória inteligente multi-agent com hybrid search, knowledge graph, eval harness e backend claude-cli zero-cost.
 
@@ -33,14 +35,18 @@ Agentes AI sem memória persistente repetem erros, perdem contexto entre sessõe
 
 O sistema é construído pra **resistir a upgrades de infra** (já sobreviveu OpenClaw v.24→v.25→v.26→v.29 sem perda de dados), **patches de segurança** (24+ feedback files documentando incidents resolvidos), e **mudanças de modelo** (Gemini Flash → Flash-Lite default por custo, com playbook RB-05 pra trocar provider em 1h se necessário).
 
-**Estado atual em produção** (VPS Hostinger, Tailscale-only, 2026-05-02):
+**Estado atual em produção** (VPS Hostinger, Tailscale-only, 2026-05-02 21:00 BRT):
 - **64.165 chunks** indexados / **100% embedded** (Gemini 3072d sqlite-vec) / **1.034 GB** DB
-- **402 entities + 544 relations** no KG (Gemini extraction nightly)
-- **Schema v11** (PRAGMA aligned, drift-recovery proof)
+- **402 entities + 544 relations** no KG (Gemini extraction nightly; relations classificadas por reason: depends_on=50, mentions=30, unknown=464 aguardando próximo `kg-build`)
+- **Schema v12** (PRAGMA aligned 12/12, drift-recovery proof, relation_reason enum 7 fechado)
 - **Gates fechados:** G01 salience + G02 section_boost + G03 archive ✅
-- **Features em shadow:** SPO injection + Focus boost (activate 2026-05-09)
-- **Eval harness:** schema v11 + 5 CLI subcomandos + endpoint `/api/eval-metrics`; baseline n=5 hybrid **nDCG@10 = 0.699** vs FTS-only 0.000 (revela que pipeline hybrid+semantic+RRF é o que faz a busca funcionar em queries linguagem natural)
-- **Hardening:** 99/100 tests pass, 13/13 improvements OK, audit log append-only com triggers DB, op-audit + dry-run + canary invariants */15min Discord
+- **Features em shadow** (gate activate 2026-05-09 via routine automática):
+  - **SPO injection** (E03a) — `<vault-facts>` block via KG, top-K 8, sanitize anti-injection
+  - **Focus boost** (E04a) — `nox-mem focus set <topic>` 1.4×/0.75×, cache hardened sha256+0600
+  - **Edge typing** (E05) — relation_reason enum 7 + Gemini prompt 4-tupla + SPO surface annotation
+- **Eval harness** (R01a) — schema v12, 6 CLI subcomandos, endpoint `/api/eval-metrics`, JSONL export
+- **Eval baseline R01c prelim n=40 cured** (R01b 40/50): hybrid **nDCG@10=0.658** / MRR=0.617 / Recall@10=**0.850** vs FTS-only n=5 = 0.000. Diagnostic: Recall sobe + MRR cai = ranking é o problema, não retrieval (E05/D01 atacam exatamente isso). Trigger D01 cross-encoder reranker (≥0.6) **PERSISTE** com sample 8x maior
+- **Hardening:** 109/110 tests pass + 1 skip + 0 fail, 13/13 improvements OK, audit log append-only com triggers DB, op-audit + dry-run + canary invariants */15min Discord, schedule routine remoto pra activate gates 2026-05-09
 
 **Origem e endereço:** projeto pessoal de [@totobusnello](https://github.com/totobusnello) (Toto), construído solo. Capacity realista ~6h/sem; arquitetura calibrada pra essa restrição — escolhe simples sobre clever, prefere defer feature sobre tech debt.
 
@@ -371,17 +377,17 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 | **F14** | DR drill trimestral — script `dr-drill.sh` + cron `0 9 1 1,4,7,10 1` instalado, RTO 5s (1+2+<1+<1) | ✅ DONE | **2026-05-01** | próxima execução auto 2026-07-06 |
 | **E02 / 3 Tier 2** | Tier 2 PDFs (gap real 954, cobertura A6 = 79% / 3.541 + retry NUVIVI/CONTRATOS 23 .md +1.246 chunks) | 🔄 IN-PROGRESS | 2026-05-02 | gap residual ~728 → E12 OCR; E12 escopo expandido |
 | **F10** | Observability dashboard (4 painéis IndexedDB ring buffer 7d no agent-hub-dashboard) | 🛑 DEFERRED | — | trigger: ≥2 features shadow rodando OR R01a publicar evalMetrics; user não usa agora |
-| **E03a** | A6 Entity-Facts SPO Injection (`<vault-facts>` block via KG, top-K 8, sanitize anti-injection) | ✅ DONE shadow | **2026-05-02** | smoke 1 entity / 7 triples / 55 tokens; activate gate 2026-05-09 |
-| **E03b** | A6 activate após 7d subjective utility report | 📋 QUEUED | 2026-05-09 wall | 0.2h |
+| **E03a** | A6 Entity-Facts SPO Injection (`<vault-facts>` block via KG, top-K 8, sanitize anti-injection) | ✅ DONE shadow | **2026-05-02** | smoke 1 entity / 7 triples / 70 tokens (com reason annotation E05); activate gate 2026-05-09 |
+| **E03b** | A6 activate após 7d subjective utility report | 📋 QUEUED (auto 2026-05-09) | routine `trig_012nuCN14VwcxGLq8ERaLPCK` | 0.2h |
 | **E04a** | A7 Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×, cache hardened sha256+0600) | ✅ DONE shadow | **2026-05-02** | CLI set/get/clear; smoke on=2 / off=28 / delta±0.110; activate gate 2026-05-09 |
-| **E04b** | A7 activate após 7d shadow + delta recall ≥3% | 📋 QUEUED | 2026-05-09 wall | 0.3h |
-| **E05 / W1.1** | Edge typing FULL (relation_reason enum 7 + confidence REAL, kg_relations v12 reservado) | 🟣 WAVE 1 Maio-Jun | gated por metricas | 8-10h, shadow 7d antes ranking |
-| **E06 / W1.2** | `nox-mem detect-changes --since=<commit>` read-only git diff→entities | 🟣 WAVE 1 Jun | depende E05 | 2-3h |
+| **E04b** | A7 activate após 7d shadow + delta recall ≥3% | 📋 QUEUED (auto 2026-05-09) | routine `trig_012nuCN14VwcxGLq8ERaLPCK` | 0.3h |
+| **E05 / W1.1** | Edge typing FULL — relation_reason enum 7 (depends_on/derived_from/opposes/extends/replaces/mentions/unknown) + Gemini prompt 4-tupla + SPO surface annotation `[reason]` (kg_relations v12) | ✅ DONE Phase 1 shadow | **2026-05-02** | schema v12 ativo, 544 backfilled unknown + 90 manualmente classificadas; reason ainda só SURFACE em SPO, não influencia ranking ainda (E05b ou D01 reranker) |
+| **E06 / W1.2** | `nox-mem detect-changes --since=<commit>` read-only git diff→entities | 🟣 WAVE 1 próx sessão | depende E05 ✅ | 2-3h |
 | **E07 / W1.3** | `nox-mem impact <entity>` 1-hop blast radius via kg_relations | 🟣 WAVE 1 Jun-Jul | E05 active (nao shadow) | 2.5h |
 | **E08 / W1.4** | `nox-mem api_impact <signature-change>` multi-arquivo grep + import graph | 🟣 WAVE 1 Jul | nice-to-have | 1.5h |
-| **R01a / W2.1** | Eval harness skeleton (schema v11 + 3 tabelas + 5 CLI subcomandos + nDCG/MRR/Recall/Prec + endpoint) | ✅ DONE | **2026-05-02** | run #2 baseline n=5 hybrid=0.699 / fts=0.000 |
-| **R01b** | Curadoria 50 golden queries (cognitive floor, nao comprime) | 🔄 IN-PROGRESS (5/50) | 2026-05-02 cured 5; restante Jun-Jul | 8-10h humano |
-| **R01c** | Baseline FTS-only vs hybrid + publish nDCG@10 em /api/eval-metrics | 🔄 IN-PROGRESS (prelim n=5) | aguarda R01b n=50 | 1-2h |
+| **R01a / W2.1** | Eval harness skeleton (schema v12 + 3 tabelas + 6 CLI subcomandos + nDCG/MRR/Recall/Prec + endpoint) | ✅ DONE | **2026-05-02** | run #2 baseline n=5 hybrid=0.699 / fts=0.000 |
+| **R01b** | Curadoria 50 golden queries (cognitive floor, nao comprime) — 5 seed + 20 batch1 + 15 batch2 (8 categorias) | 🔄 IN-PROGRESS (40/50, 80%) | 2026-05-02 cured 40; restante 10 spread Jun-Jul | 8-10h humano |
+| **R01c** | Baseline FTS-only vs hybrid + publish nDCG@10 em /api/eval-metrics — n=40 cured: hybrid 0.658 / Recall 0.850 / decision=0.980 / temporal=0.417 ⚠️ | 🔄 IN-PROGRESS (prelim n=40) | aguarda R01b 50/50 pra publish definitivo | 1-2h |
 | **E09 / W1.5** | A-MEM auto-keywords/links no ingest (funde Fase 1.7b dormente) | 🤔 CANDIDATE Ago | E05 active obrigatorio | 5-6h |
 | **E10 / W2.2** | Consolidation merge + contradiction detection (entity-anchor val) | 🤔 CANDIDATE Jul | gated nDCG≥0.6 + dry-run zero FP | 3-4h |
 | **R02 / W3.1** | Paper v2 (Affective Ranking + Multi-Agent Federation + Bridge Mode) | 🟣 WAVE 3 Ago | depende R01c baseline | 5-6h cognitive floor |
