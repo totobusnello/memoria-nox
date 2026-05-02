@@ -1,8 +1,50 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-02 ~19:55 BRT (**E03a + E04a + R01a deployed + R01b 5/50 cured + 1ª eval baseline**)
+> **Atualizado:** 2026-05-02 ~20:30 BRT (**R01b 25/50 cured + baseline n=25 nDCG=0.714 + schedule shadow analysis 2026-05-09 set**)
 
-## Sessão atual (2026-05-02 noite ~19:00→19:55 BRT) — Triple deploy + 1ª baseline eval
+## Sessão atual (2026-05-02 noite ~19:00→20:30 BRT) — Triple deploy + R01b 25/50 + shadow schedule
+
+### R01b 25/50 cured + baseline n=25
+
+**Batch 1 (20 queries adicionadas via JSONL import):**
+- 17 com chunks curados (entity/decision/procedure/concept/temporal mix)
+- 3 negative cases: Q64 (DR drill em runbooks/ não ingestado), Q65 (ingest-router código TS), Q68 (Sentence Transformer Issue 62028 — non-existent, testa specificity)
+- Workflow: `nox-mem eval golden import` → search prod top-5 cada → manual SQL UPDATE com IDs corretos
+
+**Eval Run #5 (n=25, hybrid):**
+| Metric | Value | Δ vs Run #3 (n=5) |
+|---|---|---|
+| nDCG@10 | **0.714** | +0.014 |
+| MRR | 0.683 | -0.017 |
+| Recall@10 | **0.840** | +0.040 |
+| Prec@5 | 0.336 | -0.064 |
+
+**By difficulty:** hard=0.786 (n=8), easy=0.802 (n=5), medium=0.628 (n=12)
+**By category:** decision=0.980 (n=4), concept=0.888 (n=6), procedure=0.720 (n=7), entity=0.509 (n=7), negative=0.000 (n=1)
+
+**Insights:**
+- Decision queries são as mais fáceis (sistema acerta facts diretos)
+- Entity queries são o ponto fraco (0.509) — fanout entre múltiplos arquivos
+- Concept queries surpreenderam alto (0.888) — Gemini semantic shines
+- Negative case Q68 corretamente retornou 0 (specificity OK contra hallucination)
+- **Trigger D01 (nDCG ≥0.6) persiste com sample 5x maior** (0.714 > 0.6) — Q5 reranker pode disparar quando R01b atingir n=50
+
+### Schedule shadow 7d analysis (2026-05-09)
+
+**Routine criada:** `trig_012nuCN14VwcxGLq8ERaLPCK`
+- One-time run: 2026-05-09T12:00:00Z (= 09:00 BRT sábado)
+- Environment: Toto Code
+- Output: GitHub Issue automática no repo memoria-nox com verdict ACTIVATE/KEEP-SHADOW per feature + comandos exatos pra ativar
+- URL: https://claude.ai/code/routines/trig_012nuCN14VwcxGLq8ERaLPCK
+
+### Próxima ação
+- **R01b restante 25 queries** (4-5h spread) ou
+- **E05 Edge typing FULL Phase 1** schema v12 migration (~3h)
+- Recomendação: continuar A (R01b +15 queries) pra fechar 40/50 ou pular pra E05 se quiser feature nova hoje
+
+---
+
+## Sessão anterior (2026-05-02 noite ~19:00→19:55 BRT) — Triple deploy + 1ª baseline eval
 
 ### R01b 5/50 cured + insight FTS=0
 
