@@ -138,7 +138,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 
 | ID | Vision § | Item | Status | h | Dependências |
 |---|---|---|---|---|---|
-| **R01a** | §11 Wave 2 | **Eval harness skeleton** (schema v12 + tabela `eval_queries` + nDCG@10/MRR + CLI + JSONL out + 5 golden seed queries) | 📋 QUEUED | 4-6 (greenfield 0.7×) | F01 corpus ready |
+| **R01a** | §11 Wave 2 | **Eval harness skeleton** (schema v11 + tabelas `eval_queries`/`eval_runs`/`eval_results` + nDCG@10/MRR/Recall@10/Precision@5 + CLI 5 subcommands + JSONL out + `/api/eval-metrics` + 5 golden seed queries) — `src/lib/eval-metrics.ts` (pure funcs) + `src/lib/eval.ts` (orchestration) deployed 2026-05-02 19:43 BRT; run #2 baseline `query_count=5 nDCG=0` (expected_chunk_ids=[] = curador R01b enche); 28/28 eval tests + 99/100 suite total | ✅ DONE | 4-6 (real ~3h) | F01 corpus ready ✅ |
 | **R01b** | — | **Curadoria 50 golden queries** (cognitive floor, não comprime) | 📋 QUEUED | **8-10** (humano) | spread Jun-Jul |
 | **R01c** | — | Baseline FTS-only vs hybrid run + publish nDCG@10 em `/api/health.evalMetrics` | 📋 QUEUED | 1-2 | R01a + R01b |
 | **R02** | §11 Wave 3 | Paper v2 update — Affective Ranking + Multi-Agent Federation + Bridge Mode | 📋 QUEUED | **5-6** (writing tem floor cognitivo) | R01c published |

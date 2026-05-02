@@ -1,8 +1,63 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-02 ~19:30 BRT (**E03a + E04a both deployed shadow-mode**)
+> **Atualizado:** 2026-05-02 ~19:45 BRT (**E03a + E04a + R01a deployed; schema v11; 3 fixes residuais closed**)
 
-## Sessão atual (2026-05-02 noite ~19:00→19:30 BRT) — E03a SPO + E04a Focus boost ✅ DONE shadow-mode
+## Sessão atual (2026-05-02 noite ~19:00→19:45 BRT) — Triple deploy: SPO + Focus + Eval Harness
+
+### Resultado: ✅ 3 features novas em prod + schema v11 ativo + 99/100 tests pass
+
+**R01a Eval Harness Skeleton (~3h vs estimate 4-6h):**
+- ✅ `src/lib/eval-metrics.ts` (~110 LOC) — pure funcs: nDCG@K, reciprocalRank, recallAtK, precisionAtK, mean, computePerQuery
+- ✅ `src/lib/eval.ts` (~280 LOC) — importGolden (JSONL INSERT OR IGNORE), runEval (per-query metrics + aggregate + by difficulty/category + JSONL export), aggregateForRun, listRuns, compareRuns (regressions/improvements), getEvalMetricsSnapshot
+- ✅ `src/db.ts` migrateToV11 — 3 tabelas (`eval_queries` UNIQUE(query), `eval_runs` CHECK variant, `eval_results` PK(run_id, query_id) ON DELETE CASCADE) + SCHEMA_VERSION 10→11 + PRAGMA realign idempotente
+- ✅ `src/index.ts` — 6 subcomandos: `eval init` / `eval golden import <file>` / `eval golden-list` / `eval run --variant=hybrid` / `eval list` / `eval compare <a> <b>`
+- ✅ `src/api-server.ts` — endpoint `GET /api/eval-metrics` (lastRun + byVariant snapshot)
+- ✅ `src/__tests__/eval-metrics.test.ts` (~150 LOC, 19 cenários) — perfect/reverse/partial nDCG + MRR edge cases + Recall@K + Precision@K + mean/computePerQuery
+- ✅ `src/__tests__/eval.test.ts` (~100 LOC, 9 cenários) — schema v11 created, importGolden ROI, malformed/invalid skip, listGolden, listRuns empty, aggregateForRun null
+- ✅ `seed/seed_queries.jsonl` — 5 golden seed (expected_chunk_ids=[] placeholder, R01b cura)
+
+**Smoke prod E2E:**
+```
+$ nox-mem eval init                                  → "Schema v11 ready"
+$ nox-mem eval golden import seed/seed_queries.jsonl → "Imported 5 new"
+$ nox-mem eval run --variant=hybrid --note="R01a clean baseline"
+  ## Eval Run #2 (variant=hybrid) — Queries: 5 — Duration: 7.2s
+  | nDCG@10  | 0.000 | (gold=[] expected; R01b cura preencherá)
+$ curl /api/eval-metrics → JSON com lastRun + byVariant ✓
+```
+
+**Migration prod:** schema 10→11 sem incident; PRAGMA aligned via patch v2 ensureSchema (`db.ts` 2026-05-02 tarde); 3 tabelas eval_* criadas; pre-migration backup em `/var/backups/nox-mem/nox-mem.db.bak-pre-r01a-v11-20260502-194228`.
+
+**3 bugs achados durante impl + corrigidos:**
+1. **`program.parse(process.argv` anchor inexistente** — focus subcommand patch anterior usou `program.parse()`. Fix: ajustar anchor.
+2. **ESM static import hoisting** — eval.test.ts setava `process.env.NOX_DB_PATH` no body, mas imports hoisted antes capturaram db.ts top-level `const DB_PATH`. Fix: dynamic `await import()` em `before()` hook async.
+3. **`require()` em ESM context** — patch index.ts CLI `eval list` usou `require("./lib/eval.js")` que falha em ES module scope. Fix: importar `aggregateForRun` no top-level + usar direto.
+
+**Tests totais:** 99/100 pass + 1 skip (vec0 trigger absent), 0 fail.
+
+**3 fixes residuais auditoria 2026-05-02 (commit `2d53b44`):**
+- ✅ F14 RTO breakdown explícito em ROADMAP (1+2+<1+<1=5s validate, 30s recovery)
+- ✅ F10 spec stack canônica 1× (Next.js 14 Pages Router + React 18 + Tailwind)
+- ✅ Cost projection `~$1.125 → ~$1,125 (mil cento e vinte e cinco dólares/mês)`
+
+**Backups:**
+- `src/db.ts.bak-pre-r01a-v11-20260502-193506`
+- `src/index.ts.bak-pre-r01a-20260502-193846`
+- `src/api-server.ts.bak-pre-r01a-20260502-193846`
+- `nox-mem.db.bak-pre-r01a-v11-20260502-194228` (1GB)
+
+### Activate gates pendentes — 2026-05-09 (7d wall-clock)
+- **E03b** SPO surface activate
+- **E04b** Focus apply activate
+
+### Próxima ação
+- **R01b** curadoria 50 golden queries (8-10h, cognitive floor, spread Jun-Jul)
+- Então R01c baseline (1-2h pós-curadoria)
+- Daí E05 edge typing (8-10h, schema v12 reservado)
+
+---
+
+## Sessão anterior (2026-05-02 noite ~19:00→19:30 BRT) — E03a SPO + E04a Focus boost ✅ DONE shadow-mode
 
 ### Resultado: ✅ 2 features novas em shadow-mode prod (gate activate em 7d / 2026-05-09)
 
