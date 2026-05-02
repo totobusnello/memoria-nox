@@ -74,11 +74,11 @@ Velocity buckets aplicados (corrigidos pós-review crítico):
 | **F07** | (ops) | OpenClaw upgrade defense system (ckpt + improvements + watcher + orchestrator) | ✅ DONE | 4 | OpenClaw .24 break |
 | **F08** | (backlog) | B3 backlog sprint 7/8 (issue + CONVENTIONS + alert + playbooks) | ✅ DONE | 1.5 | — |
 | **F09** ⭐ | §3,resilience | ~~Off-site backup rclone → B2/R2~~ → moved to **D22 ❌ CUT** (user rejected 2x — VPS Hostinger native backup suffices) | ❌ CUT | — | — |
-| **F10** | §10 | Observability dashboard (Grafana + SQLite plugin OR `/api/health` time-series no agent-hub-dashboard) | 📋 QUEUED | 2-3 | Maio |
+| **F10** | §10 | Observability dashboard — spec ready (`/api/health` time-series no agent-hub-dashboard, 4 painéis, IndexedDB ring buffer 7d) | 🤔 CANDIDATE | 2.5-3 | Maio; spec `specs/2026-05-01-F10-observability-dashboard.md` |
 | **F11** | (incident) | RUNBOOKS.md formalizado (cobre RB-01 a RB-10 — incident playbooks) | ✅ DONE | 2 | — |
-| **F12** | (resilience) | Embedding model migration playbook (Gemini SPOF mitigation, shadow-index trimestral com Voyage/OpenAI) | 📋 QUEUED | 1 | Maio |
-| **F13** | (cost) | Cost projection pay-per-token alternative (Max OAuth backup plan) | 📋 QUEUED | 1 | Maio |
-| **F14** | §10 | DR drill trimestral (restore snapshot `/tmp/nox-mem-drill.db` + smoke check) | 📋 QUEUED | 1 × 3 | Jul/Out/Jan |
+| **F12** | (resilience) | Embedding model migration playbook — Gemini SPOF mitigation Tier 1/2/3 (FTS-fallback / OpenAI+Voyage switch / shadow-index trimestral) | ✅ DONE | 1 | RB-05 em `docs/RUNBOOKS.md` |
+| **F13** | (cost) | Cost projection pay-per-token alternative — 4 cenários 12mo, switch plan emergencial OpenAI 1h, comparativo 7 providers | ✅ DONE | 1 | `runbooks/cost-projection-alt-providers.md` |
+| **F14** | §10 | DR drill trimestral — initial executed 2026-05-01 (RTO 3s); user_version aligned 10/10; cron `0 9 1 1,4,7,10 1` Q1/Q2/Q3/Q4 09:00 BRT instalado; script `/root/.openclaw/scripts/dr-drill.sh` (Discord alert P0 em fail) | ✅ DONE | 1 + 0.5 cron | `runbooks/dr-drill-quarterly.md`; próxima execução auto 2026-07-06 |
 | **F15** | §11 | SEH Self-Evolving Hooks | 📋 QUEUED | 1 | Set+ |
 | **F16** | (bus factor) | Telegram bot rollback automático se health-check falha 30min | 📋 BACKLOG | 4 | gap urgente; fora orçamento atual |
 
@@ -97,7 +97,8 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | ID | Vision § | Item | Status | h | Dependências |
 |---|---|---|---|---|---|
 | **E01** | §11 (Fase 4) | Obsidian view-only (Python gen 430 LOC + cron+launchd) | ✅ DONE | 1 | F01-F08 done |
-| **E02** | §11 (Fase 3) | Tier 2 PDFs ingest (4432 PDFs HD Mac) | 📋 QUEUED | 15-25 (I/O) | G03; rate-limit Gemini risk |
+| **E02** | §11 (Fase 3) | Tier 2 PDFs ingest — **3.541/4.495 (79%) DONE via A6 + 226 retry NUVIVI+CONTRATOS in progress 2026-05-01** | 🔄 IN-PROGRESS | 15-25 (I/O) | gap residual (PPR 372 + PESSOAL 250 + outros) → E12 OCR |
+| **E12** | §11 (Tier 3) | Tier 3 OCR — escopo expandido inclui ~728 PDFs gap E02 (PPR 372 + PESSOAL 250 + size-rejected ~106) + Fathom + Path C | 📋 QUEUED | dias | — |
 | **E03a** | (ClawMem Q1) | **A6 implement** Entity-Facts SPO Injection (`<vault-facts>` block via KG) | 🤔 CANDIDATE | 1.5 | ≥G03; v1 sem confidence filter (top-K simples) |
 | **E03b** | — | **A6 activate** após 7d subjective utility report | 🤔 CANDIDATE | 0.2 | ≥E03a + 7d wall |
 | **E04a** | (ClawMem Q2) | **A7 implement** Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×) | 🤔 CANDIDATE | 1.5 | ≥G03 |
@@ -109,7 +110,6 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | **E09** | (ClawMem Q3 + §1.7b dormente) | A-MEM auto-keywords/links no ingest (funde §1.7b Hierarchical Tagging) | 🤔 CANDIDATE | 5-6 | E05 active obrigatório (enum CLOSED); shadow obrigatório |
 | **E10** | (ClawMem Q4 + W2.2) | Consolidation merge + contradiction detection (entity-anchor val) | 🤔 CANDIDATE | 3-4 | R01 nDCG≥0.6 + dry-run zero FP |
 | **E11** | §11 | Reflect cache (semantic key) | 📋 QUEUED | 1.5 | 7d telemetria reflect (Fase 1.7a ✅ DONE 04-19) |
-| **E12** | §11 (Tier 3) | Tier 3 OCR + Fathom + Path C (opcional, não bloqueia Fase 4) | 📋 QUEUED | dias | — |
 
 ### Research (eval + paper)
 

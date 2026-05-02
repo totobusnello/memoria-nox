@@ -13,6 +13,7 @@
 | `vectorCoverage <95%` ou embedding congelado | [RB-02](#rb-02-vector-coverage-drop-p1) |
 | Alerta Discord `[schema-invariants]` | [RB-03](#rb-03-schema-invariants-violation-p1) |
 | Search retorna lixo após ativação de salience | [RB-04](#rb-04-salience-activation-degradou-ranking-p0) |
+| Gemini API down/quota exhausted/key revoked (SPOF embedding) | [RB-05](#rb-05-gemini-spof-mitigation-p0) |
 | Recovery via snapshot `op_audit` | [`runbooks/recovery-from-snapshot.md`](../runbooks/recovery-from-snapshot.md) |
 | Rollback de versão nox-mem | [`runbooks/rollback-nox-mem-version.md`](../runbooks/rollback-nox-mem-version.md) |
 | Rollback de schema migration | [`runbooks/rollback-schema-migration.md`](../runbooks/rollback-schema-migration.md) |
@@ -246,3 +247,160 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
 - Ranking changes SEMPRE em commit separado com prefix `tune(search):` ou `feat(search):`
 - Boost multiplicativo empilhável é proibido — usar aditivo (lição do incident v3.4)
 - Manter rollback via env var (não hardcode) para reversão em <2min
+
+---
+
+## RB-05: Gemini SPOF mitigation (P0)
+
+> **F12 deliverable** — playbook para quando Gemini API (embedding source-of-truth) fica indisponível por motivos diversos: quota exhausted, key revoked, API outage, deprecation shutdown, custo explosivo, etc.
+
+### Diagnóstico
+
+```bash
+# 1. Confirmar que Gemini é o problema (não rede/DNS local):
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+  curl -s -w "\nHTTP %{http_code}\n" \
+  "https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent?key=${GEMINI_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d "{\"content\":{\"parts\":[{\"text\":\"healthcheck\"}]}}" | tail -5'
+# Esperado: HTTP 200 + embedding values
+# Sintomas problemáticos:
+#   HTTP 401 → key revogada (rotacionar ou pegar nova)
+#   HTTP 429 → quota stoured (esperar reset 24h ou upgrade plano)
+#   HTTP 503 → outage Google (https://status.cloud.google.com)
+#   HTTP 400 com "model deprecated" → migrar pra modelo novo
+#   timeout/no response → DNS/rede VPS local
+
+# 2. Estado atual do nox-mem:
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
+  vectorCoverage,
+  embeddingSource: .embeddings.provider,
+  lastEmbed: .embeddings.last_success
+}"'
+# Esperado: vectorCoverage.embedded == total. Se embedding está parado: gap crescente.
+```
+
+### Severidade & impacto
+
+| Cenário | Impacto imediato | Latência tolerável |
+|---|---|---|
+| Outage <1h Google | search hybrid degrada para FTS-only via fallback automático | 1-2h sem ação |
+| Outage >1h ou quota exhausted | gap chunks novos não-vetorizados acumula; recovery via batch retry | 24h sem ação |
+| Key revoked / billing issue | search semantic 100% off, novos ingests sem vetor | 4h pra rotacionar key + canary recovery |
+| Modelo deprecated / shutdown | reembed massivo necessário (62k+ chunks, ~3-6h batch) | 7d pre-shutdown ideal |
+
+### Mitigação Tier 1 — fallback automático (ATIVO)
+
+`src/search.ts` já tem fallback FTS-only quando Gemini API falha:
+- Erro do call semantic → marca `match_type: "fts-only-fallback"` em search_telemetry
+- RRF degrada graciosamente sem semantic candidates
+- Canary `*/30min` em `match_type:"semantic"` alerta Discord se zero hits >2h
+
+### Mitigação Tier 2 — switch provedor (degradação aceitável)
+
+Quando outage >2h ou key issue, switch para provedor alternativo. **Pré-requisitos** (preparados antecipadamente, não improvisado durante incident):
+
+#### Provedor A — Voyage AI (`voyage-3`, 1024d)
+
+```bash
+# 1. Subscribir conta + obter VOYAGE_API_KEY (uma única vez, fora de incident)
+# 2. Manter VOYAGE_API_KEY em /root/.openclaw/.env (commented out até precisar)
+# 3. Em incident:
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+  curl -s https://api.voyageai.com/v1/embeddings \
+  -H "Authorization: Bearer ${VOYAGE_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d "{\"input\":[\"healthcheck\"],\"model\":\"voyage-3\"}" | jq ".data[0].embedding | length"'
+# Esperado: 1024
+```
+
+**Mismatch dimensional:** Voyage 1024d vs Gemini 3072d. Não pode usar `vec_chunks` existente. Solução em incident:
+- Criar `vec_chunks_voyage` paralelo com `dim=1024`
+- `src/embedding.ts` switch via `NOX_EMBEDDING_PROVIDER=voyage` env
+- Search consulta TABELA correspondente baseado no provider ativo
+- Cobertura inicial 0% → reembed batch durante outage Gemini ou aceitar partial coverage
+
+#### Provedor B — OpenAI (`text-embedding-3-large`, 3072d) — match dimensional ✅
+
+```bash
+# Match exato com Gemini 3072d → pode reusar vec_chunks
+# Custo: $0.13/1M tokens (similar Gemini)
+# 1. Manter OPENAI_API_KEY em /root/.openclaw/.env (commented out até precisar)
+# 2. Em incident:
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+  curl -s https://api.openai.com/v1/embeddings \
+  -H "Authorization: Bearer ${OPENAI_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d "{\"input\":\"healthcheck\",\"model\":\"text-embedding-3-large\"}" | jq ".data[0].embedding | length"'
+# Esperado: 3072
+
+# 3. Switch via env var:
+ssh root@100.87.8.44 'sed -i "s/^NOX_EMBEDDING_PROVIDER=gemini/NOX_EMBEDDING_PROVIDER=openai/" /root/.openclaw/.env'
+ssh root@100.87.8.44 'systemctl restart nox-mem-api nox-mem-watcher'
+```
+
+**Caveat:** vetores Gemini-existing podem ter distribuição diferente de OpenAI-new — recall pode degradar até batch reembed completo. Aceitar 7-14d de degradação ou forçar reembed.
+
+### Mitigação Tier 3 — shadow-index trimestral (PROATIVO, recommended)
+
+Para evitar improvisar em incident, manter shadow-index permanente:
+
+```bash
+# Cron trimestral: roda 50 chunks pelo provider alternativo, calcula nDCG comparativo
+# Resultado em /var/log/nox-embedding-shadow-quarterly.log
+# Schedule:
+echo "0 3 1 1,4,7,10 * /root/.openclaw/scripts/embedding-shadow-quarterly.sh" >> /etc/cron.d/nox-mem
+```
+
+**Script `embedding-shadow-quarterly.sh`** (criar como follow-up F12 task):
+- Lê 50 golden queries de R01b
+- Para cada, embed com Gemini + Voyage + OpenAI separadamente
+- Roda search com cada vector + computa Recall@10 contra expected_chunk_ids
+- Output JSON: `{quarter: "2026Q1", gemini: 0.62, voyage: 0.58, openai: 0.61}`
+- Discord alert se ranking trocar (ex: Voyage de 0.58 sobe pra 0.65 sugere migração ativa)
+
+### Recovery: reembed massivo após switch
+
+Quando trocar provedor permanentemente:
+
+```bash
+# 1. Backup pre-reembed (op-audit não cobre embedding-only ops)
+ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
+  "VACUUM INTO /var/backups/nox-mem/pre-reembed-$(date +%Y%m%d-%H%M%S).db"'
+
+# 2. Reembed em chunks de 1k via tmux background:
+ssh root@100.87.8.44 'tmux new-session -d -s reembed-batch \
+  "set -a; source /root/.openclaw/.env; set +a; \
+   nox-mem vectorize --batch-size=100 --provider=${NOX_EMBEDDING_PROVIDER} 2>&1 \
+   | tee /tmp/reembed-batch.log"'
+
+# 3. Monitor:
+ssh root@100.87.8.44 'tail -f /tmp/reembed-batch.log'
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .vectorCoverage'
+
+# 4. Rate budget: 62.000 chunks ÷ ~50/min = ~21h. Spread overnight ou usar batch=500 se rate-limit permitir.
+```
+
+### Pós-fix verificação
+
+```bash
+# Health geral
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
+  embeddingProvider: .embeddings.provider,
+  vectorCoverage,
+  recentEmbedSuccess: .embeddings.last_success
+}"'
+
+# Search smoke test (deve retornar resultados, semantic ativo)
+ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+  nox-mem search "test query reasonably specific" --hybrid 2>&1 | head -5'
+```
+
+### Prevenção
+
+- **VOYAGE_API_KEY + OPENAI_API_KEY pre-cadastradas** no `.env` (commented out, prontas pra activate)
+- **Cron shadow-index trimestral** roda 50 queries pelos 3 provedores → trend de qualidade
+- **Discord alert** quando `match_type:"fts-only-fallback"` >50/h por >2h consecutivas (canary nova)
+- **Documentar custo mensal Gemini** em F13 (cost projection alt) — gatilho pra switch se ROI inverter
+- **Nunca depender de UM único modelo Gemini** — usar `gemini-2.5-flash-lite` default (não flash full que estoura quota)
+- **Manter `gemini-embedding-001` como source-of-truth dimensional** (3072d) até shadow-index trimestral mostrar alternativa superior em ≥2 trimestres consecutivos

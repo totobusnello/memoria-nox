@@ -1,10 +1,52 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-01 ~14:15 BRT (**Repo split: memoria-nox → openclaw-vps**)
+> **Atualizado:** 2026-05-01 ~21:30 BRT (**Marathon noite: 15 deliverables + 3 bug fixes**)
 > Substitui a sequência `handoffs/MASTER-HANDOFF-<date>.md`. Este arquivo único é mantido vivo a cada sessão.
 > Histórico individual em `handoffs/_archive/`. Para "o que vem" → `docs/ROADMAP.md`. Para "por quê" → `docs/DECISIONS.md`.
 
-## Sessão atual (2026-05-01 tarde) — Split de repos
+## Sessão atual (2026-05-01 noite ~20h30→21h30 BRT) — G02 + G03 + 5 specs + 3 bug fixes + F12/F13/F14 DONE
+
+### Resultado: ✅ section_boost ativo + 3 docs/specs novos + retry NUVIVI/CONTRATOS background
+
+**Entregas:**
+- **G02 ✅ APLICADO** — section_boost shadow→active após análise 7d (compiled +100% n=1252, frontmatter +49% n=315, timeline -17% n=11). `/root/.openclaw/.env` linha 43 `NOX_SECTION_BOOST_MODE=active`. Backup: `.env.bak-pre-section-boost-active-20260501-203152`. Services restarted.
+- **G03 ✅ DONE** — 3 source files arquivados em `/root/.openclaw/workspace/memory/{projects,decisions,lessons}.md.archived-20260502`. 8 chunks órfãos (lessons=4, decisions=2, projects=2) cleanup no consolidate noturno.
+- **Spec E03a criada** — `specs/2026-05-01-E03a-spo-injection.md` (`<vault-facts>` block via KG, top-K simples, schema zero-mudança, env-var driven shadow→active, 1.5h impl).
+- **Spec E04a criada** — `specs/2026-05-01-E04a-focus-boost.md` (`focus set <topic>` 1.4×/0.75×/1.0, cache `/tmp/nox-mem-focus-<session>.json` TTL 7d, fail-open, 1.5h impl).
+- **R01a revisado** — `specs/2026-04-27-R01a-eval-harness.md` ready to execute Maio 2026 (5h estimate, schema v11 ou v12 dependendo da ordem com E05).
+- **E02 audit** — gap real é **954 PDFs** (não 2.269): PPR 372 / PESSOAL 250 / CONTRATOS 171 / EMPRESAS Cont 83 / NUVIVI 55 / outros 23. Cobertura A6 = 3.541/4.495 = 79%.
+- **E02 retry B-target IN-PROGRESS** — 226 PDFs (NUVIVI 55 + CONTRATOS 171) sincronizados pra `/root/.openclaw/workspace/memory/mac-docs/`. Script `/root/.openclaw/scripts/pdf-retry-target.sh` rodando em tmux session `pdf-retry-e02`. Log `/tmp/pdf-retry-target.log`. ETA ~2-4h.
+- **ROADMAP atualizado** — E02 marcado IN-PROGRESS com cobertura 79%; E12 escopo expandido pra incluir gap residual (~728 PDFs PPR+PESSOAL+size-rejected).
+
+**Quick wins extras (mesma sessão noite):**
+- ✅ DECISIONS.md update — bloco 2026-05-01 (G02/G03/E02/lições)
+- ⚠️ Cleanup 8 chunks órfãos G03 — bloqueado (sqlite3 sem vec0); deferido pro consolidate noturno
+- ✅ Triagem op-audit-e2e — root cause identificado em `db.js:7` (DB_PATH ignora NOX_DB_PATH env); fix=1.5-2h
+- ✅ **F12 ✅ DONE** — RB-05 Gemini SPOF mitigation playbook (Tier 1/2/3) em `docs/RUNBOOKS.md`
+- ✅ **F13 ✅ DONE** — cost projection alt em `runbooks/cost-projection-alt-providers.md` (4 cenários 12mo, switch OpenAI 1h)
+- ✅ **F14 initial DR drill executed** — `runbooks/dr-drill-quarterly.md` documentado; RTO real 5s validate; **BUG achado: user_version=0 em prod** (schema v10 features presentes mas pragma não bumped). Cron quarterly pendente.
+- ✅ **F10 design spec criada** — `specs/2026-05-01-F10-observability-dashboard.md` (4 painéis no agent-hub-dashboard, 2.5-3h impl)
+
+**Carry-over monitoring:**
+- `tmux attach -t pdf-retry-e02` (VPS) ou `tail -f /tmp/pdf-retry-target.log`
+- Ao fim: `curl /api/health | jq .chunks.total` deve subir; vectorize follow-up para novos chunks
+- Validar focus_mode=shadow não atrapalhou ranking (telemetria search 24h)
+
+### Próxima sessão (após retry NUVIVI/CONTRATOS terminar)
+- Pós-retry: ingestar .md gerados (watcher pega automático ou rodar `nox-mem reindex` se gap)
+- Implementar E03a (1.5h) + E04a (1.5h) em branches paralelas se janela disponível
+- R01a impl Maio (4-6h) — schema v11 (PRAGMA user_version 10→11) + tabelas eval_*
+- **F10 dashboard impl** (2.5-3h) — feat branch no `agent-hub-dashboard`
+- ~~F14 cron quarterly + script~~ ✅ **DONE 2026-05-01 21:29** — `/root/.openclaw/scripts/dr-drill.sh` deployado, cron `0 9 1 1,4,7,10 1` instalado, smoke test OK (drill log JSON em `/var/log/nox-dr-drill-quarterly.log`), Discord alert configurado. Próxima execução auto: 2026-07-06.
+
+### Bug fixes resolvidos esta sessão (2026-05-01 noite extra)
+- ✅ **#3 cleanup 8 chunks órfãos G03** — deletados via better-sqlite3 com vec0 loaded (cascade trigger executou). DB total 62.927 → 62.919.
+- ✅ **#2 PRAGMA user_version aligned** — bumpado 0 → 10 pra match com `meta.schema_version`. Backup `/var/backups/nox-mem/pre-bump-pragma-20260501-211006.db`. Achado real: não era bug schema, era inconsistência fonte (`meta.schema_version` vs `PRAGMA user_version`); só `op-audit` usa PRAGMA como sentinel safeRestore. Future ops_audit registrará schema_user_version=10.
+- ✅ **#1 op-audit-e2e fix** — `src/db.ts` agora honra `NOX_DB_PATH` env (priority: NOX_DB_PATH > OPENCLAW_WORKSPACE > __dirname). Test setupDb refeito pra delegar schema build ao ensureSchema (em vez de pré-criar tabela com schema v1 minimal que conflictava com migrations v3+). **27/27 tests pass** (retention 20 + op-audit-e2e 7), zero regression. Build redeployado, prod nox-mem-api restarted healthy.
+
+---
+
+## Sessão anterior (2026-05-01 tarde) — Split de repos
 
 ### Resultado: ✅ memoria-nox enxuto, conteúdo OpenClaw migrado
 
