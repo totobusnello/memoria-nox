@@ -1,8 +1,42 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-02 ~19:45 BRT (**E03a + E04a + R01a deployed; schema v11; 3 fixes residuais closed**)
+> **Atualizado:** 2026-05-02 ~19:55 BRT (**E03a + E04a + R01a deployed + R01b 5/50 cured + 1ª eval baseline**)
 
-## Sessão atual (2026-05-02 noite ~19:00→19:45 BRT) — Triple deploy: SPO + Focus + Eval Harness
+## Sessão atual (2026-05-02 noite ~19:00→19:55 BRT) — Triple deploy + 1ª baseline eval
+
+### R01b 5/50 cured + insight FTS=0
+
+**Curadoria manual:**
+- Q45 monkey-patch Issue 62028 → `[116075, 116814, 116817]` (CONVENTIONS + 2 lessons)
+- Q46 modelo Gemini default → `[117490, 117489]` (decision file)
+- Q47 withOpAudit → `[]` **(NEGATIVE/GAP CASE — código TS não está em corpus md)**
+- Q48 ativar salience → `[116466, 116467, 117852]` (plans + systems)
+- Q49 graphify vs nox-mem KG → `[116121, 116120]` (nox-neural-memory.md)
+
+**Run #3 (hybrid cured n=5):**
+| Metric | Value |
+|---|---|
+| nDCG@10 | **0.699** |
+| MRR | 0.700 |
+| Recall@10 | 0.800 |
+| Prec@5 | 0.400 |
+
+By difficulty: hard=0.922 (n=2), easy=0.920 (n=1), medium=0.366 (n=2)
+By category: entity=0.484 (n=2), decision=0.920 (n=1), procedure=0.733 (n=1), concept=0.877 (n=1)
+
+**Run #4 (fts cured n=5):** TODAS métricas = 0.000
+
+**Insight crítico (não-bug, design constraint):** FTS5 vanilla é AND-strict — query "qual modelo Gemini usar como default no nox-mem" requer TODOS os termos batendo simultaneamente em mesmo chunk; raramente acontece em queries linguagem natural. **Hybrid resolve via expansion + Gemini semantic + RRF.** Validation manual: `search("modelo Gemini default", 3)` retorna 3 chunks com IDs válidos; mas query completa retorna 0. Hybrid score 0.699 vs FTS 0.000 = exatamente o gap que justifica o pipeline existente.
+
+**Trigger D01 (Q5 cross-encoder reranker):** spec dizia "≥0.6 OR 2 PRs mal-rankeadas". Hybrid n=5 = 0.699 já passou — mas amostra muito pequena pra commit. Aguardar R01b n=50 antes de marcar D01 active.
+
+### Próxima ação
+- **R01b restante 45 queries** (8-10h, cognitive floor — spread Jun-Jul, NÃO numa sessão)
+- Ou pausar R01b e usar baseline n=5 pra avaliar futuras mudanças (E05 edge typing impl pode usar nDCG=0.699 como referência)
+
+---
+
+## Sessão anterior (2026-05-02 noite ~19:00→19:45 BRT) — Triple deploy: SPO + Focus + Eval Harness
 
 ### Resultado: ✅ 3 features novas em prod + schema v11 ativo + 99/100 tests pass
 

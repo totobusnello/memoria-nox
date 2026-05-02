@@ -139,8 +139,8 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | ID | Vision § | Item | Status | h | Dependências |
 |---|---|---|---|---|---|
 | **R01a** | §11 Wave 2 | **Eval harness skeleton** (schema v11 + tabelas `eval_queries`/`eval_runs`/`eval_results` + nDCG@10/MRR/Recall@10/Precision@5 + CLI 5 subcommands + JSONL out + `/api/eval-metrics` + 5 golden seed queries) — `src/lib/eval-metrics.ts` (pure funcs) + `src/lib/eval.ts` (orchestration) deployed 2026-05-02 19:43 BRT; run #2 baseline `query_count=5 nDCG=0` (expected_chunk_ids=[] = curador R01b enche); 28/28 eval tests + 99/100 suite total | ✅ DONE | 4-6 (real ~3h) | F01 corpus ready ✅ |
-| **R01b** | — | **Curadoria 50 golden queries** (cognitive floor, não comprime) | 📋 QUEUED | **8-10** (humano) | spread Jun-Jul |
-| **R01c** | — | Baseline FTS-only vs hybrid run + publish nDCG@10 em `/api/health.evalMetrics` | 📋 QUEUED | 1-2 | R01a + R01b |
+| **R01b** | — | **Curadoria 50 golden queries** (cognitive floor, não comprime) — **5 seed cured 2026-05-02** (4 com chunks + 1 negative case "withOpAudit" expondo gap corpus md vs código TS); ainda faltam 45 queries | 🔄 IN-PROGRESS (5/50) | **8-10** (humano) | spread Jun-Jul |
+| **R01c** | — | Baseline FTS-only vs hybrid run + publish nDCG@10 em `/api/health.evalMetrics` — **prelim 2026-05-02 (n=5 cured): hybrid nDCG@10=0.699 / fts=0.000** (FTS5 vanilla AND-strict não bate queries NL completas; hybrid resolve via semantic+RRF). Trigger D01 (≥0.6) já passou em hybrid. Aguarda n=50 pra significância | 🔄 IN-PROGRESS (prelim n=5) | 1-2 | R01a ✅ + R01b 50q completo |
 | **R02** | §11 Wave 3 | Paper v2 update — Affective Ranking + Multi-Agent Federation + Bridge Mode | 📋 QUEUED | **5-6** (writing tem floor cognitivo) | R01c published |
 
 ### Product (NOX-Supermem)
