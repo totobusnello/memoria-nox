@@ -1,6 +1,6 @@
-# Paper v2 — Quantitative Evidence Section (DRAFT)
+# Paper v2 — Quantitative Evidence Section (DRAFT v2 — pós-critic-revision)
 
-> **Status:** Draft inicial 2026-05-03 noite. Compilação de evidências experimentais coletadas em sessão R01c + B1+B2+B3 + Wave 1 (E06+E07+E08+E10+E11) + F15.
+> **Status:** Draft v2 2026-05-03 noite. Compilação de evidências experimentais coletadas em sessão R01c + B1+B2+B3 + Wave 1 (E06+E07+E08+E10+E11) + F15a/b. Critic-flagged framing issues addressed in §1.5 (limitations) and §2.6 (enum coverage gap).
 > **Para inserir em:** Section "Empirical Validation" do paper v2 (substitui hand-wavy claims do v1).
 > **Author:** Luiz Antonio Busnello (Toto). **Compiled by:** Claude Opus 4.7 (1M context).
 
@@ -8,20 +8,20 @@
 
 ## 1. Hybrid Pipeline Necessity — Quantitative Evidence
 
-### 1.1 FTS5 vanilla vs Hybrid (RRF) at scale
+### 1.1 FTS5 vanilla vs Hybrid (RRF) — single-run comparison
 
-Comparative evaluation conducted 2026-05-03 on 50 curated golden queries (R01b milestone — natural language, mixed difficulty across 8 categories: entity, decision, procedure, concept, temporal, cross-agent, security, negative).
+Comparative evaluation conducted 2026-05-03 on 50 curated golden queries (R01b milestone). The query set spans 8 categories (entity, decision, procedure, concept, temporal, cross-agent, security, negative-case) with mixed difficulty (8 easy, 22 medium, 18 hard) and includes 6 deliberate negative cases (`expected=[]`) that test specificity against hallucination — these score 0 by design and contribute to aggregate drag.
 
-| Metric | FTS5-only (Run #8) | Hybrid (Run #9) | Δ absolute | Δ relative |
-|---|---|---|---|---|
-| nDCG@10 | 0.015 | 0.519 | +0.504 | **34.6× improvement** |
-| MRR | 0.025 | 0.482 | +0.457 | 19.3× |
-| Recall@10 | 0.013 | 0.687 | +0.674 | **52.8× improvement** |
-| Precision@5 | 0.005 | 0.268 | +0.263 | 53.6× |
+| Metric | FTS5-only (Run #8) | Hybrid (Run #9) | Δ absolute |
+|---|---|---|---|
+| nDCG@10 | 0.015 | 0.519 | **+0.504** |
+| MRR | 0.025 | 0.482 | +0.457 |
+| Recall@10 | 0.013 | 0.687 | **+0.674** |
+| Precision@5 | 0.005 | 0.268 | +0.263 |
 
-(Note: Run #9 includes 6/50 negative queries with `expected=[]` that score 0 by design, lowering aggregate. Run #7 n=40 without those 6 negatives gave Hybrid nDCG=0.658.)
+**Absolute Δ in nDCG (0.504) is the load-bearing claim.** Multiplicative ratios (34.6× nDCG, 52.8× Recall) appear large because the FTS baseline approaches zero — the meaningful interpretation is "FTS recovers ~3% of what hybrid retrieves," not "hybrid is 35× better in some general sense." We report multipliers for transparency but treat the absolute Δ as the primary effect size.
 
-**FTS5 baseline by category:** entity=0.068 (only non-zero, n=9 single-token queries) / decision/procedure/concept/temporal/cross-agent/security/negative = 0.
+**FTS5 baseline by category:** entity=0.068 (only non-zero, n=9 single-token queries succeed) / decision=0 / procedure=0 / concept=0 / temporal=0 / cross-agent=0 / security=0 / negative=0.
 
 ### 1.2 Mechanism (why FTS fails on natural language)
 
@@ -31,9 +31,35 @@ SQLite FTS5 default operator is **AND-strict**: a query like `"qual modelo Gemin
 
 ### 1.3 Architectural conclusion
 
-Hybrid pipeline (FTS5 BM25 → Gemini semantic → Reciprocal Rank Fusion k=60) is **load-bearing, not decorative**. The 0.504 absolute nDCG gap between layers quantifies the value of the semantic embedding layer. Removing it produces a system **97.7% less effective** at retrieval (nDCG basis).
+Hybrid pipeline (FTS5 BM25 → Gemini semantic → Reciprocal Rank Fusion k=60) is **load-bearing, not decorative**. The 0.504 absolute nDCG gap between layers quantifies the value of the semantic embedding layer.
 
 This empirically refutes the "FTS is sufficient for memory systems" position commonly assumed in lightweight implementations. Cost-optimization strategies must preserve semantic-first ranking; provider substitution (e.g., Voyage instead of Gemini) is acceptable, layer elimination is not.
+
+### 1.4 Threats to validity (SHOULD READ before citing 1.1 numbers)
+
+This section enumerates known limitations of the experimental setup. The qualitative direction (hybrid >> FTS for natural language queries) is robust; precise numeric claims should be qualified accordingly.
+
+1. **Single-run measurement (n=1).** Run #8 and Run #9 are single executions of each variant against the same golden set. There is no per-query variance estimate. Re-running the same query twice can yield slightly different rankings if any non-deterministic component exists (e.g., RRF tie-breaking, embedding API minor variation). Future work must report **mean ± std over ≥3 runs** to quantify variance.
+
+2. **Golden-set construction bias.** The 50 golden queries were authored by the same person (Toto) who tuned and operates the hybrid system. This introduces **selection bias toward queries the hybrid system handles well** — the author's intuition for "good queries" is shaped by what the system already answers. An independent golden set (curated by a third party who has not used the system) would provide stronger evidence. Mitigations partially in place: 6/50 queries are deliberate negative-case/gap tests targeting known weak spots, and category coverage spans 8 distinct intent types — but bias is not eliminated.
+
+3. **Small absolute baseline amplifies multipliers.** When FTS nDCG = 0.015, even tiny absolute changes appear as huge multipliers. We chose to report the absolute Δ (0.504) as the primary number because it is invariant to baseline scale.
+
+4. **Single corpus.** All measurements are on a 64.180-chunk corpus from one specific domain (Toto's multi-agent operational memory: PT-BR + EN, technical + business + personal). Results may not generalize to:
+   - Pure code corpora (where token-overlap may be higher)
+   - Heavily multilingual corpora (where tokenization becomes the bottleneck)
+   - Smaller corpora (<1k chunks) where FTS5 might suffice
+
+5. **No comparison vs alternative semantic models.** We compare FTS-only vs FTS+Gemini-embedding-001+RRF. We do NOT report results with Voyage, OpenAI, or BGE embeddings — substitutability is asserted in 1.3 but not measured.
+
+### 1.5 Replication plan (Wave 3, prior to publication)
+
+Before submitting paper v2 for external review, the following experiments will run:
+- **3-run mean ± std** for both FTS-only and Hybrid variants (n=50 same set)
+- **Held-out golden subset** (10 queries) authored independently by user not on the project
+- **Comparison run** with Voyage-embed-3-large as alternative semantic provider (cost projection F13 already supports this swap)
+
+Until these complete, claims in §1.1 should be cited as *preliminary single-run, single-corpus, internal-curator results pending replication*.
 
 ---
 
@@ -77,6 +103,31 @@ The combination of (a) optional schema field + (b) "use unknown when unsure" pro
 2. **Mark enum required** in schema OR explicitly coerce
 3. **Validate distribution at scale** (n ≥ 50, not n = 20) — the failure mode is statistical (rate), not crash
 4. **Always check `SELECT field, COUNT(*) GROUP BY field`**, never trust aggregate
+
+### 2.6 Enum coverage gap — why 54% remains unknown
+
+Post-fix metrics show 46% of relations classified across the 6 non-unknown reasons; **54% remain `unknown`**. This is not pure LLM failure — analysis of the 595 unmappable `relation_type` values reveals legitimate semantic mismatches with the closed enum:
+
+| relation_type literal | count in unknown | should map to? |
+|---|---|---|
+| `works_on` | 180 | NEITHER `depends_on` nor `mentions` cleanly fit. "Person works_on project" expresses involvement, not a dependency. |
+| `communicates_with` | 70 | Symmetric agent-to-agent, no causal direction. None of 7 reasons fits. |
+| `manages` | 43 | Authority/control relation — distinct from "depends_on" (technical) and "mentions" (informational). |
+| `created` | 27 | Closer to inverse of `derived_from` (B was derived from A → A created B), but 7-enum has no symmetric pair. |
+| `decided` / `decided_on` | 24 | Decision-making act, not dependency or extension. |
+
+**Two paths forward (deferred to E05 Phase 2):**
+
+**Option A — Expand enum (recommended):** Add 3 reasons:
+- `operates_on` (works_on, manages, modifies)
+- `governs` (decided, decided_on, approved, authorized)
+- `interacts_with` (communicates_with, mentioned_with — symmetric)
+
+This would reclassify ~340/595 currently-unknown relations into meaningful categories (estimated 57% additional coverage based on top-15 unmappable types).
+
+**Option B — Add `not_applicable` distinct from `unknown`:** Two-state distinction lets us separate "LLM failed to classify" (true error) from "no reason in our taxonomy fits" (taxonomy gap). Cleaner metric: report `classification_success_rate` excluding `not_applicable` from the denominator.
+
+**Architectural lesson:** the 14% → 56% improvement was real but masked a deeper question — **is our enum the right taxonomy?** Without §2.6 analysis, next session would chase the wrong residual ("how to push 56% higher?") instead of the right question ("which categories are we missing?"). Evaluation metrics must distinguish *classifier error* from *taxonomy under-specification*.
 
 ---
 

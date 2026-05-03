@@ -1,10 +1,101 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~20:30 BRT (**Wave 1 + F15a + E10 + audit triplo + 11 fixes (4 CRITICAL + 7 HIGH); sessão 12h-shipped em ~5h, 0 regression**)
+> **Atualizado:** 2026-05-03 ~20:50 BRT (**Wave 1+2 + F15a/F15b + R02 paper finalize + audit triplo + 11 fixes; sessão ~6h shipped 18h+ work**)
 
 ---
 
-## Sessão atual (2026-05-03 noite ~20:00→20:30 BRT) — Audit triplo + 11 fixes CRITICAL/HIGH
+## Sessão atual (2026-05-03 noite ~20:30→20:50 BRT) — F15b SEH proper + R02 paper finalize + 05-09 checklist
+
+### F15b SEH Self-Evolving Hooks proper ✅ DONE (~25min vs estimate 2-3h)
+
+- **Novo:** `src/seh-detector.ts` (~165 LOC) + CLI `nox-mem seh-report`
+- **6 detector kinds:**
+  - `perf_regression` — p95 dobrou WoW (alert se 4×, warn se 2×) + config_patch hint
+  - `error_spike` — success_rate caiu >10pp WoW (alert se -25pp)
+  - `dormant_command` — sem usar há ≥30d
+  - `capacity_warning` — usage 3× WoW (potential loop runaway)
+  - `first_use` — novo comando aparecendo (informational)
+  - `recovery` — success_rate subiu >10pp WoW (informational positive)
+- **PERF_PATCH_HINTS map:** sugere config patches específicos (ex: reflect→`NOX_REFLECT_TIMEOUT_MS`=p95×1.5)
+- **Não auto-aplica** (FP risk em config crítica) — gera report acionável que humano valida
+- Smoke prod: detectou `cli-stats` first_use corretamente (informational)
+- Backup: `src/index.ts.bak-pre-f15b-*`
+
+### R02 paper v2 finalize ✅ — 4 critic caveats aplicados
+
+- **§1.1 reframed:** absolute Δ (0.504 nDCG) como primary effect size, não multiplier (34.6×)
+- **§1.4 NOVO — Threats to validity:** 5 limitations explícitas (n=1 single-run, golden bias autor=operador, small baseline amplifies, single corpus, no alt providers)
+- **§1.5 NOVO — Replication plan:** 3-run mean±std + held-out subset 10 queries + Voyage comparison antes de submission
+- **§2.6 NOVO — Enum coverage gap:** análise dos 595 unknown residuais → 3 reasons novas propostas (`operates_on`/`governs`/`interacts_with`) cobrem 57% additional; OR `not_applicable` distinct from `unknown` pra separar classifier-error de taxonomy-gap
+
+### Item 3 — Activate gate 2026-05-09 sábado (PASSIVE)
+
+**Routine criada anteriormente:** `trig_012nuCN14VwcxGLq8ERaLPCK`
+- One-time run: 2026-05-09T12:00:00Z (= 09:00 BRT sábado)
+- Environment: Toto Code
+- URL: https://claude.ai/code/routines/trig_012nuCN14VwcxGLq8ERaLPCK
+- Output esperado: GitHub Issue automática no repo memoria-nox com verdict ACTIVATE/KEEP-SHADOW per feature
+
+**Checklist pra Toto no sábado 2026-05-09 manhã:**
+
+1. **Verificar issue criada** (~09:30 BRT):
+   ```bash
+   gh issue list --repo totobusnello/memoria-nox --label gate-decision --state open
+   ```
+
+2. **Para cada verdict ACTIVATE no issue:**
+   - **E03b SPO surface:**
+     ```bash
+     ssh root@187.77.234.79 'sed -i "s|NOX_VAULT_FACTS_MODE=shadow|NOX_VAULT_FACTS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
+     ```
+   - **E04b Focus apply:**
+     ```bash
+     ssh root@187.77.234.79 'sed -i "s|NOX_FOCUS_MODE=shadow|NOX_FOCUS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
+     ```
+   - **E05 Edge typing reason boost** (ainda não em shadow específico — pode esperar Phase 2):
+     - Sem mudança required hoje
+
+3. **Validate pós-activate (~10min):**
+   ```bash
+   ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "schema v12" 5 2>&1 | head -10'
+   # Esperar ver "[vault-facts]" como ACTIVE (não shadow) no log
+   ```
+
+4. **Run R01c re-baseline pós-activate** (compare nDCG):
+   ```bash
+   ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="post E03b/E04b activate"'
+   nox-mem eval compare 9 <new_run_id>
+   ```
+   - Se nDCG ≥0.519 (Run #9 baseline): ✅ activate confirmado
+   - Se nDCG <0.500 (queda >2pp): rollback via env shadow + investigar
+
+**Se verdict KEEP-SHADOW em qualquer feature:** simplesmente ignorar — sistema continua rodando shadow-mode coletando telemetria pra próximo gate.
+
+### Sprint completo — 9 features Wave 1+2 shipped
+
+| Feature | Esforço estimado | Real | Status |
+|---|---|---|---|
+| B1+B2+B3 fix E05 | (não previsto) | 45min | ✅ |
+| E06 detect-changes | 2-3h | 30min | ✅ |
+| E07 impact | 2.5h | 25min | ✅ |
+| E08 api-impact | 1.5h | 20min | ✅ |
+| E10 consolidate-merge dry-run | 3-4h | 45min | ✅ partial (apply gated) |
+| E11 reflect cache | 1.5h | 25min | ✅ |
+| F15a CLI Observability | 1h | 30min | ✅ |
+| **F15b SEH proper** | 2-3h | **25min** | ✅ |
+| R02 paper draft + finalize | 5-6h | 35min draft + 15min finalize | ✅ partial (replication pending) |
+| R01b 50/50 milestone | (cure) | 30min | ✅ |
+| R01c definitivo | 1-2h | 5min | ✅ |
+| **Audit triplo + 11 fixes** | (não previsto) | 45min | ✅ |
+| **Total** | **~22h estimate** | **~6h real** | **3.7× faster** |
+
+### Próxima ação
+- 2026-05-09 sábado: aplicar checklist activate gates acima
+- Sessão #2 esta semana opcional: F12-F14 cleanup OR E12 Tier 3 OCR OR R01c replication (3-run mean±std)
+
+---
+
+## Sessão anterior (2026-05-03 noite ~20:00→20:30 BRT) — Audit triplo + 11 fixes CRITICAL/HIGH
 
 ### 3 audits paralelos voltaram
 

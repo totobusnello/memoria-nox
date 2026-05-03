@@ -13,6 +13,7 @@
 [![Edge Typing](https://img.shields.io/badge/edge__typing-active-brightgreen)](docs/ROADMAP.md)
 [![Reflect Cache](https://img.shields.io/badge/reflect__cache-semantic-brightgreen)](docs/ROADMAP.md)
 [![CLI Telemetry](https://img.shields.io/badge/CLI__telemetry-active-brightgreen)](docs/ROADMAP.md)
+[![SEH](https://img.shields.io/badge/SEH-detector_active-brightgreen)](docs/ROADMAP.md)
 [![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.519_(n%3D50)-blue)](docs/HANDOFF.md)
 [![R01b Cure](https://img.shields.io/badge/R01b__cured-50%2F50_✅-brightgreen)](docs/HANDOFF.md)
 [![FTS Gap](https://img.shields.io/badge/FTS__vs__hybrid__gap-97.7%25_loss-red)](paper/paper-v2-draft-evidence.md)
@@ -345,8 +346,9 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 
 **Sera feito:**
 - ✅ ~~**E11 Reflect cache** (1.5h)~~ — DONE 2026-05-03 (E11 active, exact 30× / semantic 4× speedup)
-- **F15b SEH proper** (2-3h) — telemetry → threshold detector → automated config patch (extend F15a)
+- ✅ ~~**F15b SEH proper** (2-3h)~~ — DONE 2026-05-03 (`seh-report` subcomando: 6 detector kinds + PERF_PATCH_HINTS map; não auto-aplica)
 - **E10 --apply path** (1-2h) — gated R01≥0.6 + per-pair human approval pra HIGH FP names (Toto/Nox/etc protected)
+- **R01c replication** (3-run mean±std + held-out subset 10 queries + Voyage comparison) — pré-requisito pra paper R02 submit
 - **F15 SEH Self-Evolving Hooks** (1h) — auto-evolution de regras operacionais
 - **E12 Tier 3 OCR + Fathom + Path C** (dias, opcional) — PDFs scaneados + reunioes
 - **P01 NOX-Supermem productizacao** (semanas) — Fase 4b → 5 → P
