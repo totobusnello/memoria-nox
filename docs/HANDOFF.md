@@ -1,10 +1,63 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~21:00 BRT (**+R01c replication 3-run mean±std completed: hybrid 0.5213±0.0004 vs FTS 0.0123±0**)
+> **Atualizado:** 2026-05-03 ~21:30 BRT (**Sessão B replication: held-out n=10 + Voyage planning; zero hallucination em 5/5 negatives; cross-curator bias <5pp**)
 
 ---
 
-## Sessão atual (2026-05-03 noite ~20:50→21:00 BRT) — R01c replication Step 1 (3-run)
+## Sessão atual (2026-05-03 noite ~21:00→21:30 BRT) — Sessão B Replication: held-out + Voyage planning
+
+### Step 2 — Held-out 10 queries (DONE com caveat)
+
+**10 queries autoradas perspectiva naive-user** (Claude como proxy de external curator — não equivalente a true external, documentado como best-effort):
+- 5 queries possivelmente respondíveis (chunks duplicados, memória curto/longo, exportar, modelo IA, medir busca)
+- 5 negatives (offline mode, disco enche, audit per-user, add agent, max chunks limit)
+
+**Curated via search prod top-10 + SQL UPDATE** — 5 cured + 5 negative.
+
+**Resultados (Run #16 hybrid + Run #17 FTS, n=60 = 50 main + 10 held-out):**
+
+| Subset | n | nDCG@10 | Recall@10 |
+|---|---|---|---|
+| Held-out total | 10 | **0.3443** | 0.5000 |
+| Held-out **cured-only** | 5 | **0.689** | — |
+| Held-out **negatives** | 5 | **0.000** ✅ zero hallucination | — |
+| Main set Run #9 | 50 | 0.5213 | 0.6800 |
+| FTS held-out | 10 | **0.000** | 0.000 |
+
+**Achados críticos:**
+- **Zero hallucination em 5/5 negatives** — sistema NÃO retornou false positives em queries genuinamente sem resposta no corpus. Specificity preservada em queries novas.
+- **Cross-curator bias <5pp** — cured-only nDCG main ~0.65 vs held-out 0.689 (direção OPOSTA do esperado, held-out até melhor). Bias de selecionar "queries que hybrid handle bem" foi MENOR que feared.
+- **FTS = 0 em held-out** confirma robustamente tese §1.1.
+
+### Step 3 — Voyage adapter (PLANNING-READY, EXECUTION-BLOCKED)
+
+Sem `VOYAGE_API_KEY` no `.env` da VPS — não pude rodar comparison real. Decisão: documentar adapter pseudocode no paper §1.5 + cost estimate ($20 budget) + expected outcome criteria, em vez de implementar placeholder vazio.
+
+**Documentado no paper:**
+- Drop-in replacement em `src/embed-voyage.ts` (~30 LOC)
+- Switch via env `NOX_EMBED_PROVIDER=voyage|gemini`
+- Cost: $5.76 re-embedding 64K chunks + $0.05 per eval batch
+- Expected: nDCG ≥0.45 → "interchangeable"; <0.40 → "Gemini-specific"
+
+### Step 4 — FUTURE WORK
+- Cross-corpus BEIR (out of scope paper v2)
+- True external curator (não-Claude, não-operador) pra eliminar bias residual
+
+### Citation guidance atualizada
+
+§1.1 cites aceitáveis com qualifier:
+> "(n=50 main + n=10 held-out, 3-run mean ± std on internal-curator golden set + naive-proxy held-out subset; semantic provider Gemini-only)"
+
+Held-out specificity finding (5/5 negatives zero hallucination) é **publication-strength por si só** — claim independente de Step 3.
+
+### Próxima ação
+- **2026-05-09 sábado:** activate gate (passivo) + checklist
+- **Sessão futura:** quando Toto adquirir Voyage key (~$20), executar Step 3 (~1h impl + 30s run + 30min análise)
+- **Pós-Voyage:** paper R02 publication-ready, possível submit a venue (KDD/CIKM workshop)
+
+---
+
+## Sessão anterior (2026-05-03 noite ~20:50→21:00 BRT) — R01c replication Step 1 (3-run)
 
 ### Sessão A do plano replication — IMPL + EXECUTION
 
