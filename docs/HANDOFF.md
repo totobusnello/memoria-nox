@@ -1,10 +1,59 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~19:20 BRT (**R01c prelim FTS n=40 ✅ + improvements threshold ajustado + 13/13 OK**)
+> **Atualizado:** 2026-05-03 ~19:40 BRT (**R01c prelim ✅ + B1+B2+B3 fix E05 reason undercoverage: 17%→46% classified rate**)
 
 ---
 
-## Sessão atual (2026-05-03 noite ~19:00→19:20 BRT) — Sanity + R01c prelim FTS
+## Sessão atual (2026-05-03 noite ~19:30→19:40 BRT) — B1+B2+B3 fix E05 reason undercoverage
+
+### Bug detectado pós-validação E05 (kg-extract --limit 20)
+- **Sintoma:** apenas 14% das relations novas (6/43) ganhavam `relation_reason` classified — 86% caíam em `unknown`
+- **Casos óbvios não-mapeados:** `relation_type="extends"` → `reason="unknown"` ❌ (deveria ser `extends`)
+- **3 root causes:**
+  1. `reason` NÃO está em `required` no Gemini responseSchema — campo opcional
+  2. Prompt instruía "DEFAULT — never invent" sobre unknown — encoraja conservadorismo
+  3. `normalizeRelationReason()` só olhava o campo `reason`, ignorava `relation_type` literal mapeável
+
+### B1 fix — `src/kg-llm.ts` (3 patches)
+1. **Novo `RELATION_TYPE_TO_REASON` map** (24 entradas PT-BR + EN: requires/needs/uses→depends_on, references/mentioned_in/includes→mentions, supersedes/migrates_from→replaces, etc)
+2. **`mapRelationTypeToReason()` exportado** + `normalizeRelationReason(raw, relationType?)` agora 3-path: Gemini reason → inferred via map → unknown fallback
+3. **Prompt revisado:** "REQUIRED for every relation" + "PREFER classifying when verb maps directly" + lista verbs por reason
+- Tests: **10/10 edge-typing pass**, zero regression
+- Backup: `src/kg-llm.ts.bak-pre-b1-20260503-192615`
+
+### B2 validation — `nox-mem kg-extract --limit 100`
+- **100 chunks em 2m55s**, 4 fast-path skip, 96 Gemini calls (~$0.10)
+- KG: entities 458→**914** (+456), relations 587→**1109** (+522)
+- **Classification rate em new relations: 14% → 56% = 4× melhora ✅**
+- Aparecem reasons antes zero: `derived_from=34`, `extends=2`, `replaces=1`
+
+### B3 — novo subcomando `kg-reclassify` em `src/index.ts`
+- Backfill cheap pra unknown legacy via `mapRelationTypeToReason()` (zero Gemini call)
+- `--dry-run` (CLAUDE.md regra 6) + `--limit` + transação atômica
+- **Dry-run preview:** 732 unknown scanned → 137 wouldUpdate (18.7%) → 595 wouldSkip (relation_types não-mapeáveis: works_on/manages/communicates_with)
+- **Aplicado:** 137/137 updated em <50ms zero quota Gemini
+- Backup: `src/index.ts.bak-pre-b3-20260503-193214`
+
+### 📊 Evolução KG relation_reason (sessão completa)
+
+| Reason | Início | Pós-B2 | Pós-B3 | Δ Total |
+|---|---|---|---|---|
+| **unknown** | 464 (100%) | 732 (66%) | **595 (54%)** | **-46pp** ✅ |
+| **classified** | 80 (17%) | 377 (34%) | **513 (46%)** | **+29pp** ✅ |
+| depends_on | 50 | 144 | **260** | +210 |
+| mentions | 30 | 196 | **213** | +183 |
+| derived_from | 0 | 34 | **35** | +35 🆕 |
+| extends | 0 | 2 | **3** | +3 🆕 |
+| replaces | 0 | 1 | **2** | +2 🆕 |
+| opposes | 0 | 0 | **1** | +1 🆕 |
+
+### Próxima ação
+- **Item 3 plano:** R01b cure 41-50 (~1h) fecha milestone 50/50 golden queries
+- Sessão #2 (esta semana): E06 detect-changes (2-3h) ou E11 reflect cache (1.5h)
+
+---
+
+## Sessão anterior (2026-05-03 noite ~19:00→19:20 BRT) — Sanity + R01c prelim FTS
 
 ### Sanity check ✅ todos verdes
 - Schema v12 aligned, 64.180 chunks, embedded 100% (era 64.164/64.165 = +1 absorved), DB 1.036 GB
@@ -66,7 +115,7 @@ Esperar: schema v12, 64.165 chunks 100% embedded, distribuição reason (unknown
 | # | Trabalho | Esforço | Por quê fazer agora |
 |---|---|---|---|
 | **1** | ~~R01c prelim oficial n=40~~ ✅ **DONE** — Run #8 FTS=0.015 vs Hybrid #7=0.658 — gap 97.7% confirmado em escala 8× | ✅ 20min | Insight FTS5 AND-strict validado; pipeline hybrid é load-bearing, não decorativo |
-| **2** | **kg-build incremental valida E05 Phase 3** — rodar `nox-mem kg-build` em ~50 chunks recentes, verificar Gemini extrai `reason` corretamente (distribuição muda de unknown=464 → menos) | ~30min | Valida E05 end-to-end com Gemini real; mostra que prompt + schema funcionam em prod, não só em test |
+| **2** | ~~kg-build incremental valida E05 Phase 3~~ ✅ **DONE + B1+B2+B3** — bug 86% unknown achado e fixed; classification rate 14%→56% (B2) + 137 backfill via novo `kg-reclassify` (B3); KG cresceu 544→1109 relations | ✅ ~75min | E05 production-ready agora; novo subcomando deployable em qualquer cleanup futuro |
 | **3** | **R01b cure 41-50** — fechar milestone 50/50 golden queries | ~1h | Fecha pendência R01b, libera R01c definitivo (não-prelim) |
 
 ### 📅 Sessão #2 (qualquer dia esta semana, ~3h disponíveis)
