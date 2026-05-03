@@ -1,10 +1,66 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~20:00 BRT (**4 features novas em ~100min: E06+E07+E08+E11; sessão 8 features total**)
+> **Atualizado:** 2026-05-03 ~20:30 BRT (**Wave 1 + F15a + E10 + audit triplo + 11 fixes (4 CRITICAL + 7 HIGH); sessão 12h-shipped em ~5h, 0 regression**)
 
 ---
 
-## Sessão atual (2026-05-03 noite ~19:50→20:00 BRT) — Wave 1 sprint: E06 + E07 + E08 + E11
+## Sessão atual (2026-05-03 noite ~20:00→20:30 BRT) — Audit triplo + 11 fixes CRITICAL/HIGH
+
+### 3 audits paralelos voltaram
+
+| Agent | Verdict | Findings |
+|---|---|---|
+| code-reviewer | REQUEST CHANGES | 2 CRITICAL + 4 HIGH + 6 MEDIUM |
+| security-reviewer | REQUEST CHANGES | 2 CRITICAL + 3 HIGH + 5 MEDIUM |
+| critic | SHIP-WITH-CAVEATS | 5 framing/scope critiques |
+
+### 11 fixes aplicados (todos build limpo + 69/69 tests pass)
+
+| # | Severity | File | Fix |
+|---|---|---|---|
+| 1 | 🔴 CRITICAL | api-impact.ts | execFileSync array args + signature regex blocklist + scope realpath allowlist |
+| 2 | 🔴 CRITICAL | detect-changes.ts | execFileSync + repo allowlist + since regex validation + safePathJoin |
+| 3 | 🔴 CRITICAL | reflect.ts | Buffer copy via Uint8Array (detacha do Node Buffer pool — silent corruption fix) |
+| 4 | 🔴 CRITICAL | reflect.ts | COUNT short-circuit + LIMIT 500 ORDER BY + fire-and-forget embed (perf O(N) blowup) |
+| 5 | 🟠 HIGH | api-impact.ts | grep+find timeout + extension alphanum-only |
+| 6 | 🟠 HIGH | detect-changes.ts | SQL placeholder cap 500 (>999 SQLite limit) |
+| 7 | 🟠 HIGH | consolidation.ts | Diacritic regex literal → `̀-ͯ` escape |
+| 8 | 🟠 HIGH | consolidation.ts | N+1 SQL → in-memory chunk-entity intersect (precomputed) |
+| 9 | 🟠 HIGH | cli-telemetry.ts | Single-pass query + covering index `(command, duration_ms)` |
+| 10 | 🟠 HIGH | cli-telemetry.ts | redactSecrets() defensive (api_key/token/password → ***) + 200-char cap |
+| 11 | 🟠 HIGH | reflect.ts | INSERT OR REPLACE → ON CONFLICT DO UPDATE (preserva hit_counts) |
+
+### Critic feedback aplicado (não-fixes, doc updates)
+
+- ✅ **F15 mislabeled** → renomeado pra **F15a CLI Observability** no ROADMAP; reaberto F15b SEH proper (telemetry → threshold → auto-config patch)
+- ✅ **E10 dry-run only** → marcado "🟡 PARTIAL DONE (dry-run only)" no ROADMAP; --apply futuro requer R01≥0.6 + per-pair human approval
+- 📝 **Paper claims framing** → defer pra revisão R02 (precisa caveat n=1 + golden bias)
+- 📝 **"14%→56%" enum coverage gap** → adicionar §2.6 ao paper draft sobre enum under-specified
+
+### Smoke validation pós-fixes
+
+| Caso adversarial | Resultado |
+|---|---|
+| `api-impact "foo;rm -rf /tmp/x"` | ✅ rejected: forbidden chars |
+| `api-impact --scope /etc` | ✅ rejected: not in allowlist |
+| `detect-changes --since="HEAD; rm"` | ✅ rejected: invalid ref |
+| `api-impact getDb` legitimate | ✅ 39 files |
+| `consolidate-merge` (in-memory intersect) | ✅ 134ms (perf preserved) |
+| `cli-stats` single-pass | ✅ 0ms compute |
+| `reflect cached:exact` pós-Buffer-fix | ✅ 60ms |
+| **Tests baseline** | **✅ 69/69 pass** |
+
+### Memory novo (lições cross-session)
+- `feedback_execfilesync_over_execsync_for_user_input.md` — pattern execFileSync array form
+- `feedback_buffer_pool_aliasing_in_typed_arrays.md` — copy bytes ao decodar BLOB → typed array
+
+### Próxima ação
+- Sessão #2 esta semana (~2-3h): F15b SEH proper (threshold detector + auto-config patch) OU paper R02 caveat update
+- 2026-05-09 sábado: routine automática verdict E03b/E04b activate
+
+---
+
+## Sessão anterior (2026-05-03 noite ~19:50→20:00 BRT) — Wave 1 sprint: E06 + E07 + E08 + E11
 
 ### E06 detect-changes ✅ DONE (~30min vs estimate 2-3h)
 - **Novo:** `src/detect-changes.ts` (~210 LOC) + CLI `nox-mem detect-changes --since=<commit>`

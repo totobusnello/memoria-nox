@@ -1,7 +1,7 @@
 # nox-mem ROADMAP — single source of truth
 
 > **Canônico desde 2026-04-27.** Sistema unificado de IDs (F/E/R/P/G/D) substitui os 6+ namespaces antigos (A/B/W/Q/Fase/Phase). Cross-ref em §8.
-> **Última atualização:** 2026-05-01 noite, pós-marathon (G01/G02/G03 fechados, F12/F13/F14 done, E02 IN-PROGRESS, 5 specs criadas, 3 bug fixes).
+> **Última atualização:** 2026-05-03 noite, sprint Wave 1 + B1+B2+B3 + R01b 50/50 + 8 features shipped em ~5h (E06+E07+E08+E10 dry-run+E11+F15+R01b+R01c prelim).
 > Para "por quê" de qualquer decisão → `docs/DECISIONS.md`. Para estado atual → `docs/HANDOFF.md`.
 
 ---
@@ -100,7 +100,8 @@ Velocity buckets aplicados (corrigidos pós-review crítico):
 | **F12** | (resilience) | Embedding model migration playbook — Gemini SPOF mitigation Tier 1/2/3 (FTS-fallback / OpenAI+Voyage switch / shadow-index trimestral) | ✅ DONE | 1 | RB-05 em `docs/RUNBOOKS.md` |
 | **F13** | (cost) | Cost projection pay-per-token alternative — 4 cenários 12mo, switch plan emergencial OpenAI 1h, comparativo 7 providers | ✅ DONE | 1 | `runbooks/cost-projection-alt-providers.md` |
 | **F14** | §10 | DR drill trimestral — initial executed 2026-05-01 (RTO validate snapshot ~5s = 1s VACUUM + 2s integrity_check + ~1s schema + ~1s invariants; recovery efetivo ~30s); user_version aligned 10/10; cron `0 9 1 1,4,7,10 1` Q1/Q2/Q3/Q4 09:00 BRT instalado; script `/root/.openclaw/scripts/dr-drill.sh` (Discord alert P0 em fail) | ✅ DONE | 1 + 0.5 cron | `runbooks/dr-drill-quarterly.md`; próxima execução auto 2026-07-06 |
-| **F15** | §11 | SEH Self-Evolving Hooks | 📋 QUEUED | 1 | Set+ |
+| **F15a** | §11 | **CLI Observability** (renamed pós-critic 2026-05-03 — original F15 SEH proper requer feedback loop telemetry→config patch, postponed) — `cli_telemetry` table + Commander preAction/postAction hooks + `cli-stats` subcomando. Captura command/status/duration. Insights: top usage / slow / error-prone / dormant / recent errors. Opt-out NOX_CLI_TELEMETRY=0. Secret redaction defensiva. Smoke: detectou reflect=2527ms + impact failure exit 2. `src/cli-telemetry.ts` ~165 LOC | ✅ DONE | 1 (real ~30min) | 2026-05-03 |
+| **F15b** | §11 | SEH Self-Evolving Hooks proper — telemetria F15a → threshold detector → automated config patch (e.g., bump `NOX_REFLECT_TIMEOUT` quando p95 dobra w/w; deprecate dormant cmds via PR auto). Reopened post-critic | 📋 QUEUED | 2-3 | F15a deployed + 7d telemetry baseline |
 | **F16** | (bus factor) | Telegram bot rollback automático se health-check falha 30min | 📋 BACKLOG | 4 | gap urgente; fora orçamento atual |
 
 ### Gates (data-fixed)
@@ -127,10 +128,12 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | **E05** | §11 Wave 1 | Edge typing FULL — `relation_reason` enum 7 (`depends_on/derived_from/opposes/extends/replaces/mentions/unknown`) + Gemini prompt 4-tupla + SPO surface annotation `[reason]` (kg_relations v12). Deployed 2026-05-02 20:42 BRT, schema v12 ativo, 544 backfilled 'unknown' + 90 manualmente classificadas. Reason ainda só surface em SPO; ranking boost = futuro E05b ou D01 reranker | ✅ DONE Phase 1 | **8-10** (real ~2h Phase 1) → restante = futuro | shadow 7d antes ranking |
 | **E06** | §11 | `nox-mem detect-changes --since=<commit>` (read-only git diff→entities) | 📋 QUEUED | 2-3 | — |
 | **E07** | §11 | `nox-mem impact <entity>` 1-hop blast radius via kg_relations | 📋 QUEUED | 2.5 | E05 active (não shadow) |
-| **E08** | §11 | `nox-mem api_impact <signature-change>` multi-arquivo grep + import graph | 📋 QUEUED | 1.5 | nice-to-have |
+| **E08** | §11 | `nox-mem api-impact <signature>` multi-arquivo grep + classificação import/definition/usage. Smoke prod: getDb=37 files/157 refs em 11ms. Excludes node_modules/dist/.git/build/.next/coverage. `src/api-impact.ts` ~150 LOC | ✅ DONE | 1.5 (real ~20min) | 2026-05-03 |
 | **E09** | (ClawMem Q3 + §1.7b dormente) | A-MEM auto-keywords/links no ingest (funde §1.7b Hierarchical Tagging) | 🤔 CANDIDATE | 5-6 | E05 active obrigatório (enum CLOSED); shadow obrigatório |
-| **E10** | (ClawMem Q4 + W2.2) | Consolidation merge + contradiction detection (entity-anchor val) | 🤔 CANDIDATE | 3-4 | R01 nDCG≥0.6 + dry-run zero FP |
-| **E11** | §11 | Reflect cache (semantic key) | 📋 QUEUED | 1.5 | 7d telemetria reflect (Fase 1.7a ✅ DONE 04-19) |
+| **E10** | (ClawMem Q4 + W2.2) | Consolidation merge candidate detection (DRY-RUN). Smoke: 914 entities → 52 pairs em 136ms (39 LOW FP / 9 MEDIUM / 4 HIGH protected). Apply BLOCKED até R01c≥0.6 (Run #9 = 0.519). `src/consolidation.ts` ~210 LOC | 🟡 PARTIAL DONE (dry-run only) | 3-4 (real ~45min) | 2026-05-03; --apply requer R01 ≥ 0.6 |
+| **E11** | §11 | Reflect cache (semantic key) — exact hash + cosine ≥ 0.88 fallback. Smoke: exact hit 30× speedup, semantic hit 4× speedup (sim=0.914). 4 env vars `NOX_REFLECT_SEMANTIC_*`. Fail-open. `src/reflect.ts` extension | ✅ DONE | 1.5 (real ~25min) | 2026-05-03 |
+| **E06** | §11 Wave 1 | `nox-mem detect-changes --since=<commit>` read-only git diff name-status + entity resolution 2-path (frontmatter name + chunk evidence). Smoke prod: 1498 files → 182 entities em 268ms. `src/detect-changes.ts` ~210 LOC | ✅ DONE | 2-3 (real ~30min) | 2026-05-03 |
+| **E07** | §11 | `nox-mem impact <entity>` 1-hop blast radius bidirecional via kg_relations agrupado por reason E05. REASON_PRIORITY weights + blast_radius_score. Smoke prod: Toto blast=29152.1, Forge 12 depends_on, em 1ms. `src/impact.ts` ~165 LOC | ✅ DONE | 2.5 (real ~25min) | 2026-05-03; uso E05 confirma valor reasons enriquecidos |
 
 ### Research (eval + paper)
 
@@ -139,8 +142,8 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | ID | Vision § | Item | Status | h | Dependências |
 |---|---|---|---|---|---|
 | **R01a** | §11 Wave 2 | **Eval harness skeleton** (schema v11 + tabelas `eval_queries`/`eval_runs`/`eval_results` + nDCG@10/MRR/Recall@10/Precision@5 + CLI 6 subcomandos + JSONL out + `/api/eval-metrics` + 5 golden seed queries) — `src/lib/eval-metrics.ts` (pure funcs) + `src/lib/eval.ts` (orchestration) deployed 2026-05-02 19:43 BRT; baseline n=40 cured = hybrid 0.658 / Recall 0.850 (post-R01b batch2); 28/28 eval tests + 109/110 suite total pós-E05 | ✅ DONE | 4-6 (real ~3h) | F01 corpus ready ✅ |
-| **R01b** | — | **Curadoria 50 golden queries** (cognitive floor, não comprime) — **40/50 cured 2026-05-02** (5 seed + 20 batch1 + 15 batch2; cobre entity/decision/procedure/concept/temporal/cross-agent/security/negative); restante 10 queries pode rodar Jun-Jul | 🔄 IN-PROGRESS (40/50) | **8-10** (humano) | spread Jun-Jul |
-| **R01c** | — | Baseline FTS-only vs hybrid run + publish nDCG@10 em `/api/eval-metrics` — **n=40 cured: hybrid nDCG@10=0.674 / MRR=0.617 / Recall@10=0.850** (decision 0.980 top, temporal 0.417 ponto fraco, entity 0.567 fraco, concept 0.840, security 0.659); FTS-only n=5 = 0.000 (AND-strict). Trigger D01 (≥0.6) persiste em n=40 (sample 8x maior). Recall sobe + MRR cai = diagnostic: ranking é o problema, não retrieval | 🔄 IN-PROGRESS (n=40) | 1-2 | R01a ✅ + R01b 50q completo |
+| **R01b** | — | **Curadoria 50 golden queries** ✅ **MILESTONE 50/50 fechado 2026-05-03** (5 seed + 20 batch1 + 15 batch2 + 10 batch3 dos quais 6 NEGATIVE/GAP + 4 cured); cobre 8 categorias mistas | ✅ DONE | 8-10 (real ~30min batch3 + ~6h spread Maio) | — |
+| **R01c** | — | Baseline FTS-only vs hybrid run + publish em `/api/eval-metrics`. **Run #9 hybrid n=50 = nDCG@10 0.519 / MRR 0.482 / Recall@10 0.687 / Prec@5 0.268** (drag de balanceamento: 6 negatives 12% sample). **Run #8 FTS-only n=50 = nDCG 0.015 (gap 97.7% loss)** confirma necessidade arquitetural hybrid. By category: concept 0.656, procedure 0.619, security 0.594, decision 0.542, entity 0.459, **cross-agent 0.369**, **temporal 0.233**, negative 0. **Trigger D01 NÃO dispara** (0.519 < 0.6) — D01 desativado | ✅ DONE | 1-2 (real ~30min) | 2026-05-03 |
 | **R02** | §11 Wave 3 | Paper v2 update — Affective Ranking + Multi-Agent Federation + Bridge Mode | 📋 QUEUED | **5-6** (writing tem floor cognitivo) | R01c published |
 
 ### Product (NOX-Supermem)

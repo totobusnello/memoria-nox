@@ -2,18 +2,23 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/totobusnello/memoria-nox)](https://github.com/totobusnello/memoria-nox/commits/main)
-[![Tests](https://img.shields.io/badge/tests-109%2F110%20passing-brightgreen)](docs/HANDOFF.md)
+[![Tests](https://img.shields.io/badge/tests-69%2F69%20passing-brightgreen)](docs/HANDOFF.md)
 [![Schema](https://img.shields.io/badge/schema-v12-blue)](CLAUDE.md)
-[![Chunks](https://img.shields.io/badge/chunks-64.165-blue)](docs/HANDOFF.md)
+[![Chunks](https://img.shields.io/badge/chunks-64.180-blue)](docs/HANDOFF.md)
+[![KG](https://img.shields.io/badge/KG-914_entities_%2F_1109_relations-blue)](docs/HANDOFF.md)
 [![Salience](https://img.shields.io/badge/salience-active-brightgreen)](docs/DECISIONS.md)
 [![Section Boost](https://img.shields.io/badge/section__boost-active-brightgreen)](docs/DECISIONS.md)
 [![SPO Injection](https://img.shields.io/badge/SPO__injection-shadow-yellow)](specs/2026-05-01-E03a-spo-injection.md)
 [![Focus Boost](https://img.shields.io/badge/focus__boost-shadow-yellow)](specs/2026-05-01-E04a-focus-boost.md)
-[![Edge Typing](https://img.shields.io/badge/edge__typing-shadow-yellow)](docs/ROADMAP.md)
-[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.658_(n%3D40)-blue)](specs/2026-04-27-R01a-eval-harness.md)
-[![R01b Cure](https://img.shields.io/badge/R01b__cured-40%2F50-blue)](docs/ROADMAP.md)
+[![Edge Typing](https://img.shields.io/badge/edge__typing-active-brightgreen)](docs/ROADMAP.md)
+[![Reflect Cache](https://img.shields.io/badge/reflect__cache-semantic-brightgreen)](docs/ROADMAP.md)
+[![CLI Telemetry](https://img.shields.io/badge/CLI__telemetry-active-brightgreen)](docs/ROADMAP.md)
+[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.519_(n%3D50)-blue)](docs/HANDOFF.md)
+[![R01b Cure](https://img.shields.io/badge/R01b__cured-50%2F50_✅-brightgreen)](docs/HANDOFF.md)
+[![FTS Gap](https://img.shields.io/badge/FTS__vs__hybrid__gap-97.7%25_loss-red)](paper/paper-v2-draft-evidence.md)
+[![Wave 1](https://img.shields.io/badge/Wave_1-E06%2BE07%2BE08%2BE10%2BE11_done-brightgreen)](docs/ROADMAP.md)
 
-> Sistema de memória inteligente multi-agent com hybrid search, knowledge graph, eval harness e backend claude-cli zero-cost.
+> Sistema de memória inteligente multi-agent com hybrid search, knowledge graph com edge typing, eval harness, semantic cache, blast radius analysis e backend claude-cli zero-cost.
 
 ---
 
@@ -35,18 +40,25 @@ Agentes AI sem memória persistente repetem erros, perdem contexto entre sessõe
 
 O sistema é construído pra **resistir a upgrades de infra** (já sobreviveu OpenClaw v.24→v.25→v.26→v.29 sem perda de dados), **patches de segurança** (24+ feedback files documentando incidents resolvidos), e **mudanças de modelo** (Gemini Flash → Flash-Lite default por custo, com playbook RB-05 pra trocar provider em 1h se necessário).
 
-**Estado atual em produção** (VPS Hostinger, Tailscale-only, 2026-05-02 21:00 BRT):
-- **64.165 chunks** indexados / **100% embedded** (Gemini 3072d sqlite-vec) / **1.034 GB** DB
-- **402 entities + 544 relations** no KG (Gemini extraction nightly; relations classificadas por reason: depends_on=50, mentions=30, unknown=464 aguardando próximo `kg-build`)
-- **Schema v12** (PRAGMA aligned 12/12, drift-recovery proof, relation_reason enum 7 fechado)
+**Estado atual em produção** (VPS Hostinger, Tailscale-only, 2026-05-03 20:30 BRT):
+- **64.180 chunks** indexados / **100% embedded** (Gemini 3072d sqlite-vec) / **1.036 GB** DB
+- **914 entities + 1109 relations** no KG (+128% / +104% nesta sessão pós kg-extract n=100); reasons classified: depends_on=260, mentions=213, derived_from=35, extends=3, replaces=2, opposes=1, unknown=595 (46% classified, +29pp vs baseline 17%)
+- **Schema v12** (PRAGMA aligned 12/12, drift-recovery proof, relation_reason enum 7 fechado, +cli_telemetry table 2026-05-03)
 - **Gates fechados:** G01 salience + G02 section_boost + G03 archive ✅
 - **Features em shadow** (gate activate 2026-05-09 via routine automática):
   - **SPO injection** (E03a) — `<vault-facts>` block via KG, top-K 8, sanitize anti-injection
   - **Focus boost** (E04a) — `nox-mem focus set <topic>` 1.4×/0.75×, cache hardened sha256+0600
-  - **Edge typing** (E05) — relation_reason enum 7 + Gemini prompt 4-tupla + SPO surface annotation
+- **Features active (Wave 1 sprint 2026-05-03):**
+  - **Edge typing FULL** (E05+B1+B2+B3) — relation_reason enum 7 com 3-path normalize + RELATION_TYPE_TO_REASON map + `kg-reclassify` backfill subcomando; classification rate 14%→56%
+  - **detect-changes** (E06) — `nox-mem detect-changes --since=<commit>` git diff → entidades KG afetadas (1498 files → 182 entities em 268ms)
+  - **impact** (E07) — `nox-mem impact <entity>` 1-hop blast radius via reason-weighted scoring (Toto blast=29152.1)
+  - **api-impact** (E08) — `nox-mem api-impact <signature>` multi-arquivo grep + import/definition/usage classification (getDb: 39 files em 11ms)
+  - **consolidate-merge** (E10 dry-run) — entity merge candidate detection com FP risk + protected names (914 entities → 52 pairs em 134ms; --apply gated R01≥0.6)
+  - **reflect cache semantic** (E11) — Gemini embed + cosine ≥ 0.88; exact hit 30× / semantic hit 4× speedup
+  - **CLI Observability** (F15a) — `cli_telemetry` + `cli-stats` insights (top usage / slow / error-prone / dormant); secret redaction defensiva
 - **Eval harness** (R01a) — schema v12, 6 CLI subcomandos, endpoint `/api/eval-metrics`, JSONL export
-- **Eval baseline R01c prelim n=40 cured** (R01b 40/50): hybrid **nDCG@10=0.658** / MRR=0.617 / Recall@10=**0.850** vs FTS-only n=5 = 0.000. Diagnostic: Recall sobe + MRR cai = ranking é o problema, não retrieval (E05/D01 atacam exatamente isso). Trigger D01 cross-encoder reranker (≥0.6) **PERSISTE** com sample 8x maior
-- **Hardening:** 109/110 tests pass + 1 skip + 0 fail, 13/13 improvements OK, audit log append-only com triggers DB, op-audit + dry-run + canary invariants */15min Discord, schedule routine remoto pra activate gates 2026-05-09
+- **Eval baseline definitivo R01c (Run #9, n=50 com R01b 50/50 cured):** hybrid **nDCG@10=0.519** / MRR=0.482 / Recall@10=0.687 / Prec@5=0.268. Drag de balanceamento: 6 negative cases (12% sample). FTS-only n=50 = nDCG=0.015 → **gap 97.7% loss vs hybrid** (sample 10× maior que prelim) confirma necessidade arquitetural pipeline 3-camada. Trigger D01 cross-encoder NÃO dispara (0.519 < 0.6). Pontos fracos: temporal=0.233, cross-agent=0.369, entity=0.459 (alvos E07/E08/E10).
+- **Hardening:** 69/69 baseline tests pass, 13/13 improvements OK pós ajuste threshold 12→55, audit log append-only com triggers DB, op-audit + dry-run + canary invariants */15min Discord, **2 audits CRITICAL + security HIGH (4+7) fixed mesma sessão** (execFileSync arrays + scope allowlist + Buffer pool aliasing copy + N+1 → in-memory)
 
 **Origem e endereço:** projeto pessoal de [@totobusnello](https://github.com/totobusnello) (Toto), construído solo. Capacity realista ~6h/sem; arquitetura calibrada pra essa restrição — escolhe simples sobre clever, prefere defer feature sobre tech debt.
 
@@ -283,38 +295,48 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 - ✅ **3 fixes residuais** — F14 RTO breakdown (5s) / F10 stack canônica / cost projection escrito por extenso
 - ✅ **PRAGMA v2 patch** — ensureSchema realign antes early return (drift recovery proof)
 
-### 🔄 Fase atual — Shadow validation + R01b curation (Maio-Jul 2026)
+### ✅ Fase concluída — E05 Edge Typing Phase 1 (2026-05-02 noite)
 
-**Goal:** Validar SPO + Focus 7d shadow → activate gates 2026-05-09; R01b restante 45 queries cura spread Jun-Jul.
+**Resultado:** Schema v12 ativo + relation_reason enum 7 fechado + SPO surface annotation.
 
-### 📋 Wave 1 — Memory Graph Maturity (Maio-Jun 2026)
+- ✅ **Schema v12 migration** com defensive lazy-init + ALTER TABLE + index `idx_kg_relations_reason`
+- ✅ **544 backfill** existentes recebem `'unknown'` (zero data loss)
+- ✅ **Gemini extraction enrichment** — RelationReason CLOSED 7 + responseSchema enum guard
+- ✅ **SPO surface** — `<vault-facts>` agora anota `[reason]` quando classified
+- ✅ Tests: 10/10 edge-typing pass + 109/110 suite total
 
-**Goal:** Edge typing rico + impact analysis + change detection sobre KG existente.
+### ✅ Wave 1 sprint completo (2026-05-03) — 8 features + audit triplo + 11 fixes
 
-**Sera feito:**
-- **E02 Tier 2 PDFs ingest** (15-25h I/O paralelo) — gap residual ~728 PDFs (PPR + PESSOAL + size-rejected) → E12 OCR
-- **E03b SPO surface** activate (2026-05-09) — utility ≥7/10 em ≥3 turns OR ≥50 turns geraram bloco
-- **E04b Focus apply** activate (2026-05-09) — delta recall ≥3% OR utility ≥7/10 em ≥5 sessões
-- **E05 Edge typing FULL** (8-10h) — `relation_reason` enum 7 + `confidence REAL`, kg_relations v12 reservado
+**Resultado:** Wave 1 inteira fechada em ~5h (vs ~10h estimate); 4 CRITICAL + 7 HIGH security/perf bugs flagged e fixed mesma sessão.
 
-### 📋 Wave 2 — Eval + Impact CLI (Jun-Jul 2026)
+**Entregue:**
+- ✅ **B1+B2+B3 fix E05 reason undercoverage** — RELATION_TYPE_TO_REASON map (24 entradas PT-BR + EN) + 3-path normalize + prompt revisado + novo `kg-reclassify` subcomando (137 backfill em <50ms zero Gemini); classification rate **14% → 56%** (4× melhora) em sample n=100
+- ✅ **R01b 50/50 milestone** — 6 NEGATIVE/GAP cases + 4 cured via search prod top-10 análise; libera R01c definitivo
+- ✅ **R01c Run #9 hybrid n=50** — nDCG=0.519 / Recall=0.687 (drag de balanceamento 12% negatives); FTS-only n=50 = 0.015 → **gap 97.7% loss confirma necessidade arquitetural pipeline 3-camada**
+- ✅ **E06 detect-changes** — `--since=<commit>` git diff → entities (1498 files → 182 entities em 268ms); `src/detect-changes.ts` ~210 LOC
+- ✅ **E07 impact** — `<entity>` 1-hop blast radius com REASON_PRIORITY weights (E05) + blast_radius_score (Toto blast=29152.1 em 1ms); `src/impact.ts` ~165 LOC
+- ✅ **E08 api-impact** — `<signature>` multi-arquivo grep + import/definition/usage classification (getDb: 39 files / 157 refs em 11ms); `src/api-impact.ts` ~150 LOC
+- ✅ **E10 consolidate-merge dry-run** — entity merge candidate detection (914 entities → 52 pairs em 134ms; 39 LOW FP / 9 MEDIUM / 4 HIGH protected); apply gated R01≥0.6
+- ✅ **E11 reflect cache semantic** — Gemini embed + cosine ≥ 0.88; **exact hit 30× / semantic hit 4× speedup**; `src/reflect.ts` extension
+- ✅ **F15a CLI Observability** — `cli_telemetry` + `cli-stats` (renomeado pós-critic; F15b SEH proper queued); secret redaction defensiva
+- ✅ **R02 paper v2 draft** — 7 sections com 6 quantitative tables + 4 open questions em `paper/paper-v2-draft-evidence.md`
+- ✅ **Audit triplo** code-reviewer + security-reviewer + critic em paralelo → **11 fixes (4 CRITICAL + 7 HIGH)** aplicados mesma sessão (execFileSync arrays vs command injection, Buffer pool aliasing copy, scope realpath allowlist, N+1 → in-memory intersect, SQL placeholder cap 500, secret redaction)
 
-**Goal:** Baseline cientifico de busca + ferramentas de impact analysis.
+### 🔄 Fase atual — Shadow validation + Wave 2 prep (Maio-Jul 2026)
 
-**Sera feito:**
-- **E06 detect-changes** (2-3h) — `nox-mem detect-changes --since=<commit>` read-only git diff→entities
-- **E07 impact** (2.5h) — `nox-mem impact <entity>` 1-hop blast radius via kg_relations
-- **E08 api_impact** (1.5h) — multi-arquivo grep + import graph (nice-to-have)
-- **R01b Curadoria 50 golden queries** — 5/50 cured 2026-05-02; restante 45 spread Jun-Jul (cognitive floor)
-- **R01c Baseline FTS-only vs hybrid** — prelim n=5 hybrid=0.699 / FTS=0.000 (FTS5 vanilla AND-strict); aguarda n=50 pra significância
-- **E10 Consolidation merge candidate** (3-4h, gated nDCG≥0.6) — trigger D01 já passou em hybrid n=5 mas amostra pequena
+**Goal:** Validar SPO + Focus 7d shadow → activate gates 2026-05-09 (routine automática); R02 paper v2 finalize.
+
+### ✅ Wave 2 — Eval + Impact CLI (~~Jun-Jul 2026~~ ANTECIPADA 2026-05-03)
+
+**Goal antigo:** Baseline cientifico de busca + ferramentas de impact analysis.
+**Status:** ✅ DONE inteira em 2026-05-03 (E06+E07+E08+E10 dry-run+R01b 50/50+R01c definitivo)
 
 ### 📋 Wave 3 — Paper + Fase Cognitiva (Ago 2026)
 
 **Goal:** Documentar evolucao via paper academico + features cognitivas avancadas.
 
 **Sera feito:**
-- **R02 Paper v2** (5-6h) — Affective Ranking + Multi-Agent Federation + Bridge Mode
+- **R02 Paper v2 finalize** (~3h restantes) — draft inicial em `paper/paper-v2-draft-evidence.md` (7 sections, 6 quantitative tables, 4 open questions); precisa caveats n=1 + golden bias acknowledgment per critic
 - **E09 A-MEM auto-keywords/links** (5-6h, candidate, gated em E05 active)
 
 ### 🚀 Productizacao + Bloco V (Set+ 2026)
@@ -322,7 +344,9 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 **Goal:** Empacotar nox-mem como produto + features finais.
 
 **Sera feito:**
-- **E11 Reflect cache** (1.5h) — semantic key cache pra reflect operations
+- ✅ ~~**E11 Reflect cache** (1.5h)~~ — DONE 2026-05-03 (E11 active, exact 30× / semantic 4× speedup)
+- **F15b SEH proper** (2-3h) — telemetry → threshold detector → automated config patch (extend F15a)
+- **E10 --apply path** (1-2h) — gated R01≥0.6 + per-pair human approval pra HIGH FP names (Toto/Nox/etc protected)
 - **F15 SEH Self-Evolving Hooks** (1h) — auto-evolution de regras operacionais
 - **E12 Tier 3 OCR + Fathom + Path C** (dias, opcional) — PDFs scaneados + reunioes
 - **P01 NOX-Supermem productizacao** (semanas) — Fase 4b → 5 → P
