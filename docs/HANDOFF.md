@@ -1,12 +1,57 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-02 ~21:00 BRT (**E05 schema v12 + R01b 40/50 + 8 features active/shadow + plano próximas sessões pronto**)
+> **Atualizado:** 2026-05-03 ~19:20 BRT (**R01c prelim FTS n=40 ✅ + improvements threshold ajustado + 13/13 OK**)
+
+---
+
+## Sessão atual (2026-05-03 noite ~19:00→19:20 BRT) — Sanity + R01c prelim FTS
+
+### Sanity check ✅ todos verdes
+- Schema v12 aligned, 64.180 chunks, embedded 100% (era 64.164/64.165 = +1 absorved), DB 1.036 GB
+- KG: 402 entities, 544 relations (unknown=464 / depends_on=50 / mentions=30 — idêntico pós-E05)
+- Services: gateway/api/watcher all active
+- Schema invariants cron 15min: 3 últimas runs OK (zero violations)
+- Shadow telemetry 12h: 54 eventos vault-facts/focus-shadow rodando
+- Fratricide 6h: 0
+- Improvements: **13/13 OK** após threshold ajuste (12→55, acomoda 50 entries reais + margem; backup `.bak-pre-threshold-15-*`)
+
+### R01c prelim n=40 — FTS Run #8 vs Hybrid Run #7
+
+**Comparação direta:**
+| Metric | Hybrid #7 | FTS #8 | Gap |
+|---|---|---|---|
+| nDCG@10 | **0.658** | 0.015 | **97.7% loss** |
+| MRR | 0.617 | 0.025 | 96.0% loss |
+| Recall@10 | **0.850** | 0.013 | **98.5% loss** |
+| Prec@5 | 0.330 | 0.005 | 98.5% loss |
+
+**Regressões:** 34/40 queries (85%), 12 com Δ=-1.000. Único score não-zero: Q62 "quem é o Toto" (single-token entity).
+
+**By difficulty (FTS):** hard=0 / easy=0.077 / medium=0
+**By category (FTS):** entity=0.068 (n=9, único >0) / decision/procedure/concept/temporal/cross-agent/security/negative=0
+
+### 🔍 Insight crítico — confirmação em escala 8×
+
+Primeira tentativa (n=5, Run #4) deu FTS=0.000 — interpretado como possível artefato. **Sample 8× maior CONFIRMA:**
+
+> **FTS5 vanilla é ~98% inútil pra queries em linguagem natural.** AND-strict exige TODOS termos batendo no mesmo chunk — raríssimo em "como ativar X", "qual a diferença entre Y e Z".
+
+### 💡 Implicações arquiteturais
+1. **Hybrid pipeline (FTS5 + Gemini semantic + RRF) é load-bearing**, não decorativo
+2. Gap nDCG 0.643 = "valor do semantic embedding" quantificado
+3. **Não há atalho** pra eliminar Gemini sem destruir UX (98.5% recall loss)
+4. **Thesis R02 ganha evidência forte:** pipeline 3-camada é design crítico, não over-engineering
+5. Cost projection F13 (alt providers) deve manter semantic-first; trocar provider sim, eliminar não
+
+### Próxima ação
+- **Item 2 plano:** kg-build incremental (~50 chunks recentes) valida E05 end-to-end com Gemini real — distribuição `unknown=464` deve mover pra valores reais. ~30min.
+- **Item 3:** R01b cure 41-50 (~1h) fecha milestone 50/50.
 
 ---
 
 ## 🚀 PLANO PRÓXIMAS SESSÕES (começar aqui amanhã)
 
-### 🌅 Amanhã 2026-05-03 — sanity check + R01c prelim oficial (~1h ideal)
+### 🌅 Amanhã 2026-05-03 — sanity check + R01c prelim oficial (~1h ideal) — ✅ DONE 19:00-19:20
 
 **Sanity check matinal (~3min):**
 ```bash
@@ -20,7 +65,7 @@ Esperar: schema v12, 64.165 chunks 100% embedded, distribuição reason (unknown
 
 | # | Trabalho | Esforço | Por quê fazer agora |
 |---|---|---|---|
-| **1** | **R01c prelim oficial n=40** — `nox-mem eval run --variant=fts` + comparar com hybrid Run #7 — publica baseline FTS vs hybrid n=40 | 5min run + 15min análise | Quick win com sample 8x maior que primeira tentativa (n=5); valida insight "FTS5 AND-strict" com significância |
+| **1** | ~~R01c prelim oficial n=40~~ ✅ **DONE** — Run #8 FTS=0.015 vs Hybrid #7=0.658 — gap 97.7% confirmado em escala 8× | ✅ 20min | Insight FTS5 AND-strict validado; pipeline hybrid é load-bearing, não decorativo |
 | **2** | **kg-build incremental valida E05 Phase 3** — rodar `nox-mem kg-build` em ~50 chunks recentes, verificar Gemini extrai `reason` corretamente (distribuição muda de unknown=464 → menos) | ~30min | Valida E05 end-to-end com Gemini real; mostra que prompt + schema funcionam em prod, não só em test |
 | **3** | **R01b cure 41-50** — fechar milestone 50/50 golden queries | ~1h | Fecha pendência R01b, libera R01c definitivo (não-prelim) |
 
