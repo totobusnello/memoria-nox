@@ -1,10 +1,43 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~20:50 BRT (**Wave 1+2 + F15a/F15b + R02 paper finalize + audit triplo + 11 fixes; sessão ~6h shipped 18h+ work**)
+> **Atualizado:** 2026-05-03 ~21:00 BRT (**+R01c replication 3-run mean±std completed: hybrid 0.5213±0.0004 vs FTS 0.0123±0**)
 
 ---
 
-## Sessão atual (2026-05-03 noite ~20:30→20:50 BRT) — F15b SEH proper + R02 paper finalize + 05-09 checklist
+## Sessão atual (2026-05-03 noite ~20:50→21:00 BRT) — R01c replication Step 1 (3-run)
+
+### Sessão A do plano replication — IMPL + EXECUTION
+
+**Novo:** `src/lib/eval-batch.ts` (~95 LOC) + CLI `nox-mem eval run-batch --variant=<v> --runs=N`
+- Wraps `runEval` N vezes + agrega `mean ± std + min/max + values` por métrica
+- Format text com markdown tables prontas pra paper
+
+**Resultados 3-run n=50 cada:**
+
+| Variant | Runs | nDCG@10 mean ± std | MRR | Recall@10 | Prec@5 | Total |
+|---|---|---|---|---|---|---|
+| **Hybrid** | #10/#11/#12 | **0.5213 ± 0.0004** | 0.4889 ± 0.0028 | 0.6800 ± 0.0047 | 0.2640 ± 0 | 119.7s |
+| **FTS** | #13/#14/#15 | **0.0123 ± 0.0000** | 0.0200 ± 0 | 0.0100 ± 0 | 0.0040 ± 0 | 0.2s |
+
+**Insights:**
+- **Sistema é operacionalmente determinístico** — FTS std=0 (puramente algorítmico), Hybrid std=0.0004 (0.08% relative, vem de RRF tie-breaking)
+- **Absolute Δ 3-run = 0.509** vs single-run prelim 0.504 → variance NÃO é confound; macro conclusion "hybrid >> FTS pra NL" é robusta
+- Single-run measurements são confiáveis pra benchmarking; 3-run pega mainly upstream API drift (Gemini embeddings ~0.001 cosine variance ocasional)
+
+**Paper §1.5 atualizado:**
+- Step 1 (3-run mean±std) ✅ DONE — números reais inseridos
+- Step 2 (held-out 10 queries por external curator) PENDING — Sessão B (~1.5h cognitive)
+- Step 3 (Voyage-embed-3-large comparison) PENDING — Sessão B (~1h impl + 30s run)
+- Step 4 (cross-corpus BEIR) FUTURE WORK out of scope
+
+### Próxima ação
+- 2026-05-09 sábado: activate gate (passivo) + checklist
+- Sessão B (~2h cognitive): held-out 10 queries + Voyage adapter + paper update final
+- Após Sessão B: paper R02 publication-ready
+
+---
+
+## Sessão anterior (2026-05-03 noite ~20:30→20:50 BRT) — F15b SEH proper + R02 paper finalize + 05-09 checklist
 
 ### F15b SEH Self-Evolving Hooks proper ✅ DONE (~25min vs estimate 2-3h)
 

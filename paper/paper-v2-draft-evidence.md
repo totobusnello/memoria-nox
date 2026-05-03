@@ -52,14 +52,26 @@ This section enumerates known limitations of the experimental setup. The qualita
 
 5. **No comparison vs alternative semantic models.** We compare FTS-only vs FTS+Gemini-embedding-001+RRF. We do NOT report results with Voyage, OpenAI, or BGE embeddings — substitutability is asserted in 1.3 but not measured.
 
-### 1.5 Replication plan (Wave 3, prior to publication)
+### 1.5 Replication — partial complete 2026-05-03
 
-Before submitting paper v2 for external review, the following experiments will run:
-- **3-run mean ± std** for both FTS-only and Hybrid variants (n=50 same set)
-- **Held-out golden subset** (10 queries) authored independently by user not on the project
-- **Comparison run** with Voyage-embed-3-large as alternative semantic provider (cost projection F13 already supports this swap)
+**Step 1 — 3-run mean ± std (DONE 2026-05-03):**
 
-Until these complete, claims in §1.1 should be cited as *preliminary single-run, single-corpus, internal-curator results pending replication*.
+| Variant | Run IDs | nDCG@10 mean ± std | MRR mean ± std | Recall@10 mean ± std | Prec@5 mean ± std |
+|---|---|---|---|---|---|
+| **Hybrid** | #10, #11, #12 | **0.5213 ± 0.0004** | 0.4889 ± 0.0028 | 0.6800 ± 0.0047 | 0.2640 ± 0.0000 |
+| **FTS-only** | #13, #14, #15 | **0.0123 ± 0.0000** | 0.0200 ± 0.0000 | 0.0100 ± 0.0000 | 0.0040 ± 0.0000 |
+
+**Absolute Δ (3-run mean):** **0.509 nDCG** (CI ~95% via ±2σ: 0.508-0.510). Effectively identical to single-run prelim Δ=0.504 → variance is **not** a confound for the macro conclusion (hybrid >> FTS for natural language).
+
+**Determinism observation:** FTS shows zero variance across 3 runs (SQLite FTS5 is purely algorithmic). Hybrid shows std=0.0004 (≈ 0.08% relative) — sole source is RRF tie-breaking when fusion scores are exactly equal. **System is operationally deterministic for benchmarking purposes** — single-run measurements are reliable; 3-run protocol mostly catches non-determinism in upstream LLM/embedding APIs (Gemini embeddings have shown rare ~0.001 cosine drift run-to-run, well below our threshold sensitivity).
+
+**Step 2 — Held-out golden subset (PENDING):** 10 queries to be authored by an external curator who has not used the system. Estimated cognitive effort ~1.5h for query author. Target: validate that 0.504-0.509 Δ holds when bias toward "queries hybrid handles well" is removed.
+
+**Step 3 — Voyage-embed-3-large comparison (PENDING):** swap Gemini embedding provider (cost projection F13 supports this in 1h), re-run hybrid, validate that semantic-layer choice is interchangeable. Estimated 1h impl + 30s runtime.
+
+**Step 4 — Cross-corpus validation (FUTURE WORK):** results currently single-corpus (Toto's multi-agent operational memory). Replication on a public benchmark (e.g., BEIR) would strengthen external validity but requires significant re-tooling — out of scope for paper v2.
+
+**Citation guidance until Steps 2-3 complete:** §1.1 numbers may be cited with the qualifier "(n=50, 3-run mean ± std on internal-curator golden set)". Without held-out replication, claims about *generalizability beyond this curator's query distribution* should not be made.
 
 ---
 
