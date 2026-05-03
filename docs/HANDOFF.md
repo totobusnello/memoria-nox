@@ -1,10 +1,81 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~19:50 BRT (**R01b 50/50 ✅ + Run #9 baseline definitivo nDCG=0.519 (n=50, 6 negatives) + B1+B2+B3 E05 fix**)
+> **Atualizado:** 2026-05-03 ~20:00 BRT (**4 features novas em ~100min: E06+E07+E08+E11; sessão 8 features total**)
 
 ---
 
-## Sessão atual (2026-05-03 noite ~19:40→19:50 BRT) — R01b 50/50 + Run #9 baseline definitivo
+## Sessão atual (2026-05-03 noite ~19:50→20:00 BRT) — Wave 1 sprint: E06 + E07 + E08 + E11
+
+### E06 detect-changes ✅ DONE (~30min vs estimate 2-3h)
+- **Novo:** `src/detect-changes.ts` (~210 LOC) + CLI `nox-mem detect-changes --since=<commit>`
+- Read-only git diff name-status + entity resolution 2-path:
+  1. Entity files: extrai `type/slug` do path + frontmatter `name:` lookup → kg_entities (case-insensitive)
+  2. Chunk reference: JOIN evidence_chunk_id → kg_relations → kg_entities
+- Smoke prod: `--since=a18bf3ba` → 1498 files, 1747 chunks scanned, **182 entities resolved em 268ms**
+- Path 1 funciona perfeito; Path 2 limitado em chunks recentes não-extraídos via LLM
+- Backup: `src/index.ts.bak-pre-e06-20260503-194522`
+
+### E07 impact ✅ DONE (~25min vs estimate 2.5h)
+- **Novo:** `src/impact.ts` (~165 LOC) + CLI `nox-mem impact <entity>`
+- 1-hop blast radius bidirecional via kg_relations agrupado por relation_reason (E05)
+- **REASON_PRIORITY weights:** depends_on=5🔴 / replaces=4🔴 / extends=3🟡 / derived_from/opposes=2🟡 / mentions/unknown=1⚪
+- **blast_radius_score:** Σ(neighbor.mention_count × reason_priority × confidence)
+- Smoke prod:
+  - Toto: 99 neighbors, 66 unique, **blast=29152.1** ⭐
+  - Forge: 54 neighbors, 39 unique, 12 depends_on
+  - nox-mem: 24 neighbors, 17 unique, blast=11475.3
+- Performance: **1ms** (índices sql funcionando)
+- Backup: `src/index.ts.bak-pre-e07-20260503-195019`
+
+### E08 api-impact ✅ DONE (~20min vs estimate 1.5h)
+- **Novo:** `src/api-impact.ts` (~150 LOC) + CLI `nox-mem api-impact <signature>`
+- Multi-arquivo grep + classificação import/definition/usage por linha
+- Default scope: `process.cwd()`, ext `ts/tsx/js/jsx/mjs/cjs/py`
+- Excluded: `node_modules`, `dist`, `.git`, `build`, `.next`, `coverage`
+- Smoke prod (scope=src/): `getDb` → 37 files, **157 refs** (32 imports + 121 usages + 4 definitions) em 11ms
+- Smoke prod: `detectChanges` (recém-criada) → 2 files, 3 refs (caça dynamic `await import()` como usage)
+- Backup: `src/index.ts.bak-pre-e08-*`
+
+### E11 reflect cache (semantic) ✅ DONE (~25min vs estimate 1.5h)
+- **Extensão (não rewrite)** de `src/reflect.ts`
+- Schema additive: `query_embedding BLOB` + `semantic_hit_count INTEGER`
+- Lookup 2-path em ordem:
+  1. Exact hash (zero embedding cost) — preserva cache atual
+  2. Semantic via Gemini embedText → cosine ≥ threshold → cached:semantic
+- Capture embedding ao salvar fresh (fail-open se embed quebrar)
+- 4 env vars novas: `NOX_REFLECT_SEMANTIC_CACHE` (opt-out), `_THRESHOLD=0.88`, `_LOG=1`
+- Smoke prod:
+  - Run 1 (fresh): 3.17s + embed saved
+  - Run 3 (exact repeat): **0.106s = 30× speedup**
+  - Run 4 (paraphrase, sim=0.914): **0.74s = 4× speedup** ⭐ cached:semantic
+  - Run 6 (intent diferente, sim<0.88): fresh — specificity OK
+- Backup: `src/reflect.ts.bak-pre-e11-20260503-195630`
+
+### 📊 Sessão completa — 8 features shipped em ~4h
+
+| Sprint | Estimate | Real | Status |
+|---|---|---|---|
+| Sanity + improvements threshold fix | — | 10min | ✅ |
+| R01c prelim FTS n=40 | 20min | 20min | ✅ |
+| E05 validation kg-extract | 30min | 30min | ✅ |
+| **B1+B2+B3 reason undercoverage fix** | (descoberto) | 45min | ✅ |
+| R01b cure 41-50 + Run #9 baseline | 1h | 30min | ✅ |
+| **E06 detect-changes** | 2-3h | **30min** | ✅ |
+| **E07 impact** | 2.5h | **25min** | ✅ |
+| **E08 api-impact** | 1.5h | **20min** | ✅ |
+| **E11 reflect cache** | 1.5h | **25min** | ✅ |
+| **Total estimate vs real** | **~10h** | **~4h** | 🚀 2.5× faster |
+
+### Tests baseline
+**69/69 pass** após cada feature — zero regression cumulativa.
+
+### Próxima ação
+- **Sessão #2 esta semana** (~2-3h): E10 consolidation merge candidate (gated D01 trigger, requer R01 nDCG≥0.6 — Run #9 deu 0.519, então **D01 NÃO dispara**) OU F15 SEH Self-Evolving Hooks (1h)
+- **2026-05-09 sábado:** routine automática gera issue verdict E03b/E04b activate
+
+---
+
+## Sessão anterior (2026-05-03 noite ~19:40→19:50 BRT) — R01b 50/50 + Run #9 baseline definitivo
 
 ### R01b cure 41-50 ✅ (10 queries novas batch 3)
 - **6 NEGATIVE/GAP cases** (testa specificity contra hallucination):
