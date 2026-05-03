@@ -1,10 +1,62 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~19:40 BRT (**R01c prelim ✅ + B1+B2+B3 fix E05 reason undercoverage: 17%→46% classified rate**)
+> **Atualizado:** 2026-05-03 ~19:50 BRT (**R01b 50/50 ✅ + Run #9 baseline definitivo nDCG=0.519 (n=50, 6 negatives) + B1+B2+B3 E05 fix**)
 
 ---
 
-## Sessão atual (2026-05-03 noite ~19:30→19:40 BRT) — B1+B2+B3 fix E05 reason undercoverage
+## Sessão atual (2026-05-03 noite ~19:40→19:50 BRT) — R01b 50/50 + Run #9 baseline definitivo
+
+### R01b cure 41-50 ✅ (10 queries novas batch 3)
+- **6 NEGATIVE/GAP cases** (testa specificity contra hallucination):
+  - Q85 cross-agent (Lex+Cipher complementaridade — não existe chunk explícito)
+  - Q87 temporal (E05 deploy date — schema novo, não indexado)
+  - Q88 temporal (schema v12 — idem)
+  - Q91 decision (F09 rejection rationale — só em ~/.claude memory)
+  - Q93 entity (kg-reclassify — feature criada nesta sessão)
+  - Q94 concept (RELATION_TYPE_TO_REASON map — idem)
+- **4 cured** com goldens via search prod top-10 análise:
+  - Q86 cross-agent: [116677, 132326]
+  - Q89 security: [209814, 148609]
+  - Q90 security: [209812, 117737]
+  - Q92 decision: [117394, 117341]
+
+### Run #9 hybrid n=50 — baseline definitivo
+
+| Metric | Run #7 (n=40) | **Run #9 (n=50)** | Δ |
+|---|---|---|---|
+| nDCG@10 | 0.658 | **0.519** | -0.139 |
+| MRR | 0.617 | 0.482 | -0.108 |
+| Recall@10 | 0.850 | 0.687 | -0.163 |
+| Prec@5 | 0.330 | 0.268 | -0.057 |
+
+**By difficulty:** hard=0.490 (n=18), easy=0.564 (n=10), medium=0.524 (n=22)
+**By category:** concept=0.656 / procedure=0.619 / security=0.594 / decision=0.542 / entity=0.459 / **cross-agent=0.369** ⚠️ / **temporal=0.233** ⚠️⚠️ / negative=0.000 ✅
+
+### 🔍 Análise queda nDCG 0.658→0.519 — NÃO é regressão real
+
+É **drag de balanceamento da amostra**:
+1. **6 negative cases novas** (12% da amostra) pontuam 0 corretamente
+2. **Temporal subiu pra n=4** (+2 queries com schema/feature recente não-indexado) — perf 0.233 confirma fraqueza
+3. **Cross-agent subiu pra n=4** — perf 0.369 confirma fraqueza
+4. **Security n=5** (+2) com perf 0.594 — categoria nova mostra desempenho saudável
+
+**Insight metodológico:** n=40 anterior não tinha negative balance realista (1/40 = 2.5%). n=50 com 6 negatives (12%) é proporção mais próxima de prod (queries que retornam coisas não-existentes).
+
+### 🎯 Trigger D01 cross-encoder reranker — NÃO dispara mais
+n=50 nDCG=0.519 < trigger 0.6 → **D01 desativado**. Bom sinal: sistema testado mais honestamente. Aguardar melhorias E07/E08/E10 antes de reconsiderar.
+
+### Pontos fracos confirmados em sample n=50 (alvos futuros)
+- **temporal (0.233)** — alvo E07 impact (entity blast radius com tempo)
+- **cross-agent (0.369)** — alvo E08 api_impact (multi-arquivo grep + import graph)
+- **entity (0.459)** — alvo E10 consolidation (entity-anchor merge)
+
+### Próxima ação
+- **Sessão #2 esta semana** (~3h): E06 detect-changes (2-3h, low-risk read-only) OU E11 reflect cache (1.5h)
+- **2026-05-09 sábado:** routine automática `trig_012nuCN14VwcxGLq8ERaLPCK` gera issue verdict E03b/E04b activate
+
+---
+
+## Sessão anterior (2026-05-03 noite ~19:30→19:40 BRT) — B1+B2+B3 fix E05 reason undercoverage
 
 ### Bug detectado pós-validação E05 (kg-extract --limit 20)
 - **Sintoma:** apenas 14% das relations novas (6/43) ganhavam `relation_reason` classified — 86% caíam em `unknown`
@@ -116,7 +168,7 @@ Esperar: schema v12, 64.165 chunks 100% embedded, distribuição reason (unknown
 |---|---|---|---|
 | **1** | ~~R01c prelim oficial n=40~~ ✅ **DONE** — Run #8 FTS=0.015 vs Hybrid #7=0.658 — gap 97.7% confirmado em escala 8× | ✅ 20min | Insight FTS5 AND-strict validado; pipeline hybrid é load-bearing, não decorativo |
 | **2** | ~~kg-build incremental valida E05 Phase 3~~ ✅ **DONE + B1+B2+B3** — bug 86% unknown achado e fixed; classification rate 14%→56% (B2) + 137 backfill via novo `kg-reclassify` (B3); KG cresceu 544→1109 relations | ✅ ~75min | E05 production-ready agora; novo subcomando deployable em qualquer cleanup futuro |
-| **3** | **R01b cure 41-50** — fechar milestone 50/50 golden queries | ~1h | Fecha pendência R01b, libera R01c definitivo (não-prelim) |
+| **3** | ~~R01b cure 41-50~~ ✅ **DONE** — 10 queries (6 negatives + 4 cured) → 50/50 milestone fechado; Run #9 hybrid n=50 nDCG=0.519 baseline definitivo | ✅ ~30min | Liberado R01c oficial; baseline mais honesto com 12% negatives (vs 2.5% n=40) |
 
 ### 📅 Sessão #2 (qualquer dia esta semana, ~3h disponíveis)
 
