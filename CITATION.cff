@@ -1,7 +1,7 @@
 # MIT LICENSE confirmed — LICENSE file present in repo root.
 # VERIFY: ORCID not known for author — uncomment and fill if obtained.
-# VERIFY: version should match git tag at submit time (e.g., "1.0.0" or "v3.7.0").
-# VERIFY: preferred-citation arxiv-id and url must be updated after arXiv submission on 2026-05-19.
+# VERIFY: version "1.0.0-paper-draft" matches git tag v1.0.0-paper-draft (created 2026-05-04).
+# VERIFY: preferred-citation arxiv-id and url must be updated after arXiv submission on 2026-06-02.
 
 cff-version: 1.2.0
 message: >

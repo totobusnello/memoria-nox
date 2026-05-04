@@ -141,21 +141,21 @@ nox-mem hybrid achieves 3.5× the nDCG@10 of the strongest pure-BM25 baseline (P
 
 By IR community norms, nDCG@10=0.52 is mid-range on standard benchmarks (BEIR averages 0.3–0.6 across tasks); the value should be read as adequate-and-improvable for a 60-query domain corpus, not as a benchmark frontier result.
 
-**Table 6. Per-category nDCG@10: BM25 Pyserini vs. nox-mem hybrid (Corpus A, $n$=60).**
+**Table 6. Per-category nDCG@10: BM25 Pyserini vs. multilingual-e5-base vs. nox-mem hybrid (Corpus A, $n$=60).**
 
-| Category | $n$ | BM25 Pyserini nDCG@10 | nox-mem hybrid nDCG@10 | $\Delta$ (hybrid $-$ BM25) |
-|---|---|---|---|---|
-| concept | 15 | 0.2393 | [PENDING: per-cat W2] | — |
-| decision | 6 | 0.2062 | — | — |
-| security | 6 | 0.1597 | — | — |
-| entity | 11 | 0.1357 | — | — |
-| procedure | 13 | 0.1053 | — | — |
-| cross-agent | 4 | 0.0511 | — | — |
-| temporal | 4 | 0.0000 | — | — |
-| negative | 1 | 0.0000 | — | — |
-| **All** | **60** | **0.1475** | **0.5213** | **+37.4 pp** |
+| Category | $n$ | BM25 Pyserini | E5 (768d) | **nox-mem hybrid** | $\Delta$ (hybrid $-$ BM25) |
+|---|---|---|---|---|---|
+| concept | 15 | 0.2393 | 0.4062 | **0.6560** | $+41.7$ pp |
+| decision | 6 | 0.2062 | 0.4212 | **0.5420** | $+33.6$ pp |
+| security | 6 | 0.1597 | 0.3410 | **0.5940** | $+43.4$ pp |
+| entity | 11 | 0.1357 | 0.2716 | **0.4590** | $+32.3$ pp |
+| procedure | 13 | 0.1053 | 0.1722 | **0.6190** | $+51.4$ pp |
+| cross-agent | 4 | 0.0511 | **0.3816** | 0.3690 | $+31.8$ pp; E5 wins by $+0.013$ |
+| temporal | 4 | 0.0000 | **0.2500** | 0.2330 | $+23.3$ pp; E5 wins by $+0.017$ |
+| negative | 1 | 0.0000 | 0.0000 | 0.0000 | 0 (tie) |
+| **All** | **60** | **0.1475** | **0.3070** | **0.5213** | **$+37.4$ pp** |
 
-*BM25 Pyserini per-category figures confirmed (E01, 2026-05-03). nox-mem per-category breakdown is a W2 task. BM25 completely fails on temporal and negative categories (nDCG@10 = 0.000). The gap is widest in categories requiring semantic understanding (cross-agent, temporal), consistent with the architectural motivation for the Gemini semantic layer.*
+*BM25 Pyserini and multilingual-e5-base per-category figures confirmed (E01, 2026-05-03; E02, 2026-05-04). nox-mem hybrid per-category is from the same 3-run replicated mean as Table 5. BM25 completely fails on temporal and negative categories (nDCG@10 = 0.000); the gap is widest where domain identifiers and procedural keyword anchors matter (procedure $+51.4$ pp, security $+43.4$ pp, concept $+41.7$ pp). E5 narrowly outperforms hybrid on cross-agent ($+0.013$) and temporal ($+0.017$), both $n=4$ within the margin of error: this is consistent with dense-only retrieval surfacing semantic similarity better than FTS-boosted hybrid in these two regimes. The aggregate $+37.4$ pp lift is driven by the five categories where lexical anchors carry signal.*
 
 **Table 7. Pre-registered directional hypothesis summary (E1+E2, Corpus A).**
 

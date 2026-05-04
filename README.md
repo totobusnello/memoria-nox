@@ -1,7 +1,7 @@
 # memoria-nox
 
-> 📄 **Paper coming soon (2026-05-19):** *The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents* — arXiv preprint + dev.to blog + Hacker News.
-> See [`paper/publication/`](paper/publication/) for drafts, baselines, and reproducibility kit.
+> 📄 **Paper (arXiv cs.IR, target 2026-06-02):** *The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents* — tag `v1.0.0-paper-draft`.
+> See [`paper/publication/`](paper/publication/) for source drafts, baselines, and reproducibility kit. Blog drafts (dev.to, LinkedIn, Substack) in [`paper/publication/distribution/`](paper/publication/distribution/).
 
 > Sistema de memória inteligente multi-agent com hybrid search, knowledge graph com edge typing, eval harness, semantic cache, blast radius analysis e backend claude-cli zero-cost.
 
@@ -649,7 +649,8 @@ Sobra realista:               ~70h (4× margin original) — folga pra incidents
 | Incident log completo | [docs/INCIDENTS.md](docs/INCIDENTS.md) |
 | Como trabalhar neste repo | [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) |
 | Audit trail (13+ docs) | [audits/](audits/) |
-| Paper tecnico | [paper/paper-tecnico-nox-mem.md](paper/paper-tecnico-nox-mem.md) |
+| Paper tecnico (source drafts) | [paper/publication/](paper/publication/) |
+| Paper — blog drafts (dev.to, LinkedIn, Substack) | [paper/publication/distribution/](paper/publication/distribution/) |
 
 ---
 
@@ -674,7 +675,9 @@ memoria-nox/
 ├── specs/                      <- especificacoes tecnicas
 ├── audits/                     <- audit trail (13+ docs)
 ├── scripts/                    <- ops scripts (ckpt, improvements, oc-upgrade, release-watcher)
-├── paper/                      <- paper tecnico (.md + .docx)
+├── paper/
+│   └── publication/            <- paper source drafts + baselines + reproducibility kit
+│       └── distribution/       <- blog drafts (dev.to, LinkedIn, Substack)
 ├── plans/_archive/             <- roadmaps anteriores (v1.5, v1.6)
 ├── handoffs/_archive/          <- handoffs de sessoes anteriores
 └── .github/
@@ -712,6 +715,38 @@ Baseline de saude: `ssh root@100.87.8.44 '/root/bin/improvements check'` deve re
 
 ---
 
+## Paper
+
+**Title:** The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents
+
+**Submission target:** arXiv cs.IR — 2026-06-02. Tag: `v1.0.0-paper-draft`.
+
+**Three contributions:**
+1. Pain-weighted salience (`recency × pain × importance`) treats incident severity as a typed schema input and first-class retrieval dimension, not a log annotation.
+2. Shadow discipline enforces a seven-day gate via `/api/health` before any ranking change activates — architectural constraint, not a convention.
+3. Shared-canonical context: six agents, one corpus, no federation overhead.
+
+**Empirical headline:** 61,257 chunks; hybrid nDCG@10 = 0.5213 ± 0.0004 (n=50, 3-run mean) vs FTS5 vanilla 0.0123; LOCOMO FTS5 nDCG@10 = 0.281 (n=100, external corpus).
+
+**Source drafts:** [`paper/publication/`](paper/publication/)
+**Blog drafts** (dev.to, LinkedIn, Substack): [`paper/publication/distribution/`](paper/publication/distribution/)
+**Pre-registered golden query set (60 queries):** [`eval/golden-queries.jsonl`](eval/golden-queries.jsonl) — SHA-256 `9bff8ee7...`
+
+---
+
+## Critic-driven revisions (2026-05-04)
+
+Six critic followups completed before tag `v1.0.0-paper-draft`:
+
+- **H1** — Abstract tightened; chunk count reconciled to 61,257 (paper corpus at eval time, not live 64k production count).
+- **H2** — Pain ablation result stated honestly: aggregate effect non-significant (Δ = +0.0065, 95% CI [−0.014, +0.034]); lift concentrates in tied-semantic regimes only.
+- **H4** — Edge typing contribution scoped correctly: 14%→56% is enum coverage rate (n=100), not human-validated accuracy.
+- **H5** — Shared-canonical coverage framing verified against cross-agent-sql baseline adapter.
+- **Abstract tighten** — LOCOMO and BEIR context added; word count held under 300 prose words.
+- **Chunk count consistency** — 61,257 used consistently throughout paper sections; live DB count (64k+) noted separately as post-eval growth.
+
+---
+
 ## Reproducibility
 
 All baselines and adapters used in the paper are in [`paper/publication/baselines/`](paper/publication/baselines/):
@@ -726,7 +761,16 @@ All baselines and adapters used in the paper are in [`paper/publication/baseline
 | `beir-external/` | BEIR external corpus adapter for out-of-domain generalization |
 | `stackexchange/` | StackExchange adapter for domain transfer evaluation |
 
-Pre-registered hypothesis: hybrid retains ≥10% nDCG advantage over BGE-M3 dense on operational corpus. Full results in the arXiv preprint (2026-05-19).
+**LOCOMO baseline** (stdlib only, no external deps, runs in <10s):
+```bash
+python3 paper/publication/baselines/locomo_eval.py full
+```
+
+BEIR adapter: [`paper/publication/baselines/beir_*.py`](paper/publication/baselines/)
+
+E5 multilingual reference adapter: [`paper/publication/baselines/e5_multilingual_baseline.py`](paper/publication/baselines/e5_multilingual_baseline.py)
+
+Pre-registered hypothesis: hybrid retains ≥10% nDCG advantage over BGE-M3 dense on operational corpus. Full results in the arXiv preprint (target 2026-06-02).
 
 ---
 
@@ -739,7 +783,7 @@ If you use NOX-Supermem in research:
   author = {Luiz Antonio Busnello (Toto)},
   title  = {The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents},
   year   = {2026},
-  note   = {arXiv preprint forthcoming 2026-05-19},
+  note   = {arXiv preprint cs.IR, target submission 2026-06-02, tag v1.0.0-paper-draft},
   url    = {https://github.com/totobusnello/memoria-nox}
 }
 ```

@@ -27,42 +27,22 @@
 \maketitle
 
 % ---------------------------------------------------------------
-% ABSTRACT
+% ABSTRACT — sourced from sec_abstract.tex
 % ---------------------------------------------------------------
 \begin{abstract}
-Persistent memory for autonomous AI agents is widely treated as a retrieval problem, yet
-production deployments reveal a more fundamental failure mode: silent architectural
-degradation that no embedding model can prevent. Existing systems---including GraphRAG,
-MemGPT, Mem0, and A-MEM---model structure and recency but none encodes incident severity
-as a retrieval signal, and none enforces ranking change validation before production
-activation. We present NOX-Supermem, a memory system whose architecture is shaped by its
-own operational failures: each production incident became a schema constraint, and each
-hard-won lesson a reproducible feature. We make three concrete contributions. First,
-\emph{pain-weighted salience}
-($\text{salience} = \text{recency} \times \text{pain} \times \text{importance}$,
-$\text{pain} \in [0.1,\,1.0]$)
-treats incident severity as a first-class retrieval dimension, allowing a six-month-old
-prod-outage lesson to outrank yesterday's trivial note---as human memory does. Second,
-\emph{shadow discipline} enforces a minimum seven-day shadow-mode gate before any ranking
-change activates, implemented as an architectural constraint via cron and
-\texttt{/api/health} rather than an optional best practice. Third,
-\emph{shared-canonical multi-agent context} serves six specialized agents from a single
-corpus without federation, synchronization, or merge overhead. On a 64,180-chunk production
-corpus, hybrid retrieval (FTS5 + Gemini 3072-d embeddings + RRF) achieves
-nDCG@10 $= 0.714$ versus $0.000$ for BM25-only, confirming hybrid as a structural
-requirement rather than an optimization. Knowledge-graph edge-type coverage improved from
-14\% to 56\% (4$\times$ gain) after defensive prompt engineering. Against seven published
-alternatives, NOX-Supermem scores 5/5 on a five-dimension architectural parity rubric
-(knowledge graph, hybrid retrieval, eval harness, multi-agent, shadow discipline) versus a
-mean of 1.6/5; no competitor implements shadow discipline. The full corpus, eval harness,
-incident log, and schema history (v1--v12) are publicly available, enabling complete
-reproduction and refutation. Operational discipline, not embedding sophistication, is the
-binding constraint in production agent memory.
+\input{sec_abstract}
 \end{abstract}
 
 % ---------------------------------------------------------------
-% SECTION 1 — INTRODUCTION
+% SECTIONS 1–3 — sourced from sec_1_3.tex
 % ---------------------------------------------------------------
+\input{sec_1_3}
+
+% [ORIGINAL MONOLITH PRESERVED BELOW FOR REFERENCE — remove before submission]
+% ---------------------------------------------------------------
+% SECTION 1 — INTRODUCTION (MONOLITH)
+% ---------------------------------------------------------------
+\iffalse
 \section{Introduction}
 
 At 22:03 on April 25, 2026, an end-of-day cron job executed \texttt{nox-mem reindex}
@@ -553,8 +533,23 @@ system to support multi-agent workflows beyond retrieval, enabling agents to que
 for blast-radius analysis before executing changes, and to surface merge candidates across
 agent-sourced entities.
 
+\fi % end \iffalse — monolith §1-3 suppressed
+
 % ---------------------------------------------------------------
-% SECTION 4 — METHODS
+% SECTIONS 4–7 + APPENDICES — sourced from sec_4_7.tex
+% ---------------------------------------------------------------
+\input{sec_4_7}
+
+% ---------------------------------------------------------------
+% BIBLIOGRAPHY
+% ---------------------------------------------------------------
+\bibliographystyle{unsrt}
+\bibliography{../refs}
+
+% [ORIGINAL MONOLITH PRESERVED BELOW FOR REFERENCE — remove before submission]
+\iffalse
+% ---------------------------------------------------------------
+% SECTION 4 — METHODS (MONOLITH)
 % ---------------------------------------------------------------
 \section{Methods}
 
@@ -1384,5 +1379,7 @@ This incident, and the five others documented in \texttt{docs/INCIDENTS.md}, are
 operational substrate from which the paper's architectural contributions were extracted.
 They are included here not to confess failure but to demonstrate that the contributions
 are grounded in production evidence rather than synthetic benchmark design.
+
+\fi % end \iffalse — monolith §4-appendices suppressed
 
 \end{document}

@@ -413,6 +413,129 @@ def _discover_session_files(data_dir: Path) -> list[Path]:
     return session_files
 
 
+def _load_from_eval_data(eval_data_dir: Path) -> list[SessionData] | None:
+    """Load MemoryBank sessions from the actual eval_data/ directory layout.
+
+    The real MemoryBank repo layout (as of 2026-05-04) uses eval_data/<lang>/
+    rather than the per-session JSON format assumed by the original adapter.
+
+    Schema found in eval_data/en/:
+      memory_bank_en.json   — dict keyed by user name, each value is a dict with:
+                               "history": {date_str: [{query, response}, ...]},
+                               "meta_information": {name, personality, hobbies, ...}
+      probing_questions_en.jsonl — one JSON object per line: {username: [q1, q2, ...]}
+                               Questions are plain strings; NO gold answers or memory_ids.
+
+    IMPORTANT LIMITATION: probing_questions have no gold answer or relevance labels.
+    This means nDCG/MRR/Recall cannot be computed without an oracle or LLM judge.
+    The loader builds SessionData with qa_pairs whose answer="[UNLABELED]" and
+    gold_memory_ids=[] so the pipeline can chunk + index; eval metrics will be N/A.
+
+    Args:
+        eval_data_dir: Path to eval_data/ root (contains en/, cn/ subdirs).
+
+    Returns:
+        List of SessionData dicts or None if required files not found.
+    """
+    # Prefer English; fall back to Chinese if en/ missing
+    for lang_dir in (eval_data_dir / "en", eval_data_dir / "cn"):
+        mb_path = lang_dir / f"memory_bank_{lang_dir.name}.json"
+        pq_path = lang_dir / f"probing_questions_{lang_dir.name}.jsonl"
+        if mb_path.exists() and pq_path.exists():
+            break
+    else:
+        logger.warning("No memory_bank_*.json + probing_questions_*.jsonl found in %s", eval_data_dir)
+        return None
+
+    logger.info("Loading eval_data layout from %s", lang_dir)
+
+    try:
+        memory_bank: dict[str, Any] = json.loads(mb_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        logger.warning("Failed to parse %s: %s", mb_path, exc)
+        return None
+
+    # Parse probing questions: one JSON object per line keyed by user name
+    probing_qs: dict[str, list[str]] = {}
+    try:
+        for raw_line in pq_path.read_text(encoding="utf-8").splitlines():
+            raw_line = raw_line.strip()
+            if not raw_line:
+                continue
+            obj = json.loads(raw_line)
+            if isinstance(obj, dict):
+                for user, qs in obj.items():
+                    probing_qs[user.strip()] = [str(q) for q in qs] if isinstance(qs, list) else []
+    except (json.JSONDecodeError, OSError) as exc:
+        logger.warning("Failed to parse %s: %s", pq_path, exc)
+        probing_qs = {}
+
+    logger.info(
+        "eval_data: %d users in memory_bank, %d users with probing questions",
+        len(memory_bank), len(probing_qs),
+    )
+
+    sessions: list[SessionData] = []
+    for raw_user, user_data in memory_bank.items():
+        user = raw_user.strip()
+        if not isinstance(user_data, dict):
+            continue
+
+        history: dict[str, list[dict[str, Any]]] = user_data.get("history") or {}
+        meta: dict[str, Any] = user_data.get("meta_information") or {}
+
+        # Flatten history into a single conversations list with date tags
+        conversations: list[dict[str, Any]] = []
+        for date_str, turns in sorted(history.items()):
+            if not isinstance(turns, list):
+                continue
+            for turn in turns:
+                q = (turn.get("query") or "").strip()
+                r = (turn.get("response") or "").strip()
+                if q:
+                    conversations.append({"role": "user", "content": q, "date": date_str})
+                if r:
+                    conversations.append({"role": "assistant", "content": r, "date": date_str})
+
+        # Build qa_pairs from probing questions (no gold answers — mark as UNLABELED)
+        user_qs = probing_qs.get(user, [])
+        qa_pairs: list[dict[str, Any]] = [
+            {
+                "question": q,
+                "answer": "[UNLABELED]",
+                "question_type": "factual_recall",  # default; type labels absent
+                "memory_ids": [],
+                "_no_gold_labels": True,
+            }
+            for q in user_qs
+            if q.strip()
+        ]
+
+        sessions.append({
+            "session_id": user.replace(" ", "_").lower(),
+            "date": sorted(history.keys())[0] if history else "",
+            "conversations": conversations,
+            "memory_items": [],  # eval_data has no discrete memory items
+            "qa_pairs": qa_pairs,
+            "_meta": meta,
+            "_source": "eval_data",
+            "_n_days": len(history),
+            "_no_gold_labels": True,
+        })
+
+    if not sessions:
+        logger.warning("eval_data parse produced 0 sessions — unexpected.")
+        return None
+
+    total_qs = sum(len(s["qa_pairs"]) for s in sessions)
+    logger.warning(
+        "eval_data schema loaded: %d sessions, %d questions, NO gold labels. "
+        "IR metrics (nDCG/MRR/Recall) require an external judge — cannot be computed from this data.",
+        len(sessions), total_qs,
+    )
+    return sessions
+
+
 def _load_from_hf_fallback(
     cache_dir: str | Path | None = None,
 ) -> list[SessionData] | None:
@@ -496,10 +619,34 @@ def download_memorybank(
     # --- Strategy 1: git clone ---
     cloned = _git_clone(_MEMORYBANK_GITHUB_URL, clone_dir)
     if cloned:
+        # --- Strategy 1a: eval_data/ layout (actual repo as of 2026-05-04) ---
+        # The repo contains eval_data/{en,cn}/ with memory_bank_*.json +
+        # probing_questions_*.jsonl — NOT per-session JSON files under
+        # data/silicon_friend_memory_bank/ (that path does not exist in the repo).
+        # Prefer eval_data/ explicitly before falling through to glob discovery
+        # which incorrectly selected SiliconFriend-ChatGLM-BELLE/train/BELLE/run_config/
+        # (only 2 training config JSONs) as the data directory.
+        eval_data_dir = clone_dir / "eval_data"
+        if eval_data_dir.is_dir():
+            eval_sessions = _load_from_eval_data(eval_data_dir)
+            if eval_sessions:
+                logger.info(
+                    "Loaded %d sessions from eval_data/ layout (%s)",
+                    len(eval_sessions), eval_data_dir,
+                )
+                return eval_sessions, "github_clone_eval_data"
+
+        # --- Strategy 1b: legacy per-session JSON layout ---
         data_dir = clone_dir / _MEMORYBANK_DATA_SUBPATH
         if not data_dir.exists():
-            # Try finding data dir by globbing
-            json_dirs = [p.parent for p in clone_dir.rglob("*.json") if p.stat().st_size > 100]
+            # Try finding data dir by globbing — but skip training/config dirs
+            # to avoid picking up non-session JSON files (run_config, finetune configs)
+            json_dirs = [
+                p.parent for p in clone_dir.rglob("*.json")
+                if p.stat().st_size > 500  # raise threshold to skip tiny config files
+                and "train" not in p.parts
+                and "run_config" not in p.parts
+            ]
             if json_dirs:
                 data_dir = sorted(set(json_dirs))[0]
                 logger.info("Data dir discovered: %s", data_dir)

@@ -147,11 +147,11 @@ KG extraction com campo opcional e prompt ingênuo produzia apenas **14% de emis
 
 ### nox-mem vs alternatives — paridade de features
 
-A tabela usa 7 eixos arquiteturais e operacionais. Os dois últimos — escala de corpus acima de 100K e benchmark de terceiros — são eixos onde nox-mem ainda **não** tem cobertura. A inclusão deles é intencional: comparação honesta exige marcar as lacunas, não só os pontos fortes.
+A tabela usa 7 eixos arquiteturais e operacionais. O último — escala de corpus acima de 100K — é o único eixo sem cobertura atual. Benchmark de terceiros passou de ❌ para ✅ com LOCOMO (nDCG@10=0.281, n=100, concluído 2026-05-04); BEIR em curso. A inclusão do eixo de escala é intencional: comparação honesta exige marcar as lacunas, não só os pontos fortes.
 
 | Sistema | KG nativo | Hybrid retrieval | Eval harness | Multi-agent | Shadow discipline | Escala ≥100K | Benchmark terceiros | **Score** |
 |---|---|---|---|---|---|---|---|---|
-| **nox-mem (este trabalho)** | ✅ closed-enum 7 reasons (24-entry map) | ✅ FTS5+Gemini+RRF | ✅ nDCG/MRR/Recall | ✅ shared canonical | ✅ enforced ≥7d | ❌ (61K atual) | ❌ (golden interno) | **5/7** |
+| **nox-mem (este trabalho)** | ✅ closed-enum 7 reasons (24-entry map) | ✅ FTS5+Gemini+RRF | ✅ nDCG/MRR/Recall | ✅ shared canonical | ✅ enforced ≥7d | ❌ (61K atual) | ✅ LOCOMO 0.281 (⏳ BEIR em curso) | **6/7** |
 | GraphRAG | ✅ + community detection | ⚠️ via KG queries | ❌ | ❌ | ❌ | ✅ (1M+ MS-MARCO) | ⚠️ paper-específico | 1.5/7 |
 | MemGPT/Letta | ❌ | ⚠️ embedding-first | ❌ | ✅ per-agent | ❌ | ⚠️ varia | ❌ | 1.5/7 |
 | Mem0 | ⚠️ optional v2 | ❌ vector-only | ⚠️ LOCOMO only | ⚠️ user_id partition | ❌ | ❌ | ✅ LOCOMO | 1.5/7 |
@@ -160,7 +160,7 @@ A tabela usa 7 eixos arquiteturais e operacionais. Os dois últimos — escala d
 | Cognee | ✅ ECL pipeline | ✅ hybrid | ⚠️ ad-hoc | ⚠️ optional | ❌ | ⚠️ ad-hoc | ⚠️ parcial | 3.0/7 |
 | LangChain Memory | ❌ | ❌ key-value | ❌ | ⚠️ session_id | ❌ | ⚠️ varia | ❌ | 0.5/7 |
 
-**Resumo honesto**: nox-mem cobre **5 de 7 eixos** — os cinco relacionados a disciplina operacional e arquitetura. Não cobre os dois eixos de validade externa: escala de corpus (61K vs ≥100K) e benchmark de terceiros (golden set interno vs LOCOMO/BEIR). Essas lacunas estão documentadas como limitações no paper (§6.3) e como trabalho futuro (§6.5). O sistema mais próximo, Cognee, cobre 3/7. Média dos sete competidores: **1,6/7**. Os dois eixos com cobertura zero na literatura — pain weighting e shadow discipline — são as contribuições de maior novidade.
+**Resumo honesto**: nox-mem cobre **6 de 7 eixos** — os cinco de disciplina operacional/arquitetura mais o eixo de benchmark de terceiros (LOCOMO concluído, BEIR em curso). Não cobre o eixo de escala ≥100K (corpus atual: 61K). Essa lacuna está documentada como limitação no paper (§6.3) e como trabalho futuro (§6.5). O sistema mais próximo, Cognee, cobre 3/7. Média dos sete competidores: **1,6/7**. Os dois eixos com cobertura zero na literatura — pain weighting e shadow discipline — são as contribuições de maior novidade.
 
 ### Latência em produção real
 
@@ -180,13 +180,26 @@ De 61.257 chunks ativos no corpus, **61.207 são canonical shared** — acessív
 
 Sobre 6 queries extraídas de incidentes reais (post-incident class), nDCG@10 = **0.2689** — **−0.2524 vs baseline geral de 0.5213**. Post-incident queries são intrinsically harder: linguagem mais técnica, contexto fragmentado, relevância distribuída por chunks de tipos distintos. Esse gap é o sinal que motiva pain-weighted salience: lições de incidente precisam de boost ativo no retrieval porque o retrieval vanilla já as penaliza passivamente. Pain ablation completa (comparar salience=shadow vs salience=off em prod) requer dois reinicios de produção e está documentada como future work no paper — os dados preliminares desta sessão ficam como evidência motivadora.
 
-### Validação contra strong baselines (W2 — parcialmente concluída)
+### §6.4 Perfil de custo e compute (OPEX real)
+
+| Componente | Custo mensal estimado |
+|---|---|
+| Gemini embeddings (3072d, incrementais) | ~$4-6 |
+| Gemini 2.5 Flash KG extraction (nightly) | ~$2-3 |
+| SQLite + servidor VPS Hostinger | ~$2 |
+| **Total OPEX** | **< $11/mês** |
+
+Comparativo: MemGPT/Letta requer instância dedicada + modelo LLM por agente (≥$50/mês em escala de 6 agentes); GraphRAG implica LLM calls síncronas em cada query (custos variáveis não controlados); Mem0 managed tier começa em $20/mês por workspace. NOX-Supermem com 6 agentes e 61K chunks: **< $11/mês com p95 < 1s**. Custo por query não medido formalmente — future work documentado em §6.5.
+
+### Validação contra strong baselines (W2 — concluída + em curso)
 
 - **BM25 Pyserini** ✅ DONE — nDCG@10 = 0.1475 (n=60), nox-mem 3,5× acima
-- **multilingual-e5-base** ⏳ rodando overnight (~9h ETA)
+- **multilingual-e5-base** ✅ DONE — nDCG@10 = 0.3070, MRR=0.3720, Recall@10=0.3708 (n=60); hybrid entrega +0.2143 sobre E5 (1,7× lift). Decisão: NÃO trocar o embedding primário — hybrid ganha em 5/8 categorias, custo/benefício favorece Gemini.
+- **LOCOMO (Maharana et al. 2024, snap-research/locomo, CC BY-NC 4.0)** ✅ DONE — FTS5 nDCG@10 = 0.2810 em n=100 stratified. Breakdown por categoria: open-domain 0.375, multi-hop 0.371, temporal 0.289, adversarial 0.253, single-hop 0.118. Ratio LOCOMO vs golden set (0.012): **23×** — confirma que dificuldade lexical é dependente de corpus, validando hybrid especificamente para regimes identifier-dense como o golden.
+- **BEIR TREC-COVID** ⏳ rodando overnight (50K docs, e5-base, ETA 2026-05-05 BRT). Terceiro corpus além de golden+LOCOMO. Bug fix em _load_qrels aplicado (3-col TREC vs 4-col).
 - **E5-mistral-7b** — deferred para Modal cloud (opcional; não bloqueia submissão)
 
-Hipótese pré-registrada mantida: hybrid mantém vantagem ≥10% nDCG sobre qualquer dense baseline em corpus operacional. Resultados completos no paper arXiv (2026-05-19).
+**Pre-registration:** golden-queries.jsonl git-tracked (commit f75d186), SHA-256 = 9bff8ee7…, 60 queries. Hipótese pré-registrada mantida: hybrid mantém vantagem ≥10% nDCG sobre qualquer dense baseline em corpus operacional. Resultados completos no paper arXiv (2026-05-19).
 
 ---
 
@@ -200,7 +213,7 @@ A lacuna não é de performance — é de vocabulário. A comunidade científica
 
 **Reproducibilidade radical.** Quatro meses de incident log real, telemetria exposta via `/api/health`, eval harness com métricas padrão, repo público, schema versionado v1→v12. O reviewer pode refutar — ou confirmar — tudo. **Comparativo: 6 dos 7 sistemas analisados não publicam eval harness reproduzível.**
 
-**Paridade arquitetural: 5/7 eixos cobertos, média dos competidores 1,6/7.** O sistema mais próximo (Cognee) cobre 3/7. nox-mem não cobre escala ≥100K nem benchmark de terceiros — lacunas documentadas no paper. Nenhum dos sete competidores cobre as duas dimensões de maior novidade (pain weighting + shadow discipline).
+**Paridade arquitetural: 6/7 eixos cobertos, média dos competidores 1,6/7.** O sistema mais próximo (Cognee) cobre 3/7. nox-mem não cobre escala ≥100K — única lacuna documentada no paper. LOCOMO concluído (nDCG@10 = 0.281, n=100); BEIR TREC-COVID em curso. Nenhum dos sete competidores cobre as duas dimensões de maior novidade (pain weighting + shadow discipline).
 
 **Construído solo, sem financiamento, em produção real.** Não em benchmark sintético. As cicatrizes estão no incident log — e o incident log está no repo.
 
