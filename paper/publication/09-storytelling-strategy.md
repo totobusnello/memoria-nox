@@ -61,20 +61,32 @@
 
 ## 🎨 Hooks práticos por canal (production-ready)
 
-### 🎯 7 Title Finalists Repository (Toto-approved 2026-05-04)
+### 🏆 PRIMARY MASTER (cross-channel default — Toto-approved 2026-05-04)
 
-**Por canal (escolha primary + backup):**
+> **"The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents"**
 
-| Canal | PRIMARY | BACKUP |
+**Por que MASTER:** poeticamente perfeito (self-referential loop), versátil (funciona academic+blog+HN+LinkedIn sem mudar), specific técnica ("incidents" é claim concreta), acessível (zero jargon — buyer entende), quotable (Twitter-friendly), brand fit (Pain Diary óbvio do título).
+
+Variações canal-específicas opcionais (quando precisar adaptar):
+
+| Canal | Adaptação | Quando usar |
 |---|---|---|
-| **arXiv (academic)** | "The Pain Diary and Shadow Discipline: Quantifying the Hybrid Retrieval Gap (Δ 0.504 nDCG) in Production Memory" | "The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents (Built Solo in 4 Months)" |
-| **Blog dev.to / Substack** | "The Pain Diary and Shadow Discipline: How One Nerd Entrepreneur Built Memory for Six AI Agents in Four Months" | "I built a memory system for AI agents that learns from incidents. Here's what 4 months in production taught me." |
-| **Hacker News** | "The Pain Diary and Shadow Discipline: When Disabling Semantic Embeddings Costs You 97.7% nDCG" | "The Pain Diary and Shadow Discipline: 4 Months Building Memory for 6 AI Agents (Solo)" |
-| **LinkedIn** | "4 months building memory for 6 AI agents. What I learned about cutting AI costs." | "The Pain Diary: 5 production incidents that shaped my AI memory system" |
-| **Twitter thread tweet 1** | "🧵 Built a memory system for 6 AI agents over 4 months. The most interesting feature isn't hybrid retrieval — it's that the salience formula literally weights chunks by past incident pain. Here's the Pain Diary 👇" | — |
+| **arXiv abstract** | MASTER + "(Built Solo in 4 Months)" suffix | Adiciona credibilidade pessoal sem cliché |
+| **Blog dev.to / Substack** | MASTER puro OR "How One Nerd Entrepreneur..." se quiser persona-forward | Persona helps story angle; MASTER pra punch direto |
+| **Hacker News** | MASTER puro OR counterintuitive backup "When Disabling Semantic Embeddings Costs You 97.7% nDCG" | MASTER se story-first; counterintuitive se data-first |
+| **LinkedIn** | "4 months building memory for 6 AI agents. What I learned about cutting AI costs." | Business angle requer adaptação |
+| **Twitter thread tweet 1** | "🧵 Built a memory system for 6 AI agents over 4 months. The most interesting feature isn't hybrid retrieval — it's that the salience formula literally weights chunks by past incident pain. Here's the Pain Diary 👇" | Conversion hook narrative-first |
 
-**Backup adicional pra HN se PRIMARY underperform hour 1 (technical reviewer-safe):**
-"The Pain Diary and Shadow Discipline: A 97.7% nDCG Gap Suggests Hybrid Necessity"
+### 🛡️ BACKUPS (situational use)
+
+**HN reviewer-safe (se PRIMARY underperform hour 1):**
+"The Pain Diary and Shadow Discipline: A 97.7% nDCG Gap Suggests Hybrid Necessity" — hedged "suggests" survive technical scrutiny.
+
+**Academic technical-heavy (se reviewer pede mais data foco):**
+"The Pain Diary and Shadow Discipline: Quantifying the Hybrid Retrieval Gap (Δ 0.504 nDCG) in Production Memory" — defensible absolute Δ + production framing.
+
+**Punchy short (Twitter/short forms):**
+"The Pain Diary and Shadow Discipline: 4 Months Building Memory for 6 AI Agents (Solo)" — data-first 14 palavras HN sweet spot.
 
 ### Trade-off geral
 4 títulos diferentes podem soar "marketing inconsistent" pra alguém que vê todos. Mitigação: cada canal alcança audience distinta — overlap real é < 10%. Worst case 1 reader vê 2 títulos, vai entender que cada channel tem framing optimal.
