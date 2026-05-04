@@ -232,7 +232,7 @@ def embed_chunks(
         result = model.encode(
             list(texts),
             batch_size=len(texts),
-            max_length=8192,
+            max_length=1024,  # corpus chunks ≤1k tokens typical; 8192 default wastes 8× compute on padding
         )
         vecs: np.ndarray = result["dense_vecs"]  # shape: (len(batch), 1024)
         # Defensive L2-normalize (no-op if already normalized)

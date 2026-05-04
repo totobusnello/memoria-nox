@@ -605,29 +605,25 @@ def _ndcg_at_k(retrieved: list[int], gold: set[int], k: int = 10) -> float:
 # ---------------------------------------------------------------------------
 
 
-def _http_post(url: str, payload: dict[str, Any], timeout_s: float = 30.0) -> tuple[dict[str, Any], int]:
-    """Minimal HTTP POST with JSON body and response.
+def _http_get(url: str, params: dict[str, Any], timeout_s: float = 30.0) -> tuple[Any, int]:
+    """HTTP GET with URL query params (nox-mem API expects GET, not POST).
 
     Args:
-        url: Full URL for the POST request.
-        payload: JSON-serialisable request body.
+        url: Full URL for the GET request (without query string).
+        params: Dict of query string parameters; values URL-encoded.
         timeout_s: Socket timeout in seconds.
 
     Returns:
         Tuple of (parsed JSON response body, HTTP status code).
-
-    Raises:
-        urllib.error.URLError: On network or DNS errors.
-        json.JSONDecodeError: If response is not valid JSON.
+        Body may be a list (search results) or dict (errors), per nox-mem API.
     """
-    body = json.dumps(payload).encode("utf-8")
+    qs = urllib.parse.urlencode({k: str(v) for k, v in params.items()})
+    full_url = f"{url}?{qs}"
     req = urllib.request.Request(
-        url,
-        data=body,
-        headers={"Content-Type": "application/json", "Accept": "application/json"},
-        method="POST",
+        full_url,
+        headers={"Accept": "application/json"},
+        method="GET",
     )
-    t0 = time.monotonic()
     try:
         with urllib.request.urlopen(req, timeout=timeout_s) as resp:
             status = resp.status
@@ -635,7 +631,6 @@ def _http_post(url: str, payload: dict[str, Any], timeout_s: float = 30.0) -> tu
     except urllib.error.HTTPError as exc:
         status = exc.code
         raw = exc.read().decode("utf-8", errors="replace")
-    duration_ms = int((time.monotonic() - t0) * 1_000)
     return json.loads(raw), status
 
 
@@ -677,22 +672,23 @@ def run_eval_variant(
     logger.info("Running eval variant=%s against %s (%d queries)", variant, search_url, len(queries))
 
     for q in queries:
-        payload = {"query": q.query_text, "limit": k, "hybrid": True}
+        params = {"q": q.query_text, "k": k}
         t0 = time.monotonic()
         try:
-            resp_body, status = _http_post(search_url, payload)
+            resp_body, status = _http_get(search_url, params)
             duration_ms = int((time.monotonic() - t0) * 1_000)
-            audit.http("POST", search_url, status, duration_ms)
+            audit.http("GET", search_url, status, duration_ms)
         except Exception as exc:
             logger.error("HTTP search failed for Q%d: %s", q.query_id, exc)
             audit.event(f"search_error Q{q.query_id} error={exc}")
             continue
 
         if status != 200:
-            logger.warning("API returned status=%d for Q%d", status, q.query_id)
+            logger.warning("API returned status=%d for Q%d body=%s", status, q.query_id, str(resp_body)[:200])
             continue
 
-        chunks = resp_body.get("results", resp_body.get("chunks", []))
+        # nox-mem /api/search returns array of {id, score, ...} directly
+        chunks = resp_body if isinstance(resp_body, list) else resp_body.get("results", resp_body.get("chunks", []))
         retrieved_ids = [int(c.get("id", 0)) for c in chunks[:k]]
         retrieved_scores = [float(c.get("score", 0.0)) for c in chunks[:k]]
 
