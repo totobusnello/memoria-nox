@@ -1,6 +1,45 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~23:30 BRT (**Sessão fechada limpa: 14 commits pushed + README publication-ready + repo metadata + HARD RULE PT-BR escalated**)
+> **Atualizado:** 2026-05-04 ~00:30 BRT (**Publication subprojeto criado: paper/publication/ com 7 docs base — arXiv + blog + HN + checklist 4-6 sem**)
+
+---
+
+## 🎯 Publication subprojeto ATIVO (2026-05-04 → 2026-06-14)
+
+**Pasta:** `paper/publication/` — paralelo ao trabalho técnico, target arXiv preprint + blog + HN submission em 4-6 semanas.
+
+| File | Status |
+|---|---|
+| `00-INDEX.md` | ✅ mapa + status + timeline |
+| `01-positioning-strategy.md` | ✅ 3 diferenciais + 5 gaps + voice/tom |
+| `02-related-work-notes.md` | ✅ 8 papers PRIMARY + 4 secondary + objection preempção |
+| `03-experiments-needed.md` | ✅ 13 experiments com Python outlines |
+| `04-paper-arxiv-draft.md` | ✅ skeleton 7 sections + tabelas placeholders |
+| `05-blog-post-draft.md` | ✅ structure 2500w + 4 code snippets + honest disclosure |
+| `06-hn-submission.md` | ✅ 5 title variants + first comment + objection responses |
+| `07-publication-checklist.md` | ✅ P0/P1/P2/P3 + 6-week sprints + success metrics |
+
+### 3 diferenciais a exaltar (positioning final)
+1. **Pain-weighted salience** (`recency × pain × importance`) — primeiro sistema documentado a modelar incident severity como retrieval signal
+2. **Shadow-mode discipline obrigatório** — primeira RAG/memory system com regra arquitetural codificada de ≥7d shadow + automation
+3. **Shared-canonical multi-agent** — diferente de MemGPT/mem0 isolation; cross-agent intelligence sem federation overhead
+
+### 5 gaps a cobrir (P0 obrigatório pre-submit)
+- Single corpus → BEIR + StackExchange (~10h)
+- Internal-curator bias → external 10 queries (~3h)
+- Sem comparison strong baselines → BM25 + BGE-M3 + E5-mistral (~12h)
+- Sem ablation → 4 ablations FTS-only/sem-RRF/sem-salience/sem-section_boost (~7h)
+- Voyage cut → BGE-M3 cobre como proxy alt-provider (~0h, kill 2 birds)
+
+### Sprints planejados (6h/sem dentro do budget)
+- W1 (05-04→10): foundation reviews + adapter outlines
+- W2 (05-11→17): experiments primary (BM25 + BGE + BEIR)
+- W3 (05-18→24): experiments secondary + writing começa
+- W4 (05-25→31): writing intensive (12 pages paper + 2500w blog)
+- W5 (06-01→07): polish + critic + revise
+- W6 (06-08→14): submit (arXiv Tuesday + blog + HN)
+
+---
 
 ---
 
