@@ -424,7 +424,6 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 | **Path C** | WAL shipping + cold tier | 🔒 BLOCKED | depende Fase 4 estavel 30d | dias |
 | **4b/5** | Obsidian write + bidirectional | 🔒 FUTURO | depende Fase 4 + 2-4 sem | semanas |
 | **F15 / SEH** | Self-Evolving Hooks | 🔒 INDEPENDENTE Set+ | — | 1-2h |
-| **F16** | Telegram bot rollback automatico (health-check 30min) | 🔒 BACKLOG | fora orcamento atual | 4h |
 | **P01 / Fase P** | Productizacao NOX-Supermem (Fase 4b → 5 → P) | 🔒 HORIZONTE 60d+ | depende Fase 4 estavel 30d (>= 05-26) | semanas |
 
 **Legenda:** ✅ DONE / 🔄 IN-PROGRESS / 🤔 SPEC READY (impl pendente) / 📋 QUEUED / 🟣 WAVE FUTURA (gated por metricas) / 🤔 CANDIDATE (POC + 7d shadow) / 🔒 BLOCKED ou FUTURO / ❌ CUT

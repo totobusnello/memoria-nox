@@ -182,7 +182,7 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **Sistema unificado de IDs F/E/R/P/G/D** substitui 6+ namespaces (A/B/W/Q/Fase/Phase/Wave/Bloco). Cross-ref em ROADMAP.md §8.
 - **Review triplo aplicado** (architect + critic + architect-reviewer) — 14 mudanças no ROADMAP:
   - **F09 off-site backup** adicionado P0 (architect: gap crítico — single VPS = disk failure apaga 7.3k chunks; rclone B2/R2 1h)
-  - **F10/F12/F13/F14/F16** gaps adicionados (observability dashboard, Gemini SPOF playbook, cost projection alt, DR drill trimestral, telegram rollback bot)
+  - **F10/F12/F13/F14** gaps adicionados (observability dashboard, Gemini SPOF playbook, cost projection alt, DR drill trimestral) — ~~F16~~ telegram rollback bot moved 2026-05-03 → openclaw-vps/infra (escopo plataforma, não memória)
   - **R01 dividido em R01a/R01b/R01c** (skeleton Maio + curation Jun-Jul + baseline) — antecipação por architect-reviewer pra baseline-first antes de E05 mudar ranking
   - **E03/E04 (A6/A7) dividido em implement/activate** — captura latência shadow 7d wall-clock (critic apontou: viola própria regra `feedback_shadow_mode_for_ranking_changes.md`)
   - **Velocity bucketada** (greenfield 0.7×, hardening 0.4×, cognitive floor não comprime) — critic apontou: 0.4× uniforme em curadoria 50 queries é fantasia

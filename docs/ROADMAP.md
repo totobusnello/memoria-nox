@@ -328,7 +328,7 @@ Nomenclatura antiga (v1.5/v1.6/ClawMem/Wave/Bloco) → nova:
 | (novo) | F13 | Cost projection alt ⭐ |
 | (novo) | F14 | DR drill ⭐ |
 | C2 | F15 | SEH Self-Evolving Hooks |
-| (novo) | F16 | Telegram rollback bot ⭐ |
+| (novo) | ~~F16~~ | Telegram rollback bot ⭐ → MOVED 2026-05-03 → openclaw-vps/infra |
 | gate.salience | G01 | — |
 | gate.section_boost | G02 | — |
 | gate.archive_3files | G03 | — |
@@ -479,7 +479,7 @@ Pós-review por 3 agents (architect, critic, architect-reviewer):
 
 1. ✅ **Sistema unificado de IDs** F/E/R/P/G/D substitui 6+ namespaces
 2. ✅ **F09 off-site backup adicionado** como P0 (antes G01) — gap crítico
-3. ✅ **F10/F12/F13/F14/F16 adicionados** (observability + DR + cost + bus factor)
+3. ✅ **F10/F12/F13/F14 adicionados** (observability + DR + cost) — ~~F16~~ moved 2026-05-03 → openclaw-vps/infra
 4. ✅ **R01 dividido em R01a/R01b/R01c** — skeleton em Maio (era Jun-Jul) pra baseline-first
 5. ✅ **E03/E04 dividido em implement/activate** — captura latência shadow 7d wall-clock
 6. ✅ **Velocity bucketada** (greenfield 0.7×, hardening 0.4×, cognitive floor não comprime)

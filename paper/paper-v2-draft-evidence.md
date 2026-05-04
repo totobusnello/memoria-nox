@@ -79,7 +79,7 @@ This section enumerates known limitations of the experimental setup. The qualita
 
 **Critical positive finding — zero hallucination on negatives:** all 5 held-out queries with `expected=[]` (questions for which no chunk in the corpus actually answers — `offline mode`, `disk-full handling`, `per-user audit`, `add new agent procedure`, `max chunk limit`) scored exactly 0.000 in hybrid. The system did NOT return false-positive matches. Specificity is preserved across query novelty.
 
-**Step 3 — Voyage-embed-3-large comparison (DEFERRED 2026-05-03):** Decision per project owner — paper R02 is internal documentation, not targeting external academic submission. Provider substitutability claim (§1.3) is therefore qualified rather than tested: replaced original wording "provider substitution is acceptable" with "provider substitution is **plausible but unmeasured** in this corpus." Adapter pseudocode preserved below for future reactivation if external submission is pursued.
+**Step 3 — Voyage-embed-3-large comparison (CUT 2026-05-03 — final):** Decision per project owner — paper R02 is internal documentation, not targeting external academic submission, and Voyage API key will not be acquired. Provider substitutability claim (§1.3) is therefore qualified rather than tested. Adapter pseudocode preserved below as architectural reference only.
 
 **Adapter pseudocode** (1h impl when key available):
 ```typescript
