@@ -102,7 +102,7 @@ Velocity buckets aplicados (corrigidos pós-review crítico):
 | **F14** | §10 | DR drill trimestral — initial executed 2026-05-01 (RTO validate snapshot ~5s = 1s VACUUM + 2s integrity_check + ~1s schema + ~1s invariants; recovery efetivo ~30s); user_version aligned 10/10; cron `0 9 1 1,4,7,10 1` Q1/Q2/Q3/Q4 09:00 BRT instalado; script `/root/.openclaw/scripts/dr-drill.sh` (Discord alert P0 em fail) | ✅ DONE | 1 + 0.5 cron | `runbooks/dr-drill-quarterly.md`; próxima execução auto 2026-07-06 |
 | **F15a** | §11 | **CLI Observability** (renamed pós-critic 2026-05-03) — `cli_telemetry` table + Commander preAction/postAction hooks + `cli-stats` subcomando. Captura command/status/duration. Insights: top usage / slow / error-prone / dormant / recent errors. Opt-out NOX_CLI_TELEMETRY=0. Secret redaction defensiva. `src/cli-telemetry.ts` ~165 LOC | ✅ DONE | 1 (real ~30min) | 2026-05-03 |
 | **F15b** | §11 | SEH proper — `seh-report` subcomando: WoW comparison detecta perf_regression / error_spike / dormant_command / capacity_warning / first_use / recovery + PERF_PATCH_HINTS map sugere config patches específicos. Não auto-aplica (FP risk). exit 1 se algum alert. `src/seh-detector.ts` ~165 LOC | ✅ DONE | 2-3 (real ~25min) | 2026-05-03 |
-| **F16** | (bus factor) | Telegram bot rollback automático se health-check falha 30min | 📋 BACKLOG | 4 | gap urgente; fora orçamento atual |
+| ~~F16~~ | — | **MOVED 2026-05-03** → escopo `openclaw-vps/infra/` (não memoria-nox; é plataforma OpenClaw, não core memory) | 🚚 MOVED | — | ver `openclaw-vps/infra/docs/HANDOFF.md` |
 
 ### Gates (data-fixed)
 
