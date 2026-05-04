@@ -100,7 +100,7 @@ Actions:
 **Length:** 12-page paper + 1-tweet hook + thread acknowledging prior work
 
 ### Versão 3 — Buyers potenciais NOX-Supermem (LinkedIn, inbound)
-**Hook:** "14 months running 7 AI agents in production. What I learned."
+**Hook:** "4 months running 6 AI agents in production. What I learned."
 **Angle:** business/operational lessons → product credibility → soft P01 tease
 **Tone:** professional, story-driven, business outcomes focused
 **CTA:** "if you're scaling AI agents in your business, DM"

@@ -32,7 +32,7 @@ We make three primary contributions:
 
 Secondary contributions:
 4. Full open-source eval harness with nDCG/MRR/Recall/Precision over 50 curated queries (R01a)
-5. Operational evidence: 14 months production, 5 infrastructure upgrades survived, 64K+ chunks 100% embedded
+5. Operational evidence: 4 months production, 5 infrastructure upgrades survived, 64K+ chunks 100% embedded
 6. Comparative empirical analysis vs 3 strong baselines (BM25, BGE-M3, E5-mistral) across 3 corpora
 
 ### 1.3 Paper organization
@@ -110,7 +110,7 @@ salience(chunk) = recency(chunk) × pain(chunk) × importance(chunk)
 - Case study §5.7: Fase 1.7b-b salience activation (191 promote candidates / 16608 review / 45743 archive — distribution-driven decision)
 
 ### 3.6 Shared-canonical multi-agent design ⭐ (CONTRIBUTION 3)
-- 7 agents (Maestro + nox/atlas/boris/cipher/forge/lex) compartilham mesma `chunks` table
+- 6 agents (Maestro + nox/atlas/boris/cipher/forge/lex) compartilham mesma `chunks` table
 - Distinguidos por `source_file` prefix (`agents/<name>/...`)
 - Cross-agent v2 patterns: `cross-search`, `cross-kg`, `pull-insights-from`
 - Trade-off: shared state requires trust assumption (all agents same user) — not suitable for multi-tenant SaaS
@@ -174,7 +174,7 @@ salience(chunk) = recency(chunk) × pain(chunk) × importance(chunk)
 [Fase 1.7b-b salience activation — telemetry + decision + counterfactual]
 
 ### 5.8 Cross-agent intelligence quantification
-[%% hits cross-agent vs same-agent across 7 agents]
+[%% hits cross-agent vs same-agent across 6 agents]
 
 ### 5.9 Production operational metrics
 - Uptime, schema migrations survived, incidents resolved

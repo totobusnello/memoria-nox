@@ -15,7 +15,7 @@
    - Targets misconception devs hold
    - Short (8 words)
 
-2. "Show HN: NOX-Supermem – memory system for 7 AI agents (14 months production)"
+2. "Show HN: NOX-Supermem – memory system for 6 AI agents (4 months production)"
    - Show HN tag = visibility boost
    - Multi-agent angle differentiates
    - Production duration = credibility signal
@@ -48,7 +48,7 @@
 Author here. Some context for HN crowd:
 
 This is a personal project that grew into something useful. I'm running 7 AI
-agents (Maestro + 6 specialized: code review, customer success, security,
+agents (Maestro + 5 specialized (= 6 working agents): code review, customer success, security,
 legal, content, ops). Each loses context every conversation. Standard solutions
 didn't fit:
 
@@ -97,7 +97,7 @@ held-out evaluation. Thanks!
 **Response:** "Honest answer: didn't measure. We used BGE-M3 as a proxy alternative provider in §5 — performance was within 8% of Gemini, suggesting provider is replaceable. Voyage trial would close this — it's a known gap (paper §1.5 Step 3)."
 
 ### Objection: "SQLite for production memory? Really?"
-**Response:** "Yes, with sqlite-vec extension. 64K chunks, 1GB DB, 100% embedded, production for 14 months. Tradeoff: single-writer model (fine for personal multi-agent) vs PostgreSQL+pgvector for multi-tenant. Future P01 productization will move to Postgres."
+**Response:** "Yes, with sqlite-vec extension. 64K chunks, 1GB DB, 100% embedded, production for 4 months. Tradeoff: single-writer model (fine for personal multi-agent) vs PostgreSQL+pgvector for multi-tenant. Future P01 productization will move to Postgres."
 
 ### Objection: "Multi-agent without isolation is dangerous"
 **Response:** "Agreed for multi-tenant SaaS. nox-mem assumes single user with N trusted agents (your own personal agents). For SaaS, look at mem0 paid tier or Letta Cloud."

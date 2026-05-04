@@ -1,4 +1,4 @@
-# Blog Post Draft — "I built a memory system for 7 AI agents. Here's what 14 months of production taught me."
+# Blog Post Draft — "I built a memory system for 6 AI agents. Here's what 4 months of production taught me."
 
 > **Channel:** dev.to + Substack pessoal + cross-post LinkedIn
 > **Length target:** ~2500 words / 12 min read
@@ -11,8 +11,8 @@
 ## Title (5 variants — A/B test before HN submission)
 
 1. **"FTS5 vs Hybrid retrieval: I measured a 97.7% gap on natural language queries"** (counterintuitive, data-driven)
-2. "What 14 months of production memory taught me about agent systems" (story angle)
-3. "I built a memory system for 7 AI agents. Here's the architecture." (engineering angle)
+2. "What 4 months of production memory taught me about agent systems" (story angle)
+3. "I built a memory system for 6 AI agents. Here's the architecture." (engineering angle)
 4. "Why your RAG system needs an eval harness (and 5 lessons from production)" (problem-first)
 5. "Pain-weighted salience: a missing dimension in agent memory" (novel-claim angle)
 
@@ -26,7 +26,7 @@
 >
 > The answer was uncomfortable: **97.7% loss in nDCG@10 on natural language queries**. FTS5 returned the right chunks for 1 out of 50 questions. The semantic layer wasn't a "nice to have" — it was load-bearing.
 >
-> This wasn't a benchmark paper. It was production engineering: a memory system I built over 14 months for a CEO running 7 specialized AI agents (code, infra, business, personal). And the experiment was forced — I needed to know if I could cut Gemini API costs by removing semantic embedding. The answer: no, I'd be cutting the system in half.
+> This wasn't a benchmark paper. It was production engineering: a memory system I built over 4 months for a nerd entrepreneur running 7 specialized AI agents (code, infra, business, personal). And the experiment was forced — I needed to know if I could cut Gemini API costs by removing semantic embedding. The answer: no, I'd be cutting the system in half.
 >
 > This post explains: the architecture (3-layer hybrid + KG), three things I did differently than mem0/MemGPT/A-MEM, and what production taught me that no benchmark paper covers.
 
@@ -35,11 +35,11 @@
 ## Section structure (~2500 words total)
 
 ### 1. Why I built this (~300 words)
-- 7 agents losing context every conversation
+- 6 agents losing context every conversation
 - Specialized roles (Maestro coordenador, Nox memory keeper, Forge code reviewer, Boris content, Atlas customer success, Cipher security, Lex legal)
 - Existing solutions: mem0 too vector-only, MemGPT too per-agent isolated, LangChain Memory too primitive
 - Decision: build minimum that works for me, ship in 4 days, iterate from there
-- Today: 64K chunks 100% embedded, 14 months production, 5 OpenClaw upgrades survived
+- Today: 64K chunks 100% embedded, 4 months production, 5 OpenClaw upgrades survived
 
 ### 2. The architecture (~600 words)
 - ASCII diagram (use the README one)
@@ -62,7 +62,7 @@
 - Story: incident 2026-04-25 que causou regra (reindex sem dry-run quebrou 183 entities) → resposta foi codificar a regra, não memorizar a lição
 
 **3.3 Shared-canonical multi-agent (not per-agent silos)**
-- 7 agents share the same chunks table, distinguished by source_file prefix
+- 6 agents share the same chunks table, distinguished by source_file prefix
 - Cross-agent search/KG/insights via SQL join, not federation
 - Trade-off: trust assumption (all agents same user — works for personal use, NOT for SaaS)
 
@@ -111,7 +111,7 @@ if (process.env.NOX_FOCUS_MODE === 'active') {
 
 ### Snippet 3 — Multi-agent canonical query
 ```sql
--- All 7 agents query the same table, scoped by source_file:
+-- All 6 agents query the same table, scoped by source_file:
 SELECT id, chunk_text FROM chunks
 WHERE source_file LIKE 'agents/forge/%' OR source_file LIKE 'shared/%'
 ORDER BY salience DESC LIMIT 10;

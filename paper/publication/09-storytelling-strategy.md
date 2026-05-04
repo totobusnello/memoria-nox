@@ -7,11 +7,11 @@
 
 ## 🎭 Hero narrative principal
 
-### **"The Pain Diary: How a Solo CEO Built a Memory System Where Every Bug Becomes a Feature"**
+### **"The Pain Diary: How a Nerd Entrepreneur Built a Memory System Where Every Bug Becomes a Feature"**
 
-**Tagline curto (140 chars):** "I built memory for 7 AI agents. The salience formula literally weights chunks by past incident pain. Here's the Pain Diary."
+**Tagline curto (140 chars):** "I built memory for 6 AI agents. The salience formula literally weights chunks by past incident pain. Here's the Pain Diary."
 
-**Tagline longo (Twitter bio):** "Built a memory system where every bug becomes a feature. Pain-weighted salience + shadow discipline + 14 months production. Solo CEO grinding."
+**Tagline longo (Twitter bio):** "Built a memory system where every bug becomes a feature. Pain-weighted salience + shadow discipline + 4 months production. Nerd Entrepreneur grinding."
 
 ---
 
@@ -32,7 +32,7 @@
 ## 🎬 Three-act structure (paper + blog + HN compartilham mesma)
 
 ### Act 1 — The Problem (~500 words / first 3 paragraphs blog)
-**Setup:** CEO solo Brasil, 5 frentes simultâneas (CEO+CFO+CTO+CPO+CMO), 7 AI agents perdendo contexto a cada conversa.
+**Setup:** nerd entrepreneur Brasil, 5 frentes simultâneas (CEO+CFO+CTO+CPO+CMO), 6 AI agents perdendo contexto a cada conversa.
 
 **Inciting incident:** "Eu acabei de explicar pro Forge a mesma decisão pela 3ª vez essa semana. Não dá."
 
@@ -53,7 +53,7 @@
 ### Act 3 — The Validation (~500 words / blog conclusion + paper §5)
 **Empirical:** Eval harness 50 queries, hybrid 0.521 vs FTS 0.012, ablations confirmam pain matters.
 
-**Operational:** 14 months production, 5 OpenClaw upgrades survived, zero data loss.
+**Operational:** 4 months production, 5 OpenClaw upgrades survived, zero data loss.
 
 **Open:** arXiv preprint, MIT code, NOX-Supermem product Q3 2026, "if you have post-incident queries to test, send via issue".
 
@@ -62,14 +62,14 @@
 ## 🎨 Hooks práticos por canal (production-ready)
 
 ### HN title (data + story combination)
-**"I built a memory system for AI agents that learns from incidents. Here's what 14 months in production taught me."**
+**"I built a memory system for AI agents that learns from incidents. Here's what 4 months in production taught me."**
 
 Trade-off vs título alternativo "FTS5 is 97.7% useless" — story title tem CTR menor mas qualidade comments maior + product credibility. **Recomendado split test:** título 1 (story) na primeira tentativa; se < 5 pontos hour 1, retry com data title.
 
 ### Blog post lead (3 paragraphs first 200 words)
 > Day 1: I'd just explained the same decision to my AI agent for the third time that week. The agent was technically correct each time — it remembered nothing.
 >
-> 14 months later, that system has survived 5 OpenClaw upgrades, scored 97.7% better than vanilla SQLite FTS5 on real queries, and runs 7 specialized agents without losing context. But the most interesting feature isn't hybrid retrieval or knowledge graphs — those exist elsewhere.
+> 4 months later, that system has survived 5 OpenClaw upgrades, scored 97.7% better than vanilla SQLite FTS5 on real queries, and runs 7 specialized agents without losing context. But the most interesting feature isn't hybrid retrieval or knowledge graphs — those exist elsewhere.
 >
 > The interesting part is **the Pain Diary**: every feature in this memory system was born from a specific incident. The salience formula literally weights chunks by how much pain past incidents caused. This post tells those stories.
 
@@ -77,14 +77,14 @@ Trade-off vs título alternativo "FTS5 is 97.7% useless" — story title tem CTR
 > We present NOX-Supermem, a production memory system for multi-agent LLM deployments distinguished by three operational contributions: a **pain-weighted salience formula** that explicitly models incident severity as a retrieval signal—a dimension absent from prior memory systems literature; **enforced shadow discipline** for ranking changes; and a **shared-canonical multi-agent design**...
 
 ### LinkedIn post (business angle)
-> 14 months ago I built memory for my 7 AI agents because I was tired of explaining the same decisions repeatedly.
+> 4 months ago I built memory for my 6 AI agents because I was tired of explaining the same decisions repeatedly.
 >
 > Yesterday I measured what would happen if I disabled the semantic layer to save costs: 97.7% performance loss.
 >
 > Here's the architecture, the failures, and what I'm shipping next.
 
 ### Twitter thread tweet 1
-> 🧵 Built a memory system for 7 AI agents over 14 months. The most interesting feature isn't hybrid retrieval or knowledge graphs—it's that the salience formula literally weights chunks by past incident pain.
+> 🧵 Built a memory system for 6 AI agents over 4 months. The most interesting feature isn't hybrid retrieval or knowledge graphs—it's that the salience formula literally weights chunks by past incident pain.
 >
 > Every feature has an origin story. Here's the Pain Diary 👇
 
@@ -141,7 +141,7 @@ Trade-off vs título alternativo "FTS5 is 97.7% useless" — story title tem CTR
 ### NÃO faça
 1. **Over-anthropomorphize sistema** — Nox como "personagem fictício com sentimentos". Devs HN bate.
 2. **Dramatize incidents minor** — 2026-04-21 Slack leak NÃO foi catastrofico, foi descoberto rápido. Não inflar.
-3. **Vitimizar CEO solo** — "lonely founder" é cringe. Foco em decisões/constraint, não em pena.
+3. **Vitimizar nerd entrepreneur** — "lonely founder" é cringe. Foco em decisões/constraint, não em pena.
 4. **Sequestrar Memory Palace tag** — citar como parallel ÚNICO context, não SEO hijack.
 5. **Implied "I'm smarter than mem0/MemGPT"** — posicione com respeito, foco em diferenças.
 6. **Confuse story com hyperbole** — "Memory system that thinks like you" = bullshit. "Memory system that weights by past pain" = specific claim.
@@ -161,7 +161,7 @@ Trade-off vs título alternativo "FTS5 is 97.7% useless" — story title tem CTR
 2. **Re-share trigger** — narrative content é 4-5× mais compartilhado que pure technical
 3. **Quotability** — "every bug becomes a feature" é HN-quotable; "we use FTS5+RRF+semantic" não é
 4. **Podcast bait** — story-driven hosts (Latent Space, MLOps Community) buscam founder stories, não só techniques
-5. **Product credibility transitive** — devs que confiam na story confiam que tu vai operar P01 product bem
+5. **Product credibility transitive** — devs que confiam na story confiam que você vai operar P01 product bem
 6. **Hiring magnet** (futuro) — "I want to work with the founder who built the Pain Diary system" > "I want to join NOX-Supermem"
 7. **Investor narrative** (se P01 escalar) — VCs precisam thesis simples; "memory that learns from incidents" é elevator-pitchable
 

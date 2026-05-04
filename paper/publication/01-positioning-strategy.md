@@ -48,12 +48,12 @@
 **Por quê é diferente:**
 - MemGPT: agent é memory boundary — agents não veem decisões uns dos outros sem explicit handoff
 - mem0: user_id partitioning — projetado pra B2C com isolation strong
-- nox-mem: 7 agents (Maestro + 6 personas) compartilham mesmo `chunks` table, distinguidos por `source_file` prefix (`agents/<name>/...`) + `cross-agent v2` patterns pra synthesis
+- nox-mem: 6 working agents (Maestro orchestrator + 5 specialized personas) compartilham mesmo `chunks` table, distinguidos por `source_file` prefix (`agents/<name>/...`) + `cross-agent v2` patterns pra synthesis
 
 **Como provar empiricamente:**
 - Quantificar `cross_agent_search` queries hits — quantos chunks que ajudam um agent vieram de outro?
 - Latency comparison: nox-mem cross-agent (single SELECT vs LangChain multi-call federation pattern)
-- Storage: 1 DB de 1GB serve 7 agents vs 7 DBs separados
+- Storage: 1 DB de 1GB serve 6 agents vs 7 DBs separados
 
 **Risco:** "shared state" é controversial em multi-agent literature — argumento de isolation pra security é forte. Posicionar como "design choice for trusted multi-agent within single user", NÃO como "multi-tenant SaaS".
 
