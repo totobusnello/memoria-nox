@@ -33,7 +33,7 @@ SQLite FTS5 default operator is **AND-strict**: a query like `"qual modelo Gemin
 
 Hybrid pipeline (FTS5 BM25 → Gemini semantic → Reciprocal Rank Fusion k=60) is **load-bearing, not decorative**. The 0.504 absolute nDCG gap between layers quantifies the value of the semantic embedding layer.
 
-This empirically refutes the "FTS is sufficient for memory systems" position commonly assumed in lightweight implementations. Cost-optimization strategies must preserve semantic-first ranking; provider substitution (e.g., Voyage instead of Gemini) is acceptable, layer elimination is not.
+This empirically refutes the "FTS is sufficient for memory systems" position commonly assumed in lightweight implementations. Cost-optimization strategies must preserve semantic-first ranking; provider substitution (e.g., Voyage instead of Gemini) is **plausible but unmeasured in this corpus** (see §1.5 Step 3 — deferred), layer elimination is not.
 
 ### 1.4 Threats to validity (SHOULD READ before citing 1.1 numbers)
 
@@ -79,7 +79,7 @@ This section enumerates known limitations of the experimental setup. The qualita
 
 **Critical positive finding — zero hallucination on negatives:** all 5 held-out queries with `expected=[]` (questions for which no chunk in the corpus actually answers — `offline mode`, `disk-full handling`, `per-user audit`, `add new agent procedure`, `max chunk limit`) scored exactly 0.000 in hybrid. The system did NOT return false-positive matches. Specificity is preserved across query novelty.
 
-**Step 3 — Voyage-embed-3-large comparison (PLANNING-READY, EXECUTION-BLOCKED):** Implementation plan documented; execution requires acquiring a Voyage API key (out of session scope).
+**Step 3 — Voyage-embed-3-large comparison (DEFERRED 2026-05-03):** Decision per project owner — paper R02 is internal documentation, not targeting external academic submission. Provider substitutability claim (§1.3) is therefore qualified rather than tested: replaced original wording "provider substitution is acceptable" with "provider substitution is **plausible but unmeasured** in this corpus." Adapter pseudocode preserved below for future reactivation if external submission is pursued.
 
 **Adapter pseudocode** (1h impl when key available):
 ```typescript

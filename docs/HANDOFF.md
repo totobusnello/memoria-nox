@@ -1,10 +1,56 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~21:30 BRT (**Sessão B replication: held-out n=10 + Voyage planning; zero hallucination em 5/5 negatives; cross-curator bias <5pp**)
+> **Atualizado:** 2026-05-03 ~22:00 BRT (**Voyage DEFERRED final + audit pós-fix 2 modules + cron SEH daily Discord alert ativo**)
 
 ---
 
-## Sessão atual (2026-05-03 noite ~21:00→21:30 BRT) — Sessão B Replication: held-out + Voyage planning
+## Sessão atual (2026-05-03 noite ~21:30→22:00 BRT) — Cleanup + audit + cron SEH
+
+### Voyage decision: DEFERRED (paper update final)
+- Toto confirmou: paper R02 é internal documentation, não submission externa → Voyage Step 3 cut
+- Paper §1.3 reword: "provider substitution is **plausible but unmeasured**" (vs "acceptable" antes)
+- Paper §1.5 Step 3 marked DEFERRED com adapter pseudocode preserved pra reactivation futura
+- Decision rationale: sem submission acadêmica, Voyage é academic exercise (~$20 budget mas $0 valor incremental)
+
+### Audit pós-fix nos 2 NEW modules (seh-detector + eval-batch)
+
+**Audit code-reviewer voltou:** 0 CRITICAL + 2 HIGH + 6 MEDIUM. **8 fixes aplicados:**
+
+| # | Severity | File | Fix |
+|---|---|---|---|
+| 1 | 🟠 HIGH | seh-detector.ts | window boundary asymmetry (>=, <) → `>` em ambos (half-open exclusive→exclusive) |
+| 2 | 🟠 HIGH | seh-detector.ts | p95Idx off-by-one pra small N → guard `n<20 → use max()` honest |
+| 3 | 🟡 MEDIUM | eval-batch.ts | Bessel's correction `n-1` (sample variance, paper R02 reports uncertainty) |
+| 4 | 🟡 MEDIUM | eval-batch.ts | reduce-based min/max (Math.min/max(...values) crash em N≥100k) |
+| 5 | 🟡 MEDIUM | eval-batch.ts | try/catch per iteration — não perde N-1 successful runs em 1 falha |
+| 6 | 🟡 MEDIUM | eval-batch.ts | assert query_count uniformity (warn se golden mutated mid-batch) |
+| 7 | 🟡 MEDIUM | seh-detector.ts | dormantCommands HAVING total_runs >= 3 (evita flood one-off experiments) |
+| 8 | (defer) | index.ts | severity exit-code: --strict flag pra warn (defer sessão futura) |
+
+Smoke pós-fixes: seh-report ✅ + run-batch FTS 2-runs ✅ + 69/69 tests pass
+
+### Cron SEH daily ✅ INSTALLED
+
+**Script:** `/root/.openclaw/scripts/seh-report-daily.sh`
+- Roda `nox-mem seh-report --json` daily 09:00 BRT (12:00 UTC)
+- Se ALERT severity > 0 → Discord webhook + log
+- Se WARNS ≥ 5 → Discord batch warn (proteção contra silent accumulation)
+- Append log `/var/log/nox-seh-report.log`
+
+**Cron:** `0 12 * * * /root/.openclaw/scripts/seh-report-daily.sh >> /var/log/nox-seh-cron.log 2>&1`
+
+**Smoke:** exit 0, log persistido `[2026-05-03T21:01:36-03:00] alerts=0 warns=0 infos=3` (sistema saudável, sem Discord post).
+
+**Loop self-evolving completo:** F15a (telemetry capture) → F15b (detection + report) → cron daily (alert) → human (validate config_patch) → manual env edit. Não auto-aplica (FP risk preserved).
+
+### Próxima ação
+- 2026-05-09 sábado: activate gate (passive checklist no HANDOFF anterior)
+- Sessão futura: aguardar 7+ days de telemetria pra primeiros perf_regression / dormant alerts reais
+- Quando R01 nDCG ≥0.6: reactivate E10 --apply path + D01 cross-encoder reranker (gates desativados atualmente)
+
+---
+
+## Sessão anterior (2026-05-03 noite ~21:00→21:30 BRT) — Sessão B Replication: held-out + Voyage planning
 
 ### Step 2 — Held-out 10 queries (DONE com caveat)
 
