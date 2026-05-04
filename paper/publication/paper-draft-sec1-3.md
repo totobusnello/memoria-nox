@@ -34,7 +34,7 @@ Better embeddings, larger corpora, and faster fusion layers address the retrieva
 
 ### 1.3 Contributions
 
-We present \textbf{nox-mem}, a production memory system designed for multi-agent operational use and built over four months of continuous deployment. The system currently indexes 64,180+ chunks across a shared canonical corpus, maintains 99.97% vector coverage, and operates at p95 latency below one second. Three primary contributions distinguish this work:
+We present \textbf{nox-mem}, a production memory system designed for multi-agent operational use and built over four months of continuous deployment.\footnote{Repository: \url{https://github.com/totobusnello/memoria-nox}; submission tar at \texttt{paper/publication/}; license MIT.} The system currently indexes 64,180+ chunks across a shared canonical corpus, maintains 99.97% vector coverage, and operates at p95 latency below one second on commodity VPS hardware (8-core x86\_64) over the production query mix. Three primary contributions distinguish this work:
 
 1. **Pain-weighted salience** (§3.5). We introduce a retrieval scoring signal that explicitly models incident severity: \texttt{salience = recency × pain × importance}, where \texttt{pain} $\in [0.1, 1.0]$ encodes the operational cost of the recorded experience — from trivial notes (0.1) to production outages (1.0). To our knowledge, this is the first documented retrieval signal in the memory systems literature that treats incident severity as a first-class dimension. Preliminary ablation studies on post-incident queries suggest this dimension contributes positively to retrieval quality [NEEDS VALIDATION §5.6].
 
@@ -60,7 +60,7 @@ Agent memory research has accelerated rapidly since the introduction of retrieva
 
 \textbf{HiRAG} \cite{huang2025hirag} extends the KG-augmented paradigm with hierarchical knowledge representation and iterative reasoning chains, demonstrating state-of-the-art performance on multiple QA benchmarks. The hierarchical approach — traversing from coarse to fine-grained graph levels — optimizes for accuracy on complex reasoning tasks. nox-mem instead maintains a flat three-layer fusion pipeline (§3.4), accepting the accuracy-latency trade-off explicitly: p95 below one second at 64K chunks serves operational use cases where query latency is a usability constraint, not just a benchmark metric. HiRAG does not address multi-agent deployment, evaluation harnesses for operational corpora, or retrieval discipline.
 
-\textbf{HippoRAG} \cite{guo2024hipporag} draws on neurobiological memory models to improve associative retrieval via hippocampal-inspired graph structures. The biological analogy provides useful intuition for the salience formula introduced in §3.5, where pain-weighted recency mirrors the well-documented human tendency to retain high-cost experiences more strongly than low-cost ones. HippoRAG does not formalize this dimension as a retrieval signal.
+\textbf{HippoRAG} \cite{guo2024hipporag} draws on neurobiological memory models to improve associative retrieval via hippocampal-inspired graph structures. The system demonstrates that non-uniform memory consolidation — weighting some associations more strongly than others based on structural graph properties — improves retrieval over flat indexing. nox-mem introduces a conceptually related asymmetry through the pain dimension (§3.5), though the design rationale is grounded in operational incident management practice rather than neuroscience. HippoRAG does not model incident severity as a retrieval signal.
 
 ### 2.2 Agent Memory Systems
 
@@ -72,7 +72,7 @@ Agent memory research has accelerated rapidly since the introduction of retrieva
 
 ### 2.3 Production-Oriented Frameworks
 
-\textbf{Cognee} \cite{topoteretes2024cognee} provides an open-source AI memory framework implementing an Extract-Cognify-Load (ECL) pipeline with native knowledge graph support and hybrid retrieval. Of the systems surveyed, Cognee is architecturally closest to nox-mem: both maintain native KGs, both support hybrid retrieval, and both target production deployment scenarios. Cognee achieves 3/5 on our architectural paridad dimensions (Table 1). The key differentiators are shadow discipline — Cognee provides no enforced validation gate for retrieval-affecting changes — and the evaluation harness: Cognee lacks a reproducible evaluation methodology with standard IR metrics over a fixed golden set. nox-mem's eval harness (§4) enables the kind of regression detection that the shadow discipline gate is designed to act on.
+\textbf{Cognee} \cite{topoteretes2024cognee} provides an open-source AI memory framework implementing an Extract-Cognify-Load (ECL) pipeline with native knowledge graph support and hybrid retrieval. Of the systems surveyed, Cognee is architecturally closest to nox-mem: both maintain native KGs, both support hybrid retrieval, and both target production deployment scenarios. Cognee achieves 3/5 on our architectural parity dimensions (Table 1). The key differentiators are shadow discipline — Cognee provides no enforced validation gate for retrieval-affecting changes — and the evaluation harness: Cognee lacks a reproducible evaluation methodology with standard IR metrics over a fixed golden set. nox-mem's eval harness (§4) enables the kind of regression detection that the shadow discipline gate is designed to act on.
 
 \textbf{LangChain Memory} provides key-value and buffer memory primitives widely used in production applications. The design prioritizes API simplicity and framework compatibility over retrieval quality; it does not support hybrid retrieval, knowledge graph construction, or evaluation. It serves as a practical lower bound in comparative analysis.
 
@@ -84,22 +84,22 @@ Agent memory research has accelerated rapidly since the introduction of retrieva
 
 ### 2.5 Positioning: Where nox-mem Fits
 
-Table 1 summarizes the architectural dimensions across surveyed systems. No existing system in the literature addresses all five dimensions: native knowledge graph support, hybrid retrieval, a reproducible evaluation harness, multi-agent design, and enforced shadow discipline. The two dimensions with zero coverage in the literature — pain-weighted salience as a retrieval signal and shadow discipline as an architectural constraint — are the primary novelty claims of this paper.
+Table 1 maps seven architectural and operational axes across the surveyed systems. The table is intended to illustrate where the systems differ structurally, not to function as a competition score. We include two dimensions where nox-mem does not yet have coverage — corpus scale above 100K chunks and third-party benchmark evaluation — because honest comparison requires acknowledging these gaps explicitly. Limitations arising from these gaps are addressed in §6.3; planned mitigations are in §6.5.
 
-**Table 1: Architectural comparison across memory systems.**
+**Table 1: Architectural and operational axes across memory systems.** Axes reflect structural design choices, not performance rankings. ✅ = implemented; ⚠️ = partial or indirect; ❌ = absent.
 
-| System | KG Native | Hybrid Retrieval | Eval Harness | Multi-Agent | Shadow Discipline | Score |
-|---|---|---|---|---|---|---|
-| **nox-mem (ours)** | closed-enum, 7 reasons | FTS5 + Gemini + RRF | nDCG/MRR/Recall | shared canonical | enforced >=7d | **5/5** |
-| GraphRAG \cite{edge2024graphrag} | community detection | via KG queries | none | none | none | 1.5/5 |
-| MemGPT \cite{packer2023memgpt} | none | embedding-first | none | per-agent state | none | 1.5/5 |
-| Mem0 \cite{chhikara2025mem0} | optional (v2) | vector-only | LOCOMO only | user\_id partition | none | 1.5/5 |
-| A-MEM \cite{xu2025amem} | Zettelkasten links | semantic-first | none | none | none | 1.0/5 |
-| HiRAG \cite{huang2025hirag} | hierarchical | multi-level | task-specific | none | none | 2.5/5 |
-| Cognee \cite{topoteretes2024cognee} | ECL pipeline | hybrid | ad-hoc | optional | none | 3.0/5 |
-| LangChain Memory | none | key-value/buffer | none | session\_id | none | 0.5/5 |
+| System | KG Native | Hybrid Retrieval | Eval Harness | Multi-Agent | Shadow Discipline | Scale ≥100K corpus | Third-party benchmark | Coverage |
+|---|---|---|---|---|---|---|---|---|
+| **nox-mem (ours)** | closed-enum, 7 reasons | FTS5 + Gemini + RRF | nDCG/MRR/Recall | shared canonical | enforced >=7d | ❌ (64K current) | ❌ (internal golden only) | **5/7** |
+| GraphRAG \cite{edge2024graphrag} | community detection | via KG queries | none | none | none | ✅ (1M+ MS-MARCO eval) | ⚠️ paper-specific | 1.5/7 |
+| MemGPT \cite{packer2023memgpt} | none | embedding-first | none | per-agent state | none | ⚠️ varies | ❌ | 1.5/7 |
+| Mem0 \cite{chhikara2025mem0} | optional (v2) | vector-only | LOCOMO only | user\_id partition | none | ❌ | ✅ LOCOMO | 1.5/7 |
+| A-MEM \cite{xu2025amem} | Zettelkasten links | semantic-first | none | none | none | ❌ | ❌ | 1.0/7 |
+| HiRAG \cite{huang2025hirag} | hierarchical | multi-level | task-specific | none | none | ⚠️ varies | ✅ multi-task | 2.5/7 |
+| Cognee \cite{topoteretes2024cognee} | ECL pipeline | hybrid | ad-hoc | optional | none | ⚠️ ad-hoc | ⚠️ partial | 3.0/7 |
+| LangChain Memory | none | key-value/buffer | none | session\_id | none | ⚠️ varies | ❌ | 0.5/7 |
 
-The closest system, Cognee, covers 60% of these dimensions. The average score across the seven surveyed systems is 1.6/5. Section 3 describes how nox-mem addresses all five, and Sections 4–5 provide the empirical grounding for the claims in this table.
+We compare across seven axes. nox-mem covers 5/7: knowledge graph, hybrid retrieval, eval harness, multi-agent design, and enforced shadow discipline. It does **not** yet cover corpus scale above 100K chunks (current corpus: 64K) or evaluation against third-party benchmarks such as LOCOMO, LongMemEval, or BEIR — the evaluation harness uses an internally curated golden set. These are explicit limitations, not omissions, and are documented in §6.3 and §6.5. The two axes with zero coverage across all surveyed systems — pain-weighted salience and shadow discipline — are the primary novelty claims of this paper. We note that shadow validation as a technique has well-established roots in production search evaluation \cite{chapelle2012interleaved} and online controlled experiment methodology \cite{kohavi2020trustworthy}; our contribution is the instantiation of this discipline as an enforced architectural constraint in an LLM agent memory system, rather than as a testing methodology applied to web-scale traffic populations. Section 3 describes the nox-mem architecture across all five covered dimensions; Sections 4–5 provide empirical grounding.
 
 ---
 
@@ -153,7 +153,25 @@ The retrieval pipeline operates in three sequential layers, with results from la
 
 **Layer 2 — Semantic retrieval.** The query is embedded using \texttt{gemini-embedding-001} (3072d), and cosine similarity search is performed against \texttt{vec\_chunks} via \texttt{sqlite-vec}, returning up to $k_2$ ranked candidates.
 
-**Layer 3 — RRF fusion and boosting.** Candidates from layers one and two are merged via RRF with $k=60$. The fused score is then multiplied by two additive boost terms: \texttt{section\_boost} (compiled section: 2.0×, frontmatter: 1.5×, timeline: 0.8×, unstructured: 1.0×) and \texttt{salience} (§3.5). Boosting is implemented as additive contributions to the log-transformed RRF score to prevent multiplicative stacking, which prior operational experience identified as a source of score distribution collapse [NEEDS VALIDATION §5.5].
+**Layer 3 — RRF fusion and boosting.** Candidates from layers one and two are merged via Reciprocal Rank Fusion \cite{cormack2009rrf} with $k=60$:
+
+\[
+  s_{\text{rrf}}(d) = \frac{1}{k + r_{\text{fts}}(d)} + \frac{1}{k + r_{\text{sem}}(d)}
+\]
+
+where $r_{\text{fts}}(d)$ and $r_{\text{sem}}(d)$ are the BM25 and cosine-similarity ranks of chunk $d$ respectively.
+
+The fused score is then combined with two boost signals via log-additive aggregation:
+
+\[
+  \log s_{\text{final}}(d) = \log s_{\text{rrf}}(d) + \log s_{\text{salience}}(d) + \log s_{\text{section}}(d)
+\]
+
+where $s_{\text{salience}}(d) = \texttt{recency}(d) \times \texttt{pain}(d) \times \texttt{importance}(d) \in [0, 2]$ (§3.5), and $s_{\text{section}}(d) \in \{2.0,\,1.5,\,0.8,\,1.0\}$ for compiled, frontmatter, timeline, and unstructured (NULL) section types respectively.
+
+Equivalently in linear space, $s_{\text{final}}(d) = s_{\text{rrf}}(d) \cdot s_{\text{salience}}(d) \cdot s_{\text{section}}(d)$. The two formulations are mathematically identical; the log-additive form is operationally preferred because it allows each boost's contribution to be recorded and monitored independently in the \texttt{search\_telemetry} log without re-multiplication. The concern motivating this choice is multiplicative stacking: uncapped multiplicative boosts compound geometrically (e.g.\ three independent 2$\times$ boosts yield an 8$\times$ total factor), causing score distribution collapse that prior operational experience identified as a ranking instability [NEEDS VALIDATION §5.5]. The log-additive encoding does not cap the boosts; it makes each factor's contribution linearly visible in telemetry, enabling early detection of stacking before activation.
+
+Top-$k$ chunks are returned in descending order of $s_{\text{final}}$.
 
 The pipeline achieves p95 search latency below one second across the 64K chunk corpus, measured in production over the observation period. The \texttt{--no-hybrid} flag disables semantic retrieval for latency-constrained contexts where lexical precision is acceptable.
 
@@ -163,7 +181,7 @@ An LLM-extracted knowledge graph augments chunk retrieval with structured relati
 
 Entity types follow a closed taxonomy of 10 categories: person, project, agent, tool, concept, organization, technology, document, decision, and metric. Relation edges use free-form \texttt{relation\_type} text combined with a closed-enum \texttt{relation\_reason} field with seven canonical values: \texttt{depends\_on}, \texttt{derived\_from}, \texttt{opposes}, \texttt{extends}, \texttt{replaces}, \texttt{mentions}, and \texttt{unknown}. The closed enum enables downstream tooling — \texttt{impact \textless entity\textgreater} computes one-hop blast radius with reason-priority weighting; \texttt{detect-changes} maps git diffs to affected KG entities — without requiring LLM inference at query time.
 
-Edge type accuracy required explicit engineering. Initial extraction with an optional enum field and a "use unknown if unsure" prompt instruction produced 86% \texttt{unknown} labels across n=100 sampled relations. A three-path fix — a revised prompt with explicit examples for each non-unknown category; a code-side defensive normalization map (\texttt{RELATION\_TYPE\_TO\_REASON}, 24 input aliases covering PT-BR and EN free-text variants that collapse to the 7 canonical reasons); and a post-extraction validation pass — improved the classification rate from 14% to 56% (4× improvement), equivalently reducing the \texttt{unknown} rate from 86% to 44% [NEEDS VALIDATION §5, n=100 sample]. <!-- per HANDOFF.md:577,594 --> This experience reinforces a general principle: LLM-extracted structured fields with optional enums and uncertainty-deferring prompts will systematically underperform; defensive code-side normalization is required.
+Edge type accuracy required explicit engineering. Initial extraction with an optional enum field and a "use unknown if unsure" prompt instruction produced 86% \texttt{unknown} labels across n=100 sampled relations. A three-path fix — a revised prompt with explicit examples for each non-unknown category; a code-side defensive normalization map (\texttt{RELATION\_TYPE\_TO\_REASON}, 24 input aliases covering PT-BR and EN free-text variants that collapse to the 7 canonical reasons); and a post-extraction validation pass — improved the classification rate from 14% to 56% (4× improvement), equivalently reducing the \texttt{unknown} rate from 86% to 44% [NEEDS VALIDATION §5, n=100 sample]. This experience reinforces a general principle: LLM-extracted structured fields with optional enums and uncertainty-deferring prompts will systematically underperform; defensive code-side normalization is required.
 
 ### 3.5 Pain-Weighted Salience
 
@@ -174,16 +192,16 @@ $$\texttt{salience}(\textit{chunk}) = \texttt{recency}(\textit{chunk}) \times \t
 where:
 
 - $\texttt{recency} \in [0, 1]$ is an exponential decay function over the \texttt{last\_seen} timestamp, parameterized by the chunk's \texttt{retention\_days} value;
-- $\texttt{pain} \in [0.1, 1.0]$ encodes the operational severity of the recorded experience, annotated via \texttt{<!-- pain: 0.X -->} markers in entity files. Values are assigned on a five-point semantic scale: 0.1 (trivial note), 0.3 (minor friction), 0.5 (significant issue), 0.7 (major incident), 1.0 (production outage with data loss or downtime);
+- $\texttt{pain} \in [0.1, 1.0]$ encodes the operational severity of the recorded experience, annotated via \texttt{pain: 0.X} markers in entity files. Values are assigned on a five-point semantic scale: 0.1 (trivial note), 0.3 (minor friction), 0.5 (significant issue), 0.7 (major incident), 1.0 (production outage with data loss or downtime);
 - $\texttt{importance} \in [0, 1]$ is derived from \texttt{mention\_count} across the corpus and entity-type priors.
 
-The formula is multiplicative: a high-pain chunk with low recency can still score above a low-pain chunk with high recency when the severity differential is large. This mirrors the asymmetry in human operational memory, where costly experiences are retained and surfaced preferentially over routine recent ones \cite{guo2024hipporag}.
+The formula is multiplicative: a high-pain chunk with low recency can still score above a low-pain chunk with high recency when the severity differential is large. This reflects an engineering choice motivated by operational practice rather than a biological or psychometric claim. The five-point scale (0.1, 0.3, 0.5, 0.7, 1.0) follows the structure of established incident severity taxonomies \cite{pagerduty2023severity,beyer2016site}: just as incident management systems assign higher dispatch priority to a production outage than a documentation note regardless of their timestamps, pain weighting ensures that incident-derived memory dominates retrieval over routine content even when recency is comparable. The 10× spread between extreme values is an engineering judgment: a prod-outage memory should dominate retrieval over a routine note even when both are recent, and a 10× ratio provides meaningful separation without compressing the middle of the scale. Multiplicative aggregation is preferred over additive because it preserves the relative severity ratio across log-scale ranking; a constant additive offset shrinks relative to RRF scores as corpus size grows. We do not claim psychometric or biological validity for the specific values or the aggregation form; calibration validation (e.g., 2× vs. 100× spread, additive vs. multiplicative) is left as future empirical work (§6.3).
 
 The salience signal is exposed in shadow mode at \texttt{/api/health.salience} without affecting production ranking, enabling comparison against the baseline before activation (§3.6). Ablation validation comparing retrieval quality with and without the pain dimension on post-incident queries is reported in §5.6 [NEEDS VALIDATION].
 
 ### 3.6 Enforced Shadow Discipline
 
-The shadow discipline mechanism enforces a separation between observing a retrieval change and deploying it. Any modification that affects ranking — scoring formula changes, boost adjustments, new retrieval layers — must run in shadow mode for a minimum of seven days before activation. This is an architectural constraint, not a documented recommendation.
+The shadow discipline mechanism enforces a separation between observing a retrieval change and deploying it. Any modification that affects ranking — scoring formula changes, boost adjustments, new retrieval layers — must run in shadow mode for a minimum of seven days before activation. This is an architectural constraint, not a documented recommendation. Shadow validation has well-established roots in production search and online controlled experiments \cite{kohavi2020trustworthy,chapelle2012interleaved}. Our contribution is the application of shadow discipline specifically to LLM agent memory systems, with architectural enforcement via cron and health endpoints.
 
 Implementation relies on three components: (1) an environment variable gate (\texttt{NOX\_SALIENCE\_MODE=shadow|active}) that controls whether the salience score affects production ranking or is only written to \texttt{search\_telemetry}; (2) a health endpoint (\texttt{/api/health.opsAudit}) that cron checks every 15 minutes and alerts via Discord if the shadow observation period has not been met; (3) an append-only audit log (\texttt{ops\_audit} table) with database triggers that block DELETE and UPDATE on rows with terminal status, ensuring the shadow-period record cannot be retroactively modified.
 

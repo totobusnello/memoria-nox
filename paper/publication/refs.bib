@@ -257,6 +257,37 @@
   url           = {https://arxiv.org/abs/2401.00368},
 }
 
+% ---------------------------------------------------------------
+% C6 SHADOW DISCIPLINE PRIOR ART — added 2026-05-03 (critic review)
+% ---------------------------------------------------------------
+
+% Kohavi, Tang, Xu 2020 — Trustworthy Online Controlled Experiments
+% Cambridge University Press — standard A/B testing reference
+% Cited in §2.5 + §3.6 for shadow validation roots in online experimentation
+@book{kohavi2020trustworthy,
+  author    = {Ron Kohavi and Diane Tang and Ya Xu},
+  title     = {Trustworthy Online Controlled Experiments: {A} Practical Guide to {A/B} Testing},
+  publisher = {Cambridge University Press},
+  year      = {2020},
+  isbn      = {978-1-108-72426-5},
+  url       = {https://www.cambridge.org/core/books/trustworthy-online-controlled-experiments/D97B26382EB0EB2DC2019A7A7B518F59},
+}
+
+% Chapelle, Joachims, Radlinski, Yue 2012 — Large-Scale Validation of Interleaved Search
+% ACM Transactions on Information Systems 30(1), 2012
+% Cited in §2.5 + §3.6 for shadow validation roots in production search evaluation
+@article{chapelle2012interleaved,
+  author  = {Olivier Chapelle and Thorsten Joachims and Filip Radlinski and Yisong Yue},
+  title   = {Large-Scale Validation and Analysis of Interleaved Search Evaluation},
+  journal = {{ACM} Transactions on Information Systems},
+  year    = {2012},
+  volume  = {30},
+  number  = {1},
+  pages   = {6:1--6:41},
+  doi     = {10.1145/2094072.2094078},
+  url     = {https://dl.acm.org/doi/10.1145/2094072.2094078},
+}
+
 % RAPTOR — recursive abstractive tree summarization (HiRAG comparison baseline)
 @inproceedings{sarthi2024raptor,
   author        = {Parth Sarthi and Salman Abdullah and Aditi Tuli and
@@ -268,4 +299,80 @@
   archiveprefix = {arXiv},
   primaryclass  = {cs.CL},
   url           = {https://arxiv.org/abs/2401.18059},
+}
+
+% ---------------------------------------------------------------
+% BEIR benchmark — NeurIPS 2021 Datasets & Benchmarks Track
+% Cited in §4.1 for TREC-COVID cross-corpus generalization (E4+E5, E11)
+% arXiv:2104.08663; OpenReview: https://openreview.net/forum?id=wCu6T5xFjeJ
+% ---------------------------------------------------------------
+@inproceedings{thakur2021beir,
+  author        = {Nandan Thakur and Nils Reimers and Andreas R{\"{u}}ckl{\'{e}} and
+                   Abhishek Srivastava and Iryna Gurevych},
+  title         = {{BEIR}: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models},
+  booktitle     = {Proceedings of the Neural Information Processing Systems Track on Datasets and Benchmarks 2021},
+  year          = {2021},
+  eprint        = {2104.08663},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.IR},
+  url           = {https://arxiv.org/abs/2104.08663},
+}
+
+% ---------------------------------------------------------------
+% Sanderson 2010 — Test Collection Based Evaluation of IR Systems
+% Foundations and Trends in Information Retrieval 4(4), 2010
+% Cited in Appendix D (shadow case study) for IR evaluation context
+% ---------------------------------------------------------------
+@article{sanderson2010test,
+  author  = {Mark Sanderson},
+  title   = {Test Collection Based Evaluation of Information Retrieval Systems},
+  journal = {Foundations and Trends in Information Retrieval},
+  volume  = {4},
+  number  = {4},
+  pages   = {247--375},
+  year    = {2010},
+  doi     = {10.1561/1500000009},
+}
+
+% ---------------------------------------------------------------
+% nox-mem op-audit — self-cite for withOpAudit() implementation
+% Cited in Appendix D §D.3 for pre-op snapshot pattern
+% ---------------------------------------------------------------
+@misc{noxmem2026opaudit,
+  author       = {Toto Busnello},
+  title        = {nox-mem op-audit: snapshot pre-op pattern with VACUUM INTO and append-only audit log},
+  year         = {2026},
+  howpublished = {GitHub commit \texttt{8c3f3d2}},
+  url          = {https://github.com/totobusnello/memoria-nox/blob/main/src/lib/op-audit.ts},
+  note         = {Internal technical note},
+}
+
+% ---------------------------------------------------------------
+% H6 PAIN CALIBRATION — ENGINEERING RATIONALE REFS — added 2026-05-03
+% Fix: critic objection "pain mapping arbitrary without justification"
+% Drop biological claim; cite incident management literature instead
+% Cited in §3.5 + §4.3 + §6.3
+% ---------------------------------------------------------------
+
+% PagerDuty 2023 — Severity Levels best practices
+% Cited in §3.5 + §4.3 for 5-tier incident severity taxonomy analogy
+@misc{pagerduty2023severity,
+  author       = {{PagerDuty Inc.}},
+  title        = {Severity Levels: Best Practices for Incident Classification},
+  year         = {2023},
+  howpublished = {PagerDuty Documentation},
+  url          = {https://www.pagerduty.com/resources/learn/incident-severity-levels/},
+}
+
+% Beyer 2016 — Site Reliability Engineering (Google SRE book)
+% O'Reilly Media, 2016
+% Cited in §3.5 + §4.3 for SRE severity classification / error budget practice
+@book{beyer2016site,
+  author    = {Betsy Beyer and Chris Jones and Jennifer Petoff and Niall Richard Murphy},
+  title     = {Site Reliability Engineering: How {Google} Runs Production Systems},
+  publisher = {O'Reilly Media},
+  year      = {2016},
+  isbn      = {978-1-491-92912-4},
+  url       = {https://sre.google/sre-book/table-of-contents/},
+  note      = {Severity classification, error budgets, postmortem culture},
 }

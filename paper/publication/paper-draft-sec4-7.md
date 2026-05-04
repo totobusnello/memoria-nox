@@ -1,7 +1,7 @@
 # Sections 4–7 + Appendices A–D
 ## The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents
 
-> **Draft status:** W2 sprint (updated 2026-05-04). §4 and §6–7 are complete prose. §5 contains real data where available: §5.1 R01b confirmed (nDCG=0.5213); §5.2 BM25 Pyserini confirmed (+37.4 pp over BM25); §5.5 pain baseline confirmed (0.2689, n=6); §5.6 storage-level cross-agent confirmed (99.92% shared). Remaining W2-W3 pending experiments are marked `[PENDING]` or `[DEFERRED]` with pre-registered hypotheses and honest framing. Do NOT submit before W3 gates pass.
+> **Draft status:** W2 sprint (updated 2026-05-04). §4 and §6–7 are complete prose. §5 contains real data where available: §5.1 R01b confirmed (nDCG@10=0.5213); §5.2 BM25 Pyserini confirmed (+37.4 pp over BM25); §5.5 pain baseline confirmed (0.2689, n=6); §5.6 storage-level cross-agent confirmed (99.92% shared). Remaining W2-W3 pending experiments are marked `[PENDING]` or `[DEFERRED]` with pre-registered hypotheses and honest framing. Do NOT submit before W3 gates pass.
 
 ---
 
@@ -31,9 +31,11 @@ Any change that affects retrieval ranking in the production system is subject to
 
 ### 4.3 Pain Weighting Calibration
 
-The `pain` field is a real-valued annotation in `[0.1, 1.0]` attached to each chunk at ingest time. Annotation is currently manual, using the `<!-- pain: X.X -->` comment syntax in entity files, and defaults to `0.2` for unannotated content.
+The `pain` field is a real-valued annotation in `[0.1, 1.0]` attached to each chunk at ingest time. Annotation is currently manual, using the `pain: X.X` marker syntax in entity files, and defaults to `0.2` for unannotated content.
 
 **Calibration heuristics.** Based on four months of operational experience, the following calibration anchors were established: `0.1` (trivial notes, meeting summaries with no operational consequence); `0.2` (default, documentation and informational content); `0.3–0.4` (decisions with moderate reversibility risk); `0.5–0.7` (production incidents with bounded impact — recoverable within one session); `0.8–0.9` (incidents causing data loss or multi-hour outages); `1.0` (catastrophic incidents — unrecoverable data loss, multi-day downtime, or security breach). The calibration is designed to be conservative: in ambiguous cases, annotators are instructed to use the lower bound of the relevant range, then escalate only if post-incident analysis reveals higher severity.
+
+**Engineering rationale for scale and aggregation form.** The five-point scale and the 10× spread between extreme values are engineering choices, not psychometric or biologically grounded measurements. The scale structure follows established incident management taxonomies \cite{pagerduty2023severity,beyer2016site}: production operations teams routinely discriminate between severity tiers (e.g., P1 outage vs. P5 informational) and dispatch resources accordingly. The 10× ratio between `pain = 1.0` and `pain = 0.1` is motivated by the same operational intuition — a prod-outage lesson should dominate retrieval over a routine documentation note even when both are equally recent. A 2× ratio would collapse severity levels into retrieval noise; a 100× ratio would cause near-permanent retrieval suppression of low-pain content regardless of recency. A one-order-of-magnitude spread provides meaningful separation across the full severity range while keeping all levels visible in ranked output. Multiplicative aggregation over `recency × pain × importance` is preferred over additive because an additive offset shrinks relative to RRF scores as corpus size grows, whereas multiplicative coupling preserves the severity ratio in log-scale ranking (see §3.3). We explicitly acknowledge that these choices have not been empirically ablated; the paper fixes this calibration and measures retrieval performance under it. Ablation across spread values and aggregation forms is documented as future work in §6.3.
 
 **Pain dimension used in the salience formula.** The salience formula is:
 
@@ -73,7 +75,7 @@ We report results across five experimental questions: (5.1) internal corpus base
 
 **Pre-registered hypothesis (R01a):** The hybrid pipeline will outperform FTS-only BM25 by a substantial margin on natural-language queries over the operational corpus.
 
-**Result (confirmed, R01b/R01c, 2026-05-03):** Table 2 shows the primary comparison. <!-- per HANDOFF.md:283-284 --> FTS5 vanilla BM25 achieves nDCG@10 = 0.0123 (effectively zero) on natural-language queries against the operational corpus. This is not an artifact of query phrasing: FTS5 applies AND-strict matching by default, which means any multi-word natural-language query that does not appear verbatim in the corpus returns zero results. This is a structural property of the retrieval system, not a tuning failure, and it confirms that hybrid retrieval is a minimum viable requirement rather than an optimization for this corpus type.
+**Result (confirmed, R01b/R01c, 2026-05-03):** Table 2 shows the primary comparison. FTS5 vanilla BM25 achieves nDCG@10 = 0.0123 (effectively zero) on natural-language queries against the operational corpus. This is not an artifact of query phrasing: FTS5 applies AND-strict matching by default, which means any multi-word natural-language query that does not appear verbatim in the corpus returns zero results. This is a structural property of the retrieval system, not a tuning failure, and it confirms that hybrid retrieval is a minimum viable requirement rather than an optimization for this corpus type.
 
 **Table 2. Hybrid vs. FTS-only on internal corpus (R01b, n=50 golden queries, 3-run mean ± std).**
 
@@ -266,7 +268,7 @@ The 99.92% shared-canonical figure is the single strongest quantitative claim fo
 
 *[D] = DEFERRED pending `requesting_agent` column migration. The diagonal is excluded (same-agent retrieval). Once populated, this matrix will reveal whether cross-agent knowledge transfer is evenly distributed or concentrated in particular agent pairs.*
 
-The results of §5 — taken together — address the three contributions: §5.1–5.3 validate the hybrid pipeline architecture (Contribution 3 infrastructure), §5.5 targets the pain-weighting claim (Contribution 1), and §5.6 targets the shared-canonical claim (Contribution 3). Two pre-registered hypotheses are confirmed in this sprint: the BM25 Pyserini margin (+37.4 pp, pre-registered ≥ +30 pp); and the storage-level shared-canonical architecture (99.92% shared, counterfactual MemGPT = 0%). Two experiments are deferred and transparently documented as limitations: the E10 pain ablation (requires prod API restart, §6.3) and the E12 retrieval-level cross-agent quantification (requires `search_telemetry` migration, §6.3). Section 6 discusses what these results mean in aggregate, including the limitations of a production evaluation conducted by a single author.
+The results of §5 — taken together — address the three contributions: §5.1–5.3 validate the hybrid pipeline architecture (Contribution 3 infrastructure), §5.5 targets the pain-weighting claim (Contribution 1), and §5.6 targets the shared-canonical claim (Contribution 3). Two pre-registered hypotheses are confirmed in this sprint: the BM25 Pyserini margin (+37.4 pp, pre-registered ≥ +30 pp) and the storage-level shared-canonical architecture (99.92% shared, counterfactual MemGPT = 0%). Two experiments are deferred and transparently documented as limitations: the E10 pain ablation (requires prod API restart, §6.3) and the E12 retrieval-level cross-agent quantification (requires `search_telemetry` migration, §6.3). These deferrals do not affect the architectural contribution claims. Section 6 discusses what these results mean in aggregate, including the limitations of a production evaluation conducted by a single author.
 
 ---
 
@@ -276,7 +278,7 @@ The results of §5 — taken together — address the three contributions: §5.1
 
 Three contributions show empirical or operational validation at the time of writing.
 
-**Hybrid retrieval pipeline necessity (§5.1).** The clearest finding in R01b is not a marginal improvement but a categorical boundary: FTS5 BM25 achieves nDCG@10 = 0.0123 (effectively zero) on natural-language queries over the operational corpus. This validates the hybrid design not as an optimization choice but as an architectural requirement. The gap of 50.9 pp (absolute) — a 97.6% relative reduction in FTS vs. hybrid — confirms the claim stated in §3.3: for an operational corpus where queries are issued in natural language and documents contain domain-specific terminology that does not match query terms lexically, hybrid retrieval with a semantic layer is the minimum viable design. <!-- per HANDOFF.md:283-284 -->
+**Hybrid retrieval pipeline necessity (§5.1).** The clearest finding in R01b is not a marginal improvement but a categorical boundary: FTS5 BM25 achieves nDCG@10 = 0.0123 (effectively zero) on natural-language queries over the operational corpus. This validates the hybrid design not as an optimization choice but as an architectural requirement. The gap of 50.9 pp (absolute) — a 97.6% relative reduction in FTS vs. hybrid — confirms the claim stated in §3.3: for an operational corpus where queries are issued in natural language and documents contain domain-specific terminology that does not match query terms lexically, hybrid retrieval with a semantic layer is the minimum viable design.
 
 **Shadow discipline as incident prevention (§3.5, §4.2).** The shadow-mode architecture prevented at least one class of production regression during the evaluation period. The incident of 2026-04-25 (§6.2) involved a ranking-affecting change reaching production without validation. The subsequent codification of shadow discipline as a seven-day mandatory gate — enforced via cron and `/api/health` — means that future incidents of this class would be detected in shadow telemetry before activation. This is not a post-hoc rationalization; the telemetry schema (`search_telemetry.old_score`, `search_telemetry.new_score`) was designed specifically to capture the counterfactual. During the Fase 1.7b-b salience shadow period, the collected telemetry over 191 promotion candidates, 16,608 review candidates, and 45,743 archive candidates provided the distribution analysis required for an informed activation decision.
 
@@ -300,7 +302,9 @@ Three contributions show empirical or operational validation at the time of writ
 
 **Short corpus horizon.** The production corpus spans approximately four months (March–May 2026). This is sufficient to validate hybrid retrieval and edge typing, but may underestimate the long-term recall decay problem that pain weighting is designed to address. A six-month or twelve-month evaluation would provide stronger evidence for the salience formula's temporal component.
 
-**Single-author validation.** No inter-rater reliability study was conducted for the golden query relevance judgments. This is standard practice for personal-corpus memory systems, where the "correct" answer to a query may be defined by the author's own knowledge, but it means that the nDCG scores cannot be compared directly with benchmarks that use multi-judge relevance panels.
+**Single-author validation.** No inter-rater reliability study was conducted for the golden query relevance judgments. This is standard practice for personal-corpus memory systems, where the "correct" answer to a query may be defined by the author's own knowledge, but it means that the nDCG@10 scores cannot be compared directly with benchmarks that use multi-judge relevance panels.
+
+**Pain calibration as engineering choice.** The pain dimension values (0.1, 0.3, 0.5, 0.7, 1.0), the 10× spread between extreme values, and the multiplicative aggregation form are engineering choices motivated by operational practice in incident management \cite{pagerduty2023severity,beyer2016site}. We do not claim psychometric or biological validity for these specific values or for the multiplicative form. The paper fixes this calibration and measures retrieval performance under it; it does not ablate across spread values (e.g., 2×, 100×) or aggregation forms (e.g., additive). Future work should conduct this ablation on post-incident query subsets to establish whether the specific calibration choices meaningfully affect retrieval quality, or whether any monotone severity ordering with reasonable spread achieves similar results.
 
 ### 6.4 Threats to Validity
 
@@ -316,6 +320,8 @@ Three contributions show empirical or operational validation at the time of writ
 
 **Multi-tenant productization (P01).** The shared-canonical design (§3.6) is not suitable for multi-tenant SaaS environments, where agents from different users must not share a corpus. The P01 roadmap item (NOX-Supermem productization) requires a tenant-isolation layer above the shared corpus, likely via row-level security and per-tenant `source_file` namespacing. This is future work outside the scope of the current paper.
 
+We invite verification and contributions via the public repository at \url{https://github.com/totobusnello/memoria-nox}, which includes the full code, evaluation harness, golden query set (n=60), and 4-month incident log under MIT license.
+
 The discussion concludes that the system's most durable contributions — shadow discipline and pain-weighted salience — are transferable design patterns rather than features of any particular implementation. The next section states this claim in its most general form.
 
 ---
@@ -330,7 +336,7 @@ The empirical evidence supports the hybrid pipeline as a minimum viable requirem
 
 Beyond nox-mem specifically, pain-weighted salience and shadow discipline are **transferable concepts**. Any persistent memory system — regardless of implementation stack — can adopt a severity annotation field and enforce a shadow validation gate before ranking changes activate. These ideas require no new model, no new architecture, and no GPU. They require only the discipline to instrument what already exists and the patience to watch before activating.
 
-The incidents are in the log. The log is in the schema. The schema is in this paper.
+We invite verification and contributions via the public repository.
 
 ---
 
@@ -394,17 +400,17 @@ The incident of 2026-04-25 occurred the same day the shadow period ended — a c
 
 ### B.4 Activation Decision Rationale
 
-The distribution analysis showed that the pain-weighted salience formula was doing the intended work: high-pain chunks (incident lessons, security decisions, production outage records) consistently landed in the promotion tier, while trivial notes and meeting summaries landed in the archive tier. The formula was activated because the distribution matched the design intent, not because the absolute nDCG numbers improved (those were measured separately in R01b).
+The distribution analysis showed that the pain-weighted salience formula was doing the intended work: high-pain chunks (incident lessons, security decisions, production outage records) consistently landed in the promotion tier, while trivial notes and meeting summaries landed in the archive tier. The formula was activated because the distribution matched the design intent, not because the absolute nDCG@10 numbers improved (those were measured separately in R01b).
 
 ---
 
 ## Appendix C: Reviewer-Friendly Feature Comparison Table
 
-This table summarizes the architectural features of nox-mem against the seven most closely related systems. The scoring rubric follows the five dimensions identified in §1.2: (1) native knowledge graph with typed edges, (2) hybrid retrieval combining lexical and semantic layers, (3) published evaluation harness with standard IR metrics, (4) multi-agent shared context, (5) shadow-validated ranking discipline.
+See Table 1, §2.5 for the full seven-axis architectural comparison across all surveyed systems. The five-dimension summary below (KG native, hybrid retrieval, eval harness, multi-agent, shadow discipline) distills the axes most relevant for reviewer quick-reference; scores align with the 5/7 subset of Table 1 that excludes corpus scale and third-party benchmark coverage.
 
 | System | KG native | Hybrid retrieval | Eval harness | Multi-agent | Shadow discipline | **Score** |
 |---|---|---|---|---|---|---|
-| **nox-mem (this work)** | Yes — closed-enum, 7 edge types | Yes — FTS5 + Gemini + RRF | Yes — nDCG/MRR/Recall, n=50 | Yes — shared canonical | Yes — ≥7d enforced | **5/5** |
+| **nox-mem (this work)** | Yes — closed-enum, 7 edge types | Yes — FTS5 + Gemini + RRF | Yes — nDCG@10/MRR/Recall, n=50 | Yes — shared canonical | Yes — ≥7d enforced | **5/5** |
 | GraphRAG \cite{edge2024graphrag} | Yes + community detection | Partial — via KG queries | No | No | No | 1.5/5 |
 | MemGPT/Letta \cite{packer2023memgpt} | No | Partial — embedding-first | No | Yes — per-agent | No | 1.5/5 |
 | Mem0 \cite{chhikara2025mem0} | Optional (v2) | No — vector-only | Partial — LOCOMO only | Partial — user\_id partition | No | 1.5/5 |

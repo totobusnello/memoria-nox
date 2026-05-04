@@ -78,18 +78,20 @@ KG extraction com campo opcional e prompt ingênuo classificava apenas **14% das
 
 ### nox-mem vs alternatives — paridade de features
 
-| Sistema | KG nativo | Hybrid retrieval | Eval harness | Multi-agent | Shadow discipline | **Score** |
-|---|---|---|---|---|---|---|
-| **nox-mem (este trabalho)** | ✅ closed-enum 7 reasons (24-entry map) | ✅ FTS5+Gemini+RRF | ✅ nDCG/MRR/Recall | ✅ shared canonical | ✅ enforced ≥7d | **5/5** |
-| GraphRAG | ✅ + community detection | ⚠️ via KG queries | ❌ | ❌ | ❌ | 1.5/5 |
-| MemGPT/Letta | ❌ | ⚠️ embedding-first | ❌ | ✅ per-agent | ❌ | 1.5/5 |
-| Mem0 | ⚠️ optional v2 | ❌ vector-only | ⚠️ LOCOMO only | ⚠️ user_id partition | ❌ | 1.5/5 |
-| A-MEM | ⚠️ Zettelkasten | ⚠️ semantic-first | ❌ | ❌ | ❌ | 1.0/5 |
-| HiRAG | ✅ hierarchical | ✅ multi-level | ⚠️ task-specific | ❌ | ❌ | 2.5/5 |
-| Cognee | ✅ ECL pipeline | ✅ hybrid | ⚠️ ad-hoc | ⚠️ optional | ❌ | 3.0/5 |
-| LangChain Memory | ❌ | ❌ key-value | ❌ | ⚠️ session_id | ❌ | 0.5/5 |
+A tabela usa 7 eixos arquiteturais e operacionais. Os dois últimos — escala de corpus acima de 100K e benchmark de terceiros — são eixos onde nox-mem ainda **não** tem cobertura. A inclusão deles é intencional: comparação honesta exige marcar as lacunas, não só os pontos fortes.
 
-**Resumo da tabela**: o sistema mais próximo (Cognee) cobre 3 das 5 dimensões. Nenhum dos sete competidores documentados tem shadow discipline arquitetural — a feature de maior valor metodológico aqui apresentada é literalmente inédita na literatura.
+| Sistema | KG nativo | Hybrid retrieval | Eval harness | Multi-agent | Shadow discipline | Escala ≥100K | Benchmark terceiros | **Score** |
+|---|---|---|---|---|---|---|---|---|
+| **nox-mem (este trabalho)** | ✅ closed-enum 7 reasons (24-entry map) | ✅ FTS5+Gemini+RRF | ✅ nDCG/MRR/Recall | ✅ shared canonical | ✅ enforced ≥7d | ❌ (64K atual) | ❌ (golden interno) | **5/7** |
+| GraphRAG | ✅ + community detection | ⚠️ via KG queries | ❌ | ❌ | ❌ | ✅ (1M+ MS-MARCO) | ⚠️ paper-específico | 1.5/7 |
+| MemGPT/Letta | ❌ | ⚠️ embedding-first | ❌ | ✅ per-agent | ❌ | ⚠️ varia | ❌ | 1.5/7 |
+| Mem0 | ⚠️ optional v2 | ❌ vector-only | ⚠️ LOCOMO only | ⚠️ user_id partition | ❌ | ❌ | ✅ LOCOMO | 1.5/7 |
+| A-MEM | ⚠️ Zettelkasten | ⚠️ semantic-first | ❌ | ❌ | ❌ | ❌ | ❌ | 1.0/7 |
+| HiRAG | ✅ hierarchical | ✅ multi-level | ⚠️ task-specific | ❌ | ❌ | ⚠️ varia | ✅ multi-task | 2.5/7 |
+| Cognee | ✅ ECL pipeline | ✅ hybrid | ⚠️ ad-hoc | ⚠️ optional | ❌ | ⚠️ ad-hoc | ⚠️ parcial | 3.0/7 |
+| LangChain Memory | ❌ | ❌ key-value | ❌ | ⚠️ session_id | ❌ | ⚠️ varia | ❌ | 0.5/7 |
+
+**Resumo honesto**: nox-mem cobre **5 de 7 eixos** — os cinco relacionados a disciplina operacional e arquitetura. Não cobre os dois eixos de validade externa: escala de corpus (64K vs ≥100K) e benchmark de terceiros (golden set interno vs LOCOMO/BEIR). Essas lacunas estão documentadas como limitações no paper (§6.3) e como trabalho futuro (§6.5). O sistema mais próximo, Cognee, cobre 3/7. Média dos sete competidores: **1,6/7**. Os dois eixos com cobertura zero na literatura — pain weighting e shadow discipline — são as contribuições de maior novidade.
 
 ### Latência em produção real
 
@@ -129,7 +131,7 @@ A lacuna não é de performance — é de vocabulário. A comunidade científica
 
 **Reproducibilidade radical.** Quatro meses de incident log real, telemetria exposta via `/api/health`, eval harness com métricas padrão, repo público, schema versionado v1→v12. O reviewer pode refutar — ou confirmar — tudo. **Comparativo: 6 dos 7 sistemas analisados não publicam eval harness reproduzível.**
 
-**Score de paridade arquitetural: 5/5 contra média de 1,6/5 dos competidores.** O sistema mais próximo (Cognee) cobre 60% das dimensões. Nenhum cobre as duas dimensões de maior novidade (pain weighting + shadow discipline).
+**Paridade arquitetural: 5/7 eixos cobertos, média dos competidores 1,6/7.** O sistema mais próximo (Cognee) cobre 3/7. nox-mem não cobre escala ≥100K nem benchmark de terceiros — lacunas documentadas no paper. Nenhum dos sete competidores cobre as duas dimensões de maior novidade (pain weighting + shadow discipline).
 
 **Construído solo, sem financiamento, em produção real.** Não em benchmark sintético. As cicatrizes estão no incident log — e o incident log está no repo.
 

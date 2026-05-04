@@ -2,9 +2,9 @@
 
 ## D.1 Background
 
-Ranking changes in retrieval systems carry an asymmetric risk: they affect every query, yet their impact is nearly invisible post-hoc unless a precise baseline was captured before deployment. This observation is not new in information retrieval \cite{Sanderson2010}, but its application to personal operational memory systems has not been systematically addressed.
+Ranking changes in retrieval systems carry an asymmetric risk: they affect every query, yet their impact is nearly invisible post-hoc unless a precise baseline was captured before deployment. This observation is not new in information retrieval \cite{sanderson2010test}, but its application to personal operational memory systems has not been systematically addressed.
 
-Prior agent memory systems—including MemGPT \cite{Packer2023}, Mem0 \cite{Chhikara2025}, and A-MEM \cite{AMEM2024}—ship retrieval changes without shadow gates. Absence of shadow validation does not reflect negligence; these systems target benchmark-driven evaluation over production environments where corpora are stable and curated. In an operational corpus that changes daily, the risk profile differs materially: a ranking regression that reduces relevant chunk recall for one agent may propagate silently across all six agents sharing the same canonical store.
+Prior agent memory systems—including MemGPT \cite{packer2023memgpt}, Mem0 \cite{chhikara2025mem0}, and A-MEM \cite{xu2025amem}—ship retrieval changes without shadow gates. Absence of shadow validation does not reflect negligence; these systems target benchmark-driven evaluation over production environments where corpora are stable and curated. In an operational corpus that changes daily, the risk profile differs materially: a ranking regression that reduces relevant chunk recall for one agent may propagate silently across all six agents sharing the same canonical store.
 
 NOX-Supermem codifies a rule that elevates this concern to an architectural constraint: **every ranking-affecting change must operate in shadow mode for a minimum of seven days before activation**. Shadow mode computes the new scoring formula and logs its effects to `search_telemetry`, but does not apply the boost to the live ranking order. This appendix documents the first rigorous application of this rule, Salience Activation Phase 1.7b-b, as a replicable methodology contribution.
 
@@ -40,7 +40,7 @@ The promote bucket (191 chunks, 0.31%) exhibited the expected content profile: i
 
 The large archive bucket (73.2%) reflects the corpus composition: the bulk of the 62K+ chunks derive from converted PDF and office documents that carry default pain scores (`pain = 0.2`) and low recent access. These chunks are not irrelevant—they are available to retrieval when queries demand them—but they do not warrant persistent ranking prominence.
 
-The distribution showed no degenerate clustering: the promote bucket did not approach 10% of the corpus, which would have suggested the P95 threshold was miscalibrated. Based on this inspection, the decision to activate was made on 2026-04-30 at 13:11 BRT via the script `activate-salience.sh --apply`, setting `NOX_SALIENCE_MODE=active` in the production environment. A pre-activation atomic snapshot was saved to `/var/backups/nox-mem/pre-op/` per the `withOpAudit` protocol (§3.8, \cite{OpAudit2026}).
+The distribution showed no degenerate clustering: the promote bucket did not approach 10% of the corpus, which would have suggested the P95 threshold was miscalibrated. Based on this inspection, the decision to activate was made on 2026-04-30 at 13:11 BRT via the script `activate-salience.sh --apply`, setting `NOX_SALIENCE_MODE=active` in the production environment. A pre-activation atomic snapshot was saved to `/var/backups/nox-mem/pre-op/` per the `withOpAudit` protocol (§3.8, \cite{noxmem2026opaudit}).
 
 Post-activation monitoring over 30+ subsequent days showed no retrieval regressions as measured by eval harness runs (§4.1). The system remained in GREEN state throughout.
 
