@@ -127,15 +127,16 @@ includes LLM-driven automatic pain classification over the full corpus (\S6.5).
 
 \subsection{Edge Typing Extraction}
 
-\begin{figure}[t]
+\begin{figure}[!ht]
   \centering
-  \includegraphics[width=\linewidth]{figures/figure4-kg-edge-typing.pdf}
+  \includegraphics[width=\textwidth, keepaspectratio]{figures/figure4-kg-edge-typing.pdf}
   \caption{KG edge typing flow. Gemini emits free-text relation labels; a defensive
     three-path normalizer collapses them into a closed enum of seven canonical reasons
     enforced by a schema-v12 \texttt{CHECK} constraint. Before fix: 14\% classified,
     86\% unknown. After fix: 56\% classified, $4\times$ improvement ($n$=100).}
   \label{fig:edgetyping}
 \end{figure}
+\FloatBarrier
 
 The knowledge graph relation schema uses a closed-enum field \texttt{relation\_reason}
 with seven values: \texttt{depends\_on}, \texttt{derived\_from}, \texttt{opposes},
@@ -164,6 +165,7 @@ entities and 544 relations, extracted incrementally by a nightly Gemini 2.5 Flas
 extraction uses the full \texttt{gemini-2.5-flash} model (not the lite variant) given the
 low daily volume and the higher extraction quality requirements.
 
+\FloatBarrier
 \subsection{Statistical Methodology}
 
 All retrieval experiments report \textbf{3-run mean $\pm$ standard deviation} with Bessel
@@ -190,6 +192,7 @@ experimental questions.
 % ---------------------------------------------------------------
 % SECTION 5 — EXPERIMENTS AND RESULTS
 % ---------------------------------------------------------------
+\needspace{6\baselineskip}
 \section{Experiments and Results}
 
 We report results across five experimental questions: (5.1) internal corpus baseline
@@ -272,7 +275,7 @@ for this corpus type.
     \toprule
     Category & $n$ & nDCG@10 & Notes \\
     \midrule
-    entity      & TBD & TBD & \textsc{[Pending: per-category breakdown W2]} \\
+    entity      & TBD & TBD & [W2]\footnote{Per-category breakdown deferred to W2.} \\
     procedure   & TBD & TBD & \textsc{[Pending]} \\
     concept     & TBD & TBD & \textsc{[Pending]} \\
     security    & TBD & TBD & \textsc{[Pending]} \\
@@ -353,7 +356,7 @@ the pre-registered threshold of $\geq$30\,pp over BM25 Pyserini.
     \toprule
     Category & $n$ & BM25 Pyserini & nox-mem hybrid & $\Delta$ \\
     \midrule
-    concept     & 15 & 0.2393 & \textsc{[Pending: W2]} & --- \\
+    concept     & 15 & 0.2393 & [W2] & --- \\
     decision    & 6  & 0.2062 & --- & --- \\
     security    & 6  & 0.1597 & --- & --- \\
     entity      & 11 & 0.1357 & --- & --- \\
@@ -376,15 +379,16 @@ the pre-registered threshold of $\geq$30\,pp over BM25 Pyserini.
   \caption{Pre-registered directional hypothesis summary (E1+E2, Corpus~A).}
   \label{tab:hypotheses}
   \centering
+  \small
   \resizebox{\textwidth}{!}{%
 \begin{tabular}{lll}
     \toprule
     Comparison & Pre-registered $\Delta$ nDCG@10 & Result \\
     \midrule
     nox-mem vs BM25 (Pyserini) & $\geq +30$\,pp & \textbf{+37.4\,pp --- CONFIRMED} \\
-    nox-mem vs BGE-M3 & $\geq +10$\,pp & \textsc{[Pending: W2]} \\
+    nox-mem vs BGE-M3 & $\geq +10$\,pp & [W2] \\
     nox-mem vs multilingual-e5-base & $\geq 0$\,pp & +21.4\,pp --- CONFIRMED \\
-    nox-mem vs E5-mistral-7b-instruct & $\geq 0$\,pp & \textsc{[Pending: W2]} \\
+    nox-mem vs E5-mistral-7b-instruct & $\geq 0$\,pp & [W2] \\
     \bottomrule
   \end{tabular}}
 \end{table}
@@ -397,7 +401,7 @@ the three-layer pipeline is not overfit to the internal operational corpus.
 
 \begin{table}[t]
   \caption{Cross-corpus nDCG@10 --- BEIR TREC-COVID subset
-    (171K chunks, standard 50 BEIR queries). \textsc{[Pending: W3]}}
+    (171K chunks, standard 50 BEIR queries).}
   \label{tab:beir}
   \centering
   \resizebox{\textwidth}{!}{%
@@ -411,6 +415,10 @@ the three-layer pipeline is not overfit to the internal operational corpus.
     \textbf{nox-mem hybrid} & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
     \bottomrule
   \end{tabular}}
+  \begin{minipage}{\linewidth}
+    \vspace{4pt}\footnotesize\itshape
+    Pending: W3 --- full results in camera-ready.
+  \end{minipage}
 \end{table}
 
 \begin{table}[t]
@@ -449,7 +457,7 @@ nDCG@10, with each layer's removal causing a $\Delta \geq 0.03$ decrease.
 
 \begin{table}[t]
   \caption{Ablation study on internal corpus, Corpus~A ($n$=50 golden queries, 3-run mean
-    $\pm$ std). \textsc{[Pending: W3]}}
+    $\pm$ std).}
   \label{tab:ablation}
   \centering
   \resizebox{\textwidth}{!}{%
@@ -467,7 +475,7 @@ nDCG@10, with each layer's removal causing a $\Delta \geq 0.03$ decrease.
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
     FTS-only is confirmed from R01b (Table~\ref{tab:hybrid}). Remaining ablations (E7--E9)
-    are pending. Controlled via: \texttt{NOX\_RRF\_DISABLE=1},
+    pending W3. Controlled via: \texttt{NOX\_RRF\_DISABLE=1},
     \texttt{NOX\_SALIENCE\_MODE=off}, \texttt{NOX\_SECTION\_BOOST\_MODE=off}.
   \end{minipage}
 \end{table}
@@ -504,7 +512,8 @@ Source: \texttt{paper/publication/baselines/pain\_ablation\_hybrid.py}; results 
   \caption{Pain ablation --- hybrid retrieval ($n$=31 post-incident queries, 2026-05-04).}
   \label{tab:painablation}
   \centering
-  \resizebox{\textwidth}{!}{%
+  {\small
+  \setlength{\tabcolsep}{4pt}
 \begin{tabular}{llll}
     \toprule
     Configuration & Mean nDCG@10 & $n$ & Notes \\
@@ -725,8 +734,8 @@ accumulation.
     requires \texttt{search\_telemetry} migration]}}
   \label{tab:attribution}
   \centering
-  \small
-  \resizebox{\textwidth}{!}{%
+  {\footnotesize
+  \setlength{\tabcolsep}{3pt}
 \begin{tabular}{lllllll}
     \toprule
     & Orig: nox & Orig: atlas & Orig: boris & Orig: cipher & Orig: forge & Orig: lex \\
@@ -1014,8 +1023,10 @@ following primary dependencies:
 
 \textbf{Schema migration history (v1--v12).}
 
-\begin{table}[h]
+\begin{table}[!ht]
   \centering
+  \caption{Schema migration history (v1--v12)}
+  \label{tab:schema-migration}
   \resizebox{\textwidth}{!}{%
 \begin{tabular}{ll}
     \toprule
@@ -1068,9 +1079,9 @@ All migrations were applied to the production database without downtime.
 
 \subsection{Telemetry Summary}
 
-\begin{figure}[h]
+\begin{figure}[!ht]
   \centering
-  \includegraphics[width=0.85\linewidth]{figures/figure2-salience-pipeline.pdf}
+  \includegraphics[width=\textwidth]{figures/figure2-salience-pipeline.pdf}
   \caption{Salience pipeline. Each chunk is annotated at ingest with three
     signals---\texttt{retention\_days}, \texttt{section}, and \textbf{pain}
     (0.1 trivial to 1.0 prod-outage). Salience
@@ -1078,6 +1089,7 @@ All migrations were applied to the production database without downtime.
     exposed via \texttt{/api/health.salience} for at least seven days before activation.}
   \label{fig:salience}
 \end{figure}
+\FloatBarrier
 
 \begin{table}[h]
   \caption{Telemetry distribution during Fase~1.7b-b shadow period.}
@@ -1180,8 +1192,10 @@ entity files, stripping \texttt{section}, \texttt{retention\_days}, and
 
 \subsection{Changes Implemented}
 
-\begin{table}[h]
+\begin{table}[!ht]
   \centering
+  \caption{Changes implemented post-incident 2026-04-25}
+  \label{tab:incident-changes}
   \resizebox{\textwidth}{!}{%
 \begin{tabular}{lll}
     \toprule

@@ -248,7 +248,7 @@ benchmark evaluation---because honest comparison requires acknowledging these ga
 explicitly. Limitations arising from these gaps are addressed in \S6.3; planned mitigations
 are in \S6.5.
 
-\begin{table}[t]
+\begin{table}[!ht]
   \caption{Architectural comparison across memory systems. Axes reflect structural design
     choices, not performance rankings. \checkmark\ = implemented; $\approx$ = partial or
     indirect; $\times$ = absent.}
@@ -302,7 +302,7 @@ metadata-loss event on 2026-04-25 was recovered via re-ingestion; see \S6.2).
 
 \subsection{System Overview}
 
-\begin{figure}[t]
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=\linewidth]{figures/figure1-system-overview.pdf}
   \caption{System overview. Six personas read and write through a unified interface layer
@@ -313,11 +313,13 @@ metadata-loss event on 2026-04-25 was recovered via re-ingestion; see \S6.2).
     \texttt{withOpAudit()} snapshot.}
   \label{fig:overview}
 \end{figure}
+\FloatBarrier
 
 The entry point for all CLI operations is \texttt{dist/index.js} (the compiled package
 binary). An HTTP API on port 18802 exposes search, knowledge graph, health, and operational
 endpoints for agent integration.
 
+\medskip
 \begin{verbatim}
 Source files (.md / .docx / .pptx / .pdf / entity files)
     |
@@ -337,6 +339,7 @@ ingest-router (inotifywait watcher + manual CLI)
                 Layer 3: RRF fusion (k=60) + salience boost + section_boost
                 --> ranked results (p95 < 1s @ 64K chunks)
 \end{verbatim}
+\medskip
 
 \subsection{Storage Layer}
 
@@ -492,9 +495,10 @@ on $n=31$ post-incident queries are reported in \S5.5 (E10, 2026-05-04); the agg
 result is directional but not statistically significant, with Q55 as the primary positive
 case study ($\Delta = +0.349$).
 
+\FloatBarrier
 \subsection{Enforced Shadow Discipline}
 
-\begin{figure}[t]
+\begin{figure}[!ht]
   \centering
   \includegraphics[width=0.9\linewidth]{figures/figure3-shadow-state-machine.pdf}
   \caption{Shadow discipline state machine. Every ranking-affecting change traverses this
@@ -504,6 +508,7 @@ case study ($\Delta = +0.349$).
     flip---zero schema rollback required.}
   \label{fig:shadow}
 \end{figure}
+\FloatBarrier
 
 The shadow discipline mechanism enforces a separation between observing a retrieval change
 and deploying it. Any modification that affects ranking---scoring formula changes, boost
@@ -563,6 +568,7 @@ Section~4 describes the evaluation methodology, including the golden query harne
 baseline systems, and three-corpus protocol designed to address the single-corpus and
 single-curator limitations of operational memory benchmarking.
 
+\FloatBarrier
 \subsection{Pre-registration and Reproducibility Commitments}
 
 A persistent concern in machine learning evaluation is post-hoc query set construction:
@@ -579,10 +585,12 @@ repository (\url{https://github.com/totobusnello/memoria-nox}) and its commit hi
 immutable. The git commit hash and ISO-8601 author timestamp for that file should be
 verified at submission via:
 
+\medskip
 \begin{verbatim}
 git log --follow -1 --format="%H  %aI" \
     paper/publication/03-experiments-needed.md
 \end{verbatim}
+\medskip
 
 \textbf{Golden query set freeze.} The 60-query golden set (\texttt{eval/golden-queries.jsonl},
 comprising the 50-query main set R01b and the 10-query held-out subset R01c) is included
