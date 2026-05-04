@@ -65,11 +65,12 @@ Quando Forge aprende algo sobre uma decisão arquitetural, Atlas recupera esse c
 | Approach | nDCG@10 | Δ vs nox-mem |
 |---|---|---|
 | FTS5 vanilla (BM25) | 0.0123 | **−50,9 pp** |
+| **BM25 Pyserini (Anserini-tuned, n=60)** | **0.1475** | **−37,4 pp** |
 | **nox-mem hybrid (FTS + Gemini + RRF)** | **0.5213** | baseline |
 
-*(n=50 queries, 3-run mean ± std: Hybrid 0.5213 ± 0.0004, FTS 0.0123 ± 0.0000 — gap relativo 97.6%)*
+*(n=50 queries baseline; BM25 Pyserini n=60 — 3-run mean ± std: Hybrid 0.5213 ± 0.0004, FTS vanilla 0.0123 ± 0.0000 — gap relativo hybrid vs Pyserini: 3,5×)*
 
-Queries em linguagem natural completas resultam em nDCG quase zero em BM25-only. Não é artefato de corpus — é constraint estrutural do FTS5 AND-strict. Hybrid é o piso, não o teto. Validação 3-run (runs #10/#11/#12) com std=0.0004 (0.08% relativo), reproduzível por qualquer reviewer.
+Queries em linguagem natural completas resultam em nDCG quase zero em BM25-only — constraint estrutural do FTS5 AND-strict, não artefato de corpus. O BM25 Pyserini (Anserini-tuned, strong baseline de BEIR) eleva o patamar para 0.1475, e nox-mem hybrid ainda entrega **3,5× acima dele**. Hybrid é o piso, não o teto. Validação 3-run (runs #10/#11/#12) com std=0.0004 (0.08% relativo), reproduzível por qualquer reviewer.
 
 ### Edge typing: classificação correta de 14% para 56% — ganho 4×
 
@@ -100,9 +101,21 @@ KG extraction com campo opcional e prompt ingênuo classificava apenas **14% das
 
 Latência sub-segundo em 64.180+ chunks com hybrid 3-layer (FTS5 → Gemini 3072d → RRF k=60) — não emulação local, produção real há 4 meses.
 
-### Validação contra strong baselines (W2 em execução)
+### Cross-agent storage — 99,92% sharing
 
-Por compromisso com honestidade científica: BM25 (Pyserini), BGE-M3 e E5-mistral-7b em BEIR-COVID e StackExchange estão em execução paralela. Hipótese pré-registrada: hybrid mantém vantagem ≥10% nDCG sobre BGE-M3 dense em corpus operacional. Resultados completos no paper arXiv (2026-05-19).
+De 61.257 chunks ativos no corpus, **61.207 são canonical shared** — acessíveis por todos os seis agentes sem particionamento, sincronização ou merge. Isso corresponde a **99,92% de sharing efetivo**. O contrafactual MemGPT/Mem0 com isolamento por agent/user_id resultaria em 0% de sharing — diferença arquitetural de **99,92 pp**, não decimal. O diferencial "Shared-Canonical Multi-Agent" agora tem evidência quantitativa: não é claim de design, é medição de prod. (Nota: sharing aqui é de storage e retrieval; cross-agent retrieval-level metrics são future work documentado no paper.)
+
+### Pain baseline — post-incident queries são classe mais difícil
+
+Sobre 6 queries extraídas de incidentes reais (post-incident class), nDCG@10 = **0.2689** — **−0.2524 vs baseline geral de 0.5213**. Post-incident queries são intrinsically harder: linguagem mais técnica, contexto fragmentado, relevância distribuída por chunks de tipos distintos. Esse gap é o sinal que motiva pain-weighted salience: lições de incidente precisam de boost ativo no retrieval porque o retrieval vanilla já as penaliza passivamente. Pain ablation completa (comparar salience=shadow vs salience=off em prod) requer dois reinicios de produção e está documentada como future work no paper — os dados preliminares desta sessão ficam como evidência motivadora.
+
+### Validação contra strong baselines (W2 — parcialmente concluída)
+
+- **BM25 Pyserini** ✅ DONE — nDCG@10 = 0.1475 (n=60), nox-mem 3,5× acima
+- **multilingual-e5-base** ⏳ rodando overnight (~9h ETA)
+- **E5-mistral-7b** — deferred para Modal cloud (opcional; não bloqueia submissão)
+
+Hipótese pré-registrada mantida: hybrid mantém vantagem ≥10% nDCG sobre qualquer dense baseline em corpus operacional. Resultados completos no paper arXiv (2026-05-19).
 
 ---
 

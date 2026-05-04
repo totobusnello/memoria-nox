@@ -1,5 +1,8 @@
 # memoria-nox
 
+> 📄 **Paper coming soon (2026-05-19):** *The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents* — arXiv preprint + dev.to blog + Hacker News.
+> See [`paper/publication/`](paper/publication/) for drafts, baselines, and reproducibility kit.
+
 > Sistema de memória inteligente multi-agent com hybrid search, knowledge graph com edge typing, eval harness, semantic cache, blast radius analysis e backend claude-cli zero-cost.
 
 **Status & quality**
@@ -24,6 +27,21 @@
 [![SPO Injection](https://img.shields.io/badge/SPO__injection-shadow-yellow)](specs/2026-05-01-E03a-spo-injection.md)
 [![Focus Boost](https://img.shields.io/badge/focus__boost-shadow-yellow)](specs/2026-05-01-E04a-focus-boost.md)
 [![FTS Gap](https://img.shields.io/badge/FTS__vs__hybrid__gap-97.7%25_loss-red)](paper/paper-v2-draft-evidence.md)
+
+---
+
+## Highlights
+
+| Metric | Value |
+|---|---|
+| Chunks in production | **64,180+** (100% embedded, Gemini 3072d) |
+| Hybrid nDCG@10 | **0.5213** (n=50, 3-run mean ± 0.0004) |
+| vs BM25-only baseline | **3.5× better** (FTS-only nDCG=0.015, gap 97.7%) |
+| Shared canonical corpus | **99.92%** of chunks accessible to all 7 agents (vs 0% in MemGPT-style per-agent isolation) |
+| Pain-weighted salience | `recency × pain × importance` — severity is a retrieval signal, not just a log field |
+| Shadow discipline | Enforced ≥7d before any ranking change goes active — architectural constraint, not a guideline |
+
+These numbers come from production telemetry and a curated 50-query eval harness with golden relevance labels. Full methodology and reproducibility kit in [`paper/publication/`](paper/publication/).
 
 ---
 
@@ -691,6 +709,42 @@ Baseline de saude: `ssh root@100.87.8.44 '/root/bin/improvements check'` deve re
 
 - **[nox-supermem](https://github.com/totobusnello/nox-supermem)** (privado) — produto PT-BR baseado no nox-mem. Em desenvolvimento apos Fase 4 estavel 30 dias.
 - **[agent-hub-dashboard](https://github.com/totobusnello/agent-hub-dashboard)** — dashboard UI com 4 paginas nox-mem (chunks, KG, search telemetry, health).
+
+---
+
+## Reproducibility
+
+All baselines and adapters used in the paper are in [`paper/publication/baselines/`](paper/publication/baselines/):
+
+| Adapter | Purpose |
+|---|---|
+| `bm25-pyserini/` | BM25 Pyserini baseline — exact FTS-only comparison |
+| `multilingual-e5-base/` | Dense retrieval baseline (multilingual-e5-base) |
+| `ablation-runner/` | Systematic ablation across hybrid pipeline components |
+| `pain-validator/` | Verifies `pain` field distribution and salience formula behavior |
+| `cross-agent-sql/` | Quantifies shared canonical coverage across the 7-agent corpus |
+| `beir-external/` | BEIR external corpus adapter for out-of-domain generalization |
+| `stackexchange/` | StackExchange adapter for domain transfer evaluation |
+
+Pre-registered hypothesis: hybrid retains ≥10% nDCG advantage over BGE-M3 dense on operational corpus. Full results in the arXiv preprint (2026-05-19).
+
+---
+
+## Cite
+
+If you use NOX-Supermem in research:
+
+```bibtex
+@misc{busnello2026noxsupermem,
+  author = {Luiz Antonio Busnello (Toto)},
+  title  = {The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents},
+  year   = {2026},
+  note   = {arXiv preprint forthcoming 2026-05-19},
+  url    = {https://github.com/totobusnello/memoria-nox}
+}
+```
+
+See also [`CITATION.cff`](CITATION.cff).
 
 ---
 

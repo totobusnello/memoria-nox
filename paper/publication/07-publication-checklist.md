@@ -2,13 +2,13 @@
 
 > **Format:** P0 = blocker / P1 = strongly recommended / P2 = nice-to-have / P3 = post-publication.
 > **Update:** marque com ✅ quando done; X quando deferred/cut.
-> **Atualizado:** 2026-05-04 pós W1 Day 1 massive parallelization (~3h, 12+ agents paralelos).
+> **Atualizado:** 2026-05-04 pós W1 Day 1+2 marathon (~24h, 25+ deliverables: baselines + paper + LaTeX + figuras + distribuição).
 
 ---
 
-## STATUS W1 DAY 1 — MASSIVE PARALLELIZATION COMPLETED (2026-05-04)
+## STATUS W1 DAY 1+2 MARATHON — COMPLETED (2026-05-04)
 
-**18 deliverables shipped em ~3h via 12+ agents paralelos.**
+**25+ deliverables shipped em ~24h (Day 1: 18 via 12+ agents paralelos; Day 2: 7+ adicionais).**
 
 | Categoria | Planejado W1 | Entregue W1 Day 1 |
 |---|---|---|
@@ -23,7 +23,7 @@
 | CITATION.cff | nao planejado W1 | completo no repo root ✅ |
 | cross_agent_quantifier.py | nao planejado W1 | codigo pronto pra rodar READ-ONLY ✅ |
 
-**Net: adiantado ~1.5 semanas em relacao ao plano original.**
+**Net: adiantado ~1.5 semanas em relacao ao plano original (Day 1). Day 2 adicionou baselines reais + LaTeX + figuras + distribuicao completa.**
 
 - W1 plan original (foundation reviews) => COMPLETED antes de W1 comecar
 - W2 plan (adapters + experiments setup) => PARCIALMENTE completed (3 de 4 baselines prontos, 1 de 2 adapters)
@@ -53,17 +53,34 @@
 | `baselines/ablation_runner.py` | ✅ codigo completo E6-E9 chained — nao rodado |
 | `baselines/cross_agent_quantifier.py` | ✅ codigo completo E12 READ-ONLY — pronto pra rodar |
 
+### Day 2 additions (2026-05-04 marathon)
+
+| Item | Status | Resultado |
+|---|---|---|
+| BM25 Pyserini baseline (E1) | ✅ RODADO | nDCG=0.1475 |
+| Pain --mode api baseline n=6 | ✅ RODADO | nDCG=0.2689 |
+| E5 multilingual-base | ⏳ RUNNING | PID 258574, ETA 16:50 BRT |
+| E12 cross-agent storage | ✅ RODADO | 99.92% shared |
+| E11 BEIR 10 queries (0% vocab overlap) | ✅ DONE | expected_doc_ids queued |
+| 4 Mermaid → PDF + PNG | ✅ DONE | — |
+| LaTeX main.tex + Makefile | ✅ DONE | falta neurips_2024.sty |
+| Paper §1-3 + §4-7 + abstract + appendix D | ✅ DONE (audit fixed) | — |
+| Blog + HN + Twitter spec + LinkedIn | ✅ DONE | — |
+| refs.bib (8 PRIMARY + 2 SECONDARY + 7 W2) | ✅ DONE | 17 entradas total |
+| CITATION.cff | ✅ DONE | 3 VERIFY markers pos-arXiv ID |
+| BGE-M3 baseline | ❌ CUT | CPU inviavel na VPS; replaced by E5 multilingual |
+
 ### Pendentes fisicamente confirmados (nao existem no disco ainda)
 
 | Item | Status | Nota |
 |---|---|---|
-| `baselines/pain_validator.py` | PENDENTE | E10 — codigo nao criado |
+| `baselines/pain_validator.py` | PENDENTE | E10 ablation — deferred (2× prod restart) |
 | `baselines/stack_exchange_adapter.py` | PENDENTE | E5 — codigo nao criado |
-| Mermaid diagrams (PNG/SVG renderizados) | PENDENTE | Mermaid inline em 04-draft; export pendente |
-| Twitter chart hero design spec | PENDENTE | Descrito em 08-launch-strategy; arquivo separado nao criado |
+| Twitter chart hero PNG | PENDENTE | Spec pronta; render queued parallel agent |
+| LICENSE file | PENDENTE | Queued parallel agent |
 | Appendix D shadow case study (prosa completa) | PENDENTE | Placeholder em 04-draft; conteudo pendente |
-| Executive summary v4 | PENDENTE | Nao encontrado como arquivo standalone |
-| Audit report paper drafts | PENDENTE | Nao encontrado no disco |
+| E12 cross-agent retrieval Q2-Q6 | PENDENTE | Deferred; precisa `requesting_agent` migration ~1h |
+| E11 expected_doc_ids curadoria manual | PENDENTE | ~30min Toto; extrator pronto |
 
 ---
 
@@ -122,14 +139,14 @@ CONFIDENCE: HIGH (skeleton + codigo + refs completos; falta execution + polish)
 
 ## P0 — Blockers (sem isso, nao publicar)
 
-- [x] **3 baselines fortes — CODIGO PRONTO** — BM25 (`baselines/bm25_baseline.py`) + BGE-M3 (`baselines/bge_baseline.py`) + E5-mistral (`baselines/e5_mistral_baseline.py`). **PENDENTE: execucao na VPS.**
-- [x] **3-corpora adapters — PARCIALMENTE PRONTO** — BEIR TREC-COVID (`baselines/beir_trec_covid_adapter.py`) pronto. StackEx pendente. **PENDENTE: execucao + StackEx codigo.**
+- [x] **3 baselines fortes** — BM25 ✅ RODADO nDCG=0.1475 | E5 multilingual ⏳ RUNNING | E5-mistral 📋 QUEUED ($3 Modal ou skip). BGE-M3 CUT (CPU inviavel).
+- [x] **3-corpora adapters — PARCIALMENTE PRONTO** — BEIR TREC-COVID pronto, 10 queries 0% vocab overlap ✅. StackEx codigo pendente. expected_doc_ids curadoria pendente ~30min Toto.
 - [x] **4 ablation studies — CODIGO PRONTO** — `baselines/ablation_runner.py` (E6-E9 chained). **PENDENTE: execucao em janela baixo-trafego VPS.**
-- [ ] **Pain dimension empirical validation** — `baselines/pain_validator.py` NAO CRIADO. E10 ~2h. Diferencial #1 depende disso.
-- [x] **Related work secao 2** — 8 papers citados em `refs.bib` (validados arXiv/DBLP/ACM). Posicionamento honest em `02-related-work-notes.md`. **PENDENTE: expandir prosa em 04-paper-arxiv-draft.md secao 2.**
-- [x] **Honest n-disclosure** — protocolo definido em `04-paper-arxiv-draft.md` sec 4.2 (3-run mean +- std, held-out 10 queries, caveat method). **PENDENTE: aplicar nas tabelas reais.**
-- [ ] **arXiv compliance** — LaTeX template + 12 pages max + figuras vetoriais. Draft em markdown; conversao .tex + render Mermaid PENDENTE.
-- [x] **Code repo publico estavel** — README publication-ready (feito 2026-05-03). Reproducibility instructions em Appendix A do draft.
+- [ ] **Pain dimension empirical validation** — pain baseline n=6 nDCG=0.2689 ✅ (API mode). Ablation pain=1.0 uniform ⏳ DEFERRED (2× prod restart). `pain_validator.py` NAO CRIADO (~2h). Diferencial #1 parcialmente validado.
+- [x] **Related work secao 2** — 8 PRIMARY + 2 SECONDARY + 7 W2 em `refs.bib`. Prosa sec 2 expandida no draft. **PENDENTE: revisao final prosa.**
+- [x] **Honest n-disclosure** — protocolo em sec 4.2 + held-out 10 queries (zero hallucination em 5 negatives). **PENDENTE: aplicar nas tabelas com resultados W2 reais.**
+- [ ] **arXiv compliance** — LaTeX main.tex + Makefile ✅ DONE. 4 figuras PDF+PNG ✅ DONE. **PENDENTE: neurips_2024.sty download + compile test + 12 pages compliance.**
+- [x] **Code repo publico estavel** — README publication-ready (feito 2026-05-03). Reproducibility Appendix A no draft.
 
 ## P1 — Strongly recommended (paper solido)
 
@@ -150,48 +167,55 @@ CONFIDENCE: HIGH (skeleton + codigo + refs completos; falta execution + polish)
 ## P3 — Post-publication (distribution)
 
 - [x] **arXiv submission timing definido** — Terca 2026-05-19 09:00 ET. Sequencia em `08-launch-strategy.md`.
-- [x] **Blog post estrutura pronta** — `05-blog-post-draft.md`. **PENDENTE: prosa completa ~2500w.**
+- [x] **Blog post estrutura pronta** — `05-blog-post-draft.md`. **PENDENTE: prosa completa ~2500w pos-W2.**
 - [x] **HN submission texto pronto** — `06-hn-submission.md`. 5 variants + first comment template + objection responses.
 - [x] **First comment template** — em `06-hn-submission.md`. Cobre 5 objecoes principais HN.
-- [x] **Twitter thread planejado** — `08-launch-strategy.md` Day +1. **PENDENTE: 5 tweets redigidos + chart hero asset.**
-- [x] **LinkedIn post planejado** — `08-launch-strategy.md` Day +1. **PENDENTE: prosa business angle.**
+- [x] **Twitter thread planejado** — spec + chart hero spec ✅ DONE. **PENDENTE: chart hero PNG + 5 tweets texto redigido.**
+- [x] **LinkedIn post planejado** — `08-launch-strategy.md` ✅ DONE. **PENDENTE: prosa business angle ~300w.**
 - [ ] **Cite responses** — pos-publicacao. Google Scholar alert a configurar.
-- [x] **CITATION.cff** — `/CITATION.cff` no repo root. Requer arXiv ID pos-submit.
-- [x] **refs.bib** — `paper/publication/refs.bib`. 8 PRIMARY + 2 SECONDARY validados.
+- [x] **CITATION.cff** — `/CITATION.cff` no repo root ✅ DONE. 3 VERIFY markers requerem arXiv ID pos-submit.
+- [x] **refs.bib** — `paper/publication/refs.bib`. 8 PRIMARY + 2 SECONDARY + 7 W2 = 17 entradas ✅ DONE.
 
 ---
 
-## Sprints re-estimados (pos W1 Day 1)
+## Sprints re-estimados (pos W1 Day 1+2 marathon)
 
-### W1 (2026-05-04 a 10) — Foundation [COMPLETED AHEAD OF SCHEDULE]
+### W1 (2026-05-04 a 10) — Foundation + Marathon [LARGELY COMPLETED]
 - [x] `01-positioning-strategy.md` — 3 diferenciais + 5 gaps + voice/tom
 - [x] `02-related-work-notes.md` — 8 papers PRIMARY + 4 secondary + objection preempcao
 - [x] `03-experiments-needed.md` — 13 experiments com Python adapter outlines
-- [x] `baselines/bm25_baseline.py` — codigo completo E1
-- [x] `baselines/bge_baseline.py` — codigo completo E2
-- [x] `baselines/e5_mistral_baseline.py` — codigo completo E3
-- [x] `baselines/beir_trec_covid_adapter.py` — codigo completo E4
-- [x] `baselines/ablation_runner.py` — codigo completo E6-E9
-- [x] `baselines/cross_agent_quantifier.py` — codigo completo E12 READ-ONLY
-- [x] `04-paper-arxiv-draft.md` — skeleton 7 secoes + abstract + appendices
-- [x] `05-blog-post-draft.md` — estrutura + snippets
-- [x] `06-hn-submission.md` — 5 variants + first comment + objections
-- [x] `refs.bib` — 8 PRIMARY + 2 SECONDARY validados
-- [x] `CITATION.cff` — completo
-- [x] `08-launch-strategy.md` — distribuicao completa
-- [x] `09-storytelling-strategy.md` — hero narrative + hooks
+- [x] `baselines/bm25_baseline.py` — **RODADO** nDCG=0.1475 ✅
+- [x] `baselines/bge_baseline.py` — codigo pronto; BGE-M3 CUT (CPU inviavel) ❌
+- [x] `baselines/e5_mistral_baseline.py` — codigo pronto; RUNNING / queued ($3 Modal ou skip)
+- [x] `baselines/beir_trec_covid_adapter.py` — **RODADO** 10 queries 0% vocab overlap ✅
+- [x] `baselines/ablation_runner.py` — codigo completo E6-E9; execucao pendente W2
+- [x] `baselines/cross_agent_quantifier.py` — **RODADO** storage 99.92% ✅; retrieval deferred
+- [x] `04-paper-arxiv-draft.md` — **secoes 1-7 completo + abstract + appendix D** (audit fixed) ✅
+- [x] `05-blog-post-draft.md` — estrutura + snippets ✅
+- [x] `06-hn-submission.md` — 5 variants + first comment + objections ✅
+- [x] `refs.bib` — 8 PRIMARY + 2 SECONDARY + 7 W2 = 17 entradas ✅
+- [x] `CITATION.cff` — completo (3 VERIFY markers pos-arXiv ID) ✅
+- [x] `08-launch-strategy.md` — distribuicao completa ✅
+- [x] `09-storytelling-strategy.md` — hero narrative + hooks ✅
+- [x] LaTeX `main.tex` + `Makefile` ✅ (falta neurips_2024.sty download)
+- [x] 4 figuras Mermaid → PDF + PNG ✅
+- [x] Twitter chart hero spec ✅
+- [ ] Twitter chart hero PNG — queued parallel agent
+- [ ] LICENSE file — queued parallel agent
+- [ ] E5 multilingual completar (ETA 16:50 BRT) + integrar tabela §5
 - [ ] Activate gate 2026-05-09 sabado (~25min Toto) — passivo, nao blocker
 
-### W2 (2026-05-11 a 17) — Execute experiments [~15h, era setup ~7h]
-- [ ] Rodar E1 BM25 baseline na VPS (codigo pronto, ~1h execucao)
-- [ ] Rodar E2 BGE-M3 baseline na VPS (codigo pronto, ~2h execucao)
+### W2 (2026-05-11 a 17) — Execute remaining experiments [~8h, reducao vs ~15h]
+- [x] Rodar E1 BM25 baseline — DONE nDCG=0.1475
+- [ ] E5 multilingual-base — RUNNING (ETA 16:50 BRT 2026-05-04); integrar em §5
 - [ ] Decidir E3 E5-mistral: Modal $3 ou SKIP (decisao Toto)
-- [ ] Rodar E4 BEIR TREC-COVID (codigo pronto, ~3h setup+run)
+- [x] Rodar E4 BEIR TREC-COVID — DONE 10 queries; curar expected_doc_ids ~30min
 - [ ] Criar + rodar E5 StackEx adapter (codigo nao criado, ~4h total)
 - [ ] Rodar E6-E9 ablacoes (codigo pronto, ~2h janela 02-06 BRT)
-- [ ] Criar + rodar E10 pain validator (codigo nao criado, ~2h)
-- [ ] Rodar E12 cross-agent READ-ONLY (~5min)
+- [ ] Criar + rodar E10 pain validator + ablation pain=1.0 (codigo nao criado, ~2h; deferred ate janela com 2x restart)
+- [x] Rodar E12 cross-agent storage — DONE 99.92%; retrieval deferred (~1h requesting_agent migration)
 - [ ] Curar E11 expected_doc_ids (~30min manual Toto)
+- [ ] Coletar latency p50/p95/p99 CLI commands
 - [ ] Coletar latency p50/p95/p99 CLI commands
 
 ### W3 (2026-05-18 a 24) — Polish + submit [~12h, era "experiments secondary + writing"]

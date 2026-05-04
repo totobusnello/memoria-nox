@@ -1,7 +1,7 @@
 # nox-mem ROADMAP — single source of truth
 
 > **Canônico desde 2026-04-27.** Sistema unificado de IDs (F/E/R/P/G/D) substitui os 6+ namespaces antigos (A/B/W/Q/Fase/Phase). Cross-ref em §8.
-> **Última atualização:** 2026-05-03 noite, sprint Wave 1 + B1+B2+B3 + R01b 50/50 + 8 features shipped em ~5h (E06+E07+E08+E10 dry-run+E11+F15+R01b+R01c prelim).
+> **Última atualização:** 2026-05-04 marathon W1 Day 1+2 (~24h): BM25 baseline 0.1475 + pain baseline 0.2689 + E5 multilingual running + paper §1-7 draft completo + LaTeX template + 4 figuras + distribuição completa. BGE-M3 CUT (CPU inviável); E12 retrieval e E10 pain ablation em backlog.
 > Para "por quê" de qualquer decisão → `docs/DECISIONS.md`. Para estado atual → `docs/HANDOFF.md`.
 
 ---
@@ -144,7 +144,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | **R01a** | §11 Wave 2 | **Eval harness skeleton** (schema v11 + tabelas `eval_queries`/`eval_runs`/`eval_results` + nDCG@10/MRR/Recall@10/Precision@5 + CLI 6 subcomandos + JSONL out + `/api/eval-metrics` + 5 golden seed queries) — `src/lib/eval-metrics.ts` (pure funcs) + `src/lib/eval.ts` (orchestration) deployed 2026-05-02 19:43 BRT; baseline n=40 cured = hybrid 0.658 / Recall 0.850 (post-R01b batch2); 28/28 eval tests + 109/110 suite total pós-E05 | ✅ DONE | 4-6 (real ~3h) | F01 corpus ready ✅ |
 | **R01b** | — | **Curadoria 50 golden queries** ✅ **MILESTONE 50/50 fechado 2026-05-03** (5 seed + 20 batch1 + 15 batch2 + 10 batch3 dos quais 6 NEGATIVE/GAP + 4 cured); cobre 8 categorias mistas | ✅ DONE | 8-10 (real ~30min batch3 + ~6h spread Maio) | — |
 | **R01c** | — | Baseline FTS-only vs hybrid run + publish em `/api/eval-metrics`. **Run #9 hybrid n=50 = nDCG@10 0.519 / MRR 0.482 / Recall@10 0.687 / Prec@5 0.268** (drag de balanceamento: 6 negatives 12% sample). **Run #8 FTS-only n=50 = nDCG 0.015 (gap 97.7% loss)** confirma necessidade arquitetural hybrid. By category: concept 0.656, procedure 0.619, security 0.594, decision 0.542, entity 0.459, **cross-agent 0.369**, **temporal 0.233**, negative 0. **Trigger D01 NÃO dispara** (0.519 < 0.6) — D01 desativado | ✅ DONE | 1-2 (real ~30min) | 2026-05-03 |
-| **R02** | §11 Wave 3 | Paper v2 update — Affective Ranking + Multi-Agent Federation + Bridge Mode | 📋 QUEUED | **5-6** (writing tem floor cognitivo) | R01c published |
+| **R02** | §11 Wave 3 | Paper — BM25 baseline 0.1475 ✅ + pain baseline 0.2689 ✅ + E5 multilingual ⏳ running + §1-7 draft + LaTeX template + 4 figuras + blog/HN/Twitter/LinkedIn. **BGE-M3 CUT** (CPU inviável, replaced by multilingual-e5-base). E12 retrieval backlog (~1h `requesting_agent` migration). E10 pain ablation backlog (~12min + 2× prod restart). LICENSE + chart hero PNG + expected_doc_ids: parallel agents queued. | 🔄 IN-PROGRESS | 5-6 (floor cognitivo) | R01c published |
 
 ### Product (NOX-Supermem)
 
@@ -460,6 +460,24 @@ Hoje é **2026-05-01 noite** (sexta). Gates G01/G02/G03 ✅ fechados, F12/F13/F1
 ---
 
 ## 11. Mudanças vs versão anterior do ROADMAP
+
+### 2026-05-04 marathon — W1 Day 1+2 (~24h, publication sprint)
+
+1. ✅ **BM25 baseline** — Pyserini n=60, nDCG=0.1475 (confirma necessidade hybrid)
+2. ✅ **Pain baseline** — --mode api n=6, nDCG=0.2689 (diferencial #1 sustentado)
+3. ⏳ **E5 multilingual-base RUNNING** — PID 258574, ETA 16:50 BRT; BGE-M3 CUT (CPU inviável)
+4. ✅ **E12 storage** — 99.92% shared cross-agent confirmado
+5. ⏳ **E12 retrieval BACKLOG** — depende migração `requesting_agent` (~1h)
+6. ⏳ **E10 pain ablation BACKLOG** — pain=1.0 uniform; precisa 2× prod restart (~12min)
+7. ✅ **E11 BEIR** — 10 queries curadas, 0% vocab overlap; expected_doc_ids queued
+8. ✅ **Paper §1-7** — draft completo, abstract, appendix D (audit fixed)
+9. ✅ **LaTeX template** — main.tex + Makefile (falta neurips_2024.sty download)
+10. ✅ **4 figuras** — Mermaid → PDF + PNG
+11. ✅ **Distribuição completa** — Blog + HN + Twitter spec + LinkedIn
+12. ✅ **refs.bib** — 8 PRIMARY + 2 SECONDARY + 7 W2 = 17 entradas
+13. ✅ **CITATION.cff** — completo (3 VERIFY markers pós-arXiv ID)
+14. 📋 **LICENSE + chart hero PNG** — parallel agents queued
+15. ✅ **R02 IN-PROGRESS** — status atualizado (era QUEUED)
 
 ### 2026-05-01 noite — Marathon closeout (sessão atual)
 

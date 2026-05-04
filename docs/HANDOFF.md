@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-04 ~01:00 BRT (**Publication subprojeto FULL: 9 docs + SESSION-RESUME + launch strategy + plan compressed 3 sem 12h/sem PARALELO ao sistema**)
+> **Atualizado:** 2026-05-04 marathon BRT (**W1 Day 1+2 ~24h, 25+ deliverables: baselines + paper §1-7 + LaTeX + figuras + distribuição completa**)
 
 ---
 
@@ -71,9 +71,18 @@ Esperado: schema v12, 64.180+ chunks, embed 100%, distribution `unknown=595 / de
 
 | # | Trabalho | Esforço | Quando |
 |---|---|---|---|
-| **1** | **PASSIVE: 2026-05-09 sábado activate gate** — routine `trig_012nuCN14VwcxGLq8ERaLPCK` roda automática 09:00 BRT, gera GitHub Issue com verdict ACTIVATE/KEEP-SHADOW pra E03b SPO + E04b Focus. Você só verifica issue e aplica 1-2 env edits + restart se ACTIVATE. Checklist completo na "Sessão anterior #1" abaixo. | ~25min ativo | sábado 2026-05-09 manhã |
-| **2** | **kg-build incremental** — rodar `nox-mem kg-extract --limit 100` em mais chunks pendentes (gap LLM ~5K backlog vs heuristic). Aumenta classification rate atual 46% → potencialmente 60-70%. | ~3min execution + análise | quando vier disponível |
-| **3** | **R01b refinement opcional** — alguns negative cases hoje (Q97/98/99/101/102) podem virar partial-curated quando E12 OCR adicionar mais chunks. Defer Jul. | 30min | Jun-Jul |
+| **1** | **Aguardar E5 multilingual-base completar** — PID 258574, ETA 16:50 BRT 2026-05-04. Após terminar: dispatch agent pra integrar resultado (nDCG E5) junto com BM25 0.1475 e pain 0.2689 na tabela §5 do paper `04-paper-arxiv-draft.md`. | ~30min integração | após 16:50 BRT 2026-05-04 |
+| **2** | **E11 expected_doc_ids curar** — extrator BEIR pronto (0% vocab overlap, 10 queries); curadoria `expected_doc_ids` manual pendente (~30min Toto). | ~30min manual | W2 2026-05-11 |
+| **3** | **PASSIVE: 2026-05-09 sábado activate gate** — routine `trig_012nuCN14VwcxGLq8ERaLPCK` 09:00 BRT, gera GitHub Issue verdict ACTIVATE/KEEP-SHADOW E03b+E04b. | ~25min ativo | sábado 2026-05-09 |
+| **4** | **E10 pain ablation** — deferred (precisa 2× prod API restart). Quando vier disponível, rodar pain_validator.py com pain=1.0 uniform pra validar delta ≥0.05. | ~12min + 2× restart | W2 janela off-peak |
+| **5** | **E12 cross-agent retrieval Q2-Q6** — deferred (precisa migração `requesting_agent` ~1h). Shared storage 99.92% validado; retrieval pendente. | ~1h migração + run | W2 |
+
+### Sanity check (~3min)
+```bash
+ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
+ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
+ssh root@187.77.234.79 'tail -5 /var/log/nox-seh-report.log'
+```
 
 ### Eventos passivos agendados (NÃO precisa fazer nada)
 
@@ -88,6 +97,52 @@ Reactivate:
 - **E10b consolidation `--apply`** path (gated R01≥0.6 + per-pair human approval pra HIGH FP)
 
 Atualmente Run #9 = 0.519 < 0.6. Pra subir: melhorar weak categories (temporal=0.233, cross-agent=0.369, entity=0.459) — alvos de E07/E08 já shipped, mas ainda surface-only no SPO block.
+
+---
+
+## Sessão 2026-05-04 marathon — W1 Day 1+2 (~24h, 25+ deliverables)
+
+### Baselines executados
+
+| Experimento | Status | Resultado |
+|---|---|---|
+| BM25 Pyserini n=60 | ✅ DONE | nDCG=0.1475 |
+| E5 multilingual-base | ⏳ RUNNING (PID 258574, ETA 16:50 BRT) | — |
+| E5-mistral | 📋 QUEUED (Modal $3 ou skip) | — |
+| Pain --mode api baseline (n=6) | ✅ DONE | nDCG=0.2689 |
+| Pain ablation (pain=1.0 uniform) | ⏳ DEFERRED | precisa 2× prod restart |
+
+### Validações cross-agent (E12)
+
+| Item | Status | Resultado |
+|---|---|---|
+| Cross-agent storage | ✅ DONE | 99.92% shared |
+| Cross-agent retrieval Q2-Q6 | ⏳ DEFERRED | precisa migração `requesting_agent` ~1h |
+
+### External eval (E11)
+
+| Item | Status |
+|---|---|
+| BEIR curator extractor (10 queries, 0% vocab overlap) | ✅ DONE |
+| expected_doc_ids curadoria manual | 📋 QUEUED (running parallel agent) |
+
+### Paper + distribuição
+
+| Categoria | Item | Status |
+|---|---|---|
+| Figuras | 4 Mermaid → PDF + PNG | ✅ DONE |
+| LaTeX | template main.tex + Makefile | ✅ DONE (falta neurips_2024.sty download) |
+| Drafts | Paper §1-3 + §4-7 + abstract + appendix D | ✅ DONE (audit fixed) |
+| Distribution | Blog + HN + Twitter + LinkedIn | ✅ DONE |
+| Distribution | Twitter chart hero spec | ✅ DONE |
+| Distribution | Twitter chart hero PNG render | 📋 QUEUED (parallel agent) |
+| Refs | refs.bib (8 PRIMARY + 2 SECONDARY + 7 W2) | ✅ DONE |
+| Meta | CITATION.cff | ✅ DONE (3 VERIFY markers pendentes) |
+| Meta | LICENSE file | 📋 QUEUED (parallel agent) |
+
+### BGE-M3 → CUT
+
+BGE-M3 cortado (CPU inviável na VPS). Substituído por multilingual-e5-base (GPU-friendly, resultados ETA 16:50 BRT).
 
 ---
 
