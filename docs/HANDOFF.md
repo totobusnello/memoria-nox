@@ -1,10 +1,23 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-04 ~00:30 BRT (**Publication subprojeto criado: paper/publication/ com 7 docs base — arXiv + blog + HN + checklist 4-6 sem**)
+> **Atualizado:** 2026-05-04 ~01:00 BRT (**Publication subprojeto FULL: 9 docs + SESSION-RESUME + launch strategy + plan compressed 3 sem 12h/sem PARALELO ao sistema**)
 
 ---
 
-## 🎯 Publication subprojeto ATIVO (2026-05-04 → 2026-06-14)
+## ⚡ ABRINDO NOVA SESSÃO PARA PAPER? Leia direto:
+
+➡️ **[`paper/publication/SESSION-RESUME.md`](../paper/publication/SESSION-RESUME.md)** — único arquivo necessário pra começar paper sprint W1 Day 1
+
+Decisões tomadas (NÃO re-discutir):
+- Sistema técnico em **steady state** — NÃO há "fechar sistema" pendente
+- Paper em **PARALELO** (não sequencial) — começar imediatamente
+- Divisão **80/20 paper/sistema** (11h paper + 1h sistema/sem)
+- Timeline **3 semanas** compressed (12h/sem, 2h/dia × 6 dias)
+- Target: arXiv preprint + dev.to/Substack blog + Hacker News (NÃO top-tier conference)
+
+---
+
+## 🎯 Publication subprojeto ATIVO (2026-05-04 → 2026-05-24, 3 semanas compressed)
 
 **Pasta:** `paper/publication/` — paralelo ao trabalho técnico, target arXiv preprint + blog + HN submission em 4-6 semanas.
 
