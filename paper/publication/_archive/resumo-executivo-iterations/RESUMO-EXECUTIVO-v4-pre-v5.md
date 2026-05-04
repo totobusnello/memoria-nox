@@ -28,73 +28,6 @@ Esse é o paper.
 
 ---
 
-## O que é NOX-Supermem
-
-### Em 5 camadas operacionais
-
-#### 1. Camada de armazenamento
-
-SQLite single-file (~1 GB), 61.257 chunks de markdown/PDF/código indexados. Cada chunk tem metadata typed: `source_file`, `retention_days`, `pain` (severidade de incidente, [0.1, 1.0]), `section` (compiled/frontmatter/timeline). Single-file significa backup atômico via `cp`, replicação trivial, zero ops overhead.
-
-#### 2. Camada de retrieval
-
-Hybrid 3-layer: FTS5 (lexical, BM25, instantâneo) + Gemini 3072d embeddings (semântico, contextual) + RRF k=60 (fusão recíproca). p95 < 1s em 61K chunks em CPU comum. Não é embedding melhor — é layering certo.
-
-#### 3. Camada de conhecimento (KG)
-
-Knowledge graph automatizado: 1.107 relações tipadas em 7 categorias closed-enum (`depends_on`, `derived_from`, `opposes`, `extends`, `replaces`, `mentions`, `unknown`). LLM (Gemini 2.5 Flash) extrai SPO triples; defensive normalize com 24 aliases PT-BR + EN garante 56% de classification rate (vs 14% baseline). Permite blast-radius queries — sabe *o que* é afetado por uma mudança, não só que algo foi.
-
-#### 4. Camada de governança
-
-- Append-only audit log (`ops_audit`) — toda operação destrutiva snapshotada pre-op via VACUUM INTO atômico
-- Shadow-mode obrigatório ≥7 dias antes de qualquer mudança em ranking
-- Schema versionado v1→v12 com migrations idempotentes zero-downtime
-- Health endpoint `/api/health` expõe distribuição de salience, vector coverage, schema version em tempo real
-
-#### 5. Camada de interface
-
-- **CLI**: 26+ subcomandos (search, ingest, kg-build, reflect, crystallize...)
-- **HTTP API**: 12 endpoints em :18802 (`/api/{search,health,kg,kg/path,agents,cross-kg,reflect,procedures}`)
-- **MCP server**: 16 tools para agentes Claude/MCP-compatible
-- **Telemetria opt-in** (`search_telemetry`) com nDCG/MRR rastreados por query
-
----
-
-### 10 características distintivas
-
-**Operacionais (4)**
-
-1. **Single-file SQLite** — backup atômico, replicação por `cp`, zero ops overhead
-2. **Schema versionado** v1→v12 com migrations idempotentes zero-downtime
-3. **Append-only audit log** (`ops_audit`) com snapshot pre-op atômico (VACUUM INTO)
-4. **Shadow-mode arquitetural** ≥7d via cron + health endpoint — constraint, não best practice
-
-**Retrieval e conhecimento (4)**
-
-5. **Hybrid 3-layer** com RRF fusion — não single-vector store
-6. **Closed-enum edge typing** (7 reasons, 24-alias defensive normalize) — não free-form RDF
-7. **Pain-weighted salience** typed no schema — severity de incidente como sinal de retrieval
-8. **Cross-agent shared corpus** (99,92% chunks shared) — não per-user partition
-
-**Produção e reproducibilidade (2)**
-
-9. **Production-tested 4 meses** com 6 agentes IA reais (Atlas, Boris, Cipher, Forge, Lex, Nox)
-10. **Reproducibility-first** — eval harness com 60 golden queries, incident log público, schema versionado auditável
-
----
-
-### 3 diferenciais inéditos na literatura
-
-| # | Diferencial | Evidência empírica |
-|---|---|---|
-| **#1** | **Incident severity como retrieval signal** (`recency × pain × importance`) | Q55 case study Δ=+0.349 (regime semântico empatado); aggregate Δ=+0.0065 NOT_SIGNIFICANT — contribuição metodológica validada, não claim de performance |
-| **#2** | **Shadow validation como constraint arquitetural** (≥7d via cron + health endpoint) | Phase 1.7b-b: 7d telemetria → 191 promoções / 16.608 revisões / 45.743 arquivamentos antes de ativar |
-| **#3** | **Shared canonical multi-agent** (mesmo corpus, zero federação) | 61.207 / 61.257 chunks compartilhados = 99,92%; contrafactual MemGPT/Mem0 isolado = 0% sharing |
-
-Cobertura na literatura: zero papers de memory systems até hoje codificam **#2 e #3** como constraints arquiteturais; **#1** é metodologia transferível a qualquer sistema persistente.
-
----
-
 ## 3 ideias que ninguém mais tinha
 
 ### Pain-Weighted Salience: o incidente importa mais que a data
@@ -107,7 +40,7 @@ salience = recency × pain × importance
 
 `pain ∈ [0.1, 1.0]` — de nota trivial a prod-outage. O que ninguém havia feito antes era tratar severidade como sinal de *retrieval*, não só de logging. GraphRAG, Mem0, A-MEM, HiRAG e Cognee modelam estrutura e recência. Nenhum pergunta: *isso custou quanto?*
 
-O resultado: uma lição de prod-outage de seis meses atrás supera documentação atualizada ontem sobre assunto menor — como a memória humana funciona. O sistema roda 61.257 chunks com essa dimensão ativa, validada por 7 dias de telemetria real.
+O resultado: uma lição de prod-outage de seis meses atrás supera documentação atualizada ontem sobre assunto menor — como a memória humana funciona. O sistema roda 64.180+ chunks com essa dimensão ativa, validada por 7 dias de telemetria real.
 
 **Refinamento empírico (2026-05-04).** Ablações isolando pain de semântica mostram efeito direcional mas não significativo em aggregate. Testes diretos de calibração (4 distribuições: real, uniforme, bimodal, log-scale) refutaram a hipótese de que spread insuficiente era o fator limitante — distribuições artificiais todas ficam abaixo da distribuição real. O real root cause identificado: **BM25 recall ceiling** — 92% das queries (55/60) não encontram os chunks gold via busca lexical, independente de calibração de pain. O multiplicador pain não pode re-rankear o que nunca chegou ao pool de candidatos. Trabalho futuro: co-otimizar recall semântico com re-anotação de pain, posicionando pain como re-ranker pós-RRF. A contribuição metodológica — severity como campo tipado no schema com pipeline de anotação operacional — permanece válida independente do resultado empírico de retrieval.
 
@@ -151,7 +84,7 @@ A tabela usa 7 eixos arquiteturais e operacionais. Os dois últimos — escala d
 
 | Sistema | KG nativo | Hybrid retrieval | Eval harness | Multi-agent | Shadow discipline | Escala ≥100K | Benchmark terceiros | **Score** |
 |---|---|---|---|---|---|---|---|---|
-| **nox-mem (este trabalho)** | ✅ closed-enum 7 reasons (24-entry map) | ✅ FTS5+Gemini+RRF | ✅ nDCG/MRR/Recall | ✅ shared canonical | ✅ enforced ≥7d | ❌ (61K atual) | ❌ (golden interno) | **5/7** |
+| **nox-mem (este trabalho)** | ✅ closed-enum 7 reasons (24-entry map) | ✅ FTS5+Gemini+RRF | ✅ nDCG/MRR/Recall | ✅ shared canonical | ✅ enforced ≥7d | ❌ (64K atual) | ❌ (golden interno) | **5/7** |
 | GraphRAG | ✅ + community detection | ⚠️ via KG queries | ❌ | ❌ | ❌ | ✅ (1M+ MS-MARCO) | ⚠️ paper-específico | 1.5/7 |
 | MemGPT/Letta | ❌ | ⚠️ embedding-first | ❌ | ✅ per-agent | ❌ | ⚠️ varia | ❌ | 1.5/7 |
 | Mem0 | ⚠️ optional v2 | ❌ vector-only | ⚠️ LOCOMO only | ⚠️ user_id partition | ❌ | ❌ | ✅ LOCOMO | 1.5/7 |
@@ -160,17 +93,17 @@ A tabela usa 7 eixos arquiteturais e operacionais. Os dois últimos — escala d
 | Cognee | ✅ ECL pipeline | ✅ hybrid | ⚠️ ad-hoc | ⚠️ optional | ❌ | ⚠️ ad-hoc | ⚠️ parcial | 3.0/7 |
 | LangChain Memory | ❌ | ❌ key-value | ❌ | ⚠️ session_id | ❌ | ⚠️ varia | ❌ | 0.5/7 |
 
-**Resumo honesto**: nox-mem cobre **5 de 7 eixos** — os cinco relacionados a disciplina operacional e arquitetura. Não cobre os dois eixos de validade externa: escala de corpus (61K vs ≥100K) e benchmark de terceiros (golden set interno vs LOCOMO/BEIR). Essas lacunas estão documentadas como limitações no paper (§6.3) e como trabalho futuro (§6.5). O sistema mais próximo, Cognee, cobre 3/7. Média dos sete competidores: **1,6/7**. Os dois eixos com cobertura zero na literatura — pain weighting e shadow discipline — são as contribuições de maior novidade.
+**Resumo honesto**: nox-mem cobre **5 de 7 eixos** — os cinco relacionados a disciplina operacional e arquitetura. Não cobre os dois eixos de validade externa: escala de corpus (64K vs ≥100K) e benchmark de terceiros (golden set interno vs LOCOMO/BEIR). Essas lacunas estão documentadas como limitações no paper (§6.3) e como trabalho futuro (§6.5). O sistema mais próximo, Cognee, cobre 3/7. Média dos sete competidores: **1,6/7**. Os dois eixos com cobertura zero na literatura — pain weighting e shadow discipline — são as contribuições de maior novidade.
 
 ### Latência em produção real
 
 | Métrica | nox-mem | Threshold típico de papers |
 |---|---|---|
-| p95 search | **< 1s** em 61K chunks | 1-3s reportado |
+| p95 search | **< 1s** em 64K chunks | 1-3s reportado |
 | Vector coverage | **99,97%** | 90-95% típico |
 | Schema migrations sem downtime | **12 versões** | raro reportar |
 
-Latência sub-segundo em 61.257 chunks com hybrid 3-layer (FTS5 → Gemini 3072d → RRF k=60) — não emulação local, produção real há 4 meses.
+Latência sub-segundo em 64.180+ chunks com hybrid 3-layer (FTS5 → Gemini 3072d → RRF k=60) — não emulação local, produção real há 4 meses.
 
 ### Cross-agent storage — 99,92% sharing
 
