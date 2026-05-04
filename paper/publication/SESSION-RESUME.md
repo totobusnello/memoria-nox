@@ -27,6 +27,7 @@
 | 7 | `paper/publication/06-hn-submission.md` | 5 title variants + first comment template + objection responses |
 | 8 | `paper/publication/07-publication-checklist.md` | P0/P1/P2/P3 + sprints + stop conditions |
 | 9 | `paper/publication/08-launch-strategy.md` | Distribution strategy 5 weeks pós-publish |
+| 10 | `paper/publication/09-storytelling-strategy.md` | ⭐ Hero narrative "The Pain Diary + Shadow Discipline" + sub-narratives + hooks por canal |
 
 **Plus contexto sistema (consultar SE necessário):**
 - `paper/paper-v2-draft-evidence.md` — draft v2 inicial com evidências quantitativas (preserve, será fonte pra `04-paper-arxiv-draft.md` polished)
