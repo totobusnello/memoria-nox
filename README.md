@@ -1,25 +1,190 @@
 # memoria-nox
 
+> Sistema de memória inteligente multi-agent com hybrid search, knowledge graph com edge typing, eval harness, semantic cache, blast radius analysis e backend claude-cli zero-cost.
+
+**Status & quality**
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/totobusnello/memoria-nox)](https://github.com/totobusnello/memoria-nox/commits/main)
 [![Tests](https://img.shields.io/badge/tests-69%2F69%20passing-brightgreen)](docs/HANDOFF.md)
 [![Schema](https://img.shields.io/badge/schema-v12-blue)](CLAUDE.md)
 [![Chunks](https://img.shields.io/badge/chunks-64.180-blue)](docs/HANDOFF.md)
 [![KG](https://img.shields.io/badge/KG-914_entities_%2F_1109_relations-blue)](docs/HANDOFF.md)
+[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.519_(n%3D50)-blue)](docs/HANDOFF.md)
+[![R01b Cure](https://img.shields.io/badge/R01b__cured-50%2F50_✅-brightgreen)](docs/HANDOFF.md)
+
+**Features ativas**
+
 [![Salience](https://img.shields.io/badge/salience-active-brightgreen)](docs/DECISIONS.md)
 [![Section Boost](https://img.shields.io/badge/section__boost-active-brightgreen)](docs/DECISIONS.md)
-[![SPO Injection](https://img.shields.io/badge/SPO__injection-shadow-yellow)](specs/2026-05-01-E03a-spo-injection.md)
-[![Focus Boost](https://img.shields.io/badge/focus__boost-shadow-yellow)](specs/2026-05-01-E04a-focus-boost.md)
 [![Edge Typing](https://img.shields.io/badge/edge__typing-active-brightgreen)](docs/ROADMAP.md)
 [![Reflect Cache](https://img.shields.io/badge/reflect__cache-semantic-brightgreen)](docs/ROADMAP.md)
 [![CLI Telemetry](https://img.shields.io/badge/CLI__telemetry-active-brightgreen)](docs/ROADMAP.md)
 [![SEH](https://img.shields.io/badge/SEH-detector_active-brightgreen)](docs/ROADMAP.md)
-[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.519_(n%3D50)-blue)](docs/HANDOFF.md)
-[![R01b Cure](https://img.shields.io/badge/R01b__cured-50%2F50_✅-brightgreen)](docs/HANDOFF.md)
+[![SPO Injection](https://img.shields.io/badge/SPO__injection-shadow-yellow)](specs/2026-05-01-E03a-spo-injection.md)
+[![Focus Boost](https://img.shields.io/badge/focus__boost-shadow-yellow)](specs/2026-05-01-E04a-focus-boost.md)
 [![FTS Gap](https://img.shields.io/badge/FTS__vs__hybrid__gap-97.7%25_loss-red)](paper/paper-v2-draft-evidence.md)
-[![Wave 1](https://img.shields.io/badge/Wave_1-E06%2BE07%2BE08%2BE10%2BE11_done-brightgreen)](docs/ROADMAP.md)
 
-> Sistema de memória inteligente multi-agent com hybrid search, knowledge graph com edge typing, eval harness, semantic cache, blast radius analysis e backend claude-cli zero-cost.
+---
+
+## 📑 Índice
+
+- [Por que isso existe](#por-que-isso-existe)
+- [Demo / Use cases](#demo--use-cases) ⭐ comandos com sample output
+- [Arquitetura](#arquitetura)
+- [Quick start](#quick-start)
+- [Comparison vs alternativas](#comparison-vs-alternativas) (mem0 / MemGPT / A-MEM / LangChain Memory)
+- [Funcionalidades principais](#funcionalidades-principais)
+- [Estado atual](#estado-atual)
+- [Fases do projeto](#fases-do-projeto)
+- [Phase Matrix](#phase-matrix-status-canonico-embedded--v37)
+- [Mapa de documentação](#mapa-de-documentacao)
+- [Estrutura do repositório](#estrutura-do-repositorio)
+- [Stack técnico](#stack-tecnico)
+- [Operações e segurança](#operacoes-e-seguranca)
+- [Projetos relacionados](#projetos-relacionados)
+
+---
+
+## Demo / Use cases
+
+Sample outputs reais da CLI em produção (VPS, 2026-05-03 noite). Cada comando é read-only e idempotente.
+
+### 🔍 Hybrid search (FTS5 + Gemini semantic + RRF)
+```bash
+$ nox-mem search "como ativar salience em produção" 3
+#1 [16.39 [semantic]] memory/entities/decisions/2026-04-30-salience-activation.md
+   "Salience ativado via NOX_SALIENCE_MODE=active após baseline 7d (G01 gate)..."
+
+#2 [15.87 [semantic]] memory/2026-04-30.md
+   "G01 ✅ DONE: salience formula `recency × pain × importance` exposta em /api/health.salience"
+
+#3 [12.66 [fts]] shared/lessons/2026-04-30-marathon.md
+   "Mode shadow → active após análise distribuição: 16608 review_needed, 45743 archive_candidates"
+```
+
+### 🎯 Impact analysis (E07 — 1-hop blast radius)
+```bash
+$ nox-mem impact "Forge"
+## impact: "Forge" [agent, 1306 mentions]
+Total neighbors: 54 | Unique entities: 39 | Blast radius score: 13251.4 | Duration: 1ms
+
+### 🔴 depends_on (12, priority=5)
+   ← [agent] Nox (1366 m, conf=0.7, via=depends_on)
+   → [project] nox-mem (1269 m, conf=0.7, via=uses)
+   → [tool] Discord (89 m, conf=0.8, via=depends_on)
+   ...
+
+### 🟡 mentions (29, priority=1)
+   → [project] OpenClaw (1943 m, conf=0.6, via=mentioned_with)
+   ...
+```
+
+### 🔄 Detect changes (E06 — git diff → KG entities)
+```bash
+$ nox-mem detect-changes --since=HEAD~30
+## detect-changes (4e0aeb98...eabe0c47)
+Files changed: 1498 | Chunks scanned: 1747 | Duration: 268ms
+
+### Entity files (182)
+  A memory/entities/decisions/2026-03-09-brave-search-como-provider-padrao.md → decisions/...
+  M memory/entities/projects/nox-mem.md → projects/...
+  ...
+
+### Affected entities (182)
+  [project] nox-mem (1269 mentions, via=entity_file)
+  [project] Nuvini (351 mentions, via=entity_file)
+  ...
+```
+
+### 🔬 API impact (E08 — multi-arquivo grep + classification)
+```bash
+$ nox-mem api-impact "getDb" --scope ./src
+## api-impact: "getDb"
+Files scanned: 58 | Files affected: 39
+Total refs: 157 (imports=32, usages=121, definitions=4)
+Duration: 11ms
+
+### 📍 Definition site(s) (4)
+   db.ts  (1 refs)
+   __tests__/edge-typing.test.ts  (8 refs)
+   ...
+
+### 📥 Importers (32)
+   knowledge-graph.ts  (imports=1, usages=15)
+   index.ts  (imports=1, usages=9)
+   ...
+```
+
+### 🧠 Reflect (KG synthesis com semantic cache)
+```bash
+$ nox-mem reflect "qual a regra sobre commitar secrets no git"
+Não comite secrets no Git. Se um secret for committado acidentalmente, rode-o
+imediatamente, remova-o do histórico do Git e adicione o padrão ao .gitignore
+ou use variáveis de ambiente / gerenciadores de secrets.
+
+Sources: shared/imports/agent-orchestrator/SECURITY.md, shared/lessons/security-audit.md, ...
+[fresh, 11 evidence items]
+
+# segunda chamada (paraphrase semantic):
+$ nox-mem reflect "qual a politica sobre commits com secrets"
+[cached:semantic, 0 evidence items]   # ← 4× speedup via cosine ≥ 0.88
+```
+
+### 📊 Eval harness (R01a — nDCG/MRR/Recall/Precision)
+```bash
+$ nox-mem eval run-batch --variant=hybrid --runs=3
+## Eval Batch (variant=hybrid) — 3 runs over 50 queries
+| Run | nDCG@10 | MRR    | Recall@10 | Prec@5 |
+| #10 | 0.5215  | 0.4900 | 0.6767    | 0.2640 |
+| #11 | 0.5207  | 0.4917 | 0.6767    | 0.2640 |
+| #12 | 0.5215  | 0.4850 | 0.6867    | 0.2640 |
+
+### Aggregate (mean ± std)
+| nDCG     | 0.5213 ± 0.0004 |  ← system é deterministic (RRF tie-breaking only)
+| MRR      | 0.4889 ± 0.0028 |
+| Recall   | 0.6800 ± 0.0047 |
+```
+
+### 🔧 Self-Evolving Hooks (F15a + F15b)
+```bash
+$ nox-mem cli-stats              # F15a — telemetry insights
+## CLI Telemetry Insights
+Total runs 7d: 24 | Unique commands: 8
+
+### 📊 Top commands
+   reflect              runs=  6 sr=100.0% avg=2516ms p95=3540ms
+   search               runs= 12 sr=100.0% avg=621ms  p95=890ms
+   ...
+
+$ nox-mem seh-report             # F15b — WoW comparison + alert
+## SEH Report
+Comparing last 7d vs prior 7d. Proposals: 2.
+🟡 [perf_regression] reflect: p95_ms 1200 → 3540 (Δ +195%)
+   ▶ p95 saltou 195% WoW. Investigar profile / quota / rede.
+   📋 Config patch sugerido: NOX_REFLECT_TIMEOUT_MS=5500 (current: unset)
+```
+
+[**→ CLI reference completa em `docs/HANDOFF.md`**](docs/HANDOFF.md)
+
+---
+
+## Comparison vs alternativas
+
+Por que nox-mem em vez de soluções existentes? Cada uma resolve parte do problema, mas falha em pelo menos 1 dos 5 requisitos da [seção "Por que isso existe"](#por-que-isso-existe):
+
+| Solução | Hybrid search | KG nativo | Eval baseline | Multi-agent isolation | Custom shadow-mode | Operacional self-host |
+|---|---|---|---|---|---|---|
+| **nox-mem** | ✅ FTS5+Gemini+RRF | ✅ kg_entities/relations + edge typing E05 | ✅ R01a harness com nDCG/MRR | ✅ chunks compartilhada | ✅ todas mudanças ranking | ✅ SQLite + Tailscale |
+| [mem0](https://github.com/mem0ai/mem0) | ❌ vector-only | ⚠️ Mem0 v2 introduz, mas nasce vector | ❌ sem harness oficial | ⚠️ via user_id | ❌ | ⚠️ paid SaaS preferred |
+| [MemGPT/Letta](https://github.com/letta-ai/letta) | ❌ embedding-first | ❌ sem KG | ❌ | ✅ multi-agent core feature | ❌ | ✅ self-host |
+| [A-MEM](https://github.com/agi-arena/AgentMemoryEngine) | ⚠️ semantic-first | ⚠️ optional | ❌ | ❌ single-agent design | ❌ | ✅ |
+| [LangChain Memory](https://python.langchain.com/docs/concepts/memory) | ❌ key-value/buffer | ❌ | ❌ | ⚠️ via session_id | ❌ | ✅ |
+| [Cognee](https://github.com/topoteretes/cognee) | ✅ hybrid | ✅ KG nativo | ⚠️ ad-hoc | ❌ | ❌ | ✅ |
+
+**Quando usar nox-mem:** workspace pessoal/operacional onde tu controla todos os agents (é tu mesmo + assistentes), corpus é misto (código + decisões + memórias longa-prazo), tu valoriza testar cada mudança de ranking antes de ativar (shadow-mode obrigatório) e quer baseline objetivo nDCG pra detectar regressão silenciosa.
+
+**Quando NÃO usar:** SaaS multi-tenant produção (use mem0 paid), agentes de chat consumer-facing puros (use Letta), single-agent assistant simples (use LangChain BufferMemory).
 
 ---
 
