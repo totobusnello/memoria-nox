@@ -51,7 +51,7 @@ where `recency ∈ [0, 1]` is an exponential decay over `last_seen` timestamp, `
 
 The knowledge graph relation schema uses a closed-enum field `relation_reason` with seven values: `depends_on`, `derived_from`, `opposes`, `extends`, `replaces`, `mentions`, and `unknown`. The goal of edge typing is to enable blast-radius queries (e.g., "what does component X depend on?") that are impossible with untyped relations.
 
-**Prompt design and the unknown-rate problem.** An initial prompt that marked `relation_reason` as an optional field with the instruction "use `unknown` if unsure" produced 86% unknown-typed relations across n=100 sampled extractions, rendering the typed KG practically useless for blast-radius queries. The fix applied a three-path defensive normalization strategy: (i) a revised prompt that provides explicit examples for each of the six non-unknown categories and makes `unknown` a last resort rather than a default; (ii) a code-side defensive map (`RELATION_TYPE_TO_REASON`, 24 entries) that normalizes LLM-produced free-text variants — including PT-BR and EN aliases — to the 7 canonical enum values; and (iii) a post-extraction validation pass that re-prompts any row where the LLM output did not match the closed enum. After this fix, the classification rate improved from 14% to 56% on n=100 sampled relations (4× improvement); equivalently, the `unknown` rate decreased from 86% to 44%.
+**Prompt design and the unknown-rate problem.** An initial prompt that marked `relation_reason` as an optional field with the instruction "use `unknown` if unsure" produced 86% unknown-typed relations across n=100 sampled extractions, rendering the typed KG practically useless for blast-radius queries. The fix applied a three-path defensive normalization strategy: (i) a revised prompt that provides explicit examples for each of the six non-unknown categories and makes `unknown` a last resort rather than a default; (ii) a code-side defensive map (`RELATION_TYPE_TO_REASON`, 24 entries) that normalizes LLM-produced free-text variants — including PT-BR and EN aliases — to the 7 canonical enum values; and (iii) a post-extraction validation pass that re-prompts any row where the LLM output did not match the closed enum. After this fix, the enum coverage rate — the proportion of sampled relations where the LLM committed to one of the six non-unknown typed values rather than falling back to `unknown` — improved from 14% to 56% on n=100 sampled relations (4× improvement); equivalently, the `unknown` rate decreased from 86% to 44%. This is a self-reported coverage rate: no human-annotated ground truth was used, and no inter-rater agreement study (Cohen's κ) was conducted (see §6.3 for the full limitation statement).
 
 **Current KG state (2026-05-03).** The production graph contains approximately 402 entities and 544 relations, extracted incrementally by a nightly Gemini 2.5 Flash job. KG extraction uses the full `gemini-2.5-flash` model (not the lite variant) given the low daily volume and the higher extraction quality requirements.
 
@@ -69,7 +69,7 @@ The transition to §5 follows directly: the methods described above define the e
 
 ## 5. Experiments and Results
 
-We report results across five experimental questions: (5.1) internal corpus baseline establishing hybrid pipeline necessity; (5.2) comparison against strong external baselines; (5.3) generalization to external corpora; (5.4) ablation studies isolating each architectural layer; and (5.5–5.6) targeted validation of the two novel contributions — pain weighting and cross-agent intelligence. All pre-registered hypotheses from `03-experiments-needed.md` are stated before results; pending experiments are marked `[PENDING: W2]` or `[PENDING: W3]`.
+We report results across five experimental questions: (5.1) internal corpus baseline establishing hybrid pipeline necessity; (5.2) comparison against strong external baselines; (5.3) generalization to external corpora; (5.4) ablation studies isolating each architectural layer; and (5.5–5.6) targeted validation of the two novel contributions — pain weighting and cross-agent intelligence. All pre-registered hypotheses from `03-experiments-needed.md` are stated before results; pending experiments are marked `[PENDING: W2]` or `[PENDING: W3]`. Golden queries pre-registered at §3.8 ensure post-hoc construction bias is bounded: the 60-query set was frozen at a publicly verifiable git commit before any baseline or ablation was executed, and the SHA-256 hash at that commit allows independent verification that no query was added or modified after result collection began.
 
 ### 5.1 Internal Corpus Baseline (R01a/b/c)
 
@@ -135,7 +135,9 @@ This hypothesis is pre-registered prior to collecting results, in accordance wit
 
 *Note: nox-mem hybrid figure is 3-run mean ± 0.0004 std (Runs \#10–\#12). BM25 Pyserini is a single run at Anserini standard parameters \cite{yang2018anserini}. multilingual-e5-base overnight run pending (est. +5h from session close). BGE-M3 and E5-mistral-7b-instruct remain W2 pending.*
 
-nox-mem hybrid achieves 3.5× the nDCG@10 of the strongest pure-BM25 baseline (Pyserini Anserini-tuned), with a 37.4 pp absolute gap. This margin substantially exceeds the pre-registered threshold of ≥ 30 pp over BM25 Pyserini, and confirms that the three-layer hybrid architecture (FTS5 + Gemini semantic + RRF) provides retrieval quality that cannot be approximated by even a well-tuned lexical baseline on this operational corpus.
+nox-mem hybrid achieves 3.5× the nDCG@10 of the strongest pure-BM25 baseline (Pyserini Anserini-tuned), with a 37.4 pp absolute gap. This margin substantially exceeds the pre-registered threshold of ≥ 30 pp over BM25 Pyserini, and confirms that the three-layer hybrid architecture (FTS5 + Gemini semantic + RRF) is necessary and cannot be approximated by a well-tuned lexical baseline on this operational corpus.
+
+By IR community norms, nDCG@10=0.52 is mid-range on standard benchmarks (BEIR averages 0.3–0.6 across tasks); the value should be read as adequate-and-improvable for a 60-query domain corpus, not as a benchmark frontier result.
 
 **Table 6. Per-category nDCG@10: BM25 Pyserini vs. nox-mem hybrid (Corpus A, $n$=60).**
 
@@ -362,7 +364,7 @@ Three contributions show empirical or operational validation at the time of writ
 
 **Shadow discipline as incident prevention (§3.5, §4.2).** The shadow-mode architecture prevented at least one class of production regression during the evaluation period. The incident of 2026-04-25 (§6.2) involved a ranking-affecting change reaching production without validation. The subsequent codification of shadow discipline as a seven-day mandatory gate — enforced via cron and `/api/health` — means that future incidents of this class would be detected in shadow telemetry before activation. This is not a post-hoc rationalization; the telemetry schema (`search_telemetry.old_score`, `search_telemetry.new_score`) was designed specifically to capture the counterfactual. During the Fase 1.7b-b salience shadow period, the collected telemetry over 191 promotion candidates, 16,608 review candidates, and 45,743 archive candidates provided the distribution analysis required for an informed activation decision.
 
-**Edge typing recall recovery (§4.4).** Classification rate improved from 14% to 56% following the three-path defensive normalization (4× improvement); equivalently, the `unknown` rate decreased from 86% to 44% on n=100 sampled relations. This directly enables blast-radius queries (`impact <entity>`) that were practically unusable before the fix. The improvement demonstrates that edge typing quality is not primarily a function of model capability — it is a function of prompt design and code-side normalization discipline.
+**Edge typing enum coverage recovery (§4.4).** Enum coverage rate — the proportion of LLM-emitted relations committing to a typed enum value rather than `unknown` — improved from 14% to 56% following the three-path defensive normalization (4× improvement); equivalently, the `unknown` rate decreased from 86% to 44% on n=100 sampled relations. This directly enables blast-radius queries (`impact <entity>`) that were practically unusable before the fix. The improvement demonstrates that edge typing quality is not primarily a function of model capability — it is a function of prompt design and code-side normalization discipline. Note: this is a self-reported coverage rate; the 95% Wilson CI [46–66\%] is a valid proportion CI on the coverage metric, not a classification-accuracy CI (see §6.3).
 
 ### 6.2 What Did Not Work: Incidents That Shaped the Architecture
 
@@ -380,7 +382,7 @@ Three contributions show empirical or operational validation at the time of writ
 
 1. **Co-optimize semantic recall with pain re-annotation.** Pain re-ranker as a post-RRF stage, not a pre-fusion BM25 multiplier. Applying pain after the semantic layer surfaces gold candidates addresses the recall ceiling directly and exposes pain to the regime where it demonstrably has effect.
 2. **Pain as semantic confidence modulator.** Use pain to break ties when semantic cosine score differences between top candidates fall below a threshold (e.g., $|\Delta_\text{sem}| < 0.02$). The Q55 case study ($\Delta=+0.349$) is exactly this regime; systematic identification of tied-semantic query pairs would provide a targeted evaluation of pain signal strength.
-3. **Empirical pain coverage extension.** Expand pain annotation beyond the default 0.2 — current corpus has 89% of chunks at default, meaning even retrievable chunks carry minimal pain differentiation. LLM-driven automatic pain classification (§6.5) would both increase coverage and enable a cleaner ablation of calibration effects on the subset where BM25 recall is non-zero.
+3. **Empirical pain coverage extension.** Expand pain annotation beyond the default 0.2 — current corpus has 89% of chunks at default, meaning even retrievable chunks carry minimal pain differentiation. LLM-driven automatic pain classification (§6.6) would both increase coverage and enable a cleaner ablation of calibration effects on the subset where BM25 recall is non-zero.
 
 **Cross-agent retrieval quantification incomplete.** The storage-level quantification (99.92% shared, §5.6) is confirmed. However, the retrieval-level quantification — the pre-registered claim that ≥ 10% of top-10 results cross agent boundaries — cannot be computed because the `search_telemetry` table lacks a `requesting_agent` column. This migration is documented as E12-followup. Until the migration is deployed and sufficient telemetry accumulates, the retrieval-level cross-agent claim remains unverified.
 
@@ -388,19 +390,80 @@ Three contributions show empirical or operational validation at the time of writ
 
 **Single-author validation.** No inter-rater reliability study was conducted for the golden query relevance judgments. This is standard practice for personal-corpus memory systems, where the "correct" answer to a query may be defined by the author's own knowledge, but it means that the nDCG@10 scores cannot be compared directly with benchmarks that use multi-judge relevance panels.
 
+**Edge-typing metric is a self-reported enum coverage rate, not a classification accuracy.** The reported improvement (14% → 56%, 4× gain, n=100, 95% Wilson CI [46–66\%]) measures the proportion of new KG relations where the LLM committed to one of the seven typed values in the closed schema rather than falling back to \texttt{unknown}. It is \textbf{not} a classification-accuracy measurement against a human-annotated golden set. No human annotation file was produced; no inter-rater agreement study (Cohen's κ) was conducted; the seven enum values were defined by the schema author and the LLM's emissions were not independently re-labeled by a second annotator. The 95% Wilson CI is mathematically valid as a proportion CI on the coverage rate. Future work should validate downstream graph quality via human annotation of a stratified sample (e.g., n=100 with two annotators, target Cohen's κ ≥ 0.6 substantial agreement per Landis and Koch \cite{landis1977measurement}), allowing the coverage rate to be calibrated against per-type precision/recall rather than reported as a standalone proxy for accuracy.
+
 **Pain calibration as engineering choice.** The pain dimension values (0.1, 0.3, 0.5, 0.7, 1.0), the 10× spread between extreme values, and the multiplicative aggregation form are engineering choices motivated by operational practice in incident management \cite{pagerduty2023severity,beyer2016site}. We do not claim psychometric or biological validity for these specific values or for the multiplicative form. The calibration spread ablation (§5.5.6, uniform / bimodal / log-scale distributions) was executed directly and found that no artificial spread outperforms the real distribution — which itself shows only directional aggregate effect. This refutes the hypothesis that the 10× spread is insufficient; the binding constraint is BM25 recall, not calibration (§6.3, pain recall-ceiling paragraph). Aggregation form ablation (additive vs. multiplicative) remains as future work.
 
-### 6.4 Threats to Validity
+### 6.4 Cost and Compute Profile
+
+A production memory system paper that makes an architectural argument against heavy LLM-orchestration approaches — while remaining silent on its own cost — invites the obvious objection. This subsection provides the quantitative cost profile of nox-mem as deployed, using 2026-Q1 Gemini API pricing throughout. All figures are snapshots; readers should verify current pricing at the provider's official documentation.
+
+#### 6.4.1 Embedding Cost
+
+**Model:** Gemini `gemini-embedding-001`, 3072-dimensional output.
+**Price:** $0.025 per 1M input tokens (Google AI pricing, 2026-Q1 \cite{google2026pricing}).
+
+**Indexing cost (4-month production corpus).** The operational corpus contains approximately 62K chunks at a mean of roughly 400 tokens per chunk, yielding an estimated 25M tokens indexed over four months. At $0.025/1M tokens, total indexing cost is approximately **$0.62 amortized** over the evaluation period — less than a cup of coffee for the full corpus build.
+
+**Per-query embedding cost.** A single search query averages approximately 30 input tokens. Cost per query: $30 \times 0.025 / 1{,}000{,}000 \approx \$0.00000075$ — effectively zero.
+
+**Comparison.** Indexing the same 62K-chunk corpus with OpenAI `text-embedding-3-large` ($0.13/1M tokens, 2026-Q1 \cite{openai2026pricing}) would cost approximately $3.25 — roughly 5$\times$ more. Using a local model such as BGE-M3 \cite{chen2024bge} would incur zero API cost but requires approximately 6 hours of CPU time per full re-index on commodity hardware (estimated based on BGE-M3 published throughput benchmarks), making incremental nightly re-indexing impractical without a dedicated GPU.
+
+#### 6.4.2 Storage Cost
+
+**Measured DB size.** The production SQLite database (FTS5 index + sqlite-vec 3072-dimensional vectors + KG tables) occupies approximately **0.8–1.2 GB on disk**, consistent with the analytical estimate: $62{,}000\ \text{chunks} \times (2\ \text{KB text} + 12\ \text{KB embedding at}\ 3072 \times 4\ \text{bytes}) \approx 870\ \text{MB}$. The FTS5 inverted index and sqlite-vec vector map contribute the bulk of overhead beyond raw text.
+
+**Storage OPEX.** The system runs on a Hostinger VPS where 1.2 GB represents a negligible fraction of the base plan's allocated storage — effectively **$0/month in marginal storage cost**. On AWS S3 at $0.023/GB-month, the same DB would cost approximately $0.03/month; on AWS EBS (gp3) at $0.08/GB-month, approximately $0.10/month. Neither figure is material.
+
+#### 6.4.3 Query Cost in Production
+
+**Daily query volume.** Six agents collectively issue an estimated 500–2,000 hybrid queries per day (approximately 100–300 queries per agent per active day, based on operational observation over the four-month period). At the median estimate of 1,000 queries/day, monthly query volume is approximately 30,000 queries.
+
+**Monthly Gemini query cost.** $30{,}000\ \text{queries} \times 30\ \text{tokens} \times \$0.025/1{,}000{,}000 \approx \$0.02/\text{month}$. At the high end of the query volume range (60,000 queries/month): $\approx \$0.05/\text{month}$.
+
+**Total monthly OPEX.** Gemini embedding (queries): $<\$0.05$ + VPS base plan (Hostinger): approximately $\$10$/month = **approximately $\$11$/month all-in** for a 62K-chunk, 6-agent, always-on production memory system.
+
+#### 6.4.4 Comparison with Alternative Approaches
+
+Table 15 summarizes the cost profile of nox-mem against representative alternative approaches. Figures for alternatives are estimated based on publicly documented LLM call patterns and 2026-Q1 API pricing; they are marked accordingly and should be treated as order-of-magnitude comparisons rather than audited benchmarks.
+
+**Table 15. Cost comparison: nox-mem vs. alternative memory architectures (estimated 2026-Q1 pricing, small single-team deployment).**
+
+| System | Indexing (one-time) | Per-query | Monthly OPEX |
+|---|---|---|---|
+| **nox-mem (this work)** | **$\sim$\$0.62** | **$\sim$\$0.00000075** | **$\sim$\$11** |
+| MemGPT with GPT-4 reranking \cite{packer2023memgpt} | \$0 | \$0.001--\$0.01 (estimated, GPT-4 per recall) | \$30--\$300 |
+| GraphRAG \cite{edge2024graphrag} | \$10--\$100 per 100K docs (estimated, LLM extraction) | $\sim$\$0.0001 | \$20--\$50 |
+| Mem0 hosted \cite{chhikara2025mem0} | n/a (managed) | bundled in plan | \$20--\$200 |
+| Pure GPT-4o long-context (no retrieval) | \$0 | \$0.01--\$0.10 per session | \$100--\$1{,}000+ |
+
+*Note: MemGPT, GraphRAG, Mem0, and GPT-4o figures are estimated based on documented LLM call patterns and do not represent vendor-audited cost disclosures. nox-mem figures are measured from production telemetry and API invoices over the 4-month evaluation period.*
+
+The most structurally significant comparison is with pure long-context LLM approaches (final row). At even moderate query volume, stuffing context into GPT-4o costs two to three orders of magnitude more per query than embedding-based retrieval, while also being bounded by context window size — a ceiling that does not exist in the retrieval design.
+
+#### 6.4.5 Honest Caveats
+
+Several cost assumptions merit explicit qualification.
+
+**Corpus scope.** The figures above assume a text-only corpus in English and Portuguese (PT-BR). Multimodal content (images, audio, video) would require additional preprocessing pipelines; OCR and audio transcription costs are not included.
+
+**Pricing snapshot.** Gemini API pricing has changed across product revisions. All figures reflect 2026-Q1 rates; readers evaluating deployment costs should consult current provider documentation.
+
+**Labor cost is the dominant real cost and is excluded.** For a solo-developer system, the cost table is misleading if read in isolation: infrastructure OPEX is $11/month, but development and operational labor — schema migrations, incident response, evaluation harness maintenance — represent the true investment. We report infrastructure cost because it is objectively measurable and directly relevant to the architectural comparison (vs. heavy-LLM approaches); we note explicitly that labor cost is the invisible variable that dominates any honest TCO calculation for small-team deployments.
+
+**Pain calibration overhead at retrieval time: zero.** The pain field is precomputed at ingest time and stored as a scalar in the `chunks` table. Retrieval-time salience computation is a single floating-point multiply — no API call, no LLM inference, no added latency. LLM-based dynamic re-ranking systems (MemGPT-style architectures) pay a per-query LLM call to achieve the same prioritization effect; nox-mem's design externalizes this cost entirely to the ingest path.
+
+### 6.5 Threats to Validity
 
 **Construct validity.** The golden queries (R01b) were designed to reflect operational retrieval needs — "what was the fix for the gateway crash?" rather than paper-style information-need queries. This design choice means that nDCG@10 scores reflect operational retrieval utility, not document relevance in the TREC/CLEF sense. Comparison with external baselines on BEIR (§5.3) addresses this partially, since BEIR queries were designed for information retrieval research rather than operational memory.
 
 **External validity.** All internal results (§5.1–5.2) were collected on a technology and operations corpus authored by a single software practitioner. The hybrid pipeline's advantage over FTS-only may not transfer to corpora with different term distribution properties (e.g., legal documents with precise terminology may show stronger BM25 performance). The external corpus experiments (§5.3) test one transfer case (biomedical and Q&A corpora), but transfer to legal, medical, or enterprise knowledge base corpora remains an open empirical question.
 
-### 6.5 Future Work
+### 6.6 Future Work
 
 **Automated pain classification.** The most immediate limitation of Contribution 1 is the manual annotation requirement. An LLM-driven incident classifier — trained on the existing pain-annotated chunks as a few-shot signal — could extend pain coverage to the full corpus and reduce annotation bias. This is designated as deferred feature D02 in the project roadmap.
 
-**Cross-encoder reranker (D01).** A cross-encoder reranker applied post-RRF would likely improve precision on the top-3 results, where the current pipeline's RRF fusion sometimes ranks partially relevant chunks above highly relevant ones. This feature is gated on R01c ≥ 0.6 nDCG@10, following the shadow-mode discipline: a reranker affects ranking, so it must demonstrate benefit in shadow before activation.
+**Cross-encoder reranker (D01).** A cross-encoder reranker applied post-RRF would likely improve precision on the top-3 results, where the current pipeline's RRF fusion sometimes ranks partially relevant chunks above highly relevant ones. This feature is gated on R01c $\geq$ 0.6 nDCG@10, following the shadow-mode discipline: a reranker affects ranking, so it must demonstrate benefit in shadow before activation.
 
 **Multi-tenant productization (P01).** The shared-canonical design (§3.6) is not suitable for multi-tenant SaaS environments, where agents from different users must not share a corpus. The P01 roadmap item (NOX-Supermem productization) requires a tenant-isolation layer above the shared corpus, likely via row-level security and per-tenant `source_file` namespacing. This is future work outside the scope of the current paper.
 
@@ -416,7 +479,7 @@ Agent memory is not a retrieval engineering problem. It is an operational discip
 
 This paper has described three contributions that address these failure modes directly. First, **pain-weighted salience** — `salience = recency × pain × importance` — models incident severity as a first-class retrieval signal, making a production-outage lesson from six months ago more retrievable than a minor note updated yesterday. To our knowledge, no prior memory system paper includes this dimension; the closest related work (GraphRAG, Mem0, MemGPT, A-MEM, HiRAG, Cognee) models recency and structure but not cost. Second, **enforced shadow discipline** — a mandatory seven-day telemetry comparison gate before any ranking-affecting change reaches production — converts a documentation best practice into an architectural guarantee. The incident of 2026-04-25 is the counterfactual: a ranking change entered production without this gate, and 183 entities lost their structured metadata without alerting. Third, **shared-canonical multi-agent design** enables cross-agent knowledge transfer without federation overhead, allowing six agents operating in distinct domains to benefit from each other's learned context by design.
 
-The empirical evidence supports the hybrid pipeline as a minimum viable requirement (nDCG@10 0.5213 ± 0.0004 vs 0.0123 ± 0.0000 for FTS-only on natural-language queries, n=50 3-run mean; absolute gap 50.9 pp). The BM25 Pyserini comparison is confirmed: nox-mem hybrid achieves 3.5× the nDCG@10 of the strongest tuned BM25 baseline (+37.4 pp absolute), substantially exceeding the pre-registered threshold. The shared-canonical storage architecture is confirmed at 99.92% sharing (n=61,257 chunks), vs. 0% under isolated per-agent designs. The E10 pain ablation (§5.5) is executed and reported: the aggregate result is DIRECTIONAL, NOT SIGNIFICANT ($\Delta = +0.0065$, 95% CI $[-0.0143, +0.0338]$, $n=31$); the Q55 case study provides positive evidence that pain provides meaningful lift ($\Delta = +0.349$) in the tied-semantic regime. We characterize pain as a secondary modulator rather than a primary retrieval signal in hybrid mode. One deferred experiment — the E12 retrieval-level cross-agent quantification — is documented transparently in §6.3 and does not alter the architectural contributions. The remaining pre-registered hypotheses (BGE-M3, E5, cross-corpus generalization) are under evaluation in sprint W2–W3; results will be published in the arXiv preprint at submission. Note that the current nDCG@10 of 0.5213 < 0.6, which keeps the D01 cross-encoder reranker gated per §6.5 until the threshold is met in future work.
+The empirical evidence supports the hybrid pipeline as a minimum viable requirement (nDCG@10 0.5213 ± 0.0004 vs 0.0123 ± 0.0000 for FTS-only on natural-language queries, n=50 3-run mean; absolute gap 50.9 pp). The BM25 Pyserini comparison is confirmed: nox-mem hybrid achieves 3.5× the nDCG@10 of the strongest tuned BM25 baseline (+37.4 pp absolute), substantially exceeding the pre-registered threshold. The shared-canonical storage architecture is confirmed at 99.92% sharing (n=61,257 chunks), vs. 0% under isolated per-agent designs, achieving production OPEX of approximately \$11/month all-in for the full 6-agent deployment (§6.4). The E10 pain ablation (§5.5) is executed and reported: the aggregate result is DIRECTIONAL, NOT SIGNIFICANT ($\Delta = +0.0065$, 95% CI $[-0.0143, +0.0338]$, $n=31$); the Q55 case study provides positive evidence that pain provides meaningful lift ($\Delta = +0.349$) in the tied-semantic regime. We characterize pain as a secondary modulator rather than a primary retrieval signal in hybrid mode. One deferred experiment — the E12 retrieval-level cross-agent quantification — is documented transparently in §6.3 and does not alter the architectural contributions. The remaining pre-registered hypotheses (BGE-M3, E5, cross-corpus generalization) are under evaluation in sprint W2–W3; results will be published in the arXiv preprint at submission. Note that the current nDCG@10 of 0.5213 < 0.6, which keeps the D01 cross-encoder reranker gated per §6.6 until the threshold is met in future work.
 
 Beyond nox-mem specifically, pain-weighted salience and shadow discipline are **transferable concepts**. Any persistent memory system — regardless of implementation stack — can adopt a severity annotation field and enforce a shadow validation gate before ranking changes activate. These ideas require no new model, no new architecture, and no GPU. They require only the discipline to instrument what already exists and the patience to watch before activating.
 

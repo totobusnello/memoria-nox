@@ -364,6 +364,26 @@
   url          = {https://www.pagerduty.com/resources/learn/incident-severity-levels/},
 }
 
+% ---------------------------------------------------------------
+% Munafò et al. 2017 — A manifesto for reproducible science
+% Nature Human Behaviour 1, 0021 (2017)
+% Cited in §3.8 for registered reports / pre-registration norm
+% Added 2026-05-04 (H1 pre-registration critic fix)
+% ---------------------------------------------------------------
+@article{munafosystematic2017,
+  author  = {Munaf{\`o}, Marcus R. and Nosek, Brian A. and Bishop, Dorothy V. M. and
+             Button, Katherine S. and Chambers, Christopher D. and
+             Percie du Sert, Nathalie and Simonsohn, Uri and
+             Wagenmakers, Eric-Jan and Ware, Jennifer J. and Ioannidis, John P. A.},
+  title   = {A manifesto for reproducible science},
+  journal = {Nature Human Behaviour},
+  volume  = {1},
+  pages   = {0021},
+  year    = {2017},
+  doi     = {10.1038/s41562-016-0021},
+  url     = {https://www.nature.com/articles/s41562-016-0021},
+}
+
 % Beyer 2016 — Site Reliability Engineering (Google SRE book)
 % O'Reilly Media, 2016
 % Cited in §3.5 + §4.3 for SRE severity classification / error budget practice
@@ -375,4 +395,32 @@
   isbn      = {978-1-491-92912-4},
   url       = {https://sre.google/sre-book/table-of-contents/},
   note      = {Severity classification, error budgets, postmortem culture},
+}
+
+% ---------------------------------------------------------------
+% §6.4 COST PROFILE REFERENCES — added 2026-05-04 (H5 critic fix)
+% ---------------------------------------------------------------
+
+% Google AI Studio / Gemini API pricing
+% Cited in §6.4.1 for gemini-embedding-001 cost ($0.025/1M tokens, 2026-Q1)
+@misc{google2026pricing,
+  author       = {{Google LLC}},
+  title        = {Gemini {API} Pricing},
+  year         = {2026},
+  howpublished = {Google AI for Developers documentation},
+  url          = {https://ai.google.dev/pricing},
+  note         = {Values as of 2026-Q1. gemini-embedding-001: \$0.025 per 1M input tokens.
+                  Pricing subject to change; verify at source before deployment planning.},
+}
+
+% OpenAI Embeddings pricing
+% Cited in §6.4.1 for text-embedding-3-large cost comparison ($0.13/1M tokens, 2026-Q1)
+@misc{openai2026pricing,
+  author       = {{OpenAI LP}},
+  title        = {{OpenAI API} Pricing},
+  year         = {2026},
+  howpublished = {OpenAI Platform documentation},
+  url          = {https://openai.com/api/pricing/},
+  note         = {Values as of 2026-Q1. text-embedding-3-large: \$0.13 per 1M input tokens.
+                  Pricing subject to change; verify at source before deployment planning.},
 }

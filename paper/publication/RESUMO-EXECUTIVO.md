@@ -42,7 +42,7 @@ Hybrid 3-layer: FTS5 (lexical, BM25, instantâneo) + Gemini 3072d embeddings (se
 
 #### 3. Camada de conhecimento (KG)
 
-Knowledge graph automatizado: 1.107 relações tipadas em 7 categorias closed-enum (`depends_on`, `derived_from`, `opposes`, `extends`, `replaces`, `mentions`, `unknown`). LLM (Gemini 2.5 Flash) extrai SPO triples; defensive normalize com 24 aliases PT-BR + EN garante 56% de classification rate (vs 14% baseline). Permite blast-radius queries — sabe *o que* é afetado por uma mudança, não só que algo foi.
+Knowledge graph automatizado: 1.107 relações tipadas em 7 categorias closed-enum (`depends_on`, `derived_from`, `opposes`, `extends`, `replaces`, `mentions`, `unknown`). LLM (Gemini 2.5 Flash) extrai SPO triples; defensive normalize com 24 aliases PT-BR + EN eleva a taxa de cobertura do enum de 14% para 56% (taxa de emissão de valor tipado pelo LLM, não acurácia contra anotação humana). Permite blast-radius queries — sabe *o que* é afetado por uma mudança, não só que algo foi.
 
 #### 4. Camada de governança
 
@@ -141,9 +141,9 @@ Quando Forge aprende algo sobre uma decisão arquitetural, Atlas recupera esse c
 
 Queries em linguagem natural completas resultam em nDCG quase zero em BM25-only — constraint estrutural do FTS5 AND-strict, não artefato de corpus. O BM25 Pyserini (Anserini-tuned, strong baseline de BEIR) eleva o patamar para 0.1475, e nox-mem hybrid ainda entrega **3,5× acima dele**. Hybrid é o piso, não o teto. Validação 3-run (runs #10/#11/#12) com std=0.0004 (0.08% relativo), reproduzível por qualquer reviewer.
 
-### Edge typing: classificação correta de 14% para 56% — ganho 4×
+### Edge typing: taxa de cobertura do enum de 14% para 56% — ganho 4×
 
-KG extraction com campo opcional e prompt ingênuo classificava apenas **14% das relações novas** corretamente — **86% caíam em `unknown`**. Após defensive map no código (24 aliases PT-BR + EN) e prompt revisado (n=100): **56% classificadas corretamente** — ganho de **4× em coverage** de blast-radius queries. Saber *o que* foi afetado por uma mudança, não só que algo foi afetado.
+KG extraction com campo opcional e prompt ingênuo produzia apenas **14% de emissões tipadas** — **86% caíam em `unknown`**. Após defensive map no código (24 aliases PT-BR + EN) e prompt revisado (n=100): **56% das relações recebem um valor tipado** do schema closed-enum — ganho de **4× na taxa de cobertura** que viabiliza blast-radius queries. Saber *o que* foi afetado por uma mudança, não só que algo foi afetado. Nota: essa é uma taxa de cobertura auto-reportada pelo LLM (proporção de emissões não-`unknown`), não uma medida de acurácia contra conjunto anotado por humanos.
 
 ### nox-mem vs alternatives — paridade de features
 

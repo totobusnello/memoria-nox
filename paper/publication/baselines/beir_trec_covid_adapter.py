@@ -334,8 +334,17 @@ def _iter_jsonl(path: Path) -> Iterator[dict[str, Any]]:
 def _load_qrels(qrels_path: Path) -> QrelMap:
     """Load BEIR qrels TSV into an in-memory dict.
 
-    The TSV format (TREC standard, no header):
-        query_id  0  doc_id  grade
+    Handles two TSV layouts automatically:
+
+    - **TREC standard (4-column, no header):**
+        ``query_id  0  doc_id  grade``
+    - **BEIR 3-column (with header line):**
+        ``query-id  corpus-id  score``
+        First line is skipped when the grade column is non-numeric.
+
+    The BEIR TREC-COVID download produces the 3-column format with a header.
+    Bug fix (2026-05-04): original code expected 4 columns, silently loading
+    0 judgments from BEIR's 3-column qrels.
 
     Args:
         qrels_path: Path to ``qrels/test.tsv``.
@@ -354,16 +363,23 @@ def _load_qrels(qrels_path: Path) -> QrelMap:
     qrels: QrelMap = {}
     with qrels_path.open(encoding="utf-8") as fh:
         for line in fh:
-            parts = line.strip().split("\t")
-            if len(parts) < 4:
+            line = line.rstrip("\r\n")
+            parts = line.split("\t")
+            if len(parts) == 4:
+                # TREC standard: query_id  iteration  doc_id  grade
+                query_id, _, doc_id, grade_str = parts
+            elif len(parts) == 3:
+                # BEIR 3-column: query-id  corpus-id  score (header or data)
+                query_id, doc_id, grade_str = parts
+            else:
                 continue
-            query_id, _, doc_id, grade_str = parts[0], parts[1], parts[2], parts[3]
             try:
                 grade = int(grade_str)
             except ValueError:
-                logger.warning(
-                    "Non-integer grade '%s' for query=%s doc=%s — skipping",
-                    grade_str, query_id, doc_id,
+                # Skip non-numeric grade — covers the header row "score"
+                logger.debug(
+                    "Skipping non-numeric grade '%s' for query=%s (likely header)",
+                    grade_str, query_id,
                 )
                 continue
             qrels.setdefault(query_id, {})[doc_id] = grade
