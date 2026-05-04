@@ -1,0 +1,60 @@
+{"query_id": 45, "query": "como funciona monkey-patch do Issue 62028 do OpenClaw", "expected_chunk_ids": [116075, 116814, 116817], "difficulty": "hard", "category": "entity"}
+{"query_id": 46, "query": "qual modelo Gemini usar como default no nox-mem", "expected_chunk_ids": [117490, 117489], "difficulty": "easy", "category": "decision"}
+{"query_id": 47, "query": "o que faz withOpAudit e quando usar", "expected_chunk_ids": [], "difficulty": "medium", "category": "entity"}
+{"query_id": 48, "query": "como ativar salience em produção", "expected_chunk_ids": [116466, 116467, 117852], "difficulty": "medium", "category": "procedure"}
+{"query_id": 49, "query": "qual a diferença entre graphify e nox-mem KG", "expected_chunk_ids": [116121, 116120], "difficulty": "hard", "category": "concept"}
+{"query_id": 50, "query": "qual a porta da nox-mem-api", "expected_chunk_ids": [116080, 147825], "difficulty": "easy", "category": "entity"}
+{"query_id": 51, "query": "o que é monkey-patch fratricide", "expected_chunk_ids": [116075, 116188, 116817], "difficulty": "medium", "category": "concept"}
+{"query_id": 52, "query": "como rodar nox-mem reindex com segurança", "expected_chunk_ids": [116800], "difficulty": "medium", "category": "procedure"}
+{"query_id": 53, "query": "qual o trigger de cascade delete em chunks", "expected_chunk_ids": [116242], "difficulty": "hard", "category": "entity"}
+{"query_id": 54, "query": "diferença entre tier core warm peripheral", "expected_chunk_ids": [112202, 112205], "difficulty": "medium", "category": "concept"}
+{"query_id": 55, "query": "como fazer backup pre-op atomico", "expected_chunk_ids": [116179, 116380], "difficulty": "medium", "category": "procedure"}
+{"query_id": 56, "query": "qual modelo embedding usar", "expected_chunk_ids": [117222, 136489], "difficulty": "easy", "category": "decision"}
+{"query_id": 57, "query": "como gerar entity file no formato compiled+timeline", "expected_chunk_ids": [144198, 144195], "difficulty": "hard", "category": "procedure"}
+{"query_id": 58, "query": "o que é shadow-mode e por quê obrigatório", "expected_chunk_ids": [117852, 116470], "difficulty": "medium", "category": "concept"}
+{"query_id": 59, "query": "como o RRF funciona no hybrid search", "expected_chunk_ids": [112341, 136515, 147822], "difficulty": "hard", "category": "concept"}
+{"query_id": 60, "query": "qual a diferença entre salience e tier", "expected_chunk_ids": [116467, 116466, 112202], "difficulty": "hard", "category": "concept"}
+{"query_id": 61, "query": "como ativar section_boost", "expected_chunk_ids": [116057], "difficulty": "medium", "category": "procedure"}
+{"query_id": 62, "query": "quem é o Toto", "expected_chunk_ids": [212042, 112400], "difficulty": "easy", "category": "entity"}
+{"query_id": 63, "query": "qual a estratégia de retention por tipo", "expected_chunk_ids": [116462], "difficulty": "medium", "category": "decision"}
+{"query_id": 64, "query": "como funciona o cron quarterly DR drill", "expected_chunk_ids": [], "difficulty": "medium", "category": "procedure"}
+{"query_id": 65, "query": "o que faz o ingest-router routeIngest", "expected_chunk_ids": [], "difficulty": "medium", "category": "entity"}
+{"query_id": 66, "query": "como migrar Gemini Flash pra Flash-Lite", "expected_chunk_ids": [108392, 116066, 116415], "difficulty": "medium", "category": "procedure"}
+{"query_id": 67, "query": "qual a regra sobre rsync delete", "expected_chunk_ids": [116135], "difficulty": "hard", "category": "decision"}
+{"query_id": 68, "query": "como resolver Sentence Transformer Issue 62028", "expected_chunk_ids": [], "difficulty": "hard", "category": "negative"}
+{"query_id": 69, "query": "qual versão do schema atual", "expected_chunk_ids": [115961, 147821], "difficulty": "easy", "category": "entity"}
+{"query_id": 70, "query": "quando o salience foi ativado", "expected_chunk_ids": [117852], "difficulty": "easy", "category": "temporal"}
+{"query_id": 71, "query": "qual a primeira lição do incident reindex 2026-04-25", "expected_chunk_ids": [117767], "difficulty": "hard", "category": "temporal"}
+{"query_id": 72, "query": "como cross-search funciona entre agentes", "expected_chunk_ids": [148075, 116085, 116123], "difficulty": "medium", "category": "cross-agent"}
+{"query_id": 73, "query": "o que é graph-memory plugin", "expected_chunk_ids": [116127, 116149, 116321], "difficulty": "medium", "category": "entity"}
+{"query_id": 74, "query": "onde estão as creds Gemini", "expected_chunk_ids": [112187], "difficulty": "medium", "category": "security"}
+{"query_id": 75, "query": "qual a regra sobre commitar secrets", "expected_chunk_ids": [116087, 117786], "difficulty": "easy", "category": "security"}
+{"query_id": 76, "query": "como Atlas e Boris se comunicam", "expected_chunk_ids": [108579, 112536, 112544], "difficulty": "hard", "category": "cross-agent"}
+{"query_id": 77, "query": "qual o uso de chattr +i no .credentials.json", "expected_chunk_ids": [116504, 147986], "difficulty": "hard", "category": "security"}
+{"query_id": 78, "query": "como rodar smoke test completo", "expected_chunk_ids": [], "difficulty": "medium", "category": "procedure"}
+{"query_id": 79, "query": "qual a versão atual do OpenClaw", "expected_chunk_ids": [], "difficulty": "easy", "category": "entity"}
+{"query_id": 80, "query": "como debugar gateway fratricide", "expected_chunk_ids": [112578, 116188], "difficulty": "hard", "category": "procedure"}
+{"query_id": 81, "query": "o que faz o reflect cache", "expected_chunk_ids": [147958, 147933, 117530], "difficulty": "hard", "category": "concept"}
+{"query_id": 82, "query": "qual a estratégia de 7 agentes", "expected_chunk_ids": [108239, 112395], "difficulty": "medium", "category": "concept"}
+{"query_id": 83, "query": "como o KG é populado", "expected_chunk_ids": [116143, 117242], "difficulty": "medium", "category": "procedure"}
+{"query_id": 84, "query": "qual o risco de boost stacking", "expected_chunk_ids": [116057, 116108, 116094, 117770], "difficulty": "hard", "category": "concept"}
+{"query_id": 85, "query": "como Lex e Cipher se complementam em incidents", "expected_chunk_ids": [], "difficulty": "hard", "category": "cross-agent"}
+{"query_id": 86, "query": "qual workflow Forge usa pra code review", "expected_chunk_ids": [116677, 132326], "difficulty": "medium", "category": "cross-agent"}
+{"query_id": 87, "query": "quando o E05 edge typing foi deployado", "expected_chunk_ids": [], "difficulty": "easy", "category": "temporal"}
+{"query_id": 88, "query": "quando subiu o schema v12", "expected_chunk_ids": [], "difficulty": "easy", "category": "temporal"}
+{"query_id": 89, "query": "como rotacionar a key Slack sem downtime", "expected_chunk_ids": [209814, 148609], "difficulty": "hard", "category": "security"}
+{"query_id": 90, "query": "qual a regra sobre sed em arquivos binários", "expected_chunk_ids": [209812, 117737], "difficulty": "medium", "category": "security"}
+{"query_id": 91, "query": "por que F09 off-site backup foi rejeitado", "expected_chunk_ids": [], "difficulty": "hard", "category": "decision"}
+{"query_id": 92, "query": "qual foi a decisão sobre fallback chain após v.26", "expected_chunk_ids": [117394, 117341], "difficulty": "medium", "category": "decision"}
+{"query_id": 93, "query": "o que faz o subcomando kg-reclassify", "expected_chunk_ids": [], "difficulty": "medium", "category": "entity"}
+{"query_id": 94, "query": "como funciona o RELATION_TYPE_TO_REASON map", "expected_chunk_ids": [], "difficulty": "hard", "category": "concept"}
+{"query_id": 95, "query": "como o sistema lida com chunks duplicados", "expected_chunk_ids": [116463, 148072], "difficulty": "medium", "category": "concept"}
+{"query_id": 96, "query": "qual a diferença entre memória de curto e longo prazo aqui", "expected_chunk_ids": [112181, 112178], "difficulty": "hard", "category": "concept"}
+{"query_id": 97, "query": "como adicionar um novo agente ao sistema", "expected_chunk_ids": [], "difficulty": "medium", "category": "procedure"}
+{"query_id": 98, "query": "o sistema funciona offline", "expected_chunk_ids": [], "difficulty": "easy", "category": "concept"}
+{"query_id": 99, "query": "qual o limite máximo de chunks armazenáveis", "expected_chunk_ids": [], "difficulty": "medium", "category": "concept"}
+{"query_id": 100, "query": "como exportar a memória pra outro lugar", "expected_chunk_ids": [147900], "difficulty": "medium", "category": "procedure"}
+{"query_id": 101, "query": "o que acontece se o disco enche", "expected_chunk_ids": [], "difficulty": "hard", "category": "procedure"}
+{"query_id": 102, "query": "como auditar quem acessou o que", "expected_chunk_ids": [], "difficulty": "hard", "category": "security"}
+{"query_id": 103, "query": "qual modelo de IA é usado pra busca", "expected_chunk_ids": [117222, 115961, 147822], "difficulty": "easy", "category": "entity"}
+{"query_id": 104, "query": "como medir se a busca está boa", "expected_chunk_ids": [116468], "difficulty": "medium", "category": "concept"}
