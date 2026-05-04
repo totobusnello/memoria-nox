@@ -64,20 +64,22 @@ Quando Forge aprende algo sobre uma decisão arquitetural, Atlas recupera esse c
 
 | Approach | nDCG@10 | Δ vs nox-mem |
 |---|---|---|
-| FTS5 vanilla (BM25) | 0.000 | **−71,4 pp** |
-| **nox-mem hybrid (FTS + Gemini + RRF)** | **0.714** | baseline |
+| FTS5 vanilla (BM25) | 0.0123 | **−50,9 pp** |
+| **nox-mem hybrid (FTS + Gemini + RRF)** | **0.5213** | baseline |
 
-Queries em linguagem natural completas zeram em BM25-only. Não é artefato de corpus — é constraint estrutural do FTS5. Hybrid é o piso, não o teto. Validação 3-run: nDCG mean=0.674 com desvio baixo, Bessel std reproduzível por qualquer reviewer.
+*(n=50 queries, 3-run mean ± std: Hybrid 0.5213 ± 0.0004, FTS 0.0123 ± 0.0000 — gap relativo 97.6%)*
 
-### Edge typing: de 86% de ruído a 14%
+Queries em linguagem natural completas resultam em nDCG quase zero em BM25-only. Não é artefato de corpus — é constraint estrutural do FTS5 AND-strict. Hybrid é o piso, não o teto. Validação 3-run (runs #10/#11/#12) com std=0.0004 (0.08% relativo), reproduzível por qualquer reviewer.
 
-KG extraction com campo opcional e prompt ingênuo produzia **86% de tipo `unknown`** nas relações. Após defensive map no código e prompt revisado (n=100): **14% unknown**. **Ganho de 6,1× em precisão** de blast-radius queries — saber *o que* foi afetado por uma mudança, não só que algo foi afetado.
+### Edge typing: classificação correta de 14% para 56% — ganho 4×
+
+KG extraction com campo opcional e prompt ingênuo classificava apenas **14% das relações novas** corretamente — **86% caíam em `unknown`**. Após defensive map no código (24 aliases PT-BR + EN) e prompt revisado (n=100): **56% classificadas corretamente** — ganho de **4× em coverage** de blast-radius queries. Saber *o que* foi afetado por uma mudança, não só que algo foi afetado.
 
 ### nox-mem vs alternatives — paridade de features
 
 | Sistema | KG nativo | Hybrid retrieval | Eval harness | Multi-agent | Shadow discipline | **Score** |
 |---|---|---|---|---|---|---|
-| **nox-mem (este trabalho)** | ✅ closed-enum 24 cats | ✅ FTS5+Gemini+RRF | ✅ nDCG/MRR/Recall | ✅ shared canonical | ✅ enforced ≥7d | **5/5** |
+| **nox-mem (este trabalho)** | ✅ closed-enum 7 reasons (24-entry map) | ✅ FTS5+Gemini+RRF | ✅ nDCG/MRR/Recall | ✅ shared canonical | ✅ enforced ≥7d | **5/5** |
 | GraphRAG | ✅ + community detection | ⚠️ via KG queries | ❌ | ❌ | ❌ | 1.5/5 |
 | MemGPT/Letta | ❌ | ⚠️ embedding-first | ❌ | ✅ per-agent | ❌ | 1.5/5 |
 | Mem0 | ⚠️ optional v2 | ❌ vector-only | ⚠️ LOCOMO only | ⚠️ user_id partition | ❌ | 1.5/5 |

@@ -1,0 +1,145 @@
+2026-05-03T23:46:59 [INFO] ablation_runner — Audit trail → /Users/lab/Claude/Projetos/memoria-nox/paper/publication/results/ablation_runlog.txt
+2026-05-03T23:46:59 [INFO] ablation_runner — ======================================================================
+2026-05-03T23:46:59 [INFO] ablation_runner — ABLATION RUNNER — nox-mem E6/E7/E8/E9
+2026-05-03T23:46:59 [INFO] ablation_runner — VPS target: root@187.77.234.79
+2026-05-03T23:46:59 [INFO] ablation_runner — Env file:   /root/.openclaw/.env
+2026-05-03T23:46:59 [INFO] ablation_runner — Queries:    /root/paper-experiments/golden_queries.jsonl
+2026-05-03T23:46:59 [INFO] ablation_runner — Output dir: /Users/lab/Claude/Projetos/memoria-nox/paper/publication/results
+2026-05-03T23:46:59 [INFO] ablation_runner — Variants:   ['baseline', 'fts_only', 'no_rrf', 'no_salience', 'no_section_boost']
+2026-05-03T23:46:59 [INFO] ablation_runner — Dry-run:    True
+2026-05-03T23:46:59 [INFO] ablation_runner — ======================================================================
+2026-05-03T23:46:59 [INFO] ablation_runner —   baseline (full hybrid) → (no overrides — baseline)
+2026-05-03T23:46:59 [INFO] ablation_runner —   sem semantic (FTS-only) — E6 → NOX_HYBRID_DISABLE=1
+2026-05-03T23:46:59 [INFO] ablation_runner —   sem RRF (concat scores) — E7 → NOX_RRF_DISABLE=1, NOX_FUSION_MODE=concat
+2026-05-03T23:46:59 [INFO] ablation_runner —   sem salience boost — E8 → NOX_SALIENCE_MODE=off
+2026-05-03T23:46:59 [INFO] ablation_runner —   sem section_boost — E9 → NOX_SECTION_BOOST_MODE=off
+2026-05-03T23:46:59 [INFO] ablation_runner — ------------------------------------------------------------
+2026-05-03T23:46:59 [INFO] ablation_runner — VARIANT: baseline (full hybrid) (baseline)
+2026-05-03T23:46:59 [INFO] ablation_runner — Started: 2026-05-04T02:46:59Z
+2026-05-03T23:46:59 [INFO] ablation_runner — Pre-variant .env hash: dry-run
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] No env overrides for this variant — skip env edit
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would apply overrides: {}
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restart: ('nox-mem-api', 'nox-mem-watcher')
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would wait for http://127.0.0.1:18802/api/health to return 200
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would run: nox-mem eval run --variant=hybrid --note=ablation-baseline --queries=/root/paper-experiments/golden_queries.jsonl
+2026-05-03T23:46:59 [INFO] ablation_runner — Variant baseline complete in 0.0s — nDCG@10=NaN MRR=NaN Recall@10=NaN
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] RESTORE baseline .env from /root/.openclaw/.env.bak
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restore /root/.openclaw/.env from .bak and restart services
+2026-05-03T23:46:59 [INFO] ablation_runner — Post-restore .env hash: dry-run (pre was: dry-run)
+2026-05-03T23:46:59 [INFO] ablation_runner — ------------------------------------------------------------
+2026-05-03T23:46:59 [INFO] ablation_runner — VARIANT: sem semantic (FTS-only) — E6 (E6)
+2026-05-03T23:46:59 [INFO] ablation_runner — Started: 2026-05-04T02:46:59Z
+2026-05-03T23:46:59 [INFO] ablation_runner — Pre-variant .env hash: dry-run
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] Applying env overrides: {'NOX_HYBRID_DISABLE': '1'}
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would apply overrides: {'NOX_HYBRID_DISABLE': '1'}
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restart: ('nox-mem-api', 'nox-mem-watcher')
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would wait for http://127.0.0.1:18802/api/health to return 200
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would run: nox-mem eval run --variant=hybrid --note=ablation-fts_only --queries=/root/paper-experiments/golden_queries.jsonl
+2026-05-03T23:46:59 [INFO] ablation_runner — Variant fts_only complete in 0.0s — nDCG@10=NaN MRR=NaN Recall@10=NaN
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] RESTORE baseline .env from /root/.openclaw/.env.bak
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restore /root/.openclaw/.env from .bak and restart services
+2026-05-03T23:46:59 [INFO] ablation_runner — Post-restore .env hash: dry-run (pre was: dry-run)
+2026-05-03T23:46:59 [INFO] ablation_runner — ------------------------------------------------------------
+2026-05-03T23:46:59 [INFO] ablation_runner — VARIANT: sem RRF (concat scores) — E7 (E7)
+2026-05-03T23:46:59 [INFO] ablation_runner — Started: 2026-05-04T02:46:59Z
+2026-05-03T23:46:59 [INFO] ablation_runner — Pre-variant .env hash: dry-run
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] Applying env overrides: {'NOX_RRF_DISABLE': '1', 'NOX_FUSION_MODE': 'concat'}
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would apply overrides: {'NOX_RRF_DISABLE': '1', 'NOX_FUSION_MODE': 'concat'}
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restart: ('nox-mem-api', 'nox-mem-watcher')
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would wait for http://127.0.0.1:18802/api/health to return 200
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would run: nox-mem eval run --variant=hybrid --note=ablation-no_rrf --queries=/root/paper-experiments/golden_queries.jsonl
+2026-05-03T23:46:59 [INFO] ablation_runner — Variant no_rrf complete in 0.0s — nDCG@10=NaN MRR=NaN Recall@10=NaN
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] RESTORE baseline .env from /root/.openclaw/.env.bak
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restore /root/.openclaw/.env from .bak and restart services
+2026-05-03T23:46:59 [INFO] ablation_runner — Post-restore .env hash: dry-run (pre was: dry-run)
+2026-05-03T23:46:59 [INFO] ablation_runner — ------------------------------------------------------------
+2026-05-03T23:46:59 [INFO] ablation_runner — VARIANT: sem salience boost — E8 (E8)
+2026-05-03T23:46:59 [INFO] ablation_runner — Started: 2026-05-04T02:46:59Z
+2026-05-03T23:46:59 [INFO] ablation_runner — Pre-variant .env hash: dry-run
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] Applying env overrides: {'NOX_SALIENCE_MODE': 'off'}
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would apply overrides: {'NOX_SALIENCE_MODE': 'off'}
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restart: ('nox-mem-api', 'nox-mem-watcher')
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would wait for http://127.0.0.1:18802/api/health to return 200
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would run: nox-mem eval run --variant=hybrid --note=ablation-no_salience --queries=/root/paper-experiments/golden_queries.jsonl
+2026-05-03T23:46:59 [INFO] ablation_runner — Variant no_salience complete in 0.0s — nDCG@10=NaN MRR=NaN Recall@10=NaN
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] RESTORE baseline .env from /root/.openclaw/.env.bak
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restore /root/.openclaw/.env from .bak and restart services
+2026-05-03T23:46:59 [INFO] ablation_runner — Post-restore .env hash: dry-run (pre was: dry-run)
+2026-05-03T23:46:59 [INFO] ablation_runner — ------------------------------------------------------------
+2026-05-03T23:46:59 [INFO] ablation_runner — VARIANT: sem section_boost — E9 (E9)
+2026-05-03T23:46:59 [INFO] ablation_runner — Started: 2026-05-04T02:46:59Z
+2026-05-03T23:46:59 [INFO] ablation_runner — Pre-variant .env hash: dry-run
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] Applying env overrides: {'NOX_SECTION_BOOST_MODE': 'off'}
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would apply overrides: {'NOX_SECTION_BOOST_MODE': 'off'}
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restart: ('nox-mem-api', 'nox-mem-watcher')
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would wait for http://127.0.0.1:18802/api/health to return 200
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would run: nox-mem eval run --variant=hybrid --note=ablation-no_section_boost --queries=/root/paper-experiments/golden_queries.jsonl
+2026-05-03T23:46:59 [INFO] ablation_runner — Variant no_section_boost complete in 0.0s — nDCG@10=NaN MRR=NaN Recall@10=NaN
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] RESTORE baseline .env from /root/.openclaw/.env.bak
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restore /root/.openclaw/.env from .bak and restart services
+2026-05-03T23:46:59 [INFO] ablation_runner — Post-restore .env hash: dry-run (pre was: dry-run)
+2026-05-03T23:46:59 [INFO] ablation_runner — ============================================================
+2026-05-03T23:46:59 [INFO] ablation_runner — All variants complete. Final baseline restore for safety.
+2026-05-03T23:46:59 [INFO] ablation_runner — [2026-05-04T02:46:59Z] RESTORE baseline .env from /root/.openclaw/.env.bak
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would restore /root/.openclaw/.env from .bak and restart services
+2026-05-03T23:46:59 [INFO] ablation_runner — Total pipeline time: 0.0s (0.0 min)
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would write ablation_results.json:
+{
+  "generated_at": "2026-05-04T02:46:59Z",
+  "note": "nox-mem ablation study E6\u2013E9, 50 golden queries",
+  "variants": {
+    "baseline": {
+      "variant": "baseline",
+      "ndcg_at_10": NaN,
+      "mrr": NaN,
+      "recall_at_10": NaN,
+      "precision_at_5": NaN,
+      "query_count": 0,
+      "run_id": null,
+      "note": "dry_run",
+      "duration_ms": 0,
+      "raw_output": ""
+    },
+    "fts_only": {
+      "variant": "fts_only",
+      "ndcg_at_10": NaN,
+      "mrr": NaN,
+      "recall_at_10": NaN,
+      "precision_at_5": NaN,
+      "query_count": 0,
+      "run_id": null,
+      "note": "dry_run",
+      "duration_ms": 0,
+      "raw_output": ""
+    },
+    "no_rrf": {
+      "variant": "no_rrf",
+      "ndcg_at_10": NaN,
+      "mrr": NaN,
+      "recall_at_10": NaN,
+      "precision_at_5": NaN,
+      "query_count": 0,
+      "run_id": null,
+      "note": "dry_run",
+      "duration_ms": 0,
+      "raw_output": ""
+    },
+    "no_salience": {
+      "variant": "no_salience",
+      "ndcg_
+2026-05-03T23:46:59 [INFO] ablation_runner — [DRY-RUN] Would write ablation_table.md:
+## Ablation Study — Component Contribution (§5)
+
+_Table generated by `ablation_runner.py` — nox-mem corpus, 50 golden queries (R01b)_
+
+| Variant | nDCG@10 | MRR | Recall@10 | Δ nDCG vs baseline |
+|---|---|---|---|---|
+| baseline (full hybrid) | ?.??? | ?.??? | ?.??? | — |
+| sem semantic (FTS-only) — E6 | ?.??? | ?.??? | ?.??? | ?.??? |
+| sem RRF (concat scores) — E7 | ?.??? | ?.??? | ?.??? | ?.??? |
+| sem salience boost — E8 | ?.??? | ?.??? | ?.??? | ?.??? |
+| sem section_boost — E9 | ?.??? | ?.??? | ?.??? | ?.??? |
+
+_Generated: 2026-05-04T02:46:59Z_
+
+2026-05-03T23:46:59 [INFO] ablation_runner — Done. Outputs written to: /Users/lab/Claude/Projetos/memoria-nox/paper/publication/results

@@ -1,0 +1,70 @@
+# VERIFY: No LICENSE file found in repo root. Assuming MIT — confirm before arXiv submit.
+# VERIFY: ORCID not known for author — uncomment and fill if obtained.
+# VERIFY: version should match git tag at submit time (e.g., "1.0.0" or "v3.7.0").
+# VERIFY: preferred-citation arxiv-id and url must be updated after arXiv submission on 2026-05-19.
+
+cff-version: 1.2.0
+message: >
+  If you use this software or build on the ideas presented here, please cite
+  both the software and the accompanying paper using the metadata below.
+
+type: software
+title: "NOX-Supermem"
+abstract: >
+  A persistent memory system for autonomous AI agent fleets implementing
+  pain-weighted salience retrieval, shadow-mode ranking validation, and
+  shared-canonical multi-agent context without federation overhead.
+  Built on SQLite with FTS5, sqlite-vec, and Gemini embeddings.
+
+authors:
+  - family-names: Busnello
+    given-names: Luiz Antonio
+    alias: Toto
+    email: lab@nuvini.com.br
+    # orcid: "https://orcid.org/0000-0000-0000-0000"  # VERIFY: fill if ORCID is obtained
+
+repository-code: "https://github.com/totobusnello/memoria-nox"
+url: "https://github.com/totobusnello/memoria-nox"
+
+# VERIFY: confirm MIT before submit
+license: MIT
+
+# VERIFY: update to actual git tag at arXiv submit time
+version: "TBD"
+date-released: "2026-05-19"
+
+keywords:
+  - "agent memory"
+  - "retrieval-augmented generation"
+  - "knowledge graph"
+  - "operational discipline"
+  - "hybrid retrieval"
+  - "shadow validation"
+  - "multi-agent systems"
+  - "pain-weighted salience"
+  - "sqlite"
+  - "production AI systems"
+
+preferred-citation:
+  type: article
+  title: >
+    The Pain Diary and Shadow Discipline: A Memory System That Learns
+    from Its Own Incidents
+  authors:
+    - family-names: Busnello
+      given-names: Luiz Antonio
+      alias: Toto
+      email: lab@nuvini.com.br
+      # orcid: "https://orcid.org/0000-0000-0000-0000"  # VERIFY: fill if ORCID is obtained
+  year: 2026
+  # VERIFY: update arxiv-id and url after submission on 2026-05-19
+  journal: "arXiv preprint"
+  arxiv-id: "TBD-arXiv:XXXX.XXXXX"
+  url: "TBD"
+  abstract: >
+    We present NOX-Supermem, a production memory system for multi-agent AI
+    fleets that treats operational discipline — not retrieval sophistication —
+    as the primary design constraint. The system introduces pain-weighted
+    salience (severity as a retrieval signal), shadow discipline (enforced
+    ranking validation gates), and shared-canonical multi-agent context.
+    Evaluated on 64,180+ chunks over four months of production operation.

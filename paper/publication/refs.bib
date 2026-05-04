@@ -1,0 +1,271 @@
+% refs.bib — memoria-nox paper references
+% Validated: 2026-05-03 against arXiv, DBLP, ACM DL, NeurIPS proceedings, OpenReview
+
+% ---------------------------------------------------------------
+% 1. GraphRAG — arXiv:2404.16130
+% Not published in a peer-reviewed venue (arXiv preprint as of 2026-05-03)
+% ---------------------------------------------------------------
+@misc{edge2024graphrag,
+  author        = {Darren Edge and Ha Trinh and Newman Cheng and Joshua Bradley and
+                   Alex Chao and Apurva Mody and Steven Truitt and
+                   Dasha Metropolitansky and Robert Osazuwa Ness and Jonathan Larson},
+  title         = {From Local to Global: {A} Graph {RAG} Approach to Query-Focused Summarization},
+  year          = {2024},
+  eprint        = {2404.16130},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2404.16130},
+}
+
+% ---------------------------------------------------------------
+% 2. MemGPT / Letta — arXiv:2310.08560
+% Not published in a peer-reviewed venue (arXiv preprint as of 2026-05-03)
+% ---------------------------------------------------------------
+@misc{packer2023memgpt,
+  author        = {Charles Packer and Sarah Wooders and Kevin Lin and Vivian Fang and
+                   Shishir G. Patil and Ion Stoica and Joseph E. Gonzalez},
+  title         = {{MemGPT}: Towards {LLMs} as Operating Systems},
+  year          = {2023},
+  eprint        = {2310.08560},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2310.08560},
+}
+
+% ---------------------------------------------------------------
+% 3. Mem0 — arXiv:2504.19413
+% ---------------------------------------------------------------
+@misc{chhikara2025mem0,
+  author        = {Prateek Chhikara and Dev Khant and Saket Aryan and
+                   Taranjeet Singh and Deshraj Yadav},
+  title         = {Mem0: Building Production-Ready {AI} Agents with Scalable Long-Term Memory},
+  year          = {2025},
+  eprint        = {2504.19413},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2504.19413},
+}
+
+% ---------------------------------------------------------------
+% 4. A-MEM — arXiv:2502.12110
+% CORRECTION: submitted Feb 2025 (not 2024 as in original notes)
+% Accepted NeurIPS 2025 poster — confirmed via OpenReview FiM0M8gcct
+% ---------------------------------------------------------------
+@inproceedings{xu2025amem,
+  author        = {Wujiang Xu and Zujie Liang and Kai Mei and Hang Gao and
+                   Juntao Tan and Yongfeng Zhang},
+  title         = {{A-MEM}: Agentic Memory for {LLM} Agents},
+  booktitle     = {Advances in Neural Information Processing Systems 38 (NeurIPS 2025)},
+  year          = {2025},
+  eprint        = {2502.12110},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.AI},
+  url           = {https://arxiv.org/abs/2502.12110},
+}
+
+% ---------------------------------------------------------------
+% 5. HiRAG — arXiv:2503.10150
+% CORRECTION 1: first author is Haoyu Huang, NOT Liu (no Liu among 8 authors)
+% CORRECTION 2: submitted March 2025, not 2024
+% Accepted EMNLP 2025 Findings
+% ---------------------------------------------------------------
+@inproceedings{huang2025hirag,
+  author        = {Haoyu Huang and Yongfeng Huang and Junjie Yang and Zhenyu Pan and
+                   Yongqiang Chen and Kaili Ma and Hongzhi Chen and James Cheng},
+  title         = {{HiRAG}: Retrieval-Augmented Generation with Hierarchical Knowledge},
+  booktitle     = {Findings of the Association for Computational Linguistics: EMNLP 2025},
+  year          = {2025},
+  eprint        = {2503.10150},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2503.10150},
+}
+
+% ---------------------------------------------------------------
+% 6. Cognee — open-source project
+% CORRECTION: No formal Dec 2024 white paper found.
+% The associated academic paper (arXiv:2505.24478, May 2025) is a
+% hyperparameter study, not the primary system description.
+% Canonical citation is the GitHub repository.
+% ---------------------------------------------------------------
+@misc{topoteretes2024cognee,
+  author       = {Vasilije Markovic and Lazar Obradovic and Laszlo Hajdu and Jovan Pavlovic},
+  title        = {Cognee: Knowledge Engine for {AI} Agent Memory},
+  year         = {2024},
+  howpublished = {\url{https://github.com/topoteretes/cognee}},
+  note         = {Open-source software. Associated research: \href{https://arxiv.org/abs/2505.24478}{arXiv:2505.24478}},
+  url          = {https://github.com/topoteretes/cognee},
+}
+
+% ---------------------------------------------------------------
+% 7. RAG foundational — NeurIPS 2020
+% All 12 authors confirmed via DBLP + NeurIPS proceedings
+% NeurIPS 2020 does not have a DOI for this paper
+% ---------------------------------------------------------------
+@inproceedings{lewis2020rag,
+  author        = {Patrick Lewis and Ethan Perez and Aleksandra Piktus and
+                   Fabio Petroni and Vladimir Karpukhin and Naman Goyal and
+                   Heinrich K{\"{u}}ttler and Mike Lewis and Wen-tau Yih and
+                   Tim Rockt{\"{a}}schel and Sebastian Riedel and Douwe Kiela},
+  title         = {Retrieval-Augmented Generation for Knowledge-Intensive {NLP} Tasks},
+  booktitle     = {Advances in Neural Information Processing Systems 33 (NeurIPS 2020)},
+  year          = {2020},
+  eprint        = {2005.11401},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://proceedings.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html},
+}
+
+% ---------------------------------------------------------------
+% 8. RRF — SIGIR 2009
+% All 3 authors confirmed; DOI confirmed via ACM DL
+% Title in lowercase as per ACM DL canonical form
+% ---------------------------------------------------------------
+@inproceedings{cormack2009rrf,
+  author        = {Gordon V. Cormack and Charles L. A. Clarke and Stefan B{\"{u}}ttcher},
+  title         = {Reciprocal rank fusion outperforms {Condorcet} and individual rank learning methods},
+  booktitle     = {Proceedings of the 32nd International {ACM} {SIGIR} Conference on
+                   Research and Development in Information Retrieval},
+  pages         = {758--759},
+  year          = {2009},
+  doi           = {10.1145/1571941.1572114},
+  url           = {https://dl.acm.org/doi/10.1145/1571941.1572114},
+}
+
+% ---------------------------------------------------------------
+% SECONDARY (suggested by researcher 2026-05-03 — cite if space permits)
+% ---------------------------------------------------------------
+
+% HippoRAG — biological-inspired memory analog
+@misc{guo2024hipporag,
+  author        = {Bernal Jimenez Guti{\'e}rrez and Yiheng Shu and Yu Gu and
+                   Michihiro Yasunaga and Yu Su},
+  title         = {{HippoRAG}: Neurobiologically Inspired Long-Term Memory for Large Language Models},
+  year          = {2024},
+  eprint        = {2405.14831},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2405.14831},
+}
+
+% ---------------------------------------------------------------
+% W2 METHODOLOGY / BASELINE REFERENCES — added 2026-05-04
+% Previously missing: caused undefined \cite{} in compiled PDF.
+% ---------------------------------------------------------------
+
+% Rogers 2021 — responsible data + open-evaluation norm
+% Findings of EMNLP 2021, pages 4821–4833
+% Cited in §4 for open-evaluation / pre-registration norm
+@inproceedings{rogers2021just,
+  author        = {Rogers, Anna and Baldwin, Timothy and Leins, Kobi},
+  title         = {{`Just What do You Think You're Doing, Dave?'} {A} Checklist for Responsible Data Use in {NLP}},
+  booktitle     = {Findings of the Association for Computational Linguistics: {EMNLP} 2021},
+  pages         = {4821--4833},
+  month         = nov,
+  year          = {2021},
+  address       = {Punta Cana, Dominican Republic},
+  publisher     = {Association for Computational Linguistics},
+  doi           = {10.18653/v1/2021.findings-emnlp.414},
+  url           = {https://aclanthology.org/2021.findings-emnlp.414/},
+}
+
+% Manning, Raghavan, Schütze — Introduction to Information Retrieval
+% Cambridge University Press 2008 — standard IR textbook
+% Cited in §4.1 for nDCG/MRR/Recall standard IR metrics
+@book{manning2008introduction,
+  author        = {Manning, Christopher D. and Raghavan, Prabhakar and Sch{\"{u}}tze, Hinrich},
+  title         = {Introduction to Information Retrieval},
+  publisher     = {Cambridge University Press},
+  year          = {2008},
+  isbn          = {978-0-521-86571-5},
+  url           = {https://nlp.stanford.edu/IR-book/},
+}
+
+% Fuhr 2018 — common mistakes in IR evaluation
+% ACM SIGIR Forum 51(3), 2017/2018
+% Cited in §4.5 for absolute Δ nDCG@10 recommendation over relative percentages
+@article{fuhr2018some,
+  author        = {Fuhr, Norbert},
+  title         = {Some Common Mistakes In {IR} Evaluation, and How They Can Be Avoided},
+  journal       = {{ACM} {SIGIR} Forum},
+  volume        = {51},
+  number        = {3},
+  pages         = {32--41},
+  year          = {2017},
+  note          = {Published February 2018},
+  doi           = {10.1145/3190580.3190586},
+  url           = {https://dl.acm.org/doi/10.1145/3190580.3190586},
+}
+
+% Muennighoff 2022 — MTEB: Massive Text Embedding Benchmark
+% arXiv:2210.07316; published EACL 2023
+% Cited in §5.2 for BGE-M3 MTEB leaderboard status
+@inproceedings{muennighoff2022mteb,
+  author        = {Muennighoff, Niklas and Tazi, Nouamane and Magne, Lo{\"i}c and Reimers, Nils},
+  title         = {{MTEB}: Massive Text Embedding Benchmark},
+  booktitle     = {Proceedings of the 17th Conference of the European Chapter of the
+                   Association for Computational Linguistics ({EACL} 2023)},
+  year          = {2023},
+  eprint        = {2210.07316},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2210.07316},
+}
+
+% Yang 2018 — Anserini: Reproducible Ranking Baselines Using Lucene
+% Journal of Data and Information Quality 10(4), 2018
+% Cited in §5.2 Table 5 for BM25 (Pyserini) baseline
+@article{yang2018anserini,
+  author        = {Yang, Peilin and Fang, Hui and Lin, Jimmy},
+  title         = {Anserini: Reproducible Ranking Baselines Using {Lucene}},
+  journal       = {Journal of Data and Information Quality},
+  volume        = {10},
+  number        = {4},
+  pages         = {16:1--16:20},
+  year          = {2018},
+  doi           = {10.1145/3239571},
+  url           = {https://dl.acm.org/doi/10.1145/3239571},
+}
+
+% Chen 2024 — BGE M3-Embedding
+% arXiv:2402.03216; Findings of ACL 2024
+% Cited in §5.2 Table 5 for BGE-M3 dense retrieval baseline
+@inproceedings{chen2024bge,
+  author        = {Chen, Jianlv and Xiao, Shitao and Zhang, Peitian and Luo, Kun and
+                   Lian, Defu and Liu, Zheng},
+  title         = {{BGE M3-Embedding}: Multi-Lingual, Multi-Functionality, Multi-Granularity
+                   Text Embeddings Through Self-Knowledge Distillation},
+  booktitle     = {Findings of the Association for Computational Linguistics: {ACL} 2024},
+  year          = {2024},
+  eprint        = {2402.03216},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2402.03216},
+}
+
+% Wang 2023 — Improving Text Embeddings with Large Language Models (E5-mistral)
+% arXiv:2401.00368 (submitted Dec 31 2023)
+% Cited in §5.2 Table 5 for E5-mistral-7b-instruct baseline
+@misc{wang2023improving,
+  author        = {Wang, Liang and Yang, Nan and Huang, Xiaolong and
+                   Yang, Linjun and Majumder, Rangan and Wei, Furu},
+  title         = {Improving Text Embeddings with Large Language Models},
+  year          = {2023},
+  eprint        = {2401.00368},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2401.00368},
+}
+
+% RAPTOR — recursive abstractive tree summarization (HiRAG comparison baseline)
+@inproceedings{sarthi2024raptor,
+  author        = {Parth Sarthi and Salman Abdullah and Aditi Tuli and
+                   Shubh Khanna and Anna Goldie and Christopher D. Manning},
+  title         = {{RAPTOR}: Recursive Abstractive Processing for Tree-Organized Retrieval},
+  booktitle     = {International Conference on Learning Representations (ICLR 2024)},
+  year          = {2024},
+  eprint        = {2401.18059},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.CL},
+  url           = {https://arxiv.org/abs/2401.18059},
+}
