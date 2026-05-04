@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-04 marathon BRT (**W1 Day 1+2 ~24h, 25+ deliverables: baselines + paper §1-7 + LaTeX + figuras + distribuição completa**)
+> **Atualizado:** 2026-05-04 fim de dia BRT (**W1+W2 sprint: critic remediations H1/H2/H4/H5 + BEIR adapter + LOCOMO + E5 multilingual baseline**)
 
 ---
 
@@ -58,6 +58,16 @@ Decisões tomadas (NÃO re-discutir):
 
 ## 🚀 PARA PRÓXIMA SESSÃO — começar aqui
 
+### Próxima ação imediata
+
+**BEIR TREC-COVID retornou?** (ETA 2026-05-05 01:00–07:00 BRT, tmux `beir-trec` na VPS)
+
+```bash
+ssh root@187.77.234.79 'tmux capture-pane -p -t beir-trec 2>/dev/null | tail -20'
+```
+
+Se concluído → integrar resultado em `paper/publication/04-paper-arxiv-draft.md` §5.2 Table 5 (linha BEIR TREC-COVID + linha LOCOMO já disponível nDCG=0.2810).
+
 ### Sanity check matinal (~3min)
 ```bash
 ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
@@ -71,11 +81,15 @@ Esperado: schema v12, 64.180+ chunks, embed 100%, distribution `unknown=595 / de
 
 | # | Trabalho | Esforço | Quando |
 |---|---|---|---|
-| **1** | **Aguardar E5 multilingual-base completar** — PID 258574, ETA 16:50 BRT 2026-05-04. Após terminar: dispatch agent pra integrar resultado (nDCG E5) junto com BM25 0.1475 e pain 0.2689 na tabela §5 do paper `04-paper-arxiv-draft.md`. | ~30min integração | após 16:50 BRT 2026-05-04 |
-| **2** | **E11 expected_doc_ids curar** — extrator BEIR pronto (0% vocab overlap, 10 queries); curadoria `expected_doc_ids` manual pendente (~30min Toto). | ~30min manual | W2 2026-05-11 |
-| **3** | **PASSIVE: 2026-05-09 sábado activate gate** — routine `trig_012nuCN14VwcxGLq8ERaLPCK` 09:00 BRT, gera GitHub Issue verdict ACTIVATE/KEEP-SHADOW E03b+E04b. | ~25min ativo | sábado 2026-05-09 |
-| **4** | **E10 pain ablation** — deferred (precisa 2× prod API restart). Quando vier disponível, rodar pain_validator.py com pain=1.0 uniform pra validar delta ≥0.05. | ~12min + 2× restart | W2 janela off-peak |
-| **5** | **E12 cross-agent retrieval Q2-Q6** — deferred (precisa migração `requesting_agent` ~1h). Shared storage 99.92% validado; retrieval pendente. | ~1h migração + run | W2 |
+| **1** | **Integrar BEIR TREC-COVID** — tmux beir-trec ETA 05-05 01:00–07:00 BRT. Pegar nDCG@10 + popular §5.2 Table 5 (BEIR row + LOCOMO row 0.2810 já disponível). | ~30min pós-resultado | assim que BEIR terminar |
+| **2** | **Critic re-review #2** — enviar paper draft atualizado (com H1/H2/H4/H5 + BEIR + LOCOMO + E5) pra agent critic. | ~1h | após item 1 |
+| **3** | **Apertar abstract** — `paper-abstract.md` de 367 → <300 palavras. | ~30min | mesma sessão |
+| **4** | **LaTeX compile dry-run** — baixar `neurips_2024.sty` e validar compile. | ~20min | mesma sessão |
+| **5** | **Substack draft polish** — draft existe; polir pra publicação. | ~45min | W2 |
+| **6** | **PASSIVE: 2026-05-09 sábado activate gate** — routine `trig_012nuCN14VwcxGLq8ERaLPCK` 09:00 BRT, gera GitHub Issue verdict ACTIVATE/KEEP-SHADOW E03b+E04b. | ~25min ativo | sábado 2026-05-09 |
+| **7** | **E10 pain ablation** — deferred (precisa 2× prod API restart). | ~12min + 2× restart | W2 janela off-peak |
+| **8** | **E12 cross-agent retrieval Q2-Q6** — deferred (precisa migração `requesting_agent` ~1h). Shared storage 99.92% validado. | ~1h migração + run | W2 |
+| **9** | **MemoryBank adapter** — smoke test falhou (data-dir bug: pegou SiliconFriend training config em vez de /eval_data/). Adapter `memory_bank_eval.py` pronto; corrigir descoberta de eval_data e re-rodar. | ~30min | W2 |
 
 ### Sanity check (~3min)
 ```bash
@@ -100,6 +114,45 @@ Atualmente Run #9 = 0.519 < 0.6. Pra subir: melhorar weak categories (temporal=0
 
 ---
 
+## Sessão 2026-05-04 fim de dia — W1+W2 sprint (critic remediations + third-party benchmarks)
+
+### Sprint W1 — 6 critic followups entregues
+
+| Item | Descrição | Status |
+|---|---|---|
+| H1 §3.8 pre-registration | Git hash real inserido (commits f75d186 / 98e0d61) + SHA-256 | ✅ DONE |
+| H2 §5.2 nDCG framing | Ancorado em BEIR 0.3-0.6; removido "near-perfect"/"strong" | ✅ DONE |
+| H4 Path 3 reframe | "14%→56%" relabelado como "self-reported enum coverage rate" (NÃO classificação accuracy); "single annotator" removido do abstract; §6.5 limitation adicionada com recomendação Cohen's κ | ✅ DONE |
+| H5 §6.4 Cost & Compute | 470 palavras; OPEX <$11/mês all-in; comparação vs MemGPT/GraphRAG/Mem0/GPT-4 long-context | ✅ DONE |
+| BEIR TREC-COVID adapter | Bug encontrado e patchado: `_load_qrels()` esperava 4-col TREC, BEIR usa 3-col com header | ✅ adapter pronto |
+| BEIR TREC-COVID execução | **Rodando** em VPS tmux `beir-trec` — Phase 4 e5 embed | ⏳ ETA 05-05 01:00–07:00 BRT |
+
+### Sprint W2 — third-party benchmarks (critic C5)
+
+| Benchmark | Status | Resultado |
+|---|---|---|
+| LOCOMO adapter | Reescrito do zero (`locomo_eval.py` ~250 linhas stdlib); repo real é `snap-research/locomo` (não snap-stanford, que dava 404) | ✅ DONE |
+| LOCOMO FTS5 baseline | n=100 stratified seed=42 | ✅ **nDCG@10 = 0.2810** |
+| LOCOMO razão | Cross-corpus ratio vs golden FTS5 0.012 = 23×; valida escolha arquitetural hybrid pra regimes mais difíceis | ✅ insight registrado |
+| MemoryBank adapter | `memory_bank_eval.py` pronto; smoke test falhou: data-dir bug pegou SiliconFriend training config (2 JSON) em vez de /eval_data/ | ⚠️ deferred (bug) |
+| E5 multilingual baseline | n=60, 3-run, seed=42 | ✅ **nDCG@10 = 0.3070** |
+| E5 lift | hybrid +0.2143 sobre E5 = **1.7× lift** | ✅ resultado em `E02-E5-multilingual-baseline-summary.md` |
+
+### Estado do paper pós-W1+W2
+
+- **3 corpora confirmados:** golden in-domain (n=60) + LOCOMO conversational (n=100) + BEIR TREC-COVID (rodando)
+- **Remediações H1/H2/H4/H5** todas aplicadas no draft
+- **§3.8** pre-registration com git hash verificável + SHA-256
+- **§6.4** análise de custo OPEX <$11/mês documentada
+- **Submit target:** 2026-06-02 arXiv cs.IR (inalterado)
+
+### Background rodando agora (05-05 madrugada BRT)
+
+- VPS tmux `beir-trec` — BEIR TREC-COVID Phase 4 e5 embed, ETA 01:00–07:00 BRT
+- Load avg VPS ~2.5 5min (BEIR consumindo ~2 cores), nox-mem API healthy
+
+---
+
 ## Sessão 2026-05-04 marathon — W1 Day 1+2 (~24h, 25+ deliverables)
 
 ### Baselines executados
@@ -107,7 +160,7 @@ Atualmente Run #9 = 0.519 < 0.6. Pra subir: melhorar weak categories (temporal=0
 | Experimento | Status | Resultado |
 |---|---|---|
 | BM25 Pyserini n=60 | ✅ DONE | nDCG=0.1475 |
-| E5 multilingual-base | ⏳ RUNNING (PID 258574, ETA 16:50 BRT) | — |
+| E5 multilingual-base | ✅ DONE | nDCG=0.3070 (3-run, n=60) |
 | E5-mistral | 📋 QUEUED (Modal $3 ou skip) | — |
 | Pain --mode api baseline (n=6) | ✅ DONE | nDCG=0.2689 |
 | Pain ablation (pain=1.0 uniform) | ⏳ DEFERRED | precisa 2× prod restart |

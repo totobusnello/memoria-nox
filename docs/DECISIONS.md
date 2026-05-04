@@ -36,6 +36,7 @@
 | 25 | **Submit arXiv em dia/horário não-otimizado (Fri/weekend)** | Friday/weekend = baixo engagement no feed arXiv + HN. Tuesday peak window pra arXiv; Thursday peak pra HN tech audience. | Deadline de conferência forçar data específica | D27 — 2026-05-04 |
 | 26 | **Skip blog pré-HN** | HN Thread precisa de link externo canonical. Post sem blog = link direto arXiv, que não converte em discussão de produto. | — | D27 — 2026-05-04 |
 | 27 | **AGPL/copyleft pro repo memoria-nox** | Audience mista research + commercial. MIT maximiza adoption. Copyleft restringiria integração em OpenClaw (privado) e NOX-Supermem. | — | D26 — 2026-05-04 |
+| 28 | **Trocar embedding primário de gemini-embedding-001 para multilingual-e5-base** | Baseline E5 n=60 replicado 3×: nDCG@10=0.3070 vs hybrid 0.5213 (lift 1.7×). Gemini é 1.7× melhor; redução de custo 12× não compensa. E5 vence em 2/8 categorias (cross-agent +0.013, temporal +0.017) mas margens estão dentro do MOE. | GPU + volume <10K chunks + reviewer exigir comparison específica | D28 — 2026-05-04 |
 
 ## 2. Q5 Cross-encoder reranker — DEFERRED (5 razões)
 
@@ -320,3 +321,29 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **Trade-off aceito:** Uma semana de lead time pós-E05 Phase 1 (schema v12 concluído 2026-05-04). E05 Phase 2 + paper final writing em paralelo na semana de 2026-05-12.
 - **NÃO FAZEMOS:** submit Friday/weekend (baixo engagement arXiv + HN); submit sem blog (HN thread precisa de link externo canonical, arXiv link direto não converte em discussão de produto).
 - *Origem:* sessão 2026-05-04; NÃO FAZEMOS §1 itens 25+26. Cross-link: `docs/ROADMAP.md` §paper-publication gate.
+
+#### D28 — multilingual-e5-base baseline: gemini-embedding-001 permanece canonical
+- **Decisão:** Não trocar embedding primário para multilingual-e5-base. gemini-embedding-001 (3072d) permanece canônico.
+- **Resultados E5 baseline** (n=60 golden, 3-run replicado): nDCG@10=0.3070, MRR=0.3720, Recall@10=0.3708, Precision@5=0.1067. Custo: ~6h embed CPU 8-core, cache 162 MB, eval <1s pós-cache.
+- **Comparação:** hybrid (gemini) 0.5213 vs E5 0.3070 = +0.2143 (1.7× lift). Hybrid vence 5/8 categorias. E5 vence 2/8 narrow (cross-agent +0.013, temporal +0.017) dentro do MOE.
+- **Por quê:** Lift 1.7× supera redução de custo 12×. Robustez por categoria favorece hybrid. Margens E5 em cross-agent e temporal são estatisticamente insignificantes.
+- **NÃO FAZEMOS:** trocar embedding primário (item 28 §1). E5 fica como baseline paper (dense comparison), não como runtime.
+- *Origem:* sessão 2026-05-04 sprint W2; NÃO FAZEMOS §1 item 28. Resultados: `paper/publication/results/E02-E5-multilingual-baseline-summary.md`.
+
+#### D29 — BM25 recall ceiling é a constraint dominante; pain permanece modulador secundário
+- **Decisão:** pain dimension mantida como modulador secundário pós-RRF; NÃO promovida a multiplicador BM25 pré-fusão.
+- **Resultados E10** (pain ablation): hybrid Δ=+0.0065 NOT_SIGNIFICANT (n=31); FTS-only Δ=0.0000 (n=31), Δ=+0.0061 (n=60) INSIGNIFICANT. Calibration test 4 distribuições (real/uniform/bimodal/log-scale): H1+H2+H3 REFUTED.
+- **Q55 case study:** Δ=+0.349 em regime narrow tied-semantic — pain é real mas regime-bound.
+- **Root cause real:** BM25 RECALL CEILING — 92% (55/60) das golden queries falham em surfaçar gold via lexical retrieval, independente de calibração de pain. Pain não pode compensar ausência de match lexical.
+- **Por quê:** Efeito de pain é real mas confinado ao regime onde BM25 já rankeia o gold (Q55). Promover pain a pré-fusão não resolve o teto de recall. Re-posicionamento de pain como post-RRF re-ranker é trabalho futuro aberto.
+- **Trade-off aceito:** pain contribution documentada como regime-bound em §5.5. Não enfraquece o design contribution.
+- *Origem:* sessão 2026-05-04 sprint W2. Resultados: `paper/publication/results/E10-pain-ablation-hybrid-results.md`, `E10-pain-ablation-fts-only.md`, `E10-pain-calibration-test.md`.
+
+#### D30 — LOCOMO adotado como segundo benchmark third-party (§5.2)
+- **Decisão:** LOCOMO é o segundo benchmark externo no paper §5.2, ao lado de BEIR TREC-COVID.
+- **Adapter:** `paper/publication/baselines/locomo_eval.py` — stdlib SQLite FTS5, ~250 linhas. Schema correto: snap-research/locomo (NÃO snap-stanford), CC BY-NC 4.0.
+- **Resultados** (n=100 stratified seed=42): FTS5 nDCG@10=0.2810.
+- **Cross-corpus ratio:** LOCOMO FTS5 0.281 vs golden FTS5 0.012 = 23× — confirma que nosso corpus é harder (conversacional + multi-agente vs benchmark limpo).
+- **Por quê:** Fecha diretamente o crítico C5 (single-corpus). Benchmark de memória conversacional alinha com o framing do paper melhor do que TREC-COVID retrieval-only. 23× ratio é resultado narrativo forte pra §5.2.
+- **Trade-off aceito:** LOCOMO é FTS5 baseline (não dense), mas suficiente pra claim de robustez cross-corpus.
+- *Origem:* sessão 2026-05-04 sprint W2. Resultados: `paper/publication/results/E04-locomo-summary.md`.
