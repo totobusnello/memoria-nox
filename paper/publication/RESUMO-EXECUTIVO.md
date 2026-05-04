@@ -42,6 +42,8 @@ salience = recency × pain × importance
 
 O resultado: uma lição de prod-outage de seis meses atrás supera documentação atualizada ontem sobre assunto menor — como a memória humana funciona. O sistema roda 64.180+ chunks com essa dimensão ativa, validada por 7 dias de telemetria real.
 
+**Refinamento empírico (2026-05-04).** Ablações isolando pain de semântica mostram efeito direcional mas não significativo em aggregate. Testes diretos de calibração (4 distribuições: real, uniforme, bimodal, log-scale) refutaram a hipótese de que spread insuficiente era o fator limitante — distribuições artificiais todas ficam abaixo da distribuição real. O real root cause identificado: **BM25 recall ceiling** — 92% das queries (55/60) não encontram os chunks gold via busca lexical, independente de calibração de pain. O multiplicador pain não pode re-rankear o que nunca chegou ao pool de candidatos. Trabalho futuro: co-otimizar recall semântico com re-anotação de pain, posicionando pain como re-ranker pós-RRF. A contribuição metodológica — severity como campo tipado no schema com pipeline de anotação operacional — permanece válida independente do resultado empírico de retrieval.
+
 ### Shadow Discipline: nenhuma mudança de ranking entra sem sete dias de prova
 
 `NOX_SALIENCE_MODE=shadow` é constraint arquitetural enforced via cron e `/api/health` — não uma boa prática documentada que alguém pode ignorar. Qualquer mudança que afeta ranking fica em shadow por mínimo 7 dias, comparada contra o comportamento anterior, antes de ativar.
