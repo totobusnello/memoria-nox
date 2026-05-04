@@ -1,10 +1,123 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-03 ~22:00 BRT (**Voyage DEFERRED final + audit pós-fix 2 modules + cron SEH daily Discord alert ativo**)
+> **Atualizado:** 2026-05-03 ~23:30 BRT (**Sessão fechada limpa: 14 commits pushed + README publication-ready + repo metadata + HARD RULE PT-BR escalated**)
 
 ---
 
-## Sessão atual (2026-05-03 noite ~21:30→22:00 BRT) — Cleanup + audit + cron SEH
+## 🚀 PARA PRÓXIMA SESSÃO — começar aqui
+
+### Sanity check matinal (~3min)
+```bash
+ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
+ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
+ssh root@187.77.234.79 'tail -5 /var/log/nox-seh-report.log'   # F15b cron daily, espera alerts=0
+ssh root@187.77.234.79 'crontab -l | grep "F15b SEH"'           # confirma cron ainda instalado
+```
+Esperado: schema v12, 64.180+ chunks, embed 100%, distribution `unknown=595 / depends_on=260 / mentions=213 / derived_from=35 / extends=3 / replaces=2 / opposes=1`.
+
+### Trabalho priorizado próxima sessão
+
+| # | Trabalho | Esforço | Quando |
+|---|---|---|---|
+| **1** | **PASSIVE: 2026-05-09 sábado activate gate** — routine `trig_012nuCN14VwcxGLq8ERaLPCK` roda automática 09:00 BRT, gera GitHub Issue com verdict ACTIVATE/KEEP-SHADOW pra E03b SPO + E04b Focus. Você só verifica issue e aplica 1-2 env edits + restart se ACTIVATE. Checklist completo na "Sessão anterior #1" abaixo. | ~25min ativo | sábado 2026-05-09 manhã |
+| **2** | **kg-build incremental** — rodar `nox-mem kg-extract --limit 100` em mais chunks pendentes (gap LLM ~5K backlog vs heuristic). Aumenta classification rate atual 46% → potencialmente 60-70%. | ~3min execution + análise | quando vier disponível |
+| **3** | **R01b refinement opcional** — alguns negative cases hoje (Q97/98/99/101/102) podem virar partial-curated quando E12 OCR adicionar mais chunks. Defer Jul. | 30min | Jun-Jul |
+
+### Eventos passivos agendados (NÃO precisa fazer nada)
+
+- **2026-05-09 sábado 09:00 BRT:** routine activate gate auto
+- **Daily 09:00 BRT:** F15b cron SEH report → Discord alert se ALERT severity (atualmente 0 alerts, sistema saudável)
+- **2026-07-06 quarter:** F14 DR drill auto cron (validates PRAGMA alignment + RTO 5s)
+
+### Quando R01c subir pra ≥0.6 (futuro)
+
+Reactivate:
+- **D01 cross-encoder reranker** (Q5 spec, deferred desde 2026-04-26)
+- **E10b consolidation `--apply`** path (gated R01≥0.6 + per-pair human approval pra HIGH FP)
+
+Atualmente Run #9 = 0.519 < 0.6. Pra subir: melhorar weak categories (temporal=0.233, cross-agent=0.369, entity=0.459) — alvos de E07/E08 já shipped, mas ainda surface-only no SPO block.
+
+---
+
+## Sessão atual (2026-05-03 noite ~22:00→23:30 BRT) — Cleanup F16 + Voyage CUT + README polimento + HARD RULE PT-BR
+
+### Voyage Step 3 CUT final (após Toto confirmar não usar)
+- Paper §1.5 Step 3: "DEFERRED" → **"CUT — final"**
+- Adapter pseudocode preservado como reference, sem ambiguidade futura
+- §1.3 mantém wording "plausible but unmeasured"
+
+### F16 cleanup completo (5 lugares)
+- `docs/ROADMAP.md` linha principal: 🚚 MOVED
+- `docs/ROADMAP.md` linha 331: ~~F16~~ MOVED
+- `docs/ROADMAP.md` linha 482: F10/F12/F13/F14 (~~F16~~ moved)
+- `docs/DECISIONS.md` linha 185: corrigido
+- `README.md` Phase Matrix: row removed
+- `openclaw-vps/infra/docs/HANDOFF.md`: F16 backlog adicionado lá (4h estimate, BACKLOG)
+
+memoria-nox agora 100% focado em core memory; OpenClaw plataforma vive em `openclaw-vps/infra/` exclusively.
+
+### README publication-ready (4 melhorias aplicadas)
+- **Badge groups** split: 8 status & quality + 9 features ativas
+- **TOC** com 14 anchors navegável no topo
+- **Demo / Use cases** section nova ~135 LOC com 7 sample CLI outputs reais (search/impact/detect-changes/api-impact/reflect/eval/cli-stats+seh-report)
+- **Comparison vs alternativas** tabela 6×6 (mem0/MemGPT-Letta/A-MEM/LangChain Memory/Cognee) + "Quando usar/Quando NÃO usar" honest positioning
+- README cresceu 528 → 705 LOC mas vira landing page navegável
+
+### GitHub metadata atualizada
+- **Description:** stack TS/SQLite/Gemini + 5 features destaque (E05/E07/E08/E11/F15a/b)
+- **Topics:** +7 novos (`rag`, `semantic-search`, `evaluation`, `benchmarks`, `prompt-engineering`, `sqlite-vec`, `observability`) = **17 total**
+
+### Phase Matrix sync (528 LOC table) — todas rows DONE/PARTIAL atualizadas
+- E06/E07/E08: ✅ DONE
+- E10: 🟡 PARTIAL DONE dry-run
+- E11: ✅ DONE active
+- F15a/F15b: ✅ DONE com cron
+- R01b: ✅ DONE 50/50
+- R01c: ✅ DONE Run #9 + R01c-rep
+- R02: ✅ DONE draft
+- B1+B2+B3 reason fix + E10b apply path: NEW rows
+- Capacity overview: ~31h consumido / ~70h sobra até Set/2026
+
+### ⚠️ HARD RULE PT-BR — escalated 2× (importante)
+
+Toto reforçou regra: **NUNCA usar "tu/te/ti/teu/tua/vc"**, sempre "você + 3ª pessoa". Cross-project enforcement.
+
+Aplicado em 3 lugares (belt-and-suspenders):
+- `~/.claude/CLAUDE.md` linha 10: ⚠️ HARD RULE adicionado
+- `memory/feedback_use_voce_not_tu_in_portuguese.md`: reescrito como HARD RULE com pre-send check mandatório
+- `memory/MEMORY.md` index: ⚠️ marker visual
+
+Drift detectado em README.md linha 185 ("workspace onde **tu** controla...") → fixed.
+
+### 14 commits pushed sessão hoje (memoria-nox)
+1. `1bbf6dd` R01c prelim FTS gap 97.7%
+2. `15ce1ef` E05 reason undercoverage fix (B1+B2+B3)
+3. `56467af` R01b 50/50 + Run #9 baseline
+4. `e8b07c3` Wave 1 sprint (E06+E07+E08+E11)
+5. `6e402b2` Wave 1+2 + audit triplo + 11 fixes
+6. `6bd46c4` F15b SEH proper + R02 paper finalize
+7. `1a771d6` R02 replication Step 1 (3-run)
+8. `70b3478` R02 replication Step 2 (held-out)
+9. `d30a081` Voyage DEFERRED + audit pós-fix + cron SEH
+10. `2dd9e1f` session-end cleanup
+11. `4f7e8be` F16 cross-refs cleanup + Voyage CUT final
+12. `bce9248` README Phase Matrix + capacity + GitHub metadata
+13. `a6abc82` README publication-ready (TOC + demo + comparison)
+14. `af740a8` fix README "tu" → "você"
+
+**Plus 1 commit em `openclaw-vps`:** `6c8d591` F16 Telegram rollback bot migrated.
+
+### Sistema GREEN final
+- Working tree clean ambos repos
+- 0 ahead / 0 behind origin/main em ambos
+- 69/69 tests pass cumulativo
+- Schema v12 aligned, 64.180 chunks 100% embedded
+- Loop self-evolving (F15a→F15b→cron→Discord) ativo
+- Paper R02 publication-ready (com caveats honestos)
+
+---
+
+## Sessão anterior (2026-05-03 noite ~21:30→22:00 BRT) — Cleanup + audit + cron SEH
 
 ### Voyage decision: DEFERRED (paper update final)
 - Toto confirmou: paper R02 é internal documentation, não submission externa → Voyage Step 3 cut
