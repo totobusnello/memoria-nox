@@ -403,43 +403,49 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 | **F14** | DR drill trimestral — script `dr-drill.sh` + cron `0 9 1 1,4,7,10 1` instalado, RTO 5s (1+2+<1+<1) | ✅ DONE | **2026-05-01** | próxima execução auto 2026-07-06 |
 | **E02 / 3 Tier 2** | Tier 2 PDFs (gap real 954, cobertura A6 = 79% / 3.541 + retry NUVIVI/CONTRATOS 23 .md +1.246 chunks) | 🔄 IN-PROGRESS | 2026-05-02 | gap residual ~728 → E12 OCR; E12 escopo expandido |
 | **F10** | Observability dashboard (4 painéis IndexedDB ring buffer 7d no agent-hub-dashboard) | 🛑 DEFERRED | — | trigger: ≥2 features shadow rodando OR R01a publicar evalMetrics; user não usa agora |
-| **E03a** | A6 Entity-Facts SPO Injection (`<vault-facts>` block via KG, top-K 8, sanitize anti-injection) | ✅ DONE shadow | **2026-05-02** | smoke 1 entity / 7 triples / 70 tokens (com reason annotation E05); activate gate 2026-05-09 |
-| **E03b** | A6 activate após 7d subjective utility report | 📋 QUEUED (auto 2026-05-09) | routine `trig_012nuCN14VwcxGLq8ERaLPCK` | 0.2h |
-| **E04a** | A7 Session Focus Topic Boost (`focus set <topic>` 1.4×/0.75×, cache hardened sha256+0600) | ✅ DONE shadow | **2026-05-02** | CLI set/get/clear; smoke on=2 / off=28 / delta±0.110; activate gate 2026-05-09 |
-| **E04b** | A7 activate após 7d shadow + delta recall ≥3% | 📋 QUEUED (auto 2026-05-09) | routine `trig_012nuCN14VwcxGLq8ERaLPCK` | 0.3h |
-| **E05 / W1.1** | Edge typing FULL — relation_reason enum 7 (depends_on/derived_from/opposes/extends/replaces/mentions/unknown) + Gemini prompt 4-tupla + SPO surface annotation `[reason]` (kg_relations v12) | ✅ DONE Phase 1 shadow | **2026-05-02** | schema v12 ativo, 544 backfilled unknown + 90 manualmente classificadas; reason ainda só SURFACE em SPO, não influencia ranking ainda (E05b ou D01 reranker) |
-| **E06 / W1.2** | `nox-mem detect-changes --since=<commit>` read-only git diff→entities | 🟣 WAVE 1 próx sessão | depende E05 ✅ | 2-3h |
-| **E07 / W1.3** | `nox-mem impact <entity>` 1-hop blast radius via kg_relations | 🟣 WAVE 1 Jun-Jul | E05 active (nao shadow) | 2.5h |
-| **E08 / W1.4** | `nox-mem api_impact <signature-change>` multi-arquivo grep + import graph | 🟣 WAVE 1 Jul | nice-to-have | 1.5h |
-| **R01a / W2.1** | Eval harness skeleton (schema v12 + 3 tabelas + 6 CLI subcomandos + nDCG/MRR/Recall/Prec + endpoint) | ✅ DONE | **2026-05-02** | run #2 baseline n=5 hybrid=0.699 / fts=0.000 |
-| **R01b** | Curadoria 50 golden queries (cognitive floor, nao comprime) — 5 seed + 20 batch1 + 15 batch2 (8 categorias) | 🔄 IN-PROGRESS (40/50, 80%) | 2026-05-02 cured 40; restante 10 spread Jun-Jul | 8-10h humano |
-| **R01c** | Baseline FTS-only vs hybrid + publish nDCG@10 em /api/eval-metrics — n=40 cured: hybrid 0.658 / Recall 0.850 / decision=0.980 / temporal=0.417 ⚠️ | 🔄 IN-PROGRESS (prelim n=40) | aguarda R01b 50/50 pra publish definitivo | 1-2h |
-| **E09 / W1.5** | A-MEM auto-keywords/links no ingest (funde Fase 1.7b dormente) | 🤔 CANDIDATE Ago | E05 active obrigatorio | 5-6h |
-| **E10 / W2.2** | Consolidation merge + contradiction detection (entity-anchor val) | 🤔 CANDIDATE Jul | gated nDCG≥0.6 + dry-run zero FP | 3-4h |
-| **R02 / W3.1** | Paper v2 (Affective Ranking + Multi-Agent Federation + Bridge Mode) | 🟣 WAVE 3 Ago | depende R01c baseline | 5-6h cognitive floor |
-| **E12 / 3 Tier 3** | Tier 3 OCR — escopo expandido inclui ~728 PDFs gap E02 (PPR 372 + PESSOAL 250 + size-rejected ~106) + Fathom + Path C | 📋 QUEUED | post-E02 | dias |
+| **E03a** | SPO Injection shadow (`<vault-facts>` block via KG, top-K 8) | ✅ DONE shadow | **2026-05-02** | activate gate 2026-05-09 routine automática |
+| **E03b** | SPO surface activate após 7d shadow | 📋 QUEUED (auto 2026-05-09) | routine `trig_012nuCN14VwcxGLq8ERaLPCK` | 0.2h |
+| **E04a** | Session Focus Boost shadow (`focus set <topic>` 1.4×/0.75×) | ✅ DONE shadow | **2026-05-02** | activate gate 2026-05-09 |
+| **E04b** | Focus apply activate após 7d + delta recall ≥3% | 📋 QUEUED (auto 2026-05-09) | routine `trig_012nuCN14VwcxGLq8ERaLPCK` | 0.3h |
+| **E05** | Edge typing FULL Phase 1 — relation_reason enum 7 + SPO `[reason]` annotation (schema v12) | ✅ DONE | **2026-05-02** | 544 backfilled; surface only (não ranking) |
+| **B1+B2+B3** | E05 reason undercoverage fix — RELATION_TYPE_TO_REASON map + 3-path normalize + `kg-reclassify` subcomando; classification 14% → 56% | ✅ DONE | **2026-05-03** | +137 backfill zero Gemini cost |
+| **E06** | `nox-mem detect-changes --since=<commit>` read-only git diff→entities (Path 1: frontmatter + Path 2: chunk evidence) | ✅ DONE | **2026-05-03** | 1498 files → 182 entities em 268ms |
+| **E07** | `nox-mem impact <entity>` 1-hop blast radius com REASON_PRIORITY weights (E05) + blast_radius_score | ✅ DONE | **2026-05-03** | Toto blast=29152.1 em 1ms |
+| **E08** | `nox-mem api-impact <signature>` multi-arquivo grep + import/definition/usage classification | ✅ DONE | **2026-05-03** | getDb 39 files / 157 refs em 11ms |
+| **E10** | Consolidation merge candidate detection — DRY-RUN ONLY (gate D01 R01≥0.6 not yet) | 🟡 PARTIAL DONE (dry-run) | **2026-05-03** | 914 entities → 52 pairs em 134ms; 4 HIGH FP protected |
+| **E11** | Reflect cache semantic — Gemini embed + cosine ≥ 0.88; exact hit 30× / semantic hit 4× speedup | ✅ DONE | **2026-05-03** | env vars `NOX_REFLECT_SEMANTIC_*` |
+| **F15a** | CLI Observability — `cli_telemetry` table + Commander hooks + `cli-stats` insights (top usage / slow / dormant / errors) | ✅ DONE | **2026-05-03** | secret redaction defensiva |
+| **F15b** | SEH proper — `seh-report` WoW comparison: perf_regression / error_spike / dormant / capacity / first_use / recovery + PERF_PATCH_HINTS | ✅ DONE | **2026-05-03** | cron daily 09:00 BRT + Discord alert |
+| **R01a** | Eval harness skeleton (schema v11 + 3 tabelas + 6 CLI subcomandos + nDCG/MRR/Recall/Prec + endpoint /api/eval-metrics) | ✅ DONE | **2026-05-02** | run #2 baseline n=5 |
+| **R01b** | Curadoria 50 golden queries — milestone fechado | ✅ DONE 50/50 | **2026-05-03** | 8 categorias mistas, 12% negative cases |
+| **R01c** | Baseline FTS vs Hybrid n=50 — Run #9 hybrid 0.519 / FTS 0.012; gap 97.7% loss confirma necessidade arquitetural | ✅ DONE | **2026-05-03** | trigger D01 reranker NÃO dispara (<0.6) |
+| **R01c-rep** | R01c replication 3-run mean±std + held-out 10 queries | ✅ DONE Steps 1+2 | **2026-05-03** | system deterministic; 5/5 negatives zero hallucination |
+| **R02** | Paper v2 draft 7 sections + 6 quantitative tables + 4 caveats critic (n=1, golden bias, baseline, no alt providers) | ✅ DONE draft | **2026-05-03** | `paper/paper-v2-draft-evidence.md`; Voyage Step 3 CUT |
+| **E09** | A-MEM auto-keywords/links no ingest (funde Fase 1.7b dormente) | 🤔 CANDIDATE Ago | E05 active obrigatorio | 5-6h |
+| **E10b** | Consolidation `--apply` path — gated R01≥0.6 + per-pair human approval pra HIGH FP | 🟣 BLOCKED | aguarda R01c ≥ 0.6 | 1-2h |
+| **E12 / 3 Tier 3** | Tier 3 OCR — escopo expandido inclui ~728 PDFs gap E02 + Fathom + Path C | 📋 QUEUED | post-E02 | dias |
 | **3 Tier 3** | OCR Gemini PDFs scaneados (opcional) | 🔒 OPCIONAL | — | dias |
 | **3.5** | Fathom API (opcional, paralela) | 🔒 OPCIONAL | — | 3-4h |
-| **E11 / Path B-lite** | Reflect cache (semantic key) | 🔒 BLOCKED Set+ | depende telemetria reflect | 1.5-3h |
 | **Path C** | WAL shipping + cold tier | 🔒 BLOCKED | depende Fase 4 estavel 30d | dias |
 | **4b/5** | Obsidian write + bidirectional | 🔒 FUTURO | depende Fase 4 + 2-4 sem | semanas |
-| **F15 / SEH** | Self-Evolving Hooks | 🔒 INDEPENDENTE Set+ | — | 1-2h |
 | **P01 / Fase P** | Productizacao NOX-Supermem (Fase 4b → 5 → P) | 🔒 HORIZONTE 60d+ | depende Fase 4 estavel 30d (>= 05-26) | semanas |
 
 **Legenda:** ✅ DONE / 🔄 IN-PROGRESS / 🤔 SPEC READY (impl pendente) / 📋 QUEUED / 🟣 WAVE FUTURA (gated por metricas) / 🤔 CANDIDATE (POC + 7d shadow) / 🔒 BLOCKED ou FUTURO / ❌ CUT
 
 **Sistema unificado de IDs F/E/R/P/G/D** substitui 6+ namespaces antigos (A/B/W/Q/Fase/Phase). Cross-ref completo em [`docs/ROADMAP.md §8`](docs/ROADMAP.md). Items DEFERRED/CUT (D01-D21) em [`docs/ROADMAP.md §4`](docs/ROADMAP.md#4-tabela-mestre-cronologica).
 
-### Capacity overview
+### Capacity overview (atualizado 2026-05-03)
 
 ```
 Disponivel 04-27 → 09-30:    ~22 semanas × 6h/sem = 132h
 Margem incident:             -20h reservadas (4 incidents em 2 dias 04-25/26)
 Capacity liquida:            ~112h
-Compromissado nucleo:         53-72h
-Candidates (E03a/b, E04a/b, E09, E10):  11.5-13.5h
-Bloco V (Set+):               2.5h pequeno + dias-semanas E12/P01
-Sobra realista:               +23 a +45h
+Consumido até 2026-05-03:    ~31h (Wave 1+2 + R02 paper drafts + 4 sessões intensas)
+Wave 1+2 estimado:            22h estimado → 7h real (3.5× faster — sprint Maio 03)
+Wave 3 (paper R02 publish):    ~3h restantes (caveats já aplicados)
+Candidates (E09, E10b apply): 8-10h (gated)
+Bloco V (Set+):               dias-semanas E12/P01
+Sobra realista:               ~70h (4× margin original) — folga pra incidents Maio-Set
 ```
 
 ---
