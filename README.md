@@ -204,7 +204,7 @@ Agentes AI sem memória persistente repetem erros, perdem contexto entre sessõe
 - **Snapshot atômico pré-op** — `withOpAudit()` cria backup VACUUM INTO antes de qualquer destructive op; recovery em segundos via `safeRestore()` com PRAGMA sentinel
 - **Baseline-first em qualquer ranking change** — antes de ativar E05/E10/D01 reranker, mede nDCG@10 vs baseline atual via eval harness (R01a) com golden queries curadas; sem baseline, não merge
 
-O sistema é construído pra **resistir a upgrades de infra** (já sobreviveu OpenClaw v.24→v.25→v.26→v.29 sem perda de dados), **patches de segurança** (24+ feedback files documentando incidents resolvidos), e **mudanças de modelo** (Gemini Flash → Flash-Lite default por custo, com playbook RB-05 pra trocar provider em 1h se necessário).
+O sistema é construído pra **resistir a upgrades de infra** (já sobreviveu OpenClaw v.24→v.25→v.26→v.29→v2026.5.2 sem perda de dados), **patches de segurança** (24+ feedback files documentando incidents resolvidos), e **mudanças de modelo** (Gemini Flash → Flash-Lite default por custo, com playbook RB-05 pra trocar provider em 1h se necessário).
 
 **Estado atual em produção** (VPS Hostinger, Tailscale-only, 2026-05-03 20:30 BRT):
 - **64.180 chunks** indexados / **100% embedded** (Gemini 3072d sqlite-vec) / **1.036 GB** DB
