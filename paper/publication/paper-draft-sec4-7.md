@@ -45,7 +45,7 @@ salience(chunk) = recency(chunk) × pain(chunk) × importance(chunk)
 
 where `recency ∈ [0, 1]` is an exponential decay over `last_seen` timestamp, `pain ∈ [0.1, 1.0]` is the manual annotation, and `importance ∈ [0, 1]` is derived from `mention_count` and `entity_type` prior. The multiplicative structure means that a high-pain chunk remains salient even as its recency decays — which is the core behavioral claim of Contribution 1.
 
-**Annotation coverage.** The corpus contains 64,180+ chunks; pain annotation is currently applied selectively to chunks derived from incident entity files (exact count pending prod query via `SELECT COUNT(*) FROM chunks WHERE pain > 0.2`). Future work includes LLM-driven automatic pain classification over the full corpus (§6.5).
+**Annotation coverage.** The 61,257-chunk experimental snapshot (§3.8) carries selective pain annotation applied to chunks derived from incident entity files (exact count pending prod query via `SELECT COUNT(*) FROM chunks WHERE pain > 0.2`). Future work includes LLM-driven automatic pain classification over the full corpus (§6.5).
 
 ### 4.4 Edge Typing Extraction
 
