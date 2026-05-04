@@ -1,0 +1,44 @@
+--- a/src/api-server.ts (current on VPS)
++++ b/src/api-server.ts (E12-followup)
+
+====== CHANGE 1 — /api/search handler reads X-Agent-Name header ======
+
+FIND (inside the "/api/search" case, lines ~225-230):
+
+      case "/api/search": {
+        const q = parseQuery(url);
+        if (!q.q) { json(res, { error: "q parameter required" }, 400); break; }
+        const limit = parseInt(q.limit || "10");
+        const results = await searchHybrid(q.q, limit);
+        json(res, results);
+        break;
+      }
+
+REPLACE WITH:
+
+      case "/api/search": {
+        const q = parseQuery(url);
+        if (!q.q) { json(res, { error: "q parameter required" }, 400); break; }
+        const limit = parseInt(q.limit || "10");
+        // E12-followup: X-Agent-Name header > NOX_AGENT_NAME env > null
+        const agentHeader = req.headers["x-agent-name"];
+        const requestingAgent =
+          (Array.isArray(agentHeader) ? agentHeader[0] : agentHeader)
+          ?? process.env.NOX_AGENT_NAME
+          ?? null;
+        const results = await searchHybrid(q.q, limit, requestingAgent);
+        json(res, results);
+        break;
+      }
+
+  NOTE: The CORS headers block in `json()` (line ~20) already has
+  "Access-Control-Allow-Headers": "Content-Type"
+  Update it to also allow X-Agent-Name so browser/dashboard clients can send it:
+
+FIND:
+
+    "Access-Control-Allow-Headers": "Content-Type",
+
+REPLACE WITH:
+
+    "Access-Control-Allow-Headers": "Content-Type, X-Agent-Name",

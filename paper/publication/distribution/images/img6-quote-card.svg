@@ -1,0 +1,41 @@
+<svg viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" width="1200" height="675" font-family="'Helvetica Neue','Arial',sans-serif">
+  <!-- Full bleed near-black background -->
+  <rect width="1200" height="675" fill="#0F172A"/>
+
+  <!-- Very subtle indigo tint from bottom-left — depth without distraction -->
+  <defs>
+    <radialGradient id="ambientGlow" cx="10%" cy="90%" r="55%">
+      <stop offset="0%" stop-color="#4F46E5" stop-opacity="0.07"/>
+      <stop offset="100%" stop-color="#4F46E5" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Amber glow behind "paper" word area -->
+    <radialGradient id="paperGlow" cx="62%" cy="56%" r="18%">
+      <stop offset="0%" stop-color="#D97706" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#D97706" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#ambientGlow)"/>
+  <rect width="1200" height="675" fill="url(#paperGlow)"/>
+
+  <!-- ═══ THREE QUOTE LINES ═══ -->
+  <!-- Optical center at y≈43% = ~290px; three lines at 1.5em lh (~51px apart) -->
+  <!-- Line 1: white, full brightness -->
+  <text x="600" y="272" text-anchor="middle" font-size="34" font-weight="700" fill="#F8FAFC" font-family="'Helvetica Neue','Arial Black',sans-serif">The incidents are in the log.</text>
+
+  <!-- Line 2: slate-300, slightly recessive — builds toward peak -->
+  <text x="600" y="323" text-anchor="middle" font-size="34" font-weight="700" fill="#CBD5E1" font-family="'Helvetica Neue','Arial Black',sans-serif">The log is in the schema.</text>
+
+  <!-- Line 3: split to amber-highlight "paper" -->
+  <!-- We measure: "The schema is in the " takes roughly 520px at 34px Bold, "paper" ~100px, "." ~14px -->
+  <!-- Center the full string: total ~634px, start x = 600 - 317 = 283 -->
+  <text x="600" y="374" text-anchor="middle" font-size="34" font-weight="700" font-family="'Helvetica Neue','Arial Black',sans-serif">
+    <tspan fill="#F8FAFC">The schema is in the </tspan><tspan fill="#D97706">paper</tspan><tspan fill="#F8FAFC">.</tspan>
+  </text>
+
+  <!-- Amber accent rule (2px × 80px, centered) -->
+  <rect x="560" y="408" width="80" height="2" fill="#D97706" rx="1"/>
+
+  <!-- Attribution block -->
+  <text x="600" y="456" text-anchor="middle" font-size="13" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="1">THE PAIN DIARY AND SHADOW DISCIPLINE</text>
+  <text x="600" y="478" text-anchor="middle" font-size="13" fill="#818CF8" font-family="'Helvetica Neue','Arial',sans-serif">github.com/totobusnello/memoria-nox</text>
+</svg>

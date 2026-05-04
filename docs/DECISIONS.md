@@ -29,6 +29,13 @@
 | 18 | **Tier 3 OCR no critical path Fase 4** | Opcional. Não bloqueia Obsidian Fase 4 (texto-layer suficiente). | Volume PDF scaneado >50 docs | v1.6:62 |
 | 19 | **Adotar git-as-source-of-truth (gbrain markdown)** | Filosofias opostas de storage. Reescrita do zero. Features portáveis, arquitetura não. | Nunca (incompatível) | v1.5:640 |
 | 20 | **W2.3 Tool/Skill map** | Sem caso de uso concreto hoje. | 6+ meses ou multi-tenancy | v1.6:188 |
+| 21 | **BGE-M3 como dense baseline no paper** (`BAAI/bge-m3`, 568M params) | Throughput CPU = 0.3 chunks/s → 55h ETA pra 61K chunks (testado 2026-05-04). Inviável overnight. Substituído por `multilingual-e5-base`. | GPU disponível (cloud/local) + volume <10K chunks | D23 — 2026-05-04 |
+| 22 | **Pain ablation completa pré-submit arXiv** | Requer 2× restart prod nox-mem-api + janela 2min downtime sem autorização explícita. Não é pré-requisito pra submit (paper §5.5 cobre como future work). | Pós-submit 2026-05-19 com janela autorizada | D24 — 2026-05-04 |
+| 23 | **Cross-agent retrieval-level quantification pré-submit** | `search_telemetry` não tem `requesting_agent` column (sketch sem deploy). +1h impl + 2 sem wait telemetria. Storage-level (99.92%) já é claim forte. | E12-followup com migration testada 2 sem | D25 — 2026-05-04 |
+| 24 | **Modal cloud GPU pro paper** | BGE-M3 comparison não foi cobrada por reviewer; custo cloud GPU não justificado. `multilingual-e5-base` CPU cobre baseline. | Reviewer cobrar comparison específica em revisão pós-submit | D23 — 2026-05-04 |
+| 25 | **Submit arXiv em dia/horário não-otimizado (Fri/weekend)** | Friday/weekend = baixo engagement no feed arXiv + HN. Tuesday peak window pra arXiv; Thursday peak pra HN tech audience. | Deadline de conferência forçar data específica | D27 — 2026-05-04 |
+| 26 | **Skip blog pré-HN** | HN Thread precisa de link externo canonical. Post sem blog = link direto arXiv, que não converte em discussão de produto. | — | D27 — 2026-05-04 |
+| 27 | **AGPL/copyleft pro repo memoria-nox** | Audience mista research + commercial. MIT maximiza adoption. Copyleft restringiria integração em OpenClaw (privado) e NOX-Supermem. | — | D26 — 2026-05-04 |
 
 ## 2. Q5 Cross-encoder reranker — DEFERRED (5 razões)
 
@@ -277,3 +284,39 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **PRAGMA user_version aligned 0 → 10 ✅** — F14 DR drill expôs que `PRAGMA user_version=0` enquanto `meta.schema_version=10`. Análise: NÃO É BUG SCHEMA — é inconsistência de fonte. nox-mem usa `meta.schema_version` como source-of-truth canônico (via `ensureSchema` em db.ts); `PRAGMA user_version` é só sentinel usado em `op-audit.safeRestore()` pra validar schema mismatch durante restore. Bumpado pra 10 manualmente via `sqlite3 ... "PRAGMA user_version = 10"`. Backup `/var/backups/nox-mem/pre-bump-pragma-20260501-211006.db`. Future ops_audit registrará `schema_user_version=10` corretamente. R01a impl bumpa pra 11/12 em `migrateToV11/V12` normais.
 - **op-audit-e2e bug ✅ FIXED** — `src/db.ts:7` patched pra honrar `process.env.NOX_DB_PATH` (priority: NOX_DB_PATH > OPENCLAW_WORKSPACE > __dirname fallback). Test setupDb refeito: era CREATE TABLE chunks com schema v1 minimal que entrava em conflito com migrations cumulativas v3+ (source_date, pain, section adicionados). Solução: deixar ensureSchema do getDb() construir schema v10 completo, depois INSERT samples via SQL direta. **27/27 tests pass** (retention 20 + op-audit-e2e 7). Backup `src/db.ts.bak-pre-noxdbpath-20260501-211042`. Build redeployado, prod nox-mem-api restarted health OK.
 - **Lição test setup vs migrations cumulativas:** test que cria tabela manualmente conflita com schema migrations idempotentes (CREATE TABLE IF NOT EXISTS encontra tabela pré-existente sem colunas que migrations v3+ esperam). Padrão correto: deixar app code construir schema (via getDb() → ensureSchema), test só insere data sample.
+
+### 2026-05-04 — Paper publication: decisões D23–D27
+
+#### D23 — BGE-M3 cortado; multilingual-e5-base substituto como dense baseline
+- **Decisão:** Pular `BAAI/bge-m3` (568M params) como dense baseline no paper; usar `intfloat/multilingual-e5-base` (278M params, 768d).
+- **Por quê:** BGE-M3 testado em CPU 2026-05-04: throughput = 0.3 chunks/s → 55h ETA pra 61K chunks. Inviável overnight. multilingual-e5-base = 2.8 chunks/s → ~5.5h, coberto em batch noturno. Corpus PT+EN é mix-aware com multilingual-e5.
+- **Trade-off aceito:** -5–10% qualidade máxima vs BGE-M3 full-recall, mas dense baseline ainda competitivo em BEIR e suficiente pra paper contribution.
+- **NÃO FAZEMOS:** rodar BGE-M3 em CPU (55h = impraticável); cogitar Modal cloud GPU a menos que reviewer exija comparison específica em revisão pós-submit.
+- *Origem:* sessão 2026-05-04; NÃO FAZEMOS §1 itens 21+24.
+
+#### D24 — Pain ablation deferred pós-submit arXiv
+- **Decisão:** Ablation completa de pain (pain=1.0 uniform vs valores reais) deferred pós-submit 2026-05-19. Baseline pós-incident medido: nDCG@10 = 0.2689 (n=6).
+- **Por quê:** Ablation requer 2× restart de `nox-mem-api` em prod (DB swap pra TEMP DB com pain=1.0 → eval → restore). Janela ~2min downtime precisa de autorização explícita separada. Paper §5.5 permanece íntegro: design contribution de pain-weighted salience não depende de ablation para o submit — ablation fortalece mas não é pré-requisito.
+- **Trade-off aceito:** §5.5 marcado "deferred future work" em vez de "confirmed via ablation". Diferencial #1 (pain-weighted salience) permanece como design contribution com baseline empírico.
+- **NÃO FAZEMOS:** restart prod sem janela autorizada explicitamente; omitir pain do paper por ablation incompleta (baseline empírico é suficiente).
+- *Origem:* sessão 2026-05-04; NÃO FAZEMOS §1 item 22.
+
+#### D25 — Cross-agent retrieval-level quantification deferred (E12-followup)
+- **Decisão:** Cross-agent quantification confirmada no nível de storage (99.92% chunks compartilhados); retrieval-level (% queries com top-1 hit cross-agent) deferred até E12-followup migration.
+- **Por quê:** `search_telemetry` não tem coluna `requesting_agent` (sketch nunca deployado). Adicionar = 1h impl + mínimo 2 semanas aguardando telemetria popular. Bloqueia submit por insuficiência de dados. Storage-level claim é empiricamente forte e suficiente pra §5.6.
+- **Trade-off aceito:** §5.6 apresenta 99.92% storage-level + marca retrieval-level quantification como "future work". Não enfraquece a contribuição de cross-agent memory sharing.
+- **NÃO FAZEMOS:** retrofit migration ad-hoc só pra paper sem ciclo de teste de 2 semanas; remover §5.6 por falta de retrieval-level data.
+- *Origem:* sessão 2026-05-04; NÃO FAZEMOS §1 item 23.
+
+#### D26 — LICENSE MIT confirmado
+- **Decisão:** MIT license adotada pro repo `memoria-nox`. Apex: Luiz Antonio Busnello.
+- **Por quê:** Maximiza adoption, permissivo, padrão em research projects e papers técnicos. Compatível com integração em OpenClaw (privado) e NOX-Supermem (comercial) sem restrições copyleft.
+- **NÃO FAZEMOS:** AGPL ou qualquer copyleft — audience é mista research + commercial; copyleft restringiria integração nos repos privados do ecossistema.
+- *Origem:* sessão 2026-05-04; NÃO FAZEMOS §1 item 27. Cross-link: `docs/VISION.md` §licensing.
+
+#### D27 — Submit timing: arXiv 2026-05-19 Tuesday 09:00 ET; blog Wednesday; HN Thursday
+- **Decisão:** arXiv submit Tuesday 2026-05-19 09:00 ET. Blog post Wednesday 2026-05-20. HN "Show HN" Thursday 2026-05-21 09:00 ET.
+- **Por quê:** Tuesday é peak de visibilidade no feed arXiv (menor competição que Monday + maior que Wednesday). HN Thursday tech audience peak pra "Show HN". Blog Wednesday dá buffer de 1 dia pra rascunho do top comment HN e link canonical externo.
+- **Trade-off aceito:** Uma semana de lead time pós-E05 Phase 1 (schema v12 concluído 2026-05-04). E05 Phase 2 + paper final writing em paralelo na semana de 2026-05-12.
+- **NÃO FAZEMOS:** submit Friday/weekend (baixo engagement arXiv + HN); submit sem blog (HN thread precisa de link externo canonical, arXiv link direto não converte em discussão de produto).
+- *Origem:* sessão 2026-05-04; NÃO FAZEMOS §1 itens 25+26. Cross-link: `docs/ROADMAP.md` §paper-publication gate.

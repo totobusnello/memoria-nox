@@ -1,0 +1,68 @@
+<svg viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" width="1200" height="675" font-family="'Helvetica Neue','Arial',sans-serif">
+  <!-- Full bleed dark background -->
+  <rect width="1200" height="675" fill="#0F172A"/>
+
+  <!-- Subtle noise texture via repeating micro-pattern -->
+  <defs>
+    <pattern id="grain" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="1" height="1" fill="#FFFFFF" opacity="0.015"/>
+      <rect x="2" y="2" width="1" height="1" fill="#FFFFFF" opacity="0.012"/>
+    </pattern>
+    <!-- Subtle indigo glow in top-right -->
+    <radialGradient id="glow" cx="85%" cy="15%" r="45%">
+      <stop offset="0%" stop-color="#4F46E5" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#4F46E5" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#grain)"/>
+  <rect width="1200" height="675" fill="url(#glow)"/>
+
+  <!-- ROW 1: Three large metrics with × operators -->
+  <!-- Metric: 4 (months) -->
+  <text x="185" y="230" text-anchor="middle" font-size="88" font-weight="900" fill="#D97706" font-family="'Helvetica Neue','Arial Black',sans-serif" letter-spacing="-2">4</text>
+  <text x="185" y="264" text-anchor="middle" font-size="12" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="3">MONTHS</text>
+
+  <!-- × operator 1 -->
+  <text x="340" y="228" text-anchor="middle" font-size="40" fill="#1E293B" font-family="'Helvetica Neue','Arial',sans-serif">×</text>
+
+  <!-- Metric: 6 (agents) -->
+  <text x="490" y="230" text-anchor="middle" font-size="88" font-weight="900" fill="#4F46E5" font-family="'Helvetica Neue','Arial Black',sans-serif" letter-spacing="-2">6</text>
+  <text x="490" y="264" text-anchor="middle" font-size="12" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="3">AGENTS</text>
+
+  <!-- × operator 2 -->
+  <text x="648" y="228" text-anchor="middle" font-size="40" fill="#1E293B" font-family="'Helvetica Neue','Arial',sans-serif">×</text>
+
+  <!-- Metric: 64,180+ (chunks) -->
+  <text x="920" y="230" text-anchor="middle" font-size="72" font-weight="900" fill="#34D399" font-family="'Helvetica Neue','Arial Black',sans-serif" letter-spacing="-2">64,180+</text>
+  <text x="920" y="264" text-anchor="middle" font-size="12" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="3">CHUNKS</text>
+
+  <!-- Horizontal rule separator -->
+  <line x1="90" y1="296" x2="1110" y2="296" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- ROW 2: Three tighter metrics -->
+  <!-- Metric: 12 (schema versions) -->
+  <text x="220" y="390" text-anchor="middle" font-size="68" font-weight="700" fill="#94A3B8" font-family="'Helvetica Neue','Arial Black',sans-serif" letter-spacing="-1">12</text>
+  <text x="220" y="416" text-anchor="middle" font-size="11" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="3">SCHEMA</text>
+  <text x="220" y="432" text-anchor="middle" font-size="11" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="3">VERSIONS</text>
+
+  <!-- Metric: 99.97% (vector coverage) -->
+  <text x="600" y="390" text-anchor="middle" font-size="68" font-weight="700" fill="#34D399" font-family="'Helvetica Neue','Arial Black',sans-serif" letter-spacing="-2">99.97%</text>
+  <text x="600" y="416" text-anchor="middle" font-size="11" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="3">VECTOR</text>
+  <text x="600" y="432" text-anchor="middle" font-size="11" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="3">COVERAGE</text>
+
+  <!-- Metric: &lt;1s (p95 latency) -->
+  <text x="980" y="390" text-anchor="middle" font-size="68" font-weight="700" fill="#F8FAFC" font-family="'Helvetica Neue','Arial Black',sans-serif" letter-spacing="-1">&lt;1s</text>
+  <text x="980" y="416" text-anchor="middle" font-size="11" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="3">P95</text>
+  <text x="980" y="432" text-anchor="middle" font-size="11" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="3">LATENCY</text>
+
+  <!-- Horizontal rule separator 2 -->
+  <line x1="90" y1="460" x2="1110" y2="460" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- Tagline in DM Mono style -->
+  <text x="600" y="498" text-anchor="middle" font-size="14" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">Solo. No funding. $20/mo VPS.</text>
+  <text x="600" y="520" text-anchor="middle" font-size="14" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">Production corpus. Not synthetic.</text>
+
+  <!-- Bottom footer -->
+  <text x="600" y="580" text-anchor="middle" font-size="11.5" fill="#334155" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="1">THE PAIN DIARY AND SHADOW DISCIPLINE</text>
+  <text x="600" y="600" text-anchor="middle" font-size="11.5" fill="#818CF8" font-family="'Helvetica Neue','Arial',sans-serif">github.com/totobusnello/memoria-nox</text>
+</svg>

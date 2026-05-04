@@ -1,0 +1,31 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Local results (large or transient)
+results/raw-runs/
+
+# Embeddings cache (can be regenerated)
+*.npz
+
+# VPS log mirrors (logs are on VPS, not in repo)
+*.log
+
+# LaTeX build artifacts
+latex/*.aux
+latex/*.log
+latex/*.bbl
+latex/*.blg
+latex/*.out
+latex/*.toc
+latex/*.synctex.gz
+
+# Editor backups
+*.bak
+*.swp
+*.swo
+*~
+
+# Mac OS
+.DS_Store

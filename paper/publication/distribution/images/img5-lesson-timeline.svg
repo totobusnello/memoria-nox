@@ -1,0 +1,109 @@
+<svg viewBox="0 0 1200 675" xmlns="http://www.w3.org/2000/svg" width="1200" height="675" font-family="'Helvetica Neue','Arial',sans-serif">
+  <!-- Background -->
+  <rect width="1200" height="675" fill="#0F172A"/>
+
+  <!-- Subtle rose glow near left node -->
+  <defs>
+    <radialGradient id="roseGlow1" cx="27%" cy="57%" r="22%">
+      <stop offset="0%" stop-color="#E11D48" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#E11D48" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="roseGlow2" cx="60%" cy="57%" r="22%">
+      <stop offset="0%" stop-color="#E11D48" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#E11D48" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#roseGlow1)"/>
+  <rect width="1200" height="675" fill="url(#roseGlow2)"/>
+
+  <!-- HEADER -->
+  <text x="90" y="88" font-size="33" font-weight="700" fill="#F8FAFC" font-family="'Helvetica Neue','Arial Black',sans-serif">Each scar became a rule.</text>
+  <text x="90" y="118" font-size="13" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">The incidents are in the log. The log is in the schema.</text>
+
+  <!-- Header separator -->
+  <line x1="90" y1="140" x2="1110" y2="140" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- TIMELINE RAIL (horizontal, centered at y=370) -->
+  <line x1="90" y1="370" x2="1060" y2="370" stroke="#1E293B" stroke-width="2"/>
+
+  <!-- Arrowhead at right end of rail -->
+  <polygon points="1060,364 1075,370 1060,376" fill="#1E293B"/>
+
+  <!-- ═══════ NODE 1: APR 25 ═══════ -->
+  <!-- Vertical connector from rail to node -->
+  <line x1="280" y1="370" x2="280" y2="310" stroke="#E11D48" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+  <!-- Date label APR 25 -->
+  <text x="280" y="350" text-anchor="middle" font-size="12" font-weight="700" fill="#D97706" font-family="'Helvetica Neue','Arial Black',sans-serif" letter-spacing="2">APR 25</text>
+
+  <!-- Node dot (rose, incident) -->
+  <circle cx="280" cy="370" r="9" fill="#E11D48"/>
+  <circle cx="280" cy="370" r="6" fill="#0F172A"/>
+  <circle cx="280" cy="370" r="3" fill="#E11D48"/>
+
+  <!-- Connector downward -->
+  <line x1="280" y1="379" x2="280" y2="415" stroke="#E11D48" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+  <!-- Incident card 1 -->
+  <rect x="145" y="415" width="272" height="110" rx="4" fill="#0F172A" stroke="#E11D48" stroke-width="1"/>
+
+  <!-- Card content -->
+  <text x="165" y="440" font-size="16" font-weight="700" fill="#FB7185" font-family="'SF Mono','Courier New',monospace">F02</text>
+  <text x="205" y="440" font-size="12" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">op-audit incident</text>
+  <text x="165" y="462" font-size="11" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">reindex wiped 183 entities</text>
+  <text x="165" y="477" font-size="11" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">section + retention + boost</text>
+  <text x="165" y="492" font-size="11" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">zero alert. zero error.</text>
+
+  <!-- Rule outcome (emerald) -->
+  <text x="165" y="514" font-size="11" fill="#34D399" font-family="'Helvetica Neue','Arial',sans-serif">→ withOpAudit() snapshot before ops</text>
+
+  <!-- ═══════ NODE 2: MAY 1 ═══════ -->
+  <!-- Vertical connector from rail to node -->
+  <line x1="620" y1="370" x2="620" y2="310" stroke="#E11D48" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+  <!-- Date label MAY 1 -->
+  <text x="620" y="350" text-anchor="middle" font-size="12" font-weight="700" fill="#D97706" font-family="'Helvetica Neue','Arial Black',sans-serif" letter-spacing="2">MAY 1</text>
+
+  <!-- Node dot (rose, incident) -->
+  <circle cx="620" cy="370" r="9" fill="#E11D48"/>
+  <circle cx="620" cy="370" r="6" fill="#0F172A"/>
+  <circle cx="620" cy="370" r="3" fill="#E11D48"/>
+
+  <!-- Connector downward -->
+  <line x1="620" y1="379" x2="620" y2="415" stroke="#E11D48" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+  <!-- Incident card 2 -->
+  <rect x="485" y="415" width="272" height="110" rx="4" fill="#0F172A" stroke="#E11D48" stroke-width="1"/>
+
+  <!-- Card content -->
+  <text x="505" y="440" font-size="16" font-weight="700" fill="#FB7185" font-family="'SF Mono','Courier New',monospace">Rule 7</text>
+  <text x="572" y="440" font-size="12" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">binary file incident</text>
+  <text x="505" y="462" font-size="11" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">sed -i on SQLite .db</text>
+  <text x="505" y="477" font-size="11" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">1 GB corrupted, 8 backups</text>
+  <text x="505" y="492" font-size="11" fill="#94A3B8" font-family="'SF Mono','Courier New',monospace">page boundary destruction</text>
+
+  <!-- Rule outcome (emerald) -->
+  <text x="505" y="514" font-size="11" fill="#34D399" font-family="'Helvetica Neue','Arial',sans-serif">→ never sed binary files. ever.</text>
+
+  <!-- ═══════ NODE 3: FUTURE (dimmed) ═══════ -->
+  <!-- Date label dimmed -->
+  <text x="960" y="350" text-anchor="middle" font-size="12" font-weight="700" fill="#334155" font-family="'Helvetica Neue','Arial Black',sans-serif" letter-spacing="2">NEXT</text>
+
+  <!-- Node dot (open, slate, future) -->
+  <circle cx="960" cy="370" r="8" fill="#0F172A" stroke="#334155" stroke-width="2"/>
+
+  <!-- Connector downward (dimmed) -->
+  <line x1="960" y1="378" x2="960" y2="415" stroke="#1E293B" stroke-width="1.5" stroke-dasharray="3,3"/>
+
+  <!-- Future card (dimmed) -->
+  <rect x="840" y="415" width="240" height="110" rx="4" fill="#0F172A" stroke="#1E293B" stroke-width="1"/>
+  <text x="960" y="462" text-anchor="middle" font-size="22" fill="#1E293B" font-family="'SF Mono','Courier New',monospace">···</text>
+  <text x="960" y="490" text-anchor="middle" font-size="11" fill="#334155" font-family="'Helvetica Neue','Arial',sans-serif">forming</text>
+
+  <!-- Footer rule -->
+  <line x1="90" y1="602" x2="1110" y2="602" stroke="#1E293B" stroke-width="1"/>
+
+  <!-- Footer -->
+  <text x="90" y="626" font-size="11" fill="#475569" font-family="'Helvetica Neue','Arial',sans-serif" letter-spacing="0.5">THE PAIN DIARY AND SHADOW DISCIPLINE</text>
+  <text x="1110" y="626" text-anchor="end" font-size="11" fill="#818CF8" font-family="'Helvetica Neue','Arial',sans-serif">github.com/totobusnello/memoria-nox</text>
+</svg>

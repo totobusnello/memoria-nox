@@ -1,0 +1,94 @@
+--- a/src/search.ts (current on VPS)
++++ b/src/search.ts (E12-followup)
+
+====== CHANGE 1 — logTelemetry signature + INSERT ======
+
+FIND (lines ~181-199 in current file):
+
+  function logTelemetry(
+    query: string,
+    variantsCount: number,
+    resultsCount: number,
+    hasSemantic: boolean,
+    latencyMs: number,
+    skipReason?: string,
+  ): void {
+    try {
+      const db = getDb();
+      const hash = createHash("sha1").update(query).digest("hex").substring(0, 16);
+      const words = query.trim().split(/\s+/).filter(Boolean).length;
+      db.prepare(
+        `INSERT INTO search_telemetry (query_hash, query_words, variants_count, results_count, has_semantic, latency_ms, expansion_skipped_reason)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      ).run(hash, words, variantsCount, resultsCount, hasSemantic ? 1 : 0, latencyMs, skipReason || null);
+    } catch {
+      // telemetria nunca derruba a search
+    }
+  }
+
+REPLACE WITH:
+
+  function logTelemetry(
+    query: string,
+    variantsCount: number,
+    resultsCount: number,
+    hasSemantic: boolean,
+    latencyMs: number,
+    skipReason?: string,
+    requestingAgent?: string | null,
+  ): void {
+    try {
+      const db = getDb();
+      const hash = createHash("sha1").update(query).digest("hex").substring(0, 16);
+      const words = query.trim().split(/\s+/).filter(Boolean).length;
+      db.prepare(
+        `INSERT INTO search_telemetry (query_hash, query_words, variants_count, results_count, has_semantic, latency_ms, expansion_skipped_reason, requesting_agent)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).run(hash, words, variantsCount, resultsCount, hasSemantic ? 1 : 0, latencyMs, skipReason || null, requestingAgent ?? null);
+    } catch {
+      // telemetria nunca derruba a search
+    }
+  }
+
+====== CHANGE 2 — searchHybrid passes requestingAgent ======
+
+FIND (near line ~269, the logTelemetry call inside searchHybrid):
+
+    logTelemetry(query, variants.length, final.length, hasSemantic, Date.now() - t0, expansion.reason);
+
+REPLACE WITH:
+
+    const agentName = process.env.NOX_AGENT_NAME ?? null;
+    logTelemetry(query, variants.length, final.length, hasSemantic, Date.now() - t0, expansion.reason, agentName);
+
+====== CHANGE 3 — export searchHybrid with optional requestingAgent override ======
+  NOTE: The env-var approach covers CLI and MCP. For the HTTP API, the caller
+  needs to pass the header-derived value. Simplest path: add an optional
+  parameter to searchHybrid so api-server.ts can override without touching env.
+
+FIND (line ~202):
+
+  export async function searchHybrid(query: string, limit: number = 5): Promise<SearchResult[]> {
+    const t0 = Date.now();
+
+REPLACE WITH:
+
+  export async function searchHybrid(
+    query: string,
+    limit: number = 5,
+    requestingAgent?: string | null,
+  ): Promise<SearchResult[]> {
+    const t0 = Date.now();
+    // Caller override > env fallback > null (stored as NULL = pre-migration row)
+    const resolvedAgent = requestingAgent ?? process.env.NOX_AGENT_NAME ?? null;
+
+  ... (rest of function body unchanged) ...
+
+FIND (the logTelemetry call added in CHANGE 2):
+
+    const agentName = process.env.NOX_AGENT_NAME ?? null;
+    logTelemetry(query, variants.length, final.length, hasSemantic, Date.now() - t0, expansion.reason, agentName);
+
+REPLACE WITH (use resolvedAgent instead):
+
+    logTelemetry(query, variants.length, final.length, hasSemantic, Date.now() - t0, expansion.reason, resolvedAgent);
