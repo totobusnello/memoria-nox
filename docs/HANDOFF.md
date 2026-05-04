@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-04 fim de dia BRT (**W1+W2 sprint: critic remediations H1/H2/H4/H5 + BEIR adapter + LOCOMO + E5 multilingual baseline**)
+> **Atualizado:** 2026-05-04 ~16:00 BRT — fim do marathon completo (**W1+W2+W3 + B1+B2 + layout polish + Pacote A submit-day automation**). Tag `v1.0.0-paper-draft` aplicada e pushed. Paper materialmente submit-ready: PDF 32p compilado clean, 0 errors, 4 figures inline. Veja `docs/SESSION-2026-05-04-FULL-LOG.md` pra log completo.
 
 ---
 
@@ -58,38 +58,103 @@ Decisões tomadas (NÃO re-discutir):
 
 ## 🚀 PARA PRÓXIMA SESSÃO — começar aqui
 
-### Próxima ação imediata
+### Próxima ação imediata (~5min)
 
-**BEIR TREC-COVID retornou?** (ETA 2026-05-05 01:00–07:00 BRT, tmux `beir-trec` na VPS)
+**1. BEIR TREC-COVID terminou?** (ETA 2026-05-05 01:00–07:00 BRT, tmux `beir-trec`)
 
 ```bash
-ssh root@187.77.234.79 'tmux capture-pane -p -t beir-trec 2>/dev/null | tail -20'
+ssh root@100.87.8.44 'tail -3 /var/log/nox-mem/beir-progress.log && tmux ls'
 ```
 
-Se concluído → integrar resultado em `paper/publication/04-paper-arxiv-draft.md` §5.2 Table 5 (linha BEIR TREC-COVID + linha LOCOMO já disponível nDCG=0.2810).
+Se `docs_embedded=50000` ou tmux session `beir-trec` ausente → **BEIR concluído**, segue passo 2.
+Se ainda rolando (rate ~1.6 docs/s) → aguardar ou apertar `Ctrl+a d` e voltar mais tarde.
 
-### Sanity check matinal (~3min)
+**2. Integração 1-comando** (script criado hoje, cobre 8 error paths):
+
 ```bash
-ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
-ssh root@187.77.234.79 'tail -5 /var/log/nox-seh-report.log'   # F15b cron daily, espera alerts=0
-ssh root@187.77.234.79 'crontab -l | grep "F15b SEH"'           # confirma cron ainda instalado
+python3 paper/publication/baselines/integrate_beir_results.py
 ```
-Esperado: schema v12, 64.180+ chunks, embed 100%, distribution `unknown=595 / depends_on=260 / mentions=213 / derived_from=35 / extends=3 / replaces=2 / opposes=1`.
+
+Faz: SCP results → parse + validate → generate LaTeX Table 8 block → replace `tab:beir` em `sec_4_7.tex` → recompile 4-pass → commit.
+
+**3. Pre-flight smoke tests** (10 checks color-coded, criado hoje):
+
+```bash
+bash paper/publication/scripts/pre-flight-smoke-tests.sh
+```
+
+Esperado: exit 0 = ready to submit. Exit 1 = bloqueado (bib orphans, abstract overflow, missing files, etc.).
 
 ### Trabalho priorizado próxima sessão
 
 | # | Trabalho | Esforço | Quando |
 |---|---|---|---|
-| **1** | **Integrar BEIR TREC-COVID** — tmux beir-trec ETA 05-05 01:00–07:00 BRT. Pegar nDCG@10 + popular §5.2 Table 5 (BEIR row + LOCOMO row 0.2810 já disponível). | ~30min pós-resultado | assim que BEIR terminar |
-| **2** | **Critic re-review #2** — enviar paper draft atualizado (com H1/H2/H4/H5 + BEIR + LOCOMO + E5) pra agent critic. | ~1h | após item 1 |
-| **3** | **Apertar abstract** — `paper-abstract.md` de 367 → <300 palavras. | ~30min | mesma sessão |
-| **4** | **LaTeX compile dry-run** — baixar `neurips_2024.sty` e validar compile. | ~20min | mesma sessão |
-| **5** | **Substack draft polish** — draft existe; polir pra publicação. | ~45min | W2 |
-| **6** | **PASSIVE: 2026-05-09 sábado activate gate** — routine `trig_012nuCN14VwcxGLq8ERaLPCK` 09:00 BRT, gera GitHub Issue verdict ACTIVATE/KEEP-SHADOW E03b+E04b. | ~25min ativo | sábado 2026-05-09 |
-| **7** | **E10 pain ablation** — deferred (precisa 2× prod API restart). | ~12min + 2× restart | W2 janela off-peak |
-| **8** | **E12 cross-agent retrieval Q2-Q6** — deferred (precisa migração `requesting_agent` ~1h). Shared storage 99.92% validado. | ~1h migração + run | W2 |
-| **9** | **MemoryBank adapter** — smoke test falhou (data-dir bug: pegou SiliconFriend training config em vez de /eval_data/). Adapter `memory_bank_eval.py` pronto; corrigir descoberta de eval_data e re-rodar. | ~30min | W2 |
+| **1** | **BEIR Table 8 integration** — comando único acima | ~5min | manhã 2026-05-05 |
+| **2** | **Critic re-review #2** — pre-draft já existe em `paper/publication/critic-rereview-2-prep.md`; disparar agent `critic` com paper-v1.0.0-paper-draft.pdf + lista CRITICAL/HIGH closed | ~1h | após item 1 |
+| **3** | **Visual review final PDF** — abrir `paper/publication/latex/paper-v1.0.0-paper-draft.pdf` e validar Table 8 + figures + bibliography com BEIR integrado | ~15min | após item 1 |
+| **4** | **arXiv cs.IR endorsement** — contactar Patrick Lewis (Lewis et al. 2020 RAG cited) via email; deadline buffer 4 days = **2026-05-28** | manual ~10min | **VOCÊ**, prioritário |
+| **5** | **arXiv account check** + ORCID register opcional | ~10min | qualquer dia antes 06-02 |
+| **6** | **Substack/dev.to/LinkedIn drafts polish final** — drafts em `paper/publication/distribution/blog-{devto,linkedin,substack}.md` | ~45min | ~01-06-01 (pre-distribution day) |
+| **7** | **Submit arXiv** — seguir `paper/publication/SUBMIT-DAY-RUNBOOK.md` passo-a-passo | ~30min | **2026-06-02 manhã** |
+| **8** | **PASSIVE: 2026-05-09 sábado activate gate** — routine `trig_012nuCN14VwcxGLq8ERaLPCK` 09:00 BRT auto | ~25min ativo | sábado 2026-05-09 |
+
+### O que está rodando overnight
+
+- **BEIR TREC-COVID** — VPS tmux `beir-trec`, e5 embed Phase 4, ETA 2026-05-05 01:00-04:00 BRT, rate 1.6 docs/s, 50,000 docs total
+
+### O que está pronto pra rodar amanhã
+
+- ✅ `paper/publication/baselines/integrate_beir_results.py` (863L stdlib) — auto SCP + parse + LaTeX update + recompile + commit
+- ✅ `paper/publication/scripts/pre-flight-smoke-tests.sh` (729L) — 10 checks gate
+- ✅ `paper/publication/SUBMIT-DAY-RUNBOOK.md` (175L) — T-30 → T+1h passo-a-passo
+- ✅ `paper/publication/critic-rereview-2-prep.md` — adversarial checklist pra critic agent
+- ✅ `paper/publication/PRE-SUBMIT-CHECKLIST.md` — status de cada item
+- ✅ `paper/publication/distribution/blog-{devto,linkedin,substack}.md` — drafts ~4500 words combined
+- ✅ `paper/publication/distribution/PLATFORM-METADATA.md` — submission day cheatsheet
+- ✅ `paper/publication/latex/paper-v1.0.0-paper-draft.pdf` — 32p, 870KB, 0 errors compilado clean
+
+### Estado git ao final do dia 2026-05-04
+
+```
+v1.0.0-paper-draft (tag, pushed 2026-05-04 ~16:00 BRT)
+└─ ee7047f docs: SESSION-2026-05-04-FULL-LOG.md
+   b33dfa6 Pacote A: submit-day automation infra
+   cd16f06 latex: vision-driven layout polish (22 fixes)
+   4e51811 latex: fix all 17 hbox overflows
+   b4b26c5 B1+B2: TinyTeX install + LaTeX compile clean
+   5707b34 W3 — pre-submit infra (LaTeX scaffolds + blogs)
+   44e6869 paper: unify chunk count to 61,257
+   d9ac13d abstract: 2nd pass tighten 291→279 prose words
+   4ae4ba4 paper §5.2-5.3: Table 5 (E5) + Table 9 (LOCOMO)
+   47a0e27 W2: docs sync + abstract tighten
+   70be1c2 W2: LOCOMO FTS5 baseline n=100
+   048ca74 paper: Wave 1 critic followups H2+H4+H5
+   98e0d61 paper §3.8: replace VPS-mtime caveat
+   f75d186 eval: import golden-queries.jsonl from VPS
+```
+
+15 commits today, all pushed to `origin/main` + tag.
+
+### Sanity check VPS matinal (~3min)
+```bash
+ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, dbMB: .dbSizeMB}"'
+ssh root@100.87.8.44 'tail -5 /var/log/nox-seh-report.log'
+```
+
+### BLOCKERS restantes (apenas 2)
+
+| ID | Bloqueio | Owner | Deadline |
+|---|---|---|---|
+| **B3** | arXiv cs.IR endorsement (Patrick Lewis recomendado) | **VOCÊ** | 2026-05-28 |
+| **B4** | BEIR TREC-COVID resultado integrado | auto via script | amanhã madrugada |
+
+Tudo mais (TinyTeX install, LaTeX compile, layout polish, blog drafts, runbook, smoke tests) **fechado**.
+
+### Eventos passivos agendados (NÃO precisa fazer nada)
+
+- **2026-05-09 sábado 09:00 BRT:** routine activate gate auto
+- **Daily 09:00 BRT:** F15b cron SEH report → Discord alert se ALERT severity
+- **2026-07-06 quarter:** F14 DR drill auto cron
 
 ### Sanity check (~3min)
 ```bash
