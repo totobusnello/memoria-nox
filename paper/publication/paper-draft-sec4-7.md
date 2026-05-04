@@ -128,12 +128,14 @@ This hypothesis is pre-registered prior to collecting results, in accordance wit
 |---|---|---|---|---|
 | FTS5 vanilla (BM25) | 0.0123 | 0.0200 | 0.0100 | 0.0040 |
 | BM25 Pyserini ($k_1$=0.9, $b$=0.4) \cite{yang2018anserini} | 0.1475 | 0.1549 | 0.2083 | 0.0600 |
-| multilingual-e5-base \cite{wang2023improving} [PENDING] | — | — | — | — |
-| BGE-M3 \cite{chen2024bge} [PENDING: W2] | — | — | — | — |
-| E5-mistral-7b-instruct \cite{wang2023improving} [PENDING: W2] | — | — | — | — |
+| multilingual-e5-base \cite{wang2023improving} | 0.3070 | 0.3720 | 0.3708 | 0.1067 |
+| BGE-M3 \cite{chen2024bge} [DEFERRED: see §6.6] | — | — | — | — |
+| E5-mistral-7b-instruct \cite{wang2023improving} [DEFERRED: see §6.6] | — | — | — | — |
 | **nox-mem hybrid (FTS+Gemini+RRF) (this work)** | **0.5213** | **0.4889** | **0.6800** | **0.2640** |
 
-*Note: nox-mem hybrid figure is 3-run mean ± 0.0004 std (Runs \#10–\#12). BM25 Pyserini is a single run at Anserini standard parameters \cite{yang2018anserini}. multilingual-e5-base overnight run pending (est. +5h from session close). BGE-M3 and E5-mistral-7b-instruct remain W2 pending.*
+*Note: nox-mem hybrid figure is 3-run mean ± 0.0004 std (Runs \#10–\#12). BM25 Pyserini is a single run at Anserini standard parameters \cite{yang2018anserini}. multilingual-e5-base figure is from a single run on the same 60-query golden set (~6h embed on 8-core CPU, eval <1s after cache; full results in `results/E02-E5-multilingual-baseline-summary.md`). BGE-M3 and E5-mistral-7b-instruct were deprioritized in favor of LOCOMO and BEIR TREC-COVID third-party benchmarks (§5.3); they remain open for future work.*
+
+**Hybrid vs E5.** nox-mem hybrid achieves a +0.2143 absolute lift over multilingual-e5-base (1.7$\times$ ratio on nDCG@10). Per-category analysis shows hybrid wins 5 of 8 categories (procedure $+0.447$, security $+0.253$, concept $+0.250$, entity $+0.187$, decision $+0.121$); E5 narrowly wins 2 categories (cross-agent $+0.013$, temporal $+0.017$, both $n=4$ within MOE). The aggregate lift is driven by the 5 categories where domain identifiers and sequence keywords matter; pure-dense retrieval matches or slightly exceeds hybrid only where surface keywords are sparse and semantic similarity dominates.
 
 nox-mem hybrid achieves 3.5× the nDCG@10 of the strongest pure-BM25 baseline (Pyserini Anserini-tuned), with a 37.4 pp absolute gap. This margin substantially exceeds the pre-registered threshold of ≥ 30 pp over BM25 Pyserini, and confirms that the three-layer hybrid architecture (FTS5 + Gemini semantic + RRF) is necessary and cannot be approximated by a well-tuned lexical baseline on this operational corpus.
 
@@ -181,16 +183,16 @@ By IR community norms, nDCG@10=0.52 is mid-range on standard benchmarks (BEIR av
 
 *Note: BEIR TREC-COVID uses third-party curated relevance judgments, providing external validity independent of the internal golden set. nox-mem will be run against a temporary DB ingesting the BEIR corpus, using identical retrieval parameters as Corpus A.*
 
-**Table 9. Cross-corpus nDCG@10 — Stack Exchange 10K subset (mixed factoid/how-to/opinion, 50 curated queries). [PENDING: W3]**
+**Table 9. Cross-corpus nDCG@10 — LOCOMO conversational memory benchmark (Maharana et al. 2024, 5{,}882 dialogue turns from 10 long conversations, $n$=100 stratified subset, seed=42).**
 
-| System | nDCG@10 | MRR | Recall@10 |
-|---|---|---|---|
-| BM25 (Pyserini) | [PENDING] | [PENDING] | [PENDING] |
-| BGE-M3 | [PENDING] | [PENDING] | [PENDING] |
-| E5-mistral-7b | [PENDING] | [PENDING] | [PENDING] |
-| **nox-mem hybrid** | [PENDING] | [PENDING] | [PENDING] |
+| System | nDCG@10 | MRR | Recall@10 | P@5 |
+|---|---|---|---|---|
+| FTS5 (SQLite, BM25 default) | 0.2810 | 0.2795 | 0.3792 | 0.0780 |
+| BM25 (Pyserini) \cite{yang2018anserini} [DEFERRED: future work] | — | — | — | — |
+| multilingual-e5-base \cite{wang2023improving} [DEFERRED: future work] | — | — | — | — |
+| **nox-mem hybrid** [DEFERRED: requires LOCOMO chunks ingest into nox-mem stack] | — | — | — | — |
 
-*Note: Stack Exchange queries span diverse topics (factoid, how-to, opinion), testing the robustness of the hybrid pipeline beyond the operational tech/ops domain of Corpus A.*
+*Note: LOCOMO is released under CC BY-NC 4.0 by SNAP Research \cite{maharana2024locomo}. Per-category breakdown (n=20 each, seed=42): single-hop 0.118, multi-hop 0.371, temporal 0.289, open-domain 0.375, adversarial 0.253. The cross-corpus FTS5 ratio — LOCOMO 0.281 vs. internal corpus 0.0123 = $\approx 23\times$ higher — confirms that lexical retrieval difficulty is corpus-dependent: LOCOMO's conversational format has high keyword overlap between question and gold turn, whereas the internal corpus has identifier-dense compiled-section entity files that share few content words with natural-language queries. The hybrid stack's contribution is calibrated to the harder regime; running nox-mem hybrid against LOCOMO chunks would require ingesting them into a separate nox-mem DB and is deferred to future work. Reproducible in $<10$s via `python3 paper/publication/baselines/locomo\_eval.py full` (stdlib-only, no external dependencies).*
 
 ### 5.4 Ablation Studies (E6–E9)
 
