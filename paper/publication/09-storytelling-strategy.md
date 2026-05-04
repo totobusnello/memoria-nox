@@ -61,10 +61,29 @@
 
 ## 🎨 Hooks práticos por canal (production-ready)
 
-### HN title (data + story combination)
-**"I built a memory system for AI agents that learns from incidents. Here's what 4 months in production taught me."**
+### 🎯 7 Title Finalists Repository (Toto-approved 2026-05-04)
 
-Trade-off vs título alternativo "FTS5 is 97.7% useless" — story title tem CTR menor mas qualidade comments maior + product credibility. **Recomendado split test:** título 1 (story) na primeira tentativa; se < 5 pontos hour 1, retry com data title.
+**Por canal (escolha primary + backup):**
+
+| Canal | PRIMARY | BACKUP |
+|---|---|---|
+| **arXiv (academic)** | "The Pain Diary and Shadow Discipline: Quantifying the Hybrid Retrieval Gap (Δ 0.504 nDCG) in Production Memory" | "The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents (Built Solo in 4 Months)" |
+| **Blog dev.to / Substack** | "The Pain Diary and Shadow Discipline: How One Nerd Entrepreneur Built Memory for Six AI Agents in Four Months" | "I built a memory system for AI agents that learns from incidents. Here's what 4 months in production taught me." |
+| **Hacker News** | "The Pain Diary and Shadow Discipline: When Disabling Semantic Embeddings Costs You 97.7% nDCG" | "The Pain Diary and Shadow Discipline: 4 Months Building Memory for 6 AI Agents (Solo)" |
+| **LinkedIn** | "4 months building memory for 6 AI agents. What I learned about cutting AI costs." | "The Pain Diary: 5 production incidents that shaped my AI memory system" |
+| **Twitter thread tweet 1** | "🧵 Built a memory system for 6 AI agents over 4 months. The most interesting feature isn't hybrid retrieval — it's that the salience formula literally weights chunks by past incident pain. Here's the Pain Diary 👇" | — |
+
+**Backup adicional pra HN se PRIMARY underperform hour 1 (technical reviewer-safe):**
+"The Pain Diary and Shadow Discipline: A 97.7% nDCG Gap Suggests Hybrid Necessity"
+
+### Trade-off geral
+4 títulos diferentes podem soar "marketing inconsistent" pra alguém que vê todos. Mitigação: cada canal alcança audience distinta — overlap real é < 10%. Worst case 1 reader vê 2 títulos, vai entender que cada channel tem framing optimal.
+
+### Critério decisão final
+- Tipo "Confirms" / "Proves" → **EVITAR** em academic (overclaim, peer-review red flag)
+- Tipo "Suggests" / "Quantifying" / "Demonstrates" → **OK** academic
+- Tipo "When X costs Y" / "How I built Z" → **OK** HN/blog (counterintuitive/story)
+- Sempre incluir "The Pain Diary and Shadow Discipline:" como prefixo cohesion across channels
 
 ### Blog post lead (3 paragraphs first 200 words)
 > Day 1: I'd just explained the same decision to my AI agent for the third time that week. The agent was technically correct each time — it remembered nothing.
