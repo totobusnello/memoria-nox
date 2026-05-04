@@ -4,6 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{hyperref}
 \usepackage{url}
+\usepackage{xurl}
 \usepackage{booktabs}
 \usepackage{amsfonts}
 \usepackage{amsmath}
@@ -12,6 +13,12 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{verbatim}
+
+% Layout overflow mitigations (2026-05-04)
+\sloppy
+\emergencystretch=3em
+\hbadness=10000
+\hfuzz=2pt
 
 \title{The Pain Diary and Shadow Discipline:\\A Memory System That Learns from Its Own Incidents}
 

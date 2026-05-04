@@ -255,7 +255,8 @@ are in \S6.5.
   \label{tab:comparison}
   \centering
   \small
-  \begin{tabular}{lllllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllll}
     \toprule
     System & KG Native & Hybrid Retr. & Eval Harness & Multi-Agent & Shadow Disc. & Score \\
     \midrule
@@ -268,7 +269,7 @@ are in \S6.5.
     Cognee \cite{topoteretes2024cognee} & ECL pipeline & hybrid & ad-hoc & optional & none & 3.0/5 \\
     LangChain Memory & none & key-value & none & session\_id & none & 0.5/5 \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 We compare across seven axes. nox-mem covers 5/7: knowledge graph, hybrid retrieval, eval

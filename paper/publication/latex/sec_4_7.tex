@@ -220,7 +220,8 @@ for this corpus type.
     mean $\pm$ std).}
   \label{tab:hybrid}
   \centering
-  \begin{tabular}{lllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
     \toprule
     Approach & nDCG@10 & MRR & Recall@10 & Precision@5 \\
     \midrule
@@ -228,7 +229,7 @@ for this corpus type.
     \textbf{nox-mem hybrid (FTS+Gemini+RRF)} & $\mathbf{0.5213 \pm 0.0004}$ & $0.4889 \pm 0.0028$ & $0.6800 \pm 0.0047$ & $0.2640 \pm 0.0000$ \\
     $\Delta$ (hybrid $-$ FTS) & \textbf{+50.9 pp} & --- & --- & --- \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
     3-run mean $\pm$ std (Runs \#10/\#11/\#12 for hybrid, \#13/\#14/\#15 for FTS).
@@ -241,7 +242,8 @@ for this corpus type.
   \caption{Three-run replication stability (nox-mem hybrid, R01b/R01c, $n$=50 per run).}
   \label{tab:replication}
   \centering
-  \begin{tabular}{lll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lll}
     \toprule
     Run & nDCG@10 & Notes \\
     \midrule
@@ -250,7 +252,7 @@ for this corpus type.
     Run \#12 & 0.5213 & Replication run \\
     \textbf{Mean $\pm$ std} & $\mathbf{0.5213 \pm 0.0004}$ & Bessel-corrected 3-run mean \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
     Runs \#10--\#12 conducted on the stable post-R01b configuration with no ranking changes
@@ -265,7 +267,8 @@ for this corpus type.
   \caption{R01b nDCG@10 breakdown by query category ($n$=50, hybrid, 3-run mean).}
   \label{tab:category}
   \centering
-  \begin{tabular}{llll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{llll}
     \toprule
     Category & $n$ & nDCG@10 & Notes \\
     \midrule
@@ -279,7 +282,7 @@ for this corpus type.
     negative    & 6   & TBD & Specificity test---correct answer: no relevant chunk \\
     \textbf{All} & \textbf{50} & $\mathbf{0.5213 \pm 0.0004}$ & 3-run mean (Runs \#10/\#11/\#12) \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 \subsection{Comparison Against Strong External Baselines (E1+E2+E3)}
@@ -307,7 +310,8 @@ system outperforms BM25 Pyserini across all non-negative query categories.
     golden queries; 3-run mean for nox-mem).}
   \label{tab:external}
   \centering
-  \begin{tabular}{lllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
     \toprule
     System & nDCG@10 & MRR & Recall@10 & P@5 \\
     \midrule
@@ -318,7 +322,7 @@ system outperforms BM25 Pyserini across all non-negative query categories.
     E5-mistral-7b-instruct \cite{wang2023improving} & \multicolumn{4}{l}{\textsc{[Deferred: see \S6.6]}} \\
     \textbf{nox-mem hybrid (this work)} & $\mathbf{0.5213}$ & $\mathbf{0.4889}$ & $\mathbf{0.6800}$ & $\mathbf{0.2640}$ \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
     nox-mem hybrid figure is 3-run mean $\pm$ 0.0004 std (Runs \#10--\#12). BM25 Pyserini
@@ -344,7 +348,8 @@ the pre-registered threshold of $\geq$30\,pp over BM25 Pyserini.
   \caption{Per-category nDCG@10: BM25 Pyserini vs.\ nox-mem hybrid (Corpus~A, $n$=60).}
   \label{tab:percategory}
   \centering
-  \begin{tabular}{lllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
     \toprule
     Category & $n$ & BM25 Pyserini & nox-mem hybrid & $\Delta$ \\
     \midrule
@@ -358,7 +363,7 @@ the pre-registered threshold of $\geq$30\,pp over BM25 Pyserini.
     negative    & 1  & 0.0000 & --- & --- \\
     \textbf{All} & \textbf{60} & \textbf{0.1475} & \textbf{0.5213} & \textbf{+37.4 pp} \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
     BM25 Pyserini per-category figures confirmed (E01, 2026-05-03). nox-mem per-category
@@ -371,7 +376,8 @@ the pre-registered threshold of $\geq$30\,pp over BM25 Pyserini.
   \caption{Pre-registered directional hypothesis summary (E1+E2, Corpus~A).}
   \label{tab:hypotheses}
   \centering
-  \begin{tabular}{lll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lll}
     \toprule
     Comparison & Pre-registered $\Delta$ nDCG@10 & Result \\
     \midrule
@@ -380,7 +386,7 @@ the pre-registered threshold of $\geq$30\,pp over BM25 Pyserini.
     nox-mem vs multilingual-e5-base & $\geq 0$\,pp & +21.4\,pp --- CONFIRMED \\
     nox-mem vs E5-mistral-7b-instruct & $\geq 0$\,pp & \textsc{[Pending: W2]} \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 \subsection{Cross-Corpus Generalization (E4+E5)}
@@ -394,7 +400,8 @@ the three-layer pipeline is not overfit to the internal operational corpus.
     (171K chunks, standard 50 BEIR queries). \textsc{[Pending: W3]}}
   \label{tab:beir}
   \centering
-  \begin{tabular}{llll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{llll}
     \toprule
     System & nDCG@10 & MRR & Recall@10 \\
     \midrule
@@ -403,7 +410,7 @@ the three-layer pipeline is not overfit to the internal operational corpus.
     E5-mistral-7b    & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
     \textbf{nox-mem hybrid} & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 \begin{table}[t]
@@ -412,7 +419,8 @@ the three-layer pipeline is not overfit to the internal operational corpus.
     subset, seed=42).}
   \label{tab:locomo}
   \centering
-  \begin{tabular}{lllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
     \toprule
     System & nDCG@10 & MRR & Recall@10 & P@5 \\
     \midrule
@@ -421,7 +429,7 @@ the three-layer pipeline is not overfit to the internal operational corpus.
     multilingual-e5-base \cite{wang2023improving} & \multicolumn{4}{l}{\textsc{[Deferred: future work]}} \\
     \textbf{nox-mem hybrid} & \multicolumn{4}{l}{\textsc{[Deferred: requires LOCOMO chunks ingest]}} \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
     LOCOMO is released under CC BY-NC 4.0 by SNAP Research \cite{maharana2024locomo}.
@@ -444,7 +452,8 @@ nDCG@10, with each layer's removal causing a $\Delta \geq 0.03$ decrease.
     $\pm$ std). \textsc{[Pending: W3]}}
   \label{tab:ablation}
   \centering
-  \begin{tabular}{llll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{llll}
     \toprule
     Configuration & nDCG@10 & $\Delta$ vs full hybrid & MRR \\
     \midrule
@@ -454,7 +463,7 @@ nDCG@10, with each layer's removal causing a $\Delta \geq 0.03$ decrease.
     Hybrid, no salience boost & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
     Hybrid, no \texttt{section\_boost} & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
     FTS-only is confirmed from R01b (Table~\ref{tab:hybrid}). Remaining ablations (E7--E9)
@@ -495,7 +504,8 @@ Source: \texttt{paper/publication/baselines/pain\_ablation\_hybrid.py}; results 
   \caption{Pain ablation --- hybrid retrieval ($n$=31 post-incident queries, 2026-05-04).}
   \label{tab:painablation}
   \centering
-  \begin{tabular}{llll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{llll}
     \toprule
     Configuration & Mean nDCG@10 & $n$ & Notes \\
     \midrule
@@ -508,7 +518,7 @@ Source: \texttt{paper/publication/baselines/pain\_ablation\_hybrid.py}; results 
     Queries unchanged ($\Delta = 0$) & 29 / 31 & --- & Gemini semantic dominates \\
     Pre-registered threshold & $\Delta \geq 0.05$ & --- & \textbf{NOT MET} \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 \textbf{Verdict: DIRECTIONAL, NOT SIGNIFICANT.} $\Delta = +0.0065$ is positive but below
@@ -549,7 +559,8 @@ regime where semantic scores tie, which occurred in 1 of 31 queries in this eval
   \caption{Q55 pain\_real retrieval --- nDCG@10 = 1.000.}
   \label{tab:q55real}
   \centering
-  \begin{tabular}{llllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{llllll}
     \toprule
     Rank & Chunk ID & Score & Source & Pain & Result \\
     \midrule
@@ -557,14 +568,15 @@ regime where semantic scores tie, which occurred in 1 of 31 queries in this eval
     2 & 116380 & 15.87 & memoria-nox/plans/2026-04-20 & high & GOLD \\
     3 & 147900 & 15.38 & specs/202x --- archive & low & non-gold \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 \begin{table}[h]
   \caption{Q55 pain\_uniform retrieval --- nDCG@10 = 0.651.}
   \label{tab:q55uniform}
   \centering
-  \begin{tabular}{llllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{llllll}
     \toprule
     Rank & Chunk ID & Score & Source & Pain (effective) & Result \\
     \midrule
@@ -572,7 +584,7 @@ regime where semantic scores tie, which occurred in 1 of 31 queries in this eval
     2 & 147900 & 15.63 & archive spec & 1.0 (uniform) & non-gold \\
     3 & 116380 & 15.38 & resilience plan & 1.0 (uniform) & GOLD \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 \textbf{Interpretation.} When all chunks receive \texttt{pain}=1.0, the archive spec's
@@ -619,7 +631,8 @@ $n=60$ golden queries, 10,000-resample bootstrap, seed=42, on a read-only snapsh
     ($n$=60 queries, FTS+pain only, bootstrap 95\% CI).}
   \label{tab:calibration}
   \centering
-  \begin{tabular}{lllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
     \toprule
     Distribution & Avg pain & $\Delta$ vs real & 95\% CI & Verdict \\
     \midrule
@@ -628,7 +641,7 @@ $n=60$ golden queries, 10,000-resample bootstrap, seed=42, on a read-only snapsh
     bimodal $\{0.1, 1.0\}$ & 0.551 & $-0.0087$ & $[-0.038, +0.020]$ & INSIGNIFICANT \\
     log-scale $[0.01, 10.0]$ & 1.447 & $-0.0095$ & $[-0.041, +0.022]$ & INSIGNIFICANT \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 All artificial spreads underperform the real pain distribution. H1, H2, and H3 are all
@@ -673,7 +686,8 @@ partitioned by agent identity.
   \caption{Cross-agent storage quantification ($n$=61,257 chunks, prod DB, 2026-05-04).}
   \label{tab:crossagent}
   \centering
-  \begin{tabular}{lllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lllll}
     \toprule
     Origin class & Chunks & \% & Sharing status \\
     \midrule
@@ -684,7 +698,7 @@ partitioned by agent identity.
     \textbf{Total} & \textbf{61,257} & --- & --- \\
     \textbf{Shared-eligible total} & \textbf{61,207} & \textbf{99.92\%} & --- \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
     Figures derived from \texttt{SELECT source\_file, COUNT(*) FROM chunks GROUP BY ...} on
@@ -712,7 +726,8 @@ accumulation.
   \label{tab:attribution}
   \centering
   \small
-  \begin{tabular}{lllllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllll}
     \toprule
     & Orig: nox & Orig: atlas & Orig: boris & Orig: cipher & Orig: forge & Orig: lex \\
     \midrule
@@ -723,7 +738,7 @@ accumulation.
     Req: forge  & [D] & [D] & [D] & [D] & ---    & [D] \\
     Req: lex    & [D] & [D] & [D] & [D] & [D] & ---    \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 % ---------------------------------------------------------------
@@ -867,7 +882,8 @@ approximately \$10/month = \textbf{approximately \$11/month all-in} for a 62K-ch
     2026-Q1 pricing, small single-team deployment).}
   \label{tab:cost}
   \centering
-  \begin{tabular}{llll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{llll}
     \toprule
     System & Indexing (one-time) & Per-query & Monthly OPEX \\
     \midrule
@@ -877,7 +893,7 @@ approximately \$10/month = \textbf{approximately \$11/month all-in} for a 62K-ch
     Mem0 hosted \cite{chhikara2025mem0} & n/a (managed) & bundled & \$20--\$200 \\
     Pure GPT-4o long-context & \$0 & \$0.01--\$0.10/session & \$100--\$1{,}000+ \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
     MemGPT, GraphRAG, Mem0, and GPT-4o figures are estimated based on documented LLM call
@@ -1000,7 +1016,8 @@ following primary dependencies:
 
 \begin{table}[h]
   \centering
-  \begin{tabular}{ll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{ll}
     \toprule
     Version & Key change \\
     \midrule
@@ -1013,7 +1030,7 @@ following primary dependencies:
     v11    & \texttt{search\_telemetry} eval harness (+4 columns) \\
     v12    & \texttt{ops\_audit} table + status enum enforcement triggers \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 All migrations were applied to the production database without downtime.
@@ -1027,8 +1044,10 @@ All migrations were applied to the production database without downtime.
   \item \textbf{MCP Server:} 16 tools including \texttt{nox\_mem\_search},
     \texttt{kg\_build}, \texttt{cross\_search}, \texttt{reflect}
   \item \textbf{HTTP API:} port 18802, endpoints
-    \texttt{/api/\{health,search,kg,kg/path,agents,cross-kg,reflect,procedures\}}
-    + \texttt{POST /api/crystallize}
+    \texttt{/api/health}, \texttt{/api/search}, \texttt{/api/kg},
+    \texttt{/api/kg/path}, \texttt{/api/agents},
+    \texttt{/api/cross-kg}, \texttt{/api/reflect},
+    \texttt{/api/procedures} + \texttt{POST /api/crystallize}
 \end{itemize}
 
 % ------------------------------------------------------------------
@@ -1063,7 +1082,8 @@ All migrations were applied to the production database without downtime.
 \begin{table}[h]
   \caption{Telemetry distribution during Fase~1.7b-b shadow period.}
   \centering
-  \begin{tabular}{lll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lll}
     \toprule
     Tier & Count & \% of total \\
     \midrule
@@ -1072,7 +1092,7 @@ All migrations were applied to the production database without downtime.
     Archive (\texttt{new\_score} $<$ threshold) & 45,743 & 71.26\% \\
     \textbf{Total shadow observations} & \textbf{64,180+} & --- \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
   \begin{minipage}{0.9\linewidth}
     \vspace{4pt}\footnotesize
     The 3-tier distribution reflects the expected long-tail structure of an operational
@@ -1112,7 +1132,8 @@ corpus scale and third-party benchmark coverage.
   \caption{Detailed architectural feature comparison (reviewer-friendly).}
   \centering
   \small
-  \begin{tabular}{lllllll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lllllll}
     \toprule
     System & KG native & Hybrid retr. & Eval harness & Multi-agent & Shadow disc. & Score \\
     \midrule
@@ -1125,7 +1146,7 @@ corpus scale and third-party benchmark coverage.
     Cognee \cite{topoteretes2024cognee} & ECL & hybrid & ad-hoc & Optional & No & 3.0/5 \\
     LangChain Memory & No & key-value & No & session\_id & No & 0.5/5 \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 % ------------------------------------------------------------------
@@ -1161,7 +1182,8 @@ entity files, stripping \texttt{section}, \texttt{retention\_days}, and
 
 \begin{table}[h]
   \centering
-  \begin{tabular}{lll}
+  \resizebox{\textwidth}{!}{%
+\begin{tabular}{lll}
     \toprule
     Change & Code artifact & Description \\
     \midrule
@@ -1171,7 +1193,7 @@ entity files, stripping \texttt{section}, \texttt{retention\_days}, and
     Schema invariant canary & \texttt{check-schema-invariants.sh} & Cron \texttt{*/15min}; Discord alert on deviation \\
     Cron patch & \texttt{ee15b430} step 11 & Replaced \texttt{reindex} with \texttt{consolidate} (entity-aware) \\
     \bottomrule
-  \end{tabular}
+  \end{tabular}}
 \end{table}
 
 \subsection{Lessons Formalized in Architecture}
