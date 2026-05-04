@@ -182,7 +182,7 @@ Por que nox-mem em vez de soluções existentes? Cada uma resolve parte do probl
 | [LangChain Memory](https://python.langchain.com/docs/concepts/memory) | ❌ key-value/buffer | ❌ | ❌ | ⚠️ via session_id | ❌ | ✅ |
 | [Cognee](https://github.com/topoteretes/cognee) | ✅ hybrid | ✅ KG nativo | ⚠️ ad-hoc | ❌ | ❌ | ✅ |
 
-**Quando usar nox-mem:** workspace pessoal/operacional onde tu controla todos os agents (é tu mesmo + assistentes), corpus é misto (código + decisões + memórias longa-prazo), tu valoriza testar cada mudança de ranking antes de ativar (shadow-mode obrigatório) e quer baseline objetivo nDCG pra detectar regressão silenciosa.
+**Quando usar nox-mem:** workspace pessoal/operacional onde você controla todos os agents (é você mesmo + assistentes), corpus é misto (código + decisões + memórias longa-prazo), você valoriza testar cada mudança de ranking antes de ativar (shadow-mode obrigatório) e quer baseline objetivo nDCG pra detectar regressão silenciosa.
 
 **Quando NÃO usar:** SaaS multi-tenant produção (use mem0 paid), agentes de chat consumer-facing puros (use Letta), single-agent assistant simples (use LangChain BufferMemory).
 
