@@ -558,8 +558,11 @@ def run_eval(
 
     logger.info("Loaded %d queries from %s", len(queries), queries_jsonl)
 
-    query_texts = [q["text"] for q in queries]
-    query_ids = [q["id"] for q in queries]
+    # Field-name compatibility: golden-queries.jsonl uses "query"/"query_id"
+    # (matching nox-mem eval harness convention); fall back to "text"/"id"
+    # for legacy/test JSONL formats.
+    query_texts = [q.get("query") or q.get("text") or q.get("query_text") for q in queries]
+    query_ids = [q.get("query_id") or q.get("id") for q in queries]
 
     # Embed all queries in one call (typically <= 50 strings, fast).
     # embed_queries() applies the mandatory "query: " prefix internally.
