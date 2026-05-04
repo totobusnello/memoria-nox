@@ -1,0 +1,58 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'14px','fontFamily':'Inter, system-ui'}}}%%
+flowchart TB
+    subgraph AGENTS["6 Agents — shared canonical corpus"]
+        direction LR
+        A1[Atlas]
+        A2[Boris]
+        A3[Cipher]
+        A4[Forge]
+        A5[Lex]
+        A6[Nox]
+    end
+
+    subgraph IFACE["Interface Layer"]
+        direction LR
+        CLI["CLI<br/>26+ commands"]
+        MCP["MCP Server<br/>16 tools"]
+        API["HTTP API<br/>:18802"]
+    end
+
+    subgraph SEARCH["Hybrid Search Engine — 3-layer fusion"]
+        direction TB
+        L1["L1: FTS5 BM25<br/>lexical recall"]
+        L2["L2: Gemini semantic<br/>3072-d cosine"]
+        L3["L3: RRF fusion<br/>k=60"]
+        L1 --> L3
+        L2 --> L3
+    end
+
+    subgraph STORE["Canonical Storage — single SQLite DB"]
+        direction LR
+        CH["chunks + chunks_fts<br/>~64k rows"]
+        VEC["vec_chunks<br/>3072-d Gemini"]
+        KG["kg_entities (402)<br/>kg_relations (544)"]
+    end
+
+    subgraph CROSS["Cross-cutting Discipline"]
+        direction LR
+        SHADOW["Shadow-mode pipeline<br/>≥7d before activate"]
+        AUDIT["ops_audit (append-only)<br/>+ withOpAudit() snapshot"]
+    end
+
+    AGENTS -->|read/write| IFACE
+    IFACE --> SEARCH
+    SEARCH --> STORE
+    STORE -. governs .- CROSS
+    SEARCH -. governs .- CROSS
+
+    classDef agent fill:#4F46E5,stroke:#312E81,color:#fff
+    classDef iface fill:#475569,stroke:#1E293B,color:#fff
+    classDef search fill:#475569,stroke:#1E293B,color:#fff
+    classDef store fill:#E11D48,stroke:#881337,color:#fff
+    classDef cross fill:#059669,stroke:#064E3B,color:#fff
+
+    class A1,A2,A3,A4,A5,A6 agent
+    class CLI,MCP,API iface
+    class L1,L2,L3 search
+    class CH,VEC,KG store
+    class SHADOW,AUDIT cross

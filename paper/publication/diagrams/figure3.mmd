@@ -1,0 +1,24 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'14px','fontFamily':'Inter, system-ui'}}}%%
+stateDiagram-v2
+    direction LR
+    [*] --> Implement
+    Implement --> Shadow: deploy with NOX_*_MODE=shadow
+    Shadow --> Shadow: cron health check<br/>(every 15 min)
+    Shadow --> ActivateEligible: ≥7 days wall-clock<br/>+ telemetry > N events
+    ActivateEligible --> Shadow: distribution skew<br/>or nDCG regression
+    ActivateEligible --> Activate: distribution OK<br/>+ manual approve
+    Activate --> Rollback: post-activate regression
+    Rollback --> Shadow: revert env-var
+    Activate --> [*]
+
+    note right of Shadow
+        Telemetry: /api/health.<feature>
+        Audit log: ops_audit
+        Examples: salience, section_boost,
+        focus_boost, edge_typing
+    end note
+
+    note right of Activate
+        Env-var flip only —
+        zero schema change
+    end note

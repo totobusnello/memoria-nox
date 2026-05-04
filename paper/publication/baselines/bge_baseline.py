@@ -226,14 +226,19 @@ def embed_chunks(
         ids, texts = zip(*batch)
 
         # BGE-M3 returns a dict; dense_vecs is the 1024d embedding
-        # normalize_embeddings=True is the default but explicit for clarity
+        # NOTE: FlagEmbedding>=1.3 doesn't accept normalize_embeddings kwarg
+        # (it's normalized by default in BGEM3FlagModel.encode); we re-normalize
+        # explicitly below as a defensive belt-and-suspenders against version drift.
         result = model.encode(
             list(texts),
             batch_size=len(texts),
             max_length=8192,
-            normalize_embeddings=True,
         )
         vecs: np.ndarray = result["dense_vecs"]  # shape: (len(batch), 1024)
+        # Defensive L2-normalize (no-op if already normalized)
+        norms = np.linalg.norm(vecs, axis=1, keepdims=True)
+        norms = np.where(norms > 0, norms, 1.0)
+        vecs = vecs / norms
 
         all_embeddings.append(vecs.astype(np.float32))
         all_ids.extend(ids)
@@ -295,9 +300,12 @@ def embed_queries(
         query_strings,
         batch_size=len(query_strings),
         max_length=512,  # queries are short; cap for speed
-        normalize_embeddings=True,
     )
     vecs: np.ndarray = result["dense_vecs"].astype(np.float32)
+    # Defensive L2-normalize (FlagEmbedding>=1.3 doesn't accept normalize_embeddings kwarg)
+    norms = np.linalg.norm(vecs, axis=1, keepdims=True)
+    norms = np.where(norms > 0, norms, 1.0)
+    vecs = vecs / norms
     assert vecs.shape == (len(query_strings), 1024), (
         f"Unexpected query embedding shape: {vecs.shape}"
     )

@@ -1,0 +1,33 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'14px','fontFamily':'Inter, system-ui'}}}%%
+flowchart TB
+    SRC["Source chunks<br/>~64k corpus"]
+    EXTRACT["Gemini 2.5-flash extraction<br/>SPO triples"]
+    LLM_OUT["LLM output<br/>relation_type free-text"]
+
+    subgraph NORMALIZE["Defensive normalize — 3 paths"]
+        direction TB
+        P1["Path 1<br/>direct enum match<br/>(7 canonical values)"]
+        P2["Path 2<br/>RELATION_TYPE_TO_REASON map<br/>(24 PT-BR + EN inputs)"]
+        P3["Path 3<br/>fallback → unknown"]
+    end
+
+    ENUM["relation_reason ∈ enum-7<br/>depends_on · derived_from · opposes ·<br/>extends · replaces · mentions · unknown"]
+    PERSIST["kg_relations<br/>(schema v12 CHECK constraint)"]
+
+    BEFORE["Before B1+B2+B3<br/>14% classified · 86% unknown"]
+    AFTER["After fix<br/>56% classified · 4× improvement<br/>(n=100, 2026-05-03)"]
+
+    SRC --> EXTRACT --> LLM_OUT --> NORMALIZE
+    NORMALIZE --> ENUM --> PERSIST
+    PERSIST -. measured .- BEFORE
+    PERSIST -. measured .- AFTER
+
+    classDef base fill:#475569,stroke:#1E293B,color:#fff
+    classDef enum fill:#4F46E5,stroke:#312E81,color:#fff
+    classDef bad fill:#7F1D1D,stroke:#450A0A,color:#fff
+    classDef good fill:#059669,stroke:#064E3B,color:#fff
+
+    class SRC,EXTRACT,LLM_OUT,P1,P2,P3,PERSIST base
+    class ENUM enum
+    class BEFORE bad
+    class AFTER good

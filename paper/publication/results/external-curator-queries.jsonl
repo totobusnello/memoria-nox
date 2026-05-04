@@ -1,0 +1,10 @@
+{"query_id": "EXT-Q01", "query_text": "are there any clinical trials available for the coronavirus", "source": "beir-trec-covid", "beir_id": "17", "expected_doc_ids": [], "needs_human_curation": true}
+{"query_id": "EXT-Q02", "query_text": "what evidence is there for dexamethasone as a treatment for COVID-19?", "source": "beir-trec-covid", "beir_id": "46", "expected_doc_ids": [], "needs_human_curation": true}
+{"query_id": "EXT-Q03", "query_text": "How has the COVID-19 pandemic impacted mental health?", "source": "beir-trec-covid", "beir_id": "45", "expected_doc_ids": [], "needs_human_curation": true}
+{"query_id": "EXT-Q04", "query_text": "how long does coronavirus remain stable  on surfaces?", "source": "beir-trec-covid", "beir_id": "16", "expected_doc_ids": [], "needs_human_curation": true}
+{"query_id": "EXT-Q05", "query_text": "has social distancing had an impact on slowing the spread of COVID-19?", "source": "beir-trec-covid", "beir_id": "10", "expected_doc_ids": [], "needs_human_curation": true}
+{"query_id": "EXT-Q06", "query_text": "what kinds of complications related to COVID-19 are associated with hypertension?", "source": "beir-trec-covid", "beir_id": "23", "expected_doc_ids": [], "needs_human_curation": true}
+{"query_id": "EXT-Q07", "query_text": "how has lack of testing availability led to underreporting of true incidence of Covid-19?", "source": "beir-trec-covid", "beir_id": "8", "expected_doc_ids": [], "needs_human_curation": true}
+{"query_id": "EXT-Q08", "query_text": "What is the protein structure of the SARS-CoV-2 spike?", "source": "beir-trec-covid", "beir_id": "36", "expected_doc_ids": [], "needs_human_curation": true}
+{"query_id": "EXT-Q09", "query_text": "is remdesivir an effective treatment for COVID-19", "source": "beir-trec-covid", "beir_id": "30", "expected_doc_ids": [], "needs_human_curation": true}
+{"query_id": "EXT-Q10", "query_text": "what is the origin of COVID-19", "source": "beir-trec-covid", "beir_id": "1", "expected_doc_ids": [], "needs_human_curation": true}

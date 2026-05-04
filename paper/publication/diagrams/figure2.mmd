@@ -1,0 +1,23 @@
+%%{init: {'theme':'base','themeVariables':{'fontSize':'14px','fontFamily':'Inter, system-ui'}}}%%
+flowchart LR
+    INGEST["File ingest<br/>(watcher / CLI / MCP)"]
+    ROUTER["ingest-router<br/>entity / md / graph"]
+    ANNOT["Annotate<br/>retention_days · section · pain"]
+    COMPUTE["Compute salience<br/>recency × pain × importance"]
+    SHADOW["Shadow-mode<br/>NOX_SALIENCE_MODE=shadow<br/>≥7 days telemetry"]
+    GATE{{"Activate gate<br/>distribution + nDCG OK?"}}
+    APPLIED["Applied to ranking<br/>RRF post-fusion boost"]
+
+    INGEST --> ROUTER --> ANNOT --> COMPUTE --> SHADOW --> GATE
+    GATE -- yes --> APPLIED
+    GATE -- no --> SHADOW
+
+    classDef base fill:#475569,stroke:#1E293B,color:#fff
+    classDef pain fill:#D97706,stroke:#92400E,color:#fff
+    classDef shadow fill:#059669,stroke:#064E3B,color:#fff
+    classDef gate fill:#0F172A,stroke:#000,color:#fff
+
+    class INGEST,ROUTER,APPLIED base
+    class ANNOT,COMPUTE pain
+    class SHADOW shadow
+    class GATE gate
