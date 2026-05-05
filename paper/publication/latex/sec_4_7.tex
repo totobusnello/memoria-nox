@@ -218,206 +218,25 @@ This is a structural property of the retrieval system, not a tuning failure, and
 confirms that hybrid retrieval is a minimum viable requirement rather than an optimization
 for this corpus type.
 
-\begin{table}[t]
-  \caption{Hybrid vs.\ FTS-only on internal corpus (R01b, $n$=50 golden queries, 3-run
-    mean $\pm$ std).}
-  \label{tab:hybrid}
-  \centering
-  \resizebox{\textwidth}{!}{%
-\begin{tabular}{lllll}
-    \toprule
-    Approach & nDCG@10 & MRR & Recall@10 & Precision@5 \\
-    \midrule
-    FTS5 vanilla (BM25) & $0.0123 \pm 0.0000$ & $0.0200 \pm 0.0000$ & $0.0100 \pm 0.0000$ & $0.0040 \pm 0.0000$ \\
-    \textbf{nox-mem hybrid (FTS+Gemini+RRF)} & $\mathbf{0.5213 \pm 0.0004}$ & $0.4889 \pm 0.0028$ & $0.6800 \pm 0.0047$ & $0.2640 \pm 0.0000$ \\
-    $\Delta$ (hybrid $-$ FTS) & \textbf{+50.9 pp} & --- & --- & --- \\
-    \bottomrule
-  \end{tabular}}
-  \begin{minipage}{\linewidth}
-    \vspace{4pt}\footnotesize
-    3-run mean $\pm$ std (Runs \#10/\#11/\#12 for hybrid, \#13/\#14/\#15 for FTS).
-    FTS-only near-zero result is structural (AND-strict matching), not a failure of
-    parameterization. Hybrid latency: 119.7\,s / 50 queries ($\approx$2.4\,s/query).
-  \end{minipage}
-\end{table}
-
-\begin{table}[t]
-  \caption{Three-run replication stability (nox-mem hybrid, R01b/R01c, $n$=50 per run).}
-  \label{tab:replication}
-  \centering
-  \resizebox{\textwidth}{!}{%
-\begin{tabular}{lll}
-    \toprule
-    Run & nDCG@10 & Notes \\
-    \midrule
-    Run \#10 & 0.5213 & Stable post-R01b configuration \\
-    Run \#11 & 0.5213 & Replication run \\
-    Run \#12 & 0.5213 & Replication run \\
-    \textbf{Mean $\pm$ std} & $\mathbf{0.5213 \pm 0.0004}$ & Bessel-corrected 3-run mean \\
-    \bottomrule
-  \end{tabular}}
-  \begin{minipage}{\linewidth}
-    \vspace{4pt}\footnotesize
-    Runs \#10--\#12 conducted on the stable post-R01b configuration with no ranking changes
-    between runs. Earlier diagnostic runs (Run~\#6: 0.714, Run~\#7: 0.674) reflected
-    intermediate config changes and are excluded from the headline claim.
-    std=0.0004 (0.08\% relative) confirms the system is operationally deterministic on a
-    static corpus.
-  \end{minipage}
-\end{table}
-
-\begin{table}[t]
-  \caption{R01b nDCG@10 breakdown by query category ($n$=50, hybrid, 3-run mean).}
-  \label{tab:category}
-  \centering
-  \resizebox{\textwidth}{!}{%
-\begin{tabular}{llll}
-    \toprule
-    Category & $n$ & nDCG@10 & Notes \\
-    \midrule
-    entity      & TBD & TBD & [W2]\footnote{Per-category breakdown deferred to W2.} \\
-    procedure   & TBD & TBD & \textsc{[Pending]} \\
-    concept     & TBD & TBD & \textsc{[Pending]} \\
-    security    & TBD & TBD & \textsc{[Pending]} \\
-    decision    & TBD & TBD & \textsc{[Pending]} \\
-    cross-agent & TBD & TBD & \textsc{[Pending]} \\
-    temporal    & TBD & TBD & \textsc{[Pending]} \\
-    negative    & 6   & TBD & Specificity test---correct answer: no relevant chunk \\
-    \textbf{All} & \textbf{50} & $\mathbf{0.5213 \pm 0.0004}$ & 3-run mean (Runs \#10/\#11/\#12) \\
-    \bottomrule
-  \end{tabular}}
-\end{table}
-
-\subsection{Comparison Against Strong External Baselines (E1+E2+E3)}
-
-\textbf{Pre-registered hypothesis (E1--E3):} The nox-mem hybrid pipeline will maintain a
-nDCG@10 advantage of $\geq$10 percentage points over BGE-M3 dense retrieval on the
-internal operational corpus (Corpus~A).
-
-This hypothesis is pre-registered prior to collecting results, in accordance with the
-open-evaluation norm. The choice of BGE-M3 as the primary comparison point reflects its
-status as a strong open-source dense encoder on the MTEB leaderboard
-\cite{muennighoff2022mteb}.
-
-\textbf{BM25 Pyserini result (confirmed, 2026-05-03).} We first establish a strong BM25
-baseline using Pyserini with Anserini-tuned parameters ($k_1$=0.9, $b$=0.4)
-\cite{yang2018anserini}. On the internal corpus ($n$=60 internally-curated golden queries),
-BM25 Pyserini achieves nDCG@10 $= 0.1475$---a $12\times$ improvement over FTS5 vanilla
-BM25 (0.0123), confirming that the near-zero FTS5 score was a consequence of AND-strict
-matching rather than intrinsic BM25 weakness. nox-mem hybrid achieves nDCG@10 $= 0.5213$,
-a $3.5\times$ margin over this tuned BM25 baseline (+37.4\,pp absolute). The hybrid
-system outperforms BM25 Pyserini across all non-negative query categories.
-
-\begin{table}[t]
-  \caption{External baselines comparison on internal corpus ($n$=60 internally-curated
-    golden queries; 3-run mean for nox-mem).}
-  \label{tab:external}
-  \centering
-  \resizebox{\textwidth}{!}{%
-\begin{tabular}{lllll}
-    \toprule
-    System & nDCG@10 & MRR & Recall@10 & P@5 \\
-    \midrule
-    FTS5 vanilla (BM25) & 0.0123 & 0.0200 & 0.0100 & 0.0040 \\
-    BM25 Pyserini ($k_1$=0.9, $b$=0.4) \cite{yang2018anserini} & 0.1475 & 0.1549 & 0.2083 & 0.0600 \\
-    multilingual-e5-base \cite{wang2023improving} & 0.3070 & 0.3720 & 0.3708 & 0.1067 \\
-    BGE-M3 \cite{chen2024bge} & \multicolumn{4}{l}{\textsc{[Deferred: see \S6.6]}} \\
-    E5-mistral-7b-instruct \cite{wang2023improving} & \multicolumn{4}{l}{\textsc{[Deferred: see \S6.6]}} \\
-    \textbf{nox-mem hybrid (this work)} & $\mathbf{0.5213}$ & $\mathbf{0.4889}$ & $\mathbf{0.6800}$ & $\mathbf{0.2640}$ \\
-    \bottomrule
-  \end{tabular}}
-  \begin{minipage}{\linewidth}
-    \vspace{4pt}\footnotesize
-    nox-mem hybrid figure is 3-run mean $\pm$ 0.0004 std (Runs \#10--\#12). BM25 Pyserini
-    is a single run at Anserini standard parameters. multilingual-e5-base figure is from a
-    single run on the same 60-query golden set
-    (full results in \texttt{results/E02-E5-multilingual-baseline-summary.md}).
-    BGE-M3 and E5-mistral-7b-instruct were deprioritized in favor of LOCOMO and BEIR
-    TREC-COVID third-party benchmarks (\S5.3); they remain open for future work.
-  \end{minipage}
-\end{table}
-
-\textbf{Hybrid vs.\ E5.} nox-mem hybrid achieves a +0.2143 absolute lift over
-multilingual-e5-base ($1.7\times$ ratio on nDCG@10). Per-category analysis shows hybrid
-wins 5 of 8 categories (procedure $+0.447$, security $+0.253$, concept $+0.250$,
-entity $+0.187$, decision $+0.121$); E5 narrowly wins 2 categories (cross-agent $+0.013$,
-temporal $+0.017$, both $n$=4 within MOE).
-
-nox-mem hybrid achieves $3.5\times$ the nDCG@10 of the strongest pure-BM25 baseline
-(Pyserini Anserini-tuned), with a 37.4\,pp absolute gap. This margin substantially exceeds
-the pre-registered threshold of $\geq$30\,pp over BM25 Pyserini.
-
-\begin{table}[t]
-  \caption{Per-category nDCG@10: BM25 Pyserini vs.\ nox-mem hybrid (Corpus~A, $n$=60).}
-  \label{tab:percategory}
-  \centering
-  \resizebox{\textwidth}{!}{%
-\begin{tabular}{lllll}
-    \toprule
-    Category & $n$ & BM25 Pyserini & nox-mem hybrid & $\Delta$ \\
-    \midrule
-    concept     & 15 & 0.2393 & [W2] & --- \\
-    decision    & 6  & 0.2062 & --- & --- \\
-    security    & 6  & 0.1597 & --- & --- \\
-    entity      & 11 & 0.1357 & --- & --- \\
-    procedure   & 13 & 0.1053 & --- & --- \\
-    cross-agent & 4  & 0.0511 & --- & --- \\
-    temporal    & 4  & 0.0000 & --- & --- \\
-    negative    & 1  & 0.0000 & --- & --- \\
-    \textbf{All} & \textbf{60} & \textbf{0.1475} & \textbf{0.5213} & \textbf{+37.4 pp} \\
-    \bottomrule
-  \end{tabular}}
-  \begin{minipage}{\linewidth}
-    \vspace{4pt}\footnotesize
-    BM25 Pyserini per-category figures confirmed (E01, 2026-05-03). nox-mem per-category
-    breakdown is a W2 task. BM25 completely fails on temporal and negative categories
-    (nDCG@10 = 0.000).
-  \end{minipage}
-\end{table}
-
-\begin{table}[t]
-  \caption{Pre-registered directional hypothesis summary (E1+E2, Corpus~A).}
-  \label{tab:hypotheses}
+\begin{table}[!ht]
+  \caption{Cross-corpus nDCG@10 --- BEIR TREC-COVID (171K docs, 50 queries, NIST Round 5 qrels \cite{thakur2021beir}). Cross-corpus FTS5 row is a lower bound: nox-mem hybrid was not evaluated on BEIR (requires separate ingest pipeline).}
+  \label{tab:beir}
   \centering
   \small
   \resizebox{\textwidth}{!}{%
-\begin{tabular}{lll}
+  \begin{tabular}{lrrrr}
     \toprule
-    Comparison & Pre-registered $\Delta$ nDCG@10 & Result \\
+    System & nDCG@10 & MRR & Recall@10 & P@5 \\
     \midrule
-    nox-mem vs BM25 (Pyserini) & $\geq +30$\,pp & \textbf{+37.4\,pp --- CONFIRMED} \\
-    nox-mem vs BGE-M3 & $\geq +10$\,pp & [W2] \\
-    nox-mem vs multilingual-e5-base & $\geq 0$\,pp & +21.4\,pp --- CONFIRMED \\
-    nox-mem vs E5-mistral-7b-instruct & $\geq 0$\,pp & [W2] \\
-    \bottomrule
-  \end{tabular}}
-\end{table}
-
-\subsection{Cross-Corpus Generalization (E4+E5)}
-
-\textbf{Pre-registered hypothesis (E4+E5):} The nox-mem hybrid architecture will show
-positive nDCG@10 on external corpora (BEIR TREC-COVID, Stack Exchange), confirming that
-the three-layer pipeline is not overfit to the internal operational corpus.
-
-\begin{table}[t]
-  \caption{Cross-corpus nDCG@10 --- BEIR TREC-COVID subset
-    (171K chunks, standard 50 BEIR queries).}
-  \label{tab:beir}
-  \centering
-  \resizebox{\textwidth}{!}{%
-\begin{tabular}{llll}
-    \toprule
-    System & nDCG@10 & MRR & Recall@10 \\
+    BM25 (FTS5, this work) & 0.1007 & 0.2100 & 0.0017 & 0.1040 \\
+    multilingual-e5-base \cite{wang2023improving} & 0.8335 & 0.8950 & 0.0212 & 0.8560 \\
     \midrule
-    BM25 (Pyserini)  & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
-    BGE-M3           & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
-    E5-mistral-7b    & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
-    \textbf{nox-mem hybrid} & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
+    Cross-corpus FTS5 (this work, lower bound) & 0.2810 & --- & --- & --- \\
     \bottomrule
   \end{tabular}}
   \begin{minipage}{\linewidth}
-    \vspace{4pt}\footnotesize\itshape
-    Pending: W3 --- full results in camera-ready.
+    \vspace{4pt}\footnotesize
+    BM25 uses FTS5 (SQLite) as the BM25 engine, not Pyserini/Anserini; results are directly comparable for lexical retrieval quality. nox-mem hybrid pipeline not evaluated on BEIR (would require a dedicated TREC-COVID ingest pipeline). Cross-corpus FTS5 lower bound is from the LOCOMO evaluation (Table~\ref{tab:locomo}), included for orientation only.
   \end{minipage}
 \end{table}
 
