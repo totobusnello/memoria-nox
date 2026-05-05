@@ -61,7 +61,7 @@ The community lacks vocabulary for *operational discipline as a methodological c
 
 ### Author
 
-Built solo by Toto, nerd entrepreneur in São Paulo. Four months, no funding, production infrastructure. Contact: lab@nuvini.com.br
+Built solo by Toto, nerd entrepreneur in São Paulo. Four months, no funding, production infrastructure. Contact: lab@generantis.com.br
 
 ### Citation
 

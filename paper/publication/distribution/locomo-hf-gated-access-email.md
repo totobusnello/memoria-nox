@@ -30,9 +30,9 @@ Luiz Antonio Busnello (Toto)
 ## Signature
 
 **Luiz Antonio Busnello**
-Independent Researcher — AI Agent Memory Systems
+Curious Tech Entrepreneur — AI Agent Memory Systems
 São Paulo, Brazil
-lab@nuvini.com.br
+lab@generantis.com.br
 GitHub: github.com/totobusnello
 ORCID: [PLACEHOLDER — register at orcid.org if needed before submission]
 Project: github.com/totobusnello/memoria-nox (MIT)

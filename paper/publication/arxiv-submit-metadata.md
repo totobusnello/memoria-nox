@@ -23,8 +23,8 @@ Character count: 90 — well within limit.
 Busnello, Luiz Antonio
 ```
 
-- **Affiliation:** Independent Researcher, São Paulo, Brazil
-- **Email:** lab@nuvini.com.br
+- **Affiliation:** Curious Tech Entrepreneur, São Paulo, Brazil
+- **Email:** lab@generantis.com.br
 - **ORCID:** [TBD — register at orcid.org before 2026-05-19 if desired; not required for submission]
 
 > Note: arXiv author field accepts plain "Luiz Antonio Busnello" in the name box plus affiliation in the affiliation box. No comma-reversal needed in the UI form itself.
@@ -32,14 +32,23 @@ Busnello, Luiz Antonio
 ---
 
 ## 3. ABSTRACT
-**Limit: 1920 characters | LaTeX abstract: 1908 chars stripped (paper-internal). Plain-text below: 1997 chars (77 over).**
+**Limit: 1920 characters | Plain-text version below: 1997 chars (77 over). LaTeX-inline-math version: ~1900 chars (fits).**
 
-> **DECISION REQUIRED PRE-SUBMIT (2026-05-05):** arXiv's submit form takes the abstract
-> in plain-text. The version below is auto-derived from the paper LaTeX abstract and
-> renders at 1997 chars in plain-text (close to but exceeding the 1920 limit). On submit
-> day, choose one:
-> - **(a)** Trim ~80 chars manually (e.g., compact "GraphRAG, MemGPT, Mem0, and A-MEM encode structure and recency; none encodes incident severity, none enforces ranking-change validation." into a tighter clause; or drop the final punchline "Operational discipline is at least as important as embedding sophistication.").
-> - **(b)** Paste the LaTeX `\begin{abstract}` block contents from `latex/sec_abstract.tex` (1908 chars stripped) and let arXiv's renderer handle small formatting differences.
+> **RECOMMENDED PATH (2026-05-05):** Paste the **content inside** `\begin{abstract}...\end{abstract}`
+> from `latex/sec_abstract.tex` (i.e., the body without the begin/end tags).
+> arXiv's submit form accepts inline LaTeX math (`$\Delta$`, `$\pm$`, `$[-0.014, +0.034]$`,
+> `$\times$`) and renders it correctly. This preserves all numbers/CIs with proper notation,
+> stays within ~1900 chars, and keeps a single source of truth.
+>
+> **Pre-submit step:** convert any remaining `\cite{...}` tags to inline parenthetical
+> form (e.g., `\cite{kohavi2020trustworthy,chapelle2012interleaved}` → `(Kohavi 2020;
+> Chapelle 2012)`). The current abstract has zero `\cite` calls — verified in
+> `sec_abstract.tex`.
+>
+> **Fallback A** (if LaTeX math doesn't render correctly in arXiv): use the plain-text
+> version below (1997 chars, 77 over) and trim manually — drop the final punchline
+> "Operational discipline is at least as important as embedding sophistication." (~85 chars
+> saved).
 >
 > All numbers below reflect post-critic-review state: 3-month corpus, 61,257 chunks,
 > BM25 Pyserini 0.1475, hybrid 0.5213 (3.5x lift), BEIR TREC-COVID e5 0.8335.
@@ -133,7 +142,7 @@ would be grateful for an endorsement. The draft is available at
 
 Thank you,
 Luiz Antonio Busnello
-lab@nuvini.com.br
+lab@generantis.com.br
 ```
 
 4. arXiv endorsement link will be sent to the endorser automatically once you start the submission and request endorsement — follow arXiv's on-screen flow.

@@ -173,8 +173,8 @@ The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own I
 ### 4.6 Autores
 
 - **Name:** `Luiz Antonio Busnello`
-- **Affiliation:** `Independent Researcher, São Paulo, Brazil`
-- **Email:** `lab@nuvini.com.br`
+- **Affiliation:** `Curious Tech Entrepreneur, São Paulo, Brazil`
+- **Email:** `lab@generantis.com.br`
 - **ORCID** (se tiver): cole o ID. Se não tiver: deixe em branco.
 
 ### 4.7 Abstract
@@ -402,8 +402,8 @@ Para conferência rápida sem abrir outros arquivos:
 |---|---|
 | Título | The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents |
 | Autor | Luiz Antonio Busnello |
-| Afiliação | Independent Researcher, São Paulo, Brazil |
-| Email | lab@nuvini.com.br |
+| Afiliação | Curious Tech Entrepreneur, São Paulo, Brazil |
+| Email | lab@generantis.com.br |
 | Categoria primária | cs.IR |
 | Cross-list | cs.CL, cs.AI, cs.DB |
 | Licença | CC BY 4.0 |

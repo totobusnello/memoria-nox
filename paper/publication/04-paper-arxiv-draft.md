@@ -3,8 +3,8 @@
 > **arXiv draft skeleton** — sections + key tables placeholders + open questions marcadas. Full prose escrito em W3-W4 sprint pós experiments completos. **NÃO submeter este draft** — ele é estrutura.
 
 **Authors:** Luiz Antonio Busnello (Toto)¹
-¹Independent Researcher, São Paulo, Brazil
-**Correspondence:** lab@nuvini.com.br
+¹Curious Tech Entrepreneur, São Paulo, Brazil
+**Correspondence:** lab@generantis.com.br
 
 ---
 
