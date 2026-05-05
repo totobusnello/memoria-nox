@@ -115,7 +115,7 @@ Disparados 7 agents em paralelo (max parallelism strategy):
 - Solução: `@` → `"at "` em comment lines (only `%` prefix) + ASCII-fy Unicode chars (§, Δ, em-dash) em comments
 - 4-pass compile cycle (`pdflatex → bibtex → pdflatex → pdflatex`) ✅
 - **Result:** 29 pages, 826 KB, 0 errors, 0 undefined citations, 0 `??` markers, 4 warnings benignos (`h`→`ht`)
-- PDF deliverable: `paper/publication/latex/paper-v1.0.0-paper-draft.pdf`
+- PDF deliverable: `paper/publication/latex/pain-shadow-memory-2026.pdf`
 
 ---
 
@@ -226,7 +226,7 @@ Exit 0 (ready) / exit 1 (blocked).
 ### Estrutura
 - **Paper master:** `paper/publication/paper-{abstract,draft-sec1-3,draft-sec4-7}.md`
 - **LaTeX scaffolds:** `paper/publication/latex/{main,sec_abstract,sec_1_3,sec_4_7}.tex`
-- **PDF:** `paper/publication/latex/paper-v1.0.0-paper-draft.pdf` (32p, 870KB)
+- **PDF:** `paper/publication/latex/pain-shadow-memory-2026.pdf` (32p, 870KB)
 - **Bibliography:** `paper/publication/refs.bib` (29 entries, 25 cited, 0 orphans)
 - **Pre-registration:** `eval/golden-queries.jsonl` (60 queries, SHA-256 9bff8ee7..., commit f75d186)
 
@@ -318,7 +318,7 @@ Tag aplicada: **`v1.0.0-paper-draft`** (sincroniza com CITATION.cff version fiel
 - `paper/publication/latex/sec_{abstract,1_3,4_7}.tex` — markdown→LaTeX conversion
 - `paper/publication/latex/validate-tex.py` — citation/cross-ref linter
 - `paper/publication/latex/compile.sh` — 4-pass cycle helper
-- `paper/publication/latex/paper-v1.0.0-paper-draft.pdf` — submission PDF
+- `paper/publication/latex/pain-shadow-memory-2026.pdf` — submission PDF
 - `paper/publication/scripts/pre-flight-smoke-tests.sh` — 10 checks color-coded
 - `paper/publication/distribution/blog-devto.md` (1850w)
 - `paper/publication/distribution/blog-linkedin.md` (1050w)

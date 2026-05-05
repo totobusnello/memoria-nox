@@ -271,7 +271,7 @@ latex/sec_1_3.tex                              — Score column drop, Appendix C
 latex/sec_4_7.tex                              — Table 5 hybrid, §5.2 cross-corpus, query count, sign fix, Q55 note,
                                                   R01c disclosure, 99.92% by construction, ablation [P] removed,
                                                   D01 leakage cleanup, §5 intro cleanup
-latex/paper-v1.0.0-paper-draft.pdf             — rebuilt 5× (final 31p, 856KB)
+latex/pain-shadow-memory-2026.pdf             — rebuilt 5× (final 31p, 856KB)
 refs.bib                                       — 3 zombie entries removed
 paper-abstract.md                              — sync com sec_abstract.tex
 arxiv-submit-metadata.md                       — abstract canonical path + affiliation

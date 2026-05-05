@@ -142,8 +142,8 @@ Esperado: exit 0 = ready to submit. Exit 1 = bloqueado (bib orphans, abstract ov
 | # | Trabalho | Esforço | Quando |
 |---|---|---|---|
 | **1** | **BEIR Table 8 integration** — comando único acima | ~5min | manhã 2026-05-05 |
-| **2** | **Critic re-review #2** — pre-draft já existe em `paper/publication/critic-rereview-2-prep.md`; disparar agent `critic` com paper-v1.0.0-paper-draft.pdf + lista CRITICAL/HIGH closed | ~1h | após item 1 |
-| **3** | **Visual review final PDF** — abrir `paper/publication/latex/paper-v1.0.0-paper-draft.pdf` e validar Table 8 + figures + bibliography com BEIR integrado | ~15min | após item 1 |
+| **2** | **Critic re-review #2** — pre-draft já existe em `paper/publication/critic-rereview-2-prep.md`; disparar agent `critic` com pain-shadow-memory-2026.pdf + lista CRITICAL/HIGH closed | ~1h | após item 1 |
+| **3** | **Visual review final PDF** — abrir `paper/publication/latex/pain-shadow-memory-2026.pdf` e validar Table 8 + figures + bibliography com BEIR integrado | ~15min | após item 1 |
 | **4** | **arXiv cs.IR endorsement** — contactar Patrick Lewis (Lewis et al. 2020 RAG cited) via email; deadline buffer 4 days = **2026-05-28** | manual ~10min | **VOCÊ**, prioritário |
 | **5** | **arXiv account check** + ORCID register opcional | ~10min | qualquer dia antes 06-02 |
 | **6** | **Substack/dev.to/LinkedIn drafts polish final** — drafts em `paper/publication/distribution/blog-{devto,linkedin,substack}.md` | ~45min | ~01-06-01 (pre-distribution day) |
@@ -163,7 +163,7 @@ Esperado: exit 0 = ready to submit. Exit 1 = bloqueado (bib orphans, abstract ov
 - ✅ `paper/publication/PRE-SUBMIT-CHECKLIST.md` — status de cada item
 - ✅ `paper/publication/distribution/blog-{devto,linkedin,substack}.md` — drafts ~4500 words combined
 - ✅ `paper/publication/distribution/PLATFORM-METADATA.md` — submission day cheatsheet
-- ✅ `paper/publication/latex/paper-v1.0.0-paper-draft.pdf` — 32p, 870KB, 0 errors compilado clean
+- ✅ `paper/publication/latex/pain-shadow-memory-2026.pdf` — 32p, 870KB, 0 errors compilado clean
 
 ### Estado git ao final do dia 2026-05-04
 

@@ -29,7 +29,7 @@ PUB_DIR="${REPO_ROOT}/paper/publication"
 LATEX_DIR="${PUB_DIR}/latex"
 FIGS_DIR="${LATEX_DIR}/figures"
 TINYTEX_BIN="/Users/lab/Library/TinyTeX/bin/universal-darwin"
-PDF_TARGET="${LATEX_DIR}/paper-v1.0.0-paper-draft.pdf"
+PDF_TARGET="${LATEX_DIR}/pain-shadow-memory-2026.pdf"
 
 # ---------------------------------------------------------------------------
 # Utilitários
@@ -80,14 +80,14 @@ check_git_state() {
     status=fail
   fi
 
-  if ! git -C "${REPO_ROOT}" tag --contains HEAD 2>/dev/null | grep -q "v1.0.0-paper-draft"; then
-    notes+=("tag v1.0.0-paper-draft ausente em HEAD")
+  if ! git -C "${REPO_ROOT}" tag --contains HEAD 2>/dev/null | grep -qE "^v1\.0\.0$"; then
+    notes+=("tag v1.0.0 ausente em HEAD")
     status=fail
   fi
 
   printf "%s " "$(pad_label "${label}")"
   if [[ "${status}" == "ok" ]]; then
-    echo -e "${OK} on main, clean, tag v1.0.0-paper-draft"
+    echo -e "${OK} on main, clean, tag v1.0.0"
   else
     echo -e "${FAIL} $(IFS='; '; echo "${notes[*]}")"
     mark_fail
