@@ -318,3 +318,173 @@ docs/SESSION-2026-05-05-FULL-LOG.md            — este documento
 ---
 
 **Estado final:** paper materialmente submit-ready. Tag `v1.0.0-paper-draft` em `c7b2e6c`. Próxima ação humana: Patrick Lewis email (deadline 2026-05-28).
+
+---
+
+## Bloco 8 — Pós-doc: tarball validation + Twitter/HN polish + audit nox-mem + bug fix POST
+
+> **Pós primeiro SESSION-LOG commit `98964bd`**, sessão continuou ~3h adicionais.
+
+### 8.1 PDF rename + tag canonical (commit `257ee2b`)
+- `paper-v1.0.0-paper-draft.pdf` → `pain-shadow-memory-2026.pdf`
+  - "draft" sinaliza incompletude pra reviewers/endorsers
+  - Nome reflete os 3 conceitos-chave (pain, shadow, memory) — mais memorável que produto interno (nox-supermem)
+- Tag `v1.0.0` criada (limpa, sem "-paper-draft"); tag antiga preservada pra histórico
+- 4 referências internas atualizadas (smoke test PDF_TARGET, HANDOFF, 2 SESSION logs)
+
+### 8.2 Polish blogs (commit `3dc30cf`)
+- **dev.to**: soften Q55 framing (`1/31` explicit), add OPEX `<$11/mo`
+- **LinkedIn**: soften Q55 framing (consistency com paper)
+- **Substack**: soften Q55 + datas drip (Substack 06-02 → dev.to 06-03 → LinkedIn 06-04)
+- **SUBMIT-DAY-RUNBOOK** — 7 issues fixed:
+  - PDF path desatualizado → `latex/pain-shadow-memory-2026.pdf`
+  - Figure names errados → `figure1-system-overview` etc reais
+  - Tarball contents sem `sec_*.tex` → adicionado
+  - Author placeholder
+  - §4.7 abstract long-form desatualizado → path canonical (c)
+  - §4.8 Comments "18-22 pages, 14 tables, 4-month" → "31p, 16 tables, 3-month, BEIR+LOCOMO"
+  - §8.2 ordem distribution → drip strategy
+- **Secondary distribution** (7 files): twitter-images-spec, hn-first-comment{,-honest}, paper-1pager, substack-newsletter, twitter-thread, architecture-overview — todos sync com 3 months + 61.257 chunks
+
+### 8.3 Formal author name (commit `49b8342`)
+- "Toto Busnello" → **"Luiz Antonio Busnello"** em LaTeX + runbook
+- Apelido "Toto" mantido em blogs informais, email do Patrick (já enviado), commit Co-Authored-By
+- CITATION.cff e arxiv-submit-metadata.md já estavam com nome formal (sem mudança necessária)
+
+### 8.4 Patrick Lewis email enviado
+- **To:** `hello.patrick.lewis@gmail.com` (encontrado no website pessoal patricklewis.io/contact)
+- **Link público no email:** `github.com/totobusnello/memoria-nox/raw/v1.0.0/paper/publication/latex/pain-shadow-memory-2026.pdf`
+- Subject: "arXiv cs.IR endorsement request — production memory system paper"
+- Corpo: 1 par. quem-eu-sou + 1 par. paper + 1 par. por-que-você + materials públicos + workflow endorsement claro + sign-off
+- **Aguardando resposta** (1-7 dias típico)
+
+### 8.5 Tarball validation (commit `704cfa1`) — **2 bugs críticos fixados**
+- **Bug 1**: `arxiv-package.sh` não incluía `sec_*.tex` (paper modular usa `\input{}`). arXiv compile falharia.
+- **Bug 2**: `main.tex` tem `\bibliography{../refs}` (path relativo) — falha no tarball flat onde refs.bib está no mesmo dir. Sed on-the-fly substitui pra `\bibliography{refs}` antes do tar.
+- **Validação end-to-end**: dry-run gera tarball, extrai externamente, compila — 0 errors, 0 undefined refs, 31p, 857KB.
+- Smoke test 8/10 atualizado: esperado 11 → 14 arquivos (3 sec_*.tex novos)
+
+### 8.6 Twitter + HN sync (commit `704cfa1`)
+- **twitter-thread.md**: data 2026-05-21 → **2026-06-02** (terça); Tweet 7 expandido com BEIR mention; "50 golden queries" → "60 (50 main + 10 held-out)"
+- **hn-first-comment.md**: BEIR mention vago → números concretos (e5 0.8335 vs 0.3070 internal, BM25 0.1007 vs 0.0123 internal); date sync
+
+### 8.7 CITATION.cff sync (commit `704cfa1`)
+- email: nuvini.com → generantis.com
+- version: "1.0.0-paper-draft" → "1.0.0"
+- date-released: 2026-05-19 → 2026-06-02
+- chunks: "64,180+ over four months" → "61,257 over approximately three months"
+- arxiv-id placeholder agora indica formato esperado `2606.NNNNN`
+
+### 8.8 Auditoria nox-mem (sanity check pré-submit)
+**Comando único: 13 batched diagnostics em paralelo**
+
+Resultados:
+| Métrica | Valor | Status |
+|---|---|---|
+| Chunks total | 61.259 | ✅ estável |
+| Vector coverage | 99.96% (61.237/61.259) | ✅ |
+| KG entities/relations | 887 / 1.107 | ✅ |
+| Schema version | v12 (paper claim "v1-v12") | ✅ |
+| DB size / disk free | 1024MB / 96GB livres | ✅ |
+| ops_audit zombies | 0 (zero stuck rows há >1h) | ✅ |
+| Gemini 429s 24h | 0 | ✅ |
+| Services | nox-mem-api + watcher both `active` | ✅ |
+| Salience mode | active (post-shadow gate) | ✅ |
+| Section preserved | 183 entity files (compiled+frontmatter) | ✅ post-incident 04-25 |
+| Backups recentes | 6 pre-op snapshots por agente HOJE 12:14 BRT | ✅ |
+| `search_telemetry` 24h | **0 rows** ⚠️ | investigar |
+
+### 8.9 Bug fix POST `/api/search` (commit nox-workspace `5189d3f7`)
+**Investigação do "0 rows search_telemetry":**
+- POST `{q:...}` retornava `{"error":"q parameter required"}` mesmo com body válido
+- Root cause: handler `/api/search` em `api-server.ts:272` só lia `parseQuery(url)` (query string), nunca o body JSON
+- Confirmou hipótese principal: zero queries reais em 24h porque foco no paper
+
+**Fix aplicado** (live na VPS + versionado):
+- Backup pre-fix: `api-server.ts.bak-pre-search-post-fix-20260505-130819`
+- Patch: aceita GET ?q=, GET ?query=, POST {"q":...}, POST {"query":...}
+- TypeScript build (npx tsc) → exit 0
+- Restart `nox-mem-api` → active em 1s
+- **Tested all 4 invocation forms**: 3 results identical (top score 16.39), telemetry +3 rows ✅
+- **Commit em nox-workspace**: `5189d3f7` (separate repo, github.com/totobusnello/nox-workspace)
+  - gitleaks pre-commit hook OK
+  - 1 file changed, +17/-5
+
+---
+
+## Estado final pós-sessão (2026-05-05 ~14h BRT)
+
+### Repositórios sincronizados
+| Repo | HEAD | Tag | Conteúdo |
+|---|---|---|---|
+| **memoria-nox** | `704cfa1` | `v1.0.0` (canonical) + `v1.0.0-paper-draft` (legacy) | Paper, distribution, runbook |
+| **nox-workspace** | `5189d3f7` | — | Source code (api-server.ts POST fix) |
+
+### Paper status
+- 31 páginas, 857KB, 0 LaTeX errors
+- 0 undefined refs, 0 zombie bib entries
+- Abstract: 261 palavras, 1908 chars (12 buffer abaixo limite arXiv 1920)
+- Pre-flight smoke tests: **9/10 ✓ + 1 warning esperado pré-submit**
+- Tarball validado end-to-end: arXiv vai compilar clean
+
+### nox-mem status (live VPS)
+- 61.259 chunks, 99.96% vector coverage
+- Schema v12, services active, 0 issues
+- POST /api/search agora funciona ✅
+
+### Comunicações em curso
+- 📧 Patrick Lewis email enviado, aguardando endorsement (1-7d típico)
+- 📋 arXiv account: ainda precisa criar (#5 da fila)
+
+---
+
+## Commits totais hoje (sessão 2026-05-05)
+
+**memoria-nox: 14 commits**
+```
+704cfa1  fix(submit-day): tarball script + Twitter/HN/CITATION sync + log refresh
+49b8342  fix(meta): use formal author name "Luiz Antonio Busnello" everywhere
+3dc30cf  docs: polish blogs (1/2/3) + SUBMIT-DAY-RUNBOOK fixes + secondary distribution sync
+257ee2b  rename: paper PDF -> pain-shadow-memory-2026.pdf + tag v1.0.0
+98964bd  docs: SESSION-2026-05-05-FULL-LOG.md initial
+c7b2e6c  fix(meta): M5 affiliation + email + abstract submit-path canonical
+06ff6ee  docs: refresh HANDOFF + sync distribution drafts (BEIR + 3-month + cleanup)
+298096e  fix(paper): visual review #3 — clean §5 intro Pending W2/W3 leakage
+1bd0664  fix(paper): M2 + M7 — Q55 tie note + §5.3 Cross-Corpus separated
+17d10be  fix(paper): critic re-review #2 — 3 CRITICAL + 8 HIGH + 4 MEDIUM + 1 LOW
+477a641  fix(pre-submit): sync abstract.md trims + smoke test ignores MD metadata
+0953a1a  fix(pre-submit): trim abstract -154 chars + smoke test bibtex path + PDF rebuild
+4fd02d4  paper §5.3 Table 8: BEIR TREC-COVID results integrated
+[next]   docs: final session log + HANDOFF retomada
+```
+
+**nox-workspace: 1 commit**
+```
+5189d3f7  fix(nox-mem-api): accept POST /api/search with JSON body
+```
+
+---
+
+## Fila pendente — retomada próxima sessão
+
+| # | Item | Quem | Esforço | Quando |
+|---|---|---|---|---|
+| **#A** | Aguardar resposta Patrick Lewis (email enviado 2026-05-05) | Ele | 1-7d | passive |
+| **#B** | Se 5d sem resposta — Twitter DM @PSH_Lewis (follow-up curto) | VOCÊ | ~3min | ~05-10 |
+| **#C** | Se 7d nada — plano B: Nandan Thakur (BEIR autor, @Nthakur20) | VOCÊ | ~10min | ~05-12 |
+| **#5** | arXiv account check + ORCID register | qualquer | ~10min | qualquer dia antes 06-02 |
+| **#7** | Submit-day runbook walk-through final review | qualquer | ~30min | ~05-30 |
+| **#8** | **Submit arXiv** seguindo SUBMIT-DAY-RUNBOOK.md | qualquer | ~30min | **2026-06-02 manhã** |
+
+### Decisões deferidas (resolver no submit-day)
+- **Pre-submit (a/b/c)**: abstract path final — recomendado (c) paste content inside `\begin{abstract}` de `sec_abstract.tex`
+- **Tag formal post-submit**: criar `v1.0` ou `arxiv-submit` apontando pro commit final pré-submit
+
+### Eventos passivos agendados (sem ação)
+- **2026-05-09 sábado 09:00 BRT**: routine activate gate auto
+- **Daily 09:00 BRT**: F15b cron SEH report → Discord alert se ALERT severity
+- **2026-07-06 quarter**: F14 DR drill auto cron
+
+---
+
+**Estado final consolidado**: paper materialmente submit-ready, sistema VPS auditado e healthy, bug menor encontrado e corrigido, tudo versionado em ambos os repos, comunicação acadêmica iniciada.

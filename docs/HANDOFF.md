@@ -1,54 +1,88 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-05 ~14:00 BRT — sessão BEIR + Critic re-review #2 completa.
-> Paper agora com **BEIR TREC-COVID integrado** (e5 nDCG@10=0.8335, BM25 FTS5=0.1007, n=50)
-> + 3 CRITICAL + 8 HIGH + 6 MEDIUM + 2 LOW issues do critic fechados.
-> PDF 31p, 860KB, 0 errors, 0 undefined refs, abstract 1908 chars (12 buffer abaixo limite arXiv 1920).
-> Pre-flight smoke tests: **9/10 ✓** (1 warning não-bloqueante).
+> **Atualizado:** 2026-05-05 ~17:00 BRT — sessão completa de submit-prep (~7h).
+> **Paper materialmente submit-ready.** Tag canonical `v1.0.0`.
+> **Patrick Lewis email enviado** — aguardando endorsement (1-7d).
+> **nox-mem auditado** + bug menor (POST /api/search) fixado em prod + repo.
+> Pre-flight smoke tests: **9/10 ✓** (1 warning esperado pré-submit).
 
 ---
 
-## 📌 ESTADO 2026-05-05 (resumo)
+## ⚡ RETOMADA — leia isto primeiro
+
+**Estado paper:** ✅ pronto pra submit em 2026-06-02
+**Bloqueado em:** resposta do Patrick Lewis (endorsement arXiv cs.IR)
+**Próxima ação humana:** criar conta arXiv (#5) — qualquer momento antes 06-02
+
+```bash
+# Sanity check rápido ao retomar:
+cd /Users/lab/Claude/Projetos/memoria-nox && bash paper/publication/scripts/pre-flight-smoke-tests.sh | grep -E "^\[|OVERALL"
+# Esperado: 9/10 ✓ + 1 warning (TODO/TBD-arXiv markers, não-bloqueante)
+
+# Verificar resposta Patrick Lewis:
+# Email enviado via lab@generantis.com.br para hello.patrick.lewis@gmail.com
+# Twitter follow-up se 5d sem resposta: @PSH_Lewis
+
+# Estado git:
+git log --oneline -5  # HEAD esperado: docs commit final desta sessão
+git tag -l v1.0.0     # tag canonical em HEAD
+```
+
+---
+
+## 📌 ESTADO 2026-05-05 (resumo executivo)
 
 **Paper submit-ready material.** Submit target: **2026-06-02**.
+**Repos sincronizados:**
+- `memoria-nox` HEAD `[next]` (este commit) — paper, distribution, runbook
+- `nox-workspace` HEAD `5189d3f7` — source code (POST /api/search fix)
 
-**12+ commits hoje** (todos pushed, tag canonical `v1.0.0`):
+**14 commits hoje no memoria-nox** (todos pushed, tag canonical `v1.0.0`):
 1. `4fd02d4` — BEIR Table 8 integration
 2. `0953a1a` — abstract trim + smoke test bibtex path fix
 3. `477a641` — abstract.md sync + smoke test MD metadata fix
-4. `17d10be` — critic re-review #2 (CR1+CR2+CR3 + H1-H8 + M1/M3/M4/M6 + L2/L3)
-5. `1bd0664` — M2 (Q55 score-tie note) + M7 (§5.3 Cross-Corpus separated)
+4. `17d10be` — critic re-review #2 (3 CRIT + 8 HIGH + 4 MED + 1 LOW)
+5. `1bd0664` — M2 (Q55 tie note) + M7 (§5.3 Cross-Corpus separated)
 6. `298096e` — visual review (§5 intro Pending W2/W3 leakage)
 7. `98964bd` — SESSION-2026-05-05-FULL-LOG initial
-8. `257ee2b` — PDF rename `pain-shadow-memory-2026.pdf` + tag canonical `v1.0.0`
+8. `257ee2b` — PDF rename `pain-shadow-memory-2026.pdf` + tag `v1.0.0`
 9. `3dc30cf` — polish blogs + runbook fixes + secondary distribution sync
 10. `49b8342` — formal author name "Luiz Antonio Busnello"
-11. `[next]` — tarball script fix + Twitter/HN polish + CITATION.cff sync
+11. `704cfa1` — tarball script fix (2 critical bugs) + Twitter/HN/CITATION sync
+12. `[next]` — final session log + HANDOFF retomada
 
-**Patrick Lewis email enviado** com link público: `github.com/totobusnello/memoria-nox/raw/v1.0.0/paper/publication/latex/pain-shadow-memory-2026.pdf`
+**1 commit no nox-workspace:**
+- `5189d3f7` — fix(nox-mem-api): accept POST /api/search with JSON body
 
-**Critic CRITICAL closed:**
-- CR1: Table 5 (`tab:hybrid`) inserida com BM25 Pyserini=0.1475, e5=0.3070, hybrid=0.5213
-- CR2: query counts reconciled (R01b=50 main + R01c=10 held-out = 60 total)
-- CR3: §5.5.6 H2/H3 sign contradiction fixed (Δ vs real, consistent with verdict)
-
-**Critic HIGH closed:** H1 (Score column drop), H2 (corpus-scale hedge re-add), H3 (Q55 cherry-pick soften), H4 (99.92% "by construction"), H5 (SHA+timestamp verified), H6 ([P] placeholders removed), H7 (3 zombie bib entries removed), H8 (R01c held-out integrity disclosed).
-
-**Diferidos pra próxima sessão (não bloqueiam submit):**
-- M5: arXiv affiliation address — precisa input do Toto
-- LaTeX temp files + TBD-arXiv em CITATION.cff (warning 7/10 esperado pré-submit)
+**Tudo que foi resolvido nesta sessão:**
+- ✅ BEIR TREC-COVID integrado (e5=0.8335, BM25=0.1007, n=50)
+- ✅ Critic re-review #2: 3 CRITICAL + 8 HIGH + 6 MEDIUM + 2 LOW closed
+- ✅ Abstract: 1908 chars (12 buffer abaixo limite arXiv 1920)
+- ✅ Author formal: "Luiz Antonio Busnello"
+- ✅ PDF renomeado: `pain-shadow-memory-2026.pdf` (sem "draft")
+- ✅ Tag canonical `v1.0.0`
+- ✅ Tarball script (`arxiv-package.sh`) fixado e validado end-to-end
+- ✅ Patrick Lewis email enviado
+- ✅ Distribution drafts (3 main blogs + Twitter + HN + 7 secondary) sincronizados
+- ✅ CITATION.cff atualizado (email, version, date, chunks, format)
+- ✅ Auditoria nox-mem (sanity check VPS) — todas métricas verdes
+- ✅ Bug POST /api/search fixado (live + versionado em nox-workspace)
 
 ---
 
-## 🚀 PRÓXIMA AÇÃO
+## 🚀 PRÓXIMA AÇÃO (ordem cronológica)
 
 | # | Item | Quem | Esforço | Quando |
 |---|---|---|---|---|
-| #4 | **arXiv cs.IR endorsement** — Patrick Lewis (Lewis et al. 2020 RAG) email | **VOCÊ** | ~10min | **deadline 2026-05-28** |
-| #5 | arXiv account check + ORCID register | qualquer | ~10min | qualquer dia antes 06-02 |
-| #6 | Polish blog drafts (devto/linkedin/substack) | qualquer | ~45min | ~06-01 |
-| #7 | Submit-day runbook prep review | qualquer | ~30min | review passo-a-passo |
-| #8 | **Submit arXiv** seguindo `paper/publication/SUBMIT-DAY-RUNBOOK.md` | qualquer | ~30min | **2026-06-02 manhã** |
+| **A** | Aguardar resposta Patrick Lewis | Ele | passive | 1-7d |
+| **B** | Se 5d sem resposta — Twitter DM @PSH_Lewis curto | VOCÊ | ~3min | ~05-10 |
+| **C** | Se 7d nada — plano B: Nandan Thakur (BEIR autor) | VOCÊ | ~10min | ~05-12 |
+| **#5** | arXiv account check + ORCID register | qualquer | ~10min | qualquer dia antes 06-02 |
+| **#7** | Submit-day runbook walk-through final review | qualquer | ~30min | ~05-30 |
+| **#8** | **Submit arXiv** seguindo `SUBMIT-DAY-RUNBOOK.md` | qualquer | ~30min | **2026-06-02 manhã** |
+
+### Decisões deferidas (resolver no submit-day)
+- **Abstract path**: recomendado **(c) paste content inside `\begin{abstract}`** de `sec_abstract.tex` (preserva inline LaTeX math, ~1900 chars, single source). Fallback A se arXiv renderer rejeitar: plain-text + trim final punchline.
 
 ### Eventos passivos agendados (sem ação)
 - **2026-05-09 sábado 09:00 BRT:** routine activate gate auto
