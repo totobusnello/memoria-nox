@@ -93,18 +93,18 @@ I had an eval harness. I ran it.
 |---|---|
 | FTS5 keyword-only | 0.0123 |
 | BM25 Pyserini (strong baseline) | 0.1475 |
-| multilingual-e5-base (open-source dense) | ~0.307 |
+| multilingual-e5-base (open-source dense) | 0.3070 |
 | **nox-mem hybrid (FTS + Gemini + RRF)** | **0.5213 ± 0.0004** |
 
 The keyword-only score isn't just lower — it's near-zero. A natural-language query like "why does the reindex command lose section data" doesn't match any document containing the answer, because the answer is spread across technical terms that don't appear as exact tokens in any single chunk.
 
 The hybrid system delivers **3.5× over the strong BM25 baseline** and **1.7× over open-source multilingual-e5-base**. The experiment took 20 minutes. The cost savings plan was abandoned in 25.
 
-For external validation: on a 100-query stratified subset of LOCOMO (conversational memory benchmark), FTS5 vanilla achieves nDCG@10 = 0.281 — 23× higher than on our production corpus. This confirms the difficulty is corpus-dependent: our domain (identifier-dense operational knowledge) is structurally harder for lexical retrieval than conversational text. The hybrid contribution is most valuable in the harder regime.
+For external validation: on a 100-query stratified subset of LOCOMO (conversational memory benchmark), FTS5 vanilla achieves nDCG@10 = 0.281 — 23× higher than on our production corpus. On BEIR TREC-COVID (50 NIST queries, 171K docs), multilingual-e5-base achieves 0.8335 — three orders of magnitude above its score on our corpus. This confirms the difficulty is corpus-dependent: our domain (identifier-dense operational knowledge) is structurally harder for lexical and dense retrieval than either conversational or biomedical text. The hybrid contribution is most valuable in the harder regime.
 
 > **The semantic layer isn't a nice-to-have. It's structurally load-bearing.**
 
-Four months in production. 61,257 chunks. 6 agents. 12 schema versions. Two data-loss incidents that rewrote the architecture instead of breaking the project.
+Three months in production. 61,257 chunks. 6 agents. 12 schema versions. Two data-loss incidents that rewrote the architecture instead of breaking the project.
 
 ---
 
@@ -120,7 +120,7 @@ Every catastrophic failure became a structural property of the system. Not a pos
 
 **Operational discipline beats algorithmic novelty.** Production scars are more useful than synthetic benchmarks. Solo, open, reproducible — more valuable than closed-source excellence.
 
-These aren't conclusions I came in with. They're what four months of incidents taught me.
+These aren't conclusions I came in with. They're what three months of incidents taught me.
 
 One more honest disclosure on the knowledge graph: edge-type enum coverage improved from 14% to 56% after adding a defensive three-path normalizer with 24-alias map. That 56% is self-reported LLM output rate into the closed enum — not human-validated classification accuracy. The caveat matters.
 

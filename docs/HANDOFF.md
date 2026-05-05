@@ -1,5 +1,57 @@
 # nox-mem HANDOFF — estado vivo
 
+> **Atualizado:** 2026-05-05 ~14:00 BRT — sessão BEIR + Critic re-review #2 completa.
+> Paper agora com **BEIR TREC-COVID integrado** (e5 nDCG@10=0.8335, BM25 FTS5=0.1007, n=50)
+> + 3 CRITICAL + 8 HIGH + 6 MEDIUM + 2 LOW issues do critic fechados.
+> PDF 31p, 860KB, 0 errors, 0 undefined refs, abstract 1908 chars (12 buffer abaixo limite arXiv 1920).
+> Pre-flight smoke tests: **9/10 ✓** (1 warning não-bloqueante).
+
+---
+
+## 📌 ESTADO 2026-05-05 (resumo)
+
+**Paper submit-ready material.** Submit target: **2026-06-02**.
+
+**6 commits hoje** (todos pushed, tag `v1.0.0-paper-draft` em HEAD `298096e`):
+1. `4fd02d4` — BEIR Table 8 integration
+2. `0953a1a` — abstract trim + smoke test bibtex path fix
+3. `477a641` — abstract.md sync + smoke test MD metadata fix
+4. `17d10be` — critic re-review #2 (CR1+CR2+CR3 + H1-H8 + M1/M3/M4/M6 + L2/L3)
+5. `1bd0664` — M2 (Q55 score-tie note) + M7 (§5.3 Cross-Corpus separated)
+6. `298096e` — visual review (§5 intro Pending W2/W3 leakage)
+
+**Critic CRITICAL closed:**
+- CR1: Table 5 (`tab:hybrid`) inserida com BM25 Pyserini=0.1475, e5=0.3070, hybrid=0.5213
+- CR2: query counts reconciled (R01b=50 main + R01c=10 held-out = 60 total)
+- CR3: §5.5.6 H2/H3 sign contradiction fixed (Δ vs real, consistent with verdict)
+
+**Critic HIGH closed:** H1 (Score column drop), H2 (corpus-scale hedge re-add), H3 (Q55 cherry-pick soften), H4 (99.92% "by construction"), H5 (SHA+timestamp verified), H6 ([P] placeholders removed), H7 (3 zombie bib entries removed), H8 (R01c held-out integrity disclosed).
+
+**Diferidos pra próxima sessão (não bloqueiam submit):**
+- M5: arXiv affiliation address — precisa input do Toto
+- LaTeX temp files + TBD-arXiv em CITATION.cff (warning 7/10 esperado pré-submit)
+
+---
+
+## 🚀 PRÓXIMA AÇÃO
+
+| # | Item | Quem | Esforço | Quando |
+|---|---|---|---|---|
+| #4 | **arXiv cs.IR endorsement** — Patrick Lewis (Lewis et al. 2020 RAG) email | **VOCÊ** | ~10min | **deadline 2026-05-28** |
+| #5 | arXiv account check + ORCID register | qualquer | ~10min | qualquer dia antes 06-02 |
+| #6 | Polish blog drafts (devto/linkedin/substack) | qualquer | ~45min | ~06-01 |
+| #7 | Submit-day runbook prep review | qualquer | ~30min | review passo-a-passo |
+| #8 | **Submit arXiv** seguindo `paper/publication/SUBMIT-DAY-RUNBOOK.md` | qualquer | ~30min | **2026-06-02 manhã** |
+
+### Eventos passivos agendados (sem ação)
+- **2026-05-09 sábado 09:00 BRT:** routine activate gate auto
+- **Daily 09:00 BRT:** F15b cron SEH report → Discord alert se ALERT severity
+- **2026-07-06 quarter:** F14 DR drill auto cron
+
+---
+
+## 📚 HISTÓRICO 2026-05-04 (sprint anterior)
+
 > **Atualizado:** 2026-05-04 ~16:00 BRT — fim do marathon completo (**W1+W2+W3 + B1+B2 + layout polish + Pacote A submit-day automation**). Tag `v1.0.0-paper-draft` aplicada e pushed. Paper materialmente submit-ready: PDF 32p compilado clean, 0 errors, 4 figures inline. Veja `docs/SESSION-2026-05-04-FULL-LOG.md` pra log completo.
 
 ---

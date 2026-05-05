@@ -8,7 +8,7 @@ canonical_url: "https://arxiv.org/abs/XXXX"
 
 At 22:03 on April 25, a daily end-of-day cron job ran `nox-mem reindex` without a dry-run flag. In under ten seconds, 183 entities lost their `section`, `retention_days`, and `section_boost` metadata — years of structured context flattened into generic chunks. No error in the logs. No alert fired. The database simply obeyed.
 
-That night clarified the thesis of a project I had been building for four months: agent memory is not a retrieval problem. It is an operational discipline problem.
+That night clarified the thesis of a project I had been building for three months: agent memory is not a retrieval problem. It is an operational discipline problem.
 
 This post describes NOX-Supermem — a production memory system for six AI agents, built on SQLite, evaluated with a 60-query golden harness, and written up as a paper now awaiting arXiv submission (expected June 2026). The architecture, the numbers, the honest failures, and the code are all here.
 
@@ -169,11 +169,11 @@ The incidents are in the log. The log is in the schema. The schema is in the pap
 
 ## What Is Next
 
-The paper covers four months of production operation. Open work from §6.5:
+The paper covers three months of production operation. Open work from §6.5:
 
 - **Pain as post-RRF re-ranker:** co-optimize semantic recall, then apply pain weighting after fusion rather than as a salience multiplier pre-retrieval
-- **BEIR TREC-COVID evaluation:** ongoing; Pyserini run on VPS, ETA 2026-05-05
-- **Dense baseline comparison:** multilingual-e5-base running overnight; E5-mistral-7b deferred to Modal cloud
+- **BEIR TREC-COVID:** **completed 2026-05-05** — multilingual-e5-base nDCG@10 = 0.8335 (n=50); BM25 (FTS5) = 0.1007. nox-mem hybrid not evaluated cross-corpus (would require dedicated TREC-COVID ingest pipeline) — deferred to future work
+- **Dense baseline comparison (internal corpus):** multilingual-e5-base nDCG@10 = 0.3070 (n=60); E5-mistral-7b deferred to Modal cloud
 - **Full production ablation:** comparing `salience=shadow` vs `salience=off` head-to-head requires two production restarts; documented as future work
 - **Corpus scale:** current 61K chunks vs. the ≥100K threshold of standard IR benchmarks (BEIR, MS-MARCO) is the remaining external validity gap
 

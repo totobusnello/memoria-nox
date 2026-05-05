@@ -9,7 +9,7 @@ target_length: 900-1100 words
 
 At 22:03 on April 25, a scheduled job ran without a dry-run flag. In seconds, 183 entities lost years of structured context. No error. No alert. The system simply obeyed the command it was given.
 
-That failure — and five others like it over four months — is the reason I am now submitting a paper to arXiv.
+That failure — and five others like it over three months — is the reason I am now submitting a paper to arXiv.
 
 ---
 
@@ -85,7 +85,7 @@ This is the claim I am most confident in: any team running AI agents in producti
 
 ---
 
-The paper covers four months of production operation with reproducibility as a first-class constraint: a public 60-query eval harness, versioned schema from v1 to v12, and the incident log in the repository.
+The paper covers three months of production operation with reproducibility as a first-class constraint: a public 60-query eval harness, versioned schema from v1 to v12, and the incident log in the repository.
 
 Full paper available at arXiv (expected June 2026): [https://arxiv.org/abs/XXXX](https://arxiv.org/abs/XXXX)
 

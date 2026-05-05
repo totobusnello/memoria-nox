@@ -52,7 +52,7 @@ In seconds, 183 entities lost years of structured metadata. No error. No alert. 
 
 That failure taught me something the AI memory literature does not talk about: memory is not a retrieval problem. It is an operational discipline problem.
 
-I spent four months building NOX-Supermem — a production memory system for six AI agents running on a shared SQLite corpus (61,257 chunks, $<$11/month OPEX). The system is now the subject of a paper I am submitting to arXiv.
+I spent three months building NOX-Supermem — a production memory system for six AI agents running on a shared SQLite corpus (61,257 chunks, $<$11/month OPEX). The system is now the subject of a paper I am submitting to arXiv.
 
 Here are five lessons I would have wanted to read first:
 
@@ -66,7 +66,7 @@ Here are five lessons I would have wanted to read first:
 
 5. Sharing context across agents is cheaper than syncing it. 99.92% of 61,257 chunks are shared across all six agents from one canonical corpus. No federation, no sync overhead, no merge logic. Cross-agent intelligence by design.
 
-The paper covers four months of production operation with a public eval harness, 60 golden queries, and the incident log in the repository.
+The paper covers three months of production operation with a public eval harness, 60 golden queries, and the incident log in the repository.
 
 Full paper (expected June 2026 arXiv): https://arxiv.org/abs/XXXX
 Repository (MIT): https://github.com/totobusnello/memoria-nox
@@ -185,7 +185,7 @@ What production-only insight have you shipped that you could only learn by runni
 
 ### Preview text (~150 chars)
 ```
-At 22:03 on April 25, a cron job flattened 183 entities. No error. No alert. Here is what four months of production failures taught me about agent memory.
+At 22:03 on April 25, a cron job flattened 183 entities. No error. No alert. Here is what three months of production failures taught me about agent memory.
 ```
 (155 chars — trim "Here is what" to "What" to hit 150 if needed)
 
