@@ -488,3 +488,100 @@ c7b2e6c  fix(meta): M5 affiliation + email + abstract submit-path canonical
 ---
 
 **Estado final consolidado**: paper materialmente submit-ready, sistema VPS auditado e healthy, bug menor encontrado e corrigido, tudo versionado em ambos os repos, comunicação acadêmica iniciada.
+
+---
+
+## Bloco 9 — README sync + repo público + follow-up Patrick (final ~1h)
+
+### 9.1 README Highlights table sync (commit `d3cd9fb`)
+Toto perguntou se a tabela de capa tinha sido atualizada. NÃO tinha sido — estava com state pré-sessão.
+
+Atualizações aplicadas em `README.md` Highlights:
+- `64,180+` → `61,257` chunks (99.96% embedded)
+- Adicionada **BM25 Pyserini row** (0.1475, 3.5× lift) explicit
+- Adicionada **multilingual-e5-base row** (0.3070, 1.7× lift)
+- Adicionado **BEIR TREC-COVID** (e5=0.8335, BM25=0.1007, 171K docs)
+- Adicionado **LOCOMO** (FTS5=0.281, 23× internal)
+- 7 agents → 6 agents (paper consistency); + "by construction"
+- Eval harness: 50-query → **60-query (R01b 50 + R01c 10)**
+- Operation: **~3 months (March-May 2026)**
+- Total **OPEX <$11/month**
+- Link direto pra `pain-shadow-memory-2026.pdf`
+
+L734 "Empirical headline" também expandido com paridade total.
+
+### 9.2 Descoberta crítica: repo era PRIVADO (commit `4a0b8f6`)
+Toto perguntou "o repo é privado, tem problema pro link?"
+
+**Verificação:**
+```
+GitHub API unauth:    HTTP 404
+PDF link unauth:      HTTP 404
+```
+
+**🔴 Patrick estava recebendo 404** no link do email original. Quebrava thesis do paper ("publicly available repository under MIT license").
+
+### 9.3 Pre-check security (gitleaks scan)
+- **1 leak achado**: `archive/docs/github-webhook-setup.md:75` — Bearer token webhook
+- **Localização do token original**: `/root/.openclaw/.env` (VPS) como `GITHUB_WEBHOOK_SECRET`
+- **Análise**: endpoint `127.0.0.1:18789` é **loopback only**, **não-exploitable** externamente
+- **Discord webhook URL**: também na .env mas **NÃO está** na história git ✅
+- **Toto confirmou**: nenhum webhook GitHub configurado/ativo → token é inerte
+
+### 9.4 Sanitize + repo público (commit `4a0b8f6`)
+- Token substituído por placeholder `<WEBHOOK_TOKEN>` em `archive/docs/github-webhook-setup.md`
+- gitleaks working-tree scan post-fix: **0 leaks**
+- Token ainda no histórico (commit `fcc899a` initial), mas inerte; rewrite history evitado pra preservar SHA da tag `v1.0.0` (link Patrick)
+- `gh repo edit totobusnello/memoria-nox --visibility public --accept-visibility-change-consequences` ✅
+- Verificação pós-public:
+  - `GET /repos/...` API: HTTP 200 ✅
+  - PDF link unauth: HTTP 302 (redirect to blob, esperado/correto) ✅
+  - `gh repo view --json visibility`: `"PUBLIC"` ✅
+
+### 9.5 Follow-up email enviado (Toto)
+- Reply ao email original do Patrick
+- Subject mantido (continua thread): "Re: arXiv cs.IR endorsement request..."
+- Corpo curto: corrige privado→público, link agora funciona, original request stands
+- Sent ✅
+
+---
+
+## Estado FINAL FINAL pós-sessão
+
+### Repos
+| Repo | HEAD | Visibilidade | Tag |
+|---|---|---|---|
+| **memoria-nox** | `4a0b8f6` | **PUBLIC** ✅ | `v1.0.0` |
+| **nox-workspace** | `5189d3f7` | (provavelmente private — não tocado) | — |
+
+### Comunicações
+- 📧 Patrick Lewis: 2 emails (original 12:30 BRT + follow-up correction ~17h BRT)
+- 📅 Email enviado de: `lab@generantis.com.br`
+- 📥 Esperando: resposta dele (1-7d típico)
+
+### Paper técnico
+- 31 páginas, 857KB, 0 errors, 0 undefined refs
+- Abstract: 1908 chars stripped (12 buffer)
+- Tarball validation: clean compile end-to-end (testado externamente)
+- Pre-flight: 9/10 ✓ + 1 warning esperado
+
+### Sistema VPS
+- nox-mem: 61.259 chunks, 99.96% vec coverage, schema v12, services active
+- POST /api/search agora funciona ✅ (fix em prod + commit nox-workspace)
+- Audit: 0 zombies, 0 rate limits 24h, backups recentes, salience active
+- Disk: 51% used, 96GB livres
+
+---
+
+## Lessons learned do dia inteiro
+
+1. **Validação end-to-end vs unit-only**: arxiv-package.sh tinha 2 bugs que só apareceram quando descompactei externamente e compilei. Smoke test "passava" porque verificava working tree, não tarball gerado.
+2. **"Repo public" vs "PDF public"**: assumi que repo privado era OK pra link específico (raw URL). Foi erro: GitHub raw URLs requerem auth se repo é privado, mesmo via tag.
+3. **Critic re-review #2 valeu o investimento**: 3 CRITICAL submit-blockers eu não pegaria visualmente.
+4. **Honestidade vs marketing**: paper diz "publicly available repository" — descobrir que estava privado **antes** do Patrick ler o email seria custoso (perda de credibilidade).
+5. **Defense in depth**: token leak em endpoint loopback é "non-exploitable" mas sanitize antes de público é cheap insurance.
+6. **Pre-flight smoke test não cobria visibilidade do repo** — gap pra adicionar futuramente.
+
+---
+
+**Sessão fechada definitivamente.** Próxima ação: aguardar Patrick + criar conta arXiv quando tiver tempo.

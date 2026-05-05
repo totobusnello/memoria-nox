@@ -1,9 +1,10 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-05 ~17:00 BRT — sessão completa de submit-prep (~7h).
+> **Atualizado:** 2026-05-05 ~18:00 BRT — sessão completa fechada (~8h).
 > **Paper materialmente submit-ready.** Tag canonical `v1.0.0`.
-> **Patrick Lewis email enviado** — aguardando endorsement (1-7d).
-> **nox-mem auditado** + bug menor (POST /api/search) fixado em prod + repo.
+> **Repo memoria-nox PÚBLICO** ✅ link unauth funciona (HTTP 200/302).
+> **Patrick Lewis: 2 emails enviados** (original + follow-up correction repo→public).
+> **nox-mem VPS auditado** + POST /api/search bug fixado.
 > Pre-flight smoke tests: **9/10 ✓** (1 warning esperado pré-submit).
 
 ---
@@ -19,14 +20,28 @@
 cd /Users/lab/Claude/Projetos/memoria-nox && bash paper/publication/scripts/pre-flight-smoke-tests.sh | grep -E "^\[|OVERALL"
 # Esperado: 9/10 ✓ + 1 warning (TODO/TBD-arXiv markers, não-bloqueante)
 
-# Verificar resposta Patrick Lewis:
-# Email enviado via lab@generantis.com.br para hello.patrick.lewis@gmail.com
-# Twitter follow-up se 5d sem resposta: @PSH_Lewis
+# Verificar PDF público funciona (sem auth):
+curl -s -o /dev/null -w "HTTP %{http_code}\n" "https://github.com/totobusnello/memoria-nox/raw/v1.0.0/paper/publication/latex/pain-shadow-memory-2026.pdf"
+# Esperado: HTTP 302 (redirect to blob, OK)
+
+# Verificar inbox lab@generantis.com.br:
+# Pra resposta de hello.patrick.lewis@gmail.com (assunto "Re: arXiv cs.IR endorsement request...")
 
 # Estado git:
-git log --oneline -5  # HEAD esperado: docs commit final desta sessão
-git tag -l v1.0.0     # tag canonical em HEAD
+git log --oneline -5  # HEAD esperado: 4a0b8f6 (sanitize) ou novo commit final
+git tag -l v1.0.0     # tag canonical
 ```
+
+### 🎯 Cascata de decisão pra próxima sessão
+
+| Cenário | O que fazer |
+|---|---|
+| **Patrick respondeu "sim, manda código"** | Criar conta arXiv → preencher submit form até gerar code → mandar code num 3º email curto |
+| **Patrick respondeu "sim" e endossou direto** | Criar conta arXiv → ver "you have been endorsed cs.IR" → continuar runbook |
+| **Patrick respondeu "não/sem tempo"** | Plano B: Nandan Thakur (BEIR autor) ou Nils Reimers; reutilizar email template trocando autoridade |
+| **5+ dias sem resposta** | Twitter DM @PSH_Lewis curto: "Hi Patrick — sent you an email last week about arXiv cs.IR endorsement, in case it landed in spam. PDF: [link]. No worries if not interested." |
+| **7+ dias nada** | Plano B direto |
+| **Próximo da janela 06-02 sem endorsement** | Plano B URGENTE; ou postpone submit pra próxima janela arXiv |
 
 ---
 
@@ -37,7 +52,7 @@ git tag -l v1.0.0     # tag canonical em HEAD
 - `memoria-nox` HEAD `[next]` (este commit) — paper, distribution, runbook
 - `nox-workspace` HEAD `5189d3f7` — source code (POST /api/search fix)
 
-**14 commits hoje no memoria-nox** (todos pushed, tag canonical `v1.0.0`):
+**16+ commits hoje no memoria-nox** (todos pushed, tag canonical `v1.0.0`):
 1. `4fd02d4` — BEIR Table 8 integration
 2. `0953a1a` — abstract trim + smoke test bibtex path fix
 3. `477a641` — abstract.md sync + smoke test MD metadata fix
@@ -49,24 +64,30 @@ git tag -l v1.0.0     # tag canonical em HEAD
 9. `3dc30cf` — polish blogs + runbook fixes + secondary distribution sync
 10. `49b8342` — formal author name "Luiz Antonio Busnello"
 11. `704cfa1` — tarball script fix (2 critical bugs) + Twitter/HN/CITATION sync
-12. `[next]` — final session log + HANDOFF retomada
+12. `399c78d` — final session log + HANDOFF retomada
+13. `d3cd9fb` — README Highlights table sync (BEIR + 3 months + 61K)
+14. `4a0b8f6` — chore(security): sanitize inert webhook token + repo PUBLIC
+15. `[next]` — handoff doc final retomada
 
 **1 commit no nox-workspace:**
 - `5189d3f7` — fix(nox-mem-api): accept POST /api/search with JSON body
 
-**Tudo que foi resolvido nesta sessão:**
+**Tudo que foi resolvido nesta sessão (~8h):**
 - ✅ BEIR TREC-COVID integrado (e5=0.8335, BM25=0.1007, n=50)
 - ✅ Critic re-review #2: 3 CRITICAL + 8 HIGH + 6 MEDIUM + 2 LOW closed
 - ✅ Abstract: 1908 chars (12 buffer abaixo limite arXiv 1920)
 - ✅ Author formal: "Luiz Antonio Busnello"
 - ✅ PDF renomeado: `pain-shadow-memory-2026.pdf` (sem "draft")
 - ✅ Tag canonical `v1.0.0`
-- ✅ Tarball script (`arxiv-package.sh`) fixado e validado end-to-end
-- ✅ Patrick Lewis email enviado
+- ✅ Tarball script (`arxiv-package.sh`) fixado e validado end-to-end (2 bugs críticos)
+- ✅ Patrick Lewis 2 emails enviados (original + correction repo→public)
 - ✅ Distribution drafts (3 main blogs + Twitter + HN + 7 secondary) sincronizados
 - ✅ CITATION.cff atualizado (email, version, date, chunks, format)
-- ✅ Auditoria nox-mem (sanity check VPS) — todas métricas verdes
+- ✅ Auditoria nox-mem VPS — todas métricas verdes (61.259 chunks, 99.96% vec, 0 zombies)
 - ✅ Bug POST /api/search fixado (live + versionado em nox-workspace)
+- ✅ README Highlights table sync (BEIR + 3 months + 61K + e5)
+- ✅ Webhook token sanitized (inert, repo público preserva tag SHA pro link Patrick)
+- ✅ **Repo memoria-nox tornado PÚBLICO** — link no email do Patrick agora funciona
 
 ---
 
