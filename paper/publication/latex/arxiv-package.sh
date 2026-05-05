@@ -10,6 +10,9 @@
 # Layout packed:
 #   arxiv-pkg/
 #     main.tex
+#     sec_abstract.tex   (\input from main.tex)
+#     sec_1_3.tex        (\input from main.tex)
+#     sec_4_7.tex        (\input from main.tex)
 #     neurips_2024.sty
 #     refs.bib
 #     figures/
@@ -56,6 +59,9 @@ check_file() {
 }
 
 check_file "main.tex"           "$SCRIPT_DIR/main.tex"
+check_file "sec_abstract.tex"   "$SCRIPT_DIR/sec_abstract.tex"
+check_file "sec_1_3.tex"        "$SCRIPT_DIR/sec_1_3.tex"
+check_file "sec_4_7.tex"        "$SCRIPT_DIR/sec_4_7.tex"
 check_file "neurips_2024.sty"   "$SCRIPT_DIR/neurips_2024.sty"
 check_file "refs.bib"           "$SCRIPT_DIR/../refs.bib"
 check_file "figures/figure1.pdf" "$SCRIPT_DIR/figures/figure1.pdf"
@@ -91,8 +97,18 @@ mkdir -p "$STAGING/figures"
 
 # Core source files
 cp "$SCRIPT_DIR/main.tex"                    "$STAGING/main.tex"
+cp "$SCRIPT_DIR/sec_abstract.tex"            "$STAGING/sec_abstract.tex"
+cp "$SCRIPT_DIR/sec_1_3.tex"                 "$STAGING/sec_1_3.tex"
+cp "$SCRIPT_DIR/sec_4_7.tex"                 "$STAGING/sec_4_7.tex"
 cp "$SCRIPT_DIR/neurips_2024.sty"            "$STAGING/neurips_2024.sty"
 cp "$SCRIPT_DIR/../refs.bib"                 "$STAGING/refs.bib"
+
+# Fix bibliography path: in the source tree, refs.bib lives at paper/publication/refs.bib
+# while .tex files are at paper/publication/latex/, so main.tex uses \bibliography{../refs}.
+# In the arXiv tarball everything is at the root of arxiv-pkg/, so the path must become
+# \bibliography{refs}. Patch on-the-fly without touching the source file.
+sed -i.bak 's|\\bibliography{\.\./refs}|\\bibliography{refs}|g' "$STAGING/main.tex"
+rm -f "$STAGING/main.tex.bak"
 
 # Figures — copy real files (resolve symlinks with cp -L so tar gets actual data)
 for i in 1 2 3 4; do
@@ -114,7 +130,7 @@ for i in 1 2 3 4; do
     cp "$STAGING/figures/figure$i.pdf" "$STAGING/figures/$(_figname "$i")"
 done
 
-echo "  Copied: main.tex, neurips_2024.sty, refs.bib"
+echo "  Copied: main.tex, sec_abstract.tex, sec_1_3.tex, sec_4_7.tex, neurips_2024.sty, refs.bib"
 echo "  Copied: figures/figure{1-4}.pdf + descriptive-name copies"
 echo ""
 

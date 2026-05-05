@@ -1,6 +1,6 @@
 # MIT LICENSE confirmed — LICENSE file present in repo root.
 # VERIFY: ORCID not known for author — uncomment and fill if obtained.
-# VERIFY: version "1.0.0-paper-draft" matches git tag v1.0.0-paper-draft (created 2026-05-04).
+# VERIFY: version "1.0.0" matches git tag v1.0.0 (created 2026-05-05).
 # VERIFY: preferred-citation arxiv-id and url must be updated after arXiv submission on 2026-06-02.
 
 cff-version: 1.2.0
@@ -20,7 +20,7 @@ authors:
   - family-names: Busnello
     given-names: Luiz Antonio
     alias: Toto
-    email: lab@nuvini.com.br
+    email: lab@generantis.com.br
     # orcid: "https://orcid.org/0000-0000-0000-0000"  # VERIFY: fill if ORCID is obtained
 
 repository-code: "https://github.com/totobusnello/memoria-nox"
@@ -29,8 +29,8 @@ url: "https://github.com/totobusnello/memoria-nox"
 license: MIT
 
 # VERIFY: update to actual git tag at arXiv submit time
-version: "1.0.0-paper-draft"
-date-released: "2026-05-19"
+version: "1.0.0"
+date-released: "2026-06-02"
 
 keywords:
   - "agent memory"
@@ -53,17 +53,19 @@ preferred-citation:
     - family-names: Busnello
       given-names: Luiz Antonio
       alias: Toto
-      email: lab@nuvini.com.br
+      email: lab@generantis.com.br
       # orcid: "https://orcid.org/0000-0000-0000-0000"  # VERIFY: fill if ORCID is obtained
   year: 2026
-  # VERIFY: update arxiv-id and url after submission on 2026-05-19
+  # VERIFY: update arxiv-id and url after submission on 2026-06-02
+  # Format expected post-submit: arxiv-id: "arXiv:2606.NNNNN"
+  #                              url: "https://arxiv.org/abs/2606.NNNNN"
   journal: "arXiv preprint"
-  arxiv-id: "TBD-arXiv:XXXX.XXXXX"
-  url: "TBD"
+  arxiv-id: "TBD-arXiv:2606.NNNNN"
+  url: "TBD-https://arxiv.org/abs/2606.NNNNN"
   abstract: >
     We present NOX-Supermem, a production memory system for multi-agent AI
     fleets that treats operational discipline — not retrieval sophistication —
     as the primary design constraint. The system introduces pain-weighted
     salience (severity as a retrieval signal), shadow discipline (enforced
     ranking validation gates), and shared-canonical multi-agent context.
-    Evaluated on 64,180+ chunks over four months of production operation.
+    Evaluated on 61,257 chunks over approximately three months of production operation.

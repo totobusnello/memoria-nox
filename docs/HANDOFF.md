@@ -12,13 +12,20 @@
 
 **Paper submit-ready material.** Submit target: **2026-06-02**.
 
-**6 commits hoje** (todos pushed, tag `v1.0.0-paper-draft` em HEAD `298096e`):
+**12+ commits hoje** (todos pushed, tag canonical `v1.0.0`):
 1. `4fd02d4` — BEIR Table 8 integration
 2. `0953a1a` — abstract trim + smoke test bibtex path fix
 3. `477a641` — abstract.md sync + smoke test MD metadata fix
 4. `17d10be` — critic re-review #2 (CR1+CR2+CR3 + H1-H8 + M1/M3/M4/M6 + L2/L3)
 5. `1bd0664` — M2 (Q55 score-tie note) + M7 (§5.3 Cross-Corpus separated)
 6. `298096e` — visual review (§5 intro Pending W2/W3 leakage)
+7. `98964bd` — SESSION-2026-05-05-FULL-LOG initial
+8. `257ee2b` — PDF rename `pain-shadow-memory-2026.pdf` + tag canonical `v1.0.0`
+9. `3dc30cf` — polish blogs + runbook fixes + secondary distribution sync
+10. `49b8342` — formal author name "Luiz Antonio Busnello"
+11. `[next]` — tarball script fix + Twitter/HN polish + CITATION.cff sync
+
+**Patrick Lewis email enviado** com link público: `github.com/totobusnello/memoria-nox/raw/v1.0.0/paper/publication/latex/pain-shadow-memory-2026.pdf`
 
 **Critic CRITICAL closed:**
 - CR1: Table 5 (`tab:hybrid`) inserida com BM25 Pyserini=0.1475, e5=0.3070, hybrid=0.5213

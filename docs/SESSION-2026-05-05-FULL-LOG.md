@@ -25,9 +25,14 @@
 
 ---
 
-## Commits desta sessão (8 total, todos pushed)
+## Commits desta sessão (12+ total, todos pushed)
 
 ```
+[NEXT]   docs: refresh SESSION + HANDOFF + tarball validation + Twitter/HN polish
+49b8342  fix(meta): use formal author name "Luiz Antonio Busnello" everywhere
+3dc30cf  docs: polish blogs (1/2/3) + SUBMIT-DAY-RUNBOOK fixes + secondary distribution sync
+257ee2b  rename: paper PDF -> pain-shadow-memory-2026.pdf + tag v1.0.0
+98964bd  docs: SESSION-2026-05-05-FULL-LOG.md — comprehensive session record
 c7b2e6c  fix(meta): M5 affiliation + email + abstract submit-path canonical
 06ff6ee  docs: refresh HANDOFF + sync distribution drafts (BEIR + 3-month + cleanup)
 298096e  fix(paper): visual review #3 — clean §5 intro Pending W2/W3 leakage
@@ -38,7 +43,28 @@ c7b2e6c  fix(meta): M5 affiliation + email + abstract submit-path canonical
 4fd02d4  paper §5.3 Table 8: BEIR TREC-COVID results integrated
 ```
 
-Tag `v1.0.0-paper-draft` force-pushed 5× ao longo da sessão (cada bloco de fixes), HEAD final em `c7b2e6c`.
+Tag history:
+- `v1.0.0-paper-draft` (legacy, kept for reference) — force-pushed 5× durante sessão
+- `v1.0.0` (canonical, novo) — criado 2026-05-05, public PDF link estável
+
+## Bloco 7 — Polish post-critic + Patrick Lewis email sent (final 2h da sessão)
+
+- **PDF rename**: `paper-v1.0.0-paper-draft.pdf` → `pain-shadow-memory-2026.pdf` (`257ee2b`)
+  - "draft" suffix sinaliza incompletude pra reviewer/endorser
+  - Nome reflete os 3 conceitos do paper (não o produto interno nox-supermem)
+  - Tag `v1.0.0` criada (HEAD canonical limpo)
+- **Blog drafts polish**: dev.to + LinkedIn + Substack soften Q55 framing (1/31 explicit) + datas drip strategy + OPEX mention
+- **SUBMIT-DAY-RUNBOOK walk-through**: 7 issues fixed (PDF path, figure names, tarball contents, author name, abstract canonical path, comments page count, distribution order)
+- **Secondary distribution sync**: 7 files (twitter-images-spec, hn-comments, paper-1pager, etc) com BEIR done + 3 months + 61,257 chunks
+- **Author name formal**: "Toto Busnello" → "Luiz Antonio Busnello" em LaTeX + runbook + CITATION.cff (apelido "Toto" mantido em blogs informais)
+- **Patrick Lewis email enviado**: arXiv cs.IR endorsement request via `hello.patrick.lewis@gmail.com` com link público `github.com/totobusnello/memoria-nox/raw/v1.0.0/paper/publication/latex/pain-shadow-memory-2026.pdf`
+- **arxiv-package.sh fix**: 2 bugs encontrados e fixados:
+  1. Não incluía `sec_*.tex` (paper modular usa `\input{}`)
+  2. `\bibliography{../refs}` falha no tarball flat — sed on-the-fly pra `\bibliography{refs}`
+  - Validado: tarball compila clean (0 errors, 0 undefined refs, 31p, 857KB)
+- **Twitter thread + HN comment**: BEIR mention adicionado, datas atualizadas pra 2026-06-02
+- **CITATION.cff**: email atualizado, version "1.0.0" (sem -paper-draft), date-released 2026-06-02, BEIR + 3-month state
+- **HANDOFF.md**: refresh com commit history completo
 
 ---
 

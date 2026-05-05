@@ -562,8 +562,8 @@ check_tar_packaging() {
     status=fail
   fi
 
-  if [[ "${file_count}" -ne 11 ]]; then
-    notes+=("${file_count} arquivos no tarball (esperado: 11)")
+  if [[ "${file_count}" -ne 14 ]]; then
+    notes+=("${file_count} arquivos no tarball (esperado: 14 — main.tex + 3 sec_*.tex + sty + bib + 8 figures)")
     # Aviso, não bloqueio, pois o número pode variar com sty adicionais
     [[ "${status}" == "ok" ]] && status=warn
   fi

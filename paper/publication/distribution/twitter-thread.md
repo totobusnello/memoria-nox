@@ -1,6 +1,6 @@
-# Twitter/X Thread — Launch Day (Thursday 2026-05-21)
+# Twitter/X Thread — Launch Day (Tuesday 2026-06-02)
 
-> Post at 09:00 ET simultaneous with HN submission. Schedule tweets 2-3 min apart to hit the timeline feed in sequence. All tweets ≤280 chars. Numbering uses 1/11 format.
+> Post at 09:00 ET (10:00 BRT) simultaneous with HN submission. Schedule tweets 2-3 min apart to hit the timeline feed in sequence. All tweets ≤280 chars. Numbering uses 1/11 format.
 
 ---
 
@@ -102,11 +102,11 @@ This is not a tuning problem. It's a structural constraint of FTS5 on full-sente
 
 p95 search latency: <1s.
 
-Built solo. No funding. Runs on a $20/mo VPS.
+External validation: on BEIR TREC-COVID, e5 reaches nDCG@10=0.8335 — 3x its score on our corpus. Difficulty is corpus-dependent.
 
-The benchmark is production, not a synthetic dataset.
+Built solo. <$11/mo total OPEX.
 
-[~210 chars]
+[~278 chars]
 
 ---
 
@@ -114,11 +114,11 @@ The benchmark is production, not a synthetic dataset.
 
 8/11
 
-Paper: arxiv.org/[link when live — 2026-05-19]
+Paper: arxiv.org/[link when live — 2026-06-02]
 
 Blog post (full engineering breakdown): dev.to/totobusnello + Substack
 
-Repo + eval harness + 50 golden queries: github.com/totobusnello/memoria-nox
+Repo + eval harness + 60 golden queries (50 main + 10 held-out): github.com/totobusnello/memoria-nox
 
 HN thread for technical discussion: [link after submission]
 
