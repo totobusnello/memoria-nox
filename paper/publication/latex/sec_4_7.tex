@@ -43,14 +43,14 @@ optimistic bias from iterative query refinement.
 \textbf{Internal-curator bias mitigation.} We acknowledge that golden queries authored by
 the same individual who built the system introduce construct validity risk. Three
 mitigations are applied: (i)~the held-out R01c subset was frozen before the final tuning
-sprint; (ii)~external corpora (BEIR TREC-COVID, Stack Exchange---\S5.3) use third-party
+sprint; (ii)~external corpora (BEIR TREC-COVID, Stack Exchange---\S5.2) use third-party
 curated relevance judgments; and (iii)~six negative queries test the boundary condition
 most susceptible to self-serving bias. As a fourth mitigation, we evaluate nox-mem against
 10 queries authored by NIST professional assessors (TREC-COVID Round 5
 \cite{thakur2021beir}), selected via TF-IDF $k$-means clustering ($k$=10, seed=42) over
 the 50 canonical BEIR topics to maximise lexical diversity (avg pairwise Jaccard = 0.097).
 Vocabulary overlap with the internal golden-50 set was 0.0\%, confirming the two sets
-probe complementary terminology. See \S5.3 for cross-corpus generalization results.
+probe complementary terminology. See \S5.2 for cross-corpus generalization results.
 
 \subsection{Shadow-Mode Methodology}
 
@@ -181,7 +181,7 @@ intervals} computed with 10,000 resamples. Given the small sample, bootstrap CI 
 appropriate uncertainty quantification; we do not use asymptotic normal approximations for
 $n < 30$.
 
-Effect sizes for ablation experiments (\S5.4) are reported as absolute
+Effect sizes for ablation experiments (\S5.3) are reported as absolute
 $\Delta$~nDCG@10 rather than relative percentages, following the recommendation of
 \cite{fuhr2018some} to avoid inflating small absolute differences through percentage
 framing.
@@ -196,16 +196,17 @@ experimental questions.
 \needspace{6\baselineskip}
 \section{Experiments and Results}
 
-We report results across five experimental questions: (5.1) internal corpus baseline
-establishing hybrid pipeline necessity; (5.2) comparison against strong external baselines;
-(5.3) generalization to external corpora; (5.4) ablation studies isolating each
-architectural layer; and (5.5--5.6) targeted validation of the two novel
-contributions---pain weighting and cross-agent intelligence. All pre-registered hypotheses
+We report results across five experimental themes: (5.1) internal corpus baselines
+including external lexical/dense comparisons (R01a/b/c, E1--E3) establishing the
+hybrid pipeline as a minimum viable requirement; (5.2) cross-corpus generalization
+on BEIR TREC-COVID and LOCOMO (E4+E5+E11); (5.3) ablation studies isolating each
+architectural layer (E6--E9); and (5.4--5.6) targeted validation of the two novel
+contributions---pain weighting (E10) and cross-agent intelligence (E12). All pre-registered hypotheses
 from \texttt{03-experiments-needed.md} are stated before results; pending experiments are
 marked \textsc{[Pending: W2]} or \textsc{[Pending: W3]}. Golden queries pre-registered at
 \S3.8 ensure post-hoc construction bias is bounded.
 
-\subsection{Internal Corpus Baseline (R01a/b/c)}
+\subsection{Internal Corpus Baselines and External Comparisons (R01a/b/c, E1--E3)}
 
 \textbf{Pre-registered hypothesis (R01a):} The hybrid pipeline will outperform FTS-only
 BM25 by a substantial margin on natural-language queries over the operational corpus.
@@ -253,10 +254,20 @@ external lexical baseline (BM25 Pyserini, Anserini-tuned).
     only), BM25 Pyserini = $0.1475$ and multilingual-e5-base = $0.3070$ are unchanged
     within rounding (per-category breakdown in \texttt{results/E01,E02}).
     The $3.5\times$ lift over BM25 Pyserini is the cited \emph{strongest external lexical
-    baseline} comparison; see Table~\ref{tab:beir} for cross-corpus generalization (BEIR
-    TREC-COVID).
+    baseline} comparison; cross-corpus generalization (BEIR TREC-COVID, LOCOMO) is
+    addressed in \S5.2 (Table~\ref{tab:beir}, Table~\ref{tab:locomo}).
   \end{minipage}
 \end{table}
+
+\subsection{Cross-Corpus Generalization (E4+E5+E11)}
+\label{sec:cross-corpus}
+
+\textbf{Pre-registered hypothesis (E4+E5+E11):} Lexical retrieval difficulty is corpus-dependent;
+FTS5/BM25 performance varies by orders of magnitude across corpora with different vocabulary
+overlap and topic structure. Two third-party benchmarks are evaluated: BEIR TREC-COVID
+(NIST-curated relevance judgments, 171K documents) and LOCOMO (Maharana et al.\ 2024,
+conversational memory). Both use frozen relevance judgments authored independently of
+this work, addressing the single-curator construct-validity threat noted in \S4.1.
 
 \begin{table}[!ht]
   \caption{Cross-corpus nDCG@10 --- BEIR TREC-COVID (171K docs, 50 queries, NIST Round 5 qrels \cite{thakur2021beir}). Cross-corpus FTS5 row is a lower bound: nox-mem hybrid was not evaluated on BEIR (requires separate ingest pipeline).}
@@ -307,6 +318,20 @@ external lexical baseline (BM25 Pyserini, Anserini-tuned).
     \texttt{python3 paper/publication/baselines/locomo\_eval.py full} (stdlib-only).
   \end{minipage}
 \end{table}
+
+\textbf{Cross-corpus result.} On BEIR TREC-COVID, multilingual-e5-base achieves
+nDCG@10 $= 0.8335$ ($n$=50), three orders of magnitude above its internal-corpus
+performance ($0.3070$, see \S5.1); the FTS5 BM25 baseline reaches $0.1007$ on TREC-COVID
+versus $0.0123$ on the internal corpus. On LOCOMO, FTS5 reaches $0.2810$ ($n$=100,
+$\approx 23\times$ above internal).
+Both lexical-baseline gaps confirm that the near-zero FTS5 result on the operational
+corpus (\S5.1) is a property of \emph{this corpus} (high natural-language phrasing
+density, low term overlap with stored chunks), not a general FTS5 limitation. The
+nox-mem hybrid pipeline was not evaluated on either external corpus---both would
+require a dedicated ingest pipeline---so the headline contribution is the
+\emph{architectural pattern} (lexical $\to$ dense $\to$ RRF), not a competitive
+benchmark number on third-party datasets. This is an explicit limitation
+(\S6.5: deferred).
 
 \subsection{Ablation Studies (E6--E9)}
 
@@ -457,6 +482,14 @@ regime where semantic scores tie, which occurred in 1 of 31 queries in this eval
     \bottomrule
   \end{tabular}}
 \end{table}
+
+\textbf{Note on score equality at rank 1.} The score 16.39 for chunk 116179 is identical
+under \texttt{pain\_real} and \texttt{pain\_uniform} because 116179 (an incident-response
+session handoff) already carries \texttt{pain}=1.0 in the production distribution; the
+multiplicative term $\texttt{pain}=1.0$ is invariant under the two configurations.
+Differences appear at ranks 2 and 3, where chunks with \texttt{pain}<1.0 (e.g., chunk
+147900 archive spec) have their fused scores raised under \texttt{pain\_uniform},
+displacing the second incident-derived gold chunk 116380.
 
 \textbf{Interpretation.} When all chunks receive \texttt{pain}=1.0, the archive spec's
 marginally higher semantic score is sufficient to displace 116380 from rank 2---a net rank
@@ -696,9 +729,9 @@ using calibration heuristics described in \S4.3. This introduces two forms of bi
 annotator may unconsciously assign higher pain to incidents they remember as costly; and
 annotation coverage is currently limited to incident-derived entity files.
 
-\textbf{Pain dimension is recall-ceiling-limited.} Empirical ablations (\S5.5) show pain
+\textbf{Pain dimension is recall-ceiling-limited.} Empirical ablations (\S5.4) show pain
 provides directional but not statistically significant aggregate effect, with one exception
-(Q55, $\Delta=+0.349$). Follow-up calibration tests (\S5.5.6) refute the hypothesis that
+(Q55, $\Delta=+0.349$). Follow-up calibration tests (\S5.5) refute the hypothesis that
 distribution spread is the limiting factor. The actual constraint is \textbf{BM25 recall
 ceiling}: 92\% of golden queries (55/60) do not surface their gold chunks via lexical
 retrieval at all, leaving pain with no candidates to re-rank. Future work should:
@@ -740,7 +773,7 @@ Cohen's $\kappa \geq 0.6$ per Landis and Koch \cite{landis1977measurement}).
 0.7, 1.0), the $10\times$ spread, and the multiplicative aggregation form are engineering
 choices motivated by operational practice \cite{pagerduty2023severity,beyer2016site}. We
 do not claim psychometric or biological validity. The calibration spread ablation
-(\S5.5.6) found that no artificial spread outperforms the real distribution; the binding
+(\S5.5) found that no artificial spread outperforms the real distribution; the binding
 constraint is BM25 recall, not calibration. Aggregation form ablation (additive
 vs.\ multiplicative) remains as future work.
 
@@ -788,7 +821,7 @@ approximately \$10/month = \textbf{approximately \$11/month all-in} for a 62K-ch
 
 \textbf{Construct validity.} The golden queries (R01b) were designed to reflect operational
 retrieval needs---``what was the fix for the gateway crash?'' rather than paper-style
-information-need queries. Comparison with external baselines on BEIR (\S5.3) addresses
+information-need queries. Comparison with external baselines on BEIR (\S5.2) addresses
 this partially.
 
 \textbf{External validity.} All internal results (\S5.1--5.2) were collected on a
@@ -850,7 +883,7 @@ confirmed: nox-mem hybrid achieves $3.5\times$ the nDCG@10 of the strongest tune
 baseline (+37.4~pp absolute), substantially exceeding the pre-registered threshold. The
 shared-canonical storage architecture is confirmed at 99.92\% sharing ($n$=61,257 chunks),
 vs.\ 0\% sharing under any per-agent isolated design by construction, achieving production OPEX of approximately
-\$11/month all-in for the full 6-agent deployment (\S6.4). The E10 pain ablation (\S5.5)
+\$11/month all-in for the full 6-agent deployment (\S6.4). The E10 pain ablation (\S5.4)
 is executed and reported: the aggregate result is DIRECTIONAL, NOT SIGNIFICANT
 ($\Delta = +0.0065$, 95\% CI $[-0.0143, +0.0338]$, $n=31$); the Q55 case study provides
 positive evidence that pain provides meaningful lift ($\Delta = +0.349$) in the

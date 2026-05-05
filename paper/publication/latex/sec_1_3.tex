@@ -89,7 +89,7 @@ treats incident severity as a first-class dimension; severity-aware prioritizati
 has well-established roots in observability and incident-response practice
 (e.g., PagerDuty severity tiers, SIEM alert weighting), but has not been instrumented as
 a retrieval ranking signal in the memory-systems literature surveyed in \S2.
-Empirical ablation (\S5.5, E10, $n=31$
+Empirical ablation (\S5.4, E10, $n=31$
 post-incident queries, hybrid mode) shows directional but non-significant aggregate effect
 ($\Delta = +0.0065$, 95\% CI $[-0.014, +0.034]$). The dimension provides meaningful lift
 in the narrow regime where high-pain and low-pain chunks receive near-identical Gemini
@@ -279,7 +279,7 @@ are in \S6.5.
     Five architectural axes are displayed; two additional axes---\emph{corpus scale
     \textgreater100K chunks} and \emph{3rd-party benchmark evaluation} (e.g., LOCOMO,
     LongMemEval, BEIR)---are summarized in the prose below. nox-mem currently covers
-    5 of 7 axes ($\times$ on both omitted axes; see \S5.3 for partial BEIR/LOCOMO
+    5 of 7 axes ($\times$ on both omitted axes; see \S5.2 for partial BEIR/LOCOMO
     progress). Mem0 covers axis 7 via LOCOMO; no surveyed system has published a
     \textgreater100K-chunk evaluation. This is a comparison across architectural
     \emph{axes of difference}, not a competition score.
@@ -505,7 +505,7 @@ dominates retrieval over routine content even when recency is comparable.
 The salience signal is exposed in shadow mode at \texttt{/api/health.salience} without
 affecting production ranking, enabling comparison against the baseline before activation
 (\S3.6). Ablation results comparing retrieval quality with real versus uniform pain values
-on $n=31$ post-incident queries are reported in \S5.5 (E10, 2026-05-04); the aggregate
+on $n=31$ post-incident queries are reported in \S5.4 (E10, 2026-05-04); the aggregate
 result is directional but not statistically significant, with Q55 as the primary positive
 case study ($\Delta = +0.349$).
 
@@ -638,7 +638,7 @@ pre-acceptance was obtained prior to experimentation---the \texttt{03-experiment
 document serves an equivalent function within the project's operational discipline: it
 records pre-registered hypotheses with explicit success thresholds (e.g.,
 $\Delta$~nDCG@10 $\geq 0.05$ for E10) that are reported honestly regardless of outcome,
-as evidenced by the DIRECTIONAL, NOT SIGNIFICANT result for the E10 pain ablation (\S5.5).
+as evidenced by the DIRECTIONAL, NOT SIGNIFICANT result for the E10 pain ablation (\S5.4).
 The pre-registration document, the golden query set, and all evaluation scripts are
 included in the public repository under MIT license, permitting full independent
 verification.
