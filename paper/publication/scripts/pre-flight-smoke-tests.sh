@@ -163,16 +163,17 @@ check_latex_compile() {
   tmpdir="$(mktemp -d)"
   trap 'rm -rf "${tmpdir}"' RETURN
 
-  # Copiar fontes para tmpdir para não poluir LATEX_DIR
-  cp -r "${LATEX_DIR}/." "${tmpdir}/"
-  # refs.bib precisa estar acessível
+  # Espelha a estrutura real do repo: paper/publication/refs.bib + paper/publication/latex/*.tex
+  # main.aux gera \bibdata{../refs} — refs.bib precisa estar no parent do diretório de compilação.
+  mkdir -p "${tmpdir}/latex"
+  cp -r "${LATEX_DIR}/." "${tmpdir}/latex/"
   cp "${PUB_DIR}/refs.bib" "${tmpdir}/" 2>/dev/null || true
 
   local log1 log2 log3 log_bib
   local errors=0 undef_cit=0 questionmarks=0 overfull_big=0 pages=0 kb_size=0
 
   (
-    cd "${tmpdir}"
+    cd "${tmpdir}/latex"
     # Passo 1
     "${PDFLATEX}" -interaction=nonstopmode -halt-on-error main.tex >"${tmpdir}/run1.log" 2>&1 || true
     # BibTeX
@@ -203,8 +204,8 @@ check_latex_compile() {
   pages=$(grep -oE "[0-9]+ page" "${final_log}" 2>/dev/null | tail -1 | grep -oE "^[0-9]+" || echo 0)
 
   # Tamanho do PDF gerado
-  if [[ -f "${tmpdir}/main.pdf" ]]; then
-    kb_size=$(du -k "${tmpdir}/main.pdf" | cut -f1)
+  if [[ -f "${tmpdir}/latex/main.pdf" ]]; then
+    kb_size=$(du -k "${tmpdir}/latex/main.pdf" | cut -f1)
   fi
 
   local notes=()
