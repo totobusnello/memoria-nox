@@ -10,10 +10,11 @@ incident-driven: each failure became a schema constraint. Three contributions: (
 Pain-weighted salience
 ($\text{salience} = \text{recency} \times \text{pain} \times \text{importance}$,
 $\text{pain} \in [0.1, 1.0]$) as a first-class retrieval dimension, calibrated to
-PagerDuty P1--P5 and SRE error budgets, not psychometric scales. Ablation
+PagerDuty P1--P5, not psychometric scales. Ablation
 ($n=31$, hybrid mode) shows non-significant aggregate effect ($\Delta = +0.0065$, 95\%~CI
-$[-0.014, +0.034]$); lift concentrates in tied-semantic regimes (Q55,
-$\Delta = +0.349$). The binding constraint is BM25 recall ceiling: 55 of 60 queries fail
+$[-0.014, +0.034]$); lift observed in 1/31 queries (Q55, $\Delta = +0.349$); 29/31
+unaffected because semantic scores were not tied. The binding constraint
+is BM25 recall ceiling: 55 of 60 queries fail
 FTS-only regardless of pain calibration; full hybrid retains Recall@10 $= 0.6800$ via
 Gemini. (2) Shadow discipline: a seven-day gate before any
 ranking change activates, enforced via \texttt{/api/health} as an architectural
@@ -26,7 +27,7 @@ Edge-type enum coverage improved $14\% \to 56\%$ ($4\times$ gain, $n=100$, 95\%~
 CI $[46$--$66\%]$); self-reported enum coverage rate, not human-validated accuracy. On
 LOCOMO (Maharana et al., 2024, $n=100$), FTS5 achieves nDCG@10 $= 0.281$, confirming
 lexical difficulty is corpus-dependent; on BEIR TREC-COVID, multilingual-e5-base achieves
-nDCG@10 $= 0.8335$ ($n=50$). Code,
+nDCG@10 $= 0.8335$ ($n=50$). Open gap: corpus scale $>$100K. Code,
 harness, golden set ($n=60$), and incident log:
 \url{https://github.com/totobusnello/memoria-nox} (MIT). Operational discipline is at
 least as important as embedding sophistication.

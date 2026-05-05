@@ -33,11 +33,12 @@ relevant chunk exists---testing specificity against hallucination risk). Each qu
 authored by the single curator with a relevance label set ($0 =$ not relevant,
 $1 =$ partially relevant, $2 =$ highly relevant) over the top-20 retrieved candidates.
 
-\textbf{Held-out subset (R01c).} Ten queries from R01b are designated held-out: they were
-locked before any retrieval tuning and are evaluated only once per major system revision,
-functioning as a proxy for external-curator independence. Performance on R01c is reported
-separately from the 40-query main set to avoid optimistic bias from iterative query
-refinement.
+\textbf{Held-out subset (R01c).} An additional ten queries (R01c, Q51--Q60) are designated
+held-out: they were locked before any retrieval tuning and are evaluated only once per
+major system revision, functioning as a proxy for external-curator independence. The
+total golden-query budget is therefore 60 (50 main R01b $\cup$ 10 held-out R01c).
+Performance on R01c is reported separately from the 50-query main set R01b to avoid
+optimistic bias from iterative query refinement.
 
 \textbf{Internal-curator bias mitigation.} We acknowledge that golden queries authored by
 the same individual who built the system introduce construct validity risk. Three
@@ -90,7 +91,7 @@ The \texttt{pain} field is a real-valued annotation in $[0.1,\,1.0]$ attached to
 chunk at ingest time. Annotation is currently manual, using the \texttt{pain: X.X} marker
 syntax in entity files, and defaults to 0.2 for unannotated content.
 
-\textbf{Calibration heuristics.} Based on four months of operational experience, the
+\textbf{Calibration heuristics.} Based on approximately three months of operational experience, the
 following calibration anchors were established: 0.1 (trivial notes, meeting summaries with
 no operational consequence); 0.2 (default, documentation and informational content);
 0.3--0.4 (decisions with moderate reversibility risk); 0.5--0.7 (production incidents with
@@ -121,7 +122,7 @@ $\texttt{importance} \in [0,1]$ is derived from \texttt{mention\_count} and
 remains salient even as its recency decays---which is the core behavioral claim of
 Contribution~1.
 
-\textbf{Annotation coverage.} The corpus contains 64,180+ chunks; pain annotation is
+\textbf{Annotation coverage.} The corpus contains 61,257 chunks; pain annotation is
 currently applied selectively to chunks derived from incident entity files. Future work
 includes LLM-driven automatic pain classification over the full corpus (\S6.5).
 
@@ -216,7 +217,46 @@ phrasing: FTS5 applies AND-strict matching by default, which means any multi-wor
 natural-language query that does not appear verbatim in the corpus returns zero results.
 This is a structural property of the retrieval system, not a tuning failure, and it
 confirms that hybrid retrieval is a minimum viable requirement rather than an optimization
-for this corpus type.
+for this corpus type. nox-mem hybrid achieves a $3.5\times$ lift over the strongest
+external lexical baseline (BM25 Pyserini, Anserini-tuned).
+
+\begin{table}[!ht]
+  \caption{Internal corpus comparison (Corpus~A, golden queries). nox-mem hybrid 3-run mean
+    is on the 50-query main set R01b; external baselines (BM25 Pyserini, multilingual-e5-base)
+    are one-shot evaluations on the full 60-query set (R01b $\cup$ R01c). FTS5 vanilla and
+    nox-mem hybrid columns are directly comparable ($n$=50, R01b, 3-run mean $\pm$ std).}
+  \label{tab:hybrid}
+  \centering
+  \small
+  \resizebox{\textwidth}{!}{%
+  \begin{tabular}{lrrrrr}
+    \toprule
+    System & $n$ & nDCG@10 & MRR & Recall@10 & P@5 \\
+    \midrule
+    FTS5 vanilla (SQLite BM25, this work) & 50 & $0.0123 \pm 0.0000$ & $0.0200 \pm 0.0000$ & $0.0100 \pm 0.0000$ & $0.0040 \pm 0.0000$ \\
+    BM25 Pyserini (Anserini-tuned $k_1{=}0.9$, $b{=}0.4$) \cite{yang2018anserini} & 60 & $0.1475$ & $0.1549$ & $0.2083$ & $0.0600$ \\
+    multilingual-e5-base ($768$d) \cite{wang2023improving} & 60 & $0.3070$ & $0.3720$ & $0.3708$ & $0.1067$ \\
+    \textbf{nox-mem hybrid (FTS5 + Gemini 3072d + RRF, $k$=60)} & 50 & $\mathbf{0.5213 \pm 0.0004}$ & $0.4889 \pm 0.0028$ & $0.6800 \pm 0.0047$ & $0.2640 \pm 0.0000$ \\
+    \midrule
+    $\Delta$ (hybrid $-$ BM25 Pyserini) & --- & \textbf{$+0.3738$ ($3.5\times$)} & --- & --- & --- \\
+    $\Delta$ (hybrid $-$ FTS5 vanilla)  & --- & \textbf{$+0.5090$ ($+50.9$~pp)} & --- & --- & --- \\
+    \bottomrule
+  \end{tabular}}
+  \begin{minipage}{\linewidth}
+    \vspace{4pt}\footnotesize
+    nox-mem hybrid 3-run mean $\pm$ std (Runs \#10/\#11/\#12). External baselines from
+    \texttt{results/E01-BM25-baseline-summary.md} (BM25 Pyserini) and
+    \texttt{results/E02-E5-multilingual-baseline-summary.md} (multilingual-e5-base).
+    The $n$=60 vs $n$=50 difference arises because R01c (10 held-out queries, Q51--Q60)
+    was added to external baselines as a one-shot evaluation but excluded from the hybrid
+    headline metric to preserve held-out integrity (\S3.8). Restricted to $n$=50 (R01b
+    only), BM25 Pyserini = $0.1475$ and multilingual-e5-base = $0.3070$ are unchanged
+    within rounding (per-category breakdown in \texttt{results/E01,E02}).
+    The $3.5\times$ lift over BM25 Pyserini is the cited \emph{strongest external lexical
+    baseline} comparison; see Table~\ref{tab:beir} for cross-corpus generalization (BEIR
+    TREC-COVID).
+  \end{minipage}
+\end{table}
 
 \begin{table}[!ht]
   \caption{Cross-corpus nDCG@10 --- BEIR TREC-COVID (171K docs, 50 queries, NIST Round 5 qrels \cite{thakur2021beir}). Cross-corpus FTS5 row is a lower bound: nox-mem hybrid was not evaluated on BEIR (requires separate ingest pipeline).}
@@ -275,8 +315,10 @@ lexical, Gemini semantic embeddings, RRF fusion, section boost) contributes posi
 nDCG@10, with each layer's removal causing a $\Delta \geq 0.03$ decrease.
 
 \begin{table}[t]
-  \caption{Ablation study on internal corpus, Corpus~A ($n$=50 golden queries, 3-run mean
-    $\pm$ std).}
+  \caption{Layer ablation on internal corpus, Corpus~A ($n$=50 golden queries, 3-run mean
+    $\pm$ std). Two layer ablations are reported here; three additional ablations
+    (no-RRF score-concat, no-salience, no-section-boost) are deferred to a follow-up
+    revision (\S6.5).}
   \label{tab:ablation}
   \centering
   \resizebox{\textwidth}{!}{%
@@ -286,16 +328,17 @@ nDCG@10, with each layer's removal causing a $\Delta \geq 0.03$ decrease.
     \midrule
     Full hybrid (baseline) & $0.5213 \pm 0.0004$ & --- & $0.4889 \pm 0.0028$ \\
     FTS-only (no semantic, no RRF) & $0.0123 \pm 0.0000$ & $-0.509$ & $0.0200 \pm 0.0000$ \\
-    FTS + semantic, no RRF (score concat) & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
-    Hybrid, no salience boost & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
-    Hybrid, no \texttt{section\_boost} & \textsc{[P]} & \textsc{[P]} & \textsc{[P]} \\
     \bottomrule
   \end{tabular}}
   \begin{minipage}{\linewidth}
     \vspace{4pt}\footnotesize
-    FTS-only is confirmed from R01b (Table~\ref{tab:hybrid}). Remaining ablations (E7--E9)
-    pending W3. Controlled via: \texttt{NOX\_RRF\_DISABLE=1},
-    \texttt{NOX\_SALIENCE\_MODE=off}, \texttt{NOX\_SECTION\_BOOST\_MODE=off}.
+    FTS-only is confirmed from R01b (Table~\ref{tab:hybrid}). Three additional layer
+    ablations are flagged for the next revision: (E7) FTS+semantic without RRF
+    (\texttt{NOX\_RRF\_DISABLE=1}), (E8) hybrid without salience boost
+    (\texttt{NOX\_SALIENCE\_MODE=off}), and (E9) hybrid without section boost
+    (\texttt{NOX\_SECTION\_BOOST\_MODE=off}). Per-layer environment toggles are
+    documented in the repository so any third party can reproduce them; results are
+    deferred rather than withheld.
   \end{minipage}
 \end{table}
 
@@ -452,7 +495,11 @@ hypothesized that the 89\% of chunks with default $\text{pain}=0.2$ was the limi
 factor. To test this, we constructed three artificial pain distributions and evaluated all
 four (real plus three artificial) on the identical FTS+pain pipeline (no Gemini), using
 $n=60$ golden queries, 10,000-resample bootstrap, seed=42, on a read-only snapshot
-(\texttt{nox-mem-snapshot-20260504-0616.db}).
+(\texttt{nox-mem-snapshot-20260504-0616.db}). The full $n=60$ set (R01b $\cup$ R01c) is
+used here because this is a one-shot ablation post-tuning, not part of the iterative
+configuration sprint that froze the salience coefficients; R01c was \emph{not} consulted
+during pain-distribution design or coefficient selection. Held-out integrity (\S3.8) is
+preserved for the headline hybrid metric (\S5.1, $n$=50, R01b only).
 
 \begin{table}[t]
   \caption{Pain calibration test --- pairwise comparisons against real distribution
@@ -476,12 +523,17 @@ All artificial spreads underperform the real pain distribution. H1, H2, and H3 a
 refuted:
 
 \begin{itemize}
-  \item \textbf{H1 [REFUTED].} Real pain (89\% default) is not equivalent to artificial
-    spreads---calibration spread does not explain the null result.
-  \item \textbf{H2 [REFUTED].} Bimodal $\{0.1, 1.0\}$ does not outperform uniform
-    ($\Delta = +0.0062$, INSIGNIFICANT). Maximum contrast provides no measurable benefit.
-  \item \textbf{H3 [REFUTED].} Log-scale $[0.01, 10.0]$ does not outperform uniform
-    ($\Delta = +0.0053$, INSIGNIFICANT). Wider dynamic range is not the limiting factor.
+  \item \textbf{H1 [REFUTED].} Real pain (89\% default) is not the limiting factor:
+    all three artificial spreads underperform real, with $\Delta$ vs real ranging
+    $[-0.0148, -0.0087]$ (Table~\ref{tab:calibration}); none reaches significance,
+    confirming calibration spread does not explain the null result.
+  \item \textbf{H2 [REFUTED].} Bimodal $\{0.1, 1.0\}$ does not outperform real
+    ($\Delta = -0.0087$, INSIGNIFICANT, 95\% CI $[-0.038, +0.020]$). Maximum contrast
+    between trivial and outage severities provides no measurable benefit beyond the
+    production calibration.
+  \item \textbf{H3 [REFUTED].} Log-scale $[0.01, 10.0]$ does not outperform real
+    ($\Delta = -0.0095$, INSIGNIFICANT, 95\% CI $[-0.041, +0.022]$). A two-orders-of-
+    magnitude wider dynamic range is not the limiting factor.
 \end{itemize}
 
 \textbf{Real root cause identified.} Inspection of per-query FTS recall confirms that
@@ -667,7 +719,7 @@ pre-registered claim that $\geq$10\% of top-10 results cross agent boundaries---
 computed because the \texttt{search\_telemetry} table lacks a \texttt{requesting\_agent}
 column. This migration is documented as E12-followup.
 
-\textbf{Short corpus horizon.} The production corpus spans approximately four months
+\textbf{Short corpus horizon.} The production corpus spans approximately three months
 (March--May 2026). A six-month or twelve-month evaluation would provide stronger evidence
 for the salience formula's temporal component.
 
@@ -797,7 +849,7 @@ queries, $n$=50 3-run mean; absolute gap 50.9~pp). The BM25 Pyserini comparison 
 confirmed: nox-mem hybrid achieves $3.5\times$ the nDCG@10 of the strongest tuned BM25
 baseline (+37.4~pp absolute), substantially exceeding the pre-registered threshold. The
 shared-canonical storage architecture is confirmed at 99.92\% sharing ($n$=61,257 chunks),
-vs.\ 0\% under isolated per-agent designs, achieving production OPEX of approximately
+vs.\ 0\% sharing under any per-agent isolated design by construction, achieving production OPEX of approximately
 \$11/month all-in for the full 6-agent deployment (\S6.4). The E10 pain ablation (\S5.5)
 is executed and reported: the aggregate result is DIRECTIONAL, NOT SIGNIFICANT
 ($\Delta = +0.0065$, 95\% CI $[-0.0143, +0.0338]$, $n=31$); the Q55 case study provides
@@ -805,8 +857,9 @@ positive evidence that pain provides meaningful lift ($\Delta = +0.349$) in the
 tied-semantic regime. We characterize pain as a secondary modulator rather than a primary
 retrieval signal in hybrid mode. One deferred experiment---the E12 retrieval-level
 cross-agent quantification---is documented transparently in \S6.3 and does not alter the
-architectural contributions. Note that the current nDCG@10 of $0.5213 < 0.6$, which keeps
-the D01 cross-encoder reranker gated per \S6.5 until the threshold is met in future work.
+architectural contributions. Note that the current nDCG@10 of $0.5213 < 0.6$, which is below
+the threshold at which the optional cross-encoder reranker becomes warranted; this addition
+is therefore deferred to future work (\S6.5).
 
 Beyond nox-mem specifically, pain-weighted salience and shadow discipline are
 \textbf{transferable concepts}. Any persistent memory system---regardless of implementation
@@ -960,22 +1013,25 @@ reference; scores align with the 5/7 subset of Table~\ref{tab:comparison} that e
 corpus scale and third-party benchmark coverage.
 
 \begin{table}[h]
-  \caption{Detailed architectural feature comparison (reviewer-friendly).}
+  \caption{Detailed architectural feature comparison (reviewer-friendly).
+    Five axes shown; the full 7-axis comparison (including corpus scale \textgreater100K
+    and 3rd-party benchmark) is in Table~\ref{tab:comparison} of \S2.5. nox-mem covers
+    5/7 axes; $\times$ on corpus scale and 3rd-party benchmark.}
   \centering
   \small
   \resizebox{\textwidth}{!}{%
-\begin{tabular}{lllllll}
+\begin{tabular}{llllll}
     \toprule
-    System & KG native & Hybrid retr. & Eval harness & Multi-agent & Shadow disc. & Score \\
+    System & KG native & Hybrid retr. & Eval harness & Multi-agent & Shadow disc. \\
     \midrule
-    \textbf{nox-mem (this work)} & closed-enum, 7 & FTS5+Gemini+RRF & nDCG/MRR/Recall & shared canonical & $\geq$7d enforced & \textbf{5/5} \\
-    GraphRAG \cite{edge2024graphrag} & community det. & via KG & No & No & No & 1.5/5 \\
-    MemGPT/Letta \cite{packer2023memgpt} & No & embed.-first & No & per-agent & No & 1.5/5 \\
-    Mem0 \cite{chhikara2025mem0} & Optional (v2) & No --- vector & LOCOMO & user\_id & No & 1.5/5 \\
-    A-MEM \cite{xu2025amem} & Zettelkasten & semantic & No & No & No & 1.0/5 \\
-    HiRAG \cite{huang2025hirag} & hierarchical & multi-level & task-specific & No & No & 2.5/5 \\
-    Cognee \cite{topoteretes2024cognee} & ECL & hybrid & ad-hoc & Optional & No & 3.0/5 \\
-    LangChain Memory & No & key-value & No & session\_id & No & 0.5/5 \\
+    \textbf{nox-mem (this work)} & closed-enum, 7 & FTS5+Gemini+RRF & nDCG/MRR/Recall & shared canonical & $\geq$7d enforced \\
+    GraphRAG \cite{edge2024graphrag} & community det. & via KG & No & No & No \\
+    MemGPT/Letta \cite{packer2023memgpt} & No & embed.-first & No & per-agent & No \\
+    Mem0 \cite{chhikara2025mem0} & Optional (v2) & No --- vector & LOCOMO & user\_id & No \\
+    A-MEM \cite{xu2025amem} & Zettelkasten & semantic & No & No & No \\
+    HiRAG \cite{huang2025hirag} & hierarchical & multi-level & task-specific & No & No \\
+    Cognee \cite{topoteretes2024cognee} & ECL & hybrid & ad-hoc & Optional & No \\
+    LangChain Memory & No & key-value & No & session\_id & No \\
     \bottomrule
   \end{tabular}}
 \end{table}
