@@ -82,7 +82,7 @@ When Forge learns something, Atlas retrieves it. Because they were never separat
 
 6/11
 
-[IMAGE: Two-bar chart. Left bar labeled "FTS5 vanilla (BM25-only)" at nDCG@10 = 0.0123, colored red. Right bar labeled "nox-mem hybrid (FTS5 + Gemini + RRF)" at nDCG@10 = 0.5213, colored green. Title: "Natural language queries on production memory. 50 internal queries, 3-run mean, 4-month corpus." Caption below: "FTS5 alone contributes ~2% to hybrid score on full-sentence queries."]
+[IMAGE: Two-bar chart. Left bar labeled "FTS5 vanilla (BM25-only)" at nDCG@10 = 0.0123, colored red. Right bar labeled "nox-mem hybrid (FTS5 + Gemini + RRF)" at nDCG@10 = 0.5213, colored green. Title: "Natural language queries on production memory. 50 internal queries, 3-run mean, 3-month corpus." Caption below: "FTS5 alone contributes ~2% to hybrid score on full-sentence queries."]
 
 BM25-only on natural language queries: nDCG@10 = 0.0123 (near-zero).
 
@@ -98,7 +98,7 @@ This is not a tuning problem. It's a structural constraint of FTS5 on full-sente
 
 7/11
 
-4 months. 6 AI agents. 64,180+ chunks. 12 schema versions. 99.97% vector coverage.
+3 months. 6 AI agents. 61,257 chunks. 12 schema versions. 99.97% vector coverage.
 
 p95 search latency: <1s.
 

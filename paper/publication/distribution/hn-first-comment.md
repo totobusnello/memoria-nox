@@ -12,7 +12,7 @@ Three objections I expect and want to address upfront:
 
 1. "n=50 is too small." Fair. The 50 queries were internally curated by me, which introduces selection bias. I added 10 held-out queries and ran against BEIR-COVID as external corpus for cross-validation. Full numbers in the paper (arXiv 2026-05-19). I'd rather name the limitation now than have you find it in comment #4.
 
-2. "Single corpus, single curator." Yes. This is a single-operator, 4-month production system (6 agents, 64K chunks). It is not a benchmark paper. The eval harness and golden queries are in the repo — if your corpus shows different results, I genuinely want to know. That's why it's reproducible.
+2. "Single corpus, single curator." Yes. This is a single-operator, 3-month production system (6 agents, 61K chunks). It is not a benchmark paper. The eval harness and golden queries are in the repo — if your corpus shows different results, I genuinely want to know. That's why it's reproducible.
 
 3. "Why not just preprocess queries into keywords before FTS5?" Because that's adding a layer to fix the layer. Hybrid retrieval handles this correctly. The point is that FTS5-alone is often the default recommendation and it silently zeros out on natural language input. Developers deserve to know this before they ship it.
 

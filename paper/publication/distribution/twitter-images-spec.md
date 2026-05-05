@@ -133,7 +133,7 @@ White background variant chosen for light-mode legibility at launch time.
 │                                                                      │
 │   ┌────────────────────────────────────────────────────────────┐    │
 │   │                                                            │    │
-│   │   4          ×    6           ×    64,180+                 │    │
+│   │   4          ×    6           ×    61,257                 │    │
 │   │   months         agents           chunks                   │    │
 │   │                                                            │    │
 │   │   ─────────────────────────────────────────────────        │    │
@@ -161,7 +161,7 @@ White background variant chosen for light-mode legibility at launch time.
 | Large numbers (row 1) | `#F8FAFC` | White, maximum contrast |
 | `4` months — highlight | `#D97706` | Amber, time = earned |
 | `6` agents | `#4F46E5` | Indigo, the agents |
-| `64,180+` | `#34D399` | Emerald-400, the corpus |
+| `61,257` | `#34D399` | Emerald-400, the corpus |
 | `12` schema versions | `#94A3B8` | Slate — complexity, not pride |
 | `99.97%` | `#34D399` | Emerald — coverage achievement |
 | `< 1s` | `#F8FAFC` | White — speed as fact |
@@ -174,7 +174,7 @@ White background variant chosen for light-mode legibility at launch time.
 ### Typography
 | Element | Font | Weight | Size | Tracking |
 |---------|------|--------|------|----------|
-| Large metrics (4, 6, 64,180+) | Syne | Black 900 | 72px | -0.03em |
+| Large metrics (4, 6, 61,257) | Syne | Black 900 | 72px | -0.03em |
 | Row 2 metrics (12, 99.97%, < 1s) | Syne | Bold 700 | 56px | -0.02em |
 | Metric labels | Syne | Regular 400 | 12px uppercase | +0.1em |
 | `×` operators | Syne | Regular 400 | 36px | 0 |
@@ -193,7 +193,7 @@ White background variant chosen for light-mode legibility at launch time.
 **ETA:** 15 min
 
 ### Alt text
-`Stats card on dark background: 4 months, 6 agents, 64,180+ chunks in first row. 12 schema versions, 99.97% vector coverage, less than 1 second p95 latency in second row. Tagline: "Solo. No funding. $20/mo VPS. Production corpus. Not synthetic."`
+`Stats card on dark background: 3 months, 6 agents, 61,257 chunks in first row. 12 schema versions, 99.97% vector coverage, less than 1 second p95 latency in second row. Tagline: "Solo. No funding. $20/mo VPS. Production corpus. Not synthetic."`
 
 ---
 
@@ -220,7 +220,7 @@ LEFT (x: 80, w: 180px)    |    RIGHT (x: 320, w: 740px)
                                 Four labeled callout rows:
                                   ■ AGENTS (indigo)   6 shared-canonical agents
                                   ■ SEARCH (slate)    3-layer fusion (FTS5+Gemini+RRF)
-                                  ■ STORE  (rose)     Single SQLite, 64K chunks
+                                  ■ STORE  (rose)     Single SQLite, 61K chunks
                                   ■ CROSS  (emerald)  Shadow-mode + op-audit discipline
 
                                 FOOTER: paper title + github URL
@@ -256,7 +256,7 @@ Then place on 1200×675 canvas with header/footer zones. Preferred approach — 
 **ETA:** 10 min (Mermaid re-render preferred path) or 15 min (Figma reframe)
 
 ### Alt text
-`System architecture diagram showing 5 subgraphs: 6 agents at top sharing canonical corpus, interface layer with CLI/MCP/HTTP API, hybrid search engine with FTS5, Gemini semantic, and RRF fusion layers, canonical SQLite storage with 64K chunks and KG, and cross-cutting discipline with shadow-mode pipeline and op-audit snapshots.`
+`System architecture diagram showing 5 subgraphs: 6 agents at top sharing canonical corpus, interface layer with CLI/MCP/HTTP API, hybrid search engine with FTS5, Gemini semantic, and RRF fusion layers, canonical SQLite storage with 61K chunks and KG, and cross-cutting discipline with shadow-mode pipeline and op-audit snapshots.`
 
 ---
 

@@ -59,7 +59,7 @@ L2: Gemini 3072-d    — semantic cosine similarity
 L3: RRF k=60         — reciprocal rank fusion of L1 + L2
 ```
 
-p95 latency: under 1 second across 61,257 chunks on commodity CPU. The schema is versioned v1 through v12, each migration idempotent and zero-downtime.
+p95 latency: under 1 second across 61,257 chunks on commodity CPU. Total OPEX: under $11/month all-in (Gemini embeddings + KG extraction + VPS). The schema is versioned v1 through v12, each migration idempotent and zero-downtime.
 
 ---
 
@@ -77,7 +77,7 @@ GraphRAG models community structure. Mem0 models recency. A-MEM models Zettelkas
 
 **The honest result:** ablation on n=31 queries (hybrid mode) shows a non-significant aggregate effect: Δ = +0.0065, 95% CI [-0.014, +0.034]. Pain-weighted salience does not improve nDCG@10 in aggregate at current corpus scale.
 
-But the case study is instructive. On Q55 — a query where semantic similarity produces a near-tie between a prod-outage lesson and a trivial note — the pain signal produces Δ = +0.349. In tied-semantic regimes, severity breaks ties correctly. The methodological contribution stands independent of the aggregate retrieval result: treating incident severity as a typed schema field with an operational annotation pipeline is a transferable design pattern. Any persistent memory system could adopt it.
+But the case study is instructive. On Q55 (a query where semantic similarity produces a near-tie between a prod-outage lesson and a trivial note), the pain signal produces Δ = +0.349. The lift was observable in 1 of 31 queries; the other 29 were unaffected because semantic scores were not tied. In tied-semantic regimes, severity breaks ties correctly. The methodological contribution stands independent of the aggregate retrieval result: treating incident severity as a typed schema field with an operational annotation pipeline is a transferable design pattern. Any persistent memory system could adopt it.
 
 The root cause of the non-significance is well-understood: BM25 recall ceiling. 55 of 60 queries in the golden set fail to retrieve the gold chunk via lexical search, regardless of pain calibration. The pain multiplier cannot re-rank what never enters the candidate pool. The fix — positioning pain as a post-RRF re-ranker with semantic recall improvement — is documented as future work in §6.5 of the paper.
 

@@ -44,16 +44,16 @@ bash paper/publication/scripts/pre-flight-smoke-tests.sh
 
 ### 1.3 Verifique o PDF final
 
-1. Abra `paper/publication/v1.0.0-paper-draft.pdf` no Preview.app.
+1. Abra `paper/publication/latex/pain-shadow-memory-2026.pdf` no Preview.app.
 2. **VERIFY:** Title page renderiza "The Pain Diary and Shadow Discipline..." corretamente.
-3. **VERIFY:** 4 figuras presentes (fig-salience-formula, fig-architecture-overview, fig-hybrid-search-pipeline, fig-shadow-discipline-flow).
+3. **VERIFY:** 4 figuras presentes (figure1-system-overview, figure2-salience-pipeline, figure3-shadow-state-machine, figure4-kg-edge-typing).
 4. **VERIFY:** Nenhum `??` ou `?` no texto (marcadores de referência quebrada).
 5. **VERIFY:** nDCG@10 = 0.5213 ± 0.0004 aparece consistente no abstract e nas tabelas.
 
 ### 1.4 Verifique tamanho do PDF
 
 ```bash
-ls -lh paper/publication/v1.0.0-paper-draft.pdf
+ls -lh paper/publication/latex/pain-shadow-memory-2026.pdf
 ```
 
 - **VERIFY:** Tamanho entre **500 KB e 50 MB**.
@@ -115,12 +115,15 @@ Saída esperada — deve conter exatamente estes arquivos (ou similar):
 
 ```
 main.tex
+sec_abstract.tex
+sec_1_3.tex
+sec_4_7.tex
 refs.bib
 neurips_2024.sty
-figures/fig-salience-formula.pdf
-figures/fig-architecture-overview.pdf
-figures/fig-hybrid-search-pipeline.pdf
-figures/fig-shadow-discipline-flow.pdf
+figures/figure1.pdf
+figures/figure2.pdf
+figures/figure3.pdf
+figures/figure4.pdf
 ```
 
 - **VERIFY:** Nenhum arquivo `.aux`, `.log`, `.bbl`, `.blg` no tarball.
@@ -172,29 +175,28 @@ The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own I
 
 ### 4.6 Autores
 
-- **Name:** `Luiz Antonio Busnello`
+- **Name:** `Toto Busnello` (consistente com o LaTeX e o email do endorsement; se preferir nome formal, edite `latex/main.tex` ANTES da submissão)
 - **Affiliation:** `Curious Tech Entrepreneur, São Paulo, Brazil`
 - **Email:** `lab@generantis.com.br`
 - **ORCID** (se tiver): cole o ID. Se não tiver: deixe em branco.
 
 ### 4.7 Abstract
 
-Cole o texto abaixo **exatamente como está** (já está formatado para arXiv — sem LaTeX math, sem símbolos especiais):
+**Caminho recomendado (canonical):** abra `paper/publication/latex/sec_abstract.tex` e copie o conteúdo **DENTRO** de `\begin{abstract}...\end{abstract}` (sem as tags begin/end). arXiv aceita LaTeX inline math (`$\Delta$`, `$\pm$`, `$[-0.014, +0.034]$`, `$\times$`) e renderiza corretamente — preserva CIs, símbolos, tudo. ~1900 chars stripped, fits no limite 1920.
 
-```
-Persistent memory for autonomous AI agents is widely treated as a retrieval problem, yet production deployments reveal a more fundamental failure mode: silent architectural degradation that no embedding model can prevent. Existing systems — including GraphRAG, MemGPT, Mem0, and A-MEM — model structure and recency but none encodes incident severity as a retrieval signal, and none enforces ranking change validation before production activation. We present NOX-Supermem, a memory system whose architecture is shaped by its own operational failures: each production incident became a schema constraint, and each hard-won lesson a reproducible feature. We make three concrete contributions. First, we propose pain-weighted salience (salience = recency x pain x importance, pain in [0.1, 1.0]) to treat incident severity as a first-class retrieval dimension, allowing a six-month-old prod-outage lesson to outrank yesterday's trivial note. Pain calibration follows established incident-management taxonomies (PagerDuty severity P1-P5, SRE error budgets) rather than psychometric or biological claims. Second, we present shadow discipline, which enforces a minimum seven-day shadow-mode gate before any ranking change activates, implemented as an architectural constraint via cron and /api/health rather than an optional best practice. Third, we present shared-canonical multi-agent context, which serves six specialized agents from a single corpus without federation, synchronization, or merge overhead. On a 61,257-chunk production corpus, hybrid retrieval (FTS5 + Gemini 3072d embeddings + RRF, k=60) achieves nDCG@10 = 0.5213 +/- 0.0004 (n=50, 3-run replicated mean) versus 0.0123 for FTS5 vanilla and 0.1475 for BM25 Pyserini (Anserini-tuned, n=60), a 3.5x improvement over the strongest pure-lexical baseline. Knowledge-graph edge-type coverage improved from 14% to 56% (4x gain, n=100, single annotator, 95% Wilson CI [46-66%]) after defensive prompt engineering. Shadow validation has established roots in production search and online controlled experiments (Kohavi 2020, Chapelle 2012); to our knowledge, no prior memory system paper specifically applies shadow validation as an architectural constraint; comparative positioning across seven architectural and operational dimensions — including two where nox-mem does not yet have coverage (corpus scale >100K and third-party benchmark evaluation) — is detailed in section 2.5. All code, evaluation harness, golden query set (n=60), and 4-month incident log are available at https://github.com/totobusnello/memoria-nox under MIT license. We argue that operational discipline is at least as important as embedding sophistication in production agent memory.
-```
+**Confira que zero `\cite{...}` tags restem:** verificado em 2026-05-05 que `sec_abstract.tex` tem zero `\cite` calls. Se algum entrar em revisão futura, converter para parênteses inline antes do paste (ex: `\cite{kohavi2020trustworthy,chapelle2012interleaved}` → `(Kohavi 2020; Chapelle 2012)`).
 
-> Nota: este texto vem de `paper/publication/arxiv-submit-metadata.md` §3. Já está com × substituído por "x", ∈ por "in", e sem markup LaTeX.
+**Fallback (se arXiv renderer rejeitar inline LaTeX):** use a versão plain-text em `paper/publication/arxiv-submit-metadata.md` §3 (1997 chars). Se exceder 1920 chars, drop a frase final "Operational discipline is at least as important as embedding sophistication." (~85 chars saved).
 
-> Se você quiser conferir: abra `paper/publication/paper-abstract.md` e leia o texto entre os separadores `---`. O texto acima é a versão arXiv (plain text) desse abstract, conforme `arxiv-submit-metadata.md` §3.
+> Texto canonical: `paper/publication/latex/sec_abstract.tex` (paper-internal source of truth).
+> Plain-text espelho: `paper/publication/paper-abstract.md` (entre os separadores `---`).
 
 ### 4.8 Comments
 
 Cole exatamente:
 
 ```
-18-22 pages, 4 figures, 14 tables. Public repository: github.com/totobusnello/memoria-nox. Reproducibility kit includes evaluation harness, BM25/E5 baseline adapters, BEIR adapter, and 60-query golden set. Solo author, 4-month production system. License: MIT.
+31 pages, 4 figures, 16 tables. Public repository: github.com/totobusnello/memoria-nox. Reproducibility kit includes evaluation harness, BM25/E5 baseline adapters, BEIR TREC-COVID adapter, LOCOMO adapter, and 60-query golden set. Solo author, 3-month production system. License: MIT.
 ```
 
 (Fonte: `arxiv-submit-metadata.md` §4)
@@ -346,11 +348,13 @@ git push
 
 Consulte `paper/publication/distribution/PLATFORM-METADATA.md` para os textos prontos.
 
-Ordem de publicação:
+Ordem de publicação (drip strategy — não simultâneo):
 
-1. **dev.to** — primeira plataforma (audiência técnica)
-2. **Substack** — segunda (newsletter)
-3. **LinkedIn** — terceira (profissional)
+1. **Substack** (mesmo dia do arXiv announcement, 06-02 noite) — newsletter pra subs primeiro
+2. **dev.to** (06-03 manhã BRT) — audiência técnica, code snippets
+3. **LinkedIn** (06-04 manhã BRT) — profissional, lessons-learned format
+
+Drip evita auto-canibalização do tráfego e dá 3 ondas distintas em vez de 1 picada única.
 
 ### 8.3 Hacker News
 
@@ -401,7 +405,7 @@ Para conferência rápida sem abrir outros arquivos:
 | Campo | Valor |
 |---|---|
 | Título | The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents |
-| Autor | Luiz Antonio Busnello |
+| Autor | Toto Busnello |
 | Afiliação | Curious Tech Entrepreneur, São Paulo, Brazil |
 | Email | lab@generantis.com.br |
 | Categoria primária | cs.IR |

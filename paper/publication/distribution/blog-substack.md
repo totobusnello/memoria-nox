@@ -3,7 +3,7 @@
 format: substack-newsletter
 word_target: 1200-1800
 audience: engineering-managers, CTOs, indie-hackers, founders
-publication_date: 2026-05-20
+publication_date: 2026-06-02
 status: polished
 
 # SUBJECT LINE OPTIONS (≤80 chars each)
@@ -61,7 +61,7 @@ Every chunk in the system has a `pain` field — a float from 0.1 (trivial note)
 
 The literature — GraphRAG, Mem0, A-MEM, HiRAG, Cognee — models structure and recency. Zero papers treat incident severity as a retrieval signal. The dimension just doesn't exist in the field yet.
 
-**Honest disclosure:** Ablation over 31 queries shows aggregate effect Δ=+0.0065 — statistically NOT significant (95% CI [−0.014, +0.034]). The lift concentrates in tied-semantic regimes: one edge case saw Δ=+0.349. The binding constraint is BM25 recall ceiling; 55 of 60 queries fail FTS-only regardless of pain calibration. The methodology is the contribution — pain as a typed schema input — not the aggregate retrieval number.
+**Honest disclosure:** Ablation over 31 queries shows aggregate effect Δ=+0.0065 — statistically NOT significant (95% CI [−0.014, +0.034]). The lift was observable in 1 of 31 queries (Q55, Δ=+0.349, where two candidates had near-identical semantic scores); the other 29 were unaffected because the semantic layer already separated them. The binding constraint is BM25 recall ceiling: 55 of 60 queries fail FTS-only regardless of pain calibration. The methodology is the contribution — pain as a typed schema input — not the aggregate retrieval number.
 
 ## Shadow discipline: no ranking change ships without waiting seven days
 
@@ -128,7 +128,7 @@ One more honest disclosure on the knowledge graph: edge-type enum coverage impro
 
 ## What's next
 
-The paper publishes on arXiv on **May 19**. I'll send a dedicated issue with the link and a methodology breakdown. The full technical blog post (2,500 words, code snippets, comparison tables) goes live on **dev.to on May 20**.
+The paper publishes on arXiv on **June 2**. I'll send a dedicated issue with the link and a methodology breakdown. The full technical blog post (2,500 words, code snippets, comparison tables) goes live on **dev.to on June 3**, and the LinkedIn essay (lessons-learned format) on **June 4**.
 
 Available now:
 

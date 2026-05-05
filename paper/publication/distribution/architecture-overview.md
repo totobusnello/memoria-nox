@@ -4,7 +4,7 @@
 
 ---
 
-NOX-Supermem is a production memory system for AI agents built on a single architectural thesis: memory is not a retrieval problem, it is an operational discipline problem. The system has run six AI personas (Atlas, Boris, Cipher, Forge, Lex, Nox) on a shared corpus for four months. Everything below is measured, not claimed.
+NOX-Supermem is a production memory system for AI agents built on a single architectural thesis: memory is not a retrieval problem, it is an operational discipline problem. The system has run six AI personas (Atlas, Boris, Cipher, Forge, Lex, Nox) on a shared corpus for three months. Everything below is measured, not claimed.
 
 ---
 
@@ -115,7 +115,7 @@ nox-mem reindex --dry-run   # preview JSON, no mutation
 8. Cross-agent shared corpus — 99.92% of 61,257 chunks shared across all six agents, zero federation
 
 **Production and reproducibility**
-9. Production-tested for four months with six real AI agents
+9. Production-tested for three months with six real AI agents
 10. Reproducibility-first: eval harness with 60 golden queries, public incident log, versioned schema
 
 ---

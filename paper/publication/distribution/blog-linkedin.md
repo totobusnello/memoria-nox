@@ -45,7 +45,7 @@ That is a 3.5x lift over the strongest lexical baseline. It validates that hybri
 
 The number I almost buried in the paper: the pain-weighted salience feature — the one I spent the most time on — does not produce a significant aggregate retrieval improvement. Δ = +0.0065, 95% CI [-0.014, +0.034]. Not significant.
 
-Publishing that result anyway was a deliberate choice. The methodological contribution — treating incident severity as a typed schema field with an annotation pipeline, so a prod-outage lesson mathematically outranks a trivial note from yesterday — is valid regardless of the aggregate retrieval metric. And it may lift in tied-semantic regimes specifically (one case study: Δ = +0.349). But I am not going to claim what the data does not support.
+Publishing that result anyway was a deliberate choice. The methodological contribution — treating incident severity as a typed schema field with an annotation pipeline, so a prod-outage lesson mathematically outranks a trivial note from yesterday — is valid regardless of the aggregate retrieval metric. The lift was observable in 1 of 31 queries (Q55, Δ = +0.349, where two candidates had near-identical semantic scores); the other 29 were unaffected because the semantic layer already separated them. But I am not going to claim what the data does not support.
 
 Honest negative results are table stakes for engineering credibility.
 

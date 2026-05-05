@@ -15,7 +15,7 @@ A scheduled cron job ran a single command: `nox-mem reindex`. No flags. No dry-r
 
 Then I checked the health endpoint.
 
-183 entities had lost their `section`, `retention_days`, and `section_boost` fields. Four months of carefully annotated context — architectural decisions, incident post-mortems, team-specific retention rules, hard-won lessons from 1am outages — had been flattened into generic, unstructured chunks indistinguishable from any other document in the database.
+183 entities had lost their `section`, `retention_days`, and `section_boost` fields. Three months of carefully annotated context — architectural decisions, incident post-mortems, team-specific retention rules, hard-won lessons from 1am outages — had been flattened into generic, unstructured chunks indistinguishable from any other document in the database.
 
 The database obeyed the command perfectly. That was exactly the problem.
 
@@ -29,7 +29,7 @@ I sat there for a while. Then I wrote the constraint into the schema and started
 
 ## Why six agents sharing memory is harder than it sounds
 
-Four months ago, I had six AI agents running in production: Atlas, Boris, Cipher, Forge, Lex, and Nox. Each specialized. Each isolated. Each rediscovering context the others had already learned.
+Three months ago, I had six AI agents running in production: Atlas, Boris, Cipher, Forge, Lex, and Nox. Each specialized. Each isolated. Each rediscovering context the others had already learned.
 
 Forge would learn something about a deployment quirk. Atlas would ask the same question three weeks later. Nox would document an incident. Boris would have no idea it happened. Every conversation started from scratch in ways that had real costs — not just bad UX, but wrong decisions made without institutional memory.
 
@@ -97,7 +97,7 @@ The hybrid system delivers **3.5× over the strong BM25 baseline** and **97.6% r
 
 > **[Image suggestion: Twitter chart hero — bar chart showing 0.0123 / 0.1475 / 0.5213 nDCG@10, three bars, stark visual contrast. Caption: "This is why we can't turn off semantic search."]**
 
-Four months in production. 64,180+ chunks. 6 agents. 12 schema versions. Two data-loss incidents that rewrote the architecture instead of breaking the project. Solo, no funding, São Paulo.
+Three months in production. 61,257 chunks. 6 agents. 12 schema versions. Two data-loss incidents that rewrote the architecture instead of breaking the project. Solo, no funding, São Paulo.
 
 ---
 
@@ -113,7 +113,7 @@ Every catastrophic failure became a structural property of the system. Not a pos
 
 **Operational discipline beats algorithmic novelty.** Production scars are more useful than synthetic benchmarks. Solo + open + reproducible is more valuable than closed-source excellence.
 
-These aren't conclusions I came in with. They're what four months of incidents taught me.
+These aren't conclusions I came in with. They're what three months of incidents taught me.
 
 ---
 

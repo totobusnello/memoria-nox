@@ -14,7 +14,7 @@ A production agent memory system where every operational incident becomes a sche
 
 ### The problem
 
-Agent memory systems fail silently. Not because embeddings are weak — because the architecture has no concept of operational discipline. Ranking changes deploy without validation gates. Incident severity never becomes a retrieval signal. Multiple specialized agents maintain isolated context pools that cannot learn from each other. After four months running six AI agents in production (64,000+ chunks, 4 months continuous), we observed all three failure modes, often in the same incident. The April 25th event is illustrative: a cron job ran `reindex` without dry-run at 22:03 and silently wiped section, retention, and section_boost from 183 entities. No error log. No alert. The database simply obeyed.
+Agent memory systems fail silently. Not because embeddings are weak — because the architecture has no concept of operational discipline. Ranking changes deploy without validation gates. Incident severity never becomes a retrieval signal. Multiple specialized agents maintain isolated context pools that cannot learn from each other. After three months running six AI agents in production (64,000+ chunks, 3 months continuous), we observed all three failure modes, often in the same incident. The April 25th event is illustrative: a cron job ran `reindex` without dry-run at 22:03 and silently wiped section, retention, and section_boost from 183 entities. No error log. No alert. The database simply obeyed.
 
 ---
 
@@ -36,7 +36,7 @@ Agent memory systems fail silently. Not because embeddings are weak — because 
 | vs BM25 Pyserini (Anserini-tuned, n=60) | **3.5× better** |
 | vs FTS5-vanilla baseline | **97.6% relative gap** |
 | KG edge-type coverage gain | **14% → 56% (4× improvement)** |
-| p95 search latency on 64K chunks | **< 1 second** |
+| p95 search latency on 61K chunks | **< 1 second** |
 | Schema migrations, zero downtime | **v1 → v12** |
 | Architectural parity vs 7 alternatives | **5/5 vs mean 1.6/5** |
 
@@ -61,7 +61,7 @@ The community lacks vocabulary for *operational discipline as a methodological c
 
 ### Author
 
-Built solo by Toto, nerd entrepreneur in São Paulo. Four months, no funding, production infrastructure. Contact: lab@generantis.com.br
+Built solo by Toto, nerd entrepreneur in São Paulo. Three months, no funding, production infrastructure. Contact: lab@generantis.com.br
 
 ### Citation
 

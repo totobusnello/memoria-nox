@@ -6,7 +6,7 @@
 
 Author here. I want to front-load something that isn't in the abstract yet.
 
-I shipped pain-weighted salience as a core differentiator. Severity encoded directly into retrieval: salience = recency x pain x importance. The idea is that a prod-outage lesson from six months ago should outrank a minor note from yesterday. I spent four months building that intuition into the schema. I was confident it was the main contribution.
+I shipped pain-weighted salience as a core differentiator. Severity encoded directly into retrieval: salience = recency x pain x importance. The idea is that a prod-outage lesson from six months ago should outrank a minor note from yesterday. I spent three months building that intuition into the schema. I was confident it was the main contribution.
 
 Then I ran the ablation.
 
