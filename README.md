@@ -34,14 +34,19 @@
 
 | Metric | Value |
 |---|---|
-| Chunks in production | **64,180+** (100% embedded, Gemini 3072d) |
+| Chunks in production | **61,257** (99.96% embedded, Gemini 3072d) |
 | Hybrid nDCG@10 | **0.5213** (n=50, 3-run mean ± 0.0004) |
-| vs BM25-only baseline | **3.5× better** (FTS-only nDCG=0.015, gap 97.7%) |
-| Shared canonical corpus | **99.92%** of chunks accessible to all 7 agents (vs 0% in MemGPT-style per-agent isolation) |
+| vs FTS5 vanilla baseline | **+50.9 pp** (FTS-only nDCG=0.0123, structural AND-strict limit) |
+| vs BM25 Pyserini (Anserini-tuned, n=60) | **3.5× better** (BM25 Pyserini = 0.1475) |
+| vs multilingual-e5-base (n=60) | **1.7× better** (e5 = 0.3070) |
+| External: BEIR TREC-COVID (n=50, 171K docs) | e5 = 0.8335, BM25 (FTS5) = 0.1007 — confirma dificuldade lexical é corpus-dependent |
+| External: LOCOMO (n=100 stratified) | FTS5 = 0.281 — 23× higher than internal corpus |
+| Shared canonical corpus | **99.92%** of chunks accessible to all 6 agents (vs 0% in MemGPT-style per-agent isolation, by construction) |
 | Pain-weighted salience | `recency × pain × importance` — severity is a retrieval signal, not just a log field |
 | Shadow discipline | Enforced ≥7d before any ranking change goes active — architectural constraint, not a guideline |
+| Total OPEX | <$11/month all-in (Gemini embeddings + KG extraction + VPS) |
 
-These numbers come from production telemetry and a curated 50-query eval harness with golden relevance labels. Full methodology and reproducibility kit in [`paper/publication/`](paper/publication/).
+These numbers come from production telemetry over approximately 3 months (March–May 2026) and a curated 60-query eval harness (50 main R01b + 10 held-out R01c) with golden relevance labels. Full methodology and reproducibility kit in [`paper/publication/`](paper/publication/). Paper PDF: [`pain-shadow-memory-2026.pdf`](paper/publication/latex/pain-shadow-memory-2026.pdf).
 
 ---
 
@@ -726,7 +731,7 @@ Baseline de saude: `ssh root@100.87.8.44 '/root/bin/improvements check'` deve re
 2. Shadow discipline enforces a seven-day gate via `/api/health` before any ranking change activates — architectural constraint, not a convention.
 3. Shared-canonical context: six agents, one corpus, no federation overhead.
 
-**Empirical headline:** 61,257 chunks; hybrid nDCG@10 = 0.5213 ± 0.0004 (n=50, 3-run mean) vs FTS5 vanilla 0.0123; LOCOMO FTS5 nDCG@10 = 0.281 (n=100, external corpus).
+**Empirical headline:** 61,257 chunks; hybrid nDCG@10 = 0.5213 ± 0.0004 (n=50, 3-run mean) vs FTS5 vanilla 0.0123; BM25 Pyserini = 0.1475 (3.5× lift); multilingual-e5-base = 0.3070 (1.7× lift). External validation: LOCOMO FTS5 = 0.281 (n=100), BEIR TREC-COVID e5 = 0.8335 (n=50, 171K docs) — confirma dificuldade lexical é corpus-dependent.
 
 **Source drafts:** [`paper/publication/`](paper/publication/)
 **Blog drafts** (dev.to, LinkedIn, Substack): [`paper/publication/distribution/`](paper/publication/distribution/)
