@@ -175,7 +175,7 @@ The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own I
 
 ### 4.6 Autores
 
-- **Name:** `Toto Busnello` (consistente com o LaTeX e o email do endorsement; se preferir nome formal, edite `latex/main.tex` ANTES da submissão)
+- **Name:** `Luiz Antonio Busnello` (consistente com o LaTeX após 2026-05-05; nome formal acadêmico)
 - **Affiliation:** `Curious Tech Entrepreneur, São Paulo, Brazil`
 - **Email:** `lab@generantis.com.br`
 - **ORCID** (se tiver): cole o ID. Se não tiver: deixe em branco.
@@ -405,7 +405,7 @@ Para conferência rápida sem abrir outros arquivos:
 | Campo | Valor |
 |---|---|
 | Título | The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents |
-| Autor | Toto Busnello |
+| Autor | Luiz Antonio Busnello |
 | Afiliação | Curious Tech Entrepreneur, São Paulo, Brazil |
 | Email | lab@generantis.com.br |
 | Categoria primária | cs.IR |
