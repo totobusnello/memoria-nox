@@ -403,9 +403,10 @@ check_abstract_metadata() {
     [[ "${status}" == "ok" ]] && status=warn
   fi
 
-  # Contagem de chars sem markup LaTeX e cabeçalhos MD
+  # Contagem de chars sem markup LaTeX, cabeçalhos MD, blockquotes (metadata),
+  # separadores (---) e linhas word-count finais (**Word count:**...).
   local chars
-  chars=$(grep -v "^#" "${abstract_file}" \
+  chars=$(grep -vE "^(#|>|---|\*\*Word count:)" "${abstract_file}" \
     | sed 's/\\[a-zA-Z]*{[^}]*}//g' \
     | sed 's/\\[a-zA-Z]*//g' \
     | sed 's/[{}]//g' \
