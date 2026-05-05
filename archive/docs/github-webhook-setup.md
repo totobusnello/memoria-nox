@@ -74,7 +74,7 @@ jobs:
 ```bash
 curl -s -X POST http://127.0.0.1:18789/hooks/github \
   -H 'Content-Type: application/json' \
-  -H 'Authorization: Bearer 72c4ed5d59905b82b74114c800b013124bbf7db9d2478052ad9eea822be5eff5' \
+  -H 'Authorization: Bearer <WEBHOOK_TOKEN>' \
   -d '{"action":"create_flow","goal":"Test: CI failed. Ignore this.","status":"queued"}'
 ```
 
