@@ -45,24 +45,30 @@
 - % queries detectadas temporal entre 5%-25% (sanity range)
 - 0 search timeouts
 
-### Baseline pós-cura (Run #20, 2026-05-06 20:43 BRT)
+### Baseline pós-cura + orphan-fix (Run #21, 2026-05-06 20:51 BRT)
 
-Q87+Q88 curadas, Q70 expandida ([213254, 213266]), nox-mem.md timeline atualizado com 27 eventos 04-26→05-06.
+**Cura aplicada:**
+- Q87+Q88 curadas (gold real do E05/v12 deploy)
+- Q70 expandida ([213254, 213266])
+- 27 timeline events appendados ao nox-mem.md (04-26→05-06)
+- **3 órfãos corrigidos:** Q48 + Q58 (id 117852 deletado pelo reingest → 213254) + Q62 (id 212042 missing → mantém só 112400)
 
-| Metric | Run #9 (pré) | Run #20 (pós) | Δ |
-|---|---|---|---|
-| nDCG@10 global | 0.519 | **0.532** | +0.037 |
-| MRR | 0.450 | 0.494 | +0.032 |
-| Recall@10 | 0.687 | 0.711 | +0.056 |
-| **temporal** | **0.233** | **0.744** | **+0.511** ⬆️ |
-| cross-agent | 0.369 | 0.432 | +0.063 |
-| entity | 0.459 | 0.477 | +0.018 |
-| decision | 0.542 | 0.642 | +0.100 |
-| concept | 0.656 | 0.603 | -0.053 ⚠️ |
-| procedure | 0.619 | 0.467 | -0.152 ⚠️ |
-| security | 0.594 | 0.505 | -0.089 ⚠️ |
+| Metric | Run #9 (pré) | Run #20 (cura) | Run #21 (post-fix) | Δ acum |
+|---|---|---|---|---|
+| nDCG@10 | 0.519 | 0.532 | **0.555** | **+0.036** |
+| MRR | 0.450 | 0.494 | **0.514** | +0.064 |
+| Recall@10 | 0.687 | 0.711 | **0.733** | +0.046 |
+| **temporal** | **0.233** | **0.744** | **0.744** | **+0.511** ⬆️ |
+| cross-agent | 0.369 | 0.432 | 0.432 | +0.063 |
+| entity | 0.459 | 0.477 | 0.539 | +0.080 |
+| decision | 0.542 | 0.642 | 0.642 | +0.100 |
+| concept | 0.656 | 0.603 | 0.622 | -0.034 |
+| procedure | 0.619 | 0.467 | 0.503 | -0.116 |
+| security | 0.594 | 0.505 | 0.487 | -0.107 |
 
-Regressões concept/procedure/security suspeitam noise pelas 27 chunks timeline novos competindo por top-K. Investigar pós-gate ou aceitar como nova baseline (n=50 small-sample).
+**Regressões residuais** concept/procedure/security: chunks timeline novos competindo legítimo no top-K (não são gold mas semantic-similar). Mitigação possível futura: **diversity boost** (limit N chunks/file no top-K). Aceito como tradeoff por ora — ganho líquido global +0.036 sem mudar código.
+
+**Aprendizado operacional:** sempre que reingest entity file que tem chunks gold, varrer `eval_queries.expected_chunk_ids` por IDs órfãos (`SELECT WHERE id NOT IN chunks`). Erro 2026-05-06: atualizei só Q70, esqueci Q48/Q58/Q62. Detected via per-query analysis Run #20. Adicionar este check no fluxo de cura.
 
 **Side-quest crítico:** **27% queries golden vazias (16/60)** — distorce nDCG global. Curar antes do gate libera eval honesto. Por categoria:
 | Category | Total | Empty | % |
