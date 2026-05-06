@@ -1,19 +1,69 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-05 ~18:00 BRT — sessão completa fechada (~8h).
+> **Atualizado:** 2026-05-06 ~20:00 BRT — E05b shadow deployed.
 > **Paper materialmente submit-ready.** Tag canonical `v1.0.0`.
 > **Repo memoria-nox PÚBLICO** ✅ link unauth funciona (HTTP 200/302).
-> **Patrick Lewis: 2 emails enviados** (original + follow-up correction repo→public).
-> **nox-mem VPS auditado** + POST /api/search bug fixado.
-> Pre-flight smoke tests: **9/10 ✓** (1 warning esperado pré-submit).
+> **Patrick Lewis: 2 emails enviados** (original + follow-up correction repo→public). Sem resposta dia 1/7.
+> **E05b reason-boost shadow active** desde 2026-05-06 19:48 BRT, schema v13, gate 2026-05-13.
 
 ---
 
 ## ⚡ RETOMADA — leia isto primeiro
 
-**Estado paper:** ✅ pronto pra submit em 2026-06-02
-**Bloqueado em:** resposta do Patrick Lewis (endorsement arXiv cs.IR)
-**Próxima ação humana:** criar conta arXiv (#5) — qualquer momento antes 06-02
+**Estado paper:** ✅ pronto pra submit em 2026-06-02 (paralelo)
+**Estado nox-mem core:** E05b Phase 2 ranking boost shadow ativo, gate 2026-05-13
+**Bloqueado em:** resposta do Patrick Lewis (paper apenas)
+**Próximas ações humanas:**
+1. Criar conta arXiv (qualquer dia antes 06-02) — paper
+2. Rodar `kg-build incremental` na VPS pra expandir cobertura `evidence_chunk_id` (atual 0.47%) antes do gate 05-13 — E05b
+
+---
+
+## 🎯 E05b shadow — gate review 2026-05-13
+
+**Deployed:** 2026-05-06 19:48 BRT, `NOX_REASON_BOOST_MODE=shadow`, schema v13.
+
+**Gate criteria (após 7d shadow):**
+- Δ nDCG@10 entity ≥ +0.03 (alvo: weak cat 0.459 → ≥0.489)
+- Δ nDCG@10 cross-agent ≥ +0.03 (alvo: 0.369 → ≥0.399)
+- Δ nDCG@10 strong cats (concept/procedure) ≥ -0.01 (no regressão)
+- ≥20% das queries com boost ≠ 0
+- 0 search timeouts
+
+**Achado limitante:** cobertura `evidence_chunk_id` em `kg_relations` = 291/61285 = **0.47%**. Reason boost só dispara onde chunk está listado como evidence em alguma relation. **Mitigação:** rodar `kg-build incremental` esta semana pra expandir cobertura antes do gate.
+
+```bash
+# Análise shadow ao retomar (após 7d, ~2026-05-13):
+ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
+  SELECT reason_boost_mode, COUNT(*) total,
+         SUM(CASE WHEN reason_boost_applied > 0 THEN 1 ELSE 0 END) boosted,
+         ROUND(100.0 * SUM(CASE WHEN reason_boost_applied > 0 THEN 1 ELSE 0 END) / COUNT(*), 2) pct_boosted,
+         AVG(reason_relations_used) avg_rels, MAX(reason_boost_applied) max_delta
+  FROM search_telemetry WHERE ts > strftime(\"%s\", \"now\", \"-7 days\")
+  GROUP BY reason_boost_mode"'
+
+# Run R01c shadow comparison:
+ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="E05b shadow review baseline"'
+# Compare contra Run #9 baseline (nDCG 0.519)
+```
+
+---
+
+## ⚡ Sanity checks rápidos ao retomar
+
+```bash
+# Paper:
+cd /Users/lab/Claude/Projetos/memoria-nox && bash paper/publication/scripts/pre-flight-smoke-tests.sh | grep -E "^\[|OVERALL"
+# Esperado: 9/10 ✓ + 1 warning
+
+# E05b shadow telemetry:
+ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
+  SELECT reason_boost_mode, COUNT(*) FROM search_telemetry
+  WHERE ts > strftime(\"%s\", \"now\", \"-1 day\") GROUP BY reason_boost_mode"'
+
+# PDF público:
+curl -s -o /dev/null -w "HTTP %{http_code}\n" "https://github.com/totobusnello/memoria-nox/raw/v1.0.0/paper/publication/latex/pain-shadow-memory-2026.pdf"
+```
 
 ```bash
 # Sanity check rápido ao retomar:
