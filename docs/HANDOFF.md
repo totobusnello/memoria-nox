@@ -40,10 +40,29 @@
 **Deployed:** 2026-05-06 20:33 BRT, `NOX_TEMPORAL_BOOST_MODE=shadow`, schema v14.
 
 **Gate criteria (E13):**
-- Δ nDCG@10 temporal cured-only (Q70+Q71) ≥ +0.10 (alvo: 0.466 → ≥0.566)
+- Δ nDCG@10 temporal ≥ +0.10 vs Run #20 baseline (alvo: 0.744 → ≥0.844)
 - Δ nDCG@10 não-temporal global ≥ -0.005 (no regressão)
 - % queries detectadas temporal entre 5%-25% (sanity range)
 - 0 search timeouts
+
+### Baseline pós-cura (Run #20, 2026-05-06 20:43 BRT)
+
+Q87+Q88 curadas, Q70 expandida ([213254, 213266]), nox-mem.md timeline atualizado com 27 eventos 04-26→05-06.
+
+| Metric | Run #9 (pré) | Run #20 (pós) | Δ |
+|---|---|---|---|
+| nDCG@10 global | 0.519 | **0.532** | +0.037 |
+| MRR | 0.450 | 0.494 | +0.032 |
+| Recall@10 | 0.687 | 0.711 | +0.056 |
+| **temporal** | **0.233** | **0.744** | **+0.511** ⬆️ |
+| cross-agent | 0.369 | 0.432 | +0.063 |
+| entity | 0.459 | 0.477 | +0.018 |
+| decision | 0.542 | 0.642 | +0.100 |
+| concept | 0.656 | 0.603 | -0.053 ⚠️ |
+| procedure | 0.619 | 0.467 | -0.152 ⚠️ |
+| security | 0.594 | 0.505 | -0.089 ⚠️ |
+
+Regressões concept/procedure/security suspeitam noise pelas 27 chunks timeline novos competindo por top-K. Investigar pós-gate ou aceitar como nova baseline (n=50 small-sample).
 
 **Side-quest crítico:** **27% queries golden vazias (16/60)** — distorce nDCG global. Curar antes do gate libera eval honesto. Por categoria:
 | Category | Total | Empty | % |
