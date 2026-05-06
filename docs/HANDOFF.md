@@ -1,36 +1,60 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-06 ~20:00 BRT — E05b shadow deployed.
+> **Atualizado:** 2026-05-06 ~20:35 BRT — E05b + E13 shadow deployed.
 > **Paper materialmente submit-ready.** Tag canonical `v1.0.0`.
 > **Repo memoria-nox PÚBLICO** ✅ link unauth funciona (HTTP 200/302).
 > **Patrick Lewis: 2 emails enviados** (original + follow-up correction repo→public). Sem resposta dia 1/7.
-> **E05b reason-boost shadow active** desde 2026-05-06 19:48 BRT, schema v13, gate 2026-05-13.
+> **E05b reason-boost shadow** desde 19:48 BRT (schema v13, gate 2026-05-13).
+> **E13 temporal-boost shadow** desde 20:33 BRT (schema v14, gate 2026-05-13).
+> **kg-extract loop tmux rodando** background, target 3000 chunks evidence (~0.47% → ~5%).
 
 ---
 
 ## ⚡ RETOMADA — leia isto primeiro
 
 **Estado paper:** ✅ pronto pra submit em 2026-06-02 (paralelo)
-**Estado nox-mem core:** E05b Phase 2 ranking boost shadow ativo, gate 2026-05-13
+**Estado nox-mem core:** E05b + E13 shadow ativos, gate único 2026-05-13
 **Bloqueado em:** resposta do Patrick Lewis (paper apenas)
 **Próximas ações humanas:**
 1. Criar conta arXiv (qualquer dia antes 06-02) — paper
-2. Rodar `kg-build incremental` na VPS pra expandir cobertura `evidence_chunk_id` (atual 0.47%) antes do gate 05-13 — E05b
+2. **Curar 16 queries com `expected_chunk_ids=[]`** durante shadow window (~30min/query, 8h spread Mai 7-13) — desbloqueia eval honesto
+3. Verificar kg-extract loop progress (`tmux attach -t kg-extract` na VPS)
 
 ---
 
-## 🎯 E05b shadow — gate review 2026-05-13
+## 🎯 Gate 2026-05-13 — review E05b + E13 simultâneo
 
+### E05b reason-boost
 **Deployed:** 2026-05-06 19:48 BRT, `NOX_REASON_BOOST_MODE=shadow`, schema v13.
 
-**Gate criteria (após 7d shadow):**
+**Gate criteria (E05b):**
 - Δ nDCG@10 entity ≥ +0.03 (alvo: weak cat 0.459 → ≥0.489)
 - Δ nDCG@10 cross-agent ≥ +0.03 (alvo: 0.369 → ≥0.399)
 - Δ nDCG@10 strong cats (concept/procedure) ≥ -0.01 (no regressão)
 - ≥20% das queries com boost ≠ 0
 - 0 search timeouts
 
-**Achado limitante:** cobertura `evidence_chunk_id` em `kg_relations` = 291/61285 = **0.47%**. Reason boost só dispara onde chunk está listado como evidence em alguma relation. **Mitigação:** rodar `kg-build incremental` esta semana pra expandir cobertura antes do gate.
+**Limitação:** cobertura `evidence_chunk_id` em `kg_relations` = 291/61285 = **0.47%**. **Mitigação ATIVA:** kg-extract loop em tmux rodando, target 3000 chunks (`/var/log/kg-extract/loop-*.log`).
+
+### E13 temporal-boost
+**Deployed:** 2026-05-06 20:33 BRT, `NOX_TEMPORAL_BOOST_MODE=shadow`, schema v14.
+
+**Gate criteria (E13):**
+- Δ nDCG@10 temporal cured-only (Q70+Q71) ≥ +0.10 (alvo: 0.466 → ≥0.566)
+- Δ nDCG@10 não-temporal global ≥ -0.005 (no regressão)
+- % queries detectadas temporal entre 5%-25% (sanity range)
+- 0 search timeouts
+
+**Side-quest crítico:** **27% queries golden vazias (16/60)** — distorce nDCG global. Curar antes do gate libera eval honesto. Por categoria:
+| Category | Total | Empty | % |
+|---|---|---|---|
+| concept | 15 | 3 | 20% |
+| procedure | 13 | 4 | 31% |
+| entity | 11 | 4 | 36% |
+| temporal | 4 | **2** | 50% |
+| (others) | 17 | 4 | 24% |
+
+Q87 "quando o E05 edge typing foi deployado" e Q88 "quando subiu schema v12" são as 2 temporais vazias. Curar essas 2 primeiro maximiza poder do gate E13.
 
 ```bash
 # Análise shadow ao retomar (após 7d, ~2026-05-13):
