@@ -6,7 +6,7 @@
 > **Patrick Lewis: 2 emails enviados** (original + follow-up correction repo→public). Sem resposta dia 1/7.
 > **E13 temporal-boost ACTIVE** desde 2026-05-06 21:18 BRT — gate review preview ACTIVATE-READY (Δ temporal +0.149, non-temporal +0.004).
 > **E05b reason-boost shadow round 2** com pesos tuned (cortados pela metade) — gate review preview KEEP-SHADOW (4/5 critérios falhos), aguardar 05-13 com mais sample + cobertura kg-extract.
-> **kg-extract loop tmux rodando** background, target 3000 chunks evidence (~0.47% → 5%).
+> **kg-extract loop ✅ COMPLETO** 2026-05-07 00:08 BRT — coverage 0.47% → **4.92%** (3016/61302 chunks). E05b agora pode cair no quadrante ACTIVATE da matriz se gate 05-13 passar.
 
 ---
 
@@ -21,9 +21,26 @@
 **Bloqueado em:** resposta do Patrick Lewis (paper apenas)
 
 **Próximas ações humanas:**
-1. Criar conta arXiv (qualquer dia antes 06-02) — paper
+1. ~~Criar conta arXiv~~ ✅ feita 2026-05-07 — paper
 2. Verificar gate-review JSON pós 05-13: `ssh root@187.77.234.79 'cat /var/log/nox-gate-review/gate-*.json'`
-3. Decidir E05b: ACTIVATE / KEEP-SHADOW / CUT conforme verdict
+3. Decidir E05b conforme matriz abaixo (ACTIVATE / SHADOW round 3 / CUT)
+4. **E12 Tier 3 OCR** — spec dedicada na próxima sessão (recon já completo, ver tarefa #11)
+5. **R02 paper update** — substituir números antigos pelos do Run #22 (nDCG@10 0.575 global, +0.056 vs baseline) ANTES de submit 06-02
+
+---
+
+### 🧭 Matriz de decisão E05b (registrada 2026-05-07)
+
+Pós-gate 05-13, decidir baseado em **2 eixos**: verdict do script + cobertura `evidence_chunk_id` em `kg_relations` (hoje 0.47%, target loop 5%).
+
+| Verdict gate | Cov KG | Decisão | Razão |
+|---|---|---|---|
+| ACTIVATE-READY | ≥ 3% | **ACTIVATE** | sinal real + cobertura suficiente pra fire em ≥20% queries sem ruído |
+| ACTIVATE-READY | < 3% | **SHADOW round 3** | gate passou mas boost só dispara em fração mínima — esperar KG denso antes de mexer em prod |
+| KEEP-SHADOW | subindo (>1%/sem) | **SHADOW round 3** | feature soa, gargalo é cobertura — manter telemetria, custo zero |
+| KEEP-SHADOW | estagnada | **CUT** | sem path pra ativação; libera contexto, revisita só quando KG denso |
+
+**Princípio:** ACTIVATE prematuro polui ranking de ~76% queries sem boost ≠ 0; CUT precipitado desperdiça spec+impl boa. SHADOW é grátis (telemetria), preserva opcionalidade.
 
 ---
 
@@ -56,7 +73,7 @@ Ou rodar manual: `ssh root@187.77.234.79 'bash /root/.openclaw/workspace/tools/n
 - ≥20% das queries com boost ≠ 0
 - 0 search timeouts
 
-**Limitação:** cobertura `evidence_chunk_id` em `kg_relations` = 291/61285 = **0.47%**. **Mitigação ATIVA:** kg-extract loop em tmux rodando, target 3000 chunks (`/var/log/kg-extract/loop-*.log`).
+**Limitação RESOLVIDA:** cobertura `evidence_chunk_id` saiu de 291/61285 = 0.47% → **3016/61302 = 4.92%** (loop completo 2026-05-07 00:08 BRT). Threshold da matriz (≥3%) batido.
 
 ### E13 temporal-boost
 **Deployed:** 2026-05-06 20:33 BRT, `NOX_TEMPORAL_BOOST_MODE=shadow`, schema v14.
