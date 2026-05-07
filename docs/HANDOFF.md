@@ -1,12 +1,15 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-06 ~21:18 BRT — E13 ACTIVE + E05b shadow round 2 (tuned).
-> **Paper materialmente submit-ready.** Tag canonical `v1.0.0`.
+> **Atualizado:** 2026-05-07 ~13:40 BRT — Sessão massiva: paper v1.1 + ablations E7-E9 + D01 reranker + E12 OCR rolando.
+> **Paper materialmente submit-ready.** Tag canonical `v1.0.0`. v1.1 PDF compilado (`paper.pdf` 891KB).
 > **Repo memoria-nox PÚBLICO** ✅ link unauth funciona (HTTP 200/302).
 > **Patrick Lewis: 2 emails enviados** (original + follow-up correction repo→public). Sem resposta dia 1/7.
 > **E13 temporal-boost ACTIVE** desde 2026-05-06 21:18 BRT — gate review preview ACTIVATE-READY (Δ temporal +0.149, non-temporal +0.004).
 > **E05b reason-boost shadow round 2** com pesos tuned (cortados pela metade) — gate review preview KEEP-SHADOW (4/5 critérios falhos), aguardar 05-13 com mais sample + cobertura kg-extract.
 > **kg-extract loop ✅ COMPLETO** 2026-05-07 00:08 BRT — coverage 0.47% → **4.92%** (3016/61302 chunks). E05b agora pode cair no quadrante ACTIVATE da matriz se gate 05-13 passar.
+> **Paper R02 ✅ ATUALIZADO v1.1** — Run #30/#31/#32 numbers (n=60 R01c-v1.1 post-cure): hybrid 0.5831±0.0046, FTS 0.0000, Δ +58.3pp, 4.0× BM25. §6.5 ablations E7-E9 todos confirmam ≥0.029 (E7=-0.029 marginal, E8=-0.041, E9=-0.032). §7 framing "Measurement instrument matures alongside the system".
+> **D01 cross-encoder reranker ✅ IMPL LOCAL** (commit `66eab05` nox-workspace, NOT pushed). BGE-reranker-base via @xenova/transformers. Schema v16. Default mode=off. 7-day shadow gate antes de activate (regra crítica #5). VPS sync pendente pós-OCR-batch.
+> **E12 OCR batch ⏳ ROLANDO** desde 2026-05-07 13:37 BRT (tmux `ocr-batch` na VPS). 3005 PDFs/imgs candidatos (Documents/PPR + PESSOAL = 18.7GB upload concluído), Google Document AI cloud, cap $50, ETA ~3-4h, custo estimado ~$15-20.
 
 ---
 
@@ -24,8 +27,10 @@
 1. ~~Criar conta arXiv~~ ✅ feita 2026-05-07 — paper
 2. Verificar gate-review JSON pós 05-13: `ssh root@187.77.234.79 'cat /var/log/nox-gate-review/gate-*.json'`
 3. Decidir E05b conforme matriz abaixo (ACTIVATE / SHADOW round 3 / CUT)
-4. **E12 Tier 3 OCR** — spec dedicada na próxima sessão (recon já completo, ver tarefa #11)
-5. **R02 paper update** — substituir números antigos pelos do Run #22 (nDCG@10 0.575 global, +0.056 vs baseline) ANTES de submit 06-02
+4. ~~E12 OCR spec~~ ✅ feita 2026-05-07 — `specs/2026-05-07-E12-tier3-ocr.md`
+5. ~~R02 paper update Run #22~~ ✅ feita 2026-05-07 — substituído por R01c-v1.1 (Runs #30/#31/#32), PDF v1.1 compilado
+6. **OCR batch:** monitorar `ssh root@187.77.234.79 'tail -f /var/log/nox-paper/ocr-batch-full.log'`. Pós-conclusão: curar Q105-Q109 com `expected_chunk_ids` reais (gate validation), depois `rm -rf /root/Documents/PPR /root/Documents/PESSOAL` cleanup
+7. **D01 reranker VPS sync** (pós-OCR-batch): `cd ~/Claude/Projetos/nox-workspace/tools/nox-mem && rsync -av src/ root@VPS:/root/.openclaw/workspace/tools/nox-mem/src/ && ssh root@VPS 'cd /root/.openclaw/workspace/tools/nox-mem && npm install && npx tsc'`. Ativar shadow: `NOX_RERANKER_MODE=shadow` no .env. Aguardar 7d antes de activate
 
 ---
 
