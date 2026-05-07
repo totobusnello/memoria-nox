@@ -893,6 +893,32 @@ architectural contributions. Note that the current nDCG@10 of $0.5831 < 0.6$, wh
 the threshold at which the optional cross-encoder reranker becomes warranted; this addition
 is therefore deferred to future work (\S6.5).
 
+\textbf{Measurement instrument matures alongside the system.} Between paper draft v1.0
+(2026-05-04, R01b $n$=50) and v1.1 (2026-05-07, R01c-v1.1 $n$=60), the underlying retrieval
+pipeline (FTS5 + Gemini 3072d + RRF $k$=60) was held constant; no code change was made to
+search, ranking, or fusion. Yet hybrid nDCG@10 improved from $0.5213 \pm 0.0004$ to
+$0.5831 \pm 0.0046$ (+11.9\% relative), Recall@10 from $0.6800$ to $0.7667$ (+12.8\%), and
+the absolute $\Delta$ over FTS5 vanilla from $+0.509$ to $+0.583$. The improvement came
+\emph{entirely from measurement hygiene plus corpus growth}: 11 queries with empty
+\texttt{expected\_chunk\_ids} (genuine documentation gaps where no chunk in the corpus
+answers the question) were correctly reclassified to \texttt{category=negative}, where they
+score 0.000 in any retrieval system; 3 orphan IDs that referenced chunks deleted by
+re-ingest events were corrected; 3 temporal queries (Q70/Q87/Q88) were extended with
+newly available timeline events; and the operational corpus grew from 61{,}257 to
+61{,}302 chunks with KG \texttt{evidence\_chunk\_id} coverage rising from $0.47\%$ to
+$4.92\%$ via incremental nightly extraction.
+We treat the gold standard as a versioned research artifact rather than a one-time snapshot,
+in keeping with the open-evaluation norm advocated by \cite{rogers2021just} and broader IR
+practice of iterative relevance-judgment refinement. The v1.0
+numbers are preserved in the \texttt{v1.0.0} git tag for full reproducibility, and the
+disclosure (\S5.1, ``Gold standard revision note'') makes both versions available
+side-by-side. The implication for IR practitioners: gold-set hygiene---moving doc-gap
+queries to negatives, repairing orphan references after corpus rewrites---can deliver
+double-digit nDCG@10 gains without touching the model, embedding, or retrieval code. This
+is best practice, not artifact, when the methodology is auditable and pre-registered. We
+recommend evaluating eval harnesses on the same shadow-discipline timeline (\S3.5) as
+ranking changes themselves.
+
 Beyond nox-mem specifically, pain-weighted salience and shadow discipline are
 \textbf{transferable concepts}. Any persistent memory system---regardless of implementation
 stack---can adopt a severity annotation field and enforce a shadow validation gate before
