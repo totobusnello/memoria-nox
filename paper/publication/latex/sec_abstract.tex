@@ -15,14 +15,14 @@ PagerDuty P1--P5, not psychometric scales. Ablation
 $[-0.014, +0.034]$); lift observed in 1/31 queries (Q55, $\Delta = +0.349$); 29/31
 unaffected because semantic scores were not tied. The binding constraint
 is BM25 recall ceiling: 55 of 60 queries fail
-FTS-only regardless of pain calibration; full hybrid retains Recall@10 $= 0.6800$ via
+FTS-only regardless of pain calibration; full hybrid retains Recall@10 $= 0.7667$ via
 Gemini. (2) Shadow discipline: a seven-day gate before any
 ranking change activates, enforced via \texttt{/api/health} as an architectural
 constraint, not a convention \cite{kohavi2020trustworthy,chapelle2012interleaved}. (3)
 Shared-canonical context: six agents, one corpus, no federation. On 61,257 chunks, hybrid
 retrieval (FTS5 + Gemini 3072-d + RRF, $k=60$) achieves
-nDCG@10 $= 0.5213 \pm 0.0004$ ($n=50$, 3-run mean) versus 0.0123 for FTS5 vanilla and
-0.1475 for BM25 Pyserini ($n=60$), a $3.5\times$ lift over the strongest lexical baseline.
+nDCG@10 $= 0.5831 \pm 0.0046$ ($n=60$, 3-run mean, post-cure gold standard v1.1) versus 0.0000 for FTS5 vanilla and
+0.1475 for BM25 Pyserini ($n=60$), a $4.0\times$ lift over the strongest lexical baseline.
 Edge-type enum coverage improved $14\% \to 56\%$ ($4\times$ gain, $n=100$, 95\%~Wilson
 CI $[46$--$66\%]$); self-reported enum coverage rate, not human-validated accuracy. On
 LOCOMO (Maharana et al., 2024, $n=100$), FTS5 achieves nDCG@10 $= 0.281$, confirming
