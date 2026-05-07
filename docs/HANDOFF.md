@@ -8,8 +8,11 @@
 > **E05b reason-boost shadow round 2** com pesos tuned (cortados pela metade) — gate review preview KEEP-SHADOW (4/5 critérios falhos), aguardar 05-13 com mais sample + cobertura kg-extract.
 > **kg-extract loop ✅ COMPLETO** 2026-05-07 00:08 BRT — coverage 0.47% → **4.92%** (3016/61302 chunks). E05b agora pode cair no quadrante ACTIVATE da matriz se gate 05-13 passar.
 > **Paper R02 ✅ ATUALIZADO v1.1** — Run #30/#31/#32 numbers (n=60 R01c-v1.1 post-cure): hybrid 0.5831±0.0046, FTS 0.0000, Δ +58.3pp, 4.0× BM25. §6.5 ablations E7-E9 todos confirmam ≥0.029 (E7=-0.029 marginal, E8=-0.041, E9=-0.032). §7 framing "Measurement instrument matures alongside the system".
-> **D01 cross-encoder reranker ✅ IMPL LOCAL** (commit `66eab05` nox-workspace, NOT pushed). BGE-reranker-base via @xenova/transformers. Schema v16. Default mode=off. 7-day shadow gate antes de activate (regra crítica #5). VPS sync pendente pós-OCR-batch.
-> **E12 OCR batch ⏳ ROLANDO** desde 2026-05-07 13:37 BRT (tmux `ocr-batch` na VPS). 3005 PDFs/imgs candidatos (Documents/PPR + PESSOAL = 18.7GB upload concluído), Google Document AI cloud, cap $50, ETA ~3-4h, custo estimado ~$15-20.
+> **D01 cross-encoder reranker ✅ ACTIVE SHADOW na VPS** desde 2026-05-07 13:48 BRT. Schema v16, env `NOX_RERANKER_MODE=shadow`. **7-day clock iniciado: gate ETA 2026-05-14**. Pre-warm fix `3148b25`: model carrega no boot (2104ms) eliminando p95 cold-start tail (era 15.7s p95, max 89.5s). Telemetria: avg lift 0.341, position changes 12.6/query, p50 latency 601ms.
+> **E12 OCR batch round 1 ✅ DONE** 2026-05-07 ~16:37 BRT — 2423 success / 452 fail, $9.40 spent, +2223 chunks ingested (61504→63727). Crash final cosmético (closeDb mid-function bug, zombie row 39 limpo manualmente). Análise dos 452 fails: 226 file>5MB + 226 page-limit-exceeded.
+> **E12 OCR retry ⏳ ROLANDO** desde 2026-05-07 19:07 BRT (tmux `ocr-retry`). Imageless mode fix `b466595` recupera ~165 páginas-limite via cloud Phase 1; Tesseract 5.5.0 instalado processa ~287 file-too-large via Phase 2. Watcher tmux `ocr-cleanup-watch` dispara `rm -rf /root/Documents/{PPR,PESSOAL}` automaticamente quando retry termina (libera 18.7GB). 99 ok em Phase 1 ainda, ETA ~2h.
+> **chunks.ocr_status retroactive fix:** 2487 chunks Phase 1 marcados `ocr_status='success', ocr_engine='google_doc_ai'`. Code patch `3148b25` previne regressão pra Phase 2+ runs.
+> **Q105-Q109 scan-gate queries** ✅ curadas com top-1 IDs reais pós-batch 1. category=`scan_dependent`. Refinamento manual deferido pra próxima sessão.
 
 ---
 
