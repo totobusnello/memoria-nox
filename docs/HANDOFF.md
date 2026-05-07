@@ -1,24 +1,29 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-06 ~20:35 BRT — E05b + E13 shadow deployed.
+> **Atualizado:** 2026-05-06 ~21:18 BRT — E13 ACTIVE + E05b shadow round 2 (tuned).
 > **Paper materialmente submit-ready.** Tag canonical `v1.0.0`.
 > **Repo memoria-nox PÚBLICO** ✅ link unauth funciona (HTTP 200/302).
 > **Patrick Lewis: 2 emails enviados** (original + follow-up correction repo→public). Sem resposta dia 1/7.
-> **E05b reason-boost shadow** desde 19:48 BRT (schema v13, gate 2026-05-13).
-> **E13 temporal-boost shadow** desde 20:33 BRT (schema v14, gate 2026-05-13).
-> **kg-extract loop tmux rodando** background, target 3000 chunks evidence (~0.47% → ~5%).
+> **E13 temporal-boost ACTIVE** desde 2026-05-06 21:18 BRT — gate review preview ACTIVATE-READY (Δ temporal +0.149, non-temporal +0.004).
+> **E05b reason-boost shadow round 2** com pesos tuned (cortados pela metade) — gate review preview KEEP-SHADOW (4/5 critérios falhos), aguardar 05-13 com mais sample + cobertura kg-extract.
+> **kg-extract loop tmux rodando** background, target 3000 chunks evidence (~0.47% → 5%).
 
 ---
 
 ## ⚡ RETOMADA — leia isto primeiro
 
 **Estado paper:** ✅ pronto pra submit em 2026-06-02 (paralelo)
-**Estado nox-mem core:** E05b + E13 shadow ativos, gate único 2026-05-13
+**Estado nox-mem core:**
+- **E13 ACTIVE** desde 2026-05-06 21:18 BRT (temporal-aware ranking aplicado em produção)
+- **E05b shadow round 2** com pesos cortados pela metade (`NOX_REASON_BOOST_CAP=0.15`, weights override em .env)
+- Gate review oficial agendado: cron 2026-05-13 09:00 BRT auto-trigger
+
 **Bloqueado em:** resposta do Patrick Lewis (paper apenas)
+
 **Próximas ações humanas:**
 1. Criar conta arXiv (qualquer dia antes 06-02) — paper
-2. **Curar 16 queries com `expected_chunk_ids=[]`** durante shadow window (~30min/query, 8h spread Mai 7-13) — desbloqueia eval honesto
-3. Verificar kg-extract loop progress (`tmux attach -t kg-extract` na VPS)
+2. Verificar gate-review JSON pós 05-13: `ssh root@187.77.234.79 'cat /var/log/nox-gate-review/gate-*.json'`
+3. Decidir E05b: ACTIVATE / KEEP-SHADOW / CUT conforme verdict
 
 ---
 
