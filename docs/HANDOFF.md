@@ -22,6 +22,23 @@
 
 ---
 
+## 🤖 Gate review automatizado
+
+Script `tools/nox-mem/scripts/gate-review-e05b-e13.sh` (nox-workspace) faz:
+1. Coleta shadow telemetry stats (7d window)
+2. Roda 4 evals com toggles: baseline (off/off), E05b only, E13 only, both active
+3. Calcula deltas + aplica critérios → verdict ACTIVATE/KEEP-SHADOW
+4. Output JSON `/var/log/nox-gate-review/gate-<date>.json`
+5. Restaura env shadow ao fim
+
+**Cron VPS agendado:** `0 12 13 5 * /root/.openclaw/workspace/tools/nox-mem/scripts/gate-review-e05b-e13.sh` → executa **automaticamente em 2026-05-13 09:00 BRT**.
+
+Ou rodar manual: `ssh root@187.77.234.79 'bash /root/.openclaw/workspace/tools/nox-mem/scripts/gate-review-e05b-e13.sh'` (~5min).
+
+**Pre-gate dry-run preview (2026-05-06 21:08 BRT):**
+- E05b: 23.6% queries com reason_boost > 0 (≥20% threshold ✓)
+- E13: 9.2% queries detected temporal (5-25% range ✓)
+
 ## 🎯 Gate 2026-05-13 — review E05b + E13 simultâneo
 
 ### E05b reason-boost
