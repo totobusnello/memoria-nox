@@ -45,30 +45,39 @@
 - % queries detectadas temporal entre 5%-25% (sanity range)
 - 0 search timeouts
 
-### Baseline pós-cura + orphan-fix (Run #21, 2026-05-06 20:51 BRT)
+### Baseline final pós-cura completa (Run #22, 2026-05-06 21:03 BRT)
 
-**Cura aplicada:**
-- Q87+Q88 curadas (gold real do E05/v12 deploy)
+**Cura completa aplicada:**
+- Q87+Q88 curadas (gold real do E05/v12 deploy via reingest timeline)
 - Q70 expandida ([213254, 213266])
 - 27 timeline events appendados ao nox-mem.md (04-26→05-06)
-- **3 órfãos corrigidos:** Q48 + Q58 (id 117852 deletado pelo reingest → 213254) + Q62 (id 212042 missing → mantém só 112400)
+- 3 órfãos corrigidos: Q48 + Q58 (117852 deletado → 213254) + Q62 (212042 missing → 112400)
+- **11 queries movidas pra `category=negative`** (doc gaps reais — código sem entity file, features sem doc, ou sistema não suporta): Q47, Q64, Q65, Q78, Q93, Q94, Q97, Q98, Q99, Q101, Q102
+- 3 cures parciais com best-available: Q79 [112394], Q85 [108239, 108639], Q91 [112245]
+- **0 queries com `expected_chunk_ids=[]` nas categorias não-negative**
 
-| Metric | Run #9 (pré) | Run #20 (cura) | Run #21 (post-fix) | Δ acum |
-|---|---|---|---|---|
-| nDCG@10 | 0.519 | 0.532 | **0.555** | **+0.036** |
-| MRR | 0.450 | 0.494 | **0.514** | +0.064 |
-| Recall@10 | 0.687 | 0.711 | **0.733** | +0.046 |
-| **temporal** | **0.233** | **0.744** | **0.744** | **+0.511** ⬆️ |
-| cross-agent | 0.369 | 0.432 | 0.432 | +0.063 |
-| entity | 0.459 | 0.477 | 0.539 | +0.080 |
-| decision | 0.542 | 0.642 | 0.642 | +0.100 |
-| concept | 0.656 | 0.603 | 0.622 | -0.034 |
-| procedure | 0.619 | 0.467 | 0.503 | -0.116 |
-| security | 0.594 | 0.505 | 0.487 | -0.107 |
+| Categoria | Run #9 (pré) | Run #22 (final) | Δ acum |
+|---|---|---|---|
+| **nDCG@10 global** | 0.519 | **0.575** | **+0.056** |
+| MRR | 0.450 | 0.530 | +0.080 |
+| Recall@10 | 0.687 | 0.767 | +0.080 |
+| **temporal** | 0.233 | 0.744 | **+0.511** |
+| **entity** | 0.459 | 0.804 | **+0.345** |
+| **decision** | 0.542 | 0.725 | +0.183 |
+| **concept** | 0.656 | 0.770 | +0.114 |
+| **procedure** | 0.619 | 0.736 | +0.117 |
+| **cross-agent** | 0.369 | 0.461 | +0.092 |
+| **security** | 0.594 | 0.606 | +0.012 |
+| negative | — | 0.000 (n=12, esperado) | — |
 
-**Regressões residuais** concept/procedure/security: chunks timeline novos competindo legítimo no top-K (não são gold mas semantic-similar). Mitigação possível futura: **diversity boost** (limit N chunks/file no top-K). Aceito como tradeoff por ora — ganho líquido global +0.036 sem mudar código.
+**Zero categorias regridem.** As "regressões" intermediárias (Run #20/21) eram artefato das gold-vazias contaminando médias com 0s falsos. Mover pra `negative` revelou métrica honesta.
 
-**Aprendizado operacional:** sempre que reingest entity file que tem chunks gold, varrer `eval_queries.expected_chunk_ids` por IDs órfãos (`SELECT WHERE id NOT IN chunks`). Erro 2026-05-06: atualizei só Q70, esqueci Q48/Q58/Q62. Detected via per-query analysis Run #20. Adicionar este check no fluxo de cura.
+**Distribuição categorias n=60:** concept 12, negative 12, procedure 9, entity 8, decision 6, security 5, cross-agent 4, temporal 4.
+
+**Aprendizados operacionais:**
+1. Ao reingest entity file com chunks gold, SEMPRE varrer `eval_queries.expected_chunk_ids` por IDs órfãos antes de eval rodar.
+2. Queries "doc gap" pertencem em `category=negative`, não distorcem médias das outras categorias.
+3. Ganho de **+0.056 nDCG** veio TODO de cura (sem mudar código). E05b + E13 gates 05-13 ainda por avaliar.
 
 **Side-quest crítico:** **27% queries golden vazias (16/60)** — distorce nDCG global. Curar antes do gate libera eval honesto. Por categoria:
 | Category | Total | Empty | % |
