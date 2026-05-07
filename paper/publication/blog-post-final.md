@@ -65,16 +65,16 @@ I had an eval harness. I ran it.
 
 | Approach | nDCG@10 |
 |---|---|
-| FTS5 vanilla (BM25 only) | 0.0123 |
-| nox-mem hybrid (FTS + Gemini + RRF) | 0.5213 |
+| FTS5 vanilla (BM25 only) | 0.0000 |
+| nox-mem hybrid (FTS + Gemini + RRF) | 0.5831 |
 
-*(n=50 queries, 3-run mean ± std: Hybrid 0.5213 ± 0.0004, FTS 0.0123 ± 0.0000 — after 3 independent runs of the n=50 internally-curated golden query set)*
+*(n=60 queries R01c-v1.1 post-cure, 3-run mean ± std: Hybrid 0.5831 ± 0.0046, FTS 0.0000 ± 0.0000 — after 3 independent runs of the n=60 internally-curated golden query set, E13/E05b held off)*
 
-**Near-zero.** Not lower. Not somewhat degraded. FTS5 returns effectively no useful results for natural language operational queries — 0.0123 is the structural floor, not a tunable parameter.
+**Exactly zero.** Not near-zero. Not somewhat degraded. On the post-cure n=60 corpus FTS5 returns *no* useful results for natural language operational queries — 0.0000 is the structural floor, not a tunable parameter.
 
 This is not a bug in my FTS5 implementation. It's a structural property: FTS5 uses AND-strict tokenized matching. A query like `"why does the reindex command lose section data"` doesn't match any document that contains the answer, because the answer is spread across technical terms that appear in none of those exact tokens together. The semantic layer isn't a "nice to have" for my use case — it's load-bearing.
 
-The gap: 97.6% relative loss in nDCG@10 (50.9 pp absolute). The experiment took 20 minutes to run. The cost savings plan was abandoned in 25.
+The gap: 100% relative loss in nDCG@10 (58.3 pp absolute — FTS returns zero, hybrid is the entire signal). The experiment took 20 minutes to run. The cost savings plan was abandoned in 25.
 
 Three-run validation (runs #10/#11/#12): std=0.0004 for hybrid (0.08% relative variance) — the result is operationally deterministic. The result is stable.
 
@@ -175,10 +175,10 @@ The practical result: 1GB SQLite serving 6 agents, zero federation overhead, cro
 
 | Approach | nDCG@10 | Δ vs hybrid |
 |---|---|---|
-| FTS5 vanilla (BM25) | 0.0123 | −50.9 pp |
-| nox-mem hybrid (FTS + Gemini + RRF) | 0.5213 | baseline |
+| FTS5 vanilla (BM25) | 0.0000 | −58.3 pp |
+| nox-mem hybrid (FTS + Gemini + RRF) | 0.5831 | baseline |
 
-*(n=50, 3-run mean ± std — gap relativo 97.6%)*
+*(n=60 R01c-v1.1 post-cure, 3-run mean ± std — gap relativo 100%, FTS é exatamente zero)*
 
 **Edge typing precision — before and after:**
 
@@ -234,7 +234,7 @@ The shared-canonical multi-agent design works for trusted contexts. It would be 
 
 **What I am claiming:**
 
-- Hybrid retrieval is structurally load-bearing for natural language operational queries. The 97.6% relative gap (50.9 pp absolute, n=50 3-run mean) is a measurement, not an opinion.
+- Hybrid retrieval is structurally load-bearing for natural language operational queries. The 100% relative gap (58.3 pp absolute, n=60 R01c-v1.1 3-run mean — FTS5 returns exactly zero) is a measurement, not an opinion.
 - Shadow discipline prevents silent regression. The April 25 incident is a documented case study. The counterfactual is explicit.
 - Shared-canonical multi-agent works for the stated trust model and has been in production for four months.
 - An eval harness with curated queries makes silent regression structurally impossible — vibe-checking doesn't.

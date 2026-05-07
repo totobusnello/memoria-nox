@@ -133,13 +133,13 @@ Quando Forge aprende algo sobre uma decisão arquitetural, Atlas recupera esse c
 
 | Approach | nDCG@10 | Δ vs nox-mem |
 |---|---|---|
-| FTS5 vanilla (BM25) | 0.0123 | **−50,9 pp** |
-| **BM25 Pyserini (Anserini-tuned, n=60)** | **0.1475** | **−37,4 pp** |
-| **nox-mem hybrid (FTS + Gemini + RRF)** | **0.5213** | baseline |
+| FTS5 vanilla (BM25) | 0.0000 | **−58,3 pp** |
+| **BM25 Pyserini (Anserini-tuned, n=60)** | **0.1475** | **−43,6 pp** |
+| **nox-mem hybrid (FTS + Gemini + RRF)** | **0.5831** | baseline |
 
-*(n=50 queries baseline; BM25 Pyserini n=60 — 3-run mean ± std: Hybrid 0.5213 ± 0.0004, FTS vanilla 0.0123 ± 0.0000 — gap relativo hybrid vs Pyserini: 3,5×)*
+*(n=60 queries R01c-v1.1 post-cure; 3-run mean ± std: Hybrid 0.5831 ± 0.0046 (Runs #30/#31/#32), FTS vanilla 0.0000 ± 0.0000 — gap relativo hybrid vs Pyserini: 4,0×. Pré-cura v1.0 numbers preservados em git tag v1.0.0.)*
 
-Queries em linguagem natural completas resultam em nDCG quase zero em BM25-only — constraint estrutural do FTS5 AND-strict, não artefato de corpus. O BM25 Pyserini (Anserini-tuned, strong baseline de BEIR) eleva o patamar para 0.1475, e nox-mem hybrid ainda entrega **3,5× acima dele**. Hybrid é o piso, não o teto. Validação 3-run (runs #10/#11/#12) com std=0.0004 (0.08% relativo), reproduzível por qualquer reviewer.
+Queries em linguagem natural completas resultam em nDCG **exatamente zero** em BM25-only sobre o corpus pós-cura — constraint estrutural do FTS5 AND-strict, não artefato de corpus. O BM25 Pyserini (Anserini-tuned, strong baseline de BEIR) eleva o patamar para 0.1475, e nox-mem hybrid ainda entrega **4,0× acima dele**. Hybrid é o piso, não o teto. Validação 3-run (runs #30/#31/#32, E13/E05b held off) com std=0.0046 (0.79% relativo), reproduzível por qualquer reviewer.
 
 ### Edge typing: taxa de cobertura do enum de 14% para 56% — ganho 4×
 
@@ -178,7 +178,7 @@ De 61.257 chunks ativos no corpus, **61.207 são canonical shared** — acessív
 
 ### Pain baseline — post-incident queries são classe mais difícil
 
-Sobre 6 queries extraídas de incidentes reais (post-incident class), nDCG@10 = **0.2689** — **−0.2524 vs baseline geral de 0.5213**. Post-incident queries são intrinsically harder: linguagem mais técnica, contexto fragmentado, relevância distribuída por chunks de tipos distintos. Esse gap é o sinal que motiva pain-weighted salience: lições de incidente precisam de boost ativo no retrieval porque o retrieval vanilla já as penaliza passivamente. Pain ablation completa (comparar salience=shadow vs salience=off em prod) requer dois reinicios de produção e está documentada como future work no paper — os dados preliminares desta sessão ficam como evidência motivadora.
+Sobre 6 queries extraídas de incidentes reais (post-incident class), nDCG@10 = **0.2689** — **−0.3142 vs baseline geral de 0.5831 (R01c-v1.1, n=60)**. Post-incident queries são intrinsically harder: linguagem mais técnica, contexto fragmentado, relevância distribuída por chunks de tipos distintos. Esse gap é o sinal que motiva pain-weighted salience: lições de incidente precisam de boost ativo no retrieval porque o retrieval vanilla já as penaliza passivamente. Pain ablation completa (comparar salience=shadow vs salience=off em prod) requer dois reinicios de produção e está documentada como future work no paper — os dados preliminares desta sessão ficam como evidência motivadora.
 
 ### §6.4 Perfil de custo e compute (OPEX real)
 
