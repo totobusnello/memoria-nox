@@ -2,7 +2,20 @@
 
 > Adiciona cross-encoder local (BGE-reranker-base via `@xenova/transformers` ONNX-in-Node) como camada pós-RRF do hybrid pipeline. Reordena top-N=50 candidatos via cross-attention query×chunk e devolve top-K=10. Default `off`; padrão obrigatório de shadow→active gated em 7d telemetria. Quebra o teto empírico de nDCG@10=0.5831 (R01c-v1.1) ao trazer relevância contextual além de BM25+vetor independente.
 
-**Status:** Design spec
+> ## ⛔ VERDICT: CUT v1 (2026-05-08 ~12:20 BRT)
+> Offline eval com `NOX_RERANKER_MODE=active` 3-run sobre R01c-v1.1 (n=65 incluindo Q105-Q109 scan-gate) retornou:
+> - **nDCG@10: 0.3718 ± 0.002** vs hybrid baseline 0.5831 ± 0.0046 → **Δ = −0.2113** ❌
+> - **MRR: 0.3969** vs 0.5445 → Δ = −0.1476
+> - **Recall@10: 0.5154** vs 0.7667 → Δ = −0.2513
+> - **Decisão: CUT** (Δ ≤ 0 critério → cut). Set `NOX_RERANKER_MODE=off` em .env, api restarted.
+>
+> **Root cause hypothesis:** BGE-reranker-base treinado em corpora inglês não transfere pra PT-BR domain corpus. Reordenação no top-50 com sinal cross-attention degradado scramble ranking útil do RRF.
+>
+> **D01-v2 candidato (deferred):** trocar pra `BAAI/bge-reranker-v2-m3` (multilingual, suporta PT-BR explícito) OR `Cohere Rerank API` (vendor mas comprovadamente PT-BR-aware). Avaliar 2026-Q3.
+>
+> **Aprendizado:** shadow telemetry mostrou avg lift_score 0.341 (parecia promissor!) mas position_changes 12.6/query traduziu em retrieval pior — métrica de "lift" é ENGANOSA quando o reranker tem domain mismatch. **Sempre validar com offline nDCG eval ANTES de promover shadow→active.**
+
+**Status:** ⛔ CUT (2026-05-08, see verdict above)
 **Data:** 2026-05-07
 **ID:** D01
 **Vision §:** §11 Wave 2 — re-ranking layer
