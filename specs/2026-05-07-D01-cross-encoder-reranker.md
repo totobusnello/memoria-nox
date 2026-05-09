@@ -14,8 +14,10 @@
 > **D01-v2 candidato (deferred):** trocar pra `BAAI/bge-reranker-v2-m3` (multilingual, suporta PT-BR explícito) OR `Cohere Rerank API` (vendor mas comprovadamente PT-BR-aware). Avaliar 2026-Q3.
 >
 > **Aprendizado:** shadow telemetry mostrou avg lift_score 0.341 (parecia promissor!) mas position_changes 12.6/query traduziu em retrieval pior — métrica de "lift" é ENGANOSA quando o reranker tem domain mismatch. **Sempre validar com offline nDCG eval ANTES de promover shadow→active.**
+>
+> **Aprendizado #2 (memory leak experimental — 2026-05-09):** tentativa de fix periodic dispose+reload (`callCount` + `maybeReloadModel`) não funcionou: `Tensor.dispose()/BatchEncoding.dispose()` não existem em `@xenova/transformers v2.17.2`, só `Model.dispose()` (que libera InferenceSession via handler.dispose). Ainda assim, ONNX Runtime arena allocations leak interno (native code, fora do alcance V8 GC). Patch revertido — código source limpo na branch main, callCount/maybeReloadModel removed. Decisão: NÃO investir mais em fix de leak para v1 dado que **lift é negativo (-0.2113)** — sem lift, leak fix não justifica esforço. Quando D01-v2 multilingual vier (BGE-v2-m3 ou Cohere), perfil de leak/concurrency será diferente, partir de stub clean é mais simples.
 
-**Status:** ⛔ CUT (2026-05-08, see verdict above)
+**Status:** ⛔ CUT v1 (2026-05-08, see verdict). Source-of-truth limpo 2026-05-09 (sem dead code).
 **Data:** 2026-05-07
 **ID:** D01
 **Vision §:** §11 Wave 2 — re-ranking layer
