@@ -1,6 +1,6 @@
 # memoria-nox
 
-> 📄 **Paper (arXiv cs.IR, target 2026-06-02):** *The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents* — tag `v1.0.0-paper-draft`.
+> 📄 **Paper (arXiv cs.IR, target 2026-06-02):** *The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents* — tag `v1.0.0` (v1.1 PDF compiled).
 > See [`paper/publication/`](paper/publication/) for source drafts, baselines, and reproducibility kit. Blog drafts (dev.to, LinkedIn, Substack) in [`paper/publication/distribution/`](paper/publication/distribution/).
 
 > Sistema de memória inteligente multi-agent com hybrid search, knowledge graph com edge typing, eval harness, semantic cache, blast radius analysis e backend claude-cli zero-cost.
@@ -10,23 +10,25 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/totobusnello/memoria-nox)](https://github.com/totobusnello/memoria-nox/commits/main)
 [![Tests](https://img.shields.io/badge/tests-69%2F69%20passing-brightgreen)](docs/HANDOFF.md)
-[![Schema](https://img.shields.io/badge/schema-v12-blue)](CLAUDE.md)
-[![Chunks](https://img.shields.io/badge/chunks-64.180-blue)](docs/HANDOFF.md)
+[![Schema](https://img.shields.io/badge/schema-v16-blue)](CLAUDE.md)
+[![Chunks](https://img.shields.io/badge/chunks-70.029-blue)](docs/HANDOFF.md)
 [![KG](https://img.shields.io/badge/KG-914_entities_%2F_1109_relations-blue)](docs/HANDOFF.md)
-[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.519_(n%3D50)-blue)](docs/HANDOFF.md)
-[![R01b Cure](https://img.shields.io/badge/R01b__cured-50%2F50_✅-brightgreen)](docs/HANDOFF.md)
+[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.5831_(n%3D60)-brightgreen)](docs/HANDOFF.md)
+[![Paper v1.1](https://img.shields.io/badge/paper-v1.1_compiled-brightgreen)](paper/publication/latex/paper.pdf)
 
 **Features ativas**
 
 [![Salience](https://img.shields.io/badge/salience-active-brightgreen)](docs/DECISIONS.md)
 [![Section Boost](https://img.shields.io/badge/section__boost-active-brightgreen)](docs/DECISIONS.md)
 [![Edge Typing](https://img.shields.io/badge/edge__typing-active-brightgreen)](docs/ROADMAP.md)
+[![Temporal Boost](https://img.shields.io/badge/temporal__boost-active-brightgreen)](specs/2026-05-06-E13-temporal-aware-ranking.md)
+[![OCR Pipeline](https://img.shields.io/badge/OCR-2835_docs_%2B8772_chunks-brightgreen)](specs/2026-05-07-E12-tier3-ocr.md)
 [![Reflect Cache](https://img.shields.io/badge/reflect__cache-semantic-brightgreen)](docs/ROADMAP.md)
 [![CLI Telemetry](https://img.shields.io/badge/CLI__telemetry-active-brightgreen)](docs/ROADMAP.md)
 [![SEH](https://img.shields.io/badge/SEH-detector_active-brightgreen)](docs/ROADMAP.md)
-[![SPO Injection](https://img.shields.io/badge/SPO__injection-shadow-yellow)](specs/2026-05-01-E03a-spo-injection.md)
-[![Focus Boost](https://img.shields.io/badge/focus__boost-shadow-yellow)](specs/2026-05-01-E04a-focus-boost.md)
-[![FTS Gap](https://img.shields.io/badge/FTS__vs__hybrid__gap-97.7%25_loss-red)](paper/paper-v2-draft-evidence.md)
+[![Reason Boost](https://img.shields.io/badge/reason__boost-shadow_round_2-yellow)](specs/2026-05-06-E05b-reason-ranking-boost.md)
+[![Reranker](https://img.shields.io/badge/reranker-CUT_v1+v2_deferred-lightgrey)](specs/2026-05-07-D01-cross-encoder-reranker.md)
+[![FTS Gap](https://img.shields.io/badge/FTS__vs__hybrid__gap-100%25_loss-red)](paper/publication/paper-draft-sec4-7.md)
 
 ---
 
@@ -34,19 +36,20 @@
 
 | Metric | Value |
 |---|---|
-| Chunks in production | **61,257** (99.96% embedded, Gemini 3072d) |
-| Hybrid nDCG@10 | **0.5213** (n=50, 3-run mean ± 0.0004) |
-| vs FTS5 vanilla baseline | **+50.9 pp** (FTS-only nDCG=0.0123, structural AND-strict limit) |
-| vs BM25 Pyserini (Anserini-tuned, n=60) | **3.5× better** (BM25 Pyserini = 0.1475) |
-| vs multilingual-e5-base (n=60) | **1.7× better** (e5 = 0.3070) |
+| Chunks in production | **70,029** (99.96% embedded, Gemini 3072d; +8,772 from E12 OCR pipeline) |
+| Hybrid nDCG@10 | **0.5831 ± 0.0046** (n=60 R01c-v1.1, 3-run mean, post-cure gold standard) |
+| vs FTS5 vanilla baseline | **+58.3 pp** (FTS-only nDCG=0.0000 exact, structural AND-strict limit on NL queries) |
+| vs BM25 Pyserini (Anserini-tuned, n=60) | **4.0× better** (BM25 Pyserini = 0.1475, +43.6 pp absolute) |
+| vs multilingual-e5-base (n=60) | **1.9× better** (e5 = 0.3070) |
 | External: BEIR TREC-COVID (n=50, 171K docs) | e5 = 0.8335, BM25 (FTS5) = 0.1007 — confirma dificuldade lexical é corpus-dependent |
-| External: LOCOMO (n=100 stratified) | FTS5 = 0.281 — 23× higher than internal corpus |
+| External: LOCOMO (n=100 stratified) | FTS5 = 0.281 — well above degenerate internal-corpus baseline |
 | Shared canonical corpus | **99.92%** of chunks accessible to all 6 agents (vs 0% in MemGPT-style per-agent isolation, by construction) |
 | Pain-weighted salience | `recency × pain × importance` — severity is a retrieval signal, not just a log field |
 | Shadow discipline | Enforced ≥7d before any ranking change goes active — architectural constraint, not a guideline |
+| OCR Tier 3 | **2,835 docs** OCR'd ($14.20 total — Google Doc AI cloud + Tesseract local hybrid) |
 | Total OPEX | <$11/month all-in (Gemini embeddings + KG extraction + VPS) |
 
-These numbers come from production telemetry over approximately 3 months (March–May 2026) and a curated 60-query eval harness (50 main R01b + 10 held-out R01c) with golden relevance labels. Full methodology and reproducibility kit in [`paper/publication/`](paper/publication/). Paper PDF: [`pain-shadow-memory-2026.pdf`](paper/publication/latex/pain-shadow-memory-2026.pdf).
+These numbers come from production telemetry over approximately 3 months (March–May 2026) and a curated 60-query eval harness (R01c-v1.1, post-cure gold standard) with golden relevance labels. Pre-cure v1.0 numbers (n=50, hybrid 0.5213 ± 0.0004) preserved in `v1.0.0` git tag for reproducibility. Full methodology and reproducibility kit in [`paper/publication/`](paper/publication/). Paper PDF: [`paper.pdf`](paper/publication/latex/paper.pdf) (v1.1, 31 pages).
 
 ---
 
@@ -609,10 +612,15 @@ Linha do tempo com descritivo do que foi feito e do que ainda sera feito, agrupa
 | **R01c** | Baseline FTS vs Hybrid n=50 — Run #9 hybrid 0.519 / FTS 0.012; gap 97.7% loss confirma necessidade arquitetural | ✅ DONE | **2026-05-03** | trigger D01 reranker NÃO dispara (<0.6) |
 | **R01c-rep** | R01c replication 3-run mean±std + held-out 10 queries | ✅ DONE Steps 1+2 | **2026-05-03** | system deterministic; 5/5 negatives zero hallucination |
 | **R02** | Paper v2 draft 7 sections + 6 quantitative tables + 4 caveats critic (n=1, golden bias, baseline, no alt providers) | ✅ DONE draft | **2026-05-03** | `paper/paper-v2-draft-evidence.md`; Voyage Step 3 CUT |
+| **R02 v1.1** | Paper v1.1 final — Run #30/#31/#32 R01c-v1.1 numbers (hybrid 0.5831 ± 0.0046, FTS 0.0000, Δ +58.3pp, 4.0× BM25), §6.5 ablations E7-E9 confirmadas, §7 framing "Measurement instrument matures alongside the system", PDF 31p compiled, meta-docs synced | ✅ DONE | **2026-05-07** | submit-ready 2026-06-02 |
+| **R03** | arXiv submit prep + endorsement (Path 2 obrigatório post 2026-01-21 policy) + submission target 2026-06-02. Candidatos TIER 1: Jayr Pereira UFCA/UNICAMP (autor JUÁ Brazilian Legal IR). Cold-email template + 12-item checklist em HANDOFF. | 🟡 NEXT-SESSION | — | 2026-06-02 target |
+| **E13** | Temporal-aware ranking — detector regex (`quando`, `primeira/última`, `deployado`, ISO date) + override `section_boost` (timeline 0.8→1.4). Schema v14. Gate preview ACTIVATE-READY (Δ temporal +0.149) | ✅ DONE active | **2026-05-06** | `NOX_TEMPORAL_BOOST_MODE=active` |
+| **E05b** | Reason-aware Ranking Boost (E05 Phase 2) — `kg_relations.relation_reason` vira sinal aditivo de retrieval. Schema v13. Round 2 com pesos cortados pela metade. Gate auto cron 2026-05-13 09:00 BRT | 🟡 SHADOW round 2 | gate 2026-05-13 | aguarda gate |
+| **E12 OCR Tier 3** | Pipeline cloud Google Document AI + Tesseract local (PDF→pdftoppm→tesseract+3-worker parallel). Foundation: schema v15, ocr-detector/ocr-jobs/ocr-engine-stub/cli/routeIngest. **2835 docs** OCR'd (2583 cloud + 252 tesseract), $14.20, +8772 chunks (61257→70029) | ✅ DONE | **2026-05-08** | choice B skip 31 architectural+VERRE>25MB |
+| **D01-v1/v2** | Cross-encoder reranker — v1 BGE-base CUT (Δ nDCG=-0.21, English não transfere PT-BR), v2 multilingual bge-v2-m3 CUT (OOM 15GB VPS). v3 deferred até evidência ou Toto $ vendor/infra | ⛔ CUT v1+v2 | 2026-05-08 + 2026-05-09 | hybrid 0.5831 = teto operacional |
 | **E09** | A-MEM auto-keywords/links no ingest (funde Fase 1.7b dormente) | 🤔 CANDIDATE Ago | E05 active obrigatorio | 5-6h |
 | **E10b** | Consolidation `--apply` path — gated R01≥0.6 + per-pair human approval pra HIGH FP | 🟣 BLOCKED | aguarda R01c ≥ 0.6 | 1-2h |
-| **E12 / 3 Tier 3** | Tier 3 OCR — escopo expandido inclui ~728 PDFs gap E02 + Fathom + Path C | 📋 QUEUED | post-E02 | dias |
-| **3 Tier 3** | OCR Gemini PDFs scaneados (opcional) | 🔒 OPCIONAL | — | dias |
+| ~~**3 Tier 3 OCR Gemini**~~ | ✅ Substituído por E12 Tier 3 (Google Doc AI + Tesseract) | ✅ ABSORVIDO | — | ver E12 acima |
 | **3.5** | Fathom API (opcional, paralela) | 🔒 OPCIONAL | — | 3-4h |
 | **Path C** | WAL shipping + cold tier | 🔒 BLOCKED | depende Fase 4 estavel 30d | dias |
 | **4b/5** | Obsidian write + bidirectional | 🔒 FUTURO | depende Fase 4 + 2-4 sem | semanas |
