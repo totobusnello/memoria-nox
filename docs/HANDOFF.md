@@ -1,6 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
-> **Atualizado:** 2026-05-07 ~13:40 BRT — Sessão massiva: paper v1.1 + ablations E7-E9 + D01 reranker + E12 OCR rolando.
+> **Atualizado:** 2026-05-09 ~19:55 BRT — E12 OCR DONE, D01-v1+v2 CUT, foco vira arXiv submission.
 > **Paper materialmente submit-ready.** Tag canonical `v1.0.0`. v1.1 PDF compilado (`paper.pdf` 891KB).
 > **Repo memoria-nox PÚBLICO** ✅ link unauth funciona (HTTP 200/302).
 > **Patrick Lewis: 2 emails enviados** (original + follow-up correction repo→public). Sem resposta dia 1/7.
@@ -17,22 +17,116 @@
 
 ## ⚡ RETOMADA — leia isto primeiro
 
-**Estado paper:** ✅ pronto pra submit em 2026-06-02 (paralelo)
-**Estado nox-mem core:**
-- **E13 ACTIVE** desde 2026-05-06 21:18 BRT (temporal-aware ranking aplicado em produção)
-- **E05b shadow round 2** com pesos cortados pela metade (`NOX_REASON_BOOST_CAP=0.15`, weights override em .env)
-- Gate review oficial agendado: cron 2026-05-13 09:00 BRT auto-trigger
+**Foco da próxima sessão:** **arXiv endorsement + submit prep** (target submit 2026-06-02).
 
-**Bloqueado em:** resposta do Patrick Lewis (paper apenas)
+### Estado consolidado
 
-**Próximas ações humanas:**
-1. ~~Criar conta arXiv~~ ✅ feita 2026-05-07 — paper
-2. Verificar gate-review JSON pós 05-13: `ssh root@187.77.234.79 'cat /var/log/nox-gate-review/gate-*.json'`
-3. Decidir E05b conforme matriz abaixo (ACTIVATE / SHADOW round 3 / CUT)
-4. ~~E12 OCR spec~~ ✅ feita 2026-05-07 — `specs/2026-05-07-E12-tier3-ocr.md`
-5. ~~R02 paper update Run #22~~ ✅ feita 2026-05-07 — substituído por R01c-v1.1 (Runs #30/#31/#32), PDF v1.1 compilado
-6. **OCR batch:** monitorar `ssh root@187.77.234.79 'tail -f /var/log/nox-paper/ocr-batch-full.log'`. Pós-conclusão: curar Q105-Q109 com `expected_chunk_ids` reais (gate validation), depois `rm -rf /root/Documents/PPR /root/Documents/PESSOAL` cleanup
-7. **D01 reranker VPS sync** (pós-OCR-batch): `cd ~/Claude/Projetos/nox-workspace/tools/nox-mem && rsync -av src/ root@VPS:/root/.openclaw/workspace/tools/nox-mem/src/ && ssh root@VPS 'cd /root/.openclaw/workspace/tools/nox-mem && npm install && npx tsc'`. Ativar shadow: `NOX_RERANKER_MODE=shadow` no .env. Aguardar 7d antes de activate
+| Track | Estado |
+|---|---|
+| **Paper R02 v1.1** | ✅ submit-ready (PDF compiled, claims atualizados, ablations done) |
+| **E12 OCR pipeline** | ✅ DONE (2835 docs, +8772 chunks, $14.20) |
+| **E13 temporal-boost** | ✅ ACTIVE prod desde 2026-05-06 |
+| **E05b reason-boost** | 🟡 shadow round 2 → gate review auto **2026-05-13 09:00 BRT** |
+| **D01 reranker (v1+v2)** | 🛑 deferred — sem path simples local; v3 espera evidência ou Toto $ |
+| **arXiv endorsement** | 🟡 candidatos identificados, **next session** |
+
+### Ações próxima sessão (foco arXiv)
+
+**1. Cold email Jayr Pereira (UFCA/UNICAMP)** — TIER 1 candidate
+- Autor JUÁ benchmark Brazilian Legal IR (arXiv 2604.06098)
+- Domain match: VERRE judicial OCR + legal IR PT-BR
+- Email institucional: buscar em https://www.ufca.edu.br/ (CCAA / Comp Sci dept)
+- Template ready em §"Cold-email template" abaixo
+
+**2. Backup cold emails (paralelo)**
+- **Rodrigo Nogueira** (Maritaca AI / UNICAMP) — prolífico cs.IR/cs.CL
+- **Thales Sales Almeida / Hugo Abonizio / Ramon Pires** (Maritaca AI Sabiá)
+
+**3. Galapagos AI Comitê check**
+- Pergunta interna: alguém com 3+ arXiv submissions cs.* > 3m < 5y?
+- Mais rápido se sim — relação existente
+
+**4. Plan B: peer-review primeiro**
+- Submit a NeurIPS / EMNLP / SIGIR / ECIR pra peer review
+- arXiv aceita pós-aceptação SEM endorsement
+- Trade: 2-4 meses lead time vs ~1 semana endorsement
+
+### Estado bloqueador
+
+- **Patrick Lewis** (RAG paper, Meta AI): 2 emails, dia 3/7 silente. Soft nudge after dia 7-10. NÃO é o único path.
+- **arXiv 2026-01-21 policy update:** institutional email sozinho não basta. Toto está no **Path 2 (personal endorser)** obrigatório porque @nuvini.co é corporate.
+
+### Cold-email template (Portuguese)
+
+```
+Para: [endorser email]
+Assunto: Endorsement request — arXiv submission cs.IR (Brazilian context)
+
+Olá [Nome],
+
+Sou Luiz Antonio Busnello (Toto), co-founder Nuvini + advisor AI Galapagos Capital.
+Estou submetendo um paper técnico no cs.IR sobre nox-mem, sistema de memória
+hybrid retrieval (FTS5 + Gemini 3072d + RRF) para agents multi-LLM, com benchmark
+interno Brazilian Portuguese (n=60 golden queries, nDCG@10=0.5831 baseline) e
+comparações cross-corpus (BEIR TREC-COVID, LOCOMO).
+
+[Personalize: cite trabalho do receptor — JUÁ se Jayr, Sabiá-2 se Maritaca, etc]
+
+Como first submission cs.IR no novo policy 2026-01-21, preciso de endorsement
+de pesquisador estabelecido na categoria.
+
+Repo público: https://github.com/totobusnello/memoria-nox (MIT)
+Paper draft v1.1 attached (PDF, 31p, 891KB)
+
+Endorsement code: [aguardando enviar request via arXiv]
+
+Disponível pra qualquer pergunta. Obrigado!
+
+Toto
+```
+
+### Outras ações humanas (não-bloqueante)
+
+1. ✅ ~~Criar conta arXiv~~ feita 2026-05-07
+2. **Verificar gate-review JSON pós 05-13:** `ssh root@187.77.234.79 'cat /var/log/nox-gate-review/gate-*.json'`
+3. **Decidir E05b** conforme matriz §"Matriz de decisão E05b" abaixo
+4. **Cura refinada Q105-Q109** (post-OCR mais conteúdo disponível) — opcional, baixa prioridade
+
+---
+
+## 📋 arXiv submit checklist (target 2026-06-02)
+
+### Pre-endorsement
+- [x] Conta arXiv criada (2026-05-07)
+- [x] Paper PDF v1.1 compilado (31p, 891KB, `paper/publication/latex/paper.pdf`)
+- [x] Repo público GitHub MIT
+- [x] Numbers atualizados (Run #30/#31/#32 R01c-v1.1)
+- [x] Ablations §6.5 done (E7/E8/E9)
+- [x] §7 framing "Measurement instrument matures alongside the system"
+
+### Endorsement (próxima sessão)
+- [ ] Cold email Jayr Pereira (UFCA/UNICAMP) — TIER 1 candidate
+- [ ] Backup emails: Rodrigo Nogueira / Thales Almeida / Hugo Abonizio (Maritaca AI)
+- [ ] Verify Galapagos AI Comitê — alguém eligible?
+- [ ] Submit endorsement request via arXiv (após endorser confirmar)
+- [ ] Aguardar approval (~24-72h)
+
+### Pre-submit final
+- [ ] Recompilar PDF se precisar (any last update)
+- [ ] Validate refs.bib (citations match)
+- [ ] arxiv-submit-metadata.md → final values match v1.1
+- [ ] tarball arXiv (`paper/publication/latex/arxiv-package.sh`)
+- [ ] Choose primary category (cs.IR) + cross-list (cs.AI, cs.LG, cs.CL)
+
+### Submit day (2026-06-02 target)
+- [ ] Upload tarball arXiv
+- [ ] Verify processing OK
+- [ ] Twitter/HN/LinkedIn announcements (drafts em `paper/publication/`)
+
+### Pós-submit
+- [ ] Patrick Lewis follow-up email com link arXiv
+- [ ] Notion/blog post update
+- [ ] DOI registration (if applicable)
 
 ---
 
