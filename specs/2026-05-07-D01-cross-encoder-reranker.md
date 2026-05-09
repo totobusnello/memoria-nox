@@ -18,6 +18,33 @@
 > **Aprendizado #2 (memory leak experimental — 2026-05-09):** tentativa de fix periodic dispose+reload (`callCount` + `maybeReloadModel`) não funcionou: `Tensor.dispose()/BatchEncoding.dispose()` não existem em `@xenova/transformers v2.17.2`, só `Model.dispose()` (que libera InferenceSession via handler.dispose). Ainda assim, ONNX Runtime arena allocations leak interno (native code, fora do alcance V8 GC). Patch revertido — código source limpo na branch main, callCount/maybeReloadModel removed. Decisão: NÃO investir mais em fix de leak para v1 dado que **lift é negativo (-0.2113)** — sem lift, leak fix não justifica esforço. Quando D01-v2 multilingual vier (BGE-v2-m3 ou Cohere), perfil de leak/concurrency será diferente, partir de stub clean é mais simples.
 
 **Status:** ⛔ CUT v1 (2026-05-08, see verdict). Source-of-truth limpo 2026-05-09 (sem dead code).
+
+---
+
+## D01-v2 attempt (2026-05-09 19:40 BRT) — OOM-killed
+
+Tentativa de mudar para `onnx-community/bge-reranker-v2-m3-ONNX` (multilingual, suporta PT-BR explícito) via env override `NOX_RERANKER_MODEL`. Eval crashou em ~2min:
+
+```
+Out of memory: Killed process 821997 (node.real)
+total-vm:47749900kB, anon-rss:15173680kB, file-rss:3160kB, shmem-rss:0kB
+```
+
+Process consumiu **15GB RSS** durante load do modelo (568M params, mesmo quantized). VPS tem 15GB RAM total → OOM-kill imediato.
+
+**Root cause:** v2-m3 é 2× maior que v1-base (278M). Stack `@xenova/transformers` em Node carrega tensors em V8 heap + ONNX Runtime arenas, multiplicando memory footprint. Quantized variant não basta nessa VPS.
+
+### D01-v2 CUT — opções restantes pra D01-v3 (deferred)
+
+| Path | Custo | Qualidade | Vendor | Complexidade |
+|---|---|---|---|---|
+| **Cohere Rerank API** | ~$0.50/mo eval traffic, $5-10/mo prod batch | Multilingual proven 100+ langs | ✅ Cohere SaaS | Baixa (~50 LOC engine class + API key) |
+| **VPS upgrade** | +$X/mo Hostinger | mantém local v2-m3 | ❌ | Zero (just bigger box) |
+| **Sidecar Python** | $0 | onnxruntime-python mais memory-efficient que @xenova | ❌ | Alta (infra nova) |
+| **Smaller multilingual** | $0 | jina-reranker-v2-base ~278M | ❌ | Média (test memory profile primeiro) |
+| **Archive entirely** | $0 | nenhum reranker | — | Zero — deferir até evidência forte |
+
+**Decisão:** D01-v2 CUT (OOM blocked). D01-v3 candidato deferred — espera (a) evidência de query patterns que claramente precisam de re-ranking ou (b) demanda explícita de Toto. Por enquanto **0.5831 nDCG hybrid baseline mantido como teto operacional**.
 **Data:** 2026-05-07
 **ID:** D01
 **Vision §:** §11 Wave 2 — re-ranking layer
