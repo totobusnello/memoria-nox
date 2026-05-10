@@ -347,3 +347,32 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **Por quê:** Fecha diretamente o crítico C5 (single-corpus). Benchmark de memória conversacional alinha com o framing do paper melhor do que TREC-COVID retrieval-only. 23× ratio é resultado narrativo forte pra §5.2.
 - **Trade-off aceito:** LOCOMO é FTS5 baseline (não dense), mas suficiente pra claim de robustez cross-corpus.
 - *Origem:* sessão 2026-05-04 sprint W2. Resultados: `paper/publication/results/E04-locomo-summary.md`.
+
+### 2026-05-10 — E14 retrieval evolution roadmap (post-R03): decisões D31–D33
+
+#### D31 — E14 retrieval evolution roadmap arquivado (post-R03)
+- **Decisão:** Roadmap multi-alavanca (A1+A2+D+E-lite-2 + addendums latency/schema/parking-lot) arquivado como spec E14, execução pós-R03 (20 mai 2026+). Spec canonical: `specs/2026-05-10-E14-retrieval-evolution.md`.
+- **Origem:** 3 rodadas iterativas de proposta Forge (v1→v2→v3), 5 refinamentos pós-v2, 3 addendums consolidados.
+- **Baseline:** Hybrid nDCG@10 = 0.699 (eval recente). Target overall: 0.750-0.780. Target cross-language sub-eval: ≥0.85 do overall.
+- **Pré-requisito absoluto:** golden set expansion n≥30 (semana 20-23 mai, LLM-assisted, ≥10 cross-language + ≥5 incidentes). Sem isso, qualquer ganho <10% é ruído estatístico (n=5 atual não tem poder).
+- **Sequência decidida:** golden set → análise composição (recall zero vs parcial) → E-lite-2 ou A2+D primeiro (depende da composição) → shadow 7d entre ativações → ablation incremental → medir gap.
+- **NÃO FAZEMOS:** começar antes de R03 submit (19 mai). Reordenar antes de medir composição do golden set. Implementar F self-hosted (D01-v2 OOM, hardware bloqueado).
+- *Origem:* sessão 2026-05-10. Cross-link: `docs/ROADMAP.md` §sprint-pos-R03, `docs/HANDOFF.md` §retomada.
+
+#### D32 — Caminho B (pain-augmented embedding) DEFER para Q3 2026 com gate quantitativo
+- **Decisão:** Caminho B deferred para Q3 2026, **não cut**. Pain-augmented embedding altera o vetor em si (vs E-lite-2 que ataca lexical, A2 que amplia pool denso) — proposta de valor distinta, vale preservar pra reabrir condicionalmente.
+- **Gate quantitativo de reativação** (após A+D+E completos + golden set expandido):
+  - Se cross-language sub-eval mostrar chunks high-pain com recall **< 70% do overall:** B vira **prioridade Q3** (pain embedding ataca representação que anchoring não cobre)
+  - Se cross-language sub-eval **≥ 85% do overall:** B vira **cut permanente** (A+D+E resolveram sem re-ingestão)
+  - Faixa intermediária (70-85%): caso-a-caso com Cohere fallback antes de B
+- **Custo se reativado:** ~8.3M tokens Gemini (3 dias quota Flash com batching), schema migration v.31 (campo `embedding_variant`), shadow A/B duplica custo Gemini (16.6M tokens vs 8.3M solo).
+- **NÃO FAZEMOS:** cut permanente sem medir cross-language sub-eval. Reabrir B antes de A+D+E completos (B é redundante se pool + anchoring resolverem).
+- *Origem:* sessão 2026-05-10. Spec: `specs/2026-05-10-E14-retrieval-evolution.md` Addendum C.
+
+#### D33 — Caminho F (cross-encoder) como fallback condicional + Schema v.30 sub-task
+- **Decisão:** F **não eliminado permanentemente** — vira fallback condicional pós-A+D+E. Self-hosted continua bloqueado (D01-v2 OOM `bge-reranker-v2-m3` em VPS 15GB), mas Cohere API permanece avaliável por métrica.
+- **Gate de ativação F:** após A+D+E completos, medir nDCG@10. Se **< 0.775** (faltam ~3-4% pra teto ~0.80), avaliar Cohere `rerank-multilingual-v3.0`. Se ≥0.775, F dispensado.
+- **Por quê Cohere e não self-hosted:** D01-v1 CUT por -0.21 nDCG (English não transfere PT-BR), D01-v2 CUT por OOM (15GB VPS insuficiente pra bge-reranker-v2-m3 568M params). Hardware não muda no curto prazo. Cohere API tem custo recorrente aceitável se for último 5-10% pra atingir 0.80.
+- **Schema migration v.30 (sub-task de E-lite-2):** `ALTER TABLE chunks ADD COLUMN fts_anchor TEXT`, executa primeira semana de E-lite-2 (27 mai - 02 jun) antes do backfill regex. Rollback via `safeRestore()` (sempre disponível) ou `DROP COLUMN` (requer SQLite ≥3.35.0 — verificar pré-execução).
+- **NÃO FAZEMOS:** F self-hosted enquanto VPS for 15GB RAM. Reativar bge-reranker sem upgrade de hardware. Skip schema v.30 dry-run em snapshot atômico (regra crítica #6).
+- *Origem:* sessão 2026-05-10. Cross-link: `docs/HANDOFF.md` (D01 v1+v2 cut history), spec `specs/2026-05-10-E14-retrieval-evolution.md` Addendum B.
