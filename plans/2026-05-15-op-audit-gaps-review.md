@@ -389,3 +389,73 @@ const heartbeatId = setInterval(() => {
 ---
 
 *Doc preparado por Maestro 2026-05-15. Aguardando Forge review antes da implementação.*
+
+---
+
+# 10. Forge Sign-off + Respostas (recebido 2026-05-15 noite)
+
+**Status:** 🟢 **APROVADO** — sinal verde pra implementação, com 3 ajustes ao plano original.
+
+## 10.1 Diagnóstico §1-2
+
+> "100% preciso. NOX_DB_PATH é lido no module load (linha 30) e o getDb() usa o mesmo path. O nightly itera os 6 agents setando a env var antes de cada `nox-mem reindex` → VACUUM INTO grava snapshot do agent DB → arquivo cai no mesmo /pre-op/ sem qualificador. Comportamento correto, visibilidade zero. Diagnóstico fechado correto."
+
+## 10.2 Respostas Q1-Q11
+
+| # | Resposta resumida | Implicação |
+|---|---|---|
+| **Q1** | ❌ **sqlite3 CLI standalone não carrega vec0.so** | Snapshot diário do main **deve usar app context** (script Node ou `nox-mem snapshot --force` command). Gap A esforço sobe de 30min → ~1.5h |
+| **Q2** | 8.5GB OK temp; recomenda **retention 5d + gzip** → 2GB total | Adicionar gzip pós-snapshot no script |
+| **Q3** | ✅ NOX_DB_PATH reflete DB ativo no snapshot | Confirma diagnóstico |
+| **Q4** | **(c) env var explícita `NOX_DB_SOURCE`** setada pelo orchestrator, fallback (b) parse basename | Orchestrator precisa setar nova env var |
+| **Q5** | ✅ prune script usa glob `*.db`, zero change | Sem update no prune |
+| **Q6** | **`db_source` + `db_path`** (idiomático com schema atual) | Confirmado |
+| **Q7** | ✅ ADD COLUMN safe, trigger bloqueia DML não DDL | Migration v.17 sem risco |
+| **Q8** | **Backfill: marcar `'unknown'` em prod**, inferência em script offline (trigger bloqueia UPDATE em terminais) | Não mexer em trigger em prod |
+| **Q9** | **3h** (não 4h) + env `OCR_HARD_TIMEOUT_MS` override | Timeout mais conservador |
+| **Q10** | **Coluna dedicada `last_heartbeat_at`** (não notes — polui campo) | Migration v.17 vira **3 colunas** |
+| **Q11** | **Integrar ao canary `*/15min`** existente (menos overhead) | Sem cron dedicado |
+
+## 10.3 Gap E (bonus) — Forge achou
+
+**Linha morta em `prune-pre-op-snapshots.sh`:** script tem `sqlite3 "$DB" "DELETE FROM ops_audit..."` que falha silenciosa (trigger `trg_ops_audit_no_delete` bloqueia + `|| true` mascara). Comportamento real (append-only) é intencional, mas comentário "Drop ops_audit rows older than 30 days" é **enganoso**.
+
+**Fix:** remover linha morta OU substituir por `UPDATE ops_audit SET notes='pruned from disk' WHERE...` (consistente com nota op-audit.ts linha 198).
+
+**Esforço:** 15min | **Risco:** Baixo
+
+## 10.4 Ordem revisada pelo Forge
+
+**Original:** B → A → D → C
+**Forge recomenda:** **B → D → A → C** (D tem impacto operacional imediato + esforço baixo; A requer setup app context maior)
+
+## 10.5 Dependência circular detectada pelo Maestro
+
+Heartbeat de Gap D (Q10) requer coluna `last_heartbeat_at` (migration v.17, Gap C). Dependência circular se executar D antes de C.
+
+**Resolução proposta:** dividir Gap C em 2 sub-fases:
+- **C-migration** (só ALTER TABLE com 3 colunas): 30min, pré-req pra D heartbeat
+- **C-visibility** (health endpoint + backfill): 1h, finalize após D
+
+## 10.6 Plano de execução FINAL aprovado
+
+| Fase | Gap | Ação | Esforço | Risco |
+|---|---|---|---|---|
+| **1** | **B** | Naming snapshots via `NOX_DB_SOURCE` env (set por orchestrator + read por op-audit.ts) | 45min | Baixo |
+| **2** | **C-migration** | Schema v.17: ADD `db_source`, `db_path`, `last_heartbeat_at` | 30min | Baixo (additive) |
+| **3** | **D** | OCR timeout 3h + heartbeat 5min + watchdog integrado ao canary | 1.5h | Médio |
+| **4** | **A** | Snapshot diário main via app context (script Node `nox-mem snapshot --force`) + gzip + retention 5d | 1.5h | Baixo |
+| **5** | **C-visibility** | `/api/health.opsAudit.byDbSource` + backfill rows antigas com `'unknown'` | 1h | Baixo |
+| **6** | **E (bonus)** | Limpar linha morta `prune-pre-op-snapshots.sh` | 15min | Baixo |
+
+**Total esforço:** ~5.5h spread em 2 dias.
+
+## 10.7 Checkpoint discipline
+
+- Após cada fase: Maestro reporta status + métrica de sucesso → Toto aprova → próxima fase
+- Snapshots pré-mudança obrigatórios pra Fases 2, 3, 4 (regra crítica #6)
+- Rollback documentado por fase
+
+---
+
+*Forge sign-off recebido 2026-05-15 noite. Maestro pronto pra implementar Fase 1 (Gap B) após aprovação do Toto.*
