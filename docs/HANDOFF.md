@@ -1,5 +1,7 @@
 # nox-mem HANDOFF — estado vivo
 
+> **Atualizado:** 2026-05-15 ~23:30 BRT — **op-audit hardening DONE (6 fases, Gap A→E)**. arXiv submit (R03) continua sendo foco; paper só domingo.
+> **Sessão 2026-05-15 ops:** triage de 3 alertas (openclaw-api inactive, OCR zombies, snapshots 13MB) → snapshots 13MB eram sub-DBs legítimos de 6 agentes (FALSE ALARM), mas 4 gaps reais identificados + bonus Forge. **6 fases implementadas em ~3h vs 5.5h estimado**, Forge code-owner sign-off Q1-Q11. Schema v16→v17. Cron snapshot main `0 3 * * *` validado 2026-05-16 02:08 BRT (852MB gz). Watchdog OCR ativo no canary 15min (3 rodadas OK). `/api/health.opsAudit.byDbSource` populated. Spec: `plans/2026-05-15-op-audit-gaps-review.md`. Decisão consolidada: **D34** (4 padrões canonical). Roadmap entry: **F17**. Validação automática agendada task `99b92b00` 2026-05-16 09:13 BRT.
 > **Atualizado:** 2026-05-09 ~19:55 BRT — E12 OCR DONE, D01-v1+v2 CUT, foco vira arXiv submission.
 > **Paper materialmente submit-ready.** Tag canonical `v1.0.0`. v1.1 PDF compilado (`paper.pdf` 891KB).
 > **Repo memoria-nox PÚBLICO** ✅ link unauth funciona (HTTP 200/302).

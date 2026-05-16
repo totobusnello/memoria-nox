@@ -21,6 +21,21 @@ Capacity:       ~6h/semana realista até Set/2026 (CEO em 5 frentes)
 Margem incident: 20h reservadas (histórico: 4 incidents em 2 dias 04-25/26)
 ```
 
+### Sessão 2026-05-15 noite delivered (op-audit hardening, 6 fases ~3h vs 5.5h estimado)
+
+Origem: deep triage de 3 alertas (`openclaw-api inactive`, OCR zombies, snapshots 13MB). Investigation expôs que snapshots 13MB eram **sub-DBs legítimos de 6 agentes** (atlas/boris/cipher/forge/lex/nox) — NÃO bug. Mas 4 gaps reais + 1 bonus do Forge identificados e fixed mesma sessão.
+
+- ✅ **Fase 1 — `op-audit.ts` core** — `deriveDbSource()` env primary (`NOX_DB_SOURCE`) + path parse fallback + `'unknown'` final; filename pattern atualizado para `<op>-<dbSource>-<ts>-<pid>-<uid>.db`; `recordHeartbeat()` helper; `OpsAuditStats.byDbSource` interface.
+- ✅ **Fase 2 — schema v17** — `migrateToV17()` adiciona `db_source TEXT DEFAULT 'unknown'`, `db_path TEXT DEFAULT 'unknown'`, `last_heartbeat_at TEXT`; DEFAULT backfilla rows existentes sem `UPDATE` (evita conflito com `trg_ops_audit_terminal_immutable`); migration wrapper `migrate-v17-ops-audit.ts` via `withOpAudit` (snapshot `schema-v17-migration-main-...db` 1.24GB).
+- ✅ **Fase 3 — OCR safety** — `HARD_TIMEOUT_MS=10800000` (3h, override `OCR_HARD_TIMEOUT_MS`) com `process.exit(124)`; `setInterval(recordHeartbeat, 5min)`; cleanup `clearTimeout`+`clearInterval` em path normal.
+- ✅ **Fase 4 — daily main snapshot** — subcomando `snapshot-main.ts` (app context com vec0.so via better-sqlite3, Forge Q1 confirmou que sqlite3 CLI standalone não carrega) + `snapshot-main-db.sh` (gzip -9 ~30s, 72% ratio, retention 5d) + cron `0 3 * * *`; validado 2026-05-16 02:08 BRT (852MB gz).
+- ✅ **Fase 5 — nightly + canary integration** — `nightly-maintenance.sh` prefixa `NOX_DB_SOURCE=<agent>` em todas 5 invocações por agente (atlas/boris/cipher/forge/lex/nox) + main; `canary-bundle-15min.sh` invoca `ocr-watchdog.sh` (3 rodadas validadas mesma noite, todas OK 0s); `/api/health.opsAudit.byDbSource` populated.
+- ✅ **Fase 6 — Gap E (Forge bonus)** — `prune-pre-op-snapshots.sh`: linha morta `DELETE FROM ops_audit` (mascarada por `|| true`, bloqueada por trigger `trg_ops_audit_no_delete` CWE-693) removida + comentário misleading substituído por documentação do trade-off append-only.
+
+Execution log completo: `plans/2026-05-15-op-audit-gaps-review.md` §11. Commits `d2dff45` (plan) → `91365ba` (Forge sign-off) → `71fa03a` (DONE). VPS commit `2dd5be64` (Nox author) no `nox-workspace`.
+
+**Validação agendada:** task `99b92b00` dispara 2026-05-16 09:13 BRT — verifica cron snapshot 3am + nightly maintenance overnight + watchdog logs + breakdown byDbSource via `/api/health.opsAudit`.
+
 ### Sessão 2026-05-01 noite delivered (marathon ~20h30→21h30 BRT, 15 deliverables)
 
 Closeout de gates + foundation hardening + design specs Maio:
@@ -103,6 +118,7 @@ Velocity buckets aplicados (corrigidos pós-review crítico):
 | **F15a** | §11 | **CLI Observability** (renamed pós-critic 2026-05-03) — `cli_telemetry` table + Commander preAction/postAction hooks + `cli-stats` subcomando. Captura command/status/duration. Insights: top usage / slow / error-prone / dormant / recent errors. Opt-out NOX_CLI_TELEMETRY=0. Secret redaction defensiva. `src/cli-telemetry.ts` ~165 LOC | ✅ DONE | 1 (real ~30min) | 2026-05-03 |
 | **F15b** | §11 | SEH proper — `seh-report` subcomando: WoW comparison detecta perf_regression / error_spike / dormant_command / capacity_warning / first_use / recovery + PERF_PATCH_HINTS map sugere config patches específicos. Não auto-aplica (FP risk). exit 1 se algum alert. `src/seh-detector.ts` ~165 LOC | ✅ DONE | 2-3 (real ~25min) | 2026-05-03 |
 | ~~F16~~ | — | **MOVED 2026-05-03** → escopo `openclaw-vps/infra/` (não memoria-nox; é plataforma OpenClaw, não core memory) | 🚚 MOVED | — | ver `openclaw-vps/infra/docs/HANDOFF.md` |
+| **F17** | §15 (audit) | **Op-audit gaps fixed (6 fases, Gap A→E)** — extensão do F02 baseada em deep triage de 3 alertas 2026-05-15. Gap A (Forge): main DB sem snapshot diário → `dist/cli/snapshot-main.js` (app context, vec0.so carregado) + wrapper `snapshot-main-db.sh` + cron `0 3 * * *` + gzip -9 (72%) + retention 5d. Gap B (naming): pattern `<op>-<ts>-<pid>-<uid>` ambíguo entre agentes → schema v17 (`db_source` + `db_path` + `last_heartbeat_at` cols) + `deriveDbSource()` (env primary, parse fallback, 'unknown' final) + filename inclui dbSource. Gap C (visibility): `/api/health.opsAudit` sem breakdown por agente → `byDbSource` em `OpsAuditStats` + `GROUP BY db_source, status`. Gap D (OCR zombies): timeout/heartbeat ausentes → `HARD_TIMEOUT_MS=10800000` (3h) em `ocr-batch.ts` + `recordHeartbeat()` 5min + `ocr-watchdog.sh` (PID liveness + identity `/proc/<pid>/cmdline` + SIGTERM→5s→SIGKILL + UPDATE crashed) integrado em `canary-bundle-15min.sh`. Gap E (Forge bonus): linha morta `DELETE FROM ops_audit` em `prune-pre-op-snapshots.sh` (mascarada por `2>/dev/null \|\| true`, bloqueada por trigger CWE-693) removida + documentado trade-off append-only. Spec: `plans/2026-05-15-op-audit-gaps-review.md` (Q1-Q11 Forge sign-off). Cron snapshot validado 2026-05-16 02:08 BRT (852MB gz). | ✅ DONE | 5.5 estimado / ~3h real | sessão 2026-05-15; Forge code-owner sign-off Q1-Q11 |
 
 ### Gates (data-fixed)
 
