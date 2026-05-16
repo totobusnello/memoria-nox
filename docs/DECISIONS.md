@@ -388,3 +388,22 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **NÃO FAZEMOS:** (a) confiar em parse heurístico sem env override — usar `'unknown'` é honesto; (b) DELETE em `ops_audit` "pra limpar disk" — trigger bloqueia silencioso, `snapshot_path` órfão é trade-off aceito; (c) snapshot via `sqlite3` CLI standalone — perde `vec_chunks_*` tables; (d) batch job sem heartbeat se duração esperada >30min.
 - **Validação contínua:** `/api/health.opsAudit.byDbSource` expõe breakdown por agente (atlas/boris/cipher/forge/lex/nox/main/unknown). Se `unknown` count > 0 em qualquer hora pós-2026-05-15, investigar invocação sem env.
 - *Origem:* sessão 2026-05-15. Spec completo: `plans/2026-05-15-op-audit-gaps-review.md`. Schema migration v17 aplicada via `migrate-v17-ops-audit.ts`. Forge code-owner sign-off Q1-Q11. Cross-link: `docs/ROADMAP.md` F17.
+
+### 2026-05-16 — E05b verdict HOLD + golden set é o knob real
+
+#### D35 — E05b KEEP-SHADOW indefinido até golden set expansion (n≥30)
+- **Decisão:** Round 2 (pesos cortados pela metade) **mantido em SHADOW indefinidamente** até golden set chegar a n≥30 (pré-req E14, semana 20-23/05). Sem tunar pesos. Sem rodar mais kg-extract focado pra atacar regressões pontuais.
+- **Evidência empírica (gate review re-executado 2026-05-16):**
+  - Round 1: cross-agent Δ=-0.0506 ❌ (causa: gold chunks `shared/agent-{expertise,map}.md` com 0 KG relations; non-gold competidores com 5-24 relations)
+  - Intervenção: kg-extract focado --limit 100 (cursor 112421→112556 inclui os 16 chunks gold). +538 relations, +305 entities. 3min44s, ~$0.04 Gemini.
+  - Round 2 (post-kg-extract): cross-agent **+0.0765 ✅** (resolveu) mas procedure **-0.0503 ❌** (qid=52 "como rodar nox-mem reindex com segurança" caiu 1.0→0.63 sozinha; carrega -37pp dos -50pp da categoria)
+  - Padrão: **regression-to-mean com n=4-9 por categoria**. kg-extract MOVE qual categoria regride, não resolve.
+- **Diagnóstico arquitetural:** o problema não é `reason_boost` nem pesos — é **falta de poder estatístico no golden set**. 1 query oscilando desloca média 5-20pp. Continuar tunando E05b sem n≥30 é otimização de ruído.
+- **Próxima decisão (auto-trigger semana 27/05):** Re-rodar gate review com golden set expandido. Matriz:
+  - Gate passa todos critérios verdes → **ACTIVATE**
+  - Gate falha mas distribuição uniforme (sem 1 query carregando) → **SHADOW Round 3** com tuning informado
+  - Gate falha com mesmo padrão regression-to-mean (1-2 queries carregam) → **CUT** (E14 multi-alavanca substitui)
+- **NÃO FAZEMOS:** (a) tunar pesos antes de medir com n≥30 — é otimização de ruído; (b) rodar mais kg-extract focado pra "atacar" categoria que regrediu — efeito ricochet; (c) ACTIVATE com sample atual — risco de regressões reais escondidas.
+- **Side-effect positivo:** 538 relations + 305 entities permanentes no DB. KG coverage 4.92% → ~5.5%. Trabalho não desperdiçado.
+- **Side-fixes (mesma sessão):** (a) script `gate-review-e05b-e13.sh` faltava bit executável (cron 13/05 silent-failed `Permission denied` mascarado por `2>&1`); (b) bug parser `json_object(...) GROUP BY` → `json_group_object(...)`; (c) trap `on_error` envia Discord webhook se exit≠0 (previne silent-fail futuro).
+- *Origem:* sessão 2026-05-16 manhã. Cross-link: `specs/2026-05-06-E05b-reason-ranking-boost.md` §Gate review history. Discovery: análise forense qid-by-qid em cross-agent (n=4) — diagnóstico via JOIN `kg_relations` em `evidence_chunk_id`.

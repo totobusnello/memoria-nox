@@ -320,3 +320,91 @@ Se latência p95 sobe >10ms: backout shadow, otimizar (LUT em memória, prepared
 - [ ] Activate gate avaliado em 2026-05-13
 - [ ] Decisão registrada em `docs/DECISIONS.md`
 - [ ] Update `docs/ROADMAP.md` E05 row → `✅ DONE Phase 2` ou `⏸ KEPT-SHADOW`
+
+---
+
+## Gate review history
+
+### 2026-05-06 preview (Round 1) — KEEP-SHADOW
+
+Boost regrediu em 4/6 categorias. Pesos originais agressivos. Decisão: cortar pesos pela metade, Round 2.
+
+### 2026-05-13 auto-cron — **SILENT FAIL**
+
+Cron `0 12 13 5 *` rodou mas script faltava bit executável (`-rw-r--r--`). `Permission denied` foi mascarado por `>> log 2>&1` no cron. 3 dias de silent fail descobertos em 2026-05-16.
+
+**Fixes aplicados 2026-05-16:**
+- `chmod +x scripts/gate-review-e05b-e13.sh`
+- Bug parser: `json_object(...) GROUP BY` retornava múltiplas linhas → trocado por `json_group_object(...)` (objeto agregado correto)
+- Discord alert trap: `trap 'on_error $LINENO' ERR` dispara webhook se exit≠0 (evita silent fail futuro)
+
+### 2026-05-16 manual rerun (Round 2 + post kg-extract focado) — KEEP-SHADOW
+
+**Run #1 (pré kg-extract):**
+
+| Categoria | Δ | Critério | Status |
+|---|---|---|---|
+| entity | +0.0305 | ≥+0.030 | ✅ margem mínima |
+| cross-agent | **-0.0506** | ≥+0.030 | ❌ FAIL |
+| concept | -0.0043 | ≥-0.010 | ✅ |
+| procedure | +0.0146 | ≥-0.010 | ✅ |
+| pct_boosted | 67.07% | ≥20% | ✅ |
+
+Verdict: **KEEP-SHADOW (cross-agent Δ=-0.0506)**.
+
+**Forense cross-agent qid-by-qid (n=4):**
+
+| qid | query | Δ |
+|---|---|---|
+| 72 | cross-search entre agentes | 0 |
+| **76** | **Atlas/Boris comunicam** | **-0.2023** |
+| 85 | Lex/Cipher incidents | 0 |
+| 86 | workflow Forge code review | 0 |
+
+1 query sozinha (qid=76) carrega -5pp da categoria. Investigação dos top-10 chunks de qid=76:
+- Gold chunks `shared/agent-expertise.md` (112536) e `shared/agent-map.md` (112544) com **0 kg_relations** cada
+- Chunks não-gold que subiram: 108606 (24 relations), 108639 (5), 108598 (7), 111953 (12)
+- **Diagnóstico:** reason_boost amplifica chunks COM relations. Gold sem KG coverage **sempre perde**. Não é bias de pesos — é falta de cobertura.
+
+**Intervenção:** kg-extract focado --limit 100 (cobre cursor 112421 → 112556, incluindo os 16 chunks gold). Custo Gemini: 95 LLM calls + 5 fast-path. +538 relations, +305 entities. ~3min44s.
+
+**Run #2 (pós kg-extract):**
+
+| Categoria | Δ | Critério | Status |
+|---|---|---|---|
+| **cross-agent** | **+0.0765** | ≥+0.030 | **✅ resolveu** (era -0.0506) |
+| entity | +0.0142 | ≥+0.030 | ❌ era +0.0305 (caiu pra +0.014) |
+| concept | -0.0128 | ≥-0.010 | ❌ era -0.0043 |
+| **procedure** | **-0.0503** | ≥-0.010 | ❌ regrediu (era +0.0146) |
+
+**Verdict: KEEP-SHADOW (procedure Δ=-0.0503)** — o problema migrou de cross-agent → procedure.
+
+**Forense procedure (n=9):**
+- qid=52 "como rodar nox-mem reindex com segurança": 1.0 → 0.6309 (**-37pp sozinha**)
+- 7 queries iguais, 0 ganhos
+- Padrão: kg-extract trouxe chunks competitivos que deslocaram o topo (1.0) que já estava ótimo
+
+### Conclusão definitiva (Round 2, post-forense + post-kg-extract)
+
+**O problema raiz não é `reason_boost` nem pesos — é falta de poder estatístico no golden set.**
+
+Sample n=4 em cross-agent, n=9 em procedure: 1 query oscilando desloca média 5-20pp. Cada kg-extract focado MOVE qual categoria regride, mas não resolve globalmente (regression-to-mean).
+
+**Decisão arquitetural:**
+- ❌ Não tunar pesos (é otimização de ruído)
+- ❌ Não rodar mais kg-extract focado (efeito ricochet)
+- ✅ **Aguardar golden set expansion n≥30** (pré-req E14, semana 20-23/05)
+- ✅ Re-rodar gate review com sample válido em **~2 semanas** (semana 27 mai)
+- ✅ Manter KEEP-SHADOW Round 2 (pesos cortados pela metade) até lá
+
+**Side-effect positivo:** 538 relations novas + 305 entities novas no DB. KG coverage 4.92% → ~5.5% após o batch focado. Trabalho não desperdiçado — chunks ficam permanentemente cobertos pro futuro.
+
+### Próxima decisão (auto-trigger semana 27/05)
+
+Re-rodar gate review com golden set expandido (≥30 queries, ≥10 cross-language). Aplicar decision matrix:
+
+| Cenário pós-n≥30 | Decisão |
+|---|---|
+| Gate passa (todos critérios verdes) | ACTIVATE |
+| Gate falha mas distribuição uniforme (sem 1 query carregando) | SHADOW Round 3 com tuning informed por evidência |
+| Gate falha com mesmo padrão regression-to-mean | CUT (E14 multi-alavanca substitui) |
