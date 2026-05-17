@@ -167,6 +167,35 @@ Com E-lite-2 zero-custo, a análise de ordem muda:
 
 **A composição do golden set expandido vai decidir a ordem.** Por isso golden set é o pré-requisito.
 
+### 🔥 Análise composição executada 2026-05-17 (n=68 não-negative) — FTS5 recall ZERO em 99%
+
+| Categoria | n | FTS5 zero | FTS5 partial | FTS5 top1 |
+|---|---|---|---|---|
+| concept | 12 | 12 | 0 | 0 |
+| cross-agent | 7 | 7 | 0 | 0 |
+| cross-language | 10 | 10 | 0 | 0 |
+| decision | 6 | 6 | 0 | 0 |
+| entity | 8 | 8 | 0 | 0 |
+| procedure | 9 | 9 | 0 | 0 |
+| security | 5 | 5 | 0 | 0 |
+| temporal | 6 | 6 | 0 | 0 |
+| scan_dependent | 5 | 4 | 1 | 0 |
+| **TOTAL** | **68** | **67 (99%)** | **1** | **0** |
+
+**Implicações revisadas (override spec original):**
+
+1. **E-lite-2 é prioridade absoluta da Wave 1.** Sem ela, nada mais funciona pra subir FTS5 contribution.
+2. **A1 deferred indefinidamente.** Ampliar pool FTS5 50→200 é inútil quando FTS5 retorna 0 gold independente do tamanho.
+3. **A2 standalone refutado empiricamente** (smoke 2026-05-17 com perVariantLimit*4: overall 0.696 → 0.631, -6.5pp). A2 requer companheiro arquitetural (D ou E-lite-2).
+4. **D (RRF language-aware) sentido reduzido** — sem contribuição FTS5 pra ponderar, weights dinâmicos PT/EN têm efeito marginal.
+5. **Sistema atual sobrevive porque dense (Gemini 3072d) carrega 100% do recall.** FTS5 + RRF é dead weight nessa configuração.
+
+**Plano revisado:**
+- **Semana 27/05 — E-lite-2 absoluta prioridade.** Backfill regex bilíngue + recreate FTS5 virtual table com `fts_anchor` indexed.
+- **Pós-E-lite-2:** re-rodar análise composição. Se FTS5 ainda zerar em >50% das queries, **E14 hits ceiling** — D01 v3 (Cohere reranker) entra mais cedo.
+- **A1 movido pra parking lot** — só re-considerar se E-lite-2 elevar FTS5 contribution a >30%.
+
+
 ---
 
 ## Refinamento 3 — Cohere: fallback condicional (não eliminado)
@@ -297,14 +326,18 @@ Budget de 1.500ms dá margem de ~350ms acima da estimativa.
 
 ---
 
-### Addendum B — Schema migration v.30 (fts_anchor)
+### Addendum B — Schema migration v.18 (fts_anchor)
 
 **Sub-task de E-lite-2** (semana 27 mai - 02 jun).
+
+**Status (2026-05-17): ✅ ADIANTADO — migration aplicada.** Schema v17→v18 via `withOpAudit('schema-v18-fts-anchor')` (audit_id=55, snapshot 1.2GB em `/var/backups/nox-mem/pre-op/schema-v18-fts-anchor-main-...db`). Column `fts_anchor TEXT DEFAULT ''` adicionada. Zero-risk até backfill regex (column unused; FTS5 virtual table NÃO foi re-criada ainda). Backfill regex permanece scheduled pra semana 27/05.
+
+**Nota versionamento:** spec original usava "v.30" como label arbitrário; renomeado pra "v.18" (próximo sequencial pós-v17) em 2026-05-17 pra alinhar com cascade real em `src/db.ts`.
 
 **Migration plan:**
 
 ```sql
--- v.30: bilingual anchoring no FTS5
+-- v.18: bilingual anchoring no FTS5
 ALTER TABLE chunks ADD COLUMN fts_anchor TEXT DEFAULT '';
 
 -- Update FTS5 virtual table to include fts_anchor in tokenization
@@ -317,13 +350,13 @@ ALTER TABLE chunks ADD COLUMN fts_anchor TEXT DEFAULT '';
 ```
 
 **Backfill procedure:**
-1. Snapshot pré-migration via `withOpAudit('schema-v30-fts-anchor')` (atomic VACUUM INTO)
+1. Snapshot pré-migration via `withOpAudit('schema-v18-fts-anchor')` (atomic VACUUM INTO)
 2. ALTER TABLE em transação
 3. Recreate `chunks_fts` virtual table com `fts_anchor` indexed
 4. Backfill regex em batches de 2.000 chunks (rate-limit Gemini se LLM-assisted)
 5. FTS5 `INSERT INTO chunks_fts(chunks_fts) VALUES('rebuild')`
 6. Verificação invariants: `/api/health.sectionDistribution` + `/api/health.ftsCoverage`
-7. Update `meta.schema_version = 30` + `PRAGMA user_version = 30`
+7. Update `meta.schema_version = 18` + `PRAGMA user_version = 18`
 
 **Rollback procedure (se shadow falhar):**
 

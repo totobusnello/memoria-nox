@@ -369,12 +369,12 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **NÃO FAZEMOS:** cut permanente sem medir cross-language sub-eval. Reabrir B antes de A+D+E completos (B é redundante se pool + anchoring resolverem).
 - *Origem:* sessão 2026-05-10. Spec: `specs/2026-05-10-E14-retrieval-evolution.md` Addendum C.
 
-#### D33 — Caminho F (cross-encoder) como fallback condicional + Schema v.30 sub-task
+#### D33 — Caminho F (cross-encoder) como fallback condicional + Schema v.18 sub-task
 - **Decisão:** F **não eliminado permanentemente** — vira fallback condicional pós-A+D+E. Self-hosted continua bloqueado (D01-v2 OOM `bge-reranker-v2-m3` em VPS 15GB), mas Cohere API permanece avaliável por métrica.
 - **Gate de ativação F:** após A+D+E completos, medir nDCG@10. Se **< 0.775** (faltam ~3-4% pra teto ~0.80), avaliar Cohere `rerank-multilingual-v3.0`. Se ≥0.775, F dispensado.
 - **Por quê Cohere e não self-hosted:** D01-v1 CUT por -0.21 nDCG (English não transfere PT-BR), D01-v2 CUT por OOM (15GB VPS insuficiente pra bge-reranker-v2-m3 568M params). Hardware não muda no curto prazo. Cohere API tem custo recorrente aceitável se for último 5-10% pra atingir 0.80.
-- **Schema migration v.30 (sub-task de E-lite-2):** `ALTER TABLE chunks ADD COLUMN fts_anchor TEXT`, executa primeira semana de E-lite-2 (27 mai - 02 jun) antes do backfill regex. Rollback via `safeRestore()` (sempre disponível) ou `DROP COLUMN` (requer SQLite ≥3.35.0 — verificar pré-execução).
-- **NÃO FAZEMOS:** F self-hosted enquanto VPS for 15GB RAM. Reativar bge-reranker sem upgrade de hardware. Skip schema v.30 dry-run em snapshot atômico (regra crítica #6).
+- **Schema migration v.18 (sub-task de E-lite-2):** `ALTER TABLE chunks ADD COLUMN fts_anchor TEXT`, executa primeira semana de E-lite-2 (27 mai - 02 jun) antes do backfill regex. Rollback via `safeRestore()` (sempre disponível) ou `DROP COLUMN` (requer SQLite ≥3.35.0 — verificar pré-execução).
+- **NÃO FAZEMOS:** F self-hosted enquanto VPS for 15GB RAM. Reativar bge-reranker sem upgrade de hardware. Skip schema v.18 dry-run em snapshot atômico (regra crítica #6).
 - *Origem:* sessão 2026-05-10. Cross-link: `docs/HANDOFF.md` (D01 v1+v2 cut history), spec `specs/2026-05-10-E14-retrieval-evolution.md` Addendum B.
 
 ### 2026-05-15 — Op-audit canonical patterns (Gap A→E fixes): decisão D34

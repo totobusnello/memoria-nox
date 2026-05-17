@@ -152,7 +152,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | **E11** | §11 | Reflect cache (semantic key) — exact hash + cosine ≥ 0.88 fallback. Smoke: exact hit 30× speedup, semantic hit 4× speedup (sim=0.914). 4 env vars `NOX_REFLECT_SEMANTIC_*`. Fail-open. `src/reflect.ts` extension | ✅ DONE | 1.5 (real ~25min) | 2026-05-03 |
 | **E06** | §11 Wave 1 | `nox-mem detect-changes --since=<commit>` read-only git diff name-status + entity resolution 2-path (frontmatter name + chunk evidence). Smoke prod: 1498 files → 182 entities em 268ms. `src/detect-changes.ts` ~210 LOC | ✅ DONE | 2-3 (real ~30min) | 2026-05-03 |
 | **E07** | §11 | `nox-mem impact <entity>` 1-hop blast radius bidirecional via kg_relations agrupado por reason E05. REASON_PRIORITY weights + blast_radius_score. Smoke prod: Toto blast=29152.1, Forge 12 depends_on, em 1ms. `src/impact.ts` ~165 LOC | ✅ DONE | 2.5 (real ~25min) | 2026-05-03; uso E05 confirma valor reasons enriquecidos |
-| **E14** | §11 Wave 2 | **Retrieval evolution roadmap** (post-R03) — multi-alavanca A1+A2+D+E-lite-2 + addendums (latency budget, schema v.30, parking lot Caminho B). Baseline 0.699 → target 0.750-0.780 + cross-language sub-eval ≥0.85 do overall. Pré-requisito: golden set expansion n≥30 (semana 20-23 mai). Sprint completo `docs/ROADMAP.md` §sprint-pos-R03 + `specs/2026-05-10-E14-retrieval-evolution.md`. Decisões: D31/D32/D33. F (cross-encoder Cohere) como fallback condicional pós-A+D+E se nDCG<0.775; B (pain embedding) defer Q3 com gate quantitativo cross-language <70%/≥85% | 📋 QUEUED | 5-7 spread Mai-Jul (depende de gates) | R03 ✅ submit (19 mai) |
+| **E14** | §11 Wave 2 | **Retrieval evolution roadmap** (post-R03) — multi-alavanca A1+A2+D+E-lite-2 + addendums (latency budget, schema v.18, parking lot Caminho B). Baseline 0.699 → target 0.750-0.780 + cross-language sub-eval ≥0.85 do overall. Pré-requisito: golden set expansion n≥30 (semana 20-23 mai). Sprint completo `docs/ROADMAP.md` §sprint-pos-R03 + `specs/2026-05-10-E14-retrieval-evolution.md`. Decisões: D31/D32/D33. F (cross-encoder Cohere) como fallback condicional pós-A+D+E se nDCG<0.775; B (pain embedding) defer Q3 com gate quantitativo cross-language <70%/≥85% | 📋 QUEUED | 5-7 spread Mai-Jul (depende de gates) | R03 ✅ submit (19 mai) |
 
 ### Sprint pós-R03 — E14 retrieval evolution
 
@@ -166,7 +166,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 |--------|------|---------------|
 | ~~20-23 mai~~ | ~~Golden set expansion n≥30~~ — **ADIANTADO 2026-05-17** (65→80 queries; cross-lang 0→10 ✅, cross-agent 4→7 ✅, temporal 4→6 ✅). Auto-curado via /api/search + anchor, refinement por Toto pendente (task #22). | ✅ Pré-requisito atingido |
 | 24-26 mai | Analisar composição: recall zero vs parcial | Define ordem E vs A+D |
-| 27 mai - 02 jun | E-lite-2: schema v.30 (`ALTER TABLE chunks ADD fts_anchor`) + backfill regex bilíngue (~19K chunks) | Zero Gemini; SQLite ≥3.35 pra rollback DROP COLUMN |
+| 27 mai - 02 jun | E-lite-2: schema v.18 (`ALTER TABLE chunks ADD fts_anchor`) + backfill regex bilíngue (~19K chunks) | Zero Gemini; SQLite ≥3.35 pra rollback DROP COLUMN |
 | 03-09 jun | Shadow 7 dias E-lite-2 + ablation vs baseline | Shadow obrigatório (regra crítica #6) |
 | 10-14 jun | A2 (dense pool 50→100-150) + D (language-aware RRF weights) | Latency gate p95 <1.5s |
 | 15-21 jun | Shadow 7 dias A2+D + ablation incremental | Shadow obrigatório |
