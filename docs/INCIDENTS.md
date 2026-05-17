@@ -1,6 +1,24 @@
 # nox-mem — Incident Log
 
-> Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
+> Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
+
+## 2026-05-17 17:03 BRT (~45min trabalho) — graph-memory turn extract parse failure 19.7% → 0%
+
+**Sintoma:** logs do gateway mostravam ~73 falhas/dia (sobre 297 sucessos = **19.7% rate**) com `[graph-memory] extraction parse failed: SyntaxError`. 1 em cada 5 turns NÃO entrava no Knowledge Graph → cross-session recall degradado.
+
+**Plugin:** `graph-memory v1.5.8` (custom mods sobre `adoresever/graph-memory`) em `/root/.openclaw/extensions/graph-memory/`. Extrai triplets `{nodes: [TASK/SKILL/EVENT], edges: [USED_SKILL/SOLVED_BY/REQUIRES/PATCHES/CONFLICTS_WITH]}` de cada turn via LLM (gemini-2.5-flash-lite).
+
+**Root cause:** `src/extractor/extract.ts:365` usava `s.slice(s.indexOf("{"), s.lastIndexOf("}")+1)` — quando LLM gerava `{json válido} ... texto extra/exemplo ... {json2}` (~20% dos casos mesmo com system prompt "禁止解释文字"), o slice englobava lixo no meio → `JSON.parse` quebrava.
+
+**Fix:** substituído `extractJson` por **bracket-balance matcher** depth-counting que respeita strings e escapes (para no primeiro JSON object completo). Build via `bun build` (não tsc — tem `noEmit: true`), restart gateway.
+
+**Validação prod:** 6 extracts seguidos pós-restart, **0 falhas** (100% sucesso). Nodes capturados úteis: `TASK:monitor-context-usage`, `SKILL:execute-script`, `EVENT:script-still-running`, etc.
+
+**Lesson completa:** `lessons/2026-05-17-graph-memory-parse-failure-fix.md` (causa raiz + diff + bracket-matcher code + pegadinhas tsc/bun + rollback procedure).
+
+**Backups:** `dist/index.js.bak-pre-extractjson-fix-20260517` + idem para extract.ts.
+
+---
 
 ## 2026-04-27 06:48 BRT (~15min recovery) — Vector coverage 54% gap por session-distill hung 8h (N² em checkpoints HEARTBEAT)
 
