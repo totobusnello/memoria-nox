@@ -417,7 +417,9 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **NÃO FAZEMOS:** (a) reabrir A7 sem workflow real validado por uso prod ≥30d; (b) shipar feature similar (boost manual setado por usuário) sem PoC de consumer real; (c) confundir "código funciona em test" com "feature útil em prod" — telemetria DB era zero apesar de tests verdes.
 - *Origem:* sessão 2026-05-16. Cross-link: `specs/2026-05-02-E04a-focus-boost.md` → status CUT, `docs/ROADMAP.md` E04 row, memory `feedback_validate_features_with_db_not_logs`.
 
-#### D37 — E03b A6 SPO injection HOLD por consumer absent
+#### D37 — E03b A6 SPO injection HOLD por consumer absent (~~SUPERSEDED 2026-05-17~~ — task #18 fechada: CLI integration → ACTIVATE)
+**SUPERSEDED 2026-05-17:** Task #18 integrou `getVaultFacts()` em `nox-mem search` CLI com flag `--no-vault-facts` opt-out (default ON). Mode shadow→active. Smoke OK: query "Boris LinkedIn Daily Byte" → 4 entities, 7 triples, 91 tokens block surfaced. CLI exercitado por Toto manual + scripts. VPS commit `90fa3180`. Consumer absent resolvido. Mantido aqui pra histórico — original entry abaixo:
+
 - **Decisão:** A6 SPO injection **KEEP-SHADOW bloqueado por consumer absent** — não ACTIVATE, não CUT. Código permanece em prod (`src/lib/spo-injection.ts` 220 LOC + tests). Gate ACTIVATE liberado apenas após ≥1 consumer real exercitar `/api/search` ou caminho equivalente com queries entity-rich e validar utilidade subjetiva.
 - **Evidência empírica:** 336 logs shadow últimos 7d, **100% do canary semantic** (query genérica health check "memória persistente knowledge graph", todos `entities=0 triples=0 tokens=0`). Apenas 4 queries distintas no período (canary + "test" + 2 manuais que eu rodei agora durante gate review). Quando exercitado funciona: "o que faz o Boris" → 2 entities/7 triples/82 tokens.
 - **Diferenciação vs A7:** SPO injection tem hipótese de valor mais sólida (entities → triples → contexto pro agente é signal arquitetural), e código está estruturalmente correto. Problema é apenas integração — nenhum agente Discord usa `/api/search`, todos usam `nox-mem` CLI ou outros endpoints.
