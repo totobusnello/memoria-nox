@@ -71,7 +71,14 @@
 - Atual 0.6813 < 0.775 → vale tentar
 - Spec já existe (D33), só requer impl ~3-5h
 
-**Opção 4: Backlog menor**
+**Opção 4: E15 CodeGraph-inspired pacote (A+B+C, 4-7h)** — spec novo 2026-05-17
+- **A.** Tier-aware behavior por context window (env `NOX_CONTEXT_WINDOW`, escala `limit`/dense top_k/SPO triples K). Boris (Haiku 200K) recebe terse; Forge (Opus 1M) recebe detailed.
+- **B.** Context overflow protection multi-layer (truncation flag + cumulative header + soft fail).
+- **C.** Indexing tiers `--tier {fast|balanced|full}` em reindex/vectorize/kg-extract.
+- Ortogonal a D01 v3 (E15 = UX/budget; D01 = ceiling nDCG).
+- Spec: `specs/2026-05-17-E15-codegraph-inspired-improvements.md`. ROI: alto na adaptação multi-consumer.
+
+**Opção 5: Backlog menor**
 - E07/E10 já DONE/PARTIAL
 - E09 auto-keywords depende E05 active (CUT — dead path)
 - F10 observability dashboard DEFERRED
