@@ -166,6 +166,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 |--------|------|---------------|
 | ~~20-23 mai~~ | ~~Golden set expansion n≥30~~ — **ADIANTADO 2026-05-17** (65→78 honest após cleanup; cross-lang 0→10 ✅, cross-agent 4→5, temporal 4→6 ✅). | ✅ Pré-requisito atingido |
 | ~~27 mai - 02 jun~~ | ~~E-lite-2 backfill regex bilíngue~~ — **ADIANTADO 2026-05-17 mesmo dia que design**. Implementação v4 regex (3 layers) + backfill 69298 chunks 17.3s + FTS5 recreate 7.2s. **Overall +0.94pp (0.6644→0.6738), vs paper baseline +15.6% relativo.** cross-agent +6.4pp, procedure +3.9pp, entity +3.1pp. VPS commit `d48b115e`. | ✅ ACTIVE |
+| ~~10-14 jun~~ | ~~A2 + D~~ — **D ADIANTADO 2026-05-17 mesmo dia**. D standalone +1.92pp ZERO regressão (procedure +6.55pp, cross-agent +5.34pp, security +2.46pp, entity +1.64pp, concept +1.32pp). A2+D combinado REFUTADO (-7.98pp). A2 deferred indefinido. VPS commit `7dc46fb5`. **Overall final 0.6813 (+16.9% vs paper baseline).** | ✅ D ACTIVE; A2 DEFERRED |
 | 24-26 mai | Analisar composição: recall zero vs parcial | Define ordem E vs A+D |
 | 27 mai - 02 jun | E-lite-2: schema v.18 (`ALTER TABLE chunks ADD fts_anchor`) + backfill regex bilíngue (~19K chunks) | Zero Gemini; SQLite ≥3.35 pra rollback DROP COLUMN |
 | 03-09 jun | Shadow 7 dias E-lite-2 + ablation vs baseline | Shadow obrigatório (regra crítica #6) |
