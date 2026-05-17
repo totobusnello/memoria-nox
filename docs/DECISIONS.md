@@ -417,6 +417,24 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **NÃO FAZEMOS:** (a) reabrir A7 sem workflow real validado por uso prod ≥30d; (b) shipar feature similar (boost manual setado por usuário) sem PoC de consumer real; (c) confundir "código funciona em test" com "feature útil em prod" — telemetria DB era zero apesar de tests verdes.
 - *Origem:* sessão 2026-05-16. Cross-link: `specs/2026-05-02-E04a-focus-boost.md` → status CUT, `docs/ROADMAP.md` E04 row, memory `feedback_validate_features_with_db_not_logs`.
 
+#### D38 — E05b CUT por bias arquitetural (após re-gate com n=80)
+- **Decisão:** E05b reason-aware ranking boost **CUT permanente** após 3 sessões consecutivas de gate review com mesmo diagnóstico. Removido `src/lib/reason-boost.ts` (266 LOC) + tests (252 LOC) + integração em `search.ts` + env vars `NOX_REASON_BOOST_*`. Schema cols `search_telemetry.reason_boost_*` mantidos (append-only) hardcoded 0/'off'. VPS commit `26640d16`. **D35 superseded** (KEEP-SHADOW indefinido → CUT).
+- **Evidência empírica (3 rounds):**
+  - **Round 1 (06/05 preview):** KEEP-SHADOW — boost regredia 4/6 categorias. Pesos cortados pela metade → Round 2.
+  - **Round 2 (16/05 com n=65):** cross-agent Δ=-0.0506 ❌. Forense: 1 query (qid=76 "Atlas/Boris comunicam") carrega -20pp. Gold chunks `shared/agent-{expertise,map}.md` com 0 KG relations vs non-gold com 5-24 relations. **Intervenção:** kg-extract focado --limit 100 (+538 relations). Re-run: cross-agent +0.0765 ✅ mas procedure -0.0503 ❌ (qid=52 carrega -37pp).
+  - **Round 3 (17/05 com n=80):** golden set expansion 65→80 testou hipótese "regression-to-mean por sample pequeno". REFUTADA: procedure (n=9 inalterado) regrediu EXATAMENTE -0.0502. Forense procedure: mesma situação — gold sem KG coverage, displacer (chunk 112196 "snippet de comandos") com 3 depends_on triviais sobre "query"/"PATH"/"N". Cross-agent flipou +0.0765→-0.0403 (sinal que ganho ontem era bias circular do kg-extract focado).
+- **Diagnóstico arquitetural final:** `reason_boost` amplifica chunks com KG coverage **independente de qualidade dos reasons**. Não é variância, não é peso, não é categoria. Cada intervenção (tunar pesos, kg-extract focado, expansion do golden set) move o problema entre categorias. **3 sessões = 3 confirmações do mesmo padrão.**
+- **Substituição arquitetural:** E14 (start 20/05, 3 dias) ataca o mesmo problema (recall em queries weak-lexical, cross-language) via path arquitetural:
+  - `fts_anchor` regex bilíngue (E-lite-2)
+  - Pool dense ampliado 50→100-150 (A2)
+  - RRF language-aware weights (D)
+  - **Sem dependência de KG quality.**
+- **Smoke test pós-CUT:** mesma query qid=52 ("como rodar nox-mem reindex") agora retorna gold (FAQ 116800) em pos #1 — sem reason_boost atrapalhando. SPO injection E03b (active) continua funcionando.
+- **Side-effect positivo permanente:** 538 relations + 305 entities do kg-extract focado de 16/05 ficam no DB. São consumidos por SPO injection E03b (ACTIVE) + E14 futuro + outros consumers.
+- **NÃO FAZEMOS:** (a) re-introduzir reason_boost sem garantir qualidade upstream dos reasons (extração com filtros); (b) ship feature que AMPLIFICA sinal sem garantir qualidade do sinal — princípio geral; (c) confundir "feature funciona em test" com "feature melhora produto" — 3 gates confirmaram regression real.
+- **Lição transversal D38:** **reason quality > reason quantity**. KG extraction produz relations triviais sobre fragmentos de código (`"query"`, `"PATH"`) com mesmo peso semântico que relations sobre conceitos. Boost amplifica indiscriminadamente. Próxima feature de boost deve incluir gate de qualidade no signal upstream.
+- *Origem:* sessão 2026-05-17 manhã (após 2 sessões prévias 06/05 + 16/05). Cross-link: `specs/2026-05-06-E05b-reason-ranking-boost.md` §Gate review history (3 rounds documented), VPS commit `26640d16`. D35 superseded.
+
 #### D37 — E03b A6 SPO injection HOLD por consumer absent (~~SUPERSEDED 2026-05-17~~ — task #18 fechada: CLI integration → ACTIVATE)
 **SUPERSEDED 2026-05-17:** Task #18 integrou `getVaultFacts()` em `nox-mem search` CLI com flag `--no-vault-facts` opt-out (default ON). Mode shadow→active. Smoke OK: query "Boris LinkedIn Daily Byte" → 4 entities, 7 triples, 91 tokens block surfaced. CLI exercitado por Toto manual + scripts. VPS commit `90fa3180`. Consumer absent resolvido. Mantido aqui pra histórico — original entry abaixo:
 
