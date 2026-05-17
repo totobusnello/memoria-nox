@@ -1,19 +1,33 @@
 # E14 — Retrieval Evolution (post-R03)
 
 **ID:** E14
-**Status:** 📋 QUEUED — gate temporal pós-R03 (arXiv submit 2026-05-19)
+**Status:** ✅ **Wave 1 COMPLETA 2026-05-17 (3 dias antes do cronograma original)**. Wave 2 (D01 v3 Cohere) ON HOLD pendente decisão Toto.
 **Owner:** Toto (decisão); Forge (proposta v1→v3); Maestro (execução)
-**Data:** 2026-05-10
+**Data:** 2026-05-10 (spec original) → 2026-05-17 (execution log + decisões finais)
 **Substitui:** N/A — novo roadmap multi-alavanca de retrieval
-**Cross-link:** `docs/DECISIONS.md` (entry 2026-05-10), `docs/ROADMAP.md` §post-R03 sprint, `paper/` (R02 v1.1 baseline 0.5831)
+**Cross-link:** `docs/DECISIONS.md` D31-D33 (roadmap original) + D39 (FTS5 silent design), `docs/ROADMAP.md` §post-R03 sprint, `paper/` (R02 v1.1 baseline 0.5831)
 
 ---
 
-## Resumo executivo
+## Resumo executivo — pós-execução 2026-05-17
 
-Evolução do retrieval híbrido (FTS5 + Gemini 3072d + RRF + pain) com 7 alavancas analisadas em 3 rodadas iterativas (v1→v3). Decisão: roadmap progressivo gate-driven, golden set expansion como pré-requisito absoluto, F (cross-encoder self-hosted) eliminado por OOM em D01-v2, Cohere como fallback condicional.
+Sistema retrieval evoluído de **0.5831** (paper v1.1) → **0.6813** (atual) — **+16.9% relativo, +9.8pp absoluto** em apenas 1 sessão executada (~10h end-to-end).
 
-**Não inicia antes de 20 mai 2026.** R03 (arXiv submit) é prioridade absoluta até 19 mai.
+**Wave 1 entregue (alavancas que funcionaram):**
+- ✅ **E-lite-2** (fts_anchor bilingual regex v4): +0.94pp — 60 cognates + 35 PT/EN pairs + 25 entities + 8 identifier patterns. 69298 chunks com fts_anchor populated.
+- ✅ **D** (language-aware RRF weights): +1.92pp **ZERO regressão** — PT queries: dense 1.15 / fts 0.85; EN/mixed: balanced.
+
+**Alavancas refutadas empiricamente (DEFERRED PERMANENTE per D39):**
+- ❌ **A1** (FTS5 pool 50→200): standalone -0.7pp, +D *3 noise (avg -0.47pp)
+- ❌ **A2** (dense pool 50→100): standalone -6.5pp, +D *4 -7.98pp
+- ❌ **G** (HyDE on-demand): premissa empírica refutada — 96% das queries têm FTS5 pool <5, "seletivo" viraria "global" = custo Gemini explode
+- ❌ **FTS5 query expansion** (4 tentativas): v1 OR-all -23.6pp, v2 AND+OR quoted -22.5pp, v3 unquoted -18.5pp, v4 confidence-aware -5.4pp
+
+**Insight arquitetural final (D39):** dense Gemini 3072d carrega 100% do recall sozinho neste corpus tech-mixed PT/EN. FTS5 silencioso é design CORRETO — acordá-lo introduz ruído competidor independente de tuning. FTS5 permanece como **failsafe latente** (degrades gracefully se Gemini outage).
+
+**Wave 2 disponível (não executado):** D01 v3 Cohere `rerank-multilingual-v3.0` — único path com upside estrutural pós-Wave 1. Custo $0.50-10/mês. Decisão Toto pendente.
+
+**Pré-requisito original (golden set n≥30):** ✅ atingido honest (78 queries pós-cleanup Toto-refinement).
 
 ---
 

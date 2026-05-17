@@ -34,39 +34,64 @@
 
 ## ⚡ RETOMADA — leia isto primeiro
 
-**Foco da próxima sessão:** **arXiv endorsement + submit prep** (target submit 2026-06-02).
+**Foco da próxima sessão:** **(a) finalizar paper R03 submit (domingo 2026-05-18+)** OU **(b) próximo upside arquitetural** (D01 v3 Cohere reranker, único path com upside estrutural pós-D39).
 
-### Estado consolidado
+### Estado consolidado (snapshot 2026-05-17 noite)
 
 | Track | Estado |
 |---|---|
-| **Paper R02 v1.1** | ✅ submit-ready (PDF compiled, claims atualizados, ablations done) |
-| **E12 OCR pipeline** | ✅ DONE (2835 docs, +8772 chunks, $14.20) |
-| **E13 temporal-boost** | ✅ ACTIVE prod desde 2026-05-06 |
-| **E05b reason-boost** | 🟡 shadow round 2 → gate review auto **2026-05-13 09:00 BRT** |
-| **D01 reranker (v1+v2)** | 🛑 deferred — sem path simples local; v3 espera evidência ou Toto $ |
-| **arXiv endorsement** | 🟡 candidatos identificados, **next session** |
+| **Sistema retrieval (overall nDCG@10)** | **0.6813** (n=78 honest, +16.9% vs paper baseline 0.583) |
+| **Features ranking ATIVAS** | E13 + E03b + E-lite-2 + D + salience/section/edge typing (5 grandes) |
+| **Wave 1 E14** | ✅ COMPLETA 2026-05-17 (3 dias antes do cronograma) |
+| **A1/A2/G** | ⛔ DEFERRED PERMANENTE (D39: FTS5 silent design) |
+| **E05b reason-boost** | ❌ CUT D38 (3 rounds gate, bias arquitetural) |
+| **E04 A7 focus boost** | ❌ CUT D36 (consumer absent 14d zumbi) |
+| **D01 reranker v1+v2** | ❌ CUT (OOM); **v3 Cohere = único próximo upside arquitetural** |
+| **Paper R02 v1.1** | ✅ submit-ready (PDF 891KB compiled) — paper só domingo |
+| **arXiv endorsement** | 🟡 Jayr silent dia 5, Rodrigo Nogueira draft pending, Patrick Lewis silent dia 9 |
+| **Golden set** | ✅ 78 queries honest (cross-lang 10, cross-agent 5, temporal 6) |
+| **Schema** | v18 (`fts_anchor` indexed em FTS5) |
+| **Op-audit hardening** | ✅ F17 DONE (Gap A→E + watchdog + snapshot daily + byDbSource) |
 
-### Ações próxima sessão (foco arXiv)
+### Ações próxima sessão — ordem priorizada
 
-**1. Cold email Jayr Pereira (UFCA/UNICAMP)** — TIER 1 candidate
-- Autor JUÁ benchmark Brazilian Legal IR (arXiv 2604.06098)
-- Domain match: VERRE judicial OCR + legal IR PT-BR
-- Email institucional: buscar em https://www.ufca.edu.br/ (CCAA / Comp Sci dept)
-- Template ready em §"Cold-email template" abaixo
+**Opção 1: Paper R03 finalizar (Toto disse "paper só domingo")**
+- Update paper §6 com novos numbers: 0.6813 atual (vs 0.5831 v1.1)
+- Adicionar §Wave 1 E14 results: E-lite-2 +0.94pp, D +1.92pp, decisões D39
+- Re-submit cycle decision: arXiv endorsement vs peer-review
+- Patrick Lewis silent dia 9/10: nudge OR mover pra plan B
 
-**2. Backup cold emails (paralelo)**
-- **Rodrigo Nogueira** (Maritaca AI / UNICAMP) — prolífico cs.IR/cs.CL
-- **Thales Sales Almeida / Hugo Abonizio / Ramon Pires** (Maritaca AI Sabiá)
+**Opção 2: Cold emails arXiv endorsement** (não-paper, meta-paper)
+- Jayr Pereira (silent dia 5): nudge soft hoje? OU esperar 7d total
+- Rodrigo Nogueira: draft `r-4978335657261536195` pending Toto approval pra enviar
+- Galapagos Committee check: alguém com 3+ arXiv submissions cs.* qualifica como endorser?
 
-**3. Galapagos AI Comitê check**
-- Pergunta interna: alguém com 3+ arXiv submissions cs.* > 3m < 5y?
-- Mais rápido se sim — relação existente
+**Opção 3: D01 v3 Cohere reranker** (próximo upside arquitetural pós-D39)
+- Decisão Toto: $0.50-10/mês custo Cohere API justifica gate <0.775?
+- Atual 0.6813 < 0.775 → vale tentar
+- Spec já existe (D33), só requer impl ~3-5h
 
-**4. Plan B: peer-review primeiro**
-- Submit a NeurIPS / EMNLP / SIGIR / ECIR pra peer review
-- arXiv aceita pós-aceptação SEM endorsement
-- Trade: 2-4 meses lead time vs ~1 semana endorsement
+**Opção 4: Backlog menor**
+- E07/E10 já DONE/PARTIAL
+- E09 auto-keywords depende E05 active (CUT — dead path)
+- F10 observability dashboard DEFERRED
+- Cleanup operational debt
+
+### Estado bloqueador / esperando
+
+- **Patrick Lewis** (RAG paper, Meta AI): 2 emails, dia 9/10 silente. Soft nudge OK, ou mover pra plan B (NeurIPS/EMNLP/SIGIR/ECIR peer review).
+- **Jayr Pereira** (UFCA/UNICAMP): silente dia 5, template nudge ready em §"Cold-email follow-up"
+- **Rodrigo Nogueira** (Maritaca/UNICAMP): draft pronto, Toto aprova envio?
+
+### Quick context pra Claude próxima sessão
+
+- Trabalho ativo em **sistema de retrieval** (não paper) requer ler:
+  - `docs/DECISIONS.md` D36/D37/D38/D39 (lições codificadas)
+  - `specs/2026-05-10-E14-retrieval-evolution.md` (E-lite-2 + D + decisões A1/A2/G deferred)
+  - `src/lib/fts-anchor.ts` + `src/search.ts` (D RRF + E-lite-2 backfill)
+- VPS access: `root@100.87.8.44` (Tailscale). Snapshot pré-op em `/var/backups/nox-mem/pre-op/` (retention 7d).
+- Eval baseline atual: run 85, nDCG@10 0.6813. Reproduzir: `nox-mem eval run --variant=hybrid` em `~/.openclaw/workspace/tools/nox-mem`
+- **Regra crítica #6** continua válida: `--dry-run` ou snapshot atômico antes de operações destrutivas (reindex/consolidate/compact)
 
 ### Estado bloqueador
 

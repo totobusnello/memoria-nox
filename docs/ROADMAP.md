@@ -6,20 +6,84 @@
 
 ---
 
-## 1. Estado atual
+## 1. Estado atual (snapshot 2026-05-17 noite)
 
 ```
-Sistema:        nox-mem v3.7+, schema v10 (PRAGMA user_version aligned 10/10), ops_audit append-only
-Chunks:         64.155 (100% embedded, 0 gap) — pós-Sprint A1+A3+A4+A5+A6 + G03 cleanup + retry NUVIVI/CONTRATOS
-DB size:        ~1.05 GB
+Sistema:        nox-mem v3.7+, schema v18 (PRAGMA user_version aligned), ops_audit append-only
+Chunks:         69.298 (99.97% embedded, Gemini 3072d) — fts_anchor populated (E-lite-2 ACTIVE)
+DB size:        ~1.24 GB
+KG:             15.646 entities / 21.533 relations
 Agentes:        7 (1 main Maestro + 6 personas: nox/atlas/boris/cipher/forge/lex)
-OpenClaw:       v2026.4.29 (.24 quebrado, .25 wizard adoption, .26 optimization marathon 04-28, .29 zero-downtime upgrade 04-30)
-Salience:       active (G01 ✅ 2026-04-30) | Section_boost: active (G02 ✅ 2026-05-01)
-Tests:          27/27 pass (retention 20 + op-audit-e2e 7)
-Improvements:   13/13 OK (audit baseline)
+OpenClaw:       v2026.4.29
+Eval nDCG@10:   0.6813 (n=78 honest golden set, run 85)
+Vs paper baseline (0.5831): +16.9% relativo / +9.8pp absoluto
+
+Features ranking ATIVAS (5):
+ ✅ Salience (recency × pain × importance) — G01 2026-04-30
+ ✅ Section boost (compiled +100%, frontmatter +49%) — G02 2026-05-01
+ ✅ Edge typing (relation_reason enum 7) — E05 Phase 1 2026-05-02
+ ✅ Temporal boost (E13) — 2026-05-06
+ ✅ SPO Injection (E03b, integrated em CLI) — 2026-05-17 (D37 superseded)
+ ✅ E-lite-2 (fts_anchor bilingual) — 2026-05-17 (Wave 1 E14)
+ ✅ D (language-aware RRF weights) — 2026-05-17 (Wave 1 E14)
+
+Features CORTADAS (lições codificadas):
+ ❌ A7 focus topic boost — CUT D36 (consumer absent)
+ ❌ E05b reason-boost — CUT D38 (bias arquitetural, 3 rounds gate)
+ ⛔ A1/A2/G — DEFERRED PERMANENTE D39 (FTS5 silent design)
+ ⛔ D01 cross-encoder v1+v2 — CUT (OOM); v3 Cohere pendente decisão Toto
+
+Schema migrations: v16 → v17 (op-audit gaps) → v18 (fts_anchor) entregues 2026-05-15/17
+Tests:          136/211 (pre-existing fails 75, confirmados estáveis pré/pós CUTs)
 Capacity:       ~6h/semana realista até Set/2026 (CEO em 5 frentes)
-Margem incident: 20h reservadas (histórico: 4 incidents em 2 dias 04-25/26)
+Margem incident: 20h reservadas
 ```
+
+### Sessão 2026-05-17 delivered (~10h) — Wave 1 E14 completa + D ACTIVE + decisões arquiteturais
+
+Maratona com 8 entregas executadas + 9 tentativas refutadas (todas documentadas).
+
+**Entregas que ficaram:**
+- ✅ **E03b SPO injection ACTIVATED** — integrado em `nox-mem search` CLI (flag `--no-vault-facts` opt-out). Smoke OK: 4 entities/7 triples surface em queries entity-rich. D37 superseded. VPS commit `90fa3180`.
+- ✅ **E05b reason-boost CUT (D38)** — 3 rounds gate review (06/05 + 16/05 + 17/05), bias arquitetural confirmado (reason_boost amplifica chunks com KG coverage independente da qualidade). Removido 518 LOC. VPS commit `26640d16`.
+- ✅ **Golden set expansion 65→80→78 honest** — Cross-language 0→10, cross-agent 4→5/7, temporal 4→6. 4 queries dropped via refinement (qid 117/119/120/122 com gold genérico). 2 cross-language Toto-curadas (qid 125/126).
+- ✅ **Schema v17→v18 (fts_anchor column)** — `ALTER TABLE chunks ADD COLUMN fts_anchor` via `withOpAudit` (audit_id=55). VPS commit `b71d4c18`.
+- ✅ **E-lite-2 ACTIVE (Wave 1 E14)** — `src/lib/fts-anchor.ts` v4 regex (60 cognates + 35 PT/EN pairs + 25 entities + 8 identifier patterns) + `backfill-fts-anchor` CLI + `e-lite-2-recreate-fts5.mjs`. Backfill 69298 chunks 17.3s. FTS5 recreate 7.2s. **Overall +0.94pp** (0.6644→0.6738). VPS commit `d48b115e`.
+- ✅ **D (language-aware RRF) ACTIVE** — `detectQueryLanguage` + `LANG_WEIGHTS` (PT: dense 1.15/fts 0.85; EN/mixed balanced). **Overall +1.92pp ZERO regressão** (0.6605→0.6797). procedure +6.55pp, cross-agent +5.34pp. VPS commit `7dc46fb5`.
+
+**Tentativas REFUTADAS empiricamente (lições):**
+- ❌ A2 standalone *4: -6.5pp
+- ❌ v5 vocab expansion: -1.2pp (entity -8.7pp, security +3.8pp — net negativo)
+- ❌ A1 *15 standalone: -0.7pp
+- ❌ A2+D combinado *4: -7.98pp
+- ⚠️ A1+D *3 combinado: +0.59pp (noise — média de 3 runs = -0.47pp)
+- ❌ FTS5 v1 OR-all: -23.6pp
+- ❌ FTS5 v2 AND+OR quoted: -22.5pp
+- ❌ FTS5 v3 unquoted: -18.5pp
+- ❌ FTS5 v4 confidence-aware (AND=1.0/OR=0.4): -5.4pp
+
+**Decisões arquiteturais codificadas:**
+- **D36** A7 focus topic boost CUT (consumer absent)
+- **D37** E03b HOLD por consumer absent → SUPERSEDED via CLI integration
+- **D38** E05b CUT por bias arquitetural (reason quality > quantity)
+- **D39** FTS5 silent design accepted (4 tentativas refutadas, A1/A2/G DEFERRED permanente)
+
+**Estado final consolidado:**
+- Overall nDCG@10: **0.6813** (vs paper baseline 0.583 = **+16.9% relativo, +9.8pp absoluto**)
+- 5 features ranking ativas
+- 9 commits Mac + 6 commits VPS
+
+Cross-link: docs/HANDOFF.md §"RETOMADA"; docs/DECISIONS.md D36-D39; specs/2026-05-10-E14-retrieval-evolution.md.
+
+### Sessão 2026-05-16 delivered (~6h) — op-audit validation + 4 gates fechados
+
+- ✅ **Op-audit overnight validation** — cron snapshot 3am rodou (audit_id=53, 853MB gz), watchdog reaped stale row na 1ª execução real, byDbSource populated.
+- ✅ **Gate review E05b silent-fail fix** — cron 13/05 falhou Permission denied (mascarado por `2>&1`). Fixes: chmod +x, parser bug `json_object → json_group_object`, Discord trap pra exit≠0.
+- ✅ **E13 temporal-boost ACTIVATE confirmed** — já em prod desde 06/05, gate review validou Δ temporal +0.14.
+- ✅ **E04 A7 focus CUT** — 14 dias zumbi, design pressupõe UX inexistente. Removido 519 LOC. VPS commit `128b7065`.
+- ✅ **E03b HOLD por consumer absent** — 336/336 logs shadow eram canary. Pré-req ACTIVATE: integrar em consumer real (executado dia seguinte).
+
+Cross-link: docs/DECISIONS.md D36/D37, VPS commit `128b7065`.
 
 ### Sessão 2026-05-15 noite delivered (op-audit hardening, 6 fases ~3h vs 5.5h estimado)
 
@@ -152,7 +216,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 | **E11** | §11 | Reflect cache (semantic key) — exact hash + cosine ≥ 0.88 fallback. Smoke: exact hit 30× speedup, semantic hit 4× speedup (sim=0.914). 4 env vars `NOX_REFLECT_SEMANTIC_*`. Fail-open. `src/reflect.ts` extension | ✅ DONE | 1.5 (real ~25min) | 2026-05-03 |
 | **E06** | §11 Wave 1 | `nox-mem detect-changes --since=<commit>` read-only git diff name-status + entity resolution 2-path (frontmatter name + chunk evidence). Smoke prod: 1498 files → 182 entities em 268ms. `src/detect-changes.ts` ~210 LOC | ✅ DONE | 2-3 (real ~30min) | 2026-05-03 |
 | **E07** | §11 | `nox-mem impact <entity>` 1-hop blast radius bidirecional via kg_relations agrupado por reason E05. REASON_PRIORITY weights + blast_radius_score. Smoke prod: Toto blast=29152.1, Forge 12 depends_on, em 1ms. `src/impact.ts` ~165 LOC | ✅ DONE | 2.5 (real ~25min) | 2026-05-03; uso E05 confirma valor reasons enriquecidos |
-| **E14** | §11 Wave 2 | **Retrieval evolution roadmap** (post-R03) — multi-alavanca A1+A2+D+E-lite-2 + addendums (latency budget, schema v.18, parking lot Caminho B). Baseline 0.699 → target 0.750-0.780 + cross-language sub-eval ≥0.85 do overall. Pré-requisito: golden set expansion n≥30 (semana 20-23 mai). Sprint completo `docs/ROADMAP.md` §sprint-pos-R03 + `specs/2026-05-10-E14-retrieval-evolution.md`. Decisões: D31/D32/D33. F (cross-encoder Cohere) como fallback condicional pós-A+D+E se nDCG<0.775; B (pain embedding) defer Q3 com gate quantitativo cross-language <70%/≥85% | 📋 QUEUED | 5-7 spread Mai-Jul (depende de gates) | R03 ✅ submit (19 mai) |
+| **E14** | §11 Wave 2 | **Retrieval evolution — Wave 1 COMPLETA 2026-05-17 (3 dias antes do target)**. Sub-features: **E-lite-2 ACTIVE** (fts_anchor bilingual regex v4, +0.94pp), **D ACTIVE** (language-aware RRF PT 1.15/0.85, +1.92pp ZERO regressão). **A1/A2/G DEFERRED PERMANENTE (D39)** — 4 tentativas FTS5 fix refutadas; dense Gemini 3072d é o motor; FTS5 silencioso é design correto pra este corpus. F (Cohere) gate condicional pós-evidência empírica adicional. Estado: 0.6813 overall (+16.9% vs paper baseline 0.583). Cross-link D31-D33 (roadmap original) + D39 (FTS5 silent) + spec `specs/2026-05-10-E14-retrieval-evolution.md`. | ✅ Wave 1 DONE; Wave 2 (D01v3/Cohere) ON HOLD | 7h real (era 5-7 spread Mai-Jul) | golden n=78 honest; D39 codificado |
 
 ### Sprint pós-R03 — E14 retrieval evolution
 

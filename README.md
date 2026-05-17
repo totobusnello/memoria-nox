@@ -9,26 +9,33 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/totobusnello/memoria-nox)](https://github.com/totobusnello/memoria-nox/commits/main)
-[![Tests](https://img.shields.io/badge/tests-69%2F69%20passing-brightgreen)](docs/HANDOFF.md)
-[![Schema](https://img.shields.io/badge/schema-v16-blue)](CLAUDE.md)
-[![Chunks](https://img.shields.io/badge/chunks-70.029-blue)](docs/HANDOFF.md)
-[![KG](https://img.shields.io/badge/KG-914_entities_%2F_1109_relations-blue)](docs/HANDOFF.md)
-[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.5831_(n%3D60)-brightgreen)](docs/HANDOFF.md)
+[![Tests](https://img.shields.io/badge/tests-136%2F211%20passing-yellow)](docs/HANDOFF.md)
+[![Schema](https://img.shields.io/badge/schema-v18-blue)](CLAUDE.md)
+[![Chunks](https://img.shields.io/badge/chunks-69.298-blue)](docs/HANDOFF.md)
+[![KG](https://img.shields.io/badge/KG-15.6k_entities_%2F_21.5k_relations-blue)](docs/HANDOFF.md)
+[![Eval nDCG](https://img.shields.io/badge/eval__nDCG@10-0.6813_(n%3D78_honest)-brightgreen)](docs/HANDOFF.md)
 [![Paper v1.1](https://img.shields.io/badge/paper-v1.1_compiled-brightgreen)](paper/publication/latex/paper.pdf)
 
-**Features ativas**
+**Features ativas (ranking + retrieval)**
 
 [![Salience](https://img.shields.io/badge/salience-active-brightgreen)](docs/DECISIONS.md)
 [![Section Boost](https://img.shields.io/badge/section__boost-active-brightgreen)](docs/DECISIONS.md)
 [![Edge Typing](https://img.shields.io/badge/edge__typing-active-brightgreen)](docs/ROADMAP.md)
 [![Temporal Boost](https://img.shields.io/badge/temporal__boost-active-brightgreen)](specs/2026-05-06-E13-temporal-aware-ranking.md)
+[![SPO Injection](https://img.shields.io/badge/SPO__injection-active_(CLI)-brightgreen)](specs/2026-05-01-E03a-spo-injection.md)
+[![E-lite-2](https://img.shields.io/badge/E--lite--2_fts__anchor-active-brightgreen)](specs/2026-05-10-E14-retrieval-evolution.md)
+[![D RRF](https://img.shields.io/badge/D__language--aware__RRF-active-brightgreen)](specs/2026-05-10-E14-retrieval-evolution.md)
 [![OCR Pipeline](https://img.shields.io/badge/OCR-2835_docs_%2B8772_chunks-brightgreen)](specs/2026-05-07-E12-tier3-ocr.md)
 [![Reflect Cache](https://img.shields.io/badge/reflect__cache-semantic-brightgreen)](docs/ROADMAP.md)
 [![CLI Telemetry](https://img.shields.io/badge/CLI__telemetry-active-brightgreen)](docs/ROADMAP.md)
 [![SEH](https://img.shields.io/badge/SEH-detector_active-brightgreen)](docs/ROADMAP.md)
-[![Reason Boost](https://img.shields.io/badge/reason__boost-shadow_round_2-yellow)](specs/2026-05-06-E05b-reason-ranking-boost.md)
-[![Reranker](https://img.shields.io/badge/reranker-CUT_v1+v2_deferred-lightgrey)](specs/2026-05-07-D01-cross-encoder-reranker.md)
-[![FTS Gap](https://img.shields.io/badge/FTS__vs__hybrid__gap-100%25_loss-red)](paper/publication/paper-draft-sec4-7.md)
+
+**Features cortadas / deferred (lições documentadas)**
+
+[![Reason Boost](https://img.shields.io/badge/reason__boost-CUT_(D38)-lightgrey)](docs/DECISIONS.md)
+[![Focus Boost](https://img.shields.io/badge/focus__boost-CUT_(D36)-lightgrey)](docs/DECISIONS.md)
+[![Reranker](https://img.shields.io/badge/reranker-CUT_v1%2Bv2_deferred-lightgrey)](specs/2026-05-07-D01-cross-encoder-reranker.md)
+[![A1/A2/G](https://img.shields.io/badge/A1%2FA2%2FG-DEFERRED_(D39)-lightgrey)](docs/DECISIONS.md)
 
 ---
 
@@ -36,11 +43,13 @@
 
 | Metric | Value |
 |---|---|
-| Chunks in production | **70,029** (99.96% embedded, Gemini 3072d; +8,772 from E12 OCR pipeline) |
-| Hybrid nDCG@10 | **0.5831 ± 0.0046** (n=60 R01c-v1.1, 3-run mean, post-cure gold standard) |
-| vs FTS5 vanilla baseline | **+58.3 pp** (FTS-only nDCG=0.0000 exact, structural AND-strict limit on NL queries) |
-| vs BM25 Pyserini (Anserini-tuned, n=60) | **4.0× better** (BM25 Pyserini = 0.1475, +43.6 pp absolute) |
-| vs multilingual-e5-base (n=60) | **1.9× better** (e5 = 0.3070) |
+| Chunks in production | **69,298** (99.97% embedded, Gemini 3072d; +8,772 from E12 OCR pipeline) |
+| **Hybrid nDCG@10 (current, sessão 2026-05-17)** | **0.6813** (n=78 honest golden set, post Toto-curation cleanup) |
+| Paper v1.1 baseline (n=60 R01c-v1.1) | 0.5831 ± 0.0046 — Mar-Mai 2026 |
+| **Gain vs paper baseline** | **+16.9% relativo / +9.8pp absoluto** (via E-lite-2 + D + golden expansion honest) |
+| vs FTS5 vanilla baseline | **+68 pp** (FTS-only nDCG=0.0000, structural AND-strict limit on NL queries — D39 codifica) |
+| vs BM25 Pyserini (Anserini-tuned, n=60) | **4.0× better** (BM25 Pyserini = 0.1475, +43.6 pp absolute em v1.1 baseline) |
+| vs multilingual-e5-base (n=60) | **1.9× better** (e5 = 0.3070 em v1.1 baseline) |
 | External: BEIR TREC-COVID (n=50, 171K docs) | e5 = 0.8335, BM25 (FTS5) = 0.1007 — confirma dificuldade lexical é corpus-dependent |
 | External: LOCOMO (n=100 stratified) | FTS5 = 0.281 — well above degenerate internal-corpus baseline |
 | Shared canonical corpus | **99.92%** of chunks accessible to all 6 agents (vs 0% in MemGPT-style per-agent isolation, by construction) |
@@ -48,6 +57,9 @@
 | Shadow discipline | Enforced ≥7d before any ranking change goes active — architectural constraint, not a guideline |
 | OCR Tier 3 | **2,835 docs** OCR'd ($14.20 total — Google Doc AI cloud + Tesseract local hybrid) |
 | Total OPEX | <$11/month all-in (Gemini embeddings + KG extraction + VPS) |
+| KG knowledge graph | **15.6k entities / 21.5k relations** (kg-extract focado 2026-05-16 +538 relations) |
+| Op-audit hardening | Schema v17→v18 (`fts_anchor` column), 6 fases Gap A→E (snapshot+watchdog+byDbSource) |
+| Architectural decisions codified | D34 op-audit / D36 A7 CUT / D38 E05b CUT / D39 FTS5 silent design |
 
 These numbers come from production telemetry over approximately 3 months (March–May 2026) and a curated 60-query eval harness (R01c-v1.1, post-cure gold standard) with golden relevance labels. Pre-cure v1.0 numbers (n=50, hybrid 0.5213 ± 0.0004) preserved in `v1.0.0` git tag for reproducibility. Full methodology and reproducibility kit in [`paper/publication/`](paper/publication/). Paper PDF: [`paper.pdf`](paper/publication/latex/paper.pdf) (v1.1, 31 pages).
 
