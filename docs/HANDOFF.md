@@ -1,5 +1,6 @@
 # nox-mem HANDOFF — estado vivo
 
+> **Atualizado:** 2026-05-17 ~07:00 BRT — **Golden set expansion ADIANTADO concluído** (65→80 queries). Pré-req E14 atingido **3 dias antes do target** (era 20-23/05). Cross-language 0→10 ✅, cross-agent 4→7 ✅, temporal 4→6 ✅. 15 queries auto-curadas via `/api/search` top-3 + anchor override (added_by=`claude-2026-05-17-batch`); task #22 pra Toto refinar gold chunks. **E14 unblocked pra iniciar 20/05.** Quick wins fechados: cleanup `cópia de paper.pdf`, Forge sync confirmado (VPS commit `9f2cf70a` pós nosso CUT), E14 spec inalterado por A7 CUT / E03b HOLD (independente).
 > **Atualizado:** 2026-05-16 ~08:00 BRT — **E03b HOLD + E04 CUT**. Sessão fechou 4 gates (E03b HOLD, E04 CUT, E05b HOLD-até-n≥30, E13 ACTIVATE confirm). 3 features de ranking processadas em 1 sessão. Próxima: golden set expansion (semana 20-23/05) + R03 paper finale (domingo).
 > **E03b A6 SPO injection:** HOLD por **consumer absent** (D37). 336/336 logs shadow eram canary genérico; 0 agentes usam `/api/search`. Código funciona quando exercitado. Pré-req ACTIVATE: integrar em CLI/agente (task #18, 1-2h).
 > **E04 A7 focus topic boost:** **CUT permanente** (D36). 0 logs em 14d, design pressupõe UX manual inexistente. Removido `src/lib/focus.ts` (266 LOC) + tests + CLI + integration. VPS commit `128b7065`. E14 substitui via A2+D+E-lite-2.

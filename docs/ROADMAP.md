@@ -164,7 +164,7 @@ A6/A7 (E03/E04) **separados em implement vs activate** após review crítico (sh
 
 | Semana | Ação | Gate / Output |
 |--------|------|---------------|
-| 20-23 mai | Golden set expansion n≥30 (LLM-assisted, Toto valida; ≥10 cross-language + ≥5 incidentes) | Pré-requisito absoluto — instrumento de medição |
+| ~~20-23 mai~~ | ~~Golden set expansion n≥30~~ — **ADIANTADO 2026-05-17** (65→80 queries; cross-lang 0→10 ✅, cross-agent 4→7 ✅, temporal 4→6 ✅). Auto-curado via /api/search + anchor, refinement por Toto pendente (task #22). | ✅ Pré-requisito atingido |
 | 24-26 mai | Analisar composição: recall zero vs parcial | Define ordem E vs A+D |
 | 27 mai - 02 jun | E-lite-2: schema v.30 (`ALTER TABLE chunks ADD fts_anchor`) + backfill regex bilíngue (~19K chunks) | Zero Gemini; SQLite ≥3.35 pra rollback DROP COLUMN |
 | 03-09 jun | Shadow 7 dias E-lite-2 + ablation vs baseline | Shadow obrigatório (regra crítica #6) |
