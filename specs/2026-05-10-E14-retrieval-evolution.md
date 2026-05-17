@@ -330,7 +330,22 @@ Budget de 1.500ms dá margem de ~350ms acima da estimativa.
 
 **Sub-task de E-lite-2** (semana 27 mai - 02 jun).
 
-**Status (2026-05-17): ✅ ADIANTADO — migration aplicada.** Schema v17→v18 via `withOpAudit('schema-v18-fts-anchor')` (audit_id=55, snapshot 1.2GB em `/var/backups/nox-mem/pre-op/schema-v18-fts-anchor-main-...db`). Column `fts_anchor TEXT DEFAULT ''` adicionada. Zero-risk até backfill regex (column unused; FTS5 virtual table NÃO foi re-criada ainda). Backfill regex permanece scheduled pra semana 27/05.
+**Status (2026-05-17): ✅ E-LITE-2 ACTIVE — entregue mesmo dia que design.** Sequência completa:
+1. Schema v17→v18: `withOpAudit('schema-v18-fts-anchor')` audit_id=55, snapshot 1.2GB
+2. Backfill SHADOW: 69298 chunks em 17.3s, audit_id=56 (42% com anchors, mean 2.79 terms)
+3. FTS5 recreate ACTIVE: drop chunks_fts + create with fts_anchor + rebuild + recreate 3 triggers, 7.2s, audit_id=57
+
+**Resultados eval (run 61 → run 62):**
+- Overall: 0.6644 → 0.6738 (+0.94pp absoluto, +1.4% relativo)
+- cross-agent: 0.499 → 0.563 (+6.4pp) ✅ ENTITIES whitelist payoff
+- procedure: 0.625 → 0.664 (+3.9pp) ✅
+- entity: 0.736 → 0.766 (+3.1pp) ✅
+- cross-language: 0.689 → 0.689 (dense já carregava)
+- concept: -0.9pp (marginal), security: -3.8pp (vocab-specific)
+
+**Cumulativo vs paper baseline (0.583): +9.1pp absoluto, +15.6% relativo.**
+
+VPS commit `d48b115e`. Wave 1 E14 done 3 dias antes do cronograma original.
 
 **Nota versionamento:** spec original usava "v.30" como label arbitrário; renomeado pra "v.18" (próximo sequencial pós-v17) em 2026-05-17 pra alinhar com cascade real em `src/db.ts`.
 
