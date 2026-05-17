@@ -444,3 +444,25 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **Pré-req ACTIVATE (task #18):** integrar `getVaultFacts()` em `nox-mem search` CLI output OU em pipeline de agente Discord OU criar novo endpoint específico que consumer use. Esforço estimado 1-2h.
 - **NÃO FAZEMOS:** ACTIVATE sem evidence ≥1 consumer real. ACTIVATE "técnico" (que muda envelope mas ninguém lê) é cosmético sem valor.
 - *Origem:* sessão 2026-05-16. Cross-link: `specs/2026-05-01-E03a-spo-injection.md`, task #18 (integração).
+
+### 2026-05-17 — FTS5 silencioso é arquiteturalmente correto pra este corpus (D39)
+
+#### D39 — FTS5 silent design accepted (após 4 tentativas de fix)
+- **Decisão:** Manter FTS5 silencioso (AND-strict + sem stopword strip) como design permanente. Dense Gemini 3072d carrega 100% do recall. A1 (FTS5 pool expansion) e G (HyDE) DEFERRED PERMANENTE.
+- **Evidência empírica (4 tentativas mesmo dia 2026-05-17 ~16:50-17:10):**
+  - v1 (strip stopwords + OR-all): -23.6pp overall (decision -47pp catastrófico)
+  - v2 (AND-first + OR-fallback, tokens quoted): -22.5pp
+  - v3 (unquoted tokens AND/OR): -18.5pp
+  - v4 (confidence-aware: AND=1.0, OR=0.4): -5.4pp (melhor mas ainda regride)
+- **Diagnóstico arquitetural:** padrão consistente — FTS5 acordado sempre dilui ranking via RRF, independente de tuning. BM25 nesse corpus tech-mixed PT/EN não distingue bem gold de near-miss. Mesmo OR fallback com weight 0.4 introduz ruído competidor.
+- **Root cause empirico:** FTS5 vanilla AND-strict zera em 96% das queries (stopwords + AND). Mas "acordar" expõe que BM25 ranking faz worse damage que silêncio + dense-only.
+- **Implicações roadmap:**
+  - A1 (FTS5 pool 50→200) DEFERRED PERMANENTE — sem recall, mais pool não ajuda
+  - A2 (dense pool expansion) DEFERRED — também dilui (testado 2x hoje)
+  - G (HyDE) DEFERRED — gate métrico inviável (96% queries triggariam = G global)
+  - E-lite-2 (fts_anchor) PERMANECE ACTIVE — capturou o pouco ganho FTS disponível (+0.94pp medido)
+  - D (language-aware RRF) PERMANECE ACTIVE — capturou ganho de pesos corretos (+1.92pp)
+- **Próximo upside esperado:** cross-encoder reranker (D01 v3 com Cohere API, bloqueio resolvido se hardware mudar) ou features ranking novas (E07 impact-based, kg-derived signals).
+- **FTS5 como failsafe latente:** se Gemini outage/quota, sistema degrada gracefully — FTS5 retorna o que AND-strict pega (geralmente pouco mas não zero pra queries com termos exatos do corpus).
+- **NÃO FAZEMOS:** (a) re-tentar FTS5 query expansion sem evidência empírica nova; (b) ampliar FTS5 pool achando que vai funcionar (testado: não funciona); (c) HyDE global (custo Gemini explode); (d) confiar que "smoke positivo" = "eval positivo" — confidence v4 teve smoke OK mas eval -5pp.
+- *Origem:* sessão 2026-05-17 ~16:50-17:10 BRT. Cross-link: `feedback_fts5_vanilla_and_strict_explains_zero_recall` (memory). Runs eval: 79 (D baseline 0.6797), 80-84 (4 tentativas FTS5 fix), 85 (rollback confirmado 0.6813).
