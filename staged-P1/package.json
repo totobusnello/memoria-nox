@@ -1,9 +1,9 @@
 {
   "name": "nox-mem-answer-primitive",
-  "version": "0.1.0-T1-T4",
+  "version": "0.1.0-T1-T10",
   "private": true,
   "type": "module",
-  "description": "P1 — Answer primitive staged patch (T1-T4): module skeleton + retrieval wrapper + prompt template + LLM provider abstraction. Mock provider for CI. flash-lite locked per D41.",
+  "description": "P1 — Answer primitive staged patch (T1-T10): module skeleton + retrieval + prompt + provider + telemetry + CLI + HTTP + MCP. Mock provider for CI. flash-lite locked per D41.",
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node --test dist/src/lib/answer/__tests__/*.test.js",
