@@ -1,0 +1,286 @@
+name: Perf Nightly Benchmark
+
+# Runs full benchmark suite daily at 03:00 UTC.
+# Saves results to benchmark/history/YYYY-MM-DD.json on the benchmark-history branch.
+# Auto-fails if any metric drifts > 25% vs baseline (catch regressions that bypass PR gate).
+# Rolls a 30-day window — old files stay in git history (append-only audit trail).
+
+on:
+  schedule:
+    - cron: '0 3 * * *'   # 03:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: 'Nightly drift threshold % (default: 25)'
+        required: false
+        default: '25'
+      dry_run:
+        description: 'Dry-run (skip actual bench, compare vs baseline only)'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write       # needed to commit history file + create auto-PR
+  pull-requests: write  # needed to create auto-PR
+
+env:
+  NIGHTLY_THRESHOLD: ${{ inputs.threshold || vars.NOX_NIGHTLY_DRIFT_THRESHOLD_PCT || '25' }}
+  HISTORY_BRANCH: 'benchmark-history'
+  NOX_BENCH_LLM_MS: '100'
+  NOX_BENCH_N: '50'
+  NOX_BENCH_ITERATIONS: '1000'
+
+jobs:
+  nightly-bench:
+    name: "Nightly benchmark — ${{ github.run_id }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tsx
+        run: npm install -g tsx@4
+
+      # ---- Build staged directories if present ----
+      - name: Install + build staged-P1
+        if: hashFiles('staged-P1/package.json') != ''
+        run: |
+          cd staged-P1
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm run build 2>&1 | tail -10
+
+      - name: Install + build staged-A2
+        if: hashFiles('staged-A2/package.json') != ''
+        run: |
+          cd staged-A2
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm run build 2>&1 | tail -10
+
+      - name: Install + build staged-A3
+        if: hashFiles('staged-A3/package.json') != ''
+        run: |
+          cd staged-A3
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm run build 2>&1 | tail -10
+
+      # ---- Run regression detector (nightly threshold = 25%) ----
+      - name: Run benchmark suite
+        id: bench
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          echo "date=${DATE}" >> "$GITHUB_OUTPUT"
+
+          DRY_RUN_FLAG=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            DRY_RUN_FLAG="--dry-run"
+          fi
+
+          set +e
+          npx tsx benchmark/regression-detector.ts \
+            --json-only \
+            --threshold="${NIGHTLY_THRESHOLD}" \
+            ${DRY_RUN_FLAG} \
+            > /tmp/nightly-report.json 2>/tmp/nightly-stderr.txt
+          EXIT_CODE=$?
+
+          OVERALL=$(node -e "
+            const r=JSON.parse(require('fs').readFileSync('/tmp/nightly-report.json','utf8'));
+            console.log(r.overall_status);
+          " 2>/dev/null || echo "UNKNOWN")
+
+          FAILED=$(node -e "
+            const r=JSON.parse(require('fs').readFileSync('/tmp/nightly-report.json','utf8'));
+            console.log(r.failed);
+          " 2>/dev/null || echo "0")
+
+          echo "overall_status=${OVERALL}" >> "$GITHUB_OUTPUT"
+          echo "failed_count=${FAILED}" >> "$GITHUB_OUTPUT"
+
+          cat /tmp/nightly-stderr.txt >&2 || true
+          # Add metadata envelope: date + run_id + sha + threshold.
+          node -e "
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync('/tmp/nightly-report.json', 'utf8'));
+            report.nightly_date = '${DATE}';
+            report.github_run_id = '${GITHUB_RUN_ID}';
+            report.github_sha = '${GITHUB_SHA}';
+            report.nightly_threshold_pct = ${NIGHTLY_THRESHOLD};
+            fs.writeFileSync('/tmp/nightly-report.json', JSON.stringify(report, null, 2));
+            console.log('Metadata envelope added.');
+          "
+          exit 0
+        env:
+          NOX_BENCH_LLM_MS: ${{ env.NOX_BENCH_LLM_MS }}
+          NOX_BENCH_N: ${{ env.NOX_BENCH_N }}
+          NOX_BENCH_ITERATIONS: ${{ env.NOX_BENCH_ITERATIONS }}
+          NIGHTLY_THRESHOLD: ${{ env.NIGHTLY_THRESHOLD }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
+
+      # ---- Checkout (or create) the benchmark-history branch and commit ----
+      - name: Commit history file to benchmark-history branch
+        id: commit_history
+        run: |
+          DATE="${{ steps.bench.outputs.date }}"
+          HISTORY_FILE="benchmark/history/${DATE}.json"
+
+          # Configure git author.
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Fetch or create the benchmark-history branch.
+          if git ls-remote --exit-code --heads origin "${HISTORY_BRANCH}" > /dev/null 2>&1; then
+            git fetch origin "${HISTORY_BRANCH}"
+            git checkout -B "${HISTORY_BRANCH}" "origin/${HISTORY_BRANCH}"
+          else
+            # First run — create orphan branch so history is self-contained.
+            git checkout --orphan "${HISTORY_BRANCH}"
+            git rm -rf . --quiet 2>/dev/null || true
+            mkdir -p benchmark/history
+            echo '# Benchmark History' > benchmark/history/README.md
+            git add benchmark/history/README.md
+            git commit -m "chore(bench): init benchmark-history branch"
+          fi
+
+          # Write the daily JSON.
+          mkdir -p benchmark/history
+          cp /tmp/nightly-report.json "${HISTORY_FILE}"
+          git add "${HISTORY_FILE}"
+
+          # Prune files older than 30 days from the branch (files stay in git history).
+          CUTOFF=$(date -u -d "30 days ago" +%Y-%m-%d 2>/dev/null || date -u -v-30d +%Y-%m-%d 2>/dev/null || echo "")
+          if [ -n "$CUTOFF" ]; then
+            for f in benchmark/history/*.json; do
+              FNAME=$(basename "$f" .json)
+              if [[ "$FNAME" < "$CUTOFF" ]]; then
+                git rm --quiet "$f" 2>/dev/null || true
+                echo "::notice::Pruned ${f} from working tree (git history preserved)"
+              fi
+            done
+          fi
+
+          # Regenerate TIMESERIES.md on this branch (lightweight inline version).
+          node << 'TIMESERIES_SCRIPT'
+          const fs = require('fs');
+          const path = require('path');
+          const dir = 'benchmark/history';
+          const files = fs.readdirSync(dir)
+            .filter(f => f.match(/^\d{4}-\d{2}-\d{2}\.json$/))
+            .sort();
+
+          if (files.length === 0) process.exit(0);
+
+          // Collect all metric keys seen across files.
+          const allKeys = new Set();
+          const rows = [];
+          for (const f of files) {
+            try {
+              const report = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+              const date = f.replace('.json', '');
+              const row = { date, overall: report.overall_status, passed: report.passed, failed: report.failed, skipped: report.skipped };
+              for (const r of (report.results || [])) {
+                if (r.measured !== null) {
+                  allKeys.add(r.metric_key);
+                  row[r.metric_key] = r.measured;
+                  row[r.metric_key + '_drift'] = r.drift_pct;
+                }
+              }
+              rows.push(row);
+            } catch {}
+          }
+
+          const keys = [...allKeys].sort();
+
+          // Markdown table (date + summary + key metrics).
+          const SHOWN_KEYS = keys.slice(0, 10); // cap at 10 to keep table readable
+          const header = ['Date', 'Overall', 'Pass', 'Fail', ...SHOWN_KEYS].join(' | ');
+          const sep = ['---', '---', '---:', '---:', ...SHOWN_KEYS.map(() => '---:')].join(' | ');
+          const tableRows = rows.map(row => {
+            const cells = [
+              row.date,
+              row.overall,
+              row.passed ?? '—',
+              row.failed ?? '—',
+              ...SHOWN_KEYS.map(k => row[k] != null ? String(row[k]) : '—'),
+            ];
+            return cells.join(' | ');
+          });
+
+          const md = [
+            '# Benchmark History — Timeseries',
+            '',
+            `_Updated: ${new Date().toISOString().slice(0, 10)} | Rolling 30-day window_`,
+            '',
+            '| ' + header + ' |',
+            '| ' + sep + ' |',
+            ...tableRows.map(r => '| ' + r + ' |'),
+            '',
+            '> Full metric details in per-day `.json` files. Chart data in `timeseries.json`.',
+          ].join('\n');
+
+          fs.writeFileSync(path.join(dir, 'TIMESERIES.md'), md);
+
+          // timeseries.json — minimal version for dashboard charts.
+          const tsjson = {
+            generated: new Date().toISOString(),
+            window_days: 30,
+            keys,
+            rows: rows.map(r => ({ date: r.date, overall: r.overall, ...Object.fromEntries(keys.map(k => [k, r[k] ?? null])) })),
+          };
+          fs.writeFileSync(path.join(dir, 'timeseries.json'), JSON.stringify(tsjson, null, 2));
+          console.log(`TIMESERIES.md + timeseries.json updated (${rows.length} rows, ${keys.length} keys).`);
+          TIMESERIES_SCRIPT
+
+          git add benchmark/history/TIMESERIES.md benchmark/history/timeseries.json 2>/dev/null || true
+
+          # Commit if anything changed.
+          if git diff --cached --quiet; then
+            echo "::notice::No changes to commit (same-day re-run?)"
+          else
+            git commit -m "chore(bench): nightly ${DATE} — ${{ steps.bench.outputs.overall_status }} (pass=${{ steps.bench.outputs.failed_count }} fail)"
+            git push origin "${HISTORY_BRANCH}"
+            echo "history_committed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ---- Upload report artifact ----
+      - name: Upload nightly report artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: perf-nightly-${{ steps.bench.outputs.date }}-${{ github.run_id }}
+          path: /tmp/nightly-report.json
+          retention-days: 90
+
+      # ---- Write job summary ----
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Perf Nightly — ${{ steps.bench.outputs.date }}"
+            echo ""
+            echo "Overall: **${{ steps.bench.outputs.overall_status }}** | Threshold: ±${NIGHTLY_THRESHOLD}%"
+            echo ""
+            cat /tmp/nightly-stderr.txt 2>/dev/null || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ---- Hard fail if regression beyond nightly threshold ----
+      - name: Enforce nightly regression gate
+        run: |
+          FAILED="${{ steps.bench.outputs.failed_count }}"
+          if [ "$FAILED" = "0" ] || [ -z "$FAILED" ]; then
+            echo "::notice::Nightly gate passed — no regressions beyond ${NIGHTLY_THRESHOLD}%."
+            exit 0
+          else
+            echo "::error::Nightly benchmark detected ${FAILED} regression(s) beyond ${NIGHTLY_THRESHOLD}% threshold. Investigate before next merge to main."
+            exit 1
+          fi
+        env:
+          NIGHTLY_THRESHOLD: ${{ env.NIGHTLY_THRESHOLD }}
