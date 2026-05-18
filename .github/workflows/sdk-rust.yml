@@ -1,0 +1,64 @@
+name: SDK — Rust
+
+on:
+  push:
+    paths:
+      - "sdk/rust/**"
+      - ".github/workflows/sdk-rust.yml"
+  pull_request:
+    paths:
+      - "sdk/rust/**"
+      - ".github/workflows/sdk-rust.yml"
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test:
+    name: cargo build + test + clippy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            sdk/rust/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('sdk/rust/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Build
+        working-directory: sdk/rust
+        run: cargo build --all-targets
+
+      - name: Test
+        working-directory: sdk/rust
+        run: cargo test --all-targets
+
+      - name: Clippy
+        working-directory: sdk/rust
+        run: cargo clippy --all-targets -- -D warnings
+
+  # Publish to crates.io on version tags (configured but not enabled by default).
+  # To enable: set CRATES_IO_TOKEN in repository secrets and uncomment `if`.
+  publish:
+    name: Publish to crates.io
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref_type == 'tag' && startsWith(github.ref_name, 'sdk-rust-v') && false  # remove `&& false` to enable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Publish
+        working-directory: sdk/rust
+        run: cargo publish --token ${{ secrets.CRATES_IO_TOKEN }}
