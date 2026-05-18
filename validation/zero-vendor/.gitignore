@@ -1,0 +1,19 @@
+# Temp DBs created during validation runs
+*.db
+*.db-shm
+*.db-wal
+tmp/
+.tmp/
+
+# Embedding cache snapshots used for offline-mode-check
+embedding-cache-snapshot/
+
+# Node artifacts if this ever gets its own deps
+node_modules/
+
+# Test artifacts
+reports/
+*.report.json
+
+# OS artifacts
+.DS_Store
