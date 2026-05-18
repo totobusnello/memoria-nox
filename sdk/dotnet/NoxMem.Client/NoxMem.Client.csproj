@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
+    <AssemblyName>NoxMem.Client</AssemblyName>
+    <RootNamespace>NoxMem.Client</RootNamespace>
+    <Version>1.0.0-wave-d</Version>
+    <Description>C# client for the memoria-nox HTTP API (wave-d, all 26 endpoints)</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/totobusnello/memoria-nox</PackageProjectUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- System.Text.Json ships with .NET 8 — no extra NuGet package needed -->
+  </ItemGroup>
+
+</Project>
