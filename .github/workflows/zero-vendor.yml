@@ -134,24 +134,25 @@ jobs:
             ICON="❌"; LABEL="CHECKS FAILED"
           fi
 
-          BODY="## Zero-Vendor Validation — $ICON $LABEL
+          {
+            echo "## Zero-Vendor Validation — $ICON $LABEL"
+            echo ""
+            echo "**Pillar A4:** No proprietary lock-in — yours by design."
+            echo ""
+            echo "| Metric | Count |"
+            echo "|--------|-------|"
+            echo "| Pass | $PASS_COUNT |"
+            echo "| Fail | $FAIL_COUNT |"
+            echo "| Simulation (CI mock) | $SIM_COUNT |"
+            echo ""
+            echo "<details><summary>Full report (first 80 lines)</summary>"
+            echo ""
+            echo '```json'
+            head -80 /tmp/zero-vendor-report.json
+            echo '```'
+            echo "</details>"
+          } > /tmp/pr-comment.md
 
-**Pillar A4:** No proprietary lock-in — yours by design.
-
-| Metric | Count |
-|--------|-------|
-| Pass | $PASS_COUNT |
-| Fail | $FAIL_COUNT |
-| Simulation (CI mock) | $SIM_COUNT |
-
-<details><summary>Full report (first 80 lines)</summary>
-
-\`\`\`json
-$(head -80 /tmp/zero-vendor-report.json)
-\`\`\`
-</details>"
-
-          echo "$BODY" > /tmp/pr-comment.md
           gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/pr-comment.md
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
