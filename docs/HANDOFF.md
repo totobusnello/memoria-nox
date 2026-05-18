@@ -33,6 +33,85 @@
 
 ---
 
+## 🌅 MORNING 2026-05-18 — D41 decisions resolved + 10 more PRs (24 total open)
+
+**Toto resolveu 5 cross-cutting decisions cedo (~06:00 BRT)** via morning review playbook. Spawning continued. **+10 PRs nesta madrugada** (PRs #17-#26).
+
+### D41 5 decisões locked
+1. **P1 default model:** `gemini-2.5-flash-lite` (cost optimization)
+2. **A2 encryption:** opt-out (encrypt by default, AES-256-GCM + scrypt)
+3. **GTM palette:** D minimal + accent `#00C896` (success green)
+4. **L3 gate threshold:** ≥1.0pp absolute lift (KEPT)
+5. **Sprint order:** P1 → A2 (parallel) → P2 → P4 → P5
+
+### PRs nesta madrugada (#17-#26)
+
+| PR | Sprint | Tipo | Status |
+|---|---|---|---|
+| #17 | A2 impl kickoff | Doc 3,474 words, 18 tasks, ~50h | Ready review |
+| #18 | P1 impl kickoff | Doc 3,445 words, 14 tasks, ~31.5h, flash-lite locked | Ready review |
+| #19 | GTM assets palette D | 20 files (banner + 6 stat SVGs + logo + arch), accent #00C896 | Ready review |
+| #20 | A4 completion | All 8 zero-vendor checks runnable in CI, <1s runtime | Ready review |
+| #21 | P4 impl kickoff | Doc 2,649 words, 16 tasks, ~28-32h, 13 IDEs covered | Ready review |
+| #22 | README-DRAFT.md | 276 lines (vs 500 cap), all 19 asset refs verified | Ready review |
+| #23 | Q4 COMPARISON harness | 10 files, 7 competitors documented, gate via `GATE_VERIFIED=1` env | Ready review |
+| #24 | P2 impl kickoff | Doc 4,085 words, 15 tasks, ~29h, 5 privacy layers | Ready review |
+| #25 | A3 impl kickoff | Doc 3,030 words, 16 tasks, ~35-40h, 15 refactor sites | Ready review |
+| #26 | P5 impl kickoff | Doc 3,107 words, 15 tasks, ~25-32h (+P5a 3-4h refactor) | Ready review (BLOCKED.md filed for P5a event bus) |
+
+### Status agora (todos pilares + lab + GTM cobertos)
+
+| Pilar | Sprints | Status |
+|---|---|---|
+| **Q** | Q1, Q2, Q3, Q4 | Q1/Q2/Q3 scaffolds + Q4 harness scaffolds = todos com files no repo, pendente full runs no VPS |
+| **A** | A1, A2, A3, A4 | A1 impl staged (PR #5), A2 spec (#9) + impl kickoff (#17), A3 spec (#8) + impl kickoff (#25), A4 scaffold (#14) + completion (#20) |
+| **P** | P1, P2, P3, P4, P5 | P1 spec (#3) + impl kickoff (#18), P2 spec (#4) + impl kickoff (#24), P3 impl staged (#2), P4 spec (#7) + impl kickoff (#21), P5 spec (#10) + impl kickoff (#26) |
+| **Lab** | L1, L2, L3 | L1 paused, L2 spec (#13), L3 spec (#15) |
+| **GTM** | Phase 2 | Spec (#16) + assets (#19) + draft README (#22) — locked behind Q4 gate, mas ZERO blocker quando gate abrir |
+
+### Open questions ainda pendentes (5)
+1. **P5 §11:** P5a event bus refactor — bundle com P5 ou separate PR? (BLOCKED.md filed)
+2. **P5 §13:** NOX_VIEWER_SHOW_QUERY opt-in env acceptable for debug?
+3. **P5 §13:** reuse `ops_audit` for viewer telemetry vs new `viewer_telemetry` table?
+4. **GTM #16/#22:** YouTube demo video — quando gravar (post-Q4)?
+5. **A3 §3:** NOX_LLM_FALLBACK default empty (opt-in) ou `gemini-2.5-flash,gemini-2.5-flash-lite` safer fallback?
+
+### Next concrete actions
+
+**Hoje (2026-05-18):**
+1. Review os 10 novos PRs (#17-#26) — playbook em `docs/MORNING-REVIEW-2026-05-18.md` ainda válido
+2. Decide cada: merge / request-changes / close
+3. Resolver as 5 open questions acima
+
+**Esta semana:**
+1. Apply staged patches no VPS (PR #2 P3 + PR #5 A1)
+2. Schedule Q1+Q2+Q3 full runs no VPS (1-2h cada)
+3. Open implementation issue pra P1 (primeiro sprint per D41 #5)
+
+**Próxima semana:**
+1. A2 implementation kickoff (paralelo a P1 se capacity)
+2. A3 implementation kickoff (foundation pra P1 + A2)
+3. P2 hooks implementation (depende de P1 mental model locked)
+
+### Stats overnight 2026-05-17 noite + 2026-05-18 madrugada
+
+| Métrica | Valor |
+|---|---|
+| Total PRs abertos | **24** (#2-#26, except #1) |
+| Specs novos | 9 (P1, P2, P3 [impl], P4, P5, A2, A3, L2, L3, GTM hero) |
+| Implementations staged | 2 (A1 privacy, P3 temporal) |
+| Implementations completed | 1 (A4 zero-vendor 8/8 checks runnable) |
+| Eval harnesses scaffolded | 4 (Q1 LoCoMo, Q2 LongMemEval, Q3 latency, Q4 comparison) |
+| Asset files produced | 20 (palette D minimal + accent #00C896) |
+| Implementation kickoffs | 5 (P1, P2, P4, P5, A2, A3) |
+| Docs canônicos atualizados | 5 (ROADMAP v2, DECISIONS D40+D41, HANDOFF, CLAUDE.md, VISION.md v15) |
+| Agentes spawnados | ~21 (15 yesterday + 6 this morning) |
+| Estimated impl hours (P+A pillars) | ~200h tudo somado (P1=32, A2=50, P2=29, P4=32, P5=28, A3=40) |
+| Decisões codificadas | D40 + D41 (D41 com 5 sub-decisões) |
+| Memories saved | 7 |
+
+---
+
 ## 🌙 OVERNIGHT 2026-05-17 — Q/A/P pivot + 15 PRs abertos
 
 **Tagline aprovada:** *"Hybrid memory with shadow discipline — yours by design."*
