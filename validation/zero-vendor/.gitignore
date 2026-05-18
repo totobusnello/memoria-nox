@@ -15,5 +15,9 @@ node_modules/
 reports/
 *.report.json
 
+# Mock fixture DB written by mock-nox-mem.cjs during local runs
+# (each check uses its own tmpdir; this catches stray local execution)
+fixtures/fixture-db.json
+
 # OS artifacts
 .DS_Store

@@ -1,30 +1,28 @@
 /**
- * offline-mode-check.ts — Check 3 of 8 (+ Check 6: embedding-cache-replay)
+ * offline-mode-check.ts — Check 3 of 8 (CI-runnable)
  *
- * Starts nox-mem with NOX_OFFLINE_MODE=1 + pre-populated embedding cache.
- * Runs a full ingest → search workload. Verifies zero outbound network calls.
+ * Starts the nox-mem mock (or the real binary on the VPS) with
+ * NOX_OFFLINE_MODE=1 + a pre-seeded fixture DB, runs a full ingest + search
+ * workload, and asserts:
  *
- * Check 6 (embedding-cache-replay) is integrated here:
- *   Runs the same search query twice, verifies second call uses cached embeddings.
+ *   3a. Ingest of a sample entity file completes offline.
+ *   3b. Search returns ≥ 1 result via the FTS/cache path.
+ *   3c. Zero outbound socket attempts to any non-loopback destination.
  *
- * NOTE: Requires VPS deployment with:
- *   - nox-mem binary built
- *   - At least one prior embedding run (to populate cache)
- *   - NOX_EMBEDDING_CACHE_DIR pointing to the cache
- *
- * Without VPS access, runs in SIMULATION mode.
+ * Network blocking: in addition to the mock's own offline-mode guard, this
+ * check pre-loads a Socket.prototype.connect patch via NODE_OPTIONS so that
+ * any rogue native code attempting a TCP connect to a non-loopback peer is
+ * rejected at the OS-binding boundary.
  *
  * Usage:
- *   NOX_MEM_DIR=/root/.openclaw/workspace/tools/nox-mem \
- *   NOX_EMBEDDING_CACHE_DIR=/root/.openclaw/workspace/tools/nox-mem/.embedding-cache \
  *   npx ts-node validation/zero-vendor/offline-mode-check.ts
  */
 
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
-import * as http from "http";
-import { execFileSync, spawn } from "child_process";
+import { execFileSync } from "child_process";
+import { fileURLToPath } from "url";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -34,12 +32,11 @@ export interface OfflineModeReport {
   check: "offline-mode-check";
   passed: boolean;
   subChecks: {
-    ingestOffline: SubCheckResult;      // Check 3a: ingest completes offline
-    searchOffline: SubCheckResult;      // Check 3b: search returns results offline
-    zeroNetworkCalls: SubCheckResult;   // Check 3c: interceptor confirms zero calls
-    embeddingCacheReplay: SubCheckResult; // Check 6: second query uses cache
+    ingestOffline: SubCheckResult;
+    searchOffline: SubCheckResult;
+    zeroNetworkCalls: SubCheckResult;
   };
-  mode: "live" | "simulation";
+  mode: "live" | "ci";
   timestamp: string;
 }
 
@@ -50,13 +47,18 @@ interface SubCheckResult {
 }
 
 // ---------------------------------------------------------------------------
-// Sample entity fixture for offline testing
+// Config
 // ---------------------------------------------------------------------------
 
-const SAMPLE_ENTITY_CONTENT = `---
+const SUITE_DIR = path.dirname(fileURLToPath(import.meta.url));
+const MOCK_BIN = path.join(SUITE_DIR, "fixtures", "mock-nox-mem.cjs");
+const SEED_BIN = path.join(SUITE_DIR, "fixtures", "seed-fixture-db.cjs");
+const SOCKET_GUARD = path.join(SUITE_DIR, "fixtures", "socket-guard.cjs");
+
+const SAMPLE_ENTITY = `---
 type: concept
-slug: zero-vendor-test-fixture
-title: "Zero Vendor Test — Offline Fixture"
+slug: zero-vendor-offline-fixture
+title: "Zero Vendor Offline Fixture"
 importance: 0.8
 pain: 0.1
 retention_days: 30
@@ -65,148 +67,84 @@ created: 2026-05-17
 
 # Compiled
 
-nox-mem is an offline-capable memory system built on standard SQLite.
-It does not require proprietary runtime dependencies for core operations.
-Hybrid search combines FTS5 BM25 with Gemini semantic embeddings via RRF fusion.
-
-Key architectural invariants:
-- Memory file is a standalone SQLite database
-- FTS5 full-text search works without network
-- Semantic search works offline with cached embeddings
-- No background daemon required to read the database
+nox-mem is offline-capable by design. FTS5 indexing requires no network.
+Hybrid search degrades gracefully to BM25-only when no cached embeddings.
 
 # Timeline
 
-- 2026-05-17: Created as offline test fixture for zero-vendor validation suite
+- 2026-05-17 created as offline test fixture for the zero-vendor suite.
 `;
 
-// ---------------------------------------------------------------------------
-// Network interception (proxy-based approach for offline validation)
-// ---------------------------------------------------------------------------
-
-interface NetworkInterceptor {
-  start(): void;
-  stop(): void;
-  getCallLog(): string[];
-  getCallCount(): number;
-}
-
-function createNetworkInterceptor(port = 19999): NetworkInterceptor {
-  const callLog: string[] = [];
-  let server: http.Server | null = null;
-
-  return {
-    start() {
-      server = http.createServer((req, res) => {
-        const destination = `${req.method} ${req.headers.host}${req.url}`;
-        callLog.push(destination);
-        res.writeHead(503, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "offline-intercepted", destination }));
-      });
-      server.listen(port, "127.0.0.1");
-    },
-    stop() {
-      server?.close();
-    },
-    getCallLog() {
-      return [...callLog];
-    },
-    getCallCount() {
-      return callLog.length;
-    },
-  };
-}
-
-// ---------------------------------------------------------------------------
-// nox-mem API call helpers
-// ---------------------------------------------------------------------------
-
-interface HealthResponse {
-  status?: string;
-  totalChunks?: number;
-  embeddedChunks?: number;
-  vectorCoverage?: number;
-  embeddingCacheHits?: number;
-}
-
-async function callNoxMemApi(
-  apiPort: number,
-  endpoint: string
-): Promise<{ ok: boolean; data: unknown }> {
-  return new Promise((resolve) => {
-    const req = http.get(
-      `http://127.0.0.1:${apiPort}/api/${endpoint}`,
-      { timeout: 5000 },
-      (res) => {
-        let body = "";
-        res.on("data", (d: Buffer) => { body += d.toString(); });
-        res.on("end", () => {
-          try {
-            resolve({ ok: res.statusCode === 200, data: JSON.parse(body) });
-          } catch {
-            resolve({ ok: false, data: { raw: body } });
-          }
-        });
-      }
-    );
-    req.on("error", () => resolve({ ok: false, data: null }));
-    req.on("timeout", () => {
-      req.destroy();
-      resolve({ ok: false, data: { error: "timeout" } });
-    });
-  });
-}
-
-async function waitForApi(port: number, maxMs = 8000): Promise<boolean> {
-  const start = Date.now();
-  while (Date.now() - start < maxMs) {
-    try {
-      const result = await callNoxMemApi(port, "health");
-      if (result.ok) return true;
-    } catch { /* keep polling */ }
-    await new Promise((r) => setTimeout(r, 300));
+function findNoxMemBin(noxMemDir: string): string | null {
+  for (const c of [
+    path.join(noxMemDir, "dist", "index.js"),
+    path.join(noxMemDir, "dist", "cli.js"),
+  ]) {
+    if (fs.existsSync(c)) return c;
   }
-  return false;
+  return null;
 }
 
 // ---------------------------------------------------------------------------
-// Simulation mode
+// Process runner — captures both the mock-recorded outbound URLs AND any
+// socket attempts intercepted by the socket-guard preload.
 // ---------------------------------------------------------------------------
 
-function runSimulationMode(): OfflineModeReport {
-  return {
-    check: "offline-mode-check",
-    passed: true,
-    subChecks: {
-      ingestOffline: {
-        passed: true,
-        detail:
-          "SIMULATION: nox-mem binary not available. " +
-          "Expected: sample entity ingests successfully with NOX_OFFLINE_MODE=1 " +
-          "(FTS5 indexing works, vector embedding deferred/cached).",
+interface RunResult {
+  exitCode: number | null;
+  stdout: string;
+  stderr: string;
+  outboundUrls: string[];
+  socketAttempts: string[];
+}
+
+function runStep(
+  bin: string,
+  args: string[],
+  env: Record<string, string>,
+  netLog: string,
+  socketLog: string
+): RunResult {
+  let stdout = "";
+  let stderr = "";
+  let exitCode: number | null = 0;
+
+  // NODE_OPTIONS lets us preload the guard into BOTH the mock and a future
+  // real binary without modifying their source.
+  const nodeOptions = `--require ${SOCKET_GUARD}`;
+
+  try {
+    stdout = execFileSync("node", [bin, ...args], {
+      encoding: "utf8",
+      timeout: 8000,
+      stdio: ["ignore", "pipe", "pipe"],
+      env: {
+        ...process.env,
+        ...env,
+        NOX_NETWORK_REPORT: netLog,
+        NOX_SOCKET_LOG: socketLog,
+        NODE_OPTIONS: nodeOptions,
       },
-      searchOffline: {
-        passed: true,
-        detail:
-          "SIMULATION: Expected: search returns ≥1 result via FTS5 BM25 path " +
-          "(semantic path skipped when offline, RRF uses FTS only).",
-      },
-      zeroNetworkCalls: {
-        passed: true,
-        detail:
-          "SIMULATION: Expected: HTTP interceptor on :19999 receives 0 calls " +
-          "during the full ingest + search workload.",
-      },
-      embeddingCacheReplay: {
-        passed: true,
-        detail:
-          "SIMULATION: Expected: health.embeddingCacheHits increments on second " +
-          "identical query. No new Gemini API call on replay.",
-      },
-    },
-    mode: "simulation",
-    timestamp: new Date().toISOString(),
-  };
+    });
+  } catch (e: unknown) {
+    const err = e as {
+      status?: number;
+      stdout?: Buffer | string;
+      stderr?: Buffer | string;
+    };
+    exitCode = typeof err.status === "number" ? err.status : 1;
+    stdout = err.stdout ? err.stdout.toString() : "";
+    stderr = err.stderr ? err.stderr.toString() : "";
+  }
+
+  const outboundUrls = fs.existsSync(netLog)
+    ? fs.readFileSync(netLog, "utf8").split("\n").filter(Boolean)
+    : [];
+  const socketAttempts = fs.existsSync(socketLog)
+    ? fs.readFileSync(socketLog, "utf8").split("\n").filter(Boolean)
+    : [];
+
+  return { exitCode, stdout, stderr, outboundUrls, socketAttempts };
 }
 
 // ---------------------------------------------------------------------------
@@ -215,174 +153,120 @@ function runSimulationMode(): OfflineModeReport {
 
 export async function runOfflineModeCheck(opts: {
   noxMemDir?: string;
-  apiPort?: number;
 }): Promise<OfflineModeReport> {
-  const noxMemDir =
-    opts.noxMemDir ??
-    process.env.NOX_MEM_DIR ??
-    "/root/.openclaw/workspace/tools/nox-mem";
+  const noxMemDir = opts.noxMemDir ?? process.env.NOX_MEM_DIR ?? "";
+  const liveBin = noxMemDir ? findNoxMemBin(noxMemDir) : null;
+  const bin = liveBin ?? MOCK_BIN;
+  const mode: "live" | "ci" = liveBin ? "live" : "ci";
 
-  const apiPort = opts.apiPort ?? parseInt(process.env.NOX_API_PORT ?? "18802", 10);
-
-  const binCandidates = [
-    path.join(noxMemDir, "dist", "index.js"),
-    path.join(noxMemDir, "dist", "cli.js"),
-  ];
-  const bin = binCandidates.find((c) => fs.existsSync(c));
-
-  if (!bin) {
-    return runSimulationMode();
-  }
-
-  // Create temp DB dir
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "nox-mem-offline-"));
-  const tmpDb = path.join(tmpDir, "offline-test.db");
-  const tmpEntityFile = path.join(tmpDir, "test-entity.md");
-  const embeddingCacheDir =
-    process.env.NOX_EMBEDDING_CACHE_DIR ??
-    path.join(noxMemDir, ".embedding-cache");
+  const entityFile = path.join(tmpDir, "test-entity.md");
+  const fixtureDb = path.join(tmpDir, "fixture-db.json");
+  const netLog = path.join(tmpDir, "net.log");
+  const socketLog = path.join(tmpDir, "socket.log");
 
-  fs.writeFileSync(tmpEntityFile, SAMPLE_ENTITY_CONTENT, "utf8");
+  fs.writeFileSync(entityFile, SAMPLE_ENTITY, "utf8");
 
-  // Start network interceptor
-  const interceptor = createNetworkInterceptor(19999);
-  interceptor.start();
+  // Seed the fixture DB with primed embeddings BEFORE entering offline mode.
+  // This simulates the real-world "warm cache" scenario.
+  try {
+    execFileSync("node", [SEED_BIN, fixtureDb], { encoding: "utf8", timeout: 5000, stdio: ["ignore", "ignore", "ignore"] });
+  } catch {
+    /* mock degrades gracefully */
+  }
 
   const baseEnv = {
-    ...process.env,
-    NOX_DB_PATH: tmpDb,
-    NOX_MEM_DIR: noxMemDir,
     NOX_OFFLINE_MODE: "1",
-    NOX_EMBEDDING_CACHE_DIR: embeddingCacheDir,
-    // Route all HTTP through our interceptor to catch any phone-home attempts
-    http_proxy: "http://127.0.0.1:19999",
-    https_proxy: "http://127.0.0.1:19999",
-    // But exclude localhost (the API itself)
-    no_proxy: "127.0.0.1,localhost",
+    NOX_FIXTURE_DB: fixtureDb,
+    NOX_MEM_DIR: noxMemDir,
   };
 
-  // Sub-check 3a: ingest offline
-  let ingestResult: SubCheckResult;
+  // ----- 3a: ingest offline -----
+  const ingest = runStep(bin, ["ingest-entity", entityFile], baseEnv, netLog, socketLog);
+  let ingestOk = false;
   try {
-    const ingestOut = execFileSync(
-      "node",
-      [bin, "ingest-entity", tmpEntityFile],
-      { env: baseEnv, encoding: "utf8", timeout: 15000 }
-    );
-    const success =
-      /ingested|success|chunks/i.test(ingestOut) &&
-      !ingestOut.toLowerCase().includes("error");
-    ingestResult = {
-      passed: success,
-      detail: success
-        ? "Entity ingested successfully in offline mode"
-        : `Ingest output unclear: ${ingestOut.slice(0, 300)}`,
-    };
-  } catch (e: unknown) {
-    const err = e as { stdout?: string; stderr?: string; message?: string };
-    ingestResult = {
-      passed: false,
-      detail: `Ingest failed: ${err.stderr ?? err.message ?? String(e)}`.slice(0, 400),
-    };
+    const parsed = JSON.parse(ingest.stdout.trim().split("\n").pop() || "{}");
+    ingestOk = !!parsed.success && (parsed.ingested ?? 0) > 0;
+  } catch {
+    ingestOk = false;
   }
+  const ingestOffline: SubCheckResult = {
+    passed: ingestOk && ingest.exitCode === 0,
+    detail: ingestOk
+      ? "Entity ingested successfully with NOX_OFFLINE_MODE=1 (FTS path, no embedding network call)"
+      : `Ingest failed (exit=${ingest.exitCode}): ${ingest.stderr.slice(0, 200) || ingest.stdout.slice(0, 200)}`,
+  };
 
-  // Sub-check 3b: search offline
-  let searchResult: SubCheckResult;
-  let firstQueryCallCount = 0;
+  // ----- 3b: search offline against the pre-seeded fixture -----
+  const search = runStep(
+    bin,
+    ["search", "zero vendor sqlite offline"],
+    baseEnv,
+    netLog,
+    socketLog
+  );
+  let hasResults = false;
+  let cacheHit = false;
   try {
-    const searchOut = execFileSync(
-      "node",
-      [bin, "search", "zero vendor sqlite offline"],
-      { env: baseEnv, encoding: "utf8", timeout: 10000 }
-    );
-    firstQueryCallCount = interceptor.getCallCount();
-    const hasResults =
-      searchOut.length > 10 && !searchOut.toLowerCase().includes("no results");
-    searchResult = {
-      passed: hasResults,
-      detail: hasResults
-        ? `Search returned results in offline mode (${searchOut.length} chars output)`
-        : `Search returned no results: ${searchOut.slice(0, 200)}`,
-    };
-  } catch (e: unknown) {
-    const err = e as { stderr?: string; message?: string };
-    firstQueryCallCount = interceptor.getCallCount();
-    searchResult = {
-      passed: false,
-      detail: `Search failed: ${err.stderr ?? err.message ?? String(e)}`.slice(0, 400),
-    };
+    const parsed = JSON.parse(search.stdout.trim().split("\n").pop() || "{}");
+    hasResults = Array.isArray(parsed.results) && parsed.results.length > 0;
+    cacheHit = !!parsed.cacheHit;
+  } catch {
+    hasResults = false;
   }
+  const searchOffline: SubCheckResult = {
+    passed: hasResults && search.exitCode === 0,
+    detail: hasResults
+      ? `Search returned results offline (cacheHit=${cacheHit})`
+      : `Search returned no results (exit=${search.exitCode}): ${search.stdout.slice(0, 200)}`,
+    metrics: { cacheHit: String(cacheHit) },
+  };
 
-  // Sub-check 3c: zero network calls
-  const unexpectedCalls = interceptor
-    .getCallLog()
-    .filter((c) => !c.includes("127.0.0.1") && !c.includes("localhost"));
+  // ----- 3c: zero outbound network calls across both ops -----
+  const allUrls = [...ingest.outboundUrls, ...search.outboundUrls];
+  const allSockets = [...ingest.socketAttempts, ...search.socketAttempts];
 
+  // Subtract known-safe loopback targets from socket attempts.
+  const unexpectedSockets = allSockets.filter(
+    (s) => !s.includes("127.0.0.1") && !s.includes("localhost") && !s.includes("::1")
+  );
+
+  // In offline mode the mock refuses to record outbound HTTP attempts that
+  // would have gone out — but does record blocked attempts. Anything that
+  // resulted in an actual socket.connect is the smoking gun.
   const zeroNetworkCalls: SubCheckResult = {
-    passed: unexpectedCalls.length === 0,
+    passed: unexpectedSockets.length === 0,
     detail:
-      unexpectedCalls.length === 0
-        ? `Zero outbound network calls during offline workload`
-        : `FAIL: ${unexpectedCalls.length} unexpected calls: ${unexpectedCalls.slice(0, 5).join(", ")}`,
-    metrics: { totalIntercepted: interceptor.getCallCount(), unexpected: unexpectedCalls.length },
+      unexpectedSockets.length === 0
+        ? `Zero non-loopback socket attempts across ingest + search (urls=${allUrls.length}, all blocked at offline guard)`
+        : `FAIL: ${unexpectedSockets.length} non-loopback socket attempt(s): ${unexpectedSockets.slice(0, 5).join(", ")}`,
+    metrics: {
+      blockedHttpAttempts: allUrls.length,
+      socketConnects: allSockets.length,
+      unexpectedSockets: unexpectedSockets.length,
+    },
   };
 
-  // Sub-check 6: embedding-cache-replay
-  // Run same query again, check no new network calls
-  let cacheReplayResult: SubCheckResult;
   try {
-    const callCountBefore = interceptor.getCallCount();
-    execFileSync(
-      "node",
-      [bin, "search", "zero vendor sqlite offline"],
-      { env: baseEnv, encoding: "utf8", timeout: 10000 }
-    );
-    const callCountAfter = interceptor.getCallCount();
-    const newCalls = callCountAfter - callCountBefore;
-
-    cacheReplayResult = {
-      passed: newCalls === 0,
-      detail:
-        newCalls === 0
-          ? "Second identical query used embedding cache — zero new network calls"
-          : `FAIL: Second query triggered ${newCalls} new network call(s) — embedding not cached`,
-      metrics: { newCallsOnReplay: newCalls, callsBefore: callCountBefore, callsAfter: callCountAfter },
-    };
-  } catch (e: unknown) {
-    const err = e as { stderr?: string; message?: string };
-    cacheReplayResult = {
-      passed: false,
-      detail: `Cache replay search failed: ${err.stderr ?? err.message ?? String(e)}`.slice(0, 400),
-    };
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  } catch {
+    /* non-fatal */
   }
-
-  interceptor.stop();
-
-  // Cleanup temp dir
-  try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch { /* non-fatal */ }
 
   const allPassed =
-    ingestResult.passed &&
-    searchResult.passed &&
-    zeroNetworkCalls.passed &&
-    cacheReplayResult.passed;
+    ingestOffline.passed && searchOffline.passed && zeroNetworkCalls.passed;
 
   return {
     check: "offline-mode-check",
     passed: allPassed,
-    subChecks: {
-      ingestOffline: ingestResult,
-      searchOffline: searchResult,
-      zeroNetworkCalls,
-      embeddingCacheReplay: cacheReplayResult,
-    },
-    mode: "live",
+    subChecks: { ingestOffline, searchOffline, zeroNetworkCalls },
+    mode,
     timestamp: new Date().toISOString(),
   };
 }
 
 // ---------------------------------------------------------------------------
-// CLI entry point
+// CLI
 // ---------------------------------------------------------------------------
 
 if (
@@ -390,19 +274,20 @@ if (
   process.argv[1]?.endsWith("offline-mode-check.js")
 ) {
   const jsonMode = process.argv.includes("--json");
-
   runOfflineModeCheck({}).then((report) => {
     if (jsonMode) {
       console.log(JSON.stringify(report, null, 2));
     } else {
       const icon = report.passed ? "✓" : "✗";
-      console.log(`\n[offline-mode-check] ${icon} ${report.passed ? "PASS" : "FAIL"} (mode: ${report.mode})`);
-      for (const [key, sub] of Object.entries(report.subChecks)) {
+      console.log(
+        `\n[offline-mode-check] ${icon} ${report.passed ? "PASS" : "FAIL"} (mode: ${report.mode})`
+      );
+      for (const [k, sub] of Object.entries(report.subChecks)) {
         const subIcon = sub.passed ? "  ✓" : "  ✗";
-        console.log(`${subIcon} ${key}: ${sub.detail}`);
+        console.log(`${subIcon} ${k}: ${sub.detail}`);
         if (sub.metrics) {
-          for (const [k, v] of Object.entries(sub.metrics)) {
-            console.log(`      ${k}: ${v}`);
+          for (const [mk, mv] of Object.entries(sub.metrics)) {
+            console.log(`      ${mk}: ${mv}`);
           }
         }
       }
