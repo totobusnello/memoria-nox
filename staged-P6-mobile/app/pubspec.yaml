@@ -1,0 +1,62 @@
+name: nox_mem_mobile
+description: nox-mem mobile app — Tailscale-tunneled hybrid memory client (iOS/Android).
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # ── DB local + cifra ───────────────────────────────────────────────────────
+  # SQLCipher mandatory — never plaintext. Encryption-at-rest é não-negociável.
+  sqflite_sqlcipher: ^3.0.0
+  path: ^1.8.3
+  path_provider: ^2.1.1
+
+  # ── HTTP + crypto ──────────────────────────────────────────────────────────
+  http: ^1.1.0
+  crypto: ^3.0.3
+  cryptography: ^2.7.0          # scrypt / AES / X25519
+
+  # ── Conectividade + state ──────────────────────────────────────────────────
+  connectivity_plus: ^5.0.2
+  riverpod: ^2.4.9
+  flutter_riverpod: ^2.4.9
+
+  # ── Storage seguro (Keychain / Keystore) ───────────────────────────────────
+  flutter_secure_storage: ^9.0.0
+
+  # ── Biometria (Face ID / Touch ID / fingerprint) ───────────────────────────
+  local_auth: ^2.1.7
+
+  # ── Share intent (iOS Share Extension + Android Intent) ────────────────────
+  share_handler: ^0.0.18
+
+  # ── Local PII filter package (T2) ──────────────────────────────────────────
+  nox_privacy:
+    path: ../packages/nox_privacy
+
+  # ── Utils ──────────────────────────────────────────────────────────────────
+  uuid: ^4.2.1
+  intl: ^0.18.1
+  collection: ^1.18.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  integration_test:
+    sdk: flutter
+  mocktail: ^1.0.1
+
+# ── Plataforma alvo ──────────────────────────────────────────────────────────
+# iOS  ≥ 14   (Tailscale + Secure Enclave + SQLCipher headers)
+# Android ≥ 8 (API 26) — StrongBox available em devices recentes, fallback Keystore
+# ─────────────────────────────────────────────────────────────────────────────
+
+flutter:
+  uses-material-design: true

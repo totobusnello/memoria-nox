@@ -1,0 +1,14 @@
+name: nox_privacy
+description: Dart port of nox-mem A1 (US) + A1.1 (BR) PII filter — 13 US patterns + 12 BR patterns, with check-digit validation (CPF, CNPJ, CNH, Título de Eleitor, Luhn).
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+
+dependencies:
+  meta: ^1.11.0
+
+dev_dependencies:
+  test: ^1.24.9
+  lints: ^3.0.0

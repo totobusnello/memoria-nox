@@ -1,0 +1,15 @@
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # Mantém PII filter como hot path — evita uso de print() que possa vazar
+    # secretos em logs de debug.
+    avoid_print: true
+    # Defesa contra null surprises em sync engine.
+    avoid_returning_null_for_void: true
+    prefer_const_constructors: true
+    prefer_final_locals: true
+
+analyzer:
+  errors:
+    invalid_annotation_target: ignore
