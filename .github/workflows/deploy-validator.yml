@@ -47,12 +47,20 @@ jobs:
         env:
           CI: true
         run: |
-          node --loader ts-node/esm src/cli.ts \
+          # npm test (previous step) already ran `npm run build`, so dist/cli.js exists.
+          # Use dist/cli.js (not src/cli.ts via --loader ts-node/esm) to avoid Node
+          # printing ExperimentalWarning to stderr — that warning was being merged
+          # into /tmp/validator-report.json via 2>&1 and breaking the JSON parser.
+          # stderr is now redirected to a separate file (kept as workflow artifact).
+          node dist/cli.js \
             --guide ../../docs/DEPLOY-WAVE-B.md \
             --no-smoke \
             --output ../../validation \
-            --json > /tmp/validator-report.json 2>&1 || EXIT_CODE=$?
+            --json > /tmp/validator-report.json 2> /tmp/validator-stderr.log || EXIT_CODE=$?
+          echo "--- validator stdout (JSON) ---"
           cat /tmp/validator-report.json
+          echo "--- validator stderr ---"
+          cat /tmp/validator-stderr.log || true
           exit ${EXIT_CODE:-0}
 
       - name: Parse validator output
@@ -131,4 +139,6 @@ jobs:
           path: |
             validation/deploy-report-*.md
             validation/deploy-report-*.json
+            /tmp/validator-report.json
+            /tmp/validator-stderr.log
           if-no-files-found: ignore
