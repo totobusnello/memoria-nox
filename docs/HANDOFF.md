@@ -2,6 +2,75 @@
 
 ---
 
+## 🌊 PÓS WAVE A→P — 2026-05-18 (noite, ~17:40 BRT)
+
+> **Atualizado:** 2026-05-18 ~17:40 BRT — **Wave A→P complete. ~100 PRs merged em main. Repo clean (0 PRs, 1 branch).**
+
+15 waves consecutivas em ~16h wall-clock. Tudo merged, todos branches/worktrees limpos. Próximo decision point: VPS deploy de #98 (CORS) + #99 (wire-up adapters) pra fechar gap de 503s nas rotas das Waves A→K.
+
+### Estado atual (snapshot 2026-05-18 17:40 BRT)
+
+| Métrica | Valor |
+|---|---|
+| Total PRs merged (Wave A→P) | **~100** |
+| LOC entregues (estimado) | ~160.000 (src+tests+docs) |
+| Testes passando | 1.700+ |
+| Schema migrations em prod | v11, v19, v20, v21, v22, v23, v24 (7 total) |
+| SDKs ecosystem | 6 langs (TS, Python, Rust, Go, Java, .NET) — from OpenAPI 3.1 |
+| Platform tracks | P6 mobile (Flutter kickoff) + P7 browser ext (manifest v3 + popup + omnibox) |
+| Security gaps endereçados | G1–G17 (17 total) |
+| Agentes spawnados (Wave A→P) | ~80+ |
+| BLOCKED.md em qualquer wave | zero |
+
+### Para você ao retomar (próxima sessão)
+
+**1. VPS deploy pendente (não-destrutivo, mas precisa imperative auth)**
+- `#99` wire-up adapters: 5 server-deps modules (P1/P3/P5/A2/A3) registram routes Wave A→K. Fecha gap de 503s.
+- `#98` CORS patch: server-side support pra `chrome-extension://*` origins (P7 browser ext blocker).
+- Comando: `ssh root@187.77.234.79` + rsync de `staged-wire-up-adapters/` + `staged-cors/` + restart nox-mem-api.
+- Pra autorizar destructive ops na VPS: "apply wire-up + cors now" (imperative phrase, não genérico "go").
+
+**2. Q-runs trigger (autônomo, ~5-6h serial, ~$1.13 total)**
+- Q1 LoCoMo full run (~2h, ~$0.40)
+- Q2 LongMemEval full run (~2-3h, ~$0.50)
+- Q3 Latency benchmark (~1h, ~$0.23)
+- Scripts prontos. Resultados destravam Q4 COMPARISON.md → GTM Phase 2 gate.
+
+**3. Manual user actions (não bloqueante)**
+- 🔴 **CRITICAL: rotate GEMINI_API_KEY** — chave foi pasted no chat 2026-05-18 14:04 BRT. Trocar em https://aistudio.google.com/apikey + update `/root/.openclaw/.env` na VPS.
+- OpenSSF Best Practices badge form (manual submission)
+- Renovate GitHub App install (1-click)
+- Branch protection settings (1-min UI config)
+- Demo video gravar (script pronto em PR #63, 6 min target)
+- 18 pricing decisions resolver (PRICING-STRATEGY.md C1-C5 + P1-P10 + 3 implicit)
+
+### Achievements desta sessão (15 waves)
+
+- **Q-pillar:** Q1+Q2+Q3+Q4 scaffolds completos, scripts ready, COMPARISON.md scaffold populated
+- **A-pillar:** A1+A1.1 (BR PII) + A2 (encrypt-by-default, AAD chain) + A3 (provider abstraction + fallback) + A4 (zero-vendor checks)
+- **P-pillar:** P1 (answer primitive, p95=101ms) + P2 (temporal queries, 5 hooks) + P3 (CLI+API+MCP) + P4 (13 IDE integrations scaffold) + P5 (viewer, 11.7KB vanilla JS, SSE 4 panels) + P5a (event bus) + P6 (Flutter mobile Phase 1) + P7 (browser ext Phase 1)
+- **Lab:** L2 (graph contrib) + L3 (confidence/provenance) + L4 (typed-link extraction)
+- **GTM:** README final, COMPARISON.md scaffold, demo script, palette+accent locked, ROI calc, pricing strategy (decisions pendentes), Docker image
+- **Infra:** Docker multi-arch, 6-SDK ecosystem, SBOM CycloneDX, Renovate config, dependabot, threat model STRIDE
+- **CI:** Deploy Validator (5 PRs failed → fixed em commit 62be1f6 → PR #101 verificando)
+
+### Incidents desta sessão (2)
+
+1. **GEMINI_API_KEY expirou 14:04 BRT** mid-deploy → embedding coverage -57 → user rotated key → re-embed 4s/$0.003 → 100% coverage restored (68,995/68,995). Ver `docs/INCIDENTS.md`.
+2. **Deploy Validator 100% fail por stderr→JSON contamination** (5 PRs em sequência). Root cause `--loader ts-node/esm` + `2>&1`. Fixed em `62be1f6`. Verification PR #101 em flight. Ver `docs/INCIDENTS.md`.
+
+### Lições registradas (key memories)
+
+- `feedback_parallel_gh_pr_merge_race_condition` — 5 concurrent `gh pr merge` → "Base branch was modified"
+- `feedback_yaml_block_scalar_dedent_in_bash_strings` — heredoc em GHA `run: |` quebra YAML parse silenciosamente
+- `feedback_mandatory_closure_steps_pattern` — agents precisam closure steps numerados (git add→commit→push→pr create→verify URL)
+- `feedback_worktree_branch_leak_to_main` — worktrees podem ter main como HEAD silenciosamente
+- `feedback_executor_high_vs_executor_tradeoff` — Opus pra >200 LOC greenfield, Sonnet pra continuações
+- `feedback_writer_agent_no_bash_tool` — writer (Haiku) não comita; usar executor pra artefatos
+- (novo) Deploy Validator stderr→JSON contamination — `2>&1` em JSON capture é anti-pattern
+
+---
+
 ## 🌊 PÓS WAVE H — 2026-05-18 (noite)
 
 > **Atualizado:** 2026-05-18 ~20:00 BRT — **Wave A→H complete. 69 PRs merged em main.**
