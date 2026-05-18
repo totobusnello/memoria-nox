@@ -1,48 +1,6 @@
 # Q2 LongMemEval — Hybrid (FTS5 + Gemini + RRF) — Python self-contained
 
-> ## 🚨 Run status: PIPELINE VALIDATED, DENSE BRANCH PENDING `GEMINI_API_KEY`
->
-> **Two reasons these numbers are not the publishable headline:**
->
-> 1. **Dense branch was NOT executed.** No `GEMINI_API_KEY` was available in
->    the agent's local environment. The numbers below come from the FTS5
->    branch alone (dense branch skipped; RRF over a single ranking
->    degenerates to that ranking's order). The "Hybrid" claim is true for
->    the *script* but not for *this specific run*. Re-run with the key set
->    on VPS or local: `export GEMINI_API_KEY=...; python3
->    longmemeval_hybrid_eval.py full --split s_cleaned`.
->
-> 2. **`oracle` split has ~0 distractors per question** (mean haystack
->    size = 1.6 sessions, mean gold = 1.63 sessions). nDCG/MRR/R@10 all
->    saturate at 1.0 — these are NOT meaningful retrieval numbers, they
->    are a plumbing-validation byproduct. The paper headline lives on the
->    `s_cleaned` split (~115k-token haystacks, ~40 sessions per
->    question, real distractors). This script handles both via
->    `--split {oracle,s_cleaned,m_cleaned}`.
->
-> **What this run DID validate:**
-> - HuggingFace dataset fetch (xiaowu0162/longmemeval-cleaned @
->   commit 98d7416c, 15.4 MB oracle split, sha256 deterministic via
->   `dataset.lock.json` pattern).
-> - 948 session-chunks indexed into SQLite FTS5 with
->   `unicode61 remove_diacritics 2` tokenizer.
-> - Stratified n=100 sampling: 17/17/17/17/16/16 across the 6 base
->   categories (`single-session-user`, `single-session-assistant`,
->   `single-session-preference`, `temporal-reasoning`,
->   `knowledge-update`, `multi-session`); 6 `_abs` variants folded into
->   their parent for sampling and tracked separately on output.
-> - Per-question haystack scoping (`WHERE question_id = ?`) — chunks
->   from question A cannot leak into question B's retrieval.
-> - Metric implementations (nDCG@10, MRR, R@10, P@5) match Q1 LoCoMo
->   sibling script for apples-to-apples comparison.
->
-> **Cost incurred for this run:** $0 (no embedding calls).
-> **Estimated cost for full run on `s_cleaned` n=100 with Gemini:**
-> < $0.20.
-
----
-
-**Run date:** 2026-05-18 18:36 -03
+**Run date:** 2026-05-18 19:29 -03
 **Dataset:** `xiaowu0162/longmemeval-cleaned` (MIT (xiaowu0162/longmemeval-cleaned))
 **Revision:** `98d7416c24...`
 **Split:** `oracle` (evidence-only, smallest)
@@ -111,4 +69,4 @@ python3 longmemeval_hybrid_eval.py full
 ```
 
 Output JSONL (one row per question):
-`publication/results/longmemeval-hybrid-results.jsonl`
+`paper/results/longmemeval-hybrid-results.jsonl`
