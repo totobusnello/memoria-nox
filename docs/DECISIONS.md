@@ -445,6 +445,58 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **NÃO FAZEMOS:** ACTIVATE sem evidence ≥1 consumer real. ACTIVATE "técnico" (que muda envelope mas ninguém lê) é cosmético sem valor.
 - *Origem:* sessão 2026-05-16. Cross-link: `specs/2026-05-01-E03a-spo-injection.md`, task #18 (integração).
 
+### 2026-05-18 madrugada — Q/A/P cross-cutting decisions resolved (D41)
+
+**Decisão:** Toto resolveu 5 cross-cutting questions levantadas pelo `docs/MORNING-REVIEW-2026-05-18.md` antes de fechar overnight 2026-05-17 noite.
+
+1. **P1 default Gemini model: `gemini-2.5-flash-lite` (NOT flash)**
+   - Razão: "tem que ser barato e bom" — Toto priorizou custo
+   - Toggle pra `gemini-2.5-flash` post-Q1 SE quality issue empírico aparecer
+   - PR #3 spec §9 deve refletir: lite default, flash como opção via `--model` flag
+   - Aplicar durante implementation P1 (não pre-merge edit no branch do PR)
+
+2. **A2 encryption default: opt-out (encrypt by default)**
+   - Razão: A2 é keystone Autonomy pillar; encrypted-by-default sinaliza "data é sua, protegida por default"
+   - Plaintext via `--unencrypted` flag para edge cases (backup pra mídia confiável)
+   - PR #9 spec §3 deve reframe: default behavior = encrypted (AES-256-GCM + scrypt KDF), `--unencrypted` é opt-out explícito
+   - Aplicar durante implementation A2
+
+3. **GTM brand color palette: D (minimal — mono + 1 accent)**
+   - Razão: Moat é lean ("your data, your choice") → visual minimalista combina, não compete com conteúdo
+   - Accent color: `#00C896` (success green) picked pelo asset production agent — works on dark + light, semantic fit "data is healthy", unclaimed in this space (memanto + agentmemory both orange/amber)
+   - PR #16 spec §2 deve lock D minimal + #00C896 accent
+   - Asset production (banner + 6 stat SVGs + logo) DONE em PR #19 — pronto para gate Q4
+
+4. **L3 confidence gate threshold: ≥1.0pp absolute lift (KEPT)**
+   - Razão: 1.0pp é honest bar; menos arrisca complexity for marginal gain
+   - Se eval <1pp, schema ships sozinho (v19), ranking integration aguarda L3.2 (iteração separada)
+   - PR #15 spec §6 unchanged
+
+5. **Implementation sprint order: P1 (answer) → A2 (export, parallel se capacity) → P2 (hooks) → P4 (connect IDE)**
+   - Razão: P1 = highest user impact, unblocks P2-P5 mental model; A2 = backend-heavy paralelo OK; P2 depende P1; P4 depende P2 hooks
+   - Aplicar quando PRs #2-#16 forem merged ou após VPS sync
+   - Implementation kickoff issues criados pelos agents prep nesta madrugada: P1 (PR #18), A2 (PR #17), P2 (in progress), A3 (in progress), P4 (in progress)
+
+**Implicação operacional:**
+- PR comments informativos adicionados em #3, #9, #15, #16
+- GTM asset production COMPLETE (PR #19, 20 files, palette D + accent #00C896)
+- Implementation prep COMPLETE pra P1 (PR #18) + A2 (PR #17)
+- A4 completion COMPLETE (PR #20, all 8 checks runnable in CI, no VPS dependency)
+- VISION.md v15 written (branch ready, PR pending)
+- Q4 COMPARISON harness em curso (async)
+- P2 + A3 + P4 implementation kickoffs em curso (async)
+- README-DRAFT.md em curso (async, locked behind Q4 gate but draft ready)
+
+**Origem:** Toto morning review 2026-05-18 ~06:00 BRT em resposta ao `docs/MORNING-REVIEW-2026-05-18.md`.
+
+**Ver também:**
+- `docs/MORNING-REVIEW-2026-05-18.md` (playbook que levantou as 5 questions)
+- `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` (pré-pivot)
+- D40 (Q/A/P pivot que estabeleceu o framework)
+- PR #17, #18, #19, #20 (artifacts deste D41)
+
+---
+
 ### 2026-05-17 noite — Q/A/P strategic pivot pós-análise memanto + agentmemory (D40)
 
 **Decisão:** Reorganizar roadmap em 3 pilares product-first + 1 Lab + 1 GTM phase, abandonando estrutura E-numbered focada em retrieval research interna.
