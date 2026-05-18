@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Questions / discussions
+    url: https://github.com/totobusnello/memoria-nox/discussions
+    about: Ask usage questions, share ideas, get community help
+  - name: 🔐 Security vulnerability
+    url: https://github.com/totobusnello/memoria-nox/security/advisories
+    about: Report security issues PRIVATELY via GitHub Security Advisory (do not open public issue)
+  - name: 📖 Documentation
+    url: https://github.com/totobusnello/memoria-nox/tree/main/docs
+    about: Read the docs hub before opening an issue

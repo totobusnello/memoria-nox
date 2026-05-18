@@ -1,0 +1,68 @@
+name: ✨ Feature request
+description: Propose a new feature or improvement
+title: "[FEAT] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a new feature. Please describe your use case and the proposed solution.
+
+        **Note:** ranking/scoring changes require ≥7d shadow-mode per CLAUDE.md regra crítica #5. Schema changes must be additive with rollback SQL.
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation / use case
+      description: Why is this feature valuable? What problem does it solve?
+      placeholder: "When I'm doing X, I need ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How might this work? CLI command shape, API endpoint, behavior?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you consider? Why is this one better?
+
+  - type: dropdown
+    id: pillar
+    attributes:
+      label: Which pillar?
+      options:
+        - Q — Quality (benchmarks / evaluation)
+        - A — Autonomy (privacy / export / providers)
+        - P — Product (answer / hooks / viewer / IDE)
+        - Lab — experimental (KG / conflict / confidence)
+        - GTM — distribution / branding
+        - Operational / CI / infra
+        - Documentation
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: implications
+    attributes:
+      label: Implementation implications
+      description: Check all that apply
+      options:
+        - label: Requires schema migration (additive + rollback SQL)
+        - label: Affects ranking/scoring (will need ≥7d shadow validation)
+        - label: New env var(s) required
+        - label: New external dependency (npm package)
+        - label: Changes existing public API surface
+        - label: Cross-pillar (affects multiple pillars)
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Mockups, links to related work, references to competitor implementations

@@ -1,0 +1,93 @@
+name: 🐛 Bug report
+description: Report a bug in memoria-nox
+title: "[BUG] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please fill out the form below.
+
+        **Before submitting:** check [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) and search existing issues to avoid duplicates.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear and concise description of the bug
+      placeholder: "When I run `nox-mem search`, the CLI returns ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      placeholder: "I expected ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `nox-mem ingest --text "test"`
+        2. Run `nox-mem search "test"`
+        3. Observe error ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit SHA
+      description: Output of `git log -1 --oneline`
+      placeholder: "e.g. abc1234 feat: ..."
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: Node version
+      description: Output of `node -v`
+      placeholder: "v22.x"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: pillar
+    attributes:
+      label: Which pillar / area?
+      multiple: true
+      options:
+        - Q — Quality (benchmarks)
+        - A — Autonomy (privacy / export / providers)
+        - P — Product (answer / hooks / viewer / IDE)
+        - Lab — KG / conflict / confidence / regex
+        - CLI / API / MCP surface
+        - Schema / migrations
+        - Documentation
+        - Other / unsure
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / errors
+      description: Paste minimal logs (NEVER include API keys, passphrases, PII, or sensitive content)
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-submission checks
+      options:
+        - label: I have read [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md)
+          required: true
+        - label: I have searched existing issues
+          required: true
+        - label: I have NOT included secrets, keys, passphrases, or PII in this report
+          required: true
+        - label: I have included reproduction steps
+          required: true
