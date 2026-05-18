@@ -1,0 +1,83 @@
+name: A1 Privacy Filter Tests
+
+on:
+  pull_request:
+    paths:
+      - 'staged-privacy/**'
+      - '.github/workflows/privacy-filter.yml'
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  privacy-tests:
+    name: "A1 Privacy — 68 unit tests (node:test)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check staged-privacy exists
+        id: priv_check
+        run: |
+          if [ -d "staged-privacy" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::error::staged-privacy directory not found — A1 PR not merged?"
+          fi
+
+      - name: Install privacy filter dependencies
+        if: steps.priv_check.outputs.present == 'true'
+        run: |
+          cd staged-privacy
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+
+      - name: Build TypeScript
+        if: steps.priv_check.outputs.present == 'true'
+        run: |
+          cd staged-privacy
+          npm run build 2>&1
+
+      - name: Run privacy filter tests (68 cases)
+        if: steps.priv_check.outputs.present == 'true'
+        run: |
+          cd staged-privacy
+          # package.json test script: build + node --test dist/privacy/__tests__/filter.test.js
+          npm test 2>&1 | tee /tmp/privacy-test-results.txt
+          EXIT=${PIPESTATUS[0]}
+          echo "Test exit code: $EXIT"
+          exit $EXIT
+
+      - name: Validate no real secrets in test fixtures
+        if: steps.priv_check.outputs.present == 'true'
+        run: |
+          set +e
+          # Detect patterns for real AWS access keys and OpenAI/Anthropic secret keys
+          REAL_AWS=$(grep -rE 'AKIA[A-Z0-9]{16}' staged-privacy/edits/ | grep -vE 'AKIAIOSFODNN7EXAMPLE|AKIATEST|AKIA_FAKE|AKIAFAKE' | grep -v '\.test\.' | wc -l)
+          REAL_OPENAI=$(grep -rE 'sk-[a-zA-Z0-9]{48,}' staged-privacy/edits/ | grep -vE 'sk-test-|sk-fake-|sk-example-|sk-ant-test-' | wc -l)
+          if [ "$REAL_AWS" -gt 0 ] || [ "$REAL_OPENAI" -gt 0 ]; then
+            echo "::error::Possible real secret detected in staged-privacy tests (AWS=$REAL_AWS, OpenAI=$REAL_OPENAI)"
+            echo "Review staged-privacy/edits/ for credentials before merging."
+            exit 1
+          fi
+          echo "Secret scan clean (AWS=$REAL_AWS real-looking, OpenAI=$REAL_OPENAI real-looking)"
+          set -e
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always() && steps.priv_check.outputs.present == 'true'
+        with:
+          name: privacy-test-results-${{ github.sha }}
+          path: /tmp/privacy-test-results.txt
+          retention-days: 7

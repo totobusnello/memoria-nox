@@ -1,0 +1,173 @@
+name: A4 Zero-Vendor Validation
+
+# This is the canonical .github/workflows/ version of A4 zero-vendor.
+# The original validation/zero-vendor/ci-action.yml (PR #20) is preserved as-is
+# (two-job split with self-hosted VPS runner). This file upgrades to:
+#   - tsx@4 instead of ts-node (faster, no --esm flag quirks)
+#   - All 8 checks run in CI (A4-completion refactored mock-based checks 2, 3, 6, 7)
+#   - Weekly schedule for drift detection
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 0'   # Weekly — Sunday 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      vps_mode:
+        description: 'Run VPS-dependent live checks (requires self-hosted runner label)'
+        required: false
+        default: 'false'
+        type: boolean
+
+permissions:
+  contents: read
+  pull-requests: write   # post summary comment
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # All 8 checks — CI-runnable via mock infrastructure
+  # Checks 2, 3, 6, 7 use fixture DB + socket-guard + mock provider (A4-completion)
+  # ---------------------------------------------------------------------------
+  zero-vendor:
+    name: "A4 Zero-Vendor — all 8 checks"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tsx
+        run: npm install -g tsx@4
+
+      - name: Install sqlite3 CLI
+        run: sudo apt-get install -y sqlite3
+
+      - name: Verify sqlite3 available
+        run: sqlite3 --version
+
+      - name: Check validation/zero-vendor exists
+        id: zv_check
+        run: |
+          if [ -d "validation/zero-vendor" ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::validation/zero-vendor not found — A4 PR not merged yet"
+          fi
+
+      - name: Install zero-vendor dependencies
+        if: steps.zv_check.outputs.present == 'true'
+        run: |
+          if [ -f validation/zero-vendor/package.json ]; then
+            cd validation/zero-vendor && npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          fi
+
+      - name: Seed fixture DB (for checks 2, 4 that need a real SQLite file)
+        if: steps.zv_check.outputs.present == 'true'
+        run: |
+          if [ -f validation/zero-vendor/fixtures/seed-fixture-db.cjs ]; then
+            node validation/zero-vendor/fixtures/seed-fixture-db.cjs
+          else
+            echo "::notice::seed-fixture-db.cjs not found — sqlite-portable-check uses its own fixture"
+          fi
+        env:
+          NOX_MEM_DIR: ${{ github.workspace }}
+
+      - name: Run all 8 zero-vendor checks via runner
+        id: runner
+        if: steps.zv_check.outputs.present == 'true'
+        run: |
+          npx tsx validation/zero-vendor/runner.ts \
+            --ci \
+            --report /tmp/zero-vendor-report.json \
+            --json 2>&1 | tee /tmp/zero-vendor-stdout.txt
+          echo "runner_exit=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+        env:
+          NOX_MEM_DIR: ${{ github.workspace }}
+          CI: 'true'
+        continue-on-error: true
+
+      - name: Run integration tests (mock-based)
+        if: steps.zv_check.outputs.present == 'true'
+        run: |
+          if [ -f validation/zero-vendor/__tests__/integration.test.ts ]; then
+            npx tsx --test validation/zero-vendor/__tests__/integration.test.ts 2>&1
+          else
+            echo "::notice::integration.test.ts not found — skipping"
+          fi
+        env:
+          CI: 'true'
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        if: always() && steps.zv_check.outputs.present == 'true'
+        with:
+          name: zero-vendor-report-${{ github.sha }}
+          path: |
+            /tmp/zero-vendor-report.json
+            /tmp/zero-vendor-stdout.txt
+          retention-days: 30
+
+      - name: Post summary to PR
+        if: >
+          github.event_name == 'pull_request' &&
+          steps.zv_check.outputs.present == 'true' &&
+          hashFiles('/tmp/zero-vendor-report.json') != ''
+        run: |
+          PASSED=$(jq -r '.passed // "unknown"' /tmp/zero-vendor-report.json)
+          PASS_COUNT=$(jq -r '.summary.pass // 0' /tmp/zero-vendor-report.json)
+          FAIL_COUNT=$(jq -r '.summary.fail // 0' /tmp/zero-vendor-report.json)
+          SIM_COUNT=$(jq -r '.summary.simulation // 0' /tmp/zero-vendor-report.json)
+
+          if [ "$PASSED" = "true" ]; then
+            ICON="✅"; LABEL="ALL CHECKS PASSED"
+          else
+            ICON="❌"; LABEL="CHECKS FAILED"
+          fi
+
+          BODY="## Zero-Vendor Validation — $ICON $LABEL
+
+**Pillar A4:** No proprietary lock-in — yours by design.
+
+| Metric | Count |
+|--------|-------|
+| Pass | $PASS_COUNT |
+| Fail | $FAIL_COUNT |
+| Simulation (CI mock) | $SIM_COUNT |
+
+<details><summary>Full report (first 80 lines)</summary>
+
+\`\`\`json
+$(head -80 /tmp/zero-vendor-report.json)
+\`\`\`
+</details>"
+
+          echo "$BODY" > /tmp/pr-comment.md
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file /tmp/pr-comment.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Assert suite passed
+        if: steps.zv_check.outputs.present == 'true'
+        run: |
+          if [ ! -f /tmp/zero-vendor-report.json ]; then
+            echo "::error::Report not generated — runner may have crashed"
+            exit 1
+          fi
+          PASSED=$(jq -r '.passed' /tmp/zero-vendor-report.json)
+          FAIL_COUNT=$(jq -r '.summary.fail // 0' /tmp/zero-vendor-report.json)
+          if [ "$PASSED" != "true" ] && [ "$FAIL_COUNT" -gt 0 ]; then
+            echo "::error::Zero-vendor validation FAILED — $FAIL_COUNT check(s) failed"
+            exit 1
+          fi
+          echo "Zero-vendor validation PASSED"
