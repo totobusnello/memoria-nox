@@ -445,6 +445,36 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **NÃO FAZEMOS:** ACTIVATE sem evidence ≥1 consumer real. ACTIVATE "técnico" (que muda envelope mas ninguém lê) é cosmético sem valor.
 - *Origem:* sessão 2026-05-16. Cross-link: `specs/2026-05-01-E03a-spo-injection.md`, task #18 (integração).
 
+### 2026-05-18 noite — Threat-model iteração recursiva + cadência quarterly (D42)
+
+#### D42 — Threat-model iteração recursiva: adotar cadência trimestral de security audit
+
+**Context:** Wave E entregou THREAT-MODEL.md inicial (PR #55) cobrindo A1/A2/A3 + endpoints Wave B. Wave F (PR #58) analisou os módulos pendentes (P5/L2/P2/A2) — sparse-checkout artifact havia excluído essas seções da Wave E — e encontrou **7 novos gaps** (G11–G17), sendo 2 HIGH. Wave G (PR #66) fechou todos os 7 em 1 PR.
+
+**Decisão:** Adotar **cadência trimestral de security audit** como prática standing. Cada audit irá provavelmente revelar novos gaps à medida que a superfície de código cresce.
+
+**Rationale:**
+- Wave E perdeu P5/L2/P2/A2 por artifact de sparse-checkout — não falha de método, mas de scope
+- Mesmo após fix, nova superfície (Wave B/C) criou novos vetores de ataque
+- Security work não tem estado "done" — é iterativo por natureza
+- Cadência previne acúmulo de long-tail risk que aparece só em produção
+- Padrão estabelecido na sessão de 2026-04-29 (`feedback_audit_critical_modules_same_session`): audit na mesma sessão expõe issues que apareceriam semanas depois
+
+**Alternativas rejeitadas:**
+- "Audit once before launch" — pressupõe superfície de código estática, contradiz velocidade do roadmap
+- "Audit only when bug found" — reativo, permite acúmulo; Wave G provou que proativo é mais barato
+- "Audit a cada PR grande" — overhead too high; trimestral balanceia custo × cobertura
+
+**Implicação operacional:**
+- Próximo audit Q3 2026 (aproximadamente Wave M ou equivalente)
+- `docs/THREAT-MODEL.md` vira living doc; versão tagueada por audit (v1.0 Wave E, v1.1 Wave F)
+- Cross-link ao ROADMAP — todo ranking change ou op destrutiva passa por threat review antes de merge
+- Formato: parallel agents analisam módulos por pillar (Q/A/P/Lab) para cobrir toda superfície
+
+**Cross-ref:** memories `feedback_audit_critical_modules_same_session` + `feedback_audit_must_check_prod_state_not_only_code`, `docs/THREAT-MODEL.md` v1.1, PR #55 (Wave E) + PR #58 (Wave F) + PR #66 (Wave G).
+
+---
+
 ### 2026-05-18 madrugada — Q/A/P cross-cutting decisions resolved (D41)
 
 **Decisão:** Toto resolveu 5 cross-cutting questions levantadas pelo `docs/MORNING-REVIEW-2026-05-18.md` antes de fechar overnight 2026-05-17 noite.
