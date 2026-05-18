@@ -1,0 +1,130 @@
+name: Deploy Validator
+
+on:
+  pull_request:
+    paths:
+      - 'docs/DEPLOY-WAVE-B.md'
+      - 'staged-*/**'
+      - 'staged-migrations/**'
+      - 'scripts/deploy-validator/**'
+
+jobs:
+  validate-deploy:
+    name: Validate DEPLOY-WAVE-B.md commands
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: scripts/deploy-validator/package.json
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y rsync sqlite3 bash
+
+      - name: Install npm dependencies
+        working-directory: scripts/deploy-validator
+        run: npm ci
+
+      - name: Run unit tests
+        working-directory: scripts/deploy-validator
+        run: npm test
+
+      - name: Run deploy validator
+        working-directory: scripts/deploy-validator
+        env:
+          CI: true
+        run: |
+          node --loader ts-node/esm src/cli.ts \
+            --guide ../../docs/DEPLOY-WAVE-B.md \
+            --no-smoke \
+            --output ../../validation \
+            --json > /tmp/validator-report.json 2>&1 || EXIT_CODE=$?
+          cat /tmp/validator-report.json
+          exit ${EXIT_CODE:-0}
+
+      - name: Parse validator output
+        if: always()
+        id: parse-report
+        run: |
+          if [ -f /tmp/validator-report.json ]; then
+            FAIL=$(cat /tmp/validator-report.json | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          print(data.get('summary', {}).get('fail', 0))
+          ")
+            PASS=$(cat /tmp/validator-report.json | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          print(data.get('summary', {}).get('pass', 0))
+          ")
+            VPS=$(cat /tmp/validator-report.json | python3 -c "
+          import json, sys
+          data = json.load(sys.stdin)
+          print(data.get('summary', {}).get('vpsOnly', 0))
+          ")
+            echo "fail=$FAIL" >> "$GITHUB_OUTPUT"
+            echo "pass=$PASS" >> "$GITHUB_OUTPUT"
+            echo "vps_only=$VPS" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post PR comment with report
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let body = '## Deploy Validator Results\n\n';
+
+            try {
+              const reportData = JSON.parse(fs.readFileSync('/tmp/validator-report.json', 'utf8'));
+              const s = reportData.summary || {};
+              const passed = reportData.overallPassed;
+
+              body += `**Status:** ${passed ? 'PASSED' : 'FAILED'}\n\n`;
+              body += `| Pass | Fail | Warning | VPS-only | Skip |\n`;
+              body += `|------|------|---------|----------|------|\n`;
+              body += `| ${s.pass || 0} | ${s.fail || 0} | ${s.warning || 0} | ${s.vpsOnly || 0} | ${s.skip || 0} |\n\n`;
+
+              if (s.fail > 0) {
+                body += '### Failures\n\n';
+                const failures = (reportData.entries || []).filter(e => e.status === 'fail');
+                for (const f of failures.slice(0, 10)) {
+                  body += `- **[${f.category}]** \`${f.label}\`: ${f.detail?.slice(0, 120)}\n`;
+                }
+                if (failures.length > 10) {
+                  body += `\n... and ${failures.length - 10} more failures.\n`;
+                }
+              }
+
+              if (s.vpsOnly > 0) {
+                body += `\n> **Note:** ${s.vpsOnly} check(s) are VPS-only and were skipped in CI. Validate on production after merge.\n`;
+              }
+            } catch (e) {
+              body += `Could not parse validator report: ${e.message}\n`;
+            }
+
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-validator-report
+          path: |
+            validation/deploy-report-*.md
+            validation/deploy-report-*.json
+          if-no-files-found: ignore

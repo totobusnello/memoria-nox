@@ -1,0 +1,21 @@
+{
+  "name": "deploy-validator",
+  "version": "1.0.0",
+  "description": "Local dry-run validator for DEPLOY-WAVE-B.md commands",
+  "type": "module",
+  "scripts": {
+    "validate-deploy": "npm run build && node dist/cli.js",
+    "validate-deploy:quick": "npm run build && node dist/cli.js --quick",
+    "test": "npm run build && node --test dist/parser.test.js dist/categorize.test.js dist/validators/bash-syntax.test.js dist/validators/rsync.test.js dist/validators/sqlite-migration.test.js dist/validators/path-validator.test.js dist/validators/url-validator.test.js",
+    "build": "tsc"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
