@@ -1,0 +1,47 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem logo">
+  <title>nox-mem</title>
+
+  <!-- Background -->
+  <rect width="256" height="256" rx="24" fill="#F5F5F7"/>
+
+  <!-- Graph dot constellation (background, dim) -->
+  <circle cx="56" cy="48" r="2.5" fill="none" stroke="#D0D0D4" stroke-width="1"/>
+  <circle cx="200" cy="48" r="2.5" fill="none" stroke="#D0D0D4" stroke-width="1"/>
+  <circle cx="48" cy="200" r="2.5" fill="none" stroke="#D0D0D4" stroke-width="1"/>
+  <circle cx="208" cy="200" r="2.5" fill="none" stroke="#D0D0D4" stroke-width="1"/>
+  <circle cx="128" cy="38" r="2.5" fill="none" stroke="#D0D0D4" stroke-width="1"/>
+  <circle cx="38" cy="128" r="2.5" fill="none" stroke="#D0D0D4" stroke-width="1"/>
+  <circle cx="218" cy="128" r="2.5" fill="none" stroke="#D0D0D4" stroke-width="1"/>
+  <circle cx="128" cy="218" r="2.5" fill="none" stroke="#D0D0D4" stroke-width="1"/>
+
+  <!-- Dot connections -->
+  <line x1="56" y1="48" x2="128" y2="38" stroke="#E0E0E4" stroke-width="1"/>
+  <line x1="128" y1="38" x2="200" y2="48" stroke="#E0E0E4" stroke-width="1"/>
+  <line x1="38" y1="128" x2="56" y2="48" stroke="#E0E0E4" stroke-width="1"/>
+  <line x1="218" y1="128" x2="200" y2="48" stroke="#E0E0E4" stroke-width="1"/>
+  <line x1="48" y1="200" x2="38" y2="128" stroke="#E0E0E4" stroke-width="1"/>
+  <line x1="208" y1="200" x2="218" y2="128" stroke="#E0E0E4" stroke-width="1"/>
+  <line x1="128" y1="218" x2="48" y2="200" stroke="#E0E0E4" stroke-width="1"/>
+  <line x1="128" y1="218" x2="208" y2="200" stroke="#E0E0E4" stroke-width="1"/>
+
+  <!-- Main mark: [m] bracket monogram -->
+  <!-- Left bracket [ -->
+  <path d="M 78 84 L 64 84 L 64 172 L 78 172" fill="none" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Right bracket ] -->
+  <path d="M 178 84 L 192 84 L 192 172 L 178 172" fill="none" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- m letterform (accent — darkened for light bg) -->
+  <!-- Left arch -->
+  <path d="M 88 158 L 88 118 Q 88 104 101 104 Q 114 104 114 118 L 114 158"
+        fill="none" stroke="#00A87A" stroke-width="4" stroke-linecap="round"/>
+  <!-- Right arch -->
+  <path d="M 114 118 Q 114 104 127 104 Q 140 104 140 118 L 140 158"
+        fill="none" stroke="#00A87A" stroke-width="4" stroke-linecap="round"/>
+  <!-- Third arch -->
+  <path d="M 140 118 Q 140 104 153 104 Q 166 104 166 118 L 166 158"
+        fill="none" stroke="#00A87A" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Wordmark below -->
+  <text x="128" y="204" fill="#AAAAAE" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="400" text-anchor="middle" letter-spacing="3">nox-mem</text>
+</svg>

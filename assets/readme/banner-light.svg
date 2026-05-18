@@ -1,0 +1,74 @@
+<svg width="720" height="200" viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem — Hybrid memory with shadow discipline, yours by design">
+  <title>nox-mem — Hybrid memory with shadow discipline</title>
+
+  <!-- Background -->
+  <rect width="720" height="200" fill="#F5F5F7"/>
+
+  <!-- Subtle grid texture -->
+  <defs>
+    <pattern id="grid-l" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E5E5E8" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="720" height="200" fill="url(#grid-l)"/>
+
+  <!-- Graph visualization — right side -->
+  <!-- Edges -->
+  <line x1="520" y1="80" x2="580" y2="50" stroke="#D0D0D4" stroke-width="1.5"/>
+  <line x1="520" y1="80" x2="580" y2="110" stroke="#D0D0D4" stroke-width="1.5"/>
+  <line x1="520" y1="80" x2="460" y2="50" stroke="#D0D0D4" stroke-width="1.5"/>
+  <line x1="520" y1="80" x2="460" y2="120" stroke="#D0D0D4" stroke-width="1.5"/>
+  <line x1="520" y1="80" x2="550" y2="140" stroke="#D0D0D4" stroke-width="1.5"/>
+
+  <!-- Secondary edges -->
+  <line x1="580" y1="50" x2="630" y2="30" stroke="#DCDCDE" stroke-width="1"/>
+  <line x1="580" y1="50" x2="640" y2="70" stroke="#DCDCDE" stroke-width="1"/>
+  <line x1="580" y1="110" x2="650" y2="100" stroke="#DCDCDE" stroke-width="1"/>
+  <line x1="580" y1="110" x2="640" y2="150" stroke="#DCDCDE" stroke-width="1"/>
+  <line x1="460" y1="50" x2="420" y2="30" stroke="#DCDCDE" stroke-width="1"/>
+  <line x1="460" y1="50" x2="410" y2="65" stroke="#DCDCDE" stroke-width="1"/>
+  <line x1="460" y1="120" x2="410" y2="140" stroke="#DCDCDE" stroke-width="1"/>
+  <line x1="550" y1="140" x2="590" y2="168" stroke="#DCDCDE" stroke-width="1"/>
+  <line x1="550" y1="140" x2="510" y2="170" stroke="#DCDCDE" stroke-width="1"/>
+
+  <!-- Cross-cluster accent edges -->
+  <line x1="580" y1="50" x2="580" y2="110" stroke="#00A87A" stroke-width="1" opacity="0.35"/>
+  <line x1="460" y1="50" x2="460" y2="120" stroke="#00A87A" stroke-width="1" opacity="0.2"/>
+
+  <!-- Tertiary peripheral nodes -->
+  <circle cx="630" cy="30" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
+  <circle cx="640" cy="70" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
+  <circle cx="650" cy="100" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
+  <circle cx="640" cy="150" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
+  <circle cx="420" cy="30" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
+  <circle cx="410" cy="65" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
+  <circle cx="410" cy="140" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
+  <circle cx="590" cy="168" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
+  <circle cx="510" cy="170" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
+
+  <!-- Secondary cluster nodes -->
+  <circle cx="580" cy="50" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
+  <circle cx="580" cy="110" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
+  <circle cx="460" cy="50" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
+  <circle cx="460" cy="120" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
+  <circle cx="550" cy="140" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
+
+  <!-- Primary center node — accent -->
+  <circle cx="520" cy="80" r="10" fill="#F5F5F7" stroke="#00A87A" stroke-width="2"/>
+  <circle cx="520" cy="80" r="4" fill="#00A87A"/>
+
+  <!-- Wordmark -->
+  <text x="48" y="82" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="38" font-weight="600" letter-spacing="-1">nox-mem</text>
+
+  <!-- Separator -->
+  <line x1="48" y1="98" x2="340" y2="98" stroke="#D8D8DC" stroke-width="1"/>
+
+  <!-- Tagline line 1 -->
+  <text x="48" y="126" fill="#111111" font-family="'Inter', 'Helvetica Neue', sans-serif" font-size="13" font-weight="300" letter-spacing="0.5">HYBRID MEMORY WITH SHADOW DISCIPLINE</text>
+
+  <!-- Tagline line 2 accent -->
+  <text x="48" y="148" fill="#00A87A" font-family="'Inter', 'Helvetica Neue', sans-serif" font-size="13" font-weight="300" letter-spacing="0.5">— YOURS BY DESIGN.</text>
+
+  <!-- Bottom metadata -->
+  <text x="48" y="182" fill="#C0C0C4" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="1">SQLite · FTS5 · Gemini 3072d · RRF · KG · Shadow-mode</text>
+</svg>

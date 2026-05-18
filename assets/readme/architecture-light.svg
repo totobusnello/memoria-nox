@@ -1,0 +1,186 @@
+<svg width="1000" height="600" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem hybrid retrieval architecture diagram, light theme">
+  <title>nox-mem — Hybrid Retrieval Architecture</title>
+
+  <!-- Background -->
+  <rect width="1000" height="600" fill="#F5F5F7"/>
+
+  <!-- Subtle grid -->
+  <defs>
+    <pattern id="arch-grid-l" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#EAEAEC" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="1000" height="600" fill="url(#arch-grid-l)"/>
+
+  <!-- ========================== SECTION LABELS ========================== -->
+
+  <text x="20" y="42" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">INGEST</text>
+  <line x1="18" y1="48" x2="280" y2="48" stroke="#E0E0E4" stroke-width="0.5"/>
+
+  <text x="310" y="42" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">STORAGE</text>
+  <line x1="308" y1="48" x2="590" y2="48" stroke="#E0E0E4" stroke-width="0.5"/>
+
+  <text x="618" y="42" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">RETRIEVAL + RANKING</text>
+  <line x1="616" y1="48" x2="980" y2="48" stroke="#E0E0E4" stroke-width="0.5"/>
+
+  <!-- ========================== INGEST PIPELINE ========================== -->
+
+  <rect x="20" y="66" width="120" height="44" rx="4" fill="#F5F5F7" stroke="#D0D0D4" stroke-width="1.5"/>
+  <text x="80" y="84" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">INPUT</text>
+  <text x="80" y="100" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">file / entity</text>
+
+  <line x1="140" y1="88" x2="160" y2="88" stroke="#D0D0D4" stroke-width="1.5"/>
+  <polygon points="160,84 168,88 160,92" fill="#D0D0D4"/>
+
+  <rect x="168" y="66" width="110" height="44" rx="4" fill="#F5F5F7" stroke="#D0D0D4" stroke-width="1.5"/>
+  <text x="223" y="84" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">ROUTER</text>
+  <text x="223" y="100" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">ingest router</text>
+
+  <rect x="168" y="136" width="110" height="44" rx="4" fill="#F5F5F7" stroke="#D0D0D4" stroke-width="1.5"/>
+  <text x="223" y="154" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">FILTER</text>
+  <text x="223" y="170" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">privacy filter</text>
+
+  <line x1="223" y1="110" x2="223" y2="130" stroke="#D0D0D4" stroke-width="1.5"/>
+  <polygon points="219,130 223,138 227,130" fill="#D0D0D4"/>
+
+  <rect x="168" y="206" width="110" height="52" rx="4" fill="#F5F5F7" stroke="#D0D0D4" stroke-width="1.5"/>
+  <text x="223" y="224" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">PARSE + CHUNK</text>
+  <text x="223" y="241" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">entity parser</text>
+  <text x="223" y="253" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">512 tokens</text>
+
+  <line x1="223" y1="180" x2="223" y2="200" stroke="#D0D0D4" stroke-width="1.5"/>
+  <polygon points="219,200 223,208 227,200" fill="#D0D0D4"/>
+
+  <rect x="168" y="284" width="110" height="52" rx="4" fill="#F5F5F7" stroke="#D0D0D4" stroke-width="1.5"/>
+  <text x="223" y="302" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">EMBED</text>
+  <text x="223" y="319" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">Gemini embed</text>
+  <text x="223" y="331" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">3072d</text>
+
+  <line x1="223" y1="258" x2="223" y2="278" stroke="#D0D0D4" stroke-width="1.5"/>
+  <polygon points="219,278 223,286 227,278" fill="#D0D0D4"/>
+
+  <!-- ========================== STORAGE LAYER ========================== -->
+
+  <rect x="310" y="190" width="130" height="52" rx="4" fill="#F5F5F7" stroke="#00A87A" stroke-width="1.5"/>
+  <text x="375" y="210" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">CHUNKS DB</text>
+  <text x="375" y="228" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">chunks</text>
+  <text x="375" y="238" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">62.9k rows</text>
+
+  <rect x="310" y="266" width="130" height="52" rx="4" fill="#F5F5F7" stroke="#00A87A" stroke-width="1.5"/>
+  <text x="375" y="286" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">FULL TEXT</text>
+  <text x="375" y="304" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">FTS5 BM25</text>
+  <text x="375" y="314" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">chunks_fts</text>
+
+  <rect x="310" y="342" width="130" height="52" rx="4" fill="#F5F5F7" stroke="#00A87A" stroke-width="1.5"/>
+  <text x="375" y="362" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">VECTOR STORE</text>
+  <text x="375" y="380" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">sqlite-vec</text>
+  <text x="375" y="390" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">vec_chunks</text>
+
+  <rect x="310" y="418" width="130" height="60" rx="4" fill="#F5F5F7" stroke="#00A87A" stroke-width="1.5"/>
+  <text x="375" y="438" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">KNOWLEDGE GRAPH</text>
+  <text x="375" y="456" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">KG entities</text>
+  <text x="375" y="468" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">402 ent · 21k rel</text>
+
+  <!-- Storage arrows (light) -->
+  <line x1="278" y1="232" x2="310" y2="216" stroke="#D0D0D4" stroke-width="1"/>
+  <polygon points="306,211 318,216 308,221" fill="#D0D0D4"/>
+  <line x1="278" y1="320" x2="310" y2="368" stroke="#D0D0D4" stroke-width="1"/>
+  <polygon points="306,364 318,370 308,375" fill="#D0D0D4"/>
+  <line x1="278" y1="244" x2="294" y2="448" stroke="#E0E0E4" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="294" y1="448" x2="310" y2="448" stroke="#E0E0E4" stroke-width="1" stroke-dasharray="4 3"/>
+  <polygon points="306,444 318,448 306,452" fill="#E0E0E4"/>
+  <line x1="375" y1="242" x2="375" y2="260" stroke="#E0E0E4" stroke-width="1" stroke-dasharray="3 2"/>
+  <polygon points="371,260 375,268 379,260" fill="#E0E0E4"/>
+
+  <!-- ========================== QUERY INPUT ========================== -->
+
+  <rect x="480" y="66" width="110" height="44" rx="4" fill="#F5F5F7" stroke="#D0D0D4" stroke-width="1.5"/>
+  <text x="535" y="84" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">QUERY</text>
+  <text x="535" y="100" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">user query</text>
+
+  <!-- ========================== RETRIEVAL LAYER ========================== -->
+
+  <rect x="616" y="190" width="130" height="52" rx="4" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
+  <text x="681" y="210" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">KEYWORD</text>
+  <text x="681" y="228" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">BM25 search</text>
+  <text x="681" y="238" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">FTS5</text>
+
+  <rect x="616" y="266" width="130" height="52" rx="4" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
+  <text x="681" y="286" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">SEMANTIC</text>
+  <text x="681" y="304" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">vector search</text>
+  <text x="681" y="314" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">Gemini 3072d</text>
+
+  <rect x="616" y="342" width="130" height="52" rx="4" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
+  <text x="681" y="362" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">GRAPH</text>
+  <text x="681" y="380" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">KG traversal</text>
+  <text x="681" y="390" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">path / SPO</text>
+
+  <!-- Query arrows (light) -->
+  <line x1="535" y1="110" x2="535" y2="216" stroke="#D0D0D4" stroke-width="1"/>
+  <line x1="535" y1="216" x2="616" y2="216" stroke="#D0D0D4" stroke-width="1"/>
+  <polygon points="612,212 620,216 612,220" fill="#D0D0D4"/>
+  <line x1="590" y1="88" x2="648" y2="88" stroke="#D0D0D4" stroke-width="1"/>
+  <line x1="648" y1="88" x2="648" y2="260" stroke="#D0D0D4" stroke-width="1"/>
+  <polygon points="644,260 648,268 652,260" fill="#D0D0D4"/>
+  <line x1="535" y1="110" x2="535" y2="368" stroke="#E0E0E4" stroke-width="1" stroke-dasharray="4 3"/>
+  <line x1="535" y1="368" x2="616" y2="368" stroke="#E0E0E4" stroke-width="1" stroke-dasharray="4 3"/>
+  <polygon points="612,364 620,368 612,372" fill="#E0E0E4"/>
+
+  <!-- Storage → Retrieval arrows -->
+  <line x1="440" y1="292" x2="616" y2="292" stroke="#D0D0D4" stroke-width="1"/>
+  <polygon points="612,288 620,292 612,296" fill="#D0D0D4"/>
+  <line x1="440" y1="368" x2="616" y2="292" stroke="#D0D0D4" stroke-width="1"/>
+  <line x1="440" y1="448" x2="616" y2="368" stroke="#D0D0D4" stroke-width="1"/>
+
+  <!-- ========================== RRF FUSION ========================== -->
+
+  <rect x="780" y="258" width="140" height="60" rx="4" fill="#F5F5F7" stroke="#00A87A" stroke-width="2"/>
+  <text x="850" y="278" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="1" font-weight="600">RRF FUSION</text>
+  <text x="850" y="296" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="12" text-anchor="middle" font-weight="600">RRF k=60</text>
+  <text x="850" y="312" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">3-way merge</text>
+
+  <line x1="746" y1="216" x2="800" y2="278" stroke="#D0D0D4" stroke-width="1.5"/>
+  <polygon points="798,274 808,280 800,286" fill="#D0D0D4"/>
+  <line x1="746" y1="292" x2="780" y2="292" stroke="#00A87A" stroke-width="1.5"/>
+  <polygon points="776,288 784,292 776,296" fill="#00A87A"/>
+  <line x1="746" y1="368" x2="800" y2="308" stroke="#D0D0D4" stroke-width="1.5"/>
+  <polygon points="798,306 808,310 800,316" fill="#D0D0D4"/>
+
+  <!-- ========================== SALIENCE RANKING ========================== -->
+
+  <rect x="780" y="370" width="140" height="76" rx="4" fill="#F5F5F7" stroke="#00A87A" stroke-width="2"/>
+  <text x="850" y="390" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="1" font-weight="600">SALIENCE RANKING</text>
+  <text x="850" y="407" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">recency × pain</text>
+  <text x="850" y="420" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">× importance</text>
+  <text x="850" y="433" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">+ section_boost</text>
+  <text x="850" y="442" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">+ lang-aware RRF</text>
+
+  <line x1="850" y1="318" x2="850" y2="364" stroke="#00A87A" stroke-width="1.5"/>
+  <polygon points="846,364 850,372 854,364" fill="#00A87A"/>
+
+  <!-- ========================== OUTPUT ========================== -->
+
+  <rect x="780" y="500" width="140" height="52" rx="4" fill="#F5F5F7" stroke="#D0D0D4" stroke-width="1.5"/>
+  <text x="850" y="520" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">OUTPUT</text>
+  <text x="850" y="538" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">top-K + citations</text>
+
+  <line x1="850" y1="446" x2="850" y2="494" stroke="#D0D0D4" stroke-width="1.5"/>
+  <polygon points="846,494 850,502 854,494" fill="#D0D0D4"/>
+
+  <!-- ========================== SIDE BUBBLES ========================== -->
+
+  <rect x="460" y="418" width="130" height="44" rx="4" fill="#EBEBED" stroke="#D0D0D4" stroke-width="1"/>
+  <text x="525" y="436" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">SQLite file</text>
+  <text x="525" y="452" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">~1.24 GB on disk</text>
+
+  <rect x="460" y="66" width="130" height="44" rx="4" fill="#EBEBED" stroke="#D0D0D4" stroke-width="1"/>
+  <text x="525" y="84" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">shadow-mode</text>
+  <text x="525" y="100" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">discipline built-in</text>
+
+  <rect x="460" y="136" width="130" height="44" rx="4" fill="#EBEBED" stroke="#D0D0D4" stroke-width="1"/>
+  <text x="525" y="154" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">Schema v18</text>
+  <text x="525" y="170" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">zero vendor lock-in</text>
+
+  <!-- Title -->
+  <text x="500" y="580" fill="#C0C0C4" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle" letter-spacing="2">NOX-MEM — HYBRID RETRIEVAL ARCHITECTURE</text>
+</svg>
