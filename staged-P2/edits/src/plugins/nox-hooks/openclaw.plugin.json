@@ -1,0 +1,15 @@
+{
+  "name": "nox-hooks",
+  "version": "0.1.0",
+  "description": "P2 auto-capture: routes afterTurn events into the nox-mem 5-layer hooks pipeline.",
+  "author": "memoria-nox",
+  "license": "MIT",
+  "entry": "index.js",
+  "hooks": ["afterTurn", "sessionStart", "sessionEnd"],
+  "config": {
+    "enabledEnv": "NOX_HOOKS_ENABLED",
+    "sourcesEnv": "NOX_HOOK_SOURCES",
+    "dryRunEnv": "NOX_HOOK_DRY_RUN"
+  },
+  "_owner": "nox-mem"
+}
