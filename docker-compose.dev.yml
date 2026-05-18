@@ -1,0 +1,52 @@
+# docker-compose.dev.yml — Development override
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+# What this adds:
+#   - Source code mounted for live-reload (tsx --watch)
+#   - Node debugger port 9229 exposed
+#   - NODE_ENV=development
+#   - Relaxed security options for dev convenience
+#   - Drops read_only restriction (tsx needs to write to disk)
+
+services:
+  nox-mem-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Override CMD to use tsx --watch for live TypeScript reloading
+      target: builder   # Use builder stage — has tsx + devDeps
+
+    command: ["npx", "tsx", "--watch", "src/index.ts", "serve"]
+
+    environment:
+      NODE_ENV: development
+      # Fail fast off in dev — easier first-run without a Gemini key
+      NOX_PROVIDER_HEALTH_FAIL_FAST: "0"
+      # Verbose telemetry in dev
+      NOX_SEARCH_LOG_TEXT: "1"
+
+    volumes:
+      # Live source mount — changes to src/ reload immediately
+      - ./src:/build/src:ro
+      # Persistent data volume (same as prod)
+      - ./data:/data
+
+    ports:
+      # API
+      - "127.0.0.1:18802:18802"
+      # Node inspector (attach VS Code / Chrome DevTools at localhost:9229)
+      - "127.0.0.1:9229:9229"
+
+    # Dev: relax security restrictions (read_only=true breaks tsx cache writes)
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:size=128m
+
+    # Override entrypoint — skip migration check in dev (tsx handles it inline)
+    entrypoint: []

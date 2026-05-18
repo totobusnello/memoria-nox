@@ -1,0 +1,90 @@
+# Dependencies — rebuilt inside container
+node_modules
+dist
+
+# Version control
+.git
+.gitignore
+.gitattributes
+
+# Claude / agent artifacts
+.claude
+.omc
+
+# Tests and eval data (large, not needed in image)
+tests
+test
+__tests__
+*.test.ts
+*.test.js
+*.spec.ts
+*.spec.js
+eval
+benchmark
+validation
+
+# Docs (not needed at runtime — keeps image lean)
+docs
+paper
+audits
+plans
+handoffs
+specs
+runbooks
+lessons
+graphify-out
+shared
+
+# Staged patches (source-only — not built artifacts)
+staged-*/
+
+# Archive directories
+archive
+_archive*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+*.secret
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Git worktrees (if present inside project)
+.claude/worktrees
+
+# CI-only files
+.github/workflows
+
+# Large binary/generated data
+*.db
+*.db-wal
+*.db-shm
+*.db.bak
+data/
+
+# Markdown (keep README.md only — other .md not needed in image)
+CONTRIBUTING.md
+CITATION.cff
+BLOCKED.md
+docs/*.md
+specs/*.md
+audits/*.md
+plans/*.md
