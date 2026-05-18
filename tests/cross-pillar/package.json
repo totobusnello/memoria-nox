@@ -1,0 +1,18 @@
+{
+  "name": "nox-mem-cross-pillar-tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Wave G — Cross-pillar integration tests. 12 scenarios exercising combinations of P1+P2+P5+A1+A2+A3+L2+L3+L4 against real in-memory SQLite. Designed to catch the kind of bug only seam-level tests can surface (chained dependency, instance differences, timestamp drift, AAD-style mismatches).",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/src/__tests__/*.test.js",
+    "test:watch": "node --watch --test dist/src/__tests__/*.test.js"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20.0.0",
+    "better-sqlite3": "^12.10.0",
+    "typescript": "^5.4.0"
+  }
+}
