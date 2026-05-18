@@ -5,6 +5,8 @@
 **Baseline schema:** v10 (`retention_days` + `pain` + `section`)
 **Post-deploy schema:** v20
 
+> Deploy Validator CI was fixed in `62be1f6` (2026-05-18) — see [INCIDENTS.md](INCIDENTS.md#2026-05-18-1623-brt-10min-fix--deploy-validator-ci-100-fail-por-stderrjson-contamination).
+
 ---
 
 ## TL;DR — Order of operations
