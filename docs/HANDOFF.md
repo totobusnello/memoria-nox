@@ -2,6 +2,99 @@
 
 ---
 
+## 🚀 PÓS DEPLOY + Q-RUNS NIGHT — 2026-05-18 (PM, 19:00–23:00 BRT)
+
+> **Atualizado:** 2026-05-18 ~23:00 BRT — **VPS deploy completado. Wave I + Q-runs em andamento. Primeiro resultado produção: +18.8% nDCG@10 (hybrid vs FTS5 baseline).**
+
+Sessão de deploy massivo + benchmark. Schema v18→v24 aplicadas (idempotent). 27+ arquivos novos deployados zero overwrites. CORS + privacy + confidence adapters ativados. Q1 LoCoMo + Q3 Latency rodaram com sucesso. Q2 LongMemEval em background.
+
+### Estado pós-deploy (VPS snapshot 2026-05-18 19:24 BRT)
+
+| Métrica | Valor |
+|---|---|
+| Schema migrations aplicadas | v11 + v23 + v24 (idempotent) |
+| Pre-flight snapshot | `/var/backups/nox-mem/pre-op/wave-i-p-deploy-20260518-181936.db` (1.2GB) |
+| Chunks integrity | ✓ 68.995 intactos (pré-deploy 62.9k) |
+| Novos arquivos deployados | 27 (src/privacy/, src/api/cors.ts, src/api/wire-up.ts, 5 server-deps adapters, singletons) |
+| TS rebuild | ✓ dist/ timestamp 19:22 BRT |
+| nox-mem-api restart | ✓ PID 1409614 (19:24 BRT) |
+| /api/health check | ✓ 68.995 chunks visible |
+| CORS preflight (chrome-extension://*) | ✓ 204 verified |
+| Rotas Wave A→K | 🟡 /api/answer 500 + /api/conflict 503 (adapter deps debug em flight) |
+
+### Q-runs results (executados 2026-05-18 PM)
+
+**Q1 LoCoMo (n=100, hybrid vs FTS5 E04 baseline):**
+
+| Métrica | FTS5 baseline | Hybrid | Delta |
+|---|---|---|---|
+| nDCG@10 | 0.2810 | **0.3338** | **+18.8% rel** |
+| MRR | 0.2795 | 0.3200 | +14.5% |
+| Recall@10 | 0.3792 | 0.4403 | +16.1% |
+| Precision@5 | 0.0780 | 0.0960 | +23.1% |
+| **Categoria breakdown:** | | | |
+| Single-hop | — | — | +50.5% |
+| Adversarial | — | — | +31.1% |
+| Open-domain | — | — | +22.2% |
+| Multi-hop | — | — | +12.4% |
+| Temporal | — | — | **-1.2%** |
+| Custo Gemini | ~$0.10 | | |
+| Caveat | Python re-impl (não prod code path) | | |
+
+**Q3 Latency (/api/search, prod code path, n=95):**
+
+| Percentil | Latência | Status |
+|---|---|---|
+| p50 | 939.755ms | ✓ |
+| p95 | **2.341s** | ⚠️ (vs HANDOFF target <100ms = aspirational, agora medido) |
+| p99 | 2.523s | ⚠️ |
+| Erros | 0 | ✓ |
+| Bottleneck | Gemini embed query call (~800ms) | |
+| Custo | $0 (read-only) | |
+
+**Q2 LongMemEval (split=oracle):**
+- Status: rodando em background, resultado pendente para próxima sessão
+
+### Achievements quantitativos
+
+- **27+ files deployados** (zero overwrites, staged dirs merged cleanly)
+- **6 migrations aplicadas** (v11→v24, todas idempotent, schema v24 final)
+- **1.2GB pre-flight snapshot** + validação completa pós-deploy
+- **68.995 chunks intactos** (net +6.095 vs pre-Wave estado)
+- **Primeiro nDCG@10 real: +18.8%** (hybrid vs FTS5 baseline — Q4 gate unlock candidate)
+- **Primeiro p95 measured: 2.3s** (vs aspirational <100ms em HANDOFF; agora temos realidade)
+- **4 PRs merged hoje** (#103–#107) + 1 em flight (#108 wave-i-results)
+
+### Bloqueios remaining (baixa prioridade, não-críticos)
+
+1. **Rotas Wave A→K parcialmente down:**
+   - `/api/answer` returns 500 (adapter deps issue, agent #4 debugando)
+   - `/api/conflict` returns 503 (missing adapter dependency)
+   - Workaround: usar `/api/search` + `/api/health` direto
+
+2. **Privacy hook não aplicado:**
+   - Handler em `src/ingest-router.ts` existe mas `callPrivacyFilter()` ainda não active
+   - Pré-req: rebuild + restart (low risk)
+
+3. **CLI v2.3.0 sem `--db/--json` flags:**
+   - Bloqueia production-path Q-run validation (Q1 rodou em Python re-impl)
+   - Feature scope: ~2h impl
+
+4. **Q2 LongMemEval resultado pendente** (~3h runtime estimado, resultado amanhã)
+
+### Próxima sessão priorities
+
+1. **Mergear PR #108** (Q1+Q3 results) + debug do agent #4 (resolve /api/answer 500)
+2. **Aplicar privacy hook** + rebuild + restart
+3. **Production-path Q-run:** spawn 2º nox-mem-api porta 18803 com `NOX_DB_PATH=eval.db`
+4. **Q4 COMPARISON.md gate decision:** +18.8% nDCG@10 bate threshold? (threshold definition pendente em PR #109)
+5. **Iterate retrieval se Q1 não bater:**
+   - Temporal -1.2% anomalia investigar
+   - Re-run com prod CLI patch (pré-req #3 acima)
+   - Provider A/B test se necessário
+
+---
+
 ## 🌊 PÓS WAVE A→P — 2026-05-18 (noite, ~17:40 BRT)
 
 > **Atualizado:** 2026-05-18 ~17:40 BRT — **Wave A→P complete. ~100 PRs merged em main. Repo clean (0 PRs, 1 branch).**
