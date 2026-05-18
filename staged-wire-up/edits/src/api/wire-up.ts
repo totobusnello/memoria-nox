@@ -348,7 +348,19 @@ export async function registerWireUpRoutes(
         writeJson(res, { error: "not_implemented", reason: "L2 db not deployed" }, 503);
         return;
       }
-      const out = mod.dispatchConflictApi(dbMod.getConflictDb(), {
+      // Ensure singleton is warmed before the synchronous getConflictDb() call.
+      // On a cold start the async warmup() hasn't settled yet; awaiting
+      // ensureConflictDb() guarantees a non-null handle (or surfaces a real
+      // DB-open failure as a 500 via safeHandle rather than a misleading 503).
+      if (typeof dbMod.ensureConflictDb === "function") {
+        await dbMod.ensureConflictDb();
+      }
+      const db = dbMod.getConflictDb();
+      if (!db) {
+        writeJson(res, { error: "not_implemented", reason: "L2 db not available" }, 503);
+        return;
+      }
+      const out = mod.dispatchConflictApi(db, {
         method: "GET",
         path,
         query: parseQueryString(url),
@@ -367,7 +379,15 @@ export async function registerWireUpRoutes(
         writeJson(res, { error: "not_implemented", reason: "L2 db not deployed" }, 503);
         return;
       }
-      const out = mod.dispatchConflictApi(dbMod.getConflictDb(), {
+      if (typeof dbMod.ensureConflictDb === "function") {
+        await dbMod.ensureConflictDb();
+      }
+      const db = dbMod.getConflictDb();
+      if (!db) {
+        writeJson(res, { error: "not_implemented", reason: "L2 db not available" }, 503);
+        return;
+      }
+      const out = mod.dispatchConflictApi(db, {
         method: "GET",
         path,
       });
@@ -388,8 +408,16 @@ export async function registerWireUpRoutes(
         writeJson(res, { error: "not_implemented", reason: "L2 db not deployed" }, 503);
         return;
       }
+      if (typeof dbMod.ensureConflictDb === "function") {
+        await dbMod.ensureConflictDb();
+      }
+      const db = dbMod.getConflictDb();
+      if (!db) {
+        writeJson(res, { error: "not_implemented", reason: "L2 db not available" }, 503);
+        return;
+      }
       const actor = getReqHeader(req, "x-actor") ?? "api";
-      const out = mod.dispatchConflictApi(dbMod.getConflictDb(), {
+      const out = mod.dispatchConflictApi(db, {
         method: "POST",
         path,
         body,
