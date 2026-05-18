@@ -1,0 +1,16 @@
+{
+  "name": "nox-mem-archive-strength",
+  "version": "0.1.0-A2.1",
+  "private": true,
+  "type": "module",
+  "description": "A2.1 — Passphrase entropy enforcement (Gap G1 from THREAT-MODEL). Zero-dep estimator + strength tiers + enforce-strength + CLI integration.",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/src/lib/archive/__tests__/*.test.js"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
