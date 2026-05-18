@@ -1,0 +1,94 @@
+name: Lint + Typecheck
+
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    name: "TypeScript — typecheck staged-* + eval + validation"
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install TypeScript
+        run: npm install -g typescript@5
+
+      - name: Typecheck staged-privacy
+        if: hashFiles('staged-privacy/tsconfig.json') != ''
+        run: |
+          cd staged-privacy
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npx tsc --noEmit 2>&1 | head -50
+        continue-on-error: true
+
+      - name: Typecheck eval/locomo
+        if: hashFiles('eval/locomo/tsconfig.json') != ''
+        run: |
+          cd eval/locomo
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npx tsc --noEmit 2>&1 | head -50
+        continue-on-error: true
+
+      - name: Typecheck eval/longmemeval
+        if: hashFiles('eval/longmemeval/tsconfig.json') != ''
+        run: |
+          cd eval/longmemeval
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npx tsc --noEmit 2>&1 | head -50
+        continue-on-error: true
+
+      - name: Typecheck eval/latency
+        if: hashFiles('eval/latency/tsconfig.json') != ''
+        run: |
+          cd eval/latency
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npx tsc --noEmit 2>&1 | head -50
+        continue-on-error: true
+
+      - name: Typecheck validation/zero-vendor
+        if: hashFiles('validation/zero-vendor/tsconfig.json') != ''
+        run: |
+          cd validation/zero-vendor
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npx tsc --noEmit 2>&1 | head -50
+        continue-on-error: true
+
+      # -----------------------------------------------------------------------
+      # Collect per-package results and emit a consolidated summary
+      # continue-on-error above means this job always reaches here; the summary
+      # makes per-package status visible in the Actions UI without hard-failing
+      # the gate for packages that are still scaffolds.
+      # -----------------------------------------------------------------------
+      - name: Summarize typecheck results
+        if: always()
+        run: |
+          echo "### TypeScript typecheck summary" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Package | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          for pkg in staged-privacy eval/locomo eval/longmemeval eval/latency validation/zero-vendor; do
+            if [ -f "$pkg/tsconfig.json" ]; then
+              errors=$(cd "$pkg" && npx tsc --noEmit 2>&1 | grep -c "error TS" || true)
+              if [ "$errors" = "0" ]; then
+                echo "| $pkg | ✅ 0 errors |" >> "$GITHUB_STEP_SUMMARY"
+              else
+                echo "| $pkg | ⚠️ $errors error(s) |" >> "$GITHUB_STEP_SUMMARY"
+              fi
+            else
+              echo "| $pkg | — not present |" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
