@@ -8,6 +8,10 @@ on:
       - 'staged-migrations/**'
       - 'scripts/deploy-validator/**'
 
+permissions:
+  contents: read
+  pull-requests: write   # post validator report as PR comment
+
 jobs:
   validate-deploy:
     name: Validate DEPLOY-WAVE-B.md commands

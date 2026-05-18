@@ -6,7 +6,8 @@ import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import * as path from "path";
 import { fileURLToPath } from "url";
-import Database from "better-sqlite3";
+// Note: better-sqlite3 import removed — validator was refactored to use
+// system sqlite3 CLI (more faithful to production per DEPLOY-WAVE-B.md).
 import {
   runMigrationSuite,
   DEFAULT_MIGRATION_CHAIN,
