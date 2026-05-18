@@ -1,0 +1,16 @@
+# Dataset cache (CC BY-NC 4.0 — not redistributable inside the repo)
+data/
+*.json.cache
+# Eval database (large, regenerable, license-tainted by derivation)
+eval.db
+eval.db-wal
+eval.db-shm
+.workspace/
+# Dataset commit lock — committed copy may differ from local; gitignore the local
+# resolved lock to avoid noisy diffs between runs. The README freezes the SHA used
+# for any published number.
+dataset.lock.json
+# Full-run output kept out of git (we only commit aggregate summaries)
+full-run.json
+# Note: dry-run-sample.json IS committed (10-row plumbing artefact, no LoCoMo verbatim
+# beyond chunk-ID strings).
