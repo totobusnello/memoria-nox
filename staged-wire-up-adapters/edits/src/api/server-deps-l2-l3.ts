@@ -46,6 +46,43 @@ export {
 
 export { handleHealthConfidence } from "./health-confidence-adapter.js";
 
+// ─── Boot-time warm-up ────────────────────────────────────────────────────────
+
+/**
+ * Await this during API server boot (before the first request) to pre-warm the
+ * L2 singleton. Mirrors the `buildP1Deps()` pattern used by /api/answer.
+ *
+ * What it does:
+ *   1. Opens the better-sqlite3 connection via deps-registry (shared handle).
+ *   2. Runs a schema readiness probe — warns to console if conflict_audit is
+ *      missing (migration v18 hasn't run) so the operator sees it in logs.
+ *   3. Returns { db, l2Ready } so api-server.ts can decide whether to mount
+ *      the /api/conflict routes or skip them with a startup log line.
+ *
+ * If the boot call is skipped, getConflictDb() returns null on the first
+ * synchronous call (warmup() is async, fires but hasn't settled yet) and
+ * wire-up emits 503 not_implemented. Calling buildConflictDeps() once at
+ * boot ensures the singleton is ready before any request arrives.
+ */
+export async function buildConflictDeps(): Promise<{
+  db: unknown | null;
+  l2Ready: boolean;
+}> {
+  const { ensureConflictDb } = await import("../lib/conflict/db-singleton.js");
+  const db = await ensureConflictDb();
+  if (!db) {
+    return { db: null, l2Ready: false };
+  }
+  const readiness = await probeSchemaReadiness();
+  if (!readiness.l2_ready) {
+    console.warn(
+      "[nox-mem] /api/conflict: conflict_audit table not found " +
+        "(schema v18 migration pending). Endpoints will return 503 until migrated.",
+    );
+  }
+  return { db, l2Ready: readiness.l2_ready };
+}
+
 // ─── Schema readiness probe ──────────────────────────────────────────────────
 
 export interface SchemaReadiness {

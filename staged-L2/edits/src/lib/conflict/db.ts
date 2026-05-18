@@ -27,3 +27,19 @@ export interface DBHandle {
   transaction?<T>(fn: () => T): () => T;
   pragma?(query: string): unknown;
 }
+
+// ─── Singleton factory (adapter apply step) ────────────────────────────────
+// Wire-up.ts resolves `lib/conflict/db.js::getConflictDb()`. The singleton
+// lives in the staged-wire-up-adapters layer; we re-export it here so the
+// `tryImport("../lib/conflict/db.js")` call in wire-up.ts finds the symbol.
+//
+// `ensureConflictDb()` MUST be awaited during API boot to pre-warm the
+// async better-sqlite3 open before the first synchronous `getConflictDb()`
+// call. Without it, the first request arrives before warmup() resolves and
+// getConflictDb() returns null → wire-up emits 503 not_implemented.
+export {
+  getConflictDb,
+  ensureConflictDb,
+  resetConflictDbForTests,
+  __setConflictDbForTests,
+} from "./db-singleton.js";
