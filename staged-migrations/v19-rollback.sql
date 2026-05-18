@@ -1,0 +1,38 @@
+-- v19-rollback.sql — reversal notes for v19.sql
+-- IMPORTANT: SQLite does not support DROP COLUMN in versions prior to 3.35.0.
+-- Even with 3.35.0+, DROP COLUMN is unsafe when columns have indexes or are referenced
+-- by CHECK constraints baked into other columns.
+--
+-- RECOMMENDED PROCEDURE (forward-only in prod):
+-- 1. Do NOT attempt DROP COLUMN on chunks or kg_relations in production.
+-- 2. If rollback is truly required, use VACUUM INTO to create a clean copy:
+--
+--    -- Step 1: snapshot current DB (safety net)
+--    VACUUM INTO '/var/backups/nox-mem/rollback-pre-v19-<timestamp>.db';
+--
+--    -- Step 2: create v18-schema DB (manually, without v19 columns)
+--    --   a. sqlite3 /tmp/nox-mem-v18.db < schema-v18-baseline.sql
+--    --   b. INSERT INTO /tmp/nox-mem-v18.db chunks SELECT <v18 cols only> FROM prod.chunks;
+--    --   c. INSERT INTO /tmp/nox-mem-v18.db kg_relations SELECT <v18 cols only> FROM prod.kg_relations;
+--
+--    -- Step 3: atomically replace
+--    PRAGMA wal_checkpoint(FULL);
+--    -- copy /tmp/nox-mem-v18.db → prod path via safeRestore() in src/lib/op-audit.ts
+--    -- DO NOT cp directly — safeRestore validates user_version + removes stale WAL/SHM
+--
+-- 3. Set user_version back:
+--    PRAGMA user_version = 11;   -- or 10 if also rolling back v11
+--
+-- COLUMNS ADDED BY v19 (for reference when building the v18-schema SELECT list):
+--   chunks: confidence, provenance_kind
+--   kg_relations: confidence, superseded_by_relation_id, superseded_at, superseded_reason,
+--                 created_at, updated_at, extraction_method
+--
+-- INDEXES ADDED BY v19 (will be absent after rollback):
+--   idx_kg_relations_confidence
+--   idx_kg_relations_superseded
+--   idx_kg_relations_created
+--
+-- DECISION: v19 is designed as forward-only. The added columns are all nullable or have
+-- safe defaults — zero data loss risk from keeping them even if sprints L2/L3/L4 are
+-- suspended. Prefer disabling the feature code over rolling back the schema.
