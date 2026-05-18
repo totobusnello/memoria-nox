@@ -2,17 +2,20 @@
 
 > **Status: INTERNAL WORKING DRAFT.** The publication gate (`GATE_VERIFIED=1`) has NOT been
 > triggered. This document contains our own Wave B benchmark numbers plus
-> competitor source-of-truth research. Full LoCoMo / LongMemEval numbers require
-> the Q1/Q2 harness runs on VPS (blockers B1-B4 in `BLOCKED.md`). Do NOT
+> competitor source-of-truth research. LongMemEval numbers require
+> the Q2 harness run on VPS (in-flight 2026-05-18). Do NOT
 > share externally until the gate opens.
 
 > **Headline:** **101ms p95 end-to-end** (P1 answer primitive, mock LLM 100ms) —
 > non-LLM pipeline overhead is sub-millisecond across all phases.
+> **Retrieval quality:** nDCG@10 = **0.3338** (+18.8% vs FTS5 baseline) [verified 2026-05-18 — Python reimpl, n=100].
+> **Search latency:** p50 = **939.755ms**, p95 = **2341.955ms** (prod API, dominated by Gemini embed) [verified 2026-05-18 — prod API, n=95].
 
 > Numbers below are a partial snapshot from 2026-05-18. Wave B delivered real
 > numbers for latency (P1 bench), export/import (A2 bench), and provider
-> abstraction overhead (A3 bench). LoCoMo R@5 and LongMemEval accuracy
-> are pending Q1/Q2 VPS runs (see Gate Decision Logic below).
+> abstraction overhead (A3 bench). Q1 LoCoMo hybrid run completed 2026-05-18.
+> Q3 latency against prod /api/search completed 2026-05-18. Q2 LongMemEval
+> is in-flight (see Gate Decision Logic below).
 
 ---
 
@@ -20,22 +23,27 @@
 
 | System | nDCG@10 | Recall@10 | Latency p95 (search) | Cost/1k queries | Data autonomy | Encryption |
 |---|---|---|---|---|---|---|
-| **nox-mem** | pending Q1 run | pending Q2 run | **pending Q3 latency run**¹ | ~$0.01 est. (flash-lite) | ✅ SQLite file, no daemon | ✅ AES-256-GCM (A2) |
-| agentmemory | ❓ vendor claims R@5 95.2% (LoCoMo)² | ❓ | ❓ | ❓ | ⚠️ requires iii-engine daemon | ❓ |
-| Memanto | ❓ | ❓ vendor claims acc. 89.8% (LongMemEval)³ | ❓ (SaaS network RTT) | ❓ subscription | ❌ SaaS, data hosted (Moorcheh) | ❌ vendor-controlled |
-| mem0 | ❓ | ❓ | ❓ | ❓ (OpenAI key required) | ✅ PostgreSQL + Qdrant | ❓ |
-| Letta / MemGPT | ❓ | ❓ | ❓ | ❓ (OpenAI key required) | ✅ PostgreSQL + Qdrant | ❓ |
-| Zep | ❓ | ❓ | ❓ | ❓ (OpenAI key required) | ✅ Postgres self-host / SaaS Pro | ❓ |
+| **nox-mem** | **0.3338** [verified 2026-05-18 — Python reimpl, n=100]¹ | **0.4403** [verified 2026-05-18 — Python reimpl, n=100]¹ | **2341.955ms** (prod /api/search) [verified 2026-05-18 — prod API, n=95]² | ~$0.01 est. (flash-lite) | ✅ SQLite file, no daemon | ✅ AES-256-GCM (A2) |
+| agentmemory | ❓ vendor claims R@5 95.2% (LoCoMo)³ | ❓ | ❓ | ❓ | ⚠️ requires iii-engine daemon | ❓ |
+| Memanto | ❓ | ❓ vendor claims acc. 89.8% (LongMemEval)⁴ | ❓ (SaaS network RTT) | ❓ subscription | ❌ SaaS, data hosted (Moorcheh) | ❌ vendor-controlled |
+| mem0 | competitor: not published | competitor: not published | competitor: not published | ❓ (OpenAI key required) | ✅ PostgreSQL + Qdrant | ❓ |
+| Letta / MemGPT | competitor: not published | competitor: not published | competitor: not published | ❓ (OpenAI key required) | ✅ PostgreSQL + Qdrant | ❓ |
+| Zep | competitor: not published | competitor: not published | competitor: not published | ❓ (OpenAI key required) | ✅ Postgres self-host / SaaS Pro | ❓ |
 | built-in `MEMORY.md` | ❓ | ❓ | ~0ms (filesystem) | $0 | ✅ filesystem only | ❌ plaintext |
 
-> ¹ P1 answer primitive bench (T14) measures end-to-end with mock LLM; the
-> search-medium latency bench (Q3 harness, `eval/latency/`) is scaffolded but
-> not yet run on VPS. Real Gemini LLM call adds ~1-3s (vs 100ms mock).
+> ¹ Q1 LoCoMo hybrid run 2026-05-18. Python re-implementation — validates
+> architectural shape (FTS5 BM25 + Gemini 3072d + RRF k=60), NOT production
+> TypeScript pipeline. n=100 stratified subset (seed=42), same as E04 FTS5 baseline
+> for apples-to-apples comparison. Production code path validation is a separate work item.
 >
-> ² agentmemory README as of 2026-05-18. Not independently verified —
+> ² Q3 prod /api/search latency bench 2026-05-18. n=95 valid (100 total, 5 warmup excluded).
+> Hits real nox-mem.db with 68,995 chunks. Dominated by Gemini embed API call (~800ms).
+> p50=939.755ms, p95=2341.955ms, p99=2523.367ms. 0 errors.
+>
+> ³ agentmemory README as of 2026-05-18. Not independently verified —
 > `competitor-configs.json` marks this for re-measurement.
 >
-> ³ Memanto marketing site / PyPI description as of 2026-05-18. Not independently
+> ⁴ Memanto marketing site / PyPI description as of 2026-05-18. Not independently
 > verified. Re-measurement requires MOORCHEH_API_KEY (blocker B3).
 
 ---
@@ -60,11 +68,65 @@
 
 ---
 
-## Section 3: Detailed benchmarks (Wave B real numbers)
+## Section 3: Detailed benchmarks
+
+### memoria-nox — measured results [verified 2026-05-18]
+
+**Retrieval quality (LoCoMo n=100 stratified, seed=42)**
+
+> **Caveat:** Q1 is Python re-implementation, not production code path. Validates
+> architectural shape (FTS5 BM25 + Gemini 3072d dense + RRF k=60), not specific
+> TypeScript implementation. Production-path validation via `nox-mem search`
+> against isolated DB is a separate work item. n=100 subset (not full 1986
+> questions), same seed=42 as E04 FTS5 baseline — apples-to-apples only.
+
+| Metric | FTS5-only (E04 2026-05-04) | **Hybrid (2026-05-18)** | Δ abs | Δ rel |
+|---|---|---|---|---|
+| nDCG@10 | 0.2810 | **0.3338** | +0.0527 | **+18.8%** |
+| MRR | 0.2795 | **0.3200** | +0.0405 | +14.5% |
+| Recall@10 | 0.3792 | **0.4403** | +0.0612 | +16.1% |
+| Precision@5 | 0.0780 | **0.0960** | +0.0180 | +23.1% |
+
+95% CI on nDCG@10 (normal approx, n=100): Hybrid **0.3338** [0.2564, 0.4111]
+
+By category nDCG@10:
+
+| Category | FTS5 | Hybrid | Δ rel |
+|---|---|---|---|
+| single-hop | 0.1179 | **0.1775** | **+50.5%** (largest gain) |
+| adversarial | 0.2531 | **0.3318** | **+31.1%** |
+| open-domain | 0.3746 | **0.4578** | **+22.2%** |
+| multi-hop | 0.3708 | **0.4167** | +12.4% |
+| temporal | 0.2887 | **0.2851** | -1.2% (semantic doesn't help here) |
+
+---
+
+**Latency (/api/search prod, n=95)** [verified 2026-05-18 — prod API, n=95]
+
+> **Caveat:** Hits real nox-mem.db with 68,995 chunks. Dominated by Gemini
+> `gemini-embedding-001` API call (~800ms). Not comparable to P1 answer-primitive
+> bench below (which uses mock LLM and in-memory SQLite).
+
+| Percentile | Value (ms) |
+|---|---|
+| p50 | 939.755 |
+| p95 | 2341.955 |
+| p99 | 2523.367 |
+| mean | 1045.877 |
+| min | 450.596 |
+| max | 2523.367 |
+| stdev | 511.187 |
+
+Errors: 0 / 95. Warmup: 5 excluded.
+
+By query category (p50): `short`=577ms, `code`=494ms, `entity`=504ms, `temporal`=917ms, `decision`=977ms, `long`=1017ms.
+
+---
+
+### Wave B benches (design-time verified — mock LLM / synthetic corpus)
 
 All Wave B bench numbers are from the staged implementations before merging
 to main. Numbers are design-time verified (harness code + specification).
-VPS live runs pending.
 
 ### Answer primitive latency (P1 T14 bench — `staged-P1/edits/benchmark/answer-latency.ts`)
 
@@ -202,10 +264,10 @@ publishes only when we can stand behind every number.
 The gate opens when ALL of the following are true:
 
 1. ❓ nox-mem ships verified numbers on 4 standardized benchmarks:
-   - Latency: ✅ P1 answer-primitive bench (mock LLM) + ⏸️ Q3 latency bench (VPS, pending)
+   - Latency: ✅ P1 answer-primitive bench (mock LLM) + ✅ Q3 latency bench (prod /api/search, n=95, p50=940ms) [verified 2026-05-18]
    - Cost:    🔄 estimable from A3 cost-cap module (~$0.01/1k queries flash-lite)
-   - LoCoMo:  ⏸️ Q1 harness scaffolded (PR #6), full run pending VPS
-   - LongMemEval: ⏸️ Q2 harness scaffolded (PR #11), full run pending VPS
+   - LoCoMo:  ✅ Q1 hybrid run complete (nDCG@10=0.3338, +18.8% vs FTS5) [verified 2026-05-18 — Python reimpl, n=100]
+   - LongMemEval: ⏸️ Q2 in-flight 2026-05-18
 
 2. ❓ At least 2 competitors have published comparable numbers.
    Current state: agentmemory claims LoCoMo R@5 95.2%, Memanto claims LME
@@ -215,19 +277,33 @@ The gate opens when ALL of the following are true:
 
 3. ❓ Numbers are reproducible:
    - ✅ Wave B benches (P1/A2/A3) run from clean checkout (see Reproduce cmds above)
-   - ⏸️ Q1/Q2/Q3 full sweeps need VPS environment (GEMINI_API_KEY, ~$50 budget)
+   - ✅ Q1 hybrid (Python reimpl) reproducible — see `paper/publication/results/locomo-hybrid-vs-fts5-summary.md`
+   - ✅ Q3 latency reproducible — see `paper/publication/results/latency-benchmark-summary.json`
+   - ⏸️ Q2 LongMemEval full sweep in-flight
 
 4. ❓ External party reviews methodology (deferred — internal-only review for now).
 
 Activate via: GATE_VERIFIED=1 npx tsx benchmark/generate-comparison.ts
 (script refuses without live Q1/Q2/Q3 results — see benchmark/README.md)
+
+Gate condition note: threshold for "COMPARISON winning" (what delta vs competitors counts as
+a win?) not yet defined. Requires decision by Toto before gate can formally open.
 ```
+
+### Gate status summary (2026-05-18)
+
+| Condition | Status |
+|---|---|
+| Q1 LoCoMo | ✅ verified — +18.8% nDCG@10 hybrid vs FTS5 [Python reimpl, n=100] |
+| Q2 LongMemEval | ⏸️ in-flight 2026-05-18 — results in pending PR |
+| Q3 latency | ✅ verified — p50=940ms, p95=2342ms, prod /api/search, n=95 |
+| Q4 gate threshold | ⏸️ pendente definição de threshold pelo Toto |
 
 ### Blocker summary (from BLOCKED.md)
 
 | Blocker | Description | Status |
 |---|---|---|
-| B1 | Q1+Q2+Q3 numeric outputs | ⏸️ scaffolded, VPS run pending |
+| B1 | Q1+Q2+Q3 numeric outputs | ✅ Q1+Q3 done; Q2 in-flight |
 | B2 | VPS environment for competitors | ⏸️ ops action needed |
 | B3 | API keys + budget (~$50) | ⏸️ decision needed |
 | B4 | Per-competitor adapter scripts | ⏸️ nox-mem adapter first |
@@ -277,8 +353,12 @@ $5/mo VPS (Hostinger), Gemini flash-lite (production key).
 
 These are documented explicitly. The comparison is not marketing.
 
-- **LoCoMo / LongMemEval numbers** — pending Q1/Q2 full runs. We do not
-  pre-claim to win before measurement.
+- **LoCoMo vs agentmemory** — agentmemory claims R@5 95.2% (vendor-reported).
+  Our Q1 hybrid gets nDCG@10=0.3338 (different metric, different n). Direct
+  comparison requires running both with our harness on identical corpus revision.
+  We do not pre-claim to win without independent measurement.
+- **LongMemEval numbers** — Q2 in-flight 2026-05-18. We do not pre-claim
+  to win vs Memanto (claimed 89.8% acc.) before measurement.
 - **Pure FAISS throughput** — a hand-tuned FAISS build may beat us on cold-cache
   vector lookups by single-digit ms. We optimise for hybrid (BM25 + semantic)
   and section-aware retrieval, not raw vector speed.
@@ -306,13 +386,16 @@ These are documented explicitly. The comparison is not marketing.
 | A2 export/import | Serialization time, archive size, encryption overhead | Synthetic corpus, in-process | Real 62k corpus with 99.97% embedding coverage |
 | A3 provider overhead | CPU overhead of abstraction layer vs raw | fetch (zero-network stub) | Real Gemini API (add ~200ms network baseline) |
 
-### What's pending (Q1/Q2/Q3)
+### What's pending (Q2 + follow-ups)
 
 | Benchmark | Harness | Status | Gate dependency |
 |---|---|---|---|
-| LoCoMo R@5 | `eval/locomo/` (PR #6) | scaffolded | B1: VPS + GEMINI_API_KEY |
-| LongMemEval accuracy | `eval/longmemeval/` (PR #11) | scaffolded | B1: VPS + GEMINI_API_KEY |
-| search.medium p95 latency | `eval/latency/` (PR #12) | scaffolded | B1: VPS (CPU stability) |
+| LoCoMo hybrid (Q1) | `paper/publication/baselines/locomo_hybrid_eval.py` | ✅ done 2026-05-18 | — |
+| search.medium p95 latency (Q3) | `eval/latency/` (PR #12) | ✅ done 2026-05-18 | — |
+| LongMemEval accuracy (Q2) | `eval/longmemeval/` (PR #11) | ⏸️ in-flight 2026-05-18 | Q2 results pending |
+| Production code path validation | CLI/API with --db flag | ⏸️ separate work item | — |
+| Provider switch tests (Voyage, OpenAI embed) | A3 provider abstraction | ⏸️ when A3 activated | A3 deploy |
+| Latency under load (concurrent users) | not scaffolded | ⏸️ not measured | design decision |
 
 ### How to reproduce Wave B locally
 
@@ -351,15 +434,32 @@ measurement methodology deterministically given the mock setup).
 - **Wave B numbers use mock LLM and synthetic corpus.** The pipeline timing
   excludes real Gemini network latency (~1–3s for flash-lite) and real disk I/O.
   These are overhead benchmarks, not end-to-end production benchmarks.
+- **Q1 LoCoMo is Python re-implementation, not production code path.** Validates
+  architectural shape. Production TypeScript pipeline validation is a separate work item.
+- **Q1 uses n=100 subset (not full 1986 questions).** Apples-to-apples vs E04
+  FTS5 baseline (same seed=42 stratified sample), but not full-corpus numbers.
+- **Q3 latency dominated by Gemini embed API call (~800ms).** Pipeline-only
+  overhead (retrieval + RRF + ranking) is sub-millisecond (see P1 bench).
+  The p95=2342ms reflects tail network latency, not algorithmic cost.
 - **Competitor numbers are vendor-reported or unknown.** No competitor number
   has been independently verified with our harness as of 2026-05-18.
-- **LoCoMo and LongMemEval cells are empty** pending Q1/Q2 VPS runs.
-  We do not pre-claim to win on accuracy before measuring.
-- **Statistical floor.** With n=100 latency samples, σ~20ms, 95% CI ≈ ±3.9ms.
-  Latency differences < 8ms are not statistically distinguishable.
+- **LongMemEval cell empty** pending Q2 run (in-flight 2026-05-18).
+  We do not pre-claim to win on LME accuracy before measuring.
+- **Statistical floor.** Q3 n=95, stdev=511ms, 95% CI on mean ≈ ±103ms.
+  Latency comparisons meaningful at > ~200ms difference.
 - **Conflicts of interest.** We built nox-mem. Benchmark code is open-source.
   Raw data will be published at gate. We invite PRs improving any competitor's
   configuration (see `competitor-configs.json`).
+
+---
+
+## Próximas medições pendentes
+
+1. **Q2 LongMemEval full run** — in-flight 2026-05-18. Resultados em pending PR separado. Target metric: accuracy (same judge as Memanto claim for fair comparison).
+2. **Production code path validation** — rodar Q1 queries via `nox-mem search` CLI/API com `--db flag` contra DB isolado. Separate work item (não blocker de gate, mas necessário para paper).
+3. **Provider switch tests** (Voyage AI, OpenAI text-embedding-3-large) — quando A3 provider abstraction ativado em prod. Validar que nDCG não regride com provider swap.
+4. **Latency under load** (concurrent users) — p95 atual medido com queries serializadas. Concurrent load perfil não medido ainda.
+5. **Competitor independent verification** — agentmemory LoCoMo + Memanto LME via nosso harness. Blocker B2 (VPS infra) + B3 (API keys/budget).
 
 ---
 
@@ -386,5 +486,5 @@ measurement methodology deterministically given the mock setup).
 
 ---
 
-*Wave B snapshot — 2026-05-18. Q4 gate pending Q1+Q2+Q3 VPS runs.*
+*Wave B + Q1/Q3 verified snapshot — 2026-05-18. Q4 gate: Q1 ✓ (+18.8% nDCG@10), Q3 ✓ (p50=940ms), Q2 in-flight, threshold pendente.*
 *Template at `benchmark/COMPARISON.md.template` (generator: `benchmark/generate-comparison.ts`).*
