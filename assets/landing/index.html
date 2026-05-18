@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>memoria-nox — Hybrid memory with shadow discipline</title>
+  <meta name="description" content="An agent memory engine that stays on your disk, runs on the provider you pick, and ships ranking changes only after they earn it in shadow.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- ── HERO ──────────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="container">
+      <picture class="hero-banner">
+        <source media="(prefers-color-scheme: dark)" srcset="../readme/banner-dark.svg">
+        <img src="../readme/banner-light.svg" alt="memoria-nox" width="680">
+      </picture>
+
+      <h1 class="hero-tagline">Hybrid memory with shadow discipline &mdash; yours by design.</h1>
+
+      <p class="hero-sub">
+        An agent memory engine that stays on your disk, runs on the provider you pick,
+        and ships ranking changes only after they earn it in shadow.
+      </p>
+
+      <div class="hero-ctas">
+        <a href="../../docs/QUICKSTART.md" class="btn btn-primary">Get started</a>
+        <a href="https://github.com/totobusnello/memoria-nox" class="btn btn-secondary" target="_blank" rel="noopener">View on GitHub</a>
+      </div>
+
+      <div class="hero-badges">
+        <img src="https://img.shields.io/github/license/totobusnello/memoria-nox?style=flat-square&color=00C896" alt="License: MIT">
+        <img src="https://img.shields.io/github/actions/workflow/status/totobusnello/memoria-nox/ci.yml?style=flat-square&color=00C896&label=ci" alt="CI">
+        <img src="https://img.shields.io/badge/paper-v1.1-00C896?style=flat-square" alt="Paper v1.1">
+      </div>
+    </div>
+  </section>
+
+  <!-- ── USP CARDS ─────────────────────────────────────────────────────── -->
+  <section class="usps">
+    <div class="container">
+      <div class="usp-grid">
+        <div class="usp-card">
+          <div class="usp-icon" aria-hidden="true">&#128274;</div>
+          <h3>Yours by design</h3>
+          <p>Memory lives in a single SQLite file on your disk. Copy the file, copy the memory. No SaaS lock-in, no vendor cloud required.</p>
+        </div>
+        <div class="usp-card">
+          <div class="usp-icon" aria-hidden="true">&#129504;</div>
+          <h3>Hybrid intelligence</h3>
+          <p>FTS5 BM25 keyword search, sqlite-vec 3072-d semantic embeddings, and a typed knowledge graph — fused via Reciprocal Rank Fusion over the same DB file.</p>
+        </div>
+        <div class="usp-card">
+          <div class="usp-icon" aria-hidden="true">&#128269;</div>
+          <h3>Shadow discipline</h3>
+          <p>Every ranking change ships in shadow mode for at least 7 days. Salience scores exposed on <code>/api/health</code> for offline comparison before anything touches a real query.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── NUMBERS ────────────────────────────────────────────────────────── -->
+  <section class="numbers">
+    <div class="container">
+      <h2>By the numbers</h2>
+      <div class="numbers-grid">
+        <div class="stat">
+          <span class="stat-value">101 ms</span>
+          <span class="stat-label">p95 end-to-end latency</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">11.7 KB</span>
+          <span class="stat-label">viewer bundle (4&times; under target)</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">95.8%</span>
+          <span class="stat-label">L4 precision / recall</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">80%</span>
+          <span class="stat-label">Gemini calls saved (L4 hybrid)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ARCHITECTURE ───────────────────────────────────────────────────── -->
+  <section class="architecture">
+    <div class="container">
+      <h2>Architecture</h2>
+      <p class="arch-sub">Five layers, one SQLite file.</p>
+
+      <picture class="arch-diagram">
+        <source media="(prefers-color-scheme: dark)" srcset="../readme/architecture-dark.svg">
+        <img src="../readme/architecture-light.svg"
+             alt="nox-mem architecture: ingest router → SQLite store (chunks + FTS5 + sqlite-vec + KG) → hybrid retrieve (BM25 ∥ semantic) → RRF fusion → salience-ranked answer"
+             width="860">
+      </picture>
+
+      <ol class="arch-layers">
+        <li><strong>Ingest</strong> — router auto-detects entity files, markdown, or graphify input. Privacy filter applies 13 redaction patterns pre-storage.</li>
+        <li><strong>Store</strong> — chunks land in SQLite with FTS5 index plus 3072-d Gemini vector via sqlite-vec. Typed retention: <code>feedback</code> / <code>person</code> never decay; <code>lesson</code> 180d; <code>decision</code> 365d.</li>
+        <li><strong>Retrieve</strong> — query runs in parallel through FTS5 BM25 and Gemini semantic. RRF fusion (k=60) merges. Language-aware weights tilt dense up on PT queries.</li>
+        <li><strong>Rank</strong> — salience (<code>recency × pain × importance</code>) composes additively with section_boost and temporal boost. Shadow mode is the default.</li>
+        <li><strong>Answer</strong> — CLI, MCP, and HTTP surfaces with citation footers, anti-hallucination guard, and phase-broken-down latency budget.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── PILLARS ────────────────────────────────────────────────────────── -->
+  <section class="pillars">
+    <div class="container">
+      <h2>Pillars</h2>
+      <div class="pillars-grid">
+        <a href="../../docs/ROADMAP.md#quality" class="pillar-card">
+          <div class="pillar-badge shipped">shipped</div>
+          <h3>Quality</h3>
+          <p>Eval harnesses, LongMemEval alignment, nDCG benchmarks. Numbers first.</p>
+        </a>
+        <a href="../../docs/ROADMAP.md#autonomy" class="pillar-card">
+          <div class="pillar-badge shipped">shipped</div>
+          <h3>Autonomy</h3>
+          <p>Provider abstraction (A3), encrypted export/import (A2). Your data, your provider.</p>
+        </a>
+        <a href="../../docs/ROADMAP.md#product" class="pillar-card">
+          <div class="pillar-badge inprogress">in progress</div>
+          <h3>Product</h3>
+          <p>Answer primitive (P1), real-time viewer (P5), temporal queries (P3). UX that earns trust.</p>
+        </a>
+        <a href="../../docs/ROADMAP.md#lab" class="pillar-card">
+          <div class="pillar-badge inprogress">in progress</div>
+          <h3>Lab</h3>
+          <p>40% capacity on retrieval research. Six Gaps paper, conflict detection, confidence scoring.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── OPEN SOURCE ────────────────────────────────────────────────────── -->
+  <section class="opensource">
+    <div class="container">
+      <h2>Open source</h2>
+      <p>memoria-nox is MIT-licensed. The paper, the harnesses, and the retrieval stack are all in the repo.</p>
+      <div class="os-badges">
+        <img src="https://img.shields.io/badge/license-MIT-00C896?style=flat-square" alt="MIT License">
+        <!-- OpenSSF Best Practices badge — activate when passing badge criteria -->
+        <span class="badge-placeholder" title="OpenSSF Best Practices badge — pending">OpenSSF Best Practices</span>
+        <!-- Scorecard badge — activate after scorecard workflow ships -->
+        <span class="badge-placeholder" title="OpenSSF Scorecard badge — pending">Scorecard</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span class="footer-tagline">Hybrid memory with shadow discipline &mdash; yours by design.</span>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="https://github.com/totobusnello/memoria-nox" target="_blank" rel="noopener">GitHub</a>
+        <a href="../../docs/QUICKSTART.md">Docs</a>
+        <a href="../../CHANGELOG.md">Changelog</a>
+        <a href="#" aria-disabled="true" title="Discord — coming soon">Discord</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

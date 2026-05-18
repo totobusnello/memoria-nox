@@ -22,6 +22,24 @@ after all source-tree changes are built and validated.
 
 ---
 
+## Path Conventions
+
+> **Never use worktree-absolute paths.** Worktree paths (`/Users/.../worktrees/agent-*/`)
+> are local development artifacts and **do not exist on the VPS**. Using them in
+> deployment commands silently fails when run on a different machine or CI.
+
+| Context | Pattern | Example |
+|---|---|---|
+| Local repo paths (rsync source) | **Repo-relative** from repo root | `staged-P5/edits/migrations/v20-viewer-telemetry.sql` |
+| VPS paths (rsync destination) | **VPS absolute** under nox-mem root | `/root/.openclaw/workspace/tools/nox-mem/staged-migrations/v20.sql` |
+| VPS root shorthand | `${NM}` env var | `export NM=/root/.openclaw/workspace/tools/nox-mem` |
+
+**Rule:** All `rsync` source paths in this guide are relative to the **repo root on
+your local machine**. The `rsync` command must be run from the repo root, or paths
+must be prefixed with `$(git rev-parse --show-toplevel)/`.
+
+---
+
 ## 1. Pre-flight Checklist
 
 Run EVERY item before touching any files.
@@ -215,10 +233,9 @@ ssh $VPS_HOST "
 ssh $VPS_HOST "sqlite3 ${NM}/nox-mem.db 'PRAGMA user_version;'"
 # Must return 19
 
-# 3c. Copy + apply
-# NOTE: v20 is in a worktree; copy from the P5 staged dir on main
+# 3c. Copy + apply (run from repo root)
 rsync -avz \
-  /Users/lab/Claude/Projetos/memoria-nox/.claude/worktrees/agent-a2f48b714c784055f/staged-P5/edits/migrations/v20-viewer-telemetry.sql \
+  staged-P5/edits/migrations/v20-viewer-telemetry.sql \
   $VPS_HOST:${NM}/staged-migrations/v20-viewer-telemetry.sql
 ssh $VPS_HOST "sqlite3 ${NM}/nox-mem.db < ${NM}/staged-migrations/v20-viewer-telemetry.sql"
 
@@ -366,14 +383,14 @@ ssh $VPS_HOST "grep -q 'NOX_L4_REGEX_ENABLED' /root/.openclaw/.env && echo 'WARN
 # 10a. Backup src before P5 (touches api-server.ts integration)
 ssh $VPS_HOST "cp -r ${NM}/src /tmp/src.bak-pre-p5-$(date +%Y%m%d-%H%M%S)"
 
-# 10b. Dry-run
+# 10b. Dry-run (run from repo root)
 rsync -avz --dry-run \
-  /Users/lab/Claude/Projetos/memoria-nox/.claude/worktrees/agent-a2f48b714c784055f/staged-P5/edits/src/ \
+  staged-P5/edits/src/ \
   $VPS_HOST:${NM}/src/
 
-# 10c. Apply
+# 10c. Apply (run from repo root)
 rsync -avz \
-  /Users/lab/Claude/Projetos/memoria-nox/.claude/worktrees/agent-a2f48b714c784055f/staged-P5/edits/src/ \
+  staged-P5/edits/src/ \
   $VPS_HOST:${NM}/src/
 
 # 10d. NOX_VIEWER_TOKEN — required for SSE auth
