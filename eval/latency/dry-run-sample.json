@@ -1,0 +1,22 @@
+[
+  {
+    "summary": {
+      "workload": "search.short",
+      "n": 10,
+      "warmup_n": 0,
+      "cold": false,
+      "p50_ms": 47.3,
+      "p75_ms": 55.2,
+      "p90_ms": 58.6,
+      "p95_ms": 61.4,
+      "p99_ms": 61.4,
+      "p99.9_ms": 61.4,
+      "min_ms": 38.9,
+      "max_ms": 61.4,
+      "mean_ms": 49.23,
+      "stddev_ms": 7.55,
+      "errors": 0,
+      "timestamp_iso": "2026-05-18T02:04:19.622Z"
+    }
+  }
+]
