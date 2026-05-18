@@ -1,0 +1,23 @@
+{
+  "name": "memoria-nox-docs",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "import-docs": "npx tsx scripts/import-docs.ts"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.32.4",
+    "astro": "^5.7.0",
+    "sharp": "^0.33.5"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.3"
+  }
+}
