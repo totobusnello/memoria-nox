@@ -1,0 +1,24 @@
+# P0 patch — persistir per-query retrieved ids no hybrid eval
+# Mudança 5 LOC em locomo_hybrid_eval.py função evaluate() linha ~307
+# Custo zero (mesma run), beneficio: habilita análise per-query RRF mechanism
+
+diff --git a/paper/publication/baselines/locomo_hybrid_eval.py b/paper/publication/baselines/locomo_hybrid_eval.py
+@@ -307,7 +307,11 @@ def evaluate(queries: list[dict], api_key: str) -> dict[str, Any]:
+                 "precision_at_5": precision_at_k(fused, gold, 5),
+                 "n_gold": len(gold),
+                 "n_retrieved": len(fused),
++                "gold_chunk_ids": sorted(gold),
++                "retrieved": fused,
++                "fts_top": fts_top[:10],
++                "dense_top": dense_top[:10],
+             }
+         )
+         if i % 10 == 0:
+             print(f"[eval] {i}/{len(queries)} ({(time.time()-t0):.1f}s)", file=sys.stderr)
+
+# Para aplicar:
+#   cd paper/publication/baselines
+#   git apply ../results/q1-temporal-p0-patch.diff
+#
+# Validação: rodar python3 locomo_hybrid_eval.py eval (cached), checar JSONL
+# tem campos gold_chunk_ids/retrieved/fts_top/dense_top em cada linha.
