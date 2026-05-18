@@ -1,0 +1,16 @@
+{
+  "name": "nox-mem-privacy-filter",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Privacy filter staged patch — pre-storage redaction for nox-mem",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/privacy/__tests__/filter.test.js",
+    "test:watch": "node --watch --test dist/privacy/__tests__/filter.test.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
