@@ -1,0 +1,17 @@
+{
+  "name": "nox-mem-latency-bench",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Latency benchmark harness — p50/p95/p99 for hybrid search + ingest",
+  "scripts": {
+    "build": "tsc",
+    "dry-run": "npm run build && node dist/runner.js --workload search.short --n 10 --warmup 0 --output dry-run-sample.json",
+    "bench:all": "npm run build && node dist/runner.js --all --output results/full-run.json",
+    "aggregate": "node dist/aggregator.js --input results/full-run.json --output results/summary.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}

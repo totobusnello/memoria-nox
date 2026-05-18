@@ -1,0 +1,22 @@
+# eval.db — clone of production DB for benchmark runs. Never committed.
+eval.db
+eval.db-wal
+eval.db-shm
+
+# Full benchmark runs — can be large and contain latency numbers not yet published
+results/full-run.json
+results/summary.json
+results/
+
+# Compiled TypeScript output
+dist/
+
+# npm
+node_modules/
+
+# Intermediate raw runner output
+*-raw.json
+
+# OS / editor artifacts
+.DS_Store
+*.swp
