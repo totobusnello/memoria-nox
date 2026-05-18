@@ -14,6 +14,7 @@
 | Alerta Discord `[schema-invariants]` | [RB-03](#rb-03-schema-invariants-violation-p1) |
 | Search retorna lixo após ativação de salience | [RB-04](#rb-04-salience-activation-degradou-ranking-p0) |
 | Gemini API down/quota exhausted/key revoked (SPOF embedding) | [RB-05](#rb-05-gemini-spof-mitigation-p0) |
+| Q-pillar full-run trigger (LoCoMo + LongMemEval + Latency) | [RB-06](#rb-06-q-pillar-full-runs-locomo--longmemeval--latency--trigger-overnight) |
 | Recovery via snapshot `op_audit` | [`runbooks/recovery-from-snapshot.md`](../runbooks/recovery-from-snapshot.md) |
 | Rollback de versão nox-mem | [`runbooks/rollback-nox-mem-version.md`](../runbooks/rollback-nox-mem-version.md) |
 | Rollback de schema migration | [`runbooks/rollback-schema-migration.md`](../runbooks/rollback-schema-migration.md) |
@@ -404,3 +405,96 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
 - **Documentar custo mensal Gemini** em F13 (cost projection alt) — gatilho pra switch se ROI inverter
 - **Nunca depender de UM único modelo Gemini** — usar `gemini-2.5-flash-lite` default (não flash full que estoura quota)
 - **Manter `gemini-embedding-001` como source-of-truth dimensional** (3072d) até shadow-index trimestral mostrar alternativa superior em ≥2 trimestres consecutivos
+
+---
+
+## RB-06: Q-pillar full runs (LoCoMo + LongMemEval + Latency) — trigger overnight
+
+> **Quando rodar:** quando precisar de números padrão-indústria pra Q4 COMPARISON.md (atualmente todos os números no doc são `[estimated]` — Q4 gate fecha quando ≥2 dos 3 saem `[verified]`). Roda **na VPS** (tem `eval.db` seedado + GEMINI_API_KEY válido).
+
+### Sintoma / Pre-check
+
+```bash
+# Cada harness tem read-side: deve retornar PASS na shape check ou indicar corpus absent
+gh run list --workflow=eval-harnesses.yml --limit 1
+# Last run deve estar success (CI valida shape, não números)
+```
+
+### Quick fix
+
+```bash
+# Pré-req VPS:
+ssh root@187.77.234.79
+set -a; source /root/.openclaw/.env; set +a
+cd /root/.openclaw/workspace/tools/nox-mem
+
+# Q1 — LoCoMo (n=100, ~2h, ~$0.40)
+npx tsx eval/locomo/download.ts                                # primeiro time só
+npx tsx eval/locomo/parser.ts --ingest                         # popula eval.db
+nohup npx tsx eval/locomo/run.ts --n 100 --seed 42 --cli --full \
+  > eval/locomo/full-run-$(date +%Y%m%d).json 2> eval/locomo/full-run-$(date +%Y%m%d).err &
+# Quando completar:
+npx tsx eval/locomo/score.ts eval/locomo/full-run-YYYYMMDD.json --ci
+# Esperado: nDCG@10, R@5, R@1, MRR — todos com CIs
+
+# Q2 — LongMemEval (n=100, ~2-3h, ~$0.50 com LLM judge)
+npx tsx eval/longmemeval/download.ts
+nohup npx tsx eval/longmemeval/run.ts --n 100 --full \
+  > eval/longmemeval/full-run-$(date +%Y%m%d).json 2> eval/longmemeval/full-run-$(date +%Y%m%d).err &
+# Quando completar:
+npx tsx eval/longmemeval/score.ts eval/longmemeval/full-run-YYYYMMDD.json
+
+# Q3 — Latency benchmark (~1h, ~$0.23 — só embedding cost, no LLM judge)
+cd eval/latency && npm run build
+nohup node dist/run.js --full \
+  > full-run-$(date +%Y%m%d).json 2> full-run-$(date +%Y%m%d).err &
+# Resultados em full-run-YYYYMMDD.json — p50, p95, p99 por endpoint
+```
+
+### Tempo total estimado
+
+- **Serial (default):** ~5-6h. Pode rodar todos no mesmo tmux session em sequência (preserva embedding cache do Gemini entre Q1 e Q2 → economia ~30%).
+- **Paralelo:** não recomendado — Gemini quota 3M req/d em flash-lite, todos os 3 batem o mesmo endpoint, risco de 429.
+
+### Custo total estimado
+
+- Q1: ~$0.40 (embedding novos pra ~600 turns + 100 queries)
+- Q2: ~$0.50 (embedding + LLM judge gemini-2.5-flash pra evaluating answers)
+- Q3: ~$0.23 (só embedding 100 queries × N variations)
+- **Total: ~$1.13** (cobrável ao GEMINI_API_KEY do Toto, projeto pessoal)
+
+### Pós-run: atualizar COMPARISON.md
+
+```bash
+# Editar docs/COMPARISON.md, trocar números [estimated] → [verified YYYY-MM-DD]
+# para cada métrica que saiu da Q-run. Manter [estimated] no resto.
+# Disparar Q4 gate se ≥2 vitórias claras.
+```
+
+### Verificação pós-run
+
+```bash
+# Validar JSON outputs não vazios e com shape correto:
+for f in eval/locomo/full-run-*.json eval/longmemeval/full-run-*.json eval/latency/full-run-*.json; do
+  [ -f "$f" ] || continue
+  node -e "const d=JSON.parse(require('fs').readFileSync('$f','utf8')); console.log('$f:', d.meta?.n, 'records:', d.records?.length)"
+done
+
+# Cross-check: VPS health pós-run não regrediu
+curl -sf http://127.0.0.1:18802/api/health | jq '.vectorCoverage'
+```
+
+### Prevenção
+
+- **GEMINI_API_KEY rotation:** verificar válido ANTES de iniciar (`nox-mem search "test" 2>&1 | tail -5`). Q-run de 2h falhando 20% por API key expirada custa tempo.
+- **Snapshot pré-run:** `withOpAudit` não cobre eval.db (DB separado), mas tirar `VACUUM INTO snapshot.db` manual antes de Q1 caso algo corrompa eval.db.
+- **Tmux session named:** `tmux new -s qruns` — sobrevive a disconnect SSH.
+- **Discord alert no final:** wrapper script pode disparar webhook quando os 3 terminam (próxima evolução).
+
+### Cross-links
+
+- `eval/locomo/README.md` — Q1 detalhes + 7 decisões de protocolo (D1-D7)
+- `eval/longmemeval/README.md` — Q2 detalhes
+- `eval/latency/README.md` — Q3 detalhes + budgets p95
+- `docs/COMPARISON.md` — onde os números aterrissam
+- `docs/ROADMAP.md §Q-pillar` — gates Q4 abrir
