@@ -1,0 +1,16 @@
+{
+  "name": "nox-mem-providers",
+  "version": "0.1.0-T1-T8",
+  "private": true,
+  "type": "module",
+  "description": "A3 — Provider abstraction staged patch (T1-T8): EmbeddingProvider + LLMProvider interfaces + Gemini real impls + OpenAI/Anthropic/Voyage stubs + registry + healthCheck. D41 default = gemini-embedding-001 (3072d) + gemini-2.5-flash-lite. Other providers stub on actual call.",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/src/providers/__tests__/*.test.js",
+    "test:watch": "node --watch --test dist/src/providers/__tests__/*.test.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
