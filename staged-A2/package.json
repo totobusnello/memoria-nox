@@ -1,0 +1,20 @@
+{
+  "name": "nox-mem-archive",
+  "version": "0.1.0-T1-T9",
+  "private": true,
+  "type": "module",
+  "description": "A2 — Export/Import archive primitives (T1-T9): TAR.gz format + manifest + serializers (chunks/embeddings/KG/ops_audit) + AES-256-GCM encryption + schema migration. Encrypt-by-default per D41 #2.",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/src/lib/archive/__tests__/*.test.js",
+    "test:watch": "node --watch --test dist/src/lib/archive/__tests__/*.test.js"
+  },
+  "dependencies": {
+    "tar-stream": "^3.1.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0",
+    "@types/tar-stream": "^3.1.3"
+  }
+}
