@@ -1,0 +1,16 @@
+{
+  "name": "nox-mem-confidence-field",
+  "version": "0.1.0-T1-T13",
+  "private": true,
+  "type": "module",
+  "description": "L3 — Confidence + provenance field staged patch (T1-T13): types + config + write hooks + mark workflow (CLI/HTTP/MCP) + ranking gated + telemetry + search filter + eval scaffold + migration v22 + integration + docs. Ranking integration DEFAULTS OFF; eval gate ≥+1.0pp nDCG@10. Schema v19 already merged.",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/edits/src/lib/confidence/__tests__/*.test.js",
+    "test:watch": "node --watch --test dist/edits/src/lib/confidence/__tests__/*.test.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
