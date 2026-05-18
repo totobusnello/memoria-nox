@@ -1,16 +1,17 @@
 # THREAT-MODEL.md — nox-mem Security Threat Model
 
-> **Scope:** Wave A→D shipped security-sensitive code paths — privacy filter (A1),
-> archive + encryption (A2), provider abstraction (A3), and Wave B HTTP endpoints
-> (P1 answer, L3 mark; partial coverage of planned P5 SSE, L2 conflict, P2 hooks).
+> **Scope:** Wave A→F shipped security-sensitive code paths — privacy filter (A1),
+> archive + encryption (A2), provider abstraction (A3), Wave B HTTP endpoints
+> (P1 answer, L3 mark), P5 SSE viewer, L2 conflict API, P2 hooks API, A2
+> orchestrator, and schema migrations v20/v21.
 >
 > **Audience:** Internal — engineering, audit, security review. **NOT marketing.**
 > Be candid about gaps. False reassurance is worse than honest gap.
 >
-> **Versão:** 1.0 — 2026-05-18
-> **Última revisão:** Wave E consolidation
-> **Próxima revisão:** após Wave B endpoints completos (P5/L2/P2 ainda em planejamento)
-> **Maintainer:** Toto Busnello + Wave-E synthesis
+> **Versão:** 1.1 — 2026-05-18 (Wave-E.1 follow-up)
+> **Última revisão:** Wave-E.1 — P5/L2/P2/A2 sections filled
+> **Próxima revisão:** após Wave G (quando novos endpoints forem adicionados)
+> **Maintainer:** Toto Busnello + Wave-E/F synthesis
 >
 > Idioma: narrativa em PT-BR (São Paulo register, "você + 3ª pessoa"); termos
 > técnicos e seções formais em EN para alinhar com STRIDE canônico.
@@ -32,6 +33,7 @@
 11. [Threat actor analysis](#11-threat-actor-analysis)
 12. [Compliance considerations](#12-compliance-considerations)
 13. [References](#13-references)
+14. [Wave-E.1 follow-up appendix](#14-wave-e1-follow-up--completed-sections)
 
 ---
 
@@ -547,14 +549,14 @@ Da Wave B referenciada na task, o que está realmente shipped:
 | `POST /api/answer` | `staged-P1/edits/src/api/answer.ts` | ✅ Shipped |
 | `POST /api/chunk/:id/mark` | `staged-L3/edits/src/api/mark.ts` | ✅ Shipped |
 | `POST /api/chunk/:id/supersede` | `staged-L3/edits/src/api/mark.ts` | ✅ Shipped |
-| `POST /api/export` | _planejado em A2, fora deste staged dir_ | 🟡 **Not shipped** — só primitives (lib/archive) shipped |
-| `POST /api/import` | _planejado em A2_ | 🟡 **Not shipped** |
-| `GET /api/events-stream` (SSE P5) | _staged-P5a só tem event bus_ | 🟡 **Partial** — bus implementado, SSE endpoint pending |
-| `GET /api/conflict` / `POST /api/conflict/resolve` (L2) | _staged-L2 ausente_ | 🔴 **Not staged** — não pude revisar |
-| `POST /api/hooks` (P2 capture) | _staged-P2 ausente_ | 🔴 **Not staged** — não pude revisar |
+| `POST /api/export` / `POST /api/import` | `staged-A2/edits/src/lib/archive/orchestrator.ts` | ✅ Shipped — orchestrator + primitives (Wave-E.1) |
+| `GET /api/events/stream` (SSE P5) | `staged-P5/edits/src/api/events-stream.ts` | ✅ Shipped — full SSE handler (Wave-E.1) |
+| `GET /viewer/*` (static, P5) | `staged-P5/edits/src/api/viewer-static.ts` | ✅ Shipped — static file server (Wave-E.1) |
+| `GET /api/conflict`, `GET /api/conflict/:id`, `POST /api/conflict/:id/resolve` (L2) | `staged-L2/edits/src/api/conflict.ts` | ✅ Shipped (Wave-E.1) |
+| `GET /api/hooks/status`, `GET /api/hooks/recent`, `POST /api/hooks/dryrun` (P2) | `staged-P2/edits/src/api/hooks.ts` | ✅ Shipped (Wave-E.1) |
 
-> 🔴 GAP de análise: P5 SSE, L2 conflict, P2 hooks NÃO estão em `staged-*` dirs neste worktree.
-> Threat model desses 3 endpoints fica como **TODO Wave-E.1**.
+> ✅ Wave-E.1 completou cobertura de todos os endpoints. §7.5–7.8 documentam
+> a análise de ameaças de P5/L2/P2 e o orchestrator A2.
 
 ### 7.2 Auth model (cross-cutting)
 
@@ -615,13 +617,401 @@ Da Wave B referenciada na task, o que está realmente shipped:
 - **R-L3-2** (Med, 1d) — Retention/rotation pra `ops_audit` > 90d (mover pra `ops_audit_archive` ou compress).
 - **R-L3-3** (Low, 1h) — Sanitizar `err.message` (strip SQL fragments) antes de retornar 500.
 
-### 7.5 Migrations + schema invariants (v19/v20/v21/v22)
+### 7.5 GET /api/events/stream + GET /viewer/* (P5 SSE viewer)
+
+**Source:** `staged-P5/edits/src/api/events-stream.ts`, `staged-P5/edits/src/api/viewer-static.ts`, `staged-P5/edits/src/lib/viewer/{broadcast,redaction,auth,backpressure}.ts`.
+
+#### T-P5-1: Query exposure via SSE
+
+**Scenario:** `SearchEvent.query` transporta o texto exato da pesquisa para todos os clientes SSE conectados — expõe intenção do usuário em tempo real.
+
+**Rating:** 🟡 **Med**.
+
+**Existing control:**
+- `redactEvent()` em `redaction.ts:65-84` redacta `details.query` pra `"<redacted>"` por padrão.
+- `NOX_VIEWER_SHOW_QUERY=1` é opt-in explícito com `viewerStartupWarnings()` que emite `[WARN]` em boot — operador está avisado.
+- `stripForbiddenFields()` (`redaction.ts:106-132`) percorre o evento recursivamente deletando campos `content`, `body`, `text`, `raw_text`, `prompt`, `response`, `embedding`, `embedding_vector`, `vector`, `password`, `token`, `api_key`, `secret` — mesmo que evento estranho chegue nesses campos, são purgados.
+
+**Gap residual:**
+- 🟡 Opt-in env var `NOX_VIEWER_SHOW_QUERY=1` é global (não por-cliente). Se operator habilita para debug, TODOS os clientes SSE conectados recebem queries.
+- 🟡 `nameHash` / `queryHash` em `redaction.ts:24-30` produzem hashes truncados (16 hex chars / 8 hex chars) — determinísticos pra mesma entrada. Dois observadores podem correlacionar hashes mesmo sem ver o texto.
+
+**Recommendation:**
+- **R-P5-1.1** (Med, 1d) — Adicionar per-session redaction opt-in (token escopo vs. global env), pra permitir debug sem expor todos os clientes.
+- **R-P5-1.2** (Low, 1h) — Documentar em VIEWER.md que hashes são determinísticos e podem ser correlacionados.
+
+#### T-P5-2: SSE long-lived connection DoS (connection exhaustion)
+
+**Scenario:** atacante abre N conexões SSE concorrentes → exausta file descriptors do processo ou memória do ring buffer.
+
+**Rating:** 🟡 **Med**.
+
+**Existing control:**
+- Cada cliente tem `BackpressureQueue` independente (per-client queue capacity `clientCapacity = 100` por padrão em `broadcast.ts:48`). Slow consumer não bloqueia outros — head-of-line blocking eliminado.
+- `onDrop` callback em `events-stream.ts:29` notifica o caller quando queue está cheia — caller pode fechar conexão se quiser.
+- Heartbeat via `setInterval` com `.unref()` (`events-stream.ts:97`) — não previne process exit.
+
+**Gap:**
+- 🔴 **GAP:** Sem limite de N conexões concorrentes por IP ou total. `broadcaster.addClient()` aceita clientes indefinidamente — 10k conexões = 10k BackpressureQueues em memória.
+- 🟡 Ring buffer de 1000 eventos (`ringCapacity = 1000`) é fixo — em sessão com muita atividade, memória cresce proporcionalmente a `ringCapacity × sizeof(BroadcastEnvelope)`.
+
+**Recommendation:**
+- **R-P5-2.1** (High, 4h) — Adicionar limite de conexões simultâneas (`MAX_SSE_CLIENTS`, default 10). Retornar 503 Service Unavailable quando atingido.
+- **R-P5-2.2** (Med, 2h) — Configurar `ringCapacity` via `NOX_VIEWER_RING_CAPACITY` com cap máximo (ex: 5000) pra evitar misconfiguration de memória.
+
+#### T-P5-3: Multi-client broadcast amplification
+
+**Scenario:** evento grande (ex: chunk com 1KB de metadata) × N clientes SSE = amplificação de N×1KB por evento.
+
+**Rating:** 🟡 **Med** (baixo em uso típico).
+
+**Existing control:**
+- `redactEvent()` strip campos grandes (content, embedding) — evento é leve (~200-500 bytes típico).
+- `BackpressureQueue.push()` descarta quando `capacity` atingido — evita acumulação ilimitada por cliente lento.
+
+**Gap residual:**
+- 🟡 Sem limite de tamanho de evento individual. Se instrumentation produz evento maior que esperado, é replicado pra todos os clientes antes de redaction.
+
+**Recommendation:**
+- **R-P5-3** (Low, 2h) — Adicionar `maxEventBytes` check antes de `broadcaster.publish()` — rejeitar evento > 64KB com WARN.
+
+#### T-P5-4: Static file serving path traversal
+
+**Scenario:** `GET /viewer/../etc/passwd` ou `GET /viewer/%2e%2e/etc/passwd` → leitura de arquivo arbitrário no fs.
+
+**Rating:** 🟡 **Med**.
+
+**Existing control:**
+- `safeJoin()` em `viewer-static.ts:52-70` tem 3 camadas defensivas:
+  1. Reject explícito `/(^|[\\/])\.\.([\\/]|$)/` regex pré-normalize — bloqueia `..` no path raw.
+  2. `normalize()` + segunda checagem `.includes("..")` — bloqueia formas normalizadas.
+  3. `resolve(full).startsWith(resolve(root) + "/")` — garante que o path final está fisicamente sob o root.
+- `extensionOf()` + `CONTENT_TYPES` allowlist — arquivos com extensão desconhecida retornam `application/octet-stream` (não ideal mas não vaza estrutura).
+- Query string / hash stripped via `split("?")[0].split("#")[0]` antes do join.
+
+**Gap residual:**
+- 🟢 Path traversal controlado — 3 camadas independentes cobrem unicode normalization, symlinks (via `resolve`), e encoded traversal.
+- 🟡 `statSync` / `readFileSync` lançam exceções que são capturadas genericamente (`catch { return notFound() }`) — qualquer erro de fs resulta em 404, mas erro é silenciado sem log. Dificulta detecção de scan de paths.
+
+**Recommendation:**
+- **R-P5-4** (Low, 1h) — Logar (WARN level) quando `safeJoin` retorna null ou `statSync` lança exceção com `EACCES`/`ENOENT` inesperado — ajuda detecção de scanning adversarial.
+
+#### T-P5-5: Auth gating (`NOX_VIEWER_AUTH_TOKEN`)
+
+**Scenario:** viewer exposto sem token → qualquer processo na mesma máquina (ou rede se bind 0.0.0.0) acessa stream de eventos.
+
+**Rating:** 🟡 **Med** (baixo se bind 127.0.0.1).
+
+**Existing control:**
+- `authorize()` em `auth.ts:63-79` — `timingSafeEqual` pra evitar timing oracle.
+- Default `authEnabled() = false` se `NOX_VIEWER_AUTH_TOKEN` não setado — localhost-only assumption ativa (mesma postura dos outros endpoints).
+- `viewerStartupWarnings()` emite `[WARN]` se `NOX_VIEWER_BIND=0.0.0.0` sem token.
+- `?token=` query string suportado pra `EventSource` (browser API não suporta headers).
+
+**Gap residual:**
+- 🟡 Token via `?token=` aparece em access logs, referrer headers e histório de browser. Para uso em shared environment, é um leak vetor.
+- 🟡 Token único pra todos os endpoints do viewer — sem RBAC (ok em single-user, mas documentar pra Nox-Supermem multi-tenant).
+
+**Recommendation:**
+- **R-P5-5.1** (Med, 2h) — Documentar em VIEWER.md que `?token=` aparece em logs; recomendar usar proxy reverso pra adicionar auth header se necessário.
+- **R-P5-5.2** (Low, doc) — Anotar que token-per-viewer não tem RBAC — pré-requisito pra multi-tenant futuro.
+
+#### 7.5 Resumo P5
+
+| Subgap | Rating | Sprint candidate |
+|---|---|---|
+| Sem limite de conexões SSE concorrentes | 🔴 H | P5.1 |
+| Query hash correlacionável mesmo redacted | 🟡 M | P5.1 |
+| Evento grande sem cap de tamanho | 🟡 M | P5.2 |
+| Token via ?token= em logs/referrer | 🟡 M | P5.1 |
+| Scan de paths silenciado sem log | 🟡 M | P5.2 |
+
+---
+
+### 7.6 GET /api/conflict + POST /api/conflict/:id/resolve (L2)
+
+**Source:** `staged-L2/edits/src/api/conflict.ts`, `staged-L2/edits/migrations/v21-conflict-audit.sql`.
+
+#### T-L2-1: Conflict enumeration — information disclosure
+
+**Scenario:** `GET /api/conflict?status=open&limit=500` retorna todos os conflitos detectados no KG. Observador sem contexto descobre estrutura interna do grafo (quais entidades têm contradições, quais predicados conflitam).
+
+**Rating:** 🟡 **Med**.
+
+**Existing control:**
+- `limit` capped a 500 (`conflict.ts:89-92`) — não ilimitado.
+- `status` allowlist validado em `VALID_STATUSES` (`conflict.ts:43-50`).
+- Mesmo escopo de auth dos outros endpoints — se `requireApiToken()` encadeado, requer Bearer.
+
+**Gap:**
+- 🟡 `GET /api/conflict/:id` retorna `evidence` completa via `collectEvidence()` — inclui `variants` (relation ids, confidence scores, extraction_method). Isso revela quão incerto é um fato no grafo.
+- 🟡 Sem paginação além de `limit` — e.g., `GET /api/conflict?limit=500&offset=500` não existe. Atacante enumera com limit crescente.
+
+**Recommendation:**
+- **R-L2-1.1** (Med, 2h) — Adicionar `offset` pagination para enumeration mais controlada.
+- **R-L2-1.2** (Low, doc) — Documentar que `/api/conflict` revela incerteza do KG — auth deve ser aplicado em ambientes compartilhados.
+
+#### T-L2-2: Resolve operation tampering
+
+**Scenario:** `POST /api/conflict/:id/resolve` com `kind="pick_one"` e `picked_relation_id` arbitrário → forçar resolução fraudulenta que remove evidência válida de contradição.
+
+**Rating:** 🟡 **Med**.
+
+**Existing control:**
+- `kind` allowlist `["pick_one", "both_valid", "merged", "dismissed"]` (`conflict.ts:128`).
+- `picked_relation_id` requer `typeof body.picked_relation_id !== "number"` check antes de aceitar.
+- `merge_target` requer non-empty string para `merged` kind.
+- `actor` propagado pra `resolved_by` em `conflict_audit` — rastreável via audit log.
+- Triggers v21 bloqueiam reabertura de rows terminais (`trg_conflict_audit_no_reopen`).
+
+**Gap:**
+- 🟡 `picked_relation_id` é um número aceito sem validação de existência — se o relation id não existe no DB, `updateConflictStatus` pode falhar silenciosamente ou inserir dado inválido. Gap de referential integrity.
+- 🟡 `notes` field (`body.notes`) aceita string sem limite de tamanho — pode ser usado pra inflar `conflict_audit`.
+
+**Recommendation:**
+- **R-L2-2.1** (Med, 2h) — Validar que `picked_relation_id` existe em `kg_relations` antes de persistir (`SELECT 1 FROM kg_relations WHERE id = ?`).
+- **R-L2-2.2** (Low, 1h) — Limitar `notes` a 1000 chars (consistente com R-L3-1).
+
+#### T-L2-3: Scanner cron DoS (large KG → expensive query)
+
+**Scenario:** quando KG cresce para 50k+ entidades, scan de conflitos (`SELECT … FROM kg_relations WHERE …`) pode consumir vários segundos de CPU e bloquear o event loop.
+
+**Rating:** 🟡 **Med** (longo prazo).
+
+**Existing control:**
+- `conflict_audit` tabela tem índices em `(status, ts DESC)`, `(subject_entity_id, predicate)`, e `(status) WHERE status = 'open'` — `listConflicts()` usa esses índices.
+- `shadow_mode = 1` por default na tabela — conflitos em shadow não afetam ranking, então urgência de detecção é menor.
+
+**Gap:**
+- 🟡 Scanner inicial (que cria rows em `conflict_audit`) não está em `staged-L2/edits/src/api/conflict.ts` — está em `lib/conflict/scanner.ts` (não revisado aqui). Se scanner rodar sem throttle, pode saturar.
+- 🟡 `collectEvidence()` chamado em `handleShow()` dispara queries adicionais por row — N+1 pattern se chamado em loop.
+
+**Recommendation:**
+- **R-L2-3.1** (Med, 2h) — Adicionar `NOX_CONFLICT_SCAN_MAX_ENTITIES` env pra cap do scanner.
+- **R-L2-3.2** (Low, 1h) — Incluir cache TTL em `collectEvidence()` resultado pra evitar N+1 em audit viewers.
+
+#### T-L2-4: Audit table tamper resistance (v21)
+
+**Scenario:** insider tenta modificar `conflict_audit` pra ocultar detecção de conflito.
+
+**Rating:** 🟡 **Med**.
+
+**Existing control (verificado em v21-conflict-audit.sql):**
+- `trg_conflict_audit_no_delete` — DELETE incondicional bloqueado (linha 47-51).
+- `trg_conflict_audit_immutable_data` — UPDATE de `kind, subject_entity_id, predicate, target_relation_ids, variants, ts` bloqueado (linhas 53-57). Somente campos de resolução são mutáveis.
+- `trg_conflict_audit_no_reopen` — rows terminais não podem voltar pra `open`/`reviewed` (linhas 59-65).
+- `status` CHECK constraint `IN ('open','reviewed','resolved_*','dismissed')`.
+
+**Gap residual:**
+- 🟡 `ts` usa `DEFAULT (strftime('%s','now')*1000)` mas aceita valor customizado em INSERT. Atacante pode forjar timestamp de detecção retroativamente (mesmo problema de T-Audit-2 em `confidence_eval_log`).
+- 🟡 Sem trigger BEFORE INSERT validando `ts <= strftime('%s','now')*1000`.
+
+**Recommendation:**
+- **R-L2-4** (Low, 1h) — Adicionar trigger `BEFORE INSERT ON conflict_audit BEGIN SELECT RAISE(ABORT,...) WHERE NEW.ts > strftime('%s','now')*1000 + 60000; END;` — tolera 60s de clock skew.
+
+#### 7.6 Resumo L2
+
+| Subgap | Rating | Sprint candidate |
+|---|---|---|
+| `picked_relation_id` sem validação de existência | 🟡 M | L2.1 |
+| `notes` sem max-length | 🟡 M | L2.1 |
+| `ts` INSERT aceita retroativo | 🟡 M | L2.1 |
+| Scanner cron sem throttle cap | 🟡 M | L2.2 |
+| Sem paginação offset em listagem | 🟡 M | L2.2 |
+
+---
+
+### 7.7 GET /api/hooks/status + recent + POST /api/hooks/dryrun (P2)
+
+**Source:** `staged-P2/edits/src/api/hooks.ts`.
+
+#### T-P2-1: Hook telemetry side-channel
+
+**Scenario:** `GET /api/hooks/recent` retorna `redaction_count` por evento — se atacante pode enviar inputs variados e observar `redaction_count`, infere quais patterns de PII o input triggou (ex: 0 redactions vs 3 redactions para input com CPF).
+
+**Rating:** 🟡 **Med**.
+
+**Existing control:**
+- `GET /api/hooks/recent` retorna APENAS metadata: `event_uuid, session_id, project_slug, kind, timestamp, redaction_count` — `payload_json` é explicitamente dropado em `sanitized = rows.map(r => {...})` (`hooks.ts:89-96`).
+- `kind` (categoria do evento: `accepted|filtered|deduped|rate_limited`) não revela conteúdo.
+
+**Gap:**
+- 🟡 `redaction_count > 0` permite inferir que input tinha PII — frequência e count de redactions é side-channel de timing/classifier.
+- 🟡 `session_id` + `project_slug` são expostos — revelan quais sessões/projetos geraram hooks (metadado de atividade).
+
+**Recommendation:**
+- **R-P2-1.1** (Low, 1h) — Documentar em API docs que `redaction_count` é side-channel de presença de PII; considerar bucketing (0, 1, 2+) ao invés de valor exato.
+- **R-P2-1.2** (Low, doc) — Se `session_id` for sensível, adicionar opção de mascaramento.
+
+#### T-P2-2: Dryrun como vetor de information disclosure
+
+**Scenario:** `POST /api/hooks/dryrun` aceita texto arbitrário e retorna `trace` detalhado do pipeline (layer, reason, redaction_count, kind). Atacante usa dryrun pra descobrir exatamente quais filtros estão ativos e como o classifier categoriza inputs.
+
+**Rating:** 🟡 **Med**.
+
+**Existing control:**
+- Dryrun retorna resultado truncado: `redacted preview (truncated to 200 chars)` por spec — `hooks.ts` delega truncation ao pipeline.
+- `trace` retorna apenas `{layer, reason, redaction_count, kind}` — não retorna payload redacted completo.
+- `dryRun: true` é forçado no config da pipeline (`hooks.ts:114`).
+
+**Gap:**
+- 🟡 `trace` com `reason` pode revelar nomes de layers de classifier e razões de filtro — atacante mapeia o classificador sem custo.
+- 🟡 Sem rate limit em `/api/hooks/dryrun` — pode ser usada como oracle de classifier sem custo.
+
+**Recommendation:**
+- **R-P2-2.1** (Med, 4h) — Rate limit em `/api/hooks/dryrun` — mesmo token bucket de outros endpoints (ex: 30 req/min).
+- **R-P2-2.2** (Low, 1h) — Considerar oscurecer `reason` em dryrun (retornar só layer + pass/fail, sem texto da razão).
+
+#### T-P2-3: Rate-limit bypass
+
+**Scenario:** `GET /api/hooks/status` retorna `rateLimitTokens` (tokens disponíveis no bucket atual) — atacante monitora esse campo pra enviar requests exatamente quando o bucket recarrega.
+
+**Rating:** 🟡 **Low-Med**.
+
+**Existing control:**
+- `rateLimitTokens` é null se `inspectQueue` não setado (`hooks.ts:79`).
+- Token bucket é pelo pipeline, não per-IP — sem identificação de caller.
+
+**Gap:**
+- 🟡 Se `inspectQueue` estiver configurado e retornar `rateLimitTokens`, é um oracle de timing pra bypass.
+
+**Recommendation:**
+- **R-P2-3** (Low, 1h) — Remover `rateLimitTokens` do response de `/api/hooks/status` ou retornar sempre null pra evitar oracle.
+
+#### T-P2-4: Decorator injection via `@nox:skip`
+
+**Scenario:** usuário inclui literal `@nox:skip` em texto ingerido → instrui o classifier a não capturar. Se atacante controla input (ex: via prompt injection em LLM response), pode fazer o hook ignorar resposta maliciosa.
+
+**Rating:** 🟡 **Med** (depende de pipeline ter suporte ao decorator).
+
+**Existing control:**
+- `@nox:skip` é feature documentada de opt-out por autor. Design intencional.
+- Injeção via LLM é mitigada pela `stripForbiddenFields` em P5 / A1 redaction — mas o hooks pipeline processa antes.
+
+**Gap:**
+- 🟡 Se LLM resposta contém `@nox:skip` (injetado por prompt injection), hooks não capturam aquela sessão → histórico truncado sem aviso ao user.
+
+**Recommendation:**
+- **R-P2-4** (Med, 1d) — Adicionar `@nox:skip` ao `GET /api/hooks/recent` response como campo (ex: `decorator_skip_count` por session) pra que operador possa detectar abusos.
+
+#### T-P2-5: Error response em `/api/hooks/recent` vaza `err.message`
+
+**Scenario:** `handleHooksRequest` no path de `readRecent()` catch (`hooks.ts:98-100`) retorna `{ error: (e as Error).message }` sem sanitização.
+
+**Rating:** 🟡 **Med**.
+
+**Existing control:**
+- N/A — sem sanitização aqui.
+
+**Gap:**
+- 🔴 **GAP:** se `readRecent()` falha com erro SQLite (ex: `SQLITE_BUSY: database is locked (path: /root/.openclaw/...)`), o path completo do DB vaza no HTTP 500 response body.
+
+**Recommendation:**
+- **R-P2-5** (High, 1h) — Sanitizar err.message no catch de `readRecent()` — usar erro genérico interno, logar detalhes internamente. Consistente com R-A3-1.1.
+
+#### 7.7 Resumo P2
+
+| Subgap | Rating | Sprint candidate |
+|---|---|---|
+| DB path leak em `/hooks/recent` 500 | 🔴 H | next sprint |
+| Sem rate limit em `/hooks/dryrun` | 🟡 M | P2.1 |
+| `rateLimitTokens` oracle de timing | 🟡 M | P2.1 |
+| `redaction_count` side-channel PII | 🟡 M | P2.2 |
+| Decorator injection `@nox:skip` via LLM | 🟡 M | P2.2 |
+
+---
+
+### 7.8 A2 Orchestrator — ameaças adicionais (além de §5)
+
+**Source:** `staged-A2/edits/src/lib/archive/orchestrator.ts`.
+
+O §5 cobriu os primitives de encryption (encryption.ts, format.ts). O orchestrator (`runExport` / `runImport`) adiciona superfície própria.
+
+#### T-A2-Orch-1: Race condition em export/import concorrente
+
+**Scenario:** usuário roda `runExport` e `runImport` simultaneamente no mesmo DB. `runExport` serializa chunks no início; `runImport` persiste rows ao final. Race window: import pode adicionar chunks após export começou mas antes de export terminar → archive gerado não reflita estado DB no momento de export.
+
+**Rating:** 🟡 **Med**.
+
+**Existing control:**
+- `ExportRequest.signal` (AbortSignal) permite cancelamento entre fases.
+- `planChunkImport` / `planOpsAuditImport` são funções puras (sem side effects) — só `caller`'s responsibility é persistir via `resolved.*`.
+- `ops_audit` append-only: se dois imports simultâneos, cada um gera rows independentes sem conflito (fora da deduplication window de `planOpsAuditImport`).
+
+**Gap:**
+- 🟡 Sem lock de arquivo ou mutex no orchestrator — race condition é possível em ambiente CLI (usuário corre dois terminais). Archive exportado pode ser inconsistente sem error visível.
+- 🟡 `checkAbort()` só checa `AbortSignal` — não previne race com DB-level locks de outra transação.
+
+**Recommendation:**
+- **R-A2-Orch-1** (Med, 1d) — Implementar advisory lock file (ex: `/var/run/nox-mem/export.lock`) em `runExport` pra prevenir concurrent exports. Import pode ser concurrent OK (apenas leitura do archive + planning).
+
+#### T-A2-Orch-2: Manifest replay attack
+
+**Scenario:** atacante captura archive legítimo (de backup) e o reimporta em DB diferente. `parseManifest` valida schema mas não valida `source_hostname` — import aceita archive de qualquer origem.
+
+**Rating:** 🟡 **Low-Med**.
+
+**Existing control:**
+- `canImport(manifest.schema_version, req.current_schema_version)` valida compatibilidade de schema — versão muito antiga ou muito nova é rejeitada.
+- GCM auth tag + AAD verifica integridade criptográfica do archive.
+- `planChunkImport` com `mode='merge'` (default) deduplicata via `chunk_id` — replay de chunks existentes resulta em `skipped`, não duplicação.
+
+**Gap:**
+- 🟡 `source_hostname` no manifest não é validado — import aceita arquivo de máquina diferente sem aviso. Em setup multi-instância futuro, isso pode confundir qual memória pertence a qual instância.
+- 🟡 Sem `import_nonce` ou timestamp gate — archive antigo (1 ano atrás) pode ser importado silenciosamente.
+
+**Recommendation:**
+- **R-A2-Orch-2.1** (Low, 1h) — Log WARN quando `manifest.source_hostname !== os.hostname()` durante import. Não bloquear — mas criar rastreabilidade.
+- **R-A2-Orch-2.2** (Low, doc) — Documentar que import de archives antigos é intencional (portabilidade). Replay concern é out-of-scope pra single-user.
+
+#### T-A2-Orch-3: Cross-archive AAD confusion
+
+**Scenario:** usuário exporta archive A (com passphrase X) e archive B (com passphrase X, conteúdo diferente). Atacante swap `manifest.json` de B pra dentro do tar de A. No import de A com manifest-B: AAD recalculado de manifest-B ≠ AAD usado no encrypt de A → GCM decrypt falha.
+
+**Rating:** 🟢 **Controlado**.
+
+**Existing control:**
+- `manifestAADHash(manifest)` em `orchestrator.ts:314` e `orchestrator.ts:421` é calculado do manifest do archive atual — não de um manifest externo.
+- Cada arquivo tem `ciphertext_sha256` no `encryption.files` campo — checksum pré-encrypt vinculado ao manifest.
+- `validatePlaintextChecksum()` em `orchestrator.ts:579-602` verifica sha256 após decrypt — dupla verificação (GCM tag + sha256 plaintext).
+
+**Gap:** Nenhum — AAD chain é correta. Cenário de cross-archive swap é detectado em decrypt.
+
+**Note:** T-A2-3 no §5.2 documentou o cenário de manipulação de manifest com mais detalhe. Adição aqui é pra completude do orchestrator scope.
+
+#### T-A2-Orch-4: Archive passphrase ausente não bloqueada em decrypt path
+
+**Scenario:** `runImport` verifica `typeof req.passphrase !== "string" || req.passphrase.length === 0` antes de decrypt (`orchestrator.ts:415-420`). Mas `decryptArchiveFile` em `encryption.ts` recebe `passphrase: req.passphrase!` — se caller bypassa essa check (e.g., via interface TS menos strict), `undefined!` chega como string.
+
+**Rating:** 🟡 **Low** (TypeScript enforced em uso normal).
+
+**Existing control:**
+- Check explícito em `orchestrator.ts:415` antes de decrypt path.
+- TypeScript `!` assertion garante que TS sabe que é string naquele ponto.
+
+**Gap:**
+- 🟡 Se orchestrator for chamado via MCP/HTTP sem TypeScript strictness, passphrase `undefined` pode escapar. `deriveKey(undefined, salt)` em `encryption.ts` receberia undefined → crash vs. `BadPassphraseError`.
+
+**Recommendation:**
+- **R-A2-Orch-4** (Low, 1h) — Adicionar runtime check em `decryptArchiveFile`: `if (!passphrase || typeof passphrase !== 'string') throw new BadPassphraseError('passphrase required')` — defesa em camada no decrypt primitive.
+
+#### 7.8 Resumo A2 Orchestrator
+
+| Subgap | Rating | Sprint candidate |
+|---|---|---|
+| Race condition em export/import concorrente | 🟡 M | A2.3 |
+| Manifest replay sem hostname check | 🟡 M | A2.3 |
+| Runtime passphrase assert no decrypt primitive | 🟡 M | A2.3 |
+
+---
+
+### 7.9 Migrations + schema invariants (v19/v20/v21/v22)
 
 | Migration | Foco | Notable security control |
 |---|---|---|
 | v19 (`staged-migrations/v19.sql`) | chunks.confidence + provenance_kind + kg_relations confidence/supersession/temporal | ✅ CHECK constraints (confidence 0-1, kind enum) |
-| v20 (viewer-telemetry) | _arquivo `v20-viewer-telemetry.sql` referenciado pela task mas **NÃO encontrado**_ | 🟡 GAP de análise |
-| v21 (conflict-audit) | _referenciado mas ausente_ | 🟡 GAP de análise |
+| v20 (`staged-P5/edits/migrations/v20-viewer-telemetry.sql`) | viewer_telemetry table (SSE sessions) | ✅ Additive only; no triggers needed — read-by-design (Wave-E.1) |
+| v21 (`staged-L2/edits/migrations/v21-conflict-audit.sql`) | conflict_audit table | ✅ 3 append-only triggers (Wave-E.1) |
 | v22 (`staged-L3/edits/migrations/v22-confidence-eval-log.sql`) | confidence_eval_log table | ✅ Append-only triggers |
 
 **Security observations sobre v19:**
@@ -629,6 +1019,21 @@ Da Wave B referenciada na task, o que está realmente shipped:
 - ✅ `superseded_by_relation_id` ON DELETE SET NULL — não cascateia delete (correto).
 - ✅ `extraction_method` enum limita string arbitrária.
 - 🟡 `superseded_reason` aceita NULL — preferir DEFAULT explicit pra evitar ambiguidade.
+
+**v20 (viewer_telemetry — verificado em Wave-E.1):**
+- ✅ Puramente additive — `CREATE TABLE IF NOT EXISTS`, sem DROP/RENAME.
+- ✅ `PRAGMA user_version = 20` — idempotência via migration runner.
+- ✅ Rollback SQL existe (`v20-rollback.sql` referenciado).
+- ✅ Sem dados sensíveis críticos — `client_id` é UUIDv4 opaco; `remote_label` é opcional e string livre (sem PII por design).
+- ✅ Sem triggers necessários — tabela é read-only por design (escrita só via SSE handler interno). DELETE intencional permitido (purge de sessions antigas).
+- 🟡 `ts_start` / `ts_last_event` / `ts_end` são TEXT (ISO timestamps) sem CHECK — aceita strings inválidas. Baixo risco mas inconsistência de dados possível.
+
+**v21 (conflict_audit — verificado em Wave-E.1):**
+- ✅ `trg_conflict_audit_no_delete` — DELETE incondicional bloqueado.
+- ✅ `trg_conflict_audit_immutable_data` — imutabilidade de campos de evidência (kind, subject_entity_id, predicate, target_relation_ids, variants, ts).
+- ✅ `trg_conflict_audit_no_reopen` — rows terminais não podem voltar pra open/reviewed.
+- ✅ `shadow_mode = 1` por default — conflitos em shadow sem efeito em ranking até ativação explícita.
+- 🟡 `ts` aceita valor retroativo em INSERT (mesmo gap de T-Audit-2 em v22).
 
 **v22:**
 - ✅ Triggers append-only (linhas 30-40).
@@ -643,8 +1048,8 @@ Da Wave B referenciada na task, o que está realmente shipped:
 - `ops_audit` — toda operação destrutiva (reindex, compact, mark, supersede). Schema + triggers W2-1 (2026-04-25).
 - `confidence_eval_log` — L3 eval runs. v22 (`staged-L3/edits/migrations/v22-confidence-eval-log.sql:30-40`).
 - `search_telemetry` — A0 (since 2026-04-25, +4 cols opt-in).
-- `conflict_audit` — L2 (não staged ainda).
-- `viewer_telemetry` — P5 (não staged ainda).
+- `conflict_audit` — L2. v21 (`staged-L2/edits/migrations/v21-conflict-audit.sql`) — 3 triggers append-only (Wave-E.1 verificado).
+- `viewer_telemetry` — P5. v20 (`staged-P5/edits/migrations/v20-viewer-telemetry.sql`) — additive, sem triggers (read-only por design, Wave-E.1 verificado).
 - `agent_events` — escopo geral.
 
 ### 8.2 Controls
@@ -760,6 +1165,20 @@ Lista priorizada — High = fazer próximo sprint; Med = mid-term; Low = recurri
 | 25 | Low | Documentar single-tenant assumption antes de Nox-Supermem multi-tenant | doc | docs | Q.Disclosure |
 | 26 | Low | Consensus check provider drift (canary 1% queries) | 1-2w | research | T-A3-2.1 |
 | 27 | Low | Fuzz harness pra `parseTarBlocks` + `parseManifest` | 2d | A2.2 | T-A2-elev |
+| 28 | High | SSE max connections limit (`MAX_SSE_CLIENTS` default 10) | 4h | P5.1 | T-P5-2 |
+| 29 | High | Sanitizar DB path em `/api/hooks/recent` 500 response | 1h | next | T-P2-5 |
+| 30 | Med | Rate limit em `/api/hooks/dryrun` (30 req/min) | 4h | P2.1 | T-P2-2 |
+| 31 | Med | Validar `picked_relation_id` existe em `kg_relations` (FK check) | 2h | L2.1 | T-L2-2 |
+| 32 | Med | Trigger BEFORE INSERT em `conflict_audit` validando `ts <= now()` | 1h | L2.1 | T-L2-4 |
+| 33 | Med | Advisory lock file em `runExport` pra prevenir concurrent exports | 1d | A2.3 | T-A2-Orch-1 |
+| 34 | Med | Remover `rateLimitTokens` de `/api/hooks/status` response | 1h | P2.1 | T-P2-3 |
+| 35 | Med | Per-session opt-in pra `NOX_VIEWER_SHOW_QUERY` (vs global env) | 1d | P5.1 | T-P5-1 |
+| 36 | Low | Log WARN quando `safeJoin` retorna null em viewer static | 1h | P5.2 | T-P5-4 |
+| 37 | Low | Documentar `?token=` aparece em logs (VIEWER.md) | 2h | docs | T-P5-5 |
+| 38 | Low | `manifest.source_hostname` WARN quando mismatch em import | 1h | A2.3 | T-A2-Orch-2 |
+| 39 | Low | Runtime check em `decryptArchiveFile` pra passphrase undefined | 1h | A2.3 | T-A2-Orch-4 |
+| 40 | Low | `notes` max-length 1000 chars em `POST /api/conflict/:id/resolve` | 1h | L2.1 | T-L2-2 |
+| 41 | Low | `@nox:skip` decorator counter em `GET /api/hooks/recent` pra detect abuse | 1d | P2.2 | T-P2-4 |
 
 ### 10.1 Não-recommendations (explicit rejections, history)
 
@@ -901,11 +1320,14 @@ Lista priorizada — High = fazer próximo sprint; Med = mid-term; Low = recurri
 ### 13.2 Source code
 
 - A1: `staged-privacy/edits/privacy/{filter,patterns,tag-parser}.ts`
-- A2: `staged-A2/edits/src/lib/archive/{encryption,format,manifest,migration,index,types}.ts`
+- A2: `staged-A2/edits/src/lib/archive/{encryption,format,manifest,migration,index,types,orchestrator}.ts`
 - A3: `staged-A3/edits/src/providers/{index,types,embedding/gemini,llm/gemini}.ts`
 - P1: `staged-P1/edits/src/api/answer.ts` + `src/lib/answer/{index,prompt}.ts`
+- P2: `staged-P2/edits/src/api/hooks.ts`
+- P5: `staged-P5/edits/src/api/{events-stream,viewer-static}.ts` + `src/lib/viewer/{broadcast,redaction,auth,backpressure}.ts`
+- L2: `staged-L2/edits/src/api/conflict.ts` + `migrations/v21-conflict-audit.sql`
 - L3: `staged-L3/edits/src/api/mark.ts` + `src/lib/confidence/mark.ts`
-- Migrations: `staged-migrations/v19.sql`, `staged-L3/edits/migrations/v22-confidence-eval-log.sql`
+- Migrations: `staged-migrations/v19.sql`, `staged-P5/edits/migrations/v20-viewer-telemetry.sql`, `staged-L2/edits/migrations/v21-conflict-audit.sql`, `staged-L3/edits/migrations/v22-confidence-eval-log.sql`
 
 ### 13.3 Specs (canônicos do projeto)
 
@@ -948,8 +1370,15 @@ Lista priorizada — High = fazer próximo sprint; Med = mid-term; Low = recurri
 | G6 | Default-allow auth if `authCheck` undef (handler-level) | next | 1d |
 | G7 | `unpackArchive` in-memory only → OOM em archives grandes | A2.2 | 3d |
 | G8 | File-level deletion of audit DB unrestricted | deploy | 2h |
-| G9 | Wave B endpoints P5/L2/P2 não staged neste worktree — threat model incompleto | Wave-E.1 | TBD |
+| G9 | ✅ **resolved 2026-05-18 via Wave-E.1** — P5/L2/P2/A2-orch analisados em §7.5–7.8 | — | done |
 | G10 | `ran_at` timestamp não validado em `confidence_eval_log` INSERT | A1.3 | 2h |
+| G11 | SSE sem limite de conexões concorrentes → connection exhaustion DoS | P5.1 | 4h |
+| G12 | DB path vaza em `/api/hooks/recent` 500 error response | next | 1h |
+| G13 | `POST /api/hooks/dryrun` sem rate limit → oracle de classifier | P2.1 | 4h |
+| G14 | `conflict_audit.ts` retroativo em INSERT — timestamp forgery | L2.1 | 1h |
+| G15 | `picked_relation_id` sem validação de existência em FK | L2.1 | 2h |
+| G16 | Race condition em export/import concorrente — sem advisory lock | A2.3 | 1d |
+| G17 | `rateLimitTokens` exposto em `/api/hooks/status` — oracle de timing | P2.1 | 1h |
 
 ## Appendix B — Out-of-scope items
 
@@ -959,18 +1388,63 @@ Lista priorizada — High = fazer próximo sprint; Med = mid-term; Low = recurri
 - Network-level (TLS, firewall) — pertence ao OpenClaw infra repo.
 - Multi-tenant scenarios — Nox-Supermem repo, não memoria-nox.
 
-## Appendix C — TODO Wave-E.1
+## Appendix C — Wave-E.1 completion record
 
-Pendente revisão de:
-- `staged-P5/edits/src/api/events-stream.ts` (SSE) — não encontrado em worktree atual.
-- `staged-L2/edits/src/api/conflict.ts` — staged-L2 não existe.
-- `staged-P2/edits/src/api/hooks.ts` — staged-P2 não existe.
-- `staged-P5/edits/migrations/v20-viewer-telemetry.sql` — não encontrado.
-- `staged-L2/edits/migrations/v21-conflict-audit.sql` — não encontrado.
-- `staged-A2/edits/src/lib/archive/orchestrator.ts` — não existe em A2 worktree (índice mostra só types/format/manifest/encryption/migration/serializers).
-- `staged-A2/edits/docs/EXPORT-IMPORT.md` — não encontrado.
+Todos os módulos pendentes da Wave-E original foram analisados em 2026-05-18:
 
-Cobertura desses módulos depende de novo worktree ou merge prévio.
+| Módulo | Status | Seção |
+|---|---|---|
+| `staged-P5/edits/src/api/events-stream.ts` | ✅ Analisado | §7.5 |
+| `staged-P5/edits/src/api/viewer-static.ts` | ✅ Analisado | §7.5 T-P5-4 |
+| `staged-P5/edits/src/lib/viewer/{broadcast,redaction,auth}.ts` | ✅ Analisado | §7.5 |
+| `staged-P5/edits/migrations/v20-viewer-telemetry.sql` | ✅ Analisado | §7.9 |
+| `staged-L2/edits/src/api/conflict.ts` | ✅ Analisado | §7.6 |
+| `staged-L2/edits/migrations/v21-conflict-audit.sql` | ✅ Analisado | §7.9 |
+| `staged-P2/edits/src/api/hooks.ts` | ✅ Analisado | §7.7 |
+| `staged-A2/edits/src/lib/archive/orchestrator.ts` | ✅ Analisado | §7.8 |
+
+7 novos gaps identificados (G11–G17). G9 fechado.
+
+---
+
+## 14. Wave-E.1 follow-up — completed sections
+
+> **Propósito:** registro do que mudou vs. versão 1.0 (Wave E original).
+
+### O que foi adicionado
+
+| Seção | Conteúdo |
+|---|---|
+| §7.1 endpoint inventory | Atualizado — removidos marcadores 🟡/🔴 "Not staged"; 8 endpoints agora listados como ✅ Shipped |
+| §7.5 P5 SSE viewer | 5 threats analisados (T-P5-1 a T-P5-5) — query exposure, DoS, broadcast amplification, path traversal, auth gating |
+| §7.6 L2 conflict API | 4 threats analisados (T-L2-1 a T-L2-4) — enumeration disclosure, resolve tampering, scanner DoS, audit tamper resistance |
+| §7.7 P2 hooks API | 5 threats analisados (T-P2-1 a T-P2-5) — telemetry side-channel, dryrun oracle, rate-limit bypass, decorator injection, error leak |
+| §7.8 A2 orchestrator | 4 threats analisados (T-A2-Orch-1 a T-A2-Orch-4) — race condition, manifest replay, AAD confusion, passphrase assert |
+| §7.9 migrations v20/v21 | Audit completo — v20 additive (sem triggers), v21 com 3 triggers append-only verificados |
+| §8.1 audit tables | `conflict_audit` e `viewer_telemetry` removidos de "não staged" — cobertura completa |
+| Appendix A | G9 marcado ✅ resolved; G11–G17 adicionados (7 novos gaps Wave-E.1) |
+| §10 roadmap | Items 28–41 adicionados (14 novos recommendations) |
+| §13.2 source code | P2/P5/L2 + orchestrator + v20/v21 adicionados às referências |
+
+### Gaps encontrados em Wave-E.1 (resumo executivo)
+
+**High (imediato):**
+- G11 — SSE sem limite de conexões → DoS (`MAX_SSE_CLIENTS`). **R-P5-2.1**.
+- G12 — DB path leak em `/api/hooks/recent` 500 response. **R-P2-5**.
+
+**Medium (próximo sprint):**
+- G13 — `/api/hooks/dryrun` sem rate limit → oracle de classifier. **R-P2-2.1**.
+- G14 — `conflict_audit.ts` INSERT aceita timestamp retroativo. **R-L2-4**.
+- G15 — `picked_relation_id` sem validação FK. **R-L2-2.1**.
+- G16 — Race condition em export/import concorrente. **R-A2-Orch-1**.
+- G17 — `rateLimitTokens` oracle em `/api/hooks/status`. **R-P2-3**.
+
+**Controles confirmados como sólidos (sem gaps):**
+- Path traversal em `viewer-static.ts` — 3 camadas independentes. ✅
+- Cross-archive AAD confusion — GCM + sha256 dupla verificação. ✅
+- `conflict_audit` append-only triggers (3) — pattern W2-1. ✅
+- `NOX_VIEWER_SHOW_QUERY` default-off + boot WARN. ✅
+- `timingSafeEqual` em auth comparison. ✅
 
 ---
 
