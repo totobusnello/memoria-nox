@@ -1,3 +1,5 @@
+import { GeminiLLMProvider } from "../../providers/llm/gemini.js";
+
 /**
  * src/lib/answer/provider.ts — LLM provider abstraction for P1 (T4 scope).
  *
@@ -91,17 +93,7 @@ export class MockProvider implements LLMProvider {
  * replaces this with a real `@google/genai` client. Keeping it as an
  * explicit throw prevents accidental real-network calls during tests.
  */
-const placeholderGemini: LLMProvider = {
-  name: "gemini",
-  async complete(_opts: LLMCallOpts): Promise<LLMCallResult> {
-    void _opts;
-    throw new Error(
-      "answer/provider: Gemini provider not bound in staged dir. " +
-        "Apply staged-P1/edits/README.md on the VPS to wire @google/genai, " +
-        "or pass providerOverride in tests."
-    );
-  },
-};
+const placeholderGemini: LLMProvider = new GeminiLLMProvider({});
 
 /**
  * Select a provider by name. Honours `NOX_ANSWER_PROVIDER` env when no

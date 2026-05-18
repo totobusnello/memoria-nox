@@ -17,6 +17,8 @@
  */
 
 import type { RawChunk, RetrievedChunk } from "./types.js";
+import { searchHybrid } from "../../search.js";
+
 
 /**
  * Signature for the underlying hybrid search call.
@@ -41,13 +43,14 @@ export function __setRawSearchForTests(fn: RawSearchFn | null): void {
  * throw a clear error if called without injection — keeps tests honest
  * (must always inject) and prevents accidental network calls.
  */
-async function defaultRawSearch(_question: string, _topK: number): Promise<RawChunk[]> {
-  void _question;
-  void _topK;
-  throw new Error(
-    "answer/retrieval: no RawSearchFn bound — call __setRawSearchForTests() in unit tests, " +
-      "or apply staged-P1/edits/README.md instructions to bind hybridSearch() on the VPS."
-  );
+async function defaultRawSearch(question: string, topK: number): Promise<RawChunk[]> {
+  const hits = await searchHybrid(question, topK);
+  return hits.map((h) => ({
+    chunk_id: h.id ?? 0,
+    file_path: h.source_file,
+    content: h.chunk_text,
+    score: h.score,
+  }));
 }
 
 /**
