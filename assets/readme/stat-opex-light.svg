@@ -1,0 +1,9 @@
+<svg width="180" height="38" viewBox="0 0 180 38" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="&lt;$11/mo all-in">
+  <title>&lt;$11/mo all-in</title>
+  <rect width="180" height="38" rx="6" fill="#F5F5F7" stroke="#D8D8DC" stroke-width="1"/>
+  <rect x="0" y="0" width="3" height="38" rx="2" fill="#00A87A"/>
+  <text x="14" y="15" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8.5" font-weight="500" letter-spacing="0.8">OPEX ALL-IN</text>
+  <text x="14" y="30" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600">
+    <tspan fill="#00A87A">&lt;$11</tspan><tspan fill="#888888">/mo</tspan>
+  </text>
+</svg>

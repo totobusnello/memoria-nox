@@ -1,0 +1,69 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#0E0E10', 'primaryTextColor': '#EBEBEB', 'primaryBorderColor': '#2A2A2E', 'lineColor': '#00C896', 'secondaryColor': '#1A1A1F', 'tertiaryColor': '#1A1A1F', 'background': '#0E0E10', 'mainBkg': '#0E0E10', 'nodeBorder': '#2A2A2E', 'clusterBkg': '#1A1A1F', 'titleColor': '#EBEBEB', 'edgeLabelBackground': '#0E0E10', 'fontFamily': 'JetBrains Mono, Courier New, monospace'}}}%%
+
+flowchart TD
+    classDef input fill:#0E0E10,stroke:#2A2A2E,color:#EBEBEB,rx:4
+    classDef storage fill:#0E0E10,stroke:#00C896,color:#EBEBEB,rx:4
+    classDef retrieval fill:#0E0E10,stroke:#444448,color:#EBEBEB,rx:4
+    classDef fusion fill:#0E0E10,stroke:#00C896,color:#00C896,stroke-width:2,rx:4
+    classDef output fill:#0E0E10,stroke:#2A2A2E,color:#EBEBEB,rx:4
+    classDef bubble fill:#1A1A1F,stroke:#2A2A2E,color:#888888,rx:4
+
+    %% Ingest side
+    FILE["📄 file / text / entity"]:::input
+    ROUTER["ingest router"]:::retrieval
+    PRIVACY["privacy filter"]:::retrieval
+    PARSER["entity parser\nchunking (512t)"]:::retrieval
+    EMBED["Gemini embed\n3072d"]:::retrieval
+
+    %% Storage layer
+    CHUNKS[("chunks\n62.9k rows")]:::storage
+    FTS5[("FTS5 BM25\nchunks_fts")]:::storage
+    VEC[("sqlite-vec\nvec_chunks")]:::storage
+    KG[("KG\n402 entities\n21k relations")]:::storage
+
+    %% Retrieval
+    QUERY["query"]:::input
+    BM25["BM25 search\nFTS5"]:::retrieval
+    VSEARCH["vector search\nGemini 3072d"]:::retrieval
+    GSEARCH["graph traversal\nKG path"]:::retrieval
+
+    %% Fusion + Ranking
+    RRF["RRF fusion\nk=60"]:::fusion
+    RANK["salience ranking\nrecency × pain × importance\n+ section_boost\n+ lang-aware RRF"]:::fusion
+
+    %% Output
+    TOPK["top-K chunks\n+ citations"]:::output
+
+    %% Ingest flow
+    FILE --> ROUTER
+    ROUTER --> PRIVACY
+    PRIVACY --> PARSER
+    PARSER --> EMBED
+    EMBED --> VEC
+    PARSER --> CHUNKS
+    CHUNKS --> FTS5
+    PARSER --> KG
+
+    %% Retrieval flow
+    QUERY --> BM25
+    QUERY --> VSEARCH
+    QUERY --> GSEARCH
+    FTS5 --> BM25
+    VEC --> VSEARCH
+    KG --> GSEARCH
+
+    %% Fusion
+    BM25 --> RRF
+    VSEARCH --> RRF
+    GSEARCH --> RRF
+    RRF --> RANK
+    RANK --> TOPK
+
+    %% Side bubbles
+    SQLITE[["SQLite file\n~1.24 GB"]]:::bubble
+    SHADOW[["shadow-mode\ndiscipline"]]:::bubble
+    SCHEMA[["Schema v18\nzero vendor lock"]]:::bubble
+
+    CHUNKS -.-> SQLITE
+    RANK -.-> SHADOW
+    KG -.-> SCHEMA
