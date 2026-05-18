@@ -1,0 +1,100 @@
+{"id": "short-01", "category": "short", "query": "memoria"}
+{"id": "short-02", "category": "short", "query": "salience"}
+{"id": "short-03", "category": "short", "query": "RRF"}
+{"id": "short-04", "category": "short", "query": "FTS5"}
+{"id": "short-05", "category": "short", "query": "Gemini"}
+{"id": "short-06", "category": "short", "query": "embedding"}
+{"id": "short-07", "category": "short", "query": "chunks"}
+{"id": "short-08", "category": "short", "query": "vectorize"}
+{"id": "short-09", "category": "short", "query": "reindex"}
+{"id": "short-10", "category": "short", "query": "retention"}
+{"id": "entity-01", "category": "entity", "query": "Toto Busnello"}
+{"id": "entity-02", "category": "entity", "query": "Granix"}
+{"id": "entity-03", "category": "entity", "query": "Nuvini"}
+{"id": "entity-04", "category": "entity", "query": "Galapagos Capital"}
+{"id": "entity-05", "category": "entity", "query": "FII Treviso"}
+{"id": "entity-06", "category": "entity", "query": "Fundo Lombardia"}
+{"id": "entity-07", "category": "entity", "query": "Atlas agente"}
+{"id": "entity-08", "category": "entity", "query": "Cipher agente"}
+{"id": "entity-09", "category": "entity", "query": "Frooty"}
+{"id": "entity-10", "category": "entity", "query": "OpenClaw VPS Hostinger"}
+{"id": "decision-01", "category": "decision", "query": "qual modelo Gemini padrão para extração"}
+{"id": "decision-02", "category": "decision", "query": "BRL ou USD pricing para Supermem"}
+{"id": "decision-03", "category": "decision", "query": "porta default do nox-mem-api"}
+{"id": "decision-04", "category": "decision", "query": "quando usar Bonferroni vs FDR correction"}
+{"id": "decision-05", "category": "decision", "query": "estratégia de cobrança Hotmart tiers A B C"}
+{"id": "decision-06", "category": "decision", "query": "shadow mode antes de aplicar ranking change"}
+{"id": "decision-07", "category": "decision", "query": "por que rejeitamos F09 off-site backup"}
+{"id": "decision-08", "category": "decision", "query": "limite de retention_days para feedback"}
+{"id": "decision-09", "category": "decision", "query": "deve usar require em ESM modules"}
+{"id": "decision-10", "category": "decision", "query": "tier de modelo para agent infra tasks"}
+{"id": "procedure-01", "category": "procedure", "query": "como aplicar migration schema v22"}
+{"id": "procedure-02", "category": "procedure", "query": "como rotacionar Gemini API key"}
+{"id": "procedure-03", "category": "procedure", "query": "como rodar reindex com dry-run"}
+{"id": "procedure-04", "category": "procedure", "query": "como restaurar snapshot via safeRestore"}
+{"id": "procedure-05", "category": "procedure", "query": "como validar vectorCoverage pós-ingest"}
+{"id": "procedure-06", "category": "procedure", "query": "como abrir SSH tunnel para api 18802"}
+{"id": "procedure-07", "category": "procedure", "query": "como sincronizar agents e skills via sync-all-to-home"}
+{"id": "procedure-08", "category": "procedure", "query": "como rodar nox-mem CLI carregando .env"}
+{"id": "procedure-09", "category": "procedure", "query": "como gerar paper técnico em docx"}
+{"id": "procedure-10", "category": "procedure", "query": "como executar code-reviewer agent"}
+{"id": "incident-01", "category": "incident", "query": "graph-memory parse failure 19.7 percent"}
+{"id": "incident-02", "category": "incident", "query": "deploy validator JSON contamination ts-node"}
+{"id": "incident-03", "category": "incident", "query": "reindex wipou section retention 183 entities"}
+{"id": "incident-04", "category": "incident", "query": "sed corrompeu nox-mem.db page boundaries"}
+{"id": "incident-05", "category": "incident", "query": "Gemini key revogada hardcoded keys"}
+{"id": "incident-06", "category": "incident", "query": "Chrome ocupando porta 18800"}
+{"id": "incident-07", "category": "incident", "query": "buffer pool aliasing typed arrays cache hit"}
+{"id": "incident-08", "category": "incident", "query": "command injection execSync template string"}
+{"id": "incident-09", "category": "incident", "query": "closeDb mid-function invalidates withOpAudit"}
+{"id": "incident-10", "category": "incident", "query": "VISION.md v15 perdido writer agent sem bash"}
+{"id": "architecture-01", "category": "architecture", "query": "schema v22 confidence field design"}
+{"id": "architecture-02", "category": "architecture", "query": "FTS5 BM25 RRF fusion hybrid search"}
+{"id": "architecture-03", "category": "architecture", "query": "sqlite-vec 3072 dimensões coverage"}
+{"id": "architecture-04", "category": "architecture", "query": "kg_entities kg_relations FK schema"}
+{"id": "architecture-05", "category": "architecture", "query": "section_boost compiled frontmatter timeline"}
+{"id": "architecture-06", "category": "architecture", "query": "salience formula recency pain importance"}
+{"id": "architecture-07", "category": "architecture", "query": "ingest router single dispatch entity markdown"}
+{"id": "architecture-08", "category": "architecture", "query": "ops_audit append-only trigger CWE-693"}
+{"id": "architecture-09", "category": "architecture", "query": "Q A P pillars roadmap reorganization"}
+{"id": "architecture-10", "category": "architecture", "query": "trigger trg_chunks_delete_cascade vetores"}
+{"id": "temporal-01", "category": "temporal", "query": "incidents 2026-05"}
+{"id": "temporal-02", "category": "temporal", "query": "ultima semana memoria nox"}
+{"id": "temporal-03", "category": "temporal", "query": "decisões de abril 2026"}
+{"id": "temporal-04", "category": "temporal", "query": "wave B 2026-05-18 delivered"}
+{"id": "temporal-05", "category": "temporal", "query": "post mortem maio 2026"}
+{"id": "temporal-06", "category": "temporal", "query": "overnight push 2026-05-17"}
+{"id": "temporal-07", "category": "temporal", "query": "audits pós fix 2026-04-26"}
+{"id": "temporal-08", "category": "temporal", "query": "session report v3 wave M N O"}
+{"id": "temporal-09", "category": "temporal", "query": "morning playbook 2026-05-18"}
+{"id": "temporal-10", "category": "temporal", "query": "pivot estratégico Q A P 17 maio"}
+{"id": "conceptual-01", "category": "conceptual", "query": "shadow mode"}
+{"id": "conceptual-02", "category": "conceptual", "query": "withOpAudit"}
+{"id": "conceptual-03", "category": "conceptual", "query": "vendor lock-in autonomy"}
+{"id": "conceptual-04", "category": "conceptual", "query": "salience score composite"}
+{"id": "conceptual-05", "category": "conceptual", "query": "crystallize chunk consolidate"}
+{"id": "conceptual-06", "category": "conceptual", "query": "incremental KG extraction nightly"}
+{"id": "conceptual-07", "category": "conceptual", "query": "snapshot atômico pré-op destructive"}
+{"id": "conceptual-08", "category": "conceptual", "query": "compiled truth section entity file"}
+{"id": "conceptual-09", "category": "conceptual", "query": "language aware RRF fusion"}
+{"id": "conceptual-10", "category": "conceptual", "query": "golden eval set ranking"}
+{"id": "long-01", "category": "long", "query": "explica como funciona retention_days e por que ele é importante na arquitetura de chunks do nox-mem"}
+{"id": "long-02", "category": "long", "query": "qual a diferença entre ingestFile genérico e ingestEntityFile quando se faz reindex de arquivos de entidade"}
+{"id": "long-03", "category": "long", "query": "como o salience formula combina recency pain e importance e em qual fase ele entrou em shadow mode"}
+{"id": "long-04", "category": "long", "query": "explique a estratégia Q A P pillars do roadmap memoria-nox e quais são os gates do GTM phase 2"}
+{"id": "long-05", "category": "long", "query": "descreva o fluxo de hybrid search desde FTS5 BM25 passando por Gemini semantic até a fusão RRF"}
+{"id": "long-06", "category": "long", "query": "quais foram as 4 CRITICAL achadas no audit do op-audit module em abril e como foram remediadas"}
+{"id": "long-07", "category": "long", "query": "qual o procedimento completo de recovery via safeRestore validando user_version e ordem main DB depois WAL"}
+{"id": "long-08", "category": "long", "query": "por que sed -i em arquivos sqlite corrompe page boundaries e qual o filter recomendado pra grep"}
+{"id": "long-09", "category": "long", "query": "como funciona o ingest router single dispatch e qual padrão de extensão para novos handlers"}
+{"id": "long-10", "category": "long", "query": "explica a relação entre kg_entities kg_relations e por que SPO queries precisam JOIN dual nos FK ids"}
+{"id": "code-01", "category": "code", "query": "ingestFile()"}
+{"id": "code-02", "category": "code", "query": "withOpAudit()"}
+{"id": "code-03", "category": "code", "query": "/api/health"}
+{"id": "code-04", "category": "code", "query": "routeIngest()"}
+{"id": "code-05", "category": "code", "query": "safeRestore()"}
+{"id": "code-06", "category": "code", "query": "src/lib/op-audit.ts"}
+{"id": "code-07", "category": "code", "query": "trg_chunks_delete_cascade"}
+{"id": "code-08", "category": "code", "query": "NOX_SALIENCE_MODE=shadow"}
+{"id": "code-09", "category": "code", "query": "execFileSync array form"}
+{"id": "code-10", "category": "code", "query": "vec_chunks vec_chunk_map"}
