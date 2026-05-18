@@ -1,0 +1,322 @@
+nox-mem deploy-wave-i-p.sh  mode=dryrun  2026-05-18 14:18:33 BRT
+  Repo  : /Users/lab/Claude/Projetos/memoria-nox
+  VPS   : root@187.77.234.79
+  NX    : /root/.openclaw/workspace/tools/nox-mem
+
+
+=== PRE-FLIGHT CHECKS ===
+[INFO]  Checking SSH connectivity to VPS...
+[OK]    SSH OK
+[INFO]  Checking nox-mem API health...
+[OK]    API OK — schemaVersion=24
+[INFO]  Checking free disk space on VPS /var/backups...
+[OK]    Disk OK — 23GB free on /var/backups
+[INFO]  Looking for pre-op snapshot...
+[WARN]  No snapshot yet (expected — run --apply to create one).
+
+
+=== DRY-RUN MODE — no files will be modified ===
+  Scanning 42 deploy entries...
+
+  [1] staged-privacy/edits/privacy
+       → /root/.openclaw/workspace/tools/nox-mem/src/privacy
+       mode: merge
+       would transfer:
+         filter.ts
+         patterns.ts
+         tag-parser.ts
+         __tests__/filter.test.ts
+
+  [2] staged-cors/edits/src/api/cors.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/cors.ts
+       mode: file
+       would transfer:
+         cors.ts
+
+  [3] staged-cors/edits/src/api/__tests__/cors.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/__tests__/cors.test.ts
+       mode: file
+       would transfer:
+         cors.test.ts
+
+  [4] staged-wire-up-adapters/edits/src/api/server-deps-a2.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/server-deps-a2.ts
+       mode: file
+       would transfer:
+         server-deps-a2.ts
+
+  [5] staged-wire-up-adapters/edits/src/api/server-deps-l2-l3.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/server-deps-l2-l3.ts
+       mode: file
+       would transfer:
+         server-deps-l2-l3.ts
+
+  [6] staged-wire-up-adapters/edits/src/api/server-deps-p1.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/server-deps-p1.ts
+       mode: file
+       would transfer:
+         server-deps-p1.ts
+
+  [7] staged-wire-up-adapters/edits/src/api/server-deps-p2.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/server-deps-p2.ts
+       mode: file
+       would transfer:
+         server-deps-p2.ts
+
+  [8] staged-wire-up-adapters/edits/src/api/server-deps-p5.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/server-deps-p5.ts
+       mode: file
+       would transfer:
+         server-deps-p5.ts
+
+  [9] staged-wire-up-adapters/edits/src/api/health-confidence-adapter.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/health-confidence-adapter.ts
+       mode: file
+       would transfer:
+         health-confidence-adapter.ts
+
+  [10] staged-wire-up-adapters/edits/src/api/__tests__/server-deps-a2.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/__tests__/server-deps-a2.test.ts
+       mode: file
+       would transfer:
+         server-deps-a2.test.ts
+
+  [11] staged-wire-up-adapters/edits/src/api/__tests__/server-deps-l2-l3.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/__tests__/server-deps-l2-l3.test.ts
+       mode: file
+       would transfer:
+         server-deps-l2-l3.test.ts
+
+  [12] staged-wire-up-adapters/edits/src/api/__tests__/server-deps-p1.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/__tests__/server-deps-p1.test.ts
+       mode: file
+       (no changes — already in sync)
+
+  [13] staged-wire-up-adapters/edits/src/api/__tests__/server-deps-p2.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/__tests__/server-deps-p2.test.ts
+       mode: file
+       would transfer:
+         server-deps-p2.test.ts
+
+  [14] staged-wire-up-adapters/edits/src/api/__tests__/server-deps-p5.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/__tests__/server-deps-p5.test.ts
+       mode: file
+       would transfer:
+         server-deps-p5.test.ts
+
+  [15] staged-wire-up-adapters/edits/src/lib/deps
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/deps
+       mode: new_only
+       would transfer:
+         deps-registry.ts
+
+  [16] staged-wire-up-adapters/edits/src/lib/viewer/broadcast-singleton.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/viewer/broadcast-singleton.ts
+       mode: file
+       would transfer:
+         broadcast-singleton.ts
+
+  [17] staged-wire-up-adapters/edits/src/lib/confidence/db-shim-singleton.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/confidence/db-shim-singleton.ts
+       mode: file
+       would transfer:
+         db-shim-singleton.ts
+
+  [18] staged-wire-up-adapters/edits/src/lib/archive/server-deps.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/archive/server-deps.ts
+       mode: file
+       (no changes — already in sync)
+
+  [19] staged-wire-up-adapters/edits/src/lib/conflict/db-singleton.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/conflict/db-singleton.ts
+       mode: file
+       would transfer:
+         db-singleton.ts
+
+  [20] staged-wire-up-adapters/edits/src/lib/hooks/server-deps.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/hooks/server-deps.ts
+       mode: file
+       would transfer:
+         server-deps.ts
+
+  [21] staged-G4/edits/src/api/answer.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/answer.ts
+       mode: file
+       would transfer:
+         answer.ts
+
+  [22] staged-G4/edits/src/api/answer.validate-patch.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/answer.validate-patch.ts
+       mode: file
+       would transfer:
+         answer.validate-patch.ts
+
+  [23] staged-G4/edits/src/api/__tests__/validate.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/__tests__/validate.test.ts
+       mode: file
+       would transfer:
+         validate.test.ts
+
+  [24] staged-G5/edits/src/lib/error-sanitizer
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/error-sanitizer
+       mode: merge
+       would transfer:
+         sanitize.ts
+         middleware.ts
+         __tests__/sanitize.test.ts
+
+  [25] staged-G5/edits/scripts/audit-stack-leak.sh
+       → /root/.openclaw/workspace/tools/nox-mem/scripts/audit-stack-leak.sh
+       mode: file
+       would transfer:
+         audit-stack-leak.sh
+
+  [26] staged-G6/edits/src/lib/auth
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/auth
+       mode: merge
+       would transfer:
+         localhost-guard.ts
+         __tests__/localhost-guard.test.ts
+
+  [27] staged-G7/edits/src/lib/archive/unpack-streaming.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/archive/unpack-streaming.ts
+       mode: file
+       would transfer:
+         unpack-streaming.ts
+
+  [28] staged-G7/edits/src/lib/archive/__tests__/streaming-memory.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/archive/__tests__/streaming-memory.test.ts
+       mode: file
+       would transfer:
+         streaming-memory.test.ts
+
+  [29] staged-G8/edits/scripts/protect-audit-db.sh
+       → /root/.openclaw/workspace/tools/nox-mem/scripts/protect-audit-db.sh
+       mode: file
+       would transfer:
+         protect-audit-db.sh
+
+  [30] staged-G8/edits/scripts/verify-audit-hardening.sh
+       → /root/.openclaw/workspace/tools/nox-mem/scripts/verify-audit-hardening.sh
+       mode: file
+       would transfer:
+         verify-audit-hardening.sh
+
+  [31] staged-G10/edits/src/lib/op-audit-extension
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/op-audit-extension
+       mode: merge
+       would transfer:
+         ran-at-guard.ts
+         __tests__/ran-at-guard.test.ts
+
+  [32] staged-G11/edits/src/api/events-stream-limited.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/api/events-stream-limited.ts
+       mode: file
+       would transfer:
+         events-stream-limited.ts
+
+  [33] staged-G11/edits/src/lib/viewer/__tests__/events-stream-limited.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/viewer/__tests__/events-stream-limited.test.ts
+       mode: file
+       would transfer:
+         events-stream-limited.test.ts
+
+  [34] staged-G12/edits/src/lib/api
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/api
+       mode: merge
+       would transfer:
+         safe-error-message.ts
+         error-leak-fix.ts
+         __tests__/safe-error-message.test.ts
+
+  [35] staged-G13/edits/src/lib/hooks/rate-limit-dryrun-fix.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/hooks/rate-limit-dryrun-fix.ts
+       mode: file
+       would transfer:
+         rate-limit-dryrun-fix.ts
+
+  [36] staged-G13/edits/src/lib/hooks/__tests__/rate-limit-dryrun.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/hooks/__tests__/rate-limit-dryrun.test.ts
+       mode: file
+       would transfer:
+         rate-limit-dryrun.test.ts
+
+  [37] staged-G14/edits/__tests__/v24-triggers.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/__tests__/v24-triggers.test.ts
+       mode: file
+       would transfer:
+         v24-triggers.test.ts
+
+  [38] staged-G15/edits/src/lib/conflict
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/conflict
+       mode: merge
+       would transfer:
+         audit-fk-check.ts
+         __tests__/audit-fk-check.test.ts
+
+  [39] staged-G16/edits/src/lib/archive/export-locking.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/archive/export-locking.ts
+       mode: file
+       would transfer:
+         export-locking.ts
+
+  [40] staged-G16/edits/src/lib/archive/__tests__/export-locking.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/archive/__tests__/export-locking.test.ts
+       mode: file
+       would transfer:
+         export-locking.test.ts
+
+  [41] staged-G17/edits/src/lib/hooks/rate-limit-constant-time.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/hooks/rate-limit-constant-time.ts
+       mode: file
+       would transfer:
+         rate-limit-constant-time.ts
+
+  [42] staged-G17/edits/src/lib/hooks/__tests__/rate-limit-constant-time.test.ts
+       → /root/.openclaw/workspace/tools/nox-mem/src/lib/hooks/__tests__/rate-limit-constant-time.test.ts
+       mode: file
+       would transfer:
+         rate-limit-constant-time.test.ts
+
+  [43] staged-prometheus/edits/src/observability
+       → /root/.openclaw/workspace/tools/nox-mem/src/observability
+       mode: merge
+       would transfer:
+         adapters/a3-adapter.ts
+         adapters/p1-adapter.ts
+         adapters/p5-adapter.ts
+         cardinality.ts
+         collectors/db-stats.collector.ts
+         collectors/eventbus.collector.ts
+         collectors/process.collector.ts
+         collectors/provider-telemetry.collector.ts
+         collectors/search-telemetry.collector.ts
+         exporter.ts
+         index.ts
+         metrics.ts
+         privacy-guard.ts
+         record.ts
+         registry.ts
+         types.ts
+         __tests__/adapters.test.ts
+         __tests__/cardinality.test.ts
+         __tests__/collectors.test.ts
+         __tests__/exporter.test.ts
+         __tests__/privacy-guard.test.ts
+         __tests__/record.test.ts
+         __tests__/registry.test.ts
+         __tests__/types.test.ts
+
+
+Dry-run summary:
+  Entries scanned : 42
+  Files to deploy : ~64 (unique across entries)
+
+To apply these changes, run:
+  ./scripts/deploy-wave-i-p.sh --apply
+
+[OK]    Lock file written: /tmp/nox-mem-wave-i-p-dryrun.lock (valid for 300s)
+
+--- NOTE: This is a simulated sample output ---
+--- Real output depends on VPS current state ---
+--- Some entries may show "already in sync" if previously deployed ---
