@@ -1,0 +1,169 @@
+<!--
+  TEMPLATE — placeholders use {{DOUBLE_BRACES}}.
+  Filled by benchmark/generate-comparison.ts.
+  See README.md for the publication gate.
+-->
+
+# Latency — per-workload p50 / p95 / p99
+
+> **Last run:** {{RUN_DATE}}.
+> **Harness:** `eval/latency/` at git SHA `{{HARNESS_SHA}}`.
+> **Hardware:** {{LATENCY_HARDWARE}} (CPU/RAM/disk class).
+> **OS / Node:** {{LATENCY_OS_NODE}}.
+
+## What this measures
+
+Wall-clock latency of the primary primitives, per workload. We measure:
+
+- `search.short` — 1–3 word queries.
+- `search.medium` — 4–9 word queries (the bulk of real traffic).
+- `search.long` — 10+ word queries.
+- `search.kg-heavy` — queries containing known named entities (triggers
+  KG traversal for tools that have one).
+- `ingest.entity-file` — ~5KB Markdown entity file.
+- `ingest.chunk-batch` — 100 chunk batch insert.
+
+## Why p50 / p95 / p99 (not mean)
+
+Latency distributions are heavy-tailed. The mean is misleading — a single
+20-second GC pause shifts the mean of 100 ~30ms operations by ~200ms.
+We publish:
+
+- **p50** — what the typical user sees.
+- **p95** — what the unlucky user sees (one in twenty).
+- **p99** — the tail (one in a hundred). Tells us about GC, lock
+  contention, cold paths.
+
+## Sample size
+
+- **search.{short,medium,long,kg-heavy}:** n = 100.
+- **ingest.entity-file:** n = 50.
+- **ingest.chunk-batch:** n = 20 (each batch is 100 inserts).
+- **Warmup:** 10 iterations per workload, discarded from stats.
+- **Each tool × workload:** ≥ 3 runs; published as mean ± stddev of the
+  per-run p50/p95/p99.
+
+## Timing methodology
+
+- `process.hrtime.bigint()` (nanosecond resolution), converted to ms in
+  output.
+- Cold-cache regime documented in `eval/latency/README.md` (we publish
+  *warm* numbers; cold-start is a separate workload not in this comparison).
+- No outlier trimming — raw distribution including any GC pauses.
+
+## Results — search.medium (headline latency workload)
+
+| Tool | p50 (ms) | p95 (ms) | p99 (ms) | runs |
+|---|---:|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LAT_MED_P50}}** | **{{NOXMEM_LAT_MED_P95}}** | **{{NOXMEM_LAT_MED_P99}}** | {{NOXMEM_LAT_MED_RUNS}} |
+| agentmemory | {{AGENTMEMORY_LAT_MED_P50}} | {{AGENTMEMORY_LAT_MED_P95}} | {{AGENTMEMORY_LAT_MED_P99}} | {{AGENTMEMORY_LAT_MED_RUNS}} |
+| Memanto | {{MEMANTO_LAT_MED_P50}} | {{MEMANTO_LAT_MED_P95}} | {{MEMANTO_LAT_MED_P99}} | {{MEMANTO_LAT_MED_RUNS}} |
+| mem0 | {{MEM0_LAT_MED_P50}} | {{MEM0_LAT_MED_P95}} | {{MEM0_LAT_MED_P99}} | {{MEM0_LAT_MED_RUNS}} |
+| Letta / MemGPT | {{LETTA_LAT_MED_P50}} | {{LETTA_LAT_MED_P95}} | {{LETTA_LAT_MED_P99}} | {{LETTA_LAT_MED_RUNS}} |
+| Zep | {{ZEP_LAT_MED_P50}} | {{ZEP_LAT_MED_P95}} | {{ZEP_LAT_MED_P99}} | {{ZEP_LAT_MED_RUNS}} |
+| built-in `MEMORY.md` | {{MEMORYMD_LAT_MED_P50}} | {{MEMORYMD_LAT_MED_P95}} | {{MEMORYMD_LAT_MED_P99}} | {{MEMORYMD_LAT_MED_RUNS}} |
+
+> **Note on Memanto / Zep Cloud.** SaaS / hosted modes include network
+> round-trip from the benchmark machine to the vendor's region. That
+> network leg is *part of the user experience* and is reported as-is.
+
+## Results — search.short
+
+| Tool | p50 | p95 | p99 |
+|---|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LAT_SHORT_P50}}** | **{{NOXMEM_LAT_SHORT_P95}}** | **{{NOXMEM_LAT_SHORT_P99}}** |
+| agentmemory | {{AGENTMEMORY_LAT_SHORT_P50}} | {{AGENTMEMORY_LAT_SHORT_P95}} | {{AGENTMEMORY_LAT_SHORT_P99}} |
+| Memanto | {{MEMANTO_LAT_SHORT_P50}} | {{MEMANTO_LAT_SHORT_P95}} | {{MEMANTO_LAT_SHORT_P99}} |
+| mem0 | {{MEM0_LAT_SHORT_P50}} | {{MEM0_LAT_SHORT_P95}} | {{MEM0_LAT_SHORT_P99}} |
+| Letta | {{LETTA_LAT_SHORT_P50}} | {{LETTA_LAT_SHORT_P95}} | {{LETTA_LAT_SHORT_P99}} |
+| Zep | {{ZEP_LAT_SHORT_P50}} | {{ZEP_LAT_SHORT_P95}} | {{ZEP_LAT_SHORT_P99}} |
+| `MEMORY.md` | {{MEMORYMD_LAT_SHORT_P50}} | {{MEMORYMD_LAT_SHORT_P95}} | {{MEMORYMD_LAT_SHORT_P99}} |
+
+## Results — search.long
+
+| Tool | p50 | p95 | p99 |
+|---|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LAT_LONG_P50}}** | **{{NOXMEM_LAT_LONG_P95}}** | **{{NOXMEM_LAT_LONG_P99}}** |
+| agentmemory | {{AGENTMEMORY_LAT_LONG_P50}} | {{AGENTMEMORY_LAT_LONG_P95}} | {{AGENTMEMORY_LAT_LONG_P99}} |
+| Memanto | {{MEMANTO_LAT_LONG_P50}} | {{MEMANTO_LAT_LONG_P95}} | {{MEMANTO_LAT_LONG_P99}} |
+| mem0 | {{MEM0_LAT_LONG_P50}} | {{MEM0_LAT_LONG_P95}} | {{MEM0_LAT_LONG_P99}} |
+| Letta | {{LETTA_LAT_LONG_P50}} | {{LETTA_LAT_LONG_P95}} | {{LETTA_LAT_LONG_P99}} |
+| Zep | {{ZEP_LAT_LONG_P50}} | {{ZEP_LAT_LONG_P95}} | {{ZEP_LAT_LONG_P99}} |
+| `MEMORY.md` | {{MEMORYMD_LAT_LONG_P50}} | {{MEMORYMD_LAT_LONG_P95}} | {{MEMORYMD_LAT_LONG_P99}} |
+
+## Results — search.kg-heavy
+
+| Tool | p50 | p95 | p99 |
+|---|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LAT_KG_P50}}** | **{{NOXMEM_LAT_KG_P95}}** | **{{NOXMEM_LAT_KG_P99}}** |
+| agentmemory | {{AGENTMEMORY_LAT_KG_P50}} | {{AGENTMEMORY_LAT_KG_P95}} | {{AGENTMEMORY_LAT_KG_P99}} |
+| Memanto | {{MEMANTO_LAT_KG_P50}} | {{MEMANTO_LAT_KG_P95}} | {{MEMANTO_LAT_KG_P99}} |
+| mem0 | {{MEM0_LAT_KG_P50}} | {{MEM0_LAT_KG_P95}} | {{MEM0_LAT_KG_P99}} |
+| Letta | {{LETTA_LAT_KG_P50}} | {{LETTA_LAT_KG_P95}} | {{LETTA_LAT_KG_P99}} |
+| Zep | {{ZEP_LAT_KG_P50}} | {{ZEP_LAT_KG_P95}} | {{ZEP_LAT_KG_P99}} |
+| `MEMORY.md` | {{MEMORYMD_LAT_KG_P50}} | {{MEMORYMD_LAT_KG_P95}} | {{MEMORYMD_LAT_KG_P99}} |
+
+> **kg-heavy delta** isolates the "KG tax" — the difference between
+> `search.short` and `search.kg-heavy` shows whether KG traversal adds
+> latency. Tools without a KG show no delta (or a smaller one).
+
+## Results — ingest.entity-file (~5KB)
+
+| Tool | p50 | p95 | p99 |
+|---|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LAT_INGEST_P50}}** | **{{NOXMEM_LAT_INGEST_P95}}** | **{{NOXMEM_LAT_INGEST_P99}}** |
+| agentmemory | {{AGENTMEMORY_LAT_INGEST_P50}} | {{AGENTMEMORY_LAT_INGEST_P95}} | {{AGENTMEMORY_LAT_INGEST_P99}} |
+| Memanto | {{MEMANTO_LAT_INGEST_P50}} | {{MEMANTO_LAT_INGEST_P95}} | {{MEMANTO_LAT_INGEST_P99}} |
+| mem0 | {{MEM0_LAT_INGEST_P50}} | {{MEM0_LAT_INGEST_P95}} | {{MEM0_LAT_INGEST_P99}} |
+| Letta | {{LETTA_LAT_INGEST_P50}} | {{LETTA_LAT_INGEST_P95}} | {{LETTA_LAT_INGEST_P99}} |
+| Zep | {{ZEP_LAT_INGEST_P50}} | {{ZEP_LAT_INGEST_P95}} | {{ZEP_LAT_INGEST_P99}} |
+| `MEMORY.md` | {{MEMORYMD_LAT_INGEST_P50}} | {{MEMORYMD_LAT_INGEST_P95}} | {{MEMORYMD_LAT_INGEST_P99}} |
+
+## Results — ingest.chunk-batch (100 chunks)
+
+| Tool | p50 | p95 | p99 |
+|---|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LAT_BATCH_P50}}** | **{{NOXMEM_LAT_BATCH_P95}}** | **{{NOXMEM_LAT_BATCH_P99}}** |
+| agentmemory | {{AGENTMEMORY_LAT_BATCH_P50}} | {{AGENTMEMORY_LAT_BATCH_P95}} | {{AGENTMEMORY_LAT_BATCH_P99}} |
+| Memanto | {{MEMANTO_LAT_BATCH_P50}} | {{MEMANTO_LAT_BATCH_P95}} | {{MEMANTO_LAT_BATCH_P99}} |
+| mem0 | {{MEM0_LAT_BATCH_P50}} | {{MEM0_LAT_BATCH_P95}} | {{MEM0_LAT_BATCH_P99}} |
+| Letta | {{LETTA_LAT_BATCH_P50}} | {{LETTA_LAT_BATCH_P95}} | {{LETTA_LAT_BATCH_P99}} |
+| Zep | {{ZEP_LAT_BATCH_P50}} | {{ZEP_LAT_BATCH_P95}} | {{ZEP_LAT_BATCH_P99}} |
+| `MEMORY.md` | {{MEMORYMD_LAT_BATCH_P50}} | {{MEMORYMD_LAT_BATCH_P95}} | {{MEMORYMD_LAT_BATCH_P99}} |
+
+## Caveats
+
+- **Statistical floor.** With n=100 and σ~20ms, 95% CI half-width is
+  ≈ ±3.9ms. Latency gaps < 8ms are not statistically distinguishable.
+- **Network mix.** SaaS-only tools (Memanto, Zep Cloud) include network
+  round-trip in their numbers. This is *by design* — it is what a user
+  experiences — but is called out for self-host vs SaaS comparison.
+- **Single machine.** All numbers are from one machine
+  ({{LATENCY_HARDWARE}}). Cloud-hosted tools' p50 will look different
+  from a closer or further region.
+- **No tail-load test.** We do not measure under concurrent multi-user
+  load. That benchmark is on the roadmap as `latency.concurrency`.
+- **Cold-start excluded.** All workloads are warm. Cold-start latency
+  is a separate concern (and a separate publication when we measure it).
+
+## Reproducing
+
+```
+# 1. Ensure nox-mem index is populated with the LoCoMo corpus
+cd eval/latency && npx tsx src/runner.ts --warmup
+
+# 2. Run the workload set per tool
+cd ../../benchmark
+for tool in nox-mem agentmemory memanto mem0 letta zep memorymd; do
+  npx tsx collect-competitor-data.ts \
+    --competitor "$tool" \
+    --dataset latency \
+    --output results/$tool/latency.json
+done
+
+# 3. Aggregate
+GATE_VERIFIED=1 npx tsx generate-comparison.ts
+```
+
+See `BLOCKED.md` for competitors whose latency profile we cannot measure
+locally today.

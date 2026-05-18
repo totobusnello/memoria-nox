@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$comment": "Per-competitor configuration. Read by collect-competitor-data.ts and generate-comparison.ts. Install instructions are 'as documented by the upstream README' — we do NOT optimise for our benchmark. Update with real install verification after VPS provisioning (see BLOCKED.md).",
+  "version": 1,
+  "last_verified": "2026-05-18",
+  "datasets": ["locomo", "longmemeval", "latency"],
+  "competitors": [
+    {
+      "name": "nox-mem",
+      "type": "self",
+      "display_name": "nox-mem (this project)",
+      "version_pin": "git-sha",
+      "install": {
+        "method": "git+build",
+        "steps": [
+          "git clone https://github.com/totobusnello/memoria-nox",
+          "cd memoria-nox && npm install && npm run build",
+          "set -a && source /root/.openclaw/.env && set +a",
+          "node dist/index.js --help"
+        ],
+        "requires_api_key": "GEMINI_API_KEY",
+        "extra_env": ["NOX_API_PORT", "OPENCLAW_WORKSPACE"]
+      },
+      "invocation": {
+        "locomo": {
+          "ingest": "node dist/index.js ingest <chunk-file>",
+          "retrieve": "node dist/index.js search '<query>' --limit 20 --json"
+        },
+        "longmemeval": {
+          "ingest": "node dist/index.js ingest <chunk-file>",
+          "retrieve": "node dist/index.js search '<query>' --limit 5 --json"
+        },
+        "latency": {
+          "harness": "eval/latency/src/runner.ts",
+          "mode": "in-process"
+        }
+      },
+      "data_format": {
+        "chunks": "markdown",
+        "supports_kg": true,
+        "supports_sections": true
+      },
+      "self_host_classification": "yes",
+      "license": "MIT",
+      "notes": "Reference implementation. The thing being benchmarked.",
+      "blockers": [],
+      "primary_source_claims": {
+        "locomo_r5": null,
+        "longmemeval_acc": null,
+        "p95_search_medium_ms": null,
+        "comment": "We do not pre-fill with our own claims — these come from the harness."
+      }
+    },
+    {
+      "name": "agentmemory",
+      "type": "competitor",
+      "display_name": "agentmemory (rohitg00)",
+      "version_pin": "npm-latest-on-2026-05-18",
+      "install": {
+        "method": "npm-global",
+        "steps": [
+          "npm install -g @agentmemory/agentmemory",
+          "agentmemory --version"
+        ],
+        "requires_api_key": null,
+        "requires_daemon": "iii-engine",
+        "daemon_notes": "agentmemory requires a proprietary daemon (iii-engine) at runtime. Confirm whether the open-source agentmemory CLI can run without it before claiming 'self-host: yes'."
+      },
+      "invocation": {
+        "locomo": {
+          "ingest": "agentmemory remember --text \"<chunk>\" --session <id>",
+          "retrieve": "agentmemory recall \"<query>\" --top-k 20 --json"
+        },
+        "longmemeval": {
+          "ingest": "agentmemory remember --text \"<chunk>\" --session <id>",
+          "retrieve": "agentmemory recall \"<query>\" --top-k 5 --json"
+        },
+        "latency": {
+          "mode": "subprocess",
+          "notes": "Subprocess invocation per query adds spawn overhead; documented in published numbers."
+        }
+      },
+      "data_format": {
+        "chunks": "text",
+        "supports_kg": false,
+        "supports_sections": false
+      },
+      "self_host_classification": "with-proprietary-daemon",
+      "license": "MIT (CLI) / proprietary (iii-engine)",
+      "notes": "README claims R@5 of 95.2% on LoCoMo. We do not preload that number — we re-measure.",
+      "blockers": [
+        "Validate that iii-engine can be installed on our VPS without a paid license.",
+        "Confirm the published 95.2% R@5 corresponds to the same LoCoMo revision we use."
+      ],
+      "primary_source_claims": {
+        "locomo_r5": 0.952,
+        "comment": "From upstream README — re-measured by our harness."
+      }
+    },
+    {
+      "name": "memanto",
+      "type": "competitor",
+      "display_name": "Memanto (moorcheh-ai)",
+      "version_pin": "pip-latest-on-2026-05-18",
+      "install": {
+        "method": "pip",
+        "steps": [
+          "pip install memanto",
+          "python -c 'import memanto; print(memanto.__version__)'"
+        ],
+        "requires_api_key": "MOORCHEH_API_KEY",
+        "saas_only": true,
+        "endpoint_env": "MOORCHEH_API_BASE"
+      },
+      "invocation": {
+        "locomo": {
+          "ingest": "python -c \"import memanto; memanto.store('<chunk>', session='<id>')\"",
+          "retrieve": "python -c \"import memanto; print(memanto.query('<query>', top_k=20))\""
+        },
+        "longmemeval": {
+          "ingest": "python -c \"import memanto; memanto.store('<chunk>', session='<id>')\"",
+          "retrieve": "python -c \"import memanto; print(memanto.query('<query>', top_k=5))\""
+        },
+        "latency": {
+          "mode": "subprocess",
+          "notes": "Network round-trip to Moorcheh hosted endpoint included."
+        }
+      },
+      "data_format": {
+        "chunks": "text",
+        "supports_kg": false,
+        "supports_sections": false
+      },
+      "self_host_classification": "SaaS-only",
+      "license": "proprietary (SaaS)",
+      "notes": "Requires a Moorcheh account and API key. SaaS-only; cannot be run fully offline.",
+      "blockers": [
+        "Acquire MOORCHEH_API_KEY with sufficient quota for full LoCoMo + LongMemEval run.",
+        "Document SaaS terms-of-service compatibility with our benchmark."
+      ],
+      "primary_source_claims": {
+        "longmemeval_acc": 0.898,
+        "comment": "From upstream marketing — re-measured by our harness."
+      }
+    },
+    {
+      "name": "mem0",
+      "type": "competitor",
+      "display_name": "mem0 (mem0ai)",
+      "version_pin": "pip-latest-on-2026-05-18",
+      "install": {
+        "method": "pip",
+        "steps": [
+          "pip install mem0ai",
+          "python -c 'import mem0; print(mem0.__version__)'"
+        ],
+        "requires_api_key": "OPENAI_API_KEY",
+        "alternative_keys": ["ANTHROPIC_API_KEY", "GOOGLE_API_KEY"],
+        "extras": "pip install 'mem0ai[graph]' for graph features",
+        "prerequisites": []
+      },
+      "invocation": {
+        "locomo": {
+          "ingest": "python eval/locomo/adapters/mem0_ingest.py --chunk <path>",
+          "retrieve": "python eval/locomo/adapters/mem0_retrieve.py --query '<q>' --top-k 20"
+        },
+        "longmemeval": {
+          "ingest": "python eval/longmemeval/adapters/mem0_ingest.py --chunk <path>",
+          "retrieve": "python eval/longmemeval/adapters/mem0_retrieve.py --query '<q>' --top-k 5"
+        },
+        "latency": {
+          "mode": "subprocess",
+          "notes": "Adapter scripts to be written; Python subprocess overhead documented."
+        }
+      },
+      "data_format": {
+        "chunks": "text",
+        "supports_kg": true,
+        "supports_sections": false
+      },
+      "self_host_classification": "yes",
+      "license": "Apache-2.0",
+      "notes": "53k+ stars. Vector + optional graph backend. Largest competitor by community.",
+      "blockers": [
+        "Write Python adapter scripts for ingest/retrieve.",
+        "Pin embedding model — default is OpenAI, may need OPENAI_API_KEY budget."
+      ],
+      "primary_source_claims": {
+        "comment": "mem0 publishes its own benchmark on its docs; we re-measure with our harness."
+      }
+    },
+    {
+      "name": "letta",
+      "type": "competitor",
+      "display_name": "Letta / MemGPT (letta-ai)",
+      "version_pin": "docker-tag-on-2026-05-18",
+      "install": {
+        "method": "docker-compose",
+        "steps": [
+          "git clone https://github.com/letta-ai/letta",
+          "cd letta && docker compose up -d",
+          "curl http://127.0.0.1:8283/v1/health"
+        ],
+        "prerequisites": ["postgres", "qdrant", "docker"],
+        "requires_api_key": "OPENAI_API_KEY",
+        "alternative_keys": ["ANTHROPIC_API_KEY"]
+      },
+      "invocation": {
+        "locomo": {
+          "ingest": "curl -X POST http://127.0.0.1:8283/v1/agents/<id>/memory -d '{\"text\": \"<chunk>\"}'",
+          "retrieve": "curl -X POST http://127.0.0.1:8283/v1/agents/<id>/recall -d '{\"query\": \"<q>\", \"top_k\": 20}'"
+        },
+        "longmemeval": {
+          "ingest": "curl -X POST http://127.0.0.1:8283/v1/agents/<id>/memory -d '{\"text\": \"<chunk>\"}'",
+          "retrieve": "curl -X POST http://127.0.0.1:8283/v1/agents/<id>/recall -d '{\"query\": \"<q>\", \"top_k\": 5}'"
+        },
+        "latency": {
+          "mode": "http",
+          "notes": "Local HTTP; recall-only mode (no agent loop) to keep retrieval comparison fair."
+        }
+      },
+      "data_format": {
+        "chunks": "text",
+        "supports_kg": false,
+        "supports_sections": false
+      },
+      "self_host_classification": "yes",
+      "license": "Apache-2.0",
+      "notes": "22k+ stars. Full agent runtime — we benchmark recall-only mode.",
+      "blockers": [
+        "Provision Postgres + Qdrant on VPS.",
+        "Confirm Letta API surface for recall-only ingest/retrieve (no agent loop).",
+        "Embedding key budget (Letta defaults to OpenAI)."
+      ],
+      "primary_source_claims": {
+        "comment": "Letta's published numbers measure full agent loop; we measure retrieval only."
+      }
+    },
+    {
+      "name": "zep",
+      "type": "competitor",
+      "display_name": "Zep (getzep)",
+      "version_pin": "docker-tag-on-2026-05-18",
+      "install": {
+        "method": "docker-compose",
+        "steps": [
+          "git clone https://github.com/getzep/zep",
+          "cd zep && docker compose up -d",
+          "curl http://127.0.0.1:8000/healthz"
+        ],
+        "prerequisites": ["postgres", "docker"],
+        "requires_api_key": "OPENAI_API_KEY",
+        "alternative": "Zep Cloud (SaaS) — requires ZEP_API_KEY"
+      },
+      "invocation": {
+        "locomo": {
+          "ingest": "zep python SDK: zep.memory.add(session_id, message)",
+          "retrieve": "zep python SDK: zep.memory.search(session_id, text=query, limit=20)"
+        },
+        "longmemeval": {
+          "ingest": "zep python SDK: zep.memory.add(session_id, message)",
+          "retrieve": "zep python SDK: zep.memory.search(session_id, text=query, limit=5)"
+        },
+        "latency": {
+          "mode": "http",
+          "notes": "We benchmark Zep Open Source (self-hosted) for the comparison; Zep Cloud noted separately if also measured."
+        }
+      },
+      "data_format": {
+        "chunks": "structured-message",
+        "supports_kg": true,
+        "supports_sections": false,
+        "notes": "Zep has temporal KG — stronger on multi-hop temporal."
+      },
+      "self_host_classification": "yes",
+      "license": "Apache-2.0",
+      "notes": "Temporal KG memory; strong on multi-hop temporal queries.",
+      "blockers": [
+        "Provision Postgres on VPS for Zep OSS.",
+        "Map Zep's structured-message format to LoCoMo's chunked transcript."
+      ],
+      "primary_source_claims": {
+        "comment": "Zep publishes its own LongMemEval numbers; we re-measure."
+      }
+    },
+    {
+      "name": "memorymd",
+      "type": "baseline",
+      "display_name": "built-in MEMORY.md (Claude Code)",
+      "version_pin": "claude-code-on-2026-05-18",
+      "install": {
+        "method": "builtin",
+        "steps": [
+          "(no install — Claude Code's built-in MEMORY.md mechanism)"
+        ],
+        "requires_api_key": null,
+        "extra_env": ["CLAUDE_CONFIG_DIR"]
+      },
+      "invocation": {
+        "locomo": {
+          "ingest": "concatenate chunks into a single MEMORY.md per session",
+          "retrieve": "no retrieval ranking — pass full MEMORY.md to composer"
+        },
+        "longmemeval": {
+          "ingest": "concatenate chunks into a single MEMORY.md per session",
+          "retrieve": "no retrieval ranking — pass full MEMORY.md to composer"
+        },
+        "latency": {
+          "mode": "filesystem",
+          "notes": "Filesystem-only baseline; latency is essentially file-read time."
+        }
+      },
+      "data_format": {
+        "chunks": "markdown-concatenated",
+        "supports_kg": false,
+        "supports_sections": false
+      },
+      "self_host_classification": "yes",
+      "license": "n/a (built-in)",
+      "notes": "No-system baseline. Establishes the floor: what does an agent get with no memory layer at all? Useful for asking 'is the system better than doing nothing?'",
+      "blockers": [],
+      "primary_source_claims": {
+        "comment": "No published numbers. This is the floor."
+      }
+    }
+  ]
+}

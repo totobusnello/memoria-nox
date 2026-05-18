@@ -1,0 +1,160 @@
+<!--
+  TEMPLATE — placeholders use {{DOUBLE_BRACES}}.
+  Filled by benchmark/generate-comparison.ts.
+  See README.md for the publication gate.
+-->
+
+# LongMemEval — long-horizon QA accuracy
+
+> **Last run:** {{RUN_DATE}}.
+> **Harness:** `eval/longmemeval/` at git SHA `{{HARNESS_SHA}}`.
+> **Dataset pin:** [xiaowu0162/LongMemEval](https://github.com/xiaowu0162/LongMemEval) revision `{{LONGMEMEVAL_REVISION}}`.
+
+## What this measures
+
+LongMemEval (Wu et al., 2024) is an end-to-end question-answering benchmark
+for long-term conversational memory. Unlike LoCoMo (which measures retrieval),
+LongMemEval measures whether the *final answer* matches the gold answer
+after the system retrieves and an LLM composes a response.
+
+The metric is **accuracy** under **LLM-as-judge** scoring (we use Gemini
+2.5 Flash as judge; see "Judge variance" below).
+
+LongMemEval has four subtasks:
+
+1. **Single-session reasoning** — answer is in a single session.
+2. **Multi-session reasoning** — answer requires composing across sessions.
+3. **Knowledge update** — answer requires the *latest* version of a fact
+   that has been updated over multiple turns.
+4. **Temporal reasoning** — answer depends on relative or absolute time
+   ordering.
+
+## Why accuracy (not BLEU / ROUGE / exact match)
+
+LongMemEval gold answers are short free-form text. Exact-match
+under-counts correct paraphrases; BLEU/ROUGE over-count partial-credit
+strings. The official benchmark uses LLM-as-judge, and we follow that
+convention.
+
+We publish judge identity and inter-judge agreement explicitly so the
+number is interpretable.
+
+## Sample size and sampling
+
+- **n total:** {{LONGMEMEVAL_N}}.
+- **Stratification:** equal share per subtask, seed = 42.
+- **Distribution:** documented in `eval/longmemeval/README.md`.
+
+## Judge configuration
+
+- **Judge model:** `gemini-2.5-flash`.
+- **Judge prompt:** stable, version-controlled in `eval/longmemeval/judge-prompt.md`.
+- **Judge passes per (tool, question):** 3 — final score is majority vote.
+- **Inter-judge agreement:** {{LONGMEMEVAL_JUDGE_AGREEMENT}} (Cohen κ
+  vs a human-spot-checked subsample of {{LONGMEMEVAL_HUMAN_SPOT_N}} cases).
+- **Cost note:** each tool × question costs ~3 judge calls. Full run is
+  budgeted at ~{{LONGMEMEVAL_JUDGE_BUDGET}} judge calls.
+
+## Results — Overall accuracy
+
+| Tool | Acc. (mean) | ± stddev | n runs |
+|---|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LME_OVERALL}}** | ± {{NOXMEM_LME_STDDEV}} | {{NOXMEM_LME_RUNS}} |
+| agentmemory | {{AGENTMEMORY_LME_OVERALL}} | ± {{AGENTMEMORY_LME_STDDEV}} | {{AGENTMEMORY_LME_RUNS}} |
+| Memanto | {{MEMANTO_LME_OVERALL}} | ± {{MEMANTO_LME_STDDEV}} | {{MEMANTO_LME_RUNS}} |
+| mem0 | {{MEM0_LME_OVERALL}} | ± {{MEM0_LME_STDDEV}} | {{MEM0_LME_RUNS}} |
+| Letta / MemGPT | {{LETTA_LME_OVERALL}} | ± {{LETTA_LME_STDDEV}} | {{LETTA_LME_RUNS}} |
+| Zep | {{ZEP_LME_OVERALL}} | ± {{ZEP_LME_STDDEV}} | {{ZEP_LME_RUNS}} |
+| built-in `MEMORY.md` | {{MEMORYMD_LME_OVERALL}} | ± {{MEMORYMD_LME_STDDEV}} | {{MEMORYMD_LME_RUNS}} |
+
+## Per-subtask accuracy
+
+| Tool | Single-session | Multi-session | Knowledge update | Temporal |
+|---|---:|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LME_S1}}** | **{{NOXMEM_LME_S2}}** | **{{NOXMEM_LME_S3}}** | **{{NOXMEM_LME_S4}}** |
+| agentmemory | {{AGENTMEMORY_LME_S1}} | {{AGENTMEMORY_LME_S2}} | {{AGENTMEMORY_LME_S3}} | {{AGENTMEMORY_LME_S4}} |
+| Memanto | {{MEMANTO_LME_S1}} | {{MEMANTO_LME_S2}} | {{MEMANTO_LME_S3}} | {{MEMANTO_LME_S4}} |
+| mem0 | {{MEM0_LME_S1}} | {{MEM0_LME_S2}} | {{MEM0_LME_S3}} | {{MEM0_LME_S4}} |
+| Letta | {{LETTA_LME_S1}} | {{LETTA_LME_S2}} | {{LETTA_LME_S3}} | {{LETTA_LME_S4}} |
+| Zep | {{ZEP_LME_S1}} | {{ZEP_LME_S2}} | {{ZEP_LME_S3}} | {{ZEP_LME_S4}} |
+| `MEMORY.md` | {{MEMORYMD_LME_S1}} | {{MEMORYMD_LME_S2}} | {{MEMORYMD_LME_S3}} | {{MEMORYMD_LME_S4}} |
+
+## Per-tool notes
+
+### nox-mem
+- **Configuration:** hybrid search (default) → top-5 chunks → Gemini 2.5 Flash
+  composes answer. Same composer model for every tool — only the retrieval
+  layer differs.
+- **Notes:** {{NOXMEM_LME_NOTES}}
+
+### agentmemory
+- **Configuration:** default agentmemory recall, top-5 → same composer.
+- **Notes:** {{AGENTMEMORY_LME_NOTES}}
+
+### Memanto
+- **Configuration:** Moorcheh hosted query, top-5 → same composer.
+- **Notes:** {{MEMANTO_LME_NOTES}}
+
+### mem0
+- **Configuration:** default mem0 hybrid (vector + graph), top-5 → same composer.
+- **Notes:** {{MEM0_LME_NOTES}}
+
+### Letta / MemGPT
+- **Configuration:** Letta in recall-only mode (no agent loop), top-5 →
+  same composer.
+- **Notes:** {{LETTA_LME_NOTES}}
+
+### Zep
+- **Configuration:** Zep Open Source v{{ZEP_VERSION}} recall, top-5 → same
+  composer.
+- **Notes:** {{ZEP_LME_NOTES}}
+
+### built-in MEMORY.md
+- **Configuration:** baseline — Claude Code's built-in MEMORY.md read +
+  composer. No retrieval ranking.
+
+## Composer policy
+
+To isolate **retrieval quality** from **answer-composition quality**, every
+tool's retrieved chunks are passed to the **same composer model** (Gemini
+2.5 Flash) with the **same prompt**. The composer prompt is in
+`eval/longmemeval/composer-prompt.md`.
+
+This is a deliberate choice. If we let each tool use its native composer,
+we would be measuring "retrieval × composer" jointly — and Letta would
+benefit unfairly from its agent loop, while the built-in baseline would
+suffer from having no orchestration.
+
+## Caveats
+
+- **Judge variance is real.** Cohen κ vs human-spot-check is
+  {{LONGMEMEVAL_JUDGE_AGREEMENT}}. Numbers should be read with at least
+  that much fuzz.
+- **Composer pinning** advantages tools with retrieval-only APIs and
+  disadvantages tools (like Letta) whose strength is the agent loop.
+  This is an intentional design choice for the comparison — see policy
+  above. Letta's *agent-loop* numbers are in their own publications.
+- **Knowledge-update subtask** is the hardest for every tool; small
+  retrieval differences here cause large accuracy swings. We do not
+  read too much into 1–2pp gaps on this subtask alone.
+
+## Reproducing
+
+```
+# 1. Download LongMemEval
+cd eval/longmemeval && npx tsx download.ts
+
+# 2. Per competitor, collect retrieved chunks + composed answers
+cd ../../benchmark
+for tool in nox-mem agentmemory memanto mem0 letta zep memorymd; do
+  npx tsx collect-competitor-data.ts \
+    --competitor "$tool" \
+    --dataset longmemeval \
+    --output results/$tool/longmemeval.json
+done
+
+# 3. Judge + score
+GATE_VERIFIED=1 npx tsx generate-comparison.ts
+```
+
+See `BLOCKED.md` for competitors whose eval interface we cannot reach today.

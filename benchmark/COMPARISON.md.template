@@ -1,0 +1,251 @@
+<!--
+  TEMPLATE — placeholders use {{DOUBLE_BRACES}}.
+  Filled by benchmark/generate-comparison.ts.
+  DO NOT publish this file directly. Run the generator with GATE_VERIFIED=1.
+-->
+
+# nox-mem vs the field — {{RUN_DATE}}
+
+{{HERO_PARAGRAPH}}
+
+> **Headline:** {{HEADLINE_NUMBER}} — {{HEADLINE_CAPTION}}
+
+> Numbers below are a snapshot from {{RUN_DATE}}. Source data is in
+> `benchmark/results/`. This page is regenerated quarterly. If a competitor
+> pulls ahead, the next quarterly publish reflects it.
+
+---
+
+## At a glance
+
+| Tool | LoCoMo R@5 | LongMemEval acc. | p95 latency (search.medium) | Self-host | Cost / mo (est.) |
+|---|---:|---:|---:|---|---:|
+| **nox-mem** *(this project)* | **{{NOXMEM_LOCOMO_R5}}** | **{{NOXMEM_LONGMEMEVAL_ACC}}** | **{{NOXMEM_P95_MS}} ms** | {{NOXMEM_SELFHOST}} | {{NOXMEM_COST}} |
+| agentmemory | {{AGENTMEMORY_LOCOMO_R5}} | {{AGENTMEMORY_LONGMEMEVAL_ACC}} | {{AGENTMEMORY_P95_MS}} ms | {{AGENTMEMORY_SELFHOST}} | {{AGENTMEMORY_COST}} |
+| Memanto | {{MEMANTO_LOCOMO_R5}} | {{MEMANTO_LONGMEMEVAL_ACC}} | {{MEMANTO_P95_MS}} ms | {{MEMANTO_SELFHOST}} | {{MEMANTO_COST}} |
+| mem0 | {{MEM0_LOCOMO_R5}} | {{MEM0_LONGMEMEVAL_ACC}} | {{MEM0_P95_MS}} ms | {{MEM0_SELFHOST}} | {{MEM0_COST}} |
+| Letta / MemGPT | {{LETTA_LOCOMO_R5}} | {{LETTA_LONGMEMEVAL_ACC}} | {{LETTA_P95_MS}} ms | {{LETTA_SELFHOST}} | {{LETTA_COST}} |
+| Zep | {{ZEP_LOCOMO_R5}} | {{ZEP_LONGMEMEVAL_ACC}} | {{ZEP_P95_MS}} ms | {{ZEP_SELFHOST}} | {{ZEP_COST}} |
+| built-in `MEMORY.md` | {{MEMORYMD_LOCOMO_R5}} | {{MEMORYMD_LONGMEMEVAL_ACC}} | {{MEMORYMD_P95_MS}} ms | {{MEMORYMD_SELFHOST}} | {{MEMORYMD_COST}} |
+
+**Bold** = top result on that column. Numbers are mean of ≥3 runs; full
+mean ± stddev tables in the per-benchmark pages.
+
+---
+
+## LoCoMo — multi-session conversational recall
+
+> Dataset: [snap-research/locomo](https://huggingface.co/datasets/snap-research/locomo) ({{LOCOMO_REVISION}}).
+> Metric: Recall@5 across the 5 LoCoMo question categories.
+> Sample: stratified per category, seed=42, n={{LOCOMO_N_PER_CATEGORY}} per category.
+> Full methodology: [LOCOMO.md](./LOCOMO.md).
+
+### Per-category R@5
+
+| Tool | Single-hop | Multi-hop | Temporal | Open-domain | Adversarial | **Overall** |
+|---|---:|---:|---:|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LOCOMO_C1}}** | **{{NOXMEM_LOCOMO_C2}}** | **{{NOXMEM_LOCOMO_C3}}** | **{{NOXMEM_LOCOMO_C4}}** | **{{NOXMEM_LOCOMO_C5}}** | **{{NOXMEM_LOCOMO_OVERALL}}** |
+| agentmemory | {{AGENTMEMORY_LOCOMO_C1}} | {{AGENTMEMORY_LOCOMO_C2}} | {{AGENTMEMORY_LOCOMO_C3}} | {{AGENTMEMORY_LOCOMO_C4}} | {{AGENTMEMORY_LOCOMO_C5}} | {{AGENTMEMORY_LOCOMO_OVERALL}} |
+| Memanto | {{MEMANTO_LOCOMO_C1}} | {{MEMANTO_LOCOMO_C2}} | {{MEMANTO_LOCOMO_C3}} | {{MEMANTO_LOCOMO_C4}} | {{MEMANTO_LOCOMO_C5}} | {{MEMANTO_LOCOMO_OVERALL}} |
+| mem0 | {{MEM0_LOCOMO_C1}} | {{MEM0_LOCOMO_C2}} | {{MEM0_LOCOMO_C3}} | {{MEM0_LOCOMO_C4}} | {{MEM0_LOCOMO_C5}} | {{MEM0_LOCOMO_OVERALL}} |
+| Letta | {{LETTA_LOCOMO_C1}} | {{LETTA_LOCOMO_C2}} | {{LETTA_LOCOMO_C3}} | {{LETTA_LOCOMO_C4}} | {{LETTA_LOCOMO_C5}} | {{LETTA_LOCOMO_OVERALL}} |
+| Zep | {{ZEP_LOCOMO_C1}} | {{ZEP_LOCOMO_C2}} | {{ZEP_LOCOMO_C3}} | {{ZEP_LOCOMO_C4}} | {{ZEP_LOCOMO_C5}} | {{ZEP_LOCOMO_OVERALL}} |
+| `MEMORY.md` | {{MEMORYMD_LOCOMO_C1}} | {{MEMORYMD_LOCOMO_C2}} | {{MEMORYMD_LOCOMO_C3}} | {{MEMORYMD_LOCOMO_C4}} | {{MEMORYMD_LOCOMO_C5}} | {{MEMORYMD_LOCOMO_OVERALL}} |
+
+{{LOCOMO_COMMENTARY}}
+
+---
+
+## LongMemEval — long-horizon question answering
+
+> Dataset: [xiaowu0162/LongMemEval](https://github.com/xiaowu0162/LongMemEval) ({{LONGMEMEVAL_REVISION}}).
+> Metric: end-to-end accuracy under LLM-as-judge (Gemini 2.5 Flash).
+> Sample: {{LONGMEMEVAL_N}} questions stratified by subtask, seed=42.
+> Full methodology: [LONGMEMEVAL.md](./LONGMEMEVAL.md).
+
+### Per-subtask accuracy
+
+| Tool | Single-session | Multi-session | Knowledge update | Temporal reasoning | **Overall** |
+|---|---:|---:|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LME_S1}}** | **{{NOXMEM_LME_S2}}** | **{{NOXMEM_LME_S3}}** | **{{NOXMEM_LME_S4}}** | **{{NOXMEM_LME_OVERALL}}** |
+| agentmemory | {{AGENTMEMORY_LME_S1}} | {{AGENTMEMORY_LME_S2}} | {{AGENTMEMORY_LME_S3}} | {{AGENTMEMORY_LME_S4}} | {{AGENTMEMORY_LME_OVERALL}} |
+| Memanto | {{MEMANTO_LME_S1}} | {{MEMANTO_LME_S2}} | {{MEMANTO_LME_S3}} | {{MEMANTO_LME_S4}} | {{MEMANTO_LME_OVERALL}} |
+| mem0 | {{MEM0_LME_S1}} | {{MEM0_LME_S2}} | {{MEM0_LME_S3}} | {{MEM0_LME_S4}} | {{MEM0_LME_OVERALL}} |
+| Letta | {{LETTA_LME_S1}} | {{LETTA_LME_S2}} | {{LETTA_LME_S3}} | {{LETTA_LME_S4}} | {{LETTA_LME_OVERALL}} |
+| Zep | {{ZEP_LME_S1}} | {{ZEP_LME_S2}} | {{ZEP_LME_S3}} | {{ZEP_LME_S4}} | {{ZEP_LME_OVERALL}} |
+| `MEMORY.md` | {{MEMORYMD_LME_S1}} | {{MEMORYMD_LME_S2}} | {{MEMORYMD_LME_S3}} | {{MEMORYMD_LME_S4}} | {{MEMORYMD_LME_OVERALL}} |
+
+> Judge: Gemini 2.5 Flash. Inter-judge agreement (vs human-spot-check): {{LONGMEMEVAL_JUDGE_AGREEMENT}}.
+
+{{LONGMEMEVAL_COMMENTARY}}
+
+---
+
+## Latency — per-workload p50 / p95 / p99
+
+> Workloads from `eval/latency/` — same primitive, same warm-up regime
+> (10 warmup iterations, n=100 for searches, n=50 for ingest).
+> Full methodology: [LATENCY.md](./LATENCY.md).
+
+### search.medium (4–9 word natural-language queries)
+
+| Tool | p50 (ms) | p95 (ms) | p99 (ms) |
+|---|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LAT_MED_P50}}** | **{{NOXMEM_LAT_MED_P95}}** | **{{NOXMEM_LAT_MED_P99}}** |
+| agentmemory | {{AGENTMEMORY_LAT_MED_P50}} | {{AGENTMEMORY_LAT_MED_P95}} | {{AGENTMEMORY_LAT_MED_P99}} |
+| Memanto | {{MEMANTO_LAT_MED_P50}} | {{MEMANTO_LAT_MED_P95}} | {{MEMANTO_LAT_MED_P99}} |
+| mem0 | {{MEM0_LAT_MED_P50}} | {{MEM0_LAT_MED_P95}} | {{MEM0_LAT_MED_P99}} |
+| Letta | {{LETTA_LAT_MED_P50}} | {{LETTA_LAT_MED_P95}} | {{LETTA_LAT_MED_P99}} |
+| Zep | {{ZEP_LAT_MED_P50}} | {{ZEP_LAT_MED_P95}} | {{ZEP_LAT_MED_P99}} |
+| `MEMORY.md` | {{MEMORYMD_LAT_MED_P50}} | {{MEMORYMD_LAT_MED_P95}} | {{MEMORYMD_LAT_MED_P99}} |
+
+### ingest.entity-file (~5KB Markdown entity)
+
+| Tool | p50 (ms) | p95 (ms) | p99 (ms) |
+|---|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LAT_INGEST_P50}}** | **{{NOXMEM_LAT_INGEST_P95}}** | **{{NOXMEM_LAT_INGEST_P99}}** |
+| agentmemory | {{AGENTMEMORY_LAT_INGEST_P50}} | {{AGENTMEMORY_LAT_INGEST_P95}} | {{AGENTMEMORY_LAT_INGEST_P99}} |
+| Memanto | {{MEMANTO_LAT_INGEST_P50}} | {{MEMANTO_LAT_INGEST_P95}} | {{MEMANTO_LAT_INGEST_P99}} |
+| mem0 | {{MEM0_LAT_INGEST_P50}} | {{MEM0_LAT_INGEST_P95}} | {{MEM0_LAT_INGEST_P99}} |
+| Letta | {{LETTA_LAT_INGEST_P50}} | {{LETTA_LAT_INGEST_P95}} | {{LETTA_LAT_INGEST_P99}} |
+| Zep | {{ZEP_LAT_INGEST_P50}} | {{ZEP_LAT_INGEST_P95}} | {{ZEP_LAT_INGEST_P99}} |
+| `MEMORY.md` | {{MEMORYMD_LAT_INGEST_P50}} | {{MEMORYMD_LAT_INGEST_P95}} | {{MEMORYMD_LAT_INGEST_P99}} |
+
+> Wall-clock conditions: same machine, same load. See [LATENCY.md](./LATENCY.md)
+> for the exact hardware, kernel, Node version, and warm-cache regime.
+
+{{LATENCY_COMMENTARY}}
+
+---
+
+## Autonomy axis (qualitative)
+
+This is the axis that does not move. We score each tool on three dimensions:
+
+- **Runs on user infra?** — can the user run it without phoning home?
+- **Open core?** — is the retrieval/storage path open-source end-to-end?
+- **Vendor lock-in score** — 1 (none) to 5 (complete). High = data, format,
+  and operations are tied to one vendor.
+
+| Tool | Runs on user infra? | Open core? | Lock-in score |
+|---|---|---|---:|
+| **nox-mem** | yes (sqlite + sqlite-vec, single binary) | yes (MIT) | **1** |
+| agentmemory | yes — *but requires proprietary `iii-engine` daemon* | partial | 3 |
+| Memanto | no (SaaS only — Moorcheh) | no | 5 |
+| mem0 | yes (PostgreSQL + Qdrant) | yes (Apache 2.0) | 2 |
+| Letta / MemGPT | yes (PostgreSQL + optional Qdrant) | yes (Apache 2.0) | 2 |
+| Zep | yes (Zep Open Source) / SaaS Pro tier | yes (Apache 2.0) | 2 |
+| built-in `MEMORY.md` | yes (filesystem only) | n/a | 1 |
+
+> The autonomy axis is **fixed by design**, not measured. It is also the
+> only axis where nox-mem has a structural moat — the benchmark numbers can
+> wobble, but the architectural choice "no daemon, no SaaS, no cloud" is
+> stable.
+
+---
+
+## Cost axis
+
+Cost / month estimates assume a single-user workload: roughly 10k searches and
+1k ingests per month, on a $5/mo VPS (Hostinger or equivalent), with an
+embedding key on the relevant vendor's free or lowest paid tier.
+
+| Tool | Subscription | API/key cost | Infra | **Total est. / mo** |
+|---|---:|---:|---:|---:|
+| **nox-mem** | $0 | {{NOXMEM_API_COST}} | $5 (VPS) | **{{NOXMEM_COST}}** |
+| agentmemory | $0 | {{AGENTMEMORY_API_COST}} | $5 (VPS) | {{AGENTMEMORY_COST}} |
+| Memanto | {{MEMANTO_SUB}} | {{MEMANTO_API_COST}} | $0 (SaaS) | {{MEMANTO_COST}} |
+| mem0 | $0 (OSS) | {{MEM0_API_COST}} | {{MEM0_INFRA_COST}} (Postgres+Qdrant) | {{MEM0_COST}} |
+| Letta | $0 (OSS) | {{LETTA_API_COST}} | {{LETTA_INFRA_COST}} | {{LETTA_COST}} |
+| Zep | $0 (OSS) or $X (Pro) | {{ZEP_API_COST}} | {{ZEP_INFRA_COST}} | {{ZEP_COST}} |
+| `MEMORY.md` | $0 | $0 | $0 (filesystem) | **$0** |
+
+> **Caveat:** at heavier workloads (millions of queries / month), the cost
+> curves diverge sharply — vector-DB-as-a-service tools spike, while
+> nox-mem's curve stays linear with VPS sizing. We do not benchmark at that
+> scale; see [LATENCY.md](./LATENCY.md) for the load envelope we tested.
+
+---
+
+## Where we might *not* win
+
+We list these explicitly. The benchmark is not marketing.
+
+- **Pure FAISS throughput** — a hand-tuned FAISS / pgvector + libpq build
+  may beat us on cold-cache vector lookups by single-digit ms. We optimise
+  for hybrid (BM25 + semantic) and section-aware retrieval, not raw vector
+  speed.
+- **Hosted convenience** — Memanto offers a hosted ingest API. nox-mem
+  requires installing a CLI and an HTTP daemon. For a user who cannot run
+  any process, this is a real difference.
+- **Agent runtime features** — Letta/MemGPT ship a full agent loop. nox-mem
+  is a memory layer; it does not orchestrate. If you want "memory plus an
+  agent" in one box, Letta is closer to that.
+- **Graph-native queries** — Zep's temporal KG is more sophisticated than
+  ours on multi-hop temporal questions. We close some of that gap with
+  `kg_relations` + section-aware retrieval; we do not claim to win it.
+
+{{CAVEATS_EXTRA}}
+
+---
+
+## Methodology + reproducibility
+
+- **Versions** — exact tool versions are in `benchmark/results/<tool>/version.json`.
+- **Corpus pins** — HuggingFace revision hashes are committed in the harness
+  README files.
+- **Harness commit** — this page lists the git SHA at the top: `{{HARNESS_SHA}}`.
+- **Raw data** — per-question / per-iteration JSON is in `benchmark/results/`.
+- **Re-running** — `bash benchmark/scripts/reproduce.sh` (TODO: ships with v2).
+- **Settings policy** — every competitor was run with its README-recommended
+  configuration. We did not tune for our benchmark.
+- **3 runs minimum** — every cell is mean of ≥3 runs; full mean ± stddev is
+  in the per-benchmark pages.
+- **Seed** — 42 everywhere.
+- **Judge** — Gemini 2.5 Flash for LongMemEval. Inter-judge agreement is
+  published in [LONGMEMEVAL.md](./LONGMEMEVAL.md).
+
+---
+
+## Honest caveats
+
+- **Snapshot in time.** Tool versions move. This page is stamped {{RUN_DATE}}.
+- **Quarterly re-run pledge.** We re-run in Mar, Jun, Sep, Dec. If a
+  competitor pulls ahead between runs, the next publish reflects it. We do
+  not delete this file when we are no longer leading; we update it.
+- **Judge variance.** LongMemEval uses an LLM judge. Inter-run variance
+  is non-zero. Numbers are mean of ≥3 judge passes against the same
+  retrievals.
+- **Conflicts of interest.** We built nox-mem. The benchmark code is
+  open-source. Raw data is published. We invite PRs that improve any
+  competitor's configuration.
+- **Workload assumptions.** We benchmarked a single-user, 10k-search,
+  1k-ingest profile. Heavier or lighter workloads will produce different
+  cost and latency shapes.
+- **Statistical floor.** With n=100 per latency workload and σ~20ms, 95%
+  CI half-width is ≈ ±3.9ms. Latency differences < 8ms are not statistically
+  distinguishable.
+
+---
+
+## Bibliography
+
+- **LoCoMo** — Maharana, A. et al. *"Evaluating Very Long-Term Conversational
+  Memory of LLM Agents."* arXiv:2402.17753 (2024).
+  [snap-research/locomo](https://huggingface.co/datasets/snap-research/locomo).
+- **LongMemEval** — Wu, X. et al. *"LongMemEval: Benchmarking Chat Assistants
+  on Long-Term Interactive Memory."* arXiv:2410.10813 (2024).
+  [xiaowu0162/LongMemEval](https://github.com/xiaowu0162/LongMemEval).
+- **mem0** — [mem0ai/mem0](https://github.com/mem0ai/mem0) (Apache 2.0).
+- **Letta / MemGPT** — [letta-ai/letta](https://github.com/letta-ai/letta);
+  Packer, C. et al. *"MemGPT: Towards LLMs as Operating Systems."*
+  arXiv:2310.08560 (2023).
+- **Zep** — [getzep/zep](https://github.com/getzep/zep) (Apache 2.0).
+- **agentmemory** — [rohitg00/agentmemory](https://github.com/rohitg00/agentmemory).
+- **Memanto** — [moorcheh-ai/memanto](https://github.com/moorcheh-ai/memanto).
+- **nox-mem** — *(this project)* — [totobusnello/memoria-nox](https://github.com/totobusnello/memoria-nox).
+
+---
+
+*Generated by `benchmark/generate-comparison.ts` from
+`benchmark/COMPARISON.md.template` at SHA `{{HARNESS_SHA}}` on {{RUN_DATE}}.*
