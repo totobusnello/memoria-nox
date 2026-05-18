@@ -1,0 +1,16 @@
+{
+  "name": "nox-mem-viewer-realtime",
+  "version": "0.1.0-T1-T15",
+  "private": true,
+  "type": "module",
+  "description": "P5 — Viewer real-time SSE staged patch (T1-T15): event taxonomy + instrumentation + SSE handler + redaction + telemetry + frontend + auth + CLI + MCP + integration tests + docs. Depends on P5a event bus (merged PR #33).",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/src/lib/viewer/__tests__/*.test.js",
+    "test:watch": "node --watch --test dist/src/lib/viewer/__tests__/*.test.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}

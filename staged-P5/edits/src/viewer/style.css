@@ -1,0 +1,244 @@
+/*
+ * nox-mem viewer — vanilla CSS, no frameworks.
+ * Dark/light auto via prefers-color-scheme.
+ */
+
+:root {
+  --bg: #fafafa;
+  --fg: #111;
+  --muted: #666;
+  --accent: #00c896;
+  --line: #e5e5e5;
+  --row-hover: #f0f0f0;
+
+  --c-ingest: #2ea043;
+  --c-search: #2188ff;
+  --c-kg: #8957e5;
+  --c-crystallize: #d29922;
+  --c-op_audit: #f85149;
+
+  font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas,
+    monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --fg: #e6edf3;
+    --muted: #8b949e;
+    --line: #30363d;
+    --row-hover: #161b22;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 13px;
+  line-height: 1.45;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+}
+
+header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+header h1 {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+}
+
+.dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.dot.on {
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.dot.off {
+  background: var(--c-op_audit);
+}
+
+.stats {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.stat {
+  flex: 1 1 auto;
+  min-width: 100px;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.filters legend {
+  display: none;
+}
+
+.filters label {
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+main {
+  overflow: hidden;
+  padding: 0;
+  background: var(--bg);
+}
+
+#event-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-y: auto;
+  font-size: 0.8rem;
+}
+
+#event-log li {
+  border-bottom: 1px solid var(--line);
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: 80px 80px 1fr 60px;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+#event-log li:hover {
+  background: var(--row-hover);
+}
+
+#event-log li.expanded {
+  display: block;
+  background: var(--row-hover);
+}
+
+#event-log li .ts {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+#event-log li .badge {
+  font-size: 0.7rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 3px;
+  background: var(--muted);
+  color: white;
+  text-align: center;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+#event-log li[data-type="ingest"] .badge { background: var(--c-ingest); }
+#event-log li[data-type="search"] .badge { background: var(--c-search); }
+#event-log li[data-type="kg"] .badge { background: var(--c-kg); }
+#event-log li[data-type="crystallize"] .badge { background: var(--c-crystallize); }
+#event-log li[data-type="op_audit"] .badge { background: var(--c-op_audit); }
+
+#event-log li .summary {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#event-log li .meta {
+  color: var(--muted);
+  font-size: 0.7rem;
+  text-align: right;
+}
+
+#event-log li pre {
+  margin: 0.5rem 0 0;
+  padding: 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.7rem;
+  max-height: 300px;
+  overflow: auto;
+}
+
+footer {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.7rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+#dropped-warning {
+  color: var(--c-op_audit);
+  font-weight: 600;
+}
+
+.flash {
+  animation: flash 0.25s ease-out;
+}
+
+@keyframes flash {
+  0% { background-color: var(--accent); color: var(--bg); }
+  100% { background-color: transparent; color: inherit; }
+}

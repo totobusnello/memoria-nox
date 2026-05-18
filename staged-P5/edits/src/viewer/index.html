@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>nox-mem viewer</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>nox-mem viewer</h1>
+      <div class="status">
+        <span id="connection-dot" class="dot off" aria-hidden="true"></span>
+        <span id="connection-label">disconnected</span>
+      </div>
+    </header>
+
+    <section class="stats">
+      <div class="stat" data-stat="rate">
+        <span class="stat-value" id="stat-rate">0.0</span>
+        <span class="stat-label">events / sec</span>
+      </div>
+      <div class="stat" data-stat="today">
+        <span class="stat-value" id="stat-today">0</span>
+        <span class="stat-label">total today</span>
+      </div>
+      <div class="stat" data-stat="ingest">
+        <span class="stat-value" id="stat-ingest">0</span>
+        <span class="stat-label">ingest</span>
+      </div>
+      <div class="stat" data-stat="search">
+        <span class="stat-value" id="stat-search">0</span>
+        <span class="stat-label">search</span>
+      </div>
+      <div class="stat" data-stat="kg">
+        <span class="stat-value" id="stat-kg">0</span>
+        <span class="stat-label">kg</span>
+      </div>
+      <div class="stat" data-stat="op_audit">
+        <span class="stat-value" id="stat-op_audit">0</span>
+        <span class="stat-label">op_audit</span>
+      </div>
+    </section>
+
+    <fieldset class="filters" id="filters">
+      <legend>filter</legend>
+      <label><input type="checkbox" value="ingest" checked /> ingest</label>
+      <label><input type="checkbox" value="search" checked /> search</label>
+      <label><input type="checkbox" value="kg" checked /> kg</label>
+      <label><input type="checkbox" value="crystallize" checked /> crystallize</label>
+      <label><input type="checkbox" value="op_audit" checked /> op_audit</label>
+    </fieldset>
+
+    <main>
+      <ol id="event-log" aria-live="polite" aria-relevant="additions"></ol>
+    </main>
+
+    <footer>
+      <span>nox-mem viewer · default-redact policy</span>
+      <span id="dropped-warning" hidden>events dropped: <span id="dropped-count">0</span></span>
+    </footer>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
