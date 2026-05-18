@@ -1,0 +1,17 @@
+{
+  "name": "nox-mem-error-sanitizer",
+  "version": "0.1.0-G5",
+  "private": true,
+  "type": "module",
+  "description": "G5 — Central error sanitizer middleware (Gap G5 from THREAT-MODEL). Strips stack/paths/secrets from HTTP error responses.",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/src/lib/error-sanitizer/__tests__/*.test.js",
+    "audit:stack-leak": "bash edits/scripts/audit-stack-leak.sh ../"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
