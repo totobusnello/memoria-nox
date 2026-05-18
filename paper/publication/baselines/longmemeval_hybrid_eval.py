@@ -235,8 +235,21 @@ def iter_session_chunks(corpus: list[dict]) -> list[tuple[str, str, str, str, st
 
     Text format mirrors parser.ts D4: header `[session_id=<sid> date=<date>]`
     followed by newline-joined `<role>: <content>` per turn.
+
+    Dedup note (s_cleaned fix, 2026-05-18): in larger LongMemEval splits
+    (s_cleaned, m_cleaned) the same `session_id` can legitimately appear
+    multiple times inside a single question's `haystack_session_ids` array —
+    the distractor design re-cites filler sessions to inflate haystack size.
+    Because gold matching uses `f"{qid}::{sid}"` (set-based), the first
+    occurrence is canonical and subsequent occurrences are redundant data.
+    Skipping them in Python preserves the PRIMARY KEY invariant on
+    `chunks.chunk_id` and keeps gold matching intact. Composite-with-turn-idx
+    keys were rejected because they would break gold matching at line ~441
+    (`gold_chunk_ids = [f"{qid}::{sid}" for sid in gold_set]`).
     """
     out: list[tuple[str, str, str, str, str, bool]] = []
+    total_dup_count = 0
+    questions_with_dups = 0
     for q in corpus:
         if q.get("_dry_run_only"):
             continue  # dry-run sample has no haystack_sessions field
@@ -248,8 +261,18 @@ def iter_session_chunks(corpus: list[dict]) -> list[tuple[str, str, str, str, st
         if not qid or not isinstance(sessions, list):
             continue
         n = min(len(sids), len(sessions))
+        seen_sids: set[str] = set()
+        q_dup_count = 0
         for i in range(n):
             sid = sids[i]
+            if sid in seen_sids:
+                # Duplicate session_id within this question's haystack — skip.
+                # First occurrence already captured the canonical chunk;
+                # gold matching is set-based on f"{qid}::{sid}", so the
+                # second occurrence cannot add new relevance signal.
+                q_dup_count += 1
+                continue
+            seen_sids.add(sid)
             date = dates[i] if i < len(dates) else ""
             turns = sessions[i] or []
             lines = [f"[session_id={sid} date={date}]"]
@@ -264,6 +287,15 @@ def iter_session_chunks(corpus: list[dict]) -> list[tuple[str, str, str, str, st
             chunk_id = f"{qid}::{sid}"
             is_answer = sid in answer_set
             out.append((chunk_id, qid, sid, str(date), "\n".join(lines), is_answer))
+        if q_dup_count:
+            total_dup_count += q_dup_count
+            questions_with_dups += 1
+    if total_dup_count:
+        print(
+            f"[chunks] deduped {total_dup_count} duplicate session_id entries "
+            f"across {questions_with_dups} questions (expected on s_cleaned/m_cleaned)",
+            file=sys.stderr,
+        )
     return out
 
 
