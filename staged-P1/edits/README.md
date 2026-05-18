@@ -1,12 +1,18 @@
-# staged-P1 — Answer primitive (T1-T4)
+# staged-P1 — Answer primitive (T1-T14, COMPLETE)
 
-**Status:** T1-T4 of P1 implementation kickoff (PR #18). Module skeleton +
-retrieval wrapper + prompt template + LLM provider abstraction + a minimal
-T5 partial (citation parsing & anti-hallucination retry-once).
+**Status:** T1-T14 of P1 implementation kickoff. Module skeleton +
+retrieval wrapper + prompt template + LLM provider abstraction + citation
+parse + anti-hallucination retry + telemetry + CLI + HTTP + MCP +
+integration tests + E2E Gemini gated suite + docs + latency bench.
 
-**Branch:** `overnight/2026-05-18/P1-implementation-T1-T4`
+**Branches:**
+- T1-T4: `overnight/2026-05-18/P1-implementation-T1-T4` (PRs #29, #31)
+- T5-T10: `overnight/2026-05-18/P1-implementation-T5-T10` (PR #34)
+- **T11-T14: `wave-b/2026-05-18/P1-impl-T11-T14`** (this branch)
+
 **Spec:** [PR #3](https://github.com/totobusnello/memoria-nox/pull/3) — `specs/2026-05-17-P1-answer-primitive.md`
 **Kickoff:** [PR #18](https://github.com/totobusnello/memoria-nox/pull/18) — `specs/2026-05-18-P1-implementation-kickoff.md`
+**Docs:** [`docs/ANSWER.md`](docs/ANSWER.md) — full operator + caller reference (T13)
 **D41:** default model = `gemini-2.5-flash-lite` (locked, not flash)
 
 ---
@@ -104,19 +110,22 @@ Tests require ZERO credentials and make ZERO network calls:
 
 ---
 
-## What is NOT done (next sprint)
+## What was delivered T11-T14 (this slice)
 
-- **T5 full** — citation extraction lives in `index.ts:parseCitations()`; needs
-  a dedicated module + provenance enrichment for `file_path:line_range`.
-- **T6 full** — retry-once-then-fail is wired; needs telemetry persistence.
-- **T7 telemetry table** — `answer_telemetry` migration v11.
-- **T8 CLI** — `nox-mem answer "<q>"` subcommand.
-- **T9 HTTP** — `POST /api/answer` on :18802.
-- **T10 MCP** — `nox_mem_answer` tool registration.
-- **T11 integration tests with real Gemini.**
-- **T12 golden eval (15 Q/A pairs).**
-- **T13 docs.**
-- **T14 perf bench (p95 < 2000ms).**
+- **T11 integration tests against real schema** — `src/lib/answer/__tests__/integration-sqlite.test.ts` (10 tests, real `better-sqlite3` in-memory + v11 schema applied; NO mocking the DB)
+- **T12 E2E real-Gemini suite (gated)** — `src/lib/answer/__tests__/e2e-gemini.test.ts` (4 tests behind `NOX_E2E_GEMINI=1` + `GEMINI_API_KEY`; cost-capped at <$0.01 per run; SKIP fallback test always passes with reason logged)
+- **T13 docs** — `docs/ANSWER.md` (469 lines: overview / architecture mermaid diagram / CLI / HTTP / MCP / configuration / failure modes table / cost model / retry logic / telemetry / roadmap)
+- **T14 latency benchmark** — `benchmark/answer-latency.ts` (50 samples × mock LLM 100ms; per-phase p50/p95/p99 + budget pass/fail report; JSON + human output)
+
+**Test counts:** 73 (T1-T10) + 10 (T11) + 1 (T12 gating skip-marker) = **84 tests, 0 fail** baseline. With `NOX_E2E_GEMINI=1` + real key: **88 tests** (4 extra E2E).
+
+## What is NOT done (deferred to follow-up sprints)
+
+See `docs/ANSWER.md §11 Roadmap` for the full list. Highlights:
+- **T15 — Golden Q/A eval harness** (gated on Q4 LongMemEval scaffolding)
+- **T16 — Cache layer** (LRU memo, conditional on p95 missing target post-deploy)
+- **T17 — `--shadow` mode** for A/B testing prompt/model changes
+- **T18 — Multi-provider fallback chain** (flash → opus, behind explicit env gate)
 
 ---
 
