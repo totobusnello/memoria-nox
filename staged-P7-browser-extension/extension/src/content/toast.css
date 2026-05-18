@@ -1,0 +1,6 @@
+/* toast.css — optional styling (currently inline in content.js).
+   Reserved for v0.2 once we move to constructable stylesheets via
+   adoptedStyleSheets. */
+#memoria-nox-toast {
+  font-family: -apple-system, system-ui, sans-serif;
+}

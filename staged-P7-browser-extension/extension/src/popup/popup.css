@@ -1,0 +1,266 @@
+/* popup.css — Palette D (matching landing page).
+ *
+ * Colors:
+ *   bg        : #0F172A (slate-950)
+ *   surface   : #1F2937 (slate-800)
+ *   border    : #334155
+ *   text      : #F1F5F9
+ *   muted     : #94A3B8
+ *   accent    : #10B981 (emerald-500)
+ *   danger    : #EF4444
+ */
+
+:root {
+  --bg: #0f172a;
+  --surface: #1f2937;
+  --border: #334155;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --accent: #10b981;
+  --danger: #ef4444;
+  --radius: 6px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  width: 340px;
+  min-height: 420px;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  gap: 10px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+
+.hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.02em;
+}
+
+#settings-link {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 16px;
+}
+
+#settings-link:hover {
+  color: var(--text);
+}
+
+/* ── Status bar ─────────────────────────────────────────────────────────── */
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 6px 8px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+}
+
+.dot.online {
+  background: var(--accent);
+}
+
+.dot.offline {
+  background: var(--danger);
+}
+
+.chunks-count {
+  margin-left: auto;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Capture ────────────────────────────────────────────────────────────── */
+
+.capture textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  resize: vertical;
+  min-height: 60px;
+}
+
+.capture textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+button {
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: var(--radius);
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 100ms;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+/* ── Search ─────────────────────────────────────────────────────────────── */
+
+.search input[type="search"] {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+.search input[type="search"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ── Results / Recent lists ─────────────────────────────────────────────── */
+
+.results {
+  list-style: none;
+  margin: 6px 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.results li {
+  padding: 6px 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 12px;
+  color: var(--text);
+}
+
+.results li.empty {
+  color: var(--muted);
+  font-style: italic;
+  border-style: dashed;
+}
+
+.results li .meta {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+/* ── Recent ─────────────────────────────────────────────────────────────── */
+
+.recent h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin: 6px 0 2px 0;
+  font-weight: 600;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────── */
+
+.ftr {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted);
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.pending-badge {
+  color: var(--muted);
+}
+
+.pending-badge.has-pending {
+  color: var(--danger);
+}
+
+.opts-link {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.opts-link:hover {
+  color: var(--text);
+  text-decoration: underline;
+}

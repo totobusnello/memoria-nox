@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>memoria-nox</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="hdr">
+      <h1 class="brand">memoria-nox</h1>
+      <a id="settings-link" href="#" title="Settings" aria-label="Settings">⚙</a>
+    </header>
+
+    <section class="status-bar" id="status-bar" aria-live="polite">
+      <span class="dot" id="status-dot"></span>
+      <span id="status-text">checking…</span>
+      <span class="chunks-count" id="chunks-count"></span>
+    </section>
+
+    <section class="capture">
+      <label for="quick-text" class="visually-hidden">Quick capture</label>
+      <textarea
+        id="quick-text"
+        rows="3"
+        placeholder="Paste or type to save to nox-mem…"
+      ></textarea>
+      <div class="actions">
+        <button id="btn-save" type="button">Save</button>
+        <span class="hint" id="redact-hint" aria-live="polite"></span>
+      </div>
+    </section>
+
+    <section class="search">
+      <label for="search-input" class="visually-hidden">Search memory</label>
+      <input
+        id="search-input"
+        type="search"
+        placeholder="Search your memory…"
+        autocomplete="off"
+      />
+      <ul id="search-results" class="results"></ul>
+    </section>
+
+    <section class="recent">
+      <h2>Recent saves</h2>
+      <ul id="recent-list" class="results">
+        <li class="empty">No captures yet.</li>
+      </ul>
+    </section>
+
+    <footer class="ftr">
+      <span class="pending-badge" id="pending-badge">Pending: 0</span>
+      <a href="#" id="open-options" class="opts-link">Settings</a>
+    </footer>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

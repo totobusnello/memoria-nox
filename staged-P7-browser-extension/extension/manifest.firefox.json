@@ -1,0 +1,75 @@
+{
+  "manifest_version": 3,
+  "name": "memoria-nox",
+  "version": "0.1.0",
+  "description": "Hybrid memory with shadow discipline — yours by design. Save snippets and search your nox-mem from the browser.",
+  "author": "memoria-nox",
+  "homepage_url": "https://github.com/totobusnello/memoria-nox",
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "memoria-nox@toto.busnello",
+      "strict_min_version": "115.0"
+    }
+  },
+
+  "permissions": [
+    "activeTab",
+    "contextMenus",
+    "storage",
+    "alarms"
+  ],
+
+  "optional_permissions": [
+    "tabs"
+  ],
+
+  "host_permissions": [
+    "http://127.0.0.1:18802/*"
+  ],
+
+  "background": {
+    "scripts": ["src/background.js"]
+  },
+
+  "action": {
+    "default_title": "memoria-nox",
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "src/icons/icon-16.svg",
+      "48": "src/icons/icon-48.svg",
+      "128": "src/icons/icon-128.svg"
+    }
+  },
+
+  "icons": {
+    "16": "src/icons/icon-16.svg",
+    "48": "src/icons/icon-48.svg",
+    "128": "src/icons/icon-128.svg"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["http://127.0.0.1/*", "https://127.0.0.1/*"],
+      "js": ["src/content/content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+
+  "omnibox": {
+    "keyword": "nx"
+  },
+
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": true
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["src/content/toast.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
