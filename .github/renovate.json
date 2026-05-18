@@ -1,0 +1,147 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "Renovate configuration for memoria-nox. See docs/security/DEPENDENCY-POLICY.md for the full policy rationale.",
+
+  "extends": [
+    "config:base",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    "group:allNonMajor"
+  ],
+
+  "timezone": "America/Sao_Paulo",
+  "schedule": ["before 6am on Monday"],
+
+  "labels": ["dependencies"],
+
+  "commitMessagePrefix": "chore(deps):",
+
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "branchConcurrentLimit": 10,
+
+  "packageRules": [
+
+    {
+      "description": "Security updates — high priority, separate PR, do not wait for schedule",
+      "matchUpdateTypes": ["patch", "minor", "major"],
+      "matchCategories": ["security"],
+      "labels": ["dependencies", "security"],
+      "prPriority": 10,
+      "schedule": ["at any time"],
+      "automerge": false,
+      "groupName": "Security Updates"
+    },
+
+    {
+      "description": "Patch updates — auto-merge if CI passes (low risk)",
+      "matchUpdateTypes": ["patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
+      "platformAutomerge": true
+    },
+
+    {
+      "description": "Minor updates — open PR, do not auto-merge (review changelog)",
+      "matchUpdateTypes": ["minor"],
+      "automerge": false,
+      "groupName": "Non-major updates"
+    },
+
+    {
+      "description": "Major updates — open individual PR, never auto-merge",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "groupName": null,
+      "commitMessagePrefix": "chore(deps)!:"
+    },
+
+    {
+      "description": "TypeScript — only patch auto-merge; minor/major always manual (breaking types)",
+      "matchPackageNames": ["typescript", "@types/node"],
+      "matchUpdateTypes": ["minor", "major"],
+      "automerge": false
+    },
+
+    {
+      "description": "better-sqlite3 — native binding; never auto-merge any update (requires build test)",
+      "matchPackageNames": ["better-sqlite3", "@types/better-sqlite3"],
+      "automerge": false,
+      "labels": ["dependencies", "native-module"]
+    },
+
+    {
+      "description": "Gemini / OpenAI / Anthropic SDKs — API surface changes; no auto-merge",
+      "matchPackagePatterns": ["@google/generative-ai", "openai", "@anthropic-ai/sdk"],
+      "automerge": false,
+      "labels": ["dependencies", "provider-sdk"]
+    },
+
+    {
+      "description": "GitHub Actions — open PR for all updates (SHA pinning migration tracked separately)",
+      "matchManagers": ["github-actions"],
+      "automerge": false,
+      "labels": ["dependencies", "github-actions"],
+      "groupName": "GitHub Actions updates"
+    },
+
+    {
+      "description": "Dev dependencies — patch auto-merge; minor manual",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "groupName": "Dev dependency patches"
+    },
+
+    {
+      "description": "License policy — block packages with denied licenses. Keep in sync with dependency-review-config.yml",
+      "matchLicenses": [
+        "GPL-2.0",
+        "GPL-3.0",
+        "AGPL-3.0",
+        "LGPL-2.0",
+        "LGPL-2.1",
+        "LGPL-3.0",
+        "EUPL-1.1",
+        "EUPL-1.2",
+        "CDDL-1.0",
+        "SSPL-1.0",
+        "BUSL-1.1"
+      ],
+      "enabled": false
+    }
+
+  ],
+
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["dependencies", "security"],
+    "schedule": ["at any time"],
+    "automerge": false
+  },
+
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 6am on the first day of the month"],
+    "automerge": true,
+    "commitMessageAction": "refresh lockfile"
+  },
+
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/.cache/**",
+    "**/dist/**",
+    "_archive-pre-split-20260501/**",
+    "archive/**"
+  ],
+
+  "ignoreDeps": [],
+
+  "dependencyDashboardTitle": "Dependency Dashboard — memoria-nox",
+  "dependencyDashboardFooter": "See [Dependency Policy](docs/security/DEPENDENCY-POLICY.md) for the full policy.",
+
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps"
+}
