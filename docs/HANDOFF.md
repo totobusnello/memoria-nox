@@ -1,4 +1,64 @@
 # nox-mem HANDOFF — estado vivo
+
+---
+
+## 🌊 WAVE B 2026-05-18 — implementation push (afternoon)
+
+**Atualizado:** 2026-05-18 ~13:00 BRT — **5 sprints merged, 1 running, CI hotfix 816c3d3.**
+
+### 🎯 Próxima ação
+
+**Agora:**
+1. Aguardar P2 (#43 em andamento) completar — hooks auto-capture from scratch
+2. Review + merge P2 quando PR chegar
+3. Deploy staged patches no VPS: `staged-P1/`, `staged-A2/`, `staged-A3/`, `staged-L4/`, `staged-P5/` (cada um tem REFACTOR-SITES.md ou equiv)
+4. Schedule Q1+Q2+Q3 full runs no VPS (1-2h cada)
+
+**Esta semana:**
+- Wire `staged-*` patches em `src/` real na VPS (A3 refactor guide: 15 sites em REFACTOR-SITES.md)
+- Ativar P1 answer primitive: `NOX_ANSWER_ENABLED=1` + flash-lite conf
+- Ativar L4 regex extractor: `NOX_L4_REGEX_ENABLED=1` (shadow 7d antes de skip-gate)
+- Ativar P5 viewer: `NOX_VIEWER_PORT=18803` + `NOX_VIEWER_SHOW_QUERY=0`
+
+### PRs Wave B (5 merged, 1 running)
+
+| PR | Sprint | Pilar | LOC +/- | Testes | Status | Highlight |
+|---|---|---|---|---|---|---|
+| [#38](https://github.com/totobusnello/memoria-nox/pull/38) | L4 T7-T9 | Lab | +1960/-2 | 120 pass | **merged** | 95.8% precision/recall, 80% Gemini calls saved |
+| [#39](https://github.com/totobusnello/memoria-nox/pull/39) | A3 T9-T16 | Autonomy | +2402/-3 | 86 pass (3 skip E2E) | **merged** | Fallback chain + cost cap + 0.0025ms overhead |
+| [#40](https://github.com/totobusnello/memoria-nox/pull/40) | P1 T11-T14 | Product | +2115/-26 | 84 pass | **merged** | Latency p95=101ms vs 4.3s budget (42× under) |
+| [#41](https://github.com/totobusnello/memoria-nox/pull/41) | A2 T10-T18 | Autonomy | +3927/-25 | 129 pass | **merged** | AAD chain bug caught via integration test |
+| [#42](https://github.com/totobusnello/memoria-nox/pull/42) | P5 T1-T15 | Product | +4591/-0 | 116 pass | **merged** | Vanilla JS viewer, 11.7KB bundle (4× under 50KB) |
+| #43 (TBD) | P2 T1-T15 | Product | TBD | TBD | **running** | Hooks auto-capture from scratch |
+
+**CI hotfix `816c3d3`** (merged directly to main pré-Wave B): corrigiu YAML parse error em `.github/workflows/zero-vendor.yml` — bash heredoc no campo `run:` causava erro de indentação no parser YAML do GitHub Actions.
+
+### Aggregate Wave B stats
+
+| Métrica | Valor |
+|---|---|
+| PRs merged | 5 (#38-#42) |
+| LOC adicionadas | ~14,995 |
+| LOC removidas | ~56 |
+| Testes passando | 535+ (120+86+84+129+116) |
+| Sprints com zero BLOCKED | 5/5 |
+| Wall-clock (5 agents paralelos) | ~75 min |
+| Impl hours entregues | ~104h estimado |
+| Novos MCP tools | 2 (archive_export/import em A2, viewer_recent_events em P5) |
+
+### O que Wave B entregou por pilar
+
+**Lab (L4):** typed-link extraction regex-first totalmente funcional — stale-link reconciliation + eval harness A/B (95.8% precision, 80% LLM savings) + production wire com confidence gates. Shadow deploy pendente VPS.
+
+**Autonomy (A3):** provider abstraction completa — fallback chain (429→cooldown, 401→fail-fast), cost cap com `CostCapExceededError` (zero prompt content em logs), telemetry write-behind, 15 refactor sites documentados, benchmark 0.0025ms overhead.
+
+**Autonomy (A2):** export/import centerpiece — CLI + HTTP + MCP surfaces, encrypt-by-default (AES-256-GCM + scrypt), AAD-stable manifest rebuild, `--passphrase` argv rejeitado (ps aux leak guard), 129/129 testes incluindo round-trip + tamper.
+
+**Product (P1):** answer primitive loop fechado — integration tests contra schema v11 real (sem mock do DB), E2E Gemini gateado, docs ANSWER.md (469 linhas), latency bench p95=101ms (42× abaixo do budget 4.3s).
+
+**Product (P5):** viewer real-time SSE completo — default-deny redaction, multi-client fan-out, backpressure, Last-Event-ID resume, frontend 11.7KB vanilla JS, Bearer auth opcional, CLI launcher, MCP tool.
+
+---
 > **Atualizado:** 2026-05-17 ~17:30 BRT — **graph-memory parse failure fix DONE.** Plugin custom v1.5.8 em `/root/.openclaw/extensions/graph-memory/` tinha bug em `src/extractor/extract.ts` (`lastIndexOf` em response do LLM com texto extra) causando **19.7% failure rate** (73 falhas/dia). Substituído por bracket-balance matcher depth-counting que respeita strings/escapes. Build via `bun build` (não tsc — tem `noEmit:true`). Validação prod: **6 extracts seguidos, 0 falhas** = 100% sucesso. Incident em `docs/INCIDENTS.md`, lesson em `lessons/2026-05-17-graph-memory-parse-failure-fix.md`. Deploy ops em `openclaw-vps/infra/docs/HANDOFF.md`.
 > **Atualizado:** 2026-05-17 ~17:10 BRT — **DECISÃO ARQUITETURAL: FTS5 silencioso é correto pra este corpus.** Após 4 tentativas de fix (v1 OR-all, v2 AND+OR quoted, v3 unquoted, v4 confidence-aware), TODAS falharam (-23.6pp, -22.5pp, -18.5pp, -5.4pp respectivamente). Dense Gemini 3072d carrega 100% recall sozinho; FTS5 acordado dilui ranking via RRF. Estado final: **0.6813 com FTS5 silent + E-lite-2 anchors + D weights**. **A1/G DEFERRED permanente** (premissas refutadas empiricamente: A1 sem recall não ajuda; G triggaria 96% queries). Próximo upside: cross-encoder reranker (D01 v3 Cohere) ou ranking features novas. **Final vs paper baseline (0.583): +16.9% relativo / +9.8pp absoluto.**
 > **Atualizado:** 2026-05-17 ~14:30 BRT — **🏆 D ACTIVE — NOVO RECORDE 0.6813.** Wave 2 testado em sequência. **D standalone +1.92pp ZERO regressão** (procedure +6.55pp, cross-agent +5.34pp, security +2.46pp, entity +1.64pp, concept +1.32pp — TODAS positivas!). Implementação trivial: `detectQueryLanguage` + `LANG_WEIGHTS` em `search.ts` (PT: dense 1.15/fts 0.85; EN/mixed: balanced). Por que D funciona vs A1/A2/v5 falharem: D é AJUSTE de pesos, não amplificação. Reduz ruído FTS5 que diluía dense; aumenta dense que era a fonte real. Wave 2 A2+D combinado REFUTADO catastroficamente (-7.98pp — dense pool *4 dilui mesmo com D). VPS commit `7dc46fb5`. **Final state vs paper baseline (0.583): +16.9% relativo, +9.8pp absoluto.** Features ativas: E13 + E03b + E-lite-2 + **D** (4 total). **Wave 1 E14 done em UM dia (era Mai-Jul).**
