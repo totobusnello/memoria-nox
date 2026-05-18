@@ -6,8 +6,9 @@
   "description": "A2 — Export/Import archive primitives (T1-T9): TAR.gz format + manifest + serializers (chunks/embeddings/KG/ops_audit) + AES-256-GCM encryption + schema migration. Encrypt-by-default per D41 #2.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/lib/archive/__tests__/*.test.js",
-    "test:watch": "node --watch --test dist/src/lib/archive/__tests__/*.test.js"
+    "test": "npm run build && node --test dist/src/lib/archive/__tests__/*.test.js dist/src/cli/__tests__/*.test.js dist/src/api/__tests__/*.test.js dist/src/mcp/__tests__/*.test.js",
+    "test:watch": "node --watch --test dist/src/lib/archive/__tests__/*.test.js dist/src/cli/__tests__/*.test.js",
+    "bench": "npm run build && node dist/benchmark/export-import-bench.js > bench-results.json 2> bench-progress.log && cat bench-results.json"
   },
   "dependencies": {
     "tar-stream": "^3.1.7"

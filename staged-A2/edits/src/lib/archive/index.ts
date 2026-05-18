@@ -72,3 +72,15 @@ export {
   listMigrations,
 } from "./migration.js";
 export type { ImportabilityResult } from "./migration.js";
+export {
+  runExport,
+  runImport,
+  listArchiveEntries,
+} from "./orchestrator.js";
+export type {
+  ExportRequest,
+  ExportResult,
+  ImportRequest,
+  ImportResult,
+  ProgressEvent,
+} from "./orchestrator.js";
