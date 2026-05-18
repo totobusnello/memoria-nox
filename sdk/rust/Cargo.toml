@@ -1,0 +1,29 @@
+[package]
+name = "nox-mem-client"
+version = "0.1.0"
+edition = "2021"
+description = "Type-safe async Rust client for the memoria-nox HTTP API (openapi 1.0.0-wave-d)"
+license = "MIT"
+repository = "https://github.com/totobusnello/memoria-nox"
+documentation = "https://docs.rs/nox-mem-client"
+keywords = ["memory", "ai", "knowledge-graph", "rag"]
+categories = ["api-bindings", "web-programming::http-client"]
+
+[dependencies]
+reqwest = { version = "0.12", features = ["json", "stream"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tokio-stream = "0.1"
+futures-util = "0.3"
+async-stream = "0.3"
+thiserror = "1"
+bytes = "1"
+
+[dev-dependencies]
+mockito = "1"
+tokio = { version = "1", features = ["full", "test-util"] }
+
+[[example]]
+name = "quickstart"
+path = "examples/quickstart.rs"
