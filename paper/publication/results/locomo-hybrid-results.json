@@ -1,0 +1,93 @@
+[queries] selected 100 (per-cat target 20)
+[eval] dense corpus: 2,800 vectors × 3072d
+[eval] 10/100 (6.0s)
+[eval] 20/100 (14.0s)
+[eval] 30/100 (21.6s)
+[eval] 40/100 (31.8s)
+[eval] 50/100 (38.5s)
+[eval] 60/100 (45.8s)
+[eval] 70/100 (52.0s)
+[eval] 80/100 (61.5s)
+[eval] 90/100 (69.0s)
+[eval] 100/100 (78.6s)
+[summary] wrote /root/.openclaw/eval/paper/results/locomo-hybrid-vs-fts5-summary.md
+{
+  "aggregate": {
+    "system": "hybrid_fts5_gemini_rrf_locomo",
+    "n_queries": 100,
+    "rrf_k": 60,
+    "embedding_model": "gemini-embedding-001",
+    "embedding_dim": 3072,
+    "ndcg_at_10": 0.3337523572080354,
+    "mrr": 0.31999603174603175,
+    "recall_at_10": 0.4403333333333333,
+    "precision_at_5": 0.09600000000000002
+  },
+  "per_category": [
+    {
+      "category": 1,
+      "category_name": "single-hop",
+      "n": 20,
+      "ndcg_at_10": 0.1774567950486007,
+      "mrr": 0.22013888888888888,
+      "recall_at_10": 0.25166666666666665,
+      "precision_at_5": 0.08
+    },
+    {
+      "category": 2,
+      "category_name": "multi-hop",
+      "n": 20,
+      "ndcg_at_10": 0.4166666666666667,
+      "mrr": 0.41714285714285715,
+      "recall_at_10": 0.475,
+      "precision_at_5": 0.09
+    },
+    {
+      "category": 3,
+      "category_name": "temporal",
+      "n": 20,
+      "ndcg_at_10": 0.2851343541232465,
+      "mrr": 0.23888888888888887,
+      "recall_at_10": 0.45,
+      "precision_at_5": 0.11000000000000001
+    },
+    {
+      "category": 4,
+      "category_name": "open-domain",
+      "n": 20,
+      "ndcg_at_10": 0.4577510224185694,
+      "mrr": 0.4208333333333333,
+      "recall_at_10": 0.6,
+      "precision_at_5": 0.12000000000000002
+    },
+    {
+      "category": 5,
+      "category_name": "adversarial",
+      "n": 20,
+      "ndcg_at_10": 0.33175294778309394,
+      "mrr": 0.30297619047619045,
+      "recall_at_10": 0.425,
+      "precision_at_5": 0.08
+    }
+  ]
+}
+
+========================================================================
+LOCOMO n=100 — FTS5 baseline vs Hybrid (FTS5 + Gemini + RRF)
+========================================================================
+Metric                FTS5        Hybrid       Δ abs     Δ rel
+------------------------------------------------------------------------
+nDCG@10             0.2810        0.3338     +0.0527    +18.8%
+MRR                 0.2795        0.3200     +0.0405    +14.5%
+Recall@10           0.3792        0.4403     +0.0612    +16.1%
+Precision@5         0.0780        0.0960     +0.0180    +23.1%
+------------------------------------------------------------------------
+
+Category                FTS5      Hybrid     Δ abs     Δ rel
+single-hop            0.1179      0.1775   +0.0596    +50.5%
+multi-hop             0.3708      0.4167   +0.0459    +12.4%
+temporal              0.2887      0.2851   -0.0036     -1.2%
+open-domain           0.3746      0.4578   +0.0832    +22.2%
+adversarial           0.2531      0.3318   +0.0787    +31.1%
+========================================================================
+
