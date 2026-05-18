@@ -1,0 +1,82 @@
+# Dependency Review Configuration
+#
+# Used by actions/dependency-review-action in the dependency-review workflow.
+# This file is the policy config — the workflow is in:
+#   .github/workflows/dependency-review.yml  (future — create alongside branch protection)
+#
+# Reference: https://github.com/actions/dependency-review-action
+#
+# Behavior:
+# - Blocks PRs that introduce newly vulnerable dependencies (severity >= high)
+# - Blocks PRs that introduce dependencies with denied licenses
+# - Posts a summary comment to the PR with the dependency diff
+
+# ---------------------------------------------------------------------------
+# Vulnerability severity threshold
+# ---------------------------------------------------------------------------
+
+# Block any new dependency that introduces a vulnerability at this severity or above.
+# Values: critical | high | moderate | low
+# "high" means: Critical + High will block; Medium + Low will warn only.
+fail-on-severity: high
+
+# ---------------------------------------------------------------------------
+# License policy
+# ---------------------------------------------------------------------------
+
+# Allow only these SPDX license identifiers.
+# Any new dependency with a license NOT in this list will block the PR.
+# Keep in sync with docs/security/DEPENDENCY-POLICY.md#license-allowlist
+allow-licenses:
+  - MIT
+  - Apache-2.0
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - ISC
+  - 0BSD
+  - Unlicense
+  - CC0-1.0
+  - Python-2.0
+
+# Explicitly deny these licenses (belt-and-suspenders — also implicitly denied
+# by the allowlist above, but explicit is better for audit trails).
+deny-licenses:
+  - GPL-2.0
+  - GPL-2.0-only
+  - GPL-2.0-or-later
+  - GPL-3.0
+  - GPL-3.0-only
+  - GPL-3.0-or-later
+  - AGPL-3.0
+  - AGPL-3.0-only
+  - AGPL-3.0-or-later
+  - LGPL-2.0
+  - LGPL-2.1
+  - LGPL-3.0
+  - EUPL-1.1
+  - EUPL-1.2
+  - CDDL-1.0
+  - SSPL-1.0
+  - BUSL-1.1
+
+# ---------------------------------------------------------------------------
+# Scope
+# ---------------------------------------------------------------------------
+
+# Only check runtime deps (not devDependencies).
+# devDeps are not shipped in the binary; they are audited separately by
+# npm audit in the lint-and-typecheck workflow.
+deny-packages: []
+
+# Packages explicitly allowed despite vulnerabilities (use with caution).
+# Format: pkg:npm/<package>@<version>
+# Each entry must have a corresponding GitHub Issue number in a comment.
+allow-ghsas: []
+
+# ---------------------------------------------------------------------------
+# GitHub Advisory Database scope
+# ---------------------------------------------------------------------------
+
+# Check all dependency types that GitHub's dependency graph tracks.
+# For npm, this includes direct + transitive deps.
+comment-summary-in-pr: always
