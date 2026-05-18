@@ -2,6 +2,27 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-05-18 16:23 BRT (~10min fix) — Deploy Validator CI 100% fail por stderr→JSON contamination
+
+**Sintoma:** 5 PRs consecutivos (#92, #95, #98, #99 e mais um) com Deploy Validator falhando em ~25s. Email do GitHub: "Deploy Validator: All jobs have failed". Run logs mostravam `json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)` na step "Parse validator output", mas o validator em si passava (summary.fail=0).
+
+**Workflow:** `.github/workflows/deploy-validator.yml`. Trigger: pull_request paths que incluem `docs/DEPLOY-WAVE-B.md`, `staged-*/**`, `scripts/deploy-validator/**`.
+
+**Root cause:** linha 50 invocava `node --loader ts-node/esm src/cli.ts ... > /tmp/validator-report.json 2>&1`. O flag `--loader` é experimental em Node, e emite `(node:XXXX) ExperimentalWarning: --loader is an experimental feature` em stderr. O `2>&1` mergia stderr no stdout antes do redirect, então o warning entrava no JSON file ANTES do `{`. A step seguinte rodava `python3 -c "import json; json.load(sys.stdin)"` → choke em char 0 → exit 1 sempre.
+
+**Fix (commit `62be1f6`):**
+1. `node dist/cli.js` em vez de `node --loader ts-node/esm src/cli.ts` — `npm test` (step anterior) já roda `npm run build` per `package.json:7`, então dist/cli.js existe.
+2. `2> /tmp/validator-stderr.log` em vez de `2>&1` — stderr separado do JSON.
+3. Print de ambos com headers + upload de stderr.log como artifact pra debug futuro.
+
+**Validação:** workflow só dispara em PR (linha 4-5), não em push. Próximo PR aberto valida o fix end-to-end. Fix testado mentalmente: validator escreve JSON via `console.log` (stdout) e errors via `console.error` (stderr) — separação por design.
+
+**Lesson:** [[feedback_stderr_redirect_breaks_json_capture]] — JSON capture via shell redirect deve usar `>` SEM `2>&1`. Pra debug, redirecionar stderr a outro arquivo, nunca mergir.
+
+**Affected runs:** 26055289735, 26055156560, 26054093674, 26053675928, 26053179030.
+
+---
+
 ## 2026-05-17 17:03 BRT (~45min trabalho) — graph-memory turn extract parse failure 19.7% → 0%
 
 **Sintoma:** logs do gateway mostravam ~73 falhas/dia (sobre 297 sucessos = **19.7% rate**) com `[graph-memory] extraction parse failed: SyntaxError`. 1 em cada 5 turns NÃO entrava no Knowledge Graph → cross-session recall degradado.
