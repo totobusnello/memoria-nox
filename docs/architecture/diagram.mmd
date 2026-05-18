@@ -1,0 +1,113 @@
+graph TB
+    subgraph "User Layer"
+        CLI[nox-mem CLI]
+        API[HTTP API :18802]
+        MCP[MCP Server]
+        VIEW[Viewer SSE · P5]
+        IDE[IDE Plugins · P4]
+    end
+
+    subgraph "Pipeline Layer"
+        INGEST[Ingest Router · A2]
+        SEARCH[Hybrid Search]
+        ANSWER[Answer Primitive · P1]
+        EXPORT[Export & Portability · A2]
+        HOOKS[Hooks Auto-capture · P2]
+        REDACT[Privacy Redaction · A1+A1.1]
+        EVENTBUS[Event Bus · P5a]
+        TEMPORAL[Temporal Queries · P3]
+    end
+
+    subgraph "Quality Layer"
+        FTS5[FTS5 BM25]
+        VEC[sqlite-vec dense]
+        RRF[RRF Fusion · language-aware]
+        KG[KG Extraction · L4]
+        CONF[Conflict Detection · L2]
+        CONFID[Confidence Field · L3]
+        SALIENCE[Salience Formula · recency × pain × importance]
+    end
+
+    subgraph "Storage Layer"
+        CHUNKS[(chunks · 62k+)]
+        EMB[(vec_chunks · 3072d)]
+        KGENT[(kg_entities · 402)]
+        KGREL[(kg_relations · 544)]
+        AUDIT[(ops_audit · append-only)]
+        TELEM[(viewer_telemetry)]
+        SRCHTELEM[(search_telemetry)]
+    end
+
+    subgraph "Provider Layer · A3"
+        GEM[Gemini · default]
+        OAI[OpenAI]
+        ANT[Anthropic]
+        VOY[Voyage]
+    end
+
+    CLI --> INGEST
+    CLI --> SEARCH
+    CLI --> TEMPORAL
+    API --> ANSWER
+    API --> SEARCH
+    MCP --> SEARCH
+    MCP --> INGEST
+    MCP --> KG
+    VIEW --> EVENTBUS
+    IDE --> API
+    HOOKS --> INGEST
+
+    INGEST --> REDACT
+    REDACT --> CHUNKS
+    INGEST --> KG
+    INGEST --> EMB
+    INGEST --> EVENTBUS
+    KG --> KGENT
+    KG --> KGREL
+
+    SEARCH --> FTS5
+    SEARCH --> VEC
+    FTS5 --> RRF
+    VEC --> RRF
+    RRF --> CHUNKS
+    RRF --> SALIENCE
+    SEARCH --> SRCHTELEM
+    SEARCH --> EVENTBUS
+
+    TEMPORAL --> SEARCH
+    TEMPORAL --> KGREL
+
+    ANSWER --> SEARCH
+    ANSWER --> CONFID
+    ANSWER --> GEM
+
+    EXPORT --> CHUNKS
+    EXPORT --> EMB
+    EXPORT --> KGENT
+    EXPORT --> KGREL
+    EXPORT -->|AES-256-GCM| AUDIT
+
+    CONF --> KGREL
+    CONFID --> CHUNKS
+
+    EVENTBUS --> VIEW
+    EVENTBUS --> TELEM
+
+    RRF --> GEM
+    RRF --> OAI
+    RRF --> ANT
+    RRF --> VOY
+    GEM -.->|provider abstraction| OAI
+    GEM -.->|provider abstraction| VOY
+
+    classDef user fill:#1a3a4a,stroke:#00c896,color:#e6edf3
+    classDef pipeline fill:#1a2a1a,stroke:#2ea043,color:#e6edf3
+    classDef quality fill:#1a1a3a,stroke:#8957e5,color:#e6edf3
+    classDef storage fill:#2a1a1a,stroke:#f85149,color:#e6edf3
+    classDef provider fill:#2a2a1a,stroke:#d29922,color:#e6edf3
+
+    class CLI,API,MCP,VIEW,IDE user
+    class INGEST,SEARCH,ANSWER,EXPORT,HOOKS,REDACT,EVENTBUS,TEMPORAL pipeline
+    class FTS5,VEC,RRF,KG,CONF,CONFID,SALIENCE quality
+    class CHUNKS,EMB,KGENT,KGREL,AUDIT,TELEM,SRCHTELEM storage
+    class GEM,OAI,ANT,VOY provider

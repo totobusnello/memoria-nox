@@ -1,0 +1,141 @@
+name: Visual Regression — P5 Viewer
+
+on:
+  pull_request:
+    paths:
+      - "staged-P5/edits/src/viewer/**"
+      - "tests/visual-regression/**"
+      - ".github/workflows/visual-regression.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "staged-P5/edits/src/viewer/**"
+      - "tests/visual-regression/**"
+
+permissions:
+  contents: read
+  pull-requests: write   # to post status comment on PR
+
+jobs:
+  visual-regression:
+    name: Playwright visual regression
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        working-directory: tests/visual-regression
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: tests/visual-regression/package.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Run visual regression tests
+        id: playwright
+        run: npx playwright test
+        continue-on-error: true
+        env:
+          CI: "true"
+          # 0.1% diff threshold in CI — same as local default
+          NOX_VR_THRESHOLD: "0.001"
+
+      - name: Upload test results and diff artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results-${{ github.run_id }}
+          path: |
+            tests/visual-regression/playwright-report/
+            tests/visual-regression/test-results/
+          retention-days: 7
+
+      - name: Upload snapshot diffs (failures only)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshot-diffs-${{ github.run_id }}
+          path: |
+            tests/visual-regression/test-results/**/*-diff.png
+            tests/visual-regression/test-results/**/*-actual.png
+            tests/visual-regression/test-results/**/*-expected.png
+          retention-days: 14
+
+      - name: Post PR comment with status
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const outcome = '${{ steps.playwright.outcome }}';
+            const runId = '${{ github.run_id }}';
+            const artifactUrl = `https://github.com/${{ github.repository }}/actions/runs/${runId}`;
+
+            const passed = outcome === 'success';
+            const icon = passed ? '✅' : '❌';
+            const status = passed ? 'All visual regression tests passed' : 'Visual regression failures detected';
+
+            const body = [
+              `## ${icon} Visual Regression — P5 Viewer`,
+              '',
+              `**Status:** ${status}`,
+              '',
+              passed
+                ? '> No visual drift detected across all viewport/browser combinations.'
+                : '> Diff screenshots uploaded as artifacts. Review before merging.',
+              '',
+              `**Artifacts:** [View results](${artifactUrl})`,
+              '',
+              '| Browser | Viewports tested |',
+              '|---|---|',
+              '| Chromium | desktop 1920×1080, laptop 1366×768, mobile 375×667 |',
+              '| Firefox | desktop 1920×1080 |',
+              '| WebKit | desktop 1920×1080 |',
+              '',
+              `> Threshold: 0.1% pixels diff. Run \`npm run test:update\` in \`tests/visual-regression/\` to refresh baselines.`,
+            ].join('\n');
+
+            // Find existing bot comment to update
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const botComment = comments.find(
+              c => c.user?.login === 'github-actions[bot]' &&
+                   c.body?.includes('Visual Regression — P5 Viewer')
+            );
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: Fail job if tests failed
+        if: steps.playwright.outcome == 'failure'
+        run: exit 1
