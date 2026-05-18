@@ -486,5 +486,5 @@ measurement methodology deterministically given the mock setup).
 
 ---
 
-*Wave B snapshot — 2026-05-18. Q4 gate pending Q1+Q2+Q3 VPS runs.*
+*Wave B + Q1/Q3 verified snapshot — 2026-05-18. Q4 gate: Q1 ✓ (+18.8% nDCG@10), Q3 ✓ (p50=940ms), Q2 in-flight, threshold pendente.*
 *Template at `benchmark/COMPARISON.md.template` (generator: `benchmark/generate-comparison.ts`).*
