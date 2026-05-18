@@ -2,7 +2,24 @@
 
 > Practical roadmap from current state to OpenSSF Passing → Silver → Gold + Scorecard badge.  
 > Status as of: 2026-05-18  
-> Author: Wave I audit
+> Author: Wave I audit + Wave J gap closure
+
+---
+
+## Wave J Gap Closure Status (2026-05-18)
+
+| Action | Status | Notes |
+|--------|--------|-------|
+| CodeQL workflow added | ✅ Done (this PR) | `.github/workflows/codeql.yml` |
+| Renovate config in repo | ✅ Done (this PR) | `.github/renovate.json` |
+| CodeQL documentation | ✅ Done (this PR) | `docs/security/CODEQL.md` |
+| Renovate setup guide | ✅ Done (this PR) | `docs/security/RENOVATE-SETUP.md` |
+| Branch protection guide | ✅ Done (this PR) | `docs/security/BRANCH-PROTECTION.md` |
+| CODEOWNERS file | ✅ Done (this PR) | `.github/CODEOWNERS` |
+| Renovate app installation | 🟡 Pending Toto action | See `RENOVATE-SETUP.md` Step 1 |
+| Branch protection settings | 🟡 Pending Toto action | See `BRANCH-PROTECTION.md` |
+
+**Estimated Scorecard score after Toto completes the two pending actions: ~7–8 / 10**
 
 ---
 
@@ -49,13 +66,14 @@ The 2 criteria marked "Not Met" are labeled SUGGESTED in the OpenSSF criteria �
 
 ### Fixes needed before self-assessment (estimated ~1 day)
 
-| Fix | Effort | Criterion |
-|-----|--------|-----------|
-| Add semver git tag convention to CONTRIBUTING.md | 15 min | 1.5, 2.3 |
-| Create `v0.1.0-wave-b` or `v1.0.0-beta` git tag | 5 min | 1.5, 2.3 |
-| Add "We aim to acknowledge bug reports within 7 days" to CONTRIBUTING.md | 5 min | 3.2 |
-| Enable GitHub branch protection on `main` (Settings → Branches) | 15 min | 4.7 |
-| Merge this PR (SBOM + dependency review + Renovate) | — | 5.5 |
+| Fix | Effort | Criterion | Status |
+|-----|--------|-----------|--------|
+| Add semver git tag convention to CONTRIBUTING.md | 15 min | 1.5, 2.3 | 🟡 Pending |
+| Create `v0.1.0-wave-b` or `v1.0.0-beta` git tag | 5 min | 1.5, 2.3 | 🟡 Pending |
+| Add "We aim to acknowledge bug reports within 7 days" to CONTRIBUTING.md | 5 min | 3.2 | 🟡 Pending |
+| Enable GitHub branch protection on `main` (Settings → Branches) | 15 min | 4.7 | 🟡 Pending — guide in `BRANCH-PROTECTION.md` |
+| Merge Wave I PR (SBOM + dependency review + Renovate) | — | 5.5 | 🟡 Pending PR merge |
+| Merge Wave J PR (CodeQL + Renovate guide + branch protection docs) | — | Analysis | 🟡 This PR |
 
 After those fixes: submit self-assessment. Badge appears automatically when criteria score meets the passing threshold.
 
@@ -79,22 +97,22 @@ Scorecard analyzes the repo automatically via a GitHub Actions workflow and prod
 
 ### What Scorecard checks (and current status)
 
-| Check | Weight | Current status |
-|-------|--------|---------------|
-| Code-Review | High | ⚠️ No enforced PR review |
-| Branch-Protection | High | ❌ Not configured |
-| Dangerous-Workflow | Critical | ✅ No `pull_request_target` with write |
-| Dependency-Update-Tool | Medium | ❌ No Renovate/Dependabot yet (this PR adds it) |
-| Maintained | Medium | ✅ Active commits |
-| Packaging | Medium | ⚠️ No npm publish yet |
-| Pinned-Dependencies | High | ⚠️ Actions use `@v4` tags, not SHA |
-| SAST | High | ❌ No CodeQL |
-| Security-Policy | Medium | ✅ SECURITY.md present |
-| Signed-Releases | High | ❌ No signed tags |
-| Token-Permissions | High | ⚠️ Some workflows use broad permissions |
-| Vulnerabilities | High | ✅ (no known unpatched) |
-| Contributors | Low | ⚠️ Single maintainer |
-| License | Low | ✅ MIT |
+| Check | Weight | Current status | After Wave J + user actions |
+|-------|--------|----------------|---------------------------|
+| Code-Review | High | ⚠️ No enforced PR review | ✅ After branch protection |
+| Branch-Protection | High | ❌ Not configured | ✅ After branch protection |
+| Dangerous-Workflow | Critical | ✅ No `pull_request_target` with write | ✅ Unchanged |
+| Dependency-Update-Tool | Medium | ❌ No Renovate/Dependabot | ✅ After Renovate app install |
+| Maintained | Medium | ✅ Active commits | ✅ Unchanged |
+| Packaging | Medium | ⚠️ No npm publish yet | ⚠️ Unchanged |
+| Pinned-Dependencies | High | ⚠️ Actions use `@v4` tags, not SHA | ⚠️ Future work |
+| SAST | High | ❌ No CodeQL | ✅ Wave J adds `codeql.yml` |
+| Security-Policy | Medium | ✅ SECURITY.md present | ✅ Unchanged |
+| Signed-Releases | High | ❌ No signed tags | ❌ Future work |
+| Token-Permissions | High | ⚠️ Some workflows use broad permissions | ⚠️ Future work |
+| Vulnerabilities | High | ✅ (no known unpatched) | ✅ Unchanged |
+| Contributors | Low | ⚠️ Single maintainer | ⚠️ Structural |
+| License | Low | ✅ MIT | ✅ Unchanged |
 
 ### How to add the Scorecard workflow
 
@@ -144,6 +162,8 @@ jobs:
           sarif_file: results.sarif
 ```
 
+*Note: SHA-pinned actions are used here intentionally — the Scorecard workflow itself is a Scorecard check target, so it must lead by example.*
+
 ### Scorecard badge URL
 
 ```markdown
@@ -154,13 +174,13 @@ jobs:
 
 In priority order:
 
-1. **Enable branch protection** (adds +1 for Branch-Protection, +1 for Code-Review)
-2. **Add Renovate** (this PR — +1 for Dependency-Update-Tool)
-3. **Pin action SHAs** (+1.5 for Pinned-Dependencies)
-4. **Add CodeQL** (+1 for SAST)
-5. **Minimal token permissions** (audit each workflow for `permissions: read-all` default + specific grants)
+1. **Enable branch protection** (adds +1 for Branch-Protection, +1 for Code-Review) — 🟡 Pending user action
+2. **Install Renovate app** (this PR adds config — +1 for Dependency-Update-Tool) — 🟡 Pending user action
+3. **CodeQL added** (this PR — +1 for SAST) — ✅ Done
+4. **Pin action SHAs** (+1.5 for Pinned-Dependencies) — Future work
+5. **Minimal token permissions** (audit each workflow for `permissions: read-all` default + specific grants) — Future work
 
-Reaching 7/10 is achievable within 1 week of this PR merging.
+Reaching 7/10 is achievable within 1 week of this PR merging + completing the 2 pending user actions.
 
 ---
 
@@ -183,9 +203,9 @@ Silver tier requires passing all of the following additional criteria (above Pas
 | Silver requirement | Current status | Estimated effort |
 |-------------------|---------------|------------------|
 | Signed commits (DCO or GPG) | ❌ Not enforced | 2h — add DCO action or GPG key docs |
-| CodeQL or equivalent SAST | ❌ Missing | 1h — add workflow |
+| CodeQL or equivalent SAST | ✅ Wave J adds workflow | — Done |
 | Automated test coverage reporting | ⚠️ No c8 | 2h |
-| Branch protection enforced | ❌ | 15 min |
+| Branch protection enforced | ❌ | 15 min — guide in `BRANCH-PROTECTION.md` |
 | Pinned dependency versions (lockfile) | ✅ (lockfile committed) | — |
 | Two-factor auth on maintainer account | Unverified | 5 min to verify |
 | Documented secure design review | ✅ THREAT-MODEL.md | — |
@@ -194,12 +214,13 @@ Silver tier requires passing all of the following additional criteria (above Pas
 **Estimated time to Silver: 2–4 weeks** (most of the work is the independent security assessment, which requires finding a willing reviewer from the open source security community).
 
 Practical path to Silver:
-1. Merge this PR (SBOM + Renovate + dep-review)
-2. Add CodeQL workflow
-3. Add c8 coverage reporting
-4. Enable branch protection + DCO requirement
-5. Request a community security audit on forums (OpenSSF Slack, security.txt outreach, etc.)
-6. Publish the audit result in `docs/security/`
+1. Merge Wave I PR (SBOM + Renovate + dep-review)
+2. Merge Wave J PR (CodeQL + guides — this PR)
+3. Install Renovate app + enable branch protection (user actions)
+4. Add c8 coverage reporting
+5. Enable branch protection + DCO requirement
+6. Request a community security audit on forums (OpenSSF Slack, security.txt outreach, etc.)
+7. Publish the audit result in `docs/security/`
 
 ---
 
@@ -246,15 +267,18 @@ These do not require any action — they can be added to README now:
 
 ## Summary Timeline
 
-| Milestone | Target | Effort |
-|-----------|--------|--------|
-| Wave I PR merged (SBOM + Renovate + dep-review) | This sprint | 1 day |
-| Self-assessment submitted (Passing tier) | Within 1 week | 3–4 hours |
-| Passing badge issued | Within 1 week | Automatic |
-| Scorecard workflow added | Within 1 week | 1 hour |
-| Scorecard score ≥ 7 | Within 2 weeks | 1 day |
-| Silver tier achieved | Within 1 month | 2–4 weeks |
-| Gold tier | 6–18 months | External audit |
+| Milestone | Target | Effort | Status |
+|-----------|--------|--------|--------|
+| Wave I PR merged (SBOM + Renovate + dep-review) | This sprint | 1 day | 🟡 Pending merge |
+| Wave J PR merged (CodeQL + guides) | This sprint | Done | 🟡 This PR |
+| Install Renovate app | After PR merge | 5 min | 🟡 Pending user |
+| Enable branch protection | After PR merge | 15 min | 🟡 Pending user |
+| Self-assessment submitted (Passing tier) | Within 1 week | 3–4 hours | 🟡 Pending |
+| Passing badge issued | Within 1 week | Automatic | 🟡 Pending |
+| Scorecard workflow added | Within 1 week | 1 hour | 🟡 Pending |
+| Scorecard score ≥ 7 | Within 2 weeks | 1 day | 🟡 Pending |
+| Silver tier achieved | Within 1 month | 2–4 weeks | 🟡 Pending |
+| Gold tier | 6–18 months | External audit | 🟡 Not started |
 
 ---
 

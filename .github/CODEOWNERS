@@ -1,0 +1,10 @@
+# Default: any change needs approval
+* @totobusnello
+
+# Per-area routing (when more contributors)
+/docs/ @totobusnello
+/staged-A1.1/ @totobusnello  # security-sensitive
+/staged-A2/ @totobusnello    # encryption
+/staged-A3/ @totobusnello    # providers
+/docs/security/ @totobusnello  # threat-model
+/docs/adr/ @totobusnello       # decisions
