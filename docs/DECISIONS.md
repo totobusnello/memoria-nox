@@ -445,6 +445,52 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **NÃO FAZEMOS:** ACTIVATE sem evidence ≥1 consumer real. ACTIVATE "técnico" (que muda envelope mas ninguém lê) é cosmético sem valor.
 - *Origem:* sessão 2026-05-16. Cross-link: `specs/2026-05-01-E03a-spo-injection.md`, task #18 (integração).
 
+### 2026-05-17 noite — Q/A/P strategic pivot pós-análise memanto + agentmemory (D40)
+
+**Decisão:** Reorganizar roadmap em 3 pilares product-first + 1 Lab + 1 GTM phase, abandonando estrutura E-numbered focada em retrieval research interna.
+
+**Estrutura aprovada:**
+- **Q (Quality):** Q1 LoCoMo, Q2 LongMemEval, Q3 Latency, Q4 COMPARISON.md (gated)
+- **A (Autonomy):** A1 privacy filter, A2 export/import, A3 provider abstraction, A4 zero-vendor validation
+- **P (Product):** P1 answer primitive, P2 Claude Code hooks auto-capture, P3 temporal queries, P4 connect <ide>, P5 real-time viewer
+- **Lab (40% capacity):** L1 E15 paused, L2 conflict detection (memanto-inspired), L3 confidence field (gated)
+- **GTM Phase 2:** viral launch playbook, locked behind Q4 winning
+
+**Tagline aprovada:** *"Hybrid memory with shadow discipline — yours by design."*
+
+**Capacity split:** 60% pilares product (Q/A/P), 40% lab. Anteriormente 80/20 com lab dominante.
+
+**Por quê:**
+- Análise 2026-05-17 de competidores diretos memanto (126 stars, SaaS Moorcheh, pitch acadêmico) e rohitg00/agentmemory (11.3k stars, iii-engine runtime, produto viral) expôs gap UX/produto crítico.
+- Roadmap pré-pivot tinha 80% capacity em retrieval interno (E13/E14/E15) — pesquisa boa, mas invisível externamente.
+- agentmemory provou que mesmo arquitetura similar (BM25+vec+KG+RRF) ganha mercado por UX (hooks auto-capture, multi-IDE breadth, real-time viewer, marketing presentation).
+- Moat real identificado: nox-mem é o único concorrente que entrega **data autonomy genuína** — SQLite file portável, sem daemon proprietário (vs agentmemory iii-engine), sem SaaS backend (vs memanto Moorcheh). É terreno defensável que diferencia simultaneamente dos dois.
+
+**Alternativas consideradas e rejeitadas:**
+1. **Continuar 80/20 retrieval research** — REJEITADO. Paper sai mas produto fica invisível. Bom pra acadêmico, ruim pra Nox-Supermem comercialização Hotmart.
+2. **Pivot SaaS estilo memanto** — REJEITADO. Mata o moat de autonomia. Não escalável sem infra cara.
+3. **Pivot stack-bridge genérico estilo agentmemory** — REJEITADO. 12 IDEs shallow vira PR-spam e dilui marca. Tier A premium (3 IDEs deep) + Tier B basic (passive MCP) faz mais sentido.
+4. **Open-source backend pluggable em agentmemory** — REJEITADO. Vira commodity layer, perde brand.
+
+**Implicação operacional:**
+- E15 CodeGraph improvements: **PAUSADO** (não cortado) — retoma pós-Q1
+- Public benchmark transparency: APROVADO mas Q4 **só publica se vencermos ou empatarmos topo**
+- Gemini-only confirmed para embeddings (quality bias) — A3 abstraction permite swap mas Gemini fica default
+- Tagline vai pra header de TODOS canônicos (CLAUDE.md, ROADMAP.md, paper, futuro README, Nox-Supermem landing)
+
+**Overnight automode push 2026-05-17 noite:** 15 PRs abertos cobrindo Q1+Q2+Q3 scaffolds, A1 implementation + A2+A3+A4 specs/scaffold, P1+P2+P3+P4+P5 specs/impl, L2+L3 specs, GTM README hero spec. Todos sem auto-merge, review pendente 2026-05-18.
+
+**Trigger pra revisitar:** Q4 gate fechado (numbers publicados) ou se em 6 meses o moat de autonomia não se materializar como diferenciador percebido pelos usuários.
+
+**Origem:** Conversa estratégica Toto + análise repos memanto + agentmemory 2026-05-17.
+
+**Ver também:**
+- `docs/ROADMAP.md` (v2, atual)
+- `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` (v1, arquivado)
+- Memory `qap-pillars-strategic-decision`, `overnight-automode-2026-05-17`, `memanto-inspired-ideas`, `repo-visual-style-inspiration`
+
+---
+
 ### 2026-05-17 — FTS5 silencioso é arquiteturalmente correto pra este corpus (D39)
 
 #### D39 — FTS5 silent design accepted (após 4 tentativas de fix)

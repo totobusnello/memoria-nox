@@ -1,5 +1,11 @@
 # memoria-nox — Evolução do nox-mem
 
+> **"Hybrid memory with shadow discipline — yours by design."**
+>
+> **Q/A/P architecture** (pivot 2026-05-17). 3 pilares: **Quality** (números #1) / **Autonomy** (data sua, provider sua escolha, zero vendor lock-in) / **Product** (UX que ganha). + Lab (40% capacity, retrieval research). + GTM Phase 2 (gated, conditional on Q4 COMPARISON winning).
+>
+> Detalhes: `docs/ROADMAP.md`. v1 pré-pivot arquivado: `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md`.
+
 ## Escopo deste repo
 APENAS evolução do **nox-mem** (sistema de memória inteligente):
 - Schema (chunks, FTS5, sqlite-vec, KG)

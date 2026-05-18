@@ -33,6 +33,54 @@
 
 ---
 
+## 🌙 OVERNIGHT 2026-05-17 — Q/A/P pivot + 15 PRs abertos
+
+**Tagline aprovada:** *"Hybrid memory with shadow discipline — yours by design."*
+
+**Pivot estratégico aprovado:** ROADMAP reorganizado em 3 pilares Q/A/P + Lab (40%) + GTM Phase 2 (gated). Detalhes em novo `docs/ROADMAP.md`. v1 arquivado em `docs/_archive/`.
+
+**PRs abertos (15 — review obrigatório de manhã, NÃO auto-merged):**
+
+| PR | Pilar | Sprint | Tipo | Status |
+|---|---|---|---|---|
+| #2 | P | P3 Temporal queries `--as-of/--changed-since` | Implementation (staged) | Ready review |
+| #3 | P | P1 Answer primitive spec | Spec (5,307 words) | Ready review |
+| #4 | P | P2 Hooks auto-capture spec | Spec (3,968 words) | Ready review |
+| #5 | A | A1 Privacy filter pre-storage | Implementation (staged, 13 patterns, 68 tests, FP 1.7%) | Ready review |
+| #6 | Q | Q1 LoCoMo harness scaffold | Scaffold (eval/locomo/) | Ready review |
+| #7 | P | P4 connect `<ide>` spec | Spec (13 IDEs, Tier A+B) | Ready review |
+| #8 | A | A3 Provider abstraction spec | Spec (4,171 words) | Ready review |
+| #9 | A | A2 Export/import portability spec | Spec (3,403 words, draft) | Ready review |
+| #10 | P | P5 Real-time viewer spec | Spec (2,958 words, draft) | Ready review |
+| #11 | Q | Q3 Latency benchmark scaffold | Scaffold (eval/latency/) | Ready review |
+| #12 | Q | Q2 LongMemEval harness scaffold | Scaffold (eval/longmemeval/) | Ready review |
+| #13 | Lab | L2 KG conflict detection spec | Spec (3,067 words) | Ready review |
+| #14 | A | A4 Zero-vendor validation suite | Scaffold (10 files, 4 checks runnable) | Ready review |
+| #15 | Lab | L3 Confidence + provenance spec | Spec (3,526 words, gated) | Ready review |
+| #16 | GTM | README hero upgrade spec | Spec (~3,850 words, locked behind Q4) | Ready review |
+
+**Ordem de review recomendada (manhã 2026-05-18):**
+1. **Implementations primeiro** — PR #5 (A1 privacy), #2 (P3 temporal) — staged patches against VPS src/
+2. **Eval scaffolds segundo** — PR #6 #11 #12 #14 — todos dry-run validados, falta full run em VPS
+3. **Specs depois** — PR #3 #4 #7 #8 #9 #10 #13 #15 #16 — leitura + decidir implementação sprints
+4. **Open questions** pra Toto decidir (consolidadas no fim de cada PR)
+
+**Capacidade 40/60:** retrieval lab (E15 paused) cede 60% pra pilares Q/A/P.
+
+**Blocked/open question highlights (precisam decisão Toto):**
+- P1 §9: default Gemini model `flash` vs `flash-lite` para answer primitive
+- A2 §3: encryption opt-in vs opt-out default
+- L3 §6: confidence ranking integration depende eval lift ≥1.0pp
+- GTM #16 Q1: brand color palette (A amber / B teal / C purple / D minimal)
+
+**Next concrete actions:**
+1. Review + merge/request-changes/close em cada PR
+2. Aplicar staged patches no VPS (PR #5 + #2) e validar
+3. Agendar Q1+Q2+Q3 full run no VPS
+4. Decidir order de implementation: P1 (answer) vs A2 (export/import) vs P2 (hooks)
+
+---
+
 ## ⚡ RETOMADA — leia isto primeiro
 
 **Foco da próxima sessão:** **(a) finalizar paper R03 submit (domingo 2026-05-18+)** OU **(b) próximo upside arquitetural** (D01 v3 Cohere reranker, único path com upside estrutural pós-D39).
