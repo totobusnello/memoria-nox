@@ -1,0 +1,32 @@
+# Dataset files — DO NOT commit (license MIT but >3GB and not ours to redistribute)
+data/
+*.json.gz
+*.tar.gz
+longmemeval_s_cleaned.json
+longmemeval_m_cleaned.json
+longmemeval_oracle.json
+
+# Isolated eval DB — never touch main nox-mem.db
+eval.db
+eval.db-wal
+eval.db-shm
+
+# Dataset commit lock — local copy may differ between machines; the published
+# SHA is frozen in README.md and parser code-side, so a per-machine lock would
+# only generate noisy diffs. Gitignore the local resolved lock.
+dataset.lock.json
+
+# Per-run workspace (parallel to Q1's .workspace/)
+.workspace/
+
+# Run outputs (large; may include LongMemEval question text verbatim)
+runs/
+hypotheses/
+*.hypothesis.jsonl
+*.log
+# Full runs are intentionally NOT committed (aggregate JSON summaries only)
+full-run.json
+full-run.*.json
+
+# Keep the dry-run sample (10 q, intentionally committed for plumbing validation)
+!dry-run-sample.json
