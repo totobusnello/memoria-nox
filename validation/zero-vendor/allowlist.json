@@ -1,0 +1,6 @@
+{
+  "_comment": "Per-dep license allowlist. Each entry MUST include a documented reason. Reviewed quarterly.",
+  "_reviewed": "2026-05-17",
+  "_reviewer": "A4-zero-vendor-validation scaffold",
+  "overrides": {}
+}

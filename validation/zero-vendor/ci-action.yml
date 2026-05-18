@@ -1,0 +1,196 @@
+name: Zero-Vendor Validation Suite
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      full_mode:
+        description: "Run full suite including VPS-dependent checks (requires self-hosted runner)"
+        required: false
+        default: "false"
+        type: boolean
+
+permissions:
+  contents: read
+  pull-requests: write  # allows posting check summary as PR comment
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: CI-Runnable Checks (no VPS required)
+  # Checks 1, 4, 5, 7, 8
+  # ---------------------------------------------------------------------------
+  zero-vendor-ci:
+    name: "Zero-Vendor — CI checks (1, 4, 5, 7, 8)"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - name: Install sqlite3 CLI
+        run: sudo apt-get install -y sqlite3
+
+      - name: Verify sqlite3 available
+        run: sqlite3 --version
+
+      - name: Install ts-node
+        run: npm install -g ts-node typescript
+
+      - name: Run license-check (Check 1)
+        id: license_check
+        run: |
+          npx ts-node --esm validation/zero-vendor/license-check.ts --json \
+            --pkg-dir . 2>&1 | tee /tmp/license-check-report.json
+          # Exit code from ts-node propagates
+        env:
+          NOX_MEM_DIR: ${{ github.workspace }}
+        continue-on-error: true
+
+      - name: Run sqlite-portable-check (Check 4)
+        id: sqlite_check
+        run: |
+          bash validation/zero-vendor/sqlite-portable-check.sh
+        continue-on-error: true
+
+      - name: Run no-daemon-check (Check 5)
+        id: no_daemon_check
+        run: |
+          bash validation/zero-vendor/no-daemon-check.sh
+        continue-on-error: true
+
+      - name: Run runner in CI mode (orchestrates all CI-safe checks)
+        id: runner
+        run: |
+          npx ts-node --esm validation/zero-vendor/runner.ts \
+            --ci \
+            --report /tmp/zero-vendor-report.json \
+            --json 2>&1 | tee /tmp/zero-vendor-stdout.json
+        env:
+          NOX_MEM_DIR: ${{ github.workspace }}
+          CI: "true"
+        continue-on-error: true
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zero-vendor-report-${{ github.sha }}
+          path: /tmp/zero-vendor-report.json
+          retention-days: 30
+
+      - name: Post summary to PR
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ -f /tmp/zero-vendor-report.json ]; then
+            PASSED=$(jq -r '.passed' /tmp/zero-vendor-report.json)
+            PASS_COUNT=$(jq -r '.summary.pass' /tmp/zero-vendor-report.json)
+            FAIL_COUNT=$(jq -r '.summary.fail' /tmp/zero-vendor-report.json)
+            SIM_COUNT=$(jq -r '.summary.simulation' /tmp/zero-vendor-report.json)
+
+            if [ "$PASSED" = "true" ]; then
+              ICON="✅"
+              LABEL="ALL CHECKS PASSED"
+            else
+              ICON="❌"
+              LABEL="CHECKS FAILED"
+            fi
+
+            BODY="## Zero-Vendor Validation — $ICON $LABEL
+
+**Pillar A:** Hybrid memory with shadow discipline — yours by design.
+
+| Status | Count |
+|--------|-------|
+| ✓ Pass | $PASS_COUNT |
+| ✗ Fail | $FAIL_COUNT |
+| ~ Simulation (VPS) | $SIM_COUNT |
+
+Simulation checks (2, 3, 6) require VPS deployment. Run with \`requires-vps\` label for full live validation.
+
+<details>
+<summary>Full report</summary>
+
+\`\`\`json
+$(cat /tmp/zero-vendor-report.json | head -100)
+\`\`\`
+</details>"
+
+            echo "$BODY" > /tmp/pr-comment.md
+            gh pr comment ${{ github.event.pull_request.number }} --body-file /tmp/pr-comment.md
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Assert suite passed
+        run: |
+          if [ -f /tmp/zero-vendor-report.json ]; then
+            PASSED=$(jq -r '.passed' /tmp/zero-vendor-report.json)
+            FAIL_COUNT=$(jq -r '.summary.fail' /tmp/zero-vendor-report.json)
+            if [ "$PASSED" != "true" ] && [ "$FAIL_COUNT" -gt "0" ]; then
+              echo "Zero-vendor validation FAILED — $FAIL_COUNT check(s) failed."
+              echo "A proprietary or unknown dependency may have been introduced."
+              exit 1
+            fi
+          else
+            echo "Report file not found — runner may have crashed."
+            exit 1
+          fi
+
+  # ---------------------------------------------------------------------------
+  # Job 2: VPS-Dependent Checks (2, 3, 6)
+  # Runs only when 'requires-vps' label is present OR full_mode is enabled
+  # ---------------------------------------------------------------------------
+  zero-vendor-vps:
+    name: "Zero-Vendor — VPS checks (2, 3, 6)"
+    runs-on: [self-hosted, vps, nox-mem]
+    # Only run when explicitly requested
+    if: |
+      (github.event_name == 'pull_request' &&
+       contains(github.event.pull_request.labels.*.name, 'requires-vps')) ||
+      (github.event_name == 'workflow_dispatch' &&
+       github.event.inputs.full_mode == 'true')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Load nox-mem environment
+        run: |
+          set -a
+          source /root/.openclaw/.env
+          set +a
+          echo "NOX_MEM_DIR=/root/.openclaw/workspace/tools/nox-mem" >> $GITHUB_ENV
+
+      - name: Run full validation suite (live mode)
+        run: |
+          cd /root/.openclaw/workspace/tools/nox-mem
+          npx ts-node --esm ${{ github.workspace }}/validation/zero-vendor/runner.ts \
+            --report /tmp/zero-vendor-vps-report.json \
+            --json
+        env:
+          NOX_MEM_DIR: /root/.openclaw/workspace/tools/nox-mem
+          NOX_DB_PATH: /root/.openclaw/workspace/tools/nox-mem/nox-mem.db
+          NOX_EMBEDDING_CACHE_DIR: /root/.openclaw/workspace/tools/nox-mem/.embedding-cache
+
+      - name: Upload VPS report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: zero-vendor-vps-report-${{ github.sha }}
+          path: /tmp/zero-vendor-vps-report.json
+          retention-days: 30
