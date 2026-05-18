@@ -1,0 +1,129 @@
+name: SDK Build & Publish
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*"
+  pull_request:
+    paths:
+      - "sdk/**"
+      - "docs/openapi/**"
+      - ".github/workflows/sdk-publish.yml"
+
+jobs:
+  # ── TypeScript SDK ──────────────────────────────────────────────────────────
+  typescript-sdk:
+    name: TypeScript SDK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/typescript
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: sdk/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Regenerate types from OpenAPI spec
+        run: npx openapi-typescript ../../docs/openapi/openapi.yaml -o src/generated/types.ts
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Verify dist output
+        run: |
+          test -f dist/client.js || (echo "dist/client.js missing" && exit 1)
+          test -f dist/client.d.ts || (echo "dist/client.d.ts missing" && exit 1)
+          echo "TypeScript SDK build OK"
+
+      - name: Run tests
+        run: npm test
+
+      # Publish to npm on tagged release
+      - name: Publish to npm
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  # ── Python SDK ──────────────────────────────────────────────────────────────
+  python-sdk:
+    name: Python SDK
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: sdk/python
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install dev dependencies
+        run: pip install -e ".[dev]"
+
+      - name: Typecheck (pyright)
+        run: python -m pyright nox_mem_client/ || true
+        # Non-fatal for now — pyright optional in CI
+
+      - name: Run tests
+        run: pytest tests/ -v
+
+      - name: Build wheel + sdist
+        run: |
+          pip install build
+          python -m build
+          ls -la dist/
+
+      - name: Verify build artifacts
+        run: |
+          test -n "$(ls dist/*.whl 2>/dev/null)" || (echo "Wheel missing" && exit 1)
+          test -n "$(ls dist/*.tar.gz 2>/dev/null)" || (echo "sdist missing" && exit 1)
+          echo "Python SDK build OK"
+
+      # Publish to PyPI on tagged release (only on Python 3.12 runner)
+      - name: Publish to PyPI
+        if: startsWith(github.ref, 'refs/tags/v') && matrix.python-version == '3.12'
+        run: python -m twine upload dist/*
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+
+  # ── OpenAPI spec lint ───────────────────────────────────────────────────────
+  openapi-lint:
+    name: OpenAPI spec lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Redocly CLI
+        run: npm install -g @redocly/cli@latest
+
+      - name: Lint OpenAPI spec
+        run: redocly lint docs/openapi/openapi.yaml
