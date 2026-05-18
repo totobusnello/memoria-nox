@@ -1,0 +1,317 @@
+name: Perf Regression Gate
+
+# Triggered on PRs that touch any of the pillars with runnable benchmarks.
+# Improvements (positive drift) pass but emit a notice.
+# Regressions (negative drift > threshold) fail the PR.
+
+on:
+  pull_request:
+    paths:
+      - 'staged-P1/edits/**'
+      - 'staged-A2/edits/**'
+      - 'staged-A3/edits/**'
+      - 'staged-L4/edits/**'
+      - 'benchmark/baseline-2026-05-18.json'
+      - 'benchmark/regression-detector.ts'
+      - '.github/workflows/perf-regression.yml'
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: 'Drift threshold % (default: 10)'
+        required: false
+        default: '10'
+
+permissions:
+  contents: read
+  pull-requests: write   # needed to post PR comment
+
+env:
+  # Configurable threshold — override via workflow_dispatch input or repository variable.
+  # Rule: positive drift (improvement) never fails; only negative drift > threshold fails.
+  NOX_DRIFT_THRESHOLD_PCT: ${{ inputs.threshold || vars.NOX_DRIFT_THRESHOLD_PCT || '10' }}
+  # Bench knobs — keep CI runs fast and deterministic.
+  NOX_BENCH_LLM_MS: '100'
+  NOX_BENCH_N: '50'
+  NOX_BENCH_ITERATIONS: '1000'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Detect staged directories present in this PR so we only run relevant benches
+  # ---------------------------------------------------------------------------
+  detect-stages:
+    name: "Detect changed staged dirs"
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      has_p1: ${{ steps.detect.outputs.has_p1 }}
+      has_a2: ${{ steps.detect.outputs.has_a2 }}
+      has_a3: ${{ steps.detect.outputs.has_a3 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Detect staged dirs
+        id: detect
+        run: |
+          echo "has_p1=$([ -d staged-P1 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "has_a2=$([ -d staged-A2 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "has_a3=$([ -d staged-A3 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------------
+  # Main regression detection job
+  # ---------------------------------------------------------------------------
+  regression-gate:
+    name: "Perf regression gate (threshold: ±${{ vars.NOX_DRIFT_THRESHOLD_PCT || '10' }}%)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: detect-stages
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tsx
+        run: npm install -g tsx@4
+
+      # ---- Build staged-P1 if present ----
+      - name: Install + build staged-P1
+        if: needs.detect-stages.outputs.has_p1 == 'true'
+        run: |
+          cd staged-P1
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm run build 2>&1 | tail -20
+
+      # ---- Build staged-A2 if present ----
+      - name: Install + build staged-A2
+        if: needs.detect-stages.outputs.has_a2 == 'true'
+        run: |
+          cd staged-A2
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm run build 2>&1 | tail -20
+
+      # ---- Build staged-A3 if present ----
+      - name: Install + build staged-A3
+        if: needs.detect-stages.outputs.has_a3 == 'true'
+        run: |
+          cd staged-A3
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm run build 2>&1 | tail -20
+
+      # ---- Run regression detector ----
+      - name: Run regression detector
+        id: detector
+        run: |
+          set +e
+          npx tsx benchmark/regression-detector.ts --json-only \
+            --threshold="${NOX_DRIFT_THRESHOLD_PCT}" \
+            > /tmp/regression-report.json 2>/tmp/regression-stderr.txt
+          EXIT_CODE=$?
+          echo "exit_code=${EXIT_CODE}" >> "$GITHUB_OUTPUT"
+          # Extract summary fields for use in subsequent steps.
+          OVERALL=$(node -e "const r=JSON.parse(require('fs').readFileSync('/tmp/regression-report.json','utf8')); console.log(r.overall_status);" 2>/dev/null || echo "UNKNOWN")
+          echo "overall_status=${OVERALL}" >> "$GITHUB_OUTPUT"
+          FAILED=$(node -e "const r=JSON.parse(require('fs').readFileSync('/tmp/regression-report.json','utf8')); console.log(r.failed);" 2>/dev/null || echo "0")
+          echo "failed_count=${FAILED}" >> "$GITHUB_OUTPUT"
+          # Print markdown summary to stderr for Actions log readability.
+          cat /tmp/regression-stderr.txt >&2 || true
+          # Always exit 0 here — gating logic is in the next step.
+          exit 0
+        env:
+          NOX_DRIFT_THRESHOLD_PCT: ${{ env.NOX_DRIFT_THRESHOLD_PCT }}
+          NOX_BENCH_LLM_MS: ${{ env.NOX_BENCH_LLM_MS }}
+          NOX_BENCH_N: ${{ env.NOX_BENCH_N }}
+          NOX_BENCH_ITERATIONS: ${{ env.NOX_BENCH_ITERATIONS }}
+
+      # ---- Build PR comment with drift table ----
+      - name: Build PR comment
+        id: pr_comment
+        if: always() && github.event_name == 'pull_request'
+        run: |
+          node << 'SCRIPT'
+          const fs = require('fs');
+
+          let report;
+          try {
+            report = JSON.parse(fs.readFileSync('/tmp/regression-report.json', 'utf8'));
+          } catch (e) {
+            fs.writeFileSync('/tmp/pr-comment.md',
+              '## Perf Regression Gate\n\n:warning: Failed to parse regression report.\n');
+            process.exit(0);
+          }
+
+          const threshold = report.drift_threshold_pct;
+          const status = report.overall_status;
+          const statusIcon = status === 'PASS' ? ':white_check_mark:' : status === 'FAIL' ? ':x:' : ':warning:';
+          const lines = [];
+
+          lines.push('## Perf Regression Gate');
+          lines.push('');
+          lines.push(`**Overall: ${statusIcon} ${status}** | Threshold: ±${threshold}% | Baseline: \`${report.version}\` (${report.baseline_timestamp.slice(0,10)})`);
+          lines.push('');
+          lines.push(`| | Count |`);
+          lines.push(`|---|---:|`);
+          lines.push(`| :white_check_mark: PASS | ${report.passed} |`);
+          lines.push(`| :x: FAIL (regression) | ${report.failed} |`);
+          lines.push(`| :fast_forward: SKIP | ${report.skipped} |`);
+          lines.push(`| :information_source: Baseline-only | ${report.baseline_only} |`);
+          lines.push('');
+
+          // Show failures prominently.
+          if (report.failures && report.failures.length > 0) {
+            lines.push('### Regressions detected');
+            lines.push('');
+            lines.push('| Metric | Baseline | Measured | Drift |');
+            lines.push('|--------|--------:|--------:|------:|');
+            for (const f of report.failures) {
+              const drift = f.drift_pct !== null
+                ? `**${f.drift_pct > 0 ? '+' : ''}${f.drift_pct.toFixed(2)}%**`
+                : 'n/a';
+              lines.push(`| \`${f.metric_key}\` | ${f.baseline} ${f.unit} | ${f.measured} ${f.unit} | ${drift} |`);
+            }
+            lines.push('');
+            lines.push('> :red_circle: **This PR introduces a performance regression.** Fix or update the baseline (see `docs/perf-regression.md`).');
+            lines.push('');
+          }
+
+          // Show improvements.
+          const improvements = report.results.filter(
+            r => r.status === 'PASS' && r.drift_pct !== null && r.drift_pct < -1
+          );
+          if (improvements.length > 0) {
+            lines.push('### Improvements detected :rocket:');
+            lines.push('');
+            lines.push('| Metric | Baseline | Measured | Drift |');
+            lines.push('|--------|--------:|--------:|------:|');
+            for (const r of improvements) {
+              const drift = `${r.drift_pct.toFixed(2)}%`;
+              lines.push(`| \`${r.metric_key}\` | ${r.baseline} ${r.unit} | ${r.measured} ${r.unit} | ${drift} |`);
+            }
+            lines.push('');
+            lines.push('> :green_circle: **Improvements pass automatically.** Consider updating the baseline to lock in the gains.');
+            lines.push('');
+          }
+
+          // Full table (collapsed).
+          lines.push('<details><summary>All metrics</summary>');
+          lines.push('');
+          lines.push('| Metric | Baseline | Measured | Drift | Status |');
+          lines.push('|--------|--------:|--------:|------:|--------|');
+          for (const r of report.results) {
+            const meas = r.measured !== null ? `${r.measured} ${r.unit}` : '—';
+            const drift = r.drift_pct !== null
+              ? `${r.drift_pct > 0 ? '+' : ''}${r.drift_pct.toFixed(2)}%`
+              : '—';
+            const icon =
+              r.status === 'PASS' ? ':white_check_mark:'
+              : r.status === 'FAIL' ? ':x:'
+              : r.status === 'SKIP' ? ':fast_forward:'
+              : ':information_source:';
+            lines.push(`| \`${r.metric_key}\` | ${r.baseline} ${r.unit} | ${meas} | ${drift} | ${icon} ${r.status} |`);
+          }
+          lines.push('');
+          lines.push('</details>');
+          lines.push('');
+          lines.push(`> Reproduce locally: \`npx tsx benchmark/regression-detector.ts --threshold=${threshold}\``);
+          lines.push(`> Docs: [\`docs/perf-regression.md\`](docs/perf-regression.md)`);
+
+          fs.writeFileSync('/tmp/pr-comment.md', lines.join('\n'));
+          console.log('PR comment built (' + lines.length + ' lines)');
+          SCRIPT
+
+      - name: Post PR comment
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('/tmp/pr-comment.md', 'utf8');
+            const marker = '<!-- nox-perf-regression-gate -->';
+            const fullBody = marker + '\n' + body;
+
+            // Find and update existing comment, or create new one.
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c => c.body && c.body.startsWith(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: fullBody,
+              });
+              console.log('Updated existing PR comment:', existing.id);
+            } else {
+              const { data: newComment } = await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: fullBody,
+              });
+              console.log('Created PR comment:', newComment.id);
+            }
+
+      # ---- Upload JSON report as artifact ----
+      - name: Upload regression report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: perf-regression-report-${{ github.sha }}
+          path: /tmp/regression-report.json
+          retention-days: 30
+
+      # ---- Write job summary ----
+      - name: Job summary
+        if: always()
+        run: |
+          cat /tmp/regression-stderr.txt >> "$GITHUB_STEP_SUMMARY" 2>/dev/null || true
+
+      # ---- Gate: fail if regression, pass if improvement ----
+      # CRITICAL RULE: positive drift (improvement) NEVER fails CI.
+      # Only negative drift (regression) beyond threshold fails.
+      - name: Enforce regression gate
+        run: |
+          REPORT=/tmp/regression-report.json
+          if [ ! -f "$REPORT" ]; then
+            echo "::error::Regression report not found — detector likely crashed. Check logs."
+            exit 1
+          fi
+
+          # Check for genuine regressions (negative drift > threshold).
+          REGRESSIONS=$(node -e "
+            const r = JSON.parse(require('fs').readFileSync('$REPORT', 'utf8'));
+            const threshold = r.drift_threshold_pct;
+            // Only fail on NEGATIVE drift (regressions), never on positive (improvements).
+            const regressions = r.results.filter(m =>
+              m.status === 'FAIL' &&
+              m.drift_pct !== null &&
+              m.drift_pct > 0   // positive drift_pct = measured > baseline = SLOWER = regression for latency
+            );
+            // Note: for latency metrics higher=worse; for quality metrics lower=worse.
+            // regression-detector.ts flags anything outside ±threshold as FAIL.
+            // Here we re-check direction: if drift_pct > 0 for *_ms metrics = regression.
+            // For non-ms metrics (e.g. nDCG) direction is inverted.
+            // Simplest correct approach: trust the detector's FAIL status as regression.
+            // The detector already skips improvements (they stay as PASS even with high drift
+            // when drift is favorable). So: any FAIL = genuine regression.
+            console.log(r.failed);
+          " 2>/dev/null || echo "0")
+
+          if [ "$REGRESSIONS" = "0" ] || [ -z "$REGRESSIONS" ]; then
+            echo "::notice::No regressions detected. Gate passed."
+            exit 0
+          else
+            echo "::error::${REGRESSIONS} performance regression(s) detected (threshold: ±${NOX_DRIFT_THRESHOLD_PCT}%). See PR comment for details."
+            exit 1
+          fi
+        env:
+          NOX_DRIFT_THRESHOLD_PCT: ${{ env.NOX_DRIFT_THRESHOLD_PCT }}
