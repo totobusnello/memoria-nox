@@ -1,0 +1,181 @@
+{
+  "meta": {
+    "n": 10,
+    "seed": 42,
+    "mode": "cli",
+    "dryRun": true
+  },
+  "records": [
+    {
+      "question_id": "conv-48::q13",
+      "sample_id": "conv-48",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What places give Deborah peace?",
+      "gold_chunk_ids": [
+        "conv-48::D2:13",
+        "conv-48::D4:34",
+        "conv-48::D6:10",
+        "conv-48::D19:17"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.428Z",
+      "error": "spawn nox-mem ENOENT"
+    },
+    {
+      "question_id": "conv-50::q49",
+      "sample_id": "conv-50",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "When Dave was a child, what did he and his father do in the garage?",
+      "gold_chunk_ids": [
+        "conv-50::D12:2",
+        "conv-50::D12:4",
+        "conv-50::D22:5"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.431Z",
+      "error": "spawn nox-mem ENOENT"
+    },
+    {
+      "question_id": "conv-26::q6",
+      "sample_id": "conv-26",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When is Melanie planning on going camping?",
+      "gold_chunk_ids": [
+        "conv-26::D2:7"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.433Z",
+      "error": "spawn nox-mem ENOENT"
+    },
+    {
+      "question_id": "conv-30::q11",
+      "sample_id": "conv-30",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Gina get her tattoo?",
+      "gold_chunk_ids": [
+        "conv-30::D5:15"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.435Z",
+      "error": "spawn nox-mem ENOENT"
+    },
+    {
+      "question_id": "conv-44::q53",
+      "sample_id": "conv-44",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "What is a career that Andrew could potentially pursue with his love for animals and nature?",
+      "gold_chunk_ids": [
+        "conv-44::D2:18",
+        "conv-44::D3:1",
+        "conv-44::D5:7",
+        "conv-44::D8:27"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.436Z",
+      "error": "spawn nox-mem ENOENT"
+    },
+    {
+      "question_id": "conv-41::q64",
+      "sample_id": "conv-41",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "What job might Maria pursue in the future?",
+      "gold_chunk_ids": [
+        "conv-41::D32:14",
+        "conv-41::D5:8",
+        "conv-41::D11:10",
+        "conv-41::D27:4"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.438Z",
+      "error": "spawn nox-mem ENOENT"
+    },
+    {
+      "question_id": "conv-26::q83",
+      "sample_id": "conv-26",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What did Melanie realize after the charity race?",
+      "gold_chunk_ids": [
+        "conv-26::D2:3"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.439Z",
+      "error": "spawn nox-mem ENOENT"
+    },
+    {
+      "question_id": "conv-26::q87",
+      "sample_id": "conv-26",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "Why did Caroline choose the adoption agency?",
+      "gold_chunk_ids": [
+        "conv-26::D2:12"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.440Z",
+      "error": "spawn nox-mem ENOENT"
+    },
+    {
+      "question_id": "conv-26::q191",
+      "sample_id": "conv-26",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What happened to Caroline's son on their road trip?",
+      "gold_chunk_ids": [
+        "conv-26::D18:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.442Z",
+      "error": "spawn nox-mem ENOENT"
+    },
+    {
+      "question_id": "conv-43::q226",
+      "sample_id": "conv-43",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What movie did Tim just finish watching on 8th December, 2023?",
+      "gold_chunk_ids": [
+        "conv-43::D22:13"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieved_scores": [],
+      "retrieval_ms": 0,
+      "mode": "cli",
+      "timestamp_iso": "2026-05-18T01:50:14.443Z",
+      "error": "spawn nox-mem ENOENT"
+    }
+  ]
+}
