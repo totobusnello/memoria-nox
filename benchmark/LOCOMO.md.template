@@ -1,0 +1,145 @@
+<!--
+  TEMPLATE — placeholders use {{DOUBLE_BRACES}}.
+  Filled by benchmark/generate-comparison.ts.
+  See README.md for the publication gate.
+-->
+
+# LoCoMo — multi-session conversational recall
+
+> **Last run:** {{RUN_DATE}}.
+> **Harness:** `eval/locomo/` at git SHA `{{HARNESS_SHA}}`.
+> **Dataset pin:** [snap-research/locomo](https://huggingface.co/datasets/snap-research/locomo) revision `{{LOCOMO_REVISION}}`.
+
+## What this measures
+
+LoCoMo (Maharana et al., 2024) is a long-horizon conversational benchmark:
+chat transcripts spanning many sessions, with gold-labelled "evidence" chunk
+ids per question. The metric is **Recall@K** — does the gold chunk appear in
+the top K retrieved by the system?
+
+We report **R@5** as the headline (the most commonly cited LoCoMo number)
+plus per-category breakdowns. The 5 categories are:
+
+1. **Single-hop** — answer in one retrieved chunk.
+2. **Multi-hop** — answer requires composing 2+ chunks.
+3. **Temporal** — answer hinges on when an event happened.
+4. **Open-domain** — answer requires the chat plus world knowledge.
+5. **Adversarial** — distractor sessions are present in the same store.
+
+## Why R@5 (and not R@1 or R@10)
+
+- **R@1** is too noisy for a retrieval-layer comparison — small ranking
+  shifts cause large swings. It also confounds retrieval quality with
+  re-ranking strategy.
+- **R@10** is what most papers report when they want to look good. We
+  publish it too, but the *headline* is R@5 because most agent pipelines
+  pass ≤5 chunks to the LLM at answer time. R@5 is the metric that actually
+  matters operationally.
+- **R@5 + per-category** exposes where the system actually shines vs
+  struggles. A high overall R@5 driven by single-hop wins is less useful
+  than balanced per-category performance.
+
+## Sample size and sampling
+
+- **n per category:** {{LOCOMO_N_PER_CATEGORY}}.
+- **Total n:** {{LOCOMO_N_TOTAL}}.
+- **Stratification:** equal n per category, seed = 42, via
+  `eval/locomo/run.ts` deterministic LCG shuffle.
+- **Distribution of n:** documented in `eval/locomo/README.md` §Sampling.
+
+## Results — Overall R@5
+
+| Tool | R@5 (mean) | ± stddev | n runs |
+|---|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LOCOMO_OVERALL}}** | ± {{NOXMEM_LOCOMO_STDDEV}} | {{NOXMEM_LOCOMO_RUNS}} |
+| agentmemory | {{AGENTMEMORY_LOCOMO_OVERALL}} | ± {{AGENTMEMORY_LOCOMO_STDDEV}} | {{AGENTMEMORY_LOCOMO_RUNS}} |
+| Memanto | {{MEMANTO_LOCOMO_OVERALL}} | ± {{MEMANTO_LOCOMO_STDDEV}} | {{MEMANTO_LOCOMO_RUNS}} |
+| mem0 | {{MEM0_LOCOMO_OVERALL}} | ± {{MEM0_LOCOMO_STDDEV}} | {{MEM0_LOCOMO_RUNS}} |
+| Letta / MemGPT | {{LETTA_LOCOMO_OVERALL}} | ± {{LETTA_LOCOMO_STDDEV}} | {{LETTA_LOCOMO_RUNS}} |
+| Zep | {{ZEP_LOCOMO_OVERALL}} | ± {{ZEP_LOCOMO_STDDEV}} | {{ZEP_LOCOMO_RUNS}} |
+| built-in `MEMORY.md` | {{MEMORYMD_LOCOMO_OVERALL}} | ± {{MEMORYMD_LOCOMO_STDDEV}} | {{MEMORYMD_LOCOMO_RUNS}} |
+
+## Per-category R@5
+
+| Tool | Single-hop | Multi-hop | Temporal | Open-domain | Adversarial |
+|---|---:|---:|---:|---:|---:|
+| **nox-mem** | **{{NOXMEM_LOCOMO_C1}}** | **{{NOXMEM_LOCOMO_C2}}** | **{{NOXMEM_LOCOMO_C3}}** | **{{NOXMEM_LOCOMO_C4}}** | **{{NOXMEM_LOCOMO_C5}}** |
+| agentmemory | {{AGENTMEMORY_LOCOMO_C1}} | {{AGENTMEMORY_LOCOMO_C2}} | {{AGENTMEMORY_LOCOMO_C3}} | {{AGENTMEMORY_LOCOMO_C4}} | {{AGENTMEMORY_LOCOMO_C5}} |
+| Memanto | {{MEMANTO_LOCOMO_C1}} | {{MEMANTO_LOCOMO_C2}} | {{MEMANTO_LOCOMO_C3}} | {{MEMANTO_LOCOMO_C4}} | {{MEMANTO_LOCOMO_C5}} |
+| mem0 | {{MEM0_LOCOMO_C1}} | {{MEM0_LOCOMO_C2}} | {{MEM0_LOCOMO_C3}} | {{MEM0_LOCOMO_C4}} | {{MEM0_LOCOMO_C5}} |
+| Letta | {{LETTA_LOCOMO_C1}} | {{LETTA_LOCOMO_C2}} | {{LETTA_LOCOMO_C3}} | {{LETTA_LOCOMO_C4}} | {{LETTA_LOCOMO_C5}} |
+| Zep | {{ZEP_LOCOMO_C1}} | {{ZEP_LOCOMO_C2}} | {{ZEP_LOCOMO_C3}} | {{ZEP_LOCOMO_C4}} | {{ZEP_LOCOMO_C5}} |
+| `MEMORY.md` | {{MEMORYMD_LOCOMO_C1}} | {{MEMORYMD_LOCOMO_C2}} | {{MEMORYMD_LOCOMO_C3}} | {{MEMORYMD_LOCOMO_C4}} | {{MEMORYMD_LOCOMO_C5}} |
+
+## Per-tool notes
+
+### nox-mem
+- **Configuration:** default hybrid (BM25 + Gemini 3072d semantic + RRF k=60).
+- **Indexing path:** `nox-mem ingest <chunk>.md` per LoCoMo session, one
+  chunk per message.
+- **Retrieval path:** `nox-mem search "<question>" --limit 20 --json`.
+- **Notes:** {{NOXMEM_LOCOMO_NOTES}}
+
+### agentmemory
+- **Configuration:** default settings per their README.
+- **Indexing path:** {{AGENTMEMORY_LOCOMO_INDEX}}
+- **Retrieval path:** `agentmemory recall "<question>"`.
+- **Notes:** {{AGENTMEMORY_LOCOMO_NOTES}}
+
+### Memanto
+- **Configuration:** SaaS — requires `MOORCHEH_API_KEY`.
+- **Indexing path:** {{MEMANTO_LOCOMO_INDEX}}
+- **Retrieval path:** Memanto Python SDK `query(...)`.
+- **Notes:** {{MEMANTO_LOCOMO_NOTES}}
+
+### mem0
+- **Configuration:** default vector + graph; OpenAI embeddings recommended.
+- **Indexing path:** {{MEM0_LOCOMO_INDEX}}
+- **Retrieval path:** {{MEM0_LOCOMO_RETRIEVE}}
+- **Notes:** {{MEM0_LOCOMO_NOTES}}
+
+### Letta / MemGPT
+- **Configuration:** Postgres + Qdrant backend; recall-only mode (no
+  agent loop) to make the comparison fair against retrieval-only tools.
+- **Notes:** {{LETTA_LOCOMO_NOTES}}
+
+### Zep
+- **Configuration:** Zep Open Source v{{ZEP_VERSION}}; default embedder.
+- **Notes:** {{ZEP_LOCOMO_NOTES}}
+
+### built-in MEMORY.md
+- **Configuration:** baseline — Claude Code's built-in MEMORY.md grep+read.
+- **Notes:** This is the no-system baseline; expect dramatically lower
+  recall on multi-hop and temporal categories.
+
+## Caveats
+
+- LoCoMo's gold labels are sometimes ambiguous when multiple chunks could
+  legitimately support an answer. We use the official gold set unchanged.
+- Adversarial category numbers are particularly sensitive to indexing
+  strategy — if a tool de-duplicates messages, distractor sessions look
+  artificially clean.
+- Tools that re-rank with an LLM at query time (some Memanto modes,
+  Letta) are slower; they are *not* given a re-rank pass that other tools
+  do not get. Each tool is run as its README recommends, no more.
+
+## Reproducing
+
+```
+# 1. Download LoCoMo
+cd eval/locomo && npx tsx download.ts
+
+# 2. Per competitor, collect retrieved chunks
+cd ../../benchmark
+for tool in nox-mem agentmemory memanto mem0 letta zep memorymd; do
+  npx tsx collect-competitor-data.ts \
+    --competitor "$tool" \
+    --dataset locomo \
+    --output results/$tool/locomo.json
+done
+
+# 3. Score (uses eval/locomo/score.ts internally)
+GATE_VERIFIED=1 npx tsx generate-comparison.ts
+```
+
+See `BLOCKED.md` for competitors whose eval interface we cannot reach today.
