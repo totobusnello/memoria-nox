@@ -1,0 +1,15 @@
+{
+  "name": "nox-mem-wire-up-adapters",
+  "version": "0.1.0-wave-o",
+  "private": true,
+  "type": "module",
+  "description": "Wave O — Runtime adapters for the wire-up router (#92). 5 server-deps modules + deps-registry singleton bind framework-agnostic handlers to nox-mem.db, Gemini provider, and the SSE event bus.",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node --test dist/src/api/__tests__/*.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "typescript": "5.4"
+  }
+}
