@@ -98,14 +98,21 @@ let _dbFactory: DbFactory | null = null;
 let _providerFactory: ProviderFactory | null = null;
 let _eventBusFactory: EventBusFactory | null = null;
 
-/** Resolve nox-mem.db path from env, falling back to the canonical VPS path. */
+/** Resolve nox-mem.db path from env, falling back to the canonical VPS path.
+ *
+ * Path layout matches `src/db.ts` source of truth: workspace `${OPENCLAW_WORKSPACE}`
+ * + `tools/nox-mem/nox-mem.db`. The previous `data/nox-mem.db` fallback was an
+ * artifact of the staged-wire-up-adapters spec mismatch; it created an empty
+ * DB at a non-existent path → `/api/conflict` returned 503 "L2 db not available"
+ * because conflict_audit table didn't exist in the orphan DB. Lesson 2026-05-18.
+ */
 export function resolveDbPath(): string {
   // Test-override channel (avoids touching prod paths during `node --test`).
   if (process.env["NOX_DB_PATH"]) return process.env["NOX_DB_PATH"];
   const workspace = process.env["OPENCLAW_WORKSPACE"];
-  if (workspace) return pathResolve(workspace, "data/nox-mem.db");
-  // Final fallback (VPS canonical layout).
-  return "/root/.openclaw/workspace/tools/nox-mem/data/nox-mem.db";
+  if (workspace) return pathResolve(workspace, "tools/nox-mem/nox-mem.db");
+  // Final fallback (VPS canonical layout — matches src/db.ts).
+  return "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db";
 }
 
 /** Default DB factory — tries better-sqlite3, soft-fails when missing. */
