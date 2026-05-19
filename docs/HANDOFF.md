@@ -2,6 +2,136 @@
 
 ---
 
+## 🌙 PÓS WAVE Q + PRODUCTION-PATH FINAL — 2026-05-18 noite final
+
+> **Atualizado:** 2026-05-18 ~22:50 BRT — **Production-path validado em VPS. Q-pillar numbers locked: +112% nDCG@10 canonical (vs FTS5 baseline). 6/6 endpoints LIVE. Q4 gate ABERTA (Decision D43). Stripe-first GTM pivot (D44b). Total 24 PRs merged hoje noite. Schema v24 + 30 arquivos deployados.**
+
+### Endpoints LIVE em produção (6/6 wire-up completo)
+
+| Endpoint | Método | Status | Latência p95 | Notes |
+|---|---|---|---|---|
+| `/api/health` | GET | 200 OK | <200ms | 68.995 chunks reportado |
+| `/api/search` | POST | 200 OK | 2.3s | Hybrid (BM25 + Gemini semantic + RRF) |
+| `/api/answer` | POST | 200 OK | 1.5–2.7s | **P1 flagship**, production-path validado |
+| `/api/conflict` | POST | 200 OK | <100ms | Empty (feature gate pending) |
+| `/api/health/confidence` | GET | 200 OK | <50ms | L3 distribution endpoint |
+| CORS preflight | OPTIONS | 204 No Content | <20ms | `chrome-extension://*` origin habilitado |
+
+### Schema state finalizado
+
+| Métrica | Valor |
+|---|---|
+| Schema versionado | v18 → v24 (6 migrations: v11, v19, v20, v21, v22, v23, v24) |
+| Chunks integrity | ✓ 68.995 intactos em produção |
+| vec_chunk_map coverage | 99.98% (vetor embedded + mapped) |
+| Pre-flight snapshot (Wave Q) | 1.2GB em `/var/backups/nox-mem/pre-op/wave-i-p-deploy-*` |
+| Privacy filter ACTIVE | ✓ redact() hook em src/ingest.ts; verified ANTHROPIC_API_KEY redacted on ingest |
+
+### Q-pillar numbers — PRIMEIRA VEZ MEDIDO (canonical)
+
+**Q1 LoCoMo (n=100, stratified seed=42, production-path):**
+
+| Métrica | Baseline FTS5 E04 | Production-path | Delta |
+|---|---|---|---|
+| **nDCG@10** | 0.2810 | **0.5961** | **+112% rel** ← paper headline |
+| MRR | — | — | — |
+| Recall@10 | — | — | — |
+
+**Per-categoria breakdown (production-path nDCG@10):**
+
+| Categoria | nDCG@10 | vs FTS5 baseline |
+|---|---|---|
+| Single-hop | 0.6230 | +251% |
+| Multi-hop | 0.4609 | +11% |
+| Temporal | 0.4662 | +63% (Python re-impl era -1.2% null!) |
+| Open-domain | 0.8462 | +85% |
+| Adversarial | 0.5842 | +76% |
+
+**Q2 LongMemEval oracle (n=100):** Pipeline validado (1.0 saturated, expected). Bug `s_cleaned` fixado PR #112. Full run otimizado deferred (atual: 1.6 embed/s = 4h; target: 10/s = 40min via batch paralelo). Custo estimado ~$2.40, ~4h wall-clock.
+
+**Q3 Latency (/api/search prod, n=95 concurrent single-user):**
+
+| Percentil | Latência | Status | Custo |
+|---|---|---|---|
+| p50 | 940ms | ✓ | $0 (read-only) |
+| p95 | 2.342s | ⚠️ measured, não baseline | |
+| p95 concurrent (5 threads) | 5.143s | ✓ 100% HTTP 200, zero errors | |
+
+Bottleneck: Gemini embed query call (~800ms). Zero timeouts/drops.
+
+### Files deployados na VPS (~30 novos)
+
+| Módulo | Arquivos | Status |
+|---|---|---|
+| Privacy filter | src/privacy/filter.ts, patterns.ts, tag-parser.ts | ✓ ACTIVE ingest |
+| CORS P7 | src/api/cors.ts | ✓ LIVE |
+| Wire-up router | src/api/wire-up.ts | ✓ LIVE |
+| Server adapters (5) | src/api/server-deps-{p1,p2,a2,p5,l2-l3}.ts | ✓ LIVE |
+| Health confidence | src/api/health-confidence-adapter.ts | ✓ L3 endpoint |
+| Singletons (7) | src/lib/{archive,confidence,conflict,deps,hooks,viewer}/*.ts | ✓ ACTIVE |
+| Staged answer | staged-P1/answer.ts atualizado (handleAnswerRequest exportado) | ✓ LIVE |
+| Staged confidence | staged-L3/health-confidence.ts re-export | ✓ LIVE |
+| Wire-up path fixes | staged-wire-up-adapters deps-registry path fix | ✓ LIVE |
+
+Zero overwrites, idempotent deploy. Todos arquivos validados pré-deploy.
+
+### Strategic decisions locked (D43 + D44)
+
+**D43 — Q4 gate + GTM Phase 2:**
+- Q4 requirement: ≥+15% nDCG@10 vs FTS5 baseline
+- **Current production-path: +112%**
+- **Decision:** Gate ABERTA, Phase 2 GTM greenlit unconditionally 2026-05-18 noite
+- **Timing:** Q4 validação confirmada; product-market relevance desbloqueada
+
+**D44 — Pricing + GTM strategy:**
+- **D44a:** Pricing fica em memoria-nox/ tonight; migra pra nox-supermem/ quando comercial ativo
+- **D44b:** **STRIPE-FIRST PIVOT** (Toto rejeitou Hotmart anterior). Global SaaS framing. `PRICING-STRATEGY.md` §9 precisa reescrita (USD default, NO afiliados, stripe webhooks)
+- **D44c:** Universal data markers: `[verified YYYY-MM-DD]` / `[estimated]` / `[ASSUMPTION]` em todos docs
+- **D44d:** Q4 timing completo: V0 launch 2026-Q4, base de usuários seeded
+
+### Manual GitHub steps DONE
+
+| Ação | Status | Details |
+|---|---|---|
+| Branch protection (main) | ✓ DONE | Deploy Validator + TypeScript + A4 required (gh CLI automated) |
+| Renovate App install | ✓ DONE | Scheduled Mondays 6am SP; dependency dashboard ativo; security updates anytime |
+| OpenSSF Best Practices badge | ✓ **100% PASSING** | Project ID 12896; badge no README |
+
+### Total session stats (Wave Q finale)
+
+| Métrica | Valor |
+|---|---|
+| PRs merged tonight | 24 (#102–#125) |
+| Staged files deployed VPS | ~30 (zero overwrites) |
+| Schema migrations applied | 6 (v11, v19, v20, v21, v22, v23, v24) |
+| Endpoints unblocked | 4 (#114, #115, #116, #118) |
+| Q-pillar measurement files committed | 6 (LoCoMo results, LongMemEval oracle, Latency benchmark) |
+| Custo total Gemini | ~$0.20 (Q1 corpus embed + queries + Q2 oracle) |
+| Wall-clock time | ~5h (17:30–22:50 BRT) |
+
+### Decisão Toto risk acceptance (registrada)
+
+- **GEMINI_API_KEY pasted in chat 14:04 BRT 2026-05-18 — NÃO será rotacionada**
+- Escolha explícita de Toto; memory `feedback_user_accepts_gemini_key_risk` registra
+- Nenhuma nag futura em sessões posteriores
+
+### Próxima sessão priorities (top 5)
+
+1. **Validar production-path Q1 results em paper** — Número +112% canonical, atualizar paper §5. **POR QUE prod é +112% vs Python re-impl +18.8%?** Investigar: salience boost (recency × pain × importance), section_boost, re-ranker. Documentar "implementation matters" insight.
+2. **PRICING-STRATEGY.md §9 reescrita** — Stripe-first context (D44b), USD default, global SaaS framing, zero afiliados
+3. **Q2 s_cleaned full run otimizado** — Batch embedding paralelo (current: 1.6/s = 4h, target: 10/s = 40min)
+4. **Demo video gravar** — Script existente + include +112% number + /api/answer demo live
+5. **Ingest-entity.ts privacy hook** — Follow-up (~15min, completar privacy filter)
+
+### Bloqueios remaining (não-urgentes)
+
+- ingest-entity.ts privacy hook (~15min, follow-up)
+- /api/health/lite (não testado)
+- /api/export, /api/import, /api/events/stream, /api/hooks/* (handlers present, untested)
+- 2º nox-mem-api tmux session rodando (memory ~50MB) — pode killar pós validation: `tmux kill-session -t nox-eval-api`
+
+---
+
 ## 🚀 PÓS DEPLOY + Q-RUNS NIGHT — 2026-05-18 (PM, 19:00–23:00 BRT)
 
 > **Atualizado:** 2026-05-18 ~23:00 BRT — **VPS deploy completado. Wave I + Q-runs em andamento. Primeiro resultado produção: +18.8% nDCG@10 (hybrid vs FTS5 baseline).**

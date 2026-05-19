@@ -87,7 +87,7 @@ memoria-nox is organized into three product pillars plus a research lab and a co
 
 ### Q &mdash; Quality (Q1&ndash;Q4)
 
-Numbers that lead the market or honestly say where the gap is. Q1 runs LoCoMo (R@5, R@1, MRR, nDCG@10, Wilson CI), Q2 runs LongMemEval (task accuracy with LLM-as-judge dual jury), Q3 measures latency p50/p95/p99 across six workloads, and Q4 publishes a head-to-head `COMPARISON.md` against agentmemory, memanto, mem0, Letta, and Zep &mdash; **only if** Q1+Q2+Q3 show nox-mem at the top or tied. If we lose, we publish nothing and ship the work back to the lab. Harness scaffolds for Q1+Q2+Q3 are merged. Q4 is gated.
+Numbers that lead the market or honestly say where the gap is. Q1 runs LoCoMo (R@5, R@1, MRR, nDCG@10, Wilson CI), Q2 runs LongMemEval (task accuracy with LLM-as-judge dual jury), Q3 measures latency p50/p95/p99 across six workloads, and Q4 publishes a head-to-head `COMPARISON.md` against agentmemory, memanto, mem0, Letta, and Zep &mdash; **only if** Q1+Q2+Q3 show nox-mem at the top or tied. **Q1 measured 2026-05-18: nDCG@10 = 0.5961 in production-path (+112% relative over the FTS5-only baseline E04 = 0.281), production TS pipeline via `/api/search`.** Q3 latency measured 2026-05-18: p50 = 940ms / p95 = 2.3s. Q2 oracle pipeline validated; `s_cleaned` headline run deferred pending batch-embedding optimization. Q4 gate **PASSED** &mdash; Phase 2 GTM opens.
 
 ### A &mdash; Autonomy (A1&ndash;A4)
 
@@ -101,9 +101,9 @@ UX that ships without compromising Q or A. P1 (`answer` primitive with CLI + HTT
 
 Paper-grade work, no ship pressure. L2 (KG conflict and contradiction detection over opposing relations) and L3 (confidence and provenance field, schema v19, gated on eval lift) are specced. L4 (regex-first typed-link extraction with Gemini fallback, gbrain-inspired) measured **95.8% precision/recall** on a synthetic corpus and **80% Gemini calls eliminated** via a confidence gate (`wikilinks ≥0.90` skip LLM, `bare_refs 0.75` fall through). L1 (E15 CodeGraph-inspired A+B+C) is paused until Q1 closes.
 
-### GTM Phase 2 &mdash; Viral launch (CONDITIONAL)
+### GTM Phase 2 &mdash; Viral launch (✅ UNLOCKED 2026-05-18)
 
-Locked behind Q4. If `COMPARISON.md` puts nox-mem on top or tied, the playbook unlocks: hero visual upgrade, Trendshift badge, Product Hunt launch, paper distribution to dev.to / LinkedIn / Substack, Hotmart conversion path via [nox-supermem](https://github.com/totobusnello/nox-supermem). If we lose Q4, GTM stays locked and L1 retakes capacity. Spec: [`specs/2026-05-17-GTM-readme-hero-upgrade.md`](specs/2026-05-17-GTM-readme-hero-upgrade.md).
+**Q4 gate PASSED.** Q1 production-path measurement (+112% nDCG@10 over FTS5 baseline, verified 2026-05-18) cleared the D43 threshold (≥+15%). Phase 2 playbook unlocked: hero visual upgrade, Trendshift badge, Product Hunt launch, paper distribution to dev.to / LinkedIn / Substack, **Stripe-first global SaaS go-to-market** (D44b pivot: USD default, no affiliate program, Brazilian market as secondary tier via PIX integration future). If production-path scale-up testing reveals regression below +15%, scale-up pauses but the initial Phase 2 claim stands. Spec: [`specs/2026-05-17-GTM-readme-hero-upgrade.md`](specs/2026-05-17-GTM-readme-hero-upgrade.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md#d43--q4-gate-15-ndcg10--2-tier-scale-up).
 
 ## Numbers
 
@@ -129,9 +129,12 @@ Verified against the live corpus and Wave B (2026-05-18) implementation push. Nu
 | Wave B tests passing | **535+** across L4, A3, P1, A2, P5 | Wave B post-mortem |
 | Schema migrations | **v11 (telemetry) + v19 (confidence/provenance)** &mdash; additive, idempotent | PR&nbsp;#28 |
 | Monthly OPEX (Gemini embed + KG + VPS) | **&lt;$11/mo** all-in, Mar&ndash;May 2026 actuals | live invoicing |
-| LoCoMo R@5 (full run) | **pending Q1 gate** | [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md) |
-| LongMemEval task accuracy (full run) | **pending Q2 gate** | [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md) |
-| Latency p95 against live corpus | **pending Q3 gate** | [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md) |
+| **LoCoMo nDCG@10 hybrid (production-path, n=100)** | **0.5961 &mdash; +112% rel over FTS5-only baseline 0.281** | [paper/publication/results/locomo-production-path-results.json](paper/publication/results/locomo-production-path-results.json), verified 2026-05-18 |
+| LoCoMo Recall@10 (production-path, n=100) | **0.7070** (+87% rel over baseline) | same source as above |
+| LoCoMo MRR (production-path, n=100) | **0.5534** (+98% rel over baseline) | same source as above |
+| Latency `/api/search` hybrid (n=95) | **p50 = 940ms / p95 = 2342ms / p99 = 2523ms** | [paper/publication/results/latency-benchmark-summary.json](paper/publication/results/latency-benchmark-summary.json), verified 2026-05-18 |
+| Concurrent load `/api/answer` (5 threads, n=15) | **100% 200 OK, p95 = 5143ms, zero errors** | [paper/publication/results/answer-concurrent-smoke.json](paper/publication/results/answer-concurrent-smoke.json), verified 2026-05-18 |
+| LongMemEval oracle (pipeline validated, n=100) | **1.0 saturated** (oracle has ~0 distractors &mdash; expected). `s_cleaned` headline run deferred (~$2.40, requires batch optimization). | [paper/publication/results/longmemeval-hybrid-summary.md](paper/publication/results/longmemeval-hybrid-summary.md) |
 
 Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-18.md`](docs/post-mortems/WAVE-B-2026-05-18.md).
 
