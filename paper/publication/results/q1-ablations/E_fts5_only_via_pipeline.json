@@ -1,0 +1,1729 @@
+{
+  "summary": {
+    "label": "E_fts5_only_via_pipeline",
+    "toggles": {
+      "NOX_SEMANTIC_DISABLE": "1",
+      "NOX_DISABLE_EXPANSION": "1",
+      "NOX_DISABLE_BOOSTS": "1"
+    },
+    "system": "production_path_ts_pipeline",
+    "n_queries": 100,
+    "endpoint": "http://127.0.0.1:18803/api/search",
+    "ndcg_at_10_D1": 0.0,
+    "ndcg_at_10_D2": 0.0,
+    "mrr": 0.0,
+    "recall_at_10": 0.0,
+    "precision_at_5": 0.0,
+    "mean_latency_ms": 0.8617,
+    "p95_latency_ms": 1.84,
+    "wallclock_s": 0.09
+  },
+  "per_category": {
+    "single-hop": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    "multi-hop": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    "temporal": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    "open-domain": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    "adversarial": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    }
+  },
+  "per_query": [
+    {
+      "question_id": "conv-41::q33",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What types of yoga has Maria practiced?",
+      "gold_chunk_ids": [
+        "conv-41::D1:3",
+        "conv-41::D18:15",
+        "conv-41::D19:3"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 13.31,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q48",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "When did John get an ankle injury in 2023?",
+      "gold_chunk_ids": [
+        "conv-43::D18:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1.84,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-50::q63",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What style of guitars does Calvin own?",
+      "gold_chunk_ids": [
+        "conv-50::D16:13",
+        "conv-50::D16:4",
+        "conv-50::D16:18",
+        "conv-50::D16:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1.2,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q52",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "How many of Joanna's writing have made it to the big screen?",
+      "gold_chunk_ids": [
+        "conv-42::D15:1",
+        "conv-42::D25:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.86,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-44::q29",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What are the names of Audrey's dogs?",
+      "gold_chunk_ids": [
+        "conv-44::D1:7",
+        "conv-44::D2:1",
+        "conv-44::D19:12"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.92,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-26::q15",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What activities does Melanie partake in?",
+      "gold_chunk_ids": [
+        "conv-26::D5:4",
+        "conv-26::D9:1",
+        "conv-26::D1:12",
+        "conv-26::D1:18"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.8,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q51",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "Which new games did John start play during the course of the conversation with James?",
+      "gold_chunk_ids": [
+        "conv-47::D5:4",
+        "conv-47::D19:7",
+        "conv-47::D30:14",
+        "conv-47::D24:1",
+        "conv-47::D24:3",
+        "conv-47::D8:20"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1.11,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-26::q24",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What does Melanie do to destress?",
+      "gold_chunk_ids": [
+        "conv-26::D7:22",
+        "conv-26::D5:4"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.98,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-49::q14",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What is Evan's favorite food?",
+      "gold_chunk_ids": [
+        "conv-49::D3:3",
+        "conv-49::D5:5",
+        "conv-49::D23:15",
+        "conv-49::D22:12"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.97,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-41::q11",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What people has Maria met and helped while volunteering?",
+      "gold_chunk_ids": [
+        "conv-41::D7:5",
+        "conv-41::D6:5",
+        "conv-41::D27:8",
+        "conv-41::D21:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.72,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q19",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "How many times has Joanna found new hiking trails?",
+      "gold_chunk_ids": [
+        "conv-42::D8:4",
+        "conv-42::D11:3"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.59,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q7",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "Which geographical locations has Tim been to?",
+      "gold_chunk_ids": [
+        "conv-43::D1:18",
+        "conv-43::D3:2",
+        "conv-43::D14:16"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.59,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q79",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "How many screenplays has Joanna written?",
+      "gold_chunk_ids": [
+        "conv-42::D2:3",
+        "conv-42::D4:10",
+        "conv-42::D5:1",
+        "conv-42::D12:13",
+        "conv-42::D12:14"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.74,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-49::q6",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "How many roadtrips did Evan take in May 2023?",
+      "gold_chunk_ids": [
+        "conv-49::D1:4",
+        "conv-49::D2:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.63,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-41::q15",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What writing classes has Maria taken?",
+      "gold_chunk_ids": [
+        "conv-41::D9:1",
+        "conv-41::D7:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.62,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q80",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "Has Jolene tried surfing?",
+      "gold_chunk_ids": [
+        "conv-48::D10:20",
+        "conv-48::D29:26",
+        "conv-48::D29:30"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.78,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q26",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "Which countries has James visited?",
+      "gold_chunk_ids": [
+        "conv-47::D6:12",
+        "conv-47::D6:14",
+        "conv-47::D16:9",
+        "conv-47::D17:22"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.79,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q24",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What new yoga poses did Deborah try?",
+      "gold_chunk_ids": [
+        "conv-48::D4:14",
+        "conv-48::D14:3",
+        "conv-48::D14:15"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.64,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q34",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "Which countries did James visit in July 2022?",
+      "gold_chunk_ids": [
+        "conv-47::D16:9",
+        "conv-47::D17:22"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.68,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q83",
+      "category": 1,
+      "category_name": "single-hop",
+      "question": "What are the skills that Nate has helped others learn?",
+      "gold_chunk_ids": [
+        "conv-42::D18:8",
+        "conv-42::D26:12",
+        "conv-42::D14:16"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.83,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q63",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did John organize a basketball camp for kids?",
+      "gold_chunk_ids": [
+        "conv-43::D26:23"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.67,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q55",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did John and his programming friends host an online programming competition?",
+      "gold_chunk_ids": [
+        "conv-47::D27:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.67,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-49::q75",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Evan announce his marriage to his extended family?",
+      "gold_chunk_ids": [
+        "conv-49::D23:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.66,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-41::q34",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Maria join a gym?",
+      "gold_chunk_ids": [
+        "conv-41::D19:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.63,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q37",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Nate win an international tournament?",
+      "gold_chunk_ids": [
+        "conv-42::D19:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.57,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-50::q27",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "Which city was Calvin visiting in August 2023?",
+      "gold_chunk_ids": [
+        "conv-50::D16:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.62,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q4",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did John resume playing drums in his adulthood?",
+      "gold_chunk_ids": [
+        "conv-47::D3:5"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.57,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q23",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When is Tim attending a book conference?",
+      "gold_chunk_ids": [
+        "conv-43::D7:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.57,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q45",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Joanna finish up the writing for her book?",
+      "gold_chunk_ids": [
+        "conv-42::D22:9"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.65,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-50::q0",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Calvin first travel to Tokyo?",
+      "gold_chunk_ids": [
+        "conv-50::D3:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.59,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q41",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did James meet Samantha?",
+      "gold_chunk_ids": [
+        "conv-47::D19:12"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.61,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q12",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "What year did John start surfing?",
+      "gold_chunk_ids": [
+        "conv-43::D3:27"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.59,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-50::q69",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Dave buy a vintage camera?",
+      "gold_chunk_ids": [
+        "conv-50::D30:05"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.54,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q41",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Joanna make a chocolate tart with raspberries?",
+      "gold_chunk_ids": [
+        "conv-42::D22:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.68,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q72",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Joanna plan on going to Nate's to watch him play with his turtles?",
+      "gold_chunk_ids": [
+        "conv-42::D28:32"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.71,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-50::q44",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Calvin met with local artists in Boston?",
+      "gold_chunk_ids": [
+        "conv-50::D21:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1.92,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q45",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "Which country was Tim visiting in the second week of November?",
+      "gold_chunk_ids": [
+        "conv-43::D18:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.74,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q43",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "How long did it take for Joanna to finish writing her book?",
+      "gold_chunk_ids": [
+        "conv-42::D17:14",
+        "conv-42::D22:9"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2.77,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q13",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When did Joanna have an audition for a writing gig?",
+      "gold_chunk_ids": [
+        "conv-42::D6:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.85,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q69",
+      "category": 2,
+      "category_name": "multi-hop",
+      "question": "When will Tim leave for Ireland?",
+      "gold_chunk_ids": [
+        "conv-43::D28:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.79,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-49::q27",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "What electronic device could Evan gift Sam to help him keep up with his fitness goals?",
+      "gold_chunk_ids": [
+        "conv-49::D5:7"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.71,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q5",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "In what country did Jolene's mother buy her the pendant?",
+      "gold_chunk_ids": [
+        "conv-48::D1:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.75,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q66",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "What is a Star Wars book that Tim might enjoy?",
+      "gold_chunk_ids": [
+        "conv-43::D27:19",
+        "conv-43::D27:21"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.65,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-41::q8",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "What might John's financial status be?",
+      "gold_chunk_ids": [
+        "conv-41::D5:5"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.61,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-50::q13",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Would Calvin enjoy performing at the Hollywood Bowl?",
+      "gold_chunk_ids": [
+        "conv-50::D7:11"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.89,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q8",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Which outdoor gear company likely signed up John for an endorsement deal?",
+      "gold_chunk_ids": [
+        "conv-43::D3:15",
+        "conv-43::D25:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.69,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q70",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Which Star Wars-related locations would Tim enjoy during his visit to Ireland?",
+      "gold_chunk_ids": [
+        "conv-43::D1:18",
+        "conv-43::D27:21",
+        "conv-43::D28:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.68,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-49::q31",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "How might Evan and Sam's experiences with health and lifestyle changes influence their approach to stress and challenges?",
+      "gold_chunk_ids": [
+        "conv-49::D9:1 D4:4 D4:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.69,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-50::q7",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Does Dave's shop employ a lot of people?",
+      "gold_chunk_ids": [
+        "conv-50::D4:17"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.63,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-41::q45",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Would John be open to moving to another country?",
+      "gold_chunk_ids": [
+        "conv-41::D24:3",
+        "conv-41::D7:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.7,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-50::q37",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Does Calvin love music tours?",
+      "gold_chunk_ids": [
+        "conv-50::D18:7",
+        "conv-50::D16:2",
+        "conv-50::D7:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.58,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-26::q64",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Would Melanie likely enjoy the song \"The Four Seasons\" by Vivaldi?",
+      "gold_chunk_ids": [
+        "conv-26::D15:28"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.59,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-41::q41",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Does John live close to a beach or the mountains?",
+      "gold_chunk_ids": [
+        "conv-41::D22:15"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.54,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-26::q59",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Would Caroline be considered religious?",
+      "gold_chunk_ids": [
+        "conv-26::D14:19",
+        "conv-26::D12:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.53,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q30",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Which country did James book tickets for in July 2022?",
+      "gold_chunk_ids": [
+        "conv-47::D16:9",
+        "conv-47::D16:11"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.57,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-26::q22",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "Would Caroline likely have Dr. Seuss books on her bookshelf?",
+      "gold_chunk_ids": [
+        "conv-26::D6:9"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.5,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-41::q64",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "What job might Maria pursue in the future?",
+      "gold_chunk_ids": [
+        "conv-41::D32:14",
+        "conv-41::D5:8",
+        "conv-41::D11:10",
+        "conv-41::D27:4"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.46,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q75",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "What card game is Deborah talking about?",
+      "gold_chunk_ids": [
+        "conv-48::D27:12"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.78,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-44::q53",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "What is a career that Andrew could potentially pursue with his love for animals and nature?",
+      "gold_chunk_ids": [
+        "conv-44::D2:18",
+        "conv-44::D3:1",
+        "conv-44::D5:7",
+        "conv-44::D8:27"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.59,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q34",
+      "category": 3,
+      "category_name": "temporal",
+      "question": "What could John do after his basketball career?",
+      "gold_chunk_ids": [
+        "conv-43::D11:19",
+        "conv-43::D26:1",
+        "conv-43::D27:26"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.58,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-30::q65",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What book is Jon currently reading?",
+      "gold_chunk_ids": [
+        "conv-30::D12:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.67,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q159",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What type of seminars is John conducting?",
+      "gold_chunk_ids": [
+        "conv-43::D26:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.56,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q107",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What does Deborah bring with her whenever she comes to reflect on her mom?",
+      "gold_chunk_ids": [
+        "conv-48::D4:36"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.53,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-26::q127",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What did Caroline make for a local church?",
+      "gold_chunk_ids": [
+        "conv-26::D14:17"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.54,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q106",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What is Jolene's favorite book which she mentioned on 4 February, 2023?",
+      "gold_chunk_ids": [
+        "conv-48::D4:21"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.48,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-44::q87",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "How long did the trail hike that Audrey went on with her pups take?",
+      "gold_chunk_ids": [
+        "conv-44::D14:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.45,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q176",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What did Joanna contribute to that was shown on the big screen on the Sunday before October 25, 2022?",
+      "gold_chunk_ids": [
+        "conv-42::D25:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.46,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q182",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What does yoga on the beach provide for Deborah?",
+      "gold_chunk_ids": [
+        "conv-48::D28:15"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.56,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q81",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "How long has John been surfing?",
+      "gold_chunk_ids": [
+        "conv-43::D3:27"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.52,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q90",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What are Jolene's favorite books?",
+      "gold_chunk_ids": [
+        "conv-48::D4:21",
+        "conv-48::D4:23"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.55,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q111",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "Which RPG game is John playing and enjoying on 10 August, 2022?",
+      "gold_chunk_ids": [
+        "conv-47::D19:7"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.66,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-30::q78",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "According to Gina, what makes Jon a perfect mentor and guide?",
+      "gold_chunk_ids": [
+        "conv-30::D17:7"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.59,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q95",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What is Nate's favorite video game?",
+      "gold_chunk_ids": [
+        "conv-42::D27:22",
+        "conv-42::D27:23"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.48,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-26::q118",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What did Melanie and her family see during their camping trip last year?",
+      "gold_chunk_ids": [
+        "conv-26::D10:14"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.44,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-30::q76",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What is the general sentiment about the upcoming grand opening?",
+      "gold_chunk_ids": [
+        "conv-30::D15:18",
+        "conv-30::D15:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.46,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q123",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What did Jolene and Anna discuss while watching the sunset by the sea?",
+      "gold_chunk_ids": [
+        "conv-48::D10:17"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.5,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-41::q83",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What areas is John particularly interested in for policymaking?",
+      "gold_chunk_ids": [
+        "conv-41::D9:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.59,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-50::q127",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What specific location in Tokyo does Calvin mention being excited to explore?",
+      "gold_chunk_ids": [
+        "conv-50::D24:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.53,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q140",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "What did James lose progress on due to a power outage?",
+      "gold_chunk_ids": [
+        "conv-47::D28:3"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.73,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q139",
+      "category": 4,
+      "category_name": "open-domain",
+      "question": "Why did Jolene decide to get a snake as a pet?",
+      "gold_chunk_ids": [
+        "conv-48::D15:18"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.74,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-44::q137",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What type of classes did Andrew start with his pups recently on 4 August, 2023?",
+      "gold_chunk_ids": [
+        "conv-44::D14:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.63,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q157",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What did the system John created help the illegal organization with?",
+      "gold_chunk_ids": [
+        "conv-47::D11:5"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.79,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q238",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What is the sculpture of Aragorn a reminder for John to be in everything he does?",
+      "gold_chunk_ids": [
+        "conv-43::D27:28"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.61,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q223",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What kind of event did Deborah present at recently?",
+      "gold_chunk_ids": [
+        "conv-48::D21:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.75,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q151",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What is the name of the kitten that was adopted by James?",
+      "gold_chunk_ids": [
+        "conv-47::D5:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.83,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-30::q82",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What is Jon's favorite style of painting?",
+      "gold_chunk_ids": [
+        "conv-30::D1:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.79,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-30::q103",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What temporary job did Gina take to cover expenses?",
+      "gold_chunk_ids": [
+        "conv-30::D18:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.84,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-48::q219",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What game did Deborah suggest as an awesome open-world game for the Nintendo Switch?",
+      "gold_chunk_ids": [
+        "conv-48::D19:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2.48,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-49::q192",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What suggestions did Evan give for high-impact exercises?",
+      "gold_chunk_ids": [
+        "conv-49::D24:17"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.72,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q214",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What is Nate's project called in the writers group?",
+      "gold_chunk_ids": [
+        "conv-42::D9:3"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.65,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-42::q249",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What game is Joanna currently playing and recommends to others on November 7, 2022?",
+      "gold_chunk_ids": [
+        "conv-42::D27:23"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.6,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q152",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What inspired John to create the game character in the virtual world?",
+      "gold_chunk_ids": [
+        "conv-47::D6:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.62,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q176",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "Where does John get his ideas from?",
+      "gold_chunk_ids": [
+        "conv-47::D24:4"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.59,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-49::q194",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What activity hindered Evan's stress and flexibility?",
+      "gold_chunk_ids": [
+        "conv-49::D24:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1.24,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-44::q146",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What was the reason Andrew couldn't walk his dogs for a period of time?",
+      "gold_chunk_ids": [
+        "conv-44::D22:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.88,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-47::q162",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "How did James relax in his free time on 9 July, 2022?",
+      "gold_chunk_ids": [
+        "conv-47::D16:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.74,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q196",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What special memory does \"Fifty Shades of Grey\" bring to Tim?",
+      "gold_chunk_ids": [
+        "conv-43::D8:16"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.65,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q198",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What tradition does Tim mention they love during Halloween?",
+      "gold_chunk_ids": [
+        "conv-43::D8:22"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.73,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-41::q157",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What is the name of Maria's one-year-old child?",
+      "gold_chunk_ids": [
+        "conv-41::D8:4"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.58,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "question_id": "conv-43::q215",
+      "category": 5,
+      "category_name": "adversarial",
+      "question": "What type of meal does Tim often cook using a slow cooker?",
+      "gold_chunk_ids": [
+        "conv-43::D15:32",
+        "conv-43::D15:33"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 0.69,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    }
+  ]
+}
