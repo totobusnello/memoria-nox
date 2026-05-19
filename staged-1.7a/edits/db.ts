@@ -5,9 +5,59 @@ import { copyFileSync, existsSync, mkdirSync, readdirSync, unlinkSync } from "fs
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const _ws = process.env.OPENCLAW_WORKSPACE;
-export const DB_PATH = _ws ? resolve(_ws, "tools", "nox-mem", "nox-mem.db") : resolve(__dirname, "..", "nox-mem.db");
+
+// DB path resolution — priority order (postmortem 2026-05-19 fix):
+//   1. NOX_DB_PATH env var (explicit override for eval/test isolation)
+//   2. OPENCLAW_WORKSPACE-derived canonical path (production default)
+//   3. Relative fallback for local dev
+//
+// WARNING: Before this fix, only OPENCLAW_WORKSPACE was consulted.  Any caller
+// that set NOX_DB_PATH (e.g. G3 eval orchestrator, run_locomo_ablations.sh)
+// was silently ignored — `nox-mem ingest` always wrote to the production DB.
+// Root cause of the 2026-05-19 wipe incident (500 eval chunks → prod).
+export const DB_PATH = (
+  process.env.NOX_DB_PATH
+    ? resolve(process.env.NOX_DB_PATH)
+    : _ws
+      ? resolve(_ws, "tools", "nox-mem", "nox-mem.db")
+      : resolve(__dirname, "..", "nox-mem.db")
+);
 export const BACKUP_DIR = _ws ? resolve(_ws, "tools", "nox-mem", "backups") : resolve(__dirname, "..", "backups");
 const SCHEMA_VERSION = 7;
+
+// ────────────────────────────────────────────────────────────────────────────
+// Large-DB ingest guard (postmortem 2026-05-19)
+// ────────────────────────────────────────────────────────────────────────────
+// If the resolved DB has more than PROD_CHUNK_THRESHOLD chunks and the caller
+// has not set NOX_ALLOW_PROD_INGEST=1, abort before any write.  This prevents
+// eval/test ingests from silently polluting a large production DB.
+//
+// Threshold: 10,000 chunks. Production is at 68k+; eval DBs start fresh.
+// Override: NOX_ALLOW_PROD_INGEST=1  (explicit, auditable, required for prod ops)
+const PROD_CHUNK_THRESHOLD = 10_000;
+
+export function checkLargeDbIngestGuard(db: Database.Database, operation: string): void {
+  if (process.env.NOX_ALLOW_PROD_INGEST === "1") return;
+
+  const row = db.prepare("SELECT COUNT(*) AS n FROM chunks").get() as { n: number } | undefined;
+  const chunkCount = row?.n ?? 0;
+
+  if (chunkCount > PROD_CHUNK_THRESHOLD) {
+    const msg = [
+      `[db] ABORT: Large-DB ingest guard triggered on operation '${operation}'.`,
+      `  DB path:     ${DB_PATH}`,
+      `  Chunk count: ${chunkCount} (threshold: ${PROD_CHUNK_THRESHOLD})`,
+      `  This DB appears to be the production nox-mem.db.`,
+      `  If you intend to ingest into production, set:`,
+      `    NOX_ALLOW_PROD_INGEST=1 nox-mem ${operation} ...`,
+      `  If you are running an eval/ablation, ensure NOX_DB_PATH points to an`,
+      `  isolated eval DB (e.g. /tmp/entity-eval.db), NOT the production path.`,
+      `  (Root cause of the 2026-05-19 wipe incident — see docs/INCIDENTS.md)`,
+    ].join("\n");
+    console.error(msg);
+    process.exit(1);
+  }
+}
 
 let _db: Database.Database | null = null;
 

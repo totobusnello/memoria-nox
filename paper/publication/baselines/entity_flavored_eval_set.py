@@ -83,11 +83,100 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import random
+import re
+import sys
 from dataclasses import dataclass, field, asdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Optional
+
+# ────────────────────────────────────────────────────────────────────────────
+# SAFETY GUARD — fail-closed DB isolation check (postmortem 2026-05-19)
+# ────────────────────────────────────────────────────────────────────────────
+# This generator writes only to paper/publication/data/ (flat files), so it
+# does NOT directly touch any SQLite DB. However, the guard here prevents the
+# generator from running in an environment where NOX_DB_PATH / OPENCLAW_WORKSPACE
+# would cause a downstream `nox-mem ingest` invoked by the caller's orchestrator
+# to land in the production DB.
+#
+# Specifically: if the caller exports OPENCLAW_WORKSPACE pointing at the VPS
+# production workspace and forgets to also set NOX_DB_PATH to an isolated eval
+# DB, any subsequent `nox-mem ingest corpus.jsonl` will silently ingest into
+# nox-mem.db prod. This guard surfaces that misconfiguration at generator time
+# rather than after ingest has already run.
+
+_PROD_DB_PATTERN = re.compile(r"/tools/nox-mem/nox-mem\.db$")
+
+
+def _check_generator_isolation() -> None:
+    """Warn loudly if the environment looks like it will ingest into prod.
+
+    Does NOT abort — the generator itself is harmless. But prints a prominent
+    warning so the operator notices before running the downstream ingest step.
+
+    The warning becomes a hard abort if NOX_EVAL_STRICT=1 is set (recommended
+    in CI and automated G3 orchestrators).
+    """
+    eval_db = os.environ.get("NOX_EVAL_DB_PATH", "").strip()
+    openclaw_ws = os.environ.get("OPENCLAW_WORKSPACE", "").strip()
+    nox_db_path = os.environ.get("NOX_DB_PATH", "").strip()
+    override = os.environ.get("NOX_EVAL_ISOLATION_OVERRIDE", "").strip()
+    strict = os.environ.get("NOX_EVAL_STRICT", "").strip()
+
+    if override == "1":
+        return
+
+    warnings: list[str] = []
+
+    if not eval_db:
+        warnings.append(
+            "NOX_EVAL_DB_PATH is not set. "
+            "The downstream `nox-mem ingest` step (G3 orchestrator) will "
+            "fall through to OPENCLAW_WORKSPACE-based DB resolution and "
+            "potentially ingest eval chunks into production nox-mem.db. "
+            "Set NOX_EVAL_DB_PATH=/tmp/<eval>.db BEFORE running the orchestrator."
+        )
+
+    if nox_db_path and _PROD_DB_PATTERN.search(nox_db_path):
+        warnings.append(
+            f"NOX_DB_PATH='{nox_db_path}' points at the production DB. "
+            "Override it to an isolated path before running `nox-mem ingest`."
+        )
+
+    if openclaw_ws and not nox_db_path and not eval_db:
+        warnings.append(
+            f"OPENCLAW_WORKSPACE='{openclaw_ws}' is set but neither "
+            "NOX_DB_PATH nor NOX_EVAL_DB_PATH override it. "
+            "nox-mem CLI will resolve to "
+            f"'{openclaw_ws}/tools/nox-mem/nox-mem.db' (production)."
+        )
+
+    if warnings:
+        header = (
+            "\n[entity-eval-generator] ISOLATION WARNING — "
+            "review before running downstream ingest:"
+        )
+        if strict == "1":
+            print(header, file=sys.stderr)
+            for i, w in enumerate(warnings, 1):
+                print(f"  [{i}] {w}", file=sys.stderr)
+            print(
+                "\nAborting because NOX_EVAL_STRICT=1. "
+                "Fix the environment or set NOX_EVAL_ISOLATION_OVERRIDE=1.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        else:
+            print(header, file=sys.stderr)
+            for i, w in enumerate(warnings, 1):
+                print(f"  [{i}] {w}", file=sys.stderr)
+            print(
+                "  Set NOX_EVAL_STRICT=1 to make this a hard abort in CI.",
+                file=sys.stderr,
+            )
+
 
 # ────────────────────────────────────────────────────────────────────────────
 # Constants (mirroring src/search.ts + src/tier-manager.ts production values)
@@ -821,6 +910,10 @@ def summarize_queries(qs: list[Query]) -> dict:
 # ────────────────────────────────────────────────────────────────────────────
 
 def main() -> int:
+    # Isolation check (postmortem 2026-05-19) — warn/abort if env looks like
+    # downstream ingest would land in production DB.
+    _check_generator_isolation()
+
     p = argparse.ArgumentParser()
     p.add_argument("--out-dir", default="paper/publication/data/entity-eval-2026-05-19")
     p.add_argument("--seed", type=int, default=DEFAULT_SEED)
