@@ -119,7 +119,7 @@ export function buildTemporalClause(filter: TemporalFilter): TemporalClause {
 
 export function search(query: string, limit: number = 5, filter: TemporalFilter = {}): SearchResult[] {
   const db = getDb();
-  const sanitized = query.replace(/['"{}()\[\]:*^~&|!]/g, " ").replace(/\s+/g, " ").trim();
+  const sanitized = query.replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
   if (!sanitized) return [];
 
   const temporal = buildTemporalClause(filter);

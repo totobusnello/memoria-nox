@@ -21,7 +21,7 @@ export interface SearchResult {
 
 export function search(query: string, limit: number = 5): SearchResult[] {
   const db = getDb();
-  const sanitized = query.replace(/['"{}()\[\]:*^~&|!]/g, " ").replace(/\s+/g, " ").trim();
+  const sanitized = query.replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
   if (!sanitized) return [];
 
   let rows: Array<{
