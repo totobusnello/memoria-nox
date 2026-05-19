@@ -1,0 +1,20 @@
+{
+  "name": "nox-mem-boost-stack-wiring",
+  "version": "0.1.0-A-boost-stack-wiring",
+  "private": true,
+  "type": "module",
+  "description": "Wave A — boost stack wiring patch for nox-mem hybrid search. Wires section_boost, pain, source_type, tier, BOOST_TYPES, and salience as additive deltas with env toggles. Fixes G3-ablation findings (PR #146): all boosts were INERT in deployed search.ts.",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "check:search": "tsc -p tsconfig.search.json",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/tests/*.test.js"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20.0.0",
+    "better-sqlite3": "^12.10.0",
+    "typescript": "^5.4.0"
+  }
+}
