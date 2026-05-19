@@ -167,3 +167,11 @@ export function computeConfidenceHealth(
 }
 
 export { percentile, meanStddev };
+
+// ─── Wire-up adapter re-export ──────────────────────────────────────────────
+// handleHealthConfidence() is the arg-free wire-up contract; the real impl
+// lives in health-confidence-adapter.ts which wraps computeConfidenceHealth()
+// with DB injection via deps-registry. Without this re-export, wire-up.ts
+// tryImport("./health-confidence.js") finds the module but not the symbol →
+// 503 "L3 health not deployed". Same pattern as L2 db.ts re-export (PR #115).
+export { handleHealthConfidence } from "./health-confidence-adapter.js";
