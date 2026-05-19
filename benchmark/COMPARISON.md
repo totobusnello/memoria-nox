@@ -1,15 +1,13 @@
-# nox-mem vs the field — 2026-05-18 (Wave B snapshot)
+# nox-mem vs the field — 2026-05-18 (Wave Q + production-path snapshot)
 
-> **Status: INTERNAL WORKING DRAFT.** The publication gate (`GATE_VERIFIED=1`) has NOT been
-> triggered. This document contains our own Wave B benchmark numbers plus
-> competitor source-of-truth research. LongMemEval numbers require
-> the Q2 harness run on VPS (in-flight 2026-05-18). Do NOT
-> share externally until the gate opens.
+> **Status: D43 GATE PASSED 2026-05-18 noite.** Q1 production-path measurement cleared ≥+15% nDCG@10 threshold. Phase 2 GTM **UNLOCKED**. This document mantém working-draft posture pra refinement de competitor numbers, mas headline numbers já são production-verified.
 
-> **Headline:** **101ms p95 end-to-end** (P1 answer primitive, mock LLM 100ms) —
-> non-LLM pipeline overhead is sub-millisecond across all phases.
-> **Retrieval quality:** nDCG@10 = **0.3338** (+18.8% vs FTS5 baseline) [verified 2026-05-18 — Python reimpl, n=100].
-> **Search latency:** p50 = **939.755ms**, p95 = **2341.955ms** (prod API, dominated by Gemini embed) [verified 2026-05-18 — prod API, n=95].
+> **Headline (canonical, production-path):** **nDCG@10 = 0.5961 — +112% rel vs FTS5 baseline (E04 = 0.281)**
+> [verified 2026-05-18 — production TS pipeline via `/api/search` :18803, n=100 stratified seed=42, same subset as E04].
+> Python re-implementation lower-bound: nDCG@10 = 0.3338 (+18.8% vs baseline) — validates architectural shape only.
+> **Search latency:** p50 = **939.755ms**, p95 = **2341.955ms** (prod /api/search, dominated by Gemini embed) [verified 2026-05-18 — n=95].
+> **/api/answer end-to-end:** p50 = 1.5-2.7s, retrieval_count = 8, real Gemini call [verified 2026-05-18].
+> **Concurrent /api/answer (5 threads):** 100% 200 OK, p95 = 5.1s, zero errors [verified 2026-05-18 — n=15].
 
 > Numbers below are a partial snapshot from 2026-05-18. Wave B delivered real
 > numbers for latency (P1 bench), export/import (A2 bench), and provider
@@ -23,7 +21,7 @@
 
 | System | nDCG@10 | Recall@10 | Latency p95 (search) | Cost/1k queries | Data autonomy | Encryption |
 |---|---|---|---|---|---|---|
-| **nox-mem** | **0.3338** [verified 2026-05-18 — Python reimpl, n=100]¹ | **0.4403** [verified 2026-05-18 — Python reimpl, n=100]¹ | **2341.955ms** (prod /api/search) [verified 2026-05-18 — prod API, n=95]² | ~$0.01 est. (flash-lite) | ✅ SQLite file, no daemon | ✅ AES-256-GCM (A2) |
+| **nox-mem** | **0.5961** [verified 2026-05-18 — **production TS pipeline**, n=100]¹ | **0.7070** [verified 2026-05-18 — production TS, n=100]¹ | **2341.955ms** (prod /api/search) [verified 2026-05-18 — n=95]² | ~$0.01 est. (flash-lite) | ✅ SQLite file, no daemon | ✅ AES-256-GCM (A2) |
 | agentmemory | ❓ vendor claims R@5 95.2% (LoCoMo)³ | ❓ | ❓ | ❓ | ⚠️ requires iii-engine daemon | ❓ |
 | Memanto | ❓ | ❓ vendor claims acc. 89.8% (LongMemEval)⁴ | ❓ (SaaS network RTT) | ❓ subscription | ❌ SaaS, data hosted (Moorcheh) | ❌ vendor-controlled |
 | mem0 | competitor: not published | competitor: not published | competitor: not published | ❓ (OpenAI key required) | ✅ PostgreSQL + Qdrant | ❓ |
@@ -31,10 +29,13 @@
 | Zep | competitor: not published | competitor: not published | competitor: not published | ❓ (OpenAI key required) | ✅ Postgres self-host / SaaS Pro | ❓ |
 | built-in `MEMORY.md` | ❓ | ❓ | ~0ms (filesystem) | $0 | ✅ filesystem only | ❌ plaintext |
 
-> ¹ Q1 LoCoMo hybrid run 2026-05-18. Python re-implementation — validates
-> architectural shape (FTS5 BM25 + Gemini 3072d + RRF k=60), NOT production
-> TypeScript pipeline. n=100 stratified subset (seed=42), same as E04 FTS5 baseline
-> for apples-to-apples comparison. Production code path validation is a separate work item.
+> ¹ Q1 LoCoMo hybrid run 2026-05-18 **production-path** — TS pipeline via
+> `/api/search` on 2nd nox-mem-api instance (port :18803, NOX_DB_PATH=eval.db
+> isolated). n=100 stratified subset (seed=42), same as E04 FTS5 baseline
+> for apples-to-apples comparison. **Reproduces** the +112% rel gain on production
+> code (vs the +18.8% Python re-implementation lower-bound). Production code
+> outperforms re-impl significantly — likely due to salience boost (recency × pain
+> × importance) + section_boost weighting that the Python re-impl skipped.
 >
 > ² Q3 prod /api/search latency bench 2026-05-18. n=95 valid (100 total, 5 warmup excluded).
 > Hits real nox-mem.db with 68,995 chunks. Dominated by Gemini embed API call (~800ms).
@@ -74,20 +75,46 @@
 
 **Retrieval quality (LoCoMo n=100 stratified, seed=42)**
 
-> **Caveat:** Q1 is Python re-implementation, not production code path. Validates
-> architectural shape (FTS5 BM25 + Gemini 3072d dense + RRF k=60), not specific
-> TypeScript implementation. Production-path validation via `nox-mem search`
-> against isolated DB is a separate work item. n=100 subset (not full 1986
-> questions), same seed=42 as E04 FTS5 baseline — apples-to-apples only.
+#### CANONICAL: Production-path TS pipeline (D43 Tier 2 gate PASSED)
 
-| Metric | FTS5-only (E04 2026-05-04) | **Hybrid (2026-05-18)** | Δ abs | Δ rel |
+| Metric | FTS5-only (E04 2026-05-04) | **Hybrid PRODUCTION (2026-05-18)** | Δ abs | Δ rel |
 |---|---|---|---|---|
-| nDCG@10 | 0.2810 | **0.3338** | +0.0527 | **+18.8%** |
-| MRR | 0.2795 | **0.3200** | +0.0405 | +14.5% |
-| Recall@10 | 0.3792 | **0.4403** | +0.0612 | +16.1% |
-| Precision@5 | 0.0780 | **0.0960** | +0.0180 | +23.1% |
+| **nDCG@10** | 0.2810 | **0.5961** | **+0.3151** | **+112.1%** |
+| **MRR** | 0.2795 | **0.5534** | +0.2739 | **+98.0%** |
+| **Recall@10** | 0.3792 | **0.7070** | +0.3278 | **+86.5%** |
+| **Precision@5** | 0.0780 | **0.1760** | +0.0980 | **+125.6%** |
 
-95% CI on nDCG@10 (normal approx, n=100): Hybrid **0.3338** [0.2564, 0.4111]
+**Per-category nDCG@10 (production):**
+
+| Category | FTS5 baseline | Production hybrid | Δ rel |
+|---|---|---|---|
+| single-hop | 0.1179 | **0.6230** | +428.4% |
+| multi-hop | 0.3708 | **0.4609** | +24.3% |
+| temporal | 0.2887 | **0.4662** | +61.5% |
+| open-domain | 0.3746 | **0.8462** | +125.9% |
+| adversarial | 0.2531 | **0.5842** | +130.8% |
+
+Run details: production TS pipeline via `/api/search` on 2nd nox-mem-api instance (port :18803, isolated `eval.db`). Same stratified n=100 seed=42 subset as E04 baseline.
+
+Files: `paper/publication/results/locomo-production-path-results.json` (full per-query data, 3716 lines).
+
+#### LOWER-BOUND: Python re-implementation (validates architectural shape)
+
+> **Caveat:** Python re-implementation, NOT production code path. Validates the
+> retrieval architecture shape (FTS5 BM25 + Gemini 3072d dense + RRF k=60) but
+> skips salience boost + section_boost that production code applies. Numbers
+> represent the lower-bound of what the architecture can achieve.
+
+| Metric | FTS5-only (E04 2026-05-04) | Hybrid Python re-impl (2026-05-18) | Δ abs | Δ rel |
+|---|---|---|---|---|
+| nDCG@10 | 0.2810 | 0.3338 | +0.0527 | +18.8% |
+| MRR | 0.2795 | 0.3200 | +0.0405 | +14.5% |
+| Recall@10 | 0.3792 | 0.4403 | +0.0612 | +16.1% |
+| Precision@5 | 0.0780 | 0.0960 | +0.0180 | +23.1% |
+
+95% CI on nDCG@10 (normal approx, n=100): Python hybrid **0.3338** [0.2564, 0.4111]
+
+**Production code outperforms Python re-impl by +78.6% rel** — implementation differences matter. Most likely: salience boost (`recency × pain × importance`) + section_boost weighting (`compiled 2.0 / frontmatter 1.5 / timeline 0.8`).
 
 By category nDCG@10:
 
@@ -266,7 +293,7 @@ The gate opens when ALL of the following are true:
 1. ❓ nox-mem ships verified numbers on 4 standardized benchmarks:
    - Latency: ✅ P1 answer-primitive bench (mock LLM) + ✅ Q3 latency bench (prod /api/search, n=95, p50=940ms) [verified 2026-05-18]
    - Cost:    🔄 estimable from A3 cost-cap module (~$0.01/1k queries flash-lite)
-   - LoCoMo:  ✅ Q1 hybrid run complete (nDCG@10=0.3338, +18.8% vs FTS5) [verified 2026-05-18 — Python reimpl, n=100]
+   - LoCoMo:  ✅ Q1 hybrid run complete (**nDCG@10=0.5961, +112% vs FTS5**, production-path) [verified 2026-05-18 — production TS pipeline, n=100]
    - LongMemEval: ⏸️ Q2 in-flight 2026-05-18
 
 2. ❓ At least 2 competitors have published comparable numbers.
