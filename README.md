@@ -103,7 +103,7 @@ Paper-grade work, no ship pressure. L2 (KG conflict and contradiction detection 
 
 ### GTM Phase 2 &mdash; Viral launch (✅ UNLOCKED 2026-05-18)
 
-**Q4 gate PASSED.** Q1 production-path measurement (+112% nDCG@10 over FTS5 baseline, verified 2026-05-18) cleared the D43 threshold (≥+15%). Phase 2 playbook unlocked: hero visual upgrade, Trendshift badge, Product Hunt launch, paper distribution to dev.to / LinkedIn / Substack, **Stripe-first global SaaS go-to-market** (D44b pivot: USD default, no affiliate program, Brazilian market as secondary tier via PIX integration future). If production-path scale-up testing reveals regression below +15%, scale-up pauses but the initial Phase 2 claim stands. Spec: [`specs/2026-05-17-GTM-readme-hero-upgrade.md`](specs/2026-05-17-GTM-readme-hero-upgrade.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md#d43--q4-gate-15-ndcg10--2-tier-scale-up).
+**Q4 gate PASSED.** Q1 production-path measurement (+112% nDCG@10 over FTS5 baseline, verified 2026-05-18) cleared the D43 threshold (≥+15%). Phase 2 playbook unlocked: hero visual upgrade, Trendshift badge, Product Hunt launch, paper distribution to dev.to / LinkedIn / Substack, **Stripe-first global SaaS go-to-market** (D44b pivot: USD default, no affiliate program, Brazilian market as secondary tier via PIX integration future). If production-path scale-up testing reveals regression below +15%, scale-up pauses but the initial Phase 2 claim stands. Spec: [`specs/2026-05-17-GTM-readme-hero-upgrade.md`](specs/2026-05-17-GTM-readme-hero-upgrade.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md) (D43 + D44).
 
 ## Numbers
 
