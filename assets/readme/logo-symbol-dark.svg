@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80" role="img" aria-label="nox-mem symbol">
+  <title>nox-mem</title>
+  <desc>Crescent shadow over three stacked memory layers — hybrid retrieval (lexical, semantic, graph) under shadow discipline.</desc>
+
+  <defs>
+    <!-- Clip: full canvas minus outer crescent circle. Bars only show OUTSIDE the moon. -->
+    <clipPath id="outside-moon-dark" clipPathUnits="userSpaceOnUse">
+      <path d="M 0 0 H 80 V 80 H 0 Z
+               M 48 14 A 26 26 0 1 0 48 66 A 26 26 0 1 0 48 14 Z"
+            fill-rule="evenodd"/>
+    </clipPath>
+  </defs>
+
+  <!-- Three memory layer bars, opacity encoding pain-weighted retrieval density -->
+  <g clip-path="url(#outside-moon-dark)">
+    <!-- Bar 1 (top, lexical/FTS5) — lightest -->
+    <rect x="8" y="20" width="64" height="6" rx="3" fill="#00C896" opacity="0.45"/>
+    <!-- Bar 2 (middle, semantic/vec) — medium -->
+    <rect x="8" y="37" width="64" height="6" rx="3" fill="#00C896" opacity="0.75"/>
+    <!-- Bar 3 (bottom, graph/KG) — heaviest -->
+    <rect x="8" y="54" width="64" height="6" rx="3" fill="#00C896" opacity="1.00"/>
+  </g>
+
+  <!-- Crescent: solid primary color, even-odd fill carves inner from outer -->
+  <path d="M 48 14 A 26 26 0 1 0 48 66 A 26 26 0 1 0 48 14 Z
+           M 56 18 A 22 22 0 1 1 56 62 A 22 22 0 1 1 56 18 Z"
+        fill="#00C896"
+        fill-rule="evenodd"/>
+</svg>

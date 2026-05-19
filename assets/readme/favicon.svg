@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="nox-mem">
+  <title>nox-mem</title>
+  <!-- Rounded square backing: deep navy, primary identity at all sizes -->
+  <rect x="0" y="0" width="32" height="32" rx="6" fill="#0F1B2D"/>
+  <!-- Crescent moon: outer r=11, inner offset r=9.2 — proportions tuned for 16px legibility -->
+  <path d="M 18 5
+           A 11 11 0 1 0 18 27
+           A 11 11 0 1 0 18 5 Z
+           M 21.2 6.8
+           A 9.2 9.2 0 1 1 21.2 25.2
+           A 9.2 9.2 0 1 1 21.2 6.8 Z"
+        fill="#00C896"
+        fill-rule="evenodd"/>
+</svg>
