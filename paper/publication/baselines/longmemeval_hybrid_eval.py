@@ -49,6 +49,7 @@ import argparse
 import json
 import math
 import os
+import random
 import re
 import sqlite3
 import statistics
@@ -57,6 +58,7 @@ import time
 import urllib.error
 import urllib.request
 from collections import defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
@@ -127,8 +129,21 @@ TOP_K_FTS = 20
 TOP_K_DENSE = 20
 TOP_K_FINAL = 10
 
+# Sequential pacing (kept for eval loop only; corpus embed uses parallel batch).
 BATCH_SLEEP = 0.05
-MAX_RETRIES = 4
+MAX_RETRIES = 5
+
+# Parallel batch embed config (added 2026-05-19 — perf/q2-batch-parallel-embedding).
+# Target rate: ~10 embed/s. Gemini free-tier embedding RPM ≈ 1500 (~25/s),
+# so BATCH_PARALLEL=10 stays at ~40% of the headroom. Override via env
+# LONGMEMEVAL_BATCH_PARALLEL=N for tuning during the s_cleaned full run.
+BATCH_PARALLEL = max(1, int(os.environ.get("LONGMEMEVAL_BATCH_PARALLEL", "10")))
+# Per-item retries inside the parallel pool (exponential backoff w/ jitter).
+ITEM_MAX_RETRIES = 5
+# Per-batch top-level retries (refeed the whole failed batch up to N times).
+BATCH_MAX_RETRIES = 3
+# Base backoff for item-level 429/5xx: delay_ms = BACKOFF_BASE_MS * 2^attempt + jitter.
+BACKOFF_BASE_MS = 100
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -349,8 +364,31 @@ def build_index(corpus: list[dict]) -> int:
 # ─────────────────────────────────────────────────────────────────────────────
 # Gemini embedding (single-call API; stdlib urllib for zero pip deps beyond np)
 # ─────────────────────────────────────────────────────────────────────────────
-def embed_one(text: str, api_key: str, *, task_type: str = "RETRIEVAL_DOCUMENT") -> list[float]:
-    """Call Gemini embedContent once. Retries on 429/5xx with exponential backoff."""
+def _backoff_seconds(attempt: int) -> float:
+    """Exponential backoff with full jitter: BACKOFF_BASE_MS * 2^attempt + jitter.
+
+    `attempt` is 0-based on the FIRST retry (i.e. delay before retry #1 after
+    the original failure). Caps at ~16 s so 429 storms don't stall the run
+    past the batch budget.
+    """
+    base = (BACKOFF_BASE_MS / 1000.0) * (2 ** attempt)
+    jitter = random.random() * (BACKOFF_BASE_MS / 1000.0)  # 0..BASE_MS jitter
+    return min(16.0, base + jitter)
+
+
+def embed_one(
+    text: str,
+    api_key: str,
+    *,
+    task_type: str = "RETRIEVAL_DOCUMENT",
+    max_retries: int = ITEM_MAX_RETRIES,
+    quiet: bool = False,
+) -> list[float]:
+    """Call Gemini embedContent once. Retries on 429/5xx with exponential backoff + jitter.
+
+    `quiet=True` silences per-retry stderr logs (used in parallel batch path,
+    where the batch coordinator already logs an aggregate).
+    """
     body = json.dumps(
         {
             "model": f"models/{GEMINI_MODEL}",
@@ -360,9 +398,8 @@ def embed_one(text: str, api_key: str, *, task_type: str = "RETRIEVAL_DOCUMENT")
         }
     ).encode("utf-8")
     headers = {"Content-Type": "application/json", "x-goog-api-key": api_key}
-    delay = 1.0
     last_err: str = ""
-    for attempt in range(1, MAX_RETRIES + 1):
+    for attempt in range(0, max_retries + 1):
         req = urllib.request.Request(GEMINI_URL, data=body, headers=headers, method="POST")
         try:
             with urllib.request.urlopen(req, timeout=30) as r:
@@ -375,21 +412,76 @@ def embed_one(text: str, api_key: str, *, task_type: str = "RETRIEVAL_DOCUMENT")
                 return vals
         except urllib.error.HTTPError as e:
             last_err = f"HTTP {e.code} {e.reason}"
-            if e.code in (429, 500, 502, 503, 504) and attempt < MAX_RETRIES:
-                print(f"[embed retry {attempt}] {last_err}; backoff {delay}s", file=sys.stderr)
+            if e.code in (429, 500, 502, 503, 504) and attempt < max_retries:
+                delay = _backoff_seconds(attempt)
+                if not quiet:
+                    print(
+                        f"[embed retry {attempt + 1}/{max_retries}] {last_err}; backoff {delay:.2f}s",
+                        file=sys.stderr,
+                    )
                 time.sleep(delay)
-                delay *= 2
                 continue
             raise RuntimeError(f"Gemini API error: {last_err}") from e
         except urllib.error.URLError as e:
             last_err = f"URLError {e.reason}"
-            if attempt < MAX_RETRIES:
-                print(f"[embed retry {attempt}] {last_err}; backoff {delay}s", file=sys.stderr)
+            if attempt < max_retries:
+                delay = _backoff_seconds(attempt)
+                if not quiet:
+                    print(
+                        f"[embed retry {attempt + 1}/{max_retries}] {last_err}; backoff {delay:.2f}s",
+                        file=sys.stderr,
+                    )
                 time.sleep(delay)
-                delay *= 2
                 continue
             raise
     raise RuntimeError(f"Gemini API exhausted retries: {last_err}")
+
+
+def embed_batch_parallel(
+    items: list[tuple[Any, str]],
+    api_key: str,
+    *,
+    task_type: str = "RETRIEVAL_DOCUMENT",
+    parallel: int = BATCH_PARALLEL,
+) -> tuple[dict[Any, list[float]], dict[Any, str]]:
+    """Embed a batch of (key, text) pairs in parallel via thread pool.
+
+    Returns ({key: vector}, {key: error_msg}). Two separate dicts so callers
+    can decide what to do with failures (retry the whole batch, skip, or
+    abort). Determinism: result order is irrelevant because callers map
+    back by `key`, so non-deterministic completion order from the pool does
+    NOT alter the final corpus → embedding mapping or any downstream ranking.
+
+    Uses `as_completed` to surface per-item failures eagerly, mirroring
+    Promise.allSettled semantics (we want to know which items failed rather
+    than failing the whole batch on first error).
+
+    Each worker uses urllib (blocking I/O) — Python threads are fine for
+    I/O-bound HTTP and bypass the GIL during the syscall.
+    """
+    if not items:
+        return {}, {}
+    n = len(items)
+    workers = max(1, min(parallel, n))
+    successes: dict[Any, list[float]] = {}
+    errors: dict[Any, str] = {}
+
+    def _run(key: Any, text: str) -> tuple[Any, list[float] | None, str | None]:
+        try:
+            v = embed_one(text, api_key, task_type=task_type, quiet=True)
+            return key, v, None
+        except Exception as e:  # noqa: BLE001 — surface any embed failure
+            return key, None, f"{type(e).__name__}: {e}"
+
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        futures = [ex.submit(_run, k, t) for k, t in items]
+        for f in as_completed(futures):
+            key, vec, err = f.result()
+            if vec is not None:
+                successes[key] = vec
+            else:
+                errors[key] = err or "unknown error"
+    return successes, errors
 
 
 def pack_vec(v: list[float]) -> bytes:
@@ -405,6 +497,27 @@ def unpack_vec(b: bytes) -> np.ndarray:
 
 
 def embed_corpus(api_key: str) -> int:
+    """Embed corpus chunks via parallel batched Gemini calls.
+
+    Refactor (2026-05-19, perf/q2-batch-parallel-embedding):
+      - Batches of N=BATCH_PARALLEL (default 10) issued concurrently via
+        ThreadPoolExecutor — Promise.allSettled-style: per-item failures
+        are captured, not fatal.
+      - Per-item exponential backoff w/ jitter on 429/5xx (ITEM_MAX_RETRIES).
+      - Per-batch retry: any items that fail the entire item-retry budget
+        are refed into a fresh batch up to BATCH_MAX_RETRIES times.
+      - Progress log every batch flush w/ effective rate + ETA.
+
+    Rationale: pre-refactor was a serial `for row in rows: embed_one(...)`
+    loop + 50 ms `BATCH_SLEEP`, measured ~1.6 embed/s end-to-end. At
+    parallel=10 the effective rate sits ~10 embed/s (target), 6× speedup,
+    while staying under Gemini free-tier RPM (1500/min ≈ 25/s).
+
+    Determinism: results are written back to SQLite keyed by `chunk_id`,
+    so non-deterministic completion order from the thread pool does not
+    change the final corpus → embedding mapping. Downstream retrieval
+    (FTS5 BM25 + cosine + RRF k=60) is fully order-invariant.
+    """
     con = open_db()
     rows = con.execute(
         "SELECT chunk_id, text FROM chunks WHERE embedding IS NULL"
@@ -414,24 +527,92 @@ def embed_corpus(api_key: str) -> int:
         print(f"[embed] all {cnt:,} chunks already embedded", file=sys.stderr)
         con.close()
         return cnt
-    print(f"[embed] embedding {len(rows):,} session chunks via {GEMINI_MODEL}…", file=sys.stderr)
+    total = len(rows)
+    print(
+        f"[embed] embedding {total:,} session chunks via {GEMINI_MODEL} "
+        f"(parallel={BATCH_PARALLEL}, item_retries={ITEM_MAX_RETRIES}, "
+        f"batch_retries={BATCH_MAX_RETRIES})…",
+        file=sys.stderr,
+    )
     t0 = time.time()
     done = 0
-    for chunk_id, text in rows:
-        v = embed_one(text, api_key, task_type="RETRIEVAL_DOCUMENT")
-        con.execute("UPDATE chunks SET embedding = ? WHERE chunk_id = ?", (pack_vec(v), chunk_id))
-        done += 1
-        if done % 50 == 0:
-            con.commit()
+    failed_total = 0
+    # Chunk `rows` into BATCH_PARALLEL-sized slices. Each slice is dispatched
+    # in parallel, then refed on failure up to BATCH_MAX_RETRIES times.
+    for i in range(0, total, BATCH_PARALLEL):
+        batch = rows[i : i + BATCH_PARALLEL]
+        items: list[tuple[Any, str]] = [(cid, txt) for cid, txt in batch]
+        succeeded: dict[Any, list[float]] = {}
+        errors: dict[Any, str] = {}
+        for batch_attempt in range(BATCH_MAX_RETRIES + 1):
+            if not items:
+                break
+            partial_ok, partial_err = embed_batch_parallel(
+                items, api_key, task_type="RETRIEVAL_DOCUMENT", parallel=BATCH_PARALLEL
+            )
+            succeeded.update(partial_ok)
+            errors = partial_err  # last attempt's errors are the survivors
+            if not partial_err:
+                break
+            # Refeed only the failed items for the next batch attempt.
+            failed_keys = set(partial_err.keys())
+            items = [(cid, txt) for cid, txt in items if cid in failed_keys]
+            if batch_attempt < BATCH_MAX_RETRIES:
+                delay = _backoff_seconds(batch_attempt)
+                print(
+                    f"[embed batch-retry {batch_attempt + 1}/{BATCH_MAX_RETRIES}] "
+                    f"{len(items)} item(s) failed; refeeding after {delay:.2f}s",
+                    file=sys.stderr,
+                )
+                time.sleep(delay)
+
+        # Persist whatever succeeded for this batch (one transaction per batch).
+        for chunk_id, vec in succeeded.items():
+            con.execute(
+                "UPDATE chunks SET embedding = ? WHERE chunk_id = ?",
+                (pack_vec(vec), chunk_id),
+            )
+        con.commit()
+        done += len(succeeded)
+        failed_total += len(errors)
+
+        if errors:
+            # Log failed chunk_ids so the operator can re-run `embed` to retry —
+            # leftover NULL embeddings will be picked up on the next invocation.
+            for cid, msg in list(errors.items())[:3]:
+                print(f"[embed] FAILED chunk_id={cid}: {msg}", file=sys.stderr)
+            if len(errors) > 3:
+                print(f"[embed] … plus {len(errors) - 3} more failures in this batch", file=sys.stderr)
+
+        # Progress log every 10 batches (or at end). Cadence matches the
+        # ~10-batch target so an operator watching tmux sees a tick ~every
+        # 10 s at the target rate.
+        batches_done = (i // BATCH_PARALLEL) + 1
+        if batches_done % 10 == 0 or (i + BATCH_PARALLEL) >= total:
             elapsed = time.time() - t0
-            rate = done / elapsed if elapsed else 0
-            eta = (len(rows) - done) / rate if rate else 0
-            print(f"[embed] {done}/{len(rows)} ({rate:.1f}/s, eta {eta:.0f}s)", file=sys.stderr)
-        if BATCH_SLEEP:
-            time.sleep(BATCH_SLEEP)
-    con.commit()
+            rate = done / elapsed if elapsed > 0 else 0
+            remaining = max(0, total - done - failed_total)
+            eta = remaining / rate if rate else 0
+            print(
+                f"[Q2-eval] processed={done}/{total} failed={failed_total} "
+                f"elapsed={elapsed:.0f}s rate={rate:.2f} embed/s eta={eta:.0f}s",
+                file=sys.stderr,
+            )
+
     con.close()
-    print(f"[embed] done {done} chunks in {time.time()-t0:.1f}s", file=sys.stderr)
+    elapsed = time.time() - t0
+    rate = done / elapsed if elapsed > 0 else 0
+    print(
+        f"[embed] done {done}/{total} chunks in {elapsed:.1f}s "
+        f"(rate={rate:.2f} embed/s, failed={failed_total})",
+        file=sys.stderr,
+    )
+    if failed_total:
+        print(
+            f"[embed] {failed_total} chunks remain unembedded — re-run "
+            f"`embed` to pick up survivors (NULL embeddings auto-refed).",
+            file=sys.stderr,
+        )
     return done
 
 
@@ -562,6 +743,13 @@ def search_dense(
     mat: np.ndarray,
     k: int,
 ) -> list[str]:
+    """Single-query dense search (legacy helper).
+
+    NOTE (2026-05-19): `evaluate()` no longer calls this — it pre-embeds all
+    queries in parallel via `embed_batch_parallel` before the FTS5/RRF loop.
+    Kept for ad-hoc debugging and external notebook callers that import the
+    module directly. New code should use `embed_batch_parallel(...)` instead.
+    """
     if not ids:
         return []
     qv = np.asarray(
@@ -627,9 +815,66 @@ def precision_at_k(retrieved: list[str], gold: set[str], k: int = 5) -> float:
 # Eval driver
 # ─────────────────────────────────────────────────────────────────────────────
 def evaluate(queries: list[dict], api_key: str) -> dict[str, Any]:
+    """Run hybrid retrieval over selected queries and compute metrics.
+
+    Optimisation (2026-05-19, perf/q2-batch-parallel-embedding):
+      Pre-embed all query strings in parallel (BATCH_PARALLEL workers) BEFORE
+      entering the FTS5/RRF loop. Each query needs exactly one
+      `embedContent(RETRIEVAL_QUERY)` call — batching all of them up front
+      collapses n_queries × ~625 ms latency into ⌈n_queries / parallel⌉ ×
+      ~625 ms. At n=100, parallel=10 that drops the query-embed leg from
+      ~62 s serial to ~6 s parallel. Metrics are unchanged: same vectors,
+      same FTS5 SQL, same RRF fusion. Order-invariant by `question_id`.
+    """
     con = open_db()
     per_query: list[dict] = []
     t0 = time.time()
+
+    # ── Pre-embed all queries in parallel ─────────────────────────────────
+    t_qembed_0 = time.time()
+    query_items: list[tuple[Any, str]] = [(q["question_id"], q["question"]) for q in queries]
+    print(
+        f"[eval] pre-embedding {len(query_items)} queries (parallel={BATCH_PARALLEL})…",
+        file=sys.stderr,
+    )
+    query_vecs, query_errs = embed_batch_parallel(
+        query_items, api_key, task_type="RETRIEVAL_QUERY", parallel=BATCH_PARALLEL
+    )
+    # Retry any query-embed failures with item-level backoff before the
+    # eval loop starts — we don't want a partial run where queries silently
+    # fall back to FTS-only retrieval (would skew nDCG@10 downward and
+    # invalidate the headline).
+    for retry in range(BATCH_MAX_RETRIES):
+        if not query_errs:
+            break
+        retry_items = [(qid, q["question"]) for q in queries for qid in [q["question_id"]] if qid in query_errs]
+        print(
+            f"[eval] query-embed retry {retry + 1}/{BATCH_MAX_RETRIES} "
+            f"for {len(retry_items)} failed queries",
+            file=sys.stderr,
+        )
+        time.sleep(_backoff_seconds(retry))
+        more_ok, more_err = embed_batch_parallel(
+            retry_items, api_key, task_type="RETRIEVAL_QUERY", parallel=BATCH_PARALLEL
+        )
+        query_vecs.update(more_ok)
+        query_errs = more_err
+    if query_errs:
+        print(
+            f"[eval] WARNING: {len(query_errs)} query embeddings failed after "
+            f"{BATCH_MAX_RETRIES} batch retries; those queries will use FTS-only retrieval",
+            file=sys.stderr,
+        )
+        for qid, msg in list(query_errs.items())[:3]:
+            print(f"[eval] FAILED query qid={qid}: {msg}", file=sys.stderr)
+    t_qembed = time.time() - t_qembed_0
+    q_rate = len(query_vecs) / t_qembed if t_qembed > 0 else 0
+    print(
+        f"[eval] query pre-embed done: {len(query_vecs)}/{len(queries)} in "
+        f"{t_qembed:.1f}s (rate={q_rate:.2f} embed/s)",
+        file=sys.stderr,
+    )
+
     for i, q in enumerate(queries, 1):
         qid = q["question_id"]
         ids, mat = load_question_dense(con, qid)
@@ -639,7 +884,23 @@ def evaluate(queries: list[dict], api_key: str) -> dict[str, Any]:
                 file=sys.stderr,
             )
         fts_top = search_fts5(con, qid, q["question"], k=TOP_K_FTS)
-        dense_top = search_dense(q["question"], api_key, ids, mat, k=TOP_K_DENSE) if ids else []
+        # Use the pre-computed query vector when available; fall back to
+        # FTS-only if pre-embed failed (rare, already logged above).
+        if ids and qid in query_vecs:
+            qv = np.asarray(query_vecs[qid], dtype=np.float32)
+            qn = float(np.linalg.norm(qv))
+            if qn > 0:
+                qv = qv / qn
+            sims = mat @ qv
+            k_eff = min(TOP_K_DENSE, len(sims))
+            if k_eff >= len(sims):
+                order = np.argsort(-sims)
+            else:
+                idx = np.argpartition(-sims, k_eff)[:k_eff]
+                order = idx[np.argsort(-sims[idx])]
+            dense_top = [ids[idx_i] for idx_i in order[:k_eff]]
+        else:
+            dense_top = []
         fused = rrf_fuse([fts_top, dense_top], k=RRF_K, top=TOP_K_FINAL)
         gold = set(q["gold_chunk_ids"])
         per_query.append(
@@ -660,8 +921,6 @@ def evaluate(queries: list[dict], api_key: str) -> dict[str, Any]:
         )
         if i % 10 == 0:
             print(f"[eval] {i}/{len(queries)} ({(time.time()-t0):.1f}s)", file=sys.stderr)
-        if BATCH_SLEEP:
-            time.sleep(BATCH_SLEEP)
     con.close()
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
