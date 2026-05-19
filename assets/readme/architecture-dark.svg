@@ -1,234 +1,340 @@
-<svg width="1000" height="600" viewBox="0 0 1000 600" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem hybrid retrieval architecture diagram, dark theme">
+<svg width="1200" height="780" viewBox="0 0 1200 780" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem hybrid retrieval architecture: markdown and entity files ingest into a chunks table with FTS5 BM25 lexical search and Gemini 3072 dimensional vector search, fused via RRF k equals 60, salience boosted by recency pain and importance, served through the hybrid search HTTP API. Dark theme.">
   <title>nox-mem — Hybrid Retrieval Architecture</title>
 
-  <!-- Background -->
-  <rect width="1000" height="600" fill="#0E0E10"/>
-
-  <!-- Subtle grid -->
   <defs>
-    <pattern id="arch-grid-d" width="50" height="50" patternUnits="userSpaceOnUse">
-      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#161618" stroke-width="0.5"/>
+    <linearGradient id="bg-d" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E1018"/>
+      <stop offset="100%" stop-color="#1A1F2E"/>
+    </linearGradient>
+
+    <pattern id="grid-d" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1F2535" stroke-width="0.5"/>
     </pattern>
+
+    <linearGradient id="node-neutral-d" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1B2030"/>
+      <stop offset="100%" stop-color="#141826"/>
+    </linearGradient>
+    <linearGradient id="node-storage-d" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1F2435"/>
+      <stop offset="100%" stop-color="#161B2A"/>
+    </linearGradient>
+    <linearGradient id="node-fts-d" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2A1F12"/>
+      <stop offset="100%" stop-color="#1F1709"/>
+    </linearGradient>
+    <linearGradient id="node-vec-d" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#211B3D"/>
+      <stop offset="100%" stop-color="#19142E"/>
+    </linearGradient>
+    <linearGradient id="node-rrf-d" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#0E2A22"/>
+      <stop offset="100%" stop-color="#062018"/>
+    </linearGradient>
+    <linearGradient id="node-salience-d" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2A2110"/>
+      <stop offset="100%" stop-color="#1E1808"/>
+    </linearGradient>
+    <linearGradient id="node-api-d" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#152A24"/>
+      <stop offset="100%" stop-color="#0B1E18"/>
+    </linearGradient>
+
+    <filter id="shadow-d" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+      <feOffset dx="0" dy="3" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.45"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="glow-d" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <marker id="arrow-neutral-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6B7280"/>
+    </marker>
+    <marker id="arrow-fts-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#FF9F1C"/>
+    </marker>
+    <marker id="arrow-vec-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9D85FF"/>
+    </marker>
+    <marker id="arrow-accent-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#00C896"/>
+    </marker>
+    <marker id="arrow-salience-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#FFB800"/>
+    </marker>
   </defs>
-  <rect width="1000" height="600" fill="url(#arch-grid-d)"/>
 
-  <!-- ========================== SECTION LABELS ========================== -->
+  <rect width="1200" height="780" fill="url(#bg-d)"/>
+  <rect width="1200" height="780" fill="url(#grid-d)" opacity="0.6"/>
 
-  <!-- INGEST lane label -->
-  <text x="20" y="42" fill="#3A3A3E" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">INGEST</text>
-  <line x1="18" y1="48" x2="280" y2="48" stroke="#1E1E22" stroke-width="0.5"/>
+  <circle cx="1012" cy="352" r="220" fill="#00C896" opacity="0.05"/>
+  <circle cx="1012" cy="488" r="180" fill="#FFB800" opacity="0.04"/>
 
-  <!-- STORAGE label -->
-  <text x="310" y="42" fill="#3A3A3E" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">STORAGE</text>
-  <line x1="308" y1="48" x2="590" y2="48" stroke="#1E1E22" stroke-width="0.5"/>
+  <text x="60" y="58" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', 'Consolas', monospace" font-size="13" font-weight="700" letter-spacing="1.5">NOX-MEM</text>
+  <text x="60" y="82" fill="#CBD5E1" font-family="'Inter', -apple-system, system-ui, sans-serif" font-size="22" font-weight="600" letter-spacing="-0.4">Hybrid retrieval architecture</text>
+  <text x="60" y="106" fill="#94A3B8" font-family="'Inter', -apple-system, system-ui, sans-serif" font-size="13" font-weight="400">BM25 lexical + Gemini 3072d semantic, fused with RRF, ranked by salience</text>
 
-  <!-- RETRIEVAL label -->
-  <text x="618" y="42" fill="#3A3A3E" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">RETRIEVAL + RANKING</text>
-  <line x1="616" y1="48" x2="980" y2="48" stroke="#1E1E22" stroke-width="0.5"/>
+  <rect x="60" y="116" width="56" height="3" rx="1.5" fill="#00C896"/>
 
-  <!-- ========================== INGEST PIPELINE ========================== -->
+  <text x="60" y="166" fill="#6B7280" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" letter-spacing="2.5" font-weight="600">01 · INGEST</text>
+  <line x1="60" y1="174" x2="280" y2="174" stroke="#2A3142" stroke-width="0.75"/>
 
-  <!-- FILE INPUT node -->
-  <rect x="20" y="66" width="120" height="44" rx="4" fill="#0E0E10" stroke="#2A2A2E" stroke-width="1.5"/>
-  <text x="80" y="84" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">INPUT</text>
-  <text x="80" y="100" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">file / entity</text>
+  <text x="345" y="166" fill="#6B7280" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" letter-spacing="2.5" font-weight="600">02 · STORAGE</text>
+  <line x1="345" y1="174" x2="565" y2="174" stroke="#2A3142" stroke-width="0.75"/>
 
-  <!-- Arrow: FILE → ROUTER -->
-  <line x1="140" y1="88" x2="160" y2="88" stroke="#2A2A2E" stroke-width="1.5"/>
-  <polygon points="160,84 168,88 160,92" fill="#2A2A2E"/>
+  <text x="615" y="166" fill="#6B7280" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" letter-spacing="2.5" font-weight="600">03 · RETRIEVE</text>
+  <line x1="615" y1="174" x2="835" y2="174" stroke="#2A3142" stroke-width="0.75"/>
 
-  <!-- INGEST ROUTER node -->
-  <rect x="168" y="66" width="110" height="44" rx="4" fill="#0E0E10" stroke="#2A2A2E" stroke-width="1.5"/>
-  <text x="223" y="84" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">ROUTER</text>
-  <text x="223" y="100" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">ingest router</text>
+  <text x="885" y="166" fill="#6B7280" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" letter-spacing="2.5" font-weight="600">04 · FUSE · RANK · SERVE</text>
+  <line x1="885" y1="174" x2="1140" y2="174" stroke="#2A3142" stroke-width="0.75"/>
 
-  <!-- PRIVACY FILTER node (below router) -->
-  <rect x="168" y="136" width="110" height="44" rx="4" fill="#0E0E10" stroke="#2A2A2E" stroke-width="1.5"/>
-  <text x="223" y="154" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">FILTER</text>
-  <text x="223" y="170" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">privacy filter</text>
+  <g filter="url(#shadow-d)">
+    <rect x="60" y="200" width="220" height="64" rx="10" fill="url(#node-neutral-d)" stroke="#3A4358" stroke-width="1.25"/>
+  </g>
+  <circle cx="78" cy="232" r="3.5" fill="#94A3B8"/>
+  <text x="92" y="227" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.2" font-weight="600">INPUT</text>
+  <text x="92" y="248" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="14" font-weight="600">markdown / entity</text>
+  <text x="92" y="260" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="11">file watchers · CLI · MCP</text>
 
-  <!-- Arrow: ROUTER → PRIVACY -->
-  <line x1="223" y1="110" x2="223" y2="130" stroke="#2A2A2E" stroke-width="1.5"/>
-  <polygon points="219,130 223,138 227,130" fill="#2A2A2E"/>
+  <line x1="170" y1="270" x2="170" y2="294" stroke="#6B7280" stroke-width="1.5" marker-end="url(#arrow-neutral-d)"/>
 
-  <!-- PARSER / CHUNKER node -->
-  <rect x="168" y="206" width="110" height="52" rx="4" fill="#0E0E10" stroke="#2A2A2E" stroke-width="1.5"/>
-  <text x="223" y="224" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">PARSE + CHUNK</text>
-  <text x="223" y="241" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">entity parser</text>
-  <text x="223" y="253" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">512 tokens</text>
+  <g filter="url(#shadow-d)">
+    <rect x="60" y="304" width="220" height="78" rx="10" fill="url(#node-neutral-d)" stroke="#3A4358" stroke-width="1.25"/>
+  </g>
+  <circle cx="78" cy="336" r="3.5" fill="#94A3B8"/>
+  <text x="92" y="331" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.2" font-weight="600">INGEST · ROUTE · FILTER</text>
+  <text x="92" y="352" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="14" font-weight="600">ingest.ts</text>
+  <text x="92" y="368" fill="#CBD5E1" font-family="'Inter', system-ui, sans-serif" font-size="11">router · privacy filter · parser</text>
+  <text x="92" y="378" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="10">~512 token chunks · section-aware</text>
 
-  <!-- Arrow: PRIVACY → PARSER -->
-  <line x1="223" y1="180" x2="223" y2="200" stroke="#2A2A2E" stroke-width="1.5"/>
-  <polygon points="219,200 223,208 227,200" fill="#2A2A2E"/>
+  <line x1="170" y1="388" x2="170" y2="412" stroke="#6B7280" stroke-width="1.5" marker-end="url(#arrow-neutral-d)"/>
 
-  <!-- EMBED node -->
-  <rect x="168" y="284" width="110" height="52" rx="4" fill="#0E0E10" stroke="#2A2A2E" stroke-width="1.5"/>
-  <text x="223" y="302" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">EMBED</text>
-  <text x="223" y="319" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">Gemini embed</text>
-  <text x="223" y="331" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">3072d</text>
+  <g filter="url(#shadow-d)">
+    <rect x="60" y="422" width="220" height="72" rx="10" fill="url(#node-neutral-d)" stroke="#3A4358" stroke-width="1.25"/>
+  </g>
+  <circle cx="78" cy="454" r="3.5" fill="#9D85FF"/>
+  <text x="92" y="449" fill="#9D85FF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.2" font-weight="600">EMBED</text>
+  <text x="92" y="470" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="14" font-weight="600">Gemini embed-001</text>
+  <text x="92" y="486" fill="#B9A8FF" font-family="'Inter', system-ui, sans-serif" font-size="11" font-weight="500">3072-dimensional vectors</text>
 
-  <!-- Arrow: PARSER → EMBED -->
-  <line x1="223" y1="258" x2="223" y2="278" stroke="#2A2A2E" stroke-width="1.5"/>
-  <polygon points="219,278 223,286 227,278" fill="#2A2A2E"/>
+  <path d="M 290 348 Q 320 348 320 270 L 358 270" fill="none" stroke="#6B7280" stroke-width="1.5" marker-end="url(#arrow-neutral-d)"/>
+  <text x="320" y="262" fill="#94A3B8" font-family="'Inter', system-ui, sans-serif" font-size="10" font-style="italic">rows + metadata</text>
 
-  <!-- ========================== STORAGE LAYER ========================== -->
+  <path d="M 290 458 Q 320 458 320 430 L 358 430" fill="none" stroke="#6B7280" stroke-width="1.5" marker-end="url(#arrow-neutral-d)"/>
 
-  <!-- CHUNKS DB -->
-  <rect x="310" y="190" width="130" height="52" rx="4" fill="#0E0E10" stroke="#00C896" stroke-width="1.5"/>
-  <text x="375" y="210" fill="#00C896" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">CHUNKS DB</text>
-  <text x="375" y="228" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">chunks</text>
-  <text x="375" y="238" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">62.9k rows</text>
+  <g filter="url(#shadow-d)">
+    <rect x="358" y="200" width="220" height="180" rx="12" fill="url(#node-storage-d)" stroke="#5B6478" stroke-width="1.5"/>
+  </g>
+  <ellipse cx="378" cy="222" rx="9" ry="3.5" fill="none" stroke="#94A3B8" stroke-width="1.25"/>
+  <path d="M 369 222 L 369 234 Q 369 237.5 378 237.5 Q 387 237.5 387 234 L 387 222" fill="none" stroke="#94A3B8" stroke-width="1.25"/>
+  <line x1="369" y1="228" x2="387" y2="228" stroke="#94A3B8" stroke-width="1.25"/>
 
-  <!-- FTS5 DB -->
-  <rect x="310" y="266" width="130" height="52" rx="4" fill="#0E0E10" stroke="#00C896" stroke-width="1.5"/>
-  <text x="375" y="286" fill="#00C896" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">FULL TEXT</text>
-  <text x="375" y="304" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">FTS5 BM25</text>
-  <text x="375" y="314" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">chunks_fts</text>
+  <text x="394" y="220" fill="#CBD5E1" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.2" font-weight="700">STORAGE · SQLITE</text>
+  <text x="394" y="232" fill="#6B7280" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9">single file · ~1.24 GB</text>
 
-  <!-- VEC DB -->
-  <rect x="310" y="342" width="130" height="52" rx="4" fill="#0E0E10" stroke="#00C896" stroke-width="1.5"/>
-  <text x="375" y="362" fill="#00C896" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">VECTOR STORE</text>
-  <text x="375" y="380" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">sqlite-vec</text>
-  <text x="375" y="390" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">vec_chunks</text>
+  <text x="468" y="266" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="22" font-weight="700" text-anchor="middle">chunks</text>
+  <text x="468" y="285" fill="#CBD5E1" font-family="'Inter', system-ui, sans-serif" font-size="12" text-anchor="middle">68,995 rows · schema v18</text>
 
-  <!-- KG DB -->
-  <rect x="310" y="418" width="130" height="60" rx="4" fill="#0E0E10" stroke="#00C896" stroke-width="1.5"/>
-  <text x="375" y="438" fill="#00C896" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">KNOWLEDGE GRAPH</text>
-  <text x="375" y="456" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">KG entities</text>
-  <text x="375" y="468" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">402 ent · 21k rel</text>
+  <g>
+    <rect x="376" y="298" width="78" height="22" rx="11" fill="#1B2030" stroke="#3A4358" stroke-width="1"/>
+    <text x="415" y="313" fill="#CBD5E1" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" text-anchor="middle">retention</text>
 
-  <!-- Arrows: parser/embed → storage -->
-  <!-- PARSER → CHUNKS (angled) -->
-  <line x1="278" y1="232" x2="310" y2="216" stroke="#2A2A2E" stroke-width="1"/>
-  <polygon points="306,211 318,216 308,221" fill="#2A2A2E"/>
+    <rect x="460" y="298" width="60" height="22" rx="11" fill="#1B2030" stroke="#3A4358" stroke-width="1"/>
+    <text x="490" y="313" fill="#CBD5E1" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" text-anchor="middle">pain</text>
 
-  <!-- EMBED → VEC -->
-  <line x1="278" y1="320" x2="310" y2="368" stroke="#2A2A2E" stroke-width="1"/>
-  <polygon points="306,364 318,370 308,375" fill="#2A2A2E"/>
+    <rect x="526" y="298" width="68" height="22" rx="11" fill="#1B2030" stroke="#3A4358" stroke-width="1"/>
+    <text x="560" y="313" fill="#CBD5E1" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" text-anchor="middle">section</text>
+  </g>
+  <g>
+    <rect x="396" y="326" width="72" height="22" rx="11" fill="#1B2030" stroke="#3A4358" stroke-width="1"/>
+    <text x="432" y="341" fill="#CBD5E1" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" text-anchor="middle">recency</text>
 
-  <!-- PARSER → KG (long) -->
-  <line x1="278" y1="244" x2="294" y2="448" stroke="#1E1E22" stroke-width="1" stroke-dasharray="4 3"/>
-  <line x1="294" y1="448" x2="310" y2="448" stroke="#1E1E22" stroke-width="1" stroke-dasharray="4 3"/>
-  <polygon points="306,444 318,448 306,452" fill="#1E1E22"/>
+    <rect x="474" y="326" width="92" height="22" rx="11" fill="#1B2030" stroke="#3A4358" stroke-width="1"/>
+    <text x="520" y="341" fill="#CBD5E1" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" text-anchor="middle">importance</text>
+  </g>
+  <text x="468" y="368" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="10" text-anchor="middle" font-style="italic">+ KG entities · relations · trigrams</text>
 
-  <!-- CHUNKS → FTS5 (internal) -->
-  <line x1="375" y1="242" x2="375" y2="260" stroke="#1E1E22" stroke-width="1" stroke-dasharray="3 2"/>
-  <polygon points="371,260 375,268 379,260" fill="#1E1E22"/>
+  <g filter="url(#shadow-d)">
+    <rect x="358" y="416" width="106" height="78" rx="10" fill="url(#node-fts-d)" stroke="#FF9F1C" stroke-width="1.5"/>
+  </g>
+  <circle cx="372" cy="436" r="3.5" fill="#FF9F1C"/>
+  <text x="382" y="431" fill="#FFB458" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1" font-weight="700">LEXICAL</text>
+  <text x="411" y="458" fill="#FFD79E" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="14" font-weight="700" text-anchor="middle">FTS5</text>
+  <text x="411" y="473" fill="#FFB458" font-family="'Inter', system-ui, sans-serif" font-size="11" text-anchor="middle">BM25</text>
+  <text x="411" y="486" fill="#D08840" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" text-anchor="middle">chunks_fts</text>
 
-  <!-- ========================== QUERY INPUT ========================== -->
+  <g filter="url(#shadow-d)">
+    <rect x="472" y="416" width="106" height="78" rx="10" fill="url(#node-vec-d)" stroke="#9D85FF" stroke-width="1.5"/>
+  </g>
+  <circle cx="486" cy="436" r="3.5" fill="#9D85FF"/>
+  <text x="496" y="431" fill="#B9A8FF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1" font-weight="700">SEMANTIC</text>
+  <text x="525" y="458" fill="#D6CAFF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="14" font-weight="700" text-anchor="middle">sqlite-vec</text>
+  <text x="525" y="473" fill="#B9A8FF" font-family="'Inter', system-ui, sans-serif" font-size="11" text-anchor="middle">3072d cosine</text>
+  <text x="525" y="486" fill="#9580E0" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" text-anchor="middle">vec_chunks</text>
 
-  <!-- QUERY node -->
-  <rect x="480" y="66" width="110" height="44" rx="4" fill="#0E0E10" stroke="#2A2A2E" stroke-width="1.5"/>
-  <text x="535" y="84" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">QUERY</text>
-  <text x="535" y="100" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">user query</text>
+  <line x1="411" y1="384" x2="411" y2="410" stroke="#FF9F1C" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-fts-d)"/>
+  <line x1="525" y1="384" x2="525" y2="410" stroke="#9D85FF" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow-vec-d)"/>
 
-  <!-- ========================== RETRIEVAL LAYER ========================== -->
+  <g filter="url(#shadow-d)">
+    <rect x="615" y="200" width="220" height="64" rx="10" fill="url(#node-neutral-d)" stroke="#3A4358" stroke-width="1.25"/>
+  </g>
+  <circle cx="633" cy="232" r="3.5" fill="#EBEBEF"/>
+  <text x="647" y="227" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.2" font-weight="600">QUERY</text>
+  <text x="647" y="248" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="14" font-weight="600">user query</text>
+  <text x="647" y="260" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="11">natural language · PT/EN</text>
 
-  <!-- BM25 SEARCH -->
-  <rect x="616" y="190" width="130" height="52" rx="4" fill="#0E0E10" stroke="#444448" stroke-width="1.5"/>
-  <text x="681" y="210" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">KEYWORD</text>
-  <text x="681" y="228" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">BM25 search</text>
-  <text x="681" y="238" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">FTS5</text>
+  <g filter="url(#shadow-d)">
+    <rect x="615" y="298" width="220" height="84" rx="10" fill="url(#node-fts-d)" stroke="#FF9F1C" stroke-width="1.5"/>
+  </g>
+  <circle cx="633" cy="330" r="3.5" fill="#FF9F1C"/>
+  <text x="647" y="325" fill="#FFB458" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.2" font-weight="700">LEXICAL RETRIEVAL</text>
+  <text x="647" y="347" fill="#FFD79E" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="14" font-weight="700">BM25 search</text>
+  <text x="647" y="362" fill="#FFB458" font-family="'Inter', system-ui, sans-serif" font-size="11">keyword · phrase · trigram</text>
+  <text x="647" y="375" fill="#D08840" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10">top-20 candidates</text>
 
-  <!-- VECTOR SEARCH -->
-  <rect x="616" y="266" width="130" height="52" rx="4" fill="#0E0E10" stroke="#444448" stroke-width="1.5"/>
-  <text x="681" y="286" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">SEMANTIC</text>
-  <text x="681" y="304" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">vector search</text>
-  <text x="681" y="314" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">Gemini 3072d</text>
+  <g filter="url(#shadow-d)">
+    <rect x="615" y="406" width="220" height="84" rx="10" fill="url(#node-vec-d)" stroke="#9D85FF" stroke-width="1.5"/>
+  </g>
+  <circle cx="633" cy="438" r="3.5" fill="#9D85FF"/>
+  <text x="647" y="433" fill="#B9A8FF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.2" font-weight="700">SEMANTIC RETRIEVAL</text>
+  <text x="647" y="455" fill="#D6CAFF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="14" font-weight="700">vector search</text>
+  <text x="647" y="470" fill="#B9A8FF" font-family="'Inter', system-ui, sans-serif" font-size="11">Gemini 3072d · cosine</text>
+  <text x="647" y="483" fill="#9580E0" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10">top-20 candidates</text>
 
-  <!-- GRAPH SEARCH -->
-  <rect x="616" y="342" width="130" height="52" rx="4" fill="#0E0E10" stroke="#444448" stroke-width="1.5"/>
-  <text x="681" y="362" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">GRAPH</text>
-  <text x="681" y="380" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">KG traversal</text>
-  <text x="681" y="390" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">path / SPO</text>
+  <path d="M 725 270 L 725 296" fill="none" stroke="#FF9F1C" stroke-width="1.5" marker-end="url(#arrow-fts-d)"/>
+  <text x="734" y="285" fill="#FFB458" font-family="'Inter', system-ui, sans-serif" font-size="10" font-style="italic">tokenize</text>
 
-  <!-- Arrows: QUERY → retrieval nodes -->
-  <!-- QUERY → BM25 -->
-  <line x1="535" y1="110" x2="535" y2="216" stroke="#2A2A2E" stroke-width="1"/>
-  <line x1="535" y1="216" x2="616" y2="216" stroke="#2A2A2E" stroke-width="1"/>
-  <polygon points="612,212 620,216 612,220" fill="#2A2A2E"/>
+  <path d="M 805 270 Q 920 270 920 350 Q 920 408 805 408" fill="none" stroke="#9D85FF" stroke-width="1.5" marker-end="url(#arrow-vec-d)"/>
+  <text x="932" y="320" fill="#B9A8FF" font-family="'Inter', system-ui, sans-serif" font-size="10" font-style="italic">embed</text>
+  <text x="932" y="333" fill="#9580E0" font-family="'Inter', system-ui, sans-serif" font-size="9">Gemini 3072d</text>
 
-  <!-- QUERY → VECTOR -->
-  <line x1="590" y1="88" x2="616" y2="88" stroke="#2A2A2E" stroke-width="1"/>
-  <line x1="616" y1="88" x2="648" y2="88" stroke="#2A2A2E" stroke-width="1"/>
-  <line x1="648" y1="88" x2="648" y2="260" stroke="#2A2A2E" stroke-width="1"/>
-  <polygon points="644,260 648,268 652,260" fill="#2A2A2E"/>
+  <path d="M 464 455 L 542 455 L 542 340 L 615 340" fill="none" stroke="#FF9F1C" stroke-width="1.25" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-fts-d)"/>
+  <path d="M 578 455 L 605 455 L 605 448 L 615 448" fill="none" stroke="#9D85FF" stroke-width="1.25" stroke-dasharray="3 3" opacity="0.7" marker-end="url(#arrow-vec-d)"/>
 
-  <!-- QUERY → GRAPH -->
-  <line x1="535" y1="110" x2="535" y2="368" stroke="#1E1E22" stroke-width="1" stroke-dasharray="4 3"/>
-  <line x1="535" y1="368" x2="616" y2="368" stroke="#1E1E22" stroke-width="1" stroke-dasharray="4 3"/>
-  <polygon points="612,364 620,368 612,372" fill="#1E1E22"/>
+  <g filter="url(#glow-d)">
+    <rect x="885" y="298" width="255" height="106" rx="14" fill="url(#node-rrf-d)" stroke="#00C896" stroke-width="2.25"/>
+  </g>
+  <circle cx="903" cy="328" r="4" fill="#00C896"/>
+  <text x="917" y="323" fill="#00E0A8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.5" font-weight="700">FUSION</text>
+  <text x="1012" y="350" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="22" font-weight="700" text-anchor="middle">RRF</text>
+  <text x="1012" y="372" fill="#00E0A8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="13" text-anchor="middle" font-weight="600">k = 60</text>
+  <text x="1012" y="389" fill="#CBD5E1" font-family="'Inter', system-ui, sans-serif" font-size="11" text-anchor="middle">reciprocal rank fusion · language-aware</text>
 
-  <!-- Arrows: FTS5 → BM25 -->
-  <line x1="440" y1="292" x2="616" y2="292" stroke="#2A2A2E" stroke-width="1"/>
-  <polygon points="612,288 620,292 612,296" fill="#2A2A2E"/>
+  <path d="M 835 340 Q 860 340 870 340 L 885 340" fill="none" stroke="#FF9F1C" stroke-width="2.5" marker-end="url(#arrow-fts-d)"/>
+  <path d="M 835 448 Q 860 448 870 380 L 885 372" fill="none" stroke="#9D85FF" stroke-width="2.5" marker-end="url(#arrow-vec-d)"/>
 
-  <!-- VEC → VECTOR SEARCH -->
-  <line x1="440" y1="368" x2="616" y2="292" stroke="#2A2A2E" stroke-width="1"/>
+  <circle cx="878" cy="356" r="6" fill="#00C896" opacity="0.35"/>
+  <circle cx="878" cy="356" r="3" fill="#00C896"/>
 
-  <!-- KG → GRAPH SEARCH -->
-  <line x1="440" y1="448" x2="616" y2="368" stroke="#2A2A2E" stroke-width="1"/>
+  <g filter="url(#glow-d)">
+    <rect x="885" y="430" width="255" height="116" rx="14" fill="url(#node-salience-d)" stroke="#FFB800" stroke-width="2"/>
+  </g>
+  <circle cx="903" cy="460" r="4" fill="#FFB800"/>
+  <text x="917" y="455" fill="#FFD79E" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.5" font-weight="700">SALIENCE BOOST</text>
 
-  <!-- ========================== RRF FUSION ========================== -->
+  <text x="1012" y="485" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="15" font-weight="700" text-anchor="middle">recency × pain × importance</text>
 
-  <!-- RRF node -->
-  <rect x="780" y="258" width="140" height="60" rx="4" fill="#0E0E10" stroke="#00C896" stroke-width="2"/>
-  <text x="850" y="278" fill="#00C896" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="1" font-weight="600">RRF FUSION</text>
-  <text x="850" y="296" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="12" text-anchor="middle" font-weight="600">RRF k=60</text>
-  <text x="850" y="312" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">3-way merge</text>
+  <g>
+    <rect x="905" y="500" width="70" height="22" rx="11" fill="#1B2030" stroke="#FFB800" stroke-width="0.75"/>
+    <text x="940" y="515" fill="#FFD79E" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" text-anchor="middle">+ section</text>
 
-  <!-- Arrows → RRF -->
-  <line x1="746" y1="216" x2="800" y2="278" stroke="#2A2A2E" stroke-width="1.5"/>
-  <polygon points="798,274 808,280 800,286" fill="#2A2A2E"/>
+    <rect x="983" y="500" width="62" height="22" rx="11" fill="#1B2030" stroke="#FFB800" stroke-width="0.75"/>
+    <text x="1014" y="515" fill="#FFD79E" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" text-anchor="middle">+ KG</text>
 
-  <line x1="746" y1="292" x2="780" y2="292" stroke="#00C896" stroke-width="1.5"/>
-  <polygon points="776,288 784,292 776,296" fill="#00C896"/>
+    <rect x="1053" y="500" width="68" height="22" rx="11" fill="#1B2030" stroke="#FFB800" stroke-width="0.75"/>
+    <text x="1087" y="515" fill="#FFD79E" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" text-anchor="middle">+ lang</text>
+  </g>
+  <text x="1012" y="538" fill="#FFB458" font-family="'Inter', system-ui, sans-serif" font-size="10" text-anchor="middle" font-style="italic">shadow-mode discipline · validated before applied</text>
 
-  <line x1="746" y1="368" x2="800" y2="308" stroke="#2A2A2E" stroke-width="1.5"/>
-  <polygon points="798,306 808,310 800,316" fill="#2A2A2E"/>
+  <line x1="1012" y1="406" x2="1012" y2="424" stroke="#00C896" stroke-width="2" marker-end="url(#arrow-accent-d)"/>
 
-  <!-- ========================== SALIENCE RANKING ========================== -->
+  <g filter="url(#shadow-d)">
+    <rect x="60" y="600" width="1080" height="138" rx="14" fill="url(#node-api-d)" stroke="#00C896" stroke-width="1.5"/>
+  </g>
+  <circle cx="80" cy="628" r="4" fill="#00C896"/>
+  <text x="94" y="624" fill="#00E0A8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.5" font-weight="700">HYBRID SEARCH API · :18802</text>
+  <text x="94" y="652" fill="#EBEBEF" font-family="'Inter', system-ui, sans-serif" font-size="17" font-weight="600">Surface for agents, dashboards, MCP</text>
 
-  <!-- SALIENCE node -->
-  <rect x="780" y="370" width="140" height="76" rx="4" fill="#0E0E10" stroke="#00C896" stroke-width="2"/>
-  <text x="850" y="390" fill="#00C896" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="1" font-weight="600">SALIENCE RANKING</text>
-  <text x="850" y="407" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">recency × pain</text>
-  <text x="850" y="420" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">× importance</text>
-  <text x="850" y="433" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">+ section_boost</text>
-  <text x="850" y="442" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">+ lang-aware RRF</text>
+  <g>
+    <rect x="94" y="668" width="172" height="32" rx="6" fill="#0F1421" stroke="#3A4358" stroke-width="1"/>
+    <circle cx="106" cy="684" r="3" fill="#00C896"/>
+    <text x="116" y="681" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" font-weight="700">POST</text>
+    <text x="146" y="681" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="11" font-weight="600">/api/search</text>
+    <text x="116" y="693" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="9">hybrid retrieval</text>
 
-  <!-- Arrow: RRF → SALIENCE -->
-  <line x1="850" y1="318" x2="850" y2="364" stroke="#00C896" stroke-width="1.5"/>
-  <polygon points="846,364 850,372 854,364" fill="#00C896"/>
+    <rect x="276" y="668" width="172" height="32" rx="6" fill="#0F1421" stroke="#3A4358" stroke-width="1"/>
+    <circle cx="288" cy="684" r="3" fill="#9D85FF"/>
+    <text x="298" y="681" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" font-weight="700">POST</text>
+    <text x="328" y="681" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="11" font-weight="600">/api/answer</text>
+    <text x="298" y="693" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="9">P1 + LLM compose</text>
 
-  <!-- ========================== OUTPUT ========================== -->
+    <rect x="458" y="668" width="172" height="32" rx="6" fill="#0F1421" stroke="#3A4358" stroke-width="1"/>
+    <circle cx="470" cy="684" r="3" fill="#FF9F1C"/>
+    <text x="480" y="681" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" font-weight="700">GET</text>
+    <text x="503" y="681" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="11" font-weight="600">/api/conflict</text>
+    <text x="480" y="693" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="9">L2 contradiction detect</text>
 
-  <!-- OUTPUT node -->
-  <rect x="780" y="500" width="140" height="52" rx="4" fill="#0E0E10" stroke="#2A2A2E" stroke-width="1.5"/>
-  <text x="850" y="520" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">OUTPUT</text>
-  <text x="850" y="538" fill="#EBEBEB" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" text-anchor="middle" font-weight="500">top-K + citations</text>
+    <rect x="640" y="668" width="172" height="32" rx="6" fill="#0F1421" stroke="#3A4358" stroke-width="1"/>
+    <circle cx="652" cy="684" r="3" fill="#FFB800"/>
+    <text x="662" y="681" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" font-weight="700">GET</text>
+    <text x="685" y="681" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="11" font-weight="600">/api/kg/path</text>
+    <text x="662" y="693" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="9">graph traversal</text>
 
-  <!-- Arrow: SALIENCE → OUTPUT -->
-  <line x1="850" y1="446" x2="850" y2="494" stroke="#2A2A2E" stroke-width="1.5"/>
-  <polygon points="846,494 850,502 854,494" fill="#2A2A2E"/>
+    <rect x="822" y="668" width="172" height="32" rx="6" fill="#0F1421" stroke="#3A4358" stroke-width="1"/>
+    <circle cx="834" cy="684" r="3" fill="#94A3B8"/>
+    <text x="844" y="681" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" font-weight="700">GET</text>
+    <text x="867" y="681" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="11" font-weight="600">/api/health</text>
+    <text x="844" y="693" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="9">salience telemetry</text>
 
-  <!-- ========================== SIDE BUBBLES ========================== -->
+    <rect x="1004" y="668" width="124" height="32" rx="6" fill="#0F1421" stroke="#3A4358" stroke-width="1"/>
+    <circle cx="1016" cy="684" r="3" fill="#EBEBEF"/>
+    <text x="1026" y="681" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" font-weight="700">MCP</text>
+    <text x="1054" y="681" fill="#EBEBEF" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="11" font-weight="600">16 tools</text>
+    <text x="1026" y="693" fill="#6B7280" font-family="'Inter', system-ui, sans-serif" font-size="9">agent surface</text>
+  </g>
 
-  <!-- SQLite bubble -->
-  <rect x="460" y="418" width="130" height="44" rx="4" fill="#1A1A1F" stroke="#2A2A2E" stroke-width="1"/>
-  <text x="525" y="436" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">SQLite file</text>
-  <text x="525" y="452" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">~1.24 GB on disk</text>
+  <rect x="94" y="708" width="248" height="22" rx="11" fill="#0E2A22" stroke="#00C896" stroke-width="0.75"/>
+  <circle cx="108" cy="719" r="3" fill="#00C896"/>
+  <text x="118" y="722" fill="#00E0A8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" font-weight="600">p50 ≈ 18ms · p95 ≈ 42ms hybrid</text>
+  <rect x="352" y="708" width="220" height="22" rx="11" fill="#0E2A22" stroke="#00C896" stroke-width="0.75"/>
+  <circle cx="366" cy="719" r="3" fill="#00C896"/>
+  <text x="376" y="722" fill="#00E0A8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" font-weight="600">99.97% vector coverage</text>
+  <rect x="582" y="708" width="200" height="22" rx="11" fill="#0E2A22" stroke="#00C896" stroke-width="0.75"/>
+  <circle cx="596" cy="719" r="3" fill="#00C896"/>
+  <text x="606" y="722" fill="#00E0A8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="10" font-weight="600">zero vendor lock-in</text>
 
-  <!-- Shadow-mode bubble -->
-  <rect x="460" y="66" width="130" height="44" rx="4" fill="#1A1A1F" stroke="#2A2A2E" stroke-width="1"/>
-  <text x="525" y="84" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">shadow-mode</text>
-  <text x="525" y="100" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">discipline built-in</text>
+  <path d="M 1012 552 L 1012 580 L 980 580 L 980 596" fill="none" stroke="#00C896" stroke-width="2" marker-end="url(#arrow-accent-d)"/>
+  <text x="1024" y="572" fill="#00E0A8" font-family="'Inter', system-ui, sans-serif" font-size="10" font-style="italic">top-K + citations</text>
 
-  <!-- Schema bubble -->
-  <rect x="460" y="136" width="130" height="44" rx="4" fill="#1A1A1F" stroke="#2A2A2E" stroke-width="1"/>
-  <text x="525" y="154" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle">Schema v18</text>
-  <text x="525" y="170" fill="#444448" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle">zero vendor lock-in</text>
+  <g transform="translate(60, 524)">
+    <text x="0" y="0" fill="#94A3B8" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.5" font-weight="600">LEGEND</text>
+    <line x1="0" y1="8" x2="220" y2="8" stroke="#2A3142" stroke-width="0.5"/>
 
-  <!-- ========================== TITLE ========================== -->
-  <text x="500" y="580" fill="#3A3A3E" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" text-anchor="middle" letter-spacing="2">NOX-MEM — HYBRID RETRIEVAL ARCHITECTURE</text>
+    <circle cx="6" cy="24" r="4" fill="#FF9F1C"/>
+    <text x="18" y="27" fill="#CBD5E1" font-family="'Inter', system-ui, sans-serif" font-size="10">lexical (FTS5 BM25)</text>
+
+    <circle cx="6" cy="42" r="4" fill="#9D85FF"/>
+    <text x="18" y="45" fill="#CBD5E1" font-family="'Inter', system-ui, sans-serif" font-size="10">semantic (Gemini 3072d)</text>
+
+    <circle cx="6" cy="60" r="4" fill="#00C896"/>
+    <text x="18" y="63" fill="#CBD5E1" font-family="'Inter', system-ui, sans-serif" font-size="10">fusion + API (the secret sauce)</text>
+
+    <circle cx="6" cy="78" r="4" fill="#FFB800"/>
+    <text x="18" y="81" fill="#CBD5E1" font-family="'Inter', system-ui, sans-serif" font-size="10">salience signals (recency × pain)</text>
+  </g>
+
+  <text x="1140" y="760" fill="#6B7280" font-family="'JetBrains Mono', 'Menlo', monospace" font-size="9" text-anchor="end" letter-spacing="1.2">nox-mem · hybrid memory with shadow discipline</text>
 </svg>
