@@ -99,6 +99,79 @@ Tally: **8 working / 1 broken-by-design / 0 unsafe**. Nenhum PR necessário — 
 
 ---
 
+## 🌇 AFTERNOON 2026-05-19 — Ablation F voltou + bug sanitize descoberto + decisão C
+
+> **Atualizado:** 2026-05-19 ~15:00 BRT — **Ablation real F voltou em 13min (não 3h projetadas, custo $0.08 vs $0.30 budget). Resultados refutam PR #137: Gemini dense alone reproduz D_full_prod byte-por-byte (+100.6%). Query expansion, RRF, semantic pool contribuíram +0.0%. Bug crítico descoberto: hybrid prod está rodando dense-only por sanitize regex em `src/search.ts:75`. Decisão Toto: caminho C — fix sanitize + criar entity-flavored eval set + re-medir features. Agents G1+G2 dispatched paralelo.**
+
+### Resultados Ablation F (PR #139) — empíricos, supersedes PR #137
+
+| Config | nDCG@10 D2 | Δ vs FTS5 baseline | Δ vs anterior |
+|---|---|---|---|
+| FTS5 baseline | 0.2810 | — | — |
+| **Dense só (Gemini semantic alone)** | **0.5637** | **+100.6%** | +100.6% |
+| + Query expansion 3 batches | 0.5637 | +100.6% | **+0.0%** ❌ |
+| + Semantic pool 20→80 | 0.5637 | +100.6% | **+0.0%** ❌ |
+| + Boosts (BOOST_TYPES + tier + source_type + section + recency) | 0.5637 | +100.6% | **+0.0%** ❌ |
+| **D_full_prod (canonical D2)** | **0.5637** | **+100.6%** | — |
+
+### 🚨 BUG crítico descoberto em produção
+
+`src/search.ts:75` sanitize regex NÃO strip `?` / `,` / `.` → FTS5 batch retorna 0 docs em queries NL com pontuação. **Conclusão: hybrid search prod está rodando dense-only para clientes** desde quando esse regex foi escrito. Severity HIGH — narrativa "hybrid retrieval" no branding atual é **factualmente falsa** até o fix. PR sanitize em andamento via G1 (executor + worktree).
+
+### Q1/Q2/Q3 respondidas empiricamente
+
+- **Q1 — Headline +100.6% defensável?** Sim numericamente, mas com qualificação: **é Gemini dense alone, NÃO hybrid**. Honest framing: "dense retrieval beats sparse-only" até hybrid genuíno voltar.
+- **Q2 — Driver real?** **Gemini semantic embedding (gemini-embedding-001, 3072d via sqlite-vec) alone.** PR #137 (static analysis) errou ao apostar em expansion+RRF.
+- **Q3 — Salience + section_boost + boosts contribuem zero?** **CONFIRMADO empiricamente.** Mais: BOOST_TYPES, SOURCE_TYPE_BOOST, TIER_BOOST, source_date também zero no LoCoMo. Eval set não exercita features de memória.
+
+### Decisão estratégica D47 — Caminho C escolhido (Toto, 2026-05-19 ~15h)
+
+| Fase | Agent | Esforço | Output |
+|---|---|---|---|
+| **G1** Fix sanitize bug | executor + worktree | ~1h | PR + test, hybrid genuíno LIVE |
+| **G2** Design + impl entity-flavored eval set | executor-high + worktree | ~3-4h | n=100 queries + ~500 chunks entity-format com section_boost/pain/source_type/recency variados |
+| **G3** Rodar ablation com hybrid genuíno + entity eval | executor | ~30min | tabela de atribuição real |
+| **Paper §5 reframe** | Toto + manual | depois | com números reais |
+
+Defaults G2: 30% compiled / 30% frontmatter / 40% timeline; chunk_type mix 25/25/20/15/15 (person/project/lesson/decision/other); pain distribution 30/40/30 (low/med/high); recency 30d uniform; source_type 50/30/20; tier 60/30/10; queries 20% por categoria LoCoMo. Custo Gemini total ~$0.80 USD.
+
+### Anomalia 1 (ops_audit) — fix deployed em paralelo
+
+Agent #10 investigou audit_id=118 missing em ops_audit → **root cause: trigger `trg_ops_audit_started_at_server_side` com type-affinity bug** (TEXT datetime > INTEGER epoch-ms sempre true → RAISE(IGNORE) silencioso). Todas withOpAudit ops desde criação do trigger → ZERO rows persistindo. Snapshots intactos (segurança preservada), audit trail vazia.
+
+Fix deployed VPS 2026-05-19 ~14:45 BRT:
+- staged-anomaly-1/edits/src/lib/op-audit.ts deployed (started_at INTEGER, changes===0 guard, drop triggers broken em ensureAuditTable)
+- Smoke test pós-deploy: ✅ MAX(id) 63 → 64 persistido com epoch ms (1779202036369.0)
+- Memória registrada: `feedback_withopaudit_trigger_raise_ignore_swallows_insert.md`
+
+### Anomalias secundárias detectadas (não-bloqueantes)
+
+| # | Item | Severity | Decisão |
+|---|---|---|---|
+| A2 | `search_telemetry` schema desincronizado vs INSERT positional (silent fail) | medium | wave futura |
+| A3 | `tsc` emite dist/ mesmo com type errors em test files — deploy hygiene | low | wave futura |
+| A4 | Lição metodológica: static analysis enganou PR #137 — sempre rodar ablation real | — | memória salva |
+
+### Pendentes em background (esta tarde)
+
+| Item | Status | ETA |
+|---|---|---|
+| #7 Q2 full n=100 (VPS) | 🟢 rodando | ~10min remaining |
+| G1 sanitize fix | 🟢 rodando | ~1h |
+| G2 entity-flavored eval set | 🟢 rodando | ~3-4h |
+
+### Próxima sessão priorities (revisadas após D47)
+
+1. **Receber G1 + deploy ao VPS** — hybrid genuíno LIVE, re-rodar ablation B+F rápida pra confirmar uplift BM25
+2. **Receber G2 + sample n=5** — validar harness entity eval funcionando
+3. **Dispatch G3** — ablation full entity-flavored com hybrid genuíno (~30min, ~$0.50)
+4. **Q2 full results** — incorporar nos numbers se voltou
+5. **PR #137 close** — comentário supersedes já postado; close formal pra evitar confusão
+6. **Paper §5 reframe** — com números REAIS de G3 (não mais static analysis)
+7. **Visual identity sync** — banner/chart/README com headline final pós G3
+
+---
+
 ## 🌙 PÓS WAVE Q + PRODUCTION-PATH + VISUAL IDENTITY FINAL — 2026-05-18 noite final
 
 > **Atualizado:** 2026-05-18 ~23:50 BRT — **Production-path validado em VPS. Q-pillar numbers locked: +112% nDCG@10 canonical (vs FTS5 baseline). 6/6 endpoints LIVE. Q4 gate ABERTA (Decision D43). Stripe-first GTM pivot (D44b). Pain-weighted slogan canonical (D45). Brand identity refresh: banner + logo + favicon + stat cards + architecture + comparison chart + 100% PASSING OpenSSF badge. Total 30 PRs merged hoje noite. Schema v24 + 30 arquivos deployados.**
