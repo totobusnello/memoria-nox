@@ -17,7 +17,8 @@
  */
 
 import { readFileSync } from "fs";
-import { getDb, closeDb } from "./db.js";
+import { getDb, closeDb, checkLargeDbIngestGuard } from "./db.js";
+import { withOpAudit } from "./lib/op-audit.js";
 
 // Load sqlite-vec extension before accessing DB (required because vec_chunks is a virtual table)
 async function loadVec() {
@@ -102,65 +103,85 @@ async function ingestGraph(
 
   const db = getDb();
 
-  // Delete previous chunks from this repo (idempotent re-ingest)
-  const prefix = `graphify:${repoName}:`;
-  if (!dryRun) {
+  // audit #20 fix — Large-DB ingest guard (defense-in-depth, postmortem 2026-05-19).
+  // Even in dry-run we run the check so accidental prod-pointing dry-runs fail fast.
+  // Override: NOX_ALLOW_PROD_INGEST=1 (auditable, required for legit prod re-ingest).
+  checkLargeDbIngestGuard(db, "graphify-ingest");
+
+  // Dry-run path: no writes, no snapshot needed. Skip withOpAudit wrapper.
+  if (dryRun) {
+    const prefix = `graphify:${repoName}:`;
+    const wouldDelete = (db.prepare(
+      "SELECT COUNT(*) AS n FROM chunks WHERE source_file LIKE ? || '%'",
+    ).get(prefix) as { n: number } | undefined)?.n ?? 0;
+    console.log(`[graphify-ingest] DRY RUN — would delete ${wouldDelete} previous chunks from ${repoName}`);
+    console.log(`[graphify-ingest] DRY RUN — would insert ${nodes.length} graph_node chunks`);
+    return nodes.length;
+  }
+
+  // audit #20 fix — Wrap destructive DELETE+INSERT in withOpAudit for atomic
+  // VACUUM INTO snapshot pre-op (CLAUDE.md rule #6). On failure the snapshot
+  // path is logged in ops_audit and recoverable via safeRestore().
+  const today = new Date().toISOString().slice(0, 10);
+  const count = await withOpAudit("graphify-ingest", async () => {
+    // Delete previous chunks from this repo (idempotent re-ingest)
+    const prefix = `graphify:${repoName}:`;
     const deleted = db.prepare("DELETE FROM chunks WHERE source_file LIKE ? || '%'").run(prefix);
     console.log(`[graphify-ingest] Cleared ${deleted.changes} previous chunks from ${repoName}`);
-  }
 
-  const insertChunk = db.prepare(`
-    INSERT INTO chunks (source_file, chunk_text, chunk_type, source_date, is_compiled, source_type, metadata)
-    VALUES (?, ?, 'graph_node', ?, 1, 'external', ?)
-  `);
+    const insertChunk = db.prepare(`
+      INSERT INTO chunks (source_file, chunk_text, chunk_type, source_date, is_compiled, source_type, metadata)
+      VALUES (?, ?, 'graph_node', ?, 1, 'external', ?)
+    `);
 
-  const today = new Date().toISOString().slice(0, 10);
-  let count = 0;
-  let batchStart = Date.now();
+    let inserted = 0;
+    let batchStart = Date.now();
 
-  for (let i = 0; i < nodes.length; i++) {
-    const n = nodes[i];
-    const neighbors = (adj.get(n.id) || []).slice(0, 8);
-    const context = neighbors
-      .map((e) => `${e.relation} → ${nodeById.get(e.target)?.label ?? e.target}`)
-      .join("; ");
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      const neighbors = (adj.get(n.id) || []).slice(0, 8);
+      const context = neighbors
+        .map((e) => `${e.relation} → ${nodeById.get(e.target)?.label ?? e.target}`)
+        .join("; ");
 
-    const textParts = [
-      n.label,
-      n.file_type ? `Type: ${n.file_type}` : "",
-      n.source_file ? `Origem: ${n.source_file}` : "",
-      context ? `Conexões: ${context}` : "",
-    ].filter(Boolean);
-    const chunkText = textParts.join("\n");
+      const textParts = [
+        n.label,
+        n.file_type ? `Type: ${n.file_type}` : "",
+        n.source_file ? `Origem: ${n.source_file}` : "",
+        context ? `Conexões: ${context}` : "",
+      ].filter(Boolean);
+      const chunkText = textParts.join("\n");
 
-    const sourceFile = `graphify:${repoName}:${n.id}`;
-    const metadata = JSON.stringify({
-      graphify_id: n.id,
-      repo: repoName,
-      community: n.community ?? null,
-      file_type: n.file_type ?? null,
-      source_original: n.source_file ?? null,
-      source_url: n.source_url ?? null,
-      author: n.author ?? null,
-    });
+      const sourceFile = `graphify:${repoName}:${n.id}`;
+      const metadata = JSON.stringify({
+        graphify_id: n.id,
+        repo: repoName,
+        community: n.community ?? null,
+        file_type: n.file_type ?? null,
+        source_original: n.source_file ?? null,
+        source_url: n.source_url ?? null,
+        author: n.author ?? null,
+      });
 
-    if (!dryRun) {
       insertChunk.run(sourceFile, chunkText, today, metadata);
-    }
-    count++;
+      inserted++;
 
-    if (count % batchSize === 0 && i < nodes.length - 1) {
-      const elapsed = ((Date.now() - batchStart) / 1000).toFixed(1);
-      console.log(`[graphify-ingest] ${count}/${nodes.length} chunks inserted in ${elapsed}s — pausing ${pauseMs / 1000}s`);
-      if (!dryRun) {
+      if (inserted % batchSize === 0 && i < nodes.length - 1) {
+        const elapsed = ((Date.now() - batchStart) / 1000).toFixed(1);
+        console.log(`[graphify-ingest] ${inserted}/${nodes.length} chunks inserted in ${elapsed}s — pausing ${pauseMs / 1000}s`);
         await new Promise((r) => setTimeout(r, pauseMs));
+        batchStart = Date.now();
       }
-      batchStart = Date.now();
     }
-  }
 
-  console.log(`[graphify-ingest] ✓ Done: ${count} chunks from ${repoName} → nox-mem`);
-  return count;
+    return { affected_rows: inserted, deleted_rows: deleted.changes };
+  });
+
+  const total = typeof count === "object" && count && "affected_rows" in count
+    ? (count as { affected_rows: number }).affected_rows
+    : nodes.length;
+  console.log(`[graphify-ingest] ✓ Done: ${total} chunks from ${repoName} → nox-mem`);
+  return total;
 }
 
 // ─── CLI ────────────────────────────────────────────────────────────────
