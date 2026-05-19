@@ -20,15 +20,27 @@ VPS abriu o dia com `orphans=1` → resolvido em <10min via `withOpAudit` (audit
 | **D** | Q2 batch parallel: 1.6→16/s embed via `Promise.all` pools | #138 | **Merged** 2026-05-19T14:12Z (admin bypass: Validate DEPLOY-WAVE-B skip-by-path-filter) |
 | **E** | Atribuição +112% prod vs +18.8% Python re-impl — investigation | #137 | **Aberto** — aguarda leitura Toto |
 
-### Achados críticos do Bloco E (PR #137)
+### Achados críticos do Bloco E (PR #137) — ⚠️ STATIC-CODE, ablation real (F) pendente
 
-**Driver 1 — Salience boost (recency × pain × importance):** produção aplica o multiplicador salience no score final de RRF; o Python re-impl (`e04_locomo_eval.py`) não aplicava nenhum boost pós-retrieval. Sozinho explica ~40-50 pontos percentuais de diferença em categorias onde documentos recentes têm pain elevado.
+**Driver 1 — Fórmula nDCG diferente entre os dois evals (~9pp absoluto):**
+- `locomo_production_path_eval.py:139-144` usa **D1**: `idcg = dcg(sorted-rel)` (max from retrieved set, ranking-relative — NÃO-standard)
+- `locomo_eval.py:182-188` usa **D2**: `idcg = sum(1/log2(i+2) for i in range(min(|gold|,k)))` (ideal full, **TREC standard**)
+- Recomputado sob mesma fórmula: prod-path cai 0.5961 → 0.5637 (-5.4pp absoluto) → **+112% nominal → +100.6% D2 real**
 
-**Driver 2 — section_boost (compiled=2.0, frontmatter=1.5):** entity files ingeridos via `ingest-entity.ts` geram chunks com `section_boost` multiplicador. Queries que tocam entidades conhecidas (maioria do LoCoMo single-hop e open-domain) recebem reranking favorável que o baseline FTS5 não tem. Explica desempenho excepcionalmente alto em Single-hop (+251%) e Open-domain (+85%).
+**Driver 2 — Features arquiteturais TS NÃO portadas pro Python re-impl (~60pp residual):**
+- **Query expansion via Gemini**: TS faz **3 batches** FTS5 (original + 2 variants) vs Python **1 batch único** → multi-batch RRF voting amplifies docs surviving múltiplas reformulações (`staged-1.6/search-expansion.ts`)
+- **Semantic candidate pool**: TS **80** vs Python **20** (`perVariantLimit*2 = limit*2*2` em `staged-1.7a/edits/search.ts`)
+- **4-batch RRF** (3 FTS + 1 semantic) vs Python 2-batch único
 
-**NULL drivers — confirmados ausentes:** embedding model drift (ambos usam `gemini-embedding-001`), corpus size diferença (mesmo DB), temperatura/sampling (irrelevante para retrieval), schema migrations v18→v24 (todos semânticos, não afetam scoring pipeline FTS5 baseline).
+**NULL drivers — confirmados ausentes no eval set atual (contribuição zero pro +112%):**
+- **Salience formula** — `NOX_SALIENCE_MODE=shadow` default → NÃO aplicada no ranking de prod
+- **SECTION_BOOST** — chunks `eval_locomo` têm `section=NULL` (não-entity format) → multiplicador inert
+- **BOOST_TYPES** — `eval_locomo` ∉ {decision, lesson, person, project, pending}
+- **SOURCE_TYPE_BOOST / TIER_BOOST** — defaults peripheral
 
-**Conclusão PR #137:** a gap +112% vs +18.8% é **real e reproduzível**, não artefato de implementação. O Python re-impl era um lower-bound sem os diferenciais do produto. Paper §5 deve documentar explicitamente os dois drivers como "implementation advantages" — isso é o moat.
+**Conclusão PR #137 (static analysis):** o gap +112% nominal decompõe em (a) ~9pp artefato de fórmula nDCG diferente → headline canonical **+100.6% D2**; (b) ~60pp residual de **query expansion + RRF multi-batch + larger semantic pool** — features do **stack de busca** TS, NÃO de **memória** (salience/section_boost estavam off OR inert no eval set). **Implicação pro paper §5**: a narrativa "pain-weighted hybrid memory" não foi medida neste eval set. O real driver é retrieval-side (busca). Pra demonstrar pain-weighting numericamente, precisaria eval com entity-flavored chunks (section_boost ativo) + activation gate de salience formula.
+
+**Limitação importante**: análise é static-code. **Ablation real (Bloco F)** rodando em background pra confirmar via execução das 3 hipóteses (B: sem boosts; C: expansion=1 + semantic=20; D: side-by-side D1+D2). Conclusões finais aguardam F (~3h ETA, $0.30 Gemini budget).
 
 ### Decisões locked
 
@@ -78,11 +90,12 @@ Tally: **8 working / 1 broken-by-design / 0 unsafe**. Nenhum PR necessário — 
 
 ### Próxima sessão priorities
 
-1. **Ler PR #137** — revisão dos 2 drivers de atribuição + decidir merge ou comments adicionais
-2. **Receber ablation F resultados** — cravar contribuição isolada de cada driver (salience vs section_boost vs RRF) + criar PR com findings
+1. **Ler PR #137** — revisão dos drivers reais (fórmula D1/D2 + expansion/RRF/pool) + decidir merge ou comments adicionais
+2. **Receber ablation F resultados** — cravar contribuição isolada das 3 ablations (B: sem boosts; C: expansion=1 + pool=20; D: D1 vs D2 side-by-side) + criar PR com findings reais
 3. **Rodar Q2 full n=100 no VPS** — PR #138 merged, infra com batch 16/s pronta; só precisa `GEMINI_API_KEY` válida no env VPS
-4. **Paper §5 update** — incorporar D46 (+100.6% D2) + 2 drivers de atribuição como "implementation advantages"; aguardar ablation F antes de escrever
+4. **Paper §5 update** — incorporar D46 (+100.6% D2 standard TREC) + drivers reais (retrieval-side: query expansion + RRF multi-batch + larger semantic pool, NÃO salience/section_boost). Aguardar ablation F antes de escrever. **Reframe necessário**: tagline "pain-weighted hybrid memory" não foi medida neste eval; mexer narrative pra "retrieval-side advantages" OR criar entity-flavored eval set futuro pra medir pain-weighting de fato
 5. **Sync visual identity com +100.6%** — banner, comparison chart, README, stat cards (baixa urgência — fase depois de paper)
+6. **Decisão estratégica futura**: ativar salience formula (shadow→active) ou criar entity-flavored eval set pra de fato medir pain-weighting numericamente. Ablation F vai informar essa decisão.
 
 ---
 
