@@ -1,0 +1,284 @@
+<svg width="1100" height="900" viewBox="0 0 1100 900" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem vs competitors — capability radar and coverage grid, light theme">
+  <title>nox-mem vs competitors — capability radar + coverage grid</title>
+  <desc>Radar chart over 7 capability axes plus a coverage grid comparing nox-mem to memanto, agentmemory, mem0, Letta, and Zep. Data source: benchmark/COMPARISON.md (2026-05-18).</desc>
+
+  <!-- ========================== BACKGROUND ========================== -->
+  <rect width="1100" height="900" fill="#F5F5F7"/>
+
+  <defs>
+    <pattern id="cmp-grid-l" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#EAEAEC" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="1100" height="900" fill="url(#cmp-grid-l)"/>
+
+  <!-- ========================== HEADER ========================== -->
+  <text x="40" y="50" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="20" font-weight="600">nox-mem vs the field</text>
+  <text x="40" y="72" fill="#666666" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="400">capability coverage across 7 axes &#183; data: benchmark/COMPARISON.md &#183; 2026-05-18</text>
+
+  <text x="1060" y="50" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500" text-anchor="end">RADAR</text>
+  <line x1="900" y1="56" x2="1060" y2="56" stroke="#E0E0E4" stroke-width="0.5"/>
+
+  <!-- ========================== RADAR CHART (left half) ========================== -->
+  <!-- center cx=375 cy=340  r=180  7 axes anchored at top (-pi/2), clockwise -->
+
+  <!-- Concentric rings 0.33 / 0.66 / 1.0 -->
+  <polygon points="375,280 421.96,261.43 407.49,300.02 401.03,360.72 375,394.05 348.97,360.72 342.51,300.02"
+           fill="none" stroke="#E5E5E8" stroke-width="0.5"/>
+  <polygon points="375,220 468.92,182.85 439.99,280.03 414.06,401.44 335.94,401.44 310.01,280.03 281.08,182.85"
+           fill="none" stroke="#D8D8DC" stroke-width="0.5"/>
+  <polygon points="375,140 512.88,204.30 550.48,360.05 453.10,482.16 296.90,482.16 199.52,360.05 237.12,204.30"
+           fill="none" stroke="#C8C8CC" stroke-width="0.75"/>
+
+  <!-- Axis lines -->
+  <line x1="375" y1="340" x2="375" y2="140" stroke="#D8D8DC" stroke-width="0.5"/>
+  <line x1="375" y1="340" x2="512.88" y2="204.30" stroke="#D8D8DC" stroke-width="0.5"/>
+  <line x1="375" y1="340" x2="550.48" y2="360.05" stroke="#D8D8DC" stroke-width="0.5"/>
+  <line x1="375" y1="340" x2="453.10" y2="482.16" stroke="#D8D8DC" stroke-width="0.5"/>
+  <line x1="375" y1="340" x2="296.90" y2="482.16" stroke="#D8D8DC" stroke-width="0.5"/>
+  <line x1="375" y1="340" x2="199.52" y2="360.05" stroke="#D8D8DC" stroke-width="0.5"/>
+  <line x1="375" y1="340" x2="237.12" y2="204.30" stroke="#D8D8DC" stroke-width="0.5"/>
+
+  <!-- Ring scale tick labels (along top axis) -->
+  <text x="382" y="284" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.5">1</text>
+  <text x="382" y="224" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.5">2</text>
+  <text x="382" y="144" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.5">3</text>
+
+  <!-- Competitor polygons drawn first (back layer), nox-mem on top -->
+
+  <!-- mem0  scores: 2,3,2,2,1,0,0 -->
+  <!-- v0: (375 + 180*(2/3)*0,  340 + 180*(2/3)*(-1))           = (375.00, 220.00) -->
+  <!-- v1: (375 + 180*(3/3)*0.7660, 340 + 180*(3/3)*(-0.6428))  = (512.88, 224.30) -->
+  <!-- v2: (375 + 180*(2/3)*0.9749, 340 + 180*(2/3)*0.2225)     = (491.99, 366.70) -->
+  <!-- v3: (375 + 180*(2/3)*0.4339, 340 + 180*(2/3)*0.9009)     = (427.07, 448.11) -->
+  <!-- v4: (375 + 180*(1/3)*(-0.4339), 340 + 180*(1/3)*0.9009)  = (348.97, 394.05) -->
+  <!-- v5: (375, 340) -->
+  <!-- v6: (375, 340) -->
+  <polygon points="375.00,220.00 512.88,224.30 491.99,366.70 427.07,448.11 348.97,394.05 375.00,340.00 375.00,340.00"
+           fill="#9C9CA0" fill-opacity="0.10" stroke="#9C9CA0" stroke-width="1.25" stroke-linejoin="round" stroke-dasharray="3 2"/>
+
+  <!-- Memanto  scores: 1,0,0,0,1,0,0 -->
+  <!-- v0: (375, 340 + 180*(1/3)*(-1)) = (375, 280) -->
+  <!-- v1: (375, 340) -->
+  <!-- v2: (375, 340) -->
+  <!-- v3: (375, 340) -->
+  <!-- v4: (375 + 180*(1/3)*(-0.4339), 340 + 180*(1/3)*0.9009) = (348.97, 394.05) -->
+  <!-- v5: (375, 340) -->
+  <!-- v6: (375, 340) -->
+  <polygon points="375,280 375,340 375,340 375,340 348.97,394.05 375,340 375,340"
+           fill="#C0827D" fill-opacity="0.10" stroke="#C0827D" stroke-width="1.25" stroke-linejoin="round" stroke-dasharray="3 2"/>
+
+  <!-- agentmemory  scores: 1,2,1,1,1,0,0 -->
+  <!-- v0: (375, 340 + 180*(1/3)*(-1)) = (375, 280) -->
+  <!-- v1: (375 + 180*(2/3)*0.7660, 340 + 180*(2/3)*(-0.6428)) = (466.92, 262.86) -->
+  <!-- v2: (375 + 180*(1/3)*0.9749, 340 + 180*(1/3)*0.2225)    = (433.49, 353.35) -->
+  <!-- v3: (375 + 180*(1/3)*0.4339, 340 + 180*(1/3)*0.9009)    = (401.03, 394.05) -->
+  <!-- v4: (348.97, 394.05) -->
+  <!-- v5: (375, 340) -->
+  <!-- v6: (375, 340) -->
+  <polygon points="375,280 466.92,262.86 433.49,353.35 401.03,394.05 348.97,394.05 375,340 375,340"
+           fill="#7C8FA8" fill-opacity="0.12" stroke="#7C8FA8" stroke-width="1.25" stroke-linejoin="round" stroke-dasharray="3 2"/>
+
+  <!-- Letta  scores: 2,3,1,2,1,0,0 -->
+  <!-- v0: (375, 220) -->
+  <!-- v1: (512.88, 224.30) -->
+  <!-- v2: (375 + 180*(1/3)*0.9749, 340 + 180*(1/3)*0.2225) = (433.49, 353.35) -->
+  <!-- v3: (375 + 180*(2/3)*0.4339, 340 + 180*(2/3)*0.9009) = (427.07, 448.11) -->
+  <!-- v4: (348.97, 394.05) -->
+  <!-- v5: (375, 340) -->
+  <!-- v6: (375, 340) -->
+  <polygon points="375,220 512.88,224.30 433.49,353.35 427.07,448.11 348.97,394.05 375,340 375,340"
+           fill="#A57BBB" fill-opacity="0.10" stroke="#A57BBB" stroke-width="1.25" stroke-linejoin="round" stroke-dasharray="3 2"/>
+
+  <!-- nox-mem (hero)  scores: 3,3,3,3,3,3,3 — full coverage heptagon at r=180 -->
+  <polygon points="375,140 512.88,204.30 550.48,360.05 453.10,482.16 296.90,482.16 199.52,360.05 237.12,204.30"
+           fill="#00C896" fill-opacity="0.22" stroke="#00A87A" stroke-width="2.5" stroke-linejoin="round"/>
+
+  <!-- nox-mem vertex dots -->
+  <circle cx="375"    cy="140"    r="3.5" fill="#00A87A"/>
+  <circle cx="512.88" cy="204.30" r="3.5" fill="#00A87A"/>
+  <circle cx="550.48" cy="360.05" r="3.5" fill="#00A87A"/>
+  <circle cx="453.10" cy="482.16" r="3.5" fill="#00A87A"/>
+  <circle cx="296.90" cy="482.16" r="3.5" fill="#00A87A"/>
+  <circle cx="199.52" cy="360.05" r="3.5" fill="#00A87A"/>
+  <circle cx="237.12" cy="204.30" r="3.5" fill="#00A87A"/>
+
+  <!-- ========================== AXIS LABELS ========================== -->
+  <!-- 0: top -->
+  <text x="375" y="125" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600" text-anchor="middle">HYBRID RETRIEVAL</text>
+  <text x="375" y="111" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="middle" letter-spacing="0.5">BM25 + vector + RRF</text>
+
+  <!-- 1: upper-right -->
+  <text x="528" y="200" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600">OPEN-SOURCE</text>
+  <text x="528" y="214" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.5">MIT / Apache</text>
+
+  <!-- 2: right -->
+  <text x="565" y="356" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600">SELF-HOSTED</text>
+  <text x="565" y="370" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.5">zero-daemon</text>
+
+  <!-- 3: lower-right -->
+  <text x="468" y="500" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600">PROVIDER AUTONOMY</text>
+  <text x="468" y="514" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" letter-spacing="0.5">BYOK Gemini / Voyage / OpenAI</text>
+
+  <!-- 4: lower-left -->
+  <text x="282" y="500" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600" text-anchor="end">PROD-VERIFIED NUMBERS</text>
+  <text x="282" y="514" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="end" letter-spacing="0.5">nDCG@10 0.3338 &#183; p50 940ms</text>
+
+  <!-- 5: left -->
+  <text x="185" y="356" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600" text-anchor="end">SHADOW DISCIPLINE</text>
+  <text x="185" y="370" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="end" letter-spacing="0.5">measure ≥ 1 week before apply</text>
+
+  <!-- 6: upper-left -->
+  <text x="222" y="200" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600" text-anchor="end">PAIN WEIGHTING</text>
+  <text x="222" y="214" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8" text-anchor="end" letter-spacing="0.5">salience = recency &#215; pain &#215; importance</text>
+
+  <!-- ========================== LEGEND (right of radar) ========================== -->
+  <text x="700" y="125" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">SYSTEMS</text>
+  <line x1="700" y1="131" x2="1060" y2="131" stroke="#E0E0E4" stroke-width="0.5"/>
+
+  <!-- nox-mem -->
+  <rect x="700" y="148" width="22" height="12" rx="2" fill="#00C896" fill-opacity="0.22" stroke="#00A87A" stroke-width="2"/>
+  <text x="732" y="158" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="12" font-weight="600">nox-mem</text>
+  <text x="820" y="158" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="600">21 / 21</text>
+  <text x="900" y="158" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9">MIT &#183; SQLite + sqlite-vec</text>
+
+  <!-- mem0 -->
+  <rect x="700" y="180" width="22" height="12" rx="2" fill="#9C9CA0" fill-opacity="0.10" stroke="#9C9CA0" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="732" y="190" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="12" font-weight="500">mem0</text>
+  <text x="820" y="190" fill="#666666" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10">10 / 21</text>
+  <text x="900" y="190" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9">Apache-2.0 &#183; PG + Qdrant</text>
+
+  <!-- Letta -->
+  <rect x="700" y="212" width="22" height="12" rx="2" fill="#A57BBB" fill-opacity="0.10" stroke="#A57BBB" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="732" y="222" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="12" font-weight="500">Letta / MemGPT</text>
+  <text x="820" y="222" fill="#666666" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10">9 / 21</text>
+  <text x="900" y="222" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9">Apache-2.0 &#183; agent loop</text>
+
+  <!-- agentmemory -->
+  <rect x="700" y="244" width="22" height="12" rx="2" fill="#7C8FA8" fill-opacity="0.12" stroke="#7C8FA8" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="732" y="254" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="12" font-weight="500">agentmemory</text>
+  <text x="820" y="254" fill="#666666" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10">6 / 21</text>
+  <text x="900" y="254" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9">MIT CLI &#183; closed engine</text>
+
+  <!-- Memanto -->
+  <rect x="700" y="276" width="22" height="12" rx="2" fill="#C0827D" fill-opacity="0.10" stroke="#C0827D" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="732" y="286" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="12" font-weight="500">Memanto</text>
+  <text x="820" y="286" fill="#666666" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10">2 / 21</text>
+  <text x="900" y="286" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9">SaaS (Moorcheh) &#183; closed</text>
+
+  <!-- Score key -->
+  <text x="700" y="335" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">SCORE</text>
+  <line x1="700" y1="341" x2="1060" y2="341" stroke="#E0E0E4" stroke-width="0.5"/>
+
+  <text x="700" y="362" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10"><tspan font-weight="600" fill="#00A87A">3</tspan> &#183; verified / native / first-class</text>
+  <text x="700" y="382" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10"><tspan font-weight="600" fill="#FFB800">2</tspan> &#183; partial / optional / configurable</text>
+  <text x="700" y="402" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10"><tspan font-weight="600" fill="#C18A45">1</tspan> &#183; vendor-claimed / docs-only / weak</text>
+  <text x="700" y="422" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10"><tspan font-weight="600" fill="#C0827D">0</tspan> &#183; absent / closed / vendor-controlled</text>
+
+  <!-- The differentiator callout -->
+  <text x="700" y="475" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">WHY THE SHAPE</text>
+  <line x1="700" y1="481" x2="1060" y2="481" stroke="#E0E0E4" stroke-width="0.5"/>
+
+  <text x="700" y="504" fill="#444444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10">Two axes are nox-mem exclusives:</text>
+  <text x="700" y="524" fill="#444444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10"><tspan fill="#00A87A" font-weight="600">&#183; Pain weighting</tspan> &#8212; schema v9 (2026-04)</text>
+  <text x="700" y="544" fill="#444444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10"><tspan fill="#00A87A" font-weight="600">&#183; Shadow discipline</tspan> &#8212; 1.7b-b telemetry</text>
+  <text x="700" y="568" fill="#666666" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9">Competitors score 0 because the construct</text>
+  <text x="700" y="582" fill="#666666" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9">does not exist in their docs or product.</text>
+
+  <!-- ========================== DIVIDER ========================== -->
+  <line x1="40" y1="625" x2="1060" y2="625" stroke="#D0D0D4" stroke-width="0.5"/>
+  <text x="40" y="660" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500">COVERAGE GRID</text>
+  <text x="1060" y="660" fill="#ABABAF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="2" font-weight="500" text-anchor="end">SECTION 2 &#183; FEATURE MATRIX</text>
+  <line x1="40" y1="668" x2="1060" y2="668" stroke="#E0E0E4" stroke-width="0.5"/>
+
+  <!-- ========================== COVERAGE GRID ========================== -->
+  <!-- Grid layout: rows = 7 axes, cols = 6 systems. -->
+  <!-- col x:  capability label at x=50 width=300 -->
+  <!--         nox-mem 380, mem0 480, Letta 580, agentmem 680, Memanto 800, Zep 920 -->
+  <!-- header row at y=695, rows of height 26 starting at y=712 -->
+
+  <!-- Column headers -->
+  <text x="380" y="700" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="700" text-anchor="middle">nox-mem</text>
+  <text x="490" y="700" fill="#444444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="500" text-anchor="middle">mem0</text>
+  <text x="600" y="700" fill="#444444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="500" text-anchor="middle">Letta</text>
+  <text x="710" y="700" fill="#444444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="500" text-anchor="middle">agentmemory</text>
+  <text x="830" y="700" fill="#444444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="500" text-anchor="middle">Memanto</text>
+  <text x="950" y="700" fill="#444444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="500" text-anchor="middle">Zep</text>
+
+  <line x1="40" y1="708" x2="1060" y2="708" stroke="#E0E0E4" stroke-width="0.5"/>
+
+  <!-- Vertical column-emphasis stripe for nox-mem -->
+  <rect x="345" y="710" width="70" height="156" fill="#00C896" fill-opacity="0.06" rx="3"/>
+
+  <!-- ROW 1: Hybrid retrieval (y center 725) -->
+  <text x="50" y="730" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="500">Hybrid retrieval (BM25+vec+RRF)</text>
+  <text x="380" y="730" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="490" y="730" fill="#FFB800" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">~</text>
+  <text x="600" y="730" fill="#FFB800" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">~</text>
+  <text x="710" y="730" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">?</text>
+  <text x="830" y="730" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">?</text>
+  <text x="950" y="730" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <line x1="40" y1="738" x2="1060" y2="738" stroke="#EFEFF2" stroke-width="0.5"/>
+
+  <!-- ROW 2: Open-source -->
+  <text x="50" y="752" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="500">Open-source license (MIT / Apache)</text>
+  <text x="380" y="752" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="490" y="752" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="600" y="752" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="710" y="752" fill="#FFB800" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">~</text>
+  <text x="830" y="752" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="950" y="752" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <line x1="40" y1="760" x2="1060" y2="760" stroke="#EFEFF2" stroke-width="0.5"/>
+
+  <!-- ROW 3: Self-hosted zero-daemon -->
+  <text x="50" y="774" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="500">Self-hosted &#183; zero-daemon</text>
+  <text x="380" y="774" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="490" y="774" fill="#FFB800" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">~</text>
+  <text x="600" y="774" fill="#FFB800" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">~</text>
+  <text x="710" y="774" fill="#FFB800" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">~</text>
+  <text x="830" y="774" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="950" y="774" fill="#FFB800" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">~</text>
+  <line x1="40" y1="782" x2="1060" y2="782" stroke="#EFEFF2" stroke-width="0.5"/>
+
+  <!-- ROW 4: Provider autonomy BYOK -->
+  <text x="50" y="796" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="500">Provider autonomy (BYOK embeddings + LLM)</text>
+  <text x="380" y="796" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="490" y="796" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="600" y="796" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="710" y="796" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600" text-anchor="middle">?</text>
+  <text x="830" y="796" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="950" y="796" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <line x1="40" y1="804" x2="1060" y2="804" stroke="#EFEFF2" stroke-width="0.5"/>
+
+  <!-- ROW 5: Production-verified numbers -->
+  <text x="50" y="818" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="500">Standardized benchmark, independently verified</text>
+  <text x="380" y="818" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="490" y="818" fill="#C18A45" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600" text-anchor="middle">vendor</text>
+  <text x="600" y="818" fill="#C18A45" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600" text-anchor="middle">paper</text>
+  <text x="710" y="818" fill="#C18A45" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600" text-anchor="middle">vendor</text>
+  <text x="830" y="818" fill="#C18A45" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600" text-anchor="middle">vendor</text>
+  <text x="950" y="818" fill="#C18A45" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" font-weight="600" text-anchor="middle">docs</text>
+  <line x1="40" y1="826" x2="1060" y2="826" stroke="#EFEFF2" stroke-width="0.5"/>
+
+  <!-- ROW 6: Shadow discipline -->
+  <text x="50" y="840" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="500">Shadow-mode discipline (1.7b-b)</text>
+  <text x="380" y="840" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="490" y="840" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="600" y="840" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="710" y="840" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="830" y="840" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="950" y="840" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <line x1="40" y1="848" x2="1060" y2="848" stroke="#EFEFF2" stroke-width="0.5"/>
+
+  <!-- ROW 7: Pain weighting -->
+  <text x="50" y="862" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="10" font-weight="500">Pain-weighted salience (recency &#215; pain &#215; importance)</text>
+  <text x="380" y="862" fill="#00A87A" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10003;</text>
+  <text x="490" y="862" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="600" y="862" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="710" y="862" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="830" y="862" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+  <text x="950" y="862" fill="#FF4444" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="700" text-anchor="middle">&#10007;</text>
+
+  <!-- ========================== FOOTER ========================== -->
+  <text x="40" y="887" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9">data: benchmark/COMPARISON.md (2026-05-18) &#183; scoring: 0&#8211;3 ordinal &#183; competitor claims marked &lt;vendor&gt;/&lt;paper&gt;/&lt;docs&gt; pending independent re-measurement (blocker B2/B3)</text>
+</svg>
