@@ -1,0 +1,58 @@
+{
+  "generated_at": "2026-05-19T15:06:04.597878Z",
+  "seed": 42,
+  "ref_date": "2026-05-19",
+  "corpus": {
+    "total": 500,
+    "section": {
+      "compiled": "149 (29.8%)",
+      "frontmatter": "150 (30.0%)",
+      "timeline": "201 (40.2%)"
+    },
+    "chunk_type": {
+      "person": "112 (22.4%)",
+      "project": "115 (23.0%)",
+      "lesson": "105 (21.0%)",
+      "decision": "90 (18.0%)",
+      "other": "78 (15.6%)"
+    },
+    "source_type": {
+      "entity_file": "286 (57.2%)",
+      "event_log": "93 (18.6%)",
+      "session_summary": "121 (24.2%)"
+    },
+    "tier": {
+      "working": "295 (59.0%)",
+      "core": "146 (29.2%)",
+      "peripheral": "59 (11.8%)"
+    },
+    "pain": {
+      "trivial[0.1,0.3)": "158 (31.6%)",
+      "medium[0.3,0.7)": "197 (39.4%)",
+      "severe[0.7,1.0]": "145 (29.0%)"
+    }
+  },
+  "queries": {
+    "total": 100,
+    "category": {
+      "single-hop": "20 (20.0%)",
+      "multi-hop": "20 (20.0%)",
+      "temporal": "20 (20.0%)",
+      "open-domain": "20 (20.0%)",
+      "adversarial": "20 (20.0%)"
+    },
+    "style": {
+      "natural-language": "50 (50.0%)",
+      "keyword": "50 (50.0%)"
+    },
+    "gold_size": {
+      "1": 60,
+      "2": 25,
+      "3": 15
+    }
+  },
+  "files": {
+    "corpus": "paper/publication/data/entity-eval-2026-05-19/corpus.jsonl",
+    "queries": "paper/publication/data/entity-eval-2026-05-19/queries.jsonl"
+  }
+}
