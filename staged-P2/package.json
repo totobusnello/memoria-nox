@@ -6,7 +6,8 @@
   "description": "P2 — Hooks auto-capture (T1-T15): 5 privacy layers (env gate → source allowlist → A1 redact → classifier → rate-limit/dedup) → ingestText() with provenance=hook. OpenClaw afterTurn plugin. Spec: specs/2026-05-18-P2-implementation-kickoff.md.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/lib/hooks/__tests__/*.test.js",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/lib/hooks/__tests__/*.test.js",
     "test:watch": "node --watch --test dist/src/lib/hooks/__tests__/*.test.js"
   },
   "devDependencies": {

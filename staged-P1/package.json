@@ -6,7 +6,8 @@
   "description": "P1 — Answer primitive staged patch (T1-T14): module skeleton + retrieval + prompt + provider + telemetry + CLI + HTTP + MCP + integration tests + E2E Gemini + docs + latency bench. Mock provider for CI. flash-lite locked per D41.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/lib/answer/__tests__/*.test.js",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/lib/answer/__tests__/*.test.js",
     "test:watch": "node --watch --test dist/src/lib/answer/__tests__/*.test.js",
     "bench:latency": "npm run build && node dist/benchmark/answer-latency.js",
     "test:e2e": "NOX_E2E_GEMINI=1 npm run build && node --test dist/src/lib/answer/__tests__/e2e-gemini.test.js"

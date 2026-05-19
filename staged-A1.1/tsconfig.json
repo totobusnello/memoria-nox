@@ -9,8 +9,9 @@
     "declaration": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noEmitOnError": true
   },
   "include": ["edits/**/*.ts"],
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "**/__tests__/**", "**/*.test.ts"]
 }

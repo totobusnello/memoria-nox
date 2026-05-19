@@ -6,9 +6,10 @@
   "description": "A1.1 — Brazilian PII patterns (CPF/CNPJ/pix/CEP/RG) for nox-mem privacy filter",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/lib/privacy-br/__tests__/*.test.js",
-    "test:patterns": "npm run build && node --test dist/src/lib/privacy-br/__tests__/patterns.test.js",
-    "test:validation": "npm run build && node --test dist/src/lib/privacy-br/__tests__/validation.test.js",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/lib/privacy-br/__tests__/*.test.js",
+    "test:patterns": "tsc -p tsconfig.tests.json && node --test dist/src/lib/privacy-br/__tests__/patterns.test.js",
+    "test:validation": "tsc -p tsconfig.tests.json && node --test dist/src/lib/privacy-br/__tests__/validation.test.js",
     "eval:fp": "npm run build && node dist/src/eval/fp-rate.js"
   },
   "devDependencies": {
