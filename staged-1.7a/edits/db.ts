@@ -23,7 +23,7 @@ export const DB_PATH = (
       : resolve(__dirname, "..", "nox-mem.db")
 );
 export const BACKUP_DIR = _ws ? resolve(_ws, "tools", "nox-mem", "backups") : resolve(__dirname, "..", "backups");
-const SCHEMA_VERSION = 7;
+const SCHEMA_VERSION = 18;
 
 // ────────────────────────────────────────────────────────────────────────────
 // Large-DB ingest guard (postmortem 2026-05-19)
