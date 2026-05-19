@@ -9,6 +9,7 @@
  *   3. search() FTS5 + chunks JOIN — pre-filter at SQL level
  *   4. searchSemantic() — post-filter vector candidates by chunk id (SQL IN)
  *   5. searchHybrid() — passes opts through to search() and searchSemantic()
+ *   6. logTelemetry() — named-column INSERT covering all schema versions (A2 fix)
  *
  * CONSTRAINT: temporal is a HARD FILTER (WHERE clause), not a boost.
  * Do NOT add to ranking scores. P3 is distinct from E13 temporal boost.
@@ -17,6 +18,11 @@
  * in the current schema (v18). Temporal filtering applies to CHUNKS only.
  * kg_relations.evidence_chunk_id can be used to reach chunk timestamps but
  * KG-path queries are separate from hybrid search — no BLOCKED condition here.
+ *
+ * A2 fix (2026-05-19): search_telemetry INSERT uses named columns for all columns
+ * added since schema v6 baseline (A0 +4, E05b +2, E13 +2, D01-v1 +6). This prevents
+ * silent-fail when the deployed schema has more columns than the original INSERT knew
+ * about. Named INSERT is resilient to future additive schema changes.
  */
 
 import { createHash } from "crypto";
@@ -287,6 +293,52 @@ function rrfScore(rank: number, k = 60): number {
   return 1 / (k + rank + 1);
 }
 
+/**
+ * TelemetryExtras carries the optional columns added since the original v6 schema.
+ * All fields are undefined by default — callers only set what they know.
+ *
+ * Column provenance:
+ *   A0  (2026-04-25, schema v6+):  query_text, golden_id, top_chunk_ids, top_scores
+ *   E05b (2026-05-06, schema v13): reason_boost_applied, reason_relations_used
+ *   E13  (2026-05-06, schema v14): was_temporal_query, temporal_boost_mode
+ *   D01  (2026-05-07, schema v16): reranker_mode, reranker_top_k_in, reranker_top_k_out,
+ *                                  reranker_latency_ms, reranker_position_changes, reranker_lift_score
+ */
+export interface TelemetryExtras {
+  // A0 — opt-in text logging (NOX_SEARCH_LOG_TEXT=1)
+  query_text?: string | null;
+  golden_id?: string | null;
+  top_chunk_ids?: string | null;   // JSON array e.g. "[12,45,3]"
+  top_scores?: string | null;      // JSON array of floats
+
+  // E05b — reason-boost telemetry (CUT D38 but columns remain in schema)
+  reason_boost_applied?: number | null;
+  reason_relations_used?: number | null;
+
+  // E13 — temporal-aware ranking
+  was_temporal_query?: number | null;   // 0 or 1
+  temporal_boost_mode?: string | null;  // 'off' | 'shadow' | 'active'
+
+  // D01 — cross-encoder reranker (CUT v1+v2, schema v16 columns remain)
+  reranker_mode?: string | null;             // 'off' | 'shadow' | 'active'
+  reranker_top_k_in?: number | null;
+  reranker_top_k_out?: number | null;
+  reranker_latency_ms?: number | null;
+  reranker_position_changes?: number | null;
+  reranker_lift_score?: number | null;
+}
+
+/**
+ * logTelemetry — write one row to search_telemetry.
+ *
+ * Uses NAMED columns in the INSERT so the statement is resilient to additive
+ * schema migrations. A positional VALUES(...) breaks silently whenever the schema
+ * has more columns than the compiled INSERT knows about (A2 bug, PR #139).
+ *
+ * All extended columns default to NULL when not supplied, which is correct for
+ * columns added via ALTER TABLE ... DEFAULT x (SQLite fills the default at
+ * the storage level; we still write NULL explicitly to be explicit).
+ */
 function logTelemetry(
   query: string,
   variantsCount: number,
@@ -294,15 +346,44 @@ function logTelemetry(
   hasSemantic: boolean,
   latencyMs: number,
   skipReason?: string,
+  extras: TelemetryExtras = {},
 ): void {
   try {
     const db = getDb();
     const hash = createHash("sha1").update(query).digest("hex").substring(0, 16);
     const words = query.trim().split(/\s+/).filter(Boolean).length;
+
+    // A0 opt-in: only log raw text when env var is set (privacy default OFF)
+    const logText = process.env["NOX_SEARCH_LOG_TEXT"] === "1";
+    const queryText = logText ? (extras.query_text ?? query) : null;
+
     db.prepare(
-      `INSERT INTO search_telemetry (query_hash, query_words, variants_count, results_count, has_semantic, latency_ms, expansion_skipped_reason)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    ).run(hash, words, variantsCount, resultsCount, hasSemantic ? 1 : 0, latencyMs, skipReason || null);
+      `INSERT INTO search_telemetry (
+        query_hash, query_words, variants_count, results_count,
+        has_semantic, latency_ms, expansion_skipped_reason,
+        query_text, golden_id, top_chunk_ids, top_scores,
+        reason_boost_applied, reason_relations_used,
+        was_temporal_query, temporal_boost_mode,
+        reranker_mode, reranker_top_k_in, reranker_top_k_out,
+        reranker_latency_ms, reranker_position_changes, reranker_lift_score
+      ) VALUES (
+        ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?,
+        ?, ?,
+        ?, ?, ?,
+        ?, ?, ?
+      )`,
+    ).run(
+      hash, words, variantsCount, resultsCount,
+      hasSemantic ? 1 : 0, latencyMs, skipReason ?? null,
+      queryText, extras.golden_id ?? null, extras.top_chunk_ids ?? null, extras.top_scores ?? null,
+      extras.reason_boost_applied ?? null, extras.reason_relations_used ?? null,
+      extras.was_temporal_query ?? null, extras.temporal_boost_mode ?? null,
+      extras.reranker_mode ?? null, extras.reranker_top_k_in ?? null, extras.reranker_top_k_out ?? null,
+      extras.reranker_latency_ms ?? null, extras.reranker_position_changes ?? null, extras.reranker_lift_score ?? null,
+    );
   } catch {
     // telemetria nunca derruba a search
   }
@@ -374,7 +455,11 @@ export async function searchHybrid(
   const final = dedupe(preDedup, limit);
 
   const hasSemantic = final.some((r) => r.match_type === "semantic" || r.match_type === "hybrid");
-  logTelemetry(query, variants.length, final.length, hasSemantic, Date.now() - t0, expansion.reason);
+  const isTemporalQuery = (filter.asOf != null || filter.changedSince != null) ? 1 : 0;
+  logTelemetry(query, variants.length, final.length, hasSemantic, Date.now() - t0, expansion.reason, {
+    was_temporal_query: isTemporalQuery,
+    temporal_boost_mode: process.env["NOX_TEMPORAL_BOOST_MODE"] ?? null,
+  });
 
   return final;
 }
