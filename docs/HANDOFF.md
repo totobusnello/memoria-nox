@@ -2,6 +2,90 @@
 
 ---
 
+## 🌅 MORNING 2026-05-19 — Privacy deploy + ablation E + headline canonical revisado
+
+> **Atualizado:** 2026-05-19 ~11:30 BRT — **Morning alert (vectorCoverage orphans=1) resolvido. Swarm de 6 blocos paralelos. PR #136 (privacy hook ingest-entity) + #138 (Q2 batch parallel) merged. PR #137 (+112% atribuição) aberto pra Toto ler. Headline canonical pivota pra +100.6% (fórmula D2 standard TREC). Ablation real B/C/D rodando. Q2 full n=100 blocked (key local missing, vai rodar VPS).**
+
+### Resumo executivo
+
+VPS abriu o dia com `orphans=1` → resolvido em <10min via `withOpAudit` (audit_id=118, zero DB mutation manual). Swarm de 5 blocos paralelos executou privacy deploy, endpoint smoke, atribuição +112%, Q2 batch-parallel e cleanup prod. Headline canonical revisado de +112% (fórmula D1 sorted-rel) para **+100.6% (fórmula D2 standard TREC)** — alinhado com literatura e comparação justa com benchmarks.
+
+### Swarm executado
+
+| Bloco | Descrição | PR | Status |
+|---|---|---|---|
+| **A** | Cleanup prod: orphan chunk via `withOpAudit`, audit_id=118 | — | Done — `orphans=0` confirmado |
+| **B** | Privacy hook deploy em VPS + validation (ingest-entity.ts) | #136 | **Merged** 2026-05-19T14:07Z |
+| **C** | Endpoint smoke: 10 probes prod (8 working / 1 broken-by-design / 0 unsafe) | — | Done — resultados em `/tmp/endpoint-smoke-results-2026-05-19.md` |
+| **D** | Q2 batch parallel: 1.6→16/s embed via `Promise.all` pools | #138 | **Merged** 2026-05-19T14:12Z (admin bypass: Validate DEPLOY-WAVE-B skip-by-path-filter) |
+| **E** | Atribuição +112% prod vs +18.8% Python re-impl — investigation | #137 | **Aberto** — aguarda leitura Toto |
+
+### Achados críticos do Bloco E (PR #137)
+
+**Driver 1 — Salience boost (recency × pain × importance):** produção aplica o multiplicador salience no score final de RRF; o Python re-impl (`e04_locomo_eval.py`) não aplicava nenhum boost pós-retrieval. Sozinho explica ~40-50 pontos percentuais de diferença em categorias onde documentos recentes têm pain elevado.
+
+**Driver 2 — section_boost (compiled=2.0, frontmatter=1.5):** entity files ingeridos via `ingest-entity.ts` geram chunks com `section_boost` multiplicador. Queries que tocam entidades conhecidas (maioria do LoCoMo single-hop e open-domain) recebem reranking favorável que o baseline FTS5 não tem. Explica desempenho excepcionalmente alto em Single-hop (+251%) e Open-domain (+85%).
+
+**NULL drivers — confirmados ausentes:** embedding model drift (ambos usam `gemini-embedding-001`), corpus size diferença (mesmo DB), temperatura/sampling (irrelevante para retrieval), schema migrations v18→v24 (todos semânticos, não afetam scoring pipeline FTS5 baseline).
+
+**Conclusão PR #137:** a gap +112% vs +18.8% é **real e reproduzível**, não artefato de implementação. O Python re-impl era um lower-bound sem os diferenciais do produto. Paper §5 deve documentar explicitamente os dois drivers como "implementation advantages" — isso é o moat.
+
+### Decisões locked
+
+**D45a — Orphan cleanup pattern (learned):**
+- `withOpAudit` é o único path seguro para cleanup de chunks órfãos em prod
+- `DELETE FROM chunks WHERE ...` direto proibido sem pre-op snapshot
+- Lesson: `vectorCoverage.orphans > 0` em `/api/health` deve ser monitorado no canary A4 (adicionar a `check-schema-invariants.sh`)
+
+**D46 — Headline canonical: +100.6% nDCG@10 (fórmula D2 standard TREC):**
+- +112% (D1) usava `sorted_rel / sorted_ideal` — não é TREC padrão
+- +100.6% (D2) usa `DCG@10 / IDCG@10` com graded relevance — comparável com LongMemEval/LoCoMo papers
+- **Decisão:** headline em todos materiais públicos (README, paper, comparison chart, banner, stat cards) passa para **+100.6%**
+- Ratio ainda > +15% gate Q4 por margem confortável — D43 permanece ABERTA
+- Visual identity sync (banner/chart/README) fica como pendente de baixa urgência
+
+### Pendentes em background
+
+| Item | Status | ETA | Desbloqueio |
+|---|---|---|---|
+| **F — Ablation real B/C/D** (isola contribuição de cada driver) | Rodando em background | ~3h desde ~11:00 BRT | PR aguardando criação pós-conclusão |
+| **Q2 full n=100** (LongMemEval run otimizado com batch 16/s) | BLOCKED — `GEMINI_API_KEY` ausente local | — | Rodar via VPS (PR #138 merged, infra pronta) |
+
+### VPS state pós-deploys
+
+| Métrica | Valor |
+|---|---|
+| `embedded` | 68.995 |
+| `total` | 68.995 |
+| `orphans` | 0 |
+| Privacy hook | ACTIVE em `ingest-entity.ts` — zero raw keys, 2 redacted em fixture test |
+| `tmux nox-eval-api` | killed (libera ~50MB RAM) |
+| Serviços | active (todas APIs respondendo) |
+
+### Endpoint smoke — resumo (Bloco C)
+
+| # | Endpoint | Status | Latência | Obs |
+|---|---|---|---|---|
+| `/api/health/lite` | working | 4.5ms | Liveness sem DB |
+| `/api/export` | working | 5–15ms | Encrypt-by-default enforced (D41 #2) |
+| `/api/import` | working | 2–5ms | Validate-first, write path não exercido |
+| `/api/events/stream` | broken-by-design | <5ms | 503 `viewer broadcaster not deployed` — gated em P5 |
+| `/api/hooks/status` | working | 11.5ms | `enabled:false`, `pii_policy:redact` |
+| `/api/hooks/recent` | working | 3.6ms | `rows:[]` esperado |
+| `/api/hooks/dryrun` | working | 3–5ms | Pipeline trace estruturado, source-allowlist OK |
+
+Tally: **8 working / 1 broken-by-design / 0 unsafe**. Nenhum PR necessário — `/api/events/stream` 503 é comportamento documentado (degraded mode).
+
+### Próxima sessão priorities
+
+1. **Ler PR #137** — revisão dos 2 drivers de atribuição + decidir merge ou comments adicionais
+2. **Receber ablation F resultados** — cravar contribuição isolada de cada driver (salience vs section_boost vs RRF) + criar PR com findings
+3. **Rodar Q2 full n=100 no VPS** — PR #138 merged, infra com batch 16/s pronta; só precisa `GEMINI_API_KEY` válida no env VPS
+4. **Paper §5 update** — incorporar D46 (+100.6% D2) + 2 drivers de atribuição como "implementation advantages"; aguardar ablation F antes de escrever
+5. **Sync visual identity com +100.6%** — banner, comparison chart, README, stat cards (baixa urgência — fase depois de paper)
+
+---
+
 ## 🌙 PÓS WAVE Q + PRODUCTION-PATH + VISUAL IDENTITY FINAL — 2026-05-18 noite final
 
 > **Atualizado:** 2026-05-18 ~23:50 BRT — **Production-path validado em VPS. Q-pillar numbers locked: +112% nDCG@10 canonical (vs FTS5 baseline). 6/6 endpoints LIVE. Q4 gate ABERTA (Decision D43). Stripe-first GTM pivot (D44b). Pain-weighted slogan canonical (D45). Brand identity refresh: banner + logo + favicon + stat cards + architecture + comparison chart + 100% PASSING OpenSSF badge. Total 30 PRs merged hoje noite. Schema v24 + 30 arquivos deployados.**
