@@ -82,6 +82,85 @@ Postmortem agent investigando culprit exato (harness `entity_ablation_eval.py` f
 
 ---
 
+## 🌇 LATE AFTERNOON 2026-05-19 — G3 re-run demoliu narrativa + D48 decisão A direto + schema fix
+
+> **Atualizado:** 2026-05-19 ~17h BRT — **G3 re-run isolated (PR #146) provou empíricamente que boost stack está INERT no código (search.js não lê section_boost/pain columns; SOURCE_TYPE_BOOST keys mismatch; salience-active=shadow). Headline "Pain-weighted hybrid memory" sem suporte numérico. D48: Toto rejeita substituir headline, dispatch A (wiring real do boost stack) imediato. Schema bug colateral descoberto + fixado (SCHEMA_VERSION=7→18). 6 agents OC vectorizados.**
+
+### G3 re-run (PR #146) — resultados empíricos definitivos
+
+**Prod intacto pós-isolation guards:** chunks=68.995 antes e depois (PR #145 funcionou). Custo $0.11, wall 30min.
+
+| Config | nDCG@10 D2 | Δ vs A8 |
+|---|---|---|
+| A0 FTS5 alone | 0.0224 | -0.3264 (catastrófico) |
+| **A1 Semantic alone** | **0.3498** | **+0.0010** (≈ A8) |
+| A7 Salience shadow | 0.3488 | +0.0000 |
+| **A8 Full prod (todas active)** | **0.3488** | 0 reference |
+
+A2-A6 não executáveis: toggles `NOX_DISABLE_*_BOOST` **não existem em dist/search.js**. Boost stack hardcoded e ignorado.
+
+**4 perguntas — todas NEGATIVAS:**
+- Q1 BM25 contribui pós sanitize fix? **NÃO** (Δ=+0.0010 noise-level)
+- Q2 section_boost contribui? **NÃO mensurável** (column populated mas search.js não LÊ)
+- Q3 Salience active vs shadow? **+0.0000** em 4 decimals
+- Q4 "Pain-weighted hybrid memory" suporta numericamente? **NÃO**
+
+**Anomalia colateral**: SOURCE_TYPE_BOOST keys mismatch — map tem `user_statement/compiled/timeline/external`, corpus usa `entity_file/session_summary/event_log` → lookup retorna 1.0 inert em 100% dos chunks.
+
+### D48 — decisão estratégica: caminho A direto (Toto, ~17h BRT)
+
+**Headline MANTIDA: "Pain-weighted hybrid memory with shadow discipline — yours by design"**
+
+Caminhos avaliados:
+- **B1 (drop pain-weighted)** rejeitado — abandona vision permanente
+- **B2/B3 (substituir tagline)** rejeitado — perderia diferencial vs memanto/agentmemory
+- **A (wiring real)** **escolhido** — implementar no código + re-medir
+- **C (downstream metrics)** parked pra futuro se A falhar
+
+**Why D48:** se a tese técnica é pain-weighted, **TEM que existir no código**. Tagline temporária honesta viraria permanente sem A priorizado.
+
+**Agent A dispatched** (executor-high + worktree, ~60-90min):
+- src/search.ts vai LER section_boost, pain, importance, source_date columns
+- Apply salience formula `recency × pain × importance` no ranking quando MODE=active
+- Toggles `NOX_DISABLE_*_BOOST` pra ablation
+- Fix SOURCE_TYPE_BOOST keys (alinhar com corpus real)
+- Tests unit cobrindo todos os multipliers
+- **Aditivo, não multiplicativo** (CLAUDE.md regra #5)
+
+### Schema fix colateral (descoberto via Forge error)
+
+**Bug:** `staged-1.7a/edits/db.ts:26` tinha `const SCHEMA_VERSION = 7;` hardcoded **desde initial commit 2026-04-20**. DB user_version já em 18 há semanas. Daemon API rodava com dist mais antigo (pré PR #145 build). Quando `npx tsc` recompilou hoje, dist/db.js virou SCHEMA_VERSION=7, qualquer `ensureSchema()` em DB>7 abortava: `DB schema 18 > expected 7`.
+
+**Fix:** bump SCHEMA_VERSION 7→18 + scp + tsc + restart. Validated end-to-end: Forge vectorize 414/414 embedded em 25s.
+
+### 6 agents OC vectorizados (pós schema fix)
+
+| Agent | Chunks | Embedded | Tempo |
+|---|---|---|---|
+| atlas | 64 | 64 | 4s |
+| boris | 197 | 197 | 10s |
+| cipher | 69 | 69 | 4s |
+| forge | 414 | 414 | 25s |
+| lex | 69 | 69 | 4s |
+| nox | 681 | 681 | 39s |
+| **total** | **1.494** | **1.494** | ~90s wall |
+
+Main DB intacto em 68.995 chunks (isolation guards funcionaram em todos os 6 vectorize calls).
+
+### Próxima sessão priorities (revisadas pós-D48)
+
+1. **Aguardar PR A (#19)** — wiring boost stack. Esperado: ~60-90min wall
+2. **Review + merge PR A** quando voltar — espécie de unit tests cobrindo todos boosts
+3. **Deploy A ao VPS** via staged-1.7a pattern + restart
+4. **Disparar G4 re-ablation** — mesma matriz que G3 com tudo wired. Esperado: ~30min + $0.30
+5. **Decision tree pós G4:**
+   - Δ ≥10% nDCG@10 → headline defensável, paper §5 honest com pain-weighted como driver real
+   - Δ <5% → caminho C ativa (downstream metrics: tier promotion, retention, decision recall)
+   - 5-10% → ablation per-feature pra entender qual feature dominante
+6. **Visual identity sync** com número final pós G4
+
+---
+
 ## 🌅 MORNING 2026-05-19 — Privacy deploy + ablation E + headline canonical revisado
 
 > **Atualizado:** 2026-05-19 ~11:30 BRT — **Morning alert (vectorCoverage orphans=1) resolvido. Swarm de 6 blocos paralelos. PR #136 (privacy hook ingest-entity) + #138 (Q2 batch parallel) merged. PR #137 (+112% atribuição) aberto pra Toto ler. Headline canonical pivota pra +100.6% (fórmula D2 standard TREC). Ablation real B/C/D rodando. Q2 full n=100 blocked (key local missing, vai rodar VPS).**
