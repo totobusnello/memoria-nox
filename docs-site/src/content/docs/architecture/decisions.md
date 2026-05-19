@@ -41,7 +41,7 @@ Architectural Decision Records (ADRs) document every significant choice and what
 
 **Rationale:** Prior roadmap was feature-list driven. Q/A/P gives every sprint a strategic anchor. Quality (numbers #1) is the gating constraint for GTM Phase 2 flip.
 
-**Tagline locked:** *"Hybrid memory with shadow discipline — yours by design."*
+**Tagline locked:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."* (D45)
 
 ---
 

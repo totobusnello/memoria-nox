@@ -1,6 +1,6 @@
 # nox-mem ROADMAP — Q/A/P + Lab
 
-> **"Hybrid memory with shadow discipline — yours by design."**
+> **"Pain-weighted hybrid memory with shadow discipline — yours by design."**
 >
 > Single source of truth. Reorganized **2026-05-17 night** during overnight automode push.
 > v1 (630 lines, cluttered with session logs) archived at `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md`.

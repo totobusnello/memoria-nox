@@ -6,7 +6,7 @@
 **Trigger:** D41 #5 — A2 PARALLEL com P1 se capacity permitir.
 **Branch base:** `main` (PR #9 spec merge precede T1 — confirmar antes de iniciar).
 
-> *"Hybrid memory with shadow discipline — yours by design."* — D40 tagline.
+> *"Pain-weighted hybrid memory with shadow discipline — yours by design."* — D45 tagline (D40 superseded).
 > A2 é o **único** sprint que torna o pitch "data é sua, portable" verificável end-to-end.
 
 ---

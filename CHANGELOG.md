@@ -98,7 +98,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - D40 — Q/A/P pillars strategic pivot (2026-05-17)
 - D41 — 5 cross-cutting decisions resolved + 5 polish bonus (2026-05-18)
-- Tagline locked: *"Hybrid memory with shadow discipline — yours by design."*
+- Tagline locked: *"Pain-weighted hybrid memory with shadow discipline — yours by design."* (D45 — supersedes D40)
 
 ### Documentation
 

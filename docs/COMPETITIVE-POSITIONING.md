@@ -34,7 +34,7 @@
 
 Our **moat = data autonomy** (SQLite file, no daemon, no SaaS, `cp` is your backup) **+ shadow discipline** (≥7d shadow-mode before activating any ranking change — codified in CLAUDE.md rule #5) **+ scientific rigor** (eval gates, ablation, append-only ops_audit, transparent benchmarks published only when we win).
 
-**Tagline:** *"Hybrid memory with shadow discipline — yours by design."*
+**Tagline:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 ### What this doc covers
 

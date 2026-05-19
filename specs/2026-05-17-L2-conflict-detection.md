@@ -5,7 +5,7 @@
 **Owner:** Toto (decisão); Maestro (execução)
 **Data:** 2026-05-17
 **Origem:** Six Gaps #5 from memanto positioning ("Conflict detection — contradictions silently coexist"). Lab L2 turns the gap into a differentiator on our KG substrate.
-**Tagline alignment:** *Hybrid memory with shadow discipline — yours by design.* Conflict detection is a **shadow-first** capability with append-only audit and no destructive auto-resolution by default.
+**Tagline alignment:** *Pain-weighted hybrid memory with shadow discipline — yours by design.* Conflict detection is a **shadow-first** capability with append-only audit and no destructive auto-resolution by default.
 
 **Cross-link:** `docs/ROADMAP.md` §Lab L2; `CLAUDE.md` regra crítica #5 (ranking shadow ≥7d); `CLAUDE.md` regra crítica #6 (destructive ops gated by `withOpAudit`); `specs/2026-05-06-E13-temporal-aware-ranking.md` (temporal section_boost pattern); `specs/2026-05-06-E05b-reason-ranking-boost.md` (relation_reason enum precedent).
 
@@ -497,4 +497,4 @@ Hard requirement from CLAUDE.md regra crítica #5 (ranking changes shadow ≥7d)
 
 ---
 
-*Spec gerado overnight 2026-05-17 sob a tagline "Hybrid memory with shadow discipline — yours by design."*
+*Spec gerado overnight 2026-05-17 sob a tagline "Pain-weighted hybrid memory with shadow discipline — yours by design."*

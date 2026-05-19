@@ -494,7 +494,7 @@ Ver `docs/DEPLOY-WAVE-B.md` — 3 caminhos:
 
 ## 🌙 OVERNIGHT 2026-05-17 — Q/A/P pivot + 15 PRs abertos
 
-**Tagline aprovada:** *"Hybrid memory with shadow discipline — yours by design."*
+**Tagline aprovada:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."* (D45 — atualizada 2026-05-18 noite)
 
 **Pivot estratégico aprovado:** ROADMAP reorganizado em 3 pilares Q/A/P + Lab (40%) + GTM Phase 2 (gated). Detalhes em novo `docs/ROADMAP.md`. v1 arquivado em `docs/_archive/`.
 

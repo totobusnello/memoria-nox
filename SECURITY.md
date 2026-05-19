@@ -1,6 +1,6 @@
 # Security policy
 
-> Hybrid memory with shadow discipline — yours by design.
+> Pain-weighted hybrid memory with shadow discipline — yours by design.
 > Security is a first-class concern. See also: `docs/security/THREAT-MODEL.md`.
 
 ## Supported versions

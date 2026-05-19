@@ -11,7 +11,7 @@
 
 ## 1. Motivação
 
-**Tagline pilar Autonomia:** *"Hybrid memory with shadow discipline — yours by design."*
+**Tagline pilar Autonomia:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 A2 é o **centerpiece operacional** desse tagline. Não basta o DB rodar localmente em SQLite — autonomia real é o usuário poder pegar a memória dele e levar para **qualquer lugar**: outro laptop, outro OS, outro provedor de embeddings, outra versão de schema. Sem proprietary tooling. Sem servidor remoto. Sem refém de versão.
 
@@ -542,7 +542,7 @@ Test files em `tests/A2-export-import/`. Usar `node:test` (consistente com A3+A4
 
 Spec considera implementação **DONE** quando:
 
-1. **Round-trip preserva nDCG@10 dentro de ±0.001:** export → DB clean → import → rodar eval harness (R01a golden set) → delta nDCG@10 < 0.001 absoluto. *Hybrid memory with shadow discipline — yours by design* sobrevive viagem.
+1. **Round-trip preserva nDCG@10 dentro de ±0.001:** export → DB clean → import → rodar eval harness (R01a golden set) → delta nDCG@10 < 0.001 absoluto. *Pain-weighted hybrid memory with shadow discipline — yours by design* sobrevive viagem.
 2. **Archive abre com tooling standard:** `tar -tzf archive.tar.gz` lista todos arquivos. `jq . manifest.json` parse OK. **Zero binários proprietários** (embeddings.bin é float32 packed — documentado, parseable em qualquer linguagem).
 3. **Encrypted archive resiste a `strings` exfiltration:** `strings encrypted.tar.gz | grep -E '(content_hash|chunk_text|password|api_key)' | wc -l` retorna 0 matches relevantes (só manifest stat-strings + lixo binário).
 4. **Forward migration roda automaticamente:** archive v18 importado em target v19 dispara migrations chain sem intervenção manual. Auditado em `ops_audit`.

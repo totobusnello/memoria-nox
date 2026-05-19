@@ -1,6 +1,6 @@
 # nox-mem Architecture
 
-> *"Hybrid memory with shadow discipline — yours by design."*
+> *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 This document describes the complete architecture of nox-mem, mapping the five layers, the Q/A/P/Lab/GTM pillar assignments, the data flow through the system, and the failure modes that each pillar guards against.
 

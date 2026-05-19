@@ -5,7 +5,7 @@
 **Date:** 2026-05-18
 **Status:** READY-TO-EXECUTE
 **Sprint:** First post-merge sprint per D41 #5
-**Tagline:** *Hybrid memory with shadow discipline — yours by design.*
+**Tagline:** *Pain-weighted hybrid memory with shadow discipline — yours by design.*
 
 ---
 

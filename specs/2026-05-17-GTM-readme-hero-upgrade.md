@@ -39,14 +39,14 @@ Cada elemento numerado, ordem locked, copy locked onde indicado.
 - **Asset:** `assets/readme/banner-{dark,light}.svg` (rendered to PNG fallback opcional)
 - **Tamanho:** 720x200 (banner aspect)
 - **Conteúdo:** abstract memory/graph visualization (não logo literal de cérebro — algo geometricamente abstrato: nodes + edges + glow sutil, dark mode amber/orange, light mode deep blue/teal — depende da open question 1)
-- **Tagline embedded:** "Hybrid memory with shadow discipline" em uppercase no topo do banner; "yours by design" smaller em italic abaixo
+- **Tagline embedded:** "Pain-weighted hybrid memory with shadow discipline" em uppercase no topo do banner; "yours by design" smaller em italic abaixo
 - **Picture tag:**
   ```markdown
   <p align="center">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="assets/readme/banner-dark.svg">
       <source media="(prefers-color-scheme: light)" srcset="assets/readme/banner-light.svg">
-      <img alt="nox-mem — Hybrid memory with shadow discipline" src="assets/readme/banner-light.svg" width="720">
+      <img alt="nox-mem — Pain-weighted hybrid memory with shadow discipline" src="assets/readme/banner-light.svg" width="720">
     </picture>
   </p>
   ```
@@ -54,7 +54,7 @@ Cada elemento numerado, ordem locked, copy locked onde indicado.
 ### 2.2 Tagline H1 (centered)
 
 ```markdown
-<h1 align="center">Hybrid memory with shadow discipline — yours by design.</h1>
+<h1 align="center">Pain-weighted hybrid memory with shadow discipline — yours by design.</h1>
 ```
 
 **LOCKED.** Não decidir copy alternativo. Toto sign-off 2026-05-17.
@@ -261,7 +261,7 @@ Seções abaixo da hero, ordem locked. Cada seção ≤80 linhas markdown. Total
 Tudo abaixo é **locked** (Toto sign-off 2026-05-17) ou **scripted** (não decidir ad-hoc no momento da execução).
 
 ### 5.1 Tagline (LOCKED)
-> "Hybrid memory with shadow discipline — yours by design."
+> "Pain-weighted hybrid memory with shadow discipline — yours by design."
 
 ### 5.2 Sub-tagline (LOCKED v1, alternative for week-2 A/B in section 9)
 > A: "The only agent memory that's genuinely yours. SQLite on your disk, provider your choice, zero vendor lock-in."
@@ -294,7 +294,7 @@ Tudo abaixo é **locked** (Toto sign-off 2026-05-17) ou **scripted** (não decid
 Already drafted in `paper/publication/distribution/linkedin-post.md`. Update with banner + 1 stat card screenshot.
 
 ### 6.3 HN Show HN
-- **Title:** "Show HN: nox-mem – Hybrid memory with shadow discipline for AI agents"
+- **Title:** "Show HN: nox-mem – Pain-weighted hybrid memory with shadow discipline for AI agents"
 - **Body:** Why I built it (vendor lock-in pain) → what it does (hybrid + KG + shadow) → numbers (Q1-Q4 wins) → how to try (3-command install) → paper link → AMA
 - **Submit time:** Tuesday or Wednesday 14:00 UTC (HN US-morning peak)
 - **Second-chance pool:** if first attempt <50 points, request second-chance pool 24h later

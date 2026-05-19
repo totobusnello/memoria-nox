@@ -1,6 +1,6 @@
 # Export / Import — Guia de uso, formato e recuperação
 
-> *"Hybrid memory with shadow discipline — yours by design."* (D40 tagline.)
+> *"Pain-weighted hybrid memory with shadow discipline — yours by design."* (D45 tagline — D40 superseded.)
 >
 > A2 entrega o **único** mecanismo que torna a promessa de Autonomy verificável end-to-end: seu corpus inteiro empacotado em um único `.tgz` portátil, criptografado por padrão (D41 #2), abrível por qualquer toolchain Linux/macOS sem nox-mem instalado para inspeção do manifest.
 

@@ -1,7 +1,7 @@
 # Nox Neural Memory — Visão
 
 > Documento de visão — **v15 (2026-05-18, pós-D40 + D41)**
-> Tagline: *"Hybrid memory with shadow discipline — yours by design."*
+> Tagline: *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 > Substitui v14 (2026-04-25). v14 arquivada em `docs/_archive/VISION-v14-pre-Q-A-P-2026-05-18.md`.
 >
 > **Canônicos vivos:** `docs/HANDOFF.md` (estado), `docs/ROADMAP.md` (sprints Q/A/P), `docs/DECISIONS.md` (D40 + D41 + raciocínio).
@@ -124,7 +124,7 @@ Nox-mem é construído por uma pessoa (Toto) operando como advisor / board membe
 
 ## Fechamento
 
-*Hybrid memory with shadow discipline — yours by design.*
+*Pain-weighted hybrid memory with shadow discipline — yours by design.*
 
 Em 18 meses o sucesso parece com isso: dev sério configurando Claude Code roda `nox-mem connect claude-code`, faz pergunta, recebe resposta com fonte citada de uma SQLite que mora no laptop dele, com numbers que lideram o leaderboard público, sem nunca ter pensado em "qual SaaS posso usar pra memória do meu agente". O arquivo é dele. A latência é dele. O controle é dele. A gente entregou o engine + a UX + os benchmarks; ele entregou o uso. E todo mundo sabe — porque está em `COMPARISON.md` com método auditável — que essa é a opção que ganha em qualidade **e** em autonomia, não escolhendo um dos dois.
 

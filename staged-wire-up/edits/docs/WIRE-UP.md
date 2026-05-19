@@ -1,6 +1,6 @@
 # WIRE-UP — Registro de rotas Wave A→K em `src/api-server.ts`
 
-> *Hybrid memory with shadow discipline — yours by design.* (D40 tagline.)
+> *Pain-weighted hybrid memory with shadow discipline — yours by design.* (D45 tagline — D40 superseded.)
 >
 > Este patch fecha o gap pós-deploy: 319 arquivos TS sincronizados para a VPS, mas o roteador de `src/api-server.ts` (native `http`, switch/case) nunca foi atualizado para conhecer os novos handlers. Resultado: cada endpoint Wave A→K respondia 404.
 

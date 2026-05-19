@@ -709,7 +709,7 @@ git push origin main
 
 ### GTM Phase 2
 
-Conforme `docs/ROADMAP.md` e `docs/VISION.md` v14 (tagline "Hybrid memory with shadow discipline — yours by design."):
+Conforme `docs/ROADMAP.md` e `docs/VISION.md` v14 (tagline "Pain-weighted hybrid memory with shadow discipline — yours by design."):
 
 > GTM Phase 2 é **condicional** em "Q4 COMPARISON winning" — que requer os números Q1+Q2+Q3 verificados.
 

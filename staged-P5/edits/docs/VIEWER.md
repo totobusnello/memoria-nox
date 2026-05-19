@@ -499,6 +499,6 @@ Não estão em v1:
 - Anti-overlap F10: `specs/2026-05-01-F10-observability-dashboard.md`
 - Q/A/P pivot: `project_qap_pillars_strategic_decision.md`
 
-> *"Hybrid memory with shadow discipline — yours by design."*
+> *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 >
 > P5 fecha o pilar P (Product surface): você vê tudo acontecer.

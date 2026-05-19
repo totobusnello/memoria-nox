@@ -2,7 +2,7 @@
 
 **Purpose:** Prove that nox-mem has no critical third-party proprietary runtime dependency. Every check is CI-runnable and fails loudly on violation.
 
-**Pillar A tagline:** "Hybrid memory with shadow discipline — yours by design."
+**Pillar A tagline:** "Pain-weighted hybrid memory with shadow discipline — yours by design."
 
 ---
 

@@ -5,7 +5,7 @@
 **Owner:** Toto (decisão); Maestro (execução)
 **Data:** 2026-05-18
 **Lab:** L4 (próximo após L3)
-**Tagline:** *Hybrid memory with shadow discipline — yours by design.*
+**Tagline:** *Pain-weighted hybrid memory with shadow discipline — yours by design.*
 **Cross-link:** `docs/DECISIONS.md` D41 (gbrain analysis), `docs/ROADMAP.md` §Lab evolution, CLAUDE.md §regra 5 (shadow-mode mandatory pra ranking/extraction changes).
 **Origem:** análise do repo [`gbrain`](https://github.com/garry-tan/gbrain) (16.6k★ MIT, Garry Tan) — sistema de memória LLM-agnóstico que extrai typed-link KG com **zero chamadas LLM**, via regex + frontmatter convention. P@5 saltou 22.1% → 49.1% em v0.12 tornando typed-link extract THE load-bearing factor.
 

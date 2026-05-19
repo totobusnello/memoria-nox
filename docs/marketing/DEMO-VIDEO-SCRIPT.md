@@ -1,6 +1,6 @@
 # nox-mem — Demo video script
 
-> Tagline (exact, no variants): **"Hybrid memory with shadow discipline — yours by design."**
+> Tagline (exact, no variants): **"Pain-weighted hybrid memory with shadow discipline — yours by design."**
 >
 > Version: v1.0 (2026-05-18, Wave G)
 > Status: SHOOT-READY draft — all numbers sourced from verified shipped PRs
