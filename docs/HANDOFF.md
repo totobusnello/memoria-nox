@@ -2,9 +2,23 @@
 
 ---
 
-## 🌙 PÓS WAVE Q + PRODUCTION-PATH FINAL — 2026-05-18 noite final
+## 🌙 PÓS WAVE Q + PRODUCTION-PATH + VISUAL IDENTITY FINAL — 2026-05-18 noite final
 
-> **Atualizado:** 2026-05-18 ~22:50 BRT — **Production-path validado em VPS. Q-pillar numbers locked: +112% nDCG@10 canonical (vs FTS5 baseline). 6/6 endpoints LIVE. Q4 gate ABERTA (Decision D43). Stripe-first GTM pivot (D44b). Total 24 PRs merged hoje noite. Schema v24 + 30 arquivos deployados.**
+> **Atualizado:** 2026-05-18 ~23:50 BRT — **Production-path validado em VPS. Q-pillar numbers locked: +112% nDCG@10 canonical (vs FTS5 baseline). 6/6 endpoints LIVE. Q4 gate ABERTA (Decision D43). Stripe-first GTM pivot (D44b). Pain-weighted slogan canonical (D45). Brand identity refresh: banner + logo + favicon + stat cards + architecture + comparison chart + 100% PASSING OpenSSF badge. Total 30 PRs merged hoje noite. Schema v24 + 30 arquivos deployados.**
+
+### Visual identity refresh (final wave tonight, ~23:00-23:50 BRT)
+
+| Element | PR | Highlight |
+|---|---|---|
+| **Banner** (1200×400) | #127 | Orange `pain=1.0` bar entre 23 teal — slogan visualizado |
+| **Logo** + symbol + favicon | #129 | Crescent + 3 salience layers (opacity 0.40→0.70→1.00 = pain weighting) |
+| **Comparison chart** (radar+grid) | #130 | nox-mem HEPTAGON COMPLETO, competitors collapse asymmetric |
+| **Stat cards** (12 SVGs) | #131 | Crosshair corners + monoline schema icons + WCAG AAA |
+| **Architecture** (1200×780) | #132 | Color-coded lanes orange→violet→#00C896 RRF convergence |
+| **Slogan propagation** (55 files) | #133 | "Pain-weighted hybrid memory with shadow discipline — yours by design" |
+| **README chart integration** | #134 | Embedded comparison chart SVG |
+
+Brand vocabulary locked: **#00C896 (RRF/hero)** + **#FF6B35/#FF9F1C (pain/lexical)** + **#7B61FF/#9D85FF (semantic)** + **#FFB800 (salience)**. Typography Inter + JetBrains Mono. Style: technical-editorial, hairline grids, geometric. Refs: Vercel, Stripe, Linear, Anthropic.
 
 ### Endpoints LIVE em produção (6/6 wire-up completo)
 
