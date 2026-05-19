@@ -159,6 +159,13 @@ Main DB intacto em 68.995 chunks (isolation guards funcionaram em todos os 6 vec
    - 5-10% → ablation per-feature pra entender qual feature dominante
 6. **Visual identity sync** com número final pós G4
 
+### Notas operacionais (registros pós-audit hoje)
+
+- **`/api/events/stream`** retorna 503 `not_implemented` **by design** (Bloco C smoke). Gated em deploy do `viewer-broadcaster` (P5 feature, parte de Phase 2 GTM). Não é bug — comportamento documentado em `wire-up.js` header. Wire só quando P5 ship.
+- **Audit cron VPS (2026-05-19 ~17h BRT)**: nenhum cron rodando `nox-mem reindex/consolidate/crystallize` programado regularmente. Jobs históricos perigosos foram comentados out (provavelmente após incident 2026-04-25). Ativos: `beir-kill-if-overload.sh` (overload), `check-gm-messages.sh` (canary 15min), `cross-agent-sync.sh` 5:30 BRT, `sync-verify.sh` 6:00 BRT. Todos não-destrutivos no main DB.
+- **PR #147 SCHEMA_VERSION fix** mergeado — source alinhado com VPS (era 7 source vs 18 VPS, criado por edits-only deploy hoje sem commit do source change).
+- **Audit similar bugs (#20)** rodando — confirma se outros tools (graphify/kg-extract/consolidate/crystallize) também eram vulneráveis ao bug NOX_DB_PATH ignored ou se shared `getDb()` os cobre via PR #145.
+
 ---
 
 ## 🌅 MORNING 2026-05-19 — Privacy deploy + ablation E + headline canonical revisado
