@@ -6,7 +6,8 @@
   "description": "L4 — Regex-first typed-link extraction with Gemini fallback (T1-T6). Ports gbrain MIT pattern + adapts pra nosso domain hybrid. Zero LLM em hot path quando structured content.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/lib/regex-extract/__tests__/*.test.js",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/lib/regex-extract/__tests__/*.test.js",
     "test:watch": "node --watch --test dist/src/lib/regex-extract/__tests__/*.test.js",
     "eval:synthetic": "npm run build && node dist/eval/regex-vs-llm.js --synthetic"
   },

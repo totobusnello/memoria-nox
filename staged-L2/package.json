@@ -6,7 +6,8 @@
   "description": "L2 — KG conflict detection (memanto Gap #5 differentiator). Type 1 direct contradictions end-to-end, shadow-first with append-only audit, zero auto-mutation of kg_relations in v1.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/lib/conflict/__tests__/*.test.js dist/src/cli/__tests__/*.test.js dist/src/api/__tests__/*.test.js dist/src/mcp/tools/__tests__/*.test.js",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/lib/conflict/__tests__/*.test.js dist/src/cli/__tests__/*.test.js dist/src/api/__tests__/*.test.js dist/src/mcp/tools/__tests__/*.test.js",
     "test:watch": "node --watch --test dist/src/lib/conflict/__tests__/*.test.js"
   },
   "dependencies": {},

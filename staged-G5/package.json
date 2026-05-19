@@ -6,7 +6,8 @@
   "description": "G5 — Central error sanitizer middleware (Gap G5 from THREAT-MODEL). Strips stack/paths/secrets from HTTP error responses.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/lib/error-sanitizer/__tests__/*.test.js",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/lib/error-sanitizer/__tests__/*.test.js",
     "audit:stack-leak": "bash edits/scripts/audit-stack-leak.sh ../"
   },
   "dependencies": {},

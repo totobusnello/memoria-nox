@@ -6,8 +6,9 @@
   "description": "Privacy filter staged patch — pre-storage redaction for nox-mem",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/privacy/__tests__/filter.test.js dist/privacy/__tests__/ingest-entity-privacy.test.js",
-    "test:entity": "npm run build && node --test dist/privacy/__tests__/ingest-entity-privacy.test.js",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/privacy/__tests__/filter.test.js dist/privacy/__tests__/ingest-entity-privacy.test.js",
+    "test:entity": "tsc -p tsconfig.tests.json && node --test dist/privacy/__tests__/ingest-entity-privacy.test.js",
     "test:watch": "node --watch --test dist/privacy/__tests__/filter.test.js dist/privacy/__tests__/ingest-entity-privacy.test.js"
   },
   "devDependencies": {

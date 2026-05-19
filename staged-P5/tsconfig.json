@@ -11,8 +11,9 @@
     "declaration": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "noEmitOnError": true
   },
   "include": ["edits/**/*.ts"],
-  "exclude": ["dist", "node_modules", "edits/src/viewer/**/*"]
+  "exclude": ["dist", "node_modules", "edits/src/viewer/**/*", "**/__tests__/**", "**/*.test.ts"]
 }

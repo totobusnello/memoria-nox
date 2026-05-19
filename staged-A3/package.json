@@ -6,7 +6,8 @@
   "description": "A3 — Provider abstraction T9-T16: fallback chain + cost cap + telemetry + 15 refactor sites + extended conformance + E2E gated + docs + benchmark. D41 default = Gemini.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/providers/__tests__/*.test.js",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/providers/__tests__/*.test.js",
     "test:watch": "node --watch --test dist/src/providers/__tests__/*.test.js",
     "bench": "npm run build && node dist/benchmark/provider-overhead.js"
   },

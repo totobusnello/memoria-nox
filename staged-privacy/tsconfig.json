@@ -8,8 +8,9 @@
     "rootDir": "./edits",
     "declaration": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "noEmitOnError": true
   },
   "include": ["edits/**/*.ts"],
-  "exclude": ["dist"]
+  "exclude": ["dist", "**/__tests__/**", "**/*.test.ts"]
 }

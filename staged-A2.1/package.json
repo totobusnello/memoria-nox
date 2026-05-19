@@ -6,7 +6,8 @@
   "description": "A2.1 — Passphrase entropy enforcement (Gap G1 from THREAT-MODEL). Zero-dep estimator + strength tiers + enforce-strength + CLI integration.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/lib/archive/__tests__/*.test.js"
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/lib/archive/__tests__/*.test.js"
   },
   "dependencies": {},
   "devDependencies": {

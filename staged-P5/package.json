@@ -6,7 +6,8 @@
   "description": "P5 — Viewer real-time SSE staged patch (T1-T15): event taxonomy + instrumentation + SSE handler + redaction + telemetry + frontend + auth + CLI + MCP + integration tests + docs. Depends on P5a event bus (merged PR #33).",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/lib/viewer/__tests__/*.test.js",
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/lib/viewer/__tests__/*.test.js",
     "test:watch": "node --watch --test dist/src/lib/viewer/__tests__/*.test.js"
   },
   "devDependencies": {

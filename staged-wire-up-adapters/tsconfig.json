@@ -12,8 +12,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "allowJs": false
+    "allowJs": false,
+    "noEmitOnError": true
   },
   "include": ["edits/**/*.ts"],
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist", "node_modules", "**/__tests__/**", "**/*.test.ts"]
 }

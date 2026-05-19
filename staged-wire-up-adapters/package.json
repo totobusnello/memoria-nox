@@ -6,7 +6,8 @@
   "description": "Wave O — Runtime adapters for the wire-up router (#92). 5 server-deps modules + deps-registry singleton bind framework-agnostic handlers to nox-mem.db, Gemini provider, and the SSE event bus.",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && node --test dist/src/api/__tests__/*.test.js"
+    "check:tests": "tsc -p tsconfig.tests.json --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/src/api/__tests__/*.test.js"
   },
   "devDependencies": {
     "@types/node": "^20.19.41",
