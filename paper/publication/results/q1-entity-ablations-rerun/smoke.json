@@ -1,0 +1,222 @@
+{
+  "summary": {
+    "label": "smoke",
+    "toggles": {},
+    "n_queries": 5,
+    "fixture_dir": "/root/.openclaw/workspace/eval-data/g3-rerun-2026-05-19",
+    "endpoint": "http://127.0.0.1:18803/api/search",
+    "ndcg_at_10": 0.2,
+    "mrr": 0.2,
+    "recall_at_10": 0.2,
+    "precision_at_5": 0.04,
+    "mean_latency_ms": 2514.356,
+    "p95_latency_ms": 2534.3,
+    "n_valid_queries": 5,
+    "wallclock_s": 12.57
+  },
+  "per_category": {
+    "single-hop": {
+      "n": 5,
+      "ndcg_at_10": 0.2,
+      "mrr": 0.2,
+      "recall_at_10": 0.2,
+      "precision_at_5": 0.04
+    }
+  },
+  "per_style": {
+    "natural-language": {
+      "n": 3,
+      "ndcg_at_10": 0.3333333333333333,
+      "mrr": 0.3333333333333333,
+      "recall_at_10": 0.3333333333333333,
+      "precision_at_5": 0.06666666666666667
+    },
+    "keyword": {
+      "n": 2,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    }
+  },
+  "per_query": [
+    {
+      "qid": "sh-000",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "What is fundo lombardia's role?",
+      "gold_chunk_ids": [
+        "fundo-lombardia::compiled"
+      ],
+      "retrieved_chunk_ids": [
+        "fundo-lombardia::timeline::2026-04-28",
+        "fundo-lombardia::timeline::2026-04-30",
+        "session::2026-05-13::655cab9511",
+        "fundo-lombardia::timeline::2026-05-01",
+        "fundo-lombardia::timeline::2026-05-11",
+        "fundo-lombardia::timeline::2026-04-24",
+        "fii-treviso::compiled",
+        "fundo-lombardia::timeline::2026-04-28",
+        "fii-treviso::frontmatter",
+        "toto::compiled",
+        "event::2026-05-04::143a410113",
+        "gabriela::compiled",
+        "event::2026-04-29::e5a1996217",
+        "event::2026-05-16::59f23b0dda",
+        "d41-five-resolved::frontmatter",
+        "event::2026-04-28::0ee63ef032",
+        "event::2026-04-30::7050e169fc",
+        "session::2026-05-01::f06e8625a9",
+        "toto::timeline::2026-04-29",
+        "hugo::timeline::2026-05-14"
+      ],
+      "retrieval_ms": 2534.3,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-001",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "Isabela Cunha description",
+      "gold_chunk_ids": [
+        "isabela::compiled"
+      ],
+      "retrieved_chunk_ids": [
+        "isabela::timeline::2026-04-28",
+        "fundo-lombardia::timeline::2026-04-28",
+        "isabela::timeline::2026-05-08",
+        "event::2026-05-14::973b9e3cd2",
+        "session::2026-05-10::dc2e82f83a",
+        "session::2026-04-25::9703bb614f",
+        "event::2026-04-20::9204732c69",
+        "gabriela::timeline::2026-04-27",
+        "frooty::compiled",
+        "daniel::compiled",
+        "gabriela::compiled",
+        "fii-treviso::compiled",
+        "carla::compiled",
+        "ana::compiled",
+        "nox-supermem::compiled",
+        "fundo-lombardia::compiled",
+        "d44-stripe-first::compiled",
+        "galapagos-ai::compiled",
+        "granix::compiled",
+        "d-stripe-no-affiliates::compiled"
+      ],
+      "retrieval_ms": 2473.73,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-002",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "What is Felipe Souza's role?",
+      "gold_chunk_ids": [
+        "felipe::compiled"
+      ],
+      "retrieved_chunk_ids": [
+        "felipe::timeline::2026-05-18",
+        "felipe::timeline::2026-05-12",
+        "felipe::timeline::2026-04-23",
+        "felipe::timeline::2026-05-07",
+        "felipe::frontmatter",
+        "felipe::timeline::2026-04-25",
+        "event::2026-04-21::c82ac149f7",
+        "isabela::timeline::2026-04-28",
+        "event::2026-04-27::e825b8b481",
+        "felipe::timeline::2026-05-07",
+        "daniel::compiled",
+        "frooty::compiled",
+        "nox-supermem::compiled",
+        "fii-treviso::frontmatter",
+        "fii-treviso::compiled",
+        "d44-stripe-first::compiled",
+        "galapagos-ai::compiled",
+        "granix::compiled",
+        "fundo-lombardia::compiled"
+      ],
+      "retrieval_ms": 2519.67,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-003",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "a answer api role",
+      "gold_chunk_ids": [
+        "a-answer-api::compiled"
+      ],
+      "retrieved_chunk_ids": [
+        "a-answer-api::timeline::2026-04-29",
+        "event::2026-05-04::e063a67cda",
+        "a-answer-api::timeline::2026-05-16",
+        "a-answer-api::timeline::2026-05-05",
+        "event::2026-05-05::6c963fc320",
+        "session::2026-04-20::a21ac6a38a",
+        "event::2026-04-28::a7dad52189",
+        "d40-qap-pivot::frontmatter",
+        "d40-qap-pivot::compiled",
+        "ana::compiled",
+        "d41-five-resolved::frontmatter",
+        "shadow-mode-ranking::compiled",
+        "session::2026-04-25::43f9e5d864",
+        "d44-stripe-first::compiled",
+        "openclaw-vps::compiled",
+        "d44-stripe-first::frontmatter",
+        "env-source-cron::frontmatter",
+        "daniel::compiled",
+        "d45-entity-eval-set::frontmatter",
+        "event::2026-04-29::9d3588d4fe"
+      ],
+      "retrieval_ms": 2520.07,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-004",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "Who is Bruno Lima?",
+      "gold_chunk_ids": [
+        "bruno::compiled"
+      ],
+      "retrieved_chunk_ids": [
+        "bruno::compiled",
+        "event::2026-05-08::77105837c6",
+        "bruno::timeline::2026-05-16",
+        "bruno::timeline::2026-04-24",
+        "session::2026-04-27::3293ef4eea",
+        "session::2026-05-12::2337fa672b",
+        "daniel::compiled",
+        "hugo::timeline::2026-05-14",
+        "session::2026-04-29::bff75c295d",
+        "felipe::compiled",
+        "nox-supermem::compiled",
+        "felipe::timeline::2026-04-23",
+        "fii-treviso::compiled",
+        "frooty::compiled",
+        "fundo-lombardia::compiled",
+        "granix::compiled",
+        "felipe::timeline::2026-05-18",
+        "event::2026-04-29::79d0288563",
+        "event::2026-05-14::e526af5341"
+      ],
+      "retrieval_ms": 2524.01,
+      "ndcg_at_10": 1.0,
+      "mrr": 1.0,
+      "recall_at_10": 1.0,
+      "precision_at_5": 0.2
+    }
+  ]
+}
