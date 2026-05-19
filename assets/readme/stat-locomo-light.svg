@@ -1,9 +1,27 @@
-<svg width="180" height="38" viewBox="0 0 180 38" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="95.X% LoCoMo R@5">
-  <title>95.X% LoCoMo R@5</title>
-  <rect width="180" height="38" rx="6" fill="#F5F5F7" stroke="#D8D8DC" stroke-width="1"/>
-  <rect x="0" y="0" width="3" height="38" rx="2" fill="#00A87A"/>
-  <text x="14" y="15" fill="#888888" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="8.5" font-weight="500" letter-spacing="0.8">LOCOMO R@5</text>
-  <text x="14" y="30" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="14" font-weight="600">
-    <tspan fill="#00A87A">95.X</tspan><tspan fill="#111111">%</tspan>
-  </text>
+<svg width="220" height="80" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="+112 percent nDCG at 10 versus baseline">
+  <title>+112% nDCG@10 vs baseline</title>
+  <defs>
+    <linearGradient id="bg-loco-l" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F5F5F7"/>
+    </linearGradient>
+    <filter id="sh-loco-l" x="-5%" y="-5%" width="110%" height="120%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.2"/>
+      <feOffset dx="0" dy="1" result="off"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.08"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="220" height="80" rx="8" fill="url(#bg-loco-l)" stroke="#D8D8DC" stroke-width="1" filter="url(#sh-loco-l)"/>
+  <rect x="0" y="0" width="3" height="80" rx="2" fill="#00A87A"/>
+  <g stroke="#C8CBD4" stroke-width="0.8" fill="none">
+    <path d="M205 8 L213 8 M209 4 L209 12"/>
+  </g>
+  <g transform="translate(20,28)" stroke="#00A87A" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 20 L9 13 L13 17 L21 6"/>
+    <path d="M15 6 H21 V12"/>
+  </g>
+  <text x="56" y="38" fill="#007458" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,monospace" font-size="22" font-weight="700" letter-spacing="-0.5">+112<tspan font-size="16">%</tspan></text>
+  <text x="56" y="56" fill="#5A5F6E" font-family="'Inter',ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="500">nDCG@10 vs baseline</text>
+  <text x="20" y="70" fill="#9094A0" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,monospace" font-size="9" font-weight="500" letter-spacing="1.4">LOCOMO</text>
 </svg>
