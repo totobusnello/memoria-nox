@@ -13,6 +13,7 @@
   <a href="LICENSE"><img src="https://img.shields.io/github/license/totobusnello/memoria-nox?style=for-the-badge&color=00C896" alt="License: MIT"></a>
   <a href="https://github.com/totobusnello/memoria-nox/stargazers"><img src="https://img.shields.io/github/stars/totobusnello/memoria-nox?style=for-the-badge&color=00C896" alt="Stars"></a>
   <a href="https://github.com/totobusnello/memoria-nox/actions"><img src="https://img.shields.io/github/actions/workflow/status/totobusnello/memoria-nox/ci.yml?style=for-the-badge&color=00C896&label=ci" alt="CI"></a>
+  <a href="https://www.bestpractices.dev/projects/12896"><img src="https://img.shields.io/cii/level/12896?style=for-the-badge&color=00C896&label=OpenSSF" alt="OpenSSF Best Practices: passing"></a>
   <a href="paper/publication/latex/paper.pdf"><img src="https://img.shields.io/badge/paper-v1.1-00C896?style=for-the-badge" alt="Paper v1.1"></a>
 </p>
 
