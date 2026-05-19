@@ -2,7 +2,7 @@
 
 > **Status:** staged — T1-T15 implementation under `staged-P2/`.
 > **Spec:** [`specs/2026-05-18-P2-implementation-kickoff.md`](../../specs/2026-05-18-P2-implementation-kickoff.md).
-> **Tagline:** *Hybrid memory with shadow discipline — yours by design.*
+> **Tagline:** *Pain-weighted hybrid memory with shadow discipline — yours by design.*
 
 P2 entrega o lado **escrita** do trio Q/A/P. O sistema observa eventos
 de conversa (turns de user/assistant) emitidos pelo OpenClaw (e

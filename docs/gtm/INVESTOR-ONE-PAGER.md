@@ -10,7 +10,7 @@
 
 **memoria-nox: hybrid memory layer for AI agents — data stays yours, benchmarks are honest, shadow discipline enforced.**
 
-Tagline: *"Hybrid memory with shadow discipline — yours by design."*
+Tagline: *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 ---
 

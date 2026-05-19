@@ -1,6 +1,6 @@
 # staged-L2 — KG conflict detection (memanto Gap #5 differentiator)
 
-> *"Hybrid memory with shadow discipline — yours by design."*
+> *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 Wave C overnight 2026-05-18 — Type 1 (direct contradiction) detection
 end-to-end, shadow-first, append-only audit. Spec:

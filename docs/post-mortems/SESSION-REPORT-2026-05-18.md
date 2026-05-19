@@ -283,7 +283,7 @@ git sparse-checkout set --no-cone '*'
 ### D40 — Q/A/P Strategic Pivot (2026-05-17)
 
 **Origem:** sessão de planejamento nocturna de 2026-05-17, consolidada em PRs #32 (VISION v15) e post-mortem Wave B.
-**Conteúdo:** reorganização do roadmap em 3 pilares (Quality/Autonomy/Product) + Lab (40% capacity) + GTM Phase 2 gated. Tagline: *"Hybrid memory with shadow discipline — yours by design."*
+**Conteúdo:** reorganização do roadmap em 3 pilares (Quality/Autonomy/Product) + Lab (40% capacity) + GTM Phase 2 gated. Tagline: *"Pain-weighted hybrid memory with shadow discipline — yours by design."* (D45)
 **Impacto:** toda a estrutura de sprints, naming de PRs, e critérios de gate da sessão derivam desta decisão.
 **ADR:** ADR-001 em `docs/adr/ADR-001-qap-strategic-architecture.md`.
 

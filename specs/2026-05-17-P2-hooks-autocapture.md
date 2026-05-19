@@ -13,7 +13,7 @@
 - `docs/HANDOFF.md` §captura passiva (próxima ação)
 - `~/Claude/Projetos/openclaw-vps/infra/CLAUDE.md` (plataforma onde o nox-mem API roda)
 
-> **Tagline norteador:** *"Hybrid memory with shadow discipline — yours by design."* — P2 ativa **captura passiva** (sem fricção pro usuário) sem comprometer disciplina shadow (eventos são armazenados; ranking continua intocado até validação posterior).
+> **Tagline norteador:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."* — P2 ativa **captura passiva** (sem fricção pro usuário) sem comprometer disciplina shadow (eventos são armazenados; ranking continua intocado até validação posterior).
 
 ---
 

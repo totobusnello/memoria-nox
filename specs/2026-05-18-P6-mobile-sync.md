@@ -1,7 +1,7 @@
 # P6 — Mobile Sync Architecture Spec
 
 > **Status:** Spec (2026-05-18) — P6 candidate (pillar P, Roadmap §5)
-> **Tagline:** *"Hybrid memory with shadow discipline — yours by design."*
+> **Tagline:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 > **Pillar:** P — Product UX
 > **Dependências diretas:** A2 (export/import portátil), P2 (hooks auto-capture), L2 (conflict detection KG)
 > **Gate:** P1+P2+A2 merged e estáveis em prod ≥ 2 semanas antes de iniciar P6

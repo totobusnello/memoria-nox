@@ -12,7 +12,7 @@ Full source: [`CHANGELOG.md`](https://github.com/totobusnello/memoria-nox/blob/m
 ### Q/A/P Pillars (D40 pivot)
 
 - Roadmap reorganized into Quality / Autonomy / Product + Lab + GTM Phase 2
-- Tagline locked: *"Hybrid memory with shadow discipline — yours by design."*
+- Tagline locked: *"Pain-weighted hybrid memory with shadow discipline — yours by design."* (D45 — supersedes D40)
 
 ### Quality
 

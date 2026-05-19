@@ -39,7 +39,7 @@
 
 ### Posture em uma linha
 
-> **Hybrid memory with shadow discipline — yours by design.** A autonomia do
+> **Pain-weighted hybrid memory with shadow discipline — yours by design.** A autonomia do
 > dado (SQLite local, sem SaaS) é a principal linha de defesa: reduz superfície
 > de ataque remota; risco residual concentra em quem acessa o arquivo `.db`
 > e em quem manda input pra ingestão/HTTP local.

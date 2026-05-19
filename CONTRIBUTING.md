@@ -1,6 +1,6 @@
 # Contributing to memoria-nox
 
-> *"Hybrid memory with shadow discipline — yours by design."*
+> *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 memoria-nox is research-grade infrastructure with production discipline. Every commit touches a system that runs against a live corpus of 69k+ chunks, serves multiple agents simultaneously, and has an incident log that documents exactly what happens when the discipline slips. Contributions are welcome — and expected to meet that bar.
 

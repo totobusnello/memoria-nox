@@ -3,7 +3,7 @@
 > **Status:** Phase 1 kickoff — Flutter scaffold + Dart A1 PII filter port + Tailscale connection manager + local-only capture.
 > **Spec:** [`specs/2026-05-18-P6-mobile-sync.md`](../specs/2026-05-18-P6-mobile-sync.md) (merged via PR #82).
 > **Pillar:** P — Product UX.
-> **Tagline:** *"Hybrid memory with shadow discipline — yours by design."*
+> **Tagline:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 ---
 

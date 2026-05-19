@@ -2,7 +2,7 @@
 
 > Terceira primitiva canônica: `nox-mem answer "<question>"`. Recebe pergunta NL, monta contexto via hybrid retrieval (BM25+vec+KG+RRF salience-weighted), chama LLM com prompt anti-hallucination, retorna resposta + citações verificadas (chunk_id → file_path + line_range + snippet). Fecha o trio `remember / recall / **answer**`.
 >
-> *Hybrid memory with shadow discipline — yours by design.*
+> *Pain-weighted hybrid memory with shadow discipline — yours by design.*
 
 **Status:** Design spec (CANDIDATE — implementation-ready)
 **Data:** 2026-05-17
@@ -788,7 +788,7 @@ For each pair: `{question, expectedCitedChunkIds, expectedSubstrings, mustNotCon
 ### For README
 
 > **Three primitives, not two.**
-> `nox-mem remember` ingests memory · `nox-mem recall` searches it · `nox-mem answer` composes a grounded reply with citations. Hybrid memory with shadow discipline — yours by design.
+> `nox-mem remember` ingests memory · `nox-mem recall` searches it · `nox-mem answer` composes a grounded reply with citations. Pain-weighted hybrid memory with shadow discipline — yours by design.
 
 ### For Nox-Supermem landing (PT-BR)
 

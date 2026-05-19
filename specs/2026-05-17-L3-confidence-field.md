@@ -5,7 +5,7 @@
 **Owner:** Toto (decisão); Maestro (execução)
 **Data:** 2026-05-17
 **Branch:** `overnight/2026-05-17/L3-confidence-field-spec`
-**Tagline:** _"Hybrid memory with shadow discipline — yours by design."_
+**Tagline:** _"Pain-weighted hybrid memory with shadow discipline — yours by design."_
 
 > **Disambiguation:** Lab L3 = experimental memanto-inspired feature (this spec). NOT to be confused with cache-tier L3 (cold/Obsidian view, `docs/VISION.md` §Cache Hierarchy). "Lab" = Six Gaps lab series (L1 = ..., L2 = conflict detection, L3 = this).
 

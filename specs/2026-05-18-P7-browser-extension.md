@@ -1,7 +1,7 @@
 # P7 — Browser Extension Spec
 
 > **Status:** Spec (2026-05-18) — P7 candidate (pillar P, Roadmap §5)
-> **Tagline:** *"Hybrid memory with shadow discipline — yours by design."*
+> **Tagline:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 > **Pillar:** P — Product UX
 > **Dependências diretas:** P1 (answer primitive), P2 (hooks auto-capture), A1 (privacy filter)
 > **Gate:** P1+P2 merged e estáveis em prod ≥ 2 semanas antes de iniciar P7

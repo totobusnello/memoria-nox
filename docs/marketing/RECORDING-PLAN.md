@@ -228,7 +228,7 @@ Consider: upload PT-BR and EN as separate `.srt` files to YouTube (allows viewer
 
 ### YouTube (primary)
 
-- Title: `nox-mem — Hybrid memory with shadow discipline | 5-min demo`
+- Title: `nox-mem — Pain-weighted hybrid memory with shadow discipline | 5-min demo`
 - Description: open with 3-line value prop → key links (GitHub, paper, QUICKSTART) → timestamp chapters → full number table with PR links
 - Tags: `agent memory`, `sqlite`, `RAG`, `hybrid retrieval`, `Claude Code`, `MCP`, `open source`
 - Chapters in description:
@@ -286,7 +286,7 @@ After Hero cut is published:
 
 [![5-min demo](https://img.youtube.com/vi/YOUTUBE_ID/maxresdefault.jpg)](https://www.youtube.com/watch?v=YOUTUBE_ID)
 
-> *Hybrid memory with shadow discipline — yours by design. 5 min.*
+> *Pain-weighted hybrid memory with shadow discipline — yours by design. 5 min.*
 ```
 
 Place after the "Why memoria-nox" section, before Architecture.

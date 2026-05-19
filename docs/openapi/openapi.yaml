@@ -3,7 +3,7 @@ openapi: 3.1.0
 info:
   title: memoria-nox HTTP API
   description: |
-    Hybrid memory with shadow discipline — yours by design.
+    Pain-weighted hybrid memory with shadow discipline — yours by design.
 
     This spec covers all HTTP endpoints across Wave A through D implemented in
     memoria-nox. Some endpoints are GATED by env vars and return 503 when not

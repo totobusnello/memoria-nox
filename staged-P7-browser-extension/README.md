@@ -1,6 +1,6 @@
 # memoria-nox — Browser Extension (P7 Phase 1)
 
-> *"Hybrid memory with shadow discipline — yours by design."*
+> *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 Manifest V3 browser extension that lets você capturar trechos da web, buscar
 sua memória da barra de endereços (`nx <query>`) e salvar tudo no seu próprio

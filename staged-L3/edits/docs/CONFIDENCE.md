@@ -2,7 +2,7 @@
 
 > **Status:** SCHEMA + WRITE-PATHS + MARK WORKFLOW + TELEMETRY shipped (DoD-A). Ranking integration GATED (DoD-B) — defaults `disabled`.
 >
-> **Tagline:** _"Hybrid memory with shadow discipline — yours by design."_
+> **Tagline:** _"Pain-weighted hybrid memory with shadow discipline — yours by design."_
 >
 > **Spec:** `specs/2026-05-17-L3-confidence-field.md`
 

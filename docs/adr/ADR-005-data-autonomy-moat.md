@@ -38,7 +38,7 @@ Specific architectural commitments that operationalize this:
 
 5. **No proprietary daemon**: nox-mem runs as a standard Node.js process. No persistent daemon required for core read/search operations (HTTP API is optional).
 
-The tagline *"Hybrid memory with shadow discipline — yours by design."* encodes this positioning: "yours by design" refers specifically to data ownership, not just UX customization.
+The tagline *"Pain-weighted hybrid memory with shadow discipline — yours by design."* encodes this positioning: "yours by design" refers specifically to data ownership, not just UX customization.
 
 ## Consequences
 

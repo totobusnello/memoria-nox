@@ -5,7 +5,7 @@ sidebar:
   order: 2
 ---
 
-> *"Hybrid memory with shadow discipline — yours by design."*
+> *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 The Q/A/P pivot (D40, 2026-05-17) reorganizes all roadmap work into three strategic pillars plus a research Lab track.
 

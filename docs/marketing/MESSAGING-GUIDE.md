@@ -10,7 +10,7 @@
 
 **Tagline (exact — no variants, no abbreviations):**
 
-> Hybrid memory with shadow discipline — yours by design.
+> Pain-weighted hybrid memory with shadow discipline — yours by design.
 
 Every other headline, tweet, elevator pitch, or README subtitle must be derived from or consistent with this tagline. Never shorten it to "hybrid memory" alone (loses the "yours" moat). Never shorten to "yours by design" alone (loses the retrieval quality claim). The three parts are inseparable.
 
@@ -32,7 +32,7 @@ Use these when space is limited:
 
 ### Value-first (lead with the claim)
 
-- "Hybrid memory with shadow discipline — yours by design."
+- "Pain-weighted hybrid memory with shadow discipline — yours by design."
 - "Your memory should be yours."
 - "Where others guess, we prove."
 - "The only agent memory layer where `cp` is your backup."
@@ -281,7 +281,7 @@ This is not caution. It is the competitive advantage. Hacker News, arXiv reviewe
 Paste this wherever copy is being written:
 
 ```
-TAGLINE (exact): Hybrid memory with shadow discipline — yours by design.
+TAGLINE (exact): Pain-weighted hybrid memory with shadow discipline — yours by design.
 
 PILLARS:
   Q: Numbers that lead

@@ -1,11 +1,11 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/readme/banner-dark.svg">
-    <img alt="nox-mem — Hybrid memory with shadow discipline" src="assets/readme/banner-light.svg" width="720">
+    <img alt="nox-mem — Pain-weighted hybrid memory with shadow discipline" src="assets/readme/banner-light.svg" width="720">
   </picture>
 </p>
 
-<h1 align="center">Hybrid memory with shadow discipline &mdash; yours by design.</h1>
+<h1 align="center">Pain-weighted hybrid memory with shadow discipline &mdash; yours by design.</h1>
 
 <p align="center"><em>An agent memory engine that stays on your disk, runs on the provider you pick, and ships ranking changes only after they earn it in shadow.</em></p>
 
@@ -242,7 +242,7 @@ If you copy an idea from here, attribute it. If you find a number that does not 
 </p>
 
 <p align="center">
-  <strong>Hybrid memory with shadow discipline &mdash; yours by design.</strong>
+  <strong>Pain-weighted hybrid memory with shadow discipline &mdash; yours by design.</strong>
   <br>
   <sub>MIT License &middot; Maintained by <a href="https://github.com/totobusnello">@totobusnello</a> &middot; <a href="https://github.com/totobusnello/memoria-nox/graphs/contributors">Contributors</a></sub>
 </p>

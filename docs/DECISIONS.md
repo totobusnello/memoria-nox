@@ -520,6 +520,29 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 
 ---
 
+### 2026-05-18 noite — Slogan update: pain-weighted leading (D45)
+
+#### D45 — Pain-weighted leading position in slogan
+
+**Context:** D40 locked tagline "Hybrid memory with shadow discipline — yours by design" (2026-05-17 noite). Toto challenged tonight (2026-05-18 noite final): "hybrid" é genérico (todo RAG moderno é hybrid), enquanto **pain weighting** é a primary novelty claim do paper §1.1 contributions: "(1) a pain-weighted salience formula (recency × pain × importance) that explicitly models incident severity as a retrieval signal—novel in the RAG/memory literature".
+
+**Decisão:** Pivot tagline pra **"Pain-weighted hybrid memory with shadow discipline — yours by design."**
+
+**Rationale:**
+- Pain weighting = paper's primary novelty (paper-draft-sec1-3.md §1.1 + RESUMO-EXECUTIVO).
+- "Hybrid memory" sozinho é descritivo, não diferenciador — mem0/agentmemory/memanto todos são hybrid também.
+- "Pain-weighted" faz o leitor parar 1 segundo (curiosity hook).
+- Slogan original mantido como subset (hybrid + shadow + yours by design preservados).
+- Trade-off aceito: tagline ficou 8 palavras (vs 6 antes) — mais mouthful mas inclui paper novelty.
+
+**Implicação:** atualização propagada em README.md (H1, banner alt), docs/VISION.md, docs/HANDOFF.md, docs/ROADMAP.md, CLAUDE.md, CONTRIBUTING.md, SECURITY.md, CHANGELOG.md, docs/DECISIONS.md (este), docs/COMPETITIVE-POSITIONING.md, docs/marketing/*, docs/gtm/*, docs-site/*, specs/*, staged-*/. Banner SVGs (separate PR — design agents). Stat-cards SVGs preservam (não mencionam slogan).
+
+**D40 status:** superseded — slogan D40 era prefix; D45 adiciona "Pain-weighted" prefix.
+
+**Cross-ref:** paper-draft-sec1-3.md §1.1 (paper claim), paper RESUMO-EXECUTIVO.md (novelty axes), banner redesign PR (visual), D44b Stripe-first (orthogonal but tonight cluster).
+
+---
+
 ### 2026-05-18 noite — Threat-model iteração recursiva + cadência quarterly (D42)
 
 #### D42 — Threat-model iteração recursiva: adotar cadência trimestral de security audit
@@ -613,7 +636,7 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **Lab (40% capacity):** L1 E15 paused, L2 conflict detection (memanto-inspired), L3 confidence field (gated)
 - **GTM Phase 2:** viral launch playbook, locked behind Q4 winning
 
-**Tagline aprovada:** *"Hybrid memory with shadow discipline — yours by design."*
+**Tagline aprovada (D40):** *"Hybrid memory with shadow discipline — yours by design."* ⚠️ **Superseded by D45 (2026-05-18 noite) — pain-weighted prefix added. Ver D45.**
 
 **Capacity split:** 60% pilares product (Q/A/P), 40% lab. Anteriormente 80/20 com lab dominante.
 

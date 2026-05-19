@@ -1,6 +1,6 @@
 # MORNING REVIEW — 2026-05-18 | 15 PRs Overnight
 
-> **Hybrid memory with shadow discipline — yours by design.**
+> **Pain-weighted hybrid memory with shadow discipline — yours by design.**
 
 Bom dia. 15 PRs em fila do automode push noturno 2026-05-17. **30-45 minutos de review se for direto**, com decisões críticas de product/research mapeadas abaixo.
 
@@ -361,7 +361,7 @@ PR #3 (P1, answer) + PR #4 (P2, hooks) + PR #7 (P4, connect ide) + PR #8 (A3, pr
 **Key decisions to make:**
 1. **COLOR PALETTE:** A (amber), B (teal), C (purple), or D (minimal)? Drives all future visual assets.
 2. Feature grid: highlight (answer, hooks, temporal, export) or all 10 P/A/Q sprints?
-3. Tagline lock: "Hybrid memory with shadow discipline — yours by design." still good?
+3. Tagline lock: "Pain-weighted hybrid memory with shadow discipline — yours by design." still good?
 
 **Recommend:** **Hold for merge** — locked behind Q4 gate (COMPARISON.md winning). Merge after gate opens. Color choice needed now.
 
@@ -460,7 +460,7 @@ PR #3 (P1, answer) + PR #4 (P2, hooks) + PR #7 (P4, connect ide) + PR #8 (A3, pr
 
 **Moat:** SQLite file portable. No daemon. No SaaS. Bring your own key. Inspectable. Gemini best-in-class. ✅
 
-**Tagline:** "Hybrid memory with shadow discipline — yours by design." Locked. Carry forward.
+**Tagline:** "Pain-weighted hybrid memory with shadow discipline — yours by design." Locked. Carry forward.
 
 ---
 
@@ -516,7 +516,7 @@ PR #3 (P1, answer) + PR #4 (P2, hooks) + PR #7 (P4, connect ide) + PR #8 (A3, pr
 - `docs/ROADMAP.md` (v2, current)
 - `docs/DECISIONS.md` (D40+, locking cross-cutting choices)
 
-**Tagline carries:** "Hybrid memory with shadow discipline — yours by design."
+**Tagline carries:** "Pain-weighted hybrid memory with shadow discipline — yours by design."
 
 ---
 

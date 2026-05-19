@@ -31,7 +31,7 @@ Reorganize the roadmap into **3 product pillars + Lab + GTM Phase 2**:
 
 **Capacity split:** 60% product pillars (Q/A/P), 40% Lab. Previously 80% Lab / 20% product.
 
-**Tagline:** *"Hybrid memory with shadow discipline — yours by design."*
+**Tagline:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 **Gemini embeddings remain canonical** for quality (1.7× lift over E5 baseline at 12× lower cost is wrong direction — Gemini wins on quality, A3 abstraction allows swap later).
 

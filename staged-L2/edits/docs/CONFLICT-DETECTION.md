@@ -1,6 +1,6 @@
 # L2 — KG Conflict Detection
 
-> *"Hybrid memory with shadow discipline — yours by design."*
+> *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 >
 > Lab capability turning memanto's Gap #5 ("contradictions silently coexist")
 > into a structural differentiator on nox-mem's KG substrate. Shadow-first,
@@ -666,4 +666,4 @@ production nox-mem-api singleton. Wiring tasks (NOT part of L2 T1-T12):
 ---
 
 *Documento gerado durante Wave C overnight 2026-05-18 sob a tagline
-"Hybrid memory with shadow discipline — yours by design."*
+"Pain-weighted hybrid memory with shadow discipline — yours by design."*

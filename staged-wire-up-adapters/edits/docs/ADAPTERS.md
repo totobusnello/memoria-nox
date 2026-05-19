@@ -1,6 +1,6 @@
 # ADAPTERS — Wire-up runtime bindings (Wave O)
 
-> **Hybrid memory with shadow discipline — yours by design.** (D40 tagline.)
+> **Pain-weighted hybrid memory with shadow discipline — yours by design.** (D45 tagline — D40 superseded.)
 >
 > Este PR fecha o gap pós-#92: a wire-up.ts registra 14 rotas Wave A→K, mas
 > 12 delas respondem 503 `not_implemented` porque os módulos de runtime que

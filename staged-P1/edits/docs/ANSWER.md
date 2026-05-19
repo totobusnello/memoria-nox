@@ -1,6 +1,6 @@
 # `nox-mem answer` — P1 Answer Primitive
 
-> *Hybrid memory with shadow discipline — yours by design.*
+> *Pain-weighted hybrid memory with shadow discipline — yours by design.*
 
 The **answer primitive** turns a natural-language question into a grounded answer plus inline `[chunk_N]` citations. It is the first product surface that lets a caller (CLI, HTTP, MCP) treat the corpus as something queryable beyond raw search.
 
@@ -466,4 +466,4 @@ TOTAL              101.41ms  101.59ms  101.63ms   4300ms   OK
 - Privacy rule: `docs/CLAUDE.md §regras-críticas #5` (no PII in scoring/telemetry without opt-in)
 - Sourcing env: `docs/CLAUDE.md §regras-críticas #1`
 - Never `gemini-2.5-flash` silently: `docs/CLAUDE.md §regras-críticas #3`
-- Q/A/P pivot tagline: *Hybrid memory with shadow discipline — yours by design.*
+- Q/A/P pivot tagline: *Pain-weighted hybrid memory with shadow discipline — yours by design.*

@@ -6,7 +6,7 @@
 **Spec:** `specs/2026-05-17-P5-viewer-realtime.md` (PR #10, 2,958 words, draft)
 **Pillar:** **P5 — Real-time Viewer** (Q/A/P framework, last in P-pillar order)
 **Branch:** `overnight/2026-05-18/P5-impl-kickoff`
-**Tagline alignment:** *"Hybrid memory with shadow discipline — yours by design."*
+**Tagline alignment:** *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 ---
 
@@ -348,6 +348,6 @@ Suggested split across 3 sessions: foundation (day 1) → frontend (day 2) → h
 
 ---
 
-*"Hybrid memory with shadow discipline — yours by design."*
+*"Pain-weighted hybrid memory with shadow discipline — yours by design."*
 
 P5 closes the P-pillar: P1 answers, A2 portability, P2 capture, P4 surfaces, **P5 shows it all live.**
