@@ -5,7 +5,7 @@ import { ingestFile } from "./ingest.js";
 import { reindex } from "./reindex.js";
 import { primer } from "./primer.js";
 import { getStats } from "./stats.js";
-import { getDb, closeDb } from "./db.js";
+import { getDb, closeDb, checkLargeDbIngestGuard } from "./db.js";
 import { syncProjectContexts, listProjects } from "./project-context-gen.js";
 import { crossSearch, formatCrossResults, getCrossStats } from "./cross-search.js";
 import { compact } from "./compact.js";
@@ -54,7 +54,15 @@ program
 program
   .command("ingest <file>")
   .description("Index a specific .md or .json file")
-  .action(async (file: string) => {
+  .option("--allow-prod", "Skip large-DB ingest guard (required for prod ops, see CLAUDE.md §6)")
+  .action(async (file: string, opts: { allowProd?: boolean }) => {
+    // Large-DB guard (postmortem 2026-05-19): abort if DB looks like prod
+    // and operator hasn't explicitly opted in. Override via --allow-prod flag
+    // or NOX_ALLOW_PROD_INGEST=1 env var.
+    if (opts.allowProd) {
+      process.env.NOX_ALLOW_PROD_INGEST = "1";
+    }
+    checkLargeDbIngestGuard(getDb(), "ingest");
     const result = await ingestFile(file);
     console.log(`[INFO] Ingested ${file}: ${result.chunks} chunks`);
     closeDb();

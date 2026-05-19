@@ -51,6 +51,8 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
+import re
 import statistics
 import sys
 import time
@@ -65,6 +67,94 @@ from typing import Any
 
 DEFAULT_FIXTURE_DIR = Path("paper/publication/data/entity-eval-2026-05-19")
 DEFAULT_ENDPOINT = "http://127.0.0.1:18803/api/search"
+
+# ────────────────────────────────────────────────────────────────────────────
+# SAFETY GUARD — fail-closed DB isolation check (postmortem 2026-05-19)
+# ────────────────────────────────────────────────────────────────────────────
+# Root cause: G3 orchestrator ran `nox-mem ingest` without NOX_DB_PATH
+# explicitly set to an isolated eval DB, causing 500 eval chunks to land in
+# the production nox-mem.db (68k+ chunks wiped, restore required from snapshot).
+#
+# This guard fires at *import time* so the error surfaces immediately — before
+# any subprocess or API call is made — and blocks the run if the resolved API
+# endpoint is the production endpoint (port 18802) or if NOX_EVAL_DB_PATH is
+# not explicitly set when the script is not in --offline mode.
+#
+# The check is intentionally conservative:
+#   - Port 18802 = prod; 18803 = eval (per CLAUDE.md §4).
+#   - NOX_EVAL_DB_PATH must be set AND must NOT resolve to the production path
+#     (*/tools/nox-mem/nox-mem.db) when running non-offline eval.
+#
+# To bypass in a legitimate isolated test environment set:
+#   NOX_EVAL_ISOLATION_OVERRIDE=1  (explicit, auditable)
+
+_PROD_PORT_PATTERN = re.compile(r":18802\b")
+_PROD_DB_PATTERN = re.compile(r"/tools/nox-mem/nox-mem\.db$")
+
+
+def _check_eval_isolation(endpoint: str, offline: bool) -> None:
+    """Abort if the eval harness appears to be targeting prod resources.
+
+    Called from main() before any network/ingest activity.
+
+    Args:
+        endpoint: The /api/search endpoint URL in use.
+        offline: True when --offline flag is set (no API calls made).
+
+    Raises:
+        SystemExit: With a descriptive error message if isolation is violated.
+    """
+    if offline:
+        return  # offline mode makes no network calls and no ingest
+
+    override = os.environ.get("NOX_EVAL_ISOLATION_OVERRIDE", "").strip()
+    if override == "1":
+        print(
+            "[entity-ablation] WARNING: NOX_EVAL_ISOLATION_OVERRIDE=1 — "
+            "DB isolation check bypassed. Ensure you are running against an "
+            "isolated eval DB, NOT the production nox-mem.db.",
+            file=sys.stderr,
+        )
+        return
+
+    errors: list[str] = []
+
+    # Check 1: endpoint must not be the production port
+    if _PROD_PORT_PATTERN.search(endpoint):
+        errors.append(
+            f"Endpoint '{endpoint}' targets port 18802 (production). "
+            "Entity-flavored eval MUST run against port 18803 (isolated eval API). "
+            "Start a second nox-mem-api instance with NOX_DB_PATH=/tmp/<eval>.db "
+            "NOX_API_PORT=18803 before invoking this harness."
+        )
+
+    # Check 2: NOX_EVAL_DB_PATH must be explicitly set
+    eval_db = os.environ.get("NOX_EVAL_DB_PATH", "").strip()
+    if not eval_db:
+        errors.append(
+            "NOX_EVAL_DB_PATH is not set. "
+            "The G3 orchestrator MUST export NOX_EVAL_DB_PATH=/tmp/<eval>.db "
+            "so the ingest step targets the isolated DB. "
+            "Without this, `nox-mem ingest` falls back to OPENCLAW_WORKSPACE "
+            "and writes eval chunks into the production nox-mem.db. "
+            "(This was the root cause of the 2026-05-19 wipe incident.)"
+        )
+    elif _PROD_DB_PATTERN.search(eval_db):
+        errors.append(
+            f"NOX_EVAL_DB_PATH='{eval_db}' resolves to the production database. "
+            "Set it to an isolated path under /tmp/ or /root/.openclaw/eval/."
+        )
+
+    if errors:
+        print("\n[entity-ablation] FATAL — DB ISOLATION GUARD TRIGGERED:", file=sys.stderr)
+        for i, e in enumerate(errors, 1):
+            print(f"  [{i}] {e}", file=sys.stderr)
+        print(
+            "\nTo bypass (only if you have verified isolation manually): "
+            "export NOX_EVAL_ISOLATION_OVERRIDE=1",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 DEFAULT_N = 100
 TOP_K = 20  # retrieve top-20, score top-10
 
@@ -206,6 +296,9 @@ def main() -> int:
     p.add_argument("--toggles", default="", help="comma-separated key=val toggles to record in summary (env vars are set on the API process by the orchestrator, not by this script)")
     p.add_argument("--offline", action="store_true", help="bypass API; use keyword-overlap retrieval (fixture self-check only)")
     args = p.parse_args()
+
+    # Fail-closed isolation guard (postmortem 2026-05-19)
+    _check_eval_isolation(args.endpoint, args.offline)
 
     corpus, queries = load_fixtures(args.fixture_dir)
     queries = queries[: args.n]
