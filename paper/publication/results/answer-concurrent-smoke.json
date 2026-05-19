@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "endpoint": "http://127.0.0.1:18802/api/answer",
+    "concurrent": 5,
+    "total_requests": 15,
+    "queries_pool_size": 20,
+    "timeout_sec": 30,
+    "ran_at": "2026-05-19T00:41:49.063507+00:00"
+  },
+  "wall_clock_sec": 7.8888,
+  "throughput_rps": 1.9014,
+  "latency_per_request": {
+    "p50": 1.7465,
+    "p95": 5.1425,
+    "p99": 5.3335,
+    "max": 5.3813,
+    "min": 1.2027,
+    "mean": 2.1756,
+    "n": 15
+  },
+  "status_distribution": {
+    "200": 15
+  },
+  "error_count": 0,
+  "errors": [],
+  "answer_metadata": {
+    "retry_count_p50": 0.0,
+    "retry_count_max": 0,
+    "sources_count_p50": null
+  }
+}
