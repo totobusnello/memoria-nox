@@ -445,6 +445,81 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **NÃO FAZEMOS:** ACTIVATE sem evidence ≥1 consumer real. ACTIVATE "técnico" (que muda envelope mas ninguém lê) é cosmético sem valor.
 - *Origem:* sessão 2026-05-16. Cross-link: `specs/2026-05-01-E03a-spo-injection.md`, task #18 (integração).
 
+### 2026-05-18 noite — Q4 gate threshold + Phase 2 GTM open (D43)
+
+#### D43 — Q4 gate: ≥+15% nDCG@10 + 2-tier scale-up
+
+**Context:** Q1 LoCoMo hybrid Python re-implementation entregou **+18.8% nDCG@10** vs E04 FTS5-only baseline (n=100 stratified seed=42, validated 2026-05-18 19:16 BRT). Q4 gate pra GTM Phase 2 ("COMPARISON winning") nunca tinha threshold formal — bloqueava decisão de "open Phase 2 now?".
+
+**Decisão:** Threshold = **≥+15% nDCG@10 (rel)**, current **+18.8% MEETS**. Phase 2 GTM **ABRE HOJE** (2026-05-18 noite) com claim "+18.8% nDCG@10 measured" + caveat de Python re-implementation. **MAS scale-up condicional a production-path Q1 (in flight tonight) confirmar ≥+15% no código TS prod** (não Python re-impl).
+
+**Rationale (5 bullets):**
+- Hybrid retrieval papers SOTA (BEIR, MTEB) reportam +10-25% gain sobre BM25-only → +15% é threshold defensável + sólido
+- +18.8% é número reproduzível (mesmo seed=42 do E04 baseline, mesmo subset, mesmo método de scoring)
+- Marketing copy clean: "*Hybrid retrieval (FTS5 + Gemini 3072d + RRF) improves nDCG@10 by 18.8% over FTS5-only baseline on LoCoMo n=100. Verified 2026-05-18.*"
+- Threshold C (≥+20% AND competitor beat) exigia 2 trabalhos pesados antes de Phase 2: production-path Q1 confirmar + benchmark vs competitor com métrica comparável (agentmemory reporta R@5, não nDCG — apples-to-oranges) — atraso desnecessário
+- 2-tier preserva commitment estratégico: ABRE com claim atual, ESCALA com confirmação prod
+
+**Alternativas rejeitadas:**
+- A (qualquer improvement) — fraco, não sobrevive review scrutiny
+- C (≥+20% AND competitor beat) — perfect-enemy-of-good, +1-2 semanas delay
+- D (≥+30%) — irrealista pra single retrieval improvement, "breakthrough" claim hyped
+
+**Implicação operacional:**
+- **Phase 2 GTM workstreams (pricing, demo video, landing page) podem iniciar imediatamente**
+- README.md + docs/COMPARISON.md já refletem "+18.8% verified 2026-05-18" (PR #110)
+- Production-path Q1 (rodando 2026-05-18 ~22:00 BRT, ETA ~22:15) é o gate pra Phase 2 SCALE-UP — se reproduzir +15-22%, scale-up greenlight; se vier <+15%, pausa scale-up + investiga implementation diff
+- Per-category temporal -1.2% NÃO é blocker (agent stat-power analysis em PR #113 refutou como statistically NULL, n=20)
+
+**Cross-ref:** `paper/publication/results/locomo-hybrid-vs-fts5-summary.md` (Q1 numbers), `paper/publication/results/q1-temporal-regression-analysis.md` (D43 dependency cleared), `docs/VISION.md` v14 §Phase 2 trigger, `paper/publication/baselines/locomo_production_path.md` (Option A runbook — scale-up gate).
+
+---
+
+### 2026-05-18 noite — 4 Metis pricing prerequisites resolved (D44)
+
+#### D44 — Pricing strategy prerequisites: scope, Hotmart, data posture
+
+**Context:** Metis pre-planning agent (2026-05-18 noite) recusou rodar pricing-recommendations work até resolver 4 prerequisitos estratégicos (saved em `memory/project_pricing_prerequisites_2026_05_18.md`). Resolvidos hoje:
+
+**D44a — Scope: pricing strategy migra pra `nox-supermem/` quando ativo**
+- Por ora, `docs/gtm/PRICING-STRATEGY.md` fica em `memoria-nox/` (precedente, evita migration churn)
+- Header explícito "This will migrate to nox-supermem/ when that repo is active" adicionado ao topo do doc na próxima edit
+- Cross-link ao `~/Claude/Projetos/memoria-nox/CLAUDE.md` regra escopo
+
+**D44b — Pivot pra Stripe-first (Toto decision 2026-05-18 noite)**
+- Toto: "Não vou usar Hotmart agora" (rejected options A + B)
+- Consequências derivadas:
+  - **P5 (BRL vs USD default):** USD default em Stripe Checkout (multi-currency suportado, mas USD é o natural target pra dev tools/devs internacionais)
+  - **P6 (trial sem cartão vs sandbox):** Trial via Stripe Checkout built-in (14d free trial nativo, cancela auto se não converter)
+  - **P7 (afiliados Hotmart):** REJECTED — Stripe não tem programa nativo de afiliados como Hotmart. Defer pra Tier 3 OR partnership ad-hoc futuro
+- **§9 "Contexto Hotmart e Mercado BR" em PRICING-STRATEGY.md DEVE ser reescrita** pra refletir Stripe-first context (próxima sessão de pricing)
+- Implicação fiscal/cambial: USD revenue + custo USD (Gemini, VPS) = natural hedge. BR market pricing fica como secondary tier (BRL via Stripe Brazil OR via PIX integration futuro)
+
+**D44c — Data posture markers (universal convention)**
+- Todo número em docs estratégicos DEVE ter um destes markers:
+  - `[verified YYYY-MM-DD <source>]` — measured, fonte ref
+  - `[estimated]` — projeção, sem measurement
+  - `[ASSUMPTION]` — input externo não-validado (ex: Hotmart fee ~10%)
+- Aplicado retroativamente em `docs/COMPARISON.md` (PR #110 + #114)
+- Próximos PRs estratégicos auto-honor
+
+**D44d — Q4 gate timing:** RESOLVIDO em D43 (Phase 2 abre hoje)
+
+**Rationale:**
+- TODOS os 4 prerequisites Metis resolved (a/b/c/d) — pricing-recommendations agent pode rodar sem bloqueio
+- D44c em particular é hard rule pra paper §5 + GTM materials (review safety)
+- D44b pivot (Stripe-first) muda o tom global da PRICING-STRATEGY.md — não é mais "BR-first via Hotmart afiliados" mas "global SaaS via Stripe" + Brazil secondary tier
+
+**Implicação operacional:**
+- **Spawn pricing-recommendations agent na próxima sessão** com guardrails: USD default, Stripe Checkout, NO afiliados, NO Hotmart references except como "rejected alt" historical context
+- **Reescrever PRICING-STRATEGY.md §9** ("Contexto Hotmart e Mercado BR") pra "Contexto Stripe-first + Brazil secondary tier" — preserva análise mercado BR mas pivota infra
+- Próximo PR estratégico (qualquer doc) DEVE seguir D44c markers — auto-grep CI rule a considerar futuro
+- `memory/project_pricing_prerequisites_2026_05_18.md` atualizada com status "RESOLVED 2026-05-18 (a=migrate-later, b=Stripe-first, c=universal markers, d=Phase 2 open per D43)"
+
+**Cross-ref:** `memory/project_pricing_prerequisites_2026_05_18.md`, `docs/gtm/PRICING-STRATEGY.md`, `~/Claude/Projetos/memoria-nox/CLAUDE.md` §escopo, `docs/COMPARISON.md` (verified markers exemplo).
+
+---
+
 ### 2026-05-18 noite — Threat-model iteração recursiva + cadência quarterly (D42)
 
 #### D42 — Threat-model iteração recursiva: adotar cadência trimestral de security audit
