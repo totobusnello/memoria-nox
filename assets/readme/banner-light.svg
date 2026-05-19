@@ -1,74 +1,142 @@
-<svg width="720" height="200" viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem — Hybrid memory with shadow discipline, yours by design">
-  <title>nox-mem — Hybrid memory with shadow discipline</title>
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem — Pain-weighted hybrid memory with shadow discipline, yours by design">
+  <title>nox-mem — Pain-weighted hybrid memory with shadow discipline — yours by design</title>
+  <desc>Hero banner. Left column: nox-mem wordmark with two-line slogan. Right column: 24 vertical bars visualizing pain-weighted memory chunks ranging from teal (low severity) to a single orange peak (production-outage memory), overlaid with a faint hybrid-retrieval lattice (FTS5 diamond, Gemini hexagon, RRF merger node).</desc>
+
+  <defs>
+    <!-- Pain gradient: dark teal (low) → primary (medium) → warm orange (prod-outage) -->
+    <linearGradient id="painLow-l" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#007458" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#007458" stop-opacity="0.85"/>
+    </linearGradient>
+    <linearGradient id="painMid-l" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#00A87A" stop-opacity="0.65"/>
+      <stop offset="1" stop-color="#007458" stop-opacity="1"/>
+    </linearGradient>
+    <linearGradient id="painHigh-l" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#FF6B35" stop-opacity="0.75"/>
+      <stop offset="0.6" stop-color="#FF6B35" stop-opacity="1"/>
+      <stop offset="1" stop-color="#E04A12" stop-opacity="1"/>
+    </linearGradient>
+
+    <!-- Radial punctum behind the orange spike -->
+    <radialGradient id="punctumGlow-l" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#FF6B35" stop-opacity="0.18"/>
+      <stop offset="0.5" stop-color="#FF6B35" stop-opacity="0.05"/>
+      <stop offset="1" stop-color="#FF6B35" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Faint grid for editorial structure -->
+    <pattern id="microGrid-l" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#E8EAEF" stroke-width="0.5"/>
+    </pattern>
+
+    <filter id="softGlow-l" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="1.0"/>
+    </filter>
+  </defs>
 
   <!-- Background -->
-  <rect width="720" height="200" fill="#F5F5F7"/>
+  <rect width="1200" height="400" fill="#FFFFFF"/>
+  <rect width="1200" height="400" fill="url(#microGrid-l)" opacity="0.8"/>
 
-  <!-- Subtle grid texture -->
-  <defs>
-    <pattern id="grid-l" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#E5E5E8" stroke-width="0.5"/>
-    </pattern>
-  </defs>
-  <rect width="720" height="200" fill="url(#grid-l)"/>
+  <!-- Radial punctum behind orange spike -->
+  <ellipse cx="960" cy="220" rx="240" ry="180" fill="url(#punctumGlow-l)"/>
 
-  <!-- Graph visualization — right side -->
-  <!-- Edges -->
-  <line x1="520" y1="80" x2="580" y2="50" stroke="#D0D0D4" stroke-width="1.5"/>
-  <line x1="520" y1="80" x2="580" y2="110" stroke="#D0D0D4" stroke-width="1.5"/>
-  <line x1="520" y1="80" x2="460" y2="50" stroke="#D0D0D4" stroke-width="1.5"/>
-  <line x1="520" y1="80" x2="460" y2="120" stroke="#D0D0D4" stroke-width="1.5"/>
-  <line x1="520" y1="80" x2="550" y2="140" stroke="#D0D0D4" stroke-width="1.5"/>
+  <!-- Hairline horizontal anchor — editorial baseline -->
+  <line x1="48" y1="328" x2="1152" y2="328" stroke="#D0D5DD" stroke-width="1"/>
 
-  <!-- Secondary edges -->
-  <line x1="580" y1="50" x2="630" y2="30" stroke="#DCDCDE" stroke-width="1"/>
-  <line x1="580" y1="50" x2="640" y2="70" stroke="#DCDCDE" stroke-width="1"/>
-  <line x1="580" y1="110" x2="650" y2="100" stroke="#DCDCDE" stroke-width="1"/>
-  <line x1="580" y1="110" x2="640" y2="150" stroke="#DCDCDE" stroke-width="1"/>
-  <line x1="460" y1="50" x2="420" y2="30" stroke="#DCDCDE" stroke-width="1"/>
-  <line x1="460" y1="50" x2="410" y2="65" stroke="#DCDCDE" stroke-width="1"/>
-  <line x1="460" y1="120" x2="410" y2="140" stroke="#DCDCDE" stroke-width="1"/>
-  <line x1="550" y1="140" x2="590" y2="168" stroke="#DCDCDE" stroke-width="1"/>
-  <line x1="550" y1="140" x2="510" y2="170" stroke="#DCDCDE" stroke-width="1"/>
+  <!-- ─────────────── LEFT COLUMN: TYPE ─────────────── -->
 
-  <!-- Cross-cluster accent edges -->
-  <line x1="580" y1="50" x2="580" y2="110" stroke="#00A87A" stroke-width="1" opacity="0.35"/>
-  <line x1="460" y1="50" x2="460" y2="120" stroke="#00A87A" stroke-width="1" opacity="0.2"/>
-
-  <!-- Tertiary peripheral nodes -->
-  <circle cx="630" cy="30" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
-  <circle cx="640" cy="70" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
-  <circle cx="650" cy="100" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
-  <circle cx="640" cy="150" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
-  <circle cx="420" cy="30" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
-  <circle cx="410" cy="65" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
-  <circle cx="410" cy="140" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
-  <circle cx="590" cy="168" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
-  <circle cx="510" cy="170" r="3" fill="none" stroke="#C8C8CC" stroke-width="1"/>
-
-  <!-- Secondary cluster nodes -->
-  <circle cx="580" cy="50" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
-  <circle cx="580" cy="110" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
-  <circle cx="460" cy="50" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
-  <circle cx="460" cy="120" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
-  <circle cx="550" cy="140" r="6" fill="#F5F5F7" stroke="#ABABAF" stroke-width="1.5"/>
-
-  <!-- Primary center node — accent -->
-  <circle cx="520" cy="80" r="10" fill="#F5F5F7" stroke="#00A87A" stroke-width="2"/>
-  <circle cx="520" cy="80" r="4" fill="#00A87A"/>
+  <!-- Eyebrow micro-label -->
+  <text x="48" y="92" fill="#8B95A2" font-family="'JetBrains Mono', 'SF Mono', 'Menlo', monospace" font-size="11" font-weight="500" letter-spacing="3">MEMORY ENGINE  ·  v3.7</text>
 
   <!-- Wordmark -->
-  <text x="48" y="82" fill="#111111" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="38" font-weight="600" letter-spacing="-1">nox-mem</text>
+  <text x="48" y="182" fill="#0D1117" font-family="'Inter', 'Helvetica Neue', 'Arial', sans-serif" font-size="84" font-weight="700" letter-spacing="-3.5">nox-mem</text>
 
-  <!-- Separator -->
-  <line x1="48" y1="98" x2="340" y2="98" stroke="#D8D8DC" stroke-width="1"/>
+  <!-- Accent underline -->
+  <rect x="48" y="200" width="64" height="3" fill="#007458"/>
 
-  <!-- Tagline line 1 -->
-  <text x="48" y="126" fill="#111111" font-family="'Inter', 'Helvetica Neue', sans-serif" font-size="13" font-weight="300" letter-spacing="0.5">HYBRID MEMORY WITH SHADOW DISCIPLINE</text>
+  <!-- Slogan line 1 — body weight, primary text -->
+  <text x="48" y="246" fill="#3D4654" font-family="'Inter', 'Helvetica Neue', 'Arial', sans-serif" font-size="20" font-weight="400" letter-spacing="-0.3">Pain-weighted hybrid memory</text>
 
-  <!-- Tagline line 2 accent -->
-  <text x="48" y="148" fill="#00A87A" font-family="'Inter', 'Helvetica Neue', sans-serif" font-size="13" font-weight="300" letter-spacing="0.5">— YOURS BY DESIGN.</text>
+  <!-- Slogan line 2 — secondary phrase, lighter weight -->
+  <text x="48" y="274" fill="#6B7585" font-family="'Inter', 'Helvetica Neue', 'Arial', sans-serif" font-size="20" font-weight="300" letter-spacing="-0.3">with shadow discipline.</text>
 
-  <!-- Bottom metadata -->
-  <text x="48" y="182" fill="#C0C0C4" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="9" letter-spacing="1">SQLite · FTS5 · Gemini 3072d · RRF · KG · Shadow-mode</text>
+  <!-- Tagline — accent payoff -->
+  <text x="48" y="312" fill="#007458" font-family="'Inter', 'Helvetica Neue', 'Arial', sans-serif" font-size="16" font-weight="500" letter-spacing="0.4">— yours by design.</text>
+
+  <!-- Bottom metadata strip -->
+  <text x="48" y="358" fill="#A8B0BC" font-family="'JetBrains Mono', 'SF Mono', 'Menlo', monospace" font-size="10" letter-spacing="2">SQLite · FTS5 · sqlite-vec · Gemini 3072d · RRF · KG · shadow-mode</text>
+
+  <!-- ─────────────── RIGHT COLUMN: PAIN-WEIGHTED MEMORY BARS ─────────────── -->
+
+  <g>
+    <!-- Bars 1–8 (low pain, dark teal) -->
+    <rect x="640" y="294" width="14" height="34" fill="url(#painLow-l)"/>
+    <rect x="660" y="280" width="14" height="48" fill="url(#painLow-l)"/>
+    <rect x="680" y="304" width="14" height="24" fill="url(#painLow-l)"/>
+    <rect x="700" y="266" width="14" height="62" fill="url(#painLow-l)"/>
+    <rect x="720" y="288" width="14" height="40" fill="url(#painLow-l)"/>
+    <rect x="740" y="252" width="14" height="76" fill="url(#painLow-l)"/>
+    <rect x="760" y="276" width="14" height="52" fill="url(#painLow-l)"/>
+    <rect x="780" y="240" width="14" height="88" fill="url(#painLow-l)"/>
+
+    <!-- Bars 9–16 (mid pain, accent green) -->
+    <rect x="800" y="220" width="14" height="108" fill="url(#painMid-l)"/>
+    <rect x="820" y="232" width="14" height="96" fill="url(#painMid-l)"/>
+    <rect x="840" y="204" width="14" height="124" fill="url(#painMid-l)"/>
+    <rect x="860" y="248" width="14" height="80" fill="url(#painMid-l)"/>
+    <rect x="880" y="190" width="14" height="138" fill="url(#painMid-l)"/>
+    <rect x="900" y="216" width="14" height="112" fill="url(#painMid-l)"/>
+    <rect x="920" y="174" width="14" height="154" fill="url(#painMid-l)"/>
+    <rect x="940" y="200" width="14" height="128" fill="url(#painMid-l)"/>
+
+    <!-- Bar 17 — THE punctum: prod-outage memory, pain=1.0 -->
+    <rect x="960" y="92" width="14" height="236" fill="url(#painHigh-l)"/>
+    <circle cx="967" cy="84" r="3" fill="#E04A12"/>
+
+    <!-- Bars 18–24 — decay after spike -->
+    <rect x="980" y="186" width="14" height="142" fill="url(#painMid-l)"/>
+    <rect x="1000" y="210" width="14" height="118" fill="url(#painMid-l)"/>
+    <rect x="1020" y="226" width="14" height="102" fill="url(#painMid-l)"/>
+    <rect x="1040" y="258" width="14" height="70" fill="url(#painLow-l)"/>
+    <rect x="1060" y="272" width="14" height="56" fill="url(#painLow-l)"/>
+    <rect x="1080" y="284" width="14" height="44" fill="url(#painLow-l)"/>
+    <rect x="1100" y="296" width="14" height="32" fill="url(#painLow-l)"/>
+    <rect x="1120" y="306" width="14" height="22" fill="url(#painLow-l)"/>
+  </g>
+
+  <!-- Timeline ticks -->
+  <g stroke="#C0C7D2" stroke-width="1">
+    <line x1="647" y1="338" x2="647" y2="343"/>
+    <line x1="767" y1="338" x2="767" y2="345"/>
+    <line x1="887" y1="338" x2="887" y2="343"/>
+    <line x1="1007" y1="338" x2="1007" y2="345"/>
+    <line x1="1127" y1="338" x2="1127" y2="343"/>
+  </g>
+
+  <text x="640" y="360" fill="#A8B0BC" font-family="'JetBrains Mono', 'SF Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.5">t-90d</text>
+  <text x="1102" y="360" fill="#A8B0BC" font-family="'JetBrains Mono', 'SF Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.5">t-0</text>
+
+  <!-- Punctum annotation -->
+  <text x="975" y="80" fill="#E04A12" font-family="'JetBrains Mono', 'SF Mono', 'Menlo', monospace" font-size="10" font-weight="600" letter-spacing="1">pain=1.0</text>
+
+  <!-- ─────────────── HYBRID RETRIEVAL LATTICE OVERLAY ─────────────── -->
+
+  <g opacity="0.55" filter="url(#softGlow-l)">
+    <path d="M 670 130 L 686 146 L 670 162 L 654 146 Z" fill="none" stroke="#007458" stroke-width="1.3"/>
+    <path d="M 1095 130 L 1111 138 L 1111 154 L 1095 162 L 1079 154 L 1079 138 Z" fill="none" stroke="#007458" stroke-width="1.3"/>
+    <circle cx="887" cy="120" r="9" fill="#FFFFFF" stroke="#007458" stroke-width="1.3"/>
+    <line x1="881" y1="120" x2="893" y2="120" stroke="#007458" stroke-width="1.3"/>
+    <line x1="887" y1="114" x2="887" y2="126" stroke="#007458" stroke-width="1.3"/>
+    <line x1="686" y1="146" x2="878" y2="124" stroke="#007458" stroke-width="1"/>
+    <line x1="1079" y1="146" x2="896" y2="124" stroke="#007458" stroke-width="1"/>
+  </g>
+
+  <text x="654" y="184" fill="#8B95A2" font-family="'JetBrains Mono', 'SF Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.5">FTS5</text>
+  <text x="869" y="106" fill="#8B95A2" font-family="'JetBrains Mono', 'SF Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.5">RRF</text>
+  <text x="1079" y="184" fill="#8B95A2" font-family="'JetBrains Mono', 'SF Mono', 'Menlo', monospace" font-size="9" letter-spacing="1.5">GEMINI</text>
+
+  <!-- Vertical divider between columns -->
+  <line x1="600" y1="64" x2="600" y2="336" stroke="#D0D5DD" stroke-width="1"/>
 </svg>
