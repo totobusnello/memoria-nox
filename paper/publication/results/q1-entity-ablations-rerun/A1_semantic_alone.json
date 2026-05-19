@@ -1,0 +1,1629 @@
+{
+  "summary": {
+    "label": "A1_semantic_alone",
+    "toggles": {
+      "FTS_CLEARED": "1"
+    },
+    "n_queries": 100,
+    "fixture_dir": "/root/.openclaw/workspace/eval-data/g3-rerun-2026-05-19",
+    "endpoint": "http://127.0.0.1:18803/api/search",
+    "ndcg_at_10": 0.0,
+    "mrr": 0.0,
+    "recall_at_10": 0.0,
+    "precision_at_5": 0.0,
+    "mean_latency_ms": 1867.6415,
+    "p95_latency_ms": 2509.33,
+    "n_valid_queries": 100,
+    "wallclock_s": 186.78
+  },
+  "per_category": {
+    "single-hop": {
+      "n": 20,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    "multi-hop": {
+      "n": 20,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    "temporal": {
+      "n": 20,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    "open-domain": {
+      "n": 20,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    "adversarial": {
+      "n": 20,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    }
+  },
+  "per_style": {
+    "natural-language": {
+      "n": 50,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    "keyword": {
+      "n": 50,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    }
+  },
+  "per_query": [
+    {
+      "qid": "sh-000",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "What is fundo lombardia's role?",
+      "gold_chunk_ids": [
+        "fundo-lombardia::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1304.83,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-001",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "Isabela Cunha description",
+      "gold_chunk_ids": [
+        "isabela::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2512.77,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-002",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "What is Felipe Souza's role?",
+      "gold_chunk_ids": [
+        "felipe::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2512.78,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-003",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "a answer api role",
+      "gold_chunk_ids": [
+        "a-answer-api::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2506.82,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-004",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "Who is Bruno Lima?",
+      "gold_chunk_ids": [
+        "bruno::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2507.43,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-005",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "paper eval description",
+      "gold_chunk_ids": [
+        "paper-eval::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2507.49,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-006",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "Tell me about frooty.",
+      "gold_chunk_ids": [
+        "frooty::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2508.16,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-007",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "Gabriela Rocha role",
+      "gold_chunk_ids": [
+        "gabriela::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 875.37,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-008",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "Who is Eva Schmidt?",
+      "gold_chunk_ids": [
+        "eva::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2506.2,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-009",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "granix overview",
+      "gold_chunk_ids": [
+        "granix::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 348.08,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-010",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "What is Toto Busnello's role?",
+      "gold_chunk_ids": [
+        "toto::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2259.78,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-011",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "fii treviso description",
+      "gold_chunk_ids": [
+        "fii-treviso::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 463.66,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-012",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "What is nox supermem's role?",
+      "gold_chunk_ids": [
+        "nox-supermem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2507.09,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-013",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "Hugo Almeida overview",
+      "gold_chunk_ids": [
+        "hugo::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2180.0,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-014",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "What does Daniel Oliveira work on?",
+      "gold_chunk_ids": [
+        "daniel::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2502.38,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-015",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "galapagos ai role",
+      "gold_chunk_ids": [
+        "galapagos-ai::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1046.5,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-016",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "What is Carla Mendes's role?",
+      "gold_chunk_ids": [
+        "carla::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2502.45,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-017",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "openclaw vps role",
+      "gold_chunk_ids": [
+        "openclaw-vps::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 349.65,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-018",
+      "category": "single-hop",
+      "style": "natural-language",
+      "query": "What is nox mem's role?",
+      "gold_chunk_ids": [
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2505.03,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "sh-019",
+      "category": "single-hop",
+      "style": "keyword",
+      "query": "Ana Castro description",
+      "gold_chunk_ids": [
+        "ana::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 861.91,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-000",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "What is the relationship between toto and Granix and FII Treviso?",
+      "gold_chunk_ids": [
+        "toto::compiled",
+        "granix::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2505.32,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-001",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "ana link Granix platform and nox-mem",
+      "gold_chunk_ids": [
+        "ana::compiled",
+        "granix::compiled",
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2506.38,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-002",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "How is bruno connected to Galapagos AI and nox-mem retrieval research?",
+      "gold_chunk_ids": [
+        "bruno::compiled",
+        "galapagos-ai::compiled",
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1162.66,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-003",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "daniel link Frooty backend and Nox-Supermem product",
+      "gold_chunk_ids": [
+        "daniel::compiled",
+        "frooty::compiled",
+        "nox-supermem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2513.9,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-004",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "How is felipe connected to Nox-Supermem and nox-mem?",
+      "gold_chunk_ids": [
+        "felipe::compiled",
+        "nox-supermem::compiled",
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.61,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-005",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "hugo relation nox-mem and openclaw-vps",
+      "gold_chunk_ids": [
+        "hugo::compiled",
+        "nox-mem::compiled",
+        "openclaw-vps::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2304.41,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-006",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "What is the relationship between d40 qap pivot and the Q/A/P pivot and the paper eval?",
+      "gold_chunk_ids": [
+        "d40-qap-pivot::compiled",
+        "nox-mem::compiled",
+        "paper-eval::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2506.74,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-007",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "d44 stripe first relation Stripe-first model in Nox-Supermem",
+      "gold_chunk_ids": [
+        "d44-stripe-first::compiled",
+        "nox-supermem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2507.12,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-008",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "What is the relationship between d45 entity eval set and the entity eval set and paper \u00a75?",
+      "gold_chunk_ids": [
+        "d45-entity-eval-set::compiled",
+        "paper-eval::compiled",
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1122.15,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-009",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "toto link Granix and FII Treviso",
+      "gold_chunk_ids": [
+        "toto::compiled",
+        "granix::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 761.59,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-010",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "What is the relationship between ana and Granix platform and nox-mem?",
+      "gold_chunk_ids": [
+        "ana::compiled",
+        "granix::compiled",
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.76,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-011",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "bruno relation Galapagos AI and nox-mem retrieval research",
+      "gold_chunk_ids": [
+        "bruno::compiled",
+        "galapagos-ai::compiled",
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.45,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-012",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "What is the relationship between daniel and Frooty backend and Nox-Supermem product?",
+      "gold_chunk_ids": [
+        "daniel::compiled",
+        "frooty::compiled",
+        "nox-supermem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2509.33,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-013",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "felipe Nox-Supermem and nox-mem",
+      "gold_chunk_ids": [
+        "felipe::compiled",
+        "nox-supermem::compiled",
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2508.44,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-014",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "What is the relationship between hugo and nox-mem and openclaw-vps?",
+      "gold_chunk_ids": [
+        "hugo::compiled",
+        "nox-mem::compiled",
+        "openclaw-vps::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.19,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-015",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "d40 qap pivot link the Q/A/P pivot and the paper eval",
+      "gold_chunk_ids": [
+        "d40-qap-pivot::compiled",
+        "nox-mem::compiled",
+        "paper-eval::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.51,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-016",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "How is d44 stripe first connected to Stripe-first model in Nox-Supermem?",
+      "gold_chunk_ids": [
+        "d44-stripe-first::compiled",
+        "nox-supermem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.39,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-017",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "d45 entity eval set link the entity eval set and paper \u00a75",
+      "gold_chunk_ids": [
+        "d45-entity-eval-set::compiled",
+        "paper-eval::compiled",
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2508.72,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-018",
+      "category": "multi-hop",
+      "style": "natural-language",
+      "query": "How is toto connected to Granix and FII Treviso?",
+      "gold_chunk_ids": [
+        "toto::compiled",
+        "granix::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1963.97,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "mh-019",
+      "category": "multi-hop",
+      "style": "keyword",
+      "query": "ana link Granix platform and nox-mem",
+      "gold_chunk_ids": [
+        "ana::compiled",
+        "granix::compiled",
+        "nox-mem::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2279.91,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-000",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "What happened recently with daniel?",
+      "gold_chunk_ids": [
+        "daniel::timeline::2026-05-16::22166e032b"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.74,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-001",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "nox supermem this month",
+      "gold_chunk_ids": [
+        "nox-supermem::timeline::2026-05-15::80fe8f172f"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.55,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-002",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "What happened recently with buffer pool alias?",
+      "gold_chunk_ids": [
+        "buffer-pool-alias::timeline::2026-05-09::fee1ed37db",
+        "buffer-pool-alias::timeline::2026-04-27::0517bbebab"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.36,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-003",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "galapagos ai latest",
+      "gold_chunk_ids": [
+        "galapagos-ai::timeline::2026-05-14::5bf0088f58"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 701.84,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-004",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "What is the latest update on misc hn titles?",
+      "gold_chunk_ids": [
+        "misc-hn-titles::timeline::2026-05-13::a3957e4dca",
+        "misc-hn-titles::timeline::2026-04-30::12543048a2"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.44,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-005",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "rsync delete latest",
+      "gold_chunk_ids": [
+        "rsync-delete::timeline::2026-04-24::4d40e4157c"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 884.64,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-006",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "Any recent changes to d flash lite default this month?",
+      "gold_chunk_ids": [
+        "d-flash-lite-default::timeline::2026-05-12::eff9996b19"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.8,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-007",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "misc rrf k60 this month",
+      "gold_chunk_ids": [
+        "misc-rrf-k60::timeline::2026-05-11::b10b1a4974"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.34,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-008",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "Any recent changes to shadow mode ranking this month?",
+      "gold_chunk_ids": [
+        "shadow-mode-ranking::timeline::2026-05-17::f50fcd8f63",
+        "shadow-mode-ranking::timeline::2026-04-27::8759194bef"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 591.31,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-009",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "d41 five resolved this month",
+      "gold_chunk_ids": [
+        "d41-five-resolved::timeline::2026-05-18::ff38234351",
+        "d41-five-resolved::timeline::2026-05-17::838aa1f536"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.58,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-010",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "What happened recently with bruno?",
+      "gold_chunk_ids": [
+        "bruno::timeline::2026-05-16::ad3fc24b48",
+        "bruno::timeline::2026-04-24::3bea24d3c9"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1228.74,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-011",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "misc fts vanilla this month",
+      "gold_chunk_ids": [
+        "misc-fts-vanilla::timeline::2026-05-13::29b9b4ffad"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 835.0,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-012",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "What is the latest update on fundo lombardia?",
+      "gold_chunk_ids": [
+        "fundo-lombardia::timeline::2026-05-01::de52737edd",
+        "fundo-lombardia::timeline::2026-05-18::b22d75f8fc"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.62,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-013",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "fii treviso this month",
+      "gold_chunk_ids": [
+        "fii-treviso::timeline::2026-05-03::255a889fa9"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.55,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-014",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "What happened recently with isabela?",
+      "gold_chunk_ids": [
+        "isabela::timeline::2026-04-22::744cbe7d66",
+        "isabela::timeline::2026-05-08::573c223c5a"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.24,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-015",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "worktree leak latest",
+      "gold_chunk_ids": [
+        "worktree-leak::timeline::2026-04-25::030eda9a06"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 796.4,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-016",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "What is the latest update on openclaw vps?",
+      "gold_chunk_ids": [
+        "openclaw-vps::timeline::2026-05-17::dbd63706dd"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 942.49,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-017",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "d no offsite backup recent update",
+      "gold_chunk_ids": [
+        "d-no-offsite-backup::timeline::2026-05-10::3fe756e2db"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 899.76,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-018",
+      "category": "temporal",
+      "style": "natural-language",
+      "query": "What is the latest update on misc galapagos?",
+      "gold_chunk_ids": [
+        "misc-galapagos::timeline::2026-05-02::a0473ad99b"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.22,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "tp-019",
+      "category": "temporal",
+      "style": "keyword",
+      "query": "nox mem latest",
+      "gold_chunk_ids": [
+        "nox-mem::timeline::2026-05-10::f656169e9b"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2462.61,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-000",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "What lessons exist about SQLite corruption?",
+      "gold_chunk_ids": [
+        "sed-binary::compiled",
+        "validate-db-state::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 982.43,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-001",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "ranking shadow-mode reference",
+      "gold_chunk_ids": [
+        "shadow-mode-ranking::compiled",
+        "d-shadow-default::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2507.51,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-002",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "What is the model default for nox-mem?",
+      "gold_chunk_ids": [
+        "d-flash-lite-default::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2422.03,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-003",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "Stripe payments reference",
+      "gold_chunk_ids": [
+        "d44-stripe-first::compiled",
+        "d-stripe-no-affiliates::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 790.58,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-004",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "Lessons about cron environment variables",
+      "gold_chunk_ids": [
+        "env-source-cron::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2507.17,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-005",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "rsync delete reference",
+      "gold_chunk_ids": [
+        "rsync-delete::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.71,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-006",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "Decisions tied to Q/A/P pillars",
+      "gold_chunk_ids": [
+        "d40-qap-pivot::compiled",
+        "d41-five-resolved::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1049.81,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-007",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "off-site backup",
+      "gold_chunk_ids": [
+        "d-no-offsite-backup::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 341.92,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-008",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "How do we guard destructive ops?",
+      "gold_chunk_ids": [
+        "d-snapshot-mandatory::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.27,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-009",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "rrf k60",
+      "gold_chunk_ids": [
+        "misc-rrf-k60::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 354.57,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-010",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "What lessons exist about SQLite corruption?",
+      "gold_chunk_ids": [
+        "sed-binary::compiled",
+        "validate-db-state::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.7,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-011",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "ranking shadow-mode reference",
+      "gold_chunk_ids": [
+        "shadow-mode-ranking::compiled",
+        "d-shadow-default::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2513.41,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-012",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "What is the model default for nox-mem?",
+      "gold_chunk_ids": [
+        "d-flash-lite-default::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 776.27,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-013",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "Stripe payments",
+      "gold_chunk_ids": [
+        "d44-stripe-first::compiled",
+        "d-stripe-no-affiliates::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 401.72,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-014",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "Lessons about cron environment variables",
+      "gold_chunk_ids": [
+        "env-source-cron::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1219.41,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-015",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "rsync delete",
+      "gold_chunk_ids": [
+        "rsync-delete::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 373.56,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-016",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "Decisions tied to Q/A/P pillars",
+      "gold_chunk_ids": [
+        "d40-qap-pivot::compiled",
+        "d41-five-resolved::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1209.47,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-017",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "off-site backup memo",
+      "gold_chunk_ids": [
+        "d-no-offsite-backup::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.8,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-018",
+      "category": "open-domain",
+      "style": "natural-language",
+      "query": "How do we guard destructive ops?",
+      "gold_chunk_ids": [
+        "d-snapshot-mandatory::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2506.8,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "od-019",
+      "category": "open-domain",
+      "style": "keyword",
+      "query": "rrf k60 memo",
+      "gold_chunk_ids": [
+        "misc-rrf-k60::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1524.86,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-000",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "Who is Toto Bunsello?",
+      "gold_chunk_ids": [
+        "toto::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2506.91,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-001",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "nox mem hybird search",
+      "gold_chunk_ids": [
+        "nox-mem::compiled",
+        "nox-mem::frontmatter"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 915.9,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-002",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "What did Ana Castro lead recently?",
+      "gold_chunk_ids": [
+        "ana::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2505.49,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-003",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "Granixx co-founder",
+      "gold_chunk_ids": [
+        "granix::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 381.02,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-004",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "rsynk dlete dangr",
+      "gold_chunk_ids": [
+        "rsync-delete::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 791.52,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-005",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "paper \u00a75 ablation rationale",
+      "gold_chunk_ids": [
+        "paper-eval::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 987.93,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-006",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "Q3 latency numbers \u2014 measured?",
+      "gold_chunk_ids": [
+        "a-answer-api::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2505.47,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-007",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "Frooti subscription model",
+      "gold_chunk_ids": [
+        "frooty::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 706.85,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-008",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "Stripe-first vs hotmart decisn",
+      "gold_chunk_ids": [
+        "d44-stripe-first::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2506.37,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-009",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "Bruno Lima role gallapagos AI",
+      "gold_chunk_ids": [
+        "bruno::compiled",
+        "bruno::frontmatter"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 774.55,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-010",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "Who is Toto Bunsello?",
+      "gold_chunk_ids": [
+        "toto::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2502.8,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-011",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "nox mem hybird search",
+      "gold_chunk_ids": [
+        "nox-mem::compiled",
+        "nox-mem::frontmatter"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.27,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-012",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "What did Ana Castro lead recently?",
+      "gold_chunk_ids": [
+        "ana::compiled",
+        "ana::frontmatter"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2503.15,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-013",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "Granixx co-founder",
+      "gold_chunk_ids": [
+        "granix::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 360.69,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-014",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "rsynk dlete dangr",
+      "gold_chunk_ids": [
+        "rsync-delete::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2502.9,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-015",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "paper \u00a75 ablation rationale",
+      "gold_chunk_ids": [
+        "paper-eval::compiled",
+        "paper-eval::frontmatter"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 1460.62,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-016",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "Q3 latency numbers \u2014 measured?",
+      "gold_chunk_ids": [
+        "a-answer-api::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.18,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-017",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "Frooti subscription model",
+      "gold_chunk_ids": [
+        "frooty::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.06,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-018",
+      "category": "adversarial",
+      "style": "natural-language",
+      "query": "Stripe-first vs hotmart decisn",
+      "gold_chunk_ids": [
+        "d44-stripe-first::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2504.62,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    },
+    {
+      "qid": "ad-019",
+      "category": "adversarial",
+      "style": "keyword",
+      "query": "Bruno Lima role gallapagos AI",
+      "gold_chunk_ids": [
+        "bruno::compiled"
+      ],
+      "retrieved_chunk_ids": [],
+      "retrieval_ms": 2499.69,
+      "ndcg_at_10": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0,
+      "precision_at_5": 0.0
+    }
+  ]
+}
