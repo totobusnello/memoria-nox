@@ -1,0 +1,1414 @@
+{
+  "summary": {
+    "label": "FTS5_only_direct_on_eval_db",
+    "n": 100,
+    "ndcg_at_10_D1": 0.0,
+    "ndcg_at_10_D2": 0.0,
+    "mrr": 0.0,
+    "recall_at_10": 0.0,
+    "wallclock_s": 0.05
+  },
+  "per_category": {
+    "single-hop": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    "multi-hop": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    "temporal": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    "open-domain": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    "adversarial": {
+      "n": 20,
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    }
+  },
+  "per_query": [
+    {
+      "question_id": "conv-41::q33",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-41::D1:3",
+        "conv-41::D18:15",
+        "conv-41::D19:3"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q48",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-43::D18:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-50::q63",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-50::D16:13",
+        "conv-50::D16:4",
+        "conv-50::D16:18",
+        "conv-50::D16:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q52",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-42::D15:1",
+        "conv-42::D25:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-44::q29",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-44::D1:7",
+        "conv-44::D2:1",
+        "conv-44::D19:12"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-26::q15",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-26::D5:4",
+        "conv-26::D9:1",
+        "conv-26::D1:12",
+        "conv-26::D1:18"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q51",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-47::D5:4",
+        "conv-47::D19:7",
+        "conv-47::D30:14",
+        "conv-47::D24:1",
+        "conv-47::D24:3",
+        "conv-47::D8:20"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-26::q24",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-26::D7:22",
+        "conv-26::D5:4"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-49::q14",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-49::D3:3",
+        "conv-49::D5:5",
+        "conv-49::D23:15",
+        "conv-49::D22:12"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-41::q11",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-41::D7:5",
+        "conv-41::D6:5",
+        "conv-41::D27:8",
+        "conv-41::D21:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q19",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-42::D8:4",
+        "conv-42::D11:3"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q7",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-43::D1:18",
+        "conv-43::D3:2",
+        "conv-43::D14:16"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q79",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-42::D2:3",
+        "conv-42::D4:10",
+        "conv-42::D5:1",
+        "conv-42::D12:13",
+        "conv-42::D12:14"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-49::q6",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-49::D1:4",
+        "conv-49::D2:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-41::q15",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-41::D9:1",
+        "conv-41::D7:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q80",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-48::D10:20",
+        "conv-48::D29:26",
+        "conv-48::D29:30"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q26",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-47::D6:12",
+        "conv-47::D6:14",
+        "conv-47::D16:9",
+        "conv-47::D17:22"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q24",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-48::D4:14",
+        "conv-48::D14:3",
+        "conv-48::D14:15"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q34",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-47::D16:9",
+        "conv-47::D17:22"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q83",
+      "category": 1,
+      "category_name": "single-hop",
+      "gold_chunk_ids": [
+        "conv-42::D18:8",
+        "conv-42::D26:12",
+        "conv-42::D14:16"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q63",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-43::D26:23"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q55",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-47::D27:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-49::q75",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-49::D23:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-41::q34",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-41::D19:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q37",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-42::D19:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-50::q27",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-50::D16:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q4",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-47::D3:5"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q23",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-43::D7:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q45",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-42::D22:9"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-50::q0",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-50::D3:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q41",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-47::D19:12"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q12",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-43::D3:27"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-50::q69",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-50::D30:05"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q41",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-42::D22:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q72",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-42::D28:32"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-50::q44",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-50::D21:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q45",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-43::D18:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q43",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-42::D17:14",
+        "conv-42::D22:9"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q13",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-42::D6:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q69",
+      "category": 2,
+      "category_name": "multi-hop",
+      "gold_chunk_ids": [
+        "conv-43::D28:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-49::q27",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-49::D5:7"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q5",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-48::D1:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q66",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-43::D27:19",
+        "conv-43::D27:21"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-41::q8",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-41::D5:5"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-50::q13",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-50::D7:11"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q8",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-43::D3:15",
+        "conv-43::D25:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q70",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-43::D1:18",
+        "conv-43::D27:21",
+        "conv-43::D28:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-49::q31",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-49::D9:1 D4:4 D4:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-50::q7",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-50::D4:17"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-41::q45",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-41::D24:3",
+        "conv-41::D7:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-50::q37",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-50::D18:7",
+        "conv-50::D16:2",
+        "conv-50::D7:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-26::q64",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-26::D15:28"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-41::q41",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-41::D22:15"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-26::q59",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-26::D14:19",
+        "conv-26::D12:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q30",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-47::D16:9",
+        "conv-47::D16:11"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-26::q22",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-26::D6:9"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-41::q64",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-41::D32:14",
+        "conv-41::D5:8",
+        "conv-41::D11:10",
+        "conv-41::D27:4"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q75",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-48::D27:12"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-44::q53",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-44::D2:18",
+        "conv-44::D3:1",
+        "conv-44::D5:7",
+        "conv-44::D8:27"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q34",
+      "category": 3,
+      "category_name": "temporal",
+      "gold_chunk_ids": [
+        "conv-43::D11:19",
+        "conv-43::D26:1",
+        "conv-43::D27:26"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-30::q65",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-30::D12:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q159",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-43::D26:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q107",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-48::D4:36"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-26::q127",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-26::D14:17"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q106",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-48::D4:21"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-44::q87",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-44::D14:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q176",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-42::D25:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q182",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-48::D28:15"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q81",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-43::D3:27"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q90",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-48::D4:21",
+        "conv-48::D4:23"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q111",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-47::D19:7"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-30::q78",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-30::D17:7"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q95",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-42::D27:22",
+        "conv-42::D27:23"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-26::q118",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-26::D10:14"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-30::q76",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-30::D15:18",
+        "conv-30::D15:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q123",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-48::D10:17"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-41::q83",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-41::D9:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-50::q127",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-50::D24:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q140",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-47::D28:3"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q139",
+      "category": 4,
+      "category_name": "open-domain",
+      "gold_chunk_ids": [
+        "conv-48::D15:18"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-44::q137",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-44::D14:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q157",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-47::D11:5"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q238",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-43::D27:28"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q223",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-48::D21:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q151",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-47::D5:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-30::q82",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-30::D1:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-30::q103",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-30::D18:2"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-48::q219",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-48::D19:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-49::q192",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-49::D24:17"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q214",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-42::D9:3"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-42::q249",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-42::D27:23"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q152",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-47::D6:6"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q176",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-47::D24:4"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-49::q194",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-49::D24:19"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-44::q146",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-44::D22:1"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-47::q162",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-47::D16:8"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q196",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-43::D8:16"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q198",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-43::D8:22"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-41::q157",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-41::D8:4"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    },
+    {
+      "question_id": "conv-43::q215",
+      "category": 5,
+      "category_name": "adversarial",
+      "gold_chunk_ids": [
+        "conv-43::D15:32",
+        "conv-43::D15:33"
+      ],
+      "retrieved_chunk_ids": [],
+      "ndcg_at_10_D1": 0.0,
+      "ndcg_at_10_D2": 0.0,
+      "mrr": 0.0,
+      "recall_at_10": 0.0
+    }
+  ]
+}
