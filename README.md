@@ -140,7 +140,16 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 
 ## Comparison
 
-The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md). It is gated on the Q4 sprint completing &mdash; we will publish numbers, not adjectives. The six-axis differentiation that we can speak to today, with code in the repo to back each line:
+The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md), now with **production-path Q1 verified numbers** (+112% nDCG@10 over FTS5 baseline, 2026-05-18). The seven-axis differentiation:
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/readme/comparison-chart-dark.svg">
+    <img alt="memoria-nox vs mem0/Letta/agentmemory/Memanto on 7 axes: hybrid retrieval, open-source, self-hosted zero-daemon, provider autonomy, production-verified numbers, shadow discipline, pain weighting — nox-mem renders as a full heptagon (full coverage); competitors collapse asymmetrically" src="assets/readme/comparison-chart-light.svg" width="900">
+  </picture>
+</p>
+
+The two axes with **zero coverage in the memory-systems literature** &mdash; **pain weighting** and **shadow discipline** &mdash; are the primary novelty claims of the paper. nox-mem owns both exclusively.
 
 | Capability | mem0 | MemGPT/Letta | A-MEM | LangChain Memory | **nox-mem** |
 |---|---|---|---|---|---|
