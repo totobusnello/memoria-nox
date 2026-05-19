@@ -2,6 +2,86 @@
 
 ---
 
+## 🚨 INCIDENT 2026-05-19 12:38 BRT — wipe de ~5828 chunks legacy + restore completo
+
+> **Atualizado:** 2026-05-19 ~15:00 BRT — **Wipe massivo descoberto via canary A4 (Forge). Root cause provável: ingest do entity-flavored eval set (G3 ablation, PR #142 harness) cruzou pro nox-mem.db PRINCIPAL em vez do DB temp isolado. Restore concluído via snapshot `anomaly-1-smoke-test-main-20260519144716-*.db` → chunks back to 68.995. Sanitize fix (PR #140) precisou ser re-deployed pós-restore pois src/search.ts no VPS ficou stale. Postmortem agent dispatched pra cravar culprit.**
+
+### Timeline (UTC + BRT)
+
+| UTC | BRT | Evento |
+|---|---|---|
+| 14:47:23 | 11:47:23 | Anomaly-1 smoke test (ops_audit #64 success) — última op limpa registrada |
+| 15:11:05 | 12:11:05 | Sanitize fix deploy (PR #140) — `src/search.ts` updated, dist rebuilt |
+| 15:21:00 | 12:21:00 | G3 agent dispatched (com instrução de usar DB temp `/tmp/entity-eval.db`) |
+| 15:38:00 | 12:38:00 | **WIPE — 500 chunks com `created_at` uniforme no main DB** (bate exato com tamanho entity corpus) |
+| 15:45:01 | 12:45:01 | Canary A4 FAIL (Forge alerta) |
+| 15:47:01 | 12:47:01 | Vector index empty → fallback FTS5 |
+| ~17:30 | ~14:30 | Forge reporta investigação detalhada |
+| 17:55 | 14:55 | Restore disparado |
+| ~18:00 | ~15:00 | chunks back to 68.995, sanitize re-deployed |
+
+### Estado pós-restore (verificado)
+
+| Métrica | Valor |
+|---|---|
+| chunks total | **68.995** (recuperado) |
+| vectorCoverage | embedded 68.983 / total 68.995 / orphans **0** |
+| sections | 183 compiled / 183 frontmatter / 383 timeline / 68.246 legacy |
+| service nox-mem-api | active |
+| sanitize fix em dist | ✅ Unicode whitelist active (re-deploy necessário) |
+| smoke search NL com `?` | ✅ 3 results returning |
+| KG | 15.612 entities + 21.518 relations preservados |
+
+### Restore procedure executada
+
+```bash
+systemctl stop nox-mem-api
+mkdir -p /var/forensic/nox-mem-2026-05-19-wipe
+mv $NM/nox-mem.db{,-wal,-shm} /var/forensic/...   # preserva evidência
+cp /var/backups/nox-mem/pre-op/anomaly-1-smoke-test-main-20260519144716-1551241-*.db \
+   $NM/nox-mem.db
+chown root:root + chmod 0644
+systemctl start nox-mem-api
+# validate via /api/health → chunks=68995 ✓
+# re-deploy sanitize fix (src/search.ts stale post restore)
+```
+
+### Forensic preservado em `/var/forensic/nox-mem-2026-05-19-wipe/`
+
+- `nox-mem.db.post-wipe` (1.2GB)
+- `nox-mem.db-wal` (1.2GB)
+- `nox-mem.db-shm` (1.8MB)
+
+Postmortem agent investigando culprit exato (harness `entity_ablation_eval.py` falta `NOX_DB_PATH` override? G3 orchestrate.sh herdou env vazio? etc).
+
+### Hipóteses do culprit (a confirmar via postmortem)
+
+| H | Descrição | Evidência |
+|---|---|---|
+| H1 | Harness `entity_ablation_eval.py` chama `nox-mem ingest` sem `NOX_DB_PATH` override | Forte (default cai pra main DB env) |
+| H2 | G3 orchestrate.sh herdou env vazio | Plausível (set -a precisa explicit) |
+| H3 | Bug em `entity_flavored_eval_set.py` (gerador escreveu em DB errado) | Improvável (agent G2 reportou offline smoke) |
+| H4 | Race condition em hooks/inotifywait | Improvável (timestamps batem com G3 dispatch) |
+| H5 | Trigger anomaly-1 fix (mudança em op-audit.ts) introduziu bug | Improvável (fix passou em smoke test) |
+| H6 | Ablation loop rodou `reindex/consolidate` no main | Plausível (auditria bypass durante period) |
+
+### Lições preliminares (memórias a salvar pós postmortem)
+
+1. **`NOX_DB_PATH` guard mandatório em qualquer eval harness** — fail-closed: se ausente OU resolve pro main DB sem `--allow-prod` flag, abort
+2. **Symlink-protected wrapper** `nox-mem-eval` que sempre força `NOX_DB_PATH=/tmp/<uuid>.db`
+3. **Audit ops bypass detection** — toda mudança em chunks que NÃO passou por withOpAudit deve disparar alert (extender canary A4)
+4. **Snapshot retention é crítico** — `withOpAudit` snapshot do smoke test foi o que salvou hoje (graças à frequência de smoke tests + retention 7d)
+
+### Pendências críticas (não-bloqueantes, todas agendadas)
+
+- **PR postmortem** rodando — cravará root cause + fix de isolation
+- **G3 ablation final** — re-rodar **APÓS** fix de isolation, com DB explicitamente isolado
+- **PR #137 close + #143 + #144 review** — fica pra você quando puder
+- **Audit similar bugs** em outros eval scripts/tools (graphify, kg-extract, consolidate)
+- **Update visual identity** com headline canonical (+100.6% D2) — aguarda G3 re-run
+
+---
+
 ## 🌅 MORNING 2026-05-19 — Privacy deploy + ablation E + headline canonical revisado
 
 > **Atualizado:** 2026-05-19 ~11:30 BRT — **Morning alert (vectorCoverage orphans=1) resolvido. Swarm de 6 blocos paralelos. PR #136 (privacy hook ingest-entity) + #138 (Q2 batch parallel) merged. PR #137 (+112% atribuição) aberto pra Toto ler. Headline canonical pivota pra +100.6% (fórmula D2 standard TREC). Ablation real B/C/D rodando. Q2 full n=100 blocked (key local missing, vai rodar VPS).**
