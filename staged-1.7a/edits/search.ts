@@ -72,7 +72,15 @@ const SECTION_BOOST: Record<string, number> = {
 
 // Module-load env flag snapshot (avoids per-chunk process.env read).
 const DISABLE_TYPE_BOOST = process.env.NOX_DISABLE_TYPE_BOOST === "1";
-const DISABLE_TIER_BOOST = process.env.NOX_DISABLE_TIER_BOOST === "1";
+// tier_boost DEFAULT DISABLED per G4 ablation (2026-05-19):
+//   A6 (tier only) = 0.4616 nDCG@10 < A0 (no boosts) = 0.4817.
+// Core chunks (3.96% of corpus, memory-system internals) over-promote and push
+// golden hits down. Opt-in via NOX_ENABLE_TIER_BOOST=1; legacy
+// NOX_DISABLE_TIER_BOOST=1 honored as redundant (preserves back-compat).
+// See docs/audits/2026-05-19-salience-distribution-audit.md.
+const DISABLE_TIER_BOOST =
+  process.env.NOX_DISABLE_TIER_BOOST === "1" ||
+  process.env.NOX_ENABLE_TIER_BOOST !== "1";
 const DISABLE_SOURCE_TYPE_BOOST = process.env.NOX_DISABLE_SOURCE_TYPE_BOOST === "1";
 const DISABLE_SECTION_BOOST = process.env.NOX_DISABLE_SECTION_BOOST === "1";
 const DISABLE_RECENCY_BOOST = process.env.NOX_DISABLE_RECENCY_BOOST === "1";

@@ -145,14 +145,78 @@ export interface SalienceInput {
   source_date?: string | null;
   created_at?: string | null;
   last_accessed_at?: string | null;
+  /** Binary used/unused signal (introduced 2026-05-19 salience-additive refactor) */
+  access_count?: number | null;
+}
+
+// ─── Additive weights (evidence-based, audit 2026-05-19) ──────────────────────
+//
+// Multiplicative formula `recency × pain × importance` concentrated 99.7% chunks
+// in the [0.05-0.40] band. Audit (docs/audits/2026-05-19-salience-distribution-audit.md)
+// revealed pain (90.67% = default 0.2) and recency (99.76% in [7-30d] post-restore)
+// are CONSTANT signals — multiplying by a constant just rescales without
+// information gain. Only `importance` (bimodal 74% low / 17% high) is alive
+// as a continuous signal; `access_count` (87% zero / 13% accessed) is a strong
+// binary signal that the previous formula ignored entirely.
+//
+// Additive formulation captures live signals proportionally and never
+// zero-outs when any single field is NULL/default.
+//
+// Weights tuned to mirror tier-manager threshold semantics (0.7 / 0.4 / 0.15)
+// so `classifySalience` still partitions chunks meaningfully.
+
+const W_IMPORTANCE = 0.55; // PRIMARY live signal
+const W_RECENCY = 0.15;     // dampened (homogeneous corpus age post-restore)
+const W_PAIN = 0.10;        // dampened (90% default value)
+const W_ACCESS = 0.20;      // binary used/unused signal
+
+/**
+ * Access-count component. Maps 0 → 0, log-saturating toward 1.0 at ~1000 accesses.
+ */
+export function accessCountComponent(access_count: number | null | undefined): number {
+  if (access_count === null || access_count === undefined || !Number.isFinite(access_count)) {
+    return 0;
+  }
+  if (access_count <= 0) return 0;
+  return clamp01(Math.log1p(access_count) / Math.log(1000));
 }
 
 /**
  * Pure salience computation. Returns a number in [0, 1].
  * Does NOT consult NOX_SALIENCE_MODE — that gating lives in the caller (search.ts),
  * so this function stays pure and testable.
+ *
+ * v2 (2026-05-19): additive evidence-weighted formula.
+ *   See docs/audits/2026-05-19-salience-distribution-audit.md for rationale.
+ *   Previous multiplicative formula is preserved at `calculateSalienceLegacy`
+ *   for ablation comparison and shadow-discipline regression detection.
  */
 export function calculateSalience(chunk: SalienceInput, nowMs: number = Date.now()): number {
+  const retention = resolveRetentionDays(chunk.retention_days, chunk.chunk_type);
+  const recency = recencyComponent(
+    chunk.source_date ?? chunk.created_at,
+    chunk.last_accessed_at,
+    retention,
+    nowMs,
+  );
+  const pain = painComponent(chunk.pain);
+  const importance = importanceComponent(chunk.chunk_type, chunk.importance);
+  const access = accessCountComponent(chunk.access_count);
+
+  return clamp01(
+    W_IMPORTANCE * importance +
+      W_RECENCY * recency +
+      W_PAIN * pain +
+      W_ACCESS * access,
+  );
+}
+
+/**
+ * Legacy multiplicative formula. Retained for ablation comparison only.
+ * DO NOT USE in production scoring paths — proven to concentrate 99.7%
+ * of chunks in a narrow dead-range (G4 ablation 2026-05-19).
+ */
+export function calculateSalienceLegacy(chunk: SalienceInput, nowMs: number = Date.now()): number {
   const retention = resolveRetentionDays(chunk.retention_days, chunk.chunk_type);
   const recency = recencyComponent(
     chunk.source_date ?? chunk.created_at,
@@ -171,6 +235,22 @@ export function calculateSalience(chunk: SalienceInput, nowMs: number = Date.now
  * staged patch lands on top of the VPS module graph.
  */
 export const computeSalience = calculateSalience;
+
+/**
+ * Classify salience score into a tier action (for /api/health.sectionDistribution).
+ * Reconstructed from tier-manager.ts usage 2026-05-19 hotfix — pre-A `classifySalience`
+ * was not preserved in PR #148 salience.ts rewrite; this restores backwards-compat.
+ *   promote: score >= 0.7  (candidate for tier promotion if not core)
+ *   retain:  0.4 <= score < 0.7
+ *   review:  0.15 <= score < 0.4
+ *   archive: score < 0.15
+ */
+export function classifySalience(score: number): "promote" | "retain" | "review" | "archive" {
+  if (score >= 0.7) return "promote";
+  if (score >= 0.4) return "retain";
+  if (score >= 0.15) return "review";
+  return "archive";
+}
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
 
