@@ -2,6 +2,60 @@
 
 ---
 
+## 🌌 LATE NIGHT 2026-05-20 — 28 PRs + Spike V2 WIN +10.37%
+
+> **Atualizado:** 2026-05-20 ~19h BRT. **Spike v2 (PR #181) com Option B (keyword anchor + confidence tiers) cravou +10.37% vs baseline em Q105-Q110 (vs v1 -34% regressão). Q105/Q106 (gold maio) protegidos por confidence=0.3 limit. Ready pra deploy shadow 7d em prod assim que G9 ablation (#63 background) terminar contra g5.db prod 68k.**
+
+### Spike v2 cravado (PR #181)
+
+Re-smoke vs Q105-Q110 com PATCH 2 v2 (keyword anchor 2-stage) + PATCH 3 v2 (confidence tiers):
+
+| Query | v1 (#176) Δ | **v2 Δ** | v2 rank |
+|---|---|---|---|
+| Q105 (gold maio) | **−0.3562** ❌ | **0.0000** ✅ | 6→6 |
+| Q106 (gold maio) | **−0.3869** ❌ | **0.0000** ✅ | 5→5 |
+| Q107 (gap fix) | +0.0438 | **+0.1131** ✅ | 5→3 |
+| Q108 | 0.0000 | 0.0000 | 13→11 |
+| Q109 (month_year) | +0.0229 | **+0.0535** ✅ | 7→5 |
+| Q110 | +0.0714 | +0.0179 | 8→7 |
+| **Média** | **−34.01%** ❌ | **+10.37%** ✅ | — |
+
+### Por que v2 funcionou (3 fatores)
+
+1. **Stage A regex direto** ("em abril 2026") captura intent explícito → confidence 0.8
+2. **Stage B median ≠ mode** → anchors variados, sem self-reinforce
+3. **Confidence 0.3 em stage B** → boost limitado, gold em maio não é ultrapassado
+
+Memory `[[temporal-spike-v2-win-2026-05-20]]` saved.
+
+### Decisão deploy v2
+
+**Shadow-mode 7d primeiro:**
+1. scp `temporal-retrieval.ts` v2 → VPS src/ (após G9 #63 terminar)
+2. Restart nox-mem-api (D49 phase 2 drop-in já ativa NOX_TEMPORAL_PATH=shadow)
+3. Cron scrape diário continua coletando — agora com v2 telemetry
+4. Em 7 dias: D50 com numbers reais (Q105-Q110 smoke + shadow real)
+
+### Cumulative day final — 28 PRs
+
+| Wave | PRs |
+|---|---|
+| Morning #154-#159 | 6 |
+| Midday #160-#162 | 3 |
+| Afternoon #163-#168 | 6 |
+| Early evening #167-#172 | overlap |
+| Night #170-#181 | 12 (#170 + #171 + #172 + #173 + #174 + #175 + #176 + #177 + #178 + #179 + #180 + #181) |
+
+Único agent restante: #63 G9 ablation g5.db prod 68k.
+
+### Pendings finais
+
+1. **Aguardar G9 #63** — decide se redundância section/source_type vale em prod
+2. **Deploy v2 em prod** (após G9 terminar) — shadow continues, agora capturando v2 telemetry
+3. **D50 decision** em 7d com shadow baseline real
+
+---
+
 ## 🌑 NIGHT 2026-05-20 — 24 PRs + G8 cravado SOURCE_TYPE_BOOST LIVE
 
 > **Atualizado:** 2026-05-20 ~17h30 BRT. **24 PRs merged em main (cumulative #154-#177). G8 ablation cravou que SOURCE_TYPE_BOOST está LIVE (+2.66% A5 vs A0) mas EMPILHADO é redundante (-0.81% A8 vs A10). D49 phase 2 baseline rodando + cron scrape automation cravada. Memory housekeeping batch fix done. Stack pronto pra G9 contra g5.db + trim values experiment.**
