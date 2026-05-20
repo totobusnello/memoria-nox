@@ -58,3 +58,9 @@
 {"query_id": 102, "query": "como auditar quem acessou o que", "expected_chunk_ids": [], "difficulty": "hard", "category": "security"}
 {"query_id": 103, "query": "qual modelo de IA é usado pra busca", "expected_chunk_ids": [117222, 115961, 147822], "difficulty": "easy", "category": "entity"}
 {"query_id": 104, "query": "como medir se a busca está boa", "expected_chunk_ids": [116468], "difficulty": "medium", "category": "concept"}
+{"query_id": 105, "query": "quando o arXiv preprint do paper nox-mem foi planejado publicar", "expected_chunk_ids": [216210], "difficulty": "medium", "category": "temporal"}
+{"query_id": 106, "query": "quando o OpenClaw upgrade zero-downtime 7 critical fixes foi feito", "expected_chunk_ids": [216200], "difficulty": "medium", "category": "temporal"}
+{"query_id": 107, "query": "data em que a KG migration Ollama para Gemini foi completada nox-mem", "expected_chunk_ids": [216195], "difficulty": "medium", "category": "temporal"}
+{"query_id": 108, "query": "em que data o corpus do nox-mem triplicou de 20k para 60k chunks", "expected_chunk_ids": [216198], "difficulty": "hard", "category": "temporal"}
+{"query_id": 109, "query": "quando o active-memory foi migrado para Gemini flash lite em abril 2026", "expected_chunk_ids": [216192], "difficulty": "medium", "category": "temporal"}
+{"query_id": 110, "query": "quando a search quality e core memory quality foram melhoradas no nox-mem", "expected_chunk_ids": [216193], "difficulty": "medium", "category": "temporal"}
