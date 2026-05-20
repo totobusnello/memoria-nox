@@ -278,7 +278,17 @@ The G8 ablation (2026-05-20, PR #177) re-ingested an isolated `entity-eval-v2.db
 | A8 (full canonical) | 0.5798 | +20.4% | full stack |
 | A10 (full minus source_type) | 0.5845 | +21.4% | source_type *removed* from full stack |
 
-A5 > A0 by +2.66% empirically validates that `SOURCE_TYPE_BOOST` contributes to ranking when source_type values match the map keys. However, A8 < A10 by −0.81% reveals **redundant double-boost** when `section_boost` (e.g., `compiled = 2.0` for entity-file truth sections) and `SOURCE_TYPE_BOOST` (e.g., `entity = 2.0` for the same chunks) stack on identical chunks, over-promoting at the cost of top-K diversity. Per-category, the redundancy manifests as a −3.5 pp regression on open-domain queries and a +1.4 pp gain on multi-hop. The G9 ablation (planned, against the prod-flavored `g5.db` 68k corpus) will validate whether this redundancy persists at production scale; if confirmed, the resolution is either weight-tuning (`entity 2.0 → 1.3`, `lesson 1.8 → 1.2`) or mutual-exclusion logic (suppress `source_type_boost` when `section_boost` is already active on the same chunk).
+A5 > A0 by +2.66% empirically validates that `SOURCE_TYPE_BOOST` contributes to ranking when source_type values match the map keys. However, A8 < A10 by −0.81% reveals **redundant double-boost** when `section_boost` (e.g., `compiled = 2.0` for entity-file truth sections) and `SOURCE_TYPE_BOOST` (e.g., `entity = 2.0` for the same chunks) stack on identical chunks, over-promoting at the cost of top-K diversity. Per-category, the redundancy manifests as a −3.5 pp regression on open-domain queries and a +1.4 pp gain on multi-hop.
+
+The **G9 ablation** (2026-05-20, against the prod-flavored `g5.db` 68k corpus, PR planned) **reproduces and amplifies** both findings — at production scale the boost contribution and the redundancy are both **5× larger in magnitude** than in the synthetic G8 set:
+
+| Config | G8 (n=500) | G9 (n=68,995) | Δ G9 magnitude vs G8 |
+|---|---|---|---|
+| A0 (no boosts) | 0.4816 | 0.4108 | smaller baseline (prod diversity) |
+| **A5 (source_type only)** | **+2.66% vs A0** | **+14.2% vs A0** | **5× larger** |
+| A8 vs A10 (redundancy) | **−0.81%** | **−2.6%** | **3× larger** |
+
+The G9 data **structurally validates** the resolution path of mutual-exclusion logic (PR #182, merged 2026-05-20): when a chunk has `section ∈ {compiled, frontmatter, timeline}` populated (entity-file structural metadata), the `source_type_boost` is gated to `0` to prevent stacking on top of `section_boost`. The mutex is rollback-gated via `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1`, and the G10 ablation (in flight) measures whether the mutex preserves the A10-equivalent ranking (≥ 0.5530 in G9 vs 0.5387 A8 without mutex).
 
 ### 5.6 Honest characterization
 
