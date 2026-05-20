@@ -165,7 +165,9 @@ const HIGH_PAIN_PATTERN =
   /\b(incident|incidente|outage|breach|critical|cr[íi]tic[ao]|emergency|emerg[êe]ncia|prod[\.\s]?down|sev[\s\-]?[0-2]|p0\b|severity[\s\-]?(high|critical))\b/i;
 
 export function inferPain(chunk_type: string | null | undefined, content: string | null | undefined): number {
-  const base = (chunk_type && PAIN_BY_TYPE[chunk_type]) ?? FALLBACK_PAIN;
+  const base: number = chunk_type
+    ? (PAIN_BY_TYPE[chunk_type] ?? FALLBACK_PAIN)
+    : FALLBACK_PAIN;
   if (content && HIGH_PAIN_PATTERN.test(content)) {
     return clamp01(base + 0.5);
   }

@@ -41,20 +41,68 @@ const RECENCY_BOOST_DELTA_SEMANTIC = 0.2; // was *1.2
 
 // ── Source-attribution boost ──────────────────────────────────────────────────
 //
-// G3 audit (2026-05-19, n=68,995 chunks in prod):
-//   NULL:     67,949 (98.5%)
-//   external: 1,046 (1.5%)
+// G3 audit (2026-05-19, n=68,995 chunks in prod): 98.48% NULL, 1.52% external.
+// G5 V3 ablation A5 (2026-05-19) confirmed SOURCE_TYPE_BOOST inert because the
+// only live key was `external` (1.5%) — A10 (full minus source_type) tied A8
+// canonical at 0.6237, proving the map contributed 0%.
 //
-// The legacy keys `user_statement` / `compiled` / `timeline` from staged-1.7a do
-// NOT exist in the live corpus — they came from a planning doc that never landed
-// in the ingest pipeline (caused SOURCE_TYPE_BOOST to resolve to 1.0 in 100% of
-// lookups). We keep them for forward-compat (they activate automatically when
-// the ingest path lands) and add the live key `external` with a small penalty.
+// Post-backfill state (2026-05-19, audit_id=118, via PR #151):
+//   note          ~31000  (~46%) — generic .md catch-all
+//   personal-doc  ~23000  (~34%) — faturamento, contratos, planilhas
+//   ocr-cache     ~11000  (~16%) — scan artifacts, low signal
+//   entity            749  (1.10%) — curated entity files (compiled/frontmatter/timeline)
+//   project-doc       560  (0.82%) — project planning docs
+//   session          small         — Cipher/Atlas/Boris/etc session checkpoints
+//   skill            small         — Claude Code skill defs
+//   command          small         — slash command defs
+//   lesson           small         — retrospective lessons learned
+//   legal-template   small         — disputes/contracts templates
+//   external         1046  (1.52%) — preserved (web/external content)
+//   other            residual      — unclassified fallback
+//
+// Calibration rationale (signal-to-noise × curation):
+//   2.0    entity        — highest curation, hand-authored truth
+//   1.8    lesson        — distilled retrospective, dense signal/token
+//   1.5    skill         — Claude Code skill definitions (curated)
+//   1.4    project-doc   — project planning (curated, scoped)
+//   1.4    command       — slash command defs (curated)
+//   1.3    legal-template — legal templates (curated, low-volume)
+//   1.2    personal-doc  — faturamento/contratos (relevant, heterogeneous)
+//   1.0    session       — checkpoints (mixed signal)
+//   1.0    note          — generic .md baseline
+//   0.8    external      — web/external slight penalty (preserved)
+//   0.7    other         — unclassified fallback penalty
+//   0.7    ocr-cache     — scan artifacts, low signal-per-token (conservative)
+//
+// `ocr-cache` deliberately set to 0.7 (NOT 0.5 as a first instinct would
+// suggest) per PR #154 code-review MEDIUM: ocr-cache is 16% of corpus and we
+// have NO empirical evidence (pre-deploy) that −0.5 is safe in the live mix —
+// a deeper penalty risks demoting golden hits backed by faturamento PDFs that
+// fell through to OCR. Treat 0.7 as the conservative landing; a G6 ablation
+// (post next eval cycle) can tighten to 0.5 if it proves net-positive on
+// goldens. Same defensive posture as tier_boost default-off (PR #150).
+//
+// Forward-compat: `user_statement` retained — legitimate ingest path that
+// hasn't landed yet (planning doc lineage). `compiled` / `timeline` removed
+// from this map (2026-05-20, code-review LOW #2) — those are V10 `section`
+// column values, NOT source_type values; keeping them here was confusing
+// and they're already covered by SECTION_BOOST below.
 const SOURCE_TYPE_BOOST: Record<string, number> = {
-  user_statement: 2.0, // forward-compat: dead-by-corpus today
-  compiled: 1.5,        // forward-compat: dead-by-corpus today
-  timeline: 1.0,        // forward-compat: neutral
-  external: 0.8,        // ACTIVE: web/external content slight penalty
+  // Active keys (post-backfill 2026-05-19)
+  entity: 2.0,
+  lesson: 1.8,
+  skill: 1.5,
+  "project-doc": 1.4,
+  command: 1.4,
+  "legal-template": 1.3,
+  "personal-doc": 1.2,
+  session: 1.0,
+  note: 1.0,
+  external: 0.8,
+  other: 0.7,
+  "ocr-cache": 0.7,
+  // Forward-compat (ingest path planned but not landed):
+  user_statement: 2.0,
 };
 
 // ── Section boost (V10 schema, populated by ingestEntityFile) ─────────────────
