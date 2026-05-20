@@ -18,6 +18,12 @@
 #   3 — HTTP API falhou
 #
 # Dependências: ping, ssh, curl, jq (todos presentes em Mac + Linux por padrão)
+#
+# PATH normalization: cron environment vem com PATH=/usr/bin:/bin (sem /sbin),
+# o que faz `ping` não ser encontrado (Mac: /sbin/ping). Garantimos PATH
+# completo aqui pra script funcionar idêntico em terminal e cron.
+
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 
 set -euo pipefail
 
