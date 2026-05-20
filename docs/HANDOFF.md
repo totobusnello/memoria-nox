@@ -2,6 +2,70 @@
 
 ---
 
+## 🌃 EARLY EVENING 2026-05-20 — Next-session pendings 5/6 closed + G7 cravado
+
+> **Atualizado:** 2026-05-20 ~15h30 BRT. **Tocou os 6 pendings da próxima sessão na paralela em ~1h30. 5/6 closed: G7 cravado (formula v2 neutra), D49 phase 1 deployed (shadow telemetry ativa), 6 temporal queries Q105-Q110 cravadas (rank 5-13), cron healthcheck instalado, CLAUDE.md push limpo. Único deferred: re-ingest entity-eval-v2.db (caro, próxima sessão dedicada).**
+
+### Pendings da próxima sessão — status
+
+| # | Item | Status | Output |
+|---|---|---|---|
+| 1 | G7 ablation isolar formula v2 | ✅ | `[[g7-salience-isolation-2026-05-20]]` — Active 0.5845 vs Off 0.5872 (Δ+0.5% ruído). Formula v2 NEUTRA, NÃO regressor |
+| 2 | Re-ingest entity-eval-v2.db | ⏸️ Deferred | Gemini calls cost; defere pra sessão dedicada com janela de eval |
+| 3 | D49 phase 1 — deploy spike shadow | ✅ | PR #167 merged. Path canônico `src/temporal-retrieval.ts` na VPS + drop-in pronto pra ativar |
+| 4 | Cura temporal queries rank 5-15 | ✅ | PR #168 merged. Q105-Q110 (6 queries, gold rank 5-13). Ângulos oblíquos pra evitar ceiling |
+| 5 | Cron healthcheck install | ✅ | `*/15 * * * * vps-healthcheck.sh --quiet \|\| osascript -e ...` instalado local |
+| 6 | CLAUDE.md push ~/Claude | ✅ | Commit `d511737` pushed limpo (33 files staged anteriores não incluídos) |
+
+### G7 — formula v2 verificada
+
+| Config | nDCG@10 | MRR | R@10 |
+|---|---|---|---|
+| A8 ACTIVE (formula v2 aditiva) | 0.5845 | 0.5547 | 0.7167 |
+| A8 OFF (sem salience) | **0.5872** | 0.5546 | 0.7233 |
+| Δ | +0.0027 (+0.5%) | +0.0000 | +0.0067 |
+
+**Conclusão:** formula v2 é praticamente neutra no entity-eval.db; G6 -6.3% foi DB swap puro (confirma PR #165). Headline G5 V3 0.6237 permanece canônica.
+
+### D49 phase 1 deployed (PR #167)
+
+- `staged-1.7a/edits/temporal-retrieval.ts` + edit em `staged-1.7a/edits/search.ts` (mirror byte-identical com VPS `src/`)
+- Drop-in systemd ready: ativar via `NOX_TEMPORAL_PATH=shadow` + restart nox-mem-api
+- Sample log: `{"type":"temporal_path","query_hash":"...","applied":false,"signalSource":"iso_date","anchorIso":"2026-05-19","top1DeltaDays":22}`
+- **Phase 2 baseline 7d shadow** PODE COMEÇAR — só falta Toto decidir gatilho
+
+### Temporal queries curadas (PR #168)
+
+Q105-Q110 cobertas: arXiv preprint date, OpenClaw upgrade, KG migration Ollama→Gemini, corpus 20k→60k, Gemini flash-lite migration, search quality improvements. Todos com gold rank 5-13 baseline (zona viável proximity rerank).
+
+Rejeitadas: queries com fraseamento exato de timeline titles → ceiling em rank 1. Insight: usar ângulo oblíquo (consequência/contexto/termo alternativo) pra criar competição.
+
+### Cumulative day final — 17 PRs merged
+
+| Wave | PRs |
+|---|---|
+| Morning | #154-#159 |
+| Midday | #160-#162 |
+| Afternoon | #163-#166 |
+| Early evening | #167-#168 |
+
+### Working tree state
+
+- main local sync com origin
+- Working tree clean
+- Cron healthcheck ativo (~/Claude no rotation)
+- ~/Claude/CLAUDE.md pushed limpo
+- 17 commits em memoria-nox/main hoje + 5 HANDOFF cumulative updates
+
+### Pendings residuais pra outra sessão
+
+1. **Re-ingest entity-eval-v2.db** com source_type prod-consistent + G8 contra ele (testa A5 contribution real)
+2. **Phase 2 D49 baseline 7d** — ativar `NOX_TEMPORAL_PATH=shadow` em prod e medir hit-rate por 7 dias antes de D50
+3. **Smoke test Q105-Q110** contra spike rerank (#157) pra confirmar boost > 0 nessas queries específicas
+4. **Tuning weights formula v2** — atuais 0.55/0.15/0.10/0.20 são audit-based, não otimizados (deferred upside)
+
+---
+
 ## 🌆 LATE AFTERNOON 2026-05-20 — 16 PRs merged + G6 root cause CRAVADO
 
 > **Atualizado:** 2026-05-20 ~14h30 BRT — **G6 -6.3% "regression" RESOLVED: foi comparison inválida entre DBs diferentes (G5 V3 = g5.db 68k chunks, G6 = entity-eval.db 500 chunks). PR #154 SOURCE_TYPE_BOOST inocente. Headline G5 V3 0.6237 permanece válida como baseline canônica prod-flavored 68k. G7 obrigatório pra isolar impacto formula v2 aditiva isolado. +3 PRs merged (#163 paper docx, #164 healthcheck, #165 G6 investigation, #166 competitive analysis).**
