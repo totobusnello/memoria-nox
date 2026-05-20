@@ -2,6 +2,50 @@
 
 ---
 
+## 🌤️ MIDDAY 2026-05-20 — VPS uptime restored + Wave A deployed + Q87/Q88 cured
+
+> **Atualizado:** 2026-05-20 ~10h45 BRT. **VPS estava no IP novo 187.77.234.79 (não 45.43.85.86 — false alarm de IP swap, uptime intacto 20d). Deploy Wave A novo aplicado em prod: search.ts + salience.ts via scp + api-server.ts via sed FIND/REPLACE (3 patches). Build limpo, restart OK, /api/health.salience.mode=active, 68995/68995 vectorCoverage preservado. Gold Q87+Q88 temporal curados via PR #159 (chunks 216203+216204). 6 PRs merged em main hoje.**
+
+### Deploy Wave A novo (commits em VPS pós-`82af773..17b2e27`)
+
+| Step | Status |
+|---|---|
+| Pre-deploy backup (search.ts/salience.ts/api-server.ts em `/var/backups/nox-mem/pre-op/`) | ✅ |
+| `scp` search.ts + salience.ts | ✅ |
+| api-server.ts patches via sed (3 fixes: type narrow + signature drift) | ✅ |
+| `npx tsc --noEmit` em api-server.ts | ✅ zero errors |
+| `npm run build` | ✅ dist emitido (observability test errors pre-existing, não bloqueiam emit) |
+| `systemctl restart nox-mem-api` | ✅ active |
+| `/api/health.vectorCoverage` | ✅ 68995/68995 |
+| `/api/health.salience.mode` | ✅ "active" |
+| Smoke test `/api/search` retornando `source_type` populado | ✅ "note" + outros |
+
+**3 patches em api-server.ts** (linhas 15/219/305):
+1. Import `getSalienceMode` agora inclui `type SalienceMode` 
+2. `let salienceMode: SalienceMode = "shadow"` (era restrictive `"shadow" | "active"`)
+3. `searchHybrid(qText, limit)` (era 3-arg com `requestingAgent` removido) — feature E12 telemetry-by-agent fica suspensa até search.ts re-aceitar
+
+### Gold Q87 + Q88 curados (PR #159 merged `17b2e27`)
+
+- Q87 "quando o E05 edge typing foi deployado" → `expected_chunk_ids: [216203]`
+- Q88 "quando subiu o schema v12" → `expected_chunk_ids: [216204]`
+- Ambos via `/api/search` direto pós-deploy, snippet primary match
+- Permite rodar Q1 temporal gate completo (4/4 com gold)
+
+### VPS IP swap descoberto (false alarm offline)
+
+- Antigo: `45.43.85.86` (gone)
+- Novo: `187.77.234.79` (active, hostname `srv1465941`, uptime **20d** — não foi reboot)
+- Hipótese: Hostinger floating IP rebalance silencioso
+- Memory: `[[vps-ip-change-2026-05-20]]` (entry reference)
+- Memory anterior `[[vps-down-2026-05-20]]` ficou desatualizada — não era outage real
+
+### Em execução background
+
+- **G6 ablation** (task #41) rodando em VPS via tmux session `g6-ablation` — re-medir A0/A5/A8/A10 com SOURCE_TYPE_BOOST ativo pós deploy. Esperado: A5 > A0 (era inert), A10 < A8
+
+---
+
 ## ☀️ MORNING 2026-05-20 — 5 PRs merged + VPS offline alert
 
 > **Atualizado:** 2026-05-20 ~11h BRT — **5 PRs merged em main (#154-#158): SOURCE_TYPE_BOOST map cobre 11 backfill keys, visual identity sincronizada com +78.8%, paper §5 reescrito com 4-claim sub-evidence, temporal Q1 spike isolado, api-server patch documental. VPS 45.43.85.86 OFFLINE 100% packet loss — deploy de todos gated até host voltar.**
