@@ -2,6 +2,74 @@
 
 ---
 
+## 🌙 END OF DAY 2026-05-20 — 31 PRs + Hard Mutex + spike v2 DEPLOYED prod
+
+> **Atualizado:** 2026-05-20 ~16h BRT. **Hard Mutex (PR #182) + spike v2 (PR #181) DEPLOYED em prod via scp+build+restart. /api/health 68995/68995 + salience active confirmed. G10 validation ablation deferred por DB config issues (eval fixtures string IDs vs API integer + g5.db stub vec_chunks empty); Path B proper setup em curso via agent #68. Path A fallback: trust deploy + aguardar D49 phase 2 shadow telemetria 7d real.**
+
+### G10 deploy + validation status
+
+| Item | Status |
+|---|---|
+| Hard Mutex em src/search.ts | ✅ 8 occurrences cravadas |
+| Spike v2 em src/temporal-retrieval.ts | ✅ 17 occurrences |
+| Dist compiled | ✅ build + restart OK |
+| /api/health | ✅ 68995/68995 + salience active |
+| Rollback flag | ✅ NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1 |
+| G10 ablation validation | ⚠️ Deferred (DB config), Path B em curso |
+
+### Path B em curso (agent #68)
+
+Forensics G9 setup → repro baseline → G10 A8' vs A8 vs A10 → veredicto. Time-box 60min. Fallback Path A se não funcionar em 20min.
+
+### 🎯 Cumulative day final — 31 PRs em main (#154-#184)
+
+| Wave | PRs | Count |
+|---|---|---|
+| Morning | #154-#159 | 6 |
+| Midday | #160-#162 | 3 |
+| Afternoon | #163-#168 | 6 |
+| Night | #169-#177 | 9 |
+| Late night | #178-#184 | 7 |
+
+Plus 5 HANDOFF cumulative updates + memory batch fixes + cron deploys.
+
+### 14 memórias saved hoje
+
+1. `[[vps-ip-change-2026-05-20]]`
+2. `[[multi-agent-branch-checkout-race]]`
+3. `[[g6-ablation-results-2026-05-20]]` (RESOLVED)
+4. `[[always-verify-eval-db-and-harness-before-comparing]]`
+5. `[[g7-salience-isolation-2026-05-20]]`
+6. `[[g8-source-type-boost-live-2026-05-20]]`
+7. `[[day-2026-05-20-cumulative]]`
+8. `[[temporal-spike-patched-regressed-2026-05-20]]`
+9. `[[temporal-spike-v2-win-2026-05-20]]`
+10. `[[g9-redundancy-confirmed-prod-2026-05-20]]`
+11. `[[g10-deploy-done-validation-deferred-2026-05-20]]`
+12. `MEMORY-INDEX.md` topical (83 entries)
+13. `[[vps-down-2026-05-20]]` (deprecated)
+14. Memory cross-links batch fix (~13 files)
+
+### 🎯 Wave A + Wave B Cravadas
+
+**Wave A (deploy 2026-05-19):** boost stack wiring, SOURCE_TYPE_BOOST map, backfill, formula v2 aditiva.
+
+**Wave B (deploy 2026-05-20):**
+- PR #182 Hard Mutex section↔source_type (G9 evidence)
+- PR #181 spike v2 keyword anchor + confidence tiers (+10.37%)
+- PR #167 D49 phase 1 temporal shadow
+- D49 phase 2 baseline rolling (cron scrape ativo)
+
+### Pendings finais pra próxima sessão
+
+1. **G10 validation result** — agent #68 reporting (Path B success OR fallback A)
+2. **D49 phase 2 baseline 7d** completar — D50 decision com numbers reais
+3. **Re-smoke Q105-Q110** pós deploy v2 em prod (com shadow probing real)
+4. **Trim values experiment** (entity 2.0→1.3) — só se mutex não resolve completely
+5. **D48 4-claim final cravada** — claim 4 agora com evidência triple (G8 + G9 + mutex deployed)
+
+---
+
 ## 🌌 LATE NIGHT 2026-05-20 — 28 PRs + Spike V2 WIN +10.37%
 
 > **Atualizado:** 2026-05-20 ~19h BRT. **Spike v2 (PR #181) com Option B (keyword anchor + confidence tiers) cravou +10.37% vs baseline em Q105-Q110 (vs v1 -34% regressão). Q105/Q106 (gold maio) protegidos por confidence=0.3 limit. Ready pra deploy shadow 7d em prod assim que G9 ablation (#63 background) terminar contra g5.db prod 68k.**
