@@ -38,8 +38,10 @@ export interface BackfillSourceTypeResult {
 
 // ─── Path → source_type mapping (canonical, audit 2026-05-19) ─────────────────
 // Order matters: first match wins. Most specific patterns first.
+// Each alternative is its own entry to avoid regex operator-precedence
+// ambiguity (CodeQL js/regex/missing-regexp-anchor).
 
-const PATTERNS: Array<[RegExp, string]> = [
+export const PATTERNS: Array<[RegExp, string]> = [
   [/\/entities\//, "entity"],
   [/\/cache\/ocr\//, "ocr-cache"],
   [/\/sessions\//, "session"],
@@ -48,7 +50,8 @@ const PATTERNS: Array<[RegExp, string]> = [
   [/\/shared\/lex-biblioteca\//, "legal-template"],
   [/\/Claude\/Projetos\//, "project-doc"],
   [/\/memory\/mac-docs\//, "personal-doc"],
-  [/\/memory\/lessons\/|-lessons\.md$/, "lesson"],
+  [/\/memory\/lessons\//, "lesson"],
+  [/-lessons\.md$/, "lesson"],
   [/\.md$/, "note"],
 ];
 
@@ -85,20 +88,35 @@ export async function backfillSourceType(
     const byType: Record<string, number> = {};
     let processed = 0;
 
+    // `--force`: overwrite ALL non-'external' rows (preserves manually curated
+    //   'external' values per audit doc SQL — review MEDIUM #6).
+    // `--force` uses keyset pagination (WHERE id > :lastId) instead of OFFSET
+    //   to avoid skew under concurrent ingest watcher (review HIGH #1).
     const selectStmt = force
-      ? db.prepare("SELECT id, source_file FROM chunks ORDER BY id ASC LIMIT ? OFFSET ?")
+      ? db.prepare(
+          "SELECT id, source_file FROM chunks WHERE id > ? AND (source_type IS NULL OR source_type != 'external') ORDER BY id ASC LIMIT ?",
+        )
       : db.prepare(
           "SELECT id, source_file FROM chunks WHERE source_type IS NULL OR source_type = '' ORDER BY id ASC LIMIT ?",
         );
+    // NOTE: do NOT touch updated_at — this is a column-correction migration,
+    //   not user activity. Bulk-stamping 67k chunks would corrupt the recency
+    //   signal used by salience formula in downstream G4 ablation (review MEDIUM #3).
+    // The `AND (source_type IS NULL OR source_type != 'external')` guard also
+    //   preserves curated 'external' values even under --force (review MEDIUM #6).
     const updateStmt = db.prepare(
-      "UPDATE chunks SET source_type = ?, updated_at = datetime('now') WHERE id = ?",
+      "UPDATE chunks SET source_type = ? WHERE id = ? AND (source_type IS NULL OR source_type != 'external')",
     );
+
+    // Keyset pagination cursor (--force) / repeated-WHERE (--no-force).
+    let lastId = 0;
+    let nextHeartbeat = 10000;
 
     while (processed < cap) {
       const remaining = cap - processed;
       const fetchSize = Math.min(batchSize, remaining);
       const batch = (force
-        ? selectStmt.all(fetchSize, processed)
+        ? selectStmt.all(lastId, fetchSize)
         : selectStmt.all(fetchSize)) as Array<{ id: number; source_file: string }>;
       if (batch.length === 0) break;
 
@@ -107,6 +125,7 @@ export async function backfillSourceType(
         const stype = classifyPath(source_file);
         byType[stype] = (byType[stype] ?? 0) + 1;
         updates.push([stype, id]);
+        if (force && id > lastId) lastId = id;
       }
 
       if (!dryRun) {
@@ -117,11 +136,13 @@ export async function backfillSourceType(
       }
       processed += batch.length;
 
-      if (processed % 10000 === 0 || processed === cap) {
+      // Heartbeat every ~10k rows regardless of batchSize (review LOW heartbeat fix).
+      if (processed >= nextHeartbeat || processed === cap) {
         const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
         console.error(
           `[backfill-source-type] ${dryRun ? "DRY-RUN " : ""}${processed}/${cap} chunks (${elapsed}s)`,
         );
+        nextHeartbeat = Math.ceil((processed + 1) / 10000) * 10000;
       }
     }
 
@@ -152,15 +173,28 @@ export function parseArgs(argv: string[]): BackfillSourceTypeOpts {
     if (a === "--dry-run") opts.dryRun = true;
     else if (a === "--force") opts.force = true;
     else if (a === "--limit" && argv[i + 1]) {
-      opts.limit = Number.parseInt(argv[++i]!, 10);
+      const raw = argv[++i]!;
+      const n = Number.parseInt(raw, 10);
+      if (!Number.isFinite(n) || n <= 0) {
+        throw new Error(`--limit requires positive integer, got: '${raw}'`);
+      }
+      opts.limit = n;
     } else if (a === "--batch-size" && argv[i + 1]) {
-      opts.batchSize = Number.parseInt(argv[++i]!, 10);
+      const raw = argv[++i]!;
+      const n = Number.parseInt(raw, 10);
+      if (!Number.isFinite(n) || n <= 0) {
+        throw new Error(`--batch-size requires positive integer, got: '${raw}'`);
+      }
+      opts.batchSize = n;
     }
   }
   return opts;
 }
 
 export function formatResult(r: BackfillSourceTypeResult): string {
+  if (r.processed === 0) {
+    return `${r.dryRun ? "[DRY-RUN] " : ""}No chunks to process (totalChunks=${r.totalChunks})`;
+  }
   const lines: string[] = [];
   lines.push(
     `${r.dryRun ? "[DRY-RUN] " : ""}Backfill complete: ${r.processed}/${r.totalChunks} chunks in ${(r.durationMs / 1000).toFixed(1)}s`,
@@ -168,6 +202,10 @@ export function formatResult(r: BackfillSourceTypeResult): string {
   lines.push("");
   lines.push("Distribution:");
   const entries = Object.entries(r.byType).sort((a, b) => b[1] - a[1]);
+  if (entries.length === 0) {
+    lines.push("  (empty)");
+    return lines.join("\n");
+  }
   const maxLabel = Math.max(...entries.map(([k]) => k.length));
   for (const [type, count] of entries) {
     const pct = ((count * 100) / r.processed).toFixed(2);
