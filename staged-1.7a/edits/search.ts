@@ -47,6 +47,19 @@ const RECENCY_BOOST_DELTA_SEMANTIC = 0.2; // was *1.2
 // only live key was `external` (1.5%) — A10 (full minus source_type) tied A8
 // canonical at 0.6237, proving the map contributed 0%.
 //
+// G9 ablation (2026-05-20, g5.db prod n=69,495 chunks, n=100 queries) cravou
+// que a calibração POST-backfill mantém o boost vivo PORÉM redundante com
+// SECTION_BOOST em entity files (compiled/frontmatter/timeline):
+//   A0 (no boosts)              = 0.4108
+//   A5 (source_type only)       = 0.4693  → +14.2% vs A0 (boost LIVE)
+//   A8 (full canonical)         = 0.5387
+//   A10 (full minus source_type) = 0.5530 → +2.6% vs A8 (REDUNDÂNCIA)
+//
+// Resolution (PR #180 Option 1): Hard Mutex — `sourceTypeDelta` retorna 0
+// quando o chunk já tem `section` populado (sinal mais granular ganha). Spec:
+// `specs/2026-05-20-mutual-exclusion-section-source-type.md`. Rollback rápido
+// via env `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1` (reverte ao pré-mutex).
+//
 // Post-backfill state (2026-05-19, audit_id=118, via PR #151):
 //   note          ~31000  (~46%) — generic .md catch-all
 //   personal-doc  ~23000  (~34%) — faturamento, contratos, planilhas
@@ -133,6 +146,11 @@ const DISABLE_TIER_BOOST =
 const DISABLE_SOURCE_TYPE_BOOST = process.env.NOX_DISABLE_SOURCE_TYPE_BOOST === "1";
 const DISABLE_SECTION_BOOST = process.env.NOX_DISABLE_SECTION_BOOST === "1";
 const DISABLE_RECENCY_BOOST = process.env.NOX_DISABLE_RECENCY_BOOST === "1";
+// G9 mutex: default ON. Set `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1` to revert
+// to pre-mutex behaviour (both `sectionDelta` and `sourceTypeDelta` accumulate
+// on entity-compiled/frontmatter/timeline chunks — known redundant per G9).
+const DISABLE_MUTEX_SECTION_SOURCE_TYPE =
+  process.env.NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE === "1";
 
 // ─── Per-boost delta helpers ──────────────────────────────────────────────────
 
@@ -143,8 +161,24 @@ function tierDelta(tier: string | null | undefined): number {
   return f - 1.0;
 }
 
-function sourceTypeDelta(sourceType: string | null | undefined): number {
+function sourceTypeDelta(
+  sourceType: string | null | undefined,
+  section: string | null | undefined,
+): number {
   if (DISABLE_SOURCE_TYPE_BOOST || !sourceType) return 0;
+  // HARD MUTEX (G9 evidence — spec PR #180 Option 1):
+  // Se o chunk já tem section_boost ativo (sinal mais granular), pula
+  // source_type_boost pra evitar double-boost em entity files. Empiricamente
+  // A10 (sem source_type) supera A8 (full) em +2.6% no g5.db prod 68k.
+  // Rollback: NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1.
+  if (
+    !DISABLE_MUTEX_SECTION_SOURCE_TYPE &&
+    !DISABLE_SECTION_BOOST &&
+    section &&
+    SECTION_BOOST[section] !== undefined
+  ) {
+    return 0;
+  }
   const f = SOURCE_TYPE_BOOST[sourceType] ?? 1.0;
   return f - 1.0;
 }
@@ -331,7 +365,7 @@ export function search(query: string, limit: number = 5): SearchResult[] {
       boostSum += RECENCY_BOOST_DELTA_FTS;
     }
     boostSum += tierDelta(row.tier);
-    boostSum += sourceTypeDelta(row.source_type);
+    boostSum += sourceTypeDelta(row.source_type, row.section);
     boostSum += sectionDelta(row.section, row.section_boost);
     boostSum += salienceDelta(row, row.id);
 
@@ -434,7 +468,7 @@ export async function searchSemantic(query: string, limit: number = 5): Promise<
         boostSum += RECENCY_BOOST_DELTA_SEMANTIC;
       }
       boostSum += tierDelta(info?.tier);
-      boostSum += sourceTypeDelta(info?.source_type);
+      boostSum += sourceTypeDelta(info?.source_type, info?.section);
       boostSum += sectionDelta(info?.section, info?.section_boost);
       if (info) {
         boostSum += salienceDelta({
@@ -627,6 +661,7 @@ export const _internals = {
   TYPE_BOOST_DELTA_SEMANTIC,
   RECENCY_BOOST_DELTA_FTS,
   RECENCY_BOOST_DELTA_SEMANTIC,
+  DISABLE_MUTEX_SECTION_SOURCE_TYPE,
   tierDelta,
   sourceTypeDelta,
   sectionDelta,

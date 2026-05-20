@@ -101,6 +101,10 @@ interface ScoreOpts {
   disableSourceType?: boolean;
   disableSection?: boolean;
   disableRecency?: boolean;
+  // G9 Hard Mutex (PR #180 Option 1): default ON (mutex applied). Set
+  // `disableMutex: true` to mirror NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1
+  // — both sectionDelta and sourceTypeDelta accumulate (pre-mutex behaviour).
+  disableMutex?: boolean;
   salienceMode?: "shadow" | "active" | "off";
   nowMs?: number;
 }
@@ -123,7 +127,18 @@ function scoreChunk(row: ChunkRow, opts: ScoreOpts = {}): number {
     boostSum += (TIER_BOOST[t] ?? 1.0) - 1.0;
   }
   if (!opts.disableSourceType && row.source_type) {
-    boostSum += (SOURCE_TYPE_BOOST[row.source_type] ?? 1.0) - 1.0;
+    // G9 Hard Mutex (PR #180 Option 1): skip source_type contribution when
+    // `section` is populated AND section_boost active — mirror of search.ts
+    // sourceTypeDelta() guard. The mutex is ON by default.
+    const mutexApplies =
+      !opts.disableMutex &&
+      !opts.disableSection &&
+      row.section !== null &&
+      row.section !== undefined &&
+      SECTION_BOOST[row.section] !== undefined;
+    if (!mutexApplies) {
+      boostSum += (SOURCE_TYPE_BOOST[row.source_type] ?? 1.0) - 1.0;
+    }
   }
   if (!opts.disableSection) {
     if (row.section && SECTION_BOOST[row.section] !== undefined) {
@@ -378,6 +393,143 @@ describe("source_type_boost — corpus-correct keys", () => {
       );
     }
   });
+
+  // Drift guard for the new mutex signature (PR #180 / G9). Calling the live
+  // sourceTypeDelta with the (sourceType, section) arity must return 0 when
+  // section=compiled, mirroring this file's inline scoreChunk implementation.
+  it("mutex-signature-drift-guard: live sourceTypeDelta honors (sourceType, section)", async () => {
+    type Delta = (s: string | null | undefined, sec: string | null | undefined) => number;
+    let live: { sourceTypeDelta: Delta } | undefined;
+    try {
+      const mod: { _internals?: { sourceTypeDelta: Delta } } = await import(
+        "../edits/search.js"
+      );
+      if (!mod._internals?.sourceTypeDelta) {
+        assert.fail("search.ts no longer exports _internals.sourceTypeDelta");
+      }
+      live = { sourceTypeDelta: mod._internals.sourceTypeDelta };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[mutex-signature-drift-guard] skipped (search.ts load failed): ${msg}`);
+      return;
+    }
+    // arity check: function MUST accept 2 args (signature shape)
+    assert.ok(live.sourceTypeDelta.length >= 2, "sourceTypeDelta must accept (sourceType, section)");
+    // behaviour check: entity + compiled → mutex fires → 0
+    assert.strictEqual(
+      live.sourceTypeDelta("entity", "compiled"),
+      0,
+      "live mutex must suppress source_type when section in SECTION_BOOST",
+    );
+    // behaviour check: entity + null → mutex inert → +1.0
+    assert.strictEqual(
+      live.sourceTypeDelta("entity", null),
+      1.0,
+      "live source_type=entity alone must deliver +1.0",
+    );
+  });
+});
+
+// ─── 2b. Hard Mutex: sectionDelta ↔ sourceTypeDelta (G9, PR #180) ────────────
+//
+// G9 ablation (g5.db prod 69,495 chunks, n=100 queries, 2026-05-20) cravou:
+//   A0 (no boosts)          = 0.4108
+//   A5 (source_type only)   = 0.4693  → +14.2% vs A0 (boost LIVE)
+//   A8 (full canonical)     = 0.5387
+//   A10 (full − source_type) = 0.5530 → +2.6% vs A8 (REDUNDÂNCIA)
+//
+// Resolution: hard mutex em `sourceTypeDelta` — quando o chunk já tem `section`
+// populado (sinal mais granular), pula source_type boost pra evitar
+// double-boost em entity files (compiled/frontmatter/timeline). Spec:
+// `specs/2026-05-20-mutual-exclusion-section-source-type.md`.
+
+describe("hard mutex sectionDelta ↔ sourceTypeDelta — G9 redundancy fix", () => {
+  it("entity + compiled: source_type contribution SUPPRESSED (mutex ON, default)", () => {
+    // section=compiled → SECTION_BOOST[compiled]=2.0 → sectionDelta=+1.0.
+    // source_type=entity normally contributes +1.0 (SOURCE_TYPE_BOOST=2.0)
+    // but mutex skips it. Net boost: +1.0 (section only), score = 10 * 2.0.
+    const score = scoreChunk(row({
+      source_type: "entity",
+      section: "compiled",
+    }));
+    assert.strictEqual(score, 10.0 * 2.0, "mutex should yield only sectionDelta contribution");
+  });
+
+  it("entity + null section: source_type contributes normally (mutex inert)", () => {
+    // No section → mutex guard does not apply → source_type delivers full +1.0.
+    const score = scoreChunk(row({
+      source_type: "entity",
+      section: null,
+    }));
+    assert.strictEqual(score, 10.0 * 2.0, "source_type=entity alone delivers +1.0");
+  });
+
+  it("entity + compiled + disableMutex (rollback flag): both deltas accumulate", () => {
+    // Mirror of NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1: pre-mutex behaviour
+    // returns. Net boost = source_type(+1.0) + section(+1.0) = +2.0,
+    // score = 10 * 3.0 = 30. This is the SAME stacking the G9 ablation
+    // showed underperforming A10 by −2.6%.
+    const score = scoreChunk(
+      row({ source_type: "entity", section: "compiled" }),
+      { disableMutex: true },
+    );
+    assert.strictEqual(score, 10.0 * 3.0, "rollback flag must restore double-boost");
+  });
+
+  it("entity + frontmatter: mutex applies (frontmatter in SECTION_BOOST)", () => {
+    // sectionDelta(frontmatter) = +0.5; source_type entity suppressed.
+    const score = scoreChunk(row({ source_type: "entity", section: "frontmatter" }));
+    assert.strictEqual(score, 10.0 * 1.5);
+  });
+
+  it("entity + timeline: mutex applies, only timeline penalty remains", () => {
+    // sectionDelta(timeline) = −0.2; source_type entity suppressed.
+    // Net = −0.2 → score = 10 * 0.8.
+    const score = scoreChunk(row({ source_type: "entity", section: "timeline" }));
+    assert.ok(Math.abs(score - 10.0 * 0.8) < 1e-9, `expected 8.0, got ${score}`);
+  });
+
+  it("entity + unknown section (NOT in SECTION_BOOST): mutex inert", () => {
+    // section=foo is not in SECTION_BOOST. sectionDelta falls back to
+    // section_boost column (null here → 0). sourceTypeDelta runs normally.
+    const score = scoreChunk(row({
+      source_type: "entity",
+      section: "foo",
+      section_boost: null,
+    }));
+    assert.strictEqual(score, 10.0 * 2.0, "unknown section name does not trigger mutex");
+  });
+
+  it("entity + compiled + DISABLE_SECTION_BOOST: mutex inert (section guard inactive)", () => {
+    // When section_boost is globally disabled, mutex should NOT fire — the
+    // search.ts guard checks `!DISABLE_SECTION_BOOST`. Mirror via disableSection.
+    // source_type=entity delivers +1.0, section disabled → 0. Net = 10 * 2.0.
+    const score = scoreChunk(
+      row({ source_type: "entity", section: "compiled" }),
+      { disableSection: true },
+    );
+    assert.strictEqual(score, 10.0 * 2.0, "DISABLE_SECTION_BOOST should keep source_type live");
+  });
+
+  it("lesson + compiled (rare): mutex still applies — section sinal wins", () => {
+    // Hypothetical chunk: source_type=lesson + section=compiled. Pre-mutex
+    // would stack +0.8 + +1.0 = +1.8. Mutex returns only section: +1.0.
+    const score = scoreChunk(row({ source_type: "lesson", section: "compiled" }));
+    assert.strictEqual(score, 10.0 * 2.0);
+  });
+
+  it("non-entity baseline (note + null section): mutex inert", () => {
+    // 98.9% of corpus path: source_type=note (delta 0) + section=null. Mutex
+    // never fires — proves no regression to the bulk of the corpus.
+    const score = scoreChunk(row({ source_type: "note", section: null }));
+    assert.strictEqual(score, 10.0, "note + null section unaffected by mutex");
+  });
+
+  it("personal-doc + null section: mutex inert, full +0.2 delivered", () => {
+    // 34% of corpus: personal-doc never has section set → mutex inactive.
+    const score = scoreChunk(row({ source_type: "personal-doc", section: null }));
+    assert.strictEqual(score, 10.0 * 1.2, "personal-doc keeps +0.2 delta");
+  });
 });
 
 // ─── 3. BOOST_TYPES (chunk_type) wiring ──────────────────────────────────────
@@ -584,16 +736,37 @@ describe("boost stacking — ADDITIVE not MULTIPLICATIVE", () => {
     assert.strictEqual(score, 10.0 * (1 + 1.0 + 1.0 + 1.0 + 0.5));
   });
 
-  it("penalty + boost can cancel out", () => {
-    // tier=peripheral (0), section=timeline (−0.2), source_type=external (−0.2),
-    // chunk_type=lesson (+1.0). Net: +0.6.
+  it("penalty + boost can cancel out (mutex OFF mirrors pre-G9 stacking)", () => {
+    // With mutex ON (default), section=timeline suppresses source_type=external.
+    // To exercise the original pre-G9 penalty+boost stack, disable the mutex.
+    // Net (mutex OFF): chunk_type=lesson (+1.0), tier=peripheral (0),
+    // section=timeline (−0.2), source_type=external (−0.2) = +0.6.
+    const score = scoreChunk(
+      row({
+        chunk_type: "lesson",
+        tier: "peripheral",
+        section: "timeline",
+        source_type: "external",
+      }),
+      { disableMutex: true },
+    );
+    assert.ok(Math.abs(score - 10.0 * 1.6) < 1e-9);
+  });
+
+  it("post-G9 mutex: section=timeline + source_type=external → source_type SKIPPED", () => {
+    // Mirror of search.ts mutex guard: when section is populated AND in
+    // SECTION_BOOST, sourceTypeDelta returns 0. Net: chunk_type=lesson (+1.0)
+    // + tier=peripheral (0) + section=timeline (−0.2) = +0.8.
     const score = scoreChunk(row({
       chunk_type: "lesson",
       tier: "peripheral",
       section: "timeline",
       source_type: "external",
     }));
-    assert.ok(Math.abs(score - 10.0 * 1.6) < 1e-9);
+    assert.ok(
+      Math.abs(score - 10.0 * 1.8) < 1e-9,
+      `mutex ON should drop external penalty; expected 18.0, got ${score}`,
+    );
   });
 
   it("all-disabled produces baseline score (no regression with toggles ON)", () => {
