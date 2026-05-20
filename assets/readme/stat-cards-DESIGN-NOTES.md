@@ -75,7 +75,7 @@ Zero remote font dep. Browser cai em system stack se JetBrains Mono e Inter não
 
 Todos monoline stroke 1.5 round-cap/round-join. Escolhidos por **relação direta com a métrica** — não cliparts genéricos.
 
-## Numbers (atualizados tonight 2026-05-18)
+## Numbers (atualizados 2026-05-19 — G5 V3 A8 canonical)
 
 | Card | Big | Sub-label | Category |
 |---|---|---|---|
@@ -83,7 +83,7 @@ Todos monoline stroke 1.5 round-cap/round-join. Escolhidos por **relação diret
 | `stat-opex` | `<$11/mo` | all-in OPEX | COST |
 | `stat-tests` | `535+` | tests passing | QUALITY |
 | `stat-latency` | `940ms` | p50 latency | SPEED |
-| `stat-locomo` | `+112%` | nDCG@10 vs baseline | LOCOMO |
+| `stat-locomo` | `+78.8%` | nDCG@10 vs baseline | LOCOMO |
 | `stat-longmemeval` | `1.0` | oracle validated | LONGMEMEVAL |
 
 ## Accessibility

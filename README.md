@@ -87,7 +87,7 @@ memoria-nox is organized into three product pillars plus a research lab and a co
 
 ### Q &mdash; Quality (Q1&ndash;Q4)
 
-Numbers that lead the market or honestly say where the gap is. Q1 runs LoCoMo (R@5, R@1, MRR, nDCG@10, Wilson CI), Q2 runs LongMemEval (task accuracy with LLM-as-judge dual jury), Q3 measures latency p50/p95/p99 across six workloads, and Q4 publishes a head-to-head `COMPARISON.md` against agentmemory, memanto, mem0, Letta, and Zep &mdash; **only if** Q1+Q2+Q3 show nox-mem at the top or tied. **Q1 measured 2026-05-18: nDCG@10 = 0.5961 in production-path (+112% relative over the FTS5-only baseline E04 = 0.281), production TS pipeline via `/api/search`.** Q3 latency measured 2026-05-18: p50 = 940ms / p95 = 2.3s. Q2 oracle pipeline validated; `s_cleaned` headline run deferred pending batch-embedding optimization. Q4 gate **PASSED** &mdash; Phase 2 GTM opens.
+Numbers that lead the market or honestly say where the gap is. Q1 runs LoCoMo (R@5, R@1, MRR, nDCG@10, Wilson CI), Q2 runs LongMemEval (task accuracy with LLM-as-judge dual jury), Q3 measures latency p50/p95/p99 across six workloads, and Q4 publishes a head-to-head `COMPARISON.md` against agentmemory, memanto, mem0, Letta, and Zep &mdash; **only if** Q1+Q2+Q3 show nox-mem at the top or tied. **Q1 canonical (G5 V3 A8, 2026-05-19): nDCG@10 = 0.6237 (+78.8% relative over G3 baseline 0.3488), full boost stack active via `/api/search`.** Q3 latency measured 2026-05-18: p50 = 940ms / p95 = 2.3s. Q2 oracle pipeline validated; `s_cleaned` headline run deferred pending batch-embedding optimization. Q4 gate **PASSED** &mdash; Phase 2 GTM opens.
 
 ### A &mdash; Autonomy (A1&ndash;A4)
 
@@ -103,7 +103,7 @@ Paper-grade work, no ship pressure. L2 (KG conflict and contradiction detection 
 
 ### GTM Phase 2 &mdash; Viral launch (✅ UNLOCKED 2026-05-18)
 
-**Q4 gate PASSED.** Q1 production-path measurement (+112% nDCG@10 over FTS5 baseline, verified 2026-05-18) cleared the D43 threshold (≥+15%). Phase 2 playbook unlocked: hero visual upgrade, Trendshift badge, Product Hunt launch, paper distribution to dev.to / LinkedIn / Substack, **Stripe-first global SaaS go-to-market** (D44b pivot: USD default, no affiliate program, Brazilian market as secondary tier via PIX integration future). If production-path scale-up testing reveals regression below +15%, scale-up pauses but the initial Phase 2 claim stands. Spec: [`specs/2026-05-17-GTM-readme-hero-upgrade.md`](specs/2026-05-17-GTM-readme-hero-upgrade.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md) (D43 + D44).
+**Q4 gate PASSED.** Q1 canonical measurement (G5 V3 A8: nDCG@10 = 0.6237, +78.8% over G3 baseline 0.3488, measured 2026-05-19) cleared the D43 threshold (≥+15%). Phase 2 playbook unlocked: hero visual upgrade, Trendshift badge, Product Hunt launch, paper distribution to dev.to / LinkedIn / Substack, **Stripe-first global SaaS go-to-market** (D44b pivot: USD default, no affiliate program, Brazilian market as secondary tier via PIX integration future). If production-path scale-up testing reveals regression below +15%, scale-up pauses but the initial Phase 2 claim stands. Spec: [`specs/2026-05-17-GTM-readme-hero-upgrade.md`](specs/2026-05-17-GTM-readme-hero-upgrade.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md) (D43 + D44).
 
 ## Numbers
 
@@ -129,7 +129,7 @@ Verified against the live corpus and Wave B (2026-05-18) implementation push. Nu
 | Wave B tests passing | **535+** across L4, A3, P1, A2, P5 | Wave B post-mortem |
 | Schema migrations | **v11 (telemetry) + v19 (confidence/provenance)** &mdash; additive, idempotent | PR&nbsp;#28 |
 | Monthly OPEX (Gemini embed + KG + VPS) | **&lt;$11/mo** all-in, Mar&ndash;May 2026 actuals | live invoicing |
-| **LoCoMo nDCG@10 hybrid (production-path, n=100)** | **0.5961 &mdash; +112% rel over FTS5-only baseline 0.281** | [paper/publication/results/locomo-production-path-results.json](paper/publication/results/locomo-production-path-results.json), verified 2026-05-18 |
+| **LoCoMo nDCG@10 hybrid (G5 V3 A8 canonical, n=100)** | **0.6237 &mdash; +78.8% rel over G3 baseline 0.3488** | G5 V3 ablation, measured 2026-05-19 (full boost stack active) |
 | LoCoMo Recall@10 (production-path, n=100) | **0.7070** (+87% rel over baseline) | same source as above |
 | LoCoMo MRR (production-path, n=100) | **0.5534** (+98% rel over baseline) | same source as above |
 | Latency `/api/search` hybrid (n=95) | **p50 = 940ms / p95 = 2342ms / p99 = 2523ms** | [paper/publication/results/latency-benchmark-summary.json](paper/publication/results/latency-benchmark-summary.json), verified 2026-05-18 |
@@ -140,7 +140,7 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 
 ## Comparison
 
-The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md), now with **production-path Q1 verified numbers** (+112% nDCG@10 over FTS5 baseline, 2026-05-18). The seven-axis differentiation:
+The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md), now with **G5 V3 A8 canonical numbers** (nDCG@10 = 0.6237, +78.8% over G3 baseline, measured 2026-05-19). The seven-axis differentiation:
 
 <p align="center">
   <picture>
