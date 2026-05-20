@@ -1,0 +1,16 @@
+{
+  "name": "nox-mem-temporal-retrieval-spike",
+  "version": "0.0.1-spike",
+  "private": true,
+  "type": "module",
+  "description": "Q1 R&D spike — temporal-aware retrieval path (proximity rerank). Standalone, NOT deployed. Companion to specs/temporal-retrieval-path-spike.md.",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "test": "tsc -p tsconfig.tests.json && node --test dist/tests/*.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}
