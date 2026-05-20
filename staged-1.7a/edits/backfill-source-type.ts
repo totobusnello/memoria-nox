@@ -34,6 +34,9 @@ export interface BackfillSourceTypeResult {
   byType: Record<string, number>;
   durationMs: number;
   dryRun: boolean;
+  // OpResult compatibility fields (consumed by withOpAudit<T extends OpResult>):
+  affected_rows?: number;
+  notes?: string;
 }
 
 // ─── Path → source_type mapping (canonical, audit 2026-05-19) ─────────────────
@@ -152,6 +155,9 @@ export async function backfillSourceType(
       byType,
       durationMs: Date.now() - t0,
       dryRun,
+      // OpResult fields — populated for audit log clarity:
+      affected_rows: dryRun ? 0 : processed,
+      notes: `backfill-source-type ${dryRun ? "DRY-RUN" : "applied"} (force=${force}, batch=${batchSize})`,
     };
   };
 
