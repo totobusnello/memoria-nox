@@ -17,18 +17,18 @@ import assert from "node:assert/strict";
 // Isolated so test is self-contained.
 
 // PATTERNS order matters: first match wins. Most specific first.
-// Each alternative is its own entry to avoid regex operator-precedence ambiguity
-// (CodeQL js/regex/missing-regexp-anchor).
+// `(?:^|\/)` matches start-of-string OR path separator — handles relative
+// AND nested paths (empirical fix from dry-run 2026-05-19 22:36 BRT).
 const PATTERNS: Array<[RegExp, string]> = [
-  [/\/entities\//, "entity"],
-  [/\/cache\/ocr\//, "ocr-cache"],
-  [/\/sessions\//, "session"],
-  [/\/shared\/imports\/Claude\/skills\//, "skill"],
-  [/\/shared\/imports\/Claude\/commands\//, "command"],
-  [/\/shared\/lex-biblioteca\//, "legal-template"],
-  [/\/Claude\/Projetos\//, "project-doc"],
-  [/\/memory\/mac-docs\//, "personal-doc"],
-  [/\/memory\/lessons\//, "lesson"],
+  [/(?:^|\/)entities\//, "entity"],
+  [/(?:^|\/)cache\/ocr\//, "ocr-cache"],
+  [/(?:^|\/)sessions\//, "session"],
+  [/(?:^|\/)shared\/imports\/Claude\/skills\//, "skill"],
+  [/(?:^|\/)shared\/imports\/Claude\/commands\//, "command"],
+  [/(?:^|\/)shared\/lex-biblioteca\//, "legal-template"],
+  [/(?:^|\/)Claude\/Projetos\//, "project-doc"],
+  [/(?:^|\/)memory\/mac-docs\//, "personal-doc"],
+  [/(?:^|\/)memory\/lessons\//, "lesson"],
   [/-lessons\.md$/, "lesson"],
   [/\.md$/, "note"],
 ];

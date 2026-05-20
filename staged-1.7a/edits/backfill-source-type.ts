@@ -44,16 +44,21 @@ export interface BackfillSourceTypeResult {
 // Each alternative is its own entry to avoid regex operator-precedence
 // ambiguity (CodeQL js/regex/missing-regexp-anchor).
 
+// `(?:^|\/)<prefix>\/` matches the prefix at start-of-string OR after any
+// path separator. This handles BOTH relative paths (e.g. `sessions/foo.md`)
+// AND nested paths (e.g. `memory/sessions/foo.md`). Empirical fix discovered
+// during initial dry-run 2026-05-19 22:36 BRT — prior `\/<prefix>\/` only
+// matched nested paths, missing 99% of corpus rooted at relative prefixes.
 export const PATTERNS: Array<[RegExp, string]> = [
-  [/\/entities\//, "entity"],
-  [/\/cache\/ocr\//, "ocr-cache"],
-  [/\/sessions\//, "session"],
-  [/\/shared\/imports\/Claude\/skills\//, "skill"],
-  [/\/shared\/imports\/Claude\/commands\//, "command"],
-  [/\/shared\/lex-biblioteca\//, "legal-template"],
-  [/\/Claude\/Projetos\//, "project-doc"],
-  [/\/memory\/mac-docs\//, "personal-doc"],
-  [/\/memory\/lessons\//, "lesson"],
+  [/(?:^|\/)entities\//, "entity"],
+  [/(?:^|\/)cache\/ocr\//, "ocr-cache"],
+  [/(?:^|\/)sessions\//, "session"],
+  [/(?:^|\/)shared\/imports\/Claude\/skills\//, "skill"],
+  [/(?:^|\/)shared\/imports\/Claude\/commands\//, "command"],
+  [/(?:^|\/)shared\/lex-biblioteca\//, "legal-template"],
+  [/(?:^|\/)Claude\/Projetos\//, "project-doc"],
+  [/(?:^|\/)memory\/mac-docs\//, "personal-doc"],
+  [/(?:^|\/)memory\/lessons\//, "lesson"],
   [/-lessons\.md$/, "lesson"],
   [/\.md$/, "note"],
 ];
@@ -91,36 +96,36 @@ export async function backfillSourceType(
     const byType: Record<string, number> = {};
     let processed = 0;
 
-    // `--force`: overwrite ALL non-'external' rows (preserves manually curated
-    //   'external' values per audit doc SQL — review MEDIUM #6).
-    // `--force` uses keyset pagination (WHERE id > :lastId) instead of OFFSET
-    //   to avoid skew under concurrent ingest watcher (review HIGH #1).
+    // BOTH modes use keyset pagination (WHERE id > :lastId) for two reasons:
+    //   1. Avoid OFFSET skew under concurrent ingest watcher (review HIGH #1)
+    //   2. dry-run safety: without keyset, non-force dry-run re-queries the
+    //      same NULL-filtered batch forever (bug found empirically 2026-05-19 22:42).
+    //      In APPLY mode UPDATE removes rows from filter so old approach worked
+    //      by accident; in dry-run the filter never shrinks so iteration repeats.
+    // `--force`: overwrite ALL non-'external' rows (preserves curated values).
     const selectStmt = force
       ? db.prepare(
           "SELECT id, source_file FROM chunks WHERE id > ? AND (source_type IS NULL OR source_type != 'external') ORDER BY id ASC LIMIT ?",
         )
       : db.prepare(
-          "SELECT id, source_file FROM chunks WHERE source_type IS NULL OR source_type = '' ORDER BY id ASC LIMIT ?",
+          "SELECT id, source_file FROM chunks WHERE id > ? AND (source_type IS NULL OR source_type = '') ORDER BY id ASC LIMIT ?",
         );
-    // NOTE: do NOT touch updated_at — this is a column-correction migration,
-    //   not user activity. Bulk-stamping 67k chunks would corrupt the recency
-    //   signal used by salience formula in downstream G4 ablation (review MEDIUM #3).
-    // The `AND (source_type IS NULL OR source_type != 'external')` guard also
+    // NOTE: do NOT touch updated_at — column-correction migration, not user
+    //   activity. Bulk-stamping 67k chunks corrupts recency signal in salience.
+    // The `AND (source_type IS NULL OR source_type != 'external')` guard
     //   preserves curated 'external' values even under --force (review MEDIUM #6).
     const updateStmt = db.prepare(
       "UPDATE chunks SET source_type = ? WHERE id = ? AND (source_type IS NULL OR source_type != 'external')",
     );
 
-    // Keyset pagination cursor (--force) / repeated-WHERE (--no-force).
+    // Keyset pagination cursor (both modes).
     let lastId = 0;
     let nextHeartbeat = 10000;
 
     while (processed < cap) {
       const remaining = cap - processed;
       const fetchSize = Math.min(batchSize, remaining);
-      const batch = (force
-        ? selectStmt.all(lastId, fetchSize)
-        : selectStmt.all(fetchSize)) as Array<{ id: number; source_file: string }>;
+      const batch = selectStmt.all(lastId, fetchSize) as Array<{ id: number; source_file: string }>;
       if (batch.length === 0) break;
 
       const updates: Array<[string, number]> = [];
@@ -128,7 +133,7 @@ export async function backfillSourceType(
         const stype = classifyPath(source_file);
         byType[stype] = (byType[stype] ?? 0) + 1;
         updates.push([stype, id]);
-        if (force && id > lastId) lastId = id;
+        if (id > lastId) lastId = id;
       }
 
       if (!dryRun) {
