@@ -55,9 +55,12 @@ jobs:
 
       - name: Build locomo TypeScript
         if: steps.locomo_check.outputs.present == 'true'
+        working-directory: eval/locomo
         run: |
-          cd eval/locomo && npx tsc --noEmit 2>&1 | head -30 || true
-          cd eval/locomo && npx tsc 2>&1 | head -30
+          # `npx tsc` without local typescript pulls the unrelated `tsc@2.0.4`
+          # package — use `-p typescript` to force the actual compiler.
+          npx -y -p typescript@5 tsc --noEmit 2>&1 | head -30 || true
+          npx -y -p typescript@5 tsc 2>&1 | head -30
 
       - name: Run LoCoMo dry-run (n=10, no --full = dry-run mode)
         if: steps.locomo_check.outputs.present == 'true'
@@ -143,9 +146,11 @@ jobs:
 
       - name: Build longmemeval TypeScript
         if: steps.lme_check.outputs.present == 'true'
+        working-directory: eval/longmemeval
         run: |
-          cd eval/longmemeval && npx tsc --noEmit 2>&1 | head -30 || true
-          cd eval/longmemeval && npx tsc 2>&1 | head -30
+          # Same bug as locomo — pin the real typescript package.
+          npx -y -p typescript@5 tsc --noEmit 2>&1 | head -30 || true
+          npx -y -p typescript@5 tsc 2>&1 | head -30
 
       - name: Run LongMemEval dry-run (n=10, --no-llm skips generator)
         if: steps.lme_check.outputs.present == 'true'
@@ -219,8 +224,10 @@ jobs:
 
       - name: Build latency TypeScript
         if: steps.lat_check.outputs.present == 'true'
+        working-directory: eval/latency
         run: |
-          cd eval/latency && npx tsc 2>&1 | head -30
+          # Pin typescript package — bare `npx tsc` pulls unrelated tsc@2.0.4.
+          npx -y -p typescript@5 tsc 2>&1 | head -30
 
       - name: Run synthetic dry-run (no binary, no DB)
         if: steps.lat_check.outputs.present == 'true'
