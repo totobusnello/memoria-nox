@@ -3,7 +3,7 @@ import { getDb } from "./db.js";
 import { TIER_BOOST } from "./tier-manager.js";
 import { expandQuery } from "./search-expansion.js";
 import { dedupe } from "./search-dedup.js";
-import { calculateSalience, getSalienceMode } from "./salience.js";
+import { calculateSalience, calculateSalienceLegacy, getSalienceMode } from "./salience.js";
 
 // ─── Boost configuration (Fase 1.7a + A-boost-stack-wiring 2026-05-19) ────────
 //
@@ -131,12 +131,76 @@ interface SalienceChunkInput {
   source_date?: string | null;
   created_at?: string | null;
   last_accessed_at?: string | null;
+  access_count?: number | null;
 }
 
-function salienceDelta(chunk: SalienceChunkInput): number {
-  // Shadow mode and off mode both contribute 0 to ranking (shadow can still
-  // be logged elsewhere; that observability path is not in scope here).
-  if (getSalienceMode() !== "active") return 0;
+// ─── Salience observability probes (MEDIUM #4 + #5, PR #150 review) ───────────
+//
+// Two opt-in env-gated probes that log salience telemetry WITHOUT affecting
+// ranking. Both write JSON lines to stderr; downstream telemetry collector
+// (per /api/health pipeline, CLAUDE.md §5) is expected to ingest these.
+//
+//   NOX_SALIENCE_SHADOW_LOG=1   — log v2 salience computed in shadow mode
+//   NOX_SALIENCE_AB_SHADOW=1    — log (v2, legacy, delta) per chunk for
+//                                 A/B comparison without flipping to active
+//
+// These never throw — observability must not derail search.
+
+function shadowProbeSalience(s: number, chunkId: number | undefined): void {
+  if (process.env.NOX_SALIENCE_SHADOW_LOG !== "1") return;
+  try {
+    process.stderr.write(
+      JSON.stringify({ type: "shadow_salience", chunk_id: chunkId, salience: s, ts: Date.now() }) + "\n",
+    );
+  } catch {
+    /* observability must not throw */
+  }
+}
+
+function abShadowProbe(sV2: number, sLegacy: number, chunkId: number | undefined): void {
+  if (process.env.NOX_SALIENCE_AB_SHADOW !== "1") return;
+  try {
+    process.stderr.write(
+      JSON.stringify({
+        type: "ab_salience",
+        chunk_id: chunkId,
+        v2: sV2,
+        legacy: sLegacy,
+        delta: sV2 - sLegacy,
+        ts: Date.now(),
+      }) + "\n",
+    );
+  } catch {
+    /* observability must not throw */
+  }
+}
+
+function salienceDelta(chunk: SalienceChunkInput, chunkId?: number): number {
+  const mode = getSalienceMode();
+
+  // Shadow probe: compute v2 even in shadow mode for telemetry,
+  // but return 0 (no ranking effect).
+  if (mode === "shadow") {
+    try {
+      shadowProbeSalience(calculateSalience(chunk), chunkId);
+    } catch {
+      /* probe must not throw */
+    }
+  }
+
+  // A/B sentinel: opt-in dual-formula logging regardless of mode.
+  // Cheap (2 pure-fn calls); skipped entirely when env flag absent.
+  if (process.env.NOX_SALIENCE_AB_SHADOW === "1") {
+    try {
+      const sV2 = calculateSalience(chunk);
+      const sLegacy = calculateSalienceLegacy(chunk);
+      abShadowProbe(sV2, sLegacy, chunkId);
+    } catch {
+      /* probe must not throw */
+    }
+  }
+
+  if (mode !== "active") return 0;
   const s = calculateSalience(chunk);
   // Neutral baseline 0.5: salience=0.5 → no net effect; salience=1.0 → +0.5;
   // salience=0 → −0.5. Bounded delta keeps multi-stack stacking sane.
@@ -220,7 +284,7 @@ export function search(query: string, limit: number = 5): SearchResult[] {
     boostSum += tierDelta(row.tier);
     boostSum += sourceTypeDelta(row.source_type);
     boostSum += sectionDelta(row.section, row.section_boost);
-    boostSum += salienceDelta(row);
+    boostSum += salienceDelta(row, row.id);
 
     const score = baseScore * (1 + boostSum);
 
@@ -335,7 +399,7 @@ export async function searchSemantic(query: string, limit: number = 5): Promise<
           last_accessed_at: info.last_accessed_at,
           access_count: info.access_count,
           source_date: row.source_date,
-        });
+        }, info.id);
       }
 
       const score = baseScore * (1 + boostSum);

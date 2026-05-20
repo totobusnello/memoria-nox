@@ -144,6 +144,57 @@ salience = clamp01(
 
 **Histórico**: versão inicial proposta dessa audit incluía `W_section_boost = 0.2` (sums to 1.0 com section em vez de access alta). Refinado pós-review: section vive em `sectionDelta` já, access_count é signal NEW genuinamente sub-utilizado.
 
+### Post-formula distribution simulation (LOW #6, PR #150 review)
+
+> Projeção de como salience v2 vai particionar os 68,995 chunks do prod, baseado nos buckets de cada componente observados acima.
+
+**Mean por componente (corpus prod observado):**
+
+| Componente | Mean estimado | Cálculo |
+|---|---|---|
+| importance | **0.45** | bimodal: 74% × 0.40 + 17% × 0.85 + 9% × 0.50 |
+| recency | **0.92** | 99.76% em [7-30d] → meia-vida ~0.85-0.95 com retention default 90d |
+| pain | **0.23** | 90.67% × 0.2 + 1.31% × 0.38 + 7.04% × 0.62 + 0.98% × 0.87 |
+| access (norm) | **0.05** | 87% × 0 + 8.4% × 0.17 + 1.5% × 0.32 + 2.5% × 0.50 + 0.9% × 0.74 |
+
+**Salience mean v2 estimada**:
+```
+mean ≈ 0.55 × 0.45 + 0.15 × 0.92 + 0.10 × 0.23 + 0.20 × 0.05
+     = 0.247 + 0.138 + 0.023 + 0.010
+     ≈ 0.418
+```
+
+**Buckets esperados (v2 vs legacy multiplicativa):**
+
+| Bucket | Threshold | **v2 (projeção)** | Legacy (medido) |
+|---|---|---|---|
+| archive | <0.15 | **~2%** | 0%* (fora do range — legacy concentra [0.05-0.40] mid) |
+| review | 0.15-0.4 | **~50%** | **85.5%** (catastrophic dead band) |
+| retain | 0.4-0.7 | **~43%** | 14.2% |
+| promote | ≥0.7 | **~5%** | 0.27% (saturated peak) |
+
+**Validação threshold 0.7 promote alcançável?**
+
+Caso single-signal max (importance=1.0, all others=0): salience = 0.55 → "retain" apenas.
+
+Promote requer **≥2 sinais altos**:
+- importance=1.0 + access=1.0 → 0.75 ✅
+- importance=0.85 + recency=1.0 + access=1.0 → 0.817 ✅
+- importance=0.85 + pain=1.0 + access=1.0 → 0.767 ✅
+
+Isso é desejável — promote = sinal forte e raro. **Thresholds 0.7/0.4/0.15 mantidos continuam particionando** significativamente sob v2 weights.
+
+**Por que isso valida o refactor:**
+- Legacy concentrava 85.5% em "review" (faixa dead) → reranking era noise
+- V2 espalha em buckets balanceados (50/43/5/2) → reranking é signal real
+- Promote raro (~5%) preserva semântica original de "chunk excepcional"
+- Archive pequeno (~2%) reflete importance forte mas componentes secundários puxam pra cima quando importance é baixo
+
+**Re-validation pós-deploy:**
+1. Query `SELECT classification, COUNT(*) FROM ... GROUP BY` via `classifySalience(calculateSalience(...))` em todo corpus
+2. Comparar distribuição real vs projeção acima
+3. Se desviar >10% em qualquer bucket: re-tune pesos ou ajustar thresholds
+
 ### Re-medir
 - A7' / A8' com formula nova (shadow vs active)
 - Expectativa: distribuição salience spread real em [0.0-1.0] vez de [0.05-0.40]
