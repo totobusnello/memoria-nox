@@ -210,10 +210,51 @@ export interface SalienceInput {
 // Weights tuned to mirror tier-manager threshold semantics (0.7 / 0.4 / 0.15)
 // so `classifySalience` still partitions chunks meaningfully.
 
-const W_IMPORTANCE = 0.55; // PRIMARY live signal
-const W_RECENCY = 0.15;     // dampened (homogeneous corpus age post-restore)
-const W_PAIN = 0.10;        // dampened (90% default value)
-const W_ACCESS = 0.20;      // binary used/unused signal
+// Tunable via env vars (design: CLAUDE.md research/2026-05-20-formula-v2-weights-tuning-design.md):
+//   NOX_SALIENCE_W_IMPORTANCE=0.55 (default)
+//   NOX_SALIENCE_W_RECENCY=0.15 (default)
+//   NOX_SALIENCE_W_PAIN=0.10 (default)
+//   NOX_SALIENCE_W_ACCESS=0.20 (default)
+//
+// Sum must approx 1.0 — warning emitted otherwise (scores can leak >1).
+// Use case: grid search via systemd Environment= overrides (no rebuild needed).
+
+function parseWeight(env: string | undefined, fallback: number): number {
+  if (env === undefined) return fallback;
+  const n = parseFloat(env);
+  if (!Number.isFinite(n) || n < 0 || n > 1) return fallback;
+  return n;
+}
+
+const W_IMPORTANCE = parseWeight(process.env.NOX_SALIENCE_W_IMPORTANCE, 0.55); // PRIMARY live signal
+const W_RECENCY = parseWeight(process.env.NOX_SALIENCE_W_RECENCY, 0.15);       // dampened (homogeneous corpus age post-restore)
+const W_PAIN = parseWeight(process.env.NOX_SALIENCE_W_PAIN, 0.10);             // dampened (90% default value)
+const W_ACCESS = parseWeight(process.env.NOX_SALIENCE_W_ACCESS, 0.20);         // binary used/unused signal
+
+const _totalWeight = W_IMPORTANCE + W_RECENCY + W_PAIN + W_ACCESS;
+if (Math.abs(_totalWeight - 1.0) > 0.01) {
+  console.warn(`[salience] W_* sum = ${_totalWeight.toFixed(3)} != 1.0 — scores can exceed [0,1] range`);
+}
+
+/**
+ * Returns the currently active weight values (read-only snapshot).
+ * Useful for observability (e.g. /api/health, eval harness introspection).
+ */
+export function getCurrentWeights(): {
+  importance: number;
+  recency: number;
+  pain: number;
+  access: number;
+  total: number;
+} {
+  return {
+    importance: W_IMPORTANCE,
+    recency: W_RECENCY,
+    pain: W_PAIN,
+    access: W_ACCESS,
+    total: W_IMPORTANCE + W_RECENCY + W_PAIN + W_ACCESS,
+  };
+}
 
 /**
  * Access-count component. Maps 0 → 0, log-saturating toward 1.0 at ~1000 accesses.
