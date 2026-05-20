@@ -19,6 +19,36 @@
  *   NOX_TEMPORAL_K_RERANK=20              (top-K reranked)
  *
  * Não importa src/db.ts nem search.ts — design isolado, testável em vacuo.
+ *
+ * ─── HISTORY ─────────────────────────────────────────────────────────────────
+ *
+ *   v1 (PR #176, 2026-05-20):
+ *     PATCH 1 — detector cobre "data em que / dia em que / momento em que"
+ *     PATCH 2 — inferAnchorFromTopK (mode YYYY-MM majority threshold ≥50%)
+ *     PATCH 3 — proximityBoost gap-aware (substitui fixed *10 multiplier)
+ *
+ *   Smoke #179 (PR #176 re-rodado contra Q105-Q110): Δ −32.29%. Wins isolados
+ *   em Q107/Q109/Q110, mas Q105/Q106 caíram 9-11 posições no rank cada (anchor
+ *   inferido `2026-04-15` é viesado pra abril porque o corpus tem volume
+ *   abril). Veredito: NÃO deployar v1 como está.
+ *
+ *   v2 (este arquivo, 2026-05-20 pós PR #179):
+ *     PATCH 2 v2 — Anchor guard dois estágios:
+ *       Stage A: extractAnchorFromQuery — regex de mês/ano DIRETO da query
+ *                (não mais top-K). Confidence alta.
+ *       Stage B: inferAnchorFromTopKAge — median (não mode) das datas top-K,
+ *                como fallback. Confidence baixa, score multiplicado por 0.3.
+ *
+ *     PATCH 3 v2 — Confidence tiers no boost:
+ *       iso_date                    → 1.0
+ *       month_year                  → 0.8
+ *       adverbial_keyword_inferred  → 0.6
+ *       adverbial_topk_inferred     → 0.3
+ *       adverbial / adverbial_inferred (legacy) → 0.0 (off)
+ *
+ *     Objetivo: queries que mencionam mês/ano explicitamente (mesmo só "abril")
+ *     usam Stage A com alta confiança; queries puramente adverbiais usam
+ *     Stage B com baixa confiança, limitando o impacto de inferência errada.
  */
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -28,7 +58,9 @@ export type TemporalSignalSource =
   | "month_year"
   | "year"
   | "adverbial"
-  | "adverbial_inferred"
+  | "adverbial_inferred"            // legacy v1 (deprecated, kept p/ backward-compat de telemetria)
+  | "adverbial_keyword_inferred"    // PATCH 2 v2 Stage A
+  | "adverbial_topk_inferred"       // PATCH 2 v2 Stage B
   | null;
 
 export interface TemporalIntent {
@@ -207,16 +239,129 @@ export function proximityDelta(
   return 0.5 * Math.exp(exponent);
 }
 
-// ─── Adverbial-to-anchor fallback (PATCH 2) ───────────────────────────────────
+// ─── Adverbial-to-anchor fallback v2 (PATCH 2 v2) ─────────────────────────────
 //
 // Quando o detector retorna `signalSource:'adverbial'` SEM anchor parseável,
-// o spike original skipa rerank. Smoke #170 mostrou 5/6 de Q105-Q110 caindo
-// nessa branch → Δ +0.0%. Patch: tentar inferir um anchor a partir do
-// `source_date` dos top-K results — se ≥50% compartilham o mesmo ano-mês,
-// usa o midpoint daquele mês como anchor (fallback ISO mid-month).
+// o spike v1 (PR #176) inferia mid-month-15 do mês majoritário (mode) do
+// top-K. Smoke #179 mostrou que isso vira self-reinforcing bias quando o
+// corpus é temporalmente concentrado (Q105 gold maio 2026, anchor inferido
+// fixo `2026-04-15` → −32.29% Δ médio).
 //
-// Conservador: se dispersos, retorna null e mantém o no-op.
+// v2 — duas etapas:
+//
+//   Stage A: extractAnchorFromQuery — regex de mês/ano DIRETO na string da
+//            query (não na metadata do top-K). Cobre "abril 2026", "em maio
+//            2026", "may 2026", e fallback de ano isolado ("2026"). Confidence
+//            ALTA (0.6 no proximityBoost).
+//
+//   Stage B: inferAnchorFromTopKAge — median (não mode) das datas dos top-K.
+//            Mais robusto a outliers que o mode majority. Não normaliza pra
+//            mid-month (preserva o dia exato). Confidence BAIXA (0.3).
+//
+// Combined em applyProximityRerank (rerankByTemporalProximity): tenta A primeiro;
+// se Stage A null, tenta Stage B; se ambos null, NÃO rerank (bail).
 
+const QUERY_MONTH_PATTERNS_PT_BR: Record<string, string> = {
+  janeiro: "01", fevereiro: "02", "março": "03", marco: "03",
+  abril: "04", maio: "05", junho: "06", julho: "07",
+  agosto: "08", setembro: "09", outubro: "10", novembro: "11", dezembro: "12",
+};
+const QUERY_MONTH_PATTERNS_EN: Record<string, string> = {
+  january: "01", february: "02", march: "03", april: "04",
+  may: "05", june: "06", july: "07", august: "08",
+  september: "09", october: "10", november: "11", december: "12",
+};
+const QUERY_MONTH_PATTERNS: Record<string, string> = {
+  ...QUERY_MONTH_PATTERNS_PT_BR,
+  ...QUERY_MONTH_PATTERNS_EN,
+};
+// Build regex once (longer keys first to avoid prefix collision: "march" before "mar")
+const QUERY_MONTH_KEYS_SORTED = Object.keys(QUERY_MONTH_PATTERNS)
+  .sort((a, b) => b.length - a.length);
+const QUERY_MONTH_YEAR_RX = new RegExp(
+  `(?:^|\\s)(${QUERY_MONTH_KEYS_SORTED.join("|")})(?:\\s+(?:de\\s+|of\\s+)?(20\\d{2}))?(?=\\s|[.,?!]|$)`,
+  "iu",
+);
+const QUERY_BARE_YEAR_RX = /(?:^|\s)(20\d{2})(?=\s|[.,?!]|$)/u;
+
+/**
+ * Stage A da PATCH 2 v2.
+ *
+ * Tenta extrair anchor (YYYY-MM-DD) DIRETO da string da query via regex de
+ * mês/ano. Retorna `null` se não encontrar.
+ *
+ * Heuristics:
+ *   - "abril 2026" / "em abril 2026" / "abril de 2026" / "april 2026" → "2026-04-15"
+ *   - "abril" sozinho → ano implícito = ano atual (se mês passado) ou ano
+ *      anterior (se mês futuro), midpoint dia 15
+ *   - apenas "2026" sem mês → "2026-06-15" (mid-year)
+ *   - nada → null
+ */
+export function extractAnchorFromQuery(query: string, nowMs: number = Date.now()): string | null {
+  if (!query) return null;
+  const monthMatch = query.match(QUERY_MONTH_YEAR_RX);
+  if (monthMatch) {
+    const monthKey = monthMatch[1]!.toLowerCase();
+    const monthMM = QUERY_MONTH_PATTERNS[monthKey];
+    if (monthMM) {
+      let yearStr = monthMatch[2];
+      if (!yearStr) {
+        // Ano implícito: presente se mês passado, anterior se mês futuro
+        const now = new Date(nowMs);
+        const monthIdx = Number(monthMM) - 1;
+        const candidateThisYear = new Date(Date.UTC(now.getUTCFullYear(), monthIdx, 15));
+        yearStr = candidateThisYear.getTime() > nowMs
+          ? String(now.getUTCFullYear() - 1)
+          : String(now.getUTCFullYear());
+      }
+      return `${yearStr}-${monthMM}-15`;
+    }
+  }
+  // Year-only fallback (less specific)
+  const yearOnly = query.match(QUERY_BARE_YEAR_RX);
+  if (yearOnly) {
+    return `${yearOnly[1]}-06-15`;
+  }
+  return null;
+}
+
+/**
+ * Stage B da PATCH 2 v2.
+ *
+ * Inferência fraca: median (não mode) das datas do top-K. Preserva o dia
+ * exato (não normaliza pra mid-month) — assim consegue ancorar em
+ * "2026-05-05" se o top-K for {2026-04-30, 2026-05-05, 2026-05-10} ao invés
+ * de cair sempre em `2026-05-15`.
+ *
+ * Retorna null se < 2 datas no top-K.
+ */
+export function inferAnchorFromTopKAge<T extends RerankableResult>(
+  results: T[],
+  k: number = 5,
+): string | null {
+  if (!results || results.length === 0) return null;
+  const slice = results.slice(0, Math.min(k, results.length));
+
+  const dateMs: number[] = [];
+  for (const r of slice) {
+    const refStr = r.source_date ?? (r.created_at as string | null | undefined) ?? null;
+    if (!refStr) continue;
+    const ms = Date.parse(refStr);
+    if (Number.isFinite(ms)) dateMs.push(ms);
+  }
+  if (dateMs.length < 2) return null;
+
+  dateMs.sort((a, b) => a - b);
+  const median = dateMs[Math.floor(dateMs.length / 2)]!;
+  return new Date(median).toISOString().substring(0, 10);
+}
+
+/**
+ * Legacy v1 — kept p/ backward-compat de tests e telemetria histórica.
+ * Não usar em código novo (usa mode YYYY-MM majority threshold ≥50%).
+ *
+ * @deprecated Use extractAnchorFromQuery (Stage A) + inferAnchorFromTopKAge (Stage B) em v2.
+ */
 export function inferAnchorFromTopK<T extends RerankableResult>(
   results: T[],
   k: number = 5,
@@ -245,7 +390,42 @@ export function inferAnchorFromTopK<T extends RerankableResult>(
     }
   }
 
-  return winner ? `${winner[0]}-15` : null; // mid-month ISO fallback
+  return winner ? `${winner[0]}-15` : null;
+}
+
+// ─── Confidence multipliers (PATCH 3 v2) ──────────────────────────────────────
+//
+// Tier-down do boost por nível de confiança no signal. Tiers calibrados pra
+// limitar dano de inferências fracas:
+//
+//   iso_date                   → 1.0  exato, confiança total
+//   month_year                 → 0.8  explicit mês/ano da query, alta
+//   year                       → 0.5  só ano, médio (range muito amplo)
+//   adverbial_keyword_inferred → 0.6  Stage A, alta (regex da query)
+//   adverbial_topk_inferred    → 0.3  Stage B, baixa (median top-K)
+//   adverbial / adverbial_inferred → 0.0  legacy / sem anchor / inference v1
+//
+// Aplicado em rerankByTemporalProximity multiplicado ao gap-aware bump.
+// Confidence = 0 → não rerank (short-circuit antes do map).
+
+export function getConfidenceMultiplier(signalSource: TemporalSignalSource): number {
+  switch (signalSource) {
+    case "iso_date":
+      return 1.0;
+    case "month_year":
+      return 0.8;
+    case "year":
+      return 0.5;
+    case "adverbial_keyword_inferred":
+      return 0.6;
+    case "adverbial_topk_inferred":
+      return 0.3;
+    case "adverbial":
+    case "adverbial_inferred":
+      return 0.0; // legacy v1 — sem anchor, ou inference v1 (deprecated)
+    default:
+      return 0.0;
+  }
 }
 
 // ─── Proximity boost (PATCH 3 helper, pure & testable) ───────────────────────
@@ -288,6 +468,7 @@ export interface RerankReport {
   top1DeltaDays: number | null;
   rangeStart: string | null;
   rangeEnd: string | null;
+  confidence: number; // PATCH 3 v2 — multiplier efetivo (0.0 - 1.0)
 }
 
 export function rerankByTemporalProximity<T extends RerankableResult>(
@@ -299,21 +480,38 @@ export function rerankByTemporalProximity<T extends RerankableResult>(
   const cfg = { ...getTemporalPathMode(), ...opts };
   const intent = detectTemporal(query, nowMs);
 
-  // Mutable signal source — pode ser promovido pra "adverbial_inferred" via PATCH 2
+  // Mutable signal source — pode ser promovido pra:
+  //   - "adverbial_keyword_inferred" via PATCH 2 v2 Stage A (regex query)
+  //   - "adverbial_topk_inferred" via PATCH 2 v2 Stage B (median top-K)
   let signalSource: TemporalSignalSource = intent.signalSource;
   let effectiveAnchor: Date | null = intent.anchor;
 
-  // PATCH 2: adverbial-only sem anchor → tenta inferir do top-K (mid-month ISO)
+  // PATCH 2 v2: adverbial-only sem anchor → tentar Stage A → fallback Stage B
   if (cfg.mode !== "off" && intent.isTemporal && !effectiveAnchor && intent.signalSource === "adverbial") {
-    const inferredIso = inferAnchorFromTopK(results);
-    if (inferredIso) {
-      const parsed = new Date(inferredIso + "T00:00:00Z");
+    // Stage A: regex de mês/ano DIRETO na query
+    const stageAIso = extractAnchorFromQuery(query, nowMs);
+    if (stageAIso) {
+      const parsed = new Date(stageAIso + "T00:00:00Z");
       if (!Number.isNaN(parsed.getTime())) {
         effectiveAnchor = parsed;
-        signalSource = "adverbial_inferred";
+        signalSource = "adverbial_keyword_inferred";
+      }
+    }
+    // Stage B: median age do top-K (fallback)
+    if (!effectiveAnchor) {
+      const stageBIso = inferAnchorFromTopKAge(results, 5);
+      if (stageBIso) {
+        const parsed = new Date(stageBIso + "T00:00:00Z");
+        if (!Number.isNaN(parsed.getTime())) {
+          effectiveAnchor = parsed;
+          signalSource = "adverbial_topk_inferred";
+        }
       }
     }
   }
+
+  // PATCH 3 v2: confidence multiplier baseado em signalSource
+  const confidence = getConfidenceMultiplier(signalSource);
 
   const baseReport: RerankReport = {
     applied: false,
@@ -324,10 +522,11 @@ export function rerankByTemporalProximity<T extends RerankableResult>(
     top1DeltaDays: null,
     rangeStart: intent.anchorRange ? intent.anchorRange[0].toISOString().slice(0, 10) : null,
     rangeEnd: intent.anchorRange ? intent.anchorRange[1].toISOString().slice(0, 10) : null,
+    confidence,
   };
 
-  // Short-circuit: off mode OR no anchor (adverbial-only sem inferência delegates to E13)
-  if (cfg.mode === "off" || !intent.isTemporal || !effectiveAnchor) {
+  // Short-circuit: off mode OR no anchor OR confidence=0 (não aplicar)
+  if (cfg.mode === "off" || !intent.isTemporal || !effectiveAnchor || confidence <= 0) {
     return { results, report: baseReport };
   }
 
@@ -336,10 +535,7 @@ export function rerankByTemporalProximity<T extends RerankableResult>(
   const tail = results.slice(k);
 
   // PATCH 3: boost proporcional ao GAP entre top-1 e candidato (não fixo *10).
-  // Boost fixo dilui em cluster temporal denso (Q109 smoke #170): todos
-  // chunks têm proximity similar → ordem original preservada. Patch escala
-  // o boost pelo gap em score base — chunks atrás precisam de boost MAIOR
-  // pra ultrapassar top-1 quando proximity ≈ 1.
+  // PATCH 3 v2: bump final escalado por `confidence` (0.0 - 1.0).
   const top1Score = top.length > 0 ? top[0]!.score : 0;
 
   let top1DeltaDays: number | null = null;
@@ -357,13 +553,10 @@ export function rerankByTemporalProximity<T extends RerankableResult>(
 
     if (cfg.mode !== "active") return r; // shadow mode: don't mutate score
 
-    // Active: aditivo (regra #5). PATCH 3 — gap-aware:
-    //   dayFactor = delta * 2  (delta já é gaussian em [0, 0.5] → normaliza pra [0, 1])
-    //   gapBoost  = max(top1 - r.score, 0.1) (floor evita zero em ties)
-    //   bump      = baseFactor * dayFactor * gapBoost   (top-1 ganha bump=0 → estável)
+    // Active: aditivo (regra #5). PATCH 3 v2 — gap-aware + confidence-scaled.
     const dayFactor = Math.min(delta * 2, 1);
     const gapBoost = idx === 0 ? 0 : Math.max(top1Score - r.score, 0.1);
-    const bump = dayFactor * gapBoost;
+    const bump = dayFactor * gapBoost * confidence;
     const adjusted = { ...r, score: r.score + bump };
     return adjusted as T;
   });
@@ -409,4 +602,6 @@ export const _internals = {
   ISO_DATE,
   MONTH_YEAR,
   BARE_YEAR,
+  QUERY_MONTH_YEAR_RX,
+  QUERY_BARE_YEAR_RX,
 };

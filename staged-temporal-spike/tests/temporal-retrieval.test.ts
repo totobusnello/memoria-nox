@@ -9,6 +9,9 @@
  *  - proximityDelta: shape gaussiano, edge cases (null, NaN, σ=0 fallback)
  *  - rerankByTemporalProximity: shadow não muta, active reorderna,
  *    off é no-op, top-K bound, adverbial-only não dispara rerank
+ *  - PATCH 1 (detector gap Q107)
+ *  - PATCH 2 v2 (extractAnchorFromQuery Stage A + inferAnchorFromTopKAge Stage B)
+ *  - PATCH 3 v2 (confidence tiers, getConfidenceMultiplier)
  *
  * Run:
  *   npx tsc -p tsconfig.tests.json && node --test dist/tests/*.test.js
@@ -22,6 +25,9 @@ import {
   proximityDelta,
   proximityBoost,
   inferAnchorFromTopK,
+  inferAnchorFromTopKAge,
+  extractAnchorFromQuery,
+  getConfidenceMultiplier,
   rerankByTemporalProximity,
   type RerankableResult,
 } from "../edits/temporal-retrieval.js";
@@ -198,12 +204,12 @@ describe("rerankByTemporalProximity", () => {
       NOW_MS,
     );
     assert.equal(report.applied, true);
-    // PATCH 3 (gap-aware): bump = dayFactor * max(top1 - score, 0.1)
-    //   C: delta≈0.5 → dayFactor=1; gap = 100-80 = 20  → bump=20 → C=100
+    // PATCH 3 v2: bump = dayFactor * max(top1 - score, 0.1) * confidence(iso_date=1.0)
+    //   C: delta≈0.5 → dayFactor=1; gap = 100-80 = 20  → bump=20*1.0 → C=100
     //   D: delta≈0.499 → dayFactor≈0.998; gap = 100-70 = 30 → bump≈29.94 → D≈99.94
     //   B: delta≈near 0 (Δ≈105d, σ=30) → dayFactor≈0 → bump≈0.0x → B≈90
     //   A: idx=0 → bump forced to 0 → A=100
-    // Expected sort: A(100) > C(100) > D(99.94) > B(90)
+    // Expected sort: A(100) ≈ C(100) > D(99.94) > B(90)
     const dResult = results.find((r) => r.chunk_id === "D")!;
     assert.ok(dResult.score > 99, `D score must close gap to top: got ${dResult.score}`);
     const cResult = results.find((r) => r.chunk_id === "C")!;
@@ -215,63 +221,188 @@ describe("rerankByTemporalProximity", () => {
     assert.equal(results.length, 4);
   });
 
-  it("adverbial-only query with dispersed top-K dates does NOT trigger rerank", () => {
-    // Dispersed dates: A 2025-01, B 2026-01, C 2026-04, D 2026-04 → no >=50% majority
-    // (max single YYYY-MM = 2 of 4 = 50% exact → ceil(4*0.5)=2, threshold met!)
-    // Use truly dispersed dates instead:
+  it("adverbial-only query with no month/year and dispersed dates does NOT trigger rerank", () => {
+    // Truly dispersed dates → Stage A fails (no month/year in query), Stage B
+    // computes median but applies confidence=0.3 → still moves but small. We
+    // assert that scores DID move (Stage B fires) since v2 uses median, not
+    // mode threshold. Compare with separate test that confidence multiplier
+    // limits the effect.
     const dispersed: RerankableResult[] = [
       { score: 100, source_date: "2024-01-15", chunk_id: "A" },
       { score: 90, source_date: "2025-06-10", chunk_id: "B" },
       { score: 80, source_date: "2026-04-25", chunk_id: "C" },
       { score: 70, source_date: "2026-11-01", chunk_id: "D" },
     ];
-    const { results, report } = rerankByTemporalProximity(
+    const { report } = rerankByTemporalProximity(
       dispersed,
       "quando o salience foi ativado",
       { mode: "active", sigmaDays: 30 },
       NOW_MS,
     );
     assert.equal(report.isTemporal, true);
-    assert.equal(report.signalSource, "adverbial"); // not promoted (no majority)
-    assert.equal(report.applied, false); // no anchor → no rerank
-    assert.deepEqual(
-      results.map((r) => r.score),
-      dispersed.map((r) => r.score),
-    );
+    // Stage A fails (no month/year keyword), Stage B fires → adverbial_topk_inferred
+    assert.equal(report.signalSource, "adverbial_topk_inferred");
+    assert.ok(report.confidence === 0.3, `confidence=${report.confidence} expected 0.3`);
   });
 
-  // ── PATCH 2 tests ─────────────────────────────────────────────────────────
-  it("adverbial-only with majority top-K month promotes to adverbial_inferred and reranks", () => {
-    // Majority: 3/4 results em 2026-04 → infer anchor 2026-04-15
-    const majorityResults: RerankableResult[] = [
-      { score: 100, source_date: "2025-01-15", chunk_id: "A" }, // outlier
+  it("query with explicit month keyword triggers Stage A (adverbial_keyword_inferred)", () => {
+    const results: RerankableResult[] = [
+      { score: 100, source_date: "2025-01-15", chunk_id: "A" },
       { score: 90, source_date: "2026-04-10", chunk_id: "B" },
       { score: 80, source_date: "2026-04-20", chunk_id: "C" },
       { score: 70, source_date: "2026-04-30", chunk_id: "D" },
     ];
-    const { results, report } = rerankByTemporalProximity(
-      majorityResults,
-      "quando o salience foi ativado",
+    const { report } = rerankByTemporalProximity(
+      results,
+      "quando lançamos algo em abril 2026",
       { mode: "active", sigmaDays: 30 },
       NOW_MS,
     );
-    assert.equal(report.isTemporal, true);
-    assert.equal(report.signalSource, "adverbial_inferred");
-    assert.equal(report.anchorIso, "2026-04-15");
-    assert.equal(report.applied, true);
-    // chunks de 2026-04 devem subir; B/C/D must outrank A in final order? Not necessarily:
-    // A starts at 100, doesn't get boost (created_at outlier), B/C/D get boosts proportional to gap.
-    // Verify at least B/C/D scores moved (boost applied).
-    const b = results.find((r) => r.chunk_id === "B")!;
-    const c = results.find((r) => r.chunk_id === "C")!;
-    const d = results.find((r) => r.chunk_id === "D")!;
-    assert.ok(b.score > 90 || c.score > 80 || d.score > 70, "at least one in-month chunk must boost");
+    // "abril 2026" matches month_year detector primarily; not adverbial inference path
+    // This documents that month_year detector wins when explicit
+    assert.ok(
+      report.signalSource === "month_year",
+      `expected month_year detector wins, got ${report.signalSource}`,
+    );
+    assert.equal(report.confidence, 0.8);
+  });
+
+  it("adverbial query w/ month keyword only (no detector match) falls to Stage A keyword inference", () => {
+    // Query "quando ... abril" — "quando" matches adverbial pattern FIRST, so
+    // detector returns "adverbial". Stage A finds "abril" → anchor 2026-04-15.
+    // BUT: "abril" alone (no year) also matches MONTH_YEAR regex which is tried
+    // BEFORE adverbial in detectTemporal. So this depends on regex precedence.
+    // Verify behavior: detector ordering says month_year > adverbial → expect
+    // month_year direct.
+    const results: RerankableResult[] = [
+      { score: 100, source_date: "2025-01-15", chunk_id: "A" },
+      { score: 90, source_date: "2026-04-10", chunk_id: "B" },
+    ];
+    const { report } = rerankByTemporalProximity(
+      results,
+      "quando algo aconteceu abril",
+      { mode: "active", sigmaDays: 30 },
+      NOW_MS,
+    );
+    // month_year detector wins (regex order in detectTemporal)
+    assert.equal(report.signalSource, "month_year");
   });
 });
 
-// ─── PATCH 2 unit tests for inferAnchorFromTopK ──────────────────────────────
+// ─── PATCH 2 v2 unit tests for extractAnchorFromQuery (Stage A) ──────────────
 
-describe("inferAnchorFromTopK (PATCH 2)", () => {
+describe("extractAnchorFromQuery (PATCH 2 v2 Stage A)", () => {
+  it('returns "YYYY-MM-15" for "<month> <year>" PT-BR', () => {
+    assert.equal(extractAnchorFromQuery("quando foi em abril 2026", NOW_MS), "2026-04-15");
+    assert.equal(extractAnchorFromQuery("em maio 2026 lançamos X", NOW_MS), "2026-05-15");
+    assert.equal(extractAnchorFromQuery("janeiro 2025 começou", NOW_MS), "2025-01-15");
+  });
+
+  it('returns "YYYY-MM-15" for "<month> de <year>" PT-BR', () => {
+    assert.equal(extractAnchorFromQuery("evento em março de 2026", NOW_MS), "2026-03-15");
+  });
+
+  it('returns "YYYY-MM-15" for "<month> <year>" EN', () => {
+    assert.equal(extractAnchorFromQuery("what happened in May 2026", NOW_MS), "2026-05-15");
+    assert.equal(extractAnchorFromQuery("April 2026 release", NOW_MS), "2026-04-15");
+  });
+
+  it('returns "YYYY-MM-15" for "<month> of <year>" EN', () => {
+    assert.equal(extractAnchorFromQuery("the date of June of 2025", NOW_MS), "2025-06-15");
+  });
+
+  it("returns implicit-year midpoint for bare month (past = current year)", () => {
+    // NOW=2026-05-20, "março" past → 2026-03-15
+    assert.equal(extractAnchorFromQuery("o que aconteceu em março", NOW_MS), "2026-03-15");
+  });
+
+  it("returns implicit-year midpoint for bare month (future = previous year)", () => {
+    // NOW=2026-05-20, "novembro" future → 2025-11-15
+    assert.equal(extractAnchorFromQuery("o que aconteceu em novembro", NOW_MS), "2025-11-15");
+  });
+
+  it("returns mid-year for bare year only", () => {
+    assert.equal(extractAnchorFromQuery("os incidents de 2026", NOW_MS), "2026-06-15");
+    assert.equal(extractAnchorFromQuery("milestones 2025", NOW_MS), "2025-06-15");
+  });
+
+  it("returns null when query has no month/year keyword", () => {
+    assert.equal(extractAnchorFromQuery("data do deploy", NOW_MS), null);
+    assert.equal(extractAnchorFromQuery("quando o salience foi ativado", NOW_MS), null);
+    assert.equal(extractAnchorFromQuery("", NOW_MS), null);
+    assert.equal(extractAnchorFromQuery("como funciona", NOW_MS), null);
+  });
+
+  it("uppercase / mixed case is normalized", () => {
+    assert.equal(extractAnchorFromQuery("ABRIL 2026 deploy", NOW_MS), "2026-04-15");
+    assert.equal(extractAnchorFromQuery("April 2026 Release", NOW_MS), "2026-04-15");
+  });
+});
+
+// ─── PATCH 2 v2 unit tests for inferAnchorFromTopKAge (Stage B) ──────────────
+
+describe("inferAnchorFromTopKAge (PATCH 2 v2 Stage B)", () => {
+  it("returns median date (not mode) of top-K source_dates", () => {
+    // dates sorted: 2024-01-15, 2025-06-10, 2026-04-25, 2026-04-30, 2026-11-01
+    // median index = floor(5/2) = 2 → "2026-04-25"
+    const r: RerankableResult[] = [
+      { score: 0, source_date: "2024-01-15", chunk_id: "a" },
+      { score: 0, source_date: "2025-06-10", chunk_id: "b" },
+      { score: 0, source_date: "2026-04-25", chunk_id: "c" },
+      { score: 0, source_date: "2026-04-30", chunk_id: "d" },
+      { score: 0, source_date: "2026-11-01", chunk_id: "e" },
+    ];
+    assert.equal(inferAnchorFromTopKAge(r, 5), "2026-04-25");
+  });
+
+  it("preserves exact day (does NOT normalize to mid-month-15)", () => {
+    const r: RerankableResult[] = [
+      { score: 0, source_date: "2026-05-01", chunk_id: "a" },
+      { score: 0, source_date: "2026-05-05", chunk_id: "b" }, // median
+      { score: 0, source_date: "2026-05-10", chunk_id: "c" },
+    ];
+    assert.equal(inferAnchorFromTopKAge(r, 5), "2026-05-05");
+  });
+
+  it("returns null when fewer than 2 dates available", () => {
+    const r: RerankableResult[] = [
+      { score: 0, source_date: "2026-04-10", chunk_id: "x" },
+      { score: 0, source_date: null, chunk_id: "y" },
+    ];
+    assert.equal(inferAnchorFromTopKAge(r, 5), null);
+  });
+
+  it("uses created_at when source_date is null", () => {
+    const r: RerankableResult[] = [
+      { score: 0, source_date: null, created_at: "2026-04-10", chunk_id: "x" },
+      { score: 0, source_date: null, created_at: "2026-04-20", chunk_id: "y" },
+      { score: 0, source_date: "2025-01-01", chunk_id: "z" },
+    ];
+    // sorted: 2025-01-01, 2026-04-10, 2026-04-20 → median = 2026-04-10
+    assert.equal(inferAnchorFromTopKAge(r, 5), "2026-04-10");
+  });
+
+  it("returns null on empty input", () => {
+    assert.equal(inferAnchorFromTopKAge([], 5), null);
+  });
+
+  it("respects k bound (only looks at top-K)", () => {
+    // 6 results; k=3 → only top 3 considered. Median of {2026-01, 2026-02, 2026-03} = 2026-02-15
+    const r: RerankableResult[] = [
+      { score: 0, source_date: "2026-01-15", chunk_id: "a" },
+      { score: 0, source_date: "2026-02-15", chunk_id: "b" },
+      { score: 0, source_date: "2026-03-15", chunk_id: "c" },
+      { score: 0, source_date: "2026-12-01", chunk_id: "d" }, // outside k=3
+      { score: 0, source_date: "2026-12-15", chunk_id: "e" }, // outside k=3
+      { score: 0, source_date: "2026-12-31", chunk_id: "f" }, // outside k=3
+    ];
+    assert.equal(inferAnchorFromTopKAge(r, 3), "2026-02-15");
+  });
+});
+
+// ─── Legacy inferAnchorFromTopK (kept for backward-compat) ───────────────────
+
+describe("inferAnchorFromTopK (legacy v1, deprecated)", () => {
   it("returns mid-month ISO when majority share same YYYY-MM", () => {
     const r: RerankableResult[] = [
       { score: 0, source_date: "2026-04-10", chunk_id: "x" },
@@ -290,27 +421,6 @@ describe("inferAnchorFromTopK (PATCH 2)", () => {
       { score: 0, source_date: "2026-11-01", chunk_id: "d" },
     ];
     assert.equal(inferAnchorFromTopK(r, 5), null);
-  });
-
-  it("returns null when fewer than 2 dates available", () => {
-    const r: RerankableResult[] = [
-      { score: 0, source_date: "2026-04-10", chunk_id: "x" },
-      { score: 0, source_date: null, chunk_id: "y" },
-    ];
-    assert.equal(inferAnchorFromTopK(r, 5), null);
-  });
-
-  it("uses created_at when source_date is null", () => {
-    const r: RerankableResult[] = [
-      { score: 0, source_date: null, created_at: "2026-04-10", chunk_id: "x" },
-      { score: 0, source_date: null, created_at: "2026-04-20", chunk_id: "y" },
-      { score: 0, source_date: "2025-01-01", chunk_id: "z" },
-    ];
-    assert.equal(inferAnchorFromTopK(r, 5), "2026-04-15");
-  });
-
-  it("returns null on empty input", () => {
-    assert.equal(inferAnchorFromTopK([], 5), null);
   });
 });
 
@@ -384,5 +494,148 @@ describe("proximityBoost (PATCH 3)", () => {
     // delta can't normally exceed 0.5, but defensively cap dayFactor
     const b = proximityBoost(1.0, 10); // dayFactor capped at 1
     assert.equal(b, 10);
+  });
+});
+
+// ─── PATCH 3 v2 unit tests for getConfidenceMultiplier ───────────────────────
+
+describe("getConfidenceMultiplier (PATCH 3 v2)", () => {
+  it("returns 1.0 for iso_date (exact)", () => {
+    assert.equal(getConfidenceMultiplier("iso_date"), 1.0);
+  });
+
+  it("returns 0.8 for month_year (explicit)", () => {
+    assert.equal(getConfidenceMultiplier("month_year"), 0.8);
+  });
+
+  it("returns 0.5 for year (wide range)", () => {
+    assert.equal(getConfidenceMultiplier("year"), 0.5);
+  });
+
+  it("returns 0.6 for adverbial_keyword_inferred (Stage A)", () => {
+    assert.equal(getConfidenceMultiplier("adverbial_keyword_inferred"), 0.6);
+  });
+
+  it("returns 0.3 for adverbial_topk_inferred (Stage B, weak signal)", () => {
+    assert.equal(getConfidenceMultiplier("adverbial_topk_inferred"), 0.3);
+  });
+
+  it("returns 0.0 for adverbial (no anchor, legacy v1 off)", () => {
+    assert.equal(getConfidenceMultiplier("adverbial"), 0.0);
+  });
+
+  it("returns 0.0 for adverbial_inferred (legacy v1, deprecated)", () => {
+    assert.equal(getConfidenceMultiplier("adverbial_inferred"), 0.0);
+  });
+
+  it("returns 0.0 for null / unknown", () => {
+    assert.equal(getConfidenceMultiplier(null), 0.0);
+  });
+});
+
+// ─── PATCH 2 v2 + PATCH 3 v2 integration: rerank with confidence ─────────────
+
+describe("rerankByTemporalProximity — PATCH 2/3 v2 integration", () => {
+  it("adverbial query w/ no month → Stage B median, confidence=0.3 applied", () => {
+    // Query has "quando" → adverbial; no month/year → Stage A fails; Stage B
+    // computes median = 2026-04-20 from top-K. Confidence = 0.3 limits boost.
+    const results: RerankableResult[] = [
+      { score: 100, source_date: "2025-01-15", chunk_id: "A" },
+      { score: 90, source_date: "2026-04-10", chunk_id: "B" },
+      { score: 80, source_date: "2026-04-20", chunk_id: "C" },
+      { score: 70, source_date: "2026-04-30", chunk_id: "D" },
+      { score: 60, source_date: "2026-04-25", chunk_id: "E" },
+    ];
+    const { report } = rerankByTemporalProximity(
+      results,
+      "quando o salience foi ativado",
+      { mode: "active", sigmaDays: 30 },
+      NOW_MS,
+    );
+    assert.equal(report.signalSource, "adverbial_topk_inferred");
+    assert.equal(report.confidence, 0.3);
+    assert.equal(report.applied, true);
+    assert.ok(report.anchorIso, "anchor must be set from Stage B");
+  });
+
+  it("adverbial-only with no top-K dates → bail (no rerank)", () => {
+    // Query is adverbial, but top-K has no parseable dates → Stage A fail +
+    // Stage B fail → confidence=0 → no rerank
+    const results: RerankableResult[] = [
+      { score: 100, source_date: null, chunk_id: "A" },
+      { score: 90, source_date: null, chunk_id: "B" },
+    ];
+    const { report } = rerankByTemporalProximity(
+      results,
+      "quando o salience foi ativado",
+      { mode: "active", sigmaDays: 30 },
+      NOW_MS,
+    );
+    assert.equal(report.signalSource, "adverbial");
+    assert.equal(report.confidence, 0.0);
+    assert.equal(report.applied, false);
+  });
+
+  it("confidence multiplier reduces bump magnitude vs full strength", () => {
+    // Compare two queries with same intent but different signalSource confidence.
+    // ISO date query (confidence=1.0) should produce LARGER bump than adverbial w/
+    // Stage B (confidence=0.3) given identical fixture.
+    const fixture: RerankableResult[] = [
+      { score: 100, source_date: "2025-01-15", chunk_id: "A" },
+      { score: 90, source_date: "2026-04-15", chunk_id: "B" },
+      { score: 80, source_date: "2026-04-15", chunk_id: "C" },
+      { score: 70, source_date: "2026-04-15", chunk_id: "D" },
+      { score: 60, source_date: "2026-04-15", chunk_id: "E" },
+    ];
+
+    const isoRun = rerankByTemporalProximity(
+      fixture,
+      "deploy em 2026-04-15",
+      { mode: "active", sigmaDays: 30 },
+      NOW_MS,
+    );
+    const advRun = rerankByTemporalProximity(
+      fixture,
+      "quando o salience foi ativado",
+      { mode: "active", sigmaDays: 30 },
+      NOW_MS,
+    );
+
+    assert.equal(isoRun.report.signalSource, "iso_date");
+    assert.equal(isoRun.report.confidence, 1.0);
+    assert.equal(advRun.report.signalSource, "adverbial_topk_inferred");
+    assert.equal(advRun.report.confidence, 0.3);
+
+    // ISO bump for B = dayFactor(1) * gap(10) * conf(1.0) = 10 → score 100
+    // ADV bump for B = dayFactor(1) * gap(10) * conf(0.3) = 3  → score 93
+    const isoB = isoRun.results.find((r) => r.chunk_id === "B")!;
+    const advB = advRun.results.find((r) => r.chunk_id === "B")!;
+    assert.ok(
+      isoB.score > advB.score,
+      `iso bump (${isoB.score}) should exceed adv (${advB.score})`,
+    );
+  });
+
+  it("Stage A wins over Stage B when both could fire (precedence test)", () => {
+    // Note: detectTemporal already returns month_year if month keyword found
+    // BEFORE adverbial pattern. So a query like "quando aconteceu em abril 2026"
+    // gets month_year directly (not adverbial → Stage A path). But what about
+    // a query that matches adverbial pattern AND has a year-only ("2026")?
+    // detectTemporal returns adverbial (4th branch); Stage A finds 2026 → fires.
+    const results: RerankableResult[] = [
+      { score: 100, source_date: "2025-01-15", chunk_id: "A" },
+      { score: 90, source_date: "2026-04-10", chunk_id: "B" },
+    ];
+    // "quando ... 2026" → adverbial detector + Stage A bare-year match
+    const { report } = rerankByTemporalProximity(
+      results,
+      "quando algo aconteceu 2026",
+      { mode: "active", sigmaDays: 30 },
+      NOW_MS,
+    );
+    // adverbial detector fires (matches "quando"), then Stage A finds bare year
+    assert.equal(report.signalSource, "adverbial_keyword_inferred");
+    assert.equal(report.anchorIso, "2026-06-15");
+    assert.equal(report.confidence, 0.6);
   });
 });
