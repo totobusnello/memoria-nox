@@ -2,6 +2,68 @@
 
 ---
 
+## ☀️ MORNING 2026-05-20 — 5 PRs merged + VPS offline alert
+
+> **Atualizado:** 2026-05-20 ~11h BRT — **5 PRs merged em main (#154-#158): SOURCE_TYPE_BOOST map cobre 11 backfill keys, visual identity sincronizada com +78.8%, paper §5 reescrito com 4-claim sub-evidence, temporal Q1 spike isolado, api-server patch documental. VPS 45.43.85.86 OFFLINE 100% packet loss — deploy de todos gated até host voltar.**
+
+### O que entregou (commits em main)
+
+| PR | Commit | Conteúdo |
+|---|---|---|
+| **#154** | `82af773` | `SOURCE_TYPE_BOOST` map cobre 11 backfill keys (entity/lesson/skill/.../ocr-cache) + drift guard + ocr-cache 0.7 conservador |
+| **#155** | `73005ff` | Visual identity sync: README + SVGs + DESIGN-NOTES com `+78.8%` / `0.6237 nDCG@10` canonical |
+| **#156** | `0294f15` | Paper §5 reframe: novo "Empirical Evaluation — Wave A G5 V3" com 4-claim sub-evidence; renumerou §§5-12 → 6-13 |
+| **#157** | `e7844b4` | Temporal Q1 retrieval path spike: spec + impl 280 LOC isolated em `staged-temporal-spike/` + 17/17 tests pass |
+| **#158** | `590ad11` | api-server.ts docs patch: SalienceMode union + salienceDelta 3-arg drift (deploy gated em VPS uptime) |
+
+### 🚨 VPS 45.43.85.86 OFFLINE 2026-05-20 ~10h BRT
+
+- Ping: **100% packet loss**
+- Curl: **HTTP 000** (no connection) em 22/2222/2200/18802
+- Significa: **nox-mem prod offline**, todo MCP/API/Cipher/Claude Desktop sem retrieval
+- **Toto precisa checar painel Hostinger** — pode ser reboot/maintenance/firewall
+- Hipóteses: (1) maintenance window, (2) bloqueio por uso CPU/network, (3) firewall mudou, (4) disk full, (5) hardware
+- Deploy de TODOS os 5 PRs gated até VPS voltar — todos os merges são GitHub-only por enquanto
+- Memory: `[[vps-down-2026-05-20]]`
+
+### Highlights cravados
+
+**Headline canônico final:** A8 = **0.6237 nDCG@10**, **+78.8% vs G3** (0.3488)
+- Sincronizado: README hero/pillar/tabela/comparison + SVGs + paper §5 + DESIGN-NOTES
+- D48 4 claims sub-evidence cravados no paper §5 (salience aditivo, section_boost moat, tier off, source_type recovery)
+
+**Temporal Q1 (#157 spike):**
+- 4 queries golden temporal (Q70/Q71/Q87/Q88), 2 com `expected_chunk_ids=[]` (cura gold antes de gate)
+- `chunks.source_date` ~100% cobertura no corpus
+- Trade-off: E13 (section-boost flip) e proximity rerank são ortogonais — ambos necessários
+- Spike isolated em `staged-temporal-spike/` (não toca prod search.ts), shadow-mode opt-in via env
+
+**source_type boost map (#154):**
+- 11 keys calibradas signal-to-noise: entity(2.0) → lesson(1.8) → ... → ocr-cache(0.7)
+- ocr-cache suavizado 0.5→0.7 pós code-review (16% corpus sem evidência empírica de -0.5 safe)
+- Drift-guard test: inline mirror compara com `_internals.SOURCE_TYPE_BOOST` live export
+- 42 tests, 40 pass, 2 falhas pré-existentes do PR #150 (aditivo)
+
+### Multi-agent fiasco (lesson 2026-05-20)
+
+Spawnar agent designer que faz `git checkout -b` em mesmo working tree contaminou HEAD da main session — PR #154 polish landed em `feat/visual-identity-g5-v3-canonical` por engano. Recovery via reset+cherry-pick+rebase, ~15min de surgery.
+**Fix protocol:** futuros parallel agents que tocam git devem usar `isolation: "worktree"` ou serialize. Memory: `[[multi-agent-branch-checkout-race]]`.
+
+### Pendings próxima sessão
+
+1. **VPS health check + deploy queue** quando voltar online:
+   - Apply api-server.ts patch (#158 doc): FIND/REPLACE 2 linhas em `src/api-server.ts`
+   - Deploy Wave A novos: `git pull && npm install && npm run build && systemctl restart nox-mem-api`
+   - Validate `/api/health.vectorCoverage` + `/api/health.salience.mode`
+2. **Re-rodar G6 ablation** com SOURCE_TYPE_BOOST ativo — esperar A5 contribuir > 0% e A10 < A8 canonical
+3. **Curar gold Q87 + Q88** (temporal) — `expected_chunk_ids=[]` bloqueia gate
+4. **D49 decision** em DECISIONS.md sobre shadow-mode pro temporal path
+5. **VPS cleanup remainder** (~5MB /tmp/g3*/g4*/g5*) — quando VPS voltar
+6. **Paper .docx regeneração** — `pandoc paper-tecnico-nox-mem.md -o paper-tecnico-nox-mem.docx` quando paper ficar estável
+7. **MEMORY consolidation** — Toto pode rodar /consolidate-memory pra organizar 50+ entries
+
+---
+
 ## 🌃 LATE NIGHT 2026-05-19 — G5 V3 cravado + Wave A deployed em prod
 
 > **Atualizado:** 2026-05-19 ~23h45 BRT — **Deploy Wave A completo em VPS (PRs #150/#151/#153). Backfill source_type aplicado em prod (67,949 chunks). G5 V3 ablation completa contra entity-eval.db: A8 canonical = 0.6237 nDCG@10 (+9.4% vs G4, +78.8% vs G3 baseline). Salience aditivo active>shadow CRAVADO (reversal de G4). Headline "Pain-weighted hybrid memory" defensável numericamente.**
