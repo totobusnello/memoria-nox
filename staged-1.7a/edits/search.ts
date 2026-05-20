@@ -3,7 +3,7 @@ import { getDb } from "./db.js";
 import { TIER_BOOST } from "./tier-manager.js";
 import { expandQuery } from "./search-expansion.js";
 import { dedupe } from "./search-dedup.js";
-import { calculateSalience, getSalienceMode } from "./salience.js";
+import { calculateSalience, calculateSalienceLegacy, getSalienceMode } from "./salience.js";
 
 // ─── Boost configuration (Fase 1.7a + A-boost-stack-wiring 2026-05-19) ────────
 //
@@ -72,7 +72,15 @@ const SECTION_BOOST: Record<string, number> = {
 
 // Module-load env flag snapshot (avoids per-chunk process.env read).
 const DISABLE_TYPE_BOOST = process.env.NOX_DISABLE_TYPE_BOOST === "1";
-const DISABLE_TIER_BOOST = process.env.NOX_DISABLE_TIER_BOOST === "1";
+// tier_boost DEFAULT DISABLED per G4 ablation (2026-05-19):
+//   A6 (tier only) = 0.4616 nDCG@10 < A0 (no boosts) = 0.4817.
+// Core chunks (3.96% of corpus, memory-system internals) over-promote and push
+// golden hits down. Opt-in via NOX_ENABLE_TIER_BOOST=1; legacy
+// NOX_DISABLE_TIER_BOOST=1 honored as redundant (preserves back-compat).
+// See docs/audits/2026-05-19-salience-distribution-audit.md.
+const DISABLE_TIER_BOOST =
+  process.env.NOX_DISABLE_TIER_BOOST === "1" ||
+  process.env.NOX_ENABLE_TIER_BOOST !== "1";
 const DISABLE_SOURCE_TYPE_BOOST = process.env.NOX_DISABLE_SOURCE_TYPE_BOOST === "1";
 const DISABLE_SECTION_BOOST = process.env.NOX_DISABLE_SECTION_BOOST === "1";
 const DISABLE_RECENCY_BOOST = process.env.NOX_DISABLE_RECENCY_BOOST === "1";
@@ -123,12 +131,76 @@ interface SalienceChunkInput {
   source_date?: string | null;
   created_at?: string | null;
   last_accessed_at?: string | null;
+  access_count?: number | null;
 }
 
-function salienceDelta(chunk: SalienceChunkInput): number {
-  // Shadow mode and off mode both contribute 0 to ranking (shadow can still
-  // be logged elsewhere; that observability path is not in scope here).
-  if (getSalienceMode() !== "active") return 0;
+// ─── Salience observability probes (MEDIUM #4 + #5, PR #150 review) ───────────
+//
+// Two opt-in env-gated probes that log salience telemetry WITHOUT affecting
+// ranking. Both write JSON lines to stderr; downstream telemetry collector
+// (per /api/health pipeline, CLAUDE.md §5) is expected to ingest these.
+//
+//   NOX_SALIENCE_SHADOW_LOG=1   — log v2 salience computed in shadow mode
+//   NOX_SALIENCE_AB_SHADOW=1    — log (v2, legacy, delta) per chunk for
+//                                 A/B comparison without flipping to active
+//
+// These never throw — observability must not derail search.
+
+function shadowProbeSalience(s: number, chunkId: number | undefined): void {
+  if (process.env.NOX_SALIENCE_SHADOW_LOG !== "1") return;
+  try {
+    process.stderr.write(
+      JSON.stringify({ type: "shadow_salience", chunk_id: chunkId, salience: s, ts: Date.now() }) + "\n",
+    );
+  } catch {
+    /* observability must not throw */
+  }
+}
+
+function abShadowProbe(sV2: number, sLegacy: number, chunkId: number | undefined): void {
+  if (process.env.NOX_SALIENCE_AB_SHADOW !== "1") return;
+  try {
+    process.stderr.write(
+      JSON.stringify({
+        type: "ab_salience",
+        chunk_id: chunkId,
+        v2: sV2,
+        legacy: sLegacy,
+        delta: sV2 - sLegacy,
+        ts: Date.now(),
+      }) + "\n",
+    );
+  } catch {
+    /* observability must not throw */
+  }
+}
+
+function salienceDelta(chunk: SalienceChunkInput, chunkId?: number): number {
+  const mode = getSalienceMode();
+
+  // Shadow probe: compute v2 even in shadow mode for telemetry,
+  // but return 0 (no ranking effect).
+  if (mode === "shadow") {
+    try {
+      shadowProbeSalience(calculateSalience(chunk), chunkId);
+    } catch {
+      /* probe must not throw */
+    }
+  }
+
+  // A/B sentinel: opt-in dual-formula logging regardless of mode.
+  // Cheap (2 pure-fn calls); skipped entirely when env flag absent.
+  if (process.env.NOX_SALIENCE_AB_SHADOW === "1") {
+    try {
+      const sV2 = calculateSalience(chunk);
+      const sLegacy = calculateSalienceLegacy(chunk);
+      abShadowProbe(sV2, sLegacy, chunkId);
+    } catch {
+      /* probe must not throw */
+    }
+  }
+
+  if (mode !== "active") return 0;
   const s = calculateSalience(chunk);
   // Neutral baseline 0.5: salience=0.5 → no net effect; salience=1.0 → +0.5;
   // salience=0 → −0.5. Bounded delta keeps multi-stack stacking sane.
@@ -170,6 +242,7 @@ interface FtsRow {
   retention_days: number | null;
   created_at: string | null;
   last_accessed_at: string | null;
+  access_count: number | null;
 }
 
 export function search(query: string, limit: number = 5): SearchResult[] {
@@ -183,6 +256,7 @@ export function search(query: string, limit: number = 5): SearchResult[] {
       SELECT c.id, c.source_file, c.chunk_type, c.chunk_text, c.source_date,
              c.tier, c.source_type, c.section, c.section_boost,
              c.pain, c.importance, c.retention_days, c.created_at, c.last_accessed_at,
+             c.access_count,
              bm25(chunks_fts, 1.0, 0.5, 0.5) as rank
       FROM chunks_fts
       JOIN chunks c ON c.id = chunks_fts.rowid
@@ -210,7 +284,7 @@ export function search(query: string, limit: number = 5): SearchResult[] {
     boostSum += tierDelta(row.tier);
     boostSum += sourceTypeDelta(row.source_type);
     boostSum += sectionDelta(row.section, row.section_boost);
-    boostSum += salienceDelta(row);
+    boostSum += salienceDelta(row, row.id);
 
     const score = baseScore * (1 + boostSum);
 
@@ -259,6 +333,7 @@ interface BoostRow {
   retention_days: number | null;
   created_at: string | null;
   last_accessed_at: string | null;
+  access_count: number | null;
   chunk_type: string;
 }
 
@@ -288,7 +363,7 @@ export async function searchSemantic(query: string, limit: number = 5): Promise<
       const boostRows = db.prepare(`
         SELECT id, tier, source_type, section, section_boost,
                pain, importance, retention_days, created_at, last_accessed_at,
-               chunk_type
+               access_count, chunk_type
         FROM chunks WHERE id IN (${placeholders})
       `).all(...chunkIds) as BoostRow[];
       for (const br of boostRows) boostMap.set(br.id, br);
@@ -322,8 +397,9 @@ export async function searchSemantic(query: string, limit: number = 5): Promise<
           retention_days: info.retention_days,
           created_at: info.created_at,
           last_accessed_at: info.last_accessed_at,
+          access_count: info.access_count,
           source_date: row.source_date,
-        });
+        }, info.id);
       }
 
       const score = baseScore * (1 + boostSum);
