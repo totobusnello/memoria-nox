@@ -2,6 +2,69 @@
 
 ---
 
+## 🌆 LATE AFTERNOON 2026-05-20 — 16 PRs merged + G6 root cause CRAVADO
+
+> **Atualizado:** 2026-05-20 ~14h30 BRT — **G6 -6.3% "regression" RESOLVED: foi comparison inválida entre DBs diferentes (G5 V3 = g5.db 68k chunks, G6 = entity-eval.db 500 chunks). PR #154 SOURCE_TYPE_BOOST inocente. Headline G5 V3 0.6237 permanece válida como baseline canônica prod-flavored 68k. G7 obrigatório pra isolar impacto formula v2 aditiva isolado. +3 PRs merged (#163 paper docx, #164 healthcheck, #165 G6 investigation, #166 competitive analysis).**
+
+### G6 root cause: DB swap, NÃO regression
+
+| | G5 V3 (2026-05-19) | G6 (2026-05-20) |
+|---|---|---|
+| Eval DB | **g5.db** — 68,995 chunks (clone prod) | **entity-eval.db** — 500 chunks (sintético) |
+| Harness | g5-eval.py (84 lines) | entity_ablation_eval.py (264 lines) |
+| A8 nDCG@10 | 0.6237 | 0.5845 |
+
+**Comparação inválida** entre universos completamente diferentes. PR #165 tem forensics completos.
+
+**Lessons cravadas (memories novas):**
+- `[[g6-ablation-results-2026-05-20]]` — RESOLVED section
+- `[[always-verify-eval-db-and-harness-before-comparing]]` — feedback rule pra eval workflows
+
+**Decisão atualizada:**
+- Headline 0.6237 (prod-flavored 68k) PERMANECE válida pra paper §5 + visual identity
+- Nova baseline secundária: 0.5845 (entity-eval.db) — válida só comparando consigo mesma
+- G7 next: A8 em entity-eval.db com dist pré-d4eaada6 pra isolar formula v2 aditiva (action item)
+
+### Cumulative day final (16 PRs)
+
+| PR | Tema | Commit |
+|---|---|---|
+| #154 | SOURCE_TYPE_BOOST map | `82af773` |
+| #155 | Visual identity +78.8% | `73005ff` |
+| #156 | Paper §5 reframe | `0294f15` |
+| #157 | Temporal Q1 spike | `e7844b4` |
+| #158 | api-server.ts docs patch | `590ad11` |
+| #159 | Gold Q87+Q88 cure | `17b2e27` |
+| #160 | CI eval-harnesses fix | `51f4546` |
+| #161 | Temporal smoke test | `1873b7e` |
+| #162 | INCIDENTS + DECISIONS + D49 | `36271aa` |
+| #163 | Paper .docx regen | `78d9d93` |
+| #164 | VPS healthcheck script | `fab5be6` |
+| #165 | G6 regression investigation | `b1b3624` |
+| #166 | Competitive analysis 2026-05-19 | `1f016ef` |
+| + 4 HANDOFF/handoff commits | morning + midday + afternoon + late afternoon | — |
+
+### Tools deployed pra próximas sessões
+
+- **VPS healthcheck** em `scripts/vps-healthcheck.sh` — ping+ssh+api via cron 15min, exit code discriminado, alert via osascript
+- **`.vps-current-ip`** (gitignored) — IP atual 187.77.234.79
+- **Paper .docx** atualizado (`paper/paper-tecnico-nox-mem.docx` 28KB pós-§5)
+
+### CLAUDE.md update (parent ~/Claude)
+
+Adicionada hard rule sobre multi-agent + git = `isolation: "worktree"` mandatory. Commit local (NÃO pushed pra GitHub ainda — Toto revisa).
+
+### Pendings finais pra próxima sessão
+
+1. **G7 ablation** — A8 entity-eval.db com dist pré-d4eaada6 pra isolar formula v2
+2. **Re-ingest entity-eval.db** com source_type values consistentes com prod (`entity` em vez de `entity_file`) pra ATIVAR source_type validation real
+3. **D49 phase 1** — deploy temporal spike code via novo Wave
+4. **Cura mais temporal queries** (rank 5-15 baseline) pra proximity rerank testável
+5. **Cron healthcheck** — `crontab -e` na VPS ou local com entry sugerida
+6. **CLAUDE.md** push to origin (Toto decide — 33 files staged previamente, hoje só CLAUDE.md mudou)
+
+---
+
 ## 🌅 AFTERNOON 2026-05-20 — 11 PRs merged + G6 ablation + investigação aberta
 
 > **Atualizado:** 2026-05-20 ~14h BRT — **11 PRs merged em main hoje. Eval Harnesses CI restored to green. G6 ablation revelou A8 regression de -6.3% sem causa aparente (investigação em background via agent debugger). VPS healthcheck script + paper .docx regen disparados em paralelo.**
