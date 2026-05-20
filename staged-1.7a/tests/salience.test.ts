@@ -21,6 +21,8 @@ import {
   calculateSalience,
   calculateSalienceLegacy,
   classifySalience,
+  inferImportance,
+  inferPain,
   type SalienceInput,
 } from "../edits/salience.js";
 
@@ -231,5 +233,56 @@ describe("classifySalience boundary tests", () => {
   });
   it("classifies score=1 as promote", () => {
     assert.equal(classifySalience(1), "promote");
+  });
+});
+
+// ── Backwards-compat helpers (used by src/ingest-entity.ts) ───────────────────
+
+describe("inferImportance (backwards-compat)", () => {
+  it("returns mapped value for known chunk_type", () => {
+    assert.ok(approx(inferImportance("decision"), 0.95, 0.001));
+    assert.ok(approx(inferImportance("lesson"), 0.90, 0.001));
+    assert.ok(approx(inferImportance("daily"), 0.50, 0.001));
+  });
+  it("returns fallback for unknown chunk_type", () => {
+    assert.ok(approx(inferImportance("foo-unknown"), 0.40, 0.001));
+  });
+  it("returns fallback for null/undefined", () => {
+    assert.ok(approx(inferImportance(null), 0.40, 0.001));
+    assert.ok(approx(inferImportance(undefined), 0.40, 0.001));
+  });
+});
+
+describe("inferPain (backwards-compat)", () => {
+  it("returns base pain by chunk_type for non-incident content", () => {
+    assert.ok(approx(inferPain("feedback", "regular feedback note"), 0.3, 0.001));
+    assert.ok(approx(inferPain("lesson", "lesson about caching"), 0.4, 0.001));
+    assert.ok(approx(inferPain("pending", "todo item"), 0.5, 0.001));
+    assert.ok(approx(inferPain("daily", "morning notes"), 0.2, 0.001));
+  });
+  it("returns fallback pain for unknown chunk_type", () => {
+    assert.ok(approx(inferPain("foo-unknown", "regular content"), 0.2, 0.001));
+  });
+  it("elevates pain on incident/outage/severity keywords (EN)", () => {
+    assert.ok(inferPain("daily", "incident in prod-down at 14:00") > 0.5);
+    assert.ok(inferPain("daily", "outage P0 severity high") > 0.5);
+    assert.ok(inferPain("daily", "data breach detected") > 0.5);
+    assert.ok(inferPain("daily", "emergency response sev-1") > 0.5);
+  });
+  it("elevates pain on PT-BR incident keywords", () => {
+    assert.ok(inferPain("daily", "incidente crítico em produção") > 0.5);
+    assert.ok(inferPain("daily", "emergência grave") > 0.5);
+  });
+  it("caps pain at 1.0 (clamp)", () => {
+    // base + 0.5 = 1.5, but clamp to 1.0
+    const result = inferPain("pending", "P0 incident outage emergency");
+    assert.ok(result <= 1.0);
+    assert.ok(result > 0.9);
+  });
+  it("handles null/undefined safely", () => {
+    assert.ok(approx(inferPain(null, null), 0.2, 0.001));
+    assert.ok(approx(inferPain(undefined, undefined), 0.2, 0.001));
+    assert.ok(approx(inferPain("daily", null), 0.2, 0.001));
+    assert.ok(approx(inferPain(null, "incident"), 0.7, 0.001));
   });
 });

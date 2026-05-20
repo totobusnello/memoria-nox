@@ -133,6 +133,49 @@ export function painComponent(pain: number | null | undefined): number {
   return clamp01(pain);
 }
 
+// ─── Backwards-compat helpers (used by ingest-entity.ts) ──────────────────────
+//
+// These helpers existed in the pre-Wave-A salience.ts and are still imported by
+// src/ingest-entity.ts. Keeping them here preserves the existing ingest pipeline
+// behaviour (chunk_type → importance prior + keyword-based pain inference).
+//
+// `inferImportance(chunk_type)` is a thin wrapper around `importanceComponent`.
+// `inferPain(chunk_type, content)` is keyword-heuristic on incident/outage terms.
+//
+// Without these exports, src/ingest-entity.ts fails at module-load with
+// "Module './salience.js' has no exported member 'inferPain'" — the "import
+// mismatch" repair commit (080407f8) in VPS git history.
+
+const PAIN_BY_TYPE: Record<string, number> = {
+  feedback: 0.3,
+  lesson: 0.4,
+  pending: 0.5,
+  decision: 0.3,
+  project: 0.3,
+  daily: 0.2,
+  team: 0.2,
+  graph_node: 0.2,
+  person: 0.2,
+};
+const FALLBACK_PAIN = 0.2;
+
+// Heuristic: incident/outage/breach/severity keywords elevate pain.
+// Conservative pattern — matches PT-BR + EN incident-flavored vocabulary.
+const HIGH_PAIN_PATTERN =
+  /\b(incident|incidente|outage|breach|critical|cr[íi]tic[ao]|emergency|emerg[êe]ncia|prod[\.\s]?down|sev[\s\-]?[0-2]|p0\b|severity[\s\-]?(high|critical))\b/i;
+
+export function inferPain(chunk_type: string | null | undefined, content: string | null | undefined): number {
+  const base = (chunk_type && PAIN_BY_TYPE[chunk_type]) ?? FALLBACK_PAIN;
+  if (content && HIGH_PAIN_PATTERN.test(content)) {
+    return clamp01(base + 0.5);
+  }
+  return base;
+}
+
+export function inferImportance(chunk_type: string | null | undefined): number {
+  return importanceComponent(chunk_type, null);
+}
+
 // ─── Main entry: calculateSalience ────────────────────────────────────────────
 
 export interface SalienceInput {
