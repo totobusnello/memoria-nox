@@ -692,3 +692,27 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **FTS5 como failsafe latente:** se Gemini outage/quota, sistema degrada gracefully — FTS5 retorna o que AND-strict pega (geralmente pouco mas não zero pra queries com termos exatos do corpus).
 - **NÃO FAZEMOS:** (a) re-tentar FTS5 query expansion sem evidência empírica nova; (b) ampliar FTS5 pool achando que vai funcionar (testado: não funciona); (c) HyDE global (custo Gemini explode); (d) confiar que "smoke positivo" = "eval positivo" — confidence v4 teve smoke OK mas eval -5pp.
 - *Origem:* sessão 2026-05-17 ~16:50-17:10 BRT. Cross-link: `feedback_fts5_vanilla_and_strict_explains_zero_recall` (memory). Runs eval: 79 (D baseline 0.6797), 80-84 (4 tentativas FTS5 fix), 85 (rollback confirmado 0.6813).
+
+---
+
+### 2026-05-20 — Temporal retrieval path em shadow mode (D49)
+
+#### D49 — Temporal proximity rerank ativado em shadow-mode opt-in (gated em 7 dias baseline)
+- **Pergunta:** depois do spike #157 (proximity rerank + temporal intent detection) e curagem do gold Q87+Q88 (PR #159), ativar em prod ou deixar shadow?
+- **Decisão:** **shadow-mode opt-in** via `NOX_TEMPORAL_PATH=1`, com 7 dias mínimos de baseline telemetry antes de qualquer switch pra active.
+- **Por quê:**
+  - Princípio CLAUDE.md §5 — features que afetam search/tier decisions precisam ≥1 semana baseline via `/api/health` antes de ativar
+  - Gold Q87+Q88 curados hoje (PR #159) — agora 4/4 temporais com `expected_chunk_ids` válido pra medição numérica
+  - Spike isolated em `staged-temporal-spike/` (não toca prod search.ts ainda) — deploy é additional, não breaking change
+  - Trade-off identificado pelo spike: E13 section-boost flip e proximity rerank são **ortogonais** — 98.9% do corpus tem `section=NULL` (E13 não cobre), enquanto queries adverbial-only como Q70 ("quando o salience foi ativado") não têm anchor parseável (proximity não dispara). Nenhum path sozinho cobre 4 queries temporais — eles compõem
+- **Roadmap implementação (4 fases gated):**
+  - **Phase 1:** deploy spike code em `src/temporal-retrieval.ts` na VPS via novo Wave (não PR #154 retroativo). Wire em `searchHybrid` mas apenas se `NOX_TEMPORAL_PATH=1`
+  - **Phase 2:** ativar shadow telemetry — `NOX_TEMPORAL_PATH=1` + log de detector hit-rate + (would-be) re-rank deltas via probe stderr JSON
+  - **Phase 3:** medir Δ nDCG temporal subset (4 queries: Q70/Q71/Q87/Q88) por **7 dias** em prod com queries reais
+  - **Phase 4:** D50 decisão de active/off com numbers cravados (target: ≥+10% nDCG temporal subset sem regressão em outras categorias)
+- **NÃO FAZEMOS:**
+  - Skip shadow window achando que spike test é suficiente (smoke ≠ eval, lesson D39)
+  - Deploy via PR #154 retroactive (já merged, scope creep)
+  - Ativar sem comparing baseline ablation (precisa A0 dedicated temporal)
+- **Cross-links:** spike PR #157 (staged-temporal-spike), gold cure PR #159, D43/D44 (Q4 gate Phase 2 já open), memory `[[temporal-q1-spike-2026-05-20]]`.
+- *Origem:* sessão 2026-05-20 ~11h-12h BRT, pós deploy Wave A novo e gold cure.

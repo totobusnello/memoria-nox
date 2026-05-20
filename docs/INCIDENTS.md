@@ -2,6 +2,53 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-05-20 ~10h BRT (~30min recovery) — VPS IP swap silencioso (false alarm offline)
+
+**Sintoma:** durante deploy Wave A novo (PRs #154/#158), ping em `45.43.85.86` retornou 100% packet loss + curl HTTP 000 em portas 22/2222/2200/18802. Agent VPS-cleanup retornou "host inacessível"; verificação direta da main session confirmou.
+
+**Hipóteses iniciais:** (1) maintenance window, (2) bloqueio por uso CPU/network, (3) firewall mudou, (4) disk full, (5) hardware failure.
+
+**Realidade:** Hostinger fez floating IP swap silencioso. Toto deu novo IP `187.77.234.79`. SSH funcionou de primeira (mesma chave ed25519). Hostname `srv1465941`, uptime **20 days, 50 min** intacto — sem reboot, sem maintenance, sem downtime. Apenas redirecionamento de rota.
+
+**Impact:** ~30min de incerteza, deploy Wave A novo atrasado mas executado com sucesso após IP atualizado. Zero dados perdidos. Service `nox-mem-api` continuou rodando o tempo todo.
+
+**Root cause:** Hostinger floating IP rebalance silencioso (sem notif). Cronograma típico de prov cloud sem mensagem ao tenant.
+
+**Recovery time:** ~30min (ping fail → user verification → SSH retry com novo IP).
+
+**Action items:**
+- Adicionar healthcheck script com IP atual em cron (`ssh -o ConnectTimeout=3 root@$VPS_IP 'hostname' || alert`)
+- Atualizar `~/.ssh/config` se houver Host alias com IP antigo
+- Memory `[[vps-ip-change-2026-05-20]]` cravada como reference
+- Memory anterior `[[vps-down-2026-05-20]]` ficou desatualizada — não era outage real
+
+**Cross-links:** PR #158 (api-server fix doc), deploy Wave A novo (sed+scp+build em 187.77.234.79), HANDOFF morning + midday 2026-05-20.
+
+## 2026-05-20 ~09h30 BRT (~15min recovery) — Multi-agent branch checkout race condition
+
+**Sintoma:** PR #154 polish commit landed em `feat/visual-identity-g5-v3-canonical` em vez de `feat/source-type-boost-map-2026-05-20`. `git push` complained sobre upstream errado.
+
+**Root cause:** main session estava trabalhando em `feat/source-type-boost-map-2026-05-20` (PR #154 polish). Spawned designer agent em paralelo pra atualizar README/SVGs em NOVO branch `feat/visual-identity-g5-v3-canonical`. Agent fez `git checkout -b feat/visual-identity-g5-v3-canonical` dentro do MESMO working tree. Quando main thread fez `git commit` em seguida, commit landed na DESIGNER's branch, não na intended.
+
+**Mecânica do bug:** git checkout em same working directory é process-global state — não há per-thread/per-agent HEAD isolation. Ambos main session E spawned agent compartilham mesmo `.git/HEAD`. Quem rodar `git checkout` por último ganha para subsequent operations no working tree.
+
+**Recovery:**
+1. `git reset --hard f49660e` na branch errada (remove design commit vazado)
+2. `git checkout feat/source-type-boost-map-2026-05-20`
+3. `git cherry-pick f49660e` (mesmo SHA, branch certa)
+4. `git rebase --onto main f49660e feat/visual-identity-g5-v3-canonical` (descross dos commits)
+5. `git push --force-with-lease` em ambas branches
+
+Total: ~15min de git surgery + recovery completa, 0 perdido.
+
+**Fix protocol (cravado):**
+- Parallel agents que tocam git devem usar `isolation: "worktree"` na chamada Agent tool
+- OR serializar (esperar agent terminar antes de main session continuar)
+- Defaulting `isolation: "worktree"` pra qualquer agent que toca git remove entire class de bug
+- Sanity check before commit em multi-agent sessions: `git branch --show-current` ANTES de `git add`/`git commit`
+
+**Cross-links:** PRs #154/#155 (recuperados com sucesso após surgery), memory `[[multi-agent-branch-checkout-race]]`, CLAUDE.md `[[worktree-branch-leak-to-main]]` (pattern relacionado).
+
 ## 2026-05-18 16:23 BRT (~10min fix) — Deploy Validator CI 100% fail por stderr→JSON contamination
 
 **Sintoma:** 5 PRs consecutivos (#92, #95, #98, #99 e mais um) com Deploy Validator falhando em ~25s. Email do GitHub: "Deploy Validator: All jobs have failed". Run logs mostravam `json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)` na step "Parse validator output", mas o validator em si passava (summary.fail=0).
