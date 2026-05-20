@@ -50,10 +50,23 @@ const TYPE_BOOST_DELTA_FTS = 1.0;
 const RECENCY_BOOST_DELTA_FTS = 0.5;
 
 const SOURCE_TYPE_BOOST: Record<string, number> = {
+  // Active keys (post-backfill 2026-05-19) — mirror search.ts
+  entity: 2.0,
+  lesson: 1.8,
+  skill: 1.5,
+  "project-doc": 1.4,
+  command: 1.4,
+  "legal-template": 1.3,
+  "personal-doc": 1.2,
+  session: 1.0,
+  note: 1.0,
+  external: 0.8,
+  other: 0.7,
+  "ocr-cache": 0.5,
+  // Forward-compat (dead-by-corpus today)
   user_statement: 2.0,
   compiled: 1.5,
   timeline: 1.0,
-  external: 0.8,
 };
 
 const SECTION_BOOST: Record<string, number> = {
@@ -237,6 +250,80 @@ describe("source_type_boost — corpus-correct keys", () => {
     const disabled = scoreChunk(row({ source_type: "external" }), { disableSourceType: true });
     assert.ok(enabled !== disabled);
     assert.strictEqual(disabled, 10.0);
+  });
+
+  // ── Backfill keys (PR 2026-05-20 — unlocks A5 contribution) ─────────────────
+  it("backfill key `entity` (1.10% corpus, peak curation) → +1.0 delta", () => {
+    const score = scoreChunk(row({ source_type: "entity" }));
+    assert.strictEqual(score, 10.0 * (1 + 1.0));
+  });
+
+  it("backfill key `lesson` (retrospective signal) → +0.8 delta", () => {
+    const score = scoreChunk(row({ source_type: "lesson" }));
+    assert.strictEqual(score, 10.0 * (1 + 0.8));
+  });
+
+  it("backfill key `skill` → +0.5 delta", () => {
+    const score = scoreChunk(row({ source_type: "skill" }));
+    assert.strictEqual(score, 10.0 * (1 + 0.5));
+  });
+
+  it("backfill keys `project-doc` and `command` tied at +0.4 delta", () => {
+    const pd = scoreChunk(row({ source_type: "project-doc" }));
+    const cmd = scoreChunk(row({ source_type: "command" }));
+    assert.strictEqual(pd, 10.0 * (1 + 0.4));
+    assert.strictEqual(cmd, 10.0 * (1 + 0.4));
+    assert.strictEqual(pd, cmd);
+  });
+
+  it("backfill key `legal-template` → +0.3 delta", () => {
+    const score = scoreChunk(row({ source_type: "legal-template" }));
+    assert.strictEqual(score, 10.0 * (1 + 0.3));
+  });
+
+  it("backfill key `personal-doc` (34% corpus) → +0.2 delta", () => {
+    const score = scoreChunk(row({ source_type: "personal-doc" }));
+    assert.strictEqual(score, 10.0 * (1 + 0.2));
+  });
+
+  it("backfill keys `note` and `session` neutral (delta 0)", () => {
+    const note = scoreChunk(row({ source_type: "note" }));
+    const session = scoreChunk(row({ source_type: "session" }));
+    assert.strictEqual(note, 10.0, "note=baseline");
+    assert.strictEqual(session, 10.0, "session=baseline");
+  });
+
+  it("backfill key `other` → −0.3 delta (residual penalty)", () => {
+    const score = scoreChunk(row({ source_type: "other" }));
+    assert.strictEqual(score, 10.0 * (1 + (-0.3)));
+  });
+
+  it("backfill key `ocr-cache` (16% corpus, scan artifacts) → −0.5 delta", () => {
+    const score = scoreChunk(row({ source_type: "ocr-cache" }));
+    assert.strictEqual(score, 10.0 * (1 + (-0.5)));
+    assert.ok(score < 10.0, "ocr-cache must penalize below baseline");
+  });
+
+  it("ranking order: entity > lesson > skill > project-doc > legal-template > personal-doc > note > external > other > ocr-cache", () => {
+    const keys = [
+      "entity",
+      "lesson",
+      "skill",
+      "project-doc",
+      "legal-template",
+      "personal-doc",
+      "note",
+      "external",
+      "other",
+      "ocr-cache",
+    ];
+    const scores = keys.map((k) => ({ key: k, score: scoreChunk(row({ source_type: k })) }));
+    for (let i = 0; i < scores.length - 1; i++) {
+      assert.ok(
+        scores[i]!.score >= scores[i + 1]!.score,
+        `${scores[i]!.key} (${scores[i]!.score}) must rank ≥ ${scores[i + 1]!.key} (${scores[i + 1]!.score})`,
+      );
+    }
   });
 });
 
