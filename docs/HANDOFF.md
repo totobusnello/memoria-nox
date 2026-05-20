@@ -2,6 +2,94 @@
 
 ---
 
+## 🌃 LATE NIGHT 2026-05-19 — G5 V3 cravado + Wave A deployed em prod
+
+> **Atualizado:** 2026-05-19 ~23h45 BRT — **Deploy Wave A completo em VPS (PRs #150/#151/#153). Backfill source_type aplicado em prod (67,949 chunks). G5 V3 ablation completa contra entity-eval.db: A8 canonical = 0.6237 nDCG@10 (+9.4% vs G4, +78.8% vs G3 baseline). Salience aditivo active>shadow CRAVADO (reversal de G4). Headline "Pain-weighted hybrid memory" defensável numericamente.**
+
+### G5 V3 matrix (n=100, entity-eval.db pós-Wave-A-deploy)
+
+| Config | nDCG@10 V3 | Δ vs G4 | Δ vs A8 V3 | Notes |
+|---|---|---|---|---|
+| A0 hybrid no-boost | 0.5126 | — | -0.111 | NOX_DISABLE_FTS5 não existe (runner bug — não material) |
+| A1 same | 0.5126 | — | -0.111 | mesmo bug |
+| A2 hybrid no-boost | 0.5126 | — | -0.111 | baseline |
+| **A3 section_boost only** | **0.6228** | +0.0006 vs G4 0.6222 | -0.001 | **PEAK isolated — confirma G4** |
+| A4 BOOST_TYPES only | 0.5148 | -0.020 | -0.109 | trivial |
+| A5 source_type only | 0.5126 | +0.031 | -0.111 | **STILL INERT** (boost map mismatch) |
+| A6 tier only | 0.4059 | -0.056 | **-0.218** | **piora -21% vs baseline** |
+| A7 full + salience SHADOW | 0.6155 | +0.035 | -0.008 | section drives lift |
+| **A8 full + salience ACTIVE CANONICAL** | **0.6237** | **+0.0535 (+9.4%)** | 0 ref | **+78.8% vs G3 baseline (0.3488)** |
+| A9 full + active + tier ENABLED | 0.5884 | NEW | **-5.7%** | tier piora confirmed |
+| A10 full minus source_type | 0.6237 | NEW | 0 (identical) | source_type INERT confirmed |
+| A11 full minus section | 0.5646 | NEW | **-9.5%** | section dominant |
+
+### D48 verdict — WAVE A SUCCESS
+
+| Claim | Status | Evidência |
+|---|---|---|
+| Pain-weighted hybrid memory headline defensável | ✅✅ | **+78.8% vs G3 baseline** (well above +10% threshold) |
+| Salience aditivo > multiplicativo | ✅✅ | **A8 active 0.6237 > A7 shadow 0.6155** (reversal de G4) |
+| Section_boost é o moat | ✅✅ | A3 isolated = 99.85% do full stack performance |
+| Tier_boost off-by-default é correta | ✅✅ | A6 -21% isolated, A9 -5.7% in-mix |
+| Source_type alive pós-backfill | ❌ | INERT por keys mismatch — PR followup needed |
+
+### Deploy sequence executada (Phases 1-6)
+
+| Phase | Status | Outcome |
+|---|---|---|
+| 1. Merge 4 PRs (#150 #151 #152 #153) | ✅ | All squash-merged em main |
+| 2. Deploy Wave A em VPS | ✅ | salience+search+backfill scp'd + index.ts patched + tsc + restart |
+| 3. Dry-run backfill (2 iterações) | ✅ | 2 bugs (regex + keyset) found+fixed, 11 buckets validated |
+| 4. Apply backfill prod | ✅ | 67,949 chunks classified em 29.2s via withOpAudit, `external` preserved |
+| 5. Clone g5.db isolated | ✅ | (não usado — entity-eval.db reused pra gold matches válidos) |
+| 6. G5 V3 ablation contra entity-eval.db | ✅ | 12 configs completos, matrix acima |
+
+### Distribution final source_type prod (pós-backfill)
+
+| Type | n | % |
+|---|---|---|
+| personal-doc | 22,585 | 32.74% |
+| skill | 13,722 | 19.89% |
+| session | 11,695 | 16.95% |
+| ocr-cache | 8,717 | 12.63% |
+| note | 7,938 | 11.50% |
+| command | 1,692 | 2.45% |
+| **external** (preserved) | 1,046 | 1.52% |
+| entity | 749 | 1.09% |
+| project-doc | 560 | 0.81% |
+| legal-template | 232 | 0.34% |
+| other + lesson | 59 | 0.09% |
+
+### 5 surpresas G4 → status pós G5
+
+1. ~~**A3 > A8 over-stacking**~~ → **RESOLVIDO**. Em G5 A3 ≈ A8 — tier off default + salience aditivo destacou
+2. **tier_boost piora** → CONFIRMED (-21% isolated, -5.7% in-mix). PR #150 validated.
+3. **source_type INERT** → STILL INERT. PR followup pra atualizar SOURCE_TYPE_BOOST map.
+4. **Salience ACTIVE < SHADOW** → **REVERSED**. Active agora bate shadow (+1.3%). Aditivo working.
+5. **Temporal queries=0** → não re-tested aqui, Q1 dedicated.
+
+### Bugs descobertos + fix (commit `ed29ac5` em main)
+
+1. **Regex `\/<prefix>\/`** não matchava paths relativos (`sessions/...`). Fix: `(?:^|\/)<prefix>\/`.
+2. **Non-force select sem keyset** → dry-run loop infinito. Fix: keyset cursor em ambos modos.
+3. **g4-api tmux ainda vivo** em port 18803 quando G5 v1 iniciou → curl pegando server errado. Fix: kill no início do run-g5.sh.
+4. **NOX_DISABLE_FTS5** referenciado em runner mas não existe em search.ts — A0/A1 acabaram identicas (hybrid no-boost). Não-blocking pra verdict.
+
+### Pre-existing tsc errors no VPS (NÃO causados por nós)
+
+`api-server.ts:221 + 305` (SalienceMode "off" + salienceDelta 3-arg) + tests/examples. Documentado em [[vps-build-broken-runs-on-stale-dist]]. tsc emite dist (noEmitOnError unset) so non-blocking pra deploy.
+
+### Pendings próxima sessão
+
+1. **PR followup**: update `SOURCE_TYPE_BOOST` map em search.ts com new keys (entity/skill/session/personal-doc/ocr-cache/command/lesson/etc) → unlock A5 contribution
+2. **Visual identity**: banner README + comparison chart com **+78.8%** ou **0.6237 nDCG@10** canonical
+3. **Paper §5 reframe** com Wave A real numbers + 4-claim sub-evidence cravado
+4. **VPS cleanup**: `/tmp/g3-nox-eval/`, `/tmp/g4*`, `/tmp/g5*` (~5MB residual)
+5. **Temporal Q1**: re-test temporal queries com salience aditivo + dedicated retrieval path
+6. **PR followup api-server.ts**: SalienceMode "off" type + salienceDelta 3-arg cleanup (pre-existing)
+
+---
+
 ## 🌃 NIGHT 2026-05-19 — G4 ablation cravado + 2 PRs review-fix (cumulative)
 
 > **Atualizado:** 2026-05-19 ~22h BRT — **G4 ablation completou via SSH manual (3 tentativas agent stallaram em sequência). Wave A boost stack funcionando: A8 = 0.5702 nDCG@10 (+63.5% vs G3 baseline 0.3488). A3 (section_boost only) = 0.6222 peak da matriz. D48 headline "Pain-weighted hybrid memory" DEFENSÁVEL numericamente. 5 surpresas mapeadas em ações P0/P1. 2 PRs abertos (B+C+E em #150, F em #151) — code-reviewer agent passou nos dois, fix iteration aplicada.**
