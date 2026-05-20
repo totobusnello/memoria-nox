@@ -101,6 +101,53 @@ Test scenarios covered:
 
 ---
 
+## vps-healthcheck.sh
+
+Detecta IP swaps ou outages na VPS nox-mem cedo — criado após incident 2026-05-20 (Hostinger floating-IP rebalance silencioso, ~30min de downtime).
+
+### Checks (em ordem)
+
+| # | Check | Falha → exit code |
+|---|-------|-------------------|
+| 1 | Ping (3 packets, 2s timeout) | 1 |
+| 2 | SSH `root@<IP>` — executa `hostname` | 2 |
+| 3 | `GET /api/health` porta 18802, valida `.vectorCoverage` | 3 |
+
+### Uso
+
+```bash
+# Teste manual (com output colorido):
+./scripts/vps-healthcheck.sh --ip 187.77.234.79
+
+# Usando IP do arquivo .vps-current-ip (default):
+./scripts/vps-healthcheck.sh
+
+# Cron silencioso a cada 15 min com alerta macOS:
+*/15 * * * * /Users/lab/Claude/Projetos/memoria-nox/scripts/vps-healthcheck.sh --quiet || /usr/bin/osascript -e 'display notification "VPS unreachable" with title "nox-mem"'
+
+# Com webhook customizado em caso de falha:
+./scripts/vps-healthcheck.sh --quiet --alert-cmd 'curl -s -X POST https://hooks.slack.com/... -d "{\"text\":\"VPS down\"}"'
+```
+
+### IP atual
+
+O IP atual da VPS fica em `.vps-current-ip` (gitignored — atualizar manualmente após rebalance do Hostinger).
+
+```bash
+echo "187.77.234.79" > .vps-current-ip
+```
+
+### Flags
+
+```
+--ip <IP>          IP da VPS (sobrescreve env VPS_IP e arquivo .vps-current-ip)
+--quiet            Output somente em falha (ideal para cron)
+--alert-cmd <CMD>  Comando shell executado quando qualquer check falha
+--help             Exibe help completo
+```
+
+---
+
 ## Other scripts
 
 | Script | Purpose |
