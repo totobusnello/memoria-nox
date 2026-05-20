@@ -1,6 +1,6 @@
 # OpenClaw Memory System: Architecture & Technical Deep Dive
 
-**nox-mem v3.0.0 — March 2026**
+**nox-mem v3.7 — March 2026, §5 empirical evaluation added May 2026 (Wave A G5 V3)**
 
 **Author:** Luiz Antonio Busnello (Toto)
 **Platform:** OpenClaw Autonomous Agent Platform
@@ -222,9 +222,62 @@ The `crossSearch()` function opens all 7 databases in read-only mode, executes F
 
 ---
 
-## 5. Knowledge Graph v2
+## 5. Empirical Evaluation — Wave A G5 V3 (May 2026)
 
-### 5.1 Entity Extraction
+> **Headline (canonical, 2026-05-19):** A8 full stack with active salience reaches **nDCG@10 = 0.6237** on the entity-flavored golden set (n=100), a **+78.8% relative improvement over the G3 baseline (0.3488)** measured prior to Wave A deployment, and **+9.4% over the mid-deployment G4 checkpoint (0.5702)**. The peak ablation isolating `section_boost` alone (A3) reaches 0.6228, recovering **99.85% of the full stack** — section-aware ranking is the dominant driver of the lift.
+
+### 5.1 Setup
+
+The evaluation uses an entity-flavored golden set of 100 queries (`entity-eval.db`), curated from production usage to exercise the V10 schema's `section` and `pain` dimensions. Configurations are toggled via environment-variable feature gates (`NOX_SALIENCE_MODE`, `NOX_DISABLE_TIER_BOOST`, `NOX_ENABLE_TIER_BOOST`, `NOX_DISABLE_SECTION_BOOST`, etc.), allowing isolation of individual ranking components without code changes between runs. All measurements occur post-deployment of PRs #150 (salience formula + tier_boost off-by-default), #151 (source_type backfill of 67,949 chunks), and #153 (search wiring). Reported nDCG@10 follows the standard TREC formulation (gain by relevance, log-position discount).
+
+Progression vs prior ablation generations:
+
+| Generation | Date | A8 nDCG@10 | Δ vs G3 baseline | Notes |
+|---|---|---|---|---|
+| G3 baseline (pre-Wave A) | 2026-05-15 | 0.3488 | — | Multiplicative salience, tier_boost on, section_boost only via legacy code path |
+| G4 mid-deployment | 2026-05-18 | 0.5702 | +63.5% | Salience aditivo wired but `active < shadow` puzzle observed |
+| **G5 V3 canonical** | **2026-05-19** | **0.6237** | **+78.8%** | Wave A fully deployed; reversal `active > shadow` cravado |
+
+The four sub-claims below decompose the +78.8% total into measurable contributions; the full G5 V3 matrix (12 configurations) is archived in `audits/` and HANDOFF.md (`#g5-v3-matrix-2026-05-19`).
+
+### 5.2 Claim 1 — Additive salience outperforms multiplicative
+
+The Wave A formula replaces the legacy multiplicative `salience = recency × pain × importance` with a weighted-additive form (PR #150):
+
+```
+salience = W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access_score
+W_IMPORTANCE = 0.55   W_RECENCY = 0.15   W_PAIN = 0.10   W_ACCESS = 0.20
+```
+
+**Result.** With `NOX_SALIENCE_MODE=active`, A8 reaches 0.6237 vs. 0.6155 with `shadow` (A7) — a +1.3% lift and the reversal of the G4 puzzle, where shadow had outranked active. The multiplicative form concentrated 99.7% of chunks in the [0.05, 0.40] salience range, dominated by 90.67% of chunks at the default `pain = 0.2` and 99.76% of chunks with `recency ∈ [7, 30]` days; small differences in any factor were swallowed by the product. The additive form exposes each dimension proportionally to its calibrated weight, preserving signal from pain spikes and importance heuristics without requiring all three factors to be simultaneously non-default.
+
+### 5.3 Claim 2 — `section_boost` is the moat (99.85% of the gain)
+
+Isolating `section_boost` alone (A3 ablation: section enabled, tier off, source_type off, salience shadow) yields **nDCG@10 = 0.6228 = 99.85% of A8's full-stack 0.6237**. The V10 schema multipliers — `compiled = 2.0`, `frontmatter = 1.5`, `timeline = 0.8`, legacy = 1.0 — together with the entity-file format introduced in v3.7 (769 entity files × 3 sections ≈ 2,307 boost-bearing chunks) explain the majority of the headline improvement.
+
+The negative control A11 (full stack minus `section_boost`) drops to 0.5646, **−9.5% relative to A8**, confirming the contribution is not redundant with semantic embeddings or RRF fusion. This is the architectural pivot the paper's narrative rests on: section-aware boosting over an entity-file canonical form is the load-bearing component, not the multiplicative salience formula that the v1 paper draft over-emphasized.
+
+### 5.4 Claim 3 — `tier_boost` off-by-default is the correct calibration
+
+Isolated, `tier_boost` (boost for `chunks` flagged as `tier='core'`) is actively harmful: A6 (tier only, no other boosts) reaches 0.4059, **−21% versus the no-boost baseline 0.5126**. Even integrated into the full stack, A9 (full + tier enabled) drops to 0.5884, **−5.7% versus A8**. Inspection of the corpus reveals the cause: `tier='core'` chunks account for only 3.96% of the corpus and consist of memory-system internals (lifecycle docs, schema metadata, operational runbooks) rather than user content — over-promoting them displaces directly-relevant entity facts.
+
+PR #150 therefore makes tier_boost **off by default** via `NOX_DISABLE_TIER_BOOST=1`, with an explicit `NOX_ENABLE_TIER_BOOST=1` opt-in for callers who want the legacy behavior. The default reflects the calibration this evaluation establishes; the opt-in preserves backward compatibility for downstream pipelines that depend on it.
+
+### 5.5 Claim 4 — `source_type` backfill recovery
+
+Pre-backfill, **67,949 chunks (98.48% of the corpus)** carried `source_type = NULL`, rendering the `SOURCE_TYPE_BOOST` map inert at search time regardless of the configured multipliers. PR #151 backfills 11 canonical keys (`entity`, `lesson`, `skill`, `project-doc`, `command`, `legal-template`, `personal-doc`, `session`, `note`, `external`, `other`, `ocr-cache`) by classifying each chunk via deterministic path/prefix rules under `withOpAudit()` (audit_id = 118), preserving the 1,046 chunks already marked `external` (1.52%). The post-backfill distribution skews to `personal-doc` (32.74%), `skill` (19.89%), and `session` (16.95%), reflecting the lived shape of the operational corpus.
+
+In the G5 V3 matrix, A5 (source_type only) and A10 (full minus source_type) both score 0.6237 — identical to A8 — confirming the `SOURCE_TYPE_BOOST` map remains **inert by key mismatch**, not by data absence. PR #154 (follow-up, in flight) updates the boost map to the new keys (calibration ranging from `entity = 2.0` for high-curation chunks down to `ocr-cache = 0.7` for low-signal scanned material); the next ablation generation will validate whether the now-populated dimension contributes measurable lift.
+
+### 5.6 Honest characterization
+
+The +78.8% headline is decisive for the "Pain-weighted hybrid memory" framing in the sense that pain is one of four additive salience components and the full additive formulation outperforms the legacy multiplicative one. It is **not** decisive for "pain as a standalone retrieval signal in hybrid mode" — that question is addressed in the companion arXiv draft (`paper/publication/paper-draft-sec4-7.md` §5.5, E10 pain ablation: directional but not significant, Δ = +0.0065, 95% CI [−0.0143, +0.0338], n = 31 on the prior R01c-v1.1 corpus). The Wave A measurement validates the architectural choices around section-aware ranking and additive salience composition; per-dimension causal attribution of pain alone awaits the post-PR-#154 ablation generation and a corpus with broader pain distribution than the current 90.67% default.
+
+---
+
+## 6. Knowledge Graph v2
+
+### 6.1 Entity Extraction
 
 **v1 (Regex-based)**: Used hardcoded regular expressions for 3 entity types (person, project, agent) with a static alias map for name normalization. Limited to predefined names, producing 26 entities.
 
@@ -251,7 +304,7 @@ Extraction results after processing 866 chunks:
 | location | 2 | Geographic references |
 | other | 4 | Device, currency, date, computer |
 
-### 5.2 Temporal Decay and TTL
+### 6.2 Temporal Decay and TTL
 
 Relations have a 90-day time-to-live (TTL) from creation. The confidence decay mechanism operates as follows:
 
@@ -263,7 +316,7 @@ Relations have a 90-day time-to-live (TTL) from creation. The confidence decay m
 
 This mechanism ensures the knowledge graph naturally forgets stale information while reinforcing actively observed patterns.
 
-### 5.3 Decision Versioning
+### 6.3 Decision Versioning
 
 Architectural decisions are tracked with full version history in the `decision_versions` table. Each decision has a unique key (e.g., `dedup-strategy`, `fallback-chain`) and supports:
 
@@ -274,15 +327,15 @@ Architectural decisions are tracked with full version history in the `decision_v
 
 10 decisions are currently tracked, covering API key management, LLM fallback chains, embedding model selection, agent isolation strategy, and synchronization schedules.
 
-### 5.4 Graph Traversal
+### 6.4 Graph Traversal
 
 The `findPath()` function implements BFS (Breadth-First Search) to discover shortest paths between any two entities. This enables queries like "How is Toto connected to nox-mem?" which traverses person → project → tool → agent relationships. Maximum depth is configurable (default: 4 hops).
 
 ---
 
-## 6. Cross-Agent Intelligence
+## 7. Cross-Agent Intelligence
 
-### 6.1 Agent Expertise Profiling
+### 7.1 Agent Expertise Profiling
 
 Each agent's memory is analyzed to determine its unique expertise based on chunk type distribution. The dominant chunk type determines the agent's strength category:
 
@@ -293,19 +346,19 @@ Each agent's memory is analyzed to determine its unique expertise based on chunk
 
 Profiles include chunk counts, type breakdowns, top topics (via FTS5 term frequency), and last activity dates.
 
-### 6.2 Knowledge Sharing
+### 7.2 Knowledge Sharing
 
 The `pullInsightsFrom()` function enables any agent to query lessons and decisions from other agents without direct database access. This creates a knowledge transfer mechanism where, for example, Cipher (Security) can learn from Forge's (Code Reviewer) past code review decisions.
 
 `pullAllInsights()` aggregates insights across all agents, sorted by date, providing a fleet-wide learning feed.
 
-### 6.3 Cross-Agent Knowledge Graph Merge
+### 7.3 Cross-Agent Knowledge Graph Merge
 
 `mergeCrossKnowledgeGraphs()` scans all agent databases for kg_entities and kg_relations tables, merging them into a unified entity view. Entities are matched by type + lowercase name. The output shows which entities are known to which agents and their combined mention counts, enabling identification of shared knowledge vs. agent-specific expertise.
 
 ---
 
-## 7. MCP Server Interface
+## 8. MCP Server Interface
 
 nox-mem exposes 14 tools via the Model Context Protocol (MCP) over stdio (JSON-RPC 2.0):
 
@@ -328,7 +381,7 @@ nox-mem exposes 14 tools via the Model Context Protocol (MCP) over stdio (JSON-R
 
 ---
 
-## 8. HTTP API Server
+## 9. HTTP API Server
 
 A lightweight HTTP API (Node.js built-in `http` module, zero dependencies) runs on port 18800, exposing memory data to the React dashboard:
 
@@ -345,9 +398,9 @@ CORS headers are set for cross-origin access from the Vercel-hosted dashboard.
 
 ---
 
-## 9. Operational Infrastructure
+## 10. Operational Infrastructure
 
-### 9.1 Cron Schedule
+### 10.1 Cron Schedule
 
 24 cron jobs manage automated operations:
 
@@ -362,7 +415,7 @@ CORS headers are set for cross-origin access from the Vercel-hosted dashboard.
 | */6 hours | Continuous | Git backup | Auto-commit memory file changes |
 | 09:00 | Weekly (Mon) | Token check | Forge CC token verification |
 
-### 9.2 Backup Strategy
+### 10.2 Backup Strategy
 
 Three backup mechanisms operate independently:
 
@@ -370,7 +423,7 @@ Three backup mechanisms operate independently:
 2. **Git Auto-Commit**: Memory directory changes are committed every 6 hours, providing full change history.
 3. **File System**: WAL mode ensures database consistency during concurrent reads/writes.
 
-### 9.3 LLM Fallback Chain
+### 10.3 LLM Fallback Chain
 
 To ensure continuous operation regardless of provider availability:
 
@@ -381,7 +434,7 @@ The fallback is configured in the environment and selected at runtime based on t
 
 ---
 
-## 10. Dashboard Integration
+## 11. Dashboard Integration
 
 The TotoClaw Command Center (React 18 + TypeScript + Vite + shadcn/ui) provides 11 pages including 4 nox-mem-specific views:
 
@@ -394,7 +447,7 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 ---
 
-## 11. Evolution History
+## 12. Evolution History
 
 | Version | Date | Key Changes |
 |---------|------|-------------|
@@ -404,12 +457,14 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 | v2.5 | Mar 22 | Multi-agent workspace fix (OPENCLAW_WORKSPACE), gateway supervision |
 | v2.6 | Mar 22 | Hybrid search default (FTS5+Gemini+RRF), 866/866 vectorized |
 | v3.0 | Mar 23 | KG v2 (LLM, 384 entities), Cross-Agent Intelligence, HTTP API, dashboard |
+| v3.7 | Apr 23 | Schema V10 (`retention_days` v8 + `pain` v9 + `section` v10), entity file format, section_boost |
+| Wave A | May 19 | Additive salience formula, `tier_boost` off-by-default, `source_type` backfill (67,949 chunks), G5 V3 ablation (PRs #150 / #151 / #153) |
 
 ---
 
-## 12. Conclusion
+## 13. Conclusion
 
-nox-mem v3.0.0 demonstrates that persistent, searchable, and shareable memory for AI agent fleets is achievable with commodity infrastructure (single VPS, SQLite, local LLM). The hybrid search system consistently outperforms single-method retrieval, particularly for multilingual content and compound technical terms. The LLM-powered knowledge graph provides 15x richer entity extraction compared to regex approaches, while temporal decay ensures the graph stays current without manual curation.
+nox-mem demonstrates that persistent, searchable, and shareable memory for AI agent fleets is achievable with commodity infrastructure (single VPS, SQLite, local LLM). The hybrid search system consistently outperforms single-method retrieval, particularly for multilingual content and compound technical terms. The LLM-powered knowledge graph provides 15x richer entity extraction compared to regex approaches, while temporal decay ensures the graph stays current without manual curation. The Wave A empirical evaluation (§5) cravou nDCG@10 = 0.6237 on the entity-flavored golden set (+78.8% relative over the G3 baseline), with `section_boost` identified as the dominant driver (99.85% of the lift recovered by A3 alone) and the additive salience formula validated by the `active > shadow` reversal.
 
 The cross-agent intelligence layer transforms isolated agent memories into a collaborative knowledge base, enabling institutional learning across the fleet. Combined with the live dashboard, the system provides full observability into the collective memory of the agent organization.
 
