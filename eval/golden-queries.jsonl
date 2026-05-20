@@ -40,8 +40,8 @@
 {"query_id": 84, "query": "qual o risco de boost stacking", "expected_chunk_ids": [116057, 116108, 116094, 117770], "difficulty": "hard", "category": "concept"}
 {"query_id": 85, "query": "como Lex e Cipher se complementam em incidents", "expected_chunk_ids": [], "difficulty": "hard", "category": "cross-agent"}
 {"query_id": 86, "query": "qual workflow Forge usa pra code review", "expected_chunk_ids": [116677, 132326], "difficulty": "medium", "category": "cross-agent"}
-{"query_id": 87, "query": "quando o E05 edge typing foi deployado", "expected_chunk_ids": [], "difficulty": "easy", "category": "temporal"}
-{"query_id": 88, "query": "quando subiu o schema v12", "expected_chunk_ids": [], "difficulty": "easy", "category": "temporal"}
+{"query_id": 87, "query": "quando o E05 edge typing foi deployado", "expected_chunk_ids": [216203], "difficulty": "easy", "category": "temporal"}
+{"query_id": 88, "query": "quando subiu o schema v12", "expected_chunk_ids": [216204], "difficulty": "easy", "category": "temporal"}
 {"query_id": 89, "query": "como rotacionar a key Slack sem downtime", "expected_chunk_ids": [209814, 148609], "difficulty": "hard", "category": "security"}
 {"query_id": 90, "query": "qual a regra sobre sed em arquivos binários", "expected_chunk_ids": [209812, 117737], "difficulty": "medium", "category": "security"}
 {"query_id": 91, "query": "por que F09 off-site backup foi rejeitado", "expected_chunk_ids": [], "difficulty": "hard", "category": "decision"}
