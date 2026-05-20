@@ -267,7 +267,18 @@ PR #150 therefore makes tier_boost **off by default** via `NOX_DISABLE_TIER_BOOS
 
 Pre-backfill, **67,949 chunks (98.48% of the corpus)** carried `source_type = NULL`, rendering the `SOURCE_TYPE_BOOST` map inert at search time regardless of the configured multipliers. PR #151 backfills 11 canonical keys (`entity`, `lesson`, `skill`, `project-doc`, `command`, `legal-template`, `personal-doc`, `session`, `note`, `external`, `other`, `ocr-cache`) by classifying each chunk via deterministic path/prefix rules under `withOpAudit()` (audit_id = 118), preserving the 1,046 chunks already marked `external` (1.52%). The post-backfill distribution skews to `personal-doc` (32.74%), `skill` (19.89%), and `session` (16.95%), reflecting the lived shape of the operational corpus.
 
-In the G5 V3 matrix, A5 (source_type only) and A10 (full minus source_type) both score 0.6237 — identical to A8 — confirming the `SOURCE_TYPE_BOOST` map remains **inert by key mismatch**, not by data absence. PR #154 (follow-up, in flight) updates the boost map to the new keys (calibration ranging from `entity = 2.0` for high-curation chunks down to `ocr-cache = 0.7` for low-signal scanned material); the next ablation generation will validate whether the now-populated dimension contributes measurable lift.
+In the G5 V3 matrix, A5 (source_type only) and A10 (full minus source_type) both score 0.6237 — identical to A8 — confirming the `SOURCE_TYPE_BOOST` map remained **inert by key mismatch**, not by data absence. PR #154 (merged 2026-05-20) updated the boost map to the new keys (calibration ranging from `entity = 2.0` for high-curation chunks down to `ocr-cache = 0.7` for low-signal scanned material).
+
+The G8 ablation (2026-05-20, PR #177) re-ingested an isolated `entity-eval-v2.db` (500 chunks) with source_type values deterministically remapped to prod-consistent vocabulary (`entity_file → entity`, `event_log → lesson`, `session_summary → session`), achieving 100% key-match with the SOURCE_TYPE_BOOST map. Results:
+
+| Config | nDCG@10 | Δ vs A0 | Verdict |
+|---|---|---|---|
+| A0 (no boosts) | 0.4816 | baseline | — |
+| **A5 (source_type only)** | **0.4944** | **+2.66%** | LIVE — boost contributes when keys match |
+| A8 (full canonical) | 0.5798 | +20.4% | full stack |
+| A10 (full minus source_type) | 0.5845 | +21.4% | source_type *removed* from full stack |
+
+A5 > A0 by +2.66% empirically validates that `SOURCE_TYPE_BOOST` contributes to ranking when source_type values match the map keys. However, A8 < A10 by −0.81% reveals **redundant double-boost** when `section_boost` (e.g., `compiled = 2.0` for entity-file truth sections) and `SOURCE_TYPE_BOOST` (e.g., `entity = 2.0` for the same chunks) stack on identical chunks, over-promoting at the cost of top-K diversity. Per-category, the redundancy manifests as a −3.5 pp regression on open-domain queries and a +1.4 pp gain on multi-hop. The G9 ablation (planned, against the prod-flavored `g5.db` 68k corpus) will validate whether this redundancy persists at production scale; if confirmed, the resolution is either weight-tuning (`entity 2.0 → 1.3`, `lesson 1.8 → 1.2`) or mutual-exclusion logic (suppress `source_type_boost` when `section_boost` is already active on the same chunk).
 
 ### 5.6 Honest characterization
 
