@@ -4,6 +4,7 @@ import { TIER_BOOST } from "./tier-manager.js";
 import { expandQuery } from "./search-expansion.js";
 import { dedupe } from "./search-dedup.js";
 import { calculateSalience, calculateSalienceLegacy, getSalienceMode } from "./salience.js";
+import { rerankByTemporalProximity, logTemporalProbe } from "./temporal-retrieval.js";
 
 // ─── Boost configuration (Fase 1.7a + A-boost-stack-wiring 2026-05-19) ────────
 //
@@ -581,6 +582,24 @@ export async function searchHybrid(query: string, limit: number = 5): Promise<Se
 
   const hasSemantic = final.some((r) => r.match_type === "semantic" || r.match_type === "hybrid");
   logTelemetry(query, variants.length, final.length, hasSemantic, Date.now() - t0, expansion.reason);
+
+  // D49 Phase 1 — temporal proximity rerank, shadow-mode opt-in.
+  // Only activates if NOX_TEMPORAL_PATH=shadow|active. In shadow mode the
+  // module computes the would-be rerank report but does NOT mutate `final`;
+  // it emits one stderr JSON line (type=temporal_path) for telemetry.
+  // Ranking semantics remain identical when env is unset or =off.
+  if (process.env.NOX_TEMPORAL_PATH && process.env.NOX_TEMPORAL_PATH !== "off") {
+    try {
+      const { report } = rerankByTemporalProximity(final as unknown as Parameters<typeof rerankByTemporalProximity>[0], query);
+      if (report.isTemporal) {
+        const queryHash = createHash("sha1").update(query).digest("hex").slice(0, 12);
+        logTemporalProbe(report, queryHash);
+      }
+    } catch (e) {
+      // observability must never break ranking
+      process.stderr.write(JSON.stringify({ type: "temporal_path_error", err: String(e) }) + "\n");
+    }
+  }
 
   return final;
 }
