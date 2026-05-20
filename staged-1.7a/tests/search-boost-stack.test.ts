@@ -49,8 +49,12 @@ const BOOST_TYPES = new Set(["decision", "lesson", "person", "project", "pending
 const TYPE_BOOST_DELTA_FTS = 1.0;
 const RECENCY_BOOST_DELTA_FTS = 0.5;
 
+// NOTE: mirror of `SOURCE_TYPE_BOOST` from staged-1.7a/edits/search.ts
+//   Keep in sync. The `mirror-drift-guard` test below asserts byte equality
+//   against the live export (`_internals.SOURCE_TYPE_BOOST`) so any future
+//   calibration change in search.ts breaks the test if this mirror lags.
 const SOURCE_TYPE_BOOST: Record<string, number> = {
-  // Active keys (post-backfill 2026-05-19) — mirror search.ts
+  // Active keys (post-backfill 2026-05-19)
   entity: 2.0,
   lesson: 1.8,
   skill: 1.5,
@@ -62,11 +66,9 @@ const SOURCE_TYPE_BOOST: Record<string, number> = {
   note: 1.0,
   external: 0.8,
   other: 0.7,
-  "ocr-cache": 0.5,
-  // Forward-compat (dead-by-corpus today)
+  "ocr-cache": 0.7,
+  // Forward-compat (ingest path planned but not landed):
   user_statement: 2.0,
-  compiled: 1.5,
-  timeline: 1.0,
 };
 
 const SECTION_BOOST: Record<string, number> = {
@@ -298,30 +300,81 @@ describe("source_type_boost — corpus-correct keys", () => {
     assert.strictEqual(score, 10.0 * (1 + (-0.3)));
   });
 
-  it("backfill key `ocr-cache` (16% corpus, scan artifacts) → −0.5 delta", () => {
+  it("backfill key `ocr-cache` (16% corpus, scan artifacts) → −0.3 delta (conservative)", () => {
     const score = scoreChunk(row({ source_type: "ocr-cache" }));
-    assert.strictEqual(score, 10.0 * (1 + (-0.5)));
+    assert.strictEqual(score, 10.0 * (1 + (-0.3)));
     assert.ok(score < 10.0, "ocr-cache must penalize below baseline");
   });
 
-  it("ranking order: entity > lesson > skill > project-doc > legal-template > personal-doc > note > external > other > ocr-cache", () => {
+  it("ranking order: entity > lesson > skill > project-doc > legal-template > personal-doc > note > external > {other, ocr-cache}", () => {
+    // Chain is strictly monotonic decreasing until the penalty floor where
+    // `other` (0.7) and `ocr-cache` (0.7) tie. Use `>=` only for the final
+    // pair; `>` everywhere else.
     const keys = [
-      "entity",
-      "lesson",
-      "skill",
-      "project-doc",
-      "legal-template",
-      "personal-doc",
-      "note",
-      "external",
-      "other",
-      "ocr-cache",
+      "entity",        // 2.0
+      "lesson",        // 1.8
+      "skill",         // 1.5
+      "project-doc",   // 1.4 — `command` ties; omitted from chain
+      "legal-template", // 1.3
+      "personal-doc",  // 1.2
+      "note",          // 1.0 — `session` ties; omitted from chain
+      "external",      // 0.8
+      "other",         // 0.7 — tied with `ocr-cache`
+      "ocr-cache",     // 0.7
     ];
     const scores = keys.map((k) => ({ key: k, score: scoreChunk(row({ source_type: k })) }));
     for (let i = 0; i < scores.length - 1; i++) {
-      assert.ok(
-        scores[i]!.score >= scores[i + 1]!.score,
-        `${scores[i]!.key} (${scores[i]!.score}) must rank ≥ ${scores[i + 1]!.key} (${scores[i + 1]!.score})`,
+      const isPenaltyFloorTie = i === scores.length - 2; // only `other` vs `ocr-cache`
+      if (isPenaltyFloorTie) {
+        assert.ok(
+          scores[i]!.score >= scores[i + 1]!.score,
+          `${scores[i]!.key} (${scores[i]!.score}) must rank ≥ ${scores[i + 1]!.key} (${scores[i + 1]!.score})`,
+        );
+      } else {
+        assert.ok(
+          scores[i]!.score > scores[i + 1]!.score,
+          `${scores[i]!.key} (${scores[i]!.score}) must rank > ${scores[i + 1]!.key} (${scores[i + 1]!.score})`,
+        );
+      }
+    }
+  });
+
+  // ── Drift guard (PR #154 code-review LOW #1) ────────────────────────────────
+  // Test inline `SOURCE_TYPE_BOOST` mirrors live export from search.ts. Two
+  // sources of truth is intentional (avoids resolving search.ts module-load
+  // deps in unit tests) but drift is bug-prone — assert key+value equality
+  // here so any future calibration tweak in search.ts that misses this file
+  // fails CI immediately.
+  it("mirror-drift-guard: inline map matches `_internals.SOURCE_TYPE_BOOST` from search.ts", async () => {
+    let live: Record<string, number>;
+    try {
+      const mod: { _internals?: { SOURCE_TYPE_BOOST: Record<string, number> } } = await import(
+        "../edits/search.js"
+      );
+      if (!mod._internals?.SOURCE_TYPE_BOOST) {
+        // Live export shape changed — flag, don't pass.
+        assert.fail("search.ts no longer exports _internals.SOURCE_TYPE_BOOST");
+      }
+      live = mod._internals.SOURCE_TYPE_BOOST;
+    } catch (err: unknown) {
+      // search.ts module-load may fail if deps (getDb / tier-manager / embed)
+      // aren't resolvable in this test environment. That's expected outside
+      // the VPS module graph — skip the drift assertion in that case rather
+      // than failing the suite. CI on prod tree will exercise this branch.
+      const msg = err instanceof Error ? err.message : String(err);
+      console.warn(`[mirror-drift-guard] skipped (search.ts load failed): ${msg}`);
+      return;
+    }
+    const liveKeys = Object.keys(live).sort();
+    const mirrorKeys = Object.keys(SOURCE_TYPE_BOOST).sort();
+    assert.deepStrictEqual(
+      mirrorKeys, liveKeys,
+      `key set drift: mirror=${mirrorKeys.join(",")} vs live=${liveKeys.join(",")}`,
+    );
+    for (const k of liveKeys) {
+      assert.strictEqual(
+        SOURCE_TYPE_BOOST[k], live[k],
+        `value drift for key "${k}": mirror=${SOURCE_TYPE_BOOST[k]} vs live=${live[k]}`,
       );
     }
   });

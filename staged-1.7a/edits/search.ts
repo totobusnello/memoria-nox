@@ -72,12 +72,21 @@ const RECENCY_BOOST_DELTA_SEMANTIC = 0.2; // was *1.2
 //   1.0    note          — generic .md baseline
 //   0.8    external      — web/external slight penalty (preserved)
 //   0.7    other         — unclassified fallback penalty
-//   0.5    ocr-cache     — scan artifacts, low signal-per-token
+//   0.7    ocr-cache     — scan artifacts, low signal-per-token (conservative)
 //
-// Legacy keys (user_statement / compiled / timeline) retained for forward-compat
-// in case ingest path lands them in future. `compiled`/`timeline` exist in the
-// `section` column (V10 schema, populated by ingestEntityFile) but NOT as
-// source_type values — keeping them here is harmless (lookup misses → 0 delta).
+// `ocr-cache` deliberately set to 0.7 (NOT 0.5 as a first instinct would
+// suggest) per PR #154 code-review MEDIUM: ocr-cache is 16% of corpus and we
+// have NO empirical evidence (pre-deploy) that −0.5 is safe in the live mix —
+// a deeper penalty risks demoting golden hits backed by faturamento PDFs that
+// fell through to OCR. Treat 0.7 as the conservative landing; a G6 ablation
+// (post next eval cycle) can tighten to 0.5 if it proves net-positive on
+// goldens. Same defensive posture as tier_boost default-off (PR #150).
+//
+// Forward-compat: `user_statement` retained — legitimate ingest path that
+// hasn't landed yet (planning doc lineage). `compiled` / `timeline` removed
+// from this map (2026-05-20, code-review LOW #2) — those are V10 `section`
+// column values, NOT source_type values; keeping them here was confusing
+// and they're already covered by SECTION_BOOST below.
 const SOURCE_TYPE_BOOST: Record<string, number> = {
   // Active keys (post-backfill 2026-05-19)
   entity: 2.0,
@@ -91,11 +100,9 @@ const SOURCE_TYPE_BOOST: Record<string, number> = {
   note: 1.0,
   external: 0.8,
   other: 0.7,
-  "ocr-cache": 0.5,
-  // Forward-compat (dead-by-corpus today; activate if ingest lands them)
+  "ocr-cache": 0.7,
+  // Forward-compat (ingest path planned but not landed):
   user_statement: 2.0,
-  compiled: 1.5,
-  timeline: 1.0,
 };
 
 // ── Section boost (V10 schema, populated by ingestEntityFile) ─────────────────
