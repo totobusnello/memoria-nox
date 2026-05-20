@@ -2,6 +2,91 @@
 
 ---
 
+## 🌑 NIGHT 2026-05-20 — 24 PRs + G8 cravado SOURCE_TYPE_BOOST LIVE
+
+> **Atualizado:** 2026-05-20 ~17h30 BRT. **24 PRs merged em main (cumulative #154-#177). G8 ablation cravou que SOURCE_TYPE_BOOST está LIVE (+2.66% A5 vs A0) mas EMPILHADO é redundante (-0.81% A8 vs A10). D49 phase 2 baseline rodando + cron scrape automation cravada. Memory housekeeping batch fix done. Stack pronto pra G9 contra g5.db + trim values experiment.**
+
+### G8 cravado — SOURCE_TYPE_BOOST validated empirically
+
+Matrix nDCG@10 entity-eval-v2.db (re-ingested 2026-05-20 com source_type prod-consistent):
+
+| Config | G6 v1 (entity_file) | G8 v2 (entity) | Δ |
+|---|---|---|---|
+| A0 no boosts | 0.4829 | 0.4816 | -0.27% (ruído) |
+| **A5 source_type only** | 0.4816 | **0.4944** | **+2.66%** ✅ LIVE |
+| A8 full canonical | 0.5845 | 0.5798 | -0.80% |
+| A10 full minus source_type | 0.5845 | 0.5845 | 0.00% |
+
+**Veredicto cravado:**
+- ✅ SOURCE_TYPE_BOOST do PR #154 está LIVE (A5 > A0 em +2.66%)
+- ⚠️ Empilhado é REDUNDANTE com section_boost + salience active (A8 < A10 em -0.81%)
+- Hipótese: section_boost compiled=2.0 já promove entity chunks, source_type entity=2.0 duplica → over-boost mata diversity
+- Per-category: open-domain -3.5pp (regress), multi-hop +1.4pp (ganho)
+
+**Memory:** `[[g8-source-type-boost-live-2026-05-20]]`
+
+### D49 phase 2 baseline rodando
+
+- Shadow ATIVO em prod via systemd drop-in `NOX_TEMPORAL_PATH=shadow`
+- Scrape script `scrape-temporal-shadow.sh` deployed + cron `0 0 * * *` diário ativo na VPS
+- Primeiro summary cravou: 10 queries em <1h, 100% detected temporal, 7 adverbial (gap conhecido), 3 com anchor (iso_date/month_year)
+- Output em `/root/.openclaw/workspace/memoria-nox/docs/research/temporal-shadow-baselines/<date>-summary.json`
+
+### Temporal spike 3 patches (PR #176) — pronto pra re-smoke
+
+Endereçando veredito do smoke #170 (Δ +0%):
+1. Detector gap "data em que / dia em que" (PT-BR + EN)
+2. `inferAnchorFromTopK()` fallback pra adverbial-only (cobre 70% dos casos)
+3. `proximityBoost()` proporcional ao gap (substitui boost fixo `delta * 10`)
+
+34/34 tests pass. Próximo: re-smoke Q105-Q110 com spike patched (deferred até deploy).
+
+### Cumulative day final — 24 PRs em main (#154-#177)
+
+| Wave | PRs |
+|---|---|
+| Morning | #154-#159 (6) |
+| Midday | #160-#162 (3) |
+| Afternoon | #163-#168 (6) |
+| Early evening | #167-#172 (6 — overlap) |
+| Night | #170-#177 (8) |
+
+Total únicos: 23 PRs principais + 5 HANDOFF commits + memory batch fix in-place + cron install na VPS.
+
+### Tools/automation cravados hoje
+
+- `scripts/vps-healthcheck.sh` — ping+ssh+api em cron 15min Mac local
+- `scripts/scrape-temporal-shadow.sh` — daily 0h UTC na VPS
+- `.vps-current-ip` — IP atual 187.77.234.79 (gitignored)
+- D49 phase 2 systemd drop-in — shadow active
+- CLAUDE.md (~/Claude) — `isolation:"worktree"` hard rule
+- `specs/d50-template.md` — decisão pré-aberta pós-shadow
+- `specs/INDEX.md` — 33 specs catalogados (19 active / 7 done / 6 deferred / 1 template)
+
+### Memories saved hoje (10 + INDEX)
+
+1. `[[vps-ip-change-2026-05-20]]`
+2. `[[multi-agent-branch-checkout-race]]`
+3. `[[g6-ablation-results-2026-05-20]]` (RESOLVED)
+4. `[[always-verify-eval-db-and-harness-before-comparing]]`
+5. `[[g7-salience-isolation-2026-05-20]]`
+6. `[[day-2026-05-20-cumulative]]`
+7. `[[g8-source-type-boost-live-2026-05-20]]`
+8. `MEMORY-INDEX.md` topical (83 entries)
+9. `[[vps-down-2026-05-20]]` (deprecated)
+10. Memory cross-links audit + batch fix (~13 files corrigidos)
+
+### Pendings pra próxima sessão
+
+1. **G9 ablation** A5/A8/A10 em g5.db (prod 68k chunks) — verifica se redundância vale em prod-flavored
+2. **Trim values experiment** — entity 2.0→1.3, lesson 1.8→1.2 se G9 confirma redundância
+3. **OR mutual exclusion logic** — não aplicar source_type se section_boost já active (chunk = entity file)
+4. **Re-smoke Q105-Q110** vs spike patched (PR #176) — quando deployar
+5. **D50 decision** — após shadow baseline 7d completar + smoke patched
+6. **D48 4-claim update** — claim #4 agora tem evidência empírica (+2.66% A5 G8)
+
+---
+
 ## 🌃 EARLY EVENING 2026-05-20 — Next-session pendings 5/6 closed + G7 cravado
 
 > **Atualizado:** 2026-05-20 ~15h30 BRT. **Tocou os 6 pendings da próxima sessão na paralela em ~1h30. 5/6 closed: G7 cravado (formula v2 neutra), D49 phase 1 deployed (shadow telemetry ativa), 6 temporal queries Q105-Q110 cravadas (rank 5-13), cron healthcheck instalado, CLAUDE.md push limpo. Único deferred: re-ingest entity-eval-v2.db (caro, próxima sessão dedicada).**
