@@ -2,6 +2,90 @@
 
 ---
 
+## 🌅 AFTERNOON 2026-05-20 — 11 PRs merged + G6 ablation + investigação aberta
+
+> **Atualizado:** 2026-05-20 ~14h BRT — **11 PRs merged em main hoje. Eval Harnesses CI restored to green. G6 ablation revelou A8 regression de -6.3% sem causa aparente (investigação em background via agent debugger). VPS healthcheck script + paper .docx regen disparados em paralelo.**
+
+### PRs hoje (cumulative)
+
+| PR | Tema | Commit |
+|---|---|---|
+| #154 | SOURCE_TYPE_BOOST map (11 backfill keys + drift guard) | `82af773` |
+| #155 | Visual identity +78.8% canonical | `73005ff` |
+| #156 | Paper §5 reframe (4-claim sub-evidence) | `0294f15` |
+| #157 | Temporal Q1 retrieval path spike | `e7844b4` |
+| #158 | api-server.ts docs patch | `590ad11` |
+| #159 | Gold Q87+Q88 temporal curados | `17b2e27` |
+| #160 | CI eval-harnesses fix (cd + npx tsc) | `51f4546` |
+| #161 | Temporal smoke test (4 queries, Δ +0%) | `1873b7e` |
+| #162 | INCIDENTS + DECISIONS + D49 | `36271aa` |
+| + 3 HANDOFF/handoff/handoff commits | morning + midday + afternoon | — |
+
+### G6 ablation — 2 surprises
+
+| Config | nDCG@10 G6 | Δ vs G5 V3 | Notes |
+|---|---|---|---|
+| A0 (no boosts) | 0.4829 | -22.6% | |
+| A5 (source_type only) | 0.4816 | -22.8% | **STILL INERT** — entity-eval.db tem source_type `entity_file/session_summary/event_log` que não bate com keys novas (`entity/lesson/skill/...`) |
+| A8 (full canonical) | 0.5845 | **-6.3%** | **Drop sem causa aparente** — investigação aberta |
+| A10 (full minus source_type) | 0.5845 | -6.3% | Idêntico a A8 (confirma source_type inert) |
+
+**G5 V3 A8 canonical reference (2026-05-19):** 0.6237 nDCG@10.
+
+D48 4-claims permanecem válidas (G5 V3 measurement é fonte da verdade) mas G6 regression precisa explicar **antes** de afirmar SOURCE_TYPE_BOOST contribution.
+
+### Temporal smoke test (#161) — Δ +0%
+
+4 queries category=temporal contra prod via /api/search:
+- Q70: gold superseded por re-ingest (drift)
+- Q71: tie-break perdido (proximity delta < score gap base)
+- Q87/Q88: ceiling (gold já rank 1)
+
+**Decisão:** NÃO ir pra implementação real ainda. Próximo: curar queries com gold em rank 5-15 + boost proporcional + wire source_date real.
+
+### CI Eval Harnesses agora 🟢
+
+Re-trigger em main confirmou: Q1 LoCoMo (15s) / Q2 LongMemEval (13s) / Q3 Latency (11s) — todos pass.
+
+**Bug fixed (PR #160):**
+1. Multiline `cd` em `run: |` cwd-relative bug (second `cd eval/locomo` rodava de dentro de `eval/locomo`)
+2. `npx tsc` puxava pacote `tsc@2.0.4` unrelated ("This is not the tsc command you are looking for")
+
+Fix: `working-directory:` step level + `npx -y -p typescript@5 tsc`.
+
+### Em background
+
+- **G6 regression investigation** (task #46) — agent debugger rodando 45min time-box. Reproduce isolado em port 18803 com dist pre-PR#154
+- **VPS healthcheck script** (task #47) — bash script + cron entry pra detectar IP swap cedo
+- **Paper .docx regen** (task #48) — pandoc local pra atualizar binário stale
+
+### Memories saved hoje (6 + index)
+
+1. `[[vps-ip-change-2026-05-20]]`
+2. `[[multi-agent-branch-checkout-race]]`
+3. `[[g6-ablation-results-2026-05-20]]`
+4. `[[vps-down-2026-05-20]]` (deprecada — IP swap não outage)
+5. `MEMORY-INDEX.md` topical (83 entries em 9 temas)
+6. Existing entries crossed-linked com PRs novos
+
+### Lessons cravadas
+
+- **Multi-agent branch race:** parallel agents que tocam git devem usar `isolation: "worktree"` mandatory (CLAUDE.md §)
+- **VPS IP swap silencioso:** Hostinger floating IP rebalance sem notif — healthcheck recomendado em cron
+- **CI workflow multiline cd:** `working-directory:` é idiomatic, evita cwd contamination
+- **npx tsc pkg ambiguidade:** pin com `-p typescript@<ver>` quando não há typescript local
+
+### Pendings próxima sessão
+
+1. **G6 investigation** result + decisão (revert vs aceitar 0.5845 como new baseline)
+2. **Re-ingest entity-eval.db** com source_type values consistentes com prod (`entity` não `entity_file`) pra validar A5 contribution real
+3. **D49 phase 1** — deploy temporal spike code via novo Wave (não retroactive PR #154)
+4. **Curar mais temporal queries** (rank 5-15 com gold) pra testar proximity rerank de verdade
+5. **CLAUDE.md update** com lessons (worktree mandatory + healthcheck script + multiline cd)
+6. **G7 ablation** com entity-eval-v2.db corrigido
+
+---
+
 ## 🌤️ MIDDAY 2026-05-20 — VPS uptime restored + Wave A deployed + Q87/Q88 cured
 
 > **Atualizado:** 2026-05-20 ~10h45 BRT. **VPS estava no IP novo 187.77.234.79 (não 45.43.85.86 — false alarm de IP swap, uptime intacto 20d). Deploy Wave A novo aplicado em prod: search.ts + salience.ts via scp + api-server.ts via sed FIND/REPLACE (3 patches). Build limpo, restart OK, /api/health.salience.mode=active, 68995/68995 vectorCoverage preservado. Gold Q87+Q88 temporal curados via PR #159 (chunks 216203+216204). 6 PRs merged em main hoje.**
