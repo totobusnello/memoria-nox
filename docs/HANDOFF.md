@@ -2,6 +2,96 @@
 
 ---
 
+## 🌃 NIGHT 2026-05-19 — G4 ablation cravado + 2 PRs review-fix (cumulative)
+
+> **Atualizado:** 2026-05-19 ~22h BRT — **G4 ablation completou via SSH manual (3 tentativas agent stallaram em sequência). Wave A boost stack funcionando: A8 = 0.5702 nDCG@10 (+63.5% vs G3 baseline 0.3488). A3 (section_boost only) = 0.6222 peak da matriz. D48 headline "Pain-weighted hybrid memory" DEFENSÁVEL numericamente. 5 surpresas mapeadas em ações P0/P1. 2 PRs abertos (B+C+E em #150, F em #151) — code-reviewer agent passou nos dois, fix iteration aplicada.**
+
+### G4 ablation matrix (n=100, isolated DB clone)
+
+| Config | nDCG@10 | MRR | R@10 | Δ vs G3 A8 (0.3488) |
+|---|---|---|---|---|
+| A0 FTS5 alone | 0.4817 | 0.4727 | 0.6100 | +38% |
+| A1 Semantic alone | 0.5702 | 0.5662 | 0.6833 | +63.5% |
+| A2 Hybrid sem boosts | 0.5739 | 0.5712 | 0.6833 | +64.5% |
+| **A3 section_boost only** | **0.6222** | **0.6358** | **0.7000** | **+78.4% peak** |
+| A4 BOOST_TYPES only | 0.5348 | 0.5326 | 0.6633 | +53% |
+| A5 source_type only | 0.4817 | 0.4727 | 0.6100 | INERT (= A0) |
+| A6 tier_boost only | 0.4616 | 0.4607 | 0.5800 | -4% (piora vs A0!) |
+| A7 Full + salience SHADOW | 0.5805 | 0.5857 | 0.6950 | +66.5% |
+| **A8 Full + salience ACTIVE** | **0.5702** | **0.5662** | **0.6833** | **+63.5% canonical** |
+
+### 5 surpresas → ações concretas
+
+1. **A3 isolated > A8 full**: section_boost sozinho rules, boost stack composto sub-optimal (over-stacking)
+2. **tier_boost PIORA** (A6 < A0): core chunks (3.96%) over-promote → empurram golden hits down
+3. **source_type INERT** (A5 = A0): 98.48% NULL — keys mismatch
+4. **Salience ACTIVE < SHADOW**: formula multiplicativa morre (99.7% chunks em [0.05-0.40] dead band)
+5. **Temporal=0 em TODAS configs**: boost stack não ajuda temporal queries — retrieval path dedicado precisa
+
+### D48 verdict (Toto, 2026-05-19 ~20h BRT)
+
+**Headline MANTIDA: "Pain-weighted hybrid memory with shadow discipline — yours by design"** — Δ ≥10% threshold cravado (+63.5% >> 10%). 4 sub-claims tested:
+
+| Sub-claim | Status | Evidência |
+|---|---|---|
+| "Hybrid memory" | ✅ | A2>A1 (small but real delta) |
+| "Section/Compiled-aware" | ✅✅ | A3 +78% strongest signal |
+| "Shadow discipline" | ✅ | A7>A8 — shadow beats active |
+| "Pain-weighted" (active salience) | ❌ atualmente | A8<A7 — formula precisa tuning |
+
+Pain-weighted continua tagline porque pain está NO código + audit revelou WHY active piora (formula multiplicativa mata signal). PR #150 implementa fix (aditivo evidence-weighted). Re-medir pós-deploy.
+
+### Audit completo distribution prod (n=68,995 chunks)
+
+| Sinal | Estado | % constante | Diagnóstico |
+|---|---|---|---|
+| pain | ☠️ DEAD | 90.67% no default 0.2 | Multiplicação por constante = identidade |
+| recency | ☠️ DEAD | 99.76% em [7-30d] | Idade homogênea pós-restore wipe |
+| source_type | ☠️ INERT | 98.48% NULL | Boost keys mismatch |
+| importance | ✅ ALIVE | bimodal 74% baixo + 17% alto | Único signal contínuo forte |
+| section | ✅ ALIVE (parcial) | 1.09% preenchidos | Mas 749 chunks = peak da matriz (A3) |
+| tier | ⚠️ NOISY | 52/44/4% | A6 mostra core over-promote |
+| access_count | ✅ ALIVE (binary) | 87% zero / 13% accessed | NÃO usado em salience atual |
+
+Detalhes: `docs/audits/2026-05-19-salience-distribution-audit.md` (em #150) + `docs/audits/2026-05-19-source-type-backfill-mapping.md` (em #150 + #151).
+
+### 2 PRs abertos com review iteration
+
+| PR | Title | Issues review | Status |
+|---|---|---|---|
+| **#150** | salience aditivo + tier_boost off (B+E + audits) | **6/7 fixed** (CodeQL ✅, CRITICAL access_count wiring ✅, 2 HIGH ✅, 2 MEDIUM probes ✅, 1 LOW skipped) | CI ✅ MERGEABLE |
+| **#151** | source_type backfill migration (Task F) | **9/12 fixed** (CodeQL HIGH regex ✅, HIGH OFFSET→keyset ✅, MEDIUM updated_at ✅, MEDIUM force-preserves-external ✅, MEDIUM parseArgs validation ✅, MEDIUM formatResult zero-guard ✅, +20 test cases) | CI re-running pós fix |
+
+### Tasks queue (pós deploy)
+
+| # | Task | Estado |
+|---|---|---|
+| **D** | A8' re-ablation pós-merge (esperado lift vs G4 A8 0.5702) | gated por #150 merge + deploy |
+| **G** | Boost-stack fine-grained: A3+each individual + A3+pairs | gated por D |
+| **H** | Temporal-aware retrieval path (NER date + pre-filter) | Q1 dedicated |
+| **F runtime** | Dry-run + apply backfill em prod via withOpAudit | gated por #151 merge + deploy |
+| Followup | CLI wiring index.ts pra `backfill-source-type` subcommand | separate PR |
+| Followup | Integration test in-memory DB pra `backfillSourceType` | separate PR |
+| Followup | salience formula tuning (component ablation) | Lab Q1 |
+
+### Pendências técnicas operacionais
+
+- **VPS cleanup**: `/tmp/g3-nox-eval/`, `/tmp/g4*.log`, `/tmp/run-g4*.sh` (~3-5MB residual)
+- **Visual identity sync**: banner + comparison chart com **+63.5% canonical** (ou +78% peak A3 com caveat textual)
+- **Paper §5 reframe**: tabela completa de ablation + caveat sobre salience precisar tuning
+- **Memória G4 wave A** salva em memory (`project_g4_wave_a_results_2026_05_19.md`)
+- **Memória agent stall pattern** salva (`feedback_agent_stall_on_multi_phase_pipelines.md`)
+
+### Next session priorities
+
+1. **Toto**: revisar diffs PR #150 + #151 → merge → disparar deploy VPS via DEPLOY-WAVE-A pattern
+2. **Pós-deploy**: rodar Task D (A8' re-ablation) — esperar A8' (com salience aditivo + tier off) ≥ 0.61
+3. **Pós-D**: Task G fine-grained ablation pra confirmar combo ótimo
+4. **Pós-Task F runtime**: re-medir A5' source_type contribuição (esperar ≥+0.03 vs A0)
+5. **Visual identity + paper §5** sync com number final
+
+---
+
 ## 🚨 INCIDENT 2026-05-19 12:38 BRT — wipe de ~5828 chunks legacy + restore completo
 
 > **Atualizado:** 2026-05-19 ~15:00 BRT — **Wipe massivo descoberto via canary A4 (Forge). Root cause provável: ingest do entity-flavored eval set (G3 ablation, PR #142 harness) cruzou pro nox-mem.db PRINCIPAL em vez do DB temp isolado. Restore concluído via snapshot `anomaly-1-smoke-test-main-20260519144716-*.db` → chunks back to 68.995. Sanitize fix (PR #140) precisou ser re-deployed pós-restore pois src/search.ts no VPS ficou stale. Postmortem agent dispatched pra cravar culprit.**
