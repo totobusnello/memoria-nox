@@ -178,6 +178,7 @@ interface FtsRow {
   retention_days: number | null;
   created_at: string | null;
   last_accessed_at: string | null;
+  access_count: number | null;
 }
 
 export function search(query: string, limit: number = 5): SearchResult[] {
@@ -191,6 +192,7 @@ export function search(query: string, limit: number = 5): SearchResult[] {
       SELECT c.id, c.source_file, c.chunk_type, c.chunk_text, c.source_date,
              c.tier, c.source_type, c.section, c.section_boost,
              c.pain, c.importance, c.retention_days, c.created_at, c.last_accessed_at,
+             c.access_count,
              bm25(chunks_fts, 1.0, 0.5, 0.5) as rank
       FROM chunks_fts
       JOIN chunks c ON c.id = chunks_fts.rowid
@@ -267,6 +269,7 @@ interface BoostRow {
   retention_days: number | null;
   created_at: string | null;
   last_accessed_at: string | null;
+  access_count: number | null;
   chunk_type: string;
 }
 
@@ -296,7 +299,7 @@ export async function searchSemantic(query: string, limit: number = 5): Promise<
       const boostRows = db.prepare(`
         SELECT id, tier, source_type, section, section_boost,
                pain, importance, retention_days, created_at, last_accessed_at,
-               chunk_type
+               access_count, chunk_type
         FROM chunks WHERE id IN (${placeholders})
       `).all(...chunkIds) as BoostRow[];
       for (const br of boostRows) boostMap.set(br.id, br);
@@ -330,6 +333,7 @@ export async function searchSemantic(query: string, limit: number = 5): Promise<
           retention_days: info.retention_days,
           created_at: info.created_at,
           last_accessed_at: info.last_accessed_at,
+          access_count: info.access_count,
           source_date: row.source_date,
         });
       }

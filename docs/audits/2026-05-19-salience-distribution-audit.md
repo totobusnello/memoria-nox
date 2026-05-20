@@ -113,23 +113,36 @@ compiled    |    183 |  0.27%
 - `classifySalience()` thresholds (compatibilidade tier-manager)
 - Mode gating (`shadow` / `active` / `off`)
 
-### Mudado (PR `chore/salience-additive-evidence-2026-05-19`)
-- **Multiplicativo → aditivo** com pesos evidência-based
-- **W_importance = 0.6** (PRIMARY signal forte)
-- **W_pain = 0.05** (DEAD até backfill)
-- **W_recency = 0.05** (DEAD até ages heterogêneas)
-- **W_section_boost = 0.2** (TERTIARY — golden compiled)
-- **W_access_log = 0.1** (SECONDARY binary)
-- **Baseline = 0.0** (drop floor — quero distinção real)
+### Mudado (PR #150 `feat/salience-additive-evidence-2026-05-19`)
+
+**Multiplicativo → aditivo** com pesos evidência-based. **4 componentes** (não 5):
+
+- **W_importance = 0.55** (PRIMARY signal forte — bimodal 74% baixo / 17% alto)
+- **W_recency = 0.15** (dampened — homogeneous corpus age pós-restore)
+- **W_pain = 0.10** (dampened — 90% default value)
+- **W_access = 0.20** (SECONDARY binary signal — 87% zero / 13% accessed, NÃO usado antes)
+
+**section_boost NÃO foi incluído** na fórmula salience: já é applied multiplicativamente via `sectionDelta()` no `search.ts` (boost stack camada separada). Incluí-lo aqui seria **double-counting** — viola CLAUDE.md regra #5 (boost stack ADITIVO entre si, mas salience não duplica boost de section).
 
 ```typescript
-salience =
-    0.60 * norm(importance)
-  + 0.05 * norm(pain)
-  + 0.05 * norm(recency)
-  + 0.20 * norm(section_boost / 2.0)
-  + 0.10 * norm(log1p(access_count) / log(1000))
+// Implementação real em staged-1.7a/edits/salience.ts (PR #150):
+salience = clamp01(
+    0.55 * importance
+  + 0.15 * recency
+  + 0.10 * pain
+  + 0.20 * accessCountComponent(access_count)
+);
+
+// accessCountComponent normaliza log1p(n)/log(1000) → [0, 1]
+//   access_count=0    → 0.00
+//   access_count=10   → 0.347
+//   access_count=100  → 0.667
+//   access_count=1000 → 1.00 (clamp saturates)
 ```
+
+**Soma = 1.0** quando todos componentes saturam em 1.0 (max salience = 1.0).
+
+**Histórico**: versão inicial proposta dessa audit incluía `W_section_boost = 0.2` (sums to 1.0 com section em vez de access alta). Refinado pós-review: section vive em `sectionDelta` já, access_count é signal NEW genuinamente sub-utilizado.
 
 ### Re-medir
 - A7' / A8' com formula nova (shadow vs active)
