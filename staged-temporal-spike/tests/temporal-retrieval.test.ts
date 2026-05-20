@@ -20,6 +20,8 @@ import assert from "node:assert/strict";
 import {
   detectTemporal,
   proximityDelta,
+  proximityBoost,
+  inferAnchorFromTopK,
   rerankByTemporalProximity,
   type RerankableResult,
 } from "../edits/temporal-retrieval.js";
@@ -196,38 +198,191 @@ describe("rerankByTemporalProximity", () => {
       NOW_MS,
     );
     assert.equal(report.applied, true);
-    // C (2026-04-25, Δ=0, +5.0) should now top A (2025-01-15, far Δ, ~0)
-    // A had 100, C had 80 + ~5.0 = 85 → A still > C with σ=30.
-    // But with σ=30, A is ~465 days away → essentially 0 boost.
-    //   B = 90 + tiny boost (105 days off, ~σ*3.5 → 0)
-    //   C = 80 + 5.0
-    //   D = 70 + ~4.97 (1 day off)
-    // A still top at 100. But C should pass B since 80+5 = 85 < 90.
-    // Spike sanity assertion: D (created_at fallback) gets boosted close to C.
-    const ids = results.map((r) => r.chunk_id);
-    // D's score: 70 + ~4.97 = 74.97 < B (90) → D stays #4. C's score: 85 < 90 → C #3.
-    // The real test is that boost was APPLIED — verify D score moved.
+    // PATCH 3 (gap-aware): bump = dayFactor * max(top1 - score, 0.1)
+    //   C: delta≈0.5 → dayFactor=1; gap = 100-80 = 20  → bump=20 → C=100
+    //   D: delta≈0.499 → dayFactor≈0.998; gap = 100-70 = 30 → bump≈29.94 → D≈99.94
+    //   B: delta≈near 0 (Δ≈105d, σ=30) → dayFactor≈0 → bump≈0.0x → B≈90
+    //   A: idx=0 → bump forced to 0 → A=100
+    // Expected sort: A(100) > C(100) > D(99.94) > B(90)
     const dResult = results.find((r) => r.chunk_id === "D")!;
-    assert.ok(dResult.score > 70, `D score must increase: got ${dResult.score}`);
+    assert.ok(dResult.score > 99, `D score must close gap to top: got ${dResult.score}`);
     const cResult = results.find((r) => r.chunk_id === "C")!;
-    assert.ok(cResult.score > 80, `C score must increase: got ${cResult.score}`);
-    // ids fully populated (no drops)
-    assert.equal(ids.length, 4);
+    assert.ok(cResult.score >= 100, `C score must reach top: got ${cResult.score}`);
+    // C and D both surpass B (was 90, mid-pack pre-patch)
+    const bResult = results.find((r) => r.chunk_id === "B")!;
+    assert.ok(cResult.score > bResult.score, "C must outrank B post-rerank");
+    assert.ok(dResult.score > bResult.score, "D must outrank B post-rerank");
+    assert.equal(results.length, 4);
   });
 
-  it("adverbial-only query does NOT trigger proximity rerank (delegates to E13)", () => {
+  it("adverbial-only query with dispersed top-K dates does NOT trigger rerank", () => {
+    // Dispersed dates: A 2025-01, B 2026-01, C 2026-04, D 2026-04 → no >=50% majority
+    // (max single YYYY-MM = 2 of 4 = 50% exact → ceil(4*0.5)=2, threshold met!)
+    // Use truly dispersed dates instead:
+    const dispersed: RerankableResult[] = [
+      { score: 100, source_date: "2024-01-15", chunk_id: "A" },
+      { score: 90, source_date: "2025-06-10", chunk_id: "B" },
+      { score: 80, source_date: "2026-04-25", chunk_id: "C" },
+      { score: 70, source_date: "2026-11-01", chunk_id: "D" },
+    ];
     const { results, report } = rerankByTemporalProximity(
-      baseResults,
+      dispersed,
       "quando o salience foi ativado",
       { mode: "active", sigmaDays: 30 },
       NOW_MS,
     );
     assert.equal(report.isTemporal, true);
-    assert.equal(report.signalSource, "adverbial");
+    assert.equal(report.signalSource, "adverbial"); // not promoted (no majority)
     assert.equal(report.applied, false); // no anchor → no rerank
     assert.deepEqual(
       results.map((r) => r.score),
-      baseResults.map((r) => r.score),
+      dispersed.map((r) => r.score),
     );
+  });
+
+  // ── PATCH 2 tests ─────────────────────────────────────────────────────────
+  it("adverbial-only with majority top-K month promotes to adverbial_inferred and reranks", () => {
+    // Majority: 3/4 results em 2026-04 → infer anchor 2026-04-15
+    const majorityResults: RerankableResult[] = [
+      { score: 100, source_date: "2025-01-15", chunk_id: "A" }, // outlier
+      { score: 90, source_date: "2026-04-10", chunk_id: "B" },
+      { score: 80, source_date: "2026-04-20", chunk_id: "C" },
+      { score: 70, source_date: "2026-04-30", chunk_id: "D" },
+    ];
+    const { results, report } = rerankByTemporalProximity(
+      majorityResults,
+      "quando o salience foi ativado",
+      { mode: "active", sigmaDays: 30 },
+      NOW_MS,
+    );
+    assert.equal(report.isTemporal, true);
+    assert.equal(report.signalSource, "adverbial_inferred");
+    assert.equal(report.anchorIso, "2026-04-15");
+    assert.equal(report.applied, true);
+    // chunks de 2026-04 devem subir; B/C/D must outrank A in final order? Not necessarily:
+    // A starts at 100, doesn't get boost (created_at outlier), B/C/D get boosts proportional to gap.
+    // Verify at least B/C/D scores moved (boost applied).
+    const b = results.find((r) => r.chunk_id === "B")!;
+    const c = results.find((r) => r.chunk_id === "C")!;
+    const d = results.find((r) => r.chunk_id === "D")!;
+    assert.ok(b.score > 90 || c.score > 80 || d.score > 70, "at least one in-month chunk must boost");
+  });
+});
+
+// ─── PATCH 2 unit tests for inferAnchorFromTopK ──────────────────────────────
+
+describe("inferAnchorFromTopK (PATCH 2)", () => {
+  it("returns mid-month ISO when majority share same YYYY-MM", () => {
+    const r: RerankableResult[] = [
+      { score: 0, source_date: "2026-04-10", chunk_id: "x" },
+      { score: 0, source_date: "2026-04-22", chunk_id: "y" },
+      { score: 0, source_date: "2026-04-28", chunk_id: "z" },
+      { score: 0, source_date: "2025-01-01", chunk_id: "w" },
+    ];
+    assert.equal(inferAnchorFromTopK(r, 5), "2026-04-15");
+  });
+
+  it("returns null when dates are dispersed (no >=50% majority)", () => {
+    const r: RerankableResult[] = [
+      { score: 0, source_date: "2024-01-15", chunk_id: "a" },
+      { score: 0, source_date: "2025-06-10", chunk_id: "b" },
+      { score: 0, source_date: "2026-04-25", chunk_id: "c" },
+      { score: 0, source_date: "2026-11-01", chunk_id: "d" },
+    ];
+    assert.equal(inferAnchorFromTopK(r, 5), null);
+  });
+
+  it("returns null when fewer than 2 dates available", () => {
+    const r: RerankableResult[] = [
+      { score: 0, source_date: "2026-04-10", chunk_id: "x" },
+      { score: 0, source_date: null, chunk_id: "y" },
+    ];
+    assert.equal(inferAnchorFromTopK(r, 5), null);
+  });
+
+  it("uses created_at when source_date is null", () => {
+    const r: RerankableResult[] = [
+      { score: 0, source_date: null, created_at: "2026-04-10", chunk_id: "x" },
+      { score: 0, source_date: null, created_at: "2026-04-20", chunk_id: "y" },
+      { score: 0, source_date: "2025-01-01", chunk_id: "z" },
+    ];
+    assert.equal(inferAnchorFromTopK(r, 5), "2026-04-15");
+  });
+
+  it("returns null on empty input", () => {
+    assert.equal(inferAnchorFromTopK([], 5), null);
+  });
+});
+
+// ─── PATCH 1 unit tests for new detector patterns ────────────────────────────
+
+describe("detectTemporal — PATCH 1 patterns", () => {
+  it("detects 'data em que X foi Y' as adverbial (Q107 gap)", () => {
+    const r = detectTemporal("data em que o salience foi ativado", NOW_MS);
+    assert.equal(r.isTemporal, true);
+    assert.equal(r.signalSource, "adverbial");
+    assert.equal(r.anchor, null);
+  });
+
+  it("detects 'dia em que' as adverbial", () => {
+    const r = detectTemporal("dia em que o reindex incident aconteceu", NOW_MS);
+    assert.equal(r.isTemporal, true);
+    assert.equal(r.signalSource, "adverbial");
+  });
+
+  it("detects 'momento em que' as adverbial", () => {
+    const r = detectTemporal("momento em que decidimos pivotar pra Q/A/P", NOW_MS);
+    assert.equal(r.isTemporal, true);
+    assert.equal(r.signalSource, "adverbial");
+  });
+
+  it("detects EN 'date when' as adverbial", () => {
+    const r = detectTemporal("the date when nox-mem v3.7 shipped", NOW_MS);
+    assert.equal(r.isTemporal, true);
+    assert.equal(r.signalSource, "adverbial");
+  });
+
+  it("detects EN 'day when' as adverbial", () => {
+    const r = detectTemporal("the day when we deployed temporal spike", NOW_MS);
+    assert.equal(r.isTemporal, true);
+    assert.equal(r.signalSource, "adverbial");
+  });
+
+  it("detects EN 'moment when' as adverbial", () => {
+    const r = detectTemporal("the moment when retrieval broke", NOW_MS);
+    assert.equal(r.isTemporal, true);
+    assert.equal(r.signalSource, "adverbial");
+  });
+});
+
+// ─── PATCH 3 unit tests for proximityBoost ───────────────────────────────────
+
+describe("proximityBoost (PATCH 3)", () => {
+  it("returns 0 when delta gaussian is 0 or negative", () => {
+    assert.equal(proximityBoost(0, 10), 0);
+    assert.equal(proximityBoost(-0.1, 10), 0);
+  });
+
+  it("max boost when delta=0.5 (gaussian max) equals gap * baseFactor", () => {
+    // dayFactor = min(0.5*2, 1) = 1; bump = 1 * gap = gap
+    assert.equal(proximityBoost(0.5, 20), 20);
+    assert.equal(proximityBoost(0.5, 20, 2.0), 40);
+  });
+
+  it("monotonic: closer day (larger delta) yields larger boost for same gap", () => {
+    const closer = proximityBoost(0.45, 10); // ~1σ gaussian-ish
+    const farther = proximityBoost(0.1, 10); // far away
+    assert.ok(closer > farther, `closer must boost more: ${closer} vs ${farther}`);
+  });
+
+  it("floors scoreGap at 0.1 to avoid zero bump in ties", () => {
+    const b = proximityBoost(0.5, 0); // gap=0 → floored to 0.1
+    assert.ok(b > 0.09 && b < 0.11, `expected ~0.1, got ${b}`);
+  });
+
+  it("clamps dayFactor at 1 when delta exceeds 0.5 (defensive)", () => {
+    // delta can't normally exceed 0.5, but defensively cap dayFactor
+    const b = proximityBoost(1.0, 10); // dayFactor capped at 1
+    assert.equal(b, 10);
   });
 });

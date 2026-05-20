@@ -23,7 +23,13 @@
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type TemporalSignalSource = "iso_date" | "month_year" | "year" | "adverbial" | null;
+export type TemporalSignalSource =
+  | "iso_date"
+  | "month_year"
+  | "year"
+  | "adverbial"
+  | "adverbial_inferred"
+  | null;
 
 export interface TemporalIntent {
   isTemporal: boolean;
@@ -74,6 +80,12 @@ const ADVERBIAL_PATTERNS: RegExp[] = [
   /(?:^|\s)(primeir[ao]|últim[ao]|inicial)(?=\s|[.,?!]|$)/iu,
   /(?:^|\s)(deploy(?:ado|ed|amento)|ativad[ao]|subiu|lançad[ao]|started|aconteceu|inici(?:ou|ado))(?=\s|[.,?!]|$)/iu,
   /(?:^|\s)(when|before|after|during)(?=\s|[.,?!]|$)/iu,
+  // PATCH 1 (2026-05-20): cobertura do gap Q107 — "data em que X foi Y"
+  // não matchava nenhum pattern existente. Adicionar variantes PT-BR
+  // ("data em que / dia em que / momento em que") + EN cognates
+  // ("date when / day when / moment when") via look-around Unicode-safe.
+  /(?:^|\s)(data\s+em\s+que|dia\s+em\s+que|momento\s+em\s+que)(?=\s|[.,?!]|$)/iu,
+  /(?:^|\s)(date\s+when|day\s+when|moment\s+when)(?=\s|[.,?!]|$)/iu,
 ];
 
 const ISO_DATE = /\b(\d{4})-(\d{2})-(\d{2})\b/;
@@ -195,6 +207,72 @@ export function proximityDelta(
   return 0.5 * Math.exp(exponent);
 }
 
+// ─── Adverbial-to-anchor fallback (PATCH 2) ───────────────────────────────────
+//
+// Quando o detector retorna `signalSource:'adverbial'` SEM anchor parseável,
+// o spike original skipa rerank. Smoke #170 mostrou 5/6 de Q105-Q110 caindo
+// nessa branch → Δ +0.0%. Patch: tentar inferir um anchor a partir do
+// `source_date` dos top-K results — se ≥50% compartilham o mesmo ano-mês,
+// usa o midpoint daquele mês como anchor (fallback ISO mid-month).
+//
+// Conservador: se dispersos, retorna null e mantém o no-op.
+
+export function inferAnchorFromTopK<T extends RerankableResult>(
+  results: T[],
+  k: number = 5,
+): string | null {
+  if (!results || results.length === 0) return null;
+  const slice = results.slice(0, Math.min(k, results.length));
+
+  const dates: string[] = [];
+  for (const r of slice) {
+    const refStr = r.source_date ?? (r.created_at as string | null | undefined) ?? null;
+    if (refStr && /^\d{4}-\d{2}/.test(refStr)) dates.push(refStr);
+  }
+  if (dates.length < 2) return null;
+
+  const groups = new Map<string, number>();
+  for (const d of dates) {
+    const ym = d.substring(0, 7); // "YYYY-MM"
+    groups.set(ym, (groups.get(ym) ?? 0) + 1);
+  }
+
+  const threshold = Math.ceil(dates.length * 0.5);
+  let winner: [string, number] | null = null;
+  for (const [ym, count] of groups) {
+    if (count >= threshold) {
+      if (!winner || count > winner[1]) winner = [ym, count];
+    }
+  }
+
+  return winner ? `${winner[0]}-15` : null; // mid-month ISO fallback
+}
+
+// ─── Proximity boost (PATCH 3 helper, pure & testable) ───────────────────────
+//
+// Boost gap-aware: scale-by-distance ao top-1 em score base. Substitui o
+// boost fixo `delta * 10` (que diluía em cluster temporal denso, Q109).
+//
+//   dayFactor    ∈ [0, 1]  — normalização do gaussian (delta * 2, clamped)
+//   scoreGap     ≥ 0       — top-1 minus candidate (floor 0.1 evita zero)
+//   baseFactor   default 1
+//
+// Contract:
+//   • proximityBoost(deltaGaussian=0.5, gap)  ≈ gap * baseFactor  (max boost)
+//   • proximityBoost(deltaGaussian, 0)        ≈ 0.1 * dayFactor   (floor)
+//   • monotonic: maior delta gaussian → maior bump (mesmo gap)
+
+export function proximityBoost(
+  deltaGaussian: number,
+  scoreGapToTop1: number,
+  baseFactor: number = 1.0,
+): number {
+  if (!Number.isFinite(deltaGaussian) || deltaGaussian <= 0) return 0;
+  const dayFactor = Math.min(deltaGaussian * 2, 1);
+  const gap = Math.max(scoreGapToTop1, 0.1);
+  return baseFactor * dayFactor * gap;
+}
+
 // ─── Rerank application ───────────────────────────────────────────────────────
 //
 // Aplica proximity delta aditivamente (regra #5) sobre top-K. Mode `shadow`
@@ -221,19 +299,35 @@ export function rerankByTemporalProximity<T extends RerankableResult>(
   const cfg = { ...getTemporalPathMode(), ...opts };
   const intent = detectTemporal(query, nowMs);
 
+  // Mutable signal source — pode ser promovido pra "adverbial_inferred" via PATCH 2
+  let signalSource: TemporalSignalSource = intent.signalSource;
+  let effectiveAnchor: Date | null = intent.anchor;
+
+  // PATCH 2: adverbial-only sem anchor → tenta inferir do top-K (mid-month ISO)
+  if (cfg.mode !== "off" && intent.isTemporal && !effectiveAnchor && intent.signalSource === "adverbial") {
+    const inferredIso = inferAnchorFromTopK(results);
+    if (inferredIso) {
+      const parsed = new Date(inferredIso + "T00:00:00Z");
+      if (!Number.isNaN(parsed.getTime())) {
+        effectiveAnchor = parsed;
+        signalSource = "adverbial_inferred";
+      }
+    }
+  }
+
   const baseReport: RerankReport = {
     applied: false,
     isTemporal: intent.isTemporal,
-    signalSource: intent.signalSource,
-    anchorIso: intent.anchor ? intent.anchor.toISOString().slice(0, 10) : null,
+    signalSource,
+    anchorIso: effectiveAnchor ? effectiveAnchor.toISOString().slice(0, 10) : null,
     kReranked: 0,
     top1DeltaDays: null,
     rangeStart: intent.anchorRange ? intent.anchorRange[0].toISOString().slice(0, 10) : null,
     rangeEnd: intent.anchorRange ? intent.anchorRange[1].toISOString().slice(0, 10) : null,
   };
 
-  // Short-circuit: off mode OR no anchor (adverbial-only delegates to E13)
-  if (cfg.mode === "off" || !intent.isTemporal || !intent.anchor) {
+  // Short-circuit: off mode OR no anchor (adverbial-only sem inferência delegates to E13)
+  if (cfg.mode === "off" || !intent.isTemporal || !effectiveAnchor) {
     return { results, report: baseReport };
   }
 
@@ -241,26 +335,36 @@ export function rerankByTemporalProximity<T extends RerankableResult>(
   const top = results.slice(0, k);
   const tail = results.slice(k);
 
+  // PATCH 3: boost proporcional ao GAP entre top-1 e candidato (não fixo *10).
+  // Boost fixo dilui em cluster temporal denso (Q109 smoke #170): todos
+  // chunks têm proximity similar → ordem original preservada. Patch escala
+  // o boost pelo gap em score base — chunks atrás precisam de boost MAIOR
+  // pra ultrapassar top-1 quando proximity ≈ 1.
+  const top1Score = top.length > 0 ? top[0]!.score : 0;
+
   let top1DeltaDays: number | null = null;
 
   const reranked = top.map((r, idx) => {
     const refStr = r.source_date ?? (r.created_at as string | null | undefined) ?? null;
-    const delta = proximityDelta(refStr, intent.anchor, cfg.sigmaDays);
+    const delta = proximityDelta(refStr, effectiveAnchor, cfg.sigmaDays);
 
     if (idx === 0 && refStr) {
       const ms = Date.parse(refStr);
-      if (Number.isFinite(ms) && intent.anchor) {
-        top1DeltaDays = Math.round(Math.abs(ms - intent.anchor.getTime()) / 86_400_000);
+      if (Number.isFinite(ms) && effectiveAnchor) {
+        top1DeltaDays = Math.round(Math.abs(ms - effectiveAnchor.getTime()) / 86_400_000);
       }
     }
 
     if (cfg.mode !== "active") return r; // shadow mode: don't mutate score
 
-    // Active: aditivo (mesmo padrão boost-stack staged-1.7a/edits/search.ts).
-    // baseScore * (1 + boostSum) → aqui já temos score final, então:
-    //   new = old * (1 + delta) — manteria semântica, mas spike opta por
-    //   somar absoluto (mais previsível em RRF-fused scores ~1-100 range).
-    const adjusted = { ...r, score: r.score + delta * 10 };
+    // Active: aditivo (regra #5). PATCH 3 — gap-aware:
+    //   dayFactor = delta * 2  (delta já é gaussian em [0, 0.5] → normaliza pra [0, 1])
+    //   gapBoost  = max(top1 - r.score, 0.1) (floor evita zero em ties)
+    //   bump      = baseFactor * dayFactor * gapBoost   (top-1 ganha bump=0 → estável)
+    const dayFactor = Math.min(delta * 2, 1);
+    const gapBoost = idx === 0 ? 0 : Math.max(top1Score - r.score, 0.1);
+    const bump = dayFactor * gapBoost;
+    const adjusted = { ...r, score: r.score + bump };
     return adjusted as T;
   });
 
