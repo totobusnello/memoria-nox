@@ -30,3 +30,6 @@ ckpt-snapshots/
 gmeet-token.json
 auth-profiles.json
 claude-credentials.json
+
+# VPS IP atual — local-only, muda com Hostinger floating-IP rebalance
+.vps-current-ip
