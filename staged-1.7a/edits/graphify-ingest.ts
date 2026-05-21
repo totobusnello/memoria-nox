@@ -122,8 +122,9 @@ async function ingestGraph(
   // audit #20 fix — Wrap destructive DELETE+INSERT in withOpAudit for atomic
   // VACUUM INTO snapshot pre-op (CLAUDE.md rule #6). On failure the snapshot
   // path is logged in ops_audit and recoverable via safeRestore().
+  // Issue #3B (2026-05-21): db_source is now explicit — 'main' (prod nox-mem.db).
   const today = new Date().toISOString().slice(0, 10);
-  const count = await withOpAudit("graphify-ingest", async () => {
+  const count = await withOpAudit("graphify-ingest", { db_source: 'main' }, async () => {
     // Delete previous chunks from this repo (idempotent re-ingest)
     const prefix = `graphify:${repoName}:`;
     const deleted = db.prepare("DELETE FROM chunks WHERE source_file LIKE ? || '%'").run(prefix);
