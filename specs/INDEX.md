@@ -1,7 +1,7 @@
 # Specs — Índice
 
-> Gerado em 2026-05-20. Status derivado do campo `**Status:**` de cada spec.  
-> Pasta: `specs/` — 33 itens (32 arquivos `.md` + 1 diretório de implementação).
+> Gerado em 2026-05-21. Status derivado do campo `**Status:**` de cada spec.  
+> Pasta: `specs/` — 34 itens (33 arquivos `.md` + 1 diretório de implementação).
 
 ---
 
@@ -30,6 +30,7 @@ Specs em andamento, implementation-ready ou em kickoff explícito.
 | [2026-05-18-P6-mobile-sync.md](2026-05-18-P6-mobile-sync.md) | P6 — Mobile Sync Architecture Spec | Spec (2026-05-18) — P6 candidate | 2026-05-18 |
 | [2026-05-18-P7-browser-extension.md](2026-05-18-P7-browser-extension.md) | P7 — Browser Extension Spec | Spec (2026-05-18) — P7 candidate | 2026-05-18 |
 | [2026-05-18-Q1-Q2-Q3-vps-scheduling.md](2026-05-18-Q1-Q2-Q3-vps-scheduling.md) | Q1+Q2+Q3 VPS Scheduling — Operational Spec | SPEC (pendente execução supervisionada) | 2026-05-18 |
+| [2026-05-21-per-method-benchmark-comparison.md](2026-05-21-per-method-benchmark-comparison.md) | Per-method benchmark — nox-mem vs Mem0/Zep/EverCore/HyperMem | SPEC — implementation pending, gated D49 phase 2 | 2026-05-21 |
 
 ---
 
