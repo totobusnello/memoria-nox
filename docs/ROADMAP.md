@@ -4,7 +4,7 @@
 >
 > Single source of truth. Reorganized **2026-05-17 night** durante overnight automode push.
 > v1 (630 lines, cluttered com session logs) arquivado em `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md`.
-> **Atualizado 2026-05-21 morning pós Issue #2 vec0 fix + G10b/c per-style breakdowns** — 37+ PRs em main (33 ontem + 4 hoje: opsAudit audit, vec0 fix bundle, paper §5.5, HANDOFF). Hard Mutex DEPLOYED + G10/G10b/G10c cross-eval consistent. Boost stack canonical mantido. D49 phase 2 shadow rolling (~5d até D50). Defense pre-commit hook installed após 3 branch leaks no dia.
+> **Atualizado 2026-05-21 late evening EOD** — 20 PRs merged hoje (#188-#214 spans). **3 production deploys:** G10d ACTIVE-T2 (D51 verdict + systemd drop-in `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`), opsAudit hygiene (Issues #1+#3, total_24h 48 phantom → 1 real), F10 Phase A + Phase B (observability dashboard LIVE em prod). Boost stack canonical = section_boost + source_type_boost + **Hard Mutex conditional t=2** + salience v2. L4 plural normalisation (PR #214) ship a tempo da próxima Sunday cron 2026-05-24 (primeira janela L4 fire em prod). D48 saga CLOSED (G3→G10d). D49 phase 2 shadow rolling (~5d até D50).
 
 ---
 
@@ -193,22 +193,27 @@ Objetivo: UX competitiva com agentmemory + memanto, sem comprometer pilares Q+A.
 | **G11** | g9.db (69495 chunks) | trim entity 2.0→1.3 vs canonical | 0.5337 vs 0.5376 | ❌ REJECT (-0.73% nDCG / -1.58% MRR) — single-hop -4.62% |
 | **G10b** | g9.db (n=100, 20/cat) | mutex per-category breakdown | varies por cat | ✅ KEEP DEPLOYED (single-hop +8.22%, multi-hop -3.95%) |
 | **G10c** | g9.db (n=100, 50/style) | mutex per-style breakdown | NL +1.56% / KW -0.72% | ✅ KEEP DEPLOYED (style-conditional behavior cravado) |
+| **G10d** | g9.db (n=100, 4 configs) | conditional mutex thresh=1/2/off | A8d-2 +1.35% / +1.37% MRR | ✅ **ACTIVE-T2 DEPLOYED** (D51, multi-hop +1.58% / adversarial +3.04% recovered) |
+| **G11** | g9.db (69495 chunks) | trim entity 2.0→1.3 vs canonical | 0.5337 vs 0.5376 | ❌ REJECT (-0.73% nDCG) |
 
-**Boost stack final canonical** (mantido sem mudanças pós G11):
+**Boost stack final canonical** (G10d ACTIVE-T2 deployed 2026-05-21):
 - `section_boost` (compiled=2.0, frontmatter=1.5, timeline=0.8)
 - `source_type_boost` (entity=2.0, lesson=1.8, ... canonical)
-- `Hard Mutex` section ↔ source_type (PR #182 deployed)
+- `Hard Mutex` section ↔ source_type **conditional `query_entities ≤ 2`** (PR #182 + #198, deployed 2026-05-21)
 - `salience v2` additive (W_IMPORTANCE=0.55 + W_RECENCY=0.15 + W_PAIN=0.10 + W_ACCESS=0.20)
 
 ### Lab — próximos itens (ordem de prioridade)
 
 | Item | DoD | Status | Blocker |
 |---|---|---|---|
-| **D49 phase 2 shadow 7d baseline** | Cron scrape coletando journalctl temporal_path JSONL daily → D50 decision | **⏳ Rolling** (cron ativo) | Aguarda 7d telemetria |
+| **D49 phase 2 shadow 7d baseline** | Cron scrape coletando journalctl temporal_path JSONL daily → D50 decision | **⏳ Rolling** (cron ativo, ETA D50 ~2026-05-27) | Aguarda 7d telemetria |
 | **D50 decision temporal active/off** | Baseline 7d shadow phase 2 concluída → decide ativar NOX_TEMPORAL_PATH=active | **⏳ Aguarda phase 2 baseline** | D49 phase 2 shadow 7d |
-| **Paper §5.5 update** | Claim 4 com negative-result note ("G11 trim rejected, mutex canonical") | **⏳ Próxima sessão** | — |
+| **Paper §5.5 G10d update** | Quarto triangulation point com G10d deploy numbers | **✅ DONE** PR #208 (2026-05-21 agent worktree) | — |
+| **L4 watchpoint 2026-05-24** | Query `extraction_method` distribution pós Sunday cron — primeira janela L4 fire em prod | **⏳ Aguarda Sunday cron 2026-05-24 23h UTC** | KG-build cron schedule |
+| **L4 spec §4 amendment** | Doc PR atualiza spec pra refletir plural normalisation (D52 implementation) | **⏳ Pendente** | — |
+| **F10 Phase C (Telemetry+Shadow tracker)** | Per-query latency drilldown + D49 shadow visualization | **⏳ Queued ~8h** | D49 phase 2 baseline ≥7d collected |
+| **F10 Phase D (Ops timeline + KG stats)** | ops_audit visualization 7d + KG growth charts | **⏳ Queued ~6h** | Phase C land + kg_snapshots table |
 | **Re-smoke Q105-Q110** | Pós shadow ter dados reais → confirma spike v2 em prod | **⏳ Aguarda shadow telemetry** | — |
-| **Per-category eval** | Pós-deploy mutex em g9.db (open-domain regression check) | **⏳ Pendente** | — |
 | **Formula v2 weights grid search** | Grid search 0.4-0.7/0.1-0.2/0.05-0.15/0.15-0.25 range; I1 env vars pra tunability | **⏳ Design done** (PR #169) — impl pendente I1 env vars | PR #55 (I1 env vars) merged pré-req |
 | **Neural reranker** | cross-encoder rerank após RRF; +3-8% nDCG literatura | **🅿️ Parking lot Q1/Q2** | bge/cohere/deepinfra; obrigatório ablation real + shadow |
 
@@ -349,28 +354,43 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 **Total Wave A 2026-05-19→20:** ~20 PRs | boost stack live em prod | G5 V3 0.6237 canonical
 
+### Sprint 2026-05-21 (G10d deploy + F10 observability dashboard + L4 plural)
+
+| Janela | PRs | Destaques |
+|---|---|---|
+| **2026-05-21 morning** | #188-#205 (~17) | G10d spec + D51 template (#192), opsAudit hygiene Issues #1+#3 deployed (#193), G10b/c audits closed no-merge (#188+#189), GTM README hero merged (#190), per-method benchmark spec (#191), vec0 fix deployed (#194), opsaudit-3b db_source enforce (#204), G10d ablation eval execution (#203), G12 frontmatter audit (#205) |
+| **2026-05-21 afternoon** | (G10d deploy + spec follow-ups) | G10d ACTIVE-T2 deployed em prod (systemd drop-in `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`); smoke 3/3 PASS |
+| **2026-05-21 evening** | #206-#211 (6) | G12 R3 dedup carve-out (#206), F10 Phase A endpoints + UI (#207) + DEPLOYED PROD, paper §5.5 G10d addendum agent (#208), L4 foundation T0-T3 (#209) → cleanup (#210), L4 extraction_method NULL audit + watchpoint 2026-05-24 (#211) |
+| **2026-05-21 late evening** | #212-#214 (3) | HANDOFF evening refresh (#213), F10 Phase B eval dashboard agent worktree (#212) + DEPLOYED PROD, L4 DIR_PATTERN plural normalisation + `system` 17th canonical (#214) |
+
+**Total 2026-05-21:** **20 PRs merged** | 3 production deploys (G10d ACTIVE-T2, opsAudit hygiene, F10 A+B) | D51+D52+D53 decisions cravados | D48 saga FINAL CLOSED
+
 ---
 
-## 12. Próxima ação concreta — pós Wave A 2026-05-20
+## 12. Próxima ação concreta — pós EOD 2026-05-21
 
 **Decisão imediata (próxima sessão):**
 
-1. **Re-ingest entity-eval-v2.db** com source_type prod-consistent — pré-req G8 (Gemini calls, sessão dedicada com janela eval)
-2. **D49 phase 2** — ativar `NOX_TEMPORAL_PATH=shadow` em prod; deixar rodar 7d coletando telemetria antes de D50
-3. **I1 env vars** (PR #55 — verificar se merged) → habilita Formula v2 grid search
+1. **L4 watchpoint 2026-05-25 (Mon manhã)** — query `SELECT extraction_method, COUNT(*) FROM kg_relations WHERE created_at >= DATE('2026-05-24') GROUP BY extraction_method` no VPS pós Sunday 23h UTC cron. Esperado: rows com `extraction_method` populado em uma das 4 values do enum. Se ainda NULL → L4 wire-up broken, escalate.
+2. **D49 phase 2 → D50 decision** ETA 2026-05-27 (~5d) — após 7d shadow baseline completo
+3. **G12 R3 dedup carve-out deploy** — código em main mas não rodando prod ainda (PR #206 merged, deploy SCP+restart pending)
 
 **Esta semana:**
-1. G8 ablation — confirmar A5 SOURCE_TYPE_BOOST contribuição real (hoje entity-eval.db, A5 inocente aparente)
-2. Smoke test Q105-Q110 vs spike rerank (#157) — confirmar boost >0 nessas queries
-3. Q3 latency: plan para reduzir p95 Gemini embed (~800ms dominante)
+1. F10 Phase A + Phase B 24h passive smoke validation (polling stable, no memory leaks)
+2. F10 Phase C (Telemetry drilldown) implementation pós-D50 (gated em D49 phase 2 baseline ≥7d)
+3. L4 spec §4 amendment doc PR documentando plural normalisation (D52 implementation)
 
 **Blocos pendentes pra D50:**
 - Phase 2 baseline 7d shadow → coletar hit-rate temporal path em prod → D50 decision (ativar ou off)
+
+**Aguardando Toto sanity-check:**
+- G12 R1 — mass-edit corpus entity frontmatter com `description:` YAML (~100 memory files, parked aguardando approval do approach)
 
 **Quando Q4 gate executar:**
 - README final já pronto (PR #46 + assets #155 synced com G5 V3)
 - COMPARISON.md scaffolded (PR #47) — rodar comparison full
 - Docker pronto (PR #68) — publicar imagem
+- Visual dashboard URLs disponíveis (F10 Phase A+B prod) podem subir como demo screenshots
 
 ---
 
@@ -390,4 +410,4 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-*ROADMAP v4 — v2 redigido overnight 2026-05-17; v3 atualizado pós Wave H 2026-05-18; v4 sincronizado 2026-05-20 pós Wave A; v4.1 EOD final 2026-05-20 pós D48 saga CLOSED (G3→G11). Próxima review: pós D50 decision (~7d).*
+*ROADMAP v4.2 — v2 overnight 2026-05-17; v3 pós Wave H 2026-05-18; v4 pós Wave A 2026-05-20; v4.1 EOD 2026-05-20 D48 saga (G3→G11); **v4.2 EOD 2026-05-21 (G10d ACTIVE-T2 deployed + F10 Phase A+B observability LIVE + L4 plural normalisation + 20 PRs + D51+D52+D53 cravados)**. Próxima review: pós D50 decision 2026-05-27 ou pós L4 watchpoint 2026-05-25.*

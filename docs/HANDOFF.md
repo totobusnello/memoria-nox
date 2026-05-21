@@ -2,6 +2,72 @@
 
 ---
 
+## 🌃 LATE EVENING 2026-05-21 — F10 Phase B DEPLOYED + L4 plural + DAY TOTAL 20 PRs
+
+> **Atualizado:** 2026-05-21 ~20h45 BRT EOD. **Após evening burst + agent F10 Phase B landing, sessão late-evening deployou F10 Phase B em prod + shipou L4 plural normalisation PR #214.** main em `8233d33`, 0 open PRs, 0 worktrees. **Day total: 20 PRs merged 2026-05-21**, 3 production deploys (G10d ACTIVE-T2 + opsAudit hygiene + F10 A+B), 3 decisions cravados (D51/D52/D53).
+
+### F10 Phase B — DEPLOYED LIVE em prod
+
+| Endpoint | Status |
+|---|---|
+| `GET /api/observability/evals?limit=5` | 200, 5 rows; first=`g10b::mutex_active`, ndcg=0.549, db_source=g5.db |
+| `GET /api/observability/evals?db_source=g5.db` | 200, 8 rows filtered |
+| `GET /observability/gate-annotations.json` | 200, 8 gates parsed |
+| `GET /observability/evals.html` | 200, 2656B, text/html |
+| `GET /observability/{evals.js,evals.css}` | 200, correct content-types |
+
+**2 critical fixes vs agent's wire-up doc:**
+1. `handleObsEvals(query, opts)` é dois args separados (não merged object) — wire-up example estava ambíguo
+2. `auditsRoot` default `cwd/../audits` resolve `tools/audits` na VPS (wrong) → explicit `${OPENCLAW_WORKSPACE}/audits` pinned
+
+**Acesso prod:** `http://nox-vps.tailnet:18802/observability/{health,evals}.html` via Tailscale.
+
+### L4 DIR_PATTERN plural normalisation — PR #214 merged
+
+Bridges convention divergence cravada na cleanup PR #210:
+
+| Source | Format | Examples |
+|---|---|---|
+| `kg_entities.entity_type` | SINGULAR (16 → 17 com `system`) | `agent`, `decision`, `lesson`, `feedback`, `system` |
+| `memory/entities/` filesystem | PLURAL (5 dirs) | `agents/`, `decisions/`, `lessons/`, `projects/`, `systems/` |
+| `[[wikilink]]` em prose | ambos OK | `[[agent/nox]]` e `[[agents/nox]]` resolvem same key |
+
+- `NOX_ENTITY_DIRS_PLURAL` constant — 5 filesystem dirs
+- `PLURAL_TO_SINGULAR` map: `agents→agent, decisions→decision, lessons→lesson, projects→project, systems→system`
+- `system` adicionado como 17th canonical type (was 16) — needed pra canonicalise `systems/` filesystem dir
+- 100% backward-compatible — singular forms continuam matching
+- 57/57 unit tests passing (10 new cases)
+- Ship a tempo da **próxima Sunday cron 2026-05-24** (primeira janela L4 fire em prod, per audit PR #211 watchpoint)
+
+### Stats agregados DAY TOTAL 2026-05-21
+
+- **20 PRs merged** (#188-#214 spans)
+- **3 production deploys:** G10d ACTIVE-T2 morning, opsAudit hygiene morning, F10 Phase A+B evening/late-evening
+- **3 decisions cravados:** D51 (G10d Conditional Hard Mutex), D52 (L4 plural normalisation), D53 (F10 Phase A+B deployed)
+- **D48 saga FINAL CLOSED** (G3→G10d) — canonical boost stack: section_boost + source_type_boost + Hard Mutex conditional t=2 + salience v2 additive
+- **108+ unit tests** passing across 4+ test suites
+- **2 agent worktrees** (paper §5.5 + F10 Phase B), both success
+- **Defense hook fired 5×** day total (G12 R3 + L4 commits + others, all intentional override)
+
+### Memories cravadas late-evening
+
+1. `[[jsdoc-close-inside-block-comment]]` — F10 Phase B agent caught `*/` em paths killing block comments
+2. `[[evening-total-2026-05-21-8prs-f10ab-landed]]` — capstone evening burst summary
+3. `[[late-evening-2026-05-21-f10b-deployed-l4-plural]]` — late-evening sprint capstone
+
+### Pending próxima sessão (priority order)
+
+1. **L4 watchpoint Monday 2026-05-25 manhã** — query `SELECT extraction_method, COUNT(*) FROM kg_relations WHERE created_at >= DATE('2026-05-24') GROUP BY extraction_method` no VPS pós Sunday 23h UTC cron
+2. **D49 phase 2 → D50** ETA 2026-05-27 (~5d waiting, baseline 7d rolling)
+3. **G12 R3 dedup carve-out deploy** — código em main (PR #206) mas não rodando prod ainda
+4. **F10 Phase A + Phase B 24h passive smoke** validation (polling stable, no memory leaks)
+5. **F10 Phase C (Telemetry+Shadow tracker)** ~8h, gated em D49 phase 2 baseline
+6. **L4 spec §4 amendment** doc PR documentando plural normalisation
+7. **G12 R1 corpus enrich** — parked aguardando Toto sanity-check approach mass-edit ~100 memory files
+8. **A2 Tier 3** crypto + audit (~4-6h, security review obrigatório)
+
+---
+
 ## 🌙 EVENING BURST 2026-05-21 — 6 PRs merged + F10 Phase A LIVE + L4 audit
 
 > **Atualizado:** 2026-05-21 ~19h45 BRT. **Após morning opsAudit deploy, sessão evening entregou 6 PRs adicionais + 1 production deploy (F10 Phase A) + 1 audit finding (L4 extraction_method).** main em `6284e60`, 0 open PRs meus + 1 agent (F10 Phase B) ainda rodando background.

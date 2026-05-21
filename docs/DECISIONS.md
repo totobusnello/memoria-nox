@@ -716,3 +716,84 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Ativar sem comparing baseline ablation (precisa A0 dedicated temporal)
 - **Cross-links:** spike PR #157 (staged-temporal-spike), gold cure PR #159, D43/D44 (Q4 gate Phase 2 já open), memory `[[temporal-q1-spike-2026-05-20]]`.
 - *Origem:* sessão 2026-05-20 ~11h-12h BRT, pós deploy Wave A novo e gold cure.
+
+---
+
+### 2026-05-21 — G10d Conditional Hard Mutex ACTIVE-T2 deployed (D51)
+
+#### D51 — Conditional Hard Mutex section↔source_type, threshold=2 ativo em prod
+- **Pergunta:** após G10 Hard Mutex (PR #182) validado +0.79% nDCG / +2.65% MRR aggregate mas single-hop +8.22% / multi-hop −3.95% / adversarial −2.95%, vale gate mutex por query_entities count pra recuperar multi-hop sem perder o ganho aggregate?
+- **Decisão:** **ACTIVE-T2** — deploy Conditional Hard Mutex gated por `query_entities ≤ 2`. Mutex aplicado quando count ≤ 2; bypass quando count ≥ 3 (multi-entity queries preservam chain signal entity::compiled).
+- **Por quê:**
+  - 4-config ablation grid (A8'/A8d-1/A8d-2/A8 off) contra `g9.db` (69 495 chunks) n=100 mostrou: threshold=1 regrediu (entity inventory 15 612 = 40× spec estimate → quase toda query bate count≥1 → no conditional benefit); threshold=2 cravou WIN
+  - Aggregate threshold=2: **+1.35% nDCG@10 / +1.37% MRR** vs A8' baseline
+  - Per-category recovery: multi-hop **+1.58%** nDCG (recovery +5.53pp vs G10), adversarial **+3.04%** nDCG / +6.25% MRR (recovery +5.99pp), open-domain +2.92% (preserves G10b win)
+  - Single-hop trade-off: −3.26% vs A8' MAS **+3.31% vs pre-mutex baseline** — sacrifício aceitável dado aggregate net positive + multi-hop/adversarial massive recovery
+  - 6/8 D51 criteria met (single-hop nDCG/MRR são únicos FAILs, mas vs A8' pico não pre-mutex baseline)
+- **Deploy procedure executed 2026-05-21 ~15h10 BRT:**
+  - SCP `query-entity-count.ts` + `search.ts` pra VPS `/root/.openclaw/workspace/tools/nox-mem/src/`
+  - systemd drop-in `/etc/systemd/system/nox-mem-api.service.d/g10d-active-t2.conf` com `Environment="NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2"`
+  - Restart nox-mem-api → active
+  - Smoke test 3/3 PASS: single-entity (`Toto Busnello CEO`) → mutex applied; multi-entity (`Toto Galapagos Capital Fundo Lombardia`) → mutex DISABLED returning entity::compiled top1; no-entity (`what is hybrid memory search`) → no mutex
+- **Rollback paths (3-tier documented):**
+  1. (5min) `NOX_DISABLE_CONDITIONAL_MUTEX=1` — disable conditional layer, keep G10 hard mutex
+  2. (5min) `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1` — disable entire mutex (pre-PR #182)
+  3. Remove drop-in completely
+- **NÃO FAZEMOS:**
+  - Skip ablation pre-deploy (CLAUDE.md §5 shadow discipline)
+  - Threshold=1 ignorando entity density real (production tem 15 612 entities, spec era 402)
+  - Trade-off single-hop FAIL como blocker quando aggregate é positive e adversarial/multi-hop recovery massive
+- **Cross-links:** PR #198 (G10d code) + PR #203 (ablation execution) + PR #208 (paper §5.5 addendum fourth triangulation point), spec `specs/2026-05-21-G10d-conditional-mutex-by-query-entities.md`, template `specs/d51-template.md`, audit `audits/2026-05-21-G10d-ablation-execution.md`, memory `[[g10d-ablation-d51-verdict-active-t2]]` + `[[g10d-active-t2-deployed-2026-05-21]]`.
+- *Origem:* sessão 2026-05-21 ablation cycle pós G10b/G10c (per-category mutex + per-style mutex). D48 saga (G3 → G11 → **G10d**) CLOSED com canonical boost stack: section_boost + source_type_boost + Hard Mutex gated em query_entity_count ≤ 2 + salience v2 additive.
+
+---
+
+### 2026-05-21 — L4 DIR_PATTERN aceita plural filesystem forms (D52)
+
+#### D52 — `regex-extract.ts` normaliza plural filesystem dirs → singular canonical entity types
+- **Pergunta:** descobriu durante PR #210 cleanup que `kg_entities.entity_type` usa singular (16 types: feedback/person/agent/...) enquanto `memory/entities/` filesystem usa plural (5 dirs: agents/decisions/lessons/projects/systems/). Wikilink `[[agents/nox]]` mirrorando filesystem layout não matchava — silenciosamente dropava. Como bridge?
+- **Decisão:** Extend `DIR_PATTERN` regex pra aceitar ambas formas; `asEntityType()` normaliza plural → singular antes de armazenar. `EntityRef.entityType` e `key` sempre singular canonical (matches DB FK).
+- **Por quê:**
+  - Discovery durante cleanup PR #210 (audit PR #211 confirmou `kg_relations.extraction_method` NULL em 21 518 rows — L4 nunca rodou em prod até hoje, KG cron roda só domingos)
+  - Forçar uma única convenção (singular ou plural) é breaking change pra qualquer agente que escrevesse memory files (filesystem ALREADY plural)
+  - Aceitar ambas formas com normalisation é 100% backward-compatible — singular continua matching, plural agora também
+  - Operationally: L4 fire primeira vez 2026-05-24 Sunday cron — esta PR ship em tempo
+- **Implementation:**
+  - Add `NOX_ENTITY_DIRS_PLURAL` constant (5 dirs)
+  - Add `PLURAL_TO_SINGULAR` map: `agents→agent, decisions→decision, lessons→lesson, projects→project, systems→system`
+  - Add `system` 17th canonical type em `NOX_ENTITY_TYPES` (was 16) — needed pra canonicalise `systems/` filesystem dir
+  - `DIR_PATTERN = (?:feedback|person|...|agents|decisions|...|systems)`
+  - 10 new test cases (8 plural variants + 2 `system` canonical), 57/57 passing
+- **NÃO FAZEMOS:**
+  - Quebrar singular convention existente (breaking change)
+  - Add novos tipos sem evidência filesystem (avoid bloating DIR_PATTERN com types phantom)
+  - Backfill retroativo de rows pré-PR — forward-only per spec §9
+  - Mass-rename memory entity files de plural pra singular (filesystem stays plural, regex adapts)
+- **Spec amendment pending:** `specs/2026-05-18-L4-regex-first-extraction.md` §4 originalmente listava 16 singular types. Follow-up doc PR atualizará pra documentar normalisation rule explicitly.
+- **Cross-links:** PR #210 (cleanup que surfou divergence), PR #211 (audit doc + 2026-05-24 watchpoint), PR #214 (this decision impl), memory `[[late-evening-2026-05-21-f10b-deployed-l4-plural]]`.
+- *Origem:* sessão 2026-05-21 late evening pós F10 Phase B deploy. Toto "tocaa pau" → adiantar pendentes follow-ups.
+
+---
+
+### 2026-05-21 — F10 Phase A + Phase B deployed (Foundation observability) (D53)
+
+#### D53 — F10 observability dashboard Phase A + Phase B ambos LIVE em prod
+- **Pergunta:** F10 spec (2026-05-01, refresh 2026-05-21) previa rollout phased 4 fases (~24h total). Ship só Phase A standalone (4h) ou push até Phase B (Eval Dashboard, +6h)?
+- **Decisão:** **Ambas Phase A + Phase B deployed mesmo dia** — F10 ficou completamente functional pra "está OK agora" (Phase A) e "score over time per config" (Phase B) numa janela só.
+- **Por quê:**
+  - Phase A standalone ~4h: 3 endpoints (`health` + `recent-ops` + `canary-tail`) + static dashboard `health.html`, polling 30s
+  - Phase B (~6h, agent worktree paralelo): endpoint `/api/observability/evals` reading `audits/data-G*/` + static `evals.html` com Chart.js line charts + gate annotations
+  - Lean stack mantido: vanilla JS + Chart.js CDN, no Next.js/Vercel/Prometheus/Grafana
+  - Phase A smoke 6/6 PASS, Phase B smoke 5/5 PASS no VPS
+  - 2 fixes operacionais cravados deploy-time: (1) `handleObsEvals(query, opts)` é dois args separados não merged object (agent wire-up doc estava ambíguo); (2) `auditsRoot` default `cwd/../audits` resolve `tools/audits` no VPS = wrong → explicit `${OPENCLAW_WORKSPACE}/audits` no wire-up
+- **Phase C + D parqueados:**
+  - Phase C (Telemetry drilldown + Shadow tracker, ~8h) — gated em D49 phase 2 baseline ≥7 dias
+  - Phase D (Ops audit timeline + KG stats, ~6h) — gated em Phase C land + kg_snapshots table criada
+- **Acesso prod:** `http://nox-vps.tailnet:18802/observability/{health,evals}.html` via Tailscale tunnel
+- **NÃO FAZEMOS:**
+  - Prometheus/Grafana integration (200MB+ RAM permanent VPS, lean stack rule violation)
+  - Time-series DB (data já em SQLite com timestamps)
+  - Alerting/SMS (cron canary */15min + Discord webhook F05 já cobre)
+  - Multi-user/RBAC (single-user dashboard)
+- **Cross-links:** spec `specs/2026-05-01-F10-observability-dashboard.md` (refresh 2026-05-21), PR #207 (Phase A), PR #212 (Phase B), memory `[[evening-burst-2026-05-21-4prs-f10-deployed]]` + `[[late-evening-2026-05-21-f10b-deployed-l4-plural]]`.
+- *Origem:* sessão 2026-05-21 evening. Spec refresh + Phase A solo + agent worktree paralelo pra Phase B.
