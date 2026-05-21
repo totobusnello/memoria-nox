@@ -1,6 +1,8 @@
 # D50 Template — Temporal proximity rerank active vs off
 
-> **Status:** TEMPLATE pré-aberto (2026-05-20). Decisão final D50 vai ser tomada após Phase 2 baseline 7 dias.
+> **Status:** TEMPLATE pré-aberto (2026-05-20), enriched 2026-05-21. **Decisão final D50 ETA ~2026-05-27** (7d shadow baseline desde phase 2 ativação 2026-05-20).
+>
+> **Atual:** NOX_TEMPORAL_PATH=shadow ATIVO em prod via systemd. Cron scrape `/root/.openclaw/workspace/scripts/scrape-temporal-shadow.sh` rodando diariamente meia-noite UTC. journalctl mostra temporal_path events sendo emitidos (signalSource: adverbial/month_year, confidence tiers).
 
 ---
 
@@ -59,14 +61,40 @@ Rodar full ablation pós-shadow (A8 active vs A8 active + temporal rerank ativo)
 
 | Field | Value |
 |---|---|
-| Data | YYYY-MM-DD |
-| Smoke Q105-Q110 Δ | TBD |
-| Shadow 7d detect rate | TBD |
+| Data ETA | **2026-05-27** (D+7 desde shadow ativação 2026-05-20) |
+| Smoke Q105-Q110 Δ | Δ +10.37% (spike v2 PR #181, pre-deploy) — pós-deploy aguarda shadow data |
+| Shadow 7d detect rate | TBD (preliminary day 1 evidence: adverbial/month_year events emitting) |
 | Shadow 7d hit rate iso_date | TBD |
 | Counterfactual g5.db Δ | TBD |
 | **Decisão** | **ACTIVE / OPT-IN / OFF / EXTEND** |
 | Rationale | TBD |
 | Action items | TBD |
+
+### Pre-flight data collected 2026-05-21
+
+- Service uptime desde shadow ativação: 20+ horas
+- Telemetria journalctl: temporal_path events visible
+- signalSource distribution preliminary (n<100 events): `adverbial` dominant, `month_year` second, `iso_date` rare
+- Confidence tiers funcionando: `keyword_inferred=0.6` (anchor null), `month_year=0.8` (date in query)
+- kReranked=0 quando confidence baixo (esperado por design — confidence limita boost)
+
+### D50 pre-fire checklist (run 2026-05-27)
+
+```bash
+# 1. Confirm 7d window
+ssh root@187.77.234.79 'journalctl -u nox-mem-api --since "2026-05-20 00:00 UTC" --no-pager | grep -c "temporal_path"'
+
+# 2. Run scrape aggregation
+ssh root@187.77.234.79 'bash /root/.openclaw/workspace/scripts/scrape-temporal-shadow.sh aggregate 7d'
+
+# 3. Counterfactual eval g5.db (after scrape data confirms detection rate > 5%)
+# Spawn agent isolation: worktree, runs A8 active vs A8 active+temporal-rerank em g5.db full
+
+# 4. Decide GO/NO-GO via thresholds in §1.2.3 above
+
+# 5. If GO → deploy via Wave (remove `NOX_TEMPORAL_PATH==='shadow'` condition)
+# If NO-GO → systemd drop-in remove + keep code
+```
 
 ---
 

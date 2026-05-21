@@ -4,7 +4,7 @@
 >
 > Single source of truth. Reorganized **2026-05-17 night** durante overnight automode push.
 > v1 (630 lines, cluttered com session logs) arquivado em `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md`.
-> **Atualizado 2026-05-20 EOD final pós D48 saga CLOSED (G3 → G11)** — 33 PRs merged em main, Hard Mutex (PR #182) deployed, G10 validated, G11 trim rejected, boost stack canonical mantido.
+> **Atualizado 2026-05-21 morning pós Issue #2 vec0 fix + G10b/c per-style breakdowns** — 37+ PRs em main (33 ontem + 4 hoje: opsAudit audit, vec0 fix bundle, paper §5.5, HANDOFF). Hard Mutex DEPLOYED + G10/G10b/G10c cross-eval consistent. Boost stack canonical mantido. D49 phase 2 shadow rolling (~5d até D50). Defense pre-commit hook installed após 3 branch leaks no dia.
 
 ---
 
@@ -191,6 +191,8 @@ Objetivo: UX competitiva com agentmemory + memanto, sem comprometer pilares Q+A.
 | **G9** | g5.db (68k prod) | A5 isolated vs A8 vs A10 | A5 +14.2%, A10 > A8 +2.6% | ✅ Redundância CONFIRMED em prod |
 | **G10** | g9.db (69495 chunks) | A8' mutex vs A8 nomutex | 0.5478 vs 0.5435 | ✅ Hard Mutex VALIDATED (+0.79% nDCG / +2.65% MRR) |
 | **G11** | g9.db (69495 chunks) | trim entity 2.0→1.3 vs canonical | 0.5337 vs 0.5376 | ❌ REJECT (-0.73% nDCG / -1.58% MRR) — single-hop -4.62% |
+| **G10b** | g9.db (n=100, 20/cat) | mutex per-category breakdown | varies por cat | ✅ KEEP DEPLOYED (single-hop +8.22%, multi-hop -3.95%) |
+| **G10c** | g9.db (n=100, 50/style) | mutex per-style breakdown | NL +1.56% / KW -0.72% | ✅ KEEP DEPLOYED (style-conditional behavior cravado) |
 
 **Boost stack final canonical** (mantido sem mudanças pós G11):
 - `section_boost` (compiled=2.0, frontmatter=1.5, timeline=0.8)
