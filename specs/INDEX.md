@@ -32,6 +32,7 @@ Specs em andamento, implementation-ready ou em kickoff explícito.
 | [2026-05-18-Q1-Q2-Q3-vps-scheduling.md](2026-05-18-Q1-Q2-Q3-vps-scheduling.md) | Q1+Q2+Q3 VPS Scheduling — Operational Spec | SPEC (pendente execução supervisionada) | 2026-05-18 |
 | [2026-05-21-per-method-benchmark-comparison.md](2026-05-21-per-method-benchmark-comparison.md) | Per-method benchmark — nox-mem vs Mem0/Zep/EverCore/HyperMem | SPEC — implementation pending, gated D49 phase 2 | 2026-05-21 |
 | [2026-05-21-G10d-conditional-mutex-by-query-entities.md](2026-05-21-G10d-conditional-mutex-by-query-entities.md) | G10d — Conditional Hard Mutex by query_entities count | SPEC — implementation-ready, gated em ablation eval | 2026-05-21 |
+| [2026-05-01-F10-observability-dashboard.md](2026-05-01-F10-observability-dashboard.md) | F10 — Observability Dashboard (refresh 2026-05-21) | SPEC — Phase A implementation-ready | 2026-05-01 |
 
 ---
 
@@ -62,7 +63,6 @@ Parked, aguardando evidência, cortados ou gated em condição futura.
 |---|---|---|---|
 | [2026-04-12-self-evolving-hooks.md](2026-04-12-self-evolving-hooks.md) | Self-Evolving Hooks — Spec | Proposto (sem ação pós-spec) | 2026-04-12 |
 | [2026-05-01-E04a-focus-boost.md](2026-05-01-E04a-focus-boost.md) | E04a — Session Focus Topic Boost | Design spec (CANDIDATE) — sem evidência de impl | 2026-05-01 |
-| [2026-05-01-F10-observability-dashboard.md](2026-05-01-F10-observability-dashboard.md) | F10 — Observability Dashboard | Design spec 📋 QUEUED — sem progresso | 2026-05-01 |
 | [2026-05-07-D01-cross-encoder-reranker.md](2026-05-07-D01-cross-encoder-reranker.md) | D01 — Cross-encoder Reranker (Shadow) | ⛔ CUT v1 (2026-05-08) — source-of-truth limpo | 2026-05-07 |
 | [2026-05-17-E15-codegraph-inspired-improvements.md](2026-05-17-E15-codegraph-inspired-improvements.md) | E15 — CodeGraph-inspired retrieval improvements | 📋 QUEUED — pós-R03 ou paralelo a D01 v3 | 2026-05-17 |
 | [temporal-retrieval-path-spike.md](temporal-retrieval-path-spike.md) | Temporal Retrieval Path — Q1 R&D Spike | Research spike — design + spike isolado, não deploy | — |
