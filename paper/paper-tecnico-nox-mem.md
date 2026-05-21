@@ -288,7 +288,39 @@ The **G9 ablation** (2026-05-20, against the prod-flavored `g5.db` 68k corpus, P
 | **A5 (source_type only)** | **+2.66% vs A0** | **+14.2% vs A0** | **5× larger** |
 | A8 vs A10 (redundancy) | **−0.81%** | **−2.6%** | **3× larger** |
 
-The G9 data **structurally validates** the resolution path of mutual-exclusion logic (PR #182, merged 2026-05-20): when a chunk has `section ∈ {compiled, frontmatter, timeline}` populated (entity-file structural metadata), the `source_type_boost` is gated to `0` to prevent stacking on top of `section_boost`. The mutex is rollback-gated via `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1`, and the G10 ablation (in flight) measures whether the mutex preserves the A10-equivalent ranking (≥ 0.5530 in G9 vs 0.5387 A8 without mutex).
+The G9 data **structurally validates** the resolution path of mutual-exclusion logic (PR #182, merged 2026-05-20): when a chunk has `section ∈ {compiled, frontmatter, timeline}` populated (entity-file structural metadata), the `source_type_boost` is gated to `0` to prevent stacking on top of `section_boost`. The mutex is rollback-gated via `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1`.
+
+The **G10 ablation** (2026-05-20, against `g9.db` 69,495 chunks) validates the mutex in production conditions:
+
+| Config | nDCG@10 | MRR | R@10 |
+|---|---|---|---|
+| A8' (mutex active, default) | **0.5478** | **0.5967** | 0.6183 |
+| A8 (mutex disabled, rollback flag) | 0.5435 | 0.5813 | 0.6333 |
+| **Δ mutex effect** | **+0.79%** | **+2.65%** | −2.4% |
+
+The mutex recovers ~46% of the A10 − A8 gap (where A10 fully removes `source_type_boost`) without removing the signal entirely. The per-metric pattern — MRR ↑ (top-1 quality) and R@10 ↓ (diversity) — surfaces a deliberate trade-off: the mutex improves precision at the cost of some recall breadth, with net positive on the weighted nDCG@10.
+
+The **G10b per-category breakdown** (2026-05-21, same DB, n = 100 across 5 categories) reveals which query types absorb the trade-off:
+
+| Category | n | nDCG@10 Δ% | MRR Δ% | R@10 Δ% | Verdict |
+|---|---|---|---|---|---|
+| single-hop | 20 | **+8.22%** | **+13.20%** | 0% | strong win |
+| open-domain | 20 | **+2.42%** | **+5.56%** | 0% | win |
+| multi-hop | 20 | −3.95% | −2.70% | **−6.02%** | regression |
+| adversarial | 20 | −2.95% | −5.88% | 0% | regression |
+| temporal | 20 | n/a | n/a | n/a | degenerate corpus gap |
+
+The aggregate Δ (+0.43% nDCG, +0.82% MRR) is consistent in direction with the G10 measurement (+0.79% / +2.65%) but attenuated in magnitude — within harness noise at n = 100, suggesting the deploy-time figure was on the upper end of a noisy distribution. Substantively: the mutex is a **single-hop optimizer with open-domain side benefits**, balanced against a multi-hop chain-traversal regression of −6.02% R@10. Net retrieval value (+0.0616 nDCG abs gain) exceeds losses (−0.0498 nDCG abs), so the mutex stays deployed; the multi-hop regression is documented as a follow-up candidate for **conditional mutex** (active only when `query_entities ≤ 1`).
+
+The **G11 trim ablation** (2026-05-20, same DB) tested whether trimming the top SOURCE_TYPE_BOOST values (`entity: 2.0 → 1.3`, `lesson: 1.8 → 1.2`) could provide additive benefit over the mutex:
+
+| Config | nDCG@10 | MRR |
+|---|---|---|
+| Canonical (entity=2.0, lesson=1.8) | **0.5376** | **0.5843** |
+| Trim (entity=1.3, lesson=1.2) | 0.5337 | 0.5751 |
+| Δ | **−0.73%** | **−1.58%** |
+
+Trim is **rejected**. The mutex already zeroes `sourceTypeDelta` where redundancy occurs (chunks with both `section` and high source-type); the `entity = 2.0` still fires legitimately on legacy non-compiled chunks where the mutex does not trigger, and trimming kills that residual signal. The single-hop category suffered worst (−4.62% nDCG, −7.40% MRR), confirming the mutex resolves redundancy **precisely**, while a global trim over-corrects. The boost stack settles at the canonical configuration: `section_boost × source_type_boost (mutex-gated) × additive salience v2`.
 
 ### 5.6 Honest characterization
 
