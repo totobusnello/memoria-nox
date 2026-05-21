@@ -1,8 +1,16 @@
-// export-import-cli.ts — A2 Tier 1 CLI wrapper for nox-mem export/import.
+// export-import-cli.ts — A2 Tier 1 + Tier 2 CLI wrapper for nox-mem export/import.
 //
-// Two subcommands:
+// Subcommands:
 //   nox-mem export --output <path> --passphrase-env <ENV_VAR>
-//   nox-mem import --input <path>  --passphrase-env <ENV_VAR> [--strategy merge|replace] [--dry-run]
+//                  [--tier 1|2] (default: 2)
+//                  [--tables chunks,kg_entities,kg_relations] (default: all; v2 only)
+//   nox-mem import --input <path>  --passphrase-env <ENV_VAR>
+//                  [--strategy merge|replace] (default: merge)
+//                  [--tables chunks,kg_entities] (default: all-in-bundle; v2 only)
+//                  [--dry-run]
+//
+// IMPORT IS AUTO-DETECTING: it routes v1 bundles to the v1 importer and v2
+// bundles to the v2 importer transparently. --tables is ignored for v1.
 //
 // HARD RULES (D41 #2, memory [[no-secrets-in-git]] / [[no-hardcoded-secrets]]):
 //   - Passphrase NEVER passed via argv (visible in `ps aux`). We REFUSE
@@ -22,9 +30,10 @@
 import type Database from "better-sqlite3";
 import {
   exportEncrypted,
-  importEncrypted,
+  exportEncryptedV2,
+  importEncryptedAuto,
   ExportImportError,
-  type ImportOptions,
+  type ImportV2Options,
 } from "../lib/export-import.js";
 
 export interface CliEnv {
@@ -49,26 +58,43 @@ export class CliUsageError extends Error {
 interface ExportArgs {
   output: string;
   passphraseEnv: string;
+  tier: 1 | 2;
+  tables?: string[]; // v2 only
 }
 
 interface ImportArgs {
   input: string;
   passphraseEnv: string;
   strategy: "merge" | "replace";
+  tables?: string[]; // v2 only — ignored for v1 bundles
   dryRun: boolean;
 }
 
 const USAGE = `Usage:
   nox-mem export --output <path>          --passphrase-env <ENV_VAR>
+                 [--tier 1|2]                 (default: 2 — per-table encryption)
+                 [--tables chunks,kg_entities,kg_relations]   (v2 only; default: all)
   nox-mem import --input  <bundle.json>   --passphrase-env <ENV_VAR>
                  [--strategy merge|replace]   (default: merge)
+                 [--tables chunks,kg_entities]                (v2 only; default: all-in-bundle)
                  [--dry-run]
 `;
+
+function parseTablesArg(raw: string): string[] {
+  const list = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+  if (list.length === 0) {
+    throw new CliUsageError("--tables value cannot be empty (expected comma-separated table names)");
+  }
+  return list;
+}
 
 /** Pure argv parser. Rejects argv-borne passphrase flags. */
 function parseExport(argv: string[]): ExportArgs {
   rejectArgvPassphrase(argv);
-  const args: Partial<ExportArgs> = {};
+  const args: Partial<ExportArgs> = { tier: 2 };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
     switch (a) {
@@ -79,15 +105,39 @@ function parseExport(argv: string[]): ExportArgs {
       case "--passphrase-env":
         args.passphraseEnv = requireValue(argv, ++i, a);
         break;
+      case "--tier": {
+        const v = requireValue(argv, ++i, a);
+        if (v !== "1" && v !== "2") {
+          throw new CliUsageError(`--tier must be '1' or '2', got '${v}'`);
+        }
+        args.tier = v === "1" ? 1 : 2;
+        break;
+      }
+      case "--tables": {
+        const v = requireValue(argv, ++i, a);
+        args.tables = parseTablesArg(v);
+        break;
+      }
       default:
         if (a.startsWith("--output=")) args.output = a.slice("--output=".length);
         else if (a.startsWith("--passphrase-env="))
           args.passphraseEnv = a.slice("--passphrase-env=".length);
-        else throw new CliUsageError(`Unknown export flag: ${a}`);
+        else if (a.startsWith("--tier=")) {
+          const v = a.slice("--tier=".length);
+          if (v !== "1" && v !== "2") {
+            throw new CliUsageError(`--tier must be '1' or '2', got '${v}'`);
+          }
+          args.tier = v === "1" ? 1 : 2;
+        } else if (a.startsWith("--tables=")) {
+          args.tables = parseTablesArg(a.slice("--tables=".length));
+        } else throw new CliUsageError(`Unknown export flag: ${a}`);
     }
   }
   if (!args.output) throw new CliUsageError("--output is required");
   if (!args.passphraseEnv) throw new CliUsageError("--passphrase-env <ENV_VAR> is required");
+  if (args.tier === 1 && args.tables) {
+    throw new CliUsageError("--tables is only valid with --tier 2 (V2 supports selective subset)");
+  }
   return args as ExportArgs;
 }
 
@@ -116,6 +166,11 @@ function parseImport(argv: string[]): ImportArgs {
         args.strategy = v;
         break;
       }
+      case "--tables": {
+        const v = requireValue(argv, ++i, a);
+        args.tables = parseTablesArg(v);
+        break;
+      }
       case "--dry-run":
         args.dryRun = true;
         break;
@@ -129,6 +184,8 @@ function parseImport(argv: string[]): ImportArgs {
             throw new CliUsageError(`--strategy must be 'merge' or 'replace', got '${v}'`);
           }
           args.strategy = v;
+        } else if (a.startsWith("--tables=")) {
+          args.tables = parseTablesArg(a.slice("--tables=".length));
         } else throw new CliUsageError(`Unknown import flag: ${a}`);
     }
   }
@@ -193,35 +250,72 @@ export function runCli(opts: CliEnv): CliResult {
     if (subcommand === "export") {
       const a = parseExport(rest);
       const passphrase = resolvePassphrase(a.passphraseEnv, opts.env);
-      const result = exportEncrypted(opts.db, passphrase, a.output);
-      stdout(
-        JSON.stringify({
-          ok: true,
-          op: "export",
-          bundle_path: result.bundlePath,
-          chunks_exported: result.chunksExported,
-          entities_exported: result.entitiesExported,
-          relations_exported: result.relationsExported,
-          bundle_bytes: result.bundleBytes,
-        }),
-      );
+      if (a.tier === 1) {
+        const result = exportEncrypted(opts.db, passphrase, a.output);
+        stdout(
+          JSON.stringify({
+            ok: true,
+            op: "export",
+            tier: 1,
+            bundle_path: result.bundlePath,
+            // V1 flat fields (backward compat with T1 callers)
+            chunks_exported: result.chunksExported,
+            entities_exported: result.entitiesExported,
+            relations_exported: result.relationsExported,
+            // V2-shaped echo for unified consumers
+            tables_exported: [
+              { name: "chunks", rows: result.chunksExported },
+              { name: "kg_entities", rows: result.entitiesExported },
+              { name: "kg_relations", rows: result.relationsExported },
+            ],
+            bundle_bytes: result.bundleBytes,
+          }),
+        );
+      } else {
+        const result = exportEncryptedV2(opts.db, passphrase, a.output, { tables: a.tables });
+        // Derive v1-shape flat fields too (0 if table absent from subset) so
+        // legacy consumers calling .chunks_exported don't break.
+        const byName = Object.fromEntries(result.tablesExported.map((t) => [t.name, t.rows]));
+        stdout(
+          JSON.stringify({
+            ok: true,
+            op: "export",
+            tier: 2,
+            bundle_path: result.bundlePath,
+            tables_exported: result.tablesExported,
+            chunks_exported: byName.chunks ?? 0,
+            entities_exported: byName.kg_entities ?? 0,
+            relations_exported: byName.kg_relations ?? 0,
+            bundle_bytes: result.bundleBytes,
+          }),
+        );
+      }
       return { exitCode: 0 };
     }
 
     if (subcommand === "import") {
       const a = parseImport(rest);
       const passphrase = resolvePassphrase(a.passphraseEnv, opts.env);
-      const importOptions: ImportOptions = { strategy: a.strategy, dryRun: a.dryRun };
-      const result = importEncrypted(opts.db, passphrase, a.input, importOptions);
+      const importOptions: ImportV2Options = {
+        strategy: a.strategy,
+        dryRun: a.dryRun,
+        tables: a.tables,
+      };
+      // Auto-detect v1 vs v2 from the bundle header.
+      const result = importEncryptedAuto(opts.db, passphrase, a.input, importOptions);
+      // Derive v1-shape flat fields from the v2 result for backward compat.
+      const byName = Object.fromEntries(result.tablesImported.map((t) => [t.name, t.rows]));
       stdout(
         JSON.stringify({
           ok: true,
           op: "import",
           strategy: a.strategy,
           dry_run: a.dryRun,
-          chunks_imported: result.chunksImported,
-          entities_imported: result.entitiesImported,
-          relations_imported: result.relationsImported,
+          tables_imported: result.tablesImported,
+          // V1 flat fields (backward compat with T1 callers)
+          chunks_imported: byName.chunks ?? 0,
+          entities_imported: byName.kg_entities ?? 0,
+          relations_imported: byName.kg_relations ?? 0,
           conflicts: result.conflicts,
         }),
       );

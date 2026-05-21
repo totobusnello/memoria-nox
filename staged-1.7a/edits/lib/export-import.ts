@@ -1,18 +1,30 @@
-// export-import.ts — A2 Tier 1: encrypted export/import bundle (AES-256-GCM)
+// export-import.ts — A2 Tier 1 + Tier 2: encrypted export/import bundle (AES-256-GCM)
 //
 // Q/A/P framework — Autonomy pillar. Centerpiece of "data is yours, portable".
 //
-// Tier 1 scope (this file):
+// Tier 1 scope (original — preserved unchanged):
 //   - Single bundle file (JSON envelope w/ base64 ciphertext)
 //   - AES-256-GCM with scrypt KDF, random salt + IV per export
 //   - AAD = sha256(canonical manifest header) — tamper detects manifest edits
-//   - JSON serialization of chunks + kg_entities + kg_relations
-//   - Two import strategies: 'replace' (truncate then insert) and 'merge' (skip dups by content_hash / unique keys)
+//   - Single ciphertext over JSON of chunks + kg_entities + kg_relations
+//   - Two import strategies: 'replace' (truncate then insert) and 'merge' (skip dups)
 //   - Dry-run mode (returns counts without mutating target DB)
 //
-// Out of scope for Tier 1 (deferred to Tier 2+):
-//   - tar.gz container, schema migration, embeddings.bin, streaming, HTTP/MCP wiring,
-//     ops_audit serialization, KG predicate-aware merge, source files / provenance.
+// Tier 2 scope (this file, V2 section):
+//   - Per-table encryption — separate ciphertext per table (chunks, kg_entities,
+//     kg_relations). Shared scrypt salt; per-table random IV / authTag / AAD.
+//   - Selective export (subset of tables in bundle).
+//   - Selective import (subset of tables out of bundle).
+//   - Per-table tamper detection — flipping one ciphertext in one table fails that
+//     table; subset import of the OTHERS still succeeds.
+//   - Independent rekey-per-table possible (Tier 3 — formats compatible).
+//   - Backward compatibility: importEncryptedAuto() auto-detects v1 vs v2 from
+//     the bundle header and routes to the correct handler.
+//
+// Out of scope (deferred to Tier 3+):
+//   - tar.gz container, schema migration, embeddings.bin, streaming, HTTP/MCP,
+//     ops_audit serialization, KG predicate-aware merge, source files / provenance,
+//     buffer-pool aliasing test for Float32Array (memory `[[buffer-pool-aliasing-in-typed-arrays]]`).
 //
 // Critical lessons baked in (memoria-nox/MEMORY.md):
 //   - [[aad-bug-caught-by-integration-test]]  — chained checksum bugs invisible to unit tests;
@@ -21,7 +33,8 @@
 //     accept only via env var name (resolved at runtime)
 //   - [[no-hardcoded-secrets]]                — same; CLI rejects bare --passphrase= flag
 //
-// Author: A2-T1 implementation 2026-05-21 (Forge swarm)
+// Authors: A2-T1 implementation 2026-05-21 (Forge swarm)
+//          A2-T2 extension     2026-05-21 (per-table encryption + backward compat)
 
 import {
   createCipheriv,
@@ -183,7 +196,10 @@ export class ExportImportError extends Error {
       | "BAD_BUNDLE_FORMAT"
       | "UNSUPPORTED_VERSION"
       | "AAD_MISMATCH"
-      | "BUNDLE_NOT_FOUND",
+      | "BUNDLE_NOT_FOUND"
+      // Tier 2 additions
+      | "UNKNOWN_TABLE"
+      | "TABLE_NOT_IN_BUNDLE",
   ) {
     super(message);
     this.name = "ExportImportError";
@@ -640,4 +656,613 @@ function conflictKeyFor(
     return `${String(s)}::${p}::${String(t)}`;
   }
   return null;
+}
+
+// ============================================================================
+// TIER 2 — Per-table encryption (V2 bundle format)
+// ============================================================================
+//
+// V2 envelope layout:
+// {
+//   "version": 2,
+//   "created_at": "<iso8601>",          // AAD-bound per-table
+//   "encrypted": true,
+//   "cipher": "aes-256-gcm",
+//   "key_derivation": "scrypt",
+//   "kdf_params": { N, r, p, keylen },   // shared (single passphrase → single key)
+//   "salt": "<b64>",                     // shared salt across tables
+//   "tables": {
+//     "chunks":       { rows_count, iv, authTag, aad, ciphertext },
+//     "kg_entities":  { rows_count, iv, authTag, aad, ciphertext },
+//     "kg_relations": { rows_count, iv, authTag, aad, ciphertext }
+//   }
+// }
+//
+// Per-table AAD = sha256(canonical({
+//   version: 2,
+//   created_at,                  // shared timestamp, but locked per table
+//   table_name,                  // ← prevents swapping ciphertexts across tables
+//   rows_count,                  // ← prevents removing rows then padding
+//   kdf_params,                  // ← prevents downgrade attack
+//   salt_b64,                    // ← shared salt also AAD-bound
+//   iv_b64                       // ← per-table IV
+// }))
+//
+// Key reuse safety: same key + DIFFERENT IV per table = secure (GCM requires
+// unique nonce per encryption with a given key — which we have, since IVs are
+// freshly randomBytes(12) per table).
+
+const SUPPORTED_TABLES = ["chunks", "kg_entities", "kg_relations"] as const;
+type SupportedTable = (typeof SUPPORTED_TABLES)[number];
+
+function isSupportedTable(name: string): name is SupportedTable {
+  return (SUPPORTED_TABLES as readonly string[]).includes(name);
+}
+
+/** V2 envelope written to disk. */
+export interface ExportBundleV2 {
+  version: 2;
+  created_at: string;
+  encrypted: true;
+  cipher: "aes-256-gcm";
+  key_derivation: "scrypt";
+  kdf_params: { N: number; r: number; p: number; keylen: number };
+  salt: string; // shared base64
+  tables: Record<string, ExportTableEnvelopeV2>;
+}
+
+export interface ExportTableEnvelopeV2 {
+  rows_count: number;
+  iv: string;
+  authTag: string;
+  aad: string;
+  ciphertext: string;
+}
+
+export interface ExportV2Options {
+  /** Optional subset of tables to export. Default: all of SUPPORTED_TABLES. */
+  tables?: readonly string[];
+}
+
+export interface ExportV2Result {
+  bundlePath: string;
+  tablesExported: { name: string; rows: number }[];
+  bundleBytes: number;
+}
+
+export interface ImportV2Options {
+  strategy: "replace" | "merge";
+  /** Optional subset to import. Default: all tables present in bundle. */
+  tables?: readonly string[];
+  dryRun?: boolean;
+}
+
+export interface ImportV2Result {
+  tablesImported: { name: string; rows: number; conflicts: number }[];
+  conflicts: ImportConflict[];
+  dryRun: boolean;
+}
+
+function readAllOfTable(db: Database.Database, table: SupportedTable): Record<string, unknown>[] {
+  if (table === "chunks") return readAllChunks(db);
+  if (table === "kg_entities") return readAllEntities(db);
+  return readAllRelations(db); // kg_relations
+}
+
+/** Build per-table AAD header (V2). */
+function buildAadHeaderV2(args: {
+  created_at: string;
+  table_name: string;
+  rows_count: number;
+  salt_b64: string;
+  iv_b64: string;
+}): Buffer {
+  const header = {
+    version: 2,
+    created_at: args.created_at,
+    table_name: args.table_name,
+    rows_count: args.rows_count,
+    cipher: CIPHER,
+    key_derivation: "scrypt",
+    kdf_params: KDF_PARAMS,
+    salt: args.salt_b64,
+    iv: args.iv_b64,
+  };
+  return Buffer.from(canonicalJson(header), "utf8");
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Public API: exportEncryptedV2 (per-table encryption)
+// ────────────────────────────────────────────────────────────────────────────
+
+export function exportEncryptedV2(
+  db: Database.Database,
+  passphrase: string,
+  outputPath: string,
+  options?: ExportV2Options,
+): ExportV2Result {
+  // Validate requested table subset.
+  const requested = options?.tables ?? SUPPORTED_TABLES;
+  for (const t of requested) {
+    if (!isSupportedTable(t)) {
+      throw new ExportImportError(
+        `Unknown table '${t}' for V2 export. Supported: ${SUPPORTED_TABLES.join(", ")}`,
+        "UNKNOWN_TABLE",
+      );
+    }
+  }
+  // De-dup while preserving order.
+  const seen = new Set<string>();
+  const tables: SupportedTable[] = [];
+  for (const t of requested) {
+    if (!seen.has(t)) {
+      seen.add(t);
+      tables.push(t as SupportedTable);
+    }
+  }
+
+  // Shared KDF: single passphrase → single key, derived once.
+  const salt = randomBytes(SALT_BYTES);
+  const key = deriveKey(passphrase, salt);
+  const salt_b64 = salt.toString("base64");
+  const created_at = new Date().toISOString();
+
+  const envelopes: Record<string, ExportTableEnvelopeV2> = {};
+  const tablesExported: { name: string; rows: number }[] = [];
+
+  try {
+    for (const table of tables) {
+      const rows = readAllOfTable(db, table);
+      const plaintext = Buffer.from(canonicalJson(rows), "utf8");
+
+      const iv = randomBytes(IV_BYTES); // unique IV per table — mandatory for GCM
+      const iv_b64 = iv.toString("base64");
+
+      const aad = sha256(
+        buildAadHeaderV2({
+          created_at,
+          table_name: table,
+          rows_count: rows.length,
+          salt_b64,
+          iv_b64,
+        }),
+      );
+
+      const cipher = createCipheriv(CIPHER, key, iv, { authTagLength: AUTH_TAG_BYTES });
+      cipher.setAAD(aad);
+      const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final()]);
+      const authTag = cipher.getAuthTag();
+
+      envelopes[table] = {
+        rows_count: rows.length,
+        iv: iv_b64,
+        authTag: authTag.toString("base64"),
+        aad: aad.toString("base64"),
+        ciphertext: ciphertext.toString("base64"),
+      };
+      tablesExported.push({ name: table, rows: rows.length });
+    }
+  } finally {
+    key.fill(0);
+  }
+
+  const bundle: ExportBundleV2 = {
+    version: 2,
+    created_at,
+    encrypted: true,
+    cipher: CIPHER,
+    key_derivation: "scrypt",
+    kdf_params: KDF_PARAMS,
+    salt: salt_b64,
+    tables: envelopes,
+  };
+
+  const serialized = JSON.stringify(bundle);
+  writeFileSync(outputPath, serialized, { encoding: "utf8", mode: 0o600 });
+
+  return {
+    bundlePath: outputPath,
+    tablesExported,
+    bundleBytes: Buffer.byteLength(serialized, "utf8"),
+  };
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Public API: importEncryptedV2 (per-table decryption + apply)
+// ────────────────────────────────────────────────────────────────────────────
+
+export function importEncryptedV2(
+  db: Database.Database,
+  passphrase: string,
+  bundlePath: string,
+  options: ImportV2Options,
+): ImportV2Result {
+  let raw: string;
+  try {
+    raw = readFileSync(bundlePath, "utf8");
+  } catch (e) {
+    throw new ExportImportError(
+      `Bundle not found or unreadable: ${bundlePath} (${(e as Error).message})`,
+      "BUNDLE_NOT_FOUND",
+    );
+  }
+
+  let bundle: ExportBundleV2;
+  try {
+    bundle = JSON.parse(raw) as ExportBundleV2;
+  } catch (e) {
+    throw new ExportImportError(
+      `Bundle is not valid JSON: ${(e as Error).message}`,
+      "BAD_BUNDLE_FORMAT",
+    );
+  }
+
+  if (bundle.version !== 2) {
+    throw new ExportImportError(
+      `importEncryptedV2 expected version 2, got ${String(bundle.version)}. ` +
+        `Use importEncryptedAuto() for backward compat or importEncrypted() for v1.`,
+      "UNSUPPORTED_VERSION",
+    );
+  }
+  if (bundle.cipher !== CIPHER || bundle.key_derivation !== "scrypt") {
+    throw new ExportImportError(
+      `Unsupported cipher/KDF combination: ${bundle.cipher}/${bundle.key_derivation}`,
+      "BAD_BUNDLE_FORMAT",
+    );
+  }
+  if (!bundle.tables || typeof bundle.tables !== "object") {
+    throw new ExportImportError(
+      `V2 bundle missing 'tables' map`,
+      "BAD_BUNDLE_FORMAT",
+    );
+  }
+
+  const salt = Buffer.from(bundle.salt, "base64");
+  if (salt.length !== SALT_BYTES) {
+    throw new ExportImportError(
+      `Invalid salt length ${salt.length} (expected ${SALT_BYTES})`,
+      "BAD_BUNDLE_FORMAT",
+    );
+  }
+
+  // Determine which tables to import.
+  const tablesInBundle = Object.keys(bundle.tables);
+  const requested = options.tables ?? tablesInBundle;
+  for (const t of requested) {
+    if (!isSupportedTable(t)) {
+      throw new ExportImportError(
+        `Unknown table '${t}' requested for V2 import. Supported: ${SUPPORTED_TABLES.join(", ")}`,
+        "UNKNOWN_TABLE",
+      );
+    }
+    if (!tablesInBundle.includes(t)) {
+      throw new ExportImportError(
+        `Table '${t}' not present in bundle (have: ${tablesInBundle.join(", ") || "none"})`,
+        "TABLE_NOT_IN_BUNDLE",
+      );
+    }
+  }
+  const seen = new Set<string>();
+  const targetTables: SupportedTable[] = [];
+  for (const t of requested) {
+    if (!seen.has(t)) {
+      seen.add(t);
+      targetTables.push(t as SupportedTable);
+    }
+  }
+
+  // Decrypt each requested table independently.
+  const key = deriveKey(passphrase, salt);
+  const decrypted: Partial<Record<SupportedTable, Record<string, unknown>[]>> = {};
+
+  try {
+    for (const table of targetTables) {
+      const env = bundle.tables[table];
+      if (!env) {
+        throw new ExportImportError(
+          `Table '${table}' missing envelope in bundle (internal error)`,
+          "BAD_BUNDLE_FORMAT",
+        );
+      }
+
+      const iv = Buffer.from(env.iv, "base64");
+      const authTag = Buffer.from(env.authTag, "base64");
+      const claimedAad = Buffer.from(env.aad, "base64");
+      const ciphertext = Buffer.from(env.ciphertext, "base64");
+
+      if (iv.length !== IV_BYTES) {
+        throw new ExportImportError(
+          `Invalid IV length ${iv.length} for table '${table}' (expected ${IV_BYTES})`,
+          "BAD_BUNDLE_FORMAT",
+        );
+      }
+      if (authTag.length !== AUTH_TAG_BYTES) {
+        throw new ExportImportError(
+          `Invalid auth tag length ${authTag.length} for table '${table}' (expected ${AUTH_TAG_BYTES})`,
+          "BAD_BUNDLE_FORMAT",
+        );
+      }
+
+      // Recompute AAD from the table envelope's claimed counts + table name + shared salt.
+      const recomputedAad = sha256(
+        buildAadHeaderV2({
+          created_at: bundle.created_at,
+          table_name: table,
+          rows_count: env.rows_count,
+          salt_b64: bundle.salt,
+          iv_b64: env.iv,
+        }),
+      );
+
+      if (
+        recomputedAad.length !== claimedAad.length ||
+        !timingSafeEqual(recomputedAad, claimedAad)
+      ) {
+        throw new ExportImportError(
+          `Bundle table '${table}' has tampered header (AAD mismatch). Aborting import.`,
+          "AAD_MISMATCH",
+        );
+      }
+
+      let plaintextBuf: Buffer;
+      try {
+        const decipher = createDecipheriv(CIPHER, key, iv, { authTagLength: AUTH_TAG_BYTES });
+        decipher.setAuthTag(authTag);
+        decipher.setAAD(recomputedAad);
+        plaintextBuf = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+      } catch (e) {
+        throw new ExportImportError(
+          `Decryption failed for table '${table}' (bad passphrase or tampered ciphertext): ${(e as Error).message}`,
+          "TAMPERED_BUNDLE",
+        );
+      }
+
+      let rows: Record<string, unknown>[];
+      try {
+        rows = JSON.parse(plaintextBuf.toString("utf8")) as Record<string, unknown>[];
+      } catch (e) {
+        throw new ExportImportError(
+          `Decrypted payload for table '${table}' is not valid JSON (likely corrupted): ${(e as Error).message}`,
+          "BAD_BUNDLE_FORMAT",
+        );
+      }
+
+      if (rows.length !== env.rows_count) {
+        throw new ExportImportError(
+          `Decrypted row count for table '${table}' does not match envelope ` +
+            `(${rows.length}/${env.rows_count})`,
+          "TAMPERED_BUNDLE",
+        );
+      }
+
+      decrypted[table] = rows;
+    }
+  } finally {
+    key.fill(0);
+  }
+
+  return applyImportV2(db, decrypted, targetTables, options);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Apply (V2): per-table with subset awareness — no truncate of tables outside subset
+// ────────────────────────────────────────────────────────────────────────────
+
+function applyImportV2(
+  db: Database.Database,
+  decrypted: Partial<Record<SupportedTable, Record<string, unknown>[]>>,
+  targetTables: SupportedTable[],
+  options: ImportV2Options,
+): ImportV2Result {
+  const conflicts: ImportConflict[] = [];
+
+  // Compute merge conflicts up front per table (read-only).
+  if (options.strategy === "merge") {
+    const subsetPayload: PlaintextPayload = {
+      chunks: decrypted.chunks ?? [],
+      entities: decrypted.kg_entities ?? [],
+      relations: decrypted.kg_relations ?? [],
+    };
+    // Only detect conflicts for tables actually being imported.
+    if (targetTables.includes("chunks")) {
+      detectMergeConflictsTable(db, "chunks", subsetPayload.chunks, conflicts);
+    }
+    if (targetTables.includes("kg_entities")) {
+      detectMergeConflictsTable(db, "kg_entities", subsetPayload.entities, conflicts);
+    }
+    if (targetTables.includes("kg_relations")) {
+      detectMergeConflictsTable(db, "kg_relations", subsetPayload.relations, conflicts);
+    }
+  }
+
+  // Dry-run: report what would happen, mutate nothing.
+  if (options.dryRun) {
+    const tablesImported = targetTables.map((t) => {
+      const rows = decrypted[t] ?? [];
+      const tableConflicts = conflicts.filter((c) => c.table === t).length;
+      const wouldImport = options.strategy === "replace"
+        ? rows.length
+        : rows.length - tableConflicts;
+      return { name: t, rows: wouldImport, conflicts: tableConflicts };
+    });
+    return { tablesImported, conflicts, dryRun: true };
+  }
+
+  // Mutating path — single transaction.
+  const tx = db.transaction(() => {
+    const out: { name: string; rows: number; conflicts: number }[] = [];
+
+    if (options.strategy === "replace") {
+      // Per-table replace: only truncate tables IN the subset.
+      // Critical: tables outside the subset are NOT touched (selective restore).
+      // Ordering matters for FK: relations → entities → chunks (delete leaves first).
+      if (targetTables.includes("kg_relations")) db.exec("DELETE FROM kg_relations;");
+      if (targetTables.includes("kg_entities")) db.exec("DELETE FROM kg_entities;");
+      if (targetTables.includes("chunks")) db.exec("DELETE FROM chunks;");
+    }
+
+    // Insert in dependency order: chunks → kg_entities → kg_relations.
+    // Only tables in subset are inserted.
+    const insertOrder: SupportedTable[] = ["chunks", "kg_entities", "kg_relations"];
+    for (const table of insertOrder) {
+      if (!targetTables.includes(table)) continue;
+      const rows = decrypted[table] ?? [];
+      const inserted = insertRows(db, table, rows, options.strategy, conflicts);
+      const tableConflicts = conflicts.filter((c) => c.table === table).length;
+      out.push({ name: table, rows: inserted, conflicts: tableConflicts });
+    }
+    return out;
+  });
+
+  const tablesImported = tx();
+  return { tablesImported, conflicts, dryRun: false };
+}
+
+/** Per-table merge-conflict detection (refactor of detectMergeConflicts split by table). */
+function detectMergeConflictsTable(
+  db: Database.Database,
+  table: SupportedTable,
+  rows: Record<string, unknown>[],
+  conflicts: ImportConflict[],
+): void {
+  if (table === "chunks") {
+    const cols = getTableColumns(db, "chunks");
+    if (!cols.includes("content_hash")) return;
+    const stmt = db.prepare("SELECT 1 FROM chunks WHERE content_hash = ? LIMIT 1");
+    for (const c of rows) {
+      const hash = c.content_hash as string | undefined;
+      if (hash && stmt.get(hash)) {
+        conflicts.push({ table: "chunks", reason: "duplicate_content_hash", key: hash });
+      }
+    }
+    return;
+  }
+  if (table === "kg_entities") {
+    const cols = getTableColumns(db, "kg_entities");
+    if (!(cols.includes("canonical_name") && cols.includes("type"))) return;
+    const stmt = db.prepare(
+      "SELECT 1 FROM kg_entities WHERE canonical_name = ? AND type = ? LIMIT 1",
+    );
+    for (const e of rows) {
+      const cn = e.canonical_name as string | undefined;
+      const ty = e.type as string | undefined;
+      if (cn && ty && stmt.get(cn, ty)) {
+        conflicts.push({
+          table: "kg_entities",
+          reason: "duplicate_unique_key",
+          key: `${cn}::${ty}`,
+        });
+      }
+    }
+    return;
+  }
+  // kg_relations
+  const cols = getTableColumns(db, "kg_relations");
+  if (
+    !(
+      cols.includes("source_entity_id") &&
+      cols.includes("target_entity_id") &&
+      cols.includes("predicate")
+    )
+  ) {
+    return;
+  }
+  const stmt = db.prepare(
+    "SELECT 1 FROM kg_relations WHERE source_entity_id = ? AND predicate = ? AND target_entity_id = ? LIMIT 1",
+  );
+  for (const r of rows) {
+    const s = r.source_entity_id;
+    const p = r.predicate as string | undefined;
+    const t = r.target_entity_id;
+    if (s != null && p && t != null && stmt.get(s, p, t)) {
+      conflicts.push({
+        table: "kg_relations",
+        reason: "duplicate_unique_key",
+        key: `${String(s)}::${p}::${String(t)}`,
+      });
+    }
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Public API: importEncryptedAuto — auto-detect v1 vs v2 and route
+// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Backward-compatible importer.
+ *
+ * Reads the bundle header, looks at `version`, and routes to importEncrypted()
+ * (v1) or importEncryptedV2() (v2). Useful for callers that don't want to
+ * branch on tier — e.g. CLI that accepts both old and new bundles.
+ *
+ * Note: subset `tables` is only meaningful for v2. If passed against a v1
+ * bundle, the option is IGNORED with a documented behavior — v1 imports the
+ * whole DB anyway. This is conservative: a user upgrading to T2 can re-export
+ * to get table-subset support.
+ */
+export function importEncryptedAuto(
+  db: Database.Database,
+  passphrase: string,
+  bundlePath: string,
+  options: ImportV2Options,
+): ImportV2Result {
+  let raw: string;
+  try {
+    raw = readFileSync(bundlePath, "utf8");
+  } catch (e) {
+    throw new ExportImportError(
+      `Bundle not found or unreadable: ${bundlePath} (${(e as Error).message})`,
+      "BUNDLE_NOT_FOUND",
+    );
+  }
+
+  let header: { version?: unknown };
+  try {
+    header = JSON.parse(raw) as { version?: unknown };
+  } catch (e) {
+    throw new ExportImportError(
+      `Bundle is not valid JSON: ${(e as Error).message}`,
+      "BAD_BUNDLE_FORMAT",
+    );
+  }
+
+  if (header.version === 1) {
+    // Route through v1. Subset is meaningless for v1; we ignore it but report
+    // back in the v2-shape result so callers don't have to branch.
+    const v1Result = importEncrypted(db, passphrase, bundlePath, {
+      strategy: options.strategy,
+      dryRun: options.dryRun,
+    });
+    const tablesImported: { name: string; rows: number; conflicts: number }[] = [
+      {
+        name: "chunks",
+        rows: v1Result.chunksImported,
+        conflicts: v1Result.conflicts.filter((c) => c.table === "chunks").length,
+      },
+      {
+        name: "kg_entities",
+        rows: v1Result.entitiesImported,
+        conflicts: v1Result.conflicts.filter((c) => c.table === "kg_entities").length,
+      },
+      {
+        name: "kg_relations",
+        rows: v1Result.relationsImported,
+        conflicts: v1Result.conflicts.filter((c) => c.table === "kg_relations").length,
+      },
+    ];
+    return {
+      tablesImported,
+      conflicts: v1Result.conflicts,
+      dryRun: v1Result.dryRun,
+    };
+  }
+
+  if (header.version === 2) {
+    return importEncryptedV2(db, passphrase, bundlePath, options);
+  }
+
+  throw new ExportImportError(
+    `Unsupported bundle version ${String(header.version)} (expected 1 or 2)`,
+    "UNSUPPORTED_VERSION",
+  );
 }
