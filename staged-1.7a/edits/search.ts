@@ -5,6 +5,7 @@ import { expandQuery } from "./search-expansion.js";
 import { dedupe } from "./search-dedup.js";
 import { calculateSalience, calculateSalienceLegacy, getSalienceMode } from "./salience.js";
 import { rerankByTemporalProximity, logTemporalProbe } from "./temporal-retrieval.js";
+import { countQueryEntities } from "./query-entity-count.js";
 
 // ─── Boost configuration (Fase 1.7a + A-boost-stack-wiring 2026-05-19) ────────
 //
@@ -152,6 +153,33 @@ const DISABLE_RECENCY_BOOST = process.env.NOX_DISABLE_RECENCY_BOOST === "1";
 const DISABLE_MUTEX_SECTION_SOURCE_TYPE =
   process.env.NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE === "1";
 
+// G10d conditional mutex: mutex is gated on query entity count.
+//
+// Evidence (G10b/G10c audits 2026-05-21):
+//   single-hop:  +8.22% nDCG (mutex helps — removes double-boost on gold)
+//   multi-hop:   −3.95% nDCG (mutex hurts — removes chain-traversal signal)
+//   style-agnostic (NL −3.91%, keyword −3.99%)
+//
+// Conditional logic:
+//   queryEntityCount ≤ MUTEX_QUERY_ENTITY_THRESHOLD (default 1) → mutex active
+//   queryEntityCount >  threshold                               → mutex disabled
+//
+// Rollback:
+//   Tier 1 — NOX_DISABLE_CONDITIONAL_MUTEX=1 → hard mutex always-on (G10)
+//   Tier 2 — NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1 → no mutex at all (pre-G9)
+//
+// Spec: specs/2026-05-21-G10d-conditional-mutex-by-query-entities.md
+
+/** Mutex threshold: entity count AT OR BELOW this value → mutex active. Default 1. */
+const MUTEX_QUERY_ENTITY_THRESHOLD = Number.parseInt(
+  process.env.NOX_MUTEX_QUERY_ENTITY_THRESHOLD ?? "1",
+  10,
+);
+
+/** When true, reverts to hard mutex always-on (G10 behaviour, ignores entity count). */
+const DISABLE_CONDITIONAL_MUTEX =
+  process.env.NOX_DISABLE_CONDITIONAL_MUTEX === "1";
+
 // ─── Per-boost delta helpers ──────────────────────────────────────────────────
 
 function tierDelta(tier: string | null | undefined): number {
@@ -164,21 +192,39 @@ function tierDelta(tier: string | null | undefined): number {
 function sourceTypeDelta(
   sourceType: string | null | undefined,
   section: string | null | undefined,
+  queryEntityCount: number = 0, // G10d: default 0 preserves pre-G10d call sites
 ): number {
   if (DISABLE_SOURCE_TYPE_BOOST || !sourceType) return 0;
+
   // HARD MUTEX (G9 evidence — spec PR #180 Option 1):
   // Se o chunk já tem section_boost ativo (sinal mais granular), pula
-  // source_type_boost pra evitar double-boost em entity files. Empiricamente
-  // A10 (sem source_type) supera A8 (full) em +2.6% no g5.db prod 68k.
-  // Rollback: NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1.
-  if (
+  // source_type_boost pra evitar double-boost em entity files.
+  //
+  // G10d CONDITIONAL LAYER: mutex applies only when queryEntityCount ≤ threshold.
+  // Multi-entity queries (≥2 entities) disable mutex to preserve chain traversal.
+  //   - DISABLE_CONDITIONAL_MUTEX=true → ignores entity count, hard mutex always-on
+  //   - queryEntityCount > MUTEX_QUERY_ENTITY_THRESHOLD → mutex bypassed
+  //   - queryEntityCount ≤ MUTEX_QUERY_ENTITY_THRESHOLD → mutex active (current G10)
+  //
+  // Rollback: NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1 bypasses the entire mutex.
+  // Spec: specs/2026-05-21-G10d-conditional-mutex-by-query-entities.md §4 Step 2.
+  const mutexShouldApply =
     !DISABLE_MUTEX_SECTION_SOURCE_TYPE &&
     !DISABLE_SECTION_BOOST &&
-    section &&
-    SECTION_BOOST[section] !== undefined
-  ) {
-    return 0;
+    section != null &&
+    SECTION_BOOST[section] !== undefined;
+
+  if (mutexShouldApply) {
+    // G10d conditional: skip mutex when multi-entity query (unless conditional disabled)
+    const conditionalAllowsPass =
+      !DISABLE_CONDITIONAL_MUTEX && queryEntityCount > MUTEX_QUERY_ENTITY_THRESHOLD;
+
+    if (!conditionalAllowsPass) {
+      return 0; // mutex active
+    }
+    // else: fall through — multi-entity query, mutex disabled
   }
+
   const f = SOURCE_TYPE_BOOST[sourceType] ?? 1.0;
   return f - 1.0;
 }
@@ -333,6 +379,9 @@ export function search(query: string, limit: number = 5): SearchResult[] {
   const sanitized = query.replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
   if (!sanitized) return [];
 
+  // G10d: compute entity count once per query (amortised via cache, <1ms hot path).
+  const { count: queryEntityCount } = countQueryEntities(query, db);
+
   let rows: FtsRow[];
   try {
     rows = db.prepare(`
@@ -365,7 +414,7 @@ export function search(query: string, limit: number = 5): SearchResult[] {
       boostSum += RECENCY_BOOST_DELTA_FTS;
     }
     boostSum += tierDelta(row.tier);
-    boostSum += sourceTypeDelta(row.source_type, row.section);
+    boostSum += sourceTypeDelta(row.source_type, row.section, queryEntityCount);
     boostSum += sectionDelta(row.section, row.section_boost);
     boostSum += salienceDelta(row, row.id);
 
@@ -433,6 +482,9 @@ export async function searchSemantic(query: string, limit: number = 5): Promise<
       return search(query, limit);
     }
 
+    // G10d: compute entity count once per query (shared cache with FTS path).
+    const { count: queryEntityCount } = countQueryEntities(query, db);
+
     const queryEmbedding = await embedText(query);
     const rows = semanticSearch(db, queryEmbedding, limit * 2);
 
@@ -468,7 +520,7 @@ export async function searchSemantic(query: string, limit: number = 5): Promise<
         boostSum += RECENCY_BOOST_DELTA_SEMANTIC;
       }
       boostSum += tierDelta(info?.tier);
-      boostSum += sourceTypeDelta(info?.source_type, info?.section);
+      boostSum += sourceTypeDelta(info?.source_type, info?.section, queryEntityCount);
       boostSum += sectionDelta(info?.section, info?.section_boost);
       if (info) {
         boostSum += salienceDelta({
@@ -662,6 +714,9 @@ export const _internals = {
   RECENCY_BOOST_DELTA_FTS,
   RECENCY_BOOST_DELTA_SEMANTIC,
   DISABLE_MUTEX_SECTION_SOURCE_TYPE,
+  // G10d conditional mutex
+  MUTEX_QUERY_ENTITY_THRESHOLD,
+  DISABLE_CONDITIONAL_MUTEX,
   tierDelta,
   sourceTypeDelta,
   sectionDelta,
