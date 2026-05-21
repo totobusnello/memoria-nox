@@ -498,3 +498,151 @@ curl -sf http://127.0.0.1:18802/api/health | jq '.vectorCoverage'
 - `eval/latency/README.md` — Q3 detalhes + budgets p95
 - `docs/COMPARISON.md` — onde os números aterrissam
 - `docs/ROADMAP.md §Q-pillar` — gates Q4 abrir
+
+---
+
+## RB-07: Multi-agent branch leak recovery (P2 — usually defense-only)
+
+### Sintoma
+
+Você fez `git commit` no main session e:
+
+- **Hook abortou:** message `❌ pre-commit ABORT — parent repo path on branch '<X>' (not main/master)` — defense funcionou
+- **OU `git push` deu erro** sobre branch upstream OR `git log` mostra commits em branch que não era a current
+
+Memory: `[[multi-agent-branch-checkout-race]]` documenta root cause. Memory `[[pre-commit-hook-blocks-non-main-commits]]` documenta defense.
+
+### Diagnóstico inicial (read-only)
+
+```bash
+# Quem está atualmente checked out em main path?
+cd /Users/lab/Claude/Projetos/memoria-nox && git branch --show-current
+# Esperado: main
+# Se mostrar outro branch: contaminação confirmed
+
+# Qual o último commit + onde está?
+git log --oneline -5
+git branch -a --contains HEAD
+
+# Worktrees ativos
+git worktree list
+```
+
+### Decision tree
+
+| Caso | Action |
+|---|---|
+| Hook abortou + você ainda não commitou | Stash + checkout main + stash pop + retry commit |
+| Já commitou em branch errado (sem push) | Cherry-pick to main, delete leak branch |
+| Já fez `git push` no branch errado | Cherry-pick to main, push main, deletar branch local + remote |
+| Múltiplos commits perdidos em branch errado | `git log <leak-branch>` para encontrar SHAs, cherry-pick na ordem |
+
+### Mitigação — Padrão A (commit em curso bloqueado pelo hook)
+
+```bash
+git stash                       # preserve work in progress
+git checkout main
+git stash pop                   # work returns to main working tree
+git status                      # verify clean expected files
+git add <files-to-commit>
+git commit -m "msg"             # passes hook agora
+git push
+```
+
+### Mitigação — Padrão B (commit já feito em branch errado, ainda local)
+
+```bash
+LEAK_BRANCH=$(git branch --show-current)
+LEAK_SHA=$(git rev-parse HEAD)
+echo "Leak branch: $LEAK_BRANCH, SHA: $LEAK_SHA"
+
+git checkout main
+git pull --ff-only              # sync com remote
+git cherry-pick $LEAK_SHA       # recovery
+git push origin main
+git branch -D $LEAK_BRANCH      # cleanup local
+```
+
+### Mitigação — Padrão C (já push em branch errado)
+
+```bash
+git push origin --delete <leak-branch> 2>&1 || echo "branch já não existe no remote"
+```
+
+### Pós-fix verificação
+
+```bash
+git branch --show-current       # Esperado: main
+git log --oneline -3 | head -3
+git status
+gh pr list --state open
+```
+
+### Override legítimo (feature branch local intencional)
+
+```bash
+COMMIT_TO_NON_MAIN_OK=1 git commit -m "msg"
+```
+
+Hook respeita esse env var e libera o commit.
+
+### Prevenção
+
+- **`isolation: "worktree"` mandatory** em qualquer Agent spawn que toca git
+- **Pre-commit hook em `~/.git-hooks-global/pre-commit`** — defense automático layer 2
+- **Sanity check pré-commit:** `git branch --show-current` antes de `git add` em sessions multi-agent
+
+### Cross-links
+
+- Memory `[[multi-agent-branch-checkout-race]]` — root cause + 3 violations on 2026-05-21
+- Memory `[[pre-commit-hook-blocks-non-main-commits]]` — defense layer specs
+- `~/Claude/CLAUDE.md` HARD RULE section — multi-agent + git regulations
+- `docs/INCIDENTS.md 2026-05-21` — primeira violation + hook install timeline
+
+---
+
+## RB-08: opsAudit metric anomaly (P3 — usually metric noise)
+
+### Sintoma
+
+`/api/health.opsAudit.total_24h` mostra número alto MAS `git log` + crons recentes parecem OK. Operação aparentemente "perdida".
+
+### Diagnóstico inicial (read-only)
+
+```bash
+ssh root@<vps-ip> 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db <<SQL
+SELECT typeof(started_at), status, COUNT(*) FROM ops_audit GROUP BY 1, 2;
+SQL'
+```
+
+Se `typeof=text` rows aparecem → schema regrediu pra TEXT (post PR #193 não deveria acontecer)
+Se rows com `db_source=unknown` ou `op_name LIKE 'test-%'` → test pollution voltou
+
+### Decision tree
+
+| Caso | Action |
+|---|---|
+| `typeof(started_at) = text` em alguma row | Schema regrediu — investigate ALTER TABLE ou DEFAULT changes |
+| Test ops aparecendo em prod ops_audit | Test fixture sem `db_source='test'` setado — fix em test code |
+| `total_24h` ≠ rows reais last 24h | Filter bug em `/api/health` query — check defensive CAST |
+| `crashed_24h` alto | Investigar real crashed ops via `WHERE status='crashed' AND started_at > <24h ago>` |
+
+### Mitigação
+
+```bash
+# Se schema TEXT voltou: re-aplicar migration de PR #193
+ssh root@<vps-ip> 'bash /root/.openclaw/workspace/tools/nox-mem/scripts/migrate-opsaudit-started-at-2026-05-21.sh'
+
+# Se test pollution: cleanup
+ssh root@<vps-ip> 'bash /root/.openclaw/workspace/tools/nox-mem/scripts/cleanup-test-ops-audit-2026-05-21.sh'
+
+ssh root@<vps-ip> 'curl -s http://127.0.0.1:18802/api/health | jq .opsAudit'
+```
+
+### Cross-links
+
+- Memory `[[opsaudit-hygiene-deployed-2026-05-21]]` — original fix
+- Memory `[[opsaudit-investigation-2026-05-21]]` — 3-issue root cause
+- Memory `[[sqlite-text-affinity-coerces-int-back]]` — 4 SQLite gotchas during migration
+- PR #193 — Issues #1+#3 deploy
+- `docs/INCIDENTS.md 2026-05-21` — full incident timeline
