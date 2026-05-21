@@ -1,7 +1,7 @@
 # Specs — Índice
 
 > Gerado em 2026-05-21. Status derivado do campo `**Status:**` de cada spec.  
-> Pasta: `specs/` — 34 itens (33 arquivos `.md` + 1 diretório de implementação).
+> Pasta: `specs/` — 36 itens (35 arquivos `.md` + 1 diretório de implementação).
 
 ---
 
@@ -31,6 +31,7 @@ Specs em andamento, implementation-ready ou em kickoff explícito.
 | [2026-05-18-P7-browser-extension.md](2026-05-18-P7-browser-extension.md) | P7 — Browser Extension Spec | Spec (2026-05-18) — P7 candidate | 2026-05-18 |
 | [2026-05-18-Q1-Q2-Q3-vps-scheduling.md](2026-05-18-Q1-Q2-Q3-vps-scheduling.md) | Q1+Q2+Q3 VPS Scheduling — Operational Spec | SPEC (pendente execução supervisionada) | 2026-05-18 |
 | [2026-05-21-per-method-benchmark-comparison.md](2026-05-21-per-method-benchmark-comparison.md) | Per-method benchmark — nox-mem vs Mem0/Zep/EverCore/HyperMem | SPEC — implementation pending, gated D49 phase 2 | 2026-05-21 |
+| [2026-05-21-G10d-conditional-mutex-by-query-entities.md](2026-05-21-G10d-conditional-mutex-by-query-entities.md) | G10d — Conditional Hard Mutex by query_entities count | SPEC — implementation-ready, gated em ablation eval | 2026-05-21 |
 
 ---
 
@@ -75,6 +76,7 @@ Arquivos de template ou scaffolding pré-aberto.
 | Spec | Título | Notas | Criado |
 |---|---|---|---|
 | [d50-template.md](d50-template.md) | D50 Template — Temporal proximity rerank active vs off | TEMPLATE pré-aberto (2026-05-20), decisão final D50 pendente | 2026-05-20 |
+| [d51-template.md](d51-template.md) | D51 Template — Conditional Hard Mutex (G10d) active vs G10 | TEMPLATE pré-aberto (2026-05-21), decisão final D51 pendente em G10d ablation | 2026-05-21 |
 
 ---
 

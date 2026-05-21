@@ -1,117 +1,206 @@
-# D51 Template — G10d Conditional Mutex (query_entities ≤ 1 gate)
+# D51 Template — Conditional Hard Mutex (G10d) active vs current Hard Mutex (G10)
 
-> **Status:** TEMPLATE pré-aberto 2026-05-21. Decisão D51 vai ser tomada após G10d spec design (PR pending) + G10d ablation eval (post-spec).
+> **Status:** TEMPLATE pré-aberto (2026-05-21). Decisão final D51 vai ser tomada após G10d ablation eval.
 
 ---
 
 ## Contexto
 
-D48 saga (G3 → G11) closed clean 2026-05-20 com Hard Mutex (PR #182) KEEP DEPLOYED. G10b/G10c per-category/per-style breakdowns revealed:
+G10 (PR #182) deployou Hard Mutex section ↔ source_type em prod (2026-05-20) com aggregate +0.79% nDCG / +2.65% MRR. G10b/G10c (2026-05-21 audits) cravaram trade-off per-category:
 
-- WIN: single-hop (+8.22% nDCG), open-domain (+2.42%), natural-language (+1.56%)
-- **REGRESSION (style-agnostic):** multi-hop -3.95% nDCG, -6.02% R@10
-- KW × adversarial -5.35% (worst individual, n=10 small)
+- **Single-hop +8.22% nDCG / +13.20% MRR** (strong win)
+- **Open-domain +2.42% nDCG / +5.56% MRR** (win)
+- **Multi-hop −3.95% nDCG / −6.02% R@10** (regression, style-agnostic)
+- **Adversarial −2.95% nDCG / −5.88% MRR** (regression, concentrated em keyword)
 
-G10d hypothesis: **Conditional mutex active só se `query_entities ≤ 1`** preserva single-hop win e recovera multi-hop regression.
+G10d hypothesis: **conditional mutex** based em `query_entities ≤ NOX_MUTEX_QUERY_ENTITY_THRESHOLD` (default 1). Multi-entity queries (≥2) preservam chain traversal signal.
 
-Pseudocode:
-```typescript
-function sourceTypeDelta(sourceType, section, queryEntityCount): number {
-  if (DISABLE_SOURCE_TYPE_BOOST || !sourceType) return 0;
-  const conditionalActive = queryEntityCount <= MUTEX_QUERY_ENTITY_THRESHOLD;  // default 1
-  if (conditionalActive && section && SECTION_BOOST[section] !== undefined && !DISABLE_SECTION_BOOST) {
-    return 0;  // mutex still applies
-  }
-  return (SOURCE_TYPE_BOOST[sourceType] ?? 1.0) - 1.0;
-}
-```
+Spec: `specs/2026-05-21-G10d-conditional-mutex-by-query-entities.md`.
 
 ---
 
 ## Critérios de decisão D51
 
-D51 vai DEPENDER de 2 fontes de evidência:
+D51 vai DEPENDER de **2 fontes de evidência**:
 
-### 1. G10d ablation eval (g9.db, n=100)
+### 1. G10d ablation (g9.db, n=100)
 
-| Categoria | Threshold pra GO | Threshold pra NO-GO |
+Configurações comparadas:
+
+| Config | Descrição | Env |
 |---|---|---|
-| **multi-hop nDCG@10 Δ%** (recovery) | **≥ -1%** (currently -3.95%) | < -3% |
-| **multi-hop R@10 Δ%** (recovery) | **≥ -2%** (currently -6.02%) | < -4% |
-| **single-hop nDCG@10 Δ%** (preserve) | **≥ +6%** (currently +8.22%) | < +5% |
-| **aggregate nDCG@10 Δ%** | **≥ +0.5%** (current +0.43-0.79%) | < 0% |
-| **adversarial nDCG@10 Δ%** | ≥ -3% (mutex on adversarial already -2.95%) | < -5% |
+| A8' | G10 baseline (current prod) | default |
+| A8d-1 | Conditional, threshold=1 | `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=1` |
+| A8d-2 | Conditional, threshold=2 | `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2` |
+| A8' off | Control, mutex disabled | `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1` |
 
-### 2. Implementation cost vs benefit
+### Success criteria (GO ACTIVE)
 
-| Cost | Benefit |
+| Metric | Threshold GO | Threshold NO-GO |
+|---|---|---|
+| Multi-hop nDCG@10 | **≥ −1%** (recover from −3.95%) | < −2% (não recupera) |
+| Multi-hop R@10 | **≥ −2%** (recover from −6.02%) | < −3% |
+| Single-hop nDCG@10 | **≥ +6%** (preserve from +8.22%) | < +5% (perdeu ganho) |
+| Single-hop MRR | **≥ +10%** (preserve from +13.20%) | < +8% |
+| Aggregate nDCG@10 | **≥ +0.79%** (≥ G10 current) | < +0.3% |
+| Aggregate MRR | **≥ +2.65%** (≥ G10 current) | < +1.5% |
+| Open-domain nDCG@10 | ≥ +1% (não regredir) | < +0.5% |
+| Latency p95 search | < +50ms vs baseline | > +100ms |
+
+### Bonus criteria
+
+- Adversarial keyword nDCG@10 ≥ −2% (atual −5.35%) — bonus se G10d aproveita aspecto multi-entity
+- Adversarial keyword MRR ≥ −5% (atual −10%) — bonus
+
+### 2. Threshold grid search
+
+| Cenário | Action |
 |---|---|
-| Entity-count helper (~50 LOC) + 3-5 tests | Multi-hop +3-5pp recovery em 20% das queries |
-| ~10ms latency add (KG lookup) | Net retrieval value goes from +0.0117 (G10b) → +0.025 (target) |
+| A8d-1 satisfies all GO criteria | **ACTIVE** threshold=1 |
+| A8d-2 ≥ A8d-1 em aggregate, both pass GO | **ACTIVE** threshold=2 (looser) |
+| A8d-1 multi-hop recovery insuficiente AND A8d-2 better | **ACTIVE** threshold=2 |
+| Nenhum threshold passa multi-hop ≥ −1% | **OFF** (G10d falhou hypothesis) |
+| Single-hop regress < +5% em todos thresholds | **OFF** (perdeu ganho principal) |
+| Aggregate negativo em ambos thresholds | **OFF** + investigate |
 
 ---
 
-## Decisão proposta (preencher após dados)
+## Decisão proposta (preencher após G10d ablation)
 
 | Field | Value |
 |---|---|
 | Data | YYYY-MM-DD |
-| G10d multi-hop Δ% nDCG | TBD |
-| G10d multi-hop Δ% R@10 | TBD |
-| G10d single-hop Δ% nDCG | TBD |
-| G10d aggregate Δ% nDCG | TBD |
-| Entity count threshold | 1 (default) / 2 / 3 (grid search) |
-| **Decisão** | **ACTIVE / GRID-SEARCH / OPT-IN / OFF** |
+| Aggregate A8' baseline | nDCG=____, MRR=____ |
+| Aggregate A8d-1 (threshold=1) | nDCG=____, MRR=____, Δ=____ |
+| Aggregate A8d-2 (threshold=2) | nDCG=____, MRR=____, Δ=____ |
+| Aggregate A8' off (control) | nDCG=____, MRR=____, Δ=____ |
+| Single-hop nDCG@10 best config | Δ=____ |
+| Multi-hop nDCG@10 best config | Δ=____ |
+| Multi-hop R@10 best config | Δ=____ |
+| Adversarial nDCG@10 best config | Δ=____ |
+| Latency p95 search | ____ ms (vs ____ baseline) |
+| **Decisão** | **ACTIVE-T1 / ACTIVE-T2 / OFF / EXTEND** |
 | Rationale | TBD |
 | Action items | TBD |
 
 ---
 
-## Implementação se ACTIVE
+## Implementação se ACTIVE-T1 (threshold=1)
 
-1. Implement `src/lib/query-entity-count.ts` — KG entity lookup
-2. Modify `src/search.ts:sourceTypeDelta()` — add queryEntityCount parameter
-3. Add 5+ unit tests covering edge cases
-4. Deploy via Wave (scp → build → restart)
-5. Smoke test in prod (verify backward-compat com Hard Mutex)
-6. Update paper §5.5 com G10d numbers + decision
-7. Memory `[[g10d-conditional-mutex-active]]`
+1. Deploy conditional mutex code via Wave (worktree branch)
+2. Default env: `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=1`, conditional active by default
+3. Telemetry: `search_telemetry.query_entity_count` col em prod
+4. Update `CLAUDE.md` regra #5 com case study G10d (boost conditional preferido sobre stacking)
+5. Update `paper/paper-tecnico-nox-mem.md` §5 com novos números
+6. Update visual identity headline (+X% vs current G10 baseline)
+7. Memory `[[g10d-conditional-mutex-active-t1]]` + new baseline
+8. Cross-link D51 em `docs/DECISIONS.md`
+9. Specs/INDEX.md move G10d spec pra Done section
 
-## Implementação se GRID-SEARCH
+## Implementação se ACTIVE-T2 (threshold=2)
 
-1. Run G10d-grid: threshold 1/2/3/4 ablation
-2. Pick threshold com best multi-hop recovery × single-hop preservation curve
-3. Re-deliberar D51 com grid winner
-
-## Implementação se OPT-IN
-
-1. Keep code com flag `NOX_ENABLE_CONDITIONAL_MUTEX=1`
-2. Document caso de uso (queries multi-entity heavy)
-3. No paper update
+Mesmas steps que T1, **plus**:
+1. Default env: `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`
+2. Document edge case: queries single-entity-by-2-mentions (e.g., "Toto Toto") teriam count=1 não 2 (dedup matter) — confirmar via test fixtures
 
 ## Implementação se OFF
 
-1. Keep current Hard Mutex (D48 closure)
-2. Document multi-hop regression como known trade-off
-3. Memory `[[g10d-conditional-mutex-rejected]]`
+1. **NÃO deploy** conditional mutex code
+2. Hard Mutex G10 permanece como prod baseline
+3. Memory `[[g10d-conditional-mutex-off-decision]]` com rationale + multi-hop regression aceita como cost
+4. Specs/INDEX.md move G10d spec pra Deferred section
+5. **NÃO revert** PR #182 — G10 ainda é aggregate-positive, conditional bolt-on falhou mas baseline está OK
+6. Adicionar à backlog Lab: re-investigar multi-hop com diferente lens (e.g., G10e style-conditional ou neural reranker)
+
+## Implementação se EXTEND
+
+1. G10d v1 não conclusivo → roda v2 com grid expandido: threshold=1, 2, 3, AND `query_entity_density` (count/words ratio)
+2. Sample maior: n=200 queries (custo +2x)
+3. Re-deliberar D51' após v2
 
 ---
 
-## Rollback paths (defesa em camadas)
+## Post-deploy validation queries (se ACTIVE)
 
-1. `NOX_DISABLE_CONDITIONAL_MUTEX=1` reverts to Hard Mutex (current G10 deployed)
-2. `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1` reverts to no-mutex (G10b A8)
-3. `NOX_DISABLE_SOURCE_TYPE_BOOST=1` reverts to A10 (no source_type)
+Após deploy em prod, validar em 24h:
 
-Triple rollback layer mantém composability + safety.
+```bash
+# 1. Distribuição de query_entity_count em queries reais
+sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db <<SQL
+  SELECT query_entity_count, COUNT(*) as n
+  FROM search_telemetry
+  WHERE ts > datetime('now', '-1 day')
+  GROUP BY query_entity_count
+  ORDER BY query_entity_count;
+SQL
+
+# 2. Cache hit rate
+curl http://127.0.0.1:18802/api/health | jq '.queryEntityCache'
+
+# 3. Latency p95 vs baseline
+curl http://127.0.0.1:18802/api/health | jq '.latency.search.p95'
+
+# 4. Mutex active fraction
+sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db <<SQL
+  SELECT
+    SUM(CASE WHEN query_entity_count <= 1 THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS mutex_active_fraction
+  FROM search_telemetry
+  WHERE ts > datetime('now', '-1 day');
+SQL
+```
+
+Expected:
+- Mutex active fraction: 60-80% (most queries single-entity)
+- Cache hit rate: > 95%
+- Latency p95 delta: < +50ms
+
+---
+
+## Rollback procedure (se anomaly detected pós-active)
+
+### Tier 1 — Disable conditional layer, keep G10 hard mutex (1-min)
+
+```bash
+echo '[Service]
+Environment="NOX_DISABLE_CONDITIONAL_MUTEX=1"' | sudo tee \
+  /etc/systemd/system/nox-mem-api.service.d/g10d-conditional-off.conf
+sudo systemctl daemon-reload && sudo systemctl restart nox-mem-api
+```
+
+### Tier 2 — Disable entire mutex (volta pre-PR #182)
+
+```bash
+echo '[Service]
+Environment="NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1"' | sudo tee \
+  /etc/systemd/system/nox-mem-api.service.d/mutex-off.conf
+sudo systemctl daemon-reload && sudo systemctl restart nox-mem-api
+```
+
+### Tier 3 — Code revert
+
+```bash
+git revert <commit-do-conditional-mutex>
+npm run build && systemctl restart nox-mem-api
+```
+
+### Conditions que disparam rollback
+
+- Aggregate nDCG@10 prod cai abaixo de baseline G10 +0.79%
+- Latency p95 search aumenta > 100ms persistente (>15min)
+- `kg_entities` index corrupt → mutex degenera pra always-on (= G10 atual, não verdadeira regressão mas observability alert)
+- Single-hop satisfaction drops em production telemetry (qualitative signal)
 
 ---
 
 ## Cross-links
 
-- D48 — saga complete (DECISIONS.md not explicit, audits + paper §5.5)
-- D49/D50 — temporal path (parallel decision track, independent)
 - G10b — `audits/2026-05-21-G10b-per-category-mutex-ablation.md`
 - G10c — `audits/2026-05-21-G10c-per-style-mutex-ablation.md`
-- G10d spec — `specs/2026-05-21-G10d-conditional-mutex-by-query-entities.md` (pending agent PR)
-- Memory `[[g10b-per-category-mutex-2026-05-21]]`, `[[g10c-per-style-2026-05-21]]`
+- G10 deploy — PR #182, `specs/2026-05-20-mutual-exclusion-section-source-type.md`
+- G10d spec — `specs/2026-05-21-G10d-conditional-mutex-by-query-entities.md`
+- D50 (precedent template style) — `specs/d50-template.md`
+- Memory `[[hard-mutex-deployed-2026-05-20]]`, `[[g10b-multi-hop-regression]]`, `[[g10c-style-agnostic]]`, `[[g10d-conditional-mutex-design]]`
+
+---
+
+*Template pré-aberto: 2026-05-21. Próximo passo: rodar G10d ablation, preencher tabela §"Decisão proposta", cravar decisão.*
