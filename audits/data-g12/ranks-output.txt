@@ -1,0 +1,44 @@
+qid    category      style             query                                   gold                        r_active  r_disabled
+----------------------------------------------------------------------------------------------------------------------------------
+ad-001 adversarial   keyword           nox mem hybird search                   nox-mem::frontmatter        OOT       OOT       
+ad-009 adversarial   keyword           Bruno Lima role gallapagos AI           bruno::frontmatter          OOT       OOT       
+ad-011 adversarial   keyword           nox mem hybird search                   nox-mem::frontmatter        OOT       OOT       
+ad-012 adversarial   natural-language  What did Ana Castro lead recently?      ana::frontmatter            OOT       OOT       
+ad-015 adversarial   keyword           paper §5 ablation rationale             paper-eval::frontmatter     OOT       OOT       
+
+=== Top-5 per query (mutex active) ===
+
+ad-001 (nox mem hybird search) — gold=nox-mem::frontmatter
+  1. 112183
+  2. nox-mem::compiled
+  3. 112341
+  4. 112346
+  5. 147813
+
+ad-009 (Bruno Lima role gallapagos AI) — gold=bruno::frontmatter
+  1. bruno::compiled
+  2. galapagos-ai::compiled
+  3. 114203
+  4. 114211
+  5. 115583
+
+ad-011 (nox mem hybird search) — gold=nox-mem::frontmatter
+  1. 112183
+  2. nox-mem::compiled
+  3. 112341
+  4. 112346
+  5. 147813
+
+ad-012 (What did Ana Castro lead recently?) — gold=ana::frontmatter
+  1. ana::compiled
+  2. session::2026-05-17::7efd20b6a0
+  3. session::2026-04-22::186de66ff3
+  4. event::2026-04-26::6250641d4a
+  5. event::2026-05-03::3013c66786
+
+ad-015 (paper §5 ablation rationale) — gold=paper-eval::frontmatter
+  1. paper-eval::compiled
+  2. d41-five-resolved::compiled
+  3. 147001
+  4. 142332
+  5. 142458
