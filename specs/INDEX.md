@@ -1,7 +1,7 @@
 # Specs — Índice
 
 > Gerado em 2026-05-21. Status derivado do campo `**Status:**` de cada spec.  
-> Pasta: `specs/` — 36 itens (35 arquivos `.md` + 1 diretório de implementação).
+> Pasta: `specs/` — 37 itens (36 arquivos `.md` + 1 diretório de implementação).
 
 ---
 
@@ -32,6 +32,7 @@ Specs em andamento, implementation-ready ou em kickoff explícito.
 | [2026-05-18-Q1-Q2-Q3-vps-scheduling.md](2026-05-18-Q1-Q2-Q3-vps-scheduling.md) | Q1+Q2+Q3 VPS Scheduling — Operational Spec | SPEC (pendente execução supervisionada) | 2026-05-18 |
 | [2026-05-21-per-method-benchmark-comparison.md](2026-05-21-per-method-benchmark-comparison.md) | Per-method benchmark — nox-mem vs Mem0/Zep/EverCore/HyperMem | SPEC — implementation pending, gated D49 phase 2 | 2026-05-21 |
 | [2026-05-21-G10d-conditional-mutex-by-query-entities.md](2026-05-21-G10d-conditional-mutex-by-query-entities.md) | G10d — Conditional Hard Mutex by query_entities count | SPEC — implementation-ready, gated em ablation eval | 2026-05-21 |
+| [2026-05-21-neural-reranker-design.md](2026-05-21-neural-reranker-design.md) | Neural reranker design — bge-v2-m3 via vLLM local (Autonomy preserved) | SPEC — parking-lot Lab Q1, gated D49/D50 | 2026-05-21 |
 
 ---
 
