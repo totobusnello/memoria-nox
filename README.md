@@ -83,7 +83,7 @@ Most agent memory systems force a trade you should not have to make: send your d
 
 The moat is not just portability. It is **shadow discipline**: every ranking change ships in shadow mode for at least seven days, with salience scores exposed on `/api/health` for offline comparison, before it is ever allowed to influence a real query. The pain field on each chunk (`severity 0.1 trivial → 1.0 prod-outage`) ensures that incidents stay retrievable when their lessons matter, not when their dates are fresh. The retrieval logic is small enough to read in one sitting, and every score in the eval harness is auditable from the SQL up.
 
-memoria-nox is a research lab and a working product. The paper *The Pain Diary and Shadow Discipline* (v1.1, 31 pages, arXiv cs.IR target) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **69,298 chunks** and **15,646 entities / 21,533 relations** with a monthly OPEX under **$11**.
+memoria-nox is a research lab and a working product. The paper *The Pain Diary and Shadow Discipline* (v1.1, 31 pages, arXiv cs.IR target) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **68,995 chunks** and **15,646 entities / 21,533 relations** with a monthly OPEX under **$11**.
 
 ## Architecture
 
@@ -162,7 +162,7 @@ Verified against the live corpus. Wave A (18 PRs merged 2026-05-20) completed th
 
 | Metric | Value | Source |
 |---|---|---|
-| Chunks in production | **69,298** (99.97% embedded, Gemini 3072d) | live corpus snapshot 2026-05-17 |
+| Chunks in production | **68,995** (100% embedded, Gemini 3072d) | live corpus snapshot 2026-05-21 |
 | KG | **15,646 entities / 21,533 relations** | live corpus snapshot 2026-05-17 |
 | Internal golden nDCG@10 (n=78, honest set) | **0.6813** &mdash; +9.8pp / +16.9% over paper baseline 0.5831 | run 85, post-cure golden, R01c-v1.1 |
 | vs BM25 Pyserini (Anserini-tuned, n=60) | **4.0&times; better** (BM25 = 0.1475) | paper v1.1 baseline |
@@ -248,6 +248,7 @@ Per-agent setup: [`docs/integrations/`](docs/integrations/). The MCP server expo
 | Paper &mdash; *The Pain Diary and Shadow Discipline* | [`paper/`](paper/) |
 | Wave B post-mortem (2026-05-18) | [`docs/post-mortems/WAVE-B-2026-05-18.md`](docs/post-mortems/WAVE-B-2026-05-18.md) |
 | VPS health monitoring (IP swap + API outage detector) | [`scripts/vps-healthcheck.sh`](scripts/vps-healthcheck.sh) |
+| Observability dashboard (F10 Phase A + B, deployed 2026-05-21) | [`specs/2026-05-01-F10-observability-dashboard.md`](specs/2026-05-01-F10-observability-dashboard.md) &mdash; live `/observability/{health,evals}.html` on the API server |
 
 The retrieval logic is intentionally small. Start at [`src/lib/search.ts`](src/lib/search.ts) and read until you are bored &mdash; it should not take long.
 
@@ -265,6 +266,9 @@ Top environment variables. Full reference: [`docs/CONFIGURATION.md`](docs/CONFIG
 | `NOX_LANG_AWARE_RRF` | `1` | Language-aware RRF fusion weights (D, +1.92pp on PT/EN mix). |
 | `NOX_SEARCH_LOG_TEXT` | `0` | Persist query text in `search_telemetry` for eval harness. |
 | `NOX_L4_REGEX_ENABLED` | `0` | Enable regex-first typed-link extraction (Lab sprint L4). |
+| `NOX_KG_EXTRACT_MODE` | `hybrid_shadow` | KG extraction mode: `regex_only`, `gemini_only`, `hybrid_shadow` (default), `hybrid_active`. Watch L4 first-fire on Sunday cron. |
+| `NOX_MUTEX_QUERY_ENTITY_THRESHOLD` | `2` | G10d Conditional Hard Mutex threshold (D51). Mutex applied when `query_entities ≤ N`; bypass on multi-entity queries to preserve chain signal. |
+| `NOX_DISABLE_CONDITIONAL_MUTEX` | `0` | Rollback to G10 always-on Hard Mutex (skip the conditional layer). |
 | `NOX_ALLOW_NO_SNAPSHOT` | `0` | Emergency override for destructive ops without pre-op snapshot. |
 
 ## Contributing
