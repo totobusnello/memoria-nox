@@ -2,6 +2,74 @@
 
 ---
 
+## ☀️ MORNING 2026-05-21 — vec0 prod risk FIXED + G10b + paper §5.5 + 2 streams in flight
+
+> **Atualizado:** 2026-05-21 ~10h45 BRT. Sessão de manhã abriu com investigation triggered por `/api/health.opsAudit` mostrando 11 crashed + 10 failed em "unknown". **3 issues identificados, Issue #2 (vec0 reindex PROD RISK) FIXED + DEPLOYED + VALIDATED.** Streams paralelos: Issue #1+#3 hygiene fix em flight + G10c per-style ablation em flight.
+
+### Done hoje (cravado em main)
+
+| Item | Commit | Status |
+|---|---|---|
+| **Issue #2 vec0 reindex fix** | `9ad77eb` | ✅ Deployed VPS, smoke validated |
+| **G10b per-category ablation** | `9ad77eb` | ✅ Audit + data merged, PR #188 closed no-merge |
+| **opsAudit investigation audit** | `a9804bc` | ✅ 3 issues documentados |
+| **Paper §5.5 update** | `b29ec8a` | ✅ G10 + G10b + G11 results cravados em paper |
+
+### vec0 Reindex Fix (Issue #2) — DEPLOYED
+
+**Root cause:** `api-server.js:128` loads `sqlite-vec` no startup; `index.js` (CLI entry) NÃO. `DELETE FROM chunks` triggera `trg_chunks_delete_cascade` → references `vec_chunks` → `no such module: vec0`.
+
+**Fix:** `staged-1.7a/edits/reindex.ts` carrega `sqlite-vec` defensive no início de `_reindexImpl` antes do DELETE.
+
+**Validated:**
+- Before: failed at `_reindexImpl:42` com vec0 error
+- After: passes line 42-56 OK (DELETE+INSERT chunks_fts)
+- New error at `:102` é fresh-DB schema bug (não relacionado, prod tem schema completo)
+
+### G10b per-category breakdown
+
+| categoria | nDCG Δ% | MRR Δ% | R@10 Δ% | veredicto |
+|---|---:|---:|---:|---|
+| **single-hop** | **+8.22%** | **+13.20%** | 0% | STRONG WIN |
+| **open-domain** | **+2.42%** | **+5.56%** | 0% | WIN (surpresa!) |
+| **multi-hop** | -3.95% | -2.70% | **-6.02%** | regression |
+| **adversarial** | -2.95% | -5.88% | 0% | regression |
+
+**Veredicto:** KEEP DEPLOYED. Aggregate +0.43% nDCG / +0.82% MRR (consistente com G10 +0.79% / +2.65%, magnitude atenuada within noise).
+
+Surpresa: open-domain era a categoria suspeita de regressão (G8 finding), mas G10b mostrou WIN. Mutex limpa diversity noise em queries amplas.
+
+### Streams paralelos em flight
+
+| Stream | Agent | Status |
+|---|---|---|
+| **Issue #1 (started_at type chaos) + #3 (test ops pollution)** | `ac2417bd` worktree | 🔄 running — migration + health endpoint + cleanup |
+| **G10c per-style ablation** (paraphrase vs literal) | `affa68cd` worktree | 🔄 running — eval contra g9.db isolated :18803 |
+
+Coordenação: agents em paths separados (Issue #1+#3 mexe em PROD `:18802`; G10c mexe em isolated `:18803`).
+
+### Memórias cravadas hoje
+
+1. `[[opsaudit-investigation-2026-05-21]]` — 3 issues identificados
+2. `[[g10b-per-category-mutex-2026-05-21]]` — per-category breakdown
+3. (Issue #1+#3 + G10c memory pending — agents vão cravar)
+
+### Pendings restantes (não-bloqueante)
+
+1. **Streams em flight** completarem (auto-notification)
+2. **D49 phase 2 shadow** continua coletando (~6 dias até D50)
+3. **G10d conditional mutex** — followup do G10b (active só se query_entities ≤ 1) — opcional pós G10c
+
+### Sistema saudável
+
+- VPS `187.77.234.79` → 68995/68995, salience active ✅
+- 35 PRs merged em main (33 ontem + 2 hoje: vec0 fix bundle + paper §5.5)
+- Zero PRs blocked, zero unresolved issues
+- Healthcheck cron PASS (PR #186)
+- Vec0 reindex prod risk neutralizado
+
+---
+
 ## 🌌 FINAL CLOSE 2026-05-20 — 33 PRs + D48 SAGA CLOSED + MEMORY.md fix
 
 > **Atualizado:** 2026-05-20 ~23h BRT. **Dia fechado clean. G10 validated (Path B success, mutex +0.79% nDCG / +2.65% MRR), G11 trim rejected (-0.73% / -1.58%), cron healthcheck fix (PR #186), MEMORY.md enxugado 26.2KB→17.1KB. D48 saga (G3→G11) CLOSED CLEAN. Boost stack final canonical mantido.**
