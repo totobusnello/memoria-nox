@@ -7,7 +7,13 @@
 
 <h1 align="center">Pain-weighted hybrid memory with shadow discipline &mdash; yours by design.</h1>
 
-<p align="center"><em>An agent memory engine that stays on your disk, runs on the provider you pick, and ships ranking changes only after they earn it in shadow.</em></p>
+<p align="center"><em>The only agent memory that&rsquo;s genuinely yours. SQLite on your disk, provider your choice, zero vendor lock-in.</em></p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Q-Quality-00C896?style=for-the-badge&labelColor=1A1A2E" alt="Q — Quality: numbers #1">
+  <img src="https://img.shields.io/badge/A-Autonomy-00C896?style=for-the-badge&labelColor=1A1A2E" alt="A — Autonomy: data yours, provider yours">
+  <img src="https://img.shields.io/badge/P-Product-00C896?style=for-the-badge&labelColor=1A1A2E" alt="P — Product: UX that ships">
+</p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/github/license/totobusnello/memoria-nox?style=for-the-badge&color=00C896" alt="License: MIT"></a>
@@ -18,23 +24,32 @@
 </p>
 
 <p align="center">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/stat-locomo-dark.svg"><img src="assets/readme/stat-locomo-light.svg" alt="+78.8% nDCG@10 vs baseline" height="64"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/stat-longmemeval-dark.svg"><img src="assets/readme/stat-longmemeval-light.svg" alt="LongMemEval oracle validated" height="64"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/stat-latency-dark.svg"><img src="assets/readme/stat-latency-light.svg" alt="p95 latency" height="64"></picture>
+  <br>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/stat-scale-dark.svg"><img src="assets/readme/stat-scale-light.svg" alt="69k chunks · 21k relations" height="64"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/stat-opex-dark.svg"><img src="assets/readme/stat-opex-light.svg" alt="<$11/mo all-in" height="64"></picture>
+  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/stat-tests-dark.svg"><img src="assets/readme/stat-tests-light.svg" alt="tests passing across Wave B" height="64"></picture>
+</p>
+
+<p align="center">
+  <strong>+78.8% nDCG@10 vs G3 baseline</strong> &middot; <strong>+18.8% over D43 Q4 gate threshold</strong> &middot; <strong>Phase 2 GTM unlocked</strong>
+  <br>
+  <sub>G5 V3 A8 canonical, n=100, full boost stack via <code>/api/search</code>, production corpus 68,995 chunks &middot; verified 2026-05-19</sub>
+</p>
+
+<p align="center">
   <a href="#quick-start">Quick start</a> &middot;
   <a href="#architecture">Architecture</a> &middot;
   <a href="#pillars">Pillars</a> &middot;
   <a href="#numbers">Numbers</a> &middot;
   <a href="#comparison">Comparison</a> &middot;
+  <a href="#paper-and-citation">Paper</a> &middot;
   <a href="#documentation">Docs</a>
 </p>
 
 ---
-
-## Why memoria-nox
-
-Most agent memory systems force a trade you should not have to make: send your data to a vendor cloud, or self-host a half-baked store that does not retrieve well. memoria-nox refuses the trade. The whole system lives in a single SQLite file on your disk, with FTS5 keyword search, sqlite-vec 3072-dimensional Gemini embeddings, and a typed knowledge graph layered on top via Reciprocal Rank Fusion. Copy the file, you copy the memory. Switch the embedding provider, the store does not care.
-
-The moat is not just portability. It is **shadow discipline**: every ranking change ships in shadow mode for at least seven days, with salience scores exposed on `/api/health` for offline comparison, before it is ever allowed to influence a real query. The pain field on each chunk (`severity 0.1 trivial → 1.0 prod-outage`) ensures that incidents stay retrievable when their lessons matter, not when their dates are fresh. The retrieval logic is small enough to read in one sitting, and every score in the eval harness is auditable from the SQL up.
-
-memoria-nox is a research lab and a working product. The paper *The Pain Diary and Shadow Discipline* (v1.1, 31 pages, arXiv cs.IR target) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **69,298 chunks** and **15,646 entities / 21,533 relations** with a monthly OPEX under **$11**.
 
 ## Quick start
 
@@ -62,6 +77,14 @@ Requires Node 20+. SQLite ships bundled via `better-sqlite3`. 26+ CLI subcommand
 
 Full reference: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
+## Why memoria-nox
+
+Most agent memory systems force a trade you should not have to make: send your data to a vendor cloud, or self-host a half-baked store that does not retrieve well. memoria-nox refuses the trade. The whole system lives in a single SQLite file on your disk, with FTS5 keyword search, sqlite-vec 3072-dimensional Gemini embeddings, and a typed knowledge graph layered on top via Reciprocal Rank Fusion. Copy the file, you copy the memory. Switch the embedding provider, the store does not care.
+
+The moat is not just portability. It is **shadow discipline**: every ranking change ships in shadow mode for at least seven days, with salience scores exposed on `/api/health` for offline comparison, before it is ever allowed to influence a real query. The pain field on each chunk (`severity 0.1 trivial → 1.0 prod-outage`) ensures that incidents stay retrievable when their lessons matter, not when their dates are fresh. The retrieval logic is small enough to read in one sitting, and every score in the eval harness is auditable from the SQL up.
+
+memoria-nox is a research lab and a working product. The paper *The Pain Diary and Shadow Discipline* (v1.1, 31 pages, arXiv cs.IR target) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **69,298 chunks** and **15,646 entities / 21,533 relations** with a monthly OPEX under **$11**.
+
 ## Architecture
 
 <p align="center">
@@ -83,7 +106,33 @@ Mermaid source: [`assets/readme/mermaid/architecture-source.mmd`](assets/readme/
 
 ## Pillars
 
-memoria-nox is organized into three product pillars plus a research lab and a conditional GTM phase. The full breakdown with sprint-level DoDs lives in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+memoria-nox is organized into three product pillars plus a research lab and a now-unlocked GTM phase. Full breakdown with sprint-level DoDs lives in [`docs/ROADMAP.md`](docs/ROADMAP.md).
+
+<table align="center">
+<tr>
+<td align="center" width="33%">
+<h3>Q &mdash; Quality</h3>
+<sub>Numbers #1, honestly measured</sub><br><br>
+<strong>+78.8% nDCG@10</strong><br>
+<sub>G5 V3 A8 canonical vs G3 baseline 0.3488</sub><br><br>
+LoCoMo · LongMemEval · Latency · Comparison
+</td>
+<td align="center" width="33%">
+<h3>A &mdash; Autonomy</h3>
+<sub>Data yours, provider your choice</sub><br><br>
+<strong>Zero vendor lock-in</strong><br>
+<sub>SQLite file, A1 privacy filter, A2 AES-256-GCM export</sub><br><br>
+A1 · A2 · A3 · A4
+</td>
+<td align="center" width="33%">
+<h3>P &mdash; Product</h3>
+<sub>UX that ships without compromise</sub><br><br>
+<strong>p95 = 101.74ms answer</strong><br>
+<sub>42&times; under the 4.3s budget</sub><br><br>
+P1 · P3 · P5 · P5a
+</td>
+</tr>
+</table>
 
 ### Q &mdash; Quality (Q1&ndash;Q4)
 
@@ -103,19 +152,13 @@ Paper-grade work, no ship pressure. L2 (KG conflict and contradiction detection 
 
 **D49 phase 1 (temporal retrieval spike)** deployed 2026-05-20 in shadow mode (PR #167, `src/temporal-retrieval.ts`): ISO date detector + proximity rerank. Logs `temporal_path` events with `applied: false` during 7-day shadow baseline before D50 gate. **Q105&ndash;Q110** (six temporal eval queries at gold rank 5&ndash;13) curated 2026-05-20 (PR #168) to measure proximity rerank lift without ceiling effects.
 
-### GTM Phase 2 &mdash; Viral launch (✅ UNLOCKED 2026-05-18)
+### GTM Phase 2 &mdash; Viral launch (UNLOCKED 2026-05-18)
 
-**Q4 gate PASSED.** Q1 canonical measurement (G5 V3 A8: nDCG@10 = 0.6237, +78.8% over G3 baseline 0.3488, measured 2026-05-19) cleared the D43 threshold (≥+15%). Phase 2 playbook unlocked: hero visual upgrade, Trendshift badge, Product Hunt launch, paper distribution to dev.to / LinkedIn / Substack, **Stripe-first global SaaS go-to-market** (D44b pivot: USD default, no affiliate program, Brazilian market as secondary tier via PIX integration future). If production-path scale-up testing reveals regression below +15%, scale-up pauses but the initial Phase 2 claim stands. Spec: [`specs/2026-05-17-GTM-readme-hero-upgrade.md`](specs/2026-05-17-GTM-readme-hero-upgrade.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md) (D43 + D44).
+**Q4 gate PASSED.** Q1 canonical measurement (G5 V3 A8: nDCG@10 = 0.6237, +78.8% over G3 baseline 0.3488, measured 2026-05-19) cleared the D43 threshold (&ge;+15%). Phase 2 playbook unlocked: hero visual upgrade (this README), Trendshift badge, Product Hunt launch, paper distribution to dev.to / LinkedIn / Substack, **Stripe-first global SaaS go-to-market** (D44b pivot: USD default, no affiliate program, Brazilian market as secondary tier via PIX integration future). If production-path scale-up testing reveals regression below +15%, scale-up pauses but the initial Phase 2 claim stands. Spec: [`specs/2026-05-17-GTM-readme-hero-upgrade.md`](specs/2026-05-17-GTM-readme-hero-upgrade.md). Decisions: [`docs/DECISIONS.md`](docs/DECISIONS.md) (D43 + D44).
 
 ## Numbers
 
 Verified against the live corpus. Wave A (18 PRs merged 2026-05-20) completed the full boost stack; G5 V3 A8 is the canonical quality measurement. Numbers that depend on Q1/Q2/Q3 full runs are marked **pending Q-gate** &mdash; we do not publish numbers we have not measured.
-
-<p align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/stat-scale-dark.svg"><img src="assets/readme/stat-scale-light.svg" alt="69k chunks · 21k relations" height="38"></picture>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/stat-opex-dark.svg"><img src="assets/readme/stat-opex-light.svg" alt="<$11/mo all-in" height="38"></picture>
-  <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/stat-tests-dark.svg"><img src="assets/readme/stat-tests-light.svg" alt="tests passing across Wave B" height="38"></picture>
-</p>
 
 | Metric | Value | Source |
 |---|---|---|
@@ -163,6 +206,33 @@ The two axes with **zero coverage in the memory-systems literature** &mdash; **p
 | Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.1) |
 | MIT, no usage caps, no telemetry phone-home | partial | &check; | &check; | &check; | &check; |
 
+## Works with every agent
+
+**Tier A &mdash; first-class integration:** Claude Code (MCP), ChatGPT (HTTP), Cursor (MCP), Cline (MCP), OpenClaw (native plugin).
+
+**Tier B &mdash; works via MCP or HTTP:** Continue, Aider, Codex, Roo, Tabnine, Windsurf, Goose, Zed, Open Interpreter, LangChain, LlamaIndex, CrewAI, AutoGen, custom.
+
+Per-agent setup: [`docs/integrations/`](docs/integrations/). The MCP server exposes 16 tools. The HTTP API exposes `/api/{health,search,kg,kg/path,agents,cross-kg,reflect,procedures,answer,crystallize}`.
+
+## Paper and citation
+
+**Title:** *The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents*
+
+**Status:** v1.1 compiled (31-page PDF) &middot; arXiv target: cs.IR &middot; submission pending Q4 gate
+
+**PDF:** [`paper/publication/latex/paper.pdf`](paper/publication/latex/paper.pdf)
+
+```bibtex
+@article{busnello2026noxmem,
+  title   = {The Pain Diary and Shadow Discipline:
+             A Memory System That Learns from Its Own Incidents},
+  author  = {Busnello, Toto},
+  year    = {2026},
+  journal = {arXiv preprint (cs.IR, submission pending)},
+  url     = {https://github.com/totobusnello/memoria-nox}
+}
+```
+
 ## Documentation
 
 | Topic | File |
@@ -196,33 +266,6 @@ Top environment variables. Full reference: [`docs/CONFIGURATION.md`](docs/CONFIG
 | `NOX_SEARCH_LOG_TEXT` | `0` | Persist query text in `search_telemetry` for eval harness. |
 | `NOX_L4_REGEX_ENABLED` | `0` | Enable regex-first typed-link extraction (Lab sprint L4). |
 | `NOX_ALLOW_NO_SNAPSHOT` | `0` | Emergency override for destructive ops without pre-op snapshot. |
-
-## Works with every agent
-
-**Tier A &mdash; first-class integration:** Claude Code (MCP), ChatGPT (HTTP), Cursor (MCP), Cline (MCP), OpenClaw (native plugin).
-
-**Tier B &mdash; works via MCP or HTTP:** Continue, Aider, Codex, Roo, Tabnine, Windsurf, Goose, Zed, Open Interpreter, LangChain, LlamaIndex, CrewAI, AutoGen, custom.
-
-Per-agent setup: [`docs/integrations/`](docs/integrations/). The MCP server exposes 16 tools. The HTTP API exposes `/api/{health,search,kg,kg/path,agents,cross-kg,reflect,procedures,answer,crystallize}`.
-
-## Paper and citation
-
-**Title:** *The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents*
-
-**Status:** v1.1 compiled (31-page PDF) &middot; arXiv target: cs.IR &middot; submission pending Q4 gate
-
-**PDF:** [`paper/publication/latex/paper.pdf`](paper/publication/latex/paper.pdf)
-
-```bibtex
-@article{busnello2026noxmem,
-  title   = {The Pain Diary and Shadow Discipline:
-             A Memory System That Learns from Its Own Incidents},
-  author  = {Busnello, Toto},
-  year    = {2026},
-  journal = {arXiv preprint (cs.IR, submission pending)},
-  url     = {https://github.com/totobusnello/memoria-nox}
-}
-```
 
 ## Contributing
 
