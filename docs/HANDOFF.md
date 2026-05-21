@@ -2,6 +2,76 @@
 
 ---
 
+## 🌅 LATE MORNING 2026-05-21 — TODOS streams COMPLETED + opsAudit DEPLOYED
+
+> **Atualizado:** 2026-05-21 ~11h45 BRT. **Manhã encerrada com 5 streams paralelos completos + 5 PRs landed em main (3 merged + 2 cherry-picked). opsAudit hygiene DEPLOYED em prod — total_24h went 48 phantom → 1 real.** All 5 worktree agents finished clean.
+
+### 5 PRs landed hoje
+
+| PR | Title | Resolution | Impact |
+|---|---|---|---|
+| **#190** | GTM README hero upgrade | ✅ MERGED | Q4 gate dispatch, Q/A/P pillars + 6 stats wired |
+| **#191** | Per-method benchmark spec | ✅ MERGED | 520 LOC spec, comparison framework nox-mem vs Mem0/Zep/EverCore/HyperMem |
+| **#192** | G10d conditional mutex spec | ✅ CHERRY-PICKED | 699 LOC spec + 206 LOC D51 template, gated em ablation eval |
+| **#193** | opsAudit hygiene fix Issues #1+#3 | ✅ MERGED | Prod deploy: 56 TEXT rows → 36 INTEGER, 20 test rows → 0, 2 enforcement triggers installed |
+| **#188** + **#189** | G10b + G10c audits | ✅ closed no-merge | Durable artifacts in main, audit-only PRs |
+
+### opsAudit Hygiene — Issues #1+#3 DEPLOYED
+
+| Metric | Before | After |
+|---|---|---|
+| `typeof(started_at)` distribution | text × 56 (3 formatos mistos) | **integer × 36** ✅ |
+| Column declared type | `TEXT NOT NULL DEFAULT (datetime('now'))` | **`INTEGER NOT NULL DEFAULT (strftime('%s','now')*1000)`** |
+| Test-% rows polluting metrics | 20 | **0** ✅ |
+| `/api/health.opsAudit.total_24h` | 48 phantom | **1 real** ✅ |
+| `crashed_24h` | 12 (mostly stale + test) | **0** ✅ |
+| `byDbSource` keys | `main`, `unknown`, `test` | **`main` only** ✅ |
+| Enforcement triggers | absent | **2 INSTALLED** (`trg_ops_audit_started_at_must_be_int{,_upd}`) |
+
+**Surprises during deploy (cravadas em memory `[[sqlite-text-affinity-coerces-int-back]]`):**
+1. better-sqlite3 binds JS number as REAL not INTEGER → CAST wrapper required
+2. TEXT column affinity coerces INTEGER back to TEXT → full table rebuild required, NOT UPDATE-in-place
+3. sqlite3 CLI needs `.load vec0.so` (trg_chunks_delete_cascade references vec_chunks)
+4. sqlite3 CLI defaults `.bail off` → partial state corruption risk
+
+### Memories cravadas hoje (final count)
+
+1. `[[opsaudit-investigation-2026-05-21]]` — 3 issues identificados
+2. `[[g10b-per-category-mutex-2026-05-21]]` — single-hop WIN, multi-hop regression
+3. `[[g10c-per-style-2026-05-21]]` — natural-language WIN, keyword slight drag
+4. `[[multi-agent-branch-checkout-race]]` — escalated 3 violations + defense layers
+5. `[[pre-commit-hook-blocks-non-main-commits]]` — defense installed
+6. `[[morning-2026-05-21-burst]]` — 5-stream parallel summary
+7. `[[opsaudit-hygiene-deployed-2026-05-21]]` — Issues #1+#3 deployed
+8. `[[sqlite-text-affinity-coerces-int-back]]` — 4 deployment surprises
+
+### Defense layer escalation
+
+3 branch leaks no dia (todos recovered via cherry-pick → main) levaram à defense escalation:
+- **Pre-commit hook** em `~/.git-hooks-global/pre-commit` — aborts non-main commits do parent path
+- Override: `COMMIT_TO_NON_MAIN_OK=1 git commit ...`
+- CLAUDE.md HARD RULE reescrita com defense em camadas
+
+### Sistema state EOD parcial
+
+```
+main:        7362b29, working tree clean, 0 ahead/behind
+worktrees:   0 active (all 5 agents cleaned up)
+open PRs:    0
+VPS:         187.77.234.79 healthy (68995/68995, salience active, opsAudit fixed)
+D49 phase 2: shadow rolling (cron scrape active, D50 ETA 2026-05-27)
+```
+
+### Pendings (não-bloqueante, próxima sessão)
+
+1. **G10d ablation eval** — spec ready (`specs/2026-05-21-G10d-conditional-mutex-by-query-entities.md`), implementation pendente
+2. **D49 phase 2 baseline 7d** — rolling, D50 decision ~2026-05-27
+3. **Issue #3B** (require explicit `db_source` em withOpAudit signature) — deferred, low priority
+4. **Per-method benchmark Phase B+** — gated em D49 phase 2 closed
+5. **Paper §5.5 G10c addendum** — small update with style breakdown
+
+---
+
 ## ☀️ MORNING 2026-05-21 — vec0 prod risk FIXED + G10b + paper §5.5 + 2 streams in flight
 
 > **Atualizado:** 2026-05-21 ~10h45 BRT. Sessão de manhã abriu com investigation triggered por `/api/health.opsAudit` mostrando 11 crashed + 10 failed em "unknown". **3 issues identificados, Issue #2 (vec0 reindex PROD RISK) FIXED + DEPLOYED + VALIDATED.** Streams paralelos: Issue #1+#3 hygiene fix em flight + G10c per-style ablation em flight.
