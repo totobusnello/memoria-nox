@@ -2,6 +2,72 @@
 
 ---
 
+## 🌙 EVENING BURST 2026-05-21 — 6 PRs merged + F10 Phase A LIVE + L4 audit
+
+> **Atualizado:** 2026-05-21 ~19h45 BRT. **Após morning opsAudit deploy, sessão evening entregou 6 PRs adicionais + 1 production deploy (F10 Phase A) + 1 audit finding (L4 extraction_method).** main em `6284e60`, 0 open PRs meus + 1 agent (F10 Phase B) ainda rodando background.
+
+### 6 PRs landed evening
+
+| PR | Title | Resolution | Impact |
+|---|---|---|---|
+| **#206** | feat(search-dedup): G12 R3 Layer-4 carve-out for entity chunks | ✅ MERGED `ec5dc3d` | Per-row dedup cap (section!=NULL→3, else→2); 9/9 tests; rollback `NOX_DISABLE_G12_R3=1` |
+| **#207** | feat(observability): F10 Phase A Prod Health | ✅ MERGED `7b8b560` + **DEPLOYED PROD** | 3 endpoints + static dashboard; 23/23 tests; smoke 6/6 pass on VPS |
+| **#208** | docs(paper): G10d addendum fourth triangulation point §5.5 | ✅ MERGED `3328246` (agent worktree) | +32 LOC paper section completing G10 saga; agent paralelo |
+| **#209** | feat(l4): regex-first foundation T0-T3 | ✅ MERGED `32ba55c` (later reverted as duplicate) | +648 LOC, 41 tests — but PR #195 já tinha shipado, foi cleanup |
+| **#210** | chore(l4): cleanup PR #209 duplicate | ✅ MERGED `29ef4fb` | -648 LOC deletion; canonical `regex-extract.ts` preserved |
+| **#211** | docs(audit): L4 extraction_method NULL finding | ✅ MERGED `6284e60` | Watchpoint 2026-05-24; 138 LOC audit |
+
+### F10 Phase A — DEPLOYED LIVE
+
+VPS `187.77.234.79` smoke validation 6/6 PASS:
+
+| Endpoint | Status |
+|---|---|
+| `GET /api/observability/health` | 200, 68995 chunks, vec 100%, salience active, indicators all GREEN |
+| `GET /api/observability/recent-ops?n=5` | 200, 5 historical failed/crashed rows returned |
+| `GET /api/observability/canary-tail?n=3` | 200, last_ts 19:00:03, last_ok=true |
+| `GET /observability/health.html` | 200, 3321B, text/html |
+| `GET /observability/health.js` | 200, 6646B, application/javascript |
+| `GET /observability/health.css` | 200, 3800B, text/css |
+
+**Acesso:** `http://nox-vps.tailnet:18802/observability/health.html` via Tailscale.
+
+### Real finding cravado em audit
+
+`audits/2026-05-21-l4-extraction-method-null-finding.md` (PR #211):
+- `kg_relations.extraction_method` NULL em 21,518/21,518 rows
+- **NÃO é regressão** — KG build cron roda só Sundays (Phase 4 of nightly-maintenance.sh)
+- Last KG run 2026-05-17 = pre-PR #195 (L4 merge 2026-05-18)
+- **Watchpoint 2026-05-24** (next Sunday) — primeira janela onde L4 + KG cron co-rodam
+- Anomaly: se rows novos pós-2026-05-24 ainda NULL → wire-up broken
+
+### Stats agregados evening
+
+- **6 PRs** abertos + merged
+- **~2080 LOC** added net (deducting #209 → #210 cleanup wash)
+- **73/73 unit tests** passing (sprints #1+#2+#3 antes do cleanup)
+- **1 production deploy** (F10 Phase A LIVE)
+- **1 agent worktree** spawn (paper §5.5, success); **1 more in flight** (F10 Phase B)
+- **Defense hook fired 2×** (G12 R3 + L4 commits, both intentional override)
+
+### Memories cravadas evening
+
+1. `[[evening-2026-05-21-g12r3-f10a-delivered]]` — initial PR drops (pre-merge)
+2. `[[evening-burst-2026-05-21-4prs-f10-deployed]]` — post-merge + deploy state
+3. (audit finding) `audits/2026-05-21-l4-extraction-method-null-finding.md`
+
+### Pending próxima sessão
+
+1. **F10 Phase B PR** — agent ainda rodando background (~6h sprint, ETA ~21h-22h BRT hoje)
+2. **F10 Phase A 24h smoke** — passive validation (polling stable, no memory leaks)
+3. **L4 watchpoint 2026-05-24** — query `extraction_method` distribution após Sunday cron
+4. **L4 DIR_PATTERN reconciliation** — singular/plural concern levantado em PR #210 (filesystem `agents/` plural vs `kg_entities.entity_type` `agent` singular)
+5. **G12 R1** corpus enrich — parked aguardando Toto sanity-check approach mass-edit ~100 memory files
+6. **D49 phase 2 → D50** ETA 2026-05-27 (5d waiting)
+7. **A2 Tier 3** crypto + audit (~4-6h, security review obrigatório)
+
+---
+
 ## 🌅 LATE MORNING 2026-05-21 — TODOS streams COMPLETED + opsAudit DEPLOYED
 
 > **Atualizado:** 2026-05-21 ~11h45 BRT. **Manhã encerrada com 5 streams paralelos completos + 5 PRs landed em main (3 merged + 2 cherry-picked). opsAudit hygiene DEPLOYED em prod — total_24h went 48 phantom → 1 real.** All 5 worktree agents finished clean.
