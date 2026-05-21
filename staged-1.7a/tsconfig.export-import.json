@@ -16,7 +16,8 @@
   "include": [
     "edits/lib/export-import.ts",
     "edits/cli/export-import-cli.ts",
-    "tests/export-import-roundtrip.test.ts"
+    "tests/export-import-roundtrip.test.ts",
+    "tests/export-import-v2-tier2.test.ts"
   ],
   "exclude": ["dist", "node_modules"]
 }
