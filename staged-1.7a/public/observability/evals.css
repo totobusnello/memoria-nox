@@ -1,0 +1,126 @@
+/* F10 Phase B · evals.css — eval dashboard extras (extends health.css palette) */
+
+.subnav {
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.subnav a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+  padding-bottom: 1px;
+}
+
+.subnav a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.subnav .active {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.filters .filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.filters label {
+  color: var(--muted);
+}
+
+.filters select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-family: inherit;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+}
+
+.filters .explainer {
+  margin: 0.8rem 0 0 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.filters code {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 0.3rem;
+  font-size: 0.9em;
+  color: var(--accent);
+}
+
+.chart-wrap {
+  position: relative;
+  height: 320px;
+}
+
+#evals-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+#evals-table th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 0.35rem 0.4rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+}
+
+#evals-table td {
+  padding: 0.35rem 0.4rem;
+  border-bottom: 1px dotted var(--border);
+  vertical-align: top;
+}
+
+#evals-table td.num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+#evals-table .empty td {
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+  padding: 1rem 0;
+}
+
+#evals-table .gate-pill {
+  display: inline-block;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0 0.4rem;
+  margin: 0 0.2rem 0.2rem 0;
+  font-size: 0.78rem;
+  color: var(--accent);
+}
+
+main {
+  /* Override health.css 2-col grid for this page — eval charts want full width */
+  grid-template-columns: 1fr !important;
+  max-width: 1280px !important;
+}
+
+@media (min-width: 1100px) {
+  .filters {
+    /* keep full width even on wide screens */
+  }
+}

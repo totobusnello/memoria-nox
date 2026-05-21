@@ -11,9 +11,11 @@
     "check:tests": "tsc -p tsconfig.tests.json --noEmit",
     "check:search-dedup": "tsc -p tsconfig.search-dedup-tests.json",
     "check:observability": "tsc -p tsconfig.observability.json",
+    "check:observability-evals": "tsc -p tsconfig.observability-evals.json",
     "test": "tsc -p tsconfig.tests.json && node --test dist/tests/*.test.js",
     "test:search-dedup": "tsc -p tsconfig.search-dedup-build.json && node --test dist-search-dedup/edits/__tests__/search-dedup.test.js",
-    "test:observability": "tsc -p tsconfig.observability-build.json && node --test dist-observability/edits/__tests__/observability.test.js"
+    "test:observability": "tsc -p tsconfig.observability-build.json && node --test dist-observability/edits/__tests__/observability.test.js",
+    "test:observability-evals": "tsc -p tsconfig.observability-evals-build.json && node --test dist-observability-evals/edits/__tests__/observability-evals.test.js"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
