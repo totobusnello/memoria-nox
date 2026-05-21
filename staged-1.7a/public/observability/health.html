@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>nox-mem · Prod Health</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="health.css">
+</head>
+<body>
+  <header>
+    <h1>nox-mem · Prod Health</h1>
+    <div class="status-bar">
+      <span id="live-indicator" class="dot dot-green" title="polling every 30s"></span>
+      <span class="live-label">live · <span id="poll-rate">30s</span></span>
+      <span class="separator">·</span>
+      <span id="last-refresh">never</span>
+      <button id="refresh-btn" type="button" title="Force refresh">↻ Refresh</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" id="card-health">
+      <h2>Health summary</h2>
+      <table class="kv">
+        <tbody>
+          <tr>
+            <th>Chunks</th>
+            <td>
+              <span id="chunks-total" class="num">—</span>
+              <span id="chunks-delta" class="delta"></span>
+            </td>
+          </tr>
+          <tr>
+            <th>Vec coverage</th>
+            <td>
+              <span id="vec-ratio" class="num">—</span>
+              <span id="vec-detail" class="muted"></span>
+              <span id="vec-indicator" class="dot"></span>
+            </td>
+          </tr>
+          <tr>
+            <th>Salience</th>
+            <td><code id="salience-mode">—</code></td>
+          </tr>
+          <tr>
+            <th>DB size</th>
+            <td>
+              <span id="db-size" class="num">—</span>
+              <span id="db-size-delta" class="delta"></span>
+            </td>
+          </tr>
+          <tr>
+            <th>KG entities</th>
+            <td>
+              <span id="kg-entities" class="num">—</span>
+              <span id="kg-entities-delta" class="delta"></span>
+            </td>
+          </tr>
+          <tr>
+            <th>KG relations</th>
+            <td>
+              <span id="kg-relations" class="num">—</span>
+              <span id="kg-relations-delta" class="delta"></span>
+            </td>
+          </tr>
+          <tr>
+            <th>Last canary</th>
+            <td>
+              <span id="canary-when" class="num">—</span>
+              <span id="canary-indicator" class="dot"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="card-ops">
+      <h2>
+        Recent failed / crashed ops <span class="muted">· last 24h</span>
+        <span id="ops-indicator" class="dot"></span>
+      </h2>
+      <table id="ops-table">
+        <thead>
+          <tr>
+            <th>op_name</th>
+            <th>status</th>
+            <th>db_source</th>
+            <th>when</th>
+            <th>duration</th>
+          </tr>
+        </thead>
+        <tbody id="ops-tbody">
+          <tr class="empty"><td colspan="5">loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card" id="card-canary">
+      <h2>Schema invariants canary <span class="muted">· tail 3</span></h2>
+      <ul id="canary-list" class="canary">
+        <li class="muted">loading…</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <span>F10 Phase A · spec <code>2026-05-01-F10-observability-dashboard.md</code></span>
+  </footer>
+
+  <script src="health.js"></script>
+</body>
+</html>

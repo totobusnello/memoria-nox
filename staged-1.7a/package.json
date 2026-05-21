@@ -10,8 +10,10 @@
     "check:search": "tsc -p tsconfig.search.json",
     "check:tests": "tsc -p tsconfig.tests.json --noEmit",
     "check:search-dedup": "tsc -p tsconfig.search-dedup-tests.json",
+    "check:observability": "tsc -p tsconfig.observability.json",
     "test": "tsc -p tsconfig.tests.json && node --test dist/tests/*.test.js",
-    "test:search-dedup": "tsc -p tsconfig.search-dedup-build.json && node --test dist-search-dedup/edits/__tests__/search-dedup.test.js"
+    "test:search-dedup": "tsc -p tsconfig.search-dedup-build.json && node --test dist-search-dedup/edits/__tests__/search-dedup.test.js",
+    "test:observability": "tsc -p tsconfig.observability-build.json && node --test dist-observability/edits/__tests__/observability.test.js"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
