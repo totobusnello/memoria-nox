@@ -331,7 +331,38 @@ The **G10c per-style breakdown** (2026-05-21, same DB, n = 100 across 2 styles �
 
 The aggregate effect (+0.43% nDCG, +0.82% MRR — identical to G10b because G10c reuses the same A8 active vs A8 disabled detail JSONs and re-buckets) is entirely carried by the natural-language subset. The keyword bucket is a small drag, within the noise floor. Two cross-cuts (style × category) surface as notable outliers: NL × single-hop (+13.83% nDCG, +21.32% MRR — the biggest individual win in the data) and keyword × adversarial (−5.35% nDCG, −10.0% MRR — the only delta crossing the 5% regression threshold, n = 10). Multi-hop suffers ≈ −4% across both styles, confirming the regression is **style-agnostic** and motivating the conditional-mutex follow-up rather than a style-specific routing.
 
-Triangulated across G10 (deploy figure +0.79% / +2.65%), G10b (per-category +0.43% / +0.82%), and G10c (per-style +0.43% / +0.82%), the mutex effect is consistent in direction and on the lower end of the original deploy measurement in magnitude — the deploy figure sat on the upper tail of a noisy distribution rather than reflecting a structural shift. The architectural conclusion stands: **keep the mutex deployed at the per-chunk level; address the multi-hop chain-traversal regression via a conditional gate keyed on `query_entities`**, deferred to the G10d ablation in a future session.
+Triangulated across G10 (deploy figure +0.79% / +2.65%), G10b (per-category +0.43% / +0.82%), and G10c (per-style +0.43% / +0.82%), the mutex effect is consistent in direction and on the lower end of the original deploy measurement in magnitude — the deploy figure sat on the upper tail of a noisy distribution rather than reflecting a structural shift. The architectural conclusion stands: **keep the mutex deployed at the per-chunk level; address the multi-hop chain-traversal regression via a conditional gate keyed on `query_entities`** — executed in G10d below.
+
+The **G10d ablation** (2026-05-21, same `g9.db` corpus, 69 495 chunks, 15 612 `kg_entities`) tests a conditional variant of the Hard Mutex: the per-chunk gate is suppressed when the incoming query matches two or more entities in the KG, preserving the full boost stack for multi-entity chain-traversal queries while keeping the mutex active for single-entity and entity-free queries. The mechanism relies on `query-entity-count.ts`, which performs a greedy longest-match scan over `kg_entities.name` at query time; the count drives `NOX_MUTEX_QUERY_ENTITY_THRESHOLD` in `search.ts`. Four configurations were run against the same 100-query golden set (n = 100, 5 categories × 2 styles × 10), each on an isolated endpoint (port 18803) with salience active, ~13 min total VPS time:
+
+| Config | Description | nDCG@10 | MRR | R@10 | Δ%nDCG vs A8' | Δ%MRR vs A8' |
+|---|---|---:|---:|---:|---:|---:|
+| A8' | G10 Hard Mutex always-on (prod baseline) | 0.5502 | 0.5992 | 0.6183 | — | — |
+| A8d-1 | Conditional, threshold=1 | 0.5467 | 0.5856 | 0.6333 | −0.64% | −2.27% |
+| **A8d-2** | **Conditional, threshold=2** | **0.5577** | **0.6074** | **0.6233** | **+1.35%** | **+1.37%** |
+| A8 off | Mutex fully disabled (control) | 0.5438 | 0.5806 | 0.6333 | −1.17% | −3.10% |
+
+The headline result is **A8d-2 (threshold=2) wins on all three primary metrics** over the A8' G10 baseline. A8d-1 regresses on nDCG and MRR, pointing to a critical entity-density effect: with 15 612 entities in `kg_entities` — 40× the 402 initially estimated at design time — a threshold of 1 is effectively always met, collapsing the conditional back to the constant-off regime (no mutex). Threshold=2 is the minimum noise filter that restores actual conditionality at current entity density.
+
+The per-category breakdown reveals the mechanism of recovery:
+
+| Category | n | nDCG@10 Δ% vs A8' | MRR Δ% vs A8' | R@10 Δ% vs A8' | Verdict |
+|---|---|---:|---:|---:|---|
+| multi-hop | 20 | **+1.58%** | 0.00% | **+3.75%** | recovery — chain signal preserved |
+| adversarial | 20 | **+3.04%** | **+6.25%** | 0.00% | recovery — distractor suppression improves |
+| open-domain | 20 | **+2.92%** | **+1.59%** | 0.00% | extends G10b win |
+| single-hop | 20 | −3.26% | −4.43% | 0.00% | trade-off |
+| temporal | 20 | n/a | n/a | n/a | degenerate corpus gap (unchanged) |
+
+Multi-hop recovers because queries naming two or more entities (e.g., entity + associated event or related entity) now reach top-K with the full `section_boost × source_type_boost` stack active, enabling intermediate chain chunks to surface. Adversarial recovery is the strongest signal: adversarial queries in the golden set tend to mention three or more entity names as distractors, pushing `query_entity_count ≥ 2` and gating the mutex; the full boost stack then differentiates gold from distractors more effectively than the mutex-flattened ranking. The single-hop trade-off is real — A8d-2 nDCG drops −3.26% vs A8' — but is bounded: single-hop performance against the pre-mutex baseline (G10b mutex_disabled) is still **+3.31% nDCG / +7.78% MRR** (absolute: 0.5470 vs 0.5295 disabled). The conditional layer trades peak single-hop precision for materially better worst-case behavior across multi-hop and adversarial categories.
+
+Latency is unaffected: P95 spread across all four configs is 2558–2573 ms (0.6% variance), consistent with the `query-entity-count` hot path operating at sub-millisecond cost when the entity index is warmed.
+
+**Decision D51 verdict: ACTIVE-T2.** A8d-2 meets 6 of 8 evaluated criteria (aggregate nDCG/MRR, multi-hop nDCG/R@10, open-domain nDCG, adversarial nDCG). Single-hop nDCG and MRR are the two fails — both against the A8' baseline that represents the maximal single-hop state — and both remain strictly positive against the pre-mutex baseline. The aggregate net of +1.35% nDCG / +1.37% MRR over the G10 baseline justifies accepting the single-hop dilution. The canonical boost stack in production now reads: `section_boost × source_type_boost (Hard Mutex gated by query_entity_count ≤ 2) × salience v2 additive`.
+
+The G10d conditional gate was deployed to production on 2026-05-21 via systemd environment drop-in (`NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`). A smoke test across three query archetypes confirmed correct behavior: a single-entity query applied the mutex as expected; a multi-entity query (count ≥ 2) returned an `entity::compiled` chunk at rank 1, confirming the mutex was suppressed and the full boost stack served the chain; a no-entity query bypassed the mutex entirely. Zero errors were recorded in `journalctl` post-restart. Three rollback paths are documented — disabling only the conditional layer (preserving G10 hard mutex), disabling the entire mutex, and removing the drop-in — each executable in under five minutes.
+
+Triangulated across G10 (+0.79% nDCG deploy measurement), G10b (per-category breakdown, aggregate +0.43%), G10c (per-style breakdown, aggregate +0.43%), and G10d (conditional gate, aggregate +1.35%), the mutex evolution follows a consistent trajectory: the per-chunk hard mutex provided a net positive but introduced multi-hop and adversarial regressions; the conditional layer recovers those regressions at the cost of moderate single-hop dilution, with the aggregate strictly improving at each step. The final deployed configuration is the most balanced across query-category diversity the series has measured.
 
 ### 5.6 Honest characterization
 
