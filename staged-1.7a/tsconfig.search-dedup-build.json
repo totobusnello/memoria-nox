@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist-search-dedup",
+    "rootDir": ".",
+    "declaration": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false
+  },
+  "include": [
+    "edits/search.ts",
+    "edits/search-dedup.ts",
+    "edits/salience.ts",
+    "edits/__tests__/search-dedup.test.ts",
+    "_stubs/**/*.d.ts"
+  ],
+  "exclude": ["dist", "dist-search-dedup", "node_modules"]
+}
