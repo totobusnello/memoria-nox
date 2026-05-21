@@ -2,6 +2,99 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-05-21 ~10h30 BRT (~3min/recovery) — Multi-agent branch leak ×3 + pre-commit hook installed
+
+### Severity: 🟡 yellow — defense-only event (no data loss, no prod impact)
+
+3 branch leaks no mesmo dia despite `isolation: "worktree"` setado em todos agent spawns:
+
+1. **Agent G10c (affa68cd)** — branch `research/g10c-per-style-mutex` contaminou parent HEAD; HANDOFF commit landed wrong branch
+2. **Re-leak após recovery** — G10c artifacts commit landed em same leak branch
+3. **Agent G10d (a31ee9f7)** — branch `impl/g10d-conditional-mutex` contaminou parent HEAD; pre-commit hook (just installed) ABORTED paper §5.5 commit
+
+### Root cause
+
+`isolation: "worktree"` cria filesystem space isolado MAS shared `.git/`. Agents podem:
+- `cd` para path absoluto saindo do worktree
+- Usar `git -C <abs-path>` redirecting ops pro main
+- Resultado: parent HEAD mutated silently
+
+### Recovery
+
+Cada leak ~3min via cherry-pick:
+```bash
+git checkout main
+git pull --ff-only
+git cherry-pick <leak-commit>
+git push origin main
+git branch -D <leak-branch>
+```
+
+### Fix permanente
+
+**Pre-commit hook global** instalado em `~/.git-hooks-global/pre-commit`:
+- Detecta non-main branch em parent repo path (worktrees exempt)
+- Aborts commit com mensagem clara apontando recovery
+- Override: `COMMIT_TO_NON_MAIN_OK=1 git commit ...`
+
+Memory `[[pre-commit-hook-blocks-non-main-commits]]` documenta.
+Memory `[[multi-agent-branch-checkout-race]]` updated com 3rd violation.
+
+### Hook prova de fogo
+
+Mesma manhã o hook DISPAROU em commit que tentou subir paper §5.5 enquanto branch leak ativo. Recovery automático (stash + checkout main + commit + push) ~30s. Sem hook, teria sido 4ª leak.
+
+---
+
+## 2026-05-21 morning (~1h investigation, ~3h fix+deploy) — opsAudit 3-issue investigation + Issue #2 vec0 reindex PROD RISK fixed
+
+### Severity: 🟠 orange — Issue #2 was prod risk (could escalate); Issues #1/#3 were metric noise
+
+`/api/health.opsAudit` mostrou 48 phantom rows em "unknown" bucket em 24h window. Investigation revelou 3 issues distintos:
+
+**Issue #1 (metric noise):** `started_at` type chaos
+- 56 rows com `typeof=TEXT` em 3 formatos misturados (epoch ms float-as-text, ISO datetime, INT)
+- Filter `started_at > strftime('%s','now','-24h')*1000` falha com TEXT vs INT (lexicographic compare)
+- Rows de Abril aparecem como "last 24h"
+
+**Issue #2 (PROD RISK):** Reindex `no such module: vec0`
+- 6× sequencial fail em 2026-05-20 02:00 UTC
+- `api-server.js` carrega sqlite-vec no startup; `index.js` (CLI entry) NÃO carrega
+- `DELETE FROM chunks` dispara `trg_chunks_delete_cascade` → `vec_chunks` → fail
+- Vetores atuais OK mas próximo cron escalaria
+
+**Issue #3 (metric noise):** Test ops + db_source NULL polluem
+- 11/12 "crashed unknown" = test-bad-fn/test-failure/ocr-batch kills legítimos
+- Test fixtures não setam db_source
+
+### Fixes
+
+| Issue | PR | Status |
+|---|---|---|
+| #2 vec0 fix | `9ad77eb` bundle | ✅ DEPLOYED VPS, smoke validated |
+| #1+#3 hygiene | #193 (`7362b29`) | ✅ DEPLOYED VPS — table rebuild + 2 INTEGER-enforcement triggers + test rows cleanup |
+| #3B db_source enforce | (in flight) | 🔄 fix/opsaudit-3b agent rodando |
+
+### Before / After Issues #1+#3
+
+| Metric | Before | After |
+|---|---|---|
+| `typeof(started_at)` | text × 56 | integer × 36 |
+| Test-% rows | 20 | 0 |
+| `total_24h` | 48 phantom | 1 real |
+| `crashed_24h` | 12 | 0 |
+| `byDbSource` | main/unknown/test | main only |
+
+### Deployment surprises (memory `[[sqlite-text-affinity-coerces-int-back]]`)
+
+4 SQLite gotchas:
+1. better-sqlite3 binds JS number as REAL not INTEGER → `CAST(? AS INTEGER)` wrapper
+2. TEXT column affinity coerces INTEGER back → full table rebuild required (UPDATE-in-place fails)
+3. sqlite3 CLI needs `.load vec0.so` (cascade trigger references)
+4. sqlite3 CLI defaults `.bail off` → partial corruption risk; needs `.bail on`
+
+---
+
 ## 2026-05-20 ~10h BRT (~30min recovery) — VPS IP swap silencioso (false alarm offline)
 
 **Sintoma:** durante deploy Wave A novo (PRs #154/#158), ping em `45.43.85.86` retornou 100% packet loss + curl HTTP 000 em portas 22/2222/2200/18802. Agent VPS-cleanup retornou "host inacessível"; verificação direta da main session confirmou.

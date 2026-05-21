@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — 2026-05-21 morning burst (9 PRs landed em ~3h)
+
+- **vec0 reindex fix** — sqlite-vec load defensive em `_reindexImpl` (`staged-1.7a/edits/reindex.ts`); fixes 6× retry loop em CLI reindex; api-server unaffected (vec0 bundle commit `9ad77eb`)
+- **opsAudit hygiene** — table rebuild para `started_at` INTEGER + 2 enforcement triggers + test-% row cleanup; `/api/health.opsAudit.total_24h` went 48 phantom → 1 real (#193)
+- **GTM README hero upgrade** — Q/A/P pillar badges + 6 stat cards + headline numbers + Quick-start promoted; D43 Q4 gate dispatched (#190)
+- **Per-method benchmark spec** — 520 LOC plan pra comparison nox-mem vs Mem0/Zep/EverCore/HyperMem em LongMemEval + EverMemBench (#191)
+- **G10b/G10c/G10d/D51** — per-category + per-style + conditional mutex spec + decision template (#188, #189, #192, #198)
+- **Memory cross-link audit + normalization** — 39 broken refs identified → 1 → 0 (#194, #197)
+- **L4 regex-first extraction** — shadow-mode default; Tier 1 regex + Gemini fallback orchestration via `NOX_KG_EXTRACT_MODE` (#195)
+- **A2 export/import T1** — AES-256-GCM + scrypt KDF + AAD-bound manifest; 11 tests including tamper + 2-instance roundtrip (Autonomy pillar, #196)
+- **G10c paper §5.5 addendum** — natural-language win / keyword drag breakdown
+
+### Defense
+
+- **Pre-commit hook global** — `~/.git-hooks-global/pre-commit` blocks non-main branch commits do parent path; recovers from agent worktree contamination automatically; override `COMMIT_TO_NON_MAIN_OK=1`
+
 ### Pending Wave F
 - A1.1 Brazilian PII patterns (CPF/CNPJ/pix/CEP/RG)
 - G1 passphrase entropy enforcement (zxcvbn)
