@@ -14,10 +14,9 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "edits/salience.ts",
     "edits/lib/export-import.ts",
     "edits/cli/export-import-cli.ts",
-    "tests/**/*.test.ts"
+    "tests/export-import-roundtrip.test.ts"
   ],
   "exclude": ["dist", "node_modules"]
 }
