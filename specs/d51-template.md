@@ -65,23 +65,24 @@ Configurações comparadas:
 
 ---
 
-## Decisão proposta (preencher após G10d ablation)
+## Decisão proposta (preenchida 2026-05-21 após G10d ablation)
 
 | Field | Value |
 |---|---|
-| Data | YYYY-MM-DD |
-| Aggregate A8' baseline | nDCG=____, MRR=____ |
-| Aggregate A8d-1 (threshold=1) | nDCG=____, MRR=____, Δ=____ |
-| Aggregate A8d-2 (threshold=2) | nDCG=____, MRR=____, Δ=____ |
-| Aggregate A8' off (control) | nDCG=____, MRR=____, Δ=____ |
-| Single-hop nDCG@10 best config | Δ=____ |
-| Multi-hop nDCG@10 best config | Δ=____ |
-| Multi-hop R@10 best config | Δ=____ |
-| Adversarial nDCG@10 best config | Δ=____ |
-| Latency p95 search | ____ ms (vs ____ baseline) |
-| **Decisão** | **ACTIVE-T1 / ACTIVE-T2 / OFF / EXTEND** |
-| Rationale | TBD |
-| Action items | TBD |
+| Data | 2026-05-21 |
+| Aggregate A8' baseline | nDCG=0.5502, MRR=0.5992, R@10=0.6183 |
+| Aggregate A8d-1 (threshold=1) | nDCG=0.5467, MRR=0.5856, Δ=−0.64% nDCG / −2.27% MRR |
+| **Aggregate A8d-2 (threshold=2)** | **nDCG=0.5577, MRR=0.6074, Δ=+1.35% nDCG / +1.37% MRR** |
+| Aggregate A8' off (control) | nDCG=0.5438, MRR=0.5806, Δ=−1.17% nDCG / −3.10% MRR |
+| Single-hop nDCG@10 best config | A8d-2 = 0.5470 (Δ=−3.26% vs A8'; **+3.31% vs pre-mutex**) |
+| Multi-hop nDCG@10 best config | A8d-2 = 0.6894 (Δ=+1.58%) — **recovers from G10b −3.95% regression** |
+| Multi-hop R@10 best config | A8d-2 = 0.6917 (Δ=+3.75%) — **recovers from G10b −6.02% regression** |
+| Adversarial nDCG@10 best config | A8d-2 = 0.7664 (Δ=+3.04%) — **bonus, recovers G10b −2.95% regression** |
+| Open-domain nDCG@10 best config | A8d-2 = 0.7856 (Δ=+2.92%) — incremental win |
+| Latency p95 search | A8d-2 = 2558 ms (vs A8' = 2573 ms — within noise) |
+| **Decisão** | **ACTIVE-T2 (threshold=2)** |
+| Rationale | A8d-2 wins 6/8 D51 criteria. Aggregate +1.35% nDCG / +1.37% MRR vs G10 baseline AND +2.03%/+2.51% vs pre-mutex baseline. Multi-hop and adversarial regressions recovered. Single-hop regresses vs G10 (−3.26% nDCG) but still BETTER than pre-mutex (+3.31% nDCG). Net trade-off favorable: G10 over-optimized single-hop at cost of multi-hop+adversarial; G10d-T2 balances. Threshold=2 acts as noise filter given 15 612 entities (40× spec-estimated 402), where threshold=1 trips almost every query and degenerates toward mutex_disabled. |
+| Action items | (a) deploy code from PR #198 to prod nox-mem path (impl audit §5). (b) set `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2` in prod systemd. (c) 7-day shadow window per CLAUDE.md rule #5 before active. (d) telemetry column `search_telemetry.query_entity_count` migration (deferred from PR #198). (e) G10e parking-lot: investigate single-hop drill (entity-type filtering, threshold=3 grid). |
 
 ---
 
