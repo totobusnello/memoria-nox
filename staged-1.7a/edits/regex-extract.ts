@@ -18,9 +18,16 @@
 // ─── Entity type whitelist (DIR_PATTERN) ─────────────────────────────────────
 
 /**
- * Canonical nox-mem entity types. Validated against spec §4.
- * T0 validation: run `ls /root/.openclaw/workspace/tools/nox-mem/memory/entities/`
- * and diff against this list. Add unknown types, remove phantom ones.
+ * Canonical nox-mem entity types (SINGULAR form). Mirrors `kg_entities.entity_type`
+ * column values stored in the DB. This is the form that downstream consumers
+ * (KG lookups, FK joins) expect.
+ *
+ * T0 validation 2026-05-21: live VPS filesystem `memory/entities/` exposes
+ * PLURAL dirs (agents/decisions/lessons/projects/systems/). To bridge the two
+ * conventions in a single pass, the regex accepts BOTH singular and plural
+ * forms (see DIR_PATTERN), and `asEntityType()` normalises plural → singular
+ * before storing the ref. `system` was added in this round to canonicalise
+ * the `systems/` filesystem dir (previous list had 16 types; this list has 17).
  */
 export const NOX_ENTITY_TYPES = [
   "feedback",
@@ -39,12 +46,47 @@ export const NOX_ENTITY_TYPES = [
   "skill",
   "persona",
   "reference",
+  "system",
 ] as const;
 
 export type NoxEntityType = (typeof NOX_ENTITY_TYPES)[number];
 
-/** Alternation snippet: `(?:feedback|person|...)`. */
-const DIR_PATTERN = `(?:${NOX_ENTITY_TYPES.join("|")})`;
+/**
+ * Plural-form filesystem dir names that resolve to a canonical singular
+ * entity type. Captures the gap that PR #210 cleanup surfaced.
+ *
+ * Keep in sync with the live filesystem layout (`memory/entities/`):
+ *   agents/, decisions/, lessons/, projects/, systems/.
+ *
+ * Maps to singular forms in NOX_ENTITY_TYPES via PLURAL_TO_SINGULAR below.
+ * Only the 5 plurals that exist on disk today are accepted — adding new
+ * filesystem dirs requires extending BOTH this list and PLURAL_TO_SINGULAR.
+ */
+export const NOX_ENTITY_DIRS_PLURAL = [
+  "agents",
+  "decisions",
+  "lessons",
+  "projects",
+  "systems",
+] as const;
+
+export type NoxEntityDirPlural = (typeof NOX_ENTITY_DIRS_PLURAL)[number];
+
+/** Plural → singular canonical map. */
+const PLURAL_TO_SINGULAR: Record<NoxEntityDirPlural, NoxEntityType> = {
+  agents: "agent",
+  decisions: "decision",
+  lessons: "lesson",
+  projects: "project",
+  systems: "system",
+};
+
+/**
+ * Alternation snippet: `(?:feedback|person|...|agents|decisions|...)`.
+ * Accepts BOTH singular (canonical) and plural (filesystem) forms.
+ * Normalisation to singular happens in `asEntityType()`.
+ */
+const DIR_PATTERN = `(?:${[...NOX_ENTITY_TYPES, ...NOX_ENTITY_DIRS_PLURAL].join("|")})`;
 
 /** Slug character class: lowercase letters, digits, underscore, dash. */
 const SLUG_CHARS = `[a-z0-9_\\-]+`;
@@ -200,9 +242,20 @@ function buildCodeRefRe(): RegExp {
 // ─── T3: entity-ref extractor ─────────────────────────────────────────────────
 
 const ENTITY_TYPE_SET: ReadonlySet<string> = new Set(NOX_ENTITY_TYPES);
+const PLURAL_DIR_SET: ReadonlySet<string> = new Set(NOX_ENTITY_DIRS_PLURAL);
 
+/**
+ * Resolve a captured directory token to its canonical singular entity type.
+ * Accepts either form:
+ *   - singular form already in NOX_ENTITY_TYPES → returned as-is
+ *   - plural filesystem form in NOX_ENTITY_DIRS_PLURAL → mapped via
+ *     PLURAL_TO_SINGULAR (`agents` → `agent`, etc.)
+ *   - anything else → null (filtered out before pushRef)
+ */
 function asEntityType(v: string): NoxEntityType | null {
-  return ENTITY_TYPE_SET.has(v) ? (v as NoxEntityType) : null;
+  if (ENTITY_TYPE_SET.has(v)) return v as NoxEntityType;
+  if (PLURAL_DIR_SET.has(v)) return PLURAL_TO_SINGULAR[v as NoxEntityDirPlural];
+  return null;
 }
 
 function pushRef(

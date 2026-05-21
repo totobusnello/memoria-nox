@@ -368,8 +368,8 @@ describe("extractEntityRefsRegex — PascalCase false positive guard", () => {
 // ─── 12. NOX_ENTITY_TYPES completeness ───────────────────────────────────────
 
 describe("NOX_ENTITY_TYPES", () => {
-  it("contains all 16 canonical entity types", () => {
-    assert.equal(NOX_ENTITY_TYPES.length, 16);
+  it("contains all 17 canonical entity types (16 original + `system` added in plural normalisation round)", () => {
+    assert.equal(NOX_ENTITY_TYPES.length, 17);
   });
 
   it("includes critical types: feedback, decision, person, agent", () => {
@@ -420,5 +420,81 @@ describe("extractEntityRefsRegex — Unicode boundary", () => {
     const refs = extractEntityRefsRegex(text);
     assert.equal(refs.length, 1);
     assert.equal(refs[0]?.slug, "d48");
+  });
+});
+
+// ─── 16. Plural filesystem dir normalisation (PR #210 follow-up) ─────────────
+
+describe("extractEntityRefsRegex — plural filesystem dir forms", () => {
+  it("normalises plural `agents/` to canonical singular `agent`", () => {
+    const refs = extractEntityRefsRegex("see [[agents/nox]] for chief-of-staff role");
+    assert.equal(refs.length, 1);
+    assert.equal(refs[0]?.entityType, "agent", "plural agents → singular agent");
+    assert.equal(refs[0]?.slug, "nox");
+    assert.equal(refs[0]?.key, "agent/nox", "key uses singular canonical form");
+  });
+
+  it("normalises plural `decisions/` via markdown link", () => {
+    const refs = extractEntityRefsRegex("[D48 verdict](decisions/d48-mutex-active-t2)");
+    assert.equal(refs.length, 1);
+    assert.equal(refs[0]?.entityType, "decision");
+    assert.equal(refs[0]?.slug, "d48-mutex-active-t2");
+  });
+
+  it("normalises plural `lessons/` via bare ref", () => {
+    const refs = extractEntityRefsRegex("já vimos esse padrão em lessons/sqlite-affinity hoje");
+    assert.equal(refs.length, 1);
+    assert.equal(refs[0]?.entityType, "lesson");
+    assert.equal(refs[0]?.slug, "sqlite-affinity");
+  });
+
+  it("normalises plural `projects/`", () => {
+    const refs = extractEntityRefsRegex("[[projects/area-campolim]] is parked");
+    assert.equal(refs.length, 1);
+    assert.equal(refs[0]?.entityType, "project");
+    assert.equal(refs[0]?.slug, "area-campolim");
+  });
+
+  it("normalises plural `systems/` to new canonical `system`", () => {
+    const refs = extractEntityRefsRegex("see [[systems/nox-mem]] for core schema");
+    assert.equal(refs.length, 1);
+    assert.equal(refs[0]?.entityType, "system");
+    assert.equal(refs[0]?.slug, "nox-mem");
+  });
+
+  it("dedups when same key reached via both singular and plural", () => {
+    // Both `[[agent/nox]]` and `[[agents/nox]]` resolve to key `agent/nox`.
+    // The second occurrence is a no-op (first wins, just like other dedup paths).
+    const refs = extractEntityRefsRegex("[[agent/nox]] vs [[agents/nox]] are same entity");
+    assert.equal(refs.length, 1);
+    assert.equal(refs[0]?.key, "agent/nox");
+  });
+
+  it("rejects unknown plural form not in NOX_ENTITY_DIRS_PLURAL", () => {
+    // `teams` is NOT on the filesystem and was never added to the plural list.
+    // Should not match (no canonical mapping).
+    const refs = extractEntityRefsRegex("see [[teams/granix]] for context");
+    assert.equal(refs.length, 0, "teams/ not in plural whitelist");
+  });
+
+  it("preserves singular forms untouched", () => {
+    // Sanity guard — the plural support should never break existing singular behavior.
+    const refs = extractEntityRefsRegex("[[feedback/no-secrets]] still works");
+    assert.equal(refs.length, 1);
+    assert.equal(refs[0]?.entityType, "feedback");
+    assert.equal(refs[0]?.slug, "no-secrets");
+  });
+});
+
+// ─── 17. system canonical (new type) ─────────────────────────────────────────
+
+describe("NOX_ENTITY_TYPES — system canonical added", () => {
+  it("includes `system` as a canonical entity type", () => {
+    const set = new Set<string>(NOX_ENTITY_TYPES);
+    assert.ok(set.has("system"), "system added pra canonicalise systems/ filesystem dir");
+  });
+
+  it("now has 17 canonical types (was 16 pre-PR #210 follow-up)", () => {
+    assert.equal(NOX_ENTITY_TYPES.length, 17);
   });
 });
