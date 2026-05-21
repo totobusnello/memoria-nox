@@ -313,3 +313,50 @@ Predecessor audits cited: `audits/2026-05-21-G10e-kw-adversarial-qualitative-aud
 - **R1 corpus enrichment** is the same intervention that would also help any future queries asking about an entity's identity/purpose. Recommend doing this BEFORE EverMemBench / LongMemEval re-runs to avoid systematic recall holes.
 - The eval design itself may want revisiting: putting `<entity>::frontmatter` in gold for adversarial keyword queries with typos creates an unwinnable case until the corpus carries description text. Either enrich corpus (R1) or revise gold to drop frontmatter from adversarial bucket.
 - The `chunk_id: "<id>"` literal prefix in chunk_text (R4) deserves its own design discussion. Not blocking, but worth a 1-pager when the next schema refactor lands.
+
+---
+
+## 11. Post-audit clarification — R1 closed as not-applicable to live corpus (2026-05-21 EOD)
+
+After R3 deployed (PR #206) and survey of the live entity-file corpus, R1 was re-scoped and **closed as not-applicable**. The audit's R1 recommendation assumed the 4 gold-bearing entities (`projects/nox-mem`, `projects/paper-eval`, `people/ana`, `people/bruno`) existed as files on disk with stub frontmatter that could be enriched. **They don't exist on disk.**
+
+### Verification
+
+```bash
+ssh root@187.77.234.79 'find /root/.openclaw -name "bruno.md" -o -path "*people/ana.md" \
+                       -o -name "paper-eval*" -o -name "nox-mem.md" -path "*projects*"' 2>&1
+# (only systems/nox-mem.md exists — projects/nox-mem.md, projects/paper-eval.md,
+#  people/ana.md, people/bruno.md are all ABSENT)
+```
+
+The chunks for those entities appear in `g9.db` (eval DB) but the source files were never on disk in the live workspace, OR were removed before this audit. They are **orphan chunks**.
+
+### Live entity corpus state
+
+Survey of `/root/.openclaw/workspace/memory/entities/**/*.md` (2026-05-21):
+
+```
+total entity files: 183
+files with `description:` field: 183 / 183 (sampled 5, all rich descriptions)
+```
+
+The live corpus is NOT impoverished in the way the audit assumed — every entity file already carries a meaningful `description:` extracted from the body during entity-ingest. The "stub YAML" pattern flagged in §3-§6 was specific to the 4 orphan eval-fixture entities, not the production corpus.
+
+### Why R1 is not actioned
+
+1. **Manufacturing corpus to match eval fixtures is gaming the test**, not improving retrieval. The 5 adversarial queries that go OOT are stressing robustness on entities that aren't in the live workspace.
+2. **`systems/nox-mem.md` already exists** with a rich description covering nox-mem context. Creating a duplicate `projects/nox-mem.md` to match the eval `nox-mem::frontmatter` gold chunk would duplicate the system entity under a different tier — confusion over clarity.
+3. **Adversarial OOT is expected behaviour** for an adversarial bucket. Single-hop, multi-hop, and open-domain remain healthy (per G10d ablation, D51). Closing adversarial fixture gaps via corpus manipulation is anti-pattern.
+4. **The 4 entities (especially `people/ana`, `people/bruno`)** are real people whose framing is Toto's call — drafting stubs from context would risk false framing of human entities. Skipped explicitly.
+
+### Future trigger
+
+If a future eval set replaces g9.db and the orphan entities disappear, the 5 affected queries vanish and R1 becomes moot retroactively. If Toto separately decides he wants `projects/nox-mem.md` or `projects/paper-eval.md` as first-class project entities (distinct from `systems/nox-mem.md`), he creates them on his own framing and re-ingest produces the chunks naturally.
+
+### Cross-references
+
+- Decision: see DECISIONS.md D52 (L4 plural normalisation) which has cross-ref to this clarification
+- R3 deployed: PR #206 + 2026-05-21 EOD SCP to VPS (cap=2→3 for `section != NULL` chunks)
+- R2 (frontmatter section_boost 1.5 → 2.0) remains conditional on R1 — also closed by extension since R1 is moot
+- Audit PR #205 (this file's original commit)
+- Audit PR #211 (L4 extraction_method NULL finding) — separate concern, watchpoint 2026-05-24
