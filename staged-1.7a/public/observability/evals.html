@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>nox-mem · Eval Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="health.css">
+  <link rel="stylesheet" href="evals.css">
+</head>
+<body>
+  <header>
+    <h1>nox-mem · Eval Dashboard</h1>
+    <div class="status-bar">
+      <span id="live-indicator" class="dot dot-green" title="manual refresh"></span>
+      <span class="live-label">5min cache</span>
+      <span class="separator">·</span>
+      <span id="last-refresh">never</span>
+      <button id="refresh-btn" type="button" title="Force refresh">&#8635; Refresh</button>
+    </div>
+  </header>
+
+  <nav class="subnav">
+    <a href="health.html">Prod Health</a>
+    <span class="active">Eval Dashboard</span>
+  </nav>
+
+  <main>
+    <section class="card filters">
+      <div class="filter-row">
+        <label for="db-filter">DB source:</label>
+        <select id="db-filter">
+          <option value="all" selected>all</option>
+        </select>
+        <span class="muted" id="row-count">0 rows</span>
+      </div>
+      <p class="muted explainer">
+        nDCG@10 and MRR per ablation run, plotted by file mtime (UTC). Dashed vertical lines mark gate events.
+        Filter by DB source after G6 fiasco (eval-DB sha + chunk count drift). Sources:
+        <code>audits/data-G*</code> directories.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>nDCG@10 over time</h2>
+      <div class="chart-wrap">
+        <canvas id="chart-ndcg"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>MRR over time</h2>
+      <div class="chart-wrap">
+        <canvas id="chart-mrr"></canvas>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Run inventory <span class="muted" id="inv-count"></span></h2>
+      <table id="evals-table">
+        <thead>
+          <tr>
+            <th>ran_at (UTC)</th>
+            <th>bucket</th>
+            <th>config_id</th>
+            <th>db_source</th>
+            <th>nDCG@10</th>
+            <th>MRR</th>
+            <th>R@10</th>
+            <th>gates</th>
+          </tr>
+        </thead>
+        <tbody id="evals-tbody">
+          <tr class="empty"><td colspan="8">loading&#8230;</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <span>F10 Phase B &middot; spec <code>2026-05-01-F10-observability-dashboard.md</code> &middot; data <code>audits/data-G*</code></span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script src="evals.js"></script>
+</body>
+</html>

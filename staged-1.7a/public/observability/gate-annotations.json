@@ -1,0 +1,42 @@
+[
+  {
+    "date": "2026-05-19",
+    "label": "G5 V3 wave-A deploy",
+    "description": "Boost stack wired live (section_boost, pain, source_type, tier, salience). A8 0.6237 nDCG@10 (+9.4% vs G4)."
+  },
+  {
+    "date": "2026-05-20",
+    "label": "G6 reverse — DB swap reveal",
+    "description": "A8 G6 0.5845 vs G5 V3 0.6237 explained by DB swap (g5.db 68k vs entity-eval 500), not code regression. Triggered eval-DB verification discipline."
+  },
+  {
+    "date": "2026-05-20",
+    "label": "G10 mutex validated",
+    "description": "Path B real ablation on g9.db (69495 chunks): A8' Hard Mutex +0.79% nDCG / +2.65% MRR vs no-mutex. Kept deployed."
+  },
+  {
+    "date": "2026-05-20",
+    "label": "G11 trim rejected",
+    "description": "Entity 2.0→1.3, lesson 1.8→1.2 produced Δ -0.73% nDCG / -1.58% MRR. Mutex alone canonical. D48 closed."
+  },
+  {
+    "date": "2026-05-21",
+    "label": "G10b per-category mutex",
+    "description": "single-hop +8.22% / open-domain +2.42% WIN; multi-hop -3.95% / adversarial -2.95% regression. Net positive — kept deployed."
+  },
+  {
+    "date": "2026-05-21",
+    "label": "G10c per-style mutex",
+    "description": "natural-language +1.56% WIN; keyword -0.72% drag. Aggregate consistent with G10/G10b; KW×adversarial -5.35% was the only material outlier."
+  },
+  {
+    "date": "2026-05-21",
+    "label": "G10d ACTIVE-T2 deployed",
+    "description": "Threshold=2 wins: multi-hop +1.58% / adversarial +3.04% recovered. T=1 failed (15612 entities). Gated on Toto sign-off."
+  },
+  {
+    "date": "2026-05-21",
+    "label": "G12 R3 dedup carve-out merged (PR #206)",
+    "description": "Layer-4 carve-out for entity chunks — entity frontmatter no longer over-dedups when retrieval benefits from twin chunks."
+  }
+]
