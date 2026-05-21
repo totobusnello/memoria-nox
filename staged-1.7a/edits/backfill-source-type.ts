@@ -172,7 +172,7 @@ export async function backfillSourceType(
   }
 
   // Wrap mutation in withOpAudit per CLAUDE.md rule #6.
-  return await withOpAudit("backfill-source-type", exec);
+  return await withOpAudit("backfill-source-type", { db_source: 'main' }, exec);
 }
 
 // ─── CLI entry-point glue (wired by src/index.ts) ─────────────────────────────

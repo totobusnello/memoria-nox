@@ -273,7 +273,8 @@ program
       return;
     }
     const { withOpAudit } = await import("./lib/op-audit.js");
-    const result = await withOpAudit("kg-merge", async () => {
+    // Issue #3B (2026-05-21): db_source is now explicit — 'main' (prod nox-mem.db).
+    const result = await withOpAudit("kg-merge", { db_source: 'main' }, async () => {
       const r = mergeEntities();
       return { affected_rows: r.merged };
     });

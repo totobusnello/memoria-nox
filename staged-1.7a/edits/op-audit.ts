@@ -19,7 +19,7 @@
 // - Veja: docs/INCIDENTS.md#2026-05-19, memory/feedback_withopaudit_trigger_raise_ignore_swallows_insert.md
 //
 // Uso:
-//   await withOpAudit('reindex', async () => {
+//   await withOpAudit('reindex', { db_source: 'main' }, async () => {
 //     // ...código que muta DB...
 //     return { affected_rows: 9540 };
 //   });
@@ -93,6 +93,32 @@ export interface OpResult {
   notes?: string;
 }
 
+/**
+ * Valid db_source values for withOpAudit().
+ *
+ * Issue #3B (2026-05-21): db_source is now a REQUIRED explicit parameter.
+ * Rationale: the previous implicit deriveDbSource() fallback allowed callers
+ * to silently land in the 'unknown' bucket whenever NOX_DB_SOURCE was unset
+ * and the path heuristic didn't match. Requiring it at compile-time eliminates
+ * the entire class of 'unknown' pollution at the call site rather than just
+ * filtering it at reporting time (the #3A approach).
+ *
+ * Values:
+ *  'main'     — production nox-mem.db (standard CLI ops: reindex, consolidate, compact, kg-merge)
+ *  'shadow'   — shadow/evaluation DB (eval harness, G-series ablation runs)
+ *  'isolated' — temp-isolated copy (backfill migrations running against a clone)
+ *  'test'     — test suite ops (will be filtered out of /api/health.opsAudit metrics)
+ */
+export type DbSource = 'main' | 'shadow' | 'isolated' | 'test';
+
+/**
+ * Options for withOpAudit(). db_source is REQUIRED — no implicit fallback.
+ */
+export interface WithOpAuditOptions {
+  /** Explicit DB source classification. Required — prevents silent 'unknown' bucket. */
+  db_source: DbSource;
+}
+
 function ensureSnapshotDir(dir: string): void {
   // Fix SEC HIGH #1 (audit 04-26): chmod even when dir already exists (drift correction).
   // Pre-existing dir may have permissive mode (was 0o755 in prod, snapshots leaked world-readable).
@@ -110,7 +136,10 @@ function ensureSnapshotDir(dir: string): void {
  * Returns final path on success, throws on failure.
  * Filename has pid + uuid to avoid collisions in concurrent runs.
  */
-function snapshot(opName: string): string {
+// Issue #3B (2026-05-21): snapshot() now receives dbSource from caller (explicit, not derived).
+// deriveDbSource() kept for backward compat with any external direct callers but is no longer
+// used by withOpAudit itself.
+function snapshot(opName: string, dbSource: string): string {
   if (!VALID_OPNAME.test(opName)) {
     throw new Error(`[op-audit] invalid opName '${opName}': must match ${VALID_OPNAME}`);
   }
@@ -140,8 +169,7 @@ function snapshot(opName: string): string {
   const uid = randomUUID().replace(/-/g, '');
   // Fase 1 / Gap B (2026-05-15): qualify filename with dbSource for operational visibility.
   // Pattern: <opName>-<dbSource>-<ts>-<pid>-<uid>.db
-  // E.g. reindex-atlas-..., compact-main-..., reindex-unknown-... (fallback).
-  const dbSource = deriveDbSource();
+  // E.g. reindex-main-..., compact-main-..., ocr-batch-cloud-main-...
   const finalPath = join(dir, `${opName}-${dbSource}-${ts}-${process.pid}-${uid}.db`);
   const tmpPath = `${finalPath}.tmp`;
 
@@ -336,16 +364,42 @@ export function scrubSecrets(s: string): string {
     .replace(/\/home\/[^/\s'"`)]+\/\.[^\s'"`)]+/g, '/home/[USER]/[REDACTED-DOTFILE]');
 }
 
-export async function withOpAudit<T extends OpResult>(opName: string, fn: () => Promise<T>): Promise<T> {
+/**
+ * Wraps a destructive DB operation with:
+ *  1. Atomic VACUUM INTO snapshot (fail-closed by default)
+ *  2. ops_audit row lifecycle: started → success | failed
+ *  3. Secret-scrubbed error messages in audit rows
+ *
+ * Fix 2026-05-21 (Issue #3B): `options.db_source` is NOW REQUIRED.
+ * Passing it explicitly prevents silent fallback to 'unknown' in byDbSource metrics.
+ *
+ * @example
+ *   return withOpAudit('reindex', { db_source: 'main' }, async () => {
+ *     const result = await _reindexImpl();
+ *     return { affected_rows: result.chunks };
+ *   });
+ */
+export async function withOpAudit<T extends OpResult>(
+  opName: string,
+  options: WithOpAuditOptions,
+  fn: () => Promise<T>,
+): Promise<T> {
   ensureAuditTable();
   const db = getDb();
   const t0 = Date.now();
 
-  // Fix CRIT-2: fail-closed if snapshot fails (override only via explicit env var)
+  // Issue #3B (2026-05-21): use caller-provided db_source (REQUIRED).
+  // db_path still derived from DB_PATH env for complete audit trail.
+  const opDbSource = options.db_source;
+  const opDbPath = DB_PATH;
+
+  // Fix CRIT-2: fail-closed if snapshot fails (override only via explicit env var).
+  // Pass opDbSource to snapshot() so the filename reflects the explicit db_source value
+  // (not the legacy env-derived fallback). E.g. reindex-main-..., ocr-batch-cloud-main-...
   let snapshotPath: string;
   let snapshotBytes = 0;
   try {
-    snapshotPath = snapshot(opName);
+    snapshotPath = snapshot(opName, opDbSource);
     try { snapshotBytes = statSync(snapshotPath).size; } catch {}
   } catch (err) {
     if (process.env.NOX_ALLOW_NO_SNAPSHOT === '1') {
@@ -357,12 +411,6 @@ export async function withOpAudit<T extends OpResult>(opName: string, fn: () => 
   }
 
   const userVersion = (db.prepare('PRAGMA user_version').get() as { user_version: number })?.user_version ?? 0;
-
-  // Fase 5 / Gap C-visibility (2026-05-15) — popula db_source + db_path no INSERT.
-  // db_source via env NOX_DB_SOURCE (primary) ou parse path (fallback) ou 'unknown' (final).
-  // db_path captura o DB ativo no momento da operação (audit trail completo).
-  const opDbSource = deriveDbSource();
-  const opDbPath = DB_PATH;
 
   // Fix 2026-05-19: pass started_at as explicit epoch ms INTEGER to avoid type-mismatch with
   // the (now-dropped) trigger that compared TEXT datetime vs INTEGER epoch-ms.

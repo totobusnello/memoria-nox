@@ -155,7 +155,8 @@ export async function reindex(opts?: { dryRun?: boolean }): Promise<ReindexResul
     }, null, 2));
     return { files: allFiles.length, chunks: currentChunks, dryRun: true };
   }
-  return withOpAudit<ReindexResult>("reindex", async () => {
+  // Issue #3B (2026-05-21): db_source is now explicit — 'main' (prod nox-mem.db).
+  return withOpAudit<ReindexResult>("reindex", { db_source: 'main' }, async () => {
     const result = await _reindexImpl();
     return { files: result.files, chunks: result.chunks, affected_rows: result.chunks, notes: `${result.files} files reindexed` };
   });
