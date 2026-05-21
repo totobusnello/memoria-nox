@@ -102,9 +102,13 @@ const RECENCY_BOOST_DELTA_SEMANTIC = 0.2; // was *1.2
 // column values, NOT source_type values; keeping them here was confusing
 // and they're already covered by SECTION_BOOST below.
 const SOURCE_TYPE_BOOST: Record<string, number> = {
+  // G11 trim experiment (2026-05-20): entity 2.0→1.3, lesson 1.8→1.2
+  // Hypothesis: top values were redundant with section_boost compiled=2.0
+  // post Hard Mutex (PR #182). Trim isolates if mutex alone neutralized
+  // double-amplification or if trim adds incremental value.
   // Active keys (post-backfill 2026-05-19)
-  entity: 2.0,
-  lesson: 1.8,
+  entity: 1.3,
+  lesson: 1.2,
   skill: 1.5,
   "project-doc": 1.4,
   command: 1.4,
