@@ -1,0 +1,412 @@
+[
+  {
+    "qid": "ad-001",
+    "query": "nox mem hybird search",
+    "gold": [
+      "nox-mem::compiled",
+      "nox-mem::frontmatter"
+    ],
+    "rank_active": 2,
+    "rank_disabled": 1,
+    "drank": 1,
+    "ndcg_active": 0.38685280723454163,
+    "ndcg_disabled": 0.6131471927654584,
+    "ndcg_dpct": -36.907024642854246,
+    "gold_active": [
+      "nox-mem::compiled",
+      "nox-mem::frontmatter"
+    ],
+    "gold_disabled": [
+      "nox-mem::compiled",
+      "nox-mem::frontmatter"
+    ],
+    "all_ranks_active": {
+      "nox-mem::frontmatter": -1,
+      "nox-mem::compiled": 2
+    },
+    "all_ranks_disabled": {
+      "nox-mem::frontmatter": -1,
+      "nox-mem::compiled": 1
+    },
+    "top5_active": [
+      "112183",
+      "nox-mem::compiled",
+      "112341",
+      "112346",
+      "147813"
+    ],
+    "top5_disabled": [
+      "nox-mem::compiled",
+      "112183",
+      "112341",
+      "112346",
+      "147813"
+    ]
+  },
+  {
+    "qid": "ad-003",
+    "query": "Granixx co-founder",
+    "gold": [
+      "granix::compiled"
+    ],
+    "rank_active": 1,
+    "rank_disabled": 1,
+    "drank": 0,
+    "ndcg_active": 1.0,
+    "ndcg_disabled": 1.0,
+    "ndcg_dpct": 0.0,
+    "gold_active": [
+      "granix::compiled"
+    ],
+    "gold_disabled": [
+      "granix::compiled"
+    ],
+    "all_ranks_active": {
+      "granix::compiled": 1
+    },
+    "all_ranks_disabled": {
+      "granix::compiled": 1
+    },
+    "top5_active": [
+      "granix::compiled",
+      "toto::compiled",
+      "ana::compiled",
+      "eva::compiled",
+      "113855"
+    ],
+    "top5_disabled": [
+      "granix::compiled",
+      "toto::compiled",
+      "ana::compiled",
+      "eva::compiled",
+      "session::2026-05-04::a0c581bb99"
+    ]
+  },
+  {
+    "qid": "ad-005",
+    "query": "paper \u00a75 ablation rationale",
+    "gold": [
+      "paper-eval::compiled"
+    ],
+    "rank_active": 1,
+    "rank_disabled": 1,
+    "drank": 0,
+    "ndcg_active": 1.0,
+    "ndcg_disabled": 1.0,
+    "ndcg_dpct": 0.0,
+    "gold_active": [
+      "paper-eval::compiled"
+    ],
+    "gold_disabled": [
+      "paper-eval::compiled"
+    ],
+    "all_ranks_active": {
+      "paper-eval::compiled": 1
+    },
+    "all_ranks_disabled": {
+      "paper-eval::compiled": 1
+    },
+    "top5_active": [
+      "paper-eval::compiled",
+      "d41-five-resolved::compiled",
+      "147001",
+      "142332",
+      "142458"
+    ],
+    "top5_disabled": [
+      "paper-eval::compiled",
+      "d41-five-resolved::compiled",
+      "147001",
+      "142332",
+      "142458"
+    ]
+  },
+  {
+    "qid": "ad-007",
+    "query": "Frooti subscription model",
+    "gold": [
+      "frooty::compiled"
+    ],
+    "rank_active": 1,
+    "rank_disabled": 1,
+    "drank": 0,
+    "ndcg_active": 1.0,
+    "ndcg_disabled": 1.0,
+    "ndcg_dpct": 0.0,
+    "gold_active": [
+      "frooty::compiled"
+    ],
+    "gold_disabled": [
+      "frooty::compiled"
+    ],
+    "all_ranks_active": {
+      "frooty::compiled": 1
+    },
+    "all_ranks_disabled": {
+      "frooty::compiled": 1
+    },
+    "top5_active": [
+      "frooty::compiled",
+      "113843",
+      "113289",
+      "133657",
+      "133667"
+    ],
+    "top5_disabled": [
+      "frooty::compiled",
+      "113843",
+      "113289",
+      "133657",
+      "113234"
+    ]
+  },
+  {
+    "qid": "ad-009",
+    "query": "Bruno Lima role gallapagos AI",
+    "gold": [
+      "bruno::compiled",
+      "bruno::frontmatter"
+    ],
+    "rank_active": 1,
+    "rank_disabled": 1,
+    "drank": 0,
+    "ndcg_active": 0.6131471927654584,
+    "ndcg_disabled": 0.6131471927654584,
+    "ndcg_dpct": 0.0,
+    "gold_active": [
+      "bruno::compiled",
+      "bruno::frontmatter"
+    ],
+    "gold_disabled": [
+      "bruno::compiled",
+      "bruno::frontmatter"
+    ],
+    "all_ranks_active": {
+      "bruno::compiled": 1,
+      "bruno::frontmatter": -1
+    },
+    "all_ranks_disabled": {
+      "bruno::compiled": 1,
+      "bruno::frontmatter": -1
+    },
+    "top5_active": [
+      "bruno::compiled",
+      "galapagos-ai::compiled",
+      "114203",
+      "114211",
+      "115583"
+    ],
+    "top5_disabled": [
+      "bruno::compiled",
+      "galapagos-ai::compiled",
+      "114203",
+      "114211",
+      "misc-galapagos::compiled"
+    ]
+  },
+  {
+    "qid": "ad-011",
+    "query": "nox mem hybird search",
+    "gold": [
+      "nox-mem::compiled",
+      "nox-mem::frontmatter"
+    ],
+    "rank_active": 2,
+    "rank_disabled": 1,
+    "drank": 1,
+    "ndcg_active": 0.38685280723454163,
+    "ndcg_disabled": 0.6131471927654584,
+    "ndcg_dpct": -36.907024642854246,
+    "gold_active": [
+      "nox-mem::compiled",
+      "nox-mem::frontmatter"
+    ],
+    "gold_disabled": [
+      "nox-mem::compiled",
+      "nox-mem::frontmatter"
+    ],
+    "all_ranks_active": {
+      "nox-mem::frontmatter": -1,
+      "nox-mem::compiled": 2
+    },
+    "all_ranks_disabled": {
+      "nox-mem::frontmatter": -1,
+      "nox-mem::compiled": 1
+    },
+    "top5_active": [
+      "112183",
+      "nox-mem::compiled",
+      "112341",
+      "112346",
+      "147813"
+    ],
+    "top5_disabled": [
+      "nox-mem::compiled",
+      "112183",
+      "112341",
+      "112346",
+      "147813"
+    ]
+  },
+  {
+    "qid": "ad-013",
+    "query": "Granixx co-founder",
+    "gold": [
+      "granix::compiled"
+    ],
+    "rank_active": 1,
+    "rank_disabled": 1,
+    "drank": 0,
+    "ndcg_active": 1.0,
+    "ndcg_disabled": 1.0,
+    "ndcg_dpct": 0.0,
+    "gold_active": [
+      "granix::compiled"
+    ],
+    "gold_disabled": [
+      "granix::compiled"
+    ],
+    "all_ranks_active": {
+      "granix::compiled": 1
+    },
+    "all_ranks_disabled": {
+      "granix::compiled": 1
+    },
+    "top5_active": [
+      "granix::compiled",
+      "toto::compiled",
+      "ana::compiled",
+      "eva::compiled",
+      "113855"
+    ],
+    "top5_disabled": [
+      "granix::compiled",
+      "toto::compiled",
+      "ana::compiled",
+      "eva::compiled",
+      "session::2026-05-04::a0c581bb99"
+    ]
+  },
+  {
+    "qid": "ad-015",
+    "query": "paper \u00a75 ablation rationale",
+    "gold": [
+      "paper-eval::compiled",
+      "paper-eval::frontmatter"
+    ],
+    "rank_active": 1,
+    "rank_disabled": 1,
+    "drank": 0,
+    "ndcg_active": 0.6131471927654584,
+    "ndcg_disabled": 0.6131471927654584,
+    "ndcg_dpct": 0.0,
+    "gold_active": [
+      "paper-eval::compiled",
+      "paper-eval::frontmatter"
+    ],
+    "gold_disabled": [
+      "paper-eval::compiled",
+      "paper-eval::frontmatter"
+    ],
+    "all_ranks_active": {
+      "paper-eval::frontmatter": -1,
+      "paper-eval::compiled": 1
+    },
+    "all_ranks_disabled": {
+      "paper-eval::frontmatter": -1,
+      "paper-eval::compiled": 1
+    },
+    "top5_active": [
+      "paper-eval::compiled",
+      "d41-five-resolved::compiled",
+      "147001",
+      "142332",
+      "142458"
+    ],
+    "top5_disabled": [
+      "paper-eval::compiled",
+      "d41-five-resolved::compiled",
+      "147001",
+      "142332",
+      "142458"
+    ]
+  },
+  {
+    "qid": "ad-017",
+    "query": "Frooti subscription model",
+    "gold": [
+      "frooty::compiled"
+    ],
+    "rank_active": 1,
+    "rank_disabled": 1,
+    "drank": 0,
+    "ndcg_active": 1.0,
+    "ndcg_disabled": 1.0,
+    "ndcg_dpct": 0.0,
+    "gold_active": [
+      "frooty::compiled"
+    ],
+    "gold_disabled": [
+      "frooty::compiled"
+    ],
+    "all_ranks_active": {
+      "frooty::compiled": 1
+    },
+    "all_ranks_disabled": {
+      "frooty::compiled": 1
+    },
+    "top5_active": [
+      "frooty::compiled",
+      "113843",
+      "113289",
+      "133657",
+      "113234"
+    ],
+    "top5_disabled": [
+      "frooty::compiled",
+      "113843",
+      "113289",
+      "133657",
+      "113234"
+    ]
+  },
+  {
+    "qid": "ad-019",
+    "query": "Bruno Lima role gallapagos AI",
+    "gold": [
+      "bruno::compiled"
+    ],
+    "rank_active": 1,
+    "rank_disabled": 1,
+    "drank": 0,
+    "ndcg_active": 1.0,
+    "ndcg_disabled": 1.0,
+    "ndcg_dpct": 0.0,
+    "gold_active": [
+      "bruno::compiled"
+    ],
+    "gold_disabled": [
+      "bruno::compiled"
+    ],
+    "all_ranks_active": {
+      "bruno::compiled": 1
+    },
+    "all_ranks_disabled": {
+      "bruno::compiled": 1
+    },
+    "top5_active": [
+      "bruno::compiled",
+      "galapagos-ai::compiled",
+      "114203",
+      "114211",
+      "115583"
+    ],
+    "top5_disabled": [
+      "bruno::compiled",
+      "galapagos-ai::compiled",
+      "114203",
+      "114211",
+      "misc-galapagos::compiled"
+    ]
+  }
+]
