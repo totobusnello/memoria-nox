@@ -46,7 +46,7 @@ Specs com implementação concluída e merged, ou explicitamente marcadas como c
 | [2026-05-10-E14-retrieval-evolution.md](2026-05-10-E14-retrieval-evolution.md) | E14 — Retrieval Evolution (post-R03) | ✅ Wave 1 COMPLETA 2026-05-17 | 2026-05-10 |
 | [2026-05-17-A2-export-import.md](2026-05-17-A2-export-import.md) | A2 — Schema Export/Import Portability | 📐 Spec aberto (kickoff em 2026-05-18-A2) | 2026-05-17 |
 | [2026-05-17-P5-viewer-realtime.md](2026-05-17-P5-viewer-realtime.md) | P5 — Real-time Viewer Upgrade (SSE + 4 panels) | Design spec 📋 QUEUED overnight 2026-05-17 — executado | 2026-05-17 |
-| [2026-05-20-mutual-exclusion-section-source-type.md](2026-05-20-mutual-exclusion-section-source-type.md) | Hard Mutex section ↔ source_type | ✅ Implementado via PR #182 (G9 evidence) — G10 validation in flight | 2026-05-20 |
+| [2026-05-20-mutual-exclusion-section-source-type.md](2026-05-20-mutual-exclusion-section-source-type.md) | Hard Mutex section ↔ source_type | ✅ Implementado via PR #182 + G10 validated (+0.79% nDCG / +2.65% MRR) + G11 trim rejected | 2026-05-20 |
 
 > **Nota:** Vários specs do tipo `*-implementation-kickoff.md` (2026-05-18) ficaram em Active porque a implementação estava em andamento na data de criação; verificar PRs merged para reclassificar.
 

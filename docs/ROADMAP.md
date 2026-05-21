@@ -4,7 +4,7 @@
 >
 > Single source of truth. Reorganized **2026-05-17 night** durante overnight automode push.
 > v1 (630 lines, cluttered com session logs) arquivado em `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md`.
-> **Atualizado 2026-05-20 pós Wave A deployed + D49 phase 1 + G7 cravado** — 17 PRs merged hoje, boost stack wiring em prod.
+> **Atualizado 2026-05-20 EOD final pós D48 saga CLOSED (G3 → G11)** — 33 PRs merged em main, Hard Mutex (PR #182) deployed, G10 validated, G11 trim rejected, boost stack canonical mantido.
 
 ---
 
@@ -178,7 +178,7 @@ Objetivo: UX competitiva com agentmemory + memanto, sem comprometer pilares Q+A.
 | **L3** Confidence + provenance field schema v19 (memanto-inspired) | Só se eval mostrar lift (gated) — ranking integration aguarda gate ≥1.0pp | **✅ Implementação completa** T1-T13 (Wave C) — schema shipped, ranking gated | PR #15 + #48 |
 | **L4** Regex-first KG extraction com Gemini fallback (gbrain-inspired) | OPEX -80% eliminando Gemini calls em links explícitos | **✅ Implementação completa** T1-T9 (Wave overnight+B) — 95.8% precision, 80% Gemini savings | PR #27 + #35 + #38 |
 
-### G-series ablation (métricas em curso)
+### G-series ablation (D48 saga CLOSED 2026-05-20 EOD)
 
 | Run | DB | Config | nDCG@10 | Status |
 |---|---|---|---|---|
@@ -187,16 +187,27 @@ Objetivo: UX competitiva com agentmemory + memanto, sem comprometer pilares Q+A.
 | **G5 V3** | g5.db (68k prod) | A8 full stack | **0.6237** | ✅ CANONICAL |
 | **G6** | entity-eval.db | A8 full stack | 0.5845 | ✅ Resolved (DB swap, não regression) |
 | **G7** | entity-eval.db | A8 ACTIVE vs OFF | 0.5845 vs 0.5872 | ✅ Formula v2 NEUTRA (+0.5% ruído) |
-| **G8** | entity-eval-v2.db | source_type prod-consistent | pending | ⏳ Próxima sessão (re-ingest pré-req) |
+| **G8** | entity-eval-v2.db | source_type prod-consistent | A5 +2.66% / A8 < A10 -0.81% | ✅ SOURCE_TYPE_BOOST live + redundância flagged |
+| **G9** | g5.db (68k prod) | A5 isolated vs A8 vs A10 | A5 +14.2%, A10 > A8 +2.6% | ✅ Redundância CONFIRMED em prod |
+| **G10** | g9.db (69495 chunks) | A8' mutex vs A8 nomutex | 0.5478 vs 0.5435 | ✅ Hard Mutex VALIDATED (+0.79% nDCG / +2.65% MRR) |
+| **G11** | g9.db (69495 chunks) | trim entity 2.0→1.3 vs canonical | 0.5337 vs 0.5376 | ❌ REJECT (-0.73% nDCG / -1.58% MRR) — single-hop -4.62% |
+
+**Boost stack final canonical** (mantido sem mudanças pós G11):
+- `section_boost` (compiled=2.0, frontmatter=1.5, timeline=0.8)
+- `source_type_boost` (entity=2.0, lesson=1.8, ... canonical)
+- `Hard Mutex` section ↔ source_type (PR #182 deployed)
+- `salience v2` additive (W_IMPORTANCE=0.55 + W_RECENCY=0.15 + W_PAIN=0.10 + W_ACCESS=0.20)
 
 ### Lab — próximos itens (ordem de prioridade)
 
 | Item | DoD | Status | Blocker |
 |---|---|---|---|
-| **G8 entity-eval-v2 ablation** | Re-ingest entity-eval com source_type prod-consistent + ablation A5 SOURCE_TYPE_BOOST real | **⏳ Próxima sessão** | Re-ingest caro (Gemini calls); defere pra janela dedicada |
+| **D49 phase 2 shadow 7d baseline** | Cron scrape coletando journalctl temporal_path JSONL daily → D50 decision | **⏳ Rolling** (cron ativo) | Aguarda 7d telemetria |
+| **D50 decision temporal active/off** | Baseline 7d shadow phase 2 concluída → decide ativar NOX_TEMPORAL_PATH=active | **⏳ Aguarda phase 2 baseline** | D49 phase 2 shadow 7d |
+| **Paper §5.5 update** | Claim 4 com negative-result note ("G11 trim rejected, mutex canonical") | **⏳ Próxima sessão** | — |
+| **Re-smoke Q105-Q110** | Pós shadow ter dados reais → confirma spike v2 em prod | **⏳ Aguarda shadow telemetry** | — |
+| **Per-category eval** | Pós-deploy mutex em g9.db (open-domain regression check) | **⏳ Pendente** | — |
 | **Formula v2 weights grid search** | Grid search 0.4-0.7/0.1-0.2/0.05-0.15/0.15-0.25 range; I1 env vars pra tunability | **⏳ Design done** (PR #169) — impl pendente I1 env vars | PR #55 (I1 env vars) merged pré-req |
-| **D50 decision temporal active/off** | Baseline 7d shadow phase 2 concluída → decide ativar NOX_TEMPORAL_PATH=active | **⏳ Aguarda phase 2 baseline** | D49 phase 2 shadow 7d (próxima sessão ativar em prod) |
-| **Temporal Q105-Q110 smoke test** | Rodar #157 proximity rerank vs baseline nessas 6 queries específicas | **⏳ Pendente** | — |
 | **Neural reranker** | cross-encoder rerank após RRF; +3-8% nDCG literatura | **🅿️ Parking lot Q1/Q2** | bge/cohere/deepinfra; obrigatório ablation real + shadow |
 
 ---
@@ -377,4 +388,4 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-*ROADMAP v4 — v2 redigido overnight 2026-05-17; v3 atualizado pós Wave H 2026-05-18; v4 sincronizado 2026-05-20 pós Wave A deployed + D49 phase 1 + G7 cravado. Próxima review: pós G8 ablation + D50 decision.*
+*ROADMAP v4 — v2 redigido overnight 2026-05-17; v3 atualizado pós Wave H 2026-05-18; v4 sincronizado 2026-05-20 pós Wave A; v4.1 EOD final 2026-05-20 pós D48 saga CLOSED (G3→G11). Próxima review: pós D50 decision (~7d).*

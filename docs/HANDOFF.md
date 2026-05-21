@@ -2,6 +2,78 @@
 
 ---
 
+## 🌌 FINAL CLOSE 2026-05-20 — 33 PRs + D48 SAGA CLOSED + MEMORY.md fix
+
+> **Atualizado:** 2026-05-20 ~23h BRT. **Dia fechado clean. G10 validated (Path B success, mutex +0.79% nDCG / +2.65% MRR), G11 trim rejected (-0.73% / -1.58%), cron healthcheck fix (PR #186), MEMORY.md enxugado 26.2KB→17.1KB. D48 saga (G3→G11) CLOSED CLEAN. Boost stack final canonical mantido.**
+
+### G10 → G11 final results
+
+| Ablation | Verdict | Δ vs baseline |
+|---|---|---|
+| **G10 Hard Mutex** (PR #182) | ✅ KEEP DEPLOYED | +0.79% nDCG / +2.65% MRR |
+| **G11 trim values** (entity 2.0→1.3) | ❌ REJECT | −0.73% nDCG / −1.58% MRR |
+
+**Why G11 trim rejected:** Hard Mutex já zera `sourceTypeDelta` quando section populado. `entity=2.0` ainda fires em legacy non-compiled chunks where mutex doesn't trigger. Trim derrubou signal onde ainda era necessário (single-hop: -4.62% nDCG, -7.40% MRR).
+
+### Last 3 PRs do dia
+
+| PR | Title | Status |
+|---|---|---|
+| #185 | research(g10): forensics G9 + Path A validation report | ✅ merged |
+| #186 | fix(ops): vps-healthcheck.sh — normaliza PATH pra cron env | ✅ merged |
+| #187 | research(g11): trim SOURCE_TYPE_BOOST values ablation | ❌ closed no-merge (audit é durable artifact, commit `1d1cff6`) |
+
+### MEMORY.md health restored
+
+| Métrica | Antes | Depois |
+|---|---|---|
+| Size | **26.2KB** ❌ (acima limit 24.4KB, causava partial load) | **17.1KB** ✅ |
+| Linha mais longa | 386 chars | 218 chars |
+| Entries | 96 | 98 (+2 novos: cron-PATH + G11-rejected) |
+| Topic files | — | 100% preservados |
+
+### D48 saga FULL TIMELINE (G3 → G11 closed)
+
+| Stage | Status | Driver |
+|---|---|---|
+| G3 sanitize fix | ✅ PR #145 | FTS5 Unicode whitelist |
+| G4 Wave A | ✅ +63.5% vs G3 | Boost stack wired |
+| G5 V3 canonical | ✅ +78.8% vs G3 | Section_boost peaked |
+| G8 SOURCE_TYPE_BOOST live | ✅ PR #154 deployed | Prod-consistent ingest |
+| G9 redundância confirmed | ✅ Evidence | A5 +14.2% / A10 > A8 +2.6% |
+| **G10 Hard Mutex validated** | ✅ PR #182 deployed | g9.db real 69495 chunks |
+| **G11 trim rejected** | ❌ Closed no-merge | -0.73% nDCG / -1.58% MRR |
+
+**Boost stack final (canonical, no further changes):**
+- `section_boost` (compiled=2.0, frontmatter=1.5, timeline=0.8)
+- `source_type_boost` (entity=2.0, lesson=1.8, ... canonical)
+- `Hard Mutex` section ↔ source_type
+- `salience v2` additive (W_IMPORTANCE=0.55 + W_RECENCY=0.15 + W_PAIN=0.10 + W_ACCESS=0.20)
+
+### Memórias adicionadas (post-EOD ~16h → 23h)
+
+1. `[[g10-mutex-validated-2026-05-20]]` (já existia, validado por Path B)
+2. `[[cron-path-must-include-sbin]]` (new — PR #186 lesson)
+3. `[[g11-trim-rejected-2026-05-20]]` (new — D48 close)
+4. **MEMORY.md index enxugado** 26.2KB → 17.1KB
+
+### Pendings pra próxima sessão (não-bloqueantes)
+
+1. **D49 phase 2 baseline 7d** — shadow rolling, cron scrape ativo, D50 decision em ~7d
+2. **Paper §5.5 update** — Claim 4 com negative-result note ("G11 trim rejected, mutex canonical")
+3. **Re-smoke Q105-Q110** pós shadow ter dados reais
+4. **Per-category eval** pós-deploy mutex em g9.db (open-domain regression check)
+
+### Sistema saudável EOD
+
+- VPS `187.77.234.79` → 68995/68995, salience active, mutex deployed
+- 33 PRs merged hoje em main
+- Zero PRs blocked, zero unresolved issues
+- Healthcheck cron fixed (próxima execução clean)
+- Branch tree clean (G11 worktree removed)
+
+---
+
 ## 🌙 END OF DAY 2026-05-20 — 31 PRs + Hard Mutex + spike v2 DEPLOYED prod
 
 > **Atualizado:** 2026-05-20 ~16h BRT. **Hard Mutex (PR #182) + spike v2 (PR #181) DEPLOYED em prod via scp+build+restart. /api/health 68995/68995 + salience active confirmed. G10 validation ablation deferred por DB config issues (eval fixtures string IDs vs API integer + g5.db stub vec_chunks empty); Path B proper setup em curso via agent #68. Path A fallback: trust deploy + aguardar D49 phase 2 shadow telemetria 7d real.**
