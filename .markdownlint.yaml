@@ -36,7 +36,7 @@ MD038: false   # no-space-in-code — false positives on backtick patterns
 MD039: false   # no-space-in-links
 
 # --- Heading structure ---
-MD024: { siblings_only: true }  # allow same heading in different sections
+MD024: false  # disabled — journal HANDOFF/changelog repeating section names by design
 MD025: false   # single-title — multi-section aggregates have multiple H1s
 MD041: false   # first-line-heading (many docs start with notices or frontmatter)
 MD042: false   # no-empty-links
