@@ -1,6 +1,9 @@
 # memoria-nox OpenAPI Spec
 
-The OpenAPI 3.1 spec lives at `docs/openapi/openapi.yaml`.
+> **Canonical spec:** [`docs/openapi.yaml`](../openapi.yaml) (root of `docs/`) — version `1.0.0-rc1`.
+
+The file `docs/openapi/_legacy-wave-d.yaml` is a superseded snapshot (`1.0.0-wave-d`) kept for
+reference only. Do not use it for SDK generation or tooling.
 
 ## SDK generation
 
@@ -9,7 +12,7 @@ The OpenAPI 3.1 spec lives at `docs/openapi/openapi.yaml`.
 ```bash
 cd sdk/typescript
 npm install
-npx openapi-typescript ../../docs/openapi/openapi.yaml -o src/generated/types.ts
+npx openapi-typescript ../../docs/openapi.yaml -o src/generated/types.ts
 npm run build
 ```
 
@@ -23,4 +26,4 @@ python -m build
 
 ## Spec version
 
-`1.0.0-wave-d` — covers Waves A through D (Core, Search, KG, P1/Answer, A2/Export-Import, P5/Viewer, L2/Conflicts, L3/Confidence, P2/Hooks).
+`1.0.0-rc1` — covers Waves A–D plus F10 Observability endpoints.
