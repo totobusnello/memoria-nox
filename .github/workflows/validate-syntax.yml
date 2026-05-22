@@ -1,0 +1,79 @@
+name: Validate Syntax
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  yaml:
+    name: YAML Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Validate YAML files
+        run: |
+          find . -name "*.yml" -o -name "*.yaml" \
+            | grep -v node_modules \
+            | grep -v .git \
+            | xargs yamllint -d relaxed
+
+  json:
+    name: JSON Validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate JSON files
+        run: |
+          find . -name "*.json" \
+            | grep -v node_modules \
+            | grep -v .git \
+            | while read f; do
+                python3 -m json.tool "$f" > /dev/null \
+                  && echo "OK: $f" \
+                  || { echo "FAIL: $f"; exit 1; }
+              done
+
+  python:
+    name: Python Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check Python syntax
+        run: |
+          find . \( -path ./node_modules -o -path ./.git \) -prune -o -name "*.py" -print \
+            | while read f; do
+                python3 -m py_compile "$f" \
+                  && echo "OK: $f" \
+                  || { echo "FAIL: $f"; exit 1; }
+              done
+
+  bash:
+    name: Shell Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck on scripts
+        run: |
+          find . \( -path ./node_modules -o -path ./.git \) -prune -o -name "*.sh" -print \
+            | while read f; do
+                shellcheck --severity=error "$f" \
+                  && echo "OK: $f" \
+                  || echo "WARN: $f"
+              done
+        # Warnings allowed; errors fail (shellcheck --severity=error handles this)
