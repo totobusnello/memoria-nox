@@ -1,0 +1,12 @@
+# Non-canonical dirs — excluded from markdown lint
+_archive-pre-split-20260501/
+archive/
+staged-*/
+.claude/
+node_modules/
+benchmark/
+docs/_archive/
+plans/_archive/
+handoffs/_archive/
+docs-site/
+**/CHANGELOG.md

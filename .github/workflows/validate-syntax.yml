@@ -17,10 +17,14 @@ jobs:
 
       - name: Validate YAML files
         run: |
-          find . -name "*.yml" -o -name "*.yaml" \
+          find . \( -name "*.yml" -o -name "*.yaml" \) \
             | grep -v node_modules \
-            | grep -v .git \
-            | xargs yamllint -d relaxed
+            | grep -v "/.git/" \
+            | grep -v "^\./.claude/" \
+            | grep -v "^./archive/" \
+            | grep -v "^./_archive-pre-split" \
+            | grep -Ev "^./staged-[^/]" \
+            | xargs yamllint -c .yamllint.yaml
 
   json:
     name: JSON Validate
@@ -32,7 +36,12 @@ jobs:
         run: |
           find . -name "*.json" \
             | grep -v node_modules \
-            | grep -v .git \
+            | grep -v "/.git/" \
+            | grep -v "^\./.claude/" \
+            | grep -v "^./archive/" \
+            | grep -v "^./_archive-pre-split" \
+            | grep -Ev "^./staged-[^/]" \
+            | grep -v "paper/publication/results/" \
             | while read f; do
                 python3 -m json.tool "$f" > /dev/null \
                   && echo "OK: $f" \

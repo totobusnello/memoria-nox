@@ -17,6 +17,7 @@ jobs:
         with:
           config: .markdownlint.yaml
           globs: "**/*.md"
+          # .markdownlintignore excludes archive/, staged-*, _archive-pre-split-*, etc.
         continue-on-error: false
 
   link-check:
@@ -32,7 +33,8 @@ jobs:
             --verbose
             --no-progress
             --include-fragments
-            --exclude-external
+            --offline
+            --exclude-path .lycheeignore
             docs/**/*.md
             README.md
           fail: true
