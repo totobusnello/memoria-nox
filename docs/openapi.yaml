@@ -1,0 +1,2935 @@
+openapi: 3.1.0
+
+info:
+  title: nox-mem API
+  description: |
+    Pain-weighted hybrid memory API for LLM agents — yours by design.
+
+    This spec covers all HTTP endpoints across Wave A through D implemented in
+    nox-mem. Some endpoints are GATED by env vars and return 503 when not
+    enabled. All endpoints listen on port 18802 by default (NOX_API_PORT env
+    var), never 18800 (Chrome squats that port).
+
+    ## Authentication
+
+    Authentication is optional by default. If `NOX_API_TOKEN` is set in the
+    server environment, callers must include `Authorization: Bearer <token>` on
+    all requests. Without the env var the server allows all localhost callers.
+    The `/api/export` and `/api/import` endpoints always require auth when any
+    token is configured (same mechanism — `requireApiToken()` middleware applied
+    in front of the handler).
+
+    ## Gated features
+
+    The following env vars gate features. When the var is absent/disabled, the
+    affected endpoints return `503 Service Unavailable` with `{"error":
+    "feature disabled", "env_var": "<NOX_X>"}`:
+
+    | Feature | Env var | Endpoints |
+    |---------|---------|-----------|
+    | Answer primitive (P1) | `NOX_ANSWER_ENABLED=1` | `POST /api/answer` |
+    | Hooks autocapture (P2) | `NOX_HOOKS_ENABLED=1` | `/api/hooks/*` |
+    | Realtime viewer (P5) | `NOX_VIEWER_ENABLED=1` | `/api/events/stream`, `/viewer/*` |
+    | Conflict detection (L2) | `NOX_KG_CONFLICTS_ENABLED=1` | `/api/kg/conflicts*` |
+    | Confidence ranking (L3) | `NOX_RANKING_CONFIDENCE=shadow\|active` | confidence fields in health |
+    | Export/import (A2) | `NOX_ARCHIVE_ENABLED=1` | `/api/export`, `/api/import` |
+
+    ## Wave timeline
+
+    - **Core** — original endpoints in `staged-1.6/edits/api-server.ts`
+    - **P3 (temporal search)** — `as_of` and `changed_since` added to `/api/search`
+    - **P1** — `POST /api/answer` (answer primitive with citations)
+    - **A2** — `POST /api/export`, `POST /api/import` (portable archive)
+    - **P5** — `GET /api/events/stream` (SSE), `/viewer/*` (static UI)
+    - **L2** — `GET|POST /api/kg/conflicts*` (KG contradiction detection)
+    - **L3** — `POST /api/chunk/{id}/mark`, `/api/chunk/{id}/supersede` + health additions
+    - **P2** — `/api/hooks/*` (hooks inspection and dryrun)
+    - **F10** — `/api/observability/*` (prod health + eval dashboard + canary + ops)
+
+  version: 1.0.0-rc1
+  contact:
+    name: Toto Busnello
+    email: lab@nuvini.com.br
+    url: https://github.com/totobusnello/memoria-nox
+  license:
+    name: MIT
+    url: https://github.com/totobusnello/memoria-nox/blob/main/LICENSE
+
+servers:
+  - url: http://187.77.234.79:18802
+    description: Public demo — read-only (health + search only)
+  - url: http://localhost:18802
+    description: Local default (port 18802, NOT 18800)
+  - url: '{scheme}://{host}:{port}'
+    description: Custom deployment
+    variables:
+      scheme:
+        default: http
+        enum: [http, https]
+      host:
+        default: localhost
+      port:
+        default: '18802'
+
+security:
+  - {}
+  - BearerAuth: []
+
+tags:
+  - name: Core
+    description: Original endpoints available since the initial release.
+  - name: Search
+    description: Hybrid search (FTS5 + Gemini semantic + RRF fusion).
+  - name: Knowledge Graph
+    description: KG entities, relations, paths, and cross-agent merge.
+  - name: Answer (P1)
+    description: |
+      RAG-style question answering over the memory corpus. Returns a grounded
+      answer with inline citation markers and a citations list. Gated by
+      `NOX_ANSWER_ENABLED=1`.
+  - name: Export/Import (A2)
+    description: |
+      Portable archive export/import for self-sovereign memory portability.
+      Archives are gzip tar files with a `manifest.json`, `chunks.jsonl`,
+      `embeddings.bin`, KG JSONL, and optional AES-256-GCM encryption.
+      Gated by `NOX_ARCHIVE_ENABLED=1`.
+  - name: Viewer (P5)
+    description: |
+      Server-Sent Events feed and static UI viewer. The SSE stream delivers
+      real-time events from the internal `NoxEventBus`. Gated by
+      `NOX_VIEWER_ENABLED=1`. Optional auth via `NOX_VIEWER_AUTH_TOKEN`.
+  - name: Conflict Detection (L2)
+    description: |
+      KG contradiction detection. Finds direct conflicts (same subject+predicate,
+      multiple targets where predicate is functional) and temporal supersessions.
+      Gated by `NOX_KG_CONFLICTS_ENABLED=1`.
+  - name: Confidence (L3)
+    description: |
+      Chunk confidence and provenance marking. Mark chunks as canonical, refuted,
+      or stale; supersede one chunk with another. Confidence field gates controlled
+      by `NOX_RANKING_CONFIDENCE` (disabled|shadow|active).
+  - name: Hooks (P2)
+    description: |
+      Hooks autocapture pipeline inspection. Exposes config/status, recent event
+      metadata (never payloads), and a dry-run tester. Gated by
+      `NOX_HOOKS_ENABLED=1`.
+  - name: Observability (F10)
+    description: |
+      F10 Phase A + B observability endpoints. Read-only; accessible on
+      localhost without auth (same policy as health + search). Returns JSON
+      snapshots for the prod health dashboard, recent ops failures, schema
+      invariants canary tail, and eval gate history.
+
+paths:
+
+  # ───────────────────────────────────────────────────────────────── Core ──
+
+  /api/health:
+    get:
+      tags: [Core]
+      summary: System health and telemetry snapshot
+      description: |
+        Returns a comprehensive health snapshot including chunk counts, vector
+        coverage, KG stats, reflect cache, search telemetry (last 24h), service
+        status, DB size, ops-audit summary, and — when L3 is enabled — a
+        confidence slice.
+
+        No parameters required. Always returns 200 (the server would not be
+        responding if it were down).
+
+        The `confidence` sub-object is only present when
+        `NOX_RANKING_CONFIDENCE` is set to `shadow` or `active`.
+      operationId: getHealth
+      responses:
+        "200":
+          description: Health snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                chunks:
+                  total: 62914
+                  types:
+                    - chunk_type: lesson
+                      c: 18423
+                    - chunk_type: decision
+                      c: 9871
+                consolidation:
+                  done: 312
+                  failed: 0
+                  last: "2026-05-18T03:47:11Z"
+                vectorCoverage:
+                  embedded: 62912
+                  total: 62914
+                  orphans: 0
+                knowledgeGraph:
+                  entities: 402
+                  relations: 544
+                reflectCache:
+                  entries: 47
+                  total_hits: 291
+                  top_queries:
+                    - query: "Gemini quota limits"
+                      hits: 14
+                      last_hit_at: "2026-05-18T08:12:03Z"
+                procedures: 28
+                searchTelemetry:
+                  count_24h: 183
+                  avg_results: 8.4
+                  semantic_ratio: 0.712
+                  p95_latency_ms: 312
+                  expansion_enabled: true
+                  skip_reasons:
+                    query_too_short: 3
+                services:
+                  openclaw-gateway: true
+                  nox-mem-watcher: true
+                  ollama: false
+                  tailscaled: true
+                dbSizeMB: 487.3
+                confidence:
+                  ranking_mode: shadow
+                  provenance:
+                    observed: 12401
+                    declared: 8832
+                    inferred: 34210
+                    derived: 4891
+                    user-marked: 47
+                    null: 2533
+                  confidence_distribution:
+                    mean: 0.762
+                    p25: 0.7
+                    p50: 0.8
+                    p75: 0.85
+                    p95: 0.95
+                    stddev: 0.121
+                  superseded_count: 89
+
+  /api/search:
+    get:
+      tags: [Search]
+      summary: Hybrid search over memory chunks
+      description: |
+        3-layer hybrid search: FTS5 BM25 → Gemini semantic embedding →
+        RRF fusion (k=60). Accepts the query as the `q` parameter.
+
+        **P3 additions:** `as_of` and `changed_since` accept flexible date
+        expressions (ISO 8601 or relative like `7d`, `2w`).
+      operationId: searchGet
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query string
+          schema:
+            type: string
+            minLength: 1
+          example: "Gemini quota exceeded nightly cron"
+        - name: limit
+          in: query
+          required: false
+          description: Max results to return. Default 10.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+        - name: as_of
+          in: query
+          required: false
+          description: |
+            Return only chunks whose `created_at` is on or before this date.
+            Accepts ISO 8601 (`2026-05-01`) or relative expressions (`7d`, `2w`).
+          schema:
+            type: string
+          example: "7d"
+        - name: changed_since
+          in: query
+          required: false
+          description: |
+            Return only chunks updated after this date. Same format as `as_of`.
+          schema:
+            type: string
+          example: "2026-05-01"
+      responses:
+        "200":
+          description: Ranked list of matching chunks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SearchResult"
+              example:
+                - chunk_id: 41203
+                  content: "Gemini 2.5 Flash Lite is the default model for all agent infra tasks..."
+                  score: 0.913
+                  source_path: "memory/entities/decision/model-selection.md"
+                  section: compiled
+                  chunk_type: decision
+                  created_at: "2026-04-22T14:30:00Z"
+        "400":
+          description: Missing or invalid query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "q parameter required"
+        "500":
+          $ref: "#/components/responses/InternalError"
+    post:
+      tags: [Search]
+      summary: Hybrid search (POST body variant)
+      description: |
+        Same as `GET /api/search` but accepts parameters in a JSON body.
+        Useful when the query string is long or when `as_of`/`changed_since`
+        are passed programmatically.
+      operationId: searchPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SearchRequest"
+            example:
+              q: "how to reapply monkey-patch after openclaw upgrade"
+              limit: 8
+              as_of: "2026-05-10"
+      responses:
+        "200":
+          description: Ranked list of matching chunks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SearchResult"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/agents:
+    get:
+      tags: [Core]
+      summary: Agent profiles from cross-agent knowledge graphs
+      description: |
+        Returns profiled metadata for all agents whose knowledge graphs are
+        accessible (calls `profileAllAgents()` from `cross-agent-v2.ts`).
+        Used by the dashboard agents page.
+      operationId: getAgents
+      responses:
+        "200":
+          description: Array of agent profile objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AgentProfile"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/kg:
+    get:
+      tags: [Knowledge Graph]
+      summary: Knowledge graph — entities and relations
+      description: |
+        Returns up to 200 most-mentioned entities and up to 500 most-confident
+        relations. Intended for dashboard visualization. Note: `source` and
+        `target` are canonical entity names (strings), not IDs — per the DB
+        JOIN in `api-server.ts`.
+      operationId: getKg
+      responses:
+        "200":
+          description: KG snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KgResponse"
+              example:
+                entities:
+                  - id: 12
+                    name: "openclaw-gateway"
+                    type: service
+                    mentions: 847
+                relations:
+                  - source: "openclaw-gateway"
+                    relation: "depends_on"
+                    target: "nox-mem-api"
+                    confidence: 0.92
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/kg/path:
+    get:
+      tags: [Knowledge Graph]
+      summary: Shortest path between two KG entities
+      description: |
+        Finds the shortest relation path between `from` and `to` entities
+        (identified by canonical name). Returns an array of entity names
+        representing the path, or null if no path exists.
+      operationId: getKgPath
+      parameters:
+        - name: from
+          in: query
+          required: true
+          description: Source entity canonical name
+          schema:
+            type: string
+          example: "nox-mem-api"
+        - name: to
+          in: query
+          required: true
+          description: Target entity canonical name
+          schema:
+            type: string
+          example: "gemini-embedding-001"
+      responses:
+        "200":
+          description: Path result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  path:
+                    type: array
+                    nullable: true
+                    items:
+                      type: string
+                    description: Ordered entity names from `from` to `to`, or null
+              example:
+                path: ["nox-mem-api", "vectorize", "gemini-embedding-001"]
+        "400":
+          description: Missing from or to parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/cross-kg:
+    get:
+      tags: [Knowledge Graph]
+      summary: Merged cross-agent knowledge graph
+      description: |
+        Merges and returns all accessible agent knowledge graphs into a single
+        unified view. Calls `mergeCrossKnowledgeGraphs()` from
+        `cross-agent-v2.ts`.
+      operationId: getCrossKg
+      responses:
+        "200":
+          description: Merged cross-agent KG
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrossKgResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/reflect:
+    get:
+      tags: [Core]
+      summary: Synthesize a reflection over memory
+      description: |
+        Runs the `reflect()` function to synthesize a higher-order insight
+        from the memory corpus given a query. Results are cached (see
+        `reflectCache` in `/api/health`). Pass `nocache=1` to bypass the
+        cache and force a fresh synthesis.
+      operationId: getReflect
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Reflection query
+          schema:
+            type: string
+          example: "what are my recurring production incidents?"
+        - name: nocache
+          in: query
+          required: false
+          description: Set to `1` or `true` to bypass the reflect cache
+          schema:
+            type: string
+            enum: ["1", "true", "0", "false"]
+      responses:
+        "200":
+          description: Reflection result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReflectResult"
+        "400":
+          description: Missing q parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/procedures:
+    get:
+      tags: [Core]
+      summary: List all crystallized procedures
+      description: |
+        Returns all procedures stored in the DB as `chunk_type='procedure'`
+        chunks. Procedures are runbooks/step-by-step guides crystallized via
+        `POST /api/crystallize`.
+      operationId: getProcedures
+      responses:
+        "200":
+          description: List of procedures
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  procedures:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Procedure"
+              example:
+                procedures:
+                  - id: 88
+                    title: "Reapply monkey-patch after OpenClaw upgrade"
+                    steps:
+                      - "SSH into VPS"
+                      - "Run /root/reapply-monkey-patch.sh"
+                      - "Verify gateway restart OK"
+                    agent: "forge"
+                    tags: ["openclaw", "upgrade"]
+                    created_at: "2026-04-23T21:00:00Z"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/crystallize:
+    post:
+      tags: [Core]
+      summary: Crystallize a procedure into memory
+      description: |
+        Stores a step-by-step procedure as a `chunk_type='procedure'` chunk.
+        Returns the new chunk id on success. Requires `title` and at least one
+        step.
+      operationId: crystallize
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrystallizeRequest"
+            example:
+              title: "Reapply monkey-patch after OpenClaw upgrade"
+              steps:
+                - "SSH into VPS as root"
+                - "Run /root/reapply-monkey-patch.sh"
+                - "Verify no fratricide loop in journalctl"
+              agent: "forge"
+              tags: ["openclaw", "maintenance"]
+      responses:
+        "200":
+          description: Procedure created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: New chunk id for the crystallized procedure
+                  ok:
+                    type: boolean
+                    const: true
+              example:
+                id: 88
+                ok: true
+        "400":
+          description: Missing title or steps
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "405":
+          description: Method not allowed (GET used instead of POST)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/crystallize/validate:
+    post:
+      tags: [Core]
+      summary: Record execution outcome of a crystallized procedure
+      description: |
+        Marks a procedure execution as validated. Requires the `id` of the
+        procedure as a query parameter. Optionally accepts a JSON body with
+        `outcome`, `agent`, and `notes` to record structured validation
+        metadata.
+      operationId: crystallizeValidate
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Chunk id of the procedure to validate
+          schema:
+            type: integer
+          example: 88
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrystallizeValidateRequest"
+            example:
+              outcome: success
+              agent: "forge"
+              notes: "All 3 steps executed cleanly in 4 minutes"
+      responses:
+        "200":
+          description: Validation recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  ok:
+                    type: boolean
+                  applied:
+                    $ref: "#/components/schemas/CrystallizeValidateRequest"
+              example:
+                id: 88
+                ok: true
+                applied:
+                  outcome: success
+                  agent: "forge"
+                  notes: "All 3 steps executed cleanly in 4 minutes"
+        "400":
+          description: Missing id query parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Procedure not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  # ──────────────────────────────────────────────────────────── Answer (P1) ──
+
+  /api/answer:
+    post:
+      tags: [Answer (P1)]
+      summary: RAG-style question answering with citations
+      description: |
+        Given a natural-language question, retrieves the top-K most relevant
+        chunks from the hybrid search pipeline and calls the configured LLM
+        (default: `gemini-2.5-flash-lite`) to generate a grounded answer.
+
+        **Gating:** requires `NOX_ANSWER_ENABLED=1`. Returns 503 otherwise.
+
+        **Auth:** follows the same `requireApiToken()` middleware as other
+        routes. When `NOX_API_TOKEN` is set, `Authorization: Bearer <token>`
+        is required.
+
+        **Response headers set on 200:**
+        - `X-Trace-Id`: UUIDv4 correlation id (also in body)
+        - `X-Model-Used`: model id actually invoked
+        - `X-Retry-Count`: number of citation-validation retries (0 or 1)
+
+        **503 from success path:** when retrieval returns zero chunks,
+        the answer lib emits `failed_reason: "retrieval_empty"` which the HTTP
+        layer maps to 503 (not a server error — just no relevant memory).
+
+        **Implementation file:** `staged-P1/edits/src/api/answer.ts`
+      operationId: postAnswer
+      security:
+        - {}
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnswerRequest"
+            example:
+              question: "What is the correct way to reapply the monkey-patch after upgrading OpenClaw?"
+              top_k: 8
+              no_citations: false
+      responses:
+        "200":
+          description: Answer with inline citations
+          headers:
+            X-Trace-Id:
+              schema:
+                type: string
+                format: uuid
+            X-Model-Used:
+              schema:
+                type: string
+            X-Retry-Count:
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerSuccess"
+              example:
+                answer: "After upgrading OpenClaw, reapply the monkey-patch by running `/root/reapply-monkey-patch.sh` [chunk_1]. Verify no fratricide crash loop in `journalctl -u openclaw-gateway -n 50` [chunk_2]."
+                citations:
+                  - chunk_id: 41203
+                    marker_id: chunk_1
+                    file_path: "memory/entities/lesson/openclaw-upgrade.md"
+                    line_range: "L12-L18"
+                    snippet: "After any npm upgrade, immediately reapply the monkey-patch from /root/reapply-monkey-patch.sh..."
+                  - chunk_id: 41287
+                    marker_id: chunk_2
+                    file_path: "memory/entities/lesson/openclaw-upgrade.md"
+                    line_range: "L24-L28"
+                    snippet: "Check journalctl for fratricide crash loop before declaring success..."
+                metadata:
+                  latency_ms: 1847
+                  tokens_in: 2341
+                  tokens_out: 198
+                  provider: gemini
+                  model: gemini-2.5-flash-lite
+                  retrieval_count: 8
+                  fallback_used: false
+                  retry_count: 0
+                trace_id: "f3a9c812-1b2e-4d7f-9a03-c1e8b5d60a22"
+        "400":
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerError"
+              example:
+                error: true
+                reason: invalid_body
+                message: "question is required (non-empty string)"
+                trace_id: "f3a9c812-1b2e-4d7f-9a03-c1e8b5d60a22"
+        "401":
+          description: Missing or invalid API token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerError"
+              example:
+                error: true
+                reason: unauthorized
+                message: "missing or invalid API token"
+                trace_id: "f3a9c812-1b2e-4d7f-9a03-c1e8b5d60a22"
+        "422":
+          description: Hallucinated citation after retry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerError"
+              example:
+                error: true
+                reason: hallucination_after_retry
+                message: "LLM cited non-existent chunks after retry"
+                trace_id: "f3a9c812-1b2e-4d7f-9a03-c1e8b5d60a22"
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerError"
+        "502":
+          description: LLM backend unreachable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerError"
+              example:
+                error: true
+                reason: llm_error
+                message: "Gemini API returned 503"
+                trace_id: "f3a9c812-1b2e-4d7f-9a03-c1e8b5d60a22"
+        "503":
+          description: |
+            Either the feature is disabled (`NOX_ANSWER_ENABLED` not set) OR
+            retrieval returned zero relevant chunks (`reason: retrieval_empty`).
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/AnswerError"
+                  - $ref: "#/components/schemas/FeatureDisabledError"
+              examples:
+                retrieval_empty:
+                  value:
+                    error: true
+                    reason: retrieval_empty
+                    message: "No relevant memory found for this question"
+                    trace_id: "f3a9c812-1b2e-4d7f-9a03-c1e8b5d60a22"
+                feature_disabled:
+                  value:
+                    error: "feature disabled"
+                    env_var: "NOX_ANSWER_ENABLED"
+        "504":
+          description: LLM call timed out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerError"
+              example:
+                error: true
+                reason: llm_timeout
+                message: "LLM call timed out after 30000ms"
+                trace_id: "f3a9c812-1b2e-4d7f-9a03-c1e8b5d60a22"
+
+  # ──────────────────────────────────────────────────────── Export/Import (A2) ──
+
+  /api/export:
+    post:
+      tags: [Export/Import (A2)]
+      summary: Export memory to a portable archive
+      description: |
+        Streams a gzip tar archive containing the memory corpus. The archive
+        includes `manifest.json`, `chunks.jsonl`, `embeddings.bin`,
+        `embeddings.idx`, `kg_entities.jsonl`, `kg_relations.jsonl`, and
+        `ops_audit.jsonl`. Files are optionally encrypted with AES-256-GCM
+        (scrypt KDF).
+
+        **Gating:** requires `NOX_ARCHIVE_ENABLED=1`.
+
+        **Auth:** always requires `Authorization: Bearer <token>` when
+        `NOX_API_TOKEN` is set.
+
+        **Streaming:** response is `Transfer-Encoding: chunked`. For large
+        corpora (~1.5 GB), do not buffer — pipe directly to disk or cloud
+        storage.
+
+        **Response headers:**
+        - `X-Nox-Export-Manifest-Checksum`: sha256 hex of manifest file
+        - `X-Nox-Export-Chunks-Count`: number of exported chunks
+        - `X-Nox-Export-Schema-Version`: DB schema version at export time
+
+        **Implementation file:** `staged-A2/edits/src/lib/archive/`
+
+        **Spec:** `specs/2026-05-17-A2-export-import.md §4`
+      operationId: postExport
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExportRequest"
+            example:
+              project: "granix"
+              since: "2026-01-01"
+              format: "tar"
+              exclude_embeddings: false
+              encrypt: false
+      responses:
+        "200":
+          description: Streaming archive (gzip tar or encrypted binary)
+          headers:
+            X-Nox-Export-Manifest-Checksum:
+              schema:
+                type: string
+                description: sha256 hex of the manifest file
+            X-Nox-Export-Chunks-Count:
+              schema:
+                type: integer
+            X-Nox-Export-Schema-Version:
+              schema:
+                type: integer
+          content:
+            application/gzip:
+              schema:
+                type: string
+                format: binary
+                description: gzip tar archive
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+                description: AES-256-GCM encrypted archive (when encrypt=true)
+        "400":
+          description: Invalid filter parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/import:
+    post:
+      tags: [Export/Import (A2)]
+      summary: Import a portable archive into the database
+      description: |
+        Accepts a gzip tar archive (produced by `POST /api/export`) and merges
+        or replaces the local database contents. Supports forward schema
+        migrations (import v18 archive into v19 target DB).
+
+        **Gating:** requires `NOX_ARCHIVE_ENABLED=1`.
+
+        **Auth:** always requires `Authorization: Bearer <token>` when
+        `NOX_API_TOKEN` is set.
+
+        **Modes:**
+        - `mode=merge` (default): dedup via `content_hash`; ops_audit is
+          appended
+        - `mode=replace`: full DB drop + rebuild from archive; requires
+          `force=true` query param to prevent accidents
+
+        **dry_run=true**: validates and reports counts without mutating the DB.
+
+        **Content-Type:** send the archive as `application/gzip` (or
+        `application/octet-stream` if encrypted). The server reads the stream
+        directly — no multipart wrapper required.
+
+        **Implementation file:** `staged-A2/edits/src/lib/archive/`
+      operationId: postImport
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: mode
+          in: query
+          required: false
+          description: Import mode. Default `merge`.
+          schema:
+            type: string
+            enum: [merge, replace]
+            default: merge
+        - name: dry_run
+          in: query
+          required: false
+          description: Preview without mutation
+          schema:
+            type: boolean
+            default: false
+        - name: force
+          in: query
+          required: false
+          description: Required when `mode=replace` to confirm destructive operation
+          schema:
+            type: boolean
+            default: false
+        - name: skip_embeddings
+          in: query
+          required: false
+          description: Import chunks metadata only; skip re-importing embeddings
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        required: true
+        content:
+          application/gzip:
+            schema:
+              type: string
+              format: binary
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: Encrypted archive (AES-256-GCM)
+      responses:
+        "200":
+          description: Import result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportResult"
+              example:
+                op_id: "import-2026-05-18-001"
+                schema_version_archive: 18
+                schema_version_target: 19
+                migration_applied:
+                  - "v18_to_v19_add_pain_normalize"
+                chunks_inserted: 12455
+                chunks_skipped_dedup: 873
+                kg_entities_inserted: 402
+                kg_entities_merged: 56
+                ops_audit_appended: 198
+                embeddings_skipped: 0
+                duration_ms: 47832
+                warnings: []
+        "400":
+          description: Invalid archive, schema downgrade detected, or checksum mismatch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportError"
+              example:
+                error_code: "schema_downgrade"
+                message: "Cannot import schema v15 into target v19 (downgrade not supported)"
+                archive_schema: 15
+                target_schema: 19
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          description: Archive decryption failure or tampered checksum
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportError"
+              example:
+                error_code: "bad_passphrase"
+                message: "Bad passphrase or wrong key"
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  # ──────────────────────────────────────────────────────────── Viewer (P5) ──
+
+  /api/events/stream:
+    get:
+      tags: [Viewer (P5)]
+      summary: Server-Sent Events stream of internal bus events
+      description: |
+        Opens a persistent SSE connection that delivers real-time events from
+        the internal `NoxEventBus`. Each event is a JSON payload serialized as
+        standard SSE (`id:`, `event:`, `data:` lines).
+
+        **Gating:** requires `NOX_VIEWER_ENABLED=1`.
+
+        **Auth:** optional. When `NOX_VIEWER_AUTH_TOKEN` is set, callers must
+        provide `Authorization: Bearer <token>`. Without the env var the
+        endpoint is accessible on localhost without credentials.
+
+        **Reconnection:** the EventSource API handles reconnection
+        automatically. The server uses the `Last-Event-ID` header to replay
+        missed events from an in-memory ring buffer.
+
+        **Event kinds:**
+        - `chunk.created` — new chunk ingested
+        - `chunk.deleted` — chunk removed
+        - `kg.entity.created` — new KG entity extracted
+        - `kg.relation.created` — new KG relation extracted
+        - `search.executed` — search query completed
+        - `provider.call` — LLM/embedding API call completed
+        - `op_audit.started` — destructive operation started
+        - `op_audit.completed` — destructive operation completed
+        - `health.warning` — health invariant violated
+
+        **Heartbeat:** server sends `": heartbeat <ts> ring=N clients=M"` every
+        15 seconds to keep proxies alive. These are SSE comments and are
+        ignored by `EventSource`.
+
+        **Implementation file:** `staged-P5/edits/src/api/events-stream.ts`
+      operationId: getEventsStream
+      security:
+        - {}
+        - BearerAuth: []
+      parameters:
+        - name: Last-Event-ID
+          in: header
+          required: false
+          description: |
+            Last received event id for replay on reconnect. The server will
+            replay all buffered events with id > this value.
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: SSE stream (persistent, keep-alive)
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                const: "text/event-stream; charset=utf-8"
+            Cache-Control:
+              schema:
+                type: string
+                const: "no-cache, no-transform"
+            Connection:
+              schema:
+                type: string
+                const: keep-alive
+            X-Accel-Buffering:
+              schema:
+                type: string
+                const: "no"
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: |
+                  SSE stream. Each message has the form:
+                  ```
+                  id: <sequential-int>
+                  event: <event-kind-label>
+                  data: <json-payload>
+
+                  ```
+                  Followed by heartbeat comments:
+                  ```
+                  : heartbeat 2026-05-18T08:30:00.000Z ring=128 clients=3
+
+                  ```
+              example: |
+                : connected
+
+                id: 1
+                event: chunk.created
+                data: {"chunk_id":62915,"source_file":"memory/entities/lesson/new-lesson.md","type":"lesson","token_count":87,"ts":1747550400000}
+
+                : heartbeat 2026-05-18T08:30:15.000Z ring=128 clients=1
+
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+
+  /viewer/{file}:
+    get:
+      tags: [Viewer (P5)]
+      summary: Serve static viewer UI file
+      description: |
+        Serves static assets for the realtime memory viewer UI. The root
+        path `/viewer` and `/viewer/` both return `index.html`. Path traversal
+        attempts (containing `..`) are rejected with 404.
+
+        **Gating:** requires `NOX_VIEWER_ENABLED=1`.
+
+        **Auth:** same as `/api/events/stream` — optional Bearer token via
+        `NOX_VIEWER_AUTH_TOKEN`.
+
+        **Implementation file:** `staged-P5/edits/src/api/viewer-static.ts`
+      operationId: getViewerFile
+      security:
+        - {}
+        - BearerAuth: []
+      parameters:
+        - name: file
+          in: path
+          required: true
+          description: |
+            File path relative to the viewer root. Use empty string or `/` for
+            `index.html`. Supported: `.html`, `.js`, `.mjs`, `.css`, `.svg`,
+            `.ico`, `.png`, `.woff2`.
+          schema:
+            type: string
+          example: "app.js"
+      responses:
+        "200":
+          description: Static file content
+          content:
+            text/html:
+              schema:
+                type: string
+            application/javascript:
+              schema:
+                type: string
+            text/css:
+              schema:
+                type: string
+            image/svg+xml:
+              schema:
+                type: string
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: File not found or path traversal attempted
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Not Found"
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+
+  # ──────────────────────────────────────────────── Conflict Detection (L2) ──
+
+  /api/kg/conflicts:
+    get:
+      tags: [Conflict Detection (L2)]
+      summary: List KG conflicts
+      description: |
+        Returns conflicts detected in the knowledge graph. Supports filtering
+        by status (`unresolved`, `resolved`, `auto_resolved`, `dismissed`) and
+        type (`direct`, `temporal`).
+
+        **Gating:** requires `NOX_KG_CONFLICTS_ENABLED=1`.
+
+        **Implementation spec:** `specs/2026-05-17-L2-conflict-detection.md §5.2`
+      operationId: listKgConflicts
+      parameters:
+        - name: status
+          in: query
+          required: false
+          description: Filter by conflict status. Default `unresolved`.
+          schema:
+            type: string
+            enum: [unresolved, resolved, auto_resolved, dismissed]
+            default: unresolved
+        - name: type
+          in: query
+          required: false
+          description: Filter by conflict type
+          schema:
+            type: string
+            enum: [direct, temporal]
+        - name: limit
+          in: query
+          required: false
+          description: Max results. Default 50, max 200.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+      responses:
+        "200":
+          description: List of conflicts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conflicts:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/KgConflict"
+                  total:
+                    type: integer
+              example:
+                total: 3
+                conflicts:
+                  - id: 1
+                    conflict_type: direct
+                    source_entity_id: 12
+                    source_entity_name: "openclaw-gateway"
+                    predicate: "is_deployed_at"
+                    status: unresolved
+                    detected_at: "2026-05-18T03:30:00Z"
+                    relation_ids: [88, 91]
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/kg/conflicts/scan:
+    post:
+      tags: [Conflict Detection (L2)]
+      summary: Trigger a conflict detection scan
+      description: |
+        Initiates a conflict scan. Can be scoped to a single entity via
+        `subject`. Supports `dry_run=true` to preview results without writing
+        to the `kg_conflicts` table. The scan is wrapped in
+        `withOpAudit('kg-conflict-scan', ...)`.
+
+        **Gating:** requires `NOX_KG_CONFLICTS_ENABLED=1`.
+      operationId: scanKgConflicts
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subject:
+                  type: string
+                  description: Entity name or id to scope the scan
+                dry_run:
+                  type: boolean
+                  default: false
+            example:
+              subject: "openclaw-gateway"
+              dry_run: false
+      responses:
+        "200":
+          description: Scan result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  conflicts_found:
+                    type: integer
+                  conflicts_written:
+                    type: integer
+                  dry_run:
+                    type: boolean
+                  duration_ms:
+                    type: integer
+              example:
+                conflicts_found: 3
+                conflicts_written: 3
+                dry_run: false
+                duration_ms: 284
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/kg/conflicts/{id}:
+    get:
+      tags: [Conflict Detection (L2)]
+      summary: Get a single conflict with full hydration
+      description: |
+        Returns the conflict with all related entities, relation details, and
+        evidence chunk excerpts. Intended for the dashboard conflict detail
+        view.
+
+        **Gating:** requires `NOX_KG_CONFLICTS_ENABLED=1`.
+      operationId: getKgConflict
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Conflict id
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: Conflict detail with hydrated entities and evidence
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KgConflictDetail"
+        "404":
+          description: Conflict not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/kg/conflicts/{id}/resolve:
+    post:
+      tags: [Conflict Detection (L2)]
+      summary: Resolve a conflict
+      description: |
+        Resolves a conflict by choosing one relation as canonical (`keep:
+        <relation_id>`) or keeping both facts as non-contradictory (`keep:
+        "both"`). Wrapped in `withOpAudit`.
+
+        **Gating:** requires `NOX_KG_CONFLICTS_ENABLED=1`.
+      operationId: resolveKgConflict
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [keep]
+              properties:
+                keep:
+                  oneOf:
+                    - type: integer
+                      description: Relation id to keep as canonical
+                    - type: string
+                      const: both
+                      description: Keep all relations (not a real contradiction)
+                note:
+                  type: string
+                  description: Optional resolution note
+            example:
+              keep: 91
+              note: "Relation 91 is the current deployment; 88 was before the migration"
+      responses:
+        "200":
+          description: Conflict resolved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  conflict_id:
+                    type: integer
+                  resolution:
+                    type: string
+                    enum: [superseded, kept_both]
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          description: Conflict not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/kg/conflicts/{id}/dismiss:
+    post:
+      tags: [Conflict Detection (L2)]
+      summary: Dismiss a conflict as a false positive
+      description: |
+        Marks the conflict as dismissed — it will not be re-flagged for the
+        same `(subject, predicate)` pair for 30 days.
+
+        **Gating:** requires `NOX_KG_CONFLICTS_ENABLED=1`.
+      operationId: dismissKgConflict
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                note:
+                  type: string
+            example:
+              note: "Not a real contradiction — entity has multiple roles"
+      responses:
+        "200":
+          description: Conflict dismissed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  conflict_id:
+                    type: integer
+        "404":
+          description: Conflict not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  # ──────────────────────────────────────────────────────── Confidence (L3) ──
+
+  /api/chunk/{id}/mark:
+    post:
+      tags: [Confidence (L3)]
+      summary: Mark a chunk as canonical, refuted, or stale
+      description: |
+        Sets the `provenance_kind` to `user-marked` on the specified chunk and
+        applies the corresponding confidence value:
+        - `canonical` → confidence = `NOX_CONFIDENCE_USER_CANONICAL` (default 0.95)
+        - `refuted` → confidence = `NOX_CONFIDENCE_USER_REFUTED` (default 0.05)
+        - `stale` → confidence = 0.3, no provenance change
+
+        The operation is recorded in `ops_audit`. Returns the applied
+        confidence and provenance, and the audit id.
+
+        **Gating:** always available; confidence values only affect search
+        ranking when `NOX_RANKING_CONFIDENCE=active`.
+
+        **Implementation file:** `staged-L3/edits/src/api/mark.ts`
+      operationId: markChunk
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Chunk id
+          schema:
+            type: integer
+          example: 41203
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MarkRequest"
+            example:
+              kind: canonical
+              notes: "Verified this decision is still in effect as of 2026-05-18"
+      responses:
+        "200":
+          description: Mark applied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkResult"
+              example:
+                ok: true
+                chunk_id: 41203
+                applied:
+                  confidence: 0.95
+                  provenance_kind: user-marked
+                audit_id: 1047
+        "400":
+          description: Invalid chunk id or mark kind
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkError"
+              examples:
+                bad_id:
+                  value:
+                    ok: false
+                    error: "invalid chunk id: abc"
+                    code: bad_id
+                bad_kind:
+                  value:
+                    ok: false
+                    error: "invalid kind: archived — expected canonical|refuted|stale"
+                    code: bad_kind
+        "404":
+          description: Chunk not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkError"
+              example:
+                ok: false
+                error: "chunk 99999 not found"
+                code: not_found
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/chunk/{id}/supersede:
+    post:
+      tags: [Confidence (L3)]
+      summary: Mark a chunk as superseded by a newer chunk
+      description: |
+        Sets `superseded_by = by_chunk_id` on the target chunk, lowering its
+        confidence to indicate it has been replaced. Records the operation in
+        `ops_audit`.
+
+        The `reason` field accepts one of:
+        - `auto_supersede_temporal` — system-detected temporal supersession
+        - `manual_resolution` — user-initiated replacement (default)
+        - `stale_link_reconciliation` — superseded during conflict resolution
+        - `dismiss` — dismissal (keeps chunk but marks as superseded)
+
+        **Implementation file:** `staged-L3/edits/src/api/mark.ts`
+      operationId: supersedeChunk
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Chunk id to mark as superseded
+          schema:
+            type: integer
+          example: 40123
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SupersedeRequest"
+            example:
+              by_chunk_id: 41203
+              notes: "Newer decision from 2026-04-22 supersedes this one"
+              reason: manual_resolution
+      responses:
+        "200":
+          description: Supersede applied
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkResult"
+              example:
+                ok: true
+                chunk_id: 40123
+                applied:
+                  confidence: 0.1
+                  provenance_kind: user-marked
+                  superseded_by: 41203
+                audit_id: 1048
+        "400":
+          description: Invalid ids or body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkError"
+        "404":
+          description: Source or target chunk not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarkError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  # ──────────────────────────────────────────────────────────── Hooks (P2) ──
+
+  /api/hooks/status:
+    get:
+      tags: [Hooks (P2)]
+      summary: Hooks pipeline configuration and queue depth
+      description: |
+        Returns the current hooks pipeline configuration (from
+        `loadConfig()`) and live queue metrics. Never returns raw event
+        payloads.
+
+        **Gating:** requires `NOX_HOOKS_ENABLED=1`.
+
+        **Implementation file:**
+        `.claude/worktrees/agent-a21b345bc854329aa/staged-P2/edits/src/api/hooks.ts`
+      operationId: getHooksStatus
+      responses:
+        "200":
+          description: Hooks status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HooksStatus"
+              example:
+                config:
+                  enabled: true
+                  allowed_sources: [mcp, api, cli, slack]
+                  rate_limit_per_min: 60
+                  dedup_threshold: 0.85
+                  llm_classify: false
+                  dry_run: false
+                  queue_size: 100
+                  min_length: 20
+                  pii_policy: redact
+                queueDepth: 3
+                rateLimitTokens: 47
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/hooks/recent:
+    get:
+      tags: [Hooks (P2)]
+      summary: Recent hook event metadata (no payloads)
+      description: |
+        Returns metadata rows for recent hook events. **Payload content
+        (`payload_json`) is never returned** — only safe metadata fields:
+        `event_uuid`, `session_id`, `project_slug`, `kind`, `timestamp`,
+        `redaction_count`.
+
+        **Gating:** requires `NOX_HOOKS_ENABLED=1`.
+      operationId: getHooksRecent
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Max rows to return. Default 20, max 100.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        "200":
+          description: Recent hook event metadata
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rows:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HookEventMeta"
+              example:
+                rows:
+                  - event_uuid: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    session_id: "sess_abc123"
+                    project_slug: "memoria-nox"
+                    kind: "message_captured"
+                    timestamp: "2026-05-18T08:14:22Z"
+                    redaction_count: 0
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/hooks/dryrun:
+    post:
+      tags: [Hooks (P2)]
+      summary: Dry-run a text through the hooks pipeline
+      description: |
+        Processes the provided `text` through the full hooks pipeline (with
+        `dryRun: true` forced so nothing is persisted or ingested). Returns
+        the per-layer trace and a redacted preview of the output text
+        (truncated to 200 chars).
+
+        Useful for verifying PII redaction, classification, and dedup
+        behavior without committing to memory.
+
+        **Gating:** requires `NOX_HOOKS_ENABLED=1`.
+      operationId: postHooksDryrun
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HooksDryrunRequest"
+            example:
+              text: "John Smith from Nuvini called about the Q2 board meeting on 2026-06-15"
+              source: api
+              role: user
+      responses:
+        "200":
+          description: Dry-run trace and output
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HooksDryrunResponse"
+              example:
+                result:
+                  accepted: true
+                  content: "[PERSON] from Nuvini called about the Q2 board meeting on 2026-06-15"
+                  redacted: true
+                trace:
+                  - layer: pii_redact
+                    reason: name_pattern_matched
+                    redaction_count: 1
+                    kind: pii
+                  - layer: classify
+                    reason: short_text_skip
+                    redaction_count: 0
+                    kind: skip
+        "400":
+          description: Missing or empty text field
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "missing required field: text (non-empty string)"
+        "503":
+          $ref: "#/components/responses/FeatureDisabled"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  # ──────────────────────────────────────────────── Observability (F10) ──
+
+  /api/observability/health:
+    get:
+      tags: [Observability (F10)]
+      summary: Recent prod health snapshot
+      description: |
+        Returns the most recent health snapshot produced by the F10 Phase A
+        dashboard cron. Mirrors the structure of `GET /api/health` but is
+        pre-computed and served from cache, making it safe to poll frequently
+        without triggering DB queries.
+
+        Includes `delta_24h` indicators (chunks ingested, ops_audit rows, KG
+        entity growth) with green/yellow/red thresholds.
+
+        No auth required. Accessible on localhost without `NOX_API_TOKEN`.
+      operationId: getObservabilityHealth
+      responses:
+        "200":
+          description: Cached health snapshot with 24h delta indicators
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  snapshot:
+                    $ref: "#/components/schemas/HealthResponse"
+                  delta_24h:
+                    $ref: "#/components/schemas/HealthDelta24h"
+                  cached_at:
+                    type: string
+                    format: date-time
+              example:
+                cached_at: "2026-05-21T22:00:00Z"
+                snapshot:
+                  chunks:
+                    total: 69495
+                    types:
+                      - chunk_type: lesson
+                        c: 21400
+                      - chunk_type: decision
+                        c: 11200
+                  vectorCoverage:
+                    embedded: 69495
+                    total: 69495
+                    orphans: 0
+                  knowledgeGraph:
+                    entities: 15200
+                    relations: 21400
+                  dbSizeMB: 512.7
+                delta_24h:
+                  chunks_ingested: 143
+                  ops_audit_rows: 2
+                  kg_entity_growth: 18
+                  status: green
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/observability/recent-ops:
+    get:
+      tags: [Observability (F10)]
+      summary: Recent ops_audit failures and crashes
+      description: |
+        Returns the most recent ops_audit rows with status `failed` or
+        `crashed`. Useful for triaging destructive-operation failures without
+        needing to SSH into the VPS.
+
+        Returns at most 50 rows, newest first. Excludes `started` rows (in
+        flight) and `success` rows (no action needed).
+
+        No auth required.
+      operationId: getObservabilityRecentOps
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: Max rows to return. Default 20, max 50.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+            default: 20
+        - name: status
+          in: query
+          required: false
+          description: Filter by ops_audit status. Default returns both failed and crashed.
+          schema:
+            type: string
+            enum: [failed, crashed]
+      responses:
+        "200":
+          description: Recent failed/crashed ops_audit entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ops:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/OpsAuditEntry"
+                  total:
+                    type: integer
+              example:
+                total: 1
+                ops:
+                  - id: 1047
+                    op_name: reindex
+                    status: failed
+                    started_at: 1716336000000
+                    finished_at: 1716336012000
+                    duration_ms: 12000
+                    error_message: "vec0: constraint violation on row 4821"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/observability/canary-tail:
+    get:
+      tags: [Observability (F10)]
+      summary: Schema invariants canary — recent tail
+      description: |
+        Returns the last N lines of the schema-invariants canary log
+        (`scripts/check-schema-invariants.sh`, cron `*/15 * * * *`). The
+        canary checks four DB invariants every 15 minutes:
+
+        1. `vec_chunk_map` bijection vs `chunks` (no orphan vectors)
+        2. No orphan `vec_chunks` rows
+        3. FK integrity in `kg_relations`
+        4. Presence of `trg_chunks_delete_cascade`
+
+        A non-zero exit in the canary means the SQLite file has drifted; this
+        endpoint surfaces the last failure output so you don't need SSH access.
+
+        No auth required.
+      operationId: getObservabilityCanaryTail
+      parameters:
+        - name: lines
+          in: query
+          required: false
+          description: Number of log lines to return. Default 50.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+            default: 50
+      responses:
+        "200":
+          description: Canary log tail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  lines:
+                    type: array
+                    items:
+                      type: string
+                  last_run_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  last_exit_code:
+                    type: integer
+                    nullable: true
+              example:
+                last_run_at: "2026-05-21T23:45:00Z"
+                last_exit_code: 0
+                lines:
+                  - "[2026-05-21T23:45:00Z] PASS bijection: vec_chunk_map 69495 == chunks 69495"
+                  - "[2026-05-21T23:45:00Z] PASS orphans: 0"
+                  - "[2026-05-21T23:45:00Z] PASS kg_relations FK integrity OK"
+                  - "[2026-05-21T23:45:00Z] PASS trigger trg_chunks_delete_cascade present"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /api/observability/evals:
+    get:
+      tags: [Observability (F10)]
+      summary: Eval gate history (F10 Phase B)
+      description: |
+        Returns the annotated eval gate history used by the F10 Phase B eval
+        dashboard (`/observability/evals.html`). Each entry corresponds to a
+        G-series ablation gate (G5 V3 through G12 R3) and includes nDCG@10,
+        MRR, per-category breakdowns, and a verdict.
+
+        This is the machine-readable counterpart of the eval dashboard HTML.
+        All benchmark claims in the paper trace back to these gate rows.
+
+        No auth required.
+      operationId: getObservabilityEvals
+      responses:
+        "200":
+          description: Eval gate history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gates:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/EvalGateEntry"
+                  corpus:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      chunk_count:
+                        type: integer
+                      question_count:
+                        type: integer
+              example:
+                corpus:
+                  name: g9.db
+                  chunk_count: 69495
+                  question_count: 100
+                gates:
+                  - gate: G10
+                    label: "Hard Mutex (G10d threshold=2)"
+                    ndcg_at_10: 0.6316
+                    mrr: 0.6481
+                    delta_vs_baseline: "+0.79%"
+                    verdict: KEEP_DEPLOYED
+                    deployed_at: "2026-05-20T22:00:00Z"
+                    categories:
+                      single_hop: 0.7821
+                      multi_hop: 0.5934
+                      temporal: 0.5612
+                      adversarial: 0.6103
+                      open_domain: 0.6244
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+# ──────────────────────────────────────────────────────── Components ────────
+
+components:
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        `NOX_API_TOKEN` — set in server `.env`. Required on all routes when
+        the var is present. For the viewer endpoints specifically,
+        `NOX_VIEWER_AUTH_TOKEN` may be configured separately. Without any
+        token configured, the server allows all calls (localhost-only by
+        design).
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or body
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Missing or invalid Bearer token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: "unauthorized"
+    MethodNotAllowed:
+      description: HTTP method not allowed on this endpoint
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: "POST required"
+    FeatureDisabled:
+      description: Feature not enabled via env var
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FeatureDisabledError"
+          example:
+            error: "feature disabled"
+            env_var: "NOX_ANSWER_ENABLED"
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: "SQLITE_ERROR: no such table: chunks_fts"
+
+  schemas:
+
+    # ─── Shared primitives ──────────────────────────────────────────────────
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+        code:
+          type: string
+          description: Machine-readable error code (endpoint-specific)
+        details:
+          type: object
+          nullable: true
+          description: Optional structured details
+
+    FeatureDisabledError:
+      type: object
+      required: [error, env_var]
+      properties:
+        error:
+          type: string
+          const: "feature disabled"
+        env_var:
+          type: string
+          description: Name of the env var that must be set to enable this feature
+          example: "NOX_ANSWER_ENABLED"
+
+    # ─── Health ─────────────────────────────────────────────────────────────
+
+    HealthResponse:
+      type: object
+      properties:
+        chunks:
+          type: object
+          properties:
+            total:
+              type: integer
+            types:
+              type: array
+              items:
+                type: object
+                properties:
+                  chunk_type:
+                    type: string
+                  c:
+                    type: integer
+        consolidation:
+          type: object
+          properties:
+            done:
+              type: integer
+            failed:
+              type: integer
+            last:
+              type: string
+              nullable: true
+              format: date-time
+        vectorCoverage:
+          type: object
+          properties:
+            embedded:
+              type: integer
+            total:
+              type: integer
+            orphans:
+              type: integer
+        knowledgeGraph:
+          type: object
+          properties:
+            entities:
+              type: integer
+            relations:
+              type: integer
+        reflectCache:
+          type: object
+          properties:
+            entries:
+              type: integer
+            total_hits:
+              type: integer
+            top_queries:
+              type: array
+              items:
+                type: object
+                properties:
+                  query:
+                    type: string
+                  hits:
+                    type: integer
+                  last_hit_at:
+                    type: string
+                    nullable: true
+                    format: date-time
+        procedures:
+          type: integer
+        searchTelemetry:
+          type: object
+          properties:
+            count_24h:
+              type: integer
+            avg_results:
+              type: number
+            semantic_ratio:
+              type: number
+              minimum: 0
+              maximum: 1
+            p95_latency_ms:
+              type: number
+            expansion_enabled:
+              type: boolean
+            skip_reasons:
+              type: object
+              additionalProperties:
+                type: integer
+        services:
+          type: object
+          additionalProperties:
+            type: boolean
+        dbSizeMB:
+          type: number
+        confidence:
+          $ref: "#/components/schemas/ConfidenceHealthSlice"
+          description: |
+            Present only when `NOX_RANKING_CONFIDENCE=shadow` or `active`.
+
+    ConfidenceHealthSlice:
+      type: object
+      properties:
+        ranking_mode:
+          $ref: "#/components/schemas/RankingMode"
+        provenance:
+          type: object
+          properties:
+            observed:
+              type: integer
+            declared:
+              type: integer
+            inferred:
+              type: integer
+            derived:
+              type: integer
+            user-marked:
+              type: integer
+            "null":
+              type: integer
+        confidence_distribution:
+          type: object
+          properties:
+            mean:
+              type: number
+            p25:
+              type: number
+            p50:
+              type: number
+            p75:
+              type: number
+            p95:
+              type: number
+            stddev:
+              type: number
+        superseded_count:
+          type: integer
+
+    # ─── Search ─────────────────────────────────────────────────────────────
+
+    SearchRequest:
+      type: object
+      required: [q]
+      properties:
+        q:
+          type: string
+          minLength: 1
+          description: Search query
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+        as_of:
+          type: string
+          description: Filter chunks created on or before this date (ISO 8601 or relative)
+        changed_since:
+          type: string
+          description: Filter chunks updated after this date (ISO 8601 or relative)
+
+    SearchResult:
+      type: object
+      properties:
+        chunk_id:
+          type: integer
+        content:
+          type: string
+        score:
+          type: number
+          description: Fused RRF score
+        source_path:
+          type: string
+          nullable: true
+        section:
+          type: string
+          nullable: true
+          enum: [compiled, frontmatter, timeline, null]
+        chunk_type:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    # ─── Agents ─────────────────────────────────────────────────────────────
+
+    AgentProfile:
+      type: object
+      description: Agent profile from cross-agent knowledge graph
+      additionalProperties: true
+
+    # ─── KG ─────────────────────────────────────────────────────────────────
+
+    KgResponse:
+      type: object
+      properties:
+        entities:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              type:
+                type: string
+              mentions:
+                type: integer
+        relations:
+          type: array
+          items:
+            type: object
+            properties:
+              source:
+                type: string
+              relation:
+                type: string
+              target:
+                type: string
+              confidence:
+                type: number
+                minimum: 0
+                maximum: 1
+
+    CrossKgResponse:
+      type: object
+      description: Merged cross-agent knowledge graph. Shape mirrors KgResponse with
+        agent attribution fields.
+      additionalProperties: true
+
+    # ─── Reflect / Procedures ───────────────────────────────────────────────
+
+    ReflectResult:
+      type: object
+      description: Reflect synthesis result
+      additionalProperties: true
+
+    Procedure:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        steps:
+          type: array
+          items:
+            type: string
+        agent:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    CrystallizeRequest:
+      type: object
+      required: [title, steps]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        steps:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        agent:
+          type: string
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+        preconditions:
+          type: array
+          items:
+            type: string
+
+    CrystallizeValidateRequest:
+      type: object
+      properties:
+        outcome:
+          type: string
+          enum: [success, failure, partial]
+        agent:
+          type: string
+        notes:
+          type: string
+
+    # ─── Answer (P1) ────────────────────────────────────────────────────────
+
+    AnswerRequest:
+      type: object
+      required: [question]
+      additionalProperties: false
+      properties:
+        question:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Natural-language question
+        top_k:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 8
+          description: Number of chunks to retrieve before prompting
+        max_tokens:
+          type: integer
+          minimum: 64
+          maximum: 8192
+          default: 1500
+          description: Max output tokens for the LLM call
+        provider:
+          type: string
+          description: LLM provider name. Default `gemini`.
+        model:
+          type: string
+          description: Model id. Default `gemini-2.5-flash-lite`.
+        temperature:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.2
+        no_citations:
+          type: boolean
+          default: false
+          description: Strip `[chunk_N]` markers from the answer text
+        trace_id:
+          type: string
+          maxLength: 64
+          description: Caller-supplied correlation id (forwarded in response)
+
+    Citation:
+      type: object
+      properties:
+        chunk_id:
+          type: integer
+        marker_id:
+          type: string
+          description: LLM-facing marker like `chunk_1`, `chunk_2`
+        file_path:
+          type: string
+        line_range:
+          type: string
+          nullable: true
+          description: Optional line range hint like `L42-L58`
+        snippet:
+          type: string
+          maxLength: 200
+          description: Short excerpt for inline preview
+
+    AnswerMetadata:
+      type: object
+      properties:
+        latency_ms:
+          type: integer
+        tokens_in:
+          type: integer
+        tokens_out:
+          type: integer
+        provider:
+          type: string
+        model:
+          type: string
+        retrieval_count:
+          type: integer
+        fallback_used:
+          type: boolean
+        failed_reason:
+          type: string
+          nullable: true
+          enum:
+            - hallucinated_citation
+            - hallucination_after_retry
+            - retrieval_empty
+            - llm_error
+            - llm_timeout
+            - invalid_input
+        retry_count:
+          type: integer
+
+    AnswerSuccess:
+      type: object
+      required: [answer, citations, metadata, trace_id]
+      properties:
+        answer:
+          type: string
+          description: Answer text, optionally with inline `[chunk_N]` markers
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Citation"
+        metadata:
+          $ref: "#/components/schemas/AnswerMetadata"
+        trace_id:
+          type: string
+          format: uuid
+
+    AnswerError:
+      type: object
+      required: [error, reason, message, trace_id]
+      properties:
+        error:
+          type: boolean
+          const: true
+        reason:
+          type: string
+          enum:
+            - invalid_body
+            - unauthorized
+            - retrieval_empty
+            - hallucinated_citation
+            - hallucination_after_retry
+            - llm_error
+            - llm_timeout
+            - internal_error
+        message:
+          type: string
+        trace_id:
+          type: string
+          format: uuid
+
+    # ─── Export/Import (A2) ─────────────────────────────────────────────────
+
+    ExportRequest:
+      type: object
+      properties:
+        project:
+          type: string
+          nullable: true
+          description: Filter by project slug. Null exports all projects.
+        since:
+          type: string
+          nullable: true
+          description: ISO 8601 date. Export only chunks created after this date.
+        until:
+          type: string
+          nullable: true
+          description: ISO 8601 date. Export only chunks created before this date.
+        format:
+          type: string
+          enum: [tar, zip, sqlite-dump]
+          default: tar
+        exclude_embeddings:
+          type: boolean
+          default: false
+          description: Skip embeddings.bin (~80% size reduction). Re-import triggers re-embedding.
+        exclude_kg:
+          type: boolean
+          default: false
+          description: Skip kg_entities and kg_relations.
+        exclude_audit:
+          type: boolean
+          default: false
+          description: Skip ops_audit.jsonl.
+        encrypt:
+          type: boolean
+          default: false
+          description: Encrypt with AES-256-GCM (scrypt KDF). Passphrase read from `NOX_EXPORT_PASSPHRASE` env var.
+        compression_level:
+          type: integer
+          minimum: 0
+          maximum: 9
+          default: 6
+
+    ImportResult:
+      type: object
+      properties:
+        op_id:
+          type: string
+        schema_version_archive:
+          type: integer
+        schema_version_target:
+          type: integer
+        migration_applied:
+          type: array
+          items:
+            type: string
+        chunks_inserted:
+          type: integer
+        chunks_skipped_dedup:
+          type: integer
+        kg_entities_inserted:
+          type: integer
+        kg_entities_merged:
+          type: integer
+        ops_audit_appended:
+          type: integer
+        embeddings_skipped:
+          type: integer
+        duration_ms:
+          type: integer
+        warnings:
+          type: array
+          items:
+            type: string
+
+    ImportError:
+      type: object
+      required: [error_code, message]
+      properties:
+        error_code:
+          type: string
+          enum:
+            - schema_downgrade
+            - bad_passphrase
+            - tampered_archive
+            - missing_aad
+            - manifest_error
+            - archive_format_error
+        message:
+          type: string
+        archive_schema:
+          type: integer
+          nullable: true
+        target_schema:
+          type: integer
+          nullable: true
+
+    # ─── Viewer / SSE (P5) ──────────────────────────────────────────────────
+
+    SseEventKind:
+      type: string
+      enum:
+        - chunk.created
+        - chunk.deleted
+        - kg.entity.created
+        - kg.relation.created
+        - search.executed
+        - provider.call
+        - op_audit.started
+        - op_audit.completed
+        - health.warning
+
+    # ─── Conflict Detection (L2) ────────────────────────────────────────────
+
+    KgConflict:
+      type: object
+      properties:
+        id:
+          type: integer
+        conflict_type:
+          type: string
+          enum: [direct, temporal, logical, transitive]
+        source_entity_id:
+          type: integer
+        source_entity_name:
+          type: string
+        predicate:
+          type: string
+        status:
+          type: string
+          enum: [unresolved, resolved, auto_resolved, dismissed]
+        detected_at:
+          type: string
+          format: date-time
+        relation_ids:
+          type: array
+          items:
+            type: integer
+
+    KgConflictDetail:
+      allOf:
+        - $ref: "#/components/schemas/KgConflict"
+        - type: object
+          properties:
+            entities:
+              type: array
+              description: Hydrated entity objects involved
+              items:
+                type: object
+                additionalProperties: true
+            relations:
+              type: array
+              description: Hydrated relation objects with evidence
+              items:
+                type: object
+                additionalProperties: true
+            evidence_snippets:
+              type: array
+              description: Excerpt from evidence chunks
+              items:
+                type: object
+                properties:
+                  chunk_id:
+                    type: integer
+                  snippet:
+                    type: string
+
+    # ─── Confidence (L3) ────────────────────────────────────────────────────
+
+    ProvenanceKind:
+      type: string
+      enum:
+        - observed
+        - declared
+        - inferred
+        - derived
+        - user-marked
+
+    RankingMode:
+      type: string
+      enum:
+        - disabled
+        - shadow
+        - active
+
+    MarkKind:
+      type: string
+      enum:
+        - canonical
+        - refuted
+        - stale
+
+    SupersedeReason:
+      type: string
+      enum:
+        - auto_supersede_temporal
+        - manual_resolution
+        - stale_link_reconciliation
+        - dismiss
+
+    MarkRequest:
+      type: object
+      required: [kind]
+      properties:
+        kind:
+          $ref: "#/components/schemas/MarkKind"
+        notes:
+          type: string
+          description: Optional free-text note logged to ops_audit
+
+    SupersedeRequest:
+      type: object
+      required: [by_chunk_id]
+      properties:
+        by_chunk_id:
+          type: integer
+          description: The newer chunk that replaces this one
+          minimum: 1
+        notes:
+          type: string
+        reason:
+          $ref: "#/components/schemas/SupersedeReason"
+
+    MarkResult:
+      type: object
+      required: [ok, chunk_id, applied, audit_id]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        chunk_id:
+          type: integer
+        applied:
+          type: object
+          properties:
+            confidence:
+              type: number
+              minimum: 0
+              maximum: 1
+            provenance_kind:
+              $ref: "#/components/schemas/ProvenanceKind"
+            superseded_by:
+              type: integer
+              nullable: true
+        audit_id:
+          type: integer
+
+    MarkError:
+      type: object
+      required: [ok, error, code]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+        code:
+          type: string
+          enum:
+            - bad_id
+            - bad_body
+            - bad_kind
+            - bad_by_id
+            - not_found
+            - runtime
+
+    # ─── Hooks (P2) ─────────────────────────────────────────────────────────
+
+    HooksStatus:
+      type: object
+      properties:
+        config:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            allowed_sources:
+              type: array
+              items:
+                type: string
+            rate_limit_per_min:
+              type: integer
+            dedup_threshold:
+              type: number
+            llm_classify:
+              type: boolean
+            dry_run:
+              type: boolean
+            queue_size:
+              type: integer
+            min_length:
+              type: integer
+            pii_policy:
+              type: string
+        queueDepth:
+          type: integer
+        rateLimitTokens:
+          type: integer
+          nullable: true
+
+    HookEventMeta:
+      type: object
+      description: |
+        Sanitized hook event metadata. `payload_json` is explicitly
+        excluded — never returned by this endpoint.
+      properties:
+        event_uuid:
+          type: string
+          format: uuid
+        session_id:
+          type: string
+        project_slug:
+          type: string
+        kind:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        redaction_count:
+          type: integer
+
+    HooksDryrunRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          description: Text to run through the pipeline
+        source:
+          type: string
+          description: Simulated source. Default `api`.
+          default: api
+        role:
+          type: string
+          description: Simulated role. Default `user`.
+          default: user
+
+    HooksDryrunResponse:
+      type: object
+      properties:
+        result:
+          type: object
+          description: Pipeline output
+          additionalProperties: true
+        trace:
+          type: array
+          items:
+            type: object
+            properties:
+              layer:
+                type: string
+                description: Pipeline layer name (pii_redact, classify, dedup, etc.)
+              reason:
+                type: string
+                description: Machine-readable reason for the layer's decision
+              redaction_count:
+                type: integer
+              kind:
+                type: string
+
+    # ─── Observability (F10) ────────────────────────────────────────────────
+
+    HealthDelta24h:
+      type: object
+      description: 24-hour delta indicators with traffic-light status
+      properties:
+        chunks_ingested:
+          type: integer
+          description: Net new chunks in the last 24h
+        ops_audit_rows:
+          type: integer
+          description: New ops_audit rows (all statuses) in the last 24h
+        kg_entity_growth:
+          type: integer
+          description: Net new KG entities in the last 24h
+        status:
+          type: string
+          enum: [green, yellow, red]
+          description: |
+            Aggregate traffic-light.
+            green = all indicators within normal range.
+            yellow = at least one indicator outside expected range.
+            red = critical anomaly (zero coverage, orphan vectors, canary failure).
+
+    OpsAuditEntry:
+      type: object
+      description: Single row from the ops_audit append-only log
+      properties:
+        id:
+          type: integer
+        op_name:
+          type: string
+          description: Operation name (reindex, consolidate, crystallize, kg-prune, etc.)
+        status:
+          type: string
+          enum: [started, success, failed, crashed]
+        started_at:
+          type: integer
+          description: Epoch milliseconds
+        finished_at:
+          type: integer
+          nullable: true
+          description: Epoch milliseconds; null if still in flight
+        duration_ms:
+          type: integer
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+
+    EvalGateEntry:
+      type: object
+      description: Single G-series ablation gate result
+      properties:
+        gate:
+          type: string
+          description: Gate label (G5, G6, G8, G10, G10b, G10c, G10d, G11, G12, etc.)
+        label:
+          type: string
+          description: Human-readable description of what changed
+        ndcg_at_10:
+          type: number
+          minimum: 0
+          maximum: 1
+        mrr:
+          type: number
+          minimum: 0
+          maximum: 1
+        delta_vs_baseline:
+          type: string
+          nullable: true
+          description: e.g. "+2.66%" or "-0.73%"
+        verdict:
+          type: string
+          enum: [KEEP_DEPLOYED, REJECTED, DEFERRED, PENDING]
+        deployed_at:
+          type: string
+          format: date-time
+          nullable: true
+        categories:
+          type: object
+          description: Per-category nDCG@10 breakdown
+          properties:
+            single_hop:
+              type: number
+            multi_hop:
+              type: number
+            temporal:
+              type: number
+            adversarial:
+              type: number
+            open_domain:
+              type: number
