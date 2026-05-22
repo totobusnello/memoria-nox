@@ -2,6 +2,49 @@
 
 ---
 
+## Overnight burst 2026-05-21 (pós-/compact) — 10 agents em paralelo
+
+> **Detectado:** ~22h BRT 2026-05-21, logo após sessão /compact. Toto aprovou: _"roda o que vc planejou para esta madrugada; tudo que der em paralelo"_. 10 agents disparados com worktree isolation.
+> **Sat 2026-05-24 manhã:** revisar 9+ PRs antes de executar Q4.
+> Cross-ref: `[[overnight-burst-2026-05-21-8-agents]]` · `[[q4-weekend-sprint-kickoff-2026-05-23]]`
+
+### Agents em voo (10 paralelos, worktree isolation)
+
+| # | Agent ID | Branch | Output esperado | Owner-files |
+|---|---|---|---|---|
+| 1 | `aecfe9b8f6111c31f` | `worktree-agent-aecfe9b8f6111c31f` | Q4 harness setup (pre-/compact) | `eval/q4-comparison/**` |
+| 2 | `a1bc40f41324c5522` | `feat/l4-spec-amendment-plural` | L4 spec §4 amendment — plural normalisation doc | `specs/*l4*`, `docs/l4*` |
+| 3 | `aa9adb2acf39d5637` | `feat/paper-q4-skeleton` | Paper §5+§6 skeleton pré-Q4 | `paper/**` |
+| 4 | `a92d222f6ab5a3e6d` | `feat/launch-blog-v0` | Blog post v0 (rascunho, sem números Q4) | `docs/gtm/blog-post-v0.md` |
+| 5 | `aec52e947db45aab7` | `feat/launch-demo-plan` | Plano asciinema demo + script | `docs/gtm/demo-plan.md` |
+| 6 | `ae65908bdfede6eff` | `feat/launch-social-copy` | Social copy launch (Twitter/HN/LinkedIn) | `docs/gtm/social-copy.md` |
+| 7 | `ac7c768fe00abdc56` | `feat/foss-hygiene-pre-launch` | FOSS hygiene pré-launch (LICENSE, CONTRIBUTING, etc.) | `LICENSE`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `CITATION.cff` |
+| 8 | `a00142ba210227f70` | `feat/l4-watchpoint-and-arxiv-checklist` | L4 watchpoint checklist + arXiv submission checklist | `docs/checklists/**` |
+| 9 | `af2c1b01a1492c7aa` | `feat/handoff-roadmap-overnight-sync` | HANDOFF + ROADMAP §12 sync (este agente) | `docs/HANDOFF.md`, `docs/ROADMAP.md` |
+| 10 | `a5b6de50b450785f6` | `feat/launch-day-checklist` | Launch day checklist coordenado | `docs/gtm/launch-day-checklist.md` |
+
+### Non-overlap matrix
+
+- **NENHUM agent toca `package.json`** — sem conflito de deps
+- Owner-files são mutuamente exclusivos: `eval/` · `specs/` · `paper/` · `docs/gtm/` · root FOSS files · `docs/checklists/` · `docs/HANDOFF+ROADMAP` — sem overlap
+- Todos em worktrees isolados: sem contaminação de HEAD
+
+### Expected Sat 2026-05-24 manhã
+
+1. **9+ PRs aguardando review** (PRs #219–#228 range estimado):
+   - FOSS hygiene → L4 spec amendment → asciinema demo plan → social copy → blog v0 → paper skeleton → L4 watchpoint+arXiv → HANDOFF+ROADMAP sync → launch day checklist → Q4 setup
+2. **Review order sugerida:** FOSS hygiene (blocker launch) → Q4 setup (blocker execução) → demais em ordem de risco
+3. **Não mergear blog/paper/social sem números Q4** — skeletons são placeholders; crava após Sat Q4 execution
+4. **Q4 execution kickoff pós-review** (~5h compute Sat 9h30–14h BRT)
+
+### Recovery notes
+
+- Pre-commit hook defense ativa: aborta commits em non-main do parent path
+- Override: `COMMIT_TO_NON_MAIN_OK=1 git commit ...` (worktrees com feature branches intencionais)
+- Estado pré-overnight: main `b61deb0`, 24 PRs day total, 4 deploys, D51/D52/D53 cravados
+
+---
+
 ## 🌃 EOD FINAL 2026-05-21 — DAY TOTAL 24 PRs + 4 production deploys + G12 R1 closed
 
 > **Atualizado:** 2026-05-21 ~21h15 BRT EOD definitivo. main em `b61deb0`, **0 open PRs, 0 worktrees, clean**. **Day total: 24 PRs merged**, **4 production deploys** (G10d ACTIVE-T2 morning + opsAudit hygiene morning + F10 Phase A evening + F10 Phase B + G12 R3 late-evening), **3 decisions cravados** (D51/D52/D53), **D48 saga FINAL CLOSED** (G3→G10d). **G12 audit final status:** R3 deployed prod (PR #206 + SCP), R1+R2 closed eval-only (PR #216 audit §11), R4 deferred. **Nothing urgent next session** — primeiro real trigger é L4 watchpoint Monday 2026-05-25 manhã pós Sunday cron.
