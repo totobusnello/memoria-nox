@@ -4,7 +4,7 @@
 >
 > Single source of truth. Reorganized **2026-05-17 night** durante overnight automode push.
 > v1 (630 lines, cluttered com session logs) arquivado em `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md`.
-> **Atualizado 2026-05-21 late evening EOD** — 20 PRs merged hoje (#188-#214 spans). **3 production deploys:** G10d ACTIVE-T2 (D51 verdict + systemd drop-in `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`), opsAudit hygiene (Issues #1+#3, total_24h 48 phantom → 1 real), F10 Phase A + Phase B (observability dashboard LIVE em prod). Boost stack canonical = section_boost + source_type_boost + **Hard Mutex conditional t=2** + salience v2. L4 plural normalisation (PR #214) ship a tempo da próxima Sunday cron 2026-05-24 (primeira janela L4 fire em prod). D48 saga CLOSED (G3→G10d). D49 phase 2 shadow rolling (~5d até D50).
+> **Atualizado 2026-05-21 EOD FINAL** — **24 PRs merged hoje** (#188-#216 spans). **4 production deploys:** G10d ACTIVE-T2 (D51 verdict + systemd drop-in `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`), opsAudit hygiene (Issues #1+#3, total_24h 48 phantom → 1 real), F10 Phase A + Phase B (observability dashboard LIVE em prod), G12 R3 dedup carve-out (SCP'd to VPS + restart). Boost stack canonical = section_boost + source_type_boost + **Hard Mutex conditional t=2** + salience v2. **G12 audit FINAL status:** R3 deployed prod, R1+R2 closed eval-only (PR #216 §11 — 4 gold entities são orphans em g9.db sem files em disk; 183/183 live entity files já têm description rich), R4 deferred. L4 plural normalisation (PR #214) ship a tempo da Sunday cron 2026-05-24. D48 saga CLOSED (G3→G10d). D49 phase 2 shadow rolling (~5d até D50).
 
 ---
 
@@ -363,7 +363,7 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 | **2026-05-21 evening** | #206-#211 (6) | G12 R3 dedup carve-out (#206), F10 Phase A endpoints + UI (#207) + DEPLOYED PROD, paper §5.5 G10d addendum agent (#208), L4 foundation T0-T3 (#209) → cleanup (#210), L4 extraction_method NULL audit + watchpoint 2026-05-24 (#211) |
 | **2026-05-21 late evening** | #212-#214 (3) | HANDOFF evening refresh (#213), F10 Phase B eval dashboard agent worktree (#212) + DEPLOYED PROD, L4 DIR_PATTERN plural normalisation + `system` 17th canonical (#214) |
 
-**Total 2026-05-21:** **20 PRs merged** | 3 production deploys (G10d ACTIVE-T2, opsAudit hygiene, F10 A+B) | D51+D52+D53 decisions cravados | D48 saga FINAL CLOSED
+**Total 2026-05-21:** **24 PRs merged** | **4 production deploys** (G10d ACTIVE-T2, opsAudit hygiene, F10 A+B, G12 R3) | D51+D52+D53 decisions cravados | D48 saga FINAL CLOSED | G12 audit FINAL status (R3 deployed, R1+R2 closed eval-only PR #216, R4 deferred)
 
 ---
 
@@ -410,4 +410,4 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-*ROADMAP v4.2 — v2 overnight 2026-05-17; v3 pós Wave H 2026-05-18; v4 pós Wave A 2026-05-20; v4.1 EOD 2026-05-20 D48 saga (G3→G11); **v4.2 EOD 2026-05-21 (G10d ACTIVE-T2 deployed + F10 Phase A+B observability LIVE + L4 plural normalisation + 20 PRs + D51+D52+D53 cravados)**. Próxima review: pós D50 decision 2026-05-27 ou pós L4 watchpoint 2026-05-25.*
+*ROADMAP v4.3 — v2 overnight 2026-05-17; v3 pós Wave H 2026-05-18; v4 pós Wave A 2026-05-20; v4.1 EOD 2026-05-20 D48 saga (G3→G11); v4.2 EOD 2026-05-21 inicial (G10d + F10 A+B + L4 plural); **v4.3 EOD FINAL 2026-05-21 (24 PRs total + 4 prod deploys + G12 R3 VPS-deployed + G12 R1+R2 closed eval-only via PR #216 audit §11)**. Próxima review: pós L4 watchpoint Mon 2026-05-25 ou pós D50 decision 2026-05-27.*
