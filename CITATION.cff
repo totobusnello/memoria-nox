@@ -1,71 +1,44 @@
-# MIT LICENSE confirmed — LICENSE file present in repo root.
-# VERIFY: ORCID not known for author — uncomment and fill if obtained.
-# VERIFY: version "1.0.0" matches git tag v1.0.0 (created 2026-05-05).
-# VERIFY: preferred-citation arxiv-id and url must be updated after arXiv submission on 2026-06-02.
-
 cff-version: 1.2.0
-message: >
-  If you use this software or build on the ideas presented here, please cite
-  both the software and the accompanying paper using the metadata below.
-
-type: software
-title: "NOX-Supermem"
-abstract: >
-  A persistent memory system for autonomous AI agent fleets implementing
-  pain-weighted salience retrieval, shadow-mode ranking validation, and
-  shared-canonical multi-agent context without federation overhead.
-  Built on SQLite with FTS5, sqlite-vec, and Gemini embeddings.
-
+message: "If you use nox-mem in your research, please cite this software AND the accompanying paper."
+title: "nox-mem: pain-weighted hybrid memory for LLM agents"
+abstract: >-
+  nox-mem is an open-source persistent memory system for autonomous LLM agent
+  fleets. It combines BM25 full-text search (FTS5), semantic vector similarity
+  (sqlite-vec, 3072-dim Gemini embeddings), and Reciprocal Rank Fusion into a
+  hybrid retrieval pipeline. A pain-weighted salience formula (recency × pain ×
+  importance) surfaces high-severity memories under retrieval pressure. An
+  LLM-powered knowledge graph with temporal decay and cross-agent intelligence
+  sharing completes the stack. Fully self-hosted; zero vendor lock-in.
 authors:
-  - family-names: Busnello
-    given-names: Luiz Antonio
-    alias: Toto
-    email: lab@generantis.com.br
-    # orcid: "https://orcid.org/0000-0000-0000-0000"  # VERIFY: fill if ORCID is obtained
-
+  - family-names: "Busnello"
+    given-names: "Luiz Antonio"
+    name-suffix: "Toto"
+    email: "lab@nuvini.com.br"
+    affiliation: "Independent"
+type: software
 repository-code: "https://github.com/totobusnello/memoria-nox"
 url: "https://github.com/totobusnello/memoria-nox"
-
 license: MIT
-
-# VERIFY: update to actual git tag at arXiv submit time
-version: "1.0.0"
-date-released: "2026-06-02"
-
+date-released: "2026-06-03"  # planned launch — update to actual tag date if differs
+version: "1.0.0-rc1"
 keywords:
-  - "agent memory"
-  - "retrieval-augmented generation"
-  - "knowledge graph"
-  - "operational discipline"
-  - "hybrid retrieval"
-  - "shadow validation"
-  - "multi-agent systems"
-  - "pain-weighted salience"
-  - "sqlite"
-  - "production AI systems"
-
+  - memory
+  - hybrid retrieval
+  - LLM agents
+  - sqlite-vec
+  - FTS5
+  - knowledge graph
+  - pain-weighted salience
+  - autonomous agents
+  - open-source
 preferred-citation:
   type: article
-  title: >
-    The Pain Diary and Shadow Discipline: A Memory System That Learns
-    from Its Own Incidents
+  title: "nox-mem: Pain-Weighted Hybrid Memory for LLM Agents"
   authors:
-    - family-names: Busnello
-      given-names: Luiz Antonio
-      alias: Toto
-      email: lab@generantis.com.br
-      # orcid: "https://orcid.org/0000-0000-0000-0000"  # VERIFY: fill if ORCID is obtained
+    - family-names: "Busnello"
+      given-names: "Luiz Antonio"
   year: 2026
-  # VERIFY: update arxiv-id and url after submission on 2026-06-02
-  # Format expected post-submit: arxiv-id: "arXiv:2606.NNNNN"
-  #                              url: "https://arxiv.org/abs/2606.NNNNN"
-  journal: "arXiv preprint"
-  arxiv-id: "TBD-arXiv:2606.NNNNN"
-  url: "TBD-https://arxiv.org/abs/2606.NNNNN"
-  abstract: >
-    We present NOX-Supermem, a production memory system for multi-agent AI
-    fleets that treats operational discipline — not retrieval sophistication —
-    as the primary design constraint. The system introduces pain-weighted
-    salience (severity as a retrieval signal), shadow discipline (enforced
-    ranking validation gates), and shared-canonical multi-agent context.
-    Evaluated on 61,257 chunks over approximately three months of production operation.
+  identifiers:
+    - type: other
+      value: "arXiv:[PENDENTE 2026-06-02]"
+      description: "arXiv preprint — update after submission"
