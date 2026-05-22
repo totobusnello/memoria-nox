@@ -2,12 +2,12 @@
 
 ---
 
-## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 7/10 merged + 3 await Sat Q4 nums
+## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 13 merged + 3 await Sat Q4 nums
 
-> **Atualizado:** 2026-05-22 ~01h10 BRT. **11 streams dispatched (Q4 setup + 10 paralelos), 11 completados, 7 merged em main, 3 abertos awaiting Sat Q4 numbers**.
+> **Atualizado:** 2026-05-22 ~02h30 BRT. **Round 1+2 = 17 streams dispatched, 17 completados, 13 PRs merged em main + 1 direct-main commit + 3 abertos awaiting Sat Q4 numbers**. main `975711d`.
 > Cross-ref: `[[overnight-burst-2026-05-21-final]]` · `[[q4-weekend-sprint-kickoff-2026-05-23]]`
 
-### ✅ Merged em main (7 PRs)
+### ✅ Round 1 — 7 PRs merged + 1 direct main
 
 | PR | Commit | Stream |
 |---|---|---|
@@ -19,6 +19,24 @@
 | **#227** | `f26e6fa` | Launch day coordination Wed 06-03 (hora-a-hora) |
 | **#228** | `8cd728d` | HANDOFF + ROADMAP §12 sync + timeline fix (arXiv 06-02 / launch 06-03) |
 | `dd0431c` | (direct main) | audits/VPS readiness pre-Q4 (anomaly: agent committed sem PR — não crítico) |
+
+### ✅ Round 2 — 6 PRs merged
+
+| PR | Commit | Stream |
+|---|---|---|
+| **#229** | `f7a9454` | README pre-launch polish (badges + Q4 teaser + Citation block, 4 surgical inserts) |
+| **#230** | `74776af` | Demo narration script (captions EN+PT-BR + voiceover fallback) |
+| **#231** | `311ef8f` | `paper/refs.bib` — 14 BibTeX entries (5 competitors + benchmarks + algos + infra) |
+| **#232** | `bfc2b49` | Extra channels (Trendshift/IH/Lobsters/LinkedIn/HN-variants) |
+| **#233** | `112798f` | `CITATION.cff` + `codemeta.json` (cffconvert PASS) |
+| **#234** | `975711d` | Pandoc/LaTeX conversion test — PASS w/ Unicode math fixable (xelatex 5min) |
+
+### Repo metadata cravado (gh repo edit)
+
+- description: pain-weighted hybrid memory tagline
+- 20 topics (ai-agents + fts5 + open-source added)
+- Discussions enabled, Issues enabled
+- Homepage set
 
 ### 🔄 Abertos awaiting Sat 2026-05-24 Q4 numbers (3 PRs)
 
