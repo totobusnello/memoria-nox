@@ -84,7 +84,7 @@ INGEST CHUNK
     ▼
 ┌─────────────────────────────────────────────────────┐
 │ 2. extractEntityRefsRegex(text)                     │
-│    - DIR_PATTERN whitelist (15 entity types)        │
+│    - DIR_PATTERN whitelist (17 entity types, §4.5)  │
 │    - Markdown [Name](path/to/slug)                  │
 │    - Obsidian [[slug]] + [[entity_type/slug]]       │
 │    - Bare path refs `entity/slug`                   │
@@ -153,16 +153,146 @@ export const NOX_ENTITY_TYPES = [
   'skill',         // skill definitions
   'persona',       // user-level personas
   'reference',     // reference docs
+  'system',        // system-level entities (added D52, 2026-05-21) — 17th type
 ] as const;
 
 export const DIR_PATTERN = `(?:${NOX_ENTITY_TYPES.join('|')})`;
 ```
+
+> **Nota:** lista acima reflete estado pós-D52 (17 types). Spec original listava 16 types; `'system'` adicionado em 2026-05-21 — ver §4.5 abaixo.
 
 **Validação pré-implementação (T0 — antes do código):**
 - Rodar `ls /root/.openclaw/workspace/tools/nox-mem/memory/entities/` na VPS, comparar contra lista acima
 - Se houver entity type novo não-listado → adicionar ao DIR_PATTERN + abrir item pra `docs/DECISIONS.md`
 - Se houver entity type aqui não existindo em memory/entities/ → remover do whitelist (false positive risk)
 - Se entity files schema fundamentalmente incompatível → escrever `BLOCKED.md` e parar
+
+---
+
+## 4.5 Plural Filesystem Normalisation (D52 — 2026-05-21)
+
+> **Emenda ao spec original (2026-05-18).** Implementada via PR #214. Decisão registrada em `docs/DECISIONS.md` §D52.
+
+### 4.5.1 Motivação
+
+O filesystem de produção usa **diretórios no plural** para cinco tipos de entidade:
+
+```
+memory/entities/
+  agents/          ← plural no disco
+  decisions/       ← plural no disco
+  lessons/         ← plural no disco
+  projects/        ← plural no disco
+  systems/         ← plural no disco
+```
+
+Porém `kg_entities.entity_type` e o `DIR_PATTERN` original usam formas **singulares** (`agent`, `decision`, `lesson`, `project`, `system`). Um wikilink que espelha o caminho do filesystem — por exemplo `[[agents/nox]]` — não fazia match no `WIKILINK_RE` original e era silenciosamente descartado. A divergência existia desde o início mas só foi descoberta durante o cleanup do PR #210.
+
+### 4.5.2 Implementação
+
+A solução normaliza plural → singular **na camada de extração**, preservando a forma canônica singular em todo o pipeline downstream.
+
+```typescript
+// src/lib/regex-extract/dir-pattern.ts
+
+/** Diretórios no filesystem que usam plural */
+export const NOX_ENTITY_DIRS_PLURAL = [
+  'agents',
+  'decisions',
+  'lessons',
+  'projects',
+  'systems',
+] as const;
+
+/** Mapa de normalização plural → singular */
+export const PLURAL_TO_SINGULAR: Record<string, string> = {
+  agents:    'agent',
+  decisions: 'decision',
+  lessons:   'lesson',
+  projects:  'project',
+  systems:   'system',
+};
+
+/**
+ * Resolve um token de dir (singular ou plural) para o entity type
+ * canônico (sempre singular). Retorna null se não reconhecido.
+ */
+export function asEntityType(dirToken: string): string | null {
+  if (PLURAL_TO_SINGULAR[dirToken]) return PLURAL_TO_SINGULAR[dirToken];
+  const singular = dirToken as string;
+  return (NOX_ENTITY_TYPES as readonly string[]).includes(singular)
+    ? singular
+    : null;
+}
+```
+
+O `DIR_PATTERN` é atualizado para aceitar ambas as formas:
+
+```typescript
+const allForms = [
+  ...NOX_ENTITY_TYPES,
+  ...NOX_ENTITY_DIRS_PLURAL,
+];
+// dedup (systems já está em NOX_ENTITY_TYPES como 'system')
+export const DIR_PATTERN = `(?:${[...new Set(allForms)].join('|')})`;
+```
+
+Após o match de qualquer regex (`WIKILINK_RE`, `MARKDOWN_LINK_RE`, `BARE_REF_RE`), o token capturado é sempre passado por `asEntityType()` antes de ser gravado em `EntityRef.entityType`. O campo `key` (`<entityType>/<slug>`) também usa a forma singular canônica.
+
+### 4.5.3 Adição de `'system'` como 17º tipo canônico
+
+O diretório `memory/entities/systems/` existia em produção mas `system` não constava em `NOX_ENTITY_TYPES`. Isso causava dois problemas:
+
+1. `ingest-entity` não reconhecia o type → chunks sem `section_boost` correto
+2. `DIR_PATTERN` não capturava refs `[[system/nox-mem-api]]`
+
+A decisão foi adicionar `'system'` como 17º membro de `NOX_ENTITY_TYPES` (estava implícito no dado; faltava só a declaração formal). Nenhuma migration de DB é necessária: `entity_type` é TEXT livre, linhas antigas com `system` já existiam corretamente.
+
+### 4.5.4 Compatibilidade retroativa
+
+Ambas as formas continuam sendo aceitas indefinidamente:
+
+| Input wikilink | `asEntityType()` retorna | `EntityRef.key` |
+|---|---|---|
+| `[[agent/nox]]` | `'agent'` | `agent/nox` |
+| `[[agents/nox]]` | `'agent'` | `agent/nox` |
+| `[[decision/d52]]` | `'decision'` | `decision/d52` |
+| `[[decisions/d52]]` | `'decision'` | `decision/d52` |
+
+- Singular continua funcionando sem alteração
+- Plural agora faz match e normaliza
+- Nenhum arquivo de entidade precisa ser renomeado
+- Nenhuma migration de DB: entity_type sempre foi singular nos dados reais
+
+### 4.5.5 Tabela de exemplos
+
+| Input (wikilink ou bare ref) | Dir token capturado | `asEntityType()` | `EntityRef.key` |
+|---|---|---|---|
+| `[[agents/nox]]` | `agents` | `agent` | `agent/nox` |
+| `[[decisions/d41]]` | `decisions` | `decision` | `decision/d41` |
+| `[[lessons/use-voce-not-tu]]` | `lessons` | `lesson` | `lesson/use-voce-not-tu` |
+| `[[projects/memoria-nox]]` | `projects` | `project` | `project/memoria-nox` |
+| `[[systems/nox-mem-api]]` | `systems` | `system` | `system/nox-mem-api` |
+| `[[system/nox-mem-api]]` | `system` | `system` | `system/nox-mem-api` |
+| `[[agent/atlas]]` | `agent` | `agent` | `agent/atlas` |
+| `[[feedback/no-secrets]]` | `feedback` | `feedback` | `feedback/no-secrets` |
+| `[[unknown/foo]]` | `unknown` | `null` → descartado | — |
+
+### 4.5.6 Cobertura de testes
+
+PR #214 adicionou 10 novos test cases ao suite existente:
+- 8 casos de plural variants (`agents/`, `decisions/`, `lessons/`, `projects/`, `systems/` via wikilink e bare ref)
+- 2 casos de `system` canonical type
+- Suite completo: **57/57 passing** pós-PR
+
+### 4.5.7 Cross-referências
+
+- Decisão: `docs/DECISIONS.md` §D52 (2026-05-21)
+- PR de implementação: PR #214
+- PR de cleanup que surfou a divergência: PR #210
+- PR de audit: PR #211 (confirmou `kg_relations.extraction_method` NULL em 21 518 rows — L4 nunca rodou em prod até 2026-05-24)
+- Memory: `[[late-evening-2026-05-21-f10b-deployed-l4-plural]]`
+- Primeiro cron L4 em prod: Sunday 2026-05-24 (agendado)
 
 ---
 
@@ -449,7 +579,7 @@ gbrain license **MIT** permite port direto da regex logic. Atribuição:
 
 ## Open questions pra Toto
 
-1. **DIR_PATTERN final**: aceito a lista de 15 entity types proposta em §4, ou tem entity type novo/legacy que esqueci? (T0 valida real na VPS, mas se Toto souber upfront agiliza.)
+1. **DIR_PATTERN final**: ~~aceito a lista de 15 entity types proposta em §4~~ RESOLVIDO — lista final tem 17 types (incluindo `system` como 17º, D52, PR #214). Plural filesystem forms (`agents/`, `decisions/`, `lessons/`, `projects/`, `systems/`) aceitas via normalisation (§4.5). T0 dispensado para este item.
 2. **Stub policy**: forward-ref stubs (entity criada via regex antes de existir em `kg_entities`) deve criar entity stub automaticamente, ou só logar warning e skip? Proposta = create stub. Alternative = warning-only mais conservador.
 3. **Skip gate vs annotation-only inicial**: começar com skip gate em shadow (default off), ou começar mais conservador com regex-as-annotation (escreve relations mas Gemini sempre roda) por 2 weeks antes de testar skip? Proposta atual = shadow com skip gate testado em Week 2.
 4. **Eval golden set ownership**: quem anota os 100 entity files manualmente em T8? Toto direto ou agent designate (Atlas com review Toto)? Annotation quality is DoD-blocking.
