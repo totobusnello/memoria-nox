@@ -42,6 +42,10 @@ env:
 
 jobs:
   refresh-baseline:
+    # Guard: only run on explicit manual dispatch. Suppresses
+    # phantom "No jobs were run" notifications when workflow file
+    # changes are pushed (GitHub Actions quirk).
+    if: github.event_name == 'workflow_dispatch'
     name: "Refresh baseline — ${{ inputs.version }}"
     runs-on: ubuntu-latest
     timeout-minutes: 30
