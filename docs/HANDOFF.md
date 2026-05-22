@@ -2,9 +2,9 @@
 
 ---
 
-## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 16 merged + 3 await Sat Q4 nums
+## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 21 merged + 3 await Sat Q4 nums
 
-> **Atualizado:** 2026-05-22 ~03h00 BRT. **Round 1+2+3 = 20 streams dispatched, 20 completados, 16 PRs merged em main + 1 direct-main commit + 3 abertos awaiting Sat Q4 numbers**. main `3560171`.
+> **Atualizado:** 2026-05-22 ~07h15 BRT. **Round 1+2+3+4 = 25 streams dispatched, 25 completados, 21 PRs merged em main + 2 direct-main commits (dd0431c VPS audit + c516cc5 BibTeX rescue) + 3 abertos awaiting Sat Q4 numbers**. main `c516cc5`.
 > Cross-ref: `[[overnight-round2-2026-05-22]]` · `[[overnight-burst-2026-05-21-final]]` · `[[q4-weekend-sprint-kickoff-2026-05-23]]`
 
 ### ✅ Round 1 — 7 PRs merged + 1 direct main
@@ -38,6 +38,17 @@
 | **#235** | `b296bb1` | FAQ.md — 7 sections, 24 Q&As (honest sobre Gemini cost / no SLA / scale ceiling) |
 | **#236** | `bb55b6c` | QUICKSTART.md — demo-first 5min guide (curl public demo → local install → first search) |
 | **#237** | `3560171` | v1.0.0-rc1 release notes draft (261 LOC, 10 sections, Wed 06-03 target) |
+
+### ✅ Round 4 — 5 PRs merged (1 closed contaminated + 1 rescue commit)
+
+| PR | Commit | Stream |
+|---|---|---|
+| **#238** | `abf08a4` | xelatex wrapper `scripts/build-paper.sh` (Unicode math bypass per PR #234 finding); 3/3 smoke tests PASS |
+| **#239** | `4474665` | arXiv abstract `paper/abstract.md` 247 words ≤300 + submission form fields |
+| **#240** | `b2fc1a3` | `docs/ARCHITECTURE.md` HN-friendly rewrite 1088→283 LOC + ASCII diagrams |
+| ~~#241~~ | (closed) | Pre-launch security review — contaminated com abstract.md leak; SUPERSEDED |
+| **#242** | `bad6646` | Security review CLEAN — `audits/2026-05-22-pre-launch-security-review.md` 331 LOC; ✅ GO verdict 0 CRITICAL / 0 HIGH |
+| **#243** | `397693e` (empty) + `c516cc5` | BibTeX URL verification — squash empty + rescue commit c516cc5 com refs.bib corrections + refs-verification-log.md. **Critical catch:** LightRAG authorship Edge→Guo. `\cite{}` updates pendentes em paper.md (PR #226). |
 
 ### Repo metadata cravado (gh repo edit)
 
