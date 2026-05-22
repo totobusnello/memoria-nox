@@ -2,10 +2,10 @@
 
 ---
 
-## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 21 merged + 3 await Sat Q4 nums
+## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 26 merged + 3 await Sat Q4 nums
 
-> **Atualizado:** 2026-05-22 ~07h15 BRT. **Round 1+2+3+4 = 25 streams dispatched, 25 completados, 21 PRs merged em main + 2 direct-main commits (dd0431c VPS audit + c516cc5 BibTeX rescue) + 3 abertos awaiting Sat Q4 numbers**. main `c516cc5`.
-> Cross-ref: `[[overnight-round2-2026-05-22]]` · `[[overnight-burst-2026-05-21-final]]` · `[[q4-weekend-sprint-kickoff-2026-05-23]]`
+> **Atualizado:** 2026-05-22 ~08h00 BRT. **Round 1+2+3+4+5 = 30 streams dispatched, 30 completados, 26 PRs merged em main + 3 direct-main commits (dd0431c VPS audit + c516cc5 BibTeX rescue + 9cfb93d case rename) + 3 abertos awaiting Sat Q4 numbers**. main `9cfb93d`.
+> Cross-ref: `[[overnight-round4-2026-05-22]]` · `[[overnight-round2-2026-05-22]]` · `[[overnight-burst-2026-05-21-final]]` · `[[q4-weekend-sprint-kickoff-2026-05-23]]`
 
 ### ✅ Round 1 — 7 PRs merged + 1 direct main
 
@@ -38,6 +38,17 @@
 | **#235** | `b296bb1` | FAQ.md — 7 sections, 24 Q&As (honest sobre Gemini cost / no SLA / scale ceiling) |
 | **#236** | `bb55b6c` | QUICKSTART.md — demo-first 5min guide (curl public demo → local install → first search) |
 | **#237** | `3560171` | v1.0.0-rc1 release notes draft (261 LOC, 10 sections, Wed 06-03 target) |
+
+### ✅ Round 5 — 5 PRs merged (fase pós-técnica)
+
+| PR | Commit | Stream |
+|---|---|---|
+| **#244** | `4b8c601` | HN comments prep — 15 hostile patterns + honest replies + reply tracker |
+| **#245** | `027d15a` | USE-CASES.md — 10 concrete agent memory patterns (conversational/PKM/code/multi-agent/audit/standup/CS/research/CRM/RPG) |
+| **#246** | `35a0f45` | Outreach templates — 10 sections (journos/podcast/conf/peers); collegial methodology-transparency w/ competitors |
+| **#247** | `04da4ac` | Lab Q1 2026 plan — 5 prioritized experiments (EverMemBench/BGE-reranker/scale 250k/multilingual/salience-opt) |
+| **#248** | `63336f3` | Press kit `docs/press-kit/` — 9 files (fact sheet/bio/pitches/quotes/screenshots/logo/tech-dive/Qs) |
+| (direct main) | `9cfb93d` | Rename `docs/RESEARCH/` → `docs/research/` (case consistency, 17 files) |
 
 ### ✅ Round 4 — 5 PRs merged (1 closed contaminated + 1 rescue commit)
 
