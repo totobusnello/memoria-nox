@@ -2,10 +2,39 @@
 
 ---
 
-## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 26 merged + 3 await Sat Q4 nums
+## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 38 merged + CI green + 3 await Sat Q4 nums
 
-> **Atualizado:** 2026-05-22 ~08h00 BRT. **Round 1+2+3+4+5 = 30 streams dispatched, 30 completados, 26 PRs merged em main + 3 direct-main commits (dd0431c VPS audit + c516cc5 BibTeX rescue + 9cfb93d case rename) + 3 abertos awaiting Sat Q4 numbers**. main `9cfb93d`.
+> **Atualizado:** 2026-05-22 ~12h00 BRT. **Round 1-8 = 42+ streams dispatched, 38 PRs merged em main + 4 direct-main commits (dd0431c / c516cc5 / 9cfb93d / 9feb158 CI emergency) + 3 abertos awaiting Sat Q4 numbers**. main `af4a142`.
+> **CI 100% green** (Lint Docs / Validate Syntax / Lint+Typecheck / Security / SBOM / A1/A4 + CodeQL).
 > Cross-ref: `[[overnight-round4-2026-05-22]]` · `[[overnight-round2-2026-05-22]]` · `[[overnight-burst-2026-05-21-final]]` · `[[q4-weekend-sprint-kickoff-2026-05-23]]`
+
+### ✅ Round 6 — 4 PRs (technical phase additions)
+
+| PR | Commit | Stream |
+|---|---|---|
+| **#249** | `650e2d4` | `examples/` runnable scripts (bash/python/js/RAG-loop) vs public VPS |
+| **#250** | `e6e21d7` | `docs/TUTORIAL.md` build-your-first-agent (785 LOC, my_agent.py ~150 LOC) |
+| **#251** | `959df5e` | GitHub Actions workflows (lint/syntax/security/eval/release) |
+| **#252** | `5313cac` | OpenAPI 3.1 spec `docs/openapi.yaml` (2935 LOC) + api-reference.md |
+
+### ✅ Round 7 — 4 PRs (post-launch readiness)
+
+| PR | Commit | Stream |
+|---|---|---|
+| **#256** | `112c86c` | `.devcontainer/` Codespaces config (Try-in-Browser) |
+| **#257** | `9872b46` | `docs/GLOSSARY.md` (35 entries + 18 acronyms) |
+| **#258** | `176da96` | `scripts/check-pre-launch.sh` pre-launch dashboard meta-checker |
+| **#259** | `af4a142` | `docs/discussions-seed/` Wed 06-03 Discussions kickoff drafts |
+
+### ✅ Fix burst — 3 problems-from-trás resolved
+
+| PR | Commit | Fix |
+|---|---|---|
+| **#253** | `fc4c528` | OpenAPI path dedup — `docs/openapi.yaml` canonical, `_legacy-wave-d.yaml` preserved |
+| **#254** | `9d199c5` | Perf Nightly — 8 A2/A3 future-feature metrics moved to `BASELINE_ONLY_METRICS` |
+| **#255** | `31e74c8` | CI calibration v1 — markdownlint+lychee+yamllint partial fix |
+| **#260** | `8f6f141` | CI noise kill v2 — disabled 28 stylistic rules + expanded ignores |
+| (direct main) | `9feb158` | CI emergency fix — scope lint to canonical paths + MD024 disable (kills final 3 false positives) |
 
 ### ✅ Round 1 — 7 PRs merged + 1 direct main
 
