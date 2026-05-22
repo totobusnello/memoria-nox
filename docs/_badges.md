@@ -20,3 +20,11 @@ Keep badges compact — one line, left-aligned, no extra prose.
 - `security.yml` badge will be yellow during weekly schedule runs; green once passed.
 - `eval-smoke.yml` badge intentionally omitted (only triggers on eval/ path changes — badge would show stale/grey most of the time).
 - `release.yml` badge omitted (manual workflow_dispatch only).
+
+## Codespaces badge (post-#253 merge)
+
+After this PR merges, add to README hero:
+
+```markdown
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/totobusnello/memoria-nox)
+```
