@@ -1,0 +1,113 @@
+# Q4 COMPARISON compose stack — self-hosted Zep + optional Letta.
+#
+# Validated SYNTAX-ONLY overnight (per spec §1 setup rules: "DO NOT actually
+# run docker compose up"). Toto runs `docker compose up -d` Saturday morning.
+#
+# Services:
+#   zep         — Zep OSS API on :8000 (default base for adapters/zep.py)
+#   postgres    — Postgres 16 backing Zep (also can back Letta)
+#   letta       — optional, only spun up if --profile letta passed
+#   noxmem      — optional, only spun up if --profile noxmem passed
+#
+# Volumes are named so `docker compose down` does NOT destroy data. To wipe
+# between runs: `docker compose -p q4 down -v` (explicit -v).
+#
+# Default profile (no flag): zep + postgres only. Toto adds --profile letta
+# Saturday if he wants Letta in-Docker instead of bare `letta server`.
+
+name: q4-comparison
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: q4-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: zep
+      POSTGRES_PASSWORD: zep
+      POSTGRES_DB: zep
+    volumes:
+      - q4-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zep -d zep"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  zep:
+    image: ghcr.io/getzep/zep:0.27.2
+    container_name: q4-zep
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ZEP_STORE_TYPE: postgres
+      ZEP_STORE_POSTGRES_DSN: postgres://zep:zep@postgres:5432/zep?sslmode=disable
+      # OSS Zep can run with local-only embeddings via FastEmbed; if the
+      # user wants OpenAI-quality embeddings, set OPENAI_API_KEY on the host
+      # and uncomment the line below.
+      # ZEP_OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ZEP_AUTH_REQUIRED: "false"
+    ports:
+      - "127.0.0.1:8000:8000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Optional — only if Toto wants Letta in Docker instead of `letta server`.
+  # Activate with: docker compose --profile letta up -d
+  letta:
+    image: letta/letta:0.6.6
+    container_name: q4-letta
+    profiles: ["letta"]
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      LETTA_PG_HOST: postgres
+      LETTA_PG_PORT: "5432"
+      LETTA_PG_USER: zep
+      LETTA_PG_PASSWORD: zep
+      LETTA_PG_DB: zep
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "127.0.0.1:8283:8283"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8283/v1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Optional — only if Toto wants nox-mem inside the same compose stack
+  # rather than running `node dist/index.js api` on the host.
+  # Activate with: docker compose --profile noxmem up -d
+  noxmem:
+    image: ghcr.io/totobusnello/memoria-nox:latest
+    container_name: q4-noxmem
+    profiles: ["noxmem"]
+    restart: unless-stopped
+    environment:
+      NOX_API_PORT: "18802"
+      OPENCLAW_WORKSPACE: /workspace
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    volumes:
+      - q4-noxmem-data:/workspace
+    ports:
+      - "127.0.0.1:18802:18802"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:18802/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  q4-postgres-data:
+    name: q4-postgres-data
+  q4-noxmem-data:
+    name: q4-noxmem-data

@@ -1,0 +1,33 @@
+# Q4 COMPARISON Python dependencies — install Saturday morning ONLY.
+#
+# Pins resolved 2026-05-21. Bump cautiously: a 0.1.x → 0.2.x bump in
+# Mem0/Letta may break the adapter contract; re-validate via smoke_test.py
+# after any upgrade.
+#
+# Toto: see REQUIREMENTS.md for the rationale + per-package source URL.
+
+# --- HTTP + utility ----
+requests==2.32.3
+PyYAML==6.0.2
+
+# --- nox-mem (no Python package needed; uses /api/search via requests) ---
+
+# --- Mem0 ---
+mem0ai==0.1.114
+
+# --- Zep OSS (self-hosted via docker compose) ---
+zep-python==2.4.0
+
+# --- Letta (ex-MemGPT) ---
+# letta+letta_client; letta_client is the SDK used by adapters/letta.py
+letta==0.6.6
+letta-client==0.1.46
+
+# --- agentmemory ---
+# CLI-only; no Python package. See REQUIREMENTS.md for `npm install -g @agentmemory/agentmemory`.
+
+# --- EverMind-AI ---
+# Repo-only as of 2026-05-21 (no PyPI). See REQUIREMENTS.md for `git clone + pip install -e .`.
+
+# --- dev / scoring ---
+# (none — aggregate.py uses stdlib only)
