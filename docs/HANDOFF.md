@@ -2,10 +2,10 @@
 
 ---
 
-## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 38 merged + CI green + 3 await Sat Q4 nums
+## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 42 merged + CI green + 3 await Sat Q4 nums
 
-> **Atualizado:** 2026-05-22 ~12h00 BRT. **Round 1-8 = 42+ streams dispatched, 38 PRs merged em main + 4 direct-main commits (dd0431c / c516cc5 / 9cfb93d / 9feb158 CI emergency) + 3 abertos awaiting Sat Q4 numbers**. main `af4a142`.
-> **CI 100% green** (Lint Docs / Validate Syntax / Lint+Typecheck / Security / SBOM / A1/A4 + CodeQL).
+> **Atualizado:** 2026-05-22 ~13h30 BRT. **Round 1-8 = 47 streams dispatched, 42 PRs merged em main + 6 direct-main commits (dd0431c / c516cc5 / 9cfb93d / 9feb158 / b1c6cc5 / ccfcc6d) + 3 abertos awaiting Sat Q4 numbers**. main `ccfcc6d`.
+> **CI 100% green** (Lint Docs / Validate Syntax / Lint+Typecheck / Security / SBOM / A1/A4 + CodeQL). Phantom notification do perf-baseline-refresh suprimida via template-parking.
 > Cross-ref: `[[overnight-round4-2026-05-22]]` · `[[overnight-round2-2026-05-22]]` · `[[overnight-burst-2026-05-21-final]]` · `[[q4-weekend-sprint-kickoff-2026-05-23]]`
 
 ### ✅ Round 6 — 4 PRs (technical phase additions)
@@ -26,7 +26,16 @@
 | **#258** | `176da96` | `scripts/check-pre-launch.sh` pre-launch dashboard meta-checker |
 | **#259** | `af4a142` | `docs/discussions-seed/` Wed 06-03 Discussions kickoff drafts |
 
-### ✅ Fix burst — 3 problems-from-trás resolved
+### ✅ Round 8 — 4 PRs merged (final overnight wave)
+
+| PR | Commit | Stream |
+|---|---|---|
+| **#261** | `792ed66` | `clients/python/` + `clients/javascript/` SDK scaffolds (12+10 tests PASS) |
+| **#262** | `b5e9829` | `docs/PERFORMANCE.md` — 252 LOC centralized perf landing |
+| **#263** | `a406b0f` | `docs/SELF-HOST.md` — 632 LOC production deployment guide |
+| **#264** | `b6e989b` | `docs/nox-mem.postman_collection.json` v2.1.0 (5 folders / 15 requests) |
+
+### ✅ Fix burst — 4 problems-from-trás resolved
 
 | PR | Commit | Fix |
 |---|---|---|
@@ -34,7 +43,44 @@
 | **#254** | `9d199c5` | Perf Nightly — 8 A2/A3 future-feature metrics moved to `BASELINE_ONLY_METRICS` |
 | **#255** | `31e74c8` | CI calibration v1 — markdownlint+lychee+yamllint partial fix |
 | **#260** | `8f6f141` | CI noise kill v2 — disabled 28 stylistic rules + expanded ignores |
-| (direct main) | `9feb158` | CI emergency fix — scope lint to canonical paths + MD024 disable (kills final 3 false positives) |
+| (direct main) | `9feb158` | CI emergency fix — scope lint to canonical paths + MD024 disable |
+| (direct main) | `b1c6cc5` | Perf-baseline-refresh `if: workflow_dispatch` guard (didn't suppress notif) |
+| (direct main) | `ccfcc6d` | Perf-baseline-refresh moved to `docs/workflows-future/*.template` — definitively kills phantom "No jobs were run" |
+
+### Stats finais overnight 2026-05-21 → 2026-05-22 ~13h30 BRT
+
+| Métrica | Valor |
+|---|---|
+| **Streams dispatched** | 47 |
+| **Streams completados** | 47 (100%) |
+| **PRs merged** | 42 (#219-#264) |
+| **Direct main commits** | 6 |
+| **PRs abertos awaiting Sat Q4** | 3 (#221 / #224 / #226) |
+| **Total commits since EOD #217** | 55 |
+| **LOC changed** | +18,704 / -1,605 (net +17,099) |
+| **Files changed** | 133 |
+| **CI workflows** | 8/8 green |
+| **Critical pre-launch catches** | 3 (LightRAG authorship / Unicode math / case consistency) |
+
+### Pre-launch readiness dashboard (final ~99%)
+
+| Categoria | Status |
+|---|---|
+| Technical paper + arXiv toolchain | ✅ (refs.bib / abstract / xelatex / build script) |
+| Q4 harness | ✅ #219 merged |
+| Paper §6 skeleton | 🔄 #226 open (Sat fill) |
+| FOSS hygiene | ✅ LICENSE / CITATION.cff / codemeta / SECURITY |
+| Repo metadata | ✅ description + 20 topics + Discussions + Issues |
+| README hero + badges | ✅ #229 polish |
+| Launch defense | ✅ HN comments / FAQ / GLOSSARY |
+| Launch assets | ✅ blog v0 (🔄 fill Sat) + social + extra channels + demo plan + narration + day-checklist |
+| Post-launch | ✅ outreach templates + Lab Q1 plan + Discussions seeds + release notes |
+| Developer experience | ✅ QUICKSTART + TUTORIAL + USE-CASES + ARCHITECTURE + examples + clients + Codespaces + Postman + OpenAPI |
+| Production ops | ✅ SELF-HOST + PERFORMANCE + L4 watchpoint + arXiv checklist + pre-launch checker |
+| Security | ✅ #242 GO verdict (0 CRIT/0 HIGH em v1.0 paths) |
+| CI/CD | ✅ workflows + calibration + perf-nightly exempt |
+
+**Restante (~1%):** Sat Q4 execution → fill 3 PRs → demo recording → arXiv submit Tue → launch Wed.
 
 ### ✅ Round 1 — 7 PRs merged + 1 direct main
 
