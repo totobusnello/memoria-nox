@@ -2,10 +2,10 @@
 
 ---
 
-## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 13 merged + 3 await Sat Q4 nums
+## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 16 merged + 3 await Sat Q4 nums
 
-> **Atualizado:** 2026-05-22 ~02h30 BRT. **Round 1+2 = 17 streams dispatched, 17 completados, 13 PRs merged em main + 1 direct-main commit + 3 abertos awaiting Sat Q4 numbers**. main `975711d`.
-> Cross-ref: `[[overnight-burst-2026-05-21-final]]` · `[[q4-weekend-sprint-kickoff-2026-05-23]]`
+> **Atualizado:** 2026-05-22 ~03h00 BRT. **Round 1+2+3 = 20 streams dispatched, 20 completados, 16 PRs merged em main + 1 direct-main commit + 3 abertos awaiting Sat Q4 numbers**. main `3560171`.
+> Cross-ref: `[[overnight-round2-2026-05-22]]` · `[[overnight-burst-2026-05-21-final]]` · `[[q4-weekend-sprint-kickoff-2026-05-23]]`
 
 ### ✅ Round 1 — 7 PRs merged + 1 direct main
 
@@ -30,6 +30,14 @@
 | **#232** | `bfc2b49` | Extra channels (Trendshift/IH/Lobsters/LinkedIn/HN-variants) |
 | **#233** | `112798f` | `CITATION.cff` + `codemeta.json` (cffconvert PASS) |
 | **#234** | `975711d` | Pandoc/LaTeX conversion test — PASS w/ Unicode math fixable (xelatex 5min) |
+
+### ✅ Round 3 — 3 PRs merged
+
+| PR | Commit | Stream |
+|---|---|---|
+| **#235** | `b296bb1` | FAQ.md — 7 sections, 24 Q&As (honest sobre Gemini cost / no SLA / scale ceiling) |
+| **#236** | `bb55b6c` | QUICKSTART.md — demo-first 5min guide (curl public demo → local install → first search) |
+| **#237** | `3560171` | v1.0.0-rc1 release notes draft (261 LOC, 10 sections, Wed 06-03 target) |
 
 ### Repo metadata cravado (gh repo edit)
 
