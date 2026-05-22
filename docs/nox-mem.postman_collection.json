@@ -1,0 +1,815 @@
+{
+  "info": {
+    "_postman_id": "48a1fa0c-9983-4064-bfef-befcaa2082bb",
+    "name": "nox-mem API",
+    "description": "Pain-weighted hybrid memory for LLM agents. Public demo at {{base_url}}.\n\nImport this collection into Postman, Insomnia, or Bruno. The `base_url` variable points to the public read-only demo. Override to `http://localhost:18802` for local use.\n\nSee `docs/openapi.yaml` for the full OpenAPI 3.1 spec and `docs/POSTMAN.md` for import instructions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0-rc1"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://187.77.234.79:18802",
+      "type": "string",
+      "description": "Base URL for nox-mem API. Override to http://localhost:18802 for local instance."
+    }
+  ],
+  "item": [
+    {
+      "name": "Core",
+      "description": "Original endpoints available since initial release. Health + hybrid search + answer primitive.",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Returns a comprehensive health snapshot: chunk counts, vector coverage, KG stats, reflect cache, search telemetry (last 24h), service status, DB size, and ops-audit summary. Always 200 when server is up."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Content-Type JSON', () => pm.response.to.have.header('Content-Type', /application\\/json/));",
+                  "pm.test('Has chunks', () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.property('chunks');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Health snapshot (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/health",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "health"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=utf-8"}
+              ],
+              "body": "{\n  \"chunks\": {\n    \"total\": 62914,\n    \"types\": [\n      {\"chunk_type\": \"lesson\", \"c\": 18423},\n      {\"chunk_type\": \"decision\", \"c\": 9871}\n    ]\n  },\n  \"vectorCoverage\": {\n    \"embedded\": 62912,\n    \"total\": 62914,\n    \"orphans\": 0\n  },\n  \"knowledgeGraph\": {\n    \"entities\": 402,\n    \"relations\": 544\n  },\n  \"salience_mode\": \"active\",\n  \"searchTelemetry\": {\n    \"count_24h\": 183,\n    \"avg_results\": 8.4,\n    \"semantic_ratio\": 0.712,\n    \"p95_latency_ms\": 312\n  },\n  \"dbSizeMB\": 487.3\n}"
+            }
+          ]
+        },
+        {
+          "name": "Search hybrid",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/search?q=pain-weighted memory&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "pain-weighted memory",
+                  "description": "Search query (required)"
+                },
+                {
+                  "key": "limit",
+                  "value": "5",
+                  "description": "Maximum results to return (default 10)"
+                },
+                {
+                  "key": "as_of",
+                  "value": "",
+                  "description": "ISO 8601 datetime — retrieve memory state as of this point in time (P3 temporal search)",
+                  "disabled": true
+                },
+                {
+                  "key": "changed_since",
+                  "value": "",
+                  "description": "ISO 8601 datetime — only return chunks modified after this date (P3)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Hybrid search: FTS5 BM25 + Gemini semantic embeddings + RRF fusion. Returns ranked chunks with scores, source files, and snippets. Optional temporal parameters: `as_of` and `changed_since` (P3 wave)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has results array', () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.property('results').that.is.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Search results (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/search?q=pain-weighted memory&limit=5",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "search"],
+                  "query": [
+                    {"key": "q", "value": "pain-weighted memory"},
+                    {"key": "limit", "value": "5"}
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=utf-8"}
+              ],
+              "body": "{\n  \"results\": [\n    {\n      \"score\": 0.982,\n      \"source_file\": \"memory/lessons/salience-formula.md\",\n      \"snippet\": \"salience = recency × pain × importance — the pain coefficient amplifies high-severity incidents (pain=1.0) without suppressing low-pain background knowledge (pain=0.2 default).\",\n      \"chunk_type\": \"lesson\",\n      \"pain\": 1.0\n    },\n    {\n      \"score\": 0.871,\n      \"source_file\": \"memory/decisions/d48-pain-weighted.md\",\n      \"snippet\": \"D48 decision: pain weight 0.1 trivial → 1.0 prod-outage; default 0.2; multiplicative in salience but additive in display ranking.\",\n      \"chunk_type\": \"decision\",\n      \"pain\": 0.8\n    }\n  ],\n  \"query\": \"pain-weighted memory\",\n  \"latency_ms\": 940\n}"
+            }
+          ]
+        },
+        {
+          "name": "Answer (flagship)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"q\": \"What is the salience formula?\",\n  \"limit\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/answer",
+              "host": ["{{base_url}}"],
+              "path": ["api", "answer"]
+            },
+            "description": "RAG-style question answering over the memory corpus. Returns a grounded answer with inline citation markers and a citations list. Gated by `NOX_ANSWER_ENABLED=1` on the server — returns 503 if disabled.\n\nBody fields:\n- `q` (required): the question to answer\n- `limit` (optional, default 5): max supporting chunks to retrieve\n- `session_id` (optional): session identifier for telemetry"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 503 (feature gate)', () => {",
+                  "  pm.expect([200, 503]).to.include(pm.response.code);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  pm.test('Has answer field', () => {",
+                  "    const b = pm.response.json();",
+                  "    pm.expect(b).to.satisfy(r => r.answer || r.response || r.text);",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Answer response (demo)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"q\": \"What is the salience formula?\", \"limit\": 5}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/answer",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "answer"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {"key": "Content-Type", "value": "application/json; charset=utf-8"}
+              ],
+              "body": "{\n  \"answer\": \"The salience formula is: salience = recency × pain × importance. Each factor is normalised to [0,1]. Pain defaults to 0.2 for routine memories and reaches 1.0 for prod-outage severity incidents [1]. Importance is derived from chunk type weights (lesson > decision > daily). Recency decays exponentially with configurable half-lives per chunk type [2].\",\n  \"chunks\": [\n    {\n      \"score\": 0.982,\n      \"source_file\": \"memory/lessons/salience-formula.md\",\n      \"snippet\": \"salience = recency × pain × importance\"\n    }\n  ],\n  \"latency_ms\": 1580\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Knowledge Graph",
+      "description": "KG entities, relations, and path queries over the graph built from memory chunks via Gemini 2.5 Flash extraction.",
+      "item": [
+        {
+          "name": "KG search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/kg/search?entity=salience",
+              "host": ["{{base_url}}"],
+              "path": ["api", "kg", "search"],
+              "query": [
+                {
+                  "key": "entity",
+                  "value": "salience",
+                  "description": "Entity name or partial name to search for in the KG"
+                }
+              ]
+            },
+            "description": "Search KG entities by name. Returns matching entities with their types, descriptions, and relation counts."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Has entities', () => {",
+                  "  const b = pm.response.json();",
+                  "  pm.expect(b).to.have.property('entities').that.is.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "KG search result (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/kg/search?entity=salience",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "kg", "search"],
+                  "query": [{"key": "entity", "value": "salience"}]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"entities\": [\n    {\n      \"id\": 87,\n      \"name\": \"salience-formula\",\n      \"entity_type\": \"concept\",\n      \"description\": \"Pain-weighted recency × pain × importance formula for ranking memory chunks.\",\n      \"relation_count\": 12\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "KG path",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/kg/path?source=salience-formula&target=gemini-embeddings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "kg", "path"],
+              "query": [
+                {
+                  "key": "source",
+                  "value": "salience-formula",
+                  "description": "Source entity slug"
+                },
+                {
+                  "key": "target",
+                  "value": "gemini-embeddings",
+                  "description": "Target entity slug"
+                }
+              ]
+            },
+            "description": "Find shortest relation path between two KG entities. Returns the chain of entities and relations connecting source to target."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 or 404', () => {",
+                  "  pm.expect([200, 404]).to.include(pm.response.code);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "KG path result (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/kg/path?source=salience-formula&target=gemini-embeddings",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "kg", "path"],
+                  "query": [
+                    {"key": "source", "value": "salience-formula"},
+                    {"key": "target", "value": "gemini-embeddings"}
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"path\": [\n    {\"entity\": \"salience-formula\", \"relation\": \"uses\", \"next\": \"hybrid-search\"},\n    {\"entity\": \"hybrid-search\", \"relation\": \"uses\", \"next\": \"gemini-embeddings\"}\n  ],\n  \"hops\": 2\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Multi-agent",
+      "description": "Multi-agent persona registry and cross-agent KG merge endpoints.",
+      "item": [
+        {
+          "name": "Agents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/agents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "agents"]
+            },
+            "description": "Returns the list of registered agent personas and their memory namespace metadata."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Agents list (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/agents",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "agents"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"agents\": [\n    {\"name\": \"Atlas\", \"namespace\": \"atlas\", \"chunks\": 4821},\n    {\"name\": \"Boris\", \"namespace\": \"boris\", \"chunks\": 2103},\n    {\"name\": \"Cipher\", \"namespace\": \"cipher\", \"chunks\": 3444}\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Cross-KG",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/cross-kg",
+              "host": ["{{base_url}}"],
+              "path": ["api", "cross-kg"]
+            },
+            "description": "Returns cross-agent KG merge summary — shared entities and relation overlaps across all agent namespaces."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Cross-KG summary (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/cross-kg",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "cross-kg"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"shared_entities\": 47,\n  \"total_entities\": 402,\n  \"merge_conflicts\": 3,\n  \"agents\": [\"Atlas\", \"Boris\", \"Cipher\"]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Operations",
+      "description": "Reflect (cache invalidation), Procedures (runbook registry), Crystallize (memory compaction and validation).",
+      "item": [
+        {
+          "name": "Reflect",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"What were the key lessons from the 2026-04-25 incident?\",\n  \"force\": false\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reflect",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reflect"]
+            },
+            "description": "Trigger a reflect cycle: synthesizes cross-chunk insights and caches the result. Returns a reflection summary. `force: true` bypasses cache."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Reflect response (demo)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"query\": \"What were the key lessons from the 2026-04-25 incident?\", \"force\": false}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/reflect",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "reflect"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"reflection\": \"Three root causes identified: (1) reindex.ts ran without entity-routing guard, (2) end-of-day cron triggered before backup window, (3) withOpAudit was not applied. Mitigations: ingest-router (A2), op-audit (A1), cron patch to consolidate.\",\n  \"cached\": false,\n  \"latency_ms\": 2140\n}"
+            }
+          ]
+        },
+        {
+          "name": "Procedures",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/procedures",
+              "host": ["{{base_url}}"],
+              "path": ["api", "procedures"]
+            },
+            "description": "Returns the list of registered procedures (runbooks) stored in memory. Procedures are structured operational guides that agents can retrieve and execute."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Procedures list (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/procedures",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "procedures"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"procedures\": [\n    {\"id\": 1, \"name\": \"deploy-nox-mem\", \"steps\": 8, \"last_updated\": \"2026-05-18T14:22:00Z\"},\n    {\"id\": 2, \"name\": \"restore-from-snapshot\", \"steps\": 5, \"last_updated\": \"2026-05-01T09:00:00Z\"}\n  ],\n  \"total\": 28\n}"
+            }
+          ]
+        },
+        {
+          "name": "Crystallize",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dry_run\": true,\n  \"target_types\": [\"lesson\", \"decision\"]\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/crystallize",
+              "host": ["{{base_url}}"],
+              "path": ["api", "crystallize"]
+            },
+            "description": "Compact and merge redundant memory chunks into crystallized summaries. Use `dry_run: true` to preview without mutation. CAUTION: destructive op — wraps in withOpAudit snapshot automatically."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Crystallize dry-run (demo)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"dry_run\": true, \"target_types\": [\"lesson\", \"decision\"]}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/crystallize",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "crystallize"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"dry_run\": true,\n  \"candidates\": 143,\n  \"estimated_reduction_pct\": 18.4,\n  \"snapshot_path\": null\n}"
+            }
+          ]
+        },
+        {
+          "name": "Crystallize validate",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"snapshot_path\": \"/var/backups/nox-mem/pre-op/crystallize-2026-05-21T10-00-00Z.db\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/crystallize/validate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "crystallize", "validate"]
+            },
+            "description": "Validate a crystallize snapshot before committing. Returns diff stats comparing snapshot state against current DB."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Crystallize validate response (demo)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [{"key": "Content-Type", "value": "application/json"}],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"snapshot_path\": \"/var/backups/nox-mem/pre-op/crystallize-2026-05-21T10-00-00Z.db\"}"
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/crystallize/validate",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "crystallize", "validate"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"valid\": true,\n  \"user_version_match\": true,\n  \"chunk_delta\": -143,\n  \"vec_coverage_after\": 99.99\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Observability",
+      "description": "F10 Phase A+B observability endpoints. Read-only; accessible without auth. Returns JSON snapshots for prod health dashboard, recent ops failures, schema invariants canary tail, and eval gate history.",
+      "item": [
+        {
+          "name": "Obs Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/observability/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "observability", "health"]
+            },
+            "description": "Prod health dashboard snapshot. Returns structured metrics for the F10 Phase A dashboard: DB stats, service uptime, alert flags."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Obs health snapshot (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/observability/health",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "observability", "health"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"status\": \"ok\",\n  \"alerts\": [],\n  \"db_size_mb\": 487.3,\n  \"vec_coverage_pct\": 99.99,\n  \"uptime_h\": 482.1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Obs Recent Ops",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/observability/recent-ops",
+              "host": ["{{base_url}}"],
+              "path": ["api", "observability", "recent-ops"]
+            },
+            "description": "Returns recent ops-audit failures (failed/crashed status). Useful for post-deploy triage. Read-only view of ops_audit table filtered to non-success rows."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Obs recent ops (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/observability/recent-ops",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "observability", "recent-ops"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"ops\": [\n    {\n      \"id\": 1042,\n      \"op_type\": \"reindex\",\n      \"status\": \"failed\",\n      \"started_at\": 1716292800000,\n      \"error\": \"vec0 virtual table error: column count mismatch\"\n    }\n  ],\n  \"total_failures_24h\": 1\n}"
+            }
+          ]
+        },
+        {
+          "name": "Obs Canary Tail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/observability/canary-tail",
+              "host": ["{{base_url}}"],
+              "path": ["api", "observability", "canary-tail"]
+            },
+            "description": "Returns the tail of the schema invariants canary log (last N entries from check-schema-invariants.sh runs). Flags any invariant violations."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Obs canary tail (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/observability/canary-tail",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "observability", "canary-tail"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"entries\": [\n    {\"ts\": \"2026-05-21T22:00:00Z\", \"result\": \"ok\", \"invariants_checked\": 4, \"violations\": 0},\n    {\"ts\": \"2026-05-21T21:45:00Z\", \"result\": \"ok\", \"invariants_checked\": 4, \"violations\": 0}\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Obs Evals",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/observability/evals",
+              "host": ["{{base_url}}"],
+              "path": ["api", "observability", "evals"]
+            },
+            "description": "Returns the eval gate history — ablation runs, nDCG@10 scores, MRR, and gating decisions. Powers the F10 Phase B eval dashboard."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "Obs evals history (demo)",
+              "originalRequest": {
+                "method": "GET",
+                "url": {
+                  "raw": "{{base_url}}/api/observability/evals",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "observability", "evals"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [{"key": "Content-Type", "value": "application/json; charset=utf-8"}],
+              "body": "{\n  \"evals\": [\n    {\n      \"run_id\": \"G10d\",\n      \"ts\": \"2026-05-21T18:00:00Z\",\n      \"ndcg_at_10\": 0.6891,\n      \"mrr\": 0.7103,\n      \"gate\": \"PASS\",\n      \"note\": \"per-style mutex threshold=2 wins\"\n    },\n    {\n      \"run_id\": \"G10c\",\n      \"ts\": \"2026-05-21T14:00:00Z\",\n      \"ndcg_at_10\": 0.6844,\n      \"mrr\": 0.7062,\n      \"gate\": \"PASS\",\n      \"note\": \"per-style mutex\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
