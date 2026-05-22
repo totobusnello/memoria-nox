@@ -1,0 +1,20 @@
+# markdownlint config — relaxed for technical docs
+default: true
+
+# Disable line-length rule (long code blocks, URLs, tables are common)
+MD013: false
+
+# Allow inline HTML (used in README badges and SVGs)
+MD033: false
+
+# Allow duplicate headings across files (sections like "## Usage" repeat)
+MD024: false
+
+# Allow first line not to be a heading (some docs start with frontmatter or notices)
+MD041: false
+
+# Allow bare URLs (lychee handles link validation separately)
+MD034: false
+
+# Allow emphasis as heading alternatives in changelog/timeline sections
+MD036: false

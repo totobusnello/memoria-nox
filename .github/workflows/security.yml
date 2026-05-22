@@ -1,0 +1,58 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"  # Monday 06:00 UTC weekly
+
+jobs:
+  gitleaks:
+    name: Secret Scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  npm-audit:
+    name: npm Audit (staged packages)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Audit staged-* package.json files
+        run: |
+          found=0
+          for f in $(find . -maxdepth 3 -name "package.json" | grep -v node_modules | grep -v .git); do
+            dir=$(dirname "$f")
+            if [ -f "$dir/package-lock.json" ] || [ -f "$dir/yarn.lock" ]; then
+              echo "Auditing $dir"
+              (cd "$dir" && npm audit --audit-level=high) || true
+              found=1
+            fi
+          done
+          [ "$found" -eq 0 ] && echo "No lockfiles found — skipping npm audit"
+
+  trivy:
+    name: Trivy FS Scan
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: 0
+          format: table

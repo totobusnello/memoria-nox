@@ -1,0 +1,45 @@
+name: Eval Smoke
+
+on:
+  pull_request:
+    paths:
+      - "eval/q4-comparison/**"
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    name: Eval Harness Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          if [ -f eval/q4-comparison/requirements.txt ]; then
+            pip install -r eval/q4-comparison/requirements.txt
+          else
+            echo "No requirements.txt found — skipping pip install"
+          fi
+
+      - name: Smoke test adapter interfaces
+        run: |
+          if [ -f eval/q4-comparison/smoke_test.py ]; then
+            python eval/q4-comparison/smoke_test.py --no-network
+          else
+            echo "smoke_test.py not found — skipping (eval harness not yet in repo)"
+          fi
+        continue-on-error: false
+
+      - name: Dry-run runner (argparse + dispatch)
+        run: |
+          if [ -f eval/q4-comparison/runner.py ]; then
+            python eval/q4-comparison/runner.py --dry-run
+          else
+            echo "runner.py not found — skipping"
+          fi
+        continue-on-error: false
