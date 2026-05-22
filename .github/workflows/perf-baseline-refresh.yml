@@ -1,0 +1,195 @@
+name: Perf Baseline Refresh (manual)
+
+# Manual-only workflow to regenerate benchmark/baseline-YYYY-MM-DD.json and
+# update the symlink/reference used by perf-nightly.yml.
+#
+# WHEN TO INVOKE:
+#   - At v1.0.0-rc1 tagging (refresh after G10d + temporal spike are confirmed stable)
+#   - At v1.1.0 tagging (A2 encrypted backup + A3 provider overhead ship)
+#   - After any intentional architecture change that sets a new performance baseline
+#
+# DO NOT invoke during regular CI — the baseline is the reference for regressions.
+# Refreshing it without a tagged release hides performance drift.
+#
+# USAGE:
+#   gh workflow run perf-baseline-refresh.yml \
+#     -f version=v1.0.0-rc1 \
+#     -f note="Post G10d+temporal-spike stable baseline"
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag for baseline (e.g. v1.0.0-rc1)'
+        required: true
+      note:
+        description: 'Short note explaining why baseline is being refreshed'
+        required: false
+        default: 'Manual baseline refresh'
+      dry_run:
+        description: 'Dry-run — generate report but do NOT commit baseline'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  NOX_BENCH_LLM_MS: '100'
+  NOX_BENCH_N: '100'
+  NOX_BENCH_ITERATIONS: '2000'
+
+jobs:
+  refresh-baseline:
+    name: "Refresh baseline — ${{ inputs.version }}"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install tsx
+        run: npm install -g tsx@4
+
+      - name: Install + build staged-P1
+        if: hashFiles('staged-P1/package.json') != ''
+        run: |
+          cd staged-P1
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm run build 2>&1 | tail -10
+
+      - name: Install + build staged-A2
+        if: hashFiles('staged-A2/package.json') != ''
+        run: |
+          cd staged-A2
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm run build 2>&1 | tail -10
+
+      - name: Install + build staged-A3
+        if: hashFiles('staged-A3/package.json') != ''
+        run: |
+          cd staged-A3
+          npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
+          npm run build 2>&1 | tail -10
+
+      - name: Run full benchmark suite
+        id: bench
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+          VERSION="${{ inputs.version }}"
+          SAFE_VERSION=$(echo "$VERSION" | sed 's/[^a-zA-Z0-9._-]/-/g')
+          BASELINE_FILE="benchmark/baseline-${DATE}.json"
+
+          set +e
+          npx tsx benchmark/regression-detector.ts \
+            --json-only \
+            --threshold="5" \
+            > /tmp/bench-raw.json 2>/tmp/bench-stderr.txt
+          EXIT_CODE=$?
+
+          cat /tmp/bench-stderr.txt >&2 || true
+
+          # Wrap raw report into baseline format.
+          node -e "
+            const fs = require('fs');
+            const raw = JSON.parse(fs.readFileSync('/tmp/bench-raw.json', 'utf8'));
+
+            // Build metrics map from results that were actually measured.
+            const metrics = {};
+            for (const r of (raw.results || [])) {
+              if (r.measured !== null) {
+                metrics[r.metric_key] = {
+                  value: r.measured,
+                  unit: r.unit,
+                  budget_ms: r.budget_ms,
+                  within_budget: r.within_budget,
+                  source_pr: r.source_pr,
+                  description: 'Measured during baseline refresh ${{ inputs.version }}'
+                };
+              }
+            }
+
+            const baseline = {
+              version: '${{ inputs.version }}',
+              timestamp: new Date().toISOString(),
+              host: 'github-actions-ubuntu-latest',
+              node_version: process.version,
+              notes: [
+                'Refreshed via perf-baseline-refresh.yml workflow',
+                '${{ inputs.note }}',
+                'Run ID: ${{ github.run_id }}',
+                'SHA: ${{ github.sha }}'
+              ],
+              metrics
+            };
+
+            fs.writeFileSync('${BASELINE_FILE}', JSON.stringify(baseline, null, 2));
+            console.log('Baseline written: ${BASELINE_FILE}');
+          "
+
+          echo "baseline_file=${BASELINE_FILE}" >> "\$GITHUB_OUTPUT"
+          echo "date=${DATE}" >> "\$GITHUB_OUTPUT"
+        env:
+          NOX_BENCH_LLM_MS: ${{ env.NOX_BENCH_LLM_MS }}
+          NOX_BENCH_N: ${{ env.NOX_BENCH_N }}
+          NOX_BENCH_ITERATIONS: ${{ env.NOX_BENCH_ITERATIONS }}
+
+      - name: Upload baseline artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: baseline-${{ inputs.version }}-${{ github.run_id }}
+          path: ${{ steps.bench.outputs.baseline_file }}
+          retention-days: 365
+
+      - name: Commit baseline to main
+        if: inputs.dry_run != 'true'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add "${{ steps.bench.outputs.baseline_file }}"
+
+          if git diff --cached --quiet; then
+            echo "::notice::No changes to commit."
+          else
+            git commit -m "chore(bench): refresh baseline for ${{ inputs.version }}
+
+${{ inputs.note }}
+
+Run: ${{ github.run_id }} | SHA: ${{ github.sha }}
+
+IMPORTANT: Update BASELINE_PATH in benchmark/regression-detector.ts to point
+to this new file: ${{ steps.bench.outputs.baseline_file }}"
+            git push origin main
+            echo "::notice::Baseline committed and pushed."
+          fi
+
+      - name: Dry-run notice
+        if: inputs.dry_run == 'true'
+        run: |
+          echo "::notice::DRY RUN — baseline generated as artifact but NOT committed."
+          echo "Download artifact 'baseline-${{ inputs.version }}-${{ github.run_id }}' to review."
+
+      - name: Job summary
+        if: always()
+        run: |
+          {
+            echo "## Perf Baseline Refresh — ${{ inputs.version }}"
+            echo ""
+            echo "Date: ${{ steps.bench.outputs.date }}"
+            echo "Dry-run: ${{ inputs.dry_run }}"
+            echo ""
+            echo "### Next steps"
+            echo ""
+            echo "1. Update \`BASELINE_PATH\` constant in \`benchmark/regression-detector.ts\` to point to the new baseline file."
+            echo "2. If A2/A3 have shipped, move their metric keys from \`BASELINE_ONLY_METRICS\` back to \`RUNNABLE_METRICS\` and remove entries from \`benchmark/exempt-metrics.json\`."
+            echo "3. Open a PR with the baseline update + detector changes."
+          } >> "$GITHUB_STEP_SUMMARY"
