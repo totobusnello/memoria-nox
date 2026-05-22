@@ -1,0 +1,7 @@
+# arXiv placeholder — real URL lands Tue 2026-06-03
+^\[PENDENTE
+# Localhost/internal test URLs
+^http://localhost
+^http://127\.0\.0\.1
+# GitHub Actions workflow badge links (pre-launch, workflows may not yet exist)
+^https://github\.com/totobusnello/memoria-nox/actions/workflows/

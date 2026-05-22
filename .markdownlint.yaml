@@ -18,3 +18,33 @@ MD034: false
 
 # Allow emphasis as heading alternatives in changelog/timeline sections
 MD036: false
+
+# Spacing rules — disabled for technical/research docs with dense formatting
+# Blanks around headings: dense docs often stack heading + list intentionally
+MD022: false
+# Blanks around fenced code blocks
+MD031: false
+# Blanks around lists
+MD032: false
+# Fenced code language: many shell/log blocks don't need a language tag
+MD040: false
+# Ordered list prefix style (allow 1/1/1 or 1/2/3 both)
+MD029: false
+
+# Minor style rules — disabled to reduce noise in internal/research docs
+# Trailing spaces (issue templates use them for line breaks)
+MD009: false
+# Blank lines inside blockquotes
+MD028: false
+# Spaces inside emphasis markers
+MD037: false
+# Unordered list style consistency
+MD004: false
+# Table formatting
+MD056: false
+# Trailing punctuation in headings
+MD026: false
+# Single H1 per file (some docs are multi-section aggregates)
+MD025: false
+# Broken links (handled by lychee separately)
+MD051: false

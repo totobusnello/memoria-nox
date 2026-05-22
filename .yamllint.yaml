@@ -1,0 +1,15 @@
+extends: relaxed
+rules:
+  line-length: disable
+  truthy: disable
+  comments: disable
+  indentation:
+    spaces: 2
+    indent-sequences: consistent
+ignore: |
+  .claude/
+  archive/
+  _archive-pre-split-20260501/
+  staged-*/
+  node_modules/
+  validation/zero-vendor/ci-action.yml
