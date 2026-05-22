@@ -2,9 +2,9 @@
 
 ---
 
-## 🌃 LATE EVENING 2026-05-21 — F10 Phase B DEPLOYED + L4 plural + DAY TOTAL 20 PRs
+## 🌃 EOD FINAL 2026-05-21 — DAY TOTAL 24 PRs + 4 production deploys + G12 R1 closed
 
-> **Atualizado:** 2026-05-21 ~20h45 BRT EOD. **Após evening burst + agent F10 Phase B landing, sessão late-evening deployou F10 Phase B em prod + shipou L4 plural normalisation PR #214.** main em `8233d33`, 0 open PRs, 0 worktrees. **Day total: 20 PRs merged 2026-05-21**, 3 production deploys (G10d ACTIVE-T2 + opsAudit hygiene + F10 A+B), 3 decisions cravados (D51/D52/D53).
+> **Atualizado:** 2026-05-21 ~21h15 BRT EOD definitivo. main em `b61deb0`, **0 open PRs, 0 worktrees, clean**. **Day total: 24 PRs merged**, **4 production deploys** (G10d ACTIVE-T2 morning + opsAudit hygiene morning + F10 Phase A evening + F10 Phase B + G12 R3 late-evening), **3 decisions cravados** (D51/D52/D53), **D48 saga FINAL CLOSED** (G3→G10d). **G12 audit final status:** R3 deployed prod (PR #206 + SCP), R1+R2 closed eval-only (PR #216 audit §11), R4 deferred. **Nothing urgent next session** — primeiro real trigger é L4 watchpoint Monday 2026-05-25 manhã pós Sunday cron.
 
 ### F10 Phase B — DEPLOYED LIVE em prod
 
@@ -41,7 +41,7 @@ Bridges convention divergence cravada na cleanup PR #210:
 
 ### Stats agregados DAY TOTAL 2026-05-21
 
-- **20 PRs merged** (#188-#214 spans)
+- **24 PRs merged** (#188-#216 spans, gh count)
 - **3 production deploys:** G10d ACTIVE-T2 morning, opsAudit hygiene morning, F10 Phase A+B evening/late-evening
 - **3 decisions cravados:** D51 (G10d Conditional Hard Mutex), D52 (L4 plural normalisation), D53 (F10 Phase A+B deployed)
 - **D48 saga FINAL CLOSED** (G3→G10d) — canonical boost stack: section_boost + source_type_boost + Hard Mutex conditional t=2 + salience v2 additive
