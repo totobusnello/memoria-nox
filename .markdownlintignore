@@ -1,12 +1,45 @@
 # Non-canonical dirs — excluded from markdown lint
+# Note: markdownlint-cli2 requires /**  suffix for directory wildcards
+
+# Archive / legacy
 _archive-pre-split-20260501/
+_archive-pre-split-20260501/**
+_archive-pre-split-*/
+_archive-pre-split-*/**
 archive/
-staged-*/
-.claude/
-node_modules/
-benchmark/
+archive/**
 docs/_archive/
+docs/_archive/**
 plans/_archive/
-handoffs/_archive/
+plans/_archive/**
+handoffs/_archive/**
+
+# Staged agent work dirs
+staged-*/
+staged-*/**
+staged-*/edits/**
+
+# Infra / tools
+.claude/
+.claude/**
+node_modules/
+node_modules/**
+
+# Build / benchmark / site
+benchmark/
+benchmark/**
 docs-site/
+docs-site/**
+
+# Templates and generated
+docs/discussions-seed/
+docs/discussions-seed/**
+*/templates/**
+**/_legacy*
+
+# Changelogs (generated)
 **/CHANGELOG.md
+
+# Open PRs — do not lint these yet (#221, #224)
+docs/launch-blog-v0-draft.md
+docs/launch-social-copy.md

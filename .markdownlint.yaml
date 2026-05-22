@@ -1,50 +1,62 @@
-# markdownlint config — relaxed for technical docs
+# markdownlint config — structural sanity only, all stylistic rules disabled
+# Goal: zero false positives on legitimate technical docs, audits, social copy, research notes
 default: true
 
-# Disable line-length rule (long code blocks, URLs, tables are common)
-MD013: false
-
-# Allow inline HTML (used in README badges and SVGs)
-MD033: false
-
-# Allow duplicate headings across files (sections like "## Usage" repeat)
-MD024: false
-
-# Allow first line not to be a heading (some docs start with frontmatter or notices)
-MD041: false
-
-# Allow bare URLs (lychee handles link validation separately)
-MD034: false
-
-# Allow emphasis as heading alternatives in changelog/timeline sections
-MD036: false
-
-# Spacing rules — disabled for technical/research docs with dense formatting
-# Blanks around headings: dense docs often stack heading + list intentionally
-MD022: false
-# Blanks around fenced code blocks
-MD031: false
-# Blanks around lists
-MD032: false
-# Fenced code language: many shell/log blocks don't need a language tag
-MD040: false
-# Ordered list prefix style (allow 1/1/1 or 1/2/3 both)
-MD029: false
-
-# Minor style rules — disabled to reduce noise in internal/research docs
-# Trailing spaces (issue templates use them for line breaks)
-MD009: false
-# Blank lines inside blockquotes
-MD028: false
-# Spaces inside emphasis markers
-MD037: false
-# Unordered list style consistency
+# --- Structural rules (keep) ---
+# MD001 heading-increment: disabled — audits/timelines skip levels intentionally
+MD001: false
+# MD003 heading-style: inconsistent across legacy docs
+MD003: false
+# MD004 unordered list style
 MD004: false
-# Table formatting
-MD056: false
-# Trailing punctuation in headings
-MD026: false
-# Single H1 per file (some docs are multi-section aggregates)
-MD025: false
-# Broken links (handled by lychee separately)
-MD051: false
+
+# --- Line length + spacing ---
+MD009: false   # trailing-spaces
+MD010: false   # no-hard-tabs
+MD012: false   # no-multiple-blanks
+MD013: false   # line-length (long URLs, tables, code)
+MD018: false   # no-missing-space-atx — hashtags in social copy trigger this
+MD022: false   # blanks-around-headings
+MD023: false   # heading-start-left — false positives in code blocks
+MD026: false   # no-trailing-punctuation
+MD028: false   # no-blanks-blockquote
+
+# --- List / code block style ---
+MD029: false   # ordered-list-prefix
+MD030: false   # list-marker-space
+MD031: false   # blanks-around-fences
+MD032: false   # blanks-around-lists
+
+# --- HTML / links / references ---
+MD033: false   # no-inline-html (badges, SVGs, anchor tags)
+MD034: false   # no-bare-urls (lychee handles link validation)
+MD036: false   # no-emphasis-as-heading (changelog/timeline sections)
+MD037: false   # no-space-in-emphasis
+MD038: false   # no-space-in-code — false positives on backtick patterns
+MD039: false   # no-space-in-links
+
+# --- Heading structure ---
+MD024: { siblings_only: true }  # allow same heading in different sections
+MD025: false   # single-title — multi-section aggregates have multiple H1s
+MD041: false   # first-line-heading (many docs start with notices or frontmatter)
+MD042: false   # no-empty-links
+MD043: false   # required-headings
+
+# --- Code blocks ---
+MD040: false   # fenced-code-language (shell/log blocks often lack language tag)
+MD045: false   # no-alt-text
+MD046: false   # code-block-style
+MD047: false   # single-trailing-newline
+MD048: false   # code-fence-style
+
+# --- Emphasis + strong style (asterisk vs underscore — style choice) ---
+MD049: false
+MD050: false
+
+# --- Links / fragments / references ---
+MD051: false   # link-fragments
+MD052: false   # reference-links-images — triggers on [REDACTED][REDACTED] placeholders
+MD053: false   # link-image-reference-definitions
+MD054: false   # link-image-style
+MD055: false   # table-pipe-style
+MD056: false   # table-column-count
