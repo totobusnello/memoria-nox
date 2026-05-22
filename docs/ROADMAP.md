@@ -367,30 +367,59 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-## 12. Próxima ação concreta — pós EOD 2026-05-21
+## 12. Próxima ação concreta — pós overnight 2026-05-21 (atualizado ~22h BRT)
 
-**Decisão imediata (próxima sessão):**
+> **Nota:** todos os PRs overnight 2026-05-21 são placeholders/skeletons. Números Q4 cravados Sábado. **Não mergear blog/paper/social sem os números Sat.**
 
-1. **L4 watchpoint 2026-05-25 (Mon manhã)** — query `SELECT extraction_method, COUNT(*) FROM kg_relations WHERE created_at >= DATE('2026-05-24') GROUP BY extraction_method` no VPS pós Sunday 23h UTC cron. Esperado: rows com `extraction_method` populado em uma das 4 values do enum. Se ainda NULL → L4 wire-up broken, escalate.
-2. **D49 phase 2 → D50 decision** ETA 2026-05-27 (~5d) — após 7d shadow baseline completo
-3. **G12 R3 dedup carve-out deploy** — código em main mas não rodando prod ainda (PR #206 merged, deploy SCP+restart pending)
+### Sat 2026-05-24
 
-**Esta semana:**
-1. F10 Phase A + Phase B 24h passive smoke validation (polling stable, no memory leaks)
-2. F10 Phase C (Telemetry drilldown) implementation pós-D50 (gated em D49 phase 2 baseline ≥7d)
-3. L4 spec §4 amendment doc PR documentando plural normalisation (D52 implementation)
+| Janela | Ação |
+|---|---|
+| **9h BRT — Review PRs** | Revisar 9+ PRs overnight (#219–#228 estimado): FOSS hygiene → L4 spec §4 → asciinema demo → social copy → blog v0 → paper skeleton → L4 watchpoint+arXiv → HANDOFF sync → launch day checklist → Q4 setup. Mergear bloqueadores (FOSS hygiene + Q4 setup) primeiro. |
+| **9h30–14h BRT — Q4 execution** | ~5h compute: rodar harness Q4 COMPARISON.md completo (nox-mem vs agentmemory + memanto + mem0 + Letta + Zep). Números reais geram headline final. |
+| **14h–18h BRT — Aggregate + polish** | Agregar resultados Q4 → atualizar COMPARISON.md com gate verificado (`GATE_VERIFIED=1`) → narrative polish blog/paper/social com números reais. |
+
+### Sun 2026-05-25
+
+| Ação | Detalhe |
+|---|---|
+| **L4 watchpoint check** | `SELECT extraction_method, COUNT(*) FROM kg_relations WHERE created_at >= DATE('2026-05-24') GROUP BY extraction_method` no VPS pós Sunday cron (~23h UTC). Esperado: rows com `extraction_method` populado. Se NULL → L4 wire-up broken, escalate. |
+| **COMPARISON.md final** | Confirmar gate D43 com números Q4 reais. Se nox-mem ≥ topo: GTM Phase 2 disparada. |
+| **Methodology writeup** | Seção §6 paper: como rodou Q4, isolation, harness — escrito com números reais em mão. |
+
+### Mon–Fri 2026-05-26–30
+
+| Item | Status/Blocker |
+|---|---|
+| **D49 phase 2 → D50 decision** | ETA 2026-05-27 (~5d shadow baseline) — ativar ou off `NOX_TEMPORAL_PATH` |
+| **F10 Phase C (Telemetry+Shadow tracker)** | ~8h, gated em D49 phase 2 baseline ≥7d |
+| **Paper polish** | Seções finais com Q4 numbers confirmados; arXiv formatting |
+| **arXiv prep + review** | Abstract + references + PDF build + co-author check |
+
+### Tue 2026-06-02 (hard deadline — per D27 sequencing)
+
+| Item | Ação |
+|---|---|
+| **arXiv submit** | `arXiv submit` — paper v1.0 público (Tue submit → Wed live). Coordenar com launch. |
+
+### Wed 2026-06-03 (LAUNCH coordenado)
+
+| Canal | Asset pronto? |
+|---|---|
+| GitHub README final | PR #46 + assets #155 — SIM (synced G5 V3) |
+| COMPARISON.md | PR #47 scaffolded — aguarda Q4 numbers Sat |
+| Docker image | PR #68 — SIM |
+| Blog post | overnight skeleton — aguarda Q4 numbers Sat |
+| Social copy (Twitter/HN/LinkedIn) | overnight skeleton — aguarda Q4 numbers Sat |
+| asciinema demo | overnight plan — gravar pós Q4 confirmado |
+| Product Hunt | coordenar com arXiv date |
+| Nox-Supermem landing | Stripe-first USD (D44) — pendente pricing decision |
 
 **Blocos pendentes pra D50:**
 - Phase 2 baseline 7d shadow → coletar hit-rate temporal path em prod → D50 decision (ativar ou off)
 
 **Aguardando Toto sanity-check:**
 - G12 R1 — mass-edit corpus entity frontmatter com `description:` YAML (~100 memory files, parked aguardando approval do approach)
-
-**Quando Q4 gate executar:**
-- README final já pronto (PR #46 + assets #155 synced com G5 V3)
-- COMPARISON.md scaffolded (PR #47) — rodar comparison full
-- Docker pronto (PR #68) — publicar imagem
-- Visual dashboard URLs disponíveis (F10 Phase A+B prod) podem subir como demo screenshots
 
 ---
 
@@ -410,4 +439,4 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-*ROADMAP v4.3 — v2 overnight 2026-05-17; v3 pós Wave H 2026-05-18; v4 pós Wave A 2026-05-20; v4.1 EOD 2026-05-20 D48 saga (G3→G11); v4.2 EOD 2026-05-21 inicial (G10d + F10 A+B + L4 plural); **v4.3 EOD FINAL 2026-05-21 (24 PRs total + 4 prod deploys + G12 R3 VPS-deployed + G12 R1+R2 closed eval-only via PR #216 audit §11)**. Próxima review: pós L4 watchpoint Mon 2026-05-25 ou pós D50 decision 2026-05-27.*
+*ROADMAP v4.4 — v2 overnight 2026-05-17; v3 pós Wave H 2026-05-18; v4 pós Wave A 2026-05-20; v4.1 EOD 2026-05-20 D48 saga (G3→G11); v4.2 EOD 2026-05-21 inicial (G10d + F10 A+B + L4 plural); v4.3 EOD FINAL 2026-05-21 (24 PRs total + 4 prod deploys + G12 R3 VPS-deployed + G12 R1+R2 closed eval-only via PR #216 audit §11); **v4.4 overnight 2026-05-21 ~22h BRT (10 agents em paralelo + §12 next-action calendário Sat-launch)**. Próxima review: Sat 2026-05-24 manhã pós review PRs overnight.*
