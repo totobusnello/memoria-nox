@@ -33,3 +33,12 @@ claude-credentials.json
 
 # VPS IP atual — local-only, muda com Hostinger floating-IP rebalance
 .vps-current-ip
+
+# Build artifacts — generated from src/; never commit
+dist/
+
+# SQLite databases — contain live corpus data, never commit
+*.db
+*.sqlite
+*.db-wal
+*.db-shm

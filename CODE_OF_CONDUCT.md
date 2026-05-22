@@ -19,7 +19,7 @@ Violations may be reported to the maintainers via:
 
 1. **GitHub Security Advisory** (for sensitive reports): https://github.com/totobusnello/memoria-nox/security/advisories
 2. **GitHub Issues** (for non-sensitive reports): tag with `code-of-conduct`
-3. **Email**: `<to be filled by maintainer — placeholder>`
+3. **Email**: `lab@nuvini.com.br` — subject: `[CoC] memoria-nox — <brief description>`
 
 All reports are reviewed and investigated. Maintainers are obligated to respect the privacy and security of reporters.
 
