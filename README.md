@@ -21,6 +21,15 @@
   <a href="https://github.com/totobusnello/memoria-nox/actions/workflows/lint-and-typecheck.yml"><img src="https://img.shields.io/github/actions/workflow/status/totobusnello/memoria-nox/lint-and-typecheck.yml?style=for-the-badge&color=00C896&label=ci" alt="CI"></a>
   <a href="https://www.bestpractices.dev/projects/12896"><img src="https://img.shields.io/cii/level/12896?style=for-the-badge&color=00C896&label=OpenSSF" alt="OpenSSF Best Practices: passing"></a>
   <a href="paper/publication/latex/paper.pdf"><img src="https://img.shields.io/badge/paper-v1.1-00C896?style=for-the-badge" alt="Paper v1.1"></a>
+  <a href="[PENDENTE Tue 06-02 arXiv URL]"><img src="https://img.shields.io/badge/arXiv-PENDENTE-b31b1b?style=for-the-badge" alt="arXiv preprint"></a>
+  <img src="https://img.shields.io/badge/version-1.0.0--rc1-00C896?style=for-the-badge" alt="version 1.0.0-rc1">
+</p>
+
+<p align="center">
+  <!-- PENDENTE Sat 2026-05-30: Insert asciinema CLI demo GIF + F10 dashboard GIF -->
+  <!-- See docs/launch-demo-plan.md for capture flow -->
+  <!-- Replace src below with real GIF path once recorded -->
+  <img alt="nox-mem CLI + observability dashboards demo" src="docs/assets/demo-placeholder.png">
 </p>
 
 <p align="center">
@@ -185,6 +194,19 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 
 ## Comparison
 
+### Q4 Comparison — números finais (pendente publicação 2026-05-24)
+
+*Metodologia completa + breakdown por sistema e dataset em [`docs/COMPARISON.md`](docs/COMPARISON.md). Publicação Saturday 2026-05-24.*
+
+| System | nDCG@10 (LongMemEval) | R@10 | MRR | p50 latency |
+|---|---|---|---|---|
+| **nox-mem** | **[PENDENTE Sat]** | [PENDENTE] | [PENDENTE] | [PENDENTE] |
+| Mem0 | [PENDENTE] | — | — | — |
+| Zep | [PENDENTE] | — | — | — |
+| Letta (MemGPT) | [PENDENTE] | — | — | — |
+| agentmemory | [PENDENTE] | — | — | — |
+| EverMind-AI | [PENDENTE] | — | — | — |
+
 The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md), now with **G5 V3 A8 canonical numbers** (nDCG@10 = 0.6237, +78.8% over G3 baseline, measured 2026-05-19). The seven-axis differentiation:
 
 <p align="center">
@@ -232,6 +254,24 @@ Per-agent setup: [`docs/integrations/`](docs/integrations/). The MCP server expo
   url     = {https://github.com/totobusnello/memoria-nox}
 }
 ```
+
+## Citation
+
+If you use nox-mem in your research or production:
+
+```bibtex
+@software{busnello2026noxmem,
+  title   = {nox-mem: Pain-Weighted Hybrid Memory for LLM Agents},
+  author  = {Busnello, Luiz Antonio},
+  year    = {2026},
+  month   = {6},
+  url     = {https://github.com/totobusnello/memoria-nox},
+  version = {1.0.0-rc1},
+  note    = {arXiv:[PENDENTE Tue 06-02]}
+}
+```
+
+See [`CITATION.cff`](CITATION.cff) for the canonical citation file format.
 
 ## Documentation
 
