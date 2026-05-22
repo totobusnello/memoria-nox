@@ -396,13 +396,13 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 | **Paper polish** | Seções finais com Q4 numbers confirmados; arXiv formatting |
 | **arXiv prep + review** | Abstract + references + PDF build + co-author check |
 
-### Tue 2026-06-03 (hard deadline)
+### Tue 2026-06-02 (hard deadline — per D27 sequencing)
 
 | Item | Ação |
 |---|---|
-| **arXiv submit** | `arXiv submit` — paper v1.0 público. Coordenar com launch. |
+| **arXiv submit** | `arXiv submit` — paper v1.0 público (Tue submit → Wed live). Coordenar com launch. |
 
-### Wed 2026-06-04 (LAUNCH coordenado)
+### Wed 2026-06-03 (LAUNCH coordenado)
 
 | Canal | Asset pronto? |
 |---|---|
