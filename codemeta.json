@@ -1,0 +1,56 @@
+{
+  "@context": "https://w3id.org/codemeta/v2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "nox-mem",
+  "description": "Pain-weighted hybrid memory with shadow discipline for LLM agents. FTS5 + sqlite-vec + RRF + knowledge graph. Open-source, self-hosted, zero vendor lock-in.",
+  "license": "https://spdx.org/licenses/MIT",
+  "codeRepository": "https://github.com/totobusnello/memoria-nox",
+  "issueTracker": "https://github.com/totobusnello/memoria-nox/issues",
+  "programmingLanguage": ["TypeScript", "Python", "SQL"],
+  "operatingSystem": ["Linux", "macOS"],
+  "softwareRequirements": [
+    "Node.js >= 20",
+    "Python >= 3.10",
+    "SQLite >= 3.40 (with FTS5)",
+    "sqlite-vec extension"
+  ],
+  "version": "1.0.0-rc1",
+  "datePublished": "[PENDENTE 2026-06-03]",
+  "keywords": [
+    "memory",
+    "hybrid retrieval",
+    "LLM agents",
+    "sqlite-vec",
+    "FTS5",
+    "knowledge graph",
+    "pain-weighted salience",
+    "autonomous agents",
+    "open-source"
+  ],
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Luiz Antonio",
+      "familyName": "Busnello",
+      "additionalName": "Toto",
+      "email": "lab@nuvini.com.br",
+      "affiliation": {
+        "@type": "Organization",
+        "name": "Independent"
+      }
+    }
+  ],
+  "maintainer": [
+    {
+      "@type": "Person",
+      "givenName": "Toto",
+      "familyName": "Busnello",
+      "email": "lab@nuvini.com.br"
+    }
+  ],
+  "developmentStatus": "active",
+  "readme": "https://github.com/totobusnello/memoria-nox/blob/main/README.md",
+  "softwareHelp": {
+    "@id": "https://github.com/totobusnello/memoria-nox/blob/main/docs/HANDOFF.md"
+  }
+}
