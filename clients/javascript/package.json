@@ -1,0 +1,19 @@
+{
+  "name": "@noxmem/client",
+  "version": "1.0.0-rc1",
+  "description": "JavaScript/TypeScript client for nox-mem",
+  "type": "module",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "node --test src/*.test.js"
+  },
+  "license": "MIT",
+  "author": "Toto Busnello <lab@nuvini.com.br>",
+  "engines": {"node": ">=20.0.0"},
+  "repository": "github:totobusnello/memoria-nox",
+  "homepage": "https://github.com/totobusnello/memoria-nox/tree/main/clients/javascript"
+}

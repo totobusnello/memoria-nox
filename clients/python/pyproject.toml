@@ -1,0 +1,18 @@
+[project]
+name = "nox-mem-client"
+version = "1.0.0rc1"
+description = "Python client for nox-mem hybrid memory API"
+authors = [{name = "Toto Busnello", email = "lab@nuvini.com.br"}]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["requests>=2.32.0"]
+
+[project.urls]
+"Homepage" = "https://github.com/totobusnello/memoria-nox"
+"API" = "https://github.com/totobusnello/memoria-nox/blob/main/docs/openapi.yaml"
+"Documentation" = "https://github.com/totobusnello/memoria-nox/blob/main/docs/QUICKSTART.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
