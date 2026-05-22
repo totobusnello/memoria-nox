@@ -1,0 +1,8 @@
+# Q4 COMPARISON harness — local-only artifacts
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+.env.q4
