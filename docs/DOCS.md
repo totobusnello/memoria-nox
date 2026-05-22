@@ -22,7 +22,7 @@
 - [CONTRIBUTING.md](CONTRIBUTING.md) — how to open issues, submit PRs, run tests
 - [CONVENTIONS.md](CONVENTIONS.md) — code style, commit format, naming rules
 - [DEPLOY-WAVE-B.md](DEPLOY-WAVE-B.md) — VPS deploy steps for staged-* patches
-- [openapi/openapi.yaml](openapi/openapi.yaml) — OpenAPI 3.1 spec for all HTTP endpoints
+- [openapi.yaml](openapi.yaml) — OpenAPI 3.1 spec for all HTTP endpoints (canonical, v1.0.0-rc1)
 - [openapi/README.md](openapi/README.md) — API spec generation guide
 
 ### Doing security review?
@@ -162,7 +162,7 @@ All `integrations/` docs are `[pending]` (PR #57, not yet merged):
 ### Reference
 
 - `docs/CONFIGURATION.md` `[pending]` — env vars (28+ vars, PR #54)
-- [openapi/openapi.yaml](openapi/openapi.yaml) — formal HTTP API spec (OpenAPI 3.1)
+- [openapi.yaml](openapi.yaml) — formal HTTP API spec (OpenAPI 3.1, canonical v1.0.0-rc1)
 - [openapi/README.md](openapi/README.md) — how to regenerate + validate spec
 - [../validation/zero-vendor/README.md](../validation/zero-vendor/README.md) — A4 zero-vendor checks (8 invariants, CI <1s)
 - CLAUDE.md — per-project rules (nox-mem entry point for VPS credentials + critical rules)
@@ -176,7 +176,7 @@ All `integrations/` docs are `[pending]` (PR #57, not yet merged):
 | Category | Docs |
 |---|---|
 | Core docs | README.md, CLAUDE.md, ARCHITECTURE.md, VISION.md, ROADMAP.md, DECISIONS.md, HANDOFF.md, CONVENTIONS.md, EVOLUTION.md, INCIDENTS.md, RUNBOOKS.md |
-| Wave docs | CONTRIBUTING.md, DEPLOY-WAVE-B.md, COMPETITIVE-POSITIONING.md, QA-MATRIX-WAVE-B.md, openapi/openapi.yaml+README, post-mortems/WAVE-B + WAVE-CD |
+| Wave docs | CONTRIBUTING.md, DEPLOY-WAVE-B.md, COMPETITIVE-POSITIONING.md, QA-MATRIX-WAVE-B.md, openapi.yaml+openapi/README.md, post-mortems/WAVE-B + WAVE-CD |
 | Specs | 20 spec files (2026-04-12 through 2026-05-18) |
 | Evals | eval/locomo, eval/longmemeval, eval/latency (scaffolds) |
 | Benchmark | benchmark/README + COMPARISON template |
