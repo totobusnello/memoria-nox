@@ -1,1 +1,1 @@
-"""Q4 COMPARISON adapter tests — mock-heavy, no external services."""
+# Q4 COMPARISON test package
