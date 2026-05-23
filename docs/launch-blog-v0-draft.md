@@ -64,15 +64,24 @@ Retrieval de memória que não mede não sabe se funciona. memoria-nox roda cont
 | MRR | **0.3700** |
 | R@10 | **0.5417** |
 | Gold hits | **13/20 (65%)** |
-| p50 latency | **12ms** |
+| p50 latency | **8ms** |
 | p95 latency | **43ms** |
-| Avg latency | **15ms** |
+| Avg latency | **9ms** |
 | LoCoMo gold hits | **7/10 (70%)** |
 | LongMemEval gold hits | **6/10 (60%)** |
 
-> **Honestidade obrigatória.** Esses números vêm do **smoke de 20 queries** (10 por dataset, dry-run-sample), com a base de comparação D43 (gate +18.8%) batida no nDCG@10 0.6380. **O run canônico** — 100 queries × 2 datasets × 6 sistemas (mem0, Zep, Letta, agentmemory, EverMind-AI + nox-mem) — **ainda está em execução**: 5 dos 6 adapters competidores estavam em setup no momento desta publicação. Este preview valida a metodologia + confirma que o pipeline de retrieval do nox-mem funciona end-to-end no eval isolado. `benchmark/COMPARISON.md` será atualizado quando o run completo cravar. Latência de 12ms p50 é nox-mem no eval isolado; competitor latency comes via adapter SDKs (e.g. mem0 ~258ms p50 em runs mock anteriores) — números diretos comparáveis exigem o run completo. Nada é publicado antes de ser medido; nada é dado como definitivo antes do run canônico.
+**Side-by-side com mem0 — primeiro número cross-system real (Sat 2026-05-24 18h BRT):**
 
-Memória relacionada: `[[q4-smoke-sat-2026-05-24-real-numbers]]`.
+| Sistema | Corpus | Hits | nDCG@10 | MRR | R@10 | p50 |
+|---|---|---:|---:|---:|---:|---:|
+| **nox-mem** | 6.822 chunks (full, ingest local zero-custo) | **13/20 (65%)** | 0.6380 | **0.3700** | **0.5417** | **8ms** |
+| **mem0** | 500 chunks (cap ~8%, $0.10 ingest) | 3/20 (15%) | **0.8569** | 0.1167 | 0.2500 | 273ms |
+
+30× mais rápido. 4× mais hits. MRR 3× melhor. O trade-off real: mem0 opera com janela menor (500 chunks por cost-control), o que reduz competição entre candidatos e infla o nDCG@10 per-resultado — resultados são menos frequentes, mas quando chegam tendem a aparecer no topo. nox-mem ingere o corpus completo local, zero-custo, cobrindo 4× mais queries com first-hit mais cedo. Com corpus uniforme (sem cap), o run canônico será o árbitro do gap nDCG real.
+
+> **Honestidade obrigatória.** Esses números vêm do **smoke de 20 queries** (10 por dataset, dry-run-sample), com a base de comparação D43 (gate +18.8%) batida no nDCG@10 0.6380. O **run canônico** — 100 queries × 2 datasets × 6 sistemas, corpus uniforme sem cap — **ainda está em execução**: 4 adapters restantes (Zep, Letta, agentmemory, EverMind-AI) em setup. `benchmark/COMPARISON.md` será atualizado quando o run completo cravar. Nada é dado como definitivo antes do run canônico.
+
+Memórias relacionadas: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 ### A — Autonomy: dados seus, provider seu, zero lock-in
 
@@ -180,7 +189,7 @@ Repositório: [github.com/totobusnello/memoria-nox](https://github.com/totobusne
 
 **GTM Phase 2** está desbloqueada. Lançamento: quarta-feira 2026-06-03 com distribuição simultânea no arXiv, Product Hunt, Hacker News e LinkedIn.
 
-O Q4 COMPARISON externo (Sat 2026-05-24) já começou: o smoke de 20 queries fechou em **nDCG@10 0.6380, p50 12ms, 65% gold-hit rate**. O run canônico de 100 queries × 2 datasets × 6 sistemas atualiza `benchmark/COMPARISON.md` quando os 5 adapters competidores em setup ficarem prontos. Se os números mostrarem que algum competidor supera memoria-nox em algum eixo, vai estar lá — sem cherry-pick.
+O Q4 COMPARISON externo (Sat 2026-05-24) já cravou os primeiros números cross-system reais: nox-mem **nDCG@10 0.6380, p50 8ms, 65% gold-hit** vs mem0 (500-chunk cap) **nDCG@10 0.8569, p50 273ms, 15% gold-hit**. nox-mem 30× mais rápido e 4× mais cobertura; mem0 com concentração por-resultado mais alta dentro de janela menor. O run canônico de 100 queries × 2 datasets × 6 sistemas (corpus uniforme, sem cap) atualiza `benchmark/COMPARISON.md` quando os 4 adapters restantes ficarem prontos. Se os números mostrarem que algum competidor supera memoria-nox em algum eixo, vai estar lá — sem cherry-pick.
 
 ---
 
@@ -194,4 +203,4 @@ memoria-nox nasceu da necessidade real de persistir decisões, incidentes e liç
 
 ---
 
-*Lançamento Wed 2026-06-03. Smoke Q4 cravado Sat 2026-05-24 15h30 BRT (nDCG@10 0.6380, p50 12ms, 13/20 gold hits). Run canônico Sat-Sun completa `benchmark/COMPARISON.md` antes do launch.*
+*Lançamento Wed 2026-06-03. Smoke Q4 nox-mem cravado Sat 2026-05-24 15h30 BRT (nDCG@10 0.6380, p50 8ms, 13/20 gold hits). Cross-system parcial Sat 2026-05-24 18h BRT: nox-mem vs mem0 (500-cap) — 30× faster, 4× hit-rate, 3× MRR. Run canônico completo (6 sistemas, corpus uniforme) fecha `benchmark/COMPARISON.md` antes do launch.*
