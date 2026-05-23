@@ -6,6 +6,22 @@
 >
 > Detalhes: `docs/ROADMAP.md`. v1 pré-pivot arquivado: `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md`.
 
+---
+
+## Sat 2026-05-24 Closure Summary
+
+**Delivered:** Q4 honest framing (#296) + preflight timeouts (#295) + A2 Tier 3 P2-P5 migration (#286, #294, #292-293, #291) + F10 Phase D (#291) + schema pins + 6 critical learnings consolidated.
+
+**Sat learnings crystallized:**
+1. Worktree sparse-checkout root cause → `/tmp/<task>-clone` pattern
+2. Shared corpus_loader canonical pattern enforcement
+3. Honest cross-system framing (mem0 concentration vs nox-mem coverage)
+4. Blocking ops explicit timeout wrapper (run-sat-q4 fix)
+5. SQLite PRAGMA key cannot retrofit to plaintext (migration via VACUUM INTO)
+6. VACUUM INTO + ATTACH reverse pattern (better-sqlite3 limitation)
+
+**Status:** Q4 run ready. Phase 2 gate methodology finalized (nDCG@10 + coverage threshold). Roadmap unchanged, capacity on track.
+
 ## Escopo deste repo
 APENAS evolução do **nox-mem** (sistema de memória inteligente):
 - Schema (chunks, FTS5, sqlite-vec, KG)
@@ -57,11 +73,19 @@ Quando produtizar (Hotmart/instalador/marketing) → migra pra `nox-supermem/`.
 | Plans antigos (25 arquivos) | `plans/_archive/` |
 | Handoffs antigos | `handoffs/_archive/` |
 
-## Estado atual nox-mem (v3.7, sincronizado 2026-05-01)
+## Estado atual nox-mem (v3.8, sincronizado 2026-05-24)
 
 **Path na VPS:** `/root/.openclaw/workspace/tools/nox-mem/`
 **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings (3072d), inotifywait
 **Plataforma onde roda:** ver `~/Claude/Projetos/openclaw-vps/infra/CLAUDE.md`
+
+### A2 Tier 3 Status (Encrypted Backups — 2026-05-24)
+- **P1 (Spec):** ✓ Merged (#258)
+- **P2 (Migration script + VACUUM INTO):** ✓ Deployed (#286 — reverse pattern due to better-sqlite3 ATTACH limitation)
+- **P3 (reads_audit wrapper + retention sweep):** ✓ Deployed (#292, #293)
+- **P4 (Ed25519 checkpoints):** ✓ Deployed (#294)
+- **P5 (Dashboard + monitoring):** Deferred to Phase B (GTM Phase 2 dependent)
+- **Canary test (PR #280):** Plaintext → encrypted migration validated. Key lesson: PRAGMA key cannot retrofit existing DB — must migrate via atomic VACUUM INTO
 
 ### Schema (V7)
 - `chunks` + `chunks_fts` (FTS5) — **62.9k+ chunks** ativos (sincronizado 2026-05-01)
