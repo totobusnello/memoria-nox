@@ -1,0 +1,73 @@
+# Zep 0.27.2 OSS — Q4 comparison stack config.
+#
+# All LLM/embedding extractors disabled. Zep will store and retrieve messages
+# but will NOT summarise, embed, or extract entities. For the Q4 benchmark this
+# is intentional: we measure raw memory retrieval, not LLM-enriched recall.
+#
+# The LLM block is required by the startup validator even when all extractors
+# are disabled. Service: "openai" + a dummy key satisfies the check; no OpenAI
+# API calls are made because Summarizer.Enabled and Embeddings.Enabled are both
+# false. ZEP_OPENAI_API_KEY env var is also set in docker-compose.yml.
+
+LLM:
+  Service: openai
+  Model: gpt-4o
+  OpenAIAPIKey: "no-llm-not-used"
+
+Extractors:
+  Messages:
+    Summarizer:
+      Enabled: false
+      Embeddings:
+        Enabled: false
+        Dimensions: 1536
+        Service: ""
+        ChunkSize: 0
+      Entities:
+        Enabled: false
+    Embeddings:
+      Enabled: false
+      Dimensions: 1536
+      Service: ""
+      ChunkSize: 0
+    Entities:
+      Enabled: false
+    Intent:
+      Enabled: false
+  Documents:
+    Embeddings:
+      Enabled: false
+      Dimensions: 1536
+      Service: ""
+      ChunkSize: 0
+
+Store:
+  Type: postgres
+  Postgres:
+    DSN: "postgres://zep:zep@postgres:5432/zep?sslmode=disable"
+
+Server:
+  Host: "0.0.0.0"
+  Port: 8000
+  WebEnabled: false
+  MaxRequestSize: 5242880
+
+Memory:
+  MessageWindow: 12
+
+Auth:
+  Required: false
+  Secret: "not-required"
+
+Log:
+  Level: info
+
+DataConfig:
+  PurgeEvery: 60
+
+Development: false
+
+CustomPrompts:
+  SummarizerPrompts:
+    OpenAI: ""
+    Anthropic: ""

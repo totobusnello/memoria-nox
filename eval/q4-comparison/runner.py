@@ -176,12 +176,32 @@ def resolve_systems(raw: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
+def load_corpus(corpus_file: Path | None) -> list[dict[str, Any]]:
+    """
+    Load corpus chunks from a JSONL file for ingest_corpus() adapters.
+
+    Each line: {"id": ..., "text": ..., ...}
+    Returns [] if corpus_file is None or does not exist.
+    """
+    if corpus_file is None or not corpus_file.exists():
+        return []
+    chunks: list[dict[str, Any]] = []
+    with corpus_file.open() as fh:
+        for line in fh:
+            line = line.strip()
+            if line:
+                chunks.append(json.loads(line))
+    return chunks
+
+
 def run_system(
     system: str,
     queries: list[QueryRecord],
     k: int,
     output_dir: Path,
     dry_run: bool,
+    corpus_chunks: list[dict[str, Any]] | None = None,
+    skip_ingest: bool = False,
 ) -> Path:
     """Drive a single adapter through all queries; persist JSON."""
     adapter = load_adapter(system)
@@ -205,6 +225,25 @@ def run_system(
 
     print(f"[{system}] SETUP")
     adapter.setup()
+
+    # Ingest corpus if the adapter exposes ingest_corpus() and we have chunks.
+    # Systems like Zep/Letta/EverMind need corpus pre-loaded before search.
+    # nox_mem/mem0/agentmemory manage their own persistent stores.
+    ingest_fn = getattr(adapter, "ingest_corpus", None)
+    if ingest_fn is not None and corpus_chunks and not skip_ingest:
+        print(f"[{system}] INGEST {len(corpus_chunks)} corpus chunks …")
+        t_ingest = time.perf_counter()
+        try:
+            ingest_stats = ingest_fn(corpus_chunks)
+            ingest_ms = (time.perf_counter() - t_ingest) * 1000
+            print(f"[{system}] INGEST done in {ingest_ms:.0f}ms: {ingest_stats}")
+        except Exception as exc:
+            print(f"[{system}] INGEST ERROR: {exc}", file=sys.stderr)
+    elif ingest_fn is not None and not corpus_chunks and not skip_ingest:
+        print(
+            f"[{system}] WARNING: adapter has ingest_corpus() but no --corpus-file provided. "
+            "Search results may be empty. Pass --corpus-file cache/locomo.jsonl (or combined)."
+        )
     results: list[dict[str, Any]] = []
     errors = 0
     try:
@@ -297,6 +336,21 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="optional JSONL with explicit query records (overrides dry-run samples)",
     )
     p.add_argument(
+        "--corpus-file",
+        default=None,
+        help=(
+            "JSONL file with corpus chunks to ingest before search (used by adapters with "
+            "ingest_corpus(), e.g. zep, letta). Each line: {id, text, ...}. "
+            "Defaults to cache/<dataset>.jsonl when --datasets is a single dataset. "
+            "For multi-dataset runs, pass a combined JSONL or use --skip-ingest."
+        ),
+    )
+    p.add_argument(
+        "--skip-ingest",
+        action="store_true",
+        help="skip ingest_corpus() call even if adapter has it (reuse previously ingested data)",
+    )
+    p.add_argument(
         "--dry-run",
         action="store_true",
         help="validate adapters + print plan without making search calls",
@@ -320,6 +374,22 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[load] {ds}: {len(qs)} queries (limit={args.limit})")
         queries.extend(qs)
 
+    # Resolve corpus file for ingest_corpus() adapters (zep, letta, evermind).
+    # Auto-detect from cache/<dataset>.jsonl when a single dataset is requested
+    # and no explicit --corpus-file was given.
+    corpus_file: Path | None = None
+    if args.corpus_file:
+        corpus_file = Path(args.corpus_file)
+    elif not args.skip_ingest and len(datasets) == 1:
+        candidate = HERE / "cache" / f"{datasets[0]}.jsonl"
+        if candidate.exists():
+            corpus_file = candidate
+            print(f"[corpus] auto-detected: {corpus_file} ({candidate.stat().st_size // 1024}KB)")
+
+    corpus_chunks = load_corpus(corpus_file) if corpus_file else []
+    if corpus_chunks:
+        print(f"[corpus] loaded {len(corpus_chunks)} chunks from {corpus_file}")
+
     if args.dry_run:
         print(
             f"[plan] systems={systems} datasets={datasets} k={args.k} "
@@ -328,7 +398,15 @@ def main(argv: list[str] | None = None) -> int:
 
     for sys_name in systems:
         try:
-            run_system(sys_name, queries, args.k, output_dir, args.dry_run)
+            run_system(
+                sys_name,
+                queries,
+                args.k,
+                output_dir,
+                args.dry_run,
+                corpus_chunks=corpus_chunks,
+                skip_ingest=args.skip_ingest,
+            )
         except Exception:
             print(f"[{sys_name}] FATAL", file=sys.stderr)
             traceback.print_exc()
