@@ -1,105 +1,121 @@
 """
-agentmemory adapter — CLI subprocess (npm package).
+agentmemory adapter — REST API (npm package, server mode).
 
-Repo: https://github.com/rohitg00/agentmemory  (MIT CLI, 11k+ stars)
-Install: npm install -g @agentmemory/agentmemory@latest
+Repo: https://github.com/rohitg00/agentmemory  (Apache-2.0 CLI; iii-engine ELv2 self-host OK)
+Install: npm install -g @agentmemory/agentmemory   # v0.9.21 verified 2026-05-23
+Version: v0.9.21 (latest as of 2026-05-23 probe)
 
-KNOWN GAP (per benchmark/competitor-configs.json + spec §1):
-  - agentmemory CLI exists open-source under MIT.
-  - BUT the runtime daemon `iii-engine` may be required for vector retrieval.
-  - iii-engine licensing is unclear in public docs.
-  - Two blockers tracked: (1) confirm iii-engine installable on the VPS without
-    a paid license; (2) confirm CLI-only mode supports search.
+PROBE FINDINGS (2026-05-23):
+  - npm install succeeds, iii-engine auto-downloads (not paid-only).
+  - CLI has NO `add`/`recall` subcommands — it is server-only (REST on :3111).
+  - `POST /agentmemory/remember` does not accept custom IDs; issues `mem_xxx` system IDs.
+  - ID round-trip: nox-mem chunk id embedded as `[nox_id:<id>]` prefix in content,
+    parsed back from search results. Not ideal but the only option without patching upstream.
+  - Smoke test passed: 5 chunks ingested, search returned 5 hits, scores ~0.68.
+  - `agentmemory --version` hangs (daemon mode); version confirmed via npm view / package.json.
 
-If iii-engine is required and unavailable, this adapter will fail `validate()`
-and Toto skips agentmemory from the Q4 run (per spec §4 stop conditions).
+DAEMON LIFECYCLE:
+  The daemon must be running before validate() / ingest_corpus() / search() are called.
+  Start it externally:
+      agentmemory &
+      sleep 5 && curl http://localhost:3111/agentmemory/livez
 
-INGESTION MODEL
----------------
-ingest_corpus(chunks) shells out to ``agentmemory add --id <nox_id> --text "..."``
-for each chunk. We pass --id explicitly so the daemon stores our stable id;
-search() therefore round-trips the nox-mem id natively (no separate id-map
-needed, unlike Letta/Zep).
+  validate() hits /livez to confirm the daemon is up. If not, it returns ok=False with
+  a clear error so the runner can skip agentmemory from the Q4 run (per spec §4).
 
-Idempotency: a pre-flight ``agentmemory list --json`` (or ``stats --json``)
-is attempted; if the count matches the input size, we skip ingestion. If the
-surface is unavailable we fall back to per-chunk ``--upsert``, which the CLI
-documents as a tolerated re-add.
+INGESTION MODEL:
+  ingest_corpus(chunks) posts each chunk to POST /agentmemory/remember.
+  Idempotency: best-effort skip if /stats endpoint returns count >= input size.
+  Content format: "[nox_id:<id>] <text>" so search() can parse the nox-mem id back.
 
-Daemon health is NOT managed here: validate() must have already passed. If
-the daemon dies mid-ingest, we count errors per chunk and return the partial
-result so the runner can decide to abort or continue.
-
-SAFETY VALVE:
-  - If at ingest time the CLI cannot be invoked (daemon down, license expired
-    intra-session), ingest_corpus() returns mode="skip" with a clear error.
-    Q4 COMPARISON.md can then document the gap as "no data" per spec §6 honest
-    reporting. The runner should NOT crash.
-
-Calls per query: ``agentmemory recall "<query>" --top-k <k> --json``
+SEARCH MODEL:
+  POST /agentmemory/search with {query, limit}. Returns list with .observation.id (mem_xxx)
+  and .observation.narrative or .observation.facts. The nox-mem id is parsed from the content
+  prefix "[nox_id:<id>]". Falls back to mem_xxx if prefix not found.
 """
 
 from __future__ import annotations
 
 import json
 import os
-import shutil
-import subprocess
+import re
+import time
 from typing import Any, Iterable
 
+try:
+    import requests as _requests
+    _requests_available = True
+except ImportError:
+    _requests_available = False
+
 NAME = "agentmemory"
-VERSION_PIN = "@agentmemory/agentmemory@npm-latest-on-2026-05-21 (resolve via `agentmemory --version`)"
-REQUIRES_ENV: list[str] = []  # CLI may need iii-engine running; checked in validate
+VERSION_PIN = "@agentmemory/agentmemory@0.9.21 (verified 2026-05-23)"
+REQUIRES_ENV: list[str] = []  # No API keys needed for local run
 INSTALL_HINT = (
     "npm install -g '@agentmemory/agentmemory'   "
-    "# also requires iii-engine daemon — see BLOCKED.md / competitor-configs.json"
+    "# then: agentmemory & (start daemon); curl http://localhost:3111/agentmemory/livez"
 )
 
+_NOX_ID_RE = re.compile(r"^\[nox_id:([^\]]+)\]\s*")
 
-def _cli_path() -> str | None:
-    return shutil.which(os.environ.get("AGENTMEMORY_BIN") or "agentmemory")
+
+def _base_url() -> str:
+    return os.environ.get("AGENTMEMORY_URL", "http://localhost:3111")
+
+
+def _get(path: str, timeout: int = 10) -> dict:
+    if not _requests_available:
+        raise RuntimeError("requests not installed — pip install requests")
+    url = _base_url() + path
+    resp = _requests.get(url, timeout=timeout)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def _post(path: str, body: dict, timeout: int = 60) -> dict:
+    if not _requests_available:
+        raise RuntimeError("requests not installed — pip install requests")
+    url = _base_url() + path
+    resp = _requests.post(url, json=body, timeout=timeout)
+    resp.raise_for_status()
+    return resp.json()
 
 
 def validate() -> dict:
-    cli = _cli_path()
-    if cli is None:
+    if not _requests_available:
         return {
             "ok": False,
-            "error": "agentmemory CLI not found on $PATH",
+            "error": "requests library not installed (pip install requests)",
             "version": None,
             "notes": INSTALL_HINT,
         }
-    # `agentmemory --version` (no network)
     try:
-        proc = subprocess.run(
-            [cli, "--version"],
-            capture_output=True,
-            text=True,
-            timeout=10,
-            check=False,
-        )
-    except Exception as exc:  # pragma: no cover
+        data = _get("/agentmemory/livez", timeout=5)
+    except Exception as exc:
         return {
             "ok": False,
-            "error": f"failed to invoke {cli}: {exc}",
+            "error": f"daemon not reachable at {_base_url()}: {exc}",
             "version": None,
-            "notes": None,
+            "notes": (
+                "Start daemon first: `agentmemory &` then `sleep 5`. "
+                "Check AGENTMEMORY_URL env if using non-default port."
+            ),
         }
-    if proc.returncode != 0:
+    if data.get("status") != "ok":
         return {
             "ok": False,
-            "error": f"{cli} --version exited {proc.returncode}: {proc.stderr.strip()}",
+            "error": f"livez returned unexpected body: {data}",
             "version": None,
-            "notes": "Check iii-engine daemon — agentmemory CLI may require it",
+            "notes": "Daemon running but unhealthy",
         }
-    version = (proc.stdout.strip() or proc.stderr.strip()).splitlines()[0]
     return {
         "ok": True,
         "error": None,
-        "version": version,
+        "version": VERSION_PIN,
         "notes": (
-            "CLI present. Saturday runtime: ensure iii-engine daemon is up "
-            "before runner.py — see blockers in competitor-configs.json."
+            f"Daemon live at {_base_url()}. "
+            "ID round-trip via [nox_id:...] prefix in content. "
+            "iii-engine ELv2: self-host OK for benchmark."
         ),
     }
 
@@ -112,79 +128,40 @@ def teardown() -> None:
     return None
 
 
-def _count_existing(cli: str, namespace: str | None) -> int | None:
-    """Best-effort: return current memory count if the CLI exposes it.
-
-    Returns None if the surface is unavailable (older CLI, daemon down, etc).
-    Used purely for the idempotency skip — never required for ingest to work.
-    """
-    candidates = [
-        [cli, "list", "--json", "--count-only"],
-        [cli, "list", "--json"],
-        [cli, "stats", "--json"],
-    ]
-    for argv in candidates:
-        argv_with_ns = argv + (["--namespace", namespace] if namespace else [])
+def _count_existing() -> int | None:
+    """Best-effort count of existing memories via stats endpoint."""
+    for path in ["/agentmemory/stats", "/agentmemory/health"]:
         try:
-            proc = subprocess.run(
-                argv_with_ns,
-                capture_output=True,
-                text=True,
-                timeout=10,
-                check=False,
-            )
+            data = _get(path, timeout=5)
+            for key in ("total", "count", "memories", "totalMemories"):
+                val = data.get(key)
+                if isinstance(val, int):
+                    return val
         except Exception:
             continue
-        if proc.returncode != 0:
-            continue
-        try:
-            payload = json.loads(proc.stdout)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(payload, dict):
-            for key in ("count", "total", "memories", "items"):
-                value = payload.get(key)
-                if isinstance(value, int):
-                    return value
-                if isinstance(value, list):
-                    return len(value)
-        if isinstance(payload, list):
-            return len(payload)
     return None
 
 
 def ingest_corpus(chunks: Iterable[dict]) -> dict:
     """
-    Add chunks via subprocess. Each chunk becomes one ``agentmemory add`` call.
+    Add chunks via POST /agentmemory/remember.
+
+    Content is prefixed with `[nox_id:<id>]` so search() can parse the
+    nox-mem id back from results (agentmemory doesn't support custom IDs).
 
     Args:
-        chunks: iterable of dicts with at least ``id`` and ``text``. Optional
-            keys ignored. Namespace pulled from env ``AGENTMEMORY_NAMESPACE``
-            (or none).
+        chunks: iterable of dicts with at least ``id`` and ``text``.
 
     Returns:
         {ingested, skipped, total, errors, mode}
     """
-    cli = _cli_path()
-    if cli is None:
-        return {
-            "ingested": 0,
-            "skipped": 0,
-            "total": 0,
-            "errors": 0,
-            "mode": "skip",
-            "error": "CLI not available — daemon missing or iii-engine paid-only",
-        }
-
     chunks_list = list(chunks)
     total = len(chunks_list)
     if total == 0:
         return {"ingested": 0, "skipped": 0, "total": 0, "errors": 0, "mode": "noop"}
 
-    namespace = os.environ.get("AGENTMEMORY_NAMESPACE") or None
-
     # Idempotency probe
-    existing = _count_existing(cli, namespace)
+    existing = _count_existing()
     if existing is not None and existing >= total:
         return {
             "ingested": 0,
@@ -198,9 +175,6 @@ def ingest_corpus(chunks: Iterable[dict]) -> dict:
 
     ingested = 0
     errors = 0
-    base_args = [cli, "add"]
-    if namespace:
-        base_args += ["--namespace", namespace]
 
     for chunk in chunks_list:
         nox_id = str(chunk.get("id") or "")
@@ -208,69 +182,58 @@ def ingest_corpus(chunks: Iterable[dict]) -> dict:
         if not nox_id or not text:
             errors += 1
             continue
-        argv = base_args + ["--id", nox_id, "--text", text, "--upsert"]
+        # Embed nox-mem id as parseable prefix
+        content = f"[nox_id:{nox_id}] {text}"
         try:
-            proc = subprocess.run(argv, capture_output=True, text=True, timeout=60, check=False)
+            resp = _post("/agentmemory/remember", {"content": content, "type": "observation"})
+            if resp.get("success"):
+                ingested += 1
+            else:
+                errors += 1
         except Exception:
             errors += 1
-            continue
-        if proc.returncode != 0:
-            # Tolerate older CLIs that lack --upsert: retry without it
-            try:
-                proc2 = subprocess.run(
-                    [a for a in argv if a != "--upsert"],
-                    capture_output=True,
-                    text=True,
-                    timeout=60,
-                    check=False,
-                )
-                if proc2.returncode != 0:
-                    errors += 1
-                    continue
-            except Exception:
-                errors += 1
-                continue
-        ingested += 1
 
     return {
         "ingested": ingested,
         "skipped": total - ingested - errors,
         "total": total,
         "errors": errors,
-        "mode": "subprocess",
+        "mode": "rest",
     }
 
 
 def search(query: str, k: int = 10) -> list[dict]:
-    cli = _cli_path()
-    if cli is None:
-        raise RuntimeError("agentmemory CLI not installed — run smoke_test.py first")
+    """
+    POST /agentmemory/search and normalize results.
 
-    proc = subprocess.run(
-        [cli, "recall", query, "--top-k", str(k), "--json"],
-        capture_output=True,
-        text=True,
-        timeout=60,
-        check=False,
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(
-            f"agentmemory recall failed (exit {proc.returncode}): {proc.stderr.strip()}"
-        )
-    try:
-        payload = json.loads(proc.stdout)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(f"agentmemory recall did not return JSON: {exc}") from exc
+    Returns list of {id, score, text, source} dicts.
+    id is parsed from [nox_id:...] prefix if present; falls back to mem_xxx.
+    """
+    payload: dict[str, Any] = {"query": query, "limit": k, "format": "full"}
+    data = _post("/agentmemory/search", payload)
 
-    raw: list[dict[str, Any]] = (
-        payload if isinstance(payload, list) else payload.get("results") or []
-    )
-    return [
-        {
-            "id": str(item.get("id") or item.get("memory_id") or ""),
-            "score": float(item.get("score") or item.get("relevance") or 0.0),
-            "text": item.get("text") or item.get("content") or "",
-            "source": item.get("session") or item.get("source") or None,
-        }
-        for item in raw[:k]
-    ]
+    results = data if isinstance(data, list) else data.get("results", [])
+    normalized: list[dict] = []
+    for item in results[:k]:
+        obs = item.get("observation") or {}
+        score = float(item.get("score") or 0.0)
+        mem_id = str(obs.get("id") or "")
+        # Extract content from narrative or facts list
+        narrative = obs.get("narrative") or ""
+        facts = obs.get("facts") or []
+        content = narrative or (facts[0] if facts else "")
+        # Parse nox-mem id from prefix
+        m = _NOX_ID_RE.match(content)
+        if m:
+            nox_id = m.group(1)
+            text = content[m.end():]
+        else:
+            nox_id = mem_id
+            text = content
+        normalized.append({
+            "id": nox_id,
+            "score": score,
+            "text": text,
+            "source": obs.get("sessionId") or None,
+        })
+    return normalized

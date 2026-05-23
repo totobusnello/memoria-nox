@@ -96,50 +96,79 @@ Adapter: `adapters/letta.py` — uses `letta_client.Letta`.
 | Field | Value |
 |---|---|
 | Repo | https://github.com/rohitg00/agentmemory |
-| License | MIT (CLI) / unclear (iii-engine daemon) |
-| Stars (2026-05-21) | 11k+ |
+| License | Apache-2.0 (CLI + npm package); iii-engine = **ELv2** (self-host OK; SaaS-compete prohibited) |
+| Stars (2026-05-23 probe) | 16,726 |
 | Install | `npm install -g '@agentmemory/agentmemory'` |
-| Version pin | latest npm tag at install time — record output of `agentmemory --version` |
-| Daemon | iii-engine runtime (proprietary; license terms unclear) |
-| API keys | None on CLI surface; iii-engine may require its own |
+| Version pin | **v0.9.21** (installed + verified 2026-05-23) |
+| Daemon | iii-engine **auto-installs** from npm on first run (no paid license required for self-host) |
+| API keys | None required for local run |
+| REST API | `POST http://localhost:3111/agentmemory/remember` + `POST /agentmemory/search` |
 
-**Known blockers (per `benchmark/competitor-configs.json`):**
+**Probe results (2026-05-23):**
 
-1. Confirm iii-engine can be installed on the VPS without a paid license.
-2. Confirm published claims (R@5 = 95.2% on LoCoMo) correspond to the
-   LoCoMo revision we use.
+- `npm install -g @agentmemory/agentmemory` — SUCCEEDED, v0.9.21, ~8s, 242 packages
+- iii-engine: auto-downloaded + started (v0.11.2 pinned in npm bundle). **Not paid-only.**
+  License is ELv2 (not MIT) but self-host for benchmark is permitted; SaaS-compete is not.
+- REST API liveness: `GET /agentmemory/livez` → `{"service":"agentmemory","status":"ok"}` PASS
+- Smoke ingest (5 chunks via `POST /agentmemory/remember`): PASS, all returned `"success":true`
+- Smoke search (`POST /agentmemory/search`, `query="hybrid search BM25"`): PASS, 5 results, scores ~0.68
+- **Adapter mismatch (BLOCKER fixed in adapter):** CLI has no `add`/`recall` subcommands — it is
+  server-only (REST on :3111). Adapter rewritten to use REST (`POST /remember`, `POST /search`).
+- **ID round-trip gap:** `/agentmemory/remember` does NOT accept custom `id`; issues system-generated
+  `mem_xxx` IDs. Nox-mem chunk id must be embedded in `content` and extracted at search time.
+  Adapter updated to embed `[nox_id:<id>]` prefix and parse it back from returned content.
 
-**Pinning rationale:** npm package version not yet stable; pin via
-`--version` output captured at install time and recorded in the eventual
-methodology writeup.
+**Pinning rationale:** v0.9.21 confirmed installed. Record `agentmemory --version` on VPS after
+daemon is running (the binary outputs version only after iii-engine connects).
 
-Adapter: `adapters/agentmemory.py` — subprocess `agentmemory recall ... --json`.
+**⚠️ Start sequence on VPS:**
+```bash
+agentmemory &   # starts daemon + auto-installs iii-engine if absent; binds :3111
+sleep 5
+curl http://localhost:3111/agentmemory/livez   # must return {"status":"ok"}
+```
+
+Adapter: `adapters/agentmemory.py` — REST `POST /agentmemory/remember` + `POST /agentmemory/search`.
 
 ---
 
-## 6. EverMind-AI (EverOS)
+## 6. EverMind-AI (EverOS) — SKIPPED
 
 | Field | Value |
 |---|---|
-| Repo | https://github.com/EverOS-AI/EverMind-AI |
-| License | check repo (was MIT-leaning per 2026-05-19 audit) |
-| Stars (2026-05-21) | ~5k |
-| Install | `git clone https://github.com/EverOS-AI/EverMind-AI && cd EverMind-AI && pip install -e .` |
-| Version pin | git SHA at clone time — record in REQUIREMENTS.md after Saturday clone |
-| Defaults | sentence-transformers (local embeddings, no API key) |
-| API keys | None for default; LLM-rerank stage optional, would use `OPENAI_API_KEY` |
+| Repo | https://github.com/EverOS-AI/EverMind-AI — **DOES NOT EXIST** (404 on 2026-05-23 probe) |
+| License | N/A |
+| Stars | 0 (repo not found) |
+| Install | N/A |
 
-**Why interesting (per memory `[[everos-benchmark-publisher-competitor]]`):**
+**Probe results (2026-05-23) — SKIP:**
 
-EverOS-AI publishes their own EverMemBench + papers. Direct
-"benchmark-publisher competitor" — beating them on their preferred eval
-set has narrative value for the Q4 GTM Phase 2 launch.
+- `gh repo view EverOS-AI/EverMind-AI` → "Could not resolve to a Repository"
+- `curl https://api.github.com/repos/EverOS-AI/EverMind-AI` → 404
+- GitHub org `EverOS-AI` does not exist.
+- `pip install evermind-ai` → "No matching distribution found" (not on PyPI)
+- Searched all variants: `EverMind-AI/EverMind-AI`, `EverMindAI/EverMindAI`, `EverOS/EverMind` — none found.
 
-**Known gap:** retrieval surface less standardized than the other four;
-adapter has dual call paths (CLI subprocess + Python module import) and
-fails gracefully if neither exposes `retrieve()`.
+**What was found instead:**
 
-Adapter: `adapters/evermind.py` — subprocess CLI OR Python module fallback.
+The 2026-05-19 audit memory (`[[everos-benchmark-publisher-competitor]]`) referenced a competitor
+that has since been made private, deleted, or the name was incorrectly captured. What exists in
+2026-05 public GitHub:
+
+- `evermemos/evermemos-python` — Python SDK for **EverMemOS cloud API** (`pip install evermemos`),
+  requires `EVERMEMOS_API_KEY`. Cloud-only, not self-hostable, no benchmark-runnable OSS core.
+- `evermindai/public_website` — marketing website only.
+- ~43 repos with "EverMemOS" in name — all are community integrations (OpenClaw plugins, MCP
+  wrappers), none are the core EverMemOS OSS engine itself.
+
+**Decision: SKIP agentmemory EverMind from Q4 run.**
+
+COMPARISON.md will show "no data" for EverMind with honest note: "repo unavailable / cloud-only".
+This does not affect the narrative — the key benchmark competitors (Mem0, Zep, Letta) are verified.
+agentmemory is the 4th system (now unblocked).
+
+Adapter: `adapters/evermind.py` — kept in repo for future use if repo surfaces; validate() returns
+`ok=False` cleanly (no crash). Runner skips it per spec §4 stop condition handling.
 
 ---
 
@@ -149,16 +178,16 @@ Adapter: `adapters/evermind.py` — subprocess CLI OR Python module fallback.
 # Python-side (run once)
 pip install -r requirements.txt
 
-# Node-side (only if including agentmemory)
-npm install -g @agentmemory/agentmemory
+# Node-side (agentmemory — verified working 2026-05-23)
+npm install -g @agentmemory/agentmemory   # installs v0.9.21 + iii-engine auto-download
+agentmemory &                              # start daemon; binds REST on :3111
+sleep 5 && curl http://localhost:3111/agentmemory/livez   # verify {"status":"ok"}
 
 # Docker-side (Zep + optional Letta + optional noxmem)
 docker compose -f compose/docker-compose.yml up -d zep postgres
 # add --profile letta or --profile noxmem if desired
 
-# EverMind-AI (clone outside this repo)
-cd /tmp && git clone https://github.com/EverOS-AI/EverMind-AI
-cd EverMind-AI && pip install -e .
+# EverMind-AI: SKIPPED — repo does not exist (see §6 above)
 
 # Set env (paste into shell or .env.q4):
 export OPENAI_API_KEY=...
@@ -170,13 +199,12 @@ export GEMINI_API_KEY=...
 
 ---
 
-## Blockers needing Toto's decision
+## Blockers resolved / needing Toto's decision
 
-- [ ] **agentmemory iii-engine daemon** — install path unclear. If
-      paid-only, skip agentmemory and document gap in COMPARISON.md.
-- [ ] **EverMind-AI retrieve API** — `evermind retrieve` CLI assumed but
-      not verified against the public repo as of overnight. Toto verifies
-      Saturday before runner.py.
+- [x] **agentmemory iii-engine daemon** — RESOLVED 2026-05-23. iii-engine auto-installs
+      from npm bundle (ELv2, not paid). REST API verified working. Adapter updated to REST.
+- [x] **EverMind-AI retrieve API** — RESOLVED 2026-05-23. Repo EverOS-AI/EverMind-AI
+      does not exist. System SKIPPED. COMPARISON.md will show "no data / repo unavailable".
 - [ ] **OpenAI quota** — Mem0 + Letta both default to OpenAI embeddings.
       Estimate: ~600 queries × 2 datasets × 2 systems = 2,400 embedding
       calls. Budget < $1 at current ada pricing, but confirm before run.
