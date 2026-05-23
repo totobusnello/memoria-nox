@@ -89,7 +89,7 @@ preflight() {
 
   local total coverage salience
   total=$(echo "$health" | jq -r '.total // .totalChunks // "?"')
-  coverage=$(echo "$health" | jq -r '.vectorCoverage.percentage // .vectorCoverage // "?"')
+  coverage=$(echo "$health" | jq -r 'if .vectorCoverage | type == "object" then (.vectorCoverage.percentage // "100") else (.vectorCoverage // "?") end')
   salience=$(echo "$health" | jq -r '.salience.mode // "?"')
 
   printf '\033[0;32m  ✓ chunks: %s | vec: %s%% | salience: %s\033[0m\n' \
