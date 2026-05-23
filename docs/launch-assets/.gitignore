@@ -1,0 +1,9 @@
+# Generated recording artifacts — not committed here
+# Final assets go to docs/assets/ instead
+cast/*.cast
+gif/*.gif
+gif/*.svg
+
+# Keep directory structure in git
+!cast/.gitkeep
+!gif/.gitkeep
