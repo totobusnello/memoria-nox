@@ -7,6 +7,8 @@ set -euo pipefail
 # Usage:
 #   ./scripts/run-sat-q4.sh                            # full run
 #   ./scripts/run-sat-q4.sh --dry-run                  # estimate cost+time only
+#   ./scripts/run-sat-q4.sh --skip-preflight           # skip ALL pre-flight checks (debug)
+#   ./scripts/run-sat-q4.sh --quiet                    # suppress verbose echo statements
 #   ./scripts/run-sat-q4.sh --cost-limit 2.00          # abort if >$2
 #   ./scripts/run-sat-q4.sh --skip-systems zep,letta   # skip specific systems
 #   ./scripts/run-sat-q4.sh --systems nox_mem,mem0     # run only listed systems
@@ -21,6 +23,24 @@ set -euo pipefail
 #   agentmemory  ~54min ($0.00)  — iii-engine full corpus ingest (REST :3111)
 #   evermind     SKIP   ($0.00)  — repo 404, adapter.validate() returns ok=False
 #   aggregate    ~1min  ($0.00)  — offline nDCG/MRR/latency computation
+#
+# Pre-flight timeout behavior:
+#   All blocking operations (curl, docker info, agentmemory --version) are
+#   wrapped with `timeout N` to prevent indefinite hangs. Network checks use
+#   `--max-time 5` on curl and `ping -c 1 -W 2`. Docker daemon check uses
+#   `timeout 5 docker info`. If any check times out it is treated as WARN
+#   (non-fatal) not ABORT unless it's a required file (venv, datasets, runner.py).
+#
+# --skip-preflight flag:
+#   Bypasses ALL pre-flight checks. Use when you know the environment is
+#   correct and just want to validate dry-run output speed, or to debug a
+#   hang caused by a stuck check. Systems remain at the defaults/--systems
+#   value; daemon health waits in Stage 3 still fire.
+#
+# Sat run sequence (with these flags in mind):
+#   1. Debug unknown hang:  ./scripts/run-sat-q4.sh --dry-run --skip-preflight
+#   2. Validate adapters:   ./scripts/run-sat-q4.sh --dry-run
+#   3. Full run:            ./scripts/run-sat-q4.sh
 
 # ---------------------------------------------------------------------------
 # Directories
@@ -42,6 +62,8 @@ LOG_FILE="${OUTPUT_DIR}/sat-q4-run-${TIMESTAMP}.log"
 # ---------------------------------------------------------------------------
 
 DRY_RUN=0
+SKIP_PREFLIGHT=0
+QUIET=0
 COST_LIMIT="5.00"
 SKIP_SYSTEMS=""
 SYSTEMS="nox_mem,mem0,zep,letta,agentmemory"  # evermind always skipped (repo 404)
@@ -59,13 +81,15 @@ usage() {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --dry-run)       DRY_RUN=1;          shift ;;
-    --cost-limit)    COST_LIMIT="$2";    shift 2 ;;
-    --skip-systems)  SKIP_SYSTEMS="$2";  shift 2 ;;
-    --systems)       SYSTEMS="$2";       shift 2 ;;
-    --limit)         LIMIT="$2";         shift 2 ;;
-    --with-letta)    DOCKER_PROFILES="zep,letta"; shift ;;
-    -h|--help)       usage ;;
+    --dry-run)         DRY_RUN=1;          shift ;;
+    --skip-preflight)  SKIP_PREFLIGHT=1;   shift ;;
+    --quiet)           QUIET=1;            shift ;;
+    --cost-limit)      COST_LIMIT="$2";    shift 2 ;;
+    --skip-systems)    SKIP_SYSTEMS="$2";  shift 2 ;;
+    --systems)         SYSTEMS="$2";       shift 2 ;;
+    --limit)           LIMIT="$2";         shift 2 ;;
+    --with-letta)      DOCKER_PROFILES="zep,letta"; shift ;;
+    -h|--help)         usage ;;
     *) echo "Unknown arg: $1" >&2; exit 1 ;;
   esac
 done
@@ -90,23 +114,39 @@ mkdir -p "${OUTPUT_DIR}"
 log() {
   local ts
   ts="$(date -u +%H:%M:%SZ)"
-  echo "[${ts}] $*" | tee -a "${LOG_FILE}"
+  if [[ "${QUIET}" == "1" ]]; then
+    echo "[${ts}] $*" >> "${LOG_FILE}"
+  else
+    echo "[${ts}] $*" | tee -a "${LOG_FILE}"
+  fi
 }
 
 log_section() {
-  echo "" | tee -a "${LOG_FILE}"
-  echo "================================================================" | tee -a "${LOG_FILE}"
-  log "STAGE: $*"
-  echo "================================================================" | tee -a "${LOG_FILE}"
+  if [[ "${QUIET}" == "1" ]]; then
+    {
+      echo ""
+      echo "================================================================"
+      echo "[$(date -u +%H:%M:%SZ)] STAGE: $*"
+      echo "================================================================"
+    } >> "${LOG_FILE}"
+  else
+    echo "" | tee -a "${LOG_FILE}"
+    echo "================================================================" | tee -a "${LOG_FILE}"
+    log "STAGE: $*"
+    echo "================================================================" | tee -a "${LOG_FILE}"
+  fi
 }
 
-# Redirect all output to log as well
-exec > >(tee -a "${LOG_FILE}") 2>&1
+# Redirect all output to log as well (but only when not quiet — quiet mode
+# writes to log directly in log() above to avoid the tee subprocess overhead).
+if [[ "${QUIET}" == "0" ]]; then
+  exec > >(tee -a "${LOG_FILE}") 2>&1
+fi
 
 log "Run started — log: ${LOG_FILE}"
 log "Systems: ${SYSTEMS}"
 log "Limit: ${LIMIT} queries/dataset | Cost limit: \$${COST_LIMIT}"
-log "Dry-run: ${DRY_RUN}"
+log "Dry-run: ${DRY_RUN} | Skip-preflight: ${SKIP_PREFLIGHT} | Quiet: ${QUIET}"
 
 # ---------------------------------------------------------------------------
 # Cost guard helpers
@@ -139,6 +179,11 @@ system_enabled() {
 # ---------------------------------------------------------------------------
 
 log_section "PRE-FLIGHT"
+
+if [[ "${SKIP_PREFLIGHT}" == "1" ]]; then
+  log "SKIP_PREFLIGHT set — bypassing all pre-flight checks"
+  log "Systems will proceed as-is: ${SYSTEMS}"
+else
 
 PREFLIGHT_OK=1
 
@@ -184,7 +229,7 @@ fi
 # 1d. nox-mem API reachable
 if system_enabled "nox_mem"; then
   NOX_API_BASE="${NOX_API_BASE:-http://127.0.0.1:18802}"
-  if curl -sf --max-time 3 "${NOX_API_BASE}/api/health" > /dev/null 2>&1; then
+  if timeout 5 curl -sf --max-time 5 "${NOX_API_BASE}/api/health" > /dev/null 2>&1; then
     log "OK  nox-mem API: ${NOX_API_BASE}/api/health"
   else
     log "WARN: nox-mem API not reachable at ${NOX_API_BASE} — adapter may fail"
@@ -196,7 +241,7 @@ fi
 # 1e. agentmemory CLI installed
 if system_enabled "agentmemory"; then
   if command -v agentmemory > /dev/null 2>&1; then
-    AM_VERSION="$(agentmemory --version 2>/dev/null || echo 'unknown')"
+    AM_VERSION="$(timeout 5 agentmemory --version 2>/dev/null || echo 'unknown')"
     log "OK  agentmemory CLI: ${AM_VERSION}"
   else
     log "WARN: agentmemory CLI not found in PATH"
@@ -205,17 +250,19 @@ if system_enabled "agentmemory"; then
 fi
 
 # 1f. Docker / OrbStack
+# IMPORTANT: `docker info` can hang indefinitely if Docker Desktop is in a
+# crashed/starting state. Always wrap with `timeout`.
 DOCKER_UP=0
-if command -v docker > /dev/null 2>&1 && docker info > /dev/null 2>&1; then
+if command -v docker > /dev/null 2>&1 && timeout 5 docker info > /dev/null 2>&1; then
   DOCKER_UP=1
   log "OK  Docker daemon: up"
 else
-  log "INFO: Docker not available — zep/letta will be skipped unless already running"
+  log "INFO: Docker not available or not responding — zep/letta will be skipped unless already running"
   # Remove Docker-dependent systems from run list if Docker is down
   for dock_sys in zep letta; do
     if system_enabled "${dock_sys}"; then
-      if ! curl -sf --max-time 2 "http://127.0.0.1:8000/healthz" > /dev/null 2>&1 \
-         && ! curl -sf --max-time 2 "http://127.0.0.1:8283/v1/health" > /dev/null 2>&1; then
+      if ! timeout 3 curl -sf --max-time 2 "http://127.0.0.1:8000/healthz" > /dev/null 2>&1 \
+         && ! timeout 3 curl -sf --max-time 2 "http://127.0.0.1:8283/v1/health" > /dev/null 2>&1; then
         log "INFO: removing ${dock_sys} from run (Docker down + no existing daemon)"
         SYSTEMS="${SYSTEMS//${dock_sys}/}"
         SYSTEMS="${SYSTEMS//,,/,}"
@@ -251,6 +298,8 @@ if [[ "${PREFLIGHT_OK}" == "0" ]]; then
   log "ABORT: pre-flight checks failed (see above)"
   exit 1
 fi
+
+fi  # end SKIP_PREFLIGHT block
 
 log ""
 log "Systems enabled: ${SYSTEMS}"
@@ -310,7 +359,7 @@ trap cleanup EXIT INT TERM
 
 # 2a. agentmemory
 if system_enabled "agentmemory"; then
-  if curl -sf --max-time 2 http://localhost:3111/agentmemory/livez > /dev/null 2>&1; then
+  if timeout 3 curl -sf --max-time 2 http://localhost:3111/agentmemory/livez > /dev/null 2>&1; then
     log "agentmemory: already running on :3111 — reusing"
   else
     if command -v agentmemory > /dev/null 2>&1; then
@@ -344,7 +393,7 @@ if [[ "${NEED_DOCKER}" == "1" && "${DOCKER_UP}" == "1" ]]; then
 
   # Check if already running
   ZEP_ALREADY_UP=0
-  if curl -sf --max-time 2 http://localhost:8000/healthz > /dev/null 2>&1; then
+  if timeout 3 curl -sf --max-time 2 http://localhost:8000/healthz > /dev/null 2>&1; then
     ZEP_ALREADY_UP=1
     log "Zep: already running on :8000 — reusing"
   fi
@@ -372,7 +421,7 @@ wait_for() {
   local elapsed=0
 
   log "Waiting for ${name} at ${url} (timeout: ${timeout_sec}s)..."
-  while ! curl -sf --max-time 3 "${url}" > /dev/null 2>&1; do
+  while ! timeout 5 curl -sf --max-time 3 "${url}" > /dev/null 2>&1; do
     if [[ "${elapsed}" -ge "${timeout_sec}" ]]; then
       log "TIMEOUT: ${name} not healthy after ${timeout_sec}s — skipping"
       return 1
