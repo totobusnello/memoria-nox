@@ -6,3 +6,10 @@ __pycache__/
 venv/
 .env
 .env.q4
+
+# Corpus cache — large, license-restricted (LoCoMo CC BY-NC 4.0), regenerable
+cache/raw/
+cache/*.jsonl
+cache/*.db
+cache/*.db-wal
+cache/*.db-shm
