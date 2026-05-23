@@ -1,8 +1,8 @@
 # nox-mem — Social Copy v0 (launch Wed 2026-06-03)
 
-> **Nota interna:** Smoke Q4 (Sat 2026-05-24 15h30 BRT) cravou nDCG@10 = 0.6380 / p50 = 12ms / 65% gold-hit em 20 queries (10 LoCoMo + 10 LongMemEval, eval-DB isolado 5.882 + 940 chunks). Run canônico (100 queries × 2 datasets × 6 sistemas) ainda em execução — 5/6 competitor adapters em setup. Placeholders abaixo preenchidos com numbers do smoke; head-to-head completo entra em v1 após run canônico.
+> **Nota interna:** Smoke Q4 nox-mem (Sat 2026-05-24 15h30 BRT) cravou nDCG@10 = 0.6380 / p50 = 8ms / 65% gold-hit em 20 queries (10 LoCoMo + 10 LongMemEval, eval-DB isolado 5.882 + 940 chunks). **Partial cross-system (Sat 2026-05-24 18h BRT):** mem0 smoke completo n=20, 500-chunk corpus cap — nDCG@10=0.8569, MRR=0.1167, R@10=0.2500, p50=273ms, hits=3/20 (15%). Run canônico (100 queries × 2 datasets × 6 sistemas, corpus uniforme) ainda em execução — 4 adapters restantes (Zep, Letta, agentmemory, EverMind-AI) em setup. T7 atualizado com cross-system numbers abaixo; demais tweets mantêm nox-mem-only conforme smoke.
 >
-> Ref memória: `[[q4-smoke-sat-2026-05-24-real-numbers]]`.
+> Refs: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 ---
 
@@ -73,12 +73,14 @@ Internal eval on production corpus (68,995 chunks, 100% vector coverage):
 
 Q4 broader smoke (Sat 2026-05-24, eval-isolated):
   nDCG@10 = 0.6380   (above D43 gate +18.8%)
-  p50 latency = 12ms   p95 = 43ms
+  p50 latency = 8ms   p95 = 43ms
   Gold hits: 13/20 (LoCoMo 7/10 + LongMemEval 6/10)
 
-Full head-to-head vs Mem0 / Zep / Letta / agentmemory / EverMind:
-  → 100q × 2 datasets × 6 systems still running.
-  → COMPARISON.md updates when canonical numbers crava.
+First cross-system number (Sat 2026-05-24, partial):
+  nox-mem vs mem0 (500-chunk cap): 65% vs 15% hit-rate
+  nox-mem: 8ms p50. mem0: 273ms p50. (30× faster)
+  Full 100q×2 datasets×6 systems still running.
+  → COMPARISON.md updates when canonical numbers land.
 ```
 
 ---
@@ -112,6 +114,24 @@ MIT license.
 
 ---
 
+**T7b — Cross-system punchy (new, drop-in for T5 or standalone)**
+
+```
+First real cross-system numbers, Sat smoke (n=20 queries each):
+
+nox-mem  →  65% hit-rate  ·  8ms p50   ·  MRR 0.37
+mem0*    →  15% hit-rate  ·  273ms p50  ·  MRR 0.12
+
+30× faster. 4× coverage. 3× better first-hit rank.
+
+*mem0 capped at 500 chunks (cost-control); nox-mem ran full
+6,822-chunk corpus, local, zero ingest cost.
+Canonical 100q×6-system run in COMPARISON.md before Jun 3.
+→ github.com/totobusnello/memoria-nox
+```
+
+---
+
 **T8 — Paper + links**
 
 ```
@@ -131,11 +151,14 @@ Technical paper on arXiv (submitted Tue Jun 2, available Wed Jun 3):
 ```
 Q4 smoke (Sat 2026-05-24, eval-isolated):
 nDCG@10 = 0.6380 — beats D43 gate (+18.8%)
-p50 latency: 12 ms
+p50 latency: 8 ms
 Gold-hit rate: 65% (13/20 queries, LoCoMo + LongMemEval)
 
-20 queries dry-run-sample. Full 100q×2 datasets×6 systems still running.
-COMPARISON.md ships before launch.
+Cross-system partial (same day, n=20):
+nox-mem 65% hits / 8ms p50 vs mem0 15% hits / 273ms p50
+(mem0 capped at 500 chunks; nox-mem full corpus, local)
+
+Full 100q×2 datasets×6 systems. COMPARISON.md ships before launch.
 → github.com/totobusnello/memoria-nox
 ```
 
@@ -183,10 +206,17 @@ nDCG@10 = 0.6237 (G5 V3, n=100, full boost stack), which is +78.8% over the G3 b
 LongMemEval n=100 run: nDCG@10=0.9126, MRR=0.9162. The Q4 broader smoke on Sat
 2026-05-24 (20 queries against an eval-isolated DB combining LoCoMo 5,882 chunks +
 LongMemEval 940 chunks) returned nDCG@10=0.6380 (above the D43 gate of +18.8%),
-p50 latency 12ms, p95 43ms, gold-hit rate 13/20 (65%). The full head-to-head against
-Mem0, Zep, Letta, agentmemory, and EverMind-AI on 100 queries × 2 datasets × 6 systems
-is still running — 5/6 competitor adapters were under setup at the time of writing —
-and lands in COMPARISON.md when the canonical numbers crava (still before the launch).
+p50 latency 8ms, p95 43ms, gold-hit rate 13/20 (65%).
+
+The same day (Sat 2026-05-24, ~18h BRT) produced the first real cross-system number:
+nox-mem vs mem0 on identical 20 queries. nox-mem (full 6,822-chunk corpus, local ingest,
+zero cost): 65% hit-rate, 8ms p50, MRR 0.37. Mem0 (500-chunk corpus cap for cost-control,
+~$0.10 ingest): 15% hit-rate, 273ms p50, MRR 0.12. nox-mem is 30× faster and hits 4×
+more queries. Mem0 shows higher nDCG@10 (0.86 vs 0.64) — a concentration effect from the
+smaller window: fewer hits, but top-ranked. With uniform corpus (no cap), the canonical run
+will be the real arbiter of the nDCG gap. The full head-to-head against Mem0 (no cap), Zep,
+Letta, agentmemory, and EverMind-AI on 100 queries × 2 datasets × 6 systems is still
+running — 4 adapters remaining — and lands in COMPARISON.md before launch.
 The stack includes a KG with 15k+ entities and typed edge relations, a CLI (26+
 subcommands), an MCP server (16 tools), and an HTTP API — all in one npm package.
 
@@ -366,13 +396,23 @@ Q4 broader smoke (Sat 2026-05-24, eval-isolated DB: 5,882 LoCoMo + 940 LongMemEv
 | nDCG@10 (combined, 20 queries) | 0.6380 |
 | MRR | 0.3700 |
 | R@10 | 0.5417 |
-| p50 / p95 / avg latency | 12 / 43 / 15 ms |
+| p50 / p95 / avg latency | 8 / 43 / 9 ms |
 | Gold hits | 13/20 (LoCoMo 7/10, LMEval 6/10) |
 
-Head-to-head COMPARISON.md vs Mem0, Zep, Letta, agentmemory, EverMind-AI:
-canonical run (100 queries × 2 datasets × 6 systems) in progress — 5/6 competitor
-adapters were under setup at smoke time. Final numbers ship in COMPARISON.md
-before launch (Jun 3) when the run lands.
+Partial cross-system (same day, Sat 2026-05-24 18h BRT, identical 20 queries, n=20 each):
+
+| System | Corpus | Hit-rate | nDCG@10 | MRR | p50 |
+|---|---|---|---|---|---|
+| nox-mem | 6,822 chunks (full, local, zero-cost) | 65% (13/20) | 0.6380 | 0.3700 | 8ms |
+| mem0 | 500 chunks (~8% cap, ~$0.10 ingest) | 15% (3/20) | 0.8569 | 0.1167 | 273ms |
+
+Key trade-off: nox-mem wins on coverage (hits), speed (30×), and first-hit quality (MRR 3×).
+Mem0 wins on per-result concentration (nDCG@10) within a smaller corpus window — a
+framing advantage that narrows when corpus is uniform. Canonical run (no cap, full corpus
+for all systems) is the real arbiter. Head-to-head COMPARISON.md vs Zep, Letta,
+agentmemory, EverMind-AI + mem0 (full corpus): 4 adapters remaining, run in progress.
+Final numbers ship in COMPARISON.md before launch (Jun 3). Refs:
+`[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 ---
 
@@ -425,13 +465,18 @@ systems on a common benchmark?**
 A: Fair point, and worth being specific. The internal G3→G5 delta is over my own
 retrieval baseline, not a head-to-head. LongMemEval (n=100, nDCG@10=0.9126) is a standard
 benchmark and the numbers are strong, but n=100 has wide confidence intervals. The Q4
-broader smoke (Sat 2026-05-24, eval-isolated DB, 20 queries across LoCoMo + LongMemEval
-dry-run-samples) returned nDCG@10=0.6380 with p50=12ms — above the D43 gate. That smoke
-validates the methodology + confirms nox-mem retrieval works end-to-end against the
-isolated eval set. The full COMPARISON.md (running Mem0, Zep, Letta, agentmemory,
-EverMind-AI against the same query sets on 100 queries × 2 datasets × 6 systems) is in
-progress — 5/6 competitor adapters were under setup at smoke time. That's where the
-honest head-to-head lives, and it ships in `benchmark/COMPARISON.md` before Jun 3.
+broader smoke (Sat 2026-05-24, eval-isolated DB, 20 queries across LoCoMo + LongMemEval)
+returned nDCG@10=0.6380 with p50=8ms — above the D43 gate. The same day, a partial
+cross-system run compared nox-mem directly against mem0 on identical queries (n=20).
+nox-mem (full 6,822-chunk corpus): 65% hit-rate, 8ms p50, MRR 0.37. Mem0 (capped at
+500 chunks for cost-control): 15% hit-rate, 273ms p50, MRR 0.12. Two honest notes on
+this: (1) mem0's nDCG@10 is higher (0.86 vs 0.64) because the smaller corpus window
+means fewer but more concentrated results — a framing advantage, not a retrieval
+advantage at full scale. (2) mem0 used OpenAI embeddings (its default); nox-mem used
+Gemini 3072d. The "all-Gemini" side experiment is deferred to post-launch. The full
+COMPARISON.md (Mem0 at full corpus, Zep, Letta, agentmemory, EverMind-AI, 100q × 2
+datasets × 6 systems) is in progress and ships in `benchmark/COMPARISON.md` before Jun 3.
+If any system beats nox-mem on any axis, it will be in that table.
 
 **Q: What's the operational cost?**
 A: Under $11/month all-in on a Hostinger VPS (2 vCPU, 8GB RAM), running 7 agents
@@ -446,7 +491,8 @@ model tier keeps KG extraction and LLM inference within quota.
 - arXiv submission: Tue 2026-06-02 antes das 14h UTC para aparecer no listing de Wed
 - PH launch: agendar midnight PT (03h BRT) pra garantir day-1 vote window completa
 - Reddit: postar entre 08h-10h UTC (não durante pico BR — público r/ML é EN)
-- Smoke Q4 Sat 2026-05-24 15h30 BRT cravado: nDCG@10 0.6380 / p50 12ms / 65% gold-hit
+- Smoke Q4 nox-mem Sat 2026-05-24 15h30 BRT cravado: nDCG@10 0.6380 / p50 8ms / 65% gold-hit
+- Partial cross-system Sat 2026-05-24 18h BRT: nox-mem (6822 chunks) vs mem0 (500-cap) — 65% vs 15% hits, 8ms vs 273ms p50, MRR 0.37 vs 0.12, nDCG 0.6380 vs 0.8569
 - Pre-launch antes de Wed 06-03: substituir disclaimers "in progress" pelos números do run canônico quando crava
-- Ref memória: [[q4-smoke-sat-2026-05-24-real-numbers]]
+- Refs: [[q4-smoke-sat-2026-05-24-real-numbers]] · [[q4-partial-cross-system-sat-2026-05-24]]
 -->

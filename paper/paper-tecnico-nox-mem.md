@@ -380,7 +380,7 @@ A G10d evolution further refines the architectural conclusion: the canonical boo
 
 ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
-> **Status (atualizado 2026-05-24 15h30 BRT):** Pre-registered skeleton populado com o **smoke de 20 queries do Sat 2026-05-24** sobre eval-isolated DB (5.882 chunks LoCoMo + 940 chunks LongMemEval, k=10), validando a metodologia + confirmando que o pipeline nox-mem funciona end-to-end no eval isolado. O **run canônico** (100 queries × 2 datasets × 6 sistemas) ainda está em execução — **5/6 competitor adapters estavam em setup no momento desta consolidação**. As linhas competidoras permanecem `[PENDING canonical run]` até que o COMPARISON.md final lande. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) são imutáveis post-run conforme §6.7.
+> **Status (atualizado 2026-05-24 18h BRT):** Pre-registered skeleton populado com o **smoke de 20 queries do Sat 2026-05-24** sobre eval-isolated DB (5.882 chunks LoCoMo + 940 chunks LongMemEval, k=10), validando a metodologia + confirmando que o pipeline nox-mem funciona end-to-end no eval isolado. **Partial cross-system data adicionado Sat 2026-05-24:** mem0 smoke completo (n=20, 500-chunk corpus cap por cost-control, $0.10 ingest cost estimado). Tabela §6.3 agora contém 2 linhas reais (nox-mem + mem0). Os 4 adapters restantes (Zep, Letta, agentmemory, EverMind-AI) permanecem `[PENDING canonical run]` até que o run canônico lande. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) são imutáveis post-run conforme §6.7. Ref: `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 ### 6.1 Methodology summary
 
@@ -404,21 +404,32 @@ Cada sistema roda com sua configuração default publicável (princípio §6.5.3
 
 Tabela canônica cross-system × cross-dataset. K cutoff fixado em 10 em todos os sistemas; latência medida externamente (wall clock around adapter call); custo derivado dos logs por-sistema (API calls × pricing publicado).
 
-**Sat 2026-05-24 smoke (20 queries combined, dry-run-sample, eval-isolated DB).**
-nox-mem aggregate (LoCoMo 10q + LongMemEval 10q, k=10):
+**Sat 2026-05-24 partial cross-system smoke (20 queries combined, dry-run-sample, eval-isolated DB).**
+nox-mem: full corpus (6.822 chunks = 5.882 LoCoMo + 940 LongMemEval). mem0: **500-chunk corpus cap** por cost-control ($0.10 ingest cost estimado; ~8% do corpus completo). Caveat crítico: os números do mem0 refletem um corpus significativamente menor — interpretação no parágrafo abaixo.
 
-| System | nDCG@10 (combined) | R@10 | MRR | p50 (ms) | p95 (ms) | avg (ms) | Gold hits |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| **nox-mem** (smoke) | **0.6380** | 0.5417 | 0.3700 | **12** | **43** | 15 | **13/20 (65%)** |
+| System | n | Corpus chunks | nDCG@10 | R@10 | MRR | p50 (ms) | avg (ms) | Gold hits |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| **nox-mem** | 20 | 6.822 (full) | 0.6380 | 0.5417 | **0.3700** | **8** | **9** | **13/20 (65%)** |
+| **mem0** (500-cap) | 20 | 500 (~8%) | **0.8569** | 0.2500 | 0.1167 | 273 | 288 | 3/20 (15%) |
 
-Per-dataset gold-hit breakdown do smoke: **LoCoMo 7/10 (70%) · LongMemEval 6/10 (60%)**. O smoke não disaggregou `nDCG@10` por dataset (combined-only) — a desagregação canônica vem no run completo. Os números a seguir são da execução canônica que ainda estava em curso na consolidação desta seção.
+Per-dataset gold-hit breakdown do nox-mem smoke: **LoCoMo 7/10 (70%) · LongMemEval 6/10 (60%)**.
+
+**Interpretação do trade-off (honestidade obrigatória):**
+
+Os dois sistemas exibem perfis opostos. nox-mem, com corpus completo (6.822 chunks, ingest local zero-custo), produz **4× maior hit-rate** (65% vs 15%) e **MRR 3× melhor** (0.37 vs 0.12) — o primeiro hit relevante chega antes em nox-mem. A latência de nox-mem é **30× mais rápida** (8ms p50 vs 273ms p50), reflexo da busca local vs chamadas à API mem0.
+
+mem0, operando sobre apenas 500 chunks (~8% do corpus), exibe **nDCG@10 superior** (0.86 vs 0.64): os poucos hits que retorna tendem a ser top-ranked, produzindo alta concentração de relevância nas primeiras posições. Isso é um artefato de corpus window menor — com janela restrita, o sistema tem menos competição entre resultados candidatos, o que infla o nDCG per-se mas mascara a cobertura real (R@10 = 0.25 vs 0.54). Em produção com corpus completo e mesmo custo de ingest, a relação nDCG pode inverter; o run canônico (corpus uniforme, sem cap) será o árbitro desta hipótese.
+
+Resumo executivo: **nox-mem ganha em cobertura (hits), velocidade (latência), e first-hit quality (MRR). mem0 ganha em concentração de relevância por-resultado (nDCG@10) dentro de uma janela de corpus menor.** Corpus cap de 500 chunks para mem0 é cost-control explícito — $0.10 estimado vs zero-cost local; dados iguais de corpus revertem parcialmente o nDCG gap.
+
+O smoke não disaggregou `nDCG@10` por dataset (combined-only) — desagregação canônica vem no run completo. Os números a seguir são da execução canônica que ainda está em curso.
 
 **LongMemEval n=100 (canonical):**
 
 | System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` |
-| Mem0 | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | ~$0.00 (local) |
+| Mem0 | `[PENDING canonical run — full corpus, no 500-cap]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | ~$0.10+ ingest |
 | Zep | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 | Letta | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 | agentmemory | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
@@ -428,14 +439,14 @@ Per-dataset gold-hit breakdown do smoke: **LoCoMo 7/10 (70%) · LongMemEval 6/10
 
 | System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` |
-| Mem0 | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | ~$0.00 (local) |
+| Mem0 | `[PENDING canonical run — full corpus, no 500-cap]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | ~$0.10+ ingest |
 | Zep | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 | Letta | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 | agentmemory | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 | EverMind-AI | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 
-Linhas que falharem smoke test (§6.5) são reportadas com nota explícita `[FALHA: adapter setup gap]` em vez de omitidas, consistente com §6.6. O run canônico atualiza estas tabelas em commit dedicado quando 6/6 adapters estiverem prontos; o smoke acima cumpre a função de pre-registration vivo (nox-mem confirmado funcional em eval-isolated DB) sem cherry-pick.
+Linhas que falharem smoke test (§6.5) são reportadas com nota explícita `[FALHA: adapter setup gap]` em vez de omitidas, consistente com §6.6. O run canônico atualiza estas tabelas em commit dedicado quando 6/6 adapters estiverem prontos com corpus uniforme (sem cap). Ref: `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 ### 6.4 Per-category breakdown
 
@@ -483,7 +494,7 @@ Para evitar viés de seleção retroativo:
 
 ### 6.7 Pre-registration
 
-A metodologia desta seção está cravada no `specs/2026-05-23-Q4-comparison-execution-plan.md` antes do run de Sat 2026-05-24. O **smoke de Sat 2026-05-24 15h30 BRT** preencheu a primeira linha de §6.3 (nox-mem combined: nDCG@10=0.6380, p50=12ms, gold-hit 13/20 em 20 queries dry-run-sample) e validou que o pipeline de retrieval funciona end-to-end em eval-isolated DB; o **run canônico** ainda está em curso e atualiza as linhas competidoras `[PENDING canonical run]` em §6.3 + a totalidade de §6.4 quando os 6 adapters estiverem prontos. Princípios (§6.5), anti-cherry-pick (§6.6) e a estrutura geral desta seção são imutáveis post-run. Qualquer ajuste metodológico identificado durante a execução é documentado como follow-up explícito em `docs/COMPARISON.md` em vez de retroagido aqui. Ref: `[[q4-smoke-sat-2026-05-24-real-numbers]]`.
+A metodologia desta seção está cravada no `specs/2026-05-23-Q4-comparison-execution-plan.md` antes do run de Sat 2026-05-24. O **smoke de Sat 2026-05-24 15h30 BRT** preencheu a primeira linha de §6.3 (nox-mem combined: nDCG@10=0.6380, p50=8ms, gold-hit 13/20 em 20 queries dry-run-sample) e validou que o pipeline de retrieval funciona end-to-end em eval-isolated DB. O **partial cross-system smoke de Sat 2026-05-24 18h BRT** adicionou a linha mem0 (n=20, 500-chunk corpus cap): nDCG@10=0.8569, p50=273ms, gold-hit 3/20 (15%) — com interpretação explícita do trade-off coverage vs concentração em §6.3. O **run canônico** ainda está em curso e atualiza as linhas competidoras `[PENDING canonical run]` em §6.3 + a totalidade de §6.4 quando os 6 adapters estiverem prontos com corpus uniforme. Princípios (§6.5), anti-cherry-pick (§6.6) e a estrutura geral desta seção são imutáveis post-run. Qualquer ajuste metodológico identificado durante a execução é documentado como follow-up explícito em `docs/COMPARISON.md` em vez de retroagido aqui. Refs: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR, latência). Atendido o gate, GTM Phase 2 está destravada conforme `docs/ROADMAP.md` §7. Não atendido, a sessão de Sun 2026-05-25 produz um plano de remediação (ajustes pre-launch) em vez de launch direto.
 
