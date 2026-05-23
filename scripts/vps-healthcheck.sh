@@ -48,9 +48,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 IP_FILE="$REPO_ROOT/.vps-current-ip"
 
+# VPS health URL resolution strategy (in order):
+#   1. env NOX_HEALTH_URL (user override)
+#   2. Tailscale: http://nox-vps.tailnet:18802/api/health (if in tailnet)
+#   3. SSH tunnel: curl via SSH to localhost:18802 (requires root@VPS_IP access)
+#
+# Why: API binds to 127.0.0.1 by design (Tailscale-only). Direct IP access
+# fails. This script detects available methods and uses the best one.
+# Set NOX_HEALTH_URL to override (e.g., public proxy, test endpoint).
+
 VPS_IP=""
 QUIET=0
 ALERT_CMD=""
+HEALTH_URL=""
+USE_TUNNEL=0
 
 # --------------------------------------------------------------------------- #
 # Helpers
@@ -127,21 +138,40 @@ while [[ $# -gt 0 ]]; do
 done
 
 # --------------------------------------------------------------------------- #
-# Resolve IP: --ip arg > env VPS_IP > arquivo .vps-current-ip
+# Resolve health URL: env NOX_HEALTH_URL > tailscale > SSH tunnel
 # --------------------------------------------------------------------------- #
-if [[ -z "$VPS_IP" ]]; then
-  # printenv lê a env var sem ser afetado pela variável local de mesmo nome
-  _env_ip="$(printenv VPS_IP 2>/dev/null || true)"
-  if [[ -n "$_env_ip" ]]; then
-    VPS_IP="$_env_ip"
-  elif [[ -f "$IP_FILE" ]]; then
-    VPS_IP="$(tr -d '[:space:]' < "$IP_FILE")"
-  fi
-fi
+if [[ -n "$(printenv NOX_HEALTH_URL 2>/dev/null || true)" ]]; then
+  HEALTH_URL="$(printenv NOX_HEALTH_URL)"
+else
+  # Try Tailscale first (fastest, no auth needed)
+  if timeout 1 bash -c "command -v tailscale &>/dev/null && tailscale ping nox-vps &>/dev/null" 2>/dev/null; then
+    HEALTH_URL="http://nox-vps.tailnet:18802/api/health"
+    if [[ "$QUIET" -eq 0 ]]; then
+      info "Tailscale detected — using nox-vps.tailnet"
+    fi
+  else
+    # Fallback: SSH tunnel (requires VPS_IP and root SSH access)
+    # Resolve VPS IP first (--ip arg > env VPS_IP > arquivo .vps-current-ip)
+    if [[ -z "$VPS_IP" ]]; then
+      _env_ip="$(printenv VPS_IP 2>/dev/null || true)"
+      if [[ -n "$_env_ip" ]]; then
+        VPS_IP="$_env_ip"
+      elif [[ -f "$IP_FILE" ]]; then
+        VPS_IP="$(tr -d '[:space:]' < "$IP_FILE")"
+      fi
+    fi
 
-if [[ -z "$VPS_IP" ]]; then
-  log "${RED}[ERROR]${RESET} IP não encontrado. Use --ip <IP>, env VPS_IP, ou crie $IP_FILE"
-  exit 1
+    if [[ -z "$VPS_IP" ]]; then
+      log "${RED}[ERROR]${RESET} Tailscale unavailable and no VPS IP. Use --ip <IP>, env VPS_IP, or crie $IP_FILE, or set NOX_HEALTH_URL"
+      exit 1
+    fi
+
+    USE_TUNNEL=1
+    HEALTH_URL="http://127.0.0.1:18802/api/health"  # Will be accessed via SSH tunnel
+    if [[ "$QUIET" -eq 0 ]]; then
+      info "Tailscale unavailable — using SSH tunnel to root@$VPS_IP"
+    fi
+  fi
 fi
 
 # --------------------------------------------------------------------------- #
@@ -192,19 +222,34 @@ run_checks() {
 
   # --- Check 3: HTTP API ---
   # Porta 18802 só escuta em 127.0.0.1 na VPS (não exposed externamente
-  # por design). Por isso curl externo daqui falha. Solução: tunelar via
-  # SSH executando curl DENTRO da VPS contra 127.0.0.1:18802.
+  # por design). Dois caminhos:
+  #   - Tailscale: curl direto para nox-vps.tailnet:18802 (via tailnet DNS)
+  #   - SSH tunnel: curl dentro da VPS contra 127.0.0.1:18802
   if [[ "$QUIET" -eq 0 ]]; then
-    info "Verificando API http://127.0.0.1:18802/api/health via SSH ($VPS_IP)..."
+    if [[ "$USE_TUNNEL" -eq 1 ]]; then
+      info "Verificando API http://127.0.0.1:18802/api/health via SSH ($VPS_IP)..."
+    else
+      info "Verificando API $HEALTH_URL..."
+    fi
   fi
 
-  API_RESPONSE="$(ssh -o ConnectTimeout=5 -o BatchMode=yes \
-                      "root@$VPS_IP" \
-                      'curl -s -m 5 http://127.0.0.1:18802/api/health' 2>&1)" || {
-    FAILED_CHECK="api"
-    FAILURE_DETAIL="curl via SSH falhou: $API_RESPONSE"
-    return 3
-  }
+  if [[ "$USE_TUNNEL" -eq 1 ]]; then
+    # SSH tunnel path
+    API_RESPONSE="$(ssh -o ConnectTimeout=5 -o BatchMode=yes \
+                        "root@$VPS_IP" \
+                        'curl -s -m 5 http://127.0.0.1:18802/api/health' 2>&1)" || {
+      FAILED_CHECK="api"
+      FAILURE_DETAIL="curl via SSH falhou: $API_RESPONSE"
+      return 3
+    }
+  else
+    # Tailscale direct path
+    API_RESPONSE="$(curl -s -m 5 "$HEALTH_URL" 2>&1)" || {
+      FAILED_CHECK="api"
+      FAILURE_DETAIL="curl falhou para $HEALTH_URL: $API_RESPONSE"
+      return 3
+    }
+  fi
 
   if ! echo "$API_RESPONSE" | jq -e '.vectorCoverage' > /dev/null 2>&1; then
     FAILED_CHECK="api"
