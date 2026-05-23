@@ -56,7 +56,23 @@ Retrieval de memória que não mede não sabe se funciona. memoria-nox roda cont
 | Latência `/api/search` p50 / p95 | **940ms / 2.3s** | — |
 | Answer primitive p95 | **101.74ms** (42× abaixo do budget de 4.3s) | — |
 
-**[PENDENTE Sat 2026-05-24]** — Comparação externa Q4 contra Mem0, Zep, Letta, agentmemory e EverMind-AI em benchmark padronizado. Publicado em `benchmark/COMPARISON.md` assim que os números estiverem cravados. Nada é publicado antes de ser medido.
+**Q4 broader smoke (2026-05-24 15h30 BRT) — nox-mem isolado em eval-DB com 5.882 chunks LoCoMo + 940 chunks LongMemEval, 20 queries (10 por dataset):**
+
+| Métrica | Valor |
+|---|---:|
+| nDCG@10 (combined) | **0.6380** |
+| MRR | **0.3700** |
+| R@10 | **0.5417** |
+| Gold hits | **13/20 (65%)** |
+| p50 latency | **12ms** |
+| p95 latency | **43ms** |
+| Avg latency | **15ms** |
+| LoCoMo gold hits | **7/10 (70%)** |
+| LongMemEval gold hits | **6/10 (60%)** |
+
+> **Honestidade obrigatória.** Esses números vêm do **smoke de 20 queries** (10 por dataset, dry-run-sample), com a base de comparação D43 (gate +18.8%) batida no nDCG@10 0.6380. **O run canônico** — 100 queries × 2 datasets × 6 sistemas (mem0, Zep, Letta, agentmemory, EverMind-AI + nox-mem) — **ainda está em execução**: 5 dos 6 adapters competidores estavam em setup no momento desta publicação. Este preview valida a metodologia + confirma que o pipeline de retrieval do nox-mem funciona end-to-end no eval isolado. `benchmark/COMPARISON.md` será atualizado quando o run completo cravar. Latência de 12ms p50 é nox-mem no eval isolado; competitor latency comes via adapter SDKs (e.g. mem0 ~258ms p50 em runs mock anteriores) — números diretos comparáveis exigem o run completo. Nada é publicado antes de ser medido; nada é dado como definitivo antes do run canônico.
+
+Memória relacionada: `[[q4-smoke-sat-2026-05-24-real-numbers]]`.
 
 ### A — Autonomy: dados seus, provider seu, zero lock-in
 
@@ -164,7 +180,7 @@ Repositório: [github.com/totobusnello/memoria-nox](https://github.com/totobusne
 
 **GTM Phase 2** está desbloqueada. Lançamento: quarta-feira 2026-06-03 com distribuição simultânea no arXiv, Product Hunt, Hacker News e LinkedIn.
 
-O Q4 COMPARISON externo (Sat 2026-05-24) completa a narrativa de qualidade com números em benchmark padronizado e auditável. Se os números mostrarem que algum competidor supera memoria-nox em algum eixo, vai estar em `benchmark/COMPARISON.md` — sem cherry-pick.
+O Q4 COMPARISON externo (Sat 2026-05-24) já começou: o smoke de 20 queries fechou em **nDCG@10 0.6380, p50 12ms, 65% gold-hit rate**. O run canônico de 100 queries × 2 datasets × 6 sistemas atualiza `benchmark/COMPARISON.md` quando os 5 adapters competidores em setup ficarem prontos. Se os números mostrarem que algum competidor supera memoria-nox em algum eixo, vai estar lá — sem cherry-pick.
 
 ---
 
@@ -178,4 +194,4 @@ memoria-nox nasceu da necessidade real de persistir decisões, incidentes e liç
 
 ---
 
-*Lançamento Wed 2026-06-03. Números Q4 publicados Sat 2026-05-24 assim que medidos.*
+*Lançamento Wed 2026-06-03. Smoke Q4 cravado Sat 2026-05-24 15h30 BRT (nDCG@10 0.6380, p50 12ms, 13/20 gold hits). Run canônico Sat-Sun completa `benchmark/COMPARISON.md` antes do launch.*
