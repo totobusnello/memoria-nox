@@ -47,6 +47,33 @@
 
 import { IncomingMessage, ServerResponse } from "node:http";
 
+// ─── F10 Phase C Phase 2: telemetry-collector hook ───────────────────────────
+// Lazy import — falls back silently if telemetry-collector is not yet deployed.
+// recordRequest is fire-and-forget synchronous; zero async overhead.
+let _recordRequest:
+  | ((
+      path: "search" | "answer",
+      startMs: number,
+      endMs: number,
+      resultCount: number,
+      pathUsed: string,
+      semanticUsed: boolean,
+      statusCode?: number,
+    ) => void)
+  | null
+  | undefined = undefined; // undefined = not yet resolved; null = not available
+
+async function getRecordRequest(): Promise<typeof _recordRequest> {
+  if (_recordRequest !== undefined) return _recordRequest;
+  try {
+    const mod: any = await import("../lib/telemetry-collector.js");
+    _recordRequest = mod.recordRequest ?? null;
+  } catch {
+    _recordRequest = null; // telemetry-collector not deployed — degrade gracefully
+  }
+  return _recordRequest;
+}
+
 // ─── CORS / JSON helpers (parity with src/api-server.ts) ────────────────────
 
 const CORS_HEADERS: Record<string, string> = {
@@ -230,14 +257,22 @@ export async function registerWireUpRoutes(
   if (!matchesWireUpRoute(method, path)) return false;
 
   // ── P1: POST /api/answer ────────────────────────────────────────────────
+  // F10 Phase C Phase 2: wrapped with telemetry timing.
   if (method === "POST" && path === "/api/answer") {
     await safeHandle(req, res, async () => {
+      const _t0 = Date.now();
       const body = await readJsonBody(req);
       const mod: any = await import("./answer.js");
       const out = await mod.handleAnswerRequest({
         body,
         headers: req.headers,
       });
+      const _t1 = Date.now();
+      // Fire-and-forget telemetry — non-blocking, degrades gracefully if not deployed.
+      // /api/answer always runs the full semantic pipeline (Gemini embed + LLM synthesis).
+      // result_count = 1: one synthesized answer per call (not a ranked list).
+      const rec = await getRecordRequest();
+      rec?.("answer", _t0, _t1, 1, "answer-pipeline", true, out.status);
       writeJson(res, out.body, out.status, out.headers ?? {});
     });
     return true;
