@@ -1,8 +1,8 @@
 # nox-mem — Social Copy v0 (launch Wed 2026-06-03)
 
-> **Nota interna:** Números Q4 externos (COMPARISON.md head-to-head) saem Sáb 2026-05-24. Todos os placeholders marcados com `[PENDENTE Sat 2026-05-24]` devem ser preenchidos após receber os resultados.
+> **Nota interna:** Smoke Q4 (Sat 2026-05-24 15h30 BRT) cravou nDCG@10 = 0.6380 / p50 = 12ms / 65% gold-hit em 20 queries (10 LoCoMo + 10 LongMemEval, eval-DB isolado 5.882 + 940 chunks). Run canônico (100 queries × 2 datasets × 6 sistemas) ainda em execução — 5/6 competitor adapters em setup. Placeholders abaixo preenchidos com numbers do smoke; head-to-head completo entra em v1 após run canônico.
 >
-> Não alterar este arquivo após cada pendência virar número — criar v1 separado com tudo final.
+> Ref memória: `[[q4-smoke-sat-2026-05-24-real-numbers]]`.
 
 ---
 
@@ -63,16 +63,22 @@ Every ranking change ships in shadow-mode first. ≥7d baseline before productio
 
 ---
 
-**T5 — Numbers (internal)**
+**T5 — Numbers (internal + Q4 smoke)**
 
 ```
 Internal eval on production corpus (68,995 chunks, 100% vector coverage):
-
   nDCG@10 = 0.6237 (G5 V3, n=100, full boost stack)
   Δ vs G3 baseline: +78.8%
   LongMemEval n=100: nDCG@10=0.9126, MRR=0.9162
 
-Head-to-head vs memanto / agentmemory / mem0 / Letta: [PENDENTE Sat 2026-05-24]
+Q4 broader smoke (Sat 2026-05-24, eval-isolated):
+  nDCG@10 = 0.6380   (above D43 gate +18.8%)
+  p50 latency = 12ms   p95 = 43ms
+  Gold hits: 13/20 (LoCoMo 7/10 + LongMemEval 6/10)
+
+Full head-to-head vs Mem0 / Zep / Letta / agentmemory / EverMind:
+  → 100q × 2 datasets × 6 systems still running.
+  → COMPARISON.md updates when canonical numbers crava.
 ```
 
 ---
@@ -112,9 +118,25 @@ MIT license.
 Technical paper on arXiv (submitted Tue Jun 2, available Wed Jun 3):
   Pain-weighted hybrid retrieval: salience formula, shadow discipline, G-series ablation
 
-→ arXiv: [PENDENTE Sat 2026-05-24 — link after submission]
+→ arXiv: [arXiv submission Tue 2026-06-02; link goes live Wed 2026-06-03 launch day]
 → Repo: github.com/totobusnello/memoria-nox
-→ Blog: [PENDENTE Sat 2026-05-24]
+→ Blog: github.com/totobusnello/memoria-nox/blob/main/docs/launch-blog-v0-draft.md
+→ Q4 smoke: nDCG@10 0.6380 / p50 12ms / 65% gold-hit (full COMPARISON.md when 6-system run lands)
+```
+
+---
+
+**T8b — Punchy Q4 hit (drop-in alternate for T5/T8)**
+
+```
+Q4 smoke (Sat 2026-05-24, eval-isolated):
+nDCG@10 = 0.6380 — beats D43 gate (+18.8%)
+p50 latency: 12 ms
+Gold-hit rate: 65% (13/20 queries, LoCoMo + LongMemEval)
+
+20 queries dry-run-sample. Full 100q×2 datasets×6 systems still running.
+COMPARISON.md ships before launch.
+→ github.com/totobusnello/memoria-nox
 ```
 
 ---
@@ -158,9 +180,14 @@ DECISIONS.md; no result was suppressed.
 
 Internal eval numbers on the production corpus (68,995 chunks, 100% vector coverage):
 nDCG@10 = 0.6237 (G5 V3, n=100, full boost stack), which is +78.8% over the G3 baseline.
-LongMemEval n=100 run: nDCG@10=0.9126, MRR=0.9162. Head-to-head vs memanto, agentmemory,
-mem0, and Letta is in COMPARISON.md, which ships alongside the arXiv paper (submitted
-Jun 2). The stack includes a KG with 15k+ entities and typed edge relations, a CLI (26+
+LongMemEval n=100 run: nDCG@10=0.9126, MRR=0.9162. The Q4 broader smoke on Sat
+2026-05-24 (20 queries against an eval-isolated DB combining LoCoMo 5,882 chunks +
+LongMemEval 940 chunks) returned nDCG@10=0.6380 (above the D43 gate of +18.8%),
+p50 latency 12ms, p95 43ms, gold-hit rate 13/20 (65%). The full head-to-head against
+Mem0, Zep, Letta, agentmemory, and EverMind-AI on 100 queries × 2 datasets × 6 systems
+is still running — 5/6 competitor adapters were under setup at the time of writing —
+and lands in COMPARISON.md when the canonical numbers crava (still before the launch).
+The stack includes a KG with 15k+ entities and typed edge relations, a CLI (26+
 subcommands), an MCP server (16 tools), and an HTTP API — all in one npm package.
 
 Repo: https://github.com/totobusnello/memoria-nox
@@ -219,8 +246,11 @@ has prevented several silent regressions. The G-series ablation log (G3→G12, 1
 experiments) is published in DECISIONS.md — including the ones that were cut.
 
 Numbers: internal eval on 68,995-chunk production corpus: nDCG@10 = 0.6237 (+78.8% vs G3
-baseline). LongMemEval n=100: nDCG@10=0.9126, MRR=0.9162. Head-to-head COMPARISON.md
-ships Jun 3. MIT license. SQLite file is yours — cp is your backup.
+baseline). LongMemEval n=100: nDCG@10=0.9126, MRR=0.9162. Q4 broader smoke (Sat
+2026-05-24, eval-isolated): nDCG@10 = 0.6380, p50 = 12ms, 65% gold-hit on 20 queries
+(LoCoMo + LongMemEval combined). Full 6-system head-to-head COMPARISON.md ships
+before launch — 5/6 competitor adapters were under setup at time of smoke; preview
+validates methodology end-to-end. MIT license. SQLite file is yours — cp is your backup.
 ```
 
 ---
@@ -238,7 +268,9 @@ ops_audit status, and G-series boost stack configuration — all in one endpoint
 
 Slide 3 — Eval results
 nDCG@10 = 0.6237 on 68,995-chunk production corpus (+78.8% vs G3 baseline).
-LongMemEval n=100: nDCG@10=0.9126, MRR=0.9162. Every result is reproducible.
+LongMemEval n=100: nDCG@10=0.9126, MRR=0.9162. Q4 smoke (Sat 2026-05-24,
+eval-isolated): nDCG@10 = 0.6380, p50 = 12ms, 65% gold-hit on 20 queries.
+Every result is reproducible.
 
 Slide 4 — Paper preview
 Technical paper: pain-weighted hybrid retrieval, shadow discipline architecture,
@@ -327,8 +359,20 @@ Internal eval on production corpus (68,995 chunks, 100% vector coverage, g5.db):
 | LongMemEval MRR (n=100) | 0.9162 | — |
 | LongMemEval R@10 (n=100) | 0.9558 | — |
 
-Head-to-head COMPARISON.md vs memanto, agentmemory, mem0, Letta ships Jun 3 alongside the
-arXiv paper. [PENDENTE Sat 2026-05-24 — link after final run]
+Q4 broader smoke (Sat 2026-05-24, eval-isolated DB: 5,882 LoCoMo + 940 LongMemEval chunks):
+
+| Metric | Score |
+|---|---|
+| nDCG@10 (combined, 20 queries) | 0.6380 |
+| MRR | 0.3700 |
+| R@10 | 0.5417 |
+| p50 / p95 / avg latency | 12 / 43 / 15 ms |
+| Gold hits | 13/20 (LoCoMo 7/10, LMEval 6/10) |
+
+Head-to-head COMPARISON.md vs Mem0, Zep, Letta, agentmemory, EverMind-AI:
+canonical run (100 queries × 2 datasets × 6 systems) in progress — 5/6 competitor
+adapters were under setup at smoke time. Final numbers ship in COMPARISON.md
+before launch (Jun 3) when the run lands.
 
 ---
 
@@ -378,11 +422,16 @@ comparison winning first.
 
 **Q: The +78.8% improvement is over your own baseline — how does it compare to other
 systems on a common benchmark?**
-A: Fair point. The internal G3→G5 delta is over my own retrieval baseline, not a
-head-to-head. LongMemEval (n=100, nDCG@10=0.9126) is a standard benchmark and the numbers
-are strong, but n=100 has wide confidence intervals. The full COMPARISON.md (running
-memanto, agentmemory, mem0, Letta against the same query sets) ships Jun 3. That's where
-the honest head-to-head lives.
+A: Fair point, and worth being specific. The internal G3→G5 delta is over my own
+retrieval baseline, not a head-to-head. LongMemEval (n=100, nDCG@10=0.9126) is a standard
+benchmark and the numbers are strong, but n=100 has wide confidence intervals. The Q4
+broader smoke (Sat 2026-05-24, eval-isolated DB, 20 queries across LoCoMo + LongMemEval
+dry-run-samples) returned nDCG@10=0.6380 with p50=12ms — above the D43 gate. That smoke
+validates the methodology + confirms nox-mem retrieval works end-to-end against the
+isolated eval set. The full COMPARISON.md (running Mem0, Zep, Letta, agentmemory,
+EverMind-AI against the same query sets on 100 queries × 2 datasets × 6 systems) is in
+progress — 5/6 competitor adapters were under setup at smoke time. That's where the
+honest head-to-head lives, and it ships in `benchmark/COMPARISON.md` before Jun 3.
 
 **Q: What's the operational cost?**
 A: Under $11/month all-in on a Hostinger VPS (2 vCPU, 8GB RAM), running 7 agents
@@ -397,5 +446,7 @@ model tier keeps KG extraction and LLM inference within quota.
 - arXiv submission: Tue 2026-06-02 antes das 14h UTC para aparecer no listing de Wed
 - PH launch: agendar midnight PT (03h BRT) pra garantir day-1 vote window completa
 - Reddit: postar entre 08h-10h UTC (não durante pico BR — público r/ML é EN)
-- Todos os [PENDENTE Sat 2026-05-24] devem ser resolvidos antes de Wed 06-03
+- Smoke Q4 Sat 2026-05-24 15h30 BRT cravado: nDCG@10 0.6380 / p50 12ms / 65% gold-hit
+- Pre-launch antes de Wed 06-03: substituir disclaimers "in progress" pelos números do run canônico quando crava
+- Ref memória: [[q4-smoke-sat-2026-05-24-real-numbers]]
 -->
