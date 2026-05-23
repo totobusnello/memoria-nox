@@ -1,0 +1,16 @@
+{
+  "name": "nox-mem-f10-phase-c-telemetry",
+  "version": "0.1.0-f10-phase-c",
+  "private": true,
+  "type": "module",
+  "description": "F10 Phase C Phase 1 — in-process telemetry collector for /api/search + /api/answer",
+  "scripts": {
+    "build": "tsc -p tsconfig.telemetry-build.json",
+    "check": "tsc -p tsconfig.telemetry-build.json --noEmit",
+    "test": "tsc -p tsconfig.telemetry-build.json && node --test dist-telemetry/edits/__tests__/telemetry-collector.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist-telemetry",
+    "rootDir": ".",
+    "declaration": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false
+  },
+  "include": [
+    "edits/lib/telemetry-collector.ts",
+    "edits/__tests__/telemetry-collector.test.ts"
+  ],
+  "exclude": ["dist-telemetry", "node_modules"]
+}

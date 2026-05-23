@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>nox-mem — Telemetry</title>
+  <link rel="stylesheet" href="telemetry.css">
+</head>
+<body>
+  <div class="header">
+    <h1>nox-mem <span class="subtitle">/ Telemetry</span></h1>
+    <div class="controls">
+      <label for="window-select">Window:</label>
+      <select id="window-select">
+        <option value="1h">1h</option>
+        <option value="6h">6h</option>
+        <option value="12h">12h</option>
+        <option value="24h" selected>24h</option>
+      </select>
+      <span id="status-dot" class="dot dot-unknown" title="Poll status"></span>
+      <span id="status-label">polling…</span>
+      <button id="refresh-btn">Refresh</button>
+    </div>
+  </div>
+
+  <!-- Aggregate summary cards -->
+  <div class="cards" id="cards">
+    <div class="card">
+      <div class="card-label">Total requests</div>
+      <div class="card-value" id="agg-count">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Avg latency</div>
+      <div class="card-value" id="agg-avg">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">p50 latency</div>
+      <div class="card-value" id="agg-p50">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">p95 latency</div>
+      <div class="card-value" id="agg-p95">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">p99 latency</div>
+      <div class="card-value" id="agg-p99">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Semantic ratio</div>
+      <div class="card-value" id="agg-semantic">—</div>
+    </div>
+    <div class="card">
+      <div class="card-label">search / answer</div>
+      <div class="card-value" id="agg-paths">—</div>
+    </div>
+  </div>
+
+  <!-- Latency bar chart -->
+  <section class="panel">
+    <h2>Latency per hour (ms)</h2>
+    <div class="chart-legend">
+      <span class="legend-item"><span class="legend-swatch swatch-p50"></span>p50</span>
+      <span class="legend-item"><span class="legend-swatch swatch-p95"></span>p95</span>
+      <span class="legend-item"><span class="legend-swatch swatch-p99"></span>p99</span>
+    </div>
+    <div class="chart-scroll">
+      <canvas id="latency-chart" width="1200" height="220"></canvas>
+    </div>
+  </section>
+
+  <!-- Request count bar chart -->
+  <section class="panel">
+    <h2>Requests per hour</h2>
+    <div class="chart-scroll">
+      <canvas id="count-chart" width="1200" height="160"></canvas>
+    </div>
+  </section>
+
+  <!-- Path breakdown table -->
+  <section class="panel">
+    <h2>Internal path breakdown</h2>
+    <table id="path-table" class="data-table">
+      <thead>
+        <tr>
+          <th>path_used</th>
+          <th>count</th>
+          <th>% of total</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <div id="footer-ts" class="footer-ts">—</div>
+
+  <script src="telemetry.js"></script>
+</body>
+</html>
