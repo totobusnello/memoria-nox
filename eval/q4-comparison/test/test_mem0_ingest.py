@@ -11,17 +11,16 @@ The goal is to verify:
   3. search() maps chunk_id from metadata into result.id.
   4. validate() returns ok=False when OPENAI_API_KEY is missing.
   5. validate() returns ok=False when mem0 is not installed.
-  6. _load_locomo_corpus() parses the expected chunk format.
-  7. _load_longmemeval_corpus() parses the expected chunk format.
+  6. _iter_corpus_chunks() delegates to shared corpus_loader (locomo + longmemeval).
+  7. _ingest_corpus() calls client.add() with gold-format chunk_id in metadata.
+  8. _ingest_corpus() respects MEM0_INGEST_LIMIT cap.
 """
 
 from __future__ import annotations
 
 import importlib
-import json
 import os
 import sys
-import tempfile
 from pathlib import Path
 from unittest import mock
 
@@ -39,10 +38,30 @@ sys.path.insert(0, str(HERE))
 
 def _import_fresh():
     """Import (or reimport) mem0 adapter with clean global state."""
-    mod_name = "adapters.mem0"
-    if mod_name in sys.modules:
-        del sys.modules[mod_name]
-    return importlib.import_module(mod_name)
+    # Remove cached adapter and corpus_loader modules so patches are fresh
+    for mod_name in list(sys.modules.keys()):
+        if mod_name in ("adapters.mem0", "lib.corpus_loader"):
+            del sys.modules[mod_name]
+    return importlib.import_module("adapters.mem0")
+
+
+def _make_chunk_record(
+    chunk_id: str = "conv-48::D2:13",
+    text: str = "Alice: I love the beach.",
+    dataset: str = "locomo",
+    conversation_id: str = "conv-48",
+    day: int = 1,
+):
+    """Return a minimal ChunkRecord for testing."""
+    from lib.corpus_loader import ChunkRecord
+    return ChunkRecord(
+        id=chunk_id,
+        text=text,
+        dataset=dataset,
+        conversation_id=conversation_id,
+        day=day,
+        metadata={},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -105,9 +124,6 @@ class TestSetupIdempotency:
     def test_skips_ingest_when_count_matches(self):
         """setup() does NOT call client.add() when existing count matches expected."""
         mod = _import_fresh()
-        # Simulate corpus files absent so expected == 0, but existing == 0 too.
-        # For the "count matches" path, patch _estimate_corpus_size to return N
-        # and get_all to return N items.
         N = 100
         mock_client = self._make_mock_client(existing_count=N)
 
@@ -129,7 +145,6 @@ class TestSetupIdempotency:
     def test_ingests_when_count_mismatch(self):
         """setup() calls _ingest_corpus() when existing count doesn't match expected."""
         mod = _import_fresh()
-        # existing = 0, expected = 1000 → triggers ingest
         mock_client = self._make_mock_client(existing_count=0)
 
         fake_memory_cls = mock.MagicMock(return_value=mock_client)
@@ -298,158 +313,183 @@ class TestSearchMapping:
 
 
 # ---------------------------------------------------------------------------
-# Corpus loader unit tests (file-based, no network)
+# _iter_corpus_chunks() — shared loader delegation tests
 # ---------------------------------------------------------------------------
 
 
-SAMPLE_LOCOMO = {
-    "sample_id": "conv-48",
-    "session_1": [
-        {"dia_id": "D1:1", "speaker": "Alice", "text": "I love the beach."},
-        {"dia_id": "D1:2", "speaker": "Bob", "text": "Me too, it is peaceful."},
-    ],
-    "session_2": [
-        {"dia_id": "D2:13", "speaker": "Alice", "text": "The garden gives me peace too."},
-    ],
-}
-
-SAMPLE_LONGMEMEVAL = [
-    {
-        "question_id": "6aeb4375",
-        "question_type": "knowledge-update",
-        "question": "How many Korean restaurants have I tried?",
-        "answer": "four",
-        "haystack_session_ids": ["answer_3f9693b7_1", "answer_3f9693b7_2"],
-        "haystack_dates": ["2023/10/01", "2023/10/05"],
-        "haystack_sessions": [
-            [
-                {"role": "user", "content": "I tried a new Korean place today."},
-                {"role": "assistant", "content": "How was it?"},
-            ],
-            [
-                {"role": "user", "content": "Fourth Korean restaurant this month!"},
-            ],
-        ],
-        "answer_session_ids": ["answer_3f9693b7_1", "answer_3f9693b7_2"],
-    }
-]
-
-
-class TestLocomotCorpusLoader:
-    def test_loads_turns_correctly(self, tmp_path):
-        """_load_locomo_corpus() produces per-turn chunks with correct IDs."""
+class TestIterCorpusChunks:
+    def test_delegates_to_shared_loaders(self):
+        """_iter_corpus_chunks() yields chunks from load_locomo_corpus + load_longmemeval_corpus."""
         mod = _import_fresh()
 
-        data_file = tmp_path / "locomo10.json"
-        data_file.write_text(json.dumps([SAMPLE_LOCOMO]))
+        locomo_chunk = _make_chunk_record("conv-1::D1:1", dataset="locomo")
+        lme_chunk = _make_chunk_record("session-abc", dataset="longmemeval")
 
-        with mock.patch.object(mod, "_LOCOMO_DATA", data_file):
-            chunks = mod._load_locomo_corpus()
-
-        assert len(chunks) == 3
-        ids = [c["id"] for c in chunks]
-        assert "conv-48::D1:1" in ids
-        assert "conv-48::D1:2" in ids
-        assert "conv-48::D2:13" in ids
-
-        # Check text format: "speaker: text"
-        c = next(c for c in chunks if c["id"] == "conv-48::D1:1")
-        assert c["text"] == "Alice: I love the beach."
-        assert c["dataset"] == "locomo"
-
-    def test_returns_empty_when_file_missing(self):
-        """_load_locomo_corpus() returns [] when data file doesn't exist."""
-        mod = _import_fresh()
-        missing = Path("/nonexistent/path/locomo10.json")
-        with mock.patch.object(mod, "_LOCOMO_DATA", missing):
-            chunks = mod._load_locomo_corpus()
-        assert chunks == []
-
-    def test_skips_turns_with_empty_text(self, tmp_path):
-        """_load_locomo_corpus() skips turns where text is empty."""
-        mod = _import_fresh()
-
-        conv = {
-            "sample_id": "conv-1",
-            "session_1": [
-                {"dia_id": "D1:1", "speaker": "Alice", "text": ""},
-                {"dia_id": "D1:2", "speaker": "Bob", "text": "Hello."},
-            ],
-        }
-        data_file = tmp_path / "locomo10.json"
-        data_file.write_text(json.dumps([conv]))
-
-        with mock.patch.object(mod, "_LOCOMO_DATA", data_file):
-            chunks = mod._load_locomo_corpus()
-
-        assert len(chunks) == 1
-        assert chunks[0]["id"] == "conv-1::D1:2"
-
-
-class TestLongMemEvalCorpusLoader:
-    def test_loads_sessions_correctly(self, tmp_path):
-        """_load_longmemeval_corpus() produces per-session chunks with correct IDs."""
-        mod = _import_fresh()
-
-        data_file = tmp_path / "longmemeval_oracle.json"
-        data_file.write_text(json.dumps(SAMPLE_LONGMEMEVAL))
-
-        with mock.patch.object(mod, "_LONGMEMEVAL_DATA", data_file):
-            chunks = mod._load_longmemeval_corpus()
+        env_clean = {k: v for k, v in os.environ.items() if k != "MEM0_INGEST_LIMIT"}
+        with (
+            mock.patch.object(mod, "load_locomo_corpus", return_value=iter([locomo_chunk])),
+            mock.patch.object(mod, "load_longmemeval_corpus", return_value=iter([lme_chunk])),
+            mock.patch.dict(os.environ, env_clean, clear=True),
+        ):
+            chunks = list(mod._iter_corpus_chunks())
 
         assert len(chunks) == 2
-        ids = [c["id"] for c in chunks]
-        assert "answer_3f9693b7_1" in ids
-        assert "answer_3f9693b7_2" in ids
+        assert chunks[0].id == "conv-1::D1:1"
+        assert chunks[1].id == "session-abc"
 
-        # Text should have header + content
-        c = next(c for c in chunks if c["id"] == "answer_3f9693b7_1")
-        assert "[session_id=answer_3f9693b7_1" in c["text"]
-        assert "Korean" in c["text"]
-        assert c["dataset"] == "longmemeval"
-
-    def test_returns_empty_when_file_missing(self):
-        """_load_longmemeval_corpus() returns [] when data file doesn't exist."""
-        mod = _import_fresh()
-        missing = Path("/nonexistent/path/longmemeval_oracle.json")
-        with mock.patch.object(mod, "_LONGMEMEVAL_DATA", missing):
-            chunks = mod._load_longmemeval_corpus()
-        assert chunks == []
-
-    def test_deduplicates_sessions(self, tmp_path):
-        """_load_longmemeval_corpus() deduplicates sessions shared across questions."""
+    def test_respects_ingest_limit_within_locomo(self):
+        """_iter_corpus_chunks() stops after MEM0_INGEST_LIMIT chunks (all from first dataset)."""
         mod = _import_fresh()
 
-        # Two questions sharing the same session_id
-        data = [
-            {
-                "question_id": "q1",
-                "haystack_session_ids": ["shared-session"],
-                "haystack_dates": ["2023/10/01"],
-                "haystack_sessions": [
-                    [{"role": "user", "content": "Shared content."}]
-                ],
-                "answer_session_ids": ["shared-session"],
-            },
-            {
-                "question_id": "q2",
-                "haystack_session_ids": ["shared-session"],
-                "haystack_dates": ["2023/10/01"],
-                "haystack_sessions": [
-                    [{"role": "user", "content": "Shared content."}]
-                ],
-                "answer_session_ids": ["shared-session"],
-            },
+        locomo_chunks = [
+            _make_chunk_record(f"conv-1::D1:{i}", dataset="locomo") for i in range(5)
         ]
-        data_file = tmp_path / "longmemeval_oracle.json"
-        data_file.write_text(json.dumps(data))
+        lme_chunks = [
+            _make_chunk_record(f"session-{i}", dataset="longmemeval") for i in range(5)
+        ]
 
-        with mock.patch.object(mod, "_LONGMEMEVAL_DATA", data_file):
-            chunks = mod._load_longmemeval_corpus()
+        with (
+            mock.patch.object(mod, "load_locomo_corpus", return_value=iter(locomo_chunks)),
+            mock.patch.object(mod, "load_longmemeval_corpus", return_value=iter(lme_chunks)),
+            mock.patch.dict(os.environ, {"MEM0_INGEST_LIMIT": "3"}),
+        ):
+            chunks = list(mod._iter_corpus_chunks())
 
-        # shared-session appears only once
-        assert len(chunks) == 1
-        assert chunks[0]["id"] == "shared-session"
+        assert len(chunks) == 3
+        assert all(c.dataset == "locomo" for c in chunks)
+
+    def test_limit_spans_both_datasets(self):
+        """_iter_corpus_chunks() limit spans across both loaders."""
+        mod = _import_fresh()
+
+        locomo_chunks = [_make_chunk_record(f"conv-1::D1:{i}", dataset="locomo") for i in range(2)]
+        lme_chunks = [_make_chunk_record(f"session-{i}", dataset="longmemeval") for i in range(5)]
+
+        with (
+            mock.patch.object(mod, "load_locomo_corpus", return_value=iter(locomo_chunks)),
+            mock.patch.object(mod, "load_longmemeval_corpus", return_value=iter(lme_chunks)),
+            mock.patch.dict(os.environ, {"MEM0_INGEST_LIMIT": "4"}),
+        ):
+            chunks = list(mod._iter_corpus_chunks())
+
+        assert len(chunks) == 4
+        locomo_count = sum(1 for c in chunks if c.dataset == "locomo")
+        lme_count = sum(1 for c in chunks if c.dataset == "longmemeval")
+        assert locomo_count == 2
+        assert lme_count == 2
+
+
+# ---------------------------------------------------------------------------
+# _ingest_corpus() — gold-format chunk_id in metadata + skip_llm flag
+# ---------------------------------------------------------------------------
+
+
+class TestIngestCorpus:
+    def test_ingest_calls_add_with_gold_format_chunk_id(self):
+        """_ingest_corpus() stores chunk.id as metadata.chunk_id in client.add()."""
+        mod = _import_fresh()
+
+        chunks = [
+            _make_chunk_record(
+                "conv-48::D2:13", text="Alice: Beach peace.",
+                dataset="locomo", conversation_id="conv-48",
+            ),
+            _make_chunk_record(
+                "session-xyz", text="user: Korean food.",
+                dataset="longmemeval", conversation_id="q1",
+            ),
+        ]
+
+        mock_client = mock.MagicMock()
+        mock_client.add.return_value = {"id": "mem-1"}
+
+        with (
+            mock.patch.object(mod, "_iter_corpus_chunks", return_value=iter(chunks)),
+            mock.patch.dict(os.environ, {"MEM0_SKIP_LLM_EXTRACTION": "1"}, clear=False),
+        ):
+            count = mod._ingest_corpus(mock_client, "q4-eval")
+
+        assert count == 2
+        assert mock_client.add.call_count == 2
+
+        # First call: gold-format locomo chunk_id
+        first_kwargs = mock_client.add.call_args_list[0][1]
+        assert first_kwargs["metadata"]["chunk_id"] == "conv-48::D2:13"
+        assert first_kwargs["metadata"]["source"] == "conv-48"
+        assert first_kwargs["infer"] is False  # MEM0_SKIP_LLM_EXTRACTION=1
+
+        # Second call: longmemeval session_id format
+        second_kwargs = mock_client.add.call_args_list[1][1]
+        assert second_kwargs["metadata"]["chunk_id"] == "session-xyz"
+        assert second_kwargs["metadata"]["dataset"] == "longmemeval"
+
+    def test_ingest_uses_infer_true_when_skip_disabled(self):
+        """_ingest_corpus() passes infer=True when MEM0_SKIP_LLM_EXTRACTION=0."""
+        mod = _import_fresh()
+
+        chunks = [_make_chunk_record("conv-1::D1:1")]
+        mock_client = mock.MagicMock()
+        mock_client.add.return_value = {"id": "mem-1"}
+
+        with (
+            mock.patch.object(mod, "_iter_corpus_chunks", return_value=iter(chunks)),
+            mock.patch.dict(os.environ, {"MEM0_SKIP_LLM_EXTRACTION": "0"}, clear=False),
+        ):
+            mod._ingest_corpus(mock_client, "q4-eval")
+
+        call_kwargs = mock_client.add.call_args_list[0][1]
+        assert call_kwargs["infer"] is True
+
+    def test_ingest_returns_zero_on_empty_corpus(self):
+        """_ingest_corpus() returns 0 when corpus_loader yields nothing."""
+        mod = _import_fresh()
+
+        mock_client = mock.MagicMock()
+
+        with mock.patch.object(mod, "_iter_corpus_chunks", return_value=iter([])):
+            count = mod._ingest_corpus(mock_client, "q4-eval")
+
+        assert count == 0
+        mock_client.add.assert_not_called()
+
+    def test_ingest_tolerates_partial_errors(self):
+        """_ingest_corpus() counts only successful adds; continues on error."""
+        mod = _import_fresh()
+
+        chunks = [_make_chunk_record(f"conv-1::D1:{i}") for i in range(5)]
+        mock_client = mock.MagicMock()
+        mock_client.add.side_effect = [
+            {"id": "ok"},
+            RuntimeError("embed fail"),
+            {"id": "ok"},
+            RuntimeError("embed fail"),
+            {"id": "ok"},
+        ]
+
+        with mock.patch.object(mod, "_iter_corpus_chunks", return_value=iter(chunks)):
+            count = mod._ingest_corpus(mock_client, "q4-eval")
+
+        assert count == 3  # 5 attempts, 2 errors
+
+    def test_ingest_chunk_id_matches_gold_format(self):
+        """chunk_id stored in metadata must match gold_chunk_ids format from dry-run-sample.json."""
+        mod = _import_fresh()
+
+        # The gold ID format for LoCoMo is `{sample_id}::{dia_id}` — verify exact string preserved
+        gold_id = "conv-48::D2:13"
+        chunks = [_make_chunk_record(gold_id, dataset="locomo")]
+
+        mock_client = mock.MagicMock()
+        mock_client.add.return_value = {"id": "mem-1"}
+
+        with mock.patch.object(mod, "_iter_corpus_chunks", return_value=iter(chunks)):
+            mod._ingest_corpus(mock_client, "q4-eval")
+
+        stored_chunk_id = mock_client.add.call_args_list[0][1]["metadata"]["chunk_id"]
+        assert stored_chunk_id == gold_id, (
+            f"chunk_id stored in mem0 metadata ({stored_chunk_id!r}) "
+            f"must match gold format ({gold_id!r})"
+        )
 
 
 # ---------------------------------------------------------------------------
