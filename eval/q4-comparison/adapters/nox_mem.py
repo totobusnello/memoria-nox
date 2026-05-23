@@ -79,12 +79,20 @@ def search(query: str, k: int = 10) -> list[dict]:
     resp.raise_for_status()
     payload = resp.json()
 
-    items_raw: list[dict[str, Any]] = payload.get("results") or payload.get("items") or []
+    # /api/search returns array directly (verified 2026-05-24 via tunnel against prod VPS).
+    # Defensive fallback for dict-wrapped variants kept for forward-compat.
+    if isinstance(payload, list):
+        items_raw: list[dict[str, Any]] = payload
+    elif isinstance(payload, dict):
+        items_raw = payload.get("results") or payload.get("items") or []
+    else:
+        items_raw = []
+
     return [
         {
             "id": str(item.get("id") or item.get("chunk_id") or ""),
             "score": float(item.get("score") or item.get("rrf_score") or 0.0),
-            "text": item.get("text") or item.get("chunk_text") or "",
+            "text": item.get("chunk_text") or item.get("text") or "",
             "source": item.get("source_file") or item.get("source") or None,
         }
         for item in items_raw[:k]
