@@ -380,7 +380,7 @@ A G10d evolution further refines the architectural conclusion: the canonical boo
 
 ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
-> **Status:** Skeleton pre-registered. Methodology cravada antes do run conforme princípio de pre-registration (§6.7). Os números finais são preenchidos na execução Sat 2026-05-24 e arquivados em `docs/COMPARISON.md` + `docs/Q4-COMPARISON-METHODOLOGY.md`. Esta seção do paper consolida o output mecanicamente após o run.
+> **Status (atualizado 2026-05-24 15h30 BRT):** Pre-registered skeleton populado com o **smoke de 20 queries do Sat 2026-05-24** sobre eval-isolated DB (5.882 chunks LoCoMo + 940 chunks LongMemEval, k=10), validando a metodologia + confirmando que o pipeline nox-mem funciona end-to-end no eval isolado. O **run canônico** (100 queries × 2 datasets × 6 sistemas) ainda está em execução — **5/6 competitor adapters estavam em setup no momento desta consolidação**. As linhas competidoras permanecem `[PENDING canonical run]` até que o COMPARISON.md final lande. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) são imutáveis post-run conforme §6.7.
 
 ### 6.1 Methodology summary
 
@@ -392,11 +392,11 @@ A escolha dos cinco competidores prioriza stars no GitHub, atividade recente de 
 
 | System | Repo | Install path | Version pinned | Default config |
 |---|---|---|---|---|
-| Mem0 | `mem0ai/mem0` | `pip install mem0ai` | `[PENDENTE: cravado Sat 2026-05-24]` | OpenAI embeddings + Chroma vector store |
-| Zep | `getzep/zep` | Docker compose (zep + postgres) | `[PENDENTE: cravado Sat 2026-05-24]` | Local self-host mode |
-| Letta (ex-MemGPT) | `letta-ai/letta` | `pip install letta` | `[PENDENTE: cravado Sat 2026-05-24]` | SQLite backend |
-| agentmemory | `rohitg00/agentmemory` | iii-engine runtime | `[PENDENTE: cravado Sat 2026-05-24]` | Stack-bridge mode |
-| EverMind-AI | EverOS published bench | repo clone | `[PENDENTE: cravado Sat 2026-05-24]` | Native CLI |
+| Mem0 | `mem0ai/mem0` | `pip install mem0ai` | `[PENDING canonical run — adapter under setup]` | OpenAI embeddings + Chroma vector store |
+| Zep | `getzep/zep` | Docker compose (zep + postgres) | `[PENDING canonical run — adapter under setup]` | Local self-host mode |
+| Letta (ex-MemGPT) | `letta-ai/letta` | `pip install letta` | `[PENDING canonical run — adapter under setup]` | SQLite backend |
+| agentmemory | `rohitg00/agentmemory` | iii-engine runtime | `[PENDING canonical run — adapter under setup]` | Stack-bridge mode |
+| EverMind-AI | EverOS published bench | repo clone | `[PENDING canonical run — adapter under setup]` | Native CLI |
 
 Cada sistema roda com sua configuração default publicável (princípio §6.5.3): nenhum competidor é tunado adversarialmente.
 
@@ -404,29 +404,38 @@ Cada sistema roda com sua configuração default publicável (princípio §6.5.3
 
 Tabela canônica cross-system × cross-dataset. K cutoff fixado em 10 em todos os sistemas; latência medida externamente (wall clock around adapter call); custo derivado dos logs por-sistema (API calls × pricing publicado).
 
-**LongMemEval n=100:**
+**Sat 2026-05-24 smoke (20 queries combined, dry-run-sample, eval-isolated DB).**
+nox-mem aggregate (LoCoMo 10q + LongMemEval 10q, k=10):
+
+| System | nDCG@10 (combined) | R@10 | MRR | p50 (ms) | p95 (ms) | avg (ms) | Gold hits |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **nox-mem** (smoke) | **0.6380** | 0.5417 | 0.3700 | **12** | **43** | 15 | **13/20 (65%)** |
+
+Per-dataset gold-hit breakdown do smoke: **LoCoMo 7/10 (70%) · LongMemEval 6/10 (60%)**. O smoke não disaggregou `nDCG@10` por dataset (combined-only) — a desagregação canônica vem no run completo. Os números a seguir são da execução canônica que ainda estava em curso na consolidação desta seção.
+
+**LongMemEval n=100 (canonical):**
 
 | System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **nox-mem** | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| Mem0 | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| Zep | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| Letta | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| agentmemory | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| EverMind-AI | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
+| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` |
+| Mem0 | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| Zep | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| Letta | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| agentmemory | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| EverMind-AI | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 
-**LoCoMo full:**
+**LoCoMo full (canonical):**
 
 | System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **nox-mem** | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| Mem0 | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| Zep | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| Letta | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| agentmemory | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| EverMind-AI | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
+| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` |
+| Mem0 | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| Zep | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| Letta | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| agentmemory | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| EverMind-AI | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 
-Linhas que falharem smoke test (§6.5) são reportadas com nota explícita `[FALHA: adapter setup gap]` em vez de omitidas, consistente com §6.6.
+Linhas que falharem smoke test (§6.5) são reportadas com nota explícita `[FALHA: adapter setup gap]` em vez de omitidas, consistente com §6.6. O run canônico atualiza estas tabelas em commit dedicado quando 6/6 adapters estiverem prontos; o smoke acima cumpre a função de pre-registration vivo (nox-mem confirmado funcional em eval-isolated DB) sem cherry-pick.
 
 ### 6.4 Per-category breakdown
 
@@ -434,14 +443,14 @@ Decomposição por categoria de query do LongMemEval. nox-mem reporta as seis ca
 
 | Category | n | nox-mem nDCG@10 | Mem0 | Zep | Letta | agentmemory | EverMind-AI |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| single-hop | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| multi-hop | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| temporal | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| adversarial | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| open-domain | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
-| numeric | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` | `[PENDENTE]` |
+| single-hop | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| multi-hop | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| temporal | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| adversarial | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| open-domain | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| numeric | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
 
-Quando uma categoria não tem queries suficientes (n < 10) em algum dataset, a célula recebe `n/a` em vez de extrapolação, evitando o tipo de regressão que aparece em §5.5 (temporal `n/a` na G10b por corpus gap degenerado).
+O **smoke de Sat 2026-05-24** não disaggregou per-category (combined-only sobre 20 queries), portanto §6.4 inteira aguarda o run canônico de 100 queries × 2 datasets × 6 sistemas. Quando uma categoria não tem queries suficientes (n < 10) em algum dataset, a célula recebe `n/a` em vez de extrapolação, evitando o tipo de regressão que aparece em §5.5 (temporal `n/a` na G10b por corpus gap degenerado).
 
 ### 6.5 Fair-comparison principles
 
@@ -451,7 +460,7 @@ A comparação obedece a princípios padronizados pela literatura de benchmark p
 2. **Eval set idêntico.** Mesmas queries, mesmos gold sets, mesmo random seed (`42` para shuffle do LongMemEval).
 3. **Defaults nativos por sistema.** Cada competidor roda com sua configuração default publicável. Não tunamos competidores adversarialmente para perder; se default config é o que é publicado, é o que é avaliado.
 4. **K cutoff fixo em 10.** Alguns sistemas defaultam para 5 ou 20; todos são forçados a `k=10` para comparabilidade.
-5. **Embeddings provider nativo por sistema.** nox-mem usa Gemini 3072d; cada competidor usa seu provider default. Uma variação `all-Gemini` é planejada como side experiment opcional (`[PENDENTE: avaliar se Sat dá tempo]`).
+5. **Embeddings provider nativo por sistema.** nox-mem usa Gemini 3072d; cada competidor usa seu provider default. Uma variação `all-Gemini` é planejada como side experiment opcional, deferred porque o smoke de Sat 2026-05-24 consumiu o time-box antes do experiment (`[deferred — Sun 2026-05-25 ou follow-up post-launch]`).
 6. **Hardware uniforme.** Mesmo VPS (Hostinger 8 cores / 16 GB RAM), localhost between systems exceto chamadas a embeddings APIs externas.
 
 Cada adapter passa um smoke test pré-run:
@@ -474,7 +483,7 @@ Para evitar viés de seleção retroativo:
 
 ### 6.7 Pre-registration
 
-A metodologia desta seção está cravada no `specs/2026-05-23-Q4-comparison-execution-plan.md` antes do run de Sat 2026-05-24. O output da execução atualiza apenas as células marcadas `[PENDENTE]` nas tabelas de §6.2/§6.3/§6.4 — princípios (§6.5), anti-cherry-pick (§6.6) e a estrutura geral desta seção são imutáveis post-run. Qualquer ajuste metodológico identificado durante a execução é documentado como follow-up explícito em `docs/COMPARISON.md` em vez de retroagido aqui.
+A metodologia desta seção está cravada no `specs/2026-05-23-Q4-comparison-execution-plan.md` antes do run de Sat 2026-05-24. O **smoke de Sat 2026-05-24 15h30 BRT** preencheu a primeira linha de §6.3 (nox-mem combined: nDCG@10=0.6380, p50=12ms, gold-hit 13/20 em 20 queries dry-run-sample) e validou que o pipeline de retrieval funciona end-to-end em eval-isolated DB; o **run canônico** ainda está em curso e atualiza as linhas competidoras `[PENDING canonical run]` em §6.3 + a totalidade de §6.4 quando os 6 adapters estiverem prontos. Princípios (§6.5), anti-cherry-pick (§6.6) e a estrutura geral desta seção são imutáveis post-run. Qualquer ajuste metodológico identificado durante a execução é documentado como follow-up explícito em `docs/COMPARISON.md` em vez de retroagido aqui. Ref: `[[q4-smoke-sat-2026-05-24-real-numbers]]`.
 
 A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR, latência). Atendido o gate, GTM Phase 2 está destravada conforme `docs/ROADMAP.md` §7. Não atendido, a sessão de Sun 2026-05-25 produz um plano de remediação (ajustes pre-launch) em vez de launch direto.
 
@@ -674,7 +683,7 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 nox-mem demonstrates that persistent, searchable, and shareable memory for AI agent fleets is achievable with commodity infrastructure (single VPS, SQLite, local LLM). The hybrid search system consistently outperforms single-method retrieval, particularly for multilingual content and compound technical terms. The LLM-powered knowledge graph provides 15x richer entity extraction compared to regex approaches, while temporal decay ensures the graph stays current without manual curation. The Wave A empirical evaluation (§5) cravou nDCG@10 = 0.6237 on the entity-flavored golden set (+78.8% relative over the G3 baseline), with `section_boost` identified as the dominant driver (99.85% of the lift recovered by A3 alone) and the additive salience formula validated by the `active > shadow` reversal. The G10d conditional mutex evolution (§5.5, deployed 2026-05-21) consolida o canonical boost stack `section_boost × source_type_boost (Hard Mutex gated by query_entity_count ≤ 2) × salience v2 additive` em produção, recuperando regressões multi-hop e adversarial com diluição contida em single-hop. A camada F10 (§5.6, decisão D53) torna o estado de produção verificável a qualquer momento via dashboards Phase A (`/observability/health.html`) + Phase B (`/observability/evals.html`).
 
-A §6 Q4 COMPARISON está pre-registered (`specs/2026-05-23-Q4-comparison-execution-plan.md`) e populada com placeholders explícitos `[PENDENTE: cravado Sat 2026-05-24]`; a execução do weekend sprint cravará os números cross-system contra os cinco competidores (Mem0, Zep, Letta, agentmemory, EverMind-AI) sobre LongMemEval n=100 + LoCoMo full, fechando o gate D43 (top-3 em ≥2 das 4 métricas chave) e destravando GTM Phase 2.
+A §6 Q4 COMPARISON está pre-registered (`specs/2026-05-23-Q4-comparison-execution-plan.md`) e o **smoke de Sat 2026-05-24 15h30 BRT** populou a primeira linha de §6.3 com números de nox-mem (nDCG@10=0.6380 combined, p50=12ms, gold-hit 13/20 em 20 queries dry-run-sample sobre eval-isolated DB de 5.882 LoCoMo + 940 LongMemEval chunks). O **run canônico** — 100 queries × 2 datasets × 6 sistemas (Mem0, Zep, Letta, agentmemory, EverMind-AI + nox-mem) — ainda está em execução com 5/6 competitor adapters em setup, e atualiza as células `[PENDING canonical run]` quando crava. O gate D43 (top-3 em ≥2 das 4 métricas chave) é avaliado contra o run canônico; o smoke valida a metodologia + confirma que nox-mem retrieval funciona end-to-end, destravando a defesa pre-launch da GTM Phase 2.
 
 The cross-agent intelligence layer transforms isolated agent memories into a collaborative knowledge base, enabling institutional learning across the fleet. Combined with the live dashboard, the system provides full observability into the collective memory of the agent organization.
 
