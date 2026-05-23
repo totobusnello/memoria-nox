@@ -328,18 +328,36 @@ check_vps_health() {
     return
   fi
 
-  # NOTE: nox-mem API binds to 127.0.0.1 (Tailscale-only); direct IP access is blocked.
-  # Use TAILSCALE_HOST env var to override, or accept WARN if running outside tailnet.
-  local vps_url="${NOX_HEALTH_URL:-http://187.77.234.79:18802/api/health}"
+  # NOTE: nox-mem API binds to 127.0.0.1 (Tailscale-only); direct public IP access is blocked.
+  # Strategy: env NOX_HEALTH_URL > tailscale detection > SSH tunnel fallback
+  #
+  # 1. If NOX_HEALTH_URL set, use it (allows override for public proxy, test endpoints)
+  # 2. If tailscale available and nox-vps reachable, use http://nox-vps.tailnet:18802/api/health
+  # 3. Otherwise, warn and fall back to attempting direct IP (will likely fail)
+  local vps_url=""
+
+  if [[ -n "$(printenv NOX_HEALTH_URL 2>/dev/null || true)" ]]; then
+    vps_url="$(printenv NOX_HEALTH_URL)"
+    log_verbose "NOX_HEALTH_URL set: $vps_url"
+  elif timeout 1 bash -c "command -v tailscale &>/dev/null && tailscale ping nox-vps &>/dev/null" 2>/dev/null; then
+    vps_url="http://nox-vps.tailnet:18802/api/health"
+    log_verbose "Tailscale detected: using nox-vps.tailnet"
+  else
+    # Fallback: attempt direct IP (will fail outside tailnet, that's expected)
+    vps_url="http://187.77.234.79:18802/api/health"
+    log_verbose "Tailscale unavailable: using public IP fallback (will fail outside tailnet)"
+  fi
 
   local health_json
   health_json=$(curl -s --max-time 10 "$vps_url" 2>/dev/null || echo "")
 
   if [[ -z "$health_json" ]]; then
     # Downgrade to WARN — API binds to 127.0.0.1 (Tailscale-only); unreachable from outside tailnet.
-    # Set NOX_HEALTH_URL=http://<tailscale-ip>:18802/api/health to enable real check.
-    add_action "VPS unreachable at ${vps_url} — if outside Tailscale set NOX_HEALTH_URL=http://<tailscale-ip>:18802/api/health"
-    record_warn "VPS health" "unreachable — API binds 127.0.0.1 (Tailscale-only); use NOX_HEALTH_URL to override"
+    # Solutions:
+    #   1. Install/connect Tailscale: https://tailscale.com/download
+    #   2. Set NOX_HEALTH_URL=http://<public-proxy>:18802/api/health if using external proxy
+    add_action "VPS unreachable at ${vps_url} — if outside Tailscale: (1) install Tailscale or (2) set NOX_HEALTH_URL to public proxy"
+    record_warn "VPS health" "unreachable — API binds 127.0.0.1 (Tailscale-only)"
     return
   fi
 

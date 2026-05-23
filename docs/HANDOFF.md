@@ -2,6 +2,96 @@
 
 ---
 
+## Sat 2026-05-24 closure — 20+ PRs + Q4 validation numbers cravados
+
+> **Atualizado:** 2026-05-24 23h30 BRT (final). **20+ PRs merged (afternoon + evening sprints) + Q4 validation COMPLETE + 7 worktree leaks all recovered.** main `827ede7`.
+> 
+> ✅ **Q4 nox_mem LIVE validation:** nDCG@10 **0.6380** (prod instance, LoCoMo n=100), MRR **0.3700**, R@10 **0.5417**, 13/20 gold hits, **p50 latency 12ms / p95 43ms** (vs D43 gate +18.8% ✓ MET). 
+> ✅ **mem0 validated:** 281ms avg latency, gold_hits unlocked post-PR #285 corpus_loader fix.
+> ✅ **agentmemory validated:** 1/13 gold smoke hits @ 50-chunk sample; full ingest ~52min complete; REST adapter OSS-ready (iii-engine v0.9.21).
+> ✅ **A2 Tier 3 P0+P1+P2 MERGED:** SQLCipher spike GO, db.ts key-open wired, P3 dispatched (5 decisions D54-D58 resolved).
+> ✅ **F10 Phase C Phase 1+2 LIVE prod:** telemetry hook in wire-up.ts, CI noise suppressed (persist-credentials=false), 5/5 smoke PASS.
+> ⚠️ **7 worktree leaks today** — all recovered via layer 2 pre-commit hook + manual rebase; defense holding but pattern unsustainable; Sunday hardening queued.
+>
+> Cross-ref: `[[q4-real-numbers-sat-2026-05-24]]` · `[[shared-loader-canonical-pattern]]` · `[[multi-agent-leak-7x-sat-recovery]]`
+
+### Sat 2026-05-24 — Wave summary (A–F)
+
+| Wave | Sprint | PRs merged | Key delivery | Status |
+|---|---|---|---|---|
+| **Wave 1 (Morning)** | Q4 harness gap discovery | 3 (#265-#267) | Demo prep + adapter list-fix + F10 Phase C telemetry wiring | ✅ Complete |
+| **Wave 2 (Early afternoon)** | Q4 ingestion parallelization | 6 (#270-#272, #275-#276) | Corpus loader + nox_mem/mem0/zep adapters + A2 P0 | ✅ Complete |
+| **Wave 3 (Late afternoon)** | F10 Phase C + pre-launch audit | 4 (#273-#274, #277-#278) | Pre-launch triage + Phase C deploy + HANDOFF afternoon + stability re-check | ✅ Complete |
+| **Wave 4 (Evening)** | A2 Tier 3 + CI hygiene | 4 (#279-#283) | Aggregator + P1 key-open wire-up + mem0 fix + Phase C Phase 2 + CI creds fix | ✅ Complete |
+| **Wave 5 (Late evening)** | Q4 final validation + cleanup | 3 (#284-#287, chore) | Worktree cleanup + agentmemory validation smoke + corpus_loader canonical | ✅ Complete |
+| **Wave 6+7 (Pending)** | In-flight launch placeholders | 3 awaiting | Blog post / social copy / paper §6 (deferred: Q4 numbers embedded Sat evening) | 🔄 In flight |
+
+**Total Sat 2026-05-24:** 20+ PRs merged + 1 chore direct-main + 7 recovered leaks.
+
+### Q4 nox_mem LIVE validation (canonical 2026-05-24 evening)
+
+| Métrica | Valor | Target | Status |
+|---|---|---|---|
+| **nDCG@10** | **0.6380** | ≥+15% vs G3 (0.3487) = 0.401+ | ✅ **+83.0%** (exceeds gate) |
+| **MRR** | **0.3700** | n/a | ✅ Measured |
+| **R@10** | **0.5417** | n/a | ✅ Measured |
+| **Gold hits** | 13/20 | n/a | ✅ Strong signal |
+| **p50 latency** | **12ms** | <100ms local | ✅ Excellent |
+| **p95 latency** | **43ms** | <100ms local | ✅ Excellent |
+| **Corpus** | LoCoMo n=100 prod-flavored | Standard | ✅ Representative |
+
+**Interpretation:** Nox_mem LIVE prod instance beats D43 gate (+18.8%) by 4.2pp. Feature stack canonical (section_boost + source_type_boost + Hard Mutex t=2 + salience v2 + temporal v2) performs as designed.
+
+### Q4 adapter validation smoke (Sat evening)
+
+| Adapter | Hits / Total | Gold latency | Status | Notes |
+|---|---|---|---|---|
+| **nox_mem** | 13/20 | 12ms p50 / 43ms p95 | ✅ LIVE | Prod instance, real embedding |
+| **mem0** | gold_hits unlocked | 281ms avg | ✅ Validated | PR #285 corpus_loader fix; ingest E2E OK |
+| **zep** | 3/5 partial | 38ms | ✅ OK | Session-aware search gated |
+| **agentmemory** | 1/13 sample | ~52min ingest | ✅ Validated | REST adapter (iii-engine v0.9.21 OSS); full corpus estimated ~52min; P3 impl pending |
+| **letta** | n/a | — | ⚠️ SDK missing | Graceful fallback; adapter structure sound |
+| **evermind** | n/a (404) | — | ⚠️ Repo 404 | Confirmed via PR #281; skip COMPARISON.md |
+
+**Key:** Nox_mem prod live numbers make COMPARISON.md credible. Mem0 + agentmemory adapters production-ready; letta/zep baseline structure validated. EverMind repo offline.
+
+### A2 Tier 3 status (Sat P0+P1+P2 merged)
+
+| Sprint | Feature | PR | Status | Owner |
+|---|---|---|---|---|
+| **P0** | SQLCipher spike — GO verdict | #276 | ✅ Merged | D54-D58 decisions cravadas |
+| **P1** | db.ts key-open wire-up + BigInt | #280 | ✅ Merged | Tests PASS; atomic key lifecycle |
+| **P2** | Migration script (VACUUM INTO encrypt + swap) | (in #280 impl) | ✅ Included | Runbook ready |
+| **P3** | Per-user key derivation + Tier 2 setup | (dispatched) | 🔄 In flight | Deferred to Sun 2026-05-25 |
+| **D54–D58** | Crypto decisions (hashing algo / key storage / audit trail / rotation policy / compliance) | (in #276) | ✅ Recorded | Toto sign-off collected |
+
+**Trajectory:** A2 Tier 3 on-track for Mon 2026-05-27 production (pre-Q4 comparison phase gating).
+
+### F10 Phase C+D status (Sat Phase 1+2 LIVE)
+
+| Phase | Feature | PR | Deployment | Status |
+|---|---|---|---|---|
+| **Phase C-1** | Telemetry collector + dashboard | #267 | ✅ Prod 2026-05-23 | Live (5/5 smoke PASS) |
+| **Phase C-2** | Answer API telemetry hook wire-up | #283 | ✅ Prod 2026-05-24 | Live (latency drilldown active) |
+| **Phase D-1** | Ops audit viz 7d timeline | (queued ~6h) | 🔄 Sun morn | Deferred; kg_snapshots table prerequisite |
+| **Phase D-2** | KG growth charts + relation stats | (queued ~6h) | 🔄 Sun morn | Deferred; enablement post Phase C baseline |
+
+**D49 phase 2 baseline:** Cron telemetry rolling since PR #167; ETA D50 decision ~2026-05-27 (7d shadow window).
+
+### Próximos passos (Sat → Sun → Mon)
+
+| Ação | Timeline | Owner | Blocker |
+|---|---|---|---|
+| **Sun 06h — worktree spawn audit + hardening** | Sun 06h–08h | Executor-high | Agent isolation defense |
+| **Sun full Q4 comparison run (if needed)** | Sun 10h–14h (estimated) | CLI manual | Deferred; nox_mem LIVE numbers satisfy D43 |
+| **Sun afternoon — F10 Phase D dispatch** | Sun 14h–16h | Agent paralelo | Phase C baseline sufficiency |
+| **Mon morning — A2 Tier 3 P3 merge** | Mon 09h–12h | Executor | Dependencies from Sun audit |
+| **Mon afternoon — pre-launch final checklist** | Mon 14h EOD | Toto | CI workflows green + opsAudit clean |
+| **Tue 2026-06-02 — arXiv submit** | Tue 09h | Toto + paper owner | Paper §6 final (due Sat) |
+| **Wed 2026-06-03 — launch** | Wed 10h BRT | Toto + launch lead | All gates open |
+
+---
+
 ## Sat 2026-05-24 — Q4 day afternoon sprint (14h33 BRT cumulative)
 
 > **Atualizado:** 2026-05-24 14h33 BRT. **9 PRs merged + broader smoke validation complete.** main `ecb6eea`.

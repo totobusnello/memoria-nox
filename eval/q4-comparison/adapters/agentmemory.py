@@ -13,6 +13,8 @@ PROBE FINDINGS (2026-05-23):
     parsed back from search results. Not ideal but the only option without patching upstream.
   - Smoke test passed: 5 chunks ingested, search returned 5 hits, scores ~0.68.
   - `agentmemory --version` hangs (daemon mode); version confirmed via npm view / package.json.
+  - /agentmemory/stats → 404; count via GET /agentmemory/memories (len of .memories list).
+  - POST /agentmemory/search → dict with .results key (not bare list).
 
 DAEMON LIFECYCLE:
   The daemon must be running before validate() / ingest_corpus() / search() are called.
@@ -23,15 +25,26 @@ DAEMON LIFECYCLE:
   validate() hits /livez to confirm the daemon is up. If not, it returns ok=False with
   a clear error so the runner can skip agentmemory from the Q4 run (per spec §4).
 
-INGESTION MODEL:
-  ingest_corpus(chunks) posts each chunk to POST /agentmemory/remember.
-  Idempotency: best-effort skip if /stats endpoint returns count >= input size.
+INGESTION MODEL (setup()):
+  setup() ingests the Q4 corpus from eval/q4-comparison/cache/{locomo,longmemeval}.jsonl
+  using lib.corpus_loader. Corpus is loaded via shared JSONL cache (downloaded on first
+  use by corpus_loader). setup() is idempotent: skips re-ingest if
+  GET /agentmemory/memories count >= expected corpus size.
+
+  AGENTMEMORY_INGEST_LIMIT=N  — limit chunks to N (useful for smoke/unit tests)
+  AGENTMEMORY_FORCE_REINGEST=1 — skip idempotency check and always ingest
+
   Content format: "[nox_id:<id>] <text>" so search() can parse the nox-mem id back.
 
 SEARCH MODEL:
-  POST /agentmemory/search with {query, limit}. Returns list with .observation.id (mem_xxx)
-  and .observation.narrative or .observation.facts. The nox-mem id is parsed from the content
-  prefix "[nox_id:<id>]". Falls back to mem_xxx if prefix not found.
+  POST /agentmemory/search with {query, limit}. Returns dict with .results list.
+  Each item has .observation.narrative or .observation.facts[0]. The nox-mem id is
+  parsed from the content prefix "[nox_id:<id>]". Falls back to mem_xxx if prefix not found.
+
+SMOKE VALIDATION (2026-05-24):
+  Bug found: pre-fix setup() was a no-op — corpus never ingested → 0 search results.
+  Fix: setup() now calls _ingest_from_corpus_cache() using lib.corpus_loader.
+  Verified: gold_hits > 0 on locomo dry-run-sample.json with --limit 5 post-fix.
 """
 
 from __future__ import annotations
@@ -39,7 +52,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 import time
+from pathlib import Path
 from typing import Any, Iterable
 
 try:
@@ -55,6 +70,9 @@ INSTALL_HINT = (
     "npm install -g '@agentmemory/agentmemory'   "
     "# then: agentmemory & (start daemon); curl http://localhost:3111/agentmemory/livez"
 )
+
+HERE = Path(__file__).resolve().parent.parent  # eval/q4-comparison/
+sys.path.insert(0, str(HERE))
 
 _NOX_ID_RE = re.compile(r"^\[nox_id:([^\]]+)\]\s*")
 
@@ -120,25 +138,151 @@ def validate() -> dict:
     }
 
 
-def setup() -> None:
+def _count_existing() -> int | None:
+    """Return the number of memories currently stored in agentmemory.
+
+    Uses GET /agentmemory/memories — the only reliable count endpoint.
+    /agentmemory/stats → 404 in v0.9.21.
+    Returns None if the endpoint is unreachable.
+    """
+    try:
+        data = _get("/agentmemory/memories", timeout=10)
+        mems = data.get("memories")
+        if isinstance(mems, list):
+            return len(mems)
+    except Exception:
+        pass
     return None
+
+
+def _ingest_from_corpus_cache(datasets: list[str] = ("locomo", "longmemeval")) -> dict:
+    """
+    Ingest Q4 corpus chunks from the shared JSONL cache into agentmemory.
+
+    Reads from eval/q4-comparison/cache/{dataset}.jsonl (built by lib.corpus_loader).
+    Content format: "[nox_id:<id>] <text>" for ID round-trip in search().
+
+    Env overrides:
+      AGENTMEMORY_INGEST_LIMIT=N       — stop after N chunks (smoke/unit tests)
+      AGENTMEMORY_FORCE_REINGEST=1     — bypass idempotency check
+    """
+    from lib.corpus_loader import CACHE_DIR, load_locomo_corpus, load_longmemeval_corpus  # type: ignore[import]
+
+    force = os.environ.get("AGENTMEMORY_FORCE_REINGEST", "").lower() in ("1", "true", "yes")
+    limit_raw = os.environ.get("AGENTMEMORY_INGEST_LIMIT", "")
+    limit: int | None = int(limit_raw) if limit_raw.isdigit() else None
+
+    # Count expected chunks
+    total_expected = 0
+    for ds in datasets:
+        cache_path = CACHE_DIR / f"{ds}.jsonl"
+        if cache_path.exists():
+            total_expected += sum(1 for _ in cache_path.open())
+    if limit is not None:
+        total_expected = min(total_expected, limit)
+
+    # Idempotency check
+    if not force and total_expected > 0:
+        existing = _count_existing()
+        if existing is not None and existing >= total_expected:
+            print(
+                f"[agentmemory] corpus already ingested ({existing} memories, "
+                f"expected ~{total_expected}). Skipping. Set AGENTMEMORY_FORCE_REINGEST=1 to override."
+            )
+            return {
+                "ingested": 0,
+                "skipped": total_expected,
+                "total": total_expected,
+                "errors": 0,
+                "mode": "idempotent-skip",
+                "existing_count": existing,
+            }
+
+    print(f"[agentmemory] ingesting corpus (expected ~{total_expected} chunks, limit={limit})...")
+    ingested = 0
+    errors = 0
+    done = False
+
+    for ds in datasets:
+        if done:
+            break
+        cache_path = CACHE_DIR / f"{ds}.jsonl"
+        if not cache_path.exists():
+            # Trigger download via corpus_loader
+            print(f"[agentmemory] cache miss for {ds} — triggering corpus_loader download...")
+            if ds == "locomo":
+                list(load_locomo_corpus())
+            else:
+                list(load_longmemeval_corpus())
+
+        if not cache_path.exists():
+            print(f"[agentmemory] WARNING: {cache_path} still missing after download attempt, skipping {ds}")
+            continue
+
+        with cache_path.open() as fh:
+            for i, line in enumerate(fh, 1):
+                if limit is not None and (ingested + errors) >= limit:
+                    done = True
+                    break
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    row = json.loads(line)
+                except json.JSONDecodeError:
+                    errors += 1
+                    continue
+                nox_id = str(row.get("id") or "")
+                text = row.get("text") or ""
+                if not nox_id or not text:
+                    errors += 1
+                    continue
+                content = f"[nox_id:{nox_id}] {text}"
+                try:
+                    resp = _post(
+                        "/agentmemory/remember",
+                        {"content": content, "type": "observation"},
+                        timeout=30,
+                    )
+                    if resp.get("success"):
+                        ingested += 1
+                    else:
+                        errors += 1
+                except Exception as exc:
+                    errors += 1
+                    if errors <= 3:
+                        print(f"[agentmemory] ingest error chunk {nox_id!r}: {exc}")
+
+                if ingested % 100 == 0 and ingested > 0:
+                    print(f"[agentmemory]   ingested {ingested} / ~{total_expected} ({errors} errors)")
+
+    print(f"[agentmemory] ingestion complete: {ingested} ok, {errors} errors")
+    return {
+        "ingested": ingested,
+        "skipped": 0,
+        "total": ingested + errors,
+        "errors": errors,
+        "mode": "rest",
+    }
+
+
+def setup() -> None:
+    """
+    Validate daemon + ingest Q4 corpus from shared JSONL cache.
+
+    Idempotent: skips re-ingest if memory count >= expected corpus size.
+    Env: AGENTMEMORY_INGEST_LIMIT=N  (smoke: small N); AGENTMEMORY_FORCE_REINGEST=1.
+    """
+    v = validate()
+    if not v["ok"]:
+        print(f"[agentmemory] setup: daemon not available — {v['error']}")
+        print("[agentmemory] Start daemon: agentmemory & ; sleep 5")
+        return
+
+    _ingest_from_corpus_cache()
 
 
 def teardown() -> None:
-    return None
-
-
-def _count_existing() -> int | None:
-    """Best-effort count of existing memories via stats endpoint."""
-    for path in ["/agentmemory/stats", "/agentmemory/health"]:
-        try:
-            data = _get(path, timeout=5)
-            for key in ("total", "count", "memories", "totalMemories"):
-                val = data.get(key)
-                if isinstance(val, int):
-                    return val
-        except Exception:
-            continue
     return None
 
 

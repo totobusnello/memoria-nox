@@ -1,13 +1,16 @@
 {
-  "name": "nox-mem-a2-tier3-p1-db-keyopen",
-  "version": "0.1.0-a2-tier3-p1",
+  "name": "nox-mem-a2-tier3-staged",
+  "version": "0.2.0-a2-tier3-p2",
   "private": true,
   "type": "module",
-  "description": "A2 Tier 3 P1 — staged db.ts SQLCipher key-open wire-up. Wraps better-sqlite3-multiple-ciphers (drop-in replacement) with NOX_DB_KEY env-driven PRAGMA key + cipher_compatibility=4 + defaultSafeIntegers(true) for vec0 BigInt rowid compatibility. Backward-compatible: NOX_DB_KEY absent → opens plaintext. Hard mode: NOX_DB_REQUIRE_KEY=1 + missing key → throw at open.",
+  "description": "A2 Tier 3 staged code — P1 db.ts SQLCipher key-open wire-up + P2 plaintext-to-encrypted migration script. Wraps better-sqlite3-multiple-ciphers with NOX_DB_KEY env-driven PRAGMA key + cipher_compatibility=4 + defaultSafeIntegers(true). P2 migrate-encrypt-db.ts performs reverse-ATTACH plaintext→encrypted copy with FTS5 rebuild + AUTOINCREMENT preservation, plus atomic --swap helper.",
   "scripts": {
-    "build": "tsc && node -e \"import('node:fs').then(({copyFileSync,mkdirSync})=>{mkdirSync('dist/edits/src/lib',{recursive:true});copyFileSync('edits/src/lib/reads-audit-schema.sql','dist/edits/src/lib/reads-audit-schema.sql');})\"",
+    "build": "tsc",
     "check": "tsc --noEmit",
-    "test": "npm run build && node --test dist/edits/src/lib/__tests__/*.test.js"
+    "test": "tsc && node --test dist/edits/src/lib/__tests__/*.test.js dist/scripts/__tests__/*.test.js",
+    "test:p1": "tsc && node --test dist/edits/src/lib/__tests__/*.test.js",
+    "test:p2": "tsc && node --test dist/scripts/__tests__/*.test.js",
+    "migrate": "tsc && node dist/scripts/migrate-encrypt-db.js"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",

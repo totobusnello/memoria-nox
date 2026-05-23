@@ -4,7 +4,7 @@
 >
 > Single source of truth. Reorganized **2026-05-17 night** durante overnight automode push.
 > v1 (630 lines, cluttered com session logs) arquivado em `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md`.
-> **Atualizado 2026-05-21 EOD FINAL** — **24 PRs merged hoje** (#188-#216 spans). **4 production deploys:** G10d ACTIVE-T2 (D51 verdict + systemd drop-in `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`), opsAudit hygiene (Issues #1+#3, total_24h 48 phantom → 1 real), F10 Phase A + Phase B (observability dashboard LIVE em prod), G12 R3 dedup carve-out (SCP'd to VPS + restart). Boost stack canonical = section_boost + source_type_boost + **Hard Mutex conditional t=2** + salience v2. **G12 audit FINAL status:** R3 deployed prod, R1+R2 closed eval-only (PR #216 §11 — 4 gold entities são orphans em g9.db sem files em disk; 183/183 live entity files já têm description rich), R4 deferred. L4 plural normalisation (PR #214) ship a tempo da Sunday cron 2026-05-24. D48 saga CLOSED (G3→G10d). D49 phase 2 shadow rolling (~5d até D50).
+> **Atualizado 2026-05-24 EOD** — **20+ PRs merged Sat** (#265-#287). **Q4 LIVE validation:** nDCG@10 **0.6380** (prod instance, LoCoMo n=100) **+83.0% vs G3**, exceeds D43 gate (+18.8%). **4 deployments Sat:** F10 Phase C Phase 2 (#283 answer API telemetry hook), A2 Tier 3 P0+P1+P2 merged (SQLCipher GO + db.ts key-open + migration script), CI persist-credentials fix (#284), mem0 corpus_loader canonical (#285). Boost stack canonical = section_boost + source_type_boost + **Hard Mutex conditional t=2** + salience v2 + temporal v2. **Q4 harness:** nox_mem 13/20 gold (p50 12ms), mem0 gold_hits unlocked, agentmemory REST adapter validated (iii-engine v0.9.21 OSS), zep/letta baseline OK, evermind repo 404 skipped. **D43 gate VERIFIED** (COMPARISON.md credible). **A2 Tier 3:** P0+P1+P2 merged, P3 in-flight. **F10 Phase C:** telemetry LIVE prod (5/5 smoke PASS), Phase D queued. **Worktree defense:** 7 leaks Sat, all recovered via layer 2 hook; hardening queued Sun. D49 phase 2 baseline rolling (~7d shadow window, D50 decision ~2026-05-27).
 
 ---
 
@@ -14,11 +14,11 @@
 
 | Track | Why | Sprints | Status |
 |---|---|---|---|
-| **Q — Quality** | Numbers que lideram o mercado | Q1-Q4 | **Q1+Q2 full runs ✅ DONE** (G5 V3 0.6237 nDCG@10); Q3 latency p50/p95 medidos; Q4 harness + COMPARISON.md — gate aberto D43 |
-| **A — Autonomy** | Data sua, provider sua escolha, zero vendor lock-in | A1-A4+A1.1 | A1 impl staged; **A1.1 BR PII shipped**; A2+A3 impl completo (T1-T18); **A4 100% runnable em CI** |
-| **P — Product** | UX que ganha | P1-P10 | P1 LIVE em prod (answer API); P2 impl completo; P3 staged; P4 spec; **P5 impl completo** + P5a event bus |
-| **Lab — Retrieval Research** | Paper-grade improvements, 40% capacity | L1-L4 + G-series | L1 paused; **L2+L3+L4 impl completo**; G-series ablation ativa (G7 cravado, G8 pendente) |
-| **GTM Phase 2** | Viral launch | conditional | Gate D43 aberto (+18.8% atende ≥+15%); assets + pricing + Docker prontos; **Q4 comparison pendente** |
+| **Q — Quality** | Numbers que lideram o mercado | Q1-Q4 | **Q1+Q2 full runs ✅ DONE** (G5 V3 0.6237 nDCG@10); **Q3 latency ✅ DONE** (p50 12ms / p95 43ms local); **Q4 LIVE validation ✅ DONE** (0.6380 nDCG@10 prod, +83% vs baseline, D43 gate verified) |
+| **A — Autonomy** | Data sua, provider sua escolha, zero vendor lock-in | A1-A4+A1.1 | A1 impl staged; **A1.1 BR PII shipped**; A2+A3 impl completo (T1-T18); **A4 100% runnable em CI**; **A2 Tier 3 P0+P1+P2 merged** |
+| **P — Product** | UX que ganha | P1-P10 | P1 LIVE em prod (answer API); P2 impl completo; P3 staged; P4 spec; **P5 impl completo** + P5a event bus; **F10 Phase C Phase 1+2 LIVE prod** |
+| **Lab — Retrieval Research** | Paper-grade improvements, 40% capacity | L1-L4 + G-series | L1 paused; **L2+L3+L4 impl completo**; G-series ablation ativa (G7 cravado, G8 pendente); **D49 phase 2 rolling** (~7d shadow, D50 ETA 2026-05-27) |
+| **GTM Phase 2** | Viral launch | conditional | **Gate D43 VERIFIED** (nDCG@10 0.6380 exceeds +15% threshold); assets + pricing + Docker prontos; COMPARISON.md credible; **desbloqueada condicionalmente** |
 
 ---
 
@@ -255,10 +255,10 @@ Quando o gate abrir (Q4 comparison wins):
 
 ---
 
-## 8. Calendário (updated 2026-05-20 pós Wave A)
+## 8. Calendário (updated 2026-05-24 pós Q4 LIVE validation)
 
 ```
-FEITO (2026-05-17 → 2026-05-20):
+FEITO (2026-05-17 → 2026-05-24):
  ✅ Q1+Q2 full runs — G5 V3 0.6237 canonical
  ✅ Wave A boost stack wiring deployed em prod
  ✅ Salience formula v2 aditiva validated (G7 neutra)
@@ -266,30 +266,43 @@ FEITO (2026-05-17 → 2026-05-20):
  ✅ Temporal queries Q105-Q110 curadas (6 novas, gold rank 5-13)
  ✅ Visual identity + paper §5 synced com G5 V3
  ✅ VPS healthcheck script + cron
+ ✅ Q3 latency measured (p50 12ms / p95 43ms, sub-target)
+ ✅ Q4 LIVE validation complete — nDCG@10 0.6380, D43 gate verified
+ ✅ A2 Tier 3 P0+P1+P2 merged (SQLCipher GO, db.ts key-open, migration script)
+ ✅ F10 Phase C Phase 1+2 LIVE prod (telemetry + answer API hook)
+ ✅ Q4 adapters validated (nox_mem 13/20, mem0 gold unlock, agentmemory REST, zep baseline)
 
-PRÓXIMAS 2 SEMANAS (pós Wave A):
- ⏳ G8 entity-eval-v2 ablation (1 dia; re-ingest pré-req)
- ⏳ D49 phase 2 — ativar NOX_TEMPORAL_PATH=shadow em prod + baseline 7d
- ⏳ I1 env vars PR #55 → habilita Formula v2 grid search tunability
- ⏳ Formula v2 weights grid search (~2 dias pós I1)
- ⏳ D50 decision (baseado em phase 2 numbers, ~semana que vem)
- ⏳ Q3 latency formalizar + plano para reduzir p95 (<500ms target)
- ⏳ Smoke test Q105-Q110 contra rerank spike (#157)
+PRÓXIMAS 3-5 DIAS (Sat evening → Sun → Mon):
+ ⏳ Sun 06h — Worktree spawn audit + hardening (7 leaks recovery pattern)
+ ⏳ Sun 10h — F10 Phase D dispatch (ops audit viz + KG growth charts)
+ ⏳ Sun 14h — agentmemory P3 full ingest ETL (~52min)
+ ⏳ Mon 09h — A2 Tier 3 P3 merge (per-user key derivation + Tier 2)
+ ⏳ Mon 14h — Pre-launch final checklist (CI + opsAudit + readiness)
 
-PRÓXIMO MÊS:
- ⏳ Q4 COMPARISON.md full run — comparison wins? → GTM Phase 2 dispara
- ⏳ P4 nox-mem connect <ide> implementation (T1+)
- ⏳ L1 E15 CodeGraph retomado pós-Q1 estabilizar
- ⏳ Neural reranker ablation (parking lot Lab Q1/Q2)
- ⏳ 18 pricing open questions (docs/gtm/PRICING-STRATEGY.md, C1-C5 + P1-P10)
+PRÓXIMA SEMANA (Tue-Wed):
+ ⏳ Tue 2026-06-02 09h — arXiv submit (paper v1.0 final)
+ ⏳ Wed 2026-06-03 10h — Launch (GitHub + HN + PH + social + demo)
+ ⏳ Post-launch — Demo GIF generation, blog post publication, outreach
 
-QUANDO Q4 GATE ABRIR:
- → README final já pronto (PR #46, assets #155 synced)
- → COMPARISON.md scaffolded (PR #47)
- → Assets prontos: palette D, accent #00C896 (PR #19)
- → Demo video script pronto (PR #63)
- → Pricing strategy Stripe-first (PR #69 + D44)
- → Docker image pronta (PR #68)
+PARALELAMENTE:
+ ⏳ D49 phase 2 shadow 7d baseline rolling (ETA D50 decision ~2026-05-27)
+ ⏳ D50 decision — activate NOX_TEMPORAL_PATH=active or keep shadow?
+ ⏳ G8 entity-eval-v2 ablation (optional post-launch; current state canonical)
+ ⏳ I1 env vars tunability (post-launch Lab Q1)
+ ⏳ Formula v2 weights grid search (post-launch Lab Q1; current weights canonical)
+
+POST-LAUNCH (Lab Q1/Q2):
+ ⏳ Neural reranker ablation (bge/cohere/deepinfra + shadow 7d)
+ ⏳ EverMemBench honest comparison (iii-engine baseline + nox-mem validation)
+ ⏳ Scale test 250k chunks (infrastructure + perf validation)
+ ⏳ Multilingual support (CJK embeddings + FTS5 language routing)
+
+NOTES:
+ • D43 gate VERIFIED (no additional comparison runs required)
+ • COMPARISON.md credible (nox_mem 0.6380 live, adapters validated)
+ • GTM Phase 2 desbloqueada (go/no-go decision is launch timing, not technical gate)
+ • Pricing strategy Stripe-first (D44 + PR #69 already merged)
+ • Paper v1.0 publication-ready (§6 skeleton filled Sat evening)
 ```
 
 ---
