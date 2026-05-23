@@ -1,0 +1,18 @@
+{
+  "name": "nox-mem-a2-tier3-p1-db-keyopen",
+  "version": "0.1.0-a2-tier3-p1",
+  "private": true,
+  "type": "module",
+  "description": "A2 Tier 3 P1 — staged db.ts SQLCipher key-open wire-up. Wraps better-sqlite3-multiple-ciphers (drop-in replacement) with NOX_DB_KEY env-driven PRAGMA key + cipher_compatibility=4 + defaultSafeIntegers(true) for vec0 BigInt rowid compatibility. Backward-compatible: NOX_DB_KEY absent → opens plaintext. Hard mode: NOX_DB_REQUIRE_KEY=1 + missing key → throw at open.",
+  "scripts": {
+    "build": "tsc",
+    "check": "tsc --noEmit",
+    "test": "tsc && node --test dist/edits/src/lib/__tests__/*.test.js"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20.0.0",
+    "better-sqlite3-multiple-ciphers": "^11.10.0",
+    "typescript": "^5.4.0"
+  }
+}
