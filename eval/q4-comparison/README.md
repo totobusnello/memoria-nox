@@ -61,6 +61,57 @@ cat output/_aggregate.md
 
 ---
 
+## Zep OSS — setup & corpus ingestion
+
+Zep uses a session-based memory model: chunks are stored as "messages" inside
+sessions. The adapter groups chunks by conversation prefix (`conv-48::...` →
+session `q4-conv-48`) and stores the original gold chunk ID in message metadata
+so search results can be mapped back.
+
+### Docker startup
+
+```bash
+# Start Zep OSS + backing Postgres (default port 8000)
+docker compose -f compose/docker-compose.yml up -d zep postgres
+
+# Verify healthy
+curl http://127.0.0.1:8000/healthz   # expected: {"status":"ok"}
+```
+
+### Pre-run corpus ingest (Zep only)
+
+Unlike nox-mem (corpus pre-loaded), Zep needs explicit ingestion before
+queries run. Call `ingest_corpus()` from the adapter in your pre-run script:
+
+```python
+import sys; sys.path.insert(0, ".")
+import adapters.zep as zep_adapter
+
+zep_adapter.setup()
+chunks = [  # shape: {"id": <gold_id>, "text": <content>, [conv_id], [metadata]}
+    {"id": "conv-48::D2:13", "text": "Deborah finds peace in mountains."},
+    ...
+]
+result = zep_adapter.ingest_corpus(chunks)
+print(result)  # {"sessions_created": N, "messages_added": M, "errors": 0}
+```
+
+Chunks sharing the same conversation prefix land in one Zep session — this
+mirrors Zep's intended use case (per-conversation memory). Ingestion is
+idempotent (existing sessions are reused).
+
+### Running tests
+
+```bash
+# Unit tests (no Zep daemon needed, CI-safe)
+pytest test/test_zep_ingest.py -m "not integration" -v
+
+# Integration tests (requires docker compose up first)
+pytest test/test_zep_ingest.py -v
+```
+
+---
+
 ## What's in this directory
 
 | Path | Role |

@@ -16,7 +16,8 @@ PyYAML==6.0.2
 mem0ai==0.1.114
 
 # --- Zep OSS (self-hosted via docker compose) ---
-zep-python==2.4.0
+# NOTE: 2.4.0 does not exist on PyPI; latest 2.x is 2.0.2 (confirmed 2026-05-23).
+zep-python==2.0.2
 
 # --- Letta (ex-MemGPT) ---
 # letta+letta_client; letta_client is the SDK used by adapters/letta.py
@@ -29,5 +30,5 @@ letta-client==0.1.46
 # --- EverMind-AI ---
 # Repo-only as of 2026-05-21 (no PyPI). See REQUIREMENTS.md for `git clone + pip install -e .`.
 
-# --- dev / scoring ---
-# (none — aggregate.py uses stdlib only)
+# --- dev / scoring + tests ---
+pytest==8.2.2  # needed for test/test_zep_ingest.py (and future test files)
