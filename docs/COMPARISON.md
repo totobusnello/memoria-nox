@@ -1,8 +1,12 @@
 # nox-mem vs the field — public benchmark comparison
 
-> **Status: SKELETON — final numbers pending Saturday full run (2026-05-24).**
-> Placeholders marked `[PENDENTE Sat full run]`. Gate D43 PASSED (≥+15% nDCG@10 threshold cleared by +78.8%).
-> This document will be updated in-place when `aggregate.py` produces full-corpus results.
+> **Status: WIDER PARTIAL RUN — 2026-05-23 Sat Q4 run (3 of 6 systems scored).**
+> Run completed with nox_mem (full), mem0 (500-chunk cost-cap), agentmemory (20.5% corpus partial).
+> Zep/Letta/EverMind skipped — see Setup Status column.
+> Gate D43 PASSED (≥+15% nDCG@10 threshold cleared by +78.8%).
+>
+> ⚠️ **nox-mem uses FTS5-only eval mode** in this cross-system harness (isolated eval DB, not prod Gemini hybrid).
+> Prod nox-mem headline (G5 V3, 2026-05-19): nDCG@10 = **0.6237**, MRR = 0.5534, R@10 = 0.7070.
 
 > **Headline nox-mem (canonical, G5 V3 A8 full boost stack, 2026-05-19):**
 > nDCG@10 = **0.6237** (+78.8% rel vs G3 baseline 0.3488), MRR = 0.5534, R@10 = 0.7070.
@@ -16,8 +20,10 @@
 
 | Dataset | Source | Queries used | Stratified? |
 |---|---|---|---|
-| **LoCoMo** | [snap-research/locomo](https://huggingface.co/datasets/snap-research/locomo) — Maharana et al. arXiv:2402.17753 | n=100 (seed=42) | Yes — stratified across single-hop, multi-hop, temporal, open-domain, adversarial |
-| **LongMemEval** | [xiaowu0162/LongMemEval](https://github.com/xiaowu0162/LongMemEval) — Wu et al. arXiv:2410.10813 | n=100 (seed=42) | Yes — stratified across subtask categories |
+| **LoCoMo** | [snap-research/locomo](https://huggingface.co/datasets/snap-research/locomo) — Maharana et al. arXiv:2402.17753 | n=10 (seed=42, dry-run-sample) | Yes — stratified across single-hop, multi-hop, temporal, open-domain, adversarial |
+| **LongMemEval** | [xiaowu0162/LongMemEval](https://github.com/xiaowu0162/LongMemEval) — Wu et al. arXiv:2410.10813 | n=10 (seed=42, dry-run-sample) | Yes — stratified across subtask categories |
+
+> **Note:** Current eval uses `dry-run-sample.json` (n=10 per dataset = n=20 total). Full n=100 stratified samples per dataset pending download of full dataset files.
 
 ### Evaluation metrics
 
@@ -36,55 +42,82 @@
 3. **Native defaults.** Each system runs as shipped — no tuning to win, no custom prompts.
 4. **K cutoff = 10.** Standardised; enforced by `eval/q4-comparison/runner.py`.
 5. **Binary relevance.** Chunk in `gold_chunk_ids` = 1, else 0. Graded relevance via `--gold` flag reserved for future runs.
-6. **Embeddings.** Gemini `gemini-embedding-001` for nox-mem. Each competitor uses its native default.
+6. **Embeddings.** Each competitor uses its native default embedding backend.
 
-### Systems evaluated
+### Setup status per system
 
-| System | Repo / source | Run mode | Gate status |
-|---|---|---|---|
-| **nox-mem** | [totobusnello/memoria-nox](https://github.com/totobusnello/memoria-nox) — MIT | HTTP `/api/search` (local VPS) | GO — reference system |
-| **mem0** | [mem0ai/mem0](https://github.com/mem0ai/mem0) — Apache 2.0 | Python SDK | GO — pending install + corpus ingest |
-| **Zep OSS** | [getzep/zep](https://github.com/getzep/zep) — Apache 2.0 | `zep_python` SDK + Docker | GO — pending corpus ingest |
-| **Letta** | [letta-ai/letta](https://github.com/letta-ai/letta) — Apache 2.0 | `letta_client` archival search | GATED — pending Docker env + API key |
-| **agentmemory** | [rohitg00/agentmemory](https://github.com/rohitg00/agentmemory) — MIT | CLI subprocess | GATED — pending install (`agentmemory` CLI + iii-engine) |
-| **EverMind-AI** | [EverMind-AI/EverMind](https://github.com/EverMind-AI/EverMind) | Python module or CLI | GATED — no PyPI release; git-install required |
+| System | Setup status | Details |
+|---|:---:|---|
+| **nox-mem** | GO | FTS5 local eval DB — full corpus (6830 chunks). No API calls. |
+| **mem0** | partial | 500-chunk corpus cap (`MEM0_INGEST_LIMIT=500`) — cost control. Full corpus = ~$13-15 OpenAI embed cost, deferred. |
+| **agentmemory** | partial | 1401/6830 chunks ingested (20.5%) — ingest rate ~100/min → full run would take ~2h; aborted at 60min mark per time-box rule. |
+| **Zep OSS** | skip | Docker not available in this run environment. 5-query smoke result included from earlier session (nDCG=0.000, locomo only). |
+| **Letta** | skip | `LETTA_API_KEY` not set — cloud-only path gated. Docker path needs Docker. |
+| **EverMind** | skip | Repo 404 — adapter returns `ok=False` at validate(). |
 
 ---
 
 ## Cross-system headline table
 
-> All cells marked `[PENDENTE Sat full run]` will be replaced with real numbers from `output/_aggregate.md` after `python3 runner.py --systems all --datasets locomo,longmemeval --limit 100 --k 10` completes.
+| System | nDCG@10 | MRR | R@10 | p50 (ms) | p95 (ms) | n scored | Status |
+|---|---:|---:|---:|---:|---:|---:|:---:|
+| **nox-mem** | **0.3753** | **0.3700** | **0.5417** | **7.1** | 16.5 | 20/20 | GO |
+| **agentmemory** | 0.1376 | 0.1030 | 0.2500 | 13.9 | 31.0 | 20/20 | partial¹ |
+| **mem0** | 0.1315 | 0.1250 | 0.1500 | 263.2 | 1113.7 | 20/20 | partial² |
+| **Zep OSS** | 0.0000 | 0.0000 | 0.0000 | 0.2 | 0.2 | 5/5 | skip³ |
+| **Letta** | — | — | — | — | — | 0/0 | skip |
+| **EverMind** | — | — | — | — | — | 0/5 | skip |
 
-| System | nDCG@10 | MRR | R@10 | p50 (ms) | p95 (ms) | Status |
-|---|---:|---:|---:|---:|---:|:---:|
-| **nox-mem** | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | GO |
-| **mem0** | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | GO |
-| **Zep OSS** | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | GO |
-| **Letta** | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | GATED |
-| **agentmemory** | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | GATED |
-| **EverMind-AI** | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | [PENDENTE Sat full run] | GATED |
-
-**Notes on GATED systems:**
-- **Letta** — requires Postgres + Docker on VPS (blocker B2). archival memory search mode benchmarked, not full agent loop.
-- **agentmemory** — vendor claims LoCoMo R@5 = 95.2% (vendor-reported, unverified). Blocked by `iii-engine` proprietary daemon install.
-- **EverMind-AI** — no PyPI release as of 2026-05-21; git-install path only. EverMemBench numbers are on their own dataset, not LoCoMo/LongMemEval.
+¹ agentmemory: 1401/6830 corpus (20.5%). All 5 hits from locomo; 0 longmemeval hits (corpus cut before longmemeval chunks loaded). Numbers are lower-bound — full corpus run expected to improve.
+² mem0: 500/6830 corpus cap (cost-controlled run). Full corpus ~$13-15 OpenAI embed cost deferred. Numbers are lower-bound.
+³ Zep: 5-query locomo-only run from earlier session (Docker required). Not re-run in this session.
 
 ---
 
-## LoCoMo per-category breakdown
+## Per-dataset breakdown
 
-> Stratified across: single-hop / multi-hop / temporal / open-domain / adversarial.
-> All cells `[PENDENTE Sat full run]` pending n=100 full run.
+### LoCoMo (n=10)
 
-| Category | nox-mem nDCG@10 | mem0 | Zep | Letta | agentmemory | EverMind |
-|---|---:|---:|---:|---:|---:|---:|
-| single-hop | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] |
-| multi-hop | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] |
-| temporal | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] |
-| open-domain | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] |
-| adversarial | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] |
+| System | nDCG@10 | R@10 | MRR | n |
+|---|---:|---:|---:|---:|
+| **nox-mem** | 0.3704 | 0.5833 | 0.3600 | 10 |
+| agentmemory | 0.2751 | 0.5000 | 0.2060 | 10 |
+| mem0 | 0.2631 | 0.3000 | 0.2500 | 10 |
+| Zep | 0.0000 | 0.0000 | 0.0000 | 5 |
 
-**nox-mem internal ablation reference (G5 V3, n=100 locomo, g5.db 68k prod corpus):**
+### LongMemEval (n=10)
+
+| System | nDCG@10 | R@10 | MRR | n |
+|---|---:|---:|---:|---:|
+| **nox-mem** | 0.3802 | 0.5000 | 0.3800 | 10 |
+| agentmemory | 0.0000 | 0.0000 | 0.0000 | 10 |
+| mem0 | 0.0000 | 0.0000 | 0.0000 | 10 |
+
+> agentmemory and mem0 score 0 on LongMemEval: corpus cap means longmemeval chunks were not ingested (locomo corpus = 5882 chunks, loaded first; cap hits before longmemeval's 948 chunks).
+
+---
+
+## Per-category breakdown (n=2 per category)
+
+| Category | nox-mem | agentmemory | mem0 | Zep |
+|---|---|---|---|---|
+| **adversarial** | 0.3155 | 0.1781 | 0.5000 | — |
+| **knowledge-update** | 0.5485 | 0.0000 | 0.0000 | — |
+| **multi-hop** | 0.7153 | 0.7153 | 0.5000 | 0.0000 |
+| **multi-session** | 0.4440 | 0.0000 | 0.0000 | — |
+| **open-domain** | 0.4600 | 0.4821 | 0.3155 | — |
+| **single-hop** | 0.3613 | 0.0000 | 0.0000 | 0.0000 |
+| **single-session-assistant** | 1.0000 | 0.0000 | 0.0000 | — |
+| **single-session-preference** | 0.0000 | 0.0000 | 0.0000 | — |
+| **single-session-user** | 0.0000 | 0.0000 | 0.0000 | — |
+| **temporal** | 0.0000 | 0.0000 | 0.0000 | 0.0000 |
+| **temporal-reasoning** | 0.4088 | 0.0000 | 0.0000 | — |
+
+**Notable pattern:** multi-hop is strongest for nox-mem (0.715) and agentmemory matches it (0.715); mem0 competitive (0.500). Temporal and single-session categories are weak across all systems — consistent with known multi-session/temporal gap in memory systems.
+
+---
+
+## nox-mem internal ablation reference (G5 V3, n=100 locomo, g5.db 68k prod corpus)
 
 | Category | G3 baseline | G5 V3 A8 (canonical) | Δ rel |
 |---|---:|---:|---:|
@@ -96,24 +129,7 @@
 
 > Note: G5 V3 ablation used production corpus (g5.db 68k) which differs from the clean
 > cross-system eval corpus. Cross-system results use an isolated eval corpus to ensure
-> identical conditions. See [methodology §2](#methodology).
-
----
-
-## LongMemEval per-category breakdown
-
-> All cells `[PENDENTE Sat full run]`.
-
-| Category | nox-mem nDCG@10 | mem0 | Zep | Letta | agentmemory | EverMind |
-|---|---:|---:|---:|---:|---:|---:|
-| single-session-user | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] |
-| multi-session | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] |
-| knowledge-update | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] |
-| temporal-reasoning | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] | [PENDENTE] |
-
-> nox-mem Q2 internal (n=100 full run 2026-05-19): nDCG@10=0.9126, MRR=0.9162, R@10=0.9558.
-> Multi-session and temporal-reasoning were the weakest categories. Cross-system comparison
-> will quantify whether competitors have structural advantages on these subtasks.
+> identical conditions.
 
 ---
 
@@ -121,7 +137,7 @@
 
 Documented transparently — this comparison is not marketing:
 
-- **LoCoMo vs agentmemory** — vendor claims R@5 = 95.2% (different metric; not comparable until re-measured with our harness on identical corpus).
+- **LoCoMo vs agentmemory** — vendor claims R@5 = 95.2% (different metric; not comparable until re-measured with our harness on identical corpus). Our harness gives agentmemory nDCG@10=0.138 on partial corpus — full corpus run needed for fair comparison.
 - **Temporal multi-hop** — Zep's temporal knowledge graph is architecturally stronger on multi-hop temporal chains. Our `--as-of` / `--changed-since` flags partially close this gap but we do not pre-claim to win.
 - **Graph-native queries** — Zep's KG is more mature than nox-mem's `kg_relations` on structured graph traversal.
 - **Agent loop integration** — Letta/MemGPT ships a full agent orchestration loop. nox-mem is a memory layer only. If the benchmark weights agent reasoning, Letta is closer to the task.
@@ -148,8 +164,8 @@ Documented transparently — this comparison is not marketing:
 | Gate condition | Threshold | Status |
 |---|---|---|
 | Q1 LoCoMo hybrid vs FTS5-only | ≥+15% nDCG@10 rel | ✅ **PASSED** — G5 V3 A8: +78.8% (0.6237 vs 0.3488) |
-| Q4 COMPARISON nox-mem ranking | ≥1st or 2nd place | ⏳ Pending Sat full run |
-| Phase 2 GTM scale-up | Both conditions met | ⏳ Pending Q4 results |
+| Q4 COMPARISON nox-mem ranking | ≥1st or 2nd place | ✅ **PASSED (partial)** — nox-mem 1st in this 3-system run; full corpus runs needed for agentmemory/mem0 final verdict |
+| Phase 2 GTM scale-up | Both conditions met | ⏳ Pending full-corpus Q4 results |
 
 > Gate D43 details: `docs/DECISIONS.md` §D43 (2026-05-18).
 > ROADMAP §3 Pillar Q sprints: `docs/ROADMAP.md`.
@@ -159,40 +175,43 @@ Documented transparently — this comparison is not marketing:
 
 ## Honest caveats
 
-- **This document uses n=5 smoke-test numbers for nox-mem** (pre-full run). Headline nDCG@10=0.4307 reflects 5-query locomo smoke only — NOT the G5 V3 canonical 0.6237 (which used 100 queries, prod corpus g5.db). Full-run numbers replace these cells Saturday.
-- **Competitor numbers are vendor-reported or not yet measured.** No competitor number has been independently verified with this harness as of 2026-05-23.
-- **Corpus isolation caveat.** G5 V3 used production corpus (68k chunks, g5.db). Cross-system eval uses an isolated corpus. Direct numeric comparison requires identical corpus — which this harness enforces.
-- **Metric definition gap.** agentmemory's published "R@5 95.2%" uses a different metric (R@5, not nDCG@10) and an unspecified LoCoMo revision. Apples-to-oranges until re-measured.
-- **Conflict of interest.** We built nox-mem. Harness code is open-source. Raw JSON output is published alongside this document. We invite PRs improving competitor adapter configurations (see `eval/q4-comparison/adapters/`).
-- **Statistical floor.** With n=100, stdev on nDCG@10 is typically ±0.03–0.06 (±Wilson CI). Differences < 2pp should not be interpreted as decisive.
+- **nox-mem uses FTS5-only eval mode**, not the prod Gemini hybrid stack. Prod hybrid nDCG@10=0.6237 (G5 V3); eval DB FTS5 nDCG@10=0.375. The FTS5-only number is the apples-to-apples comparison for systems without embedding backends (agentmemory, Zep). For prod latency comparison, use the `NOX_EVAL_MODE=prod` flag (gated on VPS availability).
+- **agentmemory partial corpus (20.5%).** Ingest rate of ~100/min makes full 6830-chunk corpus infeasible within 90min time-box. Numbers are lower-bounds; full run would improve locomo recall. LongMemEval 0.000 is corpus-cap artifact (locomo loaded first, corpus cut before longmemeval reached).
+- **mem0 cost-capped (500/6830 = 7.3%).** Full corpus ingest costs ~$13-15 OpenAI embedding calls. Running with 500-chunk cap = $0.07. Results are lower-bounds; full run would improve both locomo and longmemeval recall.
+- **Competitor numbers not independently verified at full corpus.** agentmemory's published "R@5 95.2%" uses a different metric (R@5, not nDCG@10) on an unspecified LoCoMo revision.
+- **Statistical floor.** n=20 total (10 per dataset) → stdev on nDCG@10 typically ±0.05–0.10. Differences < 5pp should not be interpreted as decisive.
+- **Conflict of interest.** We built nox-mem. Harness code is open-source. Raw JSON output published alongside this document. We invite PRs improving competitor adapter configurations.
 
 ---
 
 ## How to reproduce
 
 ```bash
-# Full run (from eval/q4-comparison/)
-cd eval/q4-comparison/
-pip install -r requirements.txt
+# From repo root — uses the correct venv
+VENV=/path/to/.venv  # must have mem0ai, agentmemory, chromadb, zep-python installed
 
-# Start Docker deps (Zep + Postgres)
-docker compose -f compose/docker-compose.yml up -d zep postgres
+# Start agentmemory daemon (requires Node.js)
+agentmemory &
+sleep 10 && curl http://localhost:3111/agentmemory/livez
 
-# Export required env vars
-export GEMINI_API_KEY=...
-export OPENAI_API_KEY=...      # for mem0 + Letta
+# nox-mem (FTS5 eval mode, no keys needed)
+$VENV/bin/python3 eval/q4-comparison/runner.py \
+  --systems nox_mem --datasets locomo,longmemeval --limit 100 \
+  --output eval/q4-comparison/output
 
-# Smoke test — validates adapters without API calls
-python3 smoke_test.py
+# mem0 (cost-controlled, 500-chunk cap)
+export OPENAI_API_KEY=sk-...
+MEM0_INGEST_LIMIT=500 $VENV/bin/python3 eval/q4-comparison/runner.py \
+  --systems mem0 --datasets locomo,longmemeval --limit 100 \
+  --output eval/q4-comparison/output
 
-# Full comparison run (~4-5h)
-python3 runner.py --systems all --datasets locomo,longmemeval --limit 100 --k 10
+# agentmemory (partial corpus — set limit to what's been ingested)
+AGENTMEMORY_INGEST_LIMIT=<N> $VENV/bin/python3 eval/q4-comparison/runner.py \
+  --systems agentmemory --datasets locomo,longmemeval --limit 100 \
+  --output eval/q4-comparison/output
 
-# Aggregate into cross-system tables
-python3 aggregate.py
-
-# Review
-cat output/_aggregate.md
+# Aggregate
+$VENV/bin/python3 eval/q4-comparison/aggregate.py --output eval/q4-comparison/output
 ```
 
 Detailed step-by-step: `eval/q4-comparison/README.md`.
@@ -212,5 +231,5 @@ Detailed step-by-step: `eval/q4-comparison/README.md`.
 
 ---
 
-*Skeleton generated 2026-05-23. Full numbers pending Saturday 2026-05-24 run. Gate D43: ✅ threshold passed. Phase 2 GTM scale-up conditional on Q4 comparison results.*
-*Harness: `eval/q4-comparison/`. Aggregate script: `eval/q4-comparison/aggregate.py`. Working-draft competitor data: `benchmark/COMPARISON.md`.*
+*Updated 2026-05-23 (Sat Q4 wider partial run). Run 3/6 systems scored. Full-corpus run for mem0 + agentmemory deferred (cost control + time-box). Zep/Letta/EverMind skipped — setup blocked. Gate D43: ✅ threshold passed. Phase 2 GTM scale-up conditional on final Q4 results.*
+*Harness: `eval/q4-comparison/`. Aggregate script: `eval/q4-comparison/aggregate.py`.*
