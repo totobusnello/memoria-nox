@@ -380,7 +380,7 @@ A G10d evolution further refines the architectural conclusion: the canonical boo
 
 ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
-> **Status (atualizado 2026-05-24 18h BRT):** Pre-registered skeleton populado com o **smoke de 20 queries do Sat 2026-05-24** sobre eval-isolated DB (5.882 chunks LoCoMo + 940 chunks LongMemEval, k=10), validando a metodologia + confirmando que o pipeline nox-mem funciona end-to-end no eval isolado. **Partial cross-system data adicionado Sat 2026-05-24:** mem0 smoke completo (n=20, 500-chunk corpus cap por cost-control, $0.10 ingest cost estimado). Tabela §6.3 agora contém 2 linhas reais (nox-mem + mem0). Os 4 adapters restantes (Zep, Letta, agentmemory, EverMind-AI) permanecem `[PENDING canonical run]` até que o run canônico lande. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) são imutáveis post-run conforme §6.7. Ref: `[[q4-partial-cross-system-sat-2026-05-24]]`.
+> **Status (atualizado 2026-05-24 ~22h BRT — FINAL):** Sat 2026-05-24 FINAL closure. **4/6 systems com dados reais.** Decision A aprovada: ship 4/6 (Zep 🚫 GATED por OpenAI embedding requirement; EverMind-AI ❌ SKIP por repo 404 confirmado PR #281). nox-mem headline: nDCG@10=0.6380 (Gemini hybrid) / 0.3753 (FTS5-only). mem0 (500-chunk cap) + agentmemory (1401-chunk cap) + Letta (partial 1/5 smoke) medidos com caveats de corpus. Canonical 100-query run deferred Sun 2026-05-25 com corpus uniforme sem cap. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) imutáveis. Nota: "Sat 2026-05-24 partial; canonical full-corpus run Sun 2026-05-25." Refs: `[[q4-real-numbers-sat-2026-05-24]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 ### 6.1 Methodology summary
 
@@ -424,29 +424,31 @@ Resumo executivo: **nox-mem ganha em cobertura (hits), velocidade (latência), e
 
 O smoke não disaggregou `nDCG@10` por dataset (combined-only) — desagregação canônica vem no run completo. Os números a seguir são da execução canônica que ainda está em curso.
 
-**LongMemEval n=100 (canonical):**
+**Sat 2026-05-24 FINAL — 4/6 systems with real data. Decision A: ship 4/6 (Zep gated, EverMind skipped). Canonical 100-query run deferred Sun 2026-05-25.**
+
+**LongMemEval n=100 (canonical — pending Sun 2026-05-25):**
 
 | System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | ~$0.00 (local) |
-| Mem0 | `[PENDING canonical run — full corpus, no 500-cap]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | ~$0.10+ ingest |
-| Zep | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| Letta | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| agentmemory | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| EverMind-AI | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| **nox-mem** | `[pending Sun canonical]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.00 (local) |
+| Mem0 | `[pending Sun canonical — full corpus, no 500-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.10+ ingest |
+| agentmemory | `[pending Sun canonical — full corpus, no 20%-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.00 |
+| Letta | `[pending — partial only; agent-loop arch]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` |
+| Zep | `[FALHA: 🚫 GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
+| EverMind-AI | `[FALHA: ❌ SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
 
-**LoCoMo full (canonical):**
+**LoCoMo full (canonical — pending Sun 2026-05-25):**
 
 | System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | ~$0.00 (local) |
-| Mem0 | `[PENDING canonical run — full corpus, no 500-cap]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | ~$0.10+ ingest |
-| Zep | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| Letta | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| agentmemory | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
-| EverMind-AI | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| **nox-mem** | `[pending Sun canonical]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.00 (local) |
+| Mem0 | `[pending Sun canonical — full corpus, no 500-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.10+ ingest |
+| agentmemory | `[pending Sun canonical — full corpus, no 20%-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.00 |
+| Letta | `[pending — partial only; agent-loop arch]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` |
+| Zep | `[FALHA: 🚫 GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
+| EverMind-AI | `[FALHA: ❌ SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
 
-Linhas que falharem smoke test (§6.5) são reportadas com nota explícita `[FALHA: adapter setup gap]` em vez de omitidas, consistente com §6.6. O run canônico atualiza estas tabelas em commit dedicado quando 6/6 adapters estiverem prontos com corpus uniforme (sem cap). Ref: `[[q4-partial-cross-system-sat-2026-05-24]]`.
+Zep e EverMind-AI são reportadas com `[FALHA: <razão>]` explícito em vez de omitidas — consistente com §6.6 (anti-cherry-pick). O run canônico Sun 2026-05-25 atualiza as células `[pending]` para os 4 sistemas restantes com corpus uniforme (sem cap). Ref: `[[q4-real-numbers-sat-2026-05-24]]`.
 
 ### 6.4 Per-category breakdown
 
