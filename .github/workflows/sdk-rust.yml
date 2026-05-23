@@ -21,6 +21,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -58,6 +60,8 @@ jobs:
     if: github.ref_type == 'tag' && startsWith(github.ref_name, 'sdk-rust-v') && false  # remove `&& false` to enable
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: dtolnay/rust-toolchain@stable
       - name: Publish
         working-directory: sdk/rust

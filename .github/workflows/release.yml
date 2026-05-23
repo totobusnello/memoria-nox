@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Install yamllint + shellcheck
         run: pip install yamllint && sudo apt-get install -y shellcheck
@@ -41,6 +43,8 @@ jobs:
     needs: preflight
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Install LaTeX (texlive)
         run: sudo apt-get install -y texlive-xetex texlive-fonts-recommended texlive-plain-generic
@@ -69,6 +73,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Download paper artifact
         uses: actions/download-artifact@v4
