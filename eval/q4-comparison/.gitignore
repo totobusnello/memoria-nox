@@ -6,3 +6,6 @@ __pycache__/
 venv/
 .env
 .env.q4
+
+# Corpus loader cache (parsed JSONL from HF + raw downloads). Large, regenerable.
+cache/
