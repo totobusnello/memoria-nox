@@ -2,6 +2,76 @@
 
 ---
 
+## Sat 2026-05-24 — Q4 day morning sprint
+
+> **Atualizado:** 2026-05-24 manhã BRT. **3 PRs merged + 1 spec-recon branch pushed + 6 ingestion agents active (in progress).** main `8866642`.
+> CRITICAL: Q4 harness gap descoberto — adapters não têm ingestion implementada → 0 gold hits em todos competitors. Sprint de ingestion disparado em paralelo.
+> Defense layer 1 falhou 4× hoje (branch leaks Streams B+E+outros). Layer 2 (pre-commit hook) + recovery manual contiveram. Padrão exige hardening.
+> Cross-ref: `[[q4-ingestion-gap-2026-05-24]]` · `[[adapter-list-response-shape-fix]]` · `[[multi-agent-branch-checkout-race]]` (4× hoje)
+
+### Streams Sat 2026-05-24 manhã
+
+| Stream | PR / Branch | Título | Status |
+|---|---|---|---|
+| **A — Demo recording** | #265 merged | `docs/demo-recording-sat-2026-05-24.md` — script + timing + asciinema setup | ✅ merged |
+| **B — Q4 adapter list-fix** | #266 merged | Fix adapter `list()` response shape — `isinstance()` guard antes de `.get()` | ✅ merged |
+| **C — F10 Phase C telemetry** | #267 merged | F10 Phase C shadow tracker + telemetry wiring (gated D49 baseline ≥7d) | ✅ merged |
+| **D — A2 Tier 3 recon** | `recon/a2-tier3-crypto-audit-2026-05-24` | Crypto/hashing audit — 5 decisões abertas, sem PR (awaiting Toto sign-off) | 🔄 branch only |
+| **E–J — Ingestion sprint** | 6 agents active | Per-adapter ingestion: agentmemory / memanto / mem0 / Letta / Zep / baseline | 🔄 in progress |
+
+### Stats agregados
+
+| Métrica | Valor |
+|---|---|
+| **PRs merged hoje** | 3 (#265 / #266 / #267) |
+| **Spec recon branches** | 1 (`recon/a2-tier3-crypto-audit-2026-05-24`) |
+| **Agents active (ingestion sprint)** | 6 |
+| **Defense layer 1 failures** | 4 (branch leaks contidos por hook) |
+| **Open decisions (A2 Tier 3)** | 5 (awaiting Toto) |
+
+### CRITICAL: Q4 harness gap — ingestion não implementada
+
+**Root cause:** O harness Q4 scaffolded em PR #219 criou estrutura de adapters com métodos `search()` e `list()` mas NÃO implementou `ingest()` nos adapters de competitors. Resultado: ao rodar comparação, nenhum competitor tinha dados ingeridos → todos retornavam 0 gold hits → nDCG@10 = 0 para todos → comparação inválida.
+
+**Discovery path:** Stream B (PR #266) ao fixar o shape de `list()` expôs que a pipeline de eval tentava fazer `ingest()` mas o método não existia. Sem ingestão, benchmark é meaningless.
+
+**3 paths possíveis:**
+
+| Path | Descrição | Custo | Risco |
+|---|---|---|---|
+| **Path 1 — Implementar ingestion por adapter** (CHOSEN) | Escrever `ingest()` real pra cada competitor usando suas APIs | ~6-8h (6 agents paralelos) | Médio — APIs podem ter rate limits / auth quirks |
+| **Path 2 — Mock baseline uniforme** | Ingerir mesmo corpus via nox-mem pra todos (compara só search quality, não E2E) | ~1h | Alto — invalida premissa do benchmark (autonomy/portability) |
+| **Path 3 — Skip E2E, medir só retrieval quality** | Usar golden set já embeddado, comparar recall isolado | ~30min | Alto — não reflete uso real; COMPARISON.md perde credibilidade |
+
+**Path 1 escolhido** — ingestion real é requisito para COMPARISON.md honesta. Path 2 e 3 invalidam a narrativa Autonomy.
+
+**ETA:** 6 agents paralelos com ~6-8h → PRs de ingestion esperados Sat tarde/noite.
+
+### Defense layer failures — padrão escalado
+
+Hoje, **4 branch leaks** em agents com `isolation: "worktree"` aparentemente configurado:
+- Stream B: agent commitou em branch próprio, não main → hook abortou → recovery manual
+- Stream E: idem pattern
+- 2 outros streams com variações
+
+**Layer 2 (pre-commit hook global `~/.git-hooks-global/pre-commit`) funcionou** — abortou commits contaminados. Mas layer 1 (worktree isolation) deveria impedir o checkout errado antes. Possível causa: agents ignorando `isolation` param ou worktrees com HEAD errado na criação.
+
+**Ação recomendada Sat tarde:** auditar como worktrees são criados para os ingestion agents — verificar `git branch --show-current` dentro do worktree antes de qualquer `git add`.
+
+### Próximos passos Sat tarde
+
+| Ação | Trigger |
+|---|---|
+| Aguardar 6 PRs de ingestion (Streams E-J) | Notification quando agents completarem |
+| Revisar + mergear ingestion PRs | Após cada PR aberto |
+| Toto sign-off nas 5 decisões A2 Tier 3 | Toto disponível — ver branch `recon/a2-tier3-crypto-audit-2026-05-24` |
+| Rodar harness Q4 COMPARISON.md completo | Após todos ingestion PRs merged |
+| Agregar resultados Q4 → COMPARISON.md | Após harness rodar (14h BRT janela ADIADA para Sat tarde/noite) |
+
+**Sat 14h aggregate window ADIADA** (era §12 ROADMAP) — defer até ingestion PRs mergearem. Q4 execution window move para Sat tarde → noite. Timeline launch Wed 2026-06-03 mantida.
+
+---
+
 ## Overnight burst 2026-05-21 (pós-/compact) — COMPLETO: 42 merged + CI green + 3 await Sat Q4 nums
 
 > **Atualizado:** 2026-05-22 ~13h30 BRT. **Round 1-8 = 47 streams dispatched, 42 PRs merged em main + 6 direct-main commits (dd0431c / c516cc5 / 9cfb93d / 9feb158 / b1c6cc5 / ccfcc6d) + 3 abertos awaiting Sat Q4 numbers**. main `ccfcc6d`.
