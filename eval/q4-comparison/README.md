@@ -112,6 +112,66 @@ pytest test/test_zep_ingest.py -v
 
 ---
 
+## agentmemory — daemon setup (validated 2026-05-24)
+
+agentmemory uses a local daemon (iii-engine) on `:3111`. The daemon must be
+running before `runner.py` is invoked.
+
+### Install
+
+```bash
+npm install -g @agentmemory/agentmemory   # v0.9.21; Node ≥ 18
+```
+
+Note: `agentmemory --version` **hangs** (it starts the daemon). Confirm version
+via `npm view @agentmemory/agentmemory version`.
+
+### Start daemon
+
+```bash
+nohup agentmemory > /tmp/agentmemory-daemon.log 2>&1 &
+sleep 8   # iii-engine boot takes 5-8s
+curl http://localhost:3111/agentmemory/livez   # → {"service":"agentmemory","status":"ok"}
+```
+
+### Corpus ingest
+
+`setup()` handles corpus ingest automatically from the shared JSONL cache.
+It is idempotent — safe to call multiple times.
+
+```bash
+# First run (smoke test, limit 50 chunks for speed):
+AGENTMEMORY_INGEST_LIMIT=50 python3 runner.py --systems agentmemory --datasets locomo --limit 5
+
+# Full Q4 run (no limit; first run ~52 min to ingest 6830 chunks at ~460ms/chunk):
+python3 runner.py --systems agentmemory --datasets locomo,longmemeval --limit 100
+```
+
+**Env overrides:**
+
+| Variable | Default | Effect |
+|---|---|---|
+| `AGENTMEMORY_INGEST_LIMIT=N` | unset (all chunks) | Limit ingest to N chunks |
+| `AGENTMEMORY_FORCE_REINGEST=1` | off | Re-ingest even if count matches |
+| `AGENTMEMORY_URL` | `http://localhost:3111` | Non-default daemon URL |
+
+### Stop daemon
+
+```bash
+pkill -f agentmemory   # memories persist across restarts (iii-engine disk storage)
+```
+
+### Smoke result (2026-05-24)
+
+```
+5/5 queries, 0 errors, gold_hits=1/13 (limit=50; remaining gold IDs at corpus lines 511-5688)
+ID format: conv-XX::DX:X  (correct — no mem_xxx leakage)
+```
+
+Full audit: `audits/2026-05-24-agentmemory-smoke-validation.md`.
+
+---
+
 ## What's in this directory
 
 | Path | Role |
@@ -121,7 +181,7 @@ pytest test/test_zep_ingest.py -v
 | `adapters/mem0.py` | Mem0 via Python SDK |
 | `adapters/zep.py` | Zep OSS via `zep_python` |
 | `adapters/letta.py` | Letta via `letta_client.archival_memory_search` |
-| `adapters/agentmemory.py` | agentmemory via CLI subprocess |
+| `adapters/agentmemory.py` | agentmemory via REST API (iii-engine v0.9.21); daemon required |
 | `adapters/evermind.py` | EverMind-AI via CLI OR Python module (dual path) |
 | `compose/docker-compose.yml` | Self-hosted Zep + Postgres (+ optional profiles) |
 | `requirements.txt` | Python pins for all SDKs |
