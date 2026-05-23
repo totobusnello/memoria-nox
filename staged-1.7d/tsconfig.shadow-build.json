@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "outDir": "./dist-shadow",
+    "rootDir": ".",
+    "declaration": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": false,
+    "resolveJsonModule": true
+  },
+  "include": [
+    "edits/src/lib/shadow-tracker.ts",
+    "edits/src/lib/__tests__/shadow-tracker.test.ts"
+  ],
+  "exclude": ["dist-shadow", "node_modules"]
+}
