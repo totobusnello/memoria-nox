@@ -15,7 +15,9 @@
   },
   "include": [
     "edits/src/lib/db.ts",
-    "edits/src/lib/__tests__/*.test.ts"
+    "edits/src/lib/__tests__/*.test.ts",
+    "scripts/migrate-encrypt-db.ts",
+    "scripts/__tests__/*.test.ts"
   ],
   "exclude": ["dist", "node_modules"]
 }
