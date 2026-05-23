@@ -367,17 +367,21 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-## 12. Próxima ação concreta — pós overnight 2026-05-21 (atualizado ~22h BRT)
+## 12. Próxima ação concreta — pós overnight 2026-05-21 (atualizado Sat 2026-05-24 manhã BRT)
 
 > **Nota:** todos os PRs overnight 2026-05-21 são placeholders/skeletons. Números Q4 cravados Sábado. **Não mergear blog/paper/social sem os números Sat.**
+>
+> **CRITICAL 2026-05-24:** Q4 harness gap descoberto — adapters sem `ingest()` → 6 agents paralelos implementando ingestion. Janela 14h aggregate **ADIADA** para Sat tarde/noite após ingestion PRs mergearem.
 
 ### Sat 2026-05-24
 
 | Janela | Ação |
 |---|---|
-| **9h BRT — Review PRs** | Revisar 9+ PRs overnight (#219–#228 estimado): FOSS hygiene → L4 spec §4 → asciinema demo → social copy → blog v0 → paper skeleton → L4 watchpoint+arXiv → HANDOFF sync → launch day checklist → Q4 setup. Mergear bloqueadores (FOSS hygiene + Q4 setup) primeiro. |
-| **9h30–14h BRT — Q4 execution** | ~5h compute: rodar harness Q4 COMPARISON.md completo (nox-mem vs agentmemory + memanto + mem0 + Letta + Zep). Números reais geram headline final. |
-| **14h–18h BRT — Aggregate + polish** | Agregar resultados Q4 → atualizar COMPARISON.md com gate verificado (`GATE_VERIFIED=1`) → narrative polish blog/paper/social com números reais. |
+| **9h BRT — Review PRs** ✅ | 3 PRs merged (#265 demo recording / #266 adapter list-fix / #267 F10 Phase C). Overnight PRs #219-#228 revisados e mergeados em sessões anteriores. |
+| **9h30–14h BRT — Q4 execution** ⚠️ BLOQUEADO | Harness bloqueado por gap de ingestion — adapters sem `ingest()`. 6 agents paralelos implementando. ETA: Sat tarde. |
+| **Sat tarde (após ingestion PRs) — Q4 execution real** | Rodar harness Q4 COMPARISON.md completo após mergear ingestion PRs (agentmemory / memanto / mem0 / Letta / Zep). |
+| **Sat noite — Aggregate + polish** | Agregar resultados Q4 → atualizar COMPARISON.md com gate verificado (`GATE_VERIFIED=1`) → narrative polish blog/paper/social com números reais. |
+| **Toto sign-off A2 Tier 3** | 5 decisões abertas em `recon/a2-tier3-crypto-audit-2026-05-24` branch — ver DECISIONS.md pós sign-off. |
 
 ### Sun 2026-05-25
 
@@ -439,4 +443,4 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-*ROADMAP v4.4 — v2 overnight 2026-05-17; v3 pós Wave H 2026-05-18; v4 pós Wave A 2026-05-20; v4.1 EOD 2026-05-20 D48 saga (G3→G11); v4.2 EOD 2026-05-21 inicial (G10d + F10 A+B + L4 plural); v4.3 EOD FINAL 2026-05-21 (24 PRs total + 4 prod deploys + G12 R3 VPS-deployed + G12 R1+R2 closed eval-only via PR #216 audit §11); **v4.4 overnight 2026-05-21 ~22h BRT (10 agents em paralelo + §12 next-action calendário Sat-launch)**. Próxima review: Sat 2026-05-24 manhã pós review PRs overnight.*
+*ROADMAP v4.5 — v2 overnight 2026-05-17; v3 pós Wave H 2026-05-18; v4 pós Wave A 2026-05-20; v4.1 EOD 2026-05-20 D48 saga (G3→G11); v4.2 EOD 2026-05-21 inicial (G10d + F10 A+B + L4 plural); v4.3 EOD FINAL 2026-05-21 (24 PRs total + 4 prod deploys + G12 R3 VPS-deployed + G12 R1+R2 closed eval-only via PR #216 audit §11); v4.4 overnight 2026-05-21 ~22h BRT (10 agents em paralelo + §12 next-action calendário Sat-launch); **v4.5 Sat 2026-05-24 manhã (§12 ajustado por Q4 ingestion gap — 14h aggregate defer, ingestion sprint 6 agents)**. Próxima review: Sat 2026-05-24 tarde pós ingestion PRs mergeados.*
