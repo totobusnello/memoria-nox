@@ -321,7 +321,10 @@ def load_locomo_corpus(*, force_refresh: bool = False) -> Iterable[ChunkRecord]:
     """
     _ensure_dirs()
     if force_refresh or not LOCOMO_CACHE.exists():
-        _download(LOCOMO_RAW_URL, LOCOMO_RAW_FILE, force=force_refresh)
+        # Only fetch if the raw upstream JSON is missing — tests can seed it
+        # directly to stay offline.
+        if force_refresh or not LOCOMO_RAW_FILE.exists():
+            _download(LOCOMO_RAW_URL, LOCOMO_RAW_FILE, force=force_refresh)
         _build_locomo_cache(LOCOMO_RAW_FILE, LOCOMO_CACHE)
     with LOCOMO_CACHE.open("r", encoding="utf-8") as fh:
         for line in fh:
@@ -476,7 +479,10 @@ def load_longmemeval_corpus(
     cache_path = _longmemeval_cache(split)
     raw_path = _longmemeval_raw_file(split)
     if force_refresh or not cache_path.exists():
-        _download(_longmemeval_url(split), raw_path, force=force_refresh)
+        # Only fetch if the raw upstream JSON is missing — tests can seed it
+        # directly to stay offline.
+        if force_refresh or not raw_path.exists():
+            _download(_longmemeval_url(split), raw_path, force=force_refresh)
         _build_longmemeval_cache(raw_path, cache_path)
     with cache_path.open("r", encoding="utf-8") as fh:
         for line in fh:
