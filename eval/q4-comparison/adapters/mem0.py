@@ -33,14 +33,19 @@ Search result mapping:
   Mem0 returns {id, memory, score, metadata}. The adapter maps metadata.chunk_id
   → result.id so gold_chunk_ids matching works correctly in aggregate.py.
   Fallback: if metadata.chunk_id is absent, use Mem0's internal UUID as id.
+
+Corpus loading:
+  Uses the shared corpus_loader (eval/q4-comparison/lib/corpus_loader.py).
+  Each ChunkRecord yielded has stable `id` matching gold format (e.g. `conv-48::D2:13`).
+  No adapter-private loaders — canonical paths live in corpus_loader.py.
 """
 
 from __future__ import annotations
 
-import json
 import os
+import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 NAME = "mem0"
 VERSION_PIN = "mem0ai==0.1.114"  # confirm latest stable at install time
@@ -55,11 +60,17 @@ _client = None  # singleton, initialized in setup()
 # ---------------------------------------------------------------------------
 
 HERE = Path(__file__).parent.parent  # eval/q4-comparison/
-REPO_ROOT = HERE.parent.parent        # repo root
-
-_LOCOMO_DATA = REPO_ROOT / "eval" / "locomo" / "data" / "locomo10.json"
-_LONGMEMEVAL_DATA = REPO_ROOT / "eval" / "longmemeval" / "data" / "longmemeval_oracle.json"
 _CHROMA_PATH_DEFAULT = str(HERE / ".mem0-chroma")
+
+# Ensure lib/ is importable regardless of cwd
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+
+from lib.corpus_loader import (  # noqa: E402 — after sys.path fixup
+    ChunkRecord,
+    load_locomo_corpus,
+    load_longmemeval_corpus,
+)
 
 # ---------------------------------------------------------------------------
 # Validate
@@ -97,142 +108,29 @@ def validate() -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Corpus loaders (inline — shared lib not yet landed)
+# Shared corpus stream
 # ---------------------------------------------------------------------------
 
 
-def _load_locomo_corpus() -> list[dict]:
+def _iter_corpus_chunks() -> Iterator[ChunkRecord]:
+    """Yield all corpus chunks from the shared loader (LoCoMo then LongMemEval).
+
+    Uses the canonical corpus_loader so IDs match gold_chunk_ids exactly.
+    MEM0_INGEST_LIMIT caps the total count for cost-controlled test runs.
     """
-    Load LoCoMo conversation turns from locomo10.json.
-
-    Each turn produces one chunk:
-      chunk_id = f"{sample_id}::{dia_id}"
-      text     = f"{speaker}: {text}"
-      dataset  = "locomo"
-
-    Mirrors the ingestion protocol in eval/locomo/parser.ts (D1: per-turn).
-    Returns empty list if data file not present (graceful degradation).
-    """
-    if not _LOCOMO_DATA.exists():
-        return []
-
-    try:
-        data = json.loads(_LOCOMO_DATA.read_text())
-    except Exception as exc:
-        print(f"[mem0] WARNING: failed to parse {_LOCOMO_DATA}: {exc}")
-        return []
-
-    chunks: list[dict] = []
-    conversations = data if isinstance(data, list) else data.get("data", [])
-
-    for conv in conversations:
-        sample_id = conv.get("sample_id", "")
-        # Real locomo10.json stores sessions nested under conv["conversation"];
-        # the top-level record has keys: qa, conversation, event_summary, etc.
-        # Fallback to top-level for forward-compat if schema changes.
-        session_container = conv.get("conversation") if isinstance(conv.get("conversation"), dict) else conv
-        # Sessions are stored as session_1, session_2, ... keys (exclude _date_time suffixes)
-        session_keys = sorted(
-            [k for k in session_container if k.startswith("session_") and not k.endswith("_date_time")],
-            key=lambda k: int(k.split("_", 1)[1]) if k.split("_", 1)[1].isdigit() else 0,
-        )
-        for session_key in session_keys:
-            turns = session_container[session_key]
-            if not isinstance(turns, list):
-                continue
-            for turn in turns:
-                dia_id = turn.get("dia_id", "")
-                speaker = turn.get("speaker", "")
-                text = turn.get("text") or turn.get("blip2_caption") or ""
-                if not text:
-                    continue
-                chunk_id = f"{sample_id}::{dia_id}"
-                chunks.append(
-                    {
-                        "id": chunk_id,
-                        "text": f"{speaker}: {text}",
-                        "dataset": "locomo",
-                        "source": sample_id,
-                    }
-                )
-
-    return chunks
-
-
-def _load_longmemeval_corpus() -> list[dict]:
-    """
-    Load LongMemEval oracle corpus from longmemeval_oracle.json.
-
-    Each session produces one chunk (D4: per-session, mirrors parser.ts):
-      chunk_id = f"{question_id}::session_{idx}"  (session_id if available)
-      text     = "[session_id={sid} date={date}]\n{turns joined}"
-      dataset  = "longmemeval"
-
-    Returns empty list if data file not present.
-    """
-    if not _LONGMEMEVAL_DATA.exists():
-        return []
-
-    try:
-        data = json.loads(_LONGMEMEVAL_DATA.read_text())
-    except Exception as exc:
-        print(f"[mem0] WARNING: failed to parse {_LONGMEMEVAL_DATA}: {exc}")
-        return []
-
-    # Dataset is a list of question records; each has haystack_sessions[]
-    records = data if isinstance(data, list) else data.get("data", [])
-
-    seen_sessions: set[str] = set()
-    chunks: list[dict] = []
-
-    for record in records:
-        question_id = record.get("question_id", "")
-        haystack_sessions = record.get("haystack_sessions") or []
-        haystack_dates = record.get("haystack_dates") or []
-        session_ids = record.get("haystack_session_ids") or []
-
-        for idx, session in enumerate(haystack_sessions):
-            sid = (
-                session_ids[idx]
-                if idx < len(session_ids)
-                else f"{question_id}::session_{idx}"
-            )
-            if sid in seen_sessions:
-                continue
-            seen_sessions.add(sid)
-
-            date = haystack_dates[idx] if idx < len(haystack_dates) else ""
-            turns = session if isinstance(session, list) else []
-            if not turns:
-                continue
-
-            turn_lines: list[str] = []
-            for turn in turns:
-                if isinstance(turn, dict):
-                    role = turn.get("role") or turn.get("speaker") or ""
-                    content = turn.get("content") or turn.get("text") or ""
-                else:
-                    content = str(turn)
-                    role = ""
-                if content:
-                    turn_lines.append(f"{role}: {content}" if role else content)
-
-            if not turn_lines:
-                continue
-
-            header = f"[session_id={sid} date={date}]" if date else f"[session_id={sid}]"
-            text = header + "\n" + "\n".join(turn_lines)
-
-            chunks.append(
-                {
-                    "id": sid,
-                    "text": text,
-                    "dataset": "longmemeval",
-                    "source": question_id,
-                }
-            )
-
-    return chunks
+    limit_raw = os.environ.get("MEM0_INGEST_LIMIT", "")
+    limit = int(limit_raw) if limit_raw.isdigit() else None
+    count = 0
+    for chunk in load_locomo_corpus():
+        yield chunk
+        count += 1
+        if limit is not None and count >= limit:
+            return
+    for chunk in load_longmemeval_corpus():
+        yield chunk
+        count += 1
+        if limit is not None and count >= limit:
+            return
 
 
 # ---------------------------------------------------------------------------
@@ -274,48 +172,49 @@ def _build_config() -> dict:
 
 def _ingest_corpus(client: Any, user_id: str) -> int:
     """
-    Ingest LoCoMo + LongMemEval corpus into Mem0.
+    Ingest LoCoMo + LongMemEval corpus into Mem0 using the shared corpus_loader.
 
-    Returns the number of chunks ingested (0 if corpus files not found).
+    Each ChunkRecord has a stable `id` matching gold_chunk_ids format
+    (e.g. `conv-48::D2:13` for LoCoMo, bare session_id for LongMemEval).
+    The id is stored in metadata.chunk_id so search() can surface it for
+    gold matching in aggregate.py.
+
+    Returns the number of chunks ingested (0 if corpus empty or not available).
     Respects MEM0_INGEST_LIMIT env var to cap chunk count (cost control).
     """
-    chunks = _load_locomo_corpus() + _load_longmemeval_corpus()
+    skip_llm = os.environ.get("MEM0_SKIP_LLM_EXTRACTION", "1").lower() not in ("0", "false", "no")
 
-    ingest_limit_raw = os.environ.get("MEM0_INGEST_LIMIT", "")
-    if ingest_limit_raw.isdigit():
-        limit = int(ingest_limit_raw)
-        if limit < len(chunks):
-            print(f"[mem0] MEM0_INGEST_LIMIT={limit}: capping corpus from {len(chunks)} → {limit} chunks")
-            chunks = chunks[:limit]
+    # Materialize the limited chunk list so we know the total upfront for
+    # progress reporting. MEM0_INGEST_LIMIT is already enforced inside
+    # _iter_corpus_chunks() so this won't load more than the cap.
+    chunk_list = list(_iter_corpus_chunks())
+    total = len(chunk_list)
 
-    if not chunks:
+    if not chunk_list:
         print(
-            "[mem0] WARNING: no corpus files found. "
-            f"Expected {_LOCOMO_DATA} and/or {_LONGMEMEVAL_DATA}. "
-            "Run eval/locomo/download.ts + eval/longmemeval/download.ts first. "
+            "[mem0] WARNING: corpus_loader yielded 0 chunks. "
+            "Ensure eval/q4-comparison/cache/ exists or network is available "
+            "for first-run download. "
             "Proceeding with empty corpus — search will return no results."
         )
         return 0
 
-    print(f"[mem0] ingesting {len(chunks)} corpus chunks (user_id={user_id})...")
-
-    # Use infer=False to store raw text without LLM fact-extraction.
-    # This is cheaper (no LLM call per chunk), preserves the original text and
-    # metadata intact, and keeps chunk_id in metadata for gold matching.
-    # Full LLM inference can be re-enabled with MEM0_SKIP_LLM_EXTRACTION=0.
-    skip_llm = os.environ.get("MEM0_SKIP_LLM_EXTRACTION", "1").lower() not in ("0", "false", "no")
+    limit_raw = os.environ.get("MEM0_INGEST_LIMIT", "")
+    if limit_raw.isdigit():
+        print(f"[mem0] MEM0_INGEST_LIMIT={limit_raw}: using first {total} chunks")
+    print(f"[mem0] ingesting {total} corpus chunks (user_id={user_id})...")
 
     ingested = 0
     errors = 0
-    for i, chunk in enumerate(chunks, start=1):
+    for i, chunk in enumerate(chunk_list, start=1):
         try:
             client.add(
-                messages=[{"role": "user", "content": chunk["text"]}],
+                messages=[{"role": "user", "content": chunk.text}],
                 user_id=user_id,
                 metadata={
-                    "chunk_id": chunk["id"],
-                    "dataset": chunk["dataset"],
-                    "source": chunk.get("source", ""),
+                    "chunk_id": chunk.id,
+                    "dataset": chunk.dataset,
+                    "source": chunk.conversation_id,
                 },
                 infer=not skip_llm,
             )
@@ -323,9 +222,9 @@ def _ingest_corpus(client: Any, user_id: str) -> int:
         except Exception as exc:
             errors += 1
             if errors <= 5:
-                print(f"[mem0] ingest error chunk {chunk['id']!r}: {type(exc).__name__}: {exc}")
-        if i % 200 == 0 or i == len(chunks):
-            print(f"[mem0]   ingested {i}/{len(chunks)} ({errors} errors)")
+                print(f"[mem0] ingest error chunk {chunk.id!r}: {type(exc).__name__}: {exc}")
+        if i % 200 == 0 or i == total:
+            print(f"[mem0]   ingested {i}/{total} ({errors} errors)")
 
     print(f"[mem0] ingestion complete: {ingested} ok, {errors} errors")
     return ingested
@@ -363,7 +262,7 @@ def setup() -> None:
     except Exception:
         existing_count = 0
 
-    # Expected: LoCoMo ~5882 + LongMemEval varies; use file-based estimate
+    # Expected: cap from MEM0_INGEST_LIMIT, or fixed estimates for full corpus
     expected = _estimate_corpus_size()
 
     if not force and existing_count > 0 and expected > 0:
@@ -377,9 +276,9 @@ def setup() -> None:
             return
 
     if not force and existing_count > 0 and expected == 0:
-        # Corpus files missing but memories exist — reuse whatever is stored
+        # Corpus not available but memories exist — reuse whatever is stored
         print(
-            f"[mem0] corpus files not found but {existing_count} memories exist. "
+            f"[mem0] corpus not available but {existing_count} memories exist. "
             "Reusing stored memories."
         )
         return
@@ -388,20 +287,19 @@ def setup() -> None:
 
 
 def _estimate_corpus_size() -> int:
-    """Rough corpus size from file existence (fast, no parse).
-    If MEM0_INGEST_LIMIT is set, use that as the expected size.
+    """Return expected corpus size for idempotency check.
+
+    If MEM0_INGEST_LIMIT is set, use that exact value (cost-controlled runs).
+    Otherwise fall back to canonical size estimates for the full corpus:
+      - LoCoMo locomo10: ~5,882 turns
+      - LongMemEval oracle: ~4,000 sessions (midpoint of 3k-5k range)
+    The 5% tolerance in setup() absorbs minor upstream version drift.
     """
-    ingest_limit_raw = os.environ.get("MEM0_INGEST_LIMIT", "")
-    if ingest_limit_raw.isdigit():
-        return int(ingest_limit_raw)
-    total = 0
-    if _LOCOMO_DATA.exists():
-        # LoCoMo full is 10 conversations × ~588 turns each = ~5882 turns
-        total += 5882
-    if _LONGMEMEVAL_DATA.exists():
-        # Oracle split: 500 questions, avg ~2 sessions each = ~1000 sessions
-        total += 1000
-    return total
+    limit_raw = os.environ.get("MEM0_INGEST_LIMIT", "")
+    if limit_raw.isdigit():
+        return int(limit_raw)
+    # Full corpus estimates (both datasets): ~9,882 chunks
+    return 9882
 
 
 def teardown() -> None:
