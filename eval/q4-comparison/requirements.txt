@@ -14,6 +14,7 @@ PyYAML==6.0.2
 
 # --- Mem0 ---
 mem0ai==0.1.114
+chromadb>=0.5.0  # required by mem0ai Chroma vector store (not auto-installed)
 
 # --- Zep OSS (self-hosted via docker compose) ---
 # NOTE: 2.4.0 does not exist on PyPI; latest 2.x is 2.0.2 (confirmed 2026-05-23).

@@ -127,13 +127,17 @@ def _load_locomo_corpus() -> list[dict]:
 
     for conv in conversations:
         sample_id = conv.get("sample_id", "")
-        # Sessions are stored as session_1, session_2, ... keys
+        # Real locomo10.json stores sessions nested under conv["conversation"];
+        # the top-level record has keys: qa, conversation, event_summary, etc.
+        # Fallback to top-level for forward-compat if schema changes.
+        session_container = conv.get("conversation") if isinstance(conv.get("conversation"), dict) else conv
+        # Sessions are stored as session_1, session_2, ... keys (exclude _date_time suffixes)
         session_keys = sorted(
-            [k for k in conv if k.startswith("session_")],
+            [k for k in session_container if k.startswith("session_") and not k.endswith("_date_time")],
             key=lambda k: int(k.split("_", 1)[1]) if k.split("_", 1)[1].isdigit() else 0,
         )
         for session_key in session_keys:
-            turns = conv[session_key]
+            turns = session_container[session_key]
             if not isinstance(turns, list):
                 continue
             for turn in turns:
@@ -246,8 +250,6 @@ def _build_config() -> dict:
     chroma_path = os.environ.get("MEM0_CHROMA_PATH", _CHROMA_PATH_DEFAULT)
     Path(chroma_path).mkdir(parents=True, exist_ok=True)
 
-    skip_llm = os.environ.get("MEM0_SKIP_LLM_EXTRACTION", "").lower() in ("1", "true", "yes")
-
     config: dict[str, Any] = {
         "vector_store": {
             "provider": "chroma",
@@ -258,13 +260,9 @@ def _build_config() -> dict:
         },
     }
 
-    if skip_llm:
-        # Disable LLM-based fact extraction to reduce cost in test runs.
-        # Memories are stored as-is (raw text), not rewritten.
-        config["llm"] = {
-            "provider": "openai",
-            "config": {"model": "gpt-4o-mini", "max_tokens": 1},
-        }
+    # MEM0_SKIP_LLM_EXTRACTION=1 (default): ingest uses infer=False (raw text, no LLM call).
+    # MEM0_SKIP_LLM_EXTRACTION=0: full LLM fact-extraction per chunk (~$13-15 for full corpus).
+    # No need to override LLM config here; infer flag is passed at add() call time.
 
     return config
 
@@ -279,8 +277,16 @@ def _ingest_corpus(client: Any, user_id: str) -> int:
     Ingest LoCoMo + LongMemEval corpus into Mem0.
 
     Returns the number of chunks ingested (0 if corpus files not found).
+    Respects MEM0_INGEST_LIMIT env var to cap chunk count (cost control).
     """
     chunks = _load_locomo_corpus() + _load_longmemeval_corpus()
+
+    ingest_limit_raw = os.environ.get("MEM0_INGEST_LIMIT", "")
+    if ingest_limit_raw.isdigit():
+        limit = int(ingest_limit_raw)
+        if limit < len(chunks):
+            print(f"[mem0] MEM0_INGEST_LIMIT={limit}: capping corpus from {len(chunks)} → {limit} chunks")
+            chunks = chunks[:limit]
 
     if not chunks:
         print(
@@ -292,6 +298,12 @@ def _ingest_corpus(client: Any, user_id: str) -> int:
         return 0
 
     print(f"[mem0] ingesting {len(chunks)} corpus chunks (user_id={user_id})...")
+
+    # Use infer=False to store raw text without LLM fact-extraction.
+    # This is cheaper (no LLM call per chunk), preserves the original text and
+    # metadata intact, and keeps chunk_id in metadata for gold matching.
+    # Full LLM inference can be re-enabled with MEM0_SKIP_LLM_EXTRACTION=0.
+    skip_llm = os.environ.get("MEM0_SKIP_LLM_EXTRACTION", "1").lower() not in ("0", "false", "no")
 
     ingested = 0
     errors = 0
@@ -305,6 +317,7 @@ def _ingest_corpus(client: Any, user_id: str) -> int:
                     "dataset": chunk["dataset"],
                     "source": chunk.get("source", ""),
                 },
+                infer=not skip_llm,
             )
             ingested += 1
         except Exception as exc:
@@ -375,7 +388,12 @@ def setup() -> None:
 
 
 def _estimate_corpus_size() -> int:
-    """Rough corpus size from file existence (fast, no parse)."""
+    """Rough corpus size from file existence (fast, no parse).
+    If MEM0_INGEST_LIMIT is set, use that as the expected size.
+    """
+    ingest_limit_raw = os.environ.get("MEM0_INGEST_LIMIT", "")
+    if ingest_limit_raw.isdigit():
+        return int(ingest_limit_raw)
     total = 0
     if _LOCOMO_DATA.exists():
         # LoCoMo full is 10 conversations × ~588 turns each = ~5882 turns
@@ -401,7 +419,8 @@ def search(query: str, k: int = 10) -> list[dict]:
     """
     Search Mem0 memories and return results mapped to adapter contract.
 
-    Mem0 0.1.x returns: [{'id', 'memory', 'score', 'metadata', ...}]
+    Mem0 0.1.x returns: {"results": [{'id', 'memory', 'score', 'metadata', ...}]}
+    (a dict, not a bare list — the adapter extracts raw.get("results")).
     The 'id' field in the return dict maps to chunk_id (from metadata) so
     that aggregate.py can match against gold_chunk_ids. If metadata.chunk_id
     is absent (e.g., memories added without our metadata), fall back to
@@ -413,9 +432,15 @@ def search(query: str, k: int = 10) -> list[dict]:
     user_id = os.environ.get("MEM0_USER_ID", _USER_ID_DEFAULT)
 
     try:
-        raw: list[dict[str, Any]] = _client.search(query=query, user_id=user_id, limit=k)  # type: ignore[union-attr]
+        raw = _client.search(query=query, user_id=user_id, limit=k)  # type: ignore[union-attr]
     except Exception as exc:
         raise RuntimeError(f"mem0 search failed: {exc}") from exc
+
+    # mem0 0.1.x returns {"results": [...]} (dict), not a bare list.
+    if isinstance(raw, dict):
+        items: list[dict[str, Any]] = raw.get("results") or []
+    else:
+        items = list(raw or [])
 
     return [
         {
@@ -430,5 +455,5 @@ def search(query: str, k: int = 10) -> list[dict]:
             "text": item.get("memory") or item.get("text") or "",
             "source": (item.get("metadata") or {}).get("source"),
         }
-        for item in (raw or [])[:k]
+        for item in items[:k]
     ]
