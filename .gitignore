@@ -5,6 +5,7 @@ node_modules/
 # Local session scratch — logs, pids, temp state (not for version control)
 .remember/
 .claude/
+.claire/   # Claude agent harness internal state (not for version control)
 
 # Backup files from sed/edit operations — never commit
 *.bak
