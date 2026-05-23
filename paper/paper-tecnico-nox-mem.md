@@ -500,9 +500,83 @@ A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em to
 
 ---
 
-## 7. Knowledge Graph v2
+## 7. Limitations and Future Work
 
-### 7.1 Entity Extraction
+### 7.1 Limitations
+
+#### L1 — Explicit-ingestion dependency (no zero-shot corpus coverage)
+
+nox-mem retrieves only what has been explicitly ingested via `ingestFile()`, `ingest-entity`, or the inotifywait watcher pipeline. There is no mechanism to answer queries over arbitrary external corpora at query time. This is a deliberate design constraint — the system is optimized for an agent's *own* accumulated memory, not general-purpose retrieval augmentation — but it means that coverage is bounded by ingestion discipline. A corpus that has never been ingested produces zero recall regardless of query quality. Users bootstrapping the system must explicitly run `nox-mem reindex` over existing files before the hybrid search layer is useful. Ref: `specs/2026-03-14-nox-memory-system-design.md`, ingestion pipeline §3.1.
+
+#### L2 — Gemini API dependency for embeddings (cost + outbound network)
+
+The semantic retrieval layer (Layer 2) depends on Google's `gemini-embedding-001` model (3072 dimensions). This introduces two constraints: (a) every vectorization call requires outbound network access and a valid `GEMINI_API_KEY`, meaning an air-gapped deployment falls back to FTS5-only retrieval with no semantic recall; (b) API cost scales with corpus size — at the Sat 2026-05-24 corpus of ~69k chunks, a full re-vectorization pass takes approximately 30–40 minutes at quota limits of the free tier. The Autonomy pillar of the Q/A/P strategy explicitly calls out "provider your choice, zero vendor lock-in" as a long-term goal; local embedding substitution (e.g., `nomic-embed-text` via Ollama) is architecturally feasible but not validated against the canonical eval set. BYOK partial autonomy is available: users who supply their own Gemini API key operate without per-query billing exposure in the default free tier. Ref: `docs/DECISIONS.md` (model selection), `[[default-flash-lite-for-agent-infra-tasks]]`.
+
+#### L3 — Single-instance architecture (no distributed sharding or replication)
+
+The system runs on a single SQLite file per agent database. WAL mode provides concurrent read safety, but there is no horizontal sharding, no replication across nodes, and no distributed coordination layer. The current production corpus (69k chunks across 7 databases on a 4-vCPU / 8GB KVM4) operates comfortably within these bounds, but the architecture does not generalize to multi-tenant deployments or corpora significantly exceeding the single-node memory/storage envelope. Distributed SQLite extensions (e.g., `cr-sqlite` CRDT-based replication) exist but are explicitly out of scope for v1. This is a known architectural decision, not an oversight. Ref: `docs/DECISIONS.md` (single-instance rationale).
+
+#### L4 — No write-side concurrency control (last-writer-wins)
+
+Chunk ingestion operates under an optimistic concurrency model: `ingestFile()` deletes existing chunks for the source file and re-inserts in a single transaction, but there is no row-level locking or version fence against concurrent ingest of the same source file from two processes. In practice the inotifywait watcher and manual CLI calls rarely overlap, and the WAL journal prevents data corruption; however, two concurrent ingest calls on the same file produce non-deterministic chunk counts. The `withOpAudit()` wrapper (`src/lib/op-audit.ts`) does not add a mutual-exclusion layer for ingest — it targets destructive bulk operations (reindex, consolidate, crystallize). Production mitigations are operational (systemd service prevents concurrent watcher processes; cron stagger of 5 minutes between agents), not architectural. Ref: `docs/INCIDENTS.md#2026-04-25`, `[[a1-op-audit-module]]`.
+
+#### L5 — Evaluation sample size and canonical run gap (n=20 smoke vs n=100 target)
+
+The Sat 2026-05-24 cross-system comparison (§6.3) is based on a 20-query smoke over an eval-isolated DB (5,882 LoCoMo + 940 LongMemEval chunks), not the pre-registered canonical 100-query × 2-dataset × 6-system run. The canonical run was in progress at the time of this writing (5/6 competitor adapters under setup). All competitive figures for Mem0, Zep, Letta, agentmemory, and EverMind-AI in §6 carry `[PENDING canonical run]` tags and should not be treated as settled results. The nox-mem smoke figure (nDCG@10 = 0.6380 combined, p50 = 12 ms) is validated on the methodology but not directly comparable to the G5 V3 entity-eval figure (0.6237) because the eval corpus and query set differ. Ref: `specs/2026-05-23-Q4-comparison-execution-plan.md`, `[[q4-smoke-sat-2026-05-24-real-numbers]]`.
+
+#### L6 — Cross-system comparison is methodologically partial
+
+Three of five competitors could not be evaluated against the full canonical corpus at the time of writing. Mem0 ran against a 500-chunk corpus cap imposed by cost-control constraints ($0.10 estimated ingest cost at full corpus), producing a nDCG@10 = 0.8569 on 20 queries that cannot be directly compared to nox-mem's full-corpus score — a smaller, more concentrated corpus tends to inflate nDCG for systems that retrieve all relevant documents. Zep and Letta require Docker compose setups that were in progress. EverMind-AI's repository was unavailable at time of access. The "concentration vs coverage trade-off" (high nDCG on capped corpus vs recall breadth on full corpus) is a genuine open question for per-system fair comparison, not a methodological failure. Ref: §6.3 anti-cherry-pick statement, `docs/COMPARISON.md`, `[[q4-partial-cross-system-sat-2026-05-24]]`.
+
+#### L7 — Latency comparison conflates transport classes
+
+The Sat 2026-05-24 latency figures compare nox-mem (local FTS5 + sqlite-vec with Gemini API call for query embedding) against competitor adapters that go over HTTP or Python SDK to local Docker services. The nox-mem p50 = 12 ms figure reflects localhost UNIX-domain retrieval; the Mem0 p50 = 273 ms reflects a Docker-in-Docker HTTP call. These are not the same transport class. A valid latency comparison requires a normalized transport — either all systems behind the same HTTP gateway, or all measured at the SDK level without network hop differences. The §6 latency figures are reported with this caveat in the per-system notes and should not be interpreted as head-to-head speed claims. Ref: `[[q3-latency-numbers-2026-05-18]]`, `docs/PERFORMANCE.md`.
+
+#### L8 — Pain signal is directional but not statistically significant in isolation
+
+The "pain-weighted hybrid memory" framing rests primarily on the additive salience formula (§5.2) and section-aware ranking (§5.3). The `pain` dimension contributes W_PAIN = 0.10 of the salience weight, but its isolated causal contribution has not been validated to statistical significance: the E10 pain ablation (`paper/publication/paper-draft-sec4-7.md` §5.5) reports Δ = +0.0065 with 95% CI [−0.0143, +0.0338] on n = 31, directional but not significant. The current production corpus has 90.67% of chunks at the default `pain = 0.2`, providing insufficient variance for a precise estimate. A definitive pain signal ablation requires a corpus where pain scores span the full [0.1, 1.0] range. Ref: §5.7 honest characterization, `[[d47-path-c-decision]]`.
+
+---
+
+### 7.2 Future Work
+
+#### F1 — A2 Tier 3 P5: production-ready encrypted memory (in flight)
+
+Phase 5 of the A2 Tier 3 roadmap targets a full SQLCipher-encrypted memory store with Ed25519-signed audit checkpoints (P4 deployed via PR #294). The signed checkpoint chain enables tamper-evident audit across destructive operations (`reindex`, `consolidate`, `crystallize`) without requiring a central trust authority. P5 closes the Tier 3 arc by integrating encryption key management with the existing `withOpAudit()` wrapper and the Tier 3 reads-audit layer (P3, PR #292/#293). Target deployment: post-GTM Phase 2 launch, estimated Sun 2026-05-25. Ref: `specs/2026-05-24-A2-tier3-crypto-audit-RECON.md`, `docs/A2-TIER3-MIGRATION-RUNBOOK.md`, `[[a1-op-audit-module]]`.
+
+#### F2 — F10 Phase C/D: shadow tracker empirical A/B for ranking changes
+
+F10 Phase A (`/observability/health.html`) and Phase B (`/observability/evals.html`) are deployed (§5.6, decision D53). Phase C targets a shadow-mode query logger that captures production queries, executes them against a candidate ranking config in parallel, and accumulates query-level nDCG deltas before any promotion decision. Phase D operationalizes this into a pre-promotion gate: any ranking change (boost weight adjustment, mutex threshold, salience weight) that has not accumulated ≥50 shadow queries with p < 0.05 improvement is blocked from reaching the production endpoint. This closes the observability gap identified in `[[ship-ranking-changes-in-shadow-mode-first]]` — currently the shadow mode is a flag toggle, not an integrated eval pipeline. Ref: `docs/ROADMAP.md` F10, decision D53, PR #207/#212.
+
+#### F3 — Per-method benchmark Phase B: cross-method nDCG optimization
+
+The Q4 per-method benchmark (§6, `specs/2026-05-21-per-method-benchmark-comparison.md`) establishes the cross-system baseline. Phase B targets per-query-type boost calibration: given that keyword queries respond differently from natural-language queries (G10c §5.5), and single-hop vs multi-hop have opposing mutex trade-offs (G10b §5.5), a routing layer that selects ranking parameters based on query-type classification has measurable potential upside. Estimated Lab Q1 item. Ref: `specs/2026-05-21-per-method-benchmark-comparison.md`, `[[g10c-per-style-mutex-2026-05-21]]`.
+
+#### F4 — EverMemBench equivalence: honest comparison against EverMind-AI dataset
+
+`[[everos-honest-comparison-benchmark-gap]]` identifies that EverMind-AI publishes standardized results on EverMemBench (EverCore 83% LongMemEval / 93% LoCoMo; HyperMem 92.73% LongMemEval). Running nox-mem on EverMemBench with the same evaluation protocol closes the benchmark gap and provides a reviewer-grade comparison for the arXiv submission. This is gated on EverMind-AI repository availability (currently unavailable) or an alternative comparable dataset. Estimated Lab Q1 priority if the repository returns. Ref: `[[everos-benchmark-publisher-competitor]]`, `[[benchmark-gap-longmemeval-locomo]]`.
+
+#### F5 — Neural reranker: cross-encoder rerank post-RRF
+
+The current retrieval stack terminates at RRF fusion (§4.1). A cross-encoder reranker — receiving the top-K RRF candidates and the original query as a pair — is the standard next step in multi-stage retrieval and typically yields +3–8% nDCG@10 over bi-encoder baselines (see e.g., Nogueira & Cho 2019 on MS MARCO). The Autonomy constraint (`[[neural-reranker-evolution-vector]]`) favors a locally-runnable cross-encoder (e.g., `cross-encoder/ms-marco-MiniLM-L-6-v2` via sentence-transformers, ~66MB) over a cloud inference call, keeping the retrieval stack fully offline-capable. Estimated Lab Q1/Q2. Ref: `[[neural-reranker-as-vetor-evolutivo-pos-rrf]]`, `docs/ROADMAP.md` Lab Q1.
+
+#### F6 — Lab Q1 scale validation: 250k chunk corpus
+
+The current production corpus is 69,495 chunks (as of G10, 2026-05-20). The Lab Q1 roadmap targets a 250k chunk corpus to validate: (a) sqlite-vec ANN recall at scale (current exact-search; approximate search becomes necessary past ~100k vectors at reasonable latency targets); (b) salience formula stability (the recency component decays over a longer history window); (c) FTS5 BM25 IDF calibration (with more documents, rare-term IDF weights shift). The `[[lab-q1-scale-250k]]` item has no committed spec yet; it is gated on `NOX_SALIENCE_MODE=active` remaining stable through the GTM Phase 2 feedback cycle. Ref: `docs/ROADMAP.md` Lab Q1, `[[q-a-p-pillars-strategic-pivot-2026-05-17]]`.
+
+#### F7 — Multilingual corpus coverage: Portuguese and Spanish
+
+The current evaluation corpus is English-dominant (LongMemEval and LoCoMo are English datasets; the internal entity-eval golden set mixes English and Portuguese). The FTS5 `unicode61` tokenizer with porter stemmer does not stem Portuguese or Spanish tokens correctly (e.g., "decisão" stems to "decisa" rather than "decid-"; Spanish gerunds lose morphological overlap). The Gemini semantic layer partially compensates via cross-lingual embedding space, but there is no explicit multilingual evaluation. A Portuguese golden set is a natural next step given the production operational language of the corpus. This is deferred to post-launch community feedback intake.
+
+#### F8 — GTM Phase 2 launch and community feedback intake
+
+The Q/A/P roadmap (decision `[[qap-pillars-strategic-pivot-2026-05-17]]`) defines GTM Phase 2 as gated on D43 (nox-mem top-3 in ≥2 of 4 key metrics — nDCG@10, R@10, MRR, latency). The target launch date is Wed 2026-06-03, conditional on the canonical Q4 run completing and D43 passing. Post-launch, community feedback from the OSS release is expected to surface real-world limitation patterns not visible in the synthetic golden sets (e.g., corpora with high image-to-text OCR content, multi-language mixes, or very short memory fragments < 20 words that the current chunker merges). The feedback cycle directly informs Lab Q2 priorities. Ref: `docs/ROADMAP.md` GTM Phase 2, `docs/gtm/`, `[[overnight-automode-push-pattern]]`.
+
+---
+
+## 8. Knowledge Graph v2
+
+### 8.1 Entity Extraction
 
 **v1 (Regex-based)**: Used hardcoded regular expressions for 3 entity types (person, project, agent) with a static alias map for name normalization. Limited to predefined names, producing 26 entities.
 
@@ -529,7 +603,7 @@ Extraction results after processing 866 chunks:
 | location | 2 | Geographic references |
 | other | 4 | Device, currency, date, computer |
 
-### 7.2 Temporal Decay and TTL
+### 8.2 Temporal Decay and TTL
 
 Relations have a 90-day time-to-live (TTL) from creation. The confidence decay mechanism operates as follows:
 
@@ -541,7 +615,7 @@ Relations have a 90-day time-to-live (TTL) from creation. The confidence decay m
 
 This mechanism ensures the knowledge graph naturally forgets stale information while reinforcing actively observed patterns.
 
-### 7.3 Decision Versioning
+### 8.3 Decision Versioning
 
 Architectural decisions are tracked with full version history in the `decision_versions` table. Each decision has a unique key (e.g., `dedup-strategy`, `fallback-chain`) and supports:
 
@@ -552,15 +626,15 @@ Architectural decisions are tracked with full version history in the `decision_v
 
 10 decisions are currently tracked, covering API key management, LLM fallback chains, embedding model selection, agent isolation strategy, and synchronization schedules.
 
-### 7.4 Graph Traversal
+### 8.4 Graph Traversal
 
 The `findPath()` function implements BFS (Breadth-First Search) to discover shortest paths between any two entities. This enables queries like "How is Toto connected to nox-mem?" which traverses person → project → tool → agent relationships. Maximum depth is configurable (default: 4 hops).
 
 ---
 
-## 8. Cross-Agent Intelligence
+## 9. Cross-Agent Intelligence
 
-### 8.1 Agent Expertise Profiling
+### 9.1 Agent Expertise Profiling
 
 Each agent's memory is analyzed to determine its unique expertise based on chunk type distribution. The dominant chunk type determines the agent's strength category:
 
@@ -571,19 +645,19 @@ Each agent's memory is analyzed to determine its unique expertise based on chunk
 
 Profiles include chunk counts, type breakdowns, top topics (via FTS5 term frequency), and last activity dates.
 
-### 8.2 Knowledge Sharing
+### 9.2 Knowledge Sharing
 
 The `pullInsightsFrom()` function enables any agent to query lessons and decisions from other agents without direct database access. This creates a knowledge transfer mechanism where, for example, Cipher (Security) can learn from Forge's (Code Reviewer) past code review decisions.
 
 `pullAllInsights()` aggregates insights across all agents, sorted by date, providing a fleet-wide learning feed.
 
-### 8.3 Cross-Agent Knowledge Graph Merge
+### 9.3 Cross-Agent Knowledge Graph Merge
 
 `mergeCrossKnowledgeGraphs()` scans all agent databases for kg_entities and kg_relations tables, merging them into a unified entity view. Entities are matched by type + lowercase name. The output shows which entities are known to which agents and their combined mention counts, enabling identification of shared knowledge vs. agent-specific expertise.
 
 ---
 
-## 9. MCP Server Interface
+## 10. MCP Server Interface
 
 nox-mem exposes 14 tools via the Model Context Protocol (MCP) over stdio (JSON-RPC 2.0):
 
@@ -606,7 +680,7 @@ nox-mem exposes 14 tools via the Model Context Protocol (MCP) over stdio (JSON-R
 
 ---
 
-## 10. HTTP API Server
+## 11. HTTP API Server
 
 A lightweight HTTP API (Node.js built-in `http` module, zero dependencies) runs on port 18800, exposing memory data to the React dashboard:
 
@@ -623,9 +697,9 @@ CORS headers are set for cross-origin access from the Vercel-hosted dashboard.
 
 ---
 
-## 11. Operational Infrastructure
+## 12. Operational Infrastructure
 
-### 11.1 Cron Schedule
+### 12.1 Cron Schedule
 
 24 cron jobs manage automated operations:
 
@@ -640,7 +714,7 @@ CORS headers are set for cross-origin access from the Vercel-hosted dashboard.
 | */6 hours | Continuous | Git backup | Auto-commit memory file changes |
 | 09:00 | Weekly (Mon) | Token check | Forge CC token verification |
 
-### 11.2 Backup Strategy
+### 12.2 Backup Strategy
 
 Three backup mechanisms operate independently:
 
@@ -648,7 +722,7 @@ Three backup mechanisms operate independently:
 2. **Git Auto-Commit**: Memory directory changes are committed every 6 hours, providing full change history.
 3. **File System**: WAL mode ensures database consistency during concurrent reads/writes.
 
-### 11.3 LLM Fallback Chain
+### 12.3 LLM Fallback Chain
 
 To ensure continuous operation regardless of provider availability:
 
@@ -659,7 +733,7 @@ The fallback is configured in the environment and selected at runtime based on t
 
 ---
 
-## 12. Dashboard Integration
+## 13. Dashboard Integration
 
 The TotoClaw Command Center (React 18 + TypeScript + Vite + shadcn/ui) provides 11 pages including 4 nox-mem-specific views:
 
@@ -672,7 +746,7 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 ---
 
-## 13. Evolution History
+## 14. Evolution History
 
 | Version | Date | Key Changes |
 |---------|------|-------------|
@@ -690,7 +764,7 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 ---
 
-## 14. Conclusion
+## 15. Conclusion
 
 nox-mem demonstrates that persistent, searchable, and shareable memory for AI agent fleets is achievable with commodity infrastructure (single VPS, SQLite, local LLM). The hybrid search system consistently outperforms single-method retrieval, particularly for multilingual content and compound technical terms. The LLM-powered knowledge graph provides 15x richer entity extraction compared to regex approaches, while temporal decay ensures the graph stays current without manual curation. The Wave A empirical evaluation (§5) cravou nDCG@10 = 0.6237 on the entity-flavored golden set (+78.8% relative over the G3 baseline), with `section_boost` identified as the dominant driver (99.85% of the lift recovered by A3 alone) and the additive salience formula validated by the `active > shadow` reversal. The G10d conditional mutex evolution (§5.5, deployed 2026-05-21) consolida o canonical boost stack `section_boost × source_type_boost (Hard Mutex gated by query_entity_count ≤ 2) × salience v2 additive` em produção, recuperando regressões multi-hop e adversarial com diluição contida em single-hop. A camada F10 (§5.6, decisão D53) torna o estado de produção verificável a qualquer momento via dashboards Phase A (`/observability/health.html`) + Phase B (`/observability/evals.html`).
 
