@@ -15,7 +15,11 @@
   },
   "include": [
     "edits/src/lib/db.ts",
+    "edits/src/lib/reads-audit.ts",
+    "edits/src/lib/audit-checkpoints.ts",
     "edits/src/lib/__tests__/*.test.ts",
+    "edits/scripts/reads-audit-sweep.ts",
+    "edits/scripts/audit-checkpoint-cli.ts",
     "scripts/migrate-encrypt-db.ts",
     "scripts/__tests__/*.test.ts"
   ],
