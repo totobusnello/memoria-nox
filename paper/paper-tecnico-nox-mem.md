@@ -364,15 +364,134 @@ The G10d conditional gate was deployed to production on 2026-05-21 via systemd e
 
 Triangulated across G10 (+0.79% nDCG deploy measurement), G10b (per-category breakdown, aggregate +0.43%), G10c (per-style breakdown, aggregate +0.43%), and G10d (conditional gate, aggregate +1.35%), the mutex evolution follows a consistent trajectory: the per-chunk hard mutex provided a net positive but introduced multi-hop and adversarial regressions; the conditional layer recovers those regressions at the cost of moderate single-hop dilution, with the aggregate strictly improving at each step. The final deployed configuration is the most balanced across query-category diversity the series has measured.
 
-### 5.6 Honest characterization
+### 5.6 Production deployment and observability
+
+The G10d conditional Hard Mutex with `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2` é a configuração canônica em produção desde 2026-05-21. O drop-in está em `/etc/systemd/system/nox-mem-api.service.d/override.conf`, e três rollback paths permanecem documentados — desabilitar apenas a camada condicional (preservando o G10 hard mutex), desabilitar o mutex inteiro via `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1`, ou remover o drop-in — cada um executável em menos de cinco minutos. O modo `NOX_SALIENCE_MODE=active` (formulação aditiva v2) também está deployado em produção, consistente com a Claim 1 da §5.2; o modo `shadow` permanece disponível como fallback para A/B comparisons, mas o canonical runtime usa `active`.
+
+A camada de observabilidade F10 (Foundation observability dashboard, decisão D53, 2026-05-21) acompanha os dois deploys em produção. **Phase A** (`/observability/health.html`) expõe três endpoints — `/api/observability/health`, `/api/observability/recent-ops`, `/api/observability/canary-tail` — com polling de 30s sobre status do serviço, últimas operações destrutivas registradas em `ops_audit` (status enum `started | success | failed | crashed`), e o tail das execuções do cron de canary. **Phase B** (`/observability/evals.html`) consome `/api/observability/evals` lendo `audits/data-G*/`, renderizando line charts com Chart.js sobre as séries G3 → G4 → G5 V3 → G8 → G9 → G10 → G10b → G10c → G10d com gate annotations (D43 threshold ≥+15% nDCG@10, D48 close, D51 verdict ACTIVE-T2). Ambas as fases passaram smoke tests no deploy (6/6 e 5/5 respectivamente) e estão acessíveis via Tailscale tunnel; o stack permanece lean (vanilla JS + Chart.js CDN, sem Prometheus/Grafana/time-series DB adicional). A leitura é em tempo real sobre o `nox-mem.db` canônico — qualquer regressão pós-deploy aparece nos charts dentro do próximo ciclo de polling.
+
+### 5.7 Honest characterization
 
 The +78.8% headline is decisive for the "Pain-weighted hybrid memory" framing in the sense that pain is one of four additive salience components and the full additive formulation outperforms the legacy multiplicative one. It is **not** decisive for "pain as a standalone retrieval signal in hybrid mode" — that question is addressed in the companion arXiv draft (`paper/publication/paper-draft-sec4-7.md` §5.5, E10 pain ablation: directional but not significant, Δ = +0.0065, 95% CI [−0.0143, +0.0338], n = 31 on the prior R01c-v1.1 corpus). The Wave A measurement validates the architectural choices around section-aware ranking and additive salience composition; per-dimension causal attribution of pain alone awaits the post-PR-#154 ablation generation and a corpus with broader pain distribution than the current 90.67% default.
 
+A G10d evolution further refines the architectural conclusion: the canonical boost stack `section_boost × source_type_boost (Hard Mutex gated by query_entity_count ≤ 2) × salience v2 additive` deployed em 2026-05-21 trata a redundância identificada em G8/G9 sem zerar o sinal completo, e recupera regressões multi-hop (+1.58% nDCG, +3.75% R@10) e adversarial (+3.04% nDCG, +6.25% MRR) ao custo de uma diluição contida em single-hop. A trajetória G3 → G4 → G5 V3 → G8 → G9 → G10 → G10b → G10c → G10d demonstra disciplina de ablation: cada generation isolou um componente ou condição, e cada decision (D43 gate, D48 saga close, D51 ACTIVE-T2) está triangulada por código (PRs #150/#151/#153/#154/#177/#181/#182/#198), audits (`audits/data-G*/`), e a camada F10 que torna o resultado verificável a qualquer momento em produção.
+
 ---
 
-## 6. Knowledge Graph v2
+## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
-### 6.1 Entity Extraction
+> **Status (atualizado 2026-05-24 15h30 BRT):** Pre-registered skeleton populado com o **smoke de 20 queries do Sat 2026-05-24** sobre eval-isolated DB (5.882 chunks LoCoMo + 940 chunks LongMemEval, k=10), validando a metodologia + confirmando que o pipeline nox-mem funciona end-to-end no eval isolado. O **run canônico** (100 queries × 2 datasets × 6 sistemas) ainda está em execução — **5/6 competitor adapters estavam em setup no momento desta consolidação**. As linhas competidoras permanecem `[PENDING canonical run]` até que o COMPARISON.md final lande. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) são imutáveis post-run conforme §6.7.
+
+### 6.1 Methodology summary
+
+A §6 cobre a comparação cross-system entre nox-mem e cinco sistemas competidores de memória persistente para agentes de IA. O execution plan completo está documentado em `specs/2026-05-23-Q4-comparison-execution-plan.md` (pre-registered 2026-05-23, antes do run de Sat 2026-05-24). Os princípios de comparação (§6.5), as garantias anti-cherry-pick (§6.6), e a pre-registration formal (§6.7) são cravados nesta seção antes da execução; somente as tabelas de §6.2/§6.3/§6.4 recebem números após o run. O objetivo é satisfazer o gate D43 (`docs/DECISIONS.md`) — nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR, latência) — destravando a GTM Phase 2.
+
+### 6.2 Competitors
+
+A escolha dos cinco competidores prioriza stars no GitHub, atividade recente de commits e overlap funcional com o escopo do nox-mem. Versões são cravadas pré-execução para reprodutibilidade.
+
+| System | Repo | Install path | Version pinned | Default config |
+|---|---|---|---|---|
+| Mem0 | `mem0ai/mem0` | `pip install mem0ai` | `[PENDING canonical run — adapter under setup]` | OpenAI embeddings + Chroma vector store |
+| Zep | `getzep/zep` | Docker compose (zep + postgres) | `[PENDING canonical run — adapter under setup]` | Local self-host mode |
+| Letta (ex-MemGPT) | `letta-ai/letta` | `pip install letta` | `[PENDING canonical run — adapter under setup]` | SQLite backend |
+| agentmemory | `rohitg00/agentmemory` | iii-engine runtime | `[PENDING canonical run — adapter under setup]` | Stack-bridge mode |
+| EverMind-AI | EverOS published bench | repo clone | `[PENDING canonical run — adapter under setup]` | Native CLI |
+
+Cada sistema roda com sua configuração default publicável (princípio §6.5.3): nenhum competidor é tunado adversarialmente.
+
+### 6.3 Per-system per-dataset results
+
+Tabela canônica cross-system × cross-dataset. K cutoff fixado em 10 em todos os sistemas; latência medida externamente (wall clock around adapter call); custo derivado dos logs por-sistema (API calls × pricing publicado).
+
+**Sat 2026-05-24 smoke (20 queries combined, dry-run-sample, eval-isolated DB).**
+nox-mem aggregate (LoCoMo 10q + LongMemEval 10q, k=10):
+
+| System | nDCG@10 (combined) | R@10 | MRR | p50 (ms) | p95 (ms) | avg (ms) | Gold hits |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **nox-mem** (smoke) | **0.6380** | 0.5417 | 0.3700 | **12** | **43** | 15 | **13/20 (65%)** |
+
+Per-dataset gold-hit breakdown do smoke: **LoCoMo 7/10 (70%) · LongMemEval 6/10 (60%)**. O smoke não disaggregou `nDCG@10` por dataset (combined-only) — a desagregação canônica vem no run completo. Os números a seguir são da execução canônica que ainda estava em curso na consolidação desta seção.
+
+**LongMemEval n=100 (canonical):**
+
+| System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` |
+| Mem0 | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| Zep | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| Letta | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| agentmemory | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| EverMind-AI | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+
+**LoCoMo full (canonical):**
+
+| System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **nox-mem** | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` | `[PENDING canonical run]` |
+| Mem0 | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| Zep | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| Letta | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| agentmemory | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| EverMind-AI | `[PENDING canonical run — adapter under setup]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+
+Linhas que falharem smoke test (§6.5) são reportadas com nota explícita `[FALHA: adapter setup gap]` em vez de omitidas, consistente com §6.6. O run canônico atualiza estas tabelas em commit dedicado quando 6/6 adapters estiverem prontos; o smoke acima cumpre a função de pre-registration vivo (nox-mem confirmado funcional em eval-isolated DB) sem cherry-pick.
+
+### 6.4 Per-category breakdown
+
+Decomposição por categoria de query do LongMemEval. nox-mem reporta as seis categorias canônicas; competidores reportam idem onde a categoria está presente no dataset original.
+
+| Category | n | nox-mem nDCG@10 | Mem0 | Zep | Letta | agentmemory | EverMind-AI |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| single-hop | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| multi-hop | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| temporal | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| adversarial | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| open-domain | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+| numeric | `[PENDING canonical]` | `[PENDING canonical]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` | `[PENDING]` |
+
+O **smoke de Sat 2026-05-24** não disaggregou per-category (combined-only sobre 20 queries), portanto §6.4 inteira aguarda o run canônico de 100 queries × 2 datasets × 6 sistemas. Quando uma categoria não tem queries suficientes (n < 10) em algum dataset, a célula recebe `n/a` em vez de extrapolação, evitando o tipo de regressão que aparece em §5.5 (temporal `n/a` na G10b por corpus gap degenerado).
+
+### 6.5 Fair-comparison principles
+
+A comparação obedece a princípios padronizados pela literatura de benchmark publicado (EverMemBench, BEIR, MTEB):
+
+1. **Corpus idêntico.** Todos os sistemas recebem o mesmo `chunks.text` ingerido via a API nativa de cada um. Nenhum sistema recebe versão "otimizada" do corpus.
+2. **Eval set idêntico.** Mesmas queries, mesmos gold sets, mesmo random seed (`42` para shuffle do LongMemEval).
+3. **Defaults nativos por sistema.** Cada competidor roda com sua configuração default publicável. Não tunamos competidores adversarialmente para perder; se default config é o que é publicado, é o que é avaliado.
+4. **K cutoff fixo em 10.** Alguns sistemas defaultam para 5 ou 20; todos são forçados a `k=10` para comparabilidade.
+5. **Embeddings provider nativo por sistema.** nox-mem usa Gemini 3072d; cada competidor usa seu provider default. Uma variação `all-Gemini` é planejada como side experiment opcional, deferred porque o smoke de Sat 2026-05-24 consumiu o time-box antes do experiment (`[deferred — Sun 2026-05-25 ou follow-up post-launch]`).
+6. **Hardware uniforme.** Mesmo VPS (Hostinger 8 cores / 16 GB RAM), localhost between systems exceto chamadas a embeddings APIs externas.
+
+Cada adapter passa um smoke test pré-run:
+```python
+result = adapter.search("test query", k=5)
+assert len(result) >= 1
+assert all('id' in r and 'score' in r for r in result)
+```
+Adapter que falhar smoke é documentado como gap (`[FALHA: <razão>]`) em vez de omitido — consistente com §6.6.
+
+### 6.6 Anti-cherry-pick statement
+
+Para evitar viés de seleção retroativo:
+
+- **Todas as 6 categorias reportadas.** Nenhuma é omitida porque o resultado é desfavorável.
+- **Ambos os datasets reportados.** LongMemEval n=100 + LoCoMo full, lado a lado. Não escolhemos o que beneficia.
+- **Latência worst-case reportada.** p50 + p95 + p99 explícitos. Não publicamos apenas p50.
+- **Per-system per-category transparency.** A tabela de §6.4 expõe cada combinação; não há linha agregada que mascare um padrão.
+- **Gaps documentados.** Sistemas que falharem setup recebem nota explícita; a comparação roda sem o sistema faltante, mas o gap é registrado em `docs/COMPARISON.md`.
+
+### 6.7 Pre-registration
+
+A metodologia desta seção está cravada no `specs/2026-05-23-Q4-comparison-execution-plan.md` antes do run de Sat 2026-05-24. O **smoke de Sat 2026-05-24 15h30 BRT** preencheu a primeira linha de §6.3 (nox-mem combined: nDCG@10=0.6380, p50=12ms, gold-hit 13/20 em 20 queries dry-run-sample) e validou que o pipeline de retrieval funciona end-to-end em eval-isolated DB; o **run canônico** ainda está em curso e atualiza as linhas competidoras `[PENDING canonical run]` em §6.3 + a totalidade de §6.4 quando os 6 adapters estiverem prontos. Princípios (§6.5), anti-cherry-pick (§6.6) e a estrutura geral desta seção são imutáveis post-run. Qualquer ajuste metodológico identificado durante a execução é documentado como follow-up explícito em `docs/COMPARISON.md` em vez de retroagido aqui. Ref: `[[q4-smoke-sat-2026-05-24-real-numbers]]`.
+
+A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR, latência). Atendido o gate, GTM Phase 2 está destravada conforme `docs/ROADMAP.md` §7. Não atendido, a sessão de Sun 2026-05-25 produz um plano de remediação (ajustes pre-launch) em vez de launch direto.
+
+---
+
+## 7. Knowledge Graph v2
+
+### 7.1 Entity Extraction
 
 **v1 (Regex-based)**: Used hardcoded regular expressions for 3 entity types (person, project, agent) with a static alias map for name normalization. Limited to predefined names, producing 26 entities.
 
@@ -399,7 +518,7 @@ Extraction results after processing 866 chunks:
 | location | 2 | Geographic references |
 | other | 4 | Device, currency, date, computer |
 
-### 6.2 Temporal Decay and TTL
+### 7.2 Temporal Decay and TTL
 
 Relations have a 90-day time-to-live (TTL) from creation. The confidence decay mechanism operates as follows:
 
@@ -411,7 +530,7 @@ Relations have a 90-day time-to-live (TTL) from creation. The confidence decay m
 
 This mechanism ensures the knowledge graph naturally forgets stale information while reinforcing actively observed patterns.
 
-### 6.3 Decision Versioning
+### 7.3 Decision Versioning
 
 Architectural decisions are tracked with full version history in the `decision_versions` table. Each decision has a unique key (e.g., `dedup-strategy`, `fallback-chain`) and supports:
 
@@ -422,15 +541,15 @@ Architectural decisions are tracked with full version history in the `decision_v
 
 10 decisions are currently tracked, covering API key management, LLM fallback chains, embedding model selection, agent isolation strategy, and synchronization schedules.
 
-### 6.4 Graph Traversal
+### 7.4 Graph Traversal
 
 The `findPath()` function implements BFS (Breadth-First Search) to discover shortest paths between any two entities. This enables queries like "How is Toto connected to nox-mem?" which traverses person → project → tool → agent relationships. Maximum depth is configurable (default: 4 hops).
 
 ---
 
-## 7. Cross-Agent Intelligence
+## 8. Cross-Agent Intelligence
 
-### 7.1 Agent Expertise Profiling
+### 8.1 Agent Expertise Profiling
 
 Each agent's memory is analyzed to determine its unique expertise based on chunk type distribution. The dominant chunk type determines the agent's strength category:
 
@@ -441,19 +560,19 @@ Each agent's memory is analyzed to determine its unique expertise based on chunk
 
 Profiles include chunk counts, type breakdowns, top topics (via FTS5 term frequency), and last activity dates.
 
-### 7.2 Knowledge Sharing
+### 8.2 Knowledge Sharing
 
 The `pullInsightsFrom()` function enables any agent to query lessons and decisions from other agents without direct database access. This creates a knowledge transfer mechanism where, for example, Cipher (Security) can learn from Forge's (Code Reviewer) past code review decisions.
 
 `pullAllInsights()` aggregates insights across all agents, sorted by date, providing a fleet-wide learning feed.
 
-### 7.3 Cross-Agent Knowledge Graph Merge
+### 8.3 Cross-Agent Knowledge Graph Merge
 
 `mergeCrossKnowledgeGraphs()` scans all agent databases for kg_entities and kg_relations tables, merging them into a unified entity view. Entities are matched by type + lowercase name. The output shows which entities are known to which agents and their combined mention counts, enabling identification of shared knowledge vs. agent-specific expertise.
 
 ---
 
-## 8. MCP Server Interface
+## 9. MCP Server Interface
 
 nox-mem exposes 14 tools via the Model Context Protocol (MCP) over stdio (JSON-RPC 2.0):
 
@@ -476,7 +595,7 @@ nox-mem exposes 14 tools via the Model Context Protocol (MCP) over stdio (JSON-R
 
 ---
 
-## 9. HTTP API Server
+## 10. HTTP API Server
 
 A lightweight HTTP API (Node.js built-in `http` module, zero dependencies) runs on port 18800, exposing memory data to the React dashboard:
 
@@ -493,9 +612,9 @@ CORS headers are set for cross-origin access from the Vercel-hosted dashboard.
 
 ---
 
-## 10. Operational Infrastructure
+## 11. Operational Infrastructure
 
-### 10.1 Cron Schedule
+### 11.1 Cron Schedule
 
 24 cron jobs manage automated operations:
 
@@ -510,7 +629,7 @@ CORS headers are set for cross-origin access from the Vercel-hosted dashboard.
 | */6 hours | Continuous | Git backup | Auto-commit memory file changes |
 | 09:00 | Weekly (Mon) | Token check | Forge CC token verification |
 
-### 10.2 Backup Strategy
+### 11.2 Backup Strategy
 
 Three backup mechanisms operate independently:
 
@@ -518,7 +637,7 @@ Three backup mechanisms operate independently:
 2. **Git Auto-Commit**: Memory directory changes are committed every 6 hours, providing full change history.
 3. **File System**: WAL mode ensures database consistency during concurrent reads/writes.
 
-### 10.3 LLM Fallback Chain
+### 11.3 LLM Fallback Chain
 
 To ensure continuous operation regardless of provider availability:
 
@@ -529,7 +648,7 @@ The fallback is configured in the environment and selected at runtime based on t
 
 ---
 
-## 11. Dashboard Integration
+## 12. Dashboard Integration
 
 The TotoClaw Command Center (React 18 + TypeScript + Vite + shadcn/ui) provides 11 pages including 4 nox-mem-specific views:
 
@@ -542,7 +661,7 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 ---
 
-## 12. Evolution History
+## 13. Evolution History
 
 | Version | Date | Key Changes |
 |---------|------|-------------|
@@ -554,12 +673,17 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 | v3.0 | Mar 23 | KG v2 (LLM, 384 entities), Cross-Agent Intelligence, HTTP API, dashboard |
 | v3.7 | Apr 23 | Schema V10 (`retention_days` v8 + `pain` v9 + `section` v10), entity file format, section_boost |
 | Wave A | May 19 | Additive salience formula, `tier_boost` off-by-default, `source_type` backfill (67,949 chunks), G5 V3 ablation (PRs #150 / #151 / #153) |
+| G10 Hard Mutex | May 20 | `section ↔ source_type` mutex deployed against `g9.db` 69,495 chunks (PRs #181 / #182) |
+| G10d ACTIVE-T2 | May 21 | Conditional mutex gated by `query_entity_count ≤ 2`, deployed via systemd drop-in `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2` (PR #198, decision D51); multi-hop +1.58% nDCG / adversarial +3.04% nDCG recovered |
+| F10 Phase A + B | May 21 | Foundation observability dashboards (`/observability/health.html` + `/observability/evals.html`) deployed via Tailscale tunnel (PRs #207 / #212, decision D53) |
 
 ---
 
-## 13. Conclusion
+## 14. Conclusion
 
-nox-mem demonstrates that persistent, searchable, and shareable memory for AI agent fleets is achievable with commodity infrastructure (single VPS, SQLite, local LLM). The hybrid search system consistently outperforms single-method retrieval, particularly for multilingual content and compound technical terms. The LLM-powered knowledge graph provides 15x richer entity extraction compared to regex approaches, while temporal decay ensures the graph stays current without manual curation. The Wave A empirical evaluation (§5) cravou nDCG@10 = 0.6237 on the entity-flavored golden set (+78.8% relative over the G3 baseline), with `section_boost` identified as the dominant driver (99.85% of the lift recovered by A3 alone) and the additive salience formula validated by the `active > shadow` reversal.
+nox-mem demonstrates that persistent, searchable, and shareable memory for AI agent fleets is achievable with commodity infrastructure (single VPS, SQLite, local LLM). The hybrid search system consistently outperforms single-method retrieval, particularly for multilingual content and compound technical terms. The LLM-powered knowledge graph provides 15x richer entity extraction compared to regex approaches, while temporal decay ensures the graph stays current without manual curation. The Wave A empirical evaluation (§5) cravou nDCG@10 = 0.6237 on the entity-flavored golden set (+78.8% relative over the G3 baseline), with `section_boost` identified as the dominant driver (99.85% of the lift recovered by A3 alone) and the additive salience formula validated by the `active > shadow` reversal. The G10d conditional mutex evolution (§5.5, deployed 2026-05-21) consolida o canonical boost stack `section_boost × source_type_boost (Hard Mutex gated by query_entity_count ≤ 2) × salience v2 additive` em produção, recuperando regressões multi-hop e adversarial com diluição contida em single-hop. A camada F10 (§5.6, decisão D53) torna o estado de produção verificável a qualquer momento via dashboards Phase A (`/observability/health.html`) + Phase B (`/observability/evals.html`).
+
+A §6 Q4 COMPARISON está pre-registered (`specs/2026-05-23-Q4-comparison-execution-plan.md`) e o **smoke de Sat 2026-05-24 15h30 BRT** populou a primeira linha de §6.3 com números de nox-mem (nDCG@10=0.6380 combined, p50=12ms, gold-hit 13/20 em 20 queries dry-run-sample sobre eval-isolated DB de 5.882 LoCoMo + 940 LongMemEval chunks). O **run canônico** — 100 queries × 2 datasets × 6 sistemas (Mem0, Zep, Letta, agentmemory, EverMind-AI + nox-mem) — ainda está em execução com 5/6 competitor adapters em setup, e atualiza as células `[PENDING canonical run]` quando crava. O gate D43 (top-3 em ≥2 das 4 métricas chave) é avaliado contra o run canônico; o smoke valida a metodologia + confirma que nox-mem retrieval funciona end-to-end, destravando a defesa pre-launch da GTM Phase 2.
 
 The cross-agent intelligence layer transforms isolated agent memories into a collaborative knowledge base, enabling institutional learning across the fleet. Combined with the live dashboard, the system provides full observability into the collective memory of the agent organization.
 
