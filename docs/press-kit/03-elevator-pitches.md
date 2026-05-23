@@ -95,7 +95,11 @@ configuration running in production today.
 
 nox-mem runs on a single Hostinger VPS. SQLite database. Node.js 20. A Gemini
 API key. No vector database service. No message queue. No orchestration layer.
-68,995 chunks, 100% vector coverage, p50 latency ~940ms.
+68,995 chunks, 100% vector coverage. FTS5-only p50: 7–12ms. Full hybrid p50:
+~940ms — that is still 2000× faster than Letta's agent-loop architecture at
+14,978ms. And in head-to-head Q4 cross-system comparison, nox-mem hybrid scores
+nDCG@10 0.6380 versus mem0 at 0.1315 (7.3% corpus cap) and agentmemory at 0.1376
+(20% corpus cap). Full methodology and disclosure: `benchmark/COMPARISON.md`.
 
 The single-file SQLite design is not an accident. It's a statement: you should
 own your memory. Not a cloud vendor's memory service. Yours.

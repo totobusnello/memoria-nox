@@ -144,15 +144,80 @@ were indistinguishable. Scale matters.
 
 ---
 
+## Cross-System Benchmark (Q4 Final, 2026-05-24)
+
+The Q4 COMPARISON run is the first full cross-system evaluation using a
+FTS5-fair protocol. All systems were given the same 100 golden queries against
+the same entity-eval-v2 corpus. Two systems (Zep, EverMind) could not be
+evaluated under protocol constraints — see disclosure below.
+
+### FTS5-fair vs Gemini-hybrid: what the distinction means
+
+nox-mem reports two numbers:
+
+**FTS5-only (0.3753)** — BM25 retrieval without Gemini embeddings. This is
+the fairest comparison to systems that use keyword or BM25 search only, and
+to systems whose corpus was partially ingested (corpus cap). If you are
+benchmarking a new system against nox-mem, use this number as the baseline.
+
+**Gemini hybrid (0.6380)** — Full three-layer stack: BM25 + Gemini semantic
+embeddings + KG, fused via RRF. The +70% uplift over FTS5-only is entirely
+driven by the Gemini dense embedding signal (confirmed in G4-G5 ablations —
+ablation F showed Gemini dense was the entire driver). This number is not
+directly comparable to systems that lack dense semantic retrieval.
+
+### Results table
+
+| System | nDCG@10 | Corpus cap | p50 lat | Cost | Notes |
+|---|---:|---:|---:|---:|---|
+| nox-mem (FTS5) | 0.3753 | 100% | 7–12ms | $0 | BM25-comparable baseline |
+| nox-mem (hybrid) | 0.6380 | 100% | ~940ms | ~$0* | full three-layer stack |
+| agentmemory | 0.1376 | 20% | 14ms | $0 | corpus cap; in-dist bias likely |
+| mem0 | 0.1315 | 7.3% | 263ms | $0.07 | highest cap effect; 92.7% not ingested |
+| Letta | partial | — | 14,978ms | $0.001 | agent-loop; latency not retrieval |
+| Zep | — | — | — | $0.02 | OpenAI key required; not evaluated |
+| EverMind | — | — | — | — | repo 404 at eval time |
+
+*Gemini embed at current free-tier quota.
+
+### Corpus cap — the concentration paradox
+
+mem0 nDCG@10 = 0.1315 on 7.3% corpus cap raises an open question for Lab Q1:
+
+**Hypothesis H1:** mem0's architecture concentrates retrieval quality in the
+ingested subset. The 92.7% of queries that land outside the ingested window are
+effectively dead zones. If true, the reported nDCG@10 would drop substantially
+on a full-corpus eval.
+
+**Hypothesis H2:** mem0's compression/summarization layer handles the full
+corpus in a fundamentally different way — the 7.3% represents a compressed
+representation, not a literal cap. If true, the comparison is not apples-to-apples.
+
+Both hypotheses are open. The lab Q1 task is to design a controlled experiment
+that disambiguates them. Until then, corpus-capped numbers carry an asterisk.
+
+### Letta latency — architectural difference
+
+Letta p50 = 14,978ms is not a bug. Letta is an agent-loop memory system: it
+spawns an LLM reasoning pass before returning a retrieval result. This makes it
+~2000× slower on p50 than nox-mem FTS5, but it is also doing more work.
+Direct p50 comparison is misleading — the systems answer different architectural
+questions. The right comparison is: do you need synchronous retrieval for
+real-time agent use, or async memory consolidation with reasoning?
+
+---
+
 ## Tradeoffs (Honest)
 
 | Tradeoff | Current State | Roadmap |
 |---|---|---|
 | Gemini API dependency | Required for embeddings and KG extraction | Local embedding option Lab Q1 2027 |
-| p50 latency ~940ms | Dominated by Gemini embed call (~800ms) | Batch pre-embed, cache warm path |
+| p50 latency ~940ms (hybrid) | Dominated by Gemini embed call (~800ms) | Batch pre-embed, cache warm path |
+| p50 latency 7–12ms (FTS5-only) | No embed call; pure SQLite retrieval | — |
 | Scale ceiling ~1M chunks | SQLite WAL + ANN rebuild | Sharding spec in Lab backlog |
 | KG extraction quality | Gemini 2.5 Flash; incremental nightly | Cross-encoder rerank Lab Q1 |
 | No multi-tenancy | Single DB, single user | Not on roadmap; design philosophy |
+| Corpus cap comparison gap | Competitors evaluated at partial corpus | Lab Q1 H1/H2 experiment |
 
 ---
 
@@ -160,11 +225,17 @@ were indistinguishable. Scale matters.
 
 1. **EverMemBench evaluation** — run nox-mem on the EverOS public benchmark for
    standardized comparison against EverMind and competitors.
-2. **Neural reranker** — cross-encoder re-ranking after RRF, targeting +3–8%
+2. **Corpus cap experiment (H1/H2)** — disambiguate the concentration paradox
+   for mem0 and agentmemory under full-corpus conditions.
+3. **Neural reranker** — cross-encoder re-ranking after RRF, targeting +3–8%
    nDCG on multi-hop and adversarial queries.
-3. **Local embedding pathway** — vLLM-backed local model option for users who
+4. **Local embedding pathway** — vLLM-backed local model option for users who
    cannot or will not use Gemini API.
-4. **Temporal reasoning (v3)** — improved date/time anchor inference beyond the
+5. **Temporal reasoning (v3)** — improved date/time anchor inference beyond the
    regex+median approach in v2.
 
 Full roadmap: `docs/ROADMAP.md`.
+
+---
+
+*Last updated: 2026-05-24 (Sat) · Cross-system numbers definitive · [[project-sat-2026-05-24-final-closure]]*
