@@ -797,3 +797,109 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Multi-user/RBAC (single-user dashboard)
 - **Cross-links:** spec `specs/2026-05-01-F10-observability-dashboard.md` (refresh 2026-05-21), PR #207 (Phase A), PR #212 (Phase B), memory `[[evening-burst-2026-05-21-4prs-f10-deployed]]` + `[[late-evening-2026-05-21-f10b-deployed-l4-plural]]`.
 - *Origem:* sessão 2026-05-21 evening. Spec refresh + Phase A solo + agent worktree paralelo pra Phase B.
+
+---
+
+### 2026-05-24 — A2 Tier 3 crypto + audit — 5 decisions RESOLVED + P0 spike GO (D54-D58)
+
+#### D54 — SQLCipher como at-rest cipher primary, conditional approved via P0 spike GO verdict
+
+- **Pergunta:** A2 Tier 3 (at-rest encryption + audit trail) precisa cipher path. Vale SQLCipher (drop-in, auditor-friendly, WAL coberto, backup transparent) vs LUKS-only (kernel-layer, mais simples mas força boot-time unlock) vs reject (espera futuro)?
+- **Decisão:** **SQLCipher primary** (recon §10 D-A2T3-1 option b: conditional on P0 spike pass). P0 spike executed 2026-05-24, 22/22 critical gates PASS, **verdict GO**. SQLCipher 4.16.0 + `better-sqlite3-multiple-ciphers` v13.x + `sqlite-vec` v0.1.9 form a viable stack. LUKS-only pivot reserved as fallback for future SQLCipher CVE/regression scenarios.
+- **Por quê:**
+  - WAL/SHM herda cipher transparentemente (T3 storage breach coberto)
+  - `VACUUM INTO` snapshots herdam cipher (T2 backup theft coberto + op-audit pattern compat zero-change)
+  - Backup compat — `cp file.db` mantém cifra (no unlock externo)
+  - Open-source auditor story — Signal, 1Password, dezenas M deploys
+  - P0 spike confirmou perf real (Phase 7 steady-state): read p50 +22µs (4→26µs), FTS5 p50 +24µs (9→33µs) — projected impact on 940ms p50 hybrid search = +3-7%, fica dentro do §7 hard-gate p95 <3000ms
+  - sqlite-vec v0.1.9 carrega na DB encriptada via `loadExtension()` API; vec0 virtual table + INSERT + cosine MATCH + VACUUM INTO snapshot todos preservam dados — zero breaking
+  - Licenças compatíveis (MIT + Apache-2.0 + BSD-3-Clause), zero GPL contamination
+- **Cipher mode locked:** `PRAGMA cipher_compatibility = 4` → AES-256-CBC + HMAC-SHA512 (SQLCipher 4 default). GCM não exposto via plain PRAGMA em 4.x; CBC+HMAC pairing provê AEAD-equivalent integrity, FIPS-vetted. Satisfaz §12 hard rule "no plain CBC" — pairing is integrity-protected.
+- **NÃO FAZEMOS:**
+  - Custom VFS implementation (NIH; recon §2 rejeitado)
+  - Column-level app encryption (quebra FTS5 + sqlite-vec; recon §2 rejeitado)
+  - Static-linked custom SQLCipher build (high maintenance; D57 option b rejected)
+  - HSM/KMS integration (Tier 3.1 futuro; §11 anti-scope)
+- **Cross-links:** recon `specs/2026-05-24-A2-tier3-crypto-audit-RECON.md` §10, spike `experiments/a2-tier3-sqlcipher-spike/RESULTS.md`, memory `[[user-accepts-gemini-key-risk]]` (key-material risk posture precedent), D27 sequencing.
+- *Origem:* sessão 2026-05-24 Sat morning. Toto §10 sign-off + executor-high P0 spike pipeline. 22/22 critical gates PASS.
+
+#### D55 — `reads_audit` table opt-in default OFF via `NOX_READS_AUDIT=1`
+
+- **Pergunta:** Read-path audit (search queries, answer calls, /api/health hits) é default ON ou OFF? Trade-off privacy-by-default (Autonomy pillar) vs compliance-completeness (regulated tier)?
+- **Decisão:** **Default OFF** (recon §10 D-A2T3-2 option a). Opt-in via env `NOX_READS_AUDIT=1` (canonical name; normalized from draft `NOX_AUDIT_READS` to match table-name + existing env conventions like `NOX_SEARCH_LOG_TEXT`).
+- **Por quê:**
+  - Alinha com Autonomy pillar princípio "data é sua, provider sua escolha" — don't collect what user didn't ask
+  - Zero hot-path overhead em deploys non-regulated (early-return em wrapper antes de qualquer SQL)
+  - Regulated tier (LGPD/HIPAA/SOC2) habilita via single env var — discoverable, doc em DEPLOY-A2-T3.md
+  - Trade-off T6 (read trail gap em recon §1.1) accepted in non-regulated default; mitigated via flag
+- **Implementation note:** `withReadAudit()` wrapper short-circuits when `process.env.NOX_READS_AUDIT !== '1'` — zero INSERTs, zero contention. p50 impact OFF: 0 µs. p50 impact ON: ~+0.5ms per query (single indexed row INSERT, hash precomputed).
+- **NÃO FAZEMOS:**
+  - Default ON sem opt-out (recon §10 option b violates Autonomy)
+  - NODE_ENV-conditional default (option c — too magic, env detection unreliable across CLI/MCP/cron)
+  - Log plaintext query — `query_hash` (sha256 canonical) only; secret scrubbing herda de op-audit
+- **Cross-links:** D54, recon §4.3 F1, memory `[[a1-op-audit-module]]` (parent pattern).
+- *Origem:* sessão 2026-05-24 Sat morning, Toto §10 sign-off.
+
+#### D56 — Signed checkpoints via Ed25519 manual signing (auditor-grade, offline pubkey)
+
+- **Pergunta:** Como gate forense (auditor verifiability) pro audit trail? Auto-cron HMAC (zero ops cost mas reviewer must trust host) vs Ed25519 manual (auditor-grade mas operational batch)?
+- **Decisão:** **Ed25519 manual signing** (recon §10 D-A2T3-3 option a). Toto signa checkpoints em batch semanal; cron escreve `audit_checkpoints` rows com `signature=NULL` (pending state). Public key publishable em `docs/AUDIT-PUBKEY.md`; private key off-box (Toto laptop + offline paper backup).
+- **Por quê:**
+  - Reviewer pode verify chain offline contra published public key, **sem precisar confiar no host VPS** — moat real pra Autonomy story
+  - HMAC sozinho (option b) com key in box = reviewer must trust nox-mem operator → defeats purpose pra cliente regulado
+  - Both (option c, defesa em camadas) é upgrade futuro se cliente pedir explicitamente — começar (a) sozinho
+- **Implementation note:**
+  - Cron escreve `audit_checkpoints` rows com `signature=NULL, signature_algo=NULL` (pending state)
+  - `nox-mem audit verify` reporta pending checkpoints separately from chain-broken (3-state: VERIFIED / PENDING / BROKEN)
+  - Signing tool offline: `nox-mem audit sign --since <id> --key <pubkey-hash>` assina batch + UPDATEs rows (permitido apenas quando `OLD.signature IS NULL` per trigger `trg_audit_checkpoints_no_update_finalized`)
+  - Ed25519 keypair geração one-shot via `nox-mem audit keygen` (saves pubkey em repo, private em separate file flag-protected)
+- **NÃO FAZEMOS:**
+  - Key escrow em nuvem terceira (vendor lock-in, §11 anti-scope O5)
+  - HSM/YubiKey integration v1 (Tier 3.1 futuro)
+  - Auto-sign via cron (defeats auditor-grade — reviewer must verify Toto sign manually)
+- **Cross-links:** D54, recon §4.3 F2 + §5 schema sketch (audit_checkpoints table).
+- *Origem:* sessão 2026-05-24, Toto §10 sign-off.
+
+#### D57 — Loadable extensions enabled + path allowlist + chmod 0o555 hardening
+
+- **Pergunta:** sqlite-vec é loadable extension. SQLCipher 4 permite via `enable_load_extension`. Security risk de shared lib injection se atacante escreve em workspace?
+- **Decisão:** **Yes, habilitar com hardening em camadas** (recon §10 D-A2T3-4 option a). P0 spike confirmou `sqlite-vec` v0.1.9 carrega cleanly via `loadExtension()` API. Hardening cravado em P1 spec.
+- **Por quê:**
+  - Static-linked custom build (option b) é alta manutenção: pipeline custom + sem patches upstream + bottleneck cada update sqlite-vec
+  - Spike GO removeu need pra "wait until alternatives explored" (option c)
+  - Risk mitigation em 4 camadas:
+    1. **Path allowlist** — somente `node_modules/sqlite-vec-{platform}-{arch}/vec0.{dylib,so}` resolvable; absolute path rejected se não estiver em allowlist
+    2. **chmod 0o555** em extension binary — read+execute only, NO write (previne on-disk swap do dylib)
+    3. **chmod 0o700** em parent `node_modules/sqlite-vec-*/` — only nox-mem service user pode traverse
+    4. **dylib SHA256 verification opt-in** via `NOX_VERIFY_EXTENSION_SHA256=<expected>` env (P3 future extension)
+- **Implementation note:** Add to `src/lib/db.ts` startup: `db.loadExtension(allowedPath)` only after `realpath(allowedPath)` check matches allowlist member. Reject relative paths, `..` traversal, symlinks pointing outside `node_modules/sqlite-vec-*`. Pattern lifted from op-audit snapshot path validation (memory `[[a1-op-audit-module]]` symlink-aware realpathSync).
+- **NÃO FAZEMOS:**
+  - Allow arbitrary loadExtension() paths em prod (security regression)
+  - Disable load_extension globally (breaks sqlite-vec, breaks core search)
+  - Skip dylib verification permanently — P3 extension obriga `NOX_VERIFY_EXTENSION_SHA256` em regulated tier
+- **Cross-links:** D54, recon §3.4 + §10 D-A2T3-4, spike Phase 4 + Phase 8 PASS results, memory `[[a1-op-audit-module]]`.
+- *Origem:* sessão 2026-05-24, Toto §10 sign-off, hardened via P0 spike empírico.
+
+#### D58 — `reads_audit` retention env-driven 90d default + archive (não delete) policy
+
+- **Pergunta:** Quanto tempo manter read trail antes de archive-out? 30d (privacy max) / 90d (compliance default) / indefinite (storage blow-up) / env-driven?
+- **Decisão:** **Env-driven `NOX_READS_AUDIT_RETENTION_DAYS` default 90, archive policy (não delete)** (recon §10 D-A2T3-5 option d). Move logic em separate `nox-mem-audit-archive.db` file (também SQLCipher-encrypted, same key); main `reads_audit` mantém append-only invariant.
+- **Por quê:**
+  - Alinha com `retention_days` schema convention existente (chunks daily=90d, lesson=180d, decision=365d, feedback/person=NULL) — operator aprende UM padrão só
+  - Archive (não delete) preserva forensic completeness — reviewer pode reconstruir histórico full
+  - 30d default (option a) curto demais pra quarterly compliance reviews
+  - Indefinite (option c) explode storage em high-cardinality search workloads (estimate ~100k+ rows/month em dev ativo, ~5MB/month)
+  - Env-driven permite regulated user override (`NOX_READS_AUDIT_RETENTION_DAYS=365`) sem code change
+- **Implementation note:**
+  - Cron weekly (NOT daily — table will be small, weekly suffices)
+  - Archive mechanism é LOGICAL (separate file), main table never DELETEs (preserves trg_no_delete invariant)
+  - Query union: `SELECT * FROM reads_audit WHERE ts >= now() - retention UNION ALL SELECT * FROM archive.reads_audit WHERE ts < now() - retention`
+  - Archive file rsync-friendly off-box for regulated tier (opt-in, NÃO default — alinha com `[[no-f09-offsite-backup]]`)
+  - Storage cost: ~50 bytes/row × 100k = 5MB/month — negligible em DB que já tem 62.9k chunks @ ~200MB
+- **NÃO FAZEMOS:**
+  - DELETE rows do main table (quebra append-only invariant cravado D55+W2-1)
+  - Auto off-site backup (`[[no-f09-offsite-backup]]` memory, Toto rejeitou 2× já)
+  - Retention applied ao `ops_audit` (continua indefinite — destructive ops são raros, ~12/day; bounded growth)
+  - Retention applied ao `audit_checkpoints` (chain integrity exige todos checkpoints — indefinite mandatory)
+- **Cross-links:** D54, D55, recon §6 retention table, memory `[[no-f09-offsite-backup]]`, schema v.30 bump.
+- *Origem:* sessão 2026-05-24, Toto §10 sign-off, retention pattern alinhado com `retention_days` schema convention.
