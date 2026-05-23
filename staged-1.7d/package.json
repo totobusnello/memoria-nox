@@ -1,0 +1,20 @@
+{
+  "name": "nox-mem-f10-phase-d-shadow",
+  "version": "0.1.0-f10-phase-d",
+  "private": true,
+  "type": "module",
+  "description": "F10 Phase D — shadow tracker (closes F10 observability suite)",
+  "scripts": {
+    "build": "tsc -p tsconfig.shadow-build.json",
+    "check": "tsc -p tsconfig.shadow-build.json --noEmit",
+    "test": "tsc -p tsconfig.shadow-build.json && node --test dist-shadow/edits/src/lib/__tests__/shadow-tracker.test.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}
