@@ -1,18 +1,19 @@
 {
   "name": "nox-mem-a2-tier3-staged",
-  "version": "0.4.0-a2-tier3-p4",
+  "version": "0.5.0-a2-tier3-p5",
   "private": true,
   "type": "module",
-  "description": "A2 Tier 3 staged code — P1 db.ts SQLCipher key-open wire-up + P2 plaintext-to-encrypted migration script + P3 reads_audit opt-in wrapper + retention sweep + P4 Ed25519 signed audit checkpoints (auditor-grade chain verification). Wraps better-sqlite3-multiple-ciphers with NOX_DB_KEY env-driven PRAGMA key + cipher_compatibility=4 + defaultSafeIntegers(true).",
+  "description": "A2 Tier 3 staged code — P1 db.ts SQLCipher key-open wire-up + P2 plaintext-to-encrypted migration script + P3 reads_audit opt-in wrapper + retention sweep + P4 Ed25519 signed audit checkpoints + P5 deployment runbook/automation/smoke. Wraps better-sqlite3-multiple-ciphers with NOX_DB_KEY env-driven PRAGMA key + cipher_compatibility=4 + defaultSafeIntegers(true).",
   "scripts": {
     "copy-sql": "mkdir -p dist/edits/src/lib && cp edits/src/lib/reads-audit-schema.sql dist/edits/src/lib/reads-audit-schema.sql && cp edits/src/lib/audit-checkpoints-schema.sql dist/edits/src/lib/audit-checkpoints-schema.sql",
     "build": "tsc && npm run copy-sql",
     "check": "tsc --noEmit",
     "test": "tsc && npm run copy-sql && node --test dist/edits/src/lib/__tests__/*.test.js dist/scripts/__tests__/*.test.js",
     "test:p1": "tsc && npm run copy-sql && node --test dist/edits/src/lib/__tests__/db.crypto.test.js",
-    "test:p2": "tsc && npm run copy-sql && node --test dist/scripts/__tests__/*.test.js",
+    "test:p2": "tsc && npm run copy-sql && node --test dist/scripts/__tests__/migrate-encrypt-db.test.js",
     "test:p3": "tsc && npm run copy-sql && node --test dist/edits/src/lib/__tests__/reads-audit.test.js",
     "test:p4": "tsc && npm run copy-sql && node --test dist/edits/src/lib/__tests__/audit-checkpoints.test.js",
+    "test:p5": "tsc && npm run copy-sql && node --test dist/scripts/__tests__/post-deployment-smoke.test.js",
     "migrate": "npm run build && node dist/scripts/migrate-encrypt-db.js",
     "audit-checkpoint": "npm run build && node dist/edits/scripts/audit-checkpoint-cli.js"
   },
