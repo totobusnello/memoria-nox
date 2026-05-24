@@ -125,12 +125,22 @@ fi
 mkdir -p "${BUILD_DIR}"
 
 # ---------------------------------------------------------------------------
+# LaTeX preamble for Unicode monospace font (fix for xelatex warnings)
+# ---------------------------------------------------------------------------
+PREAMBLE_FILE="${REPO_ROOT}/paper/preamble.tex"
+if [[ ! -f "$PREAMBLE_FILE" ]]; then
+  err "Arquivo preamble não encontrado: ${PREAMBLE_FILE}"
+  exit 2
+fi
+
+# ---------------------------------------------------------------------------
 # Pandoc common flags
 # ---------------------------------------------------------------------------
 PANDOC_BASE_FLAGS=(
   --from=markdown+smart
   --standalone
   --citeproc
+  --include-in-header="${PREAMBLE_FILE}"
 )
 
 if [[ -n "$REFS_FLAG" ]]; then
