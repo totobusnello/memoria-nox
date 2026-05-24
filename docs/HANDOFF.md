@@ -58,6 +58,7 @@ Three independent failure modes confirm mem0's cap@500 advantage is **structural
 | **Cron freeze descongelamento** | After parallel session confirms reindex smoke green | Operator (parallel session) | 🔄 Cleared to lift |
 | **SDK Build & Publish Node 20 deprecation** | Before 2026-06-02 | Follow-up PR | ⏳ Annotated; not blocking |
 | **`/api/answer` spec/types re-alignment** | Lab Q1 | Lab | ⏳ Follow-up (committed types.ts vs spec divergence documented) |
+| **`nox-workspace` `.git/objects` scrub (mac-docs)** | Pós-launch 2026-06-04+ | Toto + operator | 🔄 **9G pack** = `memory/mac-docs/` PPTX/PDFs pessoais/jurídicos commitados (SELJ relatórios, VERRE processos, NUVIVI Keiretsu, CONTRATOS). Repo é PRIVATE mas history retém. Plan: `git filter-repo --path memory/mac-docs/ --invert-paths --force` + gitignore + force-push origin. **NÃO executar pré-launch** (force-push em janela crítica). Backup pré-scrub: `tar -czf /var/backups/nox-workspace-pre-scrub-<date>.tar.gz workspace/.git workspace/memory/mac-docs`. Espera-se ~8.5G reduction. Cleanup disk Sat 2026-05-24 (P2+P3+P4) liberou 5G real; este P1 libera os 8.5G restantes do hog principal. |
 
 ---
 
