@@ -52,16 +52,18 @@ Custo: zero código, só doc estruturada.
 
 ### P3. Tabela "Autonomy quantificada"
 
-Headline factual: **"100× menos overhead que EverOS"**.
+Headline factual: **"~12× menos RSS que EverOS, processo único, sem service stack"** *(corrigido 2026-05-24 noite com medição real de prod — ver nota abaixo)*.
 
 | Sistema | Serviços | RAM idle | Cold start | API keys obrigatórias | Setup commands |
 |---|---:|---:|---:|---:|---:|
-| **nox-mem** | **1** (SQLite file) | **~50MB** | **<1s** | **0** (offline-ok) | **1** (`npm i`) |
+| **nox-mem** | **1** (SQLite file) | **~341 MB RSS** [medido 2026-05-24] | **<1s** | **0** (offline-ok) | **1** (`npm i`) |
 | mem0 | 2 (Postgres + Qdrant) | ~800MB | ~15s | 1 (OpenAI) | ~5 |
 | Letta | 3 (Docker + PG + OpenAI) | ~1.5GB | ~30s | 1 (OpenAI) | ~8 |
 | Zep OSS | 2 (Docker + PG) | ~1.2GB | ~30s | **1 obrigatória (OpenAI)** | ~6 |
 | EverOS | **5** (Mongo+ES+Milvus+Redis+PG) | **~4GB+** | **~60s** | 2-3 | ~15+ |
 | LightRAG | 2 (Neo4j + vector DB) | ~1GB | ~20s | 1 | ~6 |
+
+> **Nota medição real (2026-05-24 noite):** `ps -o rss=` retornou 349.276 KB (≈341 MB RSS). Cgroup `MemoryCurrent` = ~727 MB; delta ~386 MB = page cache SQLite (chunks + FTS5 + vec0) — kernel-managed, reclaimable. RSS é a métrica canônica usada na tabela. Original `~50 MB` era upper-bound estimado (Node baseline + better-sqlite3 cache). Headline headline corrigida de "100×" para "~12×".
 
 ### P4. Abstract reframe — "pain-weighted hybrid memory" como single design principle
 
@@ -156,7 +158,7 @@ Depende da implementação do C1.1 (`answer` primitive).
 | **1** | Abstract reframe: "pain-weighted hybrid memory" como single design principle | doc | 30min | Tagline defensável |
 | **2** | Tabela "Six Gaps" como nova Table 1 do paper | doc | 1h | Spine narrativo igual MeMo |
 | **3** | §4.X "Self-Evolution" descrevendo reflect/crystallize/consolidate | doc | 2h | Counter EverOS EvoAgentBench |
-| **4** | Tabela "Autonomy quantificada" (serviços/RAM/cold start) | doc | 1h | Headline "100× menos overhead" |
+| **4** | Tabela "Autonomy quantificada" (serviços/RAM/cold start) | doc | 1h | Headline "~12× menos RSS" (corrigido com medição real 2026-05-24) |
 | **5** | `answer` + temporal queries implementadas no CLI/API/MCP | código | ~7h | Habilita "3 primitives" tagline + Gap #2 |
 
 ---
