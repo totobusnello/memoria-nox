@@ -1,0 +1,166 @@
+% refs.bib — Referências canônicas do paper nox-mem
+% Uso: §5.5 G10d, §5.6/§5.7 ablações, §6 Q4 COMPARISON
+% Verificação URLs/DOIs/arXiv: CONCLUÍDA 2026-05-22 (ver paper/refs-verification-log.md)
+% Pendências residuais documentadas no log — ver seção SKIPPED/MANUAL
+
+% ============================================================
+% §6 Q4 COMPARISON — sistemas concorrentes
+% ============================================================
+
+@misc{mem0_2024,
+  author       = {{Mem0 Contributors}},
+  title        = {{Mem0}: The Memory Layer for {AI} Agents},
+  year         = {2024},
+  howpublished = {\url{https://github.com/mem0ai/mem0}},
+  note         = {Version latest-stable. Acesso: 2026-05-22. GitHub verificado 200. % VERIFIED 2026-05-22 — repo OK; no arXiv paper found as of verification date}
+}
+
+@misc{zep_2024,
+  author       = {{Zep AI}},
+  title        = {Zep: Long-Term Memory for {AI} Assistants},
+  year         = {2024},
+  howpublished = {\url{https://github.com/getzep/zep}},
+  note         = {Repositório oficial getzep/zep. GitHub verificado 200. % VERIFIED 2026-05-22 — repo OK; paper "Zep: A Temporal Knowledge Graph Architecture for Agent Memory" não localizado em arXiv como publicação formal; citar como software}
+}
+
+@article{packer2023memgpt,
+  author       = {Packer, Charles and Wooders, Sarah and Lin, Kevin and Fang, Vivian and Patil, Shishir G. and Stoica, Ion and Gonzalez, Joseph E.},
+  title        = {{MemGPT}: Towards {LLMs} as Operating Systems},
+  journal      = {arXiv preprint arXiv:2310.08560},
+  year         = {2023},
+  eprint       = {2310.08560},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.AI},
+  url          = {https://arxiv.org/abs/2310.08560},
+  note         = {Framework Letta (letta-ai/letta) é a produtização do MemGPT. % VERIFIED 2026-05-22 — arXiv 200, autores confirmados via abstract page}
+}
+
+@misc{letta_2024,
+  author       = {{Letta Contributors}},
+  title        = {Letta: Open {LLM} Agent Framework with Stateful Memory},
+  year         = {2024},
+  howpublished = {\url{https://github.com/letta-ai/letta}},
+  note         = {Antigo MemGPT; ver também \cite{packer2023memgpt}. Acesso: 2026-05-22. GitHub verificado 200 (letta-ai/letta, criado 2023-10-11). % VERIFIED 2026-05-22}
+}
+
+@misc{agentmemory_2026,
+  author       = {Garg, Rohit},
+  title        = {agentmemory: \#1 Persistent Memory for {AI} Coding Agents},
+  year         = {2026},
+  howpublished = {\url{https://github.com/rohitg00/agentmemory}},
+  note         = {Repositório rohitg00/agentmemory. GitHub verificado 200. Criado 2026-02-25 (não 2024 como indicado inicialmente). % VERIFIED 2026-05-22 — ano corrigido para 2026; author handle rohitg00 confirmado; título atualizado per descrição do repo}
+}
+
+@misc{evermind_2025,
+  author       = {{EverMind-AI Contributors}},
+  title        = {{EverOS}: Self-Organizing Memory Operating System for Long-Horizon Reasoning},
+  year         = {2025},
+  howpublished = {\url{https://github.com/EverMind-AI/EverOS}},
+  note         = {GitHub verificado 200 (criado 2025-10-28, 5469+ stars). Paper associado: EverMemOS arXiv:2601.02163 (Hu et al., 2026). % VERIFIED 2026-05-22 — repo OK; ano corrigido para 2025; título alinhado com paper EverMemOS; arXiv paper encontrado}
+}
+
+% ============================================================
+% §5 / §6 — KG e busca híbrida
+% ============================================================
+
+@article{guo2024lightrag,
+  author       = {Guo, Zirui and Xia, Lianghao and Yu, Yanhua and Ao, Tu and Huang, Chao},
+  title        = {{LightRAG}: Simple and Fast Retrieval-Augmented Generation},
+  journal      = {arXiv preprint arXiv:2410.05779},
+  year         = {2024},
+  eprint       = {2410.05779},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.IR},
+  url          = {https://arxiv.org/abs/2410.05779},
+  note         = {HKUDS group. Repositório: HKUDS/LightRAG (35k+ stars, MIT). Referenciado em nox-mem pelo padrão de KG incremental merge com LLM summarization de descrições duplicadas. % VERIFIED 2026-05-22 — arXiv 200; autores corrigidos (eram Edge et al. / Microsoft GraphRAG — ERRO); chave renomeada de edge2025lightrag para guo2024lightrag}
+}
+
+% ============================================================
+% Benchmarks usados em §5 (LongMemEval, LoCoMo)
+% ============================================================
+
+@article{wu2024longmemeval,
+  author       = {Wu, Di and Wang, Hongwei and Yu, Wenhao and Zhang, Yuwei and Chang, Kai-Wei and Yu, Dong},
+  title        = {{LongMemEval}: Benchmarking Chat Assistants on Long-Term Interactive Memory},
+  journal      = {arXiv preprint arXiv:2410.10813},
+  year         = {2024},
+  eprint       = {2410.10813},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CL},
+  url          = {https://arxiv.org/abs/2410.10813},
+  note         = {ICLR 2025. % VERIFIED 2026-05-22 — arXiv 200; autores corrigidos (He Hongwei→Wang Hongwei, Liu Wenhao→Yu Wenhao, demais substituídos); venue confirmado: ICLR 2025 via arXiv comments}
+}
+
+@article{maharana2024locomo,
+  author       = {Maharana, Adyasha and Lee, Dong-Ho and Tulyakov, Sergey and Bansal, Mohit and Barbieri, Francesco and Fang, Yuwei},
+  title        = {Evaluating Very Long-Term Conversational Memory of {LLM} Agents},
+  journal      = {arXiv preprint arXiv:2402.17753},
+  year         = {2024},
+  eprint       = {2402.17753},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CL},
+  url          = {https://arxiv.org/abs/2402.17753},
+  note         = {Dataset LoCoMo. Venue: verificar ACL 2024 — arXiv comments não confirmam explicitamente; journal_ref ausente. % VERIFIED 2026-05-22 — arXiv 200; autores corrigidos (Dernoncourt,Franck→Barbieri,Francesco; Kim,Doo Soon→Fang,Yuwei); venue SKIPPED-MANUAL-TUE}
+}
+
+% ============================================================
+% Algoritmos de retrieval — §3 fundamentos
+% ============================================================
+
+@inproceedings{cormack2009rrf,
+  author       = {Cormack, Gordon V. and Clarke, Charles L. A. and Buettcher, Stefan},
+  title        = {Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods},
+  booktitle    = {Proceedings of the 32nd International {ACM} {SIGIR} Conference on Research and Development in Information Retrieval},
+  year         = {2009},
+  pages        = {758--759},
+  publisher    = {ACM},
+  doi          = {10.1145/1571941.1572114},
+  url          = {https://dl.acm.org/doi/10.1145/1571941.1572114},
+  note         = {Algoritmo RRF usado na fusão BM25 + semântico (k=60). % VERIFIED 2026-05-22 — DOI resolves 302→dl.acm.org (403 expected for bots; DOI valid)}
+}
+
+@article{robertson2009bm25,
+  author       = {Robertson, Stephen and Zaragoza, Hugo},
+  title        = {The Probabilistic Relevance Framework: {BM25} and Beyond},
+  journal      = {Foundations and Trends in Information Retrieval},
+  volume       = {3},
+  number       = {4},
+  pages        = {333--389},
+  year         = {2009},
+  publisher    = {Now Publishers},
+  doi          = {10.1561/1500000019},
+  url          = {https://doi.org/10.1561/1500000019},
+  note         = {Base teórica do FTS5 BM25 no SQLite. % VERIFIED 2026-05-22 — DOI resolves 302→nowpublishers/emerald (403 expected for bots; DOI valid)}
+}
+
+% ============================================================
+% Infraestrutura — §3 stack
+% ============================================================
+
+@misc{garcia2024sqlitevec,
+  author       = {Garcia, Alex},
+  title        = {sqlite-vec: A Vector Search Extension for {SQLite}},
+  year         = {2024},
+  howpublished = {\url{https://github.com/asg017/sqlite-vec}},
+  note         = {Repositório asg017/sqlite-vec (criado 2024-04-20, 7622+ stars). Extensão usada para vetores 3072d (Gemini) em nox-mem. % VERIFIED 2026-05-22 — GitHub 200; author Garcia,Alex confirmed; no formal VLDB/academic paper found as of verification date}
+}
+
+@misc{google2024geminiembedding,
+  author       = {{Google DeepMind}},
+  title        = {Gemini Embedding Model: \texttt{gemini-embedding-001}},
+  year         = {2024},
+  howpublished = {\url{https://ai.google.dev/gemini-api/docs/models}},
+  note         = {Modelo usado em nox-mem para embeddings 3072d. % VERIFIED 2026-05-22 — URL returns 200; paper técnico canônico: citar Gemini Technical Report se disponível antes de arXiv submit; URL suficiente para software cite}
+}
+
+% ============================================================
+% Referência interna — sistema nox-mem
+% ============================================================
+
+@misc{busnello2026noxmem,
+  author       = {Busnello, Luiz Antonio},
+  title        = {nox-mem: Pain-Weighted Hybrid Memory with Shadow Discipline},
+  year         = {2026},
+  howpublished = {\url{https://github.com/totobusnello/memoria-nox}},
+  note         = {Sistema descrito neste paper. v3.7, May 2026. Inclui G10d per-category mutex (§5.5), salience formula (§5.6), temporal spike v2 (§5.7). % VERIFIED 2026-05-22 — GitHub repo public (200); URL canônica confirmada; CITATION.cff usa mesmo URL (commit 112798f); atualizar nota com arXiv ID após submit 2026-06-02}
+}
