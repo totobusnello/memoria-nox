@@ -56,14 +56,16 @@
 | 06:30 | 05:30 | 02:30 | Verificar VPS health + /api/answer smoke test | Infra |
 | 07:00 | 06:00 | 03:00 | Twitter thread T1 postado (prime time leste dos EUA abrindo) | Twitter |
 | 07:05 | 06:05 | 03:05 | T2–T9 postados em sequência (1 por minuto) | Twitter |
-| 07:15 | 06:15 | 03:15 | HN Show HN submetido (janela ótima: 06–08 ET) | HN |
 | 07:30 | 06:30 | 03:30 | Reddit r/MachineLearning post submetido | Reddit |
 | 07:45 | 06:45 | 03:45 | Reddit r/LocalLLaMA post (se relevante para Autonomy pillar) | Reddit |
-| 08:00 | 07:00 | 04:00 | Janela de crítica HN abre — monitorar + responder comentários (priori: top thread) | HN |
 | 09:00 | 08:00 | 05:00 | Blog post publicado no site pessoal (se planejado) | Blog |
 | 09:05 | 08:05 | 05:05 | Tweet repromovendo blog post (linkar para post + arXiv) | Twitter |
 | 09:30 | 08:30 | 05:30 | Responder primeiros comentários Reddit | Reddit |
-| 10:00 | 09:00 | 06:00 | Trendshift submission (link repo + descrição curta) | Trendshift |
+| **10:00** | **09:00** | **06:00** | **HN Show HN submetido** ← SHIFTED (era 07:15 BRT / 06:15 ET; nova janela 09:00 ET = peak HN; ver análise em `docs/launch-hn-submission-final.md §5`) | **HN** |
+| **10:01** | **09:01** | **06:01** | **Maker first comment postado no HN (dentro de 60s da submissão)** — copy em `docs/launch-hn-submission-final.md §4` | **HN** |
+| 10:05 | 09:05 | 06:05 | Verificar comment apareceu; refresh thread | HN |
+| 10:30 | 09:30 | 06:30 | Primeiro sweep de replies HN (top comments por pontuação) | HN |
+| 10:30 | 09:30 | 06:30 | Trendshift submission (link repo + descrição curta) | Trendshift |
 | 11:00 | 10:00 | 07:00 | LinkedIn announcement (opcional — audiência diferente de HN/Twitter) | LinkedIn |
 | 12:00–18:00 | 11:00–17:00 | 08:00–14:00 | Janela ativa de respostas — HN / Twitter / Reddit / DMs | Todos |
 | 18:00 | 17:00 | 14:00 | Checkpoint de métricas do meio do dia (ver §5) | — |
@@ -72,7 +74,7 @@
 | 22:30 | 21:30 | 18:30 | Último checkpoint HN (se ainda na front page — responder threads ativos) | HN |
 
 ### Notas de timing
-- **HN:** submeter entre 07:00–09:00 ET (06:00–08:00 ET = janela ótima para Show HN). Não submeter durante fins de semana ou feriados EUA.
+- **HN:** submeter às **10:00 BRT = 09:00 ET** (peak window; original 07:15 BRT / 06:15 ET era sub-ótimo — análise completa em `docs/launch-hn-submission-final.md §5`). Não submeter durante fins de semana ou feriados EUA.
 - **Twitter:** 07:00 BRT = 06:00 ET = janela matinal costa leste, antes do rush de 09:00 ET.
 - **PH:** votações pesam mais nas primeiras 6h. Votos de 00:01–06:00 PST são críticos para ranking diário.
 - **Reddit r/ML:** postar logo após HN para efeito de cross-canal. Incluir flair correto (Research, Project).
@@ -123,9 +125,11 @@
 - [ ] Último tweet tem link para repo + arXiv
 
 ### HN Show HN
-- [ ] Body salvo em arquivo local (copiar/colar no dia)
-- [ ] Título no formato: `Show HN: <nome> – <tagline de uma linha>`
-- [ ] Body tem: O que é, Como funciona (1 parágrafo), Benchmark highlight, Link repo + arXiv
+- [ ] **Title + body + maker comment FINAL** lidos em `docs/launch-hn-submission-final.md` (§1, §3, §4) — copy-paste ready
+- [ ] **Timing:** 10:00 BRT (09:00 ET) — NÃO 07:15 BRT (ver análise §5 do mesmo doc)
+- [ ] arXiv link preenchido no maker comment antes de postar (aguardar ID chegar Ter 06-02 noite)
+- [ ] Title escolhido: `Show HN: nox-mem – SQLite-based hybrid memory for LLM agents (FTS5 + vec0 + RRF)`
+- [ ] Body tem: O que é, motivação, stack, benchmark highlight honesto (LoCoMo +40% com caveat), link arXiv
 - [ ] Sem hipérboles ("melhor do mundo", "revolucionário") — HN penaliza
 
 ### Reddit r/MachineLearning
