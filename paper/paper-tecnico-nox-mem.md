@@ -493,6 +493,7 @@ Para evitar viés de seleção retroativo:
 - **Latência worst-case reportada.** p50 + p95 + p99 explícitos. Não publicamos apenas p50.
 - **Per-system per-category transparency.** A tabela de §6.4 expõe cada combinação; não há linha agregada que mascare um padrão.
 - **Gaps documentados.** Sistemas que falharem setup recebem nota explícita; a comparação roda sem o sistema faltante, mas o gap é registrado em `docs/COMPARISON.md`.
+- **H2 finding — apples-cap row reportada explicitamente (PR #311, 2026-05-24).** A hipótese H2 confirmou que a vantagem de concentração do mem0 (nDCG@10 = 0.1315 vs nox-mem FTS5@500 = 0.0466 ao mesmo corpus de 500 chunks) é **real e arquitetural**, não artefato de corpus-cap. O LLM-rewriting do mem0 produz generalização semântica que FTS5 isolado não consegue a corpora esparsas. Reportamos **tanto a linha full-corpus quanto a linha apples-cap** porque qualquer uma isolada é enganosa: a linha full-corpus favorece nox-mem (cobertura zero-custo); a linha apples-cap favorece mem0 (concentração). "We report both apples-cap AND full-corpus rows because either alone misleads." Ref: `docs/COMPARISON.md §Apples-to-apples corpus-cap comparison`, PR #311.
 
 ### 6.7 Pre-registration
 

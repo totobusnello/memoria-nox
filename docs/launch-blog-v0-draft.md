@@ -70,16 +70,30 @@ Retrieval de memória que não mede não sabe se funciona. memoria-nox roda cont
 | LoCoMo gold hits | **7/10 (70%)** |
 | LongMemEval gold hits | **6/10 (60%)** |
 
-**Side-by-side com mem0 — primeiro número cross-system real (Sat 2026-05-24 18h BRT):**
+**Side-by-side com mem0 — comparação completa (Sat 2026-05-24, PR #311):**
+
+**Full-corpus vs capped (não apples-to-apples):**
 
 | Sistema | Corpus | Hits | nDCG@10 | MRR | R@10 | p50 |
 |---|---|---:|---:|---:|---:|---:|
 | **nox-mem** | 6.822 chunks (full, ingest local zero-custo) | **13/20 (65%)** | 0.6380 | **0.3700** | **0.5417** | **8ms** |
-| **mem0** | 500 chunks (cap ~8%, $0.10 ingest) | 3/20 (15%) | **0.8569** | 0.1167 | 0.2500 | 273ms |
+| **mem0** | 500 chunks (cap ~8%, $0.10 ingest) | 3/20 (15%) | 0.1315 | — | — | 273ms |
 
-30× mais rápido. 4× mais hits. MRR 3× melhor. O trade-off real: mem0 opera com janela menor (500 chunks por cost-control), o que reduz competição entre candidatos e infla o nDCG@10 per-resultado — resultados são menos frequentes, mas quando chegam tendem a aparecer no topo. nox-mem ingere o corpus completo local, zero-custo, cobrindo 4× mais queries com first-hit mais cedo. Com corpus uniforme (sem cap), o run canônico será o árbitro do gap nDCG real.
+**Apples-to-apples (mesmo 500 chunks, corpus-cap uniform):**
 
-> **Honestidade obrigatória.** Esses números vêm do **smoke de 20 queries** (10 por dataset, dry-run-sample), com a base de comparação D43 (gate +18.8%) batida no nDCG@10 0.6380. O **run canônico** — 100 queries × 2 datasets × 6 sistemas, corpus uniforme sem cap — **ainda está em execução**: 4 adapters restantes (Zep, Letta, agentmemory, EverMind-AI) em setup. `benchmark/COMPARISON.md` será atualizado quando o run completo cravar. Nada é dado como definitivo antes do run canônico.
+| Sistema | Corpus | nDCG@10 | Mode |
+|---|---|---:|---:|
+| **nox-mem FTS5@500** | 500 (cap) | 0.0466 | FTS5-only, sem Gemini |
+| **mem0@500** | 500 (cap) | **0.1315** | LLM rewrite + embed |
+
+**O que os números dizem — honestamente.** Arquiteturas diferentes servem casos de uso diferentes:
+
+- **mem0** — concentração: LLM-rewriting generaliza semanticamente em corpora esparsas. Ao mesmo corpus-cap de 500 chunks, mem0 (0.1315) supera nox-mem FTS5-only (0.0466). Essa vantagem é **real e arquitetural**, não artefato do cap — confirmado em PR #311 (H2).
+- **nox-mem** — cobertura + velocidade + custo: ingere o corpus completo local, zero-custo por query, 30× mais rápido (8ms vs 273ms p50), cobrindo 4× mais queries com first-hit mais cedo (MRR 3× melhor no full-corpus).
+
+**Trade-off explícito:** se você quer respostas concentradas a qualquer custo num corpus pequeno, mem0 vence hoje. Se você quer memória full-coverage zero-custo-por-query que escala com seu corpus, nox-mem é a arquitetura. O Gemini hybrid@500 (experiment Lab Q1 E1) vai determinar se o gap apples-cap se fecha com o stack completo.
+
+> **Honestidade obrigatória.** Reportamos tanto a linha full-corpus quanto a linha apples-cap porque qualquer uma isolada é enganosa. O run canônico — corpus uniforme sem cap para todos os 6 sistemas — é o árbitro definitivo. `docs/COMPARISON.md` atualiza quando cravar.
 
 Memórias relacionadas: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
@@ -203,4 +217,4 @@ memoria-nox nasceu da necessidade real de persistir decisões, incidentes e liç
 
 ---
 
-*Lançamento Wed 2026-06-03. Smoke Q4 nox-mem cravado Sat 2026-05-24 15h30 BRT (nDCG@10 0.6380, p50 8ms, 13/20 gold hits). Cross-system parcial Sat 2026-05-24 18h BRT: nox-mem vs mem0 (500-cap) — 30× faster, 4× hit-rate, 3× MRR. Run canônico completo (6 sistemas, corpus uniforme) fecha `benchmark/COMPARISON.md` antes do launch.*
+*Lançamento Wed 2026-06-03. Smoke Q4 nox-mem cravado Sat 2026-05-24 (nDCG@10 0.6380, p50 8ms, 13/20 gold hits). Cross-system Sat 2026-05-24: full-corpus nox-mem 30× mais rápido e 4× mais cobertura que mem0@500-cap; apples-cap (500 chunks): mem0 0.1315 vs nox-mem FTS5 0.0466 — concentração real, arquitetura diferente. Ambas as linhas em `docs/COMPARISON.md`. Run canônico completo (6 sistemas, corpus uniforme) fecha antes do launch.*

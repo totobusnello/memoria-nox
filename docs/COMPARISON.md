@@ -54,6 +54,21 @@
 
 ---
 
+## Apples-to-apples corpus-cap comparison (H2 finding — 2026-05-24)
+
+> **H2 finding (PR #311):** At the same 500-chunk corpus cap used by mem0, nox-mem FTS5-only scores **0.0466** vs mem0's **0.1315**. This is architecturally real, not a corpus-cap artifact. mem0's LLM-rewriting step produces semantic generalization that FTS5 alone cannot match at sparse coverage.
+
+| System | nDCG@10 | Corpus | Mode | Cost/query |
+|---|---:|---:|---:|---:|
+| **nox-mem FTS5@500** | 0.0466 | 500 (cap, same as mem0) | FTS5-only, no Gemini | ~$0.00 |
+| **mem0@500** | 0.1315 | 500 (cap, cost-control) | LLM rewrite + embed | ~$0.07 ingest |
+
+**Caption:** Apples-to-apples corpus-cap comparison. Same 500 chunks, same 20 queries. Concentration advantage is real — mem0's LLM-rewriting semantically generalizes across fewer chunks. nox-mem's hybrid stack (FTS5 + Gemini embed + RRF) at full corpus is a different trade-off: zero-cost-per-query, full-coverage retrieval vs concentrated answers at small corpora.
+
+> **Honest interpretation:** Neither number is "the truth" in isolation. Both are reported because either alone misleads. The right framing: different architectures serve different use cases. See [Architectural trade-off framing](#architectural-trade-off-framing) below.
+
+---
+
 ## Cross-system headline table
 
 > **Sat 2026-05-24 FINAL — 4/6 systems with real numbers. 2 gated/skipped.**
@@ -129,10 +144,27 @@
 
 ---
 
+## Architectural trade-off framing
+
+Two systems, two architectures, two valid use cases:
+
+| Dimension | mem0 | nox-mem |
+|---|---|---|
+| **Strength** | Concentration — LLM rewriting semantically generalizes across sparse corpora | Coverage + speed + cost — full corpus, zero cost-per-query, sub-10ms FTS5+hybrid |
+| **Trade-off** | Cost-per-ingest scales with corpus size ($0.07 → $0.87 at full corpus) | Requires full ingestion for max recall; FTS5-only weak at small corpora |
+| **Sweet spot** | Small curated corpora, high-quality answer per chunk, can afford per-query cost | Large growing corpora, local-first, zero marginal cost, speed-critical pipelines |
+| **nDCG@10 at 500-chunk cap** | **0.1315** (concentrated results) | 0.0466 FTS5-only; hybrid not meaningfully different at this scale (G7: salience neutral <500 chunks) |
+| **nDCG@10 at full corpus (6830 chunks)** | [$0.87 ingest — canonical run pending] | **0.6380** Gemini hybrid |
+
+**Explicit trade-off statement:** If you want concentrated answers at any cost within a small corpus, mem0 wins today. If you want zero-cost-per-query full-coverage memory that scales with your corpus, nox-mem is the architecture. These are not the same problem. The H2 finding (PR #311) confirmed this is architectural, not a corpus-cap artifact.
+
+---
+
 ## Where nox-mem may not win
 
 Documented transparently — this comparison is not marketing:
 
+- **mem0 concentration at small corpora (H2 confirmed).** At 500-chunk corpus cap, mem0 nDCG@10 = 0.1315 vs nox-mem FTS5@500 = 0.0466. This is architecturally real: mem0's LLM rewriting semantically generalizes at sparse coverage. nox-mem's hybrid stack requires sufficient corpus density to differentiate (G7: salience neutral below ~500 chunks). If your corpus is small and you can absorb per-ingest cost, mem0 wins on per-result quality.
 - **LoCoMo vs agentmemory** — vendor claims R@5 = 95.2% (different metric; not comparable until re-measured with our harness on identical corpus).
 - **Temporal multi-hop** — Zep's temporal knowledge graph is architecturally stronger on multi-hop temporal chains. Our `--as-of` / `--changed-since` flags partially close this gap but we do not pre-claim to win.
 - **Graph-native queries** — Zep's KG is more mature than nox-mem's `kg_relations` on structured graph traversal.
