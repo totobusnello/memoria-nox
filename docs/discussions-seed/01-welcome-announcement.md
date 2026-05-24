@@ -6,7 +6,17 @@ nox-mem is a hybrid long-term memory engine for AI agents: it combines BM25 full
 
 ## Three pillars
 
-**Quality** — benchmarked retrieval, not vibes. We track nDCG@10 and MRR on our eval corpus every time we change the search stack. Current numbers are in the README comparison chart. The paper (arXiv, link pending Tue 2026-06-01) documents methodology.
+**Quality** — benchmarked retrieval, not vibes. We track nDCG@10 and MRR on our eval corpus every time we change the search stack. Q4 cross-system comparison (definitive, 2026-05-24):
+
+| System | nDCG@10 | p50 latency | Corpus cap |
+|---|---:|---:|---:|
+| nox-mem (Gemini hybrid) | **0.6380** | ~940ms | 100% |
+| nox-mem (FTS5-only) | **0.3753** | 7–12ms | 100% |
+| agentmemory | 0.1376 | 14ms | 20% |
+| mem0 | 0.1315 | 263ms | 7.3% |
+| Letta | partial eval | 14,978ms | — |
+
+Full table with methodology disclosure: `benchmark/COMPARISON.md`. The paper (arXiv, link pending Tue 2026-06-01) documents the ablation methodology.
 
 **Autonomy** — MIT license, SQLite on disk, provider-swappable embedding layer. You can run this fully offline with a local embedding model. No API key required for the core; Gemini is the default because it performs best in our ablations, not because of lock-in.
 
@@ -36,3 +46,7 @@ nox-mem is a hybrid long-term memory engine for AI agents: it combines BM25 full
 We follow the Contributor Covenant Code of Conduct. Be direct, be curious, be kind.
 
 First question? Post below.
+
+---
+
+*Updated 2026-05-24 with definitive cross-system numbers · [[project-sat-2026-05-24-final-closure]]*

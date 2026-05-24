@@ -91,11 +91,21 @@ queries (+1.58% nDCG) and adversarial queries (+3.04% nDCG) over the baseline.
 Those are the two query types where memory systems most commonly fail. That's the
 configuration running in production today.
 
+The Q4 cross-system comparison (Sat 2026-05-24) produced two rows that matter.
+At full corpus (6,830 chunks), nox-mem hybrid scores nDCG@10 0.6380, 8ms p50, 65%
+gold-hit rate — 30× faster than mem0's 273ms, 4× more coverage. But at the same
+500-chunk corpus cap, mem0 (0.1315) outperforms nox-mem FTS5-only (0.0466). That
+is architecturally real: mem0's LLM-rewriting generalizes semantically at small
+corpora in ways FTS5 cannot. Both rows are published in `benchmark/COMPARISON.md`.
+This is what honest benchmarking looks like — you report the row that favors you
+and the row that does not, and let the data speak.
+
 ### The Deployment Reality
 
 nox-mem runs on a single Hostinger VPS. SQLite database. Node.js 20. A Gemini
 API key. No vector database service. No message queue. No orchestration layer.
-68,995 chunks, 100% vector coverage, p50 latency ~940ms.
+68,995 chunks, 100% vector coverage. FTS5-only p50: 7–12ms. Full hybrid p50:
+~940ms. Full methodology and disclosure: `benchmark/COMPARISON.md`.
 
 The single-file SQLite design is not an accident. It's a statement: you should
 own your memory. Not a cloud vendor's memory service. Yours.

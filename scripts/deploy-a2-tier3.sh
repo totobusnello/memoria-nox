@@ -222,8 +222,11 @@ phase_b() {
   # Post-condition: is the API already running with isEncrypted=false (P1 deployed, plaintext mode)?
   # We can't tell from outside whether the db.ts on the VPS is the P1 version without
   # inspecting it. Use a marker: presence of better-sqlite3-multiple-ciphers in package.json.
-  local check
-  check="$(ssh "${VPS_HOST}" 'grep -c better-sqlite3-multiple-ciphers /root/.openclaw/workspace/tools/nox-mem/package.json 2>/dev/null || echo 0' || true)"
+  # NOTE: guard with DRY_RUN so this read-only SSH probe does not fire during dry-run validation.
+  local check="0"
+  if (( DRY_RUN == 0 )); then
+    check="$(ssh "${VPS_HOST}" 'grep -c better-sqlite3-multiple-ciphers /root/.openclaw/workspace/tools/nox-mem/package.json 2>/dev/null || echo 0' || true)"
+  fi
   if [[ "${check}" =~ [1-9] ]]; then
     skip "better-sqlite3-multiple-ciphers already in VPS package.json — Phase B previously deployed."
     info "    To force re-deploy: remove the dependency on VPS then re-run."

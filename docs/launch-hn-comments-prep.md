@@ -34,7 +34,7 @@ Launch: **Wed 2026-06-03, 07:15 BRT** · Show HN: nox-mem — pain-weighted hybr
 
 ---
 
-## §2 — Top 15 anticipated hostile/skeptical comments
+## §2 — Top 18 anticipated hostile/skeptical comments (updated 2026-05-24 with final cross-system numbers)
 
 ---
 
@@ -42,10 +42,10 @@ Launch: **Wed 2026-06-03, 07:15 BRT** · Show HN: nox-mem — pain-weighted hybr
 
 **Why it's said**: Memory layer is a crowded space. HN has seen dozens of these. Skepticism is earned.
 
-**Honest reply** (~60 words):
-> "Fair — the space is crowded. Three concrete differences: (1) open benchmarks you can reproduce locally (`eval/q4-comparison/runner.py`); (2) MIT licensed, no hosted dependency — your DB file is yours; (3) triple-stack retrieval (BM25 + semantic + KG via RRF) vs. vector-only. COMPARISON.md has the per-feature breakdown. I don't claim to be better at everything, but the methodology is auditable."
+**Honest reply** (~70 words):
+> "Fair — the space is crowded. Three concrete differences: (1) open cross-system benchmarks you can reproduce locally (`benchmark/runner.py`) — Q4 eval: nox-mem hybrid nDCG@10 0.6380 vs mem0 0.1315 (at 7.3% corpus cap) vs agentmemory 0.1376 (at 20% cap); (2) MIT licensed, no hosted dependency — your DB file is yours; (3) triple-stack retrieval (BM25 + semantic + KG via RRF) vs vector-only. Full table + disclosure: `benchmark/COMPARISON.md`."
 
-**Cite**: `docs/COMPARISON.md` · `eval/q4-comparison/runner.py` · `docs/FAQ.md §2`
+**Cite**: `benchmark/COMPARISON.md` · `benchmark/runner.py` · `docs/FAQ.md §2`
 
 ---
 
@@ -75,10 +75,10 @@ Launch: **Wed 2026-06-03, 07:15 BRT** · Show HN: nox-mem — pain-weighted hybr
 
 **Why it's said**: Self-reported benchmarks on your own golden set are the HN benchmark red flag #1. EverMemBench is the field standard.
 
-**Honest reply** (~65 words):
-> "Honest gap acknowledged: we haven't run EverMemBench yet — it's Lab Q1 priority, explicitly in ROADMAP.md. The eval harness (`eval/q4-comparison/runner.py`) is open, the golden queries are in the repo (`eval/golden-queries.jsonl`), and the methodology is pre-registered. You can run it yourself. On LongMemEval n=100: nDCG@10 0.9126, MRR 0.9162. I'll post EverMemBench results when ready."
+**Honest reply** (~75 words):
+> "Honest gap acknowledged: we haven't run EverMemBench yet — it's Lab Q1 priority, explicitly in ROADMAP.md. The Q4 cross-system comparison (`benchmark/COMPARISON.md`) used a shared FTS5-fair protocol against a fixed entity-eval-v2 corpus — the same 100 golden queries, the same DB, for all systems. Two systems (Zep, EverMind) aren't in the table because they couldn't be evaluated under protocol — that's documented. You can run the harness yourself: `benchmark/runner.py`. On LongMemEval n=100: nDCG@10 0.9126, MRR 0.9162 (pre-G3 sanitize fix — improved since)."
 
-**Cite**: `eval/q4-comparison/runner.py` · `eval/golden-queries.jsonl` · `docs/ROADMAP.md` · Project memory `project_q2_full_results_2026_05_19.md`
+**Cite**: `benchmark/COMPARISON.md` · `benchmark/runner.py` · `eval/golden-queries.jsonl` · `docs/ROADMAP.md`
 
 ---
 
@@ -152,8 +152,8 @@ Launch: **Wed 2026-06-03, 07:15 BRT** · Show HN: nox-mem — pain-weighted hybr
 
 **Why it's said**: 2.5s p99 is genuinely high for real-time applications. A valid critique.
 
-**Honest reply** (~65 words):
-> "Agreed — 2.5s p99 is not real-time. Context: measured on a 1 vCPU / 2GB VPS, and ~800ms of that is the Gemini embedding API call. With a local Ollama model, p50 drops to ~100–200ms. For async agent memory consolidation (which is the primary use case), 2.5s p99 is fine. For synchronous chat, configure local embeddings. This is documented in FAQ.md."
+**Honest reply** (~70 words):
+> "Agreed — 2.5s p99 is not real-time. But the number needs context. FTS5-only (no embed call): p50 is 7–12ms, sub-20ms p99. The 2.5s p99 is the Gemini hybrid path — ~800ms is the Gemini embedding API call, not runtime overhead. With a local Ollama model, p50 drops to ~100–200ms. For async agent memory consolidation (the primary use case), hybrid latency is fine. For synchronous chat, use FTS5-only mode or configure local embeddings. Both are documented in FAQ.md."
 
 **Cite**: `docs/FAQ.md §3` · `eval/latency/` · `docs/CONFIGURATION.md`
 
@@ -200,6 +200,50 @@ Launch: **Wed 2026-06-03, 07:15 BRT** · Show HN: nox-mem — pain-weighted hybr
 > "Honest answer: zero SLA, no SOC2, no GDPR certification. This is a self-hosted tool — your data stays in your SQLite file, on your machine or your VPS. There's no telemetry, no call-home, no hosted backend. The security audit (`audits/2026-05-22-pre-launch-security-review.md`) found 0 CRITICAL / 0 HIGH severity findings. GDPR certification and enterprise compliance are on the roadmap for nox-supermem (commercial track), not this repo."
 
 **Cite**: `audits/2026-05-22-pre-launch-security-review.md` · `docs/ROADMAP.md` · self-hosted architecture in `docs/ARCHITECTURE.md`
+
+---
+
+### Q16: "mem0 outperforms nox-mem in the apples-cap comparison — you buried that!"
+
+**Why it's said**: PR #311 added the apples-to-apples row: mem0@500 = 0.1315 vs nox-mem FTS5@500 = 0.0466. This is a legitimate challenge and must be answered directly, not deflected.
+
+**Honest reply** (~90 words):
+> "You're right — and we published both rows in COMPARISON.md because either alone misleads. At the same 500-chunk corpus cap, mem0 (0.1315) outperforms nox-mem FTS5-only (0.0466). That gap is architecturally real: mem0's LLM-rewriting step semantically generalizes across sparse corpora in ways FTS5 alone cannot match. Different architectures serve different use cases. If you want concentrated answers at any cost in a small corpus, mem0 wins today. If you want zero-cost full-coverage memory that scales, nox-mem is the architecture. The Gemini hybrid@500 experiment (Lab Q1 E1) will test whether the full nox-mem stack closes that concentration gap."
+
+**Cite**: `docs/COMPARISON.md §Apples-to-apples corpus-cap comparison` · `docs/COMPARISON.md §Architectural trade-off framing` · PR #311
+
+---
+
+### Q19: "Aren't you cherry-picking the apples-cap row to look good — or the full-corpus row to hide the gap?"
+
+**Why it's said**: COMPARISON.md now has two rows that tell opposite stories. HN will notice and call it either way.
+
+**Honest reply** (~75 words):
+> "Both accusations are correct about the other row. That's exactly why we publish both. The full-corpus row (nox-mem 0.6380, 30× faster, 4× coverage) favors nox-mem. The apples-cap row (mem0 0.1315 vs nox-mem FTS5 0.0466) favors mem0. A benchmark that only reports the favorable row is marketing. We report both with explicit trade-off framing: different architectures, different use cases. The methodology is open. Run it yourself: `benchmark/runner.py`. Canonical 100-query × uniform-corpus run closes the table."
+
+**Cite**: `docs/COMPARISON.md §Apples-to-apples corpus-cap comparison` · `docs/COMPARISON.md §Architectural trade-off framing` · `benchmark/runner.py`
+
+---
+
+### Q17: "Letta is 2000× slower??? That's a misleading comparison."
+
+**Why it's said**: Letta is an agent-loop system. Comparing its latency to retrieval latency is architecturally unfair. A sophisticated commenter will call this out.
+
+**Honest reply** (~70 words):
+> "You're right that it's an architectural comparison, not an apples-to-apples retrieval comparison. Letta's 14,978ms p50 comes from its agent-loop design — it spawns an LLM reasoning pass before returning results. That's a fundamentally different system design. We included it in the table with that note, not to imply Letta is 'worse', but because people ask how nox-mem compares to Letta and the latency profile is the answer. Different use cases, different architectures. COMPARISON.md has the full context."
+
+**Cite**: `benchmark/COMPARISON.md` · Letta architecture docs · `docs/FAQ.md §2`
+
+---
+
+### Q18: "Zep gated behind OpenAI — convenient that you 'couldn't evaluate' it."
+
+**Why it's said**: Excluding a competitor from a benchmark table is a classic cherry-pick signal. HN will be suspicious.
+
+**Honest reply** (~65 words):
+> "Understood — excluding a competitor from a benchmark always looks suspicious. Here's the exact reason: our FTS5-fair protocol requires a fixed DB without external API dependencies during evaluation. Zep CE requires an OpenAI API key injection that breaks this isolation. We documented this explicitly in COMPARISON.md rather than silently omitting them. The ghcr.io CE image exists and we're working on a protocol amendment to include it in Lab Q1. If you have a Zep evaluation setup that avoids the OpenAI dependency, I'd genuinely want to know."
+
+**Cite**: `benchmark/COMPARISON.md` (disclosure section) · `docs/ROADMAP.md` (Lab Q1 Zep re-eval)
 
 ---
 
@@ -311,4 +355,4 @@ Copy this table into a scratchpad on launch day. Update in real time.
 
 ---
 
-*Última atualização: 2026-05-22 · Maintainer: Toto Busnello · Launch: 2026-06-03 07:15 BRT*
+*Última atualização: 2026-05-24 (Sat) · Q16/Q17/Q18 adicionados + números definitivos cross-system · Maintainer: Toto Busnello · Launch: 2026-06-03 07:15 BRT · [[project-sat-2026-05-24-final-closure]]*

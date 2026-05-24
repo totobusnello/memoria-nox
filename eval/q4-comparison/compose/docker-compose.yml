@@ -1,11 +1,10 @@
 # Q4 COMPARISON compose stack — self-hosted Zep + optional Letta.
 #
-# Validated SYNTAX-ONLY overnight (per spec §1 setup rules: "DO NOT actually
-# run docker compose up"). Toto runs `docker compose up -d` Saturday morning.
+# SMOKE-VALIDATED 2026-05-23 (Docker 29.4.0 / OrbStack).
 #
 # Services:
 #   zep         — Zep OSS API on :8000 (default base for adapters/zep.py)
-#   postgres    — Postgres 16 backing Zep (also can back Letta)
+#   postgres    — Postgres 16 + pgvector backing Zep (REQUIRED: Zep 0.27.2 uses pgvector)
 #   letta       — optional, only spun up if --profile letta passed
 #   noxmem      — optional, only spun up if --profile noxmem passed
 #
@@ -14,12 +13,22 @@
 #
 # Default profile (no flag): zep + postgres only. Toto adds --profile letta
 # Saturday if he wants Letta in-Docker instead of bare `letta server`.
+#
+# FIXES vs original spec:
+#   1. postgres: postgres:16-alpine → pgvector/pgvector:pg16
+#      Zep 0.27.2 calls CREATE EXTENSION vector at startup; plain postgres:16-alpine
+#      does NOT ship pgvector → fatal "type vector does not exist".
+#   2. ZEP_OPENAI_API_KEY: "no-llm-not-used" (dummy) — Zep 0.27.2 checks this env var
+#      at startup even when all extractors are disabled (Extractors.*.Enabled: false by
+#      default). Without it, startup fatals "ZEP_OPENAI_API_KEY is not set". The key is
+#      never sent to OpenAI because no LLM/embedding extractor fires — all disabled.
+#   3. ZEP_NLP_SERVER_URL removed — no NLP server in this stack.
 
 name: q4-comparison
 
 services:
   postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: q4-postgres
     restart: unless-stopped
     environment:
@@ -43,14 +52,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    command: ["--config", "/app/zep-config.yaml"]
+    volumes:
+      - ./zep-config.yaml:/app/zep-config.yaml:ro
     environment:
-      ZEP_STORE_TYPE: postgres
-      ZEP_STORE_POSTGRES_DSN: postgres://zep:zep@postgres:5432/zep?sslmode=disable
-      # OSS Zep can run with local-only embeddings via FastEmbed; if the
-      # user wants OpenAI-quality embeddings, set OPENAI_API_KEY on the host
-      # and uncomment the line below.
-      # ZEP_OPENAI_API_KEY: ${OPENAI_API_KEY}
-      ZEP_AUTH_REQUIRED: "false"
+      # Zep 0.27.2 validates ZEP_OPENAI_API_KEY at startup even when all
+      # extractors are disabled (set in zep-config.yaml). Dummy value satisfies
+      # the check; no OpenAI calls fire because Extractors.*.Enabled: false.
+      ZEP_OPENAI_API_KEY: ${OPENAI_API_KEY:-no-llm-not-used}
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:

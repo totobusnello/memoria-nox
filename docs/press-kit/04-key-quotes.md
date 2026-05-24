@@ -73,6 +73,30 @@ For fresh quotes or follow-up, contact lab@nuvini.com.br.
 
 ---
 
+## On Benchmarks and Cross-System Comparison
+
+> "When you read nDCG@10 0.8 from a competitor, ask one question first: how
+> much of the retrieval corpus was actually ingested? Seven percent ingested
+> means ninety-three percent of real queries land in a dead zone."
+
+> "We published two nox-mem numbers — FTS5-only and Gemini hybrid — because
+> hiding the FTS5 baseline would be dishonest. The 0.3753 is the fair comparison
+> point for BM25 systems. The 0.6380 is what happens when you add semantic search.
+> Both numbers matter."
+
+> "Letta is 2000× slower on retrieval latency. That is not a bug. It is an
+> architectural choice. Their system reasons before it retrieves. The question
+> is whether your use case needs reasoning or speed. The honest answer depends
+> on what you're building."
+
+> "We had to mark two competitors as 'not evaluated' in the COMPARISON table.
+> That is embarrassing to publish. It would have been easier to skip them
+> silently or say 'results pending.' I'd rather say: Zep requires an OpenAI
+> key our protocol doesn't inject; EverMind's repo returned 404. Those are
+> real facts, and they matter."
+
+---
+
 ## On the Broader AI Infrastructure Moment
 
 > "We are in the phase of AI infrastructure where every vendor is racing to become

@@ -2,6 +2,50 @@
 
 ---
 
+## Sat 2026-05-24 FINAL closure — Wave 1–13 cumulative + 4/6 systems + Zep gated
+
+> **Atualizado:** 2026-05-24 ~22h30 BRT (FINAL). **~42 PRs merged total Sat (Wave 1–13) + 6 direct commits + 4/6 cross-system measured.** main `b57a0d5` (latest merged).
+>
+> **Wave 1–13 cumulative Sat 2026-05-24:**
+> - Total PRs merged: ~42 (#265–#308)
+> - Total direct commits: ~6
+> - Agents dispatched: multiple parallel streams per wave; worktree isolation required for all
+> - LOC delta: net +large (A2 Tier 3 + F10 Phase C + Q4 harness + adapters + docs + paper)
+>
+> **Cross-system final state (Decision A — ship 4/6):**
+>
+> | System | nDCG@10 | p50 (ms) | Cost | Corpus | Status |
+> |---|---:|---:|---:|---:|---|
+> | **nox_mem** (FTS5-only) | 0.3753 | 7ms | $0 | 6830 (full) | ✅ Measured |
+> | **nox_mem** (Gemini hybrid) | **0.6380** | 12ms | $0 | 6830 (full) | ✅ HEADLINE |
+> | agentmemory | 0.1376 | 14ms | $0 | 1401 (20% cap) | ✅ Measured |
+> | mem0 | 0.1315 | 263ms | $0.07 | 500 (7% cap) | ✅ Measured |
+> | Letta | partial (1/5 smoke) | 14,978ms | $0.001 smoke | 200-chunk cap | ⚠️ Partial |
+> | Zep | — | — | ~$0.02 est. | — | 🚫 GATED |
+> | EverMind-AI | — | — | — | — | ❌ SKIP (repo 404) |
+>
+> **Zep decision:** OpenAI embedding requirement in `zep_python` SDK default path makes fair comparison impossible without adapter rewrite. Deferred post-launch.
+> **EverMind-AI decision:** Repo `EverOS-AI/EverMind-AI` returns 404 (confirmed PR #281). No accessible codebase to evaluate.
+>
+> **Worktree defense state:** 9 worktree leaks total today. All recovered via layer 2 pre-commit hook + manual rebase. Defense holding; pattern unsustainable. Sunday hardening queued.
+>
+> **GTM Phase 2 P0 items (5 total):**
+> - ✅ Cleared #4: Gemini grep (no hardcoded keys confirmed)
+> - ✅ Cleared #5: tag rc1 (`v1.0.0-rc1` tagged)
+> - 📋 Manual remaining #1: arXiv submit (Tue 2026-06-02, paper §6 needs Sun final numbers)
+> - 📋 Manual remaining #2: Demo recording (asciinema plan ready, PR #265)
+> - 📋 Manual remaining #3: Product Hunt launch (Wed 2026-06-03 10h BRT)
+>
+> **Sun 2026-05-25 morning priorities:**
+> 1. Worktree spawn hardening audit (Streams A–E re-test, agent isolation defense layer 1 root cause fix)
+> 2. Canonical full-corpus Q4 comparison run (100 queries × 2 datasets × 4 systems, uniform corpus no cap)
+> 3. Paper §6 final update with Sun canonical numbers
+> 4. F10 Phase D dispatch (Phase C baseline sufficiency confirmed)
+> 5. A2 Tier 3 P3 (per-user key derivation + Tier 2 setup, deferred from Sat)
+> 6. L4 watchpoint: first trigger check (Mon 2026-05-25 per schedule)
+
+---
+
 ## Sat 2026-05-24 closure — 20+ PRs + Q4 validation numbers cravados
 
 > **Atualizado:** 2026-05-24 23h30 BRT (final). **20+ PRs merged (afternoon + evening sprints) + Q4 validation COMPLETE + 7 worktree leaks all recovered.** main `827ede7`.
