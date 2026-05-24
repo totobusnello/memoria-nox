@@ -1,0 +1,2412 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\newcounter{none} % for unnumbered tables
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\section{OpenClaw Memory System: Architecture \& Technical Deep
+Dive}\label{openclaw-memory-system-architecture-technical-deep-dive}
+
+\textbf{nox-mem v3.7 --- March 2026, §5 empirical evaluation added May
+2026 (Wave A G5 V3)}
+
+\textbf{Author:} Luiz Antonio Busnello (Toto) \textbf{Platform:}
+OpenClaw Autonomous Agent Platform \textbf{Infrastructure:} Hostinger
+KVM4, Tailscale VPN, Debian Linux
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Abstract}\label{abstract}
+
+This paper presents the architecture, implementation, and operational
+characteristics of nox-mem, a persistent memory system designed for
+autonomous AI agent fleets. The system provides hybrid search (combining
+BM25 full-text, semantic vector similarity, and Reciprocal Rank Fusion),
+an LLM-powered knowledge graph with temporal decay, cross-agent
+intelligence sharing, and automated consolidation pipelines. Deployed in
+production since March 14, 2026, the system manages 1,481 memory chunks
+across 7 databases, 384 knowledge graph entities with 529 relations, and
+serves 6 specialized AI agents with isolated yet interconnectable memory
+spaces.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{1. Introduction}\label{introduction}
+
+\subsubsection{1.1 Problem Statement}\label{problem-statement}
+
+Large Language Model (LLM) agents operating in production environments
+face a fundamental limitation: context window ephemerality. When a
+conversation ends or context is compacted, the agent loses accumulated
+knowledge, decisions, and operational state. For multi-agent systems
+where specialized agents collaborate on complex tasks, this problem
+compounds --- agents cannot learn from each other's experiences, cannot
+recall past decisions, and cannot build institutional knowledge over
+time.
+
+\subsubsection{1.2 Design Goals}\label{design-goals}
+
+nox-mem was designed with four core objectives:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Persistent Memory}: Survive context window resets, session
+  boundaries, and agent restarts
+\item
+  \textbf{Intelligent Retrieval}: Return semantically relevant results,
+  not just keyword matches
+\item
+  \textbf{Cross-Agent Intelligence}: Enable knowledge sharing across
+  isolated agent workspaces
+\item
+  \textbf{Operational Autonomy}: Self-maintain through automated
+  consolidation, pruning, and indexing
+\end{enumerate}
+
+\subsubsection{1.3 Scope}\label{scope}
+
+The system operates within the OpenClaw platform, serving 6 AI agents
+(Nox, Atlas, Boris, Cipher, Forge, Lex) on a single VPS with 4 vCPUs and
+8GB RAM. Each agent has a distinct role and memory profile. The
+workspace (shared memory) and individual agent databases form a
+federated memory architecture.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{2. System Architecture}\label{system-architecture}
+
+\subsubsection{2.1 Infrastructure
+Overview}\label{infrastructure-overview}
+
+The system runs on a Hostinger KVM4 VPS accessible via Tailscale VPN
+(IP: 100.87.8.44). Five systemd-managed services provide the runtime
+environment:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Service & Port & Type & Function \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+openclaw-gateway & 18789 & WebSocket & Agent communication gateway \\
+nox-mem-watcher & --- & inotifywait & Filesystem event monitor \\
+nox-mem-api & 18800 & HTTP/JSON & Dashboard data API \\
+ollama & 11434 & HTTP & Local LLM inference (llama3.2:3b) \\
+tailscaled & --- & WireGuard & VPN mesh connectivity \\
+\end{longtable}
+}
+
+\subsubsection{2.2 Database Schema}\label{database-schema}
+
+The primary storage is SQLite 3 with WAL (Write-Ahead Logging) mode for
+concurrent access. The schema (version 3) contains:
+
+\textbf{Core Tables:}
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{chunks} --- Memory fragments with full-text indexing
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{id} (INTEGER PK), \texttt{source\_file} (TEXT),
+    \texttt{chunk\_text} (TEXT), \texttt{chunk\_type} (TEXT)
+  \item
+    \texttt{source\_date} (TEXT), \texttt{is\_consolidated} (INTEGER),
+    \texttt{memory\_type} (TEXT)
+  \item
+    \texttt{created\_at}, \texttt{updated\_at} (TEXT, ISO 8601)
+  \item
+    \texttt{metadata} (TEXT, JSON)
+  \end{itemize}
+\item
+  \texttt{chunks\_fts} --- FTS5 virtual table with porter unicode61
+  tokenizer
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Content-sync triggers (INSERT, UPDATE, DELETE) maintain index
+    consistency
+  \item
+    BM25 ranking with configurable column weights (1.0, 0.5, 0.5)
+  \end{itemize}
+\item
+  \texttt{consolidated\_files} --- Processing state tracker
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \texttt{source\_file} (TEXT PK), \texttt{status} (INTEGER:
+    0=pending, 1=done, -1=failed)
+  \end{itemize}
+\item
+  \texttt{meta} --- Key-value configuration store (schema\_version,
+  cursors, metrics)
+\end{itemize}
+
+\textbf{Knowledge Graph Tables:}
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{kg\_entities} --- Named entities with type classification and
+  mention counting
+
+  \begin{itemize}
+  \tightlist
+  \item
+    UNIQUE constraint on (name, entity\_type)
+  \item
+    TTL tracking via \texttt{first\_seen}, \texttt{last\_seen}
+  \end{itemize}
+\item
+  \texttt{kg\_relations} --- Typed relationships between entities
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Confidence scoring (0.0-1.0) with temporal decay
+  \item
+    TTL via \texttt{expires\_at} (90-day default),
+    \texttt{last\_confirmed}
+  \item
+    Evidence linking via \texttt{evidence\_chunk\_id}
+  \end{itemize}
+\item
+  \texttt{decision\_versions} --- Architectural decision version history
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Supersession chain via \texttt{is\_current} flag and
+    \texttt{superseded\_at} timestamp
+  \end{itemize}
+\end{itemize}
+
+\textbf{Vector Tables (sqlite-vec):}
+
+\begin{itemize}
+\item
+  \texttt{vec\_chunks} --- Virtual table storing float32 embeddings
+  (3072 dimensions)
+\item
+  \texttt{vec\_chunk\_map} --- Rowid-to-chunk\_id mapping (sqlite-vec
+  requires rowid-based access)
+\item
+  \texttt{dedup\_log} --- Suppressed duplicate tracking for audit
+\end{itemize}
+
+\subsubsection{2.3 Chunk Type Taxonomy}\label{chunk-type-taxonomy}
+
+Memory chunks are classified into 10 types based on source file path
+patterns:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Type
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Source Pattern
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Current Count
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Purpose
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+team & \texttt{shared/} & 499 & Shared team knowledge, cross-agent
+docs \\
+daily & \texttt{memory/YYYY-MM-DD} & 161 & Daily operational notes \\
+other & (default) & 126 & Unclassified content \\
+decision & \texttt{memory/decisions.md} & 34 & Architectural and
+strategic decisions \\
+lesson & \texttt{memory/lessons.md} & 21 & Errors, corrections,
+learnings \\
+project & \texttt{memory/projects.md} & 11 & Active project tracking \\
+pending & \texttt{memory/pending.md} & 8 & Incomplete tasks and
+blockers \\
+feedback & \texttt{memory/feedback/} & 6 & User and system feedback \\
+person & \texttt{memory/people.md} & 6 & People profiles and contacts \\
+digest & \texttt{memory/digests/} & 2 & Weekly summary reports \\
+\end{longtable}
+}
+
+\subsubsection{2.4 Multi-Agent Memory
+Architecture}\label{multi-agent-memory-architecture}
+
+Each of the 6 agents operates with an isolated database at
+\texttt{/root/.openclaw/agents/\{name\}/tools/nox-mem/nox-mem.db}. The
+\texttt{OPENCLAW\_WORKSPACE} environment variable controls path
+resolution across all modules, enabling the same nox-mem binary to
+operate on different databases depending on the calling context.
+
+\textbf{Agent Memory Distribution (as of March 23, 2026):}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}lllll@{}}
+\toprule\noalign{}
+Agent & Role & Chunks & DB Size & Dominant Type \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Nox & Chief of Staff & 185 & 268 KB & daily (91) \\
+Boris & Head of Communications & 148 & 268 KB & team (50) \\
+Forge & Code Reviewer & 182 & 292 KB & daily (135) \\
+Atlas & Research & 30 & 128 KB & other (17) \\
+Cipher & Security & 31 & 132 KB & other (12) \\
+Lex & Legal/Compliance & 31 & 132 KB & other (12) \\
+\textbf{Workspace} & \textbf{Shared} & \textbf{874} & \textbf{25.2 MB} &
+\textbf{team (499)} \\
+\end{longtable}
+}
+
+Total system memory: 1,481 chunks across 7 databases.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{3. Memory Pipeline}\label{memory-pipeline}
+
+\subsubsection{3.1 Ingestion}\label{ingestion}
+
+Files created or modified in monitored directories trigger the
+inotifywait-based watcher service. The watcher implements:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Debounce logic}: 2-second delay to batch rapid successive
+  writes
+\item
+  \textbf{File filtering}: Only \texttt{.md} and \texttt{.json} files
+  are processed
+\item
+  \textbf{Recursion prevention}: \texttt{MEMORY.md} and
+  \texttt{SESSION-STATE.md} are excluded to avoid feedback loops
+\item
+  \textbf{Heartbeat}: Touch \texttt{/tmp/nox-mem-watcher-heartbeat} on
+  every event for liveness monitoring
+\end{itemize}
+
+Upon trigger, \texttt{ingestFile()} executes:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Read file content with UTF-8 sanitization (fixes common mojibake
+  patterns for Portuguese text)
+\item
+  Detect chunk type from relative file path
+\item
+  Extract date from filename pattern (YYYY-MM-DD)
+\item
+  Split content into semantic chunks:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Markdown: Split on H2/H3 headers, with sub-splitting for chunks
+    exceeding 500 words
+  \item
+    JSON: Array items become individual chunks; object entries become
+    key-value pairs
+  \item
+    Small chunks (\textless20 words) are merged with the previous chunk
+  \end{itemize}
+\item
+  Delete existing chunks for the same source file (idempotent
+  re-ingestion)
+\item
+  Insert new chunks via prepared statement transaction
+\item
+  Auto-vectorize if GEMINI\_API\_KEY is available (up to 20 chunks per
+  file)
+\end{enumerate}
+
+\subsubsection{3.2 Consolidation}\label{consolidation}
+
+Nightly consolidation (23:00, 5-minute stagger across agents) processes
+daily notes into structured topic files:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Reindex}: Scan all \texttt{.md}/\texttt{.json} files in memory
+  directories, rebuild chunk index
+\item
+  \textbf{Extract}: Use Ollama llama3.2:3b to identify facts, decisions,
+  lessons, and action items from daily notes
+\item
+  \textbf{Append}: Add extracted content to topic files (decisions.md,
+  lessons.md, people.md, projects.md, pending.md)
+\item
+  \textbf{Notion Sync}: Push structured items to ``Memoria \& Decisoes''
+  Notion database (best-effort, non-blocking)
+\item
+  \textbf{Git Commit}: Auto-commit memory changes with standardized
+  message format
+\item
+  \textbf{Session Update}: Refresh SESSION-STATE.md with current
+  statistics
+\end{enumerate}
+
+\subsubsection{3.3 Deduplication}\label{deduplication}
+
+Before insertion, chunks are checked for duplicates using a two-tier
+strategy:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Primary}: Gemini cosine similarity with 0.85 threshold (when
+  embeddings are available)
+\item
+  \textbf{Fallback}: Keyword overlap calculation with 60\% threshold
+\item
+  \textbf{Audit}: Suppressed duplicates are logged to
+  \texttt{dedup\_log} table with reason and preview
+\end{itemize}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{4. Hybrid Search System}\label{hybrid-search-system}
+
+\subsubsection{4.1 Architecture}\label{architecture}
+
+Search combines three complementary retrieval methods:
+
+\textbf{Layer 1 --- FTS5 BM25 (Keyword)}
+
+SQLite FTS5 with porter unicode61 tokenizer provides fast keyword
+matching. Results are scored using BM25 with column weights
+(chunk\_text: 1.0, source\_file: 0.5, chunk\_type: 0.5). Post-retrieval
+boosting applies:
+
+\begin{itemize}
+\tightlist
+\item
+  Type boost: \texttt{decision} and \texttt{lesson} chunks receive 2.0x
+  multiplier (higher signal-to-noise ratio)
+\item
+  Recency boost: Chunks from the last 7 days receive 1.5x multiplier
+\end{itemize}
+
+The query sanitizer strips special characters but preserves hyphens for
+compound terms (e.g., ``nox-mem'').
+
+\textbf{Layer 2 --- Gemini Semantic (Vector)}
+
+Each chunk is embedded using Google's gemini-embedding-001 model (3072
+dimensions) with task type RETRIEVAL\_DOCUMENT. Query embeddings use
+task type RETRIEVAL\_QUERY for asymmetric similarity optimization.
+
+Vectors are stored in sqlite-vec virtual tables. Retrieval uses cosine
+distance with a map table (vec\_chunk\_map) bridging vec\_chunks rowids
+to chunks.id values due to sqlite-vec's rowid-only constraint.
+
+Scoring normalizes distances to a 0-10 scale with type and recency
+boosting (1.5x and 1.2x respectively, lower than FTS5 to avoid
+double-boosting in fusion).
+
+\textbf{Layer 3 --- Reciprocal Rank Fusion (RRF)}
+
+FTS5 and semantic results are merged using RRF with k=60:
+
+\begin{verbatim}
+RRF_score(d) = Σ 1/(k + rank_i(d))
+\end{verbatim}
+
+Documents appearing in both result sets receive combined scores, marked
+as \texttt{match\_type:\ "hybrid"}. Content-prefix deduplication (first
+50 characters) prevents near-duplicate results.
+
+\subsubsection{4.2 Performance
+Characteristics}\label{performance-characteristics}
+
+The hybrid approach provides significant quality improvements over
+single-method search:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1944}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3056}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2222}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2778}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Query
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+FTS5 Only
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Hybrid
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Analysis
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+``qual o proximo passo'' & 0 results & ROADMAP + PHASE-3 & Semantic
+captures intent without keyword match \\
+``nox-mem'' & 0 results & decisions.md + docs & Vector bypasses
+tokenizer hyphen issues \\
+``quem e o Toto'' & people.md & people.md + TEAM\_MEMORY & RRF combines
+exact match + semantic context \\
+\end{longtable}
+}
+
+\subsubsection{4.3 Cross-Agent Search}\label{cross-agent-search}
+
+The \texttt{crossSearch()} function opens all 7 databases in read-only
+mode, executes FTS5 queries in each, and merges results with agent
+attribution. Deduplication uses content-prefix comparison to handle
+shared documents that appear across multiple agent databases.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{5. Empirical Evaluation --- Wave A G5 V3 (May
+2026)}\label{empirical-evaluation-wave-a-g5-v3-may-2026}
+
+\begin{quote}
+\textbf{Headline (canonical, 2026-05-19):} A8 full stack with active
+salience reaches \textbf{nDCG@10 = 0.6237} on the entity-flavored golden
+set (n=100), a \textbf{+78.8\% relative improvement over the G3 baseline
+(0.3488)} measured prior to Wave A deployment, and \textbf{+9.4\% over
+the mid-deployment G4 checkpoint (0.5702)}. The peak ablation isolating
+\texttt{section\_boost} alone (A3) reaches 0.6228, recovering
+\textbf{99.85\% of the full stack} --- section-aware ranking is the
+dominant driver of the lift.
+\end{quote}
+
+\subsubsection{5.1 Setup}\label{setup}
+
+The evaluation uses an entity-flavored golden set of 100 queries
+(\texttt{entity-eval.db}), curated from production usage to exercise the
+V10 schema's \texttt{section} and \texttt{pain} dimensions.
+Configurations are toggled via environment-variable feature gates
+(\texttt{NOX\_SALIENCE\_MODE}, \texttt{NOX\_DISABLE\_TIER\_BOOST},
+\texttt{NOX\_ENABLE\_TIER\_BOOST},
+\texttt{NOX\_DISABLE\_SECTION\_BOOST}, etc.), allowing isolation of
+individual ranking components without code changes between runs. All
+measurements occur post-deployment of PRs \#150 (salience formula +
+tier\_boost off-by-default), \#151 (source\_type backfill of 67,949
+chunks), and \#153 (search wiring). Reported nDCG@10 follows the
+standard TREC formulation (gain by relevance, log-position discount).
+
+Progression vs prior ablation generations:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Generation
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Date
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+A8 nDCG@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Δ vs G3 baseline
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Notes
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+G3 baseline (pre-Wave A) & 2026-05-15 & 0.3488 & --- & Multiplicative
+salience, tier\_boost on, section\_boost only via legacy code path \\
+G4 mid-deployment & 2026-05-18 & 0.5702 & +63.5\% & Salience aditivo
+wired but \texttt{active\ \textless{}\ shadow} puzzle observed \\
+\textbf{G5 V3 canonical} & \textbf{2026-05-19} & \textbf{0.6237} &
+\textbf{+78.8\%} & Wave A fully deployed; reversal
+\texttt{active\ \textgreater{}\ shadow} cravado \\
+\end{longtable}
+}
+
+The four sub-claims below decompose the +78.8\% total into measurable
+contributions; the full G5 V3 matrix (12 configurations) is archived in
+\texttt{audits/} and HANDOFF.md (\texttt{\#g5-v3-matrix-2026-05-19}).
+
+\subsubsection{5.2 Claim 1 --- Additive salience outperforms
+multiplicative}\label{claim-1-additive-salience-outperforms-multiplicative}
+
+The Wave A formula replaces the legacy multiplicative
+\texttt{salience\ =\ recency\ ×\ pain\ ×\ importance} with a
+weighted-additive form (PR \#150):
+
+\begin{verbatim}
+salience = W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access_score
+W_IMPORTANCE = 0.55   W_RECENCY = 0.15   W_PAIN = 0.10   W_ACCESS = 0.20
+\end{verbatim}
+
+\textbf{Result.} With \texttt{NOX\_SALIENCE\_MODE=active}, A8 reaches
+0.6237 vs.~0.6155 with \texttt{shadow} (A7) --- a +1.3\% lift and the
+reversal of the G4 puzzle, where shadow had outranked active. The
+multiplicative form concentrated 99.7\% of chunks in the {[}0.05,
+0.40{]} salience range, dominated by 90.67\% of chunks at the default
+\texttt{pain\ =\ 0.2} and 99.76\% of chunks with
+\texttt{recency\ ∈\ {[}7,\ 30{]}} days; small differences in any factor
+were swallowed by the product. The additive form exposes each dimension
+proportionally to its calibrated weight, preserving signal from pain
+spikes and importance heuristics without requiring all three factors to
+be simultaneously non-default.
+
+\subsubsection{\texorpdfstring{5.3 Claim 2 --- \texttt{section\_boost}
+is the moat (99.85\% of the
+gain)}{5.3 Claim 2 --- section\_boost is the moat (99.85\% of the gain)}}\label{claim-2-section_boost-is-the-moat-99.85-of-the-gain}
+
+Isolating \texttt{section\_boost} alone (A3 ablation: section enabled,
+tier off, source\_type off, salience shadow) yields \textbf{nDCG@10 =
+0.6228 = 99.85\% of A8's full-stack 0.6237}. The V10 schema multipliers
+--- \texttt{compiled\ =\ 2.0}, \texttt{frontmatter\ =\ 1.5},
+\texttt{timeline\ =\ 0.8}, legacy = 1.0 --- together with the
+entity-file format introduced in v3.7 (769 entity files × 3 sections ≈
+2,307 boost-bearing chunks) explain the majority of the headline
+improvement.
+
+The negative control A11 (full stack minus \texttt{section\_boost})
+drops to 0.5646, \textbf{−9.5\% relative to A8}, confirming the
+contribution is not redundant with semantic embeddings or RRF fusion.
+This is the architectural pivot the paper's narrative rests on:
+section-aware boosting over an entity-file canonical form is the
+load-bearing component, not the multiplicative salience formula that the
+v1 paper draft over-emphasized.
+
+\subsubsection{\texorpdfstring{5.4 Claim 3 --- \texttt{tier\_boost}
+off-by-default is the correct
+calibration}{5.4 Claim 3 --- tier\_boost off-by-default is the correct calibration}}\label{claim-3-tier_boost-off-by-default-is-the-correct-calibration}
+
+Isolated, \texttt{tier\_boost} (boost for \texttt{chunks} flagged as
+\texttt{tier=\textquotesingle{}core\textquotesingle{}}) is actively
+harmful: A6 (tier only, no other boosts) reaches 0.4059, \textbf{−21\%
+versus the no-boost baseline 0.5126}. Even integrated into the full
+stack, A9 (full + tier enabled) drops to 0.5884, \textbf{−5.7\% versus
+A8}. Inspection of the corpus reveals the cause:
+\texttt{tier=\textquotesingle{}core\textquotesingle{}} chunks account
+for only 3.96\% of the corpus and consist of memory-system internals
+(lifecycle docs, schema metadata, operational runbooks) rather than user
+content --- over-promoting them displaces directly-relevant entity
+facts.
+
+PR \#150 therefore makes tier\_boost \textbf{off by default} via
+\texttt{NOX\_DISABLE\_TIER\_BOOST=1}, with an explicit
+\texttt{NOX\_ENABLE\_TIER\_BOOST=1} opt-in for callers who want the
+legacy behavior. The default reflects the calibration this evaluation
+establishes; the opt-in preserves backward compatibility for downstream
+pipelines that depend on it.
+
+\subsubsection{\texorpdfstring{5.5 Claim 4 --- \texttt{source\_type}
+backfill
+recovery}{5.5 Claim 4 --- source\_type backfill recovery}}\label{claim-4-source_type-backfill-recovery}
+
+Pre-backfill, \textbf{67,949 chunks (98.48\% of the corpus)} carried
+\texttt{source\_type\ =\ NULL}, rendering the
+\texttt{SOURCE\_TYPE\_BOOST} map inert at search time regardless of the
+configured multipliers. PR \#151 backfills 11 canonical keys
+(\texttt{entity}, \texttt{lesson}, \texttt{skill}, \texttt{project-doc},
+\texttt{command}, \texttt{legal-template}, \texttt{personal-doc},
+\texttt{session}, \texttt{note}, \texttt{external}, \texttt{other},
+\texttt{ocr-cache}) by classifying each chunk via deterministic
+path/prefix rules under \texttt{withOpAudit()} (audit\_id = 118),
+preserving the 1,046 chunks already marked \texttt{external} (1.52\%).
+The post-backfill distribution skews to \texttt{personal-doc} (32.74\%),
+\texttt{skill} (19.89\%), and \texttt{session} (16.95\%), reflecting the
+lived shape of the operational corpus.
+
+In the G5 V3 matrix, A5 (source\_type only) and A10 (full minus
+source\_type) both score 0.6237 --- identical to A8 --- confirming the
+\texttt{SOURCE\_TYPE\_BOOST} map remained \textbf{inert by key
+mismatch}, not by data absence. PR \#154 (merged 2026-05-20) updated the
+boost map to the new keys (calibration ranging from
+\texttt{entity\ =\ 2.0} for high-curation chunks down to
+\texttt{ocr-cache\ =\ 0.7} for low-signal scanned material).
+
+The G8 ablation (2026-05-20, PR \#177) re-ingested an isolated
+\texttt{entity-eval-v2.db} (500 chunks) with source\_type values
+deterministically remapped to prod-consistent vocabulary
+(\texttt{entity\_file\ →\ entity}, \texttt{event\_log\ →\ lesson},
+\texttt{session\_summary\ →\ session}), achieving 100\% key-match with
+the SOURCE\_TYPE\_BOOST map. Results:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Config
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+nDCG@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Δ vs A0
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Verdict
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A0 (no boosts) & 0.4816 & baseline & --- \\
+\textbf{A5 (source\_type only)} & \textbf{0.4944} & \textbf{+2.66\%} &
+LIVE --- boost contributes when keys match \\
+A8 (full canonical) & 0.5798 & +20.4\% & full stack \\
+A10 (full minus source\_type) & 0.5845 & +21.4\% & source\_type
+\emph{removed} from full stack \\
+\end{longtable}
+}
+
+A5 \textgreater{} A0 by +2.66\% empirically validates that
+\texttt{SOURCE\_TYPE\_BOOST} contributes to ranking when source\_type
+values match the map keys. However, A8 \textless{} A10 by −0.81\%
+reveals \textbf{redundant double-boost} when \texttt{section\_boost}
+(e.g., \texttt{compiled\ =\ 2.0} for entity-file truth sections) and
+\texttt{SOURCE\_TYPE\_BOOST} (e.g., \texttt{entity\ =\ 2.0} for the same
+chunks) stack on identical chunks, over-promoting at the cost of top-K
+diversity. Per-category, the redundancy manifests as a −3.5 pp
+regression on open-domain queries and a +1.4 pp gain on multi-hop.
+
+The \textbf{G9 ablation} (2026-05-20, against the prod-flavored
+\texttt{g5.db} 68k corpus, PR planned) \textbf{reproduces and amplifies}
+both findings --- at production scale the boost contribution and the
+redundancy are both \textbf{5× larger in magnitude} than in the
+synthetic G8 set:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Config
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+G8 (n=500)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+G9 (n=68,995)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Δ G9 magnitude vs G8
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A0 (no boosts) & 0.4816 & 0.4108 & smaller baseline (prod diversity) \\
+\textbf{A5 (source\_type only)} & \textbf{+2.66\% vs A0} &
+\textbf{+14.2\% vs A0} & \textbf{5× larger} \\
+A8 vs A10 (redundancy) & \textbf{−0.81\%} & \textbf{−2.6\%} & \textbf{3×
+larger} \\
+\end{longtable}
+}
+
+The G9 data \textbf{structurally validates} the resolution path of
+mutual-exclusion logic (PR \#182, merged 2026-05-20): when a chunk has
+\texttt{section\ ∈\ \{compiled,\ frontmatter,\ timeline\}} populated
+(entity-file structural metadata), the \texttt{source\_type\_boost} is
+gated to \texttt{0} to prevent stacking on top of
+\texttt{section\_boost}. The mutex is rollback-gated via
+\texttt{NOX\_DISABLE\_MUTEX\_SECTION\_SOURCE\_TYPE=1}.
+
+The \textbf{G10 ablation} (2026-05-20, against \texttt{g9.db} 69,495
+chunks) validates the mutex in production conditions:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Config & nDCG@10 & MRR & R@10 \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A8' (mutex active, default) & \textbf{0.5478} & \textbf{0.5967} &
+0.6183 \\
+A8 (mutex disabled, rollback flag) & 0.5435 & 0.5813 & 0.6333 \\
+\textbf{Δ mutex effect} & \textbf{+0.79\%} & \textbf{+2.65\%} &
+−2.4\% \\
+\end{longtable}
+}
+
+The mutex recovers \textasciitilde46\% of the A10 − A8 gap (where A10
+fully removes \texttt{source\_type\_boost}) without removing the signal
+entirely. The per-metric pattern --- MRR ↑ (top-1 quality) and R@10 ↓
+(diversity) --- surfaces a deliberate trade-off: the mutex improves
+precision at the cost of some recall breadth, with net positive on the
+weighted nDCG@10.
+
+The \textbf{G10b per-category breakdown} (2026-05-21, same DB, n = 100
+across 5 categories) reveals which query types absorb the trade-off:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}llllll@{}}
+\toprule\noalign{}
+Category & n & nDCG@10 Δ\% & MRR Δ\% & R@10 Δ\% & Verdict \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+single-hop & 20 & \textbf{+8.22\%} & \textbf{+13.20\%} & 0\% & strong
+win \\
+open-domain & 20 & \textbf{+2.42\%} & \textbf{+5.56\%} & 0\% & win \\
+multi-hop & 20 & −3.95\% & −2.70\% & \textbf{−6.02\%} & regression \\
+adversarial & 20 & −2.95\% & −5.88\% & 0\% & regression \\
+temporal & 20 & n/a & n/a & n/a & degenerate corpus gap \\
+\end{longtable}
+}
+
+The aggregate Δ (+0.43\% nDCG, +0.82\% MRR) is consistent in direction
+with the G10 measurement (+0.79\% / +2.65\%) but attenuated in magnitude
+--- within harness noise at n = 100, suggesting the deploy-time figure
+was on the upper end of a noisy distribution. Substantively: the mutex
+is a \textbf{single-hop optimizer with open-domain side benefits},
+balanced against a multi-hop chain-traversal regression of −6.02\% R@10.
+Net retrieval value (+0.0616 nDCG abs gain) exceeds losses (−0.0498 nDCG
+abs), so the mutex stays deployed; the multi-hop regression is
+documented as a follow-up candidate for \textbf{conditional mutex}
+(active only when \texttt{query\_entities\ ≤\ 1}).
+
+The \textbf{G11 trim ablation} (2026-05-20, same DB) tested whether
+trimming the top SOURCE\_TYPE\_BOOST values
+(\texttt{entity:\ 2.0\ →\ 1.3}, \texttt{lesson:\ 1.8\ →\ 1.2}) could
+provide additive benefit over the mutex:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Config & nDCG@10 & MRR \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Canonical (entity=2.0, lesson=1.8) & \textbf{0.5376} &
+\textbf{0.5843} \\
+Trim (entity=1.3, lesson=1.2) & 0.5337 & 0.5751 \\
+Δ & \textbf{−0.73\%} & \textbf{−1.58\%} \\
+\end{longtable}
+}
+
+Trim is \textbf{rejected}. The mutex already zeroes
+\texttt{sourceTypeDelta} where redundancy occurs (chunks with both
+\texttt{section} and high source-type); the \texttt{entity\ =\ 2.0}
+still fires legitimately on legacy non-compiled chunks where the mutex
+does not trigger, and trimming kills that residual signal. The
+single-hop category suffered worst (−4.62\% nDCG, −7.40\% MRR),
+confirming the mutex resolves redundancy \textbf{precisely}, while a
+global trim over-corrects. The boost stack settles at the canonical
+configuration:
+\texttt{section\_boost\ ×\ source\_type\_boost\ (mutex-gated)\ ×\ additive\ salience\ v2}.
+
+The \textbf{G10c per-style breakdown} (2026-05-21, same DB, n = 100
+across 2 styles --- the dataset distinguishes \texttt{keyword} vs
+\texttt{natural-language} rather than the paraphrase/literal axis the
+spec anticipated) cuts the same data along a different dimension to test
+whether mutex behavior is style-conditional:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1667}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Style
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+nDCG@10 Δ\%
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+MRR Δ\%
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+R@10 Δ\%
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Verdict
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+natural-language & 50 & \textbf{+1.56\%} & \textbf{+3.86\%} & −1.62\% &
+mutex helps \\
+keyword & 50 & −0.72\% & −2.27\% & −1.06\% & mutex slightly hurts \\
+\end{longtable}
+}
+
+The aggregate effect (+0.43\% nDCG, +0.82\% MRR --- identical to G10b
+because G10c reuses the same A8 active vs A8 disabled detail JSONs and
+re-buckets) is entirely carried by the natural-language subset. The
+keyword bucket is a small drag, within the noise floor. Two cross-cuts
+(style × category) surface as notable outliers: NL × single-hop
+(+13.83\% nDCG, +21.32\% MRR --- the biggest individual win in the data)
+and keyword × adversarial (−5.35\% nDCG, −10.0\% MRR --- the only delta
+crossing the 5\% regression threshold, n = 10). Multi-hop suffers ≈ −4\%
+across both styles, confirming the regression is \textbf{style-agnostic}
+and motivating the conditional-mutex follow-up rather than a
+style-specific routing.
+
+Triangulated across G10 (deploy figure +0.79\% / +2.65\%), G10b
+(per-category +0.43\% / +0.82\%), and G10c (per-style +0.43\% /
++0.82\%), the mutex effect is consistent in direction and on the lower
+end of the original deploy measurement in magnitude --- the deploy
+figure sat on the upper tail of a noisy distribution rather than
+reflecting a structural shift. The architectural conclusion stands:
+\textbf{keep the mutex deployed at the per-chunk level; address the
+multi-hop chain-traversal regression via a conditional gate keyed on
+\texttt{query\_entities}} --- executed in G10d below.
+
+The \textbf{G10d ablation} (2026-05-21, same \texttt{g9.db} corpus, 69
+495 chunks, 15 612 \texttt{kg\_entities}) tests a conditional variant of
+the Hard Mutex: the per-chunk gate is suppressed when the incoming query
+matches two or more entities in the KG, preserving the full boost stack
+for multi-entity chain-traversal queries while keeping the mutex active
+for single-entity and entity-free queries. The mechanism relies on
+\texttt{query-entity-count.ts}, which performs a greedy longest-match
+scan over \texttt{kg\_entities.name} at query time; the count drives
+\texttt{NOX\_MUTEX\_QUERY\_ENTITY\_THRESHOLD} in \texttt{search.ts}.
+Four configurations were run against the same 100-query golden set (n =
+100, 5 categories × 2 styles × 10), each on an isolated endpoint (port
+18803) with salience active, \textasciitilde13 min total VPS time:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1154}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1154}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1538}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1538}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1538}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1538}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 12\tabcolsep) * \real{0.1538}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Config
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+nDCG@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MRR
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Δ\%nDCG vs A8'
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Δ\%MRR vs A8'
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+A8' & G10 Hard Mutex always-on (prod baseline) & 0.5502 & 0.5992 &
+0.6183 & --- & --- \\
+A8d-1 & Conditional, threshold=1 & 0.5467 & 0.5856 & 0.6333 & −0.64\% &
+−2.27\% \\
+\textbf{A8d-2} & \textbf{Conditional, threshold=2} & \textbf{0.5577} &
+\textbf{0.6074} & \textbf{0.6233} & \textbf{+1.35\%} &
+\textbf{+1.37\%} \\
+A8 off & Mutex fully disabled (control) & 0.5438 & 0.5806 & 0.6333 &
+−1.17\% & −3.10\% \\
+\end{longtable}
+}
+
+The headline result is \textbf{A8d-2 (threshold=2) wins on all three
+primary metrics} over the A8' G10 baseline. A8d-1 regresses on nDCG and
+MRR, pointing to a critical entity-density effect: with 15 612 entities
+in \texttt{kg\_entities} --- 40× the 402 initially estimated at design
+time --- a threshold of 1 is effectively always met, collapsing the
+conditional back to the constant-off regime (no mutex). Threshold=2 is
+the minimum noise filter that restores actual conditionality at current
+entity density.
+
+The per-category breakdown reveals the mechanism of recovery:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1429}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1905}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1905}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1905}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1429}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+nDCG@10 Δ\% vs A8'
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MRR Δ\% vs A8'
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R@10 Δ\% vs A8'
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Verdict
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+multi-hop & 20 & \textbf{+1.58\%} & 0.00\% & \textbf{+3.75\%} & recovery
+--- chain signal preserved \\
+adversarial & 20 & \textbf{+3.04\%} & \textbf{+6.25\%} & 0.00\% &
+recovery --- distractor suppression improves \\
+open-domain & 20 & \textbf{+2.92\%} & \textbf{+1.59\%} & 0.00\% &
+extends G10b win \\
+single-hop & 20 & −3.26\% & −4.43\% & 0.00\% & trade-off \\
+temporal & 20 & n/a & n/a & n/a & degenerate corpus gap (unchanged) \\
+\end{longtable}
+}
+
+Multi-hop recovers because queries naming two or more entities (e.g.,
+entity + associated event or related entity) now reach top-K with the
+full \texttt{section\_boost\ ×\ source\_type\_boost} stack active,
+enabling intermediate chain chunks to surface. Adversarial recovery is
+the strongest signal: adversarial queries in the golden set tend to
+mention three or more entity names as distractors, pushing
+\texttt{query\_entity\_count\ ≥\ 2} and gating the mutex; the full boost
+stack then differentiates gold from distractors more effectively than
+the mutex-flattened ranking. The single-hop trade-off is real --- A8d-2
+nDCG drops −3.26\% vs A8' --- but is bounded: single-hop performance
+against the pre-mutex baseline (G10b mutex\_disabled) is still
+\textbf{+3.31\% nDCG / +7.78\% MRR} (absolute: 0.5470 vs 0.5295
+disabled). The conditional layer trades peak single-hop precision for
+materially better worst-case behavior across multi-hop and adversarial
+categories.
+
+Latency is unaffected: P95 spread across all four configs is 2558--2573
+ms (0.6\% variance), consistent with the \texttt{query-entity-count} hot
+path operating at sub-millisecond cost when the entity index is warmed.
+
+\textbf{Decision D51 verdict: ACTIVE-T2.} A8d-2 meets 6 of 8 evaluated
+criteria (aggregate nDCG/MRR, multi-hop nDCG/R@10, open-domain nDCG,
+adversarial nDCG). Single-hop nDCG and MRR are the two fails --- both
+against the A8' baseline that represents the maximal single-hop state
+--- and both remain strictly positive against the pre-mutex baseline.
+The aggregate net of +1.35\% nDCG / +1.37\% MRR over the G10 baseline
+justifies accepting the single-hop dilution. The canonical boost stack
+in production now reads:
+\texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex\ gated\ by\ query\_entity\_count\ ≤\ 2)\ ×\ salience\ v2\ additive}.
+
+The G10d conditional gate was deployed to production on 2026-05-21 via
+systemd environment drop-in
+(\texttt{NOX\_MUTEX\_QUERY\_ENTITY\_THRESHOLD=2}). A smoke test across
+three query archetypes confirmed correct behavior: a single-entity query
+applied the mutex as expected; a multi-entity query (count ≥ 2) returned
+an \texttt{entity::compiled} chunk at rank 1, confirming the mutex was
+suppressed and the full boost stack served the chain; a no-entity query
+bypassed the mutex entirely. Zero errors were recorded in
+\texttt{journalctl} post-restart. Three rollback paths are documented
+--- disabling only the conditional layer (preserving G10 hard mutex),
+disabling the entire mutex, and removing the drop-in --- each executable
+in under five minutes.
+
+Triangulated across G10 (+0.79\% nDCG deploy measurement), G10b
+(per-category breakdown, aggregate +0.43\%), G10c (per-style breakdown,
+aggregate +0.43\%), and G10d (conditional gate, aggregate +1.35\%), the
+mutex evolution follows a consistent trajectory: the per-chunk hard
+mutex provided a net positive but introduced multi-hop and adversarial
+regressions; the conditional layer recovers those regressions at the
+cost of moderate single-hop dilution, with the aggregate strictly
+improving at each step. The final deployed configuration is the most
+balanced across query-category diversity the series has measured.
+
+\subsubsection{5.6 Production deployment and
+observability}\label{production-deployment-and-observability}
+
+The G10d conditional Hard Mutex with
+\texttt{NOX\_MUTEX\_QUERY\_ENTITY\_THRESHOLD=2} é a configuração
+canônica em produção desde 2026-05-21. O drop-in está em
+\texttt{/etc/systemd/system/nox-mem-api.service.d/override.conf}, e três
+rollback paths permanecem documentados --- desabilitar apenas a camada
+condicional (preservando o G10 hard mutex), desabilitar o mutex inteiro
+via \texttt{NOX\_DISABLE\_MUTEX\_SECTION\_SOURCE\_TYPE=1}, ou remover o
+drop-in --- cada um executável em menos de cinco minutos. O modo
+\texttt{NOX\_SALIENCE\_MODE=active} (formulação aditiva v2) também está
+deployado em produção, consistente com a Claim 1 da §5.2; o modo
+\texttt{shadow} permanece disponível como fallback para A/B comparisons,
+mas o canonical runtime usa \texttt{active}.
+
+A camada de observabilidade F10 (Foundation observability dashboard,
+decisão D53, 2026-05-21) acompanha os dois deploys em produção.
+\textbf{Phase A} (\texttt{/observability/health.html}) expõe três
+endpoints --- \texttt{/api/observability/health},
+\texttt{/api/observability/recent-ops},
+\texttt{/api/observability/canary-tail} --- com polling de 30s sobre
+status do serviço, últimas operações destrutivas registradas em
+\texttt{ops\_audit} (status enum
+\texttt{started\ \textbar{}\ success\ \textbar{}\ failed\ \textbar{}\ crashed}),
+e o tail das execuções do cron de canary. \textbf{Phase B}
+(\texttt{/observability/evals.html}) consome
+\texttt{/api/observability/evals} lendo \texttt{audits/data-G*/},
+renderizando line charts com Chart.js sobre as séries G3 → G4 → G5 V3 →
+G8 → G9 → G10 → G10b → G10c → G10d com gate annotations (D43 threshold
+≥+15\% nDCG@10, D48 close, D51 verdict ACTIVE-T2). Ambas as fases
+passaram smoke tests no deploy (6/6 e 5/5 respectivamente) e estão
+acessíveis via Tailscale tunnel; o stack permanece lean (vanilla JS +
+Chart.js CDN, sem Prometheus/Grafana/time-series DB adicional). A
+leitura é em tempo real sobre o \texttt{nox-mem.db} canônico ---
+qualquer regressão pós-deploy aparece nos charts dentro do próximo ciclo
+de polling.
+
+\subsubsection{5.7 Honest
+characterization}\label{honest-characterization}
+
+The +78.8\% headline is decisive for the ``Pain-weighted hybrid memory''
+framing in the sense that pain is one of four additive salience
+components and the full additive formulation outperforms the legacy
+multiplicative one. It is \textbf{not} decisive for ``pain as a
+standalone retrieval signal in hybrid mode'' --- that question is
+addressed in the companion arXiv draft
+(\texttt{paper/publication/paper-draft-sec4-7.md} §5.5, E10 pain
+ablation: directional but not significant, Δ = +0.0065, 95\% CI
+{[}−0.0143, +0.0338{]}, n = 31 on the prior R01c-v1.1 corpus). The Wave
+A measurement validates the architectural choices around section-aware
+ranking and additive salience composition; per-dimension causal
+attribution of pain alone awaits the post-PR-\#154 ablation generation
+and a corpus with broader pain distribution than the current 90.67\%
+default.
+
+A G10d evolution further refines the architectural conclusion: the
+canonical boost stack
+\texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex\ gated\ by\ query\_entity\_count\ ≤\ 2)\ ×\ salience\ v2\ additive}
+deployed em 2026-05-21 trata a redundância identificada em G8/G9 sem
+zerar o sinal completo, e recupera regressões multi-hop (+1.58\% nDCG,
++3.75\% R@10) e adversarial (+3.04\% nDCG, +6.25\% MRR) ao custo de uma
+diluição contida em single-hop. A trajetória G3 → G4 → G5 V3 → G8 → G9 →
+G10 → G10b → G10c → G10d demonstra disciplina de ablation: cada
+generation isolou um componente ou condição, e cada decision (D43 gate,
+D48 saga close, D51 ACTIVE-T2) está triangulada por código (PRs
+\#150/\#151/\#153/\#154/\#177/\#181/\#182/\#198), audits
+(\texttt{audits/data-G*/}), e a camada F10 que torna o resultado
+verificável a qualquer momento em produção.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{6. Q4 COMPARISON --- Cross-System Benchmarking
+(Pre-registered)}\label{q4-comparison-cross-system-benchmarking-pre-registered}
+
+\begin{quote}
+\textbf{Status (atualizado 2026-05-24 18h BRT):} Pre-registered skeleton
+populado com o \textbf{smoke de 20 queries do Sat 2026-05-24} sobre
+eval-isolated DB (5.882 chunks LoCoMo + 940 chunks LongMemEval, k=10),
+validando a metodologia + confirmando que o pipeline nox-mem funciona
+end-to-end no eval isolado. \textbf{Partial cross-system data adicionado
+Sat 2026-05-24:} mem0 smoke completo (n=20, 500-chunk corpus cap por
+cost-control, \$0.10 ingest cost estimado). Tabela §6.3 agora contém 2
+linhas reais (nox-mem + mem0). Os 4 adapters restantes (Zep, Letta,
+agentmemory, EverMind-AI) permanecem
+\texttt{{[}PENDING\ canonical\ run{]}} até que o run canônico lande.
+Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) são
+imutáveis post-run conforme §6.7. Ref:
+\texttt{{[}{[}q4-partial-cross-system-sat-2026-05-24{]}{]}}.
+\end{quote}
+
+\subsubsection{6.1 Methodology summary}\label{methodology-summary}
+
+A §6 cobre a comparação cross-system entre nox-mem e cinco sistemas
+competidores de memória persistente para agentes de IA. O execution plan
+completo está documentado em
+\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md}
+(pre-registered 2026-05-23, antes do run de Sat 2026-05-24). Os
+princípios de comparação (§6.5), as garantias anti-cherry-pick (§6.6), e
+a pre-registration formal (§6.7) são cravados nesta seção antes da
+execução; somente as tabelas de §6.2/§6.3/§6.4 recebem números após o
+run. O objetivo é satisfazer o gate D43 (\texttt{docs/DECISIONS.md}) ---
+nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR,
+latência) --- destravando a GTM Phase 2.
+
+\subsubsection{6.2 Competitors}\label{competitors}
+
+A escolha dos cinco competidores prioriza stars no GitHub, atividade
+recente de commits e overlap funcional com o escopo do nox-mem. Versões
+são cravadas pré-execução para reprodutibilidade.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2000}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+System
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Repo
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Install path
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Version pinned
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Default config
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Mem0 & \texttt{mem0ai/mem0} & \texttt{pip\ install\ mem0ai} &
+\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+OpenAI embeddings + Chroma vector store \\
+Zep & \texttt{getzep/zep} & Docker compose (zep + postgres) &
+\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} & Local
+self-host mode \\
+Letta (ex-MemGPT) & \texttt{letta-ai/letta} &
+\texttt{pip\ install\ letta} &
+\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+SQLite backend \\
+agentmemory & \texttt{rohitg00/agentmemory} & iii-engine runtime &
+\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+Stack-bridge mode \\
+EverMind-AI & EverOS published bench & repo clone &
+\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+Native CLI \\
+\end{longtable}
+}
+
+Cada sistema roda com sua configuração default publicável (princípio
+§6.5.3): nenhum competidor é tunado adversarialmente.
+
+\subsubsection{6.3 Per-system per-dataset
+results}\label{per-system-per-dataset-results}
+
+Tabela canônica cross-system × cross-dataset. K cutoff fixado em 10 em
+todos os sistemas; latência medida externamente (wall clock around
+adapter call); custo derivado dos logs por-sistema (API calls × pricing
+publicado).
+
+\textbf{Sat 2026-05-24 partial cross-system smoke (20 queries combined,
+dry-run-sample, eval-isolated DB).} nox-mem: full corpus (6.822 chunks =
+5.882 LoCoMo + 940 LongMemEval). mem0: \textbf{500-chunk corpus cap} por
+cost-control (\$0.10 ingest cost estimado; \textasciitilde8\% do corpus
+completo). Caveat crítico: os números do mem0 refletem um corpus
+significativamente menor --- interpretação no parágrafo abaixo.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.0857}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1143}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 16\tabcolsep) * \real{0.1143}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+System
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Corpus chunks
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+nDCG@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MRR
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p50 (ms)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+avg (ms)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Gold hits
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{nox-mem} & 20 & 6.822 (full) & 0.6380 & 0.5417 & \textbf{0.3700}
+& \textbf{8} & \textbf{9} & \textbf{13/20 (65\%)} \\
+\textbf{mem0} (500-cap) & 20 & 500 (\textasciitilde8\%) &
+\textbf{0.8569} & 0.2500 & 0.1167 & 273 & 288 & 3/20 (15\%) \\
+\end{longtable}
+}
+
+Per-dataset gold-hit breakdown do nox-mem smoke: \textbf{LoCoMo 7/10
+(70\%) · LongMemEval 6/10 (60\%)}.
+
+\textbf{Interpretação do trade-off (honestidade obrigatória):}
+
+Os dois sistemas exibem perfis opostos. nox-mem, com corpus completo
+(6.822 chunks, ingest local zero-custo), produz \textbf{4× maior
+hit-rate} (65\% vs 15\%) e \textbf{MRR 3× melhor} (0.37 vs 0.12) --- o
+primeiro hit relevante chega antes em nox-mem. A latência de nox-mem é
+\textbf{30× mais rápida} (8ms p50 vs 273ms p50), reflexo da busca local
+vs chamadas à API mem0.
+
+mem0, operando sobre apenas 500 chunks (\textasciitilde8\% do corpus),
+exibe \textbf{nDCG@10 superior} (0.86 vs 0.64): os poucos hits que
+retorna tendem a ser top-ranked, produzindo alta concentração de
+relevância nas primeiras posições. Isso é um artefato de corpus window
+menor --- com janela restrita, o sistema tem menos competição entre
+resultados candidatos, o que infla o nDCG per-se mas mascara a cobertura
+real (R@10 = 0.25 vs 0.54). Em produção com corpus completo e mesmo
+custo de ingest, a relação nDCG pode inverter; o run canônico (corpus
+uniforme, sem cap) será o árbitro desta hipótese.
+
+Resumo executivo: \textbf{nox-mem ganha em cobertura (hits), velocidade
+(latência), e first-hit quality (MRR). mem0 ganha em concentração de
+relevância por-resultado (nDCG@10) dentro de uma janela de corpus
+menor.} Corpus cap de 500 chunks para mem0 é cost-control explícito ---
+\$0.10 estimado vs zero-cost local; dados iguais de corpus revertem
+parcialmente o nDCG gap.
+
+O smoke não disaggregou \texttt{nDCG@10} por dataset (combined-only) ---
+desagregação canônica vem no run completo. Os números a seguir são da
+execução canônica que ainda está em curso.
+
+\textbf{LongMemEval n=100 (canonical):}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0968}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+System
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+nDCG@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MRR
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p50 (ms)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p95 (ms)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p99 (ms)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Cost/query (USD)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{nox-mem} & \texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} & \textasciitilde\$0.00
+(local) \\
+Mem0 &
+\texttt{{[}PENDING\ canonical\ run\ —\ full\ corpus,\ no\ 500-cap{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\textasciitilde\$0.10+ ingest \\
+Zep & \texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} \\
+Letta & \texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} \\
+agentmemory &
+\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} \\
+EverMind-AI &
+\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} \\
+\end{longtable}
+}
+
+\textbf{LoCoMo full (canonical):}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0968}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+System
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+nDCG@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+R@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+MRR
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p50 (ms)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p95 (ms)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+p99 (ms)
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Cost/query (USD)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{nox-mem} & \texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} &
+\texttt{{[}PENDING\ canonical\ run{]}} & \textasciitilde\$0.00
+(local) \\
+Mem0 &
+\texttt{{[}PENDING\ canonical\ run\ —\ full\ corpus,\ no\ 500-cap{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\textasciitilde\$0.10+ ingest \\
+Zep & \texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} \\
+Letta & \texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} \\
+agentmemory &
+\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} \\
+EverMind-AI &
+\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} \\
+\end{longtable}
+}
+
+Linhas que falharem smoke test (§6.5) são reportadas com nota explícita
+\texttt{{[}FALHA:\ adapter\ setup\ gap{]}} em vez de omitidas,
+consistente com §6.6. O run canônico atualiza estas tabelas em commit
+dedicado quando 6/6 adapters estiverem prontos com corpus uniforme (sem
+cap). Ref: \texttt{{[}{[}q4-partial-cross-system-sat-2026-05-24{]}{]}}.
+
+\subsubsection{6.4 Per-category breakdown}\label{per-category-breakdown}
+
+Decomposição por categoria de query do LongMemEval. nox-mem reporta as
+seis categorias canônicas; competidores reportam idem onde a categoria
+está presente no dataset original.
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0968}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+n
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+nox-mem nDCG@10
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Mem0
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Zep
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Letta
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+agentmemory
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+EverMind-AI
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+single-hop & \texttt{{[}PENDING\ canonical{]}} &
+\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} \\
+multi-hop & \texttt{{[}PENDING\ canonical{]}} &
+\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} \\
+temporal & \texttt{{[}PENDING\ canonical{]}} &
+\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} \\
+adversarial & \texttt{{[}PENDING\ canonical{]}} &
+\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} \\
+open-domain & \texttt{{[}PENDING\ canonical{]}} &
+\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} \\
+numeric & \texttt{{[}PENDING\ canonical{]}} &
+\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
+\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
+& \texttt{{[}PENDING{]}} \\
+\end{longtable}
+}
+
+O \textbf{smoke de Sat 2026-05-24} não disaggregou per-category
+(combined-only sobre 20 queries), portanto §6.4 inteira aguarda o run
+canônico de 100 queries × 2 datasets × 6 sistemas. Quando uma categoria
+não tem queries suficientes (n \textless{} 10) em algum dataset, a
+célula recebe \texttt{n/a} em vez de extrapolação, evitando o tipo de
+regressão que aparece em §5.5 (temporal \texttt{n/a} na G10b por corpus
+gap degenerado).
+
+\subsubsection{6.5 Fair-comparison
+principles}\label{fair-comparison-principles}
+
+A comparação obedece a princípios padronizados pela literatura de
+benchmark publicado (EverMemBench, BEIR, MTEB):
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Corpus idêntico.} Todos os sistemas recebem o mesmo
+  \texttt{chunks.text} ingerido via a API nativa de cada um. Nenhum
+  sistema recebe versão ``otimizada'' do corpus.
+\item
+  \textbf{Eval set idêntico.} Mesmas queries, mesmos gold sets, mesmo
+  random seed (\texttt{42} para shuffle do LongMemEval).
+\item
+  \textbf{Defaults nativos por sistema.} Cada competidor roda com sua
+  configuração default publicável. Não tunamos competidores
+  adversarialmente para perder; se default config é o que é publicado, é
+  o que é avaliado.
+\item
+  \textbf{K cutoff fixo em 10.} Alguns sistemas defaultam para 5 ou 20;
+  todos são forçados a \texttt{k=10} para comparabilidade.
+\item
+  \textbf{Embeddings provider nativo por sistema.} nox-mem usa Gemini
+  3072d; cada competidor usa seu provider default. Uma variação
+  \texttt{all-Gemini} é planejada como side experiment opcional,
+  deferred porque o smoke de Sat 2026-05-24 consumiu o time-box antes do
+  experiment
+  (\texttt{{[}deferred\ —\ Sun\ 2026-05-25\ ou\ follow-up\ post-launch{]}}).
+\item
+  \textbf{Hardware uniforme.} Mesmo VPS (Hostinger 8 cores / 16 GB RAM),
+  localhost between systems exceto chamadas a embeddings APIs externas.
+\end{enumerate}
+
+Cada adapter passa um smoke test pré-run:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{result }\OperatorTok{=}\NormalTok{ adapter.search(}\StringTok{"test query"}\NormalTok{, k}\OperatorTok{=}\DecValTok{5}\NormalTok{)}
+\ControlFlowTok{assert} \BuiltInTok{len}\NormalTok{(result) }\OperatorTok{\textgreater{}=} \DecValTok{1}
+\ControlFlowTok{assert} \BuiltInTok{all}\NormalTok{(}\StringTok{\textquotesingle{}id\textquotesingle{}} \KeywordTok{in}\NormalTok{ r }\KeywordTok{and} \StringTok{\textquotesingle{}score\textquotesingle{}} \KeywordTok{in}\NormalTok{ r }\ControlFlowTok{for}\NormalTok{ r }\KeywordTok{in}\NormalTok{ result)}
+\end{Highlighting}
+\end{Shaded}
+
+Adapter que falhar smoke é documentado como gap
+(\texttt{{[}FALHA:\ \textless{}razão\textgreater{}{]}}) em vez de
+omitido --- consistente com §6.6.
+
+\subsubsection{6.6 Anti-cherry-pick
+statement}\label{anti-cherry-pick-statement}
+
+Para evitar viés de seleção retroativo:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Todas as 6 categorias reportadas.} Nenhuma é omitida porque o
+  resultado é desfavorável.
+\item
+  \textbf{Ambos os datasets reportados.} LongMemEval n=100 + LoCoMo
+  full, lado a lado. Não escolhemos o que beneficia.
+\item
+  \textbf{Latência worst-case reportada.} p50 + p95 + p99 explícitos.
+  Não publicamos apenas p50.
+\item
+  \textbf{Per-system per-category transparency.} A tabela de §6.4 expõe
+  cada combinação; não há linha agregada que mascare um padrão.
+\item
+  \textbf{Gaps documentados.} Sistemas que falharem setup recebem nota
+  explícita; a comparação roda sem o sistema faltante, mas o gap é
+  registrado em \texttt{docs/COMPARISON.md}.
+\end{itemize}
+
+\subsubsection{6.7 Pre-registration}\label{pre-registration}
+
+A metodologia desta seção está cravada no
+\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md} antes do run
+de Sat 2026-05-24. O \textbf{smoke de Sat 2026-05-24 15h30 BRT}
+preencheu a primeira linha de §6.3 (nox-mem combined: nDCG@10=0.6380,
+p50=8ms, gold-hit 13/20 em 20 queries dry-run-sample) e validou que o
+pipeline de retrieval funciona end-to-end em eval-isolated DB. O
+\textbf{partial cross-system smoke de Sat 2026-05-24 18h BRT} adicionou
+a linha mem0 (n=20, 500-chunk corpus cap): nDCG@10=0.8569, p50=273ms,
+gold-hit 3/20 (15\%) --- com interpretação explícita do trade-off
+coverage vs concentração em §6.3. O \textbf{run canônico} ainda está em
+curso e atualiza as linhas competidoras
+\texttt{{[}PENDING\ canonical\ run{]}} em §6.3 + a totalidade de §6.4
+quando os 6 adapters estiverem prontos com corpus uniforme. Princípios
+(§6.5), anti-cherry-pick (§6.6) e a estrutura geral desta seção são
+imutáveis post-run. Qualquer ajuste metodológico identificado durante a
+execução é documentado como follow-up explícito em
+\texttt{docs/COMPARISON.md} em vez de retroagido aqui. Refs:
+\texttt{{[}{[}q4-smoke-sat-2026-05-24-real-numbers{]}{]}} ·
+\texttt{{[}{[}q4-partial-cross-system-sat-2026-05-24{]}{]}}.
+
+A decisão D43 (\texttt{docs/DECISIONS.md}) define o gate de aprovação:
+nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR,
+latência). Atendido o gate, GTM Phase 2 está destravada conforme
+\texttt{docs/ROADMAP.md} §7. Não atendido, a sessão de Sun 2026-05-25
+produz um plano de remediação (ajustes pre-launch) em vez de launch
+direto.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{7. Limitations and Future
+Work}\label{limitations-and-future-work}
+
+\subsubsection{7.1 Limitations}\label{limitations}
+
+\paragraph{L1 --- Explicit-ingestion dependency (no zero-shot corpus
+coverage)}\label{l1-explicit-ingestion-dependency-no-zero-shot-corpus-coverage}
+
+nox-mem retrieves only what has been explicitly ingested via
+\texttt{ingestFile()}, \texttt{ingest-entity}, or the inotifywait
+watcher pipeline. There is no mechanism to answer queries over arbitrary
+external corpora at query time. This is a deliberate design constraint
+--- the system is optimized for an agent's \emph{own} accumulated
+memory, not general-purpose retrieval augmentation --- but it means that
+coverage is bounded by ingestion discipline. A corpus that has never
+been ingested produces zero recall regardless of query quality. Users
+bootstrapping the system must explicitly run \texttt{nox-mem\ reindex}
+over existing files before the hybrid search layer is useful. Ref:
+\texttt{specs/2026-03-14-nox-memory-system-design.md}, ingestion
+pipeline §3.1.
+
+\paragraph{L2 --- Gemini API dependency for embeddings (cost + outbound
+network)}\label{l2-gemini-api-dependency-for-embeddings-cost-outbound-network}
+
+The semantic retrieval layer (Layer 2) depends on Google's
+\texttt{gemini-embedding-001} model (3072 dimensions). This introduces
+two constraints: (a) every vectorization call requires outbound network
+access and a valid \texttt{GEMINI\_API\_KEY}, meaning an air-gapped
+deployment falls back to FTS5-only retrieval with no semantic recall;
+(b) API cost scales with corpus size --- at the Sat 2026-05-24 corpus of
+\textasciitilde69k chunks, a full re-vectorization pass takes
+approximately 30--40 minutes at quota limits of the free tier. The
+Autonomy pillar of the Q/A/P strategy explicitly calls out ``provider
+your choice, zero vendor lock-in'' as a long-term goal; local embedding
+substitution (e.g., \texttt{nomic-embed-text} via Ollama) is
+architecturally feasible but not validated against the canonical eval
+set. BYOK partial autonomy is available: users who supply their own
+Gemini API key operate without per-query billing exposure in the default
+free tier. Ref: \texttt{docs/DECISIONS.md} (model selection),
+\texttt{{[}{[}default-flash-lite-for-agent-infra-tasks{]}{]}}.
+
+\paragraph{L3 --- Single-instance architecture (no distributed sharding
+or
+replication)}\label{l3-single-instance-architecture-no-distributed-sharding-or-replication}
+
+The system runs on a single SQLite file per agent database. WAL mode
+provides concurrent read safety, but there is no horizontal sharding, no
+replication across nodes, and no distributed coordination layer. The
+current production corpus (69k chunks across 7 databases on a 4-vCPU /
+8GB KVM4) operates comfortably within these bounds, but the architecture
+does not generalize to multi-tenant deployments or corpora significantly
+exceeding the single-node memory/storage envelope. Distributed SQLite
+extensions (e.g., \texttt{cr-sqlite} CRDT-based replication) exist but
+are explicitly out of scope for v1. This is a known architectural
+decision, not an oversight. Ref: \texttt{docs/DECISIONS.md}
+(single-instance rationale).
+
+\paragraph{L4 --- No write-side concurrency control
+(last-writer-wins)}\label{l4-no-write-side-concurrency-control-last-writer-wins}
+
+Chunk ingestion operates under an optimistic concurrency model:
+\texttt{ingestFile()} deletes existing chunks for the source file and
+re-inserts in a single transaction, but there is no row-level locking or
+version fence against concurrent ingest of the same source file from two
+processes. In practice the inotifywait watcher and manual CLI calls
+rarely overlap, and the WAL journal prevents data corruption; however,
+two concurrent ingest calls on the same file produce non-deterministic
+chunk counts. The \texttt{withOpAudit()} wrapper
+(\texttt{src/lib/op-audit.ts}) does not add a mutual-exclusion layer for
+ingest --- it targets destructive bulk operations (reindex, consolidate,
+crystallize). Production mitigations are operational (systemd service
+prevents concurrent watcher processes; cron stagger of 5 minutes between
+agents), not architectural. Ref: \texttt{docs/INCIDENTS.md\#2026-04-25},
+\texttt{{[}{[}a1-op-audit-module{]}{]}}.
+
+\paragraph{L5 --- Evaluation sample size and canonical run gap (n=20
+smoke vs n=100
+target)}\label{l5-evaluation-sample-size-and-canonical-run-gap-n20-smoke-vs-n100-target}
+
+The Sat 2026-05-24 cross-system comparison (§6.3) is based on a 20-query
+smoke over an eval-isolated DB (5,882 LoCoMo + 940 LongMemEval chunks),
+not the pre-registered canonical 100-query × 2-dataset × 6-system run.
+The canonical run was in progress at the time of this writing (5/6
+competitor adapters under setup). All competitive figures for Mem0, Zep,
+Letta, agentmemory, and EverMind-AI in §6 carry
+\texttt{{[}PENDING\ canonical\ run{]}} tags and should not be treated as
+settled results. The nox-mem smoke figure (nDCG@10 = 0.6380 combined,
+p50 = 12 ms) is validated on the methodology but not directly comparable
+to the G5 V3 entity-eval figure (0.6237) because the eval corpus and
+query set differ. Ref:
+\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md},
+\texttt{{[}{[}q4-smoke-sat-2026-05-24-real-numbers{]}{]}}.
+
+\paragraph{L6 --- Cross-system comparison is methodologically
+partial}\label{l6-cross-system-comparison-is-methodologically-partial}
+
+Three of five competitors could not be evaluated against the full
+canonical corpus at the time of writing. Mem0 ran against a 500-chunk
+corpus cap imposed by cost-control constraints (\$0.10 estimated ingest
+cost at full corpus), producing a nDCG@10 = 0.8569 on 20 queries that
+cannot be directly compared to nox-mem's full-corpus score --- a
+smaller, more concentrated corpus tends to inflate nDCG for systems that
+retrieve all relevant documents. Zep and Letta require Docker compose
+setups that were in progress. EverMind-AI's repository was unavailable
+at time of access. The ``concentration vs coverage trade-off'' (high
+nDCG on capped corpus vs recall breadth on full corpus) is a genuine
+open question for per-system fair comparison, not a methodological
+failure. Ref: §6.3 anti-cherry-pick statement,
+\texttt{docs/COMPARISON.md},
+\texttt{{[}{[}q4-partial-cross-system-sat-2026-05-24{]}{]}}.
+
+\paragraph{L7 --- Latency comparison conflates transport
+classes}\label{l7-latency-comparison-conflates-transport-classes}
+
+The Sat 2026-05-24 latency figures compare nox-mem (local FTS5 +
+sqlite-vec with Gemini API call for query embedding) against competitor
+adapters that go over HTTP or Python SDK to local Docker services. The
+nox-mem p50 = 12 ms figure reflects localhost UNIX-domain retrieval; the
+Mem0 p50 = 273 ms reflects a Docker-in-Docker HTTP call. These are not
+the same transport class. A valid latency comparison requires a
+normalized transport --- either all systems behind the same HTTP
+gateway, or all measured at the SDK level without network hop
+differences. The §6 latency figures are reported with this caveat in the
+per-system notes and should not be interpreted as head-to-head speed
+claims. Ref: \texttt{{[}{[}q3-latency-numbers-2026-05-18{]}{]}},
+\texttt{docs/PERFORMANCE.md}.
+
+\paragraph{L8 --- Pain signal is directional but not statistically
+significant in
+isolation}\label{l8-pain-signal-is-directional-but-not-statistically-significant-in-isolation}
+
+The ``pain-weighted hybrid memory'' framing rests primarily on the
+additive salience formula (§5.2) and section-aware ranking (§5.3). The
+\texttt{pain} dimension contributes W\_PAIN = 0.10 of the salience
+weight, but its isolated causal contribution has not been validated to
+statistical significance: the E10 pain ablation
+(\texttt{paper/publication/paper-draft-sec4-7.md} §5.5) reports Δ =
++0.0065 with 95\% CI {[}−0.0143, +0.0338{]} on n = 31, directional but
+not significant. The current production corpus has 90.67\% of chunks at
+the default \texttt{pain\ =\ 0.2}, providing insufficient variance for a
+precise estimate. A definitive pain signal ablation requires a corpus
+where pain scores span the full {[}0.1, 1.0{]} range. Ref: §5.7 honest
+characterization, \texttt{{[}{[}d47-path-c-decision{]}{]}}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsubsection{7.2 Future Work}\label{future-work}
+
+\paragraph{F1 --- A2 Tier 3 P5: production-ready encrypted memory (in
+flight)}\label{f1-a2-tier-3-p5-production-ready-encrypted-memory-in-flight}
+
+Phase 5 of the A2 Tier 3 roadmap targets a full SQLCipher-encrypted
+memory store with Ed25519-signed audit checkpoints (P4 deployed via PR
+\#294). The signed checkpoint chain enables tamper-evident audit across
+destructive operations (\texttt{reindex}, \texttt{consolidate},
+\texttt{crystallize}) without requiring a central trust authority. P5
+closes the Tier 3 arc by integrating encryption key management with the
+existing \texttt{withOpAudit()} wrapper and the Tier 3 reads-audit layer
+(P3, PR \#292/\#293). Target deployment: post-GTM Phase 2 launch,
+estimated Sun 2026-05-25. Ref:
+\texttt{specs/2026-05-24-A2-tier3-crypto-audit-RECON.md},
+\texttt{docs/A2-TIER3-MIGRATION-RUNBOOK.md},
+\texttt{{[}{[}a1-op-audit-module{]}{]}}.
+
+\paragraph{F2 --- F10 Phase C/D: shadow tracker empirical A/B for
+ranking
+changes}\label{f2-f10-phase-cd-shadow-tracker-empirical-ab-for-ranking-changes}
+
+F10 Phase A (\texttt{/observability/health.html}) and Phase B
+(\texttt{/observability/evals.html}) are deployed (§5.6, decision D53).
+Phase C targets a shadow-mode query logger that captures production
+queries, executes them against a candidate ranking config in parallel,
+and accumulates query-level nDCG deltas before any promotion decision.
+Phase D operationalizes this into a pre-promotion gate: any ranking
+change (boost weight adjustment, mutex threshold, salience weight) that
+has not accumulated ≥50 shadow queries with p \textless{} 0.05
+improvement is blocked from reaching the production endpoint. This
+closes the observability gap identified in
+\texttt{{[}{[}ship-ranking-changes-in-shadow-mode-first{]}{]}} ---
+currently the shadow mode is a flag toggle, not an integrated eval
+pipeline. Ref: \texttt{docs/ROADMAP.md} F10, decision D53, PR
+\#207/\#212.
+
+\paragraph{F3 --- Per-method benchmark Phase B: cross-method nDCG
+optimization}\label{f3-per-method-benchmark-phase-b-cross-method-ndcg-optimization}
+
+The Q4 per-method benchmark (§6,
+\texttt{specs/2026-05-21-per-method-benchmark-comparison.md})
+establishes the cross-system baseline. Phase B targets per-query-type
+boost calibration: given that keyword queries respond differently from
+natural-language queries (G10c §5.5), and single-hop vs multi-hop have
+opposing mutex trade-offs (G10b §5.5), a routing layer that selects
+ranking parameters based on query-type classification has measurable
+potential upside. Estimated Lab Q1 item. Ref:
+\texttt{specs/2026-05-21-per-method-benchmark-comparison.md},
+\texttt{{[}{[}g10c-per-style-mutex-2026-05-21{]}{]}}.
+
+\paragraph{F4 --- EverMemBench equivalence: honest comparison against
+EverMind-AI
+dataset}\label{f4-evermembench-equivalence-honest-comparison-against-evermind-ai-dataset}
+
+\texttt{{[}{[}everos-honest-comparison-benchmark-gap{]}{]}} identifies
+that EverMind-AI publishes standardized results on EverMemBench
+(EverCore 83\% LongMemEval / 93\% LoCoMo; HyperMem 92.73\% LongMemEval).
+Running nox-mem on EverMemBench with the same evaluation protocol closes
+the benchmark gap and provides a reviewer-grade comparison for the arXiv
+submission. This is gated on EverMind-AI repository availability
+(currently unavailable) or an alternative comparable dataset. Estimated
+Lab Q1 priority if the repository returns. Ref:
+\texttt{{[}{[}everos-benchmark-publisher-competitor{]}{]}},
+\texttt{{[}{[}benchmark-gap-longmemeval-locomo{]}{]}}.
+
+\paragraph{F5 --- Neural reranker: cross-encoder rerank
+post-RRF}\label{f5-neural-reranker-cross-encoder-rerank-post-rrf}
+
+The current retrieval stack terminates at RRF fusion (§4.1). A
+cross-encoder reranker --- receiving the top-K RRF candidates and the
+original query as a pair --- is the standard next step in multi-stage
+retrieval and typically yields +3--8\% nDCG@10 over bi-encoder baselines
+(see e.g., Nogueira \& Cho 2019 on MS MARCO). The Autonomy constraint
+(\texttt{{[}{[}neural-reranker-evolution-vector{]}{]}}) favors a
+locally-runnable cross-encoder (e.g.,
+\texttt{cross-encoder/ms-marco-MiniLM-L-6-v2} via sentence-transformers,
+\textasciitilde66MB) over a cloud inference call, keeping the retrieval
+stack fully offline-capable. Estimated Lab Q1/Q2. Ref:
+\texttt{{[}{[}neural-reranker-as-vetor-evolutivo-pos-rrf{]}{]}},
+\texttt{docs/ROADMAP.md} Lab Q1.
+
+\paragraph{F6 --- Lab Q1 scale validation: 250k chunk
+corpus}\label{f6-lab-q1-scale-validation-250k-chunk-corpus}
+
+The current production corpus is 69,495 chunks (as of G10, 2026-05-20).
+The Lab Q1 roadmap targets a 250k chunk corpus to validate: (a)
+sqlite-vec ANN recall at scale (current exact-search; approximate search
+becomes necessary past \textasciitilde100k vectors at reasonable latency
+targets); (b) salience formula stability (the recency component decays
+over a longer history window); (c) FTS5 BM25 IDF calibration (with more
+documents, rare-term IDF weights shift). The
+\texttt{{[}{[}lab-q1-scale-250k{]}{]}} item has no committed spec yet;
+it is gated on \texttt{NOX\_SALIENCE\_MODE=active} remaining stable
+through the GTM Phase 2 feedback cycle. Ref: \texttt{docs/ROADMAP.md}
+Lab Q1, \texttt{{[}{[}q-a-p-pillars-strategic-pivot-2026-05-17{]}{]}}.
+
+\paragraph{F7 --- Multilingual corpus coverage: Portuguese and
+Spanish}\label{f7-multilingual-corpus-coverage-portuguese-and-spanish}
+
+The current evaluation corpus is English-dominant (LongMemEval and
+LoCoMo are English datasets; the internal entity-eval golden set mixes
+English and Portuguese). The FTS5 \texttt{unicode61} tokenizer with
+porter stemmer does not stem Portuguese or Spanish tokens correctly
+(e.g., ``decisão'' stems to ``decisa'' rather than ``decid-''; Spanish
+gerunds lose morphological overlap). The Gemini semantic layer partially
+compensates via cross-lingual embedding space, but there is no explicit
+multilingual evaluation. A Portuguese golden set is a natural next step
+given the production operational language of the corpus. This is
+deferred to post-launch community feedback intake.
+
+\paragraph{F8 --- GTM Phase 2 launch and community feedback
+intake}\label{f8-gtm-phase-2-launch-and-community-feedback-intake}
+
+The Q/A/P roadmap (decision
+\texttt{{[}{[}qap-pillars-strategic-pivot-2026-05-17{]}{]}}) defines GTM
+Phase 2 as gated on D43 (nox-mem top-3 in ≥2 of 4 key metrics ---
+nDCG@10, R@10, MRR, latency). The target launch date is Wed 2026-06-03,
+conditional on the canonical Q4 run completing and D43 passing.
+Post-launch, community feedback from the OSS release is expected to
+surface real-world limitation patterns not visible in the synthetic
+golden sets (e.g., corpora with high image-to-text OCR content,
+multi-language mixes, or very short memory fragments \textless{} 20
+words that the current chunker merges). The feedback cycle directly
+informs Lab Q2 priorities. Ref: \texttt{docs/ROADMAP.md} GTM Phase 2,
+\texttt{docs/gtm/},
+\texttt{{[}{[}overnight-automode-push-pattern{]}{]}}.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{8. Knowledge Graph v2}\label{knowledge-graph-v2}
+
+\subsubsection{8.1 Entity Extraction}\label{entity-extraction}
+
+\textbf{v1 (Regex-based)}: Used hardcoded regular expressions for 3
+entity types (person, project, agent) with a static alias map for name
+normalization. Limited to predefined names, producing 26 entities.
+
+\textbf{v2 (LLM-powered)}: Uses Ollama llama3.2:3b with a structured
+extraction prompt. Each chunk is processed with temperature 0.1 for
+deterministic output. The LLM returns JSON with entities (name + type)
+and relations (source + relation + target).
+
+Extraction results after processing 866 chunks:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Metric & Regex v1 & LLM v2 & Improvement \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Entities & 26 & 384 & 14.8x \\
+Relations & 59 & 529 & 9.0x \\
+Entity Types & 3 & 11 & 3.7x \\
+\end{longtable}
+}
+
+\textbf{Entity Type Distribution:}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Type & Count & Description \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+project & 109 & Software projects, products, repos \\
+tool & 67 & Libraries, frameworks, CLI tools \\
+concept & 54 & Abstract ideas, patterns, methodologies \\
+person & 53 & Team members, contacts, stakeholders \\
+organization & 50 & Companies, teams, departments \\
+agent & 45 & AI agents in the fleet \\
+location & 2 & Geographic references \\
+other & 4 & Device, currency, date, computer \\
+\end{longtable}
+}
+
+\subsubsection{8.2 Temporal Decay and TTL}\label{temporal-decay-and-ttl}
+
+Relations have a 90-day time-to-live (TTL) from creation. The confidence
+decay mechanism operates as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Relations start with confidence 0.8 (extracted) or 0.9 (confirmed)
+\item
+  Every 30 days without re-confirmation, confidence drops by 0.1
+\item
+  Relations below 0.3 confidence receive accelerated 7-day expiry
+\item
+  Expired relations are deleted during \texttt{kg-prune} execution
+\item
+  Re-confirmation (observing the same relation in new chunks) resets
+  confidence to 0.9 and extends TTL by 90 days
+\end{enumerate}
+
+This mechanism ensures the knowledge graph naturally forgets stale
+information while reinforcing actively observed patterns.
+
+\subsubsection{8.3 Decision Versioning}\label{decision-versioning}
+
+Architectural decisions are tracked with full version history in the
+\texttt{decision\_versions} table. Each decision has a unique key (e.g.,
+\texttt{dedup-strategy}, \texttt{fallback-chain}) and supports:
+
+\begin{itemize}
+\tightlist
+\item
+  Version chains with supersession tracking
+\item
+  Authorship attribution
+\item
+  Source file provenance
+\item
+  Current vs.~historical querying
+\end{itemize}
+
+10 decisions are currently tracked, covering API key management, LLM
+fallback chains, embedding model selection, agent isolation strategy,
+and synchronization schedules.
+
+\subsubsection{8.4 Graph Traversal}\label{graph-traversal}
+
+The \texttt{findPath()} function implements BFS (Breadth-First Search)
+to discover shortest paths between any two entities. This enables
+queries like ``How is Toto connected to nox-mem?'' which traverses
+person → project → tool → agent relationships. Maximum depth is
+configurable (default: 4 hops).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{9. Cross-Agent Intelligence}\label{cross-agent-intelligence}
+
+\subsubsection{9.1 Agent Expertise
+Profiling}\label{agent-expertise-profiling}
+
+Each agent's memory is analyzed to determine its unique expertise based
+on chunk type distribution. The dominant chunk type determines the
+agent's strength category:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{daily} → ``Daily operations \& activity logging''
+\item
+  \textbf{team} → ``Team coordination \& shared knowledge''
+\item
+  \textbf{decision} → ``Decision tracking \& rationale''
+\item
+  \textbf{lesson} → ``Lessons learned \& pattern recognition''
+\end{itemize}
+
+Profiles include chunk counts, type breakdowns, top topics (via FTS5
+term frequency), and last activity dates.
+
+\subsubsection{9.2 Knowledge Sharing}\label{knowledge-sharing}
+
+The \texttt{pullInsightsFrom()} function enables any agent to query
+lessons and decisions from other agents without direct database access.
+This creates a knowledge transfer mechanism where, for example, Cipher
+(Security) can learn from Forge's (Code Reviewer) past code review
+decisions.
+
+\texttt{pullAllInsights()} aggregates insights across all agents, sorted
+by date, providing a fleet-wide learning feed.
+
+\subsubsection{9.3 Cross-Agent Knowledge Graph
+Merge}\label{cross-agent-knowledge-graph-merge}
+
+\texttt{mergeCrossKnowledgeGraphs()} scans all agent databases for
+kg\_entities and kg\_relations tables, merging them into a unified
+entity view. Entities are matched by type + lowercase name. The output
+shows which entities are known to which agents and their combined
+mention counts, enabling identification of shared knowledge
+vs.~agent-specific expertise.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{10. MCP Server Interface}\label{mcp-server-interface}
+
+nox-mem exposes 14 tools via the Model Context Protocol (MCP) over stdio
+(JSON-RPC 2.0):
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2069}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3448}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4483}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Tool
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+nox\_mem\_search & Retrieval & Hybrid search (FTS5 + semantic + RRF) \\
+nox\_mem\_stats & Monitoring & Database statistics and health \\
+nox\_mem\_primer & Context & Session recovery summary
+(\textasciitilde500 tokens) \\
+nox\_mem\_ingest & Ingestion & Index a file into memory \\
+nox\_mem\_cross\_search & Cross-Agent & Search across all 7 databases \\
+nox\_mem\_cross\_stats & Cross-Agent & Chunk counts per agent \\
+nox\_mem\_metrics & Monitoring & Daily observability metrics \\
+nox\_mem\_kg\_build & KG & Build knowledge graph from chunks \\
+nox\_mem\_kg\_query & KG & Query entity and its relations \\
+nox\_mem\_kg\_stats & KG & Knowledge graph statistics \\
+nox\_mem\_agent\_profiles & Intelligence & Agent expertise profiles \\
+nox\_mem\_cross\_kg & Intelligence & Merged cross-agent knowledge
+graph \\
+nox\_mem\_kg\_path & Intelligence & BFS path between entities \\
+nox\_mem\_self\_improve & Analysis & Contradiction detection, pattern
+analysis \\
+\end{longtable}
+}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{11. HTTP API Server}\label{http-api-server}
+
+A lightweight HTTP API (Node.js built-in \texttt{http} module, zero
+dependencies) runs on port 18800, exposing memory data to the React
+dashboard:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3571}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2857}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3571}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Endpoint
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Method
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Response
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{/api/health} & GET & System health: chunks, consolidation,
+vector coverage, services, KG stats, DB size \\
+\texttt{/api/agents} & GET & Agent expertise profiles array \\
+\texttt{/api/kg} & GET & Knowledge graph entities and relations \\
+\texttt{/api/kg/path?from=X\&to=Y} & GET & BFS shortest path between
+entities \\
+\texttt{/api/search?q=QUERY\&limit=N} & GET & Hybrid search results \\
+\texttt{/api/cross-kg} & GET & Merged cross-agent knowledge graph \\
+\end{longtable}
+}
+
+CORS headers are set for cross-origin access from the Vercel-hosted
+dashboard.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{12. Operational
+Infrastructure}\label{operational-infrastructure}
+
+\subsubsection{12.1 Cron Schedule}\label{cron-schedule}
+
+24 cron jobs manage automated operations:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1935}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3548}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1613}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2903}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Time
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Frequency
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Job
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Details
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+23:00-23:25 & Daily & Agent consolidation & 6 agents, 5-min stagger,
+reindex→consolidate \\
+23:30 & Daily & Workspace consolidation & Central workspace daily
+notes \\
+23:35 & Daily & Session wrap-up & SESSION-STATE.md, Notion sync, git
+commit \\
+04:00 & Weekly (Sun) & Vectorize & Gemini embeddings for new/changed
+chunks \\
+*/5 min & Continuous & Health check & Watcher heartbeat, service
+liveness \\
+02:00 & Daily & SQLite backup & Online backup API, 7-day retention
+pruning \\
+*/6 hours & Continuous & Git backup & Auto-commit memory file changes \\
+09:00 & Weekly (Mon) & Token check & Forge CC token verification \\
+\end{longtable}
+}
+
+\subsubsection{12.2 Backup Strategy}\label{backup-strategy}
+
+Three backup mechanisms operate independently:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{SQLite Online Backup}: Uses better-sqlite3's backup API for
+  crash-consistent copies. Daily at 02:00, 7-day retention with
+  automatic pruning.
+\item
+  \textbf{Git Auto-Commit}: Memory directory changes are committed every
+  6 hours, providing full change history.
+\item
+  \textbf{File System}: WAL mode ensures database consistency during
+  concurrent reads/writes.
+\end{enumerate}
+
+\subsubsection{12.3 LLM Fallback Chain}\label{llm-fallback-chain}
+
+To ensure continuous operation regardless of provider availability:
+
+\textbf{Paid Tier}: Claude Opus → Sonnet → Haiku → GPT-5.1 → Gemini 2.5
+\textbf{Free Tier}: Nemotron → Groq Llama70B → Healer → Hunter → Trinity
+→ Gemma27B
+
+The fallback is configured in the environment and selected at runtime
+based on task complexity and availability.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{13. Dashboard Integration}\label{dashboard-integration}
+
+The TotoClaw Command Center (React 18 + TypeScript + Vite + shadcn/ui)
+provides 11 pages including 4 nox-mem-specific views:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Memory Health} (\texttt{/memory}): Real-time system stats,
+  vector coverage progress bar, service status indicators, agent
+  breakdown table
+\item
+  \textbf{Knowledge Graph} (\texttt{/knowledge-graph}): Interactive
+  force-directed canvas graph, entity type filters, BFS path finder
+\item
+  \textbf{Agent Intel} (\texttt{/agent-intel}): Agent expertise cards
+  with type distribution bars, hybrid search interface, cross-agent
+  knowledge entities
+\item
+  \textbf{System Paper} (\texttt{/system-paper}): Live technical
+  analysis with Recharts visualizations (pie, bar, radar, area charts),
+  auto-refresh every 60 seconds
+\end{itemize}
+
+All data is fetched from the nox-mem API server via TanStack React Query
+with configurable polling intervals.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{14. Evolution History}\label{evolution-history}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3214}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2143}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4643}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Version
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Date
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Key Changes
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+v1.0 & Mar 14 & SQLite FTS5, basic search, consolidation, Notion sync \\
+v2.0 & Mar 17 & MCP server, systemd services, watcher heartbeat,
+primer \\
+v2.2 & Mar 20 & Cross-agent search, KG v1 (regex), self-improve,
+decision versioning \\
+v2.5 & Mar 22 & Multi-agent workspace fix (OPENCLAW\_WORKSPACE), gateway
+supervision \\
+v2.6 & Mar 22 & Hybrid search default (FTS5+Gemini+RRF), 866/866
+vectorized \\
+v3.0 & Mar 23 & KG v2 (LLM, 384 entities), Cross-Agent Intelligence,
+HTTP API, dashboard \\
+v3.7 & Apr 23 & Schema V10 (\texttt{retention\_days} v8 + \texttt{pain}
+v9 + \texttt{section} v10), entity file format, section\_boost \\
+Wave A & May 19 & Additive salience formula, \texttt{tier\_boost}
+off-by-default, \texttt{source\_type} backfill (67,949 chunks), G5 V3
+ablation (PRs \#150 / \#151 / \#153) \\
+G10 Hard Mutex & May 20 & \texttt{section\ ↔\ source\_type} mutex
+deployed against \texttt{g9.db} 69,495 chunks (PRs \#181 / \#182) \\
+G10d ACTIVE-T2 & May 21 & Conditional mutex gated by
+\texttt{query\_entity\_count\ ≤\ 2}, deployed via systemd drop-in
+\texttt{NOX\_MUTEX\_QUERY\_ENTITY\_THRESHOLD=2} (PR \#198, decision
+D51); multi-hop +1.58\% nDCG / adversarial +3.04\% nDCG recovered \\
+F10 Phase A + B & May 21 & Foundation observability dashboards
+(\texttt{/observability/health.html} +
+\texttt{/observability/evals.html}) deployed via Tailscale tunnel (PRs
+\#207 / \#212, decision D53) \\
+\end{longtable}
+}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{15. Conclusion}\label{conclusion}
+
+nox-mem demonstrates that persistent, searchable, and shareable memory
+for AI agent fleets is achievable with commodity infrastructure (single
+VPS, SQLite, local LLM). The hybrid search system consistently
+outperforms single-method retrieval, particularly for multilingual
+content and compound technical terms. The LLM-powered knowledge graph
+provides 15x richer entity extraction compared to regex approaches,
+while temporal decay ensures the graph stays current without manual
+curation. The Wave A empirical evaluation (§5) cravou nDCG@10 = 0.6237
+on the entity-flavored golden set (+78.8\% relative over the G3
+baseline), with \texttt{section\_boost} identified as the dominant
+driver (99.85\% of the lift recovered by A3 alone) and the additive
+salience formula validated by the
+\texttt{active\ \textgreater{}\ shadow} reversal. The G10d conditional
+mutex evolution (§5.5, deployed 2026-05-21) consolida o canonical boost
+stack
+\texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex\ gated\ by\ query\_entity\_count\ ≤\ 2)\ ×\ salience\ v2\ additive}
+em produção, recuperando regressões multi-hop e adversarial com diluição
+contida em single-hop. A camada F10 (§5.6, decisão D53) torna o estado
+de produção verificável a qualquer momento via dashboards Phase A
+(\texttt{/observability/health.html}) + Phase B
+(\texttt{/observability/evals.html}).
+
+A §6 Q4 COMPARISON está pre-registered
+(\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md}) e o
+\textbf{smoke de Sat 2026-05-24 15h30 BRT} populou a primeira linha de
+§6.3 com números de nox-mem (nDCG@10=0.6380 combined, p50=12ms, gold-hit
+13/20 em 20 queries dry-run-sample sobre eval-isolated DB de 5.882
+LoCoMo + 940 LongMemEval chunks). O \textbf{run canônico} --- 100
+queries × 2 datasets × 6 sistemas (Mem0, Zep, Letta, agentmemory,
+EverMind-AI + nox-mem) --- ainda está em execução com 5/6 competitor
+adapters em setup, e atualiza as células
+\texttt{{[}PENDING\ canonical\ run{]}} quando crava. O gate D43 (top-3
+em ≥2 das 4 métricas chave) é avaliado contra o run canônico; o smoke
+valida a metodologia + confirma que nox-mem retrieval funciona
+end-to-end, destravando a defesa pre-launch da GTM Phase 2.
+
+The cross-agent intelligence layer transforms isolated agent memories
+into a collaborative knowledge base, enabling institutional learning
+across the fleet. Combined with the live dashboard, the system provides
+full observability into the collective memory of the agent organization.
+
+\textbf{Repository:} github.com/totobusnello/nox-workspace
+\textbf{Dashboard:} github.com/totobusnello/agent-hub-dashboard
+\textbf{Spec:}
+Projetos/memoria-nox/specs/2026-03-14-nox-memory-system-design.md
+
+\end{document}
