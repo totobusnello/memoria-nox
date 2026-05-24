@@ -2,6 +2,31 @@
 
 ---
 
+## Sat 2026-05-24 EVENING — 3-primitives canonical documentation merged
+
+> **Atualizado:** 2026-05-24 EOD. **Next:** review/merge `feat/answer-primitive-temporal-queries` (this PR). Both P1 (`answer`) and P3 (temporal `--as-of`/`--changed-since`) have been LIVE in prod since #114/#167; this PR finalizes the user-facing canonical doc layer that closes the "3 primitives, 1 file, any LLM" tagline lineage and pulls Gap #2 (temporal decay) explicitly into the Six Gaps reframe.
+
+### Deliverables
+
+| File | Change | Why |
+|---|---|---|
+| `docs/PRIMITIVES.md` | **NEW** — canonical 3-primitives reference (search / answer / temporal filter), full surface coverage CLI + HTTP + MCP, semantics, env vars, composition examples | Operator-facing source-of-truth that didn't exist; the staged-P1 + staged-P3 READMEs were implementation-deploy notes, not user docs |
+| `paper/paper-tecnico-nox-mem.md` §2.5 | **NEW** — "User-Facing Primitives" inserted between §2.4 Multi-Agent and §3 Memory Pipeline | Paper §3 was Memory Pipeline; primitives needed their own §2.5 to anchor the tagline before the implementation deep-dive starts |
+| `README.md` | **NEW** "3 primitives, 1 file, any LLM" section after Quick Start; temporal CLI examples added to Quick Start step 7 | Tagline was promised in badges but never structurally explained in README body |
+| `docs/HANDOFF.md` | this entry | Carry-over |
+
+### Pre-existing implementation status (unchanged by this PR)
+
+- **P1 `answer`:** LIVE in prod since PR #114 (`/api/answer` end-to-end), telemetry hook via PR #283. Public API: `staged-P1/edits/src/lib/answer/*`. p95 = 101.74ms offline mock bench (42× under 4.3s); live Gemini Flash Lite p95 = 1.5-2.5s.
+- **P3 temporal filter:** LIVE in prod since PR #2 (initial) + PR #167 (D49 phase 1 deploy in shadow mode). Public API: `staged-P3/edits/{dates,search,api-server,mcp-search-tool,index}.ts`. Uses existing `chunks.created_at`/`updated_at` from schema v18 — no schema changes.
+
+### Carry-over from this PR
+
+- **`/api/answer` spec/types re-alignment** — already tracked in earlier carry-over table (Lab Q1, types.ts vs spec divergence). This doc PR does NOT touch types; alignment is a follow-up.
+- **arXiv §2.5 inclusion** — paper §2.5 is now part of the master `.md`; rebuild `paper/paper-tecnico-nox-mem.docx` + `paper/publication/latex/paper.pdf` before Tue 2026-06-02 arXiv submit window.
+
+---
+
 ## Sat 2026-05-24 LATE-morning closure — incident recovery + CI rot + Path A2 verdict
 
 > **Atualizado:** 2026-05-24 ~12h BRT (post 4-PR landing session). Main em `21cbf4d5`. **Sistema 100% verde** (`/api/health` confirmado). Three concentration paths to close mem0 cap@500 gap **all closed NEGATIVE** — Q4 Phase 2 gate moves to two-metric narrative (nDCG@10 + coverage) per D59. Pre-launch ramp Wed 2026-06-03 destravado.

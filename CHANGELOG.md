@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — 2026-05-24 evening — 3-primitives canonical documentation
+
+- **`docs/PRIMITIVES.md`** (NEW) — canonical operator-facing reference for the three user-facing primitives (`search` / `answer` / temporal filter `--as-of` / `--changed-since`). Full CLI + HTTP API + MCP surface coverage, env vars, composition examples. Anchors the "3 primitives, 1 file, any LLM" tagline.
+- **`paper/paper-tecnico-nox-mem.md` §2.5 "User-Facing Primitives"** (NEW) — inserted between §2.4 Multi-Agent Memory Architecture and §3 Memory Pipeline. Documents the three primitives with semantics, latency claims (p95 = 101.74ms offline answer), and the temporal filter as the closure for Gap #2 (temporal decay) of the Six Gaps reframe.
+- **`README.md`** — new "3 primitives, 1 file, any LLM" section after Quick Start with primitive comparison table + composition examples. Step 7 of Quick Start now demonstrates `--as-of` / `--changed-since`.
+- **Underlying implementations unchanged** — P1 `answer` (PRs #3, #18, #31, #34, #40, #114, #283) and P3 temporal filter (PRs #2, #167) are LIVE in prod since well before this doc PR. This entry is documentation work only.
+
 ### Added — 2026-05-21 morning burst (9 PRs landed em ~3h)
 
 - **vec0 reindex fix** — sqlite-vec load defensive em `_reindexImpl` (`staged-1.7a/edits/reindex.ts`); fixes 6× retry loop em CLI reindex; api-server unaffected (vec0 bundle commit `9ad77eb`)
