@@ -429,7 +429,7 @@ phase_i() {
   ssh_run "crontab -l | grep -c nox-mem || echo 0"
 
   info "I.2 — restart inotifywait watcher (best-effort, may be systemd-managed)"
-  ssh_run "systemctl start nox-mem-watcher 2>/dev/null || (nohup /root/.openclaw/workspace/tools/nox-mem/scripts/watch-and-ingest.sh > /var/log/nox-mem/watch.log 2>&1 & echo 'started via nohup')"
+  ssh_run "systemctl start nox-mem-watch 2>/dev/null || (nohup /root/.openclaw/workspace/tools/nox-mem/scripts/watch-and-ingest.sh > /var/log/nox-mem/watch.log 2>&1 & echo 'started via nohup')"
 
   info "I.4 — write a tracer + confirm round-trip"
   ssh_run "echo 'post-encryption tracer \$(date -Is)' > /tmp/nox-mem-tracer-i4.txt && nox-mem ingest /tmp/nox-mem-tracer-i4.txt && sleep 2 && curl -s 'http://127.0.0.1:18802/api/search?q=tracer-i4' | jq 'length'"
