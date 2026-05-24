@@ -1,7 +1,7 @@
 """
 Ablation runner for nox-mem §5 — dispara E6/E7/E8/E9 em sequência na VPS.
 
-⚠️  PRODUCTION IMPACT: Este script reinicia nox-mem-api e nox-mem-watcher
+⚠️  PRODUCTION IMPACT: Este script reinicia nox-mem-api e nox-mem-watch
     ~5 vezes, causando ~30s de indisponibilidade por restart.
     Rodar entre 02:00–07:00 BRT (low-traffic window).
 
@@ -86,7 +86,7 @@ _HEALTH_POLL_INTERVAL_S = 3
 _EVAL_VARIANT = "hybrid"  # nox-mem eval run --variant flag for all runs
 
 # Services to restart (order matters: api first, then watcher)
-_NOX_SERVICES = ("nox-mem-api", "nox-mem-watcher")
+_NOX_SERVICES = ("nox-mem-api", "nox-mem-watch")
 
 # Ablation variants ordered: baseline first, then E6–E9
 _ORDERED_VARIANTS: list[str] = [
@@ -238,7 +238,7 @@ def restart_nox_mem_services(
     1. Backup current .env → .env.bak (idempotent — overwrites previous bak)
     2. Append/overwrite each override var in .env using sed-safe key-based
        replacement (sed on text files only — never on .db files).
-    3. ``systemctl restart nox-mem-api nox-mem-watcher``
+    3. ``systemctl restart nox-mem-api nox-mem-watch``
     4. Wait for /api/health to return HTTP 200.
 
     If any step fails, the function raises and the caller's try/finally

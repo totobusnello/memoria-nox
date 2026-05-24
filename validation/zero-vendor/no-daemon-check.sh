@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # no-daemon-check.sh — Check 5 of 8
 #
-# Kills all nox-mem processes (nox-mem-api, nox-mem-watcher, any process holding
+# Kills all nox-mem processes (nox-mem-api, nox-mem-watch, any process holding
 # nox-mem.db). Then opens the DB with vanilla sqlite3 and confirms queries work.
 #
 # PASS: Queries succeed with zero nox-related processes running.

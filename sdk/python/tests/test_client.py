@@ -42,7 +42,7 @@ HEALTH_FIXTURE = {
     "knowledgeGraph": {"entities": 402, "relations": 544},
     "procedures": 28,
     "dbSizeMB": 487.3,
-    "services": {"openclaw-gateway": True, "nox-mem-watcher": True},
+    "services": {"openclaw-gateway": True, "nox-mem-watch": True},
 }
 
 SEARCH_FIXTURE = [

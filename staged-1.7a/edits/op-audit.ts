@@ -540,9 +540,9 @@ export function getOpAuditStats(): OpsAuditStats {
  * e validando schema_user_version. Fix H3 (WAL/SHM órfãos) + H7 (schema mismatch).
  *
  * Caller deve PARAR serviços que escrevem no DB ANTES de chamar:
- *   systemctl stop nox-mem-api nox-mem-watcher openclaw-gateway
+ *   systemctl stop nox-mem-api nox-mem-watch openclaw-gateway
  *   node -e "import('./dist/lib/op-audit.js').then(m => m.safeRestore('/var/backups/nox-mem/pre-op/reindex-XXX.db'))"
- *   systemctl start nox-mem-api nox-mem-watcher openclaw-gateway
+ *   systemctl start nox-mem-api nox-mem-watch openclaw-gateway
  */
 export function safeRestore(snapshotPath: string, opts: { force?: boolean } = {}): { ok: boolean; warnings: string[] } {
   const warnings: string[] = [];

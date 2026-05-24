@@ -71,7 +71,7 @@ const HEALTH_FIXTURE: HealthResponse = {
   knowledgeGraph: { entities: 402, relations: 544 },
   procedures: 28,
   dbSizeMB: 487.3,
-  services: { "openclaw-gateway": true, "nox-mem-watcher": true },
+  services: { "openclaw-gateway": true, "nox-mem-watch": true },
 };
 
 const SEARCH_FIXTURE: SearchResult[] = [

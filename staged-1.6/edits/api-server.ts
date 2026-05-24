@@ -59,7 +59,7 @@ async function readJson<T = unknown>(req: IncomingMessage): Promise<T> {
 
 const ALLOWED_SERVICES = new Set([
   "openclaw-gateway",
-  "nox-mem-watcher",
+  "nox-mem-watch",
   "nox-mem-api",
   "ollama",
   "tailscaled",
@@ -174,7 +174,7 @@ async function handleRequest(req: IncomingMessage, res: ServerResponse) {
 
         const services = {
           "openclaw-gateway": serviceStatus("openclaw-gateway"),
-          "nox-mem-watcher": serviceStatus("nox-mem-watcher"),
+          "nox-mem-watch": serviceStatus("nox-mem-watch"),
           "ollama": serviceStatus("ollama"),
           "tailscaled": serviceStatus("tailscaled"),
         };
