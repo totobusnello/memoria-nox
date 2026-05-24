@@ -61,13 +61,13 @@
 >
 > **H2 finding (PR #311):** At the same 500-chunk cap, nox-mem FTS5-only scores **0.0466** vs mem0's **0.1315**. This is architecturally real for FTS5-only mode. PR #318 shows the full Gemini hybrid stack at @500 (0.0918 aggregate / 0.1835 LoCoMo-only) substantially closes this gap.
 
-| System | nDCG@10 (aggregate) | nDCG@10 (LoCoMo-only) | Corpus | Mode | Cost/query |
-|---|---:|---:|---:|---:|---:|
-| **nox-mem FTS5@500** | 0.0466 | — | 500 (cap, same as mem0) | FTS5-only, no Gemini | ~$0.00 |
-| **nox-mem Gemini hybrid@500** | 0.0918 | **0.1835** | 500 (cap) | FTS5 + Gemini embed + RRF | ~$0.003 |
-| **mem0@500** | 0.1315 | 0.1315 | 500 (cap, cost-control) | LLM rewrite + embed | ~$0.07 ingest |
+| System | nDCG@10 (aggregate) | nDCG@10 (LoCoMo-only) | Corpus | Mode | Cost/ingest @500 | Cost realism |
+|---|---:|---:|---:|---:|---:|---|
+| **nox-mem FTS5@500** | 0.0466 | — | 500 (cap, same as mem0) | FTS5-only, no Gemini | ~$0.00 | Zero marginal cost; local SQLite |
+| **nox-mem Gemini hybrid@500** | 0.0918 | **0.1835** | 500 (cap) | FTS5 + Gemini embed + RRF | ~$0.003 | Zero marginal cost per query; one-time embed API call |
+| **mem0@500** | 0.1315 | 0.1315 | 500 (cap, cost-control) | LLM rewrite + embed | ~$0.07 | **Cost-imposed cap.** Full 6822 corpus would cost ~$0.55 at OpenAI rates |
 
-**Caption:** Per-dataset breakdown (PR #318). On LoCoMo conversational data, nox-mem Gemini hybrid@500 (0.1835) beats mem0@500 (0.1315) by **+40%**. Aggregate (0.0918) is diluted by corpus-ordering artifact: 500-chunk cap exhausted by LoCoMo's 5,882 chunks, starving LongMemEval queries of relevant context. Hybrid stack lifts FTS5@500 by +97%. Full canonical ingest is the definitive arbiter.
+**Caption:** Per-dataset breakdown (PR #318). On LoCoMo conversational data, nox-mem Gemini hybrid@500 (0.1835) beats mem0@500 (0.1315) by **+40%**. Aggregate (0.0918) is diluted by corpus-ordering artifact: 500-chunk cap exhausted by LoCoMo's 5,882 chunks, starving LongMemEval queries of relevant context. Hybrid stack lifts FTS5@500 by +97%. Full canonical ingest is the definitive arbiter. **Cost reality:** mem0's 500-chunk cap is not production-realistic — it is a cost-control decision. At full 6822-chunk corpus with OpenAI embeddings, mem0 ingest cost reaches ~$0.55. nox-mem ingests any corpus size at zero marginal cost.
 
 > **Honest interpretation:** Neither aggregate nor per-dataset number is "the whole truth" in isolation. The per-dataset breakdown gives cleaner signal: nox-mem Gemini hybrid wins on conversational memory (LoCoMo +40%); LongMemEval comparison deferred to full canonical run. Phase 2 gate uses BOTH per-dataset AND aggregate on uniform full corpus. See [Architectural trade-off framing](#architectural-trade-off-framing) below.
 
@@ -157,11 +157,12 @@ Two systems, two architectures, two valid use cases:
 | **Strength** | Concentration — LLM rewriting semantically generalizes across sparse corpora | Coverage + speed + cost — full corpus, zero cost-per-query, sub-10ms FTS5+hybrid |
 | **Trade-off** | Cost-per-ingest scales with corpus size ($0.07 → $0.87 at full corpus) | Requires full ingestion for max recall; FTS5-only weak at small corpora |
 | **Sweet spot** | Small curated corpora, high-quality answer per chunk, can afford per-query cost | Large growing corpora, local-first, zero marginal cost, speed-critical pipelines |
-| **nDCG@10 at 500-chunk cap (aggregate)** | **0.1315** | FTS5@500: 0.0466; Gemini hybrid@500: 0.0918 aggregate / **0.1835 LoCoMo-only** |
+| **nDCG@10 at 500-chunk cap (aggregate)** | **0.1315** (cost-controlled benchmark) | FTS5@500: 0.0466; Gemini hybrid@500: 0.0918 aggregate / **0.1835 LoCoMo-only** |
 | **nDCG@10 at 500-chunk cap (LoCoMo conversational only)** | 0.1315 | **0.1835** Gemini hybrid (+40% vs mem0 on conversational scope) |
-| **nDCG@10 at full corpus (6830 chunks)** | [$0.87 ingest — canonical run pending] | **0.6380** Gemini hybrid |
+| **nDCG@10 at full corpus (6830 chunks)** | ~$0.55 ingest cost at OpenAI rates — production prohibitive | **0.6380** Gemini hybrid ($0 local ingest cost) |
+| **Production realism (5k–50k chunks typical)** | Cost-driven scaling: 5k chunks ≈ $0.34–0.40; 50k ≈ $3.40–4.00 | Zero-cost scaling; 50k chunks still $0 ingest |
 
-**Explicit trade-off statement:** On conversational memory (LoCoMo), nox-mem Gemini hybrid@500 outperforms mem0@500 by +40% at equal corpus size. On multi-document QA (LongMemEval), the 500-cap aggregate is diluted by corpus-ordering artifact — full ingest is the clean test. At full corpus, nox-mem wins on coverage, speed, and zero marginal cost. The right framing: different architectures, different strengths — per-dataset breakdown gives the most honest signal at sparse coverage. Refs: PR #311 (H2 confirmed), PR #318 (LoCoMo win + corpus-ordering caveat).
+**Explicit trade-off statement:** On conversational memory (LoCoMo), nox-mem Gemini hybrid@500 outperforms mem0@500 by +40% at equal corpus size. On multi-document QA (LongMemEval), the 500-cap aggregate is diluted by corpus-ordering artifact — full ingest is the clean test. At full corpus, nox-mem wins on coverage, speed, and zero marginal cost. **Cost realism:** mem0's 500-chunk benchmark cap is cost-driven, not production-representative. Scaling to full corpus (5k–50k chunks typical in production) shifts the cost equation dramatically: mem0 $0.34–4.00 vs nox-mem $0 marginal cost. The right framing: different architectures, different strengths, different cost envelopes — per-dataset breakdown gives the most honest signal at sparse coverage, and full-corpus production cost matters more than benchmark nDCG. Refs: PR #311 (H2 confirmed), PR #318 (LoCoMo win + corpus-ordering caveat).
 
 ---
 

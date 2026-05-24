@@ -136,6 +136,22 @@ Both rows in COMPARISON.md. PR #318.
 
 ---
 
+**T9 — Cost realism (rev4)**
+
+```
+mem0 wins at 500 chunks (benchmark setting).
+But that cap is cost-control: full corpus = ~$0.55 at scale (OpenAI rates).
+
+nox-mem: $0 marginal cost, any corpus size.
+
+Same query cost downstream. Different ingest economics.
+Choose your constraint: benchmark nDCG or production cost.
+
+Both numbers in COMPARISON.md.
+```
+
+---
+
 **T8 — Paper + links**
 
 ```

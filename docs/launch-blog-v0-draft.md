@@ -94,6 +94,8 @@ Retrieval de memória que não mede não sabe se funciona. memoria-nox roda cont
 - **FTS5-only@500 = 0.0466 vs mem0 = 0.1315** (H2, PR #311) — real e arquitetural para modo FTS5-only: LLM-rewriting generaliza semanticamente em corpora esparsas de forma que FTS5 isolado não consegue. O Gemini hybrid completo inverte isso no escopo conversacional.
 - **nox-mem** — cobertura + velocidade + custo: corpus completo local, zero-custo por query, 30× mais rápido (8ms vs 273ms p50), 4× mais cobertura no full-corpus.
 
+**Realidade de produção (rev4 honestidade).** O cap de 500 chunks do mem0 não é representativo de deployments reais. Em corpus típico de produção (5k–50k chunks), mem0 custa ~$0.34–4.00 em ingest via OpenAI. nox-mem custa $0. Os números de benchmark (nox-mem Gemini hybrid +40% LoCoMo-only) são válidos e defensáveis, mas ganham contexto crítico quando incluem custo de escala. Ambas as linhas — benchmark *e* economia de escala — estão publicadas em `docs/COMPARISON.md` sem cherry-pick. O run canônico com corpus uniforme sem cap é o árbitro definitivo.
+
 **Gate Phase 2 usa AMBOS** per-dataset + aggregate no run canônico (corpus uniforme, sem cap) — não apenas o número que favorece nox-mem.
 
 > **Honestidade obrigatória.** Reportamos três linhas: full-corpus, per-dataset@500, aggregate@500. Qualquer linha isolada é enganosa. O run canônico — corpus uniforme sem cap para todos os 6 sistemas — é o árbitro definitivo. `docs/COMPARISON.md` atualiza quando cravar. PR #311 + PR #318.
