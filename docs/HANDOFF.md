@@ -2,6 +2,65 @@
 
 ---
 
+## Sat 2026-05-24 LATE-morning closure — incident recovery + CI rot + Path A2 verdict
+
+> **Atualizado:** 2026-05-24 ~12h BRT (post 4-PR landing session). Main em `21cbf4d5`. **Sistema 100% verde** (`/api/health` confirmado). Three concentration paths to close mem0 cap@500 gap **all closed NEGATIVE** — Q4 Phase 2 gate moves to two-metric narrative (nDCG@10 + coverage) per D59. Pre-launch ramp Wed 2026-06-03 destravado.
+
+### Session deliverables (Sat morning, 09:15-12:00 BRT)
+
+| PR | Title | Status | Impact |
+|---|---|---|---|
+| **#340** | `fix(reindex)`: withOpAudit 2-arg prod signature alignment | ✅ MERGED + DEPLOYED via parallel openclaw-vps session | Reindex emergency UPSERT fix (PR #335) now builds clean on VPS |
+| **#341** | `feat(q4)`: Path A2 Gemini Flash chunk summarizer | 🗄️ CLOSED archived NEGATIVE | -34% full / -69% cap@500 vs hybrid; concentration mechanism mismatch confirmed |
+| **#342** | `fix(api)`: healthcheck `nox-mem-watcher` → `nox-mem-watch` | ✅ MERGED + DEPLOYED | Discord yellow alert source eliminated; 8 hot refs fixed cross-repo |
+| **#343** | `fix(ci)`: unrot SDK Build & Publish workflow | ✅ MERGED (admin) | 6-day chronic CI rot resolved; 8 layered issues fixed; 4/4 jobs green |
+
+### Production state (post-deploy validation)
+
+| Check | Real value | Status |
+|---|---|---|
+| `sectionDistribution.compiled` | **183** (target ≥150) | ✅ Match exato |
+| `sectionDistribution.frontmatter` | **183** (entity routing OK) | ✅ |
+| Total section NOT NULL | **749** (≥600) | ✅ Folga 25% |
+| `vectorCoverage` | **69,104/69,104**, orphans 0 | ✅ 100% (post-vectorize catch-up de 109 chunks pending) |
+| `services.nox-mem-watch` | **true** (key renomeado) | ✅ Yellow flag clear |
+| `opsAudit.failed_24h` / `crashed_24h` | **0** / **0** | ✅ |
+
+### Yellow alerts resolved
+
+1. **Schema invariant section=compiled count=0 (incident 2026-05-23 23:17)** — recovered via PR #335 UPSERT fix + parallel session deploy; section=compiled back to 183
+2. **vectorCoverage lag 109 chunks** — manual `nox-mem vectorize` catch-up (~7s, $0.01); now 100%
+3. **`nox-mem-watcher: false`** — false positive (healthcheck queried legacy unit name); fixed via PR #342
+
+### Path A2 verdict + Lab Q1 design intel preserved (D59)
+
+A2 (Gemini Flash full chunk summarizer, mem0-style atomic-fact extraction) was the **third independent concentration path** attempted to close the cap@500 gap vs mem0:
+
+| PR | Approach | Result |
+|---|---|---|
+| #337 | Query rewrite via Gemini Flash Lite | NEGATIVE −11.8% |
+| #339 | E (KG traversal) + F (RRF k=20) + H (top-k expansion) | NEUTRAL +2.4%, gap persiste |
+| #341 | A2 chunk summarizer (atomic-fact mem0-style) | NEGATIVE −34% full / −69% cap@500 |
+
+Three independent failure modes confirm mem0's cap@500 advantage is **structural** (extracted-fact concentration sobre 500 LLM-extracted facts vs nox-mem's 500 raw turns) — not replicable within hybrid arch without changing ingest paradigm.
+
+**Bonus design intel (Lab Q1 parking-lot):** A2 WON in 4 full-corpus subsets (multi-hop 0.75 / single-session-assistant 0.63 / temporal-reasoning 0.62 / open-domain 0.50) but FATALLY FAILED in 3 (adversarial / preference / user-quote = 0.00). Asymmetry suggests **hybrid-of-hybrids router**: index both raw + summarized chunks, route by detected query intent. Carved as Lab Q1 vector in `[[d59-implement-pain-weighted]]`.
+
+**Strategic conclusion:** Ship narrative `docs/COMPARISON.md` rev4 with two-metric framework (nDCG@10 + coverage threshold ≥87%). Production-realistic full-corpus advantage (0.4509 nDCG@10, +243% vs mem0) is the canonical headline; cap@500 gap honestly disclosed as mem0 cost-imposed concentration limitation per D59.
+
+### Carry-over to next sessions (P0 manual ownership)
+
+| Item | Target date | Owner | Status |
+|---|---|---|---|
+| **arXiv submit** | Tue 2026-06-02 | Toto manual | 🔄 Endorsement window critical Mon 06-01 |
+| **Demo GIF (asciinema)** | Sat 2026-05-30 | Toto manual | ⏳ Queued |
+| **Product Hunt draft + schedule** | Tue 2026-06-02 23:55 PST | Toto manual | ⏳ Queued |
+| **Cron freeze descongelamento** | After parallel session confirms reindex smoke green | Operator (parallel session) | 🔄 Cleared to lift |
+| **SDK Build & Publish Node 20 deprecation** | Before 2026-06-02 | Follow-up PR | ⏳ Annotated; not blocking |
+| **`/api/answer` spec/types re-alignment** | Lab Q1 | Lab | ⏳ Follow-up (committed types.ts vs spec divergence documented) |
+
+---
+
 ## Sun 2026-05-25 morning priorities — Wave 14–18 in-flight + GTM P0 + L4 watchpoint
 
 > **Atualizado:** 2026-05-25 06h BRT (morning prep). **Wave 14–18 PRs in-flight** (~50+ total Sat + Sun cumulative); worktree isolation holding post-defense layer 2 hook install 2026-05-21. **GTM P0 manual items** (arXiv submit Tue 06-02, demo recording, Product Hunt Wed 06-03) locked in schedule. **D49 phase 2:** 7d shadow window ~3 days remaining (D50 verdict ETA 2026-05-27). **L4 watchpoint:** first trigger check Mon 2026-05-25 per extraction_method cron schedule.
