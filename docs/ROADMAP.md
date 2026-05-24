@@ -380,63 +380,67 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-## 12. Próxima ação concreta — pós overnight 2026-05-21 (atualizado Sat 2026-05-24 manhã BRT)
+## 12. Próxima ação concreta — Sun 2026-05-25 morning prep + Wave 16 in-flight (atualizado Sat 2026-05-24 EOD)
 
-> **Nota:** todos os PRs overnight 2026-05-21 são placeholders/skeletons. Números Q4 cravados Sábado. **Não mergear blog/paper/social sem os números Sat.**
->
-> **CRITICAL 2026-05-24:** Q4 harness gap descoberto — adapters sem `ingest()` → 6 agents paralelos implementando ingestion. Janela 14h aggregate **ADIADA** para Sat tarde/noite após ingestion PRs mergearem.
+> **Nota:** Q4 LIVE validation complete Sat 2026-05-24 evening — nDCG@10 **0.6380** (prod instance LoCoMo n=100) exceeds D43 gate (+83.0%). Wave 1-16 merged/in-flight (20+ PRs Sat + 4 deploys). **Sun morning:** validate Wave 16 landing, run hybrid@500 verdict (P2 priority), finalize launch comm. **No blockers for Wed 2026-06-03 launch.** D49 phase 2 baseline rolling (ETA D50 ~2026-05-27); L4 watchpoint Monday post-cron.
 
-### Sat 2026-05-24
+### Sun 2026-05-25 (morning prep + Wave 16 handoff)
 
-| Janela | Ação |
-|---|---|
-| **9h BRT — Review PRs** ✅ | 3 PRs merged (#265 demo recording / #266 adapter list-fix / #267 F10 Phase C). Overnight PRs #219-#228 revisados e mergeados em sessões anteriores. |
-| **9h30–14h BRT — Q4 execution** ⚠️ BLOQUEADO | Harness bloqueado por gap de ingestion — adapters sem `ingest()`. 6 agents paralelos implementando. ETA: Sat tarde. |
-| **Sat tarde (após ingestion PRs) — Q4 execution real** | Rodar harness Q4 COMPARISON.md completo após mergear ingestion PRs (agentmemory / memanto / mem0 / Letta / Zep). |
-| **Sat noite — Aggregate + polish** | Agregar resultados Q4 → atualizar COMPARISON.md com gate verificado (`GATE_VERIFIED=1`) → narrative polish blog/paper/social com números reais. |
-| **Toto sign-off A2 Tier 3** | 5 decisões abertas em `recon/a2-tier3-crypto-audit-2026-05-24` branch — ver DECISIONS.md pós sign-off. |
+| Janela | Ação | Blocker |
+|---|---|---|
+| **06h–08h — Wave 16 PR validation** | Merge PRs #310-#316 (in-flight from Sat); smoke test Q4 harness local; verify COMPARISON.md structure (GATE_VERIFIED flag ready) | None — PRs awaiting notification |
+| **09h–10h — Gemini hybrid@500 execute** | Rodar `python eval/q4-comparison/runner.py --systems all --datasets locomo,longmemeval --limit 500`; capture per-system breakdown (nox_mem vs mem0/zep/letta/agentmemory); update Lab Q1 priorities se regresso ≥1pp detectado | Wave 16 merge + evaluation harness |
+| **10h–11h — Review Q4 results + update COMPARISON.md** | Confirmar gate D43 (threshold ≥+15% atendido); populate COMPARISON.md cells com números Sat eve (0.6380) + hybrid@500 results; flag `GATE_VERIFIED=1` | Hybrid@500 execution |
+| **11h–12h — Paper §6 final + methodology** | Seção §6 paper: como rodou Q4, isolation protocol, harness overview — escrito com nDCG@10 0.6380 + per-system results em mão | COMPARISON.md populated |
+| **14h–15h — Launch comm approval** | Se hybrid@500 WINS (nox_mem ≥ topo): aprove blog final (#221), social copy (#224), paper §6 (#226) + merge; se REGRESS: reframe narrativa LoCoMo leadership + confidence intervals | Hybrid verdict + paper review |
+| **14h–16h — F10 Phase D dispatch (optional)** | Se Phase C baseline ≥7h rolling: dispatch agent pra Phase D ops timeline viz + KG growth charts; else defer Mon | Phase C telemetry sufficiency |
+| **23h UTC — Observe cron** | Log L4 + KG build completion; note any anomalies (expected: kg_relations rows gain extraction_method post-cron) | Automatic (no action needed) |
 
-### Sun 2026-05-25
+### Mon 2026-05-27 (pre-launch checkpoint)
 
-| Ação | Detalhe |
-|---|---|
-| **L4 watchpoint check** | `SELECT extraction_method, COUNT(*) FROM kg_relations WHERE created_at >= DATE('2026-05-24') GROUP BY extraction_method` no VPS pós Sunday cron (~23h UTC). Esperado: rows com `extraction_method` populado. Se NULL → L4 wire-up broken, escalate. |
-| **COMPARISON.md final** | Confirmar gate D43 com números Q4 reais. Se nox-mem ≥ topo: GTM Phase 2 disparada. |
-| **Methodology writeup** | Seção §6 paper: como rodou Q4, isolation, harness — escrito com números reais em mão. |
-
-### Mon–Fri 2026-05-26–30
-
-| Item | Status/Blocker |
-|---|---|
-| **D49 phase 2 → D50 decision** | ETA 2026-05-27 (~5d shadow baseline) — ativar ou off `NOX_TEMPORAL_PATH` |
-| **F10 Phase C (Telemetry+Shadow tracker)** | ~8h, gated em D49 phase 2 baseline ≥7d |
-| **Paper polish** | Seções finais com Q4 numbers confirmados; arXiv formatting |
-| **arXiv prep + review** | Abstract + references + PDF build + co-author check |
+| Ação | Detalhe | Owner |
+|---|---|---|
+| **09h — L4 watchpoint query** | `SELECT extraction_method, COUNT(*) FROM kg_relations WHERE created_at >= DATE('2026-05-24') GROUP BY extraction_method` post-cron. Esperado: nonzero extraction_method distribution. If all NULL → escalate PR #195 wire-up | Executor |
+| **10h — D49 phase 2 → D50 prep** | Phase 2 baseline rolling (cron telemetry 7d); ETA D50 decision window 2026-05-27. Decide: ativar `NOX_TEMPORAL_PATH=active` ou keep shadow? | Toto |
+| **14h EOD — Pre-launch final checklist** | CI workflows green (8/8 expected), opsAudit clean (1 real row expected), readiness dashboard 100% | Toto + Executor |
 
 ### Tue 2026-06-02 (hard deadline — per D27 sequencing)
 
-| Item | Ação |
-|---|---|
-| **arXiv submit** | `arXiv submit` — paper v1.0 público (Tue submit → Wed live). Coordenar com launch. |
+| Item | Ação | Blocker |
+|---|---|---|
+| **arXiv submit window** | Paper v1.0 submission (Tue 09h → Wed live, coordenar com launch) | Paper §6 final (due Sun) |
 
 ### Wed 2026-06-03 (LAUNCH coordenado)
 
-| Canal | Asset pronto? |
-|---|---|
-| GitHub README final | PR #46 + assets #155 — SIM (synced G5 V3) |
-| COMPARISON.md | PR #47 scaffolded — aguarda Q4 numbers Sat |
-| Docker image | PR #68 — SIM |
-| Blog post | overnight skeleton — aguarda Q4 numbers Sat |
-| Social copy (Twitter/HN/LinkedIn) | overnight skeleton — aguarda Q4 numbers Sat |
-| asciinema demo | overnight plan — gravar pós Q4 confirmado |
-| Product Hunt | coordenar com arXiv date |
-| Nox-Supermem landing | Stripe-first USD (D44) — pendente pricing decision |
+| Canal | Status | Notes |
+|---|---|---|
+| GitHub README final | ✅ PR #46 + assets #155 | Synced G5 V3 0.6237 |
+| COMPARISON.md | 🔄 Awaiting Sun update | nox_mem 0.6380 + hybrid@500 + GATE_VERIFIED=1 |
+| Docker image | ✅ PR #68 | Ready to push |
+| Blog post | 🔄 Awaiting Sun approval | #221 + Q4 numbers embedded |
+| Social copy (Twitter/HN/LinkedIn) | 🔄 Awaiting Sun approval | #224 + results summary |
+| asciinema demo | 🔄 Recording Sat 05-30 | Demo GIF (GTM P0 manual — Toto) |
+| Paper v1.0 | 🔄 Awaiting Sun §6 final | arXiv Tue, GitHub launch Wed |
+| Product Hunt | 🔄 Draft Tue 06-02 | Coordinate with arXiv |
+| Nox-Supermem landing | ⏳ Deferred | Stripe-first USD (D44); pricing decision pending |
 
-**Blocos pendentes pra D50:**
-- Phase 2 baseline 7d shadow → coletar hit-rate temporal path em prod → D50 decision (ativar ou off)
+### In-flight Wave 16 (Sat evening → Sun morning)
 
-**Aguardando Toto sanity-check:**
-- G12 R1 — mass-edit corpus entity frontmatter com `description:` YAML (~100 memory files, parked aguardando approval do approach)
+| Wave | PRs (est) | Destaques | Status |
+|---|---|---|---|
+| **Wave 15** | #308-#309 | Q4 execution final + COMPARISON.md scaffold | ✅ Done Sat |
+| **Wave 16 Phase A** | #310-#312 | Adapter ingestion finalization (mem0/zep/agentmemory full E2E) | 🔄 In-flight |
+| **Wave 16 Phase B** | #313-#315 | Q4 harness runner polish + COMPARISON.md final populate | 🔄 In-flight |
+| **Wave 16 Phase C** | #316 | ROADMAP + HANDOFF Sun sync | 🔄 In-flight |
+
+**Próximo review:** Sun 2026-05-25 ~12h (post Wave 16 + hybrid@500). Launch readiness 100% expected Wed 10h BRT.
+
+### D49/D50 + Lab Q1 rolling background
+
+- D49 phase 2: cron telemetry rolling (baseline 7d, ETA D50 ~2026-05-27)
+- D50 decision: activate temporal path or keep shadow? (decision ~2026-05-27)
+- Lab Q1 priorities updated post-hybrid@500 verdict (reranker/scale/multilingual ETA post-launch)
+- G12 R1 corpus enrich: parked, awaiting Toto sanity-check mass-edit approach (~100 memory files)
 
 ---
 

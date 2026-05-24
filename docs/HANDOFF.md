@@ -2,6 +2,43 @@
 
 ---
 
+## Sun 2026-05-25 morning priorities
+
+> **Atualizado:** 2026-05-25 madrugada. **Wave 1-16 complete (Sat 2026-05-24 20+ PRs merged + 4 deploys).** Sun morning agenda: validate Q4 live numbers, finalize launch readiness, watch for L4 watchpoint trigger. **All priorities ON TRACK.** main `827ede7` (latest Sat EOD closure).
+
+### 6 critical priorities (priority order, 30-min focus windows)
+
+| Priority | Owner | Status | Blocker | Next action |
+|---|---|---|---|---|
+| **P1: Validate Wave 16 PRs land clean** | Executor | 🔄 In-flight | None | Merge PRs #310-#316 (in-flight from Sat); smoke test Q4 harness; grep COMPARISON.md for GATE_VERIFIED flag |
+| **P2: Gemini hybrid@500 verdict** (Wave 15 result) | CLI manual (Toto) | 🔄 Awaiting execution | Wave 16 PRs merge | Rodar `python eval/q4-comparison/runner.py --systems all --datasets locomo,longmemeval --limit 500` pós #316; update Lab Q1 P1 priority se regresso detectado |
+| **P3: Launch comm rev2 review** | Toto + marketing | ⏳ Blocked on P2 | P2 verdict | Se hybrid@500 WINS → aprove blog/social/paper §6 final; se REGRESS → reframe narrativa LoCoMo leadership |
+| **P4: F10 Phase A 24h passive validation** | Ops smoke | ✅ Rolling | None | Poll `/api/observability/health.html` 4h intervals; confirm 5/5 metrics GREEN; leak-test 24h battery OK |
+| **P5: D49 phase 2 baseline collect** | Cron automatic | ✅ Active | None | Sunday cron 23h UTC triggers L4 + KG build; watchpoint query pós-cron confirms L4 wire-up live |
+| **P6: L4 watchpoint Monday 2026-05-25 morning** | Executor | ⏳ Deferred Monday | Sun cron | Query `SELECT extraction_method, COUNT(*) FROM kg_relations WHERE created_at >= DATE('2026-05-24') GROUP BY extraction_method` — if all NULL → escalate, else PASS |
+
+### Key cross-references (in-flight resources)
+
+| Item | Ref | Status |
+|---|---|---|
+| **Wave 16 in-flight PRs** | #310-#316 (ingestion + F10 Phase D) | Awaiting merge notification |
+| **GTM P0 manual (Toto)** | arXiv endorsement Mon 06-01, demo GIF Sat 05-30 (asciinema), Product Hunt draft Tue 06-02 | On track |
+| **G5 V3 canonical numbers** | 0.6237 nDCG@10 (LoCoMo prod n=68k); D43 gate verified +83% | Locked in ROADMAP |
+| **Q4 LIVE validation Sat eve** | 0.6380 nDCG@10 (prod instance LoCoMo n=100); exceeds D43 gate | Ready for COMPARISON.md |
+| **A2 Tier 3 status Sat eve** | P0+P1+P2 merged (#276/#280); P3 deferred Sun | On track Mon merge |
+| **F10 Phase C Sat deployed** | Telemetry hook (#283 answer API) + dashboard (#207); 5/5 smoke PASS | Live prod, baseline rolling |
+
+### Actions pré-Monday 2026-05-27
+
+- [ ] **Sun 06h:** validate Wave 16 PRs land, run Q4 hybrid@500 if blocking cleared
+- [ ] **Sun 10h:** review Q4 results, update COMPARISON.md gate flag + paper §6 final
+- [ ] **Sun 14h:** F10 Phase D agent dispatch if Phase C baseline ≥7h collected
+- [ ] **Sun 23h UTC:** observe cron (L4 extract + KG build); log any anomalies
+- [ ] **Mon 09h:** L4 watchpoint query + D50 decision prep (D49 baseline rolling)
+- [ ] **Mon 14h:** pre-launch final checklist (CI + opsAudit + readiness dashboard)
+
+---
+
 ## Sat 2026-05-24 closure — 20+ PRs + Q4 validation numbers cravados
 
 > **Atualizado:** 2026-05-24 23h30 BRT (final). **20+ PRs merged (afternoon + evening sprints) + Q4 validation COMPLETE + 7 worktree leaks all recovered.** main `827ede7`.
