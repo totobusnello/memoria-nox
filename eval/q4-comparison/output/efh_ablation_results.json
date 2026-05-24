@@ -1,0 +1,1145 @@
+{
+  "meta": {
+    "description": "Path E+F+H ablation — hybrid@500 + KG traversal + RRF tune + top-k expansion",
+    "mission": "close gap to mem0@500 (-0.0397) without changing model",
+    "baseline_reference_pr": 318,
+    "mem0_500_ndcg_reference": 0.1315,
+    "n_queries": 20,
+    "datasets": [
+      "locomo",
+      "longmemeval"
+    ],
+    "db": "/private/tmp/q4-path-efh-3adfcb1c-dc1/eval/q4-comparison/cache/efh/nox-mem-hybrid-500.db",
+    "harness_version": "efh_ablation_v1"
+  },
+  "configs": [
+    {
+      "label": "1_baseline",
+      "name": "baseline (PR #318 hybrid@500)",
+      "env": {},
+      "metrics_aggregate": {
+        "n": 20,
+        "n_skipped": 0,
+        "ndcg@10": 0.0918,
+        "mrr": 0.0575,
+        "r@10": 0.2,
+        "hit@10": 0.2,
+        "p50_latency_ms": 426.6,
+        "p95_latency_ms": 1201.7
+      },
+      "per_dataset": {
+        "locomo": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.1835,
+          "mrr": 0.115,
+          "r@10": 0.4,
+          "hit@10": 0.4,
+          "p50_latency_ms": 424.5,
+          "p95_latency_ms": 1098.6,
+          "n_queries": 10
+        },
+        "longmemeval": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 431.7,
+          "p95_latency_ms": 1207.1,
+          "n_queries": 10
+        }
+      },
+      "per_category": {
+        "single-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 505.9,
+          "p95_latency_ms": 509.3,
+          "n_queries": 2
+        },
+        "multi-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.3155,
+          "mrr": 0.25,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 753.6,
+          "p95_latency_ms": 1098.6,
+          "n_queries": 2
+        },
+        "temporal": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 424.5,
+          "p95_latency_ms": 458.9,
+          "n_queries": 2
+        },
+        "open-domain": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.4088,
+          "mrr": 0.225,
+          "r@10": 1.0,
+          "hit@10": 1.0,
+          "p50_latency_ms": 412.1,
+          "p95_latency_ms": 425.9,
+          "n_queries": 2
+        },
+        "adversarial": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.1934,
+          "mrr": 0.1,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 413.5,
+          "p95_latency_ms": 423.1,
+          "n_queries": 2
+        },
+        "knowledge-update": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 813.4,
+          "p95_latency_ms": 1207.1,
+          "n_queries": 2
+        },
+        "multi-session": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 414.8,
+          "p95_latency_ms": 415.8,
+          "n_queries": 2
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 427.4,
+          "p95_latency_ms": 427.4,
+          "n_queries": 1
+        },
+        "single-session-preference": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 440.5,
+          "p95_latency_ms": 440.5,
+          "n_queries": 1
+        },
+        "single-session-user": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 439.8,
+          "p95_latency_ms": 441.1,
+          "n_queries": 2
+        },
+        "temporal-reasoning": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 425.6,
+          "p95_latency_ms": 436.0,
+          "n_queries": 2
+        }
+      },
+      "kg_stats": {
+        "enabled": false,
+        "boost_factor": 1.5,
+        "model": "gemini-2.5-flash-lite",
+        "calls": 0,
+        "errors": 0,
+        "cache_entries": 0
+      },
+      "rewrite_stats": {
+        "enabled": false,
+        "model": "gemini-2.5-flash-lite",
+        "variants_per_query": 3,
+        "calls": 0,
+        "errors": 0,
+        "cache_entries": 0
+      },
+      "n_errors": 0,
+      "elapsed_s": 10.1
+    },
+    {
+      "label": "2_E_kg",
+      "name": "E (KG traversal)",
+      "env": {
+        "NOX_RETRIEVAL_KG": "1"
+      },
+      "metrics_aggregate": {
+        "n": 20,
+        "n_skipped": 0,
+        "ndcg@10": 0.0918,
+        "mrr": 0.0575,
+        "r@10": 0.2,
+        "hit@10": 0.2,
+        "p50_latency_ms": 1036.3,
+        "p95_latency_ms": 1721.3
+      },
+      "per_dataset": {
+        "locomo": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.1835,
+          "mrr": 0.115,
+          "r@10": 0.4,
+          "hit@10": 0.4,
+          "p50_latency_ms": 1074.0,
+          "p95_latency_ms": 1744.7,
+          "n_queries": 10
+        },
+        "longmemeval": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1000.8,
+          "p95_latency_ms": 1122.9,
+          "n_queries": 10
+        }
+      },
+      "per_category": {
+        "single-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1145.9,
+          "p95_latency_ms": 1219.4,
+          "n_queries": 2
+        },
+        "multi-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.3155,
+          "mrr": 0.25,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 1154.9,
+          "p95_latency_ms": 1276.6,
+          "n_queries": 2
+        },
+        "temporal": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1041.2,
+          "p95_latency_ms": 1075.6,
+          "n_queries": 2
+        },
+        "open-domain": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.4088,
+          "mrr": 0.225,
+          "r@10": 1.0,
+          "hit@10": 1.0,
+          "p50_latency_ms": 1386.0,
+          "p95_latency_ms": 1744.7,
+          "n_queries": 2
+        },
+        "adversarial": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.1934,
+          "mrr": 0.1,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 1139.8,
+          "p95_latency_ms": 1218.5,
+          "n_queries": 2
+        },
+        "knowledge-update": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1037.9,
+          "p95_latency_ms": 1122.9,
+          "n_queries": 2
+        },
+        "multi-session": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1057.8,
+          "p95_latency_ms": 1104.1,
+          "n_queries": 2
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 961.9,
+          "p95_latency_ms": 961.9,
+          "n_queries": 1
+        },
+        "single-session-preference": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 978.4,
+          "p95_latency_ms": 978.4,
+          "n_queries": 1
+        },
+        "single-session-user": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 967.3,
+          "p95_latency_ms": 993.5,
+          "n_queries": 2
+        },
+        "temporal-reasoning": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1023.7,
+          "p95_latency_ms": 1039.4,
+          "n_queries": 2
+        }
+      },
+      "kg_stats": {
+        "enabled": true,
+        "boost_factor": 1.5,
+        "model": "gemini-2.5-flash-lite",
+        "calls": 20,
+        "errors": 0,
+        "cache_entries": 20
+      },
+      "rewrite_stats": {
+        "enabled": false,
+        "model": "gemini-2.5-flash-lite",
+        "variants_per_query": 3,
+        "calls": 0,
+        "errors": 0,
+        "cache_entries": 0
+      },
+      "n_errors": 0,
+      "elapsed_s": 21.9
+    },
+    {
+      "label": "3_EF_kg_rrf20",
+      "name": "E+F (KG + RRF k=20)",
+      "env": {
+        "NOX_RETRIEVAL_KG": "1",
+        "NOX_RRF_K": "20"
+      },
+      "metrics_aggregate": {
+        "n": 20,
+        "n_skipped": 0,
+        "ndcg@10": 0.094,
+        "mrr": 0.06,
+        "r@10": 0.2,
+        "hit@10": 0.2,
+        "p50_latency_ms": 1065.6,
+        "p95_latency_ms": 1741.0
+      },
+      "per_dataset": {
+        "locomo": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.1879,
+          "mrr": 0.12,
+          "r@10": 0.4,
+          "hit@10": 0.4,
+          "p50_latency_ms": 1052.2,
+          "p95_latency_ms": 1742.8,
+          "n_queries": 10
+        },
+        "longmemeval": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1079.3,
+          "p95_latency_ms": 1705.7,
+          "n_queries": 10
+        }
+      },
+      "per_category": {
+        "single-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1022.4,
+          "p95_latency_ms": 1053.2,
+          "n_queries": 2
+        },
+        "multi-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.3155,
+          "mrr": 0.25,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 1370.1,
+          "p95_latency_ms": 1742.8,
+          "n_queries": 2
+        },
+        "temporal": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1074.2,
+          "p95_latency_ms": 1138.2,
+          "n_queries": 2
+        },
+        "open-domain": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.4307,
+          "mrr": 0.25,
+          "r@10": 1.0,
+          "hit@10": 1.0,
+          "p50_latency_ms": 1044.1,
+          "p95_latency_ms": 1051.2,
+          "n_queries": 2
+        },
+        "adversarial": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.1934,
+          "mrr": 0.1,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 1119.5,
+          "p95_latency_ms": 1156.4,
+          "n_queries": 2
+        },
+        "knowledge-update": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1079.3,
+          "p95_latency_ms": 1080.6,
+          "n_queries": 2
+        },
+        "multi-session": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1412.1,
+          "p95_latency_ms": 1705.7,
+          "n_queries": 2
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 967.6,
+          "p95_latency_ms": 967.6,
+          "n_queries": 1
+        },
+        "single-session-preference": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 972.5,
+          "p95_latency_ms": 972.5,
+          "n_queries": 1
+        },
+        "single-session-user": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1044.0,
+          "p95_latency_ms": 1094.6,
+          "n_queries": 2
+        },
+        "temporal-reasoning": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1023.3,
+          "p95_latency_ms": 1101.2,
+          "n_queries": 2
+        }
+      },
+      "kg_stats": {
+        "enabled": true,
+        "boost_factor": 1.5,
+        "model": "gemini-2.5-flash-lite",
+        "calls": 20,
+        "errors": 0,
+        "cache_entries": 20
+      },
+      "rewrite_stats": {
+        "enabled": false,
+        "model": "gemini-2.5-flash-lite",
+        "variants_per_query": 3,
+        "calls": 0,
+        "errors": 0,
+        "cache_entries": 0
+      },
+      "n_errors": 0,
+      "elapsed_s": 22.3
+    },
+    {
+      "label": "4_EFH_kg_rrf20_expand50",
+      "name": "E+F+H (KG + RRF k=20 + expand 50)",
+      "env": {
+        "NOX_RETRIEVAL_KG": "1",
+        "NOX_RRF_K": "20",
+        "NOX_TOP_K_EXPAND": "50"
+      },
+      "metrics_aggregate": {
+        "n": 20,
+        "n_skipped": 0,
+        "ndcg@10": 0.0913,
+        "mrr": 0.0571,
+        "r@10": 0.2,
+        "hit@10": 0.2,
+        "p50_latency_ms": 1089.6,
+        "p95_latency_ms": 1740.3
+      },
+      "per_dataset": {
+        "locomo": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.1826,
+          "mrr": 0.1143,
+          "r@10": 0.4,
+          "hit@10": 0.4,
+          "p50_latency_ms": 1143.0,
+          "p95_latency_ms": 1740.3,
+          "n_queries": 10
+        },
+        "longmemeval": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1073.9,
+          "p95_latency_ms": 1197.0,
+          "n_queries": 10
+        }
+      },
+      "per_category": {
+        "single-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1064.4,
+          "p95_latency_ms": 1075.6,
+          "n_queries": 2
+        },
+        "multi-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.3155,
+          "mrr": 0.25,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 1714.5,
+          "p95_latency_ms": 1740.3,
+          "n_queries": 2
+        },
+        "temporal": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1375.6,
+          "p95_latency_ms": 1740.2,
+          "n_queries": 2
+        },
+        "open-domain": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.4307,
+          "mrr": 0.25,
+          "r@10": 1.0,
+          "hit@10": 1.0,
+          "p50_latency_ms": 1193.5,
+          "p95_latency_ms": 1215.6,
+          "n_queries": 2
+        },
+        "adversarial": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.1667,
+          "mrr": 0.0714,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 1102.0,
+          "p95_latency_ms": 1114.6,
+          "n_queries": 2
+        },
+        "knowledge-update": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1129.3,
+          "p95_latency_ms": 1171.4,
+          "n_queries": 2
+        },
+        "multi-session": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1021.3,
+          "p95_latency_ms": 1024.3,
+          "n_queries": 2
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1103.0,
+          "p95_latency_ms": 1103.0,
+          "n_queries": 1
+        },
+        "single-session-preference": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 958.4,
+          "p95_latency_ms": 958.4,
+          "n_queries": 1
+        },
+        "single-session-user": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1035.4,
+          "p95_latency_ms": 1060.7,
+          "n_queries": 2
+        },
+        "temporal-reasoning": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 1143.4,
+          "p95_latency_ms": 1197.0,
+          "n_queries": 2
+        }
+      },
+      "kg_stats": {
+        "enabled": true,
+        "boost_factor": 1.5,
+        "model": "gemini-2.5-flash-lite",
+        "calls": 20,
+        "errors": 0,
+        "cache_entries": 20
+      },
+      "rewrite_stats": {
+        "enabled": false,
+        "model": "gemini-2.5-flash-lite",
+        "variants_per_query": 3,
+        "calls": 0,
+        "errors": 0,
+        "cache_entries": 0
+      },
+      "n_errors": 0,
+      "elapsed_s": 23.6
+    },
+    {
+      "label": "5_F_only_rrf20",
+      "name": "F only (RRF k=20, no KG)",
+      "env": {
+        "NOX_RRF_K": "20"
+      },
+      "metrics_aggregate": {
+        "n": 20,
+        "n_skipped": 0,
+        "ndcg@10": 0.094,
+        "mrr": 0.06,
+        "r@10": 0.2,
+        "hit@10": 0.2,
+        "p50_latency_ms": 429.4,
+        "p95_latency_ms": 646.0
+      },
+      "per_dataset": {
+        "locomo": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.1879,
+          "mrr": 0.12,
+          "r@10": 0.4,
+          "hit@10": 0.4,
+          "p50_latency_ms": 430.9,
+          "p95_latency_ms": 651.5,
+          "n_queries": 10
+        },
+        "longmemeval": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 428.1,
+          "p95_latency_ms": 500.8,
+          "n_queries": 10
+        }
+      },
+      "per_category": {
+        "single-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 546.6,
+          "p95_latency_ms": 651.5,
+          "n_queries": 2
+        },
+        "multi-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.3155,
+          "mrr": 0.25,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 409.9,
+          "p95_latency_ms": 434.7,
+          "n_queries": 2
+        },
+        "temporal": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 413.4,
+          "p95_latency_ms": 421.8,
+          "n_queries": 2
+        },
+        "open-domain": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.4307,
+          "mrr": 0.25,
+          "r@10": 1.0,
+          "hit@10": 1.0,
+          "p50_latency_ms": 425.5,
+          "p95_latency_ms": 427.1,
+          "n_queries": 2
+        },
+        "adversarial": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.1934,
+          "mrr": 0.1,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 527.3,
+          "p95_latency_ms": 542.5,
+          "n_queries": 2
+        },
+        "knowledge-update": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 415.3,
+          "p95_latency_ms": 416.0,
+          "n_queries": 2
+        },
+        "multi-session": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 462.4,
+          "p95_latency_ms": 500.8,
+          "n_queries": 2
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 436.4,
+          "p95_latency_ms": 436.4,
+          "n_queries": 1
+        },
+        "single-session-preference": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 438.0,
+          "p95_latency_ms": 438.0,
+          "n_queries": 1
+        },
+        "single-session-user": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 423.4,
+          "p95_latency_ms": 431.7,
+          "n_queries": 2
+        },
+        "temporal-reasoning": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 430.3,
+          "p95_latency_ms": 436.1,
+          "n_queries": 2
+        }
+      },
+      "kg_stats": {
+        "enabled": false,
+        "boost_factor": 1.5,
+        "model": "gemini-2.5-flash-lite",
+        "calls": 0,
+        "errors": 0,
+        "cache_entries": 0
+      },
+      "rewrite_stats": {
+        "enabled": false,
+        "model": "gemini-2.5-flash-lite",
+        "variants_per_query": 3,
+        "calls": 0,
+        "errors": 0,
+        "cache_entries": 0
+      },
+      "n_errors": 0,
+      "elapsed_s": 9.0
+    },
+    {
+      "label": "6_H_only_expand50",
+      "name": "H only (top-k expansion=50, no KG, default RRF)",
+      "env": {
+        "NOX_TOP_K_EXPAND": "50"
+      },
+      "metrics_aggregate": {
+        "n": 20,
+        "n_skipped": 0,
+        "ndcg@10": 0.0902,
+        "mrr": 0.0558,
+        "r@10": 0.2,
+        "hit@10": 0.2,
+        "p50_latency_ms": 419.7,
+        "p95_latency_ms": 1218.6
+      },
+      "per_dataset": {
+        "locomo": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.1805,
+          "mrr": 0.1117,
+          "r@10": 0.4,
+          "hit@10": 0.4,
+          "p50_latency_ms": 420.9,
+          "p95_latency_ms": 1222.2,
+          "n_queries": 10
+        },
+        "longmemeval": {
+          "n": 10,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 418.6,
+          "p95_latency_ms": 1150.9,
+          "n_queries": 10
+        }
+      },
+      "per_category": {
+        "single-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 409.4,
+          "p95_latency_ms": 420.7,
+          "n_queries": 2
+        },
+        "multi-hop": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.3155,
+          "mrr": 0.25,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 444.8,
+          "p95_latency_ms": 468.4,
+          "n_queries": 2
+        },
+        "temporal": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 824.6,
+          "p95_latency_ms": 1222.2,
+          "n_queries": 2
+        },
+        "open-domain": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.4088,
+          "mrr": 0.225,
+          "r@10": 1.0,
+          "hit@10": 1.0,
+          "p50_latency_ms": 417.1,
+          "p95_latency_ms": 425.4,
+          "n_queries": 2
+        },
+        "adversarial": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.1781,
+          "mrr": 0.0833,
+          "r@10": 0.5,
+          "hit@10": 0.5,
+          "p50_latency_ms": 406.9,
+          "p95_latency_ms": 417.6,
+          "n_queries": 2
+        },
+        "knowledge-update": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 432.5,
+          "p95_latency_ms": 437.8,
+          "n_queries": 2
+        },
+        "multi-session": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 780.2,
+          "p95_latency_ms": 1150.9,
+          "n_queries": 2
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 418.4,
+          "p95_latency_ms": 418.4,
+          "n_queries": 1
+        },
+        "single-session-preference": {
+          "n": 1,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 387.0,
+          "p95_latency_ms": 387.0,
+          "n_queries": 1
+        },
+        "single-session-user": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 417.0,
+          "p95_latency_ms": 435.2,
+          "n_queries": 2
+        },
+        "temporal-reasoning": {
+          "n": 2,
+          "n_skipped": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit@10": 0.0,
+          "p50_latency_ms": 408.3,
+          "p95_latency_ms": 418.7,
+          "n_queries": 2
+        }
+      },
+      "kg_stats": {
+        "enabled": false,
+        "boost_factor": 1.5,
+        "model": "gemini-2.5-flash-lite",
+        "calls": 0,
+        "errors": 0,
+        "cache_entries": 0
+      },
+      "rewrite_stats": {
+        "enabled": false,
+        "model": "gemini-2.5-flash-lite",
+        "variants_per_query": 3,
+        "calls": 0,
+        "errors": 0,
+        "cache_entries": 0
+      },
+      "n_errors": 0,
+      "elapsed_s": 9.9
+    }
+  ],
+  "verdicts": [
+    {
+      "label": "2_E_kg",
+      "ndcg_delta": 0.0,
+      "pct_lift": 0.0,
+      "verdict": "marginal -"
+    },
+    {
+      "label": "3_EF_kg_rrf20",
+      "ndcg_delta": 0.0021999999999999936,
+      "pct_lift": 2.3965141612200367,
+      "verdict": "marginal +"
+    },
+    {
+      "label": "4_EFH_kg_rrf20_expand50",
+      "ndcg_delta": -0.0005000000000000004,
+      "pct_lift": -0.5446623093681922,
+      "verdict": "marginal -"
+    },
+    {
+      "label": "5_F_only_rrf20",
+      "ndcg_delta": 0.0021999999999999936,
+      "pct_lift": 2.3965141612200367,
+      "verdict": "marginal +"
+    },
+    {
+      "label": "6_H_only_expand50",
+      "ndcg_delta": -0.0016000000000000042,
+      "pct_lift": -1.7429193899782178,
+      "verdict": "marginal -"
+    }
+  ],
+  "best_config": "3_EF_kg_rrf20",
+  "best_ndcg": 0.094,
+  "gap_to_mem0_500": -0.037500000000000006
+}
