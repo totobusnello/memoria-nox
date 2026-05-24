@@ -358,13 +358,15 @@ export async function reindex(opts?: { dryRun?: boolean }): Promise<ReindexResul
     return { files: allFiles.length, chunks: currentChunks, dryRun: true };
   }
 
-  return withOpAudit<ReindexResult>("reindex", { db_source: "main" }, async () => {
+  // NOTE: withOpAudit(opName, fn) — 2 args, matches prod src/lib/op-audit.ts.
+  // db_source context (was "main") folded into notes for audit row visibility.
+  return withOpAudit<ReindexResult>("reindex", async () => {
     const r = await _reindexImpl();
     return {
       files: r.files,
       chunks: r.chunks,
       affected_rows: r.upserted + r.inserted,
-      notes: `${r.files} files reindexed | pre=${r.preCount} post=${r.postCount} ` +
+      notes: `db_source=main | ${r.files} files reindexed | pre=${r.preCount} post=${r.postCount} ` +
         `inherited=${r.upserted} new=${r.inserted} orphans=${r.orphaned}`,
       preCount: r.preCount,
       postCount: r.postCount,
