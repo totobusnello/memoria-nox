@@ -114,19 +114,22 @@ MIT license.
 
 ---
 
-**T7b — Cross-system punchy (new, drop-in for T5 or standalone)**
+**T7b — Cross-system honest framing (rev2 — H2 confirmed)**
 
 ```
-First real cross-system numbers, Sat smoke (n=20 queries each):
+Two architectures, two trade-offs. Real numbers, Sat 2026-05-24:
 
-nox-mem  →  65% hit-rate  ·  8ms p50   ·  MRR 0.37
-mem0*    →  15% hit-rate  ·  273ms p50  ·  MRR 0.12
+Full corpus vs capped (not apples-to-apples):
+  nox-mem (6822 chunks, local, $0/q):  65% hits · 8ms · MRR 0.37
+  mem0    (500-chunk cap, $0.07 ingest): 15% hits · 273ms · MRR 0.12
 
-30× faster. 4× coverage. 3× better first-hit rank.
+Apples-to-apples (same 500 chunks):
+  mem0 nDCG@10 = 0.1315
+  nox-mem FTS5 nDCG@10 = 0.0466
 
-*mem0 capped at 500 chunks (cost-control); nox-mem ran full
-6,822-chunk corpus, local, zero ingest cost.
-Canonical 100q×6-system run in COMPARISON.md before Jun 3.
+Honest read: mem0 wins concentration at small corpora (LLM
+rewriting is real). nox-mem wins coverage + speed + cost at scale.
+Different use cases. Both numbers in COMPARISON.md.
 → github.com/totobusnello/memoria-nox
 ```
 
@@ -208,15 +211,18 @@ LongMemEval n=100 run: nDCG@10=0.9126, MRR=0.9162. The Q4 broader smoke on Sat
 LongMemEval 940 chunks) returned nDCG@10=0.6380 (above the D43 gate of +18.8%),
 p50 latency 8ms, p95 43ms, gold-hit rate 13/20 (65%).
 
-The same day (Sat 2026-05-24, ~18h BRT) produced the first real cross-system number:
-nox-mem vs mem0 on identical 20 queries. nox-mem (full 6,822-chunk corpus, local ingest,
-zero cost): 65% hit-rate, 8ms p50, MRR 0.37. Mem0 (500-chunk corpus cap for cost-control,
-~$0.10 ingest): 15% hit-rate, 273ms p50, MRR 0.12. nox-mem is 30× faster and hits 4×
-more queries. Mem0 shows higher nDCG@10 (0.86 vs 0.64) — a concentration effect from the
-smaller window: fewer hits, but top-ranked. With uniform corpus (no cap), the canonical run
-will be the real arbiter of the nDCG gap. The full head-to-head against Mem0 (no cap), Zep,
-Letta, agentmemory, and EverMind-AI on 100 queries × 2 datasets × 6 systems is still
-running — 4 adapters remaining — and lands in COMPARISON.md before launch.
+The same day (Sat 2026-05-24) produced real cross-system numbers. Full-corpus vs capped
+(not apples-to-apples): nox-mem (full 6,822-chunk corpus, local, zero cost) — 65% hit-rate,
+8ms p50, MRR 0.37. Mem0 (500-chunk corpus cap, ~$0.10 ingest) — 15% hit-rate, 273ms p50.
+nox-mem is 30× faster and covers 4× more queries at full corpus. But the honest apples-cap
+comparison (same 500 chunks) tells a different story: mem0 nDCG@10 = 0.1315 vs nox-mem
+FTS5-only = 0.0466. That gap is architecturally real — mem0's LLM-rewriting step generalizes
+semantically at sparse coverage in ways FTS5 alone cannot. We report both rows in
+COMPARISON.md because either alone misleads. If you want concentrated answers at any cost in
+a small corpus, mem0 wins today. If you want zero-cost full-coverage memory that scales, this
+is the architecture. The Gemini hybrid@500 follow-up (Lab Q1 E1) will determine whether the
+full stack closes the concentration gap. Full canonical run (6 systems, uniform corpus)
+in COMPARISON.md before launch.
 The stack includes a KG with 15k+ entities and typed edge relations, a CLI (26+
 subcommands), an MCP server (16 tools), and an HTTP API — all in one npm package.
 
@@ -462,21 +468,17 @@ comparison winning first.
 
 **Q: The +78.8% improvement is over your own baseline — how does it compare to other
 systems on a common benchmark?**
-A: Fair point, and worth being specific. The internal G3→G5 delta is over my own
-retrieval baseline, not a head-to-head. LongMemEval (n=100, nDCG@10=0.9126) is a standard
-benchmark and the numbers are strong, but n=100 has wide confidence intervals. The Q4
-broader smoke (Sat 2026-05-24, eval-isolated DB, 20 queries across LoCoMo + LongMemEval)
-returned nDCG@10=0.6380 with p50=8ms — above the D43 gate. The same day, a partial
-cross-system run compared nox-mem directly against mem0 on identical queries (n=20).
-nox-mem (full 6,822-chunk corpus): 65% hit-rate, 8ms p50, MRR 0.37. Mem0 (capped at
-500 chunks for cost-control): 15% hit-rate, 273ms p50, MRR 0.12. Two honest notes on
-this: (1) mem0's nDCG@10 is higher (0.86 vs 0.64) because the smaller corpus window
-means fewer but more concentrated results — a framing advantage, not a retrieval
-advantage at full scale. (2) mem0 used OpenAI embeddings (its default); nox-mem used
-Gemini 3072d. The "all-Gemini" side experiment is deferred to post-launch. The full
-COMPARISON.md (Mem0 at full corpus, Zep, Letta, agentmemory, EverMind-AI, 100q × 2
-datasets × 6 systems) is in progress and ships in `benchmark/COMPARISON.md` before Jun 3.
-If any system beats nox-mem on any axis, it will be in that table.
+A: Fair point. The internal G3→G5 delta is over my own retrieval baseline. The Q4 smoke
+(Sat 2026-05-24, eval-isolated, 20 queries) returned nDCG@10=0.6380, p50=8ms — above the
+D43 gate. Cross-system: two honest rows, both published. Full-corpus vs capped (not
+apples-to-apples): nox-mem at full 6,822-chunk corpus hit 65% of queries, 8ms p50, MRR
+0.37. Mem0 at 500-chunk cap hit 15%, 273ms, MRR 0.12. But at the same 500-chunk corpus
+(apples-to-apples), mem0 nDCG@10 = 0.1315 vs nox-mem FTS5-only = 0.0466. That gap is real
+— mem0's LLM rewriting semantically generalizes at sparse coverage in ways FTS5 alone
+cannot. We report both rows in COMPARISON.md because either alone misleads. The Gemini
+hybrid@500 experiment (Lab Q1 E1) will test whether the full nox-mem stack closes the
+concentration gap. If any system beats nox-mem on any axis in the canonical run, it will
+be in that table — no cherry-picking.
 
 **Q: What's the operational cost?**
 A: Under $11/month all-in on a Hostinger VPS (2 vCPU, 8GB RAM), running 7 agents

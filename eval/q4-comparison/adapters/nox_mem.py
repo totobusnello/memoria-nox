@@ -23,6 +23,11 @@ Env vars:
   NOX_EVAL_MODE      "eval" (default) | "prod"
   NOX_EVAL_DB_PATH   path to isolated SQLite eval DB
                      (default: <q4-comparison>/cache/nox-mem-eval.db)
+  NOX_MEM_INGEST_LIMIT  integer cap on total corpus chunks to load (default: full corpus).
+                     When set, automatically uses a separate DB path suffixed
+                     with the cap (e.g. nox-mem-eval-cap500.db) to avoid
+                     contaminating the full-corpus eval DB. Matches mem0's
+                     MEM0_INGEST_LIMIT pattern for apples-to-apples comparison.
   NOX_API_BASE       override prod HTTP base URL (prod mode only)
   NOX_API_PORT       override prod port — default 18802 (prod mode only)
 """
@@ -68,9 +73,33 @@ def _eval_mode() -> bool:
     return os.environ.get("NOX_EVAL_MODE", "eval").lower() != "prod"
 
 
+def _ingest_limit() -> int | None:
+    """Return integer cap from NOX_MEM_INGEST_LIMIT, or None (no cap)."""
+    raw = os.environ.get("NOX_MEM_INGEST_LIMIT", "")
+    if raw.strip().isdigit():
+        return int(raw.strip())
+    return None
+
+
 def _eval_db_file() -> Path:
-    raw = os.environ.get("NOX_EVAL_DB_PATH", str(_DEFAULT_EVAL_DB))
-    return Path(raw)
+    """Return the eval DB path, auto-suffixed with cap when NOX_MEM_INGEST_LIMIT is set.
+
+    The suffix keeps capped runs isolated from the full-corpus DB so repeated
+    runs at different caps don't overwrite each other and the full-corpus DB
+    is never contaminated by a capped ingest.
+
+    Examples:
+      no cap  → cache/nox-mem-eval.db
+      cap=500 → cache/nox-mem-eval-cap500.db
+    """
+    limit = _ingest_limit()
+    # If caller explicitly set NOX_EVAL_DB_PATH, honour it as-is.
+    explicit = os.environ.get("NOX_EVAL_DB_PATH", "")
+    if explicit:
+        return Path(explicit)
+    if limit is not None:
+        return _DEFAULT_EVAL_DB.parent / f"nox-mem-eval-cap{limit}.db"
+    return _DEFAULT_EVAL_DB
 
 
 def _prod_base_url() -> str:
@@ -142,11 +171,23 @@ def _create_eval_schema(con: sqlite3.Connection) -> None:
     con.commit()
 
 
-def _ingest_corpus_into_eval_db(con: sqlite3.Connection, datasets: list[str]) -> int:
+def _ingest_corpus_into_eval_db(
+    con: sqlite3.Connection,
+    datasets: list[str],
+    limit: int | None = None,
+) -> int:
     """Download + parse corpus chunks and bulk-INSERT into eval_chunks.
 
     Uses INSERT OR IGNORE → idempotent (re-runs skip existing rows).
     Returns total number of newly inserted rows.
+
+    Parameters
+    ----------
+    limit : int | None
+        If set, caps the TOTAL number of corpus chunks ingested across all
+        datasets (LoCoMo first, then LongMemEval). Mirrors MEM0_INGEST_LIMIT
+        semantics for apples-to-apples corpus-cap comparison.
+        None (default) = full corpus, no cap.
     """
     # lib/ lives alongside adapters/ under eval/q4-comparison/
     if str(_HERE) not in sys.path:
@@ -156,6 +197,7 @@ def _ingest_corpus_into_eval_db(con: sqlite3.Connection, datasets: list[str]) ->
 
     batch: list[tuple[str, str, str, int, str]] = []
     inserted_total = 0
+    global_count = 0  # total chunks yielded (capped against limit)
 
     def flush(force: bool = False) -> None:
         nonlocal inserted_total
@@ -170,13 +212,23 @@ def _ingest_corpus_into_eval_db(con: sqlite3.Connection, datasets: list[str]) ->
         inserted_total += len(batch)
         batch.clear()
 
+    def _cap_reached() -> bool:
+        return limit is not None and global_count >= limit
+
     if "locomo" in datasets:
-        print("[nox_mem/eval] ingesting LoCoMo corpus...", file=sys.stderr)
+        print(
+            f"[nox_mem/eval] ingesting LoCoMo corpus"
+            f"{f' (cap={limit})' if limit else ''}...",
+            file=sys.stderr,
+        )
         before = inserted_total
         for chunk in load_locomo_corpus():
+            if _cap_reached():
+                break
             batch.append(
                 (chunk.id, chunk.dataset, chunk.conversation_id, chunk.day, chunk.text)
             )
+            global_count += 1
             flush()
         flush(force=True)
         print(
@@ -184,19 +236,30 @@ def _ingest_corpus_into_eval_db(con: sqlite3.Connection, datasets: list[str]) ->
             file=sys.stderr,
         )
 
-    if "longmemeval" in datasets:
+    if "longmemeval" in datasets and not _cap_reached():
         print(
-            "[nox_mem/eval] ingesting LongMemEval (oracle split)...", file=sys.stderr
+            f"[nox_mem/eval] ingesting LongMemEval (oracle split)"
+            f"{f' (cap={limit}, remaining={limit - global_count})' if limit else ''}...",
+            file=sys.stderr,
         )
         before = inserted_total
         for chunk in load_longmemeval_corpus("oracle"):
+            if _cap_reached():
+                break
             batch.append(
                 (chunk.id, chunk.dataset, chunk.conversation_id, chunk.day, chunk.text)
             )
+            global_count += 1
             flush()
         flush(force=True)
         print(
             f"[nox_mem/eval] LongMemEval: {inserted_total - before:,} rows inserted",
+            file=sys.stderr,
+        )
+
+    if limit is not None:
+        print(
+            f"[nox_mem/eval] corpus cap applied: {global_count}/{limit} chunks yielded",
             file=sys.stderr,
         )
 
@@ -212,12 +275,14 @@ def validate() -> dict:
     """Static validation — no network calls, no quota burn."""
     if _eval_mode():
         db_path = _eval_db_file()
+        limit = _ingest_limit()
+        cap_note = f" NOX_MEM_INGEST_LIMIT={limit} (capped run)." if limit else ""
         return {
             "ok": True,
             "error": None,
             "version": VERSION_PIN,
             "notes": (
-                f"eval mode — local FTS5 DB at {db_path}. "
+                f"eval mode — local FTS5 DB at {db_path}.{cap_note} "
                 "setup() downloads corpus on first run (LoCoMo + LongMemEval oracle). "
                 "Set NOX_EVAL_MODE=prod to use HTTP endpoint instead."
             ),
@@ -248,6 +313,12 @@ def setup(datasets: list[str] | None = None) -> None:
       and ingests chunks with stable IDs matching gold_chunk_ids format.
       Idempotent: already-loaded rows are skipped.
 
+      When NOX_MEM_INGEST_LIMIT is set, only the first N chunks are loaded
+      (LoCoMo first, then LongMemEval) and the DB is stored at a cap-specific
+      path (e.g. nox-mem-eval-cap500.db) to avoid contaminating the full DB.
+      Each unique cap value gets its own persistent DB — subsequent runs at
+      the same cap reuse the existing capped DB without re-ingesting.
+
     Prod mode (NOX_EVAL_MODE=prod):
       No-op — assumes nox-mem-api running externally.
 
@@ -264,15 +335,32 @@ def setup(datasets: list[str] | None = None) -> None:
     if datasets is None:
         datasets = ["locomo", "longmemeval"]
 
+    limit = _ingest_limit()
     db_path = _eval_db_file()
     _eval_db_path = db_path
 
-    print(f"[nox_mem/eval] opening eval DB: {db_path}", file=sys.stderr)
+    if limit is not None:
+        print(
+            f"[nox_mem/eval] NOX_MEM_INGEST_LIMIT={limit} → capped DB: {db_path}",
+            file=sys.stderr,
+        )
+    else:
+        print(f"[nox_mem/eval] opening eval DB: {db_path}", file=sys.stderr)
+
     con = _open_eval_db(db_path)
     _eval_con = con
 
     if _schema_ready(con):
-        # Schema exists — check each dataset individually
+        total = con.execute("SELECT COUNT(*) FROM eval_chunks").fetchone()[0]
+        if limit is not None:
+            # Capped DB: if total matches or exceeds limit, already ready.
+            # If < limit and < full corpus, still usable — don't re-ingest partial.
+            print(
+                f"[nox_mem/eval] capped DB already loaded ({total:,} chunks, cap={limit})",
+                file=sys.stderr,
+            )
+            return
+        # Full DB: check each dataset individually
         for ds in datasets:
             cnt = con.execute(
                 "SELECT COUNT(*) FROM eval_chunks WHERE dataset=?", (ds,)
@@ -282,7 +370,7 @@ def setup(datasets: list[str] | None = None) -> None:
                     f"[nox_mem/eval] dataset '{ds}' missing — ingesting...",
                     file=sys.stderr,
                 )
-                _ingest_corpus_into_eval_db(con, [ds])
+                _ingest_corpus_into_eval_db(con, [ds], limit=None)
             else:
                 print(
                     f"[nox_mem/eval] dataset '{ds}' already loaded ({cnt:,} chunks)",
@@ -290,11 +378,15 @@ def setup(datasets: list[str] | None = None) -> None:
                 )
         return
 
-    # First-time setup: create schema + ingest all
-    print("[nox_mem/eval] first-time setup — creating schema + ingesting...", file=sys.stderr)
+    # First-time setup: create schema + ingest all (or up to limit)
+    print(
+        f"[nox_mem/eval] first-time setup — creating schema + ingesting"
+        f"{f' (cap={limit})' if limit else ''}...",
+        file=sys.stderr,
+    )
     _create_eval_schema(con)
     t0 = time.time()
-    _ingest_corpus_into_eval_db(con, datasets)
+    _ingest_corpus_into_eval_db(con, datasets, limit=limit)
     elapsed = time.time() - t0
     total = con.execute("SELECT COUNT(*) FROM eval_chunks").fetchone()[0]
     print(

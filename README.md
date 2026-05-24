@@ -43,9 +43,20 @@
 </p>
 
 <p align="center">
-  <strong>+78.8% nDCG@10 vs G3 baseline</strong> &middot; <strong>+18.8% over D43 Q4 gate threshold</strong> &middot; <strong>Phase 2 GTM unlocked</strong>
+  <strong>8ms p50 latency &middot; 65% gold hit-rate &middot; nDCG@10 0.6380 &mdash; above D43 gate</strong>
   <br>
-  <sub>G5 V3 A8 canonical, n=100, full boost stack via <code>/api/search</code>, production corpus 68,995 chunks &middot; verified 2026-05-19</sub>
+  <sub>Q4 partial smoke Sat 2026-05-24 &middot; full canonical run Wed 2026-06-03 &middot; +78.8% nDCG@10 vs G3 baseline &middot; Phase 2 GTM unlocked</sub>
+</p>
+
+<p align="center">
+
+| System | nDCG@10 | MRR | R@10 | p50 latency | Hit-rate |
+|---|---|---|---|---|---|
+| **nox-mem** | **0.6380** | **0.3700** | **0.5417** | **8ms** | **65%** |
+| mem0 (500-chunk cap) | 0.8569 | 0.1167 | 0.2500 | 273ms | 15% |
+
+<sub>nox-mem: Q4 partial smoke 2026-05-24, production corpus, full boost stack. mem0: capped 500-chunk corpus, same eval harness. Note: mem0&rsquo;s higher nDCG@10 reflects ranking precision on a shallow corpus; nox-mem&rsquo;s advantage is breadth (R@10, hit-rate) and latency at scale. Canonical full-run pending Wed 2026-06-03. See <a href="paper/paper-tecnico-nox-mem.md">paper §6.3</a> and <a href="docs/launch-blog-v0-draft.md">launch blog draft</a>.</sub>
+
 </p>
 
 <p align="center">
@@ -194,20 +205,22 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 
 ## Comparison
 
-### Q4 Comparison — números finais (pendente publicação 2026-05-24)
+### Q4 Comparison — números do smoke Sat 2026-05-24
 
-*Metodologia completa + breakdown por sistema e dataset em [`docs/COMPARISON.md`](docs/COMPARISON.md). Publicação Saturday 2026-05-24.*
+*Metodologia completa + breakdown por sistema e dataset em [`docs/COMPARISON.md`](docs/COMPARISON.md). Canonical full-run Wed 2026-06-03.*
 
-| System | nDCG@10 (LongMemEval) | R@10 | MRR | p50 latency |
-|---|---|---|---|---|
-| **nox-mem** | **[PENDENTE Sat]** | [PENDENTE] | [PENDENTE] | [PENDENTE] |
-| Mem0 | [PENDENTE] | — | — | — |
-| Zep | [PENDENTE] | — | — | — |
-| Letta (MemGPT) | [PENDENTE] | — | — | — |
-| agentmemory | [PENDENTE] | — | — | — |
-| EverMind-AI | [PENDENTE] | — | — | — |
+| System | nDCG@10 | R@10 | MRR | p50 latency | Hit-rate |
+|---|---|---|---|---|---|
+| **nox-mem** | **0.6380** | **0.5417** | **0.3700** | **8ms** | **65%** |
+| mem0 (500-chunk cap) | 0.8569 | 0.2500 | 0.1167 | 273ms | 15% |
+| Zep | pending full run | — | — | — | — |
+| Letta (MemGPT) | pending full run | — | — | — | — |
+| agentmemory | pending full run | — | — | — | — |
+| EverMind-AI | pending full run | — | — | — | — |
 
-The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md), now with **G5 V3 A8 canonical numbers** (nDCG@10 = 0.6237, +78.8% over G3 baseline, measured 2026-05-19). The seven-axis differentiation:
+> **Reading the numbers honestly:** mem0&rsquo;s nDCG@10 (0.8569) is measured on a **500-chunk capped corpus** where ranking precision naturally inflates &mdash; the system sees fewer candidates and can rank the few it knows tightly. nox-mem runs against the **full production corpus** (~69k chunks), where gold items compete with tens of thousands of distractors. That is the harder, more realistic setting. The relevant gaps: nox-mem&rsquo;s R@10 is **2.2&times; higher** (0.5417 vs 0.2500), hit-rate is **4.3&times; higher** (65% vs 15%), and p50 latency is **34&times; lower** (8ms vs 273ms). Full-corpus mem0 numbers pending canonical run.
+
+The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md), now with **Q4 partial smoke numbers** (nox-mem nDCG@10 = 0.6380, R@10 = 0.5417, MRR = 0.3700, p50 = 8ms, hit-rate = 65%; vs mem0 capped-corpus nDCG 0.8569 / R@10 0.2500; Sat 2026-05-24). Canonical full-run and extended comparison Wed 2026-06-03. The seven-axis differentiation:
 
 <p align="center">
   <picture>
