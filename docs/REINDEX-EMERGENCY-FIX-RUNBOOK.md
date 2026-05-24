@@ -107,10 +107,13 @@ is autoincrement and not stable across reindex.
 
 ### Layer 2 — withOpAudit snapshot pre-op
 
-Preserved from existing code. `withOpAudit('reindex', { db_source: 'main' }, ...)`:
-- VACUUM INTO atomic snapshot at `/var/backups/nox-mem/pre-op/reindex-main-<ts>-<pid>-<uuid>.db`
+Preserved from existing code. `withOpAudit('reindex', async () => {...})` (2-arg, matches prod):
+- VACUUM INTO atomic snapshot at `/var/backups/nox-mem/pre-op/reindex-<ts>-<pid>-<uuid>.db`
 - ACL 0600, dir 0700.
 - Audit row in `ops_audit` with status lifecycle (running -> success/failed/crashed).
+- `db_source=main` is recorded inside `notes` of the audit row (not via an options bag) —
+  matches the existing 2-arg prod signature. Earlier draft of this runbook referenced a
+  3-arg signature that never existed in prod (corrected after 2026-05-24 deploy smoke).
 - On `ReindexWipeDetectedError` throw (Layer 4), `withOpAudit` runs the failure path
   and the snapshot is preserved for `safeRestore()`.
 
