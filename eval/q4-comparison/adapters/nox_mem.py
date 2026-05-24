@@ -18,6 +18,19 @@ HYBRID MODE (set NOX_EVAL_MODE=hybrid):
   - search() : RRF k=60 fusion of FTS5 BM25 results + Gemini dense retrieval
                (same pipeline as prod nox-mem). Returns gold-format IDs.
 
+QUERY REWRITE LAYER (set NOX_QUERY_REWRITE=1 on top of hybrid mode):
+  - Pre-search: call Gemini Flash Lite to expand the user query into 3
+    semantically related variants (synonyms, expansions, paraphrases).
+  - For original + each variant (4 passes total), run the hybrid FTS5+dense
+    +RRF pipeline. Merge by summing per-chunk RRF contributions across the
+    4 passes; rerank descending and return top-k.
+  - Rationale: matches mem0's LLM concentration mechanism that wins at sparse
+    coverage (hybrid@500: 0.0918 vs mem0@500: 0.1315). See memory
+    [[concentration-vs-coverage]] and Lab Q1 P1.
+  - Cost: ~$0.00005 per query (Gemini Flash Lite, ~150 input tokens, ~80 output).
+    20 queries smoke ≈ $0.001. Gated on NOX_QUERY_REWRITE=1 so it never
+    burns quota by accident.
+
 PROD MODE (set NOX_EVAL_MODE=prod):
   - Falls through to HTTP /api/search. Use when benchmarking the full nox-mem
     stack (Gemini hybrid) rather than just FTS5 recall parity.
@@ -37,10 +50,16 @@ Env vars:
   GEMINI_API_KEY     required for hybrid mode
   NOX_API_BASE       override prod HTTP base URL (prod mode only)
   NOX_API_PORT       override prod port — default 18802 (prod mode only)
+  NOX_QUERY_REWRITE  "1" enables LLM query rewrite layer (hybrid mode only).
+                     Default off. Adds ~$0.00005/query via Gemini Flash Lite.
+  NOX_QUERY_REWRITE_MODEL  override rewrite model
+                           (default: gemini-2.5-flash-lite)
+  NOX_QUERY_REWRITE_N      number of variants to generate (default: 3)
 """
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import sqlite3
@@ -64,6 +83,20 @@ _DEFAULT_PROD_PORT = "18802"
 _TIMEOUT_S = 30
 _GEMINI_EMBED_MODEL = "models/gemini-embedding-001"  # gemini-embedding-001 (768d output)
 _RRF_K = 60
+
+# Query rewrite layer defaults
+_REWRITE_MODEL_DEFAULT = "gemini-2.5-flash-lite"
+_REWRITE_N_DEFAULT = 3
+_REWRITE_TIMEOUT_S = 15
+_REWRITE_ENDPOINT = (
+    "https://generativelanguage.googleapis.com/v1beta/models/"
+    "{model}:generateContent"
+)
+
+# Counters for cost / observability tracking
+_rewrite_calls: int = 0
+_rewrite_errors: int = 0
+_rewrite_cache: dict[str, list[str]] = {}
 
 # Paths — _HERE is eval/q4-comparison/
 _HERE = Path(__file__).resolve().parent.parent
@@ -474,14 +507,20 @@ def _rrf_score(rank: int, k: int = _RRF_K) -> float:
     return 1.0 / (k + rank)
 
 
-def _search_hybrid_local(query: str, k: int) -> list[dict]:
-    """RRF fusion of FTS5 + Gemini dense search on local hybrid DB."""
+def _hybrid_single_pass(
+    query: str,
+    k_fetch: int,
+    genai,
+) -> dict[str, float]:
+    """Run a single FTS5+dense+RRF pass for `query`.
+
+    Returns a per-chunk RRF score dict (chunk_id → score). Used both for
+    the baseline hybrid path and for each query-rewrite variant pass.
+    `k_fetch` controls how deep each leg fetches (we use k * 3 = 30 by
+    default to give RRF good fusion material).
+    """
     global _hybrid_con
-
-    if _hybrid_con is None:
-        raise RuntimeError("hybrid DB not initialised — call setup() first")
-
-    _load_sqlite_vec_ext(_hybrid_con)
+    assert _hybrid_con is not None
 
     # --- FTS5 leg ---
     fq = _fts5_escape(query)
@@ -496,13 +535,12 @@ def _search_hybrid_local(query: str, k: int) -> list[dict]:
             ORDER BY score
             LIMIT ?
             """,
-            (fq, k * 3),
+            (fq, k_fetch),
         ).fetchall()
     except sqlite3.OperationalError:
         pass
 
     # --- Dense leg ---
-    genai = _get_genai()
     dense_rows: list[tuple] = []
     try:
         q_vec = _embed_query(genai, query)
@@ -516,17 +554,55 @@ def _search_hybrid_local(query: str, k: int) -> list[dict]:
               AND k = ?
             ORDER BY v.distance
             """,
-            (q_bytes, k * 3),
+            (q_bytes, k_fetch),
         ).fetchall()
     except Exception as e:
         print(f"[nox_mem/hybrid] dense search error: {e}", file=sys.stderr)
 
-    # --- RRF fusion ---
+    # --- RRF fusion (within this single pass) ---
     scores: dict[str, float] = {}
     for rank, (chunk_id, _) in enumerate(fts_rows, 1):
         scores[chunk_id] = scores.get(chunk_id, 0.0) + _rrf_score(rank)
     for rank, (chunk_id, _) in enumerate(dense_rows, 1):
         scores[chunk_id] = scores.get(chunk_id, 0.0) + _rrf_score(rank)
+    return scores
+
+
+def _search_hybrid_local(query: str, k: int) -> list[dict]:
+    """RRF fusion of FTS5 + Gemini dense search on local hybrid DB.
+
+    When NOX_QUERY_REWRITE=1, additionally generates N semantic variants
+    of the query via Gemini Flash Lite and merges their RRF scores into
+    the result set. See `_rewrite_query`.
+    """
+    global _hybrid_con
+
+    if _hybrid_con is None:
+        raise RuntimeError("hybrid DB not initialised — call setup() first")
+
+    _load_sqlite_vec_ext(_hybrid_con)
+    genai = _get_genai()
+
+    # --- Baseline pass (original query) ---
+    scores: dict[str, float] = _hybrid_single_pass(query, k * 3, genai)
+
+    # --- Query rewrite layer (opt-in) ---
+    if _query_rewrite_enabled():
+        variants = _rewrite_query(query)
+        for variant in variants:
+            v = (variant or "").strip()
+            if not v or v.lower() == query.strip().lower():
+                continue
+            try:
+                variant_scores = _hybrid_single_pass(v, k * 3, genai)
+            except Exception as e:
+                print(
+                    f"[nox_mem/hybrid] variant search error: {e}",
+                    file=sys.stderr,
+                )
+                continue
+            for chunk_id, s in variant_scores.items():
+                scores[chunk_id] = scores.get(chunk_id, 0.0) + s
 
     ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:k]
 
@@ -543,6 +619,184 @@ def _search_hybrid_local(query: str, k: int) -> list[dict]:
                 "source": f"{row[1]}/{row[2]}",
             })
     return results
+
+
+# ---------------------------------------------------------------------------
+# Query rewrite layer — Gemini Flash Lite
+# ---------------------------------------------------------------------------
+
+
+def _query_rewrite_enabled() -> bool:
+    raw = os.environ.get("NOX_QUERY_REWRITE", "0").strip().lower()
+    return raw in ("1", "true", "yes", "on")
+
+
+def _rewrite_model() -> str:
+    return os.environ.get("NOX_QUERY_REWRITE_MODEL", _REWRITE_MODEL_DEFAULT)
+
+
+def _rewrite_n() -> int:
+    raw = os.environ.get("NOX_QUERY_REWRITE_N", "").strip()
+    if raw.isdigit():
+        n = int(raw)
+        return max(1, min(n, 6))  # safety cap 1..6
+    return _REWRITE_N_DEFAULT
+
+
+_REWRITE_PROMPT = (
+    "You expand user queries for memory retrieval. Given the user query "
+    "below, output exactly {n} semantically related variants. Variants "
+    "should rephrase, expand acronyms, swap synonyms, or surface implicit "
+    "entities — but stay faithful to the original intent. Do NOT answer "
+    "the question. Output JSON only: an array of {n} strings.\n\n"
+    "User query: {q}\n\n"
+    "Output JSON array:"
+)
+
+
+def _parse_rewrite_response(raw: str, expected_n: int) -> list[str]:
+    """Robustly parse JSON array from LLM response (with fallbacks)."""
+    if not raw:
+        return []
+    # Strip code fences if model wraps output
+    cleaned = raw.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?", "", cleaned).strip()
+        cleaned = re.sub(r"```$", "", cleaned).strip()
+    # Try direct JSON parse first
+    try:
+        parsed = json.loads(cleaned)
+        if isinstance(parsed, list):
+            return [str(x).strip() for x in parsed if str(x).strip()][:expected_n]
+    except json.JSONDecodeError:
+        pass
+    # Fallback: regex-extract first JSON array in the text
+    m = re.search(r"\[.*\]", cleaned, re.DOTALL)
+    if m:
+        try:
+            parsed = json.loads(m.group(0))
+            if isinstance(parsed, list):
+                return [str(x).strip() for x in parsed if str(x).strip()][:expected_n]
+        except json.JSONDecodeError:
+            pass
+    # Last-ditch: newline-split. Require at least one alphabetic char per line
+    # so pure-punctuation noise (e.g. "?????") is rejected instead of being
+    # treated as a "variant" — punctuation-only queries would hit the FTS
+    # sanitizer and produce empty searches anyway.
+    lines = [
+        ln.strip(" \"',-*")
+        for ln in cleaned.splitlines()
+        if ln.strip() and not ln.strip().startswith(("{", "}", "[", "]"))
+    ]
+    return [ln for ln in lines if ln and re.search(r"[A-Za-z]", ln)][:expected_n]
+
+
+def _rewrite_query(query: str) -> list[str]:
+    """Generate N semantic variants of `query` via Gemini Flash Lite.
+
+    Cached per-process by exact query string. Returns at most N variants.
+    On any error (network, parse, auth) returns an empty list — caller
+    treats this as graceful degradation to baseline hybrid.
+    """
+    global _rewrite_calls, _rewrite_errors
+
+    n = _rewrite_n()
+    q_clean = query.strip()
+    if not q_clean:
+        return []
+
+    cache_key = f"{_rewrite_model()}::{n}::{q_clean}"
+    cached = _rewrite_cache.get(cache_key)
+    if cached is not None:
+        return cached
+
+    try:
+        import requests
+    except ImportError:
+        print(
+            "[nox_mem/rewrite] `requests` not installed — disabling rewrite",
+            file=sys.stderr,
+        )
+        _rewrite_cache[cache_key] = []
+        return []
+
+    key = os.environ.get("GEMINI_API_KEY", "")
+    if not key:
+        _rewrite_cache[cache_key] = []
+        return []
+
+    url = _REWRITE_ENDPOINT.format(model=_rewrite_model())
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": _REWRITE_PROMPT.format(q=q_clean, n=n)}
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.4,
+            "topP": 0.95,
+            "maxOutputTokens": 256,
+            "responseMimeType": "application/json",
+        },
+    }
+    try:
+        _rewrite_calls += 1
+        resp = requests.post(
+            url,
+            params={"key": key},
+            json=payload,
+            timeout=_REWRITE_TIMEOUT_S,
+            headers={"Content-Type": "application/json"},
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        candidates = data.get("candidates") or []
+        if not candidates:
+            _rewrite_cache[cache_key] = []
+            return []
+        parts = (candidates[0].get("content") or {}).get("parts") or []
+        text = "".join(p.get("text", "") for p in parts)
+        variants = _parse_rewrite_response(text, n)
+        # De-duplicate against original query (case-insensitive)
+        out: list[str] = []
+        seen = {q_clean.lower()}
+        for v in variants:
+            vl = v.lower()
+            if vl in seen:
+                continue
+            seen.add(vl)
+            out.append(v)
+        _rewrite_cache[cache_key] = out
+        return out
+    except Exception as e:
+        _rewrite_errors += 1
+        if _rewrite_errors <= 5:
+            # CRITICAL: requests.HTTPError.__str__ embeds the full request URL,
+            # which contains the `?key=AIza...` query param. Redact aggressively
+            # before printing so smoke logs / CI artefacts never leak the key.
+            msg = str(e)
+            msg = re.sub(r"key=[A-Za-z0-9_\-]+", "key=<REDACTED>", msg)
+            msg = re.sub(r"AIza[A-Za-z0-9_\-]{10,}", "AIza<REDACTED>", msg)
+            print(
+                f"[nox_mem/rewrite] error (#{_rewrite_errors}): {type(e).__name__}: {msg}",
+                file=sys.stderr,
+            )
+        _rewrite_cache[cache_key] = []
+        return []
+
+
+def get_rewrite_stats() -> dict:
+    """Return rewrite-layer counters for cost auditing."""
+    return {
+        "enabled": _query_rewrite_enabled(),
+        "model": _rewrite_model(),
+        "variants_per_query": _rewrite_n(),
+        "calls": _rewrite_calls,
+        "errors": _rewrite_errors,
+        "cache_entries": len(_rewrite_cache),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -569,13 +823,18 @@ def validate() -> dict:
         db_path = _hybrid_db_file()
         has_key = bool(os.environ.get("GEMINI_API_KEY"))
         limit = _ingest_limit()
+        rewrite_on = _query_rewrite_enabled()
+        rewrite_note = (
+            f" + query-rewrite ON ({_rewrite_model()}, N={_rewrite_n()})"
+            if rewrite_on else ""
+        )
         return {
             "ok": has_key,
             "error": None if has_key else "GEMINI_API_KEY not set",
             "version": VERSION_PIN,
             "notes": (
                 f"hybrid mode — FTS5+dense+RRF, DB at {db_path}. "
-                f"NOX_MEM_INGEST_LIMIT={limit}. "
+                f"NOX_MEM_INGEST_LIMIT={limit}.{rewrite_note} "
                 "Requires: pip install google-generativeai sqlite-vec + GEMINI_API_KEY."
             ),
         }
