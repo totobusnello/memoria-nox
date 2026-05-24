@@ -2,6 +2,41 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-05-24 ~02:11 UTC (23:11 BRT 23/mai) — nox-mem reindex zerou chunks 69.032 → 730 (recovery completo, kill-switch instalado)
+
+### Severity: 🔴 red — data-loss event em produção (recuperado sem perda via snapshot pre-op)
+
+### Sintoma
+Alerta Discord do canary `check-schema-invariants.sh` (cron */15):
+```
+⚠️ nox-mem schema invariant failed: section NOT NULL count=0 (expected >=600 — possible entity wipe)
+⚠️ nox-mem schema invariant failed: section=compiled count=0 (expected >=150)
+```
+
+### Causa raiz
+A **Phase 2 (Agent reindex) do `/root/.openclaw/scripts/nightly-maintenance.sh`** (cron `0 23 * * *`, roda em dia ímpar do mês) executa `nox-mem reindex` agent-por-agent (atlas→boris→cipher→forge→lex→nox) com `NOX_DB_SOURCE=<agent>` no **DB compartilhado** `/root/.openclaw/workspace/tools/nox-mem/nox-mem.db`. Cada reindex **sobrescreve a tabela `chunks` inteira** em vez de fazer upsert por `source_file` — restou apenas o último agent (nox, 730 chunks de 77 files). Evidência em `ops_audit` (ops 76-81): a reindex do atlas levou 626457ms e o `snapshot_bytes` caiu de 1.26GB (pre-atlas) para ~66MB nas seguintes; todos os 730 chunks finais com `created_at = 2026-05-24 02:11:25`. KG (`kg_entities` = 15.612) sobreviveu — só `chunks` zerou. Arquivo não encolheu (sem VACUUM) — consistente com deleção em massa.
+
+**Recorrência:** mesmo padrão em 2026-04-25 e 2026-05-19 (ver histórico). Bug conhecido do reindex, não regressão nova.
+
+### Recovery (sem perda de dados)
+1. Snapshot defensivo do estado degradado → `/root/backups/nox-mem-incident-20260523-2317/` (db+wal+shm bruto + `.backup` consistente).
+2. Validado snapshot pre-op automático: `/var/backups/nox-mem/pre-op/reindex-atlas-20260524020006-2340271-*.db` = **69.032 chunks, section NOT NULL 749, is_compiled 1.046, 11.151 source_files, KG 15.612** (estado de ~02:00, ~11min antes do dano; perda efetiva ~zero — madrugada sem escrita nova).
+3. `systemctl stop nox-mem-watch nox-mem-api` → `mv` DB degradado p/ `.degraded-20260523-2332` → `rm` wal/shm → `cp` snapshot pre-op → `systemctl start` → validado (69.032 chunks, `/api/search` funcional, `/api/health` OK).
+
+### Kill-switch instalado (preventivo até o fix de código)
+- Arquivo: `/root/.openclaw/DISABLE_AGENT_REINDEX`
+- Guard adicionado na linha 29 do `nightly-maintenance.sh`: `if [ ! -f /root/.openclaw/DISABLE_AGENT_REINDEX ] && [ $((DOM % 2)) -eq 1 ]; then`
+- Backup do script: `nightly-maintenance.sh.bak-pre-reindex-freeze-20260523`
+- **NÃO remover o flag até o `nox-mem reindex` ser corrigido para upsert incremental (não wipe+repopulate do DB compartilhado).** Enquanto isso, só a Phase 6 vectorize (idempotente) mantém o vector layer; a memória não se atualiza via reindex noturno.
+
+### Fix de código pendente (TODO)
+`nox-mem reindex` com `NOX_DB_SOURCE=<agent>` deve reindexar SÓ os `source_file` daquele agent (DELETE WHERE source do agent + INSERT), preservando os demais. Hoje faz wipe global + repopulate. Avaliar também isolar DBs por agent em vez de DB compartilhado.
+
+### Contexto
+Detectado durante sessão de health-check da VPS (ver `openclaw-vps/infra/docs/INCIDENTS.md` 2026-05-23 23:00 — mesma sessão tratou grep zumbi, rollback 5.22-beta.1→5.20 e canais mudos).
+
+---
+
 ## 2026-05-21 ~10h30 BRT (~3min/recovery) — Multi-agent branch leak ×3 + pre-commit hook installed
 
 ### Severity: 🟡 yellow — defense-only event (no data loss, no prod impact)
