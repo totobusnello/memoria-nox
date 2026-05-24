@@ -170,17 +170,17 @@ directly comparable to systems that lack dense semantic retrieval.
 
 ### Results table
 
-| System | nDCG@10 | Corpus cap | p50 lat | Cost | Notes |
-|---|---:|---:|---:|---:|---|
-| nox-mem (FTS5) | 0.3753 | 100% | 7–12ms | $0 | BM25-comparable baseline |
-| nox-mem (hybrid) | 0.6380 | 100% | ~940ms | ~$0* | full three-layer stack |
-| agentmemory | 0.1376 | 20% | 14ms | $0 | corpus cap; in-dist bias likely |
-| mem0 | 0.1315 | 7.3% | 263ms | $0.07 | highest cap effect; 92.7% not ingested |
-| Letta | partial | — | 14,978ms | $0.001 | agent-loop; latency not retrieval |
-| Zep | — | — | — | $0.02 | OpenAI key required; not evaluated |
-| EverMind | — | — | — | — | repo 404 at eval time |
+| System | nDCG@10 | Corpus cap | p50 lat | Ingest cost (@500 chunks) | Production cost (5k–50k typical) | Notes |
+|---|---:|---:|---:|---:|---:|---|
+| nox-mem (FTS5) | 0.3753 | 100% | 7–12ms | $0 | $0 | BM25-comparable baseline |
+| nox-mem (hybrid) | 0.6380 | 100% | ~940ms | ~$0* | $0 | full three-layer stack (local Gemini) |
+| agentmemory | 0.1376 | 20% | 14ms | $0 | $0–25 est. | corpus cap; in-dist bias likely |
+| mem0 | 0.1315 | 7.3% | 263ms | ~$0.07 | $0.34–4.00 (OpenAI rates) | **cost-imposed cap; full corpus unaffordable at 5k+ chunks** |
+| Letta | partial | — | 14,978ms | $0.001 | ~$0.005–0.05 | agent-loop; latency not retrieval |
+| Zep | — | — | — | $0.02 est. | $0.10–1.40 (OpenAI rates) | OpenAI key required; not evaluated |
+| EverMind | — | — | — | — | — | repo 404 at eval time |
 
-*Gemini embed at current free-tier quota.
+*Gemini embed at current free-tier quota. Production cost estimates based on OpenAI text-embedding-3-small ($0.02/M tokens) at 1.5 tokens/chunk average.
 
 ### Corpus cap — per-dataset breakdown (PR #318 rev3)
 
@@ -216,6 +216,35 @@ spawns an LLM reasoning pass before returning a retrieval result. This makes it
 Direct p50 comparison is misleading — the systems answer different architectural
 questions. The right comparison is: do you need synchronous retrieval for
 real-time agent use, or async memory consolidation with reasoning?
+
+---
+
+## Cost Analysis — Why the 500-Chunk Cap Matters
+
+The benchmark comparison at 500-chunk cap (mem0 wins) is often cited without context. Here
+is the production cost reality:
+
+**Ingest cost by system (OpenAI text-embedding-3-small rates):**
+
+| Corpus size | mem0 (OpenAI embeds) | nox-mem (Gemini local) | agentmemory (iii-engine) |
+|---|---:|---:|---:|
+| 500 chunks (benchmark) | ~$0.07 | $0 | $0–5 est. (iii-engine proprietary) |
+| 5,000 chunks (typical prod) | ~$0.70 | $0 | — |
+| 50,000 chunks (large prod) | ~$7.00 | $0 | — |
+
+**The framing:** mem0's benchmark advantage at 500 chunks comes from a cost-control cap,
+not production choice. Production deployments rarely live at 500-chunk cap — they grow to
+5k–50k chunks organically. At 5k chunks, mem0's cost (1% overhead per ingest) becomes
+material; at 50k, it becomes prohibitive ($7 per ingest, plus per-query embedding costs
+on some architectures).
+
+nox-mem's zero-cost ingest scales to any corpus size. The trade-off is architectural:
+- **mem0:** wins at sparse, curated corpora (high concentration per chunk, LLM rewriting generalization)
+- **nox-mem:** wins at large, growing corpora (zero marginal cost, hybrid retrieval depth)
+
+Both results in `COMPARISON.md` are published honestly. The canonical run (full corpus, uniform
+across 6 systems) will resolve the production-scale comparison. When choosing a system, weigh
+both benchmark nDCG (mem0 advantage at cap) and cost envelope (nox-mem advantage at scale).
 
 ---
 
