@@ -12,34 +12,48 @@
       "types": "./dist/client.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "generate": "openapi-typescript ../../docs/openapi/openapi.yaml -o src/generated/types.ts",
     "build": "tsc",
     "test": "node --experimental-vm-modules node_modules/.bin/jest --testPathPattern='src/__tests__'",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["memoria-nox", "memory", "nox-mem", "sdk", "client"],
+  "keywords": [
+    "memoria-nox",
+    "memory",
+    "nox-mem",
+    "sdk",
+    "client"
+  ],
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^29.5.14",
     "@types/node": "^22.0.0",
     "jest": "^29.0.0",
+    "openapi-typescript": "^7.0.0",
     "ts-jest": "^29.0.0",
-    "typescript": "^5.5.0",
-    "openapi-typescript": "^7.0.0"
+    "typescript": "^5.5.0"
   },
   "jest": {
     "preset": "ts-jest/presets/default-esm",
     "testEnvironment": "node",
-    "extensionsToTreatAsEsm": [".ts"],
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
     "moduleNameMapper": {
       "^(\\.{1,2}/.*)\\.js$": "$1"
     },
     "transform": {
-      "^.+\\.tsx?$": ["ts-jest", {
-        "useESM": true,
-        "tsconfig": "tsconfig.json"
-      }]
+      "^.+\\.tsx?$": [
+        "ts-jest",
+        {
+          "useESM": true,
+          "tsconfig": "tsconfig.json"
+        }
+      ]
     }
   }
 }

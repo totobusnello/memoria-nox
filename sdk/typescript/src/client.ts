@@ -383,7 +383,11 @@ export class NoxMemClient {
         Accept: "application/json",
         ...(this.authToken ? { Authorization: `Bearer ${this.authToken}` } : {}),
       },
-      body: archive instanceof Uint8Array ? archive.buffer : archive,
+      // Uint8Array is BodyInit-compatible directly (ArrayBufferView).
+      // Previously passed `.buffer` which is `ArrayBufferLike` (union of
+      // ArrayBuffer | SharedArrayBuffer) — TS5.7+ rejects SharedArrayBuffer
+      // for BodyInit. Passing the typed array directly avoids the union.
+      body: archive,
       signal,
     });
     if (!res.ok) {
