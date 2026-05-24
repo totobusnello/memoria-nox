@@ -83,7 +83,9 @@ scores and logs them without affecting ranking. Promotion to `active` requires
 - **HTTP API (port 18802):** `/api/{health,search,kg,kg/path,agents,cross-kg,
   reflect,procedures}` + `POST /api/crystallize`.
 - **F10 Dashboard:** browser-based production health and evaluation metrics
-  (PR #207; see `05-screenshots/` for planned GIF capture).
+  (PR #207). Four live phases: Prod Health · Eval Browser · Telemetry · Shadow tracker.
+  Screenshots captured 2026-05-23 in `05-screenshots/` — see
+  [`05-screenshots/README.md`](05-screenshots/README.md) for per-dashboard captions.
 
 ---
 
