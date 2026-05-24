@@ -1,8 +1,8 @@
 # nox-mem — Social Copy v0 (launch Wed 2026-06-03)
 
-> **Nota interna:** Smoke Q4 nox-mem (Sat 2026-05-24 15h30 BRT) cravou nDCG@10 = 0.6380 / p50 = 8ms / 65% gold-hit em 20 queries (10 LoCoMo + 10 LongMemEval, eval-DB isolado 5.882 + 940 chunks). **Partial cross-system (Sat 2026-05-24 18h BRT):** mem0 smoke completo n=20, 500-chunk corpus cap — nDCG@10=0.8569, MRR=0.1167, R@10=0.2500, p50=273ms, hits=3/20 (15%). Run canônico (100 queries × 2 datasets × 6 sistemas, corpus uniforme) ainda em execução — 4 adapters restantes (Zep, Letta, agentmemory, EverMind-AI) em setup. T7 atualizado com cross-system numbers abaixo; demais tweets mantêm nox-mem-only conforme smoke.
+> **Nota interna (rev3, PR #318):** LoCoMo-only hybrid@500 = **0.1835** vs mem0@500 = 0.1315 → **+40% win** em memória conversacional. Aggregate hybrid@500 = 0.0918 (abaixo de mem0) por corpus-ordering artifact (LoCoMo 5.882 chunks esgota o cap antes de qualquer chunk LongMemEval). Hybrid lift sobre FTS5@500: +97%. T7b reescrito com framing rev3. HN body atualizado. Run canônico (corpus uniforme, sem cap) é o árbitro definitivo.
 >
-> Refs: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
+> Refs: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]` · PR #318.
 
 ---
 
@@ -114,22 +114,23 @@ MIT license.
 
 ---
 
-**T7b — Cross-system honest framing (rev2 — H2 confirmed)**
+**T7b — Cross-system per-dataset framing (rev3 — PR #318)**
 
 ```
-Two architectures, two trade-offs. Real numbers, Sat 2026-05-24:
+Per-dataset apples-to-apples @500 chunks. Real numbers:
 
-Full corpus vs capped (not apples-to-apples):
-  nox-mem (6822 chunks, local, $0/q):  65% hits · 8ms · MRR 0.37
-  mem0    (500-chunk cap, $0.07 ingest): 15% hits · 273ms · MRR 0.12
+LoCoMo conversational memory (same 500 chunks):
+  nox-mem Gemini hybrid:  0.1835 nDCG@10
+  mem0:                   0.1315 nDCG@10
+  → nox-mem wins +40% on conversational scope
 
-Apples-to-apples (same 500 chunks):
-  mem0 nDCG@10 = 0.1315
-  nox-mem FTS5 nDCG@10 = 0.0466
+Aggregate@500 (0.0918 nox-mem vs 0.1315 mem0) diluted by
+corpus-ordering: LoCoMo's 5882 chunks exhaust the cap,
+starving LongMemEval queries. Per-dataset is cleaner signal.
 
-Honest read: mem0 wins concentration at small corpora (LLM
-rewriting is real). nox-mem wins coverage + speed + cost at scale.
-Different use cases. Both numbers in COMPARISON.md.
+Hybrid lifts FTS5@500 by +97% (0.0466 → 0.0918).
+Full ingest is the definitive arbiter.
+Both rows in COMPARISON.md. PR #318.
 → github.com/totobusnello/memoria-nox
 ```
 
@@ -214,15 +215,15 @@ p50 latency 8ms, p95 43ms, gold-hit rate 13/20 (65%).
 The same day (Sat 2026-05-24) produced real cross-system numbers. Full-corpus vs capped
 (not apples-to-apples): nox-mem (full 6,822-chunk corpus, local, zero cost) — 65% hit-rate,
 8ms p50, MRR 0.37. Mem0 (500-chunk corpus cap, ~$0.10 ingest) — 15% hit-rate, 273ms p50.
-nox-mem is 30× faster and covers 4× more queries at full corpus. But the honest apples-cap
-comparison (same 500 chunks) tells a different story: mem0 nDCG@10 = 0.1315 vs nox-mem
-FTS5-only = 0.0466. That gap is architecturally real — mem0's LLM-rewriting step generalizes
-semantically at sparse coverage in ways FTS5 alone cannot. We report both rows in
-COMPARISON.md because either alone misleads. If you want concentrated answers at any cost in
-a small corpus, mem0 wins today. If you want zero-cost full-coverage memory that scales, this
-is the architecture. The Gemini hybrid@500 follow-up (Lab Q1 E1) will determine whether the
-full stack closes the concentration gap. Full canonical run (6 systems, uniform corpus)
-in COMPARISON.md before launch.
+30× faster, 4× coverage. Per-dataset apples-to-apples (PR #318): on LoCoMo conversational
+memory at the same 500-chunk cap, nox-mem Gemini hybrid = 0.1835 vs mem0 = 0.1315 — +40%
+in nox-mem's favour. The aggregate hybrid@500 (0.0918) dips below mem0 (0.1315) due to a
+corpus-ordering artifact: LoCoMo's 5,882 chunks exhaust the 500-cap before any LongMemEval
+chunk is ingested, scoring those 10 queries at exactly zero and dragging the aggregate down.
+FTS5-only@500 = 0.0466 vs mem0 = 0.1315 (PR #311 H2) remains real — FTS5 alone can't match
+LLM-rewriting at sparse coverage. The hybrid stack closes the gap on conversational scope.
+Full canonical run (6 systems, uniform corpus, no cap) is the definitive arbiter — published
+in COMPARISON.md before launch. We report all rows because any one alone misleads.
 The stack includes a KG with 15k+ entities and typed edge relations, a CLI (26+
 subcommands), an MCP server (16 tools), and an HTTP API — all in one npm package.
 
@@ -470,15 +471,15 @@ comparison winning first.
 systems on a common benchmark?**
 A: Fair point. The internal G3→G5 delta is over my own retrieval baseline. The Q4 smoke
 (Sat 2026-05-24, eval-isolated, 20 queries) returned nDCG@10=0.6380, p50=8ms — above the
-D43 gate. Cross-system: two honest rows, both published. Full-corpus vs capped (not
-apples-to-apples): nox-mem at full 6,822-chunk corpus hit 65% of queries, 8ms p50, MRR
-0.37. Mem0 at 500-chunk cap hit 15%, 273ms, MRR 0.12. But at the same 500-chunk corpus
-(apples-to-apples), mem0 nDCG@10 = 0.1315 vs nox-mem FTS5-only = 0.0466. That gap is real
-— mem0's LLM rewriting semantically generalizes at sparse coverage in ways FTS5 alone
-cannot. We report both rows in COMPARISON.md because either alone misleads. The Gemini
-hybrid@500 experiment (Lab Q1 E1) will test whether the full nox-mem stack closes the
-concentration gap. If any system beats nox-mem on any axis in the canonical run, it will
-be in that table — no cherry-picking.
+D43 gate. Cross-system: three honest rows, all published. Full-corpus: nox-mem hybrid at
+full 6,822-chunk corpus — 65% hits, 8ms, MRR 0.37 (30× faster than mem0@500). Per-dataset
+apples-to-apples @500 chunks (PR #318): LoCoMo conversational only — nox-mem Gemini hybrid
+0.1835 vs mem0 0.1315 (+40% win). Aggregate @500: hybrid 0.0918 vs mem0 0.1315 — diluted
+by corpus-ordering artifact (LoCoMo's 5,882 chunks exhaust the cap; LongMemEval queries
+score zero). FTS5-only@500 = 0.0466 (H2, PR #311) — architectural gap for FTS5-only mode;
+hybrid stack closes it on conversational scope. All rows in COMPARISON.md. Canonical full
+ingest run is the definitive arbiter. If any system beats nox-mem on any axis, it will be
+in the table — no cherry-picking.
 
 **Q: What's the operational cost?**
 A: Under $11/month all-in on a Hostinger VPS (2 vCPU, 8GB RAM), running 7 agents

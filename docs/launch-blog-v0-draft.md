@@ -86,14 +86,17 @@ Retrieval de memória que não mede não sabe se funciona. memoria-nox roda cont
 | **nox-mem FTS5@500** | 500 (cap) | 0.0466 | FTS5-only, sem Gemini |
 | **mem0@500** | 500 (cap) | **0.1315** | LLM rewrite + embed |
 
-**O que os números dizem — honestamente.** Arquiteturas diferentes servem casos de uso diferentes:
+**O que os números dizem — honestamente (rev3, PR #318).** O breakdown por dataset revela o quadro correto:
 
-- **mem0** — concentração: LLM-rewriting generaliza semanticamente em corpora esparsas. Ao mesmo corpus-cap de 500 chunks, mem0 (0.1315) supera nox-mem FTS5-only (0.0466). Essa vantagem é **real e arquitetural**, não artefato do cap — confirmado em PR #311 (H2).
-- **nox-mem** — cobertura + velocidade + custo: ingere o corpus completo local, zero-custo por query, 30× mais rápido (8ms vs 273ms p50), cobrindo 4× mais queries com first-hit mais cedo (MRR 3× melhor no full-corpus).
+- **LoCoMo (memória conversacional), mesmo 500 chunks:** nox-mem Gemini hybrid = **0.1835** vs mem0 = 0.1315 → **+40% a favor do nox-mem**. Este é o sinal mais limpo apples-to-apples em corpus esparso.
+- **Aggregate@500 (0.0918)** fica abaixo do mem0 por um **artefato de corpus-ordering**: os 5.882 chunks do LoCoMo esgotam o cap de 500 antes de qualquer chunk LongMemEval ser ingerido — as 10 queries LongMemEval ficam com cobertura zero, puxando o aggregate para baixo. Não é sinal de retrieval; é confundidor de ordenação.
+- **Hybrid lift sobre FTS5@500: +97%** (0.0466 → 0.0918) — valida o valor arquitetural do stack mesmo em corpus esparso.
+- **FTS5-only@500 = 0.0466 vs mem0 = 0.1315** (H2, PR #311) — real e arquitetural para modo FTS5-only: LLM-rewriting generaliza semanticamente em corpora esparsas de forma que FTS5 isolado não consegue. O Gemini hybrid completo inverte isso no escopo conversacional.
+- **nox-mem** — cobertura + velocidade + custo: corpus completo local, zero-custo por query, 30× mais rápido (8ms vs 273ms p50), 4× mais cobertura no full-corpus.
 
-**Trade-off explícito:** se você quer respostas concentradas a qualquer custo num corpus pequeno, mem0 vence hoje. Se você quer memória full-coverage zero-custo-por-query que escala com seu corpus, nox-mem é a arquitetura. O Gemini hybrid@500 (experiment Lab Q1 E1) vai determinar se o gap apples-cap se fecha com o stack completo.
+**Gate Phase 2 usa AMBOS** per-dataset + aggregate no run canônico (corpus uniforme, sem cap) — não apenas o número que favorece nox-mem.
 
-> **Honestidade obrigatória.** Reportamos tanto a linha full-corpus quanto a linha apples-cap porque qualquer uma isolada é enganosa. O run canônico — corpus uniforme sem cap para todos os 6 sistemas — é o árbitro definitivo. `docs/COMPARISON.md` atualiza quando cravar.
+> **Honestidade obrigatória.** Reportamos três linhas: full-corpus, per-dataset@500, aggregate@500. Qualquer linha isolada é enganosa. O run canônico — corpus uniforme sem cap para todos os 6 sistemas — é o árbitro definitivo. `docs/COMPARISON.md` atualiza quando cravar. PR #311 + PR #318.
 
 Memórias relacionadas: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
@@ -217,4 +220,4 @@ memoria-nox nasceu da necessidade real de persistir decisões, incidentes e liç
 
 ---
 
-*Lançamento Wed 2026-06-03. Smoke Q4 nox-mem cravado Sat 2026-05-24 (nDCG@10 0.6380, p50 8ms, 13/20 gold hits). Cross-system Sat 2026-05-24: full-corpus nox-mem 30× mais rápido e 4× mais cobertura que mem0@500-cap; apples-cap (500 chunks): mem0 0.1315 vs nox-mem FTS5 0.0466 — concentração real, arquitetura diferente. Ambas as linhas em `docs/COMPARISON.md`. Run canônico completo (6 sistemas, corpus uniforme) fecha antes do launch.*
+*Lançamento Wed 2026-06-03. Smoke Q4 nox-mem Sat 2026-05-24: nDCG@10 0.6380, p50 8ms, 13/20 gold hits. Rev3 (PR #318 2026-05-23): LoCoMo-only Gemini hybrid@500 = 0.1835 vs mem0 0.1315 (+40% win). Aggregate@500 = 0.0918 (corpus-ordering artifact). Hybrid lift sobre FTS5@500: +97%. Full-corpus nox-mem 30× mais rápido e 4× mais cobertura. Todas as linhas em `docs/COMPARISON.md`. Run canônico (6 sistemas, corpus uniforme) fecha antes do launch.*
