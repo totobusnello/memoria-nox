@@ -2,6 +2,8 @@
 
 | Run | Date | Systems | Corpus | Cost (USD) | Notes |
 |---|---|---|---|---:|---|
+| **nox_mem hybrid FULL** | **2026-05-24** | **nox_mem (hybrid)** | **6,822/6,830 chunks** | **~$0.34** | **Gemini embedding-001 @ $0.000025/1K chars × ~13.6M chars. 47min ingest + 1min queries. Canonical Q4 baseline.** |
+| nox_mem hybrid @500 (cap) | 2026-05-24 | nox_mem (hybrid) | 500/6830 chunks | ~$0.003 | PR #318 cap test. LoCoMo only (LongMemEval never reached). |
 | Sat wider partial | 2026-05-23 | nox_mem + mem0 (500-cap) + agentmemory (partial) | nox_mem: full; mem0: 500/6830; agentmemory: 1401/6830 | ~$0.07 | mem0 OpenAI embed 500 chunks × ~$0.0001/embed ≈ $0.05; nox_mem FTS5 = $0.00; agentmemory = $0.00 |
 | Previous smoke | 2026-05-23 | nox_mem + mem0 (n=20) + agentmemory (n=5) | partial | ~$0.10 | Earlier partial runs from session |
 
