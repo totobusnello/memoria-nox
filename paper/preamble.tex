@@ -21,6 +21,7 @@
 % =============================================================================
 
 \usepackage{fontspec}
+\usepackage{unicode-math}
 \usepackage{amssymb}
 \usepackage{amsmath}
 
@@ -28,3 +29,7 @@
 % Courier New is bundled with all major TeX distributions (TeX Live, MacTeX, MiKTeX)
 % and handles technical character requests more gracefully than Latin Modern Mono
 \setmonofont{Courier New}[Scale=0.9]
+
+% Set math font to STIX Two Math (available on macOS) which covers ∈ ≥ ≈ → inline
+% This resolves "Missing character" warnings for math operators used inline as text
+\setmathfont{STIX Two Math}

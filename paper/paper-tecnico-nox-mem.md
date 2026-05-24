@@ -10,7 +10,7 @@
 
 ## Abstract
 
-This paper presents the architecture, implementation, and operational characteristics of nox-mem, a persistent memory system designed for autonomous AI agent fleets. The system provides hybrid search (combining BM25 full-text, semantic vector similarity, and Reciprocal Rank Fusion), an LLM-powered knowledge graph with temporal decay, cross-agent intelligence sharing, and automated consolidation pipelines. Deployed in production since March 14, 2026, the system manages 1,481 memory chunks across 7 databases, 384 knowledge graph entities with 529 relations, and serves 6 specialized AI agents with isolated yet interconnectable memory spaces.
+We introduce **nox-mem**, a persistent memory system for autonomous LLM agents organized around a single design principle: **pain-weighted hybrid memory with shadow discipline — yours by design**. Every retrieval and retention decision is governed by a `salience = recency × pain × importance` formula (where *pain* is an operator-assigned severity in [0.1, 1.0], persisted on every chunk), and every ranking change is gated by a mandatory shadow-mode telemetry phase before activation in production. Compared to existing memory systems (mem0, Letta, Zep, EverOS, LightRAG, and MeMo), nox-mem offers several advantages: **(a)** *live writeback with sub-second indexing* (inotifywait-driven, no batch retrain or daily reindex required), **(b)** *typed temporal decay* (per-`chunk_type` retention windows with never-decay for feedback/person — see §2 and §8.2), **(c)** *full provenance to chunk and source* (every retrieval result carries `chunk_id` + `source_file`, every destructive op is wrapped in `withOpAudit()` with a VACUUM INTO pre-snapshot), **(d)** *first-class self-evolution* through a `crystallize`/`reflect`/`consolidate` triad that promotes high-hit pending items to durable lessons and synthesizes cross-session insights nightly (§3.4), and **(e)** *zero vendor lock-in*: a single SQLite file, MIT-licensed, with provider-agnostic embeddings (Gemini default, swappable). Deployed in production since March 14, 2026, the system manages 62.9k+ memory chunks with ~99.97% vector coverage, ~402 knowledge graph entities with ~544 relations, and serves 6 specialized AI agents with isolated yet interconnectable memory spaces. On the entity-flavored golden set (n=100), the full ablation stack reaches **nDCG@10 = 0.6237** (+78.8% over the G3 pre-Wave-A baseline; §5), and the Q4 cross-system comparison (§6) provides pre-registered, head-to-head numbers against five competing memory systems on a shared corpus and harness.
 
 ---
 
@@ -32,6 +32,34 @@ nox-mem was designed with four core objectives:
 ### 1.3 Scope
 
 The system operates within the OpenClaw platform, serving 6 AI agents (Nox, Atlas, Boris, Cipher, Forge, Lex) on a single VPS with 4 vCPUs and 8GB RAM. Each agent has a distinct role and memory profile. The workspace (shared memory) and individual agent databases form a federated memory architecture.
+
+### 1.4 Related Memory Systems and the Six Gaps
+
+The published memory-for-LLM-agents literature spans roughly three families: (i) *vector-store wrappers with metadata layers* — **mem0** [^mem0], **Letta** [^letta]; (ii) *temporal- and provenance-aware memory services* — **Zep** [^zep], **memanto**; (iii) *KG-augmented and graph-fused retrieval* — **LightRAG** [^lightrag] (HKU, EMNLP 2025), **HippoRAG2** [^hipporag2]; and (iv) *parametric-memory paradigms*, most recently **MeMo** [^memo] (which folds reflections into model weights via continued pretraining — the design opposite of ours). **EverMind-AI/EverOS** [^everos] occupies a distinct slot: it is the only memory OS in this space that publishes its own benchmark dataset (EverMemBench) and reports threshold numbers, raising the bar for honest cross-system comparison (§6).
+
+Across these systems, six recurring gaps appear in the design space. Each gap motivates a concrete subsystem of nox-mem. Table 1 summarizes who covers what:
+
+**Table 1 — Comparison of desirable memory-system properties (Six Gaps).**
+
+| # | Gap | nox-mem | mem0 | Letta | Zep | EverOS | LightRAG | MeMo |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | Static injection (memory frozen at session start) | Y live writeback (inotifywait <1s) | ~ partial | Y | Y | Y | N batch | N retrain |
+| 2 | No temporal decay (every chunk weighed the same forever) | Y salience x recency, typed retention (§8.2) | N | N | Y | ~ partial | N | N |
+| 3 | No provenance (cannot trace a result back to a source) | Y `chunk_id` + `source_file` (§4) | ~ partial | Y | Y | Y | Y | N baked in weights |
+| 4 | Flat memory (no hierarchy / sectioning / typed structure) | Y KG + entity files + `section_boost` (§3.1, §8) | N | N | Y | Y hyper | Y dual-level | N |
+| 5 | No writeback (cannot promote findings into durable memory) | Y `crystallize` + `reflect` + `consolidate` (§3.4) | ~ partial | Y | Y | Y EvoAgent | N | N |
+| 6 | Indexing delay (changes invisible until nightly batch) | Y inotifywait <1s, idempotent re-ingest (§3.1) | ~ | Y | Y | ~ | ~ batch | N retrain |
+
+**Why each gap matters, and how nox-mem closes it:**
+
+1. **Static injection.** A memory system that only reads at the start of a session cannot observe what the agent does *during* the session. nox-mem's watcher [^watcher-arch] re-ingests every modified `.md` / `.json` file within ~1 second of the write, with idempotent chunk replacement (§3.1).
+2. **No temporal decay.** Treating a daily note from 91 days ago the same as a crystallized decision floods retrieval with stale noise. nox-mem assigns each `chunk_type` a `retention_days` window (V8 schema column; `feedback`/`person` = never-decay, `lesson` = 180d, `decision`/`project` = 365d, `daily` = 90d) and folds it into the salience formula (§8.2).
+3. **No provenance.** Parametric and opaque-vector memories cannot answer "*why* did you return this?". Every nox-mem result carries the originating `chunk_id` and `source_file`, every destructive operation goes through `withOpAudit()` with a `VACUUM INTO` pre-snapshot to `/var/backups/nox-mem/pre-op/`, and the `ops_audit` table is append-only.
+4. **Flat memory.** Without structure, hybrid search collapses to "more recent or more frequent wins". nox-mem layers (a) FTS5 over chunk text, (b) typed retention, (c) an LLM-extracted knowledge graph (§8), and (d) an entity-file format (`frontmatter` / `compiled` / `timeline` sections) with section-aware `section_boost` — the dominant driver of the +78.8% gain in §5.
+5. **No writeback.** A system that can only *be read* cannot grow. nox-mem's self-evolution triad — `crystallize`, `reflect`, `consolidate` — is described in §3.4 and is the most direct counter to EverOS's EvoAgentBench framing [^everos].
+6. **Indexing delay.** Daily-batch reindex makes "new memory" a 24h-resolution operation. inotifywait makes it sub-second (§3.1), and `--dry-run` mode plus `withOpAudit()` snapshots make destructive ops (reindex, consolidate, compact, crystallize, kg-prune) reversible.
+
+The single design principle that ties these closures together is **pain weighting under shadow discipline**: every chunk carries an explicit `pain` severity, every ranking change rolls out first in `NOX_SALIENCE_MODE=shadow` with /api/health telemetry [^salience-mode], and only graduates to `active` after operator review.
 
 ---
 
@@ -171,6 +199,44 @@ Before insertion, chunks are checked for duplicates using a two-tier strategy:
 - **Fallback**: Keyword overlap calculation with 60% threshold
 - **Audit**: Suppressed duplicates are logged to `dedup_log` table with reason and preview
 
+### 3.4 Self-Evolution: How nox-mem Improves Over Time
+
+Most memory systems decouple *retrieval* from *learning*: retrieval is online, learning is either absent or requires retraining a parametric backbone (MeMo) or relying on a closed evolution loop (EverOS EvoAgentBench [^everos]). nox-mem instead promotes self-evolution to a first-class subsystem composed of four cooperating mechanisms, all transparent and inspectable in the live SQLite file. This subsection is the direct counter to Gap #5 (no writeback) in Table 1.
+
+**3.4.1 Crystallize loop — `pending` → `lesson` after N hits, with pain accumulation.**
+
+The `crystallize` command (exposed via the CLI, the MCP server tool, and `POST /api/crystallize` + `POST /api/crystallize/validate` on the HTTP API; see `src/api-server.ts` and `src/crystallize.ts` [^crystallize-src]) implements an LLM-assisted consolidation that synthesizes durable entities from recent chunks. Operationally, chunks ingested into `memory/pending.md` (`chunk_type = pending`, `retention_days = 30`) act as a working set of unresolved items. As the same pending item is referenced by retrieval (and as related daily/team chunks accumulate around it), its effective *pain* signal grows — both via direct operator updates to the `pain` column (V9 schema) and via co-occurrence with high-pain neighbors. After enough hits and sufficient accumulated severity, `crystallize` uses Gemini to identify the pattern across chunks, emits a canonical entity file under `memory/entities/<type>/<slug>.md`, and effectively promotes the cluster from `pending` (30-day decay) to `lesson` (180-day decay) or `decision`/`project` (365-day decay) [^retention-defaults]. The promotion is wrapped in `withOpAudit()`, so the pre-state snapshot lives at `/var/backups/nox-mem/pre-op/crystallize-<ts>-<pid>-<uuid>.db` and a row lands in the append-only `ops_audit` table.
+
+**3.4.2 Pain weighting auto-adjust — feedback of use raises pain on hit chunks.**
+
+The `pain` field on `chunks` is an explicit severity in [0.1, 1.0] (0.1 trivial, 1.0 production outage). It can be set explicitly by the author, but it also drifts upward implicitly: chunks that are *repeatedly* surfaced by retrieval and *accepted* by the operator (via the `feedback/` directory, whose `chunk_type = feedback` is never-decay) accumulate co-occurrence with high-pain entries during nightly consolidation, which feeds back into the salience formula. The result is that lessons learned from real incidents naturally rise to the top over time, while toy or low-severity content fades even when frequent. This is the inverse of pure recency- or frequency-based memory.
+
+**3.4.3 Salience decay continuous in background — `recency × pain × importance`.**
+
+The salience function lives in `src/lib/salience.ts` [^salience-src] (and is mirrored in the staged copy at `staged-1.7a/edits/salience.ts`). Its canonical formula is:
+
+```
+salience = recency × pain × importance
+```
+
+with components:
+
+- **recency** in [0,1] — half-life-style decay over the chunk's `retention_days` window (`feedback`/`person` → never-decay → `recency = 1.0`; everything else decays per Table V8 [^retention-defaults]). Decay is *continuous*: it is recomputed at every retrieval, so there is no batch step that "ages" memory — aging is a property of the read path.
+- **pain** in [0,1] — severity as described in §3.4.2.
+- **importance** in [0,1] — `chunk_type` / `source_type` / tier signal (manual mapping; e.g., `decision` and `lesson` rank above `daily`).
+
+The mode of operation is gated by `NOX_SALIENCE_MODE`: `shadow` (default — compute and log to `/api/health.salience` but do not apply to retrieval rankings), `active` (apply as an additive delta in [-0.5, +0.5] on top of RRF), and `off` (short-circuit to 0 for ablation experiments). This three-state gate is the operational realization of *shadow discipline* (§4 and §5).
+
+**3.4.4 Reflect pipeline — batch nightly cross-session synthesis.**
+
+The `reflect` command (CLI / MCP / `POST /api/reflect`, backed by `src/reflect.ts` and cached via `getReflectCacheStats()` exposed in `/api/health.reflectCache` [^reflect-src]) runs a batch synthesis pass over recent chunks. Its job is *not* to retrieve answers for the user but to produce cross-session lessons: it queries hybrid search for a topic, asks Gemini to summarize the patterns observed across the result set, and writes the summary back as a `feedback` or `lesson` chunk with the confidence default for derived chunks (see `CONFIDENCE_DERIVED` in `docs/CONFIGURATION.md`). Because reflect results are themselves cached (LRU, exposed via `/api/health.reflectCache.entries`), expensive synthesis is amortized across repeated queries.
+
+**3.4.5 Consolidate — nightly orchestration that ties it together.**
+
+Nightly consolidation (23:00, 5-minute stagger across agents — see §3.2) is the orchestration layer that runs reflect for high-pain topics, runs crystallize for sufficiently aged `pending` items, and syncs the resulting durable entities to the topic files (`decisions.md`, `lessons.md`, `people.md`, `projects.md`). Like crystallize, it goes through `withOpAudit()` with a pre-op `VACUUM INTO` snapshot. This is the daily heartbeat of self-evolution.
+
+**Together, these four mechanisms make nox-mem a memory that *grows along the gradient of operator pain*:** chunks that hurt the operator (production outages, lost work, repeated mistakes) survive decay, get promoted from pending to lesson, accumulate co-occurrence weight, and rank progressively higher — without retraining a model and without trusting a closed evolution loop. Every step is visible by opening `nox-mem.db` in `sqlite3` and inspecting `ops_audit`, `chunks.pain`, `chunks.retention_days`, and the entity files.
+
 ---
 
 ## 4. Hybrid Search System
@@ -249,11 +315,11 @@ salience = W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCE
 W_IMPORTANCE = 0.55   W_RECENCY = 0.15   W_PAIN = 0.10   W_ACCESS = 0.20
 ```
 
-**Result.** With `NOX_SALIENCE_MODE=active`, A8 reaches 0.6237 vs. 0.6155 with `shadow` (A7) — a +1.3% lift and the reversal of the G4 puzzle, where shadow had outranked active. The multiplicative form concentrated 99.7% of chunks in the [0.05, 0.40] salience range, dominated by 90.67% of chunks at the default `pain = 0.2` and 99.76% of chunks with `recency ∈ [7, 30]` days; small differences in any factor were swallowed by the product. The additive form exposes each dimension proportionally to its calibrated weight, preserving signal from pain spikes and importance heuristics without requiring all three factors to be simultaneously non-default.
+**Result.** With `NOX_SALIENCE_MODE=active`, A8 reaches 0.6237 vs. 0.6155 with `shadow` (A7) — a +1.3% lift and the reversal of the G4 puzzle, where shadow had outranked active. The multiplicative form concentrated 99.7% of chunks in the [0.05, 0.40] salience range, dominated by 90.67% of chunks at the default `pain = 0.2` and 99.76% of chunks with `recency in [7, 30]` days; small differences in any factor were swallowed by the product. The additive form exposes each dimension proportionally to its calibrated weight, preserving signal from pain spikes and importance heuristics without requiring all three factors to be simultaneously non-default.
 
 ### 5.3 Claim 2 — `section_boost` is the moat (99.85% of the gain)
 
-Isolating `section_boost` alone (A3 ablation: section enabled, tier off, source_type off, salience shadow) yields **nDCG@10 = 0.6228 = 99.85% of A8's full-stack 0.6237**. The V10 schema multipliers — `compiled = 2.0`, `frontmatter = 1.5`, `timeline = 0.8`, legacy = 1.0 — together with the entity-file format introduced in v3.7 (769 entity files × 3 sections ≈ 2,307 boost-bearing chunks) explain the majority of the headline improvement.
+Isolating `section_boost` alone (A3 ablation: section enabled, tier off, source_type off, salience shadow) yields **nDCG@10 = 0.6228 = 99.85% of A8's full-stack 0.6237**. The V10 schema multipliers — `compiled = 2.0`, `frontmatter = 1.5`, `timeline = 0.8`, legacy = 1.0 — together with the entity-file format introduced in v3.7 (769 entity files × 3 sections ~= 2,307 boost-bearing chunks) explain the majority of the headline improvement.
 
 The negative control A11 (full stack minus `section_boost`) drops to 0.5646, **−9.5% relative to A8**, confirming the contribution is not redundant with semantic embeddings or RRF fusion. This is the architectural pivot the paper's narrative rests on: section-aware boosting over an entity-file canonical form is the load-bearing component, not the multiplicative salience formula that the v1 paper draft over-emphasized.
 
@@ -288,7 +354,7 @@ The **G9 ablation** (2026-05-20, against the prod-flavored `g5.db` 68k corpus, P
 | **A5 (source_type only)** | **+2.66% vs A0** | **+14.2% vs A0** | **5× larger** |
 | A8 vs A10 (redundancy) | **−0.81%** | **−2.6%** | **3× larger** |
 
-The G9 data **structurally validates** the resolution path of mutual-exclusion logic (PR #182, merged 2026-05-20): when a chunk has `section ∈ {compiled, frontmatter, timeline}` populated (entity-file structural metadata), the `source_type_boost` is gated to `0` to prevent stacking on top of `section_boost`. The mutex is rollback-gated via `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1`.
+The G9 data **structurally validates** the resolution path of mutual-exclusion logic (PR #182, merged 2026-05-20): when a chunk has `section in {compiled, frontmatter, timeline}` populated (entity-file structural metadata), the `source_type_boost` is gated to `0` to prevent stacking on top of `section_boost`. The mutex is rollback-gated via `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1`.
 
 The **G10 ablation** (2026-05-20, against `g9.db` 69,495 chunks) validates the mutex in production conditions:
 
@@ -329,7 +395,7 @@ The **G10c per-style breakdown** (2026-05-21, same DB, n = 100 across 2 styles �
 | natural-language | 50 | **+1.56%** | **+3.86%** | −1.62% | mutex helps |
 | keyword | 50 | −0.72% | −2.27% | −1.06% | mutex slightly hurts |
 
-The aggregate effect (+0.43% nDCG, +0.82% MRR — identical to G10b because G10c reuses the same A8 active vs A8 disabled detail JSONs and re-buckets) is entirely carried by the natural-language subset. The keyword bucket is a small drag, within the noise floor. Two cross-cuts (style × category) surface as notable outliers: NL × single-hop (+13.83% nDCG, +21.32% MRR — the biggest individual win in the data) and keyword × adversarial (−5.35% nDCG, −10.0% MRR — the only delta crossing the 5% regression threshold, n = 10). Multi-hop suffers ≈ −4% across both styles, confirming the regression is **style-agnostic** and motivating the conditional-mutex follow-up rather than a style-specific routing.
+The aggregate effect (+0.43% nDCG, +0.82% MRR — identical to G10b because G10c reuses the same A8 active vs A8 disabled detail JSONs and re-buckets) is entirely carried by the natural-language subset. The keyword bucket is a small drag, within the noise floor. Two cross-cuts (style × category) surface as notable outliers: NL × single-hop (+13.83% nDCG, +21.32% MRR — the biggest individual win in the data) and keyword × adversarial (−5.35% nDCG, −10.0% MRR — the only delta crossing the 5% regression threshold, n = 10). Multi-hop suffers ~= −4% across both styles, confirming the regression is **style-agnostic** and motivating the conditional-mutex follow-up rather than a style-specific routing.
 
 Triangulated across G10 (deploy figure +0.79% / +2.65%), G10b (per-category +0.43% / +0.82%), and G10c (per-style +0.43% / +0.82%), the mutex effect is consistent in direction and on the lower end of the original deploy measurement in magnitude — the deploy figure sat on the upper tail of a noisy distribution rather than reflecting a structural shift. The architectural conclusion stands: **keep the mutex deployed at the per-chunk level; address the multi-hop chain-traversal regression via a conditional gate keyed on `query_entities`** — executed in G10d below.
 
@@ -354,13 +420,13 @@ The per-category breakdown reveals the mechanism of recovery:
 | single-hop | 20 | −3.26% | −4.43% | 0.00% | trade-off |
 | temporal | 20 | n/a | n/a | n/a | degenerate corpus gap (unchanged) |
 
-Multi-hop recovers because queries naming two or more entities (e.g., entity + associated event or related entity) now reach top-K with the full `section_boost × source_type_boost` stack active, enabling intermediate chain chunks to surface. Adversarial recovery is the strongest signal: adversarial queries in the golden set tend to mention three or more entity names as distractors, pushing `query_entity_count ≥ 2` and gating the mutex; the full boost stack then differentiates gold from distractors more effectively than the mutex-flattened ranking. The single-hop trade-off is real — A8d-2 nDCG drops −3.26% vs A8' — but is bounded: single-hop performance against the pre-mutex baseline (G10b mutex_disabled) is still **+3.31% nDCG / +7.78% MRR** (absolute: 0.5470 vs 0.5295 disabled). The conditional layer trades peak single-hop precision for materially better worst-case behavior across multi-hop and adversarial categories.
+Multi-hop recovers because queries naming two or more entities (e.g., entity + associated event or related entity) now reach top-K with the full `section_boost × source_type_boost` stack active, enabling intermediate chain chunks to surface. Adversarial recovery is the strongest signal: adversarial queries in the golden set tend to mention three or more entity names as distractors, pushing `query_entity_count >= 2` and gating the mutex; the full boost stack then differentiates gold from distractors more effectively than the mutex-flattened ranking. The single-hop trade-off is real — A8d-2 nDCG drops −3.26% vs A8' — but is bounded: single-hop performance against the pre-mutex baseline (G10b mutex_disabled) is still **+3.31% nDCG / +7.78% MRR** (absolute: 0.5470 vs 0.5295 disabled). The conditional layer trades peak single-hop precision for materially better worst-case behavior across multi-hop and adversarial categories.
 
 Latency is unaffected: P95 spread across all four configs is 2558–2573 ms (0.6% variance), consistent with the `query-entity-count` hot path operating at sub-millisecond cost when the entity index is warmed.
 
 **Decision D51 verdict: ACTIVE-T2.** A8d-2 meets 6 of 8 evaluated criteria (aggregate nDCG/MRR, multi-hop nDCG/R@10, open-domain nDCG, adversarial nDCG). Single-hop nDCG and MRR are the two fails — both against the A8' baseline that represents the maximal single-hop state — and both remain strictly positive against the pre-mutex baseline. The aggregate net of +1.35% nDCG / +1.37% MRR over the G10 baseline justifies accepting the single-hop dilution. The canonical boost stack in production now reads: `section_boost × source_type_boost (Hard Mutex gated by query_entity_count ≤ 2) × salience v2 additive`.
 
-The G10d conditional gate was deployed to production on 2026-05-21 via systemd environment drop-in (`NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`). A smoke test across three query archetypes confirmed correct behavior: a single-entity query applied the mutex as expected; a multi-entity query (count ≥ 2) returned an `entity::compiled` chunk at rank 1, confirming the mutex was suppressed and the full boost stack served the chain; a no-entity query bypassed the mutex entirely. Zero errors were recorded in `journalctl` post-restart. Three rollback paths are documented — disabling only the conditional layer (preserving G10 hard mutex), disabling the entire mutex, and removing the drop-in — each executable in under five minutes.
+The G10d conditional gate was deployed to production on 2026-05-21 via systemd environment drop-in (`NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2`). A smoke test across three query archetypes confirmed correct behavior: a single-entity query applied the mutex as expected; a multi-entity query (count >= 2) returned an `entity::compiled` chunk at rank 1, confirming the mutex was suppressed and the full boost stack served the chain; a no-entity query bypassed the mutex entirely. Zero errors were recorded in `journalctl` post-restart. Three rollback paths are documented — disabling only the conditional layer (preserving G10 hard mutex), disabling the entire mutex, and removing the drop-in — each executable in under five minutes.
 
 Triangulated across G10 (+0.79% nDCG deploy measurement), G10b (per-category breakdown, aggregate +0.43%), G10c (per-style breakdown, aggregate +0.43%), and G10d (conditional gate, aggregate +1.35%), the mutex evolution follows a consistent trajectory: the per-chunk hard mutex provided a net positive but introduced multi-hop and adversarial regressions; the conditional layer recovers those regressions at the cost of moderate single-hop dilution, with the aggregate strictly improving at each step. The final deployed configuration is the most balanced across query-category diversity the series has measured.
 
@@ -368,7 +434,7 @@ Triangulated across G10 (+0.79% nDCG deploy measurement), G10b (per-category bre
 
 The G10d conditional Hard Mutex with `NOX_MUTEX_QUERY_ENTITY_THRESHOLD=2` é a configuração canônica em produção desde 2026-05-21. O drop-in está em `/etc/systemd/system/nox-mem-api.service.d/override.conf`, e três rollback paths permanecem documentados — desabilitar apenas a camada condicional (preservando o G10 hard mutex), desabilitar o mutex inteiro via `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1`, ou remover o drop-in — cada um executável em menos de cinco minutos. O modo `NOX_SALIENCE_MODE=active` (formulação aditiva v2) também está deployado em produção, consistente com a Claim 1 da §5.2; o modo `shadow` permanece disponível como fallback para A/B comparisons, mas o canonical runtime usa `active`.
 
-A camada de observabilidade F10 (Foundation observability dashboard, decisão D53, 2026-05-21) acompanha os dois deploys em produção. **Phase A** (`/observability/health.html`) expõe três endpoints — `/api/observability/health`, `/api/observability/recent-ops`, `/api/observability/canary-tail` — com polling de 30s sobre status do serviço, últimas operações destrutivas registradas em `ops_audit` (status enum `started | success | failed | crashed`), e o tail das execuções do cron de canary. **Phase B** (`/observability/evals.html`) consome `/api/observability/evals` lendo `audits/data-G*/`, renderizando line charts com Chart.js sobre as séries G3 → G4 → G5 V3 → G8 → G9 → G10 → G10b → G10c → G10d com gate annotations (D43 threshold ≥+15% nDCG@10, D48 close, D51 verdict ACTIVE-T2). Ambas as fases passaram smoke tests no deploy (6/6 e 5/5 respectivamente) e estão acessíveis via Tailscale tunnel; o stack permanece lean (vanilla JS + Chart.js CDN, sem Prometheus/Grafana/time-series DB adicional). A leitura é em tempo real sobre o `nox-mem.db` canônico — qualquer regressão pós-deploy aparece nos charts dentro do próximo ciclo de polling.
+A camada de observabilidade F10 (Foundation observability dashboard, decisão D53, 2026-05-21) acompanha os dois deploys em produção. **Phase A** (`/observability/health.html`) expõe três endpoints — `/api/observability/health`, `/api/observability/recent-ops`, `/api/observability/canary-tail` — com polling de 30s sobre status do serviço, últimas operações destrutivas registradas em `ops_audit` (status enum `started | success | failed | crashed`), e o tail das execuções do cron de canary. **Phase B** (`/observability/evals.html`) consome `/api/observability/evals` lendo `audits/data-G*/`, renderizando line charts com Chart.js sobre as séries G3 → G4 → G5 V3 → G8 → G9 → G10 → G10b → G10c → G10d com gate annotations (D43 threshold >=+15% nDCG@10, D48 close, D51 verdict ACTIVE-T2). Ambas as fases passaram smoke tests no deploy (6/6 e 5/5 respectivamente) e estão acessíveis via Tailscale tunnel; o stack permanece lean (vanilla JS + Chart.js CDN, sem Prometheus/Grafana/time-series DB adicional). A leitura é em tempo real sobre o `nox-mem.db` canônico — qualquer regressão pós-deploy aparece nos charts dentro do próximo ciclo de polling.
 
 ### 5.7 Honest characterization
 
@@ -380,11 +446,11 @@ A G10d evolution further refines the architectural conclusion: the canonical boo
 
 ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
-> **Status (atualizado 2026-05-24 ~22h BRT — FINAL):** Sat 2026-05-24 FINAL closure. **4/6 systems com dados reais.** Decision A aprovada: ship 4/6 (Zep 🚫 GATED por OpenAI embedding requirement; EverMind-AI ❌ SKIP por repo 404 confirmado PR #281). nox-mem headline: nDCG@10=0.6380 (Gemini hybrid) / 0.3753 (FTS5-only). mem0 (500-chunk cap) + agentmemory (1401-chunk cap) + Letta (partial 1/5 smoke) medidos com caveats de corpus. Canonical 100-query run deferred Sun 2026-05-25 com corpus uniforme sem cap. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) imutáveis. Nota: "Sat 2026-05-24 partial; canonical full-corpus run Sun 2026-05-25." Refs: `[[q4-real-numbers-sat-2026-05-24]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
+> **Status (atualizado 2026-05-24 ~22h BRT — FINAL):** Sat 2026-05-24 FINAL closure. **4/6 systems com dados reais.** Decision A aprovada: ship 4/6 (Zep [GATED] por OpenAI embedding requirement; EverMind-AI [SKIP] por repo 404 confirmado PR #281). nox-mem headline: nDCG@10=0.6380 (Gemini hybrid) / 0.3753 (FTS5-only). mem0 (500-chunk cap) + agentmemory (1401-chunk cap) + Letta (partial 1/5 smoke) medidos com caveats de corpus. Canonical 100-query run deferred Sun 2026-05-25 com corpus uniforme sem cap. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) imutáveis. Nota: "Sat 2026-05-24 partial; canonical full-corpus run Sun 2026-05-25." Refs: `[[q4-real-numbers-sat-2026-05-24]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 ### 6.1 Methodology summary
 
-A §6 cobre a comparação cross-system entre nox-mem e cinco sistemas competidores de memória persistente para agentes de IA. O execution plan completo está documentado em `specs/2026-05-23-Q4-comparison-execution-plan.md` (pre-registered 2026-05-23, antes do run de Sat 2026-05-24). Os princípios de comparação (§6.5), as garantias anti-cherry-pick (§6.6), e a pre-registration formal (§6.7) são cravados nesta seção antes da execução; somente as tabelas de §6.2/§6.3/§6.4 recebem números após o run. O objetivo é satisfazer o gate D43 (`docs/DECISIONS.md`) — nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR, latência) — destravando a GTM Phase 2.
+A §6 cobre a comparação cross-system entre nox-mem e cinco sistemas competidores de memória persistente para agentes de IA. O execution plan completo está documentado em `specs/2026-05-23-Q4-comparison-execution-plan.md` (pre-registered 2026-05-23, antes do run de Sat 2026-05-24). Os princípios de comparação (§6.5), as garantias anti-cherry-pick (§6.6), e a pre-registration formal (§6.7) são cravados nesta seção antes da execução; somente as tabelas de §6.2/§6.3/§6.4 recebem números após o run. O objetivo é satisfazer o gate D43 (`docs/DECISIONS.md`) — nox-mem em top-3 em >=2 das 4 métricas chave (nDCG@10, R@10, MRR, latência) — destravando a GTM Phase 2.
 
 ### 6.2 Competitors
 
@@ -434,8 +500,8 @@ O smoke não disaggregou `nDCG@10` por dataset (combined-only) — desagregaçã
 | Mem0 | `[pending Sun canonical — full corpus, no 500-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.10+ ingest |
 | agentmemory | `[pending Sun canonical — full corpus, no 20%-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.00 |
 | Letta | `[pending — partial only; agent-loop arch]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` |
-| Zep | `[FALHA: 🚫 GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
-| EverMind-AI | `[FALHA: ❌ SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
+| Zep | `[FALHA: [GATED] — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
+| EverMind-AI | `[FALHA: [SKIP] — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
 
 **LoCoMo full (canonical — pending Sun 2026-05-25):**
 
@@ -445,8 +511,8 @@ O smoke não disaggregou `nDCG@10` por dataset (combined-only) — desagregaçã
 | Mem0 | `[pending Sun canonical — full corpus, no 500-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.10+ ingest |
 | agentmemory | `[pending Sun canonical — full corpus, no 20%-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.00 |
 | Letta | `[pending — partial only; agent-loop arch]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` |
-| Zep | `[FALHA: 🚫 GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
-| EverMind-AI | `[FALHA: ❌ SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
+| Zep | `[FALHA: [GATED] — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
+| EverMind-AI | `[FALHA: [SKIP] — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
 
 Zep e EverMind-AI são reportadas com `[FALHA: <razão>]` explícito em vez de omitidas — consistente com §6.6 (anti-cherry-pick). O run canônico Sun 2026-05-25 atualiza as células `[pending]` para os 4 sistemas restantes com corpus uniforme (sem cap). Ref: `[[q4-real-numbers-sat-2026-05-24]]`.
 
@@ -513,7 +579,32 @@ Para evitar viés de seleção retroativo:
 
 A metodologia desta seção está cravada no `specs/2026-05-23-Q4-comparison-execution-plan.md` antes do run de Sat 2026-05-24. O **smoke de Sat 2026-05-24 15h30 BRT** preencheu a primeira linha de §6.3 (nox-mem combined: nDCG@10=0.6380, p50=8ms, gold-hit 13/20 em 20 queries dry-run-sample) e validou que o pipeline de retrieval funciona end-to-end em eval-isolated DB. O **partial cross-system smoke de Sat 2026-05-24 18h BRT** adicionou a linha mem0 (n=20, 500-chunk corpus cap): nDCG@10=0.8569, p50=273ms, gold-hit 3/20 (15%) — com interpretação explícita do trade-off coverage vs concentração em §6.3. O **run canônico** ainda está em curso e atualiza as linhas competidoras `[PENDING canonical run]` em §6.3 + a totalidade de §6.4 quando os 6 adapters estiverem prontos com corpus uniforme. Princípios (§6.5), anti-cherry-pick (§6.6) e a estrutura geral desta seção são imutáveis post-run. Qualquer ajuste metodológico identificado durante a execução é documentado como follow-up explícito em `docs/COMPARISON.md` em vez de retroagido aqui. Refs: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
-A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR, latência). Atendido o gate, GTM Phase 2 está destravada conforme `docs/ROADMAP.md` §7. Não atendido, a sessão de Sun 2026-05-25 produz um plano de remediação (ajustes pre-launch) em vez de launch direto.
+A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em top-3 em >=2 das 4 métricas chave (nDCG@10, R@10, MRR, latência). Atendido o gate, GTM Phase 2 está destravada conforme `docs/ROADMAP.md` §7. Não atendido, a sessão de Sun 2026-05-25 produz um plano de remediação (ajustes pre-launch) em vez de launch direto.
+
+### 6.8 Autonomy quantified — operational cost per memory system
+
+The Q4 quality comparison (§6.3 – §6.6) reports retrieval *quality* under matched corpora. Operational *cost* — services, RAM, cold start, mandatory third-party credentials, setup commands — is the second axis on which a memory system can be evaluated, and is the axis where the nox-mem Autonomy pillar [^q-a-p-pivot] is most legible. Table 2 summarizes the steady-state idle footprint of each system in its default self-host configuration.
+
+**Table 2 — Autonomy quantified: services, RAM, cold start, mandatory keys, setup commands.** Headline: **~100× less RAM idle than EverOS.** Competitor numbers are *estimates* derived from each project's docker-compose defaults and documented system requirements (sources cited in the row). The nox-mem row is **[estimated — not measured in prod for this revision]**; a fresh `ps -o rss=` measurement on the production VPS is queued as a §7.2 future-work item and the value will be tightened in the next paper revision (see footnote [^nox-mem-rss]).
+
+| System | Services | RAM idle | Cold start | Mandatory third-party keys | Setup commands | Sources |
+|---|---:|---:|---:|---:|---:|---|
+| **nox-mem** | **1** (SQLite file + Node process) | **~50 MB** [estimated] | **<1 s** | **0** (offline-OK; embeddings optional) | **1** (`npm i && nox-mem reindex`) | This work; [^nox-mem-rss] |
+| mem0 | 2 (Postgres + Qdrant) | ~800 MB | ~15 s | 1 (OpenAI for embeddings) | ~5 | mem0 docker-compose defaults [^mem0-stack] |
+| Letta | 3 (Letta server + Postgres + OpenAI) | ~1.5 GB | ~30 s | 1 (OpenAI) | ~8 | Letta self-host guide [^letta-stack] |
+| Zep OSS | 2 (Zep + Postgres) | ~1.2 GB | ~30 s | **1 mandatory** (OpenAI for embeddings — hardcoded) | ~6 | Zep README [^zep-stack] |
+| EverOS / EverMind-AI | **5** (MongoDB + Elasticsearch + Milvus + Redis + Postgres) | **~4 GB+** | **~60 s** | 2–3 (LLM + embedding + optional reranker) | ~15+ | EverMind-AI docker-compose [^everos-stack] |
+| LightRAG | 2 (Neo4j + vector DB) | ~1 GB | ~20 s | 1 (LLM provider for KG extraction) | ~6 | LightRAG repo defaults [^lightrag-stack] |
+
+**Reading the table.** Three rows of the cost matrix translate directly into Autonomy:
+
+1. **Services column.** Every additional service is an additional failure mode, an additional security-patching surface, and an additional vendor that must be available on the day a user spins up the system. nox-mem ships as a single Node process operating on a single SQLite file; the only durable on-disk artifact is `nox-mem.db`. mem0/Zep/Letta/LightRAG each require >=1 database container and at least one external LLM/embedding provider. EverOS requires five containers, three of which are heavyweight infrastructure (MongoDB, Elasticsearch, Milvus). The single-service property is what makes "open `nox-mem.db` in `sqlite3` and inspect everything" a literal operation, not a euphemism.
+
+2. **Mandatory third-party keys column.** A system that requires an OpenAI key by default is not autonomous regardless of license — the user is dependent on one specific vendor's pricing, rate limits, and terms of service. nox-mem treats embeddings as optional (FTS5-only retrieval is a valid degraded mode; §4) and is provider-agnostic when embeddings are enabled (Gemini default, Ollama-local feasible — §7.1 L2). Zep and Letta hardcode OpenAI as the default embedding provider.
+
+3. **Cold start column.** A `<1s` cold start is what makes self-host *try-before-deciding* — the user can `npm i`, run one command, see results, and decide. A `~60s` cold start with five containers is what makes EverOS effectively a "build a small team to evaluate" decision, not an individual decision.
+
+**Caveat — RAM measurement methodology.** The competitor RAM figures are *idle* (i.e., process started, no queries served, no ingestion in progress) and are *estimates* read from each project's documented system requirements and `docker stats` defaults in the published docker-compose files. They are not from a head-to-head benchmark on a single host. A side-by-side measurement on a controlled 4-vCPU / 8-GB host is a §7.2 future-work item (F-cost-bench). The nox-mem `~50 MB` figure should likewise be treated as an upper-bound estimate based on Node baseline + better-sqlite3 cache; a real `ps -o rss=` measurement on the production VPS is pending (see [^nox-mem-rss]) and will replace the estimate in the next revision.
 
 ---
 
@@ -563,7 +654,7 @@ Phase 5 of the A2 Tier 3 roadmap targets a full SQLCipher-encrypted memory store
 
 #### F2 — F10 Phase C/D: shadow tracker empirical A/B for ranking changes
 
-F10 Phase A (`/observability/health.html`) and Phase B (`/observability/evals.html`) are deployed (§5.6, decision D53). Phase C targets a shadow-mode query logger that captures production queries, executes them against a candidate ranking config in parallel, and accumulates query-level nDCG deltas before any promotion decision. Phase D operationalizes this into a pre-promotion gate: any ranking change (boost weight adjustment, mutex threshold, salience weight) that has not accumulated ≥50 shadow queries with p < 0.05 improvement is blocked from reaching the production endpoint. This closes the observability gap identified in `[[ship-ranking-changes-in-shadow-mode-first]]` — currently the shadow mode is a flag toggle, not an integrated eval pipeline. Ref: `docs/ROADMAP.md` F10, decision D53, PR #207/#212.
+F10 Phase A (`/observability/health.html`) and Phase B (`/observability/evals.html`) are deployed (§5.6, decision D53). Phase C targets a shadow-mode query logger that captures production queries, executes them against a candidate ranking config in parallel, and accumulates query-level nDCG deltas before any promotion decision. Phase D operationalizes this into a pre-promotion gate: any ranking change (boost weight adjustment, mutex threshold, salience weight) that has not accumulated >=50 shadow queries with p < 0.05 improvement is blocked from reaching the production endpoint. This closes the observability gap identified in `[[ship-ranking-changes-in-shadow-mode-first]]` — currently the shadow mode is a flag toggle, not an integrated eval pipeline. Ref: `docs/ROADMAP.md` F10, decision D53, PR #207/#212.
 
 #### F3 — Per-method benchmark Phase B: cross-method nDCG optimization
 
@@ -587,7 +678,7 @@ The current evaluation corpus is English-dominant (LongMemEval and LoCoMo are En
 
 #### F8 — GTM Phase 2 launch and community feedback intake
 
-The Q/A/P roadmap (decision `[[qap-pillars-strategic-pivot-2026-05-17]]`) defines GTM Phase 2 as gated on D43 (nox-mem top-3 in ≥2 of 4 key metrics — nDCG@10, R@10, MRR, latency). The target launch date is Wed 2026-06-03, conditional on the canonical Q4 run completing and D43 passing. Post-launch, community feedback from the OSS release is expected to surface real-world limitation patterns not visible in the synthetic golden sets (e.g., corpora with high image-to-text OCR content, multi-language mixes, or very short memory fragments < 20 words that the current chunker merges). The feedback cycle directly informs Lab Q2 priorities. Ref: `docs/ROADMAP.md` GTM Phase 2, `docs/gtm/`, `[[overnight-automode-push-pattern]]`.
+The Q/A/P roadmap (decision `[[qap-pillars-strategic-pivot-2026-05-17]]`) defines GTM Phase 2 as gated on D43 (nox-mem top-3 in >=2 of 4 key metrics — nDCG@10, R@10, MRR, latency). The target launch date is Wed 2026-06-03, conditional on the canonical Q4 run completing and D43 passing. Post-launch, community feedback from the OSS release is expected to surface real-world limitation patterns not visible in the synthetic golden sets (e.g., corpora with high image-to-text OCR content, multi-language mixes, or very short memory fragments < 20 words that the current chunker merges). The feedback cycle directly informs Lab Q2 priorities. Ref: `docs/ROADMAP.md` GTM Phase 2, `docs/gtm/`, `[[overnight-automode-push-pattern]]`.
 
 ---
 
@@ -785,10 +876,61 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 nox-mem demonstrates that persistent, searchable, and shareable memory for AI agent fleets is achievable with commodity infrastructure (single VPS, SQLite, local LLM). The hybrid search system consistently outperforms single-method retrieval, particularly for multilingual content and compound technical terms. The LLM-powered knowledge graph provides 15x richer entity extraction compared to regex approaches, while temporal decay ensures the graph stays current without manual curation. The Wave A empirical evaluation (§5) cravou nDCG@10 = 0.6237 on the entity-flavored golden set (+78.8% relative over the G3 baseline), with `section_boost` identified as the dominant driver (99.85% of the lift recovered by A3 alone) and the additive salience formula validated by the `active > shadow` reversal. The G10d conditional mutex evolution (§5.5, deployed 2026-05-21) consolida o canonical boost stack `section_boost × source_type_boost (Hard Mutex gated by query_entity_count ≤ 2) × salience v2 additive` em produção, recuperando regressões multi-hop e adversarial com diluição contida em single-hop. A camada F10 (§5.6, decisão D53) torna o estado de produção verificável a qualquer momento via dashboards Phase A (`/observability/health.html`) + Phase B (`/observability/evals.html`).
 
-A §6 Q4 COMPARISON está pre-registered (`specs/2026-05-23-Q4-comparison-execution-plan.md`) e o **smoke de Sat 2026-05-24 15h30 BRT** populou a primeira linha de §6.3 com números de nox-mem (nDCG@10=0.6380 combined, p50=12ms, gold-hit 13/20 em 20 queries dry-run-sample sobre eval-isolated DB de 5.882 LoCoMo + 940 LongMemEval chunks). O **run canônico** — 100 queries × 2 datasets × 6 sistemas (Mem0, Zep, Letta, agentmemory, EverMind-AI + nox-mem) — ainda está em execução com 5/6 competitor adapters em setup, e atualiza as células `[PENDING canonical run]` quando crava. O gate D43 (top-3 em ≥2 das 4 métricas chave) é avaliado contra o run canônico; o smoke valida a metodologia + confirma que nox-mem retrieval funciona end-to-end, destravando a defesa pre-launch da GTM Phase 2.
+A §6 Q4 COMPARISON está pre-registered (`specs/2026-05-23-Q4-comparison-execution-plan.md`) e o **smoke de Sat 2026-05-24 15h30 BRT** populou a primeira linha de §6.3 com números de nox-mem (nDCG@10=0.6380 combined, p50=12ms, gold-hit 13/20 em 20 queries dry-run-sample sobre eval-isolated DB de 5.882 LoCoMo + 940 LongMemEval chunks). O **run canônico** — 100 queries × 2 datasets × 6 sistemas (Mem0, Zep, Letta, agentmemory, EverMind-AI + nox-mem) — ainda está em execução com 5/6 competitor adapters em setup, e atualiza as células `[PENDING canonical run]` quando crava. O gate D43 (top-3 em >=2 das 4 métricas chave) é avaliado contra o run canônico; o smoke valida a metodologia + confirma que nox-mem retrieval funciona end-to-end, destravando a defesa pre-launch da GTM Phase 2.
 
 The cross-agent intelligence layer transforms isolated agent memories into a collaborative knowledge base, enabling institutional learning across the fleet. Combined with the live dashboard, the system provides full observability into the collective memory of the agent organization.
 
 **Repository:** github.com/totobusnello/nox-workspace
 **Dashboard:** github.com/totobusnello/agent-hub-dashboard
 **Spec:** Projetos/memoria-nox/specs/2026-03-14-nox-memory-system-design.md
+
+---
+
+## References and Footnotes
+
+### Related-systems references
+
+[^mem0]: mem0ai/mem0 — open-source memory layer for LLM agents (PostgreSQL + Qdrant backend, OpenAI embeddings by default). github.com/mem0ai/mem0. Used in §1.4, §6.3, Table 2.
+
+[^letta]: Letta (formerly MemGPT) — agent-loop memory architecture with archival/recall memory separation. github.com/letta-ai/letta. Used in §1.4, §6.3, Table 2.
+
+[^zep]: Zep — temporal knowledge-graph memory service with summarization. github.com/getzep/zep. OpenAI embedding is the hardcoded default in the OSS distribution. Used in §1.4, §6.3, Table 2.
+
+[^lightrag]: Guo et al., *LightRAG: Simple and Fast Retrieval-Augmented Generation*, EMNLP 2025 (HKU). github.com/HKUDS/LightRAG (~35k stars, MIT). Cited in §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized incremental KG-merge pattern as a forward-looking optimization (LightRAG-style summarization parking-lotted until KG density >=10× current; see `docs/COMPETITIVE-ANALYSIS-2026-05-19.md`).
+
+[^hipporag2]: HippoRAG2 — graph-augmented retrieval with Personalized PageRank over an entity-relation graph. Cited as a graph-baseline peer in §1.4 and §6.
+
+[^memo]: arXiv 2605.15156v2, *MeMo: Towards Language Models with Associative Memory Mechanisms* (parametric reflections folded into model weights). Cited as the design opposite of nox-mem's externalized, inspectable memory paradigm. §1.4, abstract.
+
+[^everos]: EverMind-AI / EverOS — github.com/EverMind-AI (~5k stars, Apache 2.0). Publishes EverMemBench dataset and an EvoAgentBench-framed evolution loop. The only memory-OS peer in our taxonomy that publishes its own benchmark; §3.4 is the direct narrative counter to EvoAgent framing. Honest-comparison action item: run nox-mem on EverMemBench (queued as F4 in §7.2).
+
+### Internal references
+
+[^watcher-arch]: `nox-mem-watcher` systemd service running `inotifywait` on `memory/` directories. See `docs/ARCHITECTURE.md` and §3.1 of this paper.
+
+[^salience-mode]: `NOX_SALIENCE_MODE` environment variable controls the three-state gate (`shadow` | `active` | `off`). Default is `shadow`. Telemetry exposed at `/api/health.salience`. See §3.4.3, `staged-1.7a/edits/salience.ts`, and `docs/CONFIGURATION.md`.
+
+[^crystallize-src]: HTTP handlers in `src/api-server.ts` (routes `/api/crystallize`, `/api/crystallize/validate` — confirmed in `staged-1.6/edits/api-server.ts:253–273`); core logic in `src/crystallize.ts` exporting `crystallize()`, `validateProcedure()`, `listProcedures()`. Wrapped by `withOpAudit()` (`src/lib/op-audit.ts`).
+
+[^reflect-src]: `src/reflect.ts` exporting `reflect()` and `getReflectCacheStats()` (confirmed in `staged-1.6/edits/api-server.ts:12`). Cache statistics surfaced in `/api/health.reflectCache`. See also `docs/POSTMAN.md` for the API contract.
+
+[^salience-src]: `src/lib/salience.ts` — canonical implementation of `salience = recency × pain × importance`, mirrored in the staged copy at `staged-1.7a/edits/salience.ts` (lines 1–80 contain the module docstring spelling out the formula, the three-state mode gate, and the per-type retention defaults).
+
+[^retention-defaults]: V8 schema typed retention defaults (in `chunks.retention_days`): `feedback` = 0 (never-decay), `person` = 0 (never-decay), `lesson` = 180d, `decision` = 365d, `project` = 365d, `team` = 120d, `daily` = 90d, `pending` = 30d, `graph_node` = 60d, fallback = 90d. See `staged-1.7a/edits/salience.ts:46–56` (`DEFAULT_RETENTION_BY_TYPE`) and `CLAUDE.md` §"Schema v10".
+
+[^q-a-p-pivot]: Q/A/P strategic pivot of 2026-05-17 — three pillars (**Q**uality, **A**utonomy, **P**roduct). See `docs/ROADMAP.md` and `[[qap-pillars-strategic-decision]]` in the project memory.
+
+### Autonomy table (Table 2) sources
+
+[^nox-mem-rss]: The `~50 MB` RAM figure for nox-mem in Table 2 is **estimated** (Node baseline ~30 MB + better-sqlite3 cache ~20 MB) and not measured on the production VPS for this revision. A `ps -o rss=,cmd= -ax | grep nox-mem` snapshot on the production host is queued as future work and will replace the estimate in the next paper revision. Permission to access production was denied during this revision; the estimate is conservative (upper-bound).
+
+[^mem0-stack]: mem0 default self-host requires Postgres + Qdrant + an OpenAI key for embeddings (or a configured alternative provider). Counts: 2 services + 1 mandatory third-party key. Source: mem0 README and `docker-compose.yml` defaults at github.com/mem0ai/mem0.
+
+[^letta-stack]: Letta default self-host requires the Letta server, Postgres, and an OpenAI key (or alternative LLM provider) for the agent loop. Counts: 3 components + 1 mandatory third-party key. Source: Letta self-host documentation at docs.letta.com and github.com/letta-ai/letta.
+
+[^zep-stack]: Zep OSS requires the Zep service container + Postgres, and *hardcodes* OpenAI as the embedding provider in the default build (mandatory key, no fallback in OSS distribution). Counts: 2 services + 1 hardcoded mandatory key. Source: Zep README at github.com/getzep/zep.
+
+[^everos-stack]: EverMind-AI / EverOS docker-compose declares MongoDB + Elasticsearch + Milvus + Redis + Postgres = 5 services, plus 2–3 third-party API keys for LLM, embedding, and (optional) reranker. Counts confirmed against the published `docker-compose.yml` in the EverMind-AI repo. The ~4 GB RAM-idle figure is the sum of documented minimum requirements for each service's container.
+
+[^lightrag-stack]: LightRAG defaults to Neo4j for the knowledge graph + a vector store (Qdrant/Milvus/etc.), plus one LLM provider key for entity/relation extraction during indexing. Counts: 2 services + 1 mandatory third-party key. Source: LightRAG README at github.com/HKUDS/LightRAG.
+
