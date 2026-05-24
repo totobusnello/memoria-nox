@@ -37,6 +37,7 @@
 | 26 | **Skip blog pré-HN** | HN Thread precisa de link externo canonical. Post sem blog = link direto arXiv, que não converte em discussão de produto. | — | D27 — 2026-05-04 |
 | 27 | **AGPL/copyleft pro repo memoria-nox** | Audience mista research + commercial. MIT maximiza adoption. Copyleft restringiria integração em OpenClaw (privado) e NOX-Supermem. | — | D26 — 2026-05-04 |
 | 28 | **Trocar embedding primário de gemini-embedding-001 para multilingual-e5-base** | Baseline E5 n=60 replicado 3×: nDCG@10=0.3070 vs hybrid 0.5213 (lift 1.7×). Gemini é 1.7× melhor; redução de custo 12× não compensa. E5 vence em 2/8 categorias (cross-agent +0.013, temporal +0.017) mas margens estão dentro do MOE. | GPU + volume <10K chunks + reviewer exigir comparison específica | D28 — 2026-05-04 |
+| 29 | **Buscar match com mem0 no cap@500 via ingest-side concentration** (chunk summarizer, query rewrite, ou expansão+rerank no query path) | 3 caminhos independentes falharam: PR #337 query rewrite Gemini Flash Lite (−11.8%), PR #339 E+F+H combo KG+RRF+top-k expansion (NEUTRAL +2.4%, gap persiste), PR #341 A2 chunk summarizer (−34% full corpus / −69% gap@500). mem0's cap@500 advantage é **structural** (extracted-fact concentration sobre 500 facts extraídos LLM-side, NÃO 500 raw turns) — não replicável dentro da arquitetura hybrid sem trocar mecanismo de ingest. Custo total dos 3 experimentos: $0.30 Gemini + ~14h compute. | Lab Q1 "hybrid-of-hybrids" router (index both raw + summarized, route by intent) com nDCG@10 + coverage two-metric gate | D59 — 2026-05-24 |
 
 ## 2. Q5 Cross-encoder reranker — DEFERRED (5 razões)
 
@@ -903,3 +904,25 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Retention applied ao `audit_checkpoints` (chain integrity exige todos checkpoints — indefinite mandatory)
 - **Cross-links:** D54, D55, recon §6 retention table, memory `[[no-f09-offsite-backup]]`, schema v.30 bump.
 - *Origem:* sessão 2026-05-24, Toto §10 sign-off, retention pattern alinhado com `retention_days` schema convention.
+
+#### D59 — Close cap@500 mem0 gap via ingest-side concentration is structurally non-viable; ship two-metric narrative
+
+- **Pergunta:** Após o gate Q4 Phase 2 ficar dependente de superar mem0 em métricas cross-system, três caminhos foram explorados em 2026-05-23/24 para fechar o gap de **−0.0397 nDCG@10** que nox-mem hybrid@500 (0.0918) tinha vs mem0@500 (0.1315). É possível fechar esse gap sem trocar o stack de modelos (Gemini, não OpenAI)?
+- **Decisão:** **Não — ship a narrativa two-metric (nDCG@10 + coverage) já cravada no `docs/COMPARISON.md` rev4.** O gap structural é inherente ao mecanismo de comparação (`mem0` cap@500 = 500 extracted facts via LLM ingestion; nox-mem cap@500 = 500 raw chunks). Os três experimentos a seguir confirmam isso de forma independente:
+- **Por quê:**
+  1. **PR #337 — Query rewrite layer (Gemini Flash Lite)** falhou com **−11.8% nDCG@10** vs baseline. Hipótese: enriquecer queries cape@500 via LLM antes do retrieval. Resultado: ruído adicionado piora o ranking. Aprendizado: query-side pre-processing não compensa concentration mismatch.
+  2. **PR #339 — E+F+H combo (KG traversal + RRF k=20 + top-k expansion)** retornou **NEUTRAL +2.4%** com gap **persistente**. Apenas F (RRF k=20) carregou o ganho (+0.0022). E (KG traversal) foi dead-weight com +600ms penalty. H (top-k expansion) regrediu adversarial −7.9% a −13.8%. Hub-entity centrality failure: Melanie/Caroline cover 22-40% de 583 entities. Aprendizado: nenhum dos três é suficiente isoladamente nem combinado.
+  3. **PR #341 — A2 chunk summarizer (Gemini Flash Lite, atomic-fact mem0-style)** falhou pior: **−34% nDCG@10 full corpus (0.4509 → 0.2973), −69% no cap@500 (0.0918 → 0.0645)**. 3 mecanismos de falha: (a) LoCoMo turns curtas demais (mean 144 chars) — 40% retornam "no facts found"; (b) LongMemEval session compression 95-99% perde verbatim signal — adversarial/preference/user-quote subsets viram 0.00; (c) embeddings densas sobre fact bullets clusterizam denso demais. Custo: $0.30 Gemini, 6,822 chunks summarized em 18min + 44min ingest. Template vencedor (de 3 testados em mini-ablation n=10): A — atomic-fact extraction.
+- **Estrutura confirmada:** Os 3 paths exploraram 3 vetores distintos (query-side rewrite, hybrid graph+RRF, ingest-side LLM concentration). Todos falharam de modos DIFERENTES. Evidência forte que **a vantagem mem0@500 é a concentração de ingest (500 facts extraídos LLM-side com viés-de-saliência embutido)** vs **nox-mem@500 (500 raw turns sem concentração)**. Não é replicável dentro do hybrid sem mudar o paradigma de ingest.
+- **Design intel preservado (Lab Q1 parking-lot):** A2 **WON em 4 subsets full-corpus** quando aplicado: multi-hop 0.75 / single-session-assistant 0.63 / temporal-reasoning 0.62 / open-domain 0.50. A2 **FATALLY FAILED em 3 subsets** (0.00): adversarial / single-session-preference / single-session-user. Esta assimetria sugere um **hybrid-of-hybrids router** — indexar AMBOS raw + summarized chunks, routing por detected query intent. Concentration para analytical/multi-hop; verbatim para adversarial/preference/quote. Carved em `[[d59-implement-pain-weighted]]` follow-up para Lab Q1.
+- **Implementation note:**
+  - Ship narrativa `docs/COMPARISON.md` rev4 (já em main): "production-realistic full-corpus advantage" (nDCG@10 0.4509, +243% vs mem0 cap-imposed) + honest disclosure do trade-off cap@500
+  - Q4 Phase 2 gate: **two-metric (nDCG@10 + coverage threshold ≥87%)** — captura tanto qualidade quanto cobertura, evita o jogo de cap-cherry-picking
+  - Encerrar todas as 3 branches como archived NEGATIVE com per-subset breakdowns preservados em branch remotes
+  - NÃO tentar 4o caminho de concentration pré-launch Wed 2026-06-03
+- **NÃO FAZEMOS:**
+  - Buscar concentration parity com mem0 dentro da arquitetura hybrid atual (3× rejected; structural mismatch)
+  - Trocar Gemini → OpenAI/Claude embeddings para emular extracted-fact density (Toto rejeitou explicitly 2026-05-24, `[[user-accepts-gemini-key-risk]]`)
+  - Apresentar cap@500 nDCG@10 como single-metric headline (esconde o trade-off — narrativa rev4 já corrige)
+- **Cross-links:** PRs #337, #339, #341 (all closed/archived), `docs/COMPARISON.md` rev4, memory `[[honest-cross-system-framing]]`, `[[adapter-response-shape-validation]]`, `[[no-getdb-in-eval-scripts]]`, `[[shared-loader-canonical-pattern]]`, NÃO FAZEMOS §1 item 29.
+- *Origem:* sessão 2026-05-23/24, três experimentos independentes 2026-05-23 23:30 BRT a 2026-05-24 11:30 BRT, Toto sign-off "Fechar e arquivar" 2026-05-24 13:40 BRT.
