@@ -1,0 +1,18 @@
+{
+  "name": "nox-mem-reindex-emergency-fix",
+  "version": "0.1.0-emergency-reindex-upsert",
+  "private": true,
+  "type": "module",
+  "description": "Emergency UPSERT fix for nox-mem reindex (3rd wipe incident 2026-05-23 23:17 BRT). Replaces destructive DELETE+INSERT with content-fingerprint UPSERT + Layer-4 invariant guard + canary test.",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsc -p tsconfig.json && node --test dist/edits/src/__tests__/*.test.js",
+    "test:canary": "tsc -p tsconfig.json && node --test dist/edits/src/__tests__/reindex.no-wipe.test.js"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20.0.0",
+    "better-sqlite3": "^12.10.0",
+    "typescript": "^5.4.0"
+  }
+}
