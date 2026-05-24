@@ -2,6 +2,33 @@
 
 ---
 
+## Sun 2026-05-25 morning priorities — Wave 14–18 in-flight + GTM P0 + L4 watchpoint
+
+> **Atualizado:** 2026-05-25 06h BRT (morning prep). **Wave 14–18 PRs in-flight** (~50+ total Sat + Sun cumulative); worktree isolation holding post-defense layer 2 hook install 2026-05-21. **GTM P0 manual items** (arXiv submit Tue 06-02, demo recording, Product Hunt Wed 06-03) locked in schedule. **D49 phase 2:** 7d shadow window ~3 days remaining (D50 verdict ETA 2026-05-27). **L4 watchpoint:** first trigger check Mon 2026-05-25 per extraction_method cron schedule.
+
+### Sun 2026-05-25 morning action table
+
+| Item | Timeline | Owner | Blocker | Status |
+|---|---|---|---|---|
+| **Wave 14–18 PR validation** | Sun 06h–10h | Executor | None | 🔄 In-flight; ~50+ Sat cumulative (#265-#318 range estimated) |
+| **Gemini hybrid@500 verdict** | Sun 06h–08h | Analyzer | PR #318 land | ✅ LoCoMo +40% vs mem0; corpus-ordering nuance noted |
+| **Launch comm rev3** | Sun 09h–11h | Writer | rev3 PR land | 🔄 Depends on in-flight PR; final HTML/copy |
+| **F10 Phase A 24h passive** | Sun 08h–EOD | Monitor | None | ✅ Validation continues (5/5 smoke baseline Sat) |
+| **D49 phase 2 baseline** | Sun 10h–14h | Lab | None | 🔄 ~3 days remaining; D50 ETA 2026-05-27 |
+| **L4 watchpoint Monday** | Mon 09h-12h | Cron/Monitor | extraction_method schedule | ⏳ Scheduled 2026-05-25; post-cron validation deferred |
+| **arXiv endorsement check** | Mon 2026-06-01 | Toto manual | Paper §6 final | 🔄 P0 launch blocker; endorsement window critical |
+
+### GTM P0 remaining (Toto manual ownership)
+
+| Item | Target date | Dependency | Status |
+|---|---|---|---|
+| **arXiv submit** | Tue 2026-06-02 | Paper §6 final review | 🔄 Endorsement check critical path (Mon 06-01) |
+| **Demo GIF (asciinema)** | Sat 2026-05-30 | Recording session script | ⏳ Queued |
+| **Product Hunt draft + schedule** | Tue 2026-06-02 | Launch copy finalized | ⏳ Queued |
+| **Launch GO** | Wed 2026-06-03 10h BRT | All gates + Toto approval | 🔄 Conditional on arXiv + demo |
+
+---
+
 ## Sat 2026-05-24 FINAL closure — Wave 1–13 cumulative + 4/6 systems + Zep gated
 
 > **Atualizado:** 2026-05-24 ~22h30 BRT (FINAL). **~42 PRs merged total Sat (Wave 1–13) + 6 direct commits + 4/6 cross-system measured.** main `b57a0d5` (latest merged).

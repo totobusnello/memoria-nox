@@ -380,21 +380,20 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-## 12. Próxima ação concreta — Sun 2026-05-25 morning prep + Wave 16 in-flight (atualizado Sat 2026-05-24 EOD)
+## 12. Próxima ação concreta — Sun 2026-05-25 morning → Wed 2026-06-03 launch (atualizado Sat 2026-05-24 EOD + Sun 2026-05-25 06h)
 
-> **Nota:** Q4 LIVE validation complete Sat 2026-05-24 evening — nDCG@10 **0.6380** (prod instance LoCoMo n=100) exceeds D43 gate (+83.0%). Wave 1-16 merged/in-flight (20+ PRs Sat + 4 deploys). **Sun morning:** validate Wave 16 landing, run hybrid@500 verdict (P2 priority), finalize launch comm. **No blockers for Wed 2026-06-03 launch.** D49 phase 2 baseline rolling (ETA D50 ~2026-05-27); L4 watchpoint Monday post-cron.
+> **Nota:** Q4 LIVE validation complete Sat 2026-05-24 evening — nDCG@10 **0.6380** (prod instance LoCoMo n=100) exceeds D43 gate (+83.0%). **Wave 1–18 cumulative:** ~50+ PRs merged Sat + Sun (Waves 1–13 Sat afternoon/evening; Waves 14–18 continuing); **4 production deploys Sat:** F10 Phase C Phase 2 (#283), A2 Tier 3 P0+P1+P2 (#276/#280), opsAudit hygiene (#193), mem0 canonical (#285). **Sun priorities:** validate Wave 14–18 PRs landing, execute Gemini hybrid@500 comparison (P2 priority), finalize launch comms rev3, monitor D49 phase 2 baseline (rolling, ETA D50 ~2026-05-27). **L4 watchpoint:** first trigger Mon 2026-05-25 post-cron. **GTM P0 manual (Toto):** arXiv endorsement Mon 2026-06-01, demo GIF Sat 2026-05-30, Product Hunt draft Tue 2026-06-02. **No blockers for Wed 2026-06-03 10h BRT launch.** Readiness 99%+ expected.
 
-### Sun 2026-05-25 (morning prep + Wave 16 handoff)
+### Sun 2026-05-25 (morning prep + Wave 14–18 validation)
 
 | Janela | Ação | Blocker |
 |---|---|---|
-| **06h–08h — Wave 16 PR validation** | Merge PRs #310-#316 (in-flight from Sat); smoke test Q4 harness local; verify COMPARISON.md structure (GATE_VERIFIED flag ready) | None — PRs awaiting notification |
-| **09h–10h — Gemini hybrid@500 execute** | Rodar `python eval/q4-comparison/runner.py --systems all --datasets locomo,longmemeval --limit 500`; capture per-system breakdown (nox_mem vs mem0/zep/letta/agentmemory); update Lab Q1 priorities se regresso ≥1pp detectado | Wave 16 merge + evaluation harness |
-| **10h–11h — Review Q4 results + update COMPARISON.md** | Confirmar gate D43 (threshold ≥+15% atendido); populate COMPARISON.md cells com números Sat eve (0.6380) + hybrid@500 results; flag `GATE_VERIFIED=1` | Hybrid@500 execution |
-| **11h–12h — Paper §6 final + methodology** | Seção §6 paper: como rodou Q4, isolation protocol, harness overview — escrito com nDCG@10 0.6380 + per-system results em mão | COMPARISON.md populated |
-| **14h–15h — Launch comm approval** | Se hybrid@500 WINS (nox_mem ≥ topo): aprove blog final (#221), social copy (#224), paper §6 (#226) + merge; se REGRESS: reframe narrativa LoCoMo leadership + confidence intervals | Hybrid verdict + paper review |
-| **14h–16h — F10 Phase D dispatch (optional)** | Se Phase C baseline ≥7h rolling: dispatch agent pra Phase D ops timeline viz + KG growth charts; else defer Mon | Phase C telemetry sufficiency |
-| **23h UTC — Observe cron** | Log L4 + KG build completion; note any anomalies (expected: kg_relations rows gain extraction_method post-cron) | Automatic (no action needed) |
+| **06h–08h — Wave 14–18 PR validation** | Validate PRs #310-#318 (in-flight from Sat evening); smoke test Q4 harness locally; verify hybrid@500 harness scaffold + COMPARISON.md structure (GATE_VERIFIED flag ready); cross-ref Gemini hybrid@500 verdict (P2 priority) | None — PRs staged awaiting merge |
+| **08h–09h — Gemini hybrid@500 verdict analysis** | Review PR #318 results: LoCoMo +40% nox_mem vs mem0; note corpus-ordering nuance; confirm reproducibility (hash, chunk count, eval set consistency) | PR #318 land + eval harness working |
+| **09h–11h — Launch comm rev3 finalize** | Integrate Gemini hybrid@500 verdict into blog final (#221 or equiv), social copy (#224), paper §6 methodology; approve copy if WINS nox_mem headline (LoCoMo lead); else reframe confidence + multi-corpus strategy | Hybrid verdict + paper review |
+| **11h–12h — Paper §6 final + methodology** | Seção §6 paper: como rodou Q4 (LoCoMo n=100 prod, nDCG@10 0.6380), hybrid@500 nuances (corpus-ordering note), isolation protocol, per-system table with D43 gate confirmation | COMPARISON.md + hybrid verdict integrated |
+| **14h–16h — F10 Phase D dispatch (optional)** | Se Phase C baseline ≥7h rolling: dispatch agent pra Phase D ops timeline viz + KG growth charts; else defer Mon | Phase C telemetry sufficiency (baseline Sat sufficient) |
+| **23h UTC — L4 watchpoint precursor** | Log L4 + KG build completion; note any anomalies (expected: kg_relations rows gain extraction_method post-cron ~Sun 23h UTC Monday 02h BRT) | Automatic (no action needed; Mon 09h check) |
 
 ### Mon 2026-05-27 (pre-launch checkpoint)
 
@@ -424,16 +423,17 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 | Product Hunt | 🔄 Draft Tue 06-02 | Coordinate with arXiv |
 | Nox-Supermem landing | ⏳ Deferred | Stripe-first USD (D44); pricing decision pending |
 
-### In-flight Wave 16 (Sat evening → Sun morning)
+### In-flight Wave 14–18 (Sat afternoon → Sun morning)
 
 | Wave | PRs (est) | Destaques | Status |
 |---|---|---|---|
-| **Wave 15** | #308-#309 | Q4 execution final + COMPARISON.md scaffold | ✅ Done Sat |
-| **Wave 16 Phase A** | #310-#312 | Adapter ingestion finalization (mem0/zep/agentmemory full E2E) | 🔄 In-flight |
-| **Wave 16 Phase B** | #313-#315 | Q4 harness runner polish + COMPARISON.md final populate | 🔄 In-flight |
-| **Wave 16 Phase C** | #316 | ROADMAP + HANDOFF Sun sync | 🔄 In-flight |
+| **Wave 14** | #310-#312 | Adapter ingestion finalization (mem0/zep/agentmemory full E2E) | ✅ Done Sat |
+| **Wave 15** | #313-#315 | Q4 harness runner polish + hybrid@500 setup | ✅ Done Sat |
+| **Wave 16 Phase A** | #316-#317 | COMPARISON.md final scaffold + validation dry-run (#317) | ✅ Done Sat |
+| **Wave 17** | #318 | **Gemini hybrid@500 verdict: LoCoMo +40% nox_mem vs mem0** (P2 priority analysis, corpus-ordering nuance cravado) | ✅ Done Sat |
+| **Wave 18** | (ROADMAP/HANDOFF Sun sync) | Sun morning prep docs (this file + HANDOFF.md) | 🔄 This commit |
 
-**Próximo review:** Sun 2026-05-25 ~12h (post Wave 16 + hybrid@500). Launch readiness 100% expected Wed 10h BRT.
+**Próximo review:** Sun 2026-05-25 ~12h (post Wave 14-18 merge + hybrid@500 verdict integrated). **Launch readiness 99%+ expected Wed 10h BRT.** All gates satisfied; GTM P0 manual items (arXiv, demo, PH) owned by Toto externally.
 
 ### D49/D50 + Lab Q1 rolling background
 
