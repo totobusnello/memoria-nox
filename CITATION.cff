@@ -19,7 +19,7 @@ type: software
 repository-code: "https://github.com/totobusnello/memoria-nox"
 url: "https://github.com/totobusnello/memoria-nox"
 license: MIT
-date-released: "2026-06-03"  # planned launch — update to actual tag date if differs
+date-released: "2026-05-24"  # v1.0.0-rc1 tag date (actual, not planned launch)
 version: "1.0.0-rc1"
 keywords:
   - memory
