@@ -203,14 +203,25 @@ Launch: **Wed 2026-06-03, 07:15 BRT** · Show HN: nox-mem — pain-weighted hybr
 
 ---
 
-### Q16: "But mem0 has HIGHER nDCG@10 0.8569 on their own benchmark!"
+### Q16: "mem0 outperforms nox-mem in the apples-cap comparison — you buried that!"
 
-**Why it's said**: mem0 publishes benchmark numbers on their site. If those numbers are higher, HN will notice the discrepancy.
+**Why it's said**: PR #311 added the apples-to-apples row: mem0@500 = 0.1315 vs nox-mem FTS5@500 = 0.0466. This is a legitimate challenge and must be answered directly, not deflected.
 
-**Honest reply** (~80 words):
-> "The discrepancy is real and there's a specific explanation: mem0's published numbers are on their own golden set, on their own ingested corpus. In our Q4 cross-system run, mem0 was evaluated on 7.3% of a shared corpus (their API timed out or capped on the remaining 92.7%). Systems measured on partial corpora have a concentration effect — they score high on what they ingested, but that doesn't reflect performance on queries outside the ingested window. This is an open research question (Lab Q1 H1/H2). We published the methodology in `benchmark/COMPARISON.md` — you can verify the 7.3% cap directly from the run logs."
+**Honest reply** (~90 words):
+> "You're right — and we published both rows in COMPARISON.md because either alone misleads. At the same 500-chunk corpus cap, mem0 (0.1315) outperforms nox-mem FTS5-only (0.0466). That gap is architecturally real: mem0's LLM-rewriting step semantically generalizes across sparse corpora in ways FTS5 alone cannot match. Different architectures serve different use cases. If you want concentrated answers at any cost in a small corpus, mem0 wins today. If you want zero-cost full-coverage memory that scales, nox-mem is the architecture. The Gemini hybrid@500 experiment (Lab Q1 E1) will test whether the full nox-mem stack closes that concentration gap."
 
-**Cite**: `benchmark/COMPARISON.md` · `benchmark/runner.py` · `docs/ROADMAP.md` (Lab Q1 H1/H2 experiment)
+**Cite**: `docs/COMPARISON.md §Apples-to-apples corpus-cap comparison` · `docs/COMPARISON.md §Architectural trade-off framing` · PR #311
+
+---
+
+### Q19: "Aren't you cherry-picking the apples-cap row to look good — or the full-corpus row to hide the gap?"
+
+**Why it's said**: COMPARISON.md now has two rows that tell opposite stories. HN will notice and call it either way.
+
+**Honest reply** (~75 words):
+> "Both accusations are correct about the other row. That's exactly why we publish both. The full-corpus row (nox-mem 0.6380, 30× faster, 4× coverage) favors nox-mem. The apples-cap row (mem0 0.1315 vs nox-mem FTS5 0.0466) favors mem0. A benchmark that only reports the favorable row is marketing. We report both with explicit trade-off framing: different architectures, different use cases. The methodology is open. Run it yourself: `benchmark/runner.py`. Canonical 100-query × uniform-corpus run closes the table."
+
+**Cite**: `docs/COMPARISON.md §Apples-to-apples corpus-cap comparison` · `docs/COMPARISON.md §Architectural trade-off framing` · `benchmark/runner.py`
 
 ---
 

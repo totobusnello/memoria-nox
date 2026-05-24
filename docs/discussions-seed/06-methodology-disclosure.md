@@ -49,8 +49,35 @@ queries span the full corpus, so the cap effect is real.
 
 **What this does NOT mean:** we are not claiming mem0 or agentmemory are "bad"
 systems. We are saying their numbers are not directly comparable to a full-corpus
-evaluation. The open question (Lab Q1, hypotheses H1 and H2) is whether a
-full-corpus eval would converge or diverge.
+evaluation. The canonical full-corpus run (uniform, no cap) is the proper
+head-to-head.
+
+## Apples-to-apples corpus-cap comparison (H2 finding — PR #311, 2026-05-24)
+
+To answer the obvious objection — "aren't you just comparing against a capped system to
+inflate your numbers?" — we ran nox-mem at the same 500-chunk corpus cap used by mem0 and
+measured nDCG@10 on identical queries.
+
+| System | Corpus | nDCG@10 | Mode |
+|---|---|---:|---|
+| **mem0@500** | 500 chunks (cap) | **0.1315** | LLM rewrite + embed |
+| **nox-mem FTS5@500** | 500 chunks (cap) | 0.0466 | FTS5-only, no Gemini |
+
+**H2 confirmed:** mem0's concentration advantage is **architecturally real**, not a
+corpus-cap artifact. mem0's LLM-rewriting step semantically generalizes across sparse
+corpora in ways FTS5 alone cannot. This is a genuine architectural difference.
+
+**Our honest framing:** two architectures, two use cases.
+- mem0 — concentration: best per-result quality at small corpora, at LLM ingest cost.
+- nox-mem — coverage + speed + cost: full corpus at zero marginal cost, 30× faster.
+
+We publish both the full-corpus row AND the apples-cap row because either alone misleads.
+The full-corpus row favors nox-mem. The apples-cap row favors mem0. Both are true.
+
+**Open question (Lab Q1 E1 — Gemini hybrid@500):** The apples-cap experiment used
+nox-mem FTS5-only, not the full Gemini hybrid stack. Gemini dense embeddings at 500 chunks
+may close some or all of the concentration gap. This experiment is queued for Lab Q1.
+Results will be posted here when available — no speculation in advance.
 
 ## The Letta latency comparison
 
@@ -79,4 +106,5 @@ Full write-up: `benchmark/COMPARISON.md`.
 
 ---
 
-*[[project-sat-2026-05-24-final-closure]] · numbers definitive as of 2026-05-24*
+*[[project-sat-2026-05-24-final-closure]] · H2 finding PR #311 added 2026-05-24 · numbers definitive as of 2026-05-24*
+*Related: `docs/COMPARISON.md §Apples-to-apples corpus-cap comparison` · `docs/COMPARISON.md §Architectural trade-off framing` · `paper/paper-tecnico-nox-mem.md §6.6`*
