@@ -10,6 +10,8 @@ jobs:
   smoke:
     name: Eval Harness Smoke Test
     runs-on: ubuntu-latest
+    # Gate: only run smoke test on push to main (prod signal), skip on PR context (no Tailscale in CI runner)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
         with:
