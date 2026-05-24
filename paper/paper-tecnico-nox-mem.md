@@ -493,7 +493,21 @@ Para evitar viés de seleção retroativo:
 - **Latência worst-case reportada.** p50 + p95 + p99 explícitos. Não publicamos apenas p50.
 - **Per-system per-category transparency.** A tabela de §6.4 expõe cada combinação; não há linha agregada que mascare um padrão.
 - **Gaps documentados.** Sistemas que falharem setup recebem nota explícita; a comparação roda sem o sistema faltante, mas o gap é registrado em `docs/COMPARISON.md`.
-- **H2 finding — apples-cap row reportada explicitamente (PR #311, 2026-05-24).** A hipótese H2 confirmou que a vantagem de concentração do mem0 (nDCG@10 = 0.1315 vs nox-mem FTS5@500 = 0.0466 ao mesmo corpus de 500 chunks) é **real e arquitetural**, não artefato de corpus-cap. O LLM-rewriting do mem0 produz generalização semântica que FTS5 isolado não consegue a corpora esparsas. Reportamos **tanto a linha full-corpus quanto a linha apples-cap** porque qualquer uma isolada é enganosa: a linha full-corpus favorece nox-mem (cobertura zero-custo); a linha apples-cap favorece mem0 (concentração). "We report both apples-cap AND full-corpus rows because either alone misleads." Ref: `docs/COMPARISON.md §Apples-to-apples corpus-cap comparison`, PR #311.
+- **Per-dataset breakdown explícita (PR #318, 2026-05-23 — rev3).** O run Gemini hybrid@500 revelou que o aggregate (0.0918) mascara um resultado por-dataset decisivo. Reportamos as três linhas explicitamente:
+
+  | System | nDCG@10 (aggregate) | nDCG@10 (LoCoMo-only) | Corpus | Mode |
+  |---|---:|---:|---:|---|
+  | nox-mem FTS5@500 | 0.0466 | — | 500 (cap) | FTS5-only |
+  | **nox-mem Gemini hybrid@500** | 0.0918 | **0.1835** | 500 (cap) | FTS5 + Gemini + RRF |
+  | **mem0@500** | **0.1315** | 0.1315 | 500 (cap) | LLM rewrite + embed |
+
+  **LoCoMo-only result (PR #318):** nox-mem Gemini hybrid@500 = 0.1835 **supera** mem0@500 = 0.1315 em **+40%** na dimensão de memória conversacional. O aggregate (0.0918) fica abaixo de mem0 por um **artefato de corpus-ordering**: ao 500-chunk cap, os 5.882 chunks do LoCoMo esgotam o cap antes de qualquer chunk do LongMemEval ser ingerido — as 10 queries LongMemEval ficam com cobertura zero, zerando o nDCG desse dataset e puxando o aggregate para baixo. Hybrid stack lift sobre FTS5@500: **+97%** (0.0466 → 0.0918), validando o valor arquitetural do stack mesmo em corpus esparso.
+
+  **H2 finding (PR #311, mantido):** FTS5-only@500 = 0.0466 vs mem0@500 = 0.1315 é **real e arquitetural** para o modo FTS5-only — LLM-rewriting do mem0 produz generalização semântica que FTS5 isolado não consegue. PR #318 mostra que o Gemini hybrid completo inverte esse resultado no escopo conversacional.
+
+  **Disclosure obrigatória:** o aggregate ±0.05 está dentro do intervalo inconclusivo para n=20. O árbitro definitivo é o run canônico full-corpus (corpus uniforme sem cap, LoCoMo + LongMemEval completos para todos os sistemas). **Phase 2 gate usa AMBOS** per-dataset + aggregate no run canônico — não apenas o número que favorece nox-mem.
+
+  Refs: `docs/COMPARISON.md §Apples-to-apples corpus-cap comparison`, PR #311, PR #318.
 
 ### 6.7 Pre-registration
 

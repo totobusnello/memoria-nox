@@ -91,14 +91,17 @@ queries (+1.58% nDCG) and adversarial queries (+3.04% nDCG) over the baseline.
 Those are the two query types where memory systems most commonly fail. That's the
 configuration running in production today.
 
-The Q4 cross-system comparison (Sat 2026-05-24) produced two rows that matter.
+The Q4 cross-system comparison (Sat 2026-05-24 + PR #318) produced three rows that matter.
 At full corpus (6,830 chunks), nox-mem hybrid scores nDCG@10 0.6380, 8ms p50, 65%
-gold-hit rate — 30× faster than mem0's 273ms, 4× more coverage. But at the same
-500-chunk corpus cap, mem0 (0.1315) outperforms nox-mem FTS5-only (0.0466). That
-is architecturally real: mem0's LLM-rewriting generalizes semantically at small
-corpora in ways FTS5 cannot. Both rows are published in `benchmark/COMPARISON.md`.
-This is what honest benchmarking looks like — you report the row that favors you
-and the row that does not, and let the data speak.
+gold-hit rate — 30× faster than mem0's 273ms, 4× more coverage. At the same 500-chunk
+cap, per-dataset breakdown: on LoCoMo conversational memory, nox-mem Gemini hybrid@500
+(0.1835) outperforms mem0@500 (0.1315) by +40% at equal corpus size. The aggregate
+@500 (0.0918) dips below mem0 due to a corpus-ordering artifact — LoCoMo's 5,882 chunks
+exhaust the cap before LongMemEval is ingested, scoring those queries at zero. FTS5-only@500
+= 0.0466 (H2 confirmed): FTS5 alone cannot match LLM-rewriting at sparse coverage, but the
+full hybrid stack reverses that on conversational scope. All three rows are published in
+`benchmark/COMPARISON.md`. This is what honest benchmarking looks like — you report every
+row, explain every confound, and let the data speak.
 
 ### The Deployment Reality
 

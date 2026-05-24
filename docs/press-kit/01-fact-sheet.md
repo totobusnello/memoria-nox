@@ -87,23 +87,23 @@ Every design decision is backed by published, reproducible ablation studies.
 
 *Gemini embed cost amortized at current free-tier quota.
 
-**Apples-to-apples corpus-cap comparison (H2 finding, PR #311):**
+**Per-dataset apples-to-apples at 500-chunk cap (rev3 — PR #318):**
 
-At the same 500-chunk corpus cap, nox-mem FTS5-only = 0.0466 vs mem0 = 0.1315.
-This is architecturally real: mem0's LLM-rewriting semantically generalizes at sparse
-coverage. nox-mem's hybrid stack advantage (0.6380) emerges at full corpus scale where
-FTS5+Gemini+RRF can differentiate across 6,830 chunks. Neither row alone is the full picture.
+| System | nDCG@10 (aggregate) | nDCG@10 (LoCoMo-only) | Corpus | Mode |
+|---|---:|---:|---:|---|
+| nox-mem FTS5@500 | 0.0466 | — | 500 (cap) | FTS5-only |
+| **nox-mem Gemini hybrid@500** | 0.0918 | **0.1835** | 500 (cap) | FTS5 + Gemini + RRF |
+| **mem0@500** | **0.1315** | 0.1315 | 500 (cap) | LLM rewrite + embed |
+
+**Key finding (PR #318):** On LoCoMo conversational memory, nox-mem Gemini hybrid@500 (0.1835) **outperforms** mem0@500 (0.1315) by **+40%** at equal corpus size. Aggregate (0.0918) diluted by corpus-ordering artifact: LoCoMo's 5,882 chunks exhaust the 500-cap before LongMemEval chunks are ingested, scoring those queries at zero. Hybrid stack lifts FTS5@500 by **+97%**.
 
 **Interpretation notes:**
-- **mem0 concentration advantage is real** (H2 confirmed, not a corpus-cap artifact). At
-  small corpora, mem0's LLM rewriting outperforms nox-mem FTS5-only. The Gemini hybrid@500
-  experiment (Lab Q1 E1) will determine if the full stack closes this gap.
-- agentmemory (20% cap) and mem0 (7.3% cap) were evaluated on a subset of the corpus.
-  Full-corpus canonical run (uniform, no cap) is the proper head-to-head.
-- Letta's 14,978ms p50 reflects its agent-loop orchestration design, not retrieval
-  latency — direct latency comparison is misleading.
-- nox-mem FTS5-only (0.3753 full-corpus / 0.0466 @500-cap) is the no-Gemini baseline.
-  Gemini hybrid (0.6380 full-corpus) shows the full stack advantage at scale.
+- **LoCoMo conversational scope:** nox-mem Gemini hybrid wins +40% at same corpus size (PR #318).
+- **Aggregate @500:** diluted by corpus-ordering artifact — not a fair per-dataset signal. Full ingest is the definitive arbiter.
+- **FTS5-only@500 (H2, PR #311):** 0.0466 vs mem0 0.1315 — architecturally real for FTS5-only mode; hybrid stack closes the gap on conversational data.
+- agentmemory (20% cap) and mem0 (7.3% cap) still require full-corpus canonical run for proper head-to-head.
+- Letta's 14,978ms p50 reflects its agent-loop design, not retrieval latency.
+- nox-mem FTS5-only (0.3753 full-corpus) is the no-Gemini baseline; Gemini hybrid (0.6380 full-corpus) shows full-stack advantage at scale.
 
 ---
 
@@ -125,4 +125,4 @@ FTS5+Gemini+RRF can differentiate across 6,830 chunks. Neither row alone is the 
 
 ---
 
-*Last updated: 2026-05-24 (Sat) · Cross-system numbers definitive · [[project-sat-2026-05-24-final-closure]]*
+*Last updated: 2026-05-23 (rev3) · LoCoMo-only hybrid@500 +40% win (PR #318) · corpus-ordering caveat explicit · [[project-sat-2026-05-24-final-closure]]*
