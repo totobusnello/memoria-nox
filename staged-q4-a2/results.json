@@ -1,0 +1,321 @@
+{
+  "meta": {
+    "template": "A",
+    "summarized_path": "/private/tmp/path-a2-chunk-summarizer-810c82f6-883f-4606-bd26-fe532d8362be/eval/q4-comparison/cache/summarized-A.jsonl",
+    "a2_db_path": "/private/tmp/path-a2-chunk-summarizer-810c82f6-883f-4606-bd26-fe532d8362be/eval/q4-comparison/cache/nox-mem-a2-A.db",
+    "baselines": {
+      "hybrid_full_ndcg@10": 0.4509,
+      "hybrid_cap500_ndcg@10": 0.0918,
+      "mem0_cap500_ndcg@10": 0.1315,
+      "gap_target": 0.0397
+    },
+    "verdict": "NEGATIVE",
+    "narrative": "A2 nDCG@10=0.0645. Δ vs baseline hybrid@500: -0.0273. Summarization HURT retrieval — fact extraction stripped retrieval-relevant tokens. Do NOT merge. Document for the ship narrative.",
+    "generated_at": "2026-05-24T13:09:50Z"
+  },
+  "runs": [
+    {
+      "adapter": "nox_mem_a2",
+      "cap": "500",
+      "cap_int": 500,
+      "setup_s": 212.6,
+      "metrics": {
+        "n_queries": 20,
+        "n_scored": 20,
+        "n_skipped_no_gold": 0,
+        "ndcg@10": 0.0645,
+        "mrr": 0.0383,
+        "r@10": 0.15,
+        "hit_rate": 0.15,
+        "p50_latency_ms": 511.4,
+        "p95_latency_ms": 1126.4
+      },
+      "subsets": {
+        "single-hop": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 481.7,
+          "p95_latency_ms": 481.7
+        },
+        "multi-hop": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.25,
+          "mrr": 0.1667,
+          "r@10": 0.5,
+          "hit_rate": 0.5,
+          "p50_latency_ms": 1126.4,
+          "p95_latency_ms": 1126.4
+        },
+        "temporal": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 513.7,
+          "p95_latency_ms": 513.7
+        },
+        "open-domain": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.3945,
+          "mrr": 0.2167,
+          "r@10": 1.0,
+          "hit_rate": 1.0,
+          "p50_latency_ms": 519.0,
+          "p95_latency_ms": 519.0
+        },
+        "adversarial": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 512.7,
+          "p95_latency_ms": 512.7
+        },
+        "knowledge-update": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 512.3,
+          "p95_latency_ms": 512.3
+        },
+        "multi-session": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 512.1,
+          "p95_latency_ms": 512.1
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "n_queries": 1,
+          "n_scored": 1,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 510.7,
+          "p95_latency_ms": 510.7
+        },
+        "single-session-preference": {
+          "n": 1,
+          "n_queries": 1,
+          "n_scored": 1,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 463.4,
+          "p95_latency_ms": 463.4
+        },
+        "single-session-user": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 1124.9,
+          "p95_latency_ms": 1124.9
+        },
+        "temporal-reasoning": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 514.5,
+          "p95_latency_ms": 514.5
+        }
+      }
+    },
+    {
+      "adapter": "nox_mem_a2",
+      "cap": "full",
+      "cap_int": null,
+      "setup_s": 2660.4,
+      "metrics": {
+        "n_queries": 20,
+        "n_scored": 20,
+        "n_skipped_no_gold": 0,
+        "ndcg@10": 0.2973,
+        "mrr": 0.31,
+        "r@10": 0.4208,
+        "hit_rate": 0.55,
+        "p50_latency_ms": 479.7,
+        "p95_latency_ms": 1105.1
+      },
+      "subsets": {
+        "single-hop": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.2221,
+          "mrr": 0.25,
+          "r@10": 0.3333,
+          "hit_rate": 0.5,
+          "p50_latency_ms": 665.0,
+          "p95_latency_ms": 665.0
+        },
+        "multi-hop": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.75,
+          "mrr": 0.6667,
+          "r@10": 1.0,
+          "hit_rate": 1.0,
+          "p50_latency_ms": 544.9,
+          "p95_latency_ms": 544.9
+        },
+        "temporal": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0755,
+          "mrr": 0.1,
+          "r@10": 0.125,
+          "hit_rate": 0.5,
+          "p50_latency_ms": 459.0,
+          "p95_latency_ms": 459.0
+        },
+        "open-domain": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.5,
+          "mrr": 0.3333,
+          "r@10": 1.0,
+          "hit_rate": 1.0,
+          "p50_latency_ms": 500.5,
+          "p95_latency_ms": 500.5
+        },
+        "adversarial": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 550.7,
+          "p95_latency_ms": 550.7
+        },
+        "knowledge-update": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.3066,
+          "mrr": 0.5,
+          "r@10": 0.25,
+          "hit_rate": 0.5,
+          "p50_latency_ms": 506.3,
+          "p95_latency_ms": 506.3
+        },
+        "multi-session": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.1847,
+          "mrr": 0.25,
+          "r@10": 0.25,
+          "hit_rate": 0.5,
+          "p50_latency_ms": 1105.1,
+          "p95_latency_ms": 1105.1
+        },
+        "single-session-assistant": {
+          "n": 1,
+          "n_queries": 1,
+          "n_scored": 1,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.6309,
+          "mrr": 0.5,
+          "r@10": 1.0,
+          "hit_rate": 1.0,
+          "p50_latency_ms": 479.7,
+          "p95_latency_ms": 479.7
+        },
+        "single-session-preference": {
+          "n": 1,
+          "n_queries": 1,
+          "n_scored": 1,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 436.4,
+          "p95_latency_ms": 436.4
+        },
+        "single-session-user": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.0,
+          "mrr": 0.0,
+          "r@10": 0.0,
+          "hit_rate": 0.0,
+          "p50_latency_ms": 516.7,
+          "p95_latency_ms": 516.7
+        },
+        "temporal-reasoning": {
+          "n": 2,
+          "n_queries": 2,
+          "n_scored": 2,
+          "n_skipped_no_gold": 0,
+          "ndcg@10": 0.6186,
+          "mrr": 0.75,
+          "r@10": 0.75,
+          "hit_rate": 1.0,
+          "p50_latency_ms": 523.1,
+          "p95_latency_ms": 523.1
+        }
+      }
+    }
+  ],
+  "fresh_baseline_cap500": null
+}
