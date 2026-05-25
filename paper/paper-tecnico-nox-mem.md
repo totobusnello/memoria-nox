@@ -599,11 +599,11 @@ A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em to
 
 The Q4 quality comparison (§6.3 – §6.6) reports retrieval *quality* under matched corpora. Operational *cost* — services, RAM, cold start, mandatory third-party credentials, setup commands — is the second axis on which a memory system can be evaluated, and is the axis where the nox-mem Autonomy pillar [^q-a-p-pivot] is most legible. Table 2 summarizes the steady-state idle footprint of each system in its default self-host configuration.
 
-**Table 2 — Autonomy quantified: services, RAM, cold start, mandatory keys, setup commands.** Headline: **~100× less RAM idle than EverOS.** Competitor numbers are *estimates* derived from each project's docker-compose defaults and documented system requirements (sources cited in the row). The nox-mem row is **[estimated — not measured in prod for this revision]**; a fresh `ps -o rss=` measurement on the production VPS is queued as a §7.2 future-work item and the value will be tightened in the next paper revision (see footnote [^nox-mem-rss]).
+**Table 2 — Autonomy quantified: services, RAM, cold start, mandatory keys, setup commands.** Headline: **~12× less RSS than EverOS, single process, no service stack.** Competitor numbers are *estimates* derived from each project's docker-compose defaults and documented system requirements (sources cited in the row). The nox-mem row is **[measured 2026-05-24, prod VPS, 6830 chunks live, uptime 9h28min]** via `ps -eo pid,rss,vsz,comm,args` against the production `nox-mem-api` process (PID 2422197). See footnote [^nox-mem-rss] for full methodology including the cgroup `MemoryCurrent` vs process RSS distinction.
 
 | System | Services | RAM idle | Cold start | Mandatory third-party keys | Setup commands | Sources |
 |---|---:|---:|---:|---:|---:|---|
-| **nox-mem** | **1** (SQLite file + Node process) | **~50 MB** [estimated] | **<1 s** | **0** (offline-OK; embeddings optional) | **1** (`npm i && nox-mem reindex`) | This work; [^nox-mem-rss] |
+| **nox-mem** | **1** (SQLite file + Node process) | **~341 MB RSS** [measured 2026-05-24] | **<1 s** | **0** (offline-OK; embeddings optional) | **1** (`npm i && nox-mem reindex`) | This work; [^nox-mem-rss] |
 | mem0 | 2 (Postgres + Qdrant) | ~800 MB | ~15 s | 1 (OpenAI for embeddings) | ~5 | mem0 docker-compose defaults [^mem0-stack] |
 | Letta | 3 (Letta server + Postgres + OpenAI) | ~1.5 GB | ~30 s | 1 (OpenAI) | ~8 | Letta self-host guide [^letta-stack] |
 | Zep OSS | 2 (Zep + Postgres) | ~1.2 GB | ~30 s | **1 mandatory** (OpenAI for embeddings — hardcoded) | ~6 | Zep README [^zep-stack] |
@@ -618,7 +618,7 @@ The Q4 quality comparison (§6.3 – §6.6) reports retrieval *quality* under ma
 
 3. **Cold start column.** A `<1s` cold start is what makes self-host *try-before-deciding* — the user can `npm i`, run one command, see results, and decide. A `~60s` cold start with five containers is what makes EverOS effectively a "build a small team to evaluate" decision, not an individual decision.
 
-**Caveat — RAM measurement methodology.** The competitor RAM figures are *idle* (i.e., process started, no queries served, no ingestion in progress) and are *estimates* read from each project's documented system requirements and `docker stats` defaults in the published docker-compose files. They are not from a head-to-head benchmark on a single host. A side-by-side measurement on a controlled 4-vCPU / 8-GB host is a §7.2 future-work item (F-cost-bench). The nox-mem `~50 MB` figure should likewise be treated as an upper-bound estimate based on Node baseline + better-sqlite3 cache; a real `ps -o rss=` measurement on the production VPS is pending (see [^nox-mem-rss]) and will replace the estimate in the next revision.
+**Caveat — RAM measurement methodology.** The competitor RAM figures are *idle* (i.e., process started, no queries served, no ingestion in progress) and are *estimates* read from each project's documented system requirements and `docker stats` defaults in the published docker-compose files. They are not from a head-to-head benchmark on a single host. A side-by-side measurement on a controlled 4-vCPU / 8-GB host is a §7.2 future-work item (F-cost-bench). The nox-mem `~341 MB RSS` figure is **measured** on the production VPS via `ps -eo pid,rss,vsz,comm,args` (PID 2422197, uptime 9h28min, 6830 chunks live); see footnote [^nox-mem-rss] for full methodology including the cgroup `MemoryCurrent` vs process RSS distinction.
 
 ---
 
@@ -936,7 +936,7 @@ The cross-agent intelligence layer transforms isolated agent memories into a col
 
 ### Autonomy table (Table 2) sources
 
-[^nox-mem-rss]: The `~50 MB` RAM figure for nox-mem in Table 2 is **estimated** (Node baseline ~30 MB + better-sqlite3 cache ~20 MB) and not measured on the production VPS for this revision. A `ps -o rss=,cmd= -ax | grep nox-mem` snapshot on the production host is queued as future work and will replace the estimate in the next paper revision. Permission to access production was denied during this revision; the estimate is conservative (upper-bound).
+[^nox-mem-rss]: The `~341 MB RSS` figure for nox-mem in Table 2 is **measured 2026-05-24** on the production VPS (PID 2422197, uptime 9h28min, 6830 chunks live, 100% vector coverage). Main process RSS = 349,276 KB via `ps -eo pid,rss,vsz,comm,args | grep dist/api-server.js`. The cgroup `MemoryCurrent` reported by `systemctl show nox-mem-api -p MemoryCurrent` is 727,064,576 bytes (~727 MB); the ~386 MB delta vs process RSS is SQLite memory-mapped I/O (chunks table, FTS5 index, vec0 index) — kernel-managed page cache, reclaimable on memory pressure, not exclusive process memory. Standard `ps`/`top` RSS is the canonical comparison metric used in Table 2 across all competitors. Original revision marked this as `~50 MB [estimated]` based on Node baseline + better-sqlite3 cache projections; the production measurement (initially denied during the first revision and granted post-PR #356) replaced the estimate.
 
 [^mem0-stack]: mem0 default self-host requires Postgres + Qdrant + an OpenAI key for embeddings (or a configured alternative provider). Counts: 2 services + 1 mandatory third-party key. Source: mem0 README and `docker-compose.yml` defaults at github.com/mem0ai/mem0.
 
