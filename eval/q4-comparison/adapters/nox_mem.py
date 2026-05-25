@@ -82,7 +82,7 @@ INSTALL_HINT = (
 _DEFAULT_PROD_PORT = "18802"
 _TIMEOUT_S = 30
 _GEMINI_EMBED_MODEL = "models/gemini-embedding-001"  # gemini-embedding-001 (768d output)
-_RRF_K = 60
+_RRF_K_DEFAULT = 60
 
 # Query rewrite layer defaults
 _REWRITE_MODEL_DEFAULT = "gemini-2.5-flash-lite"
@@ -92,6 +92,25 @@ _REWRITE_ENDPOINT = (
     "https://generativelanguage.googleapis.com/v1beta/models/"
     "{model}:generateContent"
 )
+
+# Path E+F+H — KG traversal + RRF tune + top-k expansion (mission 2026-05-24).
+# All three behaviours are env-gated; baseline (all unset) replays PR #318
+# hybrid@500 unchanged.
+_TOP_K_EXPAND_DEFAULT = 30      # internal candidate pool size (H: pre-rerank cap)
+_KG_BOOST_FACTOR_DEFAULT = 1.5  # multiplicative bump for KG-related chunks
+_KG_QUERY_MODEL_DEFAULT = "gemini-2.5-flash-lite"
+_KG_QUERY_TIMEOUT_S = 12
+_KG_ENTITY_EXTRACTION_PROMPT = (
+    "Extract canonical entity names from the user query. Return JSON only — "
+    "an array of 1-6 entity names (people, places, objects, events, concepts). "
+    "Skip pronouns and generic words. If no clear entity, return [].\n\n"
+    "Query: {q}\n\nJSON array:"
+)
+
+# Caches for KG path (per-process)
+_kg_query_entities_cache: dict[str, list[str]] = {}
+_kg_query_calls: int = 0
+_kg_query_errors: int = 0
 
 # Counters for cost / observability tracking
 _rewrite_calls: int = 0
@@ -503,7 +522,47 @@ def _ingest_corpus_hybrid(
     return inserted_total
 
 
-def _rrf_score(rank: int, k: int = _RRF_K) -> float:
+def _rrf_k() -> int:
+    """F: RRF fusion constant — env override NOX_RRF_K (default 60)."""
+    raw = os.environ.get("NOX_RRF_K", "").strip()
+    if raw.isdigit():
+        n = int(raw)
+        return max(1, min(n, 200))  # safety cap 1..200
+    return _RRF_K_DEFAULT
+
+
+def _top_k_expand() -> int:
+    """H: internal candidate pool size — env override NOX_TOP_K_EXPAND."""
+    raw = os.environ.get("NOX_TOP_K_EXPAND", "").strip()
+    if raw.isdigit():
+        n = int(raw)
+        return max(10, min(n, 500))
+    return _TOP_K_EXPAND_DEFAULT
+
+
+def _kg_retrieval_enabled() -> bool:
+    raw = os.environ.get("NOX_RETRIEVAL_KG", "0").strip().lower()
+    return raw in ("1", "true", "yes", "on")
+
+
+def _kg_boost_factor() -> float:
+    raw = os.environ.get("NOX_KG_BOOST", "").strip()
+    try:
+        v = float(raw)
+        if 1.0 <= v <= 5.0:
+            return v
+    except ValueError:
+        pass
+    return _KG_BOOST_FACTOR_DEFAULT
+
+
+def _kg_query_model() -> str:
+    return os.environ.get("NOX_KG_QUERY_MODEL", _KG_QUERY_MODEL_DEFAULT)
+
+
+def _rrf_score(rank: int, k: int | None = None) -> float:
+    if k is None:
+        k = _rrf_k()
     return 1.0 / (k + rank)
 
 
@@ -574,6 +633,16 @@ def _search_hybrid_local(query: str, k: int) -> list[dict]:
     When NOX_QUERY_REWRITE=1, additionally generates N semantic variants
     of the query via Gemini Flash Lite and merges their RRF scores into
     the result set. See `_rewrite_query`.
+
+    Path E+F+H (mission 2026-05-24) — opt-in via env flags:
+      F: NOX_RRF_K=<int>           # override RRF k (default 60)
+      H: NOX_TOP_K_EXPAND=<int>    # internal candidate pool size; final cut
+                                   # happens after KG rerank. Default 30 ≡ k*3
+                                   # at k=10 so baseline is byte-identical.
+      E: NOX_RETRIEVAL_KG=1        # detect query entities → multiply scores
+                                   # of chunks sharing 1-hop KG neighbours.
+                                   # Requires kg_entities/kg_relations/
+                                   # kg_chunk_entities tables in the DB.
     """
     global _hybrid_con
 
@@ -583,8 +652,12 @@ def _search_hybrid_local(query: str, k: int) -> list[dict]:
     _load_sqlite_vec_ext(_hybrid_con)
     genai = _get_genai()
 
+    # H: candidate pool size. Each leg (FTS5, dense) fetches `k_fetch`; the
+    # union is then re-ranked. Baseline k=10 → k_fetch=30 (== k*3 legacy).
+    k_fetch = _top_k_expand()
+
     # --- Baseline pass (original query) ---
-    scores: dict[str, float] = _hybrid_single_pass(query, k * 3, genai)
+    scores: dict[str, float] = _hybrid_single_pass(query, k_fetch, genai)
 
     # --- Query rewrite layer (opt-in) ---
     if _query_rewrite_enabled():
@@ -594,7 +667,7 @@ def _search_hybrid_local(query: str, k: int) -> list[dict]:
             if not v or v.lower() == query.strip().lower():
                 continue
             try:
-                variant_scores = _hybrid_single_pass(v, k * 3, genai)
+                variant_scores = _hybrid_single_pass(v, k_fetch, genai)
             except Exception as e:
                 print(
                     f"[nox_mem/hybrid] variant search error: {e}",
@@ -604,6 +677,32 @@ def _search_hybrid_local(query: str, k: int) -> list[dict]:
             for chunk_id, s in variant_scores.items():
                 scores[chunk_id] = scores.get(chunk_id, 0.0) + s
 
+    # --- E: KG traversal boost (opt-in) -----------------------------------
+    # Multiply per-chunk RRF score by NOX_KG_BOOST if the chunk is linked
+    # (via kg_chunk_entities) to any entity in the 1-hop KG neighbourhood
+    # of the query's entities. The boost is applied ONCE per chunk even if
+    # multiple matches — this preserves the RRF order amongst non-matched
+    # candidates while lifting matched ones uniformly. Avoids the
+    # temporal-spike PATCH 2 self-reinforcing pattern (G regressed -32%
+    # via stacked anchor inference, memory
+    # [[temporal-spike-patched-regressed-2026-05-20]]).
+    if _kg_retrieval_enabled() and scores:
+        try:
+            query_ents = _extract_query_entities(query)
+            related_entity_ids = _kg_one_hop(query_ents)
+            if related_entity_ids:
+                boosted = _kg_boost_factor()
+                candidate_ids = list(scores.keys())
+                matched_chunks = _kg_chunks_for_entities(
+                    candidate_ids, related_entity_ids
+                )
+                for cid in matched_chunks:
+                    if cid in scores:
+                        scores[cid] *= boosted
+        except Exception as e:
+            print(f"[nox_mem/hybrid] KG boost error: {e}", file=sys.stderr)
+
+    # Final cut to user's requested k (after all boosts applied).
     ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:k]
 
     results: list[dict] = []
@@ -619,6 +718,181 @@ def _search_hybrid_local(query: str, k: int) -> list[dict]:
                 "source": f"{row[1]}/{row[2]}",
             })
     return results
+
+
+# ---------------------------------------------------------------------------
+# Path E — KG traversal helpers
+# ---------------------------------------------------------------------------
+
+
+def _extract_query_entities(query: str) -> list[str]:
+    """Extract canonical entity names from `query` via Gemini Flash Lite.
+
+    Returns lowercase canonical strings (matching kg_entities lower(name)).
+    Cached per-process by exact query string. On any error returns [].
+    """
+    global _kg_query_calls, _kg_query_errors
+
+    q_clean = (query or "").strip()
+    if not q_clean:
+        return []
+
+    if q_clean in _kg_query_entities_cache:
+        return _kg_query_entities_cache[q_clean]
+
+    try:
+        import requests
+    except ImportError:
+        _kg_query_entities_cache[q_clean] = []
+        return []
+
+    key = os.environ.get("GEMINI_API_KEY", "")
+    if not key:
+        _kg_query_entities_cache[q_clean] = []
+        return []
+
+    url = _REWRITE_ENDPOINT.format(model=_kg_query_model())
+    payload = {
+        "contents": [
+            {"parts": [{"text": _KG_ENTITY_EXTRACTION_PROMPT.format(q=q_clean)}]}
+        ],
+        "generationConfig": {
+            "temperature": 0.0,
+            "topP": 0.95,
+            "maxOutputTokens": 128,
+            "responseMimeType": "application/json",
+        },
+    }
+    try:
+        _kg_query_calls += 1
+        resp = requests.post(
+            url,
+            params={"key": key},
+            json=payload,
+            timeout=_KG_QUERY_TIMEOUT_S,
+            headers={"Content-Type": "application/json"},
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        candidates = data.get("candidates") or []
+        if not candidates:
+            _kg_query_entities_cache[q_clean] = []
+            return []
+        parts = (candidates[0].get("content") or {}).get("parts") or []
+        text = "".join(p.get("text", "") for p in parts)
+        names = _parse_rewrite_response(text, 6)  # reuse robust JSON-array parser
+        out = []
+        for n in names:
+            n = n.strip().lower()
+            if n and len(n) >= 2:
+                out.append(n)
+        _kg_query_entities_cache[q_clean] = out
+        return out
+    except Exception as e:
+        _kg_query_errors += 1
+        if _kg_query_errors <= 5:
+            msg = str(e)
+            msg = re.sub(r"key=[A-Za-z0-9_\-]+", "key=<REDACTED>", msg)
+            msg = re.sub(r"AIza[A-Za-z0-9_\-]{10,}", "AIza<REDACTED>", msg)
+            print(
+                f"[nox_mem/kg] query entity extract error (#{_kg_query_errors}): "
+                f"{type(e).__name__}: {msg}",
+                file=sys.stderr,
+            )
+        _kg_query_entities_cache[q_clean] = []
+        return []
+
+
+def _kg_one_hop(entity_names: list[str]) -> set[int]:
+    """Resolve `entity_names` → entity IDs → 1-hop neighbours.
+
+    Returns the union of {seed entity IDs} ∪ {neighbours via kg_relations}.
+    Returns empty set if no seeds match or KG tables missing.
+    """
+    global _hybrid_con
+    assert _hybrid_con is not None
+
+    if not entity_names:
+        return set()
+
+    # Step 1: resolve seeds (case-insensitive name match)
+    seed_ids: set[int] = set()
+    try:
+        placeholders = ",".join("?" for _ in entity_names)
+        rows = _hybrid_con.execute(
+            f"SELECT id FROM kg_entities WHERE LOWER(name) IN ({placeholders})",
+            tuple(n.lower() for n in entity_names),
+        ).fetchall()
+        for (eid,) in rows:
+            seed_ids.add(eid)
+    except sqlite3.OperationalError:
+        return set()
+
+    if not seed_ids:
+        return set()
+
+    # Step 2: 1-hop neighbours via kg_relations
+    seed_list = list(seed_ids)
+    p2 = ",".join("?" for _ in seed_list)
+    try:
+        neighbour_rows = _hybrid_con.execute(
+            f"SELECT DISTINCT target_id FROM kg_relations WHERE source_id IN ({p2}) "
+            f"UNION "
+            f"SELECT DISTINCT source_id FROM kg_relations WHERE target_id IN ({p2})",
+            tuple(seed_list) + tuple(seed_list),
+        ).fetchall()
+        for (eid,) in neighbour_rows:
+            seed_ids.add(eid)
+    except sqlite3.OperationalError:
+        pass
+
+    return seed_ids
+
+
+def _kg_chunks_for_entities(
+    candidate_chunk_ids: list[str],
+    entity_ids: set[int],
+) -> set[str]:
+    """Return subset of `candidate_chunk_ids` linked to any of `entity_ids`."""
+    global _hybrid_con
+    assert _hybrid_con is not None
+
+    if not candidate_chunk_ids or not entity_ids:
+        return set()
+
+    # SQLite has a default 999-parameter limit; chunk-up if needed.
+    matched: set[str] = set()
+    eid_list = list(entity_ids)
+    cids = list(candidate_chunk_ids)
+    CHUNK = 400  # keep total params well under 999
+
+    for i in range(0, len(cids), CHUNK):
+        batch = cids[i : i + CHUNK]
+        p_ent = ",".join("?" for _ in eid_list)
+        p_ck = ",".join("?" for _ in batch)
+        try:
+            rows = _hybrid_con.execute(
+                f"SELECT DISTINCT chunk_id FROM kg_chunk_entities "
+                f"WHERE entity_id IN ({p_ent}) AND chunk_id IN ({p_ck})",
+                tuple(eid_list) + tuple(batch),
+            ).fetchall()
+            for (cid,) in rows:
+                matched.add(cid)
+        except sqlite3.OperationalError:
+            continue
+    return matched
+
+
+def get_kg_stats() -> dict:
+    """Return KG-layer counters for cost auditing."""
+    return {
+        "enabled": _kg_retrieval_enabled(),
+        "boost_factor": _kg_boost_factor(),
+        "model": _kg_query_model(),
+        "calls": _kg_query_calls,
+        "errors": _kg_query_errors,
+        "cache_entries": len(_kg_query_entities_cache),
+    }
 
 
 # ---------------------------------------------------------------------------
