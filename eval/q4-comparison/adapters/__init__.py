@@ -62,4 +62,5 @@ ALL_ADAPTERS: list[str] = [
     "letta",
     "agentmemory",
     "evermind",
+    "hipporag2",
 ]
