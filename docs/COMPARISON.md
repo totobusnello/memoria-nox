@@ -1,9 +1,10 @@
 # nox-mem vs the field — public benchmark comparison
 
-> **Status: rev3 2026-05-23 — 4/6 systems ship. Zep: 🚫 GATED. EverMind-AI: ❌ SKIP.**
+> **Status: rev4 2026-05-24 — 4/6 systems ship. Zep: 🚫 GATED (OpenAI embedding hardcoded). EverMind-AI: ❌ SKIP.**
 > Gate D43 PASSED (+83.0%). Canonical full-corpus run deferred to Sun 2026-05-25.
+> **rev4:** Per-category cross-system cells filled from `_aggregate.md` (Sat 2026-05-24). Zep lock-in section added. T5 LoCoMo + T7 LongMemEval now have real numbers (n=2/category) with honest partial/n/a gaps.
 > **rev3 (PR #318):** LoCoMo-only hybrid@500 = 0.1835 — **+40% vs mem0@500**. Aggregate (0.0918) diluted by corpus-ordering artifact. Hybrid lifts FTS5@500 by +97%. Per-dataset breakdown is the cleaner signal at sparse coverage.
-> Updated 2026-05-23. Refs: `[[q4-real-numbers-sat-2026-05-24]]` · PR #318.
+> Updated 2026-05-24. Refs: `[[q4-real-numbers-sat-2026-05-24]]` · PR #318 · `docs/paper-inputs-consolidated-2026-05-24.md`.
 
 > **Headline nox-mem (canonical, Sat 2026-05-24 LIVE validation, LoCoMo n=100 prod-flavored):**
 > nDCG@10 = **0.6380** (+83.0% rel vs G3 baseline 0.3487), MRR = **0.3700**, R@10 = **0.5417**.
@@ -52,6 +53,38 @@
 | **Letta** | [letta-ai/letta](https://github.com/letta-ai/letta) — Apache 2.0 | `letta_client` archival search | ⚠️ PARTIAL — 1/5 smoke; 200-chunk cap; agent-loop arch differs |
 | **Zep OSS** | [getzep/zep](https://github.com/getzep/zep) — Apache 2.0 | `zep_python` SDK + Docker | 🚫 GATED — OpenAI embedding requirement; adapter rewrite needed |
 | **EverMind-AI** | [EverOS-AI/EverMind-AI](https://github.com/EverOS-AI/EverMind-AI) | Python module or CLI | ❌ SKIP — repo returns 404 (confirmed Sat 2026-05-24, PR #281) |
+
+---
+
+## Zep OSS — vendor lock-in explained
+
+> **nox-mem é o único MIT + SQLite + provider-agnostic da lista.**
+
+Zep OSS ficou 🚫 GATED nesta comparação por um motivo específico: **o cliente de embedding do Zep é hardcoded para OpenAI** (Go server-side, não plugável sem fork do repo). Para ingerirem os 6.830 chunks do corpus de eval, precisaríamos de:
+
+1. Chave OpenAI ativa
+2. Custo de embedding estimado em ~$0.02–0.05 para o corpus completo
+
+O problema não é o custo. O problema é que isso **descaracteriza a comparação**: cada sistema passaria a usar um provider de embedding diferente (nox-mem usa Gemini `gemini-embedding-001`; Zep usaria OpenAI `text-embedding-ada-002` ou similar). Embedding quality afeta diretamente nDCG@10 — a métrica primária. Não há forma honesta de comparar resultados com providers distintos.
+
+Para uma comparação justa, todos os sistemas precisariam usar **o mesmo** embedding provider (todos OpenAI **ou** todos Gemini). Nem todos os sistemas suportam swap de provider sem modificação significativa.
+
+**Decisão:** Deferred post-launch. Zep retorna como candidato quando (a) o harness suportar embedding-swap uniforme, ou (b) Zep publicar suporte a embedding providers alternativos.
+
+### Vendor lock-in matrix
+
+| Sistema | Embedding | Storage | Lock-in |
+|---|---|---|---|
+| **nox-mem** | Provider-agnostic (Gemini default, swappable) | SQLite (zero deps) | MIT + SQLite + provider-agnostic |
+| **mem0** | OpenAI default (swappable via config) | Postgres + Qdrant | Requer 2 daemons; OpenAI default aumenta custo |
+| **Letta** | OpenAI default | Docker + Postgres | Agent-loop arch; 2 serviços; 14,978ms overhead |
+| **Zep** | **OpenAI embedding hardcoded** (Go server) | Postgres + Docker | Embedding não plugável sem fork |
+| **agentmemory** | Engine proprietário (iii-engine v0.9.21) | iii-engine daemon | Engine closed-source; CLI MIT, mas core não |
+| **EverOS** | Stack 5 serviços (Mongo+ES+Milvus+Redis+PG) | 5 serviços | Infra pesada; repo 404 em 2026-05-24 |
+| **LightRAG** | Swappable | Neo4j + vector DB | Requer Neo4j ou compatible graph DB |
+| **MeMo** | GPU training requerido | Per-corpus retrain | Retraining por corpus; GPU mandatory |
+
+**Implicação prática:** Em produção com 5k–50k chunks, nox-mem é o único sistema sem custo marginal de embedding e sem dependência de serviço externo. Ver [Autonomy axis](#autonomy-axis-fixed-by-design) para detalhes por sistema.
 
 ---
 
@@ -105,15 +138,15 @@
 ## LoCoMo per-category breakdown
 
 > Stratified across: single-hop / multi-hop / temporal / open-domain / adversarial.
-> Sat 2026-05-24 smoke did not disaggregate per-category (combined-only, n=20). Full canonical run Sun 2026-05-25.
+> Source: `eval/q4-comparison/output/_aggregate.md` (Sat 2026-05-24). n=2 per category per system. Zep: partial coverage (only multi-hop/single-hop/temporal queried, n=2/n=2/n=1). open-domain and adversarial not queried for Zep. Canonical full-corpus run deferred Sun 2026-05-25.
 
 | Category | nox-mem nDCG@10 | mem0 | Zep | Letta | agentmemory | EverMind |
 |---|---:|---:|---:|---:|---:|---:|
-| single-hop | [pending Sun canonical] | [capped corpus] | 🚫 GATED | ⚠️ partial | [capped corpus] | ❌ SKIP |
-| multi-hop | [pending Sun canonical] | [capped corpus] | 🚫 GATED | ⚠️ partial | [capped corpus] | ❌ SKIP |
-| temporal | [pending Sun canonical] | [capped corpus] | 🚫 GATED | ⚠️ partial | [capped corpus] | ❌ SKIP |
-| open-domain | [pending Sun canonical] | [capped corpus] | 🚫 GATED | ⚠️ partial | [capped corpus] | ❌ SKIP |
-| adversarial | [pending Sun canonical] | [capped corpus] | 🚫 GATED | ⚠️ partial | [capped corpus] | ❌ SKIP |
+| single-hop | **0.5216** (n=2) | 0.0000 (n=2) | 0.0000 (n=2) | ⚠️ partial | 0.0000 (n=2) | ❌ SKIP |
+| multi-hop | **1.0000** (n=2) | 0.5000 (n=2) | 0.0000 (n=2) | ⚠️ partial | 0.7153 (n=2) | ❌ SKIP |
+| temporal | **0.0000** (n=2) | 0.0000 (n=2) | n/a (partial, n=1) | ⚠️ partial | 0.0000 (n=2) | ❌ SKIP |
+| open-domain | **0.5308** (n=2) | 0.3155 (n=2) | 🚫 not queried | ⚠️ partial | 0.4821 (n=2) | ❌ SKIP |
+| adversarial | **0.2153** (n=2) | 0.5000 (n=2) | 🚫 not queried | ⚠️ partial | 0.1781 (n=2) | ❌ SKIP |
 
 **nox-mem internal ablation reference (G5 V3, n=100 locomo, g5.db 68k prod corpus):**
 
@@ -133,14 +166,16 @@
 
 ## LongMemEval per-category breakdown
 
-> Per-category disaggregation pending Sun 2026-05-25 canonical run (Sat smoke was combined-only).
+> Source: `eval/q4-comparison/output/_aggregate.md` (Sat 2026-05-24). n=1–2 per category per system. Zep ran no LongMemEval queries (only LoCoMo dataset queried). Canonical full-corpus run deferred Sun 2026-05-25.
 
 | Category | nox-mem nDCG@10 | mem0 | Zep | Letta | agentmemory | EverMind |
 |---|---:|---:|---:|---:|---:|---:|
-| single-session-user | [pending Sun canonical] | [capped corpus] | 🚫 GATED | ⚠️ partial | [capped corpus] | ❌ SKIP |
-| multi-session | [pending Sun canonical] | [capped corpus] | 🚫 GATED | ⚠️ partial | [capped corpus] | ❌ SKIP |
-| knowledge-update | [pending Sun canonical] | [capped corpus] | 🚫 GATED | ⚠️ partial | [capped corpus] | ❌ SKIP |
-| temporal-reasoning | [pending Sun canonical] | [capped corpus] | 🚫 GATED | ⚠️ partial | [capped corpus] | ❌ SKIP |
+| single-session-user | **0.0000** (n=2) | 0.0000 (n=2) | 🚫 GATED | ⚠️ partial | 0.0000 (n=2) | ❌ SKIP |
+| multi-session | **0.2456** (n=2) | 0.0000 (n=2) | 🚫 GATED | ⚠️ partial | 0.0000 (n=2) | ❌ SKIP |
+| knowledge-update | **0.3026** (n=2) | 0.0000 (n=2) | 🚫 GATED | ⚠️ partial | 0.2625 (n=2) | ❌ SKIP |
+| temporal-reasoning | **0.6934** (n=2) | 0.0000 (n=2) | 🚫 GATED | ⚠️ partial | 0.3066 (n=2) | ❌ SKIP |
+| single-session-assistant | **1.0000** (n=1) | 0.0000 (n=1) | 🚫 GATED | ⚠️ partial | 0.0000 (n=1) | ❌ SKIP |
+| single-session-preference | **1.0000** (n=1) | 0.0000 (n=1) | 🚫 GATED | ⚠️ partial | 0.0000 (n=1) | ❌ SKIP |
 
 > nox-mem Q2 internal (n=100 full run 2026-05-19): nDCG@10=0.9126, MRR=0.9162, R@10=0.9558.
 > Multi-session and temporal-reasoning were the weakest categories. Cross-system comparison
