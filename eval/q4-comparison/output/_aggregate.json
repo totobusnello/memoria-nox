@@ -1,0 +1,211 @@
+{
+  "k": 10,
+  "systems": [
+    {
+      "system": "hipporag2",
+      "version": "hipporag>=2.0.0a3,<2.1",
+      "n_queries": 20,
+      "n_queries_with_gold": 20,
+      "n_scored": 20,
+      "n_errors": 0,
+      "status": "OK",
+      "overall": {
+        "ndcg@k": 0.35241352379150837,
+        "recall@k": 0.55,
+        "mrr": 0.29333333333333333
+      },
+      "latency_ms": {
+        "p50": 2468.5242294799536,
+        "p95": 6189.867733197766,
+        "p99": 20784.62058029368,
+        "mean": 3636.185150046367,
+        "n": 20
+      },
+      "per_category": {
+        "single-hop": {
+          "ndcg@k": 0.614880878328929,
+          "recall@k": 0.875,
+          "mrr": 0.5833333333333334,
+          "n": 2
+        },
+        "multi-hop": {
+          "ndcg@k": 0.8154648767857288,
+          "recall@k": 1.0,
+          "mrr": 0.75,
+          "n": 2
+        },
+        "temporal": {
+          "ndcg@k": 0.17957376504483263,
+          "recall@k": 0.25,
+          "mrr": 0.25,
+          "n": 2
+        },
+        "open-domain": {
+          "ndcg@k": 0.1781035935540111,
+          "recall@k": 0.5,
+          "mrr": 0.08333333333333333,
+          "n": 2
+        },
+        "adversarial": {
+          "ndcg@k": 0.25,
+          "recall@k": 0.5,
+          "mrr": 0.16666666666666666,
+          "n": 2
+        },
+        "knowledge-update": {
+          "ndcg@k": 0.3467132018086354,
+          "recall@k": 0.5,
+          "mrr": 0.25,
+          "n": 2
+        },
+        "multi-session": {
+          "ndcg@k": 0.19584345867729866,
+          "recall@k": 0.375,
+          "mrr": 0.1,
+          "n": 2
+        },
+        "single-session-assistant": {
+          "ndcg@k": 0.6309297535714575,
+          "recall@k": 1.0,
+          "mrr": 0.5,
+          "n": 1
+        },
+        "single-session-preference": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 1
+        },
+        "single-session-user": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "temporal-reasoning": {
+          "ndcg@k": 0.6280905869299191,
+          "recall@k": 1.0,
+          "mrr": 0.5,
+          "n": 2
+        }
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.4076046227427003,
+          "recall@k": 0.625,
+          "mrr": 0.36666666666666664,
+          "n": 10
+        },
+        "longmemeval": {
+          "ndcg@k": 0.2972224248403164,
+          "recall@k": 0.475,
+          "mrr": 0.22000000000000003,
+          "n": 10
+        }
+      }
+    },
+    {
+      "system": "agentmemory",
+      "version": "@agentmemory/agentmemory@0.9.21 (verified 2026-05-23)",
+      "n_queries": 20,
+      "n_queries_with_gold": 20,
+      "n_scored": 20,
+      "n_errors": 0,
+      "status": "OK",
+      "overall": {
+        "ndcg@k": 0.12871279917539155,
+        "recall@k": 0.2375,
+        "mrr": 0.13333333333333333
+      },
+      "latency_ms": {
+        "p50": 21.636520454194397,
+        "p95": 45.67191214882769,
+        "p99": 46.04741525952704,
+        "mean": 24.046258302405477,
+        "n": 20
+      },
+      "per_category": {
+        "single-hop": {
+          "ndcg@k": 0.19519002499605084,
+          "recall@k": 0.125,
+          "mrr": 0.5,
+          "n": 2
+        },
+        "multi-hop": {
+          "ndcg@k": 0.1781035935540111,
+          "recall@k": 0.5,
+          "mrr": 0.08333333333333333,
+          "n": 2
+        },
+        "temporal": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "open-domain": {
+          "ndcg@k": 0.34477026022067775,
+          "recall@k": 1.0,
+          "mrr": 0.08333333333333333,
+          "n": 2
+        },
+        "adversarial": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "knowledge-update": {
+          "ndcg@k": 0.26249051660044664,
+          "recall@k": 0.5,
+          "mrr": 0.16666666666666666,
+          "n": 2
+        },
+        "multi-session": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "single-session-assistant": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 1
+        },
+        "single-session-preference": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 1
+        },
+        "single-session-user": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "temporal-reasoning": {
+          "ndcg@k": 0.3065735963827292,
+          "recall@k": 0.25,
+          "mrr": 0.5,
+          "n": 2
+        }
+      },
+      "per_dataset": {
+        "locomo": {
+          "ndcg@k": 0.14361277575414794,
+          "recall@k": 0.325,
+          "mrr": 0.13333333333333333,
+          "n": 10
+        },
+        "longmemeval": {
+          "ndcg@k": 0.11381282259663517,
+          "recall@k": 0.15,
+          "mrr": 0.13333333333333333,
+          "n": 10
+        }
+      }
+    }
+  ]
+}
