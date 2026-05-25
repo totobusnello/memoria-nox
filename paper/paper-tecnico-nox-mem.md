@@ -154,6 +154,20 @@ Each of the 6 agents operates with an isolated database at `/root/.openclaw/agen
 
 Total system memory: 1,481 chunks across 7 databases.
 
+### 2.5 User-Facing Primitives
+
+nox-mem exposes a deliberately small public contract: **three primitives**, all backed by the same SQLite store and surfaced identically across three transport layers (CLI, HTTP API, MCP). Every advanced verb (`reflect`, `cross-search`, `kg-path`, `crystallize`) decomposes internally into sequences of these three primitives.
+
+**Primitive 1 — `search` (hybrid retrieval).** FTS5 BM25 ∥ Gemini semantic (3072d) → RRF fusion (k=60), with optional Hard Mutex section gating and SOURCE\_TYPE\_BOOST overlays. Returns ranked chunks with `score`, `match_type`, and provenance fields (`source_file`, `section`, `created_at`, `updated_at`). Detailed in §4.
+
+**Primitive 2 — `answer` (grounded RAG).** Internally calls `search` with `topK = 10`, builds a citation-anchored prompt over the retrieved chunks, invokes the configured LLM (`gemini-2.5-flash-lite` by default per D41), and parses inline `[chunk_<id>]` citations. Anti-hallucination guard: citations pointing to chunks outside the retrieved set trigger a single retry with a stricter prompt; a second failure raises `AnswerError('hallucination_after_retry')`. Empty-retrieval short-circuit avoids LLM spend when no chunks match. Measured p95 latency: 101.74 ms on the offline mock-LLM bench (PR #40, 42× under the 4.3 s budget); live p95 with Gemini Flash Lite ranges 1.5–2.5 s. Implementation: `staged-P1/edits/src/lib/answer/{index,retrieval,prompt,provider,config}.ts`.
+
+**Primitive 3 — Temporal filter (`--as-of` / `--changed-since`).** Time-travel and recency-window selectors implemented as hard SQL pre-filters — not ranking boosts. `--as-of <date>` restricts to chunks satisfying `created_at <= date AND (deleted_at IS NULL OR deleted_at > date)`; `--changed-since <date>` restricts to chunks satisfying `updated_at > date OR created_at > date`. Combined, the two clauses AND. Accepted formats: ISO 8601 (`2026-05-01` or full `2026-05-01T00:00:00Z`) and relative (`7d`, `1w`, `30d`, `2h`, `15m`). Uses existing `chunks.created_at` and `chunks.updated_at` columns from schema v18 — no schema changes, no ranking changes. The filter is orthogonal to the E13 temporal proximity boost (`NOX_TEMPORAL_PATH`, §5), which additively reweights ranking by recency rather than restricting the candidate set. Implementation: `staged-P3/edits/{dates,search,api-server}.ts`.
+
+**Composition.** The three primitives compose orthogonally — for example, `answer "what incidents happened last week?" --changed-since 7d` retrieves only chunks updated in the last seven days, then synthesizes a grounded answer over that restricted candidate set. This closure property — three small primitives, deterministic semantics, identical surface across transports — is the contract that makes nox-mem composable from agent runtimes that have no prior knowledge of the implementation.
+
+**Tagline.** *3 primitives, 1 file, any LLM.* The three primitives are search + answer + temporal filter; the one file is the SQLite database on the operator's disk; the LLM provider is swappable via the `LLMProvider` interface (Gemini default, OpenAI / Anthropic / Ollama / vLLM available) without code changes. Full operator reference: `docs/PRIMITIVES.md`.
+
 ---
 
 ## 3. Memory Pipeline
