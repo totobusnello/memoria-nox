@@ -1,35 +1,37 @@
 # Zep 0.27.2 OSS — Q4 comparison stack config.
 #
-# All LLM/embedding extractors disabled. Zep will store and retrieve messages
-# but will NOT summarise, embed, or extract entities. For the Q4 benchmark this
-# is intentional: we measure raw memory retrieval, not LLM-enriched recall.
+# CROSS-SYSTEM BENCHMARK MODE (2026-05-24):
+# OpenAI embeddings ENABLED so Zep can do semantic search on ingested messages.
+# Without embeddings, Zep's message search would fall back to no-vectors, defeating
+# the comparison. We deliberately pay for OpenAI embed (text-embedding-3-small,
+# 1536d, ~$0.02/1M tokens) so Zep gets a fair shot at retrieval quality.
 #
-# The LLM block is required by the startup validator even when all extractors
-# are disabled. Service: "openai" + a dummy key satisfies the check; no OpenAI
-# API calls are made because Summarizer.Enabled and Embeddings.Enabled are both
-# false. ZEP_OPENAI_API_KEY env var is also set in docker-compose.yml.
+# Cost cap: ~$0.05 expected for 6830 chunks × ~200 tokens/chunk avg. Hard ceiling
+# documented in PR (task budget $0.50). Entities + Summarizer + Intent stay
+# DISABLED (those require LLM completions, separate quota, and we measure
+# retrieval not enrichment).
 
 LLM:
   Service: openai
-  Model: gpt-4o
-  OpenAIAPIKey: "no-llm-not-used"
+  Model: gpt-4o-mini
+  OpenAIAPIKey: ""  # picked up from ZEP_OPENAI_API_KEY env var
 
 Extractors:
   Messages:
     Summarizer:
       Enabled: false
       Embeddings:
-        Enabled: false
+        Enabled: true
         Dimensions: 1536
-        Service: ""
-        ChunkSize: 0
+        Service: "openai"
+        ChunkSize: 1000
       Entities:
         Enabled: false
     Embeddings:
-      Enabled: false
+      Enabled: true
       Dimensions: 1536
-      Service: ""
-      ChunkSize: 0
+      Service: "openai"
+      ChunkSize: 1000
     Entities:
       Enabled: false
     Intent:
