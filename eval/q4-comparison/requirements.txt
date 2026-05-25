@@ -17,8 +17,11 @@ mem0ai==0.1.114
 chromadb>=0.5.0  # required by mem0ai Chroma vector store (not auto-installed)
 
 # --- Zep OSS (self-hosted via docker compose) ---
-# NOTE: 2.4.0 does not exist on PyPI; latest 2.x is 2.0.2 (confirmed 2026-05-23).
-zep-python==2.0.2
+# NOTE: zep-python 2.x targets Zep Cloud's /api/v2 surface (Users/Threads/Graph).
+# Zep OSS 0.27.2 exposes the older /api/v1 Sessions+Memory surface — only the
+# 1.x SDK speaks that. 1.5.0 is the last release pre-Cloud-refactor and is the
+# correct match for the OSS Docker image we run (validated 2026-05-24).
+zep-python==1.5.0
 
 # --- Letta (ex-MemGPT) ---
 # letta+letta_client; letta_client is the SDK used by adapters/letta.py

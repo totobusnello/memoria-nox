@@ -2,28 +2,71 @@
 
 ---
 
-## Sat 2026-05-24 EVENING — 3-primitives canonical documentation merged
+## Mon 2026-05-25 morning — Lab Q1 START (decisão de Sun night)
 
-> **Atualizado:** 2026-05-24 EOD. **Next:** review/merge `feat/answer-primitive-temporal-queries` (this PR). Both P1 (`answer`) and P3 (temporal `--as-of`/`--changed-since`) have been LIVE in prod since #114/#167; this PR finalizes the user-facing canonical doc layer that closes the "3 primitives, 1 file, any LLM" tagline lineage and pulls Gap #2 (temporal decay) explicitly into the Six Gaps reframe.
+> **Decisão Toto (Sun 2026-05-24 ~23h BRT):** tudo fresh amanhã, começar Mon morning. Não disparar agentes overnight Sun.
 
-### Deliverables
+### Contexto: Sun evening foi extremamente produtivo
+- **10 PRs abertos hoje (#346–#355)** — paper ganhou Six Gaps + Self-Evolution + Autonomy quantified + RAM medido (341MB RSS prod), COMPARISON ganhou 5 sistemas reais
+- **5 sistemas medidos cross-system no mesmo corpus (6.830 chunks LoCoMo+LongMemEval):**
+  1. nox-mem 0.6380 nDCG@10 / p50 7-12ms 🥇
+  2. Zep 0.3909 / p50 15.216ms 🥈
+  3. HippoRAG2 0.3524 / p50 2.468ms 🥉
+  4. mem0 0.1315 @500-cap
+  5. agentmemory 0.1287 @20%-cap
+- **Zep desmascarado:** OSS deprecated, $2.3M YC W24 pre-Series A, Neo4j obrigatório — não Series A como pensávamos
+- **HippoRAG2 ingest custou $2.06 real** (estimativa $9-11) — 5× mais barato
+- **Doc input:** `docs/paper-inputs-consolidated-2026-05-24.md` + `docs/competitor-research-zep-2026-05-24.md`
 
-| File | Change | Why |
-|---|---|---|
-| `docs/PRIMITIVES.md` | **NEW** — canonical 3-primitives reference (search / answer / temporal filter), full surface coverage CLI + HTTP + MCP, semantics, env vars, composition examples | Operator-facing source-of-truth that didn't exist; the staged-P1 + staged-P3 READMEs were implementation-deploy notes, not user docs |
-| `paper/paper-tecnico-nox-mem.md` §2.5 | **NEW** — "User-Facing Primitives" inserted between §2.4 Multi-Agent and §3 Memory Pipeline | Paper §3 was Memory Pipeline; primitives needed their own §2.5 to anchor the tagline before the implementation deep-dive starts |
-| `README.md` | **NEW** "3 primitives, 1 file, any LLM" section after Quick Start; temporal CLI examples added to Quick Start step 7 | Tagline was promised in badges but never structurally explained in README body |
-| `docs/HANDOFF.md` | this entry | Carry-over |
+### Mon 2026-05-25 — começar Lab Q1 (task #6)
 
-### Pre-existing implementation status (unchanged by this PR)
+**Estimativa: 2-3 dias wall-clock total se paralelo via agentes**
 
-- **P1 `answer`:** LIVE in prod since PR #114 (`/api/answer` end-to-end), telemetry hook via PR #283. Public API: `staged-P1/edits/src/lib/answer/*`. p95 = 101.74ms offline mock bench (42× under 4.3s); live Gemini Flash Lite p95 = 1.5-2.5s.
-- **P3 temporal filter:** LIVE in prod since PR #2 (initial) + PR #167 (D49 phase 1 deploy in shadow mode). Public API: `staged-P3/edits/{dates,search,api-server,mcp-search-tool,index}.ts`. Uses existing `chunks.created_at`/`updated_at` from schema v18 — no schema changes.
+#### Parte B — bge-reranker-v2-m3 (FAZER PRIMEIRO, paper §X)
+- Estimativa: 2-3 dias wall-clock
+- Custo: ~$0 (vLLM local, preserva Autonomy)
+- Sub-tarefas:
+  1. Setup vLLM local (Docker ou bare metal) — 4-6h
+  2. Adapter cross-encoder no RRF pipeline — 1 dia
+  3. Ablation test (com vs sem reranker, múltiplos corpus sizes) — 1 dia
+  4. Doc + paper §X reranker — 4h
+- Ganho esperado: +3-8% nDCG@10 típico
 
-### Carry-over from this PR
+#### Parte A — EverMemBench harness (FAZER SEGUNDO, paper §C2 separada)
+- Estimativa: 2-3 dias wall-clock
+- Custo: ~$1-2 OpenRouter
+- Investigation já feita (PR #350) — implementação real:
+  1. Add stage adapter (group chat → nox-mem chunks) — 1-2 dias (HIGH blocker)
+  2. Batch isolation (NOX_DB_PATH por batch) — 4-6h
+  3. Full run + comparação — 4h
+  4. Doc + paper §C2 trilha separada (accuracy metric vs nDCG) — 4h
+- Ganho: número defensável "we ran on competitor's own harness"
 
-- **`/api/answer` spec/types re-alignment** — already tracked in earlier carry-over table (Lab Q1, types.ts vs spec divergence). This doc PR does NOT touch types; alignment is a follow-up.
-- **arXiv §2.5 inclusion** — paper §2.5 is now part of the master `.md`; rebuild `paper/paper-tecnico-nox-mem.docx` + `paper/publication/latex/paper.pdf` before Tue 2026-06-02 arXiv submit window.
+#### Pendente decisão Toto
+- Rodar **LightRAG full benchmark** ($5, ~30min wall-clock)? Adapter já existe (PR #352), fecharia 6º sistema no ranking cross-system
+
+### Mon 2026-05-25 — PRs aguardando review/merge (ordem sugerida)
+
+**Independentes (mergeáveis em qualquer ordem):**
+- #346 COMPARISON.md per-category + Zep lock-in
+- #348 Doc primitives ("3 primitives, 1 file, any LLM")
+- #349 HippoRAG2 adapter
+- #350 EverMemBench investigation
+- #352 LightRAG adapter
+
+**Ordem encadeada (stacked):**
+1. #347 Paper Abstract + Six Gaps + Self-Evolution + Autonomy
+2. → #353 Paper RAM correction (341MB measured)
+3. → #351 Paper rebuild .docx/.pdf (re-rodar após #347+#353 merged)
+
+**Pós-merge follow-up:**
+- #354 Zep benchmark (independente, pode mergear cedo)
+- #355 HippoRAG2 full benchmark (independente)
+- Novo PR #356 sugerido: Zep upgrade no COMPARISON.md + paper (comentários já postados em #346 + #347 com instruções)
+
+### Deadline pendente
+- **arXiv submit window: Tue 2026-06-02** — paper precisa estar em main com PDF rebuilt
+- Ordem crítica antes de Tue: merge #347 → #353 → re-rodar #351 → opcional Zep upgrade #356
 
 ---
 

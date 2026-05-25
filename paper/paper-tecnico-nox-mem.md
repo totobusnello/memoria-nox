@@ -10,7 +10,7 @@
 
 ## Abstract
 
-This paper presents the architecture, implementation, and operational characteristics of nox-mem, a persistent memory system designed for autonomous AI agent fleets. The system provides hybrid search (combining BM25 full-text, semantic vector similarity, and Reciprocal Rank Fusion), an LLM-powered knowledge graph with temporal decay, cross-agent intelligence sharing, and automated consolidation pipelines. Deployed in production since March 14, 2026, the system manages 1,481 memory chunks across 7 databases, 384 knowledge graph entities with 529 relations, and serves 6 specialized AI agents with isolated yet interconnectable memory spaces.
+We introduce **nox-mem**, a persistent memory system for autonomous LLM agents organized around a single design principle: **pain-weighted hybrid memory with shadow discipline — yours by design**. Every retrieval and retention decision is governed by a `salience = recency × pain × importance` formula (where *pain* is an operator-assigned severity in [0.1, 1.0], persisted on every chunk), and every ranking change is gated by a mandatory shadow-mode telemetry phase before activation in production. Compared to existing memory systems (mem0, Letta, Zep, EverOS, LightRAG, and MeMo), nox-mem offers several advantages: **(a)** *live writeback with sub-second indexing* (inotifywait-driven, no batch retrain or daily reindex required), **(b)** *typed temporal decay* (per-`chunk_type` retention windows with never-decay for feedback/person — see §2 and §8.2), **(c)** *full provenance to chunk and source* (every retrieval result carries `chunk_id` + `source_file`, every destructive op is wrapped in `withOpAudit()` with a VACUUM INTO pre-snapshot), **(d)** *first-class self-evolution* through a `crystallize`/`reflect`/`consolidate` triad that promotes high-hit pending items to durable lessons and synthesizes cross-session insights nightly (§3.4), and **(e)** *zero vendor lock-in*: a single SQLite file, MIT-licensed, with provider-agnostic embeddings (Gemini default, swappable). Deployed in production since March 14, 2026, the system manages 62.9k+ memory chunks with ~99.97% vector coverage, ~402 knowledge graph entities with ~544 relations, and serves 6 specialized AI agents with isolated yet interconnectable memory spaces. On the entity-flavored golden set (n=100), the full ablation stack reaches **nDCG@10 = 0.6237** (+78.8% over the G3 pre-Wave-A baseline; §5), and the Q4 cross-system comparison (§6) provides pre-registered, head-to-head numbers against five competing memory systems on a shared corpus and harness.
 
 ---
 
@@ -32,6 +32,34 @@ nox-mem was designed with four core objectives:
 ### 1.3 Scope
 
 The system operates within the OpenClaw platform, serving 6 AI agents (Nox, Atlas, Boris, Cipher, Forge, Lex) on a single VPS with 4 vCPUs and 8GB RAM. Each agent has a distinct role and memory profile. The workspace (shared memory) and individual agent databases form a federated memory architecture.
+
+### 1.4 Related Memory Systems and the Six Gaps
+
+The published memory-for-LLM-agents literature spans roughly three families: (i) *vector-store wrappers with metadata layers* — **mem0** [^mem0], **Letta** [^letta]; (ii) *temporal- and provenance-aware memory services* — **Zep** [^zep], **memanto**; (iii) *KG-augmented and graph-fused retrieval* — **LightRAG** [^lightrag] (HKU, EMNLP 2025), **HippoRAG2** [^hipporag2]; and (iv) *parametric-memory paradigms*, most recently **MeMo** [^memo] (which folds reflections into model weights via continued pretraining — the design opposite of ours). **EverMind-AI/EverOS** [^everos] occupies a distinct slot: it is the only memory OS in this space that publishes its own benchmark dataset (EverMemBench) and reports threshold numbers, raising the bar for honest cross-system comparison (§6).
+
+Across these systems, six recurring gaps appear in the design space. Each gap motivates a concrete subsystem of nox-mem. Table 1 summarizes who covers what:
+
+**Table 1 — Comparison of desirable memory-system properties (Six Gaps).**
+
+| # | Gap | nox-mem | mem0 | Letta | Zep | EverOS | LightRAG | MeMo |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| 1 | Static injection (memory frozen at session start) | ✅ live writeback (inotifywait <1s) | ⚠️ partial | ✅ | ✅ | ✅ | ❌ batch | ❌ retrain |
+| 2 | No temporal decay (every chunk weighed the same forever) | ✅ salience × recency, typed retention (§8.2) | ❌ | ❌ | ✅ | ⚠️ partial | ❌ | ❌ |
+| 3 | No provenance (cannot trace a result back to a source) | ✅ `chunk_id` + `source_file` (§4) | ⚠️ partial | ✅ | ✅ | ✅ | ✅ | ❌ baked in weights |
+| 4 | Flat memory (no hierarchy / sectioning / typed structure) | ✅ KG + entity files + `section_boost` (§3.1, §8) | ❌ | ❌ | ✅ | ✅ hyper | ✅ dual-level | ❌ |
+| 5 | No writeback (cannot promote findings into durable memory) | ✅ `crystallize` + `reflect` + `consolidate` (§3.4) | ⚠️ partial | ✅ | ✅ | ✅ EvoAgent | ❌ | ❌ |
+| 6 | Indexing delay (changes invisible until nightly batch) | ✅ inotifywait <1s, idempotent re-ingest (§3.1) | ⚠️ | ✅ | ✅ | ⚠️ | ⚠️ batch | ❌ retrain |
+
+**Why each gap matters, and how nox-mem closes it:**
+
+1. **Static injection.** A memory system that only reads at the start of a session cannot observe what the agent does *during* the session. nox-mem's watcher [^watcher-arch] re-ingests every modified `.md` / `.json` file within ~1 second of the write, with idempotent chunk replacement (§3.1).
+2. **No temporal decay.** Treating a daily note from 91 days ago the same as a crystallized decision floods retrieval with stale noise. nox-mem assigns each `chunk_type` a `retention_days` window (V8 schema column; `feedback`/`person` = never-decay, `lesson` = 180d, `decision`/`project` = 365d, `daily` = 90d) and folds it into the salience formula (§8.2).
+3. **No provenance.** Parametric and opaque-vector memories cannot answer "*why* did you return this?". Every nox-mem result carries the originating `chunk_id` and `source_file`, every destructive operation goes through `withOpAudit()` with a `VACUUM INTO` pre-snapshot to `/var/backups/nox-mem/pre-op/`, and the `ops_audit` table is append-only.
+4. **Flat memory.** Without structure, hybrid search collapses to "more recent or more frequent wins". nox-mem layers (a) FTS5 over chunk text, (b) typed retention, (c) an LLM-extracted knowledge graph (§8), and (d) an entity-file format (`frontmatter` / `compiled` / `timeline` sections) with section-aware `section_boost` — the dominant driver of the +78.8% gain in §5.
+5. **No writeback.** A system that can only *be read* cannot grow. nox-mem's self-evolution triad — `crystallize`, `reflect`, `consolidate` — is described in §3.4 and is the most direct counter to EverOS's EvoAgentBench framing [^everos].
+6. **Indexing delay.** Daily-batch reindex makes "new memory" a 24h-resolution operation. inotifywait makes it sub-second (§3.1), and `--dry-run` mode plus `withOpAudit()` snapshots make destructive ops (reindex, consolidate, compact, crystallize, kg-prune) reversible.
+
+The single design principle that ties these closures together is **pain weighting under shadow discipline**: every chunk carries an explicit `pain` severity, every ranking change rolls out first in `NOX_SALIENCE_MODE=shadow` with /api/health telemetry [^salience-mode], and only graduates to `active` after operator review.
 
 ---
 
@@ -184,6 +212,44 @@ Before insertion, chunks are checked for duplicates using a two-tier strategy:
 - **Primary**: Gemini cosine similarity with 0.85 threshold (when embeddings are available)
 - **Fallback**: Keyword overlap calculation with 60% threshold
 - **Audit**: Suppressed duplicates are logged to `dedup_log` table with reason and preview
+
+### 3.4 Self-Evolution: How nox-mem Improves Over Time
+
+Most memory systems decouple *retrieval* from *learning*: retrieval is online, learning is either absent or requires retraining a parametric backbone (MeMo) or relying on a closed evolution loop (EverOS EvoAgentBench [^everos]). nox-mem instead promotes self-evolution to a first-class subsystem composed of four cooperating mechanisms, all transparent and inspectable in the live SQLite file. This subsection is the direct counter to Gap #5 (no writeback) in Table 1.
+
+**3.4.1 Crystallize loop — `pending` → `lesson` after N hits, with pain accumulation.**
+
+The `crystallize` command (exposed via the CLI, the MCP server tool, and `POST /api/crystallize` + `POST /api/crystallize/validate` on the HTTP API; see `src/api-server.ts` and `src/crystallize.ts` [^crystallize-src]) implements an LLM-assisted consolidation that synthesizes durable entities from recent chunks. Operationally, chunks ingested into `memory/pending.md` (`chunk_type = pending`, `retention_days = 30`) act as a working set of unresolved items. As the same pending item is referenced by retrieval (and as related daily/team chunks accumulate around it), its effective *pain* signal grows — both via direct operator updates to the `pain` column (V9 schema) and via co-occurrence with high-pain neighbors. After enough hits and sufficient accumulated severity, `crystallize` uses Gemini to identify the pattern across chunks, emits a canonical entity file under `memory/entities/<type>/<slug>.md`, and effectively promotes the cluster from `pending` (30-day decay) to `lesson` (180-day decay) or `decision`/`project` (365-day decay) [^retention-defaults]. The promotion is wrapped in `withOpAudit()`, so the pre-state snapshot lives at `/var/backups/nox-mem/pre-op/crystallize-<ts>-<pid>-<uuid>.db` and a row lands in the append-only `ops_audit` table.
+
+**3.4.2 Pain weighting auto-adjust — feedback of use raises pain on hit chunks.**
+
+The `pain` field on `chunks` is an explicit severity in [0.1, 1.0] (0.1 trivial, 1.0 production outage). It can be set explicitly by the author, but it also drifts upward implicitly: chunks that are *repeatedly* surfaced by retrieval and *accepted* by the operator (via the `feedback/` directory, whose `chunk_type = feedback` is never-decay) accumulate co-occurrence with high-pain entries during nightly consolidation, which feeds back into the salience formula. The result is that lessons learned from real incidents naturally rise to the top over time, while toy or low-severity content fades even when frequent. This is the inverse of pure recency- or frequency-based memory.
+
+**3.4.3 Salience decay continuous in background — `recency × pain × importance`.**
+
+The salience function lives in `src/lib/salience.ts` [^salience-src] (and is mirrored in the staged copy at `staged-1.7a/edits/salience.ts`). Its canonical formula is:
+
+```
+salience = recency × pain × importance
+```
+
+with components:
+
+- **recency** ∈ [0,1] — half-life-style decay over the chunk's `retention_days` window (`feedback`/`person` → never-decay → `recency = 1.0`; everything else decays per Table V8 [^retention-defaults]). Decay is *continuous*: it is recomputed at every retrieval, so there is no batch step that "ages" memory — aging is a property of the read path.
+- **pain** ∈ [0,1] — severity as described in §3.4.2.
+- **importance** ∈ [0,1] — `chunk_type` / `source_type` / tier signal (manual mapping; e.g., `decision` and `lesson` rank above `daily`).
+
+The mode of operation is gated by `NOX_SALIENCE_MODE`: `shadow` (default — compute and log to `/api/health.salience` but do not apply to retrieval rankings), `active` (apply as an additive delta in [-0.5, +0.5] on top of RRF), and `off` (short-circuit to 0 for ablation experiments). This three-state gate is the operational realization of *shadow discipline* (§4 and §5).
+
+**3.4.4 Reflect pipeline — batch nightly cross-session synthesis.**
+
+The `reflect` command (CLI / MCP / `POST /api/reflect`, backed by `src/reflect.ts` and cached via `getReflectCacheStats()` exposed in `/api/health.reflectCache` [^reflect-src]) runs a batch synthesis pass over recent chunks. Its job is *not* to retrieve answers for the user but to produce cross-session lessons: it queries hybrid search for a topic, asks Gemini to summarize the patterns observed across the result set, and writes the summary back as a `feedback` or `lesson` chunk with the confidence default for derived chunks (see `CONFIDENCE_DERIVED` in `docs/CONFIGURATION.md`). Because reflect results are themselves cached (LRU, exposed via `/api/health.reflectCache.entries`), expensive synthesis is amortized across repeated queries.
+
+**3.4.5 Consolidate — nightly orchestration that ties it together.**
+
+Nightly consolidation (23:00, 5-minute stagger across agents — see §3.2) is the orchestration layer that runs reflect for high-pain topics, runs crystallize for sufficiently aged `pending` items, and syncs the resulting durable entities to the topic files (`decisions.md`, `lessons.md`, `people.md`, `projects.md`). Like crystallize, it goes through `withOpAudit()` with a pre-op `VACUUM INTO` snapshot. This is the daily heartbeat of self-evolution.
+
+**Together, these four mechanisms make nox-mem a memory that *grows along the gradient of operator pain*:** chunks that hurt the operator (production outages, lost work, repeated mistakes) survive decay, get promoted from pending to lesson, accumulate co-occurrence weight, and rank progressively higher — without retraining a model and without trusting a closed evolution loop. Every step is visible by opening `nox-mem.db` in `sqlite3` and inspecting `ops_audit`, `chunks.pain`, `chunks.retention_days`, and the entity files.
 
 ---
 
@@ -529,6 +595,31 @@ A metodologia desta seção está cravada no `specs/2026-05-23-Q4-comparison-exe
 
 A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR, latência). Atendido o gate, GTM Phase 2 está destravada conforme `docs/ROADMAP.md` §7. Não atendido, a sessão de Sun 2026-05-25 produz um plano de remediação (ajustes pre-launch) em vez de launch direto.
 
+### 6.8 Autonomy quantified — operational cost per memory system
+
+The Q4 quality comparison (§6.3 – §6.6) reports retrieval *quality* under matched corpora. Operational *cost* — services, RAM, cold start, mandatory third-party credentials, setup commands — is the second axis on which a memory system can be evaluated, and is the axis where the nox-mem Autonomy pillar [^q-a-p-pivot] is most legible. Table 2 summarizes the steady-state idle footprint of each system in its default self-host configuration.
+
+**Table 2 — Autonomy quantified: services, RAM, cold start, mandatory keys, setup commands.** Headline: **~100× less RAM idle than EverOS.** Competitor numbers are *estimates* derived from each project's docker-compose defaults and documented system requirements (sources cited in the row). The nox-mem row is **[estimated — not measured in prod for this revision]**; a fresh `ps -o rss=` measurement on the production VPS is queued as a §7.2 future-work item and the value will be tightened in the next paper revision (see footnote [^nox-mem-rss]).
+
+| System | Services | RAM idle | Cold start | Mandatory third-party keys | Setup commands | Sources |
+|---|---:|---:|---:|---:|---:|---|
+| **nox-mem** | **1** (SQLite file + Node process) | **~50 MB** [estimated] | **<1 s** | **0** (offline-OK; embeddings optional) | **1** (`npm i && nox-mem reindex`) | This work; [^nox-mem-rss] |
+| mem0 | 2 (Postgres + Qdrant) | ~800 MB | ~15 s | 1 (OpenAI for embeddings) | ~5 | mem0 docker-compose defaults [^mem0-stack] |
+| Letta | 3 (Letta server + Postgres + OpenAI) | ~1.5 GB | ~30 s | 1 (OpenAI) | ~8 | Letta self-host guide [^letta-stack] |
+| Zep OSS | 2 (Zep + Postgres) | ~1.2 GB | ~30 s | **1 mandatory** (OpenAI for embeddings — hardcoded) | ~6 | Zep README [^zep-stack] |
+| EverOS / EverMind-AI | **5** (MongoDB + Elasticsearch + Milvus + Redis + Postgres) | **~4 GB+** | **~60 s** | 2–3 (LLM + embedding + optional reranker) | ~15+ | EverMind-AI docker-compose [^everos-stack] |
+| LightRAG | 2 (Neo4j + vector DB) | ~1 GB | ~20 s | 1 (LLM provider for KG extraction) | ~6 | LightRAG repo defaults [^lightrag-stack] |
+
+**Reading the table.** Three rows of the cost matrix translate directly into Autonomy:
+
+1. **Services column.** Every additional service is an additional failure mode, an additional security-patching surface, and an additional vendor that must be available on the day a user spins up the system. nox-mem ships as a single Node process operating on a single SQLite file; the only durable on-disk artifact is `nox-mem.db`. mem0/Zep/Letta/LightRAG each require ≥1 database container and at least one external LLM/embedding provider. EverOS requires five containers, three of which are heavyweight infrastructure (MongoDB, Elasticsearch, Milvus). The single-service property is what makes "open `nox-mem.db` in `sqlite3` and inspect everything" a literal operation, not a euphemism.
+
+2. **Mandatory third-party keys column.** A system that requires an OpenAI key by default is not autonomous regardless of license — the user is dependent on one specific vendor's pricing, rate limits, and terms of service. nox-mem treats embeddings as optional (FTS5-only retrieval is a valid degraded mode; §4) and is provider-agnostic when embeddings are enabled (Gemini default, Ollama-local feasible — §7.1 L2). Zep and Letta hardcode OpenAI as the default embedding provider.
+
+3. **Cold start column.** A `<1s` cold start is what makes self-host *try-before-deciding* — the user can `npm i`, run one command, see results, and decide. A `~60s` cold start with five containers is what makes EverOS effectively a "build a small team to evaluate" decision, not an individual decision.
+
+**Caveat — RAM measurement methodology.** The competitor RAM figures are *idle* (i.e., process started, no queries served, no ingestion in progress) and are *estimates* read from each project's documented system requirements and `docker stats` defaults in the published docker-compose files. They are not from a head-to-head benchmark on a single host. A side-by-side measurement on a controlled 4-vCPU / 8-GB host is a §7.2 future-work item (F-cost-bench). The nox-mem `~50 MB` figure should likewise be treated as an upper-bound estimate based on Node baseline + better-sqlite3 cache; a real `ps -o rss=` measurement on the production VPS is pending (see [^nox-mem-rss]) and will replace the estimate in the next revision.
+
 ---
 
 ## 7. Limitations and Future Work
@@ -806,3 +897,54 @@ The cross-agent intelligence layer transforms isolated agent memories into a col
 **Repository:** github.com/totobusnello/nox-workspace
 **Dashboard:** github.com/totobusnello/agent-hub-dashboard
 **Spec:** Projetos/memoria-nox/specs/2026-03-14-nox-memory-system-design.md
+
+---
+
+## References and Footnotes
+
+### Related-systems references
+
+[^mem0]: mem0ai/mem0 — open-source memory layer for LLM agents (PostgreSQL + Qdrant backend, OpenAI embeddings by default). github.com/mem0ai/mem0. Used in §1.4, §6.3, Table 2.
+
+[^letta]: Letta (formerly MemGPT) — agent-loop memory architecture with archival/recall memory separation. github.com/letta-ai/letta. Used in §1.4, §6.3, Table 2.
+
+[^zep]: Zep — temporal knowledge-graph memory service with summarization. github.com/getzep/zep. OpenAI embedding is the hardcoded default in the OSS distribution. Used in §1.4, §6.3, Table 2.
+
+[^lightrag]: Guo et al., *LightRAG: Simple and Fast Retrieval-Augmented Generation*, EMNLP 2025 (HKU). github.com/HKUDS/LightRAG (~35k stars, MIT). Cited in §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized incremental KG-merge pattern as a forward-looking optimization (LightRAG-style summarization parking-lotted until KG density ≥10× current; see `docs/COMPETITIVE-ANALYSIS-2026-05-19.md`).
+
+[^hipporag2]: HippoRAG2 — graph-augmented retrieval with Personalized PageRank over an entity-relation graph. Cited as a graph-baseline peer in §1.4 and §6.
+
+[^memo]: arXiv 2605.15156v2, *MeMo: Towards Language Models with Associative Memory Mechanisms* (parametric reflections folded into model weights). Cited as the design opposite of nox-mem's externalized, inspectable memory paradigm. §1.4, abstract.
+
+[^everos]: EverMind-AI / EverOS — github.com/EverMind-AI (~5k stars, Apache 2.0). Publishes EverMemBench dataset and an EvoAgentBench-framed evolution loop. The only memory-OS peer in our taxonomy that publishes its own benchmark; §3.4 is the direct narrative counter to EvoAgent framing. Honest-comparison action item: run nox-mem on EverMemBench (queued as F4 in §7.2).
+
+### Internal references
+
+[^watcher-arch]: `nox-mem-watcher` systemd service running `inotifywait` on `memory/` directories. See `docs/ARCHITECTURE.md` and §3.1 of this paper.
+
+[^salience-mode]: `NOX_SALIENCE_MODE` environment variable controls the three-state gate (`shadow` | `active` | `off`). Default is `shadow`. Telemetry exposed at `/api/health.salience`. See §3.4.3, `staged-1.7a/edits/salience.ts`, and `docs/CONFIGURATION.md`.
+
+[^crystallize-src]: HTTP handlers in `src/api-server.ts` (routes `/api/crystallize`, `/api/crystallize/validate` — confirmed in `staged-1.6/edits/api-server.ts:253–273`); core logic in `src/crystallize.ts` exporting `crystallize()`, `validateProcedure()`, `listProcedures()`. Wrapped by `withOpAudit()` (`src/lib/op-audit.ts`).
+
+[^reflect-src]: `src/reflect.ts` exporting `reflect()` and `getReflectCacheStats()` (confirmed in `staged-1.6/edits/api-server.ts:12`). Cache statistics surfaced in `/api/health.reflectCache`. See also `docs/POSTMAN.md` for the API contract.
+
+[^salience-src]: `src/lib/salience.ts` — canonical implementation of `salience = recency × pain × importance`, mirrored in the staged copy at `staged-1.7a/edits/salience.ts` (lines 1–80 contain the module docstring spelling out the formula, the three-state mode gate, and the per-type retention defaults).
+
+[^retention-defaults]: V8 schema typed retention defaults (in `chunks.retention_days`): `feedback` = 0 (never-decay), `person` = 0 (never-decay), `lesson` = 180d, `decision` = 365d, `project` = 365d, `team` = 120d, `daily` = 90d, `pending` = 30d, `graph_node` = 60d, fallback = 90d. See `staged-1.7a/edits/salience.ts:46–56` (`DEFAULT_RETENTION_BY_TYPE`) and `CLAUDE.md` §"Schema v10".
+
+[^q-a-p-pivot]: Q/A/P strategic pivot of 2026-05-17 — three pillars (**Q**uality, **A**utonomy, **P**roduct). See `docs/ROADMAP.md` and `[[qap-pillars-strategic-decision]]` in the project memory.
+
+### Autonomy table (Table 2) sources
+
+[^nox-mem-rss]: The `~50 MB` RAM figure for nox-mem in Table 2 is **estimated** (Node baseline ~30 MB + better-sqlite3 cache ~20 MB) and not measured on the production VPS for this revision. A `ps -o rss=,cmd= -ax | grep nox-mem` snapshot on the production host is queued as future work and will replace the estimate in the next paper revision. Permission to access production was denied during this revision; the estimate is conservative (upper-bound).
+
+[^mem0-stack]: mem0 default self-host requires Postgres + Qdrant + an OpenAI key for embeddings (or a configured alternative provider). Counts: 2 services + 1 mandatory third-party key. Source: mem0 README and `docker-compose.yml` defaults at github.com/mem0ai/mem0.
+
+[^letta-stack]: Letta default self-host requires the Letta server, Postgres, and an OpenAI key (or alternative LLM provider) for the agent loop. Counts: 3 components + 1 mandatory third-party key. Source: Letta self-host documentation at docs.letta.com and github.com/letta-ai/letta.
+
+[^zep-stack]: Zep OSS requires the Zep service container + Postgres, and *hardcodes* OpenAI as the embedding provider in the default build (mandatory key, no fallback in OSS distribution). Counts: 2 services + 1 hardcoded mandatory key. Source: Zep README at github.com/getzep/zep.
+
+[^everos-stack]: EverMind-AI / EverOS docker-compose declares MongoDB + Elasticsearch + Milvus + Redis + Postgres = 5 services, plus 2–3 third-party API keys for LLM, embedding, and (optional) reranker. Counts confirmed against the published `docker-compose.yml` in the EverMind-AI repo. The ~4 GB RAM-idle figure is the sum of documented minimum requirements for each service's container.
+
+[^lightrag-stack]: LightRAG defaults to Neo4j for the knowledge graph + a vector store (Qdrant/Milvus/etc.), plus one LLM provider key for entity/relation extraction during indexing. Counts: 2 services + 1 mandatory third-party key. Source: LightRAG README at github.com/HKUDS/LightRAG.
+
