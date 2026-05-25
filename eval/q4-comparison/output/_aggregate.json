@@ -2,29 +2,29 @@
   "k": 10,
   "systems": [
     {
-      "system": "zep",
-      "version": "zep-python==1.5.0 + ghcr.io/getzep/zep:0.27.2 (OSS, Docker)",
+      "system": "hipporag2",
+      "version": "hipporag>=2.0.0a3,<2.1",
       "n_queries": 20,
       "n_queries_with_gold": 20,
       "n_scored": 20,
       "n_errors": 0,
       "status": "OK",
       "overall": {
-        "ndcg@k": 0.39093375607793274,
-        "recall@k": 0.575,
-        "mrr": 0.35714285714285715
+        "ndcg@k": 0.35241352379150837,
+        "recall@k": 0.55,
+        "mrr": 0.29333333333333333
       },
       "latency_ms": {
-        "p50": 15215.819415985607,
-        "p95": 17411.810449964833,
-        "p99": 18553.83699008962,
-        "mean": 14812.053201987874,
+        "p50": 2468.5242294799536,
+        "p95": 6189.867733197766,
+        "p99": 20784.62058029368,
+        "mean": 3636.185150046367,
         "n": 20
       },
       "per_category": {
         "single-hop": {
-          "ndcg@k": 0.488801353500141,
-          "recall@k": 0.625,
+          "ndcg@k": 0.614880878328929,
+          "recall@k": 0.875,
           "mrr": 0.5833333333333334,
           "n": 2
         },
@@ -35,45 +35,45 @@
           "n": 2
         },
         "temporal": {
-          "ndcg@k": 0.0,
-          "recall@k": 0.0,
-          "mrr": 0.0,
+          "ndcg@k": 0.17957376504483263,
+          "recall@k": 0.25,
+          "mrr": 0.25,
           "n": 2
         },
         "open-domain": {
-          "ndcg@k": 0.4599972899446727,
-          "recall@k": 1.0,
-          "mrr": 0.3,
+          "ndcg@k": 0.1781035935540111,
+          "recall@k": 0.5,
+          "mrr": 0.08333333333333333,
           "n": 2
         },
         "adversarial": {
-          "ndcg@k": 0.5,
+          "ndcg@k": 0.25,
           "recall@k": 0.5,
-          "mrr": 0.5,
-          "n": 2
-        },
-        "knowledge-update": {
-          "ndcg@k": 0.3988614447725133,
-          "recall@k": 0.5,
-          "mrr": 0.5,
-          "n": 2
-        },
-        "multi-session": {
-          "ndcg@k": 0.2571685897474868,
-          "recall@k": 0.375,
           "mrr": 0.16666666666666666,
           "n": 2
         },
+        "knowledge-update": {
+          "ndcg@k": 0.3467132018086354,
+          "recall@k": 0.5,
+          "mrr": 0.25,
+          "n": 2
+        },
+        "multi-session": {
+          "ndcg@k": 0.19584345867729866,
+          "recall@k": 0.375,
+          "mrr": 0.1,
+          "n": 2
+        },
         "single-session-assistant": {
-          "ndcg@k": 0.38685280723454163,
+          "ndcg@k": 0.6309297535714575,
           "recall@k": 1.0,
-          "mrr": 0.2,
+          "mrr": 0.5,
           "n": 1
         },
         "single-session-preference": {
-          "ndcg@k": 0.38685280723454163,
-          "recall@k": 1.0,
-          "mrr": 0.2,
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
           "n": 1
         },
         "single-session-user": {
@@ -83,23 +83,23 @@
           "n": 2
         },
         "temporal-reasoning": {
-          "ndcg@k": 0.6021911987942431,
-          "recall@k": 0.75,
-          "mrr": 0.5714285714285714,
+          "ndcg@k": 0.6280905869299191,
+          "recall@k": 1.0,
+          "mrr": 0.5,
           "n": 2
         }
       },
       "per_dataset": {
         "locomo": {
-          "ndcg@k": 0.45285270404610845,
+          "ndcg@k": 0.4076046227427003,
           "recall@k": 0.625,
-          "mrr": 0.42666666666666664,
+          "mrr": 0.36666666666666664,
           "n": 10
         },
         "longmemeval": {
-          "ndcg@k": 0.3290148081097569,
-          "recall@k": 0.525,
-          "mrr": 0.2876190476190476,
+          "ndcg@k": 0.2972224248403164,
+          "recall@k": 0.475,
+          "mrr": 0.22000000000000003,
           "n": 10
         }
       }

@@ -396,14 +396,19 @@ def setup() -> None:
     force = os.environ.get("HIPPORAG_FORCE_REINGEST", "").lower() in ("1", "true", "yes")
     save_dir = Path(cfg["save_dir"])
 
-    # Idempotency probe: HippoRAG2 writes a graph pickle + embedding store to
-    # save_dir. If something is already there and we're not forced, skip.
-    already_indexed = (
-        any(save_dir.iterdir()) if save_dir.exists() else False
-    )
+    # Idempotency probe: HippoRAG2 writes openie + graph artifacts under a
+    # backend-specific subdir like ``gpt-4o-mini_text-embedding-3-small/``.
+    # ``HippoRAG.__init__`` itself eagerly mkdir's those subdirs even when no
+    # ingest has run yet, so a bare ``iterdir()`` non-empty check produces a
+    # false positive on first run. We require an actual openie results file
+    # (``openie_results_ner_*.json`` is what ``save_openie_results`` writes)
+    # before we declare the corpus indexed.
+    already_indexed = False
+    if save_dir.exists():
+        already_indexed = bool(list(save_dir.rglob("openie_results_*.json")))
     if already_indexed and not force:
         print(
-            f"[hipporag2] save dir non-empty ({save_dir}) — skipping re-ingest. "
+            f"[hipporag2] openie artifacts found under {save_dir} — skipping re-ingest. "
             "Set HIPPORAG_FORCE_REINGEST=1 to force."
         )
         _setup_done = True
@@ -478,16 +483,24 @@ def search(query: str, k: int = 10) -> list[dict]:
         return []
     sol = solutions[0] if isinstance(solutions, list) else solutions
 
-    docs: list[str] = list(getattr(sol, "docs", None) or [])
-    scores: list[float] = list(getattr(sol, "doc_scores", None) or [])
-    passage_ids: list[Any] = list(getattr(sol, "passage_ids", None) or [])
+    # NB: doc_scores is a numpy.ndarray on HippoRAG2 ≥2.0.0a3 (per QuerySolution
+    # dataclass). `arr or []` raises "truth value ambiguous" — coerce explicitly.
+    raw_docs = getattr(sol, "docs", None)
+    raw_scores = getattr(sol, "doc_scores", None)
+    raw_pids = getattr(sol, "passage_ids", None)
+    docs: list[str] = list(raw_docs) if raw_docs is not None else []
+    scores: list[float] = list(raw_scores) if raw_scores is not None else []
+    passage_ids: list[Any] = list(raw_pids) if raw_pids is not None else []
 
     if not docs:
         # Fallback: some versions return a dict instead of dataclass
         if isinstance(sol, dict):
-            docs = list(sol.get("docs") or sol.get("passages") or [])
-            scores = list(sol.get("doc_scores") or sol.get("scores") or [])
-            passage_ids = list(sol.get("passage_ids") or [])
+            raw_docs = sol.get("docs") or sol.get("passages")
+            raw_scores = sol.get("doc_scores") or sol.get("scores")
+            raw_pids = sol.get("passage_ids")
+            docs = list(raw_docs) if raw_docs is not None else []
+            scores = list(raw_scores) if raw_scores is not None else []
+            passage_ids = list(raw_pids) if raw_pids is not None else []
 
     out: list[dict] = []
     for i, passage in enumerate(docs[:k]):
