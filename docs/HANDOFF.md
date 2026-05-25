@@ -2,6 +2,74 @@
 
 ---
 
+## Mon 2026-05-25 morning — Lab Q1 START (decisão de Sun night)
+
+> **Decisão Toto (Sun 2026-05-24 ~23h BRT):** tudo fresh amanhã, começar Mon morning. Não disparar agentes overnight Sun.
+
+### Contexto: Sun evening foi extremamente produtivo
+- **10 PRs abertos hoje (#346–#355)** — paper ganhou Six Gaps + Self-Evolution + Autonomy quantified + RAM medido (341MB RSS prod), COMPARISON ganhou 5 sistemas reais
+- **5 sistemas medidos cross-system no mesmo corpus (6.830 chunks LoCoMo+LongMemEval):**
+  1. nox-mem 0.6380 nDCG@10 / p50 7-12ms 🥇
+  2. Zep 0.3909 / p50 15.216ms 🥈
+  3. HippoRAG2 0.3524 / p50 2.468ms 🥉
+  4. mem0 0.1315 @500-cap
+  5. agentmemory 0.1287 @20%-cap
+- **Zep desmascarado:** OSS deprecated, $2.3M YC W24 pre-Series A, Neo4j obrigatório — não Series A como pensávamos
+- **HippoRAG2 ingest custou $2.06 real** (estimativa $9-11) — 5× mais barato
+- **Doc input:** `docs/paper-inputs-consolidated-2026-05-24.md` + `docs/competitor-research-zep-2026-05-24.md`
+
+### Mon 2026-05-25 — começar Lab Q1 (task #6)
+
+**Estimativa: 2-3 dias wall-clock total se paralelo via agentes**
+
+#### Parte B — bge-reranker-v2-m3 (FAZER PRIMEIRO, paper §X)
+- Estimativa: 2-3 dias wall-clock
+- Custo: ~$0 (vLLM local, preserva Autonomy)
+- Sub-tarefas:
+  1. Setup vLLM local (Docker ou bare metal) — 4-6h
+  2. Adapter cross-encoder no RRF pipeline — 1 dia
+  3. Ablation test (com vs sem reranker, múltiplos corpus sizes) — 1 dia
+  4. Doc + paper §X reranker — 4h
+- Ganho esperado: +3-8% nDCG@10 típico
+
+#### Parte A — EverMemBench harness (FAZER SEGUNDO, paper §C2 separada)
+- Estimativa: 2-3 dias wall-clock
+- Custo: ~$1-2 OpenRouter
+- Investigation já feita (PR #350) — implementação real:
+  1. Add stage adapter (group chat → nox-mem chunks) — 1-2 dias (HIGH blocker)
+  2. Batch isolation (NOX_DB_PATH por batch) — 4-6h
+  3. Full run + comparação — 4h
+  4. Doc + paper §C2 trilha separada (accuracy metric vs nDCG) — 4h
+- Ganho: número defensável "we ran on competitor's own harness"
+
+#### Pendente decisão Toto
+- Rodar **LightRAG full benchmark** ($5, ~30min wall-clock)? Adapter já existe (PR #352), fecharia 6º sistema no ranking cross-system
+
+### Mon 2026-05-25 — PRs aguardando review/merge (ordem sugerida)
+
+**Independentes (mergeáveis em qualquer ordem):**
+- #346 COMPARISON.md per-category + Zep lock-in
+- #348 Doc primitives ("3 primitives, 1 file, any LLM")
+- #349 HippoRAG2 adapter
+- #350 EverMemBench investigation
+- #352 LightRAG adapter
+
+**Ordem encadeada (stacked):**
+1. #347 Paper Abstract + Six Gaps + Self-Evolution + Autonomy
+2. → #353 Paper RAM correction (341MB measured)
+3. → #351 Paper rebuild .docx/.pdf (re-rodar após #347+#353 merged)
+
+**Pós-merge follow-up:**
+- #354 Zep benchmark (independente, pode mergear cedo)
+- #355 HippoRAG2 full benchmark (independente)
+- Novo PR #356 sugerido: Zep upgrade no COMPARISON.md + paper (comentários já postados em #346 + #347 com instruções)
+
+### Deadline pendente
+- **arXiv submit window: Tue 2026-06-02** — paper precisa estar em main com PDF rebuilt
+- Ordem crítica antes de Tue: merge #347 → #353 → re-rodar #351 → opcional Zep upgrade #356
+
+---
+
 ## Sat 2026-05-24 LATE-morning closure — incident recovery + CI rot + Path A2 verdict
 
 > **Atualizado:** 2026-05-24 ~12h BRT (post 4-PR landing session). Main em `21cbf4d5`. **Sistema 100% verde** (`/api/health` confirmado). Three concentration paths to close mem0 cap@500 gap **all closed NEGATIVE** — Q4 Phase 2 gate moves to two-metric narrative (nDCG@10 + coverage) per D59. Pre-launch ramp Wed 2026-06-03 destravado.
