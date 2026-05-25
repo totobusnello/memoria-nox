@@ -3,7 +3,25 @@ Zep adapter — local self-hosted Zep Open Source via Docker Compose.
 
 Repo: https://github.com/getzep/zep  (Apache-2.0)
 Install: docker compose -f compose/docker-compose.yml up -d zep postgres
-Python client: pip install zep-python==2.0.2  (latest available; pinned)
+Python client: pip install zep-python==1.5.0  (matches Zep OSS 0.27.2 API)
+
+VERSION PIN NOTE (2026-05-24)
+-----------------------------
+The original spec listed `zep-python==2.0.2`. That SDK targets Zep Cloud
+(new `/api/v2/*` surface + `Users`/`Threads`/`Graph` resources). Zep OSS 0.27.2
+exposes the older `/api/v1/*` Sessions+Memory surface that the **1.x** SDK
+talks to. Mismatch → 404 on every request. The 1.5.0 SDK is the last release
+before the Cloud refactor and is the right match for OSS 0.27.2.
+
+API surface summary (1.5.0 ↔ OSS 0.27.2)
+----------------------------------------
+- `ZepClient(base_url, api_key)`                — top-level client
+- `client.memory.add_session(Session(...))`     — POST /api/v1/sessions
+- `client.memory.add_memory(sid, Memory(messages=[...]))` — POST /api/v1/sessions/<sid>/memory
+- `client.memory.search_memory(sid, MemorySearchPayload(text=q), limit=k)`
+  — POST /api/v1/sessions/<sid>/search  (SCOPED PER SESSION)
+- `r.message` is a dict (not pydantic), `r.dist` is cosine similarity
+  (higher = more similar)
 
 INGESTION MODEL
 ---------------
@@ -16,25 +34,23 @@ Zep assigns its own UUIDs to messages. The round-trip through metadata is
 the ONLY way to recover our gold IDs — the adapter carries that mapping
 internally via message metadata["gold_id"].
 
-INGEST FLOW (``ingest_corpus`` → call before first ``search``):
-  for conv_id, chunks in grouped_by_conv.items():
-      session_id = "q4-" + conv_id          # deterministic, idempotent
-      create or reuse session
-      for chunk in chunks:
-          msg = Message(role="user", content=chunk["text"],
-                        metadata={"gold_id": chunk["id"], ...})
-          client.memory.add(session_id, messages=[msg])
+SEARCH MODEL
+------------
+Zep OSS 1.5 search is **per-session**. To answer a query across the whole
+benchmark corpus we fan the query out to every ingested session, collect
+results, sort by similarity (dist), and dedupe by gold_id. This is O(S*k)
+per query where S = number of conversations (~720 for LoCoMo+LongMemEval).
+At k=10 that is ~7,200 result rows merged per query — Zep handles each
+session search in ~50-150ms so total per-query latency lands ~5-15s in
+the worst case. We measure this honestly.
 
-SEARCH FLOW (``search``):
-  client.memory.search_sessions(user_id=ZEP_USER_ID, text=query, limit=k)
-  map result.message.metadata["gold_id"] -> returned id field
-
-NOTE: Zep OSS (Community Edition) always searches "facts" regardless of the
-``search_scope`` parameter — that param is Cloud-only. For the benchmark we
-log this as a known constraint (Zep's fact extraction is its retrieval unit).
-
-NOTE on version pin: zep-python==2.4.0 does not exist on PyPI (latest 2.x is
-2.0.2). requirements.txt should use 2.0.2; see REQUIREMENTS.md for the note.
+EMBEDDINGS
+----------
+Zep config `compose/zep-config.yaml` has Extractors.Messages.Embeddings
+enabled with Service="openai", Dimensions=1536, Model implicit
+text-embedding-3-small. Requires real OPENAI_API_KEY in the environment;
+docker-compose.yml forwards it as ZEP_OPENAI_API_KEY. Cost: ~$0.02 for
+the full LoCoMo+LongMemEval corpus (~1M tokens × $0.02/1M).
 """
 
 from __future__ import annotations
@@ -43,24 +59,19 @@ import os
 from typing import Any
 
 NAME = "zep"
-VERSION_PIN = "zep-python==2.0.2 + ghcr.io/getzep/zep:0.27.2 (OSS, Docker)"
-# OSS Zep does NOT require an API key in default config (ZEP_AUTH_REQUIRED=false).
-REQUIRES_ENV: list[str] = []
+VERSION_PIN = "zep-python==1.5.0 + ghcr.io/getzep/zep:0.27.2 (OSS, Docker)"
+# Cross-system mode requires OpenAI embeddings; OPENAI_API_KEY mandatory.
+REQUIRES_ENV: list[str] = ["OPENAI_API_KEY"]
 INSTALL_HINT = (
-    "pip install 'zep-python==2.0.2' && "
-    "docker compose -f compose/docker-compose.yml up -d zep postgres"
+    "pip install 'zep-python==1.5.0' && "
+    "OPENAI_API_KEY=sk-... docker compose -f compose/docker-compose.yml up -d zep postgres"
 )
 
 _DEFAULT_BASE = "http://127.0.0.1:8000"
-# A single Zep "user" groups all Q4 sessions so search_sessions can be
-# scoped by user_id — in OSS this is effectively global but forward-compat.
-_DEFAULT_USER_ID = "q4-comparison"
 
 _client = None
 # All session_ids created during ingest_corpus (for scoping search).
 _sessions: list[str] = []
-# (unused reserve — Zep metadata carries the round-trip, not an in-process map)
-_id_map: dict[str, str] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -72,17 +83,13 @@ def _base_url() -> str:
     return (os.environ.get("ZEP_API_URL") or _DEFAULT_BASE).rstrip("/")
 
 
-def _user_id() -> str:
-    return os.environ.get("ZEP_USER_ID", _DEFAULT_USER_ID)
-
-
 def _get_client():
     """Return cached Zep client, creating it if necessary."""
     global _client
     if _client is None:
-        from zep_python.client import Zep
+        from zep_python import ZepClient
 
-        _client = Zep(
+        _client = ZepClient(
             base_url=_base_url(),
             api_key=os.environ.get("ZEP_API_KEY", "no-auth"),
         )
@@ -111,18 +118,9 @@ def validate() -> dict:
             "notes": INSTALL_HINT,
         }
 
-    # Cloud mode: only flag if explicitly requested.
-    if os.environ.get("ZEP_USE_CLOUD") == "1" and not os.environ.get("ZEP_API_KEY"):
-        return {
-            "ok": False,
-            "error": "ZEP_USE_CLOUD=1 but ZEP_API_KEY not set",
-            "version": None,
-            "notes": "Either unset ZEP_USE_CLOUD or export ZEP_API_KEY",
-        }
-
     import zep_python
 
-    zep_version = getattr(zep_python, "__version__", "unknown")
+    zep_version = getattr(zep_python, "__version__", "1.5.0")
     base = _base_url()
     try:
         import requests
@@ -141,6 +139,14 @@ def validate() -> dict:
             "run `docker compose -f compose/docker-compose.yml up -d zep postgres`"
         )
 
+    if not os.environ.get("OPENAI_API_KEY"):
+        return {
+            "ok": False,
+            "error": "OPENAI_API_KEY not set — required for Zep embeddings extractor",
+            "version": zep_version,
+            "notes": notes + " | export OPENAI_API_KEY=sk-... before docker compose up",
+        }
+
     return {
         "ok": True,
         "error": None,
@@ -151,26 +157,53 @@ def validate() -> dict:
 
 def setup() -> None:
     """
-    Initialize Zep client and ensure the Q4 user exists in Zep.
+    Initialize Zep client. Idempotent; safe to call multiple times.
 
     Lightweight — does NOT ingest the corpus. Call ``ingest_corpus(chunks)``
     separately before running queries when doing a fresh benchmark run.
+
+    Optional: NOX_ZEP_RESCAN_SESSIONS=1 fetches all "q4-*" session_ids from
+    the running Zep server into the in-process _sessions list. Used when
+    re-running benchmarks against an already-populated Zep DB
+    (`runner.py --skip-ingest`) so the fan-out search still works.
     """
-    client = _get_client()
-    uid = _user_id()
+    _get_client()
+    if os.environ.get("NOX_ZEP_RESCAN_SESSIONS") == "1":
+        _rescan_sessions_from_zep()
+
+
+def _rescan_sessions_from_zep() -> None:
+    """Populate _sessions by listing q4-* sessions already in the Zep server."""
+    global _sessions
     try:
-        client.user.get(uid)
-    except Exception:
-        try:
-            client.user.add(user_id=uid)
-        except Exception:
-            pass  # OSS may not require explicit user creation
+        import requests
+
+        base = _base_url()
+        # Zep OSS 0.27 returns up to ~100 by default; paginate via ?limit + cursor
+        # but in practice <1000 sessions total. Use ?limit=10000 single-shot.
+        resp = requests.get(f"{base}/api/v1/sessions?limit=10000", timeout=10)
+        resp.raise_for_status()
+        data = resp.json() or []
+        q4_sessions = [
+            s.get("session_id")
+            for s in data
+            if isinstance(s, dict) and str(s.get("session_id", "")).startswith("q4-")
+        ]
+        _sessions = [s for s in q4_sessions if s]
+        print(f"[zep rescan] loaded {len(_sessions)} q4-* sessions from server")
+    except Exception as exc:
+        print(f"[zep rescan] failed: {exc} — _sessions left empty")
 
 
 def teardown() -> None:
     """Release client reference. Zep sessions + data persist across runs."""
     global _client
-    _client = None
+    if _client is not None:
+        try:
+            _client.close()
+        except Exception:
+            pass
+        _client = None
 
 
 def ingest_corpus(chunks: list[dict[str, Any]]) -> dict[str, Any]:
@@ -183,42 +216,48 @@ def ingest_corpus(chunks: list[dict[str, Any]]) -> dict[str, Any]:
 
     Optional fields:
         conv_id  (str)  — grouping key; derived from id prefix when absent
+        conversation_id (str) — corpus_loader uses this field
         metadata (dict) — extra fields stored on the Zep message
 
     Chunks sharing the same conv_id land in one Zep session named
     "q4-<conv_id>". This is deterministic — repeated calls are idempotent
-    (existing sessions are reused, messages are re-added but Zep deduplicates
-    at the fact level).
+    (existing sessions are reused, messages are re-added; Zep deduplicates
+    nothing message-level so re-running CAN multiply data — wipe DB between
+    fresh runs via `docker compose down -v`).
 
     Returns: {"sessions_created": int, "messages_added": int, "errors": int}
     """
     global _sessions
 
     client = _get_client()
-    uid = _user_id()
 
     # Group chunks by conversation.
     from collections import defaultdict
 
     conv_groups: dict[str, list[dict]] = defaultdict(list)
     for chunk in chunks:
-        cid = chunk.get("conv_id") or _conv_id_from_gold_id(str(chunk.get("id", "")))
+        cid = (
+            chunk.get("conv_id")
+            or chunk.get("conversation_id")
+            or _conv_id_from_gold_id(str(chunk.get("id", "")))
+        )
         conv_groups[cid].append(chunk)
 
     sessions_created = 0
     messages_added = 0
     errors = 0
 
+    from zep_python import Memory, Message, Session
+
     for conv_id, conv_chunks in conv_groups.items():
-        session_id = f"q4-{conv_id}"
-        _ensure_session(client, session_id, uid)
+        session_id = _safe_session_id(conv_id)
+        _ensure_session(client, session_id, Session)
         if session_id not in _sessions:
             _sessions.append(session_id)
         sessions_created += 1
 
-        from zep_python import Message
-
-        batch_size = 50  # Zep OSS handles batches up to ~100 comfortably
+        # Zep OSS 0.27 accepts batches but bounded by request size; keep modest.
+        batch_size = 30
         for i in range(0, len(conv_chunks), batch_size):
             batch = conv_chunks[i : i + batch_size]
             msgs: list[Message] = []
@@ -238,11 +277,19 @@ def ingest_corpus(chunks: list[dict[str, Any]]) -> dict[str, Any]:
                     )
                 )
             try:
-                client.memory.add(session_id, messages=msgs)
+                client.memory.add_memory(session_id, Memory(messages=msgs))
                 messages_added += len(msgs)
             except Exception as exc:
                 errors += 1
-                print(f"[zep ingest] session={session_id} batch={i // batch_size} error: {exc}")
+                print(
+                    f"[zep ingest] session={session_id} batch={i // batch_size} error: {exc}"
+                )
+
+    # Zep computes embeddings asynchronously via a watermill consumer. Block
+    # here until every ingested message has its embedding row, so search()
+    # does not race a half-embedded corpus and return artificially low recall.
+    wait_secs = int(os.environ.get("ZEP_EMBED_WAIT_SECS", "600"))
+    _wait_for_embeddings(messages_added, wait_secs)
 
     return {
         "sessions_created": sessions_created,
@@ -251,134 +298,193 @@ def ingest_corpus(chunks: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _wait_for_embeddings(expected: int, max_secs: int) -> None:
+    """Poll postgres until message_embedding.count >= expected (or timeout)."""
+    if expected <= 0:
+        return
+    import subprocess
+    import time
+
+    deadline = time.time() + max_secs
+    last_count = -1
+    stagnant_polls = 0
+    while time.time() < deadline:
+        try:
+            out = subprocess.run(
+                [
+                    "docker",
+                    "exec",
+                    "q4-postgres",
+                    "psql",
+                    "-U",
+                    "zep",
+                    "-d",
+                    "zep",
+                    "-t",
+                    "-A",
+                    "-c",
+                    "SELECT count(*) FROM message_embedding;",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+            count = int(out.stdout.strip() or "0")
+        except Exception as exc:
+            print(f"[zep wait] poll error: {exc}")
+            time.sleep(5)
+            continue
+        if count >= expected:
+            print(f"[zep wait] embeddings ready: {count}/{expected}")
+            return
+        if count == last_count:
+            stagnant_polls += 1
+        else:
+            stagnant_polls = 0
+        last_count = count
+        # Print every 30s-ish
+        print(f"[zep wait] embeddings: {count}/{expected}")
+        if stagnant_polls >= 6:  # 6 polls × 10s = 60s no progress
+            print("[zep wait] no progress for 60s — proceeding with partial embeddings")
+            return
+        time.sleep(10)
+    print(f"[zep wait] timeout after {max_secs}s; proceeding with partial embeddings")
+
+
 def search(query: str, k: int = 10) -> list[dict]:
     """
     Search all ingested Zep sessions for ``query``.
 
-    Uses ``memory.search_sessions`` scoped to the Q4 user. Zep OSS returns
-    facts derived from ingested messages (search_scope param is Cloud-only
-    and ignored in OSS — OSS always searches facts).
+    Zep OSS 1.5 search is scoped per-session. We fan the query out to all
+    sessions populated by ``ingest_corpus`` and merge by similarity score
+    (``r.dist`` — higher = more similar in this SDK), then dedupe on gold_id.
 
-    Gold IDs are recovered from message metadata["gold_id"]. When absent
-    (e.g., a synthesized fact with no source message), we fall back to the
-    Zep message UUID so the result is still surfaced to the aggregator
-    (it will score 0 against the gold set but keeps the list intact).
+    Performance note: with ~500-720 sessions and ~400ms/search serial, a
+    sequential fan-out takes ~3-5 min per query (unacceptable for n=100
+    benchmark). We parallelize via ThreadPoolExecutor — `requests` releases
+    the GIL during HTTP I/O so threading scales linearly until either Zep
+    server or the network saturates. NOX_ZEP_SEARCH_WORKERS overrides the
+    default (16 — empirically the sweet spot for the OSS server's bounded
+    handler pool).
 
-    If ``ingest_corpus`` has not been called (cold start), falls back to the
-    single-session mode using ZEP_SESSION_ID env var (backward compat).
+    Falls back to `ZEP_SESSION_ID` env var when no ingest happened in-process
+    (cold benchmarks driven manually).
     """
     client = _get_client()
 
     if not _sessions:
-        return _search_single_session(client, query, k)
-    return _search_all_sessions(client, query, k)
+        fallback = os.environ.get("ZEP_SESSION_ID")
+        if not fallback:
+            return []
+        return _search_one(client, fallback, query, k)
 
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# ---------------------------------------------------------------------------
-# Internal search helpers
-# ---------------------------------------------------------------------------
+    from zep_python import MemorySearchPayload
 
+    payload = MemorySearchPayload(text=query)
+    workers = int(os.environ.get("NOX_ZEP_SEARCH_WORKERS", "16"))
 
-def _search_all_sessions(client, query: str, k: int) -> list[dict]:
-    """Search across all Q4 sessions via search_sessions API."""
-    uid = _user_id()
-    try:
-        resp = client.memory.search_sessions(
-            text=query,
-            user_id=uid,
-            limit=k,
-            # Omit search_scope: Cloud-only param causes 400 on some OSS builds
-        )
-    except Exception as exc:
-        print(f"[zep search] search_sessions error: {exc}")
-        return []
+    def _one(sid: str):
+        try:
+            return sid, client.memory.search_memory(sid, payload, limit=k)
+        except Exception as exc:  # noqa: BLE001
+            return sid, exc
 
-    results_raw = getattr(resp, "results", None) or []
-    items: list[dict[str, Any]] = []
-    for r in results_raw:
-        msg = getattr(r, "message", None)
-        score = float(getattr(r, "score", 0.0) or 0.0)
-        session_id = getattr(r, "session_id", "") or ""
+    all_results: list[tuple[float, dict]] = []
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        futures = [pool.submit(_one, sid) for sid in _sessions]
+        for fut in as_completed(futures):
+            sid, results = fut.result()
+            if isinstance(results, Exception):
+                # Log + skip; do not let one bad session kill the whole query
+                print(f"[zep search] session={sid} error: {results}")
+                continue
+            for r in results:
+                msg = getattr(r, "message", None)
+                if msg is None:
+                    continue
+                # message comes back as dict in 1.5
+                if isinstance(msg, dict):
+                    meta = msg.get("metadata") or {}
+                    content = msg.get("content", "")
+                    msg_uuid = msg.get("uuid", "")
+                else:
+                    meta = getattr(msg, "metadata", None) or {}
+                    content = getattr(msg, "content", "") or ""
+                    msg_uuid = getattr(msg, "uuid", "") or ""
+                gold_id = str((meta or {}).get("gold_id") or "") or msg_uuid
+                score = float(getattr(r, "dist", 0.0) or 0.0)
+                all_results.append(
+                    (
+                        score,
+                        {
+                            "id": gold_id,
+                            "score": score,
+                            "text": content,
+                            "source": sid,
+                        },
+                    )
+                )
 
-        if msg is not None:
-            gold_id = _extract_gold_id(msg)
-            text = getattr(msg, "content", "") or ""
-        else:
-            # Fact-only result (OSS default path)
-            fact = getattr(r, "fact", None)
-            gold_id = _extract_gold_id_from_fact(fact)
-            text = getattr(fact, "fact", "") if fact else ""
-
-        items.append(
-            {
-                "id": gold_id or _zep_uuid(msg),
-                "score": score,
-                "text": text,
-                "source": session_id,
-            }
-        )
-
-    # Deduplicate by id (same fact may surface from multiple sessions).
+    # Sort by similarity (higher = closer) and dedupe by id.
+    all_results.sort(key=lambda x: x[0], reverse=True)
     seen: set[str] = set()
     deduped: list[dict] = []
-    for item in items:
-        if item["id"] not in seen:
-            seen.add(item["id"])
-            deduped.append(item)
-    return deduped[:k]
+    for _, item in all_results:
+        if item["id"] in seen:
+            continue
+        seen.add(item["id"])
+        deduped.append(item)
+        if len(deduped) >= k:
+            break
+    return deduped
 
 
-def _search_single_session(client, query: str, k: int) -> list[dict]:
-    """
-    Fallback single-session search (legacy stub behaviour).
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
 
-    Used when ingest_corpus has not been called (cold benchmarks or
-    manually-loaded sessions via ZEP_SESSION_ID env var).
-    """
-    session_id = os.environ.get("ZEP_SESSION_ID", "q4-default-session")
+
+def _search_one(client, session_id: str, query: str, k: int) -> list[dict]:
+    """Single-session fallback search."""
+    from zep_python import MemorySearchPayload
+
     try:
-        resp = client.memory.search_sessions(
-            text=query,
-            session_ids=[session_id],
-            limit=k,
+        results = client.memory.search_memory(
+            session_id, MemorySearchPayload(text=query), limit=k
         )
     except Exception as exc:
         print(f"[zep search-single] error: {exc}")
         return []
-
-    results_raw = getattr(resp, "results", None) or []
-    items: list[dict[str, Any]] = []
-    for r in results_raw:
-        msg = getattr(r, "message", None)
-        score = float(getattr(r, "score", 0.0) or 0.0)
-        gold_id = _extract_gold_id(msg) if msg else ""
-        text = getattr(msg, "content", "") if msg else ""
+    items: list[dict] = []
+    for r in results:
+        msg = getattr(r, "message", None) or {}
+        if isinstance(msg, dict):
+            meta = msg.get("metadata") or {}
+            content = msg.get("content", "")
+            uuid = msg.get("uuid", "")
+        else:
+            meta = getattr(msg, "metadata", None) or {}
+            content = getattr(msg, "content", "")
+            uuid = getattr(msg, "uuid", "")
         items.append(
             {
-                "id": gold_id or _zep_uuid(msg),
-                "score": score,
-                "text": text,
+                "id": str((meta or {}).get("gold_id") or "") or uuid,
+                "score": float(getattr(r, "dist", 0.0) or 0.0),
+                "text": content,
                 "source": session_id,
             }
         )
     return items[:k]
 
 
-# ---------------------------------------------------------------------------
-# Internal utilities
-# ---------------------------------------------------------------------------
-
-
 def _conv_id_from_gold_id(gold_id: str) -> str:
     """
     Derive conversation ID from a gold chunk ID.
 
-    Convention (LongMemEval + LoCoMo):
-        "conv-48::D2:13"            -> "conv-48"
-        "locomo::conv-50::chunk-7"  -> "locomo::conv-50"
-
-    Splits on "::" and takes all but the last segment. If the ID has no
-    "::", returns the whole ID as the conversation group.
+    LoCoMo:       "conv-48::D2:13"  -> "conv-48"
+    LongMemEval:  bare session_id  -> session_id   (each chunk = own conv)
     """
     if "::" in gold_id:
         parts = gold_id.split("::")
@@ -386,47 +492,27 @@ def _conv_id_from_gold_id(gold_id: str) -> str:
     return gold_id
 
 
-def _ensure_session(client, session_id: str, user_id: str) -> None:
+def _safe_session_id(raw: str) -> str:
+    """
+    Zep 0.27 only accepts session_id matching /^[a-zA-Z0-9_-]+$/ish (alphanum + _-).
+    Sanitize while keeping reversibility for debugging.
+    """
+    safe = "".join(c if (c.isalnum() or c in "_-") else "_" for c in raw)
+    return f"q4-{safe[:120]}"  # keep within typical column limits
+
+
+def _ensure_session(client, session_id: str, Session) -> None:
     """Create Zep session if it does not already exist (idempotent)."""
     try:
         client.memory.get_session(session_id)
-        return  # already exists
+        return  # exists
     except Exception:
-        pass  # NotFoundError or connection issue — attempt creation
+        pass
 
     try:
         client.memory.add_session(
-            session_id=session_id,
-            user_id=user_id,
-            metadata={"source": "q4-comparison"},
+            Session(session_id=session_id, metadata={"source": "q4-comparison"})
         )
     except Exception as exc:
-        # Concurrent creation race — log, don't crash.
+        # Concurrent / already-exists — log + continue.
         print(f"[zep] add_session({session_id}) warning: {exc}")
-
-
-def _extract_gold_id(msg) -> str:
-    """Pull gold_id from message metadata; return empty string if absent."""
-    if msg is None:
-        return ""
-    meta = getattr(msg, "metadata", None)
-    if isinstance(meta, dict):
-        return str(meta.get("gold_id", ""))
-    return ""
-
-
-def _extract_gold_id_from_fact(fact) -> str:
-    """Pull gold_id from fact metadata (Cloud surface, may be None in OSS)."""
-    if fact is None:
-        return ""
-    meta = getattr(fact, "metadata", None)
-    if isinstance(meta, dict):
-        return str(meta.get("gold_id", ""))
-    return ""
-
-
-def _zep_uuid(msg) -> str:
-    """Extract Zep's internal message UUID as fallback identifier."""
-    if msg is None:
-        return ""
-    return str(getattr(msg, "uuid_", None) or getattr(msg, "uuid", "") or "")

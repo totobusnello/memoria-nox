@@ -56,9 +56,11 @@ services:
     volumes:
       - ./zep-config.yaml:/app/zep-config.yaml:ro
     environment:
-      # Zep 0.27.2 validates ZEP_OPENAI_API_KEY at startup even when all
-      # extractors are disabled (set in zep-config.yaml). Dummy value satisfies
-      # the check; no OpenAI calls fire because Extractors.*.Enabled: false.
+      # Zep 0.27.2 reads ZEP_OPENAI_API_KEY for both validation AND extractor calls.
+      # Cross-system mode (2026-05-24): real OPENAI_API_KEY must be exported so
+      # message embeddings can actually be computed; without it Zep falls back to
+      # text-only search and the comparison vs OpenAI-embedded systems is unfair.
+      # zep-config.yaml has Extractors.Messages.Embeddings.Enabled: true.
       ZEP_OPENAI_API_KEY: ${OPENAI_API_KEY:-no-llm-not-used}
     ports:
       - "127.0.0.1:8000:8000"
