@@ -91,11 +91,33 @@ nox-mem search "what is the salience formula?"
 
 # 6. Grounded answer with citations (the answer primitive, P1)
 nox-mem answer "how does pain affect ranking?"
+
+# 7. Time-travel + recency window (the temporal primitive, P3)
+nox-mem search "deployment decisions" --as-of 2026-04-01
+nox-mem search "OpenClaw fixes" --changed-since 7d
 ```
 
 Requires Node 20+. SQLite ships bundled via `better-sqlite3`. 26+ CLI subcommands via `nox-mem --help`. MCP server exposes 16 tools (`nox_mem_search`, `kg_build`, `cross_search`, `reflect`, `nox_mem_answer`, ...). HTTP API listens on `NOX_API_PORT` (default `18802`).
 
 Full reference: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
+
+## 3 primitives, 1 file, any LLM
+
+The entire user-facing contract surface fits on a card. Three primitives, surfaced identically across CLI, HTTP API, and MCP, all backed by one SQLite file on your disk &mdash; and the LLM provider is swappable without code changes.
+
+| Primitive | What it does | Surfaces | Spec |
+|---|---|---|---|
+| **`search`** | Hybrid retrieval &mdash; FTS5 BM25 &#8741; Gemini 3072d semantic &rarr; RRF fusion (k=60), Hard Mutex section gating, SOURCE_TYPE_BOOST overlays. Returns ranked chunks with scores + provenance. | `nox-mem search` &middot; `POST /api/search` &middot; `nox_mem_search` | [Paper &sect;4](paper/paper-tecnico-nox-mem.md), [`specs/2026-03-14-nox-memory-system-design.md`](specs/2026-03-14-nox-memory-system-design.md) |
+| **`answer`** | Grounded RAG with citations &mdash; wraps `search` (top-K=10) &rarr; LLM (Gemini Flash Lite by default, D41-locked) &rarr; parses inline `[chunk_<id>]` citations &rarr; anti-hallucination retry. Empty-retrieval short-circuit avoids LLM spend. **p95 = 101.74ms** on offline bench (42&times; under 4.3s budget). | `nox-mem answer` &middot; `POST /api/answer` &middot; `nox_mem_answer` | [`staged-P1/README.md`](staged-P1/edits/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
+| **Temporal filter** | `--as-of <date>` (time-travel) and `--changed-since <date>` (recency window) as **hard SQL pre-filters**, not ranking boosts. Closes Gap #2 (temporal decay) of the Six Gaps reframe &mdash; time is a first-class selector, not an opaque multiplier. ISO 8601 or relative (`7d`, `1w`, `30d`, `2h`, `15m`). | `--as-of` / `--changed-since` on `search` (and therefore `answer`) &middot; `?as_of=`, `?changed_since=` on HTTP &middot; `as_of` / `changed_since` on MCP | [`staged-P3/DEPLOY.md`](staged-P3/DEPLOY.md), PRs #2 #167 |
+
+```bash
+# Compose them — every advanced verb decomposes into these three
+nox-mem answer "what incidents happened last week?" --changed-since 7d
+nox-mem search "schema migration" --as-of 2026-05-01 --changed-since 30d
+```
+
+Full reference: [`docs/PRIMITIVES.md`](docs/PRIMITIVES.md).
 
 ## Why memoria-nox
 
