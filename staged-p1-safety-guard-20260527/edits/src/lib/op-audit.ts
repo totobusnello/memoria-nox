@@ -94,33 +94,83 @@ const DB_PATH = resolveDbPath();
 export function assertDbPathConsistency(opName: string): void {
   if (process.env.NOX_OP_AUDIT_SKIP_WORKSPACE_GUARD === '1') return;
 
-  // Re-derive expected path from current env (same logic as resolveDbPath above,
-  // but called at op-time instead of module-load, to catch any drift).
-  const expectedDbPath = (() => {
-    if (process.env.NOX_DB_PATH) return resolve(process.env.NOX_DB_PATH);
-    const ws = process.env.OPENCLAW_WORKSPACE;
-    if (ws) return resolve(ws, 'tools', 'nox-mem', 'nox-mem.db');
-    return '/root/.openclaw/workspace/tools/nox-mem/nox-mem.db';
-  })();
+  // ENHANCED 2026-05-27 (post-deploy finding): the original guard skipped when NOX_DB_PATH
+  // was set ("explicit override wins"). But .env-sourced NOX_DB_PATH=main combined with a
+  // script-level OPENCLAW_WORKSPACE=/root/.openclaw/agents/<X> override produces the exact
+  // bug pattern: NOX_DB_PATH wins in db.ts resolution (operates on main), but the script
+  // intended OPENCLAW_WORKSPACE to switch to the agent DB. Reindex hits main → wipe.
+  //
+  // New logic:
+  //   - OPENCLAW_WORKSPACE unset           → no inconsistency possible, skip.
+  //   - OPENCLAW_WORKSPACE set:
+  //       - NOX_DB_PATH set AND matches    → OK (explicit + consistent).
+  //       - NOX_DB_PATH set AND mismatches → ABORT (the .env+script bug pattern).
+  //       - NOX_DB_PATH unset:
+  //           - DB_PATH = expected         → OK (P2 fix path).
+  //           - DB_PATH != expected        → ABORT (legacy bug, op-audit not respecting WS).
 
+  const ws = process.env.OPENCLAW_WORKSPACE;
+  if (!ws) return; // No custom workspace, no inconsistency possible
+
+  const expectedFromWs = resolve(ws, 'tools', 'nox-mem', 'nox-mem.db');
+  const noxDbPath = process.env.NOX_DB_PATH;
+
+  if (noxDbPath) {
+    const noxResolved = resolve(noxDbPath);
+    if (noxResolved !== expectedFromWs) {
+      throw new Error([
+        `[op-audit] ABORT: NOX_DB_PATH conflicts with OPENCLAW_WORKSPACE on op '${opName}'.`,
+        ``,
+        `  OPENCLAW_WORKSPACE = ${ws}`,
+        `  NOX_DB_PATH        = ${noxResolved}`,
+        `  Expected (from WS) = ${expectedFromWs}`,
+        ``,
+        `  This pattern is exactly what caused the 2026-05-25 incident:`,
+        `    1. nightly-maintenance.sh sources /root/.openclaw/.env → exports NOX_DB_PATH=main`,
+        `    2. Phase 2 loop sets OPENCLAW_WORKSPACE=/root/.openclaw/agents/<X>`,
+        `    3. db.ts resolution: NOX_DB_PATH wins → reindex hits MAIN, not agent DB`,
+        `    4. atlas reindex (first in loop) wipes main DB`,
+        ``,
+        `  Fix: caller must either unset NOX_DB_PATH before invoking the agent op, OR set`,
+        `  NOX_DB_PATH explicitly to match the OPENCLAW_WORKSPACE-derived path. Example:`,
+        ``,
+        `    # bad (the 2026-05-25 bug pattern):`,
+        `    OPENCLAW_WORKSPACE=/root/.openclaw/agents/atlas nox-mem reindex`,
+        ``,
+        `    # good (explicit + consistent):`,
+        `    OPENCLAW_WORKSPACE=/root/.openclaw/agents/atlas \\`,
+        `      NOX_DB_PATH=/root/.openclaw/agents/atlas/tools/nox-mem/nox-mem.db \\`,
+        `      nox-mem reindex`,
+        ``,
+        `    # or (cleaner — let resolveDbPath() derive from WS):`,
+        `    env -u NOX_DB_PATH OPENCLAW_WORKSPACE=/root/.openclaw/agents/atlas nox-mem reindex`,
+        ``,
+        `  Emergency bypass: NOX_OP_AUDIT_SKIP_WORKSPACE_GUARD=1.`,
+        `  See: docs/INCIDENTS.md#2026-05-26, task #18, memory feedback_reindex_bypasses_openclaw_workspace_hits_main.`,
+      ].join('\n'));
+    }
+    // NOX_DB_PATH set and matches expected — caller is explicit + consistent. OK.
+    return;
+  }
+
+  // NOX_DB_PATH unset; compare module's DB_PATH (captured at load) with expectedFromWs.
+  // This catches the case where op-audit's module-load DB_PATH disagrees with db.ts's
+  // module-load DB_PATH (the original P2 fix scenario — if resolveDbPath is correct,
+  // this branch never fires; if a future refactor breaks resolveDbPath, this catches it).
   const actualDbPath = resolve(DB_PATH);
-
-  if (expectedDbPath !== actualDbPath) {
+  if (expectedFromWs !== actualDbPath) {
     throw new Error([
       `[op-audit] ABORT: db_path inconsistency detected on op '${opName}'.`,
       ``,
-      `  OPENCLAW_WORKSPACE = ${process.env.OPENCLAW_WORKSPACE || '(unset)'}`,
-      `  NOX_DB_PATH        = ${process.env.NOX_DB_PATH || '(unset)'}`,
-      `  Expected db_path   = ${expectedDbPath}`,
+      `  OPENCLAW_WORKSPACE = ${ws}`,
+      `  NOX_DB_PATH        = (unset)`,
+      `  Expected db_path   = ${expectedFromWs}`,
       `  Actual db_path     = ${actualDbPath}`,
       ``,
-      `  This guard prevents the 2026-05-25 incident pattern where op-audit snapshots one`,
-      `  DB while the actual operation (via db.ts getDb) runs on another. The mismatch`,
-      `  typically indicates that DB_PATH was resolved at module load with a different env`,
-      `  than is active at op-time, OR a separate code path computed DB_PATH inconsistently.`,
+      `  resolveDbPath() should produce expected_db_path from OPENCLAW_WORKSPACE.`,
+      `  Mismatch indicates a regression in resolveDbPath() — see this file ~line 50.`,
       ``,
-      `  Emergency bypass: NOX_OP_AUDIT_SKIP_WORKSPACE_GUARD=1 (use only with full understanding).`,
-      ``,
+      `  Emergency bypass: NOX_OP_AUDIT_SKIP_WORKSPACE_GUARD=1.`,
       `  See: docs/INCIDENTS.md#2026-05-26, task #18, memory feedback_reindex_bypasses_openclaw_workspace_hits_main.`,
     ].join('\n'));
   }
