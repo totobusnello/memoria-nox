@@ -2,6 +2,94 @@
 
 ---
 
+## Wed 2026-05-27 evening — Incident closed + Lab Q1 launched
+
+> Sessão ~5h fechou incident loop completo e disparou Lab Q1 paralelo. **6 dias até arXiv deadline (Tue 2026-06-02).**
+
+### Estado atual prod
+
+```
+✅ chunks: 69.135 | vec coverage: 100% | sections OK | services UP
+✅ nightly-maintenance Phase 2 SAFE pra rodar tonight 23:00 BRT
+✅ DISABLE_AGENT_REINDEX flag REMOVIDA (fix em prod, não precisa kill-switch)
+```
+
+### Incident 2026-05-25 23:00 BRT (RECORRÊNCIA #4) — FECHADO
+
+3 bugs compostos identificados (task #18):
+
+1. **op-audit.ts** tinha `const DB_PATH` próprio (linha 39 histórica) que **NÃO respeitava OPENCLAW_WORKSPACE** — só lia NOX_DB_PATH ou caía em hardcoded MAIN.
+2. **Inconsistência:** db.ts respeita OPENCLAW_WORKSPACE, op-audit não. Reindex de atlas (primeiro no loop Phase 2) snapshotava main DB (1.2GB) enquanto operação real ia em outro lugar.
+3. **Bug secundário descoberto pós-deploy:** `.env` do prod tem `NOX_DB_PATH=main` global. Quando `nightly-maintenance.sh` source .env + set OPENCLAW_WORKSPACE per agent, **NOX_DB_PATH vence em db.ts** → atlas reindex bate em MAIN.
+
+**Fix deployado em prod:**
+- **PR #358 MERGED** (commit `8436982`) — op-audit.ts respeita OPENCLAW_WORKSPACE (P2) + assertDbPathConsistency() guard (P1)
+- **Enhanced guard** (post-deploy commit `9cd3135`) — detecta NOX_DB_PATH vs OPENCLAW_WORKSPACE conflict
+- **nightly-maintenance.sh patched** (VPS direct via sed) — agora seta NOX_DB_PATH explícito per agent
+- **Smoke test:** 4/4 cenários validados (bug fires, default skips, explicit consistent skips, env -u path skips)
+
+Forensic proof: snapshot `reindex-atlas-20260526020006` 1.2GB (MAIN size) vs outros agents 64MB cada. Atlas snapshot = path-mismatched audit trail.
+
+Documentado: `docs/INCIDENTS.md#2026-05-26` (commit `3819fd9`) + memory `feedback_reindex_bypasses_openclaw_workspace_hits_main`.
+
+### Bug colateral fixado
+
+**ALL_ADAPTERS missing lightrag** em `eval/q4-comparison/adapters/__init__.py` (commit `c2ee060` main) — pré-requisito pra #14 retry funcionar limpo.
+
+### Lab Q1 disparado em paralelo (status ao final desta sessão)
+
+| Task | PR | Status |
+|---|---|---|
+| **#17 gbrain plan** | **#359 OPEN** | ✅ research done. 97.60% = R@5 session-granularity em garrytan/gbrain-evals (MIT, 188⭐). Stack: PGLite + pgvector + OpenAI text-embedding-3-large@1536 + RRF. Repro custa ~$2.35 cold. **5 decisions aguardando sign-off**, principal = embedding stack stance |
+| **#6 bootstrap** | **#360 OPEN** | ✅ harness + smoke done. Adapter wireable (Option B CLI subprocess asyncio). Total full 5 batches: ~$3.17. Batch 004 só: ~$0.70 (~1-2h) |
+| **#6 execution batch 004** | dispatched | 🟢 rodando em paralelo (**Gemini-only stack**, NÃO OpenRouter — patch via Gemini OpenAI-compat shim). ~$0.67 |
+| **#14 LightRAG full bench** | dispatched | 🟢 rodando em paralelo (~30min, ~$5 Gemini) |
+| **#15 paper rebuild** | — | END — espera os 2 outros agents voltarem |
+
+### Decisões aguardando Toto
+
+1. **PR #359 (gbrain):** 5 sign-off decisions, principal sendo **embedding stack stance**:
+   - Opção 1: Gemini autonomy (apples-vs-apples-on-corpus-not-on-embeddings) — headline "X% with OpenAI-free Autonomy stack"
+   - Opção 2: rodar com OpenAI 3-large@1536 também (Phase E parity stretch) — total parity, mas perde autonomy theme
+2. **PR #360 (EverMemBench):** decidir entre runs **locais** (precisa nox-mem CLI local) vs **no VPS** (live API). Recomendação: VPS pra runs longos.
+3. **Continuação Phase 2 EverMemBench:** depois do batch 004 voltar, rodar 005-016? (~$2.50 mais)
+
+### Sessão Wed 2026-05-27 — commits e PRs
+
+**Commits em main:**
+- `3819fd9` docs(incidents): RECORRÊNCIA #4 documented
+- `c2ee060` fix(q4-eval): ALL_ADAPTERS lightrag (1-line)
+- `8436982` feat(op-audit): P1+P2 workspace consistency (PR #358 squash merge)
+
+**PRs abertos aguardando review:**
+- #359 gbrain comparison plan
+- #360 EverMemBench bootstrap
+
+**Tasks concluídas hoje:** #18, #19, #20, #21, #22, #23, #17, #6 (bootstrap parte).
+
+**Tasks em execução:** #14 (LightRAG), #6 (batch 004 execution).
+
+**Tasks remaining:** #15 (paper rebuild — END), Lab Q1 bge-reranker (Parte B do task original #6), #6 execution batches 005-016 (gated em batch 004 success).
+
+### Próxima sessão pickup
+
+1. Ler notifications dos 2 agents (LightRAG #14 + EverMemBench batch 004)
+2. Mergear PRs #359 + #360 (após sign-off nas 5 decisões)
+3. Decidir continuação EverMemBench batches 005-016
+4. **Paper rebuild (#15)** — incorporar novos números (LightRAG nDCG@10, gbrain comparison, EverMemBench batch 004)
+5. arXiv submit prep — **deadline Tue 2026-06-02 (6 dias daqui)**
+
+### Lessons cravadas hoje
+
+- **DB_PATH consistency entre módulos é crítica.** Se módulo A reads env-derived path e módulo B reads NOX_DB_PATH, eles podem divergir → snapshots vão pra um DB, ops vão pra outro = wipe risk.
+- **Pre-deploy smoke test catches half the bugs.** Post-deploy smoke caught the .env NOX_DB_PATH global → had to amend the PR with enhanced guard.
+- **`.env` global env vars (NOX_DB_PATH, NOX_API_PORT, etc) podem ser overridos accidentalmente.** Scripts que querem agent-specific override DEVEM setar todos os env vars relacionados explicitamente, não confiar em "OPENCLAW_WORKSPACE wins".
+- **Worktree sparse-checkout fragility recorrente** (`[[worktree-isolation-sparse-checkout-root-cause]]`). Agent #14 attempt 1 falhou parcialmente por isso.
+- **Forensic snapshot size analysis é diagnóstico forte.** 1.2GB vs 64MB snapshots = atlas reindex hitting main, sem ambiguidade.
+- **OpenRouter NÃO é obrigatório em harnesses externos** — Gemini OpenAI-compat shim funciona pra maioria dos eval pipelines, mantém autonomy theme + ~6× mais barato.
+
+---
+
 ## Mon 2026-05-25 morning — Lab Q1 START (decisão de Sun night)
 
 > **Decisão Toto (Sun 2026-05-24 ~23h BRT):** tudo fresh amanhã, começar Mon morning. Não disparar agentes overnight Sun.
