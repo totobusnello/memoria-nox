@@ -2,6 +2,109 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-05-26 ~02:00 UTC (23:00 BRT Mon 25/mai) — RECORRÊNCIA #4 — atlas reindex wipe (69.135 → 756 chunks); kill-switch havia sido removido entre 23/mai e 25/mai
+
+### Severity: 🔴 red — data-loss event em produção (recuperado sem perda via snapshot pre-op)
+
+### TL;DR
+Mesmo bug do incident anterior (2026-05-23) recorreu **48h depois** porque o flag `/root/.openclaw/DISABLE_AGENT_REINDEX` instalado em 23/mai 23:32 BRT foi **removido em algum momento antes de 25/mai 23:00 BRT** (responsável + razão desconhecidos — investigar). Detecção pelo mesmo canary; recovery em ~15 min; flag reinstalado em 2026-05-27 15:51 BRT (sessão de root-cause #18) com TTL aberto até P1+P2 shipped.
+
+### Sintoma (idêntico ao prior)
+```
+⚠️ nox-mem schema invariant failed: section NOT NULL count=0
+⚠️ nox-mem schema invariant failed: section=compiled count=0
+```
+Alerta em **2026-05-25 23:15:04 BRT** (cron schema-invariants */15min).
+
+### Timeline forense (BRT — confirmed server tz = America/Sao_Paulo)
+```
+22:45 BRT Mon May 25  schema-invariants OK (último good)
+23:00:00 BRT          cron 0 23 → nightly-maintenance.sh START
+23:00:06 BRT          Phase 2 atlas: withOpAudit cria snapshot reindex-atlas-20260526020006 (1.2GB!)
+                      ^^^ snapshot 1.2GB confirma: atlas reindex está operando no MAIN DB,
+                          não no atlas DB (atlas DB normal = ~64MB, evidenciado por boris/cipher/forge/lex/nox snapshots)
+23:10:28 BRT          reindex boris (snapshot 64MB - correto)
+23:10:38 BRT          reindex cipher (64MB)
+23:10:49 BRT          reindex forge (64MB)
+23:10:59 BRT          reindex lex (64MB)
+23:11:10 BRT          reindex nox (64MB)
+23:15:04 BRT          ⚠️ schema-invariants FAIL detected, Telegram alert dispatched
+23:22:57 BRT          post-incident DB preserved (756 chunks) → /tmp/post-incident-756chunks-20260525-232257.db
+~23:25-23:30 BRT      restored from reindex-atlas snapshot via safeRestore()
+23:30:02 BRT          schema-invariants OK (recovered)
+```
+
+### Root cause (refinado vs entry anterior)
+
+A entry anterior (2026-05-23) descrevia o sintoma — "reindex agent-por-agent sobrescreve a tabela chunks inteira". Investigação de root cause em **2026-05-27** (task #18) revela **3 bugs compostos**:
+
+**Bug primário — OPENCLAW_WORKSPACE não é respeitado pelo `nox-mem reindex` na resolução de db_path.** Script chama:
+```bash
+NOX_DB_SOURCE=atlas OPENCLAW_WORKSPACE=/root/.openclaw/agents/atlas /usr/local/bin/nox-mem reindex
+```
+Deveria operar em `/root/.openclaw/agents/atlas/tools/nox-mem/nox-mem.db` mas opera em `/root/.openclaw/workspace/tools/nox-mem/nox-mem.db` (**MAIN**). Snapshot é nomeado com prefix `reindex-atlas` (porque `NOX_DB_SOURCE=atlas` afeta naming) — cria audit trail enganoso.
+
+**Forensic proof:** `/var/backups/nox-mem/pre-op/` snapshots from Mon May 25 23:00 BRT:
+
+| Agent | Snapshot size | Conclusão |
+|---|---:|---|
+| atlas | **1.2 GB** 🔴 | = MAIN DB size — bug fired |
+| boris | 64 MB | ✅ atlas-agent DB normal |
+| cipher | 64 MB | ✅ |
+| forge | 64 MB | ✅ |
+| lex | 64 MB | ✅ |
+| nox | 64 MB | ✅ |
+
+Padrão histórico confirmado: snapshots `reindex-atlas-*` aparecem com **1.2GB** em **2026-05-24 09:05 BRT** (status `crashed` — bug fired antes, dano parcial) e **2026-05-25 23:00 BRT** (status sem audit row — bug fired, dano completo). Sat May 23 23:11 BRT `reindex-atlas` é 64MB = atlas DB correto (bug não disparou nessa janela).
+
+**Bug secundário — reindex.ts não rota entity files via `ingestEntityFile()`** (memory `[[reindex-must-route-entity-files]]`). Quando o reindex hits main, wipa `section`/`retention_days`/`section_boost` metadata em entity chunks. Combinado com deleção em massa, deixou 756 chunks + section=NULL.
+
+**Bug terciário — withOpAudit insert silently failed.** Snapshot file `reindex-atlas-20260526020006-13100-2051c30f038d42a0a2d93c3466a9b55c.db` existe no disco mas **NÃO há linha correspondente em `ops_audit`**. Provável `[[withopaudit-trigger-raise-ignore-swallows-insert]]` (started_at type mismatch trigger ABORT silencioso). Audit trail comprometido.
+
+### Mistério: kill-switch removido entre 23/mai e 25/mai
+O flag `/root/.openclaw/DISABLE_AGENT_REINDEX` foi instalado em **2026-05-23 ~23:32 BRT** durante recovery do incident anterior, com nota explícita "**NÃO remover o flag até o `nox-mem reindex` ser corrigido**". Em **2026-05-25 23:00 BRT** o flag não existia (senão Phase 2 teria pulado). 48h-janela entre 23-25/mai — **investigar quem/como removeu o flag** (audit de comandos via shell history, /root activity log, sessions Claude Code que acessaram /root/.openclaw/).
+
+### Recovery (idêntico ao prior, conferido)
+1. Preserva DB degradado → `/tmp/post-incident-756chunks-20260525-232257.db`
+2. `systemctl stop nox-mem-api`
+3. Restore snapshot `reindex-atlas-20260526020006` (1.2GB MAIN snapshot) via `safeRestore()` → MAIN DB
+4. Remove WAL/SHM órfãos
+5. `systemctl start nox-mem-api`
+6. Validação: 69.135 chunks, compiled=183, frontmatter=183, timeline=383, integrity ok, vectorCoverage 100%
+
+### Mitigação P0 reinstalada (2026-05-27 15:51 BRT)
+```bash
+echo "Disabled 2026-05-27 by Toto + Claude session — root cause: nox-mem reindex bypasses OPENCLAW_WORKSPACE, atlas reindex hits main DB. See incident Mon 2026-05-25 23:00 BRT. Reenable only after P1+P2 fix shipped." > /root/.openclaw/DISABLE_AGENT_REINDEX
+```
+
+**TTL aberto** até P1+P2 shipped (vide tasks #20, #21).
+
+### Hoje à noite (Wed 2026-05-27 23:00 BRT) — RISK ASSESSMENT
+Wed DOM=27 (odd) → Phase 2 condition `[ $((DOM % 2)) -eq 1 ]` é TRUE.
+DOW=3 (Wed) → Phase 3 RUNS (session-wrap-ups). Auditado: `session-wrap-up.sh` é puro verificação read-only + git commit + Discord alert; zero `nox-mem` mutator → safe.
+Phases 4/5/8 skip (não-Sun/Mon/1st-Sun). Phases 1, 6, 7 são intencionalmente MAIN e idempotentes/safe.
+**Conclusão:** hoje à noite green com flag P0 ativo.
+
+### Fix tiers (tasks abertas)
+| Task | Fix | Tipo |
+|---|---|---|
+| #20 (P1) | Safety guard em `nox-mem reindex`: abort if resolved db_path ≠ OPENCLAW_WORKSPACE-derived path | Defense layer |
+| #21 (P2) | Root fix: `OPENCLAW_WORKSPACE` resolution em CLI (db.ts + index.ts) | Bug primário |
+| #22 (P3) | `reindex.ts` rotear entity files via `ingestEntityFile()` | Bug secundário |
+| #23 (P4) | Audit `withOpAudit` silent insert failure (catch + log + alert) | Bug terciário |
+
+**Critério pra remover flag:** P1 + P2 shipped E deploy validado em prod E re-run de Phase 2 manual com `--dry-run` confirma db_path correto.
+
+### Defesa adicional sugerida (não-task ainda)
+1. **Hard-lock no flag:** mover `/root/.openclaw/DISABLE_AGENT_REINDEX` para `/etc/nox-mem/safety-flags/` com perm 0644 root:root + auditd watch.
+2. **Pre-flight check em `nightly-maintenance.sh`:** se flag está faltando E última instalação foi nos últimos 14d (per `find /root/.openclaw -name "DISABLE_AGENT_REINDEX" -newer ...`), alertar antes de prosseguir.
+3. **Snapshot size sanity:** após cada `withOpAudit` snapshot, comparar size com expected agent DB size; alertar se mismatch >50%.
+
+### Contexto da investigação
+Root-cause encontrado em sessão **Wed 2026-05-27 15:40-15:55 BRT** (task #18) usando: journalctl 72h + `sqlite3 ops_audit` + forensic snapshot size analysis + audit de `nightly-maintenance.sh` Phase 2 logic. Memory crítica salva em `[[reindex-bypasses-openclaw-workspace-hits-main]]`.
+
+---
+
 ## 2026-05-24 ~02:11 UTC (23:11 BRT 23/mai) — nox-mem reindex zerou chunks 69.032 → 730 (recovery completo, kill-switch instalado)
 
 ### Severity: 🔴 red — data-loss event em produção (recuperado sem perda via snapshot pre-op)
