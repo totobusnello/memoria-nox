@@ -10,11 +10,21 @@ Usage (from EverMemBench root after installing harness):
 Environment variables:
     NOX_API_BASE     — nox-mem API base URL (default: http://127.0.0.1:18802)
     NOX_DB_PATH      — per-batch DB path override (REQUIRED for isolation)
+    NOX_MEM_BIN      — path to nox-mem CLI entry (default: nox-mem on PATH;
+                       on VPS: node /root/.openclaw/workspace/tools/nox-mem/dist/index.js)
 
-Status: SKELETON — Add and Search stubs need implementation.
+Status: WIREABLE SKELETON — Add stage uses CLI subprocess (Option B, the only
+        real path given nox-mem has no POST /api/ingest); Search stage uses
+        HTTP /api/search. Both code-paths are present; run against a live
+        nox-mem instance to validate end-to-end.
 """
 import asyncio
+import json
 import os
+import shlex
+import shutil
+import subprocess
+import tempfile
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -121,31 +131,167 @@ class NoxMemAdapter(BaseAdapter):
         **kwargs: Any,
     ) -> AddResult:
         """
-        Ingest group chat messages into nox-mem.
+        Ingest group chat messages into nox-mem via CLI subprocess.
 
-        TODO: Implement one of the two options below.
+        Strategy (Option B — CLI ingest):
+            1. Collect messages from dataset (respecting days_to_process filter).
+            2. Write a single markdown file containing all formatted messages,
+               grouped by day with date headers, to a temp path.
+            3. Invoke `nox-mem ingest <tempfile> --source evermembench-<uid>`
+               via asyncio subprocess. Env carries NOX_DB_PATH for isolation.
 
-        Option A — HTTP ingest (preferred if nox-mem exposes POST /api/ingest):
-            POST http://127.0.0.1:18802/api/ingest
-            Body: {"content": "<formatted message>", "source": "evermembench",
-                   "metadata": {"speaker": ..., "group": ..., "date": ..., "user_id": ...}}
-            Batch messages in groups of `ingest_batch_size` to avoid overwhelming the API.
+        Rationale: nox-mem does not expose POST /api/ingest. The HTTP API is
+        read-mostly (search/kg/health/crystallize). Writes go through the CLI
+        which routes to ingestFile()/ingestEntityFile() with full schema
+        guarantees (FTS5 + sqlite-vec + section_boost + retention_days).
 
-        Option B — CLI ingest (fallback):
-            Write messages to a temp .md file, then call:
-            `nox-mem ingest <tempfile> --source evermembench`
-            Requires NOX_DB_PATH to be set in subprocess env for isolation.
+        ISOLATION REQUIREMENT: caller must set NOX_DB_PATH=/tmp/evermembench-
+        <user_id>.db in the environment BEFORE invoking this adapter. The
+        env-var is propagated to the subprocess. Failure to isolate will
+        cross-contaminate batches and pollute production memory if the host
+        is the VPS.
 
-        ISOLATION: Before calling add(), ensure nox-mem API is running against
-        the correct isolated DB for this user_id batch:
-            NOX_DB_PATH=/tmp/evermembench-{user_id}.db nox-mem serve &
-
-        Current state: raises NotImplementedError (skeleton).
+        Returns:
+            AddResult with success status + messages_sent count + errors list.
         """
-        raise NotImplementedError(
-            "NoxMemAdapter.add() is not yet implemented.\n"
-            "See TODO comments in this method for implementation options.\n"
-            "Implement Option A (HTTP ingest) or Option B (CLI ingest)."
+        nox_bin = os.environ.get("NOX_MEM_BIN", shutil.which("nox-mem"))
+        if not nox_bin:
+            return AddResult(
+                success=False,
+                days_processed=0,
+                messages_sent=0,
+                errors=[
+                    "nox-mem CLI not found. Set NOX_MEM_BIN env var or "
+                    "add nox-mem to PATH. On VPS: NOX_MEM_BIN='node "
+                    "/root/.openclaw/workspace/tools/nox-mem/dist/index.js'"
+                ],
+            )
+
+        # Isolation guard — refuse to ingest into the default/prod DB.
+        # NOX_DB_PATH must be set explicitly to a per-batch path.
+        db_path = os.environ.get("NOX_DB_PATH", "")
+        if not db_path or "/evermembench-" not in db_path:
+            return AddResult(
+                success=False,
+                days_processed=0,
+                messages_sent=0,
+                errors=[
+                    "NOX_DB_PATH not set or does not match isolation pattern "
+                    "'/evermembench-<user_id>.db'. Refusing to ingest to avoid "
+                    "prod-DB cross-contamination. Set explicitly: "
+                    f"export NOX_DB_PATH=/tmp/evermembench-{user_id}.db"
+                ],
+            )
+
+        messages = self._collect_messages(dataset, days_to_process)
+        if not messages:
+            return AddResult(
+                success=True,
+                days_processed=0,
+                messages_sent=0,
+                errors=[],
+                metadata={"note": "no messages matched filter"},
+            )
+
+        # Build a single markdown file grouped by day.
+        # Each day becomes a section; each message a paragraph with attribution.
+        lines: List[str] = [f"# EverMemBench batch {user_id}", ""]
+        last_date: Optional[str] = None
+        days_seen: set = set()
+        for msg in messages:
+            if msg.date != last_date:
+                lines.append("")
+                lines.append(f"## {msg.date}")
+                lines.append("")
+                last_date = msg.date
+                days_seen.add(msg.date)
+            lines.append(self._format_message(msg))
+            lines.append("")
+
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            suffix=f"-evermembench-{user_id}.md",
+            delete=False,
+            encoding="utf-8",
+        ) as tmp:
+            tmp.write("\n".join(lines))
+            tmp_path = tmp.name
+
+        # Build command. Support both "nox-mem" binary and "node /path/to/index.js".
+        # shutil.which can return shebang-script paths; CLI binary takes positional file.
+        if " " in nox_bin:
+            # Multi-token like "node /path/to/index.js" — split on whitespace
+            cmd = shlex.split(nox_bin) + [
+                "ingest", tmp_path,
+                "--source", f"evermembench-{user_id}",
+            ]
+        else:
+            cmd = [
+                nox_bin, "ingest", tmp_path,
+                "--source", f"evermembench-{user_id}",
+            ]
+
+        env = os.environ.copy()
+        # NOX_DB_PATH already in env (we checked above)
+
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                *cmd,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                env=env,
+            )
+            stdout, stderr = await asyncio.wait_for(
+                proc.communicate(),
+                timeout=kwargs.get("add_timeout", 3600),  # 1h default for full batch
+            )
+        except asyncio.TimeoutError:
+            return AddResult(
+                success=False,
+                days_processed=len(days_seen),
+                messages_sent=0,
+                errors=[f"nox-mem ingest timed out after {kwargs.get('add_timeout', 3600)}s"],
+            )
+        except Exception as exc:
+            return AddResult(
+                success=False,
+                days_processed=len(days_seen),
+                messages_sent=0,
+                errors=[f"subprocess error: {type(exc).__name__}: {exc}"],
+            )
+        finally:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+
+        stdout_text = stdout.decode("utf-8", errors="replace") if stdout else ""
+        stderr_text = stderr.decode("utf-8", errors="replace") if stderr else ""
+
+        success = proc.returncode == 0
+        errors: List[str] = []
+        if not success:
+            errors.append(
+                f"nox-mem ingest exited {proc.returncode}; stderr tail: "
+                + stderr_text[-500:]
+            )
+
+        # Note: nox-mem CLI prints "Done: N embedded, M errors" on last line.
+        # Per CLAUDE.md rule #2, never trust that line — caller should validate
+        # via /api/health.vectorCoverage post-add. We surface the raw counts only.
+        return AddResult(
+            success=success,
+            days_processed=len(days_seen),
+            messages_sent=len(messages),
+            errors=errors,
+            metadata={
+                "cli_stdout_tail": stdout_text[-500:],
+                "tmp_input_size_bytes": len("\n".join(lines).encode("utf-8")),
+                "validate_via": (
+                    f"curl {self.api_base}/api/health | jq "
+                    ".vectorCoverage  # confirm embedded==total"
+                ),
+            },
         )
 
     def _format_message(self, msg: GroupChatMessage) -> str:
