@@ -63,4 +63,5 @@ ALL_ADAPTERS: list[str] = [
     "agentmemory",
     "evermind",
     "hipporag2",
+    "lightrag",
 ]
