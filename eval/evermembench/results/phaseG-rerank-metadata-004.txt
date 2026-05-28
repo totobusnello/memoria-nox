@@ -1,0 +1,12 @@
+total search results: 626
+keys: ['question_id', 'query', 'retrieved_memories', 'context', 'search_duration_ms', 'metadata']
+first.metadata: {'api_base': 'http://127.0.0.1:18815', 'top_k': 20, 'api_limit': 50, 'returned': 20, 'api_returned': 43, 'took_ms_api': None, 'rerank_enabled': True, 'rerank_applied': True, 'rerank_model': 'cross-encoder/ms-marco-MiniLM-L-6-v2', 'rerank_ms': 7348.475933998823, 'rerank_error': None}
+
+rerank_applied: 626/626
+rerank_enabled: 626/626
+
+rerank_ms p50=3564, p95=5424, mean=3752
+
+search_duration_ms p50=4783, p95=6784, p99=8696
+
+rerank_error count: 0
