@@ -1,34 +1,59 @@
 """
-nox-mem Adapter for EverMemBench.
+nox-mem Adapter for EverMemBench — Phase F (2026-05-28).
 
-Connects nox-mem HTTP search API to the EverMemBench evaluation harness.
+Connects nox-mem (CLI ingest + HTTP search API) to the EverMemBench
+evaluation harness.
 
-Usage (from EverMemBench root after installing harness):
-    cp eval/evermembench/adapter_nox_mem.py benchmarks/EverMemBench/eval/src/adapters/nox_mem_adapter.py
-    # then register in eval/src/adapters/__init__.py and eval/cli.py
+Phase A (PR #363, batch 004 = 56.07%) used flat-paragraph markdown with
+inline `[Group][Speaker][Time]` prefixes. The nox-mem segmenter coalesced
+~9 messages per chunk (10,222 msgs -> 1,140 chunks), diluting per-message
+metadata. Multi-hop scored 4% / Temporal 10%.
+
+Phase B introduced H2-per-message chunks + structured prefix + day-group
+digests. Phase D added a search-time over-fetch (top_k=20 from API) that
+won the 5-batch aggregate at 62.22% (beat MemOS 59.27%). But multi-hop
+remained weak (5.22% 5-batch avg).
+
+Phase F (this version) attacks the multi-hop bottleneck with cross-encoder
+reranking on top of Phase D's retrieval. Pipeline:
+  1. Request top-50 from nox-mem hybrid search (over-fetch).
+  2. Pass (query, chunk_text) pairs through BAAI/bge-reranker-v2-m3
+     CrossEncoder which sees the full context together and can score
+     "bridge facts" that bi-encoder retrieval misses.
+  3. Re-sort by rerank score, take top_k for the harness.
+
+Cross-encoder rerank adds local compute cost (~50-300ms per query on CPU,
+faster on GPU). For end-user latency-sensitive paths this would be a
+trade-off; for offline benchmark eval it is acceptable.
+
+Modes:
+    NOX_ADAPTER_MODE=baseline  -> PR #363 flat-paragraph ingest format
+    NOX_ADAPTER_MODE=phaseB    -> H2-per-message + digest (default)
+    NOX_ADAPTER_MODE=phaseF    -> phaseB ingest + cross-encoder rerank in search
 
 Environment variables:
-    NOX_API_BASE     — nox-mem API base URL (default: http://127.0.0.1:18802)
-    NOX_DB_PATH      — per-batch DB path override (REQUIRED for isolation)
-
-Status: SKELETON — Add and Search stubs need implementation.
+    NOX_API_BASE              — nox-mem API base URL (default: http://127.0.0.1:18802)
+    NOX_DB_PATH               — per-batch DB path override (REQUIRED for isolation)
+    NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
+    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF"
+    NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
+    NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
+    NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
+    NOX_RERANKER_BATCH_SIZE   — CrossEncoder.predict batch_size (default: 32)
 """
 import asyncio
 import os
+import shlex
+import tempfile
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
 
 # ---------------------------------------------------------------------------
 # BaseAdapter import: adjust path when placed inside EverMemBench tree
 # ---------------------------------------------------------------------------
-# When copied to benchmarks/EverMemBench/eval/src/adapters/:
-#   from eval.src.adapters.base import BaseAdapter
-#   from eval.src.core.data_models import Dataset, GroupChatMessage, AddResult, SearchResult
-#
-# For local development / testing outside EverMemBench tree:
 try:
     from eval.src.adapters.base import BaseAdapter
     from eval.src.core.data_models import Dataset, GroupChatMessage, AddResult, SearchResult
@@ -47,10 +72,84 @@ except ImportError:
 # Constants
 # ---------------------------------------------------------------------------
 DEFAULT_NOX_API_BASE = "http://127.0.0.1:18802"
+DEFAULT_NOX_MEM_BIN = "nox-mem"
 
-# Message format injected into nox-mem chunks during Add stage.
-# Mirrors the `[Group: X][Speaker: Y]content` convention used by other adapters.
-MESSAGE_TEMPLATE = "[Group: {group}][Speaker: {speaker}] {content}"
+# ---------------------------------------------------------------------------
+# Phase B chunking strategy (2026-05-28)
+# ---------------------------------------------------------------------------
+# Per-message H2 block. Metadata in header + structured lead lines so both
+# BM25 (FTS5) and Gemini-embedding retrieval bind to speaker / group / time
+# / preceding context.
+PHASEB_MESSAGE_BLOCK = (
+    "## [{time} | {group} | {speaker}]\n"
+    "speaker: {speaker}\n"
+    "group: {group}\n"
+    "date: {date}\n"
+    "time: {time}\n"
+    "context: {context}\n"
+    "content: {content}\n"
+)
+
+# Daily group rollup -- emitted once per (date, group) tuple after all
+# messages of that day-group are written. Helps temporal queries.
+PHASEB_DAY_GROUP_ROLLUP = (
+    "## Day {date} -- {group} digest\n"
+    "group: {group}\n"
+    "date: {date}\n"
+    "participants: {participants}\n"
+    "message_count: {message_count}\n"
+    "summary: Conversation on {date} in {group} between {participants_short}. "
+    "First line: {first_line}\n"
+)
+
+# Legacy baseline template (kept for ablation fallback via NOX_ADAPTER_MODE=baseline)
+MESSAGE_TEMPLATE = "[Group: {group}][Speaker: {speaker}][Time: {time}] {content}"
+
+# How many messages per batched ingest subprocess call.
+DEFAULT_INGEST_BATCH_SIZE = 50
+
+# Timeout (seconds) per `nox-mem ingest` subprocess call.
+INGEST_SUBPROCESS_TIMEOUT = 180
+
+# Adapter mode default.
+DEFAULT_ADAPTER_MODE = "phaseB"
+
+# How many preceding turns (same group) to embed as "context" per chunk.
+PHASEB_CONTEXT_WINDOW = 2
+
+# Phase F cross-encoder reranker defaults.
+DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
+DEFAULT_RERANKER_OVERFETCH = 50
+DEFAULT_RERANKER_BATCH_SIZE = 32
+DEFAULT_RERANKER_MAX_LENGTH = 512
+
+
+# ---------------------------------------------------------------------------
+# Reranker singleton loader
+# ---------------------------------------------------------------------------
+#
+# Cached so each Python process loads the model once (~600MB on disk, ~2-3GB
+# resident). Lazy: only imported when phaseF actually runs.
+# Returns (model_or_None, error_or_None). On failure (missing package,
+# download error, OOM), error is a string and the caller falls back to
+# non-reranked results gracefully.
+# ---------------------------------------------------------------------------
+import functools as _functools  # noqa: E402  — local-only alias
+
+
+@_functools.lru_cache(maxsize=1)
+def _load_reranker(model_id: str, max_length: int) -> Tuple[Any, Optional[str]]:
+    try:
+        from sentence_transformers import CrossEncoder  # type: ignore[import-not-found]
+    except Exception as exc:  # noqa: BLE001
+        return None, f"sentence_transformers import failed: {type(exc).__name__}: {exc}"
+
+    try:
+        model = CrossEncoder(model_id, max_length=max_length)
+    except Exception as exc:  # noqa: BLE001
+        return None, f"CrossEncoder({model_id}) load failed: {type(exc).__name__}: {exc}"
+
+    return model, None
 
 
 class NoxMemAdapter(BaseAdapter):
@@ -58,25 +157,24 @@ class NoxMemAdapter(BaseAdapter):
     nox-mem adapter for EverMemBench multi-person group chat evaluation.
 
     Add stage:
-        Ingests group chat messages as plain-text chunks via nox-mem HTTP
-        POST /api/ingest (or nox-mem CLI ingest).
-
-        ISOLATION REQUIREMENT: each batch must use a separate nox-mem DB.
-        Set NOX_DB_PATH env var before spawning nox-mem API per batch, or
-        use separate systemd instances on different ports.
+        Writes group-chat messages to a temp markdown file (Phase B format
+        when NOX_ADAPTER_MODE != "baseline"), then invokes `nox-mem ingest`
+        via subprocess. Subprocess inherits NOX_DB_PATH for isolation.
 
     Search stage:
-        Calls POST /api/search with the QA question text and returns
-        top_k results formatted as context string for LLM answer stage.
+        Calls POST /api/search with the QA question text. The HTTP API must
+        be started against the SAME NOX_DB_PATH that Add ingested into.
 
     Config YAML example (nox_mem.yaml):
     ```yaml
     name: "nox_mem"
-    api_base: "${NOX_API_BASE}"   # default http://127.0.0.1:18802
+    api_base: "${NOX_API_BASE}"
+    nox_mem_bin: "${NOX_MEM_BIN}"
     search_top_k: 10
     search_timeout: 30
     ingest_batch_size: 50
     ingest_delay_ms: 0
+    adapter_mode: "phaseB"
     ```
     """
 
@@ -86,10 +184,51 @@ class NoxMemAdapter(BaseAdapter):
         self.api_base = config.get("api_base", "").rstrip("/") or os.environ.get(
             "NOX_API_BASE", DEFAULT_NOX_API_BASE
         )
+        self.nox_mem_bin = config.get("nox_mem_bin", "") or os.environ.get(
+            "NOX_MEM_BIN", DEFAULT_NOX_MEM_BIN
+        )
         self.search_top_k = config.get("search_top_k", 10)
         self.search_timeout = config.get("search_timeout", 30)
-        self.ingest_batch_size = config.get("ingest_batch_size", 50)
+        self.ingest_batch_size = config.get("ingest_batch_size", DEFAULT_INGEST_BATCH_SIZE)
         self.ingest_delay_ms = config.get("ingest_delay_ms", 0)
+        self.adapter_mode = (
+            config.get("adapter_mode", "")
+            or os.environ.get("NOX_ADAPTER_MODE", DEFAULT_ADAPTER_MODE)
+        )
+        self.context_window = int(
+            config.get("phaseb_context_window", PHASEB_CONTEXT_WINDOW)
+        )
+
+        # Phase F cross-encoder rerank config (only consumed when
+        # adapter_mode == "phaseF" AND NOX_RERANKER_ENABLED resolves truthy).
+        self.reranker_model_id = config.get("reranker_model", "") or os.environ.get(
+            "NOX_RERANKER_MODEL", DEFAULT_RERANKER_MODEL
+        )
+        self.reranker_overfetch = int(
+            config.get("reranker_overfetch", 0)
+            or os.environ.get("NOX_RERANKER_OVERFETCH", "")
+            or DEFAULT_RERANKER_OVERFETCH
+        )
+        self.reranker_batch_size = int(
+            config.get("reranker_batch_size", 0)
+            or os.environ.get("NOX_RERANKER_BATCH_SIZE", "")
+            or DEFAULT_RERANKER_BATCH_SIZE
+        )
+        self.reranker_max_length = int(
+            config.get("reranker_max_length", 0)
+            or DEFAULT_RERANKER_MAX_LENGTH
+        )
+        # Reranker is enabled either by being in phaseF mode (default-on for
+        # that mode) OR by explicit env override on top of any other mode.
+        env_enable = os.environ.get("NOX_RERANKER_ENABLED", "").strip().lower()
+        env_enable_truthy = env_enable in ("1", "true", "yes", "on")
+        env_enable_falsy = env_enable in ("0", "false", "no", "off")
+        if env_enable_falsy:
+            self.reranker_enabled = False
+        elif env_enable_truthy:
+            self.reranker_enabled = True
+        else:
+            self.reranker_enabled = (self.adapter_mode == "phaseF")
 
         # HTTP session — created lazily to allow use in async context
         self._session: Optional[aiohttp.ClientSession] = None
@@ -110,7 +249,7 @@ class NoxMemAdapter(BaseAdapter):
             await self._session.close()
 
     # ------------------------------------------------------------------
-    # Add stage
+    # Add stage — Option B (CLI subprocess)
     # ------------------------------------------------------------------
 
     async def add(
@@ -121,46 +260,325 @@ class NoxMemAdapter(BaseAdapter):
         **kwargs: Any,
     ) -> AddResult:
         """
-        Ingest group chat messages into nox-mem.
+        Ingest group chat messages into nox-mem via CLI subprocess.
 
-        TODO: Implement one of the two options below.
+        Strategy (Phase B):
+            1. Flatten dataset -> ordered list with stable (date, group) keys
+            2. Chunk into batches of `ingest_batch_size` (preserving order)
+            3. For each batch: write H2-per-message markdown + day-group digest
+               blocks, invoke `nox-mem ingest <tmpfile>`.
+            4. Subprocess inherits NOX_DB_PATH from caller env for isolation.
 
-        Option A — HTTP ingest (preferred if nox-mem exposes POST /api/ingest):
-            POST http://127.0.0.1:18802/api/ingest
-            Body: {"content": "<formatted message>", "source": "evermembench",
-                   "metadata": {"speaker": ..., "group": ..., "date": ..., "user_id": ...}}
-            Batch messages in groups of `ingest_batch_size` to avoid overwhelming the API.
+        Returns:
+            AddResult with success, days_processed, messages_sent, errors.
 
-        Option B — CLI ingest (fallback):
-            Write messages to a temp .md file, then call:
-            `nox-mem ingest <tempfile> --source evermembench`
-            Requires NOX_DB_PATH to be set in subprocess env for isolation.
-
-        ISOLATION: Before calling add(), ensure nox-mem API is running against
-        the correct isolated DB for this user_id batch:
-            NOX_DB_PATH=/tmp/evermembench-{user_id}.db nox-mem serve &
-
-        Current state: raises NotImplementedError (skeleton).
+        Required env in caller:
+            NOX_DB_PATH=/tmp/evermembench-{user_id}.db (or /root/.openclaw/... per op-audit)
+            NOX_MEM_BIN=/path/to/nox-mem (optional, default = "nox-mem" on PATH)
         """
-        raise NotImplementedError(
-            "NoxMemAdapter.add() is not yet implemented.\n"
-            "See TODO comments in this method for implementation options.\n"
-            "Implement Option A (HTTP ingest) or Option B (CLI ingest)."
+        start_ms = time.monotonic() * 1000
+        errors: List[str] = []
+
+        db_path = os.environ.get("NOX_DB_PATH", "")
+        if not db_path:
+            errors.append(
+                "NOX_DB_PATH env var is required for isolated EverMemBench run "
+                "(set to e.g. /root/.openclaw/evermembench-runs/X.db before invoking harness)"
+            )
+            return AddResult(
+                success=False,
+                days_processed=0,
+                messages_sent=0,
+                errors=errors,
+                metadata={"isolation_check": "failed", "user_id": user_id},
+            )
+        if "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db" in db_path:
+            errors.append(
+                f"NOX_DB_PATH={db_path} points at production DB; refusing to ingest."
+            )
+            return AddResult(
+                success=False,
+                days_processed=0,
+                messages_sent=0,
+                errors=errors,
+                metadata={"isolation_check": "prod_path_blocked", "user_id": user_id},
+            )
+
+        messages = self._collect_messages(dataset, days_to_process)
+        if not messages:
+            return AddResult(
+                success=True,
+                days_processed=0,
+                messages_sent=0,
+                errors=[],
+                metadata={"reason": "no_messages_after_filter", "user_id": user_id},
+            )
+
+        days_seen = {getattr(m, "date", None) or self._date_of(m) for m in messages}
+        total_sent = 0
+
+        # Build day-group context cache (used for digest blocks + context window)
+        # Map (date, group) -> ordered list of messages
+        self._day_group_cache: Dict[Tuple[str, str], List[GroupChatMessage]] = {}
+        for m in messages:
+            key = (self._date_of(m), str(getattr(m, "group", "?")))
+            self._day_group_cache.setdefault(key, []).append(m)
+        # Track which (date, group) digests have been emitted
+        self._digest_emitted: set = set()
+
+        # Batch ingest
+        for batch_start in range(0, len(messages), self.ingest_batch_size):
+            batch = messages[batch_start:batch_start + self.ingest_batch_size]
+            batch_idx = batch_start // self.ingest_batch_size
+            try:
+                sent = await self._ingest_batch(batch, user_id, batch_idx, batch_start)
+                total_sent += sent
+            except Exception as exc:  # noqa: BLE001 — surface all failures
+                errors.append(
+                    f"batch {batch_idx} ({len(batch)} msgs) failed: {type(exc).__name__}: {exc}"
+                )
+
+            if self.ingest_delay_ms:
+                await asyncio.sleep(self.ingest_delay_ms / 1000.0)
+
+        elapsed_ms = time.monotonic() * 1000 - start_ms
+        success = (total_sent == len(messages)) and not errors
+        return AddResult(
+            success=success,
+            days_processed=len(days_seen),
+            messages_sent=total_sent,
+            errors=errors,
+            metadata={
+                "user_id": user_id,
+                "db_path": db_path,
+                "ingest_batch_size": self.ingest_batch_size,
+                "adapter_mode": self.adapter_mode,
+                "context_window": self.context_window,
+                "elapsed_ms": elapsed_ms,
+                "messages_total": len(messages),
+                "day_group_count": len(self._day_group_cache),
+            },
         )
 
-    def _format_message(self, msg: GroupChatMessage) -> str:
-        """Format a GroupChatMessage into the nox-mem chunk text."""
-        return MESSAGE_TEMPLATE.format(
-            group=msg.group,
-            speaker=msg.speaker,
-            content=msg.content.strip(),
+    async def _ingest_batch(
+        self,
+        batch: List["GroupChatMessage"],
+        user_id: str,
+        batch_idx: int,
+        batch_start: int,
+    ) -> int:
+        """
+        Write batch to temp .md file (Phase B or baseline format), invoke
+        `nox-mem ingest <file>`, return count of messages dispatched.
+        """
+        lines = [f"# EverMemBench user_id={user_id} batch={batch_idx} mode={self.adapter_mode}\n"]
+
+        if self.adapter_mode == "baseline":
+            # PR #363 paragraph format (for ablation)
+            for m in batch:
+                lines.append(self._format_message_baseline(m))
+                lines.append("")
+        else:
+            # Phase B: H2-per-message with structured metadata + context window
+            for i, m in enumerate(batch):
+                lines.append(self._format_message_phaseb(m, batch_start + i))
+                lines.append("")
+
+                # Emit digest once per (date, group) when the LAST message of
+                # that day-group appears (within this batch). Same-batch
+                # digests cluster near their messages; cross-batch digests
+                # land in whichever batch contains the day-group's last msg.
+                key = (self._date_of(m), str(getattr(m, "group", "?")))
+                if key in self._digest_emitted:
+                    continue
+                day_group_msgs = self._day_group_cache.get(key, [])
+                if day_group_msgs and m is day_group_msgs[-1]:
+                    digest = self._format_day_group_digest(key, day_group_msgs)
+                    if digest:
+                        lines.append(digest)
+                        lines.append("")
+                        self._digest_emitted.add(key)
+
+        content = "\n".join(lines)
+
+        # Write to NamedTemporaryFile with .md suffix.
+        tmp = tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            suffix=".md",
+            prefix=f"evermembench-{user_id}-b{batch_idx:04d}-",
+            delete=False,
         )
+        tmp_path = tmp.name
+        try:
+            tmp.write(content)
+            tmp.close()
+
+            # Invoke `nox-mem ingest <tempfile>` via execvp-style argv.
+            # NOTE: `--source` flag removed (2026-05-28); nox-mem v3.8 rejects it.
+            argv = [
+                self.nox_mem_bin,
+                "ingest",
+                tmp_path,
+            ]
+
+            proc = await asyncio.create_subprocess_exec(
+                *argv,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE,
+                env=os.environ.copy(),
+            )
+            try:
+                stdout, stderr = await asyncio.wait_for(
+                    proc.communicate(), timeout=INGEST_SUBPROCESS_TIMEOUT
+                )
+            except asyncio.TimeoutError:
+                proc.kill()
+                await proc.wait()
+                raise RuntimeError(
+                    f"nox-mem ingest subprocess timed out after {INGEST_SUBPROCESS_TIMEOUT}s "
+                    f"(batch {batch_idx}, {len(batch)} messages)"
+                )
+
+            if proc.returncode != 0:
+                err_text = (stderr or b"").decode("utf-8", errors="replace")[:500]
+                raise RuntimeError(
+                    f"nox-mem ingest exited {proc.returncode}: {err_text}"
+                )
+
+            return len(batch)
+        finally:
+            try:
+                os.unlink(tmp_path)
+            except OSError:
+                pass
+
+    # ------------------------------------------------------------------
+    # Phase B helpers
+    # ------------------------------------------------------------------
+
+    def _format_message_phaseb(
+        self,
+        msg: "GroupChatMessage",
+        global_idx: int,
+    ) -> str:
+        """Phase B: H2 block with structured metadata + preceding-context window."""
+        group = str(getattr(msg, "group", "?"))
+        speaker = str(getattr(msg, "speaker", "?"))
+        content = str(getattr(msg, "content", "")).strip()
+        time_str = str(
+            getattr(msg, "time", None)
+            or getattr(msg, "timestamp", None)
+            or "?"
+        )
+        date = self._date_of(msg)
+
+        # Build "context" snippet: last N messages from the SAME (date, group)
+        # preceding this message. This gives multi-hop retrieval a local anchor.
+        key = (date, group)
+        day_group_msgs = self._day_group_cache.get(key, [])
+        try:
+            pos = day_group_msgs.index(msg)
+        except ValueError:
+            pos = -1
+        context_parts: List[str] = []
+        if pos > 0:
+            start = max(0, pos - self.context_window)
+            for prev in day_group_msgs[start:pos]:
+                prev_speaker = str(getattr(prev, "speaker", "?"))
+                prev_content = str(getattr(prev, "content", "")).strip()
+                # Shorten preceding context to avoid blowing up chunk size
+                prev_snip = prev_content[:120].replace("\n", " ")
+                if len(prev_content) > 120:
+                    prev_snip += "..."
+                context_parts.append(f"{prev_speaker}: {prev_snip}")
+        context_str = " | ".join(context_parts) if context_parts else "(start of conversation)"
+
+        return PHASEB_MESSAGE_BLOCK.format(
+            time=time_str,
+            group=group,
+            speaker=speaker,
+            date=date,
+            context=context_str,
+            content=content,
+        )
+
+    def _format_message_baseline(self, msg: "GroupChatMessage") -> str:
+        """PR #363 baseline format (one paragraph)."""
+        group = str(getattr(msg, "group", "?"))
+        speaker = str(getattr(msg, "speaker", "?"))
+        content = str(getattr(msg, "content", "")).strip()
+        time_str = str(
+            getattr(msg, "time", None)
+            or getattr(msg, "timestamp", None)
+            or "?"
+        )
+        return MESSAGE_TEMPLATE.format(
+            group=group,
+            speaker=speaker,
+            time=time_str,
+            content=content,
+        )
+
+    # Public alias kept for backwards compat
+    def _format_message(self, msg: "GroupChatMessage") -> str:
+        if self.adapter_mode == "baseline":
+            return self._format_message_baseline(msg)
+        # Phase B path: cannot include preceding context without batch context;
+        # callers should prefer _format_message_phaseb directly.
+        return self._format_message_baseline(msg)
+
+    def _format_day_group_digest(
+        self,
+        key: Tuple[str, str],
+        day_group_msgs: List["GroupChatMessage"],
+    ) -> str:
+        """Build the per-(date, group) digest block."""
+        date, group = key
+        speakers: List[str] = []
+        seen_speakers: set = set()
+        for m in day_group_msgs:
+            sp = str(getattr(m, "speaker", "?"))
+            if sp not in seen_speakers:
+                seen_speakers.add(sp)
+                speakers.append(sp)
+        participants = ", ".join(speakers)
+        # Short form for natural-language summary line
+        if len(speakers) <= 3:
+            participants_short = ", ".join(speakers)
+        else:
+            participants_short = ", ".join(speakers[:3]) + f", and {len(speakers)-3} others"
+        first_line = ""
+        if day_group_msgs:
+            first_content = str(getattr(day_group_msgs[0], "content", "")).strip()
+            first_line = first_content[:180].replace("\n", " ")
+            if len(first_content) > 180:
+                first_line += "..."
+        return PHASEB_DAY_GROUP_ROLLUP.format(
+            date=date,
+            group=group,
+            participants=participants,
+            message_count=len(day_group_msgs),
+            participants_short=participants_short,
+            first_line=first_line,
+        )
+
+    def _date_of(self, msg: "GroupChatMessage") -> str:
+        """Extract date string from message (best effort)."""
+        # Prefer explicit `date` attr if present (some Dataset versions add it)
+        d = getattr(msg, "date", None)
+        if d:
+            return str(d)
+        ts = getattr(msg, "time", None) or getattr(msg, "timestamp", None) or ""
+        if isinstance(ts, str) and "T" in ts:
+            return ts.split("T", 1)[0]
+        return str(ts)[:10] if ts else "?"
 
     def _collect_messages(
         self,
-        dataset: Dataset,
+        dataset: "Dataset",
         days_to_process: Optional[List[str]],
-    ) -> List[GroupChatMessage]:
+    ) -> List["GroupChatMessage"]:
         """
         Flatten dataset into ordered list of GroupChatMessage objects.
 
@@ -168,11 +586,25 @@ class NoxMemAdapter(BaseAdapter):
         Messages within each day are sorted by timestamp.
         """
         messages: List[GroupChatMessage] = []
-        for day in dataset.days:
-            if days_to_process and day.date not in days_to_process:
+        for day in getattr(dataset, "days", []):
+            day_date = getattr(day, "date", None)
+            if days_to_process and day_date not in days_to_process:
                 continue
-            for group_name, group_msgs in day.groups.items():
-                sorted_msgs = sorted(group_msgs, key=lambda m: m.timestamp)
+            groups = getattr(day, "groups", {}) or {}
+            for _group_name, group_msgs in groups.items():
+                sorted_msgs = sorted(
+                    group_msgs,
+                    key=lambda m: getattr(m, "timestamp", None) or getattr(m, "time", ""),
+                )
+                # Annotate date on each message for context lookups even
+                # when GroupChatMessage doesn't carry .date natively.
+                if day_date:
+                    for m in sorted_msgs:
+                        if not getattr(m, "date", None):
+                            try:
+                                setattr(m, "date", day_date)
+                            except Exception:
+                                pass
                 messages.extend(sorted_msgs)
         return messages
 
@@ -191,32 +623,29 @@ class NoxMemAdapter(BaseAdapter):
         Retrieve memories from nox-mem for a QA question.
 
         Calls POST /api/search with hybrid mode (BM25 + Gemini semantic + RRF).
+        The API server must be running against the SAME isolated NOX_DB_PATH
+        that Add stage ingested into.
 
-        TODO: Validate response shape before .get() access.
-              nox-mem /api/search returns:
-              {
-                "results": [
-                  {"content": "...", "score": 0.xx, "metadata": {...}},
-                  ...
-                ],
-                "query": "...",
-                "took_ms": N
-              }
-
-        Current state: partially implemented — HTTP call wired, response
-        parsing needs validation against live /api/search schema.
+        Phase F: if `self.reranker_enabled` is True, request top-N (default 50)
+        from the API and rerank with BAAI/bge-reranker-v2-m3 CrossEncoder
+        before truncating to `top_k`. Falls back to plain top_k on any
+        reranker failure (logged in metadata.rerank_error).
         """
         start_ms = time.monotonic() * 1000
         session = await self._get_session()
 
+        # Decide how many results to request from the API.
+        # Phase F: overfetch then rerank locally. Other modes: request top_k.
+        api_limit = (
+            max(self.reranker_overfetch, top_k)
+            if self.reranker_enabled else top_k
+        )
+
         payload = {
             "query": query,
-            "limit": top_k,
+            "limit": api_limit,
             "hybrid": True,
         }
-
-        # TODO: Add user_id filtering if nox-mem supports multi-tenant namespacing.
-        # Currently nox-mem is single-tenant; isolation is via separate DB per batch.
 
         try:
             async with session.post(
@@ -227,8 +656,6 @@ class NoxMemAdapter(BaseAdapter):
                 resp.raise_for_status()
                 data = await resp.json()
         except aiohttp.ClientError as exc:
-            # Return empty result rather than crashing the pipeline.
-            # Harness will generate an incorrect answer, evaluate as wrong.
             return SearchResult(
                 question_id=kwargs.get("question_id", "unknown"),
                 query=query,
@@ -238,8 +665,12 @@ class NoxMemAdapter(BaseAdapter):
                 metadata={"error": str(exc)},
             )
 
-        # TODO: Validate `data` is a dict before .get() (see feedback_adapter_response_shape_validation.md)
-        if not isinstance(data, dict):
+        # Validate shape before .get() access
+        if isinstance(data, list):
+            raw_results = data
+        elif isinstance(data, dict):
+            raw_results = data.get("results", [])
+        else:
             return SearchResult(
                 question_id=kwargs.get("question_id", "unknown"),
                 query=query,
@@ -249,32 +680,80 @@ class NoxMemAdapter(BaseAdapter):
                 metadata={"raw": str(data)[:200]},
             )
 
-        raw_results = data.get("results", [])
-        memories: List[str] = []
+        # Extract candidate (chunk_text, item) pairs in API rank order.
+        candidates: List[Tuple[str, Dict[str, Any]]] = []
         for item in raw_results:
             if isinstance(item, dict):
-                content = item.get("content", "")
+                content = item.get("chunk_text") or item.get("content") or ""
                 if content:
-                    memories.append(content)
+                    candidates.append((content, item))
+
+        api_returned = len(candidates)
+
+        # ------------------------------------------------------------------
+        # Phase F: cross-encoder rerank (graceful fallback)
+        # ------------------------------------------------------------------
+        rerank_error: Optional[str] = None
+        rerank_ms: Optional[float] = None
+        rerank_applied = False
+
+        if self.reranker_enabled and candidates:
+            rerank_start = time.monotonic() * 1000
+            model, err = _load_reranker(
+                self.reranker_model_id, self.reranker_max_length
+            )
+            if err is not None:
+                rerank_error = err
+            else:
+                try:
+                    pairs = [(query, c[0]) for c in candidates]
+                    # CrossEncoder.predict is sync CPU/GPU work — run in a
+                    # thread to avoid blocking the asyncio loop entirely.
+                    scores = await asyncio.to_thread(
+                        model.predict,
+                        pairs,
+                        batch_size=self.reranker_batch_size,
+                        show_progress_bar=False,
+                    )
+                    scored = list(zip(candidates, scores))
+                    scored.sort(key=lambda x: float(x[1]), reverse=True)
+                    candidates = [c for c, _ in scored]
+                    rerank_applied = True
+                except Exception as exc:  # noqa: BLE001 — fall back gracefully
+                    rerank_error = (
+                        f"rerank predict failed: {type(exc).__name__}: {exc}"
+                    )
+            rerank_ms = time.monotonic() * 1000 - rerank_start
+
+        # Truncate to top_k after optional rerank.
+        candidates = candidates[:top_k]
+        memories: List[str] = [c[0] for c in candidates]
 
         # Format context string for LLM answer stage
-        # Convention mirrors other adapters: numbered list
         context_lines = [f"{i + 1}. {m}" for i, m in enumerate(memories)]
         context = "\n".join(context_lines) if context_lines else "[No memories retrieved]"
 
         elapsed_ms = time.monotonic() * 1000 - start_ms
+        meta: Dict[str, Any] = {
+            "api_base": self.api_base,
+            "top_k": top_k,
+            "api_limit": api_limit,
+            "returned": len(memories),
+            "api_returned": api_returned,
+            "took_ms_api": data.get("took_ms", None) if isinstance(data, dict) else None,
+            "rerank_enabled": self.reranker_enabled,
+            "rerank_applied": rerank_applied,
+            "rerank_model": self.reranker_model_id if self.reranker_enabled else None,
+            "rerank_ms": rerank_ms,
+            "rerank_error": rerank_error,
+        }
         return SearchResult(
             question_id=kwargs.get("question_id", "unknown"),
             query=query,
             retrieved_memories=memories,
             context=context,
             search_duration_ms=elapsed_ms,
-            metadata={
-                "api_base": self.api_base,
-                "top_k": top_k,
-                "returned": len(memories),
-                "took_ms_api": data.get("took_ms", None),
-            },
+            metadata=meta,
         )
 
     # ------------------------------------------------------------------
@@ -286,6 +765,14 @@ class NoxMemAdapter(BaseAdapter):
             "name": "nox_mem",
             "type": "NoxMemAdapter",
             "api_base": self.api_base,
+            "nox_mem_bin": self.nox_mem_bin,
             "search_top_k": self.search_top_k,
-            "version": "skeleton-0.1",
+            "adapter_mode": self.adapter_mode,
+            "phaseb_context_window": self.context_window,
+            "reranker_enabled": self.reranker_enabled,
+            "reranker_model": self.reranker_model_id,
+            "reranker_overfetch": self.reranker_overfetch,
+            "reranker_batch_size": self.reranker_batch_size,
+            "reranker_max_length": self.reranker_max_length,
+            "version": "phase-f-0.1",
         }

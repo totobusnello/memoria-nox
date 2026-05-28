@@ -1,0 +1,12 @@
+# Phase F additional requirements on top of base EverMemBench harness.
+#
+# Adds cross-encoder reranker for the multi-hop attack
+# (BAAI/bge-reranker-v2-m3). Only loaded when adapter is in Phase F mode
+# AND NOX_RERANKER_ENABLED is truthy.
+#
+# Install on the VPS work venv before running phaseF batches:
+#   pip install -r requirements-phaseF.txt
+#
+# Disk: ~2GB torch + ~600MB reranker model on first download (HF cache).
+sentence-transformers==3.0.1
+torch>=2.2,<3
