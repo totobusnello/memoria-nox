@@ -1,6 +1,12 @@
 # EverMemBench batch 004 — VPS run checklist
 
-> **Audience:** the next session that picks up batch 004 execution on the
+> **Status:** batch 004 executed 2026-05-28. Headline **56.07% (351/626)**.
+> See `RESULTS-BATCH-004.md` for the full breakdown and the
+> **"Setup gotchas (batch 004 retrospective)"** section at the bottom of this
+> doc for issues discovered during the run that must be addressed in batches
+> 005/010/011/016.
+>
+> **Audience:** the next session that picks up batch 005+ execution on the
 > VPS (where nox-mem CLI + dist + API are installed).
 >
 > **Why deferred:** the local memoria-nox repo (and its GitHub remote)
@@ -262,3 +268,137 @@ judge. Numbers are directionally informative, not direct parity. See
    number, re-run batch 004 with `LLM_API_KEY=sk-or-v1-...` + default
    `pipeline.yaml` to get apples-to-apples vs published EverOS numbers.
    Estimated incremental cost ~$0.40 + 1 OpenRouter key purchase.
+
+---
+
+## Setup gotchas (batch 004 retrospective, 2026-05-28)
+
+Issues encountered during the first VPS execution that future runs MUST address:
+
+### 1. `nox-mem serve` does not exist
+The doc above references `nohup nox-mem serve` (step 6) — there is no such
+subcommand. Start the API directly:
+
+```bash
+cd /root/.openclaw/workspace/tools/nox-mem
+nohup node --no-warnings dist/api-server.js > /tmp/evermembench-api.log 2>&1 &
+```
+
+The prod systemd `nox-mem-api.service` uses the same entry point on :18802.
+
+### 2. `NOX_DB_PATH` prefix restriction (op-audit guard, PR #358)
+`/tmp/*` paths are REJECTED by `op-audit` workspace-consistency guard. Use:
+
+```bash
+mkdir -p /root/.openclaw/evermembench-runs
+export NOX_DB_PATH=/root/.openclaw/evermembench-runs/evermembench-005-$(date +%s).db
+```
+
+The adapter's prod-DB check (`/root/.openclaw/workspace/tools/nox-mem/nox-mem.db`)
+still applies — only that exact path is blocked, not all `/root/.openclaw/`
+paths.
+
+### 3. Schema migration drift on fresh DBs
+`nox-mem stats` against an empty DB initialises only v1 schema. The current
+hybrid retrieval code path requires v18 columns and KG tables. Apply
+manually after `nox-mem stats` runs:
+
+```bash
+sqlite3 "$NOX_DB_PATH" <<'SQL'
+ALTER TABLE chunks ADD COLUMN retention_days INTEGER;
+ALTER TABLE chunks ADD COLUMN pain REAL DEFAULT 0.2;
+ALTER TABLE chunks ADD COLUMN section TEXT;
+ALTER TABLE chunks ADD COLUMN section_boost REAL DEFAULT 1.0;
+PRAGMA user_version = 18;
+CREATE TABLE IF NOT EXISTS kg_entities (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL, entity_type TEXT NOT NULL,
+    first_seen TEXT DEFAULT (datetime('now')),
+    last_seen TEXT DEFAULT (datetime('now')),
+    mention_count INTEGER DEFAULT 1, attributes TEXT,
+    UNIQUE(name, entity_type));
+CREATE INDEX IF NOT EXISTS idx_kg_entities_name ON kg_entities(name);
+CREATE INDEX IF NOT EXISTS idx_kg_entities_type ON kg_entities(entity_type);
+CREATE TABLE IF NOT EXISTS kg_relations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_entity_id INTEGER NOT NULL, relation_type TEXT NOT NULL,
+    target_entity_id INTEGER NOT NULL, evidence_chunk_id INTEGER,
+    confidence REAL DEFAULT 0.8, created_at TEXT DEFAULT (datetime('now')),
+    expires_at TEXT, last_confirmed TEXT,
+    relation_reason TEXT DEFAULT 'unknown',
+    superseded_by_relation_id INTEGER, superseded_at INTEGER,
+    superseded_reason TEXT, extraction_method TEXT,
+    FOREIGN KEY (source_entity_id) REFERENCES kg_entities(id),
+    FOREIGN KEY (target_entity_id) REFERENCES kg_entities(id));
+SQL
+```
+
+Without these, `nox-mem ingest` throws `no column 'retention_days'` and
+`/api/search` throws `no such table: kg_entities`.
+
+### 4. Dataset layout — `dialogue.json` does not exist
+The HuggingFace dataset puts batch files at `dataset/dataset/{004,005,010,011,016}/`
+with `dialogue_en.json` (not `dialogue.json`) and `qa_<N>.json`. Symlink:
+
+```bash
+mkdir -p dataset/<NNN>
+ln -sf dataset/dataset/<NNN>/dialogue_en.json dataset/<NNN>/dialogue.json
+ln -sf dataset/dataset/<NNN>/qa_<NNN>.json    dataset/<NNN>/qa_<NNN>.json
+```
+
+Also: HuggingFace CLI `huggingface-cli download` is deprecated → use `hf download`.
+
+### 5. `pipeline.yaml` `provider` block kills Gemini direct
+The harness injects `extra_body.provider` into the OpenAI client request when
+`answer.provider` is present in pipeline.yaml. Gemini's OpenAI-compat endpoint
+returns **HTTP 400** for any unknown field, including `provider`. **Delete**
+the `provider:` blocks under both `answer:` and `evaluate:` after applying
+the Gemini-only stack swap. This was the single biggest time sink in batch
+004 (50 minutes spent retrying one question through the 20-retry exponential
+backoff before the run was killed).
+
+```yaml
+# WRONG (default — fails on Gemini direct):
+answer:
+  model: "gemini-2.5-flash"
+  provider:
+    order: ["google-ai-studio"]
+    allow_fallbacks: false
+  # ...
+
+# RIGHT (Gemini-only):
+answer:
+  model: "gemini-2.5-flash"
+  temperature: 0
+  max_tokens: 1000
+  timeout: 300
+  concurrency: 4
+```
+
+### 6. Concurrency=1 wastes wall-clock time
+Default `answer.concurrency: 1` puts a 5+ second Gemini call in serial
+through 626 questions = ~50 min/batch with no benefit. Bump to 4 (the
+adapter is async and Gemini AI Studio paid tier handles it without
+rate-limiting). `evaluate.concurrency` can stay at 8.
+
+### 7. `--source` flag removed from nox-mem ingest
+The adapter (`adapter_nox_mem.py`) passed `--source evermembench-{user_id}`
+in argv. Current nox-mem CLI (v3.8) does not accept this flag — exit code 1
+on every call. The flag has been removed from the adapter in the same PR
+that landed these results.
+
+### 8. Search API response shape
+The prod `/api/search` endpoint returns a top-level JSON **array** of result
+dicts, not `{"results": [...]}`. The adapter previously called
+`data.get("results", [])` which raised on the list. Patched to handle both
+shapes for forward compatibility.
+
+### 9. `chunk_text` vs `content` field name
+Result dicts use `chunk_text`, not `content`. Adapter patched to try both.
+
+### 10. Schema gotchas were silent
+The fresh-DB schema bugs and `--source` failure both surfaced as
+`AddResult.success = False; errors = [...]` with a generic count
+("Errors: 205") and no per-error printout in the pipeline summary. Always
+run a 2-day subset adapter probe directly (`asyncio.run(adapter.add(...))`)
+before kicking off the full 254-day Add stage on a fresh DB.

@@ -2,6 +2,7 @@
 
 | Run | Date | Systems | Corpus | Cost (USD) | Notes |
 |---|---|---|---|---:|---|
+| **EverMemBench batch 004 — nox-mem** | **2026-05-28** | **nox_mem (hybrid, Gemini-only stack)** | **1,140 chunks (10,222 msgs → 254 days)** | **~$0.75** | **Gemini-2.5-flash for answer + judge via OpenAI-compat shim. 626 q (389 MC + 237 OE). Accuracy: 56.07% (MC 70.95% / OE 31.65%). 23.3% answer-cache hit rate. ~22min wall clock after pipeline.yaml fix. Vectorize via prod GEMINI_API_KEY (within free headroom). See `eval/evermembench/RESULTS-BATCH-004.md` for full breakdown.** |
 | **Zep OSS cross-system** | **2026-05-24** | **zep (Docker, OpenAI embed)** | **6,830/6,830 chunks** | **~$0.07** | **OpenAI text-embedding-3-small @ $0.020/1M tok × ~3.5M tok. ~5min ingest+embed (watermill async) + ~5min parallel search (16 workers). n=20 queries. nDCG@10=0.3909 (LoCoMo 0.4529 / LongMemEval 0.3290). Unblocks "Zep GATED" in COMPARISON.md.** |
 | **nox_mem hybrid FULL** | **2026-05-24** | **nox_mem (hybrid)** | **6,822/6,830 chunks** | **~$0.34** | **Gemini embedding-001 @ $0.000025/1K chars × ~13.6M chars. 47min ingest + 1min queries. Canonical Q4 baseline.** |
 | nox_mem hybrid @500 (cap) | 2026-05-24 | nox_mem (hybrid) | 500/6830 chunks | ~$0.003 | PR #318 cap test. LoCoMo only (LongMemEval never reached). |

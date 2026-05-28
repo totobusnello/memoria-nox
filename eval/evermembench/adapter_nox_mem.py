@@ -278,12 +278,14 @@ class NoxMemAdapter(BaseAdapter):
 
             # Invoke `nox-mem ingest <tempfile> --source evermembench-{user_id}`
             # via execvp-style argv (NOT shell) to avoid injection.
+            # NOTE: `--source` flag intentionally removed (2026-05-28 batch 004 run).
+            # The current nox-mem CLI (v3.8) does not accept --source on `ingest`;
+            # passing it caused all 205 ingests to fail with exit code 1. If a future
+            # nox-mem release re-adds --source, restore the two extra argv items here.
             argv = [
                 self.nox_mem_bin,
                 "ingest",
                 tmp_path,
-                "--source",
-                f"evermembench-{user_id}",
             ]
 
             proc = await asyncio.create_subprocess_exec(
@@ -415,7 +417,14 @@ class NoxMemAdapter(BaseAdapter):
 
         # Validate shape before .get() access
         # (see feedback_adapter_response_shape_validation.md)
-        if not isinstance(data, dict):
+        # nox-mem prod API returns a top-level JSON array of result dicts (not
+        # `{"results": [...]}`). Accept both shapes for forward-compatibility
+        # in case future API revisions wrap the array.
+        if isinstance(data, list):
+            raw_results = data
+        elif isinstance(data, dict):
+            raw_results = data.get("results", [])
+        else:
             return SearchResult(
                 question_id=kwargs.get("question_id", "unknown"),
                 query=query,
@@ -425,11 +434,11 @@ class NoxMemAdapter(BaseAdapter):
                 metadata={"raw": str(data)[:200]},
             )
 
-        raw_results = data.get("results", [])
         memories: List[str] = []
         for item in raw_results:
             if isinstance(item, dict):
-                content = item.get("content", "")
+                # nox-mem API returns `chunk_text`; some search variants may use `content`.
+                content = item.get("chunk_text") or item.get("content") or ""
                 if content:
                     memories.append(content)
 
@@ -448,7 +457,7 @@ class NoxMemAdapter(BaseAdapter):
                 "api_base": self.api_base,
                 "top_k": top_k,
                 "returned": len(memories),
-                "took_ms_api": data.get("took_ms", None),
+                "took_ms_api": data.get("took_ms", None) if isinstance(data, dict) else None,
             },
         )
 
