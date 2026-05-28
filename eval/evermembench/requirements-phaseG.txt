@@ -1,0 +1,7 @@
+# Phase G — same Python deps as Phase F (MiniLM cross-encoder uses the
+# same sentence-transformers + torch stack).
+#
+# MiniLM model itself (~22 MB) is downloaded automatically by
+# sentence_transformers on first use. No model file vendored.
+sentence-transformers==3.0.1
+torch>=2.2
