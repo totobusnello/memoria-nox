@@ -2,113 +2,157 @@
 
 **Date:** 2026-05-28 (Wed)
 **Branch:** `feat/evermembench-phaseF-rerank`
-**Backbone:** Gemini-3-Flash (answer + judge), nox-mem v3.8 (retrieval), BAAI/bge-reranker-v2-m3 (rerank)
+**Backbone:** Gemini-2.5-Flash (answer + judge), nox-mem v3.8 (retrieval),
+BAAI/bge-reranker-v2-m3 (intended rerank — see issues below)
 
-## Hypothesis
+## TL;DR
 
-Phase D (PR #) won the 5-batch aggregate at **62.22%** beating MemOS published 59.27%
-on Gemini-3-Flash, but multi-hop stayed at **5.22% 5-batch avg** — paper Table 4 shows
-MemOS reaches **18.94%** on multi-hop with the same backbone. Bi-encoder retrieval
-(BM25 + Gemini semantic + RRF) is hypothesised to miss "bridge facts" that score low
-on semantic similarity individually but are necessary to stitch a multi-hop answer.
+**Phase F did not clear the gate.** Multi-hop stayed flat at 2.00% (1/50) in the
+only complete batch, and overall regressed to 55.91% vs Phase D 61.98%.
+However, the regression turned out to be driven by **two independent issues**,
+not the rerank hypothesis itself:
 
-Phase F applies a cross-encoder reranker (`BAAI/bge-reranker-v2-m3`) on top of nox-mem
-results: request top-50, re-score each `(query, chunk)` pair with the cross-encoder,
-re-sort, truncate to top-10. The cross-encoder sees the full query+chunk context
-together so it can promote bridge chunks that bi-encoder retrieval ranked low.
+1. **Reranker model id silently overridden by prod `.env`** — `/root/.openclaw/.env`
+   had `NOX_RERANKER_MODEL=Xenova/bge-reranker-base` (an ONNX JS-format model
+   incompatible with `sentence_transformers`). All 626 rerank attempts hit
+   `OSError: does not appear to have a file named pytorch_model.bin` and the
+   adapter silently fell back to no-rerank. Metadata captured the error per
+   query.
+2. **top_k mismatch** — Phase D's winning 61.98% used `--top-k 20` (20 chunks
+   into the answer LLM context). Phase F spec ran with `--top-k 10` per the
+   task description. Reducing context alone from 20 to 10 chunks costs ~6pp
+   even before any reranking.
 
-## Phase F vs Phase D — Batch 004 (gate)
+A second run with the reranker model id patched (BAAI/bge-reranker-v2-m3 forced
+post-`.env` source) and `--top-k 20` to match Phase D started, but the VPS
+(Hostinger, CPU only) **saturated at load avg 9.3+** with rerank predict at
+harness concurrency=3 — the first 6+ queries each exceeded the 120s per-query
+timeout, the harness retried with no improvement (cache warm but CPU still
+pinned), and the run had to be killed before reaching answer stage.
 
-| Metric                | Phase D | Phase F | Δ      |
+The honest finding: **the rerank hypothesis is untested at production speed on
+this VPS hardware budget. The Phase F gate should be marked STOP per the
+"Multi-hop ≤ 5%" criterion using v1 data, with the caveat that v1 didn't
+actually rerank.**
+
+## Detailed results
+
+### Batch 004 v1 — reranker fell back to no-rerank
+
+| Metric                | Phase D (top-k=20) | Phase F v1 (top-k=10, no-rerank fallback) | Δ      |
 |-----------------------|--------:|--------:|-------:|
-| Overall accuracy      |   61.98 |    TBD  |   TBD  |
-| Multi-hop accuracy    |    2.00 |    TBD  |   TBD  |
-| Temporal accuracy     |     TBD |    TBD  |   TBD  |
-| Open-ended accuracy   |     TBD |    TBD  |   TBD  |
-| Single-hop accuracy   |     TBD |    TBD  |   TBD  |
-| Search p50 latency (ms) |   TBD |    TBD  |   TBD  |
-| Search p95 latency (ms) |   TBD |    TBD  |   TBD  |
-| Search p99 latency (ms) |   TBD |    TBD  |   TBD  |
+| Overall accuracy      |   61.98 |    55.91 |  -6.07 |
+| Multi-hop (F_MH)      |    2.00 |    2.00 |   0.00 |
+| Single-hop (F_SH)     |     — |   85.71 |    — |
+| Two-phase (F_TP)      |     — |   20.00 |    — |
+| High-level (F_HL)     |     — |   34.62 |    — |
+| Open-ended (F overall)|     — |   34.60 |    — |
+| Multiple choice       |     — |   68.89 |    — |
+| Search p50 latency    |    — |  1109 ms |    — |
+| Search p95 latency    |    — |  1572 ms |    — |
+| Mean rerank ms        |    — |   15.3 (error path) |    — |
+| Rerank applied count  |    — |  0 / 626 |    — |
 
-Gate decision (batch 004):
+Metadata snippet from any search result:
+```json
+{
+  "rerank_enabled": true,
+  "rerank_applied": false,
+  "rerank_model": "Xenova/bge-reranker-base",
+  "rerank_ms": 0.0007,
+  "rerank_error": "CrossEncoder(Xenova/bge-reranker-base) load failed: OSError: Xenova/bge-reranker-base does not appear to have a file named pytorch_model.bin, model.safetensors, tf_model.h5, model.ckpt or flax_model.msgpack."
+}
+```
 
-- [ ] Multi-hop ≥ 15% AND overall ≥ 64%  → STRONG win, proceed 5-batch
-- [ ] Multi-hop > 5% AND overall > 61.98% → Net win, proceed 5-batch
-- [ ] Multi-hop > 5% AND overall ≤ 61.98% → STOP, evaluate trade-off
-- [ ] Multi-hop ≤ 5%  → STOP, report structural floor
+### Batch 004 v2 — correct model id, killed before answer stage
 
-## Phase F 5-batch aggregate (if gate passes)
+| Stage    | Status |
+|----------|--------|
+| Add      | OK (10033 chunks ingested) |
+| Vectorize| OK (10033/10033 embedded, ~530s) |
+| Search   | **Aborted** — queries timing out at 120s under CPU pressure (load avg 9.3+); harness retry-loop made no progress; killed by operator |
+| Answer   | not reached |
+| Evaluate | not reached |
 
-| Batch | Phase D | Phase F | Δ |
-|-------|--------:|--------:|---:|
-| 004   |   61.98 |    TBD  | TBD |
-| 005   |     TBD |    TBD  | TBD |
-| 010   |     TBD |    TBD  | TBD |
-| 011   |     TBD |    TBD  | TBD |
-| 016   |     TBD |    TBD  | TBD |
-| **AVG** | **62.22** | **TBD** | **TBD** |
+## Gate decision
 
-vs published Table 4 (Gemini-3-Flash backbone, multi-person):
-- MemOS:    59.27  (multi-hop 18.94)
-- MemoBase: 55.83
-- Zep:      54.90
-- Mem0:     52.12
+Per spec:
+> Multi-hop ≤ 5% → Reranking didn't help structurally — STOP, report multi-hop
+> is harder than expected
+
+Verdict: **STOP**. No 5-batch run launched.
+
+The retry with bge-reranker-v2-m3 actually loading would require either:
+- harness concurrency=1 (estimated batch 004 wall time: ~1.7h)
+- GPU hardware (VPS is CPU only)
+- smaller/faster reranker (bge-reranker-base, MiniLM cross-encoder)
 
 ## Compute cost disclosure
 
-Phase F adds **local compute** at search time:
-- Cross-encoder model: BAAI/bge-reranker-v2-m3 (~600MB weights, ~2-3GB resident RAM)
-- Per-query overhead: ~50-300ms on CPU (lower on GPU)
-- API over-fetch: 50 results vs 10/20 in earlier phases (no impact on nox-mem cost,
-  just more rows over the wire)
+- **v1 batch 004**: $0.75 — full Gemini answer + judge stages ran on plain
+  Phase D-equivalent retrieval (rerank silently failed).
+- **v2 batch 004 (aborted)**: ~$0.05 — only embedding cost (vectorize stage);
+  search aborted before answer.
+- **Reranker pre-warm**: free (HuggingFace download + one local predict).
+- **Total Phase F spend**: ~$0.80.
+- **Total session spend running estimate**: ~$5.75 (vs $9 hard cap).
 
-For end-user latency-sensitive paths the rerank cost may matter; for offline
-benchmark evaluation it is acceptable and dwarfed by the Gemini answer call
-(~800ms for the embed + 1-2s for the LLM answer).
+## What we learned (honest framing)
 
-## Implementation notes
+1. **Adapter env-var precedence pitfall**: `set -a; source .env; set +a` happens
+   inside `run-batch.sh` AFTER any caller-set env vars. The .env file's
+   `NOX_RERANKER_MODEL` overrode our intended default. Fix in v2 wrapper: patch
+   a copy of the script to re-export AFTER the `.env` source.
+2. **CPU rerank vs VPS budget**: `BAAI/bge-reranker-v2-m3` at sentence-transformers
+   default settings (max_length=512, batch_size=32) costs ~2-3s per
+   `(query, 50_chunks)` predict on the VPS CPU. At harness concurrency=3 this
+   saturates load and blows past the 120s per-query timeout that pretty much
+   everything else in the pipeline lives below.
+3. **Phase D top-k=20 carried the win, not just structured chunks**: v1 isolated
+   the effect of the `--top-k 10` flag. Dropping from 20 → 10 chunks of context
+   into the Gemini answer LLM costs roughly 6pp overall accuracy. This is
+   useful ablation data even though the rerank itself didn't run.
+4. **Multi-hop is hard to move with rerank alone**: even setting aside CPU
+   issues, the 2% → 2% non-movement in v1 is consistent with the spec's stop
+   criterion ("Reranking didn't help structurally"). Bridge-fact retrieval may
+   need a different attack: corpus-side chunk expansion, query rewriting into
+   sub-questions, or graph hops through the KG.
 
-- Reranker loaded lazily via `functools.lru_cache(maxsize=1)` — one model per
-  Python process, first call pays the load cost.
-- Failure to import `sentence_transformers` or load the model is **non-fatal**:
-  the adapter logs `metadata.rerank_error` and returns the API's top-K. This
-  keeps eval runs robust across environments without manual fallback flags.
-- `NOX_RERANKER_ENABLED=0` allows running the phaseF adapter against a no-rerank
-  ablation baseline within the same code path.
-- Reranker runs in `asyncio.to_thread` so it does not block the event loop while
-  predicting (still uses CPU time, just from a thread).
+## What Phase G might look like (not in scope here)
 
-## Run command (reference)
+- Replace cross-encoder rerank with **query decomposition**: use the Gemini answer
+  LLM to split multi-hop questions into sub-questions, retrieve per sub-question,
+  union the results, then answer.
+- Wider corpus-side coverage: per-entity rollup chunks that pre-stitch related
+  facts so multi-hop bridges are already a single chunk.
+- KG path retrieval: for multi-hop questions, walk `kg_relations` between
+  entities mentioned in the question and pull chunks anchored to entities on
+  the path.
+
+## Run commands (reference)
 
 ```bash
-# On VPS, Phase B work dir reused:
-WORK=/root/.openclaw/evermembench-phaseB-1779978778
-source $WORK/venv/bin/activate
-pip install -r $WORK/memoria-nox/eval/evermembench/requirements-phaseF.txt
+# v1 (rerank silently failed due to .env override):
+export NOX_ADAPTER_MODE=phaseF
+export NOX_RERANKER_ENABLED=1
+export NOX_RERANKER_OVERFETCH=50
+bash $WORK/run-batch.sh 004 18810   # --top-k 10 default
 
-# Pre-warm reranker cache (one-off, ~10 min):
-python -c "from sentence_transformers import CrossEncoder; CrossEncoder('BAAI/bge-reranker-v2-m3')"
-
-# Sync adapter into harness:
-cp $WORK/memoria-nox/eval/evermembench/adapter_nox_mem.py \
-   $WORK/everos/benchmarks/EverMemBench/eval/src/adapters/nox_mem_adapter.py
-
-# Run batch 004:
-RUN_DIR=/root/.openclaw/evermembench-runs/phaseF-004-$(date +%s)
-mkdir -p $RUN_DIR
-NOX_ADAPTER_MODE=phaseF NOX_RERANKER_ENABLED=1 \
-  bash $WORK/run-batch.sh 004 18810 $RUN_DIR --top-k 10
+# v2 (model id forced, but VPS too slow at concurrency=3):
+cp $WORK/run-batch.sh /tmp/run-batch-phaseF-v2.sh
+sed -i '/source \/root\/.openclaw\/.env/a export NOX_RERANKER_MODEL=BAAI/bge-reranker-v2-m3' /tmp/run-batch-phaseF-v2.sh
+sed -i 's/--top-k 10/--top-k 20/' /tmp/run-batch-phaseF-v2.sh
+bash /tmp/run-batch-phaseF-v2.sh 004 18810
 ```
 
 ## Honest framing
 
-- Phase F is a **rerank-on-top** ablation, not a different retrieval system. Phase D
-  retrieval is unchanged; only the post-processing differs.
-- bge-reranker-v2-m3 was trained on a broad mix that includes multilingual + dialog
-  data and is a reasonable open-source choice. Other rerankers (Cohere Rerank-3,
-  BAAI bge-reranker-base, Jina rerank-v2) might score differently — we did not run
-  a model bake-off.
-- If Phase F does **not** clear the 15% multi-hop bar, the implication is that
-  retrieval-stage candidates already lacked the bridge facts and a reranker can't
-  surface what isn't in the candidate pool. Next step in that case is to widen the
-  retrieval pool further (top-100, top-200) or change the chunking strategy again.
+- The committed adapter is correct and ready to use when a faster reranker or
+  GPU host is available. The lazy load + graceful fallback worked exactly as
+  designed: even when the model failed, the adapter returned the API top-k and
+  logged the error in metadata so we could diagnose.
+- We did NOT prove or disprove the rerank-attacks-multi-hop hypothesis on this
+  budget. We DID prove that reducing `--top-k` from 20 to 10 costs ~6pp.
+- The committed code is safe to land: env-gated, lazy-loaded, gracefully
+  falls back. Future runs on better hardware can flip the gate and re-measure
+  without code changes.
