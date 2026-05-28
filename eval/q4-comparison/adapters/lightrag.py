@@ -225,17 +225,22 @@ def _build_gemini_funcs() -> tuple[Any, Any, int]:
     integration landed mid-2025 and may not be in every minor).
     """
     try:
-        from lightrag.llm.gemini import gemini_complete, gemini_embed  # type: ignore
-
-        # gemini_embed is typically wrapped via EmbeddingFunc; if so use directly.
+        # lightrag-hku 1.4.10 exposes gemini_model_complete (not gemini_complete).
+        # gemini_embed is already an EmbeddingFunc (decorated at module load with
+        # embedding_dim=1536); we rebuild it at 3072 dim using the raw async func
+        # exposed via the .func attribute to avoid double-decoration.
+        from lightrag.llm.gemini import gemini_model_complete, gemini_embed  # type: ignore
         from lightrag.utils import EmbeddingFunc  # type: ignore
 
+        # gemini_embed is an EmbeddingFunc instance; .func is the raw async function.
+        raw_embed = getattr(gemini_embed, "func", gemini_embed)
         embedding = EmbeddingFunc(
             embedding_dim=3072,
             max_token_size=2048,
-            func=gemini_embed,
+            func=raw_embed,
+            model_name="gemini-embedding-001",
         )
-        return gemini_complete, embedding, 3072
+        return gemini_model_complete, embedding, 3072
     except ImportError:
         pass
 
@@ -348,10 +353,23 @@ def setup() -> None:
     else:
         llm_func, embed_func, _dim = _build_gemini_funcs()
 
+    # llm_model_name is required for gemini_model_complete (reads it from
+    # hashing_kv.global_config['llm_model_name']); default falls back to
+    # "gpt-4o-mini" which obviously fails against the Gemini endpoint.
+    llm_model_name = os.environ.get("LIGHTRAG_GEMINI_LLM", "gemini-2.5-flash") if not fallback_used else "gpt-4o-mini"
+
+    # Crank parallelism for full Q4 corpus ingest (~9.8k chunks) — defaults
+    # (4 LLM / 8 embed workers, 2 parallel docs) would take >6h wall-clock.
+    # Gemini 2.5 Flash quota tolerates 16-LLM concurrency comfortably.
     _rag = LightRAG(
         working_dir=str(working_dir),
         llm_model_func=llm_func,
+        llm_model_name=llm_model_name,
         embedding_func=embed_func,
+        llm_model_max_async=int(os.environ.get("LIGHTRAG_LLM_MAX_ASYNC", "16")),
+        embedding_func_max_async=int(os.environ.get("LIGHTRAG_EMBED_MAX_ASYNC", "32")),
+        embedding_batch_num=int(os.environ.get("LIGHTRAG_EMBED_BATCH", "32")),
+        max_parallel_insert=int(os.environ.get("LIGHTRAG_PARALLEL_INSERT", "8")),
     )
 
     # Some lightrag versions require explicit init (storages + pipeline status).
@@ -375,24 +393,34 @@ def _state_marker(working_dir: Path) -> Path:
 
 
 def _maybe_ingest(rag: Any) -> None:
-    """Ingest corpus once. Skip if working dir already populated."""
+    """Ingest corpus into LightRAG. Resumes from interrupted state by
+    skipping chunks already present in full_docs (id-based dedup).
+
+    LIGHTRAG_SKIP_INGEST_IF_ANY=1 — legacy all-or-nothing skip (the old
+    behavior). Default now is *resumable* ingest: if the working dir has
+    256 docs but the corpus has 9882, we only insert the missing 9626.
+    """
     working_dir = _working_dir()
     marker = _state_marker(working_dir)
     force = os.environ.get("LIGHTRAG_FORCE_REINGEST", "").lower() in ("1", "true", "yes")
+    legacy_skip = os.environ.get("LIGHTRAG_SKIP_INGEST_IF_ANY", "").lower() in ("1", "true", "yes")
 
+    # Load already-ingested chunk ids for resumption.
+    already_ingested: set[str] = set()
     if not force and marker.exists() and marker.stat().st_size > 16:
         try:
             data = json.loads(marker.read_text())
-            doc_count = len(data) if isinstance(data, dict) else 0
+            if isinstance(data, dict):
+                already_ingested = set(data.keys())
         except Exception:
-            doc_count = 0
-        if doc_count > 0:
-            print(
-                f"[lightrag] working dir already populated ({doc_count} docs in "
-                f"{marker.name}). Skipping re-ingest. "
-                "Set LIGHTRAG_FORCE_REINGEST=1 to override."
-            )
-            return
+            already_ingested = set()
+
+    if legacy_skip and already_ingested:
+        print(
+            f"[lightrag] LEGACY skip-if-any mode: working dir has "
+            f"{len(already_ingested)} docs. Skipping all ingest."
+        )
+        return
 
     chunks = list(_iter_corpus_chunks())
     total = len(chunks)
@@ -438,7 +466,12 @@ def _maybe_ingest(rag: Any) -> None:
         batch.clear()
         batch_ids.clear()
 
+    skipped = 0
     for i, chunk in enumerate(chunks, start=1):
+        # Skip chunks already in working dir (resumption).
+        if chunk.id in already_ingested:
+            skipped += 1
+            continue
         # Prefix with nox_id for search-time round-trip.
         content = f"[nox_id:{chunk.id}] {chunk.text}"
         batch.append(content)
@@ -446,10 +479,10 @@ def _maybe_ingest(rag: Any) -> None:
         if len(batch) >= BATCH:
             _flush()
         if i % 200 == 0 or i == total:
-            print(f"[lightrag]   processed {i}/{total} ({errors} errors)")
+            print(f"[lightrag]   processed {i}/{total} ({errors} errors, {skipped} skipped)")
 
     _flush()
-    print(f"[lightrag] ingestion complete: {ingested} ok, {errors} errors")
+    print(f"[lightrag] ingestion complete: {ingested} ok, {errors} errors, {skipped} skipped (already ingested)")
 
 
 def teardown() -> None:
@@ -514,13 +547,40 @@ def search(query: str, k: int = 10) -> list[dict]:
 
 def _normalize_results(raw: Any, k: int) -> list[dict]:
     """
-    LightRAG return shapes vary by version + mode:
-      - List[dict] with {id, content/text, score?, distance?}
-      - dict with .chunks / .context / .entities lists
-      - bare str (context as text — only happens if only_need_context flag missed)
-    Normalize into [{id, score, text, source}] with nox-mem id parsed from the
-    [nox_id:...] prefix when present.
+    LightRAG 1.4.x with `only_need_context=True` returns a **formatted markdown
+    string** containing three sections:
+
+        Knowledge Graph Data (Entity):
+        ```json
+        {"entity": ..., "type": ..., "description": ...}
+        ...
+        ```
+
+        Knowledge Graph Data (Relationship):
+        ```json
+        {"entity1": ..., "entity2": ..., "description": ...}
+        ...
+        ```
+
+        Document Chunks (Each entry has a reference_id refer to the ...):
+        ```json
+        {"reference_id": "", "content": "[nox_id:<id>] <text>"}
+        ...
+        ```
+
+    For Q4 gold matching we only care about the **Document Chunks** section —
+    that's where the nox_id markers live. We parse the JSON lines inside that
+    block and emit one normalized result per chunk in the order LightRAG
+    returned them (rank order = retrieval rank).
+
+    Older versions / non-mix modes may still return list/dict shapes; we
+    fall back to the legacy handling for those.
     """
+    # --- New code path: string format from LightRAG 1.4.x with only_need_context
+    if isinstance(raw, str):
+        return _parse_context_string(raw, k)
+
+    # --- Legacy code path for list/dict shapes (other versions / modes)
     items: list[Any]
     if isinstance(raw, list):
         items = raw
@@ -532,11 +592,6 @@ def _normalize_results(raw: Any, k: int) -> list[dict]:
                 break
         else:
             items = []
-    elif isinstance(raw, str):
-        # Best-effort: split by chunk markers if any; otherwise treat as one
-        # big context blob (which won't match individual gold ids but at least
-        # surfaces a result the runner can count as non-empty).
-        items = [{"content": raw, "score": 0.0}]
     else:
         items = []
 
@@ -554,7 +609,6 @@ def _normalize_results(raw: Any, k: int) -> list[dict]:
         if not isinstance(text, str):
             text = str(text)
 
-        # Parse nox-mem id from prefix; fall back to LightRAG's internal id.
         m = _NOX_ID_RE.match(text)
         if m:
             nox_id = m.group(1)
@@ -562,8 +616,6 @@ def _normalize_results(raw: Any, k: int) -> list[dict]:
         else:
             nox_id = str(item.get("id") or item.get("chunk_id") or item.get("entity_name") or "")
 
-        # LightRAG returns 'distance' (lower=better) or 'score' (higher=better)
-        # depending on storage backend. Convert distance → score.
         if "score" in item and item["score"] is not None:
             score = float(item["score"])
         elif "distance" in item and item["distance"] is not None:
@@ -579,6 +631,74 @@ def _normalize_results(raw: Any, k: int) -> list[dict]:
                 "source": item.get("source") or item.get("file_path") or None,
             }
         )
+
+    return normalized
+
+
+_DOC_CHUNKS_SECTION_RE = re.compile(
+    r"Document Chunks[^\n]*:\s*\n\s*```json\s*\n(.*?)\n\s*```",
+    re.DOTALL,
+)
+
+
+def _parse_context_string(raw: str, k: int) -> list[dict]:
+    """
+    Extract chunks from the "Document Chunks" json-fenced section of a
+    LightRAG `only_need_context=True` response. Each line inside the block
+    is a JSON object with `content` (and optional `reference_id`). We parse
+    the nox_id from the `[nox_id:<id>]` prefix in `content`.
+    """
+    m = _DOC_CHUNKS_SECTION_RE.search(raw)
+    if not m:
+        # No document chunks section — possibly mode=local/hybrid returning
+        # only entity context. Return empty so the runner records 0 hits
+        # rather than a single empty placeholder.
+        return []
+
+    block = m.group(1)
+    normalized: list[dict] = []
+    for line in block.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        # JSON lines may be separated by commas in some LightRAG versions —
+        # strip a trailing comma defensively.
+        if line.endswith(","):
+            line = line[:-1]
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(obj, dict):
+            continue
+
+        text = obj.get("content") or obj.get("text") or ""
+        if not isinstance(text, str):
+            text = str(text)
+
+        m_id = _NOX_ID_RE.match(text)
+        if m_id:
+            nox_id = m_id.group(1)
+            text = text[m_id.end() :]
+        else:
+            nox_id = str(obj.get("reference_id") or obj.get("id") or "")
+
+        # LightRAG context format doesn't include per-chunk score — use
+        # descending rank-based score so downstream MRR / nDCG ordering is
+        # preserved. (k - rank + 1) keeps rank-1 at highest score.
+        rank = len(normalized)
+        score = max(0.0, 1.0 - (rank / max(k, 1)))
+
+        normalized.append(
+            {
+                "id": nox_id,
+                "score": score,
+                "text": text,
+                "source": obj.get("source") or obj.get("reference_id") or None,
+            }
+        )
+        if len(normalized) >= k:
+            break
 
     return normalized
 

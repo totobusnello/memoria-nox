@@ -105,6 +105,98 @@
       }
     },
     {
+      "system": "lightrag",
+      "version": "lightrag-hku==1.4.10",
+      "n_queries": 20,
+      "n_queries_with_gold": 20,
+      "n_scored": 20,
+      "n_errors": 0,
+      "status": "OK",
+      "corpus_cap": 2000,
+      "corpus_cap_pct_of_full": "~20%",
+      "notes": "LIMIT=2000 cap (matches agentmemory 20% + mem0 500-cap concentration methodology). Direct comparison to nox_mem full-corpus (0.6380) is apples-to-apples-on-cap-level.",
+      "overall": {
+        "ndcg@k": 0.175,
+        "recall@k": 0.2,
+        "mrr": 0.16666666666666666
+      },
+      "latency_ms": {
+        "p50": 11067.000500508584,
+        "p95": 23434.718560788315,
+        "p99": 23507.934167049825,
+        "mean": 11168.090866750572,
+        "n": 20
+      },
+      "per_category": {
+        "single-hop": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "multi-hop": {
+          "ndcg@k": 1.0,
+          "recall@k": 1.0,
+          "mrr": 1.0,
+          "n": 2
+        },
+        "temporal": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "open-domain": {
+          "ndcg@k": 0.75,
+          "recall@k": 1.0,
+          "mrr": 0.6666666666666666,
+          "n": 2
+        },
+        "adversarial": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "knowledge-update": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "multi-session": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "single-session-assistant": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 1
+        },
+        "single-session-preference": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 1
+        },
+        "single-session-user": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        },
+        "temporal-reasoning": {
+          "ndcg@k": 0.0,
+          "recall@k": 0.0,
+          "mrr": 0.0,
+          "n": 2
+        }
+      }
+    },
+    {
       "system": "agentmemory",
       "version": "@agentmemory/agentmemory@0.9.21 (verified 2026-05-23)",
       "n_queries": 20,

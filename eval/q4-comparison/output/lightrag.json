@@ -1,0 +1,1517 @@
+{
+  "meta": {
+    "system": "lightrag",
+    "version": "lightrag-hku==1.4.10",
+    "k": 10,
+    "n_queries": 20,
+    "n_errors": 0,
+    "datasets": [
+      "locomo",
+      "longmemeval"
+    ],
+    "started_at": "2026-05-27T23:47:06Z",
+    "finished_at": "2026-05-28T04:05:20Z",
+    "harness_version": "1.0"
+  },
+  "queries": [
+    {
+      "dataset": "locomo",
+      "category": "single-hop",
+      "question_id": "conv-48::q13",
+      "query": "What places give Deborah peace?",
+      "gold_chunk_ids": [
+        "conv-48::D2:13",
+        "conv-48::D4:34",
+        "conv-48::D6:10",
+        "conv-48::D19:17"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-42::D8:10",
+          "score": 1.0,
+          "text": "Joanna: Nature's always been my haven. Walking in it, feeling it, hearing the sounds - it's so calming. Worries and stress seem to vanish, and it's just me and the beauty around me.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D13:8",
+          "score": 0.9,
+          "text": "Joanna: I can see why having a peaceful presence around could help relieve stress. Having someone or something to come home to for a sense of calm would be helpful for relaxation.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D8:28",
+          "score": 0.8,
+          "text": "Melanie: I'm getting there, Caroline. Creativity and family keep me at peace.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D11:9",
+          "score": 0.7,
+          "text": "Joanna: It was awesome, Nate. The sound of that place and the beauty of nature made me so calm and peaceful. Everything else faded away and all that mattered was the present.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D11:8",
+          "score": 0.6,
+          "text": "Maria: Nature helps put things in perspective and reminds us of the beauty even during tough times. Hold onto those moments of peace.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:19",
+          "score": 0.5,
+          "text": "Melanie: Absolutely! It really helps me reset and recharge. I love camping trips with my fam, 'cause nature brings such peace and serenity.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:22",
+          "score": 0.4,
+          "text": "Caroline: That's so peaceful and calming, Melanie! I can picture waking up to nature. It's great that you get to spend quality, tranquil time with your family.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D30:10",
+          "score": 0.30000000000000004,
+          "text": "John: Yeah, it was like restarting my mind and spirit. It's amazing how peaceful and pretty it can be. It made me remember the little things in life and savor the peaceful moments.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D16:14",
+          "score": 0.19999999999999996,
+          "text": "Maria: Yeah, John! They give me peace and make me appreciate life.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D22:17",
+          "score": 0.09999999999999998,
+          "text": "John: Thanks, Maria! I see them at least once a week. It's a good way to disconnect, think, and find peace in this crazy world.",
+          "source": null
+        }
+      ],
+      "latency_ms": 12222.571750171483,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "single-hop",
+      "question_id": "conv-50::q49",
+      "query": "When Dave was a child, what did he and his father do in the garage?",
+      "gold_chunk_ids": [
+        "conv-50::D12:2",
+        "conv-50::D12:4",
+        "conv-50::D22:5"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-30::D16:4",
+          "score": 1.0,
+          "text": "Jon: What gave you the idea?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D6:5",
+          "score": 0.9,
+          "text": "Maria: Yeah, at the event, I had a conversation with someone named David. Hearing his story of hardship and how he ended up in difficult circumstances was so humbling. It just showed me that everyone has their own story and deserves understanding.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D1:9",
+          "score": 0.8,
+          "text": "Nate: It was! How about you? Do you have any hobbies you love?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D8:10",
+          "score": 0.7,
+          "text": "John: Yeah, everyone got a chance to swing. It's always fun coming up with activities for my family to enjoy.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D2:15",
+          "score": 0.6,
+          "text": "Maria: Wow, John, that playground looks cool! What kind of stuff do you and your family do there?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D1:5",
+          "score": 0.5,
+          "text": "Gina: That's cool, Jon! What got you into this biz?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D9:9",
+          "score": 0.4,
+          "text": "Jon: Nice, Gina! I'm happy that dance has such a special meaning to both of us. It's a really cool way to express ourselves. I loved taking lessons with my friends when I was younger. Those memories are so precious. So glad I can still enjoy it with my own studio. Thanks for always being there for me.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D1:6",
+          "score": 0.30000000000000004,
+          "text": "Jon: I've been into dancing since I was a kid and it's been my passion and escape. I wanna start a dance studio so I can teach others the joy that dancing brings me.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D2:24",
+          "score": 0.19999999999999996,
+          "text": "John: We made pizza! We had so much fun making them together. It was great picking out toppings and sharing a tasty meal with family. Have you made anything lately?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D10:9",
+          "score": 0.09999999999999998,
+          "text": "Caroline: Sounds fun! What was the best part? Do you do it often with the kids?",
+          "source": null
+        }
+      ],
+      "latency_ms": 3501.560708042234,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "multi-hop",
+      "question_id": "conv-26::q6",
+      "query": "When is Melanie planning on going camping?",
+      "gold_chunk_ids": [
+        "conv-26::D2:7"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D2:7",
+          "score": 1.0,
+          "text": "Melanie: Thanks, Caroline. It's still a work in progress, but I'm doing my best. My kids are so excited about summer break! We're thinking about going camping next month. Any fun plans for the summer?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D10:10",
+          "score": 0.9,
+          "text": "Melanie: Seeing my kids' faces so happy at the beach was the best! We don't go often, usually only once or twice a year. But those times are always special to spend time together and chill.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D9:1",
+          "score": 0.8,
+          "text": "Melanie: Hey Caroline, hope all's good! I had a quiet weekend after we went camping with my fam two weekends ago. It was great to unplug and hang with the kids. What've you been up to? Anything fun over the weekend?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D12:4",
+          "score": 0.7,
+          "text": "Melanie: Here it is. Pretty proud of it! It was a great experience. Thoughts?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:19",
+          "score": 0.6,
+          "text": "Melanie: Absolutely! It really helps me reset and recharge. I love camping trips with my fam, 'cause nature brings such peace and serenity.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D10:13",
+          "score": 0.5,
+          "text": "Caroline: Wow, Mel, that's awesome! What's your best camping memory?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:21",
+          "score": 0.4,
+          "text": "Melanie: It's a chance to be present and together. We bond over stories, campfires and nature. It's so peaceful waking up to the sound of birds and the smell of fresh air - it always refreshes my soul.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D10:12",
+          "score": 0.30000000000000004,
+          "text": "Melanie: We always look forward to our family camping trip. We roast marshmallows, tell stories around the campfire and just enjoy each other's company. It's the highlight of our summer!",
+          "source": null
+        },
+        {
+          "id": "conv-41::D18:11",
+          "score": 0.19999999999999996,
+          "text": "Maria: I've gone camping a few times but never tried mountain climbing. Sounds thrilling though! Have you been camping before?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D14:32",
+          "score": 0.09999999999999998,
+          "text": "Melanie: I'm feeling inspired by autumn so I'm planning a few. You got any cool art projects coming up?",
+          "source": null
+        }
+      ],
+      "latency_ms": 14772.722708061337,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "multi-hop",
+      "question_id": "conv-30::q11",
+      "query": "When did Gina get her tattoo?",
+      "gold_chunk_ids": [
+        "conv-30::D5:15"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-30::D5:15",
+          "score": 1.0,
+          "text": "Gina: Thanks! Got the tattoo a few years ago, it stands for freedom - dancing without worrying what people think. A reminder to follow my passions and express myself.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D5:5",
+          "score": 0.9,
+          "text": "Gina: That's awesome! I'm sure you feel great knowing your students are doing so well with dance. It's amazing what it can do for people! Oh, and btw - I've been working hard on my online store and just teamed up with a local artist for some cool designs. Check 'em out!",
+          "source": null
+        },
+        {
+          "id": "conv-30::D5:13",
+          "score": 0.8,
+          "text": "Gina: This quote kept me positive through tough times. We all need a push sometimes, right? Even made a tattoo to remind myself about it.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D6:14",
+          "score": 0.7,
+          "text": "Gina: Thanks, Jon! Your words are really encouraging. Glad my journey is inspiring others.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D4:8",
+          "score": 0.6,
+          "text": "Gina: I'm here for you no matter what! Anything you want to say about your biz?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D3:8",
+          "score": 0.5,
+          "text": "Gina: Thanks! Making my spot comfortable and inviting for my customers is key. I want 'em to feel like they're in a cool oasis. Just creating an experience that'll make 'em wanna come back.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D5:14",
+          "score": 0.4,
+          "text": "Jon: Love the tattoo, did you just get it?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D8:10",
+          "score": 0.30000000000000004,
+          "text": "Gina: Thanks! So far, so good - customers love the new offers and promotions, which means I'm seeing more sales. People seem to really like my designs, so I'm always on the hunt for unique, trendy pieces. Growing my customer base is the main focus right now.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D16:5",
+          "score": 0.19999999999999996,
+          "text": "Gina: This design reminds me of the grit it takes to stand out and face challenges.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D10:8",
+          "score": 0.09999999999999998,
+          "text": "Gina: I get it, Jon. Confidence is important in business. I stay motivated by reminding myself of my successes and progress. It also helps to have a good support system. Just focus on why you started this \u2013 because you love it! Have faith in yourself, Jon. I do!",
+          "source": null
+        }
+      ],
+      "latency_ms": 16434.32404077612,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "temporal",
+      "question_id": "conv-44::q53",
+      "query": "What is a career that Andrew could potentially pursue with his love for animals and nature?",
+      "gold_chunk_ids": [
+        "conv-44::D2:18",
+        "conv-44::D3:1",
+        "conv-44::D5:7",
+        "conv-44::D8:27"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-41::D31:5",
+          "score": 1.0,
+          "text": "John: Aww, that sounds adorable! Animals really bring a lot of joy and love, don't they? Did you have any pets growing up?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D7:7",
+          "score": 0.9,
+          "text": "Caroline: I struggled with mental health, and support I got was really helpful. It made me realize how important it is for others to have a support system. So, I started looking into counseling and mental health career options, so I could help other people on their own journeys like I was helped.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D13:5",
+          "score": 0.8,
+          "text": "Nate: They actually didn't share a whole lot in common with me besides the love of animals, but I think that was all we needed to share in common to be good friends!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D24:6",
+          "score": 0.7,
+          "text": "Joanna: I used to have a dog back in Michigan with that name, but then I got allergic and we had to get rid of her. The name helps me remember her back when I used to be able to hold and squeeze animal without an allergic reaction!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D1:11",
+          "score": 0.6,
+          "text": "Caroline: I'm keen on counseling or working in mental health - I'd love to support those with similar issues.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D2:26",
+          "score": 0.5,
+          "text": "Nate: That's great to hear! Those are both great things. I'm glad to hear you've got other things to help you get through times of axiousness despite not being able to have animals!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D1:10",
+          "score": 0.4,
+          "text": "Melanie: Wow, Caroline! What kinda jobs are you thinkin' of? Anything that stands out?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D6:3",
+          "score": 0.30000000000000004,
+          "text": "Caroline: Since our last chat, I've been looking into counseling or mental health work more. I'm passionate about helping people and making a positive impact. It's tough, but really rewarding too. Anything new happening with you?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D1:9",
+          "score": 0.19999999999999996,
+          "text": "Caroline: Gonna continue my edu and check out career options, which is pretty exciting!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D5:6",
+          "score": 0.09999999999999998,
+          "text": "Nate: I'm drawn to turtles. They're unique and their slow pace is a nice change from the rush of life. They're also low-maintenance and calming. Check out this moment I snapped!",
+          "source": null
+        }
+      ],
+      "latency_ms": 13104.394750203937,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "temporal",
+      "question_id": "conv-41::q64",
+      "query": "What job might Maria pursue in the future?",
+      "gold_chunk_ids": [
+        "conv-41::D32:14",
+        "conv-41::D5:8",
+        "conv-41::D11:10",
+        "conv-41::D27:4"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-41::D9:5",
+          "score": 1.0,
+          "text": "Maria: I bet! What are your plans for the future?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D18:11",
+          "score": 0.9,
+          "text": "Maria: I've gone camping a few times but never tried mountain climbing. Sounds thrilling though! Have you been camping before?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D9:7",
+          "score": 0.8,
+          "text": "Maria: Sounds great, John! That seems perfect for you with your passion and dedication. Are there any specific areas you're particularly interested in?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D25:16",
+          "score": 0.7,
+          "text": "Maria: Looks fun! What other classes have you done?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D25:18",
+          "score": 0.6,
+          "text": "Maria: Wow, John! That's great. Yoga is a great way to relax and concentrate, and joining a new class might be a good option.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D4:11",
+          "score": 0.5,
+          "text": "Caroline: Lately, I've been looking into counseling and mental health as a career. I want to help people who have gone through the same things as me.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D22:2",
+          "score": 0.4,
+          "text": "Maria: I totally agree. They play a crucial role in shaping communities. It's unfortunate to witness the negative effects when they are lacking, but it's inspiring to see your passion and proactive approach towards making a positive change.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D1:10",
+          "score": 0.30000000000000004,
+          "text": "Melanie: Wow, Caroline! What kinda jobs are you thinkin' of? Anything that stands out?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D21:7",
+          "score": 0.19999999999999996,
+          "text": "Maria: Things have been tough for her lately. She had to leave and find a new place in a hurry, which has been really stressful, but she's making progress.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D25:14",
+          "score": 0.09999999999999998,
+          "text": "Maria: Cool, John! Trying new classes sounds like a fun way to switch up your exercise routine - I should give it a go!",
+          "source": null
+        }
+      ],
+      "latency_ms": 23507.934167049825,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "open-domain",
+      "question_id": "conv-26::q83",
+      "query": "What did Melanie realize after the charity race?",
+      "gold_chunk_ids": [
+        "conv-26::D2:3"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D2:1",
+          "score": 1.0,
+          "text": "Melanie: Hey Caroline, since we last chatted, I've had a lot of things happening to me. I ran a charity race for mental health last Saturday \u2013 it was really rewarding. Really made me think about taking care of our minds.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D7:26",
+          "score": 0.9,
+          "text": "Melanie: Caroline, thanks! Mental health is important to me, and it's made such an improvement!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D2:3",
+          "score": 0.8,
+          "text": "Melanie: Thanks, Caroline! The event was really thought-provoking. I'm starting to realize that self-care is really important. It's a journey for me, but when I look after myself, I'm able to better look after my family.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D12:4",
+          "score": 0.7,
+          "text": "Melanie: Here it is. Pretty proud of it! It was a great experience. Thoughts?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D15:8",
+          "score": 0.6,
+          "text": "Melanie: That's great. Sharing your story and support might make a difference for a long time. What do you hope to do next time?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D1:18",
+          "score": 0.5,
+          "text": "Melanie: Yep, Caroline. Taking care of ourselves is vital. I'm off to go swimming with the kids. Talk to you soon!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D2:2",
+          "score": 0.4,
+          "text": "Caroline: That charity race sounds great, Mel! Making a difference & raising awareness for mental health is super rewarding - I'm really proud of you for taking part!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D16:4",
+          "score": 0.30000000000000004,
+          "text": "Melanie: Thanks, Caroline! It's awesome seeing the kids get excited learning something new about nature. Those moments make being a parent worth it. We roasted marshmallows and shared stories around the campfire. Those simple moments make the best memories. What inspires you with your volunteering?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:5",
+          "score": 0.19999999999999996,
+          "text": "Melanie: Yeah, you're right, Caroline. Family's super important to me. Especially after the accident, I've thought a lot about how much I need them. They mean the world to me and I'm so thankful to have them. Thankfully, they enjoyed the Grand Canyon a lot!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:21",
+          "score": 0.09999999999999998,
+          "text": "Melanie: It's a chance to be present and together. We bond over stories, campfires and nature. It's so peaceful waking up to the sound of birds and the smell of fresh air - it always refreshes my soul.",
+          "source": null
+        }
+      ],
+      "latency_ms": 22043.622041819617,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "open-domain",
+      "question_id": "conv-26::q87",
+      "query": "Why did Caroline choose the adoption agency?",
+      "gold_chunk_ids": [
+        "conv-26::D2:12"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D2:12",
+          "score": 1.0,
+          "text": "Caroline: I chose them 'cause they help LGBTQ+ folks with adoption. Their inclusivity and support really spoke to me.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D17:4",
+          "score": 0.9,
+          "text": "Melanie: Yeah, a buddy of mine adopted last year. It was a long process, but now they're super happy with their new kid. Makes me feel like maybe I should do it too!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D2:14",
+          "score": 0.8,
+          "text": "Caroline: I'm thrilled to make a family for kids who need one. It'll be tough as a single parent, but I'm up for the challenge!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D2:8",
+          "score": 0.7,
+          "text": "Caroline: Researching adoption agencies \u2014 it's been a dream to have a family and give a loving home to kids who need it.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D2:10",
+          "score": 0.6,
+          "text": "Caroline: Thanks, Mel! My goal is to give kids a loving home. I'm truly grateful for all the support I've got from friends and mentors. Now the hard work starts to turn my dream into a reality. And here's one of the adoption agencies I'm looking into. It's a lot to take in, but I'm feeling hopeful and optimistic.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D13:1",
+          "score": 0.5,
+          "text": "Caroline: Hi Melanie! Hope you're doing good. Guess what I did this week? I took the first step towards becoming a mom - I applied to adoption agencies! It's a big decision, but I think I'm ready to give all my love to a child. I got lots of help from this adoption advice/assistance group I attended. It was great!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D19:3",
+          "score": 0.4,
+          "text": "Caroline: Thanks so much, Melanie! It's beautiful! It really brings home how much love's in families - both blood and the ones we choose. I hope to build my own family and put a roof over kids who haven't had that before. For me, adoption is a way of giving back and showing love and acceptance.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D19:5",
+          "score": 0.30000000000000004,
+          "text": "Caroline: Thanks, Melanie. My dream is to create a safe and loving home for these kids. Love and acceptance should be everyone's right, and I want them to experience it.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D17:3",
+          "score": 0.19999999999999996,
+          "text": "Caroline: Thanks, Melanie! I'm stoked to start this new chapter. It's been a dream to adopt and provide a safe, loving home for kids who need it. Do you have any experience with adoption, or know anyone who's gone through the process?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D17:7",
+          "score": 0.09999999999999998,
+          "text": "Caroline: Yep! Do your research and find an adoption agency or lawyer. They'll help with the process and provide all the info. Gather documents like references, financial info and medical checks. Don't forget to prepare emotionally, since the wait can be hard. It's all worth it in the end though.",
+          "source": null
+        }
+      ],
+      "latency_ms": 19233.832166995853,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "adversarial",
+      "question_id": "conv-26::q191",
+      "query": "What happened to Caroline's son on their road trip?",
+      "gold_chunk_ids": [
+        "conv-26::D18:1"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D18:2",
+          "score": 1.0,
+          "text": "Caroline: Oops, sorry 'bout the accident! Must have been traumatizing for you guys. Thank goodness your son's okay. Life sure can be a roller coaster.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D12:21",
+          "score": 0.9,
+          "text": "Caroline: Yeah, Mel! Life's all about creating memories. Can't wait for the trip!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:4",
+          "score": 0.8,
+          "text": "Caroline: Glad your son is okay, Melanie. Life's unpredictable, but moments like these remind us how important our loved ones are. Family's everything.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D12:1",
+          "score": 0.7,
+          "text": "Caroline: Hey Mel! How're ya doin'? Recently, I had a not-so-great experience on a hike. I ran into a group of religious conservatives who said something that really upset me. It made me think how much work we still have to do for LGBTQ rights. It's been so helpful to have people around me who accept and support me, so I know I'll be ok!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D10:9",
+          "score": 0.6,
+          "text": "Caroline: Sounds fun! What was the best part? Do you do it often with the kids?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D5:1",
+          "score": 0.5,
+          "text": "Caroline: Since we last spoke, some big things have happened. Last week I went to an LGBTQ+ pride parade. Everyone was so happy and it made me feel like I belonged. It showed me how much our community has grown, it was amazing!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:3",
+          "score": 0.4,
+          "text": "Melanie: Yeah, our trip got off to a bad start. I was really scared when we got into the accident. Thankfully, my son's ok and that was a reminder that life is precious and to cherish our family.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D17:17",
+          "score": 0.30000000000000004,
+          "text": "Caroline: Yeah, it's very calming. It's awesome how art can show emotions. By the way, I went to a poetry reading last Fri - it was really powerful! Ever been to one?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D8:3",
+          "score": 0.19999999999999996,
+          "text": "Caroline: Wow, Mel! Sounds like you and the kids had a blast. How'd they like it?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D9:6",
+          "score": 0.09999999999999998,
+          "text": "Caroline: I mentor a transgender teen just like me. We've been working on building up confidence and finding positive strategies, and it's really been paying off! We had a great time at the LGBT pride event last month.",
+          "source": null
+        }
+      ],
+      "latency_ms": 10679.904208984226,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "adversarial",
+      "question_id": "conv-43::q226",
+      "query": "What movie did Tim just finish watching on 8th December, 2023?",
+      "gold_chunk_ids": [
+        "conv-43::D22:13"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-42::D25:12",
+          "score": 1.0,
+          "text": "Joanna: Nope! You'll just have to watch the movie and find out for yourself!",
+          "source": null
+        },
+        {
+          "id": "conv-30::D15:19",
+          "score": 0.9,
+          "text": "Jon: Woohoo! Tomorrow's opening will be so much fun. Can't wait for it - and for you to be there!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D23:17",
+          "score": 0.8,
+          "text": "Nate: I recently saw a movie that blew my mind with all the twists and dream stuff, I think it was called \"Inception\". I've also been playing a game nonstop with a great futuristic setting and gameplay called \"Cyberpunk 2077\". Have you seen or played anything good lately?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D8:18",
+          "score": 0.7,
+          "text": "Gina: Sounds great! I'm definitely in for the show.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D23:16",
+          "score": 0.6,
+          "text": "Joanna: That sounds great! What's your favorite game or movie that you've seen recently?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D8:15",
+          "score": 0.5,
+          "text": "Jon: Thanks! Your backing means a lot. I'm trying to make my plan work, even though it's been tough. Your encouragement really helps. Are you coming to the event next month? Love to have you there!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D23:20",
+          "score": 0.4,
+          "text": "Joanna: Well, it was amazing, so probably 9 or 10 out of 10! Movies can take us to different places and make us feel lots of emotions. What do you love about watching them?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D4:11",
+          "score": 0.30000000000000004,
+          "text": "Jon: Thanks! Appreciate your encouragement - it means a lot! I'm working on my business and some new dance routines - rehearsing hard for an upcoming show. I'm passionate about dancing and it brings me so much joy and fulfillment.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D1:19",
+          "score": 0.19999999999999996,
+          "text": "Nate: Sounds cool! Have you seen it a lot? sounds like you know the movie well!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D17:2",
+          "score": 0.09999999999999998,
+          "text": "Joanna: Congrats, Nate! That's awesome! So proud of you. Your hard work really paid off - keep it up! BTW, I took a road trip for research for my next movie while you were winning. Much-needed break and a chance to explore new places and get inspired.",
+          "source": null
+        }
+      ],
+      "latency_ms": 12703.006625175476,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "knowledge-update",
+      "question_id": "6aeb4375",
+      "query": "How many Korean restaurants have I tried in my city?",
+      "gold_chunk_ids": [
+        "answer_3f9693b7_1",
+        "answer_3f9693b7_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-42::D3:5",
+          "score": 1.0,
+          "text": "Joanna: Looks delish! Glad you tried something new and it went well. What did you think of it?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D13:24",
+          "score": 0.9,
+          "text": "Maria: Last year I took a solo trip and took this pic in Spain. It reminded me that life is hard but there's still hope and beauty. It made me realize the importance of relying on my inner strength and appreciating small moments even more.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D20:9",
+          "score": 0.8,
+          "text": "Nate: Sounds delicious! Are you only trying dairy-free options?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D2:5",
+          "score": 0.7,
+          "text": "Gina: Wow, nice spot! Where is it? Got any other features you want to think about before you decide? Paris?! That is really great Jon! Never had a chance to visit it. Been only to Rome once.",
+          "source": null
+        },
+        {
+          "id": "conv-26::D15:2",
+          "score": 0.6,
+          "text": "Melanie: Hey Caroline! Since we last spoke, I took my kids to a park yesterday. They had fun exploring and playing. It was nice seeing them have a good time outdoors. Time flies, huh? What's new with you?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D18:11",
+          "score": 0.5,
+          "text": "Maria: I've gone camping a few times but never tried mountain climbing. Sounds thrilling though! Have you been camping before?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D17:18",
+          "score": 0.4,
+          "text": "Melanie: Nope, never been to something like that. What was it about? What made it so special?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D2:21",
+          "score": 0.30000000000000004,
+          "text": "Maria: Woah, that's a nice pic, John! You all obviously had a blast at dinner. Nothing beats getting together with loved ones for a good meal - it makes some awesome memories!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D5:5",
+          "score": 0.19999999999999996,
+          "text": "Caroline: Wow, Melanie! I'm getting creative too, just learning the piano. What made you try pottery?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D29:6",
+          "score": 0.09999999999999998,
+          "text": "John: Thanks, Maria! It means a lot to me. It was hard work - getting sponsors, coordinating with the city, and spreading the word. But seeing everyone come together to support our veterans made it worth it.",
+          "source": null
+        }
+      ],
+      "latency_ms": 16871.207125019282,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "knowledge-update",
+      "question_id": "6aeb4375_abs",
+      "query": "How many Italian restaurants have I tried in my city?",
+      "gold_chunk_ids": [
+        "answer_3f9693b7_abs_1",
+        "answer_3f9693b7_abs_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-42::D20:9",
+          "score": 1.0,
+          "text": "Nate: Sounds delicious! Are you only trying dairy-free options?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D2:5",
+          "score": 0.9,
+          "text": "Gina: Wow, nice spot! Where is it? Got any other features you want to think about before you decide? Paris?! That is really great Jon! Never had a chance to visit it. Been only to Rome once.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D3:9",
+          "score": 0.8,
+          "text": "Jon: That's a great goal! Creating a special experience for customers is the key to making them feel welcome and coming back. I think you can create that space you're imagining.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D16:6",
+          "score": 0.7,
+          "text": "Nate: Absolutely! There were 7 people that attended, and 6 of them said they'd want to do it again next month!",
+          "source": null
+        },
+        {
+          "id": "conv-41::D4:12",
+          "score": 0.6,
+          "text": "John: I've been keeping busy since we last talked! I've been looking into local politics, talking to community leaders, and getting to know the needs and hopes of our neighborhood. It's been super informative, and I'm feeling optimistic about it all.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D13:19",
+          "score": 0.5,
+          "text": "John: Mm, yum! A bit of joy is definitely important. How do you find balance in your life?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D25:20",
+          "score": 0.4,
+          "text": "Joanna: Wow, that's fascinating! It's interesting how they have such a varied diet, including insects. Do you have a favorite among their food choices?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D8:12",
+          "score": 0.30000000000000004,
+          "text": "John: I just try to find things that we'll have fun with, like a walk or picnic in the park, or finding events in our town and beyond. Just last week, I found a violin concert that we all enjoyed. It's all about making memories together.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D18:11",
+          "score": 0.19999999999999996,
+          "text": "Maria: I've gone camping a few times but never tried mountain climbing. Sounds thrilling though! Have you been camping before?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D21:9",
+          "score": 0.09999999999999998,
+          "text": "Joanna: Cool, Nate! Gonna give it a go. Dairy-free is a must for me, especially for desserts. Last Friday, I made a deeeelish dessert with almond milk - it was good! Got any favs when it comes to dairy-free desserts?",
+          "source": null
+        }
+      ],
+      "latency_ms": 4918.462832923979,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "multi-session",
+      "question_id": "gpt4_2ba83207",
+      "query": "Which grocery store did I spend the most money at in the past month?",
+      "gold_chunk_ids": [
+        "answer_6a3b5c13_2",
+        "answer_6a3b5c13_1",
+        "answer_6a3b5c13_3",
+        "answer_6a3b5c13_4"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-42::D17:5",
+          "score": 1.0,
+          "text": "Nate: That place looks interesting! Did you find any cool books there?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D6:7",
+          "score": 0.9,
+          "text": "Jon: Congrats! That's awesome! What gave you the idea to start the online store?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D20:10",
+          "score": 0.8,
+          "text": "Joanna: Yeah, since I'm lactose intolerant I'm trying out dairy-free options like coconut or almond milk instead. It's been a fun challenge seeing how to make yummy treats that suit everyone's diets. I even made these dairy-free chocolate coconut cupcakes with raspberry frosting.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D2:4",
+          "score": 0.7,
+          "text": "Jon: Hey Gina! Thanks for asking. I'm on the hunt for the ideal spot for my dance studio and it's been quite a journey! I've been looking at different places and picturing how the space would look. I even found a place with great natural light! Oh, I've been to Paris yesterday! It was sooo cool.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D3:4",
+          "score": 0.6,
+          "text": "Gina: Thanks! Glad you like it. Yeah, it's a great spot. Here's a peek at the space I designed. Cozy and inviting - perfect for customers to check out all the trendy pieces.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D21:10",
+          "score": 0.5,
+          "text": "Nate: Coconut milk ice cream is one of my favorites as you might be able to tell, but I also love a dairy-free chocolate mousse. It's super creamy and tastes like the real thing. What's been your favorite dairy-free sweet treat so far?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D8:1",
+          "score": 0.4,
+          "text": "Jon: Hey Gina, I had to shut down my bank account. It was tough, but I needed to do it for my biz.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D6:9",
+          "score": 0.30000000000000004,
+          "text": "Maria: Thanks, John. When I was younger, we had some money problems and had to rely on outside help from out auntie. It was a tough learning experience about the importance of helping others who struggle.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D2:17",
+          "score": 0.19999999999999996,
+          "text": "Maria: My fam's small, but I love spending time with the friends I have. We usually watch movies, hike, and have game nights at my place. Quality connections matter most to me.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D18:1",
+          "score": 0.09999999999999998,
+          "text": "Gina: Hey Jon! Long time no talk! Last week, I built a new website for customers to make orders. It's been a wild ride but I'm loving it. What's up with you? How's the dance studio?",
+          "source": null
+        }
+      ],
+      "latency_ms": 11454.096792032942,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "multi-session",
+      "question_id": "edced276_abs",
+      "query": "How many days did I spend in total traveling in Hawaii and in Seattle?",
+      "gold_chunk_ids": [
+        "answer_60e8941a_abs_1",
+        "answer_60e8941a_abs_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-41::D11:5",
+          "score": 1.0,
+          "text": "John: Thanks! We explored the coast up in the Pacific Northwest and hit some cool national parks. The beauty of nature was absolutely breathtaking!",
+          "source": null
+        },
+        {
+          "id": "conv-41::D32:5",
+          "score": 0.9,
+          "text": "John: It definitely was! Everyone was so into it. It's amazing how a group can succeed at something so important. It only took us two hours. We worked hard but did something good \u2013 it was really satisfying.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D2:4",
+          "score": 0.8,
+          "text": "Jon: Hey Gina! Thanks for asking. I'm on the hunt for the ideal spot for my dance studio and it's been quite a journey! I've been looking at different places and picturing how the space would look. I even found a place with great natural light! Oh, I've been to Paris yesterday! It was sooo cool.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D18:3",
+          "score": 0.7,
+          "text": "Maria: Glad you're finding comfort, John. That mountaineering trip sounds amazing. Did you reach the summit? When I was younger, my family and I went on a road trip to Oregon.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D23:20",
+          "score": 0.6,
+          "text": "Joanna: Well, it was amazing, so probably 9 or 10 out of 10! Movies can take us to different places and make us feel lots of emotions. What do you love about watching them?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D17:4",
+          "score": 0.5,
+          "text": "Joanna: Thanks Nate! Appreciate your kind words. I went to Woodhaven, a small town in the Midwest. Got to see some lovely scenery and historic buildings. Checked out the library there, it had a cool old book collection!",
+          "source": null
+        },
+        {
+          "id": "conv-30::D15:1",
+          "score": 0.4,
+          "text": "Jon: Hey Gina, hope you're doing great! Still working on my biz. Took a short trip last week to Rome to clear my mind a little.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D17:1",
+          "score": 0.30000000000000004,
+          "text": "Nate: Hey Joanna, check this out! I won my fourth video game tournament on Friday! It was awesome competing and showing off my skills - and the victory was indescribable. I'm really proud that I can make money doing what I love. This one was online!",
+          "source": null
+        },
+        {
+          "id": "conv-30::D2:5",
+          "score": 0.19999999999999996,
+          "text": "Gina: Wow, nice spot! Where is it? Got any other features you want to think about before you decide? Paris?! That is really great Jon! Never had a chance to visit it. Been only to Rome once.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D2:6",
+          "score": 0.09999999999999998,
+          "text": "Jon: It's downtown which is awesome cuz it's easy to get to. Plus the natural light! Gotta check the size & floor quality too. We need a good dance floor with enough bounce for me & my students to dance safely.",
+          "source": null
+        }
+      ],
+      "latency_ms": 4101.622415939346,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "single-session-assistant",
+      "question_id": "e9327a54",
+      "query": "I'm planning to revisit Orlando. I was wondering if you could remind me of that unique dessert shop with the giant milkshakes we talked about last time?",
+      "gold_chunk_ids": [
+        "answer_ultrachat_480665"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-42::D4:7",
+          "score": 1.0,
+          "text": "Nate: Cool, I'll do that. I'm all about these desserts, let me know what you think!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D21:9",
+          "score": 0.9,
+          "text": "Joanna: Cool, Nate! Gonna give it a go. Dairy-free is a must for me, especially for desserts. Last Friday, I made a deeeelish dessert with almond milk - it was good! Got any favs when it comes to dairy-free desserts?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D8:19",
+          "score": 0.8,
+          "text": "Nate: No prob. I made it with coconut milk, vanilla extract, sugar, and a pinch of salt. After chilling it in the fridge, I put it in the ice cream maker and froze it until it was scoopable.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D22:17",
+          "score": 0.7,
+          "text": "Joanna: Wow, Nate! That's sweet of you! I'll make sure to remember this when I need the encouragement the most.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D18:9",
+          "score": 0.6,
+          "text": "Joanna: Yum, Nate! I love it when you make coconut milk icecream, it's so good!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D3:21",
+          "score": 0.5,
+          "text": "Joanna: Sounds great! Let me know what you think of it when your done!",
+          "source": null
+        },
+        {
+          "id": "conv-30::D3:9",
+          "score": 0.4,
+          "text": "Jon: That's a great goal! Creating a special experience for customers is the key to making them feel welcome and coming back. I think you can create that space you're imagining.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D20:6",
+          "score": 0.30000000000000004,
+          "text": "Joanna: Been tweaking a dessert recipe to make it yummier and more accessible.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D16:8",
+          "score": 0.19999999999999996,
+          "text": "Nate: Thanks! On another note, I made vegan ice cream last Friday and shared it with some people in my vegan diet group. It was awesome!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D19:16",
+          "score": 0.09999999999999998,
+          "text": "Joanna: That's a great one! Let me know what you think when your finished!",
+          "source": null
+        }
+      ],
+      "latency_ms": 8701.607916969806,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "single-session-preference",
+      "question_id": "505af2f5",
+      "query": "I was thinking of trying a new coffee creamer recipe. Any recommendations?",
+      "gold_chunk_ids": [
+        "answer_f3164f2c"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-42::D18:10",
+          "score": 1.0,
+          "text": "Nate: I've been really into making this lately - it's creamy, rich, dairy-free and a new recipe! Wanna try it? I can share the recipe with you if you'd like!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D20:10",
+          "score": 0.9,
+          "text": "Joanna: Yeah, since I'm lactose intolerant I'm trying out dairy-free options like coconut or almond milk instead. It's been a fun challenge seeing how to make yummy treats that suit everyone's diets. I even made these dairy-free chocolate coconut cupcakes with raspberry frosting.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D4:5",
+          "score": 0.8,
+          "text": "Nate: Sure, I know one recipe using coconut milk. Would you like me to send it to you?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D22:1",
+          "score": 0.7,
+          "text": "Joanna: Hey Nate, hi! Yesterday, I tried my newest dairy-free recipe and it was a winner with my family! Mixing and matching flavors is fun and I'm always trying new things. How about you?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D20:9",
+          "score": 0.6,
+          "text": "Nate: Sounds delicious! Are you only trying dairy-free options?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D20:12",
+          "score": 0.5,
+          "text": "Joanna: Yep! I've been making all sorts of desserts that work for everyone's diets - cookies, pies, cakes - everything! I'll share more recipes with you soon.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D21:10",
+          "score": 0.4,
+          "text": "Nate: Coconut milk ice cream is one of my favorites as you might be able to tell, but I also love a dairy-free chocolate mousse. It's super creamy and tastes like the real thing. What's been your favorite dairy-free sweet treat so far?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D4:4",
+          "score": 0.30000000000000004,
+          "text": "Joanna: That looks delicious! Unfortunately, I can't have dairy, so no ice cream for me. Do you happen to have a dairy-free recipe that I could try?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D21:9",
+          "score": 0.19999999999999996,
+          "text": "Joanna: Cool, Nate! Gonna give it a go. Dairy-free is a must for me, especially for desserts. Last Friday, I made a deeeelish dessert with almond milk - it was good! Got any favs when it comes to dairy-free desserts?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D8:18",
+          "score": 0.09999999999999998,
+          "text": "Joanna: Sure! I'm lactose intolerant, so I'll just need the dairy-free recipe!",
+          "source": null
+        }
+      ],
+      "latency_ms": 10057.898625032976,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "single-session-user",
+      "question_id": "118b2229",
+      "query": "How long is my daily commute to work?",
+      "gold_chunk_ids": [
+        "answer_40a90d51"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-41::D19:18",
+          "score": 1.0,
+          "text": "John: Thanks, Maria! I usually work during regular work hours, but sometimes I bring work home too.",
+          "source": null
+        },
+        {
+          "id": "conv-42::D19:11",
+          "score": 0.9,
+          "text": "Nate: Looks like we both need a break. I'm glad your able to find a way to recharge! It's so incredibly important to take time off!",
+          "source": null
+        },
+        {
+          "id": "conv-41::D19:19",
+          "score": 0.8,
+          "text": "Maria: That work setup looks nice, John. How do you manage to balance everything?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D14:9",
+          "score": 0.7,
+          "text": "John: Wow, Maria! Glad you found something that brings you so much joy. What kind of work have you been doing?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D19:17",
+          "score": 0.6,
+          "text": "Maria: Nice workspace! When do you usually work?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D8:29",
+          "score": 0.5,
+          "text": "Caroline: That's awesome, Melanie! How have your family been supportive during your move?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D5:9",
+          "score": 0.4,
+          "text": "Gina: Thanks! Taking risks is scary but it's the only way to grow, right? Just part of the journey to success.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D12:17",
+          "score": 0.30000000000000004,
+          "text": "John: I'm planning a trip to the East Coast. How about you? Anything cool going on recently?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:18",
+          "score": 0.19999999999999996,
+          "text": "Caroline: Glad you got some R&R after the drive. Nature sure seems to refresh us, huh?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D3:15",
+          "score": 0.09999999999999998,
+          "text": "Caroline: Wow, what an amazing family pic! How long have you been married?",
+          "source": null
+        }
+      ],
+      "latency_ms": 8440.286834025756,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "single-session-user",
+      "question_id": "0862e8bf_abs",
+      "query": "What is the name of my hamster?",
+      "gold_chunk_ids": [
+        "answer_c6fd8ebd_abs"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-42::D24:6",
+          "score": 1.0,
+          "text": "Joanna: I used to have a dog back in Michigan with that name, but then I got allergic and we had to get rid of her. The name helps me remember her back when I used to be able to hold and squeeze animal without an allergic reaction!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D7:17",
+          "score": 0.9,
+          "text": "Caroline: Ah, they're adorable! What are their names? Pets sure do bring so much joy to us!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D25:18",
+          "score": 0.8,
+          "text": "Joanna: Aww, they're so cute! What do they eat?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D31:3",
+          "score": 0.7,
+          "text": "John: Wow, Maria, how cute! What's her name? Do she and your other dog get along?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D30:5",
+          "score": 0.6,
+          "text": "Maria: Aww, he looks so cute in that pic! He obviously brought you lots of joy. What's your best memory with him?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D12:4",
+          "score": 0.5,
+          "text": "Joanna: Wow, he's adorable! How long have you had him? I can see why you're thrilled!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D7:15",
+          "score": 0.4,
+          "text": "Caroline: That's so nice! What pet do you have?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D7:18",
+          "score": 0.30000000000000004,
+          "text": "Melanie: Luna and Oliver! They are so sweet and playful - they really liven up the house! Just got some new shoes, too!",
+          "source": null
+        },
+        {
+          "id": "conv-42::D5:5",
+          "score": 0.19999999999999996,
+          "text": "Joanna: That pic's adorable! They always look so relaxed outside. What made you choose them as pets?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D17:7",
+          "score": 0.09999999999999998,
+          "text": "John: Yeah, that's how we'll think of him - peaceful and happy. He brought us so much joy. It's heartbreaking that he's gone but we're grateful to have had him as part of our family. He taught us a lot about love and loyalty.",
+          "source": null
+        }
+      ],
+      "latency_ms": 2907.095749862492,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "temporal-reasoning",
+      "question_id": "gpt4_1d4ab0c9",
+      "query": "How many days passed between the day I started watering my herb garden and the day I harvested my first batch of fresh herbs?",
+      "gold_chunk_ids": [
+        "answer_febde667_1",
+        "answer_febde667_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D13:5",
+          "score": 1.0,
+          "text": "Caroline: He's so cute! What\u2019s the funniest thing Oliver's done? And sure, check out this pic of him eating parsley! Veggies are his fave!",
+          "source": null
+        },
+        {
+          "id": "conv-26::D15:20",
+          "score": 0.9,
+          "text": "Melanie: That's awesome! What type of guitar? Been playing long?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D2:11",
+          "score": 0.8,
+          "text": "Joanna: Awww! How long have you had them?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D2:4",
+          "score": 0.7,
+          "text": "Jon: Hey Gina! Thanks for asking. I'm on the hunt for the ideal spot for my dance studio and it's been quite a journey! I've been looking at different places and picturing how the space would look. I even found a place with great natural light! Oh, I've been to Paris yesterday! It was sooo cool.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D21:19",
+          "score": 0.6,
+          "text": "Maria: One of the shelter residents, Laura, wrote us a letter expressing their gratitude. The impact we made on their life was inspiring!",
+          "source": null
+        },
+        {
+          "id": "conv-41::D15:12",
+          "score": 0.5,
+          "text": "Maria: Wow, John, that looks great! What did you do to make them so happy?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D15:2",
+          "score": 0.4,
+          "text": "Melanie: Hey Caroline! Since we last spoke, I took my kids to a park yesterday. They had fun exploring and playing. It was nice seeing them have a good time outdoors. Time flies, huh? What's new with you?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D16:1",
+          "score": 0.30000000000000004,
+          "text": "Caroline: Hey Mel, long time no chat! I had a wicked day out with the gang last weekend - we went biking and saw some pretty cool stuff. It was so refreshing, and the pic I'm sending is just stunning, eh?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D12:13",
+          "score": 0.19999999999999996,
+          "text": "Nate: Wow, that looks great Joanna! Is that your third one?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D10:1",
+          "score": 0.09999999999999998,
+          "text": "Jon: Hi Gina! I just wanted to fill you in on my business. Yesterday, I went to a fair to show off my studio, it was both stressful and great! I got some possible leads, so that was awesome. But overall, I've learned that this biz is no cakewalk and having confidence in yourself is important for making it successful!",
+          "source": null
+        }
+      ],
+      "latency_ms": 4396.270459052175,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "temporal-reasoning",
+      "question_id": "gpt4_70e84552_abs",
+      "query": "Which task did I complete first, fixing the fence or purchasing three cows from Peter?",
+      "gold_chunk_ids": [
+        "answer_b3070ec4_abs_1",
+        "answer_b3070ec4_abs_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D14:1",
+          "score": 1.0,
+          "text": "Caroline: Hey, Mel! How's it going? There's something I want to tell you. I went hiking last week and got into a bad spot with some people. It really bugged me, so I tried to apologize to them.",
+          "source": null
+        },
+        {
+          "id": "conv-30::D12:9",
+          "score": 0.9,
+          "text": "Gina: Woah, Jon, that whiteboard's got a bunch of good ideas! How you gonna keep track and stay on schedule with those dates?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D18:18",
+          "score": 0.8,
+          "text": "Caroline: Glad you got some R&R after the drive. Nature sure seems to refresh us, huh?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D19:19",
+          "score": 0.7,
+          "text": "Maria: That work setup looks nice, John. How do you manage to balance everything?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D25:24",
+          "score": 0.6,
+          "text": "Joanna: Do they have different personalities, like the way dogs and cats do?",
+          "source": null
+        },
+        {
+          "id": "conv-30::D1:18",
+          "score": 0.5,
+          "text": "Jon: Wow! Winning first place is amazing! What dance were you doing?",
+          "source": null
+        },
+        {
+          "id": "conv-26::D15:2",
+          "score": 0.4,
+          "text": "Melanie: Hey Caroline! Since we last spoke, I took my kids to a park yesterday. They had fun exploring and playing. It was nice seeing them have a good time outdoors. Time flies, huh? What's new with you?",
+          "source": null
+        },
+        {
+          "id": "conv-42::D16:2",
+          "score": 0.30000000000000004,
+          "text": "Nate: That's really cool Joanna! I hope it does well, and I've been doing great! The gaming party was a great success! We even played some Chess afterward just for fun.",
+          "source": null
+        },
+        {
+          "id": "conv-41::D4:15",
+          "score": 0.19999999999999996,
+          "text": "Maria: Glad I could help, John. What's up next for you?",
+          "source": null
+        },
+        {
+          "id": "conv-41::D28:11",
+          "score": 0.09999999999999998,
+          "text": "John: I haven't been able to volunteer much lately, but I definitely care about it. Last year, I helped renovate a rundown community center back home. It took a lot of work, but seeing the impact on the community was so worth it.",
+          "source": null
+        }
+      ],
+      "latency_ms": 3309.395416872576,
+      "error": null
+    }
+  ]
+}
