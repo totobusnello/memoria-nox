@@ -926,3 +926,85 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Apresentar cap@500 nDCG@10 como single-metric headline (esconde o trade-off — narrativa rev4 já corrige)
 - **Cross-links:** PRs #337, #339, #341 (all closed/archived), `docs/COMPARISON.md` rev4, memory `[[honest-cross-system-framing]]`, `[[adapter-response-shape-validation]]`, `[[no-getdb-in-eval-scripts]]`, `[[shared-loader-canonical-pattern]]`, NÃO FAZEMOS §1 item 29.
 - *Origem:* sessão 2026-05-23/24, três experimentos independentes 2026-05-23 23:30 BRT a 2026-05-24 11:30 BRT, Toto sign-off "Fechar e arquivar" 2026-05-24 13:40 BRT.
+
+---
+
+### 2026-05-28 — Phase G EverMemBench 5-batch learnings (D60-D63)
+
+#### D60 — Rerank shipped opt-in, NÃO default
+
+- **Context:** Phase G EverMemBench 5-batch validation (PRs #367 + #369 merged) — batch 004 single-shot dizia F_MH +8pp (5× lift, "breakthrough"); 5-batch revelou +1.61pp marginal (95% CI [3.97, 9.69] sobrepõe baseline 5.22%). MA dim regrediu -3 a -4pp (invisível em batch 004 por selection bias). F_SH sign-flipped (batch -6.12 vs 5-batch +0.40) — regressão era batch-specific.
+- **Decisão:** MiniLM-L-6-v2 cross-encoder rerank shipped **opt-in** via `--rerank` flag / `NOX_RERANKER_ENABLED=1` / `/api/answer?mode=exploratory`. **Default OFF.** PR #367 code stayed merged (env-gated).
+- **Rationale:**
+  - 5-batch honest trade-off: F_MH +1.61pp marginal, Overall -0.96pp, MA_C -4.00pp / MA_P -2.80pp / MA_U -3.84pp, latência +3.7s p50
+  - Trade-off é workload-dependent (hard-recall multi-hop workloads ganham; head-precision + entity lookup + MA workloads perdem) — não universal-win
+  - Phase D config (rerank OFF) permanece canonical headline: **62.22% nDCG@10 > MemOS 59.27%** — Phase G NÃO compete com esse headline, é trade-off study
+  - MemOS F_MH gap (18.94%) fechou só 11.7% com rerank (5.22% → 6.83%); remaining 12.11pp provavelmente requer multi-query expansion ou query decomposition (Lab Q2)
+- **Não-objetivo:** rerank como default universal. Re-evaluation trigger: adaptive query classifier (D60-follow-up Lab Q1 #1) que enable always-on rerank COM routing inteligente por query type.
+- **NÃO FAZEMOS:**
+  - Ship rerank como default sem adaptive classifier que mitigue MA regression
+  - Citar batch 004 +8pp em materials marketing ou paper (single-batch overclaim)
+  - Apresentar rerank como win em head-precision ou MA workloads (evidência contrária)
+- **Cross-links:** PRs #367 (batch 004 baseline, env-gated) + #369 (5-batch validation + RESULTS-PHASEG-5BATCH.md), memory `[[phase-g-minilm-multi-hop-breakthrough]]`, `[[cross-encoder-trade-off-shape]]`, `[[single-batch-gates-unreliable-5x-overstate]]`, `[[memory-awareness-dimension-must-be-audited]]`.
+- *Origem:* sessão 2026-05-28. 5-batch agent `aa153b5d66b9a9fbe` (~$3.00 ~93min). Cumulative Phase G: ~$3.90.
+
+---
+
+#### D61 — Optional install path para rerank dependencies
+
+- **Context:** Autonomy pillar preservation — nox-mem core pitch é "um arquivo SQLite, `cp` é backup". Rerank deps (sentence-transformers + torch/onnxruntime) pesam ~500MB.
+- **Decisão:** rerank deps NÃO bundled em `nox-mem` core. Optional install `pip install nox-mem[rerank]` (ou equivalent extras_require em `pyproject.toml` / `package.json` devDependencies opcional). Core permanece sqlite-only.
+- **Rationale:**
+  - "nox-mem é um arquivo SQLite" pitch (vs Zep "precisa Neo4j", vs mem0 "precisa OpenAI") é fundamental para Autonomy positioning
+  - ~500MB deps obrigatórios quebraria essa narrativa para usuários que não precisam de rerank
+  - Pattern da indústria: `pip install transformers[torch]`, `pip install sentence-transformers[onnxruntime]` — users opt-in explicitamente
+  - VPS Hostinger 4 vCPU / 16GB RAM: ~1.1GB RAM para 4 processos MiniLM paralelos — aceitável mas não obrigatório para todos os deploys
+- **NÃO FAZEMOS:**
+  - Bundle sentence-transformers/torch em nox-mem core install
+  - Fazer rerank dep obrigatória sem gate de opt-in explícito
+- **Cross-links:** D60 (rerank opt-in decision), memory `[[parallel-crossencoder-cpu-scaling]]`, `[[cross-encoder-trade-off-shape]]`.
+- *Origem:* sessão 2026-05-28, derivado de D60 + Autonomy pillar preservation.
+
+---
+
+#### D62 — 5-batch + 95% CI methodology canonical para gate decisions
+
+- **Context:** Phase G batch 004 single-shot (+8pp F_MH) foi initial gate candidate — 5-batch validation revelou apenas +1.61pp marginal, com F_MH 95% CI sobrepondo baseline. Batch 004 era +1.4σ upper-tail outlier dos 5 batches (per-batch F_MH: 004=10 / 005=4 / 010=6 / 011=6 / 016=8.2). Single-batch overstated efeitos 3-6× across categories.
+- **Decisão:** Single-batch eval results são **"preliminary signal"**, não decision gates. Ship/reject claims requerem **5-batch + 95% CI lower bound > baseline**. Canonical 5-batch set EverMemBench: `004, 005, 010, 011, 016`.
+- **Rationale:**
+  - Per-batch variance EverMemBench: F_MH σ ~2.3pp, F_HL σ ~5pp, F_SH σ ~3pp, MA_C/P/U σ ~3pp. Qualquer single-batch Δ < 2σ é provavelmente noise floor.
+  - Sign-flips e selection bias são frequentes em single-batch: F_SH flippou (batch -6.12 vs 5-batch +0.40); MA regression invisible em batch 004 por selection bias (batch 004 já tinha pior MA dos 5).
+  - Cost-benefit: 5-batch eval ~4× single-batch ($3 vs $0.75) — ROI positivo vs paper credibility risk de single-batch overclaim. Phase G pagou $3.75 total pra evitar overclaim.
+  - Precedente cascata: D59 três experimentos independentes confirmaram pattern; D62 generaliza pra todos os evals futuros.
+- **Aplicação operacional:**
+  - "Preliminary signal" do single-batch pode (e deve) informar hipóteses, triggerar 5-batch run, guiar ablation design — mas NÃO decide ship/reject sozinho
+  - PRs que reportam eval results DEVEM incluir se são single-batch (preliminary) ou 5-batch (decision-grade)
+  - Se 5-batch indisponível imediatamente, single-batch result DEVE incluir per-batch CI estimate dos baselines históricos + flag "preliminary — CI não confirma"
+- **NÃO FAZEMOS:**
+  - Gate decisions de ship/reject baseadas em single-batch result sem CI confirmation
+  - Citar single-batch numbers como headline em paper ou GTM materials sem CI bounds
+  - Assumir que single-batch "breakthrough" sobreviverá 5-batch validation sem verificar σ historical
+- **Cross-links:** PRs #367 + #369, memory `[[single-batch-gates-unreliable-5x-overstate]]`, `[[phase-g-minilm-multi-hop-breakthrough]]`, D60.
+- *Origem:* sessão 2026-05-28, lesson cravada pós Phase G batch 004 → 5-batch delta revelation.
+
+---
+
+#### D63 — MA dim (Memory Awareness) mandatory em eval reports de retrieval changes
+
+- **Context:** Phase G batch 004 single não reportou MA dim regression. 5-batch revelou MA_C -4.00pp / MA_P -2.80pp / MA_U -3.84pp — cross-encoder rerank rank por query-chunk relevance, NÃO por user-context maintenance, logo profile/entity chunks get displaced silently.
+- **Decisão:** Memory Awareness sub-dims (MA_C/MA_P/MA_U) **sempre reportados** em qualquer eval que mude retrieval pipeline. Não basta F_SH/F_MH/F_HL/F_TP/MC/OE.
+- **Rationale:**
+  - MA é "silent killer dim" — não aparece em traditional retrieval metrics (precision/recall/nDCG/MRR). Requer eval queries explicit testing context understanding + profile recall + preference updates.
+  - Cross-encoder rerank é principal MA-regressor identificado até agora. Multi-query expansion, query decomposition, KG path retrieval — todos precisam ser testados em MA dim antes de ship.
+  - nox-mem entity file format (compiled/frontmatter/timeline) + section_boost provavelmente PROTEGE MA via boost garantido de entity chunks — hipótese a verificar empiricamente antes de MA-protection mechanism (Lab Q1 #2).
+  - Lab Q1 #2 (MA-protection mechanism): force `section_boost` entity files sobrevivem rerank displacement — architectural fix para o regression. Spec e PR separados depois.
+- **Aplicação operacional:**
+  - Eval PRs que modificam retrieval ranking DEVEM incluir MA_C/P/U numbers (ou explicitamente documentar por que MA eval não disponível + plano pra medir)
+  - `docs/COMPARISON.md` updates futuros incluem MA dim quando competitors reportarem
+  - Paper §5 e §6: MA regression discussion é differentiator de research maturity vs papers que só reportam F_SH/F_MH
+- **NÃO FAZEMOS:**
+  - Approve retrieval changes sem MA audit (mesmo que F_MH/F_HL positive)
+  - Assumir que MA está OK se não foi medido — "não medido" ≠ "sem regressão"
+  - Skip MA dim em evals por ser "expensive" — EverMemBench já inclui MA_C/P/U no mesmo run; zero custo adicional
+- **Cross-links:** memory `[[memory-awareness-dimension-must-be-audited]]`, `[[cross-encoder-trade-off-shape]]`, `[[phase-g-minilm-multi-hop-breakthrough]]`, D60, D62.
+- *Origem:* sessão 2026-05-28, pattern revelado por Phase G 5-batch (MA invisible em batch 004 por selection bias).
