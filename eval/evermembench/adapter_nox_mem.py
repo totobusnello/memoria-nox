@@ -1,5 +1,5 @@
 """
-nox-mem Adapter for EverMemBench — Phase F + Phase KG + Phase MQ (Lab Q1 #3, 2026-05-29).
+nox-mem Adapter for EverMemBench — Phase F + Phase KG + Phase MQ + Phase KGMQ (Wave B composability, 2026-05-29).
 
 Connects nox-mem (CLI ingest + HTTP search API) to the EverMemBench
 evaluation harness.
@@ -64,19 +64,42 @@ Fallback: if decomposition fails (LLM error, malformed JSON, < 2 sub-
 queries returned), gracefully fall back to single-query retrieval — the
 mode is logged as "fallback_single" in metadata.
 
+Phase KGMQ (Wave B composability, 2026-05-29) — Combines Phase KG + Phase MQ
+in a single adapter mode. Mechanism (per [[mq-kg-mechanically-additive-prediction-6-42pp]]):
+
+  1. MQ decomposes the original query into N atomic sub-queries via LLM
+  2. For each sub-query, retrieve top-K candidates from /api/search (same
+     as Phase MQ alone)
+  3. RRF-union across all sub-query results (Phase MQ merge step)
+  4. THEN apply KG 1-hop entity boost on the MQ-merged candidate set
+     (entities extracted from the ORIGINAL query, not sub-queries —
+     entities-of-interest are stable across decomposition)
+  5. Final ranking respects both signals (sub-query convergence via RRF
+     score + KG entity proximity via additive delta)
+
+Both mechanisms use RRF additive boost on the same score level (no
+multiplicative stacking, per memoria-nox rule §5). Predicted combined
+F_MH lift: Phase H v2 (3.21%) + KG (+2.81pp) + MQ (+3.61pp) = ~9.63%
+F_MH if additive holds. Wave B validates composability via 4-gate test:
+F_MH lift ≥ +5.5pp (additivity floor: +2.81 + +3.61 − 1pp interaction
+penalty), F_MH ≥ Phase MQ alone, Overall regression ≤ MQ alone + 0.5pp,
+MA composite ≥ MQ alone − 0.5pp.
+
 Modes:
     NOX_ADAPTER_MODE=baseline  -> PR #363 flat-paragraph ingest format
     NOX_ADAPTER_MODE=phaseB    -> H2-per-message + digest (default)
     NOX_ADAPTER_MODE=phaseF    -> phaseB ingest + cross-encoder rerank in search
     NOX_ADAPTER_MODE=phaseKG   -> phaseB ingest + KG 1-hop entity boost in search
     NOX_ADAPTER_MODE=phaseMQ   -> phaseB ingest + multi-query expansion (decompose)
+    NOX_ADAPTER_MODE=phaseKGMQ -> phaseB ingest + MQ decompose + KG 1-hop entity
+                                  boost composed (Wave B composability — PR #389)
     NOX_ADAPTER_MODE=phaseMAP  -> phaseB ingest + rerank with bypass-entity (MA-protection
                                   Approach A from PR #386); chunks tagged section IN
                                   ('compiled','frontmatter') skip cross-encoder and keep
                                   their bi-encoder position.
     NOX_ADAPTER_MODE=phaseKGMAP -> phaseB ingest + KG 1-hop boost + cross-encoder rerank +
                                    MA-protection extended with KG anchor (Wave B
-                                   composability). Bypass criterion becomes
+                                   composability — this PR). Bypass criterion becomes
                                    section IN ('compiled','frontmatter')
                                    OR chunk_id IN kg_evidence_chunks_for_query_entities.
                                    Closes corpus mismatch on chat-only corpora.
@@ -86,7 +109,7 @@ Environment variables:
     NOX_DB_PATH               — per-batch DB path override (REQUIRED for isolation)
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
     NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG"
-                                / "phaseMQ" / "phaseMAP" / "phaseKGMAP"
+                                / "phaseMQ" / "phaseKGMQ" / "phaseMAP" / "phaseKGMAP"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
     NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
@@ -893,7 +916,10 @@ class NoxMemAdapter(BaseAdapter):
         elif env_kg_truthy:
             self.kg_enabled = True
         else:
-            self.kg_enabled = self.adapter_mode in ("phaseKG", "phaseKGMAP")
+            # phaseKG, phaseKGMQ, phaseKGMAP all default-on for KG path
+            self.kg_enabled = self.adapter_mode in (
+                "phaseKG", "phaseKGMQ", "phaseKGMAP"
+            )
 
         self.kg_boost_magnitude = float(
             os.environ.get("NOX_KG_BOOST_MAGNITUDE", "")
@@ -966,7 +992,8 @@ class NoxMemAdapter(BaseAdapter):
         elif env_mq_truthy:
             self.mq_enabled = True
         else:
-            self.mq_enabled = (self.adapter_mode == "phaseMQ")
+            # phaseMQ OR phaseKGMQ default-on multi-query expansion
+            self.mq_enabled = (self.adapter_mode in ("phaseMQ", "phaseKGMQ"))
 
         self.mq_model = os.environ.get("NOX_MQ_LLM", "") or DEFAULT_MQ_LLM
         self.mq_base_url = (
@@ -1854,6 +1881,10 @@ class NoxMemAdapter(BaseAdapter):
             "mq_total_results_pre_dedup": mq_total_returned if mq_used_subquery_path else None,
             "mq_unique_after_dedup": api_returned if mq_used_subquery_path else None,
             "mq_rrf_k": self.mq_rrf_k if self.mq_enabled else None,
+            # Composability (Wave B) — both fired in this query
+            "composability_kg_mq_active": bool(
+                kg_applied and mq_meta.get("mq_applied", False)
+            ),
         }
         return SearchResult(
             question_id=kwargs.get("question_id", "unknown"),
@@ -1899,5 +1930,5 @@ class NoxMemAdapter(BaseAdapter):
             "mq_per_query_topk": self.mq_per_query_topk,
             "mq_rrf_k": self.mq_rrf_k,
             "mq_timeout_s": self.mq_timeout_s,
-            "version": "phase-kgmap-0.1",
+            "version": "phase-kgmap-kgmq-wave-b-0.1",
         }

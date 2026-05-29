@@ -1008,3 +1008,88 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Skip MA dim em evals por ser "expensive" — EverMemBench já inclui MA_C/P/U no mesmo run; zero custo adicional
 - **Cross-links:** memory `[[memory-awareness-dimension-must-be-audited]]`, `[[cross-encoder-trade-off-shape]]`, `[[phase-g-minilm-multi-hop-breakthrough]]`, D60, D62.
 - *Origem:* sessão 2026-05-28, pattern revelado por Phase G 5-batch (MA invisible em batch 004 por selection bias).
+
+---
+
+### 2026-05-29 — Wave A consolidated learnings (D64-D67)
+
+#### D64 — KG densification REJECTED, sparse canonical
+
+- **Context:** PR #384 Wave A — Phase KG densification test (2.77× entities + 2.99× relations target met) vs sparse baseline (PR #379).
+- **Decisão:** Lab Q1 #4 KG path retrieval uses **sparse KG (~500 entities, ~800 relations)** as canonical. Densification REJECTED.
+- **Rationale:**
+  - 5-batch bench dense vs sparse: Overall -0.53pp regression / F_MH -1.60pp regression (sparse achieved +2.81pp vs Phase H v2; dense only +1.21pp) / latency 4-50× slower (307-353ms p50 vs 7-105ms)
+  - Mechanism: dense KG dilutes 1-hop walk discriminator + boost noise (more entities matched per query = more chunks ranked up = top-K filled with marginal content)
+  - MA gap NÃO density-bound — only MA_U responds (+1.68pp), MA_C + MA_P flat. Closing MA gap requires different mechanism (composability w/ KG path scoring Approach C ou MA-protection w/ KG anchor)
+  - Coverage saturation: sparse already 90.84%, dense 97.24% marginal lift introduces noise across all queries
+- **Re-evaluation trigger:** alternative KG mechanism (path scoring Approach C Q2) ou GPU + larger KG indexing approach.
+- **NÃO FAZEMOS:**
+  - Densify KG beyond ~500-800 entities for 1-hop walk
+  - Run kg-build com gemini-2.5-flash full unless investigating Approach C
+  - Use density as MA gap closure mechanism (refuted)
+- **Cross-links:** PR #379 (sparse canonical), PR #384 (density test), memory `[[kg-density-refuted-sparse-canonical]]`, `[[kg-extract-density-bounds-signal-CEILING]]`, `[[lab-q1-4-kg-path-3of4-gates-win]]`.
+- *Origem:* sessão 2026-05-29 Wave A — agent `a42c12f56e9e03b79` ~88min, $3.64 spent.
+
+---
+
+#### D65 — Multi-query expansion ship opt-in (biggest single F_MH knob)
+
+- **Context:** PR #385 — Lab Q1 #3 Approach B sub-query decomposition (LLM splits query → N sub-queries → RRF union) 5-batch bench.
+- **Decisão:** `NOX_MQ_ENABLED=1` env-gated, **default OFF**. Ship as opt-in for multi-hop-heavy workloads.
+- **Rationale:**
+  - F_MH +3.61pp 5-batch = **biggest single retrieval-side knob measured** (2× KG sparse +2.81pp, 2.5× Phase G rerank +1.61pp, 1.8× Phase AC +2.01pp)
+  - 3/4 gates met (Overall -1.12pp narrowly misses -1pp tolerance; MA -1.38pp ✅; Latency 1.68× ✅)
+  - Cost ~$0.0001/query (gemini-flash-lite decomposer free under quota); LLM overhead ~$0 in practice
+  - Latency p50 +1085ms (1.68× baseline) — acceptable for opt-in advanced multi-hop mode
+  - **Composability with KG sparse predicted +6.42pp F_MH combined = closes 41% of MemOS GPT-4.1-mini gap** (Wave B validation in-flight)
+- **Não-objetivo:** ship MQ como default — Overall regression -1.12pp não justifica forcing latency cost em factual workloads.
+- **NÃO FAZEMOS:**
+  - Enable MQ default sem clean adaptive routing (Lab Q1 #1) ou composability validation
+  - Use rerank simultaneously with MQ no current adapter (rerank OFF in Phase MQ for isolated measurement)
+- **Cross-links:** PR #385, memory `[[lab-q1-3-multi-query-expansion-3of4-gates-win]]`, `[[mq-kg-mechanically-additive-prediction-6-42pp]]`, `[[f-mh-retrieval-bound-not-generation]]`, D60.
+- *Origem:* sessão 2026-05-29 Wave A — agent `a1fc7084b0794845c` ~101min, $5 spent.
+
+---
+
+#### D66 — MA-protection Approach A ships opt-in com corpus mismatch caveat
+
+- **Context:** PR #386 — Lab Q1 #2 Approach A bypass-entity (skip cross-encoder rerank para chunks `section IN ('compiled', 'frontmatter')`) 5-batch bench em EverMemBench (chat-only corpus).
+- **Decisão:** `NOX_MA_PROTECTION_ENABLED=1` env-gated, **default OFF**. Mechanism corretamente implementado (32/32 unit tests pass) MAS validation corpus mismatch — Set E (entity chunks identified) = empty para 3125/3125 queries no EverMemBench (chat transcripts não têm section markers).
+- **Rationale:**
+  - **Unexpected positive bonus:** F_MH +4.02pp (2.5× Phase G Gemini's +1.61pp) + F_HL +4.34pp (1.7× Phase G's +2.58pp) — cross-encoder rerank on gpt-4.1-mini backbone amplifies hard-recall lift significativamente vs Gemini (lesson `[[gpt-4-1-mini-amplifies-rerank-hard-recall-25x]]`)
+  - **MA recovery FAILED (0%, actually -6.55pp worse than baseline)** — bypass-entity Set E empty, mechanism never fired
+  - **Composability path identified:** extend bypass criterion to `(section IN compiled/frontmatter) OR (chunk_id IN kg_evidence_chunks_for_query_entities)` — uses KG path retrieval entity lookup (PR #379) to identify protected chunks. Works on any corpus.
+  - Wave B KG+MAP bench validates composability (in-flight)
+  - Validation deferred to prod-style corpus (nox-mem prod 183 entity files) ou KG-anchored composability — bench result on EverMemBench tells us nothing about mechanism efficacy
+- **Aplicação operacional:**
+  - Code production-ready, ship as opt-in immediately
+  - DO NOT use Phase MAP single bench results to argue against bypass-entity mechanism — corpus was wrong
+  - Wave B KG+MAP results determine future investment direction
+- **NÃO FAZEMOS:**
+  - Enable MA-protection default sem corpus que tem entity markers ou KG-anchored extension
+  - Cite -6.55pp MA regression como mechanism failure (was corpus mismatch)
+  - Skip Set E instrumentation em future MA-protection benches (lesson `[[empirical-set-e-empty-confirms-mechanism-not-corpus]]`)
+- **Cross-links:** PR #386, memory `[[lab-q1-2-ma-protection-corpus-mismatch]]`, `[[ma-protection-needs-entity-corpus-or-kg-anchor]]`, `[[gpt-4-1-mini-amplifies-rerank-hard-recall-25x]]`, D60.
+- *Origem:* sessão 2026-05-29 Wave A — agent `ae97162c2b0aa6033` ~189min, $4.50 spent.
+
+---
+
+#### D67 — Backbone portability claim revised 2.1× → 1.6× (5-batch correction)
+
+- **Context:** PR #372 Phase H v2 batch 004 single dizia nox-mem 54.15% vs MemOS 42.55% = +11.6pp (implying 2.1× portability ratio Gemini→GPT-4.1-mini swap). PR #377 5-batch validation revelou batch 004 was +1.7σ upper-tail outlier; 5-batch reality is +9.13pp.
+- **Decisão:** nox-mem cross-backbone portability claim = **1.6× more portable than MemOS** (5-batch verified). Replace prior 2.1× single-batch claim em all materials.
+- **Rationale:**
+  - 5-batch swap math: nox-mem -10.54pp (Phase D 62.22% → Phase H v2 51.68%) vs MemOS -16.72pp (Table 4 Gemini 59.27% → GPT-4.1-mini 42.55%)
+  - Ratio: 16.72 / 10.54 = 1.586 ≈ **1.6×**
+  - Prior 2.1× was artifact of batch 004 outlier single-shot extrapolation
+  - 1.6× still strong claim — robust + defensible across 5-batch CI
+- **Aplicação operacional:**
+  - Paper §5 (PR #382) já atualizado com 1.6× (revised)
+  - GTM messaging (PR #383, README + COMPARISON.md + COMPETITIVE-POSITIONING.md) já atualizado com "what not to say" guardrails preventing future 2.1× regression
+  - Memory `[[nox-mem-backbone-portability]]` já atualizado
+  - Future single-batch claims que produzem outlier ratios devem flag as "preliminary, awaiting 5-batch confirmation" (D62)
+- **NÃO FAZEMOS:**
+  - Cite 2.1× em qualquer material novo (paper, GTM, blog, talks)
+  - Use single-batch portability ratios as headline numbers without CI confirmation
+- **Cross-links:** PRs #372, #377, #382, #383, memory `[[nox-mem-backbone-portability]]`, `[[phase-h-v2-cross-backbone-win]]`, `[[single-batch-gates-unreliable-5x-overstate]]`, D62.
+- *Origem:* sessão 2026-05-29, 5-batch correction lesson aplicada cross-material.
