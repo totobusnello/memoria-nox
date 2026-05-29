@@ -38,17 +38,40 @@ Phase KG (Lab Q1 #4, 2026-05-29) — KG path retrieval (Approach A, 1-hop):
      the hybrid search top-N. Per memoria-nox rule §5 (boost multiplicativo
      empilhável é veneno), the delta is added to RRF score, not multiplied.
 
+Phase MAP (Lab Q1 #2, 2026-05-29) — MA-protection via bypass-entity (Approach A):
+  Cross-encoder rerank (Phase G / Phase F) causes a structural -3 to -4pp
+  regression in Memory Awareness dimensions (MA_C / MA_P / MA_U) because the
+  reranker scores chunks by query-chunk semantic relevance and downgrades
+  entity-formatted chunks (compiled/frontmatter) that *encode the answer*
+  without lexically overlapping the query.
+
+  Approach A — bypass-entity:
+    1. Partition the pre-rerank candidate pool into:
+       - Set E (entity chunks): section IN ('compiled', 'frontmatter')
+       - Set R (regular chunks): all others (NULL section, timeline, etc.)
+    2. Score only Set R via cross-encoder. Set E retains bi-encoder rank
+       (which already respects section_boost from RRF).
+    3. Merge so that entity chunks survive at their original bi-encoder
+       positions; reranked regular chunks fill the remaining slots, capped
+       at top_k.
+
+  Default OFF — opt-in via NOX_MA_PROTECTION_ENABLED=1 (env override on top
+  of any mode) OR by selecting NOX_ADAPTER_MODE=phaseMAP (default-on for
+  that mode + reranker auto-enabled).
+
 Modes:
     NOX_ADAPTER_MODE=baseline  -> PR #363 flat-paragraph ingest format
     NOX_ADAPTER_MODE=phaseB    -> H2-per-message + digest (default)
     NOX_ADAPTER_MODE=phaseF    -> phaseB ingest + cross-encoder rerank in search
     NOX_ADAPTER_MODE=phaseKG   -> phaseB ingest + KG 1-hop entity boost in search
+    NOX_ADAPTER_MODE=phaseMAP  -> phaseB ingest + cross-encoder rerank + MA protection
+                                  (Approach A: bypass entity chunks from rerank)
 
 Environment variables:
     NOX_API_BASE              — nox-mem API base URL (default: http://127.0.0.1:18802)
     NOX_DB_PATH               — per-batch DB path override (REQUIRED for isolation)
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
-    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG"
+    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG" / "phaseMAP"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
     NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
@@ -61,6 +84,11 @@ Environment variables:
     NOX_KG_MIN_NAME_LEN       — int, minimum entity name length to use in regex
                                 extraction (default: 3) — avoids matching common tokens
                                 like "a", "of", "is" that may be entity names in noisy KGs.
+    NOX_MA_PROTECTION_ENABLED — "1" to force MA-protection bypass-entity (env override
+                                on top of any mode). Default OFF (Phase G behavior).
+                                When ON, cross-encoder skips chunks with
+                                section IN ('compiled', 'frontmatter') — they keep
+                                bi-encoder rank to prevent MA dim regression.
 """
 import asyncio
 import os
@@ -157,6 +185,17 @@ DEFAULT_KG_MAX_NEIGHBORS = 20
 DEFAULT_KG_MIN_NAME_LEN = 3
 DEFAULT_KG_OVERFETCH = 50  # pull top-50 from API so KG can re-rank within
 
+# Phase MAP (Lab Q1 #2) — MA-protection bypass-entity defaults.
+#
+# Per spec §6.1 recommendation: use `section IN ('compiled', 'frontmatter')`
+# as the entity-chunk identity signal — explicit semantic marker, avoids float
+# comparison on section_boost, more readable in logs. Schema v10 (2026-04-23)
+# guarantees the column is populated when ingest goes through
+# `ingestEntityFile` (memory/entities/<type>/<slug>.md format). Chat-corpus
+# chunks (EverMemBench dataset/<batch>/dialogue.json) have section=NULL and
+# are therefore in Set R (regular) — always reranked.
+ENTITY_SECTION_NAMES = frozenset({"compiled", "frontmatter"})
+
 
 # ---------------------------------------------------------------------------
 # Reranker singleton loader
@@ -169,6 +208,60 @@ DEFAULT_KG_OVERFETCH = 50  # pull top-50 from API so KG can re-rank within
 # non-reranked results gracefully.
 # ---------------------------------------------------------------------------
 import functools as _functools  # noqa: E402  — local-only alias
+
+
+# ---------------------------------------------------------------------------
+# Phase MAP (Lab Q1 #2) — merge helper for bypass-entity
+# ---------------------------------------------------------------------------
+#
+# Given:
+#   entity_indexed:    [(orig_idx, cand), ...]  Set E in original bi-encoder order
+#   reranked_regular:  [(orig_idx, cand), ...]  Set R in cross-encoder rank order
+#   total_slots:       int (typically len(candidates) pre-truncate, then top_k cap applied later)
+#
+# Produce a merged list where:
+#   1. Each entity chunk lands at its *original* bi-encoder position (orig_idx).
+#   2. Reranked regular chunks fill the remaining slots in rerank order
+#      (rank 0 = highest rerank score gets the lowest still-empty position).
+#   3. If entity_indexed is so large it would overflow total_slots, we take
+#      the first total_slots entities (lowest orig_idx) and drop reranked Set R
+#      entirely — RRF already respects section_boost for them.
+#
+# Returned list contains candidate tuples (chunk_text, item_dict), preserving
+# the original tuple shape the rest of the adapter expects.
+def _merge_preserving_entity_positions(
+    entity_indexed: List[Tuple[int, Tuple[str, Dict[str, Any]]]],
+    reranked_regular: List[Tuple[int, Tuple[str, Dict[str, Any]]]],
+    total_slots: int,
+) -> List[Tuple[str, Dict[str, Any]]]:
+    if total_slots <= 0:
+        return []
+
+    # Build empty slot list and place entities at original positions.
+    merged: List[Optional[Tuple[str, Dict[str, Any]]]] = [None] * total_slots
+    placed_entity = 0
+    for orig_idx, cand in entity_indexed:
+        if orig_idx < total_slots:
+            merged[orig_idx] = cand
+            placed_entity += 1
+        # Entities with orig_idx >= total_slots are dropped — there's no slot
+        # for them. Should not happen given total_slots = len(candidates) at
+        # merge time, but defended against off-by-one.
+
+    # Fill remaining empty slots with reranked regular in rerank order.
+    reranked_iter = iter(reranked_regular)
+    for slot in range(total_slots):
+        if merged[slot] is None:
+            try:
+                _orig, cand = next(reranked_iter)
+                merged[slot] = cand
+            except StopIteration:
+                # Set R exhausted before all slots filled — leave empty slots
+                # behind. We compact below.
+                break
+
+    # Compact: drop any trailing None slots (happens when reranked < non-entity gap).
+    return [c for c in merged if c is not None]
 
 
 @_functools.lru_cache(maxsize=1)
@@ -436,8 +529,11 @@ class NoxMemAdapter(BaseAdapter):
             config.get("reranker_max_length", 0)
             or DEFAULT_RERANKER_MAX_LENGTH
         )
-        # Reranker is enabled either by being in phaseF mode (default-on for
-        # that mode) OR by explicit env override on top of any other mode.
+        # Reranker is enabled either by being in phaseF/phaseMAP mode
+        # (default-on for those modes) OR by explicit env override on top of
+        # any other mode.
+        # Phase MAP needs rerank ON by definition — bypass-entity only makes
+        # sense when the cross-encoder is actually running.
         env_enable = os.environ.get("NOX_RERANKER_ENABLED", "").strip().lower()
         env_enable_truthy = env_enable in ("1", "true", "yes", "on")
         env_enable_falsy = env_enable in ("0", "false", "no", "off")
@@ -446,7 +542,23 @@ class NoxMemAdapter(BaseAdapter):
         elif env_enable_truthy:
             self.reranker_enabled = True
         else:
-            self.reranker_enabled = (self.adapter_mode == "phaseF")
+            self.reranker_enabled = (
+                self.adapter_mode in ("phaseF", "phaseMAP")
+            )
+
+        # Phase MAP (Lab Q1 #2) — MA-protection: entity chunks bypass rerank.
+        # Default-on for phaseMAP mode + explicit env override
+        # (NOX_MA_PROTECTION_ENABLED=1) on top of any other mode. Default OFF
+        # for phaseF / phaseB so Phase G behavior is preserved unchanged.
+        env_map = os.environ.get("NOX_MA_PROTECTION_ENABLED", "").strip().lower()
+        env_map_truthy = env_map in ("1", "true", "yes", "on")
+        env_map_falsy = env_map in ("0", "false", "no", "off")
+        if env_map_falsy:
+            self.ma_protection_enabled = False
+        elif env_map_truthy:
+            self.ma_protection_enabled = True
+        else:
+            self.ma_protection_enabled = (self.adapter_mode == "phaseMAP")
 
         # Phase KG (Lab Q1 #4) — entity 1-hop boost config.
         # Enabled by phaseKG mode (default-on for that mode) OR by explicit
@@ -1060,10 +1172,18 @@ class NoxMemAdapter(BaseAdapter):
 
         # ------------------------------------------------------------------
         # Phase F: cross-encoder rerank (graceful fallback)
+        # Phase MAP: bypass-entity protection wraps the rerank step — entity
+        # chunks (section IN ('compiled', 'frontmatter')) skip cross-encoder
+        # scoring and retain their bi-encoder rank. Reranked Set R fills the
+        # remaining slots via merge_preserving_entity_positions().
         # ------------------------------------------------------------------
         rerank_error: Optional[str] = None
         rerank_ms: Optional[float] = None
         rerank_applied = False
+        # Phase MAP telemetry
+        map_applied = False
+        map_entity_count = 0
+        map_regular_count = 0
 
         if self.reranker_enabled and candidates:
             rerank_start = time.monotonic() * 1000
@@ -1074,19 +1194,61 @@ class NoxMemAdapter(BaseAdapter):
                 rerank_error = err
             else:
                 try:
-                    pairs = [(query, c[0]) for c in candidates]
-                    # CrossEncoder.predict is sync CPU/GPU work — run in a
-                    # thread to avoid blocking the asyncio loop entirely.
-                    scores = await asyncio.to_thread(
-                        model.predict,
-                        pairs,
-                        batch_size=self.reranker_batch_size,
-                        show_progress_bar=False,
-                    )
-                    scored = list(zip(candidates, scores))
-                    scored.sort(key=lambda x: float(x[1]), reverse=True)
-                    candidates = [c for c, _ in scored]
-                    rerank_applied = True
+                    if self.ma_protection_enabled:
+                        # Phase MAP — Approach A (bypass-entity).
+                        # Partition by section. We carry the original index so
+                        # we can stably preserve bi-encoder positions for Set E
+                        # at merge time.
+                        entity_indexed: List[Tuple[int, Tuple[str, Dict[str, Any]]]] = []
+                        regular_indexed: List[Tuple[int, Tuple[str, Dict[str, Any]]]] = []
+                        for idx, cand in enumerate(candidates):
+                            sec = cand[1].get("section")
+                            if sec in ENTITY_SECTION_NAMES:
+                                entity_indexed.append((idx, cand))
+                            else:
+                                regular_indexed.append((idx, cand))
+                        map_entity_count = len(entity_indexed)
+                        map_regular_count = len(regular_indexed)
+
+                        # Score only Set R via cross-encoder. If Set R is empty
+                        # (pathological: every candidate is entity), skip rerank
+                        # entirely and keep bi-encoder order.
+                        if regular_indexed:
+                            pairs = [(query, c[1][0]) for c in regular_indexed]
+                            scores = await asyncio.to_thread(
+                                model.predict,
+                                pairs,
+                                batch_size=self.reranker_batch_size,
+                                show_progress_bar=False,
+                            )
+                            scored_r = list(zip(regular_indexed, scores))
+                            scored_r.sort(key=lambda x: float(x[1]), reverse=True)
+                            reranked_regular = [pair[0] for pair in scored_r]
+                        else:
+                            reranked_regular = []
+
+                        candidates = _merge_preserving_entity_positions(
+                            entity_indexed,
+                            reranked_regular,
+                            len(candidates),
+                        )
+                        rerank_applied = True
+                        map_applied = True
+                    else:
+                        # Phase G / Phase F default — score every candidate.
+                        pairs = [(query, c[0]) for c in candidates]
+                        # CrossEncoder.predict is sync CPU/GPU work — run in a
+                        # thread to avoid blocking the asyncio loop entirely.
+                        scores = await asyncio.to_thread(
+                            model.predict,
+                            pairs,
+                            batch_size=self.reranker_batch_size,
+                            show_progress_bar=False,
+                        )
+                        scored = list(zip(candidates, scores))
+                        scored.sort(key=lambda x: float(x[1]), reverse=True)
+                        candidates = [c for c, _ in scored]
+                        rerank_applied = True
                 except Exception as exc:  # noqa: BLE001 — fall back gracefully
                     rerank_error = (
                         f"rerank predict failed: {type(exc).__name__}: {exc}"
@@ -1119,6 +1281,15 @@ class NoxMemAdapter(BaseAdapter):
             "kg_ms": kg_ms,
             "kg_error": kg_error,
             "kg_meta": kg_meta,
+            # Phase MAP (Lab Q1 #2) telemetry — enabled?, applied?, partition sizes.
+            # `entity_count` = chunks bypassed from rerank (Set E size).
+            # `regular_count` = chunks scored by rerank (Set R size).
+            # The two sum to api_returned when MAP applies; if rerank failed
+            # (rerank_error set), map_applied stays False and counts are 0.
+            "ma_protection_enabled": self.ma_protection_enabled,
+            "ma_protection_applied": map_applied,
+            "ma_protection_entity_count": map_entity_count,
+            "ma_protection_regular_count": map_regular_count,
         }
         return SearchResult(
             question_id=kwargs.get("question_id", "unknown"),
@@ -1154,5 +1325,6 @@ class NoxMemAdapter(BaseAdapter):
             "kg_min_name_len": self.kg_min_name_len,
             "kg_overfetch": self.kg_overfetch,
             "kg_db_path": self.kg_db_path,
-            "version": "phase-kg-0.1",
+            "ma_protection_enabled": self.ma_protection_enabled,
+            "version": "phase-map-0.1",
         }
