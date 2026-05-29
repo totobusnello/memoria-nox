@@ -1093,3 +1093,35 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Use single-batch portability ratios as headline numbers without CI confirmation
 - **Cross-links:** PRs #372, #377, #382, #383, memory `[[nox-mem-backbone-portability]]`, `[[phase-h-v2-cross-backbone-win]]`, `[[single-batch-gates-unreliable-5x-overstate]]`, D62.
 - *Origem:* sessão 2026-05-29, 5-batch correction lesson aplicada cross-material.
+
+---
+
+#### D68 — Wave B composability dual finding: same-stage overlap vs different-stage additivity
+
+- **Context:** Wave B testou 2 composabilidades em paralelo (PR #389 KG+MQ; PR #390 KG+MAP) sobre Phase H v2 baseline (gpt-4.1-mini). Resultado: mecanismos no MESMO stage do pipeline (KG+MQ ambos retrieval-side) OVERLAP em 90.8% co-fire rate (residual -1.61pp vs +6.42pp additive prediction). Mecanismos em DIFERENTES stages (KG retrieval + MAP rerank-protection) compõem ADDITIVELY no F_MH (+4.04pp ≈ standalone MAP +4.02pp) E entregam partial MA recovery (+1.53pp vs MAP alone).
+- **Decisão:**
+  - **Ship Phase KGMAP opt-in** (PR #390 merged) via `NOX_ADAPTER_MODE=phaseKGMAP`. Default OFF. 3/4 gates passed (Overall -0.67pp ≤ -1pp tolerance + F_MH +4.04pp + MA partial recovery vs MAP alone). MA composite gate fail (-5.02pp vs Phase H v2) accepted como improvement vs prior opt-in standalone.
+  - **REJECT Phase KGMQ default-enable** (PR #389 merged opt-in via `NOX_KG_MQ_COMBO=1` for max F_MH at any cost users only). 1/4 gates passed. Don't ship combo as default.
+  - **Wave C orthogonal-stages hypothesis priorizada** — different-stage composability é mais robusto que same-stage; futuras explorações priorize MUDAR de stage (retrieval → rerank → routing → temporal) ao invés de stack mecanismos no mesmo stage.
+- **Rationale:**
+  - **Mechanism validation (mecanicamente alive):** Phase MAP standalone (PR #386) Set E empty 3125/3125 queries (corpus inert). Phase KGMAP Set E = 0.33 chunks/query × 90.7% queries com KG pool. Corpus-mismatch problem resolvido via KG anchor bridge.
+  - **F_MH composability shape:** sub-additive (-2.79pp residual vs perfect additivity) mas LOAD-BEARING — KG path lift (+2.81pp) NÃO é dominado por MAP lift (+4.02pp); MAP standalone era corpus-inert na maioria das queries, KG anchor desbloqueia mecanismo em 90.7%.
+  - **MA recovery shape:** partial. KG anchor protege chunks identificadas via `kg_relations` walk (entity-relation evidence). EverMemBench MA dim queries usuário hit PROFILE chunks (user-info type questions: "what's my user's email?"). Profile chunks rarely são entity-relation chunks. Q2 future direction = profile-chunk identification mechanism (ortogonal a KG entity walk).
+  - **Same-stage overlap (KG+MQ 90.8% co-fire):** validates a teoria que mecanismos no mesmo stage do pipeline convergem nas mesmas chunks (KG entity-walk identifica chunks A, MQ sub-query decomposição traz chunks A também via reformulações). RRF union sobre ambos = same boost twice. Not additive in practice.
+  - **Different-stage additivity (KG+MAP):** retrieval expansion + rerank protection acting em diferentes pipeline stages compõem melhor. Stage orthogonality > score-merge non-conflict como composability principle.
+- **Aplicação operacional:**
+  - **Lab Q1 priorities final reorder:** 🥇 MQ canonical multi-hop (#385) + 🥇 KG sparse standalone (#379) + 🥇 KG+MAP opt-in combo (#390 NEW); 🚫 KG+MQ default REJECTED (#389 opt-in only); 🟡 AC clean (#381) + MAP standalone (#386) opt-in marginais
+  - **Wave C candidates:** Triple KG+MQ+MAP (validate full pipeline-stage additivity); KG+MAP+temporal (3 stages); Profile-chunk identification (close remaining MA -5.02pp gap, NOT entity-chunk class)
+  - **Paper §5 dual finding revision priorizada** — PR #382 §5 atual tem old additivity hypothesis (+6.42pp predicted KG+MQ). Revisar com:
+    1. KG+MQ same-stage overlap (90.8% co-fire) refutes "retrieval-side knobs additive" naïve hypothesis
+    2. KG+MAP different-stage additivity (+4.04pp on F_MH + partial MA recovery 0.33 chunks/q × 90.7% queries) validates "orthogonal pipeline-stages compose" refined hypothesis
+  - **GTM messaging update:** "Hybrid retrieval+protection mode (opt-in)" como concrete pairing message; substituir prior "41% MemOS gap closure via composability" claim com "30% gap closure via best retrieval-side knob OR 26% via composable retrieval+protection mode (opt-in)"
+  - **MemOS F_MH gap closure revised** (KG+MQ 30%, KG+MAP 26%, triple stretch predicted ~33-40%)
+- **NÃO FAZEMOS:**
+  - Default-enable KG+MQ combo (PR #389 opt-in only para max F_MH users)
+  - Default-enable KG+MAP combo (PR #390 opt-in para users que precisam multi-hop + partial MA recovery)
+  - Cite "41% MemOS gap closure via composability" em qualquer material novo (refuted via KG+MQ overlap)
+  - Cite "KG anchor recovers MA cost" sem "partial" qualifier (+1.53pp recovery, gap remaining -5.02pp)
+  - Future composability testa MESMO stage (e.g. KG + KG-variant, MQ + query-rewrite) — Wave B mostra overlap dominant; priorize stage orthogonality
+- **Cross-links:** PRs #379 (KG sparse), #385 (MQ), #386 (MAP standalone), #389 (KG+MQ), #390 (KG+MAP), memory `[[lab-q1-wave-b-kgmap-3of4-gates-ship-opt-in]]`, `[[kg-mq-overlap-refutes-additivity]]`, `[[kg-anchor-fires-on-chat-corpus-validates-composability]]`, `[[kg-and-rerank-compose-additively-on-fmh]]`, `[[ma-recovery-needs-profile-chunks-not-entity-chunks]]`, D64, D65, D66.
+- *Origem:* sessão 2026-05-29 Wave B — agents `kgmq-bench` (recovery) + `a0750026ed989b801` (KG+MAP). Total Wave B ~$10 budget across both benches. Wave A→B closure complete; Wave C queued.
