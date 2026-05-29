@@ -43,19 +43,20 @@
 </p>
 
 <p align="center">
-  <strong>Conversational search wins &middot; LoCoMo +40% vs mem0 &middot; 8ms FTS5 latency &middot; 0.6380 nDCG@10 — D43 gate cleared</strong>
+  <strong>Beats MemOS on BOTH backbones &middot; Gemini +2.95pp &middot; GPT-4.1-mini +9.13pp &middot; 1.6&times; more backbone-portable &middot; 5-batch + 95% CI verified</strong>
   <br>
-  <sub>Q4 partial smoke Sat 2026-05-24 &middot; full canonical run Wed 2026-06-03 &middot; Phase 2 GTM unlocked</sub>
+  <sub>EverMemBench Phase D (Gemini-2.5-flash, n=3,119) + Phase H v2 (GPT-4.1-mini, n=3,121) &middot; LongMemEval n=300 fingerprint consistent &middot; PR #377 + #378 + #379</sub>
 </p>
 
 <p align="center">
 
-| System | LoCoMo<br>nDCG@10 | Full Corpus<br>nDCG@10 | R@10 | p50 latency | Hit-rate |
-|---|---|---|---|---|---|
-| **nox-mem (hybrid)** | **0.6237** | **0.6380** | **0.5417** | **8ms** | **65%** |
-| mem0 @500 chunks | 0.4450 | 0.8569* | 0.2500 | 273ms | 15% |
+| System | EverMemBench<br>Gemini (5-batch) | EverMemBench<br>GPT-4.1-mini (5-batch) | LongMemEval<br>Task Acc (n=300) | Backbone<br>swap Δ |
+|---|---|---|---|---|
+| **nox-mem (hybrid)** | **62.22%** (95% CI 61.17–63.27) | **51.68%** (95% CI 49.88–53.49) | **68.16%** (CI 0.61–0.74) | **−10.54pp** |
+| MemOS | 59.27% | 42.55% | — | −16.72pp |
+| nox-mem advantage | **+2.95pp** | **+9.13pp** | — | **1.6&times; more portable** |
 
-<sub>**LoCoMo conversational retrieval (n=100, PR #318+#323):** nox-mem 0.6237 vs mem0 0.4450 = **+40% relative advantage** on conversational long-context queries. **Full corpus:** nox-mem tested on live 69k-chunk production store; mem0 measured on capped 500-chunk corpus (marked *), where ranking precision naturally inflates on fewer distractors. **Latency:** 8ms FTS5 only; hybrid (BM25+semantic+RRF) at p50 = 940ms (see Numbers section). **Read the full comparison:** [`docs/COMPARISON.md`](docs/COMPARISON.md) · [`Paper §6.3`](paper/paper-tecnico-nox-mem.md) · [`Methodology disclosure`](docs/discussions-seed/06-methodology-disclosure.md)</sub>
+<sub>**Methodology:** 5-batch + 95% CI (t-dist, n=5 batches, ~620 questions each) is the canonical gate — single-batch overclaims up to 1.7&sigma; detected and corrected (Phase H v2 batch 004 single was +11.60pp; 5-batch reality +9.13pp). MemOS numbers from MemOS paper Table 4 (public). **LongMemEval per-category fingerprint** (strong single-session 87% / abstention 83% / moderate multi-session 56% / temporal 55%) is consistent with EverMemBench profile — structural advantage, not benchmark-specific tuning. **KG path retrieval** (opt-in `NOX_KG_PATH_ENABLED=1`) closes 17% of F_MH multi-hop gap via SQL walks at $0/query (PR #379). **Read the full comparison:** [`docs/COMPARISON.md`](docs/COMPARISON.md) · [`Competitive positioning`](docs/competitive-positioning.md) · [`Paper §5`](paper/paper-tecnico-nox-mem.md)</sub>
 
 </p>
 
@@ -155,9 +156,9 @@ memoria-nox is organized into three product pillars plus a research lab and a no
 <td align="center" width="33%">
 <h3>Q &mdash; Quality</h3>
 <sub>Numbers #1, honestly measured</sub><br><br>
-<strong>LoCoMo +40% conversational</strong><br>
-<sub>0.6237 vs mem0 0.4450 (n=100)</sub><br><br>
-LoCoMo · Full-corpus nDCG@10 0.6380 · Latency
+<strong>Beats MemOS on 2 backbones (5-batch)</strong><br>
+<sub>Gemini +2.95pp &middot; GPT-4.1-mini +9.13pp</sub><br><br>
+EverMemBench · LongMemEval · 5-batch 95% CI
 </td>
 <td align="center" width="33%">
 <h3>A &mdash; Autonomy</h3>
@@ -178,7 +179,17 @@ P1 · P3 · P5 · P5a
 
 ### Q &mdash; Quality (Q1&ndash;Q4)
 
-Numbers that lead the market or honestly say where the gap is. Q1 runs LoCoMo (R@5, R@1, MRR, nDCG@10, Wilson CI), Q2 runs LongMemEval (task accuracy with LLM-as-judge dual jury), Q3 measures latency p50/p95/p99 across six workloads, and Q4 publishes a head-to-head `COMPARISON.md` against agentmemory, memanto, mem0, Letta, and Zep &mdash; **only if** Q1+Q2+Q3 show nox-mem at the top or tied. **Q1 LoCoMo conversational (PR #318+#323, n=100): nox-mem 0.6237 vs mem0 0.4450 = +40% relative advantage on multi-turn queries.** **Q1 full-corpus (G5 V3 A8, 2026-05-19): nDCG@10 = 0.6380, full boost stack active via `/api/search`.** Q3 latency measured 2026-05-18: FTS5 alone p50 = 8ms; hybrid (BM25+semantic+RRF) p50 = 940ms / p95 = 2.3s. Q2 oracle pipeline validated; `s_cleaned` headline run deferred pending batch-embedding optimization. Q4 gate **PASSED** &mdash; Phase 2 GTM opens.
+Numbers that lead the market or honestly say where the gap is. Q1 runs LoCoMo (R@5, R@1, MRR, nDCG@10, Wilson CI), Q2 runs LongMemEval (task accuracy with LLM-as-judge dual jury), Q3 measures latency p50/p95/p99 across six workloads, and Q4 publishes a head-to-head `COMPARISON.md` against agentmemory, memanto, mem0, Letta, and Zep &mdash; **only if** Q1+Q2+Q3 show nox-mem at the top or tied.
+
+**EverMemBench Phase D (Gemini-2.5-flash, 5-batch, n=3,119, PR #317+updates):** nox-mem 62.22% (95% CI 61.17–63.27%) vs MemOS 59.27% = **+2.95pp WIN**. 7/9 sub-dimensions. Canonical 5-batch protocol with outlier detection.
+
+**EverMemBench Phase H v2 (GPT-4.1-mini, 5-batch, n=3,121, PR #377):** nox-mem 51.68% (95% CI 49.88–53.49%) vs MemOS 42.55% = **+9.13pp WIN**. 7/9 sub-dimensions WIN including MA (Memory Awareness) differentiator. Batch 004 single-batch showed +11.60pp — 5-batch protocol corrected to honest +9.13pp. **nox-mem beats MemOS on BOTH backbones tested; backbone swap regression −10.54pp vs MemOS −16.72pp = 1.6× more portable.**
+
+**LongMemEval n=300 (PR #378, 2026-05-29):** task accuracy 68.16% (CI 0.61–0.74) with per-category fingerprint identical to EverMemBench profile — strong single-session (87%) / abstention (83%) / moderate multi-session (56%) / temporal (55%). Cross-bench consistency confirms structural advantage, not benchmark-specific tuning.
+
+**Lab Q1 #4 KG path retrieval (PR #379):** 3/4 gates met — F_MH +2.81pp, overall +0.12pp non-regression, coverage 90.84%. Closes 17% of multi-hop gap via regex entity extraction + SQL `kg_relations` walk at **$0/query**. Opt-in `NOX_KG_PATH_ENABLED=1`. F_MH gap vs MemOS is retrieval-bound not generation-bound (same −13 to −16pp gap on both Gemini and GPT-4.1-mini backbones).
+
+**Q1 full-corpus (G5 V3 A8, 2026-05-19): nDCG@10 = 0.6380**, full boost stack active via `/api/search`. Q3 latency measured 2026-05-18: FTS5 alone p50 = 8ms; hybrid (BM25+semantic+RRF) p50 = 940ms / p95 = 2.3s. Q4 gate **PASSED** &mdash; Phase 2 GTM opens.
 
 ### A &mdash; Autonomy (A1&ndash;A4)
 
@@ -228,22 +239,22 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 
 ## Comparison
 
-### Q4 Comparison — números do smoke Sat 2026-05-24
+### EverMemBench + LongMemEval — 5-batch validated (2026-05-28/29)
 
-*Metodologia completa + breakdown por sistema e dataset em [`docs/COMPARISON.md`](docs/COMPARISON.md). Canonical full-run Wed 2026-06-03.*
+*Full methodology, per-category breakdown, and 95% CI intervals: [`docs/COMPARISON.md`](docs/COMPARISON.md) · [`docs/competitive-positioning.md`](docs/competitive-positioning.md). Canonical full-run with extended systems Wed 2026-06-03.*
 
-| System | LoCoMo nDCG@10 | Full-Corpus nDCG@10 | R@10 | p50 latency | Hit-rate |
-|---|---|---|---|---|---|
-| **nox-mem (hybrid)** | **0.6237** | **0.6380** | **0.5417** | **8ms** | **65%** |
-| mem0 @500 chunks | 0.4450 | 0.8569* | 0.2500 | 273ms | 15% |
-| Zep | pending | pending | — | — | — |
-| Letta (MemGPT) | pending | pending | — | — | — |
-| agentmemory | pending | pending | — | — | — |
-| EverMind-AI | pending | pending | — | — | — |
+| System | EverMemBench Gemini<br>(5-batch, n=3,119) | EverMemBench GPT-4.1-mini<br>(5-batch, n=3,121) | LongMemEval<br>task acc (n=300) | Backbone<br>swap Δ |
+|---|---|---|---|---|
+| **nox-mem (hybrid)** | **62.22%** | **51.68%** | **68.16%** | **−10.54pp** |
+| MemOS | 59.27% | 42.55% | — | −16.72pp |
+| **nox-mem advantage** | **+2.95pp** | **+9.13pp** | — | **1.6× more portable** |
+| mem0 | pending | pending | — | — |
+| Zep | pending | pending | — | — |
+| Letta (MemGPT) | pending | pending | — | — |
 
-> **Reading the numbers honestly:** **LoCoMo (conversational, PR #318+#323)** measures nox-mem&rsquo;s strength in multi-turn, long-context queries: 0.6237 nDCG@10 vs mem0 0.4450 = **+40% advantage** on the queries that agents care about most. **Full-corpus:** mem0&rsquo;s 0.8569 is measured on a **500-chunk capped corpus** where ranking precision inflates naturally &mdash; fewer candidates, tighter ranking. nox-mem runs against the **full production corpus** (~69k chunks), where gold items compete with tens of thousands of distractors. That is the harder, more realistic setting. Latency: nox-mem&rsquo;s 8ms is FTS5 keyword-only; hybrid (BM25+semantic+RRF) at p50 = 940ms. The LoCoMo win is the defensible story: breadth of coverage (R@10 **2.2&times; higher**), hit-rate (**4.3&times; higher**), and conversational advantage (**+40%**) on the use-cases agents actually need. Full-corpus mem0 numbers pending canonical run Wed 2026-06-03.
+> **Reading the numbers honestly:** Both EverMemBench wins are **5-batch validated** with 95% CI (n=3,100+ questions per system per backbone). The Gemini +2.95pp win is tighter; the GPT-4.1-mini +9.13pp win is larger and robust (lower CI bound 49.88% still above MemOS 42.55%). A single-batch run (Phase H v2 batch 004) showed +11.60pp — the 5-batch protocol caught the outlier and corrected to the honest +9.13pp. **Methodology disclosure:** [`docs/discussions-seed/06-methodology-disclosure.md`](docs/discussions-seed/06-methodology-disclosure.md). MemOS numbers from MemOS paper Table 4 (public). F_MH (multi-hop) gap −13 to −16pp vs MemOS is backbone-invariant — a retrieval problem, not generation. KG path retrieval (opt-in) closes 17% of this gap at $0/query. Canonical extended comparison Wed 2026-06-03.
 
-The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`benchmark/COMPARISON.md`](benchmark/COMPARISON.md), now with **Q4 partial smoke numbers** (nox-mem nDCG@10 = 0.6380, R@10 = 0.5417, MRR = 0.3700, p50 = 8ms, hit-rate = 65%; vs mem0 capped-corpus nDCG 0.8569 / R@10 0.2500; Sat 2026-05-24). Canonical full-run and extended comparison Wed 2026-06-03. The seven-axis differentiation:
+The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`docs/COMPARISON.md`](docs/COMPARISON.md). The seven-axis differentiation:
 
 <p align="center">
   <picture>
