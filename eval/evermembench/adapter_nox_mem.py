@@ -97,6 +97,14 @@ Modes:
                                   Approach A from PR #386); chunks tagged section IN
                                   ('compiled','frontmatter') skip cross-encoder and keep
                                   their bi-encoder position.
+    NOX_ADAPTER_MODE=phaseTriple -> phaseB ingest + MQ decompose + KG 1-hop boost +
+                                    cross-encoder rerank + MA-protection (KG-anchored bypass).
+                                    Wave C composability — combines all 3 retrieval/rerank
+                                    mechanisms in distinct pipeline stages:
+                                      stage 1 (retrieval expansion): MQ sub-query decomposition + RRF
+                                      stage 2 (retrieval entity-walk): KG 1-hop boost on MQ-merged candidates
+                                      stage 3 (rerank protection): MAP-style bypass-entity for KG anchor chunks
+                                    Predicted F_MH ~8.5-9.5pp (additive floor 6.85pp; cap by KG/MQ overlap).
     NOX_ADAPTER_MODE=phaseKGMAP -> phaseB ingest + KG 1-hop boost + cross-encoder rerank +
                                    MA-protection extended with KG anchor (Wave B
                                    composability — this PR). Bypass criterion becomes
@@ -110,6 +118,7 @@ Environment variables:
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
     NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG"
                                 / "phaseMQ" / "phaseKGMQ" / "phaseMAP" / "phaseKGMAP"
+                                / "phaseTriple"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
     NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
@@ -902,7 +911,7 @@ class NoxMemAdapter(BaseAdapter):
             self.reranker_enabled = True
         else:
             self.reranker_enabled = self.adapter_mode in (
-                "phaseF", "phaseMAP", "phaseKGMAP"
+                "phaseF", "phaseMAP", "phaseKGMAP", "phaseTriple"
             )
 
         # Phase KG (Lab Q1 #4) — entity 1-hop boost config.
@@ -916,9 +925,9 @@ class NoxMemAdapter(BaseAdapter):
         elif env_kg_truthy:
             self.kg_enabled = True
         else:
-            # phaseKG, phaseKGMQ, phaseKGMAP all default-on for KG path
+            # phaseKG, phaseKGMQ, phaseKGMAP, phaseTriple all default-on for KG path
             self.kg_enabled = self.adapter_mode in (
-                "phaseKG", "phaseKGMQ", "phaseKGMAP"
+                "phaseKG", "phaseKGMQ", "phaseKGMAP", "phaseTriple"
             )
 
         self.kg_boost_magnitude = float(
@@ -958,7 +967,7 @@ class NoxMemAdapter(BaseAdapter):
             self.ma_protection_enabled = True
         else:
             self.ma_protection_enabled = self.adapter_mode in (
-                "phaseMAP", "phaseKGMAP"
+                "phaseMAP", "phaseKGMAP", "phaseTriple"
             )
 
         # Wave B composability — KG anchor extends bypass criterion with
@@ -974,7 +983,9 @@ class NoxMemAdapter(BaseAdapter):
         elif env_kg_anchor_truthy:
             self.ma_protection_kg_anchor = True
         else:
-            self.ma_protection_kg_anchor = (self.adapter_mode == "phaseKGMAP")
+            self.ma_protection_kg_anchor = self.adapter_mode in (
+                "phaseKGMAP", "phaseTriple"
+            )
 
         self.ma_protection_max = int(
             os.environ.get("NOX_MA_PROTECTION_MAX", "")
@@ -992,8 +1003,10 @@ class NoxMemAdapter(BaseAdapter):
         elif env_mq_truthy:
             self.mq_enabled = True
         else:
-            # phaseMQ OR phaseKGMQ default-on multi-query expansion
-            self.mq_enabled = (self.adapter_mode in ("phaseMQ", "phaseKGMQ"))
+            # phaseMQ, phaseKGMQ, phaseTriple default-on multi-query expansion
+            self.mq_enabled = (
+                self.adapter_mode in ("phaseMQ", "phaseKGMQ", "phaseTriple")
+            )
 
         self.mq_model = os.environ.get("NOX_MQ_LLM", "") or DEFAULT_MQ_LLM
         self.mq_base_url = (
