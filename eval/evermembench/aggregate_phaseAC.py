@@ -121,19 +121,55 @@ def extract_metrics_from_eval_json(eval_path: Path) -> dict[str, float]:
     The harness `analyze_results.py` output is the canonical extraction. Here
     we parse the raw JSON ourselves to extract every metric the report needs
     in one pass.
+
+    Result JSON shape (post-harness):
+      {
+        "total_questions": int,
+        "correct":         int,
+        "accuracy":        float,        # 0–1
+        "accuracy_by_type": {"multiple_choice": ..., "open_ended": ...},
+        "detailed_results": [
+            {"question_id":   "MA_C_Top010_001",
+             "question_type": "multiple_choice",
+             "is_correct":    bool, ... },
+            ...
+        ],
+        "metadata": {...}
+      }
+
+    Sub-dim extraction: parse the prefix of `question_id` up to the first
+    `_Top` token. Examples:
+      "F_MH_Top010_001"   -> sub_type "F_MH"
+      "MA_C_Top010_002"   -> sub_type "MA_C"
+      "P_Style_Top010_..." -> sub_type "P_Style"
+      "F_HL_Top010_..."   -> sub_type "F_HL"
     """
     raw = json.loads(eval_path.read_text(encoding="utf-8"))
-    # The eval JSON shape: list of dicts, each with 'question_type',
-    # 'sub_type', 'correct' bool. Aggregate per type.
+
+    # Locate detailed_results list (canonical key)
     if isinstance(raw, dict):
-        items = raw.get("results", raw.get("items", []))
+        if "detailed_results" in raw:
+            items = raw["detailed_results"]
+        elif "results" in raw:
+            items = raw["results"]
+        elif "items" in raw:
+            items = raw["items"]
+        else:
+            items = []
+        # Use top-level accuracy as a fallback (already in 0..1 range)
+        top_acc = raw.get("accuracy")
+        top_total = raw.get("total_questions")
+        top_correct = raw.get("correct")
     else:
         items = raw
+        top_acc = None
+        top_total = None
+        top_correct = None
 
     if not isinstance(items, list):
         raise ValueError(f"Unexpected eval JSON shape: {type(items).__name__}")
 
-    # Group by sub_type
+    # Group by sub_type derived from question_id prefix
     buckets: dict[str, dict[str, int]] = {}
     total = 0
     correct = 0
@@ -141,37 +177,48 @@ def extract_metrics_from_eval_json(eval_path: Path) -> dict[str, float]:
         if not isinstance(it, dict):
             continue
         total += 1
-        is_correct = bool(it.get("correct") or it.get("is_correct") or False)
+        is_correct = bool(it.get("is_correct") or it.get("correct") or False)
         if is_correct:
             correct += 1
-        sub = (
-            it.get("sub_type")
-            or it.get("subtype")
-            or it.get("category")
-            or it.get("question_subtype")
-            or it.get("type")
-            or "unknown"
-        )
+
+        qid = it.get("question_id", "") or ""
+        # Parse prefix: everything before "_Top<batch>" suffix
+        sub = "unknown"
+        if "_Top" in qid:
+            sub = qid.split("_Top", 1)[0]
+        else:
+            # Fallback: try explicit sub_type fields
+            sub = (
+                it.get("sub_type")
+                or it.get("subtype")
+                or it.get("category")
+                or "unknown"
+            )
+
         b = buckets.setdefault(sub, {"total": 0, "correct": 0})
         b["total"] += 1
         if is_correct:
             b["correct"] += 1
 
     metrics: dict[str, float] = {}
-    if total > 0:
+
+    # Overall — prefer top-level value when available
+    if top_acc is not None and top_total:
+        metrics["overall"] = float(top_acc) * 100.0
+    elif total > 0:
         metrics["overall"] = 100.0 * correct / total
 
-    # Map EverMemBench sub_type names to report dims
-    # Per analyze_results.py convention:
-    #   F_SH, F_MH, F_TP, F_HL, MA_C, MA_P, MA_U, P_Style, P_Skill, P_Title
+    # Map sub buckets to canonical report dims
+    canonical = {
+        "F_SH", "F_MH", "F_TP", "F_HL",
+        "MA_C", "MA_P", "MA_U",
+        "P_Style", "P_Skill", "P_Title",
+    }
     for sub, b in buckets.items():
         if b["total"] == 0:
             continue
-        # Try a few naming conventions
-        key = sub
-        if key in {"F_SH", "F_MH", "F_TP", "F_HL", "MA_C", "MA_P", "MA_U",
-                  "P_Style", "P_Skill", "P_Title"}:
-            metrics[key] = 100.0 * b["correct"] / b["total"]
+        if sub in canonical:
+            metrics[sub] = 100.0 * b["correct"] / b["total"]
     return metrics
 
 

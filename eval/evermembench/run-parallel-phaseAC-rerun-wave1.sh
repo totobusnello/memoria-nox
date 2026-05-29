@@ -18,7 +18,7 @@ declare -A PHASEB_DBS=(
 )
 
 declare -a BATCHES=(004 005)
-declare -a PORTS=(18830 18831)
+declare -a PORTS=(18832 18833)
 
 PIDS=()
 RUN_DIRS=()
