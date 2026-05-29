@@ -1,5 +1,5 @@
 """
-nox-mem Adapter for EverMemBench — Phase F + Phase KG (Lab Q1 #4, 2026-05-29).
+nox-mem Adapter for EverMemBench — Phase F + Phase KG + Phase MQ (Lab Q1 #3, 2026-05-29).
 
 Connects nox-mem (CLI ingest + HTTP search API) to the EverMemBench
 evaluation harness.
@@ -14,8 +14,8 @@ digests. Phase D added a search-time over-fetch (top_k=20 from API) that
 won the 5-batch aggregate at 62.22% (beat MemOS 59.27%). But multi-hop
 remained weak (5.22% 5-batch avg).
 
-Phase F (this version) attacks the multi-hop bottleneck with cross-encoder
-reranking on top of Phase D's retrieval. Pipeline:
+Phase F attacks the multi-hop bottleneck with cross-encoder reranking on
+top of Phase D's retrieval. Pipeline:
   1. Request top-50 from nox-mem hybrid search (over-fetch).
   2. Pass (query, chunk_text) pairs through BAAI/bge-reranker-v2-m3
      CrossEncoder which sees the full context together and can score
@@ -38,40 +38,44 @@ Phase KG (Lab Q1 #4, 2026-05-29) — KG path retrieval (Approach A, 1-hop):
      the hybrid search top-N. Per memoria-nox rule §5 (boost multiplicativo
      empilhável é veneno), the delta is added to RRF score, not multiplied.
 
-Phase MAP (Lab Q1 #2, 2026-05-29) — MA-protection via bypass-entity (Approach A):
-  Cross-encoder rerank (Phase G / Phase F) causes a structural -3 to -4pp
-  regression in Memory Awareness dimensions (MA_C / MA_P / MA_U) because the
-  reranker scores chunks by query-chunk semantic relevance and downgrades
-  entity-formatted chunks (compiled/frontmatter) that *encode the answer*
-  without lexically overlapping the query.
+Phase MQ (Lab Q1 #3, 2026-05-29) — Multi-query expansion (Approach B from
+specs/2026-05-28-multi-query-expansion.md). Pre-retrieval LLM decomposes
+the query into N atomic sub-questions, each is independently retrieved
+top-K from nox-mem, and results are unioned + deduplicated + re-ranked
+via RRF over per-sub-query ranks.
 
-  Approach A — bypass-entity:
-    1. Partition the pre-rerank candidate pool into:
-       - Set E (entity chunks): section IN ('compiled', 'frontmatter')
-       - Set R (regular chunks): all others (NULL section, timeline, etc.)
-    2. Score only Set R via cross-encoder. Set E retains bi-encoder rank
-       (which already respects section_boost from RRF).
-    3. Merge so that entity chunks survive at their original bi-encoder
-       positions; reranked regular chunks fill the remaining slots, capped
-       at top_k.
+  1. Call gemini-flash-lite (or NOX_MQ_LLM) with a decomposition prompt
+     that returns a JSON array of 3-5 sub-questions covering distinct
+     aspects of the original multi-hop query.
+  2. For each sub-question, hit the same /api/search hybrid endpoint
+     with top_k=NOX_MQ_PER_QUERY_TOPK (default 10).
+  3. Build the union: each chunk_id maps to the list of sub-query ranks
+     in which it appeared.
+  4. RRF re-merge: chunk_score = sum(1 / (k + rank_i)) over sub-queries
+     it appeared in, with k=NOX_MQ_RRF_K (default 60). Chunks that
+     appear in multiple sub-queries get a natural boost (convergence
+     signal) without multiplicative stacking (per rule §5).
+  5. Sort by chunk_score desc, return top_k to the harness.
 
-  Default OFF — opt-in via NOX_MA_PROTECTION_ENABLED=1 (env override on top
-  of any mode) OR by selecting NOX_ADAPTER_MODE=phaseMAP (default-on for
-  that mode + reranker auto-enabled).
+Cost: 1 LLM decomposer call (~$0.0001 with flash-lite) + N x baseline
+retrieval. Latency overhead: +200-500ms (LLM dominates).
+
+Fallback: if decomposition fails (LLM error, malformed JSON, < 2 sub-
+queries returned), gracefully fall back to single-query retrieval — the
+mode is logged as "fallback_single" in metadata.
 
 Modes:
     NOX_ADAPTER_MODE=baseline  -> PR #363 flat-paragraph ingest format
     NOX_ADAPTER_MODE=phaseB    -> H2-per-message + digest (default)
     NOX_ADAPTER_MODE=phaseF    -> phaseB ingest + cross-encoder rerank in search
     NOX_ADAPTER_MODE=phaseKG   -> phaseB ingest + KG 1-hop entity boost in search
-    NOX_ADAPTER_MODE=phaseMAP  -> phaseB ingest + cross-encoder rerank + MA protection
-                                  (Approach A: bypass entity chunks from rerank)
+    NOX_ADAPTER_MODE=phaseMQ   -> phaseB ingest + multi-query expansion (decompose)
 
 Environment variables:
     NOX_API_BASE              — nox-mem API base URL (default: http://127.0.0.1:18802)
     NOX_DB_PATH               — per-batch DB path override (REQUIRED for isolation)
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
-    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG" / "phaseMAP"
+    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG" / "phaseMQ"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
     NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
@@ -84,11 +88,15 @@ Environment variables:
     NOX_KG_MIN_NAME_LEN       — int, minimum entity name length to use in regex
                                 extraction (default: 3) — avoids matching common tokens
                                 like "a", "of", "is" that may be entity names in noisy KGs.
-    NOX_MA_PROTECTION_ENABLED — "1" to force MA-protection bypass-entity (env override
-                                on top of any mode). Default OFF (Phase G behavior).
-                                When ON, cross-encoder skips chunks with
-                                section IN ('compiled', 'frontmatter') — they keep
-                                bi-encoder rank to prevent MA dim regression.
+    NOX_MQ_ENABLED            — "1" to force multi-query expansion (env override on any mode)
+    NOX_MQ_LLM                — model id for decomposer (default: gemini-2.5-flash-lite)
+    NOX_MQ_LLM_API_KEY        — auth bearer for decomposer (default: GEMINI_API_KEY)
+    NOX_MQ_LLM_BASE_URL       — base URL for decomposer (default: Gemini OpenAI-compat)
+    NOX_MQ_N                  — int, target sub-question count (default: 4, range 2-6)
+    NOX_MQ_PER_QUERY_TOPK     — int, top_k per sub-query before union (default: 10)
+    NOX_MQ_RRF_K              — int, RRF constant for union re-merge (default: 60)
+    NOX_MQ_TIMEOUT_S          — float, decomposer LLM timeout in seconds (default: 30)
+    NOX_MQ_DEBUG              — "1" to log decompositions + per-query result counts
 """
 import asyncio
 import os
@@ -185,16 +193,35 @@ DEFAULT_KG_MAX_NEIGHBORS = 20
 DEFAULT_KG_MIN_NAME_LEN = 3
 DEFAULT_KG_OVERFETCH = 50  # pull top-50 from API so KG can re-rank within
 
-# Phase MAP (Lab Q1 #2) — MA-protection bypass-entity defaults.
+# Phase MQ (Lab Q1 #3) — Multi-query expansion (Approach B) defaults.
 #
-# Per spec §6.1 recommendation: use `section IN ('compiled', 'frontmatter')`
-# as the entity-chunk identity signal — explicit semantic marker, avoids float
-# comparison on section_boost, more readable in logs. Schema v10 (2026-04-23)
-# guarantees the column is populated when ingest goes through
-# `ingestEntityFile` (memory/entities/<type>/<slug>.md format). Chat-corpus
-# chunks (EverMemBench dataset/<batch>/dialogue.json) have section=NULL and
-# are therefore in Set R (regular) — always reranked.
-ENTITY_SECTION_NAMES = frozenset({"compiled", "frontmatter"})
+# N=4 sub-queries balances cost vs coverage (spec §2.B). PER_QUERY_TOPK=10
+# matches Phase H v2 top_k=10 retrieval, keeping per-query latency stable.
+# RRF_K=60 is the canonical RRF constant (BM25+dense fusion); we reuse it for
+# cross-sub-query fusion. Mitigation §7.6 calls out k=30/k=90 as ablation
+# targets if results indicate sub-query correlation issues.
+# TIMEOUT_S=30 is generous; flash-lite typically returns in 1-3s.
+DEFAULT_MQ_LLM = "gemini-2.5-flash-lite"
+DEFAULT_MQ_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai"
+DEFAULT_MQ_N = 4
+DEFAULT_MQ_PER_QUERY_TOPK = 10
+DEFAULT_MQ_RRF_K = 60
+DEFAULT_MQ_TIMEOUT_S = 30.0
+
+# Decomposition prompt — explicit instruction to:
+#   1. produce JSON array of strings (parseable)
+#   2. preserve language of original query (PT-BR / EN)
+#   3. atomic sub-questions (each independently answerable)
+#   4. cap N (spec §2.B target 3-5)
+PHASEMQ_DECOMPOSE_PROMPT = (
+    "Decompose the following question into {n} atomic sub-questions that "
+    "together cover all aspects needed to answer the original. Each "
+    "sub-question MUST be independently answerable and use the SAME language "
+    "as the original. Return ONLY a JSON array of strings, no prose, no "
+    "markdown fences.\n\n"
+    "Question: {query}\n\n"
+    "JSON array:"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -208,60 +235,6 @@ ENTITY_SECTION_NAMES = frozenset({"compiled", "frontmatter"})
 # non-reranked results gracefully.
 # ---------------------------------------------------------------------------
 import functools as _functools  # noqa: E402  — local-only alias
-
-
-# ---------------------------------------------------------------------------
-# Phase MAP (Lab Q1 #2) — merge helper for bypass-entity
-# ---------------------------------------------------------------------------
-#
-# Given:
-#   entity_indexed:    [(orig_idx, cand), ...]  Set E in original bi-encoder order
-#   reranked_regular:  [(orig_idx, cand), ...]  Set R in cross-encoder rank order
-#   total_slots:       int (typically len(candidates) pre-truncate, then top_k cap applied later)
-#
-# Produce a merged list where:
-#   1. Each entity chunk lands at its *original* bi-encoder position (orig_idx).
-#   2. Reranked regular chunks fill the remaining slots in rerank order
-#      (rank 0 = highest rerank score gets the lowest still-empty position).
-#   3. If entity_indexed is so large it would overflow total_slots, we take
-#      the first total_slots entities (lowest orig_idx) and drop reranked Set R
-#      entirely — RRF already respects section_boost for them.
-#
-# Returned list contains candidate tuples (chunk_text, item_dict), preserving
-# the original tuple shape the rest of the adapter expects.
-def _merge_preserving_entity_positions(
-    entity_indexed: List[Tuple[int, Tuple[str, Dict[str, Any]]]],
-    reranked_regular: List[Tuple[int, Tuple[str, Dict[str, Any]]]],
-    total_slots: int,
-) -> List[Tuple[str, Dict[str, Any]]]:
-    if total_slots <= 0:
-        return []
-
-    # Build empty slot list and place entities at original positions.
-    merged: List[Optional[Tuple[str, Dict[str, Any]]]] = [None] * total_slots
-    placed_entity = 0
-    for orig_idx, cand in entity_indexed:
-        if orig_idx < total_slots:
-            merged[orig_idx] = cand
-            placed_entity += 1
-        # Entities with orig_idx >= total_slots are dropped — there's no slot
-        # for them. Should not happen given total_slots = len(candidates) at
-        # merge time, but defended against off-by-one.
-
-    # Fill remaining empty slots with reranked regular in rerank order.
-    reranked_iter = iter(reranked_regular)
-    for slot in range(total_slots):
-        if merged[slot] is None:
-            try:
-                _orig, cand = next(reranked_iter)
-                merged[slot] = cand
-            except StopIteration:
-                # Set R exhausted before all slots filled — leave empty slots
-                # behind. We compact below.
-                break
-
-    # Compact: drop any trailing None slots (happens when reranked < non-entity gap).
-    return [c for c in merged if c is not None]
 
 
 @_functools.lru_cache(maxsize=1)
@@ -463,6 +436,158 @@ def _kg_get_direct_chunk_ids(
     return {int(r[0]) for r in rows if r[0]}
 
 
+# ---------------------------------------------------------------------------
+# Phase MQ (Lab Q1 #3) — Multi-query expansion helpers
+# ---------------------------------------------------------------------------
+#
+# Decomposer calls an LLM (default gemini-flash-lite via OpenAI-compat
+# endpoint) using an async aiohttp POST and parses the JSON array response.
+# Designed to be backbone-agnostic: pass any OpenAI-compatible chat endpoint
+# via NOX_MQ_LLM_BASE_URL + NOX_MQ_LLM_API_KEY.
+#
+# Returns (sub_queries, error). On any failure (HTTP error, JSON parse fail,
+# too few sub-queries) returns ([], reason_str) and the caller falls back to
+# single-query retrieval.
+
+
+async def _mq_decompose_query(
+    query: str,
+    n: int,
+    model: str,
+    base_url: str,
+    api_key: str,
+    timeout_s: float,
+    session: aiohttp.ClientSession,
+) -> Tuple[List[str], Optional[str]]:
+    """Call LLM to decompose query into N atomic sub-questions.
+
+    Returns (sub_queries, error). sub_queries is the parsed list (may be
+    empty if LLM returned an empty/malformed payload).
+    """
+    import json as _json
+    import re as _re
+
+    prompt = PHASEMQ_DECOMPOSE_PROMPT.format(n=n, query=query)
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": 400,
+    }
+    endpoint = f"{base_url.rstrip('/')}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    try:
+        async with session.post(
+            endpoint,
+            json=payload,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=timeout_s),
+        ) as resp:
+            if resp.status != 200:
+                body = (await resp.text())[:300]
+                return [], f"decomposer HTTP {resp.status}: {body}"
+            data = await resp.json()
+    except asyncio.TimeoutError:
+        return [], f"decomposer timeout after {timeout_s}s"
+    except aiohttp.ClientError as exc:
+        return [], f"decomposer client error: {type(exc).__name__}: {exc}"
+    except Exception as exc:  # noqa: BLE001
+        return [], f"decomposer unexpected: {type(exc).__name__}: {exc}"
+
+    try:
+        text = data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return [], f"decomposer malformed response: {str(data)[:200]}"
+
+    # Try strict JSON parse first. If LLM wrapped in ```json fences,
+    # strip them. If still not parseable, extract array via regex fallback.
+    candidate = text.strip()
+    # Strip code fences
+    if candidate.startswith("```"):
+        candidate = _re.sub(r"^```(?:json)?\s*", "", candidate)
+        candidate = _re.sub(r"\s*```\s*$", "", candidate)
+        candidate = candidate.strip()
+
+    sub_queries: List[str] = []
+    try:
+        parsed = _json.loads(candidate)
+        if isinstance(parsed, list):
+            sub_queries = [str(x).strip() for x in parsed if str(x).strip()]
+    except _json.JSONDecodeError:
+        # Fallback: line-by-line parse (LLM may have returned numbered list)
+        for line in candidate.splitlines():
+            stripped = line.strip()
+            # Strip JSON array brackets / commas / quotes
+            stripped = _re.sub(r'^[\[\],\s"\']+', "", stripped)
+            stripped = _re.sub(r'[\],\s"\']+$', "", stripped)
+            # Strip numbered prefix "1." / "2)"
+            stripped = _re.sub(r"^\d+[\.\):]\s*", "", stripped)
+            stripped = stripped.strip().strip('"').strip("'").strip()
+            if len(stripped) > 5 and "?" in stripped or len(stripped) > 10:
+                sub_queries.append(stripped)
+
+    # Sanity: require at least 2 sub-queries to bother (else fall back)
+    sub_queries = [s for s in sub_queries if len(s) >= 5]
+    if len(sub_queries) < 2:
+        return [], f"too few sub-queries parsed ({len(sub_queries)}); fallback to single"
+
+    return sub_queries, None
+
+
+def _mq_rrf_merge(
+    per_subquery_results: List[List[Tuple[str, Dict[str, Any]]]],
+    rrf_k: int,
+) -> List[Tuple[str, Dict[str, Any]]]:
+    """RRF merge results from N sub-query retrievals.
+
+    Each per_subquery_results[i] is the API rank-ordered list of (content, item)
+    from sub-query i. We compute, for each unique chunk_id (or content fallback),
+    score = sum over sub-queries it appeared in of 1 / (rrf_k + rank).
+
+    Chunks appearing in multiple sub-queries naturally get higher score
+    (cross-sub-query convergence), without any multiplicative stacking.
+
+    Dedup key precedence: item.get("id") | item.get("chunk_id") | content hash.
+    Returns the merged candidates in score-desc order. The dict item that
+    survives is the first occurrence (typically the highest-ranked across
+    sub-queries by API rank in its first appearance).
+    """
+    score_by_key: Dict[Any, float] = {}
+    first_item_by_key: Dict[Any, Tuple[str, Dict[str, Any]]] = {}
+    sub_count_by_key: Dict[Any, int] = {}
+
+    for sub_results in per_subquery_results:
+        for rank, (content, item) in enumerate(sub_results):
+            # Build a stable key
+            key = (
+                item.get("id")
+                or item.get("chunk_id")
+                or item.get("rowid")
+                or hash(content)
+            )
+            score_by_key[key] = score_by_key.get(key, 0.0) + 1.0 / (rrf_k + rank + 1)
+            sub_count_by_key[key] = sub_count_by_key.get(key, 0) + 1
+            if key not in first_item_by_key:
+                # Annotate metadata so downstream can see convergence
+                item_copy = dict(item)
+                first_item_by_key[key] = (content, item_copy)
+
+    # Stitch the merged candidates and sort by score desc.
+    merged: List[Tuple[float, Tuple[str, Dict[str, Any]]]] = []
+    for key, score in score_by_key.items():
+        content, item = first_item_by_key[key]
+        # Annotate aggregate metadata
+        item["_mq_rrf_score"] = score
+        item["_mq_subquery_count"] = sub_count_by_key[key]
+        merged.append((score, (content, item)))
+
+    merged.sort(key=lambda x: x[0], reverse=True)
+    return [c for _, c in merged]
+
+
 class NoxMemAdapter(BaseAdapter):
     """
     nox-mem adapter for EverMemBench multi-person group chat evaluation.
@@ -529,11 +654,8 @@ class NoxMemAdapter(BaseAdapter):
             config.get("reranker_max_length", 0)
             or DEFAULT_RERANKER_MAX_LENGTH
         )
-        # Reranker is enabled either by being in phaseF/phaseMAP mode
-        # (default-on for those modes) OR by explicit env override on top of
-        # any other mode.
-        # Phase MAP needs rerank ON by definition — bypass-entity only makes
-        # sense when the cross-encoder is actually running.
+        # Reranker is enabled either by being in phaseF mode (default-on for
+        # that mode) OR by explicit env override on top of any other mode.
         env_enable = os.environ.get("NOX_RERANKER_ENABLED", "").strip().lower()
         env_enable_truthy = env_enable in ("1", "true", "yes", "on")
         env_enable_falsy = env_enable in ("0", "false", "no", "off")
@@ -542,23 +664,7 @@ class NoxMemAdapter(BaseAdapter):
         elif env_enable_truthy:
             self.reranker_enabled = True
         else:
-            self.reranker_enabled = (
-                self.adapter_mode in ("phaseF", "phaseMAP")
-            )
-
-        # Phase MAP (Lab Q1 #2) — MA-protection: entity chunks bypass rerank.
-        # Default-on for phaseMAP mode + explicit env override
-        # (NOX_MA_PROTECTION_ENABLED=1) on top of any other mode. Default OFF
-        # for phaseF / phaseB so Phase G behavior is preserved unchanged.
-        env_map = os.environ.get("NOX_MA_PROTECTION_ENABLED", "").strip().lower()
-        env_map_truthy = env_map in ("1", "true", "yes", "on")
-        env_map_falsy = env_map in ("0", "false", "no", "off")
-        if env_map_falsy:
-            self.ma_protection_enabled = False
-        elif env_map_truthy:
-            self.ma_protection_enabled = True
-        else:
-            self.ma_protection_enabled = (self.adapter_mode == "phaseMAP")
+            self.reranker_enabled = (self.adapter_mode == "phaseF")
 
         # Phase KG (Lab Q1 #4) — entity 1-hop boost config.
         # Enabled by phaseKG mode (default-on for that mode) OR by explicit
@@ -596,6 +702,41 @@ class NoxMemAdapter(BaseAdapter):
         # The DB path is the same one the api-server is bound to; we open a
         # separate read-only conn for KG queries.
         self.kg_db_path = os.environ.get("NOX_DB_PATH", "")
+
+        # Phase MQ (Lab Q1 #3) — Multi-query expansion config.
+        # Enabled by phaseMQ mode (default-on for that mode) OR by explicit
+        # NOX_MQ_ENABLED env override on top of any other mode.
+        env_mq = os.environ.get("NOX_MQ_ENABLED", "").strip().lower()
+        env_mq_truthy = env_mq in ("1", "true", "yes", "on")
+        env_mq_falsy = env_mq in ("0", "false", "no", "off")
+        if env_mq_falsy:
+            self.mq_enabled = False
+        elif env_mq_truthy:
+            self.mq_enabled = True
+        else:
+            self.mq_enabled = (self.adapter_mode == "phaseMQ")
+
+        self.mq_model = os.environ.get("NOX_MQ_LLM", "") or DEFAULT_MQ_LLM
+        self.mq_base_url = (
+            os.environ.get("NOX_MQ_LLM_BASE_URL", "") or DEFAULT_MQ_LLM_BASE_URL
+        )
+        # API key defaults to GEMINI_API_KEY (matches default model).
+        # If user changes model to OpenAI, must set NOX_MQ_LLM_API_KEY explicitly.
+        self.mq_api_key = (
+            os.environ.get("NOX_MQ_LLM_API_KEY", "")
+            or os.environ.get("GEMINI_API_KEY", "")
+        )
+        self.mq_n = int(os.environ.get("NOX_MQ_N", "") or DEFAULT_MQ_N)
+        self.mq_per_query_topk = int(
+            os.environ.get("NOX_MQ_PER_QUERY_TOPK", "") or DEFAULT_MQ_PER_QUERY_TOPK
+        )
+        self.mq_rrf_k = int(os.environ.get("NOX_MQ_RRF_K", "") or DEFAULT_MQ_RRF_K)
+        self.mq_timeout_s = float(
+            os.environ.get("NOX_MQ_TIMEOUT_S", "") or DEFAULT_MQ_TIMEOUT_S
+        )
+        self.mq_debug = os.environ.get("NOX_MQ_DEBUG", "").strip().lower() in (
+            "1", "true", "yes", "on"
+        )
 
         # HTTP session — created lazily to allow use in async context
         self._session: Optional[aiohttp.ClientSession] = None
@@ -1001,64 +1142,180 @@ class NoxMemAdapter(BaseAdapter):
         start_ms = time.monotonic() * 1000
         session = await self._get_session()
 
-        # Decide how many results to request from the API.
-        # Phase F: overfetch then rerank locally. Other modes: request top_k.
-        # Phase KG: also needs overfetch so we have a pool to re-rank within
-        # via KG boost. If both KG and rerank are on, take the max overfetch.
-        api_limit = top_k
-        if self.reranker_enabled:
-            api_limit = max(api_limit, self.reranker_overfetch)
-        if self.kg_enabled:
-            api_limit = max(api_limit, self.kg_overfetch)
-
-        payload = {
-            "query": query,
-            "limit": api_limit,
-            "hybrid": True,
+        # ------------------------------------------------------------------
+        # Phase MQ (Lab Q1 #3) — Multi-query expansion path
+        # ------------------------------------------------------------------
+        # When MQ is enabled, we replace the single-query retrieval with:
+        #   1. LLM decomposition into N sub-queries
+        #   2. Per-sub-query API call (top_k=NOX_MQ_PER_QUERY_TOPK)
+        #   3. RRF union+dedup
+        # On any decomposition failure, gracefully fall back to single-query
+        # (same code path as baseline) with mq_status="fallback_single".
+        mq_meta: Dict[str, Any] = {
+            "mq_enabled": self.mq_enabled,
+            "mq_applied": False,
         }
+        mq_used_subquery_path = False
+        mq_sub_queries: List[str] = []
+        mq_decompose_ms: Optional[float] = None
+        mq_retrieve_ms: Optional[float] = None
+        mq_total_returned = 0
 
-        try:
-            async with session.post(
-                f"{self.api_base}/api/search",
-                json=payload,
-                headers={"Content-Type": "application/json"},
-            ) as resp:
-                resp.raise_for_status()
-                data = await resp.json()
-        except aiohttp.ClientError as exc:
-            return SearchResult(
-                question_id=kwargs.get("question_id", "unknown"),
-                query=query,
-                retrieved_memories=[],
-                context="[nox-mem search failed: " + str(exc) + "]",
-                search_duration_ms=time.monotonic() * 1000 - start_ms,
-                metadata={"error": str(exc)},
-            )
+        if self.mq_enabled:
+            if not self.mq_api_key:
+                mq_meta["mq_error"] = "no api_key (NOX_MQ_LLM_API_KEY / GEMINI_API_KEY)"
+            else:
+                # Step 1: decompose
+                dec_start = time.monotonic() * 1000
+                sub_queries, decompose_err = await _mq_decompose_query(
+                    query,
+                    n=self.mq_n,
+                    model=self.mq_model,
+                    base_url=self.mq_base_url,
+                    api_key=self.mq_api_key,
+                    timeout_s=self.mq_timeout_s,
+                    session=session,
+                )
+                mq_decompose_ms = time.monotonic() * 1000 - dec_start
+                if decompose_err is not None:
+                    mq_meta["mq_error"] = decompose_err
+                    mq_meta["mq_status"] = "fallback_single"
+                elif not sub_queries:
+                    mq_meta["mq_error"] = "empty sub_queries"
+                    mq_meta["mq_status"] = "fallback_single"
+                else:
+                    mq_sub_queries = sub_queries
+                    if self.mq_debug:
+                        print(
+                            f"[MQ] decomposed in {mq_decompose_ms:.0f}ms -> {len(sub_queries)} sub-queries:",
+                            file=__import__("sys").stderr,
+                        )
+                        for i, sq in enumerate(sub_queries):
+                            print(f"[MQ]   {i+1}. {sq}", file=__import__("sys").stderr)
 
-        # Validate shape before .get() access
-        if isinstance(data, list):
-            raw_results = data
-        elif isinstance(data, dict):
-            raw_results = data.get("results", [])
+                    # Step 2: parallel retrieval for each sub-query.
+                    # API supports concurrent connections; we run them in
+                    # an asyncio.gather to minimize wall time.
+                    retrieve_start = time.monotonic() * 1000
+                    api_limit = self.mq_per_query_topk
+
+                    async def _fetch_sub(sq: str) -> List[Tuple[str, Dict[str, Any]]]:
+                        payload_sub = {"query": sq, "limit": api_limit, "hybrid": True}
+                        try:
+                            async with session.post(
+                                f"{self.api_base}/api/search",
+                                json=payload_sub,
+                                headers={"Content-Type": "application/json"},
+                            ) as r:
+                                r.raise_for_status()
+                                d = await r.json()
+                        except Exception:  # noqa: BLE001
+                            return []
+                        if isinstance(d, list):
+                            rr = d
+                        elif isinstance(d, dict):
+                            rr = d.get("results", [])
+                        else:
+                            return []
+                        out: List[Tuple[str, Dict[str, Any]]] = []
+                        for it in rr:
+                            if isinstance(it, dict):
+                                c = it.get("chunk_text") or it.get("content") or ""
+                                if c:
+                                    out.append((c, it))
+                        return out
+
+                    per_sub_results = await asyncio.gather(
+                        *[_fetch_sub(sq) for sq in sub_queries]
+                    )
+                    mq_retrieve_ms = time.monotonic() * 1000 - retrieve_start
+                    # Step 3: RRF merge + dedup
+                    merged = _mq_rrf_merge(per_sub_results, rrf_k=self.mq_rrf_k)
+                    candidates = merged
+                    api_returned = len(candidates)
+                    mq_total_returned = sum(len(r) for r in per_sub_results)
+                    mq_used_subquery_path = True
+                    mq_meta["mq_applied"] = True
+                    mq_meta["mq_status"] = "applied"
+                    mq_meta["mq_n"] = len(sub_queries)
+                    mq_meta["mq_sub_queries"] = sub_queries
+                    mq_meta["mq_per_query_topk"] = self.mq_per_query_topk
+                    mq_meta["mq_rrf_k"] = self.mq_rrf_k
+                    mq_meta["mq_total_results_pre_dedup"] = mq_total_returned
+                    mq_meta["mq_unique_after_dedup"] = api_returned
+                    if self.mq_debug:
+                        print(
+                            f"[MQ] retrieved {mq_total_returned} pre-dedup -> "
+                            f"{api_returned} unique chunks in {mq_retrieve_ms:.0f}ms",
+                            file=__import__("sys").stderr,
+                        )
+
+        # ------------------------------------------------------------------
+        # Baseline single-query path (used when MQ disabled or fell back)
+        # ------------------------------------------------------------------
+        if not mq_used_subquery_path:
+            # Decide how many results to request from the API.
+            # Phase F: overfetch then rerank locally. Other modes: request top_k.
+            # Phase KG: also needs overfetch so we have a pool to re-rank within
+            # via KG boost. If both KG and rerank are on, take the max overfetch.
+            api_limit = top_k
+            if self.reranker_enabled:
+                api_limit = max(api_limit, self.reranker_overfetch)
+            if self.kg_enabled:
+                api_limit = max(api_limit, self.kg_overfetch)
+
+            payload = {
+                "query": query,
+                "limit": api_limit,
+                "hybrid": True,
+            }
+
+            try:
+                async with session.post(
+                    f"{self.api_base}/api/search",
+                    json=payload,
+                    headers={"Content-Type": "application/json"},
+                ) as resp:
+                    resp.raise_for_status()
+                    data = await resp.json()
+            except aiohttp.ClientError as exc:
+                return SearchResult(
+                    question_id=kwargs.get("question_id", "unknown"),
+                    query=query,
+                    retrieved_memories=[],
+                    context="[nox-mem search failed: " + str(exc) + "]",
+                    search_duration_ms=time.monotonic() * 1000 - start_ms,
+                    metadata={"error": str(exc), **mq_meta},
+                )
+
+            # Validate shape before .get() access
+            if isinstance(data, list):
+                raw_results = data
+            elif isinstance(data, dict):
+                raw_results = data.get("results", [])
+            else:
+                return SearchResult(
+                    question_id=kwargs.get("question_id", "unknown"),
+                    query=query,
+                    retrieved_memories=[],
+                    context="[nox-mem returned unexpected shape]",
+                    search_duration_ms=time.monotonic() * 1000 - start_ms,
+                    metadata={"raw": str(data)[:200], **mq_meta},
+                )
+
+            # Extract candidate (chunk_text, item) pairs in API rank order.
+            candidates: List[Tuple[str, Dict[str, Any]]] = []
+            for item in raw_results:
+                if isinstance(item, dict):
+                    content = item.get("chunk_text") or item.get("content") or ""
+                    if content:
+                        candidates.append((content, item))
+
+            api_returned = len(candidates)
         else:
-            return SearchResult(
-                question_id=kwargs.get("question_id", "unknown"),
-                query=query,
-                retrieved_memories=[],
-                context="[nox-mem returned unexpected shape]",
-                search_duration_ms=time.monotonic() * 1000 - start_ms,
-                metadata={"raw": str(data)[:200]},
-            )
-
-        # Extract candidate (chunk_text, item) pairs in API rank order.
-        candidates: List[Tuple[str, Dict[str, Any]]] = []
-        for item in raw_results:
-            if isinstance(item, dict):
-                content = item.get("chunk_text") or item.get("content") or ""
-                if content:
-                    candidates.append((content, item))
-
-        api_returned = len(candidates)
+            # MQ path was used. We still need a `data` object for downstream
+            # took_ms_api lookup; set a stub so meta extraction doesn't crash.
+            data = {"took_ms": None}
 
         # ------------------------------------------------------------------
         # Phase KG (Lab Q1 #4) — 1-hop entity boost (post-RRF, pre-rerank)
@@ -1172,18 +1429,10 @@ class NoxMemAdapter(BaseAdapter):
 
         # ------------------------------------------------------------------
         # Phase F: cross-encoder rerank (graceful fallback)
-        # Phase MAP: bypass-entity protection wraps the rerank step — entity
-        # chunks (section IN ('compiled', 'frontmatter')) skip cross-encoder
-        # scoring and retain their bi-encoder rank. Reranked Set R fills the
-        # remaining slots via merge_preserving_entity_positions().
         # ------------------------------------------------------------------
         rerank_error: Optional[str] = None
         rerank_ms: Optional[float] = None
         rerank_applied = False
-        # Phase MAP telemetry
-        map_applied = False
-        map_entity_count = 0
-        map_regular_count = 0
 
         if self.reranker_enabled and candidates:
             rerank_start = time.monotonic() * 1000
@@ -1194,61 +1443,19 @@ class NoxMemAdapter(BaseAdapter):
                 rerank_error = err
             else:
                 try:
-                    if self.ma_protection_enabled:
-                        # Phase MAP — Approach A (bypass-entity).
-                        # Partition by section. We carry the original index so
-                        # we can stably preserve bi-encoder positions for Set E
-                        # at merge time.
-                        entity_indexed: List[Tuple[int, Tuple[str, Dict[str, Any]]]] = []
-                        regular_indexed: List[Tuple[int, Tuple[str, Dict[str, Any]]]] = []
-                        for idx, cand in enumerate(candidates):
-                            sec = cand[1].get("section")
-                            if sec in ENTITY_SECTION_NAMES:
-                                entity_indexed.append((idx, cand))
-                            else:
-                                regular_indexed.append((idx, cand))
-                        map_entity_count = len(entity_indexed)
-                        map_regular_count = len(regular_indexed)
-
-                        # Score only Set R via cross-encoder. If Set R is empty
-                        # (pathological: every candidate is entity), skip rerank
-                        # entirely and keep bi-encoder order.
-                        if regular_indexed:
-                            pairs = [(query, c[1][0]) for c in regular_indexed]
-                            scores = await asyncio.to_thread(
-                                model.predict,
-                                pairs,
-                                batch_size=self.reranker_batch_size,
-                                show_progress_bar=False,
-                            )
-                            scored_r = list(zip(regular_indexed, scores))
-                            scored_r.sort(key=lambda x: float(x[1]), reverse=True)
-                            reranked_regular = [pair[0] for pair in scored_r]
-                        else:
-                            reranked_regular = []
-
-                        candidates = _merge_preserving_entity_positions(
-                            entity_indexed,
-                            reranked_regular,
-                            len(candidates),
-                        )
-                        rerank_applied = True
-                        map_applied = True
-                    else:
-                        # Phase G / Phase F default — score every candidate.
-                        pairs = [(query, c[0]) for c in candidates]
-                        # CrossEncoder.predict is sync CPU/GPU work — run in a
-                        # thread to avoid blocking the asyncio loop entirely.
-                        scores = await asyncio.to_thread(
-                            model.predict,
-                            pairs,
-                            batch_size=self.reranker_batch_size,
-                            show_progress_bar=False,
-                        )
-                        scored = list(zip(candidates, scores))
-                        scored.sort(key=lambda x: float(x[1]), reverse=True)
-                        candidates = [c for c, _ in scored]
-                        rerank_applied = True
+                    pairs = [(query, c[0]) for c in candidates]
+                    # CrossEncoder.predict is sync CPU/GPU work — run in a
+                    # thread to avoid blocking the asyncio loop entirely.
+                    scores = await asyncio.to_thread(
+                        model.predict,
+                        pairs,
+                        batch_size=self.reranker_batch_size,
+                        show_progress_bar=False,
+                    )
+                    scored = list(zip(candidates, scores))
+                    scored.sort(key=lambda x: float(x[1]), reverse=True)
+                    candidates = [c for c, _ in scored]
+                    rerank_applied = True
                 except Exception as exc:  # noqa: BLE001 — fall back gracefully
                     rerank_error = (
                         f"rerank predict failed: {type(exc).__name__}: {exc}"
@@ -1281,15 +1488,17 @@ class NoxMemAdapter(BaseAdapter):
             "kg_ms": kg_ms,
             "kg_error": kg_error,
             "kg_meta": kg_meta,
-            # Phase MAP (Lab Q1 #2) telemetry — enabled?, applied?, partition sizes.
-            # `entity_count` = chunks bypassed from rerank (Set E size).
-            # `regular_count` = chunks scored by rerank (Set R size).
-            # The two sum to api_returned when MAP applies; if rerank failed
-            # (rerank_error set), map_applied stays False and counts are 0.
-            "ma_protection_enabled": self.ma_protection_enabled,
-            "ma_protection_applied": map_applied,
-            "ma_protection_entity_count": map_entity_count,
-            "ma_protection_regular_count": map_regular_count,
+            "mq_enabled": self.mq_enabled,
+            "mq_applied": mq_meta.get("mq_applied", False),
+            "mq_status": mq_meta.get("mq_status", "off" if not self.mq_enabled else "unknown"),
+            "mq_decompose_ms": mq_decompose_ms,
+            "mq_retrieve_ms": mq_retrieve_ms,
+            "mq_error": mq_meta.get("mq_error"),
+            "mq_n_actual": len(mq_sub_queries),
+            "mq_sub_queries": mq_sub_queries if self.mq_debug or mq_meta.get("mq_applied") else [],
+            "mq_total_results_pre_dedup": mq_total_returned if mq_used_subquery_path else None,
+            "mq_unique_after_dedup": api_returned if mq_used_subquery_path else None,
+            "mq_rrf_k": self.mq_rrf_k if self.mq_enabled else None,
         }
         return SearchResult(
             question_id=kwargs.get("question_id", "unknown"),
@@ -1325,6 +1534,12 @@ class NoxMemAdapter(BaseAdapter):
             "kg_min_name_len": self.kg_min_name_len,
             "kg_overfetch": self.kg_overfetch,
             "kg_db_path": self.kg_db_path,
-            "ma_protection_enabled": self.ma_protection_enabled,
-            "version": "phase-map-0.1",
+            "mq_enabled": self.mq_enabled,
+            "mq_model": self.mq_model,
+            "mq_base_url": self.mq_base_url,
+            "mq_n": self.mq_n,
+            "mq_per_query_topk": self.mq_per_query_topk,
+            "mq_rrf_k": self.mq_rrf_k,
+            "mq_timeout_s": self.mq_timeout_s,
+            "version": "phase-mq-0.1",
         }
