@@ -1,6 +1,6 @@
 # Benchmark History — Timeseries
 
-_Updated: 2026-05-28 | Rolling 30-day window_
+_Updated: 2026-05-29 | Rolling 30-day window_
 
 | Date | Overall | Pass | Fail | A2.encryption_overhead.kdf_ms | A2.export.encrypted.500chunks_3072d.archive_mb | A2.export.encrypted.500chunks_3072d.duration_ms | A2.export.plain.500chunks_3072d.archive_mb | A2.export.plain.500chunks_3072d.compression_ratio_pct | A2.export.plain.500chunks_3072d.duration_ms | A2.import.encrypted.500chunks_3072d.duration_ms | A2.import.plain.500chunks_3072d.duration_ms | A3.provider_overhead.embed.p95_abs_ms | A3.provider_overhead.llm.p95_abs_ms |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -14,5 +14,6 @@ _Updated: 2026-05-28 | Rolling 30-day window_
 | 2026-05-26 | PASS | 3 | 0 | — | 6.303545951843262 | — | 5.357946395874023 | — | 182 | — | — | — | — |
 | 2026-05-27 | PASS | 3 | 0 | — | 6.303564071655273 | — | 5.357945442199707 | — | 181 | — | — | — | — |
 | 2026-05-28 | PASS | 3 | 0 | — | 6.303546905517578 | — | 5.357946395874023 | — | 176 | — | — | — | — |
+| 2026-05-29 | PASS | 3 | 0 | — | 6.303558349609375 | — | 5.357944488525391 | — | 181 | — | — | — | — |
 
 > Full metric details in per-day `.json` files. Chart data in `timeseries.json`.
