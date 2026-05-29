@@ -1,0 +1,340 @@
+{
+  "per_metric": {
+    "F_SH": {
+      "mean": 83.88,
+      "stdev": 3.88,
+      "ci95_lo": 78.5026,
+      "ci95_hi": 89.2574,
+      "n_batches": 2,
+      "per_batch": [
+        87.76,
+        80.0
+      ]
+    },
+    "F_MH": {
+      "mean": 2.0,
+      "stdev": 0.0,
+      "ci95_lo": 2.0,
+      "ci95_hi": 2.0,
+      "n_batches": 2,
+      "per_batch": [
+        2.0,
+        2.0
+      ]
+    },
+    "F_TP": {
+      "mean": 14.165,
+      "stdev": 4.165,
+      "ci95_lo": 8.3926,
+      "ci95_hi": 19.9374,
+      "n_batches": 2,
+      "per_batch": [
+        10.0,
+        18.33
+      ]
+    },
+    "F_HL": {
+      "mean": 21.59,
+      "stdev": 1.08,
+      "ci95_lo": 20.0932,
+      "ci95_hi": 23.0868,
+      "n_batches": 2,
+      "per_batch": [
+        20.51,
+        22.67
+      ]
+    },
+    "MA_C": {
+      "mean": 82.0,
+      "stdev": 3.0,
+      "ci95_lo": 77.8422,
+      "ci95_hi": 86.1578,
+      "n_batches": 2,
+      "per_batch": [
+        79.0,
+        85.0
+      ]
+    },
+    "MA_P": {
+      "mean": 61.0,
+      "stdev": 4.0,
+      "ci95_lo": 55.4563,
+      "ci95_hi": 66.5437,
+      "n_batches": 2,
+      "per_batch": [
+        57.0,
+        65.0
+      ]
+    },
+    "MA_U": {
+      "mean": 67.4,
+      "stdev": 5.33,
+      "ci95_lo": 60.013,
+      "ci95_hi": 74.787,
+      "n_batches": 2,
+      "per_batch": [
+        62.07,
+        72.73
+      ]
+    },
+    "overall": {
+      "mean": 50.1807,
+      "stdev": 1.4586,
+      "ci95_lo": 48.1591,
+      "ci95_hi": 52.2023,
+      "n_batches": 2,
+      "per_batch": [
+        48.722,
+        51.6393
+      ]
+    },
+    "MA_composite": {
+      "mean": 70.1333,
+      "stdev": 4.11,
+      "ci95_lo": 64.4372,
+      "ci95_hi": 75.8295,
+      "n_batches": 2,
+      "per_batch": [
+        66.0233,
+        74.2433
+      ]
+    }
+  },
+  "instrumentation_summary": {
+    "mq_fired_pct": 99.92,
+    "mq_subqueries_mean_per_q": 4.0,
+    "mq_total_results_pre_dedup_mean": 38.66,
+    "mq_unique_after_dedup_mean": 28.66,
+    "composability_kg_mq_active_pct": 88.75,
+    "kg_pool_mean_per_q": 18.25,
+    "kg_queries_with_pool_pct": 88.6,
+    "kg_neighbors_found_mean": 15.37,
+    "kg_chunks_boosted_mean": 0.27,
+    "map_applied_pct": 14.52,
+    "set_e_section_mean": 0.0,
+    "set_e_kg_mean": 0.27,
+    "total_protected_mean": 0.27,
+    "queries_with_protection_pct": 14.52,
+    "n_queries": 618.0
+  },
+  "latency_p50_ms_mean": 3727.37,
+  "gates": {
+    "gate1_FMH_beats_KGMAP": {
+      "threshold": "F_MH lift \u2265 Wave B KG+MAP +4.04pp (triple must beat best Wave B combo)",
+      "actual_lift": -1.21,
+      "actual_value": 2.0,
+      "delta_vs_KGMAP": -5.25,
+      "passes": false
+    },
+    "gate2_overall_regression_bounded": {
+      "threshold": "Overall \u0394 \u2265 -1.0pp vs Phase H v2 (51.68%)",
+      "actual_delta": -1.4993,
+      "actual_value": 50.1807,
+      "passes": false
+    },
+    "gate3_MA_no_worse_than_KGMAP": {
+      "threshold": "MA composite \u0394 \u2265 Wave B KG+MAP \u22125.02pp (no further MA degradation)",
+      "actual_delta": -3.2067,
+      "actual_value": 70.1333,
+      "delta_vs_KGMAP": 1.8133,
+      "passes": true
+    },
+    "gate4_additivity_decomposition": {
+      "threshold": "informational \u2014 residual analysis only",
+      "additivity": {
+        "observed_triple_F_MH_lift": -1.21,
+        "perfect_additive_prediction": 10.44,
+        "residual_vs_perfect_additive": -11.65,
+        "pair_kgmap_plus_mq_prediction": 7.65,
+        "residual_vs_kgmap_plus_mq": -8.86,
+        "pair_kgmq_plus_map_prediction": 8.83,
+        "residual_vs_kgmq_plus_map": -10.04,
+        "memos_gap_closure_pct": -6.41
+      },
+      "passes": true
+    }
+  },
+  "gates_summary": {
+    "passed_strict": 1,
+    "passed_total": 2,
+    "total": 4,
+    "decision": "REJECT DEFAULT (1-2/4 \u2014 opt-in only, document failure mode)"
+  },
+  "deltas": {
+    "F_MH_lift_vs_H2": -1.21,
+    "overall_delta_vs_H2": -1.4993,
+    "MA_composite_delta_vs_H2": -3.2067
+  },
+  "per_batch": [
+    {
+      "batch": "004",
+      "run_dir": "/root/.openclaw/evermembench-runs/phaseTriple-004-1780091562",
+      "eval_file": "/root/.openclaw/evermembench-runs/phaseTriple-004-1780091562/wave-C-Triple-004.json",
+      "search_file": "/root/.openclaw/evermembench-runs/phaseTriple-004-1780091562/search-wave-C-Triple-004.json",
+      "categories": {
+        "overall": 48.722044728434504,
+        "F_HL": 20.51,
+        "F_MH": 2.0,
+        "F_SH": 87.76,
+        "F_TP": 10.0,
+        "MA_C": 79.0,
+        "MA_P": 57.0,
+        "MA_U": 62.07,
+        "P_Skill": 48.89,
+        "P_Style": 37.84,
+        "P_Title": 63.27
+      },
+      "instrumentation": {
+        "n_queries": 626,
+        "mq_status_counter": {
+          "applied": 626
+        },
+        "mq_fired_queries": 626,
+        "mq_fired_pct": 100.0,
+        "mq_subqueries_total": 2505,
+        "mq_subqueries_mean_per_q": 4.0,
+        "mq_total_results_pre_dedup_sum": 24191,
+        "mq_unique_after_dedup_sum": 18116,
+        "mq_total_results_pre_dedup_mean": 38.64,
+        "mq_unique_after_dedup_mean": 28.94,
+        "composability_kg_mq_active_pct": 94.89,
+        "kg_pool_total": 10291,
+        "kg_pool_mean_per_q": 16.44,
+        "kg_queries_with_pool": 591,
+        "kg_queries_with_pool_pct": 94.41,
+        "kg_neighbors_found_mean": 16.68,
+        "kg_chunks_boosted_mean": 0.36,
+        "map_applied_count": 113,
+        "map_applied_pct": 18.05,
+        "kg_anchor_active": 626,
+        "set_e_section_mean": 0.0,
+        "set_e_kg_mean": 0.36,
+        "total_protected_mean": 0.36,
+        "queries_with_protection": 113,
+        "queries_with_protection_pct": 18.05
+      },
+      "latency_p50_ms": 3751.432232528925
+    },
+    {
+      "batch": "005",
+      "run_dir": "/root/.openclaw/evermembench-runs/phaseTriple-005-1780092632",
+      "eval_file": "/root/.openclaw/evermembench-runs/phaseTriple-005-1780092632/wave-C-Triple-005.json",
+      "search_file": "/root/.openclaw/evermembench-runs/phaseTriple-005-1780092632/search-wave-C-Triple-005.json",
+      "categories": {
+        "overall": 51.63934426229508,
+        "F_HL": 22.67,
+        "F_MH": 2.0,
+        "F_SH": 80.0,
+        "F_TP": 18.33,
+        "MA_C": 85.0,
+        "MA_P": 65.0,
+        "MA_U": 72.73,
+        "P_Skill": 41.86,
+        "P_Style": 42.86,
+        "P_Title": 53.06
+      },
+      "instrumentation": {
+        "n_queries": 610,
+        "mq_status_counter": {
+          "applied": 609,
+          "fallback_single": 1
+        },
+        "mq_fired_queries": 609,
+        "mq_fired_pct": 99.84,
+        "mq_subqueries_total": 2436,
+        "mq_subqueries_mean_per_q": 3.99,
+        "mq_total_results_pre_dedup_sum": 23588,
+        "mq_unique_after_dedup_sum": 17319,
+        "mq_total_results_pre_dedup_mean": 38.67,
+        "mq_unique_after_dedup_mean": 28.39,
+        "composability_kg_mq_active_pct": 82.62,
+        "kg_pool_total": 12229,
+        "kg_pool_mean_per_q": 20.05,
+        "kg_queries_with_pool": 505,
+        "kg_queries_with_pool_pct": 82.79,
+        "kg_neighbors_found_mean": 14.05,
+        "kg_chunks_boosted_mean": 0.18,
+        "map_applied_count": 67,
+        "map_applied_pct": 10.98,
+        "kg_anchor_active": 610,
+        "set_e_section_mean": 0.0,
+        "set_e_kg_mean": 0.18,
+        "total_protected_mean": 0.18,
+        "queries_with_protection": 67,
+        "queries_with_protection_pct": 10.98
+      },
+      "latency_p50_ms": 3703.3077569901943
+    }
+  ],
+  "baselines": {
+    "phase_h2": {
+      "overall": 51.68,
+      "F_SH": null,
+      "F_MH": 3.21,
+      "F_HL": null,
+      "F_TP": null,
+      "MA_C": 84.6,
+      "MA_P": 65.4,
+      "MA_U": 70.03,
+      "MA_composite": 73.34
+    },
+    "kg_standalone": {
+      "overall_lift": 0.12,
+      "F_MH_lift": 2.81,
+      "MA_composite_lift": 0.44
+    },
+    "mq_standalone": {
+      "overall_lift": -1.12,
+      "F_MH_lift": 3.61,
+      "MA_composite_lift": -1.38
+    },
+    "map_standalone": {
+      "overall_lift": -1.24,
+      "F_MH_lift": 4.02,
+      "F_HL_lift": 4.34,
+      "MA_composite_lift": -6.55
+    },
+    "wave_b_kgmq": {
+      "F_MH_lift": 4.81,
+      "predicted_perfect_additive_F_MH": 6.42,
+      "residual_additivity_F_MH": -1.61,
+      "overall_lift": -1.5,
+      "MA_composite_lift": -1.92
+    },
+    "wave_b_kgmap": {
+      "F_MH_lift": 4.04,
+      "predicted_perfect_additive_F_MH": 6.83,
+      "residual_additivity_F_MH": -2.79,
+      "overall_lift": -0.92,
+      "MA_composite_lift": -5.02
+    },
+    "phase_g": {
+      "F_MH_lift": 1.61,
+      "MA_composite_lift": -3.55,
+      "p50_latency_ms": null
+    },
+    "memos_ref": {
+      "overall": 42.55,
+      "F_MH_lift_vs_H2": 18.88,
+      "F_MH": 22.09
+    }
+  },
+  "_meta": {
+    "intended_batches": 5,
+    "completed_batches": 2,
+    "completed_batch_ids": [
+      "004",
+      "005"
+    ],
+    "failed_batches": {
+      "010": "partial \u2014 search done, answer stage hit OpenAI insufficient_quota mid-stage; manually killed after 8 retries",
+      "011": "preflight billing check refused start (preflight worked as designed)",
+      "016": "preflight billing check refused start (preflight worked as designed)"
+    },
+    "partial_reason": "OpenAI key OPENAI_API_KEY exhausted hard quota (type=insufficient_quota) between batch 005 answer completion and batch 010 answer stage",
+    "verdict_caveat": "REJECT DEFAULT verdict computed on 2/5 batches; per [[single-batch-gates-unreliable-5x-overstate]] cannot rule magnitude \u2014 but mechanism firing telemetry (1236 queries) IS robust",
+    "recommended_next": "Re-run 5-batch with fresh OpenAI billing top-up (~$5-7) to confirm; or pivot to KG+MQ + orthogonal-stage (answer-stage rerank/rewrite) per Wave C lesson #3",
+    "pr_number_target": null,
+    "wave_predecessor": "Wave B PR #389 (KG+MQ) + PR #390 (KG+MAP)"
+  }
+}
