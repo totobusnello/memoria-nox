@@ -1,0 +1,225 @@
+{
+  "aggregate": {
+    "per_batch": {
+      "004": {
+        "MA_C": 75.0,
+        "MA_P": 58.0,
+        "MA_U": 46.55,
+        "P_Style": 45.95,
+        "P_Skill": 53.33,
+        "P_Title": 55.1,
+        "F_SH": 87.76,
+        "F_MH": 8.0,
+        "F_TP": 13.33,
+        "F_HL": 23.08,
+        "Overall": 48.08
+      },
+      "005": {
+        "MA_C": 87.0,
+        "MA_P": 61.0,
+        "MA_U": 70.91,
+        "P_Style": 46.43,
+        "P_Skill": 44.19,
+        "P_Title": 53.06,
+        "F_SH": 80.0,
+        "F_MH": 6.0,
+        "F_TP": 18.33,
+        "F_HL": 17.33,
+        "Overall": 51.15
+      },
+      "010": {
+        "MA_C": 80.0,
+        "MA_P": 63.0,
+        "MA_U": 58.62,
+        "P_Style": 45.16,
+        "P_Skill": 52.17,
+        "P_Title": 58.0,
+        "F_SH": 78.0,
+        "F_MH": 8.0,
+        "F_TP": 11.67,
+        "F_HL": 38.46,
+        "Overall": 52.01
+      },
+      "011": {
+        "MA_C": 76.0,
+        "MA_P": 67.0,
+        "MA_U": 62.96,
+        "P_Style": 39.58,
+        "P_Skill": 48.84,
+        "P_Title": 66.0,
+        "F_SH": 78.0,
+        "F_MH": 8.0,
+        "F_TP": 16.67,
+        "F_HL": 24.36,
+        "Overall": 50.87
+      },
+      "016": {
+        "MA_C": 76.0,
+        "MA_P": 66.0,
+        "MA_U": 54.84,
+        "P_Style": 40.54,
+        "P_Skill": 47.73,
+        "P_Title": 50.0,
+        "F_SH": 79.17,
+        "F_MH": 6.12,
+        "F_TP": 20.0,
+        "F_HL": 31.65,
+        "Overall": 50.08
+      }
+    },
+    "categories": {
+      "F_SH": {
+        "n": 5,
+        "mean": 80.59,
+        "stdev": 4.1,
+        "ci_lower_95": 75.5,
+        "ci_upper_95": 85.67
+      },
+      "F_MH": {
+        "n": 5,
+        "mean": 7.22,
+        "stdev": 1.06,
+        "ci_lower_95": 5.9,
+        "ci_upper_95": 8.54
+      },
+      "F_TP": {
+        "n": 5,
+        "mean": 16.0,
+        "stdev": 3.46,
+        "ci_lower_95": 11.71,
+        "ci_upper_95": 20.29
+      },
+      "F_HL": {
+        "n": 5,
+        "mean": 26.98,
+        "stdev": 8.2,
+        "ci_lower_95": 16.8,
+        "ci_upper_95": 37.15
+      },
+      "MA_C": {
+        "n": 5,
+        "mean": 78.8,
+        "stdev": 4.97,
+        "ci_lower_95": 72.63,
+        "ci_upper_95": 84.97
+      },
+      "MA_P": {
+        "n": 5,
+        "mean": 63.0,
+        "stdev": 3.67,
+        "ci_lower_95": 58.44,
+        "ci_upper_95": 67.56
+      },
+      "MA_U": {
+        "n": 5,
+        "mean": 58.78,
+        "stdev": 9.08,
+        "ci_lower_95": 47.5,
+        "ci_upper_95": 70.05
+      },
+      "P_Style": {
+        "n": 5,
+        "mean": 43.53,
+        "stdev": 3.22,
+        "ci_lower_95": 39.53,
+        "ci_upper_95": 47.53
+      },
+      "P_Skill": {
+        "n": 5,
+        "mean": 49.25,
+        "stdev": 3.65,
+        "ci_lower_95": 44.72,
+        "ci_upper_95": 53.78
+      },
+      "P_Title": {
+        "n": 5,
+        "mean": 56.43,
+        "stdev": 6.09,
+        "ci_lower_95": 48.87,
+        "ci_upper_95": 64.0
+      },
+      "Overall": {
+        "n": 5,
+        "mean": 50.44,
+        "stdev": 1.49,
+        "ci_lower_95": 48.59,
+        "ci_upper_95": 52.28
+      }
+    },
+    "batches_used": [
+      "004",
+      "005",
+      "010",
+      "011",
+      "016"
+    ]
+  },
+  "gate": {
+    "gate_MA_C": {
+      "baseline_phaseH_v2": 84.6,
+      "phaseMAP_mean": 78.8,
+      "phaseMAP_ci_lower_95": 72.63,
+      "delta_pp": -5.8,
+      "strict_pass": false,
+      "relaxed_pass": false,
+      "verdict": "FAIL"
+    },
+    "gate_MA_P": {
+      "baseline_phaseH_v2": 65.4,
+      "phaseMAP_mean": 63.0,
+      "phaseMAP_ci_lower_95": 58.44,
+      "delta_pp": -2.4,
+      "strict_pass": false,
+      "relaxed_pass": false,
+      "verdict": "FAIL"
+    },
+    "gate_MA_U": {
+      "baseline_phaseH_v2": 70.22,
+      "phaseMAP_mean": 58.78,
+      "phaseMAP_ci_lower_95": 47.5,
+      "delta_pp": -11.44,
+      "strict_pass": false,
+      "relaxed_pass": false,
+      "verdict": "FAIL"
+    },
+    "gate_MA_composite": {
+      "baseline_phaseH_v2_ma_mean": 73.41,
+      "phaseMAP_ma_mean": 66.86,
+      "delta_pp": -6.55,
+      "pass": false
+    },
+    "gate_F_MH_gain": {
+      "baseline_phaseH_v2": 3.2,
+      "phaseMAP_mean": 7.22,
+      "actual_gain_pp": 4.02,
+      "phase_G_gain_target_pp": 1.61,
+      "pass": true
+    },
+    "gate_F_HL_gain": {
+      "baseline_phaseH_v2": 22.64,
+      "phaseMAP_mean": 26.98,
+      "actual_gain_pp": 4.34,
+      "phase_G_gain_target_pp": 2.58,
+      "pass": true
+    },
+    "gate_F_TP_gain": {
+      "baseline_phaseH_v2": 15.0,
+      "phaseMAP_mean": 16.0,
+      "actual_gain_pp": 1.0,
+      "phase_G_gain_target_pp": 2.0,
+      "pass": false
+    },
+    "gate_overall": {
+      "baseline_phaseH_v2": 51.68,
+      "phaseMAP_mean": 50.44,
+      "delta_pp": -1.24,
+      "tolerance_pp": -0.5,
+      "pass": false
+    },
+    "gate_latency": {
+      "note": "informational only \u2014 see search_results metadata.rerank_ms per query",
+      "pass": true
+    },
+    "final_verdict": "SHIP-OPT-IN-OR-REJECT"
+  }
+}
