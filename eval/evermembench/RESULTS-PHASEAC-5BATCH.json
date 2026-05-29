@@ -1,0 +1,239 @@
+{
+  "per_batch": {
+    "004": {
+      "overall": 31.948881789137378,
+      "MA_C": 28.0,
+      "MA_P": 24.0,
+      "MA_U": 13.793103448275861,
+      "P_Style": 13.513513513513514,
+      "P_Skill": 24.444444444444443,
+      "P_Title": 40.816326530612244,
+      "F_SH": 87.75510204081633,
+      "F_MH": 6.0,
+      "F_TP": 18.333333333333332,
+      "F_HL": 60.256410256410255
+    },
+    "005": {
+      "overall": 35.90163934426229,
+      "MA_C": 36.0,
+      "MA_P": 26.0,
+      "MA_U": 16.363636363636363,
+      "P_Style": 25.0,
+      "P_Skill": 30.232558139534884,
+      "P_Title": 42.857142857142854,
+      "F_SH": 78.0,
+      "F_MH": 2.0,
+      "F_TP": 13.333333333333334,
+      "F_HL": 78.66666666666667
+    },
+    "010": {
+      "overall": 50.7223113964687,
+      "MA_C": 84.0,
+      "MA_P": 64.0,
+      "MA_U": 53.44827586206897,
+      "P_Style": 48.38709677419355,
+      "P_Skill": 50.0,
+      "P_Title": 56.0,
+      "F_SH": 76.0,
+      "F_MH": 0.0,
+      "F_TP": 18.333333333333332,
+      "F_HL": 28.205128205128204
+    },
+    "011": {
+      "overall": 50.86887835703001,
+      "MA_C": 83.0,
+      "MA_P": 66.0,
+      "MA_U": 74.07407407407408,
+      "P_Style": 33.333333333333336,
+      "P_Skill": 48.83720930232558,
+      "P_Title": 56.0,
+      "F_SH": 88.0,
+      "F_MH": 6.0,
+      "F_TP": 11.666666666666666,
+      "F_HL": 17.94871794871795
+    },
+    "016": {
+      "overall": 40.22257551669316,
+      "MA_C": 82.0,
+      "MA_P": 57.0,
+      "MA_U": 16.129032258064516,
+      "P_Style": 18.91891891891892,
+      "P_Skill": 25.0,
+      "P_Title": 32.0,
+      "F_SH": 79.16666666666667,
+      "F_MH": 4.081632653061225,
+      "F_TP": 18.333333333333332,
+      "F_HL": 24.050632911392405
+    }
+  },
+  "aggregate": {
+    "F_HL": {
+      "mean": 41.8255111976631,
+      "stdev": 26.308416729313844,
+      "sem": 11.765481637427687,
+      "ci_lower_95": 9.16453417216384,
+      "ci_upper_95": 74.48648822316235,
+      "n": 5
+    },
+    "F_MH": {
+      "mean": 3.6163265306122447,
+      "stdev": 2.6110647844550714,
+      "sem": 1.1677036703394752,
+      "ci_lower_95": 0.37478114174986166,
+      "ci_upper_95": 6.857871919474627,
+      "n": 5
+    },
+    "F_SH": {
+      "mean": 81.7843537414966,
+      "stdev": 5.677069242442649,
+      "sem": 2.5388625478149995,
+      "ci_lower_95": 74.73647130876216,
+      "ci_upper_95": 88.83223617423104,
+      "n": 5
+    },
+    "F_TP": {
+      "mean": 16.0,
+      "stdev": 3.248931448269654,
+      "sem": 1.4529663145135576,
+      "ci_lower_95": 11.966565510910364,
+      "ci_upper_95": 20.033434489089636,
+      "n": 5
+    },
+    "MA_C": {
+      "mean": 62.6,
+      "stdev": 28.085583490467133,
+      "sem": 12.560254774486065,
+      "ci_lower_95": 27.732732746026684,
+      "ci_upper_95": 97.46726725397332,
+      "n": 5
+    },
+    "MA_P": {
+      "mean": 47.4,
+      "stdev": 20.731618364228105,
+      "sem": 9.271461589199406,
+      "ci_lower_95": 21.662422628382448,
+      "ci_upper_95": 73.13757737161755,
+      "n": 5
+    },
+    "MA_U": {
+      "mean": 34.761624401223955,
+      "stdev": 27.477254078866036,
+      "sem": 12.288201591075564,
+      "ci_lower_95": 0.6495767843981923,
+      "ci_upper_95": 68.87367201804972,
+      "n": 5
+    },
+    "P_Skill": {
+      "mean": 35.70284237726098,
+      "stdev": 12.729362505830085,
+      "sem": 5.6927439746546264,
+      "ci_lower_95": 19.899785103619735,
+      "ci_upper_95": 51.50589965090222,
+      "n": 5
+    },
+    "P_Style": {
+      "mean": 27.830572507991867,
+      "stdev": 13.64971570467551,
+      "sem": 6.104338437840176,
+      "ci_lower_95": 10.88492900454754,
+      "ci_upper_95": 44.77621601143619,
+      "n": 5
+    },
+    "P_Title": {
+      "mean": 45.53469387755102,
+      "stdev": 10.38828032832793,
+      "sem": 4.645780196693017,
+      "ci_lower_95": 32.63800805153121,
+      "ci_upper_95": 58.43137970357083,
+      "n": 5
+    },
+    "overall": {
+      "mean": 41.93285728071831,
+      "stdev": 8.60359512725702,
+      "sem": 3.8476447110865295,
+      "ci_lower_95": 31.251795562742103,
+      "ci_upper_95": 52.613918998694515,
+      "n": 5
+    }
+  },
+  "gates": {
+    "A_overall_vs_phaseHv2": {
+      "metric": "overall",
+      "baseline": 51.68,
+      "current": 41.93285728071831,
+      "ci_lower_95": 31.251795562742103,
+      "delta": -9.74714271928169,
+      "verdict": "FAIL",
+      "description": "Overall \u2265 Phase H v2 51.68% (cross-backbone parity)"
+    },
+    "B_F_MH_vs_phaseG": {
+      "metric": "F_MH",
+      "baseline": 6.83,
+      "current": 3.6163265306122447,
+      "ci_lower_95": 0.37478114174986166,
+      "delta_vs_phaseG_gemini": -3.2136734693877553,
+      "delta_vs_phaseH_gpt4mini": 0.4063265306122448,
+      "verdict": "PASS",
+      "description": "F_MH \u2265 Phase H v2 3.21% (cross-backbone bar; spec gate references Phase G 6.83% Gemini for informational comparison only)"
+    },
+    "C_MA_mean_vs_phaseHv2": {
+      "metric": "MA_C/P/U_mean",
+      "baseline_phaseHv2": 73.34333333333333,
+      "baseline_phaseD_gemini": 83.14,
+      "current": 48.25387480040799,
+      "delta_vs_phaseHv2": -25.08945853292534,
+      "delta_vs_phaseD": -34.88612519959201,
+      "verdict": "FAIL",
+      "description": "MA_C/P/U mean \u2265 Phase H v2 baseline (no MA regression, -0.5pp tolerance)"
+    },
+    "D_activation_rate": {
+      "metric": "activation_rate",
+      "current": 44.9855815443768,
+      "target_band": "10\u201360%",
+      "verdict": "PASS",
+      "description": "Activation rate within 10\u201360% audit band (spec \u00a77.1: too aggressive >60% or too conservative <10%)"
+    }
+  },
+  "routing": {
+    "004": {
+      "total": 626,
+      "multi_hop": 70,
+      "multi_hop_pct": 11.2,
+      "factual": 100,
+      "rerank_applied": 70,
+      "rerank_skipped": 556
+    },
+    "005": {
+      "total": 610,
+      "multi_hop": 66,
+      "multi_hop_pct": 10.8,
+      "factual": 84,
+      "rerank_applied": 66,
+      "rerank_skipped": 544
+    },
+    "010": {
+      "total": 623,
+      "multi_hop": 443,
+      "multi_hop_pct": 71.1,
+      "factual": 179,
+      "rerank_applied": 443,
+      "rerank_skipped": 180
+    },
+    "011": {
+      "total": 633,
+      "multi_hop": 509,
+      "multi_hop_pct": 80.4,
+      "factual": 124,
+      "rerank_applied": 509,
+      "rerank_skipped": 124
+    },
+    "016": {
+      "total": 629,
+      "multi_hop": 316,
+      "multi_hop_pct": 50.2,
+      "factual": 109,
+      "rerank_applied": 316,
+      "rerank_skipped": 313
+    }
+  }
+}
