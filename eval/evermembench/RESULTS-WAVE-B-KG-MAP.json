@@ -1,0 +1,368 @@
+{
+  "per_metric": {
+    "F_SH": {
+      "mean": 82.186,
+      "stdev": 3.9246,
+      "ci95_lo": 78.7459,
+      "ci95_hi": 85.6261,
+      "n_batches": 5,
+      "per_batch": [
+        87.76,
+        80.0,
+        78.0,
+        86.0,
+        79.17
+      ]
+    },
+    "F_MH": {
+      "mean": 7.248,
+      "stdev": 3.3211,
+      "ci95_lo": 4.3369,
+      "ci95_hi": 10.1591,
+      "n_batches": 5,
+      "per_batch": [
+        6.0,
+        4.0,
+        4.0,
+        10.0,
+        12.24
+      ]
+    },
+    "F_TP": {
+      "mean": 16.0,
+      "stdev": 2.2618,
+      "ci95_lo": 14.0175,
+      "ci95_hi": 17.9825,
+      "n_batches": 5,
+      "per_batch": [
+        13.33,
+        16.67,
+        15.0,
+        15.0,
+        20.0
+      ]
+    },
+    "F_HL": {
+      "mean": 28.022,
+      "stdev": 6.4117,
+      "ci95_lo": 22.4019,
+      "ci95_hi": 33.6421,
+      "n_batches": 5,
+      "per_batch": [
+        25.64,
+        20.0,
+        38.46,
+        24.36,
+        31.65
+      ]
+    },
+    "MA_C": {
+      "mean": 79.2,
+      "stdev": 5.4918,
+      "ci95_lo": 74.3862,
+      "ci95_hi": 84.0138,
+      "n_batches": 5,
+      "per_batch": [
+        74.0,
+        88.0,
+        82.0,
+        73.0,
+        79.0
+      ]
+    },
+    "MA_P": {
+      "mean": 65.2,
+      "stdev": 2.1354,
+      "ci95_lo": 63.3282,
+      "ci95_hi": 67.0718,
+      "n_batches": 5,
+      "per_batch": [
+        64.0,
+        62.0,
+        67.0,
+        68.0,
+        65.0
+      ]
+    },
+    "MA_U": {
+      "mean": 60.572,
+      "stdev": 11.0475,
+      "ci95_lo": 50.8884,
+      "ci95_hi": 70.2556,
+      "n_batches": 5,
+      "per_batch": [
+        46.55,
+        80.0,
+        56.9,
+        62.96,
+        56.45
+      ]
+    },
+    "overall": {
+      "mean": 51.0138,
+      "stdev": 1.1773,
+      "ci95_lo": 49.9818,
+      "ci95_hi": 52.0458,
+      "n_batches": 5,
+      "per_batch": [
+        49.2013,
+        51.4754,
+        52.809,
+        51.0269,
+        50.5564
+      ]
+    },
+    "MA_composite": {
+      "mean": 68.324,
+      "stdev": 4.8666,
+      "ci95_lo": 64.0582,
+      "ci95_hi": 72.5898,
+      "n_batches": 5,
+      "per_batch": [
+        61.5167,
+        76.6667,
+        68.6333,
+        67.9867,
+        66.8167
+      ]
+    }
+  },
+  "instrumentation_summary": {
+    "applied_pct": 16.74,
+    "set_e_section_mean": 0.0,
+    "set_e_kg_mean": 0.33,
+    "total_protected_mean": 0.33,
+    "kg_pool_size_mean": 19.76,
+    "queries_with_kg_pool": 566.0,
+    "queries_with_protected": 104.6,
+    "n_queries": 624.2
+  },
+  "latency_p50_ms_mean": 5727.96,
+  "gates": {
+    "gate1_MA_recovery": {
+      "threshold": "\u0394 \u2265 -1.0pp vs Phase H v2 baseline (73.34%)",
+      "actual_delta": -5.016,
+      "actual_value": 68.324,
+      "passes": false,
+      "vs_MAP_standalone_delta": 1.534
+    },
+    "gate2_FMH_preservation": {
+      "threshold": "\u0394 \u2265 +4.02pp vs Phase H v2 baseline",
+      "actual_delta": 4.038,
+      "actual_value": 7.248,
+      "passes": true
+    },
+    "gate3_overall_tolerance": {
+      "threshold": "\u0394 \u2265 -1.5pp vs Phase H v2 baseline (51.68%)",
+      "actual_delta": -0.6662,
+      "actual_value": 51.0138,
+      "passes": true
+    },
+    "gate4_latency": {
+      "threshold": "p50 \u2264 1.2\u00d7 Phase G rerank + KG overhead (informational)",
+      "actual_p50_ms": 5727.96,
+      "passes": true
+    }
+  },
+  "gates_summary": {
+    "passed": 3,
+    "total": 4,
+    "verdict": "PARTIAL: see gates"
+  },
+  "deltas": {
+    "MA_composite_delta_vs_H2": -5.016,
+    "F_MH_delta_vs_H2": 4.038,
+    "overall_delta_vs_H2": -0.6662
+  },
+  "per_batch": [
+    {
+      "batch": "004",
+      "run_dir": "/root/.openclaw/evermembench-runs/phaseKGMAP-004-1780076382",
+      "eval_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-004-1780076382/wave-B-KGMAP-004.json",
+      "search_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-004-1780076382/search-wave-B-KGMAP-004.json",
+      "categories": {
+        "overall": 49.201277955271564,
+        "F_HL": 25.64,
+        "F_MH": 6.0,
+        "F_SH": 87.76,
+        "F_TP": 13.33,
+        "MA_C": 74.0,
+        "MA_P": 64.0,
+        "MA_U": 46.55,
+        "P_Skill": 55.56,
+        "P_Style": 51.35,
+        "P_Title": 51.02
+      },
+      "instrumentation": {
+        "n_queries": 626,
+        "applied_count": 99,
+        "applied_pct": 15.81,
+        "kg_anchor_active": 625,
+        "set_e_section_mean": 0.0,
+        "set_e_kg_mean": 0.31,
+        "total_protected_mean": 0.31,
+        "kg_pool_size_mean": 16.34,
+        "queries_with_kg_pool": 590,
+        "queries_with_protected": 99
+      },
+      "latency_p50_ms": 5117.603172004223
+    },
+    {
+      "batch": "005",
+      "run_dir": "/root/.openclaw/evermembench-runs/phaseKGMAP-005-1780078122",
+      "eval_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-005-1780078122/wave-B-KGMAP-005.json",
+      "search_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-005-1780078122/search-wave-B-KGMAP-005.json",
+      "categories": {
+        "overall": 51.47540983606558,
+        "F_HL": 20.0,
+        "F_MH": 4.0,
+        "F_SH": 80.0,
+        "F_TP": 16.67,
+        "MA_C": 88.0,
+        "MA_P": 62.0,
+        "MA_U": 80.0,
+        "P_Skill": 37.21,
+        "P_Style": 50.0,
+        "P_Title": 46.94
+      },
+      "instrumentation": {
+        "n_queries": 610,
+        "applied_count": 89,
+        "applied_pct": 14.59,
+        "kg_anchor_active": 609,
+        "set_e_section_mean": 0.0,
+        "set_e_kg_mean": 0.31,
+        "total_protected_mean": 0.31,
+        "kg_pool_size_mean": 20.0,
+        "queries_with_kg_pool": 504,
+        "queries_with_protected": 89
+      },
+      "latency_p50_ms": 6450.657496005297
+    },
+    {
+      "batch": "010",
+      "run_dir": "/root/.openclaw/evermembench-runs/phaseKGMAP-010-1780080032",
+      "eval_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-010-1780080032/wave-B-KGMAP-010.json",
+      "search_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-010-1780080032/search-wave-B-KGMAP-010.json",
+      "categories": {
+        "overall": 52.80898876404494,
+        "F_HL": 38.46,
+        "F_MH": 4.0,
+        "F_SH": 78.0,
+        "F_TP": 15.0,
+        "MA_C": 82.0,
+        "MA_P": 67.0,
+        "MA_U": 56.9,
+        "P_Skill": 58.7,
+        "P_Style": 41.94,
+        "P_Title": 54.0
+      },
+      "instrumentation": {
+        "n_queries": 623,
+        "applied_count": 124,
+        "applied_pct": 19.9,
+        "kg_anchor_active": 621,
+        "set_e_section_mean": 0.0,
+        "set_e_kg_mean": 0.4,
+        "total_protected_mean": 0.4,
+        "kg_pool_size_mean": 21.49,
+        "queries_with_kg_pool": 600,
+        "queries_with_protected": 124
+      },
+      "latency_p50_ms": 6164.217177033424
+    },
+    {
+      "batch": "011",
+      "run_dir": "/root/.openclaw/evermembench-runs/phaseKGMAP-011-1780082378",
+      "eval_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-011-1780082378/wave-B-KGMAP-011.json",
+      "search_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-011-1780082378/search-wave-B-KGMAP-011.json",
+      "categories": {
+        "overall": 51.026856240126385,
+        "F_HL": 24.36,
+        "F_MH": 10.0,
+        "F_SH": 86.0,
+        "F_TP": 15.0,
+        "MA_C": 73.0,
+        "MA_P": 68.0,
+        "MA_U": 62.96,
+        "P_Skill": 46.51,
+        "P_Style": 35.42,
+        "P_Title": 70.0
+      },
+      "instrumentation": {
+        "n_queries": 633,
+        "applied_count": 139,
+        "applied_pct": 21.96,
+        "kg_anchor_active": 632,
+        "set_e_section_mean": 0.0,
+        "set_e_kg_mean": 0.38,
+        "total_protected_mean": 0.38,
+        "kg_pool_size_mean": 24.28,
+        "queries_with_kg_pool": 611,
+        "queries_with_protected": 139
+      },
+      "latency_p50_ms": 5290.535659015179
+    },
+    {
+      "batch": "016",
+      "run_dir": "/root/.openclaw/evermembench-runs/phaseKGMAP-016-1780084545",
+      "eval_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-016-1780084545/wave-B-KGMAP-016.json",
+      "search_file": "/root/.openclaw/evermembench-runs/phaseKGMAP-016-1780084545/search-wave-B-KGMAP-016.json",
+      "categories": {
+        "overall": 50.5564387917329,
+        "F_HL": 31.65,
+        "F_MH": 12.24,
+        "F_SH": 79.17,
+        "F_TP": 20.0,
+        "MA_C": 79.0,
+        "MA_P": 65.0,
+        "MA_U": 56.45,
+        "P_Skill": 45.45,
+        "P_Style": 40.54,
+        "P_Title": 46.0
+      },
+      "instrumentation": {
+        "n_queries": 629,
+        "applied_count": 72,
+        "applied_pct": 11.45,
+        "kg_anchor_active": 628,
+        "set_e_section_mean": 0.0,
+        "set_e_kg_mean": 0.23,
+        "total_protected_mean": 0.23,
+        "kg_pool_size_mean": 16.7,
+        "queries_with_kg_pool": 525,
+        "queries_with_protected": 72
+      },
+      "latency_p50_ms": 5616.774406015873
+    }
+  ],
+  "baselines": {
+    "phase_h2": {
+      "overall": 51.68,
+      "F_SH": null,
+      "F_MH": 3.21,
+      "F_HL": null,
+      "F_TP": null,
+      "MA_C": 84.6,
+      "MA_P": 65.4,
+      "MA_U": 70.03,
+      "MA_composite": 73.34
+    },
+    "map_standalone": {
+      "overall": 50.44,
+      "F_MH_lift": 4.02,
+      "F_HL_lift": 4.34,
+      "MA_composite_lift": -6.55
+    },
+    "kg_sparse": {
+      "overall_lift": 0.12,
+      "F_MH_lift": 2.81,
+      "MA_composite_lift": 0.44
+    },
+    "phase_g": {
+      "F_MH_lift": 1.61,
+      "MA_composite_lift": -3.55,
+      "p50_latency_ms": null
+    }
+  }
+}

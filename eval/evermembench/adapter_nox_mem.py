@@ -70,12 +70,23 @@ Modes:
     NOX_ADAPTER_MODE=phaseF    -> phaseB ingest + cross-encoder rerank in search
     NOX_ADAPTER_MODE=phaseKG   -> phaseB ingest + KG 1-hop entity boost in search
     NOX_ADAPTER_MODE=phaseMQ   -> phaseB ingest + multi-query expansion (decompose)
+    NOX_ADAPTER_MODE=phaseMAP  -> phaseB ingest + rerank with bypass-entity (MA-protection
+                                  Approach A from PR #386); chunks tagged section IN
+                                  ('compiled','frontmatter') skip cross-encoder and keep
+                                  their bi-encoder position.
+    NOX_ADAPTER_MODE=phaseKGMAP -> phaseB ingest + KG 1-hop boost + cross-encoder rerank +
+                                   MA-protection extended with KG anchor (Wave B
+                                   composability). Bypass criterion becomes
+                                   section IN ('compiled','frontmatter')
+                                   OR chunk_id IN kg_evidence_chunks_for_query_entities.
+                                   Closes corpus mismatch on chat-only corpora.
 
 Environment variables:
     NOX_API_BASE              — nox-mem API base URL (default: http://127.0.0.1:18802)
     NOX_DB_PATH               — per-batch DB path override (REQUIRED for isolation)
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
-    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG" / "phaseMQ"
+    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG"
+                                / "phaseMQ" / "phaseMAP" / "phaseKGMAP"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
     NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
@@ -88,6 +99,19 @@ Environment variables:
     NOX_KG_MIN_NAME_LEN       — int, minimum entity name length to use in regex
                                 extraction (default: 3) — avoids matching common tokens
                                 like "a", "of", "is" that may be entity names in noisy KGs.
+    NOX_MA_PROTECTION_ENABLED — "1" to enable MA-protection bypass-entity in rerank
+                                (env override; default-on for phaseMAP / phaseKGMAP).
+                                When set, chunks whose `section` is in ENTITY_SECTION_NAMES
+                                ('compiled', 'frontmatter') retain their bi-encoder rank
+                                instead of being shuffled by the cross-encoder.
+    NOX_MA_PROTECTION_KG_ANCHOR — "1" to extend bypass criterion with KG evidence chunks
+                                for query-mentioned entities (Wave B composability fix
+                                for chat-only corpora where Set E = empty). Default-on
+                                for phaseKGMAP. Requires NOX_KG_PATH_ENABLED active.
+    NOX_MA_PROTECTION_MAX     — int, maximum number of protected chunks per query
+                                (caps Set P to avoid degenerate "protect everything"
+                                cases when query mentions a high-degree hub entity).
+                                Default 25.
     NOX_MQ_ENABLED            — "1" to force multi-query expansion (env override on any mode)
     NOX_MQ_LLM                — model id for decomposer (default: gemini-2.5-flash-lite)
     NOX_MQ_LLM_API_KEY        — auth bearer for decomposer (default: GEMINI_API_KEY)
@@ -192,6 +216,24 @@ DEFAULT_KG_DIRECT_MULTIPLIER = 1.5
 DEFAULT_KG_MAX_NEIGHBORS = 20
 DEFAULT_KG_MIN_NAME_LEN = 3
 DEFAULT_KG_OVERFETCH = 50  # pull top-50 from API so KG can re-rank within
+
+# Phase MAP (Lab Q1 #2 / PR #386) — MA-protection bypass-entity defaults.
+#
+# ENTITY_SECTION_NAMES = nox-mem entity-file section markers (schema v10). A
+# chunk whose `section` column is in this set is considered "entity-style"
+# context (compiled truth section OR frontmatter metadata). Rerank is bypassed
+# for these chunks to preserve Memory Awareness (profile / preference) recall.
+#
+# Wave B composability (this phase): when NOX_MA_PROTECTION_KG_ANCHOR=1, the
+# bypass set is extended with `chunk_id IN kg_evidence_chunks_for_query_entities`
+# so the mechanism fires on chat-only corpora (EverMemBench) too — without
+# touching the protection logic for prod-style corpora.
+#
+# DEFAULT_MA_PROTECTION_MAX caps the protected set per query to avoid
+# degenerate cases (a single high-degree hub entity could otherwise pin the
+# top-K to its evidence chunks alone, starving non-entity hard-recall).
+ENTITY_SECTION_NAMES = frozenset({"compiled", "frontmatter"})
+DEFAULT_MA_PROTECTION_MAX = 25
 
 # Phase MQ (Lab Q1 #3) — Multi-query expansion (Approach B) defaults.
 #
@@ -437,6 +479,176 @@ def _kg_get_direct_chunk_ids(
 
 
 # ---------------------------------------------------------------------------
+# Phase MAP (Lab Q1 #2 / PR #386) — MA-protection bypass-entity helpers
+# ---------------------------------------------------------------------------
+#
+# Approach A from spec `specs/2026-05-28-ma-protection-rerank.md` §2:
+# partition top-N retrieved candidates into Set E (entity-style chunks to
+# protect) and Set R (rest to rerank). After cross-encoder rerank, merge so
+# that Set E chunks land at the position they held in the bi-encoder
+# ordering, and Set R fills the remaining slots in rerank order.
+#
+# Wave B composability (this PR): Set E may include KG-evidence chunks for
+# the query-mentioned entities. See `_kg_anchor_protected_chunk_ids`.
+#
+# Rationale (lessons cravadas):
+#   - `[[ma-protection-needs-entity-corpus-or-kg-anchor]]` — pure section
+#     approach was empty on EverMemBench (Set E ∅ for 3125/3125 queries).
+#   - `[[empirical-set-e-empty-confirms-mechanism-not-corpus]]` — instrument
+#     bypass count per query; if Set E + Set KG = ∅ everywhere, mechanism
+#     didn't fire and we surface that in metadata.
+
+
+def _ma_extract_protected_chunk_ids_section(
+    candidates: List[Tuple[str, Dict[str, Any]]],
+) -> set:
+    """Identify candidate chunk_ids whose `section` field is in ENTITY_SECTION_NAMES.
+
+    Returns a set of chunk_id ints. Skips candidates whose chunk_id is
+    missing or non-integer (treated as non-protected).
+    """
+    protected: set = set()
+    for _content, item in candidates:
+        section = item.get("section")
+        if section is None:
+            continue
+        if str(section).lower() not in ENTITY_SECTION_NAMES:
+            continue
+        cid = item.get("id") or item.get("chunk_id") or item.get("rowid")
+        try:
+            cid_int = int(cid) if cid is not None else None
+        except (TypeError, ValueError):
+            cid_int = None
+        if cid_int is not None:
+            protected.add(cid_int)
+    return protected
+
+
+def _ma_extract_protected_chunk_ids_kg_anchor(
+    candidates: List[Tuple[str, Dict[str, Any]]],
+    kg_evidence_chunk_ids: set,
+) -> set:
+    """Identify candidate chunk_ids that are KG-evidence for query entities.
+
+    Intersection of `candidates` chunk_ids with `kg_evidence_chunk_ids`.
+    This is the Wave B composability extension: even when section markers
+    are absent (chat-only corpora), KG-anchored chunks can still be
+    protected from rerank displacement.
+    """
+    if not kg_evidence_chunk_ids:
+        return set()
+    protected: set = set()
+    for _content, item in candidates:
+        cid = item.get("id") or item.get("chunk_id") or item.get("rowid")
+        try:
+            cid_int = int(cid) if cid is not None else None
+        except (TypeError, ValueError):
+            cid_int = None
+        if cid_int is not None and cid_int in kg_evidence_chunk_ids:
+            protected.add(cid_int)
+    return protected
+
+
+def _ma_partition_candidates(
+    candidates: List[Tuple[str, Dict[str, Any]]],
+    protected_chunk_ids: set,
+    max_protected: int,
+) -> Tuple[
+    List[Tuple[int, Tuple[str, Dict[str, Any]]]],  # set_e: [(bi_position, candidate)]
+    List[Tuple[str, Dict[str, Any]]],              # set_r: rest in bi-encoder order
+]:
+    """Partition candidates into Set E (protected, with original positions) and Set R.
+
+    Caps Set E at `max_protected` (keeps the earliest bi-encoder positions —
+    those are the strongest entity matches).
+
+    Returns:
+        set_e: list of (bi_position, candidate) tuples — protected chunks
+               that will be re-inserted at their original bi-encoder rank
+               position after rerank.
+        set_r: list of candidates in bi-encoder order — sent to rerank.
+    """
+    set_e: List[Tuple[int, Tuple[str, Dict[str, Any]]]] = []
+    set_r: List[Tuple[str, Dict[str, Any]]] = []
+    for pos, (content, item) in enumerate(candidates):
+        cid = item.get("id") or item.get("chunk_id") or item.get("rowid")
+        try:
+            cid_int = int(cid) if cid is not None else None
+        except (TypeError, ValueError):
+            cid_int = None
+        if (
+            cid_int is not None
+            and cid_int in protected_chunk_ids
+            and len(set_e) < max_protected
+        ):
+            set_e.append((pos, (content, item)))
+        else:
+            set_r.append((content, item))
+    return set_e, set_r
+
+
+def _ma_merge_preserving_protected_positions(
+    set_e: List[Tuple[int, Tuple[str, Dict[str, Any]]]],
+    set_r_reranked: List[Tuple[str, Dict[str, Any]]],
+    total_slots: int,
+) -> List[Tuple[str, Dict[str, Any]]]:
+    """Merge protected (Set E) at bi-encoder positions + reranked (Set R) elsewhere.
+
+    Mechanics (PR #386 spec):
+      1. Allocate `total_slots` empty positions.
+      2. For each (bi_position, cand) in set_e: place cand at bi_position
+         (clamped to total_slots-1 if bi_position >= total_slots).
+      3. Fill remaining empty positions with set_r_reranked in rerank order.
+
+    Edge cases:
+      - set_e overflows total_slots → keep first N (earliest bi positions).
+      - set_r_reranked shorter than empty-slot count → tail compacted (skip).
+      - set_e empty → all reranked (degenerate case = Phase F behaviour).
+      - set_r empty → only protected (degenerate case = "everything is entity").
+    """
+    if total_slots <= 0:
+        return []
+    if not set_e and not set_r_reranked:
+        return []
+    if not set_e:
+        return list(set_r_reranked[:total_slots])
+    if not set_r_reranked:
+        # Return Set E in original bi-encoder order, capped at total_slots.
+        sorted_e = sorted(set_e, key=lambda x: x[0])
+        return [cand for _, cand in sorted_e[:total_slots]]
+
+    # Sort Set E by original position. Clamp positions to total_slots-1.
+    sorted_e = sorted(set_e, key=lambda x: x[0])
+    placed: List[Optional[Tuple[str, Dict[str, Any]]]] = [None] * total_slots
+    taken: set = set()
+    for bi_pos, cand in sorted_e:
+        slot = min(bi_pos, total_slots - 1)
+        # If slot already taken (multiple protected mapped to same clamped slot),
+        # find next free slot forward, then backward.
+        if slot in taken:
+            free = next((s for s in range(slot, total_slots) if s not in taken), None)
+            if free is None:
+                free = next((s for s in range(slot - 1, -1, -1) if s not in taken), None)
+            if free is None:
+                continue  # no free slot, drop this protected
+            slot = free
+        placed[slot] = cand
+        taken.add(slot)
+
+    # Fill remaining empty positions with reranked items in order
+    r_iter = iter(set_r_reranked)
+    for i in range(total_slots):
+        if placed[i] is None:
+            try:
+                placed[i] = next(r_iter)
+            except StopIteration:
+                break
+
+    # Compact: drop trailing None entries (case: set_r exhausted)
+    return [c for c in placed if c is not None]
+
+
+# ---------------------------------------------------------------------------
 # Phase MQ (Lab Q1 #3) — Multi-query expansion helpers
 # ---------------------------------------------------------------------------
 #
@@ -654,8 +866,10 @@ class NoxMemAdapter(BaseAdapter):
             config.get("reranker_max_length", 0)
             or DEFAULT_RERANKER_MAX_LENGTH
         )
-        # Reranker is enabled either by being in phaseF mode (default-on for
-        # that mode) OR by explicit env override on top of any other mode.
+        # Reranker is enabled either by being in phaseF / phaseMAP / phaseKGMAP
+        # mode (default-on for those modes) OR by explicit env override on top
+        # of any other mode. Phase MAP and Phase KGMAP both require rerank to
+        # exist before bypass-entity has anything to bypass.
         env_enable = os.environ.get("NOX_RERANKER_ENABLED", "").strip().lower()
         env_enable_truthy = env_enable in ("1", "true", "yes", "on")
         env_enable_falsy = env_enable in ("0", "false", "no", "off")
@@ -664,11 +878,13 @@ class NoxMemAdapter(BaseAdapter):
         elif env_enable_truthy:
             self.reranker_enabled = True
         else:
-            self.reranker_enabled = (self.adapter_mode == "phaseF")
+            self.reranker_enabled = self.adapter_mode in (
+                "phaseF", "phaseMAP", "phaseKGMAP"
+            )
 
         # Phase KG (Lab Q1 #4) — entity 1-hop boost config.
-        # Enabled by phaseKG mode (default-on for that mode) OR by explicit
-        # NOX_KG_PATH_ENABLED env override on top of any other mode.
+        # Enabled by phaseKG / phaseKGMAP mode (default-on for those modes) OR
+        # by explicit NOX_KG_PATH_ENABLED env override on top of any other mode.
         env_kg = os.environ.get("NOX_KG_PATH_ENABLED", "").strip().lower()
         env_kg_truthy = env_kg in ("1", "true", "yes", "on")
         env_kg_falsy = env_kg in ("0", "false", "no", "off")
@@ -677,7 +893,7 @@ class NoxMemAdapter(BaseAdapter):
         elif env_kg_truthy:
             self.kg_enabled = True
         else:
-            self.kg_enabled = (self.adapter_mode == "phaseKG")
+            self.kg_enabled = self.adapter_mode in ("phaseKG", "phaseKGMAP")
 
         self.kg_boost_magnitude = float(
             os.environ.get("NOX_KG_BOOST_MAGNITUDE", "")
@@ -702,6 +918,42 @@ class NoxMemAdapter(BaseAdapter):
         # The DB path is the same one the api-server is bound to; we open a
         # separate read-only conn for KG queries.
         self.kg_db_path = os.environ.get("NOX_DB_PATH", "")
+
+        # Phase MAP (Lab Q1 #2 / PR #386) — MA-protection bypass-entity config.
+        # Enabled by phaseMAP / phaseKGMAP mode (default-on for those modes) OR
+        # by explicit NOX_MA_PROTECTION_ENABLED env override on top of any mode.
+        # Requires rerank to be enabled (otherwise nothing to bypass).
+        env_map = os.environ.get("NOX_MA_PROTECTION_ENABLED", "").strip().lower()
+        env_map_truthy = env_map in ("1", "true", "yes", "on")
+        env_map_falsy = env_map in ("0", "false", "no", "off")
+        if env_map_falsy:
+            self.ma_protection_enabled = False
+        elif env_map_truthy:
+            self.ma_protection_enabled = True
+        else:
+            self.ma_protection_enabled = self.adapter_mode in (
+                "phaseMAP", "phaseKGMAP"
+            )
+
+        # Wave B composability — KG anchor extends bypass criterion with
+        # chunk_id IN kg_evidence_chunks_for_query_entities. Default-on for
+        # phaseKGMAP; opt-in env-only otherwise.
+        env_kg_anchor = os.environ.get(
+            "NOX_MA_PROTECTION_KG_ANCHOR", ""
+        ).strip().lower()
+        env_kg_anchor_truthy = env_kg_anchor in ("1", "true", "yes", "on")
+        env_kg_anchor_falsy = env_kg_anchor in ("0", "false", "no", "off")
+        if env_kg_anchor_falsy:
+            self.ma_protection_kg_anchor = False
+        elif env_kg_anchor_truthy:
+            self.ma_protection_kg_anchor = True
+        else:
+            self.ma_protection_kg_anchor = (self.adapter_mode == "phaseKGMAP")
+
+        self.ma_protection_max = int(
+            os.environ.get("NOX_MA_PROTECTION_MAX", "")
+            or DEFAULT_MA_PROTECTION_MAX
+        )
 
         # Phase MQ (Lab Q1 #3) — Multi-query expansion config.
         # Enabled by phaseMQ mode (default-on for that mode) OR by explicit
@@ -1257,7 +1509,9 @@ class NoxMemAdapter(BaseAdapter):
             # Decide how many results to request from the API.
             # Phase F: overfetch then rerank locally. Other modes: request top_k.
             # Phase KG: also needs overfetch so we have a pool to re-rank within
-            # via KG boost. If both KG and rerank are on, take the max overfetch.
+            # via KG boost. Phase MAP / KGMAP: rerank-driven, so overfetch is
+            # already covered via reranker_overfetch. If multiple paths active,
+            # take the max overfetch.
             api_limit = top_k
             if self.reranker_enabled:
                 api_limit = max(api_limit, self.reranker_overfetch)
@@ -1324,6 +1578,10 @@ class NoxMemAdapter(BaseAdapter):
         kg_ms: Optional[float] = None
         kg_applied = False
         kg_meta: Dict[str, Any] = {}
+        # Captured at function scope for downstream MA-protection KG-anchor
+        # reuse (Wave B composability). Empty set if KG path disabled or no
+        # entities matched in query.
+        kg_evidence_for_map: set = set()
 
         if self.kg_enabled and candidates and self.kg_db_path:
             kg_start = time.monotonic() * 1000
@@ -1415,6 +1673,16 @@ class NoxMemAdapter(BaseAdapter):
                             )
                         ]
                         kg_applied = True
+                        # Snapshot KG evidence chunks for MA-protection
+                        # KG-anchor reuse (Wave B composability). Includes
+                        # direct evidence + neighbor evidence chunks (both
+                        # are entity-grounded by virtue of appearing in
+                        # kg_relations.evidence_chunk_id for a relation
+                        # touching a query-mentioned entity).
+                        kg_evidence_for_map = set(direct_chunks)
+                        for _n_eid, ev_cid, _conf, _seed in neighbors:
+                            if ev_cid and ev_cid > 0:
+                                kg_evidence_for_map.add(ev_cid)
                         kg_meta.update(
                             status="applied",
                             entities_in_query=len(matched_ids),
@@ -1426,6 +1694,44 @@ class NoxMemAdapter(BaseAdapter):
             except Exception as exc:  # noqa: BLE001
                 kg_error = f"KG boost failed: {type(exc).__name__}: {exc}"
             kg_ms = time.monotonic() * 1000 - kg_start
+
+        # ------------------------------------------------------------------
+        # Phase MAP (Lab Q1 #2 / PR #386) — MA-protection bypass-entity
+        # ------------------------------------------------------------------
+        # Compute the protected set BEFORE rerank so we can instrument the
+        # firing count even when rerank later fails or is disabled. This is
+        # the empirical surface needed to validate the mechanism on chat-
+        # only corpora (lesson `[[empirical-set-e-empty-confirms-mechanism-
+        # not-corpus]]`).
+        ma_protected_section: set = set()
+        ma_protected_kg: set = set()
+        ma_protected_total: set = set()
+        ma_protection_applied = False
+        ma_protection_error: Optional[str] = None
+        ma_protection_status = "off"
+
+        if self.ma_protection_enabled and candidates:
+            try:
+                ma_protected_section = (
+                    _ma_extract_protected_chunk_ids_section(candidates)
+                )
+                if self.ma_protection_kg_anchor and kg_evidence_for_map:
+                    ma_protected_kg = (
+                        _ma_extract_protected_chunk_ids_kg_anchor(
+                            candidates, kg_evidence_for_map
+                        )
+                    )
+                ma_protected_total = ma_protected_section | ma_protected_kg
+                if not ma_protected_total:
+                    ma_protection_status = "empty_protected_set"
+                else:
+                    ma_protection_status = "partition_ready"
+            except Exception as exc:  # noqa: BLE001
+                ma_protection_error = (
+                    f"ma-protection partition failed: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+                ma_protection_status = "error"
 
         # ------------------------------------------------------------------
         # Phase F: cross-encoder rerank (graceful fallback)
@@ -1443,19 +1749,58 @@ class NoxMemAdapter(BaseAdapter):
                 rerank_error = err
             else:
                 try:
-                    pairs = [(query, c[0]) for c in candidates]
-                    # CrossEncoder.predict is sync CPU/GPU work — run in a
-                    # thread to avoid blocking the asyncio loop entirely.
-                    scores = await asyncio.to_thread(
-                        model.predict,
-                        pairs,
-                        batch_size=self.reranker_batch_size,
-                        show_progress_bar=False,
-                    )
-                    scored = list(zip(candidates, scores))
-                    scored.sort(key=lambda x: float(x[1]), reverse=True)
-                    candidates = [c for c, _ in scored]
-                    rerank_applied = True
+                    # MA-protection path: partition first, rerank only Set R.
+                    # When ma_protected_total is empty (e.g. corpus mismatch),
+                    # this degenerates cleanly into plain rerank — same path
+                    # as Phase F (PR #386 lesson: behaviour MUST equal plain
+                    # rerank when there's nothing to protect, NOT crash).
+                    if (
+                        self.ma_protection_enabled
+                        and ma_protected_total
+                        and ma_protection_error is None
+                    ):
+                        total_slots_pre_truncate = len(candidates)
+                        set_e, set_r = _ma_partition_candidates(
+                            candidates,
+                            ma_protected_total,
+                            self.ma_protection_max,
+                        )
+                        if set_r:
+                            pairs = [(query, c[0]) for c in set_r]
+                            scores = await asyncio.to_thread(
+                                model.predict,
+                                pairs,
+                                batch_size=self.reranker_batch_size,
+                                show_progress_bar=False,
+                            )
+                            scored = list(zip(set_r, scores))
+                            scored.sort(key=lambda x: float(x[1]), reverse=True)
+                            set_r_reranked = [c for c, _ in scored]
+                        else:
+                            set_r_reranked = []
+                        candidates = _ma_merge_preserving_protected_positions(
+                            set_e=set_e,
+                            set_r_reranked=set_r_reranked,
+                            total_slots=total_slots_pre_truncate,
+                        )
+                        rerank_applied = True
+                        ma_protection_applied = True
+                        ma_protection_status = "applied"
+                    else:
+                        # Standard rerank — no protection (or empty set).
+                        pairs = [(query, c[0]) for c in candidates]
+                        # CrossEncoder.predict is sync CPU/GPU work — run in a
+                        # thread to avoid blocking the asyncio loop entirely.
+                        scores = await asyncio.to_thread(
+                            model.predict,
+                            pairs,
+                            batch_size=self.reranker_batch_size,
+                            show_progress_bar=False,
+                        )
+                        scored = list(zip(candidates, scores))
+                        scored.sort(key=lambda x: float(x[1]), reverse=True)
+                        candidates = [c for c, _ in scored]
+                        rerank_applied = True
                 except Exception as exc:  # noqa: BLE001 — fall back gracefully
                     rerank_error = (
                         f"rerank predict failed: {type(exc).__name__}: {exc}"
@@ -1488,6 +1833,16 @@ class NoxMemAdapter(BaseAdapter):
             "kg_ms": kg_ms,
             "kg_error": kg_error,
             "kg_meta": kg_meta,
+            "ma_protection_enabled": self.ma_protection_enabled,
+            "ma_protection_kg_anchor": self.ma_protection_kg_anchor,
+            "ma_protection_applied": ma_protection_applied,
+            "ma_protection_status": ma_protection_status,
+            "ma_protection_error": ma_protection_error,
+            "ma_set_e_count": len(ma_protected_section),
+            "ma_set_e_kg_count": len(ma_protected_kg),
+            "ma_total_protected_count": len(ma_protected_total),
+            "ma_kg_evidence_pool_size": len(kg_evidence_for_map),
+            "ma_protection_max": self.ma_protection_max,
             "mq_enabled": self.mq_enabled,
             "mq_applied": mq_meta.get("mq_applied", False),
             "mq_status": mq_meta.get("mq_status", "off" if not self.mq_enabled else "unknown"),
@@ -1534,6 +1889,9 @@ class NoxMemAdapter(BaseAdapter):
             "kg_min_name_len": self.kg_min_name_len,
             "kg_overfetch": self.kg_overfetch,
             "kg_db_path": self.kg_db_path,
+            "ma_protection_enabled": self.ma_protection_enabled,
+            "ma_protection_kg_anchor": self.ma_protection_kg_anchor,
+            "ma_protection_max": self.ma_protection_max,
             "mq_enabled": self.mq_enabled,
             "mq_model": self.mq_model,
             "mq_base_url": self.mq_base_url,
@@ -1541,5 +1899,5 @@ class NoxMemAdapter(BaseAdapter):
             "mq_per_query_topk": self.mq_per_query_topk,
             "mq_rrf_k": self.mq_rrf_k,
             "mq_timeout_s": self.mq_timeout_s,
-            "version": "phase-mq-0.1",
+            "version": "phase-kgmap-0.1",
         }
