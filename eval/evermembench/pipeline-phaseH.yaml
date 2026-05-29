@@ -1,0 +1,42 @@
+# Phase H — GPT-4.1-mini parity (2026-05-28).
+# Swap answer model from gemini-2.5-flash to gpt-4.1-mini.
+# Routes via OpenRouter (openai/gpt-4.1-mini) — matches MemOS paper Table 4
+# methodology exactly per INVESTIGATION.md §3 ("Answer generation: openai/gpt-4.1-mini via OpenRouter").
+# Direct OpenAI key in /root/.openclaw/.env is invalid (401); OpenRouter key works (Azure provider).
+#
+# Keep evaluate stage on gemini-2.5-flash (same judge as Phase D, isolates backbone change to answer).
+# Both stages carry per-block api_key + base_url so they route to different providers.
+
+answer:
+  model: "openai/gpt-4.1-mini"
+  api_key: "${OPENROUTER_API_KEY}"
+  base_url: "https://openrouter.ai/api/v1"
+  temperature: 0
+  max_tokens: 1000
+  timeout: 300
+  concurrency: 4
+
+evaluate:
+  model: "gemini-2.5-flash"
+  api_key: "${GEMINI_API_KEY}"
+  base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  temperature: 0
+  max_tokens: 1000
+  timeout: 300
+  concurrency: 8
+
+search:
+  concurrency: 3
+  timeout: 120
+
+retry:
+  max_retries: 20
+  retry_delay: 1.0
+  max_delay: 300
+
+debug:
+  show_usage: false
+
+warmup:
+  enabled: true
+  delay_seconds: 15
