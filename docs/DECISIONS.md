@@ -1125,3 +1125,44 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Future composability testa MESMO stage (e.g. KG + KG-variant, MQ + query-rewrite) — Wave B mostra overlap dominant; priorize stage orthogonality
 - **Cross-links:** PRs #379 (KG sparse), #385 (MQ), #386 (MAP standalone), #389 (KG+MQ), #390 (KG+MAP), memory `[[lab-q1-wave-b-kgmap-3of4-gates-ship-opt-in]]`, `[[kg-mq-overlap-refutes-additivity]]`, `[[kg-anchor-fires-on-chat-corpus-validates-composability]]`, `[[kg-and-rerank-compose-additively-on-fmh]]`, `[[ma-recovery-needs-profile-chunks-not-entity-chunks]]`, D64, D65, D66.
 - *Origem:* sessão 2026-05-29 Wave B — agents `kgmq-bench` (recovery) + `a0750026ed989b801` (KG+MAP). Total Wave B ~$10 budget across both benches. Wave A→B closure complete; Wave C queued.
+
+---
+
+#### D69 — Wave C triple REJECT default + F_MH ceiling DISCOVERED at retrieval-stage stacking
+
+- **Context:** Wave C triple combo (KG+MQ+MAP) bench partial 2/5 batches (OpenAI quota exhausted mid-batch 010, preflight saved batches 011+016). F_MH REGRESSED -1.21pp vs Phase H v2 baseline (triple 2.00% vs baseline 3.21% vs best single opt-in KG+MAP 7.25%). Additivity residual -11.65pp = MOST NEGATIVE composability residual ever observed in Wave A/B/C. MA composite recovered +1.81pp vs KG+MAP alone (only PASS gate). 1/3 strict gates → REJECT default.
+- **Decisão:**
+  - **Ship Phase Triple as opt-in only** (PR #394 merged) via `NOX_ADAPTER_MODE=phaseTriple`. Default OFF. Artifacts shipped (adapter mode + smoke tests + bench scripts + aggregator) for future re-runs. Document corpus-mismatch + ceiling caveat.
+  - **F_MH RETRIEVAL CEILING CONFIRMED** ≈ 7.25% (Wave B KG+MAP best). Stacking additional retrieval-stage mechanisms cannot escape this ceiling because KG+MQ 90.8% co-fire overlap (D68 finding) dominates top-K candidates; MAP rerank protection then inhibits demotion of redundant chunks. Result: answer model receives LESS diverse evidence than single-stage best opt-in, F_MH multi-hop reasoning fails.
+  - **Q3 Iterative Retrieval (PR #393 spec) elevated** from "future direction" to **TOP F_MH lever**. Wave C empirically validated the orthogonal-stage hypothesis: F_MH ceiling cannot be escaped by retrieval-stage stacking; need answer/orchestration-stage mechanisms (multi-round retrieve-reason). Q3 ETA: spec freeze 2026-06-15 → POC 2026-06-30 → 5-batch 2026-07-15 → ship 2026-08-01.
+  - **Re-run Wave C 5-batch CLEAN pending OpenAI quota top-up** (~$5). F_MH 2.00% on 2/5 batches could be lower-tail variance OR structural cap. Re-run will clarify magnitude but unlikely to change REJECT verdict (even if F_MH revealed as 4-5%, still below KG+MAP 7.25%).
+- **Rationale:**
+  - **Mechanism failure mechanism:** KG+MQ 90.8% co-fire (D68) means both surface same first-hop neighborhood chunks. MAP applied at rerank stage protects 14.52% of those (already-redundant) chunks. Answer model top-K is dominated by first-hop entity neighborhood. Bridge entities for second-hop multi-hop reasoning are ABSENT (filtered out by redundancy). F_MH catastrophic.
+  - **Empirical validation of D68 orthogonal-stages hypothesis:** Wave B showed retrieval+rerank (KG+MAP) compose additively because they act on different pipeline stages. Wave C shows retrieval+retrieval+rerank (KG+MQ+MAP) DOES NOT compose because two retrieval mechanisms overlap structurally even with rerank protection on top.
+  - **Cumulative F_MH learning matrix confirms ceiling ≈ 7-8% on gpt-4.1-mini with retrieval-side knobs only.** Path to closing remaining 11pp MemOS gap requires:
+    1. Orthogonal-stage answer/orchestration mechanism (Q3 Iterative Retrieval; predicted +3-5pp)
+    2. Backbone upgrade (Backbone Matrix in-flight; could close 30-50%+ via frontier reasoning over our retrieval pipeline)
+    3. Q4 Profile-chunk MA-targeted (PR #392 spec; F_MH indirect via classifier routing)
+  - **Latency compound effect:** Triple latency 3.7× baseline. Even if F_MH had worked, latency forces opt-in. Composition latency compounds; future composability stacks must measure compound latency, not per-mechanism.
+- **Aplicação operacional:**
+  - **Lab Q1 priorities final state (post-Wave-C):**
+    🥇 MQ canonical multi-hop (#385)
+    🥇 KG sparse standalone (#379)
+    🥇 KG+MAP opt-in combo (#390)
+    🚫 Triple combo (#394) — opt-in only, REJECT default
+    🚫 KG+MQ combo (#389) — opt-in only, REJECT default
+    🟡 AC clean (#381) + MAP standalone (#386) opt-in marginais
+  - **Q3 Iterative Retrieval (PR #393) elevated:** top F_MH lever post-current waves
+  - **Backbone Matrix (in-flight):** cheapest F_MH gap closure path if frontier backbones deliver
+  - **Wave C re-run policy:** dispatch ~$5 5-batch CLEAN AFTER user tops up OpenAI quota. If F_MH stays ≤4% → REJECT permanently. If F_MH 5-8% → REJECT stands (still below KG+MAP). If F_MH ≥8% → re-evaluate gates (unlikely).
+  - **Paper §5 third revision needed** (cumulative Wave A/B/C): replace "composability closes 41% MemOS gap" → "26% closure via single best opt-in; F_MH retrieval-stage ceiling discovered; orthogonal-stage Q3 in development to break ceiling"
+  - **GTM messaging update:** don't claim triple/composability for F_MH. Concrete narrative: "best opt-in (KG+MAP) closes 26% F_MH gap; orthogonal-stage iterative retrieval predicted to close additional 15-25% (Q3 development)"
+- **NÃO FAZEMOS:**
+  - Default-enable Triple combo (PR #394 opt-in only, REJECT default)
+  - Claim "composability solves F_MH gap" em qualquer material novo (refuted 3× now: KG+MQ overlap, KG+MAP partial, Triple regression)
+  - Stack additional retrieval-stage mechanisms para F_MH (Wave C is the empirical falsification)
+  - Use single-batch Wave C result (2.00% F_MH) as headline magnitude — partial 2/5 only; await re-run for magnitude certainty (mechanism conclusion stands regardless)
+  - Skip preflight billing on bench dispatch — Wave C 011+016 validated preflight saves compute when quota exhausted
+  - Re-run Wave C without OpenAI quota top-up — fast-fail expected (already 429 insufficient_quota)
+- **Cross-links:** PR #394 (Wave C triple), #393 (Q3 Iterative spec), #390 (Wave B KG+MAP), #389 (Wave B KG+MQ), #379/#385/#386 (Lab Q1 standalone knobs), memory `[[wave-c-triple-reject-fmh-ceiling-found]]`, `[[wave-c-triple-fmh-cap-by-mq-kg-overlap-confirmed]]`, `[[openai-insufficient-quota-needs-fast-fail-not-backoff]]`, `[[preflight-billing-saves-batches-not-just-time]]`, `[[wave-c-triple-latency-3-7x-overhead]]`, `[[2-batch-partial-still-informs-mechanism-not-magnitude]]`, D68.
+- *Origem:* sessão 2026-05-29 evening BRT — agent `acc6dd1377940d6ff` ran ~79min, $5 spent (OpenAI quota exhausted mid-run), PR #394 merged 22:55 UTC. Wave C ceiling discovery is strategic inflection — research focus shifts from composability stacking to orthogonal-stage mechanisms (Iterative Retrieval Q3 + Backbone Matrix in-flight).
