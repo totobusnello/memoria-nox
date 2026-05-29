@@ -1,5 +1,5 @@
 """
-nox-mem Adapter for EverMemBench — Phase F + Phase KG (Lab Q1 #4, 2026-05-29).
+nox-mem Adapter for EverMemBench — Phase F (2026-05-28).
 
 Connects nox-mem (CLI ingest + HTTP search API) to the EverMemBench
 evaluation harness.
@@ -26,51 +26,79 @@ Cross-encoder rerank adds local compute cost (~50-300ms per query on CPU,
 faster on GPU). For end-user latency-sensitive paths this would be a
 trade-off; for offline benchmark eval it is acceptable.
 
-Phase KG (Lab Q1 #4, 2026-05-29) — KG path retrieval (Approach A, 1-hop):
-  1. Extract candidate entity mentions from the query via regex against
-     `kg_entities.name` (cheapest path per spec §3.A).
-  2. Look up 1-hop neighbors via SQL JOIN over `kg_relations` (FK ids,
-     not inline strings — per [[kg-relations-uses-fk-ids-not-inline-strings]]).
-  3. Use `kg_relations.evidence_chunk_id` (direct FK to chunks) to find
-     "evidence chunks" for the neighbor entities — much cleaner than
-     `source_path LIKE '%slug%'` matching.
-  4. Apply ADDITIVE score delta to evidence chunks already present in
-     the hybrid search top-N. Per memoria-nox rule §5 (boost multiplicativo
-     empilhável é veneno), the delta is added to RRF score, not multiplied.
-
 Modes:
     NOX_ADAPTER_MODE=baseline  -> PR #363 flat-paragraph ingest format
     NOX_ADAPTER_MODE=phaseB    -> H2-per-message + digest (default)
     NOX_ADAPTER_MODE=phaseF    -> phaseB ingest + cross-encoder rerank in search
-    NOX_ADAPTER_MODE=phaseKG   -> phaseB ingest + KG 1-hop entity boost in search
+    NOX_ADAPTER_MODE=phaseAC   -> phaseB ingest + adaptive heuristic classifier
+                                  routes rerank ON for multi-hop, OFF for factual
+                                  (Lab Q1 #1, spec PR #373 Option A)
 
 Environment variables:
     NOX_API_BASE              — nox-mem API base URL (default: http://127.0.0.1:18802)
     NOX_DB_PATH               — per-batch DB path override (REQUIRED for isolation)
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
-    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG"
+    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseAC"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
-    NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
+    NOX_RERANKER_MODEL        — HF model id (default: cross-encoder/ms-marco-MiniLM-L-6-v2 phaseG)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
     NOX_RERANKER_BATCH_SIZE   — CrossEncoder.predict batch_size (default: 32)
-    NOX_KG_PATH_ENABLED       — "1" to force KG 1-hop boost (env override on any mode)
-    NOX_KG_BOOST_MAGNITUDE    — float, additive delta applied to RRF score (default: 0.05)
-    NOX_KG_DIRECT_MULTIPLIER  — float, multiplier of base delta for chunks containing
-                                directly-mentioned entities (default: 1.5)
-    NOX_KG_MAX_NEIGHBORS      — int, max neighbors per mentioned entity (default: 20)
-    NOX_KG_MIN_NAME_LEN       — int, minimum entity name length to use in regex
-                                extraction (default: 3) — avoids matching common tokens
-                                like "a", "of", "is" that may be entity names in noisy KGs.
+    NOX_ADAPTIVE_CLASSIFIER   — "1" to enable phaseAC heuristic classifier (mode override)
+    NOX_ADAPTIVE_THRESHOLD    — integer score threshold (default: 4 per spec PR #373)
+    NOX_ADAPTIVE_DEBUG        — "1" to log per-query classification to stderr
 """
 import asyncio
 import os
 import shlex
+import sys
 import tempfile
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
+
+# Lab Q1 #1 adaptive classifier (PR #373 Option A heuristic) — optional import,
+# only consulted when adapter_mode == "phaseAC" or NOX_ADAPTIVE_CLASSIFIER=1.
+#
+# Import resolution: this adapter is shipped both as
+#   eval/evermembench/adapter_nox_mem.py   (memoria-nox repo path — local dev)
+# and as
+#   eval/src/adapters/nox_mem_adapter.py   (EverMemBench harness install path)
+# query_classifier.py is shipped alongside the adapter in BOTH locations. Try
+# both possible import paths so the module resolves regardless of which copy
+# is loaded.
+classify_query = None  # type: ignore[assignment]
+ADAPTIVE_DEFAULT_THRESHOLD = 4
+try:
+    # 1) memoria-nox repo layout
+    from eval.evermembench.query_classifier import (  # type: ignore[import-not-found]
+        DEFAULT_THRESHOLD as _ADTHR,
+        classify_query as _classify_query,
+    )
+    classify_query = _classify_query
+    ADAPTIVE_DEFAULT_THRESHOLD = _ADTHR
+except ImportError:
+    try:
+        # 2) EverMemBench harness layout (sibling of adapter)
+        from .query_classifier import (  # type: ignore[import-not-found]
+            DEFAULT_THRESHOLD as _ADTHR,
+            classify_query as _classify_query,
+        )
+        classify_query = _classify_query
+        ADAPTIVE_DEFAULT_THRESHOLD = _ADTHR
+    except ImportError:
+        try:
+            # 3) Bare module on sys.path (fallback for shell scripts that copy
+            #    query_classifier.py into the cwd)
+            from query_classifier import (  # type: ignore[import-not-found]
+                DEFAULT_THRESHOLD as _ADTHR,
+                classify_query as _classify_query,
+            )
+            classify_query = _classify_query
+            ADAPTIVE_DEFAULT_THRESHOLD = _ADTHR
+        except ImportError:
+            pass
 
 # ---------------------------------------------------------------------------
 # BaseAdapter import: adjust path when placed inside EverMemBench tree
@@ -144,18 +172,12 @@ DEFAULT_RERANKER_OVERFETCH = 50
 DEFAULT_RERANKER_BATCH_SIZE = 32
 DEFAULT_RERANKER_MAX_LENGTH = 512
 
-# Phase KG (Lab Q1 #4) — KG 1-hop boost defaults.
-#
-# BASE_DELTA = 0.05 per spec §8.6 — scaled to typical RRF score range (0.01-0.1).
-# DIRECT_MULTIPLIER = 1.5 → directly-mentioned entities get 1.5× neighbor boost
-# per spec §3.A. MAX_NEIGHBORS prevents pathological cases where a high-degree
-# entity (e.g. a hub person in the chat) floods the boost candidate set.
-# MIN_NAME_LEN = 3 avoids regex false positives on short tokens like "i", "of".
+# Phase KG (Lab Q1 #4) defaults.
 DEFAULT_KG_BOOST_MAGNITUDE = 0.05
 DEFAULT_KG_DIRECT_MULTIPLIER = 1.5
 DEFAULT_KG_MAX_NEIGHBORS = 20
 DEFAULT_KG_MIN_NAME_LEN = 3
-DEFAULT_KG_OVERFETCH = 50  # pull top-50 from API so KG can re-rank within
+DEFAULT_KG_OVERFETCH = 50
 
 
 # ---------------------------------------------------------------------------
@@ -189,33 +211,19 @@ def _load_reranker(model_id: str, max_length: int) -> Tuple[Any, Optional[str]]:
 # ---------------------------------------------------------------------------
 # Phase KG (Lab Q1 #4) — KG path retrieval helpers
 # ---------------------------------------------------------------------------
-#
-# These helpers run direct SQLite queries against the same DB the api-server
-# is using. They are read-only (SELECT only) and use the FK schema documented
-# in `[[kg-relations-uses-fk-ids-not-inline-strings]]`:
-#
-#   kg_entities (id, name, entity_type, mention_count, attributes, ...)
-#   kg_relations (id, source_entity_id, relation_type, target_entity_id,
-#                 evidence_chunk_id, confidence, ...)
-#
-# Important: SQLite WAL mode + concurrent readers are SAFE — the api-server
-# holds its own connection, and our read-only connection sees a snapshot.
-# We open and cache a single read-only connection per (db_path, process).
-
+# Per spec: regex entity extraction + 1-hop neighbor lookup via FK ids.
+# Read-only sqlite3 connections cached per (db_path, process).
 
 @_functools.lru_cache(maxsize=4)
 def _kg_open_db(db_path: str) -> Tuple[Any, Optional[str]]:
-    """Open a read-only SQLite connection to the KG DB. Cached per path."""
     import sqlite3 as _sqlite3
     try:
-        # URI mode + mode=ro = read-only, will not interfere with api-server.
         conn = _sqlite3.connect(
             f"file:{db_path}?mode=ro",
             uri=True,
             check_same_thread=False,
             timeout=5.0,
         )
-        # Confirm KG tables exist
         row = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' "
             "AND name IN ('kg_entities','kg_relations')"
@@ -228,16 +236,12 @@ def _kg_open_db(db_path: str) -> Tuple[Any, Optional[str]]:
 
 
 @_functools.lru_cache(maxsize=8)
-def _kg_load_entity_names(db_path: str, min_name_len: int) -> Tuple[Tuple[Tuple[int, str], ...], Optional[str]]:
-    """Load all (id, name) pairs from kg_entities with len(name) >= min_name_len.
-
-    Cached as tuple-of-tuples so the lru_cache key is hashable. Names are
-    lowercased here once so per-query regex matching is cheap.
-    """
+def _kg_load_entity_names(
+    db_path: str, min_name_len: int
+) -> Tuple[Tuple[Tuple[int, str], ...], Optional[str]]:
     conn, err = _kg_open_db(db_path)
     if err is not None or conn is None:
         return (), err
-
     try:
         rows = conn.execute(
             "SELECT id, LOWER(name) FROM kg_entities "
@@ -247,7 +251,6 @@ def _kg_load_entity_names(db_path: str, min_name_len: int) -> Tuple[Tuple[Tuple[
         ).fetchall()
     except Exception as exc:  # noqa: BLE001
         return (), f"kg_entities query failed: {type(exc).__name__}: {exc}"
-
     return tuple((int(r[0]), str(r[1])) for r in rows), None
 
 
@@ -256,32 +259,13 @@ def _kg_extract_query_entities(
     entity_pool: Tuple[Tuple[int, str], ...],
     max_entities: int = 10,
 ) -> List[Tuple[int, str]]:
-    """Regex-extract entity mentions from query against KG entity pool.
-
-    Approach A (cheapest): substring match. Lowercases query once, then
-    iterates entity_pool (already lowercased) checking presence. Returns
-    list of (entity_id, entity_name) tuples in pool order (which is
-    mention_count DESC) up to `max_entities`.
-
-    Why substring (not word boundary): EverMemBench entity names are
-    multi-token person/group names (e.g. "Weihua Zhang", "Group 1") and
-    Unicode word boundary regex `\b` is unreliable in PT-BR / accented
-    contexts — per [[js-regex-unicode-word-boundary-fails]], same caveat
-    applies to Python `re` with `\b`. We use substring containment with a
-    `min_name_len` >= 3 filter to control false positives.
-    """
     import re as _re
-
     q_lower = query.lower()
     matched: List[Tuple[int, str]] = []
     seen: set = set()
     for ent_id, ent_name_lc in entity_pool:
         if ent_id in seen:
             continue
-        # Whole-word-ish match: name surrounded by non-alphanumeric or string edges.
-        # This is more robust than naive `in` (e.g. avoids matching "al" inside "alpha").
-        # We still avoid `\b` because non-ASCII unicode breaks JS regex; in Python
-        # `re.UNICODE` works but we prefer explicit boundary chars for portability.
         pattern = r'(?:^|[^a-z0-9])' + _re.escape(ent_name_lc) + r'(?:$|[^a-z0-9])'
         if _re.search(pattern, q_lower):
             matched.append((ent_id, ent_name_lc))
@@ -296,25 +280,10 @@ def _kg_get_1hop_neighbors(
     entity_ids: List[int],
     max_neighbors_per_entity: int,
 ) -> List[Tuple[int, int, float, int]]:
-    """Return 1-hop neighbors of given entity_ids.
-
-    Returns list of tuples: (neighbor_entity_id, evidence_chunk_id, confidence,
-    source_entity_id). evidence_chunk_id may be 0 if not set on the relation
-    (we filter those out at boost time — they don't contribute to chunk boost).
-
-    Walks both directions: relations where source IS the seed AND relations
-    where target IS the seed. The "neighbor" is always the other end of the
-    edge from the seed.
-
-    Per [[kg-relations-uses-fk-ids-not-inline-strings]]: use FK ids, not names.
-    """
     conn, err = _kg_open_db(db_path)
     if err is not None or conn is None or not entity_ids:
         return []
-
     placeholders = ",".join("?" * len(entity_ids))
-    # Outbound edges: seed = source_entity_id, neighbor = target_entity_id
-    # Inbound edges:  seed = target_entity_id, neighbor = source_entity_id
     sql = f"""
         SELECT target_entity_id AS neighbor, evidence_chunk_id, confidence, source_entity_id
         FROM kg_relations
@@ -332,7 +301,6 @@ def _kg_get_1hop_neighbors(
         rows = conn.execute(sql, entity_ids * 4).fetchall()
     except Exception:  # noqa: BLE001
         return []
-    # Cap per-seed neighbor count to avoid hub flooding
     by_seed: Dict[int, List[Tuple[int, int, float, int]]] = {}
     for n, ev, conf, seed in rows:
         bucket = by_seed.setdefault(int(seed), [])
@@ -348,15 +316,9 @@ def _kg_get_direct_chunk_ids(
     db_path: str,
     entity_ids: List[int],
 ) -> set:
-    """Return chunk_ids that are direct evidence for the given (directly-mentioned) entities.
-
-    A chunk is "direct evidence" for an entity if any relation where the entity
-    appears as source OR target lists that chunk in evidence_chunk_id.
-    """
     conn, err = _kg_open_db(db_path)
     if err is not None or conn is None or not entity_ids:
         return set()
-
     placeholders = ",".join("?" * len(entity_ids))
     sql = f"""
         SELECT DISTINCT evidence_chunk_id FROM kg_relations
@@ -448,9 +410,46 @@ class NoxMemAdapter(BaseAdapter):
         else:
             self.reranker_enabled = (self.adapter_mode == "phaseF")
 
-        # Phase KG (Lab Q1 #4) — entity 1-hop boost config.
-        # Enabled by phaseKG mode (default-on for that mode) OR by explicit
-        # NOX_KG_PATH_ENABLED env override on top of any other mode.
+        # ── Lab Q1 #1 adaptive classifier (PR #373 Option A) ──────────────
+        # Enabled when adapter_mode == "phaseAC" OR explicit
+        # NOX_ADAPTIVE_CLASSIFIER=1 env override on top of any other mode.
+        # When enabled, the per-query classifier decides rerank ON/OFF instead
+        # of the global reranker_enabled flag.
+        env_adaptive = os.environ.get("NOX_ADAPTIVE_CLASSIFIER", "").strip().lower()
+        env_adaptive_truthy = env_adaptive in ("1", "true", "yes", "on")
+        env_adaptive_falsy = env_adaptive in ("0", "false", "no", "off")
+        if env_adaptive_falsy:
+            self.adaptive_enabled = False
+        elif env_adaptive_truthy:
+            self.adaptive_enabled = True
+        else:
+            self.adaptive_enabled = (self.adapter_mode == "phaseAC")
+
+        # Threshold — default 4 per spec PR #373 §2 Option A
+        threshold_raw = (
+            config.get("adaptive_threshold", 0)
+            or os.environ.get("NOX_ADAPTIVE_THRESHOLD", "")
+            or ADAPTIVE_DEFAULT_THRESHOLD
+        )
+        try:
+            self.adaptive_threshold = int(threshold_raw)
+        except (TypeError, ValueError):
+            self.adaptive_threshold = ADAPTIVE_DEFAULT_THRESHOLD
+
+        # Debug — log per-query classification to stderr if enabled
+        env_debug = os.environ.get("NOX_ADAPTIVE_DEBUG", "").strip().lower()
+        self.adaptive_debug = env_debug in ("1", "true", "yes", "on")
+
+        # Routing counters — aggregated across queries for run-level audit
+        self._adaptive_route_counts = {
+            "multi_hop": 0,
+            "factual": 0,
+            "classifier_unavailable": 0,
+        }
+
+        # ── Lab Q1 #4 KG path retrieval (PR Lab-Q1-4) ────────────────────
+        # Enabled when adapter_mode == "phaseKG" OR explicit
+        # NOX_KG_PATH_ENABLED=1 env override on top of any other mode.
         env_kg = os.environ.get("NOX_KG_PATH_ENABLED", "").strip().lower()
         env_kg_truthy = env_kg in ("1", "true", "yes", "on")
         env_kg_falsy = env_kg in ("0", "false", "no", "off")
@@ -481,8 +480,6 @@ class NoxMemAdapter(BaseAdapter):
             os.environ.get("NOX_KG_OVERFETCH", "")
             or DEFAULT_KG_OVERFETCH
         )
-        # The DB path is the same one the api-server is bound to; we open a
-        # separate read-only conn for KG queries.
         self.kg_db_path = os.environ.get("NOX_DB_PATH", "")
 
         # HTTP session — created lazily to allow use in async context
@@ -885,16 +882,66 @@ class NoxMemAdapter(BaseAdapter):
         from the API and rerank with BAAI/bge-reranker-v2-m3 CrossEncoder
         before truncating to `top_k`. Falls back to plain top_k on any
         reranker failure (logged in metadata.rerank_error).
+
+        Phase AC (Lab Q1 #1, spec PR #373 Option A): if `self.adaptive_enabled`
+        is True, classify the query first; rerank only when the classifier
+        decides multi_hop. Factual queries skip the rerank (best-of-both: keep
+        Phase D's MA preservation on factual + Phase G's F_MH lift on multi-hop).
         """
         start_ms = time.monotonic() * 1000
         session = await self._get_session()
 
+        # ── Lab Q1 #1 adaptive classifier (per-query gate) ─────────────────
+        # Decide per-query whether to engage the reranker. Precedence:
+        #   1. If adaptive_enabled AND classifier available: classifier decides.
+        #   2. Else: fall back to global self.reranker_enabled (phaseF / env override).
+        classification_meta: Optional[Dict[str, Any]] = None
+        effective_rerank_enabled = self.reranker_enabled
+
+        if self.adaptive_enabled:
+            if classify_query is None:
+                # Module import failed — fall back to legacy reranker_enabled,
+                # but record the gap in metadata so reports show coverage.
+                self._adaptive_route_counts["classifier_unavailable"] += 1
+                classification_meta = {
+                    "available": False,
+                    "fallback": "global_reranker_enabled",
+                }
+            else:
+                classify_t0 = time.perf_counter()
+                result = classify_query(query, threshold=self.adaptive_threshold)
+                classify_ms = (time.perf_counter() - classify_t0) * 1000.0
+
+                # Adaptive override of reranker_enabled — only active when
+                # adaptive_enabled is true. Factual → OFF, multi_hop → ON.
+                effective_rerank_enabled = result.is_multi_hop
+                self._adaptive_route_counts[result.decision] = (
+                    self._adaptive_route_counts.get(result.decision, 0) + 1
+                )
+
+                classification_meta = {
+                    "available": True,
+                    "score": result.score,
+                    "threshold": result.threshold,
+                    "decision": result.decision,
+                    "classify_ms": classify_ms,
+                    "features": result.features,
+                    "reranked": effective_rerank_enabled,
+                }
+                if self.adaptive_debug:
+                    print(
+                        f"[phaseAC] q='{query[:60]}...' score={result.score} "
+                        f"thr={result.threshold} decision={result.decision} "
+                        f"rerank={effective_rerank_enabled} ms={classify_ms:.2f}",
+                        file=sys.stderr,
+                    )
+
         # Decide how many results to request from the API.
-        # Phase F: overfetch then rerank locally. Other modes: request top_k.
-        # Phase KG: also needs overfetch so we have a pool to re-rank within
-        # via KG boost. If both KG and rerank are on, take the max overfetch.
+        # Phase F / phaseAC w/ multi_hop: overfetch then rerank locally.
+        # Phase KG: also needs overfetch for KG re-ranking.
+        # Other modes: request top_k.
         api_limit = top_k
-        if self.reranker_enabled:
+        if effective_rerank_enabled:
             api_limit = max(api_limit, self.reranker_overfetch)
         if self.kg_enabled:
             api_limit = max(api_limit, self.kg_overfetch)
@@ -959,7 +1006,6 @@ class NoxMemAdapter(BaseAdapter):
         if self.kg_enabled and candidates and self.kg_db_path:
             kg_start = time.monotonic() * 1000
             try:
-                # 1. Load entity pool (cached per DB after first call)
                 entity_pool, load_err = _kg_load_entity_names(
                     self.kg_db_path, self.kg_min_name_len
                 )
@@ -968,25 +1014,19 @@ class NoxMemAdapter(BaseAdapter):
                 elif not entity_pool:
                     kg_meta["status"] = "empty_kg"
                 else:
-                    # 2. Extract entity mentions from query (regex)
                     matched = _kg_extract_query_entities(query, entity_pool)
                     matched_ids = [m[0] for m in matched]
                     if not matched_ids:
                         kg_meta["status"] = "no_entities_in_query"
                     else:
-                        # 3a. Get direct evidence chunks (chunks tied to the
-                        #     mentioned entity itself — strongest signal)
                         direct_chunks = _kg_get_direct_chunk_ids(
                             self.kg_db_path, matched_ids
                         )
-                        # 3b. Get 1-hop neighbors and their evidence chunks
                         neighbors = _kg_get_1hop_neighbors(
                             self.kg_db_path,
                             matched_ids,
                             self.kg_max_neighbors,
                         )
-                        # Map: chunk_id → (best_confidence, hop_type)
-                        # hop_type: "direct" (1.5×) or "neighbor" (1.0×)
                         chunk_boost_score: Dict[int, Tuple[float, str]] = {}
                         for cid in direct_chunks:
                             if cid <= 0:
@@ -996,15 +1036,10 @@ class NoxMemAdapter(BaseAdapter):
                             if ev_cid <= 0:
                                 continue
                             if ev_cid in chunk_boost_score and chunk_boost_score[ev_cid][1] == "direct":
-                                continue  # direct trumps neighbor
+                                continue
                             prev = chunk_boost_score.get(ev_cid)
                             if prev is None or conf > prev[0]:
                                 chunk_boost_score[ev_cid] = (conf, "neighbor")
-
-                        # 4. Apply ADDITIVE boost to candidates whose
-                        #    chunk_id matches the boost map.
-                        #    Per memoria-nox rule §5 (multiplicative empilhável
-                        #    é veneno), we use additive delta.
                         boost_count = 0
                         for idx, (content, item) in enumerate(candidates):
                             cid = item.get("id") or item.get("chunk_id") or item.get("rowid")
@@ -1021,16 +1056,10 @@ class NoxMemAdapter(BaseAdapter):
                                 else 1.0
                             )
                             delta = self.kg_boost_magnitude * multiplier * conf
-                            # Record the delta on the item so downstream
-                            # sorting (after rerank, if enabled) uses it.
                             item["_kg_boost"] = delta
                             item["_kg_hop_type"] = hop_type
                             boost_count += 1
 
-                        # Re-sort candidates: API rank position + kg delta.
-                        # We use a synthetic score = (rrf_score or 1/(rank+1)) + delta.
-                        # Most APIs do not return rrf_score so we approximate
-                        # with 1/(rank+1) which is the RRF k=0 form.
                         def _kg_sort_key(rank_item: Tuple[int, Tuple[str, Dict[str, Any]]]) -> float:
                             rank, (_c, it) = rank_item
                             base_score = (
@@ -1065,7 +1094,7 @@ class NoxMemAdapter(BaseAdapter):
         rerank_ms: Optional[float] = None
         rerank_applied = False
 
-        if self.reranker_enabled and candidates:
+        if effective_rerank_enabled and candidates:
             rerank_start = time.monotonic() * 1000
             model, err = _load_reranker(
                 self.reranker_model_id, self.reranker_max_length
@@ -1109,11 +1138,13 @@ class NoxMemAdapter(BaseAdapter):
             "returned": len(memories),
             "api_returned": api_returned,
             "took_ms_api": data.get("took_ms", None) if isinstance(data, dict) else None,
-            "rerank_enabled": self.reranker_enabled,
+            "rerank_enabled": effective_rerank_enabled,
             "rerank_applied": rerank_applied,
-            "rerank_model": self.reranker_model_id if self.reranker_enabled else None,
+            "rerank_model": self.reranker_model_id if effective_rerank_enabled else None,
             "rerank_ms": rerank_ms,
             "rerank_error": rerank_error,
+            "adaptive_enabled": self.adaptive_enabled,
+            "classification": classification_meta,
             "kg_enabled": self.kg_enabled,
             "kg_applied": kg_applied,
             "kg_ms": kg_ms,
@@ -1147,6 +1178,10 @@ class NoxMemAdapter(BaseAdapter):
             "reranker_overfetch": self.reranker_overfetch,
             "reranker_batch_size": self.reranker_batch_size,
             "reranker_max_length": self.reranker_max_length,
+            "adaptive_enabled": self.adaptive_enabled,
+            "adaptive_threshold": self.adaptive_threshold,
+            "adaptive_debug": self.adaptive_debug,
+            "classifier_available": classify_query is not None,
             "kg_enabled": self.kg_enabled,
             "kg_boost_magnitude": self.kg_boost_magnitude,
             "kg_direct_multiplier": self.kg_direct_multiplier,
@@ -1154,5 +1189,26 @@ class NoxMemAdapter(BaseAdapter):
             "kg_min_name_len": self.kg_min_name_len,
             "kg_overfetch": self.kg_overfetch,
             "kg_db_path": self.kg_db_path,
-            "version": "phase-kg-0.1",
+            "version": "phase-ac+kg-0.1",
+        }
+
+    def get_routing_stats(self) -> Dict[str, Any]:
+        """Aggregate counter for the adaptive router (Lab Q1 #1 audit).
+
+        Returns counts of queries routed to multi_hop (rerank ON) vs factual
+        (rerank OFF) over the lifetime of this adapter instance. Useful for
+        spec §7.1 audit: too aggressive (>60%) → retune threshold up; too
+        conservative (<10%) → retune down.
+        """
+        total = sum(self._adaptive_route_counts.values())
+        rates = {
+            k: (v / total if total > 0 else 0.0)
+            for k, v in self._adaptive_route_counts.items()
+        }
+        return {
+            "adaptive_enabled": self.adaptive_enabled,
+            "adaptive_threshold": self.adaptive_threshold,
+            "counts": dict(self._adaptive_route_counts),
+            "rates": rates,
+            "total_queries": total,
         }
