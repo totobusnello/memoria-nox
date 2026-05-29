@@ -1,6 +1,19 @@
 # LoCoMo Evaluation Harness — memoria-nox
 
-> **Status: scaffold only. No published numbers. Dry-run validates pipeline; full run is human-supervised.**
+> **Status (2026-05-29):** Two harnesses now coexist in this directory:
+>
+> 1. **TypeScript scaffold** (`parser.ts`, `run.ts`, `score.ts`, `download.ts`)
+>    — original 2026-05-18 design, IR-style nDCG@10/MRR/R@10/P@5 over the
+>    LoCoMo conversation corpus. Useful for direct comparison vs FTS5
+>    baselines.
+> 2. **Python cross-bench harness** (`adapter_nox_mem.py`, `run-bench.sh`,
+>    `lib/{corpus_loader,scorer,aggregate}.py`) — 2026-05-29 design,
+>    end-to-end QA accuracy (LoCoMo paper §4.2 F1) using nox-mem as memory
+>    layer + gpt-4.1-mini as generator. Mirrors `eval/longmemeval/` and
+>    `eval/evermembench/` patterns for cross-bench parity.
+>
+> See `README-CROSSBENCH.md` + `METHODOLOGY-CROSSBENCH.md` for the Python
+> harness; this file documents the TypeScript scaffold.
 
 ## What this is
 

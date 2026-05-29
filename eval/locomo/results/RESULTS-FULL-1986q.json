@@ -1,0 +1,132 @@
+{
+  "schema": "locomo-aggregate/v1",
+  "n_total": 1986,
+  "n_scored": 0,
+  "n_errors": 0,
+  "mean_f1": 0.0,
+  "accuracy": 0.0,
+  "f1_ci95_low": 0.0,
+  "f1_ci95_high": 0.0,
+  "per_category": {
+    "adversarial": {
+      "evidence_hit_at_10": 0.6018099547511312,
+      "evidence_recall_at_10": 0.5927601809954751,
+      "n_retrieval": 442.0
+    },
+    "commonsense": {
+      "evidence_hit_at_10": 0.5444444444444444,
+      "evidence_recall_at_10": 0.4203703703703704,
+      "n_retrieval": 90.0
+    },
+    "multi_hop": {
+      "evidence_hit_at_10": 0.8220640569395018,
+      "evidence_recall_at_10": 0.5158615629443499,
+      "n_retrieval": 281.0
+    },
+    "single_hop": {
+      "evidence_hit_at_10": 0.8035714285714286,
+      "evidence_recall_at_10": 0.7861111111111112,
+      "n_retrieval": 840.0
+    },
+    "temporal": {
+      "evidence_hit_at_10": 0.7795527156549521,
+      "evidence_recall_at_10": 0.7409478168264111,
+      "n_retrieval": 313.0
+    }
+  },
+  "latency_summary": {
+    "ingest_ms": {
+      "p50": 3317.295789718628,
+      "p95": 5594.592809677124,
+      "p99": 5594.592809677124,
+      "mean": 3424.1275992638393,
+      "n": 1986
+    },
+    "vectorize_ms": {
+      "p50": 36364.567279815674,
+      "p95": 46188.37332725525,
+      "p99": 46188.37332725525,
+      "mean": 35763.77222173043,
+      "n": 1986
+    },
+    "retrieval_ms": {
+      "p50": 665.6012535095215,
+      "p95": 860.1994514465332,
+      "p99": 1759.84525680542,
+      "mean": 708.8368378377032,
+      "n": 1986
+    }
+  },
+  "cost_summary": {
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "embed_tokens": 0,
+    "cost_gen_usd": 0.0,
+    "cost_embed_usd": 0.0,
+    "cost_total_usd": 0.0
+  },
+  "published_baselines": [
+    {
+      "system": "Full Context (GPT-4, paper)",
+      "generator": "GPT-4",
+      "overall_f1": 0.4239,
+      "source": "Maharana et al. 2024 Table 5",
+      "notes": "Truncated conversation as context (no memory module)."
+    },
+    {
+      "system": "Observation RAG (GPT-3.5)",
+      "generator": "GPT-3.5-turbo",
+      "overall_f1": 0.3203,
+      "source": "Maharana et al. 2024 Table 5",
+      "notes": "RAG over auto-generated observations + GPT-3.5 generator."
+    },
+    {
+      "system": "Summary RAG (GPT-4)",
+      "generator": "GPT-4",
+      "overall_f1": 0.4053,
+      "source": "Maharana et al. 2024 Table 5",
+      "notes": "RAG over session summaries + GPT-4 generator."
+    },
+    {
+      "system": "RAG baseline (Mem0 paper)",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.3547,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Mem0 paper's reproduction; standard RAG chunks."
+    },
+    {
+      "system": "LangMem (LangGraph)",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.5021,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "LangGraph memory module."
+    },
+    {
+      "system": "Zep",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.504,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Zep memory layer; reported on LoCoMo subset."
+    },
+    {
+      "system": "Mem0 (graph)",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.561,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Mem0 with knowledge-graph memory."
+    },
+    {
+      "system": "Mem0",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.6688,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Mem0 SOTA reported number, headline result."
+    }
+  ],
+  "retrieval_mode": true,
+  "n_retrieval_scored": 1966,
+  "evidence_hit_at_5": 0.6861648016276704,
+  "evidence_hit_at_10": 0.7451678535096643,
+  "evidence_hit_at_20": 0.7675483214649034,
+  "evidence_recall_at_10": 0.6800816035201911
+}

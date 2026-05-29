@@ -14,3 +14,11 @@ dataset.lock.json
 full-run.json
 # Note: dry-run-sample.json IS committed (10-row plumbing artefact, no LoCoMo verbatim
 # beyond chunk-ID strings).
+# Python cross-bench harness outputs:
+# - results/RESULTS-SMOKE-*.json + results/RESULTS-FULL-*.json (aggregate, committed)
+# - results/results-*.jsonl (per-record raw, contains LoCoMo question/answer strings
+#   verbatim — NOT committed due to CC BY-NC license; reproducible via run-bench.sh)
+results/results-*.jsonl
+results/adapter-stderr.log
+__pycache__/
+*.pyc
