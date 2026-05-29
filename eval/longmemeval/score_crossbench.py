@@ -122,7 +122,10 @@ def call_gemini_judge(prompt: str, model: str, key: str, timeout: int = 30) -> t
     url = GEMINI_URL_TPL.format(model=model, key=key)
     body = json.dumps({
         "contents": [{"role": "user", "parts": [{"text": prompt}]}],
-        "generationConfig": {"temperature": 0.0, "maxOutputTokens": 32},
+        # Note: gemini-2.5-flash sometimes wraps {"correct": true} with markdown
+        # fences or adds whitespace; need enough headroom. 32 was too tight and
+        # silently truncated mid-JSON, breaking the parser.
+        "generationConfig": {"temperature": 0.0, "maxOutputTokens": 128},
     }).encode("utf-8")
     req = urllib.request.Request(
         url, data=body, headers={"content-type": "application/json"}, method="POST",
@@ -197,7 +200,18 @@ def aggregate(records: list[dict], top_k: int = 10) -> dict:
             latencies_retrieval.append(float(r.get("retrieval_ms") or 0.0))
             continue
         gold = set(r.get("gold_session_ids") or [])
-        retr = list(r.get("retrieved_session_ids") or [])
+        # Dedupe retrieved_session_ids preserving order. nox-mem returns
+        # chunk-level hits, but a single session_id can appear in multiple
+        # chunks (one per turn). For session-level retrieval metrics we
+        # collapse to first-occurrence-per-session.
+        raw_retr = r.get("retrieved_session_ids") or []
+        seen: set[str] = set()
+        retr: list[str] = []
+        for sid in raw_retr:
+            if sid in seen:
+                continue
+            seen.add(sid)
+            retr.append(sid)
         if not gold:
             n_no_gold += 1
             continue
