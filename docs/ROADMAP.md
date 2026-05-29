@@ -17,7 +17,7 @@
 | **Q — Quality** | Numbers que lideram o mercado | Q1-Q4 | **Q1+Q2 full runs ✅ DONE** (G5 V3 0.6237 nDCG@10); **Q3 latency ✅ DONE** (p50 12ms / p95 43ms local); **Q4 LIVE validation ✅ DONE** (0.6380 nDCG@10 prod, +83% vs baseline, D43 gate verified) |
 | **A — Autonomy** | Data sua, provider sua escolha, zero vendor lock-in | A1-A4+A1.1 | A1 impl staged; **A1.1 BR PII shipped**; A2+A3 impl completo (T1-T18); **A4 100% runnable em CI**; **A2 Tier 3 P0+P1+P2 merged** |
 | **P — Product** | UX que ganha | P1-P10 | P1 LIVE em prod (answer API); P2 impl completo; P3 staged; P4 spec; **P5 impl completo** + P5a event bus; **F10 Phase C Phase 1+2 LIVE prod** |
-| **Lab — Retrieval Research** | Paper-grade improvements, 40% capacity | L1-L4 + G-series | L1 paused; **L2+L3+L4 impl completo**; G-series ablation ativa (G7 cravado, G8 pendente); **D49 phase 2 rolling** (~7d shadow, D50 ETA 2026-05-27) |
+| **Lab — Retrieval Research** | Paper-grade improvements, 40% capacity | L1-L4 + G-series | L1 paused; **L2+L3+L4 impl completo**; G-series ablation ativa (G7 cravado, G8 pendente); **D49 phase 2 rolling** (~7d shadow, D50 ETA 2026-05-27); **Phase G EverMemBench CLOSED** — rerank REJECT default, opt-in SHIP (D60); 5-batch methodology canonical (D62) |
 | **GTM Phase 2** | Viral launch | conditional | **Gate D43 VERIFIED** (nDCG@10 0.6380 exceeds +15% threshold); assets + pricing + Docker prontos; COMPARISON.md credible; **desbloqueada condicionalmente** |
 
 ---
@@ -116,6 +116,11 @@ Objetivo: provar nox-mem #1 (ou identificar gap exato) com benchmarks padrão in
 - Δ vs G3 baseline 0.3487: **+78.8%** — headline marketing
 - G7 check (entity-eval.db): formula v2 NEUTRA (+0.5% ruído) — D48 success, wiring real confirmed
 
+### Metodologia canônica (atualizado 2026-05-28 — Phase G lesson)
+
+- **5-batch + 95% CI obrigatório** para qualquer gate decision de ship/reject. Single-batch overstate effects 3-6× (Phase G batch 004 dizia +8pp F_MH; 5-batch revelou +1.61pp marginal). Single-batch resultado = "preliminary signal", não decision boundary. (D62)
+- **MA dim auto-audit** em qualquer eval que mude retrieval pipeline. Memory Awareness (MA_C/MA_P/MA_U) é "silent killer dim" — invisível em single-batch por selection bias. Não basta F_SH/F_MH/F_HL/F_TP. (D63)
+
 ### Próximas métricas alvo
 - Q3 formalizar: reduzir p95 Gemini embed → target sub-500ms (cache ou batching)
 - Q4 comparison rodar: alvo LoCoMo R@5 ≥ 90%, LongMemEval ≥ 85%
@@ -161,6 +166,25 @@ Objetivo: UX competitiva com agentmemory + memanto, sem comprometer pilares Q+A.
 | **P4** `nox-mem connect <ide>` | Tier A (Claude Code + Cursor + Codex deep) + Tier B (10 IDEs MCP-passive) | **⏳ Spec + kickoff** — 13 IDEs cobertos | PR #7 + #21 |
 | **P5** Real-time viewer upgrade | SSE + 4 panels (live feed/counters/charts/heatmap), <500ms ingest→event | **✅ Implementação completa** T1-T15 (Wave B) — 11.7KB bundle vanilla JS | PR #10 + #33 + #42 |
 | **P5a** Event bus refactor | P5 prerequisite, isolates SSE from ingest path | **✅ Shipped** 2026-05-18 (Wave overnight) | PR #33 |
+
+### Backlog de produto (Phase G additions — 2026-05-28)
+
+| Item | Detalhe | Status |
+|---|---|---|
+| `nox-mem search --rerank` CLI flag | Opt-in rerank via `NOX_RERANKER_ENABLED=1`; latência +3.7s p50 documentada | **🆕 Spec pendente** |
+| `/api/answer?mode=exploratory` | Rota API opt-in; activa rerank para workloads multi-hop avançados | **🆕 Spec pendente** |
+| Latency budget docs | Default vs `--rerank`: +3.7s p50, manifesto trade-off (hard-recall +1-2pp / MA -3 a -4pp / latência) | **🆕 Docs pendente** |
+| `pip install nox-mem[rerank]` | Deps rerank (sentence-transformers + onnxruntime ~500MB) NÃO bundled em core; preserva "SQLite-only" Autonomy narrative | **🆕 Spec pendente (D61)** |
+
+### GTM messaging refresh (2026-05-28)
+
+| Antes (Phase G batch 004) | Depois (Phase G 5-batch honest) |
+|---|---|
+| "We beat MemOS via rerank breakthrough" | "We beat MemOS by default (Phase D 62.22% > MemOS 59.27%) + offer adaptive routing for advanced multi-hop workloads" |
+| "+8pp F_MH rerank lift" | "+1.61pp F_MH marginal (5-batch, 95% CI sobrepõe baseline) — workload-dependent, não universal-win" |
+| Rerank como headline claim | Phase D config (rerank OFF) permanece canonical headline; rerank é opt-in trade-off study |
+
+> Differentiator: **honest trade-off documentation** vs Zep/mem0 overclaim culture. Phase D headline (nDCG@10 0.6380 > 0.5927 MemOS 59.27%) permanece intocada.
 
 ### Marketing message
 > "Memória deep pro stack que você usa de verdade, não memória pra qualquer IDE."
@@ -215,7 +239,11 @@ Objetivo: UX competitiva com agentmemory + memanto, sem comprometer pilares Q+A.
 | **F10 Phase D (Ops timeline + KG stats)** | ops_audit visualization 7d + KG growth charts | **⏳ Queued ~6h** | Phase C land + kg_snapshots table |
 | **Re-smoke Q105-Q110** | Pós shadow ter dados reais → confirma spike v2 em prod | **⏳ Aguarda shadow telemetry** | — |
 | **Formula v2 weights grid search** | Grid search 0.4-0.7/0.1-0.2/0.05-0.15/0.15-0.25 range; I1 env vars pra tunability | **⏳ Design done** (PR #169) — impl pendente I1 env vars | PR #55 (I1 env vars) merged pré-req |
-| **Neural reranker** | cross-encoder rerank após RRF; +3-8% nDCG literatura | **🅿️ Parking lot Q1/Q2** | bge/cohere/deepinfra; obrigatório ablation real + shadow |
+| **Adaptive query classifier** *(Q1 PRIORIDADE 1)* | multi-hop confidence threshold → roteia pra rerank ON; estimado +1-3pp overall vs always-rerank; fecha 30-50% do MemOS F_MH gap residual | **🆕 Lab Q1 #1** | ~1-2 semanas dev; Phase G MiniLM baseline já deployado (opt-in, D60) |
+| **MA-protection mechanism** *(Q1 PRIORIDADE 2)* | force `section_boost` entity files sobrevivem rerank displacement; previne -3 a -4pp MA regression cravada em Phase G 5-batch | **🆕 Lab Q1 #2** | ~1 semana dev; architectural (section_boost bypass de rerank sort); D63 |
+| **Neural reranker (bge-v2-m3 GPU retry)** | bge-reranker-v2-m3 568M — Phase G provou MiniLM 22M já sufficient; bigger model = diminishing returns; GPU não disponível em VPS Hostinger 4 vCPU | **🚫 Deferred Q3 ou cut** | Phase G falsificou ROI; só reavaliar se GPU disponível + MA-protection estiver resolvida |
+| **Multi-query expansion / query decomposition** | expandir 1 query → N sub-queries; principal caminho pro MemOS F_MH gap residual (12.11pp pós-rerank) | **🅿️ Parking lot Q2** | Lab Q1 adaptive classifier precisa ir primeiro |
+| **KG path retrieval (kg_relations walk)** | multi-hop via KG traversal; D59 PR #339 mostrou E dead-weight +600ms sem lift@500 — reavaliação post-MA-protection | **🅿️ Parking lot Q2** | D59 cautionary data; reavaliação após adaptive classifier validado |
 
 ---
 
@@ -292,8 +320,13 @@ PARALELAMENTE:
  ⏳ Formula v2 weights grid search (post-launch Lab Q1; current weights canonical)
 
 POST-LAUNCH (Lab Q1/Q2):
- ⏳ Neural reranker ablation (bge/cohere/deepinfra + shadow 7d)
- ⏳ EverMemBench honest comparison (iii-engine baseline + nox-mem validation)
+ ⏳ [Q1 #1] Adaptive query classifier — multi-hop confidence → rerank ON routing (D60 + spec pendente)
+ ⏳ [Q1 #2] MA-protection mechanism — entity/profile chunks bypass rerank displacement (D63 + spec pendente)
+ ⏳ [Q1 #3] `nox-mem search --rerank` CLI + `/api/answer?mode=exploratory` + latency budget docs
+ ⏳ [Q1 #4] Optional install `pip install nox-mem[rerank]` (D61) — preserva Autonomy core SQLite-only
+ ⏳ [Q2] Multi-query expansion / query decomposition — MemOS F_MH gap residual 12.11pp
+ ⏳ [Q2] EverMemBench honest comparison (iii-engine baseline + nox-mem validation)
+ ✅ Neural reranker ablation — DONE via Phase G 5-batch (MiniLM 22M); bigger model deferred Q3 (diminishing returns)
  ⏳ Scale test 250k chunks (infrastructure + perf validation)
  ⏳ Multilingual support (CJK embeddings + FTS5 language routing)
 
@@ -460,4 +493,4 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-*ROADMAP v4.5 — v2 overnight 2026-05-17; v3 pós Wave H 2026-05-18; v4 pós Wave A 2026-05-20; v4.1 EOD 2026-05-20 D48 saga (G3→G11); v4.2 EOD 2026-05-21 inicial (G10d + F10 A+B + L4 plural); v4.3 EOD FINAL 2026-05-21 (24 PRs total + 4 prod deploys + G12 R3 VPS-deployed + G12 R1+R2 closed eval-only via PR #216 audit §11); v4.4 overnight 2026-05-21 ~22h BRT (10 agents em paralelo + §12 next-action calendário Sat-launch); **v4.5 Sat 2026-05-24 manhã (§12 ajustado por Q4 ingestion gap — 14h aggregate defer, ingestion sprint 6 agents)**. Próxima review: Sat 2026-05-24 tarde pós ingestion PRs mergeados.*
+*ROADMAP v4.6 — v2 overnight 2026-05-17; v3 pós Wave H 2026-05-18; v4 pós Wave A 2026-05-20; v4.1 EOD 2026-05-20 D48 saga (G3→G11); v4.2 EOD 2026-05-21 inicial (G10d + F10 A+B + L4 plural); v4.3 EOD FINAL 2026-05-21 (24 PRs total + 4 prod deploys + G12 R3 VPS-deployed + G12 R1+R2 closed eval-only via PR #216 audit §11); v4.4 overnight 2026-05-21 ~22h BRT (10 agents em paralelo + §12 next-action calendário Sat-launch); v4.5 Sat 2026-05-24 manhã (§12 ajustado por Q4 ingestion gap — 14h aggregate defer, ingestion sprint 6 agents); **v4.6 2026-05-28 Phase G 5-batch learnings — Lab Q1 reorder (adaptive classifier #1 + MA-protection #2), rerank opt-in SHIP (D60-D63), GTM messaging refresh, 5-batch + MA methodology canonical.**
