@@ -1,0 +1,208 @@
+{
+  "retrieval": {
+    "n_total": 300,
+    "n_scored": 297,
+    "n_errors": 3,
+    "n_no_gold": 0,
+    "top_k": 10,
+    "overall": {
+      "ndcg_at_10": {
+        "n": 297,
+        "mean": 1.0,
+        "se": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "recall_at_10": {
+        "n": 297,
+        "mean": 1.0,
+        "se": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "mrr": {
+        "n": 297,
+        "mean": 1.0,
+        "se": 0.0,
+        "ci95": [
+          1.0,
+          1.0
+        ]
+      },
+      "session_hit_at_10": {
+        "mean": 1.0,
+        "n": 297,
+        "wilson_95": [
+          0.9872,
+          1.0
+        ]
+      }
+    },
+    "per_category": {
+      "knowledge-update": {
+        "n": 47,
+        "ndcg_at_10": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "session_hit_at_10": 1.0
+      },
+      "multi-session": {
+        "n": 73,
+        "ndcg_at_10": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "session_hit_at_10": 1.0
+      },
+      "single-session-assistant": {
+        "n": 37,
+        "ndcg_at_10": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "session_hit_at_10": 1.0
+      },
+      "single-session-preference": {
+        "n": 27,
+        "ndcg_at_10": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "session_hit_at_10": 1.0
+      },
+      "single-session-user": {
+        "n": 44,
+        "ndcg_at_10": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "session_hit_at_10": 1.0
+      },
+      "temporal-reasoning": {
+        "n": 69,
+        "ndcg_at_10": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "session_hit_at_10": 1.0
+      }
+    },
+    "per_abstention": {
+      "_abs": {
+        "n": 30,
+        "ndcg_at_10": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "session_hit_at_10": 1.0
+      },
+      "non_abs": {
+        "n": 267,
+        "ndcg_at_10": 1.0,
+        "recall_at_10": 1.0,
+        "mrr": 1.0,
+        "session_hit_at_10": 1.0
+      }
+    },
+    "latency_ms": {
+      "ingest": {
+        "p50": 506.4,
+        "p95": 1102.9,
+        "p99": 1862.8,
+        "mean": 593.8
+      },
+      "vectorize": {
+        "p50": 1795.7,
+        "p95": 3892.3,
+        "p99": 4841.4,
+        "mean": 1994.2
+      },
+      "retrieval": {
+        "p50": 939.3,
+        "p95": 1618.8,
+        "p99": 2109.6,
+        "mean": 1072.8
+      }
+    }
+  },
+  "task_accuracy": {
+    "judge_model": "gemini-2.5-flash",
+    "n_judged": 201,
+    "n_skipped": 3,
+    "n_judge_errors": 96,
+    "overall": {
+      "n": 201,
+      "accuracy": 0.6816,
+      "wilson_95": [
+        0.6143,
+        0.7421
+      ]
+    },
+    "per_category": {
+      "knowledge-update": {
+        "n": 39,
+        "accuracy": 0.8205,
+        "wilson_95": [
+          0.6733,
+          0.9102
+        ]
+      },
+      "multi-session": {
+        "n": 43,
+        "accuracy": 0.5581,
+        "wilson_95": [
+          0.4111,
+          0.6957
+        ]
+      },
+      "single-session-assistant": {
+        "n": 31,
+        "accuracy": 0.871,
+        "wilson_95": [
+          0.7115,
+          0.9487
+        ]
+      },
+      "single-session-preference": {
+        "n": 16,
+        "accuracy": 0.3125,
+        "wilson_95": [
+          0.1416,
+          0.556
+        ]
+      },
+      "single-session-user": {
+        "n": 30,
+        "accuracy": 0.8667,
+        "wilson_95": [
+          0.7032,
+          0.9469
+        ]
+      },
+      "temporal-reasoning": {
+        "n": 42,
+        "accuracy": 0.5476,
+        "wilson_95": [
+          0.3995,
+          0.6878
+        ]
+      }
+    },
+    "per_abstention": {
+      "_abs": {
+        "n": 23,
+        "accuracy": 0.8261,
+        "wilson_95": [
+          0.6286,
+          0.9302
+        ]
+      },
+      "non_abs": {
+        "n": 178,
+        "accuracy": 0.6629,
+        "wilson_95": [
+          0.5907,
+          0.7283
+        ]
+      }
+    }
+  }
+}
