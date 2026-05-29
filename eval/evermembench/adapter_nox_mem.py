@@ -1,5 +1,5 @@
 """
-nox-mem Adapter for EverMemBench — Phase F (2026-05-28).
+nox-mem Adapter for EverMemBench — Phase F + Phase KG (Lab Q1 #4, 2026-05-29).
 
 Connects nox-mem (CLI ingest + HTTP search API) to the EverMemBench
 evaluation harness.
@@ -26,20 +26,41 @@ Cross-encoder rerank adds local compute cost (~50-300ms per query on CPU,
 faster on GPU). For end-user latency-sensitive paths this would be a
 trade-off; for offline benchmark eval it is acceptable.
 
+Phase KG (Lab Q1 #4, 2026-05-29) — KG path retrieval (Approach A, 1-hop):
+  1. Extract candidate entity mentions from the query via regex against
+     `kg_entities.name` (cheapest path per spec §3.A).
+  2. Look up 1-hop neighbors via SQL JOIN over `kg_relations` (FK ids,
+     not inline strings — per [[kg-relations-uses-fk-ids-not-inline-strings]]).
+  3. Use `kg_relations.evidence_chunk_id` (direct FK to chunks) to find
+     "evidence chunks" for the neighbor entities — much cleaner than
+     `source_path LIKE '%slug%'` matching.
+  4. Apply ADDITIVE score delta to evidence chunks already present in
+     the hybrid search top-N. Per memoria-nox rule §5 (boost multiplicativo
+     empilhável é veneno), the delta is added to RRF score, not multiplied.
+
 Modes:
     NOX_ADAPTER_MODE=baseline  -> PR #363 flat-paragraph ingest format
     NOX_ADAPTER_MODE=phaseB    -> H2-per-message + digest (default)
     NOX_ADAPTER_MODE=phaseF    -> phaseB ingest + cross-encoder rerank in search
+    NOX_ADAPTER_MODE=phaseKG   -> phaseB ingest + KG 1-hop entity boost in search
 
 Environment variables:
     NOX_API_BASE              — nox-mem API base URL (default: http://127.0.0.1:18802)
     NOX_DB_PATH               — per-batch DB path override (REQUIRED for isolation)
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
-    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF"
+    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
     NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
     NOX_RERANKER_BATCH_SIZE   — CrossEncoder.predict batch_size (default: 32)
+    NOX_KG_PATH_ENABLED       — "1" to force KG 1-hop boost (env override on any mode)
+    NOX_KG_BOOST_MAGNITUDE    — float, additive delta applied to RRF score (default: 0.05)
+    NOX_KG_DIRECT_MULTIPLIER  — float, multiplier of base delta for chunks containing
+                                directly-mentioned entities (default: 1.5)
+    NOX_KG_MAX_NEIGHBORS      — int, max neighbors per mentioned entity (default: 20)
+    NOX_KG_MIN_NAME_LEN       — int, minimum entity name length to use in regex
+                                extraction (default: 3) — avoids matching common tokens
+                                like "a", "of", "is" that may be entity names in noisy KGs.
 """
 import asyncio
 import os
@@ -123,6 +144,19 @@ DEFAULT_RERANKER_OVERFETCH = 50
 DEFAULT_RERANKER_BATCH_SIZE = 32
 DEFAULT_RERANKER_MAX_LENGTH = 512
 
+# Phase KG (Lab Q1 #4) — KG 1-hop boost defaults.
+#
+# BASE_DELTA = 0.05 per spec §8.6 — scaled to typical RRF score range (0.01-0.1).
+# DIRECT_MULTIPLIER = 1.5 → directly-mentioned entities get 1.5× neighbor boost
+# per spec §3.A. MAX_NEIGHBORS prevents pathological cases where a high-degree
+# entity (e.g. a hub person in the chat) floods the boost candidate set.
+# MIN_NAME_LEN = 3 avoids regex false positives on short tokens like "i", "of".
+DEFAULT_KG_BOOST_MAGNITUDE = 0.05
+DEFAULT_KG_DIRECT_MULTIPLIER = 1.5
+DEFAULT_KG_MAX_NEIGHBORS = 20
+DEFAULT_KG_MIN_NAME_LEN = 3
+DEFAULT_KG_OVERFETCH = 50  # pull top-50 from API so KG can re-rank within
+
 
 # ---------------------------------------------------------------------------
 # Reranker singleton loader
@@ -150,6 +184,190 @@ def _load_reranker(model_id: str, max_length: int) -> Tuple[Any, Optional[str]]:
         return None, f"CrossEncoder({model_id}) load failed: {type(exc).__name__}: {exc}"
 
     return model, None
+
+
+# ---------------------------------------------------------------------------
+# Phase KG (Lab Q1 #4) — KG path retrieval helpers
+# ---------------------------------------------------------------------------
+#
+# These helpers run direct SQLite queries against the same DB the api-server
+# is using. They are read-only (SELECT only) and use the FK schema documented
+# in `[[kg-relations-uses-fk-ids-not-inline-strings]]`:
+#
+#   kg_entities (id, name, entity_type, mention_count, attributes, ...)
+#   kg_relations (id, source_entity_id, relation_type, target_entity_id,
+#                 evidence_chunk_id, confidence, ...)
+#
+# Important: SQLite WAL mode + concurrent readers are SAFE — the api-server
+# holds its own connection, and our read-only connection sees a snapshot.
+# We open and cache a single read-only connection per (db_path, process).
+
+
+@_functools.lru_cache(maxsize=4)
+def _kg_open_db(db_path: str) -> Tuple[Any, Optional[str]]:
+    """Open a read-only SQLite connection to the KG DB. Cached per path."""
+    import sqlite3 as _sqlite3
+    try:
+        # URI mode + mode=ro = read-only, will not interfere with api-server.
+        conn = _sqlite3.connect(
+            f"file:{db_path}?mode=ro",
+            uri=True,
+            check_same_thread=False,
+            timeout=5.0,
+        )
+        # Confirm KG tables exist
+        row = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' "
+            "AND name IN ('kg_entities','kg_relations')"
+        ).fetchall()
+        if len(row) < 2:
+            return None, f"KG tables missing in {db_path} (found {[r[0] for r in row]})"
+    except Exception as exc:  # noqa: BLE001
+        return None, f"sqlite3.connect failed: {type(exc).__name__}: {exc}"
+    return conn, None
+
+
+@_functools.lru_cache(maxsize=8)
+def _kg_load_entity_names(db_path: str, min_name_len: int) -> Tuple[Tuple[Tuple[int, str], ...], Optional[str]]:
+    """Load all (id, name) pairs from kg_entities with len(name) >= min_name_len.
+
+    Cached as tuple-of-tuples so the lru_cache key is hashable. Names are
+    lowercased here once so per-query regex matching is cheap.
+    """
+    conn, err = _kg_open_db(db_path)
+    if err is not None or conn is None:
+        return (), err
+
+    try:
+        rows = conn.execute(
+            "SELECT id, LOWER(name) FROM kg_entities "
+            "WHERE LENGTH(name) >= ? "
+            "ORDER BY mention_count DESC",
+            (min_name_len,),
+        ).fetchall()
+    except Exception as exc:  # noqa: BLE001
+        return (), f"kg_entities query failed: {type(exc).__name__}: {exc}"
+
+    return tuple((int(r[0]), str(r[1])) for r in rows), None
+
+
+def _kg_extract_query_entities(
+    query: str,
+    entity_pool: Tuple[Tuple[int, str], ...],
+    max_entities: int = 10,
+) -> List[Tuple[int, str]]:
+    """Regex-extract entity mentions from query against KG entity pool.
+
+    Approach A (cheapest): substring match. Lowercases query once, then
+    iterates entity_pool (already lowercased) checking presence. Returns
+    list of (entity_id, entity_name) tuples in pool order (which is
+    mention_count DESC) up to `max_entities`.
+
+    Why substring (not word boundary): EverMemBench entity names are
+    multi-token person/group names (e.g. "Weihua Zhang", "Group 1") and
+    Unicode word boundary regex `\b` is unreliable in PT-BR / accented
+    contexts — per [[js-regex-unicode-word-boundary-fails]], same caveat
+    applies to Python `re` with `\b`. We use substring containment with a
+    `min_name_len` >= 3 filter to control false positives.
+    """
+    import re as _re
+
+    q_lower = query.lower()
+    matched: List[Tuple[int, str]] = []
+    seen: set = set()
+    for ent_id, ent_name_lc in entity_pool:
+        if ent_id in seen:
+            continue
+        # Whole-word-ish match: name surrounded by non-alphanumeric or string edges.
+        # This is more robust than naive `in` (e.g. avoids matching "al" inside "alpha").
+        # We still avoid `\b` because non-ASCII unicode breaks JS regex; in Python
+        # `re.UNICODE` works but we prefer explicit boundary chars for portability.
+        pattern = r'(?:^|[^a-z0-9])' + _re.escape(ent_name_lc) + r'(?:$|[^a-z0-9])'
+        if _re.search(pattern, q_lower):
+            matched.append((ent_id, ent_name_lc))
+            seen.add(ent_id)
+            if len(matched) >= max_entities:
+                break
+    return matched
+
+
+def _kg_get_1hop_neighbors(
+    db_path: str,
+    entity_ids: List[int],
+    max_neighbors_per_entity: int,
+) -> List[Tuple[int, int, float, int]]:
+    """Return 1-hop neighbors of given entity_ids.
+
+    Returns list of tuples: (neighbor_entity_id, evidence_chunk_id, confidence,
+    source_entity_id). evidence_chunk_id may be 0 if not set on the relation
+    (we filter those out at boost time — they don't contribute to chunk boost).
+
+    Walks both directions: relations where source IS the seed AND relations
+    where target IS the seed. The "neighbor" is always the other end of the
+    edge from the seed.
+
+    Per [[kg-relations-uses-fk-ids-not-inline-strings]]: use FK ids, not names.
+    """
+    conn, err = _kg_open_db(db_path)
+    if err is not None or conn is None or not entity_ids:
+        return []
+
+    placeholders = ",".join("?" * len(entity_ids))
+    # Outbound edges: seed = source_entity_id, neighbor = target_entity_id
+    # Inbound edges:  seed = target_entity_id, neighbor = source_entity_id
+    sql = f"""
+        SELECT target_entity_id AS neighbor, evidence_chunk_id, confidence, source_entity_id
+        FROM kg_relations
+        WHERE source_entity_id IN ({placeholders})
+          AND target_entity_id NOT IN ({placeholders})
+          AND target_entity_id IS NOT NULL
+        UNION ALL
+        SELECT source_entity_id AS neighbor, evidence_chunk_id, confidence, target_entity_id
+        FROM kg_relations
+        WHERE target_entity_id IN ({placeholders})
+          AND source_entity_id NOT IN ({placeholders})
+          AND source_entity_id IS NOT NULL
+    """
+    try:
+        rows = conn.execute(sql, entity_ids * 4).fetchall()
+    except Exception:  # noqa: BLE001
+        return []
+    # Cap per-seed neighbor count to avoid hub flooding
+    by_seed: Dict[int, List[Tuple[int, int, float, int]]] = {}
+    for n, ev, conf, seed in rows:
+        bucket = by_seed.setdefault(int(seed), [])
+        if len(bucket) < max_neighbors_per_entity:
+            bucket.append((int(n), int(ev or 0), float(conf or 0.0), int(seed)))
+    out: List[Tuple[int, int, float, int]] = []
+    for bucket in by_seed.values():
+        out.extend(bucket)
+    return out
+
+
+def _kg_get_direct_chunk_ids(
+    db_path: str,
+    entity_ids: List[int],
+) -> set:
+    """Return chunk_ids that are direct evidence for the given (directly-mentioned) entities.
+
+    A chunk is "direct evidence" for an entity if any relation where the entity
+    appears as source OR target lists that chunk in evidence_chunk_id.
+    """
+    conn, err = _kg_open_db(db_path)
+    if err is not None or conn is None or not entity_ids:
+        return set()
+
+    placeholders = ",".join("?" * len(entity_ids))
+    sql = f"""
+        SELECT DISTINCT evidence_chunk_id FROM kg_relations
+        WHERE (source_entity_id IN ({placeholders}) OR target_entity_id IN ({placeholders}))
+          AND evidence_chunk_id IS NOT NULL
+    """
+    try:
+        rows = conn.execute(sql, entity_ids * 2).fetchall()
+    except Exception:  # noqa: BLE001
+        return set()
+    return {int(r[0]) for r in rows if r[0]}
 
 
 class NoxMemAdapter(BaseAdapter):
@@ -229,6 +447,43 @@ class NoxMemAdapter(BaseAdapter):
             self.reranker_enabled = True
         else:
             self.reranker_enabled = (self.adapter_mode == "phaseF")
+
+        # Phase KG (Lab Q1 #4) — entity 1-hop boost config.
+        # Enabled by phaseKG mode (default-on for that mode) OR by explicit
+        # NOX_KG_PATH_ENABLED env override on top of any other mode.
+        env_kg = os.environ.get("NOX_KG_PATH_ENABLED", "").strip().lower()
+        env_kg_truthy = env_kg in ("1", "true", "yes", "on")
+        env_kg_falsy = env_kg in ("0", "false", "no", "off")
+        if env_kg_falsy:
+            self.kg_enabled = False
+        elif env_kg_truthy:
+            self.kg_enabled = True
+        else:
+            self.kg_enabled = (self.adapter_mode == "phaseKG")
+
+        self.kg_boost_magnitude = float(
+            os.environ.get("NOX_KG_BOOST_MAGNITUDE", "")
+            or DEFAULT_KG_BOOST_MAGNITUDE
+        )
+        self.kg_direct_multiplier = float(
+            os.environ.get("NOX_KG_DIRECT_MULTIPLIER", "")
+            or DEFAULT_KG_DIRECT_MULTIPLIER
+        )
+        self.kg_max_neighbors = int(
+            os.environ.get("NOX_KG_MAX_NEIGHBORS", "")
+            or DEFAULT_KG_MAX_NEIGHBORS
+        )
+        self.kg_min_name_len = int(
+            os.environ.get("NOX_KG_MIN_NAME_LEN", "")
+            or DEFAULT_KG_MIN_NAME_LEN
+        )
+        self.kg_overfetch = int(
+            os.environ.get("NOX_KG_OVERFETCH", "")
+            or DEFAULT_KG_OVERFETCH
+        )
+        # The DB path is the same one the api-server is bound to; we open a
+        # separate read-only conn for KG queries.
+        self.kg_db_path = os.environ.get("NOX_DB_PATH", "")
 
         # HTTP session — created lazily to allow use in async context
         self._session: Optional[aiohttp.ClientSession] = None
@@ -636,10 +891,13 @@ class NoxMemAdapter(BaseAdapter):
 
         # Decide how many results to request from the API.
         # Phase F: overfetch then rerank locally. Other modes: request top_k.
-        api_limit = (
-            max(self.reranker_overfetch, top_k)
-            if self.reranker_enabled else top_k
-        )
+        # Phase KG: also needs overfetch so we have a pool to re-rank within
+        # via KG boost. If both KG and rerank are on, take the max overfetch.
+        api_limit = top_k
+        if self.reranker_enabled:
+            api_limit = max(api_limit, self.reranker_overfetch)
+        if self.kg_enabled:
+            api_limit = max(api_limit, self.kg_overfetch)
 
         payload = {
             "query": query,
@@ -689,6 +947,116 @@ class NoxMemAdapter(BaseAdapter):
                     candidates.append((content, item))
 
         api_returned = len(candidates)
+
+        # ------------------------------------------------------------------
+        # Phase KG (Lab Q1 #4) — 1-hop entity boost (post-RRF, pre-rerank)
+        # ------------------------------------------------------------------
+        kg_error: Optional[str] = None
+        kg_ms: Optional[float] = None
+        kg_applied = False
+        kg_meta: Dict[str, Any] = {}
+
+        if self.kg_enabled and candidates and self.kg_db_path:
+            kg_start = time.monotonic() * 1000
+            try:
+                # 1. Load entity pool (cached per DB after first call)
+                entity_pool, load_err = _kg_load_entity_names(
+                    self.kg_db_path, self.kg_min_name_len
+                )
+                if load_err is not None:
+                    kg_error = load_err
+                elif not entity_pool:
+                    kg_meta["status"] = "empty_kg"
+                else:
+                    # 2. Extract entity mentions from query (regex)
+                    matched = _kg_extract_query_entities(query, entity_pool)
+                    matched_ids = [m[0] for m in matched]
+                    if not matched_ids:
+                        kg_meta["status"] = "no_entities_in_query"
+                    else:
+                        # 3a. Get direct evidence chunks (chunks tied to the
+                        #     mentioned entity itself — strongest signal)
+                        direct_chunks = _kg_get_direct_chunk_ids(
+                            self.kg_db_path, matched_ids
+                        )
+                        # 3b. Get 1-hop neighbors and their evidence chunks
+                        neighbors = _kg_get_1hop_neighbors(
+                            self.kg_db_path,
+                            matched_ids,
+                            self.kg_max_neighbors,
+                        )
+                        # Map: chunk_id → (best_confidence, hop_type)
+                        # hop_type: "direct" (1.5×) or "neighbor" (1.0×)
+                        chunk_boost_score: Dict[int, Tuple[float, str]] = {}
+                        for cid in direct_chunks:
+                            if cid <= 0:
+                                continue
+                            chunk_boost_score[cid] = (1.0, "direct")
+                        for n_eid, ev_cid, conf, _seed in neighbors:
+                            if ev_cid <= 0:
+                                continue
+                            if ev_cid in chunk_boost_score and chunk_boost_score[ev_cid][1] == "direct":
+                                continue  # direct trumps neighbor
+                            prev = chunk_boost_score.get(ev_cid)
+                            if prev is None or conf > prev[0]:
+                                chunk_boost_score[ev_cid] = (conf, "neighbor")
+
+                        # 4. Apply ADDITIVE boost to candidates whose
+                        #    chunk_id matches the boost map.
+                        #    Per memoria-nox rule §5 (multiplicative empilhável
+                        #    é veneno), we use additive delta.
+                        boost_count = 0
+                        for idx, (content, item) in enumerate(candidates):
+                            cid = item.get("id") or item.get("chunk_id") or item.get("rowid")
+                            try:
+                                cid_int = int(cid) if cid is not None else None
+                            except (TypeError, ValueError):
+                                cid_int = None
+                            if cid_int is None or cid_int not in chunk_boost_score:
+                                continue
+                            conf, hop_type = chunk_boost_score[cid_int]
+                            multiplier = (
+                                self.kg_direct_multiplier
+                                if hop_type == "direct"
+                                else 1.0
+                            )
+                            delta = self.kg_boost_magnitude * multiplier * conf
+                            # Record the delta on the item so downstream
+                            # sorting (after rerank, if enabled) uses it.
+                            item["_kg_boost"] = delta
+                            item["_kg_hop_type"] = hop_type
+                            boost_count += 1
+
+                        # Re-sort candidates: API rank position + kg delta.
+                        # We use a synthetic score = (rrf_score or 1/(rank+1)) + delta.
+                        # Most APIs do not return rrf_score so we approximate
+                        # with 1/(rank+1) which is the RRF k=0 form.
+                        def _kg_sort_key(rank_item: Tuple[int, Tuple[str, Dict[str, Any]]]) -> float:
+                            rank, (_c, it) = rank_item
+                            base_score = (
+                                float(it.get("rrf_score") or it.get("score") or 0.0)
+                                or 1.0 / (rank + 1)
+                            )
+                            return -(base_score + float(it.get("_kg_boost") or 0.0))
+
+                        candidates = [
+                            c for _, c in sorted(
+                                enumerate(candidates),
+                                key=_kg_sort_key,
+                            )
+                        ]
+                        kg_applied = True
+                        kg_meta.update(
+                            status="applied",
+                            entities_in_query=len(matched_ids),
+                            entity_names_matched=[m[1] for m in matched],
+                            neighbors_found=len(neighbors),
+                            direct_chunks=len(direct_chunks),
+                            chunks_boosted=boost_count,
+                        )
+            except Exception as exc:  # noqa: BLE001
+                kg_error = f"KG boost failed: {type(exc).__name__}: {exc}"
+            kg_ms = time.monotonic() * 1000 - kg_start
 
         # ------------------------------------------------------------------
         # Phase F: cross-encoder rerank (graceful fallback)
@@ -746,6 +1114,11 @@ class NoxMemAdapter(BaseAdapter):
             "rerank_model": self.reranker_model_id if self.reranker_enabled else None,
             "rerank_ms": rerank_ms,
             "rerank_error": rerank_error,
+            "kg_enabled": self.kg_enabled,
+            "kg_applied": kg_applied,
+            "kg_ms": kg_ms,
+            "kg_error": kg_error,
+            "kg_meta": kg_meta,
         }
         return SearchResult(
             question_id=kwargs.get("question_id", "unknown"),
@@ -774,5 +1147,12 @@ class NoxMemAdapter(BaseAdapter):
             "reranker_overfetch": self.reranker_overfetch,
             "reranker_batch_size": self.reranker_batch_size,
             "reranker_max_length": self.reranker_max_length,
-            "version": "phase-f-0.1",
+            "kg_enabled": self.kg_enabled,
+            "kg_boost_magnitude": self.kg_boost_magnitude,
+            "kg_direct_multiplier": self.kg_direct_multiplier,
+            "kg_max_neighbors": self.kg_max_neighbors,
+            "kg_min_name_len": self.kg_min_name_len,
+            "kg_overfetch": self.kg_overfetch,
+            "kg_db_path": self.kg_db_path,
+            "version": "phase-kg-0.1",
         }
