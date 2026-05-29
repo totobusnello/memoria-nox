@@ -30,26 +30,75 @@ Modes:
     NOX_ADAPTER_MODE=baseline  -> PR #363 flat-paragraph ingest format
     NOX_ADAPTER_MODE=phaseB    -> H2-per-message + digest (default)
     NOX_ADAPTER_MODE=phaseF    -> phaseB ingest + cross-encoder rerank in search
+    NOX_ADAPTER_MODE=phaseAC   -> phaseB ingest + adaptive heuristic classifier
+                                  routes rerank ON for multi-hop, OFF for factual
+                                  (Lab Q1 #1, spec PR #373 Option A)
 
 Environment variables:
     NOX_API_BASE              — nox-mem API base URL (default: http://127.0.0.1:18802)
     NOX_DB_PATH               — per-batch DB path override (REQUIRED for isolation)
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
-    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF"
+    NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseAC"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
-    NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
+    NOX_RERANKER_MODEL        — HF model id (default: cross-encoder/ms-marco-MiniLM-L-6-v2 phaseG)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
     NOX_RERANKER_BATCH_SIZE   — CrossEncoder.predict batch_size (default: 32)
+    NOX_ADAPTIVE_CLASSIFIER   — "1" to enable phaseAC heuristic classifier (mode override)
+    NOX_ADAPTIVE_THRESHOLD    — integer score threshold (default: 4 per spec PR #373)
+    NOX_ADAPTIVE_DEBUG        — "1" to log per-query classification to stderr
 """
 import asyncio
 import os
 import shlex
+import sys
 import tempfile
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import aiohttp
+
+# Lab Q1 #1 adaptive classifier (PR #373 Option A heuristic) — optional import,
+# only consulted when adapter_mode == "phaseAC" or NOX_ADAPTIVE_CLASSIFIER=1.
+#
+# Import resolution: this adapter is shipped both as
+#   eval/evermembench/adapter_nox_mem.py   (memoria-nox repo path — local dev)
+# and as
+#   eval/src/adapters/nox_mem_adapter.py   (EverMemBench harness install path)
+# query_classifier.py is shipped alongside the adapter in BOTH locations. Try
+# both possible import paths so the module resolves regardless of which copy
+# is loaded.
+classify_query = None  # type: ignore[assignment]
+ADAPTIVE_DEFAULT_THRESHOLD = 4
+try:
+    # 1) memoria-nox repo layout
+    from eval.evermembench.query_classifier import (  # type: ignore[import-not-found]
+        DEFAULT_THRESHOLD as _ADTHR,
+        classify_query as _classify_query,
+    )
+    classify_query = _classify_query
+    ADAPTIVE_DEFAULT_THRESHOLD = _ADTHR
+except ImportError:
+    try:
+        # 2) EverMemBench harness layout (sibling of adapter)
+        from .query_classifier import (  # type: ignore[import-not-found]
+            DEFAULT_THRESHOLD as _ADTHR,
+            classify_query as _classify_query,
+        )
+        classify_query = _classify_query
+        ADAPTIVE_DEFAULT_THRESHOLD = _ADTHR
+    except ImportError:
+        try:
+            # 3) Bare module on sys.path (fallback for shell scripts that copy
+            #    query_classifier.py into the cwd)
+            from query_classifier import (  # type: ignore[import-not-found]
+                DEFAULT_THRESHOLD as _ADTHR,
+                classify_query as _classify_query,
+            )
+            classify_query = _classify_query
+            ADAPTIVE_DEFAULT_THRESHOLD = _ADTHR
+        except ImportError:
+            pass
 
 # ---------------------------------------------------------------------------
 # BaseAdapter import: adjust path when placed inside EverMemBench tree
@@ -229,6 +278,43 @@ class NoxMemAdapter(BaseAdapter):
             self.reranker_enabled = True
         else:
             self.reranker_enabled = (self.adapter_mode == "phaseF")
+
+        # ── Lab Q1 #1 adaptive classifier (PR #373 Option A) ──────────────
+        # Enabled when adapter_mode == "phaseAC" OR explicit
+        # NOX_ADAPTIVE_CLASSIFIER=1 env override on top of any other mode.
+        # When enabled, the per-query classifier decides rerank ON/OFF instead
+        # of the global reranker_enabled flag.
+        env_adaptive = os.environ.get("NOX_ADAPTIVE_CLASSIFIER", "").strip().lower()
+        env_adaptive_truthy = env_adaptive in ("1", "true", "yes", "on")
+        env_adaptive_falsy = env_adaptive in ("0", "false", "no", "off")
+        if env_adaptive_falsy:
+            self.adaptive_enabled = False
+        elif env_adaptive_truthy:
+            self.adaptive_enabled = True
+        else:
+            self.adaptive_enabled = (self.adapter_mode == "phaseAC")
+
+        # Threshold — default 4 per spec PR #373 §2 Option A
+        threshold_raw = (
+            config.get("adaptive_threshold", 0)
+            or os.environ.get("NOX_ADAPTIVE_THRESHOLD", "")
+            or ADAPTIVE_DEFAULT_THRESHOLD
+        )
+        try:
+            self.adaptive_threshold = int(threshold_raw)
+        except (TypeError, ValueError):
+            self.adaptive_threshold = ADAPTIVE_DEFAULT_THRESHOLD
+
+        # Debug — log per-query classification to stderr if enabled
+        env_debug = os.environ.get("NOX_ADAPTIVE_DEBUG", "").strip().lower()
+        self.adaptive_debug = env_debug in ("1", "true", "yes", "on")
+
+        # Routing counters — aggregated across queries for run-level audit
+        self._adaptive_route_counts = {
+            "multi_hop": 0,
+            "factual": 0,
+            "classifier_unavailable": 0,
+        }
 
         # HTTP session — created lazily to allow use in async context
         self._session: Optional[aiohttp.ClientSession] = None
@@ -630,15 +716,66 @@ class NoxMemAdapter(BaseAdapter):
         from the API and rerank with BAAI/bge-reranker-v2-m3 CrossEncoder
         before truncating to `top_k`. Falls back to plain top_k on any
         reranker failure (logged in metadata.rerank_error).
+
+        Phase AC (Lab Q1 #1, spec PR #373 Option A): if `self.adaptive_enabled`
+        is True, classify the query first; rerank only when the classifier
+        decides multi_hop. Factual queries skip the rerank (best-of-both: keep
+        Phase D's MA preservation on factual + Phase G's F_MH lift on multi-hop).
         """
         start_ms = time.monotonic() * 1000
         session = await self._get_session()
 
+        # ── Lab Q1 #1 adaptive classifier (per-query gate) ─────────────────
+        # Decide per-query whether to engage the reranker. Precedence:
+        #   1. If adaptive_enabled AND classifier available: classifier decides.
+        #   2. Else: fall back to global self.reranker_enabled (phaseF / env override).
+        classification_meta: Optional[Dict[str, Any]] = None
+        effective_rerank_enabled = self.reranker_enabled
+
+        if self.adaptive_enabled:
+            if classify_query is None:
+                # Module import failed — fall back to legacy reranker_enabled,
+                # but record the gap in metadata so reports show coverage.
+                self._adaptive_route_counts["classifier_unavailable"] += 1
+                classification_meta = {
+                    "available": False,
+                    "fallback": "global_reranker_enabled",
+                }
+            else:
+                classify_t0 = time.perf_counter()
+                result = classify_query(query, threshold=self.adaptive_threshold)
+                classify_ms = (time.perf_counter() - classify_t0) * 1000.0
+
+                # Adaptive override of reranker_enabled — only active when
+                # adaptive_enabled is true. Factual → OFF, multi_hop → ON.
+                effective_rerank_enabled = result.is_multi_hop
+                self._adaptive_route_counts[result.decision] = (
+                    self._adaptive_route_counts.get(result.decision, 0) + 1
+                )
+
+                classification_meta = {
+                    "available": True,
+                    "score": result.score,
+                    "threshold": result.threshold,
+                    "decision": result.decision,
+                    "classify_ms": classify_ms,
+                    "features": result.features,
+                    "reranked": effective_rerank_enabled,
+                }
+                if self.adaptive_debug:
+                    print(
+                        f"[phaseAC] q='{query[:60]}...' score={result.score} "
+                        f"thr={result.threshold} decision={result.decision} "
+                        f"rerank={effective_rerank_enabled} ms={classify_ms:.2f}",
+                        file=sys.stderr,
+                    )
+
         # Decide how many results to request from the API.
-        # Phase F: overfetch then rerank locally. Other modes: request top_k.
+        # Phase F / phaseAC w/ multi_hop: overfetch then rerank locally.
+        # Other modes: request top_k.
         api_limit = (
             max(self.reranker_overfetch, top_k)
-            if self.reranker_enabled else top_k
+            if effective_rerank_enabled else top_k
         )
 
         payload = {
@@ -697,7 +834,7 @@ class NoxMemAdapter(BaseAdapter):
         rerank_ms: Optional[float] = None
         rerank_applied = False
 
-        if self.reranker_enabled and candidates:
+        if effective_rerank_enabled and candidates:
             rerank_start = time.monotonic() * 1000
             model, err = _load_reranker(
                 self.reranker_model_id, self.reranker_max_length
@@ -741,11 +878,13 @@ class NoxMemAdapter(BaseAdapter):
             "returned": len(memories),
             "api_returned": api_returned,
             "took_ms_api": data.get("took_ms", None) if isinstance(data, dict) else None,
-            "rerank_enabled": self.reranker_enabled,
+            "rerank_enabled": effective_rerank_enabled,
             "rerank_applied": rerank_applied,
-            "rerank_model": self.reranker_model_id if self.reranker_enabled else None,
+            "rerank_model": self.reranker_model_id if effective_rerank_enabled else None,
             "rerank_ms": rerank_ms,
             "rerank_error": rerank_error,
+            "adaptive_enabled": self.adaptive_enabled,
+            "classification": classification_meta,
         }
         return SearchResult(
             question_id=kwargs.get("question_id", "unknown"),
@@ -774,5 +913,30 @@ class NoxMemAdapter(BaseAdapter):
             "reranker_overfetch": self.reranker_overfetch,
             "reranker_batch_size": self.reranker_batch_size,
             "reranker_max_length": self.reranker_max_length,
-            "version": "phase-f-0.1",
+            "adaptive_enabled": self.adaptive_enabled,
+            "adaptive_threshold": self.adaptive_threshold,
+            "adaptive_debug": self.adaptive_debug,
+            "classifier_available": classify_query is not None,
+            "version": "phase-ac-0.1",
+        }
+
+    def get_routing_stats(self) -> Dict[str, Any]:
+        """Aggregate counter for the adaptive router (Lab Q1 #1 audit).
+
+        Returns counts of queries routed to multi_hop (rerank ON) vs factual
+        (rerank OFF) over the lifetime of this adapter instance. Useful for
+        spec §7.1 audit: too aggressive (>60%) → retune threshold up; too
+        conservative (<10%) → retune down.
+        """
+        total = sum(self._adaptive_route_counts.values())
+        rates = {
+            k: (v / total if total > 0 else 0.0)
+            for k, v in self._adaptive_route_counts.items()
+        }
+        return {
+            "adaptive_enabled": self.adaptive_enabled,
+            "adaptive_threshold": self.adaptive_threshold,
+            "counts": dict(self._adaptive_route_counts),
+            "rates": rates,
+            "total_queries": total,
         }
