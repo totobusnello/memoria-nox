@@ -1,0 +1,43 @@
+# Backbone Matrix — gemini-2.5-pro answer backbone (2026-05-29).
+#
+# Swap answer model to gemini-2.5-pro (frontier reasoning Gemini).
+# Routes via Gemini OpenAI-compat endpoint.
+# Note: gemini-2.5-pro uses internal reasoning tokens that count against
+# max_tokens budget. Raised to 4000 to avoid empty-content responses
+# (validated: with max_tokens=50 returned empty + finish_reason=length;
+# with 500+ returned correct content).
+# Judge stays on gemini-2.5-flash (homogeneous Gemini family acknowledged).
+
+answer:
+  model: "gemini-2.5-pro"
+  api_key: "${GEMINI_API_KEY}"
+  base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  temperature: 0
+  max_tokens: 4000
+  timeout: 600
+  concurrency: 4
+
+evaluate:
+  model: "gemini-2.5-flash"
+  api_key: "${GEMINI_API_KEY}"
+  base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  temperature: 0
+  max_tokens: 1000
+  timeout: 300
+  concurrency: 8
+
+search:
+  concurrency: 3
+  timeout: 120
+
+retry:
+  max_retries: 20
+  retry_delay: 1.0
+  max_delay: 300
+
+debug:
+  show_usage: false
+
+warmup:
+  enabled: true
+  delay_seconds: 15
