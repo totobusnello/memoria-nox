@@ -1,0 +1,64 @@
+{
+  "schema": "locomo-sota-push/v1",
+  "run": "sota_push_generation",
+  "generator": "gpt-4.1-mini",
+  "prompt_variant": "A",
+  "temporal_norm_enabled": false,
+  "session_dates_injected": true,
+  "commonsense_top_n": 10,
+  "default_top_n": 10,
+  "date": "2026-05-30",
+  "n_total": 1986,
+  "n_scored": 1986,
+  "n_errors": 0,
+  "mean_f1_sota": 0.5185195455494231,
+  "mean_f1_raw": 0.5185195455494231,
+  "accuracy_sota": 0.5362537764350453,
+  "composition_efficiency_sota": 0.6958,
+  "retrieval_ceiling": 0.7452,
+  "mem0_sota_f1": 0.6688,
+  "delta_vs_mem0_sota_pp": -15.03,
+  "delta_vs_constrained_pp": 1.47,
+  "constrained_baseline_f1": 0.5038,
+  "normalizer_stats": {
+    "n_changed": 0,
+    "n_helped": 0,
+    "n_hurt": 0
+  },
+  "per_category": {
+    "adversarial": {
+      "n": 446,
+      "mean_f1_sota": 0.657848,
+      "mean_f1_raw": 0.657848,
+      "accuracy_sota": 0.656951
+    },
+    "commonsense": {
+      "n": 96,
+      "mean_f1_sota": 0.237662,
+      "mean_f1_raw": 0.237662,
+      "accuracy_sota": 0.229167
+    },
+    "multi_hop": {
+      "n": 282,
+      "mean_f1_sota": 0.381571,
+      "mean_f1_raw": 0.381571,
+      "accuracy_sota": 0.393617
+    },
+    "single_hop": {
+      "n": 841,
+      "mean_f1_sota": 0.551777,
+      "mean_f1_raw": 0.551777,
+      "accuracy_sota": 0.576694
+    },
+    "temporal": {
+      "n": 321,
+      "mean_f1_sota": 0.442108,
+      "mean_f1_raw": 0.442108,
+      "accuracy_sota": 0.479751
+    }
+  },
+  "elapsed_s": 1703.0,
+  "cost_actual_usd": 0.2689,
+  "input_tokens": 1759489,
+  "output_tokens": 8333
+}
