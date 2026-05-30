@@ -1,0 +1,42 @@
+{
+  "n": 50,
+  "n_sp_llm": 50,
+  "n_sp_fallback": 0,
+  "n_error": 0,
+  "sp_llm_latency_p50_ms": 846.8,
+  "ans_f1": 77.0633,
+  "ans_em": 62.0,
+  "ans_prec": 81.0,
+  "ans_recall": 76.3444,
+  "base_sp_f1": 55.6131,
+  "base_sp_em": 4.0,
+  "base_joint_f1": 44.3083,
+  "base_joint_em": 2.0,
+  "llm_sp_f1": 64.6667,
+  "llm_sp_em": 26.0,
+  "llm_joint_f1": 51.4,
+  "llm_joint_em": 14.0,
+  "sp_f1_delta": 9.0535,
+  "joint_f1_delta": 7.0917,
+  "bridge": {
+    "n": 41,
+    "base_sp_f1": 52.983,
+    "llm_sp_f1": 61.3821,
+    "base_joint_f1": 44.6167,
+    "llm_joint_f1": 52.5203,
+    "sp_f1_delta": 8.3991,
+    "joint_f1_delta": 7.9036,
+    "ans_f1": 80.1585
+  },
+  "comparison": {
+    "n": 9,
+    "base_sp_f1": 67.595,
+    "llm_sp_f1": 79.6296,
+    "base_joint_f1": 42.9036,
+    "llm_joint_f1": 46.2963,
+    "sp_f1_delta": 12.0346,
+    "joint_f1_delta": 3.3927,
+    "ans_f1": 62.963
+  },
+  "elapsed_s": 61.9
+}
