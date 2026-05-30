@@ -1,0 +1,149 @@
+{
+  "schema": "locomo-aggregate/v1",
+  "run": "end_to_end",
+  "generator": "gpt-4.1-mini-2025-04-14",
+  "phase": "Phase H v2 baseline (rerank=off, hybrid=on, no Wave A/B/C knobs)",
+  "date": "2026-05-29",
+  "n_total": 1986,
+  "n_scored": 1986,
+  "n_errors": 0,
+  "mean_f1": 0.34903530992017795,
+  "accuracy": 0.2804632426988922,
+  "f1_ci95_low": 0.26114416165309307,
+  "f1_ci95_high": 0.3006300016772945,
+  "composition_efficiency": 0.4684,
+  "mem0_sota_f1": 0.6688,
+  "delta_vs_mem0_sota_pp": -31.98,
+  "hypothesis_verdict": "COMPOSITION_BOTTLENECK — F1=34.90% < 50% threshold; verbose generation kills SQuAD token-overlap F1; retrieval ceiling 74.52% is sound but composition layer is the gap",
+  "per_category": {
+    "adversarial": {
+      "n": 446,
+      "mean_f1": 0.7959641255605381,
+      "accuracy": 0.7959641255605381,
+      "note": "adversarial gold=empty; scorer awards 1.0 for abstention responses ('not mentioned'); 79.6% means model correctly abstains on 80% of adversarial",
+      "evidence_hit_at_10": 0.6018099547511312,
+      "evidence_recall_at_10": 0.5927601809954751,
+      "n_retrieval": 442
+    },
+    "commonsense": {
+      "n": 96,
+      "mean_f1": 0.10332197561601925,
+      "accuracy": 0.010416666666666666,
+      "evidence_hit_at_10": 0.5444444444444444,
+      "evidence_recall_at_10": 0.4203703703703704,
+      "n_retrieval": 90
+    },
+    "multi_hop": {
+      "n": 282,
+      "mean_f1": 0.1472705173192887,
+      "accuracy": 0.03900709219858156,
+      "note": "multi_hop gold expects semicolon-separated sub-answers; verbose generation over-answers and scores low on token overlap",
+      "evidence_hit_at_10": 0.8220640569395018,
+      "evidence_recall_at_10": 0.5158615629443499,
+      "n_retrieval": 281
+    },
+    "single_hop": {
+      "n": 841,
+      "mean_f1": 0.29531297389983124,
+      "accuracy": 0.21878715814506539,
+      "evidence_hit_at_10": 0.8035714285714286,
+      "evidence_recall_at_10": 0.7861111111111112,
+      "n_retrieval": 840
+    },
+    "temporal": {
+      "n": 321,
+      "mean_f1": 0.11955364145962037,
+      "accuracy": 0.018691588785046728,
+      "note": "temporal requires exact date format match; gpt-4.1-mini generates paraphrased dates ('around May 2023') that fail strict token overlap vs '7 May 2023'",
+      "evidence_hit_at_10": 0.7795527156549521,
+      "evidence_recall_at_10": 0.7409478168264111,
+      "n_retrieval": 313
+    }
+  },
+  "retrieval_ceiling": {
+    "evidence_hit_at_5": 0.6861648016276704,
+    "evidence_hit_at_10": 0.7451678535096643,
+    "evidence_hit_at_20": 0.7675483214649034,
+    "evidence_recall_at_10": 0.6800816035201911,
+    "n_retrieval_scored": 1966
+  },
+  "latency_ms": {
+    "retrieval_p50": 666,
+    "retrieval_p95": 860,
+    "generation_p50": 711,
+    "generation_p95": 1370,
+    "total_p50_est": 1377
+  },
+  "cost_actual_usd": 0.254,
+  "cost_summary_aggregate_pricing": {
+    "input_tokens": 1573321,
+    "output_tokens": 30110,
+    "cost_at_0_40_per_1M_in": 0.6775044,
+    "note": "actual cost at current Apr-2025 pricing: $0.254 ($0.15/1M in + $0.60/1M out)"
+  },
+  "published_baselines": [
+    {
+      "system": "nox-mem (this run)",
+      "generator": "gpt-4.1-mini",
+      "overall_f1": 0.3490,
+      "source": "this work",
+      "notes": "hybrid FTS5+Gemini+RRF, Phase H v2, verbose generation — see composition_bottleneck note"
+    },
+    {
+      "system": "Observation RAG (GPT-3.5)",
+      "generator": "GPT-3.5-turbo",
+      "overall_f1": 0.3203,
+      "source": "Maharana et al. 2024 Table 5",
+      "notes": "RAG over auto-generated observations + GPT-3.5 generator."
+    },
+    {
+      "system": "RAG baseline (Mem0 paper)",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.3547,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Mem0 paper's reproduction; standard RAG chunks."
+    },
+    {
+      "system": "Summary RAG (GPT-4)",
+      "generator": "GPT-4",
+      "overall_f1": 0.4053,
+      "source": "Maharana et al. 2024 Table 5",
+      "notes": "RAG over session summaries + GPT-4 generator."
+    },
+    {
+      "system": "Full Context (GPT-4, paper)",
+      "generator": "GPT-4",
+      "overall_f1": 0.4239,
+      "source": "Maharana et al. 2024 Table 5",
+      "notes": "Truncated conversation as context (no memory module)."
+    },
+    {
+      "system": "LangMem (LangGraph)",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.5021,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "LangGraph memory module."
+    },
+    {
+      "system": "Zep",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.504,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Zep memory layer; reported on LoCoMo subset."
+    },
+    {
+      "system": "Mem0 (graph)",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.561,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Mem0 with knowledge-graph memory."
+    },
+    {
+      "system": "Mem0",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.6688,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Mem0 SOTA reported number, headline result."
+    }
+  ]
+}
