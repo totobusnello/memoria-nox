@@ -540,6 +540,128 @@ def build_prompt_sota(
     )
 
 
+# Few-shot examples per category (LoCoMo).
+# Design rationale: examples show the exact output format for each category
+# type so the model internalises the 1-5 word constraint before seeing the
+# real question. Three examples chosen to cover:
+#   - temporal (date extraction task)
+#   - single-hop entity recall
+#   - multi-hop chained recall
+# Adversarial / commonsense reuse the single-hop example (format identical).
+
+_FEW_SHOT_TEMPORAL = """\
+Example 1:
+Q: When did Caroline move to Seattle?
+A: 7 May 2019
+
+Example 2:
+Q: What month did Alex start his new job?
+A: March 2021
+
+Example 3:
+Q: When was the last time they went hiking together?
+A: 14 August 2022"""
+
+_FEW_SHOT_SINGLE_HOP = """\
+Example 1:
+Q: What city was the meeting held in?
+A: Tokyo
+
+Example 2:
+Q: What was the project codename?
+A: Atlas
+
+Example 3:
+Q: What did Jordan bring as a gift?
+A: cookbook"""
+
+_FEW_SHOT_MULTI_HOP = """\
+Example 1:
+Q: Who introduced Alex to his current employer?
+A: Sarah
+
+Example 2:
+Q: What language does the friend that Jordan met in Madrid speak natively?
+A: Spanish
+
+Example 3:
+Q: Which city is home to the restaurant Caroline recommended to her sister?
+A: Chicago"""
+
+_FEW_SHOT_ADVERSARIAL = """\
+Example 1:
+Q: Did Jordan ever mention owning a helicopter?
+A: Not mentioned
+
+Example 2:
+Q: What was the secret ingredient in the recipe Alex shared?
+A: Not mentioned
+
+Example 3:
+Q: Where did they go on their Mars vacation?
+A: Not mentioned"""
+
+_FEW_SHOT_BY_CATEGORY: dict[str, str] = {
+    "temporal": _FEW_SHOT_TEMPORAL,
+    "single_hop": _FEW_SHOT_SINGLE_HOP,
+    "multi_hop": _FEW_SHOT_MULTI_HOP,
+    "adversarial": _FEW_SHOT_ADVERSARIAL,
+    "commonsense": _FEW_SHOT_SINGLE_HOP,  # format identical
+}
+
+
+def build_prompt_few_shot(
+    augmented_question: str,
+    top_chunks: list[str],
+    speaker_a: str,
+    speaker_b: str,
+    session_date_map: dict[str, str] | None,
+    category_name: str,
+) -> str:
+    """
+    Few-shot prompt (PR feat/few-shot-cross-bench, 2026-05-30).
+
+    Builds on SOTA-push Variant A (session_date_map for temporal) and adds
+    3 in-context examples per category before the real question.
+
+    Gate prediction: +3-8pp F1 on extraction tasks via format anchoring.
+    No additional LLM calls — prompt-only modification, latency neutral.
+    """
+    ctx = "\n\n".join(
+        f"--- chunk {i+1} ---\n{c[:1800]}" for i, c in enumerate(top_chunks[:10])
+    )
+
+    date_block = ""
+    if category_name == "temporal" and session_date_map:
+        def sortkey(sid: str) -> int:
+            try:
+                return int(sid.split("_")[1])
+            except Exception:
+                return 0
+        sorted_sids = sorted(session_date_map.keys(), key=sortkey)
+        date_lines = ["Session dates (use these to anchor temporal answers):"]
+        for sid in sorted_sids:
+            date_lines.append(f"  - {sid}: {session_date_map[sid]}")
+        date_block = "\n".join(date_lines) + "\n\n"
+
+    examples = _FEW_SHOT_BY_CATEGORY.get(category_name, _FEW_SHOT_SINGLE_HOP)
+
+    return (
+        "You are answering a question about a very long-term conversation "
+        f"between two people ({speaker_a} and {speaker_b}).\n"
+        "Use ONLY the retrieved memory chunks below as evidence; do not "
+        "invent facts.\n\n"
+        f"{date_block}"
+        f"Retrieved memory:\n{ctx or '[no context retrieved]'}\n\n"
+        "Answer in 1-5 words ONLY. Format dates as 'D Month YYYY' (e.g. '7 May 2023'). "
+        "Do not include explanations or full sentences. "
+        "If the memory does not contain the answer, say: Not mentioned\n\n"
+        f"{examples}\n\n"
+        f"Q: {augmented_question}\n"
+        "A:"
+    )
+
+
 # ---------------------------------------------------------------------------
 # Preflight (billing path)
 # ---------------------------------------------------------------------------
@@ -625,6 +747,7 @@ def run_conversation(
     no_generator: bool = False,
     sota_push: bool = False,
     session_date_map: dict[str, str] | None = None,
+    few_shot: bool = False,
 ) -> tuple[int, int]:
     """
     Ingest + run ALL qa_subset items for one conversation.
@@ -718,7 +841,13 @@ def run_conversation(
                     res.generated_answer = ""
                     res.generation_ms = 0.0
                 else:
-                    if sota_push:
+                    if few_shot:
+                        prompt = build_prompt_few_shot(
+                            qa.augmented_question, top_chunks,
+                            conv.speaker_a, conv.speaker_b,
+                            session_date_map, qa.category_name,
+                        )
+                    elif sota_push:
                         prompt = build_prompt_sota(
                             qa.augmented_question, top_chunks,
                             conv.speaker_a, conv.speaker_b,
@@ -793,6 +922,13 @@ def main(argv: list[str] | None = None) -> int:
                    help="enable LoCoMo F1 SOTA push (variant A): inject "
                         "session_date_map into temporal prompts + 'D Month YYYY' "
                         "date format hint. Smoke 100q: +1.41pp F1, +23pp temporal.")
+    p.add_argument("--few-shot", action="store_true",
+                   help="enable few-shot prompting: adds 3 in-context examples per "
+                        "category (temporal/single_hop/multi_hop/adversarial) BEFORE "
+                        "the real question. Builds on SOTA-push variant A (session_date_map "
+                        "for temporal). No additional LLM calls — prompt-only. "
+                        "Predicted F1 lift +3-8pp on extraction tasks. "
+                        "Gate: F1 lift >=+3pp, no category regression >=-5pp.")
     args = p.parse_args(argv)
 
     # Env
@@ -872,9 +1008,9 @@ def main(argv: list[str] | None = None) -> int:
 
     db_path = str(workdir / "locomo-bench.db")
 
-    # Build session_date_maps for SOTA push (Improvement A: temporal anchor)
+    # Build session_date_maps for SOTA push and few-shot (Improvement A: temporal anchor)
     session_date_maps: dict[str, dict[str, str]] = {}
-    if args.sota_push:
+    if args.sota_push or args.few_shot:
         with open(args.locomo_json, "r", encoding="utf-8") as fh:
             _raw = json.load(fh)
         for _item in _raw if isinstance(_raw, list) else []:
@@ -883,7 +1019,8 @@ def main(argv: list[str] | None = None) -> int:
             _sid = str(_item.get("sample_id", "?"))
             _conv = _item.get("conversation") or {}
             session_date_maps[_sid] = build_session_date_map(_conv)
-        print(f"[adapter] SOTA push ON: session_date_maps for "
+        mode_label = "few-shot" if args.few_shot else "SOTA push"
+        print(f"[adapter] {mode_label} ON: session_date_maps for "
               f"{len(session_date_maps)} conversations", file=sys.stderr)
 
     def _log(msg: str) -> None:
@@ -907,6 +1044,7 @@ def main(argv: list[str] | None = None) -> int:
                 no_generator=args.no_generator,
                 sota_push=args.sota_push,
                 session_date_map=session_date_maps.get(conv.sample_id, {}),
+                few_shot=args.few_shot,
             )
             n_done += cd
             n_err += ce
