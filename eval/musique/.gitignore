@@ -1,0 +1,15 @@
+# Dataset cache (CC BY 4.0 — auto-downloaded by run-bench.sh from
+# https://github.com/StonyBrookNLP/musique; not redistributed inside this repo)
+data/
+.workspace/
+
+# Per-record raw outputs (contain MuSiQue question/answer verbatim — kept out
+# of git to keep the repo small; reproducible via `bash run-bench.sh full`).
+# Aggregate JSON snapshots (results/RESULTS-FULL-<n>q.json) ARE committed.
+results/results-*.jsonl
+results/RESULTS-FULL-*Q.jsonl
+results/adapter-stderr.log
+
+# Python build artefacts
+__pycache__/
+*.pyc
