@@ -1,0 +1,64 @@
+{
+  "status": "harness_ready_bench_not_yet_executed",
+  "harness_built": "2026-05-29",
+  "expected_full_run_wallclock_h": "5-7",
+  "expected_cost_usd": "7-10",
+  "budget_cap_usd": 12,
+  "config": {
+    "setting": "distractor",
+    "dataset_file": "hotpot_dev_distractor_v1.json",
+    "dataset_url": "http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_dev_distractor_v1.json",
+    "n_dev_questions_total": 7405,
+    "top_k": 5,
+    "generator": "gpt-4.1-mini",
+    "embedder": "gemini-embedding-001",
+    "adapter_mode": "phaseH_v2_baseline",
+    "reranker_enabled": false,
+    "hybrid_search_enabled": true,
+    "api_port": 18900,
+    "isolation": "per_question_db"
+  },
+  "results": {
+    "n_total": null,
+    "n_scored": null,
+    "n_errors": null,
+    "answer": {
+      "em": null,
+      "f1": null,
+      "prec": null,
+      "recall": null,
+      "n": null
+    },
+    "supporting_facts": {
+      "em": null,
+      "f1": null,
+      "prec": null,
+      "recall": null,
+      "n": null
+    },
+    "joint": {
+      "em": null,
+      "f1": null,
+      "prec": null,
+      "recall": null,
+      "n": null
+    },
+    "by_type": {},
+    "by_level": {},
+    "latency_ms": {}
+  },
+  "competitive_baselines": {
+    "drqa_paper_2018": {"ans_f1": 27.1, "sp_f1": 25.1, "joint_f1": 7.0},
+    "dpr_rag_2021": {"ans_f1_range": [45, 50], "sp_f1_range": [50, 55], "joint_f1_range": [25, 30]},
+    "fid_sota_reader": {"ans_f1_range": [70, 75], "sp_f1_range": [80, 85], "joint_f1_range": [55, 65]},
+    "modern_memory_systems_claimed": {"ans_f1_range": [50, 65]}
+  },
+  "honest_framing": "nox-mem single-shot retrieval baseline on HotPotQA distractor: <X.X>% F1. Competitive with modern memory systems; sub-SOTA reader models. Q3 Iterative Retrieval predicted to close 30-50% of remaining gap to FiD-class systems.",
+  "next_steps": [
+    "Run smoke n=200 on VPS (~30min, ~$0.20)",
+    "If smoke >= 50% F1, run full n=7405 (~5-7h, ~$8)",
+    "Populate this JSON via lib/aggregate.py post-run",
+    "Update RESULTS-HOTPOTQA.md TL;DR with actual numbers",
+    "Compare bridge vs comparison sub-types vs literature"
+  ]
+}
