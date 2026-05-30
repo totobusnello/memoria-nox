@@ -1,0 +1,7 @@
+# Large per-question JSONL — 13MB+ for full n=7405 runs.
+# The aggregate JSON in results/RESULTS-FULL-7K-DEV.json + the canonical
+# eval/hotpotqa/RESULTS-HOTPOTQA.json hold the corpus-level numbers.
+# Raw per-question rows are preserved on the VPS workdir
+# (/root/.openclaw/hotpotqa-runner-<uuid>/eval/hotpotqa/results/) for
+# reproducibility / drilldown.
+results/RESULTS-FULL-*.jsonl
