@@ -74,6 +74,9 @@ from temporal_normalizer import (  # type: ignore[import-not-found]
     build_session_date_map,
     normalize_predicted_date,
 )
+from temporal_aware_retrieve import (  # type: ignore[import-not-found]
+    retrieve_temporal_aware,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -625,6 +628,10 @@ def run_conversation(
     no_generator: bool = False,
     sota_push: bool = False,
     session_date_map: dict[str, str] | None = None,
+    temporal_aware: bool = False,
+    temporal_alpha: float = 0.5,
+    temporal_retrieve_k: int = 30,
+    temporal_has_date_fallback: bool = True,
 ) -> tuple[int, int]:
     """
     Ingest + run ALL qa_subset items for one conversation.
@@ -691,27 +698,52 @@ def run_conversation(
                 generator_model=generator,
             )
             try:
-                # Retrieve
-                hits, sms, serr = search_api(
-                    api_base, qa.augmented_question, top_k, DEFAULT_SEARCH_TIMEOUT
-                )
-                res.retrieval_ms = sms
-                if serr:
-                    raise RuntimeError(f"search: {serr}")
+                # Retrieve (temporal-aware path branches inside)
                 top_chunks: list[str] = []
-                for h in hits:
-                    if not isinstance(h, dict):
-                        continue
-                    res.retrieved_chunk_ids.append(str(h.get("chunk_id") or h.get("id") or ""))
-                    res.retrieved_scores.append(
-                        float(h.get("score") or h.get("relevance") or 0.0)
+                if temporal_aware:
+                    scored, sms, serr = retrieve_temporal_aware(
+                        api_base, qa.augmented_question,
+                        session_date_map=session_date_map,
+                        category_name=qa.category_name,
+                        alpha=temporal_alpha,
+                        retrieve_k=temporal_retrieve_k,
+                        keep_top_k=top_k,
+                        timeout=DEFAULT_SEARCH_TIMEOUT,
+                        has_date_fallback=temporal_has_date_fallback,
                     )
-                    txt = str(h.get("chunk_text") or h.get("text") or h.get("snippet") or "")
-                    res.retrieved_texts.append(txt[:1800])
-                    top_chunks.append(txt)
-                    for did in extract_dia_ids(txt):
-                        if did not in res.retrieved_dia_ids:
-                            res.retrieved_dia_ids.append(did)
+                    res.retrieval_ms = sms
+                    if serr:
+                        raise RuntimeError(f"search: {serr}")
+                    for s in scored:
+                        res.retrieved_chunk_ids.append(s.chunk_id)
+                        res.retrieved_scores.append(s.final_score)
+                        res.retrieved_texts.append(s.text[:1800])
+                        top_chunks.append(s.text)
+                        for did in extract_dia_ids(s.text):
+                            if did not in res.retrieved_dia_ids:
+                                res.retrieved_dia_ids.append(did)
+                        if s.dia_id and s.dia_id not in res.retrieved_dia_ids:
+                            res.retrieved_dia_ids.append(s.dia_id)
+                else:
+                    hits, sms, serr = search_api(
+                        api_base, qa.augmented_question, top_k, DEFAULT_SEARCH_TIMEOUT
+                    )
+                    res.retrieval_ms = sms
+                    if serr:
+                        raise RuntimeError(f"search: {serr}")
+                    for h in hits:
+                        if not isinstance(h, dict):
+                            continue
+                        res.retrieved_chunk_ids.append(str(h.get("chunk_id") or h.get("id") or ""))
+                        res.retrieved_scores.append(
+                            float(h.get("score") or h.get("relevance") or 0.0)
+                        )
+                        txt = str(h.get("chunk_text") or h.get("text") or h.get("snippet") or "")
+                        res.retrieved_texts.append(txt[:1800])
+                        top_chunks.append(txt)
+                        for did in extract_dia_ids(txt):
+                            if did not in res.retrieved_dia_ids:
+                                res.retrieved_dia_ids.append(did)
 
                 # Generate (skipped in retrieval-only mode)
                 if no_generator:
@@ -793,6 +825,20 @@ def main(argv: list[str] | None = None) -> int:
                    help="enable LoCoMo F1 SOTA push (variant A): inject "
                         "session_date_map into temporal prompts + 'D Month YYYY' "
                         "date format hint. Smoke 100q: +1.41pp F1, +23pp temporal.")
+    p.add_argument("--temporal-aware", action="store_true",
+                   help="enable temporal-aware retrieval re-ranking. For temporal "
+                        "queries, fetches retrieve-k chunks then re-orders by "
+                        "(1-alpha)*norm_retrieval + alpha*temporal_proximity. "
+                        "Non-temporal queries unchanged. Pairs naturally with "
+                        "--sota-push.")
+    p.add_argument("--temporal-alpha", type=float, default=0.5,
+                   help="blend weight for temporal_score (default 0.5)")
+    p.add_argument("--temporal-retrieve-k", type=int, default=30,
+                   help="fetch this many chunks before re-rank (default 30)")
+    p.add_argument("--no-has-date-fallback", action="store_true",
+                   help="disable has-date fallback (default ON: when temporal "
+                        "query has no extractable date, anchored chunks still "
+                        "get 0.6 score)")
     args = p.parse_args(argv)
 
     # Env
@@ -873,8 +919,9 @@ def main(argv: list[str] | None = None) -> int:
     db_path = str(workdir / "locomo-bench.db")
 
     # Build session_date_maps for SOTA push (Improvement A: temporal anchor)
+    # and/or temporal-aware retrieval re-rank.
     session_date_maps: dict[str, dict[str, str]] = {}
-    if args.sota_push:
+    if args.sota_push or args.temporal_aware:
         with open(args.locomo_json, "r", encoding="utf-8") as fh:
             _raw = json.load(fh)
         for _item in _raw if isinstance(_raw, list) else []:
@@ -883,7 +930,12 @@ def main(argv: list[str] | None = None) -> int:
             _sid = str(_item.get("sample_id", "?"))
             _conv = _item.get("conversation") or {}
             session_date_maps[_sid] = build_session_date_map(_conv)
-        print(f"[adapter] SOTA push ON: session_date_maps for "
+        modes = []
+        if args.sota_push:
+            modes.append("sota-push")
+        if args.temporal_aware:
+            modes.append(f"temporal-aware(alpha={args.temporal_alpha},k={args.temporal_retrieve_k})")
+        print(f"[adapter] {'+'.join(modes)} ON: session_date_maps for "
               f"{len(session_date_maps)} conversations", file=sys.stderr)
 
     def _log(msg: str) -> None:
@@ -907,6 +959,10 @@ def main(argv: list[str] | None = None) -> int:
                 no_generator=args.no_generator,
                 sota_push=args.sota_push,
                 session_date_map=session_date_maps.get(conv.sample_id, {}),
+                temporal_aware=args.temporal_aware,
+                temporal_alpha=args.temporal_alpha,
+                temporal_retrieve_k=args.temporal_retrieve_k,
+                temporal_has_date_fallback=not args.no_has_date_fallback,
             )
             n_done += cd
             n_err += ce

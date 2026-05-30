@@ -1,0 +1,61 @@
+{
+  "schema": "locomo-temporal-aware/v1",
+  "run": "temporal_aware_gen",
+  "generator": "gpt-4.1-mini",
+  "alpha": 0.5,
+  "keep_top_k": 10,
+  "rerank_only": false,
+  "session_dates_injected": true,
+  "temporal_norm_enabled": true,
+  "n_total": 1986,
+  "n_done": 1986,
+  "n_errors": 0,
+  "n_normalized": 44,
+  "n_norm_helped": 4,
+  "n_norm_hurt": 21,
+  "n_temporal_active": 762,
+  "overall_f1_temporal": 0.5165724288764312,
+  "overall_f1_raw": 0.5201750643521785,
+  "accuracy_at_50": 0.5362537764350453,
+  "composition_efficiency": 0.693199716688716,
+  "delta_vs_mem0_sota_pp": -15.222757112356877,
+  "delta_vs_pr404_pp": -0.1927571123568783,
+  "per_category_f1": {
+    "temporal": 0.4219331724004621,
+    "commonsense": 0.2529650028881663,
+    "multi_hop": 0.3860191549703532,
+    "single_hop": 0.5528302656707972,
+    "adversarial": 0.6556053811659193
+  },
+  "per_category_n": {
+    "temporal": 321,
+    "commonsense": 96,
+    "multi_hop": 282,
+    "single_hop": 841,
+    "adversarial": 446
+  },
+  "per_category_delta_vs_pr404_pp": {
+    "temporal": -2.0166827599537918,
+    "commonsense": 1.526500288816632,
+    "multi_hop": 0.4419154970353223,
+    "single_hop": 0.10302656707972258,
+    "adversarial": -0.2194618834080786
+  },
+  "rerank_stats": {
+    "n_records": 1986,
+    "n_temporal": 762,
+    "n_reranked": 762,
+    "n_changed_order": 235,
+    "n_no_chunks": 0,
+    "avg_chunks_with_date_pct": 100.0,
+    "alpha": 0.5,
+    "keep_top_k": 10,
+    "has_date_fallback": true
+  },
+  "cost_usd": 0.26891249999999994,
+  "elapsed_s": 1410.7137351036072,
+  "in_tokens": 1759166,
+  "out_tokens": 8396,
+  "in_jsonl": "/root/.openclaw/locomo-e2e-rerun-af562a4b/results-e2e-1986q.jsonl",
+  "out_jsonl": "/root/.openclaw/locomo-temporal-bench-e58de4f1/results/results-full-alpha05.jsonl"
+}
