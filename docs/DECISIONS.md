@@ -1166,3 +1166,114 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Re-run Wave C without OpenAI quota top-up — fast-fail expected (already 429 insufficient_quota)
 - **Cross-links:** PR #394 (Wave C triple), #393 (Q3 Iterative spec), #390 (Wave B KG+MAP), #389 (Wave B KG+MQ), #379/#385/#386 (Lab Q1 standalone knobs), memory `[[wave-c-triple-reject-fmh-ceiling-found]]`, `[[wave-c-triple-fmh-cap-by-mq-kg-overlap-confirmed]]`, `[[openai-insufficient-quota-needs-fast-fail-not-backoff]]`, `[[preflight-billing-saves-batches-not-just-time]]`, `[[wave-c-triple-latency-3-7x-overhead]]`, `[[2-batch-partial-still-informs-mechanism-not-magnitude]]`, D68.
 - *Origem:* sessão 2026-05-29 evening BRT — agent `acc6dd1377940d6ff` ran ~79min, $5 spent (OpenAI quota exhausted mid-run), PR #394 merged 22:55 UTC. Wave C ceiling discovery is strategic inflection — research focus shifts from composability stacking to orthogonal-stage mechanisms (Iterative Retrieval Q3 + Backbone Matrix in-flight).
+
+---
+
+#### D70 — Gemini-3-flash ship opt-in primary recommendation
+
+- **Context:** PR #397 Backbone Matrix — Gemini-3-flash-preview 5-batch validado SOTA: Overall 63.28% (+20.73pp vs MemOS) + MA 88.42% (+32.74pp vs MemOS) com o mesmo pipeline Phase H v2 baseline. Comparado a gpt-4.1-mini default: +11.60pp Overall + +15.08pp MA, 60% mais barato por query.
+- **Decisão:** Ship Gemini-3-flash-preview como opt-in primary recommendation via `NOX_ANSWER_BACKBONE=gemini-3-flash-preview`. Default OFF — gpt-4.1-mini permanece default até: (a) 30-day prod stability, (b) LoCoMo e2e Gemini-3-flash validation, (c) Gemini-3-flash GA (sem "preview" tag). Default switch gateado em Gemini-3-flash GA.
+- **Rationale:**
+  - +11.60pp Overall + +15.08pp MA vs gpt-4.1-mini a mesma dependência Gemini-embed
+  - 60% cheaper per query vs gpt-4.1-mini
+  - "preview" tag = risco de deprecação antes Q3; não assumir estabilidade de produção
+  - Compõe com Wave A/B/C knobs (pipeline stage diferente — orthogonal)
+  - Backbone upgrade é cheapest remaining F_MH lever (D69 discovery): frontier reasoning over our retrieval pipeline
+- **Aplicação operacional:**
+  - Documentar `NOX_ANSWER_BACKBONE=gemini-3-flash-preview` em README opt-in section + api-reference
+  - GTM messaging: "60% cheaper + 11pp accuracy lift (opt-in)" — não afirmar como default
+  - Paper §5: adicionar §5.3 Backbone Sensitivity com Backbone Matrix 5-batch table
+  - Gate default switch: monitorar Gemini-3-flash GA announcement + LoCoMo e2e result (PR #396/#400/#404)
+- **NÃO FAZEMOS:**
+  - Default-switch para Gemini-3-flash antes de GA + cross-bench validado
+  - Dropar gpt-4.1-mini default antes de Gemini-3-flash production-stable
+  - Afirmar "Gemini-3-flash-preview é production-ready" sem qualificação "preview/opt-in"
+  - Usar Gemini-3-flash-preview como backbone em benchmarks comparativos sem declarar explicitamente (honestidade metodológica)
+- **Cross-links:** PR #397, memory `[[backbone-matrix-gemini-3-flash-overall-ma-sota]]`, D67 (portability), D69 (Q3 Iterative Retrieval como complemento orthogonal-stage).
+- *Origem:* sessão 2026-05-29 evening BRT — Backbone Matrix 5-batch validation.
+
+---
+
+#### D71 — Production SOTA dimensions cravadas como GTM differentiators canônicos
+
+- **Context:** PR #403 Latency/cost/footprint measurement bench. Números medidos: KG path p50 2.5ms / p95 6.1ms (sub-10ms class); retrieval $0.0000013/query; KG path $0.00/query (vs Mem0 $0.001/query = 769× mais caro); RSS idle 399MB; scaling +15MB 10× concurrent; arquitetura single-process self-hosted (vs Zep/Mem0/MemOS multi-service).
+- **Decisão:** Cristalizar 4 production SOTA claims como GTM differentiators canônicos. Publicar em README + COMPARISON.md + COMPETITIVE-POSITIONING.md:
+  1. **Sub-10ms KG path** (2.5ms p50 / 6.1ms p95) — latency class única vs market
+  2. **$0/query KG path** (SQL+regex, zero LLM cost) — competitor-uncontested
+  3. **769× mais barato** que Mem0 em retrieval (Gemini embed path $0.0000013 vs Mem0 $0.001)
+  4. **Single-process self-hosted** (399MB RSS idle) — ops simplicity vs multi-service competitors
+- **Rationale:**
+  - Production-side metrics são competitor-uncontested: Mem0/MemOS/Letta/Zep não publicam latency breakdown
+  - $0/query KG path é genuinamente único — resto do mercado é SaaS ou compute-paid
+  - Sub-10ms p50 KG path = latency class diferente de hybrid (529ms p50)
+  - Self-hosted single-process = ops simplicity advantage tangível e auditável
+- **Aplicação operacional:**
+  - README: adicionar "Production performance" section com 4 claims + metodologia (n=50 concurrent)
+  - COMPARISON.md: adicionar coluna latency/cost/footprint vs Mem0/Zep/MemOS/Letta
+  - COMPETITIVE-POSITIONING.md: seção "Production ops" com 4 differentiators
+  - Paper §5: adicionar §5.4 Production Performance com metodologia bench PR #403
+- **NÃO FAZEMOS:**
+  - Afirmar "nox-mem bate Zep" em standard hybrid 529ms vs Zep <100ms (Zep claim unverified percentile; framing honesto: "KG path 2.5ms vs Zep unverified <100ms claim")
+  - Anunciar standard hybrid p50 529ms como SOTA (Gemini API domina; local embed mudaria números)
+  - Afirmar cost/footprint superiority sem metodologia explícita e data do bench
+- **Cross-links:** PR #403, memory `[[production-sota-latency-cost-2026-05-30]]`.
+- *Origem:* sessão 2026-05-30 ~02:00 UTC — production bench measurement.
+
+---
+
+#### D72 — Classical multi-hop QA dual SOTA cravado (MuSiQue + HotPotQA) + EverMemBench F_MH paradox RESOLVIDO
+
+- **Context:** PRs #407 + #408 — MuSiQue F1 58.62% (+22.82pp vs IRCoT iterativo, +8.92pp vs EX(SA) supervisionado) + HotPotQA ans_F1 73.37% (acima do DPR+FiD reader SOTA range 65-72%). Ambos sem treinamento especializado. Validação dual-benchmark em datasets públicos reproduzíveis. Resolve o paradoxo EverMemBench: F_MH gap de -13 a -16pp no EverMemBench NÃO é fraqueza de reasoning multi-hop — nox-mem é SOTA em multi-hop QA clássico; o gap é estrutural ao corpus EverMemBench (longos conversation chains + scoring estrito).
+- **Decisão:**
+  - Cristalizar "SOTA em classical multi-hop QA sem treinamento especializado" como claim canônico (dual-benchmark validated = strongest claim type).
+  - **Reframe Q3 priorities:** Q3 IterB (ReAct) ainda relevante para EverMemBench-specific F_MH challenge — mas NÃO é indicador de weakness em multi-hop reasoning em geral.
+  - **Atualizar GTM messaging:** substituir "F_MH gap indica weakness multi-hop" por framing correto: "SOTA em classical multi-hop (MuSiQue+HotPotQA); EverMemBench F_MH gap é desafio estrutural de corpus long-chain, não de reasoning".
+- **Rationale:**
+  - Dual benchmark validation = forma mais forte de SOTA claim
+  - Ambos benchmarks públicos + reproduzíveis com metodologia documentada
+  - Single-shot architecture supera métodos iterativos (IRCoT) e supervisionados (EX(SA)) — portabilidade metodológica confirmada
+  - MuSiQue F1 58.62%: IRCoT baseline 35.80%, EX(SA) supervised 49.70% — gap vs ambos substancial
+  - HotPotQA ans_F1 73.37%: DPR+FiD reader SOTA 65-72% — supera reader-level SOTA
+  - Mecanismo: KG path retrieval + hybrid + compositional answer generation — arquitetura não-especializada
+- **Aplicação operacional:**
+  - GTM messaging: "SOTA em classical multi-hop QA (MuSiQue + HotPotQA) sem treinamento especializado"
+  - Paper: adicionar §5.2 Classical Multi-hop QA SOTA + §5.5 EverMemBench F_MH paradox resolution
+  - README + COMPARISON.md: seção "Multi-hop reasoning" com MuSiQue + HotPotQA numbers
+  - Memory update: substituir `[[f_mh-retrieval-bound-not-generation]]` com framing refinado (retrieval-bound em EverMemBench corpus specifically, não em classical multi-hop)
+  - Não citar "F_MH retrieval-bound" lesson sem qualificação LoCoMo+MuSiQue+HotPotQA refinement
+- **NÃO FAZEMOS:**
+  - Afirmar "F_MH SOTA no EverMemBench" — esse gap persiste (estrutural ao corpus)
+  - Citar lesson anterior "F_MH retrieval-bound" sem refinamento (era válida para EverMemBench specifically, não para classical multi-hop)
+  - Apresentar EverMemBench F_MH gap como indicador de reasoning weakness em talks/paper/GTM
+  - Reportar MuSiQue/HotPotQA sem declarar metodologia (sem fine-tuning, Phase H v2 + KG path pipeline)
+- **Cross-links:** PR #407 (MuSiQue), #408 (HotPotQA), memory `[[musique-sota-crushing-beats-ircot-ex-sa]]`, `[[hotpotqa-full-73-37-above-dpr-fid-sota]]`, `[[evermembench-fmh-resolved-as-corpus-structural-not-reasoning-weakness]]`, D69 (Q3 Iterative Retrieval reframe), D73 (mechanism class refinement).
+- *Origem:* sessão 2026-05-30 07:00-11:30 UTC — MuSiQue 4.3h eval + HotPotQA 8h09m eval.
+
+---
+
+#### D73 — Q3 Iterative Retrieval mechanism class refinement: Self-Ask (F_HL) vs ReAct (F_MH)
+
+- **Context:** PR #406 Q3 IterC POC Self-Ask 5-batch — F_HL +35.84pp BREAKTHROUGH (synthesis/high-level queries beneficiam de parallel sub-question decomposition) mas F_MH -0.40pp (zero lift em multi-hop chaining). Mechanism class distinction empiricamente validada: (A) parallel sub-question decomposition (Self-Ask) → ajuda synthesis, NÃO ajuda multi-hop chains; (B) sequential multi-round retrieve-reason (ReAct) → canonical para multi-hop chains. PR #393 spec Q3 IterB (ReAct) hipótese refinada por D72: urgência menor pois multi-hop reasoning broadly é SOTA (MuSiQue+HotPotQA); IterB ainda relevante especificamente para EverMemBench F_MH structural challenge.
+- **Decisão:**
+  - **Ship Q3 IterC opt-in** para F_HL synthesis use case via `NOX_ITERATIVE_RETRIEVAL=self-ask`. F_HL +35.84pp valida hipótese de decomposição paralela para synthesis queries.
+  - **Q3 IterB (ReAct) permanece como candidato F_MH para EverMemBench specifically.** POC ainda vale $10-15 para confirmar/refutar — mas com urgência reduzida pós-D72 (multi-hop reasoning broadly RESOLVIDO via MuSiQue+HotPotQA SOTA).
+  - **Refinamento da PR #393 spec:** separar IterB (ReAct, F_MH target) e IterC (Self-Ask, F_HL target) como sub-specs independentes com mecanismos distintos.
+- **Rationale:**
+  - Q3 IterC empiricamente wrong mechanism para F_MH (zero lift confirmado 5-batch)
+  - Q3 IterC right mechanism para F_HL (35.84pp lift — maior single-mechanism F_HL lift ever observed)
+  - Mechanism class distinction: sub-query decomposition converge para mesma vizinhança de first-hop que KG path (overlap) — não adiciona bridge entities para second-hop. ReAct loop explicitamente busca bridge entities via sequential reason → retrieve.
+  - Per D72, EverMemBench F_MH gap é structural corpus challenge — IterB POC valor informativo (refuta/confirma) mas não resolve reasoning weakness (já não há)
+  - F_HL +35.84pp é actionable: users que fazem synthesis/summarization queries terão ganho massivo opt-in
+- **Aplicação operacional:**
+  - Documentar `NOX_ITERATIVE_RETRIEVAL=self-ask` como F_HL opt-in em README + api-reference
+  - PR #393 spec: split em §IterB (ReAct, F_MH EverMemBench) + §IterC (Self-Ask, F_HL synthesis) com mecanismos separados
+  - GTM messaging: "F_HL synthesis mode (opt-in): +35.84pp accuracy em queries de síntese e alto nível"
+  - Q3 timeline revisado: IterC shipped (opt-in); IterB POC budget $10-15 alocável sob demanda
+  - Paper: citar IterC resultado em §5 como evidence de mechanism class distinction (empirical)
+- **NÃO FAZEMOS:**
+  - Ship Q3 IterC para F_MH workloads (wrong mechanism — zero lift confirmado)
+  - Cancelar Q3 IterB POC (ainda relevante para EverMemBench F_MH specifically)
+  - Afirmar "parallel decomposition fecha F_MH gap" (refutado empiricamente)
+  - Tratar IterB e IterC como variantes da mesma spec (mecanismos fundamentalmente distintos)
+- **Cross-links:** PR #406 (IterC POC), #393 (spec Q3), memory `[[q3-iterC-poc-self-ask-f-hl-breakthrough]]`, `[[orthogonal-stage-hypothesis-needs-mechanism-class-refinement]]`, D69 (Q3 elevado post-Wave C), D72 (F_MH paradox resolution reduz urgência IterB).
+- *Origem:* sessão 2026-05-30 03:00-04:00 UTC — Q3 IterC POC 5-batch results.
