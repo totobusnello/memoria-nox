@@ -408,6 +408,65 @@ DEFAULT_ITERC_DECOMPOSER_TIMEOUT_S = 30.0
 DEFAULT_ITERC_ANSWERER_TIMEOUT_S = 45.0
 DEFAULT_ITERC_ANSWERER_MAX_TOKENS = 160
 
+# ---------------------------------------------------------------------------
+# Phase HyDE (Wave 1 quick-win cross-bench, 2026-05-30) — Hypothetical
+# Document Embeddings (Gao et al. 2022, arxiv:2212.10496).
+# ---------------------------------------------------------------------------
+#
+# Standard retrieval embeds the raw query and matches it against indexed
+# chunks. But queries and chunks have very different surface forms — a query
+# is usually a question, while indexed chunks are declarative statements.
+# That distributional mismatch hurts dense retrieval.
+#
+# HyDE inserts a single LLM call before retrieval: turn the question into a
+# *hypothetical answer / passage* that mimics the chunk distribution, then
+# embed THAT hypothetical text and use it as the retrieval signal. Even
+# when the hypothetical contains factual errors, its embedding tends to
+# land closer to relevant chunks in vector space because the surface form
+# matches.
+#
+# Two flavors supported:
+#   1. Pure HyDE: send hypothetical as `query` to /api/search (FTS5 + Gemini
+#      embed both run off the hypothetical text).
+#   2. Hybrid HyDE (default): run TWO parallel /api/search calls — one with
+#      the raw query, one with the hypothetical — and RRF-union the results.
+#      Reuses _mq_rrf_merge() for the merge. This preserves raw-query FTS5
+#      precision (literal token matches) while gaining HyDE's dense lift.
+#
+# Fallback: any LLM error (timeout, malformed response, empty hypothetical)
+# falls back to baseline single-query retrieval, status="fallback_single".
+DEFAULT_HYDE_LLM = "gemini-2.5-flash-lite"
+DEFAULT_HYDE_LLM_BASE_URL = (
+    "https://generativelanguage.googleapis.com/v1beta/openai"
+)
+DEFAULT_HYDE_TIMEOUT_S = 25.0
+DEFAULT_HYDE_MAX_TOKENS = 220
+DEFAULT_HYDE_PER_QUERY_TOPK = 10
+DEFAULT_HYDE_RRF_K = 60
+DEFAULT_HYDE_HYBRID = True  # raw + hypothetical RRF union by default
+
+PHASE_HYDE_PROMPT = (
+    "You are generating a HYPOTHETICAL passage to seed dense retrieval "
+    "against group-chat memory (Hypothetical Document Embeddings — Gao "
+    "et al. 2022, arxiv:2212.10496).\n\n"
+    "Write a concise 80-120 word DECLARATIVE passage that plausibly "
+    "answers the question below as if quoting / paraphrasing the relevant "
+    "memory chunks. Use the SAME language as the question.\n\n"
+    "Hard rules:\n"
+    "  - Output declarative statements only (no questions, no 'I think', "
+    "no 'maybe').\n"
+    "  - Mention the entities, dates, places, and relationships that "
+    "would appear in the actual evidence (even if you have to invent "
+    "plausible names — surface form matters, factual accuracy does not).\n"
+    "  - DO NOT prefix with 'Hypothetical answer:' or any framing — just "
+    "the passage text.\n"
+    "  - Aim for the prose style of a chat-log digest: speaker mentions, "
+    "timestamps, factual claims.\n\n"
+    "Question: {query}\n\n"
+    "Hypothetical passage:"
+)
+
+
 # Self-Ask decomposition prompt — distinct from Phase MQ because Self-Ask
 # explicitly frames sub-questions as "follow-up questions a system would
 # need to answer in order to answer the original". This framing matters:
@@ -979,6 +1038,85 @@ def _mq_rrf_merge(
 
 
 # ---------------------------------------------------------------------------
+# Phase HyDE — Hypothetical Document Embeddings helper
+# ---------------------------------------------------------------------------
+async def _hyde_generate_hypothetical(
+    query: str,
+    model: str,
+    base_url: str,
+    api_key: str,
+    timeout_s: float,
+    max_tokens: int,
+    session: aiohttp.ClientSession,
+) -> Tuple[Optional[str], Optional[str]]:
+    """Call LLM to produce a hypothetical answer/passage for the query.
+
+    Returns (hypothetical_text, error). On any failure, returns
+    (None, error_string) so the caller can fall back to baseline single-
+    query retrieval gracefully (per memoria-nox rule: never let an
+    optional retrieval-stage knob break the baseline path).
+    """
+    import json as _json
+    import re as _re
+
+    prompt = PHASE_HYDE_PROMPT.format(query=query)
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": max_tokens,
+    }
+    endpoint = f"{base_url.rstrip('/')}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    try:
+        async with session.post(
+            endpoint,
+            json=payload,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=timeout_s),
+        ) as resp:
+            if resp.status != 200:
+                body = (await resp.text())[:300]
+                return None, f"hyde HTTP {resp.status}: {body}"
+            data = await resp.json()
+    except asyncio.TimeoutError:
+        return None, f"hyde timeout after {timeout_s}s"
+    except aiohttp.ClientError as exc:
+        return None, f"hyde client error: {type(exc).__name__}: {exc}"
+    except Exception as exc:  # noqa: BLE001
+        return None, f"hyde unexpected: {type(exc).__name__}: {exc}"
+
+    try:
+        text = data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return None, f"hyde malformed response: {str(data)[:200]}"
+
+    # Strip code fences and trim whitespace.
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = _re.sub(r"^```(?:[a-zA-Z0-9]+)?\s*", "", cleaned)
+        cleaned = _re.sub(r"\s*```\s*$", "", cleaned)
+        cleaned = cleaned.strip()
+
+    # Strip common framing prefixes the LLM sometimes adds despite the prompt.
+    cleaned = _re.sub(
+        r"^(hypothetical (passage|answer|document)|passage|answer)\s*:?\s*",
+        "",
+        cleaned,
+        flags=_re.IGNORECASE,
+    ).strip()
+
+    # Sanity: require at least a meaningful length (avoid 1-word artefacts).
+    if len(cleaned) < 30:
+        return None, f"hyde too-short response ({len(cleaned)} chars)"
+
+    return cleaned, None
+
+
+# ---------------------------------------------------------------------------
 # Phase IterC (Q3 POC) — Self-Ask helpers
 # ---------------------------------------------------------------------------
 #
@@ -1422,6 +1560,57 @@ class NoxMemAdapter(BaseAdapter):
             or DEFAULT_ITERC_ANSWERER_MAX_TOKENS
         )
         self.iterc_debug = os.environ.get("NOX_ITERC_DEBUG", "").strip().lower() in (
+            "1", "true", "yes", "on"
+        )
+
+        # ----------------------------------------------------------------
+        # Phase HyDE (Wave 1 quick-win) — Hypothetical Document Embeddings
+        # ----------------------------------------------------------------
+        # Enabled by phaseHyDE mode (default-on for that mode) OR by explicit
+        # NOX_HYDE_ENABLED env override on top of any other mode. NOT stacked
+        # on top of IterC (orthogonal POC).
+        env_hyde = os.environ.get("NOX_HYDE_ENABLED", "").strip().lower()
+        env_hyde_truthy = env_hyde in ("1", "true", "yes", "on")
+        env_hyde_falsy = env_hyde in ("0", "false", "no", "off")
+        if env_hyde_falsy:
+            self.hyde_enabled = False
+        elif env_hyde_truthy:
+            self.hyde_enabled = True
+        else:
+            self.hyde_enabled = self.adapter_mode == "phaseHyDE"
+
+        self.hyde_model = os.environ.get("NOX_HYDE_LLM", "") or DEFAULT_HYDE_LLM
+        self.hyde_base_url = (
+            os.environ.get("NOX_HYDE_LLM_BASE_URL", "") or DEFAULT_HYDE_LLM_BASE_URL
+        )
+        # API key defaults to GEMINI_API_KEY (matches default model).
+        self.hyde_api_key = (
+            os.environ.get("NOX_HYDE_LLM_API_KEY", "")
+            or os.environ.get("GEMINI_API_KEY", "")
+        )
+        self.hyde_timeout_s = float(
+            os.environ.get("NOX_HYDE_TIMEOUT_S", "") or DEFAULT_HYDE_TIMEOUT_S
+        )
+        self.hyde_max_tokens = int(
+            os.environ.get("NOX_HYDE_MAX_TOKENS", "") or DEFAULT_HYDE_MAX_TOKENS
+        )
+        self.hyde_per_query_topk = int(
+            os.environ.get("NOX_HYDE_PER_QUERY_TOPK", "")
+            or DEFAULT_HYDE_PER_QUERY_TOPK
+        )
+        self.hyde_rrf_k = int(
+            os.environ.get("NOX_HYDE_RRF_K", "") or DEFAULT_HYDE_RRF_K
+        )
+        # Hybrid HyDE: run raw query AND hypothetical in parallel, RRF-merge.
+        # Default ON (combines literal-FTS5 precision with HyDE dense lift).
+        env_hyde_hybrid = os.environ.get("NOX_HYDE_HYBRID", "").strip().lower()
+        if env_hyde_hybrid in ("0", "false", "no", "off"):
+            self.hyde_hybrid = False
+        elif env_hyde_hybrid in ("1", "true", "yes", "on"):
+            self.hyde_hybrid = True
+        else:
+            self.hyde_hybrid = DEFAULT_HYDE_HYBRID
+        self.hyde_debug = os.environ.get("NOX_HYDE_DEBUG", "").strip().lower() in (
             "1", "true", "yes", "on"
         )
 
@@ -2158,9 +2347,134 @@ class NoxMemAdapter(BaseAdapter):
                         )
 
         # ------------------------------------------------------------------
-        # Baseline single-query path (used when MQ/IterC disabled or fell back)
+        # Phase HyDE (Wave 1 quick-win) — Hypothetical Document Embeddings
         # ------------------------------------------------------------------
-        if not mq_used_subquery_path and not iterc_used_path:
+        # When HyDE is enabled AND MQ/IterC did NOT already populate
+        # candidates, generate a hypothetical passage via LLM, then either:
+        #   - hybrid mode (default): run raw + hypothetical /api/search in
+        #     parallel and RRF-union (reuses _mq_rrf_merge for free).
+        #   - pure mode: run only hypothetical /api/search.
+        # On any LLM failure, fall back to the baseline single-query path
+        # below (hyde_status="fallback_single").
+        hyde_meta: Dict[str, Any] = {
+            "hyde_enabled": self.hyde_enabled,
+            "hyde_applied": False,
+        }
+        hyde_used_path = False
+        hyde_hypothetical: Optional[str] = None
+        hyde_generate_ms: Optional[float] = None
+        hyde_retrieve_ms: Optional[float] = None
+        hyde_total_returned = 0
+
+        if (
+            self.hyde_enabled
+            and not mq_used_subquery_path
+            and not iterc_used_path
+        ):
+            if not self.hyde_api_key:
+                hyde_meta["hyde_error"] = (
+                    "no api_key (NOX_HYDE_LLM_API_KEY / GEMINI_API_KEY)"
+                )
+                hyde_meta["hyde_status"] = "fallback_single"
+            else:
+                # Step 1: generate hypothetical passage
+                gen_start = time.monotonic() * 1000
+                hypothetical, hyde_err = await _hyde_generate_hypothetical(
+                    query,
+                    model=self.hyde_model,
+                    base_url=self.hyde_base_url,
+                    api_key=self.hyde_api_key,
+                    timeout_s=self.hyde_timeout_s,
+                    max_tokens=self.hyde_max_tokens,
+                    session=session,
+                )
+                hyde_generate_ms = time.monotonic() * 1000 - gen_start
+                if hyde_err is not None or not hypothetical:
+                    hyde_meta["hyde_error"] = (
+                        hyde_err or "empty hypothetical"
+                    )
+                    hyde_meta["hyde_status"] = "fallback_single"
+                else:
+                    hyde_hypothetical = hypothetical
+                    if self.hyde_debug:
+                        print(
+                            f"[HyDE] generated in {hyde_generate_ms:.0f}ms ("
+                            f"{len(hypothetical)} chars, hybrid={self.hyde_hybrid})",
+                            file=__import__("sys").stderr,
+                        )
+
+                    # Step 2: retrieval — hybrid or pure
+                    retrieve_start = time.monotonic() * 1000
+                    api_limit = self.hyde_per_query_topk
+
+                    async def _hyde_fetch(q_text: str) -> List[Tuple[str, Dict[str, Any]]]:
+                        payload_h = {
+                            "query": q_text,
+                            "limit": api_limit,
+                            "hybrid": True,
+                        }
+                        try:
+                            async with session.post(
+                                f"{self.api_base}/api/search",
+                                json=payload_h,
+                                headers={"Content-Type": "application/json"},
+                            ) as r:
+                                r.raise_for_status()
+                                d = await r.json()
+                        except Exception:  # noqa: BLE001
+                            return []
+                        if isinstance(d, list):
+                            rr = d
+                        elif isinstance(d, dict):
+                            rr = d.get("results", [])
+                        else:
+                            return []
+                        out: List[Tuple[str, Dict[str, Any]]] = []
+                        for it in rr:
+                            if isinstance(it, dict):
+                                c = it.get("chunk_text") or it.get("content") or ""
+                                if c:
+                                    out.append((c, it))
+                        return out
+
+                    if self.hyde_hybrid:
+                        # raw + hypothetical in parallel → RRF union
+                        per_q_results = await asyncio.gather(
+                            _hyde_fetch(query),
+                            _hyde_fetch(hypothetical),
+                        )
+                        merged = _mq_rrf_merge(per_q_results, rrf_k=self.hyde_rrf_k)
+                        candidates = merged
+                        hyde_total_returned = sum(len(r) for r in per_q_results)
+                    else:
+                        # pure HyDE — only hypothetical
+                        per_q_results = [await _hyde_fetch(hypothetical)]
+                        candidates = list(per_q_results[0])
+                        hyde_total_returned = len(candidates)
+
+                    api_returned = len(candidates)
+                    hyde_retrieve_ms = time.monotonic() * 1000 - retrieve_start
+                    hyde_used_path = True
+                    hyde_meta["hyde_applied"] = True
+                    hyde_meta["hyde_status"] = "applied"
+                    hyde_meta["hyde_hybrid"] = self.hyde_hybrid
+                    hyde_meta["hyde_per_query_topk"] = self.hyde_per_query_topk
+                    hyde_meta["hyde_rrf_k"] = self.hyde_rrf_k if self.hyde_hybrid else None
+                    hyde_meta["hyde_hypothetical_chars"] = len(hypothetical)
+                    hyde_meta["hyde_hypothetical_preview"] = hypothetical[:200]
+                    hyde_meta["hyde_total_results_pre_dedup"] = hyde_total_returned
+                    hyde_meta["hyde_unique_after_dedup"] = api_returned
+                    if self.hyde_debug:
+                        print(
+                            f"[HyDE] retrieved {hyde_total_returned} pre-dedup -> "
+                            f"{api_returned} unique chunks in {hyde_retrieve_ms:.0f}ms",
+                            file=__import__("sys").stderr,
+                        )
+
+        # ------------------------------------------------------------------
+        # Baseline single-query path (used when MQ/IterC/HyDE disabled or fell back)
+        # ------------------------------------------------------------------
+        if not mq_used_subquery_path and not iterc_used_path and not hyde_used_path:
             # Decide how many results to request from the API.
             # Phase F: overfetch then rerank locally. Other modes: request top_k.
             # Phase KG: also needs overfetch so we have a pool to re-rank within
@@ -2222,8 +2536,9 @@ class NoxMemAdapter(BaseAdapter):
 
             api_returned = len(candidates)
         else:
-            # MQ path was used. We still need a `data` object for downstream
-            # took_ms_api lookup; set a stub so meta extraction doesn't crash.
+            # MQ / HyDE path was used. We still need a `data` object for
+            # downstream took_ms_api lookup; set a stub so meta extraction
+            # doesn't crash.
             data = {"took_ms": None}
 
         # ------------------------------------------------------------------
@@ -2555,6 +2870,34 @@ class NoxMemAdapter(BaseAdapter):
             "iterc_per_query_topk": (
                 self.iterc_per_query_topk if self.iterc_enabled else None
             ),
+            # Phase HyDE (Wave 1 quick-win) — Hypothetical Document Embeddings
+            "hyde_enabled": self.hyde_enabled,
+            "hyde_applied": hyde_meta.get("hyde_applied", False),
+            "hyde_status": hyde_meta.get(
+                "hyde_status", "off" if not self.hyde_enabled else "unknown"
+            ),
+            "hyde_error": hyde_meta.get("hyde_error"),
+            "hyde_hybrid": self.hyde_hybrid if self.hyde_enabled else None,
+            "hyde_generate_ms": hyde_generate_ms,
+            "hyde_retrieve_ms": hyde_retrieve_ms,
+            "hyde_hypothetical_chars": hyde_meta.get("hyde_hypothetical_chars"),
+            "hyde_hypothetical_preview": (
+                hyde_meta.get("hyde_hypothetical_preview")
+                if self.hyde_debug or hyde_meta.get("hyde_applied")
+                else None
+            ),
+            "hyde_total_results_pre_dedup": (
+                hyde_total_returned if hyde_used_path else None
+            ),
+            "hyde_unique_after_dedup": (
+                api_returned if hyde_used_path else None
+            ),
+            "hyde_per_query_topk": (
+                self.hyde_per_query_topk if self.hyde_enabled else None
+            ),
+            "hyde_rrf_k": (
+                self.hyde_rrf_k if (self.hyde_enabled and self.hyde_hybrid) else None
+            ),
         }
         return SearchResult(
             question_id=kwargs.get("question_id", "unknown"),
@@ -2611,5 +2954,13 @@ class NoxMemAdapter(BaseAdapter):
             "iterc_decomposer_timeout_s": self.iterc_decomposer_timeout_s,
             "iterc_answerer_timeout_s": self.iterc_answerer_timeout_s,
             "iterc_answerer_max_tokens": self.iterc_answerer_max_tokens,
-            "version": "phase-iterC-q3-poc-0.1",
+            "hyde_enabled": self.hyde_enabled,
+            "hyde_model": self.hyde_model,
+            "hyde_base_url": self.hyde_base_url,
+            "hyde_timeout_s": self.hyde_timeout_s,
+            "hyde_max_tokens": self.hyde_max_tokens,
+            "hyde_per_query_topk": self.hyde_per_query_topk,
+            "hyde_rrf_k": self.hyde_rrf_k,
+            "hyde_hybrid": self.hyde_hybrid,
+            "version": "phase-hyde-wave1-0.1",
         }

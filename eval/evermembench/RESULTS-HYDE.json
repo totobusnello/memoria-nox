@@ -1,0 +1,51 @@
+{
+  "phase": "phaseHyDE",
+  "reference": "Gao et al. 2022, arxiv:2212.10496",
+  "date": "2026-05-30",
+  "status": "implementation_shipped_eval_pending",
+  "baseline": "Phase H v2 5-batch (n=3121, overall=51.68%, F_MH=10pp single-batch ref)",
+  "implementation": {
+    "adapter_mode": "phaseHyDE",
+    "env_flags": [
+      "NOX_HYDE_ENABLED",
+      "NOX_HYDE_HYBRID",
+      "NOX_HYDE_LLM",
+      "NOX_HYDE_LLM_BASE_URL",
+      "NOX_HYDE_LLM_API_KEY",
+      "NOX_HYDE_TIMEOUT_S",
+      "NOX_HYDE_MAX_TOKENS",
+      "NOX_HYDE_PER_QUERY_TOPK",
+      "NOX_HYDE_RRF_K",
+      "NOX_HYDE_DEBUG"
+    ],
+    "defaults": {
+      "llm": "gemini-2.5-flash-lite",
+      "hybrid": true,
+      "max_tokens": 220,
+      "per_query_topk": 10,
+      "rrf_k": 60
+    },
+    "mechanism": "raw + hypothetical /api/search → RRF union (hybrid) | hypothetical-only /api/search (pure)",
+    "fallback": "any LLM error → fallback_single (baseline path)",
+    "score_combination": "additive RRF (no multiplicative stacking — rule §5)"
+  },
+  "preflight_validation_2026_05_30": {
+    "gemini_flash_lite_billing": "ok",
+    "openai_gpt_4_1_mini_billing": "ok",
+    "hyde_prompt_smoke_3q": {
+      "avg_ms": 927,
+      "avg_chars": 387,
+      "all_declarative": true,
+      "all_chat_log_style": true
+    }
+  },
+  "gates": {
+    "1_f_mh_lift_geq_3pp_vs_baseline": "pending",
+    "2_overall_geq_minus_1pp": "pending",
+    "3_ma_composite_geq_minus_2pp": "pending",
+    "4_latency_p95_leq_plus_50pct": "pending"
+  },
+  "verdict": "pending_5_batch_run",
+  "cost_estimate_5batch_usd": 5.01,
+  "budget_cap_usd": 8.0
+}

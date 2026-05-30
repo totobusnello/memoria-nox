@@ -1,0 +1,46 @@
+{
+  "phase": "phaseHyDE",
+  "bench": "musique",
+  "reference": "Gao et al. 2022, arxiv:2212.10496",
+  "date": "2026-05-30",
+  "status": "implementation_shipped_eval_pending",
+  "baseline_phase_h_v2": {
+    "n": 2417,
+    "answer_em": 0.4656,
+    "answer_f1": 0.5862,
+    "support_f1": 0.6630,
+    "support_hit_at_10": 0.9988,
+    "support_hit_at_5": 0.9925,
+    "accuracy_f1_geq_0_5": 0.6122,
+    "per_hop_answer_f1": {
+      "2hop": 0.5942,
+      "3hop1": 0.6427,
+      "3hop2": 0.5293,
+      "4hop1": 0.5235,
+      "4hop2": 0.5001,
+      "4hop3": 0.4784
+    }
+  },
+  "implementation": {
+    "cli_flags": [
+      "--hyde", "--hyde-pure", "--hyde-llm",
+      "--hyde-max-tokens", "--hyde-timeout", "--hyde-debug"
+    ],
+    "default_llm": "gemini-2.5-flash-lite",
+    "default_hybrid": true,
+    "default_max_tokens": 220,
+    "default_rrf_k": 60,
+    "prompt_variant": "wikipedia_paragraph_style_with_entity_chain_hint"
+  },
+  "gates": {
+    "1_multi_hop_4hop_avg_f1_lift_geq_3pp": "pending",
+    "2_overall_answer_f1_geq_minus_1pp": "pending",
+    "3_support_hit_at_10_no_regression": "pending",
+    "4_latency_p95_leq_plus_50pct": "pending"
+  },
+  "verdict": "pending_smoke_then_full_run",
+  "cost_estimate_smoke_usd": 0.08,
+  "cost_estimate_full_5batch_usd": 3.62,
+  "budget_cap_usd": 8.0,
+  "note": "MuSiQue retrieval near-ceiling (support_hit@10 99.88%) means HyDE primary opportunity is 4hop composition via better-positioned top results, NOT @10 recall."
+}
