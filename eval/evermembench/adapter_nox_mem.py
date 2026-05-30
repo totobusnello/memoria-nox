@@ -145,6 +145,22 @@ Modes:
                                   + chunk-union via RRF + context injection of
                                   (sub-Q, intermediate-answer) blocks. No
                                   Wave A/B/C retrieval knobs (clean isolation).
+    NOX_ADAPTER_MODE=phaseIterB -> phaseB ingest + ReAct (Q3 POC, this PR — Yao
+                                  et al. 2022 arxiv:2210.03629). Multi-round
+                                  retrieve-reason orchestration loop:
+                                    Round 1..max_rounds: orchestrator emits
+                                    either {action:retrieve, query} or
+                                    {action:answer, answer}. Retrieve hits
+                                    /api/search top_k=10; observations feed
+                                    back into scratchpad. Final answer
+                                    synthesized either by LLM signal or by
+                                    max_rounds/cost_ceiling termination.
+                                  Chunk-union across rounds via RRF (k=60).
+                                  Context prefix = scratchpad + draft answer.
+                                  No Wave A/B/C knobs (clean isolation).
+                                  Canonical F_MH ceiling break attempt per
+                                  PR #393 spec §3.B (vs Self-Ask wrong class
+                                  for F_MH per PR #406).
     NOX_ADAPTER_MODE=phaseKGMQ -> phaseB ingest + MQ decompose + KG 1-hop entity
                                   boost composed (Wave B composability — PR #389)
     NOX_ADAPTER_MODE=phaseMAP  -> phaseB ingest + rerank with bypass-entity (MA-protection
@@ -172,7 +188,7 @@ Environment variables:
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
     NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG"
                                 / "phaseMQ" / "phaseKGMQ" / "phaseMAP" / "phaseKGMAP"
-                                / "phaseTriple" / "phaseIterC"
+                                / "phaseTriple" / "phaseIterC" / "phaseIterB"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
     NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
@@ -227,6 +243,26 @@ Environment variables:
     NOX_ITERC_DECOMPOSER_TIMEOUT_S — float, decomposer timeout (default: 30)
     NOX_ITERC_ANSWERER_TIMEOUT_S — float, sub-answer timeout (default: 45 — each
                                    sub-answer is a small task; 5 in parallel)
+    NOX_ITERB_ENABLED         — "1" to force ReAct (env override on any mode);
+                                default-on for NOX_ADAPTER_MODE=phaseIterB
+    NOX_ITERB_ORCHESTRATOR_LLM — orchestrator model (default: gpt-4.1-mini)
+    NOX_ITERB_ORCHESTRATOR_BASE_URL — orchestrator endpoint
+                                  (default: https://api.openai.com/v1)
+    NOX_ITERB_ORCHESTRATOR_API_KEY — auth bearer (default: OPENAI_API_KEY for
+                                  gpt-*, GEMINI_API_KEY for gemini-*)
+    NOX_ITERB_MAX_ROUNDS      — int, hard cap on rounds per query (default: 5)
+    NOX_ITERB_PER_ROUND_TOPK  — int, top_k per round retrieve (default: 10)
+    NOX_ITERB_RRF_K           — int, RRF constant for chunk union (default: 60)
+    NOX_ITERB_ORCHESTRATOR_TIMEOUT_S — float, per-round LLM timeout
+                                       (default: 45)
+    NOX_ITERB_ORCHESTRATOR_MAX_TOKENS — int, orchestrator output cap
+                                        (default: 400 — JSON action object)
+    NOX_ITERB_COST_CEILING_USD — float, hard cost cap per query (default: 0.01)
+    NOX_ITERB_INPUT_COST_PER_1M — float, USD per 1M input tokens
+                                  (default: 0.40 — gpt-4.1-mini)
+    NOX_ITERB_OUTPUT_COST_PER_1M — float, USD per 1M output tokens
+                                   (default: 1.60 — gpt-4.1-mini)
+    NOX_ITERB_DEBUG           — "1" to log per-round action + cost + scratchpad
     NOX_ITERC_ANSWERER_MAX_TOKENS — int, per-sub-Q answer cap (default: 160 —
                                     intermediate answers are short)
     NOX_ITERC_DEBUG           — "1" to log decompositions + sub-answers + RRF
@@ -441,6 +477,75 @@ PHASE_ITERC_ANSWERER_PROMPT = (
     "Sub-question: {subq}\n\n"
     "Retrieved memory chunks:\n{chunks}\n\n"
     "Answer (atomic fact or UNKNOWN, no prose):"
+)
+
+
+# ---------------------------------------------------------------------------
+# Phase IterB (Q3 POC) — ReAct (Yao et al. 2022, arxiv:2210.03629)
+# ---------------------------------------------------------------------------
+#
+# Loop until answer found OR max_rounds (default 5). Each round the
+# orchestrator LLM emits structured JSON with either:
+#   {"thought": "...", "action": "retrieve", "query": "..."}
+#   {"thought": "...", "action": "answer", "answer": "..."}
+#
+# Termination:
+#   - max_rounds=5 (hard cap)
+#   - LLM signals "action": "answer"
+#   - Cost ceiling per query ≤ NOX_ITERB_COST_CEILING_USD (default 0.005)
+#
+# Orchestrator backbone: gpt-4.1-mini by default (~$0.001/round × 3-5 rounds
+# = $0.003-0.005/q). Also support Gemini-3-flash variant via
+# NOX_ITERB_ORCHESTRATOR_LLM env override (cheap variant).
+#
+# Per-round retrieval re-uses the SAME /api/search endpoint as Phase H v2
+# (top_k=NOX_ITERB_PER_ROUND_TOPK, default 10). Chunk-union across rounds
+# uses the same RRF mechanism as Phase MQ/IterC (RRF_K=60), so signal stays
+# comparable.
+#
+# Set E per-query instrumentation:
+#   - rounds_executed (max NOX_ITERB_MAX_ROUNDS)
+#   - per-round chunks retrieved
+#   - per-round chunk overlap with prior rounds (Jaccard)
+#   - termination reason ("answer", "max_rounds", "cost_ceiling", "error")
+#   - per-round latency (decode + retrieve)
+#   - total cost in USD (estimated via token counts × per-1M rates)
+DEFAULT_ITERB_ORCHESTRATOR_LLM = "gpt-4.1-mini"
+DEFAULT_ITERB_ORCHESTRATOR_BASE_URL = "https://api.openai.com/v1"
+DEFAULT_ITERB_MAX_ROUNDS = 5
+DEFAULT_ITERB_PER_ROUND_TOPK = 10
+DEFAULT_ITERB_RRF_K = 60
+DEFAULT_ITERB_ORCHESTRATOR_TIMEOUT_S = 45.0
+DEFAULT_ITERB_ORCHESTRATOR_MAX_TOKENS = 400
+DEFAULT_ITERB_COST_CEILING_USD = 0.01  # gate 4 ceiling
+# Token cost estimates (USD per 1M tokens). Defaults reflect gpt-4.1-mini
+# public pricing 2026-05 ($0.40 input / $1.60 output). Override via env if
+# switching backbone (e.g. Gemini-3-flash $0.30/$2.50).
+DEFAULT_ITERB_INPUT_COST_PER_1M = 0.40
+DEFAULT_ITERB_OUTPUT_COST_PER_1M = 1.60
+
+# ReAct orchestrator prompt — structured JSON output to make termination
+# unambiguous. The LLM gets the original query + a running scratchpad of
+# (thought, action, observation) triples from prior rounds.
+PHASE_ITERB_ORCHESTRATOR_PROMPT = (
+    "You are a ReAct orchestrator (Yao et al. 2022) answering a multi-hop "
+    "question over a memory store of group-chat messages.\n\n"
+    "At each round you may issue ONE of two actions:\n"
+    "  1. retrieve — emit a sub-query string to fetch more memory chunks\n"
+    "  2. answer — emit the final answer when you have enough evidence\n\n"
+    "Rules:\n"
+    "  - Use ONLY facts from the observations below (no hallucination)\n"
+    "  - Prefer retrieve when you do NOT yet have enough evidence\n"
+    "  - You have up to {max_rounds} rounds total; you are on round {round}\n"
+    "  - On the last round you MUST emit answer (final round forces synthesis)\n"
+    "  - Keep retrieve sub-queries ATOMIC (one fact / entity / date per query)\n"
+    "  - Use the SAME language as the original question\n\n"
+    "Output ONLY a JSON object — no prose, no markdown fences:\n"
+    "  {{\"thought\": \"...\", \"action\": \"retrieve\", \"query\": \"...\"}}\n"
+    "  {{\"thought\": \"...\", \"action\": \"answer\", \"answer\": \"...\"}}\n\n"
+    "Original question: {query}\n\n"
+    "Scratchpad (prior rounds):\n{scratchpad}\n\n"
+    "Round {round} JSON output:"
 )
 
 
@@ -1166,6 +1271,246 @@ def _iterc_per_subquery_overlap(
     return total / pairs if pairs > 0 else 0.0
 
 
+# ---------------------------------------------------------------------------
+# Phase IterB (Q3 POC) — ReAct helpers
+# ---------------------------------------------------------------------------
+#
+# Module-level helpers (parallel to Phase MQ / Phase IterC) so they are
+# unit-testable in isolation. The ReAct loop itself lives inside
+# NoxMemAdapter.search() to keep aiohttp.ClientSession lifecycle clean,
+# but the per-round LLM decoder + cost estimator + overlap calculator are
+# pure functions here.
+
+
+async def _iterb_orchestrator_step(
+    query: str,
+    scratchpad: str,
+    round_idx: int,
+    max_rounds: int,
+    model: str,
+    base_url: str,
+    api_key: str,
+    timeout_s: float,
+    max_tokens: int,
+    session: aiohttp.ClientSession,
+) -> Tuple[Dict[str, Any], Optional[str], Dict[str, int]]:
+    """One ReAct orchestrator round.
+
+    Returns (parsed_action_dict, error_str_or_None, usage_dict).
+
+    parsed_action_dict shape:
+        {"thought": str, "action": "retrieve", "query": str}
+        OR
+        {"thought": str, "action": "answer", "answer": str}
+
+    usage_dict shape: {"input_tokens": int, "output_tokens": int}
+        (best-effort; falls back to zero if API doesn't return usage)
+
+    On parse failure we degrade gracefully: returns action="answer" with
+    answer="UNKNOWN" so the loop terminates and the harness still gets a
+    final synthesis stage.
+    """
+    import json as _json
+    import re as _re
+
+    prompt = PHASE_ITERB_ORCHESTRATOR_PROMPT.format(
+        max_rounds=max_rounds,
+        round=round_idx,
+        query=query,
+        scratchpad=scratchpad if scratchpad else "(empty — round 1)",
+    )
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": max_tokens,
+    }
+    endpoint = f"{base_url.rstrip('/')}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    usage: Dict[str, int] = {"input_tokens": 0, "output_tokens": 0}
+    try:
+        async with session.post(
+            endpoint,
+            json=payload,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=timeout_s),
+        ) as resp:
+            if resp.status != 200:
+                body = (await resp.text())[:300]
+                return (
+                    {"action": "answer", "answer": "UNKNOWN", "thought": ""},
+                    f"iterb orchestrator HTTP {resp.status}: {body}",
+                    usage,
+                )
+            data = await resp.json()
+    except asyncio.TimeoutError:
+        return (
+            {"action": "answer", "answer": "UNKNOWN", "thought": ""},
+            f"iterb orchestrator timeout after {timeout_s}s",
+            usage,
+        )
+    except aiohttp.ClientError as exc:
+        return (
+            {"action": "answer", "answer": "UNKNOWN", "thought": ""},
+            f"iterb orchestrator client error: {type(exc).__name__}: {exc}",
+            usage,
+        )
+    except Exception as exc:  # noqa: BLE001
+        return (
+            {"action": "answer", "answer": "UNKNOWN", "thought": ""},
+            f"iterb orchestrator unexpected: {type(exc).__name__}: {exc}",
+            usage,
+        )
+
+    # Extract usage if returned
+    u = data.get("usage", {}) if isinstance(data, dict) else {}
+    if isinstance(u, dict):
+        usage["input_tokens"] = int(u.get("prompt_tokens") or 0)
+        usage["output_tokens"] = int(u.get("completion_tokens") or 0)
+
+    try:
+        text = data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return (
+            {"action": "answer", "answer": "UNKNOWN", "thought": ""},
+            f"iterb orchestrator malformed response: {str(data)[:200]}",
+            usage,
+        )
+
+    candidate = text.strip()
+    if candidate.startswith("```"):
+        candidate = _re.sub(r"^```(?:json)?\s*", "", candidate)
+        candidate = _re.sub(r"\s*```\s*$", "", candidate)
+        candidate = candidate.strip()
+
+    # First try JSON parse
+    parsed: Optional[Dict[str, Any]] = None
+    try:
+        obj = _json.loads(candidate)
+        if isinstance(obj, dict):
+            parsed = obj
+    except _json.JSONDecodeError:
+        # Try to extract a JSON object embedded in prose
+        m = _re.search(r"\{[^{}]*\"action\"[^{}]*\}", candidate, _re.DOTALL)
+        if m:
+            try:
+                obj = _json.loads(m.group(0))
+                if isinstance(obj, dict):
+                    parsed = obj
+            except _json.JSONDecodeError:
+                parsed = None
+
+    if parsed is None:
+        # Last-ditch: regex extract action + query/answer
+        action_m = _re.search(
+            r"\"action\"\s*:\s*\"(retrieve|answer)\"", candidate
+        )
+        action = action_m.group(1) if action_m else "answer"
+        if action == "retrieve":
+            q_m = _re.search(r"\"query\"\s*:\s*\"([^\"]+)\"", candidate)
+            if q_m:
+                return (
+                    {"action": "retrieve", "query": q_m.group(1), "thought": ""},
+                    "iterb parsed via regex fallback (no clean JSON)",
+                    usage,
+                )
+        a_m = _re.search(r"\"answer\"\s*:\s*\"([^\"]+)\"", candidate)
+        if a_m:
+            return (
+                {"action": "answer", "answer": a_m.group(1), "thought": ""},
+                "iterb parsed via regex fallback (no clean JSON)",
+                usage,
+            )
+        # Treat the whole text as an answer
+        return (
+            {"action": "answer", "answer": candidate[:400] or "UNKNOWN", "thought": ""},
+            "iterb fallback: treated raw text as answer",
+            usage,
+        )
+
+    # Normalize action field
+    action = str(parsed.get("action", "")).strip().lower()
+    if action not in ("retrieve", "answer"):
+        # Force answer on unrecognized action so loop terminates
+        return (
+            {
+                "action": "answer",
+                "answer": str(parsed.get("answer") or "UNKNOWN")[:400],
+                "thought": str(parsed.get("thought", "")),
+            },
+            f"iterb unrecognized action '{action}', forced answer",
+            usage,
+        )
+
+    if action == "retrieve":
+        q = str(parsed.get("query", "")).strip()
+        if not q:
+            return (
+                {"action": "answer", "answer": "UNKNOWN", "thought": str(parsed.get("thought", ""))},
+                "iterb retrieve action missing 'query' field, forced answer",
+                usage,
+            )
+        return (
+            {"action": "retrieve", "query": q, "thought": str(parsed.get("thought", ""))},
+            None,
+            usage,
+        )
+
+    # action == answer
+    ans = str(parsed.get("answer", "")).strip() or "UNKNOWN"
+    return (
+        {"action": "answer", "answer": ans[:1000], "thought": str(parsed.get("thought", ""))},
+        None,
+        usage,
+    )
+
+
+def _iterb_estimate_cost(
+    input_tokens: int,
+    output_tokens: int,
+    input_cost_per_1m: float,
+    output_cost_per_1m: float,
+) -> float:
+    """Estimate cost in USD given token counts + per-1M rates."""
+    return (
+        (input_tokens / 1_000_000.0) * input_cost_per_1m
+        + (output_tokens / 1_000_000.0) * output_cost_per_1m
+    )
+
+
+def _iterb_per_round_overlap(
+    per_round_chunk_ids: List[List[Any]],
+) -> List[float]:
+    """Per-round Jaccard overlap of round-i chunks with the UNION of all
+    prior rounds (rounds 0..i-1).
+
+    overlap[0] = 0.0 by definition (no prior rounds).
+    overlap[i] = |round_i ∩ prior_union| / |round_i ∪ prior_union| for i ≥ 1.
+
+    Low overlap on later rounds → ReAct is exploring NEW evidence each
+    round (sweet spot — multi-hop progression). High overlap → orchestrator
+    is going in circles (sub-queries redundant).
+    """
+    out: List[float] = []
+    prior_union: set = set()
+    for i, ids in enumerate(per_round_chunk_ids):
+        s_i = set(ids) if ids else set()
+        if i == 0 or not prior_union:
+            out.append(0.0)
+        else:
+            union = s_i | prior_union
+            if not union:
+                out.append(0.0)
+            else:
+                inter = s_i & prior_union
+                out.append(len(inter) / len(union))
+        prior_union |= s_i
+    return out
+
+
 class NoxMemAdapter(BaseAdapter):
     """
     nox-mem adapter for EverMemBench multi-person group chat evaluation.
@@ -1422,6 +1767,71 @@ class NoxMemAdapter(BaseAdapter):
             or DEFAULT_ITERC_ANSWERER_MAX_TOKENS
         )
         self.iterc_debug = os.environ.get("NOX_ITERC_DEBUG", "").strip().lower() in (
+            "1", "true", "yes", "on"
+        )
+
+        # ----------------------------------------------------------------
+        # Phase IterB (Q3 POC) — ReAct flags
+        # ----------------------------------------------------------------
+        iterb_env = os.environ.get("NOX_ITERB_ENABLED", "").strip().lower()
+        if iterb_env in ("0", "false", "no", "off"):
+            self.iterb_enabled = False
+        elif iterb_env in ("1", "true", "yes", "on"):
+            self.iterb_enabled = True
+        else:
+            self.iterb_enabled = self.adapter_mode == "phaseIterB"
+
+        self.iterb_orchestrator_model = (
+            os.environ.get("NOX_ITERB_ORCHESTRATOR_LLM", "")
+            or DEFAULT_ITERB_ORCHESTRATOR_LLM
+        )
+        self.iterb_orchestrator_base_url = (
+            os.environ.get("NOX_ITERB_ORCHESTRATOR_BASE_URL", "")
+            or DEFAULT_ITERB_ORCHESTRATOR_BASE_URL
+        )
+        # Default api key resolution: OPENAI_API_KEY for gpt-* models, else
+        # GEMINI_API_KEY (matches the "cheap variant" gemini-3-flash path).
+        # Explicit NOX_ITERB_ORCHESTRATOR_API_KEY always wins.
+        _iterb_key_override = os.environ.get("NOX_ITERB_ORCHESTRATOR_API_KEY", "")
+        if _iterb_key_override:
+            self.iterb_orchestrator_api_key = _iterb_key_override
+        elif "gemini" in self.iterb_orchestrator_model.lower():
+            self.iterb_orchestrator_api_key = os.environ.get("GEMINI_API_KEY", "")
+        else:
+            self.iterb_orchestrator_api_key = os.environ.get("OPENAI_API_KEY", "")
+
+        self.iterb_max_rounds = int(
+            os.environ.get("NOX_ITERB_MAX_ROUNDS", "")
+            or DEFAULT_ITERB_MAX_ROUNDS
+        )
+        self.iterb_per_round_topk = int(
+            os.environ.get("NOX_ITERB_PER_ROUND_TOPK", "")
+            or DEFAULT_ITERB_PER_ROUND_TOPK
+        )
+        self.iterb_rrf_k = int(
+            os.environ.get("NOX_ITERB_RRF_K", "") or DEFAULT_ITERB_RRF_K
+        )
+        self.iterb_orchestrator_timeout_s = float(
+            os.environ.get("NOX_ITERB_ORCHESTRATOR_TIMEOUT_S", "")
+            or DEFAULT_ITERB_ORCHESTRATOR_TIMEOUT_S
+        )
+        self.iterb_orchestrator_max_tokens = int(
+            os.environ.get("NOX_ITERB_ORCHESTRATOR_MAX_TOKENS", "")
+            or DEFAULT_ITERB_ORCHESTRATOR_MAX_TOKENS
+        )
+        self.iterb_cost_ceiling_usd = float(
+            os.environ.get("NOX_ITERB_COST_CEILING_USD", "")
+            or DEFAULT_ITERB_COST_CEILING_USD
+        )
+        self.iterb_input_cost_per_1m = float(
+            os.environ.get("NOX_ITERB_INPUT_COST_PER_1M", "")
+            or DEFAULT_ITERB_INPUT_COST_PER_1M
+        )
+        self.iterb_output_cost_per_1m = float(
+            os.environ.get("NOX_ITERB_OUTPUT_COST_PER_1M", "")
+            or DEFAULT_ITERB_OUTPUT_COST_PER_1M
+        )
+        self.iterb_debug = os.environ.get("NOX_ITERB_DEBUG", "").strip().lower() in (
             "1", "true", "yes", "on"
         )
 
@@ -1838,6 +2248,261 @@ class NoxMemAdapter(BaseAdapter):
         api_returned: int = 0
 
         # ------------------------------------------------------------------
+        # Phase IterB (Q3 POC) — ReAct multi-round orchestration path
+        # ------------------------------------------------------------------
+        # When IterB is enabled, we run the ReAct loop END-TO-END:
+        #   loop up to max_rounds:
+        #     orchestrator LLM emits {action: retrieve, query}  or
+        #                            {action: answer, answer}
+        #     retrieve → hit /api/search top_k=iterb_per_round_topk → feed
+        #                observation back into scratchpad
+        #     answer   → terminate, synthesize final context
+        # Termination: explicit answer | max_rounds | cost_ceiling | error.
+        # Phase MQ / IterC / KG / MAP / rerank are NOT stacked on top —
+        # POC isolates orchestration-stage ReAct signal vs Phase H v2.
+        iterb_meta: Dict[str, Any] = {
+            "iterb_enabled": self.iterb_enabled,
+            "iterb_applied": False,
+        }
+        iterb_used_path = False
+        iterb_rounds_executed = 0
+        iterb_termination_reason: Optional[str] = None
+        iterb_total_cost_usd = 0.0
+        iterb_total_input_tokens = 0
+        iterb_total_output_tokens = 0
+        iterb_per_round_chunk_counts: List[int] = []
+        iterb_per_round_overlap_vals: List[float] = []
+        iterb_per_round_latency_ms: List[float] = []
+        iterb_per_round_sub_queries: List[str] = []
+        iterb_per_round_thoughts: List[str] = []
+        iterb_final_answer: str = ""
+        iterb_orchestrator_errors: List[str] = []
+        iterb_context_prefix: str = ""
+
+        if self.iterb_enabled:
+            if not self.iterb_orchestrator_api_key:
+                iterb_meta["iterb_error"] = (
+                    "no api_key (NOX_ITERB_ORCHESTRATOR_API_KEY / OPENAI_API_KEY / GEMINI_API_KEY)"
+                )
+                iterb_meta["iterb_status"] = "fallback_single"
+            else:
+                # ReAct loop state
+                scratchpad_parts: List[str] = []
+                per_round_results: List[List[Tuple[str, Dict[str, Any]]]] = []
+                per_round_chunk_ids: List[List[Any]] = []
+                api_limit_iterb = self.iterb_per_round_topk
+                iterb_loop_start = time.monotonic() * 1000
+
+                for round_idx in range(1, self.iterb_max_rounds + 1):
+                    # If we're on final round and orchestrator chose retrieve
+                    # last time, force answer this round via prompt round_idx.
+                    round_start = time.monotonic() * 1000
+
+                    # Build scratchpad from prior rounds
+                    scratchpad = "\n\n".join(scratchpad_parts) if scratchpad_parts else ""
+
+                    # Orchestrator step
+                    parsed, step_err, usage = await _iterb_orchestrator_step(
+                        query=query,
+                        scratchpad=scratchpad,
+                        round_idx=round_idx,
+                        max_rounds=self.iterb_max_rounds,
+                        model=self.iterb_orchestrator_model,
+                        base_url=self.iterb_orchestrator_base_url,
+                        api_key=self.iterb_orchestrator_api_key,
+                        timeout_s=self.iterb_orchestrator_timeout_s,
+                        max_tokens=self.iterb_orchestrator_max_tokens,
+                        session=session,
+                    )
+                    if step_err:
+                        iterb_orchestrator_errors.append(
+                            f"round {round_idx}: {step_err}"
+                        )
+                    iterb_total_input_tokens += usage.get("input_tokens", 0)
+                    iterb_total_output_tokens += usage.get("output_tokens", 0)
+                    iterb_total_cost_usd = _iterb_estimate_cost(
+                        iterb_total_input_tokens,
+                        iterb_total_output_tokens,
+                        self.iterb_input_cost_per_1m,
+                        self.iterb_output_cost_per_1m,
+                    )
+
+                    thought = parsed.get("thought", "")
+                    action = parsed.get("action", "answer")
+                    iterb_per_round_thoughts.append(thought)
+                    iterb_rounds_executed = round_idx
+
+                    if self.iterb_debug:
+                        print(
+                            f"[IterB R{round_idx}] action={action} "
+                            f"cost=${iterb_total_cost_usd:.5f} "
+                            f"thought={thought[:120]}",
+                            file=__import__("sys").stderr,
+                        )
+
+                    if action == "answer":
+                        iterb_final_answer = parsed.get("answer", "") or "UNKNOWN"
+                        iterb_termination_reason = "answer"
+                        round_lat = time.monotonic() * 1000 - round_start
+                        iterb_per_round_latency_ms.append(round_lat)
+                        iterb_per_round_sub_queries.append("")
+                        iterb_per_round_chunk_counts.append(0)
+                        per_round_chunk_ids.append([])
+                        scratchpad_parts.append(
+                            f"### Round {round_idx} (final answer)\n"
+                            f"Thought: {thought}\n"
+                            f"Answer: {iterb_final_answer}"
+                        )
+                        break
+
+                    # action == retrieve
+                    sub_query = parsed.get("query", "") or query
+                    iterb_per_round_sub_queries.append(sub_query)
+
+                    # Hit /api/search for the sub-query
+                    try:
+                        async with session.post(
+                            f"{self.api_base}/api/search",
+                            json={
+                                "query": sub_query,
+                                "limit": api_limit_iterb,
+                                "hybrid": True,
+                            },
+                            headers={"Content-Type": "application/json"},
+                        ) as resp:
+                            resp.raise_for_status()
+                            r_data = await resp.json()
+                    except aiohttp.ClientError as exc:
+                        iterb_orchestrator_errors.append(
+                            f"round {round_idx} retrieve error: {type(exc).__name__}: {exc}"
+                        )
+                        r_data = {}
+
+                    if isinstance(r_data, list):
+                        raw_round_results = r_data
+                    elif isinstance(r_data, dict):
+                        raw_round_results = r_data.get("results", []) or []
+                    else:
+                        raw_round_results = []
+
+                    round_chunks: List[Tuple[str, Dict[str, Any]]] = []
+                    round_chunk_ids: List[Any] = []
+                    for item in raw_round_results:
+                        if isinstance(item, dict):
+                            content = item.get("chunk_text") or item.get("content") or ""
+                            if content:
+                                round_chunks.append((content, item))
+                                cid = (
+                                    item.get("id")
+                                    or item.get("chunk_id")
+                                    or item.get("rowid")
+                                )
+                                if cid is not None:
+                                    round_chunk_ids.append(cid)
+
+                    per_round_results.append(round_chunks)
+                    per_round_chunk_ids.append(round_chunk_ids)
+                    iterb_per_round_chunk_counts.append(len(round_chunks))
+
+                    # Build observation block for scratchpad (top-3 chunk
+                    # snippets; keeps prompt size bounded across rounds).
+                    obs_lines: List[str] = []
+                    for i, (c, _it) in enumerate(round_chunks[:3]):
+                        obs_lines.append(f"  [{i+1}] {c[:300]}")
+                    obs_block = "\n".join(obs_lines) if obs_lines else "  (no results)"
+                    scratchpad_parts.append(
+                        f"### Round {round_idx}\n"
+                        f"Thought: {thought}\n"
+                        f"Action: retrieve(\"{sub_query[:200]}\")\n"
+                        f"Observation:\n{obs_block}"
+                    )
+
+                    round_lat = time.monotonic() * 1000 - round_start
+                    iterb_per_round_latency_ms.append(round_lat)
+
+                    # Cost ceiling check (after the round, so the round
+                    # that BREACHES the ceiling still gets recorded)
+                    if iterb_total_cost_usd >= self.iterb_cost_ceiling_usd:
+                        iterb_termination_reason = "cost_ceiling"
+                        if self.iterb_debug:
+                            print(
+                                f"[IterB R{round_idx}] cost ceiling "
+                                f"${self.iterb_cost_ceiling_usd:.4f} reached "
+                                f"(actual ${iterb_total_cost_usd:.5f})",
+                                file=__import__("sys").stderr,
+                            )
+                        break
+
+                if iterb_termination_reason is None:
+                    iterb_termination_reason = "max_rounds"
+
+                # Build candidate pool via RRF union across all retrieve rounds
+                if per_round_results:
+                    # Reuse MQ's RRF merger (chunk-union mechanism is identical)
+                    merged_chunks = _mq_rrf_merge(
+                        per_round_results, rrf_k=self.iterb_rrf_k
+                    )
+                    candidates = merged_chunks
+                    api_returned = len(candidates)
+                    api_limit = api_limit_iterb * max(1, iterb_rounds_executed)
+
+                    # Per-round overlap (each round vs union of priors)
+                    iterb_per_round_overlap_vals = _iterb_per_round_overlap(
+                        per_round_chunk_ids
+                    )
+
+                    # Build augmented context prefix (ReAct scratchpad +
+                    # final answer block). Harness's gpt-4.1-mini final
+                    # call sees the orchestration trace AND the chunks.
+                    prefix_lines: List[str] = ["## ReAct orchestration trace"]
+                    for i in range(iterb_rounds_executed):
+                        if i < len(iterb_per_round_sub_queries):
+                            sq = iterb_per_round_sub_queries[i]
+                        else:
+                            sq = ""
+                        if i < len(iterb_per_round_thoughts):
+                            th = iterb_per_round_thoughts[i]
+                        else:
+                            th = ""
+                        prefix_lines.append(f"### Round {i+1}")
+                        if th:
+                            prefix_lines.append(f"Thought: {th}")
+                        if sq:
+                            prefix_lines.append(f"Sub-query: {sq}")
+                            if i < len(iterb_per_round_chunk_counts):
+                                prefix_lines.append(
+                                    f"Retrieved: {iterb_per_round_chunk_counts[i]} chunks"
+                                )
+                    if iterb_final_answer:
+                        prefix_lines.append(
+                            f"### ReAct draft answer: {iterb_final_answer}"
+                        )
+                    prefix_lines.append("")
+                    prefix_lines.append("## Retrieved memory chunks (RRF union across rounds)")
+                    iterb_context_prefix = "\n".join(prefix_lines)
+
+                    iterb_used_path = True
+                    iterb_meta["iterb_applied"] = True
+                    iterb_meta["iterb_status"] = "applied"
+                else:
+                    # No retrieve rounds fired (LLM answered round 1 directly)
+                    # Fall through to single-query path so harness still has
+                    # something — but record that iterb terminated early.
+                    iterb_meta["iterb_status"] = "answered_round_1_no_retrieve"
+
+                iterb_loop_ms = time.monotonic() * 1000 - iterb_loop_start
+                iterb_meta["iterb_loop_ms"] = iterb_loop_ms
+
+                if self.iterb_debug:
+                    print(
+                        f"[IterB] DONE rounds={iterb_rounds_executed} "
+                        f"reason={iterb_termination_reason} "
+                        f"cost=${iterb_total_cost_usd:.5f} "
+                        f"loop_ms={iterb_loop_ms:.0f}",
+                        file=__import__("sys").stderr,
+                    )
+
+        # ------------------------------------------------------------------
         # Phase IterC (Q3 POC) — Self-Ask orchestration-stage path
         # ------------------------------------------------------------------
         # When IterC is enabled, we run the Self-Ask pipeline END-TO-END
@@ -1861,7 +2526,7 @@ class NoxMemAdapter(BaseAdapter):
         iterc_overlap: Optional[float] = None
         iterc_context_prefix: str = ""
 
-        if self.iterc_enabled:
+        if self.iterc_enabled and not iterb_used_path:
             if not self.iterc_decomposer_api_key:
                 iterc_meta["iterc_error"] = (
                     "no api_key (NOX_ITERC_DECOMPOSER_API_KEY / GEMINI_API_KEY)"
@@ -2068,7 +2733,7 @@ class NoxMemAdapter(BaseAdapter):
         mq_retrieve_ms: Optional[float] = None
         mq_total_returned = 0
 
-        if self.mq_enabled and not iterc_used_path:
+        if self.mq_enabled and not iterc_used_path and not iterb_used_path:
             if not self.mq_api_key:
                 mq_meta["mq_error"] = "no api_key (NOX_MQ_LLM_API_KEY / GEMINI_API_KEY)"
             else:
@@ -2160,7 +2825,7 @@ class NoxMemAdapter(BaseAdapter):
         # ------------------------------------------------------------------
         # Baseline single-query path (used when MQ/IterC disabled or fell back)
         # ------------------------------------------------------------------
-        if not mq_used_subquery_path and not iterc_used_path:
+        if not mq_used_subquery_path and not iterc_used_path and not iterb_used_path:
             # Decide how many results to request from the API.
             # Phase F: overfetch then rerank locally. Other modes: request top_k.
             # Phase KG: also needs overfetch so we have a pool to re-rank within
@@ -2238,7 +2903,7 @@ class NoxMemAdapter(BaseAdapter):
         # entities matched in query.
         kg_evidence_for_map: set = set()
 
-        if self.kg_enabled and candidates and self.kg_db_path and not iterc_used_path:
+        if self.kg_enabled and candidates and self.kg_db_path and not iterc_used_path and not iterb_used_path:
             kg_start = time.monotonic() * 1000
             try:
                 # 1. Load entity pool (cached per DB after first call)
@@ -2395,7 +3060,7 @@ class NoxMemAdapter(BaseAdapter):
         rerank_ms: Optional[float] = None
         rerank_applied = False
 
-        if self.reranker_enabled and candidates and not iterc_used_path:
+        if self.reranker_enabled and candidates and not iterc_used_path and not iterb_used_path:
             rerank_start = time.monotonic() * 1000
             model, err = _load_reranker(
                 self.reranker_model_id, self.reranker_max_length
@@ -2472,7 +3137,9 @@ class NoxMemAdapter(BaseAdapter):
         # the underlying retrieved chunks.
         context_lines = [f"{i + 1}. {m}" for i, m in enumerate(memories)]
         chunks_body = "\n".join(context_lines) if context_lines else "[No memories retrieved]"
-        if iterc_used_path and iterc_context_prefix:
+        if iterb_used_path and iterb_context_prefix:
+            context = iterb_context_prefix + "\n" + chunks_body
+        elif iterc_used_path and iterc_context_prefix:
             context = iterc_context_prefix + "\n" + chunks_body
         else:
             context = chunks_body
@@ -2555,6 +3222,46 @@ class NoxMemAdapter(BaseAdapter):
             "iterc_per_query_topk": (
                 self.iterc_per_query_topk if self.iterc_enabled else None
             ),
+            # Phase IterB (Q3 POC) — ReAct instrumentation (Set E per-query)
+            "iterb_enabled": self.iterb_enabled,
+            "iterb_applied": iterb_meta.get("iterb_applied", False),
+            "iterb_status": iterb_meta.get(
+                "iterb_status", "off" if not self.iterb_enabled else "unknown"
+            ),
+            "iterb_error": iterb_meta.get("iterb_error"),
+            "iterb_orchestrator_errors": (
+                iterb_orchestrator_errors if iterb_orchestrator_errors else None
+            ),
+            "iterb_rounds_executed": iterb_rounds_executed,
+            "iterb_max_rounds": self.iterb_max_rounds if self.iterb_enabled else None,
+            "iterb_termination_reason": iterb_termination_reason,
+            "iterb_per_round_chunk_counts": iterb_per_round_chunk_counts,
+            "iterb_per_round_overlap_with_prior": iterb_per_round_overlap_vals,
+            "iterb_per_round_latency_ms": iterb_per_round_latency_ms,
+            "iterb_per_round_sub_queries": (
+                iterb_per_round_sub_queries
+                if (self.iterb_debug or iterb_used_path)
+                else []
+            ),
+            "iterb_per_round_thoughts": (
+                iterb_per_round_thoughts
+                if self.iterb_debug
+                else []
+            ),
+            "iterb_final_draft_answer": iterb_final_answer or None,
+            "iterb_total_input_tokens": iterb_total_input_tokens,
+            "iterb_total_output_tokens": iterb_total_output_tokens,
+            "iterb_total_cost_usd": (
+                round(iterb_total_cost_usd, 6) if self.iterb_enabled else None
+            ),
+            "iterb_cost_ceiling_usd": (
+                self.iterb_cost_ceiling_usd if self.iterb_enabled else None
+            ),
+            "iterb_rrf_k": self.iterb_rrf_k if self.iterb_enabled else None,
+            "iterb_per_round_topk": (
+                self.iterb_per_round_topk if self.iterb_enabled else None
+            ),
+            "iterb_loop_ms": iterb_meta.get("iterb_loop_ms"),
         }
         return SearchResult(
             question_id=kwargs.get("question_id", "unknown"),
@@ -2611,5 +3318,16 @@ class NoxMemAdapter(BaseAdapter):
             "iterc_decomposer_timeout_s": self.iterc_decomposer_timeout_s,
             "iterc_answerer_timeout_s": self.iterc_answerer_timeout_s,
             "iterc_answerer_max_tokens": self.iterc_answerer_max_tokens,
-            "version": "phase-iterC-q3-poc-0.1",
+            "iterb_enabled": self.iterb_enabled,
+            "iterb_orchestrator_model": self.iterb_orchestrator_model,
+            "iterb_orchestrator_base_url": self.iterb_orchestrator_base_url,
+            "iterb_max_rounds": self.iterb_max_rounds,
+            "iterb_per_round_topk": self.iterb_per_round_topk,
+            "iterb_rrf_k": self.iterb_rrf_k,
+            "iterb_orchestrator_timeout_s": self.iterb_orchestrator_timeout_s,
+            "iterb_orchestrator_max_tokens": self.iterb_orchestrator_max_tokens,
+            "iterb_cost_ceiling_usd": self.iterb_cost_ceiling_usd,
+            "iterb_input_cost_per_1m": self.iterb_input_cost_per_1m,
+            "iterb_output_cost_per_1m": self.iterb_output_cost_per_1m,
+            "version": "phase-iterB-q3-poc-0.1",
         }
