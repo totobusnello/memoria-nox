@@ -1,5 +1,5 @@
 """
-nox-mem Adapter for EverMemBench — Phase F + Phase KG + Phase MQ + Phase KGMQ (Wave B composability, 2026-05-29).
+nox-mem Adapter for EverMemBench — Phase F + Phase KG + Phase MQ + Phase KGMQ + Phase IterC (Q3 POC — orchestration-stage Self-Ask, 2026-05-29).
 
 Connects nox-mem (CLI ingest + HTTP search API) to the EverMemBench
 evaluation harness.
@@ -85,12 +85,66 @@ F_MH lift ≥ +5.5pp (additivity floor: +2.81 + +3.61 − 1pp interaction
 penalty), F_MH ≥ Phase MQ alone, Overall regression ≤ MQ alone + 0.5pp,
 MA composite ≥ MQ alone − 0.5pp.
 
+Phase IterC (Q3 POC — orchestration-stage Self-Ask, 2026-05-29).
+Implements Self-Ask (Press et al. 2022, arxiv:2210.03350) — the
+cheapest of Q3's three iterative-retrieval candidates per spec
+`specs/2026-05-29-iterative-retrieval-q3.md` §3.
+
+Hypothesis (Q3 spec §1): retrieval-stage stacking saturated at F_MH ~7.25%
+(Waves A/B/C — D69 cravada, PR #395). To break the F_MH ceiling we must
+operate in a *different* pipeline stage. Self-Ask is the cheapest such
+mechanism: it adds one orchestration round (LLM-driven sub-Q generation
++ intermediate sub-answers) on top of any underlying retrieval (here:
+Phase H v2 baseline, no Wave A/B/C knobs — clean isolation).
+
+Pipeline:
+  1. Decomposer (gemini-flash-lite): turn the query into 2-4 atomic
+     sub-questions covering the multi-hop chain.
+  2. Per sub-question: nox-mem hybrid search top_k=10 (Phase H v2 config).
+  3. Per sub-question: gpt-4.1-mini answers the sub-question using only
+     the chunks retrieved for IT (intermediate sub-answers). This is the
+     orchestration-stage signal that distinguishes Self-Ask from Phase MQ
+     — the LLM "thinks" between hops, producing intermediate facts that
+     feed the final synthesis.
+  4. Chunk union via RRF (k=NOX_ITERC_RRF_K, default 60) — identical
+     mechanism to Phase MQ for chunk-side merge.
+  5. Context injection: the final context returned to the harness's
+     answer stage starts with "## Sub-question N: ... ## Intermediate
+     answer: ..." blocks followed by "## Retrieved chunks: ..." — so the
+     final gpt-4.1-mini answer sees both the orchestration reasoning
+     and the underlying evidence.
+
+Cost: 1 decomposer call + N sub-answer calls + 1 final answer call (via
+harness) ≈ 2× harness baseline answer cost. Latency: +1-3s per query
+(decomposer + N parallel sub-answers + RRF merge).
+
+Fallback ladder:
+  - Decomposer fails → fall back to single-query retrieval (no Self-Ask).
+  - Sub-answer fails → keep chunks for union, drop the intermediate
+    sub-answer block from context (graceful degradation).
+  - No sub-answers succeed → fall back to standard chunk-only context.
+
+Predicted F_MH lift (spec §3 decision matrix):
+  - Approach A (CoT-Enrich): +1-2pp F_MH (single-shot, no decomposition)
+  - Approach C (Self-Ask, this POC): +2-4pp F_MH
+  - Approach B (ReAct full): +3-5pp F_MH (but 4× cost)
+
+This POC validates the orthogonal-stage hypothesis — if Self-Ask clears
+the +2pp F_MH gate it greenlights Q3 IterB (ReAct full). If it fails all
+gates, Q3 IterC is dead and we pivot directly to IterB.
+
 Modes:
     NOX_ADAPTER_MODE=baseline  -> PR #363 flat-paragraph ingest format
     NOX_ADAPTER_MODE=phaseB    -> H2-per-message + digest (default)
     NOX_ADAPTER_MODE=phaseF    -> phaseB ingest + cross-encoder rerank in search
     NOX_ADAPTER_MODE=phaseKG   -> phaseB ingest + KG 1-hop entity boost in search
     NOX_ADAPTER_MODE=phaseMQ   -> phaseB ingest + multi-query expansion (decompose)
+    NOX_ADAPTER_MODE=phaseIterC -> phaseB ingest + Self-Ask (Q3 POC):
+                                  sub-Q decomposition + per-sub-Q retrieval +
+                                  per-sub-Q intermediate answer (gpt-4.1-mini)
+                                  + chunk-union via RRF + context injection of
+                                  (sub-Q, intermediate-answer) blocks. No
+                                  Wave A/B/C retrieval knobs (clean isolation).
     NOX_ADAPTER_MODE=phaseKGMQ -> phaseB ingest + MQ decompose + KG 1-hop entity
                                   boost composed (Wave B composability — PR #389)
     NOX_ADAPTER_MODE=phaseMAP  -> phaseB ingest + rerank with bypass-entity (MA-protection
@@ -118,7 +172,7 @@ Environment variables:
     NOX_MEM_BIN               — path to nox-mem CLI binary (default: "nox-mem" on PATH)
     NOX_ADAPTER_MODE          — "phaseB" (default) / "baseline" / "phaseF" / "phaseKG"
                                 / "phaseMQ" / "phaseKGMQ" / "phaseMAP" / "phaseKGMAP"
-                                / "phaseTriple"
+                                / "phaseTriple" / "phaseIterC"
     NOX_RERANKER_ENABLED      — "1" to force cross-encoder rerank in phaseF
     NOX_RERANKER_MODEL        — HF model id (default: BAAI/bge-reranker-v2-m3)
     NOX_RERANKER_OVERFETCH    — int top-N to pull from API before rerank (default: 50)
@@ -153,6 +207,29 @@ Environment variables:
     NOX_MQ_RRF_K              — int, RRF constant for union re-merge (default: 60)
     NOX_MQ_TIMEOUT_S          — float, decomposer LLM timeout in seconds (default: 30)
     NOX_MQ_DEBUG              — "1" to log decompositions + per-query result counts
+    NOX_ITERC_ENABLED         — "1" to force Self-Ask (env override on any mode);
+                                default-on for NOX_ADAPTER_MODE=phaseIterC
+    NOX_ITERC_DECOMPOSER_LLM  — decomposer model (default: gemini-2.5-flash-lite,
+                                shared infra with Phase MQ)
+    NOX_ITERC_DECOMPOSER_BASE_URL — Gemini OpenAI-compat endpoint (default same
+                                    as NOX_MQ_LLM_BASE_URL)
+    NOX_ITERC_DECOMPOSER_API_KEY — auth bearer for decomposer
+                                   (default: GEMINI_API_KEY)
+    NOX_ITERC_ANSWERER_LLM    — model for per-sub-Q intermediate answers
+                                (default: gpt-4.1-mini — matches Phase H v2
+                                final-answer backbone for fair compare)
+    NOX_ITERC_ANSWERER_BASE_URL — answerer endpoint
+                                  (default: https://api.openai.com/v1)
+    NOX_ITERC_ANSWERER_API_KEY — auth bearer for answerer (default: OPENAI_API_KEY)
+    NOX_ITERC_N               — int, sub-question count (default: 3, range 2-4)
+    NOX_ITERC_PER_QUERY_TOPK  — int, top_k per sub-question retrieval (default: 10)
+    NOX_ITERC_RRF_K           — int, RRF constant for chunk union (default: 60)
+    NOX_ITERC_DECOMPOSER_TIMEOUT_S — float, decomposer timeout (default: 30)
+    NOX_ITERC_ANSWERER_TIMEOUT_S — float, sub-answer timeout (default: 45 — each
+                                   sub-answer is a small task; 5 in parallel)
+    NOX_ITERC_ANSWERER_MAX_TOKENS — int, per-sub-Q answer cap (default: 160 —
+                                    intermediate answers are short)
+    NOX_ITERC_DEBUG           — "1" to log decompositions + sub-answers + RRF
 """
 import asyncio
 import os
@@ -295,6 +372,75 @@ PHASEMQ_DECOMPOSE_PROMPT = (
     "markdown fences.\n\n"
     "Question: {query}\n\n"
     "JSON array:"
+)
+
+
+# ---------------------------------------------------------------------------
+# Phase IterC (Q3 POC) — Self-Ask defaults
+# ---------------------------------------------------------------------------
+#
+# N=3 sub-questions — Self-Ask paper (arxiv:2210.03350) reports best results
+# at 2-4 sub-Qs for 2-3 hop questions. EverMemBench multi-hop is typically
+# 2-3 hops (per Phase G analysis). N=3 hits the sweet spot.
+#
+# PER_QUERY_TOPK=10 matches Phase H v2 baseline retrieval shape — keeps
+# per-sub-Q latency stable.
+#
+# RRF_K=60 reuses MQ canonical constant. Chunk-union mechanism is
+# mechanically identical to Phase MQ.
+#
+# ANSWERER_MAX_TOKENS=160 — intermediate sub-answers should be short factual
+# strings ("Mingzhi Li was the lead reviewer", "Date: 2024-11-15"), NOT full
+# essays. Caps cost.
+#
+# ANSWERER_TIMEOUT_S=45 — 3 sub-answers run in parallel via asyncio.gather,
+# so wall time ≈ slowest one; 45s gives margin for gpt-4.1-mini cold start.
+DEFAULT_ITERC_DECOMPOSER_LLM = "gemini-2.5-flash-lite"
+DEFAULT_ITERC_DECOMPOSER_BASE_URL = (
+    "https://generativelanguage.googleapis.com/v1beta/openai"
+)
+DEFAULT_ITERC_ANSWERER_LLM = "gpt-4.1-mini"
+DEFAULT_ITERC_ANSWERER_BASE_URL = "https://api.openai.com/v1"
+DEFAULT_ITERC_N = 3
+DEFAULT_ITERC_PER_QUERY_TOPK = 10
+DEFAULT_ITERC_RRF_K = 60
+DEFAULT_ITERC_DECOMPOSER_TIMEOUT_S = 30.0
+DEFAULT_ITERC_ANSWERER_TIMEOUT_S = 45.0
+DEFAULT_ITERC_ANSWERER_MAX_TOKENS = 160
+
+# Self-Ask decomposition prompt — distinct from Phase MQ because Self-Ask
+# explicitly frames sub-questions as "follow-up questions a system would
+# need to answer in order to answer the original". This framing matters:
+# the LLM produces more *sequenced* / *causal* sub-Qs vs MQ's *parallel
+# coverage* sub-Qs. Both return JSON arrays — parser is reused.
+PHASE_ITERC_DECOMPOSE_PROMPT = (
+    "You are a Self-Ask decomposer (Press et al. 2022). The user has a "
+    "multi-hop question that needs intermediate sub-questions answered in "
+    "sequence to arrive at the final answer. Decompose the question into "
+    "{n} atomic follow-up sub-questions a downstream system should answer "
+    "to gather the facts needed for the final answer.\n\n"
+    "Each sub-question MUST:\n"
+    "  - be independently answerable from a memory store of group-chat "
+    "messages\n"
+    "  - target ONE atomic fact (person, date, place, event, attribute)\n"
+    "  - use the SAME language as the original question\n\n"
+    "Return ONLY a JSON array of strings — no prose, no markdown fences, "
+    "no numbering.\n\n"
+    "Original question: {query}\n\n"
+    "JSON array of {n} sub-questions:"
+)
+
+# Per-sub-question answerer prompt — instruct gpt-4.1-mini to answer the
+# sub-Q using ONLY the chunks retrieved for IT, and to keep the answer
+# atomic (a short fact). If the chunks don't contain the answer, the model
+# returns "UNKNOWN" (parseable, no hallucination penalty).
+PHASE_ITERC_ANSWERER_PROMPT = (
+    "You are a memory-grounded sub-question answerer. Use ONLY the "
+    "retrieved memory chunks below. If they don't contain the answer "
+    "return the literal string UNKNOWN.\n\n"
+    "Sub-question: {subq}\n\n"
+    "Retrieved memory chunks:\n{chunks}\n\n"
+    "Answer (atomic fact or UNKNOWN, no prose):"
 )
 
 
@@ -832,6 +978,194 @@ def _mq_rrf_merge(
     return [c for _, c in merged]
 
 
+# ---------------------------------------------------------------------------
+# Phase IterC (Q3 POC) — Self-Ask helpers
+# ---------------------------------------------------------------------------
+#
+# We deliberately keep these as module-level helpers (parallel to MQ) so
+# they are unit-testable in isolation and can be reused later by Q3 IterB
+# (ReAct) which will iterate multiple Self-Ask-like rounds.
+#
+# Reuse PHASEMQ JSON parsing logic via _mq_decompose_query? No — the prompt
+# differs (Self-Ask framing is causal/sequential, MQ is parallel coverage).
+# Keep them separate so spec evolution doesn't cross-contaminate. The JSON
+# parsing is small enough to copy.
+
+
+async def _iterc_decompose_query(
+    query: str,
+    n: int,
+    model: str,
+    base_url: str,
+    api_key: str,
+    timeout_s: float,
+    session: aiohttp.ClientSession,
+) -> Tuple[List[str], Optional[str]]:
+    """Self-Ask decomposer. Returns (sub_questions, error)."""
+    import json as _json
+    import re as _re
+
+    prompt = PHASE_ITERC_DECOMPOSE_PROMPT.format(n=n, query=query)
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": 500,
+    }
+    endpoint = f"{base_url.rstrip('/')}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    try:
+        async with session.post(
+            endpoint,
+            json=payload,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=timeout_s),
+        ) as resp:
+            if resp.status != 200:
+                body = (await resp.text())[:300]
+                return [], f"iterc decomposer HTTP {resp.status}: {body}"
+            data = await resp.json()
+    except asyncio.TimeoutError:
+        return [], f"iterc decomposer timeout after {timeout_s}s"
+    except aiohttp.ClientError as exc:
+        return [], f"iterc decomposer client error: {type(exc).__name__}: {exc}"
+    except Exception as exc:  # noqa: BLE001
+        return [], f"iterc decomposer unexpected: {type(exc).__name__}: {exc}"
+
+    try:
+        text = data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return [], f"iterc decomposer malformed response: {str(data)[:200]}"
+
+    candidate = text.strip()
+    if candidate.startswith("```"):
+        candidate = _re.sub(r"^```(?:json)?\s*", "", candidate)
+        candidate = _re.sub(r"\s*```\s*$", "", candidate)
+        candidate = candidate.strip()
+
+    sub_qs: List[str] = []
+    try:
+        parsed = _json.loads(candidate)
+        if isinstance(parsed, list):
+            sub_qs = [str(x).strip() for x in parsed if str(x).strip()]
+    except _json.JSONDecodeError:
+        for line in candidate.splitlines():
+            stripped = line.strip()
+            stripped = _re.sub(r'^[\[\],\s"\']+', "", stripped)
+            stripped = _re.sub(r'[\],\s"\']+$', "", stripped)
+            stripped = _re.sub(r"^\d+[\.\):]\s*", "", stripped)
+            stripped = stripped.strip().strip('"').strip("'").strip()
+            if len(stripped) > 5 and "?" in stripped or len(stripped) > 10:
+                sub_qs.append(stripped)
+
+    sub_qs = [s for s in sub_qs if len(s) >= 5]
+    if len(sub_qs) < 2:
+        return [], f"too few sub-questions parsed ({len(sub_qs)}); fallback to single"
+
+    return sub_qs, None
+
+
+async def _iterc_answer_subquestion(
+    subq: str,
+    chunks: List[str],
+    model: str,
+    base_url: str,
+    api_key: str,
+    timeout_s: float,
+    max_tokens: int,
+    session: aiohttp.ClientSession,
+) -> Tuple[str, Optional[str]]:
+    """Answer one sub-question using its retrieved chunks.
+
+    Returns (sub_answer, error). On any failure (HTTP error, malformed
+    response, empty answer) returns ("", error_str) and the caller treats
+    the sub-Q as unanswered (chunks still feed the union; intermediate
+    block is dropped from context).
+    """
+    if not chunks:
+        return "UNKNOWN", None  # cheap: skip LLM call when no evidence
+
+    # Truncate chunks to fit a reasonable prompt budget. Keep top-N (already
+    # API-rank ordered). 6 × ~400 char chunks ≈ 2.4k chars context.
+    chunk_block = "\n\n".join(
+        f"[{i+1}] {c[:500]}" for i, c in enumerate(chunks[:6])
+    )
+    prompt = PHASE_ITERC_ANSWERER_PROMPT.format(subq=subq, chunks=chunk_block)
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": max_tokens,
+    }
+    endpoint = f"{base_url.rstrip('/')}/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+    }
+    try:
+        async with session.post(
+            endpoint,
+            json=payload,
+            headers=headers,
+            timeout=aiohttp.ClientTimeout(total=timeout_s),
+        ) as resp:
+            if resp.status != 200:
+                body = (await resp.text())[:300]
+                return "", f"iterc answerer HTTP {resp.status}: {body}"
+            data = await resp.json()
+    except asyncio.TimeoutError:
+        return "", f"iterc answerer timeout after {timeout_s}s"
+    except aiohttp.ClientError as exc:
+        return "", f"iterc answerer client error: {type(exc).__name__}: {exc}"
+    except Exception as exc:  # noqa: BLE001
+        return "", f"iterc answerer unexpected: {type(exc).__name__}: {exc}"
+
+    try:
+        text = data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return "", f"iterc answerer malformed response: {str(data)[:200]}"
+
+    answer = text.strip()
+    if not answer:
+        return "UNKNOWN", None
+    return answer, None
+
+
+def _iterc_per_subquery_overlap(
+    per_subquery_chunk_ids: List[List[Any]],
+) -> float:
+    """Compute mean Jaccard overlap between sub-question retrieval sets.
+
+    High overlap (→ 1.0) means sub-questions retrieved mostly the same
+    chunks (decomposition may be too narrow / redundant — risk for the
+    Self-Ask mechanism). Low overlap (→ 0.0) means each sub-question
+    retrieved a distinct chunk set (decomposition spans the multi-hop
+    chain well — Self-Ask sweet spot).
+
+    Returns mean pairwise Jaccard. 0.0 if fewer than 2 sub-queries.
+    """
+    if len(per_subquery_chunk_ids) < 2:
+        return 0.0
+    sets = [set(ids) for ids in per_subquery_chunk_ids if ids]
+    if len(sets) < 2:
+        return 0.0
+    pairs = 0
+    total = 0.0
+    for i in range(len(sets)):
+        for j in range(i + 1, len(sets)):
+            si, sj = sets[i], sets[j]
+            union = si | sj
+            if not union:
+                continue
+            inter = si & sj
+            total += len(inter) / len(union)
+            pairs += 1
+    return total / pairs if pairs > 0 else 0.0
+
+
 class NoxMemAdapter(BaseAdapter):
     """
     nox-mem adapter for EverMemBench multi-person group chat evaluation.
@@ -1027,6 +1361,67 @@ class NoxMemAdapter(BaseAdapter):
             os.environ.get("NOX_MQ_TIMEOUT_S", "") or DEFAULT_MQ_TIMEOUT_S
         )
         self.mq_debug = os.environ.get("NOX_MQ_DEBUG", "").strip().lower() in (
+            "1", "true", "yes", "on"
+        )
+
+        # ----------------------------------------------------------------
+        # Phase IterC (Q3 POC) — Self-Ask flags
+        # ----------------------------------------------------------------
+        iterc_env = os.environ.get("NOX_ITERC_ENABLED", "").strip().lower()
+        if iterc_env in ("0", "false", "no", "off"):
+            self.iterc_enabled = False
+        elif iterc_env in ("1", "true", "yes", "on"):
+            self.iterc_enabled = True
+        else:
+            self.iterc_enabled = self.adapter_mode == "phaseIterC"
+
+        self.iterc_decomposer_model = (
+            os.environ.get("NOX_ITERC_DECOMPOSER_LLM", "")
+            or DEFAULT_ITERC_DECOMPOSER_LLM
+        )
+        self.iterc_decomposer_base_url = (
+            os.environ.get("NOX_ITERC_DECOMPOSER_BASE_URL", "")
+            or DEFAULT_ITERC_DECOMPOSER_BASE_URL
+        )
+        self.iterc_decomposer_api_key = (
+            os.environ.get("NOX_ITERC_DECOMPOSER_API_KEY", "")
+            or os.environ.get("GEMINI_API_KEY", "")
+        )
+        self.iterc_answerer_model = (
+            os.environ.get("NOX_ITERC_ANSWERER_LLM", "")
+            or DEFAULT_ITERC_ANSWERER_LLM
+        )
+        self.iterc_answerer_base_url = (
+            os.environ.get("NOX_ITERC_ANSWERER_BASE_URL", "")
+            or DEFAULT_ITERC_ANSWERER_BASE_URL
+        )
+        self.iterc_answerer_api_key = (
+            os.environ.get("NOX_ITERC_ANSWERER_API_KEY", "")
+            or os.environ.get("OPENAI_API_KEY", "")
+        )
+        self.iterc_n = int(
+            os.environ.get("NOX_ITERC_N", "") or DEFAULT_ITERC_N
+        )
+        self.iterc_per_query_topk = int(
+            os.environ.get("NOX_ITERC_PER_QUERY_TOPK", "")
+            or DEFAULT_ITERC_PER_QUERY_TOPK
+        )
+        self.iterc_rrf_k = int(
+            os.environ.get("NOX_ITERC_RRF_K", "") or DEFAULT_ITERC_RRF_K
+        )
+        self.iterc_decomposer_timeout_s = float(
+            os.environ.get("NOX_ITERC_DECOMPOSER_TIMEOUT_S", "")
+            or DEFAULT_ITERC_DECOMPOSER_TIMEOUT_S
+        )
+        self.iterc_answerer_timeout_s = float(
+            os.environ.get("NOX_ITERC_ANSWERER_TIMEOUT_S", "")
+            or DEFAULT_ITERC_ANSWERER_TIMEOUT_S
+        )
+        self.iterc_answerer_max_tokens = int(
+            os.environ.get("NOX_ITERC_ANSWERER_MAX_TOKENS", "")
+            or DEFAULT_ITERC_ANSWERER_MAX_TOKENS
+        )
+        self.iterc_debug = os.environ.get("NOX_ITERC_DEBUG", "").strip().lower() in (
             "1", "true", "yes", "on"
         )
 
@@ -1434,6 +1829,226 @@ class NoxMemAdapter(BaseAdapter):
         start_ms = time.monotonic() * 1000
         session = await self._get_session()
 
+        # Initialize fall-through state needed by every downstream branch.
+        # `api_limit` is recorded in metadata regardless of which retrieval
+        # path fires; `candidates`/`api_returned` are populated by the
+        # retrieval path that runs.
+        api_limit: int = top_k
+        candidates: List[Tuple[str, Dict[str, Any]]] = []
+        api_returned: int = 0
+
+        # ------------------------------------------------------------------
+        # Phase IterC (Q3 POC) — Self-Ask orchestration-stage path
+        # ------------------------------------------------------------------
+        # When IterC is enabled, we run the Self-Ask pipeline END-TO-END
+        # (decompose + per-sub-Q retrieve + per-sub-Q answer + chunk RRF
+        # union + augmented context). Phase MQ / KG / MAP / rerank are NOT
+        # stacked on top — this POC isolates the orchestration-stage signal
+        # vs Phase H v2 baseline. On any decomposer failure, we fall back
+        # to the standard single-query path (same as MQ does).
+        iterc_meta: Dict[str, Any] = {
+            "iterc_enabled": self.iterc_enabled,
+            "iterc_applied": False,
+        }
+        iterc_used_path = False
+        iterc_sub_questions: List[str] = []
+        iterc_sub_answers: List[str] = []
+        iterc_sub_answer_errors: List[Optional[str]] = []
+        iterc_decompose_ms: Optional[float] = None
+        iterc_retrieve_ms: Optional[float] = None
+        iterc_synthesis_ms: Optional[float] = None
+        iterc_total_returned = 0
+        iterc_overlap: Optional[float] = None
+        iterc_context_prefix: str = ""
+
+        if self.iterc_enabled:
+            if not self.iterc_decomposer_api_key:
+                iterc_meta["iterc_error"] = (
+                    "no api_key (NOX_ITERC_DECOMPOSER_API_KEY / GEMINI_API_KEY)"
+                )
+                iterc_meta["iterc_status"] = "fallback_single"
+            elif not self.iterc_answerer_api_key:
+                iterc_meta["iterc_error"] = (
+                    "no api_key (NOX_ITERC_ANSWERER_API_KEY / OPENAI_API_KEY)"
+                )
+                iterc_meta["iterc_status"] = "fallback_single"
+            else:
+                # Step 1: Self-Ask decomposition
+                dec_start = time.monotonic() * 1000
+                sub_qs, decompose_err = await _iterc_decompose_query(
+                    query,
+                    n=self.iterc_n,
+                    model=self.iterc_decomposer_model,
+                    base_url=self.iterc_decomposer_base_url,
+                    api_key=self.iterc_decomposer_api_key,
+                    timeout_s=self.iterc_decomposer_timeout_s,
+                    session=session,
+                )
+                iterc_decompose_ms = time.monotonic() * 1000 - dec_start
+                if decompose_err is not None:
+                    iterc_meta["iterc_error"] = decompose_err
+                    iterc_meta["iterc_status"] = "fallback_single"
+                elif not sub_qs:
+                    iterc_meta["iterc_error"] = "empty sub_questions"
+                    iterc_meta["iterc_status"] = "fallback_single"
+                else:
+                    iterc_sub_questions = sub_qs
+                    if self.iterc_debug:
+                        print(
+                            f"[IterC] decomposed in {iterc_decompose_ms:.0f}ms "
+                            f"-> {len(sub_qs)} sub-Qs:",
+                            file=__import__("sys").stderr,
+                        )
+                        for i, sq in enumerate(sub_qs):
+                            print(f"[IterC]   {i+1}. {sq}", file=__import__("sys").stderr)
+
+                    # Step 2: per-sub-Q parallel retrieval
+                    retrieve_start = time.monotonic() * 1000
+                    api_limit_iterc = self.iterc_per_query_topk
+
+                    async def _iterc_fetch(sq: str) -> List[Tuple[str, Dict[str, Any]]]:
+                        payload_sub = {
+                            "query": sq,
+                            "limit": api_limit_iterc,
+                            "hybrid": True,
+                        }
+                        try:
+                            async with session.post(
+                                f"{self.api_base}/api/search",
+                                json=payload_sub,
+                                headers={"Content-Type": "application/json"},
+                            ) as r:
+                                r.raise_for_status()
+                                d = await r.json()
+                        except Exception:  # noqa: BLE001
+                            return []
+                        if isinstance(d, list):
+                            rr = d
+                        elif isinstance(d, dict):
+                            rr = d.get("results", [])
+                        else:
+                            return []
+                        out: List[Tuple[str, Dict[str, Any]]] = []
+                        for it in rr:
+                            if isinstance(it, dict):
+                                c = it.get("chunk_text") or it.get("content") or ""
+                                if c:
+                                    out.append((c, it))
+                        return out
+
+                    per_sub_results = await asyncio.gather(
+                        *[_iterc_fetch(sq) for sq in iterc_sub_questions]
+                    )
+                    iterc_retrieve_ms = time.monotonic() * 1000 - retrieve_start
+
+                    # Step 3: per-sub-Q intermediate answer (parallel)
+                    synth_start = time.monotonic() * 1000
+
+                    async def _iterc_answer_one(
+                        sq: str, results: List[Tuple[str, Dict[str, Any]]]
+                    ) -> Tuple[str, Optional[str]]:
+                        chunks_only = [c for c, _ in results]
+                        return await _iterc_answer_subquestion(
+                            subq=sq,
+                            chunks=chunks_only,
+                            model=self.iterc_answerer_model,
+                            base_url=self.iterc_answerer_base_url,
+                            api_key=self.iterc_answerer_api_key,
+                            timeout_s=self.iterc_answerer_timeout_s,
+                            max_tokens=self.iterc_answerer_max_tokens,
+                            session=session,
+                        )
+
+                    sub_answer_pairs = await asyncio.gather(
+                        *[
+                            _iterc_answer_one(sq, res)
+                            for sq, res in zip(iterc_sub_questions, per_sub_results)
+                        ]
+                    )
+                    iterc_sub_answers = [pair[0] for pair in sub_answer_pairs]
+                    iterc_sub_answer_errors = [pair[1] for pair in sub_answer_pairs]
+                    iterc_synthesis_ms = time.monotonic() * 1000 - synth_start
+
+                    if self.iterc_debug:
+                        for i, (sq, ans, err) in enumerate(zip(
+                            iterc_sub_questions, iterc_sub_answers, iterc_sub_answer_errors
+                        )):
+                            if err:
+                                print(
+                                    f"[IterC]   sub-A {i+1} ERR: {err[:120]}",
+                                    file=__import__("sys").stderr,
+                                )
+                            else:
+                                print(
+                                    f"[IterC]   sub-A {i+1}: {ans[:120]}",
+                                    file=__import__("sys").stderr,
+                                )
+
+                    # Step 4: RRF chunk union across sub-Q retrievals
+                    merged_chunks = _mq_rrf_merge(
+                        per_sub_results, rrf_k=self.iterc_rrf_k
+                    )
+                    candidates = merged_chunks
+                    api_returned = len(candidates)
+                    iterc_total_returned = sum(len(r) for r in per_sub_results)
+                    # Reflect IterC's effective fetch budget in meta. We pull
+                    # `iterc_per_query_topk` per sub-Q × N sub-Qs (less dedup).
+                    api_limit = api_limit_iterc * len(iterc_sub_questions)
+
+                    # Set E instrumentation: overlap between per-sub-Q chunks
+                    per_sub_ids: List[List[Any]] = []
+                    for res in per_sub_results:
+                        ids: List[Any] = []
+                        for _c, it in res:
+                            cid = (
+                                it.get("id")
+                                or it.get("chunk_id")
+                                or it.get("rowid")
+                            )
+                            if cid is not None:
+                                ids.append(cid)
+                        per_sub_ids.append(ids)
+                    iterc_overlap = _iterc_per_subquery_overlap(per_sub_ids)
+
+                    # Step 5: build augmented context prefix (sub-Q + answer
+                    # blocks). The harness's gpt-4.1-mini final-answer call
+                    # will see both the orchestration trace and the chunks.
+                    prefix_lines: List[str] = ["## Self-Ask intermediate reasoning"]
+                    for i, (sq, ans, err) in enumerate(zip(
+                        iterc_sub_questions, iterc_sub_answers, iterc_sub_answer_errors
+                    )):
+                        prefix_lines.append(f"### Sub-question {i+1}: {sq}")
+                        if err or not ans:
+                            prefix_lines.append("Intermediate answer: [unavailable]")
+                        else:
+                            prefix_lines.append(f"Intermediate answer: {ans}")
+                    prefix_lines.append("")
+                    prefix_lines.append("## Retrieved memory chunks (RRF union across sub-Qs)")
+                    iterc_context_prefix = "\n".join(prefix_lines)
+
+                    iterc_used_path = True
+                    iterc_meta["iterc_applied"] = True
+                    iterc_meta["iterc_status"] = "applied"
+                    iterc_meta["iterc_n"] = len(iterc_sub_questions)
+                    iterc_meta["iterc_sub_questions"] = iterc_sub_questions
+                    iterc_meta["iterc_sub_answers"] = iterc_sub_answers
+                    iterc_meta["iterc_sub_answer_errors"] = [
+                        e for e in iterc_sub_answer_errors if e
+                    ]
+                    iterc_meta["iterc_per_query_topk"] = self.iterc_per_query_topk
+                    iterc_meta["iterc_rrf_k"] = self.iterc_rrf_k
+                    iterc_meta["iterc_total_results_pre_dedup"] = iterc_total_returned
+                    iterc_meta["iterc_unique_after_dedup"] = api_returned
+                    iterc_meta["iterc_subq_overlap"] = iterc_overlap
+                    if self.iterc_debug:
+                        print(
+                            f"[IterC] retrieved {iterc_total_returned} pre-dedup "
+                            f"-> {api_returned} unique (overlap={iterc_overlap:.3f}) "
+                            f"in {iterc_retrieve_ms:.0f}ms; synth in "
+                            f"{iterc_synthesis_ms:.0f}ms",
+                            file=__import__("sys").stderr,
+                        )
+
         # ------------------------------------------------------------------
         # Phase MQ (Lab Q1 #3) — Multi-query expansion path
         # ------------------------------------------------------------------
@@ -1453,7 +2068,7 @@ class NoxMemAdapter(BaseAdapter):
         mq_retrieve_ms: Optional[float] = None
         mq_total_returned = 0
 
-        if self.mq_enabled:
+        if self.mq_enabled and not iterc_used_path:
             if not self.mq_api_key:
                 mq_meta["mq_error"] = "no api_key (NOX_MQ_LLM_API_KEY / GEMINI_API_KEY)"
             else:
@@ -1543,9 +2158,9 @@ class NoxMemAdapter(BaseAdapter):
                         )
 
         # ------------------------------------------------------------------
-        # Baseline single-query path (used when MQ disabled or fell back)
+        # Baseline single-query path (used when MQ/IterC disabled or fell back)
         # ------------------------------------------------------------------
-        if not mq_used_subquery_path:
+        if not mq_used_subquery_path and not iterc_used_path:
             # Decide how many results to request from the API.
             # Phase F: overfetch then rerank locally. Other modes: request top_k.
             # Phase KG: also needs overfetch so we have a pool to re-rank within
@@ -1623,7 +2238,7 @@ class NoxMemAdapter(BaseAdapter):
         # entities matched in query.
         kg_evidence_for_map: set = set()
 
-        if self.kg_enabled and candidates and self.kg_db_path:
+        if self.kg_enabled and candidates and self.kg_db_path and not iterc_used_path:
             kg_start = time.monotonic() * 1000
             try:
                 # 1. Load entity pool (cached per DB after first call)
@@ -1780,7 +2395,7 @@ class NoxMemAdapter(BaseAdapter):
         rerank_ms: Optional[float] = None
         rerank_applied = False
 
-        if self.reranker_enabled and candidates:
+        if self.reranker_enabled and candidates and not iterc_used_path:
             rerank_start = time.monotonic() * 1000
             model, err = _load_reranker(
                 self.reranker_model_id, self.reranker_max_length
@@ -1851,9 +2466,16 @@ class NoxMemAdapter(BaseAdapter):
         candidates = candidates[:top_k]
         memories: List[str] = [c[0] for c in candidates]
 
-        # Format context string for LLM answer stage
+        # Format context string for LLM answer stage. Phase IterC prepends
+        # the Self-Ask intermediate reasoning block so the harness's final
+        # gpt-4.1-mini answer call sees both the orchestration trace and
+        # the underlying retrieved chunks.
         context_lines = [f"{i + 1}. {m}" for i, m in enumerate(memories)]
-        context = "\n".join(context_lines) if context_lines else "[No memories retrieved]"
+        chunks_body = "\n".join(context_lines) if context_lines else "[No memories retrieved]"
+        if iterc_used_path and iterc_context_prefix:
+            context = iterc_context_prefix + "\n" + chunks_body
+        else:
+            context = chunks_body
 
         elapsed_ms = time.monotonic() * 1000 - start_ms
         meta: Dict[str, Any] = {
@@ -1897,6 +2519,41 @@ class NoxMemAdapter(BaseAdapter):
             # Composability (Wave B) — both fired in this query
             "composability_kg_mq_active": bool(
                 kg_applied and mq_meta.get("mq_applied", False)
+            ),
+            # Phase IterC (Q3 POC) — Self-Ask orchestration
+            "iterc_enabled": self.iterc_enabled,
+            "iterc_applied": iterc_meta.get("iterc_applied", False),
+            "iterc_status": iterc_meta.get(
+                "iterc_status", "off" if not self.iterc_enabled else "unknown"
+            ),
+            "iterc_error": iterc_meta.get("iterc_error"),
+            "iterc_n_actual": len(iterc_sub_questions),
+            "iterc_sub_questions": (
+                iterc_sub_questions
+                if self.iterc_debug or iterc_meta.get("iterc_applied")
+                else []
+            ),
+            "iterc_sub_answers": (
+                iterc_sub_answers
+                if self.iterc_debug or iterc_meta.get("iterc_applied")
+                else []
+            ),
+            "iterc_sub_answer_error_count": sum(
+                1 for e in iterc_sub_answer_errors if e
+            ),
+            "iterc_decompose_ms": iterc_decompose_ms,
+            "iterc_retrieve_ms": iterc_retrieve_ms,
+            "iterc_synthesis_ms": iterc_synthesis_ms,
+            "iterc_total_results_pre_dedup": (
+                iterc_total_returned if iterc_used_path else None
+            ),
+            "iterc_unique_after_dedup": (
+                api_returned if iterc_used_path else None
+            ),
+            "iterc_subq_overlap": iterc_overlap,
+            "iterc_rrf_k": self.iterc_rrf_k if self.iterc_enabled else None,
+            "iterc_per_query_topk": (
+                self.iterc_per_query_topk if self.iterc_enabled else None
             ),
         }
         return SearchResult(
@@ -1943,5 +2600,16 @@ class NoxMemAdapter(BaseAdapter):
             "mq_per_query_topk": self.mq_per_query_topk,
             "mq_rrf_k": self.mq_rrf_k,
             "mq_timeout_s": self.mq_timeout_s,
-            "version": "phase-kgmap-kgmq-wave-b-0.1",
+            "iterc_enabled": self.iterc_enabled,
+            "iterc_decomposer_model": self.iterc_decomposer_model,
+            "iterc_decomposer_base_url": self.iterc_decomposer_base_url,
+            "iterc_answerer_model": self.iterc_answerer_model,
+            "iterc_answerer_base_url": self.iterc_answerer_base_url,
+            "iterc_n": self.iterc_n,
+            "iterc_per_query_topk": self.iterc_per_query_topk,
+            "iterc_rrf_k": self.iterc_rrf_k,
+            "iterc_decomposer_timeout_s": self.iterc_decomposer_timeout_s,
+            "iterc_answerer_timeout_s": self.iterc_answerer_timeout_s,
+            "iterc_answerer_max_tokens": self.iterc_answerer_max_tokens,
+            "version": "phase-iterC-q3-poc-0.1",
         }
