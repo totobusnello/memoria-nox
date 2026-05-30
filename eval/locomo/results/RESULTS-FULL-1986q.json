@@ -128,5 +128,53 @@
   "evidence_hit_at_5": 0.6861648016276704,
   "evidence_hit_at_10": 0.7451678535096643,
   "evidence_hit_at_20": 0.7675483214649034,
-  "evidence_recall_at_10": 0.6800816035201911
+  "evidence_recall_at_10": 0.6800816035201911,
+  "end_to_end": {
+    "date": "2026-05-29",
+    "generator": "gpt-4.1-mini-2025-04-14",
+    "n_scored": 1986,
+    "mean_f1": 0.34903530992017795,
+    "accuracy": 0.2804632426988922,
+    "f1_ci95_low": 0.26114416165309307,
+    "f1_ci95_high": 0.3006300016772945,
+    "composition_efficiency": 0.4684,
+    "mem0_sota_f1": 0.6688,
+    "delta_vs_mem0_sota_pp": -31.98,
+    "hypothesis_verdict": "COMPOSITION_BOTTLENECK",
+    "hypothesis_note": "F1=34.90% < 50% threshold; verbose generation kills SQuAD token-overlap F1; retrieval ceiling 74.52% is sound",
+    "per_category_f1": {
+      "adversarial": {
+        "n": 446,
+        "mean_f1": 0.7959641255605381,
+        "accuracy": 0.7959641255605381,
+        "note": "gold=empty; scorer awards abstention=1.0; 79.6% = model correctly abstains"
+      },
+      "single_hop": {
+        "n": 841,
+        "mean_f1": 0.29531297389983124,
+        "accuracy": 0.21878715814506539
+      },
+      "multi_hop": {
+        "n": 282,
+        "mean_f1": 0.1472705173192887,
+        "accuracy": 0.03900709219858156,
+        "note": "verbose generation over-answers semicolon-delimited gold; retrieval=82.2% but F1=14.7%"
+      },
+      "temporal": {
+        "n": 321,
+        "mean_f1": 0.11955364145962037,
+        "accuracy": 0.018691588785046728,
+        "note": "date paraphrase fails exact token match; retrieval=78.0% but F1=12.0%"
+      },
+      "commonsense": {
+        "n": 96,
+        "mean_f1": 0.10332197561601925,
+        "accuracy": 0.010416666666666666
+      }
+    },
+    "cost_actual_usd": 0.254,
+    "wallclock_s": 1876,
+    "input_tokens": 1573321,
+    "output_tokens": 30110
+  }
 }
