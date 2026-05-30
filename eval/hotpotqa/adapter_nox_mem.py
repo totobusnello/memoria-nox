@@ -523,6 +523,49 @@ def build_answer_prompt(q: HotpotQuestion, retrieved_texts: list[str]) -> str:
     )
 
 
+# ---------------------------------------------------------------------------
+# Few-shot prompt for HotPotQA
+# ---------------------------------------------------------------------------
+
+# Three in-context examples covering bridge (multi-hop chain) and comparison types.
+# Selected to demonstrate both answer formats (entity name vs yes/no) and
+# the expected brevity — no full sentences, no explanations.
+_HOTPOT_FEW_SHOT_EXAMPLES = """\
+Example 1 (bridge — entity answer):
+Q: Who was the director of the film that starred both John Cusack and Billy Bob Thornton?
+A: Alejandro González Iñárritu
+
+Example 2 (comparison — yes/no):
+Q: Were Scott Derrickson and Ed Wood from the same country?
+A: yes
+
+Example 3 (bridge — place name):
+Q: In which city is the headquarters of the company that acquired Zappos?
+A: Seattle"""
+
+
+def build_answer_prompt_few_shot(q: HotpotQuestion, retrieved_texts: list[str]) -> str:
+    """
+    Few-shot answer prompt for HotPotQA (PR feat/few-shot-cross-bench, 2026-05-30).
+
+    Adds 3 in-context examples (2 bridge + 1 comparison) before the real
+    question. Builds on baseline ANSWER_SYSTEM_PROMPT; no additional LLM
+    calls — prompt-only modification.
+
+    Gate prediction: +3-8pp ans_F1 on extraction tasks (bridge/comparison).
+    """
+    ctx = "\n\n".join(
+        f"--- chunk {i+1} ---\n{c[:2000]}" for i, c in enumerate(retrieved_texts[:5])
+    )
+    return (
+        f"{ANSWER_SYSTEM_PROMPT}\n\n"
+        f"Retrieved context:\n{ctx or '[no context retrieved]'}\n\n"
+        f"{_HOTPOT_FEW_SHOT_EXAMPLES}\n\n"
+        f"Q: {q.question}\n"
+        "A:"
+    )
+
+
 def call_openai(
     prompt: str, model: str, api_key: str, timeout: int = DEFAULT_GENERATION_TIMEOUT,
 ) -> tuple[str, float, Optional[str]]:
@@ -566,6 +609,7 @@ def run_question(
     openai_key: str,
     generator_model: str,
     skip_generation: bool = False,
+    few_shot: bool = False,
 ) -> HotpotResult:
     api_base = f"http://127.0.0.1:{api_port}"
     qdir = workdir / f"q-{q.question_id}"
@@ -622,7 +666,10 @@ def run_question(
         )
         # Answer generation
         if not skip_generation and openai_key:
-            prompt = build_answer_prompt(q, result.retrieved_texts)
+            if few_shot:
+                prompt = build_answer_prompt_few_shot(q, result.retrieved_texts)
+            else:
+                prompt = build_answer_prompt(q, result.retrieved_texts)
             ans, gms, gerr = call_openai(prompt, generator_model, openai_key)
             result.predicted_answer = ans
             result.generation_ms = gms
@@ -657,6 +704,12 @@ def main(argv: Optional[list[str]] = None) -> int:
     p.add_argument("--shuffle", action="store_true", help="shuffle (otherwise sequential)")
     p.add_argument("--skip-generation", action="store_true",
                    help="retrieval-only mode (no LLM call; predicted_answer empty)")
+    p.add_argument("--few-shot", action="store_true",
+                   help="enable few-shot prompting: adds 3 in-context examples "
+                        "(bridge + comparison types) before the real question. "
+                        "No additional LLM calls — prompt-only. "
+                        "Predicted ans_F1 lift +3-8pp on extraction tasks. "
+                        "Gate: F1 lift >=+3pp, no category regression >=-5pp.")
     p.add_argument("--resume", action="store_true",
                    help="skip question_ids already present in --out (JSONL)")
     p.add_argument("--progress-every", type=int, default=10)
@@ -728,6 +781,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                 openai_key=openai_key,
                 generator_model=args.generator,
                 skip_generation=args.skip_generation,
+                few_shot=args.few_shot,
             )
             if result.error:
                 n_err += 1
