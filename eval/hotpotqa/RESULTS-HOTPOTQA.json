@@ -1,13 +1,20 @@
 {
-  "status": "harness_ready_bench_not_yet_executed",
+  "status": "smoke_validated_full_in_flight",
   "harness_built": "2026-05-29",
-  "expected_full_run_wallclock_h": "5-7",
+  "smoke_completed": "2026-05-30T00:11Z",
+  "full_launched": "2026-05-29T23:59Z",
+  "full_eta_hours": 8,
+  "vps_workdir": "/root/.openclaw/hotpotqa-runner-3B5CB4F9",
+  "vps_full_log": "/root/.openclaw/hotpotqa-runner-3B5CB4F9/full.log",
+  "expected_full_run_wallclock_h": 8,
   "expected_cost_usd": "7-10",
   "budget_cap_usd": 12,
   "config": {
     "setting": "distractor",
     "dataset_file": "hotpot_dev_distractor_v1.json",
-    "dataset_url": "http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_dev_distractor_v1.json",
+    "dataset_source": "huggingface_parquet_converted_to_v1_json",
+    "dataset_origin_url_dead": "http://curtis.ml.cmu.edu/datasets/hotpot/hotpot_dev_distractor_v1.json",
+    "dataset_fallback_url": "https://huggingface.co/datasets/hotpotqa/hotpot_qa/resolve/main/distractor/validation-00000-of-00001.parquet",
     "n_dev_questions_total": 7405,
     "top_k": 5,
     "generator": "gpt-4.1-mini",
@@ -15,37 +22,84 @@
     "adapter_mode": "phaseH_v2_baseline",
     "reranker_enabled": false,
     "hybrid_search_enabled": true,
-    "api_port": 18900,
+    "api_port": 18910,
     "isolation": "per_question_db"
   },
-  "results": {
-    "n_total": null,
-    "n_scored": null,
-    "n_errors": null,
+  "smoke_results": {
+    "n_total": 200,
+    "n_scored": 200,
+    "n_errors": 0,
+    "subset": "shuffle seed=42 → landed all-hard",
     "answer": {
-      "em": null,
-      "f1": null,
-      "prec": null,
-      "recall": null,
-      "n": null
+      "em": 0.645,
+      "f1": 0.7686466637937227,
+      "prec": 0.7931166666666667,
+      "recall": 0.773313492063492,
+      "n": 200
     },
     "supporting_facts": {
-      "em": null,
-      "f1": null,
-      "prec": null,
-      "recall": null,
-      "n": null
+      "em": 0.03,
+      "f1": 0.5422261904761905,
+      "prec": 0.41783333333333333,
+      "recall": 0.8272499999999999,
+      "n": 200
     },
     "joint": {
-      "em": null,
-      "f1": null,
-      "prec": null,
-      "recall": null,
-      "n": null
+      "em": 0.015,
+      "f1": 0.43687238080546903,
+      "prec": 0.34881388888888887,
+      "recall": 0.6700079365079366,
+      "n": 200
     },
-    "by_type": {},
-    "by_level": {},
-    "latency_ms": {}
+    "by_type": {
+      "bridge": {
+        "ans_em": 0.6097560975609756,
+        "ans_f1": 0.7525162566590113,
+        "sp_em": 0.024390243902439025,
+        "sp_f1": 0.5213432231724915,
+        "joint_em": 0.006097560975609756,
+        "joint_f1": 0.4149496883436984,
+        "n": 164
+      },
+      "comparison": {
+        "ans_em": 0.8055555555555556,
+        "ans_f1": 0.8421296296296297,
+        "sp_em": 0.05555555555555555,
+        "sp_f1": 0.6373597081930416,
+        "joint_em": 0.05555555555555555,
+        "joint_f1": 0.5367424242424242,
+        "n": 36
+      }
+    },
+    "by_level": {
+      "hard": {
+        "ans_em": 0.645,
+        "ans_f1": 0.7686466637937227,
+        "sp_em": 0.03,
+        "sp_f1": 0.5422261904761905,
+        "joint_em": 0.015,
+        "joint_f1": 0.43687238080546903,
+        "n": 200
+      }
+    },
+    "latency_ms": {
+      "ingest_p50": 216.7731523513794,
+      "ingest_p95": 330.63383102416964,
+      "retrieval_p50": 802.0070791244507,
+      "retrieval_p95": 1434.95317697525,
+      "retrieval_p99": 1499.2083859443655,
+      "generation_p50": 541.135311126709,
+      "generation_p95": 1137.7680063247674
+    },
+    "throughput_qps": 0.28,
+    "cost_usd_est": 0.20
+  },
+  "full_results": {
+    "status": "in_flight",
+    "n_total": 7405,
+    "expected_eta_utc": "2026-05-30T08:00Z",
+    "expected_jsonl": "results/RESULTS-FULL-7K-DEV.jsonl",
+    "expected_aggregate_json": "results/RESULTS-FULL-7K-DEV.json"
   },
   "competitive_baselines": {
     "drqa_paper_2018": {"ans_f1": 27.1, "sp_f1": 25.1, "joint_f1": 7.0},
@@ -53,12 +107,11 @@
     "fid_sota_reader": {"ans_f1_range": [70, 75], "sp_f1_range": [80, 85], "joint_f1_range": [55, 65]},
     "modern_memory_systems_claimed": {"ans_f1_range": [50, 65]}
   },
-  "honest_framing": "nox-mem single-shot retrieval baseline on HotPotQA distractor: <X.X>% F1. Competitive with modern memory systems; sub-SOTA reader models. Q3 Iterative Retrieval predicted to close 30-50% of remaining gap to FiD-class systems.",
+  "honest_framing": "nox-mem Phase H v2 smoke n=200 (hard only): ans_F1 76.86%, sp_F1 54.22%, joint_F1 43.69%. Above 'modern memory systems' 50-65% band, within DPR+FiD SOTA reader 65-72% range — but hard-only subset, not directly comparable to mixed-level baselines. SP F1 gap (54%) is the token-overlap heuristic bottleneck; LLM SP extractor predicted to close +5-10pp. Joint F1 bounded by sp_F1. Full n=7405 mixed-level lands canonical headline in ~8h.",
   "next_steps": [
-    "Run smoke n=200 on VPS (~30min, ~$0.20)",
-    "If smoke >= 50% F1, run full n=7405 (~5-7h, ~$8)",
-    "Populate this JSON via lib/aggregate.py post-run",
-    "Update RESULTS-HOTPOTQA.md TL;DR with actual numbers",
-    "Compare bridge vs comparison sub-types vs literature"
+    "Wait for full n=7405 completion on VPS (~8h from 2026-05-29 23:59 UTC)",
+    "scp RESULTS-FULL-7K-DEV.json + jsonl to local repo",
+    "Update this JSON + RESULTS-HOTPOTQA.md TL;DR with mixed-level numbers",
+    "Land follow-up commit on this branch (or new PR if merged) with full results"
   ]
 }
