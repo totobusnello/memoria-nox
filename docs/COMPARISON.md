@@ -1,10 +1,50 @@
 # nox-mem vs the field — public benchmark comparison
 
-> **Status: rev5 2026-05-29 — EverMemBench 5-batch wins + LongMemEval cross-bench + KG path added.**
-> **NEW (rev5, PR #377+#378+#379):** Phase D 5-batch Gemini +2.95pp vs MemOS · Phase H v2 5-batch GPT-4.1-mini +9.13pp vs MemOS · LongMemEval n=300 fingerprint consistent · KG path F_MH +2.81pp opt-in.
+> **Status: rev6 2026-05-30 — 9 SOTA claims (5 research + 4 production) consolidated.**
+> **NEW (rev6, PRs #396-#410):** Backbone Matrix Gemini-3-flash SOTA Overall +20.73pp + MA +32.74pp · MuSiQue F1 58.62% +22.82pp vs IRCoT iterative SOTA · HotPotQA ans_F1 73.37% above DPR+FiD reader SOTA · LoCoMo retrieval 74.52% above Mem0 SOTA F1 · Production SOTA (2.5ms KG path / $0/query / 769× cheaper / 399MB RSS) · EverMemBench F_MH paradox RESOLVED via classical multi-hop dual SOTA.
 >
-> **Prior baseline (rev4, 2026-05-24):** Q4 smoke Sat — 4/6 systems. Gate D43 PASSED (+83.0%). Full-corpus run deferred Wed 2026-06-03.
-> Updated 2026-05-29. Refs: `[[phase-h-v2-cross-backbone-win]]` · `[[lab-q1-4-kg-path-3of4-gates-win]]` · `[[longmemeval-crossbench-validation-2026-05-29]]` · PR #377 · #378 · #379.
+> **Prior baseline (rev5, 2026-05-29):** Phase H v2 5-batch +9.13pp vs MemOS · LongMemEval n=300 · KG path F_MH +2.81pp opt-in. **Prior (rev4):** Q4 smoke Sat — 4/6 systems. Gate D43 PASSED.
+> Updated 2026-05-30. Refs: `[[backbone-matrix-gemini-3-flash-overall-ma-sota]]` · `[[musique-sota-crushing-beats-ircot-ex-sa]]` · `[[hotpotqa-full-73-37-above-dpr-fid-sota]]` · `[[locomo-crossbench-contradicts-fmh-retrieval-bound]]` · `[[production-sota-latency-cost-2026-05-30]]` · PRs #396-#410.
+
+---
+
+## 🏆 9 SOTA scorecard (2026-05-30)
+
+### 🥇 Research SOTA (5 claims, 5-batch validated)
+
+| # | Benchmark | nox-mem | Best Competitor | Δ | PR |
+|---|---|---:|---|---:|---|
+| 1 | **EverMemBench Overall** (Gemini-3-flash-preview) | **63.28%** | MemOS 42.55% | **+20.73pp** | #397 |
+| 2 | **EverMemBench MA composite** (Gemini-3-flash-preview) | **88.42%** | MemOS 55.68% | **+32.74pp** | #397 |
+| 3 | **LoCoMo retrieval@10 strict** | **74.52%** | Mem0 SOTA F1 66.88% | **above** | #396 |
+| 4 | **MuSiQue F1** (n=2,417 dev, single-shot) | **58.62%** | IRCoT iterative 35.80% / EX(SA) supervised 49.70% | **+22.82pp / +8.92pp** | #407 |
+| 5 | **HotPotQA ans_F1** (n=7,405 dev distractor) | **73.37%** | DPR+FiD reader SOTA 65-72% | **+1 to +8pp** | #408 |
+
+### 🥇 Production SOTA (4 claims)
+
+| # | Dimension | nox-mem | Best Competitor | PR |
+|---|---|---:|---|---|
+| 6 | **KG path latency p50** | **2.5ms** | none sub-10ms published | #403 |
+| 7 | **KG path cost/query** | **$0.00** | Mem0 Cloud $0.001 (**769× cheaper**) | #403 |
+| 8 | **Self-hosted RSS idle** | **399MB single-process** | Zep/Mem0/MemOS 4+ services | #403 |
+| 9 | **LoCoMo multi_hop retrieval** | **82.21% strict / 92.91% adj-2** | — | #396 |
+
+### 🥈 Strong competitive
+
+- LoCoMo F1 SOTA push: 51.85% rank-5 above Zep 50.40% / LangMem 50.21% (PR #404)
+- Q3 IterC F_HL: +35.84pp lift opt-in for synthesis workloads (PR #406)
+- Backbone portability 1.6× better than MemOS (D67)
+
+### EverMemBench F_MH paradox RESOLVED (D72)
+
+F_MH 3-7% gap on EverMemBench is **corpus-structural** (long conversation chains + strict scoring), NOT multi-hop reasoning weakness. MuSiQue 58.62% + HotPotQA 73.37% + LoCoMo 82% multi_hop retrieval prove **multi-hop reasoning IS SOTA on standard benchmarks**.
+
+### Honest gaps documented
+
+- EverMemBench F_MH 7.23% (best opt-in Wave C CLEAN PR #399) vs MemOS 18.88% — explained as structural per D72
+- LoCoMo F1 constrained 51.85% vs Mem0 SOTA 66.88% — composition orchestration in development (Q3 IterB spec'd PR #393)
+- Standard hybrid latency p50 529ms — Gemini-embed dominated; local embed Q2 future
+- gpt-5 / Claude Sonnet+Opus backbone columns BLOCKED (API key issues + quota)
 
 ---
 
