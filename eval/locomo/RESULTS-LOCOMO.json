@@ -1,0 +1,71 @@
+{
+  "schema": "locomo-aggregate/v2",
+  "dataset": "snap-research/LoCoMo locomo10.json (n=10 convs, 1986 qa)",
+  "phase": "Phase H v2 baseline (rerank=off, hybrid=on, no Wave A/B/C knobs)",
+  "last_updated": "2026-05-29",
+  "retrieval_ceiling": {
+    "evidence_hit_at_5": 0.6862,
+    "evidence_hit_at_10": 0.7452,
+    "evidence_hit_at_20": 0.7675,
+    "evidence_recall_at_10": 0.6801,
+    "n_retrieval_scored": 1966,
+    "source": "RESULTS-FULL-1986q.json (PR #396)"
+  },
+  "end_to_end_naive": {
+    "run": "end_to_end",
+    "prompt_type": "verbose",
+    "generator": "gpt-4.1-mini-2025-04-14",
+    "n_total": 1986,
+    "n_errors": 0,
+    "mean_f1": 0.34903530992017795,
+    "accuracy": 0.2804632426988922,
+    "composition_efficiency": 0.4684,
+    "mem0_sota_f1": 0.6688,
+    "delta_vs_mem0_sota_pp": -31.98,
+    "hypothesis_verdict": "COMPOSITION_BOTTLENECK — F1=34.90% < 50% threshold; verbose generation kills SQuAD token-overlap F1",
+    "per_category": {
+      "adversarial": {"n": 446, "mean_f1": 0.7959641255605381, "accuracy": 0.7959641255605381},
+      "commonsense": {"n": 96, "mean_f1": 0.10332197561601925, "accuracy": 0.010416666666666666},
+      "multi_hop": {"n": 282, "mean_f1": 0.1472705173192887, "accuracy": 0.03900709219858156},
+      "single_hop": {"n": 841, "mean_f1": 0.29531297389983124, "accuracy": 0.21878715814506539},
+      "temporal": {"n": 321, "mean_f1": 0.11955364145962037, "accuracy": 0.018691588785046728}
+    },
+    "cost_actual_usd": 0.254,
+    "source": "RESULTS-FULL-E2E-1986q.json (PR #398)"
+  },
+  "end_to_end_constrained": {
+    "run": "end_to_end_constrained",
+    "prompt_type": "constrained_1_5_words",
+    "generator": "gpt-4.1-mini",
+    "n_total": 1986,
+    "n_errors": 0,
+    "mean_f1": 0.5037705066466633,
+    "accuracy": 0.5140986908358509,
+    "composition_efficiency": 0.676,
+    "mem0_sota_f1": 0.6688,
+    "delta_vs_mem0_sota_pp": -16.5,
+    "delta_vs_naive_pp": 15.48,
+    "hypothesis_verdict": "COMPETITIVE — F1=50.38% in 50-60% range; constrained prompt recovers +15.48pp vs naive",
+    "per_category": {
+      "adversarial": {"n": 446, "mean_f1": 0.699552, "accuracy": 0.699552},
+      "commonsense": {"n": 96, "mean_f1": 0.218613, "accuracy": 0.208333},
+      "multi_hop": {"n": 282, "mean_f1": 0.392894, "accuracy": 0.425532},
+      "single_hop": {"n": 841, "mean_f1": 0.554057, "accuracy": 0.576694},
+      "temporal": {"n": 321, "mean_f1": 0.282689, "accuracy": 0.261682}
+    },
+    "cost_actual_usd": 0.244,
+    "source": "RESULTS-FULL-CONSTRAINED-1986q.json (this PR)"
+  },
+  "published_baselines": [
+    {"system": "Observation RAG (GPT-3.5)", "generator": "GPT-3.5-turbo", "overall_f1": 0.3203, "source": "Maharana et al. 2024 Table 5"},
+    {"system": "nox-mem (naive)", "generator": "gpt-4.1-mini", "overall_f1": 0.3490, "source": "this work (PR #398)"},
+    {"system": "RAG baseline (Mem0 paper)", "generator": "GPT-4o-mini", "overall_f1": 0.3547, "source": "Chhikara et al. 2025 Table 4"},
+    {"system": "Summary RAG (GPT-4)", "generator": "GPT-4", "overall_f1": 0.4053, "source": "Maharana et al. 2024 Table 5"},
+    {"system": "Full Context (GPT-4)", "generator": "GPT-4", "overall_f1": 0.4239, "source": "Maharana et al. 2024 Table 5"},
+    {"system": "LangMem (LangGraph)", "generator": "GPT-4o-mini", "overall_f1": 0.5021, "source": "Chhikara et al. 2025 Table 4"},
+    {"system": "Zep", "generator": "GPT-4o-mini", "overall_f1": 0.5040, "source": "Chhikara et al. 2025 Table 4"},
+    {"system": "nox-mem (constrained)", "generator": "gpt-4.1-mini", "overall_f1": 0.5038, "source": "this work (this PR)"},
+    {"system": "Mem0 (graph)", "generator": "GPT-4o-mini", "overall_f1": 0.5610, "source": "Chhikara et al. 2025 Table 4"},
+    {"system": "Mem0 SOTA", "generator": "GPT-4o-mini", "overall_f1": 0.6688, "source": "Chhikara et al. 2025 Table 4"}
+  ]
+}
