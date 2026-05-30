@@ -478,9 +478,11 @@ def build_prompt(
         "Use ONLY the retrieved memory chunks below as evidence; do not "
         "invent facts.\n\n"
         f"Retrieved memory:\n{ctx or '[no context retrieved]'}\n\n"
-        f"Question: {augmented_question}\n"
-        "Answer concisely (one short sentence is best). If the memory does "
-        "not contain the answer, say so explicitly."
+        f"Question: {augmented_question}\n\n"
+        "Answer in 1-5 words ONLY. Do not include explanations, justifications, "
+        "or full sentences. Just the answer. "
+        "If the memory does not contain the answer, say: Not mentioned\n\n"
+        "Answer:"
     )
 
 

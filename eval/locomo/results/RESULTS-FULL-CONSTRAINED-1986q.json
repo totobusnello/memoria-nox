@@ -1,0 +1,50 @@
+{
+  "schema": "locomo-constrained-gen/v1",
+  "run": "end_to_end_constrained",
+  "generator": "gpt-4.1-mini",
+  "prompt_type": "constrained_1_5_words",
+  "date": "2026-05-29",
+  "n_total": 1986,
+  "n_scored": 1986,
+  "n_errors": 0,
+  "mean_f1": 0.5037705066466633,
+  "accuracy": 0.5140986908358509,
+  "composition_efficiency": 0.676,
+  "retrieval_ceiling": 0.7452,
+  "mem0_sota_f1": 0.6688,
+  "delta_vs_mem0_sota_pp": -16.5,
+  "hypothesis_verdict": "COMPETITIVE \u2014 F1=50.38% in 50-60% range",
+  "per_category": {
+    "temporal": {
+      "n": 321,
+      "mean_f1": 0.282689,
+      "accuracy": 0.261682
+    },
+    "commonsense": {
+      "n": 96,
+      "mean_f1": 0.218613,
+      "accuracy": 0.208333
+    },
+    "multi_hop": {
+      "n": 282,
+      "mean_f1": 0.392894,
+      "accuracy": 0.425532
+    },
+    "single_hop": {
+      "n": 841,
+      "mean_f1": 0.554057,
+      "accuracy": 0.576694
+    },
+    "adversarial": {
+      "n": 446,
+      "mean_f1": 0.699552,
+      "accuracy": 0.699552
+    }
+  },
+  "naive_baseline_f1": 0.349,
+  "delta_vs_naive_pp": 15.48,
+  "elapsed_s": 1526.0,
+  "cost_actual_usd": 0.2441,
+  "input_tokens": 1597151,
+  "output_tokens": 7536
+}
