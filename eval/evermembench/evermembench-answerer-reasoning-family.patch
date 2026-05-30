@@ -1,0 +1,46 @@
+--- /root/.openclaw/evermembench-phaseB-1779978778/everos/benchmarks/EverMemBench/eval/src/core/answerer.py.bak-backbone-matrix	2026-05-29 19:29:58.662447454 -0300
++++ /root/.openclaw/evermembench-phaseB-1779978778/everos/benchmarks/EverMemBench/eval/src/core/answerer.py	2026-05-29 19:30:25.824501195 -0300
+@@ -325,14 +325,35 @@
+         for attempt in range(self.max_retries):
+             try:
+                 # Build request kwargs
+-                request_kwargs = {
+-                    "model": self.model,
+-                    "messages": [
+-                        {"role": "user", "content": prompt}
+-                    ],
+-                    "temperature": self.temperature,
+-                    "max_tokens": self.max_tokens
+-                }
++                # Backbone Matrix bench (2026-05-29): reasoning-family (gpt-5*, o1*, o3*) need
++                #   max_completion_tokens instead of max_tokens, no temperature param (only default 1),
++                #   reasoning_effort=minimal to avoid budget blow-up from internal reasoning tokens.
++                _is_reasoning = (
++                    self.model.startswith("gpt-5")
++                    or self.model.startswith("openai/gpt-5")
++                    or self.model.startswith("o1")
++                    or self.model.startswith("openai/o1")
++                    or self.model.startswith("o3")
++                    or self.model.startswith("openai/o3")
++                )
++                if _is_reasoning:
++                    request_kwargs = {
++                        "model": self.model,
++                        "messages": [
++                            {"role": "user", "content": prompt}
++                        ],
++                        "max_completion_tokens": self.max_tokens,
++                        "reasoning_effort": "minimal",
++                    }
++                else:
++                    request_kwargs = {
++                        "model": self.model,
++                        "messages": [
++                            {"role": "user", "content": prompt}
++                        ],
++                        "temperature": self.temperature,
++                        "max_tokens": self.max_tokens
++                    }
+                 
+                 # Add provider configuration for OpenRouter (CRITICAL for cache hits)
+                 # This ensures all requests go to the same provider backend

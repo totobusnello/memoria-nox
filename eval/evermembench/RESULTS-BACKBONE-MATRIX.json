@@ -1,0 +1,1385 @@
+{
+  "backbones": {
+    "gpt-4.1-mini": {
+      "source": "PR-377-phaseH-v2-5-batch",
+      "batches": [
+        "004",
+        "005",
+        "010",
+        "011",
+        "016"
+      ],
+      "metrics": {
+        "F_HL": {
+          "per_batch": {
+            "004": {
+              "total": 78,
+              "correct": 19,
+              "pct": 24.358974358974358
+            },
+            "005": {
+              "total": 75,
+              "correct": 14,
+              "pct": 18.666666666666668
+            },
+            "010": {
+              "total": 78,
+              "correct": 21,
+              "pct": 26.923076923076923
+            },
+            "011": {
+              "total": 78,
+              "correct": 14,
+              "pct": 17.94871794871795
+            },
+            "016": {
+              "total": 79,
+              "correct": 20,
+              "pct": 25.31645569620253
+            }
+          },
+          "weighted": 22.68041237113402,
+          "mean": 22.642778318727686,
+          "stdev": 4.069966287843319,
+          "ci95_lo": 17.59005786087921,
+          "ci95_hi": 27.695498776576162,
+          "n_batches": 5,
+          "sum_total": 388,
+          "sum_correct": 88
+        },
+        "F_MH": {
+          "per_batch": {
+            "004": {
+              "total": 50,
+              "correct": 5,
+              "pct": 10.0
+            },
+            "005": {
+              "total": 50,
+              "correct": 1,
+              "pct": 2.0
+            },
+            "010": {
+              "total": 50,
+              "correct": 1,
+              "pct": 2.0
+            },
+            "011": {
+              "total": 50,
+              "correct": 1,
+              "pct": 2.0
+            },
+            "016": {
+              "total": 49,
+              "correct": 0,
+              "pct": 0.0
+            }
+          },
+          "weighted": 3.2128514056224895,
+          "mean": 3.2,
+          "stdev": 3.898717737923586,
+          "ci95_lo": -1.6401213869075635,
+          "ci95_hi": 8.040121386907565,
+          "n_batches": 5,
+          "sum_total": 249,
+          "sum_correct": 8
+        },
+        "F_SH": {
+          "per_batch": {
+            "004": {
+              "total": 49,
+              "correct": 44,
+              "pct": 89.79591836734694
+            },
+            "005": {
+              "total": 50,
+              "correct": 41,
+              "pct": 82.0
+            },
+            "010": {
+              "total": 50,
+              "correct": 36,
+              "pct": 72.0
+            },
+            "011": {
+              "total": 50,
+              "correct": 43,
+              "pct": 86.0
+            },
+            "016": {
+              "total": 48,
+              "correct": 36,
+              "pct": 75.0
+            }
+          },
+          "weighted": 80.97165991902834,
+          "mean": 80.95918367346938,
+          "stdev": 7.422261280473661,
+          "ci95_lo": 71.74470651001883,
+          "ci95_hi": 90.17366083691994,
+          "n_batches": 5,
+          "sum_total": 247,
+          "sum_correct": 200
+        },
+        "F_TP": {
+          "per_batch": {
+            "004": {
+              "total": 60,
+              "correct": 7,
+              "pct": 11.666666666666666
+            },
+            "005": {
+              "total": 60,
+              "correct": 12,
+              "pct": 20.0
+            },
+            "010": {
+              "total": 60,
+              "correct": 8,
+              "pct": 13.333333333333334
+            },
+            "011": {
+              "total": 60,
+              "correct": 7,
+              "pct": 11.666666666666666
+            },
+            "016": {
+              "total": 60,
+              "correct": 11,
+              "pct": 18.333333333333332
+            }
+          },
+          "weighted": 15.0,
+          "mean": 15.0,
+          "stdev": 3.908679799852858,
+          "ci95_lo": 10.1475110624661,
+          "ci95_hi": 19.8524889375339,
+          "n_batches": 5,
+          "sum_total": 300,
+          "sum_correct": 45
+        },
+        "MA_C": {
+          "per_batch": {
+            "004": {
+              "total": 100,
+              "correct": 88,
+              "pct": 88.0
+            },
+            "005": {
+              "total": 100,
+              "correct": 84,
+              "pct": 84.0
+            },
+            "010": {
+              "total": 100,
+              "correct": 81,
+              "pct": 81.0
+            },
+            "011": {
+              "total": 100,
+              "correct": 83,
+              "pct": 83.0
+            },
+            "016": {
+              "total": 100,
+              "correct": 87,
+              "pct": 87.0
+            }
+          },
+          "weighted": 84.6,
+          "mean": 84.6,
+          "stdev": 2.8809720581775866,
+          "ci95_lo": 81.0233741934611,
+          "ci95_hi": 88.1766258065389,
+          "n_batches": 5,
+          "sum_total": 500,
+          "sum_correct": 423
+        },
+        "MA_P": {
+          "per_batch": {
+            "004": {
+              "total": 100,
+              "correct": 64,
+              "pct": 64.0
+            },
+            "005": {
+              "total": 100,
+              "correct": 57,
+              "pct": 56.99999999999999
+            },
+            "010": {
+              "total": 100,
+              "correct": 66,
+              "pct": 66.0
+            },
+            "011": {
+              "total": 100,
+              "correct": 66,
+              "pct": 66.0
+            },
+            "016": {
+              "total": 100,
+              "correct": 74,
+              "pct": 74.0
+            }
+          },
+          "weighted": 65.4,
+          "mean": 65.4,
+          "stdev": 6.066300355241243,
+          "ci95_lo": 57.868900786737704,
+          "ci95_hi": 72.9310992132623,
+          "n_batches": 5,
+          "sum_total": 500,
+          "sum_correct": 327
+        },
+        "MA_U": {
+          "per_batch": {
+            "004": {
+              "total": 58,
+              "correct": 40,
+              "pct": 68.96551724137932
+            },
+            "005": {
+              "total": 55,
+              "correct": 46,
+              "pct": 83.63636363636363
+            },
+            "010": {
+              "total": 58,
+              "correct": 33,
+              "pct": 56.896551724137936
+            },
+            "011": {
+              "total": 54,
+              "correct": 39,
+              "pct": 72.22222222222221
+            },
+            "016": {
+              "total": 62,
+              "correct": 43,
+              "pct": 69.35483870967742
+            }
+          },
+          "weighted": 70.03484320557492,
+          "mean": 70.21509870675611,
+          "stdev": 9.537348844758228,
+          "ci95_lo": 58.374814484873,
+          "ci95_hi": 82.05538292863922,
+          "n_batches": 5,
+          "sum_total": 287,
+          "sum_correct": 201
+        },
+        "Overall": {
+          "per_batch": {
+            "004": {
+              "total": 626,
+              "correct": 339,
+              "pct": 54.153354632587856
+            },
+            "005": {
+              "total": 610,
+              "correct": 310,
+              "pct": 50.81967213114754
+            },
+            "010": {
+              "total": 623,
+              "correct": 316,
+              "pct": 50.7223113964687
+            },
+            "011": {
+              "total": 633,
+              "correct": 322,
+              "pct": 50.86887835703001
+            },
+            "016": {
+              "total": 629,
+              "correct": 326,
+              "pct": 51.828298887122415
+            }
+          },
+          "weighted": 51.68215315603973,
+          "mean": 51.6785030808713,
+          "stdev": 1.4538495724784808,
+          "ci95_lo": 49.873599806994584,
+          "ci95_hi": 53.48340635474802,
+          "n_batches": 5,
+          "sum_total": 3121,
+          "sum_correct": 1613
+        },
+        "P_Skill": {
+          "per_batch": {
+            "004": {
+              "total": 45,
+              "correct": 25,
+              "pct": 55.55555555555556
+            },
+            "005": {
+              "total": 43,
+              "correct": 16,
+              "pct": 37.2093023255814
+            },
+            "010": {
+              "total": 46,
+              "correct": 26,
+              "pct": 56.52173913043478
+            },
+            "011": {
+              "total": 43,
+              "correct": 22,
+              "pct": 51.162790697674424
+            },
+            "016": {
+              "total": 44,
+              "correct": 21,
+              "pct": 47.72727272727273
+            }
+          },
+          "weighted": 49.7737556561086,
+          "mean": 49.63533208730378,
+          "stdev": 7.791849649549382,
+          "ci95_lo": 39.96202392100447,
+          "ci95_hi": 59.30864025360309,
+          "n_batches": 5,
+          "sum_total": 221,
+          "sum_correct": 110
+        },
+        "P_Style": {
+          "per_batch": {
+            "004": {
+              "total": 37,
+              "correct": 15,
+              "pct": 40.54054054054054
+            },
+            "005": {
+              "total": 28,
+              "correct": 14,
+              "pct": 50.0
+            },
+            "010": {
+              "total": 31,
+              "correct": 16,
+              "pct": 51.61290322580645
+            },
+            "011": {
+              "total": 48,
+              "correct": 15,
+              "pct": 31.25
+            },
+            "016": {
+              "total": 37,
+              "correct": 12,
+              "pct": 32.432432432432435
+            }
+          },
+          "weighted": 39.77900552486188,
+          "mean": 41.167175239755885,
+          "stdev": 9.515392715176265,
+          "ci95_lo": 29.354148782991203,
+          "ci95_hi": 52.98020169652057,
+          "n_batches": 5,
+          "sum_total": 181,
+          "sum_correct": 72
+        },
+        "P_Title": {
+          "per_batch": {
+            "004": {
+              "total": 49,
+              "correct": 32,
+              "pct": 65.3061224489796
+            },
+            "005": {
+              "total": 49,
+              "correct": 25,
+              "pct": 51.02040816326531
+            },
+            "010": {
+              "total": 50,
+              "correct": 28,
+              "pct": 56.00000000000001
+            },
+            "011": {
+              "total": 50,
+              "correct": 32,
+              "pct": 64.0
+            },
+            "016": {
+              "total": 50,
+              "correct": 22,
+              "pct": 44.0
+            }
+          },
+          "weighted": 56.048387096774185,
+          "mean": 56.06530612244898,
+          "stdev": 8.935587913614444,
+          "ci95_lo": 44.972086999509315,
+          "ci95_hi": 67.15852524538865,
+          "n_batches": 5,
+          "sum_total": 248,
+          "sum_correct": 139
+        }
+      },
+      "gates": {
+        "gate1_F_MH_lift_5pp": {
+          "metric": "F_MH",
+          "value": 3.2128514056224895,
+          "target": 8.21,
+          "baseline": 3.21,
+          "delta_vs_baseline_pp": 0.0028514056224895334,
+          "pass": false
+        },
+        "gate2_overall_preserve": {
+          "metric": "Overall",
+          "value": 51.68215315603973,
+          "target": 51.18,
+          "pass": true
+        },
+        "gate3_MA_composite_preserve": {
+          "metric": "MA_composite",
+          "value": 73.34494773519164,
+          "target": 72.34333333333333,
+          "pass": true
+        },
+        "gate4_cost_ratio_<=5x": {
+          "metric": "cost_ratio_vs_baseline",
+          "value": 1.0,
+          "target": 5.0,
+          "pass": true
+        },
+        "summary": {
+          "passes": 3,
+          "total": 4,
+          "recommendation": "ship_opt_in"
+        }
+      }
+    },
+    "gemini-3-flash-preview": {
+      "source": "backbone-matrix-gemini3flash-*",
+      "batches": [
+        "004",
+        "005",
+        "010",
+        "011",
+        "016"
+      ],
+      "metrics": {
+        "F_HL": {
+          "per_batch": {
+            "004": {
+              "total": 78,
+              "correct": 14,
+              "pct": 17.94871794871795
+            },
+            "005": {
+              "total": 75,
+              "correct": 19,
+              "pct": 25.333333333333336
+            },
+            "010": {
+              "total": 78,
+              "correct": 22,
+              "pct": 28.205128205128204
+            },
+            "011": {
+              "total": 78,
+              "correct": 23,
+              "pct": 29.48717948717949
+            },
+            "016": {
+              "total": 79,
+              "correct": 23,
+              "pct": 29.11392405063291
+            }
+          },
+          "weighted": 26.03092783505155,
+          "mean": 26.01765660499838,
+          "stdev": 4.795455205327436,
+          "ci95_lo": 20.06426709093106,
+          "ci95_hi": 31.971046119065697,
+          "n_batches": 5,
+          "sum_total": 388,
+          "sum_correct": 101
+        },
+        "F_MH": {
+          "per_batch": {
+            "004": {
+              "total": 50,
+              "correct": 2,
+              "pct": 4.0
+            },
+            "005": {
+              "total": 50,
+              "correct": 3,
+              "pct": 6.0
+            },
+            "010": {
+              "total": 50,
+              "correct": 4,
+              "pct": 8.0
+            },
+            "011": {
+              "total": 50,
+              "correct": 3,
+              "pct": 6.0
+            },
+            "016": {
+              "total": 49,
+              "correct": 3,
+              "pct": 6.122448979591836
+            }
+          },
+          "weighted": 6.024096385542169,
+          "mean": 6.024489795918368,
+          "stdev": 1.4152733836685463,
+          "ci95_lo": 4.267477508010741,
+          "ci95_hi": 7.781502083825994,
+          "n_batches": 5,
+          "sum_total": 249,
+          "sum_correct": 15
+        },
+        "F_SH": {
+          "per_batch": {
+            "004": {
+              "total": 49,
+              "correct": 41,
+              "pct": 83.6734693877551
+            },
+            "005": {
+              "total": 50,
+              "correct": 39,
+              "pct": 78.0
+            },
+            "010": {
+              "total": 50,
+              "correct": 37,
+              "pct": 74.0
+            },
+            "011": {
+              "total": 50,
+              "correct": 42,
+              "pct": 84.0
+            },
+            "016": {
+              "total": 48,
+              "correct": 39,
+              "pct": 81.25
+            }
+          },
+          "weighted": 80.16194331983806,
+          "mean": 80.18469387755103,
+          "stdev": 4.20970064852448,
+          "ci95_lo": 74.95849810984876,
+          "ci95_hi": 85.41088964525329,
+          "n_batches": 5,
+          "sum_total": 247,
+          "sum_correct": 198
+        },
+        "F_TP": {
+          "per_batch": {
+            "004": {
+              "total": 60,
+              "correct": 20,
+              "pct": 33.33333333333333
+            },
+            "005": {
+              "total": 60,
+              "correct": 20,
+              "pct": 33.33333333333333
+            },
+            "010": {
+              "total": 60,
+              "correct": 23,
+              "pct": 38.333333333333336
+            },
+            "011": {
+              "total": 60,
+              "correct": 21,
+              "pct": 35.0
+            },
+            "016": {
+              "total": 60,
+              "correct": 19,
+              "pct": 31.666666666666664
+            }
+          },
+          "weighted": 34.333333333333336,
+          "mean": 34.33333333333333,
+          "stdev": 2.527625148017186,
+          "ci95_lo": 31.19537532780737,
+          "ci95_hi": 37.47129133885929,
+          "n_batches": 5,
+          "sum_total": 300,
+          "sum_correct": 103
+        },
+        "MA_C": {
+          "per_batch": {
+            "004": {
+              "total": 100,
+              "correct": 87,
+              "pct": 87.0
+            },
+            "005": {
+              "total": 100,
+              "correct": 93,
+              "pct": 93.0
+            },
+            "010": {
+              "total": 100,
+              "correct": 91,
+              "pct": 91.0
+            },
+            "011": {
+              "total": 100,
+              "correct": 86,
+              "pct": 86.0
+            },
+            "016": {
+              "total": 100,
+              "correct": 89,
+              "pct": 89.0
+            }
+          },
+          "weighted": 89.2,
+          "mean": 89.2,
+          "stdev": 2.8635642126552705,
+          "ci95_lo": 85.64498542337729,
+          "ci95_hi": 92.75501457662271,
+          "n_batches": 5,
+          "sum_total": 500,
+          "sum_correct": 446
+        },
+        "MA_P": {
+          "per_batch": {
+            "004": {
+              "total": 100,
+              "correct": 87,
+              "pct": 87.0
+            },
+            "005": {
+              "total": 100,
+              "correct": 91,
+              "pct": 91.0
+            },
+            "010": {
+              "total": 100,
+              "correct": 88,
+              "pct": 88.0
+            },
+            "011": {
+              "total": 100,
+              "correct": 91,
+              "pct": 91.0
+            },
+            "016": {
+              "total": 100,
+              "correct": 93,
+              "pct": 93.0
+            }
+          },
+          "weighted": 90.0,
+          "mean": 90.0,
+          "stdev": 2.449489742783178,
+          "ci95_lo": 86.95904436073131,
+          "ci95_hi": 93.04095563926869,
+          "n_batches": 5,
+          "sum_total": 500,
+          "sum_correct": 450
+        },
+        "MA_U": {
+          "per_batch": {
+            "004": {
+              "total": 58,
+              "correct": 50,
+              "pct": 86.20689655172413
+            },
+            "005": {
+              "total": 55,
+              "correct": 49,
+              "pct": 89.0909090909091
+            },
+            "010": {
+              "total": 58,
+              "correct": 51,
+              "pct": 87.93103448275862
+            },
+            "011": {
+              "total": 54,
+              "correct": 45,
+              "pct": 83.33333333333334
+            },
+            "016": {
+              "total": 62,
+              "correct": 52,
+              "pct": 83.87096774193549
+            }
+          },
+          "weighted": 86.06271777003485,
+          "mean": 86.08662824013213,
+          "stdev": 2.4965869988862317,
+          "ci95_lo": 82.98720300858912,
+          "ci95_hi": 89.18605347167514,
+          "n_batches": 5,
+          "sum_total": 287,
+          "sum_correct": 247
+        },
+        "Overall": {
+          "per_batch": {
+            "004": {
+              "total": 626,
+              "correct": 400,
+              "pct": 63.897763578274756
+            },
+            "005": {
+              "total": 610,
+              "correct": 386,
+              "pct": 63.278688524590166
+            },
+            "010": {
+              "total": 623,
+              "correct": 405,
+              "pct": 65.00802568218299
+            },
+            "011": {
+              "total": 633,
+              "correct": 395,
+              "pct": 62.40126382306477
+            },
+            "016": {
+              "total": 629,
+              "correct": 389,
+              "pct": 61.84419713831478
+            }
+          },
+          "weighted": 63.280999679589875,
+          "mean": 63.28598774928549,
+          "stdev": 1.245113868032282,
+          "ci95_lo": 61.740222534436185,
+          "ci95_hi": 64.8317529641348,
+          "n_batches": 5,
+          "sum_total": 3121,
+          "sum_correct": 1975
+        },
+        "P_Skill": {
+          "per_batch": {
+            "004": {
+              "total": 45,
+              "correct": 38,
+              "pct": 84.44444444444444
+            },
+            "005": {
+              "total": 43,
+              "correct": 26,
+              "pct": 60.46511627906976
+            },
+            "010": {
+              "total": 46,
+              "correct": 31,
+              "pct": 67.3913043478261
+            },
+            "011": {
+              "total": 43,
+              "correct": 24,
+              "pct": 55.81395348837209
+            },
+            "016": {
+              "total": 44,
+              "correct": 24,
+              "pct": 54.54545454545454
+            }
+          },
+          "weighted": 64.70588235294117,
+          "mean": 64.53205462103338,
+          "stdev": 12.216341856155669,
+          "ci95_lo": 49.365894498027316,
+          "ci95_hi": 79.69821474403945,
+          "n_batches": 5,
+          "sum_total": 221,
+          "sum_correct": 143
+        },
+        "P_Style": {
+          "per_batch": {
+            "004": {
+              "total": 37,
+              "correct": 25,
+              "pct": 67.56756756756756
+            },
+            "005": {
+              "total": 28,
+              "correct": 11,
+              "pct": 39.285714285714285
+            },
+            "010": {
+              "total": 31,
+              "correct": 19,
+              "pct": 61.29032258064516
+            },
+            "011": {
+              "total": 48,
+              "correct": 23,
+              "pct": 47.91666666666667
+            },
+            "016": {
+              "total": 37,
+              "correct": 14,
+              "pct": 37.83783783783784
+            }
+          },
+          "weighted": 50.82872928176796,
+          "mean": 50.7796217876863,
+          "stdev": 13.229759523142848,
+          "ci95_lo": 34.355339160416314,
+          "ci95_hi": 67.2039044149563,
+          "n_batches": 5,
+          "sum_total": 181,
+          "sum_correct": 92
+        },
+        "P_Title": {
+          "per_batch": {
+            "004": {
+              "total": 49,
+              "correct": 36,
+              "pct": 73.46938775510205
+            },
+            "005": {
+              "total": 49,
+              "correct": 35,
+              "pct": 71.42857142857143
+            },
+            "010": {
+              "total": 50,
+              "correct": 39,
+              "pct": 78.0
+            },
+            "011": {
+              "total": 50,
+              "correct": 37,
+              "pct": 74.0
+            },
+            "016": {
+              "total": 50,
+              "correct": 33,
+              "pct": 66.0
+            }
+          },
+          "weighted": 72.58064516129032,
+          "mean": 72.57959183673469,
+          "stdev": 4.381951548712093,
+          "ci95_lo": 67.13955261537524,
+          "ci95_hi": 78.01963105809415,
+          "n_batches": 5,
+          "sum_total": 248,
+          "sum_correct": 180
+        }
+      },
+      "gates": {
+        "gate1_F_MH_lift_5pp": {
+          "metric": "F_MH",
+          "value": 6.024096385542169,
+          "target": 8.21,
+          "baseline": 3.21,
+          "delta_vs_baseline_pp": 2.814096385542169,
+          "pass": false
+        },
+        "gate2_overall_preserve": {
+          "metric": "Overall",
+          "value": 63.280999679589875,
+          "target": 51.18,
+          "pass": true
+        },
+        "gate3_MA_composite_preserve": {
+          "metric": "MA_composite",
+          "value": 88.42090592334495,
+          "target": 72.34333333333333,
+          "pass": true
+        },
+        "gate4_cost_ratio_<=5x": {
+          "metric": "cost_ratio_vs_baseline",
+          "value": 1.2142857142857142,
+          "target": 5.0,
+          "pass": true
+        },
+        "summary": {
+          "passes": 3,
+          "total": 4,
+          "recommendation": "ship_opt_in"
+        }
+      }
+    },
+    "gemini-3.1-flash-lite-preview": {
+      "source": "backbone-matrix-gemini31flashlite-*",
+      "batches": [
+        "004",
+        "005",
+        "010",
+        "011",
+        "016"
+      ],
+      "metrics": {
+        "F_HL": {
+          "per_batch": {
+            "004": {
+              "total": 78,
+              "correct": 42,
+              "pct": 53.84615384615385
+            },
+            "005": {
+              "total": 75,
+              "correct": 44,
+              "pct": 58.666666666666664
+            },
+            "010": {
+              "total": 78,
+              "correct": 50,
+              "pct": 64.1025641025641
+            },
+            "011": {
+              "total": 78,
+              "correct": 51,
+              "pct": 65.38461538461539
+            },
+            "016": {
+              "total": 79,
+              "correct": 49,
+              "pct": 62.0253164556962
+            }
+          },
+          "weighted": 60.824742268041234,
+          "mean": 60.80506329113924,
+          "stdev": 4.64580422399834,
+          "ci95_lo": 55.03746022379439,
+          "ci95_hi": 66.5726663584841,
+          "n_batches": 5,
+          "sum_total": 388,
+          "sum_correct": 236
+        },
+        "F_MH": {
+          "per_batch": {
+            "004": {
+              "total": 50,
+              "correct": 3,
+              "pct": 6.0
+            },
+            "005": {
+              "total": 50,
+              "correct": 3,
+              "pct": 6.0
+            },
+            "010": {
+              "total": 50,
+              "correct": 2,
+              "pct": 4.0
+            },
+            "011": {
+              "total": 50,
+              "correct": 2,
+              "pct": 4.0
+            },
+            "016": {
+              "total": 49,
+              "correct": 5,
+              "pct": 10.204081632653061
+            }
+          },
+          "weighted": 6.024096385542169,
+          "mean": 6.040816326530612,
+          "stdev": 2.53307977131858,
+          "ci95_lo": 2.896086597409021,
+          "ci95_hi": 9.185546055652203,
+          "n_batches": 5,
+          "sum_total": 249,
+          "sum_correct": 15
+        },
+        "F_SH": {
+          "per_batch": {
+            "004": {
+              "total": 49,
+              "correct": 42,
+              "pct": 85.71428571428571
+            },
+            "005": {
+              "total": 50,
+              "correct": 37,
+              "pct": 74.0
+            },
+            "010": {
+              "total": 50,
+              "correct": 37,
+              "pct": 74.0
+            },
+            "011": {
+              "total": 50,
+              "correct": 42,
+              "pct": 84.0
+            },
+            "016": {
+              "total": 48,
+              "correct": 38,
+              "pct": 79.16666666666666
+            }
+          },
+          "weighted": 79.35222672064778,
+          "mean": 79.37619047619047,
+          "stdev": 5.463556855633445,
+          "ci95_lo": 72.59337618617192,
+          "ci95_hi": 86.15900476620902,
+          "n_batches": 5,
+          "sum_total": 247,
+          "sum_correct": 196
+        },
+        "F_TP": {
+          "per_batch": {
+            "004": {
+              "total": 60,
+              "correct": 6,
+              "pct": 10.0
+            },
+            "005": {
+              "total": 60,
+              "correct": 9,
+              "pct": 15.0
+            },
+            "010": {
+              "total": 60,
+              "correct": 8,
+              "pct": 13.333333333333334
+            },
+            "011": {
+              "total": 60,
+              "correct": 6,
+              "pct": 10.0
+            },
+            "016": {
+              "total": 60,
+              "correct": 7,
+              "pct": 11.666666666666666
+            }
+          },
+          "weighted": 12.0,
+          "mean": 12.0,
+          "stdev": 2.173067468400883,
+          "ci95_lo": 9.30221292331824,
+          "ci95_hi": 14.69778707668176,
+          "n_batches": 5,
+          "sum_total": 300,
+          "sum_correct": 36
+        },
+        "MA_C": {
+          "per_batch": {
+            "004": {
+              "total": 100,
+              "correct": 79,
+              "pct": 79.0
+            },
+            "005": {
+              "total": 100,
+              "correct": 83,
+              "pct": 83.0
+            },
+            "010": {
+              "total": 100,
+              "correct": 86,
+              "pct": 86.0
+            },
+            "011": {
+              "total": 100,
+              "correct": 85,
+              "pct": 85.0
+            },
+            "016": {
+              "total": 100,
+              "correct": 86,
+              "pct": 86.0
+            }
+          },
+          "weighted": 83.8,
+          "mean": 83.8,
+          "stdev": 2.9495762407505253,
+          "ci95_lo": 80.13820450598344,
+          "ci95_hi": 87.46179549401656,
+          "n_batches": 5,
+          "sum_total": 500,
+          "sum_correct": 419
+        },
+        "MA_P": {
+          "per_batch": {
+            "004": {
+              "total": 100,
+              "correct": 85,
+              "pct": 85.0
+            },
+            "005": {
+              "total": 100,
+              "correct": 93,
+              "pct": 93.0
+            },
+            "010": {
+              "total": 100,
+              "correct": 85,
+              "pct": 85.0
+            },
+            "011": {
+              "total": 100,
+              "correct": 93,
+              "pct": 93.0
+            },
+            "016": {
+              "total": 100,
+              "correct": 91,
+              "pct": 91.0
+            }
+          },
+          "weighted": 89.4,
+          "mean": 89.4,
+          "stdev": 4.09878030638384,
+          "ci95_lo": 84.31150794832104,
+          "ci95_hi": 94.48849205167897,
+          "n_batches": 5,
+          "sum_total": 500,
+          "sum_correct": 447
+        },
+        "MA_U": {
+          "per_batch": {
+            "004": {
+              "total": 58,
+              "correct": 42,
+              "pct": 72.41379310344827
+            },
+            "005": {
+              "total": 55,
+              "correct": 46,
+              "pct": 83.63636363636363
+            },
+            "010": {
+              "total": 58,
+              "correct": 42,
+              "pct": 72.41379310344827
+            },
+            "011": {
+              "total": 54,
+              "correct": 40,
+              "pct": 74.07407407407408
+            },
+            "016": {
+              "total": 62,
+              "correct": 46,
+              "pct": 74.19354838709677
+            }
+          },
+          "weighted": 75.26132404181185,
+          "mean": 75.3463144608862,
+          "stdev": 4.71359055228095,
+          "ci95_lo": 69.49455704349207,
+          "ci95_hi": 81.19807187828035,
+          "n_batches": 5,
+          "sum_total": 287,
+          "sum_correct": 216
+        },
+        "Overall": {
+          "per_batch": {
+            "004": {
+              "total": 626,
+              "correct": 384,
+              "pct": 61.34185303514377
+            },
+            "005": {
+              "total": 610,
+              "correct": 380,
+              "pct": 62.295081967213115
+            },
+            "010": {
+              "total": 623,
+              "correct": 383,
+              "pct": 61.47672552166934
+            },
+            "011": {
+              "total": 633,
+              "correct": 395,
+              "pct": 62.40126382306477
+            },
+            "016": {
+              "total": 629,
+              "correct": 402,
+              "pct": 63.910969793322735
+            }
+          },
+          "weighted": 62.28772829221403,
+          "mean": 62.28517882808274,
+          "stdev": 1.0247231773941812,
+          "ci95_lo": 61.01302092900719,
+          "ci95_hi": 63.557336727158294,
+          "n_batches": 5,
+          "sum_total": 3121,
+          "sum_correct": 1944
+        },
+        "P_Skill": {
+          "per_batch": {
+            "004": {
+              "total": 45,
+              "correct": 34,
+              "pct": 75.55555555555556
+            },
+            "005": {
+              "total": 43,
+              "correct": 25,
+              "pct": 58.139534883720934
+            },
+            "010": {
+              "total": 46,
+              "correct": 28,
+              "pct": 60.86956521739131
+            },
+            "011": {
+              "total": 43,
+              "correct": 28,
+              "pct": 65.11627906976744
+            },
+            "016": {
+              "total": 44,
+              "correct": 24,
+              "pct": 54.54545454545454
+            }
+          },
+          "weighted": 62.89592760180995,
+          "mean": 62.845277854377954,
+          "stdev": 8.087693275133185,
+          "ci95_lo": 52.80469019886611,
+          "ci95_hi": 72.8858655098898,
+          "n_batches": 5,
+          "sum_total": 221,
+          "sum_correct": 139
+        },
+        "P_Style": {
+          "per_batch": {
+            "004": {
+              "total": 37,
+              "correct": 16,
+              "pct": 43.24324324324324
+            },
+            "005": {
+              "total": 28,
+              "correct": 8,
+              "pct": 28.57142857142857
+            },
+            "010": {
+              "total": 31,
+              "correct": 16,
+              "pct": 51.61290322580645
+            },
+            "011": {
+              "total": 48,
+              "correct": 18,
+              "pct": 37.5
+            },
+            "016": {
+              "total": 37,
+              "correct": 20,
+              "pct": 54.054054054054056
+            }
+          },
+          "weighted": 43.0939226519337,
+          "mean": 42.99632581890646,
+          "stdev": 10.426732305159103,
+          "ci95_lo": 30.051903211734455,
+          "ci95_hi": 55.94074842607847,
+          "n_batches": 5,
+          "sum_total": 181,
+          "sum_correct": 78
+        },
+        "P_Title": {
+          "per_batch": {
+            "004": {
+              "total": 49,
+              "correct": 35,
+              "pct": 71.42857142857143
+            },
+            "005": {
+              "total": 49,
+              "correct": 32,
+              "pct": 65.3061224489796
+            },
+            "010": {
+              "total": 50,
+              "correct": 29,
+              "pct": 57.99999999999999
+            },
+            "011": {
+              "total": 50,
+              "correct": 30,
+              "pct": 60.0
+            },
+            "016": {
+              "total": 50,
+              "correct": 36,
+              "pct": 72.0
+            }
+          },
+          "weighted": 65.32258064516128,
+          "mean": 65.34693877551021,
+          "stdev": 6.399578286814133,
+          "ci95_lo": 57.402086694555216,
+          "ci95_hi": 73.29179085646521,
+          "n_batches": 5,
+          "sum_total": 248,
+          "sum_correct": 162
+        }
+      },
+      "gates": {
+        "gate1_F_MH_lift_5pp": {
+          "metric": "F_MH",
+          "value": 6.024096385542169,
+          "target": 8.21,
+          "baseline": 3.21,
+          "delta_vs_baseline_pp": 2.814096385542169,
+          "pass": false
+        },
+        "gate2_overall_preserve": {
+          "metric": "Overall",
+          "value": 62.28772829221403,
+          "target": 51.18,
+          "pass": true
+        },
+        "gate3_MA_composite_preserve": {
+          "metric": "MA_composite",
+          "value": 82.82044134727062,
+          "target": 72.34333333333333,
+          "pass": true
+        },
+        "gate4_cost_ratio_<=5x": {
+          "metric": "cost_ratio_vs_baseline",
+          "value": 0.25,
+          "target": 5.0,
+          "pass": true
+        },
+        "summary": {
+          "passes": 3,
+          "total": 4,
+          "recommendation": "ship_opt_in"
+        }
+      }
+    }
+  },
+  "memos_anchor": {
+    "Overall": 42.55,
+    "F_SH": 71.36,
+    "F_MH": 18.88,
+    "F_TP": 15.67,
+    "MA_C": 69.9,
+    "MA_P": 51.99,
+    "MA_U": 45.15,
+    "P_Style": 28.98,
+    "P_Skill": 32.54,
+    "P_Title": 48.47
+  },
+  "baseline_phaseH_v2": {
+    "Overall": 51.68,
+    "F_SH": 80.97,
+    "F_MH": 3.21,
+    "F_TP": 15.0,
+    "F_HL": 22.68,
+    "MA_C": 84.6,
+    "MA_P": 65.4,
+    "MA_U": 70.03,
+    "P_Style": 39.78,
+    "P_Skill": 49.77,
+    "P_Title": 56.05
+  }
+}

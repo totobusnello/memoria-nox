@@ -1,0 +1,41 @@
+# Backbone Matrix — gemini-3-flash-preview answer backbone (2026-05-29).
+#
+# Swap answer model from gpt-4.1-mini (Phase H v2) to gemini-3-flash-preview.
+# Routes via Gemini OpenAI-compat endpoint. Judge stays on gemini-2.5-flash
+# (homogeneous Gemini family on answer + judge; pure backbone-isolation play
+# for the F_MH hypothesis is acknowledged — but per Phase H v2 methodology,
+# evaluate is the constant.)
+
+answer:
+  model: "gemini-3-flash-preview"
+  api_key: "${GEMINI_API_KEY}"
+  base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  temperature: 0
+  max_tokens: 1000
+  timeout: 300
+  concurrency: 4
+
+evaluate:
+  model: "gemini-2.5-flash"
+  api_key: "${GEMINI_API_KEY}"
+  base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  temperature: 0
+  max_tokens: 1000
+  timeout: 300
+  concurrency: 8
+
+search:
+  concurrency: 3
+  timeout: 120
+
+retry:
+  max_retries: 20
+  retry_delay: 1.0
+  max_delay: 300
+
+debug:
+  show_usage: false
+
+warmup:
+  enabled: true
+  delay_seconds: 15

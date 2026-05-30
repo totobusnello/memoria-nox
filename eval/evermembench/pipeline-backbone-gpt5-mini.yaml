@@ -1,0 +1,40 @@
+# Backbone Matrix — gpt-5-mini answer backbone (2026-05-29).
+#
+# Swap answer model from gpt-4.1-mini (Phase H v2) to gpt-5-mini frontier-mini.
+# Routes via OpenAI direct (same key). Reasoning-family model (patched answerer
+# translates max_tokens -> max_completion_tokens, drops temperature, adds
+# reasoning_effort=minimal). Judge stays on gemini-2.5-flash.
+
+answer:
+  model: "gpt-5-mini"
+  api_key: "${OPENAI_API_KEY}"
+  base_url: "https://api.openai.com/v1"
+  temperature: 1
+  max_tokens: 1000
+  timeout: 600
+  concurrency: 4
+
+evaluate:
+  model: "gemini-2.5-flash"
+  api_key: "${GEMINI_API_KEY}"
+  base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  temperature: 0
+  max_tokens: 1000
+  timeout: 300
+  concurrency: 8
+
+search:
+  concurrency: 3
+  timeout: 120
+
+retry:
+  max_retries: 20
+  retry_delay: 1.0
+  max_delay: 300
+
+debug:
+  show_usage: false
+
+warmup:
+  enabled: true
+  delay_seconds: 15
