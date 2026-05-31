@@ -36,6 +36,14 @@ Phase H v2 baseline config (default):
     - rerank OFF (NOX_RERANKER_ENABLED=0)
     - hybrid search ON
     - generator: gpt-4.1-mini @ temp=0, max_tokens=128
+
+SP Extractor (--sp-llm-extractor flag):
+    When enabled, replaces the token-overlap heuristic SP prediction with an
+    LLM-based extractor (eval/hotpotqa/lib/sp_extractor.py).  The extractor
+    calls gpt-4.1-mini to identify which exact sentences in the retrieved
+    paragraphs are necessary to support the answer.
+    Fallback: if the LLM call errors, falls back to the heuristic silently.
+    Cost: ~$1.56 for 7405 questions; latency: ~+400ms/query.
 """
 from __future__ import annotations
 
@@ -62,6 +70,8 @@ from lib.corpus_loader import (  # type: ignore[import-not-found]
     paragraph_text,
     question_to_markdown,
 )
+# LLM SP extractor (optional — imported lazily when --sp-llm-extractor flag set)
+_sp_extractor_module = None
 
 
 # ---------------------------------------------------------------------------
@@ -610,6 +620,7 @@ def run_question(
     generator_model: str,
     skip_generation: bool = False,
     few_shot: bool = False,
+    sp_llm_extractor: bool = False,
 ) -> HotpotResult:
     api_base = f"http://127.0.0.1:{api_port}"
     qdir = workdir / f"q-{q.question_id}"
@@ -661,9 +672,24 @@ def run_question(
             seen_t.add(t)
             ordered_titles.append(t)
         result.retrieved_paragraph_titles = ordered_titles
-        result.predicted_supporting_facts = predict_supporting_facts(
-            q, ordered_titles, q.question,
-        )
+        if sp_llm_extractor and openai_key and result.retrieved_texts:
+            # LLM-based SP extraction (higher quality than token-overlap heuristic)
+            global _sp_extractor_module
+            if _sp_extractor_module is None:
+                from lib import sp_extractor as _sp_extractor_module  # type: ignore[import-not-found]
+            sp_pred, _sp_ms, _sp_err = _sp_extractor_module.extract_supporting_facts(
+                question=q.question,
+                answer=result.predicted_answer,  # may be empty pre-gen; OK
+                chunk_texts=result.retrieved_texts,
+                paragraph_titles=ordered_titles,
+                api_key=openai_key,
+            )
+            if _sp_err or not sp_pred:
+                # Fallback to heuristic on LLM error
+                sp_pred = predict_supporting_facts(q, ordered_titles, q.question)
+        else:
+            sp_pred = predict_supporting_facts(q, ordered_titles, q.question)
+        result.predicted_supporting_facts = sp_pred
         # Answer generation
         if not skip_generation and openai_key:
             if few_shot:
@@ -710,6 +736,12 @@ def main(argv: Optional[list[str]] = None) -> int:
                         "No additional LLM calls — prompt-only. "
                         "Predicted ans_F1 lift +3-8pp on extraction tasks. "
                         "Gate: F1 lift >=+3pp, no category regression >=-5pp.")
+    p.add_argument("--sp-llm-extractor", action="store_true",
+                   help="Replace token-overlap SP heuristic with LLM-based extractor "
+                        "(eval/hotpotqa/lib/sp_extractor.py). Uses gpt-4.1-mini to identify "
+                        "which exact retrieved sentences support the answer. "
+                        "Fallback to heuristic on LLM error. "
+                        "Cost: ~$1.56 for 7405 questions. Latency: +~400ms/query.")
     p.add_argument("--resume", action="store_true",
                    help="skip question_ids already present in --out (JSONL)")
     p.add_argument("--progress-every", type=int, default=10)
@@ -782,6 +814,7 @@ def main(argv: Optional[list[str]] = None) -> int:
                 generator_model=args.generator,
                 skip_generation=args.skip_generation,
                 few_shot=args.few_shot,
+                sp_llm_extractor=args.sp_llm_extractor,
             )
             if result.error:
                 n_err += 1
