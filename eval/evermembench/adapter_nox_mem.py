@@ -2903,7 +2903,7 @@ class NoxMemAdapter(BaseAdapter):
         # entities matched in query.
         kg_evidence_for_map: set = set()
 
-        if self.kg_enabled and candidates and self.kg_db_path and not iterc_used_path and not iterb_used_path:
+        if self.kg_enabled and candidates and self.kg_db_path and not iterc_used_path:  # WAVE2-CAPSTONE: removed iterb guard for composability
             kg_start = time.monotonic() * 1000
             try:
                 # 1. Load entity pool (cached per DB after first call)
@@ -3060,7 +3060,7 @@ class NoxMemAdapter(BaseAdapter):
         rerank_ms: Optional[float] = None
         rerank_applied = False
 
-        if self.reranker_enabled and candidates and not iterc_used_path and not iterb_used_path:
+        if self.reranker_enabled and candidates and not iterc_used_path:  # WAVE2-CAPSTONE: removed iterb guard for composability
             rerank_start = time.monotonic() * 1000
             model, err = _load_reranker(
                 self.reranker_model_id, self.reranker_max_length
