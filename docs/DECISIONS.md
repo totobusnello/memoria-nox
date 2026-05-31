@@ -1277,3 +1277,31 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Tratar IterB e IterC como variantes da mesma spec (mecanismos fundamentalmente distintos)
 - **Cross-links:** PR #406 (IterC POC), #393 (spec Q3), memory `[[q3-iterC-poc-self-ask-f-hl-breakthrough]]`, `[[orthogonal-stage-hypothesis-needs-mechanism-class-refinement]]`, D69 (Q3 elevado post-Wave C), D72 (F_MH paradox resolution reduz urgência IterB).
 - *Origem:* sessão 2026-05-30 03:00-04:00 UTC — Q3 IterC POC 5-batch results.
+
+#### D74 — Q3 IterB ReAct breaks F_MH ceiling on best backbone (D69 ceiling REFINED, NOT falsified)
+
+- **Context:** PR #419 Q3 IterB ReAct 5-batch (n=3121, batches 004/005/010/011/016) on Gemini-3-flash bare baseline (D70 strongest available backbone). Two parallel verdicts: (A) vs gpt-4.1-mini Phase H v2 (project convention baseline): F_MH +4.82pp, Overall +11.02pp, MA +11.55pp — 4/4 gates PASS (SHIP_DEFAULT_CANDIDATE if confounding with backbone allowed). (B) vs gemini-3-flash bare (D70 backbone baseline): **F_MH +2.01pp clean ReAct lift** (6.02% → 8.03%), Overall -0.58pp (within 5-batch noise CI ±1.5pp), MA composite -3.53pp BORDERLINE-FAIL (similar Phase G rerank trade-off). Wave A/B/C ceiling 7.25% (D69) BROKEN by +0.78pp standalone. **D72 narrative refined:** F_MH still largely structural on EverMemBench, MAS orchestration adds +2pp on top of strongest backbone.
+- **Decisão:**
+  - **Ship Q3 IterB opt-in** via `NOX_ITERB_GEMINI=1` (and equivalent for gpt-4.1-mini backbone). MA -3.53pp trade-off makes default-on unsafe.
+  - **D69 F_MH ceiling status: REFINED, NOT falsified.** Single-stage retrieval ceiling (KG+MAP+MQ triple) confirmed at 7.25%. Orchestration-stage ReAct loop adds ~+2pp on top of any backbone. F_MH gap remaining (~6pp to MemOS) treated as structural challenge of EverMemBench's chain length × cross-session compression — addressable only via composability (IterB + Wave A/B/C single-stage knobs).
+  - **Composability matrix becomes Q1 priority.** Predict IterB additive (or sub-additive) with KG path (+2.81pp) / AC (+2.01pp) / MQ (+3.61pp). Pessimistic projection: IterB + Wave C triple = ~12.07% F_MH = ~41% MemOS gap closure.
+- **Rationale:**
+  - +2.01pp clean lift on best backbone = ReAct mechanism load-bearing (not artifact of weak baseline).
+  - Two-baseline honest framing (vs H v2 AND vs gemini-3-flash bare) prevents the conflated +4.82pp claim from over-anchoring. Same lesson cravada `[[honest-cross-baseline-framing]]`.
+  - 99.6% IterB applied (3107/3121), mean 4.25 rounds, 99.5% terminated `answer`, round-2 chunk overlap mean 0.257 (LOW — ReAct exploring NEW evidence, sweet spot). Set E instrumentation confirms mechanism healthy.
+  - MA -3.53pp borderline-fail acceptable for opt-in but disqualifies default-on (paying noise-Overall for F_MH lift only worth it when user opts in for multi-hop workloads).
+  - Cost $0.00295/q within $0.005 budget = ship-economic. 5940ms p50 latency acceptable for offline analytics (not real-time chat).
+- **Aplicação operacional:**
+  - GTM messaging: "F_MH ceiling broken +2.01pp clean lift via ReAct on best backbone (opt-in)"
+  - Paper §5 fourth revision: add IterB section + composability matrix + dual-baseline reporting table
+  - README + COMPARISON.md + COMPETITIVE-POSITIONING.md: add 11th SOTA-tier dimension (F_MH ceiling break)
+  - ROADMAP v5.0: Q3 IterB graduates from "research" to "available opt-in feature"; composability validation runs in Q1 (next milestone)
+  - Spec PR #393: §IterB ReAct production-ready (was POC-stage)
+- **NÃO FAZEMOS:**
+  - Ship IterB default-on (MA -3.53pp trade-off; users must opt-in)
+  - Conflate +4.82pp (vs H v2 weak baseline) with +2.01pp (clean ReAct lift) in GTM messaging
+  - Claim "F_MH ceiling DESTROYED" (it's broken by +0.78pp on best backbone — real but modest)
+  - Treat IterB + Wave C composability as additive without empirical 5-batch validation
+  - Abandon Wave A/B/C single-stage knobs (they remain composable foundations for stacking with IterB)
+- **Cross-links:** PR #419 (5-batch IterB Gemini-3), PR #414 (IterB harness), PR #406 + D73 (sibling IterC Self-Ask F_HL), PR #395 + D69 (Wave A/B/C ceiling), PR #377 (Phase H v2 baseline), PR #397 + D70 (Gemini-3-flash backbone), D72 (F_MH paradox resolution context), arxiv:2210.03629 (ReAct paper Yao et al. 2022), memory `[[q3-iterB-fmh-ceiling-broken-2pp]]`, `[[honest-cross-baseline-framing]]`, `[[preflight-must-validate-both-backbones]]`, `[[tmux-survived-zero-socket-drops]]`, `[[reused-fresh-clone-symlink-pattern]]`.
+- *Origem:* sessão 2026-05-30 20:02-22:29 UTC — Q3 IterB POC 5-batch results vs both baselines; PR #419 merged a0ddaae via squash + admin override (npm audit pre-existing astro/starlight transitive vulns unrelated).
