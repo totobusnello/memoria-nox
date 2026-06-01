@@ -86,9 +86,11 @@ d['batches'].append({'batch': '$BATCH', 'cost': float('$BATCH_COST'), 'cumulativ
 with open('$COST_FILE', 'w') as f: json.dump(d, f, indent=2)
 "
     # Halt if projecting > $30
-    PROJECTED=$(python3 -c "print(round($TOTAL_COST * 5 / ${#RUN_DIRS[@]:-1}, 2))" 2>/dev/null || echo "0")
-    if (( $(echo "$TOTAL_COST > 30" | bc -l 2>/dev/null || echo 0) )); then
-      echo "[CAPSTONE-SEQ] !!! BUDGET HALT — cumulative cost \$$TOTAL_COST > \$30 !!!"
+    COMPLETED=${#RUN_DIRS[@]}
+    [ "$COMPLETED" -eq 0 ] && COMPLETED=1
+    PROJECTED=$(awk "BEGIN {printf \"%.2f\", $TOTAL_COST * 5 / $COMPLETED}")
+    if awk "BEGIN {exit ($TOTAL_COST > 55) ? 0 : 1}"; then
+      echo "[CAPSTONE-SEQ] !!! BUDGET HALT — cumulative cost \$$TOTAL_COST > \$55 !!!"
       break
     fi
   fi
