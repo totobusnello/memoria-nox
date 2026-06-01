@@ -2,6 +2,91 @@
 
 ---
 
+## Sun 2026-05-31 evening — Wave 2 Phase 1.5 CLOSED + Capstone autonomous
+
+> Sessão ~6h fechou Wave 2 retrieval-stage composability path (4 PRs Wave 2, 4 memory findings cravados). Capstone IterB + Wave C triple rodando autonomamente em tmux VPS, harvest Mon AM.
+
+### Estado atual prod
+
+```
+✅ chunks: 69.135 (steady-state) | services UP | nox-mem-watch GREEN
+✅ NO new incidents desde Wed 2026-05-27 deploy 8436982 (recorrência #4 closed)
+✅ Sun closure docs sync (HANDOFF + README + CHANGELOG + ROADMAP + DECISIONS)
+```
+
+### Wave 2 (Sun 2026-05-31) — 4 PRs, 3-knob NO-REPLICATE pattern confirmed
+
+**Goal Sunday:** Testar composability matrix from D74 — does IterB + Wave A/B/C stacking deliver ~12% F_MH = ~41% MemOS gap closure on Gemini-3-flash?
+
+**Outcome:** Wave A retrieval-stage knobs all backbone-conditional (~24-40% transfer from gpt-4.1-mini). Composability matrix projection refuted at single-stage layer. Orchestration-stage capstone in flight.
+
+| PR | Phase | Verdict | F_MH Δ vs Gemini bare |
+|---|---|---|---:|
+| **#423** | R0 sanity KG path standalone | ❌ NO-GO | -0.01pp |
+| **#424** | Phase 1.5 AC standalone re-baseline | ❌ NO-GO | +0.81pp (CI overlap) |
+| **#425** | Phase 1.5 MQ standalone re-baseline | ❌ NO-GO borderline | +1.21pp (0.29pp short) |
+| **#426** | Phase 2 Capstone IterB + KG + rerank (MQ subsumed) | 🔄 autonomous bench ETA ~24-36h | TBD |
+
+**3-knob sum:** +2.01pp = 24% of D74 pessimistic projection +8.43pp.
+
+**Architectural lock discovered (load-bearing paper insight):** PR #419 IterB adapter deliberately short-circuits Wave A knobs via explicit guards at adapter_nox_mem.py lines 2736 (MQ) / 2906 (KG) / 3063 (rerank). Composability NOT possible via env vars AS-IS. PR #426 patches 2/3 guards (KG + rerank; MQ kept — subsumed by ReAct sub-queries). Cravado memory `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`.
+
+**Sub-finding (MQ MA backbone flip):** MQ on Gemini-3-flash PRESERVES MA composite +0.12pp + MA_U +3.10pp (strongest MA gain Wave 2). On gpt-4.1-mini MQ regressed MA -1.38pp. Multi-axis backbone-conditional behavior — paper-worthy.
+
+### Memory cravado Sun (4 findings)
+
+1. **`[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`** — R0 finding, KG path 0pp lift on Gemini (vs +2.81pp gpt-4.1-mini)
+2. **`[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]`** — 3-knob pattern + MQ MA backbone flip
+3. **`[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`** — adapter design lock, load-bearing for D74
+4. **`[[wave-2-composability-matrix-plan]]`** — Phase 1.5 closed status, capstone in flight
+
+### Cost Wave 2 Sun
+
+| Phase | Cost actual | vs Estimate |
+|---|---:|---|
+| R0 KG | ~$6-7 | overran $3 (judge family overlap) |
+| AC re-baseline | ~$6-7 | within revised $5 cap |
+| MQ re-baseline | ~$6-7 | within revised $6 cap |
+| Harvester PR #424/#425 | ~$0.50 | as expected |
+| Capstone (in flight) | TBD | $25 cap, halt >$30 |
+| **Total Wave 2 fechado Sun** | **~$20-25** | + capstone |
+
+### Mon AM (2026-06-01) — Pickup actions ordered
+
+1. **Check capstone tmux** `wave2-capstone-7a1cadf2` PID 2194486 on `root@187.77.234.79`:
+   ```bash
+   ssh root@187.77.234.79 'tmux ls && ls /root/.openclaw/evermembench-runs/capstone-iterB-triple-*/analysis.txt 2>/dev/null | wc -l'
+   ```
+   Expected: 5/5 batches done OR still running mid-bench OR halted by cost cap.
+
+2. **Harvest results** via `eval/evermembench/aggregate_capstone_5batch.py` (committed in PR #426 draft branch):
+   ```bash
+   ssh root@187.77.234.79 'cd /root/.openclaw/q3-iterB-gemini-c1ecf8df/memoria-nox && python3 eval/evermembench/aggregate_capstone_5batch.py'
+   ```
+   Update PR #426 from draft → ready with full results table.
+
+3. **D75 cravar baseado no capstone outcome:**
+   - F_MH ≥+1.5pp over IterB-alone 8.03% → SHIP_DEFAULT_CANDIDATE, paper §5 v5 composability matrix validated
+   - F_MH ≥+1.0pp but <+1.5pp → SHIP_OPT_IN (similar to D74 trade-off pattern)
+   - F_MH <+1pp → CLOSED, F_MH ceiling structural at ~8% on EverMemBench Gemini-3-flash
+   - F_MH <0 → INTERFERENCE, paper insight on knob-orchestration conflict
+
+4. **Phase 4 decision:**
+   - If capstone WIN → Phase 4 = HyDE bench (PR #415) + Claude Sonnet 4.6/Opus 4.7 backbone bench (needs ANTHROPIC_API_KEY rotation) + paper §5 v5 rebuild .docx + .pdf
+   - If capstone NO-WIN → Phase 4 = paper §5 v5 with honest negative-result composability section + ship D74 12 SOTA dims as canonical
+   - Either way: merge PR #423 + #424 + #425 + #426 + Sun closure docs PR
+
+5. **Optional Mon AM:** review/merge any pending PR from Sun (#423 #424 #425 still open, valid research findings independent of capstone).
+
+### NÃO esquecer Mon
+
+- HyDE PR #415 deferred (pending bench validation) — Phase 4 candidate
+- Paper §5 v5 rebuild deferred desde Sun 13:15 BRT decision (user prioritized Wave 2 over paper)
+- Claude Sonnet/Opus backbone bench task #62 still pending (needs key rotation)
+- Capstone architectural lock finding deve entrar paper §5 v5 como honest scientific section
+
+---
+
 ## Wed 2026-05-27 evening — Incident closed + Lab Q1 launched
 
 > Sessão ~5h fechou incident loop completo e disparou Lab Q1 paralelo. **6 dias até arXiv deadline (Tue 2026-06-02).**

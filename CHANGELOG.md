@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — 2026-05-31 evening — Wave 2 composability matrix empirical validation
+
+- **PR #423** — R0 sanity KG path standalone Gemini-3-flash 5-batch (n=3,121, batches 004/005/010/011/016). F_MH delta **-0.01pp** vs D70 bare baseline (95% CI [3.00, 9.04] includes baseline). KG path mechanism fired 100% of queries (84k vault tokens injected) but provided zero net F_MH lift on Gemini-3-flash backbone. Refutes D74 composability projection IterB+KG ~10.8% F_MH. Cravado `[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`.
+
+- **PR #424** — Wave 2 Phase 1.5 AC (Adaptive Classifier threshold=5) standalone re-baseline Gemini-3-flash 5-batch. F_MH **+0.81pp** (95% CI [4.62, 9.03] overlaps baseline). Gate +1.5pp **FAIL**. Cross-baseline: gpt-4.1-mini +2.01pp (PR #381) → Gemini-3-flash +0.81pp = ~40% transfer rate. Cravado `[[adaptive-classifier-backbone-dependent-no-replicate-gemini-3-flash]]`.
+
+- **PR #425** — Wave 2 Phase 1.5 MQ (Multi-Query expansion) standalone re-baseline Gemini-3-flash 5-batch. F_MH **+1.21pp** (95% CI [4.99, 9.48] overlaps baseline). Gate +1.5pp **FAIL borderline by 0.29pp**. Cross-baseline: gpt-4.1-mini +3.61pp (PR #385) → Gemini-3-flash +1.21pp = ~34% transfer. **Sub-finding (MA backbone flip):** MA composite +0.12pp PRESERVED on Gemini-3-flash (vs -1.38pp regression on gpt-4.1-mini) + MA_U +3.10pp (strongest MA gain Wave 2). Multi-axis backbone-conditional behavior. Cravado `[[multi-query-backbone-dependent-no-replicate-gemini-3-flash]]`.
+
+- **PR #426 (draft)** — Wave 2 Phase 2 Capstone IterB ReAct + Wave C triple (KG+rerank, MQ subsumed by ReAct sub-queries) Gemini-3-flash 5-batch n=3,121. Bench autonomous in tmux `wave2-capstone-7a1cadf2` on VPS (PID 2194486, ETA 24-36h). Cost cap $30 enforced. **Architectural lock discovered:** PR #419 IterB adapter explicit guards at `eval/evermembench/adapter_nox_mem.py` lines 2736 (MQ) / 2906 (KG) / 3063 (rerank) `if not iterb_used_path:` short-circuit Wave A knobs by design. Composability requires explicit 2-guard removal patch. Cravado `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`.
+
+- **3-knob NO-REPLICATE pattern:** Wave A retrieval-stage knobs measured on gpt-4.1-mini transfer at only ~24-40% to Gemini-3-flash backbone. KG (0%) + AC (40%) + MQ (34%) standalone sum = **+2.01pp = 24% of D74 pessimistic projection +8.43pp**. Composability matrix from D74 substantially refuted at single-stage retrieval layer. **IterB ReAct (+2.01pp clean lift, PR #419) remains the only validated F_MH lever on Gemini-3-flash** as of Sun 2026-05-31. Capstone test of orchestration-stage composability in flight.
+
+- **`docs/HANDOFF.md`** — Sun 2026-05-31 evening section prepended with Wave 2 closure state + Mon AM pickup actions.
+- **`docs/DECISIONS.md`** — D74 composability projection annotated with R0 sanity counter-evidence caveat.
+- **`docs/ROADMAP.md`** — Wave 2 Phase 1.5 + Capstone rows added to Lab table.
+- **`README.md`** — F_MH ceiling break section updated with Wave 2 empirical caveat (research integrity over inflated claims).
+
 ### Added — 2026-05-24 evening — 3-primitives canonical documentation
 
 - **`docs/PRIMITIVES.md`** (NEW) — canonical operator-facing reference for the three user-facing primitives (`search` / `answer` / temporal filter `--as-of` / `--changed-since`). Full CLI + HTTP API + MCP surface coverage, env vars, composition examples. Anchors the "3 primitives, 1 file, any LLM" tagline.
