@@ -2,6 +2,110 @@
 
 ---
 
+## Tue 2026-06-02 evening — Wave 2 FINAL closure + arXiv path Q1
+
+> Sessão ~5h fechou Wave 2 totalmente. PRs #423-#425 merged. PR #426 capstone abandoned via D76. PR #427 sun+tue closure bundle. Paper §5 v5 + PDF/TEX rebuilt clean (post unicode sanitize). VPS recovery em curso (Hostinger throttling 24h cooldown). Next milestone: HyDE + Claude Sonnet/Opus bench Wed/Thu → arXiv v1.0.
+
+### State pós-Wave 2 closure
+
+```
+✅ chunks: ~67k em prod (stable) | services UP | openclaw re-enabled
+✅ Disk cleanup +23G (35% → 30% used)
+✅ Hostinger throttling normalizing após bench abort
+✅ PRs Wave 2 mergedos: #423 R0 NO-GO + #424 AC NO-GO + #425 MQ NO-GO
+✅ PR #426 closed (capstone D76 abandon)
+✅ PR #427 sun+tue closure bundle ready (D75 + D76 + paper §5 v5)
+```
+
+### Wave 2 grand summary (3 days)
+
+**Sun 2026-05-31:**
+- 4 PRs Wave 2 dispatched (#423-#426)
+- 3-knob NO-REPLICATE pattern confirmed (~24-40% transfer rate gpt-4.1-mini→Gemini-3-flash)
+- D75 cravado
+- Capstone dispatched autonomously
+
+**Mon 2026-06-01:**
+- Hostinger CPU steal escalation 8% → 21% → 50%+ sustained
+- Multiple mitigation rounds (openclaw disable, taskset pin, env caps, yaml patch, 2 reboots)
+- VPS upgrade attempt (8 → 8 cores, host reallocation)
+
+**Tue 2026-06-02:**
+- Batch 005 confirmed 0/50 questions completed in 23h
+- Capstone aborted (D76)
+- Disk cleanup +23G + openclaw re-enabled + env caps rolled back
+- Paper §5 v5 rebuild (~195 lines: §5.5.4 reframe + §5.5.5/6/7/8 NEW)
+- Unicode sanitize + PDF/TEX rebuilt clean
+
+### Decisões cravadas (Wave 2)
+
+| ID | What |
+|---|---|
+| D74 caveat | R0 KG path counter-evidence annotation |
+| **D75** | Wave 2 Phase 1.5 retrieval-stage composability CLOSED on Gemini-3-flash |
+| **D76** | Wave 2 Phase 2 Capstone ABORTED (Hostinger infra, INDETERMINATE) |
+
+### Memory crystallized (6 findings Wave 2)
+
+1. `[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`
+2. `[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]` (3-knob pattern + MQ MA flip)
+3. `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]` (paper-worthy)
+4. `[[capstone-aborted-hostinger-throttling-indeterminate]]` (D76 playbook)
+5. `[[ort-num-threads-cap-during-capstone]]` (mitigation reference)
+6. `[[wave-2-composability-matrix-plan]]` (Phase 1.5 closed, capstone deferred)
+
+### Wed/Thu 2026-06-03/04 — pickup actions (24h Hostinger cooldown wait)
+
+**Step 1: Verify VPS healthy** (não dispatch antes de confirmar)
+```bash
+ssh root@187.77.234.79 'mpstat 1 5 | tail -5'
+# Expected: %steal <20% sustained. Se 50%+, abort e tentar mais tarde.
+```
+
+**Step 2: HyDE bench validation (PR #415)** — implementation pronta, verdict pending
+```bash
+# Smoke first (EverMemBench n=626, ~$1) pra validar F_MH signal
+# Se smoke passa: full 5-batch EverMemBench + LoCoMo + MuSiQue smoke
+# Custo total: ~$12.70 max (gate triage required)
+```
+- 4-gate: F_MH ≥+3pp / Overall ≥-1pp / MA no-regression / p95 ≤+50%
+- Update `eval/{evermembench,locomo,musique}/RESULTS-HYDE.md` com measured
+- Cravar memory se verdict positive
+- Open verdict PR ou merge #415 com results
+
+**Step 3: Claude Sonnet 4.6 + Opus 4.7 backbone bench (Task #62)**
+- **OAuth Max via Claude CLI já existente na VPS** (preferred — flat fee included)
+- Sonnet bench OK via OAuth (Plus rate limit cabe)
+- Opus bench: rate limit Max mais restritivo — fallback API key se necessário ($8-12 extra)
+- Phase H v2 5-batch baseline (gpt-4.1-mini) já existe → comparable
+- Expands backbone-portability matrix → §5.5.5 (4 backbones)
+
+**Step 4: Paper §5 v6 + arXiv v1.0 upload**
+- Incorporate HyDE results + Claude backbone matrix em §5.5.5/6
+- Rebuild PDF/TEX (já está clean post unicode sanitize)
+- Upload `paper/build/paper-tecnico-nox-mem.tex` + `paper/refs.bib` to arXiv
+- Update README badges + GTM com arXiv ID
+
+### Tasks pendentes prontas pra ação Wed/Thu
+
+| # | What |
+|---|---|
+| #62 | Claude Sonnet/Opus bench (precisa key rotation OR OAuth Max) |
+| #80 | HyDE bench validation (PR #415 ready) |
+| #103 | CI noise fix #1 (.gitleaks.toml allowlist) |
+| #104 | CI noise fix #2 (npm audit astro vulns) |
+
+### NÃO esquecer
+
+- **Hostinger throttling**: NÃO dispatch bench sem verificar steal <20% sustained
+- **OAuth bench**: Sonnet OK, Opus pode hit rate cap — graceful fallback
+- **Capstone re-attempt**: deferred to stable infrastructure (dedicated CPU SLO)
+- **Q2 work**: profile-chunk identification spec impl, LongMemEval cross-bench expansion
+- **CI noise PRs**: #103 + #104 (gitleaks + npm audit) — fix quando abrir memoria-nox de novo
+- **Paper unicode sanitize aplicado**: futuras edições mantém padrão (PASS/FAIL/>=/~/sigma/NO/NB:)
+
+---
+
 ## Sun 2026-05-31 evening — Wave 2 Phase 1.5 CLOSED + Capstone autonomous
 
 > Sessão ~6h fechou Wave 2 retrieval-stage composability path (4 PRs Wave 2, 4 memory findings cravados). Capstone IterB + Wave C triple rodando autonomamente em tmux VPS, harvest Mon AM.
