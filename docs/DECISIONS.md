@@ -1340,3 +1340,39 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Treat capstone (PR #426) outcome as predetermined. ANY of 4 outcomes (DEFAULT / OPT-IN / CLOSED / INTERFERENCE) is valid honest finding.
 - **Cross-links:** PR #423 (R0 KG), PR #424 (AC re-baseline), PR #425 (MQ re-baseline), PR #426 (capstone draft in flight), PR #379 (KG path gpt-4.1-mini original +2.81pp), PR #381 (AC gpt-4.1-mini original +2.01pp), PR #385 (MQ gpt-4.1-mini original +3.61pp), PR #397 + D70 (Gemini-3-flash backbone), PR #419 + D74 (IterB only validated Gemini F_MH lever — composability projection partially refuted), memory `[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`, `[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]`, `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`, `[[wave-2-composability-matrix-plan]]`, `[[single-knob-lifts-are-backbone-conditional]]`, `[[honest-cross-baseline-framing]]`.
 - *Origem:* sessão 2026-05-31 13:25-18:30 BRT — agents `a813d2410595bb291` (R0) + `ac84ec72cc649d2c8` (AC) + `a9bddaeef071a268e` (MQ) + harvester `a822874b3f87602fc` (PRs #424+#425) + capstone setup `ad607d7734881c5f5` (PR #426 draft). Wave 2 Phase 1 + Phase 1.5 closed. Phase 2 Capstone in flight (D76 pending).
+
+#### D76 — Wave 2 Phase 2 Capstone ABORTED (Hostinger infrastructure throttling, INDETERMINATE outcome)
+
+- **Context:** Wave 2 Phase 2 Capstone (IterB ReAct + KG + rerank composability test, PR #426 draft) dispatched Sun 2026-05-31 17:40 BRT on Hostinger VPS 187.77.234.79. Two reboots + multiple resume attempts + yaml patches (search timeout 120s→600s, concurrency 3→1) + bash cost-tracking fixes (commit dcc1e34) + .env ONNX thread caps (ORT/OMP/MKL/OpenBLAS=2) + taskset CPU pinning + openclaw-gateway+warmup disable applied. Despite all mitigations:
+  - Hostinger CPU steal oscillated 8.5% → 97% → 21% → 51-71% (sustained host-level throttling, anti-abuse scanner triggered)
+  - Batch 005 ran ~23h after final yaml patch with **0 questions completed** of 50
+  - Queries (e.g. F_SH_Top005_040/041/042) reached retry 19/20 with 300s delay each
+  - Mathematical impossibility: 20 retries × (600s timeout + 300s delay) = 5h max per query × 50 questions × 4 batches = 1000h ceiling under sustained throttle
+  - **48h elapsed total** (Sun 17:40 → Tue ~17:55 BRT) with only batch 004 analysis.txt preserved (completed pre-second-reboot)
+  - **~$20-25 spent** on retry burn without producing aggregable 5-batch data
+- **Decisão:**
+  - **CAPSTONE ABORTED, OUTCOME INDETERMINATE.** Bench technically incomplete (1/5 batches, n=49 of n=3,121). NOT statistically valid for 5-batch gate. NOT publishable as orchestration composability finding.
+  - **Wave 2 CLOSED via Phase 1.5 findings + architectural lock discovery.** Single-stage retrieval-knob composability proven non-portable to Gemini-3-flash backbone (D75). IterB ReAct (D74) remains the sole validated F_MH lever. Composability projection from D74 reframed as "theoretical and architecturally blocked by design."
+  - **Capstone batch 004 (n=49) preserved on disk** for future re-run if/when stable infrastructure available. Workdir: `/root/.openclaw/evermembench-runs/capstone-iterB-triple-004-1780260019/analysis.txt`.
+  - **PR #426 abandoned as draft** with abandon comment + cross-link to D76. NOT merged. Branch preserved as `wave-2/capstone-iterB-triple-7a1cadf2` for future revisit.
+  - **Paper §5 v5 rebuild prioritized** (Task #102) — incorporate D75 + D76 + architectural lock + 3-knob NO-REPLICATE pattern as honest scientific contribution.
+- **Rationale:**
+  - Hostinger steal 51-97% sustained makes ONNX rerank (CPU-bound bge-reranker-v2-m3) impossible to complete batches under cost budget. Not a code problem, an infrastructure problem.
+  - Three independent mitigation rounds tried — pinning, capping, restarting, yaml patching, rebooting. None bridged the gap.
+  - Continuing to retry would burn budget without producing decision-grade data. Pragmatic shutdown protects research credibility.
+  - Wave 2 Phase 1.5 + architectural lock + IterB D74 deliver substantial publishable findings (~5 new insights). Capstone would have added 1 more (13th SOTA-tier dim or honest negative result) — non-load-bearing for paper §5 v5.
+  - Honest negative-finding framing of capstone abort STRENGTHENS paper as research integrity proof: "we tried, infrastructure constraints, here is what we learned."
+- **Aplicação operacional:**
+  - PR #426 comment with link to D76 + abandon explanation + batch 004 partial data note
+  - Task #102 paper §5 v5 rebuild incorporates D75 + D76 + architectural lock discovery + 3-knob backbone-conditional pattern as section
+  - GTM messaging: 12 SOTA dims canonical (no 13th). Composability matrix presented as honest empirical study (per backbone × per knob measured matrix replacing original projection table).
+  - ROADMAP v5.1: capstone moved to "deferred to future stable infrastructure" parking lot. Q1 priority shifts to HyDE bench (different mechanism family, PR #415 deferred) + Claude Sonnet 4.6/Opus 4.7 backbone bench (needs key rotation).
+  - Memory crystallized: `[[capstone-aborted-hostinger-throttling-indeterminate]]` (this finding) + `[[ort-num-threads-cap-during-capstone]]` (mitigation playbook) for future infra contingency reference.
+- **NÃO FAZEMOS:**
+  - Re-run capstone on Hostinger without verified host SLA upgrade (dedicated CPU plan or migration to different provider with steal SLO)
+  - Claim 13th SOTA-tier dimension from capstone (batch 004 alone is not 5-batch valid)
+  - Present composability matrix in paper as "completed" — must be honest about retrieval-stage scope only
+  - Conflate "infrastructure abort" with "scientific failure" — these are categorically different (D75 documents real scientific finding; D76 documents infrastructure constraint)
+  - Burn more budget retrying capstone in current Hostinger environment
+- **Cross-links:** PR #426 (capstone draft, abandoned), PR #423 (R0 KG NO-GO), PR #424 (AC NO-GO), PR #425 (MQ NO-GO), PR #419 + D74 (IterB only validated lever), PR #397 + D70 (Gemini-3-flash backbone), D75 (Phase 1.5 closure prerequisite), memory `[[capstone-aborted-hostinger-throttling-indeterminate]]`, `[[ort-num-threads-cap-during-capstone]]`, `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`, `[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]`, `[[wave-2-composability-matrix-plan]]`.
+- *Origem:* sessão 2026-05-31 17:40 BRT → 2026-06-02 ~17:55 BRT (~48h elapsed). Agents: `ad607d7734881c5f5` (original capstone), `ac838a0621554c73b` (resume 1), `a495bbebb6426e016` (resume 2 + yaml patch), manual cleanup direct. Two Hostinger VPS reboots. Three resume attempts. Final abort decision Tue 2026-06-02 ~17:55 BRT after batch 005 confirmed 0/50 questions completed in 23h.
