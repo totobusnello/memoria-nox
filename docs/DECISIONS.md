@@ -1284,7 +1284,7 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **Decisão:**
   - **Ship Q3 IterB opt-in** via `NOX_ITERB_GEMINI=1` (and equivalent for gpt-4.1-mini backbone). MA -3.53pp trade-off makes default-on unsafe.
   - **D69 F_MH ceiling status: REFINED, NOT falsified.** Single-stage retrieval ceiling (KG+MAP+MQ triple) confirmed at 7.25%. Orchestration-stage ReAct loop adds ~+2pp on top of any backbone. F_MH gap remaining (~6pp to MemOS) treated as structural challenge of EverMemBench's chain length × cross-session compression — addressable only via composability (IterB + Wave A/B/C single-stage knobs).
-  - **Composability matrix becomes Q1 priority.** Predict IterB additive (or sub-additive) with KG path (+2.81pp) / AC (+2.01pp) / MQ (+3.61pp). Pessimistic projection: IterB + Wave C triple = ~12.07% F_MH = ~41% MemOS gap closure.
+  - **Composability matrix becomes Q1 priority.** Predict IterB additive (or sub-additive) with KG path (+2.81pp) / AC (+2.01pp) / MQ (+3.61pp). Pessimistic projection: IterB + Wave C triple = ~12.07% F_MH = ~41% MemOS gap closure. ⚠️ **CAVEAT 2026-05-31 (R0 sanity PR #423):** KG path component of composability projection REFUTED on Gemini-3-flash backbone — F_MH delta -0.01pp (mean 6.02% = identical to bare). +2.81pp lift was backbone-specific to gpt-4.1-mini. AC + MQ backbone-portability re-baseline in progress (Wave 2 Phase 1.5). See `[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`. Net composability projection downgraded pending AC + MQ re-baseline outcomes.
 - **Rationale:**
   - +2.01pp clean lift on best backbone = ReAct mechanism load-bearing (not artifact of weak baseline).
   - Two-baseline honest framing (vs H v2 AND vs gemini-3-flash bare) prevents the conflated +4.82pp claim from over-anchoring. Same lesson cravada `[[honest-cross-baseline-framing]]`.
@@ -1305,3 +1305,74 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Abandon Wave A/B/C single-stage knobs (they remain composable foundations for stacking with IterB)
 - **Cross-links:** PR #419 (5-batch IterB Gemini-3), PR #414 (IterB harness), PR #406 + D73 (sibling IterC Self-Ask F_HL), PR #395 + D69 (Wave A/B/C ceiling), PR #377 (Phase H v2 baseline), PR #397 + D70 (Gemini-3-flash backbone), D72 (F_MH paradox resolution context), arxiv:2210.03629 (ReAct paper Yao et al. 2022), memory `[[q3-iterB-fmh-ceiling-broken-2pp]]`, `[[honest-cross-baseline-framing]]`, `[[preflight-must-validate-both-backbones]]`, `[[tmux-survived-zero-socket-drops]]`, `[[reused-fresh-clone-symlink-pattern]]`.
 - *Origem:* sessão 2026-05-30 20:02-22:29 UTC — Q3 IterB POC 5-batch results vs both baselines; PR #419 merged a0ddaae via squash + admin override (npm audit pre-existing astro/starlight transitive vulns unrelated).
+
+#### D75 — Wave 2 Phase 1.5 retrieval-stage composability CLOSED on Gemini-3-flash (D74 projection partially refuted)
+
+- **Context:** Wave 2 Phase 1 R0 sanity (PR #423) + Phase 1.5 re-baseline AC (PR #424) + MQ (PR #425) on Gemini-3-flash 5-batch CLEAN (n=3,121, batches 004/005/010/011/016 — same as PR #419). All three single-stage retrieval-knob standalones FAIL gate +1.5pp F_MH:
+  - KG path: F_MH **-0.01pp** (R0 PR #423; 95% CI [3.00, 9.04])
+  - AC threshold=5: F_MH **+0.81pp** (PR #424; CI [4.62, 9.03])
+  - MQ standalone: F_MH **+1.21pp borderline 0.29pp short** (PR #425; CI [4.99, 9.48])
+  - **3-knob sum +2.01pp = 24% of D74 pessimistic projection +8.43pp**
+- **Cross-backbone transfer pattern (NEW empirical insight):** ~24-40% transfer rate from gpt-4.1-mini to Gemini-3-flash for retrieval-stage knobs (KG 0% / AC 40% / MQ 34%). Wave A knob lifts measured on gpt-4.1-mini are NOT backbone-invariant.
+- **MQ MA backbone flip sub-finding:** MQ on Gemini-3-flash PRESERVES MA composite +0.12pp + MA_U +3.10pp (strongest MA gain Wave 2). On gpt-4.1-mini MQ regressed MA -1.38pp. Multi-axis backbone-conditional behavior — paper-worthy.
+- **Architectural lock (load-bearing for paper §5 v5):** PR #419 IterB adapter deliberately short-circuits Wave A knobs via explicit guards at `eval/evermembench/adapter_nox_mem.py` lines 2736 (MQ) / 2906 (KG) / 3063 (rerank) `if not iterb_used_path:`. Composability NOT possible via env vars AS-IS. Wave 2 Phase 2 Capstone (PR #426 draft) patches 2/3 guards (KG + rerank; MQ kept — subsumed by ReAct sub-queries).
+- **Decisão:**
+  - **Wave 2 retrieval-stage composability path CLOSED.** Single-stage knob stacking on Gemini-3-flash bounded at ~+1.2pp ceiling per knob, aggregate ~+2pp.
+  - **IterB ReAct (+2.01pp clean, D74) remains the only validated F_MH lever on Gemini-3-flash.**
+  - **Phase 2 Capstone (PR #426 in flight tmux `wave2-capstone-7a1cadf2` PID 2194486 ETA 24-36h)** tests orchestration-stage composability via 2-guard removal patch. Will decide D76 on completion.
+  - **Paper §5 v5 reframe required:** composability matrix moves from "projected" to "empirically measured per backbone". Honest negative-result section.
+- **Rationale:**
+  - 3 independent retrieval-stage knobs all show ~24-40% transfer — NOT noise, structural backbone-conditional behavior.
+  - Hypothesis: Gemini-3-flash native context utilization (window + attention + filtering) saturates the knob compensation that Wave A was designed for on gpt-4.1-mini. Compensation mechanisms for weaker backbones diminish on stronger backbones.
+  - Same lesson generalizes to future SOTA backbones (Claude Opus 4.7, GPT-5, Gemini 4): retrieval-stage knobs require per-backbone re-baseline before composability claims.
+  - Architectural lock (explicit `iterb_used_path` guards) means D74 composability projection assumed both backbone-portability AND architectural composability — neither held by default.
+- **Aplicação operacional:**
+  - GTM messaging: D74 "composability projection ~33-41% gap closure" REMOVED — replaced with honest "empirically bounded by knob transfer rate × architectural composability". Specific projections reframed as per-backbone measurements.
+  - README §F_MH ceiling break: Wave 2 caveat block added (research integrity over inflated claims).
+  - Paper §5 v5 (rebuild pending Mon AM): honest negative-result composability section + dual-baseline transfer rate table + architectural lock discovery as scientific contribution.
+  - Future spec authoring: when designing new orchestration-stage mechanisms, document upfront whether they short-circuit or compose with existing knobs.
+  - D74 composability bullet annotated with R0 caveat (see line 1287 D74 section above).
+- **NÃO FAZEMOS:**
+  - Claim composability matrix lifts on Gemini-3-flash without 5-batch re-baseline per knob on that backbone.
+  - Re-attempt R0/AC/MQ standalone composability on Gemini-3-flash without different mechanism class (orchestration-stage, synthesis-stage, profile-chunk).
+  - Switch backbone trade to gpt-4.1-mini just to recover composability lifts — D70 ship opt-in Gemini-3-flash GTM position is load-bearing and not negotiable for this purpose.
+  - Inflate Wave 2 NO-REPLICATE as "scientific contribution" while suppressing the architectural lock — both must be reported.
+  - Treat capstone (PR #426) outcome as predetermined. ANY of 4 outcomes (DEFAULT / OPT-IN / CLOSED / INTERFERENCE) is valid honest finding.
+- **Cross-links:** PR #423 (R0 KG), PR #424 (AC re-baseline), PR #425 (MQ re-baseline), PR #426 (capstone draft in flight), PR #379 (KG path gpt-4.1-mini original +2.81pp), PR #381 (AC gpt-4.1-mini original +2.01pp), PR #385 (MQ gpt-4.1-mini original +3.61pp), PR #397 + D70 (Gemini-3-flash backbone), PR #419 + D74 (IterB only validated Gemini F_MH lever — composability projection partially refuted), memory `[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`, `[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]`, `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`, `[[wave-2-composability-matrix-plan]]`, `[[single-knob-lifts-are-backbone-conditional]]`, `[[honest-cross-baseline-framing]]`.
+- *Origem:* sessão 2026-05-31 13:25-18:30 BRT — agents `a813d2410595bb291` (R0) + `ac84ec72cc649d2c8` (AC) + `a9bddaeef071a268e` (MQ) + harvester `a822874b3f87602fc` (PRs #424+#425) + capstone setup `ad607d7734881c5f5` (PR #426 draft). Wave 2 Phase 1 + Phase 1.5 closed. Phase 2 Capstone in flight (D76 pending).
+
+#### D76 — Wave 2 Phase 2 Capstone ABORTED (Hostinger infrastructure throttling, INDETERMINATE outcome)
+
+- **Context:** Wave 2 Phase 2 Capstone (IterB ReAct + KG + rerank composability test, PR #426 draft) dispatched Sun 2026-05-31 17:40 BRT on Hostinger VPS 187.77.234.79. Two reboots + multiple resume attempts + yaml patches (search timeout 120s→600s, concurrency 3→1) + bash cost-tracking fixes (commit dcc1e34) + .env ONNX thread caps (ORT/OMP/MKL/OpenBLAS=2) + taskset CPU pinning + openclaw-gateway+warmup disable applied. Despite all mitigations:
+  - Hostinger CPU steal oscillated 8.5% → 97% → 21% → 51-71% (sustained host-level throttling, anti-abuse scanner triggered)
+  - Batch 005 ran ~23h after final yaml patch with **0 questions completed** of 50
+  - Queries (e.g. F_SH_Top005_040/041/042) reached retry 19/20 with 300s delay each
+  - Mathematical impossibility: 20 retries × (600s timeout + 300s delay) = 5h max per query × 50 questions × 4 batches = 1000h ceiling under sustained throttle
+  - **48h elapsed total** (Sun 17:40 → Tue ~17:55 BRT) with only batch 004 analysis.txt preserved (completed pre-second-reboot)
+  - **~$20-25 spent** on retry burn without producing aggregable 5-batch data
+- **Decisão:**
+  - **CAPSTONE ABORTED, OUTCOME INDETERMINATE.** Bench technically incomplete (1/5 batches, n=49 of n=3,121). NOT statistically valid for 5-batch gate. NOT publishable as orchestration composability finding.
+  - **Wave 2 CLOSED via Phase 1.5 findings + architectural lock discovery.** Single-stage retrieval-knob composability proven non-portable to Gemini-3-flash backbone (D75). IterB ReAct (D74) remains the sole validated F_MH lever. Composability projection from D74 reframed as "theoretical and architecturally blocked by design."
+  - **Capstone batch 004 (n=49) preserved on disk** for future re-run if/when stable infrastructure available. Workdir: `/root/.openclaw/evermembench-runs/capstone-iterB-triple-004-1780260019/analysis.txt`.
+  - **PR #426 abandoned as draft** with abandon comment + cross-link to D76. NOT merged. Branch preserved as `wave-2/capstone-iterB-triple-7a1cadf2` for future revisit.
+  - **Paper §5 v5 rebuild prioritized** (Task #102) — incorporate D75 + D76 + architectural lock + 3-knob NO-REPLICATE pattern as honest scientific contribution.
+- **Rationale:**
+  - Hostinger steal 51-97% sustained makes ONNX rerank (CPU-bound bge-reranker-v2-m3) impossible to complete batches under cost budget. Not a code problem, an infrastructure problem.
+  - Three independent mitigation rounds tried — pinning, capping, restarting, yaml patching, rebooting. None bridged the gap.
+  - Continuing to retry would burn budget without producing decision-grade data. Pragmatic shutdown protects research credibility.
+  - Wave 2 Phase 1.5 + architectural lock + IterB D74 deliver substantial publishable findings (~5 new insights). Capstone would have added 1 more (13th SOTA-tier dim or honest negative result) — non-load-bearing for paper §5 v5.
+  - Honest negative-finding framing of capstone abort STRENGTHENS paper as research integrity proof: "we tried, infrastructure constraints, here is what we learned."
+- **Aplicação operacional:**
+  - PR #426 comment with link to D76 + abandon explanation + batch 004 partial data note
+  - Task #102 paper §5 v5 rebuild incorporates D75 + D76 + architectural lock discovery + 3-knob backbone-conditional pattern as section
+  - GTM messaging: 12 SOTA dims canonical (no 13th). Composability matrix presented as honest empirical study (per backbone × per knob measured matrix replacing original projection table).
+  - ROADMAP v5.1: capstone moved to "deferred to future stable infrastructure" parking lot. Q1 priority shifts to HyDE bench (different mechanism family, PR #415 deferred) + Claude Sonnet 4.6/Opus 4.7 backbone bench (needs key rotation).
+  - Memory crystallized: `[[capstone-aborted-hostinger-throttling-indeterminate]]` (this finding) + `[[ort-num-threads-cap-during-capstone]]` (mitigation playbook) for future infra contingency reference.
+- **NÃO FAZEMOS:**
+  - Re-run capstone on Hostinger without verified host SLA upgrade (dedicated CPU plan or migration to different provider with steal SLO)
+  - Claim 13th SOTA-tier dimension from capstone (batch 004 alone is not 5-batch valid)
+  - Present composability matrix in paper as "completed" — must be honest about retrieval-stage scope only
+  - Conflate "infrastructure abort" with "scientific failure" — these are categorically different (D75 documents real scientific finding; D76 documents infrastructure constraint)
+  - Burn more budget retrying capstone in current Hostinger environment
+- **Cross-links:** PR #426 (capstone draft, abandoned), PR #423 (R0 KG NO-GO), PR #424 (AC NO-GO), PR #425 (MQ NO-GO), PR #419 + D74 (IterB only validated lever), PR #397 + D70 (Gemini-3-flash backbone), D75 (Phase 1.5 closure prerequisite), memory `[[capstone-aborted-hostinger-throttling-indeterminate]]`, `[[ort-num-threads-cap-during-capstone]]`, `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`, `[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]`, `[[wave-2-composability-matrix-plan]]`.
+- *Origem:* sessão 2026-05-31 17:40 BRT → 2026-06-02 ~17:55 BRT (~48h elapsed). Agents: `ad607d7734881c5f5` (original capstone), `ac838a0621554c73b` (resume 1), `a495bbebb6426e016` (resume 2 + yaml patch), manual cleanup direct. Two Hostinger VPS reboots. Three resume attempts. Final abort decision Tue 2026-06-02 ~17:55 BRT after batch 005 confirmed 0/50 questions completed in 23h.
