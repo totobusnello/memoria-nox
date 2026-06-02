@@ -43,12 +43,12 @@ Across these systems, six recurring gaps appear in the design space. Each gap mo
 
 | # | Gap | nox-mem | mem0 | Letta | Zep | EverOS | LightRAG | MeMo |
 |---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | Static injection (memory frozen at session start) | ✅ live writeback (inotifywait <1s) | ⚠️ partial | ✅ | ✅ | ✅ | ❌ batch | ❌ retrain |
-| 2 | No temporal decay (every chunk weighed the same forever) | ✅ salience × recency, typed retention (§8.2) | ❌ | ❌ | ✅ | ⚠️ partial | ❌ | ❌ |
-| 3 | No provenance (cannot trace a result back to a source) | ✅ `chunk_id` + `source_file` (§4) | ⚠️ partial | ✅ | ✅ | ✅ | ✅ | ❌ baked in weights |
-| 4 | Flat memory (no hierarchy / sectioning / typed structure) | ✅ KG + entity files + `section_boost` (§3.1, §8) | ❌ | ❌ | ✅ | ✅ hyper | ✅ dual-level | ❌ |
-| 5 | No writeback (cannot promote findings into durable memory) | ✅ `crystallize` + `reflect` + `consolidate` (§3.4) | ⚠️ partial | ✅ | ✅ | ✅ EvoAgent | ❌ | ❌ |
-| 6 | Indexing delay (changes invisible until nightly batch) | ✅ inotifywait <1s, idempotent re-ingest (§3.1) | ⚠️ | ✅ | ✅ | ⚠️ | ⚠️ batch | ❌ retrain |
+| 1 | Static injection (memory frozen at session start) | PASS live writeback (inotifywait <1s) | NB: partial | PASS | PASS | PASS | FAIL batch | FAIL retrain |
+| 2 | No temporal decay (every chunk weighed the same forever) | PASS salience × recency, typed retention (§8.2) | FAIL | FAIL | PASS | NB: partial | FAIL | FAIL |
+| 3 | No provenance (cannot trace a result back to a source) | PASS `chunk_id` + `source_file` (§4) | NB: partial | PASS | PASS | PASS | PASS | FAIL baked in weights |
+| 4 | Flat memory (no hierarchy / sectioning / typed structure) | PASS KG + entity files + `section_boost` (§3.1, §8) | FAIL | FAIL | PASS | PASS hyper | PASS dual-level | FAIL |
+| 5 | No writeback (cannot promote findings into durable memory) | PASS `crystallize` + `reflect` + `consolidate` (§3.4) | NB: partial | PASS | PASS | PASS EvoAgent | FAIL | FAIL |
+| 6 | Indexing delay (changes invisible until nightly batch) | PASS inotifywait <1s, idempotent re-ingest (§3.1) | NB: | PASS | PASS | NB: | NB: batch | FAIL retrain |
 
 **Why each gap matters, and how nox-mem closes it:**
 
@@ -306,7 +306,7 @@ The `crossSearch()` function opens all 7 databases in read-only mode, executes F
 
 > **Headlines (2026-05-29/06-02, 5-batch canonical, four-benchmark triangulation + Q3 IterB ceiling break + Wave 2 backbone-conditional knob study):**
 > - **Q3 IterB ReAct — F_MH retrieval-stage ceiling broken (D74, PR #419):** on Gemini-3-flash bare baseline, multi-round retrieve-reason loop delivers **+2.01 pp clean F_MH lift (6.02% → 8.03%)** — exceeding the Wave A/B/C single-stage retrieval ceiling of 7.25 pp by +0.78 pp standalone, with the strongest backbone in the matrix (§5.5.2, dual-baseline reporting).
-> - **Wave 2 backbone-conditional knob study (NEW, D75, PRs #423–#425):** Wave A single-stage retrieval knobs (KG path, AC, MQ) transfer at only **~24–40% efficiency** from gpt-4.1-mini to Gemini-3-flash. All three fail the ≥+1.5 pp gate on Gemini-3-flash (NO-REPLICATE). 3-knob sum = +2.01 pp = 24% of original D74 projection +8.43 pp. **IterB ReAct remains the only validated F_MH lever on Gemini-3-flash** (§5.5.5).
+> - **Wave 2 backbone-conditional knob study (NEW, D75, PRs #423–#425):** Wave A single-stage retrieval knobs (KG path, AC, MQ) transfer at only **~24–40% efficiency** from gpt-4.1-mini to Gemini-3-flash. All three fail the >=+1.5 pp gate on Gemini-3-flash (NO-REPLICATE). 3-knob sum = +2.01 pp = 24% of original D74 projection +8.43 pp. **IterB ReAct remains the only validated F_MH lever on Gemini-3-flash** (§5.5.5).
 > - **Wave 2 architectural lock discovery (NEW, D75):** IterB ReAct adapter deliberately short-circuits Wave A knobs via explicit `if not iterb_used_path:` guards in `adapter_nox_mem.py`. Composability requires explicit code patch, not merely env-var toggling. Composability projections must address both backbone-portability and architectural composability (§5.5.7).
 > - **Wave 2 MQ MA backbone flip sub-finding (NEW, PR #425):** MQ F_MH lift attenuates gpt-4.1-mini→Gemini (34% transfer rate), while MA composite **flips** from −1.38 pp regression on gpt-4.1-mini to +0.12 pp preserved on Gemini-3-flash. Multi-axis backbone-conditional behavior (§5.5.6).
 > - **Wave 2 Capstone INDETERMINATE — infrastructure constraint, NOT scientific failure (D76, PR #426 draft):** IterB+KG+rerank composability test aborted after Hostinger VPS CPU steal 51–97% sustained. Batch 004 (n=49) preserved; 5-batch statistical threshold not reached. Capstone deferred to dedicated CPU infrastructure (§5.5.8).
@@ -361,7 +361,7 @@ W_IMPORTANCE = 0.55   W_RECENCY = 0.15   W_PAIN = 0.10   W_ACCESS = 0.20
 
 #### 5.1.3 Wave A — Claim 2: `section_boost` is the moat (99.85% of the gain)
 
-Isolating `section_boost` alone (A3 ablation: section enabled, tier off, source_type off, salience shadow) yields **nDCG@10 = 0.6228 = 99.85% of A8's full-stack 0.6237**. The V10 schema multipliers — `compiled = 2.0`, `frontmatter = 1.5`, `timeline = 0.8`, legacy = 1.0 — together with the entity-file format introduced in v3.7 (769 entity files × 3 sections ≈ 2,307 boost-bearing chunks) explain the majority of the headline improvement.
+Isolating `section_boost` alone (A3 ablation: section enabled, tier off, source_type off, salience shadow) yields **nDCG@10 = 0.6228 = 99.85% of A8's full-stack 0.6237**. The V10 schema multipliers — `compiled = 2.0`, `frontmatter = 1.5`, `timeline = 0.8`, legacy = 1.0 — together with the entity-file format introduced in v3.7 (769 entity files × 3 sections ~ 2,307 boost-bearing chunks) explain the majority of the headline improvement.
 
 The negative control A11 (full stack minus `section_boost`) drops to 0.5646, **−9.5% relative to A8**, confirming the contribution is not redundant with semantic embeddings or RRF fusion. This is the architectural pivot the paper's narrative rests on: section-aware boosting over an entity-file canonical form is the load-bearing component, not the multiplicative salience formula that the v1 paper draft over-emphasized.
 
@@ -403,7 +403,7 @@ The 5-batch methodology (§5.9) is canonical for this claim. Single-batch estima
 
 **Sub-dim summary:** 7/9 sub-dimensions WIN. F_MH and F_TP are the only losses. The 95% CI lower bound (49.88%) strictly exceeds MemOS (42.55%), confirming the win is robust to per-batch variance.
 
-**Outlier detection.** Batch 004 alone reported 54.15% overall (+11.60 pp vs MemOS), which was a +1.70σ upper-tail outlier (per-batch distribution: 004=54.15%, 005=50.82%, 010=50.72%, 011=50.87%, 016=51.83%, stdev=1.45 pp). Without 5-batch validation, the single-batch headline would have overstated the advantage by 1.27×. This is the canonical illustration of why the 5-batch protocol exists (§5.9).
+**Outlier detection.** Batch 004 alone reported 54.15% overall (+11.60 pp vs MemOS), which was a +1.70sigma upper-tail outlier (per-batch distribution: 004=54.15%, 005=50.82%, 010=50.72%, 011=50.87%, 016=51.83%, stdev=1.45 pp). Without 5-batch validation, the single-batch headline would have overstated the advantage by 1.27×. This is the canonical illustration of why the 5-batch protocol exists (§5.9).
 
 ---
 
@@ -441,10 +441,10 @@ Four Lab Q1 standalone experiments shipped in 2026-05-29, targeting the backbone
 
 | Gate | Threshold | Actual | Decision |
 |---|---|---:|:---:|
-| F_MH lift | ≥ +2 pp | **+2.81 pp** | ✅ |
-| Overall non-regression | ≥ 0 pp | **+0.12 pp** | ✅ |
-| Coverage (queries with entity match) | ≥ 30% | **90.84%** | ✅ |
-| MA avg lift | ≥ +1 pp | +0.44 pp | ❌ |
+| F_MH lift | >= +2 pp | **+2.81 pp** | PASS |
+| Overall non-regression | >= 0 pp | **+0.12 pp** | PASS |
+| Coverage (queries with entity match) | >= 30% | **90.84%** | PASS |
+| MA avg lift | >= +1 pp | +0.44 pp | FAIL |
 
 Full 5-batch results vs Phase H v2 baseline:
 
@@ -454,7 +454,7 @@ Full 5-batch results vs Phase H v2 baseline:
 | F_MH | **6.02%** (CI 2.11–9.93) | 3.21% | **+2.81 pp** | −12.86 pp |
 | MA_P | 66.60% | 65.40% | +1.20 pp | +14.61 pp |
 
-The KG path mechanism closes **~17% of the MemOS F_MH gap** via pure retrieval-side SQL + regex — no LLM involvement. The regex entity extractor achieves 90.84% coverage of the eval query set (91% of queries contain at least one entity name that matches `kg_entities`), with sub-50 ms p50 overhead. MA_C and MA_U remain flat; MA_P alone improves +1.20 pp. MA avg misses the ≥+1 pp gate at +0.44 pp (deficit driven by MA_C flatness).
+The KG path mechanism closes **~17% of the MemOS F_MH gap** via pure retrieval-side SQL + regex — no LLM involvement. The regex entity extractor achieves 90.84% coverage of the eval query set (91% of queries contain at least one entity name that matches `kg_entities`), with sub-50 ms p50 overhead. MA_C and MA_U remain flat; MA_P alone improves +1.20 pp. MA avg misses the >=+1 pp gate at +0.44 pp (deficit driven by MA_C flatness).
 
 **Verdict:** ship opt-in (`NOX_KG_PATH_ENABLED=1` / `--kg-walk=1`). Default OFF until KG density increases (current ~544 relations sparse) or composability with Lab Q1 #1 adaptive classifier routes KG path selectively to avoid profile-query MA regressions.
 
@@ -464,10 +464,10 @@ The KG path mechanism closes **~17% of the MemOS F_MH gap** via pure retrieval-s
 
 | Gate | Threshold | Actual | Decision |
 |---|---|---:|:---:|
-| Overall ≥ Phase H v2 | 51.68% | 51.21% | ❌ (−0.47 pp) |
-| F_MH ≥ Phase H v2 CI-strict | 3.21% (CI lower) | 5.22% mean (CI [1.06, 9.39]) | ❌ CI overlaps |
-| MA mean ≥ 72.84% (0.5 pp tol) | 72.84% | 71.72% | ❌ (−1.63 pp) |
-| Activation rate 30–60% | target band | 44.2% | ✅ |
+| Overall >= Phase H v2 | 51.68% | 51.21% | FAIL (−0.47 pp) |
+| F_MH >= Phase H v2 CI-strict | 3.21% (CI lower) | 5.22% mean (CI [1.06, 9.39]) | FAIL CI overlaps |
+| MA mean >= 72.84% (0.5 pp tol) | 72.84% | 71.72% | FAIL (−1.63 pp) |
+| Activation rate 30–60% | target band | 44.2% | PASS |
 
 The F_MH mean lift of +2.01 pp is comparable to KG path (+2.81 pp) but the 95% CI [1.06, 9.39] overlaps the baseline — statistically not significant. MA regresses −1.63 pp, confirming that adaptive routing does not fully avoid the Memory Awareness cost of cross-encoder rerank. Overall regresses −0.47 pp.
 
@@ -490,14 +490,14 @@ MAP isolates the bypass mechanism: when a query is profile-shaped (no entity anc
 
 ##### 5.1.8.4 Lab Q1 #3 — Multi-query expansion / MQ (3/4 gates, biggest F_MH knob)
 
-**Approach:** sub-query decomposition via gemini-flash-lite + RRF union on top-k from each sub-query. Adds one cheap LLM call per query (≈$0.0002, p50 ~400 ms). PR #385.
+**Approach:** sub-query decomposition via gemini-flash-lite + RRF union on top-k from each sub-query. Adds one cheap LLM call per query (~$0.0002, p50 ~400 ms). PR #385.
 
 | Gate | Threshold | Actual | Decision |
 |---|---|---:|:---:|
-| F_MH lift | ≥ +2 pp | **+3.61 pp** (2× KG, biggest single retrieval-side) | ✅ |
-| Overall non-regression | ≥ 0 pp | −1.12 pp (narrowly misses) | ❌ |
-| MA composite ≥ baseline | flat | −1.38 pp | ✅ (within band) |
-| Coverage / cost | reasonable | $0.0002 / 400 ms | ✅ |
+| F_MH lift | >= +2 pp | **+3.61 pp** (2× KG, biggest single retrieval-side) | PASS |
+| Overall non-regression | >= 0 pp | −1.12 pp (narrowly misses) | FAIL |
+| MA composite >= baseline | flat | −1.38 pp | PASS (within band) |
+| Coverage / cost | reasonable | $0.0002 / 400 ms | PASS |
 
 MQ is the **biggest single retrieval-side F_MH knob** measured in Lab Q1 (2× KG path). The −1.12 pp overall regression is below the 0-pp non-regression gate, but additive composability with KG was modelled at **+6.42 pp F_MH (KG + MQ)** = 41% closure of MemOS F_MH gap — actually validated in Wave B (§5.1.9).
 
@@ -662,9 +662,9 @@ nox-mem's F1 push of 51.85% is rank-5 across the benchmarked systems, **above Ze
 
 The date-normalization knob shipped in PR #396 contributed +2.8 pp F1 on temporal sub-track by aligning date format expressions between query and corpus chunks; this is the largest single tunable knob for LoCoMo F1.
 
-#### 5.3.3 Path to ≥55% F1 — composition orchestration (Q3)
+#### 5.3.3 Path to >=55% F1 — composition orchestration (Q3)
 
-Wave C ceiling analysis (§5.1.9) demonstrates that retrieval-stage knobs cannot lift LoCoMo F1 above the verbosity gap. The path to ≥55% F1 (rank-3 territory) requires **orchestration-stage** mechanisms: prompt-level fact extraction, iterative refinement (Q3 IterB ReAct), or explicit answer-shaping. §5.5 reports the first measurement on this axis.
+Wave C ceiling analysis (§5.1.9) demonstrates that retrieval-stage knobs cannot lift LoCoMo F1 above the verbosity gap. The path to >=55% F1 (rank-3 territory) requires **orchestration-stage** mechanisms: prompt-level fact extraction, iterative refinement (Q3 IterB ReAct), or explicit answer-shaping. §5.5 reports the first measurement on this axis.
 
 ---
 
@@ -703,7 +703,7 @@ Q3 IterC implements a Self-Ask-style sub-query loop: the generation model decomp
 
 | Metric | Q3 IterC (5-batch) | Phase H v2 baseline | Δ |
 |---|---:|---:|---:|
-| **F_HL (high-level)** | **58.52%** | 22.68% | **+35.84 pp** ✅ |
+| **F_HL (high-level)** | **58.52%** | 22.68% | **+35.84 pp** PASS |
 | F_MH (multi-hop) | ~ baseline | 3.21% | **−0.40 pp** (no-lift) |
 | Overall | mixed | 51.68% | — |
 | Cost / latency | $0.0015/q + 2× LLM call | baseline | added cost |
@@ -725,9 +725,9 @@ The Q3 IterC verdict: **ship opt-in** (`NOX_Q3_ITERC_ENABLED=1`) for F_HL-heavy 
 | F_TP | 15.00% → 33.33% | +18.33 pp | n/a | n/a |
 | F_HL | 22.68% → 43.06% | +20.38 pp | n/a | n/a |
 | MA composite | 73.34% → 84.89% | +11.55 pp | 88.42% → 84.89% | −3.53 pp (borderline 🟡) |
-| Cost / query | n/a | — | within $0.005 ($0.00295 measured) | ✅ |
+| Cost / query | n/a | — | within $0.005 ($0.00295 measured) | PASS |
 
-**Interpretation — two ship verdicts.** Against the project-convention Phase H v2 baseline the result clears 4/4 gates (SHIP_DEFAULT_CANDIDATE). Against the gemini-3-flash bare baseline — the load-bearing comparison for any ceiling-break claim — the result clears 3/4 gates: F_MH +2.01 pp ✅, Overall within CI noise ✅, cost within budget ✅, MA composite borderline 🟡 (−3.53 pp, falls inside the MA tolerance band but at its lower edge). Final verdict: **SHIP_OPT_IN** (`NOX_Q3_ITERB_ENABLED=1`). The opt-in framing reflects the MA borderline, not the F_MH or cost finding.
+**Interpretation — two ship verdicts.** Against the project-convention Phase H v2 baseline the result clears 4/4 gates (SHIP_DEFAULT_CANDIDATE). Against the gemini-3-flash bare baseline — the load-bearing comparison for any ceiling-break claim — the result clears 3/4 gates: F_MH +2.01 pp PASS, Overall within CI noise PASS, cost within budget PASS, MA composite borderline 🟡 (−3.53 pp, falls inside the MA tolerance band but at its lower edge). Final verdict: **SHIP_OPT_IN** (`NOX_Q3_ITERB_ENABLED=1`). The opt-in framing reflects the MA borderline, not the F_MH or cost finding.
 
 **Why two baselines.** Reporting only the +4.82 pp F_MH vs Phase H v2 would conflate two distinct effects: (i) the backbone swap GPT-4.1-mini → Gemini-3-flash, which alone delivers +20.73 pp Overall and +32.74 pp MA composite (§5.1.10, Backbone Matrix), and (ii) the IterB ReAct multi-round mechanism. The +2.01 pp F_MH vs gemini-3-flash bare is the **clean isolated ReAct effect**, with backbone held constant. The +0.78 pp by which this clean number exceeds the Wave A/B/C single-stage retrieval ceiling of 7.25 pp (D69, §5.1.9) is the load-bearing ceiling-break claim.
 
@@ -757,13 +757,13 @@ The D74 revision of this section contained a projection table assuming Wave A/B/
 
 | Backbone | Knob | F_MH lift (5-batch CI) | Gate +1.5 pp | Validated? | Source |
 |---|---|---:|:---:|---|---|
-| gpt-4.1-mini | KG path | +2.81 pp (CI [2.11, 9.93]) | ✅ | YES | PR #379 |
-| Gemini-3-flash | KG path | −0.01 pp (CI [3.00, 9.04]) | ❌ NO-REPLICATE | 0% transfer | PR #423 |
-| gpt-4.1-mini | AC (threshold=5) | +2.01 pp (CI [1.06, 9.39]) | ✅ marginal | YES | PR #381 |
-| Gemini-3-flash | AC (threshold=5) | +0.81 pp (CI [4.62, 9.03]) | ❌ NO-REPLICATE | 40% transfer | PR #424 |
-| gpt-4.1-mini | MQ standalone | +3.61 pp | ✅ | YES | PR #385 |
-| Gemini-3-flash | MQ standalone | +1.21 pp (CI [4.99, 9.48]) | ❌ borderline | 34% transfer | PR #425 |
-| Gemini-3-flash | IterB ReAct | +2.01 pp (bare CLEAN) | ✅ | **ONLY VALIDATED** | PR #419 |
+| gpt-4.1-mini | KG path | +2.81 pp (CI [2.11, 9.93]) | PASS | YES | PR #379 |
+| Gemini-3-flash | KG path | −0.01 pp (CI [3.00, 9.04]) | FAIL NO-REPLICATE | 0% transfer | PR #423 |
+| gpt-4.1-mini | AC (threshold=5) | +2.01 pp (CI [1.06, 9.39]) | PASS marginal | YES | PR #381 |
+| Gemini-3-flash | AC (threshold=5) | +0.81 pp (CI [4.62, 9.03]) | FAIL NO-REPLICATE | 40% transfer | PR #424 |
+| gpt-4.1-mini | MQ standalone | +3.61 pp | PASS | YES | PR #385 |
+| Gemini-3-flash | MQ standalone | +1.21 pp (CI [4.99, 9.48]) | FAIL borderline | 34% transfer | PR #425 |
+| Gemini-3-flash | IterB ReAct | +2.01 pp (bare CLEAN) | PASS | **ONLY VALIDATED** | PR #419 |
 | Gemini-3-flash | IterB + Wave C triple | INDETERMINATE | — | infra-bound | PR #426 (D76)¹ |
 
 > ¹ **D76 capstone deferral footnote (§5.5.8):** The IterB + Wave C triple composability test (PR #426) was aborted due to Hostinger VPS CPU steal 51–97% sustained, not due to scientific failure. Batch 004 (n=49) preserved. 5-batch threshold not reached. Outcome is INDETERMINATE; composability claim is neither confirmed nor refuted. Capstone deferred to future stable infrastructure with dedicated CPU SLO.
@@ -772,7 +772,7 @@ The D74 revision of this section contained a projection table assuming Wave A/B/
 
 **Corrected composability landscape.** The original D74 projection table (IterB + Wave C triple → ~12.07% F_MH = ~41% MemOS gap closure) assumed backbone-invariant transfer of all knob lifts. That assumption is empirically refuted on Gemini-3-flash for all three tested retrieval-stage knobs. The current empirically supported picture:
 
-| Configuration | F_MH | Closure of MemOS F_MH gap (≈18.88 pp) | Status |
+| Configuration | F_MH | Closure of MemOS F_MH gap (~18.88 pp) | Status |
 |---|---:|---:|---|
 | Bare Gemini-3-flash | 6.02% | baseline | measured |
 | **IterB ReAct standalone on bare (this work, §5.5.2)** | **8.03%** | **~7%** | **measured** |
@@ -893,12 +893,12 @@ The capstone abort falls in the second category. The hypothesis (IterB + KG + re
 
 | Category | LongMemEval score | Strength | Matches EverMemBench pattern |
 |---|---:|---|---|
-| single-session-assistant | 87.10% | STRONG | ✅ matches F_SH WIN |
-| single-session-user | 86.67% | STRONG | ✅ matches F_SH WIN |
-| knowledge-update | 82.05% | STRONG | ✅ matches MA_U WIN |
+| single-session-assistant | 87.10% | STRONG | PASS matches F_SH WIN |
+| single-session-user | 86.67% | STRONG | PASS matches F_SH WIN |
+| knowledge-update | 82.05% | STRONG | PASS matches MA_U WIN |
 | abstention | 82.61% | STRONG | (no EverMemBench equiv — unique strength) |
-| multi-session | 55.81% | moderate | ✅ matches F_MH gap |
-| temporal-reasoning | 54.76% | moderate | ✅ matches F_TP gap |
+| multi-session | 55.81% | moderate | PASS matches F_MH gap |
+| temporal-reasoning | 54.76% | moderate | PASS matches F_TP gap |
 | single-session-preference | 31.25% (n=16, wide CI) | weak | (preference handling weak) |
 
 The per-category fingerprint is **identical** to EverMemBench Phase D + H v2 results: strong on single-context factual + abstention + knowledge update; moderate on multi-session reasoning + temporal sequencing; weak on preference handling. This cross-bench consistency (two orthogonal benchmark distributions, different eval sets, different judges) confirms that nox-mem's strengths and weaknesses are **structural properties** of the retrieval architecture, not benchmark-specific tuning artifacts.
@@ -941,7 +941,7 @@ The KG path achieves **$0 per query** because the entity-walk uses only local SQ
 | nox-mem-api process | **399 MB** | +15 MB (= ~414 MB) | better-sqlite3 + sqlite-vec single-process |
 | Scaling pattern | flat | quasi-flat | No per-request memory blow-up |
 
-Self-hosted single-process means no multi-container orchestration, no Postgres/Redis/Chroma sidecars, no per-tenant container overhead. The 399 MB idle footprint runs on a $5/month VPS tier. Mem0 / Zep / Letta canonical deployments require ≥3 services (API + DB + vector store) with combined RSS typically in the 1.5–3 GB range.
+Self-hosted single-process means no multi-container orchestration, no Postgres/Redis/Chroma sidecars, no per-tenant container overhead. The 399 MB idle footprint runs on a $5/month VPS tier. Mem0 / Zep / Letta canonical deployments require >=3 services (API + DB + vector store) with combined RSS typically in the 1.5–3 GB range.
 
 #### 5.7.4 Observability layer
 
@@ -955,7 +955,7 @@ The F10 observability layer (Phase A: `/observability/health.html`; Phase B: `/o
 
 All EverMemBench claims in §5.1.5–§5.1.10 use the **5-batch canonical protocol** (PR #371 DECISIONS + PR #376 `eval/lib/aggregate_5batch.py`):
 
-- **5-batch set:** batches 004, 005, 010, 011, 016 (n ≈ 120–250 queries each, total n=3,121)
+- **5-batch set:** batches 004, 005, 010, 011, 016 (n ~ 120–250 queries each, total n=3,121)
 - **Aggregate metric:** mean across 5 batches per category
 - **CI:** 95% confidence interval via t-distribution (n=5), reported as [lower, upper]
 - **Claim threshold:** improvement claimed only when CI lower bound exceeds baseline mean
@@ -964,7 +964,7 @@ Single-batch gates were the prior protocol; they are now explicitly deprecated f
 
 #### 5.8.2 Why single-batch gates overstate effects 3–6×
 
-The risk of single-batch measurement is concrete: Phase G batch 004 reported F_MH +8.00 pp (labelled "breakthrough"); the 5-batch reality was +1.61 pp — a 5× overstatement. Phase H v2 batch 004 reported +11.60 pp overall vs MemOS; the 5-batch reality was +9.13 pp (1.27× overstatement, still a win but a different narrative). The root cause is per-batch variance in EverMemBench: F_MH σ ≈ 2.3 pp, F_HL σ ≈ 5 pp, MA_C/P/U σ ≈ 3 pp — any single-batch Δ below ~2σ is noise floor. Batch 004 specifically was a +1.40σ to +1.70σ upper-tail outlier across Phase G and Phase H runs; without the 5-batch protocol both would have been overclaimed in print. Additional single-batch failure mode: MA dimension regressions were **invisible** in Phase G batch 004 because batch 004 already had the lowest MA performance of the five batches (selection bias), hiding the −3 to −4 pp MA cost entirely.
+The risk of single-batch measurement is concrete: Phase G batch 004 reported F_MH +8.00 pp (labelled "breakthrough"); the 5-batch reality was +1.61 pp — a 5× overstatement. Phase H v2 batch 004 reported +11.60 pp overall vs MemOS; the 5-batch reality was +9.13 pp (1.27× overstatement, still a win but a different narrative). The root cause is per-batch variance in EverMemBench: F_MH sigma ~ 2.3 pp, F_HL sigma ~ 5 pp, MA_C/P/U sigma ~ 3 pp — any single-batch Δ below ~2sigma is noise floor. Batch 004 specifically was a +1.40sigma to +1.70sigma upper-tail outlier across Phase G and Phase H runs; without the 5-batch protocol both would have been overclaimed in print. Additional single-batch failure mode: MA dimension regressions were **invisible** in Phase G batch 004 because batch 004 already had the lowest MA performance of the five batches (selection bias), hiding the −3 to −4 pp MA cost entirely.
 
 **Overstatement rates observed:**
 
@@ -989,7 +989,7 @@ Concurrent agent operations during Lab Q1 benchmarking caused a batch contaminat
 - **EverMemBench Phase H v2 headline (+9.13 pp vs MemOS GPT-4.1-mini)** is real and CI-verified, but the absolute score (51.68%) is not high — MemOS itself is only 42.55%. GPT-4.1-mini is the only tested backbone where all memory systems gain vs Full Context.
 - **EverMemBench Backbone Matrix (Gemini-3-flash): +20.73 pp Overall / +32.74 pp MA composite** is the strongest cross-system claim in the paper. The lift is the multiplicative interaction of nox-mem's V10 retrieval stack and frontier-tier reasoning, not exclusively backbone-driven (§5.1.10).
 - **MuSiQue F1 58.62%** (§5.2.1) and **HotPotQA ans_F1 73.37%** (§5.2.2) are both above published reader SOTA without specialized fine-tuning, validating the architecture's multi-hop reasoning quality on classical benchmarks. Comparison ranges are from the public IRCoT, EX(SA), and DPR+FiD literature.
-- **LoCoMo retrieval@10 strict 74.52%** (§5.3) above Mem0 SOTA F1 66.88% is the retrieval ceiling on LoCoMo; the F1 push of 51.85% is rank-5 (above Zep / LangMem, below Mem0 SOTA 66.88%) due to a verbosity gap (§5.3.2). Path to ≥55% requires orchestration (§5.5).
+- **LoCoMo retrieval@10 strict 74.52%** (§5.3) above Mem0 SOTA F1 66.88% is the retrieval ceiling on LoCoMo; the F1 push of 51.85% is rank-5 (above Zep / LangMem, below Mem0 SOTA 66.88%) due to a verbosity gap (§5.3.2). Path to >=55% requires orchestration (§5.5).
 - **KG path, MAP, MQ, adaptive classifier, and Q3 IterC** are opt-in features, not defaults. Each addresses a known structural gap; combined effects measured in Wave B/C (§5.1.9).
 - The sanitize fix (`[[unicode-aware-sanitize-for-fts5]]`) is a prerequisite for all scores reported here; pre-fix Q2 numbers (nDCG@10 0.9126 LongMemEval) would have been reported as lower and should not be compared directly.
 - **Wave 2 NO-REPLICATE findings (D75, §5.5.5):** the Lab Q1 single-stage knob lifts in §5.1.8 were measured on gpt-4.1-mini and are valid for that backbone. They do NOT transfer reliably to Gemini-3-flash (transfer rate ~0–40%). Any claim of "Wave A knob X delivers +N pp F_MH" must specify the backbone. The §5.5.4 composability matrix replaces the D74 projection with measured numbers; the original projection table is superseded and should not be cited.
@@ -1011,11 +1011,11 @@ Concurrent agent operations during Lab Q1 benchmarking caused a batch contaminat
 
 ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
-> **Status (atualizado 2026-05-24 ~22h BRT — FINAL):** Sat 2026-05-24 FINAL closure. **4/6 systems com dados reais.** Decision A aprovada: ship 4/6 (Zep 🚫 GATED por OpenAI embedding requirement; EverMind-AI ❌ SKIP por repo 404 confirmado PR #281). nox-mem headline: nDCG@10=0.6380 (Gemini hybrid) / 0.3753 (FTS5-only). mem0 (500-chunk cap) + agentmemory (1401-chunk cap) + Letta (partial 1/5 smoke) medidos com caveats de corpus. Canonical 100-query run deferred Sun 2026-05-25 com corpus uniforme sem cap. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) imutáveis. Nota: "Sat 2026-05-24 partial; canonical full-corpus run Sun 2026-05-25." Refs: `[[q4-real-numbers-sat-2026-05-24]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
+> **Status (atualizado 2026-05-24 ~22h BRT — FINAL):** Sat 2026-05-24 FINAL closure. **4/6 systems com dados reais.** Decision A aprovada: ship 4/6 (Zep NO GATED por OpenAI embedding requirement; EverMind-AI FAIL SKIP por repo 404 confirmado PR #281). nox-mem headline: nDCG@10=0.6380 (Gemini hybrid) / 0.3753 (FTS5-only). mem0 (500-chunk cap) + agentmemory (1401-chunk cap) + Letta (partial 1/5 smoke) medidos com caveats de corpus. Canonical 100-query run deferred Sun 2026-05-25 com corpus uniforme sem cap. Princípios (§6.5), anti-cherry-pick (§6.6) e pre-registration (§6.7) imutáveis. Nota: "Sat 2026-05-24 partial; canonical full-corpus run Sun 2026-05-25." Refs: `[[q4-real-numbers-sat-2026-05-24]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 ### 6.1 Methodology summary
 
-A §6 cobre a comparação cross-system entre nox-mem e cinco sistemas competidores de memória persistente para agentes de IA. O execution plan completo está documentado em `specs/2026-05-23-Q4-comparison-execution-plan.md` (pre-registered 2026-05-23, antes do run de Sat 2026-05-24). Os princípios de comparação (§6.5), as garantias anti-cherry-pick (§6.6), e a pre-registration formal (§6.7) são cravados nesta seção antes da execução; somente as tabelas de §6.2/§6.3/§6.4 recebem números após o run. O objetivo é satisfazer o gate D43 (`docs/DECISIONS.md`) — nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR, latência) — destravando a GTM Phase 2.
+A §6 cobre a comparação cross-system entre nox-mem e cinco sistemas competidores de memória persistente para agentes de IA. O execution plan completo está documentado em `specs/2026-05-23-Q4-comparison-execution-plan.md` (pre-registered 2026-05-23, antes do run de Sat 2026-05-24). Os princípios de comparação (§6.5), as garantias anti-cherry-pick (§6.6), e a pre-registration formal (§6.7) são cravados nesta seção antes da execução; somente as tabelas de §6.2/§6.3/§6.4 recebem números após o run. O objetivo é satisfazer o gate D43 (`docs/DECISIONS.md`) — nox-mem em top-3 em >=2 das 4 métricas chave (nDCG@10, R@10, MRR, latência) — destravando a GTM Phase 2.
 
 ### 6.2 Competitors
 
@@ -1065,8 +1065,8 @@ O smoke não disaggregou `nDCG@10` por dataset (combined-only) — desagregaçã
 | Mem0 | `[pending Sun canonical — full corpus, no 500-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.10+ ingest |
 | agentmemory | `[pending Sun canonical — full corpus, no 20%-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.00 |
 | Letta | `[pending — partial only; agent-loop arch]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` |
-| Zep | `[FALHA: 🚫 GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
-| EverMind-AI | `[FALHA: ❌ SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
+| Zep | `[FALHA: NO GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
+| EverMind-AI | `[FALHA: FAIL SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
 
 **LoCoMo full (canonical — pending Sun 2026-05-25):**
 
@@ -1076,8 +1076,8 @@ O smoke não disaggregou `nDCG@10` por dataset (combined-only) — desagregaçã
 | Mem0 | `[pending Sun canonical — full corpus, no 500-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.10+ ingest |
 | agentmemory | `[pending Sun canonical — full corpus, no 20%-cap]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | ~$0.00 |
 | Letta | `[pending — partial only; agent-loop arch]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` | `[pending]` |
-| Zep | `[FALHA: 🚫 GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
-| EverMind-AI | `[FALHA: ❌ SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
+| Zep | `[FALHA: NO GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
+| EverMind-AI | `[FALHA: FAIL SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
 
 Zep e EverMind-AI são reportadas com `[FALHA: <razão>]` explícito em vez de omitidas — consistente com §6.6 (anti-cherry-pick). O run canônico Sun 2026-05-25 atualiza as células `[pending]` para os 4 sistemas restantes com corpus uniforme (sem cap). Ref: `[[q4-real-numbers-sat-2026-05-24]]`.
 
@@ -1144,7 +1144,7 @@ Para evitar viés de seleção retroativo:
 
 A metodologia desta seção está cravada no `specs/2026-05-23-Q4-comparison-execution-plan.md` antes do run de Sat 2026-05-24. O **smoke de Sat 2026-05-24 15h30 BRT** preencheu a primeira linha de §6.3 (nox-mem combined: nDCG@10=0.6380, p50=8ms, gold-hit 13/20 em 20 queries dry-run-sample) e validou que o pipeline de retrieval funciona end-to-end em eval-isolated DB. O **partial cross-system smoke de Sat 2026-05-24 18h BRT** adicionou a linha mem0 (n=20, 500-chunk corpus cap): nDCG@10=0.8569, p50=273ms, gold-hit 3/20 (15%) — com interpretação explícita do trade-off coverage vs concentração em §6.3. O **run canônico** ainda está em curso e atualiza as linhas competidoras `[PENDING canonical run]` em §6.3 + a totalidade de §6.4 quando os 6 adapters estiverem prontos com corpus uniforme. Princípios (§6.5), anti-cherry-pick (§6.6) e a estrutura geral desta seção são imutáveis post-run. Qualquer ajuste metodológico identificado durante a execução é documentado como follow-up explícito em `docs/COMPARISON.md` em vez de retroagido aqui. Refs: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
-A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em top-3 em ≥2 das 4 métricas chave (nDCG@10, R@10, MRR, latência). Atendido o gate, GTM Phase 2 está destravada conforme `docs/ROADMAP.md` §7. Não atendido, a sessão de Sun 2026-05-25 produz um plano de remediação (ajustes pre-launch) em vez de launch direto.
+A decisão D43 (`docs/DECISIONS.md`) define o gate de aprovação: nox-mem em top-3 em >=2 das 4 métricas chave (nDCG@10, R@10, MRR, latência). Atendido o gate, GTM Phase 2 está destravada conforme `docs/ROADMAP.md` §7. Não atendido, a sessão de Sun 2026-05-25 produz um plano de remediação (ajustes pre-launch) em vez de launch direto.
 
 ### 6.8 Autonomy quantified — operational cost per memory system
 
@@ -1163,7 +1163,7 @@ The Q4 quality comparison (§6.3 – §6.6) reports retrieval *quality* under ma
 
 **Reading the table.** Three rows of the cost matrix translate directly into Autonomy:
 
-1. **Services column.** Every additional service is an additional failure mode, an additional security-patching surface, and an additional vendor that must be available on the day a user spins up the system. nox-mem ships as a single Node process operating on a single SQLite file; the only durable on-disk artifact is `nox-mem.db`. mem0/Zep/Letta/LightRAG each require ≥1 database container and at least one external LLM/embedding provider. EverOS requires five containers, three of which are heavyweight infrastructure (MongoDB, Elasticsearch, Milvus). The single-service property is what makes "open `nox-mem.db` in `sqlite3` and inspect everything" a literal operation, not a euphemism.
+1. **Services column.** Every additional service is an additional failure mode, an additional security-patching surface, and an additional vendor that must be available on the day a user spins up the system. nox-mem ships as a single Node process operating on a single SQLite file; the only durable on-disk artifact is `nox-mem.db`. mem0/Zep/Letta/LightRAG each require >=1 database container and at least one external LLM/embedding provider. EverOS requires five containers, three of which are heavyweight infrastructure (MongoDB, Elasticsearch, Milvus). The single-service property is what makes "open `nox-mem.db` in `sqlite3` and inspect everything" a literal operation, not a euphemism.
 
 2. **Mandatory third-party keys column.** A system that requires an OpenAI key by default is not autonomous regardless of license — the user is dependent on one specific vendor's pricing, rate limits, and terms of service. nox-mem treats embeddings as optional (FTS5-only retrieval is a valid degraded mode; §4) and is provider-agnostic when embeddings are enabled (Gemini default, Ollama-local feasible — §7.1 L2). Zep and Letta hardcode OpenAI as the default embedding provider.
 
@@ -1219,7 +1219,7 @@ Phase 5 of the A2 Tier 3 roadmap targets a full SQLCipher-encrypted memory store
 
 #### F2 — F10 Phase C/D: shadow tracker empirical A/B for ranking changes
 
-F10 Phase A (`/observability/health.html`) and Phase B (`/observability/evals.html`) are deployed (§5.6, decision D53). Phase C targets a shadow-mode query logger that captures production queries, executes them against a candidate ranking config in parallel, and accumulates query-level nDCG deltas before any promotion decision. Phase D operationalizes this into a pre-promotion gate: any ranking change (boost weight adjustment, mutex threshold, salience weight) that has not accumulated ≥50 shadow queries with p < 0.05 improvement is blocked from reaching the production endpoint. This closes the observability gap identified in `[[ship-ranking-changes-in-shadow-mode-first]]` — currently the shadow mode is a flag toggle, not an integrated eval pipeline. Ref: `docs/ROADMAP.md` F10, decision D53, PR #207/#212.
+F10 Phase A (`/observability/health.html`) and Phase B (`/observability/evals.html`) are deployed (§5.6, decision D53). Phase C targets a shadow-mode query logger that captures production queries, executes them against a candidate ranking config in parallel, and accumulates query-level nDCG deltas before any promotion decision. Phase D operationalizes this into a pre-promotion gate: any ranking change (boost weight adjustment, mutex threshold, salience weight) that has not accumulated >=50 shadow queries with p < 0.05 improvement is blocked from reaching the production endpoint. This closes the observability gap identified in `[[ship-ranking-changes-in-shadow-mode-first]]` — currently the shadow mode is a flag toggle, not an integrated eval pipeline. Ref: `docs/ROADMAP.md` F10, decision D53, PR #207/#212.
 
 #### F3 — Per-method benchmark Phase B: cross-method nDCG optimization
 
@@ -1243,7 +1243,7 @@ The current evaluation corpus is English-dominant (LongMemEval and LoCoMo are En
 
 #### F8 — GTM Phase 2 launch and community feedback intake
 
-The Q/A/P roadmap (decision `[[qap-pillars-strategic-pivot-2026-05-17]]`) defines GTM Phase 2 as gated on D43 (nox-mem top-3 in ≥2 of 4 key metrics — nDCG@10, R@10, MRR, latency). The target launch date is Wed 2026-06-03, conditional on the canonical Q4 run completing and D43 passing. Post-launch, community feedback from the OSS release is expected to surface real-world limitation patterns not visible in the synthetic golden sets (e.g., corpora with high image-to-text OCR content, multi-language mixes, or very short memory fragments < 20 words that the current chunker merges). The feedback cycle directly informs Lab Q2 priorities. Ref: `docs/ROADMAP.md` GTM Phase 2, `docs/gtm/`, `[[overnight-automode-push-pattern]]`.
+The Q/A/P roadmap (decision `[[qap-pillars-strategic-pivot-2026-05-17]]`) defines GTM Phase 2 as gated on D43 (nox-mem top-3 in >=2 of 4 key metrics — nDCG@10, R@10, MRR, latency). The target launch date is Wed 2026-06-03, conditional on the canonical Q4 run completing and D43 passing. Post-launch, community feedback from the OSS release is expected to surface real-world limitation patterns not visible in the synthetic golden sets (e.g., corpora with high image-to-text OCR content, multi-language mixes, or very short memory fragments < 20 words that the current chunker merges). The feedback cycle directly informs Lab Q2 priorities. Ref: `docs/ROADMAP.md` GTM Phase 2, `docs/gtm/`, `[[overnight-automode-push-pattern]]`.
 
 ---
 
@@ -1441,7 +1441,7 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 nox-mem demonstrates that persistent, searchable, and shareable memory for AI agent fleets is achievable with commodity infrastructure (single VPS, SQLite, local LLM). The hybrid search system consistently outperforms single-method retrieval, particularly for multilingual content and compound technical terms. The LLM-powered knowledge graph provides 15x richer entity extraction compared to regex approaches, while temporal decay ensures the graph stays current without manual curation. The Wave A empirical evaluation (§5) cravou nDCG@10 = 0.6237 on the entity-flavored golden set (+78.8% relative over the G3 baseline), with `section_boost` identified as the dominant driver (99.85% of the lift recovered by A3 alone) and the additive salience formula validated by the `active > shadow` reversal. The G10d conditional mutex evolution (§5.5, deployed 2026-05-21) consolida o canonical boost stack `section_boost × source_type_boost (Hard Mutex gated by query_entity_count ≤ 2) × salience v2 additive` em produção, recuperando regressões multi-hop e adversarial com diluição contida em single-hop. A camada F10 (§5.6, decisão D53) torna o estado de produção verificável a qualquer momento via dashboards Phase A (`/observability/health.html`) + Phase B (`/observability/evals.html`).
 
-A §6 Q4 COMPARISON está pre-registered (`specs/2026-05-23-Q4-comparison-execution-plan.md`) e o **smoke de Sat 2026-05-24 15h30 BRT** populou a primeira linha de §6.3 com números de nox-mem (nDCG@10=0.6380 combined, p50=12ms, gold-hit 13/20 em 20 queries dry-run-sample sobre eval-isolated DB de 5.882 LoCoMo + 940 LongMemEval chunks). O **run canônico** — 100 queries × 2 datasets × 6 sistemas (Mem0, Zep, Letta, agentmemory, EverMind-AI + nox-mem) — ainda está em execução com 5/6 competitor adapters em setup, e atualiza as células `[PENDING canonical run]` quando crava. O gate D43 (top-3 em ≥2 das 4 métricas chave) é avaliado contra o run canônico; o smoke valida a metodologia + confirma que nox-mem retrieval funciona end-to-end, destravando a defesa pre-launch da GTM Phase 2.
+A §6 Q4 COMPARISON está pre-registered (`specs/2026-05-23-Q4-comparison-execution-plan.md`) e o **smoke de Sat 2026-05-24 15h30 BRT** populou a primeira linha de §6.3 com números de nox-mem (nDCG@10=0.6380 combined, p50=12ms, gold-hit 13/20 em 20 queries dry-run-sample sobre eval-isolated DB de 5.882 LoCoMo + 940 LongMemEval chunks). O **run canônico** — 100 queries × 2 datasets × 6 sistemas (Mem0, Zep, Letta, agentmemory, EverMind-AI + nox-mem) — ainda está em execução com 5/6 competitor adapters em setup, e atualiza as células `[PENDING canonical run]` quando crava. O gate D43 (top-3 em >=2 das 4 métricas chave) é avaliado contra o run canônico; o smoke valida a metodologia + confirma que nox-mem retrieval funciona end-to-end, destravando a defesa pre-launch da GTM Phase 2.
 
 The cross-agent intelligence layer transforms isolated agent memories into a collaborative knowledge base, enabling institutional learning across the fleet. Combined with the live dashboard, the system provides full observability into the collective memory of the agent organization.
 
@@ -1461,7 +1461,7 @@ The cross-agent intelligence layer transforms isolated agent memories into a col
 
 [^zep]: Zep — temporal knowledge-graph memory service with summarization. github.com/getzep/zep. OpenAI embedding is the hardcoded default in the OSS distribution. Used in §1.4, §6.3, Table 2.
 
-[^lightrag]: Guo et al., *LightRAG: Simple and Fast Retrieval-Augmented Generation*, EMNLP 2025 (HKU). github.com/HKUDS/LightRAG (~35k stars, MIT). Cited in §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized incremental KG-merge pattern as a forward-looking optimization (LightRAG-style summarization parking-lotted until KG density ≥10× current; see `docs/COMPETITIVE-ANALYSIS-2026-05-19.md`).
+[^lightrag]: Guo et al., *LightRAG: Simple and Fast Retrieval-Augmented Generation*, EMNLP 2025 (HKU). github.com/HKUDS/LightRAG (~35k stars, MIT). Cited in §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized incremental KG-merge pattern as a forward-looking optimization (LightRAG-style summarization parking-lotted until KG density >=10× current; see `docs/COMPETITIVE-ANALYSIS-2026-05-19.md`).
 
 [^hipporag2]: HippoRAG2 — graph-augmented retrieval with Personalized PageRank over an entity-relation graph. Cited as a graph-baseline peer in §1.4 and §6.
 
