@@ -2,6 +2,64 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-06-02 ~18:00 BRT — Hostinger CPU throttling aborts Wave 2 capstone bench (D76); infrastructure constraint, not scientific failure
+
+### Severity: yellow — benchmark abort; no data loss; VPS operational throughout
+
+### TL;DR
+
+Wave 2 Phase 2 capstone bench (PR #426, IterB ReAct + Wave C triple on Gemini-3-flash, n=3,121 5-batch) was dispatched Sun 2026-05-31 ~17:40 BRT and aborted Tue 2026-06-02 ~17:55 BRT after 48h elapsed. Batch 005 completed 0/50 questions in 23h under sustained Hostinger CPU steal (51-97%). Three mitigation rounds failed to restore acceptable throughput. Capstone closed via abandon comment on PR #426. **Infrastructure constraint, NOT scientific failure** — the underlying IterB ReAct mechanism remains validated (PR #419, +2.01pp clean F_MH lift). D76 cravado. Memory: `[[capstone-aborted-hostinger-throttling-indeterminate]]`.
+
+### Timeline
+
+```
+Sun 2026-05-31 ~17:40 BRT   capstone bench dispatched via tmux wave2-capstone-7a1cadf2 (PID 2194486)
+Sun 2026-05-31 ~18:00 BRT   CPU steal first observed: 8.5%
+Sun 2026-05-31 ~20:00 BRT   CPU steal escalates: ~50-60%
+Mon 2026-06-01 ~08:00 BRT   batch 005 still at 0/50 questions (~14h elapsed, zero progress)
+Mon 2026-06-01 mitigation 1 taskset + nice + ORT thread caps + YAML tuning
+Mon 2026-06-01 ~18:00 BRT   CPU steal 97% peak (VPS shared host contention)
+Mon 2026-06-01 ~22:00 BRT   first VPS reboot attempt — steal drops to 21% temporarily
+Tue 2026-06-02 ~06:00 BRT   CPU steal back to 50%+ (contention resumed post-reboot)
+Tue 2026-06-02 mitigation 2 second reboot + .env caps rolled back
+Tue 2026-06-02 ~12:00 BRT   batch 005 still 0/50 questions (23h, zero progress confirmed)
+Tue 2026-06-02 ~17:55 BRT   capstone abort decision; PR #426 closed with abandon comment
+Tue 2026-06-02 ~18:30 BRT   openclaw re-enabled; VPS healthy after 24h cooldown confirmation
+```
+
+### Root cause
+
+Hostinger shared VPS CPU steal contention — co-tenant workloads saturating physical host CPU. Steal oscillated 8.5% → 97% → 21% (post-reboot) → 50%+ (resumed). Not a nox-mem application bug; not a bench methodology issue; not a scientific signal about the IterB + Wave A/B/C composability hypothesis.
+
+### Cost incurred
+
+~$20-25 Gemini API spend on capstone retry rounds before abort.
+
+### Environmental state during incident
+
+- openclaw service was disabled during bench run (resource isolation)
+- .env CPU caps added (ORT_NUM_THREADS + other thread limits — `[[ort-num-threads-cap-during-capstone]]`)
+- 23G disk freed before bench start
+
+### Recovery
+
+1. openclaw re-enabled
+2. .env CPU caps rolled back to baseline
+3. VPS healthy confirmed (24h cooldown from CPU steal; `nox-mem-api` responsive; healthcheck green)
+4. Disk usage back to normal headroom
+
+### Scientific integrity note
+
+D76 distinguishes infrastructure abort from scientific failure. The 3-knob NO-REPLICATE pattern (D75, PRs #423-#425) is a real research finding independently of the capstone. The IterB architectural lock finding (`[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`) is also a real finding — the capstone would have required explicit guard removal patch regardless of infrastructure. The capstone is deferred to stable infrastructure (Q2/Q3 cycle), not abandoned as a hypothesis.
+
+### Fix / prevention
+
+- Future capstone benches: use dedicated cloud run (GCP/AWS spot) or schedule for off-peak Hostinger hours
+- CPU steal monitoring: add `/api/health` check for host-level steal metric before dispatching long-running benches
+- PR #426 retain as draft for future resumption (architectural lock patch required)
+
+---
+
 ## 2026-05-26 ~02:00 UTC (23:00 BRT Mon 25/mai) — RECORRÊNCIA #4 — atlas reindex wipe (69.135 → 756 chunks); kill-switch havia sido removido entre 23/mai e 25/mai
 
 ### Severity: 🔴 red — data-loss event em produção (recuperado sem perda via snapshot pre-op)

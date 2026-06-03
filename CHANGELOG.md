@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — 2026-06-02 — Wave 2 closure + docs final sync
+
+- **PR #427 (closure bundle)** — D75 + D76 cravados + paper §5 v5 + ROADMAP v5.1 + HANDOFF Tue. Wave 2 formally closed.
+  - **D75:** Wave 2 Phase 1.5 retrieval-stage composability CLOSED on Gemini-3-flash. 3-knob NO-REPLICATE pattern confirmed (KG 0% transfer / AC ~40% transfer / MQ ~34% transfer from gpt-4.1-mini). D74 composability projection substantially refuted at single-stage retrieval layer. IterB ReAct (+2.01pp, PR #419) remains the only validated F_MH lever on Gemini-3-flash.
+  - **D76:** Wave 2 Phase 2 Capstone (PR #426) ABORTED — Hostinger CPU steal 51-97% sustained (48h, batch 005 0/50 questions in 23h, ~$20-25 spent). Infrastructure constraint, NOT scientific failure. Architectural lock finding (`[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`) documented. Capstone deferred to stable infrastructure.
+  - **Paper §5 v5:** 5 new/replaced sections — §5.5.4 empirical NO-REPLICATE matrix (replaces D74 projection) + §5.5.5 backbone-portability + §5.5.6 MQ MA flip + §5.5.7 architectural composability + §5.5.8 D76 infra abort. PDF + TEX clean rebuild.
+  - **ROADMAP v5.1:** Q1 priorities updated (HyDE bench + Claude Sonnet 4.6 / Opus 4.7 backbone bench). Q2/Q3 capstone parked pending stable infrastructure.
+  - **HANDOFF Tue:** Mon AM pickup actions + Wave 2 state committed.
+- **PR #423** — R0 sanity KG path standalone Gemini-3-flash 5-batch: F_MH -0.01pp (NO-REPLICATE, KG 0% transfer). Cravado `[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`.
+- **PR #424** — AC standalone Gemini-3-flash 5-batch: F_MH +0.81pp (gate FAIL, ~40% transfer). Cravado `[[adaptive-classifier-backbone-dependent-no-replicate-gemini-3-flash]]`.
+- **PR #425** — MQ standalone Gemini-3-flash 5-batch: F_MH +1.21pp (gate FAIL borderline, ~34% transfer; sub-finding: MA_U +3.10pp PRESERVED on Gemini-3-flash). Cravado `[[multi-query-backbone-dependent-no-replicate-gemini-3-flash]]`.
+- **PR #426 (closed)** — Wave 2 Phase 2 Capstone bench closed via abandon comment (D76 infra abort). Architectural lock finding documented for future composability work.
+- **6 memory findings crystallized:** `[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]` + `[[adaptive-classifier-backbone-dependent-no-replicate-gemini-3-flash]]` + `[[multi-query-backbone-dependent-no-replicate-gemini-3-flash]]` + `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]` + `[[capstone-aborted-hostinger-throttling-indeterminate]]` + `[[ort-num-threads-cap-during-capstone]]`.
+- **Docs final sync (this PR):** README.md + COMPARISON.md (rev8) + COMPETITIVE-POSITIONING.md (rev4) + INCIDENTS.md (D76 entry) + CHANGELOG.md — Wave 2 closure honest framing propagated. 12 SOTA dims canonical confirmed (no 13th). Infrastructure abort distinguished from scientific failure across all public-facing docs.
+
 ### Added — 2026-05-31 evening — Wave 2 composability matrix empirical validation
 
 - **PR #423** — R0 sanity KG path standalone Gemini-3-flash 5-batch (n=3,121, batches 004/005/010/011/016). F_MH delta **-0.01pp** vs D70 bare baseline (95% CI [3.00, 9.04] includes baseline). KG path mechanism fired 100% of queries (84k vault tokens injected) but provided zero net F_MH lift on Gemini-3-flash backbone. Refutes D74 composability projection IterB+KG ~10.8% F_MH. Cravado `[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`.
