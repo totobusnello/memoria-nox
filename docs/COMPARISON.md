@@ -1,10 +1,11 @@
 # nox-mem vs the field — public benchmark comparison
 
-> **Status: rev7 2026-05-31 — 12 SOTA-tier dimensions (5 research + 4 production + 2 retrieval-side + 1 orchestration F_MH ceiling break) consolidated.**
-> **NEW (rev7, PRs #413 #419):** HotPotQA SP-F1 LLM extractor joint_F1 +5.66pp / SP_F1 +5.96pp opt-in retrieval-side dim · Q3 IterB ReAct F_MH ceiling break +2.01pp clean lift on Gemini-3-flash bare baseline (8.03% standalone breaks Wave A/B/C single-stage ceiling 7.25% from D69 by +0.78pp) — first orchestration-stage F_MH lift on top of strongest backbone, SHIP_OPT_IN via `NOX_ITERB_GEMINI=1`.
-> **Prior (rev6, 2026-05-30):** 9 SOTA claims (Backbone Matrix Gemini-3-flash Overall +20.73pp + MA +32.74pp · MuSiQue F1 58.62% +22.82pp vs IRCoT iterative SOTA · HotPotQA ans_F1 73.37% above DPR+FiD reader SOTA · LoCoMo retrieval 74.52% above Mem0 SOTA F1 · Production SOTA (2.5ms KG path / $0/query / 769× cheaper / 399MB RSS) · EverMemBench F_MH paradox RESOLVED via classical multi-hop dual SOTA).
+> **Status: rev8 2026-06-02 — Wave 2 CLOSED. 12 SOTA-tier dimensions canonical (no 13th). D75 + D76 cravados.**
+> **Wave 2 closure (rev8, Tue 2026-06-02, PRs #423-#427):** 3-knob NO-REPLICATE pattern confirmed (D75) — single-stage retrieval knobs transfer at ~24-40% from gpt-4.1-mini to Gemini-3-flash (KG 0% / AC ~40% / MQ ~34%). D74 composability projection substantially refuted at single-stage layer. Orchestration-stage capstone (PR #426) aborted due to infrastructure constraint — Hostinger CPU steal 51-97% sustained (D76); infrastructure abort, NOT scientific failure. IterB ReAct (+2.01pp clean, PR #419) remains the only validated F_MH lever on Gemini-3-flash. Q1 priorities: HyDE bench + Claude Sonnet 4.6 / Opus 4.7 backbone bench.
+> **Prior (rev7, 2026-05-31):** 12 SOTA-tier dimensions consolidated (PRs #413 #419).
+> **Prior (rev6, 2026-05-30):** 9 SOTA claims (Backbone Matrix Gemini-3-flash · MuSiQue · HotPotQA · LoCoMo · Production SOTA · F_MH paradox RESOLVED).
 > **Prior baseline (rev5, 2026-05-29):** Phase H v2 5-batch +9.13pp vs MemOS · LongMemEval n=300 · KG path F_MH +2.81pp opt-in. **Prior (rev4):** Q4 smoke Sat — 4/6 systems. Gate D43 PASSED.
-> Updated 2026-05-31. Refs: `[[q3-iterB-fmh-ceiling-broken-2pp]]` · `[[backbone-matrix-gemini-3-flash-overall-ma-sota]]` · `[[musique-sota-crushing-beats-ircot-ex-sa]]` · `[[hotpotqa-full-73-37-above-dpr-fid-sota]]` · `[[locomo-crossbench-contradicts-fmh-retrieval-bound]]` · `[[production-sota-latency-cost-2026-05-30]]` · PRs #396-#413 + #419.
+> Updated 2026-06-02. Refs: `[[q3-iterB-fmh-ceiling-broken-2pp]]` · `[[backbone-matrix-gemini-3-flash-overall-ma-sota]]` · `[[musique-sota-crushing-beats-ircot-ex-sa]]` · `[[hotpotqa-full-73-37-above-dpr-fid-sota]]` · `[[locomo-crossbench-contradicts-fmh-retrieval-bound]]` · `[[production-sota-latency-cost-2026-05-30]]` · `[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]` · `[[capstone-aborted-hostinger-throttling-indeterminate]]` · PRs #396-#413 + #419 + #423-#427.
 
 ---
 
@@ -53,10 +54,10 @@ F_MH 3-7% gap on EverMemBench is **corpus-structural** (long conversation chains
 
 ### Honest gaps documented
 
-- EverMemBench F_MH 7.23% (best opt-in Wave C CLEAN PR #399, single-stage retrieval ceiling) vs MemOS 18.88% — explained as structural per D72. **Update rev7:** Q3 IterB ReAct (PR #419) opt-in breaks single-stage ceiling to 8.03% standalone on Gemini-3-flash (+0.78pp above ceiling), with composability projection 11-12% with Wave A/B/C single-stage stacking (pending 5-batch measurement).
-- LoCoMo F1 constrained 51.85% vs Mem0 SOTA 66.88% — composition orchestration in development (Q3 IterB POC shipped PR #419 standalone; composability with Wave A/B/C pending)
+- EverMemBench F_MH 7.23% (best opt-in Wave C CLEAN PR #399, single-stage retrieval ceiling) vs MemOS 18.88% — explained as structural per D72. **Wave 2 closure (D75, Tue 2026-06-02):** Q3 IterB ReAct (PR #419) opt-in breaks single-stage ceiling to 8.03% standalone on Gemini-3-flash (+0.78pp above ceiling). D74 composability projection 11-12% refuted at single-stage retrieval layer — knobs transfer at only ~24-40% from gpt-4.1-mini (NO-REPLICATE pattern, D75). Orchestration-stage composability capstone aborted due to infrastructure constraint (D76 — Hostinger CPU steal, not scientific failure). Q1 next: HyDE bench + Claude Sonnet 4.6 / Opus 4.7 backbone bench.
+- LoCoMo F1 constrained 51.85% vs Mem0 SOTA 66.88% — composition orchestration pending Q1
 - Standard hybrid latency p50 529ms — Gemini-embed dominated; local embed Q2 future
-- gpt-5 / Claude Sonnet+Opus backbone columns BLOCKED (API key issues + quota)
+- Claude Sonnet 4.6 / Opus 4.7 backbone columns pending Q1 bench
 
 ---
 
@@ -167,10 +168,10 @@ F_MH 3-7% gap on EverMemBench is **corpus-structural** (long conversation chains
 - **F_MH ceiling break (load-bearing):** Wave A/B/C single-stage retrieval ceiling = 7.25% (D69 cravada, PR #395). IterB 5-batch standalone = **8.03% → breaks ceiling by +0.78pp**.
 - **First orchestration-stage F_MH lift on top of strongest backbone:** previously, F_MH gains came from single-stage retrieval-side knobs (KG path +2.81pp, MQ +3.61pp, KG+MAP +4.04pp — all on gpt-4.1-mini). IterB demonstrates the orchestration stage adds independent lift on top of the D70 backbone primary.
 - **vs MemOS F_MH (gpt-4.1-mini 18.88%):** closes **26% of gap standalone** (8.03% / 18.88%).
-- **Composability projection (NOT MEASURED — pending Q1 5-batch composability runs):**
-  - Pessimistic (additive minus 1pp interaction): IterB ⊕ Wave A/B/C → F_MH **11.07%** = **32.9% MemOS gap closure**
-  - Optimistic (pure additive): F_MH **12.07%** = **41.5% MemOS gap closure**
-  - Caveat: back-of-envelope projection; real composition must be measured 5-batch.
+- **Composability (Wave 2 CLOSED — D75 + D76, Tue 2026-06-02):**
+  - Single-stage retrieval-knob composability on Gemini-3-flash CLOSED: 3-knob NO-REPLICATE pattern confirmed. KG (0% transfer) + AC (~40% transfer, +0.81pp) + MQ (~34% transfer, +1.21pp) = 3-knob sum +2.01pp = 24% of D74 pessimistic projection. Caveat: architectural lock in IterB adapter (`if not iterb_used_path:` guards at lines 2736/2906/3063) short-circuits Wave A knobs by design — composability requires explicit guard removal.
+  - Orchestration-stage capstone (IterB + KG + rerank, PR #426) **aborted — infrastructure constraint** (Hostinger CPU steal 51-97% sustained, 48h, batch 005 0/50 questions in 23h). D76 cravado: infrastructure abort, NOT scientific failure. Deferred to stable infrastructure.
+  - **Current best F_MH on Gemini-3-flash:** 8.03% standalone IterB ReAct (PR #419). Next levers: HyDE bench (PR #415 deferred) + Claude Sonnet 4.6 / Opus 4.7 backbone bench (Q1).
 
 ### Set E (ReAct instrumentation)
 
