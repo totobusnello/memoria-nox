@@ -2,6 +2,22 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-06-04 — Corpus pollution: watcher sem allowlist ingeriu 5.6k chunks de _retired/
+
+**Severidade:** baixa (qualidade, não outage). **Detecção:** pergunta do Toto ("por que docs mostram 69k e prod tem 100.5k?") durante gate do F1 /api/brief.
+
+**Root cause:** bulk import do Mac workspace (~jun/2026) depositou `shared/imports/Claude/` inteiro no workspace; `nox-mem-watch.sh` (inotifywait) não tinha NENHUMA exclusão de diretório → 5.626 chunks de `_retired/` (skills aposentadas, 502 arquivos) entraram no corpus e competiam no ranking (incl. /api/brief scope=global).
+
+**Fix (ordem fonte→dado, autorizada Toto):**
+1. **B** — allowlist guard no watcher (PR nox-workspace#3, 2657f334): case/esac no loop bloqueia `_retired/`, `node_modules/`, `.git/`, `dist/`, `__pycache__/`, `*.bak`, caches. Guard no loop (não `--exclude`) porque `--exclude`/`--include` do inotifywait são mutuamente exclusivos. Dir fonte movido pra `/root/archive-quarantine/Claude-_retired-20260604` (reversível).
+2. **A** — DELETE com snapshot pré-op (`/var/backups/nox-mem/pre-op/cleanup-retired-20260604-150508.db`, 1.7GB): 5.626 chunks removidos. ⚠️ Lição operacional: DELETE em chunks **não roda no sqlite3 CLI puro** (`no such module: vec0` — trigger cascade referencia virtual table); rodar via better-sqlite3 + `sqliteVec.load()` (stack do app).
+
+**Pós-op:** 94.936 chunks, vec 94.929/94.936, orphans 0, salience active. Brief global melhorou visivelmente (slots de skills mortas → decisões reais).
+
+**Prevenção estrutural:** allowlist de import é requisito do Fluxo D (feeders) do PRD session-priming-loop §13.
+
+---
+
 ## 2026-06-02 ~18:00 BRT — Hostinger CPU throttling aborts Wave 2 capstone bench (D76); infrastructure constraint, not scientific failure
 
 ### Severity: yellow — benchmark abort; no data loss; VPS operational throughout

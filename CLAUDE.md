@@ -88,7 +88,7 @@ Quando produtizar (Hotmart/instalador/marketing) → migra pra `nox-supermem/`.
 - **Canary test (PR #280):** Plaintext → encrypted migration validated. Key lesson: PRAGMA key cannot retrofit existing DB — must migrate via atomic VACUUM INTO
 
 ### Schema (V7)
-- `chunks` + `chunks_fts` (FTS5) — **100.5k chunks** ativos (sincronizado 2026-06-04; salto +34k em jun = bulk import Mac workspace via watcher sem allowlist — ver INCIDENTS/limpeza _retired)
+- `chunks` + `chunks_fts` (FTS5) — **94.9k chunks** ativos (sincronizado 2026-06-04 pós-limpeza _retired; jun teve bulk import Mac workspace +34k via watcher sem allowlist → 5.6k de skills aposentadas removidos com snapshot — ver INCIDENTS 2026-06-04)
 - `vec_chunks` + `vec_chunk_map` (sqlite-vec, 3072d) — ~99.97% coverage
 - `kg_entities` (~15.6k) + `kg_relations` (~21.5k) — Gemini 2.5 Flash extraction (incremental nightly; sincronizado 2026-06-04)
 - **Schema v10** (2026-04-23): `retention_days` v8 + `pain` v9 + `section` v10
