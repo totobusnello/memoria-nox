@@ -166,10 +166,10 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 - [ ] Política answer/search em AGENTS.md/SOUL.md (acoplar nos itens do plano Cipher)
 - **Gate:** prova funcional humana pendente (perguntar a um agente o conteúdo do brief) + 1 semana de observação de follow-up rate via brief_log.
 
-### Fase 4 — Hooks Mac (SessionStart/Stop)
-- [ ] SessionStart → brief por projeto (cwd) via Tailscale, `--max-time 1`, fail-open
-- [ ] Stop → digest `.remember/now.md` → ingest-event tipo daily
-- [ ] Dedup: mesma sessão não ingere 2× (session_id no payload)
+### Fase 4 — Hooks Mac (SessionStart ✅ 2026-06-04 / Stop pendente)
+- [x] SessionStart → `~/.claude/hooks/nox-mem-brief.sh`: brief por projeto (basename cwd) via serve HTTPS + Bearer, n=8, `--max-time 2` (TLS handshake; desvio documentado do ≤1s), fail-open total, suprime brief vazio. Teste manual: 132ms, fail-open ✓. Registrado em `settings.json` SessionStart.
+- [ ] Stop → digest `.remember/now.md` → ingest-event tipo daily — **BLOQUEADO por `POST /api/ingest-event` (spec P2, nunca implementada)**. Implementar P2 §4 primeiro.
+- [ ] Dedup: mesma sessão não ingere 2× (session_id no payload) — junto com Stop
 - **Gate:** 1 semana de uso real; brief útil (proxy: Toto não desliga 😄) + corpus não inflando (Δ chunks/dia ≤ ~10 do loop).
 
 **Dependência cross-fase:** Fluxo D completo depende do `POST /api/ingest-event` (spec P2 §4) — implementar junto da Fase 3 ou 4, escopo memoria-nox.
