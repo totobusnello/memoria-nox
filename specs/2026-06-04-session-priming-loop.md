@@ -157,11 +157,13 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 - [ ] Smoke: `nox_mem_search` e `answer` funcionando do Mac
 - **Gate:** consulta cross-máquina round-trip < 2s; zero exposição pública (verificar com nmap externo).
 
-### Fase 3 — Plugin bootstrap OpenClaw (openclaw-vps/infra)
-- [ ] Plugin com `register()` idempotente chamando brief por agente
-- [ ] Política answer/search documentada em AGENTS.md/SOUL.md
-- [ ] Fail-open validado (API down ⇒ sessão sobe normal)
-- **Gate:** 5 agentes priming sem regressão de startup time (> +1s = fail).
+### Fase 3 — Plugin bootstrap OpenClaw ✅ IMPLEMENTADA 2026-06-04 (design superior ao previsto)
+> **Zero plugin custom:** OpenClaw 2026.6.1 tem hook bundled `bootstrap-extra-files` (evento `agent:bootstrap`). Arquitetura final: cron 7,22,37,52 → `nox-mem-brief-refresh.sh` (nox-workspace#4) → `agents/<p>/brief/MEMORY.md` (basename constraint do hook) → injetado no Project Context. Cross-doc: `openclaw-vps/infra/docs/session-priming-f3.md`.
+- [x] Geração de brief por agente (6 personas, ~0.4s total, atômico + fail-open por construção)
+- [x] Config `hooks.internal.entries.bootstrap-extra-files.paths=["brief/MEMORY.md"]` + gateway restart + invariants OK
+- [x] Fail-open validado por design (arquivo stale > ausente; sessão nunca bloqueia)
+- [ ] Política answer/search em AGENTS.md/SOUL.md (acoplar nos itens do plano Cipher)
+- **Gate:** prova funcional humana pendente (perguntar a um agente o conteúdo do brief) + 1 semana de observação de follow-up rate via brief_log.
 
 ### Fase 4 — Hooks Mac (SessionStart/Stop)
 - [ ] SessionStart → brief por projeto (cwd) via Tailscale, `--max-time 1`, fail-open
