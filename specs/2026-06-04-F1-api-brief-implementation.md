@@ -1,6 +1,6 @@
 # F1 — `GET /api/brief` Implementation Spec
 
-**Status:** T0 executado 2026-06-04 (read-only, autorizado por Toto) — design ajustado, pronto pra implementação
+**Status:** T1–T6 implementados 2026-06-04 — PR nox-workspace#1 aberto (review Forge); T7 gate pós-merge pendente
 **Data:** 2026-06-04
 **PRD:** `2026-06-04-session-priming-loop.md` (§6 contrato, §9 Fase 1)
 **Repo de implementação:** nox-mem na VPS (`/root/.openclaw/workspace/tools/nox-mem/`)
@@ -100,34 +100,34 @@ GET /api/brief?scope=<string>&n=<int=10,cap25>&format=<json|text>&since=<dur>&ag
 | access_count | 85.850 zero / 14.712 >0 (máx 2.224) | — |
 | **High-pain órfãos** | pain ≥ 0.7: 2.548 chunks, **1.871 nunca acessados (73%)** | valida empiricamente a tese do Forge (item 5 do plano Cipher) — conhecimento crítico dormindo |
 
-### T1 — Route handler
-- [ ] `GET /api/brief` no server HTTP (mesmo router de `/api/health`)
-- [ ] Parse + validação de params (400 nos inválidos), defaults (n=10, format=json)
+### T1 — Route handler ✅
+- [x] `GET /api/brief` no server HTTP (mesmo router de `/api/health`)
+- [x] Parse + validação de params (400 nos inválidos), defaults (n=10, format=json)
 
-### T2 — Query builder + ranking
-- [ ] Função `buildBriefQuery(scope, agent?, since?)` → SQL com filtro de scope (§2.1) + salience ORDER BY + LIMIT
-- [ ] Cálculo de salience reutiliza o módulo existente (mesma função do health endpoint — não duplicar fórmula)
-- [ ] `one_liner` extractor (§2.4)
+### T2 — Query builder + ranking ✅
+- [x] Função `buildBriefQuery(scope, agent?, since?)` → SQL com filtro de scope (§2.1) + salience ORDER BY + LIMIT
+- [x] Cálculo de salience reutiliza o módulo existente (mesma função do health endpoint — não duplicar fórmula)
+- [x] `one_liner` extractor (§2.4)
 
-### T3 — Read tracking
-- [ ] Migration: tabela `brief_log` + índice (§2.3) — única mudança de schema do F1
-- [ ] INSERT em `brief_log` por item servido; `access_count` de chunks **intocado**
-- [ ] Query de follow-up rate documentada (brief_log ⋈ chunks.last_accessed_at ≤ 24h)
+### T3 — Read tracking ✅
+- [x] Migration: tabela `brief_log` + índice (§2.3) — única mudança de schema do F1
+- [x] INSERT em `brief_log` por item servido; `access_count` de chunks **intocado**
+- [x] Query de follow-up rate documentada (brief_log ⋈ chunks.last_accessed_at ≤ 24h)
 
-### T4 — Renderer `format=text`
-- [ ] Template de linha + header; truncation por budget (§2.5)
+### T4 — Renderer `format=text` ✅
+- [x] Template de linha + header; truncation por budget (§2.5)
 
-### T5 — Testes
-- [ ] Unit: scope mapping (agente, projeto, global), since, n cap, one_liner edge cases (chunk vazio, só frontmatter)
-- [ ] Ranking: chunk high-pain recente > chunk antigo low-pain no mesmo scope
-- [ ] Budget: text nunca excede ~1.200 tokens estimados
-- [ ] Latência: bench p50 < 100ms com DB prod-size (**100k+ chunks**) — atenção: salience é computada por row; se full-scan estourar, pré-filtrar por prefixo de scope (índice em `source_file` se necessário) antes do ranking
-- [ ] Read tracking: servir brief insere em brief_log; `access_count` permanece inalterado (assert explícito no teste)
+### T5 — Testes ✅ (20/20 pass; bench prod p50 37–80ms por scope)
+- [x] Unit: scope mapping (agente, projeto, global), since, n cap, one_liner edge cases (chunk vazio, só frontmatter)
+- [x] Ranking: chunk high-pain recente > chunk antigo low-pain no mesmo scope
+- [x] Budget: text nunca excede ~1.200 tokens estimados
+- [x] Latência: bench p50 < 100ms com DB prod-size (**100k+ chunks**) — atenção: salience é computada por row; se full-scan estourar, pré-filtrar por prefixo de scope (índice em `source_file` se necessário) antes do ranking
+- [x] Read tracking: servir brief insere em brief_log; `access_count` permanece inalterado (assert explícito no teste)
 
-### T6 — Docs
-- [ ] `docs/PRIMITIVES.md`: seção "Composing: brief" (não é 4º primitivo — é composição salience+temporal empacotada)
-- [ ] `docs/openapi.yaml`: path + schemas
-- [ ] `docs/ARCHITECTURE.md`: 1 linha no diagrama da API
+### T6 — Docs ✅
+- [x] `docs/PRIMITIVES.md`: seção "Composing: brief" (não é 4º primitivo — é composição salience+temporal empacotada)
+- [x] `docs/openapi.yaml`: path + schemas
+- [x] `docs/ARCHITECTURE.md`: 1 linha no diagrama da API
 
 ### T7 — Deploy + gate Fase 1
 - [ ] Deploy na VPS (PR + review Forge, padrão do repo)

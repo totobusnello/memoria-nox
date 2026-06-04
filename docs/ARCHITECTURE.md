@@ -63,6 +63,7 @@ Client (CLI · MCP · HTTP)
                   ┌──────────────────────┐
                   │  /api/search         │
                   │  /api/answer (RAG)   │
+                  │  /api/brief (priming)│
                   └──────────────────────┘
 
 External:
@@ -329,7 +330,7 @@ SQLite chunk text  ──extract──►  Gemini API  ──entities/relations�
 **What leaves the machine:** only chunk text routed to the Gemini API for embedding or KG extraction. No telemetry, no analytics, no third-party storage. If `GEMINI_API_KEY` is revoked, retrieval keeps working on already-embedded chunks — only new ingest stalls.
 
 **API surface:**
-- `/api/health`, `/api/search`, `/api/kg/*`, `/api/answer` — **read-only**, currently unauthenticated, designed to bind to `127.0.0.1`. Reverse proxy (Caddy/nginx) handles TLS + auth at the edge.
+- `/api/health`, `/api/search`, `/api/kg/*`, `/api/answer`, `/api/brief` — **read-only** (brief escreve apenas em `brief_log` própria), currently unauthenticated, designed to bind to `127.0.0.1`. Reverse proxy (Caddy/nginx) handles TLS + auth at the edge.
 - `POST /api/crystallize`, `POST /api/crystallize/validate` — write paths. Currently **trusted-localhost** (same-process). Admin auth + token scopes are a Q1 2026 deliverable (`docs/ROADMAP.md` → v2).
 
 **Storage hardening:**
