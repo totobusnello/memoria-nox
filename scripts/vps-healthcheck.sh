@@ -62,6 +62,7 @@ QUIET=0
 ALERT_CMD=""
 HEALTH_URL=""
 USE_TUNNEL=0
+VIA_TAILSCALE=0
 
 # --------------------------------------------------------------------------- #
 # Helpers
@@ -143,35 +144,34 @@ done
 if [[ -n "$(printenv NOX_HEALTH_URL 2>/dev/null || true)" ]]; then
   HEALTH_URL="$(printenv NOX_HEALTH_URL)"
 else
-  # Try Tailscale first (fastest, no auth needed)
-  if timeout 1 bash -c "command -v tailscale &>/dev/null && tailscale ping nox-vps &>/dev/null" 2>/dev/null; then
-    HEALTH_URL="http://nox-vps.tailnet:18802/api/health"
-    if [[ "$QUIET" -eq 0 ]]; then
-      info "Tailscale detected — using nox-vps.tailnet"
+  # nox-mem-api escuta apenas em 127.0.0.1 na VPS → /api/health só é acessível
+  # via SSH (curl localhost dentro da VPS); Tailscale-direct não serve (bind local).
+  # Resolver IP pro SSH: --ip > Tailscale IP (estável, não swapa) > env VPS_IP > .vps-current-ip.
+  if [[ -z "$VPS_IP" ]]; then
+    _ts_ip=""
+    if command -v tailscale >/dev/null 2>&1; then
+      _ts_ip="$(tailscale status 2>/dev/null | awk '/srv1465941|nox-vps/{print $1; exit}')"
     fi
-  else
-    # Fallback: SSH tunnel (requires VPS_IP and root SSH access)
-    # Resolve VPS IP first (--ip arg > env VPS_IP > arquivo .vps-current-ip)
-    if [[ -z "$VPS_IP" ]]; then
-      _env_ip="$(printenv VPS_IP 2>/dev/null || true)"
-      if [[ -n "$_env_ip" ]]; then
-        VPS_IP="$_env_ip"
-      elif [[ -f "$IP_FILE" ]]; then
-        VPS_IP="$(tr -d '[:space:]' < "$IP_FILE")"
-      fi
-    fi
-
-    if [[ -z "$VPS_IP" ]]; then
-      log "${RED}[ERROR]${RESET} Tailscale unavailable and no VPS IP. Use --ip <IP>, env VPS_IP, or crie $IP_FILE, or set NOX_HEALTH_URL"
-      exit 1
-    fi
-
-    USE_TUNNEL=1
-    HEALTH_URL="http://127.0.0.1:18802/api/health"  # Will be accessed via SSH tunnel
-    if [[ "$QUIET" -eq 0 ]]; then
-      info "Tailscale unavailable — using SSH tunnel to root@$VPS_IP"
+    _env_ip="$(printenv VPS_IP 2>/dev/null || true)"
+    if [[ -n "$_ts_ip" ]]; then
+      VPS_IP="$_ts_ip"
+      VIA_TAILSCALE=1
+      [[ "$QUIET" -eq 0 ]] && info "Usando Tailscale IP $VPS_IP (estável)"
+    elif [[ -n "$_env_ip" ]]; then
+      VPS_IP="$_env_ip"
+    elif [[ -f "$IP_FILE" ]]; then
+      VPS_IP="$(tr -d '[:space:]' < "$IP_FILE")"
     fi
   fi
+
+  if [[ -z "$VPS_IP" ]]; then
+    log "${RED}[ERROR]${RESET} Sem Tailscale e sem VPS IP. Use --ip <IP>, env VPS_IP, crie $IP_FILE, ou set NOX_HEALTH_URL"
+    exit 1
+  fi
+
+  USE_TUNNEL=1
+  HEALTH_URL="http://127.0.0.1:18802/api/health"  # acessado via SSH tunnel
+  [[ "$QUIET" -eq 0 ]] && info "SSH tunnel para root@$VPS_IP"
 fi
 
 # --------------------------------------------------------------------------- #
@@ -188,15 +188,17 @@ SSH_HOSTNAME=""
 SSH_UPTIME_DAYS=""
 
 run_checks() {
-  # --- Check 1: Ping ---
-  if [[ "$QUIET" -eq 0 ]]; then
-    info "Verificando ping para $VPS_IP..."
-  fi
+  # --- Check 1: Ping (pulado via Tailscale — ICMP nem sempre roteado; SSH+API cobrem) ---
+  if [[ "$VIA_TAILSCALE" -eq 0 ]]; then
+    if [[ "$QUIET" -eq 0 ]]; then
+      info "Verificando ping para $VPS_IP..."
+    fi
 
-  if ! ping -c 3 -W 2 "$VPS_IP" > /dev/null 2>&1; then
-    FAILED_CHECK="ping"
-    FAILURE_DETAIL="Ping falhou para $VPS_IP (3 packets, 2s timeout cada)"
-    return 1
+    if ! ping -c 3 -W 2 "$VPS_IP" > /dev/null 2>&1; then
+      FAILED_CHECK="ping"
+      FAILURE_DETAIL="Ping falhou para $VPS_IP (3 packets, 2s timeout cada)"
+      return 1
+    fi
   fi
 
   # --- Check 2: SSH ---
@@ -261,10 +263,22 @@ run_checks() {
 }
 
 # --------------------------------------------------------------------------- #
-# Executa checks
+# Executa checks — com retry para absorver transientes (sleep/wake do Mac,
+# hiccup de rede, SSH lento sob carga). Só alerta se TODAS as tentativas falharem.
+# Ajustável via env: HEALTHCHECK_RETRIES (default 3), HEALTHCHECK_RETRY_SLEEP (default 15s).
 # --------------------------------------------------------------------------- #
+RETRIES="${HEALTHCHECK_RETRIES:-3}"
+RETRY_SLEEP="${HEALTHCHECK_RETRY_SLEEP:-15}"
 EXIT_CODE=0
-run_checks || EXIT_CODE=$?
+for _attempt in $(seq 1 "$RETRIES"); do
+  EXIT_CODE=0
+  run_checks || EXIT_CODE=$?
+  [[ "$EXIT_CODE" -eq 0 ]] && break
+  if [[ "$_attempt" -lt "$RETRIES" ]]; then
+    [[ "$QUIET" -eq 0 ]] && warn "Tentativa ${_attempt}/${RETRIES} falhou (${FAILED_CHECK}); retry em ${RETRY_SLEEP}s..."
+    sleep "$RETRY_SLEEP"
+  fi
+done
 
 # --------------------------------------------------------------------------- #
 # Output
