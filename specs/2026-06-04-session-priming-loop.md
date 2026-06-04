@@ -1,6 +1,6 @@
 # PRD — Session Priming Loop (auto-recall + auto-ingest cross-agente)
 
-**Status:** Proposto — aguardando review Toto
+**Status:** Aprovado (review Toto 2026-06-04, §12) — Fase 1 implementada (PR nox-workspace#1, T7 gate pendente); Fases 2-4 a iniciar
 **Data:** 2026-06-04
 **Origem:** conversa Toto × Forge × Claude sobre simbiose desperdiçada Cipher × nox-mem; ideia do Toto de auto-search no início de sessão para agentes e LLMs.
 **Repos envolvidos:** `memoria-nox` (core), `openclaw-vps/infra` (plugin agentes), config local Mac (hooks Claude Code).
@@ -35,12 +35,12 @@ Cobertura: agentes OpenClaw na VPS (Atlas, Boris, Cipher, Forge, Lex), Claude Co
 | **Spec P2 hooks-autocapture** (`2026-05-17-P2-hooks-autocapture.md`, Proposto, não implementado) | Este PRD **supersede a linha SessionStart** do P2 (que propunha `nox-mem search` top-K cego — rejeitado, ver §4.1). **Reaproveita**: endpoint `POST /api/ingest-event`, privacy layers (dependência A1), schema `agent_events`, contrato de hook scripts (shell + HTTP, timeouts curtos, fail-open). |
 | **Plano Cipher × nox-mem** (memória `project-cipher-nox-mem-simbiose-plan-2026-06-04`) | Write-side do steward (formato 3-seções + routeIngest) é pré-requisito do Fluxo D para o Cipher. Item 4 do plano (access_count audit) vira métrica de sucesso deste PRD (§10). |
 | **P1 `answer` primitive** (LIVE desde 2026-05-18, PR #114) | Consulta mid-session usa answer para síntese (§7 política). |
-| **Salience formula** (Fase 1.7b-b, shadow-mode, `/api/health.salience`) | Motor de ranking do brief (§6). Primeira feature que consome salience como produto — promove de shadow para uso real. |
+| **Salience formula** (v2 aditiva, mode `active` em prod — confirmado T0) | Motor de ranking do brief (§6). Primeira feature que consome `calculateSalience` como produto fora do search. |
 
 ## 4. Princípios de design
 
 ### 4.1 Brief por salience, NÃO search cego
-No SessionStart não existe pergunta. Search genérico ("projeto X") injeta chunks irrelevantes que poluem o contexto a sessão inteira. O primitivo correto é **ranking por salience** (`recency × pain × importance`) filtrado por escopo — "o que de mais importante este agente precisa saber agora", não "o que bate com esta string".
+No SessionStart não existe pergunta. Search genérico ("projeto X") injeta chunks irrelevantes que poluem o contexto a sessão inteira. O primitivo correto é **ranking por salience** (v2 aditiva: importance + recency + pain + access) filtrado por escopo — "o que de mais importante este agente precisa saber agora", não "o que bate com esta string".
 
 ### 4.2 nox-mem = store canônico cross-agente/cross-máquina *(atualizado no review — ver §13)*
 O Mac do Toto já injeta 3 memórias no startup (core-memory.json, claude-mem, `.remember/`). Decisão de review: nox-mem é o **store canônico de tudo**; as memórias locais viram feeders/caches (§13). A defesa contra redundância é **dedup no ingest**, não filtro por origem na leitura — o brief serve o escopo do projeto inteiro.
@@ -67,12 +67,12 @@ Hook/plugin que não consegue falar com a API **não bloqueia a sessão**. Timeo
 
 ### Request
 ```
-GET /api/brief?scope=<string>&n=<int>&format=<json|text>&since=<dur>
+GET /api/brief?scope=<string>[&agent=<persona>]&n=<int>&format=<json|text>&since=<dur>
 ```
 
 | Param | Default | Semântica |
 |---|---|---|
-| `scope` | obrigatório | Filtro de escopo: slug de agente (`cipher`, `forge`...), projeto (`memoria-nox`) ou `global`. Mapeia para filtro em `source`/`agent_id`/tags — detalhe de mapeamento na spec de implementação. |
+| `scope` | obrigatório | Projeto/domínio (`memoria-nox`, `NUVIVI`...) ou `global`. Mapeia para namespaces de `source_file` (spec F1 §2.1). Persona vai no param `agent` (refinamento em união: `sessions/<persona>/`). |
 | `n` | 10 | Máx. de itens no digest (cap 25). |
 | `format` | `json` | `text` = plain text pronto pra stdout de hook (Claude Code agrega ao contexto). |
 | `since` | — | Opcional: janela `--changed-since` composta com salience (ex: `30d` prioriza o que mudou recentemente). |
@@ -84,7 +84,7 @@ GET /api/brief?scope=<string>&n=<int>&format=<json|text>&since=<dur>
   "generated_at": "2026-06-04T13:00:00Z",
   "items": [
     {
-      "id": "chk_abc123",
+      "id": 117852,
       "title": "Incident 2026-04-25 — reindex wipou section/retention",
       "one_liner": "Ops destrutivas em chunks só com --dry-run ou withOpAudit snapshot.",
       "type": "lesson",
