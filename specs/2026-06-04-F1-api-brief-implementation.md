@@ -1,6 +1,6 @@
 # F1 — `GET /api/brief` Implementation Spec
 
-**Status:** T1–T6 implementados 2026-06-04 — PR nox-workspace#1 aberto (review Forge); T7 gate pós-merge pendente
+**Status:** ✅ COMPLETO 2026-06-04 — LIVE em prod (PR #1 fac47c74 + v1.1 polish PR #2 e4c794c0)
 **Data:** 2026-06-04
 **PRD:** `2026-06-04-session-priming-loop.md` (§6 contrato, §9 Fase 1)
 **Repo de implementação:** nox-mem na VPS (`/root/.openclaw/workspace/tools/nox-mem/`)
@@ -129,10 +129,12 @@ GET /api/brief?scope=<string>&n=<int=10,cap25>&format=<json|text>&since=<dur>&ag
 - [x] `docs/openapi.yaml`: path + schemas
 - [x] `docs/ARCHITECTURE.md`: 1 linha no diagrama da API
 
-### T7 — Deploy + gate Fase 1
-- [ ] Deploy na VPS (PR + review Forge, padrão do repo)
-- [ ] Gate manual: `curl /api/brief?scope=memoria-nox&agent=cipher&format=text` → top-5 contém lições de incident high-pain; Toto valida utilidade
-- [ ] `curl /api/health` pós-deploy — vectorCoverage intacto (regra #2; endpoint é read-only mas o check é barato)
+### T7 — Deploy + gate Fase 1 ✅ EXECUTADO 2026-06-04
+- [x] Deploy na VPS — PR #1 (review Forge ✅) merged fac47c74; pull + tsc + restart nox-mem-api
+- [x] Gate manual Toto: **condição B** — aprovado condicionado a v1.1 polish (3 quirks: age_days por updated_at tocado por cron, duplicatas, HTML tags no one_liner)
+- [x] v1.1 polish: PR #2 merged e4c794c0 + deployed — 23/23 testes; output pós-fix: idades reais 40–46d, dupes eliminados (slots ganharam itens relevantes), HTML stripped
+- [x] `/api/health` pós-deploy (2×): 100.562 chunks / vec 100.555 / salience active — intacto
+- [x] Latência prod real: ~58ms end-to-end
 
 ## 6. Estimativa
 
