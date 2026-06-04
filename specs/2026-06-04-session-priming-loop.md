@@ -101,7 +101,7 @@ GET /api/brief?scope=<string>&n=<int>&format=<json|text>&since=<dur>
 - **Ranking:** `ORDER BY salience DESC` no escopo filtrado. Sem FTS, sem embedding call → **p50 alvo < 100ms**, $0/query.
 - **Budget:** response `text` ≤ ~1.200 tokens; trunca em `n` ou no budget, o que vier primeiro.
 - **`one_liner`:** primeira linha do chunk ou campo `summary` se existir; nunca o chunk inteiro.
-- **Read tracking:** servir um item via brief **incrementa `access_count`** com flag de origem (`via=brief`) — alimenta o audit do plano Cipher e a métrica §10 sem contaminar o sinal de acesso orgânico.
+- **Read tracking:** servir um item via brief grava em **tabela própria `brief_log`** (chunk_id, scope, agent, served_at) e **não toca `chunks.access_count`** — sinal orgânico 100% puro pro audit do plano Cipher. *(Design final pós-T0; a versão original previa flag `via=brief` sobre `reads_audit`, que não existe em prod.)*
 
 ## 7. Como funciona — fluxos
 
@@ -144,11 +144,11 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 ## 9. Fases, entregas e critérios de aceite
 
 ### Fase 1 — `/api/brief` (memoria-nox) ← **começa aqui**
-> **Spec de implementação:** `2026-06-04-F1-api-brief-implementation.md` (T0–T7). Inclui decisão de scope mapping via `file_path` pattern (zero migration) + read tracking `via=brief` sobre `reads_audit` existente.
-- [ ] Endpoint GET com contrato §6 (scope/n/format/since)
-- [ ] Read tracking `via=brief` em access_count
-- [ ] Testes: ranking por salience, budget de tokens, formato text, p50 < 100ms
-- [ ] Doc: seção em `PRIMITIVES.md` (composição com primitivos existentes) + `openapi.yaml`
+> **Spec de implementação:** `2026-06-04-F1-api-brief-implementation.md` (T0–T7). Scope mapping por namespaces de `source_file` (zero ALTER em chunks) + read tracking em `brief_log` própria (`access_count` intocado).
+- [x] Endpoint GET com contrato §6 (scope/n/format/since) — PR nox-workspace#1
+- [x] Read tracking em `brief_log` própria; `access_count` intocado (design final T0)
+- [x] Testes: 20/20 pass; bench prod 100.5k chunks p50 37–80ms
+- [x] Doc: `PRIMITIVES.md` + `openapi.yaml` + `ARCHITECTURE.md` (commit 3d6eeaa)
 - **Gate:** brief de `scope=cipher` retorna as lições de incident high-pain no top-5; latência ok.
 
 ### Fase 2 — MCP remote no Mac (config local)
@@ -177,7 +177,7 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 |---|---|---|
 | Latência brief p50 | < 100ms | API timing |
 | Tokens injetados por priming | ≤ 1.200 | `token_estimate` |
-| **Follow-up rate**: % de sessões em que agente puxou detalhe de um ponteiro do brief | > 20% (proxy de utilidade) | access_count `via=brief` → acesso orgânico subsequente |
+| **Follow-up rate**: % de sessões em que agente puxou detalhe de um ponteiro do brief | > 20% (proxy de utilidade) | `brief_log` ⋈ acesso orgânico (`last_accessed_at`) ≤ 24h após serving |
 | Chunks high-pain órfãos (pain ≥ 0.7, access 0 em 60d) | tendência ↓ após priming | audit mensal (item 4 plano Cipher) |
 | Crescimento do corpus pelo loop | ≤ ~10 chunks/dia, decaíveis | type=daily count |
 | Churn de decisões (mesma decisão re-tomada) | tendência ↓ | `--changed-since` audit (item 2 plano Cipher) |
@@ -190,7 +190,7 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 |---|---|
 | Brief vira ruído (salience mal calibrada pro escopo) | Salience está em shadow-mode — Fase 1 gate valida ranking manualmente antes de qualquer agente consumir; ajuste de pesos é feature work (`tune(search):`, regra #5) |
 | Ingest loop infla corpus | type=daily 90d + crystallize + métrica Δ/dia com alarme |
-| access_count contaminado por priming automático | flag `via=brief` separa acesso servido de acesso orgânico desde o dia 1 |
+| access_count contaminado por priming automático | brief não escreve em access_count — serving vai pra `brief_log` separada (invariante coberta por teste) |
 | API exposta na rede | Tailscale-only + Bearer token + verificação externa no gate Fase 2 |
 | Hook trava sessão | fail-open + `--max-time 1` em tudo |
 | Redundância com memórias locais do Mac | dedup no ingest (feeders, §13); revisar overlap com claude-mem no gate Fase 4; core-memory.json aposentado |
