@@ -2,6 +2,27 @@
 
 ---
 
+## Thu 2026-06-04 — Session Priming Loop F1 LIVE + corpus saneado
+
+> Sessão fechou: PRD session-priming-loop aprovado (4 fases) + **F1 `/api/brief` LIVE em prod** (PRs nox-workspace #1 fac47c74 + #2 v1.1 e4c794c0; gate Toto condição B passado) + limpeza de corpus (5.6k chunks `_retired/` removidos com snapshot) + watcher allowlist (PR #3 2657f334) + core-memory.json do Mac aposentado (stale desde 2026-05-05).
+
+### State 2026-06-04 EOD
+
+```
+✅ chunks: 94.936 em prod (pós-limpeza _retired; jun bulk import +34k → saneado)
+✅ KG: 15.613 entities / 21.519 relations | vec 94.929/94.936, orphans 0
+✅ /api/brief LIVE: ~58ms, brief_log ativa, access_count intocado
+✅ salience v2 aditiva mode=active (divergência docs resolvida)
+✅ watcher com allowlist guard (_retired/node_modules/dist/...)
+⚠️ 73% dos chunks pain≥0.7 nunca acessados (1.871/2.548) — número paper-ready
+```
+
+### Próxima ação
+
+**F3 — plugin bootstrap OpenClaw** (priming dos 5 agentes via `/api/brief?scope=...&agent=<persona>&format=text`). Decisão Toto: trabalho continua na conversa memoria-nox (contexto carregado), commit cruzado pro repo openclaw-vps pra rastreabilidade. Investigar superfície de hooks do OpenClaw (entity `session-memory-hook` de mar/2026 é raso — checar docs do gateway na VPS). Depois: F2 (Tailscale+token+MCP remote Mac) → F4 (hooks Mac). Specs: `specs/2026-06-04-session-priming-loop.md` + `specs/2026-06-04-F1-api-brief-implementation.md`. Incident: `docs/INCIDENTS.md#2026-06-04`.
+
+---
+
 ## Tue 2026-06-02 evening — Wave 2 FINAL closure + arXiv path Q1
 
 > Sessão ~5h fechou Wave 2 totalmente. PRs #423-#425 merged. PR #426 capstone abandoned via D76. PR #427 sun+tue closure bundle. Paper §5 v5 + PDF/TEX rebuilt clean (post unicode sanitize). VPS recovery em curso (Hostinger throttling 24h cooldown). Next milestone: HyDE + Claude Sonnet/Opus bench Wed/Thu → arXiv v1.0.

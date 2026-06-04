@@ -177,7 +177,7 @@
 | Dimension | HippoRAG2 / LightRAG | nox-mem |
 |---|---|---|
 | Graph DB | Neo4j or compatible required | **SQL KG in SQLite** |
-| KG density | Purpose-built, high-density | Incremental nightly, currently ~544 relations |
+| KG density | Purpose-built, high-density | Incremental nightly, currently ~21.5k relations (15.6k entities, 2026-06-04) |
 | Retrieval | Graph traversal primary | Hybrid (BM25 + semantic + RRF) primary; KG opt-in |
 | Benchmark on EverMemBench | not measured on this bench | **62.22% / 51.68%** |
 | License | MIT | **MIT** |

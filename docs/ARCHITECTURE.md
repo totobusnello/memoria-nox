@@ -157,7 +157,7 @@ query string
 
 **Why additive boosts.** Multiplicative boost stacks were the root cause of v3.4 incident — small wins compounded into runaway scores on edge cases. Rule #5 (CLAUDE.md) now forbids multiplicative composition in any "fix" commit; new boosts ship in shadow mode behind a flag (§5) until an ablation lands.
 
-Typical latency budget at prod scale (68k chunks):
+Typical latency budget at prod scale (~95k chunks, 2026-06-04):
 `p50 ≈ 940 ms · p95 ≈ 2.3 s · p99 ≈ 2.5 s` — dominated by the Gemini embed round-trip in step [3]. Local-only paths (FTS5 + cached embed) run sub-10ms.
 
 ---
