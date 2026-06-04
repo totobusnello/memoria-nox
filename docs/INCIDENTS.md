@@ -2,6 +2,25 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-06-04 (noite) — Semantic layer down: créditos prepaid Gemini esgotados
+
+**Severidade:** média (degradação semântica ~1h40, zero perda de dado). **Detecção:** canary semântico (`semantic-canary.sh`, :22/:52) → Discord #nox-chief-of-staff às 18:22; Toto reportou via screenshot 19:30.
+
+**Timeline:** 17:52 OK → 18:22 primeiro RED (`total=2 semantic=0 fts=0` + self-heal FAILED `20 errors`) → 19:39 root cause confirmado (`429 RESOURCE_EXHAUSTED: prepayment credits depleted` em TODAS as 3 keys do .env) → 19:52 key nova do projeto com saldo → 19:56 GREEN (`total=10 semantic=8`).
+
+**Root cause:** créditos prepaid do(s) projeto(s) Google esgotados — queimados majoritariamente pela vetorização do bulk import de jun (~34k chunks × 3072d, dos quais 5.6k eram lixo `_retired` já removido). NÃO relacionado à limpeza de corpus do mesmo dia (KNN local validado saudável durante o diagnóstico).
+
+**Lições:**
+1. **Key nova não recarrega saldo** — crédito prepaid é por PROJETO; rotacionar key no mesmo projeto = mesmo 429. Fix real = projeto com billing ativo (`projects/692943619288`) e key dele.
+2. **Formato novo de key Gemini `AQ.`** — funciona via `?key=` e `x-goog-api-key` (não Bearer). nox-mem compatível sem mudança de código.
+3. **Canary funcionou como projetado** — detectou em ≤15min, tentou self-heal, alertou no canal certo. A query PT-BR anti-literal (design 2026-04-19) provou o valor: FTS continuou respondendo e mascararia o problema em queries keyword.
+4. **Bulk imports têm custo de embedding material** — allowlist do watcher (instalada hoje) também é controle de custo, não só de qualidade.
+5. **Degradação graciosa validada em prod:** FTS-only manteve briefs/agentes/MCP operando.
+
+**Follow-ups:** monitorar saldo do projeto novo (alerta de billing no Google Console); considerar canary de saldo (embed 1 token diário com threshold de alerta); 2.074 vec rows órfãs (`vec_chunks` 96.991 vs map 94.917) — limpeza menor com snapshot, não relacionada ao RED.
+
+---
+
 ## 2026-06-04 — Corpus pollution: watcher sem allowlist ingeriu 5.6k chunks de _retired/
 
 **Severidade:** baixa (qualidade, não outage). **Detecção:** pergunta do Toto ("por que docs mostram 69k e prod tem 100.5k?") durante gate do F1 /api/brief.
