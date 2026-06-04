@@ -167,10 +167,11 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 - **Gate ✅ PASSADO 2026-06-04 23:17:** Nox (agent main, WhatsApp) citou o brief verbatim do contexto. Gate rendeu fix PR#6 (main herdava workspace raiz, ficava sem brief) + 2 defeitos objetivos no conteúdo real.
 - **v1.2 SHIPPED no mesmo dia (PR nox-workspace#7, 72afdbc6)** — decisão Toto: defeitos objetivos de camada de SELEÇÃO não precisam de 1 semana de dados (disciplina de espera é pra scoring de search, regra #5 — intocado). (a) near-dup collapse por containment de tokens (inter/min ≥ 0.6, MIN_SIG 3, dedup exato mantido como cinto); (b) união garantida agente∪global (~n/2 cada, backfill mútuo). Resultado em prod: brief do Nox passou de 4 variantes HEARTBEAT + 0 globais → 1 variante + 5 itens globais high-pain. 27/27 testes; p50 ~100ms agent-briefs (2 pools; cron-path, não hot path — Mac/hook segue 47-76ms). brief_log: série segmentada em 2026-06-04 ~23:30 UTC. Observação de follow-up rate continua 1 semana sobre o v1.2.
 
-### Fase 4 — Hooks Mac (SessionStart ✅ 2026-06-04 / Stop pendente)
-- [x] SessionStart → `~/.claude/hooks/nox-mem-brief.sh`: brief por projeto (basename cwd) via serve HTTPS + Bearer, n=8, `--max-time 2` (TLS handshake; desvio documentado do ≤1s), fail-open total, suprime brief vazio. Teste manual: 132ms, fail-open ✓. Registrado em `settings.json` SessionStart.
-- [ ] Stop → digest `.remember/now.md` → ingest-event tipo daily — **BLOQUEADO por `POST /api/ingest-event` (spec P2, nunca implementada)**. Implementar P2 §4 primeiro.
-- [ ] Dedup: mesma sessão não ingere 2× (session_id no payload) — junto com Stop
+### Fase 4 — Hooks Mac ✅ COMPLETA 2026-06-04 (SessionStart + SessionEnd)
+- [x] SessionStart → `~/.claude/hooks/nox-mem-brief.sh`: brief por projeto (basename cwd) via serve HTTPS + Bearer, n=8, `--max-time 2` (TLS handshake; desvio documentado do ≤1s), fail-open total, suprime brief vazio. Teste manual: 132ms, fail-open ✓.
+- [x] **`POST /api/ingest-event` IMPLEMENTADO** (PR nox-workspace#8, d2cb9f08) — subset do P2 kind=session_end: chunk type=daily/90d em `events/<host>/<scope>/`, dedup idempotente por (kind, session_id) via metadata JSON, redaction server-side (AIza/AQ./sk-/ghp_/xox/Bearer/PEM) + redaction_count, cap 16KB. Desvio documentado P2 §6: chunk direto (1 digest/sessão); agent_events fica pro autocapture full. 9 testes novos (36/36 suite).
+- [x] SessionEnd → `~/.claude/hooks/nox-mem-ingest.sh`: lê `.remember/now.md` do cwd, payload JSON via python (escape seguro + cap 15KB client), POST com Bearer, fail-open. E2E validado: chunk 260563 ingerido via hook + re-POST → `deduped:true`.
+- [x] Dedup: mesma sessão não ingere 2× — validado idempotente em prod
 - **Gate:** 1 semana de uso real; brief útil (proxy: Toto não desliga 😄) + corpus não inflando (Δ chunks/dia ≤ ~10 do loop).
 
 **Dependência cross-fase:** Fluxo D completo depende do `POST /api/ingest-event` (spec P2 §4) — implementar junto da Fase 3 ou 4, escopo memoria-nox.
