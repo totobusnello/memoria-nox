@@ -151,11 +151,12 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 - [x] Doc: `PRIMITIVES.md` + `openapi.yaml` + `ARCHITECTURE.md` (commit 3d6eeaa)
 - **Gate:** brief de `scope=cipher` retorna as lições de incident high-pain no top-5; latência ok.
 
-### Fase 2 — MCP remote no Mac (config local)
-- [ ] Bind Tailscale + auth token na API
-- [ ] Registro do MCP server no Claude Code do Mac
-- [ ] Smoke: `nox_mem_search` e `answer` funcionando do Mac
-- **Gate:** consulta cross-máquina round-trip < 2s; zero exposição pública (verificar com nmap externo).
+### Fase 2 — MCP remote no Mac ✅ COMPLETA 2026-06-04 (design superior: MCP-over-SSH + tailscale serve)
+> Dois caminhos entregues: **(a) MCP via SSH stdio** sobre tailnet (auth = chave SSH, zero porta nova) — `claude mcp add nox-mem --scope user`, Connected, 16 tools em qualquer projeto do Mac; **(b) HTTPS via `tailscale serve`** (`https://srv1465941.tail4caa5b.ts.net` → loopback:18802, tailnet-only, TLS automático) + token gate (PR nox-workspace#5: `x-forwarded-for` ⇒ exige Bearer; localhost direto livre). Token: VPS `.env` + Mac `~/.config/nox-mem/token` (0600).
+- [x] Caminho tailnet + auth token na API (serve + PR#5; bind segue loopback-only)
+- [x] MCP server registrado no Claude Code (scope user) — handshake 0.49s
+- [x] Smoke cross-máquina: brief via HTTPS com Bearer OK; 401 sem token OK
+- **Gate ✅:** round-trip a quente 47-76ms (<< 2s); porta 18802 loopback-only + 443 público não responde (zero exposição); serve é tailnet-only by design.
 
 ### Fase 3 — Plugin bootstrap OpenClaw ✅ IMPLEMENTADA 2026-06-04 (design superior ao previsto)
 > **Zero plugin custom:** OpenClaw 2026.6.1 tem hook bundled `bootstrap-extra-files` (evento `agent:bootstrap`). Arquitetura final: cron 7,22,37,52 → `nox-mem-brief-refresh.sh` (nox-workspace#4) → `agents/<p>/brief/MEMORY.md` (basename constraint do hook) → injetado no Project Context. Cross-doc: `openclaw-vps/infra/docs/session-priming-f3.md`.
