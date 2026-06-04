@@ -88,14 +88,14 @@ Quando produtizar (Hotmart/instalador/marketing) → migra pra `nox-supermem/`.
 - **Canary test (PR #280):** Plaintext → encrypted migration validated. Key lesson: PRAGMA key cannot retrofit existing DB — must migrate via atomic VACUUM INTO
 
 ### Schema (V7)
-- `chunks` + `chunks_fts` (FTS5) — **62.9k+ chunks** ativos (sincronizado 2026-05-01)
+- `chunks` + `chunks_fts` (FTS5) — **100.5k chunks** ativos (sincronizado 2026-06-04; salto +34k em jun = bulk import Mac workspace via watcher sem allowlist — ver INCIDENTS/limpeza _retired)
 - `vec_chunks` + `vec_chunk_map` (sqlite-vec, 3072d) — ~99.97% coverage
-- `kg_entities` (~402) + `kg_relations` (~544) — Gemini 2.5 Flash extraction (incremental nightly)
+- `kg_entities` (~15.6k) + `kg_relations` (~21.5k) — Gemini 2.5 Flash extraction (incremental nightly; sincronizado 2026-06-04)
 - **Schema v10** (2026-04-23): `retention_days` v8 + `pain` v9 + `section` v10
   - `retention_days` — typed retention (feedback/person=NULL never-decay, lesson 180d, decision/project 365d, team 120d, daily 90d, pending 30d, graph_node 60d, default 90d)
   - `pain` REAL DEFAULT 0.2 — severity 0.1 trivial → 1.0 prod-outage
   - `section` TEXT + `section_boost` REAL — entity file format (compiled/frontmatter/timeline/NULL). SECTION_BOOST={compiled:2.0, frontmatter:1.5, timeline:0.8, legacy:1.0}
-- **Salience formula (Fase 1.7b-b, shadow-mode)**: `salience = recency × pain × importance` exposta em `/api/health.salience`. NOX_SALIENCE_MODE=shadow default
+- **Salience formula v2 aditiva (mode `active` em prod desde ~2026-05-19)**: importance 0.55 + recency 0.15 + pain 0.10 + access 0.20, exposta em `/api/health.salience`. Consumida como produto pelo `/api/brief` (F1, 2026-06-04)
 - **Trigger `trg_chunks_delete_cascade`** — DELETE em chunks limpa vetores (não remover)
 
 ### Hybrid Search (3 camadas)
