@@ -172,6 +172,8 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 - [x] **`POST /api/ingest-event` IMPLEMENTADO** (PR nox-workspace#8, d2cb9f08) — subset do P2 kind=session_end: chunk type=daily/90d em `events/<host>/<scope>/`, dedup idempotente por (kind, session_id) via metadata JSON, redaction server-side (AIza/AQ./sk-/ghp_/xox/Bearer/PEM) + redaction_count, cap 16KB. Desvio documentado P2 §6: chunk direto (1 digest/sessão); agent_events fica pro autocapture full. 9 testes novos (36/36 suite).
 - [x] SessionEnd → `~/.claude/hooks/nox-mem-ingest.sh`: lê `.remember/now.md` do cwd, payload JSON via python (escape seguro + cap 15KB client), POST com Bearer, fail-open. E2E validado: chunk 260563 ingerido via hook + re-POST → `deduped:true`.
 - [x] Dedup: mesma sessão não ingere 2× — validado idempotente em prod
+- [x] **kind=`pre_compact`** (PR nox-workspace#9, 84b373e7): sessões longas que nunca emitem SessionEnd depositam digest a cada compaction; campo `seq` (epoch do hook) discrimina ocorrências — idempotência (kind, session_id, seq). Hook único `nox-mem-ingest.sh <kind>` registrado em SessionEnd + PreCompact. E2E: 2 compactions = 2 chunks. 12/12 testes.
+- [x] **Feeder claude-mem→nox-mem** (§13) — primeiro feeder do desenho executado. P2 full (autocapture ~170 ev/sessão) permanece GATED em demanda do crystallize (decisão Toto 2026-06-04: contradiz Q3 qualidade>volume + custo embedding).
 - **Gate:** 1 semana de uso real; brief útil (proxy: Toto não desliga 😄) + corpus não inflando (Δ chunks/dia ≤ ~10 do loop).
 
 **Dependência cross-fase:** Fluxo D completo depende do `POST /api/ingest-event` (spec P2 §4) — implementar junto da Fase 3 ou 4, escopo memoria-nox.
@@ -213,7 +215,7 @@ Direção (decisão Toto Q2): **nox-mem = store canônico de longo prazo de tudo
 
 | Memória local | O que faz hoje | Papel no desenho final |
 |---|---|---|
-| **claude-mem** | Auto-captura observações de sessões Claude Code (searchable, IDs) | **Feeder + cache local.** Mantém recall local rápido; digest diário ingerido no nox-mem (type=daily) pra VPS enxergar trabalho do Mac. |
+| **claude-mem** | Auto-captura observações de sessões Claude Code (searchable, IDs) | ✅ **Feeder LIVE 2026-06-04** — `~/.config/nox-mem/feeder.py` (launchd 23:37): digest diário POR PROJETO (session_summaries + obs cap 50) → ingest-event, `session_id=cmem-<proj>-<data>` dedup 1/dia. Validado 3/3 projetos (chunks 260566-8); epoch do claude-mem é em MS. Recall local intacto. |
 | **`.remember/`** (now/recent/archive) | Buffer de handoff entre sessões | **Feeder direto do Fluxo D** — `now.md` já é a fonte do Stop hook. Continua como buffer de curtíssimo prazo. |
 | **core-memory.json** | Perfil estático injetado no SessionStart | **✅ DESLIGADO 2026-06-04** (hook removido de settings.json; arquivo arquivado `.retired-2026-06-04`). Estava stale — descrevia Toto como "CEO/CFO/CTO/CPO/CMO" (framing corrigido em 2026-05-05). Conteúdo válido migra pra entity `person/toto` no nox-mem na Fase 1. |
 | **Claude Code auto-memory** (MEMORY.md por projeto) | Fatos curados por projeto | **Feeder curado.** Sync one-way Mac→nox-mem como entities (formato 3-seções) — qualidade alta, candidato a `compiled`. |
