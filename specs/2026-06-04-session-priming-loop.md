@@ -164,7 +164,7 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 - [x] Config `hooks.internal.entries.bootstrap-extra-files.paths=["brief/MEMORY.md"]` + gateway restart + invariants OK
 - [x] Fail-open validado por design (arquivo stale > ausente; sessão nunca bloqueia)
 - [ ] Política answer/search em AGENTS.md/SOUL.md (acoplar nos itens do plano Cipher)
-- **Gate:** prova funcional humana pendente (perguntar a um agente o conteúdo do brief) + 1 semana de observação de follow-up rate via brief_log.
+- **Gate ✅ PASSADO 2026-06-04 23:17:** Nox (agent main, WhatsApp) citou o brief verbatim do contexto — formato, timestamp, 10 itens. O gate também rendeu: (a) fix PR#6 (main herdava workspace raiz e ficava sem brief); (b) backlog v1.2 de qualidade observado no conteúdo real: 4/10 itens eram variantes de "seguir HEARTBEAT.md" (near-dups que o dedup exato não pega — candidato: dedup por prefixo normalizado) e `scope=global&agent=X` filtra SÓ sessions do agente (sem itens globais high-pain — candidato: união sessions/<agent> ∪ top-global n/2). Observar 1 semana de follow-up rate via brief_log antes de mexer.
 
 ### Fase 4 — Hooks Mac (SessionStart ✅ 2026-06-04 / Stop pendente)
 - [x] SessionStart → `~/.claude/hooks/nox-mem-brief.sh`: brief por projeto (basename cwd) via serve HTTPS + Bearer, n=8, `--max-time 2` (TLS handshake; desvio documentado do ≤1s), fail-open total, suprime brief vazio. Teste manual: 132ms, fail-open ✓. Registrado em `settings.json` SessionStart.
