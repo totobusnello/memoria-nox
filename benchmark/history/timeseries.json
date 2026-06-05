@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-04T07:13:37.153Z",
+  "generated": "2026-06-05T06:56:57.839Z",
   "window_days": 30,
   "keys": [
     "A2.encryption_overhead.kdf_ms",
@@ -264,6 +264,21 @@
       "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719,
       "A2.export.plain.500chunks_3072d.compression_ratio_pct": null,
       "A2.export.plain.500chunks_3072d.duration_ms": 183,
+      "A2.import.encrypted.500chunks_3072d.duration_ms": null,
+      "A2.import.plain.500chunks_3072d.duration_ms": null,
+      "A3.provider_overhead.embed.p95_abs_ms": null,
+      "A3.provider_overhead.llm.p95_abs_ms": null,
+      "A3.provider_overhead.total.p95_abs_ms": null
+    },
+    {
+      "date": "2026-06-05",
+      "overall": "PASS",
+      "A2.encryption_overhead.kdf_ms": null,
+      "A2.export.encrypted.500chunks_3072d.archive_mb": 6.3035478591918945,
+      "A2.export.encrypted.500chunks_3072d.duration_ms": null,
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719,
+      "A2.export.plain.500chunks_3072d.compression_ratio_pct": null,
+      "A2.export.plain.500chunks_3072d.duration_ms": 181,
       "A2.import.encrypted.500chunks_3072d.duration_ms": null,
       "A2.import.plain.500chunks_3072d.duration_ms": null,
       "A3.provider_overhead.embed.p95_abs_ms": null,
