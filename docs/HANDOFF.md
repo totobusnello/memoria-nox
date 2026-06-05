@@ -24,9 +24,15 @@
 3. gitleaks no run 06-01 era FALSO POSITIVO (`metric_key` em benchmark/history JSON casou generic-api-key). Sem vazamento; repo é PUBLIC, atenção redobrada.
 4. **Bug latente:** CLI `ingest` ainda chama `ingestFile()` direto, violando pattern do ingest-router ("TODOS os callers via routeIngest"). Follow-up: migrar.
 
+### Tarde — limpeza dups bulk-import + fix CLI ingest (FECHADOS)
+
+1. **Censo auditado dos dups:** os "202" do smoke eram na verdade **24.519** (cap do smoke escondia a escala). Composição: 23.014 same-path (bulk 06-03 re-ingeriu mesmos arquivos via caminho `skipDelete`) + 945 same-basename (cópia Mac↔original) + 1.220 cross-file (boilerplate entre docs distintos — PRESERVADOS por proveniência). Evento único de 06-03, não recorre.
+2. **DELETE executado (go Toto):** 23.299 chunks com snapshot `dedup-bulk-jun-20260605164006.db` (1.6GB). Corpus **94.941 → 71.642**, vec 100%, orphans 0, compiled 184 (183 entities + doc-steward novo ✓), canary OK.
+3. **CLI `ingest` migrado pra routeIngest** (PR #12) — fecha a classe do incident 2026-04-25 no último caller desviante. Smoke: markdown→ingestFile, entity→ingestEntityFile ✓.
+
 ### Próxima ação
 
-Inalterada: **observação 1 semana** do priming loop. Novos na fila leve: limpeza dos 202 dups (com snapshot), migrar CLI `ingest`→routeIngest, itens 4-5 do plano Cipher (gated: sanity access_count / valor do answer). Rotação keys Gemini + alerta saldo Google seguem pendentes.
+Inalterada: **observação 1 semana** do priming loop. Fila leve: itens 4-5 do plano Cipher (gated: sanity access_count / valor do answer); revisar os 1.220 cross-file dups via churn report mensal. Rotação keys Gemini DESCARTADA por decisão Toto 2026-06-05 (não vazaram; pendência encerrada).
 
 ---
 
