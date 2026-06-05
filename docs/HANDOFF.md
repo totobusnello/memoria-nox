@@ -2,6 +2,34 @@
 
 ---
 
+## Fri 2026-06-05 — Plano Cipher simbiose itens 1-3 SHIPPED + 2 fixes colaterais
+
+> Manhã: morning report yellow verificado (46 chunks sem embedding = resíduo 429 de ontem; vectorize manual → 100%). Depois: itens 1-3 do plano Cipher×nox-mem (aprovado 06-04) entregues end-to-end em ~2h. PRs nox-workspace #10 (squash) + #11. Spec: `specs/2026-06-05-cipher-simbiose-itens-1-2-3.md`.
+
+### Entregas
+
+| # | Entrega | Onde |
+|---|---|---|
+| 1 | **Item 1** — entity `memory/entities/process/doc-steward.md` (3-seções, retention never) ingerido via routeIngest: 3 chunks compiled/frontmatter/timeline ✓ | PR #10 |
+| 2 | **Item 3** — política answer/search (bloco idêntico md5 6×, +13 linhas) nos 6 SOULs + adendo escrita no Cipher | PR #10 |
+| 3 | **Item 2** — `src/churn.ts` (KNN sqlite-vec sobre embeddings existentes, $0 Gemini, cos=1-d²/2) + CLI `churn --changed-since` + TDD 4/4 + report agrupado (semânticas vs dups exatos) | PR #10 |
+| 4 | Cron mensal churn: dia 1 03:17 → `memory/reports/churn-YYYY-MM.md` (watched → vira chunk; loop auto-documenta) | crontab VPS |
+| 5 | **Fix colateral 1** — `ingest-entity` tinha REGREDIDO do CLI (refactor); restaurado como wrapper de routeIngest | PR #11 |
+| 6 | **Fix colateral 2** — CI memoria-nox: job npm Audit falhava TODO push com exit 1 sem vulns (`[ found -eq 0 ] &&` última linha); Security Scan 3/3 green pós-fix | 32a42e0 |
+
+### Achados do dia
+
+1. **202 dups exatos residuais do bulk import jun** — smoke do churn (sim=1.0, ex: chunks 06-03 idênticos a 04-27). Incident de ontem limpou `_retired/`, mas import duplicou conteúdo ativo. **Pendência: limpeza com snapshot** (mesmo playbook PR#3).
+2. 30 re-decisões semânticas genuínas no smoke (perfil Toto 2×, cron failures re-narrados) — material paper § self-evolution.
+3. gitleaks no run 06-01 era FALSO POSITIVO (`metric_key` em benchmark/history JSON casou generic-api-key). Sem vazamento; repo é PUBLIC, atenção redobrada.
+4. **Bug latente:** CLI `ingest` ainda chama `ingestFile()` direto, violando pattern do ingest-router ("TODOS os callers via routeIngest"). Follow-up: migrar.
+
+### Próxima ação
+
+Inalterada: **observação 1 semana** do priming loop. Novos na fila leve: limpeza dos 202 dups (com snapshot), migrar CLI `ingest`→routeIngest, itens 4-5 do plano Cipher (gated: sanity access_count / valor do answer). Rotação keys Gemini + alerta saldo Google seguem pendentes.
+
+---
+
 ## Thu 2026-06-04 — SESSION PRIMING LOOP COMPLETO (F1-F4 + extras em 1 dia)
 
 > Dia épico: PRD aprovado de manhã → **loop bidirecional completo LIVE à noite**, nas duas máquinas, com 2 gates humanos passados e 2 incidents resolvidos no caminho. 9 PRs nox-workspace (#1-#9). "Toda sessão nasce contextualizada e morre contribuindo" — operacional e se auto-documentando.
