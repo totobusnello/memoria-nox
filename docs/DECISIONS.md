@@ -7,6 +7,11 @@
 
 ## 1. NÃO FAZEMOS — inventário consolidado
 
+**Adicionados 2026-06-04 (Session Priming Loop):**
+- **P2 full autocapture (~170 eventos/sessão) — GATED, não fazemos agora.** 3 razões: contradiz decisão de review Q3 (só digest, qualidade>volume, prompts crus fora); custo de embedding material (prepaid Gemini esgotou 2026-06-04 com bulk de 34k chunks); claude-mem já captura o Mac em alta resolução e o feeder entrega curado. **Critério de reabertura objetivo:** crystallize mostrando promotes de `events/` + brief melhorando por causa deles em 2-4 semanas de observação.
+- **Brief NÃO incrementa `access_count`** — serving vai pra `brief_log` própria; o sinal orgânico fica 100% puro pro audit de high-pain órfãos (73% nunca acessados, medido 2026-06-04).
+- **Tabela `agent_events` (P2 §6) não criada** — digest 1/sessão vai direto pra `chunks` como type=daily/90d; agent_events só se P2 full reabrir.
+
 | # | Item | Razão | Trigger pra revisitar | Origem |
 |---|---|---|---|---|
 | 1 | **Group routing** (`@group`, `groups.yaml`, frontmatter tag) | Viola SOUL.md Decisão #4 (rejeita routing algorítmico estático). `cross-search --agents` cobre ad-hoc. | Se aparecer dor → açúcar sintático de `cross-search` only | v1.5:21,43,140; v1.6 §2 |
@@ -138,6 +143,12 @@ Origem: `plans/2026-04-26-clawmem-analysis.md` §3.
 ---
 
 ## 4. Lições críticas (incidents resolvidos)
+
+**2026-06-04 (Session Priming day):**
+- **Watcher de ingest SEM allowlist ingere lixo** — `_retired/` inteiro (5.6k chunks) entrou via inotifywait sem exclusões; guard case/esac no loop (`--exclude`/`--include` do inotifywait são mutuamente exclusivos). DELETE de limpeza em chunks NÃO roda no sqlite3 CLI (`no such module: vec0`) — usar better-sqlite3 + sqliteVec.load.
+- **429 Gemini "prepayment depleted" é por PROJETO** — key nova não recarrega saldo; testar key direto no endpoint Google isola billing de bug em 1 comando. Key formato `AQ.` autentica via `?key=`/`x-goog-api-key`, não Bearer.
+- **Disciplina "esperar dados" é pra SCORING de search (regra #5)** — defeito objetivo em camada de seleção/apresentação (near-dups, união de pools) itera no mesmo dia. Brief v1.2 shipped horas após o gate F3.
+- **Gates humanos pagam:** "por que 69k?" → corpus pollution descoberta; "pergunta ao Nox" → agent main sem brief (PR#6) + 2 defeitos de conteúdo (v1.2).
 
 | Data | Incident | Root cause | Mitigação aplicada | Memory feedback |
 |---|---|---|---|---|
