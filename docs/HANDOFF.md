@@ -2,24 +2,49 @@
 
 ---
 
-## Thu 2026-06-04 — Session Priming Loop F1 LIVE + corpus saneado
+## Thu 2026-06-04 — SESSION PRIMING LOOP COMPLETO (F1-F4 + extras em 1 dia)
 
-> Sessão fechou: PRD session-priming-loop aprovado (4 fases) + **F1 `/api/brief` LIVE em prod** (PRs nox-workspace #1 fac47c74 + #2 v1.1 e4c794c0; gate Toto condição B passado) + limpeza de corpus (5.6k chunks `_retired/` removidos com snapshot) + watcher allowlist (PR #3 2657f334) + core-memory.json do Mac aposentado (stale desde 2026-05-05).
+> Dia épico: PRD aprovado de manhã → **loop bidirecional completo LIVE à noite**, nas duas máquinas, com 2 gates humanos passados e 2 incidents resolvidos no caminho. 9 PRs nox-workspace (#1-#9). "Toda sessão nasce contextualizada e morre contribuindo" — operacional e se auto-documentando.
 
-### State 2026-06-04 EOD
+### Entregas (ordem do dia)
+
+| # | Entrega | PR/commit |
+|---|---|---|
+| 1 | PRD session-priming-loop (4 fases, decisões review Toto) + spec F1 | memoria-nox specs/ |
+| 2 | **F1 `/api/brief`** — salience canônica, pool 500, brief_log, access_count intocado | #1 fac47c74 |
+| 3 | F1 v1.1 (gate condição B): age por source_date, dedup, strip HTML | #2 e4c794c0 |
+| 4 | Watcher allowlist (`_retired/` etc.) + limpeza 5.6k chunks com snapshot | #3 2657f334 |
+| 5 | **F3** priming dos agentes: cron 7,22,37,52 + hook bundled `bootstrap-extra-files` (zero plugin custom) | #4 9b9b8730 |
+| 6 | **F2** token gate tailnet (`x-forwarded-for` ⇒ Bearer) + tailscale serve + MCP-over-SSH no Mac | #5 22497050 |
+| 7 | Fix: agent `main` (Nox WhatsApp) herdava workspace raiz sem brief | #6 841a383d |
+| 8 | brief **v1.2** (gate F3 real): near-dup por containment + união agente∪global | #7 72afdbc6 |
+| 9 | **F4b `POST /api/ingest-event`** — daily/90d, dedup session_id, redaction | #8 d2cb9f08 |
+| 10 | kind=`pre_compact` (+seq) — sessões longas | #9 84b373e7 |
+| 11 | **Feeder claude-mem→nox-mem** (launchd 23:37, digest/projeto/dia) | local Mac |
+| 12 | Hooks Mac: SessionStart (brief ~130ms) + SessionEnd + PreCompact | settings.json |
+| 13 | core-memory.json aposentado (stale C-level desde 05-05) | settings.json |
+| 14 | Papers: 6 claims de estado → 2026-06-04 + abstract v2 aditiva (aprovado Toto) | 62ada3e + 7f7bf28 |
+| 15 | Docs refresh geral (README badges, COMPETITIVE, GLOSSARY, ARCHITECTURE, CLAUDE.md) | 38a2f05 |
+
+### Incidents do dia (ambos resolvidos + documentados)
+
+1. **Corpus pollution** — bulk import jun ingeriu `_retired/` (watcher sem allowlist). Limpo com snapshot; allowlist instalada. `INCIDENTS.md#2026-06-04`.
+2. **Semantic down 1h40** — prepaid Gemini esgotado (429 por PROJETO; key nova não recarrega). Key AQ. do projeto 692943619288; canary detectou ≤15min. `INCIDENTS.md#2026-06-04 (noite)`.
+
+### State EOD
 
 ```
-✅ chunks: 94.936 em prod (pós-limpeza _retired; jun bulk import +34k → saneado)
-✅ KG: 15.613 entities / 21.519 relations | vec 94.929/94.936, orphans 0
-✅ /api/brief LIVE: ~58ms, brief_log ativa, access_count intocado
-✅ salience v2 aditiva mode=active (divergência docs resolvida)
-✅ watcher com allowlist guard (_retired/node_modules/dist/...)
-⚠️ 73% dos chunks pain≥0.7 nunca acessados (1.871/2.548) — número paper-ready
+✅ chunks: ~94.95k | KG 15.6k/21.5k | vec 100% | salience v2 active
+✅ Loop leitura: brief v1.2 → 7 personas VPS + sessões Mac (SessionStart ~130ms)
+✅ Loop escrita: SessionEnd + PreCompact + feeder claude-mem (3 caminhos, dedup, redaction)
+✅ Mac↔VPS: MCP-over-SSH (16 tools) + https://srv1465941.tail4caa5b.ts.net (Bearer, 47-76ms)
+✅ Gates humanos: condição B (3 fixes) + Nox verbatim (fix main + v1.2)
+📊 brief_log acumulando follow-up rate desde v1.2 (~23:30Z)
 ```
 
 ### Próxima ação
 
-**F3 — plugin bootstrap OpenClaw** (priming dos 5 agentes via `/api/brief?scope=...&agent=<persona>&format=text`). Decisão Toto: trabalho continua na conversa memoria-nox (contexto carregado), commit cruzado pro repo openclaw-vps pra rastreabilidade. Investigar superfície de hooks do OpenClaw (entity `session-memory-hook` de mar/2026 é raso — checar docs do gateway na VPS). Depois: F2 (Tailscale+token+MCP remote Mac) → F4 (hooks Mac). Specs: `specs/2026-06-04-session-priming-loop.md` + `specs/2026-06-04-F1-api-brief-implementation.md`. Incident: `docs/INCIDENTS.md#2026-06-04`.
+**Observação 1 semana** (follow-up rate via brief_log + crystallize promovendo `events/` + Δ corpus/dia ≤10) — NÃO mexer em seleção antes dos dados. Depois: v1.3 se dados pedirem. **Pendências leves:** rotação de keys Gemini (passaram pelo chat), alerta de saldo projeto Google 692943619288, política answer/search em SOUL.md (acoplar plano Cipher — memória `project-cipher-nox-mem-simbiose-plan`), itens 1-2 do plano Cipher (3-seções + churn). **P2 full: GATED** (reabre se crystallize mostrar fome de events/). **Paper:** sequência completa de hoje é material § self-evolution (73% órfãos + detecção→limpeza + loop se auto-documentando).
 
 ---
 
