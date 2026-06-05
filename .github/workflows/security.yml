@@ -42,7 +42,7 @@ jobs:
               found=1
             fi
           done
-          [ "$found" -eq 0 ] && echo "No lockfiles found — skipping npm audit"
+          if [ "$found" -eq 0 ]; then echo "No lockfiles found — skipping npm audit"; fi
 
   trivy:
     name: Trivy FS Scan
