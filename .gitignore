@@ -57,3 +57,4 @@ build/
 # Python virtualenvs (local dev, never commit)
 venv/
 .venv/
+.omc/
