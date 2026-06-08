@@ -2,6 +2,39 @@
 
 ---
 
+## Sun 2026-06-07 — D1: canário contaminava access_count (feedback loop) → fix + descontaminação
+
+> Sessão de "observação" virou caça a bug. Checar o priming loop revelou que o brief estava preso em **88 chunks distintos / 21.337 serves** — não staleness pura de design, mas um **feedback loop**: o `semantic-canary` rodava `/api/search` a cada 30min (cron `:22/:52`) e, via `searchHybrid` (`search()`×N + `searchSemantic()`), incrementava `access_count` de ~52 chunks candidatos por run. `access_count` alimenta salience (peso 0.20) → mesmos chunks voltam → auto-reforço.
+
+### Diagnóstico (brief_log + search_telemetry + código)
+- 88 distinct / 21.337 serves; 8 chunks `acc_at_recent_cron` = 28% dos serves; `last_accessed` cravado `:52` (tick canário)
+- `too_short` 49/51 buscas/24h = canário (BENIGNO, healthcheck por design — não anomalia)
+- recheck pegou bug de comparação de data (`served_at` espaço vs `last_accessed` T/Z) que contaminava o proxy de follow-up — número descartado
+- root cause no código: `search.ts:448/568` incrementavam `access_count` incondicional; canário chama `/api/search`
+
+### Entregas
+| # | Item | Onde |
+|---|---|---|
+| 1 | `recordAccess(db,ids,enabled)` guard (DRY) + `trackAccess` param em search/searchSemantic/searchHybrid + `/api/search ?track=false` | PR nox-workspace **#13** (mergeado, deployado) |
+| 2 | TDD 3 testes `recordAccess` (enabled false/true/no-op) | #13 |
+| 3 | Deploy VPS: pull+build+restart `nox-mem-api`; canário live `track=false` | VPS (systemd) |
+| 4 | Verificado em prod: 3 chunks idênticos antes/depois de canary run completo (não incrementa) | — |
+| 5 | **Descontaminação 52 chunks** (`access_count=0`, `last_accessed=NULL`) | snapshot 1464MB `/var/backups/nox-mem/pre-op/decontaminate-canary-2026-06-080049.db` + `.ids.json` (reversível) |
+| 6 | `spo-injection.test` portable tmpdir (17/0, era 0) | PR **#14** (mergeado) |
+
+### Achados colaterais (follow-up, NÃO feitos)
+- `edge-typing`/`pragma-alignment`/`eval.test`: mesmo `/var/backups` path bug MAS **também falham na lógica** — `ensureSchema` fresh aplica só migrations **V1-7** enquanto marca `schema_version=18` → DBs novos sem colunas V8-18 (ex: `relation_reason` v12) + `PRAGMA user_version` não alinhado. **Bug de bootstrap de schema, investigação à parte.** `op-audit-e2e` usa `/var/backups` de propósito (allowlist); `ocr-jobs` já tem fallback.
+- Mirror canário (`scripts/vps-mirror`) estava dessincronizado da VPS — **sincronizado via scp** (versão real com self-heal/debounce).
+- `brief.ts` segue SELECT-only (promessa F1 "access_count intocado" intacta).
+
+### Estado pós
+brief global agora dominado por pain/importance (**zero contaminados**). Salience mean 0.4088 inalterada (52 de 71.7k chunks). Services up, vec 100%, orphans 0.
+
+### Próxima ação
+**D2** (brief diversity/novelty term) + **D3** (medir follow-up real agora que o sinal está limpo) — quando possível. Reavaliar quanto dos 88 era design puro vs auto-reforço com alguns dias de dados limpos. Memória: `[[feedback_probe_search_must_not_feed_ranking_signals]]`.
+
+---
+
 ## Fri 2026-06-05 — Plano Cipher simbiose itens 1-3 SHIPPED + 2 fixes colaterais
 
 > Manhã: morning report yellow verificado (46 chunks sem embedding = resíduo 429 de ontem; vectorize manual → 100%). Depois: itens 1-3 do plano Cipher×nox-mem (aprovado 06-04) entregues end-to-end em ~2h. PRs nox-workspace #10 (squash) + #11. Spec: `specs/2026-06-05-cipher-simbiose-itens-1-2-3.md`.
