@@ -2,6 +2,17 @@
 
 ---
 
+## Mon 2026-06-08 — CI hygiene: gitleaks FP allowlist + portão de branch protection
+
+> Alerta do GitHub: Security Scan **agendado** do memoria-nox (PÚBLICO) falhando no gitleaks. Recheck: ~28 findings, **TODOS falsos positivos** (cada um verificado contra o valor real).
+
+- **Diagnóstico:** o scan agendado (full-history, `fetch-depth:0`) reincidia em FP que o scan de push (diff) não via. Grupos: `benchmark/history/*.json` `metric_key` = nomes de métrica (`P1.answer.*.pXX_ms`); `staged-P7.../privacy/` = fixtures sintéticas de redação (`AKIAIOSFODNN7EXAMPLE`); `archive/docs/github-webhook-setup.md` = placeholders de doc. **Zero secrets reais.**
+- **Fix:** `.gitleaks.toml` (estende default + allowlist por path). **PR #430**. Validado local (890 commits "no leaks") + CI `Secret Scan (gitleaks)` SUCCESS. Merge via `--admin` (autorizado).
+- **Portão de branch protection:** o merge travou por `Validate DEPLOY-WAVE-B.md commands` — required check **condicional** (path-filtered) que trava TODO PR não-relacionado mesmo com tudo verde. Removido de `required_status_checks` (autorizado explícito); restam `TypeScript` + `A4 Zero-Vendor`.
+- Memórias: `[[feedback_gitleaks_scheduled_full_history_false_positives]]`, `[[feedback_conditional_required_check_blocks_all_prs]]`.
+
+---
+
 ## Sun 2026-06-07 — D1: canário contaminava access_count (feedback loop) → fix + descontaminação
 
 > Sessão de "observação" virou caça a bug. Checar o priming loop revelou que o brief estava preso em **88 chunks distintos / 21.337 serves** — não staleness pura de design, mas um **feedback loop**: o `semantic-canary` rodava `/api/search` a cada 30min (cron `:22/:52`) e, via `searchHybrid` (`search()`×N + `searchSemantic()`), incrementava `access_count` de ~52 chunks candidatos por run. `access_count` alimenta salience (peso 0.20) → mesmos chunks voltam → auto-reforço.
