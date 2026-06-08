@@ -1,0 +1,29 @@
+# gitleaks config — memoria-nox
+#
+# Estende a config default do gitleaks e adiciona allowlist para FALSOS POSITIVOS
+# CONFIRMADOS (auditados em 2026-06-08, Security Scan run #27131527352). O scan de
+# push (diff) passa; só o scan agendado (full history, fetch-depth:0) reincidia
+# nestes arquivos antigos. Nenhum secret real — evidência por grupo abaixo.
+
+title = "memoria-nox gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Falsos positivos confirmados 2026-06-08 (todos verificados contra o valor real):
+- benchmark/history/*.json — o campo `metric_key` são NOMES DE MÉTRICA
+  (ex.: "P1.answer.pipeline.total.p50_ms"), telemetria gerada por github-actions[bot].
+  A regra generic-api-key casa qualquer campo com "key" + string.
+- staged-P7-browser-extension/.../privacy/ — fixtures SINTÉTICAS de teste do redator
+  de privacidade. O próprio arquivo declara "All examples arrays are SYNTHETIC TEST
+  FIXTURES, not real secrets"; valores são exemplos canônicos (ex.: AKIAIOSFODNN7EXAMPLE).
+- archive/docs/github-webhook-setup.md — PLACEHOLDERS de documentação
+  (<GITHUB_WEBHOOK_SECRET>, ${{ secrets.X }}, <WEBHOOK_TOKEN>), não valores reais.
+"""
+paths = [
+  '''benchmark/history/.*\.json''',
+  '''staged-P7-browser-extension/.*''',
+  '''archive/docs/github-webhook-setup\.md''',
+]
