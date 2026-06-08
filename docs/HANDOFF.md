@@ -31,7 +31,16 @@
 brief global agora dominado por pain/importance (**zero contaminados**). Salience mean 0.4088 inalterada (52 de 71.7k chunks). Services up, vec 100%, orphans 0.
 
 ### Próxima ação
-**D2** (brief diversity/novelty term) + **D3** (medir follow-up real agora que o sinal está limpo) — quando possível. Reavaliar quanto dos 88 era design puro vs auto-reforço com alguns dias de dados limpos. Memória: `[[feedback_probe_search_must_not_feed_ranking_signals]]`.
+**D2** (brief diversity/novelty term) + **D3** (medir follow-up real agora que o sinal está limpo) — quando possível. Reavaliar quanto dos 88 era design puro vs auto-reforço com alguns dias de dados limpos. Memória: `[[feedback_probe_search_must_not_feed_ranking_signals]]`. Spec D2 desenhado: `specs/2026-06-07-D2-brief-diversity-term.md` (DESENHO, aguarda decisão + dados D3).
+
+### Higiene git VPS (pós-D1, mesma sessão)
+
+Deployar via PR no GitHub (origin avança fora da VPS) expôs divergência **VPS ahead 2/behind 1** que NÃO se auto-resolvia. Root cause: `git-backup.sh` (cron `backup-all` 02:00) e `session-wrap-up.sh --fix` faziam `git push origin main` SEM `fetch`/`merge` antes → `non-fast-forward` engolido por `|| true`, prendendo commits locais (incl. do agente Nox) até reconciliação manual.
+
+- **Reconciliado:** `git fetch && git merge origin/main && git push` na VPS (sem overlap → merge limpo).
+- **Fix #15** (`git-backup.sh`) + **#16** (`session-wrap-up.sh`): `fetch`+`merge` antes do push; conflito → `merge --abort` + skip push (nunca push cego). Testado (`bash -n` + cenário temp `behind 1/ahead 1` → `0 0`). Deployados via VPS pull.
+- **Estado:** Mac = origin = VPS = `2fa2427d`. Ambos caminhos de auto-push robustos.
+- Memória: `[[feedback_git_autopush_must_pull_before_push]]`.
 
 ---
 
