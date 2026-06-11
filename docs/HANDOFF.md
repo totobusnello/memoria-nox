@@ -2,6 +2,43 @@
 
 ---
 
+## Wed 2026-06-11 — Rodada de estabilidade: yellow vectorCoverage + WAL 1.5GB + integrity/restore-test + morning report v2
+
+> Manhã: morning report 🟡 vectorCoverage 70730/70758. Fix do sintoma + auditoria de confiabilidade do pipeline inteiro a pedido do Toto ("estabilidade no processo, vetorização e etc"). Tudo deployado direto na VPS (ops, não código do repo).
+
+### Diagnóstico
+- **Yellow:** 28 chunks sem embedding = re-ingest do watcher às 03:30 UTC (`memory/{pending,projects,lessons,decisions}.md`). Vectorize rodava SÓ no `nightly-maintenance.sh` 23:00 UTC → janela de até ~20h amarela toda vez que watcher ingere pós-nightly.
+- **WAL 1.5GB** (mesmo tamanho do DB): high-water mark de bulk antigo nunca truncado — autocheckpoint reusa o espaço mas o arquivo nunca encolhe. `wal_checkpoint(TRUNCATE)` rodou limpo (busy=0): **1547MB → 0**.
+- **Backup nunca testado / integridade nunca checada / disco não monitorado.** Watcher e API já bem cobertos (Restart= + health-probe 10min com restart+alerta).
+- **Decisão do Toto:** NÃO copiar backup pro Mac — VPS/Hostinger já tem backup. Artefatos de pull no Mac removidos (script, plist nunca ativado, cópia local).
+
+### Entregas (VPS, tudo com tag no crontab + backup do original)
+| # | Item | Onde |
+|---|---|---|
+| 1 | Vectorize manual 28/28 (0 errors) → 70758/70758, orphans 0 | verificado `/api/health` |
+| 2 | Cron catch-up vectorize `43 */4 * * *` (no-op se 100%, timeout 600s) | tag `# vectorize-catchup`, log `/var/log/nox-vectorize-catchup.log` |
+| 3 | `wal-checkpoint.sh` + cron `13 4 * * *` (TRUNCATE diário, inofensivo se busy) | tag `# wal-checkpoint`, log `/var/log/nox-wal-checkpoint.log` |
+| 4 | `weekly-integrity-check.sh` + cron `53 5 * * 0`: `quick_check` no DB vivo + **restore-test real** do daily-main (gunzip→abre→quick_check→drift guard 20%) | tag `# integrity-check`, log `/var/log/nox-integrity.log` |
+| 5 | `morning-report.sh` **+5 checks**: `wal size` (🟡>200MB 🔴>1GB), `backup age` (🟡>26h 🔴>30h/ausente), `catchup` (errors), `disk` (🟡>80% 🔴>90%), `integrity` (FAIL 🔴, stale>8d 🟡) | originais em `.bak-20260611-082346` + `.bak2-20260611-083423` |
+
+### Verificações
+- 1ª run do integrity check: **PASS em 11s** — main quick_check=ok 70758 chunks; backup restaura com contagem idêntica (70758=70758).
+- Test run do morning report completo (sem Discord): **all green** com todos os campos novos. A partir de 2026-06-12 06:30 UTC o Discord recebe o formato novo.
+- Crontab backup pré-mudanças: `/var/backups/crontab.pre-vectorize-catchup-20260611-*`.
+
+### Pipeline de vetorização — cobertura ponta-a-ponta
+watcher (Restart=always + probe 10min + alerta) → embedding (catch-up 4/4h + canary 429 + check `catchup`) → WAL (truncate diário + check `wal size`) → backup (daily snapshot + check `backup age` + restore-test semanal + check `integrity`) → disco (check `disk`).
+
+### Rollbacks
+Crontab: remover linhas com tags `# vectorize-catchup` / `# wal-checkpoint` / `# integrity-check`. Morning report: restaurar `.bak2-*` (ou `.bak-*` pra estado pré-rodada). Scripts novos em `/root/.openclaw/scripts/{wal-checkpoint,weekly-integrity-check}.sh`.
+
+### Próxima ação
+Acompanhar o report de 2026-06-12 (formato novo). Candidatos futuros de estabilidade (não feitos): alerta proativo de saldo Gemini prepaid (hoje só 429 reativo), `integrity_check` full mensal (vs quick semanal), latência do `/api/search` no report. Pendências anteriores seguem: **D2** (brief diversity) aguarda dados D3; bug de bootstrap de schema (`ensureSchema` V1-7 vs `schema_version=18`) investigação à parte.
+
+Memórias: `[[project-reliability-round-2026-06-11]]`, `[[project-vectorize-catchup-cron-2026-06-11]]`.
+
+---
+
 ## Mon 2026-06-08 — CI hygiene: gitleaks FP allowlist + portão de branch protection
 
 > Alerta do GitHub: Security Scan **agendado** do memoria-nox (PÚBLICO) falhando no gitleaks. Recheck: ~28 findings, **TODOS falsos positivos** (cada um verificado contra o valor real).
