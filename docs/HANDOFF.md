@@ -32,8 +32,22 @@ Coletar **3-5 dias** de `brief_diversity_shadow` (journalctl) cruzado com `chunk
 ### Rollback
 `rm /etc/systemd/system/nox-mem-api.service.d/d2-brief-diversity-shadow.conf` + `daemon-reload` + restart (volta a off; off já é o default do código). PR #17 revertível.
 
+### Continuação da sessão (mesmo dia)
+
+**Floor fix (PR #18, deployado + validado):** o **gate report pegou um bug no 1º shadow run** — o freshness slot expulsava high-pain (would_leave pain=1.0), violando a invariante #4. Causa: o penalty respeita o floor mas a reserva de slots do freshness não. Fix **pinned-first** (high-pain do brief atual entram garantidos, nunca expulsos; freshness só compete pelos slots restantes). 46/46 testes. Deployado; gate pós-fix: `samples 8 · churn 2.0 · FLOOR GUARD 0 OK · median age would_LEAVE 30.7d→would_ENTER 0.5d`. Memória `[[project_d2_brief_diversity_shadow_deployed]]` atualizada.
+
+**Cron de gate na VPS:** `/root/.openclaw/scripts/d2-gate-report.sh` + cron `10 6 * * *` (tag `# d2-gate-report`, log `/var/log/nox-d2-gate.log`). Agrega `brief_diversity_shadow` × `chunks`: diversidade, freshness (age leave→enter), e **FLOOR GUARD** (would_leave com pain≥0.9). `START="2026-06-14 07:46:00"` (BRT, pós floor-fix; journalctl parseia --since em local). Rollback: remover linha do crontab + script.
+
+**Inventário pré-arXiv (agent):** o bloqueador do paper **não é D3/D2 nem HyDE/Claude bench** (future work) — é a **§6 (Q4 Comparison) com 101 células `[PENDING]`** + run canônico **abortado (D76, CPU steal Hostinger)** + abstract prometendo head-to-head que não existe. §5 (12 SOTA) sustenta o paper sozinho.
+
+**3 fixes mecânicos do paper (commit e7114ad):** (1) título corpo `OpenClaw Memory System`→`nox-mem: Pain-Weighted Hybrid Memory for LLM Agents`; (2) fórmula salience unificada na **aditiva v2** canônica (corpo §3.4.3 reconcilia princípio mult. vs impl aditiva; footnote + abstract.md + arxiv-ready corrigidos — tinham `× access_count` multiplicativo inexistente); (3) rebuild .tex/.pdf.
+
 ### Próxima ação
-Acompanhar 3-5d do shadow → rodar query de gate (§6 spec) → decidir flip `active`. Depois disso o pilar P (priming loop) fecha → foco no **paper** (D3 vira input de §self-evolution; o achado "follow-up não-mensurável em priming-by-injection" é material publicável). Memórias: `[[project-d3-brief-diversity-measured]]`, `[[project-d2-brief-diversity-shadow-deployed]]`.
+
+1. **Shadow 3-5d** → cron de gate roda diário → decidir flip `active` (gate: diversidade↑ E mediana age↓ E FLOOR GUARD 0 E churn não-thrashing).
+2. **Paper — decisão do Toto sobre §6:** como rodar o run canônico sem o CPU-steal da VPS (D76) — Mac local / outro provider / CPU dedicado. Até lá §6 fica `[PENDING]`. Depois: texto §6.3/§7/§15 "run in progress"→"deferred", warnings unicode no PDF (∈≤⭐🟡 viram buracos — visual QA), e seção opcional D3/D2 (priming self-evolution).
+
+Memórias: `[[project_d3_brief_diversity_measured]]`, `[[project_d2_brief_diversity_shadow_deployed]]`.
 
 > ⚠️ Nota de volume: shadow loga a cada `/api/brief` com churn>0 (~6.700/dia). journald rotaciona; ok pros 3-5d. Se incomodar antes do gate, amostrar.
 
