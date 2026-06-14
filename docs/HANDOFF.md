@@ -44,8 +44,17 @@ Coletar **3-5 dias** de `brief_diversity_shadow` (journalctl) cruzado com `chunk
 
 ### Próxima ação
 
-1. **Shadow 3-5d** → cron de gate roda diário → decidir flip `active` (gate: diversidade↑ E mediana age↓ E FLOOR GUARD 0 E churn não-thrashing).
-2. **Paper — decisão do Toto sobre §6:** como rodar o run canônico sem o CPU-steal da VPS (D76) — Mac local / outro provider / CPU dedicado. Até lá §6 fica `[PENDING]`. Depois: texto §6.3/§7/§15 "run in progress"→"deferred", warnings unicode no PDF (∈≤⭐🟡 viram buracos — visual QA), e seção opcional D3/D2 (priming self-evolution).
+1. **Shadow 3-5d** → cron de gate roda diário → Toto chama em ~18/06, eu rodo a análise e recomendo flip `active` (gate: diversidade↑ E mediana age↓ E FLOOR GUARD 0 E churn não-thrashing).
+2. **Paper — decisão do Toto sobre §6:** como rodar o run canônico sem o CPU-steal da VPS (D76) — recomendado **Mac local** ou **VM efêmera** (não upgrade permanente). Até lá §6 fica `[deferred]`.
+
+### Continuação — alerta Cipher + paper §3.5 + polish (mesmo dia)
+
+- **Alerta Cipher "NOX-MEM BACKEND DOWN" = falso positivo** (commit nox-workspace `58ca15dc`). Cipher checava `:9876` (porta fantasma); real é `:18802`/`NOX_API_PORT`. nox-mem nunca caiu. Fix: SOUL.md do Cipher ancora a porta canônica + steward-log corrigido. Quebra o ciclo de auto-reforço.
+- **Paper §3.5 "Session Priming" escrita** (commit memoria-nox `1701fbb`): read-side da self-evolution + achado D3 (0,18% diversidade; **follow-up não-mensurável em priming-by-injection → utilidade = qualidade do conjunto servido**, material publicável) + D2 diversity term.
+- **Polish do paper:** §6/§6.7/§7.1(L5,L6)/§15 "run in progress"→"**deferred (D76)**" (honesto sobre o capstone abortado); unicode `~12 warnings → 0` (emojis ⭐🟡 removidos, operadores raros ∈≤∥≠∞↔≈→ASCII; ×→· mantidos). PDF+.tex rebuildados.
+
+### ⚠️ Pendência nova descoberta (pré-arXiv): idioma misto
+O corpo do paper tem **parágrafos em PORTUGUÊS** no meio do texto EN (§6.7 linha ~1155, §15 linha ~1452-1454: "ainda está em execução", "cravou", "consolida"). Reviewer pega na 1ª leitura. Fora do escopo do polish de hoje — **traduzir pra EN antes de submeter.**
 
 Memórias: `[[project_d3_brief_diversity_measured]]`, `[[project_d2_brief_diversity_shadow_deployed]]`.
 
