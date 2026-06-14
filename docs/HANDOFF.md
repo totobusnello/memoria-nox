@@ -53,8 +53,11 @@ Coletar **3-5 dias** de `brief_diversity_shadow` (journalctl) cruzado com `chunk
 - **Paper §3.5 "Session Priming" escrita** (commit memoria-nox `1701fbb`): read-side da self-evolution + achado D3 (0,18% diversidade; **follow-up não-mensurável em priming-by-injection → utilidade = qualidade do conjunto servido**, material publicável) + D2 diversity term.
 - **Polish do paper:** §6/§6.7/§7.1(L5,L6)/§15 "run in progress"→"**deferred (D76)**" (honesto sobre o capstone abortado); unicode `~12 warnings → 0` (emojis ⭐🟡 removidos, operadores raros ∈≤∥≠∞↔≈→ASCII; ×→· mantidos). PDF+.tex rebuildados.
 
-### ⚠️ Pendência nova descoberta (pré-arXiv): idioma misto
-O corpo do paper tem **parágrafos em PORTUGUÊS** no meio do texto EN (§6.7 linha ~1155, §15 linha ~1452-1454: "ainda está em execução", "cravou", "consolida"). Reviewer pega na 1ª leitura. Fora do escopo do polish de hoje — **traduzir pra EN antes de submeter.**
+### Tradução + review (commit `68bd5d7`) — RESOLVIDO
+A §6 (Q4 Comparison) **inteira** estava em português (não só §6.7) + §15. Traduzido tudo pra EN acadêmico (agent technical-writer + review meu), markdown/refs/números/termos preservados. Review superficial: version line `§5 third→fifth revision May–June 2026`; células de tabela `[pending]/[PENDING]/[pending Sun canonical]` → `[deferred]` (consistência + remove data passada). Verificado: **0 PT residual, 0 placeholders, 0 warnings unicode, footnotes 20/20, numeração §1-15 OK**. PDF+.tex rebuildados.
+
+### Estado do paper pré-arXiv (pós-sessão)
+✅ título · ✅ fórmula salience aditiva v2 consistente · ✅ §3.5 priming · ✅ 100% EN · ✅ §6/§7/§15 honesto sobre D76 (`[deferred]`) · ✅ build limpo. **Falta (decisão Toto):** (1) §6 run canônico — infra (Mac/VM) → preencher células `[deferred]`; (2) logística arXiv (account + endorsement cs.IR); (3) LoCoMo venue check (`refs-verification-log.md:168`).
 
 Memórias: `[[project_d3_brief_diversity_measured]]`, `[[project_d2_brief_diversity_shadow_deployed]]`.
 
