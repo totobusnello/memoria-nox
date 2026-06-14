@@ -2,6 +2,43 @@
 
 ---
 
+## Fri→Sat 2026-06-13/14 — D3 medido + D2 (brief diversity) SHADOW DEPLOYED
+
+> Objetivo do Toto: "evoluir e finalizar o projeto memória e ter o paper pra publicar". Caminho: D3 (medir) → D2 (decidir+impl). Escolha do Toto no ponto de decisão: **implementar A+B em shadow, gate sem follow-up**.
+
+### D3 — medição limpa (7d pós-descontaminação do canário 06-07)
+SSH na VPS (`187.77.234.79`, autorizado), query sobre `brief_log` + `chunks` + `search/answer_telemetry`:
+
+| Métrica | Número | Leitura |
+|---|---|---|
+| Diversidade | **83 distintos / 46.824 serves** (30-50/dia · ~6.700/dia) = 0,18% | Travado por **design** — canário corrigido não era a causa principal |
+| Freshness | mediana **48d**; 14/81 ≤7d; 22/81 ≤30d | Cauda recente existe, velho domina |
+| High-pain floor | **19/81** pain≥0.9 | O que o floor do D2 protege |
+| Tipo | team 39 + distilled 34 = 90% | Pouca variedade |
+| Universo barrado | **931** recentes (≤7d) relevantes nunca servidos; **510** imp≥0.7 | `importance` default é 0.4 ⇒ genuínos. Pool real do freshness slot |
+| **Follow-up** | **3 buscas genuínas + 0 answers em 7d** | **NÃO-mensurável** |
+
+**Virada:** follow-up via search/answer é estruturalmente vazio (priming injeta no SessionStart → agente não re-busca o que já tem). Gate D2 **redesenhado** sem follow-up. Frase pro paper: utilidade de priming-by-injection mede-se pela qualidade do conjunto servido, não por re-consulta.
+
+### D2 — A+B implementados + shadow LIVE (PR nox-workspace #17)
+- **A — novelty penalty:** `brief_score = salience − min(P_max, λ·log1p(n_serves))` via `brief_log` (read-only). **High-pain floor** (pain≥0.9) imune. Re-rank pós-salience DENTRO do brief — NÃO forka `calculateSalience` (regra #5).
+- **B — freshness slot:** F slots reservados pra recente relevante não-servido (query própria; o pool de 500 barra access=0). `FRESH_MIN_IMP=0.7`.
+- `NOX_BRIEF_DIVERSITY=off|shadow|active`, **default off**. `off` bit-idêntico ao v1.2 (provado por teste). Fail-open. `brief-diversity.ts` (puro) + `brief.ts` (queries+integração). **45/45 testes** (20 novos).
+- **Deploy shadow:** drop-in systemd `d2-brief-diversity-shadow.conf` (padrão G10d/D49) + build + restart. Verificado: serviço active, surface intocado, **shadow log LIVE** no journal — 1ª amostra `churn:2 would_enter:[265166,265167] would_leave:[116341,112241] fresh_added:[265166,265167]` (recente entra, abril sai — exatamente o diagnóstico do D3).
+
+### Gate (redesenhado, sem follow-up)
+Coletar **3-5 dias** de `brief_diversity_shadow` (journalctl) cruzado com `chunks`. Flip `active` só se: diversidade ↑ E mediana age ↓ E **19 high-pain preservados** (nenhum `would_leave` com pain≥0.9) E churn não-thrashing. Decisão do Toto com números na mesa. Query de gate na spec §6.
+
+### Rollback
+`rm /etc/systemd/system/nox-mem-api.service.d/d2-brief-diversity-shadow.conf` + `daemon-reload` + restart (volta a off; off já é o default do código). PR #17 revertível.
+
+### Próxima ação
+Acompanhar 3-5d do shadow → rodar query de gate (§6 spec) → decidir flip `active`. Depois disso o pilar P (priming loop) fecha → foco no **paper** (D3 vira input de §self-evolution; o achado "follow-up não-mensurável em priming-by-injection" é material publicável). Memórias: `[[project-d3-brief-diversity-measured]]`, `[[project-d2-brief-diversity-shadow-deployed]]`.
+
+> ⚠️ Nota de volume: shadow loga a cada `/api/brief` com churn>0 (~6.700/dia). journald rotaciona; ok pros 3-5d. Se incomodar antes do gate, amostrar.
+
+---
+
 ## Wed 2026-06-11 — Rodada de estabilidade: yellow vectorCoverage + WAL 1.5GB + integrity/restore-test + morning report v2
 
 > Manhã: morning report 🟡 vectorCoverage 70730/70758. Fix do sintoma + auditoria de confiabilidade do pipeline inteiro a pedido do Toto ("estabilidade no processo, vetorização e etc"). Tudo deployado direto na VPS (ops, não código do repo).

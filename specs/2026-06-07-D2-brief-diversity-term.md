@@ -1,8 +1,20 @@
 # Spec D2 — Brief diversity/novelty term
 
-> **Status:** DESENHO (aguarda decisão Toto + dados limpos do D3). Não implementado.
+> **Status:** ✅ SHADOW DEPLOYED 2026-06-14 (PR nox-workspace **#17**). A+B implementados, `NOX_BRIEF_DIVERSITY=shadow` na VPS (drop-in `d2-brief-diversity-shadow.conf`). 45/45 testes. Aguarda 3-5d de shadow → gate (§6 redesenhado) → decisão Toto de flip `active`.
 > **Origem:** sessão 2026-06-07 (D1 — feedback loop do canário). Ver `docs/HANDOFF.md#Sun 2026-06-07` e memória `[[feedback_probe_search_must_not_feed_ranking_signals]]`.
-> **Repo de impl:** `nox-workspace/tools/nox-mem/src/api/brief.ts`.
+> **Repo de impl:** `nox-workspace/tools/nox-mem/src/api/brief.ts` + `brief-diversity.ts`.
+
+## 0. D3 (medido 2026-06-13, 7d limpos pós-descontaminação)
+
+| Métrica | Número | Implicação |
+|---|---|---|
+| Diversidade | **83 distintos / 46.824 serves** (30-50/dia · ~6.700 serves/dia) = 0,18% | Travado por design — canário corrigido não era a causa principal |
+| Freshness | mediana **48d**; 14/81 ≤7d | Cauda recente existe, velho domina |
+| High-pain floor | **19/81** pain≥0.9 | O que o `PAIN_FLOOR` deve proteger |
+| Universo barrado | **931** recentes (≤7d) relevantes nunca servidos; **510** imp≥0.7 | Pool real do freshness slot (B); `importance` default é 0.4 ⇒ genuínos |
+| **Follow-up** | **3 buscas genuínas + 0 answers em 7d** | **NÃO-mensurável** — priming injeta no SessionStart, agente não re-busca |
+
+**Virada:** o follow-up via search/answer é estruturalmente vazio. O gate §6 foi **redesenhado** sem follow-up (diversidade + freshness + high-pain floor). Frase pro paper: a utilidade de priming-by-injection mede-se pela qualidade do conjunto servido, não por re-consulta.
 
 ## 1. Problema
 
@@ -68,18 +80,30 @@ Em `buildBrief`, após `calculateSalience` e antes do sort/`tryPick` final:
 - [ ] **T4 — Métricas + gate** (§6). Rodar shadow ~3-5 dias sobre dados limpos (pós-D1).
 - [ ] **T5 — Flip `active`** se gates passarem; senão calibrar `λ`/`F`/thresholds e repetir shadow.
 
-## 6. Métricas + gate de decisão (amarrado ao D3)
+## 6. Métricas + gate de decisão (REDESENHADO pós-D3 — sem follow-up)
 
-Medir sobre `brief_log` com `served_at > <pós-D1>` (sinal limpo):
+Fonte do shadow: `journalctl -u nox-mem-api | grep brief_diversity_shadow` (JSON com `would_enter`/`would_leave`/`fresh_added`/`churn` por chamada) cruzado com `chunks` (pain/age/importance dos ids). Coletar **3-5 dias**.
 
-| Métrica | Baseline (pré) | Alvo |
+| Métrica | Baseline D3 | Alvo |
 |---|---|---|
-| Diversidade `distinct/serves` (7d) | 0,4% | subir substancialmente (rotação real) |
-| Freshness: mediana `age_days` dos itens | ~44-50d | baixar (recente entra) |
-| **Guarda:** high-pain (≥0.9) ainda aparecem quando relevantes | sim | **não pode cair** |
-| Follow-up rate (D3, proxy de utilidade) | indistinguível de ruído (contaminado) | mensurável + ≥ baseline |
+| Diversidade `distinct/serves` (janela) | 0,18% (83 distintos) | subir substancialmente (rotação real) |
+| Freshness: mediana `age_days` dos servidos | 48d | baixar (recente entra via slot B) |
+| **Guarda:** high-pain (≥0.9) preservados | 19/81 | **não pode cair** (floor blindou) |
+| Churn estável (não thrashing) | — | `churn` consistente, sem oscilar slot a slot |
 
-**Gate:** flip pra `active` só se diversidade ↑ E freshness ↑ E high-pain floor preservado E follow-up não-pior. Decisão de produto do Toto com os números na mesa.
+> **Follow-up rate REMOVIDO do gate** (D3: 3 buscas genuínas + 0 answers em 7d ⇒ não-mensurável; o mecanismo de priming-by-injection não gera re-busca).
+
+**Gate:** flip pra `active` só se diversidade ↑ E freshness ↓ (mediana age) E os 19 high-pain preservados E churn não-thrashing. Decisão de produto do Toto com os números do shadow na mesa.
+
+### Análise do shadow (query de gate)
+```bash
+# agrega would_enter/leave/fresh por dia; cruza ids com chunks pra pain/age
+journalctl -u nox-mem-api --since "-5 days" -o cat | grep brief_diversity_shadow \
+  | jq -s 'group_by(.scope) | map({scope:.[0].scope, n:length,
+      avg_churn:(map(.churn)|add/length),
+      fresh:(map(.fresh_added|length)|add)})'
+```
+Guarda do floor: nenhum id em `would_leave` (agregado) pode ter `pain >= 0.9` em `chunks`.
 
 ## 7. Riscos
 
