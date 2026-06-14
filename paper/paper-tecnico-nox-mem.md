@@ -1,4 +1,4 @@
-# OpenClaw Memory System: Architecture & Technical Deep Dive
+# nox-mem: Pain-Weighted Hybrid Memory for LLM Agents
 
 **nox-mem v3.8 — March 2026, §5 third revision May 2026 (Wave A + EverMemBench 5-batch Phase D/G/H v2 + Lab Q1 standalones + Wave B/C composability + Backbone Matrix Gemini-3-flash + LoCoMo dual + MuSiQue + HotPotQA dual SOTA + LongMemEval cross-bench + Production SOTA)**
 
@@ -227,7 +227,7 @@ The `pain` field on `chunks` is an explicit severity in [0.1, 1.0] (0.1 trivial,
 
 **3.4.3 Salience decay continuous in background — `recency × pain × importance`.**
 
-The salience function lives in `src/lib/salience.ts` [^salience-src] (and is mirrored in the staged copy at `staged-1.7a/edits/salience.ts`). Its canonical formula is:
+The salience function lives in `src/lib/salience.ts` [^salience-src] (and is mirrored in the staged copy at `staged-1.7a/edits/salience.ts`). Its underlying principle is multiplicative — a memory scores high only when it is *simultaneously* recent, painful, and important:
 
 ```
 salience = recency × pain × importance
@@ -238,6 +238,8 @@ with components:
 - **recency** ∈ [0,1] — half-life-style decay over the chunk's `retention_days` window (`feedback`/`person` → never-decay → `recency = 1.0`; everything else decays per Table V8 [^retention-defaults]). Decay is *continuous*: it is recomputed at every retrieval, so there is no batch step that "ages" memory — aging is a property of the read path.
 - **pain** ∈ [0,1] — severity as described in §3.4.2.
 - **importance** ∈ [0,1] — `chunk_type` / `source_type` / tier signal (manual mapping; e.g., `decision` and `lesson` rank above `daily`).
+
+In production since Wave A (§5.1), this principle is realized as a **weighted-additive** form — `salience = W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access_score` (weights 0.55 / 0.15 / 0.10 / 0.20) — which empirically outperformed the strict multiplicative product on the Wave A golden set; §5.1 reports the ablation. The multiplicative expression above states the principle; the additive form is what ships.
 
 The mode of operation is gated by `NOX_SALIENCE_MODE`: `shadow` (default — compute and log to `/api/health.salience` but do not apply to retrieval rankings), `active` (apply as an additive delta in [-0.5, +0.5] on top of RRF), and `off` (short-circuit to 0 for ablation experiments). This three-state gate is the operational realization of *shadow discipline* (§4 and §5).
 
@@ -1479,7 +1481,7 @@ The cross-agent intelligence layer transforms isolated agent memories into a col
 
 [^reflect-src]: `src/reflect.ts` exporting `reflect()` and `getReflectCacheStats()` (confirmed in `staged-1.6/edits/api-server.ts:12`). Cache statistics surfaced in `/api/health.reflectCache`. See also `docs/POSTMAN.md` for the API contract.
 
-[^salience-src]: `src/lib/salience.ts` — canonical implementation of `salience = recency × pain × importance`, mirrored in the staged copy at `staged-1.7a/edits/salience.ts` (lines 1–80 contain the module docstring spelling out the formula, the three-state mode gate, and the per-type retention defaults).
+[^salience-src]: `src/lib/salience.ts` — canonical implementation of the salience formula (multiplicative principle in §3.4.3; weighted-additive v2 production form `W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access_score` in §5.1), mirrored in the staged copy at `staged-1.7a/edits/salience.ts` (lines 1–80 contain the module docstring spelling out the formula, the three-state mode gate, and the per-type retention defaults).
 
 [^retention-defaults]: V8 schema typed retention defaults (in `chunks.retention_days`): `feedback` = 0 (never-decay), `person` = 0 (never-decay), `lesson` = 180d, `decision` = 365d, `project` = 365d, `team` = 120d, `daily` = 90d, `pending` = 30d, `graph_node` = 60d, fallback = 90d. See `staged-1.7a/edits/salience.ts:46–56` (`DEFAULT_RETENTION_BY_TYPE`) and `CLAUDE.md` §"Schema v10".
 
