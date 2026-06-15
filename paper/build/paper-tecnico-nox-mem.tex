@@ -4272,17 +4272,68 @@ competitors did not fare as smoothly:
   store was reset.
 \end{itemize}
 
-None of these are disqualifying defects --- they are the normal cost of
-multi-service, telemetry-instrumented, agent-OS architectures. But they
-are \emph{real operational costs} that a single-file embedded design
-does not impose. The reproducibility of nox-mem's run --- one file, one
-process, one command, re-confirmed live at \textbf{415 MB RSS on the
-70.7k-chunk production corpus} on 2026-06-15 --- is not an incidental
-convenience; it is the operational expression of the Autonomy pillar
-quantified in §6.8. \textbf{A memory system you can run from a single
-file you own is a different category of dependency than one that
-requires Docker, a vector database, a telemetry pipeline, and a
-third-party embedding key to return its first result.}
+\textbf{The gaps are not neutral omissions --- they are a deployability
+penalty.} Standard benchmarking convention records a non-running system
+as a blank cell and moves on. We make a stronger, but carefully bounded,
+claim: \emph{the dimension on which these three systems could not
+produce a number is precisely the dimension nox-mem is engineered to
+win.} Each failure maps to a concrete operational deficit that nox-mem
+does not carry:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2500}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+System
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Why it did not run
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Operational axis it fails
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+nox-mem on the same axis
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Zep & requires a privileged Docker host; cannot start on an unprivileged
+single-node kernel (§6.3.1) & deployability under constraint & runs
+unprivileged, single SQLite file, one process \\
+Letta & ran, but retrieval routes through a full LLM agent turn at
+\textasciitilde16 min/query & query efficiency & 2.9 ms KG path / 653 ms
+hybrid --- \textbf{5--6 orders of magnitude faster} \\
+EverMind-AI & needs 5 services + 2 mandatory paid third-party keys
+(OpenRouter + DeepInfra) & dependency footprint / autonomy & 1 process,
+\textbf{0 mandatory keys}, provider-agnostic \\
+\end{longtable}
+}
+
+\textbf{Honest bound (per §6.6).} We do \emph{not} infer that nox-mem
+\emph{retrieves better} than these three systems --- we hold no quality
+numbers for them, and on a privileged Docker host with paid keys they
+may retrieve competitively. The claim is narrower, and stronger for
+being narrow: on the \textbf{deployability / efficiency / autonomy axis}
+--- the axis that decides whether an individual developer, or an
+embedded agent that must live in its own process on commodity hardware,
+can use the system \emph{at all} --- \textbf{three of five competitors
+could not be made to produce a single result}, while nox-mem produced
+one from one file with zero external services. For that user, a system
+you cannot run is not ``untested'': it is unusable, and unusable is the
+worst score on the operational axis. A lighter, dependency-free design
+is not a footnote to the quality comparison --- it is the reason nox-mem
+has a number in every cell of §6.3 and three competitors do not.
+
+The reproducibility of nox-mem's run --- one file, one process, one
+command, re-confirmed live at \textbf{415 MB RSS on the 70.7k-chunk
+production corpus} on 2026-06-15 --- is the operational expression of
+the Autonomy pillar quantified in §6.8. \textbf{A memory system you can
+run from a single file you own is a different category of dependency
+than one that requires Docker, a vector database, a telemetry pipeline,
+and a third-party embedding key to return its first result.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
