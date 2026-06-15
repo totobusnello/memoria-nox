@@ -130,11 +130,11 @@
 
 \begin{document}
 
-\section{OpenClaw Memory System: Architecture \& Technical Deep
-Dive}\label{openclaw-memory-system-architecture-technical-deep-dive}
+\section{nox-mem: Pain-Weighted Hybrid Memory for LLM
+Agents}\label{nox-mem-pain-weighted-hybrid-memory-for-llm-agents}
 
-\textbf{nox-mem v3.8 --- March 2026, §5 third revision May 2026 (Wave A
-+ EverMemBench 5-batch Phase D/G/H v2 + Lab Q1 standalones + Wave B/C
+\textbf{nox-mem v3.8 --- §5 fifth revision May--June 2026 (Wave A +
+EverMemBench 5-batch Phase D/G/H v2 + Lab Q1 standalones + Wave B/C
 composability + Backbone Matrix Gemini-3-flash + LoCoMo dual + MuSiQue +
 HotPotQA dual SOTA + LongMemEval cross-bench + Production SOTA)}
 
@@ -149,16 +149,18 @@ KVM4, Tailscale VPN, Debian Linux
 We introduce \textbf{nox-mem}, a persistent memory system for autonomous
 LLM agents organized around a single design principle:
 \textbf{pain-weighted hybrid memory with shadow discipline --- yours by
-design}. Every retrieval and retention decision is governed by a
-\texttt{salience\ =\ recency\ ×\ pain\ ×\ importance} formula (where
-\emph{pain} is an operator-assigned severity in {[}0.1, 1.0{]},
-persisted on every chunk), and every ranking change is gated by a
-mandatory shadow-mode telemetry phase before activation in production.
-Compared to existing memory systems (mem0, Letta, Zep, EverOS, LightRAG,
-and MeMo), nox-mem offers several advantages: \textbf{(a)} \emph{live
-writeback with sub-second indexing} (inotifywait-driven, no batch
-retrain or daily reindex required), \textbf{(b)} \emph{typed temporal
-decay} (per-\texttt{chunk\_type} retention windows with never-decay for
+design}. Every retrieval and retention decision is governed by an
+evidence-weighted salience formula in which \emph{pain} --- an
+operator-assigned severity in {[}0.1, 1.0{]}, persisted on every chunk
+--- is a first-class signal; the formula itself evolved from
+multiplicative to additive form through the system's own shadow-mode
+telemetry (§5.2), and every ranking change is gated by a mandatory
+shadow phase before production activation. Compared to existing memory
+systems (mem0, Letta, Zep, EverOS, LightRAG, and MeMo), nox-mem offers
+several advantages: \textbf{(a)} \emph{live writeback with sub-second
+indexing} (inotifywait-driven, no batch retrain or daily reindex
+required), \textbf{(b)} \emph{typed temporal decay}
+(per-\texttt{chunk\_type} retention windows with never-decay for
 feedback/person --- see §2 and §8.2), \textbf{(c)} \emph{full provenance
 to chunk and source} (every retrieval result carries \texttt{chunk\_id}
 + \texttt{source\_file}, every destructive op is wrapped in
@@ -169,38 +171,39 @@ promotes high-hit pending items to durable lessons and synthesizes
 cross-session insights nightly (§3.4), and \textbf{(e)} \emph{zero
 vendor lock-in}: a single SQLite file, MIT-licensed, with
 provider-agnostic embeddings (Gemini default, swappable). Deployed in
-production since March 14, 2026, the system manages 62.9k+ memory chunks
-with \textasciitilde99.97\% vector coverage, \textasciitilde402
-knowledge graph entities with \textasciitilde544 relations, and serves 6
-specialized AI agents with isolated yet interconnectable memory spaces.
-On the entity-flavored golden set (n=100), the full ablation stack
-reaches \textbf{nDCG@10 = 0.6237} (+78.8\% over the G3 pre-Wave-A
-baseline; §5.1.1). On the EverMemBench cross-system benchmark (5-batch,
-n=3,121), nox-mem scores \textbf{62.22\%} with Gemini-2.5-flash (+2.95
-pp over MemOS; §5.1.5), \textbf{51.68\%} with GPT-4.1-mini (+9.13 pp
-over MemOS, 95\% CI {[}49.88, 53.49{]}; §5.1.6), and \textbf{63.28\%
-Overall + 88.42\% Memory Awareness composite with Gemini-3-flash ---
-both SOTA versus MemOS Table 4 baselines} (+20.73 pp Overall, +32.74 pp
-MA; §5.1.10). On classical multi-hop QA, nox-mem achieves dual SOTA
-without specialized fine-tuning: \textbf{MuSiQue dev F1 58.62\%} (+22.82
-pp over IRCoT, +8.92 pp over EX(SA); §5.2.1) and \textbf{HotPotQA dev
-distractor ans\_F1 73.37\%} (above DPR+FiD reader SOTA; §5.2.2). LoCoMo
-cross-bench retrieval@10 strict reaches \textbf{74.52\% --- above Mem0's
-published SOTA F1 of 66.88\%} (§5.3.1); the F1 push is rank-5 (51.85\%,
-above Zep / LangMem) constrained by a verbosity gap (§5.3.2). The §5.4
-resolution of the EverMemBench F\_MH paradox shows the 3--7\% absolute
-is a corpus-structural property, not a multi-hop reasoning ceiling.
+production since March 14, 2026, the system manages 94.9k+ memory chunks
+with \textasciitilde99.99\% vector coverage, \textasciitilde15.6k
+knowledge graph entities with \textasciitilde21.5k relations (as of
+2026-06-04, post corpus-hygiene pass), and serves 6 specialized AI
+agents with isolated yet interconnectable memory spaces. On the
+entity-flavored golden set (n=100), the full ablation stack reaches
+\textbf{nDCG@10 = 0.6237} (+78.8\% over the G3 pre-Wave-A baseline;
+§5.1.1). On the EverMemBench cross-system benchmark (5-batch, n=3,121),
+nox-mem scores \textbf{62.22\%} with Gemini-2.5-flash (+2.95 pp over
+MemOS; §5.1.5), \textbf{51.68\%} with GPT-4.1-mini (+9.13 pp over MemOS,
+95\% CI {[}49.88, 53.49{]}; §5.1.6), and \textbf{63.28\% Overall +
+88.42\% Memory Awareness composite with Gemini-3-flash --- both SOTA
+versus MemOS Table 4 baselines} (+20.73 pp Overall, +32.74 pp MA;
+§5.1.10). On classical multi-hop QA, nox-mem achieves dual SOTA without
+specialized fine-tuning: \textbf{MuSiQue dev F1 58.62\%} (+22.82 pp over
+IRCoT, +8.92 pp over EX(SA); §5.2.1) and \textbf{HotPotQA dev distractor
+ans\_F1 73.37\%} (above DPR+FiD reader SOTA; §5.2.2). LoCoMo cross-bench
+retrieval@10 strict reaches \textbf{74.52\% --- above Mem0's published
+SOTA F1 of 66.88\%} (§5.3.1); the F1 push is rank-5 (51.85\%, above Zep
+/ LangMem) constrained by a verbosity gap (§5.3.2). The §5.4 resolution
+of the EverMemBench F\_MH paradox shows the 3--7\% absolute is a
+corpus-structural property, not a multi-hop reasoning ceiling.
 Production characteristics establish SOTA on three operational axes:
 \textbf{KG path retrieval p50 = 2.5 ms} (sub-10 ms class, §5.7.1),
-\textbf{cost \$0/query KG path and 769× cheaper than Mem0 Cloud on
-hybrid} (§5.7.2), and \textbf{399 MB RSS self-hosted single-process}
-footprint (§5.7.3). The cross-bench LongMemEval validation (n=300, §5.6)
-confirms the same per-category fingerprint across an orthogonal
-benchmark distribution. Wave 2 (2026-05-31 -- 2026-06-02,
-§5.5.4--§5.5.8) contributes an empirical per-backbone × per-knob
-composability study: three Wave A single-stage retrieval knobs (KG path,
-AC, MQ) transfer at only 0--40\% efficiency from gpt-4.1-mini to
-Gemini-3-flash (D75), establishing that retrieval-stage compensation
+\textbf{cost \$0/query KG path and \textasciitilde667× cheaper than Mem0
+Cloud on hybrid} (§5.7.2), and \textbf{399 MB RSS self-hosted
+single-process} footprint (§5.7.3). The cross-bench LongMemEval
+validation (n=300, §5.6) confirms the same per-category fingerprint
+across an orthogonal benchmark distribution. Wave 2 (2026-05-31 --
+2026-06-02, §5.5.4--§5.5.8) contributes an empirical per-backbone ×
+per-knob composability study: three Wave A single-stage retrieval knobs
+(KG path, AC, MQ) transfer at only 0--40\% efficiency from gpt-4.1-mini
+to Gemini-3-flash (D75), establishing that retrieval-stage compensation
 mechanisms attenuate on stronger backbones; IterB ReAct (§5.5.2) remains
 the sole validated F\_MH lever on Gemini-3-flash at +2.01 pp.~An
 architectural lock discovery (§5.5.7) reveals that composability
@@ -632,7 +635,9 @@ Lex & Legal/Compliance & 31 & 132 KB & other (12) \\
 \end{longtable}
 }
 
-Total system memory: 1,481 chunks across 7 databases.
+Total system memory: 1,481 chunks across 7 databases (initial-deployment
+snapshot, March 2026; the main store has since grown to
+\textasciitilde95k chunks --- see Abstract).
 
 \subsubsection{2.5 User-Facing Primitives}\label{user-facing-primitives}
 
@@ -643,7 +648,7 @@ advanced verb (\texttt{reflect}, \texttt{cross-search},
 \texttt{kg-path}, \texttt{crystallize}) decomposes internally into
 sequences of these three primitives.
 
-\textbf{Primitive 1 --- \texttt{search} (hybrid retrieval).} FTS5 BM25 ∥
+\textbf{Primitive 1 --- \texttt{search} (hybrid retrieval).} FTS5 BM25 +
 Gemini semantic (3072d) → RRF fusion (k=60), with optional Hard Mutex
 section gating and SOURCE\_TYPE\_BOOST overlays. Returns ranked chunks
 with \texttt{score}, \texttt{match\_type}, and provenance fields
@@ -883,13 +888,16 @@ pure recency- or frequency-based memory.
 \texttt{recency\ ×\ pain\ ×\ importance}.}
 
 The salience function lives in \texttt{src/lib/salience.ts} \footnote{\texttt{src/lib/salience.ts}
-  --- canonical implementation of
-  \texttt{salience\ =\ recency\ ×\ pain\ ×\ importance}, mirrored in the
-  staged copy at \texttt{staged-1.7a/edits/salience.ts} (lines 1--80
-  contain the module docstring spelling out the formula, the three-state
-  mode gate, and the per-type retention defaults).} (and is mirrored in
-the staged copy at \texttt{staged-1.7a/edits/salience.ts}). Its
-canonical formula is:
+  --- canonical implementation of the salience formula (multiplicative
+  principle in §3.4.3; weighted-additive v2 production form
+  \texttt{W\_IMPORTANCE·importance\ +\ W\_RECENCY·recency\ +\ W\_PAIN·pain\ +\ W\_ACCESS·access\_score}
+  in §5.1), mirrored in the staged copy at
+  \texttt{staged-1.7a/edits/salience.ts} (lines 1--80 contain the module
+  docstring spelling out the formula, the three-state mode gate, and the
+  per-type retention defaults).} (and is mirrored in the staged copy at
+\texttt{staged-1.7a/edits/salience.ts}). Its underlying principle is
+multiplicative --- a memory scores high only when it is
+\emph{simultaneously} recent, painful, and important:
 
 \begin{verbatim}
 salience = recency × pain × importance
@@ -900,7 +908,7 @@ with components:
 \begin{itemize}
 \tightlist
 \item
-  \textbf{recency} ∈ {[}0,1{]} --- half-life-style decay over the
+  \textbf{recency} in {[}0,1{]} --- half-life-style decay over the
   chunk's \texttt{retention\_days} window
   (\texttt{feedback}/\texttt{person} → never-decay →
   \texttt{recency\ =\ 1.0}; everything else decays per Table V8
@@ -916,12 +924,20 @@ with components:
   every retrieval, so there is no batch step that ``ages'' memory ---
   aging is a property of the read path.
 \item
-  \textbf{pain} ∈ {[}0,1{]} --- severity as described in §3.4.2.
+  \textbf{pain} in {[}0,1{]} --- severity as described in §3.4.2.
 \item
-  \textbf{importance} ∈ {[}0,1{]} --- \texttt{chunk\_type} /
+  \textbf{importance} in {[}0,1{]} --- \texttt{chunk\_type} /
   \texttt{source\_type} / tier signal (manual mapping; e.g.,
   \texttt{decision} and \texttt{lesson} rank above \texttt{daily}).
 \end{itemize}
+
+In production since Wave A (§5.1), this principle is realized as a
+\textbf{weighted-additive} form ---
+\texttt{salience\ =\ W\_IMPORTANCE·importance\ +\ W\_RECENCY·recency\ +\ W\_PAIN·pain\ +\ W\_ACCESS·access\_score}
+(weights 0.55 / 0.15 / 0.10 / 0.20) --- which empirically outperformed
+the strict multiplicative product on the Wave A golden set; §5.1 reports
+the ablation. The multiplicative expression above states the principle;
+the additive form is what ships.
 
 The mode of operation is gated by \texttt{NOX\_SALIENCE\_MODE}:
 \texttt{shadow} (default --- compute and log to
@@ -973,6 +989,71 @@ without trusting a closed evolution loop. Every step is visible by
 opening \texttt{nox-mem.db} in \texttt{sqlite3} and inspecting
 \texttt{ops\_audit}, \texttt{chunks.pain},
 \texttt{chunks.retention\_days}, and the entity files.
+
+\subsubsection{3.5 Session Priming: the read-side of
+self-evolution}\label{session-priming-the-read-side-of-self-evolution}
+
+The mechanisms above are \emph{write-side} --- they decide what the
+store keeps and how it ranks. But a memory that only grows is wasted if
+every new session starts blind and must re-discover context through cold
+search. \textbf{Session priming} closes the loop on the
+\emph{read-side}: each session (any agent, any MCP/HTTP client) is born
+contextualized. \texttt{GET\ /api/brief} (handler in
+\texttt{src/api/brief.ts}) returns a salience-ranked, scope-filtered
+digest of the top-N chunks, injected at session start. The brief is
+strictly read-only over \texttt{chunks} --- it never touches
+\texttt{access\_count} or \texttt{last\_accessed\_at}, so the
+organic-use signal that feeds salience (§3.4) stays uncontaminated;
+serve-history is tracked in a separate \texttt{brief\_log} table. With
+an \texttt{agent} scope the digest is a guaranteed union
+(\textasciitilde half agent-specific, half global high-salience), and
+near-duplicate variants are collapsed by token-containment so the budget
+is spent on distinct content.
+
+\textbf{An honest measurement, and a methodology caveat.} Running
+priming in production (7 agents, \textasciitilde6.7k serves/day)
+surfaced a failure mode worth reporting. Over a clean 7-day window the
+brief served only \textbf{83 distinct chunks across 46.8k serves (0.18\%
+diversity)}, median content age 48 days: salience, dominated by
+importance and the accumulated pain of old incidents, produces a
+near-static top set, and recently-written content (the very output the
+loop produces) rarely enters --- we measured \textbf{931 recent
+(\textless=7d), relevant chunks (importance \textgreater= 0.7 or pain
+\textgreater= 0.7) that were never once served}. More instructive was a
+\emph{negative} result on evaluation: we could not measure a downstream
+``follow-up rate'' (does a primed chunk get used later?) because the
+signal does not exist --- in 7 days there were \textbf{3 genuine
+searches and 0 \texttt{answer} calls}. This is structural, not a logging
+gap: priming-by-injection delivers the knowledge \emph{into the context
+window}, so the agent does not re-query what it already holds.
+\textbf{The utility of an injection-based primer is therefore a property
+of the served set (diversity, freshness, coverage of what matters) ---
+not of downstream re-retrieval.} Memory work that imports a re-query
+metric from RAG-style retrieval will mis-evaluate this class of
+mechanism.
+
+\textbf{Diversity term (D2).} The fix follows the same discipline as
+§3.4.3: it does \textbf{not} fork \texttt{calculateSalience} (that would
+alter search too) --- it is a re-rank \emph{inside the brief only}. (A)
+a novelty penalty
+\texttt{brief\_score\ =\ salience\ -\ min(P\_max,\ lambda*log1p(n\_serves))}
+reads \texttt{brief\_log} to demote over-served chunks, saturating in
+log so serving 2,000x \textasciitilde= serving 100x; (B) a freshness
+quota reserves F of the N slots for recent, relevant, not-yet-served
+content (a separate query --- the candidate pool, ranked by importance
+and access, structurally excludes \texttt{access\_count\ =\ 0}
+newcomers). A \textbf{high-pain floor} makes incidents with
+\texttt{pain\ \textgreater{}=\ 0.9} immune to both demotion and
+displacement: diversity must not hide the critical. Per the
+shadow-discipline rule (§3.4.3, §5), the term ships behind
+\texttt{NOX\_BRIEF\_DIVERSITY\ =\ off\ \textbar{}\ shadow\ \textbar{}\ active},
+default off and bit-identical to the prior behavior; it is validated in
+shadow (logging the would-enter/would-leave diff against a per-day gate:
+diversity up, median age down, floor preserved, churn non-thrashing)
+before any flip to active. Notably, the shadow gate itself caught a
+design bug on its first run --- the freshness quota was displacing
+\texttt{pain\ =\ 1.0} incidents --- which the floor now prevents; the
+active-mode quality numbers are reported as ongoing validation (§7.2).
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -1237,11 +1318,11 @@ Notes
 \endlastfoot
 G3 baseline (pre-Wave A) & 2026-05-15 & 0.3488 & --- & Multiplicative
 salience, tier\_boost on, section\_boost only via legacy code path \\
-G4 mid-deployment & 2026-05-18 & 0.5702 & +63.5\% & Salience aditivo
+G4 mid-deployment & 2026-05-18 & 0.5702 & +63.5\% & Additive salience
 wired but \texttt{active\ \textless{}\ shadow} puzzle observed \\
 \textbf{G5 V3 canonical} & \textbf{2026-05-19} & \textbf{0.6237} &
 \textbf{+78.8\%} & Wave A fully deployed; reversal
-\texttt{active\ \textgreater{}\ shadow} cravado \\
+\texttt{active\ \textgreater{}\ shadow} confirmed \\
 \end{longtable}
 }
 
@@ -1267,7 +1348,7 @@ reversal of the G4 puzzle, where shadow had outranked active. The
 multiplicative form concentrated 99.7\% of chunks in the {[}0.05,
 0.40{]} salience range, dominated by 90.67\% of chunks at the default
 \texttt{pain\ =\ 0.2} and 99.76\% of chunks with
-\texttt{recency\ ∈\ {[}7,\ 30{]}} days; small differences in any factor
+\texttt{recency\ in\ {[}7,\ 30{]}} days; small differences in any factor
 were swallowed by the product. The additive form exposes each dimension
 proportionally to its calibrated weight, preserving signal from pain
 spikes and importance heuristics without requiring all three factors to
@@ -1325,7 +1406,7 @@ double-boost} when \texttt{section\_boost} and
 the redundancy is 5× larger at prod scale than in the synthetic G8 set
 (−2.6\% vs −0.81\%). PR \#182 (Hard Mutex) zeroes
 \texttt{source\_type\_boost} when a chunk carries
-\texttt{section\ ∈\ \{compiled,\ frontmatter,\ timeline\}}, recovering
+\texttt{section\ in\ \{compiled,\ frontmatter,\ timeline\}}, recovering
 +0.79\% nDCG / +2.65\% MRR (G10). The conditional gate G10d (PR \#198,
 \texttt{NOX\_MUTEX\_QUERY\_ENTITY\_THRESHOLD=2}) further recovers
 multi-hop (+1.58\% nDCG, +3.75\% R@10) and adversarial (+3.04\% nDCG,
@@ -1333,7 +1414,7 @@ multi-hop (+1.58\% nDCG, +3.75\% R@10) and adversarial (+3.04\% nDCG,
 moderate single-hop dilution. The canonical production boost stack is:
 
 \begin{quote}
-\texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex,\ query\_entity\_count\ ≤\ 2)\ ×\ salience\ v2\ additive}
+\texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex,\ query\_entity\_count\ \textless{}=\ 2)\ ×\ salience\ v2\ additive}
 \end{quote}
 
 The full G3 → G4 → G5 V3 → G8 → G9 → G10 → G10b → G10c → G10d trajectory
@@ -2265,7 +2346,8 @@ corpus-structural challenge specific to the EverMemBench task setup:
 \item
   \textbf{Very long conversation chains.} EverMemBench F\_MH questions
   require composing facts across 100+ conversation turns, far longer
-  than MuSiQue (≤4 paragraphs) or HotPotQA (2 bridge paragraphs).
+  than MuSiQue (\textless=4 paragraphs) or HotPotQA (2 bridge
+  paragraphs).
 \item
   \textbf{Strict scoring.} EverMemBench F\_MH uses strict exact-match
   against canonical answers; minor wording variations are penalised even
@@ -2398,7 +2480,7 @@ IterB vs Phase H v2 conflated (GPT-4.1-mini)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 IterB vs gemini-3-flash bare CLEAN
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Δ bare HONEST ⭐
+Δ bare HONEST
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
@@ -2407,11 +2489,11 @@ IterB vs gemini-3-flash bare CLEAN
 Overall & 51.68\% → 62.70\% & \textbf{+11.02 pp} & 63.28\% → 62.70\% &
 −0.58 pp (within ±1.5 pp CI noise) \\
 \textbf{F\_MH} & 3.21\% → \textbf{8.03\%} & \textbf{+4.82 pp} & 6.02\% →
-\textbf{8.03\%} & \textbf{+2.01 pp ⭐} \\
+\textbf{8.03\%} & \textbf{+2.01 pp} \\
 F\_TP & 15.00\% → 33.33\% & +18.33 pp & n/a & n/a \\
 F\_HL & 22.68\% → 43.06\% & +20.38 pp & n/a & n/a \\
 MA composite & 73.34\% → 84.89\% & +11.55 pp & 88.42\% → 84.89\% & −3.53
-pp (borderline 🟡) \\
+pp (borderline) \\
 Cost / query & n/a & --- & within \$0.005 (\$0.00295 measured) & PASS \\
 \end{longtable}
 }
@@ -2421,8 +2503,8 @@ project-convention Phase H v2 baseline the result clears 4/4 gates
 (SHIP\_DEFAULT\_CANDIDATE). Against the gemini-3-flash bare baseline ---
 the load-bearing comparison for any ceiling-break claim --- the result
 clears 3/4 gates: F\_MH +2.01 pp PASS, Overall within CI noise PASS,
-cost within budget PASS, MA composite borderline 🟡 (−3.53 pp, falls
-inside the MA tolerance band but at its lower edge). Final verdict:
+cost within budget PASS, MA composite borderline (−3.53 pp, falls inside
+the MA tolerance band but at its lower edge). Final verdict:
 \textbf{SHIP\_OPT\_IN} (\texttt{NOX\_Q3\_ITERB\_ENABLED=1}). The opt-in
 framing reflects the MA borderline, not the F\_MH or cost finding.
 
@@ -2445,9 +2527,9 @@ with round-1 (LOW overlap --- ReAct explores new evidence rather than
 re-fetching the same chunks, the sweet-spot mechanism profile for
 sequential refinement).
 
-\textbf{Ceiling refinement --- D74 vs D69 / D72.} D69 cravado the Wave
-A/B/C single-stage retrieval ceiling at +7.25 pp F\_MH (§5.1.9). D72 (PR
-\#410, third revision) framed F\_MH as ``structural challenge of
+\textbf{Ceiling refinement --- D74 vs D69 / D72.} D69 established the
+Wave A/B/C single-stage retrieval ceiling at +7.25 pp F\_MH (§5.1.9).
+D72 (PR \#410, third revision) framed F\_MH as ``structural challenge of
 EverMemBench'' given MuSiQue / HotPotQA / LoCoMo retrieval SOTA. D74
 refines this framing: F\_MH is \textbf{still largely structural} (long
 chains × cross-session compression × strict EM scoring), but MAS
@@ -2876,8 +2958,8 @@ load. Mathematical impossibility under sustained throttle: 20 retries ×
 (600 s + 300 s) = 5 h max per query × 50 questions × 4 batches = 1,000 h
 ceiling. Batch 005 ran 23 h with 0/50 questions completed.
 
-\textbf{Distinction: infrastructure abort ≠ scientific failure.} The
-distinction is load-bearing for interpreting this result:
+\textbf{Distinction: infrastructure abort is not scientific failure.}
+The distinction is load-bearing for interpreting this result:
 
 \begin{itemize}
 \tightlist
@@ -3006,7 +3088,7 @@ abstention handling}, not on the oracle nDCG@10.
 footprint}\label{production-sota-latency-cost-and-footprint}
 
 The canonical production boost stack
-(\texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex,\ query\_entity\_count\ ≤\ 2)\ ×\ salience\ v2\ additive})
+(\texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex,\ query\_entity\_count\ \textless{}=\ 2)\ ×\ salience\ v2\ additive})
 has been deployed since 2026-05-21 via systemd environment drop-in.
 Beyond accuracy, the production deployment establishes a unique
 competitive position on three operational dimensions:
@@ -3054,10 +3136,18 @@ competitor reports retrieval latency in this band. Zep markets
 deployments are multi-service architectures with network hops typically
 in the 100--500 ms range. nox-mem's single-process embedded architecture
 (better-sqlite3 + sqlite-vec in-process) eliminates network and IPC
-overhead entirely.
+overhead entirely. \textbf{Re-validated 2026-06-15} on the 70.7k-chunk
+production corpus: the KG path (\texttt{/api/kg/path}, real entity pair,
+n=10) measured p50 = 2.9 ms / p95 = 5.7 ms, confirming the sub-10 ms
+class; the Gemini-embedding-dominated standard hybrid path measured p50
+= 653 ms / p95 = 706 ms (n=20) --- up from 529 ms as the corpus grew 69k
+→ 70.7k chunks and reflecting Gemini API round-trip variance, which
+reinforces (rather than weakens) the case for the local KG path on
+latency-sensitive workloads.
 
-\paragraph{5.7.2 Cost SOTA --- \$0/query KG path, 769× cheaper than Mem0
-Cloud}\label{cost-sota-0query-kg-path-769-cheaper-than-mem0-cloud}
+\paragraph{5.7.2 Cost SOTA --- \$0/query KG path, zero marginal cost vs
+subscription
+APIs}\label{cost-sota-0query-kg-path-zero-marginal-cost-vs-subscription-apis}
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
@@ -3080,19 +3170,29 @@ Ratio
 \bottomrule\noalign{}
 \endlastfoot
 Retrieval API cost (KG path) & \textbf{\$0.00} & \$0.001/query (est.
-embedding + retrieval) & \textbf{∞ cheaper} \\
-Retrieval API cost (hybrid w/ Gemini embedding) & \$0.0000013/query &
-\$0.001/query & \textbf{769× cheaper} \\
+embedding + retrieval) & \textbf{effectively free} \\
+Retrieval API cost (hybrid w/ Gemini embedding) & \$0.0000015/query &
+\textasciitilde\$0.001/query (est.) & \textbf{\textasciitilde667×
+cheaper} \\
 Ingest API cost (per chunk) & \$0.00 (local) & varies & n/a \\
-Total cost per 1M queries (hybrid) & \$1.30 & \$1,000 & 769× \\
+Total cost per 1M queries (hybrid) & \$1.50 & \$1,000 (est.) &
+\textasciitilde667× \\
 \end{longtable}
 }
 
 The KG path achieves \textbf{\$0 per query} because the entity-walk uses
-only local SQL + regex with no LLM call. The hybrid path costs
-\$0.0000013/query (Gemini-embedding-001 query at \$0.000013/1k chars ×
-\textasciitilde100 chars average). The 769× factor establishes
-structural cost dominance over hosted memory APIs.
+only local SQL + regex with no LLM call (re-confirmed 2026-06-15). The
+hybrid path costs \textbf{\$0.0000015/query} (gemini-embedding-001 at
+\$0.15/1M input tokens --- a Feb-2026 increase from \$0.13/1M --- ×
+\textasciitilde10 tokens/query). Against an \emph{estimated} Mem0 Cloud
+per-query rate of \textasciitilde\$0.001 this is
+\textbf{\textasciitilde667× cheaper} (revised down from the 769× figure
+as Gemini embedding pricing rose). We lead with the unconditional claim
+--- \textbf{\$0/query KG path and zero marginal retrieval cost} --- and
+treat the multiplier as secondary: Mem0 is sold as a subscription (free
+1K calls/month, then \$19--\$249/month) with no published per-call
+overage, so the denominator is an explicit modeling assumption, not a
+quoted price.
 
 \paragraph{5.7.3 Footprint SOTA --- 399 MB RSS, single-process,
 self-hosted}\label{footprint-sota-399-mb-rss-single-process-self-hosted}
@@ -3356,39 +3456,41 @@ work}\label{honest-limitations-and-open-work}
 (Pre-registered)}\label{q4-comparison-cross-system-benchmarking-pre-registered}
 
 \begin{quote}
-\textbf{Status (atualizado 2026-05-24 \textasciitilde22h BRT ---
-FINAL):} Sat 2026-05-24 FINAL closure. \textbf{4/6 systems com dados
-reais.} Decision A aprovada: ship 4/6 (Zep NO GATED por OpenAI embedding
-requirement; EverMind-AI FAIL SKIP por repo 404 confirmado PR \#281).
-nox-mem headline: nDCG@10=0.6380 (Gemini hybrid) / 0.3753 (FTS5-only).
-mem0 (500-chunk cap) + agentmemory (1401-chunk cap) + Letta (partial 1/5
-smoke) medidos com caveats de corpus. Canonical 100-query run deferred
-Sun 2026-05-25 com corpus uniforme sem cap. Princípios (§6.5),
-anti-cherry-pick (§6.6) e pre-registration (§6.7) imutáveis. Nota: ``Sat
-2026-05-24 partial; canonical full-corpus run Sun 2026-05-25.'' Refs:
-\texttt{{[}{[}q4-real-numbers-sat-2026-05-24{]}{]}} ·
-\texttt{{[}{[}q4-partial-cross-system-sat-2026-05-24{]}{]}}.
+\textbf{Status (updated 2026-06-15 --- canonical run executed):} The
+canonical cross-system run was executed on a dedicated pod on 2026-06-15
+(n=100/dataset, k=10, same-namespace fair), resolving the 2026-05-24
+infrastructure abort (§7.1 L5). \textbf{3/6 systems with real data}
+(nox-mem, Mem0, agentmemory) + \textbf{3 documented gaps} (Zep = Docker
+impossible on unprivileged-pod kernel; Letta = agent-OS
+\textasciitilde16 min/query; EverMind-AI = third-party keys +
+external-repo auth --- all §6.3.1). \textbf{Result: split} --- nox-mem
+wins LongMemEval (nDCG@10 0.5234 vs Mem0 0.4764), Mem0 wins LoCoMo
+(0.4686 vs nox-mem 0.4263); agentmemory distant third (0.2803 / 0.1587).
+Quality tables §6.3; gaps §6.3.1; operational-cost axis §6.8;
+reproducibility-as-evidence §6.9. Principles (§6.5), anti-cherry-pick
+(§6.6), and pre-registration (§6.7) immutable. Ref:
+\texttt{{[}{[}project\_head\_to\_head\_nox\_mem0\_split\_2026\_06\_14{]}{]}}.
 \end{quote}
 
 \subsubsection{6.1 Methodology summary}\label{methodology-summary}
 
-A §6 cobre a comparação cross-system entre nox-mem e cinco sistemas
-competidores de memória persistente para agentes de IA. O execution plan
-completo está documentado em
-\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md}
-(pre-registered 2026-05-23, antes do run de Sat 2026-05-24). Os
-princípios de comparação (§6.5), as garantias anti-cherry-pick (§6.6), e
-a pre-registration formal (§6.7) são cravados nesta seção antes da
-execução; somente as tabelas de §6.2/§6.3/§6.4 recebem números após o
-run. O objetivo é satisfazer o gate D43 (\texttt{docs/DECISIONS.md}) ---
-nox-mem em top-3 em \textgreater=2 das 4 métricas chave (nDCG@10, R@10,
-MRR, latência) --- destravando a GTM Phase 2.
+§6 covers the cross-system comparison between nox-mem and five competing
+persistent memory systems for AI agents. The complete execution plan is
+documented in \texttt{specs/2026-05-23-Q4-comparison-execution-plan.md}
+(pre-registered 2026-05-23, prior to the Sat 2026-05-24 run). The
+comparison principles (§6.5), anti-cherry-pick guarantees (§6.6), and
+formal pre-registration (§6.7) are locked in this section before
+execution; only the tables in §6.2/§6.3/§6.4 receive numbers after the
+run. The objective is to satisfy the D43 approval gate
+(\texttt{docs/DECISIONS.md}) --- nox-mem in top-3 on \textgreater=2 of
+the 4 key metrics (nDCG@10, R@10, MRR, latency) --- unlocking GTM Phase
+2.
 
 \subsubsection{6.2 Competitors}\label{competitors}
 
-A escolha dos cinco competidores prioriza stars no GitHub, atividade
-recente de commits e overlap funcional com o escopo do nox-mem. Versões
-são cravadas pré-execução para reprodutibilidade.
+The five competitors were selected by prioritizing GitHub stars, recent
+commit activity, and functional overlap with the nox-mem scope. Versions
+are locked prior to execution for reproducibility.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
@@ -3413,42 +3515,41 @@ Default config
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Mem0 & \texttt{mem0ai/mem0} & \texttt{pip\ install\ mem0ai} &
-\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
-OpenAI embeddings + Chroma vector store \\
+Mem0 & \texttt{mem0ai/mem0} & \texttt{pip\ install\ mem0ai==0.1.114} &
+\texttt{0.1.114} & OpenAI text-embedding-3-small 1536d + faiss (Chroma
+swapped to avoid telemetry thread-leak --- §6.3.1) \\
 Zep & \texttt{getzep/zep} & Docker compose (zep + postgres) &
-\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} & Local
+\texttt{{[}GAP\ —\ Docker\ unavailable\ on\ pod,\ §6.3.1{]}} & Local
 self-host mode \\
 Letta (ex-MemGPT) & \texttt{letta-ai/letta} &
-\texttt{pip\ install\ letta} &
-\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
-SQLite backend \\
-agentmemory & \texttt{rohitg00/agentmemory} & iii-engine runtime &
-\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
-Stack-bridge mode \\
-EverMind-AI & EverOS published bench & repo clone &
-\texttt{{[}PENDING\ canonical\ run\ —\ adapter\ under\ setup{]}} &
-Native CLI \\
+\texttt{pip\ install\ letta} (+ \texttt{click\textless{}8.2}) &
+\texttt{0.6.6} & SQLite backend; agent-OS retrieval \\
+agentmemory & \texttt{rohitg00/agentmemory} & daemon (REST :3111) &
+\texttt{as-of\ 2026-06-15} & union store + namespace filter \\
+EverMind-AI & EverOS published bench & repo clone
+(\texttt{pip\ install\ -e}) & \texttt{{[}GAP\ —\ keys/auth,\ §6.3.1{]}}
+& HTTP service (OpenRouter + DeepInfra) \\
 \end{longtable}
 }
 
-Cada sistema roda com sua configuração default publicável (princípio
-§6.5.3): nenhum competidor é tunado adversarialmente.
+Each system runs with its publicly documented default configuration
+(principle §6.5.3): no competitor is adversarially tuned to
+underperform.
 
 \subsubsection{6.3 Per-system per-dataset
 results}\label{per-system-per-dataset-results}
 
-Tabela canônica cross-system × cross-dataset. K cutoff fixado em 10 em
-todos os sistemas; latência medida externamente (wall clock around
-adapter call); custo derivado dos logs por-sistema (API calls × pricing
-publicado).
+Canonical cross-system × cross-dataset table. K cutoff fixed at 10
+across all systems; latency measured externally (wall clock around
+adapter call); cost derived from per-system logs (API calls × published
+pricing).
 
 \textbf{Sat 2026-05-24 partial cross-system smoke (20 queries combined,
-dry-run-sample, eval-isolated DB).} nox-mem: full corpus (6.822 chunks =
-5.882 LoCoMo + 940 LongMemEval). mem0: \textbf{500-chunk corpus cap} por
-cost-control (\$0.10 ingest cost estimado; \textasciitilde8\% do corpus
-completo). Caveat crítico: os números do mem0 refletem um corpus
-significativamente menor --- interpretação no parágrafo abaixo.
+dry-run-sample, eval-isolated DB).} nox-mem: full corpus (6,822 chunks =
+5,882 LoCoMo + 940 LongMemEval). mem0: \textbf{500-chunk corpus cap} for
+cost-control (estimated \$0.10 ingest cost; \textasciitilde8\% of the
+full corpus). Critical caveat: mem0 numbers reflect a significantly
+smaller corpus --- interpretation in the paragraph below.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
@@ -3492,55 +3593,65 @@ Gold hits
 \end{longtable}
 }
 
-Per-dataset gold-hit breakdown do nox-mem smoke: \textbf{LoCoMo 7/10
-(70\%) · LongMemEval 6/10 (60\%)}.
+Per-dataset gold-hit breakdown for the nox-mem smoke: \textbf{LoCoMo
+7/10 (70\%) · LongMemEval 6/10 (60\%)}.
 
-\textbf{Interpretação do trade-off (honestidade obrigatória):}
+\textbf{Trade-off interpretation (mandatory honest reporting):}
 
-Os dois sistemas exibem perfis opostos. nox-mem, com corpus completo
-(6.822 chunks, ingest local zero-custo), produz \textbf{4× maior
-hit-rate} (65\% vs 15\%) e \textbf{MRR 3× melhor} (0.37 vs 0.12) --- o
-primeiro hit relevante chega antes em nox-mem. A latência de nox-mem é
-\textbf{30× mais rápida} (8ms p50 vs 273ms p50), reflexo da busca local
-vs chamadas à API mem0.
+The two systems exhibit opposite profiles. nox-mem, with the full corpus
+(6,822 chunks, zero-cost local ingest), delivers \textbf{4× higher
+hit-rate} (65\% vs 15\%) and \textbf{3× better MRR} (0.37 vs 0.12) ---
+the first relevant hit arrives earlier in nox-mem. nox-mem latency is
+\textbf{30× faster} (8 ms p50 vs 273 ms p50), reflecting local retrieval
+versus mem0 API calls.
 
-mem0, operando sobre apenas 500 chunks (\textasciitilde8\% do corpus),
-exibe \textbf{nDCG@10 superior} (0.86 vs 0.64): os poucos hits que
-retorna tendem a ser top-ranked, produzindo alta concentração de
-relevância nas primeiras posições. Isso é um artefato de corpus window
-menor --- com janela restrita, o sistema tem menos competição entre
-resultados candidatos, o que infla o nDCG per-se mas mascara a cobertura
-real (R@10 = 0.25 vs 0.54). Em produção com corpus completo e mesmo
-custo de ingest, a relação nDCG pode inverter; o run canônico (corpus
-uniforme, sem cap) será o árbitro desta hipótese.
+mem0, operating on only 500 chunks (\textasciitilde8\% of the corpus),
+shows \textbf{higher nDCG@10} (0.86 vs 0.64): the few hits it returns
+tend to be top-ranked, producing high concentration of relevance in the
+top positions. This is an artifact of the smaller corpus window --- with
+a restricted window, the system faces less competition among candidate
+results, which inflates nDCG per se but masks true coverage (R@10 = 0.25
+vs 0.54). In production with a full corpus and equal ingest cost, the
+nDCG relationship may reverse; the canonical run (uniform corpus, no
+cap) will arbitrate this hypothesis.
 
-Resumo executivo: \textbf{nox-mem ganha em cobertura (hits), velocidade
-(latência), e first-hit quality (MRR). mem0 ganha em concentração de
-relevância por-resultado (nDCG@10) dentro de uma janela de corpus
-menor.} Corpus cap de 500 chunks para mem0 é cost-control explícito ---
-\$0.10 estimado vs zero-cost local; dados iguais de corpus revertem
-parcialmente o nDCG gap.
+Executive summary: \textbf{nox-mem wins on coverage (hits), speed
+(latency), and first-hit quality (MRR). mem0 wins on per-result
+relevance concentration (nDCG@10) within a smaller corpus window.} The
+500-chunk cap on mem0 is explicit cost-control --- estimated \$0.10 vs
+zero-cost local; equal-corpus data partially closes the nDCG gap.
 
-O smoke não disaggregou \texttt{nDCG@10} por dataset (combined-only) ---
-desagregação canônica vem no run completo. Os números a seguir são da
-execução canônica que ainda está em curso.
+The smoke did not disaggregate \texttt{nDCG@10} by dataset
+(combined-only) --- canonical per-dataset breakdown comes in the full
+run. The numbers below are from the canonical run, which is deferred.
 
-\textbf{Sat 2026-05-24 FINAL --- 4/6 systems with real data. Decision A:
-ship 4/6 (Zep gated, EverMind skipped). Canonical 100-query run deferred
-Sun 2026-05-25.}
+\textbf{Canonical run --- 2026-06-15 (dedicated RunPod pod,
+n=100/dataset, same-namespace fair).} After the 2026-05-24
+infrastructure abort (§7.1 L5), the canonical cross-system run was
+executed on a dedicated pod on 2026-06-15. \textbf{Three of the five
+competitors produced real numbers} (nox-mem, Mem0, agentmemory);
+\textbf{three are documented gaps} with explicit reasons (Zep, Letta,
+EverMind-AI --- §6.3.1). Protocol: n=100 queries per dataset, k=10;
+retrieval quality (nDCG@10 / recall@10 / MRR) under each system's native
+default embedding provider; \textbf{same-namespace fair re-query} ---
+the union store is queried at k=30 and filtered to the active dataset
+namespace before re-scoring the top-10, removing the cross-dataset
+distractor confound that inflated an early union-store reading (14.6\%
+of nox-mem's raw top-10 were off-dataset chunks). Per-system latency
+percentiles were not captured uniformly in this run; nox-mem operational
+latency is reported independently in §5.7 (KG path 2.9 ms p50, hybrid
+653 ms p50, re-measured 2026-06-15).
 
-\textbf{LongMemEval n=100 (canonical --- pending Sun 2026-05-25):}
+\textbf{LongMemEval n=100 (canonical):}
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0968}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1364}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1364}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 System
@@ -3551,57 +3662,42 @@ R@10
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 MRR
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-p50 (ms)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-p95 (ms)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-p99 (ms)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Cost/query (USD)
+Cost/query
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Coverage / config
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{nox-mem} & \texttt{{[}pending\ Sun\ canonical{]}} &
-\texttt{{[}pending{]}} & \texttt{{[}pending{]}} & \texttt{{[}pending{]}}
-& \texttt{{[}pending{]}} & \texttt{{[}pending{]}} &
-\textasciitilde\$0.00 (local) \\
-Mem0 &
-\texttt{{[}pending\ Sun\ canonical\ —\ full\ corpus,\ no\ 500-cap{]}} &
-\texttt{{[}pending{]}} & \texttt{{[}pending{]}} & \texttt{{[}pending{]}}
-& \texttt{{[}pending{]}} & \texttt{{[}pending{]}} &
-\textasciitilde\$0.10+ ingest \\
-agentmemory &
-\texttt{{[}pending\ Sun\ canonical\ —\ full\ corpus,\ no\ 20\%-cap{]}} &
-\texttt{{[}pending{]}} & \texttt{{[}pending{]}} & \texttt{{[}pending{]}}
-& \texttt{{[}pending{]}} & \texttt{{[}pending{]}} &
-\textasciitilde\$0.00 \\
-Letta & \texttt{{[}pending\ —\ partial\ only;\ agent-loop\ arch{]}} &
-\texttt{{[}pending{]}} & \texttt{{[}pending{]}} & \texttt{{[}pending{]}}
-& \texttt{{[}pending{]}} & \texttt{{[}pending{]}} &
-\texttt{{[}pending{]}} \\
+\textbf{nox-mem} & \textbf{0.5234} & 0.6535 & \textbf{0.5494} &
+\textbf{\$0 (local)} & 100\%; hybrid FTS5 + Gemini-3072d + RRF \\
+Mem0 & 0.4764 & 0.6372 & 0.5107 & subscription + OpenAI embed & 100\%;
+faiss backend, OpenAI text-embedding-3-small 1536d \\
+agentmemory & 0.2803 & n/c & n/c & \$0 (local) & daemon REST; weak
+retriever \\
 Zep &
-\texttt{{[}FALHA:\ NO\ GATED\ —\ OpenAI\ embedding\ requirement\ +\ adapter\ rewrite\ needed;\ deferred\ post-launch{]}}
-& --- & --- & --- & --- & --- & \textasciitilde\$0.02 est. \\
+\texttt{{[}GAP\ —\ see\ §6.3.1:\ requires\ Docker;\ impossible\ on\ unprivileged\ pod\ kernel{]}}
+& --- & --- & --- & --- \\
+Letta &
+\texttt{{[}GAP\ —\ see\ §6.3.1:\ agent-OS\ latency\ \textasciitilde{}16\ min/query;\ impractical\ for\ n=100{]}}
+& --- & --- & --- & --- \\
 EverMind-AI &
-\texttt{{[}FALHA:\ FAIL\ SKIP\ —\ repo\ EverOS-AI/EverMind-AI\ returns\ 404;\ confirmed\ 2026-05-24\ PR\ \#281{]}}
-& --- & --- & --- & --- & --- & --- \\
+\texttt{{[}GAP\ —\ see\ §6.3.1:\ requires\ OpenRouter\ +\ DeepInfra\ keys\ +\ external-repo\ install\ authorization{]}}
+& --- & --- & --- & --- \\
 \end{longtable}
 }
 
-\textbf{LoCoMo full (canonical --- pending Sun 2026-05-25):}
+\textbf{LoCoMo n=100 (canonical):}
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.0968}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 14\tabcolsep) * \real{0.1290}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1364}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1364}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 System
@@ -3612,57 +3708,98 @@ R@10
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 MRR
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-p50 (ms)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-p95 (ms)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-p99 (ms)
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Cost/query (USD)
+Cost/query
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Coverage / config
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{nox-mem} & \texttt{{[}pending\ Sun\ canonical{]}} &
-\texttt{{[}pending{]}} & \texttt{{[}pending{]}} & \texttt{{[}pending{]}}
-& \texttt{{[}pending{]}} & \texttt{{[}pending{]}} &
-\textasciitilde\$0.00 (local) \\
-Mem0 &
-\texttt{{[}pending\ Sun\ canonical\ —\ full\ corpus,\ no\ 500-cap{]}} &
-\texttt{{[}pending{]}} & \texttt{{[}pending{]}} & \texttt{{[}pending{]}}
-& \texttt{{[}pending{]}} & \texttt{{[}pending{]}} &
-\textasciitilde\$0.10+ ingest \\
-agentmemory &
-\texttt{{[}pending\ Sun\ canonical\ —\ full\ corpus,\ no\ 20\%-cap{]}} &
-\texttt{{[}pending{]}} & \texttt{{[}pending{]}} & \texttt{{[}pending{]}}
-& \texttt{{[}pending{]}} & \texttt{{[}pending{]}} &
-\textasciitilde\$0.00 \\
-Letta & \texttt{{[}pending\ —\ partial\ only;\ agent-loop\ arch{]}} &
-\texttt{{[}pending{]}} & \texttt{{[}pending{]}} & \texttt{{[}pending{]}}
-& \texttt{{[}pending{]}} & \texttt{{[}pending{]}} &
-\texttt{{[}pending{]}} \\
-Zep &
-\texttt{{[}FALHA:\ NO\ GATED\ —\ OpenAI\ embedding\ requirement\ +\ adapter\ rewrite\ needed;\ deferred\ post-launch{]}}
-& --- & --- & --- & --- & --- & \textasciitilde\$0.02 est. \\
-EverMind-AI &
-\texttt{{[}FALHA:\ FAIL\ SKIP\ —\ repo\ EverOS-AI/EverMind-AI\ returns\ 404;\ confirmed\ 2026-05-24\ PR\ \#281{]}}
-& --- & --- & --- & --- & --- & --- \\
+Mem0 & \textbf{0.4686} & 0.6171 & 0.4656 & subscription + OpenAI embed &
+\textasciitilde95\% (thread-leak ingest loss); faiss, 1536d \\
+\textbf{nox-mem} & 0.4263 & 0.5504 & 0.4464 & \textbf{\$0 (local)} &
+100\%; hybrid FTS5 + Gemini-3072d + RRF \\
+agentmemory & 0.1587 & n/c & n/c & \$0 (local) & daemon REST; weak
+retriever \\
+Zep / Letta / EverMind-AI & \texttt{{[}GAP\ —\ see\ §6.3.1{]}} & --- &
+--- & --- & --- \\
 \end{longtable}
 }
 
-Zep e EverMind-AI são reportadas com
-\texttt{{[}FALHA:\ \textless{}razão\textgreater{}{]}} explícito em vez
-de omitidas --- consistente com §6.6 (anti-cherry-pick). O run canônico
-Sun 2026-05-25 atualiza as células \texttt{{[}pending{]}} para os 4
-sistemas restantes com corpus uniforme (sem cap). Ref:
-\texttt{{[}{[}q4-real-numbers-sat-2026-05-24{]}{]}}.
+\textbf{Split result --- honest reading (mandatory per §6.6).} Each
+top-tier system wins one benchmark: \textbf{nox-mem wins LongMemEval}
+(+0.047 nDCG@10, +0.039 MRR), \textbf{Mem0 wins LoCoMo} (+0.042
+nDCG@10). agentmemory is a distant third on both, reflecting a weaker
+retriever. This is a genuine \textbf{split, not a dominance claim}:
+nox-mem is competitive with the market leader on retrieval quality
+\emph{while} delivering the operational profile of §6.8 (single SQLite
+file, \$0/query KG path, no service stack). The nox-mem LoCoMo figure
+rose from 0.4173 (raw union store) to 0.4263 after the namespace fix ---
+Mem0 still wins, confirming the LoCoMo result is a real retrieval gap,
+\textbf{not} merely a confound artifact. Per §6.6, both datasets are
+reported side by side; we do not cherry-pick the one nox-mem wins.
+
+\textbf{Caveats (per-system composition, declared per §6.5).} (a)
+\textbf{Embedding providers differ by native default} --- nox-mem Gemini
+3072d, Mem0 OpenAI 1536d, agentmemory its own default; this is the
+``as-configured'' fair-comparison stance (§6.5.5), not a
+controlled-embedding experiment (the all-Gemini variant remains §7.2
+future work). (b) \textbf{Store composition differs}: nox-mem and
+agentmemory were queried from a union store with namespace filtering;
+Mem0 used single-namespace stores (its LoCoMo store ingest leaked
+threads and lost \textasciitilde5\% of vectors --- §6.3.1). (c)
+\textbf{Coverage}: nox-mem 100\% both datasets; Mem0 100\% LongMemEval /
+\textasciitilde95\% LoCoMo; agentmemory full. These are reported, not
+hidden, consistent with §6.6.
+
+\paragraph{6.3.1 Documented gaps --- three systems that did not
+run}\label{documented-gaps-three-systems-that-did-not-run}
+
+Per §6.6, systems that fail setup receive an explicit reason rather than
+silent omission. The 2026-06-15 run hit three:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Zep} --- requires a Docker stack (Zep + Postgres). Docker is
+  \textbf{impossible on the unprivileged benchmark pod}:
+  \texttt{dockerd} fails on \texttt{iptables\ ...\ Permission\ denied}
+  (no \texttt{NET\_ADMIN}), and every documented workaround
+  (\texttt{-\/-iptables=false\ -\/-bridge=none},
+  \texttt{-\/-storage-driver=vfs}) fails on kernel-namespace syscalls
+  blocked by the pod seccomp profile. This is a privilege constraint,
+  not a configuration error; Zep requires a host with real Docker
+  (privileged VM or its hosted Cloud).
+\item
+  \textbf{Letta (ex-MemGPT)} --- installs and runs natively (CLI
+  unblocked via \texttt{click\textless{}8.2}, server starts without
+  Docker), but is an \textbf{agent-OS}: retrieval routes through a full
+  LLM agent turn (\texttt{archival\_memory\_search} tool call), measured
+  at \textbf{\textasciitilde16 min/query} --- n=100 × 2 datasets would
+  take days. Ingest also degrades catastrophically (stalls at
+  \textasciitilde94\% after \textasciitilde12 h on a sequential
+  archival-memory insert). Letta \emph{validates} (it runs) but is
+  impractical for a 100-query benchmark in this configuration.
+\item
+  \textbf{EverMind-AI / EverOS} --- runs only as an HTTP service and
+  requires \textbf{two third-party credentials not available to this
+  study} (OpenRouter for LLM extraction + DeepInfra for
+  embedding/rerank, the latter provider-specific); installation also
+  requires authorizing an external-repo \texttt{pip\ install\ -e}. Out
+  of scope for the time-box.
+\end{itemize}
+
+LightRAG and HippoRAG2 are \textbf{not §6 competitors} --- they are §5
+KG/RAG references whose LLM-per-chunk graph-build cost (LightRAG warns
+\textgreater6 h on default) places them outside the memory-system
+comparison; they are deferred as optional baselines (§7.2).
 
 \subsubsection{6.4 Per-category breakdown}\label{per-category-breakdown}
 
-Decomposição por categoria de query do LongMemEval. nox-mem reporta as
-seis categorias canônicas; competidores reportam idem onde a categoria
-está presente no dataset original.
+Per-query-category breakdown for LongMemEval. nox-mem reports the six
+canonical categories; competitors report the same where the category is
+present in the original dataset.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
@@ -3696,75 +3833,76 @@ EverMind-AI
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-single-hop & \texttt{{[}PENDING\ canonical{]}} &
-\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
-\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
-& \texttt{{[}PENDING{]}} \\
-multi-hop & \texttt{{[}PENDING\ canonical{]}} &
-\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
-\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
-& \texttt{{[}PENDING{]}} \\
-temporal & \texttt{{[}PENDING\ canonical{]}} &
-\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
-\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
-& \texttt{{[}PENDING{]}} \\
-adversarial & \texttt{{[}PENDING\ canonical{]}} &
-\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
-\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
-& \texttt{{[}PENDING{]}} \\
-open-domain & \texttt{{[}PENDING\ canonical{]}} &
-\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
-\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
-& \texttt{{[}PENDING{]}} \\
-numeric & \texttt{{[}PENDING\ canonical{]}} &
-\texttt{{[}PENDING\ canonical{]}} & \texttt{{[}PENDING{]}} &
-\texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}} & \texttt{{[}PENDING{]}}
-& \texttt{{[}PENDING{]}} \\
+single-hop & \texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} \\
+multi-hop & \texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} \\
+temporal & \texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} \\
+adversarial & \texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} \\
+open-domain & \texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} \\
+numeric & \texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} & \texttt{{[}deferred{]}} &
+\texttt{{[}deferred{]}} \\
 \end{longtable}
 }
 
-O \textbf{smoke de Sat 2026-05-24} não disaggregou per-category
-(combined-only sobre 20 queries), portanto §6.4 inteira aguarda o run
-canônico de 100 queries × 2 datasets × 6 sistemas. Quando uma categoria
-não tem queries suficientes (n \textless{} 10) em algum dataset, a
-célula recebe \texttt{n/a} em vez de extrapolação, evitando o tipo de
-regressão que aparece em §5.5 (temporal \texttt{n/a} na G10b por corpus
-gap degenerado).
+The 2026-06-15 canonical run reported \textbf{dataset-level} retrieval
+metrics (nDCG@10 / recall@10 / MRR per dataset, §6.3), not per-category
+disaggregation; therefore §6.4 remains a \textbf{future-work item}
+(§7.2), to be populated when per-category gold labels are wired into the
+cross-system harness. When a category has insufficient queries (n
+\textless{} 10) in a given dataset, the cell will receive \texttt{n/a}
+rather than extrapolation, avoiding the type of regression seen in §5.5
+(temporal \texttt{n/a} in G10b due to a degenerate corpus gap).
 
 \subsubsection{6.5 Fair-comparison
 principles}\label{fair-comparison-principles}
 
-A comparação obedece a princípios padronizados pela literatura de
-benchmark publicado (EverMemBench, BEIR, MTEB):
+The comparison adheres to principles standardized by the published
+benchmarking literature (EverMemBench, BEIR, MTEB):
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{Corpus idêntico.} Todos os sistemas recebem o mesmo
-  \texttt{chunks.text} ingerido via a API nativa de cada um. Nenhum
-  sistema recebe versão ``otimizada'' do corpus.
+  \textbf{Identical corpus.} All systems receive the same
+  \texttt{chunks.text} ingested via each system's native API. No system
+  receives an ``optimized'' version of the corpus.
 \item
-  \textbf{Eval set idêntico.} Mesmas queries, mesmos gold sets, mesmo
-  random seed (\texttt{42} para shuffle do LongMemEval).
+  \textbf{Identical eval set.} Same queries, same gold sets, same random
+  seed (\texttt{42} for LongMemEval shuffle).
 \item
-  \textbf{Defaults nativos por sistema.} Cada competidor roda com sua
-  configuração default publicável. Não tunamos competidores
-  adversarialmente para perder; se default config é o que é publicado, é
-  o que é avaliado.
+  \textbf{Native defaults per system.} Each competitor runs with its
+  publicly documented default configuration. Competitors are not
+  adversarially tuned to lose; if the default config is what is
+  published, it is what is evaluated.
 \item
-  \textbf{K cutoff fixo em 10.} Alguns sistemas defaultam para 5 ou 20;
-  todos são forçados a \texttt{k=10} para comparabilidade.
+  \textbf{K cutoff fixed at 10.} Some systems default to 5 or 20; all
+  are forced to \texttt{k=10} for comparability.
 \item
-  \textbf{Embeddings provider nativo por sistema.} nox-mem usa Gemini
-  3072d; cada competidor usa seu provider default. Uma variação
-  \texttt{all-Gemini} é planejada como side experiment opcional,
-  deferred porque o smoke de Sat 2026-05-24 consumiu o time-box antes do
-  experiment
-  (\texttt{{[}deferred\ —\ Sun\ 2026-05-25\ ou\ follow-up\ post-launch{]}}).
+  \textbf{Native embeddings provider per system.} nox-mem uses Gemini
+  3072d; each competitor uses its default provider. An
+  \texttt{all-Gemini} variant is planned as an optional side experiment,
+  deferred because the Sat 2026-05-24 smoke consumed the time-box before
+  that experiment
+  (\texttt{{[}deferred\ —\ Sun\ 2026-05-25\ or\ follow-up\ post-launch{]}}).
 \item
-  \textbf{Hardware uniforme.} Mesmo VPS (Hostinger 8 cores / 16 GB RAM),
-  localhost between systems exceto chamadas a embeddings APIs externas.
+  \textbf{Uniform hardware.} Same VPS (Hostinger 8 cores / 16 GB RAM),
+  localhost between systems except for external embeddings API calls.
 \end{enumerate}
 
 Cada adapter passa um smoke test pré-run:
@@ -3777,37 +3915,37 @@ Cada adapter passa um smoke test pré-run:
 \end{Highlighting}
 \end{Shaded}
 
-Adapter que falhar smoke é documentado como gap
-(\texttt{{[}FALHA:\ \textless{}razão\textgreater{}{]}}) em vez de
-omitido --- consistente com §6.6.
+Any adapter that fails the smoke test is documented as a gap
+(\texttt{{[}FAILED:\ \textless{}reason\textgreater{}{]}}) rather than
+omitted --- consistent with §6.6.
 
 \subsubsection{6.6 Anti-cherry-pick
 statement}\label{anti-cherry-pick-statement}
 
-Para evitar viés de seleção retroativo:
+To prevent retroactive selection bias:
 
 \begin{itemize}
 \item
-  \textbf{Todas as 6 categorias reportadas.} Nenhuma é omitida porque o
-  resultado é desfavorável.
+  \textbf{All 6 categories reported.} None is omitted because the result
+  is unfavorable.
 \item
-  \textbf{Ambos os datasets reportados.} LongMemEval n=100 + LoCoMo
-  full, lado a lado. Não escolhemos o que beneficia.
+  \textbf{Both datasets reported.} LongMemEval n=100 + LoCoMo full, side
+  by side. We do not cherry-pick whichever benefits nox-mem.
 \item
-  \textbf{Latência worst-case reportada.} p50 + p95 + p99 explícitos.
-  Não publicamos apenas p50.
+  \textbf{Worst-case latency reported.} p50 + p95 + p99 explicit. We do
+  not publish only p50.
 \item
-  \textbf{Per-system per-category transparency.} A tabela de §6.4 expõe
-  cada combinação; não há linha agregada que mascare um padrão.
+  \textbf{Per-system per-category transparency.} The §6.4 table exposes
+  every combination; there is no aggregate row that masks a pattern.
 \item
-  \textbf{Gaps documentados.} Sistemas que falharem setup recebem nota
-  explícita; a comparação roda sem o sistema faltante, mas o gap é
-  registrado em \texttt{docs/COMPARISON.md}.
+  \textbf{Gaps documented.} Systems that fail setup receive an explicit
+  note; the comparison runs without the missing system, but the gap is
+  recorded in \texttt{docs/COMPARISON.md}.
 \item
-  \textbf{Per-dataset breakdown explícita (PR \#318, 2026-05-23 ---
-  rev3).} O run Gemini hybrid@500 revelou que o aggregate (0.0918)
-  mascara um resultado por-dataset decisivo. Reportamos as três linhas
-  explicitamente:
+  \textbf{Explicit per-dataset breakdown (PR \#318, 2026-05-23 ---
+  rev3).} The Gemini hybrid@500 run revealed that the aggregate (0.0918)
+  masks a decisive per-dataset result. We report all three rows
+  explicitly:
 
   {\def\LTcaptype{none} % do not increment counter
   \begin{longtable}[]{@{}
@@ -3841,28 +3979,27 @@ Para evitar viés de seleção retroativo:
   }
 
   \textbf{LoCoMo-only result (PR \#318):} nox-mem Gemini hybrid@500 =
-  0.1835 \textbf{supera} mem0@500 = 0.1315 em \textbf{+40\%} na dimensão
-  de memória conversacional. O aggregate (0.0918) fica abaixo de mem0
-  por um \textbf{artefato de corpus-ordering}: ao 500-chunk cap, os
-  5.882 chunks do LoCoMo esgotam o cap antes de qualquer chunk do
-  LongMemEval ser ingerido --- as 10 queries LongMemEval ficam com
-  cobertura zero, zerando o nDCG desse dataset e puxando o aggregate
-  para baixo. Hybrid stack lift sobre FTS5@500: \textbf{+97\%} (0.0466 →
-  0.0918), validando o valor arquitetural do stack mesmo em corpus
-  esparso.
+  0.1835 \textbf{exceeds} mem0@500 = 0.1315 by \textbf{+40\%} on the
+  conversational memory dimension. The aggregate (0.0918) falls below
+  mem0 due to a \textbf{corpus-ordering artifact}: at the 500-chunk cap,
+  the 5,882 LoCoMo chunks exhaust the cap before any LongMemEval chunk
+  is ingested --- the 10 LongMemEval queries have zero coverage, zeroing
+  the nDCG for that dataset and pulling the aggregate down. Hybrid stack
+  lift over FTS5@500: \textbf{+97\%} (0.0466 → 0.0918), validating the
+  architectural value of the stack even on a sparse corpus.
 
-  \textbf{H2 finding (PR \#311, mantido):} FTS5-only@500 = 0.0466 vs
-  mem0@500 = 0.1315 é \textbf{real e arquitetural} para o modo FTS5-only
-  --- LLM-rewriting do mem0 produz generalização semântica que FTS5
-  isolado não consegue. PR \#318 mostra que o Gemini hybrid completo
-  inverte esse resultado no escopo conversacional.
+  \textbf{H2 finding (PR \#311, retained):} FTS5-only@500 = 0.0466 vs
+  mem0@500 = 0.1315 is \textbf{real and architectural} for FTS5-only
+  mode --- mem0's LLM-rewriting produces semantic generalization that
+  isolated FTS5 cannot match. PR \#318 shows that the full Gemini hybrid
+  reverses this result on the conversational scope.
 
-  \textbf{Disclosure obrigatória:} o aggregate ±0.05 está dentro do
-  intervalo inconclusivo para n=20. O árbitro definitivo é o run
-  canônico full-corpus (corpus uniforme sem cap, LoCoMo + LongMemEval
-  completos para todos os sistemas). \textbf{Phase 2 gate usa AMBOS}
-  per-dataset + aggregate no run canônico --- não apenas o número que
-  favorece nox-mem.
+  \textbf{Mandatory disclosure:} the aggregate ±0.05 falls within the
+  inconclusive interval for n=20. The definitive arbiter is the
+  canonical full-corpus run (uniform corpus without cap, full LoCoMo +
+  LongMemEval for all systems). \textbf{Phase 2 gate uses BOTH}
+  per-dataset + aggregate from the canonical run --- not only the number
+  that favors nox-mem.
 
   Refs:
   \texttt{docs/COMPARISON.md\ §Apples-to-apples\ corpus-cap\ comparison},
@@ -3871,32 +4008,39 @@ Para evitar viés de seleção retroativo:
 
 \subsubsection{6.7 Pre-registration}\label{pre-registration}
 
-A metodologia desta seção está cravada no
-\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md} antes do run
-de Sat 2026-05-24. O \textbf{smoke de Sat 2026-05-24 15h30 BRT}
-preencheu a primeira linha de §6.3 (nox-mem combined: nDCG@10=0.6380,
-p50=8ms, gold-hit 13/20 em 20 queries dry-run-sample) e validou que o
-pipeline de retrieval funciona end-to-end em eval-isolated DB. O
-\textbf{partial cross-system smoke de Sat 2026-05-24 18h BRT} adicionou
-a linha mem0 (n=20, 500-chunk corpus cap): nDCG@10=0.8569, p50=273ms,
-gold-hit 3/20 (15\%) --- com interpretação explícita do trade-off
-coverage vs concentração em §6.3. O \textbf{run canônico} ainda está em
-curso e atualiza as linhas competidoras
-\texttt{{[}PENDING\ canonical\ run{]}} em §6.3 + a totalidade de §6.4
-quando os 6 adapters estiverem prontos com corpus uniforme. Princípios
-(§6.5), anti-cherry-pick (§6.6) e a estrutura geral desta seção são
-imutáveis post-run. Qualquer ajuste metodológico identificado durante a
-execução é documentado como follow-up explícito em
-\texttt{docs/COMPARISON.md} em vez de retroagido aqui. Refs:
+This section's methodology is locked in
+\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md} prior to the
+Sat 2026-05-24 run. The \textbf{Sat 2026-05-24 15:30 BRT smoke}
+populated the first row of §6.3 (nox-mem combined: nDCG@10=0.6380, p50=8
+ms, gold-hit 13/20 on 20 dry-run-sample queries) and validated that the
+retrieval pipeline works end-to-end on an eval-isolated DB. The
+\textbf{partial cross-system smoke of Sat 2026-05-24 18:00 BRT} added
+the mem0 row (n=20, 500-chunk corpus cap): nDCG@10=0.8569, p50=273 ms,
+gold-hit 3/20 (15\%) --- with an explicit interpretation of the coverage
+vs.~concentration trade-off in §6.3. The \textbf{canonical run was
+executed on 2026-06-15} on a dedicated pod (n=100/dataset, k=10,
+same-namespace fair), resolving the 2026-05-24 infrastructure abort
+(incident D76 --- sustained CPU-steal on the shared host, see §7.1 L5).
+It produced real numbers for 3/6 systems (nox-mem, Mem0, agentmemory)
+and three documented gaps (§6.3.1), updating the §6.3 cells; the §6.4
+per-category breakdown remains future work (the run reported
+dataset-level metrics). No methodology from §6.5--§6.6 was altered
+post-registration; the same-namespace re-query is a fair-comparison
+refinement (confound removal, §6.3) consistent with §6.5, not a change
+to corpus, eval set, or gold. Principles (§6.5), anti-cherry-pick
+(§6.6), and the general structure of this section are immutable
+post-run. Any methodological adjustment identified during execution is
+documented as an explicit follow-up in \texttt{docs/COMPARISON.md}
+rather than retroactively applied here. Refs:
 \texttt{{[}{[}q4-smoke-sat-2026-05-24-real-numbers{]}{]}} ·
 \texttt{{[}{[}q4-partial-cross-system-sat-2026-05-24{]}{]}}.
 
-A decisão D43 (\texttt{docs/DECISIONS.md}) define o gate de aprovação:
-nox-mem em top-3 em \textgreater=2 das 4 métricas chave (nDCG@10, R@10,
-MRR, latência). Atendido o gate, GTM Phase 2 está destravada conforme
-\texttt{docs/ROADMAP.md} §7. Não atendido, a sessão de Sun 2026-05-25
-produz um plano de remediação (ajustes pre-launch) em vez de launch
-direto.
+Decision D43 (\texttt{docs/DECISIONS.md}) defines the approval gate:
+nox-mem in top-3 on \textgreater=2 of the 4 key metrics (nDCG@10, R@10,
+MRR, latency). If the gate is met, GTM Phase 2 is unlocked per
+\texttt{docs/ROADMAP.md} §7. If not met, the Sun 2026-05-25 session
+produces a remediation plan (pre-launch adjustments) rather than a
+direct launch.
 
 \subsubsection{6.8 Autonomy quantified --- operational cost per memory
 system}\label{autonomy-quantified-operational-cost-per-memory-system}
@@ -4094,6 +4238,52 @@ nox-mem \texttt{\textasciitilde{}341\ MB\ RSS} figure is
   post-PR \#356) replaced the estimate.} for full methodology including
 the cgroup \texttt{MemoryCurrent} vs process RSS distinction.
 
+\subsubsection{6.9 Operational reproducibility as
+evidence}\label{operational-reproducibility-as-evidence}
+
+The §6.3 quality split and the §6.8 cost matrix report \emph{outcomes}.
+A third, harder-to-fake signal emerged from the \textbf{act of running
+the benchmark itself}: the operational effort required to get each
+system to produce a number is a measurement of its dependency surface.
+
+On the 2026-06-15 pod, nox-mem ingested the full 6,822-chunk corpus into
+a single SQLite file in one process with \textbf{zero incidents}. The
+competitors did not fare as smoothly:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Mem0} exhausted the pod's process-ID limit three times --- its
+  default telemetry (PostHog) leaks one thread per operation, and at
+  benchmark scale this wedged the host until ingest and search were
+  split into separate processes, telemetry was disabled
+  (\texttt{MEM0\_TELEMETRY=False}), and the vector backend was swapped
+  from Chroma to faiss. Its LoCoMo store still lost \textasciitilde5\%
+  of vectors to the leak before the workaround stabilized.
+\item
+  \textbf{Zep} never ran --- its Docker stack cannot start on an
+  unprivileged pod kernel (§6.3.1).
+\item
+  \textbf{Letta} ran but at \textasciitilde16 min/query, making a
+  100-query benchmark a multi-day proposition.
+\item
+  \textbf{agentmemory} silently persisted store state across sessions,
+  contaminating a LoCoMo run with leftover LongMemEval vectors until the
+  store was reset.
+\end{itemize}
+
+None of these are disqualifying defects --- they are the normal cost of
+multi-service, telemetry-instrumented, agent-OS architectures. But they
+are \emph{real operational costs} that a single-file embedded design
+does not impose. The reproducibility of nox-mem's run --- one file, one
+process, one command, re-confirmed live at \textbf{415 MB RSS on the
+70.7k-chunk production corpus} on 2026-06-15 --- is not an incidental
+convenience; it is the operational expression of the Autonomy pillar
+quantified in §6.8. \textbf{A memory system you can run from a single
+file you own is a different category of dependency than one that
+requires Docker, a vector database, a telemetry pipeline, and a
+third-party embedding key to return its first result.}
+
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \subsection{7. Limitations and Future
@@ -4144,14 +4334,14 @@ replication)}\label{l3-single-instance-architecture-no-distributed-sharding-or-r
 The system runs on a single SQLite file per agent database. WAL mode
 provides concurrent read safety, but there is no horizontal sharding, no
 replication across nodes, and no distributed coordination layer. The
-current production corpus (69k chunks across 7 databases on a 4-vCPU /
-8GB KVM4) operates comfortably within these bounds, but the architecture
-does not generalize to multi-tenant deployments or corpora significantly
-exceeding the single-node memory/storage envelope. Distributed SQLite
-extensions (e.g., \texttt{cr-sqlite} CRDT-based replication) exist but
-are explicitly out of scope for v1. This is a known architectural
-decision, not an oversight. Ref: \texttt{docs/DECISIONS.md}
-(single-instance rationale).
+current production corpus (\textasciitilde95k chunks across 7 databases
+on a 4-vCPU / 8GB KVM4, as of 2026-06-04) operates comfortably within
+these bounds, but the architecture does not generalize to multi-tenant
+deployments or corpora significantly exceeding the single-node
+memory/storage envelope. Distributed SQLite extensions (e.g.,
+\texttt{cr-sqlite} CRDT-based replication) exist but are explicitly out
+of scope for v1. This is a known architectural decision, not an
+oversight. Ref: \texttt{docs/DECISIONS.md} (single-instance rationale).
 
 \paragraph{L4 --- No write-side concurrency control
 (last-writer-wins)}\label{l4-no-write-side-concurrency-control-last-writer-wins}
@@ -4178,14 +4368,17 @@ target)}\label{l5-evaluation-sample-size-and-canonical-run-gap-n20-smoke-vs-n100
 The Sat 2026-05-24 cross-system comparison (§6.3) is based on a 20-query
 smoke over an eval-isolated DB (5,882 LoCoMo + 940 LongMemEval chunks),
 not the pre-registered canonical 100-query × 2-dataset × 6-system run.
-The canonical run was in progress at the time of this writing (5/6
-competitor adapters under setup). All competitive figures for Mem0, Zep,
-Letta, agentmemory, and EverMind-AI in §6 carry
-\texttt{{[}PENDING\ canonical\ run{]}} tags and should not be treated as
-settled results. The nox-mem smoke figure (nDCG@10 = 0.6380 combined,
-p50 = 12 ms) is validated on the methodology but not directly comparable
-to the G5 V3 entity-eval figure (0.6237) because the eval corpus and
-query set differ. Ref:
+The canonical run was attempted but \textbf{aborted} (incident D76):
+under sustained CPU-steal on the shared production host (51-97\% over
+48h), batch 005 completed 0/50 questions in 23h, so the run was stopped
+and \textbf{deferred to dedicated-CPU infrastructure} --- a one-shot
+benchmark, not a recurring need. All competitive figures for Mem0, Zep,
+Letta, agentmemory, and EverMind-AI in §6 carry \texttt{{[}deferred{]}}
+tags and should not be treated as settled results; a re-run on stable
+infrastructure is planned before final publication (§7.2). The nox-mem
+smoke figure (nDCG@10 = 0.6380 combined, p50 = 12 ms) is validated on
+the methodology but not directly comparable to the G5 V3 entity-eval
+figure (0.6237) because the eval corpus and query set differ. Ref:
 \texttt{specs/2026-05-23-Q4-comparison-execution-plan.md},
 \texttt{{[}{[}q4-smoke-sat-2026-05-24-real-numbers{]}{]}}.
 
@@ -4199,12 +4392,12 @@ cost at full corpus), producing a nDCG@10 = 0.8569 on 20 queries that
 cannot be directly compared to nox-mem's full-corpus score --- a
 smaller, more concentrated corpus tends to inflate nDCG for systems that
 retrieve all relevant documents. Zep and Letta require Docker compose
-setups that were in progress. EverMind-AI's repository was unavailable
-at time of access. The ``concentration vs coverage trade-off'' (high
-nDCG on capped corpus vs recall breadth on full corpus) is a genuine
-open question for per-system fair comparison, not a methodological
-failure. Ref: §6.3 anti-cherry-pick statement,
-\texttt{docs/COMPARISON.md},
+setups that were not completed before the run was aborted (L5).
+EverMind-AI's repository was unavailable at time of access. The
+``concentration vs coverage trade-off'' (high nDCG on capped corpus vs
+recall breadth on full corpus) is a genuine open question for per-system
+fair comparison, not a methodological failure. Ref: §6.3
+anti-cherry-pick statement, \texttt{docs/COMPARISON.md},
 \texttt{{[}{[}q4-partial-cross-system-sat-2026-05-24{]}{]}}.
 
 \paragraph{L7 --- Latency comparison conflates transport
@@ -4234,11 +4427,12 @@ weight, but its isolated causal contribution has not been validated to
 statistical significance: the E10 pain ablation
 (\texttt{paper/publication/paper-draft-sec4-7.md} §5.5) reports Δ =
 +0.0065 with 95\% CI {[}−0.0143, +0.0338{]} on n = 31, directional but
-not significant. The current production corpus has 90.67\% of chunks at
-the default \texttt{pain\ =\ 0.2}, providing insufficient variance for a
-precise estimate. A definitive pain signal ablation requires a corpus
-where pain scores span the full {[}0.1, 1.0{]} range. Ref: §5.7 honest
-characterization, \texttt{{[}{[}d47-path-c-decision{]}{]}}.
+not significant. The current production corpus has 91.74\% of chunks at
+the default \texttt{pain\ =\ 0.2} (as of 2026-06-04), providing
+insufficient variance for a precise estimate. A definitive pain signal
+ablation requires a corpus where pain scores span the full {[}0.1,
+1.0{]} range. Ref: §5.7 honest characterization,
+\texttt{{[}{[}d47-path-c-decision{]}{]}}.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -4327,13 +4521,14 @@ stack fully offline-capable. Estimated Lab Q1/Q2. Ref:
 \paragraph{F6 --- Lab Q1 scale validation: 250k chunk
 corpus}\label{f6-lab-q1-scale-validation-250k-chunk-corpus}
 
-The current production corpus is 69,495 chunks (as of G10, 2026-05-20).
-The Lab Q1 roadmap targets a 250k chunk corpus to validate: (a)
-sqlite-vec ANN recall at scale (current exact-search; approximate search
-becomes necessary past \textasciitilde100k vectors at reasonable latency
-targets); (b) salience formula stability (the recency component decays
-over a longer history window); (c) FTS5 BM25 IDF calibration (with more
-documents, rare-term IDF weights shift). The
+The current production corpus is 94,936 chunks (as of 2026-06-04) ---
+already approaching the \textasciitilde100k-vector threshold where exact
+search latency degrades. The Lab Q1 roadmap targets a 250k chunk corpus
+to validate: (a) sqlite-vec ANN recall at scale (current exact-search;
+approximate search becomes necessary past \textasciitilde100k vectors at
+reasonable latency targets); (b) salience formula stability (the recency
+component decays over a longer history window); (c) FTS5 BM25 IDF
+calibration (with more documents, rare-term IDF weights shift). The
 \texttt{{[}{[}lab-q1-scale-250k{]}{]}} item has no committed spec yet;
 it is gated on \texttt{NOX\_SALIENCE\_MODE=active} remaining stable
 through the GTM Phase 2 feedback cycle. Ref: \texttt{docs/ROADMAP.md}
@@ -4748,12 +4943,13 @@ v9 + \texttt{section} v10), entity file format, section\_boost \\
 Wave A & May 19 & Additive salience formula, \texttt{tier\_boost}
 off-by-default, \texttt{source\_type} backfill (67,949 chunks), G5 V3
 ablation (PRs \#150 / \#151 / \#153) \\
-G10 Hard Mutex & May 20 & \texttt{section\ ↔\ source\_type} mutex
-deployed against \texttt{g9.db} 69,495 chunks (PRs \#181 / \#182) \\
+G10 Hard Mutex & May 20 & \texttt{section/source\_type} mutex deployed
+against \texttt{g9.db} 69,495 chunks (PRs \#181 / \#182) \\
 G10d ACTIVE-T2 & May 21 & Conditional mutex gated by
-\texttt{query\_entity\_count\ ≤\ 2}, deployed via systemd drop-in
-\texttt{NOX\_MUTEX\_QUERY\_ENTITY\_THRESHOLD=2} (PR \#198, decision
-D51); multi-hop +1.58\% nDCG / adversarial +3.04\% nDCG recovered \\
+\texttt{query\_entity\_count\ \textless{}=\ 2}, deployed via systemd
+drop-in \texttt{NOX\_MUTEX\_QUERY\_ENTITY\_THRESHOLD=2} (PR \#198,
+decision D51); multi-hop +1.58\% nDCG / adversarial +3.04\% nDCG
+recovered \\
 F10 Phase A + B & May 21 & Foundation observability dashboards
 (\texttt{/observability/health.html} +
 \texttt{/observability/evals.html}) deployed via Tailscale tunnel (PRs
@@ -4772,34 +4968,35 @@ outperforms single-method retrieval, particularly for multilingual
 content and compound technical terms. The LLM-powered knowledge graph
 provides 15x richer entity extraction compared to regex approaches,
 while temporal decay ensures the graph stays current without manual
-curation. The Wave A empirical evaluation (§5) cravou nDCG@10 = 0.6237
-on the entity-flavored golden set (+78.8\% relative over the G3
+curation. The Wave A empirical evaluation (§5) established nDCG@10 =
+0.6237 on the entity-flavored golden set (+78.8\% relative over the G3
 baseline), with \texttt{section\_boost} identified as the dominant
 driver (99.85\% of the lift recovered by A3 alone) and the additive
 salience formula validated by the
 \texttt{active\ \textgreater{}\ shadow} reversal. The G10d conditional
-mutex evolution (§5.5, deployed 2026-05-21) consolida o canonical boost
-stack
-\texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex\ gated\ by\ query\_entity\_count\ ≤\ 2)\ ×\ salience\ v2\ additive}
-em produção, recuperando regressões multi-hop e adversarial com diluição
-contida em single-hop. A camada F10 (§5.6, decisão D53) torna o estado
-de produção verificável a qualquer momento via dashboards Phase A
-(\texttt{/observability/health.html}) + Phase B
+mutex evolution (§5.5, deployed 2026-05-21) consolidates the canonical
+boost stack
+\texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex\ gated\ by\ query\_entity\_count\ \textless{}=\ 2)\ ×\ salience\ v2\ additive}
+in production, recovering multi-hop and adversarial regressions with
+contained dilution on single-hop. The F10 layer (§5.6, decision D53)
+makes production state verifiable at any time via the Phase A dashboard
+(\texttt{/observability/health.html}) + Phase B dashboard
 (\texttt{/observability/evals.html}).
 
-A §6 Q4 COMPARISON está pre-registered
-(\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md}) e o
-\textbf{smoke de Sat 2026-05-24 15h30 BRT} populou a primeira linha de
-§6.3 com números de nox-mem (nDCG@10=0.6380 combined, p50=12ms, gold-hit
-13/20 em 20 queries dry-run-sample sobre eval-isolated DB de 5.882
-LoCoMo + 940 LongMemEval chunks). O \textbf{run canônico} --- 100
-queries × 2 datasets × 6 sistemas (Mem0, Zep, Letta, agentmemory,
-EverMind-AI + nox-mem) --- ainda está em execução com 5/6 competitor
-adapters em setup, e atualiza as células
-\texttt{{[}PENDING\ canonical\ run{]}} quando crava. O gate D43 (top-3
-em \textgreater=2 das 4 métricas chave) é avaliado contra o run
-canônico; o smoke valida a metodologia + confirma que nox-mem retrieval
-funciona end-to-end, destravando a defesa pre-launch da GTM Phase 2.
+The §6 Q4 COMPARISON is pre-registered
+(\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md}) and the
+\textbf{Sat 2026-05-24 15:30 BRT smoke} populated the first row of §6.3
+with nox-mem numbers (nDCG@10=0.6380 combined, p50=12 ms, gold-hit 13/20
+on 20 dry-run-sample queries over an eval-isolated DB of 5,882 LoCoMo +
+940 LongMemEval chunks). The \textbf{canonical run} --- 100 queries × 2
+datasets × 6 systems (Mem0, Zep, Letta, agentmemory, EverMind-AI +
+nox-mem) --- was deferred after an infrastructure abort (incident D76,
+see §7.1 L5) and is planned on dedicated CPU before final publication;
+it will update the \texttt{{[}deferred{]}} cells when completed. The D43
+gate (top-3 on \textgreater=2 of the 4 key metrics) is evaluated against
+the canonical run; the smoke validates the methodology and confirms that
+nox-mem retrieval works end-to-end, unlocking the GTM Phase 2 pre-launch
+defense.
 
 The cross-agent intelligence layer transforms isolated agent memories
 into a collaborative knowledge base, enabling institutional learning
