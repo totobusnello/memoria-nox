@@ -2,6 +2,39 @@
 
 ---
 
+## Sun 2026-06-15 — §6 CANONICAL RUN FEITA + paper §6 expandido + custo/latência re-validados
+
+> Objetivo Toto: discurso de posicionamento como diferenciador (**custo menor + dependência de 3º mínima**) + expandir o paper. **O bloqueador pré-arXiv anterior (§6 com células `[deferred]` + run canônico abortado D76) está RESOLVIDO.**
+
+### §6 — canonical run executada (pod RunPod, n=100/dataset, k=10, same-namespace fair)
+3/6 sistemas com dado real + 3 gaps documentados. **Resultado: SPLIT honesto** (cada top-tier ganha 1 benchmark — bom pro paper, não é overclaim).
+
+| Dataset | nox-mem | mem0 | agentmemory | vencedor |
+|---|---|---|---|---|
+| LongMemEval | **0.5234** (r 0.6535, MRR 0.5494) | 0.4764 | 0.2803 | **nox-mem** +0.047 |
+| LoCoMo | 0.4263 (r 0.5504, MRR 0.4464) | **0.4686** | 0.1587 | **mem0** +0.042 |
+
+Gaps: zep (docker impossível em pod unprivileged) · letta (agent-OS ~16min/query) · evermind (keys OpenRouter+DeepInfra + auth repo externo). lightrag/hippo = ref §5, não §6. Detalhe: `[[project_head_to_head_nox_mem0_split_2026_06_14]]` + `[[feedback_q4_expansion_systems_setup]]` + `[[feedback_mem0_thread_leak_telemetry_faiss_architecture]]` + `[[feedback_runpod_pod_ops_ssh_recovery_patterns]]`.
+
+### §5.7 re-validado AO VIVO (VPS 187.77.234.79, 2026-06-15, corpus 70,7k)
+- KG-path **2,9ms p50 / 5,7ms p95** (confirma o 2,5ms) · KG-path **$0/query** confirmado · footprint **415MB** (1 processo) ✓
+- hybrid **653ms p50** (era 529 — corpus maior + Gemini API variance) · **769×→~667×** (Gemini embed subiu $0,13→$0,15/1M em fev-2026)
+
+### Paper editado + commitado (`main` limpo)
+- `.md` (**`80e10b2`**): §6 status + §6.2 versões + §6.3 split tables + §6.3.1 gaps + §6.4 future-work + §6.7 pré-registro + **§6.9 nova (reproducibility-as-evidence)** + §5.7.1/§5.7.2 re-validado + abstract
+- build `.tex`/`.pdf` (**`368fcd9`**): rebuildados (pandoc 3.9/xelatex), consistentes. ⚠️ **Build da manhã (10:53) estava stale (pré-§6, ainda com `[deferred]`+769×) — pego a tempo, regenerado.**
+- **Framing de custo (decisão Toto):** liderar com **"$0/query + custo marginal zero"**; ~667× secundário com assunção declarada (Mem0 = subscription $19–249/mo, denominador $0,001/q é modelagem, não preço publicado).
+
+### Discurso de posicionamento (gravado em memória)
+`[[project_nox_mem_positioning_discourse]]`: **Quality = ticket de entrada / Autonomy+Custo+Simplicidade = o fosso.** NÃO liderar com nDCG. One-liner: *"Qualidade de retrieval no nível do líder — entregue como 1 arquivo SQLite: $0/query, sem serviços externos, sem vendor lock-in, sua escolha de provider."* + benchmark-run-as-evidence (mem0 wedgeou o pod 3×, zep não roda, nós = 1 arquivo zero incidente).
+
+### Próxima ação
+1. **D2 gate (inalterado):** cron `d2-gate-report.sh` roda diário; Toto chama ~18/06 → rodo análise + recomendo flip `active`.
+2. **Paper arXiv:** §6 agora PREENCHIDO. Restam: (a) §6.4 per-category (future work — run só deu dataset-level); (b) logística arXiv (account + endorsement cs.IR); (c) LoCoMo venue check (`refs-verification-log.md:168`); (d) opcional: re-rodar zep/letta/evermind se houver host com docker real / keys.
+3. **Pod RunPod DESLIGADO** pelo Toto (outputs persistem em `/workspace` se retomar).
+
+---
+
 ## Fri→Sat 2026-06-13/14 — D3 medido + D2 (brief diversity) SHADOW DEPLOYED
 
 > Objetivo do Toto: "evoluir e finalizar o projeto memória e ter o paper pra publicar". Caminho: D3 (medir) → D2 (decidir+impl). Escolha do Toto no ponto de decisão: **implementar A+B em shadow, gate sem follow-up**.
