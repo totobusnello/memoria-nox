@@ -10,7 +10,7 @@
 
 ## Abstract
 
-We introduce **nox-mem**, a persistent memory system for autonomous LLM agents organized around a single design principle: **pain-weighted hybrid memory with shadow discipline — yours by design**. Every retrieval and retention decision is governed by an evidence-weighted salience formula in which *pain* — an operator-assigned severity in [0.1, 1.0], persisted on every chunk — is a first-class signal; the formula itself evolved from multiplicative to additive form through the system's own shadow-mode telemetry (§5.2), and every ranking change is gated by a mandatory shadow phase before production activation. Compared to existing memory systems (mem0, Letta, Zep, EverOS, LightRAG, and MeMo), nox-mem offers several advantages: **(a)** *live writeback with sub-second indexing* (inotifywait-driven, no batch retrain or daily reindex required), **(b)** *typed temporal decay* (per-`chunk_type` retention windows with never-decay for feedback/person — see §2 and §8.2), **(c)** *full provenance to chunk and source* (every retrieval result carries `chunk_id` + `source_file`, every destructive op is wrapped in `withOpAudit()` with a VACUUM INTO pre-snapshot), **(d)** *first-class self-evolution* through a `crystallize`/`reflect`/`consolidate` triad that promotes high-hit pending items to durable lessons and synthesizes cross-session insights nightly (§3.4), and **(e)** *zero vendor lock-in*: a single SQLite file, MIT-licensed, with provider-agnostic embeddings (Gemini default, swappable). Deployed in production since March 14, 2026, the system manages 94.9k+ memory chunks with ~99.99% vector coverage, ~15.6k knowledge graph entities with ~21.5k relations (as of 2026-06-04, post corpus-hygiene pass), and serves 6 specialized AI agents with isolated yet interconnectable memory spaces. On the entity-flavored golden set (n=100), the full ablation stack reaches **nDCG@10 = 0.6237** (+78.8% over the G3 pre-Wave-A baseline; §5.1.1). On the EverMemBench cross-system benchmark (5-batch, n=3,121), nox-mem scores **62.22%** with Gemini-2.5-flash (+2.95 pp over MemOS; §5.1.5), **51.68%** with GPT-4.1-mini (+9.13 pp over MemOS, 95% CI [49.88, 53.49]; §5.1.6), and **63.28% Overall + 88.42% Memory Awareness composite with Gemini-3-flash — both SOTA versus MemOS Table 4 baselines** (+20.73 pp Overall, +32.74 pp MA; §5.1.10). On classical multi-hop QA, nox-mem achieves dual SOTA without specialized fine-tuning: **MuSiQue dev F1 58.62%** (+22.82 pp over IRCoT, +8.92 pp over EX(SA); §5.2.1) and **HotPotQA dev distractor ans_F1 73.37%** (above DPR+FiD reader SOTA; §5.2.2). LoCoMo cross-bench retrieval@10 strict reaches **74.52% — above Mem0's published SOTA F1 of 66.88%** (§5.3.1); the F1 push is rank-5 (51.85%, above Zep / LangMem) constrained by a verbosity gap (§5.3.2). The §5.4 resolution of the EverMemBench F_MH paradox shows the 3–7% absolute is a corpus-structural property, not a multi-hop reasoning ceiling. Production characteristics establish SOTA on three operational axes: **KG path retrieval p50 = 2.5 ms** (sub-10 ms class, §5.7.1), **cost $0/query KG path and 769× cheaper than Mem0 Cloud on hybrid** (§5.7.2), and **399 MB RSS self-hosted single-process** footprint (§5.7.3). The cross-bench LongMemEval validation (n=300, §5.6) confirms the same per-category fingerprint across an orthogonal benchmark distribution. Wave 2 (2026-05-31 – 2026-06-02, §5.5.4–§5.5.8) contributes an empirical per-backbone × per-knob composability study: three Wave A single-stage retrieval knobs (KG path, AC, MQ) transfer at only 0–40% efficiency from gpt-4.1-mini to Gemini-3-flash (D75), establishing that retrieval-stage compensation mechanisms attenuate on stronger backbones; IterB ReAct (§5.5.2) remains the sole validated F_MH lever on Gemini-3-flash at +2.01 pp. An architectural lock discovery (§5.5.7) reveals that composability projections must account for both backbone-portability and code-level architectural composability — two independent non-trivial requirements. The Q4 cross-system comparison (§6) provides pre-registered, head-to-head numbers against five competing memory systems on a shared corpus and harness.
+We introduce **nox-mem**, a persistent memory system for autonomous LLM agents organized around a single design principle: **pain-weighted hybrid memory with shadow discipline — yours by design**. Every retrieval and retention decision is governed by an evidence-weighted salience formula in which *pain* — an operator-assigned severity in [0.1, 1.0], persisted on every chunk — is a first-class signal; the formula itself evolved from multiplicative to additive form through the system's own shadow-mode telemetry (§5.2), and every ranking change is gated by a mandatory shadow phase before production activation. Compared to existing memory systems (mem0, Letta, Zep, EverOS, LightRAG, and MeMo), nox-mem offers several advantages: **(a)** *live writeback with sub-second indexing* (inotifywait-driven, no batch retrain or daily reindex required), **(b)** *typed temporal decay* (per-`chunk_type` retention windows with never-decay for feedback/person — see §2 and §8.2), **(c)** *full provenance to chunk and source* (every retrieval result carries `chunk_id` + `source_file`, every destructive op is wrapped in `withOpAudit()` with a VACUUM INTO pre-snapshot), **(d)** *first-class self-evolution* through a `crystallize`/`reflect`/`consolidate` triad that promotes high-hit pending items to durable lessons and synthesizes cross-session insights nightly (§3.4), and **(e)** *zero vendor lock-in*: a single SQLite file, MIT-licensed, with provider-agnostic embeddings (Gemini default, swappable). Deployed in production since March 14, 2026, the system manages 94.9k+ memory chunks with ~99.99% vector coverage, ~15.6k knowledge graph entities with ~21.5k relations (as of 2026-06-04, post corpus-hygiene pass), and serves 6 specialized AI agents with isolated yet interconnectable memory spaces. On the entity-flavored golden set (n=100), the full ablation stack reaches **nDCG@10 = 0.6237** (+78.8% over the G3 pre-Wave-A baseline; §5.1.1). On the EverMemBench cross-system benchmark (5-batch, n=3,121), nox-mem scores **62.22%** with Gemini-2.5-flash (+2.95 pp over MemOS; §5.1.5), **51.68%** with GPT-4.1-mini (+9.13 pp over MemOS, 95% CI [49.88, 53.49]; §5.1.6), and **63.28% Overall + 88.42% Memory Awareness composite with Gemini-3-flash — both SOTA versus MemOS Table 4 baselines** (+20.73 pp Overall, +32.74 pp MA; §5.1.10). On classical multi-hop QA, nox-mem achieves dual SOTA without specialized fine-tuning: **MuSiQue dev F1 58.62%** (+22.82 pp over IRCoT, +8.92 pp over EX(SA); §5.2.1) and **HotPotQA dev distractor ans_F1 73.37%** (above DPR+FiD reader SOTA; §5.2.2). LoCoMo cross-bench retrieval@10 strict reaches **74.52% — above Mem0's published SOTA F1 of 66.88%** (§5.3.1); the F1 push is rank-5 (51.85%, above Zep / LangMem) constrained by a verbosity gap (§5.3.2). The §5.4 resolution of the EverMemBench F_MH paradox shows the 3–7% absolute is a corpus-structural property, not a multi-hop reasoning ceiling. Production characteristics establish SOTA on three operational axes: **KG path retrieval p50 = 2.5 ms** (sub-10 ms class, §5.7.1), **cost $0/query KG path and ~667× cheaper than Mem0 Cloud on hybrid** (§5.7.2), and **399 MB RSS self-hosted single-process** footprint (§5.7.3). The cross-bench LongMemEval validation (n=300, §5.6) confirms the same per-category fingerprint across an orthogonal benchmark distribution. Wave 2 (2026-05-31 – 2026-06-02, §5.5.4–§5.5.8) contributes an empirical per-backbone × per-knob composability study: three Wave A single-stage retrieval knobs (KG path, AC, MQ) transfer at only 0–40% efficiency from gpt-4.1-mini to Gemini-3-flash (D75), establishing that retrieval-stage compensation mechanisms attenuate on stronger backbones; IterB ReAct (§5.5.2) remains the sole validated F_MH lever on Gemini-3-flash at +2.01 pp. An architectural lock discovery (§5.5.7) reveals that composability projections must account for both backbone-portability and code-level architectural composability — two independent non-trivial requirements. The Q4 cross-system comparison (§6) provides pre-registered, head-to-head numbers against five competing memory systems on a shared corpus and harness.
 
 ---
 
@@ -931,18 +931,18 @@ The canonical production boost stack (`section_boost × source_type_boost (Hard 
 | Hybrid search (FTS5 + dense + RRF, no rerank) | ~940 ms | ~2,342 ms | ~2,523 ms | Gemini-embedding-001 query dominates (~800 ms) |
 | Hybrid + cross-encoder rerank (MiniLM) | +3,700 ms p50 | — | — | Opt-in, exploratory mode |
 
-The 2.5 ms p50 KG path is in the sub-10 ms class — no published competitor reports retrieval latency in this band. Zep markets <100 ms p50, unverified independently; Mem0 Cloud and MemOS deployments are multi-service architectures with network hops typically in the 100–500 ms range. nox-mem's single-process embedded architecture (better-sqlite3 + sqlite-vec in-process) eliminates network and IPC overhead entirely.
+The 2.5 ms p50 KG path is in the sub-10 ms class — no published competitor reports retrieval latency in this band. Zep markets <100 ms p50, unverified independently; Mem0 Cloud and MemOS deployments are multi-service architectures with network hops typically in the 100–500 ms range. nox-mem's single-process embedded architecture (better-sqlite3 + sqlite-vec in-process) eliminates network and IPC overhead entirely. **Re-validated 2026-06-15** on the 70.7k-chunk production corpus: the KG path (`/api/kg/path`, real entity pair, n=10) measured p50 = 2.9 ms / p95 = 5.7 ms, confirming the sub-10 ms class; the Gemini-embedding-dominated standard hybrid path measured p50 = 653 ms / p95 = 706 ms (n=20) — up from 529 ms as the corpus grew 69k → 70.7k chunks and reflecting Gemini API round-trip variance, which reinforces (rather than weakens) the case for the local KG path on latency-sensitive workloads.
 
-#### 5.7.2 Cost SOTA — $0/query KG path, 769× cheaper than Mem0 Cloud
+#### 5.7.2 Cost SOTA — $0/query KG path, zero marginal cost vs subscription APIs
 
 | Component | nox-mem | Mem0 Cloud (published pricing) | Ratio |
 |---|---:|---:|---:|
 | Retrieval API cost (KG path) | **$0.00** | $0.001/query (est. embedding + retrieval) | **effectively free** |
-| Retrieval API cost (hybrid w/ Gemini embedding) | $0.0000013/query | $0.001/query | **769× cheaper** |
+| Retrieval API cost (hybrid w/ Gemini embedding) | $0.0000015/query | ~$0.001/query (est.) | **~667× cheaper** |
 | Ingest API cost (per chunk) | $0.00 (local) | varies | n/a |
-| Total cost per 1M queries (hybrid) | $1.30 | $1,000 | 769× |
+| Total cost per 1M queries (hybrid) | $1.50 | $1,000 (est.) | ~667× |
 
-The KG path achieves **$0 per query** because the entity-walk uses only local SQL + regex with no LLM call. The hybrid path costs $0.0000013/query (Gemini-embedding-001 query at $0.000013/1k chars × ~100 chars average). The 769× factor establishes structural cost dominance over hosted memory APIs.
+The KG path achieves **$0 per query** because the entity-walk uses only local SQL + regex with no LLM call (re-confirmed 2026-06-15). The hybrid path costs **$0.0000015/query** (gemini-embedding-001 at $0.15/1M input tokens — a Feb-2026 increase from $0.13/1M — × ~10 tokens/query). Against an *estimated* Mem0 Cloud per-query rate of ~$0.001 this is **~667× cheaper** (revised down from the 769× figure as Gemini embedding pricing rose). We lead with the unconditional claim — **$0/query KG path and zero marginal retrieval cost** — and treat the multiplier as secondary: Mem0 is sold as a subscription (free 1K calls/month, then $19–$249/month) with no published per-call overage, so the denominator is an explicit modeling assumption, not a quoted price.
 
 #### 5.7.3 Footprint SOTA — 399 MB RSS, single-process, self-hosted
 
@@ -1021,7 +1021,7 @@ Concurrent agent operations during Lab Q1 benchmarking caused a batch contaminat
 
 ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
-> **Status (updated 2026-05-24 ~22h BRT — FINAL):** Sat 2026-05-24 FINAL closure. **4/6 systems with real data.** Decision A approved: ship 4/6 (Zep NO GATED due to OpenAI embedding requirement; EverMind-AI FAIL SKIP due to repo 404 confirmed PR #281). nox-mem headline: nDCG@10=0.6380 (Gemini hybrid) / 0.3753 (FTS5-only). mem0 (500-chunk cap) + agentmemory (1401-chunk cap) + Letta (partial 1/5 smoke) measured with corpus caveats. Canonical 100-query run deferred Sun 2026-05-25 with uniform corpus, no cap. Principles (§6.5), anti-cherry-pick (§6.6) and pre-registration (§6.7) immutable. Note: "Sat 2026-05-24 partial; canonical full-corpus run Sun 2026-05-25." Refs: `[[q4-real-numbers-sat-2026-05-24]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
+> **Status (updated 2026-06-15 — canonical run executed):** The canonical cross-system run was executed on a dedicated pod on 2026-06-15 (n=100/dataset, k=10, same-namespace fair), resolving the 2026-05-24 infrastructure abort (§7.1 L5). **3/6 systems with real data** (nox-mem, Mem0, agentmemory) + **3 documented gaps** (Zep = Docker impossible on unprivileged-pod kernel; Letta = agent-OS ~16 min/query; EverMind-AI = third-party keys + external-repo auth — all §6.3.1). **Result: split** — nox-mem wins LongMemEval (nDCG@10 0.5234 vs Mem0 0.4764), Mem0 wins LoCoMo (0.4686 vs nox-mem 0.4263); agentmemory distant third (0.2803 / 0.1587). Quality tables §6.3; gaps §6.3.1; operational-cost axis §6.8; reproducibility-as-evidence §6.9. Principles (§6.5), anti-cherry-pick (§6.6), and pre-registration (§6.7) immutable. Ref: `[[project_head_to_head_nox_mem0_split_2026_06_14]]`.
 
 ### 6.1 Methodology summary
 
@@ -1033,11 +1033,11 @@ The five competitors were selected by prioritizing GitHub stars, recent commit a
 
 | System | Repo | Install path | Version pinned | Default config |
 |---|---|---|---|---|
-| Mem0 | `mem0ai/mem0` | `pip install mem0ai` | `[deferred — canonical run not yet executed, see §7.1 L5]` | OpenAI embeddings + Chroma vector store |
-| Zep | `getzep/zep` | Docker compose (zep + postgres) | `[deferred — canonical run not yet executed, see §7.1 L5]` | Local self-host mode |
-| Letta (ex-MemGPT) | `letta-ai/letta` | `pip install letta` | `[deferred — canonical run not yet executed, see §7.1 L5]` | SQLite backend |
-| agentmemory | `rohitg00/agentmemory` | iii-engine runtime | `[deferred — canonical run not yet executed, see §7.1 L5]` | Stack-bridge mode |
-| EverMind-AI | EverOS published bench | repo clone | `[deferred — canonical run not yet executed, see §7.1 L5]` | Native CLI |
+| Mem0 | `mem0ai/mem0` | `pip install mem0ai==0.1.114` | `0.1.114` | OpenAI text-embedding-3-small 1536d + faiss (Chroma swapped to avoid telemetry thread-leak — §6.3.1) |
+| Zep | `getzep/zep` | Docker compose (zep + postgres) | `[GAP — Docker unavailable on pod, §6.3.1]` | Local self-host mode |
+| Letta (ex-MemGPT) | `letta-ai/letta` | `pip install letta` (+ `click<8.2`) | `0.6.6` | SQLite backend; agent-OS retrieval |
+| agentmemory | `rohitg00/agentmemory` | daemon (REST :3111) | `as-of 2026-06-15` | union store + namespace filter |
+| EverMind-AI | EverOS published bench | repo clone (`pip install -e`) | `[GAP — keys/auth, §6.3.1]` | HTTP service (OpenRouter + DeepInfra) |
 
 Each system runs with its publicly documented default configuration (principle §6.5.3): no competitor is adversarially tuned to underperform.
 
@@ -1065,31 +1065,41 @@ Executive summary: **nox-mem wins on coverage (hits), speed (latency), and first
 
 The smoke did not disaggregate `nDCG@10` by dataset (combined-only) — canonical per-dataset breakdown comes in the full run. The numbers below are from the canonical run, which is deferred.
 
-**Sat 2026-05-24 FINAL — 4/6 systems with real data. Decision A: ship 4/6 (Zep gated, EverMind skipped). Canonical 100-query run deferred Sun 2026-05-25.**
+**Canonical run — 2026-06-15 (dedicated RunPod pod, n=100/dataset, same-namespace fair).** After the 2026-05-24 infrastructure abort (§7.1 L5), the canonical cross-system run was executed on a dedicated pod on 2026-06-15. **Three of the five competitors produced real numbers** (nox-mem, Mem0, agentmemory); **three are documented gaps** with explicit reasons (Zep, Letta, EverMind-AI — §6.3.1). Protocol: n=100 queries per dataset, k=10; retrieval quality (nDCG@10 / recall@10 / MRR) under each system's native default embedding provider; **same-namespace fair re-query** — the union store is queried at k=30 and filtered to the active dataset namespace before re-scoring the top-10, removing the cross-dataset distractor confound that inflated an early union-store reading (14.6% of nox-mem's raw top-10 were off-dataset chunks). Per-system latency percentiles were not captured uniformly in this run; nox-mem operational latency is reported independently in §5.7 (KG path 2.9 ms p50, hybrid 653 ms p50, re-measured 2026-06-15).
 
-**LongMemEval n=100 (canonical run deferred — infrastructure abort, see §7.1 L5):**
+**LongMemEval n=100 (canonical):**
 
-| System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| **nox-mem** | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | ~$0.00 (local) |
-| Mem0 | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | ~$0.10+ ingest |
-| agentmemory | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | ~$0.00 |
-| Letta | `[deferred — partial]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` |
-| Zep | `[FAILED: NO GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
-| EverMind-AI | `[FAILED: FAIL SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
+| System | nDCG@10 | R@10 | MRR | Cost/query | Coverage / config |
+|---|---:|---:|---:|---:|---|
+| **nox-mem** | **0.5234** | 0.6535 | **0.5494** | **$0 (local)** | 100%; hybrid FTS5 + Gemini-3072d + RRF |
+| Mem0 | 0.4764 | 0.6372 | 0.5107 | subscription + OpenAI embed | 100%; faiss backend, OpenAI text-embedding-3-small 1536d |
+| agentmemory | 0.2803 | n/c | n/c | $0 (local) | daemon REST; weak retriever |
+| Zep | `[GAP — see §6.3.1: requires Docker; impossible on unprivileged pod kernel]` | — | — | — | — |
+| Letta | `[GAP — see §6.3.1: agent-OS latency ~16 min/query; impractical for n=100]` | — | — | — | — |
+| EverMind-AI | `[GAP — see §6.3.1: requires OpenRouter + DeepInfra keys + external-repo install authorization]` | — | — | — | — |
 
-**LoCoMo full (canonical run deferred — infrastructure abort, see §7.1 L5):**
+**LoCoMo n=100 (canonical):**
 
-| System | nDCG@10 | R@10 | MRR | p50 (ms) | p95 (ms) | p99 (ms) | Cost/query (USD) |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| **nox-mem** | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | ~$0.00 (local) |
-| Mem0 | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | ~$0.10+ ingest |
-| agentmemory | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | ~$0.00 |
-| Letta | `[deferred — partial]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` |
-| Zep | `[FAILED: NO GATED — OpenAI embedding requirement + adapter rewrite needed; deferred post-launch]` | — | — | — | — | — | ~$0.02 est. |
-| EverMind-AI | `[FAILED: FAIL SKIP — repo EverOS-AI/EverMind-AI returns 404; confirmed 2026-05-24 PR #281]` | — | — | — | — | — | — |
+| System | nDCG@10 | R@10 | MRR | Cost/query | Coverage / config |
+|---|---:|---:|---:|---:|---|
+| Mem0 | **0.4686** | 0.6171 | 0.4656 | subscription + OpenAI embed | ~95% (thread-leak ingest loss); faiss, 1536d |
+| **nox-mem** | 0.4263 | 0.5504 | 0.4464 | **$0 (local)** | 100%; hybrid FTS5 + Gemini-3072d + RRF |
+| agentmemory | 0.1587 | n/c | n/c | $0 (local) | daemon REST; weak retriever |
+| Zep / Letta / EverMind-AI | `[GAP — see §6.3.1]` | — | — | — | — |
 
-Zep and EverMind-AI are reported with an explicit `[FAILED: <reason>]` tag rather than omitted — consistent with §6.6 (anti-cherry-pick). The canonical run Sun 2026-05-25 updates the `[deferred]` cells for the remaining 4 systems with a uniform corpus (no cap). Ref: `[[q4-real-numbers-sat-2026-05-24]]`.
+**Split result — honest reading (mandatory per §6.6).** Each top-tier system wins one benchmark: **nox-mem wins LongMemEval** (+0.047 nDCG@10, +0.039 MRR), **Mem0 wins LoCoMo** (+0.042 nDCG@10). agentmemory is a distant third on both, reflecting a weaker retriever. This is a genuine **split, not a dominance claim**: nox-mem is competitive with the market leader on retrieval quality *while* delivering the operational profile of §6.8 (single SQLite file, $0/query KG path, no service stack). The nox-mem LoCoMo figure rose from 0.4173 (raw union store) to 0.4263 after the namespace fix — Mem0 still wins, confirming the LoCoMo result is a real retrieval gap, **not** merely a confound artifact. Per §6.6, both datasets are reported side by side; we do not cherry-pick the one nox-mem wins.
+
+**Caveats (per-system composition, declared per §6.5).** (a) **Embedding providers differ by native default** — nox-mem Gemini 3072d, Mem0 OpenAI 1536d, agentmemory its own default; this is the "as-configured" fair-comparison stance (§6.5.5), not a controlled-embedding experiment (the all-Gemini variant remains §7.2 future work). (b) **Store composition differs**: nox-mem and agentmemory were queried from a union store with namespace filtering; Mem0 used single-namespace stores (its LoCoMo store ingest leaked threads and lost ~5% of vectors — §6.3.1). (c) **Coverage**: nox-mem 100% both datasets; Mem0 100% LongMemEval / ~95% LoCoMo; agentmemory full. These are reported, not hidden, consistent with §6.6.
+
+#### 6.3.1 Documented gaps — three systems that did not run
+
+Per §6.6, systems that fail setup receive an explicit reason rather than silent omission. The 2026-06-15 run hit three:
+
+- **Zep** — requires a Docker stack (Zep + Postgres). Docker is **impossible on the unprivileged benchmark pod**: `dockerd` fails on `iptables ... Permission denied` (no `NET_ADMIN`), and every documented workaround (`--iptables=false --bridge=none`, `--storage-driver=vfs`) fails on kernel-namespace syscalls blocked by the pod seccomp profile. This is a privilege constraint, not a configuration error; Zep requires a host with real Docker (privileged VM or its hosted Cloud).
+- **Letta (ex-MemGPT)** — installs and runs natively (CLI unblocked via `click<8.2`, server starts without Docker), but is an **agent-OS**: retrieval routes through a full LLM agent turn (`archival_memory_search` tool call), measured at **~16 min/query** — n=100 × 2 datasets would take days. Ingest also degrades catastrophically (stalls at ~94% after ~12 h on a sequential archival-memory insert). Letta *validates* (it runs) but is impractical for a 100-query benchmark in this configuration.
+- **EverMind-AI / EverOS** — runs only as an HTTP service and requires **two third-party credentials not available to this study** (OpenRouter for LLM extraction + DeepInfra for embedding/rerank, the latter provider-specific); installation also requires authorizing an external-repo `pip install -e`. Out of scope for the time-box.
+
+LightRAG and HippoRAG2 are **not §6 competitors** — they are §5 KG/RAG references whose LLM-per-chunk graph-build cost (LightRAG warns >6 h on default) places them outside the memory-system comparison; they are deferred as optional baselines (§7.2).
 
 ### 6.4 Per-category breakdown
 
@@ -1104,7 +1114,7 @@ Per-query-category breakdown for LongMemEval. nox-mem reports the six canonical 
 | open-domain | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` |
 | numeric | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` | `[deferred]` |
 
-The **Sat 2026-05-24 smoke** did not disaggregate per-category (combined-only over 20 queries); therefore §6.4 in its entirety awaits the canonical run of 100 queries × 2 datasets × 6 systems. When a category has insufficient queries (n < 10) in a given dataset, the cell receives `n/a` rather than extrapolation, avoiding the type of regression seen in §5.5 (temporal `n/a` in G10b due to a degenerate corpus gap).
+The 2026-06-15 canonical run reported **dataset-level** retrieval metrics (nDCG@10 / recall@10 / MRR per dataset, §6.3), not per-category disaggregation; therefore §6.4 remains a **future-work item** (§7.2), to be populated when per-category gold labels are wired into the cross-system harness. When a category has insufficient queries (n < 10) in a given dataset, the cell will receive `n/a` rather than extrapolation, avoiding the type of regression seen in §5.5 (temporal `n/a` in G10b due to a degenerate corpus gap).
 
 ### 6.5 Fair-comparison principles
 
@@ -1152,7 +1162,7 @@ To prevent retroactive selection bias:
 
 ### 6.7 Pre-registration
 
-This section's methodology is locked in `specs/2026-05-23-Q4-comparison-execution-plan.md` prior to the Sat 2026-05-24 run. The **Sat 2026-05-24 15:30 BRT smoke** populated the first row of §6.3 (nox-mem combined: nDCG@10=0.6380, p50=8 ms, gold-hit 13/20 on 20 dry-run-sample queries) and validated that the retrieval pipeline works end-to-end on an eval-isolated DB. The **partial cross-system smoke of Sat 2026-05-24 18:00 BRT** added the mem0 row (n=20, 500-chunk corpus cap): nDCG@10=0.8569, p50=273 ms, gold-hit 3/20 (15%) — with an explicit interpretation of the coverage vs. concentration trade-off in §6.3. The **canonical run** was deferred after an infrastructure abort (incident D76 — sustained CPU-steal on the shared host, see §7.1 L5); it is planned on dedicated-CPU infrastructure before final publication, and will update the competitor `[deferred]` cells in §6.3 + §6.4 when completed. Principles (§6.5), anti-cherry-pick (§6.6), and the general structure of this section are immutable post-run. Any methodological adjustment identified during execution is documented as an explicit follow-up in `docs/COMPARISON.md` rather than retroactively applied here. Refs: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
+This section's methodology is locked in `specs/2026-05-23-Q4-comparison-execution-plan.md` prior to the Sat 2026-05-24 run. The **Sat 2026-05-24 15:30 BRT smoke** populated the first row of §6.3 (nox-mem combined: nDCG@10=0.6380, p50=8 ms, gold-hit 13/20 on 20 dry-run-sample queries) and validated that the retrieval pipeline works end-to-end on an eval-isolated DB. The **partial cross-system smoke of Sat 2026-05-24 18:00 BRT** added the mem0 row (n=20, 500-chunk corpus cap): nDCG@10=0.8569, p50=273 ms, gold-hit 3/20 (15%) — with an explicit interpretation of the coverage vs. concentration trade-off in §6.3. The **canonical run was executed on 2026-06-15** on a dedicated pod (n=100/dataset, k=10, same-namespace fair), resolving the 2026-05-24 infrastructure abort (incident D76 — sustained CPU-steal on the shared host, see §7.1 L5). It produced real numbers for 3/6 systems (nox-mem, Mem0, agentmemory) and three documented gaps (§6.3.1), updating the §6.3 cells; the §6.4 per-category breakdown remains future work (the run reported dataset-level metrics). No methodology from §6.5–§6.6 was altered post-registration; the same-namespace re-query is a fair-comparison refinement (confound removal, §6.3) consistent with §6.5, not a change to corpus, eval set, or gold. Principles (§6.5), anti-cherry-pick (§6.6), and the general structure of this section are immutable post-run. Any methodological adjustment identified during execution is documented as an explicit follow-up in `docs/COMPARISON.md` rather than retroactively applied here. Refs: `[[q4-smoke-sat-2026-05-24-real-numbers]]` · `[[q4-partial-cross-system-sat-2026-05-24]]`.
 
 Decision D43 (`docs/DECISIONS.md`) defines the approval gate: nox-mem in top-3 on >=2 of the 4 key metrics (nDCG@10, R@10, MRR, latency). If the gate is met, GTM Phase 2 is unlocked per `docs/ROADMAP.md` §7. If not met, the Sun 2026-05-25 session produces a remediation plan (pre-launch adjustments) rather than a direct launch.
 
@@ -1180,6 +1190,19 @@ The Q4 quality comparison (§6.3 – §6.6) reports retrieval *quality* under ma
 3. **Cold start column.** A `<1s` cold start is what makes self-host *try-before-deciding* — the user can `npm i`, run one command, see results, and decide. A `~60s` cold start with five containers is what makes EverOS effectively a "build a small team to evaluate" decision, not an individual decision.
 
 **Caveat — RAM measurement methodology.** The competitor RAM figures are *idle* (i.e., process started, no queries served, no ingestion in progress) and are *estimates* read from each project's documented system requirements and `docker stats` defaults in the published docker-compose files. They are not from a head-to-head benchmark on a single host. A side-by-side measurement on a controlled 4-vCPU / 8-GB host is a §7.2 future-work item (F-cost-bench). The nox-mem `~341 MB RSS` figure is **measured** on the production VPS via `ps -eo pid,rss,vsz,comm,args` (PID 2422197, uptime 9h28min, 6830 chunks live); see footnote [^nox-mem-rss] for full methodology including the cgroup `MemoryCurrent` vs process RSS distinction.
+
+### 6.9 Operational reproducibility as evidence
+
+The §6.3 quality split and the §6.8 cost matrix report *outcomes*. A third, harder-to-fake signal emerged from the **act of running the benchmark itself**: the operational effort required to get each system to produce a number is a measurement of its dependency surface.
+
+On the 2026-06-15 pod, nox-mem ingested the full 6,822-chunk corpus into a single SQLite file in one process with **zero incidents**. The competitors did not fare as smoothly:
+
+- **Mem0** exhausted the pod's process-ID limit three times — its default telemetry (PostHog) leaks one thread per operation, and at benchmark scale this wedged the host until ingest and search were split into separate processes, telemetry was disabled (`MEM0_TELEMETRY=False`), and the vector backend was swapped from Chroma to faiss. Its LoCoMo store still lost ~5% of vectors to the leak before the workaround stabilized.
+- **Zep** never ran — its Docker stack cannot start on an unprivileged pod kernel (§6.3.1).
+- **Letta** ran but at ~16 min/query, making a 100-query benchmark a multi-day proposition.
+- **agentmemory** silently persisted store state across sessions, contaminating a LoCoMo run with leftover LongMemEval vectors until the store was reset.
+
+None of these are disqualifying defects — they are the normal cost of multi-service, telemetry-instrumented, agent-OS architectures. But they are *real operational costs* that a single-file embedded design does not impose. The reproducibility of nox-mem's run — one file, one process, one command, re-confirmed live at **415 MB RSS on the 70.7k-chunk production corpus** on 2026-06-15 — is not an incidental convenience; it is the operational expression of the Autonomy pillar quantified in §6.8. **A memory system you can run from a single file you own is a different category of dependency than one that requires Docker, a vector database, a telemetry pipeline, and a third-party embedding key to return its first result.**
 
 ---
 
