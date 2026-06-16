@@ -23,7 +23,7 @@
 
 ## 1. Headline
 
-**nox-mem holds 12 SOTA-tier dimensions across research + production + orchestration: SOTA on classical multi-hop QA (MuSiQue + HotPotQA) without specialized training, SOTA on memory benchmark (EverMemBench Overall +20.73pp / MA +32.74pp vs MemOS), SOTA on LoCoMo retrieval (above Mem0 SOTA F1), Production SOTA (2.5ms KG path latency / $0/query / 769× cheaper than Mem0 Cloud / 399MB RSS self-hosted single-process), and — newly — Q3 IterB ReAct breaks the Wave A/B/C single-stage retrieval F_MH ceiling on the strongest backbone (+2.01pp clean lift on Gemini-3-flash, 8.03% standalone vs 7.25% prior ceiling). First system to add orchestration-stage F_MH lift on top of the strongest available backbone. All cross-bench triangulated via 5-batch + 95% CI methodology.**
+**nox-mem holds 12 SOTA-tier dimensions across research + production + orchestration: SOTA on classical multi-hop QA (MuSiQue + HotPotQA) without specialized training, SOTA on memory benchmark (EverMemBench Overall +20.73pp / MA +32.74pp vs MemOS), SOTA on LoCoMo retrieval (above Mem0 SOTA F1), Production SOTA (2.5ms KG path latency / $0/query / ~667× cheaper than Mem0 Cloud / 399MB RSS self-hosted single-process), and — newly — Q3 IterB ReAct breaks the Wave A/B/C single-stage retrieval F_MH ceiling on the strongest backbone (+2.01pp clean lift on Gemini-3-flash, 8.03% standalone vs 7.25% prior ceiling). First system to add orchestration-stage F_MH lift on top of the strongest available backbone. All cross-bench triangulated via 5-batch + 95% CI methodology.**
 
 ## 1b. 12 SOTA-tier scorecard
 
@@ -42,7 +42,7 @@
 | Dimension | nox-mem | Best Competitor |
 |---|---:|---|
 | KG path latency p50 | **2.5ms** | none sub-10ms published |
-| KG path cost/query | **$0.00** | Mem0 Cloud $0.001 (**769× cheaper**) |
+| KG path cost/query | **$0.00** | Mem0 Cloud ~$0.001 est. (**~667× cheaper**, $0 marginal) |
 | Self-hosted RSS idle | **399MB single-process** | Zep/Mem0/MemOS 4+ services |
 | LoCoMo multi_hop retrieval | **82.21% strict / 92.91% adj-2** | — |
 
@@ -69,7 +69,7 @@
 - **🥇 Classical multi-hop QA dual SOTA without specialized training.** MuSiQue F1 58.62% beats IRCoT iterative SOTA by +22.82pp and paper supervised EX(SA) by +8.92pp (PR #407). HotPotQA ans_F1 73.37% above DPR+FiD reader SOTA band (PR #408). Both without HotPotQA / MuSiQue fine-tuning.
 - **🥇 Memory benchmark SOTA.** EverMemBench Overall 63.28% +20.73pp vs MemOS 42.55%, MA composite 88.42% +32.74pp vs MemOS 55.68% (Backbone Matrix Gemini-3-flash, PR #397, D70).
 - **🥇 LoCoMo cross-bench retrieval SOTA.** evidence_hit@10 strict 74.52% above Mem0 SOTA F1 66.88%, multi_hop 82.21% (PR #396). F1 constrained 51.85% rank-5 above Zep/LangMem (PR #404).
-- **🥇 Production SOTA on 4 dimensions.** Sub-10ms KG path p50 (2.5ms), $0/query KG path (769× cheaper than Mem0 Cloud), self-hosted single-process 399MB RSS (PR #403).
+- **🥇 Production SOTA on 4 dimensions.** Sub-10ms KG path p50 (2.5ms), $0/query KG path (~667× cheaper than Mem0 Cloud), self-hosted single-process 399MB RSS (PR #403).
 - **🥇 HotPotQA SP-F1 LLM extractor (opt-in retrieval-side, PR #413).** joint_F1 +5.66pp / SP_F1 +5.96pp on top of dual SOTA reader.
 - **🥇 Q3 IterB ReAct F_MH ceiling break (opt-in orchestration-stage, PR #419).** +2.01pp clean F_MH lift on Gemini-3-flash bare baseline (8.03% standalone). **Breaks Wave A/B/C single-stage retrieval ceiling 7.25% (D69) by +0.78pp standalone.** First system to add orchestration-stage F_MH lift on top of strongest backbone. SHIP_OPT_IN via `NOX_ITERB_GEMINI=1`; cost $0.00295/q within budget; MA composite -3.53pp borderline-fail trade-off (similar to Phase G rerank pattern).
 - **1.6× more backbone-portable** than MemOS (D67).
@@ -145,14 +145,15 @@
 | Dimension | mem0 | nox-mem |
 |---|---|---|
 | EverMemBench | not independently measured | **62.22% Gemini / 51.68% GPT-4.1-mini** |
-| LoCoMo retrieval | 0.4450 nDCG@10 (n=100) | **0.6237 nDCG@10** (+40% conversational) |
+| LongMemEval retrieval (§6 canonical, n=100) | 0.4764 nDCG@10 | **0.5234 nDCG@10** (nox-mem wins) |
+| LoCoMo retrieval (§6 canonical, n=100) | **0.4686 nDCG@10** (mem0 wins) | 0.4263 nDCG@10 |
 | Storage | Postgres + Qdrant | **SQLite file** |
 | Cost/ingest at 50k chunks | ~$3.40–4.00 OpenAI embedding | **$0 marginal** |
 | Multi-hop research | active roadmap | **Lab Q1 active** (KG path +2.81pp shipped) |
 | Community | 53k+ stars | emerging |
 | License | Apache 2.0 | **MIT** |
 
-**Pitch:** "mem0 has a large community. But on both EverMemBench and LoCoMo, nox-mem wins — +40% conversational advantage at equal corpus size, +9.13pp EverMemBench on GPT-4.1-mini. Zero ingest cost at 50k chunks ($3.40+ with mem0 at OpenAI rates). If you're building on a growing corpus, the cost and quality math favors nox-mem."
+**Pitch:** "mem0 has a large community. On EverMemBench (GPT-4.1-mini) nox-mem leads +9.13pp; on the §6 canonical cross-system run it's an honest split — nox-mem wins LongMemEval (0.5234 vs 0.4764), mem0 wins LoCoMo (0.4686 vs 0.4263). Where nox-mem is unmatched is operations: zero ingest cost at 50k chunks ($3.40+ with mem0 at OpenAI rates), $0/query, a single SQLite file vs a hosted Postgres+Qdrant stack with per-call billing. If you're building on a growing corpus, the cost and deployability math favors nox-mem."
 
 ---
 

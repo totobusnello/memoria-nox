@@ -26,7 +26,7 @@
 | # | Dimension | nox-mem | Best Competitor | PR |
 |---|---|---:|---|---|
 | 6 | **KG path latency p50** | **2.5ms** | none sub-10ms published | #403 |
-| 7 | **KG path cost/query** | **$0.00** | Mem0 Cloud $0.001 (**769× cheaper**) | #403 |
+| 7 | **KG path cost/query** | **$0.00** | Mem0 Cloud ~$0.001 est. (**~667× cheaper**, $0 marginal) | #403 |
 | 8 | **Self-hosted RSS idle** | **399MB single-process** | Zep/Mem0/MemOS 4+ services | #403 |
 | 9 | **LoCoMo multi_hop retrieval** | **82.21% strict / 92.91% adj-2** | — | #396 |
 
@@ -251,7 +251,22 @@ ReAct (Q3 IterB, PR #419) ≠ Self-Ask (Q3 IterC, PR #406). Both are "iterative 
 | Letta (MemGPT) | ⚠️ partial | ⚠️ partial | — | 14,978ms |
 | agentmemory | pending | pending | — | — |
 
-> * mem0 0.8569 measured on 500-chunk capped corpus (fewer distractors inflate nDCG). nox-mem 0.6380 on live 69k-chunk production store — more realistic. LoCoMo conversational advantage (+40%) is the cleaner signal. Full canonical run Wed 2026-06-03.
+> * mem0 0.8569 measured on 500-chunk capped corpus (fewer distractors inflate nDCG, not better coverage). The capped smoke above is **superseded** by the §6 canonical run below.
+
+#### Q4 canonical cross-system run (2026-06-15, n=100/dataset, same-namespace fair)
+
+Retrieval quality (nDCG@10) on a shared corpus + harness, each system on its native default embedding. 3/6 systems produced numbers; 3 are deployability gaps.
+
+| System | LongMemEval nDCG@10 | LoCoMo nDCG@10 | Cost/query |
+|---|---:|---:|---:|
+| **nox-mem (hybrid)** | **0.5234** | 0.4263 | **$0 (local)** |
+| mem0 | 0.4764 | **0.4686** | subscription + OpenAI embed |
+| agentmemory | 0.2803 | 0.1587 | $0 (local) |
+| Zep | 🚫 gap — needs privileged Docker | — | — |
+| Letta | 🚫 gap — agent-OS ~16 min/query | — | — |
+| EverMind-AI | 🚫 gap — 5 services + 2 paid keys | — | — |
+
+> **Split, honest:** nox-mem wins LongMemEval (+0.047), mem0 wins LoCoMo (+0.042); agentmemory distant third. The 3 non-running systems are a **deployability penalty** on the operational axis — not a retrieval-quality claim (we hold no numbers for them): three of five competitors could not produce a single result in an unprivileged single-node environment, while nox-mem produced one from a single SQLite file. Detail: [`paper §6`](../paper/paper-tecnico-nox-mem.md).
 
 ---
 
@@ -368,6 +383,6 @@ Detailed step-by-step: `eval/evermembench/README.md` and `eval/longmemeval/READM
 ---
 
 *rev7 2026-05-31 — 12 SOTA-tier dimensions (5 research + 4 production + 2 retrieval-side + 1 orchestration F_MH ceiling break). Q3 IterB ReAct F_MH ceiling break +2.01pp clean lift on Gemini-3-flash bare baseline (8.03% breaks Wave A/B/C ceiling 7.25% by +0.78pp standalone). HotPotQA SP-F1 LLM extractor joint_F1 +5.66pp / SP_F1 +5.96pp. PRs #413 + #419. SHIP_OPT_IN via `NOX_ITERB_GEMINI=1` (MA composite -3.53pp borderline trade-off).*
-*rev6 2026-05-30 — 9 SOTA claims consolidated. Backbone Matrix Gemini-3-flash SOTA Overall +20.73pp + MA +32.74pp · MuSiQue F1 58.62% +22.82pp vs IRCoT iterative SOTA · HotPotQA ans_F1 73.37% above DPR+FiD reader SOTA · LoCoMo retrieval 74.52% above Mem0 SOTA F1 · Production SOTA (2.5ms KG path / $0/query / 769× cheaper / 399MB RSS) · EverMemBench F_MH paradox RESOLVED.*
+*rev6 2026-05-30 — 9 SOTA claims consolidated. Backbone Matrix Gemini-3-flash SOTA Overall +20.73pp + MA +32.74pp · MuSiQue F1 58.62% +22.82pp vs IRCoT iterative SOTA · HotPotQA ans_F1 73.37% above DPR+FiD reader SOTA · LoCoMo retrieval 74.52% above Mem0 SOTA F1 · Production SOTA (2.5ms KG path / $0/query / ~667× cheaper / 399MB RSS) · EverMemBench F_MH paradox RESOLVED.*
 *rev5 2026-05-29 — EverMemBench 5-batch Gemini +2.95pp + GPT-4.1-mini +9.13pp vs MemOS. LongMemEval n=300 fingerprint consistent. KG path opt-in F_MH +2.81pp. PRs #377 + #378 + #379. Methodology: 5-batch + 95% CI canonical — no single-batch overclaims.*
 *rev4 2026-05-24 — Q4 smoke 4/6 systems. Gate D43 PASSED. Canonical full-run Wed 2026-06-03.*

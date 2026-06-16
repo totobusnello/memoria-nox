@@ -65,7 +65,7 @@
 | Dimension | nox-mem | Best competitor |
 |---|---:|---|
 | **KG path latency p50** | **2.5ms** | none sub-10ms published |
-| **KG path cost/query** | **$0.00** | Mem0 Cloud $0.001 (**769× cheaper**) |
+| **KG path cost/query** | **$0.00** | Mem0 Cloud ~$0.001 est. (**~667× cheaper** on hybrid · $0 marginal) |
 | **Self-hosted RSS idle** | **399MB single-process** | Zep/Mem0/MemOS 4+ services |
 | **LoCoMo multi_hop retrieval** | **82.21% strict / 92.91% adj-2** | — |
 
@@ -196,7 +196,7 @@ A1 · A2 · A3 · A4
 <h3>P &mdash; Product</h3>
 <sub>Production SOTA on 4 dimensions</sub><br><br>
 <strong>KG path 2.5ms p50 · $0/query · 399MB RSS</strong><br>
-<sub>769&times; cheaper than Mem0 Cloud · self-hosted single-process</sub><br><br>
+<sub>$0 marginal cost · ~667&times; cheaper than Mem0 Cloud · self-hosted single-process</sub><br><br>
 P1 · P3 · P5 · P5a
 </td>
 </tr>
@@ -266,7 +266,7 @@ Verified against the live corpus. Wave A (18 PRs merged 2026-05-20) completed th
 | Wave B tests passing | **535+** across L4, A3, P1, A2, P5 | Wave B post-mortem |
 | Schema migrations | **v11 (telemetry) + v19 (confidence/provenance)** &mdash; additive, idempotent | PR&nbsp;#28 |
 | Monthly OPEX (Gemini embed + KG + VPS) | **&lt;$11/mo** all-in, Mar&ndash;May 2026 actuals | live invoicing |
-| **LoCoMo conversational nDCG@10 (PR #318+#323 rev3, n=100)** | **nox-mem 0.6237 vs mem0 0.4450 = +40% relative advantage** | rev3 narrative, measured 2026-05-20 (multi-turn queries only) |
+| **LoCoMo conversational nDCG@10 (rev3, n=100)** | **nox-mem 0.6237** (multi-turn slice, 500-chunk cap) | rev3 2026-05-20; **superseded for head-to-head** by the §6 canonical run (full corpus, same-namespace fair — mem0 leads LoCoMo there). See [Comparison](#comparison) |
 | **LoCoMo nDCG@10 full hybrid (G5 V3 A8, n=100)** | **0.6237** | G5 V3 ablation, measured 2026-05-19 (full boost stack active) |
 | LoCoMo Recall@10 (production-path, n=100) | **0.7070** (+87% rel over baseline) | same source as above |
 | LoCoMo MRR (production-path, n=100) | **0.5534** (+98% rel over baseline) | same source as above |
@@ -280,7 +280,7 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 
 ### EverMemBench + LongMemEval — 5-batch validated (2026-05-28/29)
 
-*Full methodology, per-category breakdown, and 95% CI intervals: [`docs/COMPARISON.md`](docs/COMPARISON.md) · [`docs/competitive-positioning.md`](docs/competitive-positioning.md). Canonical full-run with extended systems Wed 2026-06-03.*
+*Full methodology, per-category breakdown, and 95% CI intervals: [`docs/COMPARISON.md`](docs/COMPARISON.md) · [`docs/competitive-positioning.md`](docs/competitive-positioning.md). Q4 cross-system canonical run executed 2026-06-15 (§6, below).*
 
 | System | EverMemBench Gemini<br>(5-batch, n=3,119) | EverMemBench GPT-4.1-mini<br>(5-batch, n=3,121) | LongMemEval<br>task acc (n=300) | Backbone<br>swap Δ |
 |---|---|---|---|---|
@@ -291,7 +291,21 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 | Zep | pending | pending | — | — |
 | Letta (MemGPT) | pending | pending | — | — |
 
-> **Reading the numbers honestly:** Both EverMemBench wins are **5-batch validated** with 95% CI (n=3,100+ questions per system per backbone). The Gemini +2.95pp win is tighter; the GPT-4.1-mini +9.13pp win is larger and robust (lower CI bound 49.88% still above MemOS 42.55%). A single-batch run (Phase H v2 batch 004) showed +11.60pp — the 5-batch protocol caught the outlier and corrected to the honest +9.13pp. **Methodology disclosure:** [`docs/discussions-seed/06-methodology-disclosure.md`](docs/discussions-seed/06-methodology-disclosure.md). MemOS numbers from MemOS paper Table 4 (public). F_MH (multi-hop) gap −13 to −16pp vs MemOS is backbone-invariant — a retrieval problem, not generation. KG path retrieval (opt-in) closes 17% of this gap at $0/query. Canonical extended comparison Wed 2026-06-03.
+> **Reading the numbers honestly:** Both EverMemBench wins are **5-batch validated** with 95% CI (n=3,100+ questions per system per backbone). The Gemini +2.95pp win is tighter; the GPT-4.1-mini +9.13pp win is larger and robust (lower CI bound 49.88% still above MemOS 42.55%). A single-batch run (Phase H v2 batch 004) showed +11.60pp — the 5-batch protocol caught the outlier and corrected to the honest +9.13pp. **Methodology disclosure:** [`docs/discussions-seed/06-methodology-disclosure.md`](docs/discussions-seed/06-methodology-disclosure.md). MemOS numbers from MemOS paper Table 4 (public). F_MH (multi-hop) gap −13 to −16pp vs MemOS is backbone-invariant — a retrieval problem, not generation. KG path retrieval (opt-in) closes 17% of this gap at $0/query. Q4 cross-system canonical run executed 2026-06-15 — see below.
+
+### Q4 cross-system head-to-head — canonical run (2026-06-15, n=100/dataset, same-namespace fair)
+
+*Retrieval quality (nDCG@10) on a shared corpus + harness, each system on its native default embedding. 3/6 systems produced numbers; 3 are deployability gaps (below). Detail: [`paper §6`](paper/paper-tecnico-nox-mem.md) · [`docs/COMPARISON.md`](docs/COMPARISON.md).*
+
+| System | LongMemEval nDCG@10 | LoCoMo nDCG@10 | Cost/query |
+|---|---:|---:|---:|
+| **nox-mem (hybrid)** | **0.5234** | 0.4263 | **$0 (local)** |
+| mem0 | 0.4764 | **0.4686** | subscription + OpenAI embed |
+| agentmemory | 0.2803 | 0.1587 | $0 (local) |
+
+> **Split, reported honestly:** nox-mem wins LongMemEval (+0.047), mem0 wins LoCoMo (+0.042); agentmemory distant third. Both datasets shown &mdash; no cherry-pick. nox-mem is competitive with the market leader on retrieval *while* running as a single SQLite file at $0/query.
+>
+> **The 3 systems that did not run are a deployability penalty, not an omission.** **Zep** needs a privileged Docker host (won't start unprivileged); **Letta** routes retrieval through an LLM agent turn at ~16 min/query; **EverMind-AI** needs 5 services + 2 paid third-party keys. On the axis that decides whether the system runs at all &mdash; deployability / efficiency / autonomy &mdash; three of five competitors could not produce a single result, while nox-mem produced one from one file. Bounded honestly: this is not a retrieval-quality claim about them (we hold no numbers for them), it is the operational asymmetry the paper §6.9 quantifies.
 
 The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`docs/COMPARISON.md`](docs/COMPARISON.md). The seven-axis differentiation:
 
