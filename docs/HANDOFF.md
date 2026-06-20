@@ -2,6 +2,65 @@
 
 ---
 
+## Sat 2026-06-20 — D2 gate PR#19 colhido → split-slot global (curado) impl + deploy shadow + PR#20 merged
+
+> Toto: "rodar o teste que estávamos esperando" = o **D2 gate pós-fix**. Depois decidiu **(B)** fazer a mudança de design antes do flip. Tudo autorizado explicitamente nesta sessão (SSH read + deploy shadow + merge).
+
+### Gate D2 (PR#19 freshness fix) — colhido (censo, 694 samples ~24,8h)
+⚠️ **A VPS roda America/Sao_Paulo (-03), NÃO UTC** — `journalctl --since` parseia em local; START "2026-06-19 02:00 UTC" = `2026-06-18 23:00` BRT.
+- FLOOR GUARD **0** · churn **2.0** · freshness age **56→6d** (9×) → 3 critérios duros PASSAM.
+- Diversidade **would_enter 13 / fresh 8** = modesta. Breakdown por agente: **exatamente 2 distinct/agente** (nox 200 briefs→2; atlas/lex→**0 fresh**). NÃO é bug — recheck confirmou o fix vivo (dist `LIMIT FRESH_CANDIDATE_POOL=100`, restart 22:54 BRT). O LIMIT 8→100 ampliou o *pool elegível* mas a seleção **top-2 determinística** num scope `sessions/<agent>/%` homogêneo realiza os mesmos 2. Perfil dos fresh: age 5-6d, imp 0.85-0.9 (qualidade ok).
+
+### Decisão Toto = (B): segurar flip `active`, mudança de design primeiro
+
+### Split-slot global — impl + deploy shadow + merge (PR nox-workspace #20, `tune(brief)`)
+- `freshPool = interleaveFresh(agentFresh, globalFresh)` round-robin dedup → **1 recente do agente + 1 curado global** (`GLOBAL_FRESH_PATTERNS=['memory/entities/%']`) por brief. Antes o curado global era invisível (`scopePatterns(global,agent)` só dá `sessions/<agent>/%`).
+- **`freshGlobalMaxAgeDays=30`** (env `NOX_BRIEF_DIV_FRESH_GLOBAL_MAX_AGE_DAYS`): janela própria. ⚠️ **Recheck salvou de no-op silencioso** — `memory/entities/%` tem **0 elegíveis ≤14d, 188 ≤21d** (entity store consolida em **rajadas**); com os 7d do agente o pool global ficaria vazio.
+- Invariantes preservadas (regra #5: re-rank pós-salience, não forka salience; floor; fail-open; `off` bit-idêntico). **51/51 testes** (47+4 novos), RED→GREEN comportamental no split-slot.
+- **Deploy verificado AO VIVO** (shadow): `git checkout origin/<branch> -- <2 files>` + tsc + restart (HEAD seguiu main, zero contaminação); `fresh_added` agora traz `memory/entities/projects/nuvini.md` (227767) ao lado dos sessions — antes 8 distintos **todos** sessions.
+- **PR #20 merged** (squash `fd12905`) + **working copy da VPS reconciliado**: HEAD `fd12905d`/main, working copy limpo, dist consistente, serviço `active` shadow (sem restart extra — já rodava o código correto). Sem dívida de git (auto-backup cron não conflita).
+
+### ⚠️ Próxima ação — RETOMAR AQUI (amanhã)
+1. **GATE de novo: domingo à noite 2026-06-21** (24h pós-deploy bastam — o #19 usou 24,8h/694 samples; deploy do split-slot foi ~00h-01h BRT de 20/06). Mesmo `d2-gate-report.sh`, **START pós-deploy `2026-06-20 01:00 BRT`**. Esperado: **atlas/lex 0→1 fresh**, slot global populado (`memory/entities/%` em fresh_added), **FLOOR 0** mantido, churn ~+1. Se passar → recomendo flip `active` (decisão Toto). Flip = `NOX_BRIEF_DIVERSITY=active` no drop-in systemd + restart (deploy prod — autorização à parte).
+2. ⚠️ **Shadow não rotaciona o global slot** (brief_log não é alimentado pelo brief alternativo) → mostra o mesmo top global repetido; a variedade rotativa real só aparece em `active`. Ler a diversidade do 21 com isso em mente.
+3. **Natureza bursty:** os 188 curados estão na banda 14-21d; em ~9d caem fora dos 30d → pool global encolhe até a próxima consolidação. Knob `freshGlobalMaxAgeDays` tunável.
+4. **Paper §3.5:** achado "expandir o pool ≠ aumentar variedade realizada sob seleção top-k determinística em scope homogêneo" + split-slot = material publicável (números pós-gate 21).
+
+### Notas operacionais
+- SSH VPS prod `root@187.77.234.79` = autorização explícita por sessão (classifier bloqueia sem o Toto nomear o alvo).
+- Feature branch em clone `/tmp` dispara o pre-commit hook (fail-safe) → override `COMMIT_TO_NON_MAIN_OK=1` (intencional, não leak). Clone descartável: `/tmp/brief-fresh-global-FF8CC8E4-...`.
+- Memória: [[project_d2_brief_diversity_shadow_deployed]] (atualizada) · [[feedback_always_check_then_recheck_conclusions]] (2 rechecks salvaram: ≤7d=0 evitou no-op; fresh:8==LIMIT-antigo confirmou fix vivo).
+
+---
+
+## Thu 2026-06-18 — D2 gate medido + freshness slot corrigido (salience-order) + deploy shadow
+
+> Toto: "dados pra coletar hoje pra continuar a evolução da memória e do paper" — **NÃO** a campanha (essa é no repo `nox-mem`, separado). Caminho: colher D2 gate → diagnosticar → via rápida (simular) → robusta (fix). Tudo autorizado explicitamente (SSH read, deploy).
+
+### D2 gate colhido (censo, não amostra)
+SSH VPS read-only. journald retém desde 19/05 (475MB) → os **3115 samples** `brief_diversity_shadow` (14/06 07:46→18/06, 4,6d) são o **censo completo** da janela. 3 critérios duros PASSAM:
+- FLOOR GUARD **0** (611 high-pain protegidos; nenhum `would_leave` pain≥0.9)
+- mediana age **would_leave 55d → would_enter 11d** (5× mais recente)
+- churn **2.0** estável (não-thrashing)
+- diversidade ⚠️ modesta (~10 distintos) → investigado
+
+### Diagnóstico do 10/480 (causa-raiz)
+`fetchFreshCandidates` (brief.ts) ordenava `COALESCE(source_date,created_at) DESC LIMIT freshSlots*4 (=8)` → via só os **8 mais recentes por ingest** (~2% do pool elegível de **488**). Promovia lotes brutos recentes (pain 0.2, imp homogênea) e ignorava **450 chunks de 2-7d** de alta importância (pain 0.8-0.9). Gargalo destravável, não design correto.
+
+### Fix (PR nox-workspace #19, `tune(brief)`, deploy shadow)
+ORDER BY = mesmo proxy de salience do pool principal (`0.55·imp+0.10·pain+0.1·access`) + tiebreak recência; `LIMIT FRESH_CANDIDATE_POOL=100`. **freshSlots mantido em 2** (ablation limpa: muda só a seleção). `fetchFreshCandidates` exportada + teste unitário (recente alta-salience 5d lidera o pool); **RED provado** contra a query antiga; **47/47** testes brief. (8 erros tsc restantes = pré-existentes `validate.test`/`*.example.ts`, fora de escopo.) Deploy: `git checkout origin/<branch> -- <files>` no working copy (HEAD seguiu `main`) + tsc + restart; shadow mode intacto. Pós-deploy: `fresh_added` já varia por agente.
+
+### Recheck (Toto: "tem certeza, não perde 3 dias em vão?")
+Furo corrigido: medi o pool de 479 **sem** o filtro de scope. Os briefs são TODOS `global+agent` → freshPatterns = `sessions/<agent>/%`. Pool **por-scope real**: boris **243**, forge 169, nox 18, cipher 12 — todos **>>8** ⇒ o fix destrava de verdade (não é em vão). Conteúdo = chunks **`distilled`** (lessons/contexts/preferences por agente, imp 0.7-0.8), não transcrição bruta. **Correção da narrativa:** o `8→479 (60×)` era corpus inteiro; o real é ~**8→100/agente**. E dentro de um scope o pool é homogêneo (imp~0.8/pain 0.2) → proxy salience quase empata → tiebreak recência domina ⇒ o **motor do ganho é o LIMIT (8→100)**, não o re-order por salience (esse só brilha em briefs de scope-projeto que misturam `memory/`+`sessions/`). **Limitação de design (separada do fix):** freshPool `global+agent` nunca vê `memory/lessons|decisions|people` curados globais — se a diversidade desejada for conhecimento curado global fresco, é outra mudança.
+
+### Próxima ação
+1. **Gate amanhã à noite (2026-06-19) — basta 24-48h, não 3 dias** (~600 briefs/dia, 6 agentes). Rodar com START pós-deploy `2026-06-19 02:00:00` UTC (o cron `d2-gate-report.sh` tem START fixo 14/06 e dilui pré+pós). Critérios: distintos↑ E FLOOR 0 (≈garantido: pool `sessions/` tem pain 0.2; high-pain vivem em `memory/`, fora do pool) E churn não-thrashing → recomendo flip `active`. Decisão Toto.
+2. **Pós-merge #19:** working copy tem os 2 arquivos em `main` não-commitado → `git checkout -- <files>` + `git pull` + rebuild + restart (reconcilia).
+3. **Paper §3.5:** ciclo `shadow→diagnose→fix→measure` é material publicável (números pós-gate).
+4. Campanha de lançamento = repo `nox-mem` (separado), não aqui.
+
+---
+
 ## Sun 2026-06-15 — §6 CANONICAL RUN FEITA + paper §6 expandido + custo/latência re-validados
 
 > Objetivo Toto: discurso de posicionamento como diferenciador (**custo menor + dependência de 3º mínima**) + expandir o paper. **O bloqueador pré-arXiv anterior (§6 com células `[deferred]` + run canônico abortado D76) está RESOLVIDO.**
