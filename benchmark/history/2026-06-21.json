@@ -1,98 +1,19 @@
 {
   "version": "1.0.0-wave-j",
   "baseline_timestamp": "2026-05-18T00:00:00.000Z",
-  "run_timestamp": "2026-05-21T06:40:43.447Z",
+  "run_timestamp": "2026-06-21T07:23:31.520Z",
   "host": "macos-m-series",
-  "node_version": "v22.22.2",
+  "node_version": "v22.22.3",
   "drift_threshold_pct": 25,
   "dry_run": false,
   "total_metrics": 29,
-  "measured": 11,
+  "measured": 3,
   "passed": 3,
-  "failed": 8,
+  "failed": 0,
   "skipped": 9,
-  "baseline_only": 9,
-  "overall_status": "FAIL",
-  "failures": [
-    {
-      "metric_key": "A2.export.plain.500chunks_3072d.compression_ratio_pct",
-      "baseline": 65,
-      "measured": 88.51097282394643,
-      "drift_pct": 36.17072742145605,
-      "status": "FAIL",
-      "source_pr": 41,
-      "unit": "percent"
-    },
-    {
-      "metric_key": "A2.import.plain.500chunks_3072d.duration_ms",
-      "baseline": 17,
-      "measured": 37,
-      "drift_pct": 117.64705882352942,
-      "status": "FAIL",
-      "source_pr": 41,
-      "unit": "ms"
-    },
-    {
-      "metric_key": "A2.export.encrypted.500chunks_3072d.duration_ms",
-      "baseline": 288,
-      "measured": 462,
-      "drift_pct": 60.416666666666664,
-      "status": "FAIL",
-      "source_pr": 41,
-      "unit": "ms"
-    },
-    {
-      "metric_key": "A2.import.encrypted.500chunks_3072d.duration_ms",
-      "baseline": 1144,
-      "measured": 1814,
-      "drift_pct": 58.56643356643356,
-      "status": "FAIL",
-      "source_pr": 41,
-      "unit": "ms"
-    },
-    {
-      "metric_key": "A2.encryption_overhead.kdf_ms",
-      "baseline": 120,
-      "measured": 291,
-      "drift_pct": 142.5,
-      "status": "FAIL",
-      "source_pr": 41,
-      "unit": "ms"
-    },
-    {
-      "metric_key": "A3.provider_overhead.embed.p95_abs_ms",
-      "baseline": 0.001,
-      "measured": -0.12925099999999645,
-      "drift_pct": -13025.099999999646,
-      "status": "FAIL",
-      "budget_ms": 0.5,
-      "within_budget": true,
-      "source_pr": 39,
-      "unit": "ms"
-    },
-    {
-      "metric_key": "A3.provider_overhead.llm.p95_abs_ms",
-      "baseline": 0.001,
-      "measured": 0.00660299999999836,
-      "drift_pct": 560.299999999836,
-      "status": "FAIL",
-      "budget_ms": 0.5,
-      "within_budget": true,
-      "source_pr": 39,
-      "unit": "ms"
-    },
-    {
-      "metric_key": "A3.provider_overhead.total.p95_abs_ms",
-      "baseline": 0.002,
-      "measured": -0.12264799999999809,
-      "drift_pct": -6232.399999999905,
-      "status": "FAIL",
-      "budget_ms": 0.5,
-      "within_budget": true,
-      "source_pr": 39,
-      "unit": "ms"
-    }
-  ],
+  "baseline_only": 17,
+  "overall_status": "PASS",
+  "failures": [],
   "results": [
     {
       "metric_key": "P1.answer.pipeline.total.p50_ms",
@@ -203,8 +124,8 @@
     {
       "metric_key": "A2.export.plain.500chunks_3072d.duration_ms",
       "baseline": 168,
-      "measured": 178,
-      "drift_pct": 5.952380952380952,
+      "measured": 195,
+      "drift_pct": 16.071428571428573,
       "status": "PASS",
       "source_pr": 41,
       "unit": "ms"
@@ -212,8 +133,8 @@
     {
       "metric_key": "A2.export.plain.500chunks_3072d.archive_mb",
       "baseline": 5.4,
-      "measured": 5.357965469360352,
-      "drift_pct": -0.7784172340675701,
+      "measured": 5.35794734954834,
+      "drift_pct": -0.7787527861418613,
       "status": "PASS",
       "source_pr": 41,
       "unit": "MB"
@@ -221,35 +142,38 @@
     {
       "metric_key": "A2.export.plain.500chunks_3072d.compression_ratio_pct",
       "baseline": 65,
-      "measured": 88.51097282394643,
-      "drift_pct": 36.17072742145605,
-      "status": "FAIL",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "source_pr": 41,
-      "unit": "percent"
+      "unit": "percent",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "A2.import.plain.500chunks_3072d.duration_ms",
       "baseline": 17,
-      "measured": 37,
-      "drift_pct": 117.64705882352942,
-      "status": "FAIL",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "source_pr": 41,
-      "unit": "ms"
+      "unit": "ms",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "A2.export.encrypted.500chunks_3072d.duration_ms",
       "baseline": 288,
-      "measured": 462,
-      "drift_pct": 60.416666666666664,
-      "status": "FAIL",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "source_pr": 41,
-      "unit": "ms"
+      "unit": "ms",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "A2.export.encrypted.500chunks_3072d.archive_mb",
       "baseline": 6.3,
-      "measured": 6.303554534912109,
-      "drift_pct": 0.05642118908110401,
+      "measured": 6.30354118347168,
+      "drift_pct": 0.056209261455235957,
       "status": "PASS",
       "source_pr": 41,
       "unit": "MB"
@@ -257,20 +181,22 @@
     {
       "metric_key": "A2.import.encrypted.500chunks_3072d.duration_ms",
       "baseline": 1144,
-      "measured": 1814,
-      "drift_pct": 58.56643356643356,
-      "status": "FAIL",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "source_pr": 41,
-      "unit": "ms"
+      "unit": "ms",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "A2.encryption_overhead.kdf_ms",
       "baseline": 120,
-      "measured": 291,
-      "drift_pct": 142.5,
-      "status": "FAIL",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "source_pr": 41,
-      "unit": "ms"
+      "unit": "ms",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "A2.roundtrip_integrity.byte_loss",
@@ -285,35 +211,38 @@
     {
       "metric_key": "A3.provider_overhead.embed.p95_abs_ms",
       "baseline": 0.001,
-      "measured": -0.12925099999999645,
-      "drift_pct": -13025.099999999646,
-      "status": "FAIL",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "budget_ms": 0.5,
       "within_budget": true,
       "source_pr": 39,
-      "unit": "ms"
+      "unit": "ms",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "A3.provider_overhead.llm.p95_abs_ms",
       "baseline": 0.001,
-      "measured": 0.00660299999999836,
-      "drift_pct": 560.299999999836,
-      "status": "FAIL",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "budget_ms": 0.5,
       "within_budget": true,
       "source_pr": 39,
-      "unit": "ms"
+      "unit": "ms",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "A3.provider_overhead.total.p95_abs_ms",
       "baseline": 0.002,
-      "measured": -0.12264799999999809,
-      "drift_pct": -6232.399999999905,
-      "status": "FAIL",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "budget_ms": 0.5,
       "within_budget": true,
       "source_pr": 39,
-      "unit": "ms"
+      "unit": "ms",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "L4.extraction.regex.latency_p50_ms",
@@ -406,8 +335,8 @@
       "notes": "28 metrics across 7 subsystems: pipeline, search, answer(P1), provider(A3), hooks(P2), viewer(P5), system+runtime."
     }
   ],
-  "nightly_date": "2026-05-21",
-  "github_run_id": "26209928954",
-  "github_sha": "41abca9423e852b011688c51f81a2a4015053c2e",
+  "nightly_date": "2026-06-21",
+  "github_run_id": "27897147604",
+  "github_sha": "24d5a7b7333fbe5a1e03514eeb2b7b964e03743c",
   "nightly_threshold_pct": 25
 }
