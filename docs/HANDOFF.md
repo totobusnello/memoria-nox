@@ -2,6 +2,29 @@
 
 ---
 
+## Mon 2026-06-22 — morning report 1 RED resolvido (órfão de vetor) + CodeQL silenciado (PR #435)
+
+> Toto: "recebi um alerta de manhã sobre nossa memória" + depois "vê o CodeQL". Duas frentes, ambas fechadas. SSH read+1 op de limpeza autorizados explicitamente.
+
+### Frente 1 — morning report `1 RED: vectorCoverage 1 orphans (cascade trigger failed?)`
+**Diagnóstico (read-only):** `embeddingOrphans = max(0, totalMap − embedded)` (api-server.ts §158) = entradas em `vec_chunk_map` sem vetor/sem chunk. O órfão real: **`vec_chunk_map(chunk_id=266020, vec_rowid=176388)` apontando pra chunk que não existe mais** (tipo-2). **Causa:** cron `compact` 02:04 BRT consolidou **854 chunks → 20 summaries** (ops_audit, com snapshot pre-op próprio); o `trg_chunks_delete_cascade` limpou 853, **falhou em 1** (1/854 = 0,1%). **Benigno** — a busca faz JOIN `vec_chunk_map→chunks`, então órfão nunca aparece num resultado. (Os 24 chunks "sem vetor" tipo-1 eram só `memory/obra-bvv-log.md` ingerido às 10:03; catch-up vectorize 4/4h fechou.) **NÃO relacionado ao flip `active`** (brief só lê chunks, escreve em brief_log).
+
+**Fix (autorizado, regra #6):** script node (better-sqlite3 + `sqliteVec.load` — vec0 não abre no python/sqlite3 CLI puro) com pré-validação (chunk não existe + vec_rowid usado só pelo órfão) → **snapshot `db.backup()` 1.57GB** em `/var/backups/nox-mem/pre-op/orphan-cleanup-main-…db` → `DELETE FROM vec_chunks WHERE rowid=176388; DELETE FROM vec_chunk_map WHERE chunk_id=266020` em transação → **`health.vectorCoverage.orphans = 0`** ✓. ⚠️ `package.json` tem `"type":"module"` → script tem que ser `.cjs`; e require resolve pelo dir do script → rodar de dentro de `tools/nox-mem/`, não `/tmp`.
+
+**Watchpoint:** se o report de amanhã trouxer outro 1-órfão-por-compact, instrumentar o cascade ou adicionar sweep de órfãos pós-compact. Um isolado não justifica.
+
+### Frente 2 — CodeQL "All jobs have failed" (PR #435, mergeado)
+**Causa-raiz:** o repo memoria-nox é **privado sem GitHub Advanced Security** → code scanning indisponível → `analyze@v3` roda mas falha no upload do SARIF (`configuration error`; `code-scanning/alerts` retorna 403). Passava até 06-15 (scanning ativo), quebrou em 06-20. As ~11 annotations (`26 diagnostics: syntax errors`) são **ruído** dos `staged-*/`, NÃO a causa.
+
+**Fix:** triggers `push/pull_request/schedule` comentados em `.github/workflows/codeql.yml`; mantido `workflow_dispatch`. **Reativar no go-live PÚBLICO** (code scanning grátis em repo público). **PR #435 mergeado pelo Forge** (14:34 UTC). ⚠️ **Recheck salvou um erro:** eu ia deletar os **604 arquivos `staged-*/` como "lixo"** — mas o grep dos docs revelou que são **ponteiros de implementação citados no paper(§163)/README(links clicáveis)/CONTRIBUTING** (`Implementation: staged-P1/edits/…`); o código de prod vive na VPS, então o repo de docs guarda os `staged-*/` como referência citável. Removê-los quebraria o paper. **NUNCA `git rm staged-*` como higiene** — se tirar, migrar as citações antes (projeto à parte). Memória: [[project_staged_dirs_are_paper_impl_pointers]].
+
+### Notas operacionais
+- SSH VPS prod `root@$NOX_VPS_HOST` = autorização explícita por sessão.
+- Memória durável criada/atualizada: [[project_staged_dirs_are_paper_impl_pointers]] · [[project_d2_brief_diversity_shadow_deployed]] (update flip active) · [[feedback_never_pipe_transform_into_overwrite]] · [[feedback_always_check_then_recheck_conclusions]] (2 aplicações vivas: o recheck dos docs salvou os staged-*; o recheck do estado evitou diagnóstico no escuro).
+- Incidente do crontab (`sed | crontab -` zerou, restaurado backup) e o detalhe do órfão estão no INCIDENTS.md (2026-06-22).
+
+---
+
 ## Sun 2026-06-21 — D2 gate split-slot (PR#20) colhido → **flip `active`** + gate de 24h em `active` agendado
 
 > Toto: "rodar o teste/análise que devia ter rodado ontem à noite" = o **D2 gate do split-slot** (PR#20). Depois: "qual a recomendação?" → recomendei **flipar `active`** (shadow esgotou seu valor informativo; o único bit que falta — rotação real do slot global — é inacessível em shadow por construção). Toto: "sim flipa e faz o que sugeriu". SSH read+deploy autorizado explicitamente nesta sessão.
