@@ -31,7 +31,7 @@ cd memoria-nox
 
 ```bash
 ssh root@100.87.8.44          # via Tailscale (preferencial)
-ssh root@187.77.234.79        # via IP público (fallback)
+ssh root@$NOX_VPS_HOST        # via IP público (fallback)
 ```
 
 nox-mem roda em `/root/.openclaw/workspace/tools/nox-mem/` na VPS.

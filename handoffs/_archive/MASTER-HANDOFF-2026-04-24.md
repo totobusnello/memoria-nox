@@ -92,7 +92,7 @@ ssh root@100.87.8.44 'bash /root/.openclaw/scripts/activate-salience.sh check'
 
 ### Infra (inalterada)
 
-- **VPS:** `root@100.87.8.44` (Tailscale) / `187.77.234.79` (público)
+- **VPS:** `root@100.87.8.44` (Tailscale) / `$NOX_VPS_HOST` (público)
 - **OpenClaw:** 2026.4.21 + monkey-patch Issue #62028
 - **Backend primário:** Claude CLI via OAuth Max (zero API bill)
 - **Fallback chain:** claude-cli → openai-codex → gemini/2.5-pro

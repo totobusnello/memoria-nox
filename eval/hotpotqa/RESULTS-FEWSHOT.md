@@ -92,7 +92,7 @@ Latency gate PASS — prompt-only modification, no new LLM calls.
 
 ## Full bench n=7405 (background tmux)
 
-Launched in tmux session `fewshot-hotpot-full` on VPS 187.77.234.79 at 2026-05-30 13:17 BRT.
+Launched in tmux session `fewshot-hotpot-full` on VPS $NOX_VPS_HOST at 2026-05-30 13:17 BRT.
 ETA from smoke rate (0.30q/s): ~24,650s = ~6.85h. Expected completion: 2026-05-30 20:10 BRT.
 
 Output: `/root/.openclaw/fewshot-runner-32f11f2e-60e9-4833-a99e-77f3237ef/hotpotqa-full.jsonl`
@@ -102,7 +102,7 @@ This PR ships the smoke verdict; a follow-up commit can refresh `RESULTS-FEWSHOT
 
 ## Run provenance
 
-- VPS: 187.77.234.79
+- VPS: $NOX_VPS_HOST
 - Runner dir: `/root/.openclaw/fewshot-runner-32f11f2e-60e9-4833-a99e-77f3237ef`
 - Adapter commit: `2c34b45` (PR #412 merged)
 - Generator: gpt-4.1-mini-2025-04-14

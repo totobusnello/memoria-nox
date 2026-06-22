@@ -239,7 +239,7 @@ Default remains `gpt-4.1-mini` until:
 ## Reproduction
 
 ```bash
-# On VPS (root@187.77.234.79):
+# On VPS (root@$NOX_VPS_HOST):
 WORK=/root/.openclaw/backbone-matrix-<uuid>
 mkdir -p $WORK
 cd $WORK

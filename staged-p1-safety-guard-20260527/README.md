@@ -49,33 +49,33 @@ New exported function `assertDbPathConsistency(opName)` re-derives the expected 
 
 1. **Validate flag is in place** before deploy (P0 mitigation still required for the deploy itself):
    ```bash
-   ssh root@187.77.234.79 'ls -la /root/.openclaw/DISABLE_AGENT_REINDEX'
+   ssh root@$NOX_VPS_HOST 'ls -la /root/.openclaw/DISABLE_AGENT_REINDEX'
    # Should show file with timestamp 2026-05-27 15:51 BRT or later.
    ```
 
 2. **Copy modified op-audit.ts to VPS:**
    ```bash
    scp staged-p1-safety-guard-20260527/edits/src/lib/op-audit.ts \
-     root@187.77.234.79:/root/.openclaw/workspace/tools/nox-mem/src/lib/op-audit.ts
+     root@$NOX_VPS_HOST:/root/.openclaw/workspace/tools/nox-mem/src/lib/op-audit.ts
    ```
 
 3. **Backup current dist + rebuild on VPS:**
    ```bash
-   ssh root@187.77.234.79 'cd /root/.openclaw/workspace/tools/nox-mem && \
+   ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/workspace/tools/nox-mem && \
      cp dist/lib/op-audit.js dist/lib/op-audit.js.bak-pre-p1p2-20260527 && \
      npx tsc'
    ```
 
 4. **Validate dist updated:**
    ```bash
-   ssh root@187.77.234.79 'grep -c "assertDbPathConsistency\|resolveDbPath" \
+   ssh root@$NOX_VPS_HOST 'grep -c "assertDbPathConsistency\|resolveDbPath" \
      /root/.openclaw/workspace/tools/nox-mem/dist/lib/op-audit.js'
    # Should print >= 2 (function definitions + call sites)
    ```
 
 5. **Restart services:**
    ```bash
-   ssh root@187.77.234.79 'systemctl restart nox-mem-api nox-mem-watch && \
+   ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api nox-mem-watch && \
      sleep 5 && \
      curl -s http://127.0.0.1:18802/api/health | jq .chunks.total'
    # Should print 69135 (or current valid count)
@@ -83,7 +83,7 @@ New exported function `assertDbPathConsistency(opName)` re-derives the expected 
 
 6. **Smoke test with intentional env mismatch:**
    ```bash
-   ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; \
+   ssh root@$NOX_VPS_HOST 'set -a; source /root/.openclaw/.env; set +a; \
      OPENCLAW_WORKSPACE=/root/.openclaw/agents/atlas \
      /usr/local/bin/nox-mem stats 2>&1 | head -10'
    # Stats should now show atlas DB chunks (~64), not main (69k).
@@ -92,7 +92,7 @@ New exported function `assertDbPathConsistency(opName)` re-derives the expected 
 
 7. **Once validated, remove the P0 flag:**
    ```bash
-   ssh root@187.77.234.79 'rm /root/.openclaw/DISABLE_AGENT_REINDEX'
+   ssh root@$NOX_VPS_HOST 'rm /root/.openclaw/DISABLE_AGENT_REINDEX'
    # Tonight 23:00 BRT cron will re-enable Phase 2 with the fix in place.
    ```
 

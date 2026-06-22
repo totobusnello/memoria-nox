@@ -222,16 +222,16 @@ NOX_REASON_BOOST_WEIGHTS_OVERRIDE=... ← pesos cortados pela metade
 
 ```bash
 # Sanity check rápido:
-ssh root@187.77.234.79 'tail -3 /var/log/kg-extract/loop-*.log 2>/dev/null'
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
+ssh root@$NOX_VPS_HOST 'tail -3 /var/log/kg-extract/loop-*.log 2>/dev/null'
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
   SELECT COUNT(DISTINCT evidence_chunk_id) AS coverage_chunks,
          COUNT(*) AS total_rels FROM kg_relations"'
 
 # Verificar gate-review pós 05-13:
-ssh root@187.77.234.79 'cat /var/log/nox-gate-review/gate-*.json | tail -1 | python3 -m json.tool'
+ssh root@$NOX_VPS_HOST 'cat /var/log/nox-gate-review/gate-*.json | tail -1 | python3 -m json.tool'
 
 # Verificar E13 active funcionando:
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
   SELECT temporal_boost_mode, COUNT(*) FROM search_telemetry
   WHERE ts > strftime(\"%s\",\"now\",\"-1 day\") GROUP BY temporal_boost_mode"'
 ```

@@ -9,7 +9,7 @@
 | Field | Value |
 |---|---|
 | Launch timestamp BRT | 2026-05-04 10:30 BRT (13:30 UTC) |
-| VPS | root@187.77.234.79 (Hostinger, 8-core, 15GB RAM) |
+| VPS | root@$NOX_VPS_HOST (Hostinger, 8-core, 15GB RAM) |
 | tmux session | `beir-trec` |
 | Expected completion | 2026-05-05 ~22:00–06:00 BRT (3-6h e5 embed + <1min eval) |
 | Corpus | BEIR TREC-COVID, 50K-doc subset (seed=42), 50 queries, Round 5 qrels |
@@ -64,19 +64,19 @@ After patch: `Loaded qrels: 50 queries, 66336 total judgments`.
 
 ```bash
 # Check tmux session alive
-ssh root@187.77.234.79 'tmux ls'
+ssh root@$NOX_VPS_HOST 'tmux ls'
 
 # Watch live progress
-ssh root@187.77.234.79 'tail -f /var/log/nox-mem/beir-full-run.log'
+ssh root@$NOX_VPS_HOST 'tail -f /var/log/nox-mem/beir-full-run.log'
 
 # 5-min progress ticker (docs embedded + ETA)
-ssh root@187.77.234.79 'tail -f /var/log/nox-mem/beir-progress.log'
+ssh root@$NOX_VPS_HOST 'tail -f /var/log/nox-mem/beir-progress.log'
 
 # Kill-switch log
-ssh root@187.77.234.79 'tail -20 /var/log/nox-mem/beir-killswitch.log'
+ssh root@$NOX_VPS_HOST 'tail -20 /var/log/nox-mem/beir-killswitch.log'
 
 # Check results dir
-ssh root@187.77.234.79 'ls -lh /root/beir-results/'
+ssh root@$NOX_VPS_HOST 'ls -lh /root/beir-results/'
 ```
 
 ---
@@ -86,7 +86,7 @@ ssh root@187.77.234.79 'ls -lh /root/beir-results/'
 The pipeline is idempotent. If VPS reboots:
 
 ```bash
-ssh root@187.77.234.79
+ssh root@$NOX_VPS_HOST
 
 # Check what already ran
 ls /root/beir-results/
@@ -128,6 +128,6 @@ Kills `beir-trec` tmux session if 15min load avg > 5.0 (62.5% of 8-core VPS).
 
 On completion, rsync to local:
 ```bash
-rsync -av root@187.77.234.79:/root/beir-results/ \
+rsync -av root@$NOX_VPS_HOST:/root/beir-results/ \
     /Users/lab/Claude/Projetos/memoria-nox/paper/publication/results/beir/
 ```

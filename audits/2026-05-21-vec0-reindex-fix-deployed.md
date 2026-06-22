@@ -34,7 +34,7 @@ async function _reindexImpl(): Promise<{ files: number; chunks: number }> {
 
 ## Deployment
 
-1. ✅ `scp staged-1.7a/edits/reindex.ts root@187.77.234.79:/root/.openclaw/workspace/tools/nox-mem/src/reindex.ts`
+1. ✅ `scp staged-1.7a/edits/reindex.ts root@$NOX_VPS_HOST:/root/.openclaw/workspace/tools/nox-mem/src/reindex.ts`
 2. ✅ `npm run build` na VPS (test files have pre-existing errors but reindex.ts compiled OK — `noEmitOnError=false`)
 3. ✅ Verified `dist/reindex.js` contains the fix:
    ```

@@ -224,13 +224,13 @@ Append to the `endpoints` array in the `default:` 404 branch:
 
 ```bash
 # 1. Confirm schema migrated
-ssh root@187.77.234.79 'cd /root/.openclaw/workspace/tools/nox-mem && \
+ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/workspace/tools/nox-mem && \
   sqlite3 nox-mem.db ".schema shadow_runs"'
 
 # Expected: table + 2 triggers + 2 indexes
 
 # 2. Restart service
-ssh root@187.77.234.79 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
+ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
 
 # 3. Smoke test endpoint (initially empty when no shadow feature is enabled)
 curl -s 'http://127.0.0.1:18802/api/observability/shadow?window=24h' | jq '.'
@@ -242,7 +242,7 @@ curl -s 'http://127.0.0.1:18802/api/observability/shadow?feature=temporal-spike-
 
 # 5. Enable one shadow feature in /root/.openclaw/.env, restart, run a few searches
 echo 'NOX_SHADOW_TEMPORAL_SPIKE_V2=1' >> /root/.openclaw/.env
-ssh root@187.77.234.79 'systemctl restart nox-mem-api'
+ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api'
 curl -s 'http://127.0.0.1:18802/api/search?q=last+week+meeting' >/dev/null
 curl -s 'http://127.0.0.1:18802/api/search?q=action+items' >/dev/null
 

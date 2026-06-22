@@ -180,7 +180,7 @@ sleep 2
 
 - Sala silenciosa (se Opção B): testar microfone com 30s de áudio, ouvir playback para detectar eco ou hum de fundo
 - Fechar Slack, notificações do sistema, qualquer app que possa gerar popup em tela
-- Confirmar VPS online: `curl -s http://187.77.234.79:18802/api/health | jq .total`
+- Confirmar VPS online: `curl -s http://$NOX_VPS_HOST:18802/api/health | jq .total`
 - Ajustar terminal para 120×30, fonte JetBrains Mono 14pt
 - Definir `export PS1='nox $ '` antes de iniciar asciinema
 

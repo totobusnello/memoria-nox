@@ -14,7 +14,7 @@ GitHub Actions envia notificação de CI failure → VPS OpenClaw recebe → For
 ## VPS Endpoint
 
 ```
-POST http://187.77.234.79:18789/hooks/github
+POST http://$NOX_VPS_HOST:18789/hooks/github
 Authorization: Bearer <GITHUB_WEBHOOK_SECRET>
 Content-Type: application/json
 
@@ -44,7 +44,7 @@ jobs:
     steps:
       - name: Notify Forge
         run: |
-          curl -s -X POST http://187.77.234.79:18789/hooks/github \
+          curl -s -X POST http://$NOX_VPS_HOST:18789/hooks/github \
             -H 'Content-Type: application/json' \
             -H 'Authorization: Bearer ${{ secrets.OPENCLAW_WEBHOOK_SECRET }}' \
             -d "{

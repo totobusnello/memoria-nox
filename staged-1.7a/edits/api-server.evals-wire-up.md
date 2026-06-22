@@ -129,7 +129,7 @@ In the `default:` branch, the `endpoints` array in the 404 response lists known 
 
 ```bash
 # 1. Restart service
-ssh root@187.77.234.79 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
+ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
 
 # 2. Smoke test the new endpoint
 curl -s 'http://127.0.0.1:18802/api/observability/evals?limit=5' | jq 'length, .[0] | {run_id, config_id, db_source, ndcg_at_10}'

@@ -2,7 +2,7 @@
 
 > **Última atualização:** 2026-05-01 — schema v.29 corrigido
 > **Maintainer:** Toto (bus factor = 1)
-> **Sistema:** VPS Hostinger KVM 4, `root@100.87.8.44` (Tailscale) / `187.77.234.79` (público)
+> **Sistema:** VPS Hostinger KVM 4, `root@100.87.8.44` (Tailscale) / `$NOX_VPS_HOST` (público)
 > **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings, systemd, OpenClaw v2026.4.29
 >
 > ⚠️ **Schema migration nota (v.26+):** provider `claude-cli/*` foi REMOVIDO. Hoje:

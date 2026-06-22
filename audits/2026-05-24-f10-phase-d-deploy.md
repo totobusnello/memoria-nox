@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-24 (executed Sat 2026-05-23 20:57 BRT, audit closure 05-24)
 **Operator:** executor-high agent (worktree-isolated per `[[multi-agent-branch-checkout-race]]`)
-**Target:** VPS `187.77.234.79` (`/root/.openclaw/workspace/tools/nox-mem/`)
+**Target:** VPS `$NOX_VPS_HOST` (`/root/.openclaw/workspace/tools/nox-mem/`)
 **Source PR:** #291 (merged into main) — Phase D shadow tracker + dashboard
 **Pre-deploy SHA:** `f5ef803` (main, post-Sat 2026-05-24 closure docs)
 **Worktree:** `/tmp/f10-phase-d-deploy-7EF9C342-D800-4128-B309-8A81505B8853`
@@ -148,21 +148,21 @@ Confirmed `/api/observability/shadow` and `/observability/shadow.html` appear in
 
 ```bash
 # 1. Restore api-server.ts from pre-deploy backup
-ssh root@187.77.234.79 'cp /tmp/api-server.ts.pre-f10d /root/.openclaw/workspace/tools/nox-mem/src/api-server.ts'
+ssh root@$NOX_VPS_HOST 'cp /tmp/api-server.ts.pre-f10d /root/.openclaw/workspace/tools/nox-mem/src/api-server.ts'
 
 # 2. Rebuild
-ssh root@187.77.234.79 'cd /root/.openclaw/workspace/tools/nox-mem && npm run build 2>&1 | tail -5'
+ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/workspace/tools/nox-mem && npm run build 2>&1 | tail -5'
 
 # 3. Restart service
-ssh root@187.77.234.79 'systemctl restart nox-mem-api && sleep 3 && systemctl is-active nox-mem-api'
+ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api && sleep 3 && systemctl is-active nox-mem-api'
 
 # 4. Verify rollback
-ssh root@187.77.234.79 'curl -sS http://127.0.0.1:18802/api/observability/shadow'
+ssh root@$NOX_VPS_HOST 'curl -sS http://127.0.0.1:18802/api/observability/shadow'
 # Expected: 404 with endpoints list lacking /api/observability/shadow
 
 # 5. (Optional) The shadow_runs table remains in nox-mem.db — append-only research
 #    data, intentionally preserved on rollback. If full table removal needed:
-ssh root@187.77.234.79 'sqlite3 .../nox-mem.db "DROP TRIGGER trg_shadow_runs_block_delete; DROP TRIGGER trg_shadow_runs_block_update; DROP TABLE shadow_runs;"'
+ssh root@$NOX_VPS_HOST 'sqlite3 .../nox-mem.db "DROP TRIGGER trg_shadow_runs_block_delete; DROP TRIGGER trg_shadow_runs_block_update; DROP TABLE shadow_runs;"'
 # (only if explicit cleanup is required — default rollback preserves the table)
 ```
 

@@ -13,7 +13,7 @@
 ✅ **GO** — Safe to launch Wed 06-03.
 
 **Posture:** Single-tenant SQLite + localhost-default + privacy-by-default + append-only audit.
-Production runs on isolated VPS (187.77.234.79:18802, internal only). Public launch is documentation-only (no live service exposure to general internet).
+Production runs on isolated VPS ($NOX_VPS_HOST:18802, internal only). Public launch is documentation-only (no live service exposure to general internet).
 
 **Finding count:** 0 CRITICAL, 0 HIGH found during audit. Threat model (THREAT-MODEL.md) identifies 8 documented HIGH-rated gaps in **future features** (A2.7 streaming, A3.3 cost cap, auth handler default-deny, validator schema enforcement) — these are **not blocking** v1.0-rc1 because:
 1. They affect A2 (encryption streaming, unimplemented for v1.0), A3 (CostCappedProvider, not deployed), P5 (SSE endpoint, not shipped), L2/P2 (staged code absent).
@@ -296,7 +296,7 @@ None blocking. Optional hardening before Wed 06-03:
 
 - [ ] (Optional) Verify VPS file perms: `stat /root/.openclaw/workspace/tools/nox-mem/nox-mem.db` should be 0600 (Saturday manual check).
 - [ ] (Optional) Test `/api/health` endpoint returns no sensitive metadata: `curl http://127.0.0.1:18802/api/health | jq .` (internal only).
-- [ ] (Recommended) Confirm `.env` is 0600 on VPS: `ssh root@187.77.234.79 stat /root/.openclaw/.env`.
+- [ ] (Recommended) Confirm `.env` is 0600 on VPS: `ssh root@$NOX_VPS_HOST stat /root/.openclaw/.env`.
 
 ---
 

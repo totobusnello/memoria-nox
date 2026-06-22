@@ -117,7 +117,7 @@ Detecta IP swaps ou outages na VPS nox-mem cedo — criado após incident 2026-0
 
 ```bash
 # Teste manual (com output colorido):
-./scripts/vps-healthcheck.sh --ip 187.77.234.79
+./scripts/vps-healthcheck.sh --ip $NOX_VPS_HOST
 
 # Usando IP do arquivo .vps-current-ip (default):
 ./scripts/vps-healthcheck.sh
@@ -134,7 +134,7 @@ Detecta IP swaps ou outages na VPS nox-mem cedo — criado após incident 2026-0
 O IP atual da VPS fica em `.vps-current-ip` (gitignored — atualizar manualmente após rebalance do Hostinger).
 
 ```bash
-echo "187.77.234.79" > .vps-current-ip
+echo "$NOX_VPS_HOST" > .vps-current-ip
 ```
 
 ### Flags

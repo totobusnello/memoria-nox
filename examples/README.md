@@ -1,6 +1,6 @@
 # Examples
 
-Quick runnable scripts hitting the public demo VPS at `187.77.234.79:18802`.
+Quick runnable scripts hitting the public demo VPS at `$NOX_VPS_HOST:18802`.
 
 | File | Language | What it does | Time |
 |------|----------|--------------|------|

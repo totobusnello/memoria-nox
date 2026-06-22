@@ -81,7 +81,7 @@ GET /api/brief?scope=<string>&n=<int=10,cap25>&format=<json|text>&since=<dur>&ag
 ## 5. Tasks
 
 ### T0 — Validação read-only do schema em prod ✅ EXECUTADO 2026-06-04
-> Autorizado por Toto; SSH read-only `root@187.77.234.79`, DB `/root/.openclaw/workspace/tools/nox-mem/nox-mem.db` (1.7GB).
+> Autorizado por Toto; SSH read-only `root@$NOX_VPS_HOST`, DB `/root/.openclaw/workspace/tools/nox-mem/nox-mem.db` (1.7GB).
 - [x] `PRAGMA table_info(chunks)` — 25 colunas; path = **`source_file`** (não `file_path`); `access_count`, `last_accessed_at`, `importance` (0.5), `pain` (0.2), `confidence` (0.8), `tier`, `memory_type` confirmadas
 - [x] Distribuição de prefixos — namespaces limpos (§2.1): `sessions/<persona>/`, `memory/mac-docs/<domínio>/`, `shared/imports/...`
 - [x] Padrão `/agents/<X>/` — REFUTADO como sinal de persona (é catálogo importado); personas = `sessions/<persona>/`

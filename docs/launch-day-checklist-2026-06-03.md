@@ -206,7 +206,7 @@
 | Reddit r/LocalLLaMA | `https://www.reddit.com/r/LocalLLaMA/submit` |
 | Trendshift | `https://trendshift.io/` |
 | VPS health check | `curl http://127.0.0.1:18802/api/health \| jq .vectorCoverage` |
-| VPS IP atual | 187.77.234.79 (PR #164) |
+| VPS IP atual | $NOX_VPS_HOST (PR #164) |
 | Backup snapshot dir | `/var/backups/nox-mem/pre-op/` |
 | Social copy doc | `docs/launch-social-copy.md` |
 | Blog post draft | `docs/launch-blog-v0-draft.md` |

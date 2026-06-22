@@ -37,7 +37,7 @@ bash scripts/check-pre-launch.sh
 
 **Action Items from Check:**
 1. Create tag: `git tag v1.0.0-rc1 && git push origin v1.0.0-rc1`
-2. VPS unreachable at http://187.77.234.79:18802/api/health — if outside Tailscale set `NOX_HEALTH_URL=http://<tailscale-ip>:18802/api/health`
+2. VPS unreachable at http://$NOX_VPS_HOST:18802/api/health — if outside Tailscale set `NOX_HEALTH_URL=http://<tailscale-ip>:18802/api/health`
 3. Set repo description: `gh repo edit --description 'Pain-weighted hybrid memory for AI agents'`
 4. Add repo topics: `gh repo edit --add-topic memory --add-topic rag --add-topic llm`
 5. Enable Discussions: `gh repo edit --enable-discussions`

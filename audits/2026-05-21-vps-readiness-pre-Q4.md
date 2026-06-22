@@ -2,7 +2,7 @@
 
 **Data:** 2026-05-21 (Sex noite)
 **Auditor:** agent (Sisyphus-Junior / Sonnet 4.6)
-**VPS alvo:** `187.77.234.79` (Hostinger — IP atualizado 2026-05-20)
+**VPS alvo:** `$NOX_VPS_HOST` (Hostinger — IP atualizado 2026-05-20)
 **Scope:** read-only checks pré-Q4 COMPARISON execution
 
 > NOTA DE METODOLOGIA: SSH calls além do primeiro (`/api/health` via tunnel) foram bloqueados pelo
@@ -15,9 +15,9 @@
 
 | Check | Resultado |
 |---|---|
-| `ping -c 3 187.77.234.79` | **OK** — 3/3 packets, RTT avg 26.1ms (min 22.1 / max 30.8ms) |
+| `ping -c 3 $NOX_VPS_HOST` | **OK** — 3/3 packets, RTT avg 26.1ms (min 22.1 / max 30.8ms) |
 | Port 18802 público (external curl) | **FECHADO** — porta não exposta à internet (firewalled; normal — acesso via SSH tunnel ou local) |
-| SSH auth (`ssh root@187.77.234.79`) | **OK** — keychain funcionando; primeira call autenticou sem interação |
+| SSH auth (`ssh root@$NOX_VPS_HOST`) | **OK** — keychain funcionando; primeira call autenticou sem interação |
 
 **Status §1:** GO
 

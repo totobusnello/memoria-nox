@@ -862,7 +862,7 @@ The `iterb_used_path` flag is set when IterB's ReAct loop fires on a query. Each
 
 #### 5.5.8 Wave 2 Capstone — D76 infrastructure abort (INDETERMINATE, not scientific failure)
 
-The Wave 2 Phase 2 Capstone (PR #426 draft, IterB + KG + rerank composability, 2-guard patch per §5.5.7) was dispatched on Hostinger VPS 187.77.234.79 on 2026-05-31. After 48 hours elapsed and ~$20–25 spent, the bench was aborted due to Hostinger anti-abuse CPU throttling, not due to scientific hypothesis failure.
+The Wave 2 Phase 2 Capstone (PR #426 draft, IterB + KG + rerank composability, 2-guard patch per §5.5.7) was dispatched on Hostinger VPS $NOX_VPS_HOST on 2026-05-31. After 48 hours elapsed and ~$20–25 spent, the bench was aborted due to Hostinger anti-abuse CPU throttling, not due to scientific hypothesis failure.
 
 **Infrastructure failure timeline.**
 

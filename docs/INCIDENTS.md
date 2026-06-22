@@ -332,7 +332,7 @@ Mesma manhã o hook DISPAROU em commit que tentou subir paper §5.5 enquanto bra
 
 **Hipóteses iniciais:** (1) maintenance window, (2) bloqueio por uso CPU/network, (3) firewall mudou, (4) disk full, (5) hardware failure.
 
-**Realidade:** Hostinger fez floating IP swap silencioso. Toto deu novo IP `187.77.234.79`. SSH funcionou de primeira (mesma chave ed25519). Hostname `srv1465941`, uptime **20 days, 50 min** intacto — sem reboot, sem maintenance, sem downtime. Apenas redirecionamento de rota.
+**Realidade:** Hostinger fez floating IP swap silencioso. Toto deu novo IP `$NOX_VPS_HOST`. SSH funcionou de primeira (mesma chave ed25519). Hostname `srv1465941`, uptime **20 days, 50 min** intacto — sem reboot, sem maintenance, sem downtime. Apenas redirecionamento de rota.
 
 **Impact:** ~30min de incerteza, deploy Wave A novo atrasado mas executado com sucesso após IP atualizado. Zero dados perdidos. Service `nox-mem-api` continuou rodando o tempo todo.
 
@@ -346,7 +346,7 @@ Mesma manhã o hook DISPAROU em commit que tentou subir paper §5.5 enquanto bra
 - Memory `[[vps-ip-change-2026-05-20]]` cravada como reference
 - Memory anterior `[[vps-down-2026-05-20]]` ficou desatualizada — não era outage real
 
-**Cross-links:** PR #158 (api-server fix doc), deploy Wave A novo (sed+scp+build em 187.77.234.79), HANDOFF morning + midday 2026-05-20.
+**Cross-links:** PR #158 (api-server fix doc), deploy Wave A novo (sed+scp+build em $NOX_VPS_HOST), HANDOFF morning + midday 2026-05-20.
 
 ## 2026-05-20 ~09h30 BRT (~15min recovery) — Multi-agent branch checkout race condition
 

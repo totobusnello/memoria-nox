@@ -27,7 +27,7 @@ No new exports, no signature changes — drop-in replacement.
 ## Pre-flight (on the VPS)
 
 ```bash
-ssh root@187.77.234.79
+ssh root@$NOX_VPS_HOST
 cd /root/.openclaw/workspace/tools/nox-mem
 
 # 1. Load env (sqlite3, Gemini, snapshot dir validation).
@@ -55,14 +55,14 @@ VPS=/root/.openclaw/workspace/tools/nox-mem
 
 # 1. Push files.
 scp "$WORKTREE/staged-1.7a/edits/op-audit.ts" \
-    root@187.77.234.79:$VPS/src/lib/op-audit.ts
+    root@$NOX_VPS_HOST:$VPS/src/lib/op-audit.ts
 scp "$WORKTREE/scripts/migrate-opsaudit-started-at-2026-05-21.sh" \
-    root@187.77.234.79:$VPS/scripts/
+    root@$NOX_VPS_HOST:$VPS/scripts/
 scp "$WORKTREE/scripts/cleanup-test-ops-audit-2026-05-21.sh" \
-    root@187.77.234.79:$VPS/scripts/
+    root@$NOX_VPS_HOST:$VPS/scripts/
 
 # 2. Build + verify CAST present in compiled output.
-ssh root@187.77.234.79 << 'EOF'
+ssh root@$NOX_VPS_HOST << 'EOF'
 cd /root/.openclaw/workspace/tools/nox-mem
 npx tsc -p tsconfig.json 2>&1 | tail
 grep -c "CAST(started_at AS INTEGER)" dist/lib/op-audit.js
@@ -78,7 +78,7 @@ EOF
 ## Run migrations (order matters)
 
 ```bash
-ssh root@187.77.234.79
+ssh root@$NOX_VPS_HOST
 cd /root/.openclaw/workspace/tools/nox-mem
 set -a; source /root/.openclaw/.env; set +a
 chmod +x scripts/migrate-opsaudit-started-at-2026-05-21.sh scripts/cleanup-test-ops-audit-2026-05-21.sh
@@ -128,7 +128,7 @@ sqlite3 nox-mem.db "INSERT INTO ops_audit (op_name, started_at, status) VALUES (
 If migration fails mid-transaction, SQLite ROLLBACK restores everything. If the new code is broken post-restart, both scripts wrote snapshots to `/var/backups/nox-mem/pre-op/`:
 
 ```bash
-ssh root@187.77.234.79
+ssh root@$NOX_VPS_HOST
 cd /root/.openclaw/workspace/tools/nox-mem
 ls -lt /var/backups/nox-mem/pre-op/ | head -5
 
@@ -145,7 +145,7 @@ systemctl start nox-mem-api nox-mem-watcher
 If only the new triggers misbehave, just revert the code and restart — historical data is preserved by the migration (one-way safe):
 
 ```bash
-ssh root@187.77.234.79
+ssh root@$NOX_VPS_HOST
 cd /root/.openclaw/workspace/tools/nox-mem
 git checkout HEAD~1 -- src/lib/op-audit.ts  # or restore prior copy
 npx tsc -p tsconfig.json
