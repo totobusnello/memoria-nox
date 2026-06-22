@@ -2,6 +2,43 @@
 
 ---
 
+## Sun 2026-06-21 — D2 gate split-slot (PR#20) colhido → **flip `active`** + gate de 24h em `active` agendado
+
+> Toto: "rodar o teste/análise que devia ter rodado ontem à noite" = o **D2 gate do split-slot** (PR#20). Depois: "qual a recomendação?" → recomendei **flipar `active`** (shadow esgotou seu valor informativo; o único bit que falta — rotação real do slot global — é inacessível em shadow por construção). Toto: "sim flipa e faz o que sugeriu". SSH read+deploy autorizado explicitamente nesta sessão.
+
+### Gate D2 do split-slot (shadow, censo 1144 samples ~38h, START pós-deploy `2026-06-20 01:00 BRT`)
+3 critérios duros PASSAM + objetivo de design confirmado:
+- FLOOR GUARD **0** · churn **2.0** · age would_LEAVE→ENTER **57.7d→7.8d** (7×).
+- **Destravamento (era o ponto do #20):** atlas/lex **0→2 fresh** (entity=2, session=0 — pool `sessions/<agent>/%` vazio, split-slot preencheu ambos com global). Slot global (`memory/entities/%`) presente em **TODOS os 6 agentes**. Curados que entraram: `227767` (nuvini.md), `227656` (lesson falsos-positivos-timeout).
+- ⚠️ Caveat do shadow: só **2 entities distintas** porque em shadow o slot global **não rotaciona** (`brief_log` é alimentado pelo brief `current`, não pelo `alt`). Prova o canal, não a variedade rotativa.
+
+### Mecânica do código (brief.ts §673-712) — confirmada por leitura
+`off` ⇒ brief v1.2. `shadow` ⇒ computa `alt`, **loga** o diff (tag `brief_diversity_shadow`, só churn>0), **serve `current`**, `brief_log`←`current.items`. `active` ⇒ **serve `alt`**, `brief_log`←`alt.items` (inclui slot global). **Em `active` NÃO há tag de log** — o serving real está na tabela **`brief_log`**. `fetchFreshCandidates` exclui ids servidos recentemente (`id NOT IN (SELECT chunk_id FROM brief_log WHERE served_at > ?)`) ⇒ é isso que faz a **rotação** existir em active.
+
+### FLIP `active` — feito + verificado AO VIVO (deploy prod mutante autorizado)
+- Drop-in: criado `d2-brief-diversity-active.conf` (`NOX_BRIEF_DIVERSITY=active`); shadow renomeado `.retired-<ts>` + backup `.bak-pre-active-<ts>`. `daemon-reload` + `restart` (15:23:38 BRT). Só **um** drop-in de diversity vigente.
+- Verificado: env vivo `active` · serviço `active` · salience mode `active` · vectorCoverage **70813/70820** (7 orphans = watcher recente, catch-up cron fecha) · tag `brief_diversity_shadow` **parou** (0 pós-restart).
+- **Rotação CONFIRMADA viva** (o bit que o shadow não mostrava): baseline T+0 (30min) = 142 briefs, **4 entities distintas** servidas, IDs **novos** (`227148` decisão embeddings, `227328` decisão billing) ≠ os 2 do shadow. **FLOOR sanidade:** 4 high-pain (pain≥0.9) servidos = não expulsos. Entity em todos os 6 agentes.
+
+### Gate de 24h em `active` — agendado
+- Novo script `/root/.openclaw/scripts/d2-gate-active-report.sh` (READ-ONLY, lê **`brief_log`** — janela móvel `-1 day`; mede rotação=distinct entity, FLOOR=distinct high-pain, por-agente). O script shadow `d2-gate-report.sh` ficou no disco (histórico) mas seu cron foi **substituído**.
+- Cron: `10 6 * * * d2-gate-active-report.sh >> /var/log/nox-d2-gate-active.log # d2-gate-active` (74 linhas preservadas).
+- **Primeiro run 24h-limpo = 23/06 06:10 BRT** (o de 22/06 06:10 mistura ~9h pré-flip shadow). Ou rodar manual `d2-gate-active-report.sh "-24 hours"` em ~22/06 16h.
+
+### ⚠️ Próxima ação — RETOMAR AQUI
+1. **Colher o gate active limpo** (23/06 06:10 em `/var/log/nox-d2-gate-active.log`, ou manual `-24 hours` em 22/06 ~16h). Esperado: distinct entity **>> 2** (rotação entre os 188 curados), FLOOR high-pain ≥ baseline (não cai a 0), entity em todos agentes. Se ok → é o **número final do paper §3.5** (ciclo `shadow→diagnose→fix→measure→ship`).
+2. **Natureza bursty:** os 188 curados estão na banda 14-21d; em ~9d caem fora dos 30d → pool global encolhe até a próxima consolidação. Knob `freshGlobalMaxAgeDays` (env `NOX_BRIEF_DIV_FRESH_GLOBAL_MAX_AGE_DAYS`) tunável se a cobertura cair.
+3. **Rollback** (se preciso): renomear `.retired` de volta pra `.conf`, remover `active.conf`, `daemon-reload` + restart. Ou só editar a env pra `shadow`.
+
+### ⚠️ Lição operacional (incidente contido — 0 perda)
+`crontab -l | sed '…#…' | crontab -` **zerou o crontab**: o sed falhou no parse (delimitador `#` colidiu com `# tag`) → emitiu 0 linhas → o pipe `| crontab -` sobrescreveu com vazio. Restaurado do backup `/tmp/ct.bak` (feito 1 linha antes) em segundos. **Regra:** nunca `cmd | transform | cmd-que-sobrescreve -` quando o transform pode falhar; usar python com `assert old in src` + `assert linhas preservadas` + backup imediato antes. (Aparentado a [[feedback_never_sed_binary_files]] — sed frágil em destino crítico.)
+
+### Notas operacionais
+- SSH VPS prod `root@$NOX_VPS_HOST` = autorização explícita por sessão.
+- Memória: [[project_d2_brief_diversity_shadow_deployed]] (atualizada: flip active + rotação viva + gate active) · [[feedback_always_check_then_recheck_conclusions]].
+
+---
+
 ## Sat 2026-06-20 — D2 gate PR#19 colhido → split-slot global (curado) impl + deploy shadow + PR#20 merged
 
 > Toto: "rodar o teste que estávamos esperando" = o **D2 gate pós-fix**. Depois decidiu **(B)** fazer a mudança de design antes do flip. Tudo autorizado explicitamente nesta sessão (SSH read + deploy shadow + merge).
@@ -27,7 +64,7 @@
 4. **Paper §3.5:** achado "expandir o pool ≠ aumentar variedade realizada sob seleção top-k determinística em scope homogêneo" + split-slot = material publicável (números pós-gate 21).
 
 ### Notas operacionais
-- SSH VPS prod `root@187.77.234.79` = autorização explícita por sessão (classifier bloqueia sem o Toto nomear o alvo).
+- SSH VPS prod `root@$NOX_VPS_HOST` = autorização explícita por sessão (classifier bloqueia sem o Toto nomear o alvo).
 - Feature branch em clone `/tmp` dispara o pre-commit hook (fail-safe) → override `COMMIT_TO_NON_MAIN_OK=1` (intencional, não leak). Clone descartável: `/tmp/brief-fresh-global-FF8CC8E4-...`.
 - Memória: [[project_d2_brief_diversity_shadow_deployed]] (atualizada) · [[feedback_always_check_then_recheck_conclusions]] (2 rechecks salvaram: ≤7d=0 evitou no-op; fresh:8==LIMIT-antigo confirmou fix vivo).
 
@@ -75,7 +112,7 @@ Furo corrigido: medi o pool de 479 **sem** o filtro de scope. Os briefs são TOD
 
 Gaps: zep (docker impossível em pod unprivileged) · letta (agent-OS ~16min/query) · evermind (keys OpenRouter+DeepInfra + auth repo externo). lightrag/hippo = ref §5, não §6. Detalhe: `[[project_head_to_head_nox_mem0_split_2026_06_14]]` + `[[feedback_q4_expansion_systems_setup]]` + `[[feedback_mem0_thread_leak_telemetry_faiss_architecture]]` + `[[feedback_runpod_pod_ops_ssh_recovery_patterns]]`.
 
-### §5.7 re-validado AO VIVO (VPS 187.77.234.79, 2026-06-15, corpus 70,7k)
+### §5.7 re-validado AO VIVO (VPS $NOX_VPS_HOST, 2026-06-15, corpus 70,7k)
 - KG-path **2,9ms p50 / 5,7ms p95** (confirma o 2,5ms) · KG-path **$0/query** confirmado · footprint **415MB** (1 processo) ✓
 - hybrid **653ms p50** (era 529 — corpus maior + Gemini API variance) · **769×→~667×** (Gemini embed subiu $0,13→$0,15/1M em fev-2026)
 
@@ -99,7 +136,7 @@ Gaps: zep (docker impossível em pod unprivileged) · letta (agent-OS ~16min/que
 > Objetivo do Toto: "evoluir e finalizar o projeto memória e ter o paper pra publicar". Caminho: D3 (medir) → D2 (decidir+impl). Escolha do Toto no ponto de decisão: **implementar A+B em shadow, gate sem follow-up**.
 
 ### D3 — medição limpa (7d pós-descontaminação do canário 06-07)
-SSH na VPS (`187.77.234.79`, autorizado), query sobre `brief_log` + `chunks` + `search/answer_telemetry`:
+SSH na VPS (`$NOX_VPS_HOST`, autorizado), query sobre `brief_log` + `chunks` + `search/answer_telemetry`:
 
 | Métrica | Número | Leitura |
 |---|---|---|
@@ -383,7 +420,7 @@ Inalterada: **observação 1 semana** do priming loop. Fila leve: itens 4-5 do p
 
 **Step 1: Verify VPS healthy** (não dispatch antes de confirmar)
 ```bash
-ssh root@187.77.234.79 'mpstat 1 5 | tail -5'
+ssh root@$NOX_VPS_HOST 'mpstat 1 5 | tail -5'
 # Expected: %steal <20% sustained. Se 50%+, abort e tentar mais tarde.
 ```
 
@@ -482,15 +519,15 @@ ssh root@187.77.234.79 'mpstat 1 5 | tail -5'
 
 ### Mon AM (2026-06-01) — Pickup actions ordered
 
-1. **Check capstone tmux** `wave2-capstone-7a1cadf2` PID 2194486 on `root@187.77.234.79`:
+1. **Check capstone tmux** `wave2-capstone-7a1cadf2` PID 2194486 on `root@$NOX_VPS_HOST`:
    ```bash
-   ssh root@187.77.234.79 'tmux ls && ls /root/.openclaw/evermembench-runs/capstone-iterB-triple-*/analysis.txt 2>/dev/null | wc -l'
+   ssh root@$NOX_VPS_HOST 'tmux ls && ls /root/.openclaw/evermembench-runs/capstone-iterB-triple-*/analysis.txt 2>/dev/null | wc -l'
    ```
    Expected: 5/5 batches done OR still running mid-bench OR halted by cost cap.
 
 2. **Harvest results** via `eval/evermembench/aggregate_capstone_5batch.py` (committed in PR #426 draft branch):
    ```bash
-   ssh root@187.77.234.79 'cd /root/.openclaw/q3-iterB-gemini-c1ecf8df/memoria-nox && python3 eval/evermembench/aggregate_capstone_5batch.py'
+   ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/q3-iterB-gemini-c1ecf8df/memoria-nox && python3 eval/evermembench/aggregate_capstone_5batch.py'
    ```
    Update PR #426 from draft → ready with full results table.
 
@@ -1283,7 +1320,7 @@ Bridges convention divergence cravada na cleanup PR #210:
 
 ### F10 Phase A — DEPLOYED LIVE
 
-VPS `187.77.234.79` smoke validation 6/6 PASS:
+VPS `$NOX_VPS_HOST` smoke validation 6/6 PASS:
 
 | Endpoint | Status |
 |---|---|
@@ -1388,7 +1425,7 @@ VPS `187.77.234.79` smoke validation 6/6 PASS:
 main:        7362b29, working tree clean, 0 ahead/behind
 worktrees:   0 active (all 5 agents cleaned up)
 open PRs:    0
-VPS:         187.77.234.79 healthy (68995/68995, salience active, opsAudit fixed)
+VPS:         $NOX_VPS_HOST healthy (68995/68995, salience active, opsAudit fixed)
 D49 phase 2: shadow rolling (cron scrape active, D50 ETA 2026-05-27)
 ```
 
@@ -1462,7 +1499,7 @@ Coordenação: agents em paths separados (Issue #1+#3 mexe em PROD `:18802`; G10
 
 ### Sistema saudável
 
-- VPS `187.77.234.79` → 68995/68995, salience active ✅
+- VPS `$NOX_VPS_HOST` → 68995/68995, salience active ✅
 - 35 PRs merged em main (33 ontem + 2 hoje: vec0 fix bundle + paper §5.5)
 - Zero PRs blocked, zero unresolved issues
 - Healthcheck cron PASS (PR #186)
@@ -1534,7 +1571,7 @@ Coordenação: agents em paths separados (Issue #1+#3 mexe em PROD `:18802`; G10
 
 ### Sistema saudável EOD
 
-- VPS `187.77.234.79` → 68995/68995, salience active, mutex deployed
+- VPS `$NOX_VPS_HOST` → 68995/68995, salience active, mutex deployed
 - 33 PRs merged hoje em main
 - Zero PRs blocked, zero unresolved issues
 - Healthcheck cron fixed (próxima execução clean)
@@ -1719,7 +1756,7 @@ Total únicos: 23 PRs principais + 5 HANDOFF commits + memory batch fix in-place
 
 - `scripts/vps-healthcheck.sh` — ping+ssh+api em cron 15min Mac local
 - `scripts/scrape-temporal-shadow.sh` — daily 0h UTC na VPS
-- `.vps-current-ip` — IP atual 187.77.234.79 (gitignored)
+- `.vps-current-ip` — IP atual $NOX_VPS_HOST (gitignored)
 - D49 phase 2 systemd drop-in — shadow active
 - CLAUDE.md (~/Claude) — `isolation:"worktree"` hard rule
 - `specs/d50-template.md` — decisão pré-aberta pós-shadow
@@ -1858,7 +1895,7 @@ Rejeitadas: queries com fraseamento exato de timeline titles → ceiling em rank
 ### Tools deployed pra próximas sessões
 
 - **VPS healthcheck** em `scripts/vps-healthcheck.sh` — ping+ssh+api via cron 15min, exit code discriminado, alert via osascript
-- **`.vps-current-ip`** (gitignored) — IP atual 187.77.234.79
+- **`.vps-current-ip`** (gitignored) — IP atual $NOX_VPS_HOST
 - **Paper .docx** atualizado (`paper/paper-tecnico-nox-mem.docx` 28KB pós-§5)
 
 ### CLAUDE.md update (parent ~/Claude)
@@ -1962,7 +1999,7 @@ Fix: `working-directory:` step level + `npx -y -p typescript@5 tsc`.
 
 ## 🌤️ MIDDAY 2026-05-20 — VPS uptime restored + Wave A deployed + Q87/Q88 cured
 
-> **Atualizado:** 2026-05-20 ~10h45 BRT. **VPS estava no IP novo 187.77.234.79 (não 45.43.85.86 — false alarm de IP swap, uptime intacto 20d). Deploy Wave A novo aplicado em prod: search.ts + salience.ts via scp + api-server.ts via sed FIND/REPLACE (3 patches). Build limpo, restart OK, /api/health.salience.mode=active, 68995/68995 vectorCoverage preservado. Gold Q87+Q88 temporal curados via PR #159 (chunks 216203+216204). 6 PRs merged em main hoje.**
+> **Atualizado:** 2026-05-20 ~10h45 BRT. **VPS estava no IP novo $NOX_VPS_HOST (não 45.43.85.86 — false alarm de IP swap, uptime intacto 20d). Deploy Wave A novo aplicado em prod: search.ts + salience.ts via scp + api-server.ts via sed FIND/REPLACE (3 patches). Build limpo, restart OK, /api/health.salience.mode=active, 68995/68995 vectorCoverage preservado. Gold Q87+Q88 temporal curados via PR #159 (chunks 216203+216204). 6 PRs merged em main hoje.**
 
 ### Deploy Wave A novo (commits em VPS pós-`82af773..17b2e27`)
 
@@ -1993,7 +2030,7 @@ Fix: `working-directory:` step level + `npx -y -p typescript@5 tsc`.
 ### VPS IP swap descoberto (false alarm offline)
 
 - Antigo: `45.43.85.86` (gone)
-- Novo: `187.77.234.79` (active, hostname `srv1465941`, uptime **20d** — não foi reboot)
+- Novo: `$NOX_VPS_HOST` (active, hostname `srv1465941`, uptime **20d** — não foi reboot)
 - Hipótese: Hostinger floating IP rebalance silencioso
 - Memory: `[[vps-ip-change-2026-05-20]]` (entry reference)
 - Memory anterior `[[vps-down-2026-05-20]]` ficou desatualizada — não era outage real
@@ -2842,7 +2879,7 @@ Sessão de deploy massivo + benchmark. Schema v18→v24 aplicadas (idempotent). 
 **1. VPS deploy pendente (não-destrutivo, mas precisa imperative auth)**
 - `#99` wire-up adapters: 5 server-deps modules (P1/P3/P5/A2/A3) registram routes Wave A→K. Fecha gap de 503s.
 - `#98` CORS patch: server-side support pra `chrome-extension://*` origins (P7 browser ext blocker).
-- Comando: `ssh root@187.77.234.79` + rsync de `staged-wire-up-adapters/` + `staged-cors/` + restart nox-mem-api.
+- Comando: `ssh root@$NOX_VPS_HOST` + rsync de `staged-wire-up-adapters/` + `staged-cors/` + restart nox-mem-api.
 - Pra autorizar destructive ops na VPS: "apply wire-up + cors now" (imperative phrase, não genérico "go").
 
 **2. Q-runs trigger (autônomo, ~5-6h serial, ~$1.13 total)**
@@ -3237,7 +3274,7 @@ Toto
 ### Outras ações humanas (não-bloqueante)
 
 1. ✅ ~~Criar conta arXiv~~ feita 2026-05-07
-2. **Verificar gate-review JSON pós 05-13:** `ssh root@187.77.234.79 'cat /var/log/nox-gate-review/gate-*.json'`
+2. **Verificar gate-review JSON pós 05-13:** `ssh root@$NOX_VPS_HOST 'cat /var/log/nox-gate-review/gate-*.json'`
 3. **Decidir E05b** conforme matriz §"Matriz de decisão E05b" abaixo
 4. **Cura refinada Q105-Q109** (post-OCR mais conteúdo disponível) — opcional, baixa prioridade
 
@@ -3305,7 +3342,7 @@ Script `tools/nox-mem/scripts/gate-review-e05b-e13.sh` (nox-workspace) faz:
 
 **Cron VPS agendado:** `0 12 13 5 * /root/.openclaw/workspace/tools/nox-mem/scripts/gate-review-e05b-e13.sh` → executa **automaticamente em 2026-05-13 09:00 BRT**.
 
-Ou rodar manual: `ssh root@187.77.234.79 'bash /root/.openclaw/workspace/tools/nox-mem/scripts/gate-review-e05b-e13.sh'` (~5min).
+Ou rodar manual: `ssh root@$NOX_VPS_HOST 'bash /root/.openclaw/workspace/tools/nox-mem/scripts/gate-review-e05b-e13.sh'` (~5min).
 
 **Pre-gate dry-run preview (2026-05-06 21:08 BRT):**
 - E05b: 23.6% queries com reason_boost > 0 (≥20% threshold ✓)
@@ -3381,7 +3418,7 @@ Q87 "quando o E05 edge typing foi deployado" e Q88 "quando subiu schema v12" sã
 
 ```bash
 # Análise shadow ao retomar (após 7d, ~2026-05-13):
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
   SELECT reason_boost_mode, COUNT(*) total,
          SUM(CASE WHEN reason_boost_applied > 0 THEN 1 ELSE 0 END) boosted,
          ROUND(100.0 * SUM(CASE WHEN reason_boost_applied > 0 THEN 1 ELSE 0 END) / COUNT(*), 2) pct_boosted,
@@ -3390,7 +3427,7 @@ ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.
   GROUP BY reason_boost_mode"'
 
 # Run R01c shadow comparison:
-ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="E05b shadow review baseline"'
+ssh root@$NOX_VPS_HOST 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="E05b shadow review baseline"'
 # Compare contra Run #9 baseline (nDCG 0.519)
 ```
 
@@ -3404,7 +3441,7 @@ cd /Users/lab/Claude/Projetos/memoria-nox && bash paper/publication/scripts/pre-
 # Esperado: 9/10 ✓ + 1 warning
 
 # E05b shadow telemetry:
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
   SELECT reason_boost_mode, COUNT(*) FROM search_telemetry
   WHERE ts > strftime(\"%s\", \"now\", \"-1 day\") GROUP BY reason_boost_mode"'
 
@@ -3669,9 +3706,9 @@ Tudo mais (TinyTeX install, LaTeX compile, layout polish, blog drafts, runbook, 
 
 ### Sanity check (~3min)
 ```bash
-ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
-ssh root@187.77.234.79 'tail -5 /var/log/nox-seh-report.log'
+ssh root@$NOX_VPS_HOST 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
+ssh root@$NOX_VPS_HOST 'tail -5 /var/log/nox-seh-report.log'
 ```
 
 ### Eventos passivos agendados (NÃO precisa fazer nada)
@@ -4027,24 +4064,24 @@ Held-out specificity finding (5/5 negatives zero hallucination) é **publication
 2. **Para cada verdict ACTIVATE no issue:**
    - **E03b SPO surface:**
      ```bash
-     ssh root@187.77.234.79 'sed -i "s|NOX_VAULT_FACTS_MODE=shadow|NOX_VAULT_FACTS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
+     ssh root@$NOX_VPS_HOST 'sed -i "s|NOX_VAULT_FACTS_MODE=shadow|NOX_VAULT_FACTS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
      ```
    - **E04b Focus apply:**
      ```bash
-     ssh root@187.77.234.79 'sed -i "s|NOX_FOCUS_MODE=shadow|NOX_FOCUS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
+     ssh root@$NOX_VPS_HOST 'sed -i "s|NOX_FOCUS_MODE=shadow|NOX_FOCUS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
      ```
    - **E05 Edge typing reason boost** (ainda não em shadow específico — pode esperar Phase 2):
      - Sem mudança required hoje
 
 3. **Validate pós-activate (~10min):**
    ```bash
-   ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "schema v12" 5 2>&1 | head -10'
+   ssh root@$NOX_VPS_HOST 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "schema v12" 5 2>&1 | head -10'
    # Esperar ver "[vault-facts]" como ACTIVE (não shadow) no log
    ```
 
 4. **Run R01c re-baseline pós-activate** (compare nDCG):
    ```bash
-   ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="post E03b/E04b activate"'
+   ssh root@$NOX_VPS_HOST 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="post E03b/E04b activate"'
    nox-mem eval compare 9 <new_run_id>
    ```
    - Se nDCG ≥0.519 (Run #9 baseline): ✅ activate confirmado
@@ -4355,9 +4392,9 @@ Primeira tentativa (n=5, Run #4) deu FTS=0.000 — interpretado como possível a
 
 **Sanity check matinal (~3min):**
 ```bash
-ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
-ssh root@187.77.234.79 'journalctl -u nox-mem-api --since "12h ago" 2>/dev/null | grep -cE "\[(vault-facts|focus-shadow)\]"'
+ssh root@$NOX_VPS_HOST 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
+ssh root@$NOX_VPS_HOST 'journalctl -u nox-mem-api --since "12h ago" 2>/dev/null | grep -cE "\[(vault-facts|focus-shadow)\]"'
 ```
 Esperar: schema v12, 64.165 chunks 100% embedded, distribuição reason (unknown=464 / depends_on=50 / mentions=30), shadow events count >0.
 
