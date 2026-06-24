@@ -82,10 +82,10 @@ Rodar full ablation pós-shadow (A8 active vs A8 active + temporal rerank ativo)
 
 ```bash
 # 1. Confirm 7d window
-ssh root@187.77.234.79 'journalctl -u nox-mem-api --since "2026-05-20 00:00 UTC" --no-pager | grep -c "temporal_path"'
+ssh root@$NOX_VPS_HOST 'journalctl -u nox-mem-api --since "2026-05-20 00:00 UTC" --no-pager | grep -c "temporal_path"'
 
 # 2. Run scrape aggregation
-ssh root@187.77.234.79 'bash /root/.openclaw/workspace/scripts/scrape-temporal-shadow.sh aggregate 7d'
+ssh root@$NOX_VPS_HOST 'bash /root/.openclaw/workspace/scripts/scrape-temporal-shadow.sh aggregate 7d'
 
 # 3. Counterfactual eval g5.db (after scrape data confirms detection rate > 5%)
 # Spawn agent isolation: worktree, runs A8 active vs A8 active+temporal-rerank em g5.db full

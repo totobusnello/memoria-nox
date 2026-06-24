@@ -51,7 +51,7 @@ Environment="NOX_TEMPORAL_PATH=shadow"
 ### Sequência
 
 ```bash
-ssh root@187.77.234.79 \
+ssh root@$NOX_VPS_HOST \
   'mkdir -p /etc/systemd/system/nox-mem-api.service.d/ && \
    cat > /etc/systemd/system/nox-mem-api.service.d/d49-temporal-shadow.conf <<EOF
 [Service]
@@ -94,7 +94,7 @@ em prod. Q109 (month_year) é a única do batch onde `kReranked=20` e
 ### Rollback emergencial
 
 ```bash
-ssh root@187.77.234.79 \
+ssh root@$NOX_VPS_HOST \
   'rm /etc/systemd/system/nox-mem-api.service.d/d49-temporal-shadow.conf && \
    systemctl daemon-reload && \
    systemctl restart nox-mem-api'

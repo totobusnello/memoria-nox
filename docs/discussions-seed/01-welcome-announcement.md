@@ -26,7 +26,7 @@ Full table with methodology disclosure: `benchmark/COMPARISON.md`. The paper (ar
 
 - **Repo:** github.com/totobusnello/memoria-nox (MIT)
 - **Paper:** arXiv link TBD (posting Tue 2026-06-01)
-- **Live demo API:** `http://187.77.234.79:18802/api/health` — read-only, best-effort uptime
+- **Live demo API:** `http://$NOX_VPS_HOST:18802/api/health` — read-only, best-effort uptime
 - **Quickstart:** see `docs/QUICKSTART.md` — up and running in under 10 minutes on a fresh Ubuntu VPS
 
 ## What nox-mem is NOT (yet)

@@ -86,7 +86,7 @@ Se algum retornar red, abrir debug antes de qualquer trabalho novo.
 ## 3. ESTADO ATUAL DO SISTEMA (2026-04-23 fim do dia)
 
 ### Infra
-- **VPS:** `root@100.87.8.44` (Tailscale) / `187.77.234.79` (público)
+- **VPS:** `root@100.87.8.44` (Tailscale) / `$NOX_VPS_HOST` (público)
 - **OpenClaw:** 2026.4.21 + monkey-patch Issue #62028 reaplicado
 - **Backend primário:** Claude CLI via OAuth Max (zero API bill)
 - **Fallback chain:** claude-cli → openai-codex → gemini/2.5-pro (sem anthropic/*)

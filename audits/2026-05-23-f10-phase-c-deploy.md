@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-23 14:03 BRT
 **Operator:** executor-high agent
-**Target:** VPS `187.77.234.79` (`/root/.openclaw/workspace/tools/nox-mem/`)
+**Target:** VPS `$NOX_VPS_HOST` (`/root/.openclaw/workspace/tools/nox-mem/`)
 **Source PR:** #267 (merged into main as `04165de`) — telemetry collector + dashboard
 **Pre-deploy SHA:** `8866642` (main, post-#266 nox_mem adapter fix)
 **Time-box:** 1h (consumed ~25min)
@@ -106,16 +106,16 @@ Drove 3 sequential search requests, polled `/api/observability/telemetry?window=
 
 ```bash
 # 1. Restore api-server.ts from pre-deploy backup
-ssh root@187.77.234.79 'cp /tmp/api-server.ts.pre-f10c /root/.openclaw/workspace/tools/nox-mem/src/api-server.ts'
+ssh root@$NOX_VPS_HOST 'cp /tmp/api-server.ts.pre-f10c /root/.openclaw/workspace/tools/nox-mem/src/api-server.ts'
 
 # 2. Rebuild
-ssh root@187.77.234.79 'cd /root/.openclaw/workspace/tools/nox-mem && npm run build 2>&1 | tail -5'
+ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/workspace/tools/nox-mem && npm run build 2>&1 | tail -5'
 
 # 3. Restart service
-ssh root@187.77.234.79 'systemctl restart nox-mem-api && sleep 3 && systemctl is-active nox-mem-api'
+ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api && sleep 3 && systemctl is-active nox-mem-api'
 
 # 4. Verify rollback
-ssh root@187.77.234.79 'curl -sS http://127.0.0.1:18802/api/observability/telemetry?window=1h'
+ssh root@$NOX_VPS_HOST 'curl -sS http://127.0.0.1:18802/api/observability/telemetry?window=1h'
 # Expected: 404 with endpoints list
 ```
 

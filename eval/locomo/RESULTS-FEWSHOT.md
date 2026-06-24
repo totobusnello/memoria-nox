@@ -113,7 +113,7 @@ PR #412 adapter remains opt-in via `--few-shot`; this run is the negative eviden
 
 ## Run provenance
 
-- VPS: 187.77.234.79
+- VPS: $NOX_VPS_HOST
 - Runner dir: `/root/.openclaw/fewshot-runner-32f11f2e-60e9-4833-a99e-77f3237ef`
 - Adapter commit: `2c34b45` (PR #412 merged)
 - Generator: gpt-4.1-mini-2025-04-14

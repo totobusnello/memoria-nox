@@ -111,15 +111,15 @@ Same pattern as hygiene PR #193:
 
 ```bash
 # 1. Push op-audit.ts + all caller files to VPS src/
-scp staged-1.7a/edits/op-audit.ts root@187.77.234.79:/root/.openclaw/workspace/tools/nox-mem/src/lib/
+scp staged-1.7a/edits/op-audit.ts root@$NOX_VPS_HOST:/root/.openclaw/workspace/tools/nox-mem/src/lib/
 scp staged-1.7a/edits/reindex.ts ... <other callers>
 
 # 2. Build
-ssh root@187.77.234.79 'cd /root/.openclaw/workspace/tools/nox-mem && npx tsc --noEmit 2>&1 | head -20'
+ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/workspace/tools/nox-mem && npx tsc --noEmit 2>&1 | head -20'
 # If zero errors: npx tsc
 
 # 3. Restart API
-ssh root@187.77.234.79 'systemctl restart nox-mem-api'
+ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api'
 
 # 4. Validate
 curl http://127.0.0.1:18802/api/health | jq '.opsAudit.byDbSource'

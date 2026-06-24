@@ -2,6 +2,23 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-06-22 (manhã) — morning report 1 RED: órfão de vetor pós-`compact` (cascade trigger falhou em 1/854)
+
+**Severidade:** muito baixa (cosmético; zero impacto funcional, zero perda). **Detecção:** morning report → `🔴 vectorCoverage: 1 orphans (cascade trigger failed?)`; Toto reportou via screenshot de manhã.
+
+**Root cause:** o cron `compact` (consolidação) rodou 02:04 BRT e transformou **854 chunks → 20 summaries** (`ops_audit` status success, com snapshot pre-op próprio `compact-main-20260622020401-…db`). Ao deletar os 854 originais, o trigger `trg_chunks_delete_cascade` limpou `vec_chunks`+`vec_chunk_map` de 853, mas **deixou 1 row órfã**: `vec_chunk_map(chunk_id=266020, vec_rowid=176388)` apontando pra chunk inexistente (1/854 = 0,1%). A métrica `embeddingOrphans = max(0, totalMap − embedded)` (api-server.ts §158) capturou esse 1. **Benigno:** a busca faz JOIN `vec_chunk_map→chunks`, então um vetor cujo chunk não existe **nunca aparece num resultado**. (Os 24 chunks tipo-1 "sem vetor" no mesmo report eram `memory/obra-bvv-log.md` ingerido às 10:03 — transitório, catch-up vectorize 4/4h fechou; não eram o RED.) **NÃO relacionado** ao flip `NOX_BRIEF_DIVERSITY=active` de 21/06 (o brief só lê chunks e escreve em `brief_log`).
+
+**Fix (autorizado, regra #6 — snapshot atômico antes):** script node com better-sqlite3 + `sqliteVec.load()` (vec0 não abre no python/sqlite3 CLI puro — lição recorrente). Sequência: pré-validação (chunk 266020 não existe + vec_rowid 176388 mapeado SÓ ao órfão) → `db.backup()` 1.57GB em `/var/backups/nox-mem/pre-op/orphan-cleanup-main-…db` → `DELETE FROM vec_chunks WHERE rowid=176388; DELETE FROM vec_chunk_map WHERE chunk_id=266020` em transação → verificação `health.vectorCoverage.orphans = 0` ✓.
+
+**Lições:**
+1. **`compact` pode deixar órfão de vetor ocasional** (1/854 observado). Benigno, mas se recorrer 1-por-compact toda noite, instrumentar o cascade ou adicionar sweep de órfãos pós-compact. Watchpoint: report de 23/06.
+2. **Script de manutenção em `tools/nox-mem/` tem que ser `.cjs`** (`package.json` é `"type":"module"`) **e rodar de dentro do dir** (require resolve pelo path do script, não pelo cwd — `/tmp` não acha `better-sqlite3`).
+3. **Vec0 só via better-sqlite3 + sqliteVec.load** — confirmado de novo (mesmo padrão do cleanup 2026-06-04).
+
+**Nota lateral (não-memoria, contido):** durante o setup do gate `active`, um `crontab -l | sed '…#…' | crontab -` **zerou o crontab** (sed abortou no delimitador `#` → pipe vazio sobrescreveu). Restaurado do backup `/tmp/ct.bak` em segundos (0 perda). Lição cross-project: [[feedback_never_pipe_transform_into_overwrite]].
+
+---
+
 ## 2026-06-04 (noite) — Semantic layer down: créditos prepaid Gemini esgotados
 
 **Severidade:** média (degradação semântica ~1h40, zero perda de dado). **Detecção:** canary semântico (`semantic-canary.sh`, :22/:52) → Discord #nox-chief-of-staff às 18:22; Toto reportou via screenshot 19:30.
@@ -332,7 +349,7 @@ Mesma manhã o hook DISPAROU em commit que tentou subir paper §5.5 enquanto bra
 
 **Hipóteses iniciais:** (1) maintenance window, (2) bloqueio por uso CPU/network, (3) firewall mudou, (4) disk full, (5) hardware failure.
 
-**Realidade:** Hostinger fez floating IP swap silencioso. Toto deu novo IP `187.77.234.79`. SSH funcionou de primeira (mesma chave ed25519). Hostname `srv1465941`, uptime **20 days, 50 min** intacto — sem reboot, sem maintenance, sem downtime. Apenas redirecionamento de rota.
+**Realidade:** Hostinger fez floating IP swap silencioso. Toto deu novo IP `$NOX_VPS_HOST`. SSH funcionou de primeira (mesma chave ed25519). Hostname `srv1465941`, uptime **20 days, 50 min** intacto — sem reboot, sem maintenance, sem downtime. Apenas redirecionamento de rota.
 
 **Impact:** ~30min de incerteza, deploy Wave A novo atrasado mas executado com sucesso após IP atualizado. Zero dados perdidos. Service `nox-mem-api` continuou rodando o tempo todo.
 
@@ -346,7 +363,7 @@ Mesma manhã o hook DISPAROU em commit que tentou subir paper §5.5 enquanto bra
 - Memory `[[vps-ip-change-2026-05-20]]` cravada como reference
 - Memory anterior `[[vps-down-2026-05-20]]` ficou desatualizada — não era outage real
 
-**Cross-links:** PR #158 (api-server fix doc), deploy Wave A novo (sed+scp+build em 187.77.234.79), HANDOFF morning + midday 2026-05-20.
+**Cross-links:** PR #158 (api-server fix doc), deploy Wave A novo (sed+scp+build em $NOX_VPS_HOST), HANDOFF morning + midday 2026-05-20.
 
 ## 2026-05-20 ~09h30 BRT (~15min recovery) — Multi-agent branch checkout race condition
 

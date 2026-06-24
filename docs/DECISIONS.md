@@ -1354,7 +1354,7 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 
 #### D76 — Wave 2 Phase 2 Capstone ABORTED (Hostinger infrastructure throttling, INDETERMINATE outcome)
 
-- **Context:** Wave 2 Phase 2 Capstone (IterB ReAct + KG + rerank composability test, PR #426 draft) dispatched Sun 2026-05-31 17:40 BRT on Hostinger VPS 187.77.234.79. Two reboots + multiple resume attempts + yaml patches (search timeout 120s→600s, concurrency 3→1) + bash cost-tracking fixes (commit dcc1e34) + .env ONNX thread caps (ORT/OMP/MKL/OpenBLAS=2) + taskset CPU pinning + openclaw-gateway+warmup disable applied. Despite all mitigations:
+- **Context:** Wave 2 Phase 2 Capstone (IterB ReAct + KG + rerank composability test, PR #426 draft) dispatched Sun 2026-05-31 17:40 BRT on Hostinger VPS $NOX_VPS_HOST. Two reboots + multiple resume attempts + yaml patches (search timeout 120s→600s, concurrency 3→1) + bash cost-tracking fixes (commit dcc1e34) + .env ONNX thread caps (ORT/OMP/MKL/OpenBLAS=2) + taskset CPU pinning + openclaw-gateway+warmup disable applied. Despite all mitigations:
   - Hostinger CPU steal oscillated 8.5% → 97% → 21% → 51-71% (sustained host-level throttling, anti-abuse scanner triggered)
   - Batch 005 ran ~23h after final yaml patch with **0 questions completed** of 50
   - Queries (e.g. F_SH_Top005_040/041/042) reached retry 19/20 with 300s delay each

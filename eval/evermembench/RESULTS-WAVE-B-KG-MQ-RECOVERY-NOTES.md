@@ -26,7 +26,7 @@
 ## Bench state at recovery dispatch
 
 ```
-ssh root@187.77.234.79 \
+ssh root@$NOX_VPS_HOST \
   ls -la /tmp/wave-B-KG-MQ-BEFFB4E5-7001-4788-BBC8-100E20C6C9E9/
 ```
 

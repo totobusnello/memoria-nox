@@ -41,7 +41,7 @@ curl -X POST http://localhost:18802/api/answer \
 
 ## Public demo
 
-`http://187.77.234.79:18802` — read-only endpoints (`/api/health`, `/api/search`) are publicly accessible. Write and gated endpoints are not exposed externally.
+`http://$NOX_VPS_HOST:18802` — read-only endpoints (`/api/health`, `/api/search`) are publicly accessible. Write and gated endpoints are not exposed externally.
 
 ---
 

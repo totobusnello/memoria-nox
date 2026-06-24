@@ -69,7 +69,7 @@
 | E10 pain ablation executed and integrated in §5.5 | ✅ | Δ nDCG@10 = +0.0065, 95% CI [-0.0143, +0.0338], DIRECTIONAL verdict. Results in `results/E10-pain-ablation-hybrid-results.md` |
 | LOCOMO results integrated in §5.3 | ✅ | nDCG@10 = 0.2810 (FTS5 + hybrid), n=100, integrated in Table 5 |
 | E5 multilingual-base result in Table 5 §5.2 | ✅ | Baseline populated; closes [PENDING] gap from critic review |
-| BEIR TREC-COVID result | ❌ | Running on VPS (tmux `beir-trec`); ETA 2026-05-05. Check: `ssh root@187.77.234.79 'tmux capture-pane -p -t beir-trec 2>/dev/null \| tail -20'` |
+| BEIR TREC-COVID result | ❌ | Running on VPS (tmux `beir-trec`); ETA 2026-05-05. Check: `ssh root@$NOX_VPS_HOST 'tmux capture-pane -p -t beir-trec 2>/dev/null \| tail -20'` |
 | Pain claim downgraded to "directional" throughout | ✅ | Abstract + §1.3 + §5.5 updated; no "demonstrates" language remains |
 
 ---
@@ -123,13 +123,13 @@ bash scripts/arxiv-tar.sh
 
 1. Check BEIR TREC-COVID result:
    ```bash
-   ssh root@187.77.234.79 'tmux capture-pane -p -t beir-trec 2>/dev/null | tail -30'
+   ssh root@$NOX_VPS_HOST 'tmux capture-pane -p -t beir-trec 2>/dev/null | tail -30'
    ```
    If complete: integrate result in §5.2 Table 5 BEIR row, update abstract if materially different from expected range.
 
 2. Run md→tex conversion script and attempt first pdflatex compile on VPS:
    ```bash
-   ssh root@187.77.234.79 'which pdflatex || apt-get install -y texlive-full'
+   ssh root@$NOX_VPS_HOST 'which pdflatex || apt-get install -y texlive-full'
    ```
 
 3. Hand `critic-rereview-2-prep.md` to a `critic` agent (Opus, adversarial mode) with instructions to verify each ✅ claim by reading the referenced paper sections.

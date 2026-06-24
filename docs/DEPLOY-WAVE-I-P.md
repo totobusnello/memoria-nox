@@ -36,7 +36,7 @@ O **apply** requer que o dry-run tenha sido rodado nos últimos **5 minutos** (l
 
 O script verifica antes de qualquer ação (dry-run e apply):
 
-1. **SSH connectivity** — `ssh root@187.77.234.79 echo OK`
+1. **SSH connectivity** — `ssh root@$NOX_VPS_HOST echo OK`
 2. **nox-mem API health** — `curl /api/health | jq .schemaVersion` via SSH
 3. **Disco livre** — mínimo 5GB em `/var/backups` na VPS
 4. **Snapshot existente** — aviso se não houver wave-i-p-deploy-*.db (apply cria um novo)
@@ -196,7 +196,7 @@ Cada entry deployada registra em `/var/log/nox-mem-deploy-wave-i-p.log`:
 
 Ver log na VPS:
 ```bash
-ssh root@187.77.234.79 'tail -100 /var/log/nox-mem-deploy-wave-i-p.log'
+ssh root@$NOX_VPS_HOST 'tail -100 /var/log/nox-mem-deploy-wave-i-p.log'
 ```
 
 ---
@@ -223,13 +223,13 @@ O modo `--validate` (também roda automaticamente após `--apply`) verifica:
 O dry-run foi há mais de 5 minutos. Rodar novamente sem `--apply`, revisar o output, e então `--apply`.
 
 ### "Cannot reach VPS via SSH"
-Verificar VPN/firewall. Testar manualmente: `ssh root@187.77.234.79 echo OK`.
+Verificar VPN/firewall. Testar manualmente: `ssh root@$NOX_VPS_HOST echo OK`.
 
 ### "Insufficient disk space"
 ```bash
-ssh root@187.77.234.79 'df -h /var/backups'
+ssh root@$NOX_VPS_HOST 'df -h /var/backups'
 # Limpar snapshots antigos se necessário:
-ssh root@187.77.234.79 'ls -lt /var/backups/nox-mem/pre-op/*.db | tail -20'
+ssh root@$NOX_VPS_HOST 'ls -lt /var/backups/nox-mem/pre-op/*.db | tail -20'
 ```
 
 ### rsync falha em alguma entry
@@ -238,7 +238,7 @@ O script continua (não aborta no primeiro erro). Verificar log na VPS e re-roda
 ### API não sobe após deploy
 O deploy faz rsync de **source TypeScript** — se a VPS usa `dist/` compilado, fazer build após deploy:
 ```bash
-ssh root@187.77.234.79 'cd /root/.openclaw/workspace/tools/nox-mem && npm run build'
+ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/workspace/tools/nox-mem && npm run build'
 systemctl restart nox-mem-api  # ou o serviço equivalente
 ```
 

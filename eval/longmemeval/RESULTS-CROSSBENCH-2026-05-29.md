@@ -3,7 +3,7 @@
 > **Date:** 2026-05-29 (run 00:48-01:14 BRT)
 > **Status:** ✅ COMPLETE — first canonical LongMemEval n=300 cross-bench shipped.
 > **Builds on:** Phase H v2 5-batch EverMemBench cross-backbone WIN (`RESULTS-PHASEH-v2-5BATCH.md`, PR #377).
-> **Run dir:** `/root/.openclaw/eval/lme-crossbench-65a838b8-d3a9-43b8-808f-2852c37b88b5/` (VPS root@187.77.234.79)
+> **Run dir:** `/root/.openclaw/eval/lme-crossbench-65a838b8-d3a9-43b8-808f-2852c37b88b5/` (VPS root@$NOX_VPS_HOST)
 
 ---
 
@@ -193,7 +193,7 @@ A direct s_cleaned cross-bench is a 1.5-hour Gemini-embed-heavy run (~$2 increme
 ## Reproduction
 
 ```bash
-ssh root@187.77.234.79
+ssh root@$NOX_VPS_HOST
 bash /root/.openclaw/workspace/tools/nox-mem/scripts/run-longmemeval-crossbench.sh 300 oracle
 # Outputs land in /root/.openclaw/eval/lme-crossbench-<uuid>/
 ```
