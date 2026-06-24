@@ -10,7 +10,7 @@
 
 set -euo pipefail
 
-BASE_URL="http://187.77.234.79:18802"
+BASE_URL="http://$NOX_VPS_HOST:18802"
 PASS=0
 FAIL=0
 WARN=0

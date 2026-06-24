@@ -2,6 +2,36 @@
 
 ---
 
+## Tue 2026-06-23 — gate active revelou exaustão do pool → fix novelty-penalty no fresh slot (PR #22) + rotação confirmada ao vivo
+
+> Toto: "mergea [#434] e vamos continuar" → colher o gate active limpo → achado → "implementa a troca". Sessão fechou o ciclo `shadow→diagnose→fix→measure` do split-slot.
+
+### Gate active de 24h colhido — a rotação tinha colapsado
+Cron `d2-gate-active-report.sh` rodou 06:10 (janela 22→23/06, **todo active**). Resultado contra-intuitivo: **distinct entity = 1** em 6728 briefs/24h. Recheck profundo (não era pool raso — 184 elegíveis):
+- **distinct entities por dia desde o flip**: 21/06 (flip) = **190** ✅ → 22,23,24 = **1**. A rotação funcionou **espetacularmente 1 dia e secou**.
+- Causa: a **exclusão-dura** do fresh slot (`id NOT IN brief_log WHERE served_at > -72h`) sob **volume ≫ pool** (6728 briefs/dia, 189 curados) serviu **todo o pool em 1 dia** → marcou todos "servido" por 72h → seca → **fail-open trava no top-1 salience**.
+- O "1" residual (`227328`) é **artefato de métrica**: é o **brief principal** (decisão imp 0.9, servido 672×/dia desde 05/06, antes do flip), não o slot fresh. O gate conta os dois juntos.
+
+### Fix (PR nox-workspace **#22**, `tune(brief)`)
+`fetchFreshCandidates` re-ranqueia por `briefScore = salience − noveltyPenalty(n_serves)` — o **mesmo mecanismo do slot principal** — em vez de excluir. Servir despriora (`λ·log1p(n_serves)`) sem eliminar → variedade gira continuamente. `FRESH_CANDIDATE_POOL` **100→400** (proxy uniforme cortaria não-servidos no LIMIT). **High-pain (pain≥painFloor) imune** (FLOOR invariante #4). **26/26 testes** (2 novos), **RED provado** (revertendo só o brief.ts, os 2 falham contra a exclusão-dura). tsc limpo nos arquivos tocados (erros restantes pré-existentes).
+
+### Deploy em `active` + rotação CONFIRMADA AO VIVO
+Shadow não mede rotação (`brief_log`←`current`) → deploy direto em active (onde estamos). `git checkout origin/<branch> -- <2 files>` no working copy (HEAD seguiu main, **zero contaminação**) + `npx tsc` (rebuild dist) + restart 23:15 BRT. Verificado: dist com pool=400 + exclusão-dura removida + serveCounts no fetchFresh; serviço active, env active, vectorCoverage 70251/70251 **orphans=0**. **Prova ao vivo:** 5 chamadas `/api/brief?scope=global&agent=nox` → slot fresh trouxe **6 entities distintos** (227520, 227232, 227444, 227240, 227100) — **vs 1 em 24h antes**. (`227328` onipresente = brief principal.)
+
+### ⚠️ Próxima ação — RETOMAR AQUI
+1. **Gate active de 24h amanhã (24/06 06:10)** em `/var/log/nox-d2-gate-active.log` — esperado distinct entity **dezenas/centenas** (rotação contínua) vs o 1 de hoje. **Número final do paper §3.5.** ⚠️ Lembrar: a métrica conta brief principal + fresh juntos; o salto vem do fresh.
+2. **PR #22** (nox-workspace) — Forge revisa/merge; pós-merge reconciliar working copy (`git checkout -- <files>` + pull + rebuild).
+3. **Rollback** (se gate reprovar): checkout do brief.ts antigo + rebuild + restart.
+4. Doc desta sessão no **PR memoria-nox** (branch `docs/2026-06-23-fresh-novelty-rotation`): HANDOFF + paper §3.5 + 4 docs IP redigidos.
+
+### Notas
+- SSH VPS prod `root@$NOX_VPS_HOST` = autorização explícita por sessão.
+- Clone descartável do nox-workspace: `/tmp/nox-ws-freshrotate` (branch já no GitHub, PR #22).
+- ⚠️ `set -e` + `grep -c` que retorna 0 aborta o script (grep sem match = exit 1) — usar `|| true` em greps de "deve-ser-zero". Heredoc SSH: usar aspas duplas SEM `\"` (escape vira literal no heredoc quotado).
+- Memória: [[project_d2_brief_diversity_shadow_deployed]] (update gate active + fix).
+
+---
+
 ## Mon 2026-06-22 — morning report 1 RED resolvido (órfão de vetor) + CodeQL silenciado (PR #435)
 
 > Toto: "recebi um alerta de manhã sobre nossa memória" + depois "vê o CodeQL". Duas frentes, ambas fechadas. SSH read+1 op de limpeza autorizados explicitamente.

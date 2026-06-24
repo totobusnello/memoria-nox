@@ -9,7 +9,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://187.77.234.79:18802",
+      "value": "http://$NOX_VPS_HOST:18802",
       "type": "string",
       "description": "Base URL for nox-mem API. Override to http://localhost:18802 for local instance."
     }
