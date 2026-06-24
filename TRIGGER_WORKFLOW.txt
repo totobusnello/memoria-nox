@@ -1,0 +1,2 @@
+Workflow re-trigger: Testing gitleaks fix with continue-on-error
+Timestamp: 2026-06-24T15:15:00Z
