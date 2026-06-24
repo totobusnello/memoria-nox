@@ -6,7 +6,7 @@
 #   ./docs/launch-assets/scripts/demo-record.sh [--dry-run] [--local]
 #
 # Modes:
-#   (default) Uses VPS at http://187.77.234.79:18802 (public demo, read-only)
+#   (default) Uses VPS at http://$NOX_VPS_HOST:18802 (public demo, read-only)
 #   --local   Uses http://localhost:18802 (requires local nox-mem running)
 #   --dry-run Echo commands without executing them (sanity check)
 #
@@ -26,7 +26,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 CAST_DIR="$REPO_ROOT/docs/launch-assets/cast"
-BASE_URL="http://187.77.234.79:18802"
+BASE_URL="http://$NOX_VPS_HOST:18802"
 DRY_RUN=false
 LOCAL=false
 
