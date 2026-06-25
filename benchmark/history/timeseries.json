@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-24T06:34:51.409Z",
+  "generated": "2026-06-25T06:38:31.728Z",
   "window_days": 30,
   "keys": [
     "A2.export.encrypted.500chunks_3072d.archive_mb",
@@ -7,13 +7,6 @@
     "A2.export.plain.500chunks_3072d.duration_ms"
   ],
   "rows": [
-    {
-      "date": "2026-05-25",
-      "overall": "PASS",
-      "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303552627563477,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357961654663086,
-      "A2.export.plain.500chunks_3072d.duration_ms": 181
-    },
     {
       "date": "2026-05-26",
       "overall": "PASS",
@@ -223,6 +216,13 @@
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303548812866211,
       "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834,
       "A2.export.plain.500chunks_3072d.duration_ms": 181
+    },
+    {
+      "date": "2026-06-25",
+      "overall": "FAIL",
+      "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303557395935059,
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656,
+      "A2.export.plain.500chunks_3072d.duration_ms": 223
     }
   ]
 }
