@@ -2,6 +2,42 @@
 
 ---
 
+## Wed 2026-06-24 — merges #22+#436 confirmados, working copy reconciliado, rotação 1→93 (preliminar 9h) — gate 24h fecha amanhã
+
+> Sessão de fechamento. PRs do fix + docs mergeados pelo Forge; working copy da VPS reconciliado; rotação medida ao vivo confirma o fix. Número **definitivo** do paper §3.5 sai do gate de 24h amanhã.
+
+### Merges + reconciliação
+- **PR #22** (nox-workspace, fix novelty-penalty) **MERGED** 11:07Z · **PR #436** (memoria-nox, docs 23/06 + paper §3.5 + 4 docs IP) **MERGED** 11:07Z.
+- Main local memoria-nox reconciliado (doc 23/06 + §3.5 + **0 IP cru** em docs/).
+- Working copy VPS reconciliado: `git checkout -- <2 files>` + `git pull` → Fast-forward HEAD `a262cbaa`, fix-files mod=0 (limpo). Serviço roda o fix via main.
+
+### Gate active — número PRELIMINAR (9h pós-deploy), definitivo amanhã
+| | antes do fix (23/06) | depois (24/06, 9h pós-deploy) |
+|---|---|---|
+| distinct entity (rotação) | **1** | **93** |
+| briefs na janela | — | 2600 |
+| FLOOR (high-pain servidos) | — | 2 (não-zero ✓) |
+| por agente | 1 cada | nox 63, cipher 52, lex 51, boris 48, atlas 29, forge 25 |
+
+Rotação **1 → 93** em 9h (run do cron 24h, que mistura o período pré-fix travado, já mostra 56/agente). Achado do paper confirmado com número forte; **não registrado nos docs ainda — esperando o gate de 24h completo** (decisão Toto).
+
+### Rotação confirmada ao vivo (independente do gate)
+8 chamadas `/api/brief?scope=global&agent=nox`: **24 distinct ids** (8 estáveis = brief principal incl. `227328`; **16 rotativos** = slot fresh girando 8 curados globais + slot do agente). vs 1 em 24h antes.
+
+### ⚠️ Próxima ação — RETOMAR AQUI (amanhã 25/06)
+1. **Colher o gate active de 24h LIMPO: 25/06 06:10 BRT** (`/var/log/nox-d2-gate-active.log`, ou manual `d2-gate-active-report.sh "-24 hours"`) — primeira janela 100% pós-fix. Esperado distinct entity **>150** (9h já deu 93). Esse é o **número definitivo do paper §3.5**.
+2. **Registrar o número final** no HANDOFF + paper §3.5 (substituir o "esperado dezenas/centenas" do parágrafo *Active-mode validation*). E no `[[project_d2_brief_diversity_shadow_deployed]]`.
+3. Rebuild paper `.pdf`/`.docx` (pandoc/xelatex) — pendente, pré-arXiv.
+
+### ⚠️ Nota operacional — SSH público (porta 22) bloqueado
+A porta 22 da VPS deu timeout no fim da sessão (**ping OK, IP inalterado** `$NOX_VPS_HOST`, serviço saudável via API). Provável **fail2ban** pelas dezenas de conexões SSH da sessão; costuma auto-liberar em ~10-30min. **Contorno que funcionou: Tailscale SSH** (`root@srv1465941.tail4caa5b.ts.net`) bypassa a porta 22 pública. A API HTTP via Tailscale (`https://srv1465941.tail4caa5b.ts.net` + Bearer em `~/.config/nox-mem/token`) também respondeu normal. Se o SSH público persistir bloqueado amanhã, usar o hostname Tailscale.
+
+### Estado
+- Serviço nox-mem-api: active, env `NOX_BRIEF_DIVERSITY=active`, vectorCoverage 70251/70251 **orphans=0** (órfão de 22/06 segue limpo).
+- Memória: [[project_d2_brief_diversity_shadow_deployed]].
+
+---
+
 ## Tue 2026-06-23 — gate active revelou exaustão do pool → fix novelty-penalty no fresh slot (PR #22) + rotação confirmada ao vivo
 
 > Toto: "mergea [#434] e vamos continuar" → colher o gate active limpo → achado → "implementa a troca". Sessão fechou o ciclo `shadow→diagnose→fix→measure` do split-slot.
