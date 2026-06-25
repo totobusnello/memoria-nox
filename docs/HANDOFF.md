@@ -2,6 +2,26 @@
 
 ---
 
+## Thu 2026-06-25 — PR #415 (HyDE cross-bench) reconciliado com a main e mergeado — conflito de 3 famílias resolvido
+
+> A branch `feat/hyde-cross-bench` estava com conflito vs `main`: a branch adicionava **HyDE**, enquanto a main tinha ganho **IterB (#414)** + **few_shot (#412)** nos mesmos trechos dos dois adapters de eval. Merge da main na branch, conflitos resolvidos mantendo as 3 famílias, PR #415 **mergeado (squash)** → main `b13a1f8`. (Não altera a próxima ação operacional viva — o gate D2 da entrada de 24/06 segue pendente.)
+
+### Conflitos (7) — `eval/evermembench/adapter_nox_mem.py` (4) + `eval/locomo/adapter_nox_mem.py` (3)
+- Maioria "manter os dois lados" — features modulares inserindo em âncoras adjacentes: flags no `__init__`, chaves de `metadata`/`get_system_info`, params de `run_conversation`/argparse/call.
+- **Guard baseline (decisão de código):** `if not mq_used_subquery_path and not iterc_used_path and not iterb_used_path and not hyde_used_path:` — considera **todos** os flags.
+- **Guard do HyDE (coerência, não só junção):** passou a excluir também `iterb_used_path`. HyDE foi desenvolvido em paralelo ao IterB e não o conhecia; sem isso, HyDE sobrescreveria os candidatos do IterB quando ambos ativos. Alinha com o padrão que a main já aplicou a MQ/KG/reranker/IterC.
+- **`version` unificada (decisão de código):** `"phase-hyde+iterB-0.1"` — representa o estado combinado, segue a convenção `phase-…-0.1`; substitui `phase-hyde-wave1-0.1` e `phase-iterB-q3-poc-0.1`.
+
+### Testes (sem regressão)
+- `py_compile` OK nos 2 adapters · `test_phaseIterB_smoke.py` **14/14** · `test_adapter_phaseKG_unit.py` **5/5** · `test_query_classifier.py` OK (com `PYTHONPATH` da raiz — a falha inicial era de invoke, preexistente, não do merge).
+- Adapter instancia em `phaseHyDE`/`phaseIterB`, ambas as famílias de flags coexistem, `get_system_info().version == "phase-hyde+iterB-0.1"`; locomo importa com os 9 params `hyde_*` + `few_shot`.
+- CI do PR: **14/14 checks verdes** (Python Syntax, TS typecheck, gitleaks, Trivy, etc.).
+
+### Estado
+- `origin/main` em `b13a1f8` (PR #415 squash). Branch `feat/hyde-cross-bench` removida (local + remota).
+
+---
+
 ## Wed 2026-06-24 — merges #22+#436 confirmados, working copy reconciliado, rotação 1→93 (preliminar 9h) — gate 24h fecha amanhã
 
 > Sessão de fechamento. PRs do fix + docs mergeados pelo Forge; working copy da VPS reconciliado; rotação medida ao vivo confirma o fix. Número **definitivo** do paper §3.5 sai do gate de 24h amanhã.
