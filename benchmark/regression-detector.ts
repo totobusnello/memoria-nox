@@ -339,6 +339,7 @@ const RUNNABLE_METRICS = new Set([
 const BASELINE_ONLY_METRICS = new Set([
   "A2.roundtrip_integrity.byte_loss",
   // --- A2 future-feature exemption (v1.0 gate) ---
+  "A2.export.plain.500chunks_3072d.duration_ms",
   "A2.export.plain.500chunks_3072d.compression_ratio_pct",
   "A2.import.plain.500chunks_3072d.duration_ms",
   "A2.export.encrypted.500chunks_3072d.duration_ms",
