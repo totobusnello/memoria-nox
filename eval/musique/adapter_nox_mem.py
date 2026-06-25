@@ -117,6 +117,15 @@ class QResult:
     output_tokens: int = 0
     embed_tokens: int = 0
     error: str | None = None
+    # Phase HyDE (Wave 1 cross-bench)
+    hyde_applied: bool = False
+    hyde_status: str = "off"
+    hyde_error: str | None = None
+    hyde_generate_ms: float = 0.0
+    hyde_retrieve_ms: float = 0.0
+    hyde_hypothetical_chars: int = 0
+    hyde_hypothetical_preview: str = ""
+    hyde_hybrid: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -442,6 +451,122 @@ def search_api(
     return [], ms, None
 
 
+# ---------------------------------------------------------------------------
+# Phase HyDE — Hypothetical Document Embeddings (Gao et al. 2022,
+# arxiv:2212.10496). When --hyde is passed, an LLM generates a hypothetical
+# passage for each question and uses it as the dense retrieval query
+# (either pure or RRF-combined with raw query for hybrid mode).
+# ---------------------------------------------------------------------------
+
+DEFAULT_HYDE_LLM = "gemini-2.5-flash-lite"
+DEFAULT_HYDE_LLM_BASE_URL = (
+    "https://generativelanguage.googleapis.com/v1beta/openai"
+)
+DEFAULT_HYDE_TIMEOUT_S = 25
+DEFAULT_HYDE_MAX_TOKENS = 220
+DEFAULT_HYDE_RRF_K = 60
+
+PHASE_HYDE_PROMPT = (
+    "You are generating a HYPOTHETICAL passage to seed dense retrieval "
+    "against a corpus of Wikipedia-style paragraphs (Hypothetical Document "
+    "Embeddings — Gao et al. 2022, arxiv:2212.10496).\n\n"
+    "Write a concise 80-120 word DECLARATIVE passage that plausibly "
+    "answers the multi-hop question below as if quoting the underlying "
+    "evidence paragraphs. Use the SAME language as the question.\n\n"
+    "Rules: declarative statements only; mention plausible names, dates, "
+    "places, and the chain-of-entities the multi-hop question implies "
+    "(even if invented — surface form matters, factual accuracy does not); "
+    "do NOT prefix with 'Hypothetical answer:' or any framing — just the "
+    "passage.\n\n"
+    "Question: {query}\n\n"
+    "Hypothetical passage:"
+)
+
+
+def hyde_generate_hypothetical(
+    query: str,
+    model: str,
+    base_url: str,
+    api_key: str,
+    timeout_s: int,
+    max_tokens: int,
+) -> tuple[str | None, float, str | None]:
+    """Synchronous HyDE generator (OpenAI-compat chat completions)."""
+    prompt = PHASE_HYDE_PROMPT.format(query=query)
+    body = json.dumps({
+        "model": model,
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0,
+        "max_tokens": max_tokens,
+    }).encode("utf-8")
+    url = base_url.rstrip("/") + "/chat/completions"
+    req = urllib.request.Request(
+        url,
+        data=body,
+        headers={
+            "content-type": "application/json",
+            "authorization": f"Bearer {api_key}",
+        },
+        method="POST",
+    )
+    t0 = time.time()
+    try:
+        with urllib.request.urlopen(req, timeout=timeout_s) as r:
+            j = json.loads(r.read().decode("utf-8"))
+    except Exception as e:  # noqa: BLE001
+        return None, (time.time() - t0) * 1000.0, f"{type(e).__name__}: {e}"
+    ms = (time.time() - t0) * 1000.0
+    try:
+        text = j["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return None, ms, f"malformed response: {str(j)[:200]}"
+    cleaned = text.strip()
+    if cleaned.startswith("```"):
+        cleaned = _re.sub(r"^```(?:[a-zA-Z0-9]+)?\s*", "", cleaned)
+        cleaned = _re.sub(r"\s*```\s*$", "", cleaned)
+        cleaned = cleaned.strip()
+    cleaned = _re.sub(
+        r"^(hypothetical (passage|answer|document)|passage|answer)\s*:?\s*",
+        "",
+        cleaned,
+        flags=_re.IGNORECASE,
+    ).strip()
+    if len(cleaned) < 30:
+        return None, ms, f"too-short response ({len(cleaned)} chars)"
+    return cleaned, ms, None
+
+
+def hyde_rrf_merge(
+    per_query_hits: list[list[dict]],
+    rrf_k: int,
+) -> list[dict]:
+    score_by_key: dict = {}
+    first_by_key: dict = {}
+    for hits in per_query_hits:
+        for rank, h in enumerate(hits):
+            if not isinstance(h, dict):
+                continue
+            key = (
+                h.get("chunk_id")
+                or h.get("id")
+                or h.get("rowid")
+                or hash(
+                    str(h.get("chunk_text") or h.get("text") or h.get("snippet") or "")
+                )
+            )
+            score_by_key[key] = score_by_key.get(key, 0.0) + 1.0 / (rrf_k + rank + 1)
+            if key not in first_by_key:
+                first_by_key[key] = h
+    return [
+        item
+        for _key, item in sorted(
+            first_by_key.items(),
+            key=lambda kv: score_by_key[kv[0]],
+            reverse=True,
+        )
+    ]
+
+
 def call_openai_generator(
     prompt: str,
     model: str,
@@ -581,6 +706,15 @@ def run_question(
     out_fh,
     no_vectorize: bool = False,
     no_generator: bool = False,
+    hyde_enabled: bool = False,
+    hyde_hybrid: bool = True,
+    hyde_model: str = DEFAULT_HYDE_LLM,
+    hyde_base_url: str = DEFAULT_HYDE_LLM_BASE_URL,
+    hyde_api_key: str = "",
+    hyde_max_tokens: int = DEFAULT_HYDE_MAX_TOKENS,
+    hyde_timeout_s: int = DEFAULT_HYDE_TIMEOUT_S,
+    hyde_rrf_k: int = DEFAULT_HYDE_RRF_K,
+    hyde_debug: bool = False,
 ) -> tuple[int, int]:
     """
     Ingest + run ONE MuSiQue question end-to-end.
@@ -636,9 +770,70 @@ def run_question(
     try:
         proc = start_api_server(db_path, api_port, env_base)
         try:
-            hits, sms, serr = search_api(
-                api_base, question.question, top_k, DEFAULT_SEARCH_TIMEOUT
-            )
+            # HyDE path or baseline
+            hyde_used = False
+            hits = []
+            sms = 0.0
+            serr = None
+            if hyde_enabled and hyde_api_key:
+                res.hyde_hybrid = hyde_hybrid
+                hypo, hgen_ms, herr = hyde_generate_hypothetical(
+                    question.question,
+                    model=hyde_model,
+                    base_url=hyde_base_url,
+                    api_key=hyde_api_key,
+                    timeout_s=hyde_timeout_s,
+                    max_tokens=hyde_max_tokens,
+                )
+                res.hyde_generate_ms = hgen_ms
+                if herr is not None or not hypo:
+                    res.hyde_status = "fallback_single"
+                    res.hyde_error = herr or "empty hypothetical"
+                    if hyde_debug:
+                        progress_log(
+                            f"[HyDE] qid={question.qid} fallback: {res.hyde_error}"
+                        )
+                else:
+                    res.hyde_applied = True
+                    res.hyde_status = "applied"
+                    res.hyde_hypothetical_chars = len(hypo)
+                    res.hyde_hypothetical_preview = hypo[:200]
+                    retr_t0 = time.time()
+                    if hyde_hybrid:
+                        hits_raw, _ms_raw, err_raw = search_api(
+                            api_base,
+                            question.question,
+                            top_k,
+                            DEFAULT_SEARCH_TIMEOUT,
+                        )
+                        hits_hyde, _ms_hyde, err_hyde = search_api(
+                            api_base, hypo, top_k, DEFAULT_SEARCH_TIMEOUT
+                        )
+                        if err_raw and err_hyde:
+                            serr = f"raw={err_raw}; hyde={err_hyde}"
+                        else:
+                            merged = hyde_rrf_merge(
+                                [
+                                    hits_raw if not err_raw else [],
+                                    hits_hyde if not err_hyde else [],
+                                ],
+                                rrf_k=hyde_rrf_k,
+                            )
+                            hits = merged[:top_k]
+                    else:
+                        hits, _ms_pure, serr = search_api(
+                            api_base, hypo, top_k, DEFAULT_SEARCH_TIMEOUT
+                        )
+                    sms = (time.time() - retr_t0) * 1000.0
+                    res.hyde_retrieve_ms = sms
+                    hyde_used = True
+            elif hyde_enabled and not hyde_api_key:
+                res.hyde_status = "fallback_single"
+                res.hyde_error = "no api_key (NOX_HYDE_LLM_API_KEY / GEMINI_API_KEY)"
+            if not hyde_used:
+                hits, sms, serr = search_api(
+                    api_base, question.question, top_k, DEFAULT_SEARCH_TIMEOUT
+                )
             res.retrieval_ms = sms
             if serr:
                 raise RuntimeError(f"search: {serr}")
@@ -749,6 +944,21 @@ def main(argv: list[str] | None = None) -> int:
         "--first-n", action="store_true",
         help="take first-N in dataset order (overrides --stratified)",
     )
+    p.add_argument("--hyde", action="store_true",
+                   help="enable Phase HyDE (Hypothetical Document Embeddings — "
+                        "Gao et al. 2022, arxiv:2212.10496). Default hybrid "
+                        "mode: RRF-merges raw + hypothetical results.")
+    p.add_argument("--hyde-pure", action="store_true",
+                   help="when combined with --hyde, use hypothetical-only "
+                        "retrieval (skip raw-query RRF merge).")
+    p.add_argument("--hyde-llm", default=DEFAULT_HYDE_LLM,
+                   help=f"HyDE generator model (default {DEFAULT_HYDE_LLM})")
+    p.add_argument("--hyde-max-tokens", type=int, default=DEFAULT_HYDE_MAX_TOKENS,
+                   help=f"HyDE max_tokens (default {DEFAULT_HYDE_MAX_TOKENS})")
+    p.add_argument("--hyde-timeout", type=int, default=DEFAULT_HYDE_TIMEOUT_S,
+                   help=f"HyDE timeout sec (default {DEFAULT_HYDE_TIMEOUT_S})")
+    p.add_argument("--hyde-debug", action="store_true",
+                   help="log HyDE generation status per question")
     args = p.parse_args(argv)
 
     # Env
@@ -855,6 +1065,15 @@ def main(argv: list[str] | None = None) -> int:
                 _log, fh,
                 no_vectorize=args.no_vectorize,
                 no_generator=args.no_generator,
+                hyde_enabled=args.hyde,
+                hyde_hybrid=(args.hyde and not args.hyde_pure),
+                hyde_model=args.hyde_llm,
+                hyde_base_url=DEFAULT_HYDE_LLM_BASE_URL,
+                hyde_api_key=env_base.get("GEMINI_API_KEY", ""),
+                hyde_max_tokens=args.hyde_max_tokens,
+                hyde_timeout_s=args.hyde_timeout,
+                hyde_rrf_k=DEFAULT_HYDE_RRF_K,
+                hyde_debug=args.hyde_debug,
             )
             n_done += d
             n_err += e
