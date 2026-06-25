@@ -267,6 +267,28 @@ nox-mem answer "what incidents happened last week?" --changed-since 7d
 nox-mem answer "explain the pain weighting evolution" --top-k 20
 ```
 
+### Packaged composition: `GET /api/brief` (session priming)
+
+`/api/brief` is not a fourth primitive — it is a packaged composition of
+salience ranking + temporal filtering, designed for the Session Priming
+Loop (spec `2026-06-04-session-priming-loop.md`): every session starts
+with a compact pointer digest of the most salient knowledge for its scope.
+
+```bash
+# top-10 by salience for a project scope (JSON)
+curl 'http://127.0.0.1:18802/api/brief?scope=memoria-nox'
+
+# agent persona refinement + plain text, stdout-ready for SessionStart hooks
+curl 'http://127.0.0.1:18802/api/brief?scope=global&agent=cipher&format=text'
+
+# compose with recency window (same grammar as --changed-since)
+curl 'http://127.0.0.1:18802/api/brief?scope=NUVIVI&since=30d&n=5'
+```
+
+Invariants: read-only over `chunks`; serving tracked in `brief_log` only —
+`access_count` stays organic. Budget ≤ ~1,200 tokens (pointer pattern:
+fetch details on demand via `search`).
+
 Every advanced verb in nox-mem (`reflect`, `cross-search`, `kg-path`,
 `crystallize`, …) is implemented internally as a sequence of these three
 primitives. If you're writing an agent, you can build any retrieval

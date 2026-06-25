@@ -308,7 +308,7 @@ Alphabetical reference. Each entry gives a tight definition and a concrete examp
 
 **Definition.** Alex Garcia's MIT-licensed SQLite extension that adds a `vec0` virtual table for fast cosine-similarity search over dense float vectors. nox-mem uses it as Layer 2 (semantic) retrieval over 3072-dimensional Gemini embeddings.
 
-**Example.** `vec_chunks` stores one `FLOAT[3072]` row per chunk; `vec_chunk_map` bridges `chunks.id ↔ vec_chunks.rowid`. At 68k chunks × 3072d, the total vector store is ~800 MB — still fits comfortably in a 2 GB VPS.
+**Example.** `vec_chunks` stores one `FLOAT[3072]` row per chunk; `vec_chunk_map` bridges `chunks.id ↔ vec_chunks.rowid`. At ~95k chunks × 3072d, the total vector store is ~1.2 GB — still fits in a small VPS alongside the main DB.
 
 **See also:** [Gemini embedding](#gemini-embedding), [Hybrid search](#hybrid-search), [docs/ARCHITECTURE.md](ARCHITECTURE.md) §3.
 

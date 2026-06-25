@@ -24,7 +24,7 @@
 | Endpoint | `http://127.0.0.1:18803/api/search` (isolated, prod 18802 untouched) |
 | n queries | 100 (5 categorias × 2 styles × 10) |
 | Harness verification | `_check_eval_isolation` enforced `NOX_EVAL_DB_PATH` set + port ≠ 18802 |
-| VPS | `root@187.77.234.79` |
+| VPS | `root@$NOX_VPS_HOST` |
 | Date / wall-clock | 2026-05-21 ~14:38–14:51 BRT (~13 min, 4 runs × ~2.6 min) |
 
 ### Configs

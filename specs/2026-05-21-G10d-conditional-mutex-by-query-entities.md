@@ -429,7 +429,7 @@ DB: `/root/.openclaw/workspace/eval-data/g9-g5db-2026-05-20/g9.db` (mesmo G10b/G
 Driver: `entity_ablation_eval.py` (per_category + per_style nativo).
 Endpoint: `http://127.0.0.1:18803/api/search` (isolated, prod 18802 untouched).
 n=100 queries (5 categorias × 2 styles × 10 queries).
-VPS: `root@187.77.234.79`.
+VPS: `root@$NOX_VPS_HOST`.
 
 ### Configurações a comparar
 

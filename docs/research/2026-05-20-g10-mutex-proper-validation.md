@@ -10,7 +10,7 @@
 
 ## 1. Sumário executivo
 
-A sessão foi instruída a (a) verificar como G9 rodou de verdade na VPS, (b) reproduzir o baseline A0 como sanity, e (c) medir A8' (mutex active) vs A8/A10 (mutex disabled, sanity). O acesso SSH à VPS de produção (`root@187.77.234.79`) foi negado pela camada de sandbox no primeiro comando (`ssh ... 'ls /tmp/g9-*'`), antes mesmo da fase de forensics live. A constraint explícita do escopo permitia exatamente este fallback:
+A sessão foi instruída a (a) verificar como G9 rodou de verdade na VPS, (b) reproduzir o baseline A0 como sanity, e (c) medir A8' (mutex active) vs A8/A10 (mutex disabled, sanity). O acesso SSH à VPS de produção (`root@$NOX_VPS_HOST`) foi negado pela camada de sandbox no primeiro comando (`ssh ... 'ls /tmp/g9-*'`), antes mesmo da fase de forensics live. A constraint explícita do escopo permitia exatamente este fallback:
 
 > "Se não conseguir reproduzir G9 baseline em 20min: aborta + report findings (Path B failed, fallback Path A)"
 
@@ -145,21 +145,21 @@ Operador com SSH:
 
 ```bash
 # Sync runner pra VPS
-scp scripts/run-g10-ablation.sh root@187.77.234.79:/root/
+scp scripts/run-g10-ablation.sh root@$NOX_VPS_HOST:/root/
 
 # Tmux pra survival
-ssh root@187.77.234.79 'tmux new-session -d -s g10-proper-ablation \
+ssh root@$NOX_VPS_HOST 'tmux new-session -d -s g10-proper-ablation \
   "bash /root/run-g10-ablation.sh --sanity 2>&1 | tee /tmp/g10-sanity.log"'
 
 # Conferir resultado A0
-ssh root@187.77.234.79 'tmux capture-pane -p -t g10-proper-ablation | tail -20'
+ssh root@$NOX_VPS_HOST 'tmux capture-pane -p -t g10-proper-ablation | tail -20'
 
 # Se sanity OK (A0 ≈ 0.4108), rodar full
-ssh root@187.77.234.79 'tmux send-keys -t g10-proper-ablation \
+ssh root@$NOX_VPS_HOST 'tmux send-keys -t g10-proper-ablation \
   "bash /root/run-g10-ablation.sh --full 2>&1 | tee /tmp/g10-full.log" Enter'
 
 # Pull results back
-rsync -av root@187.77.234.79:/root/.openclaw/workspace/eval-data/g9-g5db-2026-05-20/g10-results-*/ \
+rsync -av root@$NOX_VPS_HOST:/root/.openclaw/workspace/eval-data/g9-g5db-2026-05-20/g10-results-*/ \
   docs/RESEARCH/g10-mutex-2026-05-20/
 ```
 

@@ -162,7 +162,7 @@ Append to the `endpoints` array in the `default:` 404 branch:
 
 ```bash
 # 1. Restart service
-ssh root@187.77.234.79 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
+ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
 
 # 2. Smoke test telemetry endpoint (initially empty)
 curl -s 'http://127.0.0.1:18802/api/observability/telemetry?window=24h' | jq '.aggregate'

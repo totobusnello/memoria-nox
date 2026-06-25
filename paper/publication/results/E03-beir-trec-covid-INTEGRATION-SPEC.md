@@ -3,14 +3,14 @@
 **Status:** Waiting for overnight VPS run to complete.
 **BEIR run launched:** 2026-05-04 10:30 BRT  
 **Expected completion:** 2026-05-05 01:00–06:00 BRT  
-**tmux session:** `beir-trec` on `root@187.77.234.79`
+**tmux session:** `beir-trec` on `root@$NOX_VPS_HOST`
 
 ---
 
 ## Step 0 — Verify VPS results exist
 
 ```bash
-ssh root@187.77.234.79 'ls -lah /root/beir-results/'
+ssh root@$NOX_VPS_HOST 'ls -lah /root/beir-results/'
 ```
 
 You must see **all three** of these files before proceeding:
@@ -24,8 +24,8 @@ You must see **all three** of these files before proceeding:
 If `baselines-comparison-beir.csv` is missing, the run is still in progress:
 
 ```bash
-ssh root@187.77.234.79 'tail -30 /var/log/nox-mem/beir-full-run.log'
-ssh root@187.77.234.79 'tmux ls'
+ssh root@$NOX_VPS_HOST 'tail -30 /var/log/nox-mem/beir-full-run.log'
+ssh root@$NOX_VPS_HOST 'tmux ls'
 ```
 
 ---
@@ -84,7 +84,7 @@ you pulled manually via rsync:
 
 ```bash
 # Manual pull
-rsync -av root@187.77.234.79:/root/beir-results/ \
+rsync -av root@$NOX_VPS_HOST:/root/beir-results/ \
     /Users/lab/Claude/Projetos/memoria-nox/paper/publication/results/beir/
 
 # Then integrate without SCP

@@ -32,7 +32,7 @@ We make three primary contributions:
 
 Secondary contributions:
 4. Full open-source eval harness with nDCG/MRR/Recall/Precision over 50 curated queries (R01a)
-5. Operational evidence: 4 months production, 5 infrastructure upgrades survived, 64K+ chunks 100% embedded
+5. Operational evidence: ~3 months production, 5 infrastructure upgrades survived, ~95K chunks ~100% embedded
 6. Comparative empirical analysis vs 3 strong baselines (BM25, BGE-M3, E5-mistral) across 3 corpora
 
 ### 1.3 Paper organization
@@ -138,7 +138,7 @@ salience(chunk) = recency(chunk) × pain(chunk) × importance(chunk)
 - Citation guidance: "(n=50 main + n=10 held-out, 3-run mean ± std)"
 
 ### 4.3 Three corpora design
-- **Corpus A** (primary): nox-mem operational corpus (64K chunks, 1GB DB) — author's own multi-agent memory
+- **Corpus A** (primary): nox-mem operational corpus (~95K chunks, 1.6GB DB) — author's own multi-agent memory
 - **Corpus B**: BEIR TREC-COVID subset (171K chunks, 50 queries, third-party curator)
 - **Corpus C**: Stack Exchange dump 10K subset (mixed factoid/how-to/opinion queries)
 

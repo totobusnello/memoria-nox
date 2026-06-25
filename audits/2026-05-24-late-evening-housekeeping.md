@@ -108,7 +108,7 @@ bash scripts/check-pre-launch.sh 2>&1 | tail -50
 ```
 1. Commit or stash 5 uncommitted file(s) before launch
 2. Create tag: git tag v1.0.0-rc1 && git push origin v1.0.0-rc1
-3. VPS unreachable at http://187.77.234.79:18802/api/health — if outside Tailscale: 
+3. VPS unreachable at http://$NOX_VPS_HOST:18802/api/health — if outside Tailscale: 
    (1) install Tailscale or (2) set NOX_HEALTH_URL to public proxy
 4. WARNING: Possible real GEMINI_API_KEY in git history — verify manually:
    git log --all -p -S GEMINI_API_KEY | grep '^+' | grep -v 'YOUR_\|your-key\|\.env'

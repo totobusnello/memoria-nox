@@ -323,7 +323,7 @@ After R3 deployed (PR #206) and survey of the live entity-file corpus, R1 was re
 ### Verification
 
 ```bash
-ssh root@187.77.234.79 'find /root/.openclaw -name "bruno.md" -o -path "*people/ana.md" \
+ssh root@$NOX_VPS_HOST 'find /root/.openclaw -name "bruno.md" -o -path "*people/ana.md" \
                        -o -name "paper-eval*" -o -name "nox-mem.md" -path "*projects*"' 2>&1
 # (only systems/nox-mem.md exists — projects/nox-mem.md, projects/paper-eval.md,
 #  people/ana.md, people/bruno.md are all ABSENT)

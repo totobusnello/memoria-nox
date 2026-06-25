@@ -18,7 +18,7 @@ nox-mem runs as a single Node.js process backed by a single SQLite file. That si
 - Daily backup rotation with 7-day retention
 - Two built-in observability dashboards at `/observability/health.html` and `/observability/evals.html`
 
-**Reference prod:** Hostinger VPS, 8 cores / 16 GB RAM / Ubuntu 22.04, running since 2026-04 with 69k+ chunks, 187.77.234.79:18802.
+**Reference prod:** Hostinger VPS, 8 cores / 16 GB RAM / Ubuntu 22.04, running since 2026-04 with 69k+ chunks, $NOX_VPS_HOST:18802.
 
 ---
 

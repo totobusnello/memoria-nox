@@ -6,7 +6,7 @@ Import `docs/nox-mem.postman_collection.json` into any REST client:
 - **Insomnia**: Application → Import/Export → Import Data → From File
 - **Bruno**: open collection folder → Import → Postman → select file
 
-The `base_url` variable defaults to the public read-only demo at `http://187.77.234.79:18802`.
+The `base_url` variable defaults to the public read-only demo at `http://$NOX_VPS_HOST:18802`.
 
 Override to your local instance:
 - **Postman**: Collections → nox-mem API → Variables tab → set `base_url` to `http://localhost:18802`

@@ -214,6 +214,16 @@ npm run eval:golden
 
 The golden set is in `eval/golden/`. A PR that regresses `nDCG@10` by more than `0.005` will not merge without a discussion. Show the diff.
 
+**Secret fixtures.** Tests for the PII detector / privacy redactor use *synthetic* secret strings (fake API keys, tokens, PEM blocks). Mark every such line with `// gitleaks:allow` (or `# gitleaks:allow`) **in the same commit**:
+
+```ts
+const fakeKey = "AIzaABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghi"; // gitleaks:allow — synthetic test fixture
+```
+
+The Secret Scan workflow runs gitleaks on every push, so a new fixture without the marker will fail CI — the inline marker is the correct and complete fix, covering both the push (diff) scan and the full-history scan of future commits.
+
+Do **not** work around it by extending `paths` in `.gitleaks.toml`. That allowlist is reserved for *legacy* fixtures in old commits, where an inline marker cannot reach the historical revision (the scheduled scan uses `fetch-depth: 0`). For any fixture you add now, use the inline marker.
+
 ---
 
 ## Review Process

@@ -63,6 +63,7 @@ Client (CLI · MCP · HTTP)
                   ┌──────────────────────┐
                   │  /api/search         │
                   │  /api/answer (RAG)   │
+                  │  /api/brief (priming)│
                   └──────────────────────┘
 
 External:
@@ -156,7 +157,7 @@ query string
 
 **Why additive boosts.** Multiplicative boost stacks were the root cause of v3.4 incident — small wins compounded into runaway scores on edge cases. Rule #5 (CLAUDE.md) now forbids multiplicative composition in any "fix" commit; new boosts ship in shadow mode behind a flag (§5) until an ablation lands.
 
-Typical latency budget at prod scale (68k chunks):
+Typical latency budget at prod scale (~95k chunks, 2026-06-04):
 `p50 ≈ 940 ms · p95 ≈ 2.3 s · p99 ≈ 2.5 s` — dominated by the Gemini embed round-trip in step [3]. Local-only paths (FTS5 + cached embed) run sub-10ms.
 
 ---
@@ -261,7 +262,7 @@ Every destructive op (reindex / consolidate / compact / crystallize / kg-prune) 
 ┌─────────────────────────────────────────────────────────────┐
 │  Hostinger VPS — Ubuntu 22.04                               │
 │  8 cores · 16 GB RAM · NVMe                                 │
-│  IP: 187.77.234.79  (floating; previous: 45.43.85.86)       │
+│  IP: $NOX_VPS_HOST  (floating; previous: 45.43.85.86)       │
 │                                                             │
 │  ┌─────────────────────────────────────────────────┐        │
 │  │ systemd: nox-mem-api.service                    │        │
@@ -329,7 +330,7 @@ SQLite chunk text  ──extract──►  Gemini API  ──entities/relations�
 **What leaves the machine:** only chunk text routed to the Gemini API for embedding or KG extraction. No telemetry, no analytics, no third-party storage. If `GEMINI_API_KEY` is revoked, retrieval keeps working on already-embedded chunks — only new ingest stalls.
 
 **API surface:**
-- `/api/health`, `/api/search`, `/api/kg/*`, `/api/answer` — **read-only**, currently unauthenticated, designed to bind to `127.0.0.1`. Reverse proxy (Caddy/nginx) handles TLS + auth at the edge.
+- `/api/health`, `/api/search`, `/api/kg/*`, `/api/answer`, `/api/brief` — **read-only** (brief escreve apenas em `brief_log` própria), currently unauthenticated, designed to bind to `127.0.0.1`. Reverse proxy (Caddy/nginx) handles TLS + auth at the edge.
 - `POST /api/crystallize`, `POST /api/crystallize/validate` — write paths. Currently **trusted-localhost** (same-process). Admin auth + token scopes are a Q1 2026 deliverable (`docs/ROADMAP.md` → v2).
 
 **Storage hardening:**

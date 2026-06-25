@@ -5,7 +5,7 @@
 **Just want to see it work?** Hit the live demo — no install:
 
 ```bash
-curl -s 'http://187.77.234.79:18802/api/search?q=pain-weighted+memory&limit=3' \
+curl -s 'http://$NOX_VPS_HOST:18802/api/search?q=pain-weighted+memory&limit=3' \
   | jq '.results[] | {score, source_file, snippet}'
 ```
 
@@ -25,16 +25,16 @@ The live corpus has 69k+ chunks from real agent memory. Read-only.
 
 ```bash
 # Hybrid search: FTS5 BM25 + Gemini semantic + RRF fusion
-curl -s 'http://187.77.234.79:18802/api/search?q=pain-weighted+memory&limit=3' \
+curl -s 'http://$NOX_VPS_HOST:18802/api/search?q=pain-weighted+memory&limit=3' \
   | jq '.results[] | {score, source_file, snippet}'
 
 # Grounded answer with citations (flagship /api/answer endpoint)
-curl -s -X POST http://187.77.234.79:18802/api/answer \
+curl -s -X POST http://$NOX_VPS_HOST:18802/api/answer \
   -H 'Content-Type: application/json' \
   -d '{"query": "what is conditional hard mutex?"}' | jq
 
 # Health check — schema version, vector coverage, chunk count
-curl -s http://187.77.234.79:18802/api/health | jq '{schemaVersion, totalChunks, vectorCoverage}'
+curl -s http://$NOX_VPS_HOST:18802/api/health | jq '{schemaVersion, totalChunks, vectorCoverage}'
 ```
 
 ---

@@ -40,8 +40,8 @@
 
 ### Sanity check (3min)
 ```bash
-ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded}"'
-ssh root@187.77.234.79 'tail -3 /var/log/nox-seh-report.log'
+ssh root@$NOX_VPS_HOST 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded}"'
+ssh root@$NOX_VPS_HOST 'tail -3 /var/log/nox-seh-report.log'
 ```
 Esperado: 64.180+ chunks 100% embedded + cron SEH alerts=0.
 
@@ -90,7 +90,7 @@ Esperado: 64.180+ chunks 100% embedded + cron SEH alerts=0.
 
 ```bash
 # VPS overnight runner — paper experiments batch
-ssh root@187.77.234.79 'cat > /root/.openclaw/scripts/paper-experiments-overnight.sh <<BASH
+ssh root@$NOX_VPS_HOST 'cat > /root/.openclaw/scripts/paper-experiments-overnight.sh <<BASH
 #!/bin/bash
 set -euo pipefail
 LOG="/var/log/nox-paper-experiments.log"

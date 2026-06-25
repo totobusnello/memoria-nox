@@ -44,7 +44,7 @@ All other launch-day assets exist as drafts with real numbers embedded. Crisis p
 | GitHub Actions workflows (lint/typecheck/eval/security/release) | #251 | ✅ READY | All green per `audits/2026-05-22-pre-launch-security-review.md` |
 | Pre-launch checker script (`scripts/check-pre-launch.sh`) | #258 | ✅ READY | 10-check battery; exit 0/1/2 |
 | Pre-launch security review (CLEAN verdict) | #242 | ✅ READY | `audits/2026-05-22-pre-launch-security-review.md` — GO verdict |
-| VPS healthcheck cron 15min | #164 | ✅ READY | Tailscale-aware; current IP 187.77.234.79 |
+| VPS healthcheck cron 15min | #164 | ✅ READY | Tailscale-aware; current IP $NOX_VPS_HOST |
 | Docker / Codespaces | #68/#256 | ✅ READY | Dockerfile + devcontainer |
 | OpenAPI spec | #252 | ✅ READY | OpenAPI 3.1 |
 | Postman collection | #264 | ✅ READY | v2.1.0 |

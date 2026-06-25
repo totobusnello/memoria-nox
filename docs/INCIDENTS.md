@@ -2,6 +2,116 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-06-22 (manhã) — morning report 1 RED: órfão de vetor pós-`compact` (cascade trigger falhou em 1/854)
+
+**Severidade:** muito baixa (cosmético; zero impacto funcional, zero perda). **Detecção:** morning report → `🔴 vectorCoverage: 1 orphans (cascade trigger failed?)`; Toto reportou via screenshot de manhã.
+
+**Root cause:** o cron `compact` (consolidação) rodou 02:04 BRT e transformou **854 chunks → 20 summaries** (`ops_audit` status success, com snapshot pre-op próprio `compact-main-20260622020401-…db`). Ao deletar os 854 originais, o trigger `trg_chunks_delete_cascade` limpou `vec_chunks`+`vec_chunk_map` de 853, mas **deixou 1 row órfã**: `vec_chunk_map(chunk_id=266020, vec_rowid=176388)` apontando pra chunk inexistente (1/854 = 0,1%). A métrica `embeddingOrphans = max(0, totalMap − embedded)` (api-server.ts §158) capturou esse 1. **Benigno:** a busca faz JOIN `vec_chunk_map→chunks`, então um vetor cujo chunk não existe **nunca aparece num resultado**. (Os 24 chunks tipo-1 "sem vetor" no mesmo report eram `memory/obra-bvv-log.md` ingerido às 10:03 — transitório, catch-up vectorize 4/4h fechou; não eram o RED.) **NÃO relacionado** ao flip `NOX_BRIEF_DIVERSITY=active` de 21/06 (o brief só lê chunks e escreve em `brief_log`).
+
+**Fix (autorizado, regra #6 — snapshot atômico antes):** script node com better-sqlite3 + `sqliteVec.load()` (vec0 não abre no python/sqlite3 CLI puro — lição recorrente). Sequência: pré-validação (chunk 266020 não existe + vec_rowid 176388 mapeado SÓ ao órfão) → `db.backup()` 1.57GB em `/var/backups/nox-mem/pre-op/orphan-cleanup-main-…db` → `DELETE FROM vec_chunks WHERE rowid=176388; DELETE FROM vec_chunk_map WHERE chunk_id=266020` em transação → verificação `health.vectorCoverage.orphans = 0` ✓.
+
+**Lições:**
+1. **`compact` pode deixar órfão de vetor ocasional** (1/854 observado). Benigno, mas se recorrer 1-por-compact toda noite, instrumentar o cascade ou adicionar sweep de órfãos pós-compact. Watchpoint: report de 23/06.
+2. **Script de manutenção em `tools/nox-mem/` tem que ser `.cjs`** (`package.json` é `"type":"module"`) **e rodar de dentro do dir** (require resolve pelo path do script, não pelo cwd — `/tmp` não acha `better-sqlite3`).
+3. **Vec0 só via better-sqlite3 + sqliteVec.load** — confirmado de novo (mesmo padrão do cleanup 2026-06-04).
+
+**Nota lateral (não-memoria, contido):** durante o setup do gate `active`, um `crontab -l | sed '…#…' | crontab -` **zerou o crontab** (sed abortou no delimitador `#` → pipe vazio sobrescreveu). Restaurado do backup `/tmp/ct.bak` em segundos (0 perda). Lição cross-project: [[feedback_never_pipe_transform_into_overwrite]].
+
+---
+
+## 2026-06-04 (noite) — Semantic layer down: créditos prepaid Gemini esgotados
+
+**Severidade:** média (degradação semântica ~1h40, zero perda de dado). **Detecção:** canary semântico (`semantic-canary.sh`, :22/:52) → Discord #nox-chief-of-staff às 18:22; Toto reportou via screenshot 19:30.
+
+**Timeline:** 17:52 OK → 18:22 primeiro RED (`total=2 semantic=0 fts=0` + self-heal FAILED `20 errors`) → 19:39 root cause confirmado (`429 RESOURCE_EXHAUSTED: prepayment credits depleted` em TODAS as 3 keys do .env) → 19:52 key nova do projeto com saldo → 19:56 GREEN (`total=10 semantic=8`).
+
+**Root cause:** créditos prepaid do(s) projeto(s) Google esgotados — queimados majoritariamente pela vetorização do bulk import de jun (~34k chunks × 3072d, dos quais 5.6k eram lixo `_retired` já removido). NÃO relacionado à limpeza de corpus do mesmo dia (KNN local validado saudável durante o diagnóstico).
+
+**Lições:**
+1. **Key nova não recarrega saldo** — crédito prepaid é por PROJETO; rotacionar key no mesmo projeto = mesmo 429. Fix real = projeto com billing ativo (`projects/692943619288`) e key dele.
+2. **Formato novo de key Gemini `AQ.`** — funciona via `?key=` e `x-goog-api-key` (não Bearer). nox-mem compatível sem mudança de código.
+3. **Canary funcionou como projetado** — detectou em ≤15min, tentou self-heal, alertou no canal certo. A query PT-BR anti-literal (design 2026-04-19) provou o valor: FTS continuou respondendo e mascararia o problema em queries keyword.
+4. **Bulk imports têm custo de embedding material** — allowlist do watcher (instalada hoje) também é controle de custo, não só de qualidade.
+5. **Degradação graciosa validada em prod:** FTS-only manteve briefs/agentes/MCP operando.
+
+**Follow-ups:** monitorar saldo do projeto novo (alerta de billing no Google Console); considerar canary de saldo (embed 1 token diário com threshold de alerta); 2.074 vec rows órfãs (`vec_chunks` 96.991 vs map 94.917) — limpeza menor com snapshot, não relacionada ao RED.
+
+---
+
+## 2026-06-04 — Corpus pollution: watcher sem allowlist ingeriu 5.6k chunks de _retired/
+
+**Severidade:** baixa (qualidade, não outage). **Detecção:** pergunta do Toto ("por que docs mostram 69k e prod tem 100.5k?") durante gate do F1 /api/brief.
+
+**Root cause:** bulk import do Mac workspace (~jun/2026) depositou `shared/imports/Claude/` inteiro no workspace; `nox-mem-watch.sh` (inotifywait) não tinha NENHUMA exclusão de diretório → 5.626 chunks de `_retired/` (skills aposentadas, 502 arquivos) entraram no corpus e competiam no ranking (incl. /api/brief scope=global).
+
+**Fix (ordem fonte→dado, autorizada Toto):**
+1. **B** — allowlist guard no watcher (PR nox-workspace#3, 2657f334): case/esac no loop bloqueia `_retired/`, `node_modules/`, `.git/`, `dist/`, `__pycache__/`, `*.bak`, caches. Guard no loop (não `--exclude`) porque `--exclude`/`--include` do inotifywait são mutuamente exclusivos. Dir fonte movido pra `/root/archive-quarantine/Claude-_retired-20260604` (reversível).
+2. **A** — DELETE com snapshot pré-op (`/var/backups/nox-mem/pre-op/cleanup-retired-20260604-150508.db`, 1.7GB): 5.626 chunks removidos. ⚠️ Lição operacional: DELETE em chunks **não roda no sqlite3 CLI puro** (`no such module: vec0` — trigger cascade referencia virtual table); rodar via better-sqlite3 + `sqliteVec.load()` (stack do app).
+
+**Pós-op:** 94.936 chunks, vec 94.929/94.936, orphans 0, salience active. Brief global melhorou visivelmente (slots de skills mortas → decisões reais).
+
+**Prevenção estrutural:** allowlist de import é requisito do Fluxo D (feeders) do PRD session-priming-loop §13.
+
+---
+
+## 2026-06-02 ~18:00 BRT — Hostinger CPU throttling aborts Wave 2 capstone bench (D76); infrastructure constraint, not scientific failure
+
+### Severity: yellow — benchmark abort; no data loss; VPS operational throughout
+
+### TL;DR
+
+Wave 2 Phase 2 capstone bench (PR #426, IterB ReAct + Wave C triple on Gemini-3-flash, n=3,121 5-batch) was dispatched Sun 2026-05-31 ~17:40 BRT and aborted Tue 2026-06-02 ~17:55 BRT after 48h elapsed. Batch 005 completed 0/50 questions in 23h under sustained Hostinger CPU steal (51-97%). Three mitigation rounds failed to restore acceptable throughput. Capstone closed via abandon comment on PR #426. **Infrastructure constraint, NOT scientific failure** — the underlying IterB ReAct mechanism remains validated (PR #419, +2.01pp clean F_MH lift). D76 cravado. Memory: `[[capstone-aborted-hostinger-throttling-indeterminate]]`.
+
+### Timeline
+
+```
+Sun 2026-05-31 ~17:40 BRT   capstone bench dispatched via tmux wave2-capstone-7a1cadf2 (PID 2194486)
+Sun 2026-05-31 ~18:00 BRT   CPU steal first observed: 8.5%
+Sun 2026-05-31 ~20:00 BRT   CPU steal escalates: ~50-60%
+Mon 2026-06-01 ~08:00 BRT   batch 005 still at 0/50 questions (~14h elapsed, zero progress)
+Mon 2026-06-01 mitigation 1 taskset + nice + ORT thread caps + YAML tuning
+Mon 2026-06-01 ~18:00 BRT   CPU steal 97% peak (VPS shared host contention)
+Mon 2026-06-01 ~22:00 BRT   first VPS reboot attempt — steal drops to 21% temporarily
+Tue 2026-06-02 ~06:00 BRT   CPU steal back to 50%+ (contention resumed post-reboot)
+Tue 2026-06-02 mitigation 2 second reboot + .env caps rolled back
+Tue 2026-06-02 ~12:00 BRT   batch 005 still 0/50 questions (23h, zero progress confirmed)
+Tue 2026-06-02 ~17:55 BRT   capstone abort decision; PR #426 closed with abandon comment
+Tue 2026-06-02 ~18:30 BRT   openclaw re-enabled; VPS healthy after 24h cooldown confirmation
+```
+
+### Root cause
+
+Hostinger shared VPS CPU steal contention — co-tenant workloads saturating physical host CPU. Steal oscillated 8.5% → 97% → 21% (post-reboot) → 50%+ (resumed). Not a nox-mem application bug; not a bench methodology issue; not a scientific signal about the IterB + Wave A/B/C composability hypothesis.
+
+### Cost incurred
+
+~$20-25 Gemini API spend on capstone retry rounds before abort.
+
+### Environmental state during incident
+
+- openclaw service was disabled during bench run (resource isolation)
+- .env CPU caps added (ORT_NUM_THREADS + other thread limits — `[[ort-num-threads-cap-during-capstone]]`)
+- 23G disk freed before bench start
+
+### Recovery
+
+1. openclaw re-enabled
+2. .env CPU caps rolled back to baseline
+3. VPS healthy confirmed (24h cooldown from CPU steal; `nox-mem-api` responsive; healthcheck green)
+4. Disk usage back to normal headroom
+
+### Scientific integrity note
+
+D76 distinguishes infrastructure abort from scientific failure. The 3-knob NO-REPLICATE pattern (D75, PRs #423-#425) is a real research finding independently of the capstone. The IterB architectural lock finding (`[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`) is also a real finding — the capstone would have required explicit guard removal patch regardless of infrastructure. The capstone is deferred to stable infrastructure (Q2/Q3 cycle), not abandoned as a hypothesis.
+
+### Fix / prevention
+
+- Future capstone benches: use dedicated cloud run (GCP/AWS spot) or schedule for off-peak Hostinger hours
+- CPU steal monitoring: add `/api/health` check for host-level steal metric before dispatching long-running benches
+- PR #426 retain as draft for future resumption (architectural lock patch required)
+
+---
+
 ## 2026-05-26 ~02:00 UTC (23:00 BRT Mon 25/mai) — RECORRÊNCIA #4 — atlas reindex wipe (69.135 → 756 chunks); kill-switch havia sido removido entre 23/mai e 25/mai
 
 ### Severity: 🔴 red — data-loss event em produção (recuperado sem perda via snapshot pre-op)
@@ -239,7 +349,7 @@ Mesma manhã o hook DISPAROU em commit que tentou subir paper §5.5 enquanto bra
 
 **Hipóteses iniciais:** (1) maintenance window, (2) bloqueio por uso CPU/network, (3) firewall mudou, (4) disk full, (5) hardware failure.
 
-**Realidade:** Hostinger fez floating IP swap silencioso. Toto deu novo IP `187.77.234.79`. SSH funcionou de primeira (mesma chave ed25519). Hostname `srv1465941`, uptime **20 days, 50 min** intacto — sem reboot, sem maintenance, sem downtime. Apenas redirecionamento de rota.
+**Realidade:** Hostinger fez floating IP swap silencioso. Toto deu novo IP `$NOX_VPS_HOST`. SSH funcionou de primeira (mesma chave ed25519). Hostname `srv1465941`, uptime **20 days, 50 min** intacto — sem reboot, sem maintenance, sem downtime. Apenas redirecionamento de rota.
 
 **Impact:** ~30min de incerteza, deploy Wave A novo atrasado mas executado com sucesso após IP atualizado. Zero dados perdidos. Service `nox-mem-api` continuou rodando o tempo todo.
 
@@ -253,7 +363,7 @@ Mesma manhã o hook DISPAROU em commit que tentou subir paper §5.5 enquanto bra
 - Memory `[[vps-ip-change-2026-05-20]]` cravada como reference
 - Memory anterior `[[vps-down-2026-05-20]]` ficou desatualizada — não era outage real
 
-**Cross-links:** PR #158 (api-server fix doc), deploy Wave A novo (sed+scp+build em 187.77.234.79), HANDOFF morning + midday 2026-05-20.
+**Cross-links:** PR #158 (api-server fix doc), deploy Wave A novo (sed+scp+build em $NOX_VPS_HOST), HANDOFF morning + midday 2026-05-20.
 
 ## 2026-05-20 ~09h30 BRT (~15min recovery) — Multi-agent branch checkout race condition
 

@@ -23,7 +23,7 @@
 
 **Critical Blockers (Unchanged from v3):**
 1. **6 uncommitted files** — 1 markdown (launch-twitter-thread.md) + 5 untracked dirs (.claire, .omc, .venv, eval/*.chroma, examples/__pycache__)
-2. **VPS unreachable** at http://187.77.234.79:18802 — expected (Tailscale-only, API binds 127.0.0.1)
+2. **VPS unreachable** at http://$NOX_VPS_HOST:18802 — expected (Tailscale-only, API binds 127.0.0.1)
 3. **Potential GEMINI_API_KEY in git history** — audit deferred (git history scan blocked by permission rule)
 
 **Launch Readiness: 94%** (up from 88% v3)

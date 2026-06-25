@@ -4,7 +4,7 @@ Captured **2026-05-23 22:13 BRT** from live production VPS via Tailscale tunnel.
 All dashboards are F10 Phase A–D, LIVE in prod since 2026-05-21.
 
 > **Access note:** dashboards require Tailscale or SSH tunnel to VPS port 18802.
-> Public access is not exposed. VPS: `root@187.77.234.79` / Tailscale peer `100.87.8.44`.
+> Public access is not exposed. VPS: `root@$NOX_VPS_HOST` / Tailscale peer `100.87.8.44`.
 
 ---
 

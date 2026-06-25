@@ -16,7 +16,7 @@
 | n queries | 100 (5 categorias × 2 styles × 10 queries) |
 | Toggle (disabled run) | `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1` (rollback flag) |
 | Common env | `NOX_SALIENCE_MODE=active` em ambas runs |
-| VPS | `root@187.77.234.79` (post IP swap 2026-05-20) |
+| VPS | `root@$NOX_VPS_HOST` (post IP swap 2026-05-20) |
 | Aggregator | `audits/data-g10c/aggregate.py` |
 
 ### Style universe

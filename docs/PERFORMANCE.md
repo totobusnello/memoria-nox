@@ -1,7 +1,7 @@
 # nox-mem — Performance Numbers
 
 > **Audience:** HN / Product Hunt visitors, eval researchers, infra engineers who want numbers before reading the paper.
-> **Updated:** 2026-05-22 · System: nox-mem v3.7+ · Schema v10 · Prod VPS 187.77.234.79
+> **Updated:** 2026-05-22 · System: nox-mem v3.7+ · Schema v10 · Prod VPS $NOX_VPS_HOST
 > **Companion docs:** `docs/ARCHITECTURE.md` (internals) · `audits/` (raw eval data) · `docs/COMPARISON.md` (Q4 external Sat 2026-05-24)
 
 ---
@@ -26,7 +26,7 @@ Sub-second p50 hybrid retrieval at 68k+ chunks; full reproducibility in `audits/
 
 ## §2 Methodology + Reproducibility
 
-All numbers originate from the production VPS (`187.77.234.79:18802`) running nox-mem v3.7, schema v10, under real workload — not a benchmark-only setup.
+All numbers originate from the production VPS (`$NOX_VPS_HOST:18802`) running nox-mem v3.7, schema v10, under real workload — not a benchmark-only setup.
 
 **Measurement sources:**
 - `/api/health` JSON snapshot — chunk count, vector coverage, KG counts, salience mode

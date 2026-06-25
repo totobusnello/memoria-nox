@@ -1,5 +1,5 @@
-<svg width="220" height="80" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="69k chunks · 21k relations">
-  <title>69k chunks · 21k relations</title>
+<svg width="220" height="80" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="94.9k chunks · 21.5k relations">
+  <title>94.9k chunks · 21.5k relations</title>
   <defs>
     <linearGradient id="bg-scale-l" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#FFFFFF"/>
@@ -22,7 +22,7 @@
     <path d="M3 5 V12 C3 13.7 7 15 12 15 C17 15 21 13.7 21 12 V5"/>
     <path d="M3 12 V19 C3 20.7 7 22 12 22 C17 22 21 20.7 21 19 V12"/>
   </g>
-  <text x="56" y="38" fill="#007458" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,monospace" font-size="22" font-weight="700" letter-spacing="-0.5">69k</text>
-  <text x="56" y="56" fill="#5A5F6E" font-family="'Inter',ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="500">chunks · 21k relations</text>
+  <text x="56" y="38" fill="#007458" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,monospace" font-size="22" font-weight="700" letter-spacing="-0.5">94.9k</text>
+  <text x="56" y="56" fill="#5A5F6E" font-family="'Inter',ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="500">chunks · 21.5k relations</text>
   <text x="20" y="70" fill="#9094A0" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,monospace" font-size="9" font-weight="500" letter-spacing="1.4">SCALE</text>
 </svg>

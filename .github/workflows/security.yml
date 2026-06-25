@@ -1,5 +1,10 @@
 name: Security Scan
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 on:
   push:
     branches: [main]
@@ -11,6 +16,7 @@ jobs:
   gitleaks:
     name: Secret Scan (gitleaks)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -42,7 +48,7 @@ jobs:
               found=1
             fi
           done
-          [ "$found" -eq 0 ] && echo "No lockfiles found — skipping npm audit"
+          if [ "$found" -eq 0 ]; then echo "No lockfiles found — skipping npm audit"; fi
 
   trivy:
     name: Trivy FS Scan

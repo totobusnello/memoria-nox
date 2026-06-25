@@ -424,7 +424,7 @@ gh run list --workflow=eval-harnesses.yml --limit 1
 
 ```bash
 # Pré-req VPS:
-ssh root@187.77.234.79
+ssh root@$NOX_VPS_HOST
 set -a; source /root/.openclaw/.env; set +a
 cd /root/.openclaw/workspace/tools/nox-mem
 

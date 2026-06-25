@@ -2,6 +2,646 @@
 
 ---
 
+## Wed 2026-06-24 — merges #22+#436 confirmados, working copy reconciliado, rotação 1→93 (preliminar 9h) — gate 24h fecha amanhã
+
+> Sessão de fechamento. PRs do fix + docs mergeados pelo Forge; working copy da VPS reconciliado; rotação medida ao vivo confirma o fix. Número **definitivo** do paper §3.5 sai do gate de 24h amanhã.
+
+### Merges + reconciliação
+- **PR #22** (nox-workspace, fix novelty-penalty) **MERGED** 11:07Z · **PR #436** (memoria-nox, docs 23/06 + paper §3.5 + 4 docs IP) **MERGED** 11:07Z.
+- Main local memoria-nox reconciliado (doc 23/06 + §3.5 + **0 IP cru** em docs/).
+- Working copy VPS reconciliado: `git checkout -- <2 files>` + `git pull` → Fast-forward HEAD `a262cbaa`, fix-files mod=0 (limpo). Serviço roda o fix via main.
+
+### Gate active — número PRELIMINAR (9h pós-deploy), definitivo amanhã
+| | antes do fix (23/06) | depois (24/06, 9h pós-deploy) |
+|---|---|---|
+| distinct entity (rotação) | **1** | **93** |
+| briefs na janela | — | 2600 |
+| FLOOR (high-pain servidos) | — | 2 (não-zero ✓) |
+| por agente | 1 cada | nox 63, cipher 52, lex 51, boris 48, atlas 29, forge 25 |
+
+Rotação **1 → 93** em 9h (run do cron 24h, que mistura o período pré-fix travado, já mostra 56/agente). Achado do paper confirmado com número forte; **não registrado nos docs ainda — esperando o gate de 24h completo** (decisão Toto).
+
+### Rotação confirmada ao vivo (independente do gate)
+8 chamadas `/api/brief?scope=global&agent=nox`: **24 distinct ids** (8 estáveis = brief principal incl. `227328`; **16 rotativos** = slot fresh girando 8 curados globais + slot do agente). vs 1 em 24h antes.
+
+### ⚠️ Próxima ação — RETOMAR AQUI (amanhã 25/06)
+1. **Colher o gate active de 24h LIMPO: 25/06 06:10 BRT** (`/var/log/nox-d2-gate-active.log`, ou manual `d2-gate-active-report.sh "-24 hours"`) — primeira janela 100% pós-fix. Esperado distinct entity **>150** (9h já deu 93). Esse é o **número definitivo do paper §3.5**.
+2. **Registrar o número final** no HANDOFF + paper §3.5 (substituir o "esperado dezenas/centenas" do parágrafo *Active-mode validation*). E no `[[project_d2_brief_diversity_shadow_deployed]]`.
+3. Rebuild paper `.pdf`/`.docx` (pandoc/xelatex) — pendente, pré-arXiv.
+
+### ⚠️ Nota operacional — SSH público (porta 22) bloqueado
+A porta 22 da VPS deu timeout no fim da sessão (**ping OK, IP inalterado** `$NOX_VPS_HOST`, serviço saudável via API). Provável **fail2ban** pelas dezenas de conexões SSH da sessão; costuma auto-liberar em ~10-30min. **Contorno que funcionou: Tailscale SSH** (`root@srv1465941.tail4caa5b.ts.net`) bypassa a porta 22 pública. A API HTTP via Tailscale (`https://srv1465941.tail4caa5b.ts.net` + Bearer em `~/.config/nox-mem/token`) também respondeu normal. Se o SSH público persistir bloqueado amanhã, usar o hostname Tailscale.
+
+### Estado
+- Serviço nox-mem-api: active, env `NOX_BRIEF_DIVERSITY=active`, vectorCoverage 70251/70251 **orphans=0** (órfão de 22/06 segue limpo).
+- Memória: [[project_d2_brief_diversity_shadow_deployed]].
+
+---
+
+## Tue 2026-06-23 — gate active revelou exaustão do pool → fix novelty-penalty no fresh slot (PR #22) + rotação confirmada ao vivo
+
+> Toto: "mergea [#434] e vamos continuar" → colher o gate active limpo → achado → "implementa a troca". Sessão fechou o ciclo `shadow→diagnose→fix→measure` do split-slot.
+
+### Gate active de 24h colhido — a rotação tinha colapsado
+Cron `d2-gate-active-report.sh` rodou 06:10 (janela 22→23/06, **todo active**). Resultado contra-intuitivo: **distinct entity = 1** em 6728 briefs/24h. Recheck profundo (não era pool raso — 184 elegíveis):
+- **distinct entities por dia desde o flip**: 21/06 (flip) = **190** ✅ → 22,23,24 = **1**. A rotação funcionou **espetacularmente 1 dia e secou**.
+- Causa: a **exclusão-dura** do fresh slot (`id NOT IN brief_log WHERE served_at > -72h`) sob **volume ≫ pool** (6728 briefs/dia, 189 curados) serviu **todo o pool em 1 dia** → marcou todos "servido" por 72h → seca → **fail-open trava no top-1 salience**.
+- O "1" residual (`227328`) é **artefato de métrica**: é o **brief principal** (decisão imp 0.9, servido 672×/dia desde 05/06, antes do flip), não o slot fresh. O gate conta os dois juntos.
+
+### Fix (PR nox-workspace **#22**, `tune(brief)`)
+`fetchFreshCandidates` re-ranqueia por `briefScore = salience − noveltyPenalty(n_serves)` — o **mesmo mecanismo do slot principal** — em vez de excluir. Servir despriora (`λ·log1p(n_serves)`) sem eliminar → variedade gira continuamente. `FRESH_CANDIDATE_POOL` **100→400** (proxy uniforme cortaria não-servidos no LIMIT). **High-pain (pain≥painFloor) imune** (FLOOR invariante #4). **26/26 testes** (2 novos), **RED provado** (revertendo só o brief.ts, os 2 falham contra a exclusão-dura). tsc limpo nos arquivos tocados (erros restantes pré-existentes).
+
+### Deploy em `active` + rotação CONFIRMADA AO VIVO
+Shadow não mede rotação (`brief_log`←`current`) → deploy direto em active (onde estamos). `git checkout origin/<branch> -- <2 files>` no working copy (HEAD seguiu main, **zero contaminação**) + `npx tsc` (rebuild dist) + restart 23:15 BRT. Verificado: dist com pool=400 + exclusão-dura removida + serveCounts no fetchFresh; serviço active, env active, vectorCoverage 70251/70251 **orphans=0**. **Prova ao vivo:** 5 chamadas `/api/brief?scope=global&agent=nox` → slot fresh trouxe **6 entities distintos** (227520, 227232, 227444, 227240, 227100) — **vs 1 em 24h antes**. (`227328` onipresente = brief principal.)
+
+### ⚠️ Próxima ação — RETOMAR AQUI
+1. **Gate active de 24h amanhã (24/06 06:10)** em `/var/log/nox-d2-gate-active.log` — esperado distinct entity **dezenas/centenas** (rotação contínua) vs o 1 de hoje. **Número final do paper §3.5.** ⚠️ Lembrar: a métrica conta brief principal + fresh juntos; o salto vem do fresh.
+2. **PR #22** (nox-workspace) — Forge revisa/merge; pós-merge reconciliar working copy (`git checkout -- <files>` + pull + rebuild).
+3. **Rollback** (se gate reprovar): checkout do brief.ts antigo + rebuild + restart.
+4. Doc desta sessão no **PR memoria-nox** (branch `docs/2026-06-23-fresh-novelty-rotation`): HANDOFF + paper §3.5 + 4 docs IP redigidos.
+
+### Notas
+- SSH VPS prod `root@$NOX_VPS_HOST` = autorização explícita por sessão.
+- Clone descartável do nox-workspace: `/tmp/nox-ws-freshrotate` (branch já no GitHub, PR #22).
+- ⚠️ `set -e` + `grep -c` que retorna 0 aborta o script (grep sem match = exit 1) — usar `|| true` em greps de "deve-ser-zero". Heredoc SSH: usar aspas duplas SEM `\"` (escape vira literal no heredoc quotado).
+- Memória: [[project_d2_brief_diversity_shadow_deployed]] (update gate active + fix).
+
+---
+
+## Mon 2026-06-22 — morning report 1 RED resolvido (órfão de vetor) + CodeQL silenciado (PR #435)
+
+> Toto: "recebi um alerta de manhã sobre nossa memória" + depois "vê o CodeQL". Duas frentes, ambas fechadas. SSH read+1 op de limpeza autorizados explicitamente.
+
+### Frente 1 — morning report `1 RED: vectorCoverage 1 orphans (cascade trigger failed?)`
+**Diagnóstico (read-only):** `embeddingOrphans = max(0, totalMap − embedded)` (api-server.ts §158) = entradas em `vec_chunk_map` sem vetor/sem chunk. O órfão real: **`vec_chunk_map(chunk_id=266020, vec_rowid=176388)` apontando pra chunk que não existe mais** (tipo-2). **Causa:** cron `compact` 02:04 BRT consolidou **854 chunks → 20 summaries** (ops_audit, com snapshot pre-op próprio); o `trg_chunks_delete_cascade` limpou 853, **falhou em 1** (1/854 = 0,1%). **Benigno** — a busca faz JOIN `vec_chunk_map→chunks`, então órfão nunca aparece num resultado. (Os 24 chunks "sem vetor" tipo-1 eram só `memory/obra-bvv-log.md` ingerido às 10:03; catch-up vectorize 4/4h fechou.) **NÃO relacionado ao flip `active`** (brief só lê chunks, escreve em brief_log).
+
+**Fix (autorizado, regra #6):** script node (better-sqlite3 + `sqliteVec.load` — vec0 não abre no python/sqlite3 CLI puro) com pré-validação (chunk não existe + vec_rowid usado só pelo órfão) → **snapshot `db.backup()` 1.57GB** em `/var/backups/nox-mem/pre-op/orphan-cleanup-main-…db` → `DELETE FROM vec_chunks WHERE rowid=176388; DELETE FROM vec_chunk_map WHERE chunk_id=266020` em transação → **`health.vectorCoverage.orphans = 0`** ✓. ⚠️ `package.json` tem `"type":"module"` → script tem que ser `.cjs`; e require resolve pelo dir do script → rodar de dentro de `tools/nox-mem/`, não `/tmp`.
+
+**Watchpoint:** se o report de amanhã trouxer outro 1-órfão-por-compact, instrumentar o cascade ou adicionar sweep de órfãos pós-compact. Um isolado não justifica.
+
+### Frente 2 — CodeQL "All jobs have failed" (PR #435, mergeado)
+**Causa-raiz:** o repo memoria-nox é **privado sem GitHub Advanced Security** → code scanning indisponível → `analyze@v3` roda mas falha no upload do SARIF (`configuration error`; `code-scanning/alerts` retorna 403). Passava até 06-15 (scanning ativo), quebrou em 06-20. As ~11 annotations (`26 diagnostics: syntax errors`) são **ruído** dos `staged-*/`, NÃO a causa.
+
+**Fix:** triggers `push/pull_request/schedule` comentados em `.github/workflows/codeql.yml`; mantido `workflow_dispatch`. **Reativar no go-live PÚBLICO** (code scanning grátis em repo público). **PR #435 mergeado pelo Forge** (14:34 UTC). ⚠️ **Recheck salvou um erro:** eu ia deletar os **604 arquivos `staged-*/` como "lixo"** — mas o grep dos docs revelou que são **ponteiros de implementação citados no paper(§163)/README(links clicáveis)/CONTRIBUTING** (`Implementation: staged-P1/edits/…`); o código de prod vive na VPS, então o repo de docs guarda os `staged-*/` como referência citável. Removê-los quebraria o paper. **NUNCA `git rm staged-*` como higiene** — se tirar, migrar as citações antes (projeto à parte). Memória: [[project_staged_dirs_are_paper_impl_pointers]].
+
+### Notas operacionais
+- SSH VPS prod `root@$NOX_VPS_HOST` = autorização explícita por sessão.
+- Memória durável criada/atualizada: [[project_staged_dirs_are_paper_impl_pointers]] · [[project_d2_brief_diversity_shadow_deployed]] (update flip active) · [[feedback_never_pipe_transform_into_overwrite]] · [[feedback_always_check_then_recheck_conclusions]] (2 aplicações vivas: o recheck dos docs salvou os staged-*; o recheck do estado evitou diagnóstico no escuro).
+- Incidente do crontab (`sed | crontab -` zerou, restaurado backup) e o detalhe do órfão estão no INCIDENTS.md (2026-06-22).
+
+---
+
+## Sun 2026-06-21 — D2 gate split-slot (PR#20) colhido → **flip `active`** + gate de 24h em `active` agendado
+
+> Toto: "rodar o teste/análise que devia ter rodado ontem à noite" = o **D2 gate do split-slot** (PR#20). Depois: "qual a recomendação?" → recomendei **flipar `active`** (shadow esgotou seu valor informativo; o único bit que falta — rotação real do slot global — é inacessível em shadow por construção). Toto: "sim flipa e faz o que sugeriu". SSH read+deploy autorizado explicitamente nesta sessão.
+
+### Gate D2 do split-slot (shadow, censo 1144 samples ~38h, START pós-deploy `2026-06-20 01:00 BRT`)
+3 critérios duros PASSAM + objetivo de design confirmado:
+- FLOOR GUARD **0** · churn **2.0** · age would_LEAVE→ENTER **57.7d→7.8d** (7×).
+- **Destravamento (era o ponto do #20):** atlas/lex **0→2 fresh** (entity=2, session=0 — pool `sessions/<agent>/%` vazio, split-slot preencheu ambos com global). Slot global (`memory/entities/%`) presente em **TODOS os 6 agentes**. Curados que entraram: `227767` (nuvini.md), `227656` (lesson falsos-positivos-timeout).
+- ⚠️ Caveat do shadow: só **2 entities distintas** porque em shadow o slot global **não rotaciona** (`brief_log` é alimentado pelo brief `current`, não pelo `alt`). Prova o canal, não a variedade rotativa.
+
+### Mecânica do código (brief.ts §673-712) — confirmada por leitura
+`off` ⇒ brief v1.2. `shadow` ⇒ computa `alt`, **loga** o diff (tag `brief_diversity_shadow`, só churn>0), **serve `current`**, `brief_log`←`current.items`. `active` ⇒ **serve `alt`**, `brief_log`←`alt.items` (inclui slot global). **Em `active` NÃO há tag de log** — o serving real está na tabela **`brief_log`**. `fetchFreshCandidates` exclui ids servidos recentemente (`id NOT IN (SELECT chunk_id FROM brief_log WHERE served_at > ?)`) ⇒ é isso que faz a **rotação** existir em active.
+
+### FLIP `active` — feito + verificado AO VIVO (deploy prod mutante autorizado)
+- Drop-in: criado `d2-brief-diversity-active.conf` (`NOX_BRIEF_DIVERSITY=active`); shadow renomeado `.retired-<ts>` + backup `.bak-pre-active-<ts>`. `daemon-reload` + `restart` (15:23:38 BRT). Só **um** drop-in de diversity vigente.
+- Verificado: env vivo `active` · serviço `active` · salience mode `active` · vectorCoverage **70813/70820** (7 orphans = watcher recente, catch-up cron fecha) · tag `brief_diversity_shadow` **parou** (0 pós-restart).
+- **Rotação CONFIRMADA viva** (o bit que o shadow não mostrava): baseline T+0 (30min) = 142 briefs, **4 entities distintas** servidas, IDs **novos** (`227148` decisão embeddings, `227328` decisão billing) ≠ os 2 do shadow. **FLOOR sanidade:** 4 high-pain (pain≥0.9) servidos = não expulsos. Entity em todos os 6 agentes.
+
+### Gate de 24h em `active` — agendado
+- Novo script `/root/.openclaw/scripts/d2-gate-active-report.sh` (READ-ONLY, lê **`brief_log`** — janela móvel `-1 day`; mede rotação=distinct entity, FLOOR=distinct high-pain, por-agente). O script shadow `d2-gate-report.sh` ficou no disco (histórico) mas seu cron foi **substituído**.
+- Cron: `10 6 * * * d2-gate-active-report.sh >> /var/log/nox-d2-gate-active.log # d2-gate-active` (74 linhas preservadas).
+- **Primeiro run 24h-limpo = 23/06 06:10 BRT** (o de 22/06 06:10 mistura ~9h pré-flip shadow). Ou rodar manual `d2-gate-active-report.sh "-24 hours"` em ~22/06 16h.
+
+### ⚠️ Próxima ação — RETOMAR AQUI
+1. **Colher o gate active limpo** (23/06 06:10 em `/var/log/nox-d2-gate-active.log`, ou manual `-24 hours` em 22/06 ~16h). Esperado: distinct entity **>> 2** (rotação entre os 188 curados), FLOOR high-pain ≥ baseline (não cai a 0), entity em todos agentes. Se ok → é o **número final do paper §3.5** (ciclo `shadow→diagnose→fix→measure→ship`).
+2. **Natureza bursty:** os 188 curados estão na banda 14-21d; em ~9d caem fora dos 30d → pool global encolhe até a próxima consolidação. Knob `freshGlobalMaxAgeDays` (env `NOX_BRIEF_DIV_FRESH_GLOBAL_MAX_AGE_DAYS`) tunável se a cobertura cair.
+3. **Rollback** (se preciso): renomear `.retired` de volta pra `.conf`, remover `active.conf`, `daemon-reload` + restart. Ou só editar a env pra `shadow`.
+
+### ⚠️ Lição operacional (incidente contido — 0 perda)
+`crontab -l | sed '…#…' | crontab -` **zerou o crontab**: o sed falhou no parse (delimitador `#` colidiu com `# tag`) → emitiu 0 linhas → o pipe `| crontab -` sobrescreveu com vazio. Restaurado do backup `/tmp/ct.bak` (feito 1 linha antes) em segundos. **Regra:** nunca `cmd | transform | cmd-que-sobrescreve -` quando o transform pode falhar; usar python com `assert old in src` + `assert linhas preservadas` + backup imediato antes. (Aparentado a [[feedback_never_sed_binary_files]] — sed frágil em destino crítico.)
+
+### Notas operacionais
+- SSH VPS prod `root@$NOX_VPS_HOST` = autorização explícita por sessão.
+- Memória: [[project_d2_brief_diversity_shadow_deployed]] (atualizada: flip active + rotação viva + gate active) · [[feedback_always_check_then_recheck_conclusions]].
+
+---
+
+## Sat 2026-06-20 — D2 gate PR#19 colhido → split-slot global (curado) impl + deploy shadow + PR#20 merged
+
+> Toto: "rodar o teste que estávamos esperando" = o **D2 gate pós-fix**. Depois decidiu **(B)** fazer a mudança de design antes do flip. Tudo autorizado explicitamente nesta sessão (SSH read + deploy shadow + merge).
+
+### Gate D2 (PR#19 freshness fix) — colhido (censo, 694 samples ~24,8h)
+⚠️ **A VPS roda America/Sao_Paulo (-03), NÃO UTC** — `journalctl --since` parseia em local; START "2026-06-19 02:00 UTC" = `2026-06-18 23:00` BRT.
+- FLOOR GUARD **0** · churn **2.0** · freshness age **56→6d** (9×) → 3 critérios duros PASSAM.
+- Diversidade **would_enter 13 / fresh 8** = modesta. Breakdown por agente: **exatamente 2 distinct/agente** (nox 200 briefs→2; atlas/lex→**0 fresh**). NÃO é bug — recheck confirmou o fix vivo (dist `LIMIT FRESH_CANDIDATE_POOL=100`, restart 22:54 BRT). O LIMIT 8→100 ampliou o *pool elegível* mas a seleção **top-2 determinística** num scope `sessions/<agent>/%` homogêneo realiza os mesmos 2. Perfil dos fresh: age 5-6d, imp 0.85-0.9 (qualidade ok).
+
+### Decisão Toto = (B): segurar flip `active`, mudança de design primeiro
+
+### Split-slot global — impl + deploy shadow + merge (PR nox-workspace #20, `tune(brief)`)
+- `freshPool = interleaveFresh(agentFresh, globalFresh)` round-robin dedup → **1 recente do agente + 1 curado global** (`GLOBAL_FRESH_PATTERNS=['memory/entities/%']`) por brief. Antes o curado global era invisível (`scopePatterns(global,agent)` só dá `sessions/<agent>/%`).
+- **`freshGlobalMaxAgeDays=30`** (env `NOX_BRIEF_DIV_FRESH_GLOBAL_MAX_AGE_DAYS`): janela própria. ⚠️ **Recheck salvou de no-op silencioso** — `memory/entities/%` tem **0 elegíveis ≤14d, 188 ≤21d** (entity store consolida em **rajadas**); com os 7d do agente o pool global ficaria vazio.
+- Invariantes preservadas (regra #5: re-rank pós-salience, não forka salience; floor; fail-open; `off` bit-idêntico). **51/51 testes** (47+4 novos), RED→GREEN comportamental no split-slot.
+- **Deploy verificado AO VIVO** (shadow): `git checkout origin/<branch> -- <2 files>` + tsc + restart (HEAD seguiu main, zero contaminação); `fresh_added` agora traz `memory/entities/projects/nuvini.md` (227767) ao lado dos sessions — antes 8 distintos **todos** sessions.
+- **PR #20 merged** (squash `fd12905`) + **working copy da VPS reconciliado**: HEAD `fd12905d`/main, working copy limpo, dist consistente, serviço `active` shadow (sem restart extra — já rodava o código correto). Sem dívida de git (auto-backup cron não conflita).
+
+### ⚠️ Próxima ação — RETOMAR AQUI (amanhã)
+1. **GATE de novo: domingo à noite 2026-06-21** (24h pós-deploy bastam — o #19 usou 24,8h/694 samples; deploy do split-slot foi ~00h-01h BRT de 20/06). Mesmo `d2-gate-report.sh`, **START pós-deploy `2026-06-20 01:00 BRT`**. Esperado: **atlas/lex 0→1 fresh**, slot global populado (`memory/entities/%` em fresh_added), **FLOOR 0** mantido, churn ~+1. Se passar → recomendo flip `active` (decisão Toto). Flip = `NOX_BRIEF_DIVERSITY=active` no drop-in systemd + restart (deploy prod — autorização à parte).
+2. ⚠️ **Shadow não rotaciona o global slot** (brief_log não é alimentado pelo brief alternativo) → mostra o mesmo top global repetido; a variedade rotativa real só aparece em `active`. Ler a diversidade do 21 com isso em mente.
+3. **Natureza bursty:** os 188 curados estão na banda 14-21d; em ~9d caem fora dos 30d → pool global encolhe até a próxima consolidação. Knob `freshGlobalMaxAgeDays` tunável.
+4. **Paper §3.5:** achado "expandir o pool ≠ aumentar variedade realizada sob seleção top-k determinística em scope homogêneo" + split-slot = material publicável (números pós-gate 21).
+
+### Notas operacionais
+- SSH VPS prod `root@$NOX_VPS_HOST` = autorização explícita por sessão (classifier bloqueia sem o Toto nomear o alvo).
+- Feature branch em clone `/tmp` dispara o pre-commit hook (fail-safe) → override `COMMIT_TO_NON_MAIN_OK=1` (intencional, não leak). Clone descartável: `/tmp/brief-fresh-global-FF8CC8E4-...`.
+- Memória: [[project_d2_brief_diversity_shadow_deployed]] (atualizada) · [[feedback_always_check_then_recheck_conclusions]] (2 rechecks salvaram: ≤7d=0 evitou no-op; fresh:8==LIMIT-antigo confirmou fix vivo).
+
+---
+
+## Thu 2026-06-18 — D2 gate medido + freshness slot corrigido (salience-order) + deploy shadow
+
+> Toto: "dados pra coletar hoje pra continuar a evolução da memória e do paper" — **NÃO** a campanha (essa é no repo `nox-mem`, separado). Caminho: colher D2 gate → diagnosticar → via rápida (simular) → robusta (fix). Tudo autorizado explicitamente (SSH read, deploy).
+
+### D2 gate colhido (censo, não amostra)
+SSH VPS read-only. journald retém desde 19/05 (475MB) → os **3115 samples** `brief_diversity_shadow` (14/06 07:46→18/06, 4,6d) são o **censo completo** da janela. 3 critérios duros PASSAM:
+- FLOOR GUARD **0** (611 high-pain protegidos; nenhum `would_leave` pain≥0.9)
+- mediana age **would_leave 55d → would_enter 11d** (5× mais recente)
+- churn **2.0** estável (não-thrashing)
+- diversidade ⚠️ modesta (~10 distintos) → investigado
+
+### Diagnóstico do 10/480 (causa-raiz)
+`fetchFreshCandidates` (brief.ts) ordenava `COALESCE(source_date,created_at) DESC LIMIT freshSlots*4 (=8)` → via só os **8 mais recentes por ingest** (~2% do pool elegível de **488**). Promovia lotes brutos recentes (pain 0.2, imp homogênea) e ignorava **450 chunks de 2-7d** de alta importância (pain 0.8-0.9). Gargalo destravável, não design correto.
+
+### Fix (PR nox-workspace #19, `tune(brief)`, deploy shadow)
+ORDER BY = mesmo proxy de salience do pool principal (`0.55·imp+0.10·pain+0.1·access`) + tiebreak recência; `LIMIT FRESH_CANDIDATE_POOL=100`. **freshSlots mantido em 2** (ablation limpa: muda só a seleção). `fetchFreshCandidates` exportada + teste unitário (recente alta-salience 5d lidera o pool); **RED provado** contra a query antiga; **47/47** testes brief. (8 erros tsc restantes = pré-existentes `validate.test`/`*.example.ts`, fora de escopo.) Deploy: `git checkout origin/<branch> -- <files>` no working copy (HEAD seguiu `main`) + tsc + restart; shadow mode intacto. Pós-deploy: `fresh_added` já varia por agente.
+
+### Recheck (Toto: "tem certeza, não perde 3 dias em vão?")
+Furo corrigido: medi o pool de 479 **sem** o filtro de scope. Os briefs são TODOS `global+agent` → freshPatterns = `sessions/<agent>/%`. Pool **por-scope real**: boris **243**, forge 169, nox 18, cipher 12 — todos **>>8** ⇒ o fix destrava de verdade (não é em vão). Conteúdo = chunks **`distilled`** (lessons/contexts/preferences por agente, imp 0.7-0.8), não transcrição bruta. **Correção da narrativa:** o `8→479 (60×)` era corpus inteiro; o real é ~**8→100/agente**. E dentro de um scope o pool é homogêneo (imp~0.8/pain 0.2) → proxy salience quase empata → tiebreak recência domina ⇒ o **motor do ganho é o LIMIT (8→100)**, não o re-order por salience (esse só brilha em briefs de scope-projeto que misturam `memory/`+`sessions/`). **Limitação de design (separada do fix):** freshPool `global+agent` nunca vê `memory/lessons|decisions|people` curados globais — se a diversidade desejada for conhecimento curado global fresco, é outra mudança.
+
+### Próxima ação
+1. **Gate amanhã à noite (2026-06-19) — basta 24-48h, não 3 dias** (~600 briefs/dia, 6 agentes). Rodar com START pós-deploy `2026-06-19 02:00:00` UTC (o cron `d2-gate-report.sh` tem START fixo 14/06 e dilui pré+pós). Critérios: distintos↑ E FLOOR 0 (≈garantido: pool `sessions/` tem pain 0.2; high-pain vivem em `memory/`, fora do pool) E churn não-thrashing → recomendo flip `active`. Decisão Toto.
+2. **Pós-merge #19:** working copy tem os 2 arquivos em `main` não-commitado → `git checkout -- <files>` + `git pull` + rebuild + restart (reconcilia).
+3. **Paper §3.5:** ciclo `shadow→diagnose→fix→measure` é material publicável (números pós-gate).
+4. Campanha de lançamento = repo `nox-mem` (separado), não aqui.
+
+---
+
+## Sun 2026-06-15 — §6 CANONICAL RUN FEITA + paper §6 expandido + custo/latência re-validados
+
+> Objetivo Toto: discurso de posicionamento como diferenciador (**custo menor + dependência de 3º mínima**) + expandir o paper. **O bloqueador pré-arXiv anterior (§6 com células `[deferred]` + run canônico abortado D76) está RESOLVIDO.**
+
+### §6 — canonical run executada (pod RunPod, n=100/dataset, k=10, same-namespace fair)
+3/6 sistemas com dado real + 3 gaps documentados. **Resultado: SPLIT honesto** (cada top-tier ganha 1 benchmark — bom pro paper, não é overclaim).
+
+| Dataset | nox-mem | mem0 | agentmemory | vencedor |
+|---|---|---|---|---|
+| LongMemEval | **0.5234** (r 0.6535, MRR 0.5494) | 0.4764 | 0.2803 | **nox-mem** +0.047 |
+| LoCoMo | 0.4263 (r 0.5504, MRR 0.4464) | **0.4686** | 0.1587 | **mem0** +0.042 |
+
+Gaps: zep (docker impossível em pod unprivileged) · letta (agent-OS ~16min/query) · evermind (keys OpenRouter+DeepInfra + auth repo externo). lightrag/hippo = ref §5, não §6. Detalhe: `[[project_head_to_head_nox_mem0_split_2026_06_14]]` + `[[feedback_q4_expansion_systems_setup]]` + `[[feedback_mem0_thread_leak_telemetry_faiss_architecture]]` + `[[feedback_runpod_pod_ops_ssh_recovery_patterns]]`.
+
+### §5.7 re-validado AO VIVO (VPS $NOX_VPS_HOST, 2026-06-15, corpus 70,7k)
+- KG-path **2,9ms p50 / 5,7ms p95** (confirma o 2,5ms) · KG-path **$0/query** confirmado · footprint **415MB** (1 processo) ✓
+- hybrid **653ms p50** (era 529 — corpus maior + Gemini API variance) · **769×→~667×** (Gemini embed subiu $0,13→$0,15/1M em fev-2026)
+
+### Paper editado + commitado (`main` limpo)
+- `.md` (**`80e10b2`**): §6 status + §6.2 versões + §6.3 split tables + §6.3.1 gaps + §6.4 future-work + §6.7 pré-registro + **§6.9 nova (reproducibility-as-evidence)** + §5.7.1/§5.7.2 re-validado + abstract
+- build `.tex`/`.pdf` (**`368fcd9`**): rebuildados (pandoc 3.9/xelatex), consistentes. ⚠️ **Build da manhã (10:53) estava stale (pré-§6, ainda com `[deferred]`+769×) — pego a tempo, regenerado.**
+- **Framing de custo (decisão Toto):** liderar com **"$0/query + custo marginal zero"**; ~667× secundário com assunção declarada (Mem0 = subscription $19–249/mo, denominador $0,001/q é modelagem, não preço publicado).
+
+### Discurso de posicionamento (gravado em memória)
+`[[project_nox_mem_positioning_discourse]]`: **Quality = ticket de entrada / Autonomy+Custo+Simplicidade = o fosso.** NÃO liderar com nDCG. One-liner: *"Qualidade de retrieval no nível do líder — entregue como 1 arquivo SQLite: $0/query, sem serviços externos, sem vendor lock-in, sua escolha de provider."* + benchmark-run-as-evidence (mem0 wedgeou o pod 3×, zep não roda, nós = 1 arquivo zero incidente).
+
+### Próxima ação
+1. **D2 gate (inalterado):** cron `d2-gate-report.sh` roda diário; Toto chama ~18/06 → rodo análise + recomendo flip `active`.
+2. **Paper arXiv:** §6 agora PREENCHIDO. Restam: (a) §6.4 per-category (future work — run só deu dataset-level); (b) logística arXiv (account + endorsement cs.IR); (c) LoCoMo venue check (`refs-verification-log.md:168`); (d) opcional: re-rodar zep/letta/evermind se houver host com docker real / keys.
+3. **Pod RunPod DESLIGADO** pelo Toto (outputs persistem em `/workspace` se retomar).
+
+---
+
+## Fri→Sat 2026-06-13/14 — D3 medido + D2 (brief diversity) SHADOW DEPLOYED
+
+> Objetivo do Toto: "evoluir e finalizar o projeto memória e ter o paper pra publicar". Caminho: D3 (medir) → D2 (decidir+impl). Escolha do Toto no ponto de decisão: **implementar A+B em shadow, gate sem follow-up**.
+
+### D3 — medição limpa (7d pós-descontaminação do canário 06-07)
+SSH na VPS (`$NOX_VPS_HOST`, autorizado), query sobre `brief_log` + `chunks` + `search/answer_telemetry`:
+
+| Métrica | Número | Leitura |
+|---|---|---|
+| Diversidade | **83 distintos / 46.824 serves** (30-50/dia · ~6.700/dia) = 0,18% | Travado por **design** — canário corrigido não era a causa principal |
+| Freshness | mediana **48d**; 14/81 ≤7d; 22/81 ≤30d | Cauda recente existe, velho domina |
+| High-pain floor | **19/81** pain≥0.9 | O que o floor do D2 protege |
+| Tipo | team 39 + distilled 34 = 90% | Pouca variedade |
+| Universo barrado | **931** recentes (≤7d) relevantes nunca servidos; **510** imp≥0.7 | `importance` default é 0.4 ⇒ genuínos. Pool real do freshness slot |
+| **Follow-up** | **3 buscas genuínas + 0 answers em 7d** | **NÃO-mensurável** |
+
+**Virada:** follow-up via search/answer é estruturalmente vazio (priming injeta no SessionStart → agente não re-busca o que já tem). Gate D2 **redesenhado** sem follow-up. Frase pro paper: utilidade de priming-by-injection mede-se pela qualidade do conjunto servido, não por re-consulta.
+
+### D2 — A+B implementados + shadow LIVE (PR nox-workspace #17)
+- **A — novelty penalty:** `brief_score = salience − min(P_max, λ·log1p(n_serves))` via `brief_log` (read-only). **High-pain floor** (pain≥0.9) imune. Re-rank pós-salience DENTRO do brief — NÃO forka `calculateSalience` (regra #5).
+- **B — freshness slot:** F slots reservados pra recente relevante não-servido (query própria; o pool de 500 barra access=0). `FRESH_MIN_IMP=0.7`.
+- `NOX_BRIEF_DIVERSITY=off|shadow|active`, **default off**. `off` bit-idêntico ao v1.2 (provado por teste). Fail-open. `brief-diversity.ts` (puro) + `brief.ts` (queries+integração). **45/45 testes** (20 novos).
+- **Deploy shadow:** drop-in systemd `d2-brief-diversity-shadow.conf` (padrão G10d/D49) + build + restart. Verificado: serviço active, surface intocado, **shadow log LIVE** no journal — 1ª amostra `churn:2 would_enter:[265166,265167] would_leave:[116341,112241] fresh_added:[265166,265167]` (recente entra, abril sai — exatamente o diagnóstico do D3).
+
+### Gate (redesenhado, sem follow-up)
+Coletar **3-5 dias** de `brief_diversity_shadow` (journalctl) cruzado com `chunks`. Flip `active` só se: diversidade ↑ E mediana age ↓ E **19 high-pain preservados** (nenhum `would_leave` com pain≥0.9) E churn não-thrashing. Decisão do Toto com números na mesa. Query de gate na spec §6.
+
+### Rollback
+`rm /etc/systemd/system/nox-mem-api.service.d/d2-brief-diversity-shadow.conf` + `daemon-reload` + restart (volta a off; off já é o default do código). PR #17 revertível.
+
+### Continuação da sessão (mesmo dia)
+
+**Floor fix (PR #18, deployado + validado):** o **gate report pegou um bug no 1º shadow run** — o freshness slot expulsava high-pain (would_leave pain=1.0), violando a invariante #4. Causa: o penalty respeita o floor mas a reserva de slots do freshness não. Fix **pinned-first** (high-pain do brief atual entram garantidos, nunca expulsos; freshness só compete pelos slots restantes). 46/46 testes. Deployado; gate pós-fix: `samples 8 · churn 2.0 · FLOOR GUARD 0 OK · median age would_LEAVE 30.7d→would_ENTER 0.5d`. Memória `[[project_d2_brief_diversity_shadow_deployed]]` atualizada.
+
+**Cron de gate na VPS:** `/root/.openclaw/scripts/d2-gate-report.sh` + cron `10 6 * * *` (tag `# d2-gate-report`, log `/var/log/nox-d2-gate.log`). Agrega `brief_diversity_shadow` × `chunks`: diversidade, freshness (age leave→enter), e **FLOOR GUARD** (would_leave com pain≥0.9). `START="2026-06-14 07:46:00"` (BRT, pós floor-fix; journalctl parseia --since em local). Rollback: remover linha do crontab + script.
+
+**Inventário pré-arXiv (agent):** o bloqueador do paper **não é D3/D2 nem HyDE/Claude bench** (future work) — é a **§6 (Q4 Comparison) com 101 células `[PENDING]`** + run canônico **abortado (D76, CPU steal Hostinger)** + abstract prometendo head-to-head que não existe. §5 (12 SOTA) sustenta o paper sozinho.
+
+**3 fixes mecânicos do paper (commit e7114ad):** (1) título corpo `OpenClaw Memory System`→`nox-mem: Pain-Weighted Hybrid Memory for LLM Agents`; (2) fórmula salience unificada na **aditiva v2** canônica (corpo §3.4.3 reconcilia princípio mult. vs impl aditiva; footnote + abstract.md + arxiv-ready corrigidos — tinham `× access_count` multiplicativo inexistente); (3) rebuild .tex/.pdf.
+
+### Próxima ação
+
+1. **Shadow 3-5d** → cron de gate roda diário → Toto chama em ~18/06, eu rodo a análise e recomendo flip `active` (gate: diversidade↑ E mediana age↓ E FLOOR GUARD 0 E churn não-thrashing).
+2. **Paper — decisão do Toto sobre §6:** como rodar o run canônico sem o CPU-steal da VPS (D76) — recomendado **Mac local** ou **VM efêmera** (não upgrade permanente). Até lá §6 fica `[deferred]`.
+
+### Continuação — alerta Cipher + paper §3.5 + polish (mesmo dia)
+
+- **Alerta Cipher "NOX-MEM BACKEND DOWN" = falso positivo** (commit nox-workspace `58ca15dc`). Cipher checava `:9876` (porta fantasma); real é `:18802`/`NOX_API_PORT`. nox-mem nunca caiu. Fix: SOUL.md do Cipher ancora a porta canônica + steward-log corrigido. Quebra o ciclo de auto-reforço.
+- **Paper §3.5 "Session Priming" escrita** (commit memoria-nox `1701fbb`): read-side da self-evolution + achado D3 (0,18% diversidade; **follow-up não-mensurável em priming-by-injection → utilidade = qualidade do conjunto servido**, material publicável) + D2 diversity term.
+- **Polish do paper:** §6/§6.7/§7.1(L5,L6)/§15 "run in progress"→"**deferred (D76)**" (honesto sobre o capstone abortado); unicode `~12 warnings → 0` (emojis ⭐🟡 removidos, operadores raros ∈≤∥≠∞↔≈→ASCII; ×→· mantidos). PDF+.tex rebuildados.
+
+### Tradução + review (commit `68bd5d7`) — RESOLVIDO
+A §6 (Q4 Comparison) **inteira** estava em português (não só §6.7) + §15. Traduzido tudo pra EN acadêmico (agent technical-writer + review meu), markdown/refs/números/termos preservados. Review superficial: version line `§5 third→fifth revision May–June 2026`; células de tabela `[pending]/[PENDING]/[pending Sun canonical]` → `[deferred]` (consistência + remove data passada). Verificado: **0 PT residual, 0 placeholders, 0 warnings unicode, footnotes 20/20, numeração §1-15 OK**. PDF+.tex rebuildados.
+
+### Estado do paper pré-arXiv (pós-sessão)
+✅ título · ✅ fórmula salience aditiva v2 consistente · ✅ §3.5 priming · ✅ 100% EN · ✅ §6/§7/§15 honesto sobre D76 (`[deferred]`) · ✅ build limpo. **Falta (decisão Toto):** (1) §6 run canônico — infra (Mac/VM) → preencher células `[deferred]`; (2) logística arXiv (account + endorsement cs.IR); (3) LoCoMo venue check (`refs-verification-log.md:168`).
+
+Memórias: `[[project_d3_brief_diversity_measured]]`, `[[project_d2_brief_diversity_shadow_deployed]]`.
+
+> ⚠️ Nota de volume: shadow loga a cada `/api/brief` com churn>0 (~6.700/dia). journald rotaciona; ok pros 3-5d. Se incomodar antes do gate, amostrar.
+
+---
+
+## Wed 2026-06-11 — Rodada de estabilidade: yellow vectorCoverage + WAL 1.5GB + integrity/restore-test + morning report v2
+
+> Manhã: morning report 🟡 vectorCoverage 70730/70758. Fix do sintoma + auditoria de confiabilidade do pipeline inteiro a pedido do Toto ("estabilidade no processo, vetorização e etc"). Tudo deployado direto na VPS (ops, não código do repo).
+
+### Diagnóstico
+- **Yellow:** 28 chunks sem embedding = re-ingest do watcher às 03:30 UTC (`memory/{pending,projects,lessons,decisions}.md`). Vectorize rodava SÓ no `nightly-maintenance.sh` 23:00 UTC → janela de até ~20h amarela toda vez que watcher ingere pós-nightly.
+- **WAL 1.5GB** (mesmo tamanho do DB): high-water mark de bulk antigo nunca truncado — autocheckpoint reusa o espaço mas o arquivo nunca encolhe. `wal_checkpoint(TRUNCATE)` rodou limpo (busy=0): **1547MB → 0**.
+- **Backup nunca testado / integridade nunca checada / disco não monitorado.** Watcher e API já bem cobertos (Restart= + health-probe 10min com restart+alerta).
+- **Decisão do Toto:** NÃO copiar backup pro Mac — VPS/Hostinger já tem backup. Artefatos de pull no Mac removidos (script, plist nunca ativado, cópia local).
+
+### Entregas (VPS, tudo com tag no crontab + backup do original)
+| # | Item | Onde |
+|---|---|---|
+| 1 | Vectorize manual 28/28 (0 errors) → 70758/70758, orphans 0 | verificado `/api/health` |
+| 2 | Cron catch-up vectorize `43 */4 * * *` (no-op se 100%, timeout 600s) | tag `# vectorize-catchup`, log `/var/log/nox-vectorize-catchup.log` |
+| 3 | `wal-checkpoint.sh` + cron `13 4 * * *` (TRUNCATE diário, inofensivo se busy) | tag `# wal-checkpoint`, log `/var/log/nox-wal-checkpoint.log` |
+| 4 | `weekly-integrity-check.sh` + cron `53 5 * * 0`: `quick_check` no DB vivo + **restore-test real** do daily-main (gunzip→abre→quick_check→drift guard 20%) | tag `# integrity-check`, log `/var/log/nox-integrity.log` |
+| 5 | `morning-report.sh` **+5 checks**: `wal size` (🟡>200MB 🔴>1GB), `backup age` (🟡>26h 🔴>30h/ausente), `catchup` (errors), `disk` (🟡>80% 🔴>90%), `integrity` (FAIL 🔴, stale>8d 🟡) | originais em `.bak-20260611-082346` + `.bak2-20260611-083423` |
+
+### Verificações
+- 1ª run do integrity check: **PASS em 11s** — main quick_check=ok 70758 chunks; backup restaura com contagem idêntica (70758=70758).
+- Test run do morning report completo (sem Discord): **all green** com todos os campos novos. A partir de 2026-06-12 06:30 UTC o Discord recebe o formato novo.
+- Crontab backup pré-mudanças: `/var/backups/crontab.pre-vectorize-catchup-20260611-*`.
+
+### Pipeline de vetorização — cobertura ponta-a-ponta
+watcher (Restart=always + probe 10min + alerta) → embedding (catch-up 4/4h + canary 429 + check `catchup`) → WAL (truncate diário + check `wal size`) → backup (daily snapshot + check `backup age` + restore-test semanal + check `integrity`) → disco (check `disk`).
+
+### Rollbacks
+Crontab: remover linhas com tags `# vectorize-catchup` / `# wal-checkpoint` / `# integrity-check`. Morning report: restaurar `.bak2-*` (ou `.bak-*` pra estado pré-rodada). Scripts novos em `/root/.openclaw/scripts/{wal-checkpoint,weekly-integrity-check}.sh`.
+
+### Próxima ação
+Acompanhar o report de 2026-06-12 (formato novo). Candidatos futuros de estabilidade (não feitos): alerta proativo de saldo Gemini prepaid (hoje só 429 reativo), `integrity_check` full mensal (vs quick semanal), latência do `/api/search` no report. Pendências anteriores seguem: **D2** (brief diversity) aguarda dados D3; bug de bootstrap de schema (`ensureSchema` V1-7 vs `schema_version=18`) investigação à parte.
+
+Memórias: `[[project-reliability-round-2026-06-11]]`, `[[project-vectorize-catchup-cron-2026-06-11]]`.
+
+---
+
+## Mon 2026-06-08 — CI hygiene: gitleaks FP allowlist + portão de branch protection
+
+> Alerta do GitHub: Security Scan **agendado** do memoria-nox (PÚBLICO) falhando no gitleaks. Recheck: ~28 findings, **TODOS falsos positivos** (cada um verificado contra o valor real).
+
+- **Diagnóstico:** o scan agendado (full-history, `fetch-depth:0`) reincidia em FP que o scan de push (diff) não via. Grupos: `benchmark/history/*.json` `metric_key` = nomes de métrica (`P1.answer.*.pXX_ms`); `staged-P7.../privacy/` = fixtures sintéticas de redação (`AKIAIOSFODNN7EXAMPLE`); `archive/docs/github-webhook-setup.md` = placeholders de doc. **Zero secrets reais.**
+- **Fix:** `.gitleaks.toml` (estende default + allowlist por path). **PR #430**. Validado local (890 commits "no leaks") + CI `Secret Scan (gitleaks)` SUCCESS. Merge via `--admin` (autorizado).
+- **Portão de branch protection:** o merge travou por `Validate DEPLOY-WAVE-B.md commands` — required check **condicional** (path-filtered) que trava TODO PR não-relacionado mesmo com tudo verde. Removido de `required_status_checks` (autorizado explícito); restam `TypeScript` + `A4 Zero-Vendor`.
+- Memórias: `[[feedback_gitleaks_scheduled_full_history_false_positives]]`, `[[feedback_conditional_required_check_blocks_all_prs]]`.
+
+---
+
+## Sun 2026-06-07 — D1: canário contaminava access_count (feedback loop) → fix + descontaminação
+
+> Sessão de "observação" virou caça a bug. Checar o priming loop revelou que o brief estava preso em **88 chunks distintos / 21.337 serves** — não staleness pura de design, mas um **feedback loop**: o `semantic-canary` rodava `/api/search` a cada 30min (cron `:22/:52`) e, via `searchHybrid` (`search()`×N + `searchSemantic()`), incrementava `access_count` de ~52 chunks candidatos por run. `access_count` alimenta salience (peso 0.20) → mesmos chunks voltam → auto-reforço.
+
+### Diagnóstico (brief_log + search_telemetry + código)
+- 88 distinct / 21.337 serves; 8 chunks `acc_at_recent_cron` = 28% dos serves; `last_accessed` cravado `:52` (tick canário)
+- `too_short` 49/51 buscas/24h = canário (BENIGNO, healthcheck por design — não anomalia)
+- recheck pegou bug de comparação de data (`served_at` espaço vs `last_accessed` T/Z) que contaminava o proxy de follow-up — número descartado
+- root cause no código: `search.ts:448/568` incrementavam `access_count` incondicional; canário chama `/api/search`
+
+### Entregas
+| # | Item | Onde |
+|---|---|---|
+| 1 | `recordAccess(db,ids,enabled)` guard (DRY) + `trackAccess` param em search/searchSemantic/searchHybrid + `/api/search ?track=false` | PR nox-workspace **#13** (mergeado, deployado) |
+| 2 | TDD 3 testes `recordAccess` (enabled false/true/no-op) | #13 |
+| 3 | Deploy VPS: pull+build+restart `nox-mem-api`; canário live `track=false` | VPS (systemd) |
+| 4 | Verificado em prod: 3 chunks idênticos antes/depois de canary run completo (não incrementa) | — |
+| 5 | **Descontaminação 52 chunks** (`access_count=0`, `last_accessed=NULL`) | snapshot 1464MB `/var/backups/nox-mem/pre-op/decontaminate-canary-2026-06-080049.db` + `.ids.json` (reversível) |
+| 6 | `spo-injection.test` portable tmpdir (17/0, era 0) | PR **#14** (mergeado) |
+
+### Achados colaterais (follow-up, NÃO feitos)
+- `edge-typing`/`pragma-alignment`/`eval.test`: mesmo `/var/backups` path bug MAS **também falham na lógica** — `ensureSchema` fresh aplica só migrations **V1-7** enquanto marca `schema_version=18` → DBs novos sem colunas V8-18 (ex: `relation_reason` v12) + `PRAGMA user_version` não alinhado. **Bug de bootstrap de schema, investigação à parte.** `op-audit-e2e` usa `/var/backups` de propósito (allowlist); `ocr-jobs` já tem fallback.
+- Mirror canário (`scripts/vps-mirror`) estava dessincronizado da VPS — **sincronizado via scp** (versão real com self-heal/debounce).
+- `brief.ts` segue SELECT-only (promessa F1 "access_count intocado" intacta).
+
+### Estado pós
+brief global agora dominado por pain/importance (**zero contaminados**). Salience mean 0.4088 inalterada (52 de 71.7k chunks). Services up, vec 100%, orphans 0.
+
+### Próxima ação
+**D2** (brief diversity/novelty term) + **D3** (medir follow-up real agora que o sinal está limpo) — quando possível. Reavaliar quanto dos 88 era design puro vs auto-reforço com alguns dias de dados limpos. Memória: `[[feedback_probe_search_must_not_feed_ranking_signals]]`. Spec D2 desenhado: `specs/2026-06-07-D2-brief-diversity-term.md` (DESENHO, aguarda decisão + dados D3).
+
+### Higiene git VPS (pós-D1, mesma sessão)
+
+Deployar via PR no GitHub (origin avança fora da VPS) expôs divergência **VPS ahead 2/behind 1** que NÃO se auto-resolvia. Root cause: `git-backup.sh` (cron `backup-all` 02:00) e `session-wrap-up.sh --fix` faziam `git push origin main` SEM `fetch`/`merge` antes → `non-fast-forward` engolido por `|| true`, prendendo commits locais (incl. do agente Nox) até reconciliação manual.
+
+- **Reconciliado:** `git fetch && git merge origin/main && git push` na VPS (sem overlap → merge limpo).
+- **Fix #15** (`git-backup.sh`) + **#16** (`session-wrap-up.sh`): `fetch`+`merge` antes do push; conflito → `merge --abort` + skip push (nunca push cego). Testado (`bash -n` + cenário temp `behind 1/ahead 1` → `0 0`). Deployados via VPS pull.
+- **Estado:** Mac = origin = VPS = `2fa2427d`. Ambos caminhos de auto-push robustos.
+- Memória: `[[feedback_git_autopush_must_pull_before_push]]`.
+
+---
+
+## Fri 2026-06-05 — Plano Cipher simbiose itens 1-3 SHIPPED + 2 fixes colaterais
+
+> Manhã: morning report yellow verificado (46 chunks sem embedding = resíduo 429 de ontem; vectorize manual → 100%). Depois: itens 1-3 do plano Cipher×nox-mem (aprovado 06-04) entregues end-to-end em ~2h. PRs nox-workspace #10 (squash) + #11. Spec: `specs/2026-06-05-cipher-simbiose-itens-1-2-3.md`.
+
+### Entregas
+
+| # | Entrega | Onde |
+|---|---|---|
+| 1 | **Item 1** — entity `memory/entities/process/doc-steward.md` (3-seções, retention never) ingerido via routeIngest: 3 chunks compiled/frontmatter/timeline ✓ | PR #10 |
+| 2 | **Item 3** — política answer/search (bloco idêntico md5 6×, +13 linhas) nos 6 SOULs + adendo escrita no Cipher | PR #10 |
+| 3 | **Item 2** — `src/churn.ts` (KNN sqlite-vec sobre embeddings existentes, $0 Gemini, cos=1-d²/2) + CLI `churn --changed-since` + TDD 4/4 + report agrupado (semânticas vs dups exatos) | PR #10 |
+| 4 | Cron mensal churn: dia 1 03:17 → `memory/reports/churn-YYYY-MM.md` (watched → vira chunk; loop auto-documenta) | crontab VPS |
+| 5 | **Fix colateral 1** — `ingest-entity` tinha REGREDIDO do CLI (refactor); restaurado como wrapper de routeIngest | PR #11 |
+| 6 | **Fix colateral 2** — CI memoria-nox: job npm Audit falhava TODO push com exit 1 sem vulns (`[ found -eq 0 ] &&` última linha); Security Scan 3/3 green pós-fix | 32a42e0 |
+
+### Achados do dia
+
+1. **202 dups exatos residuais do bulk import jun** — smoke do churn (sim=1.0, ex: chunks 06-03 idênticos a 04-27). Incident de ontem limpou `_retired/`, mas import duplicou conteúdo ativo. **Pendência: limpeza com snapshot** (mesmo playbook PR#3).
+2. 30 re-decisões semânticas genuínas no smoke (perfil Toto 2×, cron failures re-narrados) — material paper § self-evolution.
+3. gitleaks no run 06-01 era FALSO POSITIVO (`metric_key` em benchmark/history JSON casou generic-api-key). Sem vazamento; repo é PUBLIC, atenção redobrada.
+4. **Bug latente:** CLI `ingest` ainda chama `ingestFile()` direto, violando pattern do ingest-router ("TODOS os callers via routeIngest"). Follow-up: migrar.
+
+### Tarde — limpeza dups bulk-import + fix CLI ingest (FECHADOS)
+
+1. **Censo auditado dos dups:** os "202" do smoke eram na verdade **24.519** (cap do smoke escondia a escala). Composição: 23.014 same-path (bulk 06-03 re-ingeriu mesmos arquivos via caminho `skipDelete`) + 945 same-basename (cópia Mac↔original) + 1.220 cross-file (boilerplate entre docs distintos — PRESERVADOS por proveniência). Evento único de 06-03, não recorre.
+2. **DELETE executado (go Toto):** 23.299 chunks com snapshot `dedup-bulk-jun-20260605164006.db` (1.6GB). Corpus **94.941 → 71.642**, vec 100%, orphans 0, compiled 184 (183 entities + doc-steward novo ✓), canary OK.
+3. **CLI `ingest` migrado pra routeIngest** (PR #12) — fecha a classe do incident 2026-04-25 no último caller desviante. Smoke: markdown→ingestFile, entity→ingestEntityFile ✓.
+
+### Próxima ação
+
+Inalterada: **observação 1 semana** do priming loop. Fila leve: itens 4-5 do plano Cipher (gated: sanity access_count / valor do answer); revisar os 1.220 cross-file dups via churn report mensal. Rotação keys Gemini DESCARTADA por decisão Toto 2026-06-05 (não vazaram; pendência encerrada).
+
+---
+
+## Thu 2026-06-04 — SESSION PRIMING LOOP COMPLETO (F1-F4 + extras em 1 dia)
+
+> Dia épico: PRD aprovado de manhã → **loop bidirecional completo LIVE à noite**, nas duas máquinas, com 2 gates humanos passados e 2 incidents resolvidos no caminho. 9 PRs nox-workspace (#1-#9). "Toda sessão nasce contextualizada e morre contribuindo" — operacional e se auto-documentando.
+
+### Entregas (ordem do dia)
+
+| # | Entrega | PR/commit |
+|---|---|---|
+| 1 | PRD session-priming-loop (4 fases, decisões review Toto) + spec F1 | memoria-nox specs/ |
+| 2 | **F1 `/api/brief`** — salience canônica, pool 500, brief_log, access_count intocado | #1 fac47c74 |
+| 3 | F1 v1.1 (gate condição B): age por source_date, dedup, strip HTML | #2 e4c794c0 |
+| 4 | Watcher allowlist (`_retired/` etc.) + limpeza 5.6k chunks com snapshot | #3 2657f334 |
+| 5 | **F3** priming dos agentes: cron 7,22,37,52 + hook bundled `bootstrap-extra-files` (zero plugin custom) | #4 9b9b8730 |
+| 6 | **F2** token gate tailnet (`x-forwarded-for` ⇒ Bearer) + tailscale serve + MCP-over-SSH no Mac | #5 22497050 |
+| 7 | Fix: agent `main` (Nox WhatsApp) herdava workspace raiz sem brief | #6 841a383d |
+| 8 | brief **v1.2** (gate F3 real): near-dup por containment + união agente∪global | #7 72afdbc6 |
+| 9 | **F4b `POST /api/ingest-event`** — daily/90d, dedup session_id, redaction | #8 d2cb9f08 |
+| 10 | kind=`pre_compact` (+seq) — sessões longas | #9 84b373e7 |
+| 11 | **Feeder claude-mem→nox-mem** (launchd 23:37, digest/projeto/dia) | local Mac |
+| 12 | Hooks Mac: SessionStart (brief ~130ms) + SessionEnd + PreCompact | settings.json |
+| 13 | core-memory.json aposentado (stale C-level desde 05-05) | settings.json |
+| 14 | Papers: 6 claims de estado → 2026-06-04 + abstract v2 aditiva (aprovado Toto) | 62ada3e + 7f7bf28 |
+| 15 | Docs refresh geral (README badges, COMPETITIVE, GLOSSARY, ARCHITECTURE, CLAUDE.md) | 38a2f05 |
+
+### Incidents do dia (ambos resolvidos + documentados)
+
+1. **Corpus pollution** — bulk import jun ingeriu `_retired/` (watcher sem allowlist). Limpo com snapshot; allowlist instalada. `INCIDENTS.md#2026-06-04`.
+2. **Semantic down 1h40** — prepaid Gemini esgotado (429 por PROJETO; key nova não recarrega). Key AQ. do projeto 692943619288; canary detectou ≤15min. `INCIDENTS.md#2026-06-04 (noite)`.
+
+### State EOD
+
+```
+✅ chunks: ~94.95k | KG 15.6k/21.5k | vec 100% | salience v2 active
+✅ Loop leitura: brief v1.2 → 7 personas VPS + sessões Mac (SessionStart ~130ms)
+✅ Loop escrita: SessionEnd + PreCompact + feeder claude-mem (3 caminhos, dedup, redaction)
+✅ Mac↔VPS: MCP-over-SSH (16 tools) + https://srv1465941.tail4caa5b.ts.net (Bearer, 47-76ms)
+✅ Gates humanos: condição B (3 fixes) + Nox verbatim (fix main + v1.2)
+📊 brief_log acumulando follow-up rate desde v1.2 (~23:30Z)
+```
+
+### Próxima ação
+
+**Observação 1 semana** (follow-up rate via brief_log + crystallize promovendo `events/` + Δ corpus/dia ≤10) — NÃO mexer em seleção antes dos dados. Depois: v1.3 se dados pedirem. **Pendências leves:** rotação de keys Gemini (passaram pelo chat), alerta de saldo projeto Google 692943619288, política answer/search em SOUL.md (acoplar plano Cipher — memória `project-cipher-nox-mem-simbiose-plan`), itens 1-2 do plano Cipher (3-seções + churn). **P2 full: GATED** (reabre se crystallize mostrar fome de events/). **Paper:** sequência completa de hoje é material § self-evolution (73% órfãos + detecção→limpeza + loop se auto-documentando).
+
+---
+
+## Tue 2026-06-02 evening — Wave 2 FINAL closure + arXiv path Q1
+
+> Sessão ~5h fechou Wave 2 totalmente. PRs #423-#425 merged. PR #426 capstone abandoned via D76. PR #427 sun+tue closure bundle. Paper §5 v5 + PDF/TEX rebuilt clean (post unicode sanitize). VPS recovery em curso (Hostinger throttling 24h cooldown). Next milestone: HyDE + Claude Sonnet/Opus bench Wed/Thu → arXiv v1.0.
+
+### State pós-Wave 2 closure
+
+```
+✅ chunks: ~67k em prod (stable) | services UP | openclaw re-enabled
+✅ Disk cleanup +23G (35% → 30% used)
+✅ Hostinger throttling normalizing após bench abort
+✅ PRs Wave 2 mergedos: #423 R0 NO-GO + #424 AC NO-GO + #425 MQ NO-GO
+✅ PR #426 closed (capstone D76 abandon)
+✅ PR #427 sun+tue closure bundle ready (D75 + D76 + paper §5 v5)
+```
+
+### Wave 2 grand summary (3 days)
+
+**Sun 2026-05-31:**
+- 4 PRs Wave 2 dispatched (#423-#426)
+- 3-knob NO-REPLICATE pattern confirmed (~24-40% transfer rate gpt-4.1-mini→Gemini-3-flash)
+- D75 cravado
+- Capstone dispatched autonomously
+
+**Mon 2026-06-01:**
+- Hostinger CPU steal escalation 8% → 21% → 50%+ sustained
+- Multiple mitigation rounds (openclaw disable, taskset pin, env caps, yaml patch, 2 reboots)
+- VPS upgrade attempt (8 → 8 cores, host reallocation)
+
+**Tue 2026-06-02:**
+- Batch 005 confirmed 0/50 questions completed in 23h
+- Capstone aborted (D76)
+- Disk cleanup +23G + openclaw re-enabled + env caps rolled back
+- Paper §5 v5 rebuild (~195 lines: §5.5.4 reframe + §5.5.5/6/7/8 NEW)
+- Unicode sanitize + PDF/TEX rebuilt clean
+
+### Decisões cravadas (Wave 2)
+
+| ID | What |
+|---|---|
+| D74 caveat | R0 KG path counter-evidence annotation |
+| **D75** | Wave 2 Phase 1.5 retrieval-stage composability CLOSED on Gemini-3-flash |
+| **D76** | Wave 2 Phase 2 Capstone ABORTED (Hostinger infra, INDETERMINATE) |
+
+### Memory crystallized (6 findings Wave 2)
+
+1. `[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`
+2. `[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]` (3-knob pattern + MQ MA flip)
+3. `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]` (paper-worthy)
+4. `[[capstone-aborted-hostinger-throttling-indeterminate]]` (D76 playbook)
+5. `[[ort-num-threads-cap-during-capstone]]` (mitigation reference)
+6. `[[wave-2-composability-matrix-plan]]` (Phase 1.5 closed, capstone deferred)
+
+### Wed/Thu 2026-06-03/04 — pickup actions (24h Hostinger cooldown wait)
+
+**Step 1: Verify VPS healthy** (não dispatch antes de confirmar)
+```bash
+ssh root@$NOX_VPS_HOST 'mpstat 1 5 | tail -5'
+# Expected: %steal <20% sustained. Se 50%+, abort e tentar mais tarde.
+```
+
+**Step 2: HyDE bench validation (PR #415)** — implementation pronta, verdict pending
+```bash
+# Smoke first (EverMemBench n=626, ~$1) pra validar F_MH signal
+# Se smoke passa: full 5-batch EverMemBench + LoCoMo + MuSiQue smoke
+# Custo total: ~$12.70 max (gate triage required)
+```
+- 4-gate: F_MH ≥+3pp / Overall ≥-1pp / MA no-regression / p95 ≤+50%
+- Update `eval/{evermembench,locomo,musique}/RESULTS-HYDE.md` com measured
+- Cravar memory se verdict positive
+- Open verdict PR ou merge #415 com results
+
+**Step 3: Claude Sonnet 4.6 + Opus 4.7 backbone bench (Task #62)**
+- **OAuth Max via Claude CLI já existente na VPS** (preferred — flat fee included)
+- Sonnet bench OK via OAuth (Plus rate limit cabe)
+- Opus bench: rate limit Max mais restritivo — fallback API key se necessário ($8-12 extra)
+- Phase H v2 5-batch baseline (gpt-4.1-mini) já existe → comparable
+- Expands backbone-portability matrix → §5.5.5 (4 backbones)
+
+**Step 4: Paper §5 v6 + arXiv v1.0 upload**
+- Incorporate HyDE results + Claude backbone matrix em §5.5.5/6
+- Rebuild PDF/TEX (já está clean post unicode sanitize)
+- Upload `paper/build/paper-tecnico-nox-mem.tex` + `paper/refs.bib` to arXiv
+- Update README badges + GTM com arXiv ID
+
+### Tasks pendentes prontas pra ação Wed/Thu
+
+| # | What |
+|---|---|
+| #62 | Claude Sonnet/Opus bench (precisa key rotation OR OAuth Max) |
+| #80 | HyDE bench validation (PR #415 ready) |
+| #103 | CI noise fix #1 (.gitleaks.toml allowlist) |
+| #104 | CI noise fix #2 (npm audit astro vulns) |
+
+### NÃO esquecer
+
+- **Hostinger throttling**: NÃO dispatch bench sem verificar steal <20% sustained
+- **OAuth bench**: Sonnet OK, Opus pode hit rate cap — graceful fallback
+- **Capstone re-attempt**: deferred to stable infrastructure (dedicated CPU SLO)
+- **Q2 work**: profile-chunk identification spec impl, LongMemEval cross-bench expansion
+- **CI noise PRs**: #103 + #104 (gitleaks + npm audit) — fix quando abrir memoria-nox de novo
+- **Paper unicode sanitize aplicado**: futuras edições mantém padrão (PASS/FAIL/>=/~/sigma/NO/NB:)
+
+---
+
+## Sun 2026-05-31 evening — Wave 2 Phase 1.5 CLOSED + Capstone autonomous
+
+> Sessão ~6h fechou Wave 2 retrieval-stage composability path (4 PRs Wave 2, 4 memory findings cravados). Capstone IterB + Wave C triple rodando autonomamente em tmux VPS, harvest Mon AM.
+
+### Estado atual prod
+
+```
+✅ chunks: 69.135 (steady-state) | services UP | nox-mem-watch GREEN
+✅ NO new incidents desde Wed 2026-05-27 deploy 8436982 (recorrência #4 closed)
+✅ Sun closure docs sync (HANDOFF + README + CHANGELOG + ROADMAP + DECISIONS)
+```
+
+### Wave 2 (Sun 2026-05-31) — 4 PRs, 3-knob NO-REPLICATE pattern confirmed
+
+**Goal Sunday:** Testar composability matrix from D74 — does IterB + Wave A/B/C stacking deliver ~12% F_MH = ~41% MemOS gap closure on Gemini-3-flash?
+
+**Outcome:** Wave A retrieval-stage knobs all backbone-conditional (~24-40% transfer from gpt-4.1-mini). Composability matrix projection refuted at single-stage layer. Orchestration-stage capstone in flight.
+
+| PR | Phase | Verdict | F_MH Δ vs Gemini bare |
+|---|---|---|---:|
+| **#423** | R0 sanity KG path standalone | ❌ NO-GO | -0.01pp |
+| **#424** | Phase 1.5 AC standalone re-baseline | ❌ NO-GO | +0.81pp (CI overlap) |
+| **#425** | Phase 1.5 MQ standalone re-baseline | ❌ NO-GO borderline | +1.21pp (0.29pp short) |
+| **#426** | Phase 2 Capstone IterB + KG + rerank (MQ subsumed) | 🔄 autonomous bench ETA ~24-36h | TBD |
+
+**3-knob sum:** +2.01pp = 24% of D74 pessimistic projection +8.43pp.
+
+**Architectural lock discovered (load-bearing paper insight):** PR #419 IterB adapter deliberately short-circuits Wave A knobs via explicit guards at adapter_nox_mem.py lines 2736 (MQ) / 2906 (KG) / 3063 (rerank). Composability NOT possible via env vars AS-IS. PR #426 patches 2/3 guards (KG + rerank; MQ kept — subsumed by ReAct sub-queries). Cravado memory `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`.
+
+**Sub-finding (MQ MA backbone flip):** MQ on Gemini-3-flash PRESERVES MA composite +0.12pp + MA_U +3.10pp (strongest MA gain Wave 2). On gpt-4.1-mini MQ regressed MA -1.38pp. Multi-axis backbone-conditional behavior — paper-worthy.
+
+### Memory cravado Sun (4 findings)
+
+1. **`[[kg-path-backbone-dependent-no-replicate-gemini-3-flash]]`** — R0 finding, KG path 0pp lift on Gemini (vs +2.81pp gpt-4.1-mini)
+2. **`[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]`** — 3-knob pattern + MQ MA backbone flip
+3. **`[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`** — adapter design lock, load-bearing for D74
+4. **`[[wave-2-composability-matrix-plan]]`** — Phase 1.5 closed status, capstone in flight
+
+### Cost Wave 2 Sun
+
+| Phase | Cost actual | vs Estimate |
+|---|---:|---|
+| R0 KG | ~$6-7 | overran $3 (judge family overlap) |
+| AC re-baseline | ~$6-7 | within revised $5 cap |
+| MQ re-baseline | ~$6-7 | within revised $6 cap |
+| Harvester PR #424/#425 | ~$0.50 | as expected |
+| Capstone (in flight) | TBD | $25 cap, halt >$30 |
+| **Total Wave 2 fechado Sun** | **~$20-25** | + capstone |
+
+### Mon AM (2026-06-01) — Pickup actions ordered
+
+1. **Check capstone tmux** `wave2-capstone-7a1cadf2` PID 2194486 on `root@$NOX_VPS_HOST`:
+   ```bash
+   ssh root@$NOX_VPS_HOST 'tmux ls && ls /root/.openclaw/evermembench-runs/capstone-iterB-triple-*/analysis.txt 2>/dev/null | wc -l'
+   ```
+   Expected: 5/5 batches done OR still running mid-bench OR halted by cost cap.
+
+2. **Harvest results** via `eval/evermembench/aggregate_capstone_5batch.py` (committed in PR #426 draft branch):
+   ```bash
+   ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/q3-iterB-gemini-c1ecf8df/memoria-nox && python3 eval/evermembench/aggregate_capstone_5batch.py'
+   ```
+   Update PR #426 from draft → ready with full results table.
+
+3. **D75 cravar baseado no capstone outcome:**
+   - F_MH ≥+1.5pp over IterB-alone 8.03% → SHIP_DEFAULT_CANDIDATE, paper §5 v5 composability matrix validated
+   - F_MH ≥+1.0pp but <+1.5pp → SHIP_OPT_IN (similar to D74 trade-off pattern)
+   - F_MH <+1pp → CLOSED, F_MH ceiling structural at ~8% on EverMemBench Gemini-3-flash
+   - F_MH <0 → INTERFERENCE, paper insight on knob-orchestration conflict
+
+4. **Phase 4 decision:**
+   - If capstone WIN → Phase 4 = HyDE bench (PR #415) + Claude Sonnet 4.6/Opus 4.7 backbone bench (needs ANTHROPIC_API_KEY rotation) + paper §5 v5 rebuild .docx + .pdf
+   - If capstone NO-WIN → Phase 4 = paper §5 v5 with honest negative-result composability section + ship D74 12 SOTA dims as canonical
+   - Either way: merge PR #423 + #424 + #425 + #426 + Sun closure docs PR
+
+5. **Optional Mon AM:** review/merge any pending PR from Sun (#423 #424 #425 still open, valid research findings independent of capstone).
+
+### NÃO esquecer Mon
+
+- HyDE PR #415 deferred (pending bench validation) — Phase 4 candidate
+- Paper §5 v5 rebuild deferred desde Sun 13:15 BRT decision (user prioritized Wave 2 over paper)
+- Claude Sonnet/Opus backbone bench task #62 still pending (needs key rotation)
+- Capstone architectural lock finding deve entrar paper §5 v5 como honest scientific section
+
+---
+
 ## Wed 2026-05-27 evening — Incident closed + Lab Q1 launched
 
 > Sessão ~5h fechou incident loop completo e disparou Lab Q1 paralelo. **6 dias até arXiv deadline (Tue 2026-06-02).**
@@ -769,7 +1409,7 @@ Bridges convention divergence cravada na cleanup PR #210:
 
 ### F10 Phase A — DEPLOYED LIVE
 
-VPS `187.77.234.79` smoke validation 6/6 PASS:
+VPS `$NOX_VPS_HOST` smoke validation 6/6 PASS:
 
 | Endpoint | Status |
 |---|---|
@@ -874,7 +1514,7 @@ VPS `187.77.234.79` smoke validation 6/6 PASS:
 main:        7362b29, working tree clean, 0 ahead/behind
 worktrees:   0 active (all 5 agents cleaned up)
 open PRs:    0
-VPS:         187.77.234.79 healthy (68995/68995, salience active, opsAudit fixed)
+VPS:         $NOX_VPS_HOST healthy (68995/68995, salience active, opsAudit fixed)
 D49 phase 2: shadow rolling (cron scrape active, D50 ETA 2026-05-27)
 ```
 
@@ -948,7 +1588,7 @@ Coordenação: agents em paths separados (Issue #1+#3 mexe em PROD `:18802`; G10
 
 ### Sistema saudável
 
-- VPS `187.77.234.79` → 68995/68995, salience active ✅
+- VPS `$NOX_VPS_HOST` → 68995/68995, salience active ✅
 - 35 PRs merged em main (33 ontem + 2 hoje: vec0 fix bundle + paper §5.5)
 - Zero PRs blocked, zero unresolved issues
 - Healthcheck cron PASS (PR #186)
@@ -1020,7 +1660,7 @@ Coordenação: agents em paths separados (Issue #1+#3 mexe em PROD `:18802`; G10
 
 ### Sistema saudável EOD
 
-- VPS `187.77.234.79` → 68995/68995, salience active, mutex deployed
+- VPS `$NOX_VPS_HOST` → 68995/68995, salience active, mutex deployed
 - 33 PRs merged hoje em main
 - Zero PRs blocked, zero unresolved issues
 - Healthcheck cron fixed (próxima execução clean)
@@ -1205,7 +1845,7 @@ Total únicos: 23 PRs principais + 5 HANDOFF commits + memory batch fix in-place
 
 - `scripts/vps-healthcheck.sh` — ping+ssh+api em cron 15min Mac local
 - `scripts/scrape-temporal-shadow.sh` — daily 0h UTC na VPS
-- `.vps-current-ip` — IP atual 187.77.234.79 (gitignored)
+- `.vps-current-ip` — IP atual $NOX_VPS_HOST (gitignored)
 - D49 phase 2 systemd drop-in — shadow active
 - CLAUDE.md (~/Claude) — `isolation:"worktree"` hard rule
 - `specs/d50-template.md` — decisão pré-aberta pós-shadow
@@ -1344,7 +1984,7 @@ Rejeitadas: queries com fraseamento exato de timeline titles → ceiling em rank
 ### Tools deployed pra próximas sessões
 
 - **VPS healthcheck** em `scripts/vps-healthcheck.sh` — ping+ssh+api via cron 15min, exit code discriminado, alert via osascript
-- **`.vps-current-ip`** (gitignored) — IP atual 187.77.234.79
+- **`.vps-current-ip`** (gitignored) — IP atual $NOX_VPS_HOST
 - **Paper .docx** atualizado (`paper/paper-tecnico-nox-mem.docx` 28KB pós-§5)
 
 ### CLAUDE.md update (parent ~/Claude)
@@ -1448,7 +2088,7 @@ Fix: `working-directory:` step level + `npx -y -p typescript@5 tsc`.
 
 ## 🌤️ MIDDAY 2026-05-20 — VPS uptime restored + Wave A deployed + Q87/Q88 cured
 
-> **Atualizado:** 2026-05-20 ~10h45 BRT. **VPS estava no IP novo 187.77.234.79 (não 45.43.85.86 — false alarm de IP swap, uptime intacto 20d). Deploy Wave A novo aplicado em prod: search.ts + salience.ts via scp + api-server.ts via sed FIND/REPLACE (3 patches). Build limpo, restart OK, /api/health.salience.mode=active, 68995/68995 vectorCoverage preservado. Gold Q87+Q88 temporal curados via PR #159 (chunks 216203+216204). 6 PRs merged em main hoje.**
+> **Atualizado:** 2026-05-20 ~10h45 BRT. **VPS estava no IP novo $NOX_VPS_HOST (não 45.43.85.86 — false alarm de IP swap, uptime intacto 20d). Deploy Wave A novo aplicado em prod: search.ts + salience.ts via scp + api-server.ts via sed FIND/REPLACE (3 patches). Build limpo, restart OK, /api/health.salience.mode=active, 68995/68995 vectorCoverage preservado. Gold Q87+Q88 temporal curados via PR #159 (chunks 216203+216204). 6 PRs merged em main hoje.**
 
 ### Deploy Wave A novo (commits em VPS pós-`82af773..17b2e27`)
 
@@ -1479,7 +2119,7 @@ Fix: `working-directory:` step level + `npx -y -p typescript@5 tsc`.
 ### VPS IP swap descoberto (false alarm offline)
 
 - Antigo: `45.43.85.86` (gone)
-- Novo: `187.77.234.79` (active, hostname `srv1465941`, uptime **20d** — não foi reboot)
+- Novo: `$NOX_VPS_HOST` (active, hostname `srv1465941`, uptime **20d** — não foi reboot)
 - Hipótese: Hostinger floating IP rebalance silencioso
 - Memory: `[[vps-ip-change-2026-05-20]]` (entry reference)
 - Memory anterior `[[vps-down-2026-05-20]]` ficou desatualizada — não era outage real
@@ -2328,7 +2968,7 @@ Sessão de deploy massivo + benchmark. Schema v18→v24 aplicadas (idempotent). 
 **1. VPS deploy pendente (não-destrutivo, mas precisa imperative auth)**
 - `#99` wire-up adapters: 5 server-deps modules (P1/P3/P5/A2/A3) registram routes Wave A→K. Fecha gap de 503s.
 - `#98` CORS patch: server-side support pra `chrome-extension://*` origins (P7 browser ext blocker).
-- Comando: `ssh root@187.77.234.79` + rsync de `staged-wire-up-adapters/` + `staged-cors/` + restart nox-mem-api.
+- Comando: `ssh root@$NOX_VPS_HOST` + rsync de `staged-wire-up-adapters/` + `staged-cors/` + restart nox-mem-api.
 - Pra autorizar destructive ops na VPS: "apply wire-up + cors now" (imperative phrase, não genérico "go").
 
 **2. Q-runs trigger (autônomo, ~5-6h serial, ~$1.13 total)**
@@ -2723,7 +3363,7 @@ Toto
 ### Outras ações humanas (não-bloqueante)
 
 1. ✅ ~~Criar conta arXiv~~ feita 2026-05-07
-2. **Verificar gate-review JSON pós 05-13:** `ssh root@187.77.234.79 'cat /var/log/nox-gate-review/gate-*.json'`
+2. **Verificar gate-review JSON pós 05-13:** `ssh root@$NOX_VPS_HOST 'cat /var/log/nox-gate-review/gate-*.json'`
 3. **Decidir E05b** conforme matriz §"Matriz de decisão E05b" abaixo
 4. **Cura refinada Q105-Q109** (post-OCR mais conteúdo disponível) — opcional, baixa prioridade
 
@@ -2791,7 +3431,7 @@ Script `tools/nox-mem/scripts/gate-review-e05b-e13.sh` (nox-workspace) faz:
 
 **Cron VPS agendado:** `0 12 13 5 * /root/.openclaw/workspace/tools/nox-mem/scripts/gate-review-e05b-e13.sh` → executa **automaticamente em 2026-05-13 09:00 BRT**.
 
-Ou rodar manual: `ssh root@187.77.234.79 'bash /root/.openclaw/workspace/tools/nox-mem/scripts/gate-review-e05b-e13.sh'` (~5min).
+Ou rodar manual: `ssh root@$NOX_VPS_HOST 'bash /root/.openclaw/workspace/tools/nox-mem/scripts/gate-review-e05b-e13.sh'` (~5min).
 
 **Pre-gate dry-run preview (2026-05-06 21:08 BRT):**
 - E05b: 23.6% queries com reason_boost > 0 (≥20% threshold ✓)
@@ -2867,7 +3507,7 @@ Q87 "quando o E05 edge typing foi deployado" e Q88 "quando subiu schema v12" sã
 
 ```bash
 # Análise shadow ao retomar (após 7d, ~2026-05-13):
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
   SELECT reason_boost_mode, COUNT(*) total,
          SUM(CASE WHEN reason_boost_applied > 0 THEN 1 ELSE 0 END) boosted,
          ROUND(100.0 * SUM(CASE WHEN reason_boost_applied > 0 THEN 1 ELSE 0 END) / COUNT(*), 2) pct_boosted,
@@ -2876,7 +3516,7 @@ ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.
   GROUP BY reason_boost_mode"'
 
 # Run R01c shadow comparison:
-ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="E05b shadow review baseline"'
+ssh root@$NOX_VPS_HOST 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="E05b shadow review baseline"'
 # Compare contra Run #9 baseline (nDCG 0.519)
 ```
 
@@ -2890,7 +3530,7 @@ cd /Users/lab/Claude/Projetos/memoria-nox && bash paper/publication/scripts/pre-
 # Esperado: 9/10 ✓ + 1 warning
 
 # E05b shadow telemetry:
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
   SELECT reason_boost_mode, COUNT(*) FROM search_telemetry
   WHERE ts > strftime(\"%s\", \"now\", \"-1 day\") GROUP BY reason_boost_mode"'
 
@@ -3155,9 +3795,9 @@ Tudo mais (TinyTeX install, LaTeX compile, layout polish, blog drafts, runbook, 
 
 ### Sanity check (~3min)
 ```bash
-ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
-ssh root@187.77.234.79 'tail -5 /var/log/nox-seh-report.log'
+ssh root@$NOX_VPS_HOST 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
+ssh root@$NOX_VPS_HOST 'tail -5 /var/log/nox-seh-report.log'
 ```
 
 ### Eventos passivos agendados (NÃO precisa fazer nada)
@@ -3513,24 +4153,24 @@ Held-out specificity finding (5/5 negatives zero hallucination) é **publication
 2. **Para cada verdict ACTIVATE no issue:**
    - **E03b SPO surface:**
      ```bash
-     ssh root@187.77.234.79 'sed -i "s|NOX_VAULT_FACTS_MODE=shadow|NOX_VAULT_FACTS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
+     ssh root@$NOX_VPS_HOST 'sed -i "s|NOX_VAULT_FACTS_MODE=shadow|NOX_VAULT_FACTS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
      ```
    - **E04b Focus apply:**
      ```bash
-     ssh root@187.77.234.79 'sed -i "s|NOX_FOCUS_MODE=shadow|NOX_FOCUS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
+     ssh root@$NOX_VPS_HOST 'sed -i "s|NOX_FOCUS_MODE=shadow|NOX_FOCUS_MODE=active|" /root/.openclaw/.env && systemctl restart nox-mem-api'
      ```
    - **E05 Edge typing reason boost** (ainda não em shadow específico — pode esperar Phase 2):
      - Sem mudança required hoje
 
 3. **Validate pós-activate (~10min):**
    ```bash
-   ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "schema v12" 5 2>&1 | head -10'
+   ssh root@$NOX_VPS_HOST 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "schema v12" 5 2>&1 | head -10'
    # Esperar ver "[vault-facts]" como ACTIVE (não shadow) no log
    ```
 
 4. **Run R01c re-baseline pós-activate** (compare nDCG):
    ```bash
-   ssh root@187.77.234.79 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="post E03b/E04b activate"'
+   ssh root@$NOX_VPS_HOST 'set -a; source /root/.openclaw/.env; set +a; nox-mem eval run --variant=hybrid --note="post E03b/E04b activate"'
    nox-mem eval compare 9 <new_run_id>
    ```
    - Se nDCG ≥0.519 (Run #9 baseline): ✅ activate confirmado
@@ -3841,9 +4481,9 @@ Primeira tentativa (n=5, Run #4) deu FTS=0.000 — interpretado como possível a
 
 **Sanity check matinal (~3min):**
 ```bash
-ssh root@187.77.234.79 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
-ssh root@187.77.234.79 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
-ssh root@187.77.234.79 'journalctl -u nox-mem-api --since "12h ago" 2>/dev/null | grep -cE "\[(vault-facts|focus-shadow)\]"'
+ssh root@$NOX_VPS_HOST 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, embedded: .vectorCoverage.embedded, salience: .salience.mode, dbMB: .dbSizeMB}"'
+ssh root@$NOX_VPS_HOST 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA user_version; SELECT relation_reason, COUNT(*) FROM kg_relations GROUP BY relation_reason"'
+ssh root@$NOX_VPS_HOST 'journalctl -u nox-mem-api --since "12h ago" 2>/dev/null | grep -cE "\[(vault-facts|focus-shadow)\]"'
 ```
 Esperar: schema v12, 64.165 chunks 100% embedded, distribuição reason (unknown=464 / depends_on=50 / mentions=30), shadow events count >0.
 

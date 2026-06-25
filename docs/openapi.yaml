@@ -56,7 +56,7 @@ info:
     url: https://github.com/totobusnello/memoria-nox/blob/main/LICENSE
 
 servers:
-  - url: http://187.77.234.79:18802
+  - url: http://$NOX_VPS_HOST:18802
     description: Public demo — read-only (health + search only)
   - url: http://localhost:18802
     description: Local default (port 18802, NOT 18800)
@@ -205,6 +205,111 @@ paths:
                     p95: 0.95
                     stddev: 0.121
                   superseded_count: 89
+
+  /api/brief:
+    get:
+      tags: [Search]
+      summary: Session priming digest (top-N by salience for a scope)
+      description: |
+        Pointer-pattern priming digest — Session Priming Loop phase 1
+        (spec 2026-06-04-F1). Returns the top-N chunks ranked by the
+        canonical salience formula, filtered by scope namespace over
+        `source_file`. Read-only over `chunks`; serving is tracked in a
+        dedicated `brief_log` table and **never** touches
+        `chunks.access_count` (organic signal stays pure).
+      operationId: briefGet
+      parameters:
+        - name: scope
+          in: query
+          required: true
+          description: |
+            Project/domain scope (`memoria-nox`, `NUVIVI`, …) or `global`.
+            Maps to `source_file` namespaces (`memory/mac-docs/<scope>/`,
+            `shared/imports/.../<scope>/`, `<scope>/`).
+          schema:
+            type: string
+            pattern: "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+          example: "memoria-nox"
+        - name: agent
+          in: query
+          required: false
+          description: Optional persona refinement — adds `sessions/<agent>/` to the scope (union).
+          schema:
+            type: string
+            pattern: "^[a-z0-9][a-z0-9-]{0,31}$"
+          example: "cipher"
+        - name: n
+          in: query
+          required: false
+          description: Max items in the digest. Default 10, cap 25.
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 25
+            default: 10
+        - name: format
+          in: query
+          required: false
+          description: "`json` (default) or `text` (plain-text digest, stdout-ready for SessionStart hooks)."
+          schema:
+            type: string
+            enum: [json, text]
+        - name: since
+          in: query
+          required: false
+          description: Optional recency window composed with salience (`24h`, `30d`, `2w`).
+          schema:
+            type: string
+            pattern: "^\\d{1,4}[hdw]$"
+          example: "30d"
+      responses:
+        "200":
+          description: Digest of pointers (id + title + one-liner), ~1200-token budget
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  scope: { type: string }
+                  agent: { type: string }
+                  generated_at: { type: string, format: date-time }
+                  token_estimate: { type: integer }
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        title: { type: string }
+                        one_liner: { type: string }
+                        type: { type: string, nullable: true }
+                        pain: { type: number }
+                        salience: { type: number }
+                        age_days: { type: integer }
+              example:
+                scope: "memoria-nox"
+                agent: "cipher"
+                generated_at: "2026-06-04T15:00:00Z"
+                token_estimate: 980
+                items:
+                  - id: 117852
+                    title: "incident-2026-04-25-reindex"
+                    one_liner: "Ops destrutivas em chunks só com --dry-run ou withOpAudit snapshot."
+                    type: "lesson"
+                    pain: 0.9
+                    salience: 0.84
+                    age_days: 40
+            text/plain:
+              schema:
+                type: string
+        "400":
+          description: Missing/invalid scope, agent, n or since
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
   /api/search:
     get:

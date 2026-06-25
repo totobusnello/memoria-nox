@@ -117,7 +117,7 @@ Backups confirmed at `/root/.openclaw/workspace/tools/nox-mem/src/*.bak-pre-E12-
 
 To rollback:
 ```bash
-ssh root@187.77.234.79 'cd /root/.openclaw/workspace/tools/nox-mem/src && \
+ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/workspace/tools/nox-mem/src && \
   for bak in search.ts.bak-pre-E12-20260504-0855 api-server.ts.bak-pre-E12-20260504-0855 index.ts.bak-pre-E12-20260504-0855; do \
     orig=${bak%.bak-pre-E12-20260504-0855}; cp "$bak" "$orig"; echo "Restored $orig"; \
   done && cd .. && npm run build && systemctl restart nox-mem-api'

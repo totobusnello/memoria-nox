@@ -15,7 +15,7 @@
 | n queries | 100 (5 categorias × 20 queries) |
 | Toggle (run 2) | `NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE=1` (rollback flag, `src/search.ts:153`) |
 | Common env | `NOX_SALIENCE_MODE=active` em ambas runs |
-| VPS | `root@187.77.234.79` (post IP swap 2026-05-20) |
+| VPS | `root@$NOX_VPS_HOST` (post IP swap 2026-05-20) |
 | Orchestrator | `eval-data/g9-g5db-2026-05-20/run-g10b-mutex-ablation.sh` |
 
 **Isolation**: service restart entre runs (mutex flag é read at module load via `process.env.NOX_DISABLE_MUTEX_SECTION_SOURCE_TYPE === "1"`, captured once).

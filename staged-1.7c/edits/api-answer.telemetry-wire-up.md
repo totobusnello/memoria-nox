@@ -115,15 +115,15 @@ async function getRecordRequest(): Promise<typeof _recordRequest> {
 
 ```bash
 # 1. SCP the patched wire-up.ts to VPS
-scp staged-wire-up/edits/src/api/wire-up.ts root@187.77.234.79:/root/.openclaw/workspace/tools/nox-mem/src/api/wire-up.ts
+scp staged-wire-up/edits/src/api/wire-up.ts root@$NOX_VPS_HOST:/root/.openclaw/workspace/tools/nox-mem/src/api/wire-up.ts
 
 # 2. Rebuild (if TypeScript compilation step exists on VPS)
 # If VPS runs dist/ compiled: rebuild needed.
 # If VPS runs ts-node or tsx: restart is enough.
-ssh root@187.77.234.79 'cd /root/.openclaw/workspace/tools/nox-mem && npm run build 2>&1 | tail -5'
+ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/workspace/tools/nox-mem && npm run build 2>&1 | tail -5'
 
 # 3. Restart service
-ssh root@187.77.234.79 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
+ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
 
 # 4. Smoke: trigger an answer call
 curl -s -X POST http://127.0.0.1:18802/api/answer \

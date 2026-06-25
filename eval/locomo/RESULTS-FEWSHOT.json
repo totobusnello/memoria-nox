@@ -1,0 +1,154 @@
+{
+  "schema": "locomo-aggregate/v1",
+  "n_total": 100,
+  "n_scored": 100,
+  "n_errors": 0,
+  "mean_f1": 0.43928996151107136,
+  "accuracy": 0.42,
+  "f1_ci95_low": 0.32798224918511304,
+  "f1_ci95_high": 0.5179369200110473,
+  "per_category": {
+    "adversarial": {
+      "n": 20.0,
+      "mean_f1": 0.6,
+      "accuracy": 0.6,
+      "evidence_hit_at_10": 0.8,
+      "evidence_recall_at_10": 0.775,
+      "n_retrieval": 20.0
+    },
+    "commonsense": {
+      "n": 20.0,
+      "mean_f1": 0.29018633540372674,
+      "accuracy": 0.3,
+      "evidence_hit_at_10": 0.5555555555555556,
+      "evidence_recall_at_10": 0.3888888888888889,
+      "n_retrieval": 18.0
+    },
+    "multi_hop": {
+      "n": 20.0,
+      "mean_f1": 0.3330787037037037,
+      "accuracy": 0.2,
+      "evidence_hit_at_10": 0.8,
+      "evidence_recall_at_10": 0.575,
+      "n_retrieval": 20.0
+    },
+    "single_hop": {
+      "n": 20.0,
+      "mean_f1": 0.5866768319399898,
+      "accuracy": 0.65,
+      "evidence_hit_at_10": 0.7,
+      "evidence_recall_at_10": 0.7,
+      "n_retrieval": 20.0
+    },
+    "temporal": {
+      "n": 20.0,
+      "mean_f1": 0.3865079365079365,
+      "accuracy": 0.35,
+      "evidence_hit_at_10": 0.55,
+      "evidence_recall_at_10": 0.525,
+      "n_retrieval": 20.0
+    }
+  },
+  "latency_summary": {
+    "ingest_ms": {
+      "p50": 2696.6822147369385,
+      "p95": 3648.770570755005,
+      "p99": 3648.770570755005,
+      "mean": 2805.1521158218384,
+      "n": 100
+    },
+    "vectorize_ms": {
+      "p50": 33409.91806983948,
+      "p95": 36969.78688240051,
+      "p99": 36969.78688240051,
+      "mean": 32647.45032310486,
+      "n": 100
+    },
+    "retrieval_ms": {
+      "p50": 719.7105884552002,
+      "p95": 1070.0263977050781,
+      "p99": 1390.4271125793457,
+      "mean": 757.4706959724426,
+      "n": 100
+    },
+    "generation_ms": {
+      "p50": 616.2753105163574,
+      "p95": 1475.7769107818604,
+      "p99": 2720.808267593384,
+      "mean": 818.9086866378784,
+      "n": 100
+    }
+  },
+  "cost_summary": {
+    "input_tokens": 96451,
+    "output_tokens": 467,
+    "embed_tokens": 0,
+    "cost_gen_usd": 0.039327600000000004,
+    "cost_embed_usd": 0.0,
+    "cost_total_usd": 0.039327600000000004
+  },
+  "published_baselines": [
+    {
+      "system": "Full Context (GPT-4, paper)",
+      "generator": "GPT-4",
+      "overall_f1": 0.4239,
+      "source": "Maharana et al. 2024 Table 5",
+      "notes": "Truncated conversation as context (no memory module)."
+    },
+    {
+      "system": "Observation RAG (GPT-3.5)",
+      "generator": "GPT-3.5-turbo",
+      "overall_f1": 0.3203,
+      "source": "Maharana et al. 2024 Table 5",
+      "notes": "RAG over auto-generated observations + GPT-3.5 generator."
+    },
+    {
+      "system": "Summary RAG (GPT-4)",
+      "generator": "GPT-4",
+      "overall_f1": 0.4053,
+      "source": "Maharana et al. 2024 Table 5",
+      "notes": "RAG over session summaries + GPT-4 generator."
+    },
+    {
+      "system": "RAG baseline (Mem0 paper)",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.3547,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Mem0 paper's reproduction; standard RAG chunks."
+    },
+    {
+      "system": "LangMem (LangGraph)",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.5021,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "LangGraph memory module."
+    },
+    {
+      "system": "Zep",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.504,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Zep memory layer; reported on LoCoMo subset."
+    },
+    {
+      "system": "Mem0 (graph)",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.561,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Mem0 with knowledge-graph memory."
+    },
+    {
+      "system": "Mem0",
+      "generator": "GPT-4o-mini",
+      "overall_f1": 0.6688,
+      "source": "Chhikara et al. 2025 Table 4",
+      "notes": "Mem0 SOTA reported number, headline result."
+    }
+  ],
+  "retrieval_mode": false,
+  "n_retrieval_scored": 98,
+  "evidence_hit_at_5": 0.6530612244897959,
+  "evidence_hit_at_10": 0.6836734693877551,
+  "evidence_hit_at_20": 0.7448979591836735,
+  "evidence_recall_at_10": 0.5969387755102041
+}

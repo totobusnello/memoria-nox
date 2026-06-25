@@ -39,7 +39,7 @@ bash paper/publication/scripts/pre-flight-smoke-tests.sh
 - Confirme que a linha TREC-COVID está preenchida (não `[PENDING]` ou vazia).
 - Se estiver vazia: **STOP.** O script de integração BEIR não rodou. Verifique no VPS:
   ```bash
-  ssh root@187.77.234.79 'tmux capture-pane -p -t beir-trec 2>/dev/null | tail -30'
+  ssh root@$NOX_VPS_HOST 'tmux capture-pane -p -t beir-trec 2>/dev/null | tail -30'
   ```
 
 ### 1.3 Verifique o PDF final

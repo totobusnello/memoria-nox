@@ -47,17 +47,17 @@ scp staged-observability/edits/src/observability/__tests__/adapters.test.ts \
     staged-observability/edits/src/observability/__tests__/exporter.test.ts \
     staged-observability/edits/src/observability/__tests__/privacy-guard.test.ts \
     staged-observability/edits/src/observability/__tests__/record.test.ts \
-    root@187.77.234.79:/root/.openclaw/workspace/tools/nox-mem/src/observability/__tests__/
+    root@$NOX_VPS_HOST:/root/.openclaw/workspace/tools/nox-mem/src/observability/__tests__/
 
 # 2. Verificar zero TS5097 errors nos test files
-ssh root@187.77.234.79 '
+ssh root@$NOX_VPS_HOST '
   cd /root/.openclaw/workspace/tools/nox-mem
   npx tsc --noEmit --allowImportingTsExtensions false 2>&1 | grep "__tests__" | grep TS5097 | wc -l
   # Expected: 0
 '
 
 # 3. Rebuild para confirmar build clean
-ssh root@187.77.234.79 '
+ssh root@$NOX_VPS_HOST '
   cd /root/.openclaw/workspace/tools/nox-mem
   npm run build 2>&1 | grep -E "^src/observability/__tests__" | wc -l
   # Expected: 0
@@ -68,7 +68,7 @@ ssh root@187.77.234.79 '
 
 Não há risco: apenas import paths mudaram, comportamento idêntico. Em caso de problema:
 ```bash
-ssh root@187.77.234.79 '
+ssh root@$NOX_VPS_HOST '
   cd /root/.openclaw/workspace/tools/nox-mem
   git diff HEAD -- src/observability/__tests__/
 '

@@ -1,12 +1,18 @@
 name: CodeQL
 
+# DISABLED 2026-06-22: repo privado sem GitHub Advanced Security → code scanning
+# indisponível; todo run termina em "configuration error" no upload do SARIF
+# (job failure semanal + a cada push). Mantido como workflow_dispatch (manual) pra
+# preservar a config. REATIVAR os triggers abaixo no go-live PÚBLICO do nox-mem
+# (code scanning é grátis em repositório público).
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-  schedule:
-    - cron: '0 4 * * 1'  # Weekly Monday 04:00 UTC
+  workflow_dispatch:
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
+  # schedule:
+  #   - cron: '0 4 * * 1'  # Weekly Monday 04:00 UTC
 
 permissions:
   actions: read

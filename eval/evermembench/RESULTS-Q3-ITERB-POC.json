@@ -1,0 +1,26 @@
+{
+  "status": "harness_ready_pending_vps_run",
+  "phase": "Q3 IterB POC (ReAct)",
+  "reference_papers": ["Yao et al. 2022 arxiv:2210.03629"],
+  "spec_pr": "#393",
+  "sibling_pr": "#406 (Self-Ask, 2/4 gates)",
+  "wave_abc_f_mh_ceiling_d69": 7.25,
+  "phaseH_v2_5batch_baseline": {
+    "overall": 51.68,
+    "F_MH": 3.21,
+    "MA_composite": 73.34
+  },
+  "gates": {
+    "F_MH_lift_pp_min": 3.0,
+    "overall_max_regression_pp": 3.0,
+    "MA_composite_max_regression_pp": 3.0,
+    "cost_per_query_usd_max": 0.01
+  },
+  "ship_rule": {
+    "4_of_4": "SHIP_DEFAULT_CANDIDATE",
+    "3_of_4": "SHIP_OPT_IN_F_MH_BREAK",
+    "1_to_2_of_4": "DOCUMENTED_INSUFFICIENT",
+    "0_of_4": "REJECT_CEILING_HOLDS"
+  },
+  "note": "Headline numbers populated by aggregate_phaseIterB_5batch.py after VPS run."
+}

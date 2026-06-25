@@ -107,7 +107,7 @@ Tracked separately; out of scope for this cross-bench PR.
 
 ## Reproduction
 
-On the VPS (root@187.77.234.79):
+On the VPS (root@$NOX_VPS_HOST):
 
 ```bash
 bash /root/.openclaw/workspace/tools/nox-mem/scripts/run-longmemeval-crossbench.sh \

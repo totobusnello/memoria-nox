@@ -124,7 +124,7 @@ In the `default:` branch, the `endpoints` array in the 404 response lists all kn
 
 ```bash
 # 1. Restart service
-ssh root@187.77.234.79 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
+ssh root@$NOX_VPS_HOST 'systemctl restart nox-mem-api && sleep 2 && systemctl is-active nox-mem-api'
 
 # 2. Smoke test each endpoint
 curl -s http://127.0.0.1:18802/api/observability/health | jq '.indicators, .delta_24h'

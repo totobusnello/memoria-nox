@@ -518,7 +518,7 @@ Preencher antes do lançamento. Template:
 5. **Post-mortem:** commit `SECURITY.md` com disclosure completo dentro de 24h
 
 ### "VPS down durante lançamento"
-1. **Cron alerta em 15 min** (PR #164 healthcheck) — confirmar via ping externo: `ping 187.77.234.79`
+1. **Cron alerta em 15 min** (PR #164 healthcheck) — confirmar via ping externo: `ping $NOX_VPS_HOST`
 2. **Tentativa de recovery (10 min):** SSH → `systemctl restart nox-mem-api` → testar `/api/health`
 3. **Fallback (>10 min de downtime):** Atualizar README temporariamente com nota: "Demo API momentaneamente offline — GIF + screenshots estáticos disponíveis abaixo"
 4. **HN thread update:** Postar reply no próprio post: "The demo API is briefly offline — working on it. The repo and CLI work fully locally; see QUICKSTART.md. Will update when back."
@@ -607,7 +607,7 @@ Cancelar e adiar para **Qui 2026-06-04** se QUALQUER condição abaixo for verda
 | Trendshift | `https://trendshift.io/` |
 | GitHub Release | `gh release create v1.0.0-rc1 --notes-file docs/releases/v1.0.0-rc1.md` |
 | VPS health | `curl http://127.0.0.1:18802/api/health \| jq .vectorCoverage` |
-| VPS IP atual | `187.77.234.79` (PR #164) |
+| VPS IP atual | `$NOX_VPS_HOST` (PR #164) |
 | F10 dashboard | `http://127.0.0.1:18802/dashboard` (via Tailscale) |
 | Pre-launch checker | `bash scripts/check-pre-launch.sh` |
 | Social copy | `docs/launch-social-copy.md` |

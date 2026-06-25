@@ -8,7 +8,7 @@
 
 ## §1 Goal
 
-Gravar um clip de 60-90 segundos mostrando o nox-mem rodando em produção real — corpus de ~69k chunks, hybrid search ativo, salience deployed, flagship `/api/answer` respondendo com citações. Nada sintético: todas as queries serão executadas contra VPS `187.77.234.79:18802`.
+Gravar um clip de 60-90 segundos mostrando o nox-mem rodando em produção real — corpus de ~69k chunks, hybrid search ativo, salience deployed, flagship `/api/answer` respondendo com citações. Nada sintético: todas as queries serão executadas contra VPS `$NOX_VPS_HOST:18802`.
 
 Segundo asset: GIF de 10-15 segundos do F10 dashboard (`/observability/health.html`) mostrando polling ao vivo + delta numbers.
 
@@ -22,8 +22,8 @@ Tempo total alvo: **~70 segundos**. Cada passo com `--idle-time-limit 1` (asciin
 |---|---------|---------------|---------|
 | 1 | `nox-mem --help` | ~3s | Mostra os 26+ subcomandos; primeira impressão de maturidade do CLI |
 | 2 | `nox-mem search "G10 conditional mutex"` | ~5s | Hybrid BM25+Gemini+RRF em corpus real; resultado com pain weight visível |
-| 3 | `curl http://187.77.234.79:18802/api/health \| jq .` | ~5s | 69k chunks, vec 100%, salience active, KG stats — números que vendem |
-| 4 | `curl -s -X POST http://187.77.234.79:18802/api/answer -H 'Content-Type: application/json' -d '{"query":"o que e G10d?"}' \| jq .` | ~10s | Feature flagship P1: resposta fundamentada com citações em ~1-2s |
+| 3 | `curl http://$NOX_VPS_HOST:18802/api/health \| jq .` | ~5s | 69k chunks, vec 100%, salience active, KG stats — números que vendem |
+| 4 | `curl -s -X POST http://$NOX_VPS_HOST:18802/api/answer -H 'Content-Type: application/json' -d '{"query":"o que e G10d?"}' \| jq .` | ~10s | Feature flagship P1: resposta fundamentada com citações em ~1-2s |
 | 5 | `nox-mem stats --json \| jq '{chunks,entities,relations,coverage}'` | ~5s | Fecha CLI com números de produção (KG entities/relations, coverage) |
 | 6 | *(transição)* Abrir browser → `/observability/health.html` | ~10s | Mostra F10 dashboard polling ao vivo *(capturado separado como GIF)* |
 | 7 | Scroll para `/observability/evals.html` | ~15s | Gate annotations, nDCG@10 D2=0.9126, benchmark numbers |
@@ -44,7 +44,7 @@ export PS1='nox $ '
 clear
 
 # 3. Verificar que VPS está healthy antes de gravar
-curl -s http://187.77.234.79:18802/api/health | jq '{chunks: .total, coverage: .vectorCoverage, salience: .salience.mode}'
+curl -s http://$NOX_VPS_HOST:18802/api/health | jq '{chunks: .total, coverage: .vectorCoverage, salience: .salience.mode}'
 
 # 4. Verificar CLI disponível e versão
 nox-mem --version
@@ -122,7 +122,7 @@ gifski --fps 10 --width 800 -o docs/assets/demo-dashboard.gif -- *.png
 
 ### Script do clip (10-15s)
 
-1. Abrir `http://187.77.234.79:18802/observability/health.html`
+1. Abrir `http://$NOX_VPS_HOST:18802/observability/health.html`
 2. Aguardar 1 ciclo de polling completo (barra de progresso girando → atualização de números)
 3. Zoom a 100%, janela sem outras abas visíveis
 4. Gravar 10-15s mostrando: total chunks, vector coverage, último ingest, salience mode = active
@@ -148,7 +148,7 @@ gifski --fps 10 --width 800 -o docs/assets/demo-dashboard.gif -- *.png
 
 ### Pré-gravação (~15 min)
 
-- [ ] VPS healthy: `curl http://187.77.234.79:18802/api/health | jq .` retorna `total > 68000` e `vectorCoverage.percentage == 100`
+- [ ] VPS healthy: `curl http://$NOX_VPS_HOST:18802/api/health | jq .` retorna `total > 68000` e `vectorCoverage.percentage == 100`
 - [ ] nox-mem CLI disponível no PATH: `nox-mem --version` sem erro
 - [ ] Browser zoom em 100%, F10 dashboard carregando sem erros de console
 - [ ] PS1 minimal configurado (`nox $ `)
