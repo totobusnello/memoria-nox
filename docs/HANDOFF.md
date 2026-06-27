@@ -2,6 +2,77 @@
 
 ---
 
+## Sat 2026-06-27 — gate definitivo LIMPO colhido (190 chunks / 184-de-184 files = 100% coverage) → §3.5 cravado, paper rebuildado, **D2 FECHADO**
+
+> O número definitivo do §3.5 saiu. Gate active de 24h 100% pós-deploy do coverage-sampling, censo + 2 caminhos independentes convergindo. §3.5 reescrito com a narrativa verdadeira (3 colapsos), paper `.pdf`/`.docx` rebuildados, one-shot cron removido. Ciclo D2 encerrado.
+
+### Número definitivo (censo, 2 caminhos convergem)
+| Caminho | distinct |
+|---|---|
+| `d2-gate-active-report.sh "-1 day"` (100% pós-deploy) | **190** chunks |
+| SQL cru, cutoff explícito `2026-06-26 18:19:58` | **190** chunks |
+
+- **184 de 184 entity files servidos = 100% de cobertura** do pool curado (universo 184 files / 752 chunks).
+- ~**45 distinct chunks/hora** sustentado; FLOOR **13** high-pain ≥0.9 honrados.
+- Curva acumulada: **190 já em deploy+4h, flat até +24h** → varre o pool em ~4h e re-cicla por recência = rotação contínua real.
+
+### Comparação cravada no §3.5 (3 colapsos)
+| Mecanismo | rotação |
+|---|---|
+| Hard-exclusion | burst 190 → **1**/dia |
+| Soft-penalty (pMax 0.15 < gap salience) | 146 → 67 → **3** |
+| **Coverage por recência-de-serve** | **184/184 (100%), 190 chunks, ~45/h sustentado** |
+
+### Feito
+- Paper §3.5 reescrito (trecho "rotates continuously through the [same soft] penalty" era factualmente falso) + `.pdf`/`.docx` rebuildados.
+- Memória [[project_d2_brief_diversity_shadow_deployed]] atualizada (Update 2026-06-27).
+- One-shot cron `d2-gate-clean-oneshot-27jun` removido (TZ local -03 ≠ UTC; não dispararia às 18:25 UTC, irrelevante pós-coleta manual).
+- Serviço nox-mem-api: active, coverage no `dist`, vectorCoverage ok. **D2 fechado.**
+
+---
+
+## Fri 2026-06-26 — gate definitivo REFUTOU a rotação contínua (146→67→3) → fix coverage-sampling (PR nox-ws #23) deployado active, rotação confirmada viva
+
+> O gate de 24h que esperávamos cravar no §3.5 mostrou o oposto do previsto: o fix do PR #22 **não se sustentou**. Diagnóstico corrigido por Kimi adversarial + recheck, fix redesenhado (desenho B), deployado. Número definitivo do §3.5 ainda pendente — sai do gate 100% pós-deploy.
+
+### O gate (cron `/var/log/nox-d2-gate-active.log*`) — rotação colapsou de novo
+| Run 06:10 | janela | distinct entity | regime |
+|---|---|---|---|
+| 22/06 (flip) | 21→22 | 190 | rajada |
+| 23/06 (bug pré-#22) | 22→23 | 1 | exclusão-dura |
+| 24/06 (1º dia pós-#22) | 23→24 | **146** | fix rotacionando |
+| 25/06 | 24→25 | **67** | decaindo |
+| 26/06 | 25→26 | **3** | **travado** (~36h em 3) |
+
+O "152" esperado como número definitivo era acúmulo de uma janela já em queda. Não houve rotação contínua estável.
+
+### Causa-raiz (medida + rechecada + Kimi via `ask`, CLI fora do PATH)
+- O `noveltyPenalty = min(pMax=0.15, λ·log1p(n_serves_72h))` aplicava-se ao **pick inteiro**. `pMax=0.15` < **gap de salience-base** entre os 3 outliers (decisões imp 0.9 + access alto) e o corpo do pool. Pós-deploy a janela de 72h limpa deu rotação (146); ao encher, o penalty **saturou** e o pick **reconvergiu** ao top-salience (146→67→3, meia-vida ≈ 72h).
+- Kimi me forçou a checar o rank: os 3 outliers estão em **rank 526/566/734, FORA do LIMIT-400** — entram pelo primary, não pelo fresh. O que secou foi o **fresh-global** (77→0 entities distintos/dia); o slot por-agente nunca colapsou (pool salience-homogêneo). Confound extra: 752 entities com `created_at` idêntico → LIMIT-400 por rowid congelava 352 fora.
+
+### Fix (desenho B, Toto escolheu) — PR nox-workspace **#23**, `tune(brief)`
+- **Fresh slot por COVERAGE** (`coverageCompare`): ordena por tempo-desde-último-serve (`MAX(served_at)`, nunca-servido primeiro, tie por salience). Sem teto que sature → varre o pool inteiro; o `LIMIT last_served ASC` também mata o confound rowid-frozen-400.
+- **Primary volta a salience pura** (mechanism A aposentado): relevância no brief base, diversidade no fresh.
+- Floor high-pain via pinned-set (invariante #4). `noveltyPenalty` mantido como knob residual.
+- TDD **26/26** (`brief-diversity.test`), **RED provado** (3 testes falham contra o brief.ts da main), regressão `brief.test` 27/27.
+
+### Deploy active + rotação CONFIRMADA viva
+Checkout dos 3 arquivos do branch no working copy + `npx tsc` + restart. Serviço active, env active, vectorCoverage 70232/70261 orphans=0. **Prova viva:** 15 chamadas `/api/brief?scope=global&agent=nox` → slot global rotaciona a cada brief; `brief_log` registrou **16 entities distintos em 3 min** (vs 3/dia travado). Amostra = decisions+lessons+projects variados do entity store.
+
+### ⚠️ Próxima ação — RETOMAR AQUI
+1. **Colher o gate 24h 100% pós-deploy** (deploy ~18:20 UTC 26/06): **28/06 06:10 BRT** (`/var/log/nox-d2-gate-active.log`) OU manual `d2-gate-active-report.sh "-24 hours"` em **27/06 ≥18:30 UTC**. Esperado distinct entity **centenas** (sustentado, não em rajada). (O cron de 27/06 06:10 mistura ~9h pré-deploy — não usar como definitivo.)
+2. **Cravar o número** no §3.5 + `[[project_d2_brief_diversity_shadow_deployed]]`. O §3.5 atual ("replace hard exclusion with the same soft novelty penalty... rotates continuously through the pool") está **factualmente errado** — reescrever com os DOIS colapsos (exclusão-dura→rajada; penalty saturável→reconvergência) e o coverage como remédio final.
+3. Mergear PR #23 (Forge revisa). Rebuild paper `.pdf`/`.docx` (pandoc/xelatex), pré-arXiv.
+4. Lição de paper: *hard-dedup sob volume≫pool = rajada; soft-penalty com teto < gap de salience = reconvergência; coverage por recência-de-serve = rotação contínua real* — só um loop shadow→active→measure expõe.
+
+### Estado
+- Serviço nox-mem-api: active, env `NOX_BRIEF_DIVERSITY=active`, código coverage no dist (verificado: `coverageCompare`+`last_served` presentes).
+- PR #23 aberto (não mergeado). Working copy tem os 3 arquivos do branch via checkout (pós-merge: `git checkout -- <files>` + pull + rebuild).
+- ⚠️ Kimi CLI fora do PATH (Node 25→26) — rodar `/kimi:setup` se precisar do adversarial via CLI.
+- Memória: [[project_d2_brief_diversity_shadow_deployed]].
+
+---
+
 ## Thu 2026-06-25 — PR #415 (HyDE cross-bench) reconciliado com a main e mergeado — conflito de 3 famílias resolvido
 
 > A branch `feat/hyde-cross-bench` estava com conflito vs `main`: a branch adicionava **HyDE**, enquanto a main tinha ganho **IterB (#414)** + **few_shot (#412)** nos mesmos trechos dos dois adapters de eval. Merge da main na branch, conflitos resolvidos mantendo as 3 famílias, PR #415 **mergeado (squash)** → main `b13a1f8`. (Não altera a próxima ação operacional viva — o gate D2 da entrada de 24/06 segue pendente.)
