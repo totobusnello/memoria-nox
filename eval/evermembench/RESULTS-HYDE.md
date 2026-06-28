@@ -134,7 +134,9 @@ RunPod CPU pod (8 vCPU / 16 GB), nox-mem API on isolated DB, `groupchat_004` ing
 
 ---
 
-## Launch (Sun morning slot, after Wave-1 merge resolution)
+## Launch (OBSOLETE — superseded by the measured REJECT above)
+
+> ⚠️ This 5-batch recipe was **never run** (HyDE rejected 2026-06-27; branch `feat/hyde-cross-bench` deleted). It also predates the harness naming: the real entry point is **`python -m eval.cli`** (args `--dataset … --qa … --system nox_mem --user-id <uid> --stages search answer evaluate --top-k 10`), **not** `python -m evermembench.harness`. The actual measured run was single-batch via `eval.cli` (see "Measured result" above). Retained only as the original plan-of-record.
 
 ```bash
 # VPS workdir

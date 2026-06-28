@@ -6,9 +6,10 @@ Full investigation: `INVESTIGATION.md`.
 ## Quick start (after adapter is complete)
 
 ```bash
-# 1. Clone EverOS into a temp dir
-git clone --depth 1 https://github.com/EverMind-AI/EverOS /tmp/everos-eval
-cd /tmp/everos-eval/benchmarks/EverMemBench
+# 1. Clone the EverMemBench harness into a temp dir
+#    (now its OWN repo — no longer a benchmarks/ subdir of EverOS)
+git clone --depth 1 https://github.com/EverMind-AI/EverMemBench /tmp/evermembench
+cd /tmp/evermembench
 
 # 2. Install harness deps
 pip install -r requirements.txt
@@ -20,7 +21,11 @@ cp /path/to/memoria-nox/eval/evermembench/adapter_nox_mem.py \
 
 # 4. Configure
 cp env.template .env
-# Set LLM_API_KEY=sk-or-v1-... (OpenRouter key)
+# The canonical nox-mem pipeline routes answer→OpenAI gpt-4.1-mini and
+# judge→Gemini DIRECT (NOT OpenRouter). Set:
+#   LLM_API_KEY=$OPENAI_API_KEY   LLM_BASE_URL=https://api.openai.com/v1
+#   GEMINI_API_KEY=...            (judge, generativelanguage endpoint)
+# See pipeline-phaseH-v2.yaml for the exact routing.
 
 # 5. Start nox-mem API in isolated mode per batch
 NOX_DB_PATH=/tmp/evermembench-004.db nox-mem serve &
@@ -69,4 +74,4 @@ eval/results/nox_mem/
   evaluation_results_004.json   ← accuracy here
 ```
 
-Primary metric: **accuracy** (% correct, MC direct + OE LLM judge via OpenRouter Gemini-3-flash).
+Primary metric: **accuracy** (% correct, MC direct + OE LLM judge via Gemini 2.5-flash on the direct `generativelanguage` endpoint — see `pipeline-phaseH-v2.yaml`).
