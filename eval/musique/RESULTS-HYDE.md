@@ -2,7 +2,7 @@
 
 > **Date:** 2026-05-30
 > **Reference:** Gao et al. 2022, **arxiv:2212.10496**
-> **Status:** ⏳ IMPLEMENTATION + PROMPT VALIDATION SHIPPED. Smoke 100q gated on Sun morning slot; full 2417 conditional on smoke lift.
+> **Status:** ⛔ NOT RUN — superseded by EverMemBench REJECT (2026-06-27). The target bench (EverMemBench-Dynamic) measured **−2.72pp overall** for HyDE (see `../evermembench/RESULTS-HYDE.md`). MuSiQue was the stress-test bench ("if HyDE helps here, the mechanism is real beyond cosmetic") — but with the primary bench net-negative and retrieval already saturated here (support_hit@10 99.88%), the smoke run is moot. The prediction below (NEUTRAL on MuSiQue) is retained as the original hypothesis (never measured).
 > **Flag:** `--hyde` (hybrid by default; `--hyde-pure` for pure)
 > **Baseline:** MuSiQue Phase H v2 (rerank=off, hybrid=on, single-shot retrieval). n=2417 dev. answer F1 **58.62%**, support_hit@10 **99.88%**, support F1 66.30%.
 

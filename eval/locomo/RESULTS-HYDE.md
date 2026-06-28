@@ -2,7 +2,7 @@
 
 > **Date:** 2026-05-30
 > **Reference:** Gao et al. 2022, **arxiv:2212.10496**
-> **Status:** ⏳ IMPLEMENTATION + PROMPT VALIDATION SHIPPED. Full 5-batch eval gated on Sun morning slot.
+> **Status:** ⛔ NOT RUN — superseded by EverMemBench REJECT (2026-06-27). The target bench (EverMemBench-Dynamic) measured **−2.72pp overall** for HyDE (helps MC +2.31pp, hurts open-ended −10.97pp; see `../evermembench/RESULTS-HYDE.md`). With the primary bench net-negative, running LoCoMo to confirm a likely-negative is not worth the cost. The prediction below is retained as the original hypothesis (never measured).
 > **Flag:** `--hyde` (hybrid mode by default; add `--hyde-pure` for pure-HyDE)
 > **Baseline:** LoCoMo Phase H v2 (rerank=off, hybrid=on, no Wave A/B/C). `n=1986`. Constrained-gen F1 50.38%, retrieval evidence_hit@10 74.52% (per `RESULTS-LOCOMO.md`).
 > **PR:** `feat/hyde-cross-bench`

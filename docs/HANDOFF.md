@@ -2,6 +2,32 @@
 
 ---
 
+## Sat 2026-06-27 — HyDE bench rodado e **REJEITADO** (PR #415 `[VERDICT pending]` fechado) + bug de schema-bootstrap do nox-mem corrigido (nox-ws PR #24)
+
+> O `[VERDICT pending]` do PR #415 (HyDE cross-bench, deferred por "infra pesada demais / GPU não rodou") foi resolvido: rodamos num RunPod **CPU** pod — HyDE é **API-bound**, não CPU-bound, então GPU era a dimensão errada. Verdict: **não-ship**.
+
+### HyDE — measured REJECT (EverMemBench-Dynamic `groupchat_004`, single-batch n=626)
+| Tipo | Baseline | HyDE | Δ |
+|---|---:|---:|---:|
+| multiple_choice (n=389) | 25.19% | 27.51% | +2.31 pp |
+| open_ended (n=237) | 29.96% | 18.99% | **−10.97 pp** |
+| **Overall (n=626)** | **27.00%** | **24.28%** | **−2.72 pp** |
+
+- O hypothetical passage ajuda fatos discretos (MC) mas **inventa nomes/datas que desviam a geração aberta** (OE). Líquido negativo.
+- **Caveat (recheck):** single-batch overstate 3-6× → efeito real provavelmente ~neutro. Neutro = sem lift = não justifica o custo (2× search + LLM passage). Gate-2 (Overall ≥ −1pp) **FALHA** de qualquer forma.
+- Dataset só quebra por formato (MC/OE), não por hop → gate-1 (F_MH) não medido diretamente, mas sem sinal de lift a perseguir.
+- LoCoMo/MuSiQue **não rodados** — bench-alvo negativo torna improvável valerem o custo (docs marcados `⛔ NOT RUN`).
+- Docs: `eval/{evermembench,locomo,musique}/RESULTS-HYDE.md` atualizados com o verdict.
+- **HyDE não entra no paper como feature** (continua sem ele). Esforço valeu: de "não-testável/pesado demais" → negativo medido.
+
+### Bônus: bug de schema-bootstrap do nox-mem corrigido (nox-workspace PR #24, CLEAN/MERGEABLE)
+> O eval-from-scratch num pod limpo expôs `ensureSchema()` parando em V7 enquanto rotulava o DB como v18 → primeiro INSERT tocando coluna v8+ (`retention_days`, `pain`, …) quebrava ("table chunks has no column named retention_days"). GLM + Kimi confirmaram; Kimi achou o bug secundário (`PRAGMA user_version` nunca setado).
+
+- Fix idempotente `migrateToV8Through18` (9 colunas + índices + backfill `retention_days` por `chunk_type`) + alinhamento `PRAGMA user_version` + `repairChunkSchemaIfIncomplete` (auto-conserta DBs já rotulados v18 sem as colunas) + teste de regressão `schema-bootstrap.test.ts`.
+- Validado end-to-end no pod (DB novo: 0 colunas faltando, `user_version=18`, INSERT v8-col OK).
+
+---
+
 ## Sat 2026-06-27 — gate definitivo LIMPO colhido (190 chunks / 184-de-184 files = 100% coverage) → §3.5 cravado, paper rebuildado, **D2 FECHADO**
 
 > O número definitivo do §3.5 saiu. Gate active de 24h 100% pós-deploy do coverage-sampling, censo + 2 caminhos independentes convergindo. §3.5 reescrito com a narrativa verdadeira (3 colapsos), paper `.pdf`/`.docx` rebuildados, one-shot cron removido. Ciclo D2 encerrado.

@@ -109,14 +109,28 @@ This is exactly the surface form that Gemini-embed-001 should match against chat
 
 ---
 
-## 4-Gate Verdict (PENDING)
+## Measured result (2026-06-27, single-batch n=626)
+
+RunPod CPU pod (8 vCPU / 16 GB), nox-mem API on isolated DB, `groupchat_004` ingested (254 days / 10,033 chunks; 21 day-errors ≈ 90% corpus). Adapter `phaseHyDE` vs `phaseB` baseline, rerank off, answer→`gpt-4.1-mini`, judge→`gemini-2.5-flash`.
+
+| Type | Baseline | HyDE | Δ |
+|---|---:|---:|---:|
+| multiple_choice (n=389) | 25.19% | 27.51% | **+2.31 pp** |
+| open_ended (n=237) | 29.96% | 18.99% | **−10.97 pp** |
+| **Overall (n=626)** | **27.00%** | **24.28%** | **−2.72 pp** |
+
+> EverMemBench-Dynamic scores by answer *format* (MC / OE), not by reasoning hops, so the original F_MH-specific gate-1 cannot be measured on this dataset. The overall + open-ended regressions are nonetheless decisive: there is no lift signal to chase, and a 5-batch run to confirm a *negative* is not worth the cost.
+
+## 4-Gate Verdict — REJECT
 
 | Gate | Threshold | Result |
 |---|---|---|
-| 1. F_MH lift ≥ +3pp vs Phase H v2 baseline | F_MH ≥ 13.00% (single-batch) / corresponding 5-batch | ⏳ |
-| 2. Overall ≥ -1pp baseline | Overall ≥ 50.68% (5-batch) | ⏳ |
-| 3. MA composite ≥ -2pp baseline | (MA_C+MA_P+MA_U)/3 ≥ baseline − 2pp | ⏳ |
-| 4. Latency p95 ≤ +50% (HyDE adds ~500ms LLM) | p95 retrieve ≤ 1.5× baseline | ⏳ |
+| 1. F_MH lift ≥ +3pp | — | ⚠️ N/A — dataset has no hop-count breakdown (MC/OE only); no proxy lift (open_ended −10.97pp) |
+| 2. Overall ≥ −1pp baseline | Overall ≥ 26.00% | ❌ **FAIL** — 24.28% (−2.72pp) |
+| 3. MA composite ≥ −2pp | — | ⚠️ N/A — no MA sub-dims in this dataset format |
+| 4. Latency p95 ≤ +50% | p95 ≤ 1.5× baseline | not measured (moot given gate-2 fail) |
+
+**Decision: do NOT ship HyDE.** Consistent with the TL;DR prediction that chat-log corpora (already narrative prose) yield low/negative magnitude — here the hypothetical passage's fabricated specifics actively hurt open-ended answers. The `[VERDICT pending]` from PR #415 is now closed as **tested-and-rejected**; HyDE does **not** enter the paper as a feature. Effort was not wasted: we moved from "untestable / too heavy" to a measured negative, and the eval-from-scratch path surfaced + fixed the nox-mem schema-bootstrap bug (nox-workspace PR #24).
 
 ---
 
@@ -184,7 +198,8 @@ Below $8 cap with margin. HyDE adds ~6% to total cost.
 
 ## Memory crystallizations (post-batch)
 
-- TBD pending verdict.
+- **HyDE measured-and-rejected on EverMemBench-Dynamic (2026-06-27):** −2.72pp overall (MC +2.31 / OE −10.97), single-batch n=626. Hypothetical passage helps fact-discrete retrieval, hurts open-ended generation on chat-log prose. No 5-batch needed to confirm a negative.
+- **Eval-from-scratch is a schema-bootstrap smoke test:** ingesting a fresh corpus on a clean pod exposed `ensureSchema()` stopping at V7 while labelling the DB v18 → fixed in nox-workspace PR #24 (idempotent `migrateToV8Through18` + `PRAGMA user_version` alignment + regression test).
 
 ## References
 
