@@ -4,7 +4,7 @@
 
 ---
 
-## 🟢 Estado atual (2026-06-27)
+## 🟢 Estado atual (2026-06-28)
 
 **Paper arXiv-ready no núcleo.** Zero `[PENDING]` no paper inteiro.
 
@@ -15,17 +15,22 @@
 - **prod v3.8** — 94.9k chunks, ~99.99% vector coverage, salience `active`.
 - **Eval harness** — schema-bootstrap fix (nox-ws PR #24) + pacote de observabilidade nos adapters (varredura GLM+Kimi + recheck, `b2ae144`).
 
-**O que falta pro arXiv ≠ bloqueador:** §6.4 per-category breakdown + all-Gemini variant são **future-work declarado (§7.2)**, não buracos. Falta só: auditar abstract-claims vs conteúdo + rebuild final `.pdf`/`.docx` + upload.
+**Paper em `v1.0.0-rc1`** (changelog: `paper/CHANGELOG.md`). **Decisão 06-28:** não publicar ainda — **evoluir o paper rodando todos os incrementos (rc2→rc4) antes de submeter**, pra publicar o *melhor* paper e não o mínimo. Não há bloqueador; é escolha de maximizar, não de destravar. Ver Próximos passos.
 
 ---
 
-## 🎯 Próximos passos (ordenados)
+## 🎯 Próximos passos — evoluir o paper até o melhor pra publicar
 
-1. **arXiv v1.0 — caminho mais curto, zero bloqueador conhecido.** ← **recomendado como próximo.** Sweep honesto: abstract-claims vs §5/§6 + §7 future-work; decidir se §6.4 per-category entra ou fica `deferred`; rebuild `.pdf`/`.docx`; upload.
-2. **(opcional) §6.4 per-category breakdown** — fortalece o head-to-head; precisa wirar gold-labels por categoria no harness cross-system.
-3. **(opcional) Claude Sonnet 4.6 / Opus 4.7 backbone bench** (Task #62) — precisa ANTHROPIC key; expande a matriz de backbone-portability (gpt-4.1-mini → Gemini-3-flash → Claude).
-4. **(opcional) all-Gemini fair variant** (§6.5.5) — re-roda o Q4 com embedding controlado (hoje cada sistema usa seu provider default).
-5. **GTM Phase 2** — gate D43 já satisfeito (top-3 em ≥2 das 4 métricas-chave); destravável quando quiser.
+**Decisão (2026-06-28):** rodar TODOS os incrementos que fortalecem o paper, evoluindo a versão (rc), e publicar só no melhor estado. Versionamento em **`paper/CHANGELOG.md`** (estamos em `v1.0.0-rc1`). Cada item abaixo = um bump de RC.
+
+1. **§6.4 per-category breakdown → rc2.** Quebra o head-to-head do §6 por tipo (single/multi-hop/temporal/adversarial/open/numeric). Preenche a tabela hoje 100% `[deferred]`. **~½–1 dia** (re-run n=100×2×3 se raws de 06-15 perdidos). Esforço médio.
+2. **Claude Sonnet 4.6 / Opus 4.7 backbone bench → rc3.** 3ª coluna na matriz de backbone (gpt-4.1-mini → Gemini-3-flash → **Claude**); tese de robustez backbone-agnostic. **~1 dia, custo $0 via Max OAuth.** Maior retorno-ao-paper. (Task #62.)
+3. **all-Gemini fair variant → rc4.** Re-roda o §6 com embedding controlado (hoje nox=Gemini 3072d vs Mem0=OpenAI 1536d) — remove o confound. **~1 dia.** ⚠️ risco: pode reverter o split se o ganho LME vinha do embed.
+4. **Sweep final + publicar → v1.0.0 → arXiv.** Audita abstract-claims vs conteúdo, polish, rebuild `.pdf`/`.docx`, submit (arXiv rotula como v1). **~½ dia.**
+
+**Amanhã, começar por:** rc3 (Claude backbone — $0, maior retorno) ou rc2 (§6.4). **Recheck antes:** confirmar se os raws da canonical run 06-15 sobreviveram (pod dedicado já terminado) — se não, rc2/rc4 re-rodam do zero.
+
+**Paralela (não-paper):** GTM Phase 2 — gate D43 já satisfeito; comercial, migra pra `nox-supermem`. Não bloqueia nem incrementa o paper.
 
 ---
 
@@ -57,7 +62,20 @@ Dual SOTA em multi-hop QA clássico **sem fine-tuning**. LongMemEval cross-bench
 
 ---
 
-## 🗓️ Histórico recente (verbatim, 06-27 → 06-24)
+## 🗓️ Histórico recente (verbatim, 06-28 → 06-24)
+
+## Sun 2026-06-28 — sessão: HyDE fechado + PR #24 + varredura GLM/Kimi + HANDOFF sanitizado + plano de evolução do paper
+
+> Sessão longa. **Entregue (memoria-nox + nox-workspace):**
+> - HyDE verdict **REJECT** documentado nos 3 RESULTS-HYDE + HANDOFF + README (`85d28a7`); `[VERDICT pending]` do PR #415 fechado.
+> - **PR #24** schema-bootstrap (V8–V18 idempotente + PRAGMA user_version + teste) mergeado em nox-workspace (`aba5990e`).
+> - Doc-fix do eval harness (repo `EverOS`→`EverMemBench`, `evermembench.harness`→`eval.cli`, OpenRouter→OpenAI+Gemini) (`3b2bde4`).
+> - Pacote de **observabilidade** nos adapters pós-varredura GLM+Kimi + recheck (`b2ae144`) — 6 fixes aditivos/opt-in; K1 descartado (design intencional, recheck salvou um patch que quebraria o gold-match).
+> - HANDOFF **sanitizado** 5376→267 linhas; histórico ≤06-14 arquivado (`8a53b2c`).
+> - Pod RunPod parado (Toto).
+>
+> **Decisão (versionamento + evolução do paper):** paper versionado internamente em `paper/CHANGELOG.md` (`v1.0.0-rc1` atual). **Evoluir até o melhor estado antes de publicar** — rodar rc2 (§6.4 per-category) + rc3 (Claude backbone, $0 Max OAuth) + rc4 (all-Gemini), depois sweep + submit (v1.0.0 = arXiv v1). Plano em Próximos passos.
+
 ## Sat 2026-06-27 — HyDE bench rodado e **REJEITADO** (PR #415 `[VERDICT pending]` fechado) + bug de schema-bootstrap do nox-mem corrigido (nox-ws PR #24)
 
 > O `[VERDICT pending]` do PR #415 (HyDE cross-bench, deferred por "infra pesada demais / GPU não rodou") foi resolvido: rodamos num RunPod **CPU** pod — HyDE é **API-bound**, não CPU-bound, então GPU era a dimensão errada. Verdict: **não-ship**.
