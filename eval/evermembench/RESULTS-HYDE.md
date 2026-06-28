@@ -2,14 +2,14 @@
 
 > **Date:** 2026-05-30
 > **Reference:** Gao et al. 2022, **arxiv:2212.10496** ("Precise Zero-Shot Dense Retrieval without Relevance Labels")
-> **Status:** ⏳ IMPLEMENTATION + PROMPT VALIDATION SHIPPED. Full 5-batch eval gated on Sun morning slot (see "Launch" below) — implementation co-merged in parallel with 5 other Wave 1 agents on the same files; we ship the code path landed + reproducible launch instead of a contaminated batch run.
+> **Status:** ❌ MEASURED — REJECT (2026-06-27). Single-batch run on EverMemBench-Dynamic `groupchat_004` (n=626) on a RunPod CPU pod: HyDE **−2.72pp overall** vs baseline (24.28% vs 27.00%). Helps multiple_choice (+2.31pp) but hurts open_ended (−10.97pp) — net negative. No lift to pursue; **not shipped**. See "Measured result" below. (Implementation history retained for reproducibility.)
 > **Mode:** `phaseHyDE` (env: `NOX_ADAPTER_MODE=phaseHyDE` or `NOX_HYDE_ENABLED=1`)
 > **Baseline:** Phase H v2 (rerank=off, hybrid=on, no Wave A/B/C knobs)
 > **PR:** `feat/hyde-cross-bench`
 
 ---
 
-## TL;DR (verdict pending)
+## TL;DR (verdict: REJECT — measured 2026-06-27)
 
 This PR lands the **HyDE retrieval-stage knob** for EverMemBench. Mechanism:
 
@@ -22,6 +22,8 @@ This PR lands the **HyDE retrieval-stage knob** for EverMemBench. Mechanism:
 Pure-mode (only hypothetical passage retrieved against) is gated behind `NOX_HYDE_HYBRID=0`.
 
 Predicted lift per arxiv:2212.10496 + nox-mem's MS-MARCO-style FTS5+dense profile: F_MH **+3-6pp** because the hypothetical's surface form lands closer to actual chunk distribution than question-shape raw queries. F_SH should stay flat (already at 89.80% in Phase H v2 — ceiling). Overall ±1pp band, MA ±1pp band. The "+5-15pp" cited in the original paper is on hard QA benches (TREC-DL, MIRACL); on chat-log memory we expect lower magnitude because chunks already contain natural narrative prose.
+
+**Measured (2026-06-27, single-batch n=626, EverMemBench-Dynamic `groupchat_004`):** the prediction held in *direction* but net-negative in *magnitude*. The dataset scores only by answer format (multiple_choice / open_ended), not by hop count, so F_MH was not isolated — but the hypothetical passage's invented surface form helped fact-discrete MC (**+2.31pp**) while derailing open-ended generation (**−10.97pp**: the passage fabricates names/dates the answer then anchors on), for **overall −2.72pp**. Verdict: **REJECT** — no net lift, not shipped. Single-batch is unreliable (canonical gate is 5-batch + 95% CI; single-batch overstates 3-6×), so the real effect is likely closer to neutral — but neutral = no lift = does not justify HyDE's 2× search calls + LLM-passage cost.
 
 ---
 
