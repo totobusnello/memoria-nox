@@ -2137,6 +2137,16 @@ class NoxMemAdapter(BaseAdapter):
 
         elapsed_ms = time.monotonic() * 1000 - start_ms
         success = (total_sent == len(messages)) and not errors
+        # A partial ingest leaves silent holes in the corpus → downstream recall
+        # drops with no alarm. Default keeps the existing soft behaviour
+        # (success=False), but NOX_INGEST_STRICT=1 turns it into a hard failure
+        # so a contaminated batch can't be scored as if it were complete.
+        if errors and os.environ.get("NOX_INGEST_STRICT") == "1":
+            raise RuntimeError(
+                f"ingest had {len(errors)} batch failure(s) "
+                f"({len(messages) - total_sent} messages dropped) and "
+                f"NOX_INGEST_STRICT=1: " + "; ".join(errors[:5])
+            )
         return AddResult(
             success=success,
             days_processed=len(days_seen),
@@ -2151,6 +2161,8 @@ class NoxMemAdapter(BaseAdapter):
                 "elapsed_ms": elapsed_ms,
                 "messages_total": len(messages),
                 "day_group_count": len(self._day_group_cache),
+                "batch_failure_count": len(errors),
+                "messages_dropped": len(messages) - total_sent,
             },
         )
 
@@ -2882,7 +2894,9 @@ class NoxMemAdapter(BaseAdapter):
 
                     iterc_used_path = True
                     iterc_meta["iterc_applied"] = True
-                    iterc_meta["iterc_status"] = "applied"
+                    iterc_meta["iterc_status"] = (
+                        "applied" if api_returned > 0 else "empty_all_legs"
+                    )
                     iterc_meta["iterc_n"] = len(iterc_sub_questions)
                     iterc_meta["iterc_sub_questions"] = iterc_sub_questions
                     iterc_meta["iterc_sub_answers"] = iterc_sub_answers
@@ -2997,7 +3011,9 @@ class NoxMemAdapter(BaseAdapter):
                     mq_total_returned = sum(len(r) for r in per_sub_results)
                     mq_used_subquery_path = True
                     mq_meta["mq_applied"] = True
-                    mq_meta["mq_status"] = "applied"
+                    mq_meta["mq_status"] = (
+                        "applied" if api_returned > 0 else "empty_all_legs"
+                    )
                     mq_meta["mq_n"] = len(sub_queries)
                     mq_meta["mq_sub_queries"] = sub_queries
                     mq_meta["mq_per_query_topk"] = self.mq_per_query_topk
@@ -3122,7 +3138,15 @@ class NoxMemAdapter(BaseAdapter):
                     hyde_retrieve_ms = time.monotonic() * 1000 - retrieve_start
                     hyde_used_path = True
                     hyde_meta["hyde_applied"] = True
-                    hyde_meta["hyde_status"] = "applied"
+                    # Observability: how many of the legs (raw + hypothetical in
+                    # hybrid mode) actually returned chunks. If hybrid was on but
+                    # only 1 leg is non-empty, this effectively ran pure-HyDE —
+                    # surface it instead of silently grading it as "hybrid".
+                    hyde_meta["hyde_legs_nonempty"] = sum(1 for r in per_q_results if r)
+                    hyde_meta["hyde_legs_total"] = len(per_q_results)
+                    hyde_meta["hyde_status"] = (
+                        "applied" if api_returned > 0 else "empty_all_legs"
+                    )
                     hyde_meta["hyde_hybrid"] = self.hyde_hybrid
                     hyde_meta["hyde_per_query_topk"] = self.hyde_per_query_topk
                     hyde_meta["hyde_rrf_k"] = self.hyde_rrf_k if self.hyde_hybrid else None

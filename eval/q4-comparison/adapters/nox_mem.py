@@ -294,6 +294,20 @@ def _ingest_corpus_into_eval_db(con: sqlite3.Connection, datasets: list[str]) ->
             file=sys.stderr,
         )
 
+    if "longmemeval" in datasets and limit is not None and global_count >= limit:
+        # The global ingest cap was exhausted by earlier datasets (LoCoMo runs
+        # first), so LME would get 0 chunks and score 0 — invalidating any
+        # cross-dataset comparison. Warn loud; raise under strict mode.
+        _msg = (
+            f"[nox_mem/eval] WARNING: LongMemEval SKIPPED — global ingest limit "
+            f"({limit}) already exhausted by earlier datasets ({global_count} chunks). "
+            f"LME gets 0 chunks → its scores will be 0. Raise NOX_MEM_INGEST_LIMIT "
+            f"or split the cap per-dataset for a fair cross-dataset run."
+        )
+        print(_msg, file=sys.stderr)
+        if os.environ.get("NOX_MEM_INGEST_STRICT") == "1":
+            raise RuntimeError(_msg.strip())
+
     if "longmemeval" in datasets and (limit is None or global_count < limit):
         print(
             "[nox_mem/eval] ingesting LongMemEval (oracle split)...", file=sys.stderr
@@ -1260,6 +1274,7 @@ def setup(datasets: list[str] | None = None) -> None:
 def teardown() -> None:
     """Close eval/hybrid DB connections (keeps DBs on disk for subsequent runs)."""
     global _eval_con, _hybrid_con
+    global _kg_query_calls, _kg_query_errors, _rewrite_calls, _rewrite_errors
     for attr, con in [("_eval_con", _eval_con), ("_hybrid_con", _hybrid_con)]:
         if con is not None:
             try:
@@ -1268,6 +1283,12 @@ def teardown() -> None:
                 pass
     _eval_con = None
     _hybrid_con = None
+    # Clear per-run module caches/counters so a second setup()→search() cycle
+    # in the same process doesn't serve stale HyDE rewrites / KG entity
+    # extractions from the previous dataset.
+    _kg_query_entities_cache.clear()
+    _rewrite_cache.clear()
+    _kg_query_calls = _kg_query_errors = _rewrite_calls = _rewrite_errors = 0
 
 
 def search(query: str, k: int = 10) -> list[dict]:
@@ -1318,7 +1339,13 @@ def _search_eval(query: str, k: int) -> list[dict]:
             """,
             (fq, k),
         ).fetchall()
-    except sqlite3.OperationalError:
+    except sqlite3.OperationalError as e:
+        # Schema drift / missing FTS table would otherwise return 0 rows
+        # silently → nDCG@10 = 0 with no diagnostic. Surface it.
+        print(
+            f"[nox_mem/eval] FTS5 search error (returning 0 rows): {e}",
+            file=sys.stderr,
+        )
         rows = []
 
     results: list[dict] = []
