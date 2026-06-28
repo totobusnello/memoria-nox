@@ -1,17 +1,17 @@
 {
   "version": "1.0.0-wave-j",
   "baseline_timestamp": "2026-05-18T00:00:00.000Z",
-  "run_timestamp": "2026-05-28T06:42:18.075Z",
+  "run_timestamp": "2026-06-28T06:52:35.365Z",
   "host": "macos-m-series",
-  "node_version": "v22.22.3",
+  "node_version": "v22.23.0",
   "drift_threshold_pct": 25,
   "dry_run": false,
   "total_metrics": 29,
-  "measured": 3,
-  "passed": 3,
+  "measured": 2,
+  "passed": 2,
   "failed": 0,
   "skipped": 9,
-  "baseline_only": 17,
+  "baseline_only": 18,
   "overall_status": "PASS",
   "failures": [],
   "results": [
@@ -124,17 +124,18 @@
     {
       "metric_key": "A2.export.plain.500chunks_3072d.duration_ms",
       "baseline": 168,
-      "measured": 176,
-      "drift_pct": 4.761904761904762,
-      "status": "PASS",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "source_pr": 41,
-      "unit": "ms"
+      "unit": "ms",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "A2.export.plain.500chunks_3072d.archive_mb",
       "baseline": 5.4,
-      "measured": 5.357946395874023,
-      "drift_pct": -0.7787704467773503,
+      "measured": 5.357948303222656,
+      "drift_pct": -0.7787351255063722,
       "status": "PASS",
       "source_pr": 41,
       "unit": "MB"
@@ -172,8 +173,8 @@
     {
       "metric_key": "A2.export.encrypted.500chunks_3072d.archive_mb",
       "baseline": 6.3,
-      "measured": 6.303546905517578,
-      "drift_pct": 0.056300087580607984,
+      "measured": 6.303545951843262,
+      "drift_pct": 0.05628494989304598,
       "status": "PASS",
       "source_pr": 41,
       "unit": "MB"
@@ -335,8 +336,8 @@
       "notes": "28 metrics across 7 subsystems: pipeline, search, answer(P1), provider(A3), hooks(P2), viewer(P5), system+runtime."
     }
   ],
-  "nightly_date": "2026-05-28",
-  "github_run_id": "26559164812",
-  "github_sha": "d19ac53ae9c010b38d641d69d65aa6fd23ba019e",
+  "nightly_date": "2026-06-28",
+  "github_run_id": "28314327173",
+  "github_sha": "6df0de077734746813e751aae8797bd30f37fc57",
   "nightly_threshold_pct": 25
 }
