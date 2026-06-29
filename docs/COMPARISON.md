@@ -277,7 +277,7 @@ The split above is under *native* embedders (nox Gemini 3072d, mem0 OpenAI 1536d
 | **nox-mem (hybrid)** | **0.5255** | **0.4952** | **0.5013** |
 | mem0 (Gemini embedder) | 0.4061 | 0.4407 | 0.4337 |
 
-> **Controlled, honest:** with the embedder equalized, nox-mem leads **both** datasets (LME +0.119, LoCoMo +0.055) and all 5 represented query categories — the mem0 LoCoMo win was substantially an OpenAI-embedder effect. **Residual confounds declared:** mem0 changed major version (0.1.x→2.0.10) since the canonical run, and nox-mem uses Gemini retrieval task-types while mem0 does not — so rc4 is "same embedding model+dim, mem0 at current release," not a pure architecture isolation. Detail: [`paper §6.3.2`](../paper/paper-tecnico-nox-mem.md) · raws `eval/q4-comparison/output/rc4/`.
+> **Matched, honest:** with the embedder equalized, nox-mem **outperforms mem0 on both** datasets (LME +0.119, LoCoMo +0.055; 95% CIs disjoint) and all 5 represented query categories — the mem0 LoCoMo win was substantially an OpenAI-embedder effect. **Four residual confounds declared** (§6.3.2): (a) mem0 major-version drift 0.1.x→2.0.10; (b) vector backend faiss→Chroma; (c) sample scope n=100→2,482; (d) task-type asymmetry favoring nox (Gemini RETRIEVAL_* vs none). So rc4 is "same embedding model+dim, mem0 at current release+backend" — an embedding-**matched** comparison, not a pure architecture isolation. Detail: [`paper §6.3.2`](../paper/paper-tecnico-nox-mem.md) · raws `eval/q4-comparison/output/rc4/`.
 
 ---
 

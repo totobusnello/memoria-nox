@@ -48,9 +48,12 @@ from pathlib import Path
 from typing import Any, Iterator
 
 NAME = "mem0"
-VERSION_PIN = "mem0ai==0.1.114"  # confirm latest stable at install time
+VERSION_PIN = "mem0ai==2.0.10"  # rc4 (2026-06-29); API changed from 0.1.x (search/get_all)
+# Default (as-configured) embedder is OpenAI → OPENAI_API_KEY. Under the rc4
+# all-Gemini variant the embedder is repointed via lib/all_gemini_config and the
+# requirement becomes GOOGLE_API_KEY (or GEMINI_API_KEY); see §6.3.2.
 REQUIRES_ENV = ["OPENAI_API_KEY"]
-INSTALL_HINT = "pip install 'mem0ai==0.1.114'"
+INSTALL_HINT = "pip install 'mem0ai==2.0.10'"
 
 _USER_ID_DEFAULT = "q4-eval"
 _client = None  # singleton, initialized in setup()

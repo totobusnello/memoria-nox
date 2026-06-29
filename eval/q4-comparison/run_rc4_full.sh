@@ -39,6 +39,6 @@ echo "[rc4] mem0 exit=$?  $(date '+%T')"
 
 # --- aggregate (per-dataset + per-category from row dataset/category) ---
 echo "[rc4] === AGGREGATE $(date '+%T') ==="
-$PY aggregate.py --input "$OUT" --k 10
+$PY aggregate.py --output-dir "$OUT" --k 10
 
 echo "[rc4] $(date '+%F %T') DONE — outputs in $OUT/ (_aggregate.json/.md)"
