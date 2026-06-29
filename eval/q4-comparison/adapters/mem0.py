@@ -255,9 +255,16 @@ def setup() -> None:
     user_id = os.environ.get("MEM0_USER_ID", _USER_ID_DEFAULT)
     force = os.environ.get("MEM0_FORCE_REINGEST", "").lower() in ("1", "true", "yes")
 
-    # Check existing memory count
+    # Check existing memory count. mem0 2.x: get_all(filters={"user_id": ...})
+    # returns {"results": [...]}; 0.1.x: get_all(user_id=...) returns a list.
+    # Support both so idempotency (skip re-ingest) survives the API change.
     try:
-        existing = _client.get_all(user_id=user_id)
+        try:
+            existing = _client.get_all(filters={"user_id": user_id})
+        except TypeError:
+            existing = _client.get_all(user_id=user_id)
+        if isinstance(existing, dict):
+            existing = existing.get("results") or []
         existing_count = len(existing) if existing else 0
     except Exception:
         existing_count = 0
@@ -329,7 +336,15 @@ def search(query: str, k: int = 10) -> list[dict]:
 
     user_id = os.environ.get("MEM0_USER_ID", _USER_ID_DEFAULT)
 
+    # mem0 2.x: search(query, *, top_k, filters={"user_id": ...}, threshold=...).
+    # mem0 0.1.x used search(query, user_id=..., limit=...). Support both.
+    # threshold=0.0 disables the default 0.1 similarity cutoff so low-ranked
+    # gold chunks are not dropped before nDCG@k scoring (parity with nox top-k).
     try:
+        raw = _client.search(  # type: ignore[union-attr]
+            query=query, filters={"user_id": user_id}, top_k=k, threshold=0.0
+        )
+    except TypeError:
         raw = _client.search(query=query, user_id=user_id, limit=k)  # type: ignore[union-attr]
     except Exception as exc:
         raise RuntimeError(f"mem0 search failed: {exc}") from exc

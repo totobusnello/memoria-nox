@@ -232,7 +232,7 @@ def _self_check() -> None:
     assert cfg["embedder"]["config"]["model"] == GEMINI_EMBED_MODEL, "model mismatch"
     assert cfg["embedder"]["config"]["embedding_dims"] == GEMINI_EMBED_DIM, "dim mismatch"
     assert cfg["vector_store"]["config"]["collection_name"] == CHROMA_COLLECTION_RC4
-    assert GEMINI_EMBED_DIM == 768, "dim must be 768 (SDK default; see docstring)"
+    assert GEMINI_EMBED_DIM == 3072, "dim must be 3072 (gemini-embedding-001 default; see docstring, corrigido 2026-06-29)"
 
 
 _self_check()

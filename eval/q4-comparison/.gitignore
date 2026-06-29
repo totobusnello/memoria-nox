@@ -9,3 +9,6 @@ venv/
 
 # Corpus loader cache (parsed JSONL from HF + raw downloads). Large, regenerable.
 cache/
+
+# mem0 Chroma persistent stores (rc4 + smoke). Large, regenerable from re-ingest.
+.mem0-chroma*/

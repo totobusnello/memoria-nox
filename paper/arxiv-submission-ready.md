@@ -8,7 +8,7 @@
 
 ## Pre-flight Checklist (Mon 2026-06-01)
 
-- [ ] **Q4 abstract numbers finalized** — replace smoke figures in abstract with canonical run results if complete (ref: `specs/2026-05-23-Q4-comparison-execution-plan.md`)
+- [x] **Q4 abstract numbers finalized** — rc4 controlled-embedding result (2026-06-29): nox-mem leads both datasets, all 5 categories; see §6.3.2 + `eval/q4-comparison/output/rc4/`
 - [ ] **arXiv account active** — create at https://arxiv.org/user/register if not yet done
 - [ ] **Email verified** — arXiv requires email verification before first submission
 - [ ] **Endorsement check** — visit `https://arxiv.org/auth/show-endorsers?archive=cs&subject_class=IR`. If endorsement required: send email to candidate endorsers (see §5 below)
@@ -34,15 +34,14 @@ Luiz Antonio Busnello
 
 ### Abstract (paste verbatim — 241 words, well under 1920 char limit)
 
-> **IMPORTANT:** Before pasting, fill in `[Q4 NUMBERS]` if canonical run is complete.  
-> If not complete: use the smoke-run version below (already filled, disclosure in paper).
+> **Q4 numbers finalized (2026-06-29):** the abstract below reports the rc4 controlled-embedding result (§6.3.2) — split as-configured inverted under equal embedding, nox-mem leads both datasets. No placeholder remains.
 
 ```
 Memory systems for LLM agents typically optimize for developer ergonomics, sacrificing retrieval quality or imposing vendor lock-in. Standardized cross-system benchmarks are scarce, making per-system accuracy claims difficult to reproduce or compare.
 
 We present nox-mem, an open-source hybrid memory layer that combines FTS5 keyword retrieval, sqlite-vec dense retrieval, and Reciprocal Rank Fusion (RRF) over a zero-dependency SQLite database. We introduce a pain-weighted salience formula -- a weighted-additive score W_IMPORTANCE*importance + W_RECENCY*recency + W_PAIN*pain + W_ACCESS*access (weights 0.55/0.15/0.10/0.20) -- where pain encodes incident severity on a continuous scale (0.1 trivial to 1.0 production outage), enabling retrieval to surface high-stakes memories even when recency is low. We further propose a Conditional Hard Mutex (G10d), which gates section and source-type boosts on query entity count (threshold t=2), recovering multi-hop retrieval accuracy (+1.58% nDCG@10, +3.04% MRR on adversarial queries) without sacrificing single-hop precision.
 
-We pre-register our methodology and report ten ablation studies (G3 through G10d) on LongMemEval (n=100) and LoCoMo, benchmarking against five production-grade memory systems (Mem0, Zep, Letta, agentmemory, EverMind-AI). Per-category breakdowns expose tradeoffs across multi-hop, temporal, and adversarial query types. All evaluation harnesses and raw results are published alongside the code.
+We pre-register our methodology and report ten ablation studies (G3 through G10d) on LongMemEval and LoCoMo, benchmarking against five production-grade memory systems (Mem0, Zep, Letta, agentmemory, EverMind-AI). Under each system's native embedder the two leaders split the benchmarks; controlling the embedding provider (both Gemini-3072d, full n=2,482) inverts the split -- nox-mem leads LongMemEval (nDCG@10 0.526 vs 0.406), LoCoMo (0.495 vs 0.441), and all five represented query categories, with residual confounds declared. All evaluation harnesses and raw results are published alongside the code.
 
 Contributions: (i) pain-weighted salience formula that incorporates incident severity into memory scoring; (ii) Conditional Hard Mutex ablation protocol for boost interaction; (iii) open benchmark methodology reproducible against five competitors; (iv) production-stable single-file deployment (SQLite + FTS5 + sqlite-vec, zero external services). Code (MIT) and full evaluation harness: https://github.com/totobusnello/memoria-nox.
 ```

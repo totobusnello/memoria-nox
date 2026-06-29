@@ -268,6 +268,17 @@ Retrieval quality (nDCG@10) on a shared corpus + harness, each system on its nat
 
 > **Split, honest:** nox-mem wins LongMemEval (+0.047), mem0 wins LoCoMo (+0.042); agentmemory distant third. The 3 non-running systems are a **deployability penalty** on the operational axis — not a retrieval-quality claim (we hold no numbers for them): three of five competitors could not produce a single result in an unprivileged single-node environment, while nox-mem produced one from a single SQLite file. Detail: [`paper §6`](../paper/paper-tecnico-nox-mem.md).
 
+#### Q4 controlled-embedding variant (rc4, 2026-06-29 — both Gemini 3072d, full n=2,482)
+
+The split above is under *native* embedders (nox Gemini 3072d, mem0 OpenAI 1536d). Equalizing the embedder — both on `gemini-embedding-001` @ 3072d, full eval set — **inverts the split**:
+
+| System (all-Gemini 3072d, n=2,482) | LongMemEval nDCG@10 | LoCoMo nDCG@10 | Overall |
+|---|---:|---:|---:|
+| **nox-mem (hybrid)** | **0.5255** | **0.4952** | **0.5013** |
+| mem0 (Gemini embedder) | 0.4061 | 0.4407 | 0.4337 |
+
+> **Controlled, honest:** with the embedder equalized, nox-mem leads **both** datasets (LME +0.119, LoCoMo +0.055) and all 5 represented query categories — the mem0 LoCoMo win was substantially an OpenAI-embedder effect. **Residual confounds declared:** mem0 changed major version (0.1.x→2.0.10) since the canonical run, and nox-mem uses Gemini retrieval task-types while mem0 does not — so rc4 is "same embedding model+dim, mem0 at current release," not a pure architecture isolation. Detail: [`paper §6.3.2`](../paper/paper-tecnico-nox-mem.md) · raws `eval/q4-comparison/output/rc4/`.
+
 ---
 
 ## Zep OSS — vendor lock-in explained
