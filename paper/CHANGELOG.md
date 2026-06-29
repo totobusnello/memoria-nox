@@ -31,8 +31,26 @@ Paper completo e auto-suficiente, zero `[PENDING]`:
 | rc | Incremento | O que agrega ao paper | ETA | Custo |
 |---|---|---|---|---|
 | **rc2** | §6.4 per-category breakdown | preenche a tabela §6.4 (hoje 100% `[deferred]`); mostra onde nox vence/perde por tipo de query | ½–1 dia | re-run pod (raws 06-15 provavelmente perdidos) |
-| **rc3** | Claude Sonnet 4.6 / Opus 4.7 backbone | 3ª coluna na matriz de backbone (gpt-4.1-mini → Gemini-3-flash → **Claude**); tese de robustez backbone-agnostic | 1 dia | **$0 via Max OAuth** |
+| **rc3** | Claude Sonnet 4.6 / Opus 4.7 backbone | 3ª coluna na matriz de backbone (gpt-4.1-mini → Gemini-3-flash → **Claude**); tese de robustez backbone-agnostic | 1 dia | **~$42 Sonnet / ~$200 Opus (PAGO).** ⚠️ Max OAuth NÃO serve: bench automatizado via token Max = violação de policy, já bloqueado pelo classifier (ev: `eval/evermembench/RESULTS-BACKBONE-MATRIX.md:154-157`). Requer `ANTHROPIC_API_KEY` de billing. |
 | **rc4** | all-Gemini fair variant | controla o confound de embedding no §6 (hoje nox=Gemini 3072d vs Mem0=OpenAI 1536d) — comparação mais limpa | 1 dia | re-ingest. ⚠️ risco: pode reverter o split |
 | **v1.0.0** | sweep claims + polish + submit | audita abstract-claims vs conteúdo, rebuild `.pdf`/`.docx`, submit arXiv | ½ dia | — |
 
 > Recheck antes de rc2/rc4: confirmar se os resultados raw da canonical run 06-15 sobreviveram (pod dedicado já terminado) — se não, re-rodar n=100×2×3 do zero.
+
+---
+
+## Progresso — 2026-06-28 (prep paralela, pré-execução)
+
+Recheck por evidência primária (filesystem + §6 do paper) + 3 agentes de prep em paralelo. **Prep das 3 rcs 100% pronta e validada; execução 100% bloqueada em compute (pod RunPod stopado, sem meu acesso ao RunPod).**
+
+**Achados que mudam o plano:**
+- **Raws 06-15 NÃO estão locais** (todo `cache/` é de 23-24 mai). Viviam no pod dedicado (terminado) → rc2/rc4 são **re-run**, não reprocessamento.
+- **rc2 não era reprocessamento de qualquer forma:** §6 (linha 1121) confirma que a run 06-15 só produziu métricas **dataset-level**. Per-category exige labels novos + re-run.
+- **rc3 NÃO é $0** (ver tabela acima). Max OAuth bloqueado; precisa API key paga.
+
+**Prep entregue (commitada, validada py_compile/yaml/sh):**
+- **rc2** — `lib/category_labeler.py` + `scripts/build_categorized_queries.py` + `docs/rc2-per-category-mapping.md`. Mapeamento dos campos NATIVOS (LoCoMo `category` 1-5; LME `question_type`) → 6 buckets §6.4. Distribuição medida. **3 células n/a legítimas** (LoCoMo×numeric, LME×open-domain, LME×numeric). 1 ambiguidade documentada (`knowledge-update`→adversarial — precisa footnote no paper). ⚠️ rodar **sem `--limit`** (full), senão sub-amostragem cria n/a falsos. Queries categorizadas geradas em `cache/queries-*-categorized.jsonl` (gitignored, reproduzíveis).
+- **rc3** — `pipeline-backbone-claude.yaml` + `run-batch-backbone-claude.sh` + `RESULTS-BACKBONE-CLAUDE.md`. ⚠️ incerteza de endpoint: `api.anthropic.com/v1/chat/completions` + `Authorization: Bearer` (OpenAI SDK) pode não ser compat — fazer curl smoke antes do 5-batch (fallback OpenRouter no yaml).
+- **rc4** — `docs/rc4-all-gemini-plan.md` + `lib/all_gemini_config.py`. nox+mem0 dão; **agentmemory NÃO** (embedder server-side → vira limitação documentada no §6). ⚠️ eval usa **768d**, prod usa 3072d — rc4 é fair inter-sistemas mas não fiel ao prod (caveat pro paper). Custo re-ingest ~$0,60.
+
+**Bloqueio único de execução:** todas as 3 precisam do **pod RunPod de volta** (rc2/rc4 = Q4; rc3 = EverMemBench). Sem isso, nada roda. Decisões pendentes do Toto: (1) subir pod + me dar acesso; (2) autorizar gasto rc3 (~$42 Sonnet) e qual modelo; (3) aceitar caveat 768d do rc4.

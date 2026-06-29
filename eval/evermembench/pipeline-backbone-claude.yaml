@@ -1,0 +1,68 @@
+# Backbone Matrix — claude-sonnet-4-6 answer backbone.
+#
+# 3ª coluna da backbone matrix (gpt-4.1-mini baseline → gemini-3-flash-preview → claude).
+# Tese do paper: backbone-agnostic robustness — mesma retrieval pipeline, só muda answer.
+# Judge mantido em gemini-2.5-flash (constante cross-backbone, metodologia Phase H v2).
+#
+# Anthropic API suporta max_tokens + temperature nativamente — sem patch de harness
+# necessário (diferente do gpt-5* family que exige max_completion_tokens + reasoning_effort).
+#
+# ⚠ INCERTEZA CRÍTICA — base_url + auth:
+#   O harness faz POST {base_url}/chat/completions via OpenAI Python SDK (Authorization: Bearer).
+#   Anthropic nativo usa /v1/messages (não /v1/chat/completions) + header x-api-key.
+#
+#   Hipótese A (intenção original per RESULTS-BACKBONE-MATRIX.md §blocked-backbones):
+#     base_url: "https://api.anthropic.com/v1/"
+#     Funciona SE Anthropic expõe /v1/chat/completions compatível com OpenAI SDK.
+#     Risco: 404 ou auth error no primeiro answer call.
+#     Smoke test obrigatório antes do 5-batch (ver run-batch-backbone-claude.sh preflight).
+#
+#   Hipótese B — OpenRouter (fallback garantido; harness usou OpenRouter em Phase B-D):
+#     model: "anthropic/claude-sonnet-4-6"   ← prefixo obrigatório no OpenRouter
+#     api_key: "${OPENROUTER_API_KEY}"
+#     base_url: "https://openrouter.ai/api/v1"
+#
+# Para Opus 4.7:
+#   model: "claude-opus-4-7"        (ou "anthropic/claude-opus-4-7" no OpenRouter)
+#   concurrency: 2                   ← thinking tokens × concurrency 4 = hangup (lição gemini-2.5-pro)
+#   timeout: 600                     ← esperar ~60-90min/batch (vs ~5min Sonnet)
+#   max_tokens: 4000                 ← reasoning budget (como gemini-2.5-pro config)
+
+answer:
+  # --- Hipótese A: Anthropic direto ---
+  model: "claude-sonnet-4-6"
+  api_key: "${ANTHROPIC_API_KEY}"
+  base_url: "https://api.anthropic.com/v1/"
+  # --- Hipótese B: OpenRouter (fallback — descomentar + comentar A se H-A falhar) ---
+  # model: "anthropic/claude-sonnet-4-6"
+  # api_key: "${OPENROUTER_API_KEY}"
+  # base_url: "https://openrouter.ai/api/v1"
+  temperature: 0
+  max_tokens: 1000
+  timeout: 300          # Sonnet 4.6 não-thinking: ~1-2s/call esperado. Opus 4.7 → 600.
+  concurrency: 4        # Sonnet: igual gemini-3-flash (5min/batch). Opus 4.7 → 2.
+
+evaluate:
+  model: "gemini-2.5-flash"
+  api_key: "${GEMINI_API_KEY}"
+  base_url: "https://generativelanguage.googleapis.com/v1beta/openai/"
+  temperature: 0
+  max_tokens: 1000
+  timeout: 300
+  concurrency: 8
+
+search:
+  concurrency: 3
+  timeout: 120
+
+retry:
+  max_retries: 20
+  retry_delay: 1.0
+  max_delay: 300
+
+debug:
+  show_usage: false
+
+warmup:
+  enabled: true
+  delay_seconds: 15
