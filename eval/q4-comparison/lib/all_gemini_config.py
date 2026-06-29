@@ -17,19 +17,20 @@ Usage (from runner_rc4.py or a pre-run script):
 Constants:
   GEMINI_EMBED_PROVIDER   — "gemini" (mem0 provider key)
   GEMINI_EMBED_MODEL      — "models/gemini-embedding-001"
-  GEMINI_EMBED_DIM        — 768  (SDK default; see note below)
+  GEMINI_EMBED_DIM        — 3072 (gemini-embedding-001 default; see note below)
   GEMINI_ENV_KEY          — "GOOGLE_API_KEY" (what mem0 Gemini embedder reads)
   CHROMA_COLLECTION_RC4   — "q4-eval-gemini" (separate from OpenAI run)
   CHROMA_PATH_RC4_DEFAULT — ".mem0-chroma-gemini" (default path suffix)
 
-Dim note:
-  gemini-embedding-001 returns 768d when called without output_dimensionality.
-  Prod nox-mem uses 3072d (explicit outputDimensionality in TypeScript source
-  staged-A3/edits/src/providers/embedding/gemini.ts:27). rc4 uses 768d because:
-    (a) nox_mem hybrid adapter does not pass output_dimensionality (nox_mem.py:84)
-    (b) mem0 Gemini embedder defaults to 768 (mem0/embeddings/gemini.py)
-    (c) changing to 3072d would require editing adapters (forbidden for rc4)
-  This is documented in docs/rc4-all-gemini-plan.md §2.
+Dim note (CORRIGIDO 2026-06-29 via preflight — premissa anterior estava ERRADA):
+  gemini-embedding-001 retorna 3072d quando chamado SEM output_dimensionality
+  (verificado: preflight embedContent sem o param → dim=3072). A nota antiga dizia
+  768d — errado. Isso teria criado mismatch: o nox_mem hybrid adapter TAMBÉM não
+  passa output_dimensionality e mede len(sample_vec)=3072 em runtime (nox_mem.py:1216),
+  logo roda 3072d. Para o rc4 ser fair (mesma dim nos dois sistemas) e fiel ao prod
+  (3072d), mem0 também usa 3072d. NÃO baixar para 768 — reintroduziria o confound de dim.
+  Risco residual: se o mem0 GoogleGenAIEmbedding emitir 768 ignorando embedding_dims,
+  o ingest falha com dim-mismatch contra a coleção chroma 3072 — visível no ingest.
 
 Thread-leak warning (mem0):
   mem0 leaks threads via PostHog telemetry. Before any mem0 call:
@@ -51,7 +52,7 @@ from typing import Any
 
 GEMINI_EMBED_PROVIDER: str = "gemini"
 GEMINI_EMBED_MODEL: str = "models/gemini-embedding-001"
-GEMINI_EMBED_DIM: int = 768  # SDK default (no output_dimensionality override)
+GEMINI_EMBED_DIM: int = 3072  # gemini-embedding-001 default (sem output_dimensionality) = 3072d, igual ao nox adapter → rc4 fair @ 3072d (fiel ao prod). Corrigido 2026-06-29.
 GEMINI_ENV_KEY: str = "GOOGLE_API_KEY"
 
 CHROMA_COLLECTION_RC4: str = "q4-eval-gemini"
@@ -129,7 +130,7 @@ def get_mem0_gemini_config(chroma_path: str | None = None) -> dict[str, Any]:
 
     The config:
       - Replaces the default OpenAI embedder with GoogleGenAIEmbedding
-        (provider="gemini", model=gemini-embedding-001, dim=768)
+        (provider="gemini", model=gemini-embedding-001, dim=3072 — igual ao nox)
       - Points Chroma at a NEW collection (q4-eval-gemini) to avoid a
         dimension mismatch with the existing OpenAI 1536d collection
       - Does NOT include an LLM section → mem0 keeps its OpenAI LLM default,
