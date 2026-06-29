@@ -19,9 +19,9 @@
 
 Memory systems for LLM agents typically optimize for developer ergonomics, sacrificing retrieval quality or imposing vendor lock-in. Standardized cross-system benchmarks are scarce, making per-system accuracy claims difficult to reproduce or compare.
 
-We present **nox-mem**, an open-source hybrid memory layer that combines FTS5 keyword retrieval, sqlite-vec dense retrieval, and Reciprocal Rank Fusion (RRF) over a zero-dependency SQLite database. We introduce a *pain-weighted salience* formula — a weighted-additive score `W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access` (weights 0.55 / 0.15 / 0.10 / 0.20) — where `pain` encodes incident severity on a continuous scale (0.1 trivial → 1.0 production outage), enabling retrieval to surface high-stakes memories even when recency is low. We further propose a **Conditional Hard Mutex** (G10d), which gates section and source-type boosts on query entity count (threshold τ=2), recovering multi-hop retrieval accuracy (+1.58% nDCG@10, +3.04% MRR on adversarial queries) without sacrificing single-hop precision.
+We present **nox-mem**, an open-source hybrid memory layer that combines FTS5 keyword retrieval, sqlite-vec dense retrieval, and Reciprocal Rank Fusion (RRF) over a zero-dependency SQLite database. We introduce a *pain-weighted salience* formula — a weighted-additive score `W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access` (weights 0.55 / 0.15 / 0.10 / 0.20) — where `pain` encodes incident severity (0.1 trivial → 1.0 production outage) as a design signal to keep high-stakes memories retrievable when recency is low (isolated effect directional, not yet significant — §7.1). We further propose a **Conditional Hard Mutex** (G10d), which gates section and source-type boosts on query entity count (threshold τ=2), recovering multi-hop (+1.58% nDCG@10) and adversarial (+3.04% nDCG@10, +6.25% MRR) regressions, at the cost of moderate single-hop dilution.
 
-We pre-register our methodology and report ten ablation studies (G3 through G10d) on LongMemEval and LoCoMo, benchmarking against five production-grade memory systems (Mem0, Zep, Letta, agentmemory, EverMind-AI). Under each system's native embedder the two leaders split the benchmarks; controlling the embedding provider (both Gemini-3072d, full n=2,482) inverts the split — nox-mem outperforms the market leader (Mem0) on both LongMemEval (nDCG@10 0.526 vs 0.406) and LoCoMo (0.495 vs 0.441), and on all five represented query categories, with residual confounds declared. All evaluation harnesses and raw results are published alongside the code.
+We pre-register our methodology and report ten ablation studies (G3 through G10d) on an entity-flavored golden set (n=100), and benchmark against five production-grade memory systems (Mem0, Zep, Letta, agentmemory, EverMind-AI) on LongMemEval and LoCoMo. Under each system's native embedder the two leaders split the benchmarks; controlling the embedding provider (both Gemini-3072d, full n=2,482) inverts the split — nox-mem outperforms the market leader (Mem0) on both LongMemEval (nDCG@10 0.526 vs 0.406) and LoCoMo (0.495 vs 0.441), and on all five represented query categories, with residual confounds declared.
 
 Contributions: (i) pain-weighted salience formula that incorporates incident severity into memory scoring; (ii) Conditional Hard Mutex ablation protocol for boost interaction; (iii) open benchmark methodology reproducible against five competitors; (iv) production-stable single-file deployment (SQLite + FTS5 + sqlite-vec, zero external services). Code (MIT) and full evaluation harness: https://github.com/totobusnello/memoria-nox.
 
@@ -47,7 +47,7 @@ Contributions: (i) pain-weighted salience formula that incorporates incident sev
 
 > Rodar após geração: `wc -w paper/abstract.md`
 >
-> Contagem do §2 isolado: ~280 palavras (dentro do limite ≤300).
+> Contagem do §2 isolado: ~287 palavras (dentro do limite ≤300; ~2.2k chars — se o formulário arXiv recusar por char-limit, encurtar o parágrafo de Contributions).
 
 ---
 
