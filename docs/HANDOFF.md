@@ -4,31 +4,30 @@
 
 ---
 
-## 🟢 Estado atual (2026-06-28)
+## 🟢 Estado atual (2026-06-29)
 
-**Paper arXiv-ready no núcleo.** Zero `[PENDING]` no paper inteiro.
+**Paper arXiv-ready no núcleo.** Zero `[PENDING]` no paper inteiro. **rc4 + rc2 fechados hoje.**
 
 - **§5 — 12 dimensões SOTA** (EverMemBench 5-batch, MuSiQue, HotPotQA, LoCoMo, LongMemEval cross-bench, produção). Sustenta o paper sozinha.
-- **§6 — Q4 head-to-head n=100 FEITO** (canonical run 06-15, pod dedicado). **Split honesto:** nox-mem ganha LongMemEval (nDCG@10 **0.5234** vs Mem0 0.4764), Mem0 ganha LoCoMo (0.4686 vs nox 0.4263); agentmemory 3º distante. Zep/Letta/EverMind = 3 gaps documentados com razão (Docker impossível no pod / agent-OS ~16min-query / keys de terceiros).
+- **§6 — Q4 head-to-head FEITO + controlled-embedding (rc4) FEITO.** §6.3 (canonical n=100, 06-15): split honesto as-configured — nox ganha LME (0.5234 vs 0.4764), Mem0 ganha LoCoMo (0.4686 vs 0.4263). **§6.3.2 nova (rc4, 06-29, ambos Gemini 3072d, full n=2.482): o split inverte — nox lidera AMBOS** (LME 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407; overall 0.5013 vs 0.4337) **e as 5 categorias** (§6.4 preenchido = rc2 done). Confounds residuais declarados (mem0 0.1.x→2.0.10; task_type assimétrico). Zep/Letta/EverMind = 3 gaps documentados.
 - **D2 (brief diversity) FECHADO** — coverage-sampling `active`, gate 24h 100% (190 chunks / 184-de-184 files), §3.5 cravado.
 - **HyDE testado e REJEITADO** (−2.72pp overall, 06-27) — não entra como feature; `eval/*/RESULTS-HYDE.md` cravados.
 - **prod v3.8** — 94.9k chunks, ~99.99% vector coverage, salience `active`.
 - **Eval harness** — schema-bootstrap fix (nox-ws PR #24) + pacote de observabilidade nos adapters (varredura GLM+Kimi + recheck, `b2ae144`).
 
-**Paper em `v1.0.0-rc1`** (changelog: `paper/CHANGELOG.md`). **Decisão 06-28:** não publicar ainda — **evoluir o paper rodando todos os incrementos (rc2→rc4) antes de submeter**, pra publicar o *melhor* paper e não o mínimo. Não há bloqueador; é escolha de maximizar, não de destravar. Ver Próximos passos.
+**Paper em `v1.0.0-rc4`** (changelog: `paper/CHANGELOG.md`). rc2 (per-category) + rc4 (all-Gemini) fechados 06-29 numa run; rc3 (Claude backbone) dropado (sem $0 possível — Max OAuth é policy violation). **Resta só `v1.0.0`: sweep final de claims + polish + submit arXiv.** Sem bloqueador.
 
 ---
 
-## 🎯 Próximos passos — evoluir o paper até o melhor pra publicar
+## 🎯 Próximos passos — só falta v1.0.0 (sweep + submit)
 
-**Decisão (2026-06-28):** rodar TODOS os incrementos que fortalecem o paper, evoluindo a versão (rc), e publicar só no melhor estado. Versionamento em **`paper/CHANGELOG.md`** (estamos em `v1.0.0-rc1`). Cada item abaixo = um bump de RC.
+rc2/rc3/rc4 resolvidos. **Resta o sweep final pra publicar:**
 
-1. **§6.4 per-category breakdown → rc2.** Quebra o head-to-head do §6 por tipo (single/multi-hop/temporal/adversarial/open/numeric). Preenche a tabela hoje 100% `[deferred]`. **~½–1 dia** (re-run n=100×2×3 se raws de 06-15 perdidos). Esforço médio.
-2. **Claude Sonnet 4.6 / Opus 4.7 backbone bench → rc3.** 3ª coluna na matriz de backbone (gpt-4.1-mini → Gemini-3-flash → **Claude**); tese de robustez backbone-agnostic. **~1 dia, custo $0 via Max OAuth.** Maior retorno-ao-paper. (Task #62.)
-3. **all-Gemini fair variant → rc4.** Re-roda o §6 com embedding controlado (hoje nox=Gemini 3072d vs Mem0=OpenAI 1536d) — remove o confound. **~1 dia.** ⚠️ risco: pode reverter o split se o ganho LME vinha do embed.
-4. **Sweep final + publicar → v1.0.0 → arXiv.** Audita abstract-claims vs conteúdo, polish, rebuild `.pdf`/`.docx`, submit (arXiv rotula como v1). **~½ dia.**
+1. **Sweep de claims → v1.0.0 → arXiv.** Auditar abstract-claims vs conteúdo (agora que o §6.3.2 + §6.4 entraram), checar consistência de números entre §5/§6/abstract, rebuild `.pdf`/`.docx` via `scripts/build-paper.sh`, bump header `**Paper version:**` → v1.0.0, submit. **~½ dia.**
+   - ⚠️ Revisar no sweep: o §6.3.2 introduz a tese "nox lidera sob embedding controlado" — garantir que abstract/intro/conclusão estejam coerentes com as DUAS leituras (split as-configured + controlled), sem over-claim. Os 2 confounds residuais (versão mem0, task_type) precisam aparecer onde o resultado for citado.
+   - Opcional/seguro pré-submit: refazer a contagem de palavras do abstract (cresceu com os números Q4; limite 300).
 
-**Amanhã, começar por:** rc3 (Claude backbone — $0, maior retorno) ou rc2 (§6.4). **Recheck antes:** confirmar se os raws da canonical run 06-15 sobreviveram (pod dedicado já terminado) — se não, rc2/rc4 re-rodam do zero.
+**Decisão de framing (Toto, 06-29):** somar o rc4 sem apagar o split honesto — §6.3 (as-configured) + §6.3.2 (controlled) coexistem. Mais robusto que substituir a tese.
 
 **Paralela (não-paper):** GTM Phase 2 — gate D43 já satisfeito; comercial, migra pra `nox-supermem`. Não bloqueia nem incrementa o paper.
 

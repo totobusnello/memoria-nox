@@ -134,7 +134,10 @@ def _load_dryrun_sample(path: Path, dataset: str, limit: int | None) -> list[Que
 
 def _to_record(row: dict[str, Any], dataset: str) -> QueryRecord:
     return QueryRecord(
-        dataset=dataset,
+        # Prefer the per-row dataset when the JSONL carries it (combined
+        # multi-dataset queries-file, e.g. rc4). Falls back to the arg for
+        # legacy single-dataset files (dry-run-sample) — backward compatible.
+        dataset=row.get("dataset") or dataset,
         question_id=str(row.get("question_id") or row.get("id") or ""),
         query=row.get("question") or row.get("query") or "",
         gold_chunk_ids=list(
