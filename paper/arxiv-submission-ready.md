@@ -8,7 +8,7 @@
 
 ## Pre-flight Checklist (Mon 2026-06-01)
 
-- [x] **Q4 abstract numbers finalized** — rc4 controlled-embedding result (2026-06-29): nox-mem leads both datasets, all 5 categories; see §6.3.2 + `eval/q4-comparison/output/rc4/`
+- [x] **Q4 abstract numbers finalized** — rc4 controlled-embedding result (2026-06-29): nox-mem outperforms Mem0 on both datasets, all 5 categories; see §6.3.2 + `eval/q4-comparison/output/rc4/`
 - [ ] **arXiv account active** — create at https://arxiv.org/user/register if not yet done
 - [ ] **Email verified** — arXiv requires email verification before first submission
 - [ ] **Endorsement check** — visit `https://arxiv.org/auth/show-endorsers?archive=cs&subject_class=IR`. If endorsement required: send email to candidate endorsers (see §5 below)
@@ -34,7 +34,7 @@ Luiz Antonio Busnello
 
 ### Abstract (paste verbatim — 241 words, well under 1920 char limit)
 
-> **Q4 numbers finalized (2026-06-29):** the abstract below reports the rc4 controlled-embedding result (§6.3.2) — split as-configured inverted under equal embedding, nox-mem leads both datasets. No placeholder remains.
+> **Q4 numbers finalized (2026-06-29):** the abstract below reports the rc4 controlled-embedding result (§6.3.2) — split as-configured inverted under equal embedding, nox-mem outperforms Mem0 on both datasets. No placeholder remains.
 
 ```
 Memory systems for LLM agents typically optimize for developer ergonomics, sacrificing retrieval quality or imposing vendor lock-in. Standardized cross-system benchmarks are scarce, making per-system accuracy claims difficult to reproduce or compare.
