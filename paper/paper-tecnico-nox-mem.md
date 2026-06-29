@@ -2,7 +2,7 @@
 
 **nox-mem v3.8 — §5 fifth revision May–June 2026 (Wave A + EverMemBench 5-batch Phase D/G/H v2 + Lab Q1 standalones + Wave B/C composability + Backbone Matrix Gemini-3-flash + LoCoMo dual + MuSiQue + HotPotQA dual SOTA + LongMemEval cross-bench + Production SOTA)**
 
-**Paper version:** v1.0.0-rc1 (2026-06-28) — changelog em `paper/CHANGELOG.md`
+**Paper version:** v1.0.0-rc4 (2026-06-29) — changelog em `paper/CHANGELOG.md`
 
 **Author:** Luiz Antonio Busnello (Toto)
 **Platform:** OpenClaw Autonomous Agent Platform
@@ -1025,7 +1025,7 @@ Concurrent agent operations during Lab Q1 benchmarking caused a batch contaminat
 
 ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
-> **Status (updated 2026-06-15 — canonical run executed):** The canonical cross-system run was executed on a dedicated pod on 2026-06-15 (n=100/dataset, k=10, same-namespace fair), resolving the 2026-05-24 infrastructure abort (§7.1 L5). **3/6 systems with real data** (nox-mem, Mem0, agentmemory) + **3 documented gaps** (Zep = Docker impossible on unprivileged-pod kernel; Letta = agent-OS ~16 min/query; EverMind-AI = third-party keys + external-repo auth — all §6.3.1). **Result: split** — nox-mem wins LongMemEval (nDCG@10 0.5234 vs Mem0 0.4764), Mem0 wins LoCoMo (0.4686 vs nox-mem 0.4263); agentmemory distant third (0.2803 / 0.1587). Quality tables §6.3; gaps §6.3.1; operational-cost axis §6.8; reproducibility-as-evidence §6.9. Principles (§6.5), anti-cherry-pick (§6.6), and pre-registration (§6.7) immutable. Ref: `[[project_head_to_head_nox_mem0_split_2026_06_14]]`.
+> **Status (updated 2026-06-29 — canonical + controlled-embedding done):** The canonical cross-system run executed on a dedicated pod 2026-06-15 (n=100/dataset, k=10, same-namespace fair), resolving the 2026-05-24 infrastructure abort (§7.1 L5). **3/6 systems with real data** (nox-mem, Mem0, agentmemory) + **3 documented gaps** (Zep = Docker impossible on unprivileged-pod kernel; Letta = agent-OS ~16 min/query; EverMind-AI = third-party keys + external-repo auth — all §6.3.1). **As-configured result: split** — nox-mem wins LongMemEval (nDCG@10 0.5234 vs Mem0 0.4764), Mem0 wins LoCoMo (0.4686 vs nox-mem 0.4263); agentmemory distant third (0.2803 / 0.1587). **Controlled-embedding variant (rc4, §6.3.2, 2026-06-29):** with both systems on Gemini 3072d over the full n=2,482 set, the split **inverts** — nox-mem leads both datasets (LongMemEval 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407) and all five represented categories (§6.4); two residual confounds (Mem0 version drift, task-type asymmetry) declared. Quality tables §6.3; gaps §6.3.1; operational-cost axis §6.8; reproducibility-as-evidence §6.9. Principles (§6.5), anti-cherry-pick (§6.6), and pre-registration (§6.7) immutable. Ref: `[[project_head_to_head_nox_mem0_split_2026_06_14]]`, `[[project_rc4_controlled_embedding_inverts_split]]`.
 
 ### 6.1 Methodology summary
 
@@ -1067,7 +1067,7 @@ mem0, operating on only 500 chunks (~8% of the corpus), shows **higher nDCG@10**
 
 Executive summary: **nox-mem wins on coverage (hits), speed (latency), and first-hit quality (MRR). mem0 wins on per-result relevance concentration (nDCG@10) within a smaller corpus window.** The 500-chunk cap on mem0 is explicit cost-control — estimated $0.10 vs zero-cost local; equal-corpus data partially closes the nDCG gap.
 
-The smoke did not disaggregate `nDCG@10` by dataset (combined-only) — canonical per-dataset breakdown comes in the full run. The numbers below are from the canonical run, which is deferred.
+The smoke did not disaggregate `nDCG@10` by dataset (combined-only); the per-dataset breakdown below is from the **canonical run, executed 2026-06-15** (no longer deferred), and the controlled-embedding rc4 variant (§6.3.2) extends it to the full n=2,482 set.
 
 **Canonical run — 2026-06-15 (dedicated RunPod pod, n=100/dataset, same-namespace fair).** After the 2026-05-24 infrastructure abort (§7.1 L5), the canonical cross-system run was executed on a dedicated pod on 2026-06-15. **Three of the five competitors produced real numbers** (nox-mem, Mem0, agentmemory); **three are documented gaps** with explicit reasons (Zep, Letta, EverMind-AI — §6.3.1). Protocol: n=100 queries per dataset, k=10; retrieval quality (nDCG@10 / recall@10 / MRR) under each system's native default embedding provider; **same-namespace fair re-query** — the union store is queried at k=30 and filtered to the active dataset namespace before re-scoring the top-10, removing the cross-dataset distractor confound that inflated an early union-store reading (14.6% of nox-mem's raw top-10 were off-dataset chunks). Per-system latency percentiles were not captured uniformly in this run; nox-mem operational latency is reported independently in §5.7 (KG path 2.9 ms p50, hybrid 653 ms p50, re-measured 2026-06-15).
 
