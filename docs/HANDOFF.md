@@ -4,12 +4,12 @@
 
 ---
 
-## 🟢 Estado atual (2026-06-29)
+## 🟢 Estado atual (2026-06-30)
 
-**Paper arXiv-ready no núcleo.** Zero `[PENDING]` no paper inteiro. **rc4 + rc2 fechados hoje.**
+**Paper arXiv-ready no núcleo.** Zero `[PENDING]` no paper inteiro. **rc4 + rc2 fechados + ablação task-type fechada.**
 
 - **§5 — 12 dimensões SOTA** (EverMemBench 5-batch, MuSiQue, HotPotQA, LoCoMo, LongMemEval cross-bench, produção). Sustenta o paper sozinha.
-- **§6 — Q4 head-to-head FEITO + controlled-embedding (rc4) FEITO.** §6.3 (canonical n=100, 06-15): split honesto as-configured — nox ganha LME (0.5234 vs 0.4764), Mem0 ganha LoCoMo (0.4686 vs 0.4263). **§6.3.2 nova (rc4, 06-29, ambos Gemini 3072d, full n=2.482): o split inverte — nox lidera AMBOS** (LME 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407; overall 0.5013 vs 0.4337) **e as 5 categorias** (§6.4 preenchido = rc2 done). Confounds residuais declarados (mem0 0.1.x→2.0.10; task_type assimétrico). Zep/Letta/EverMind = 3 gaps documentados.
+- **§6 — Q4 head-to-head FEITO + controlled-embedding (rc4) FEITO.** §6.3 (canonical n=100, 06-15): split honesto as-configured — nox ganha LME (0.5234 vs 0.4764), Mem0 ganha LoCoMo (0.4686 vs 0.4263). **§6.3.2 nova (rc4, 06-29, ambos Gemini 3072d, full n=2.482): o split inverte — nox supera o mem0 em AMBOS** (LME 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407; overall 0.5013 vs 0.4337) **e as 5 categorias** (§6.4 preenchido = rc2 done). 3 confounds residuais declarados (mem0 0.1.x→2.0.10; backend faiss→Chroma; sample scope). **Task-type ablacionado (06-30):** nox com embedding genérico (sem task-type, igual ao mem0) cai só −0.34 pp (0.4979) e ainda ganha em tudo → confound (d) neutralizado, vitória é arquitetural. Zep/Letta/EverMind = 3 gaps documentados.
 - **D2 (brief diversity) FECHADO** — coverage-sampling `active`, gate 24h 100% (190 chunks / 184-de-184 files), §3.5 cravado.
 - **HyDE testado e REJEITADO** (−2.72pp overall, 06-27) — não entra como feature; `eval/*/RESULTS-HYDE.md` cravados.
 - **prod v3.8** — 94.9k chunks, ~99.99% vector coverage, salience `active`.
@@ -24,10 +24,10 @@
 rc2/rc3/rc4 resolvidos. **Resta o sweep final pra publicar:**
 
 1. **Sweep de claims → v1.0.0 → arXiv.** Auditar abstract-claims vs conteúdo (agora que o §6.3.2 + §6.4 entraram), checar consistência de números entre §5/§6/abstract, rebuild `.pdf`/`.docx` via `scripts/build-paper.sh`, bump header `**Paper version:**` → v1.0.0, submit. **~½ dia.**
-   - ⚠️ Revisar no sweep: o §6.3.2 introduz a tese "nox lidera sob embedding controlado" — garantir que abstract/intro/conclusão estejam coerentes com as DUAS leituras (split as-configured + controlled), sem over-claim. Os 2 confounds residuais (versão mem0, task_type) precisam aparecer onde o resultado for citado.
-   - Opcional/seguro pré-submit: refazer a contagem de palavras do abstract (cresceu com os números Q4; limite 300).
+   - ⚠️ Revisar no sweep: o §6.3.2 introduz a tese "nox supera o mem0 sob embedding controlado" — garantir que abstract/intro/conclusão estejam coerentes com as DUAS leituras (split as-configured + controlled), sem over-claim. Os 3 confounds residuais (versão mem0, backend, sample scope) precisam aparecer onde o resultado for citado; o task-type já foi ablacionado e neutralizado (06-30).
+   - Contagem do abstract refeita pós-ablação: **296 palavras** (`abstract.md` §2, limite 300). OK.
 
-**Decisão de framing (Toto, 06-29):** somar o rc4 sem apagar o split honesto — §6.3 (as-configured) + §6.3.2 (controlled) coexistem. Mais robusto que substituir a tese.
+**Decisão de framing (Toto, 06-29):** somar o rc4 sem apagar o split honesto — §6.3 (as-configured) + §6.3.2 (controlled) coexistem. Mais robusto que substituir a tese. Ablação task-type (06-30) blinda o §6.3.2 contra a objeção "a vantagem é só do task-type bonus".
 
 **Paralela (não-paper):** GTM Phase 2 — gate D43 já satisfeito; comercial, migra pra `nox-supermem`. Não bloqueia nem incrementa o paper.
 
