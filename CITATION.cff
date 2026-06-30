@@ -19,8 +19,8 @@ type: software
 repository-code: "https://github.com/totobusnello/memoria-nox"
 url: "https://github.com/totobusnello/memoria-nox"
 license: MIT
-date-released: "2026-06-30"  # v1.0.0-rc4 paper state (rc4 controlled-embedding + task-type ablation)
-version: "1.0.0-rc4"
+date-released: "2026-06-30"  # v1.0.0 — frozen for arXiv submission (update arXiv ID after submit)
+version: "1.0.0"
 keywords:
   - memory
   - hybrid retrieval
