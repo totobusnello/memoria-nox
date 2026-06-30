@@ -2,9 +2,9 @@ name: Docker — Build + Push + Smoke Test
 
 on:
   # Disabled on push to main — Dockerfile expects root package.json which
-  # doesn't exist yet (each staged-*/ has its own). Re-enable when repo has
+  # doesn't exist yet (each staged/ component has its own). Re-enable when repo has
   # a root package.json wrapping the staged dirs, OR when Dockerfile is
-  # refactored to multi-stage from a specific staged-* directory.
+  # refactored to multi-stage from a specific staged/ subdirectory.
   # Re-enable: change condition below + remove this comment.
   push:
     tags:

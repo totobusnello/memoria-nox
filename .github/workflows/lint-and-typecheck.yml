@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   typecheck:
-    name: "TypeScript — typecheck staged-* + eval + validation"
+    name: "TypeScript — typecheck staged/ + eval + validation"
     runs-on: ubuntu-latest
     timeout-minutes: 8
 

@@ -72,7 +72,7 @@ async function runRsyncDryRun(rawLine: string): Promise<RsyncResult> {
   fs.writeFileSync(path.join(tmpSrc, "placeholder.ts"), "// placeholder\n");
 
   try {
-    // Rewrite the command: replace remote and local staged- paths
+    // Rewrite the command: replace remote and local staged/ paths
     const { rewritten, detectedWarnings } = rewriteRsyncLine(line, tmpSrc, tmpDest);
     warnings.push(...detectedWarnings);
 
@@ -139,12 +139,12 @@ function rewriteRsyncLine(
   // Replace $VPS_HOST:/path patterns
   rewritten = rewritten.replace(/\$\{?VPS_HOST\}?:[\w/\\.${}-]*/g, tmpDest + "/");
 
-  // Replace worktree-absolute paths to local staged-* dirs with tmpSrc
+  // Replace worktree-absolute paths to local staged/ dirs with tmpSrc
   // e.g., /Users/lab/Claude/.../staged/P5/edits/src/
-  rewritten = rewritten.replace(/\/[^\s]+\/staged-[\w-]+\/[^\s]*/g, tmpSrc + "/");
+  rewritten = rewritten.replace(/\/[^\s]+\/staged\/[\w.-]+\/[^\s]*/g, tmpSrc + "/");
 
-  // Replace relative staged-* paths (source side) with tmpSrc
-  rewritten = rewritten.replace(/\bstaged-[\w.-]+\/[^\s]*/g, tmpSrc + "/");
+  // Replace relative staged/ paths (source side) with tmpSrc
+  rewritten = rewritten.replace(/\bstaged\/[\w.-]+\/[^\s]*/g, tmpSrc + "/");
 
   // Detect double slashes (path construction bug)
   if (/[^:]{2}\/\//.test(rewritten)) {

@@ -4,8 +4,8 @@
 # Archive / legacy
 archive/pre-split-20260501/
 archive/pre-split-20260501/**
-_archive-pre-split-*/
-_archive-pre-split-*/**
+archive/pre-split-*/
+archive/pre-split-*/**
 archive/
 archive/**
 docs/_archive/

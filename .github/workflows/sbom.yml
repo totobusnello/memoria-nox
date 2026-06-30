@@ -37,7 +37,7 @@ jobs:
         with:
           node-version: '22'
           # cache: 'npm' intentionally NOT set — repo has no root package-lock.json
-          # (each staged-*/ has its own). Per-step `npm ci` below handles installs.
+          # (each staged/ component has its own). Per-step `npm ci` below handles installs.
 
       - name: Install CycloneDX npm tool
         run: npm install -g @cyclonedx/cyclonedx-npm@1

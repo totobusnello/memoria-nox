@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'docs/DEPLOY-WAVE-B.md'
-      - 'staged-*/**'
+      - 'staged/**'
       - 'staged/migrations/**'
       - 'scripts/deploy-validator/**'
 
