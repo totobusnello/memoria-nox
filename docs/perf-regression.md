@@ -4,7 +4,7 @@
 
 ## O que é
 
-O nox-mem mantém um baseline de métricas de performance em `benchmark/baseline-2026-05-18.json`. Toda PR que toca os diretórios `staged-P1`, `staged-A2`, `staged-A3` ou `staged-L4` aciona automaticamente o detector de regressão, que:
+O nox-mem mantém um baseline de métricas de performance em `benchmark/baseline-2026-05-18.json`. Toda PR que toca os diretórios `staged/P1`, `staged/A2`, `staged/A3` ou `staged/L4` aciona automaticamente o detector de regressão, que:
 
 1. Executa os benchmarks relevantes (somente os que têm `reproduce` command válido)
 2. Compara os resultados contra o baseline
@@ -38,13 +38,13 @@ O `regression-detector.ts` usa a convenção `((measured - baseline) / baseline)
 
 ### Métricas mensuráveis vs. baseline-only
 
-Nem todas as métricas do baseline são executadas em CI. As mensuráveis requerem `staged-P1`, `staged-A2` ou `staged-A3` presentes:
+Nem todas as métricas do baseline são executadas em CI. As mensuráveis requerem `staged/P1`, `staged/A2` ou `staged/A3` presentes:
 
 | Prefixo | Fonte | Status em CI |
 |---------|-------|-------------|
-| `P1.*` | `staged-P1/benchmark/answer-latency.ts` | Executado se `staged-P1/` presente |
-| `A2.*` | `staged-A2/benchmark/export-import-bench.ts` | Executado se `staged-A2/` presente |
-| `A3.*` | `staged-A3/benchmark/provider-overhead.ts` | Executado se `staged-A3/` presente |
+| `P1.*` | `staged/P1/benchmark/answer-latency.ts` | Executado se `staged/P1/` presente |
+| `A2.*` | `staged/A2/benchmark/export-import-bench.ts` | Executado se `staged/A2/` presente |
+| `A3.*` | `staged/A3/benchmark/provider-overhead.ts` | Executado se `staged/A3/` presente |
 | `L4.*` | Estimativas de design-time | `BASELINE_ONLY` — não executado |
 | `SEARCH.*`, `MONITORING.*`, `PROMETHEUS.*` | Métricas estáticas | `BASELINE_ONLY` — não executado |
 
@@ -62,9 +62,9 @@ Nem todas as métricas do baseline são executadas em CI. As mensuráveis requer
 
 ```bash
 # 1. Garanta que os staged dirs estão buildados:
-cd staged-P1 && npm install && npm run build && cd ..
-cd staged-A2 && npm install && npm run build && cd ..
-cd staged-A3 && npm install && npm run build && cd ..
+cd staged/P1 && npm install && npm run build && cd ..
+cd staged/A2 && npm install && npm run build && cd ..
+cd staged/A3 && npm install && npm run build && cd ..
 
 # 2. Execute o detector localmente e capture os números:
 npx tsx benchmark/regression-detector.ts > /tmp/current-report.json 2>&1

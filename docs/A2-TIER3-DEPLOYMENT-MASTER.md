@@ -161,7 +161,7 @@ chown root:root /root/.openclaw/secrets/
 ```bash
 cd /root/.openclaw/workspace/tools/nox-mem
 # After P4 code is deployed (post-Phase B). For this phase, do it locally on Toto's laptop:
-node staged-A2-T3/dist/edits/scripts/audit-checkpoint-cli.js gen-key \
+node staged/A2-T3/dist/edits/scripts/audit-checkpoint-cli.js gen-key \
      --out-dir /tmp/nox-audit-keys-$(date +%Y%m%d)
 ```
 
@@ -258,23 +258,23 @@ PASS = exactly `32`. Any other value = bad key file; restart Phase A.
 # From laptop, with the merged branch checked out:
 cd /Users/lab/Claude/Projetos/memoria-nox
 rsync -avz --progress \
-  staged-A2-T3/edits/src/lib/db.ts \
+  staged/A2-T3/edits/src/lib/db.ts \
   root@<vps>:/root/.openclaw/workspace/tools/nox-mem/src/lib/db.ts.staged
 
 rsync -avz --progress \
-  staged-A2-T3/edits/src/lib/reads-audit.ts \
-  staged-A2-T3/edits/src/lib/reads-audit-schema.sql \
-  staged-A2-T3/edits/src/lib/audit-checkpoints.ts \
-  staged-A2-T3/edits/src/lib/audit-checkpoints-schema.sql \
+  staged/A2-T3/edits/src/lib/reads-audit.ts \
+  staged/A2-T3/edits/src/lib/reads-audit-schema.sql \
+  staged/A2-T3/edits/src/lib/audit-checkpoints.ts \
+  staged/A2-T3/edits/src/lib/audit-checkpoints-schema.sql \
   root@<vps>:/root/.openclaw/workspace/tools/nox-mem/src/lib/
 
 rsync -avz --progress \
-  staged-A2-T3/scripts/migrate-encrypt-db.ts \
+  staged/A2-T3/scripts/migrate-encrypt-db.ts \
   root@<vps>:/root/.openclaw/workspace/tools/nox-mem/scripts/
 
 rsync -avz --progress \
-  staged-A2-T3/edits/scripts/audit-checkpoint-cli.ts \
-  staged-A2-T3/edits/scripts/reads-audit-sweep.ts \
+  staged/A2-T3/edits/scripts/audit-checkpoint-cli.ts \
+  staged/A2-T3/edits/scripts/reads-audit-sweep.ts \
   root@<vps>:/root/.openclaw/workspace/tools/nox-mem/scripts/
 ```
 
@@ -591,7 +591,7 @@ The P5 staged smoke tests are hermetic (synthetic fixtures), but they can ALSO b
 ```bash
 # On a separate SSH session, against a snapshot — NEVER prod write-mode:
 cp ./nox-mem.db /tmp/nox-mem-snapshot-h8.db
-cd /root/.openclaw/workspace/tools/nox-mem/staged-A2-T3
+cd /root/.openclaw/workspace/tools/nox-mem/staged/A2-T3
 NOX_DB_PATH=/tmp/nox-mem-snapshot-h8.db \
   NOX_DB_KEY=$(cat /root/.openclaw/secrets/nox-mem-cipher.key) \
   npm run test:p5
@@ -662,7 +662,7 @@ ssh root@<vps> 'cp /root/.openclaw/workspace/tools/nox-mem/nox-mem.db /tmp/nox-m
 scp root@<vps>:/tmp/nox-mem-checkpoint-bridge.db /tmp/
 
 # J.2 — create checkpoint for ops scope (signed offline)
-cd /Users/lab/Claude/Projetos/memoria-nox/staged-A2-T3
+cd /Users/lab/Claude/Projetos/memoria-nox/staged/A2-T3
 NOX_DB_PATH=/tmp/nox-mem-checkpoint-bridge.db \
   NOX_DB_KEY=$(cat ~/Documents/nox-secrets/nox-mem-cipher.key) \
   node dist/edits/scripts/audit-checkpoint-cli.js create \
@@ -872,14 +872,14 @@ See `scripts/deploy-a2-tier3.sh --help` for full flag reference.
 ## References
 
 - P0 spike: `experiments/a2-tier3-sqlcipher-spike/RESULTS.md`
-- P1 code: `staged-A2-T3/edits/src/lib/db.ts` (PR #280)
-- P2 migration: `staged-A2-T3/scripts/migrate-encrypt-db.ts` (PR #286)
+- P1 code: `staged/A2-T3/edits/src/lib/db.ts` (PR #280)
+- P2 migration: `staged/A2-T3/scripts/migrate-encrypt-db.ts` (PR #286)
 - P2 runbook: `docs/A2-TIER3-MIGRATION-RUNBOOK.md` (extended by this doc)
-- P3 reads-audit: `staged-A2-T3/edits/src/lib/reads-audit.ts` (PR #292)
+- P3 reads-audit: `staged/A2-T3/edits/src/lib/reads-audit.ts` (PR #292)
 - P3 guide: `docs/A2-TIER3-READS-AUDIT-GUIDE.md`
-- P4 checkpoints: `staged-A2-T3/edits/src/lib/audit-checkpoints.ts` (PR #294)
+- P4 checkpoints: `staged/A2-T3/edits/src/lib/audit-checkpoints.ts` (PR #294)
 - P4 guide: `docs/A2-TIER3-CHECKPOINTS-GUIDE.md`
-- P5 smoke: `staged-A2-T3/scripts/__tests__/post-deployment-smoke.test.ts` (this PR)
+- P5 smoke: `staged/A2-T3/scripts/__tests__/post-deployment-smoke.test.ts` (this PR)
 - Operator card: `docs/A2-TIER3-OPERATOR-CARD.md` (this PR)
 - Automation: `scripts/deploy-a2-tier3.sh` (this PR)
 - Memory pins: `[[multi-agent-branch-checkout-race]]`, `[[sqlite-text-affinity-coerces-int-back]]`, `[[validate-features-with-db-not-logs]]`, `[[no-secrets-in-git]]`

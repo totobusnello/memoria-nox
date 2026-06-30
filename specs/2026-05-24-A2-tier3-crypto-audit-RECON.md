@@ -12,7 +12,7 @@
 - A2 T2 (audit `audits/2026-05-21-A2-T2-implementation.md`) — per-table encryption V2
 - A2 kickoff (`specs/2026-05-18-A2-implementation-kickoff.md`) — T1-T18 full archive
 - `src/lib/op-audit.ts` (live, evolved 2026-04-25 → 2026-05-21) — append-only destructive-op audit
-- `staged-A2/edits/src/lib/archive/` — orchestrator + encryption + serializers (overnight wave)
+- `staged/A2/edits/src/lib/archive/` — orchestrator + encryption + serializers (overnight wave)
 
 ---
 
@@ -22,9 +22,9 @@
 
 | Capability | Local | Status |
 |---|---|---|
-| AES-256-GCM + scrypt N=2^14 single bundle (in-transit) | `staged-1.7a/edits/lib/export-import.ts` | Tier 1, 11 testes verdes, NÃO deployed |
-| Per-table AES-256-GCM V2 (subset export/restore) | `staged-1.7a/edits/lib/export-import.ts` (T2 append) | Tier 2, 24 testes verdes (11+13), NÃO deployed |
-| scrypt N=2^17, tar.gz, embeddings.bin, ops_audit serializer, schema migration, HTTP/MCP, partial filters | `staged-A2/edits/src/lib/archive/` (T1-T18 kickoff full) | Implementação completa staged, NÃO deployed |
+| AES-256-GCM + scrypt N=2^14 single bundle (in-transit) | `staged/1.7a/edits/lib/export-import.ts` | Tier 1, 11 testes verdes, NÃO deployed |
+| Per-table AES-256-GCM V2 (subset export/restore) | `staged/1.7a/edits/lib/export-import.ts` (T2 append) | Tier 2, 24 testes verdes (11+13), NÃO deployed |
+| scrypt N=2^17, tar.gz, embeddings.bin, ops_audit serializer, schema migration, HTTP/MCP, partial filters | `staged/A2/edits/src/lib/archive/` (T1-T18 kickoff full) | Implementação completa staged, NÃO deployed |
 | Append-only destructive-op audit (`ops_audit` table) | `src/lib/op-audit.ts` LIVE em prod | `withOpAudit()` wraps reindex/consolidate/compact; INTEGER triggers + secret scrubbing + reaper |
 
 ### 0.2 O que Tier 3 NÃO é (anti-scope explícito)
@@ -555,7 +555,7 @@ Lista explícita de NOT-IN-SCOPE pra evitar scope creep mid-implementation:
 - A2 kickoff: `specs/2026-05-18-A2-implementation-kickoff.md`
 - A2 T1 audit: `audits/2026-05-21-A2-T1-implementation.md`
 - A2 T2 audit: `audits/2026-05-21-A2-T2-implementation.md`
-- op-audit module: `src/lib/op-audit.ts` (LIVE) + `staged-1.7a/edits/op-audit.ts` (staged evolution)
+- op-audit module: `src/lib/op-audit.ts` (LIVE) + `staged/1.7a/edits/op-audit.ts` (staged evolution)
 - Threat model overall: `specs/2026-05-17-A2-export-import.md` §threat model (T1-T18 baseline)
 - ROADMAP Pillar A status: `docs/ROADMAP.md` §4 (A2 marked "Implementação completa T1-T18 staged")
 - HANDOFF Tier 3 pending: `docs/HANDOFF.md` line 242 + 308 ("A2 Tier 3 crypto + audit ~4-6h, security review obrigatório")

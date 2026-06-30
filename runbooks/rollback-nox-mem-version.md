@@ -6,7 +6,7 @@
 
 ## Pré-requisitos
 
-- SSH root na VPS via Tailscale (`ssh root@100.87.8.44`)
+- SSH root na VPS via Tailscale (`ssh root@<NOX_TAILSCALE_IP>`)
 - Backup `.bak-pre-<feature>-<date>` existe em `src/` (sempre fazer ANTES de editar — convenção)
 - Conhecer qual feature/commit introduziu o problema
 
@@ -14,7 +14,7 @@
 
 ### 1. Identificar arquivo + backup
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 ls -la /root/.openclaw/workspace/tools/nox-mem/src/lib/op-audit.ts*
 # espera ver: op-audit.ts + 1+ .bak-pre-<feature>-<date>
 '
@@ -22,7 +22,7 @@ ls -la /root/.openclaw/workspace/tools/nox-mem/src/lib/op-audit.ts*
 
 ### 2. Restaurar versão anterior
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 cd /root/.openclaw/workspace/tools/nox-mem/src
 # Identificar .bak alvo (mais recente que precede o bug)
 ls lib/op-audit.ts.bak* | sort -r | head -3
@@ -34,19 +34,19 @@ cp lib/op-audit.ts.bak-pre-<FEATURE>-<DATE> lib/op-audit.ts
 
 ### 3. Rebuild TS + restart serviços
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 cd /root/.openclaw/workspace/tools/nox-mem
 npm run build 2>&1 | tail -5
 # se ok: tsc deve sair sem warning
 '
 
 # Restart serviços que carregam o código rollback'd
-ssh root@100.87.8.44 'systemctl restart nox-mem-api nox-mem-watcher'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api nox-mem-watcher'
 ```
 
 ### 4. Validação imediata
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 sleep 3
 curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, opsAudit:.opsAudit}"
 systemctl is-active nox-mem-api nox-mem-watcher
@@ -57,7 +57,7 @@ Esperado: `total>0`, `embedded==total`, services `active`.
 
 ### 5. Test suite
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 cd /root/.openclaw/workspace/tools/nox-mem
 node --test dist/__tests__/ 2>&1 | tail -5
 '

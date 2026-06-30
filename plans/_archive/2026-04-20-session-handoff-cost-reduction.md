@@ -101,21 +101,21 @@ Primeiro run automático no domingo. Esperar mensagem no WhatsApp.
 
 ```bash
 # 1. Últimos agent runs e modelos
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "12 hours ago" --no-pager | grep -E "agent.*end:" | tail -30'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "12 hours ago" --no-pager | grep -E "agent.*end:" | tail -30'
 
 # 2. Heartbeats Discord — chegaram?
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "12 hours ago" --no-pager | grep -iE "heartbeat.*(sent|failed|delivered)"'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "12 hours ago" --no-pager | grep -iE "heartbeat.*(sent|failed|delivered)"'
 
 # 3. Model usage (distribution)
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "12 hours ago" --no-pager | grep -oE "model=[a-z0-9.-]+ provider=[a-z]+" | sort | uniq -c'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "12 hours ago" --no-pager | grep -oE "model=[a-z0-9.-]+ provider=[a-z]+" | sort | uniq -c'
 
 # 4. Crons delivery status (Boris, weekly-team, etc)
-ssh root@100.87.8.44 'openclaw cron runs --id b1592ecb-e512-428e-81df-93d68147d5ca 2>&1 | jq ".entries[0] | {ts, status, deliveryStatus, delivered}"'
+ssh root@<NOX_TAILSCALE_IP> 'openclaw cron runs --id b1592ecb-e512-428e-81df-93d68147d5ca 2>&1 | jq ".entries[0] | {ts, status, deliveryStatus, delivered}"'
 
-ssh root@100.87.8.44 'openclaw cron runs --id ec44dd9b-af29-4468-8bf8-08d34917fcc9 2>&1 | jq ".entries[0] | {ts, status, deliveryStatus, delivered}"'
+ssh root@<NOX_TAILSCALE_IP> 'openclaw cron runs --id ec44dd9b-af29-4468-8bf8-08d34917fcc9 2>&1 | jq ".entries[0] | {ts, status, deliveryStatus, delivered}"'
 
 # 5. Erros 429 ou model_not_found (não devem aparecer)
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "12 hours ago" --no-pager | grep -cE "429|model_not_found"'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "12 hours ago" --no-pager | grep -cE "429|model_not_found"'
 
 # 6. Gemini quota (via AI Studio) — confirmar 2.5-flash-lite saudável
 # (manual no browser)
@@ -168,12 +168,12 @@ Hoje tá barato (rodando em 2.5-flash-lite). Mas ainda assim, 32 runs/dia é mui
 
 **Rollback config openclaw.json:**
 ```bash
-ssh root@100.87.8.44 'cp /root/.openclaw/openclaw.json.bak-fallback-chain-20260420-215317 /root/.openclaw/openclaw.json && systemctl stop openclaw-gateway && fuser -k 18789/tcp; systemctl reset-failed openclaw-gateway && systemctl start openclaw-gateway'
+ssh root@<NOX_TAILSCALE_IP> 'cp /root/.openclaw/openclaw.json.bak-fallback-chain-20260420-215317 /root/.openclaw/openclaw.json && systemctl stop openclaw-gateway && fuser -k 18789/tcp; systemctl reset-failed openclaw-gateway && systemctl start openclaw-gateway'
 ```
 
 **Rollback crons jobs.json:**
 ```bash
-ssh root@100.87.8.44 'cp /root/.openclaw/cron/jobs.json.bak-memory-review-consolidated-* /root/.openclaw/cron/jobs.json'
+ssh root@<NOX_TAILSCALE_IP> 'cp /root/.openclaw/cron/jobs.json.bak-memory-review-consolidated-* /root/.openclaw/cron/jobs.json'
 ```
 
 ---

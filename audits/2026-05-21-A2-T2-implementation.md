@@ -142,13 +142,13 @@ The CLI now defaults to V2 for **export** (`--tier 2`) but uses `importEncrypted
 
 | Path | Status | LOC | Purpose |
 |---|---|---|---|
-| `staged-1.7a/edits/lib/export-import.ts` | MODIFIED | +462 | T2 section appended below T1 section. Adds `exportEncryptedV2`, `importEncryptedV2`, `importEncryptedAuto`, `applyImportV2`, `detectMergeConflictsTable`, `buildAadHeaderV2`, V2 types, two new error codes. |
-| `staged-1.7a/edits/cli/export-import-cli.ts` | MODIFIED | +75 / -25 | Adds `--tier 1|2` and `--tables a,b,c` flags. Import path now uses `importEncryptedAuto`. CLI output preserves all v1 flat fields for backward compat. |
-| `staged-1.7a/tests/export-import-v2-tier2.test.ts` | NEW | 446 | 13 test cases: V2 roundtrip + per-table tamper + subset export + subset import + V1 backward compat + dry-run + replace/merge per-table + AAD tamper per table + CLI happy-path + CLI V1 force + 2 error-path cases. |
-| `staged-1.7a/tsconfig.export-import.json` | MODIFIED | +1 | Adds new test file to `include`. |
+| `staged/1.7a/edits/lib/export-import.ts` | MODIFIED | +462 | T2 section appended below T1 section. Adds `exportEncryptedV2`, `importEncryptedV2`, `importEncryptedAuto`, `applyImportV2`, `detectMergeConflictsTable`, `buildAadHeaderV2`, V2 types, two new error codes. |
+| `staged/1.7a/edits/cli/export-import-cli.ts` | MODIFIED | +75 / -25 | Adds `--tier 1|2` and `--tables a,b,c` flags. Import path now uses `importEncryptedAuto`. CLI output preserves all v1 flat fields for backward compat. |
+| `staged/1.7a/tests/export-import-v2-tier2.test.ts` | NEW | 446 | 13 test cases: V2 roundtrip + per-table tamper + subset export + subset import + V1 backward compat + dry-run + replace/merge per-table + AAD tamper per table + CLI happy-path + CLI V1 force + 2 error-path cases. |
+| `staged/1.7a/tsconfig.export-import.json` | MODIFIED | +1 | Adds new test file to `include`. |
 | `audits/2026-05-21-A2-T2-implementation.md` | NEW | this file | T2 audit. |
 
-**Touched (no production `src/`):** only `staged-1.7a/`. Deploy path is the staged-dirs pattern (memory `[[staged-dirs-pattern]]`), not direct merge into `src/`.
+**Touched (no production `src/`):** only `staged/1.7a/`. Deploy path is the staged-dirs pattern (memory `[[staged-dirs-pattern]]`), not direct merge into `src/`.
 
 **Memory references respected:**
 - `[[aad-bug-caught-by-integration-test]]` — all roundtrip cases use two separate `Database` instances at distinct paths.
@@ -179,7 +179,7 @@ The CLI now defaults to V2 for **export** (`--tier 2`) but uses `importEncrypted
 
 **Run:**
 ```bash
-cd staged-1.7a && \
+cd staged/1.7a && \
   npx tsc -p tsconfig.export-import.json && \
   node --test \
     dist/tests/export-import-roundtrip.test.js \
@@ -192,12 +192,12 @@ cd staged-1.7a && \
 
 ## 7. Deployment Plan
 
-**This PR does NOT deploy to VPS.** It lives in `staged-1.7a/edits/{lib,cli}/` per the staged-dirs deployment pattern.
+**This PR does NOT deploy to VPS.** It lives in `staged/1.7a/edits/{lib,cli}/` per the staged-dirs deployment pattern.
 
 Future landing steps (deferred to a separate deploy PR — see `DEPLOY-A2.md` to be authored when T3 lands):
 
 1. **T3 first or T2 alone?** T2 is operationally complete on its own — selective export/restore + V1 compat already deliver Autonomy value. Deploy decision: only after T3 (tar.gz + embeddings + schema migration + HTTP/MCP) when the full A2 surface is ready.
-2. **rsync to VPS** `staged-1.7a/edits/lib/export-import.ts` → `/root/.openclaw/workspace/tools/nox-mem/src/lib/export-import.ts`. Same for `cli/`. Rebuild `dist/index.js` on VPS via `npm run build`.
+2. **rsync to VPS** `staged/1.7a/edits/lib/export-import.ts` → `/root/.openclaw/workspace/tools/nox-mem/src/lib/export-import.ts`. Same for `cli/`. Rebuild `dist/index.js` on VPS via `npm run build`.
 3. **CLI wire-up** — the existing `nox-mem export|import` subcommands gain `--tier` and `--tables` flags automatically. No new bin entries required.
 4. **Documentation** — CLAUDE.md §7 to be amended with operational rule:
    - "Pre-import sempre `--dry-run` em archives untrusted antes de `--strategy replace`."
@@ -230,7 +230,7 @@ Future landing steps (deferred to a separate deploy PR — see `DEPLOY-A2.md` to
 | 2 SEPARATE DB instances in integration test | yes — case 1 + all roundtrip cases. |
 | Per-table tamper test mandatory | yes — case 2 flips 1 byte in `chunks` ciphertext; full import fails; subset import of `kg_entities`+`kg_relations` succeeds. |
 | Passphrase NEVER in code — env var only | yes — preserved from T1. |
-| No mutation of `src/` — only `staged-1.7a/edits/` | yes — verified via `git diff --stat`. |
+| No mutation of `src/` — only `staged/1.7a/edits/` | yes — verified via `git diff --stat`. |
 | No mutation of `main` — only `impl/a2-export-import-t2` | yes. |
 | No PR merge (this audit only opens it) | yes. |
 | No breaking changes to T1 paths | yes — T1 public functions preserved; CLI JSON output preserves v1 flat fields; 11/11 T1 tests still pass. |

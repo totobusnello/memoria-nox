@@ -126,7 +126,7 @@ Q70+Q71 (curadas) e Q87+Q88 (vazias — precisam ser curadas antes do gate). Fil
 ## 7. Não-objetivos deste spike
 
 - NÃO substitui E13 (section-boost flip continua sendo o path principal pra `section=timeline` chunks).
-- NÃO toca `search.ts` em prod (módulo isolado em `staged-temporal-spike/`).
+- NÃO toca `search.ts` em prod (módulo isolado em `staged/temporal-spike/`).
 - NÃO migra schema (`source_date`/`created_at` já existem).
 - NÃO troca KG temporal (Q1+ ou Lab Q2).
 
@@ -148,12 +148,12 @@ Q70+Q71 (curadas) e Q87+Q88 (vazias — precisam ser curadas antes do gate). Fil
 
 ```bash
 # Compile spike isolado
-cd staged-temporal-spike
+cd staged/temporal-spike
 # Não tem package.json próprio (depende de TS direto). Sugestão:
 npx tsc --target es2022 --module nodenext --moduleResolution nodenext \
   --outDir dist edits/temporal-retrieval.ts
 
-# Rodar tests (assumindo o mesmo runner do staged-1.7a)
+# Rodar tests (assumindo o mesmo runner do staged/1.7a)
 npx tsc -p tsconfig.tests.json && node --test dist/tests/*.test.js
 
 # Sanity check do detector

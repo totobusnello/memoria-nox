@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-BASE_URL="${BASE_URL:-http://187.77.234.79:18802}"
+BASE_URL="${BASE_URL:-http://localhost:18802}"
 QUERY="${1:-pain-weighted memory}"
 
 # curl --data-urlencode encodes the query; we capture the encoded form

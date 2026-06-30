@@ -47,7 +47,7 @@ Seção de lessons learned inclui o schema proposto de 4 classes (read-only / ad
 
 Duas workflows independentes:
 
-**`perf-regression.yml` (PR gate):** dispara em PRs que tocam `staged-P1/`, `staged-A2/`, `staged-A3/`, `staged-L4/`. Roda `regression-detector.ts` do PR #83 (Wave K). Posta comentário com tabela de drift. Falha **só** em drift negativo >±10% — melhorias sempre passam. Threshold sobrescrevível via `NOX_DRIFT_THRESHOLD_PCT` ou `workflow_dispatch`.
+**`perf-regression.yml` (PR gate):** dispara em PRs que tocam `staged/P1/`, `staged/A2/`, `staged/A3/`, `staged/L4/`. Roda `regression-detector.ts` do PR #83 (Wave K). Posta comentário com tabela de drift. Falha **só** em drift negativo >±10% — melhorias sempre passam. Threshold sobrescrevível via `NOX_DRIFT_THRESHOLD_PCT` ou `workflow_dispatch`.
 
 **`perf-nightly.yml` (cron):** 03:00 UTC diário. Commita `benchmark/history/YYYY-MM-DD.json` no branch `benchmark-history`. Rolling window de 30 dias. Threshold ±25% (mais permissivo que PR gate — espera-se maior variância em dados reais de prod). Auto-gera `TIMESERIES.md` + `timeseries.json`.
 
@@ -192,7 +192,7 @@ Todos os endpoints que existiam antes do deploy continuaram funcionando pós-res
 
 **Root cause:** O arquivo `api-server.ts` (ou equivalente) não foi atualizado para importar e registrar os novos route handlers. A compilação TypeScript verifica tipos mas não valida se um handler foi registrado em um router Express (ou equivalente) — são preocupações orthogonais.
 
-**Por que não foi feito:** O deploy focou em sincronizar os arquivos de implementação dos handlers (`staged-P1/`, `staged-A2/`, etc. via rsync) mas não incluiu a etapa de atualizar `api-server.ts` para registrar as novas rotas. Essa etapa estava no plano de deploy mas ficou como follow-up.
+**Por que não foi feito:** O deploy focou em sincronizar os arquivos de implementação dos handlers (`staged/P1/`, `staged/A2/`, etc. via rsync) mas não incluiu a etapa de atualizar `api-server.ts` para registrar as novas rotas. Essa etapa estava no plano de deploy mas ficou como follow-up.
 
 **Impacto real:** Novos endpoints não funcionam. Endpoints existentes funcionam. O deploy não quebrou nada — apenas não habilitou as features novas.
 

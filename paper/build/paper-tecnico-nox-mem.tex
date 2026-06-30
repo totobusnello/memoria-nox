@@ -429,7 +429,7 @@ explicit \texttt{pain} severity, every ranking change rolls out first in
   three-state gate (\texttt{shadow} \textbar{} \texttt{active}
   \textbar{} \texttt{off}). Default is \texttt{shadow}. Telemetry
   exposed at \texttt{/api/health.salience}. See §3.4.3,
-  \texttt{staged-1.7a/edits/salience.ts}, and
+  \texttt{staged/1.7a/edits/salience.ts}, and
   \texttt{docs/CONFIGURATION.md}.}, and only graduates to
 \texttt{active} after operator review.
 
@@ -441,7 +441,7 @@ explicit \texttt{pain} severity, every ranking change rolls out first in
 Overview}\label{infrastructure-overview}
 
 The system runs on a Hostinger KVM4 VPS accessible via Tailscale VPN
-(IP: 100.87.8.44). Five systemd-managed services provide the runtime
+(IP: <NOX_TAILSCALE_IP>). Five systemd-managed services provide the runtime
 environment:
 
 {\def\LTcaptype{none} % do not increment counter
@@ -668,7 +668,7 @@ Empty-retrieval short-circuit avoids LLM spend when no chunks match.
 Measured p95 latency: 101.74 ms on the offline mock-LLM bench (PR \#40,
 42× under the 4.3 s budget); live p95 with Gemini Flash Lite ranges
 1.5--2.5 s. Implementation:
-\texttt{staged-P1/edits/src/lib/answer/\{index,retrieval,prompt,provider,config\}.ts}.
+\texttt{staged/P1/edits/src/lib/answer/\{index,retrieval,prompt,provider,config\}.ts}.
 
 \textbf{Primitive 3 --- Temporal filter (\texttt{-\/-as-of} /
 \texttt{-\/-changed-since}).} Time-travel and recency-window selectors
@@ -688,7 +688,7 @@ changes, no ranking changes. The filter is orthogonal to the E13
 temporal proximity boost (\texttt{NOX\_TEMPORAL\_PATH}, §5), which
 additively reweights ranking by recency rather than restricting the
 candidate set. Implementation:
-\texttt{staged-P3/edits/\{dates,search,api-server\}.ts}.
+\texttt{staged/P3/edits/\{dates,search,api-server\}.ts}.
 
 \textbf{Composition.} The three primitives compose orthogonally --- for
 example,
@@ -839,7 +839,7 @@ tool, and \texttt{POST\ /api/crystallize} +
 \texttt{src/api-server.ts} and \texttt{src/crystallize.ts} \footnote{HTTP
   handlers in \texttt{src/api-server.ts} (routes
   \texttt{/api/crystallize}, \texttt{/api/crystallize/validate} ---
-  confirmed in \texttt{staged-1.6/edits/api-server.ts:253–273}); core
+  confirmed in \texttt{staged/1.6/edits/api-server.ts:253–273}); core
   logic in \texttt{src/crystallize.ts} exporting \texttt{crystallize()},
   \texttt{validateProcedure()}, \texttt{listProcedures()}. Wrapped by
   \texttt{withOpAudit()} (\texttt{src/lib/op-audit.ts}).}) implements an
@@ -862,7 +862,7 @@ decay) to \texttt{lesson} (180-day decay) or
   (never-decay), \texttt{lesson} = 180d, \texttt{decision} = 365d,
   \texttt{project} = 365d, \texttt{team} = 120d, \texttt{daily} = 90d,
   \texttt{pending} = 30d, \texttt{graph\_node} = 60d, fallback = 90d.
-  See \texttt{staged-1.7a/edits/salience.ts:46–56}
+  See \texttt{staged/1.7a/edits/salience.ts:46–56}
   (\texttt{DEFAULT\_RETENTION\_BY\_TYPE}) and \texttt{CLAUDE.md}
   §``Schema v10''.}. The promotion is wrapped in \texttt{withOpAudit()},
 so the pre-state snapshot lives at
@@ -892,10 +892,10 @@ The salience function lives in \texttt{src/lib/salience.ts} \footnote{\texttt{sr
   principle in §3.4.3; weighted-additive v2 production form
   \texttt{W\_IMPORTANCE·importance\ +\ W\_RECENCY·recency\ +\ W\_PAIN·pain\ +\ W\_ACCESS·access\_score}
   in §5.1), mirrored in the staged copy at
-  \texttt{staged-1.7a/edits/salience.ts} (lines 1--80 contain the module
+  \texttt{staged/1.7a/edits/salience.ts} (lines 1--80 contain the module
   docstring spelling out the formula, the three-state mode gate, and the
   per-type retention defaults).} (and is mirrored in the staged copy at
-\texttt{staged-1.7a/edits/salience.ts}). Its underlying principle is
+\texttt{staged/1.7a/edits/salience.ts}). Its underlying principle is
 multiplicative --- a memory scores high only when it is
 \emph{simultaneously} recent, painful, and important:
 
@@ -918,7 +918,7 @@ with components:
     180d, \texttt{decision} = 365d, \texttt{project} = 365d,
     \texttt{team} = 120d, \texttt{daily} = 90d, \texttt{pending} = 30d,
     \texttt{graph\_node} = 60d, fallback = 90d. See
-    \texttt{staged-1.7a/edits/salience.ts:46–56}
+    \texttt{staged/1.7a/edits/salience.ts:46–56}
     (\texttt{DEFAULT\_RETENTION\_BY\_TYPE}) and \texttt{CLAUDE.md}
     §``Schema v10''.}). Decay is \emph{continuous}: it is recomputed at
   every retrieval, so there is no batch step that ``ages'' memory ---
@@ -955,7 +955,7 @@ backed by \texttt{src/reflect.ts} and cached via
 \texttt{getReflectCacheStats()} exposed in
 \texttt{/api/health.reflectCache} \footnote{\texttt{src/reflect.ts}
   exporting \texttt{reflect()} and \texttt{getReflectCacheStats()}
-  (confirmed in \texttt{staged-1.6/edits/api-server.ts:12}). Cache
+  (confirmed in \texttt{staged/1.6/edits/api-server.ts:12}). Cache
   statistics surfaced in \texttt{/api/health.reflectCache}. See also
   \texttt{docs/POSTMAN.md} for the API contract.}) runs a batch
 synthesis pass over recent chunks. Its job is \emph{not} to retrieve

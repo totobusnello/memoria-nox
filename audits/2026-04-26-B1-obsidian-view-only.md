@@ -77,7 +77,7 @@ Pipeline:
 ```
 Roda 02:30 BRT (após `backup-all.sh` 02:00). Idempotente — sempre wipea e regenera. `/var/log/nox-obsidian-export.log` coberto pelo `/etc/logrotate.d/nox` glob.
 
-**Mac sync script:** `scripts/sync-obsidian-vault.sh` (no repo memoria-nox). rsync via Tailscale `root@100.87.8.44`, exclui `.obsidian/workspace*.json` e `cache` pra preservar UI state local. Pode virar launchd plist no futuro pra sync automático manhã.
+**Mac sync script:** `scripts/sync-obsidian-vault.sh` (no repo memoria-nox). rsync via Tailscale `root@<NOX_TAILSCALE_IP>`, exclui `.obsidian/workspace*.json` e `cache` pra preservar UI state local. Pode virar launchd plist no futuro pra sync automático manhã.
 
 ---
 

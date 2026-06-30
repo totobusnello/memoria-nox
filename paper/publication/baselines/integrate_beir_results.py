@@ -7,7 +7,7 @@ table block for §5.3 Table 8 (tab:beir), patches sec_4_7.tex, recompiles,
 and commits.
 
 Usage:
-    python3 integrate_beir_results.py [--vps-host root@100.87.8.44] [--dry-run]
+    python3 integrate_beir_results.py [--vps-host root@<NOX_TAILSCALE_IP>] [--dry-run]
 
 Note: VPS IP is the Hostinger instance. Use --vps-host to override if IP changed.
 """
@@ -38,7 +38,7 @@ RESULTS_DIR = REPO_ROOT / "paper" / "publication" / "results" / "beir"
 
 TINYTEX_BIN = Path("/Users/lab/Library/TinyTeX/bin/universal-darwin")
 
-DEFAULT_VPS_HOST = "root@100.87.8.44"
+DEFAULT_VPS_HOST = "root@<NOX_TAILSCALE_IP>"
 
 # Remote paths on VPS
 VPS_RESULTS_DIR = "/root/beir-results"
@@ -94,7 +94,7 @@ def fetch_from_vps(vps_host: str, local_dir: Path, dry_run: bool) -> None:
     """SCP result files from VPS to local_dir.
 
     Args:
-        vps_host: SSH target, e.g. ``root@100.87.8.44``.
+        vps_host: SSH target, e.g. ``root@<NOX_TAILSCALE_IP>``.
         local_dir: Local destination directory (created if absent).
         dry_run: If True, skip the actual transfer and print what would run.
 

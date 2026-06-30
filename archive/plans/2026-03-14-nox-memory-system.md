@@ -6,13 +6,13 @@
 
 **Status:** IMPLEMENTADO e DEPLOYADO (v2.1.2, 2026-03-14) — 6 rounds de code review pelo Forge agent
 
-**Architecture:** CLI tool (`nox-mem`) written in Node.js/TypeScript that chunks Markdown files into a SQLite FTS5 index for fast search. A file watcher auto-indexes changes. A nightly cron uses Llama 3.2 3B (via Ollama) to extract facts from daily notes and append them to curated topic files. All runs on a Hostinger VPS (4 cores, 16GB RAM) accessed via Tailscale at `100.87.8.44`.
+**Architecture:** CLI tool (`nox-mem`) written in Node.js/TypeScript that chunks Markdown files into a SQLite FTS5 index for fast search. A file watcher auto-indexes changes. A nightly cron uses Llama 3.2 3B (via Ollama) to extract facts from daily notes and append them to curated topic files. All runs on a Hostinger VPS (4 cores, 16GB RAM) accessed via Tailscale at `<NOX_TAILSCALE_IP>`.
 
 **Tech Stack:** Node.js 22, TypeScript, better-sqlite3, commander, Ollama, llama3.2:3b, inotify-tools, systemd
 
 **Spec:** `specs/2026-03-14-nox-memory-system-design.md`
 
-**VPS access:** `ssh root@100.87.8.44` (via Tailscale)
+**VPS access:** `ssh root@<NOX_TAILSCALE_IP>` (via Tailscale)
 
 **Workspace root:** `/root/.openclaw/workspace/`
 
@@ -62,12 +62,12 @@
 
 - [ ] **Step 1:** Install sqlite3 and dev headers
 ```bash
-ssh root@100.87.8.44 "apt update && apt install -y sqlite3 libsqlite3-dev"
+ssh root@<NOX_TAILSCALE_IP> "apt update && apt install -y sqlite3 libsqlite3-dev"
 ```
 
 - [ ] **Step 2:** Verify FTS5 support
 ```bash
-ssh root@100.87.8.44 "sqlite3 ':memory:' \"CREATE VIRTUAL TABLE t USING fts5(c); DROP TABLE t; SELECT 'FTS5 OK';\""
+ssh root@<NOX_TAILSCALE_IP> "sqlite3 ':memory:' \"CREATE VIRTUAL TABLE t USING fts5(c); DROP TABLE t; SELECT 'FTS5 OK';\""
 ```
 Expected: `FTS5 OK`
 
@@ -77,23 +77,23 @@ Expected: `FTS5 OK`
 
 - [ ] **Step 1:** Install Ollama
 ```bash
-ssh root@100.87.8.44 "curl -fsSL https://ollama.ai/install.sh | sh"
+ssh root@<NOX_TAILSCALE_IP> "curl -fsSL https://ollama.ai/install.sh | sh"
 ```
 
 - [ ] **Step 2:** Verify running
 ```bash
-ssh root@100.87.8.44 "systemctl status ollama --no-pager | head -5"
+ssh root@<NOX_TAILSCALE_IP> "systemctl status ollama --no-pager | head -5"
 ```
 Expected: `active (running)`
 
 - [ ] **Step 3:** Pull model (~1.8GB)
 ```bash
-ssh root@100.87.8.44 "ollama pull llama3.2:3b"
+ssh root@<NOX_TAILSCALE_IP> "ollama pull llama3.2:3b"
 ```
 
 - [ ] **Step 4:** Test JSON format
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:11434/api/generate -d "{\"model\":\"llama3.2:3b\",\"prompt\":\"Return {\\\"ok\\\": true}\",\"format\":\"json\",\"stream\":false}" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[\"response\"])"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:11434/api/generate -d "{\"model\":\"llama3.2:3b\",\"prompt\":\"Return {\\\"ok\\\": true}\",\"format\":\"json\",\"stream\":false}" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())[\"response\"])"'
 ```
 Expected: `{"ok": true}`
 
@@ -103,12 +103,12 @@ Expected: `{"ok": true}`
 
 - [ ] **Step 1:** Install
 ```bash
-ssh root@100.87.8.44 "apt install -y inotify-tools"
+ssh root@<NOX_TAILSCALE_IP> "apt install -y inotify-tools"
 ```
 
 - [ ] **Step 2:** Verify
 ```bash
-ssh root@100.87.8.44 "inotifywait --help 2>&1 | head -1"
+ssh root@<NOX_TAILSCALE_IP> "inotifywait --help 2>&1 | head -1"
 ```
 Expected: version info
 
@@ -120,7 +120,7 @@ Expected: version info
 
 - [ ] **Step 1:** Create directories
 ```bash
-ssh root@100.87.8.44 "mkdir -p /root/.openclaw/workspace/tools/nox-mem/{src,prompts,dist}"
+ssh root@<NOX_TAILSCALE_IP> "mkdir -p /root/.openclaw/workspace/tools/nox-mem/{src,prompts,dist}"
 ```
 
 - [ ] **Step 2:** Create package.json on VPS
@@ -167,12 +167,12 @@ Write `/root/.openclaw/workspace/tools/nox-mem/package.json`:
 
 - [ ] **Step 5:** Install dependencies
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && npm install"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && npm install"
 ```
 
 - [ ] **Step 6:** Commit scaffold
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git add tools/nox-mem/package.json tools/nox-mem/tsconfig.json tools/nox-mem/.gitignore tools/nox-mem/package-lock.json && git commit -m 'feat(nox-mem): scaffold project'"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace && git add tools/nox-mem/package.json tools/nox-mem/tsconfig.json tools/nox-mem/.gitignore tools/nox-mem/package-lock.json && git commit -m 'feat(nox-mem): scaffold project'"
 ```
 
 ---
@@ -193,7 +193,7 @@ Expected: `Schema: { value: '2' }`
 
 - [ ] **Step 3:** Commit
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git add tools/nox-mem/src/db.ts && git commit -m 'feat(nox-mem): SQLite schema with FTS5 and migrations'"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace && git add tools/nox-mem/src/db.ts && git commit -m 'feat(nox-mem): SQLite schema with FTS5 and migrations'"
 ```
 
 ---
@@ -204,18 +204,18 @@ ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git add tools/nox-mem/src/
 
 - [ ] **Step 2:** Build and test with a real file
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && node -e \"import('./dist/ingest.js').then(m => console.log(m.ingestFile('/root/.openclaw/workspace/memory/decisions.md')))\""
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && node -e \"import('./dist/ingest.js').then(m => console.log(m.ingestFile('/root/.openclaw/workspace/memory/decisions.md')))\""
 ```
 Expected: `{ chunks: X }` where X > 0
 
 - [ ] **Step 3:** Verify in DB
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && sqlite3 nox-mem.db 'SELECT chunk_type, COUNT(*) FROM chunks GROUP BY chunk_type'"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && sqlite3 nox-mem.db 'SELECT chunk_type, COUNT(*) FROM chunks GROUP BY chunk_type'"
 ```
 
 - [ ] **Step 4:** Commit
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git add tools/nox-mem/src/ingest.ts && git commit -m 'feat(nox-mem): markdown chunking and FTS5 ingestion'"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace && git add tools/nox-mem/src/ingest.ts && git commit -m 'feat(nox-mem): markdown chunking and FTS5 ingestion'"
 ```
 
 ---
@@ -228,7 +228,7 @@ ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git add tools/nox-mem/src/
 
 - [ ] **Step 2:** Build and test
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && node -e \"import('./dist/search.js').then(m => console.log(m.formatResults(m.search('limite linkedin'))))\""
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && node -e \"import('./dist/search.js').then(m => console.log(m.formatResults(m.search('limite linkedin'))))\""
 ```
 
 - [ ] **Step 3:** Commit
@@ -251,7 +251,7 @@ ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && n
 
 - [ ] **Step 2:** Build and test full reindex
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && node -e \"import('./dist/reindex.js').then(m => console.log(m.reindex()))\""
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && node -e \"import('./dist/reindex.js').then(m => console.log(m.reindex()))\""
 ```
 Expected: `{ files: ~20, chunks: ~80-150 }`
 
@@ -267,7 +267,7 @@ Expected: `{ files: ~20, chunks: ~80-150 }`
 
 - [ ] **Step 2:** Build and test
 ```bash
-ssh root@100.87.8.44 "nox-mem primer"
+ssh root@<NOX_TAILSCALE_IP> "nox-mem primer"
 ```
 Expected: Structured context recovery output
 
@@ -281,17 +281,17 @@ Expected: Structured context recovery output
 
 - [ ] **Step 2:** Build
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc"
 ```
 
 - [ ] **Step 3:** Make executable and create symlink
 ```bash
-ssh root@100.87.8.44 "chmod +x /root/.openclaw/workspace/tools/nox-mem/dist/index.js && ln -sf /root/.openclaw/workspace/tools/nox-mem/dist/index.js /usr/local/bin/nox-mem"
+ssh root@<NOX_TAILSCALE_IP> "chmod +x /root/.openclaw/workspace/tools/nox-mem/dist/index.js && ln -sf /root/.openclaw/workspace/tools/nox-mem/dist/index.js /usr/local/bin/nox-mem"
 ```
 
 - [ ] **Step 4:** Test all CLI commands
 ```bash
-ssh root@100.87.8.44 "nox-mem --help && nox-mem search 'linkedin' && nox-mem stats && nox-mem primer"
+ssh root@<NOX_TAILSCALE_IP> "nox-mem --help && nox-mem search 'linkedin' && nox-mem stats && nox-mem primer"
 ```
 
 - [ ] **Step 5:** Commit
@@ -306,31 +306,31 @@ ssh root@100.87.8.44 "nox-mem --help && nox-mem search 'linkedin' && nox-mem sta
 
 - [ ] **Step 2:** Make executable
 ```bash
-ssh root@100.87.8.44 "chmod +x /root/.openclaw/workspace/tools/nox-mem/nox-mem-watch.sh"
+ssh root@<NOX_TAILSCALE_IP> "chmod +x /root/.openclaw/workspace/tools/nox-mem/nox-mem-watch.sh"
 ```
 
 - [ ] **Step 3:** Create `/etc/systemd/system/nox-mem-watcher.service` — Type=simple, ExecStart calls the watcher script, Restart=on-failure, RestartSec=5.
 
 - [ ] **Step 4:** Enable and start
 ```bash
-ssh root@100.87.8.44 "systemctl daemon-reload && systemctl enable nox-mem-watcher && systemctl start nox-mem-watcher && systemctl status nox-mem-watcher --no-pager | head -5"
+ssh root@<NOX_TAILSCALE_IP> "systemctl daemon-reload && systemctl enable nox-mem-watcher && systemctl start nox-mem-watcher && systemctl status nox-mem-watcher --no-pager | head -5"
 ```
 Expected: `active (running)`
 
 - [ ] **Step 5:** Test auto-indexation
 ```bash
-ssh root@100.87.8.44 "echo '## Auto-test' >> /root/.openclaw/workspace/memory/pending.md && sleep 3 && journalctl -u nox-mem-watcher --no-pager -n 3 && sed -i '/^## Auto-test$/d' /root/.openclaw/workspace/memory/pending.md"
+ssh root@<NOX_TAILSCALE_IP> "echo '## Auto-test' >> /root/.openclaw/workspace/memory/pending.md && sleep 3 && journalctl -u nox-mem-watcher --no-pager -n 3 && sed -i '/^## Auto-test$/d' /root/.openclaw/workspace/memory/pending.md"
 ```
 Expected: Log shows ingest of pending.md
 
 - [ ] **Step 6:** Run initial full reindex
 ```bash
-ssh root@100.87.8.44 "nox-mem reindex && nox-mem stats"
+ssh root@<NOX_TAILSCALE_IP> "nox-mem reindex && nox-mem stats"
 ```
 
 - [ ] **Step 7:** Commit
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git add tools/nox-mem/nox-mem-watch.sh && git commit -m 'feat(nox-mem): inotifywait watcher with debounce'"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace && git add tools/nox-mem/nox-mem-watch.sh && git commit -m 'feat(nox-mem): inotifywait watcher with debounce'"
 ```
 
 ---
@@ -358,7 +358,7 @@ ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git add tools/nox-mem/nox-
 
 - [ ] **Step 4:** Build and test
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && nox-mem consolidate"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && nox-mem consolidate"
 ```
 
 - [ ] **Step 5:** Commit
@@ -410,13 +410,13 @@ Syncs consolidated items to the Notion "Memória & Decisões" database as a visu
 
 - [ ] **Step 4:** Build and test
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && nox-mem sync-notion"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && npx tsc && nox-mem sync-notion"
 ```
 Expected: Items created in Notion database
 
 - [ ] **Step 5:** Commit
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git add tools/nox-mem/src/notion-sync.ts tools/nox-mem/src/consolidate.ts tools/nox-mem/src/index.ts && git commit -m 'feat(nox-mem): add Notion sync for Memória & Decisões diary'"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace && git add tools/nox-mem/src/notion-sync.ts tools/nox-mem/src/consolidate.ts tools/nox-mem/src/index.ts && git commit -m 'feat(nox-mem): add Notion sync for Memória & Decisões diary'"
 ```
 
 ---
@@ -435,7 +435,7 @@ ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git add tools/nox-mem/src/
 
 - [ ] **Step 4:** Build and test
 ```bash
-ssh root@100.87.8.44 "nox-mem digest && cat /root/.openclaw/workspace/memory/digests/*.md | head -20"
+ssh root@<NOX_TAILSCALE_IP> "nox-mem digest && cat /root/.openclaw/workspace/memory/digests/*.md | head -20"
 ```
 
 - [ ] **Step 5:** Commit
@@ -488,7 +488,7 @@ ssh root@100.87.8.44 "nox-mem digest && cat /root/.openclaw/workspace/memory/dig
 
 - [ ] **Step 1:** Push all commits
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace && git push"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace && git push"
 ```
 
 - [x] **Step 2:** Report summary to Toto with: chunk count, services running, crons configured, commands available

@@ -68,8 +68,8 @@ systemctl restart openclaw-gateway
 ### Chunk 1.1 — Preparação (sem tocar em prod)
 
 - [ ] Verificar que `claude --version` roda na VPS e está autenticado no plan Max/Pro
-  - [ ] `ssh root@100.87.8.44 "claude --version"`
-  - [ ] `ssh root@100.87.8.44 "claude /login status 2>&1 || echo 'manual login needed'"`
+  - [ ] `ssh root@<NOX_TAILSCALE_IP> "claude --version"`
+  - [ ] `ssh root@<NOX_TAILSCALE_IP> "claude /login status 2>&1 || echo 'manual login needed'"`
 - [ ] Documentar plano atual da subscription (Max ou Pro) — anotar para monitor de rate limit
 - [ ] Snapshot de métricas baseline (para comparação pós-piloto):
   - [ ] RelayPlane: `curl http://127.0.0.1:4100/status | jq` — salvar em `/root/.openclaw/backups/baseline-2026-04-22.json`
@@ -270,13 +270,13 @@ WantedBy=multi-user.target
 
 ```bash
 # Rollback de 1 agent específico (ex: cipher)
-ssh root@100.87.8.44 "cp /root/.openclaw/backups/openclaw.json.pre-claude-max-<TIMESTAMP> /root/.openclaw/openclaw.json && systemctl restart openclaw-gateway"
+ssh root@<NOX_TAILSCALE_IP> "cp /root/.openclaw/backups/openclaw.json.pre-claude-max-<TIMESTAMP> /root/.openclaw/openclaw.json && systemctl restart openclaw-gateway"
 
 # Rollback full: desligar proxy + voltar config original
-ssh root@100.87.8.44 "systemctl stop claude-max-api-proxy && cp /root/.openclaw/backups/openclaw.json.pre-claude-max-<TIMESTAMP> /root/.openclaw/openclaw.json && systemctl restart openclaw-gateway"
+ssh root@<NOX_TAILSCALE_IP> "systemctl stop claude-max-api-proxy && cp /root/.openclaw/backups/openclaw.json.pre-claude-max-<TIMESTAMP> /root/.openclaw/openclaw.json && systemctl restart openclaw-gateway"
 
 # Remoção completa do proxy (não destrutiva do openclaw.json)
-ssh root@100.87.8.44 "systemctl disable --now claude-max-api-proxy && rm /etc/systemd/system/claude-max-api-proxy.service && systemctl daemon-reload && npm uninstall -g claude-max-api-proxy"
+ssh root@<NOX_TAILSCALE_IP> "systemctl disable --now claude-max-api-proxy && rm /etc/systemd/system/claude-max-api-proxy.service && systemctl daemon-reload && npm uninstall -g claude-max-api-proxy"
 ```
 
 ### C. Check list de métricas diárias durante a migração

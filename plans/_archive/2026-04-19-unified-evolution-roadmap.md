@@ -681,7 +681,7 @@ Teste `match_type: "semantic"` em resultado de search é **o** canário de sanid
 - Audits de hoje: `audits/audit-2026-04-18-db-gaps-remediation.md`, `audits/sre-deepening-2026-04-18.md`, `audits/perf-baseline-2026-04-18.md`
 - Paper técnico (stale, refletir v3.0.0): `paper-tecnico-nox-mem.md`
 - Ferramenta de check local: `scripts/check-nox-mem.sh`
-- VPS canonical: `ssh root@100.87.8.44:/root/.openclaw/workspace/`
+- VPS canonical: `ssh root@<NOX_TAILSCALE_IP>:/root/.openclaw/workspace/`
 
 ---
 

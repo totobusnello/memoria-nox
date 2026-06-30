@@ -12,7 +12,7 @@
 
 ## Fix applied
 
-`staged-1.7a/edits/reindex.ts` — adicionado load defensive no início de `_reindexImpl`:
+`staged/1.7a/edits/reindex.ts` — adicionado load defensive no início de `_reindexImpl`:
 
 ```typescript
 async function _reindexImpl(): Promise<{ files: number; chunks: number }> {
@@ -34,7 +34,7 @@ async function _reindexImpl(): Promise<{ files: number; chunks: number }> {
 
 ## Deployment
 
-1. ✅ `scp staged-1.7a/edits/reindex.ts root@$NOX_VPS_HOST:/root/.openclaw/workspace/tools/nox-mem/src/reindex.ts`
+1. ✅ `scp staged/1.7a/edits/reindex.ts root@$NOX_VPS_HOST:/root/.openclaw/workspace/tools/nox-mem/src/reindex.ts`
 2. ✅ `npm run build` na VPS (test files have pre-existing errors but reindex.ts compiled OK — `noEmitOnError=false`)
 3. ✅ Verified `dist/reindex.js` contains the fix:
    ```
@@ -86,7 +86,7 @@ Code flow ADVANCED past the vec0 trigger cascade → fix worked.
 
 ## Files changed
 
-- `staged-1.7a/edits/reindex.ts` — fix applied
+- `staged/1.7a/edits/reindex.ts` — fix applied
 - VPS `/root/.openclaw/workspace/tools/nox-mem/src/reindex.ts` — deployed
 - VPS `/root/.openclaw/workspace/tools/nox-mem/dist/reindex.js` — built
 
@@ -108,4 +108,4 @@ These do not block prod operation. Can be addressed in next housekeeping window.
 
 - `[[opsaudit-investigation-2026-05-21]]` — original 3-issue investigation
 - `[[validate-features-with-db-not-logs]]` — pattern aplicado (DB state confirms fix vs log noise)
-- PR (pending) — commit + push do staged-1.7a/edits/reindex.ts fix
+- PR (pending) — commit + push do staged/1.7a/edits/reindex.ts fix

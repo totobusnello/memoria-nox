@@ -80,9 +80,9 @@ src/
   reporter.ts          T5 — markdown + JSON report formatter
   cli.ts               T6 — CLI entry point + orchestrator
 fixtures/
-  v11.sql              Migration fixture (copy of staged-migrations/v11.sql)
-  v19.sql              Migration fixture (copy of staged-migrations/v19.sql)
-  v20-viewer-telemetry.sql  Migration fixture (from staged-P5/edits/migrations/)
+  v11.sql              Migration fixture (copy of staged/migrations/v11.sql)
+  v19.sql              Migration fixture (copy of staged/migrations/v19.sql)
+  v20-viewer-telemetry.sql  Migration fixture (from staged/P5/edits/migrations/)
 ```
 
 ## Extending — adding a validator for a new command type
@@ -128,7 +128,7 @@ export function validateChmod(cmd: CategorizedCommand): ChmodResult {
 ## CI integration
 
 The workflow at `.github/workflows/deploy-validator.yml` runs automatically on PRs that
-modify `docs/DEPLOY-WAVE-B.md`, `staged-*/`, or `staged-migrations/`. It:
+modify `docs/DEPLOY-WAVE-B.md`, `staged-*/`, or `staged/migrations/`. It:
 
 1. Installs `rsync`, `sqlite3`, `bash` (system) and `better-sqlite3` (npm).
 2. Runs `npm test` — all unit tests must pass.
@@ -147,16 +147,16 @@ act pull_request --job validate-deploy  # requires https://github.com/nektos/act
 The `fixtures/` directory contains copies of migration SQL files:
 
 ```
-fixtures/v11.sql                    ← from staged-migrations/v11.sql
-fixtures/v19.sql                    ← from staged-migrations/v19.sql
-fixtures/v20-viewer-telemetry.sql   ← from staged-P5/edits/migrations/
+fixtures/v11.sql                    ← from staged/migrations/v11.sql
+fixtures/v19.sql                    ← from staged/migrations/v19.sql
+fixtures/v20-viewer-telemetry.sql   ← from staged/P5/edits/migrations/
 ```
 
 If migration files change, regenerate fixtures:
 
 ```bash
-cp staged-migrations/v11.sql scripts/deploy-validator/fixtures/
-cp staged-migrations/v19.sql scripts/deploy-validator/fixtures/
-# For v20, find in any staged-P5 worktree:
-find . -path '*/staged-P5/edits/migrations/v20*' -exec cp {} scripts/deploy-validator/fixtures/ \;
+cp staged/migrations/v11.sql scripts/deploy-validator/fixtures/
+cp staged/migrations/v19.sql scripts/deploy-validator/fixtures/
+# For v20, find in any staged/P5 worktree:
+find . -path '*/staged/P5/edits/migrations/v20*' -exec cp {} scripts/deploy-validator/fixtures/ \;
 ```

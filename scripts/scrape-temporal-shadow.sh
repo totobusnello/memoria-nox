@@ -35,7 +35,7 @@ mkdir -p "${SUMMARY_DIR}"
 
 # ─── Step 1: scrape raw JSON lines ────────────────────────────────────────
 # `temporal_path` é o marker emitido por logTemporalProbe() em
-# staged-1.7a/edits/temporal-retrieval.ts. systemd antepõe metadata → cortar
+# staged/1.7a/edits/temporal-retrieval.ts. systemd antepõe metadata → cortar
 # até o primeiro `{`.
 journalctl -u nox-mem-api --since "${SINCE}" --output=cat 2>/dev/null \
   | grep -oE '\{"type":"temporal_path"[^}]*\}' \

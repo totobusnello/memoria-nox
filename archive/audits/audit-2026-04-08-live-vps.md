@@ -1,7 +1,7 @@
 # Live VPS Audit Report -- 2026-04-08 10:43 BRT
 
 **Auditor:** SRE Agent (Claude Opus 4.6)
-**Target:** srv1465941 (root@100.87.8.44 via Tailscale)
+**Target:** <NOX_VPS_HOST> (root@<NOX_TAILSCALE_IP> via Tailscale)
 **Method:** Live SSH inspection. Documentation compared against actual state.
 
 ---

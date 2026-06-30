@@ -44,7 +44,7 @@ Index existe: `CREATE INDEX idx_kg_relations_reason ON kg_relations(relation_rea
 ### Pipeline de extraction está integrado em `kg-llm.ts`
 
 ```typescript
-// staged-1.7a/edits/kg-llm.ts:27
+// staged/1.7a/edits/kg-llm.ts:27
 import { regexExtract, isAmbiguous, type RegexExtractionResult }
   from "./regex-extract.js";
 
@@ -123,8 +123,8 @@ KG extraction é episódica (não-contínua). Ondas grandes seguidas por dias se
 ## Cross-references
 
 - Spec: `specs/2026-05-18-L4-regex-first-extraction.md`
-- Implementation: `staged-1.7a/edits/regex-extract.ts` (PR #195)
-- Wire-up: `staged-1.7a/edits/kg-llm.ts:27-49` (mode resolution)
+- Implementation: `staged/1.7a/edits/regex-extract.ts` (PR #195)
+- Wire-up: `staged/1.7a/edits/kg-llm.ts:27-49` (mode resolution)
 - Cron script: `/root/.openclaw/scripts/nightly-maintenance.sh` Phase 4
 - Cleanup PR: #210 (removed `regex-link-extract.ts` duplicate from PR #209)
 - Memory: `[[evening-burst-2026-05-21-4prs-f10-deployed]]` (today's PR set)

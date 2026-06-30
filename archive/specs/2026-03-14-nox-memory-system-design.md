@@ -7,7 +7,7 @@
 **Data:** 2026-03-14
 **Status:** Implementado e deployado (v2.1.2) — atualizado após 6 rounds de code review
 **Repositório:** github.com/totobusnello/nox-workspace
-**VPS:** Hostinger KVM 4 (4 cores AMD EPYC, 16GB RAM, 200GB disco) — srv1465941 via Tailscale 100.87.8.44
+**VPS:** Hostinger KVM 4 (4 cores AMD EPYC, 16GB RAM, 200GB disco) — <NOX_VPS_HOST> via Tailscale <NOX_TAILSCALE_IP>
 
 ---
 

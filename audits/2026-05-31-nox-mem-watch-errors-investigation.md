@@ -2,7 +2,7 @@
 
 **Trigger:** Openclaw monitoring reported 2 errors from `nox-mem-watch` in 12h, surfaced 2026-05-30 14:07 BRT.
 **Investigation date:** 2026-05-31 (post-incident audit).
-**VPS:** $NOX_VPS_HOST (srv1465941).
+**VPS:** $NOX_VPS_HOST (<NOX_VPS_HOST>).
 **Service:** `nox-mem-watch.service` → `nox-mem-watch.sh` → `inotifywait` → `nox-mem ingest`.
 
 ---

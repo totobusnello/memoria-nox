@@ -18,7 +18,7 @@ There is **no root-level `package.json`** in this repository. The codebase is or
 
 ## 2. Per-Package Dependency Tables
 
-### 2.1 staged-A1.1 — `nox-mem-privacy-br`
+### 2.1 staged/A1.1 — `nox-mem-privacy-br`
 
 Brazilian PII pattern library (CPF/CNPJ/PIX/CEP/RG) for the privacy filter.
 
@@ -33,7 +33,7 @@ Brazilian PII pattern library (CPF/CNPJ/PIX/CEP/RG) for the privacy filter.
 
 ---
 
-### 2.2 staged-A2 — `nox-mem-archive`
+### 2.2 staged/A2 — `nox-mem-archive`
 
 Export/Import archive primitives (T1-T9): TAR.gz format, AES-256-GCM encryption, schema migration.
 
@@ -50,7 +50,7 @@ Export/Import archive primitives (T1-T9): TAR.gz format, AES-256-GCM encryption,
 
 ---
 
-### 2.3 staged-A2.1 — `nox-mem-archive-strength`
+### 2.3 staged/A2.1 — `nox-mem-archive-strength`
 
 Passphrase entropy enforcement (Gap G1 from THREAT-MODEL). Zero external runtime dependencies.
 
@@ -65,7 +65,7 @@ Passphrase entropy enforcement (Gap G1 from THREAT-MODEL). Zero external runtime
 
 ---
 
-### 2.4 staged-A3 — `nox-mem-providers`
+### 2.4 staged/A3 — `nox-mem-providers`
 
 Provider abstraction (T9-T16): fallback chain, cost cap, telemetry, multi-provider factory.
 
@@ -76,11 +76,11 @@ Provider abstraction (T9-T16): fallback chain, cost cap, telemetry, multi-provid
 
 **Direct dep count:** 0 runtime, 2 dev
 **Transitive runtime deps:** 0
-**Note:** Providers are instantiated at runtime by the host package (which imports the Gemini SDK, OpenAI SDK, etc.). staged-A3 itself only ships types and the factory interface.
+**Note:** Providers are instantiated at runtime by the host package (which imports the Gemini SDK, OpenAI SDK, etc.). staged/A3 itself only ships types and the factory interface.
 
 ---
 
-### 2.5 staged-G5 — `nox-mem-error-sanitizer`
+### 2.5 staged/G5 — `nox-mem-error-sanitizer`
 
 Central error sanitizer middleware (Gap G5 from THREAT-MODEL). Strips stack traces from API responses.
 
@@ -94,7 +94,7 @@ Central error sanitizer middleware (Gap G5 from THREAT-MODEL). Strips stack trac
 
 ---
 
-### 2.6 staged-L2 — `nox-mem-conflict-detection`
+### 2.6 staged/L2 — `nox-mem-conflict-detection`
 
 KG conflict detection (memanto Gap #5 differentiator). Type 1 direct contradictions, shadow-first.
 
@@ -108,11 +108,11 @@ KG conflict detection (memanto Gap #5 differentiator). Type 1 direct contradicti
 **Direct dep count:** 0 runtime, 4 dev
 **Transitive runtime deps:** 0
 **Note:** `better-sqlite3` here is a devDep (test-only). The runtime SQLite instance comes from the host `nox-mem` package.
-**Version note:** Uses `^11.0.0` while staged-P1 uses `^12.10.0` — minor drift, both MIT. Should be aligned to `^12.x` when merged.
+**Version note:** Uses `^11.0.0` while staged/P1 uses `^12.10.0` — minor drift, both MIT. Should be aligned to `^12.x` when merged.
 
 ---
 
-### 2.7 staged-L3 — `nox-mem-confidence-field`
+### 2.7 staged/L3 — `nox-mem-confidence-field`
 
 Confidence + provenance field staged patch (T1-T13).
 
@@ -126,7 +126,7 @@ Confidence + provenance field staged patch (T1-T13).
 
 ---
 
-### 2.8 staged-L4 — `nox-mem-regex-extract`
+### 2.8 staged/L4 — `nox-mem-regex-extract`
 
 Regex-first typed-link extraction with Gemini fallback (T1-T6).
 
@@ -140,7 +140,7 @@ Regex-first typed-link extraction with Gemini fallback (T1-T6).
 
 ---
 
-### 2.9 staged-P1 — `nox-mem-answer-primitive`
+### 2.9 staged/P1 — `nox-mem-answer-primitive`
 
 Answer primitive staged patch (T1-T14): retrieval, prompt, provider, telemetry, CLI, HTTP, MCP, integration tests.
 
@@ -156,7 +156,7 @@ Answer primitive staged patch (T1-T14): retrieval, prompt, provider, telemetry, 
 
 ---
 
-### 2.10 staged-P2 — `nox-mem-hooks-autocapture`
+### 2.10 staged/P2 — `nox-mem-hooks-autocapture`
 
 Hooks auto-capture (T1-T15): 5 privacy layers, source allowlist, session tracking.
 
@@ -170,7 +170,7 @@ Hooks auto-capture (T1-T15): 5 privacy layers, source allowlist, session trackin
 
 ---
 
-### 2.11 staged-P5 — `nox-mem-viewer-realtime`
+### 2.11 staged/P5 — `nox-mem-viewer-realtime`
 
 Viewer real-time SSE staged patch (T1-T15): event taxonomy, instrumentation.
 
@@ -184,7 +184,7 @@ Viewer real-time SSE staged patch (T1-T15): event taxonomy, instrumentation.
 
 ---
 
-### 2.12 staged-privacy — `nox-mem-privacy-filter`
+### 2.12 staged/privacy — `nox-mem-privacy-filter`
 
 Privacy filter staged patch — pre-storage redaction for nox-mem.
 
@@ -343,11 +343,11 @@ The SDK targets Node 22 explicitly (LTS as of 2025). Staged modules use `^20` fo
 
 | Sub-package | Range |
 |-------------|-------|
-| staged-L2 | `^11.0.0` |
-| staged-P1 | `^12.10.0` |
+| staged/L2 | `^11.0.0` |
+| staged/P1 | `^12.10.0` |
 | tests/cross-pillar | `^12.10.0` |
 
-Align staged-L2 to `^12.10.0` before graduation. The API is backward-compatible.
+Align staged/L2 to `^12.10.0` before graduation. The API is backward-compatible.
 
 ---
 
@@ -409,7 +409,7 @@ For supply-chain audit procedures, see [`docs/security/OPENSSF-AUDIT.md`](docs/s
 | ID | Gap | Priority |
 |----|-----|----------|
 | DEP-1 | `sbom/` directory not yet populated — SBOM generation is scoped to Wave C | Medium |
-| DEP-2 | `better-sqlite3` version drift (^11 vs ^12) across staged-L2 vs staged-P1 | Low — fix at graduation time |
+| DEP-2 | `better-sqlite3` version drift (^11 vs ^12) across staged/L2 vs staged/P1 | Low — fix at graduation time |
 | DEP-3 | `ts-node` in deploy-validator has no clear successor plan — monitor `tsx` adoption | Low |
 | DEP-4 | GitHub Actions SHA pinning not yet applied (using `@v4` tags) — flagged in OpenSSF Scorecard | Medium — tracked as P2 action in DEPENDENCY-POLICY |
 | DEP-5 | `@types/node@^20` vs `@types/node@^22` drift — align when staged modules graduate | Low |

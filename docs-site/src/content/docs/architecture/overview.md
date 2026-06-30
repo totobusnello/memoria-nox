@@ -43,7 +43,7 @@ HTTP API :18802 ─────────────────► RRF fusio
 - **v9** — `pain` REAL DEFAULT 0.2 — severity scale 0.1 (trivial) → 1.0 (prod-outage)
 - **v10** — `section` TEXT + `section_boost` REAL — entity file format (compiled/frontmatter/timeline)
 - **v11** — `search_telemetry` with 4 telemetry columns
-- **v19–v22** — confidence, provenance, viewer events, conflict audit (in `staged-migrations/`)
+- **v19–v22** — confidence, provenance, viewer events, conflict audit (in `staged/migrations/`)
 
 ## Hybrid search pipeline
 

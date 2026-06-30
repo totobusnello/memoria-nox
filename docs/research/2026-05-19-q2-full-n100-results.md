@@ -2,7 +2,7 @@
 
 **Split:** `s_cleaned` (paper headline — 115k-token haystacks, ~40 sessions/question)
 **Run date:** 2026-05-19 11:34 BRT → 12:00 BRT
-**Executor:** VPS `srv1465941.hstgr.cloud`
+**Executor:** VPS `<NOX_VPS_HOST>`
 **Log:** `/tmp/q2-fullrun-2026-05-19.log` (VPS) + `/tmp/q2-fullrun-2026-05-19.local.log` (local)
 
 ## Q2 Full Run Results

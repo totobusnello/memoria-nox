@@ -4,7 +4,7 @@
  * Requires Node 20+ or any modern browser with native fetch.
  */
 
-const DEFAULT_BASE_URL = "http://187.77.234.79:18802";
+const DEFAULT_BASE_URL = "http://localhost:18802";
 const MAX_RETRIES = 3;
 const RETRY_BACKOFF_BASE_MS = 500;
 
@@ -43,7 +43,7 @@ function sleep(ms) {
 export class NoxMemClient {
   /**
    * @param {object} [options]
-   * @param {string} [options.baseUrl="http://187.77.234.79:18802"]
+   * @param {string} [options.baseUrl="http://localhost:18802"]
    * @param {number} [options.timeout=30000] - Timeout in milliseconds.
    * @param {typeof globalThis.fetch} [options.fetch] - Custom fetch implementation.
    */

@@ -345,11 +345,11 @@ Mesma manhã o hook DISPAROU em commit que tentou subir paper §5.5 enquanto bra
 
 ## 2026-05-20 ~10h BRT (~30min recovery) — VPS IP swap silencioso (false alarm offline)
 
-**Sintoma:** durante deploy Wave A novo (PRs #154/#158), ping em `45.43.85.86` retornou 100% packet loss + curl HTTP 000 em portas 22/2222/2200/18802. Agent VPS-cleanup retornou "host inacessível"; verificação direta da main session confirmou.
+**Sintoma:** durante deploy Wave A novo (PRs #154/#158), ping em `<VPS_IP>` retornou 100% packet loss + curl HTTP 000 em portas 22/2222/2200/18802. Agent VPS-cleanup retornou "host inacessível"; verificação direta da main session confirmou.
 
 **Hipóteses iniciais:** (1) maintenance window, (2) bloqueio por uso CPU/network, (3) firewall mudou, (4) disk full, (5) hardware failure.
 
-**Realidade:** Hostinger fez floating IP swap silencioso. Toto deu novo IP `$NOX_VPS_HOST`. SSH funcionou de primeira (mesma chave ed25519). Hostname `srv1465941`, uptime **20 days, 50 min** intacto — sem reboot, sem maintenance, sem downtime. Apenas redirecionamento de rota.
+**Realidade:** Hostinger fez floating IP swap silencioso. Toto deu novo IP `$NOX_VPS_HOST`. SSH funcionou de primeira (mesma chave ed25519). Hostname `<NOX_VPS_HOST>`, uptime **20 days, 50 min** intacto — sem reboot, sem maintenance, sem downtime. Apenas redirecionamento de rota.
 
 **Impact:** ~30min de incerteza, deploy Wave A novo atrasado mas executado com sucesso após IP atualizado. Zero dados perdidos. Service `nox-mem-api` continuou rodando o tempo todo.
 

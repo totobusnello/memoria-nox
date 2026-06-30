@@ -152,7 +152,7 @@ Stop/SessionEnd → digest da sessão (Mac: reaproveita .remember/now.md; VPS: d
 - **Gate:** brief de `scope=cipher` retorna as lições de incident high-pain no top-5; latência ok.
 
 ### Fase 2 — MCP remote no Mac ✅ COMPLETA 2026-06-04 (design superior: MCP-over-SSH + tailscale serve)
-> Dois caminhos entregues: **(a) MCP via SSH stdio** sobre tailnet (auth = chave SSH, zero porta nova) — `claude mcp add nox-mem --scope user`, Connected, 16 tools em qualquer projeto do Mac; **(b) HTTPS via `tailscale serve`** (`https://srv1465941.tail4caa5b.ts.net` → loopback:18802, tailnet-only, TLS automático) + token gate (PR nox-workspace#5: `x-forwarded-for` ⇒ exige Bearer; localhost direto livre). Token: VPS `.env` + Mac `~/.config/nox-mem/token` (0600).
+> Dois caminhos entregues: **(a) MCP via SSH stdio** sobre tailnet (auth = chave SSH, zero porta nova) — `claude mcp add nox-mem --scope user`, Connected, 16 tools em qualquer projeto do Mac; **(b) HTTPS via `tailscale serve`** (`https://<NOX_TAILSCALE_HOST>` → loopback:18802, tailnet-only, TLS automático) + token gate (PR nox-workspace#5: `x-forwarded-for` ⇒ exige Bearer; localhost direto livre). Token: VPS `.env` + Mac `~/.config/nox-mem/token` (0600).
 - [x] Caminho tailnet + auth token na API (serve + PR#5; bind segue loopback-only)
 - [x] MCP server registrado no Claude Code (scope user) — handshake 0.49s
 - [x] Smoke cross-máquina: brief via HTTPS com Bearer OK; 401 sem token OK

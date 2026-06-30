@@ -344,7 +344,7 @@ check_vps_health() {
     log_verbose "Tailscale detected: using nox-vps.tailnet"
   else
     # Fallback: attempt direct IP (will fail outside tailnet, that's expected)
-    vps_url="http://187.77.234.79:18802/api/health"
+    vps_url="http://your-vps-host:18802/api/health"
     log_verbose "Tailscale unavailable: using public IP fallback (will fail outside tailnet)"
   fi
 
@@ -792,7 +792,7 @@ check_secrets_clean() {
   fi
 
   # Pattern 2: Common API key patterns in tracked files
-  # Excludes: staged-* dirs (test fixtures), FAKE_KEY/TEST patterns, gitleaks:allow markers
+  # Excludes: staged/ dirs (test fixtures), FAKE_KEY/TEST patterns, gitleaks:allow markers
   log_verbose "scanning working tree for API key patterns..."
   local key_hits
   key_hits=$(grep -rE "sk-[A-Za-z0-9]{20,}|AIza[A-Za-z0-9]{30,}" \
@@ -802,7 +802,7 @@ check_secrets_clean() {
     . 2>/dev/null \
     | grep -v "example\|placeholder\|REDACTED\|YOUR_KEY\|your-key\|FAKE_KEY\|TEST\|gitleaks:allow\|\.env\.example" \
     | grep -v "^Binary" \
-    | grep -v "^./staged-\|^./\.claude/" \
+    | grep -v "^./staged/\|^./\.claude/" \
     | head -5 || true)
 
   if [[ -n "$key_hits" ]]; then

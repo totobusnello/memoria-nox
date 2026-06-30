@@ -26,7 +26,7 @@ graphify-ingest.ts (rate-limited) → nox-mem chunks (graph_node type)
 ```
 
 ### Script de ingest
-- Arquivo: `src/graphify-ingest.ts` (localmente em `staged-graphify-ingest/`, deployed em VPS)
+- Arquivo: `src/graphify-ingest.ts` (localmente em `staged/graphify-ingest/`, deployed em VPS)
 - CLI: `node dist/graphify-ingest.js <graph.json> <repo-name> [--dry-run] [--batch-size N] [--pause-ms MS]`
 - Default: batch=500, pause=300s (5min)
 - Janela proibida: 22:30-01:30 BRT (abort se executado nela)

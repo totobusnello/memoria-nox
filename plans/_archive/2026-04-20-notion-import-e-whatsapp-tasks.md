@@ -92,7 +92,7 @@ Após import, workflow dos agentes muda:
 
 - [ ] T2.1 Converter **Projetos & Deals** (item B, 6 linhas) para MDs
   - Gerar localmente: fetch cada page do database → escrever `<slug>.md` com frontmatter (Tipo, Valor, Status, Agente, Prazo) + corpo (Notas)
-  - Copiar pra VPS: `scp shared/notion-mission-control/projetos/*.md root@100.87.8.44:/root/.openclaw/workspace/shared/notion-mission-control/projetos/`
+  - Copiar pra VPS: `scp shared/notion-mission-control/projetos/*.md root@<NOX_TAILSCALE_IP>:/root/.openclaw/workspace/shared/notion-mission-control/projetos/`
 - [ ] T2.2 Ingest + vectorize
   - `set -a; source /root/.openclaw/.env; set +a`
   - `nox-mem ingest /root/.openclaw/workspace/shared/notion-mission-control/projetos/`
@@ -128,7 +128,7 @@ Após import, workflow dos agentes muda:
 Todos os chunks importados têm `source_file LIKE 'notion/mission-control/%'`. Em caso de problema (ex: dominação de ranking, volume demais, conteúdo desatualizado):
 
 ```bash
-ssh root@100.87.8.44
+ssh root@<NOX_TAILSCALE_IP>
 # DB path real: /root/.openclaw/workspace/tools/nox-mem/nox-mem.db (sem subdir db/)
 sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
   "DELETE FROM chunks WHERE source_file LIKE 'notion/mission-control/%';"

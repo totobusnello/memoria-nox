@@ -127,8 +127,8 @@ Wins isolados em Q107 (+11.3%) e Q109 (+5.4%) sustentam o claim do paper: "ancho
 
 ## Artefatos
 
-- Spike v2: `staged-temporal-spike/edits/temporal-retrieval.ts` (branch `feat/temporal-spike-v2-keyword-anchor-confidence-2026-05-20`)
-- Tests (59/59 pass): `staged-temporal-spike/tests/temporal-retrieval.test.ts`
+- Spike v2: `staged/temporal-spike/edits/temporal-retrieval.ts` (branch `feat/temporal-spike-v2-keyword-anchor-confidence-2026-05-20`)
+- Tests (59/59 pass): `staged/temporal-spike/tests/temporal-retrieval.test.ts`
 - Runner v2: `/tmp/smoke-v2-runner.mjs`
 - Raw results: `/tmp/smoke-v2-results.json`
 - Cached prod responses (reused do smoke #179): `/tmp/d49-smoke/q*.json`

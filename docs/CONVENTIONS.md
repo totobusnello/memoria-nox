@@ -2,7 +2,7 @@
 
 > Regras expandidas do **nox-mem core** com contexto + razão + exemplos. CLAUDE.md mantém as críticas inline; as demais ficam aqui como referência via `Read docs/CONVENTIONS.md`.
 >
-> ⚠️ Convenções de **plataforma OpenClaw** (gateway, RelayPlane, monkey-patch, multi-agent, heartbeat, systemd) migraram pra `~/Claude/Projetos/openclaw-vps/infra/`. Versão mestra pré-split preservada em `_archive-pre-split-20260501/CONVENTIONS.md.bak`.
+> ⚠️ Convenções de **plataforma OpenClaw** (gateway, RelayPlane, monkey-patch, multi-agent, heartbeat, systemd) migraram pra `~/Claude/Projetos/openclaw-vps/infra/`. Versão mestra pré-split preservada em `archive/pre-split-20260501/CONVENTIONS.md.bak`.
 
 ## Ranking / Scoring / Busca
 

@@ -240,7 +240,7 @@ The `.github/CODEOWNERS` file already committed (this PR) will be active once br
 Current CODEOWNERS rules:
 - `*` → `@totobusnello` (every file)
 - `/docs/security/` → `@totobusnello` (explicit for security-sensitive docs)
-- `/staged-A1.1/`, `/staged-A2/`, `/staged-A3/` → `@totobusnello` (privacy + encryption + providers)
+- `/staged/A1.1/`, `/staged/A2/`, `/staged/A3/` → `@totobusnello` (privacy + encryption + providers)
 
 When additional contributors are added in the future, CODEOWNERS can be updated to route specific directories to the relevant people.
 

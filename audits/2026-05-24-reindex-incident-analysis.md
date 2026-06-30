@@ -209,9 +209,9 @@ override + Toto sign-off + rationale in commit message.
 
 ## References
 
-- `staged-reindex-emergency/edits/src/reindex.ts` — fixed implementation
-- `staged-reindex-emergency/edits/src/reindex-errors.ts` — error class
-- `staged-reindex-emergency/edits/src/__tests__/reindex.no-wipe.test.ts` — canary
+- `staged/reindex-emergency/edits/src/reindex.ts` — fixed implementation
+- `staged/reindex-emergency/edits/src/reindex-errors.ts` — error class
+- `staged/reindex-emergency/edits/src/__tests__/reindex.no-wipe.test.ts` — canary
 - `docs/REINDEX-EMERGENCY-FIX-RUNBOOK.md` — deployment procedure
 - Memory `[[incident-2026-05-19-wipe]]`
 - Memory `[[reindex-must-route-entity-files]]`

@@ -25,7 +25,7 @@ Cipher enviou tabela "✅ O QUE TEM E FUNCIONA" + "🔴 O QUE NÃO TEM / ESTÁ Q
 ### ✅ 2.1 WAL checkpoint
 
 ```bash
-ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA wal_checkpoint(TRUNCATE);"'
+ssh root@<NOX_TAILSCALE_IP> 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "PRAGMA wal_checkpoint(TRUNCATE);"'
 # Antes: 96M WAL
 # Depois: 0 bytes
 ```

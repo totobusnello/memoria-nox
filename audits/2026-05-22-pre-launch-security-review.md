@@ -79,7 +79,7 @@ docs/CONFIGURATION.md:
 
 **Status:** 🟡 **MEDIUM** (documented gap, not exploitable in v1.0 due to localhost-default)
 
-**Location:** `staged-P1/edits/src/api/answer.ts` (referenced in threat model)
+**Location:** `staged/P1/edits/src/api/answer.ts` (referenced in threat model)
 
 **Issue:** JSON Schema declares `top_k` min=1, max=20 and `max_tokens` max=8192, but `validateBody()` only checks `typeof number`, not ranges.
 
@@ -151,7 +151,7 @@ docs/CONFIGURATION.md:
 **Issue:** External provider API errors may include secret keys in response body (e.g., HTTP 401 message includes `AIzaSyXXXX...`).
 
 **Existing controls:**
-- `redactSecrets()` in staged-A3/edits/src/providers/embedding/gemini.ts:177-183 strips patterns: `AIza[20+]`, `sk-[20+]`, `Bearer `, `key=`.
+- `redactSecrets()` in staged/A3/edits/src/providers/embedding/gemini.ts:177-183 strips patterns: `AIza[20+]`, `sk-[20+]`, `Bearer `, `key=`.
 - Applied in error paths (`embed()`, `healthCheck()`).
 - HTTP 500 responses in `/api/answer` use `(err as Error).message` (not `.stack`), limiting exposure.
 
@@ -166,7 +166,7 @@ docs/CONFIGURATION.md:
 
 ### §6 Dependency Safety
 
-**Audit:** `cat staged-G5/package.json` + `eval/q4-comparison/requirements.txt`
+**Audit:** `cat staged/G5/package.json` + `eval/q4-comparison/requirements.txt`
 
 **Status:** ✅ **PASS**
 

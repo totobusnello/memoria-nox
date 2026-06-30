@@ -10,7 +10,7 @@ This document describes the complete architecture of nox-mem, mapping the five l
 - SVG light: `docs/architecture/diagram-light.svg`
 
 **Cross-links:**
-- Threat model → `SECURITY.md` + `staged-privacy/` (A1)
+- Threat model → `SECURITY.md` + `staged/privacy/` (A1)
 - Roadmap → `docs/ROADMAP.md`
 - Decisions → `docs/DECISIONS.md` (D40, D41, D36–D39)
 - Vision → `docs/VISION.md` (v15)

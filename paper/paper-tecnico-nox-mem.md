@@ -69,7 +69,7 @@ The single design principle that ties these closures together is **pain weightin
 
 ### 2.1 Infrastructure Overview
 
-The system runs on a Hostinger KVM4 VPS accessible via Tailscale VPN (IP: 100.87.8.44). Five systemd-managed services provide the runtime environment:
+The system runs on a Hostinger KVM4 VPS accessible via Tailscale VPN (IP: <NOX_TAILSCALE_IP>). Five systemd-managed services provide the runtime environment:
 
 | Service | Port | Type | Function |
 |---------|------|------|----------|
@@ -162,9 +162,9 @@ nox-mem exposes a deliberately small public contract: **three primitives**, all 
 
 **Primitive 1 — `search` (hybrid retrieval).** FTS5 BM25 + Gemini semantic (3072d) → RRF fusion (k=60), with optional Hard Mutex section gating and SOURCE\_TYPE\_BOOST overlays. Returns ranked chunks with `score`, `match_type`, and provenance fields (`source_file`, `section`, `created_at`, `updated_at`). Detailed in §4.
 
-**Primitive 2 — `answer` (grounded RAG).** Internally calls `search` with `topK = 10`, builds a citation-anchored prompt over the retrieved chunks, invokes the configured LLM (`gemini-2.5-flash-lite` by default per D41), and parses inline `[chunk_<id>]` citations. Anti-hallucination guard: citations pointing to chunks outside the retrieved set trigger a single retry with a stricter prompt; a second failure raises `AnswerError('hallucination_after_retry')`. Empty-retrieval short-circuit avoids LLM spend when no chunks match. Measured p95 latency: 101.74 ms on the offline mock-LLM bench (PR #40, 42× under the 4.3 s budget); live p95 with Gemini Flash Lite ranges 1.5–2.5 s. Implementation: `staged-P1/edits/src/lib/answer/{index,retrieval,prompt,provider,config}.ts`.
+**Primitive 2 — `answer` (grounded RAG).** Internally calls `search` with `topK = 10`, builds a citation-anchored prompt over the retrieved chunks, invokes the configured LLM (`gemini-2.5-flash-lite` by default per D41), and parses inline `[chunk_<id>]` citations. Anti-hallucination guard: citations pointing to chunks outside the retrieved set trigger a single retry with a stricter prompt; a second failure raises `AnswerError('hallucination_after_retry')`. Empty-retrieval short-circuit avoids LLM spend when no chunks match. Measured p95 latency: 101.74 ms on the offline mock-LLM bench (PR #40, 42× under the 4.3 s budget); live p95 with Gemini Flash Lite ranges 1.5–2.5 s. Implementation: `staged/P1/edits/src/lib/answer/{index,retrieval,prompt,provider,config}.ts`.
 
-**Primitive 3 — Temporal filter (`--as-of` / `--changed-since`).** Time-travel and recency-window selectors implemented as hard SQL pre-filters — not ranking boosts. `--as-of <date>` restricts to chunks satisfying `created_at <= date AND (deleted_at IS NULL OR deleted_at > date)`; `--changed-since <date>` restricts to chunks satisfying `updated_at > date OR created_at > date`. Combined, the two clauses AND. Accepted formats: ISO 8601 (`2026-05-01` or full `2026-05-01T00:00:00Z`) and relative (`7d`, `1w`, `30d`, `2h`, `15m`). Uses existing `chunks.created_at` and `chunks.updated_at` columns from schema v18 — no schema changes, no ranking changes. The filter is orthogonal to the E13 temporal proximity boost (`NOX_TEMPORAL_PATH`, §5), which additively reweights ranking by recency rather than restricting the candidate set. Implementation: `staged-P3/edits/{dates,search,api-server}.ts`.
+**Primitive 3 — Temporal filter (`--as-of` / `--changed-since`).** Time-travel and recency-window selectors implemented as hard SQL pre-filters — not ranking boosts. `--as-of <date>` restricts to chunks satisfying `created_at <= date AND (deleted_at IS NULL OR deleted_at > date)`; `--changed-since <date>` restricts to chunks satisfying `updated_at > date OR created_at > date`. Combined, the two clauses AND. Accepted formats: ISO 8601 (`2026-05-01` or full `2026-05-01T00:00:00Z`) and relative (`7d`, `1w`, `30d`, `2h`, `15m`). Uses existing `chunks.created_at` and `chunks.updated_at` columns from schema v18 — no schema changes, no ranking changes. The filter is orthogonal to the E13 temporal proximity boost (`NOX_TEMPORAL_PATH`, §5), which additively reweights ranking by recency rather than restricting the candidate set. Implementation: `staged/P3/edits/{dates,search,api-server}.ts`.
 
 **Composition.** The three primitives compose orthogonally — for example, `answer "what incidents happened last week?" --changed-since 7d` retrieves only chunks updated in the last seven days, then synthesizes a grounded answer over that restricted candidate set. This closure property — three small primitives, deterministic semantics, identical surface across transports — is the contract that makes nox-mem composable from agent runtimes that have no prior knowledge of the implementation.
 
@@ -229,7 +229,7 @@ The `pain` field on `chunks` is an explicit severity in [0.1, 1.0] (0.1 trivial,
 
 **3.4.3 Salience decay continuous in background — `recency × pain × importance`.**
 
-The salience function lives in `src/lib/salience.ts` [^salience-src] (and is mirrored in the staged copy at `staged-1.7a/edits/salience.ts`). Its underlying principle is multiplicative — a memory scores high only when it is *simultaneously* recent, painful, and important:
+The salience function lives in `src/lib/salience.ts` [^salience-src] (and is mirrored in the staged copy at `staged/1.7a/edits/salience.ts`). Its underlying principle is multiplicative — a memory scores high only when it is *simultaneously* recent, painful, and important:
 
 ```
 salience = recency × pain × importance
@@ -1532,15 +1532,15 @@ The cross-agent intelligence layer transforms isolated agent memories into a col
 
 [^watcher-arch]: `nox-mem-watcher` systemd service running `inotifywait` on `memory/` directories. See `docs/ARCHITECTURE.md` and §3.1 of this paper.
 
-[^salience-mode]: `NOX_SALIENCE_MODE` environment variable controls the three-state gate (`shadow` | `active` | `off`). Default is `shadow`. Telemetry exposed at `/api/health.salience`. See §3.4.3, `staged-1.7a/edits/salience.ts`, and `docs/CONFIGURATION.md`.
+[^salience-mode]: `NOX_SALIENCE_MODE` environment variable controls the three-state gate (`shadow` | `active` | `off`). Default is `shadow`. Telemetry exposed at `/api/health.salience`. See §3.4.3, `staged/1.7a/edits/salience.ts`, and `docs/CONFIGURATION.md`.
 
-[^crystallize-src]: HTTP handlers in `src/api-server.ts` (routes `/api/crystallize`, `/api/crystallize/validate` — confirmed in `staged-1.6/edits/api-server.ts:253–273`); core logic in `src/crystallize.ts` exporting `crystallize()`, `validateProcedure()`, `listProcedures()`. Wrapped by `withOpAudit()` (`src/lib/op-audit.ts`).
+[^crystallize-src]: HTTP handlers in `src/api-server.ts` (routes `/api/crystallize`, `/api/crystallize/validate` — confirmed in `staged/1.6/edits/api-server.ts:253–273`); core logic in `src/crystallize.ts` exporting `crystallize()`, `validateProcedure()`, `listProcedures()`. Wrapped by `withOpAudit()` (`src/lib/op-audit.ts`).
 
-[^reflect-src]: `src/reflect.ts` exporting `reflect()` and `getReflectCacheStats()` (confirmed in `staged-1.6/edits/api-server.ts:12`). Cache statistics surfaced in `/api/health.reflectCache`. See also `docs/POSTMAN.md` for the API contract.
+[^reflect-src]: `src/reflect.ts` exporting `reflect()` and `getReflectCacheStats()` (confirmed in `staged/1.6/edits/api-server.ts:12`). Cache statistics surfaced in `/api/health.reflectCache`. See also `docs/POSTMAN.md` for the API contract.
 
-[^salience-src]: `src/lib/salience.ts` — canonical implementation of the salience formula (multiplicative principle in §3.4.3; weighted-additive v2 production form `W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access_score` in §5.1), mirrored in the staged copy at `staged-1.7a/edits/salience.ts` (lines 1–80 contain the module docstring spelling out the formula, the three-state mode gate, and the per-type retention defaults).
+[^salience-src]: `src/lib/salience.ts` — canonical implementation of the salience formula (multiplicative principle in §3.4.3; weighted-additive v2 production form `W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access_score` in §5.1), mirrored in the staged copy at `staged/1.7a/edits/salience.ts` (lines 1–80 contain the module docstring spelling out the formula, the three-state mode gate, and the per-type retention defaults).
 
-[^retention-defaults]: V8 schema typed retention defaults (in `chunks.retention_days`): `feedback` = 0 (never-decay), `person` = 0 (never-decay), `lesson` = 180d, `decision` = 365d, `project` = 365d, `team` = 120d, `daily` = 90d, `pending` = 30d, `graph_node` = 60d, fallback = 90d. See `staged-1.7a/edits/salience.ts:46–56` (`DEFAULT_RETENTION_BY_TYPE`) and `CLAUDE.md` §"Schema v10".
+[^retention-defaults]: V8 schema typed retention defaults (in `chunks.retention_days`): `feedback` = 0 (never-decay), `person` = 0 (never-decay), `lesson` = 180d, `decision` = 365d, `project` = 365d, `team` = 120d, `daily` = 90d, `pending` = 30d, `graph_node` = 60d, fallback = 90d. See `staged/1.7a/edits/salience.ts:46–56` (`DEFAULT_RETENTION_BY_TYPE`) and `CLAUDE.md` §"Schema v10".
 
 [^q-a-p-pivot]: Q/A/P strategic pivot of 2026-05-17 — three pillars (**Q**uality, **A**utonomy, **P**roduct). See `docs/ROADMAP.md` and `[[qap-pillars-strategic-decision]]` in the project memory.
 

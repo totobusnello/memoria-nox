@@ -24,8 +24,8 @@ jobs:
             | grep -v "/.git/" \
             | grep -v "^\./.claude/" \
             | grep -v "^./archive/" \
-            | grep -v "^./_archive-pre-split" \
-            | grep -Ev "^./staged-[^/]" \
+            | grep -v "^./archive/pre-split" \
+            | grep -Ev "^./staged/" \
             | grep -v "perf-baseline-refresh.yml" \
             | grep -v "validation/zero-vendor/ci-action.yml" \
             | xargs yamllint -c .yamllint.yaml
@@ -50,8 +50,8 @@ jobs:
             | grep -v "/.git/" \
             | grep -v "^\./.claude/" \
             | grep -v "^./archive/" \
-            | grep -v "^./_archive-pre-split" \
-            | grep -Ev "^./staged-[^/]" \
+            | grep -v "^./archive/pre-split" \
+            | grep -Ev "^./staged/" \
             | grep -v "paper/publication/results/" \
             | while read f; do
                 python3 -m json.tool "$f" > /dev/null \

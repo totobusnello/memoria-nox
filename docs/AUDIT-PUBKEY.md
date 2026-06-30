@@ -44,7 +44,7 @@ Verified 2026-05-24 via direct Node.js `crypto.sign`/`crypto.verify` round-trip:
 ### Prerequisites
 
 - Node.js >= 18 (Ed25519 native support)
-- Access to the staged CLI: `staged-A2-T3/dist/edits/scripts/audit-checkpoint-cli.js`
+- Access to the staged CLI: `staged/A2-T3/dist/edits/scripts/audit-checkpoint-cli.js`
 - Read access to the nox-mem DB (`NOX_DB_PATH` set)
 
 ### Step 1 — Save the public key locally
@@ -58,7 +58,7 @@ echo -n "GdNgLSCH5j07NLbZF1yHSGw3YFrQ9hDhH6wHq9DOm+A=" > /tmp/audit-pub.b64
 
 ```bash
 export NOX_DB_PATH=/path/to/nox-mem.db
-node staged-A2-T3/dist/edits/scripts/audit-checkpoint-cli.js \
+node staged/A2-T3/dist/edits/scripts/audit-checkpoint-cli.js \
   verify \
   --id <checkpoint_id> \
   --key-file /tmp/audit-pub.b64
@@ -79,7 +79,7 @@ Expected successful output:
 
 ```bash
 export NOX_DB_PATH=/path/to/nox-mem.db
-node staged-A2-T3/dist/edits/scripts/audit-checkpoint-cli.js \
+node staged/A2-T3/dist/edits/scripts/audit-checkpoint-cli.js \
   verify-chain \
   --scope all \
   --key-file /tmp/audit-pub.b64
@@ -104,8 +104,8 @@ node -e "
 
 ## References
 
-- Checkpoint implementation: `staged-A2-T3/edits/src/lib/audit-checkpoints.ts`
-- CLI reference: `staged-A2-T3/edits/scripts/audit-checkpoint-cli.ts`
+- Checkpoint implementation: `staged/A2-T3/edits/src/lib/audit-checkpoints.ts`
+- CLI reference: `staged/A2-T3/edits/scripts/audit-checkpoint-cli.ts`
 - Key management guide: [`docs/A2-TIER3-CHECKPOINTS-GUIDE.md`](A2-TIER3-CHECKPOINTS-GUIDE.md)
 - Deployment runbook: [`docs/A2-TIER3-DEPLOYMENT-MASTER.md`](A2-TIER3-DEPLOYMENT-MASTER.md)
 - A2 Tier 3 Phase A description: `docs/A2-TIER3-DEPLOYMENT-MASTER.md` § Phase A

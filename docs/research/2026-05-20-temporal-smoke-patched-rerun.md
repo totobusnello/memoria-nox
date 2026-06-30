@@ -79,7 +79,7 @@ D49 phase 2 shadow continua válida — telemetria em volume real continua útil
 
 - Runner Node simulado: `/tmp/smoke-patched/runner.mjs` (VPS) + `/tmp/smoke-patched-runner.mjs` (local)
 - Raw results: `/tmp/smoke-patched/results-final.json` (VPS) + `/tmp/smoke-patched-results.json` (local)
-- Spike patched: `staged-temporal-spike/edits/temporal-retrieval.ts` (PR #176, branch `feat/temporal-spike-3-patches-2026-05-20`)
+- Spike patched: `staged/temporal-spike/edits/temporal-retrieval.ts` (PR #176, branch `feat/temporal-spike-3-patches-2026-05-20`)
 - Smoke original (pre-patch): `docs/research/2026-05-20-d49-phase2-activation-plus-smoke.md`
 - Gold set: `eval/golden-queries.jsonl:61-66`
 

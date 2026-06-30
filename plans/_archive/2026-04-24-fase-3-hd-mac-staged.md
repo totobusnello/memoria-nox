@@ -65,14 +65,14 @@ rsync -ahv --progress \
   --include='*/' \
   --include='*.md' --include='*.docx' \
   --exclude='*' \
-  /Users/lab/Documents/ root@100.87.8.44:/root/.openclaw/workspace/memory/mac-docs/
+  /Users/lab/Documents/ root@<NOX_TAILSCALE_IP>:/root/.openclaw/workspace/memory/mac-docs/
 ```
 
 ### Step 2 — Pandoc conversion (.docx → .md) na VPS
 
 ```bash
-ssh root@100.87.8.44 'which pandoc || apt-get install -y pandoc'
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> 'which pandoc || apt-get install -y pandoc'
+ssh root@<NOX_TAILSCALE_IP> '
   cd /root/.openclaw/workspace/memory/mac-docs/
   find . -name "*.docx" -print0 | while IFS= read -r -d "" f; do
     out="${f%.docx}.md"
@@ -160,7 +160,7 @@ Pre-req: lista de PDFs Tier 2 que retornaram texto vazio ou <20 words.
 Cole esse comando no terminal do Mac (`~/Claude/Projetos/memoria-nox/` ou qualquer dir):
 
 ```bash
-rsync -ahv --progress --include='*/' --include='*.md' --include='*.docx' --exclude='*' /Users/lab/Documents/ root@100.87.8.44:/root/.openclaw/workspace/memory/mac-docs/
+rsync -ahv --progress --include='*/' --include='*.md' --include='*.docx' --exclude='*' /Users/lab/Documents/ root@<NOX_TAILSCALE_IP>:/root/.openclaw/workspace/memory/mac-docs/
 ```
 
 Expected: ~550 files, ~50-200MB, 2-5 minutos de transferência.
@@ -168,13 +168,13 @@ Expected: ~550 files, ~50-200MB, 2-5 minutos de transferência.
 **Pós-rsync**, rodar (1 comando):
 
 ```bash
-ssh root@100.87.8.44 'which pandoc || apt-get install -y pandoc; cd /root/.openclaw/workspace/memory/mac-docs/ && find . -name "*.docx" -print0 | while IFS= read -r -d "" f; do out="${f%.docx}.md"; [ -f "$out" ] || pandoc "$f" -t gfm -o "$out" 2>/dev/null || echo "FAIL: $f"; done; echo "DONE"'
+ssh root@<NOX_TAILSCALE_IP> 'which pandoc || apt-get install -y pandoc; cd /root/.openclaw/workspace/memory/mac-docs/ && find . -name "*.docx" -print0 | while IFS= read -r -d "" f; do out="${f%.docx}.md"; [ -f "$out" ] || pandoc "$f" -t gfm -o "$out" 2>/dev/null || echo "FAIL: $f"; done; echo "DONE"'
 ```
 
 Watcher auto-ingesta. Check health em 2min:
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".chunks.total, .sectionDistribution"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq ".chunks.total, .sectionDistribution"'
 ```
 
 Esperado: +500-2000 chunks.

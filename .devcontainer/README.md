@@ -8,7 +8,7 @@ Click the button above to open a fully-configured browser environment in ~60 sec
 
 - Python 3.11 + Node 20 pre-installed
 - `curl`, `jq`, `asciinema` available
-- `BASE_URL` pre-set to the public demo VPS (`http://187.77.234.79:18802`)
+- `BASE_URL` pre-set to the public demo VPS (`http://<VPS_IP>:18802`)
 - `requests` and `pyyaml` pip-installed
 - Welcome banner with ready-to-run commands
 

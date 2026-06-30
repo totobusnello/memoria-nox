@@ -37,7 +37,7 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Audit staged-* package.json files
+      - name: Audit staged/ package.json files
         run: |
           found=0
           for f in $(find . -maxdepth 3 -name "package.json" | grep -v node_modules | grep -v .git); do

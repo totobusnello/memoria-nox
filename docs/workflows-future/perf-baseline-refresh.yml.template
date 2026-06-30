@@ -63,24 +63,24 @@ jobs:
       - name: Install tsx
         run: npm install -g tsx@4
 
-      - name: Install + build staged-P1
-        if: hashFiles('staged-P1/package.json') != ''
+      - name: Install + build staged/P1
+        if: hashFiles('staged/P1/package.json') != ''
         run: |
-          cd staged-P1
+          cd staged/P1
           npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
           npm run build 2>&1 | tail -10
 
-      - name: Install + build staged-A2
-        if: hashFiles('staged-A2/package.json') != ''
+      - name: Install + build staged/A2
+        if: hashFiles('staged/A2/package.json') != ''
         run: |
-          cd staged-A2
+          cd staged/A2
           npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
           npm run build 2>&1 | tail -10
 
-      - name: Install + build staged-A3
-        if: hashFiles('staged-A3/package.json') != ''
+      - name: Install + build staged/A3
+        if: hashFiles('staged/A3/package.json') != ''
         run: |
-          cd staged-A3
+          cd staged/A3
           npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
           npm run build 2>&1 | tail -10
 

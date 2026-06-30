@@ -58,16 +58,16 @@ Default: `hybrid_shadow`. Changeable via `NOX_KG_EXTRACT_MODE` env.
 
 | File | Lines | Purpose |
 |---|---|---|
-| `staged-1.7a/edits/regex-extract.ts` | ~280 | Tier 1 regex extraction (T1-T5): strip, patterns, entity refs, frontmatter, code refs |
-| `staged-1.7a/edits/lib/kg-extract-telemetry.ts` | ~130 | Shadow JSONL telemetry: logExtractDiff, buildDiffEntry, summarizeDiffEntries |
-| `staged-1.7a/edits/__tests__/regex-extract.test.ts` | ~220 | 15+ test cases: all entity types, frontmatter rules, code refs, edge cases, Unicode |
-| `staged-1.7a/edits/__tests__/hybrid-extract.test.ts` | ~180 | 6+ test cases: all 4 modes, invalid-mode fallback, telemetry smoke |
+| `staged/1.7a/edits/regex-extract.ts` | ~280 | Tier 1 regex extraction (T1-T5): strip, patterns, entity refs, frontmatter, code refs |
+| `staged/1.7a/edits/lib/kg-extract-telemetry.ts` | ~130 | Shadow JSONL telemetry: logExtractDiff, buildDiffEntry, summarizeDiffEntries |
+| `staged/1.7a/edits/__tests__/regex-extract.test.ts` | ~220 | 15+ test cases: all entity types, frontmatter rules, code refs, edge cases, Unicode |
+| `staged/1.7a/edits/__tests__/hybrid-extract.test.ts` | ~180 | 6+ test cases: all 4 modes, invalid-mode fallback, telemetry smoke |
 
 ### Modified
 
 | File | Change |
 |---|---|
-| `staged-1.7a/edits/kg-llm.ts` | L4 hybrid orchestration: `NOX_KG_EXTRACT_MODE` routing, regex import, telemetry integration, model corrected to `gemini-2.5-flash-lite` |
+| `staged/1.7a/edits/kg-llm.ts` | L4 hybrid orchestration: `NOX_KG_EXTRACT_MODE` routing, regex import, telemetry integration, model corrected to `gemini-2.5-flash-lite` |
 
 ---
 
@@ -190,7 +190,7 @@ Regex code never writes to DB directly — all DB writes are handled by the exis
 |---|---|---|
 | T0 validation: VPS entity types vs DIR_PATTERN | Before deploy | SSH read was blocked; validate manually on VPS before enabling `NOX_KG_EXTRACT_MODE` |
 | T8 eval harness: golden set 100 entity files | Lab Q1 | `eval/golden-l4-regex-extract.jsonl` not yet created |
-| Stale-link reconciliation watcher integration | T7, post-shadow | `staged-L4/edits/src/lib/regex-extract/reconcile.ts` has the logic; needs watcher hook |
+| Stale-link reconciliation watcher integration | T7, post-shadow | `staged/L4/edits/src/lib/regex-extract/reconcile.ts` has the logic; needs watcher hook |
 | `/api/health.kgExtraction` telemetry endpoint | T9 | `summarizeDiffEntries()` ready; HTTP endpoint not wired |
 
 ---
@@ -198,7 +198,7 @@ Regex code never writes to DB directly — all DB writes are handled by the exis
 ## Cross-References
 
 - Spec: `specs/2026-05-18-L4-regex-first-extraction.md`
-- Staged implementation (T1-T9 prior work): `staged-L4/edits/src/lib/regex-extract/`
+- Staged implementation (T1-T9 prior work): `staged/L4/edits/src/lib/regex-extract/`
 - Shadow-mode rule: CLAUDE.md §regra 5
 - Incident log: `docs/INCIDENTS.md`
 - Unicode regex lesson: MEMORY.md `JS regex \b falha em Unicode`

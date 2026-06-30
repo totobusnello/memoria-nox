@@ -49,15 +49,15 @@ function resetState(): void {
 // ── Static files ───────────────────────────────────────────────────────────
 
 // Resolve viewer source files. In worktree context, look for them relative to
-// repo root staged-P5 dir or fallback to fixtures.
+// repo root staged/P5 dir or fallback to fixtures.
 function resolveViewerDir(): string {
   const candidates = [
     // Main worktree with merged P5
-    path.resolve(__dirname, "../../../staged-P5/edits/src/viewer"),
-    // Sibling worktrees (any agent-* that has staged-P5)
+    path.resolve(__dirname, "../../../staged/P5/edits/src/viewer"),
+    // Sibling worktrees (any agent-* that has staged/P5)
     path.resolve(
       __dirname,
-      "../../../../../../worktrees/agent-a9ebac90048246300/staged-P5/edits/src/viewer"
+      "../../../../../../worktrees/agent-a9ebac90048246300/staged/P5/edits/src/viewer"
     ),
     // Fixtures bundled with tests
     path.resolve(__dirname, "../fixtures/viewer"),

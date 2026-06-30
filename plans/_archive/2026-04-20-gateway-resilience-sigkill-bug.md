@@ -64,7 +64,7 @@
 
 ### Pre-flight backups
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 mkdir -p /root/backups/2026-04-20-gateway-fix
 cp /etc/systemd/system/openclaw-gateway.service /root/backups/2026-04-20-gateway-fix/
 cp /usr/local/bin/openclaw-gateway-wrapper /root/backups/2026-04-20-gateway-fix/
@@ -76,7 +76,7 @@ crontab -l > /root/backups/2026-04-20-gateway-fix/crontab.txt
 
 ### Step 1: Stop the restart loop (mask service, keep config)
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 systemctl stop openclaw-gateway
 # child survives under systemd --user; verify:
 ss -tlnp | grep 18789
@@ -162,7 +162,7 @@ Create `/root/.openclaw/OPERATIONAL-STATE.md` noting: binary 2026.4.14 has self-
 ## Rollback Plan (revert to systemd-managed)
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 systemctl stop openclaw-gateway-watchdog.timer
 systemctl disable openclaw-gateway-watchdog.timer
 systemctl unmask openclaw-gateway

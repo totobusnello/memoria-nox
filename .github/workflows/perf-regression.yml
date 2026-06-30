@@ -7,10 +7,10 @@ name: Perf Regression Gate
 on:
   pull_request:
     paths:
-      - 'staged-P1/edits/**'
-      - 'staged-A2/edits/**'
-      - 'staged-A3/edits/**'
-      - 'staged-L4/edits/**'
+      - 'staged/P1/edits/**'
+      - 'staged/A2/edits/**'
+      - 'staged/A3/edits/**'
+      - 'staged/L4/edits/**'
       - 'benchmark/baseline-2026-05-18.json'
       - 'benchmark/regression-detector.ts'
       - '.github/workflows/perf-regression.yml'
@@ -55,9 +55,9 @@ jobs:
       - name: Detect staged dirs
         id: detect
         run: |
-          echo "has_p1=$([ -d staged-P1 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-          echo "has_a2=$([ -d staged-A2 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
-          echo "has_a3=$([ -d staged-A3 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "has_p1=$([ -d staged/P1 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "has_a2=$([ -d staged/A2 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          echo "has_a3=$([ -d staged/A3 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
 
   # ---------------------------------------------------------------------------
   # Main regression detection job
@@ -81,27 +81,27 @@ jobs:
       - name: Install tsx
         run: npm install -g tsx@4
 
-      # ---- Build staged-P1 if present ----
-      - name: Install + build staged-P1
+      # ---- Build staged/P1 if present ----
+      - name: Install + build staged/P1
         if: needs.detect-stages.outputs.has_p1 == 'true'
         run: |
-          cd staged-P1
+          cd staged/P1
           npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
           npm run build 2>&1 | tail -20
 
-      # ---- Build staged-A2 if present ----
-      - name: Install + build staged-A2
+      # ---- Build staged/A2 if present ----
+      - name: Install + build staged/A2
         if: needs.detect-stages.outputs.has_a2 == 'true'
         run: |
-          cd staged-A2
+          cd staged/A2
           npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
           npm run build 2>&1 | tail -20
 
-      # ---- Build staged-A3 if present ----
-      - name: Install + build staged-A3
+      # ---- Build staged/A3 if present ----
+      - name: Install + build staged/A3
         if: needs.detect-stages.outputs.has_a3 == 'true'
         run: |
-          cd staged-A3
+          cd staged/A3
           npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
           npm run build 2>&1 | tail -20
 

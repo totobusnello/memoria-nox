@@ -8,7 +8,7 @@
  *   BASE_URL=http://localhost:18802 node examples/03-js-search.js "my query"
  */
 
-const BASE_URL = (process.env.BASE_URL || "http://187.77.234.79:18802").replace(/\/$/, "");
+const BASE_URL = (process.env.BASE_URL || "http://localhost:18802").replace(/\/$/, "");
 
 async function health() {
   const r = await fetch(`${BASE_URL}/api/health`);

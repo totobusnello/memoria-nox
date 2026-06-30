@@ -715,7 +715,7 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
 - **Por quê:**
   - Princípio CLAUDE.md §5 — features que afetam search/tier decisions precisam ≥1 semana baseline via `/api/health` antes de ativar
   - Gold Q87+Q88 curados hoje (PR #159) — agora 4/4 temporais com `expected_chunk_ids` válido pra medição numérica
-  - Spike isolated em `staged-temporal-spike/` (não toca prod search.ts ainda) — deploy é additional, não breaking change
+  - Spike isolated em `staged/temporal-spike/` (não toca prod search.ts ainda) — deploy é additional, não breaking change
   - Trade-off identificado pelo spike: E13 section-boost flip e proximity rerank são **ortogonais** — 98.9% do corpus tem `section=NULL` (E13 não cobre), enquanto queries adverbial-only como Q70 ("quando o salience foi ativado") não têm anchor parseável (proximity não dispara). Nenhum path sozinho cobre 4 queries temporais — eles compõem
 - **Roadmap implementação (4 fases gated):**
   - **Phase 1:** deploy spike code em `src/temporal-retrieval.ts` na VPS via novo Wave (não PR #154 retroativo). Wire em `searchHybrid` mas apenas se `NOX_TEMPORAL_PATH=1`
@@ -726,7 +726,7 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Skip shadow window achando que spike test é suficiente (smoke ≠ eval, lesson D39)
   - Deploy via PR #154 retroactive (já merged, scope creep)
   - Ativar sem comparing baseline ablation (precisa A0 dedicated temporal)
-- **Cross-links:** spike PR #157 (staged-temporal-spike), gold cure PR #159, D43/D44 (Q4 gate Phase 2 já open), memory `[[temporal-q1-spike-2026-05-20]]`.
+- **Cross-links:** spike PR #157 (staged/temporal-spike), gold cure PR #159, D43/D44 (Q4 gate Phase 2 já open), memory `[[temporal-q1-spike-2026-05-20]]`.
 - *Origem:* sessão 2026-05-20 ~11h-12h BRT, pós deploy Wave A novo e gold cure.
 
 ---

@@ -30,7 +30,7 @@ nox-mem reindex --dry-run    # verify state
 curl http://127.0.0.1:18802/api/health | jq .vectorCoverage
 
 # 2. Apply patch files
-rsync -av /path/to/staged-P1/edits/src/ $INSTALL_DIR/src/
+rsync -av /path/to/staged/P1/edits/src/ $INSTALL_DIR/src/
 
 # 3. Rebuild
 cd $INSTALL_DIR && npm run build

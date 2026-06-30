@@ -2,8 +2,8 @@
  * Pillar shims — minimal contract-pinned copies of staged-pillar primitives.
  *
  * WHY SHIMS, NOT IMPORTS:
- *   The staged packages (staged-P1, staged-A2, staged-L2, staged-L3, staged-L4,
- *   staged-P2, staged-P5, staged-A3, staged-privacy) live in sibling TypeScript
+ *   The staged packages (staged/P1, staged/A2, staged/L2, staged/L3, staged/L4,
+ *   staged/P2, staged/P5, staged/A3, staged/privacy) live in sibling TypeScript
  *   projects each with their own `rootDir` / `outDir`. Cross-importing source
  *   `.ts` between them either pulls every staged tree into this tsc build (which
  *   would require deconflicting 9 sets of overlapping module roots) or relies on
@@ -21,8 +21,8 @@
  */
 
 // =============================================================================
-// A1 / staged-privacy — PII / secret redaction.
-// Source: staged-privacy/edits/privacy/patterns.ts + filter.ts
+// A1 / staged/privacy — PII / secret redaction.
+// Source: staged/privacy/edits/privacy/patterns.ts + filter.ts
 // =============================================================================
 
 export interface RedactionPattern {
@@ -48,7 +48,7 @@ export function luhn(digits: string): boolean {
 
 /**
  * Contract-pinned subset of REDACTION_PATTERNS. Each entry mirrors a real
- * staged-privacy pattern. CRITICAL: order matters (PEM before generic base64).
+ * staged/privacy pattern. CRITICAL: order matters (PEM before generic base64).
  */
 export const REDACTION_PATTERNS: RedactionPattern[] = [
   {
@@ -156,7 +156,7 @@ export function redact(rawText: string): RedactResult {
 
 // =============================================================================
 // L4 — Regex-first KG extraction (typed link extractor).
-// Source: staged-L4/edits/src/lib/regex-extract/{patterns,extractor,production-wire}.ts
+// Source: staged/L4/edits/src/lib/regex-extract/{patterns,extractor,production-wire}.ts
 // =============================================================================
 
 export const NOX_ENTITY_TYPES = [
@@ -189,7 +189,7 @@ export interface EntityRef {
   source: "markdown_link" | "wikilink" | "bare_ref";
 }
 
-// SLUG_CHARS mirrors staged-L4/edits/src/lib/regex-extract/patterns.ts: NO dots
+// SLUG_CHARS mirrors staged/L4/edits/src/lib/regex-extract/patterns.ts: NO dots
 // (so `.md` extensions and sentence-final periods do not get gobbled into the slug).
 const DIR_PATTERN = NOX_ENTITY_TYPES.filter((t) => t !== "entities").join("|");
 const SLUG_CHARS = "[a-z0-9_\\-]+";
@@ -278,7 +278,7 @@ export function scoreEntityRef(ref: EntityRef): number {
 // =============================================================================
 // L2 — Direct conflict detector (contract: groups by subject_entity_id + predicate
 // and flags groups with >1 distinct active target, all ≥ min_confidence).
-// Source: staged-L2/edits/src/lib/conflict/detector-direct.ts
+// Source: staged/L2/edits/src/lib/conflict/detector-direct.ts
 // =============================================================================
 
 export interface VariantRelation {
@@ -434,7 +434,7 @@ export function recordConflict(
 
 // =============================================================================
 // L3 — Confidence ranking modes + mark-canonical.
-// Source: staged-L3/edits/src/lib/confidence/{config,mark,ranking,search-filter}.ts
+// Source: staged/L3/edits/src/lib/confidence/{config,mark,ranking,search-filter}.ts
 // =============================================================================
 
 export type RankingMode = "disabled" | "shadow" | "active";
@@ -511,7 +511,7 @@ export function markRelationCanonical(
 
 // =============================================================================
 // A2 — Export / import round-trip.
-// Source: staged-A2/edits/src/lib/archive/{encryption,format,manifest}.ts
+// Source: staged/A2/edits/src/lib/archive/{encryption,format,manifest}.ts
 //
 // Simplified contract: serialize-then-deserialize via canonical JSON, encrypted
 // with AES-256-GCM keyed on scrypt-derived bytes from a passphrase + manifest AAD.
@@ -634,7 +634,7 @@ export function unpackArchive(passphrase: string, blob: ArchiveBlob): Buffer {
 
 // =============================================================================
 // A3 — Provider fallback chain.
-// Source: staged-A3/edits/src/providers/llm/chain.ts
+// Source: staged/A3/edits/src/providers/llm/chain.ts
 //
 // Contract-pinned: primary timeout → fallback; 429 → cooldown + fallback;
 // 401/403 → fail-fast; max one fallback attempt per provider in a single call.
@@ -746,7 +746,7 @@ export class LLMFallbackChain {
 
 // =============================================================================
 // P5 — Viewer event bus (in-process EventEmitter).
-// Source: staged-P5/edits/src/lib/viewer/broadcast.ts
+// Source: staged/P5/edits/src/lib/viewer/broadcast.ts
 // =============================================================================
 
 export type ViewerEventKind = "ingest" | "search" | "kg" | "op_audit" | "crystallize";
@@ -808,7 +808,7 @@ export function emitSearchEvent(
 
 // =============================================================================
 // P2 — Hooks pipeline (5-layer).
-// Source: staged-P2/edits/src/lib/hooks/pipeline.ts
+// Source: staged/P2/edits/src/lib/hooks/pipeline.ts
 // =============================================================================
 
 export type HookSource = "openclaw" | "cli" | "manual" | "mcp" | "api" | "unknown";
@@ -905,7 +905,7 @@ export async function runHookPipeline(
   }
 
   // Layer 4: classifier — toy "low signal" detector (very short messages or
-  // pure whitespace). Real classifier is in staged-P2/edits/src/lib/hooks/classifier.ts.
+  // pure whitespace). Real classifier is in staged/P2/edits/src/lib/hooks/classifier.ts.
   if (redacted.text.trim().length < 5) {
     opts.insertTelemetry({
       event_uuid: ev.event_id,

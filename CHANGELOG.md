@@ -48,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added — 2026-05-21 morning burst (9 PRs landed em ~3h)
 
-- **vec0 reindex fix** — sqlite-vec load defensive em `_reindexImpl` (`staged-1.7a/edits/reindex.ts`); fixes 6× retry loop em CLI reindex; api-server unaffected (vec0 bundle commit `9ad77eb`)
+- **vec0 reindex fix** — sqlite-vec load defensive em `_reindexImpl` (`staged/1.7a/edits/reindex.ts`); fixes 6× retry loop em CLI reindex; api-server unaffected (vec0 bundle commit `9ad77eb`)
 - **opsAudit hygiene** — table rebuild para `started_at` INTEGER + 2 enforcement triggers + test-% row cleanup; `/api/health.opsAudit.total_24h` went 48 phantom → 1 real (#193)
 - **GTM README hero upgrade** — Q/A/P pillar badges + 6 stat cards + headline numbers + Quick-start promoted; D43 Q4 gate dispatched (#190)
 - **Per-method benchmark spec** — 520 LOC plan pra comparison nox-mem vs Mem0/Zep/EverCore/HyperMem em LongMemEval + EverMemBench (#191)

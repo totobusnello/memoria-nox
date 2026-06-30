@@ -48,18 +48,18 @@
 
 | Camada | Controle | Onde mora |
 |---|---|---|
-| Dado em repouso | AES-256-GCM + scrypt(N=2^17,r=8,p=1) em exports | `staged-A2/edits/src/lib/archive/encryption.ts` |
-| Dado em ingest | PII/secret redaction (13 patterns + Luhn) | `staged-privacy/edits/privacy/filter.ts` |
-| Telemetria | `redactSecrets()` strip Bearer/AIza/sk-/key= | `staged-A3/edits/src/providers/embedding/gemini.ts:177-183` |
-| Audit | Append-only triggers (ops_audit, confidence_eval_log) | `staged-L3/edits/migrations/v22-confidence-eval-log.sql:30-40` |
-| HTTP | Localhost-only default + auth seam opcional | `staged-P1/edits/src/api/answer.ts:205-216` |
+| Dado em repouso | AES-256-GCM + scrypt(N=2^17,r=8,p=1) em exports | `staged/A2/edits/src/lib/archive/encryption.ts` |
+| Dado em ingest | PII/secret redaction (13 patterns + Luhn) | `staged/privacy/edits/privacy/filter.ts` |
+| Telemetria | `redactSecrets()` strip Bearer/AIza/sk-/key= | `staged/A3/edits/src/providers/embedding/gemini.ts:177-183` |
+| Audit | Append-only triggers (ops_audit, confidence_eval_log) | `staged/L3/edits/migrations/v22-confidence-eval-log.sql:30-40` |
+| HTTP | Localhost-only default + auth seam opcional | `staged/P1/edits/src/api/answer.ts:205-216` |
 | Ranking | Shadow-mode discipline ≥7d antes de ativar | CLAUDE.md regra #5 |
-| Credencial | API key sempre via env var (`${ENV_VAR}`) | feedback `no_hardcoded_secrets` + `MissingKeyError` em `staged-A3/edits/src/providers/types.ts:23-35` |
+| Credencial | API key sempre via env var (`${ENV_VAR}`) | feedback `no_hardcoded_secrets` + `MissingKeyError` em `staged/A3/edits/src/providers/types.ts:23-35` |
 
 ### Default-deny posture (verified)
 
 - Encryption opt-OUT (D41 #2 — exports criptografados por padrão).
-- Passphrase nunca aceita via argv (`getPassphrase()` rejeita em `staged-A2/edits/src/lib/archive/encryption.ts:206-230`).
+- Passphrase nunca aceita via argv (`getPassphrase()` rejeita em `staged/A2/edits/src/lib/archive/encryption.ts:206-230`).
 - `MissingKeyError` no construtor — provider recusa subir sem env var presente.
 - Fail-fast no boot health probe (`NOX_PROVIDER_HEALTH_FAIL_FAST=1` default).
 - Pattern audit + Luhn check em CC pra reduzir FP, mas FP/FN trade-off documentado.
@@ -69,9 +69,9 @@
 | # | Risco | Severidade | Existe controle? | Gap residual |
 |---|---|---|---|---|
 | **1** | Passphrase fraca em export (`password123` aceita pelo `getPassphrase`) — scrypt(N=2^17) sozinho não compensa entropia ~28 bits | **Alto** | KDF caro (`scrypt N=2^17`) sim | 🔴 **GAP:** zero validação de entropia / zxcvbn |
-| **2** | Stack trace de Node em error response HTTP pode vazar caminho `/root/.openclaw/...` ou trecho de prompt (P1 answer 500 path em `staged-P1/edits/src/api/answer.ts:314-320`) | **Alto** | `(err as Error).message` exposto, sem `.stack` no JSON | 🟡 Parcial — `.message` ok, mas alguns providers concatenam contexto em `.message`; falta sanitizer central |
+| **2** | Stack trace de Node em error response HTTP pode vazar caminho `/root/.openclaw/...` ou trecho de prompt (P1 answer 500 path em `staged/P1/edits/src/api/answer.ts:314-320`) | **Alto** | `(err as Error).message` exposto, sem `.stack` no JSON | 🟡 Parcial — `.message` ok, mas alguns providers concatenam contexto em `.message`; falta sanitizer central |
 | **3** | PII filter coverage incompleta — endereços, nomes, CPF/CNPJ, telefone BR, e-mail genérico não estão em `REDACTION_PATTERNS` (13 patterns são US-centric + tokens-API) | **Médio-alto** | 13 patterns + 1.7% FP | 🔴 **GAP:** Brasil-specific (CPF, CNPJ, RG, CEP, telefone +55) + endereços/nomes só via `<private>` tag manual |
-| **4** | DoS via prompt longo em `/api/answer` — limite só de `question.length ≤ 2000` chars (staged-P1/edits/src/api/answer.ts:124); top_k não tem `maximum` enforced no validador (só no JSON Schema) | **Médio** | Schema declara `maximum: 20` mas `validateBody()` só checa `typeof number` | 🟡 Validator/schema drift — validator não aplica os mins/maxes do schema |
+| **4** | DoS via prompt longo em `/api/answer` — limite só de `question.length ≤ 2000` chars (staged/P1/edits/src/api/answer.ts:124); top_k não tem `maximum` enforced no validador (só no JSON Schema) | **Médio** | Schema declara `maximum: 20` mas `validateBody()` só checa `typeof number` | 🟡 Validator/schema drift — validator não aplica os mins/maxes do schema |
 | **5** | Audit log file-level deletion: triggers bloqueiam `DELETE` SQL, mas `rm nox-mem.db` ou `sed -i` em backup contornam tudo (lesson 2026-05-01) | **Médio** | DB triggers + backup-all.sh 02:00 + snapshots `withOpAudit()` | 🔴 **GAP:** `chattr +i` ainda não é automatizado em audit DBs; off-site backup `_future/F09` rejeitado |
 
 ---
@@ -108,7 +108,7 @@ local de armazenamento, quem acessa, e qual threat actor é relevante.
 ### D. Encryption passphrase (CRÍTICA)
 
 - **Classification:** Crítica — controla acesso a todo export criptografado.
-- **Where stored:** **nunca persistida** — só em `NOX_EXPORT_PASSPHRASE` env var (recomendado em CI) ou stdin interactive (`staged-A2/edits/src/lib/archive/encryption.ts:206-230`).
+- **Where stored:** **nunca persistida** — só em `NOX_EXPORT_PASSPHRASE` env var (recomendado em CI) ou stdin interactive (`staged/A2/edits/src/lib/archive/encryption.ts:206-230`).
 - **Who has access:** quem rodar export/import.
 - **Relevant actors:** atacante com leitura em `/proc/<pid>/environ`, leak via `ps`, leak via shell history se user fizer `export NOX_EXPORT_PASSPHRASE=...` em terminal sem `HISTFILE=/dev/null`.
 - **Hard rule:** argv recusado por design em `getPassphrase()`.
@@ -119,13 +119,13 @@ local de armazenamento, quem acessa, e qual threat actor é relevante.
 - **Where stored:** `/root/.openclaw/.env` (file perms 0600 — feedback `chattr_keep_immutable` mantém `chattr +i` pra prevenir self-truncate).
 - **Memória relacionada:** `no_secrets_in_git` (regex grep pré-commit), `no_hardcoded_secrets` (sempre `${ENV_VAR}` em config), `token_audit_check_values_not_just_presence` (validar HTTP 200, não só presença).
 - **Who has access:** root local; processo via `set -a; source .env; set +a`.
-- **Relevant actors:** insider, attacker com leitura no fs, leak via error message (mitigado por `redactSecrets()` em `staged-A3/edits/src/providers/embedding/gemini.ts:177-183`).
+- **Relevant actors:** insider, attacker com leitura no fs, leak via error message (mitigado por `redactSecrets()` em `staged/A3/edits/src/providers/embedding/gemini.ts:177-183`).
 
 ### F. Audit logs (sensitive — timeline of activity)
 
 - **Classification:** Sensível — revela quem fez o quê quando.
 - **Where stored:** `ops_audit`, `confidence_eval_log` (v22), `search_telemetry` (A0 +4 cols).
-- **Tamper-resistance:** triggers `BEFORE DELETE`/`BEFORE UPDATE` em `staged-L3/edits/migrations/v22-confidence-eval-log.sql:30-40`.
+- **Tamper-resistance:** triggers `BEFORE DELETE`/`BEFORE UPDATE` em `staged/L3/edits/migrations/v22-confidence-eval-log.sql:30-40`.
 - **Who has access:** mesmo escopo do DB.
 - **Relevant actors:** insider tentando esconder ação; ver §8 gaps file-level.
 
@@ -159,19 +159,19 @@ Mapeia ameaças STRIDE por pilar Q/A/P + Lab + GTM. Rating: **H** alto / **M** m
 
 | STRIDE | Threat | Rating | Existing control | Gap? |
 |---|---|---|---|---|
-| Spoofing | Atacante envia `question` finja ser usuário autorizado em `/api/answer` | M | Auth seam opcional (`authCheck` arg) em `staged-P1/edits/src/api/answer.ts:75`; produção encadeia `requireApiToken()` | 🟡 default-allow se `authCheck` ausente — handler-level pega bypass se middleware esquecida |
-| Tampering | Mutar chunks via SQL injection em `/api/answer` parâmetros | L | `validateBody()` checa tipos estritos; LLM só vê marker_ids `chunk_N`, nunca DB ids (`staged-P1/edits/src/lib/answer/prompt.ts:11`) | 🟢 não há SQL injection vector documentado |
+| Spoofing | Atacante envia `question` finja ser usuário autorizado em `/api/answer` | M | Auth seam opcional (`authCheck` arg) em `staged/P1/edits/src/api/answer.ts:75`; produção encadeia `requireApiToken()` | 🟡 default-allow se `authCheck` ausente — handler-level pega bypass se middleware esquecida |
+| Tampering | Mutar chunks via SQL injection em `/api/answer` parâmetros | L | `validateBody()` checa tipos estritos; LLM só vê marker_ids `chunk_N`, nunca DB ids (`staged/P1/edits/src/lib/answer/prompt.ts:11`) | 🟢 não há SQL injection vector documentado |
 | Repudiation | Usuário nega ter feito query custosa | M | `recordAnswer()` telemetria com sessionId; trace_id no response header | 🟡 telemetria opcional — se `telemetryStore` undef, perda silenciosa |
 | Information disclosure | LLM responde com chunk de outro contexto/usuário | H | Single-tenant (single SQLite, single user) por design | 🔴 **GAP:** quando produtizar (Nox-Supermem multi-tenant), single-tenant assumption quebra |
 | DoS | Attacker manda 1000 req/s `/api/answer` → exausta orçamento LLM | H | `validateBody()` 2000 char limit; `top_k` validado tipo mas não bound máx; rate limit não documentado | 🔴 **GAP:** sem rate limit explícito no handler; `top_k` schema `maximum: 20` não enforced no validator |
-| Elevation of privilege | Atacante usa prompt injection pra fazer LLM revelar secret de outro chunk | M | Prompt anti-hallucination guard explícita (`staged-P1/edits/src/lib/answer/prompt.ts:28-33`) — LLM instruído a só citar markers visíveis | 🟡 prompt injection mature attacks podem bypass; A1 filter já strippou secrets no ingest, mitigação parcial em camada |
+| Elevation of privilege | Atacante usa prompt injection pra fazer LLM revelar secret de outro chunk | M | Prompt anti-hallucination guard explícita (`staged/P1/edits/src/lib/answer/prompt.ts:28-33`) — LLM instruído a só citar markers visíveis | 🟡 prompt injection mature attacks podem bypass; A1 filter já strippou secrets no ingest, mitigação parcial em camada |
 
 ### 3.2 Autonomy (A) — data ownership, export, import
 
 | STRIDE | Threat | Rating | Existing control | Gap? |
 |---|---|---|---|---|
 | Spoofing | Attacker monta arquivo `.nox-archive` malicioso fingindo ser export legítimo | M | Manifest schema validation (`parseManifest` rejeita format_version desconhecido); `canImport` valida schema version chain | 🟢 schema gate sólido |
-| Tampering | Attacker altera ciphertext entre export e import | **H** | GCM auth tag + AAD = sha256(manifest_pre_encrypt) — `staged-A2/edits/src/lib/archive/encryption.ts:179-198` | 🟢 GCM detecta byte-level tamper; raises `TamperedArchiveError` |
+| Tampering | Attacker altera ciphertext entre export e import | **H** | GCM auth tag + AAD = sha256(manifest_pre_encrypt) — `staged/A2/edits/src/lib/archive/encryption.ts:179-198` | 🟢 GCM detecta byte-level tamper; raises `TamperedArchiveError` |
 | Repudiation | User nega ter exportado dado sensível | L | export é local CLI, sem audit obrigatório (ops_audit captura `op='export'` se wrapped em `withOpAudit`) | 🟡 export NÃO está em `withOpAudit` por padrão — só destrutivos. Recomendado adicionar |
 | Information disclosure | Passphrase vaza via `ps` ou shell history | **H** | argv blocked, stdin-only or env var | 🟡 env var ainda visível em `/proc/<pid>/environ`; shell history se `HISTFILE` ativo |
 | DoS | Import de archive 100GB com manifest pequeno → exausta disco/memória | M | Streaming pack (`packArchiveStream` em format.ts:47-66); unpack ainda Buffer-based | 🔴 **GAP:** `unpackArchive` ainda é in-memory Buffer (format.ts:36) — não é stream; archive 10GB+ explode RAM |
@@ -182,8 +182,8 @@ Mapeia ameaças STRIDE por pilar Q/A/P + Lab + GTM. Rating: **H** alto / **M** m
 | STRIDE | Threat | Rating | Existing control | Gap? |
 |---|---|---|---|---|
 | Spoofing | API token leak permite atacante remoto fazer queries | **H** | Default localhost-only (porta 18802, escuta 127.0.0.1); auth seam opcional | 🟡 se user expor pra `0.0.0.0`, token único pra todos os endpoints — sem RBAC |
-| Tampering | `/api/chunk/:id/mark` muta confidence sem auth | **H** | Mesmo middleware `requireApiToken()` que outros endpoints, encadeado em produção | 🟡 `handleMarkRequest` em `staged-L3/edits/src/api/mark.ts:66` não tem `authCheck` arg — depende 100% do middleware externo |
-| Repudiation | User marca chunk `refuted` e depois nega | L | Append-only `ops_audit` registra `op='confidence-mark-refuted'` (`staged-L3/edits/src/lib/confidence/mark.ts:127-141`) | 🟢 audit sólido |
+| Tampering | `/api/chunk/:id/mark` muta confidence sem auth | **H** | Mesmo middleware `requireApiToken()` que outros endpoints, encadeado em produção | 🟡 `handleMarkRequest` em `staged/L3/edits/src/api/mark.ts:66` não tem `authCheck` arg — depende 100% do middleware externo |
+| Repudiation | User marca chunk `refuted` e depois nega | L | Append-only `ops_audit` registra `op='confidence-mark-refuted'` (`staged/L3/edits/src/lib/confidence/mark.ts:127-141`) | 🟢 audit sólido |
 | Information disclosure | Error response 500 vaza stack/path | M | `(err as Error).message` exposto, sem `.stack` no JSON; `handleAnswerRequest` retorna `internal_error` genérico | 🟡 alguns providers concatenam contexto em `.message` (ex: GeminiLLMProvider erro inclui status code) |
 | DoS | Burst em `/api/chunk/:id/mark` polui audit log | M | append-only audit cresce indefinido sem retention | 🔴 **GAP:** sem retention/rotation em `ops_audit`, `confidence_eval_log` |
 | Elevation of privilege | Bypass `validateKind` → mark com kind arbitrário | L | `validateKind` allowlist estrito (`canonical|refuted|stale`) | 🟢 OK |
@@ -193,10 +193,10 @@ Mapeia ameaças STRIDE por pilar Q/A/P + Lab + GTM. Rating: **H** alto / **M** m
 | STRIDE | Threat | Rating | Existing control | Gap? |
 |---|---|---|---|---|
 | Spoofing | Faked telemetry rows pra enviesar eval | M | Telemetria local-only (não enviada pra Cloud); writes via processo dono do DB | 🟢 single-trust-boundary local |
-| Tampering | `confidence_eval_log` adulterada pra fingir gain | M | Append-only triggers `staged-L3/edits/migrations/v22-confidence-eval-log.sql:30-40` | 🟡 trigger só blocked DELETE/UPDATE; **INSERT com `ran_at` retroativo** é aceito — fix recomendado: trigger valida `ran_at >= NOW() - 24h` |
+| Tampering | `confidence_eval_log` adulterada pra fingir gain | M | Append-only triggers `staged/L3/edits/migrations/v22-confidence-eval-log.sql:30-40` | 🟡 trigger só blocked DELETE/UPDATE; **INSERT com `ran_at` retroativo** é aceito — fix recomendado: trigger valida `ran_at >= NOW() - 24h` |
 | Repudiation | N/A — local | L | — | 🟢 |
 | Information disclosure | `query_text` em `search_telemetry` revela queries | M | Opt-in via `NOX_SEARCH_LOG_TEXT=1` (default off) | 🟢 privacy-by-default OK |
-| DoS | Eval cycle dispara N=1000 queries → custo LLM | M | Lab roda em fixed schedule; budget cap A3 `CostCappedProvider` (planejado) | 🟡 `CostCappedProvider` não está em staged-A3 ainda (kickoff prevê) |
+| DoS | Eval cycle dispara N=1000 queries → custo LLM | M | Lab roda em fixed schedule; budget cap A3 `CostCappedProvider` (planejado) | 🟡 `CostCappedProvider` não está em staged/A3 ainda (kickoff prevê) |
 | Elevation of privilege | Eval shim acessa DB com perm maior que CLI usuário | L | Mesmo DB, mesmo usuário | 🟢 |
 
 ### 3.5 GTM Phase 2 (gated, conditional)
@@ -215,13 +215,13 @@ shipped ainda, então STRIDE aqui é prospectivo:
 
 ## 4. A1 — Privacy filter threat model
 
-**Source:** `staged-privacy/edits/privacy/{filter,patterns,tag-parser}.ts`.
+**Source:** `staged/privacy/edits/privacy/{filter,patterns,tag-parser}.ts`.
 
 ### 4.1 Posture
 
 Filter aplica 13 regex patterns + Luhn em CC + `<private>...</private>` tag
 stripping antes de inserir chunk text no DB. Hook documentado em
-`staged-privacy/edits/ingest-router.patch.md` — `redact()` chamado em
+`staged/privacy/edits/ingest-router.patch.md` — `redact()` chamado em
 `ingestFile()` e `ingestEntityFile()` ANTES do `INSERT INTO chunks`.
 
 **Métricas reportadas:** 13 patterns / 68 tests / 1.7% FP rate (run em
@@ -237,7 +237,7 @@ não em raw markdown de daily/projects/sessions onde rate pode ser maior.
 - CPF "123.456.789-09"
 - Nome completo de cliente "João Silva, sócio da X Ltda"
 
-Patterns em `staged-privacy/edits/privacy/patterns.ts:45-202` NÃO cobrem:
+Patterns em `staged/privacy/edits/privacy/patterns.ts:45-202` NÃO cobrem:
 - CPF/CNPJ/RG (Brasil-specific)
 - Telefones BR (+55, formatos variados)
 - E-mail genérico (não inclui pattern `@.+\..+` — só auth headers com `Bearer`)
@@ -303,7 +303,7 @@ arquivo `daily/` com logs de troubleshoot, FP rate pode subir — ex:
 
 ## 5. A2 — Archive + encryption threat model
 
-**Source:** `staged-A2/edits/src/lib/archive/{encryption,format,manifest,migration,types}.ts`.
+**Source:** `staged/A2/edits/src/lib/archive/{encryption,format,manifest,migration,types}.ts`.
 
 ### 5.1 Posture
 
@@ -350,9 +350,9 @@ D41 #2: **encryption opt-OUT** (export encrypted por padrão).
 **Rating:** 🟢 **Low (controlado)**, mas com nota.
 
 **Existing control:**
-- `manifestAADSource()` em `staged-A2/edits/src/lib/archive/manifest.ts:178-184` zera só `encryption` field.
+- `manifestAADSource()` em `staged/A2/edits/src/lib/archive/manifest.ts:178-184` zera só `encryption` field.
 - `canonicalize()` JSON com sorted keys (`manifest.ts:83-112`) — stable bytes pré/pós encrypt.
-- T10 round-trip test cobre cenário em `staged-A2/edits/src/lib/archive/__tests__/encryption.test.ts`.
+- T10 round-trip test cobre cenário em `staged/A2/edits/src/lib/archive/__tests__/encryption.test.ts`.
 
 **Historical gap (fixed):** timestamp drift causou initial bug — `created_at` era recomputado em AAD vs encrypt. Fix: `buildManifest` aceita `created_at` injetado (manifest.ts:46) e AAD usa exatamente o bytes congelado.
 
@@ -419,7 +419,7 @@ D41 #2: **encryption opt-OUT** (export encrypted por padrão).
 
 ## 6. A3 — Provider abstraction threat model
 
-**Source:** `staged-A3/edits/src/providers/**`.
+**Source:** `staged/A3/edits/src/providers/**`.
 
 ### 6.1 Posture
 
@@ -440,13 +440,13 @@ Health check probe (`bootProviderHealth`) com timeout 5s + fail-fast default
 **Rating:** 🔴 **High (residual)**.
 
 **Existing control:**
-- `redactSecrets()` em `staged-A3/edits/src/providers/embedding/gemini.ts:177-183` strip `AIza[20+]`, `sk-[20+]`, `Bearer [20+]`, `key=[20+]`.
+- `redactSecrets()` em `staged/A3/edits/src/providers/embedding/gemini.ts:177-183` strip `AIza[20+]`, `sk-[20+]`, `Bearer [20+]`, `key=[20+]`.
 - Aplicado em `embed()` error path (`gemini.ts:117`) e `healthCheck()` (`gemini.ts:167`).
 - Mesmo `redactSecrets` reused em `GeminiLLMProvider` (`llm/gemini.ts:23`).
 - `error.message` enxuto via `.slice(0, 200)` em error throws.
 
 **Gap residual:**
-- 🟡 `error.stack` do Node pode incluir trecho de body fora dos primeiros 200 chars que `redactSecrets` viu. Stack trace em HTTP 500 (`staged-P1/edits/src/api/answer.ts:317`) usa `(err as Error).message` (não `.stack`), então OK no answer path. Outros endpoints podem ser menos disciplinados.
+- 🟡 `error.stack` do Node pode incluir trecho de body fora dos primeiros 200 chars que `redactSecrets` viu. Stack trace em HTTP 500 (`staged/P1/edits/src/api/answer.ts:317`) usa `(err as Error).message` (não `.stack`), então OK no answer path. Outros endpoints podem ser menos disciplinados.
 - 🔴 Anthropic key pattern (`sk-ant-[a-zA-Z0-9_-]{20+}`) NÃO está em `redactSecrets()` — só `sk-` genérico cobre. Mas `sk-ant-` é prefixo válido pro regex `sk-[A-Za-z0-9_-]{20,}` então OK na prática. Voyage não tem prefix patternado documentado.
 - 🟡 Custom error subclasses (MissingKeyError em `types.ts:23-35`) não passam pelo redactSecrets — só Gemini-specific. **Mitigação:** MissingKeyError NÃO inclui o key value, só o envVar name. OK.
 
@@ -463,7 +463,7 @@ Health check probe (`bootProviderHealth`) com timeout 5s + fail-fast default
 **Existing control:**
 - Fallback chain (gemini→openai→anthropic) ativa só em error codes específicos.
 - Resposta validada quanto a shape: embedding dim check (`gemini.ts:127-134`), LLM completion parsed via typed interface (`gemini.ts:107-117`).
-- Anti-hallucination guard no prompt (`staged-P1/edits/src/lib/answer/prompt.ts:28-33`).
+- Anti-hallucination guard no prompt (`staged/P1/edits/src/lib/answer/prompt.ts:28-33`).
 
 **Gap:**
 - 🔴 Se 2+ providers comprometidos simultaneamente, sem detecção (consensus check não implementado).
@@ -480,7 +480,7 @@ Health check probe (`bootProviderHealth`) com timeout 5s + fail-fast default
 **Rating:** 🔴 **High**.
 
 **Existing control:**
-- `CostCappedProvider` é planejado em A3 spec mas **NÃO está em staged-A3** atualmente (verifiquei `staged-A3/edits/src/providers/` — `CostCappedProvider` não existe).
+- `CostCappedProvider` é planejado em A3 spec mas **NÃO está em staged-A3** atualmente (verifiquei `staged/A3/edits/src/providers/` — `CostCappedProvider` não existe).
 - `validateBody` em P1 limita `question.length ≤ 2000` mas não limita `max_tokens` (só schema declara 8192 max).
 - Boot health check com timeout 5s evita boot hang, mas runtime não tem cap.
 
@@ -544,14 +544,14 @@ Da Wave B referenciada na task, o que está realmente shipped:
 
 | Endpoint | Source | Status |
 |---|---|---|
-| `POST /api/answer` | `staged-P1/edits/src/api/answer.ts` | ✅ Shipped |
-| `POST /api/chunk/:id/mark` | `staged-L3/edits/src/api/mark.ts` | ✅ Shipped |
-| `POST /api/chunk/:id/supersede` | `staged-L3/edits/src/api/mark.ts` | ✅ Shipped |
+| `POST /api/answer` | `staged/P1/edits/src/api/answer.ts` | ✅ Shipped |
+| `POST /api/chunk/:id/mark` | `staged/L3/edits/src/api/mark.ts` | ✅ Shipped |
+| `POST /api/chunk/:id/supersede` | `staged/L3/edits/src/api/mark.ts` | ✅ Shipped |
 | `POST /api/export` | _planejado em A2, fora deste staged dir_ | 🟡 **Not shipped** — só primitives (lib/archive) shipped |
 | `POST /api/import` | _planejado em A2_ | 🟡 **Not shipped** |
-| `GET /api/events-stream` (SSE P5) | _staged-P5a só tem event bus_ | 🟡 **Partial** — bus implementado, SSE endpoint pending |
-| `GET /api/conflict` / `POST /api/conflict/resolve` (L2) | _staged-L2 ausente_ | 🔴 **Not staged** — não pude revisar |
-| `POST /api/hooks` (P2 capture) | _staged-P2 ausente_ | 🔴 **Not staged** — não pude revisar |
+| `GET /api/events-stream` (SSE P5) | _staged/P5a só tem event bus_ | 🟡 **Partial** — bus implementado, SSE endpoint pending |
+| `GET /api/conflict` / `POST /api/conflict/resolve` (L2) | _staged/L2 ausente_ | 🔴 **Not staged** — não pude revisar |
+| `POST /api/hooks` (P2 capture) | _staged/P2 ausente_ | 🔴 **Not staged** — não pude revisar |
 
 > 🔴 GAP de análise: P5 SSE, L2 conflict, P2 hooks NÃO estão em `staged-*` dirs neste worktree.
 > Threat model desses 3 endpoints fica como **TODO Wave-E.1**.
@@ -560,7 +560,7 @@ Da Wave B referenciada na task, o que está realmente shipped:
 
 **Default:** localhost-only (porta 18802 escuta 127.0.0.1, lesson `nox-mem-api` regra #4 em CLAUDE.md).
 
-**Optional Bearer:** middleware `requireApiToken()` referenciado em `staged-P1/edits/src/api/answer.ts:27` — produção encadeia ANTES de `handleAnswerRequest`. Default-allow se `authCheck` arg ausente no `HandleAnswerArgs` (`answer.ts:75`).
+**Optional Bearer:** middleware `requireApiToken()` referenciado em `staged/P1/edits/src/api/answer.ts:27` — produção encadeia ANTES de `handleAnswerRequest`. Default-allow se `authCheck` arg ausente no `HandleAnswerArgs` (`answer.ts:75`).
 
 **Risk:** se user `bind 0.0.0.0` e esquecer auth, todos os 7+ endpoints viram publicly accessible.
 
@@ -579,7 +579,7 @@ Da Wave B referenciada na task, o que está realmente shipped:
 
 #### Output redaction
 - ✅ Error responses don't expose stack (`answer.ts:317` usa `.message`, não `.stack`).
-- 🟡 Error message pode incluir context — ex: `AnswerError.message` set em `staged-P1/edits/src/lib/answer/index.ts:69` é "answer(): question is required" (safe), mas LLM-side errors podem ter mais.
+- 🟡 Error message pode incluir context — ex: `AnswerError.message` set em `staged/P1/edits/src/lib/answer/index.ts:69` é "answer(): question is required" (safe), mas LLM-side errors podem ter mais.
 - ✅ `X-Trace-Id` header pra correlação.
 
 #### Attack scenarios
@@ -602,7 +602,7 @@ Da Wave B referenciada na task, o que está realmente shipped:
 - 🟡 `notes`: typeof string check ausente — string arbitrária aceita mas inserida em audit details JSON. Risk: notes muito longa polui DB.
 
 #### Output / audit
-- ✅ Append-only `ops_audit` row criada em sucesso E em failure (`staged-L3/edits/src/lib/confidence/mark.ts:107-117`).
+- ✅ Append-only `ops_audit` row criada em sucesso E em failure (`staged/L3/edits/src/lib/confidence/mark.ts:107-117`).
 - ✅ Self-supersede bloqueado (`mark.ts:161-174`).
 - 🟡 `error.message` exposto em 500 path — pode conter SQL hint do better-sqlite3.
 
@@ -619,10 +619,10 @@ Da Wave B referenciada na task, o que está realmente shipped:
 
 | Migration | Foco | Notable security control |
 |---|---|---|
-| v19 (`staged-migrations/v19.sql`) | chunks.confidence + provenance_kind + kg_relations confidence/supersession/temporal | ✅ CHECK constraints (confidence 0-1, kind enum) |
+| v19 (`staged/migrations/v19.sql`) | chunks.confidence + provenance_kind + kg_relations confidence/supersession/temporal | ✅ CHECK constraints (confidence 0-1, kind enum) |
 | v20 (viewer-telemetry) | _arquivo `v20-viewer-telemetry.sql` referenciado pela task mas **NÃO encontrado**_ | 🟡 GAP de análise |
 | v21 (conflict-audit) | _referenciado mas ausente_ | 🟡 GAP de análise |
-| v22 (`staged-L3/edits/migrations/v22-confidence-eval-log.sql`) | confidence_eval_log table | ✅ Append-only triggers |
+| v22 (`staged/L3/edits/migrations/v22-confidence-eval-log.sql`) | confidence_eval_log table | ✅ Append-only triggers |
 
 **Security observations sobre v19:**
 - ✅ CHECK constraints garantem dados estruturais.
@@ -641,7 +641,7 @@ Da Wave B referenciada na task, o que está realmente shipped:
 ### 8.1 Tabelas em escopo
 
 - `ops_audit` — toda operação destrutiva (reindex, compact, mark, supersede). Schema + triggers W2-1 (2026-04-25).
-- `confidence_eval_log` — L3 eval runs. v22 (`staged-L3/edits/migrations/v22-confidence-eval-log.sql:30-40`).
+- `confidence_eval_log` — L3 eval runs. v22 (`staged/L3/edits/migrations/v22-confidence-eval-log.sql:30-40`).
 - `search_telemetry` — A0 (since 2026-04-25, +4 cols opt-in).
 - `conflict_audit` — L2 (não staged ainda).
 - `viewer_telemetry` — P5 (não staged ainda).
@@ -900,12 +900,12 @@ Lista priorizada — High = fazer próximo sprint; Med = mid-term; Low = recurri
 
 ### 13.2 Source code
 
-- A1: `staged-privacy/edits/privacy/{filter,patterns,tag-parser}.ts`
-- A2: `staged-A2/edits/src/lib/archive/{encryption,format,manifest,migration,index,types}.ts`
-- A3: `staged-A3/edits/src/providers/{index,types,embedding/gemini,llm/gemini}.ts`
-- P1: `staged-P1/edits/src/api/answer.ts` + `src/lib/answer/{index,prompt}.ts`
-- L3: `staged-L3/edits/src/api/mark.ts` + `src/lib/confidence/mark.ts`
-- Migrations: `staged-migrations/v19.sql`, `staged-L3/edits/migrations/v22-confidence-eval-log.sql`
+- A1: `staged/privacy/edits/privacy/{filter,patterns,tag-parser}.ts`
+- A2: `staged/A2/edits/src/lib/archive/{encryption,format,manifest,migration,index,types}.ts`
+- A3: `staged/A3/edits/src/providers/{index,types,embedding/gemini,llm/gemini}.ts`
+- P1: `staged/P1/edits/src/api/answer.ts` + `src/lib/answer/{index,prompt}.ts`
+- L3: `staged/L3/edits/src/api/mark.ts` + `src/lib/confidence/mark.ts`
+- Migrations: `staged/migrations/v19.sql`, `staged/L3/edits/migrations/v22-confidence-eval-log.sql`
 
 ### 13.3 Specs (canônicos do projeto)
 
@@ -962,13 +962,13 @@ Lista priorizada — High = fazer próximo sprint; Med = mid-term; Low = recurri
 ## Appendix C — TODO Wave-E.1
 
 Pendente revisão de:
-- `staged-P5/edits/src/api/events-stream.ts` (SSE) — não encontrado em worktree atual.
-- `staged-L2/edits/src/api/conflict.ts` — staged-L2 não existe.
-- `staged-P2/edits/src/api/hooks.ts` — staged-P2 não existe.
-- `staged-P5/edits/migrations/v20-viewer-telemetry.sql` — não encontrado.
-- `staged-L2/edits/migrations/v21-conflict-audit.sql` — não encontrado.
-- `staged-A2/edits/src/lib/archive/orchestrator.ts` — não existe em A2 worktree (índice mostra só types/format/manifest/encryption/migration/serializers).
-- `staged-A2/edits/docs/EXPORT-IMPORT.md` — não encontrado.
+- `staged/P5/edits/src/api/events-stream.ts` (SSE) — não encontrado em worktree atual.
+- `staged/L2/edits/src/api/conflict.ts` — staged/L2 não existe.
+- `staged/P2/edits/src/api/hooks.ts` — staged/P2 não existe.
+- `staged/P5/edits/migrations/v20-viewer-telemetry.sql` — não encontrado.
+- `staged/L2/edits/migrations/v21-conflict-audit.sql` — não encontrado.
+- `staged/A2/edits/src/lib/archive/orchestrator.ts` — não existe em A2 worktree (índice mostra só types/format/manifest/encryption/migration/serializers).
+- `staged/A2/edits/docs/EXPORT-IMPORT.md` — não encontrado.
 
 Cobertura desses módulos depende de novo worktree ou merge prévio.
 

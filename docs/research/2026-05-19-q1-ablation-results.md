@@ -181,7 +181,7 @@ These are not "null according to static analysis" — these are **empirically nu
 |---|---|
 | Total wall-clock (all 7 ablations + smoke) | ~13 min |
 | Gemini API spend (embeddings + expansion variants) | ~$0.08 USD estimated |
-| VPS time | ~13 min on `srv1465941.hstgr.cloud` |
+| VPS time | ~13 min on `<NOX_VPS_HOST>` |
 | Network: localhost only (eval API on `:18803`) | — |
 | **Budget allocated** | $1.00 USD / 4h wall-clock |
 | **Actual** | $0.08 / 13 min |

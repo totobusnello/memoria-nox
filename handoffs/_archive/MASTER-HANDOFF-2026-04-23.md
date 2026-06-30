@@ -30,17 +30,17 @@ Dia de transformação do nox-mem de sistema "flat" pra estrutura tipada avança
 
 ```bash
 # 1. Health — deve ter todos os campos novos
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, vectorCoverage, retention: .retentionDistribution, salience: .salience, section: .sectionDistribution}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, vectorCoverage, retention: .retentionDistribution, salience: .salience, section: .sectionDistribution}"'
 # Esperado: total=7367, embedded=7367, salience.mode=shadow, sectionDistribution.compiled=2
 
 # 2. Canary 24h — deve ter >40 OKs consecutivos
-ssh root@100.87.8.44 'tail -5 /var/log/nox-canary.log'
+ssh root@<NOX_TAILSCALE_IP> 'tail -5 /var/log/nox-canary.log'
 
 # 3. Gateway e patches
-ssh root@100.87.8.44 'systemctl is-active openclaw-gateway; bash /root/.openclaw/scripts/check-monkey-patch.sh && echo patch-ok; bash /root/.openclaw/scripts/check-gm-messages.sh && echo gm-ok'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl is-active openclaw-gateway; bash /root/.openclaw/scripts/check-monkey-patch.sh && echo patch-ok; bash /root/.openclaw/scripts/check-gm-messages.sh && echo gm-ok'
 
 # 4. Schema version = 10
-ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "SELECT value FROM meta WHERE key=\"schema_version\";"'
+ssh root@<NOX_TAILSCALE_IP> 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "SELECT value FROM meta WHERE key=\"schema_version\";"'
 ```
 
 Se algum retornar red, abrir debug antes de qualquer trabalho novo.
@@ -86,7 +86,7 @@ Se algum retornar red, abrir debug antes de qualquer trabalho novo.
 ## 3. ESTADO ATUAL DO SISTEMA (2026-04-23 fim do dia)
 
 ### Infra
-- **VPS:** `root@100.87.8.44` (Tailscale) / `$NOX_VPS_HOST` (público)
+- **VPS:** `root@<NOX_TAILSCALE_IP>` (Tailscale) / `$NOX_VPS_HOST` (público)
 - **OpenClaw:** 2026.4.21 + monkey-patch Issue #62028 reaplicado
 - **Backend primário:** Claude CLI via OAuth Max (zero API bill)
 - **Fallback chain:** claude-cli → openai-codex → gemini/2.5-pro (sem anthropic/*)
@@ -249,7 +249,7 @@ c587348 docs(claude.md): slim index + detail moved to docs/   ← pré-existente
 ```bash
 cd ~/Claude/Projetos/memoria-nox
 cat handoffs/MASTER-HANDOFF-2026-04-23.md | head -100
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".sectionDistribution"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq ".sectionDistribution"'
 ```
 
 ### B — Pular pra Fase 3 (HD Mac rsync, paralela)
@@ -280,16 +280,16 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".sectionDi
 
 ```bash
 # Ingest manual de um entity file (quando criar novos)
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; cd /root/.openclaw/workspace/tools/nox-mem; node -e "import(\"./dist/ingest-entity.js\").then(m => m.ingestEntityFile(process.argv[1])).then(r => console.log(r))" /root/.openclaw/workspace/memory/entities/<path>.md'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; cd /root/.openclaw/workspace/tools/nox-mem; node -e "import(\"./dist/ingest-entity.js\").then(m => m.ingestEntityFile(process.argv[1])).then(r => console.log(r))" /root/.openclaw/workspace/memory/entities/<path>.md'
 
 # Listar entities ingested
-ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "SELECT DISTINCT source_file FROM chunks WHERE section = \"compiled\";"'
+ssh root@<NOX_TAILSCALE_IP> 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "SELECT DISTINCT source_file FROM chunks WHERE section = \"compiled\";"'
 
 # Search priorizando compiled truth (já funciona hoje — score 32+ vs legacy 16)
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; /root/.openclaw/workspace/tools/nox-mem/dist/index.js search "<query>" --limit 5'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; /root/.openclaw/workspace/tools/nox-mem/dist/index.js search "<query>" --limit 5'
 
 # Activation salience (quando baseline tiver ≥7d)
-ssh root@100.87.8.44 'sed -i "s/#*NOX_SALIENCE_MODE=.*/NOX_SALIENCE_MODE=active/" /root/.openclaw/.env || echo "NOX_SALIENCE_MODE=active" >> /root/.openclaw/.env; systemctl restart nox-mem-api; sleep 3; curl -s http://127.0.0.1:18802/api/health | jq .salience.mode'
+ssh root@<NOX_TAILSCALE_IP> 'sed -i "s/#*NOX_SALIENCE_MODE=.*/NOX_SALIENCE_MODE=active/" /root/.openclaw/.env || echo "NOX_SALIENCE_MODE=active" >> /root/.openclaw/.env; systemctl restart nox-mem-api; sleep 3; curl -s http://127.0.0.1:18802/api/health | jq .salience.mode'
 ```
 
 ---
@@ -313,7 +313,7 @@ Sistema em **estado mais sólido da história do nox-mem**. Pipeline end-to-end 
 
 O Toto topou trabalho denso hoje — retain this pace is unsustainable but the dia foi excepcional. Descansar bem. Amanhã: **1.7b-c close** ou **Fase 3**, sua escolha.
 
-**Próxima janela abre com:** `ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total,vc:.vectorCoverage,retention:.retentionDistribution,salience:.salience.mode,section:.sectionDistribution}"'`
+**Próxima janela abre com:** `ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total,vc:.vectorCoverage,retention:.retentionDistribution,salience:.salience.mode,section:.sectionDistribution}"'`
 
 ---
 

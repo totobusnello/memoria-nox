@@ -1,6 +1,6 @@
 # Baselines SRE — Fase 1.8 (medidos 2026-04-19 08:55 BRT)
 
-Medidos na VPS `ssh root@100.87.8.44` antes de escrever código.
+Medidos na VPS `ssh root@<NOX_TAILSCALE_IP>` antes de escrever código.
 
 ## Resultados
 

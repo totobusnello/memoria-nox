@@ -81,7 +81,7 @@ Gerar **apples-to-apples** benchmark numbers comparando 5 sistemas em 2-3 datase
 4. **Isolation total** — cada sistema roda em **DB separada + porta API separada + processo separado**. Sequential execution, não paralelo (evita resource contention).
 5. **3 runs by system × dataset** — reportar mean ± stddev. Mata variabilidade LLM-judge não-determinístico.
 6. **Cost tracking** — logar custo USD (embedding API calls + LLM calls) por run. Total cost = embedding ingest + retrieval calls + LLM-judge.
-7. **Hardware comparable** — mesma VPS (45.43.85.86 ou IP atual) ou local Mac M-class. NUNCA misturar hardware entre sistemas.
+7. **Hardware comparable** — mesma VPS (<VPS_IP> ou IP atual) ou local Mac M-class. NUNCA misturar hardware entre sistemas.
 
 ### 3.2 Per-system setup checklist
 
@@ -472,7 +472,7 @@ When fully executed (post-Phase F):
 ## 12. Open questions (for Toto resolution before Phase B start)
 
 - [ ] **Judge choice:** GPT-4o primary + Gemini 2.5 Flash QC (default proposed), or single Gemini for cost? → default GPT-4o salvo override
-- [ ] **Hardware:** VPS (45.43.85.86 / current IP) or local Mac M-class? EverCore 5-service stack pode forçar local. → default VPS, escalate se RAM insuficiente
+- [ ] **Hardware:** VPS (<VPS_IP> / current IP) or local Mac M-class? EverCore 5-service stack pode forçar local. → default VPS, escalate se RAM insuficiente
 - [ ] **Cost cap:** $200 default proposto. Toto aprovar? → default $200
 - [ ] **Phase B owner:** scientist-high or executor-high? Spec recommends scientist-high (analysis-heavy). → default scientist-high
 - [ ] **Re-include LoCoMo?** spec marca optional. → default skip Phase A-E, add em Phase F+ se time permite

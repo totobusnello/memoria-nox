@@ -122,7 +122,7 @@ O harness salva `hypotheses/<run-partial>.jsonl` incrementalmente (um append por
 
 ### Diferença vs bench P1 (já publicado)
 
-O bench P1 em `staged-P1/` usou **mock LLM (100ms stub)** e **SQLite in-memory**. Esses números validam overhead do pipeline mas NÃO são latência de produção. O Q3 run usa:
+O bench P1 em `staged/P1/` usou **mock LLM (100ms stub)** e **SQLite in-memory**. Esses números validam overhead do pipeline mas NÃO são latência de produção. O Q3 run usa:
 - **VPS real** (Hostinger, 4 vCPU, 8GB RAM)
 - **`nox-mem.db` real** (~62k chunks, prod DB — snapshot para `eval/latency/eval.db`)
 - **Sem mock:** subprocess calls ao `dist/index.js` compilado (CLI real)

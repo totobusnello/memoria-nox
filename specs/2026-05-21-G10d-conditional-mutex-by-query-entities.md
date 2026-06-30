@@ -182,7 +182,7 @@ Módulo novo com:
 
 Já espelhado no snippet seção 3 Option B.
 
-### Step 2 — Modificar `sourceTypeDelta` em `staged-1.7a/edits/search.ts`
+### Step 2 — Modificar `sourceTypeDelta` em `staged/1.7a/edits/search.ts`
 
 Adicionar parâmetro `queryEntityCount`:
 
@@ -290,7 +290,7 @@ Permite observability shadow-mode antes de active deploy.
 
 ### Step 6 — Tests unitários
 
-Novo file: `staged-1.7a/tests/query-entity-count.test.ts` (5-7 cases).
+Novo file: `staged/1.7a/tests/query-entity-count.test.ts` (5-7 cases).
 
 ```typescript
 import { test, describe, beforeEach } from "node:test";
@@ -372,7 +372,7 @@ describe("countQueryEntities", () => {
 
 ### Step 7 — Update `sourceTypeDelta` tests existentes
 
-`staged-1.7a/tests/search-boost-stack.test.ts` precisa novo grupo conditional:
+`staged/1.7a/tests/search-boost-stack.test.ts` precisa novo grupo conditional:
 
 ```typescript
 describe("sourceTypeDelta — conditional mutex (G10d)", () => {
@@ -526,8 +526,8 @@ Tempo estimado: 4 runs × ~10min = ~40min total.
 | `src/lib/query-entity-count.ts` | NEW — entity detection + cache | ~1.5h |
 | `src/search.ts` (`sourceTypeDelta`) | add `queryEntityCount` param + threshold guard | ~30min |
 | `src/search.ts` (call sites) | compute count once per query, pass through | ~30min |
-| `staged-1.7a/tests/query-entity-count.test.ts` | NEW — 8 test cases | ~45min |
-| `staged-1.7a/tests/search-boost-stack.test.ts` | extend conditional mutex group (6 tests) | ~30min |
+| `staged/1.7a/tests/query-entity-count.test.ts` | NEW — 8 test cases | ~45min |
+| `staged/1.7a/tests/search-boost-stack.test.ts` | extend conditional mutex group (6 tests) | ~30min |
 | `CHANGELOG.md` | entry | ~10min |
 | Telemetry: `search_telemetry.query_entity_count` col + `/api/search?explain` | ~45min |
 | **Total implementation** | | **~5h** |
@@ -642,8 +642,8 @@ npm run build && systemctl restart nox-mem-api
 - **`specs/2026-05-20-mutual-exclusion-section-source-type.md`** — parent spec, contexto Option 1 (Hard Mutex)
 - **`audits/2026-05-21-G10b-per-category-mutex-ablation.md`** — descoberta multi-hop −3.95%
 - **`audits/2026-05-21-G10c-per-style-mutex-ablation.md`** — confirma style-agnostic (NL −3.91%, KW −3.99%)
-- **`staged-1.7a/edits/search.ts`** — implementação atual de `sourceTypeDelta` (linhas 164-184)
-- **`staged-1.7a/edits/knowledge-graph.patch.ts`** — referência canônica de `kg_entities` query
+- **`staged/1.7a/edits/search.ts`** — implementação atual de `sourceTypeDelta` (linhas 164-184)
+- **`staged/1.7a/edits/knowledge-graph.patch.ts`** — referência canônica de `kg_entities` query
 - **`specs/d51-template.md`** — decision template gated em este ablation
 - **`docs/DECISIONS.md`** — CLAUDE.md regra #5 (sem boost multiplicativo empilhável)
 - **`docs/HANDOFF.md`** — entry G10d follow-up

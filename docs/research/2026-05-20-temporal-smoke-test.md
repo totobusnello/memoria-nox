@@ -2,7 +2,7 @@
 
 **Data:** 2026-05-20
 **Branch:** `research/temporal-smoke-2026-05-20`
-**Spike PR:** #157 (`staged-temporal-spike/edits/temporal-retrieval.ts`)
+**Spike PR:** #157 (`staged/temporal-spike/edits/temporal-retrieval.ts`)
 **Gold PR:** #159 (Q87 + Q88 curados)
 **Status:** R&D — read-only contra prod VPS, zero mutação
 
@@ -20,7 +20,7 @@ onde gold NÃO está em rank 1-2, (b) tornar boost proporcional ao gap de score,
 
 - **API:** `POST http://127.0.0.1:18802/api/search` com `limit=20` via SSH read-only
 - **Modo simulado:** mirror em Node.js de `detectTemporal()` + `proximityDelta()`
-  + `rerankByTemporalProximity()` (staged-temporal-spike/edits/temporal-retrieval.ts)
+  + `rerankByTemporalProximity()` (staged/temporal-spike/edits/temporal-retrieval.ts)
 - **Parâmetros:** `sigmaDays=30`, `kRerank=20`, mode=active (`score + delta*10`)
 - **Fonte de data do chunk:** primeiro match `\d{4}-\d{2}-\d{2}` em `chunk_text`
   (proxy — API não expõe `source_date` populado em todos os chunks; ~maioria
@@ -142,7 +142,7 @@ merge precipitado e pra refinar o experimento antes de Q4 gate.
 - Script de análise: `/tmp/temporal-smoke/analyze.mjs` (não comitado, scratch)
 - JSON raw das 4 queries: `/tmp/temporal-smoke/q{70,71,87,88}.json`
 - Results estruturado: `/tmp/temporal-smoke/results.json`
-- Spike implementation: `staged-temporal-spike/edits/temporal-retrieval.ts`
+- Spike implementation: `staged/temporal-spike/edits/temporal-retrieval.ts`
 - Spec: `specs/temporal-retrieval-path-spike.md`
 - Golden file: `eval/golden-queries.jsonl` (linhas 26, 27, 43, 44)
 

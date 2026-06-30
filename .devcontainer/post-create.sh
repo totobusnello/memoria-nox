@@ -24,8 +24,8 @@ node --version
 # Smoke test the public VPS
 echo ""
 echo "=== Public VPS smoke test ==="
-if curl -s --max-time 5 "${BASE_URL:-http://187.77.234.79:18802}/api/health" > /dev/null; then
-    echo "Public VPS reachable at ${BASE_URL:-http://187.77.234.79:18802}"
+if curl -s --max-time 5 "${BASE_URL:-http://<VPS_IP>:18802}/api/health" > /dev/null; then
+    echo "Public VPS reachable at ${BASE_URL:-http://<VPS_IP>:18802}"
 else
     echo "WARNING: Public VPS not reachable; demo scripts may not work"
 fi
@@ -47,7 +47,7 @@ cat <<'BANNER'
 |  Use cases:  docs/USE-CASES.md                             |
 |  FAQ:        docs/FAQ.md                                   |
 |                                                            |
-|  Public demo URL: http://187.77.234.79:18802               |
+|  Public demo URL: http://<VPS_IP>:18802               |
 +------------------------------------------------------------+
 
 BANNER

@@ -4,7 +4,7 @@
 > **Maintainer:** Toto (bus factor = 1)
 > **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings
 >
-> ⚠️ **Runbooks de plataforma OpenClaw** (gateway down, monkey-patch invalidado, OpenClaw upgrade quebrou, claude-cli auth flap, disk space, graph-memory probe, heartbeat queue) migraram pra `~/Claude/Projetos/openclaw-vps/infra/runbooks/`. Versão mestra pré-split em `_archive-pre-split-20260501/RUNBOOKS.md.bak`.
+> ⚠️ **Runbooks de plataforma OpenClaw** (gateway down, monkey-patch invalidado, OpenClaw upgrade quebrou, claude-cli auth flap, disk space, graph-memory probe, heartbeat queue) migraram pra `~/Claude/Projetos/openclaw-vps/infra/runbooks/`. Versão mestra pré-split em `archive/pre-split-20260501/RUNBOOKS.md.bak`.
 
 ## Índice rápido por sintoma (memoria-only)
 
@@ -39,12 +39,12 @@
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total, orphans: .vectorCoverage.orphans}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total, orphans: .vectorCoverage.orphans}"'
 # Checar se nightly travou (lock preso)
-ssh root@100.87.8.44 'ls -la /tmp/nox-maintenance.lock 2>/dev/null && echo "LOCK ATIVO" || echo "lock ok"'
+ssh root@<NOX_TAILSCALE_IP> 'ls -la /tmp/nox-maintenance.lock 2>/dev/null && echo "LOCK ATIVO" || echo "lock ok"'
 # Checar se session-distill ou outro step está pendurado
-ssh root@100.87.8.44 'ps aux | grep -E "nox-mem|session-distill" | grep -v grep'
-ssh root@100.87.8.44 'tail -20 /var/log/nox-maintenance.log'
+ssh root@<NOX_TAILSCALE_IP> 'ps aux | grep -E "nox-mem|session-distill" | grep -v grep'
+ssh root@<NOX_TAILSCALE_IP> 'tail -20 /var/log/nox-maintenance.log'
 ```
 
 ### Decision tree
@@ -68,27 +68,27 @@ Orphans > 0?
 
 ```bash
 # Se session-distill pendurado (kill + liberar lock):
-ssh root@100.87.8.44 'pids=$(ps aux | grep "session-distill\|nox-maintenance" | grep -v grep | awk "{print \$2}"); kill $pids 2>/dev/null; rm -f /tmp/nox-maintenance.lock; echo "Limpo"'
+ssh root@<NOX_TAILSCALE_IP> 'pids=$(ps aux | grep "session-distill\|nox-maintenance" | grep -v grep | awk "{print \$2}"); kill $pids 2>/dev/null; rm -f /tmp/nox-maintenance.lock; echo "Limpo"'
 
 # Rodar vectorize manual (SEMPRE com env source):
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
 
 # Se vectorize falha silenciosamente (Done: 0 embedded, N errors):
 # Validar chave Gemini antes de tudo:
-ssh root@100.87.8.44 'grep GEMINI_API_KEY /root/.openclaw/.env | head -1'
+ssh root@<NOX_TAILSCALE_IP> 'grep GEMINI_API_KEY /root/.openclaw/.env | head -1'
 # Se vazia ou chave revogada: atualizar .env com chave nova → restart nox-mem-api
-ssh root@100.87.8.44 'systemctl restart nox-mem-api nox-mem-watcher'
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api nox-mem-watcher'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
 ```
 
 ### Pós-fix verificação
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total}"'
 # Esperado: embedded == total (ou gap < 50 — recém-ingestados)
 
 # Canário manual:
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "nox-mem sistema de memória" --hybrid 2>&1 | head -5'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "nox-mem sistema de memória" --hybrid 2>&1 | head -5'
 # Esperado: match_type incluindo "semantic"
 ```
 
@@ -117,11 +117,11 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem searc
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'tail -10 /var/log/nox-schema-invariants.log'
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{section: .sectionDistribution, retention: .retention, total: .chunks.total}"'
+ssh root@<NOX_TAILSCALE_IP> 'tail -10 /var/log/nox-schema-invariants.log'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{section: .sectionDistribution, retention: .retention, total: .chunks.total}"'
 # Checar se reindex rodou recentemente:
-ssh root@100.87.8.44 'journalctl -u nox-mem-watcher --since "1 hour ago" --no-pager | grep -i "reindex\|ingest" | tail -20'
-ssh root@100.87.8.44 'openclaw cron list 2>/dev/null | grep -i reindex'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u nox-mem-watcher --since "1 hour ago" --no-pager | grep -i "reindex\|ingest" | tail -20'
+ssh root@<NOX_TAILSCALE_IP> 'openclaw cron list 2>/dev/null | grep -i reindex'
 ```
 
 ### Decision tree
@@ -145,24 +145,24 @@ ops_audit mostra op recente com status "failed" ou "running" há horas?
 
 ```bash
 # Reingestar todos os entity files (após confirmar que ingest-router está correto no build):
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   find /root/.openclaw/workspace/tools/nox-mem/memory/entities -name "*.md" | \
   while read f; do nox-mem ingest-entity "$f"; done 2>&1 | tail -10'
 
 # Vectorizar os novos chunks:
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
 
 # Se cron end-of-day (ee15b430) ainda tem "reindex" no step 11:
-ssh root@100.87.8.44 'openclaw cron list | grep ee15b430'
+ssh root@<NOX_TAILSCALE_IP> 'openclaw cron list | grep ee15b430'
 ```
 
 ### Pós-fix verificação
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{compiled: .sectionDistribution.compiled, never_decay: .retention.never_decay}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{compiled: .sectionDistribution.compiled, never_decay: .retention.never_decay}"'
 # Esperado: compiled=183, never_decay>=92
 
-ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
+ssh root@<NOX_TAILSCALE_IP> 'tail -3 /var/log/nox-schema-invariants.log'
 # Esperado: "All invariants OK" no próximo ciclo de 15min
 ```
 
@@ -191,11 +191,11 @@ ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{salience: .salience, searchTelemetry: .searchTelemetry}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{salience: .salience, searchTelemetry: .searchTelemetry}"'
 # Verificar quando foi ativado:
-ssh root@100.87.8.44 'journalctl -u nox-mem-api --since "30 min ago" --no-pager | grep -i "salience\|NOX_SALIENCE" | tail -20'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u nox-mem-api --since "30 min ago" --no-pager | grep -i "salience\|NOX_SALIENCE" | tail -20'
 # Baseline shadow antes da ativação (para comparação):
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.stats"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.stats"'
 ```
 
 ### Decision tree
@@ -218,25 +218,25 @@ Stats mostram archive_candidates absurdamente alto (ex: >50% do corpus)?
 
 ```bash
 # Rollback salience para shadow-mode (IMEDIATO):
-ssh root@100.87.8.44 'grep -n "NOX_SALIENCE_MODE" /root/.openclaw/.env'
+ssh root@<NOX_TAILSCALE_IP> 'grep -n "NOX_SALIENCE_MODE" /root/.openclaw/.env'
 # Editar .env: NOX_SALIENCE_MODE=shadow
-ssh root@100.87.8.44 "sed -i 's/^NOX_SALIENCE_MODE=active/NOX_SALIENCE_MODE=shadow/' /root/.openclaw/.env"
-ssh root@100.87.8.44 'systemctl restart nox-mem-api && sleep 3 && curl -s http://127.0.0.1:18802/api/health | jq .salience.mode'
+ssh root@<NOX_TAILSCALE_IP> "sed -i 's/^NOX_SALIENCE_MODE=active/NOX_SALIENCE_MODE=shadow/' /root/.openclaw/.env"
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api && sleep 3 && curl -s http://127.0.0.1:18802/api/health | jq .salience.mode'
 # Esperado: "shadow"
 
 # Se section_boost também foi ativado:
-ssh root@100.87.8.44 "sed -i 's/^NOX_SECTION_BOOST_MODE=active/NOX_SECTION_BOOST_MODE=shadow/' /root/.openclaw/.env"
-ssh root@100.87.8.44 'systemctl restart nox-mem-api'
+ssh root@<NOX_TAILSCALE_IP> "sed -i 's/^NOX_SECTION_BOOST_MODE=active/NOX_SECTION_BOOST_MODE=shadow/' /root/.openclaw/.env"
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api'
 ```
 
 ### Pós-fix verificação
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.mode"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.mode"'
 # Esperado: "shadow"
 
 # Teste de sanidade de ranking (query de referência conhecida):
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   nox-mem search "memoria semantica nox" --limit 3 2>&1'
 # Esperado: resultado relevante no top 3
 ```
@@ -259,7 +259,7 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
 
 ```bash
 # 1. Confirmar que Gemini é o problema (não rede/DNS local):
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   curl -s -w "\nHTTP %{http_code}\n" \
   "https://generativelanguage.googleapis.com/v1beta/models/embedding-001:embedContent?key=${GEMINI_API_KEY}" \
   -H "Content-Type: application/json" \
@@ -273,7 +273,7 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
 #   timeout/no response → DNS/rede VPS local
 
 # 2. Estado atual do nox-mem:
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{
   vectorCoverage,
   embeddingSource: .embeddings.provider,
   lastEmbed: .embeddings.last_success
@@ -307,7 +307,7 @@ Quando outage >2h ou key issue, switch para provedor alternativo. **Pré-requisi
 # 1. Subscribir conta + obter VOYAGE_API_KEY (uma única vez, fora de incident)
 # 2. Manter VOYAGE_API_KEY em /root/.openclaw/.env (commented out até precisar)
 # 3. Em incident:
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   curl -s https://api.voyageai.com/v1/embeddings \
   -H "Authorization: Bearer ${VOYAGE_API_KEY}" \
   -H "Content-Type: application/json" \
@@ -328,7 +328,7 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
 # Custo: $0.13/1M tokens (similar Gemini)
 # 1. Manter OPENAI_API_KEY em /root/.openclaw/.env (commented out até precisar)
 # 2. Em incident:
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   curl -s https://api.openai.com/v1/embeddings \
   -H "Authorization: Bearer ${OPENAI_API_KEY}" \
   -H "Content-Type: application/json" \
@@ -336,8 +336,8 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
 # Esperado: 3072
 
 # 3. Switch via env var:
-ssh root@100.87.8.44 'sed -i "s/^NOX_EMBEDDING_PROVIDER=gemini/NOX_EMBEDDING_PROVIDER=openai/" /root/.openclaw/.env'
-ssh root@100.87.8.44 'systemctl restart nox-mem-api nox-mem-watcher'
+ssh root@<NOX_TAILSCALE_IP> 'sed -i "s/^NOX_EMBEDDING_PROVIDER=gemini/NOX_EMBEDDING_PROVIDER=openai/" /root/.openclaw/.env'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api nox-mem-watcher'
 ```
 
 **Caveat:** vetores Gemini-existing podem ter distribuição diferente de OpenAI-new — recall pode degradar até batch reembed completo. Aceitar 7-14d de degradação ou forçar reembed.
@@ -366,18 +366,18 @@ Quando trocar provedor permanentemente:
 
 ```bash
 # 1. Backup pre-reembed (op-audit não cobre embedding-only ops)
-ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
+ssh root@<NOX_TAILSCALE_IP> 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
   "VACUUM INTO /var/backups/nox-mem/pre-reembed-$(date +%Y%m%d-%H%M%S).db"'
 
 # 2. Reembed em chunks de 1k via tmux background:
-ssh root@100.87.8.44 'tmux new-session -d -s reembed-batch \
+ssh root@<NOX_TAILSCALE_IP> 'tmux new-session -d -s reembed-batch \
   "set -a; source /root/.openclaw/.env; set +a; \
    nox-mem vectorize --batch-size=100 --provider=${NOX_EMBEDDING_PROVIDER} 2>&1 \
    | tee /tmp/reembed-batch.log"'
 
 # 3. Monitor:
-ssh root@100.87.8.44 'tail -f /tmp/reembed-batch.log'
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .vectorCoverage'
+ssh root@<NOX_TAILSCALE_IP> 'tail -f /tmp/reembed-batch.log'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq .vectorCoverage'
 
 # 4. Rate budget: 62.000 chunks ÷ ~50/min = ~21h. Spread overnight ou usar batch=500 se rate-limit permitir.
 ```
@@ -386,14 +386,14 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .vectorCove
 
 ```bash
 # Health geral
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{
   embeddingProvider: .embeddings.provider,
   vectorCoverage,
   recentEmbedSuccess: .embeddings.last_success
 }"'
 
 # Search smoke test (deve retornar resultados, semantic ativo)
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   nox-mem search "test query reasonably specific" --hybrid 2>&1 | head -5'
 ```
 

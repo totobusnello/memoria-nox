@@ -13,7 +13,7 @@
 #   A10   (full minus src_type) NOX_DISABLE_SOURCE_TYPE_BOOST=1     → sanity ≈ 0.5530
 #
 # PRECONDIÇÕES (verificar antes de rodar):
-#   1. SSH ativo pra root@187.77.234.79
+#   1. SSH ativo pra root@your-vps-host
 #   2. PR #182 (Hard Mutex) deployed em prod: /root/.openclaw/workspace/tools/nox-mem/dist/
 #   3. g5.db existe íntegro em /root/.openclaw/workspace/eval-data/g9-g5db-2026-05-20/g5.db (~1.2GB)
 #   4. queries.jsonl + corpus.jsonl no mesmo fixture dir
@@ -269,4 +269,4 @@ done
 echo "" | tee -a "${LOG}"
 echo "Results dir: ${OUT_DIR}" | tee -a "${LOG}"
 echo "Pull back to repo with:" | tee -a "${LOG}"
-echo "  rsync -av root@187.77.234.79:${OUT_DIR}/ docs/RESEARCH/g10-mutex-2026-05-20/" | tee -a "${LOG}"
+echo "  rsync -av root@your-vps-host:${OUT_DIR}/ docs/RESEARCH/g10-mutex-2026-05-20/" | tee -a "${LOG}"

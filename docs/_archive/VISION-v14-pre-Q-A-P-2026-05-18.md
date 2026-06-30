@@ -57,7 +57,7 @@ Nox responde na hora, com fonte citada.
 | **Bridge Mode** (CLI + MCP + HTTP API + dashboard sobre mesma SQLite) | ✅ Operacional (formalização docs prevista Wave 3) |
 | **HD Mac Tier 1** — md+docx via pandoc + watcher async | ✅ 543 files / 2697 chunks ingestados 2026-04-24 |
 | **Snapshot pré-op atômico** + audit log + ingest-router unified | 🟡 Pre-gate hardening A0-A2 (executar até 2026-04-29) |
-| Tailscale Mac (`100.119.65.10`) ↔ VPS (`100.87.8.44`) | ✅ Operacional |
+| Tailscale Mac (`<TAILSCALE_IP>`) ↔ VPS (`<NOX_TAILSCALE_IP>`) | ✅ Operacional |
 
 ---
 
@@ -92,7 +92,7 @@ Nox responde na hora, com fonte citada.
 | **A3** | Unit tests parseRetentionOverride (14 cases) | ✅ DONE | 2026-04-25 ~15:55 BRT | node:test built-in, 14/14 pass |
 | **A4** | Canary invariants extension (4 invariants */15min) | ✅ DONE | 2026-04-25 ~16:01 BRT | check-schema-invariants.sh com Discord alert |
 | **A5** | Dry-run mode em reindex+consolidate | ✅ DONE | 2026-04-25 ~16:30 BRT | --dry-run flag CLI, JSON preview wouldDelete/wouldProcess/protected; compact já tinha; crystallize defer |
-| **4** | Obsidian view-only | ✅ DONE | 2026-04-26 | Antecipado pré-gate. Generator Python (`/root/.openclaw/scripts/export-obsidian-vault.py`, 430 LOC) gera vault em `/root/ObsidianVault-build/` (199 .md, 184 entities + KG index Dataview + by-type breakdowns). Cron 02:30 BRT VPS + launchd 03:00 BRT Mac (rsync via Tailscale `100.87.8.44`, excludes preservam customizações local-only). Mac vault: Things 2 theme + dark mode + 5 plugins (Dataview/BRAT/3D Graph/Graph Analysis/Juggl) + 5 graph snippets pra alternar vibe (galaxy-nox/cyberpunk/retrowave/minimal-pro/matrix). Color groups por tag singular (project/decision/lesson/agent/system/kg/index). **Fase P agora destravada** — precisa "Fase 4 estável 30d" antes de productizar. Audit doc: `audits/2026-04-26-B1-obsidian-view-only.md`. |
+| **4** | Obsidian view-only | ✅ DONE | 2026-04-26 | Antecipado pré-gate. Generator Python (`/root/.openclaw/scripts/export-obsidian-vault.py`, 430 LOC) gera vault em `/root/ObsidianVault-build/` (199 .md, 184 entities + KG index Dataview + by-type breakdowns). Cron 02:30 BRT VPS + launchd 03:00 BRT Mac (rsync via Tailscale `<NOX_TAILSCALE_IP>`, excludes preservam customizações local-only). Mac vault: Things 2 theme + dark mode + 5 plugins (Dataview/BRAT/3D Graph/Graph Analysis/Juggl) + 5 graph snippets pra alternar vibe (galaxy-nox/cyberpunk/retrowave/minimal-pro/matrix). Color groups por tag singular (project/decision/lesson/agent/system/kg/index). **Fase P agora destravada** — precisa "Fase 4 estável 30d" antes de productizar. Audit doc: `audits/2026-04-26-B1-obsidian-view-only.md`. |
 | **E02** Tier 2 | PDFs text-layer (gap real 954, cobertura A6 = 79% / 3.541 ingested) | 🔄 IN-PROGRESS | 2026-05-01 | retry NUVIVI+CONTRATOS rodando background, +1.236 chunks já ingestados; gap residual ~728 → E12 OCR |
 | **F08** Backlog | #4 issue + #5 docs + #7 alert + #8 playbooks | ✅ DONE | 2026-04-27 | sprint B3 fechado |
 | **F11** RUNBOOKS | Incident playbooks RB-01 a RB-10 formalizados | ✅ DONE | 2026-04-29 | `docs/RUNBOOKS.md` |
@@ -440,7 +440,7 @@ rsync -avz --delete \
   --include='*/' \
   --exclude='*' \
   ~/Documents/ \
-  root@100.87.8.44:/root/vault/documentos/
+  root@<NOX_TAILSCALE_IP>:/root/vault/documentos/
 
 # Agendar via launchd (diário às 2h) ou rodar manualmente quando quiser
 ```
@@ -507,7 +507,7 @@ Você clica em "Sorensen" → vê tudo que ele aparece: reuniões, contratos, de
 
 ```
 VPS: graphify gera vault Obsidian em /root/vault/obsidian/
-        ↓ Tailscale (100.87.8.44)
+        ↓ Tailscale (<NOX_TAILSCALE_IP>)
 Mac: rsync noturno copia vault para ~/ObsidianVault/
         ↓
 Tela: galáxia 3D interativa com todo o conhecimento (read-only)

@@ -23,10 +23,10 @@
 
 | Source (repo) | Destination (VPS) | Bytes |
 |---|---|---|
-| `staged-1.7c/edits/lib/telemetry-collector.ts` | `src/lib/telemetry-collector.ts` | 12679 |
-| `staged-1.7c/edits/public/observability/telemetry.html` | `public/observability/telemetry.html` | 3035 |
-| `staged-1.7c/edits/public/observability/telemetry.js` | `public/observability/telemetry.js` | 12159 |
-| `staged-1.7c/edits/public/observability/telemetry.css` | `public/observability/telemetry.css` | 4236 |
+| `staged/1.7c/edits/lib/telemetry-collector.ts` | `src/lib/telemetry-collector.ts` | 12679 |
+| `staged/1.7c/edits/public/observability/telemetry.html` | `public/observability/telemetry.html` | 3035 |
+| `staged/1.7c/edits/public/observability/telemetry.js` | `public/observability/telemetry.js` | 12159 |
+| `staged/1.7c/edits/public/observability/telemetry.css` | `public/observability/telemetry.css` | 4236 |
 | `/tmp/api-server.ts.patched` (local edit) | `src/api-server.ts` | 22086 (+749 vs pre) |
 
 ## Wire-up changes applied (5 of 6 — CHANGE 3 N/A)

@@ -43,7 +43,7 @@ No `output_dimensionality` is passed to the SDK → the SDK returns the model's 
 **Actual dim emitted:** **768** (gemini-embedding-001 default without `output_dimensionality`).
 
 **Important discrepancy:** Prod nox-mem uses **3072d** — explicitly requested via
-`outputDimensionality: 3072` in `staged-A3/edits/src/providers/embedding/gemini.ts:27`:
+`outputDimensionality: 3072` in `staged/A3/edits/src/providers/embedding/gemini.ts:27`:
 ```typescript
 export const GEMINI_EMBED_DEFAULT_DIM = 3072;
 // ...
@@ -320,7 +320,7 @@ This is the honest outcome to report in §6. Do NOT suppress or re-run until the
 
 ### 7.2 Dim mismatch: rc4 (768d) vs prod nox-mem (3072d)
 rc4 nox-mem runs at 768d; prod nox-mem uses 3072d (explicit `outputDimensionality: 3072`
-in TypeScript source `staged-A3/.../gemini.ts:27`). This means rc4 compares nox-mem at
+in TypeScript source `staged/A3/.../gemini.ts:27`). This means rc4 compares nox-mem at
 sub-optimal embedding resolution vs prod. The §6 paper claim should state:
 > "rc4 uses gemini-embedding-001 at 768d for both systems; prod nox-mem uses 3072d."
 

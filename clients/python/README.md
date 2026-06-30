@@ -18,7 +18,7 @@ pip install nox-mem-client
 from nox_mem import NoxMemClient
 
 # Default points to the public instance
-client = NoxMemClient(base_url="http://187.77.234.79:18802")
+client = NoxMemClient(base_url="http://localhost:18802")
 
 # Check health
 snap = client.health()

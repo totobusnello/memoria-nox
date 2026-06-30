@@ -12,9 +12,9 @@
 #   ./scripts/deploy-wave-i-p.sh --validate    # validate VPS state
 #
 # Dirs NOT touched by this script (per spec):
-#   staged-1.6/, staged-1.7a/, staged-1.8/     — apply LAST with care
-#   staged-migrations/                          — v11/v23/v24 already applied
-#   staged-P5/, staged-P3/, staged-P1/          — handlers on VPS, only wire-up missing
+#   staged/1.6/, staged/1.7a/, staged/1.8/     — apply LAST with care
+#   staged/migrations/                          — v11/v23/v24 already applied
+#   staged/P5/, staged/P3/, staged/P1/          — handlers on VPS, only wire-up missing
 #
 # Author: auto-generated 2026-05-18
 
@@ -23,7 +23,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # CONFIG
 # ---------------------------------------------------------------------------
-VPS_HOST="root@187.77.234.79"
+VPS_HOST="root@your-vps-host"
 VPS_NX="/root/.openclaw/workspace/tools/nox-mem"
 VPS_BACKUP_DIR="/var/backups/nox-mem/pre-op"
 VPS_LOG="/var/log/nox-mem-deploy-wave-i-p.log"
@@ -164,84 +164,84 @@ ENDSSH
 # Ordered by priority (privacy → cors → wire-up-adapters → G* → prometheus)
 declare -a DEPLOY_TABLE=(
   # --- PRIVACY ---
-  "staged-privacy/edits/privacy|${VPS_NX}/src/privacy|merge|all"
+  "staged/privacy/edits/privacy|${VPS_NX}/src/privacy|merge|all"
 
   # --- CORS ---
-  "staged-cors/edits/src/api/cors.ts|${VPS_NX}/src/api/cors.ts|file|all"
-  "staged-cors/edits/src/api/__tests__/cors.test.ts|${VPS_NX}/src/api/__tests__/cors.test.ts|file|all"
+  "staged/cors/edits/src/api/cors.ts|${VPS_NX}/src/api/cors.ts|file|all"
+  "staged/cors/edits/src/api/__tests__/cors.test.ts|${VPS_NX}/src/api/__tests__/cors.test.ts|file|all"
 
   # --- WIRE-UP ADAPTERS: src/api (only new server-deps-*.ts + health-confidence-adapter.ts) ---
-  "staged-wire-up-adapters/edits/src/api/server-deps-a2.ts|${VPS_NX}/src/api/server-deps-a2.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/server-deps-l2-l3.ts|${VPS_NX}/src/api/server-deps-l2-l3.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/server-deps-p1.ts|${VPS_NX}/src/api/server-deps-p1.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/server-deps-p2.ts|${VPS_NX}/src/api/server-deps-p2.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/server-deps-p5.ts|${VPS_NX}/src/api/server-deps-p5.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/health-confidence-adapter.ts|${VPS_NX}/src/api/health-confidence-adapter.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/__tests__/server-deps-a2.test.ts|${VPS_NX}/src/api/__tests__/server-deps-a2.test.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/__tests__/server-deps-l2-l3.test.ts|${VPS_NX}/src/api/__tests__/server-deps-l2-l3.test.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/__tests__/server-deps-p1.test.ts|${VPS_NX}/src/api/__tests__/server-deps-p1.test.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/__tests__/server-deps-p2.test.ts|${VPS_NX}/src/api/__tests__/server-deps-p2.test.ts|file|all"
-  "staged-wire-up-adapters/edits/src/api/__tests__/server-deps-p5.test.ts|${VPS_NX}/src/api/__tests__/server-deps-p5.test.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/server-deps-a2.ts|${VPS_NX}/src/api/server-deps-a2.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/server-deps-l2-l3.ts|${VPS_NX}/src/api/server-deps-l2-l3.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/server-deps-p1.ts|${VPS_NX}/src/api/server-deps-p1.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/server-deps-p2.ts|${VPS_NX}/src/api/server-deps-p2.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/server-deps-p5.ts|${VPS_NX}/src/api/server-deps-p5.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/health-confidence-adapter.ts|${VPS_NX}/src/api/health-confidence-adapter.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/__tests__/server-deps-a2.test.ts|${VPS_NX}/src/api/__tests__/server-deps-a2.test.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/__tests__/server-deps-l2-l3.test.ts|${VPS_NX}/src/api/__tests__/server-deps-l2-l3.test.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/__tests__/server-deps-p1.test.ts|${VPS_NX}/src/api/__tests__/server-deps-p1.test.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/__tests__/server-deps-p2.test.ts|${VPS_NX}/src/api/__tests__/server-deps-p2.test.ts|file|all"
+  "staged/wire-up-adapters/edits/src/api/__tests__/server-deps-p5.test.ts|${VPS_NX}/src/api/__tests__/server-deps-p5.test.ts|file|all"
 
   # --- WIRE-UP ADAPTERS: src/lib (new dirs only — do NOT overwrite existing) ---
-  "staged-wire-up-adapters/edits/src/lib/deps|${VPS_NX}/src/lib/deps|new_only|all"
-  "staged-wire-up-adapters/edits/src/lib/viewer/broadcast-singleton.ts|${VPS_NX}/src/lib/viewer/broadcast-singleton.ts|file|all"
-  "staged-wire-up-adapters/edits/src/lib/confidence/db-shim-singleton.ts|${VPS_NX}/src/lib/confidence/db-shim-singleton.ts|file|all"
-  "staged-wire-up-adapters/edits/src/lib/archive/server-deps.ts|${VPS_NX}/src/lib/archive/server-deps.ts|file|all"
-  "staged-wire-up-adapters/edits/src/lib/conflict/db-singleton.ts|${VPS_NX}/src/lib/conflict/db-singleton.ts|file|all"
-  "staged-wire-up-adapters/edits/src/lib/hooks/server-deps.ts|${VPS_NX}/src/lib/hooks/server-deps.ts|file|all"
+  "staged/wire-up-adapters/edits/src/lib/deps|${VPS_NX}/src/lib/deps|new_only|all"
+  "staged/wire-up-adapters/edits/src/lib/viewer/broadcast-singleton.ts|${VPS_NX}/src/lib/viewer/broadcast-singleton.ts|file|all"
+  "staged/wire-up-adapters/edits/src/lib/confidence/db-shim-singleton.ts|${VPS_NX}/src/lib/confidence/db-shim-singleton.ts|file|all"
+  "staged/wire-up-adapters/edits/src/lib/archive/server-deps.ts|${VPS_NX}/src/lib/archive/server-deps.ts|file|all"
+  "staged/wire-up-adapters/edits/src/lib/conflict/db-singleton.ts|${VPS_NX}/src/lib/conflict/db-singleton.ts|file|all"
+  "staged/wire-up-adapters/edits/src/lib/hooks/server-deps.ts|${VPS_NX}/src/lib/hooks/server-deps.ts|file|all"
 
   # --- G4: input validation ---
-  "staged-G4/edits/src/api/answer.ts|${VPS_NX}/src/api/answer.ts|file|all"
-  "staged-G4/edits/src/api/answer.validate-patch.ts|${VPS_NX}/src/api/answer.validate-patch.ts|file|all"
-  "staged-G4/edits/src/api/__tests__/validate.test.ts|${VPS_NX}/src/api/__tests__/validate.test.ts|file|all"
+  "staged/G4/edits/src/api/answer.ts|${VPS_NX}/src/api/answer.ts|file|all"
+  "staged/G4/edits/src/api/answer.validate-patch.ts|${VPS_NX}/src/api/answer.validate-patch.ts|file|all"
+  "staged/G4/edits/src/api/__tests__/validate.test.ts|${VPS_NX}/src/api/__tests__/validate.test.ts|file|all"
 
   # --- G5: error sanitizer ---
-  "staged-G5/edits/src/lib/error-sanitizer|${VPS_NX}/src/lib/error-sanitizer|merge|all"
-  "staged-G5/edits/scripts/audit-stack-leak.sh|${VPS_NX}/scripts/audit-stack-leak.sh|file|all"
+  "staged/G5/edits/src/lib/error-sanitizer|${VPS_NX}/src/lib/error-sanitizer|merge|all"
+  "staged/G5/edits/scripts/audit-stack-leak.sh|${VPS_NX}/scripts/audit-stack-leak.sh|file|all"
 
   # --- G6: localhost auth guard ---
-  "staged-G6/edits/src/lib/auth|${VPS_NX}/src/lib/auth|merge|all"
+  "staged/G6/edits/src/lib/auth|${VPS_NX}/src/lib/auth|merge|all"
 
   # --- G7: streaming memory unpack ---
-  "staged-G7/edits/src/lib/archive/unpack-streaming.ts|${VPS_NX}/src/lib/archive/unpack-streaming.ts|file|all"
-  "staged-G7/edits/src/lib/archive/__tests__/streaming-memory.test.ts|${VPS_NX}/src/lib/archive/__tests__/streaming-memory.test.ts|file|all"
+  "staged/G7/edits/src/lib/archive/unpack-streaming.ts|${VPS_NX}/src/lib/archive/unpack-streaming.ts|file|all"
+  "staged/G7/edits/src/lib/archive/__tests__/streaming-memory.test.ts|${VPS_NX}/src/lib/archive/__tests__/streaming-memory.test.ts|file|all"
 
   # --- G8: audit DB hardening scripts ---
-  "staged-G8/edits/scripts/protect-audit-db.sh|${VPS_NX}/scripts/protect-audit-db.sh|file|all"
-  "staged-G8/edits/scripts/verify-audit-hardening.sh|${VPS_NX}/scripts/verify-audit-hardening.sh|file|all"
+  "staged/G8/edits/scripts/protect-audit-db.sh|${VPS_NX}/scripts/protect-audit-db.sh|file|all"
+  "staged/G8/edits/scripts/verify-audit-hardening.sh|${VPS_NX}/scripts/verify-audit-hardening.sh|file|all"
 
   # --- G10: op-audit extension (ran-at guard) — migration SQL NOT included (already applied) ---
-  "staged-G10/edits/src/lib/op-audit-extension|${VPS_NX}/src/lib/op-audit-extension|merge|all"
+  "staged/G10/edits/src/lib/op-audit-extension|${VPS_NX}/src/lib/op-audit-extension|merge|all"
 
   # --- G11: events-stream-limited ---
-  "staged-G11/edits/src/api/events-stream-limited.ts|${VPS_NX}/src/api/events-stream-limited.ts|file|all"
-  "staged-G11/edits/src/lib/viewer/__tests__/events-stream-limited.test.ts|${VPS_NX}/src/lib/viewer/__tests__/events-stream-limited.test.ts|file|all"
+  "staged/G11/edits/src/api/events-stream-limited.ts|${VPS_NX}/src/api/events-stream-limited.ts|file|all"
+  "staged/G11/edits/src/lib/viewer/__tests__/events-stream-limited.test.ts|${VPS_NX}/src/lib/viewer/__tests__/events-stream-limited.test.ts|file|all"
 
   # --- G12: safe error message ---
-  "staged-G12/edits/src/lib/api|${VPS_NX}/src/lib/api|merge|all"
+  "staged/G12/edits/src/lib/api|${VPS_NX}/src/lib/api|merge|all"
 
   # --- G13: rate-limit dry-run fix ---
-  "staged-G13/edits/src/lib/hooks/rate-limit-dryrun-fix.ts|${VPS_NX}/src/lib/hooks/rate-limit-dryrun-fix.ts|file|all"
-  "staged-G13/edits/src/lib/hooks/__tests__/rate-limit-dryrun.test.ts|${VPS_NX}/src/lib/hooks/__tests__/rate-limit-dryrun.test.ts|file|all"
+  "staged/G13/edits/src/lib/hooks/rate-limit-dryrun-fix.ts|${VPS_NX}/src/lib/hooks/rate-limit-dryrun-fix.ts|file|all"
+  "staged/G13/edits/src/lib/hooks/__tests__/rate-limit-dryrun.test.ts|${VPS_NX}/src/lib/hooks/__tests__/rate-limit-dryrun.test.ts|file|all"
 
   # --- G14: v24 migration SQL — SKIP (already applied per spec) ---
   # (migration files intentionally excluded)
-  "staged-G14/edits/__tests__/v24-triggers.test.ts|${VPS_NX}/__tests__/v24-triggers.test.ts|file|all"
+  "staged/G14/edits/__tests__/v24-triggers.test.ts|${VPS_NX}/__tests__/v24-triggers.test.ts|file|all"
 
   # --- G15: conflict audit FK check ---
-  "staged-G15/edits/src/lib/conflict|${VPS_NX}/src/lib/conflict|merge|all"
+  "staged/G15/edits/src/lib/conflict|${VPS_NX}/src/lib/conflict|merge|all"
 
   # --- G16: export locking ---
-  "staged-G16/edits/src/lib/archive/export-locking.ts|${VPS_NX}/src/lib/archive/export-locking.ts|file|all"
-  "staged-G16/edits/src/lib/archive/__tests__/export-locking.test.ts|${VPS_NX}/src/lib/archive/__tests__/export-locking.test.ts|file|all"
+  "staged/G16/edits/src/lib/archive/export-locking.ts|${VPS_NX}/src/lib/archive/export-locking.ts|file|all"
+  "staged/G16/edits/src/lib/archive/__tests__/export-locking.test.ts|${VPS_NX}/src/lib/archive/__tests__/export-locking.test.ts|file|all"
 
   # --- G17: rate-limit constant time ---
-  "staged-G17/edits/src/lib/hooks/rate-limit-constant-time.ts|${VPS_NX}/src/lib/hooks/rate-limit-constant-time.ts|file|all"
-  "staged-G17/edits/src/lib/hooks/__tests__/rate-limit-constant-time.test.ts|${VPS_NX}/src/lib/hooks/__tests__/rate-limit-constant-time.test.ts|file|all"
+  "staged/G17/edits/src/lib/hooks/rate-limit-constant-time.ts|${VPS_NX}/src/lib/hooks/rate-limit-constant-time.ts|file|all"
+  "staged/G17/edits/src/lib/hooks/__tests__/rate-limit-constant-time.test.ts|${VPS_NX}/src/lib/hooks/__tests__/rate-limit-constant-time.test.ts|file|all"
 
   # --- PROMETHEUS: observability ---
-  "staged-prometheus/edits/src/observability|${VPS_NX}/src/observability|merge|all"
+  "staged/prometheus/edits/src/observability|${VPS_NX}/src/observability|merge|all"
 )
 
 # ---------------------------------------------------------------------------

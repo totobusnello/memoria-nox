@@ -232,9 +232,9 @@ cat docs/DEPLOY-WAVE-B.md
 # Dry-run: check what would change
 nox-mem reindex --dry-run
 
-# Apply a specific patch (example: staged-P1)
+# Apply a specific patch (example: staged/P1)
 cd /root/.openclaw/workspace/tools/nox-mem
-cp ~/staged-P1/edits/src/mcp/tools/answer.ts src/mcp/tools/answer.ts
+cp ~/staged/P1/edits/src/mcp/tools/answer.ts src/mcp/tools/answer.ts
 npm run build
 
 # Restart the API

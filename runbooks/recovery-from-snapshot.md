@@ -5,7 +5,7 @@
 **Pré-requisitos:**
 - Snapshot pré-op existe em `/var/backups/nox-mem/pre-op/<op>-<ts>-<pid>-<uuid>.db`
 - Linha correspondente em `ops_audit` (status=`success`/`failed`/`crashed`)
-- Acesso root na VPS via Tailscale (`ssh root@100.87.8.44`)
+- Acesso root na VPS via Tailscale (`ssh root@<NOX_TAILSCALE_IP>`)
 
 ---
 
@@ -37,10 +37,10 @@ Qual a regressão?
 
 ```bash
 # Listar snapshots disponíveis (ordem cronológica)
-ssh root@100.87.8.44 'ls -lh /var/backups/nox-mem/pre-op/ | sort -k 9'
+ssh root@<NOX_TAILSCALE_IP> 'ls -lh /var/backups/nox-mem/pre-op/ | sort -k 9'
 
 # Cruzar com ops_audit pra ver o que cada op fez
-ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
+ssh root@<NOX_TAILSCALE_IP> 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "
   SELECT id, op_name, started_at, finished_at, status, affected_rows, snapshot_path,
          schema_user_version, snapshot_bytes
   FROM ops_audit
@@ -63,7 +63,7 @@ ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db
 ### Passo 1 — Parar serviços que escrevem no DB
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
   systemctl stop openclaw-gateway nox-mem-api nox-mem-watcher
   sleep 3
   systemctl is-active openclaw-gateway nox-mem-api nox-mem-watcher
@@ -76,7 +76,7 @@ ssh root@100.87.8.44 '
 Antes de sobrescrever, preserva o estado atual pra forensics futura.
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
   cp /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
      /var/backups/nox-mem/pre-op/CORRUPTED-pre-restore-$(date +%Y%m%d-%H%M%S).db
 '
@@ -87,7 +87,7 @@ ssh root@100.87.8.44 '
 ```bash
 SNAPSHOT="/var/backups/nox-mem/pre-op/reindex-20260425143012-12345-9e0ba8f8.db"
 
-ssh root@100.87.8.44 "
+ssh root@<NOX_TAILSCALE_IP> "
   cd /root/.openclaw/workspace/tools/nox-mem
   set -a; source /root/.openclaw/.env; set +a
   node -e \"
@@ -123,7 +123,7 @@ Pass { force: true } to restore anyway.
 ### Passo 4 — Religar serviços
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
   systemctl start nox-mem-api nox-mem-watcher openclaw-gateway
   sleep 5
   systemctl is-active openclaw-gateway nox-mem-api nox-mem-watcher
@@ -134,7 +134,7 @@ ssh root@100.87.8.44 '
 
 ```bash
 # Sanity check completo
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{
   total: .chunks.total,
   vc: .vectorCoverage,
   section: .sectionDistribution,
@@ -143,11 +143,11 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
 }"'
 
 # Schema invariants
-ssh root@100.87.8.44 'bash /root/.openclaw/scripts/check-schema-invariants.sh'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/.openclaw/scripts/check-schema-invariants.sh'
 # Esperado: exit 0, "OK section_nonnull=... compiled=... ..."
 
 # Canary semantic
-ssh root@100.87.8.44 'bash /root/.openclaw/scripts/semantic-canary.sh'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/.openclaw/scripts/semantic-canary.sh'
 # Esperado: exit 0, OK total>0 semantic>0
 ```
 
@@ -156,7 +156,7 @@ ssh root@100.87.8.44 'bash /root/.openclaw/scripts/semantic-canary.sh'
 Snapshot pode estar de antes do último vectorize. Validar e completar:
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
   set -a; source /root/.openclaw/.env; set +a
   nox-mem vectorize 2>&1 | tail -5
 '
@@ -175,7 +175,7 @@ ssh root@100.87.8.44 '
 ### Cenário A — Reindex zerou metadata de entities (incident 2026-04-25 pattern)
 **NÃO restaurar.** Patch arquitetural em `ingestFile()`/`ingest-router.ts` previne futuro. Re-aplicar entity ingestion via:
 ```bash
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a;
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a;
 for f in $(find /root/.openclaw/workspace/memory/entities -name "*.md"); do
   nox-mem ingest-entity "$f"
 done
@@ -205,7 +205,7 @@ nox-mem vectorize'
 
 ```bash
 # Single-line health snapshot
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage.embedded==.vectorCoverage.total, section_compiled:.sectionDistribution.compiled, ops_failed_24h:.opsAudit.failed_24h}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage.embedded==.vectorCoverage.total, section_compiled:.sectionDistribution.compiled, ops_failed_24h:.opsAudit.failed_24h}"'
 
 # Esperado pós-restore bem-sucedido:
 # { total: <N>, vc: true, section_compiled: 183 (ou esperado), ops_failed_24h: 0 }

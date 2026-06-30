@@ -32,7 +32,7 @@ npm test
 
 ## Por que shims em vez de imports diretos
 
-Os pilares staged (`staged-P1`, `staged-A2`, `staged-L2`, etc.) são pacotes TypeScript irmãos
+Os pilares staged (`staged/P1`, `staged/A2`, `staged/L2`, etc.) são pacotes TypeScript irmãos
 com `rootDir` separado. Importar fonte `.ts` entre eles puxaria 9 árvores de módulos
 sobrepostos no build do tsc — frágil e lento. A solução adotada:
 

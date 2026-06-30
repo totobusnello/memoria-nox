@@ -28,7 +28,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
 
 # Copy source tree
-# (staged-* dirs are intentionally included — the build reads them for module
+# (staged/ dirs are intentionally included — the build reads them for module
 #  stitching. .dockerignore excludes heavy test fixtures and .git.)
 COPY . .
 

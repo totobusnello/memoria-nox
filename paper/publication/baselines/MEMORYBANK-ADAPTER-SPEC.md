@@ -132,13 +132,13 @@ source /tmp/memorybank-adapter-venv/bin/activate
 pip install "requests>=2.31"
 
 # 1. Copy adapter to VPS
-scp paper/publication/baselines/memorybank_adapter.py root@100.87.8.44:/root/memorybank-baselines/
+scp paper/publication/baselines/memorybank_adapter.py root@<NOX_TAILSCALE_IP>:/root/memorybank-baselines/
 
 # 2. Check load before starting
-ssh root@100.87.8.44 "cat /proc/loadavg"
+ssh root@<NOX_TAILSCALE_IP> "cat /proc/loadavg"
 
 # 3. Smoke test in tmux (must be <3.5 load)
-ssh root@100.87.8.44 "tmux new-session -d -s memorybank-eval \
+ssh root@<NOX_TAILSCALE_IP> "tmux new-session -d -s memorybank-eval \
   'cd /root/memorybank-baselines && nice -n 19 ionice -c 3 \
    python memorybank_adapter.py download-only \
      --clone-dir /tmp/memorybank-repo \
@@ -148,21 +148,21 @@ ssh root@100.87.8.44 "tmux new-session -d -s memorybank-eval \
    2>&1 | tee /tmp/memorybank-smoke.log'"
 
 # 4. Monitor
-ssh root@100.87.8.44 "tmux attach -t memorybank-eval"
-# (or) ssh root@100.87.8.44 "tail -f /tmp/memorybank-smoke.log"
+ssh root@<NOX_TAILSCALE_IP> "tmux attach -t memorybank-eval"
+# (or) ssh root@<NOX_TAILSCALE_IP> "tail -f /tmp/memorybank-smoke.log"
 
 # 5. Verify smoke test
-ssh root@100.87.8.44 "cat /tmp/memorybank-manifest.json | python3 -m json.tool | head -40"
+ssh root@<NOX_TAILSCALE_IP> "cat /tmp/memorybank-manifest.json | python3 -m json.tool | head -40"
 
 # 6. Full pipeline (after smoke test passes)
-ssh root@100.87.8.44 "tmux send-keys -t memorybank-eval \
+ssh root@<NOX_TAILSCALE_IP> "tmux send-keys -t memorybank-eval \
   'nice -n 19 ionice -c 3 python memorybank_adapter.py full \
      --clone-dir /tmp/memorybank-repo \
      --db /tmp/nox-mem-memorybank.db \
      --queries-output /tmp/memorybank-eval-queries.jsonl' Enter"
 
 # 7. Vectorize TEMP DB (after full pipeline, requires nox-mem + env)
-ssh root@100.87.8.44 \
+ssh root@<NOX_TAILSCALE_IP> \
   "set -a; source /root/.openclaw/.env; set +a; \
    nice -n 19 ionice -c 3 cpulimit --limit=100 -- \
    NOX_DB_PATH=/tmp/nox-mem-memorybank.db \
@@ -170,13 +170,13 @@ ssh root@100.87.8.44 \
 
 # 8. Start nox-mem API on TEMP DB (separate shell / tmux pane)
 # NOTE: This replaces the production API temporarily. Restore after eval.
-ssh root@100.87.8.44 \
+ssh root@<NOX_TAILSCALE_IP> \
   "set -a; source /root/.openclaw/.env; set +a; \
    NOX_DB_PATH=/tmp/nox-mem-memorybank.db \
    node /root/.openclaw/workspace/tools/nox-mem/dist/index.js serve &"
 
 # 9. Run eval
-ssh root@100.87.8.44 "nice -n 19 ionice -c 3 cpulimit --limit=100 -- \
+ssh root@<NOX_TAILSCALE_IP> "nice -n 19 ionice -c 3 cpulimit --limit=100 -- \
   python /root/memorybank-baselines/memorybank_adapter.py eval \
     --queries /tmp/memorybank-eval-queries.jsonl \
     --output /tmp/memorybank-results.jsonl \
@@ -184,9 +184,9 @@ ssh root@100.87.8.44 "nice -n 19 ionice -c 3 cpulimit --limit=100 -- \
   2>&1 | tee /tmp/memorybank-eval.log"
 
 # 10. Pull results back to local
-scp root@100.87.8.44:/tmp/memorybank-results.jsonl \
+scp root@<NOX_TAILSCALE_IP>:/tmp/memorybank-results.jsonl \
   paper/publication/results/memorybank-nox-results.jsonl
-scp root@100.87.8.44:/tmp/memorybank-manifest.json \
+scp root@<NOX_TAILSCALE_IP>:/tmp/memorybank-manifest.json \
   paper/publication/results/memorybank-manifest.json
 ```
 

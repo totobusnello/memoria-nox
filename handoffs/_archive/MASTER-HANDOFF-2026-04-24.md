@@ -30,21 +30,21 @@ Dia começou com relatório alarmista do Cipher sobre "sistema quebrado". Revelo
 
 ```bash
 # 1. Health — valores esperados
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, vc: .vectorCoverage, retention: .retentionDistribution, salience: .salience, section: .sectionDistribution, db_mb: .dbSizeMB}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{total: .chunks.total, vc: .vectorCoverage, retention: .retentionDistribution, salience: .salience, section: .sectionDistribution, db_mb: .dbSizeMB}"'
 # Esperado: total≈9541+, embedded=total, salience.mode=shadow, section.compiled=183, db_mb≈170
 
 # 2. Shadow telemetry (novo cron)
-ssh root@100.87.8.44 'tail -3 /var/log/nox-section-shadow-daily.log'
+ssh root@<NOX_TAILSCALE_IP> 'tail -3 /var/log/nox-section-shadow-daily.log'
 
 # 3. Canary 24h + monkey-patch
-ssh root@100.87.8.44 'tail -3 /var/log/nox-canary.log; systemctl is-active openclaw-gateway nox-mem-api nox-mem-watcher; bash /root/.openclaw/scripts/check-monkey-patch.sh'
+ssh root@<NOX_TAILSCALE_IP> 'tail -3 /var/log/nox-canary.log; systemctl is-active openclaw-gateway nox-mem-api nox-mem-watcher; bash /root/.openclaw/scripts/check-monkey-patch.sh'
 
 # 4. Mac-docs + entities presentes
-ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "SELECT COUNT(*) FROM chunks WHERE source_file LIKE \"memory/mac-docs/%\"; SELECT COUNT(*) FROM chunks WHERE section IS NOT NULL;"'
+ssh root@<NOX_TAILSCALE_IP> 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "SELECT COUNT(*) FROM chunks WHERE source_file LIKE \"memory/mac-docs/%\"; SELECT COUNT(*) FROM chunks WHERE section IS NOT NULL;"'
 # Esperado: 2697 mac-docs + 732 entities
 
 # 5. Salience readiness check (day 2/7)
-ssh root@100.87.8.44 'bash /root/.openclaw/scripts/activate-salience.sh check'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/.openclaw/scripts/activate-salience.sh check'
 # Esperado: "NOT READY: wait 5 more days" (até 2026-04-30)
 ```
 
@@ -92,7 +92,7 @@ ssh root@100.87.8.44 'bash /root/.openclaw/scripts/activate-salience.sh check'
 
 ### Infra (inalterada)
 
-- **VPS:** `root@100.87.8.44` (Tailscale) / `$NOX_VPS_HOST` (público)
+- **VPS:** `root@<NOX_TAILSCALE_IP>` (Tailscale) / `$NOX_VPS_HOST` (público)
 - **OpenClaw:** 2026.4.21 + monkey-patch Issue #62028
 - **Backend primário:** Claude CLI via OAuth Max (zero API bill)
 - **Fallback chain:** claude-cli → openai-codex → gemini/2.5-pro
@@ -297,7 +297,7 @@ Se amanhã rodar Tier 2, vai virar um dos DBs de memória pessoal mais densos j�
 **Próxima janela abre com:**
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total,vc:.vectorCoverage,salience:.salience.mode,section:.sectionDistribution,retention:.retentionDistribution,db:.dbSizeMB}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total,vc:.vectorCoverage,salience:.salience.mode,section:.sectionDistribution,retention:.retentionDistribution,db:.dbSizeMB}"'
 ```
 
 Expected: total≥9541, 100% vc, section.compiled=183, db_mb~170.

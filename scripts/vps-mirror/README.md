@@ -1,12 +1,12 @@
 # vps-mirror — Snapshots dos scripts rodando na VPS
 
-Estes arquivos são **cópias de consulta** dos scripts deployados em `/root/.openclaw/scripts/` na VPS (root@100.87.8.44). Ficam fora do git do workspace da VPS por convenção operacional, então espelhamos aqui pra ter backup + histórico no git do Mac/GitHub.
+Estes arquivos são **cópias de consulta** dos scripts deployados em `/root/.openclaw/scripts/` na VPS (root@your-vps-host). Ficam fora do git do workspace da VPS por convenção operacional, então espelhamos aqui pra ter backup + histórico no git do Mac/GitHub.
 
 **Não editar estes arquivos diretamente** — eles NÃO são deployados por commit. Fluxo correto:
 
-1. Editar na VPS (`ssh root@100.87.8.44 'vim /root/.openclaw/scripts/<script>.sh'`) ou via scp local + upload
+1. Editar na VPS (`ssh root@your-vps-host 'vim /root/.openclaw/scripts/<script>.sh'`) ou via scp local + upload
 2. Testar na VPS
-3. Atualizar o espelho aqui: `scp root@100.87.8.44:/root/.openclaw/scripts/<script>.sh vps-mirror/`
+3. Atualizar o espelho aqui: `scp root@your-vps-host:/root/.openclaw/scripts/<script>.sh vps-mirror/`
 4. Commitar a cópia
 
 ## Scripts espelhados
