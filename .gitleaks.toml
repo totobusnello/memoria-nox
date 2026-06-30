@@ -33,11 +33,15 @@ cobre o scan full-history (fetch-depth:0) dos commits antigos (18/mai); só path
 - staged/privacy/.../__tests__/filter.test.ts — teste "PEM private key":
   "MIIEpAIBAAKCAQEAEXAMPLEKEY1234567890...".
 """
+# NOTE 2026-06-30: os diretórios staged-*/ foram renomeados para staged/ no reorg de
+# release público. Scans full-history ainda enxergam os paths ANTIGOS com hífen
+# (staged-P7-.../) nos commits pré-rename, então cada path abaixo casa AMBAS as grafias
+# via `staged[-/]`. Validado: gitleaks com esta config = 0 leaks.
 paths = [
   '''benchmark/history/.*\.json''',
-  '''staged/P7-browser-extension/.*''',
+  '''staged[-/]P7-browser-extension/.*''',
   '''archive/docs/github-webhook-setup\.md''',
-  '''staged/P6-mobile/packages/nox_privacy/test/patterns_test\.dart''',
-  '''staged/A3/edits/src/providers/__tests__/gemini\.test\.ts''',
-  '''staged/privacy/edits/privacy/__tests__/filter\.test\.ts''',
+  '''staged[-/]P6-mobile/packages/nox_privacy/test/patterns_test\.dart''',
+  '''staged[-/]A3/edits/src/providers/__tests__/gemini\.test\.ts''',
+  '''staged[-/]privacy/edits/privacy/__tests__/filter\.test\.ts''',
 ]

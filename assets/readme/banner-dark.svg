@@ -1,5 +1,5 @@
-<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem — Pain-weighted hybrid memory with shadow discipline, yours by design">
-  <title>nox-mem — Pain-weighted hybrid memory with shadow discipline — yours by design</title>
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="nox-mem — Pain-weighted hybrid memory for LLM agents, self-hosted, yours by design">
+  <title>nox-mem — Pain-weighted hybrid memory for LLM agents, self-hosted — yours by design</title>
   <desc>Hero banner. Left column: nox-mem wordmark with two-line slogan. Right column: 24 vertical bars visualizing pain-weighted memory chunks ranging from teal (low severity) to a single orange peak (production-outage memory), overlaid with a faint hybrid-retrieval lattice (FTS5 diamond, Gemini hexagon, RRF merger node).</desc>
 
   <defs>
@@ -61,7 +61,7 @@
   <text x="48" y="246" fill="#C9CFD7" font-family="'Inter', 'Helvetica Neue', 'Arial', sans-serif" font-size="20" font-weight="400" letter-spacing="-0.3">Pain-weighted hybrid memory</text>
 
   <!-- Slogan line 2 — secondary phrase, lighter weight -->
-  <text x="48" y="274" fill="#8B95A2" font-family="'Inter', 'Helvetica Neue', 'Arial', sans-serif" font-size="20" font-weight="300" letter-spacing="-0.3">with shadow discipline.</text>
+  <text x="48" y="274" fill="#8B95A2" font-family="'Inter', 'Helvetica Neue', 'Arial', sans-serif" font-size="20" font-weight="300" letter-spacing="-0.3">for LLM agents, self-hosted.</text>
 
   <!-- Tagline — accent payoff -->
   <text x="48" y="312" fill="#00C896" font-family="'Inter', 'Helvetica Neue', 'Arial', sans-serif" font-size="16" font-weight="500" letter-spacing="0.4">— yours by design.</text>
