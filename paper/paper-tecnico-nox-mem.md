@@ -2,7 +2,7 @@
 
 **nox-mem v3.8 — §5 fifth revision May–June 2026 (Wave A + EverMemBench 5-batch Phase D/G/H v2 + Lab Q1 standalones + Wave B/C composability + Backbone Matrix Gemini-3-flash + LoCoMo dual + MuSiQue + HotPotQA dual SOTA + LongMemEval cross-bench + Production SOTA)**
 
-**Paper version:** v1.0.0-rc4 (2026-06-29) — changelog em `paper/CHANGELOG.md`
+**Paper version:** v1.0.0 (2026-06-30) — frozen for arXiv submission; changelog em `paper/CHANGELOG.md`
 
 **Author:** Luiz Antonio Busnello (Toto)
 **Platform:** OpenClaw Autonomous Agent Platform

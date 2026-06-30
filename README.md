@@ -20,9 +20,9 @@
   <a href="https://github.com/totobusnello/memoria-nox/stargazers"><img src="https://img.shields.io/github/stars/totobusnello/memoria-nox?style=for-the-badge&color=00C896" alt="Stars"></a>
   <a href="https://github.com/totobusnello/memoria-nox/actions/workflows/lint-and-typecheck.yml"><img src="https://img.shields.io/github/actions/workflow/status/totobusnello/memoria-nox/lint-and-typecheck.yml?style=for-the-badge&color=00C896&label=ci" alt="CI"></a>
   <a href="https://www.bestpractices.dev/projects/12896"><img src="https://img.shields.io/cii/level/12896?style=for-the-badge&color=00C896&label=OpenSSF" alt="OpenSSF Best Practices: passing"></a>
-  <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.0--rc4-00C896?style=for-the-badge" alt="Paper v1.0.0-rc4"></a>
+  <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.0-00C896?style=for-the-badge" alt="Paper v1.0.0"></a>
   <img src="https://img.shields.io/badge/arXiv-pending%20(cs.IR)-b31b1b?style=for-the-badge" alt="arXiv preprint cs.IR, submission pending">
-  <img src="https://img.shields.io/badge/version-1.0.0--rc4-00C896?style=for-the-badge" alt="version 1.0.0-rc4">
+  <img src="https://img.shields.io/badge/version-1.0.0-00C896?style=for-the-badge" alt="version 1.0.0">
 </p>
 
 <p align="center">
@@ -151,7 +151,7 @@ Most agent memory systems force a trade you should not have to make: send your d
 
 The moat is not just portability. It is **shadow discipline**: every ranking change ships in shadow mode for at least seven days, with salience scores exposed on `/api/health` for offline comparison, before it is ever allowed to influence a real query. The pain field on each chunk (`severity 0.1 trivial → 1.0 prod-outage`) ensures that incidents stay retrievable when their lessons matter, not when their dates are fresh. The retrieval logic is small enough to read in one sitting, and every score in the eval harness is auditable from the SQL up.
 
-memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* (v1.0.0-rc4, arXiv cs.IR target) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **94.9k chunks** and **~15.6k entities / ~21.5k relations** with a monthly OPEX under **$11**.
+memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* (v1.0.0, arXiv cs.IR target) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **94.9k chunks** and **~15.6k entities / ~21.5k relations** with a monthly OPEX under **$11**.
 
 ## Architecture
 
@@ -340,7 +340,7 @@ The two axes with **zero coverage in the memory-systems literature** &mdash; **p
 | Typed knowledge graph with edge reasons | partial | &times; | &check; | &times; | &check; |
 | Shadow-mode ranking discipline | &times; | &times; | &times; | &times; | &check; |
 | Pain-weighted salience | &times; | &times; | &times; | &times; | &check; |
-| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.0.0-rc4) |
+| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.0.0) |
 | MIT, no usage caps, no telemetry phone-home | partial | &check; | &check; | &check; | &check; |
 
 ## Works with every agent
@@ -355,7 +355,7 @@ Per-agent setup: [`docs/integrations/`](docs/integrations/). The MCP server expo
 
 **Title:** *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents*
 
-**Status:** v1.0.0-rc4 (2026-06-29) &middot; arXiv target: cs.IR &middot; Q4 gate passed (D43) &middot; submission pending endorsement
+**Status:** v1.0.0 (2026-06-30, frozen for submission) &middot; arXiv target: cs.IR &middot; Q4 gate passed (D43) &middot; submission pending endorsement
 
 **PDF:** [`paper/build/paper-tecnico-nox-mem.pdf`](paper/build/paper-tecnico-nox-mem.pdf) &middot; changelog: [`paper/CHANGELOG.md`](paper/CHANGELOG.md)
 
@@ -380,7 +380,7 @@ If you use nox-mem in your research or production:
   year    = {2026},
   month   = {6},
   url     = {https://github.com/totobusnello/memoria-nox},
-  version = {1.0.0-rc4},
+  version = {1.0.0},
   note    = {arXiv: cs.IR (submission pending)}
 }
 ```

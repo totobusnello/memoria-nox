@@ -42,6 +42,16 @@ Paper completo e auto-suficiente, zero `[PENDING]`:
 - Paper atualizado: §6.3.2 (confounds 4→3 + parágrafo de ablação), §6.4, §6.7, §7.1, status box, abstract (`abstract.md` + `arxiv-submission-ready.md`), `docs/COMPARISON.md`.
 - **Infra — 4 bloqueadores de execução corrigidos:** `_self_check` 768→3072 (import quebrado), `google-genai` faltante (mem0 embedder), `runner_rc4.py` criado, mem0 2.0.10 `search`/`get_all` API. Smoke validado (dims 3072=3072, gold-match 100% nos dois datasets, billing path exercitado). Raws: `eval/q4-comparison/output/rc4/_aggregate.{json,md}`.
 
+### v1.0.0 — 2026-06-30 (frozen for arXiv submission)
+
+Sweep final de claims (revisão adversarial multi-voice GLM + Codex + Kimi, read-only) + freeze pra submissão. Conteúdo congelado; resta só a logística do arXiv (endorsement cs.IR + submit), pós a qual atualizamos o arXiv ID.
+
+- **Sweep de claims (PR #446):** GLM limpo; Codex 2 (qualificador backbone MemOS + contagem "ten"→"nine"); Kimi achou a raiz (3 GRAVE convergentes) — o abstract inline + a conclusão não carregavam o split as-configured (pareciam afirmar vitória LoCoMo em todas as condições), violando o próprio §6.6. Corrigido: abstract inline e §15 conclusão agora carregam **as duas leituras** (split as-configured: Mem0 ganha LoCoMo / nox ganha LME; + inversão controlada: nox ganha os dois). + qualificador de métrica no §5.3.1 + forward-pointer pro §6.3 + qualificador de backbone (GPT-4.1-mini) no claim EverMemBench.
+- **README + CITATION alinhados** (PR #445): rc1→rc4→v1.0.0, título canônico, corpus 94.9k, §Q4 com rc4+ablação.
+- **Confounds residuais:** 3 declarados (mem0 version drift, backend, sample scope) + task-type ablacionado/neutralizado.
+- **PDF:** `paper/build/paper-tecnico-nox-mem.pdf`, 0 glyph warnings. arXiv abstract 296 palavras.
+- **Pendente (logística, não-conteúdo):** endorsement cs.IR + rebuild do pacote de submissão a partir de `paper/build/` (o `arxiv-package-2026-05-24/` é pré-rc4) + submit → depois preencher arXiv ID em CITATION.cff + README badge.
+
 ---
 
 ## Roadmap rumo à v1.0.0 (evoluir-antes-de-publicar)
