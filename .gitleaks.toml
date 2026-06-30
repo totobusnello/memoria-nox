@@ -16,7 +16,7 @@ Falsos positivos confirmados 2026-06-08 (todos verificados contra o valor real):
 - benchmark/history/*.json — o campo `metric_key` são NOMES DE MÉTRICA
   (ex.: "P1.answer.pipeline.total.p50_ms"), telemetria gerada por github-actions[bot].
   A regra generic-api-key casa qualquer campo com "key" + string.
-- staged-P7-browser-extension/.../privacy/ — fixtures SINTÉTICAS de teste do redator
+- staged/P7-browser-extension/.../privacy/ — fixtures SINTÉTICAS de teste do redator
   de privacidade. O próprio arquivo declara "All examples arrays are SYNTHETIC TEST
   FIXTURES, not real secrets"; valores são exemplos canônicos (ex.: AKIAIOSFODNN7EXAMPLE).
 - archive/docs/github-webhook-setup.md — PLACEHOLDERS de documentação
@@ -27,17 +27,17 @@ full-history scan). Todos são fixtures SINTÉTICAS de testes do detector de PII
 redator de privacidade — strings com sequências "ABCDEF...0123456789" e o literal
 "EXAMPLEKEY". Arquivos vizinhos já usam `// gitleaks:allow` inline, mas inline NÃO
 cobre o scan full-history (fetch-depth:0) dos commits antigos (18/mai); só path-allowlist:
-- staged-P6-mobile/.../test/patterns_test.dart — testes "detects GitHub token/Gemini key":
+- staged/P6-mobile/.../test/patterns_test.dart — testes "detects GitHub token/Gemini key":
   detectPii('token=ghp_ABCDEF...'), detectPii('GEMINI=AIzaSyABCDEF...').
-- staged-A3/.../__tests__/gemini.test.ts — teste "redactSecrets": "AIzaABCDEFGHIJ...".
-- staged-privacy/.../__tests__/filter.test.ts — teste "PEM private key":
+- staged/A3/.../__tests__/gemini.test.ts — teste "redactSecrets": "AIzaABCDEFGHIJ...".
+- staged/privacy/.../__tests__/filter.test.ts — teste "PEM private key":
   "MIIEpAIBAAKCAQEAEXAMPLEKEY1234567890...".
 """
 paths = [
   '''benchmark/history/.*\.json''',
-  '''staged-P7-browser-extension/.*''',
+  '''staged/P7-browser-extension/.*''',
   '''archive/docs/github-webhook-setup\.md''',
-  '''staged-P6-mobile/packages/nox_privacy/test/patterns_test\.dart''',
-  '''staged-A3/edits/src/providers/__tests__/gemini\.test\.ts''',
-  '''staged-privacy/edits/privacy/__tests__/filter\.test\.ts''',
+  '''staged/P6-mobile/packages/nox_privacy/test/patterns_test\.dart''',
+  '''staged/A3/edits/src/providers/__tests__/gemini\.test\.ts''',
+  '''staged/privacy/edits/privacy/__tests__/filter\.test\.ts''',
 ]

@@ -125,7 +125,7 @@ compiled    |    183 |  0.27%
 **section_boost NÃO foi incluído** na fórmula salience: já é applied multiplicativamente via `sectionDelta()` no `search.ts` (boost stack camada separada). Incluí-lo aqui seria **double-counting** — viola CLAUDE.md regra #5 (boost stack ADITIVO entre si, mas salience não duplica boost de section).
 
 ```typescript
-// Implementação real em staged-1.7a/edits/salience.ts (PR #150):
+// Implementação real em staged/1.7a/edits/salience.ts (PR #150):
 salience = clamp01(
     0.55 * importance
   + 0.15 * recency
@@ -207,5 +207,5 @@ Isso é desejável — promote = sinal forte e raro. **Thresholds 0.7/0.4/0.15 m
 - [[g4-wave-a-results-2026-05-19]] — ablation que motivou audit
 - [[d48-implement-pain-weighted]] — decisão de implementar pain-weighted
 - [[shadow-mode-for-ranking-changes]] — protocolo de validation
-- `staged-1.7a/edits/salience.ts` — código atual (multiplicativo)
-- `staged-1.7a/edits/search.ts` — caller que aplica salience
+- `staged/1.7a/edits/salience.ts` — código atual (multiplicativo)
+- `staged/1.7a/edits/search.ts` — caller que aplica salience

@@ -37,7 +37,7 @@ TypeScript compile-time enforcement: omitting `options` or `options.db_source` i
 ## Types Added
 
 ```typescript
-// staged-1.7a/edits/op-audit.ts
+// staged/1.7a/edits/op-audit.ts
 
 export type DbSource = 'main' | 'shadow' | 'isolated' | 'test';
 
@@ -52,27 +52,27 @@ export interface WithOpAuditOptions {
 
 | File | Change |
 |---|---|
-| `staged-1.7a/edits/op-audit.ts` | New 3-arg signature + `DbSource` + `WithOpAuditOptions` types + `snapshot()` receives `dbSource` from caller (no longer calls `deriveDbSource()` internally — `deriveDbSource()` kept but unused by `withOpAudit`) |
+| `staged/1.7a/edits/op-audit.ts` | New 3-arg signature + `DbSource` + `WithOpAuditOptions` types + `snapshot()` receives `dbSource` from caller (no longer calls `deriveDbSource()` internally — `deriveDbSource()` kept but unused by `withOpAudit`) |
 
 ### Existing staged callers (already had entries)
 
 | File | db_source assigned |
 |---|---|
-| `staged-1.7a/edits/reindex.ts` | `'main'` |
-| `staged-1.7a/edits/backfill-source-type.ts` | `'main'` |
-| `staged-1.7a/edits/index.ts` (kg-merge) | `'main'` |
+| `staged/1.7a/edits/reindex.ts` | `'main'` |
+| `staged/1.7a/edits/backfill-source-type.ts` | `'main'` |
+| `staged/1.7a/edits/index.ts` (kg-merge) | `'main'` |
 
 ### New staged entries (VPS callers not previously in staged)
 
 | File | db_source assigned | Notes |
 |---|---|---|
-| `staged-1.7a/edits/compact.ts` | `'main'` | Full copy from VPS + patch |
-| `staged-1.7a/edits/backfill-fts-anchor.ts` | `'main'` | Full copy from VPS + patch |
-| `staged-1.7a/edits/graphify-ingest.ts` | `'main'` | Full copy from VPS + patch |
-| `staged-1.7a/edits/cli/snapshot-main.ts` | `'main'` | Full copy from VPS + patch |
-| `staged-1.7a/edits/cli/ocr-batch.ts` | `'main'` | Full copy from VPS + patch |
-| `staged-1.7a/edits/scripts/migrate-v17-ops-audit.ts` | `'main'` | Full copy from VPS + patch |
-| `staged-1.7a/edits/__tests__/op-audit-e2e.test.ts` | `'test'` | Test ops use `db_source: 'test'` |
+| `staged/1.7a/edits/compact.ts` | `'main'` | Full copy from VPS + patch |
+| `staged/1.7a/edits/backfill-fts-anchor.ts` | `'main'` | Full copy from VPS + patch |
+| `staged/1.7a/edits/graphify-ingest.ts` | `'main'` | Full copy from VPS + patch |
+| `staged/1.7a/edits/cli/snapshot-main.ts` | `'main'` | Full copy from VPS + patch |
+| `staged/1.7a/edits/cli/ocr-batch.ts` | `'main'` | Full copy from VPS + patch |
+| `staged/1.7a/edits/scripts/migrate-v17-ops-audit.ts` | `'main'` | Full copy from VPS + patch |
+| `staged/1.7a/edits/__tests__/op-audit-e2e.test.ts` | `'test'` | Test ops use `db_source: 'test'` |
 
 ### Audit
 
@@ -111,8 +111,8 @@ Same pattern as hygiene PR #193:
 
 ```bash
 # 1. Push op-audit.ts + all caller files to VPS src/
-scp staged-1.7a/edits/op-audit.ts root@$NOX_VPS_HOST:/root/.openclaw/workspace/tools/nox-mem/src/lib/
-scp staged-1.7a/edits/reindex.ts ... <other callers>
+scp staged/1.7a/edits/op-audit.ts root@$NOX_VPS_HOST:/root/.openclaw/workspace/tools/nox-mem/src/lib/
+scp staged/1.7a/edits/reindex.ts ... <other callers>
 
 # 2. Build
 ssh root@$NOX_VPS_HOST 'cd /root/.openclaw/workspace/tools/nox-mem && npx tsc --noEmit 2>&1 | head -20'
@@ -145,4 +145,4 @@ Revert PR, re-deploy from `main` branch. Old 2-arg signature is backward-incompa
 
 - `audits/2026-05-21-opsaudit-hygiene-deployed.md` — Issues #1 + #3A (predecessor)
 - `audits/2026-05-21-opsAudit-investigation.md` — original 3-issue analysis
-- `staged-1.7a/DEPLOY-OPSAUDIT-HYGIENE.md` — deploy guide for #1 + #3A (reference pattern)
+- `staged/1.7a/DEPLOY-OPSAUDIT-HYGIENE.md` — deploy guide for #1 + #3A (reference pattern)

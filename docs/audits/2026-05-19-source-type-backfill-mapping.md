@@ -83,7 +83,7 @@ await withOpAudit('backfill-source-type', async (db) => {
 
 ## SOURCE_TYPE_BOOST update (pós-backfill)
 
-Mapping atual em `staged-1.7a/edits/search.ts`:
+Mapping atual em `staged/1.7a/edits/search.ts`:
 ```typescript
 const SOURCE_TYPE_BOOST: Record<string, number> = {
   user_statement: 2.0,  // dead-by-corpus
@@ -124,4 +124,4 @@ const SOURCE_TYPE_BOOST: Record<string, number> = {
 - [[g4-wave-a-results-2026-05-19]] — ablation matrix
 - [[no-secrets-in-git]] — backfill script must NOT commit DB or tokens
 - `docs/audits/2026-05-19-salience-distribution-audit.md` — companion audit (salience formula)
-- `staged-1.7a/edits/search.ts:53-58` — SOURCE_TYPE_BOOST atual
+- `staged/1.7a/edits/search.ts:53-58` — SOURCE_TYPE_BOOST atual

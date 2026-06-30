@@ -205,7 +205,7 @@ Evidence: `CONTRIBUTING.md` § "Clone and install" documents `npm install && npm
 **Status: ✅ Met**
 
 Evidence: Multiple test suites exist:
-- `node:test` harness referenced in staged-A3, staged-privacy, staged-L4, staged-P1
+- `node:test` harness referenced in staged/A3, staged/privacy, staged/L4, staged/P1
 - `eval/locomo/` and `eval/longmemeval/` harnesses (Q1, Q2 benchmarks)
 - `eval/latency/` (Q3 benchmark)
 - `CONTRIBUTING.md` mandates `npm test` green before PR merge

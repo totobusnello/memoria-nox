@@ -42,7 +42,7 @@
 | Anthropic | claude-3-5-haiku | $0.80 | $4.00 | anthropic.com/pricing |
 | Anthropic | claude-3-5-sonnet | $3.00 | $15.00 | anthropic.com/pricing |
 
-Preços retirados de `staged-A3/edits/src/lib/cost-cap.ts` (price table em código — fonte: `PRICE_TABLE_USD_PER_1M_INPUT` / `PRICE_TABLE_USD_PER_1M_OUTPUT`). Reconciliar vs invoice mensalmente, conforme comentário inline no código.
+Preços retirados de `staged/A3/edits/src/lib/cost-cap.ts` (price table em código — fonte: `PRICE_TABLE_USD_PER_1M_INPUT` / `PRICE_TABLE_USD_PER_1M_OUTPUT`). Reconciliar vs invoice mensalmente, conforme comentário inline no código.
 
 ### Unidades de base
 
@@ -220,7 +220,7 @@ Salt: 16 bytes random per archive
 Nonce: 12 bytes random per file
 ```
 
-**Fonte:** `staged-A2/edits/src/lib/archive/encryption.ts`, constantes `SCRYPT_N=131072`, `SCRYPT_R=8`, `SCRYPT_P=1`.
+**Fonte:** `staged/A2/edits/src/lib/archive/encryption.ts`, constantes `SCRYPT_N=131072`, `SCRYPT_R=8`, `SCRYPT_P=1`.
 
 ### Impacto em custo real
 
@@ -233,7 +233,7 @@ Nonce: 12 bytes random per file
 
 ## 7. Price Table — Todos Provedores Suportados
 
-Extraída diretamente do código (`staged-A3/edits/src/lib/cost-cap.ts`):
+Extraída diretamente do código (`staged/A3/edits/src/lib/cost-cap.ts`):
 
 ### Input pricing (USD por 1M tokens)
 
@@ -284,7 +284,7 @@ Extraída diretamente do código (`staged-A3/edits/src/lib/cost-cap.ts`):
 **Reset:** UTC midnight (janela rolling de 24h)
 **Error type:** `CostCapExceededError` — sem conteúdo de prompt no erro (privacy-safe)
 
-**Fonte:** `staged-A3/edits/src/lib/cost-cap.ts`, `CostCappedProvider` class.
+**Fonte:** `staged/A3/edits/src/lib/cost-cap.ts`, `CostCappedProvider` class.
 
 ```typescript
 // Behavior quando cap é excedido:

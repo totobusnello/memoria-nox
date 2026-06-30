@@ -82,12 +82,12 @@ Durante a aplicação das migrações em sequência, v11 momentaneamente setou `
 
 | Staged dir | Destino VPS | Conteúdo | Pilar |
 |---|---|---|---|
-| `staged-privacy/edits/privacy/` | `src/privacy/` | Filtro PII brasileiro (A1/A1.1) | Autonomy |
-| `staged-cors/edits/src/api/cors.ts` | `src/api/cors.ts` | CORS headers para `chrome-extension://*` (P7 enabler) | Product |
-| `staged-wire-up-adapters/edits/src/api/*.ts` | `src/api/` | 5 server-deps modules (P1/P3/P5/A2/A3) | Product/Q |
-| `staged-wire-up-adapters/edits/src/lib/*` | `src/lib/` | Singletons + registry | Infra |
-| `staged-G4` → `staged-G17` | `src/` (múltiplos) | 14 patches de segurança (G4–G17) | Security |
-| `staged-prometheus/` | `src/observability/` | Métricas Prometheus expostas em `/metrics` | Ops |
+| `staged/privacy/edits/privacy/` | `src/privacy/` | Filtro PII brasileiro (A1/A1.1) | Autonomy |
+| `staged/cors/edits/src/api/cors.ts` | `src/api/cors.ts` | CORS headers para `chrome-extension://*` (P7 enabler) | Product |
+| `staged/wire-up-adapters/edits/src/api/*.ts` | `src/api/` | 5 server-deps modules (P1/P3/P5/A2/A3) | Product/Q |
+| `staged/wire-up-adapters/edits/src/lib/*` | `src/lib/` | Singletons + registry | Infra |
+| `staged/G4` → `staged/G17` | `src/` (múltiplos) | 14 patches de segurança (G4–G17) | Security |
+| `staged/prometheus/` | `src/observability/` | Métricas Prometheus expostas em `/metrics` | Ops |
 
 **Por que bloqueou:** o classifier de operações destrutivas/mutating-reversible requer consentimento por classe, não genérico. Decisão correta conforme regra #6 do CLAUDE.md + lição de Wave J+K documentada em PR #85. O novo deploy script (sendo criado em paralelo) resolve isso com dry-run → review → apply explícito.
 
@@ -194,7 +194,7 @@ Agent em background está produzindo `scripts/deploy-wave-i-p.sh` com:
 ## Prioridades para próxima sessão
 
 1. **Revisar deploy script** — dry-run de `deploy-wave-i-p.sh` (preview sem mutar VPS)
-2. **Auth + aplicar rsync** — staged-privacy → staged-cors → staged-wire-up-adapters (nessa ordem; cors primeiro falha se wire-up não está)
+2. **Auth + aplicar rsync** — staged/privacy → staged/cors → staged/wire-up-adapters (nessa ordem; cors primeiro falha se wire-up não está)
 3. **Editar api-server.ts na VPS** — registrar 6 rotas dormentes
 4. **Restart nox-mem-api** — `systemctl restart nox-mem-api` + validar todos endpoints
 5. **Quando Q-runs completarem** — comparar números, atualizar `COMPARISON.md`, iterar em retrieval se Hybrid < esperado

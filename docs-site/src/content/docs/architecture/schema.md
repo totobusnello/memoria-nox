@@ -88,7 +88,7 @@ Query log with 4 extended columns (since v11): `query_text`, `golden_id`, `top_c
 
 ## Schema migrations
 
-Migrations in `staged-migrations/`:
+Migrations in `staged/migrations/`:
 
 | Version | Change |
 |---|---|
@@ -98,7 +98,7 @@ Migrations in `staged-migrations/`:
 | v21 | `conflict_audit` table |
 | v22 | `confidence_eval_log` table |
 
-Apply via [staged-migrations/README.md](https://github.com/totobusnello/memoria-nox/blob/main/staged-migrations/README.md).
+Apply via [staged/migrations/README.md](https://github.com/totobusnello/memoria-nox/blob/main/staged/migrations/README.md).
 
 ## Invariants (checked */15min)
 

@@ -225,7 +225,7 @@ function extractRsyncMeta(line: string): CommandMeta {
   const stripped = line
     .replace(/\brsync\b/, "")
     .replace(/--[\w-]+=?\S*/g, "")
-    // Only remove flags: token starting with - followed by letters (not path chars like - in staged-A3)
+    // Only remove flags: token starting with - followed by letters (not path chars like - in staged/A3)
     // A flag is: preceded by space/start, starts with -, followed by letters only (no digits/slash/dot)
     .replace(/(^|\s)-[a-zA-Z]+(?=\s|$)/g, " ")
     .trim();

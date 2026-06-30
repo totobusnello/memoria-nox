@@ -47,20 +47,20 @@ Se qualquer check falhar, o script aborta com mensagem clara.
 
 ## Dirs deployados (por prioridade)
 
-### 1. Privacy (`staged-privacy`)
+### 1. Privacy (`staged/privacy`)
 ```
-staged-privacy/edits/privacy/ → src/privacy/
+staged/privacy/edits/privacy/ → src/privacy/
 ```
 Módulo de filtro de PII: `filter.ts`, `patterns.ts`, `tag-parser.ts` + testes.
 
-### 2. CORS (`staged-cors`)
+### 2. CORS (`staged/cors`)
 ```
-staged-cors/edits/src/api/cors.ts → src/api/cors.ts
-staged-cors/edits/src/api/__tests__/cors.test.ts → src/api/__tests__/cors.test.ts
+staged/cors/edits/src/api/cors.ts → src/api/cors.ts
+staged/cors/edits/src/api/__tests__/cors.test.ts → src/api/__tests__/cors.test.ts
 ```
-Middleware CORS configurável. Ver `staged-cors/edits/docs/CORS.md`.
+Middleware CORS configurável. Ver `staged/cors/edits/docs/CORS.md`.
 
-### 3. Wire-up Adapters (`staged-wire-up-adapters`)
+### 3. Wire-up Adapters (`staged/wire-up-adapters`)
 
 **src/api** — apenas arquivos novos (server-deps-*.ts + health-confidence-adapter.ts):
 ```
@@ -151,9 +151,9 @@ src/lib/archive/export-locking.ts  +  test
 src/lib/hooks/rate-limit-constant-time.ts  +  test
 ```
 
-### 17. Prometheus (`staged-prometheus`)
+### 17. Prometheus (`staged/prometheus`)
 ```
-staged-prometheus/edits/src/observability/ → src/observability/
+staged/prometheus/edits/src/observability/ → src/observability/
 ```
 Módulo completo de métricas: collectors, adapters, exporter, cardinality guard, privacy-guard.
 
@@ -163,9 +163,9 @@ Módulo completo de métricas: collectors, adapters, exporter, cardinality guard
 
 | Dir | Motivo |
 |---|---|
-| `staged-1.6/`, `staged-1.7a/`, `staged-1.8/` | apply LAST — wave separada com cuidado |
-| `staged-migrations/` | v11/v23/v24 já aplicadas na VPS |
-| `staged-P5/`, `staged-P3/`, `staged-P1/` | handlers já na VPS — só wire-up faltando |
+| `staged/1.6/`, `staged/1.7a/`, `staged/1.8/` | apply LAST — wave separada com cuidado |
+| `staged/migrations/` | v11/v23/v24 já aplicadas na VPS |
+| `staged/P5/`, `staged/P3/`, `staged/P1/` | handlers já na VPS — só wire-up faltando |
 
 ---
 
@@ -188,8 +188,8 @@ No `--apply`, o script cria um snapshot via `sqlite3 "VACUUM INTO"` antes de qua
 Cada entry deployada registra em `/var/log/nox-mem-deploy-wave-i-p.log`:
 
 ```
-2026-05-18T14:23:01Z [wave-i-p] OK staged-privacy/edits/privacy → /root/.openclaw/.../src/privacy
-2026-05-18T14:23:04Z [wave-i-p] OK staged-cors/edits/src/api/cors.ts → .../src/api/cors.ts
+2026-05-18T14:23:01Z [wave-i-p] OK staged/privacy/edits/privacy → /root/.openclaw/.../src/privacy
+2026-05-18T14:23:04Z [wave-i-p] OK staged/cors/edits/src/api/cors.ts → .../src/api/cors.ts
 ...
 2026-05-18T14:24:10Z [wave-i-p] apply-done ok=42 skip=0 fail=0
 ```
@@ -250,4 +250,4 @@ systemctl restart nox-mem-api  # ou o serviço equivalente
 2. Restart da API: confirmar que process volta em <10s
 3. Validar `GET /api/health` retorna `schemaVersion=24`
 4. Rodar `scripts/protect-audit-db.sh` pra hardening de permissões (G8)
-5. Wave seguinte: `staged-1.6/`, `staged-1.7a/`, `staged-1.8/` (separada, com cuidado)
+5. Wave seguinte: `staged/1.6/`, `staged/1.7a/`, `staged/1.8/` (separada, com cuidado)

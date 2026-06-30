@@ -70,10 +70,10 @@ No change — `datePublished: "[PENDENTE 2026-06-03]"` is acceptable placeholder
 **Category B: Browser extension test data (4 findings)**
 | File | Rule | Details |
 |---|---|---|
-| `staged-P7-browser-extension/extension/src/lib/privacy/__tests__/redact.test.mjs` | `gcp-api-key` | `AIzaSyEXAMPLEKEY1234567890...` — EXAMPLE key in test |
-| `staged-P7-browser-extension/extension/src/lib/privacy/__tests__/redact.test.mjs` | `jwt` | Test JWT payload (no real signature) |
-| `staged-P7-browser-extension/extension/src/lib/privacy/patterns.js` | `gcp-api-key` ×2 | Regex pattern documentation (2 matches) |
-| `staged-P7-browser-extension/extension/src/lib/privacy/patterns.js` | `jwt` | Regex pattern documentation |
+| `staged/P7-browser-extension/extension/src/lib/privacy/__tests__/redact.test.mjs` | `gcp-api-key` | `AIzaSyEXAMPLEKEY1234567890...` — EXAMPLE key in test |
+| `staged/P7-browser-extension/extension/src/lib/privacy/__tests__/redact.test.mjs` | `jwt` | Test JWT payload (no real signature) |
+| `staged/P7-browser-extension/extension/src/lib/privacy/patterns.js` | `gcp-api-key` ×2 | Regex pattern documentation (2 matches) |
+| `staged/P7-browser-extension/extension/src/lib/privacy/patterns.js` | `jwt` | Regex pattern documentation |
 
 **Decision:** Staged P7 is privacy redaction library; patterns.js documents redaction rules with EXAMPLE keys. Safe; no action.
 
@@ -82,7 +82,7 @@ No change — `datePublished: "[PENDENTE 2026-06-03]"` is acceptable placeholder
 **Category C: Documentation & archived files (2 findings)**
 | File | Rule | Details |
 |---|---|---|
-| `staged-P7-browser-extension/extension/src/options/options.html` | `generic-api-key` | Documentation comment: "keys, AWS/GCP/Anthropic/..." |
+| `staged/P7-browser-extension/extension/src/options/options.html` | `generic-api-key` | Documentation comment: "keys, AWS/GCP/Anthropic/..." |
 | `archive/docs/github-webhook-setup.md` | `curl-auth-header` | Archived 2024-era example webhook setup |
 
 **Decision:** Archived docs OK; options.html is comment. Safe; no action.

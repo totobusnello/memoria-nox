@@ -8,7 +8,7 @@
     "LoCoMo R@5, LongMemEval accuracy, and search.medium latency are PENDING (blockers B1-B4 in benchmark/BLOCKED.md).",
     "P1/A2/A3 numbers: design-time verified via harness code + specification.",
     "L4 numbers: design-time estimate from spec §2 + synthetic eval corpus.",
-    "Prometheus metrics catalog: Wave J staged-prometheus/edits/docs/PROMETHEUS-METRICS.md (28 metrics)."
+    "Prometheus metrics catalog: Wave J staged/prometheus/edits/docs/PROMETHEUS-METRICS.md (28 metrics)."
   ],
   "metrics": {
     "P1.answer.pipeline.total.p50_ms": {
@@ -20,8 +20,8 @@
       "methodology": "50 samples, mock LLM (DelayedMockProvider, 100ms delay), in-memory SQLite v11 schema, 3-chunk fixture corpus, 5 question templates round-robin, 3-call JIT warmup.",
       "hardware": "macOS M-series (Apple Silicon), in-process, no disk I/O",
       "source_pr": 40,
-      "source_file": "staged-P1/edits/benchmark/answer-latency.ts",
-      "reproduce": "cd staged-P1 && npm install && npm test"
+      "source_file": "staged/P1/edits/benchmark/answer-latency.ts",
+      "reproduce": "cd staged/P1 && npm install && npm test"
     },
     "P1.answer.pipeline.total.p95_ms": {
       "value": 101.7,
@@ -32,8 +32,8 @@
       "methodology": "Same as P1.answer.pipeline.total.p50_ms",
       "hardware": "macOS M-series",
       "source_pr": 40,
-      "source_file": "staged-P1/edits/benchmark/answer-latency.ts",
-      "reproduce": "cd staged-P1 && npm install && npm test"
+      "source_file": "staged/P1/edits/benchmark/answer-latency.ts",
+      "reproduce": "cd staged/P1 && npm install && npm test"
     },
     "P1.answer.pipeline.total.p99_ms": {
       "value": 102,
@@ -44,8 +44,8 @@
       "methodology": "Same as P1.answer.pipeline.total.p50_ms",
       "hardware": "macOS M-series",
       "source_pr": 40,
-      "source_file": "staged-P1/edits/benchmark/answer-latency.ts",
-      "reproduce": "cd staged-P1 && npm install && npm test"
+      "source_file": "staged/P1/edits/benchmark/answer-latency.ts",
+      "reproduce": "cd staged/P1 && npm install && npm test"
     },
     "P1.answer.phase.retrieval.p95_ms": {
       "value": 0.01,
@@ -56,8 +56,8 @@
       "methodology": "Fixture corpus (3 chunks in-memory). VPS with real DB will add 5-20ms for disk I/O.",
       "hardware": "macOS M-series",
       "source_pr": 40,
-      "source_file": "staged-P1/edits/benchmark/answer-latency.ts",
-      "reproduce": "cd staged-P1 && npm install && npm test"
+      "source_file": "staged/P1/edits/benchmark/answer-latency.ts",
+      "reproduce": "cd staged/P1 && npm install && npm test"
     },
     "P1.answer.phase.prompt.p95_ms": {
       "value": 0.06,
@@ -68,8 +68,8 @@
       "methodology": "Same fixture setup.",
       "hardware": "macOS M-series",
       "source_pr": 40,
-      "source_file": "staged-P1/edits/benchmark/answer-latency.ts",
-      "reproduce": "cd staged-P1 && npm install && npm test"
+      "source_file": "staged/P1/edits/benchmark/answer-latency.ts",
+      "reproduce": "cd staged/P1 && npm install && npm test"
     },
     "P1.answer.phase.llm_mock.p95_ms": {
       "value": 101.4,
@@ -80,8 +80,8 @@
       "methodology": "DelayedMockProvider(100ms) isolates pipeline overhead from real API latency.",
       "hardware": "macOS M-series",
       "source_pr": 40,
-      "source_file": "staged-P1/edits/benchmark/answer-latency.ts",
-      "reproduce": "cd staged-P1 && npm install && npm test"
+      "source_file": "staged/P1/edits/benchmark/answer-latency.ts",
+      "reproduce": "cd staged/P1 && npm install && npm test"
     },
     "P1.answer.phase.citation.p95_ms": {
       "value": 0.11,
@@ -92,8 +92,8 @@
       "methodology": "Measured as time between provider return and answer() return.",
       "hardware": "macOS M-series",
       "source_pr": 40,
-      "source_file": "staged-P1/edits/benchmark/answer-latency.ts",
-      "reproduce": "cd staged-P1 && npm install && npm test"
+      "source_file": "staged/P1/edits/benchmark/answer-latency.ts",
+      "reproduce": "cd staged/P1 && npm install && npm test"
     },
     "P1.answer.phase.telemetry.p95_ms": {
       "value": 0.21,
@@ -104,8 +104,8 @@
       "methodology": "Wall-clock from recordAnswer() call to return.",
       "hardware": "macOS M-series",
       "source_pr": 40,
-      "source_file": "staged-P1/edits/benchmark/answer-latency.ts",
-      "reproduce": "cd staged-P1 && npm install && npm test"
+      "source_file": "staged/P1/edits/benchmark/answer-latency.ts",
+      "reproduce": "cd staged/P1 && npm install && npm test"
     },
     "P1.answer.non_llm_overhead.p95_ms": {
       "value": 0.38,
@@ -114,8 +114,8 @@
       "methodology": "Derived from phase breakdown above.",
       "hardware": "macOS M-series",
       "source_pr": 40,
-      "source_file": "staged-P1/edits/benchmark/answer-latency.ts",
-      "reproduce": "cd staged-P1 && npm install && npm test"
+      "source_file": "staged/P1/edits/benchmark/answer-latency.ts",
+      "reproduce": "cd staged/P1 && npm install && npm test"
     },
     "A2.export.plain.500chunks_3072d.duration_ms": {
       "value": 168,
@@ -124,8 +124,8 @@
       "methodology": "Pure-Node ustar tar. Synthetic corpus (makeChunk / makeEmbedding / makeEntity / makeRelation). Single run.",
       "hardware": "macOS M-series (Apple Silicon)",
       "source_pr": 41,
-      "source_file": "staged-A2/edits/benchmark/export-import-bench.ts",
-      "reproduce": "cd staged-A2 && npm install && npm test"
+      "source_file": "staged/A2/edits/benchmark/export-import-bench.ts",
+      "reproduce": "cd staged/A2 && npm install && npm test"
     },
     "A2.export.plain.500chunks_3072d.archive_mb": {
       "value": 5.4,
@@ -134,16 +134,16 @@
       "methodology": "~65% compression ratio vs uncompressed estimate.",
       "hardware": "macOS M-series",
       "source_pr": 41,
-      "source_file": "staged-A2/edits/benchmark/export-import-bench.ts",
-      "reproduce": "cd staged-A2 && npm install && npm test"
+      "source_file": "staged/A2/edits/benchmark/export-import-bench.ts",
+      "reproduce": "cd staged/A2 && npm install && npm test"
     },
     "A2.export.plain.500chunks_3072d.compression_ratio_pct": {
       "value": 65,
       "unit": "percent",
       "description": "Compression ratio: archive size / uncompressed estimate",
       "source_pr": 41,
-      "source_file": "staged-A2/edits/benchmark/export-import-bench.ts",
-      "reproduce": "cd staged-A2 && npm install && npm test"
+      "source_file": "staged/A2/edits/benchmark/export-import-bench.ts",
+      "reproduce": "cd staged/A2 && npm install && npm test"
     },
     "A2.import.plain.500chunks_3072d.duration_ms": {
       "value": 17,
@@ -152,8 +152,8 @@
       "methodology": "Same fixture as export bench.",
       "hardware": "macOS M-series",
       "source_pr": 41,
-      "source_file": "staged-A2/edits/benchmark/export-import-bench.ts",
-      "reproduce": "cd staged-A2 && npm install && npm test"
+      "source_file": "staged/A2/edits/benchmark/export-import-bench.ts",
+      "reproduce": "cd staged/A2 && npm install && npm test"
     },
     "A2.export.encrypted.500chunks_3072d.duration_ms": {
       "value": 288,
@@ -162,16 +162,16 @@
       "methodology": "Encryption overhead = export_encrypted - export_plain = ~120ms. KDF is fixed cost, does not scale with corpus size.",
       "hardware": "macOS M-series",
       "source_pr": 41,
-      "source_file": "staged-A2/edits/benchmark/export-import-bench.ts",
-      "reproduce": "cd staged-A2 && npm install && npm test"
+      "source_file": "staged/A2/edits/benchmark/export-import-bench.ts",
+      "reproduce": "cd staged/A2 && npm install && npm test"
     },
     "A2.export.encrypted.500chunks_3072d.archive_mb": {
       "value": 6.3,
       "unit": "MB",
       "description": "Encrypted archive size for 500-chunk export (~76% of uncompressed)",
       "source_pr": 41,
-      "source_file": "staged-A2/edits/benchmark/export-import-bench.ts",
-      "reproduce": "cd staged-A2 && npm install && npm test"
+      "source_file": "staged/A2/edits/benchmark/export-import-bench.ts",
+      "reproduce": "cd staged/A2 && npm install && npm test"
     },
     "A2.import.encrypted.500chunks_3072d.duration_ms": {
       "value": 1144,
@@ -180,25 +180,25 @@
       "methodology": "scrypt N=2^17 is intentionally slow (~500-1000ms on M-series). Fixed cost per import, not per-chunk.",
       "hardware": "macOS M-series",
       "source_pr": 41,
-      "source_file": "staged-A2/edits/benchmark/export-import-bench.ts",
-      "reproduce": "cd staged-A2 && npm install && npm test"
+      "source_file": "staged/A2/edits/benchmark/export-import-bench.ts",
+      "reproduce": "cd staged/A2 && npm install && npm test"
     },
     "A2.encryption_overhead.kdf_ms": {
       "value": 120,
       "unit": "ms",
       "description": "scrypt N=2^17 KDF fixed cost on M-series (export side). Does not scale with corpus size.",
       "source_pr": 41,
-      "source_file": "staged-A2/edits/benchmark/export-import-bench.ts",
-      "reproduce": "cd staged-A2 && npm install && npm test"
+      "source_file": "staged/A2/edits/benchmark/export-import-bench.ts",
+      "reproduce": "cd staged/A2 && npm install && npm test"
     },
     "A2.roundtrip_integrity.byte_loss": {
       "value": 0,
       "unit": "bytes",
       "description": "Byte loss across 100 chunks + 50 KG entities + 30 relations in integration tests",
-      "methodology": "Integration test suite staged-A2/__tests__/",
+      "methodology": "Integration test suite staged/A2/__tests__/",
       "source_pr": 41,
-      "source_file": "staged-A2/edits/benchmark/export-import-bench.ts",
-      "reproduce": "cd staged-A2 && npm install && npm test"
+      "source_file": "staged/A2/edits/benchmark/export-import-bench.ts",
+      "reproduce": "cd staged/A2 && npm install && npm test"
     },
     "A3.provider_overhead.embed.p95_abs_ms": {
       "value": 0.001,
@@ -209,8 +209,8 @@
       "methodology": "1000 iterations + 10 warmup, mock fetchFn (zero network), measures CPU overhead of abstraction layer only. Absolute threshold used (not %) because baseline < 1ms (timer resolution noise at microsecond scale).",
       "hardware": "macOS M-series",
       "source_pr": 39,
-      "source_file": "staged-A3/edits/benchmark/provider-overhead.ts",
-      "reproduce": "cd staged-A3 && npm install && npm test"
+      "source_file": "staged/A3/edits/benchmark/provider-overhead.ts",
+      "reproduce": "cd staged/A3 && npm install && npm test"
     },
     "A3.provider_overhead.llm.p95_abs_ms": {
       "value": 0.001,
@@ -221,8 +221,8 @@
       "methodology": "Same as embed bench. In production (real Gemini ~200ms+), overhead is <0.001% — effectively free.",
       "hardware": "macOS M-series",
       "source_pr": 39,
-      "source_file": "staged-A3/edits/benchmark/provider-overhead.ts",
-      "reproduce": "cd staged-A3 && npm install && npm test"
+      "source_file": "staged/A3/edits/benchmark/provider-overhead.ts",
+      "reproduce": "cd staged/A3 && npm install && npm test"
     },
     "A3.provider_overhead.total.p95_abs_ms": {
       "value": 0.002,
@@ -231,8 +231,8 @@
       "within_budget": true,
       "description": "Total abstraction layer overhead p95 (embed + LLM combined). Sub-2-microsecond in zero-network mock bench.",
       "source_pr": 39,
-      "source_file": "staged-A3/edits/benchmark/provider-overhead.ts",
-      "reproduce": "cd staged-A3 && npm install && npm test"
+      "source_file": "staged/A3/edits/benchmark/provider-overhead.ts",
+      "reproduce": "cd staged/A3 && npm install && npm test"
     },
     "L4.extraction.regex.latency_p50_ms": {
       "value": 0,
@@ -241,9 +241,9 @@
       "methodology": "Synthetic corpus (SYNTHETIC_SAMPLES, 20 samples). Date.now() before/after runRegexExtraction(). Actual value <1ms (JavaScript timer resolution floor).",
       "hardware": "macOS M-series",
       "source_pr": null,
-      "source_file": "staged-L4/edits/eval/regex-vs-llm.ts",
+      "source_file": "staged/L4/edits/eval/regex-vs-llm.ts",
       "notes": "Design-time estimate from spec §2. Live run: node --import tsx eval/regex-vs-llm.ts --synthetic",
-      "reproduce": "cd staged-L4 && node --import tsx eval/regex-vs-llm.ts --synthetic"
+      "reproduce": "cd staged/L4 && node --import tsx eval/regex-vs-llm.ts --synthetic"
     },
     "L4.extraction.entity_file.latency_p95_ms": {
       "value": 5,
@@ -255,7 +255,7 @@
       "source_pr": null,
       "source_file": "specs/2026-05-18-L4-regex-first-extraction.md",
       "notes": "Design-time estimate, not yet live-measured.",
-      "reproduce": "cd staged-L4 && node --import tsx eval/regex-vs-llm.ts --corpus <entity-dir>"
+      "reproduce": "cd staged/L4 && node --import tsx eval/regex-vs-llm.ts --corpus <entity-dir>"
     },
     "L4.cost.gemini_kg_monthly_usd_before": {
       "value": 7.5,
@@ -304,9 +304,9 @@
     "PROMETHEUS.metrics_catalog.total_metrics": {
       "value": 28,
       "unit": "count",
-      "description": "Total Prometheus metrics registered in Wave J exporter (staged-prometheus)",
+      "description": "Total Prometheus metrics registered in Wave J exporter (staged/prometheus)",
       "source_pr": null,
-      "source_file": "staged-prometheus/edits/docs/PROMETHEUS-METRICS.md",
+      "source_file": "staged/prometheus/edits/docs/PROMETHEUS-METRICS.md",
       "notes": "28 metrics across 7 subsystems: pipeline, search, answer(P1), provider(A3), hooks(P2), viewer(P5), system+runtime."
     }
   },
@@ -314,7 +314,7 @@
     "Q1.locomo.r5": "BLOCKED — B1: VPS run + GEMINI_API_KEY (PR #6 scaffolded)",
     "Q2.longmemeval.accuracy": "BLOCKED — B1: VPS run + GEMINI_API_KEY (PR #11 scaffolded)",
     "Q3.search.medium.p95_ms": "BLOCKED — B1: VPS run required for stable CPU (PR #12 scaffolded)",
-    "P2.hooks.capture_latency_p95_ms": "NOT YET BENCHED — hooks pipeline, staged-prometheus only",
+    "P2.hooks.capture_latency_p95_ms": "NOT YET BENCHED — hooks pipeline, staged/prometheus only",
     "P5.viewer.sse.broadcast_latency_ms": "NOT YET BENCHED",
     "A2.export.62k_full_corpus": "BENCH_FULL=1 mode — requires full VPS corpus run"
   },

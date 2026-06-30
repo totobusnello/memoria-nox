@@ -3,7 +3,7 @@ name: A1 Privacy Filter Tests
 on:
   pull_request:
     paths:
-      - 'staged-privacy/**'
+      - 'staged/privacy/**'
       - '.github/workflows/privacy-filter.yml'
   push:
     branches: [main]
@@ -28,32 +28,32 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Check staged-privacy exists
+      - name: Check staged/privacy exists
         id: priv_check
         run: |
-          if [ -d "staged-privacy" ]; then
+          if [ -d "staged/privacy" ]; then
             echo "present=true" >> "$GITHUB_OUTPUT"
           else
             echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::error::staged-privacy directory not found — A1 PR not merged?"
+            echo "::error::staged/privacy directory not found — A1 PR not merged?"
           fi
 
       - name: Install privacy filter dependencies
         if: steps.priv_check.outputs.present == 'true'
         run: |
-          cd staged-privacy
+          cd staged/privacy
           npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
 
       - name: Build TypeScript
         if: steps.priv_check.outputs.present == 'true'
         run: |
-          cd staged-privacy
+          cd staged/privacy
           npm run build 2>&1
 
       - name: Run privacy filter tests (68 cases)
         if: steps.priv_check.outputs.present == 'true'
         run: |
-          cd staged-privacy
+          cd staged/privacy
           # package.json test script: build + node --test dist/privacy/__tests__/filter.test.js
           npm test 2>&1 | tee /tmp/privacy-test-results.txt
           EXIT=${PIPESTATUS[0]}
@@ -65,11 +65,11 @@ jobs:
         run: |
           set +e
           # Detect patterns for real AWS access keys and OpenAI/Anthropic secret keys
-          REAL_AWS=$(grep -rE 'AKIA[A-Z0-9]{16}' staged-privacy/edits/ | grep -vE 'AKIAIOSFODNN7EXAMPLE|AKIATEST|AKIA_FAKE|AKIAFAKE' | grep -v '\.test\.' | wc -l)
-          REAL_OPENAI=$(grep -rE 'sk-[a-zA-Z0-9]{48,}' staged-privacy/edits/ | grep -vE 'sk-test-|sk-fake-|sk-example-|sk-ant-test-' | wc -l)
+          REAL_AWS=$(grep -rE 'AKIA[A-Z0-9]{16}' staged/privacy/edits/ | grep -vE 'AKIAIOSFODNN7EXAMPLE|AKIATEST|AKIA_FAKE|AKIAFAKE' | grep -v '\.test\.' | wc -l)
+          REAL_OPENAI=$(grep -rE 'sk-[a-zA-Z0-9]{48,}' staged/privacy/edits/ | grep -vE 'sk-test-|sk-fake-|sk-example-|sk-ant-test-' | wc -l)
           if [ "$REAL_AWS" -gt 0 ] || [ "$REAL_OPENAI" -gt 0 ]; then
-            echo "::error::Possible real secret detected in staged-privacy tests (AWS=$REAL_AWS, OpenAI=$REAL_OPENAI)"
-            echo "Review staged-privacy/edits/ for credentials before merging."
+            echo "::error::Possible real secret detected in staged/privacy tests (AWS=$REAL_AWS, OpenAI=$REAL_OPENAI)"
+            echo "Review staged/privacy/edits/ for credentials before merging."
             exit 1
           fi
           echo "Secret scan clean (AWS=$REAL_AWS real-looking, OpenAI=$REAL_OPENAI real-looking)"

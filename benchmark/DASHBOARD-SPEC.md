@@ -1,10 +1,10 @@
 # nox-mem Grafana Dashboard Spec — Wave K
 
 > **Status:** specification (Wave K, 2026-05-18). Grafana dashboard JSON importável
-> (Phase 4) depende do Prometheus exporter estar wired (Phase 3 — staged-prometheus,
+> (Phase 4) depende do Prometheus exporter estar wired (Phase 3 — staged/prometheus,
 > Wave J). Ver seção [Pré-requisitos](#pré-requisitos) antes de importar.
 >
-> Métricas Prometheus: `staged-prometheus/edits/docs/PROMETHEUS-METRICS.md` (28 métricas).
+> Métricas Prometheus: `staged/prometheus/edits/docs/PROMETHEUS-METRICS.md` (28 métricas).
 > Monitoring doc: `docs/ops/MONITORING.md`.
 
 ---
@@ -34,7 +34,7 @@ Antes de importar o dashboard, os seguintes items devem estar wired:
 
 | Item | Status | Ação necessária |
 |------|--------|-----------------|
-| `/metrics` endpoint ativo | Wave J staged — não merged | Merge staged-prometheus; montar endpoint em `src/api/server.ts` |
+| `/metrics` endpoint ativo | Wave J staged — não merged | Merge staged/prometheus; montar endpoint em `src/api/server.ts` |
 | `nox_search_duration_seconds` histogram | Definido em PROMETHEUS-METRICS.md §3.2 | Wire `recordSearch()` em search handler |
 | `nox_answer_duration_seconds` histogram | Definido em §3.3 | Wire `withAnswerMetrics()` adapter (P1-adapter) |
 | `nox_provider_duration_seconds` histogram | Definido em §3.4 | Wire `instrumentProviderCall()` em provider chain (A3-adapter) |
@@ -775,7 +775,7 @@ Métricas não wired aparecem como `No data` nos panels — não causam crash do
 
 Cada linha indica qual arquivo precisa ser editado para que o panel correspondente
 receba dados. Nenhuma dessas edições faz parte do Wave K — são dependências de
-sprints anteriores (Wave J staged-prometheus) e futuros.
+sprints anteriores (Wave J staged/prometheus) e futuros.
 
 | Panel | Métrica Prometheus | Arquivo a editar | Função |
 |-------|--------------------|-----------------|--------|
@@ -790,7 +790,7 @@ sprints anteriores (Wave J staged-prometheus) e futuros.
 | Audit Rates | `nox_audit_rows_total` | `src/lib/op-audit.ts` | `recordAuditWrite()` |
 | Hooks + Viewer | `nox_hooks_events_total`, `nox_viewer_*` | `src/hooks/*.ts`, `src/sse/*.ts` | `recordHookEvent()`, `trackConnection()`, `wrapBroadcast()` |
 
-Recording API completa: `staged-prometheus/edits/docs/PROMETHEUS-METRICS.md §4`.
+Recording API completa: `staged/prometheus/edits/docs/PROMETHEUS-METRICS.md §4`.
 
 ---
 
@@ -816,5 +816,5 @@ Extraídos de `benchmark/baseline-2026-05-18.json` (Wave K):
 ---
 
 *Wave K — 2026-05-18. Dashboard Phase 4 depende de Phase 3 (Prometheus exporter
-wired no staged-prometheus). Alerting Phase 5 depende de Phase 3 + configuração
+wired no staged/prometheus). Alerting Phase 5 depende de Phase 3 + configuração
 do Prometheus alertmanager no VPS.*

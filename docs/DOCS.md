@@ -83,8 +83,8 @@
 | Pillar | Specs | Impl / PRs |
 |---|---|---|
 | **Q — Quality** | [Q1 LoCoMo](../eval/locomo/README.md), [Q2 LongMemEval](../eval/longmemeval/README.md), [Q3 Latency](../eval/latency/README.md) | scaffolds + PR #47 Q4 matrix |
-| **A — Autonomy** | [A2 export/import](../specs/2026-05-17-A2-export-import.md), [A3 providers](../specs/2026-05-18-A3-implementation-kickoff.md) | PRs #35–#37, #39–#41 + staged-A2/A3 |
-| **P — Product** | [P1 answer](../specs/2026-05-17-P1-answer-primitive.md), [P2 hooks](../specs/2026-05-17-P2-hooks-autocapture.md), [P3 temporal](../specs/2026-05-18-P1-implementation-kickoff.md), [P4 IDE](../specs/2026-05-17-P4-connect-ide.md), [P5 viewer](../specs/2026-05-17-P5-viewer-realtime.md) | PRs #2, #31, #34, #40, #42, #43 + staged-P1/P3/P5a |
+| **A — Autonomy** | [A2 export/import](../specs/2026-05-17-A2-export-import.md), [A3 providers](../specs/2026-05-18-A3-implementation-kickoff.md) | PRs #35–#37, #39–#41 + staged/A2/A3 |
+| **P — Product** | [P1 answer](../specs/2026-05-17-P1-answer-primitive.md), [P2 hooks](../specs/2026-05-17-P2-hooks-autocapture.md), [P3 temporal](../specs/2026-05-18-P1-implementation-kickoff.md), [P4 IDE](../specs/2026-05-17-P4-connect-ide.md), [P5 viewer](../specs/2026-05-17-P5-viewer-realtime.md) | PRs #2, #31, #34, #40, #42, #43 + staged/P1/P3/P5a |
 | **Lab** | [L2 conflict](../specs/2026-05-17-L2-conflict-detection.md), [L3 confidence](../specs/2026-05-17-L3-confidence-field.md), [L4 regex extract](../specs/2026-05-18-L4-regex-first-extraction.md) | PRs #35, #38, #48, #51 |
 | **GTM Phase 2** | [spec](../specs/2026-05-17-GTM-readme-hero-upgrade.md), [assets](../README-DRAFT.md) | locked behind Q4 gate |
 
@@ -92,9 +92,9 @@
 
 - `docs/security/THREAT-MODEL.md` `[pending]` — STRIDE + 10 gaps + Wave B controls (PR #55)
 - `SECURITY.md` `[pending]` — vuln reporting (PR #56)
-- A1 privacy filter — `staged-privacy/edits/` (13 patterns, 68 tests, FP 1.7%)
-- A2 encryption — AES-256-GCM + scrypt + AAD, in `staged-A2/edits/src/lib/archive/`
-- A3 secret redaction — `redactSecrets` on error paths, in `staged-A3/edits/`
+- A1 privacy filter — `staged/privacy/edits/` (13 patterns, 68 tests, FP 1.7%)
+- A2 encryption — AES-256-GCM + scrypt + AAD, in `staged/A2/edits/src/lib/archive/`
+- A3 secret redaction — `redactSecrets` on error paths, in `staged/A3/edits/`
 - Memory: `feedback_no_secrets_in_git` — secrets never in git (hard rule)
 - Memory: `feedback_execfilesync_over_execsync_for_user_input` — command injection defense
 - Memory: `feedback_buffer_pool_aliasing_in_typed_arrays` — GC aliasing semantic bug
@@ -104,8 +104,8 @@
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) — schema V10 overview + `chunks`, `vec_chunks`, `kg_entities`, `kg_relations`
 - [DECISIONS.md](DECISIONS.md) — D1–D41 includes schema pivots (v8 retention, v9 pain, v10 section)
-- Schema migrations: v11 telemetry (`search_telemetry`), v19 confidence + provenance, v20 viewer (`viewer_events`), v21 `conflict_audit`, v22 `confidence_eval_log` — all in `staged-migrations/`
-- [../staged-migrations/README.md](../staged-migrations/README.md) — migration application guide
+- Schema migrations: v11 telemetry (`search_telemetry`), v19 confidence + provenance, v20 viewer (`viewer_events`), v21 `conflict_audit`, v22 `confidence_eval_log` — all in `staged/migrations/`
+- [../staged/migrations/README.md](../staged/migrations/README.md) — migration application guide
 
 ### Search
 
@@ -181,7 +181,7 @@ All `integrations/` docs are `[pending]` (PR #57, not yet merged):
 | Evals | eval/locomo, eval/longmemeval, eval/latency (scaffolds) |
 | Benchmark | benchmark/README + COMPARISON template |
 | Runbooks | 5 VPS runbooks |
-| Staged | staged-A2, staged-A3, staged-L4, staged-P1, staged-P3, staged-P5a, staged-privacy, staged-migrations (pending VPS deploy) |
+| Staged | staged/A2, staged/A3, staged/L4, staged/P1, staged/P3, staged/P5a, staged/privacy, staged/migrations (pending VPS deploy) |
 
 ### Pending merge
 

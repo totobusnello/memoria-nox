@@ -24,7 +24,7 @@
 
 ### Code change isolated
 
-`staged-1.7a/edits/search.ts` only:
+`staged/1.7a/edits/search.ts` only:
 
 ```diff
  const SOURCE_TYPE_BOOST: Record<string, number> = {

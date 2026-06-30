@@ -13,7 +13,7 @@
 #   - Per-config restart + curl health gate antes do eval
 #
 # Pre-requisites:
-#   1. PR #150 + #151 deployed (rsync staged-1.7a/edits/ → src/, tsc, restart)
+#   1. PR #150 + #151 deployed (rsync staged/1.7a/edits/ → src/, tsc, restart)
 #   2. Backfill source_type executado em prod (nox-mem backfill-source-type)
 #   3. DB clone isolado em $EVAL_DB (NOX_DB_PATH override mandatory)
 #   4. queries.jsonl idêntico ao G4 (n=100 entity-flavored)

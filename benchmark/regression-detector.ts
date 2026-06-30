@@ -6,7 +6,7 @@
  * if any measured drift exceeds DRIFT_THRESHOLD_PCT (default 10%).
  *
  * Only runnable benchmarks are executed (those with a `reproduce` command
- * pointing to staged-P1 / staged-A2 / staged-A3). Pending/estimate metrics
+ * pointing to staged/P1 / staged/A2 / staged/A3). Pending/estimate metrics
  * are reported as SKIPPED.
  *
  * Output:
@@ -119,11 +119,11 @@ interface DetectorReport {
 // ─── Benchmark runners ────────────────────────────────────────────────────────
 
 /**
- * Run staged-P1 answer-latency bench and extract p50/p95/p99/phase stats.
+ * Run staged/P1 answer-latency bench and extract p50/p95/p99/phase stats.
  * Returns a map of metric key → measured value (ms).
  */
 function runP1Bench(): Record<string, number> | null {
-  const benchDir = join(REPO_ROOT, "staged-P1");
+  const benchDir = join(REPO_ROOT, "staged/P1");
   if (!existsSync(benchDir)) {
     return null;
   }
@@ -185,11 +185,11 @@ function runP1Bench(): Record<string, number> | null {
 }
 
 /**
- * Run staged-A2 export-import bench (default scale 500 + 2000 chunks).
+ * Run staged/A2 export-import bench (default scale 500 + 2000 chunks).
  * Returns metric key → measured value.
  */
 function runA2Bench(): Record<string, number> | null {
-  const benchDir = join(REPO_ROOT, "staged-A2");
+  const benchDir = join(REPO_ROOT, "staged/A2");
   if (!existsSync(benchDir)) return null;
   if (DRY_RUN) return null;
 
@@ -250,11 +250,11 @@ function runA2Bench(): Record<string, number> | null {
 }
 
 /**
- * Run staged-A3 provider-overhead bench.
+ * Run staged/A3 provider-overhead bench.
  * Returns metric key → measured value.
  */
 function runA3Bench(): Record<string, number> | null {
-  const benchDir = join(REPO_ROOT, "staged-A3");
+  const benchDir = join(REPO_ROOT, "staged/A3");
   if (!existsSync(benchDir)) return null;
   if (DRY_RUN) return null;
 

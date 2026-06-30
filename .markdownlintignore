@@ -15,9 +15,9 @@ plans/_archive/**
 handoffs/_archive/**
 
 # Staged agent work dirs
-staged-*/
-staged-*/**
-staged-*/edits/**
+staged/
+staged/**
+staged/*/edits/**
 
 # Infra / tools
 .claude/

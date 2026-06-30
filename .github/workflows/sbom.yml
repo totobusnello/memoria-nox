@@ -9,7 +9,7 @@ name: SBOM Generation
 #
 # To generate locally:
 #   npm install -g @cyclonedx/cyclonedx-npm
-#   cd staged-A3 && cyclonedx-npm --output-format JSON --output-file ../sbom/sbom-staged-a3.cdx.json
+#   cd staged/A3 && cyclonedx-npm --output-format JSON --output-file ../sbom/sbom-staged-a3.cdx.json
 
 on:
   push:
@@ -46,12 +46,12 @@ jobs:
         run: mkdir -p sbom
 
       # ---------------------------------------------------------------------------
-      # staged-A2 — archive / encryption
+      # staged/A2 — archive / encryption
       # ---------------------------------------------------------------------------
-      - name: SBOM — staged-A2
-        if: hashFiles('staged-A2/package.json') != ''
+      - name: SBOM — staged/A2
+        if: hashFiles('staged/A2/package.json') != ''
         run: |
-          cd staged-A2
+          cd staged/A2
           npm ci --ignore-scripts --omit=dev 2>/dev/null || npm install --ignore-scripts --omit=dev
           cyclonedx-npm \
             --output-format JSON \
@@ -65,12 +65,12 @@ jobs:
         continue-on-error: true
 
       # ---------------------------------------------------------------------------
-      # staged-A3 — provider abstraction
+      # staged/A3 — provider abstraction
       # ---------------------------------------------------------------------------
-      - name: SBOM — staged-A3
-        if: hashFiles('staged-A3/package.json') != ''
+      - name: SBOM — staged/A3
+        if: hashFiles('staged/A3/package.json') != ''
         run: |
-          cd staged-A3
+          cd staged/A3
           npm ci --ignore-scripts --omit=dev 2>/dev/null || npm install --ignore-scripts --omit=dev
           cyclonedx-npm \
             --output-format JSON \
@@ -79,12 +79,12 @@ jobs:
         continue-on-error: true
 
       # ---------------------------------------------------------------------------
-      # staged-P1 — answer primitive
+      # staged/P1 — answer primitive
       # ---------------------------------------------------------------------------
-      - name: SBOM — staged-P1
-        if: hashFiles('staged-P1/package.json') != ''
+      - name: SBOM — staged/P1
+        if: hashFiles('staged/P1/package.json') != ''
         run: |
-          cd staged-P1
+          cd staged/P1
           npm ci --ignore-scripts --omit=dev 2>/dev/null || npm install --ignore-scripts --omit=dev
           cyclonedx-npm \
             --output-format JSON \
@@ -93,12 +93,12 @@ jobs:
         continue-on-error: true
 
       # ---------------------------------------------------------------------------
-      # staged-P5a — event bus
+      # staged/P5a — event bus
       # ---------------------------------------------------------------------------
-      - name: SBOM — staged-P5a
-        if: hashFiles('staged-P5a/package.json') != ''
+      - name: SBOM — staged/P5a
+        if: hashFiles('staged/P5a/package.json') != ''
         run: |
-          cd staged-P5a
+          cd staged/P5a
           npm ci --ignore-scripts --omit=dev 2>/dev/null || npm install --ignore-scripts --omit=dev
           cyclonedx-npm \
             --output-format JSON \
@@ -107,12 +107,12 @@ jobs:
         continue-on-error: true
 
       # ---------------------------------------------------------------------------
-      # staged-L3 — confidence/provenance
+      # staged/L3 — confidence/provenance
       # ---------------------------------------------------------------------------
-      - name: SBOM — staged-L3
-        if: hashFiles('staged-L3/package.json') != ''
+      - name: SBOM — staged/L3
+        if: hashFiles('staged/L3/package.json') != ''
         run: |
-          cd staged-L3
+          cd staged/L3
           npm ci --ignore-scripts --omit=dev 2>/dev/null || npm install --ignore-scripts --omit=dev
           cyclonedx-npm \
             --output-format JSON \
@@ -121,12 +121,12 @@ jobs:
         continue-on-error: true
 
       # ---------------------------------------------------------------------------
-      # staged-L4 — typed-link extraction
+      # staged/L4 — typed-link extraction
       # ---------------------------------------------------------------------------
-      - name: SBOM — staged-L4
-        if: hashFiles('staged-L4/package.json') != ''
+      - name: SBOM — staged/L4
+        if: hashFiles('staged/L4/package.json') != ''
         run: |
-          cd staged-L4
+          cd staged/L4
           npm ci --ignore-scripts --omit=dev 2>/dev/null || npm install --ignore-scripts --omit=dev
           cyclonedx-npm \
             --output-format JSON \
@@ -135,12 +135,12 @@ jobs:
         continue-on-error: true
 
       # ---------------------------------------------------------------------------
-      # staged-privacy — PII filter
+      # staged/privacy — PII filter
       # ---------------------------------------------------------------------------
-      - name: SBOM — staged-privacy
-        if: hashFiles('staged-privacy/package.json') != ''
+      - name: SBOM — staged/privacy
+        if: hashFiles('staged/privacy/package.json') != ''
         run: |
-          cd staged-privacy
+          cd staged/privacy
           npm ci --ignore-scripts --omit=dev 2>/dev/null || npm install --ignore-scripts --omit=dev
           cyclonedx-npm \
             --output-format JSON \

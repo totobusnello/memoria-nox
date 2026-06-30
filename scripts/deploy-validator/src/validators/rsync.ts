@@ -140,7 +140,7 @@ function rewriteRsyncLine(
   rewritten = rewritten.replace(/\$\{?VPS_HOST\}?:[\w/\\.${}-]*/g, tmpDest + "/");
 
   // Replace worktree-absolute paths to local staged-* dirs with tmpSrc
-  // e.g., /Users/lab/Claude/.../staged-P5/edits/src/
+  // e.g., /Users/lab/Claude/.../staged/P5/edits/src/
   rewritten = rewritten.replace(/\/[^\s]+\/staged-[\w-]+\/[^\s]*/g, tmpSrc + "/");
 
   // Replace relative staged-* paths (source side) with tmpSrc

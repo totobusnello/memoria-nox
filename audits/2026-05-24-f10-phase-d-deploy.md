@@ -25,11 +25,11 @@
 
 | Source (repo) | Destination (VPS) | Bytes |
 |---|---|---|
-| `staged-1.7d/edits/src/lib/shadow-tracker.ts` | `src/lib/shadow-tracker.ts` | 18138 |
-| `staged-1.7d/edits/public/observability/shadow.html` | `public/observability/shadow.html` | 3436 |
-| `staged-1.7d/edits/public/observability/shadow.js` | `public/observability/shadow.js` | 13857 |
-| `staged-1.7d/edits/public/observability/shadow.css` | `public/observability/shadow.css` | 4868 |
-| `staged-1.7d/edits/src/lib/shadow-tracker-schema.sql` | `/tmp/shadow-tracker-schema.sql` (then `sqlite3 < ...`) | 2991 |
+| `staged/1.7d/edits/src/lib/shadow-tracker.ts` | `src/lib/shadow-tracker.ts` | 18138 |
+| `staged/1.7d/edits/public/observability/shadow.html` | `public/observability/shadow.html` | 3436 |
+| `staged/1.7d/edits/public/observability/shadow.js` | `public/observability/shadow.js` | 13857 |
+| `staged/1.7d/edits/public/observability/shadow.css` | `public/observability/shadow.css` | 4868 |
+| `staged/1.7d/edits/src/lib/shadow-tracker-schema.sql` | `/tmp/shadow-tracker-schema.sql` (then `sqlite3 < ...`) | 2991 |
 | `/tmp/api-server.ts.patched` (local edit) | `src/api-server.ts` | +26 lines vs pre |
 
 ## Schema migration
@@ -190,7 +190,7 @@ ssh root@$NOX_VPS_HOST 'sqlite3 .../nox-mem.db "DROP TRIGGER trg_shadow_runs_blo
 
 **F10 suite complete.** Next observability work (out of scope here):
 - Phase 2 of D — wire `/api/search` with `NOX_SHADOW_TEMPORAL_SPIKE_V2=1` once shadow flag is enabled (separate PR).
-- F11 (TBD) — export to Prometheus via `staged-prometheus` adapters, gated on stable telemetry signal accumulated over 1-2 weeks.
+- F11 (TBD) — export to Prometheus via `staged/prometheus` adapters, gated on stable telemetry signal accumulated over 1-2 weeks.
 
 ## Next steps (post-deploy)
 

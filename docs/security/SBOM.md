@@ -33,13 +33,13 @@ memoria-nox is structured as several sub-packages. Each gets its own SBOM:
 | SBOM file | Covers |
 |-----------|--------|
 | `sbom/sbom-root.cdx.json` | Root (future main package) |
-| `sbom/sbom-staged-a2.cdx.json` | staged-A2 (archive + encryption) |
-| `sbom/sbom-staged-a3.cdx.json` | staged-A3 (provider abstraction) |
-| `sbom/sbom-staged-p1.cdx.json` | staged-P1 (answer primitive) |
-| `sbom/sbom-staged-p5a.cdx.json` | staged-P5a (event bus) |
-| `sbom/sbom-staged-l3.cdx.json` | staged-L3 (confidence/provenance) |
-| `sbom/sbom-staged-l4.cdx.json` | staged-L4 (typed-link extraction) |
-| `sbom/sbom-staged-privacy.cdx.json` | staged-privacy (PII filter) |
+| `sbom/sbom-staged-a2.cdx.json` | staged/A2 (archive + encryption) |
+| `sbom/sbom-staged-a3.cdx.json` | staged/A3 (provider abstraction) |
+| `sbom/sbom-staged-p1.cdx.json` | staged/P1 (answer primitive) |
+| `sbom/sbom-staged-p5a.cdx.json` | staged/P5a (event bus) |
+| `sbom/sbom-staged-l3.cdx.json` | staged/L3 (confidence/provenance) |
+| `sbom/sbom-staged-l4.cdx.json` | staged/L4 (typed-link extraction) |
+| `sbom/sbom-staged-privacy.cdx.json` | staged/privacy (PII filter) |
 | `sbom/sbom-eval-latency.cdx.json` | eval/latency (benchmark harness) |
 
 Generated SBOMs are uploaded as GitHub Actions artifacts on every push to `main` and every tagged release.
@@ -71,7 +71,7 @@ npm install -g @cyclonedx/cyclonedx-npm
 
 ```bash
 # From the repo root
-cd staged-A3
+cd staged/A3
 npm ci --ignore-scripts
 cyclonedx-npm --output-format JSON --output-file ../sbom/sbom-staged-a3.cdx.json
 ```

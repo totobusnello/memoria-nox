@@ -2,7 +2,7 @@
 
 **Data:** 2026-05-20
 **Branch:** `feat/d49-phase2-shadow-activation-2026-05-20`
-**Spike origem:** PR #157 (`staged-1.7a/edits/temporal-retrieval.ts`)
+**Spike origem:** PR #157 (`staged/1.7a/edits/temporal-retrieval.ts`)
 **Pré-deploy:** PR #167 (deploy do módulo + opt-in via env)
 **Gold set:** PR #168 (Q105-Q110, ranks baseline 5-13)
 **Status:** R&D / shadow-only — zero mutação no ranking de produção
@@ -262,7 +262,7 @@ mesmo sem rerank ativo. Custo: ~30B/query no stderr da service.
 - Baselines dir: `docs/research/temporal-shadow-baselines/` (vazia, populada pelo cron)
 - Sim script local (não comitado): `/tmp/d49-smoke/rerank.mjs`
 - Raw results: `/tmp/d49-smoke/results.json`
-- Spike implementation: `staged-1.7a/edits/temporal-retrieval.ts`
+- Spike implementation: `staged/1.7a/edits/temporal-retrieval.ts`
 - Smoke anterior (Q70/71/87/88): `docs/research/2026-05-20-temporal-smoke-test.md`
 - Golden Q105-Q110: `eval/golden-queries.jsonl:61-66`
 

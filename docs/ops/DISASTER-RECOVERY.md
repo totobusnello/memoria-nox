@@ -431,14 +431,14 @@ ls /var/backups/nox-mem/pre-op/migrate_v11*.db 2>/dev/null
 systemctl stop nox-mem-api
 
 # Retentar migration v11
-sqlite3 ${NM}/nox-mem.db < ${NM}/staged-migrations/v11.sql
+sqlite3 ${NM}/nox-mem.db < ${NM}/staged/migrations/v11.sql
 
 # Verificar
 sqlite3 ${NM}/nox-mem.db "PRAGMA user_version;"
 # Deve retornar: 11
 
 # Rodar testes de validação
-sqlite3 ${NM}/nox-mem.db < ${NM}/staged-migrations/v11-tests.sql
+sqlite3 ${NM}/nox-mem.db < ${NM}/staged/migrations/v11-tests.sql
 # Todo output deve começar com PASS:
 
 systemctl start nox-mem-api
@@ -478,9 +478,9 @@ fi
 # Após restaurar: retentar v19 do zero
 systemctl stop nox-mem-api
 sqlite3 ${NM}/nox-mem.db "PRAGMA user_version;"  # deve ser 11
-sqlite3 ${NM}/nox-mem.db < ${NM}/staged-migrations/v19.sql
+sqlite3 ${NM}/nox-mem.db < ${NM}/staged/migrations/v19.sql
 sqlite3 ${NM}/nox-mem.db "PRAGMA user_version;"  # deve ser 19
-sqlite3 ${NM}/nox-mem.db < ${NM}/staged-migrations/v19-tests.sql
+sqlite3 ${NM}/nox-mem.db < ${NM}/staged/migrations/v19-tests.sql
 systemctl start nox-mem-api
 ```
 

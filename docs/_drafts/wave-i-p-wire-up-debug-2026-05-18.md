@@ -1,7 +1,7 @@
 # Diagnóstico: /api/answer 500 + /api/conflict 503 — Wire-up Routes
 
 **Data:** 2026-05-18 19:24 BRT  
-**Deploy:** staged-wire-up-adapters (PR Wave O) + staged-wire-up (PR #92)  
+**Deploy:** staged/wire-up-adapters (PR Wave O) + staged/wire-up (PR #92)  
 **Sintomas:** `POST /api/answer` → 500 corpo vazio; `GET /api/conflict` → 503 corpo vazio
 
 ---
@@ -23,7 +23,7 @@ não capturado ou um `null`-check que o corpo vazio confirma.
 wire-up.ts:233     POST /api/answer
   → safeHandle(fn)
   → readJsonBody(req)
-  → import("./answer.js")          ← staged-P1 handler
+  → import("./answer.js")          ← staged/P1 handler
   → mod.handleAnswerRequest({body, headers})
   → writeJson(res, out.body, ...)
 ```
@@ -33,7 +33,7 @@ wire-up.ts:233     POST /api/answer
 **`answer.ts` tem imports estáticos top-level que falham antes de qualquer try/catch:**
 
 ```ts
-// staged-P1/edits/src/api/answer.ts — linhas 31-36
+// staged/P1/edits/src/api/answer.ts — linhas 31-36
 import { answer as defaultAnswer, AnswerError } from "../lib/answer/index.js";
 import type { AnswerOpts, AnswerResult } from "../lib/answer/index.js";
 import {
@@ -59,7 +59,7 @@ conexão fecha com status 500 HTTP default (definido pelo Node antes de
 
 ### Linha de código incriminada
 
-`staged-P1/edits/src/api/answer.ts`, linha 31:
+`staged/P1/edits/src/api/answer.ts`, linha 31:
 ```ts
 import { answer as defaultAnswer, AnswerError } from "../lib/answer/index.js";
 ```
@@ -76,7 +76,7 @@ propagar um erro em vez de retornar o módulo.
 ls -la /root/.openclaw/workspace/tools/nox-mem/dist/lib/answer/
 ```
 
-Se ausentes, o staged-P1 não foi buildado corretamente:
+Se ausentes, o staged/P1 não foi buildado corretamente:
 
 ```bash
 cd /root/.openclaw/workspace/tools/nox-mem
@@ -120,7 +120,7 @@ Isso garante que mesmo com `lib/answer/index.js` ausente, o endpoint retorna
 ```
 wire-up.ts:343     GET /api/conflict
   → safeHandle(fn)
-  → import("./conflict.js")           ← staged-L2 handler
+  → import("./conflict.js")           ← staged/L2 handler
   → tryImport("../lib/conflict/db.js") ← L2 DB singleton
   → se null → writeJson(503 "L2 db not deployed")
   → se ok   → mod.dispatchConflictApi(db, {...})
@@ -138,7 +138,7 @@ Causa provável: `import("./conflict.js")` na linha 346 do wire-up **lança** ao
 tentar resolver os imports estáticos de `conflict.ts`:
 
 ```ts
-// staged-L2/edits/src/api/conflict.ts — linhas 17-27
+// staged/L2/edits/src/api/conflict.ts — linhas 17-27
 import type { DBHandle } from "../lib/conflict/db.js";
 import {
   getConflictById,
@@ -254,10 +254,10 @@ Path base: `/root/.openclaw/workspace/tools/nox-mem/dist/`
 
 ## 4. Verificação Rápida (sem SSH, inferência)
 
-Os staged dirs têm `tsconfig.json` em `staged-wire-up-adapters/tsconfig.json`.
+Os staged dirs têm `tsconfig.json` em `staged/wire-up-adapters/tsconfig.json`.
 O build precisa ser rodado **na VPS** após rsync de todos os `.ts`. Se qualquer
 arquivo depender de outro staged dir que não foi rsynced (ex: `answer.ts` usa
-`lib/answer/index.ts` que vem do staged-P1 e não do core), o `tsc` vai compilar
+`lib/answer/index.ts` que vem do staged/P1 e não do core), o `tsc` vai compilar
 mas o runtime vai quebrar nos imports dinâmicos.
 
 ---

@@ -1,6 +1,6 @@
 # A2 Tier 3 — Ed25519 Signed Audit Checkpoints (Phase 4)
 
-**Status:** staged in `staged-A2-T3/` — VPS deploy gated on Toto sign-off.
+**Status:** staged in `staged/A2-T3/` — VPS deploy gated on Toto sign-off.
 **Spec:** `specs/2026-05-24-A2-tier3-crypto-audit-RECON.md` §4.3 F2 + §10 D-A2T3-3
 **Decision:** `docs/DECISIONS.md` D56 — Ed25519 manual signing, public key publishable, auditor-grade.
 
@@ -280,10 +280,10 @@ Out-of-scope quantum-resistance per spec §11 — revisit at the AES-256 retirem
 
 ## 8. Cross-references
 
-- `staged-A2-T3/edits/src/lib/audit-checkpoints.ts` — module source
-- `staged-A2-T3/edits/src/lib/audit-checkpoints-schema.sql` — DDL source-of-truth
-- `staged-A2-T3/edits/scripts/audit-checkpoint-cli.ts` — CLI
-- `staged-A2-T3/edits/src/lib/__tests__/audit-checkpoints.test.ts` — 23 tests
+- `staged/A2-T3/edits/src/lib/audit-checkpoints.ts` — module source
+- `staged/A2-T3/edits/src/lib/audit-checkpoints-schema.sql` — DDL source-of-truth
+- `staged/A2-T3/edits/scripts/audit-checkpoint-cli.ts` — CLI
+- `staged/A2-T3/edits/src/lib/__tests__/audit-checkpoints.test.ts` — 23 tests
 - `specs/2026-05-24-A2-tier3-crypto-audit-RECON.md` — design spec
 - `docs/DECISIONS.md` D54-D58 — locked defaults (D56 specifically for this phase)
 - `docs/A2-TIER3-READS-AUDIT-GUIDE.md` — sibling P3 doc

@@ -9,7 +9,7 @@
 ## Environment
 
 - Repo: `/Users/lab/Claude/Projetos/memoria-nox` (main, ce44cd8)
-- staged-A2-T3 package: `nox-mem-a2-tier3-staged@0.5.0-a2-tier3-p5`
+- staged/A2-T3 package: `nox-mem-a2-tier3-staged@0.5.0-a2-tier3-p5`
 - TypeScript: `^5.4.0`
 - better-sqlite3-multiple-ciphers: `^11.10.0` (installed fresh via npm install)
 
@@ -77,7 +77,7 @@ live SSH connections; all commands are [CMD]/[DRY].
 ## 3. TypeScript Compile (noEmit)
 
 ```
-cd staged-A2-T3 && npx tsc --noEmit
+cd staged/A2-T3 && npx tsc --noEmit
 TSC EXIT: 0
 ```
 

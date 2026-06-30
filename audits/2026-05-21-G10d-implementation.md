@@ -16,10 +16,10 @@
 
 | File | Type | Description |
 |---|---|---|
-| `staged-1.7a/edits/query-entity-count.ts` | NEW (~160 LOC) | Entity detection module (Option B: KG lookup + PascalCase fallback) |
-| `staged-1.7a/edits/search.ts` | MODIFIED (~35 LOC delta) | `sourceTypeDelta` G10d conditional layer + new env constants + call sites |
-| `staged-1.7a/edits/__tests__/query-entity-count.test.ts` | NEW (~130 LOC) | 12 test cases for entity detection |
-| `staged-1.7a/edits/__tests__/search-conditional-mutex.test.ts` | NEW (~175 LOC) | 15 test cases for conditional mutex logic |
+| `staged/1.7a/edits/query-entity-count.ts` | NEW (~160 LOC) | Entity detection module (Option B: KG lookup + PascalCase fallback) |
+| `staged/1.7a/edits/search.ts` | MODIFIED (~35 LOC delta) | `sourceTypeDelta` G10d conditional layer + new env constants + call sites |
+| `staged/1.7a/edits/__tests__/query-entity-count.test.ts` | NEW (~130 LOC) | 12 test cases for entity detection |
+| `staged/1.7a/edits/__tests__/search-conditional-mutex.test.ts` | NEW (~175 LOC) | 15 test cases for conditional mutex logic |
 | `audits/2026-05-21-G10d-implementation.md` | NEW | This file |
 
 ---
@@ -145,7 +145,7 @@ Both `search()` (FTS path) and `searchSemantic()` compute `queryEntityCount` onc
 ```bash
 # 1. Build on VPS (isolated test port 18803 first)
 cd /root/.openclaw/workspace/tools/nox-mem
-cp staged-1.7a/edits/query-entity-count.ts src/lib/
+cp staged/1.7a/edits/query-entity-count.ts src/lib/
 # Apply search.ts patch (diff from staged vs current src/search.ts)
 npm run build 2>build-stderr.log
 # Check for errors

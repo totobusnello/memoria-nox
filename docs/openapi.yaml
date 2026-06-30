@@ -36,7 +36,7 @@ info:
 
     ## Wave timeline
 
-    - **Core** — original endpoints in `staged-1.6/edits/api-server.ts`
+    - **Core** — original endpoints in `staged/1.6/edits/api-server.ts`
     - **P3 (temporal search)** — `as_of` and `changed_since` added to `/api/search`
     - **P1** — `POST /api/answer` (answer primitive with citations)
     - **A2** — `POST /api/export`, `POST /api/import` (portable archive)
@@ -759,7 +759,7 @@ paths:
         the answer lib emits `failed_reason: "retrieval_empty"` which the HTTP
         layer maps to 503 (not a server error — just no relevant memory).
 
-        **Implementation file:** `staged-P1/edits/src/api/answer.ts`
+        **Implementation file:** `staged/P1/edits/src/api/answer.ts`
       operationId: postAnswer
       security:
         - {}
@@ -925,7 +925,7 @@ paths:
         - `X-Nox-Export-Chunks-Count`: number of exported chunks
         - `X-Nox-Export-Schema-Version`: DB schema version at export time
 
-        **Implementation file:** `staged-A2/edits/src/lib/archive/`
+        **Implementation file:** `staged/A2/edits/src/lib/archive/`
 
         **Spec:** `specs/2026-05-17-A2-export-import.md §4`
       operationId: postExport
@@ -1007,7 +1007,7 @@ paths:
         `application/octet-stream` if encrypted). The server reads the stream
         directly — no multipart wrapper required.
 
-        **Implementation file:** `staged-A2/edits/src/lib/archive/`
+        **Implementation file:** `staged/A2/edits/src/lib/archive/`
       operationId: postImport
       security:
         - BearerAuth: []
@@ -1137,7 +1137,7 @@ paths:
         15 seconds to keep proxies alive. These are SSE comments and are
         ignored by `EventSource`.
 
-        **Implementation file:** `staged-P5/edits/src/api/events-stream.ts`
+        **Implementation file:** `staged/P5/edits/src/api/events-stream.ts`
       operationId: getEventsStream
       security:
         - {}
@@ -1216,7 +1216,7 @@ paths:
         **Auth:** same as `/api/events/stream` — optional Bearer token via
         `NOX_VIEWER_AUTH_TOKEN`.
 
-        **Implementation file:** `staged-P5/edits/src/api/viewer-static.ts`
+        **Implementation file:** `staged/P5/edits/src/api/viewer-static.ts`
       operationId: getViewerFile
       security:
         - {}
@@ -1560,7 +1560,7 @@ paths:
         **Gating:** always available; confidence values only affect search
         ranking when `NOX_RANKING_CONFIDENCE=active`.
 
-        **Implementation file:** `staged-L3/edits/src/api/mark.ts`
+        **Implementation file:** `staged/L3/edits/src/api/mark.ts`
       operationId: markChunk
       parameters:
         - name: id
@@ -1638,7 +1638,7 @@ paths:
         - `stale_link_reconciliation` — superseded during conflict resolution
         - `dismiss` — dismissal (keeps chunk but marks as superseded)
 
-        **Implementation file:** `staged-L3/edits/src/api/mark.ts`
+        **Implementation file:** `staged/L3/edits/src/api/mark.ts`
       operationId: supersedeChunk
       parameters:
         - name: id
@@ -1702,7 +1702,7 @@ paths:
         **Gating:** requires `NOX_HOOKS_ENABLED=1`.
 
         **Implementation file:**
-        `.claude/worktrees/agent-a21b345bc854329aa/staged-P2/edits/src/api/hooks.ts`
+        `.claude/worktrees/agent-a21b345bc854329aa/staged/P2/edits/src/api/hooks.ts`
       operationId: getHooksStatus
       responses:
         "200":

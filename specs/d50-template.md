@@ -130,8 +130,8 @@ ssh root@$NOX_VPS_HOST 'bash /root/.openclaw/workspace/scripts/scrape-temporal-s
 ## Cross-links
 
 - D49 — `docs/DECISIONS.md` (2026-05-20)
-- Spike — PR #157 `staged-temporal-spike/`
-- Phase 1 deploy — PR #167 `staged-1.7a/edits/temporal-retrieval.ts`
+- Spike — PR #157 `staged/temporal-spike/`
+- Phase 1 deploy — PR #167 `staged/1.7a/edits/temporal-retrieval.ts`
 - Gold cure — PR #168 Q105-Q110
 - Smoke test inicial — PR #161 `docs/RESEARCH/2026-05-20-temporal-smoke-test.md`
 - Memory `[[temporal-q1-spike-2026-05-20]]`, `[[g7-salience-isolation-2026-05-20]]`

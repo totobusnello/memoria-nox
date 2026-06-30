@@ -194,8 +194,8 @@ phase_a() {
   local out_dir="/tmp/nox-audit-keys-$(date +%Y%m%d-%H%M%S)"
   info "Generating keypair into ${out_dir}"
   info "(staged P4 CLI: dist/edits/scripts/audit-checkpoint-cli.js gen-key)"
-  run "cd '${REPO_ROOT}/staged-A2-T3' && npm run build > /dev/null 2>&1"
-  run "node '${REPO_ROOT}/staged-A2-T3/dist/edits/scripts/audit-checkpoint-cli.js' gen-key --out-dir '${out_dir}'"
+  run "cd '${REPO_ROOT}/staged/A2-T3' && npm run build > /dev/null 2>&1"
+  run "node '${REPO_ROOT}/staged/A2-T3/dist/edits/scripts/audit-checkpoint-cli.js' gen-key --out-dir '${out_dir}'"
 
   cat <<EOF
 
@@ -234,10 +234,10 @@ phase_b() {
   fi
 
   info "Step B.1 — SCP staged code"
-  run "rsync -avz '${REPO_ROOT}/staged-A2-T3/edits/src/lib/db.ts' '${VPS_HOST}:/root/.openclaw/workspace/tools/nox-mem/src/lib/db.ts.staged'"
-  run "rsync -avz '${REPO_ROOT}/staged-A2-T3/edits/src/lib/reads-audit.ts' '${REPO_ROOT}/staged-A2-T3/edits/src/lib/reads-audit-schema.sql' '${REPO_ROOT}/staged-A2-T3/edits/src/lib/audit-checkpoints.ts' '${REPO_ROOT}/staged-A2-T3/edits/src/lib/audit-checkpoints-schema.sql' '${VPS_HOST}:/root/.openclaw/workspace/tools/nox-mem/src/lib/'"
-  run "rsync -avz '${REPO_ROOT}/staged-A2-T3/scripts/migrate-encrypt-db.ts' '${VPS_HOST}:/root/.openclaw/workspace/tools/nox-mem/scripts/'"
-  run "rsync -avz '${REPO_ROOT}/staged-A2-T3/edits/scripts/audit-checkpoint-cli.ts' '${REPO_ROOT}/staged-A2-T3/edits/scripts/reads-audit-sweep.ts' '${VPS_HOST}:/root/.openclaw/workspace/tools/nox-mem/scripts/'"
+  run "rsync -avz '${REPO_ROOT}/staged/A2-T3/edits/src/lib/db.ts' '${VPS_HOST}:/root/.openclaw/workspace/tools/nox-mem/src/lib/db.ts.staged'"
+  run "rsync -avz '${REPO_ROOT}/staged/A2-T3/edits/src/lib/reads-audit.ts' '${REPO_ROOT}/staged/A2-T3/edits/src/lib/reads-audit-schema.sql' '${REPO_ROOT}/staged/A2-T3/edits/src/lib/audit-checkpoints.ts' '${REPO_ROOT}/staged/A2-T3/edits/src/lib/audit-checkpoints-schema.sql' '${VPS_HOST}:/root/.openclaw/workspace/tools/nox-mem/src/lib/'"
+  run "rsync -avz '${REPO_ROOT}/staged/A2-T3/scripts/migrate-encrypt-db.ts' '${VPS_HOST}:/root/.openclaw/workspace/tools/nox-mem/scripts/'"
+  run "rsync -avz '${REPO_ROOT}/staged/A2-T3/edits/scripts/audit-checkpoint-cli.ts' '${REPO_ROOT}/staged/A2-T3/edits/scripts/reads-audit-sweep.ts' '${VPS_HOST}:/root/.openclaw/workspace/tools/nox-mem/scripts/'"
 
   info "Step B.2 — install dependency + build on VPS"
   ssh_run "cd /root/.openclaw/workspace/tools/nox-mem && npm install better-sqlite3-multiple-ciphers@^11.10"
@@ -471,12 +471,12 @@ EOF
   run "scp '${VPS_HOST}:/tmp/nox-mem-checkpoint-bridge.db' /tmp/"
 
   info "J.2 + J.3 — create checkpoints (signed offline on laptop)"
-  run "cd '${REPO_ROOT}/staged-A2-T3' && NOX_DB_PATH=/tmp/nox-mem-checkpoint-bridge.db NOX_DB_KEY=\"\${NOX_DB_KEY:-}\" node dist/edits/scripts/audit-checkpoint-cli.js create --scope ops --key-file '${NOX_AUDIT_PRIVATE_KEY_FILE}'"
-  run "cd '${REPO_ROOT}/staged-A2-T3' && NOX_DB_PATH=/tmp/nox-mem-checkpoint-bridge.db NOX_DB_KEY=\"\${NOX_DB_KEY:-}\" node dist/edits/scripts/audit-checkpoint-cli.js create --scope reads --key-file '${NOX_AUDIT_PRIVATE_KEY_FILE}'"
+  run "cd '${REPO_ROOT}/staged/A2-T3' && NOX_DB_PATH=/tmp/nox-mem-checkpoint-bridge.db NOX_DB_KEY=\"\${NOX_DB_KEY:-}\" node dist/edits/scripts/audit-checkpoint-cli.js create --scope ops --key-file '${NOX_AUDIT_PRIVATE_KEY_FILE}'"
+  run "cd '${REPO_ROOT}/staged/A2-T3' && NOX_DB_PATH=/tmp/nox-mem-checkpoint-bridge.db NOX_DB_KEY=\"\${NOX_DB_KEY:-}\" node dist/edits/scripts/audit-checkpoint-cli.js create --scope reads --key-file '${NOX_AUDIT_PRIVATE_KEY_FILE}'"
 
   info "J.4 — verify chain"
   local pub_file="${NOX_AUDIT_PUBLIC_KEY_FILE:-${NOX_AUDIT_PRIVATE_KEY_FILE/-private-/-public-}}"
-  run "cd '${REPO_ROOT}/staged-A2-T3' && NOX_DB_PATH=/tmp/nox-mem-checkpoint-bridge.db NOX_DB_KEY=\"\${NOX_DB_KEY:-}\" node dist/edits/scripts/audit-checkpoint-cli.js verify-chain --scope all --key-file '${pub_file}'"
+  run "cd '${REPO_ROOT}/staged/A2-T3' && NOX_DB_PATH=/tmp/nox-mem-checkpoint-bridge.db NOX_DB_KEY=\"\${NOX_DB_KEY:-}\" node dist/edits/scripts/audit-checkpoint-cli.js verify-chain --scope all --key-file '${pub_file}'"
 
   cat <<EOF
 

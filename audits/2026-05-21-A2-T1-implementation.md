@@ -37,13 +37,13 @@ The full A2 kickoff (`specs/2026-05-18-A2-implementation-kickoff.md`) spans 18 t
 
 | Path | LOC | Purpose |
 |---|---|---|
-| `staged-1.7a/edits/lib/export-import.ts` | 444 | Core: AES-256-GCM + scrypt + bundle envelope + apply (replace/merge/dry-run) |
-| `staged-1.7a/edits/cli/export-import-cli.ts` | 230 | CLI wrapper: argv parse, env passphrase resolution, JSON output |
-| `staged-1.7a/tests/export-import-roundtrip.test.ts` | 339 | 11 cases incl. 2-instance roundtrip, tamper, AAD, dry-run, merge, replace, CLI |
-| `staged-1.7a/tsconfig.export-import.json` | 21 | Isolated tsconfig — A2 files only (avoids pre-existing `edits/search.ts` errors) |
-| `staged-1.7a/tsconfig.tests.json` | (modified +4) | Adds A2 source paths to test build |
+| `staged/1.7a/edits/lib/export-import.ts` | 444 | Core: AES-256-GCM + scrypt + bundle envelope + apply (replace/merge/dry-run) |
+| `staged/1.7a/edits/cli/export-import-cli.ts` | 230 | CLI wrapper: argv parse, env passphrase resolution, JSON output |
+| `staged/1.7a/tests/export-import-roundtrip.test.ts` | 339 | 11 cases incl. 2-instance roundtrip, tamper, AAD, dry-run, merge, replace, CLI |
+| `staged/1.7a/tsconfig.export-import.json` | 21 | Isolated tsconfig — A2 files only (avoids pre-existing `edits/search.ts` errors) |
+| `staged/1.7a/tsconfig.tests.json` | (modified +4) | Adds A2 source paths to test build |
 
-**Touched (no production `src/`):** only `staged-1.7a/`. Deploy path is the staged-dirs pattern (`reference_staged_dirs_pattern`), not direct merge into `src/`.
+**Touched (no production `src/`):** only `staged/1.7a/`. Deploy path is the staged-dirs pattern (`reference_staged_dirs_pattern`), not direct merge into `src/`.
 
 ---
 
@@ -118,7 +118,7 @@ The full A2 kickoff (`specs/2026-05-18-A2-implementation-kickoff.md`) spans 18 t
 | 10 | CLI `--passphrase=` flag REFUSED | argv leak prevention (security). |
 | 11 | CLI happy-path roundtrip end-to-end | Smoke test of full CLI path including JSON output contract. |
 
-**Run:** `cd staged-1.7a && tsc -p tsconfig.export-import.json && node --test dist/tests/export-import-roundtrip.test.js`
+**Run:** `cd staged/1.7a && tsc -p tsconfig.export-import.json && node --test dist/tests/export-import-roundtrip.test.js`
 
 **Result:** 11/11 pass, total ~750ms.
 
@@ -145,7 +145,7 @@ In **merge** mode the `id` column is **dropped** so SQLite auto-assigns fresh id
 
 ## 6. Deployment Plan
 
-**This PR does NOT deploy to VPS.** It lives in `staged-1.7a/edits/{lib,cli}/` per the staged-dirs deployment pattern. Three landing steps when Tier 2 is ready:
+**This PR does NOT deploy to VPS.** It lives in `staged/1.7a/edits/{lib,cli}/` per the staged-dirs deployment pattern. Three landing steps when Tier 2 is ready:
 
 1. **Tier 2 lands first.** Extend the envelope to tar.gz + embeddings.bin + schema migration. Reuse the `export-import.ts` cryptographic primitives unchanged.
 2. **VPS deploy via DEPLOY-A2.md** (new doc, to be written when Tier 2 wraps). Includes:
@@ -177,7 +177,7 @@ In **merge** mode the `id` column is **dropped** so SQLite auto-assigns fresh id
 | Integration test with 2 SEPARATE DB instances | yes — case 1 uses distinct source + target DBs at distinct paths. |
 | Tamper test mandatory (1-byte modification → auth fail) | yes — case 2 XOR-flips one ciphertext byte and asserts `TAMPERED_BUNDLE`. |
 | Passphrase NEVER in code — env var only | yes — CLI refuses `--passphrase=`; only `--passphrase-env <NAME>` accepted. Tests use synthetic env. |
-| No mutation of `src/` — only `staged-1.7a/edits/` | yes — verified via `git diff --stat` (no `src/` paths). |
+| No mutation of `src/` — only `staged/1.7a/edits/` | yes — verified via `git diff --stat` (no `src/` paths). |
 | No mutation of `main` — only `impl/a2-export-import-t1` | yes — branch created at start, never merged. |
 | No PR merge (this audit only opens it) | yes. |
 
@@ -205,6 +205,6 @@ In **merge** mode the `id` column is **dropped** so SQLite auto-assigns fresh id
 
 ## 10. Summary
 
-A2 Tier 1 delivers the cryptographic core (AES-256-GCM + scrypt + AAD-bound header) and the roundtrip contract (export → import preserves all chunk + KG rows across two separate DB instances). 11 tests pass including the critical tamper, AAD-mismatch, and wrong-passphrase cases that catch the chained-checksum bug class. Pre-existing `edits/search.ts` TypeScript errors in `staged-1.7a/` are unrelated to this PR; A2 source files compile cleanly via `tsconfig.export-import.json`.
+A2 Tier 1 delivers the cryptographic core (AES-256-GCM + scrypt + AAD-bound header) and the roundtrip contract (export → import preserves all chunk + KG rows across two separate DB instances). 11 tests pass including the critical tamper, AAD-mismatch, and wrong-passphrase cases that catch the chained-checksum bug class. Pre-existing `edits/search.ts` TypeScript errors in `staged/1.7a/` are unrelated to this PR; A2 source files compile cleanly via `tsconfig.export-import.json`.
 
 The PR opens the Autonomy pillar's centerpiece. Tier 2 layers tar.gz + embeddings + migration + HTTP/MCP on top of an unchanged envelope.

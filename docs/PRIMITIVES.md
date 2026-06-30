@@ -301,9 +301,9 @@ workflow you need from just these three calls.
 | Layer | Spec / source |
 |---|---|
 | **`search` (hybrid)** | [`specs/2026-03-14-nox-memory-system-design.md`](../specs/2026-03-14-nox-memory-system-design.md), `paper/paper-tecnico-nox-mem.md` §4 |
-| **`answer` (P1)** | [`staged-P1/README.md`](../staged-P1/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
-| **Temporal (P3)** | [`staged-P3/DEPLOY.md`](../staged-P3/DEPLOY.md), PRs #2 #167 |
-| **E13 temporal boost (distinct from P3 filter)** | [`staged-temporal-spike/edits/temporal-retrieval.ts`](../staged-temporal-spike/edits/temporal-retrieval.ts) |
+| **`answer` (P1)** | [`staged/P1/README.md`](../staged/P1/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
+| **Temporal (P3)** | [`staged/P3/DEPLOY.md`](../staged/P3/DEPLOY.md), PRs #2 #167 |
+| **E13 temporal boost (distinct from P3 filter)** | [`staged/temporal-spike/edits/temporal-retrieval.ts`](../staged/temporal-spike/edits/temporal-retrieval.ts) |
 
 ---
 

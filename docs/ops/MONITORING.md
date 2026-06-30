@@ -352,7 +352,7 @@ journalctl -u nox-mem-api --since today --output=json | \
 
 ### 5.2 PII scrubbing
 
-Logs de operações em `src/lib/op-audit.ts` já fazem redação de dados sensíveis via privacy filter (Wave B staged-privacy). Verificar:
+Logs de operações em `src/lib/op-audit.ts` já fazem redação de dados sensíveis via privacy filter (Wave B staged/privacy). Verificar:
 
 ```bash
 # Garantir que chaves de API não aparecem em logs

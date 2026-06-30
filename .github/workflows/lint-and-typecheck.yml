@@ -28,10 +28,10 @@ jobs:
       - name: Install TypeScript
         run: npm install -g typescript@5
 
-      - name: Typecheck staged-privacy
-        if: hashFiles('staged-privacy/tsconfig.json') != ''
+      - name: Typecheck staged/privacy
+        if: hashFiles('staged/privacy/tsconfig.json') != ''
         run: |
-          cd staged-privacy
+          cd staged/privacy
           npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts
           npx tsc --noEmit 2>&1 | head -50
         continue-on-error: true
@@ -81,7 +81,7 @@ jobs:
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Package | Status |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---------|--------|" >> "$GITHUB_STEP_SUMMARY"
-          for pkg in staged-privacy eval/locomo eval/longmemeval eval/latency validation/zero-vendor; do
+          for pkg in staged/privacy eval/locomo eval/longmemeval eval/latency validation/zero-vendor; do
             if [ -f "$pkg/tsconfig.json" ]; then
               errors=$(cd "$pkg" && npx tsc --noEmit 2>&1 | grep -c "error TS" || true)
               if [ "$errors" = "0" ]; then

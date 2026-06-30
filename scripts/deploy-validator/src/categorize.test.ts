@@ -19,19 +19,19 @@ function makeBlock(content: string, heading = "Test"): CodeBlock {
 
 describe("T2 — categorize", () => {
   it("detects rsync command", () => {
-    const c = categorizeBlock(makeBlock('rsync -avz staged-A3/edits/src/providers/ $VPS_HOST:/opt/nox-mem/src/providers/'));
+    const c = categorizeBlock(makeBlock('rsync -avz staged/A3/edits/src/providers/ $VPS_HOST:/opt/nox-mem/src/providers/'));
     assert.ok(c.types.includes("rsync"), `expected rsync in ${JSON.stringify(c.types)}`);
   });
 
   it("extracts rsync src and dest meta", () => {
-    const c = categorizeBlock(makeBlock('rsync -avz staged-A3/edits/src/providers/ $VPS_HOST:/opt/nox-mem/src/providers/'));
+    const c = categorizeBlock(makeBlock('rsync -avz staged/A3/edits/src/providers/ $VPS_HOST:/opt/nox-mem/src/providers/'));
     const rsyncCmd = c.commands.find((cmd) => cmd.type === "rsync");
     assert.ok(rsyncCmd, "no rsync command found");
-    assert.ok(rsyncCmd.meta.rsyncSrc?.includes("staged-A3"), `bad rsyncSrc: ${rsyncCmd.meta.rsyncSrc}`);
+    assert.ok(rsyncCmd.meta.rsyncSrc?.includes("staged/A3"), `bad rsyncSrc: ${rsyncCmd.meta.rsyncSrc}`);
   });
 
   it("detects sqlite3 with pipe input", () => {
-    const c = categorizeBlock(makeBlock('sqlite3 ${NM}/nox-mem.db < ${NM}/staged-migrations/v11.sql'));
+    const c = categorizeBlock(makeBlock('sqlite3 ${NM}/nox-mem.db < ${NM}/staged/migrations/v11.sql'));
     assert.ok(c.types.includes("sqlite3"));
     const sqlCmd = c.commands.find((cmd) => cmd.type === "sqlite3");
     assert.ok(sqlCmd?.meta.sqliteInput?.includes("v11.sql"), `bad sqliteInput: ${sqlCmd?.meta.sqliteInput}`);
@@ -89,7 +89,7 @@ describe("T2 — categorize", () => {
 
   it("detects mixed block with multiple types", () => {
     const content = `
-rsync -avz staged-P1/edits/src/lib/answer/ $VPS_HOST:/opt/nox-mem/src/lib/answer/
+rsync -avz staged/P1/edits/src/lib/answer/ $VPS_HOST:/opt/nox-mem/src/lib/answer/
 ssh $VPS_HOST "systemctl restart nox-mem-api"
 curl -sf http://127.0.0.1:18802/api/health
 `;

@@ -27,14 +27,14 @@ However this was NOT the primary driver — P1 metrics were not in the failing 8
 ### 2. A2 and A3 staged dirs present but not production-ready (primary)
 
 The 8 failing metrics are entirely in:
-- **A2** (encrypted backup, PR #41): `staged-A2/` exists in the repo (build scaffolding), but A2 is a future feature not included in v1.0-rc1.
-- **A3** (provider overhead, PR #39): `staged-A3/` exists similarly.
+- **A2** (encrypted backup, PR #41): `staged/A2/` exists in the repo (build scaffolding), but A2 is a future feature not included in v1.0-rc1.
+- **A3** (provider overhead, PR #39): `staged/A3/` exists similarly.
 
 The regression-detector ran `runA2Bench()` and `runA3Bench()`, produced measurements, and compared them against the Wave J baseline values — producing >25% drift on all 8 metrics.
 
 ### 3. Sign anomaly in 2 A3 metrics
 
-`A3.provider_overhead.embed.p95_abs_ms` and `A3.provider_overhead.total.p95_abs_ms` measured **negative** values (e.g. `-0.13`) against baseline `0.001`. A provider overhead overhead cannot be negative — this is a measurement direction flip bug in `staged-A3/dist/benchmark/provider-overhead.js`. It is a real instrumentation bug, but since A3 is not shipped in v1.0, the fix is deferred to the A3 ship PR.
+`A3.provider_overhead.embed.p95_abs_ms` and `A3.provider_overhead.total.p95_abs_ms` measured **negative** values (e.g. `-0.13`) against baseline `0.001`. A provider overhead overhead cannot be negative — this is a measurement direction flip bug in `staged/A3/dist/benchmark/provider-overhead.js`. It is a real instrumentation bug, but since A3 is not shipped in v1.0, the fix is deferred to the A3 ship PR.
 
 ---
 

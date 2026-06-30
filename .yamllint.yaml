@@ -10,7 +10,7 @@ ignore: |
   .claude/
   archive/
   _archive-pre-split-20260501/
-  staged-*/
+  staged/
   node_modules/
   # Excluded: multi-line git commit string in run: block chokes python yaml.safe_load
   # but is valid GitHub Actions syntax — do not edit the file

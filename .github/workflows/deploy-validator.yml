@@ -5,7 +5,7 @@ on:
     paths:
       - 'docs/DEPLOY-WAVE-B.md'
       - 'staged-*/**'
-      - 'staged-migrations/**'
+      - 'staged/migrations/**'
       - 'scripts/deploy-validator/**'
 
 permissions:

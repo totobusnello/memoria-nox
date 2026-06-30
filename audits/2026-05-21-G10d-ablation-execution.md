@@ -19,7 +19,7 @@
 |---|---|
 | DB | `/root/.openclaw/workspace/eval-data/g9-g5db-2026-05-20/g9.db` (1.2 GB, 69 495 chunks, 15 612 kg_entities) |
 | Driver | `entity_ablation_eval.py` (G3-rerun harness, isolation-guarded) |
-| Code source | `staged-1.7a/edits/` (PR #198, merged to main 368a03b) |
+| Code source | `staged/1.7a/edits/` (PR #198, merged to main 368a03b) |
 | Build location | `/root/.openclaw/workspace/tools/nox-mem-isolated/` (cloned from prod, no `node_modules` copy — symlinked) |
 | Endpoint | `http://127.0.0.1:18803/api/search` (isolated, prod 18802 untouched) |
 | n queries | 100 (5 categorias × 2 styles × 10) |

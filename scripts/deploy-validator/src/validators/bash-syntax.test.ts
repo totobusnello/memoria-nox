@@ -51,7 +51,7 @@ ssh "$VPS_HOST" "
 
   it("passes for multiline rsync + systemctl", () => {
     const content = `
-rsync -avz --dry-run staged-P1/edits/src/lib/ dest/src/lib/
+rsync -avz --dry-run staged/P1/edits/src/lib/ dest/src/lib/
 ssh root@vps "systemctl restart nox-mem-api && sleep 3"
 `;
     const r = checkBashSyntax(makeCmd(content));

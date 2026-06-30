@@ -163,7 +163,7 @@ Then orient yourself in the code:
 - **Search:** `src/lib/search.ts` — the three-layer pipeline: FTS5 BM25 → Gemini semantic → RRF fusion. Small enough to read in one sitting.
 - **Salience:** `src/lib/salience.ts` — `recency × pain × importance`. Shadow-mode by default.
 - **Op audit:** `src/lib/op-audit.ts` — `withOpAudit()` wrapper for destructive ops. `safeRestore()` for recovery.
-- **Provider abstraction:** `staged-A3/edits/src/providers/` — embedding and LLM provider factories.
+- **Provider abstraction:** `staged/A3/edits/src/providers/` — embedding and LLM provider factories.
 
 ---
 

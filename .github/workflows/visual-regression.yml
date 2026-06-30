@@ -3,14 +3,14 @@ name: Visual Regression — P5 Viewer
 on:
   pull_request:
     paths:
-      - "staged-P5/edits/src/viewer/**"
+      - "staged/P5/edits/src/viewer/**"
       - "tests/visual-regression/**"
       - ".github/workflows/visual-regression.yml"
   push:
     branches:
       - main
     paths:
-      - "staged-P5/edits/src/viewer/**"
+      - "staged/P5/edits/src/viewer/**"
       - "tests/visual-regression/**"
 
 permissions:

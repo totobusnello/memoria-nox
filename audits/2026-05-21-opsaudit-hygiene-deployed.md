@@ -100,7 +100,7 @@ Real 24h window = 1 op (the nightly `daily-main` consolidation). No `unknown` bu
 
 ### Deploy guide
 
-- **`staged-1.7a/DEPLOY-OPSAUDIT-HYGIENE.md`** — pre-flight commands, deploy sequence (push code → build → migrate → cleanup → restart API), validation, recovery, and lessons cravadas.
+- **`staged/1.7a/DEPLOY-OPSAUDIT-HYGIENE.md`** — pre-flight commands, deploy sequence (push code → build → migrate → cleanup → restart API), validation, recovery, and lessons cravadas.
 
 ## Deployment timeline (2026-05-21, BRT)
 
@@ -142,7 +142,7 @@ Real 24h window = 1 op (the nightly `daily-main` consolidation). No `unknown` bu
 
 ## Lessons cravadas
 
-See `staged-1.7a/DEPLOY-OPSAUDIT-HYGIENE.md` for full text. TL;DR:
+See `staged/1.7a/DEPLOY-OPSAUDIT-HYGIENE.md` for full text. TL;DR:
 
 1. `.load vec0.so` is mandatory in any sqlite3 CLI session touching nox-mem.db schema.
 2. TEXT column affinity coerces INTEGER values back to TEXT — full table rebuild required for typeof checks.

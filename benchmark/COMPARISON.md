@@ -66,7 +66,7 @@
 | Real-time viewer | ✅ P5 SSE 4-panel viewer (merged PR #42) | ❌ SaaS dashboard | ❓ | ❌ | ❌ | ❌ | ❌ |
 | Export/import (data ownership) | ✅ A2 .tgz portable (merged PR #41) | ❌ vendor lock | ❌ | ✅ (Qdrant + Postgres) | ✅ (Docker volumes) | ✅ (Postgres dump) | ✅ git |
 | Encryption at rest | ✅ AES-256-GCM (A2, scrypt N=2¹⁷) | ❓ | ❓ | ❓ | ❓ | ❓ | ❌ plaintext |
-| Privacy filter (PII redaction) | ✅ A1 13 patterns (staged-privacy merged) | ❓ | ❓ | ❓ | ❓ | ❓ | ❌ |
+| Privacy filter (PII redaction) | ✅ A1 13 patterns (staged/privacy merged) | ❓ | ❓ | ❓ | ❓ | ❓ | ❌ |
 | Zero-daemon (autonomous deploy) | ✅ A4 validated (PR #20) | ❌ SaaS | ⚠️ iii-engine daemon required | ❌ Postgres + Qdrant | ❌ Docker + Postgres | ❌ Docker + Postgres | ✅ |
 | Provider swap (BYO embeddings) | ✅ A3 provider abstraction (merged PR #39) | ❌ vendor-controlled | ❌ | ✅ OpenAI/Anthropic/etc. | ✅ | ✅ | ❌ |
 | Open source | ✅ MIT | depends (PyPI closed) | ✅ MIT (CLI) / ❌ iii-engine | ✅ Apache-2.0 | ✅ Apache-2.0 | ✅ Apache-2.0 | n/a (built-in) |
@@ -163,7 +163,7 @@ By query category (p50): `short`=577ms, `code`=494ms, `entity`=504ms, `temporal`
 All Wave B bench numbers are from the staged implementations before merging
 to main. Numbers are design-time verified (harness code + specification).
 
-### Answer primitive latency (P1 T14 bench — `staged-P1/edits/benchmark/answer-latency.ts`)
+### Answer primitive latency (P1 T14 bench — `staged/P1/edits/benchmark/answer-latency.ts`)
 
 **Setup:** 50 samples, mock LLM with 100ms sleep, in-memory SQLite v11 schema,
 fixture corpus 3 chunks, 5 question templates round-robin. Warmup = 3 calls
@@ -189,13 +189,13 @@ before measurement.
 
 **Reproduce:**
 ```bash
-cd staged-P1
+cd staged/P1
 npm install && npm test  # runs all 33 node:test cases including T14
 ```
 
 ---
 
-### Export / import round-trip (A2 T18 bench — `staged-A2/edits/benchmark/export-import-bench.ts`)
+### Export / import round-trip (A2 T18 bench — `staged/A2/edits/benchmark/export-import-bench.ts`)
 
 **Setup:** Synthetic corpus — 500 chunks @ 3072d embeddings + ~50 KG entities
 + ~80 KG relations + 10 ops_audit rows. Default scales: `[500, 2000]` (full
@@ -209,7 +209,7 @@ ustar tar (no native binaries).
 | Encryption overhead | — | +~120ms | +~1,127ms | +~0.9MB | — | KDF is fixed cost; scales flat with corpus |
 
 **Round-trip integrity:** 0 byte loss across 100 chunks + 50 KG entities + 30
-relations in integration tests (`staged-A2/__tests__/`).
+relations in integration tests (`staged/A2/__tests__/`).
 
 **Methodology notes:**
 - scrypt `N=2¹⁷` is intentionally slow (~500–1,000ms on M-series) — it's a
@@ -220,14 +220,14 @@ relations in integration tests (`staged-A2/__tests__/`).
 
 **Reproduce:**
 ```bash
-cd staged-A2
+cd staged/A2
 npm install && npm test  # 5 test files; bench is invoked separately
-# npm run bench  (requires the full staged-A2 build with orchestrator.ts)
+# npm run bench  (requires the full staged/A2 build with orchestrator.ts)
 ```
 
 ---
 
-### Provider abstraction overhead (A3 T16 bench — `staged-A3/edits/benchmark/provider-overhead.ts`)
+### Provider abstraction overhead (A3 T16 bench — `staged/A3/edits/benchmark/provider-overhead.ts`)
 
 **Setup:** 1,000 iterations (+ 10 warmup), mock `fetchFn` (zero network),
 measures: raw GeminiEmbeddingProvider vs wrapped (+ telemetry write-behind),
@@ -255,7 +255,7 @@ unreliable at microsecond scale.
 
 **Reproduce:**
 ```bash
-cd staged-A3
+cd staged/A3
 npm install && npm test  # 39 node:test cases; bench is the T16 validation
 ```
 
@@ -436,13 +436,13 @@ These are documented explicitly. The comparison is not marketing.
 
 ```bash
 # P1 answer latency
-cd staged-P1 && npm install && npm test
+cd staged/P1 && npm install && npm test
 
 # A2 export/import
-cd staged-A2 && npm install && npm test
+cd staged/A2 && npm install && npm test
 
 # A3 provider overhead
-cd staged-A3 && npm install && npm test
+cd staged/A3 && npm install && npm test
 
 # Full benchmark sweep (once Q1/Q2/Q3 run on VPS):
 GATE_VERIFIED=1 \

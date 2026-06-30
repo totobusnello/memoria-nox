@@ -122,11 +122,11 @@ Must return all 4 invariants OK. If any fail, fix them first (the migration will
 
 ### Step 1 — Build the script
 
-The migration script lives in `staged-A2-T3/scripts/migrate-encrypt-db.ts` and ships compiled JS at `dist/scripts/migrate-encrypt-db.js`. Toto's manual integration step moves it to `src/scripts/` in the prod tree.
+The migration script lives in `staged/A2-T3/scripts/migrate-encrypt-db.ts` and ships compiled JS at `dist/scripts/migrate-encrypt-db.js`. Toto's manual integration step moves it to `src/scripts/` in the prod tree.
 
 ```bash
 cd /root/.openclaw/workspace/tools/nox-mem
-# After SCP from staged-A2-T3/:
+# After SCP from staged/A2-T3/:
 npm install better-sqlite3-multiple-ciphers@^11.10
 npm run build  # if your tsconfig already includes scripts/
 ```
@@ -403,10 +403,10 @@ find /root/.openclaw/workspace/tools/nox-mem -name 'nox-mem.db.pre-encrypt-*.db'
 
 ## References
 
-- Script source: `staged-A2-T3/scripts/migrate-encrypt-db.ts`
-- Tests: `staged-A2-T3/scripts/__tests__/migrate-encrypt-db.test.ts` (19 cases)
+- Script source: `staged/A2-T3/scripts/migrate-encrypt-db.ts`
+- Tests: `staged/A2-T3/scripts/__tests__/migrate-encrypt-db.test.ts` (19 cases)
 - Spike report: `experiments/a2-tier3-sqlcipher-spike/RESULTS.md`
-- P1 db.ts: `staged-A2-T3/edits/src/lib/db.ts` + `db.crypto.test.ts`
+- P1 db.ts: `staged/A2-T3/edits/src/lib/db.ts` + `db.crypto.test.ts`
 - Design spec: `specs/2026-05-24-A2-tier3-crypto-audit-RECON.md`
 - Memory pins: `[[multi-agent-branch-checkout-race]]`, `[[sqlite-text-affinity-coerces-int-back]]`, `[[validate-features-with-db-not-logs]]`
 

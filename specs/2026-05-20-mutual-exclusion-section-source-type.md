@@ -423,8 +423,8 @@ G8 já mostrou `multi-hop +1.4pp` com source_type active. O mutex reduz o sinal 
 - **PR #154** — `SOURCE_TYPE_BOOST` wiring original; introduziu `source_type entity=2.0`
 - **PR #177** — G8 ablation que cravou o double-boost (`A8 < A10 em -0.81%`)
 - **`docs/HANDOFF.md`** — section `Night 2026-05-20`, subsection `G8 cravado`
-- **`staged-1.7a/edits/search.ts`** — implementação atual de `sourceTypeDelta` e `sectionDelta`
-- **`staged-1.7a/tests/search-boost-stack.test.ts`** — test file existente a estender
+- **`staged/1.7a/edits/search.ts`** — implementação atual de `sourceTypeDelta` e `sectionDelta`
+- **`staged/1.7a/tests/search-boost-stack.test.ts`** — test file existente a estender
 - **`docs/DECISIONS.md`** — CLAUDE.md regra #5 (sem boost multiplicativo empilhável)
 - **`specs/INDEX.md`** — adicionar esta spec como `active` em `G-lab`
 
@@ -444,4 +444,4 @@ Effort total: ~2h. Implementação trivial; o custo está na ablation G10 de val
 
 ---
 
-*Spec criado: 2026-05-20. Próximo passo: implementar em `staged-G10/` e rodar ablation antes de merge em main.*
+*Spec criado: 2026-05-20. Próximo passo: implementar em `staged/G10/` e rodar ablation antes de merge em main.*

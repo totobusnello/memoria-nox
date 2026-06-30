@@ -21,7 +21,7 @@ function makeCmd(content: string) {
 
 describe("T3d — path-validator", () => {
   it("passes for clean rsync command", () => {
-    const cmd = makeCmd("rsync -avz staged-A3/edits/src/providers/ $VPS_HOST:/opt/nox-mem/src/providers/");
+    const cmd = makeCmd("rsync -avz staged/A3/edits/src/providers/ $VPS_HOST:/opt/nox-mem/src/providers/");
     const r = validatePaths(cmd);
     // VPS_HOST is a known var
     const realIssues = r.issues.filter((i) => i.kind !== "worktree-path-leaked");
@@ -29,7 +29,7 @@ describe("T3d — path-validator", () => {
   });
 
   it("detects double slash in path", () => {
-    const cmd = makeCmd("rsync -avz staged-A3//edits/src/ $VPS_HOST:/opt/nox-mem/src/");
+    const cmd = makeCmd("rsync -avz staged/A3//edits/src/ $VPS_HOST:/opt/nox-mem/src/");
     const r = validatePaths(cmd);
     const hasDoubleSlash = r.issues.some((i) => i.kind === "double-slash");
     assert.ok(hasDoubleSlash, "Expected double-slash issue");
@@ -38,7 +38,7 @@ describe("T3d — path-validator", () => {
 
   it("flags worktree-leaked path", () => {
     const cmd = makeCmd(
-      "rsync -avz /Users/lab/.claude/worktrees/agent-abc123/staged-P5/edits/src/ $VPS_HOST:/opt/src/"
+      "rsync -avz /Users/lab/.claude/worktrees/agent-abc123/staged/P5/edits/src/ $VPS_HOST:/opt/src/"
     );
     const r = validatePaths(cmd);
     const hasWorktree = r.issues.some((i) => i.kind === "worktree-path-leaked");
@@ -53,7 +53,7 @@ describe("T3d — path-validator", () => {
   });
 
   it("flags unknown uppercase var", () => {
-    const cmd = makeCmd("rsync -avz staged-P1/ $UNKNOWN_HOST:/opt/nox-mem/");
+    const cmd = makeCmd("rsync -avz staged/P1/ $UNKNOWN_HOST:/opt/nox-mem/");
     const r = validatePaths(cmd);
     const unknownVars = r.issues.filter((i) => i.kind === "undefined-var");
     assert.ok(unknownVars.length > 0, "Expected undefined-var for UNKNOWN_HOST");

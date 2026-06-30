@@ -1,7 +1,7 @@
 # A2 Tier 3 — `reads_audit` Operator Guide
 
-> Status: staged in `staged-A2-T3/edits/` — P3 of the A2 Tier 3 sequence.
-> Lands LIVE on prod nox-mem when src/lib/reads-audit.ts + reads-audit-schema.sql + scripts/reads-audit-sweep.ts are promoted from `staged-A2-T3/edits/` to `src/`/`scripts/`.
+> Status: staged in `staged/A2-T3/edits/` — P3 of the A2 Tier 3 sequence.
+> Lands LIVE on prod nox-mem when src/lib/reads-audit.ts + reads-audit-schema.sql + scripts/reads-audit-sweep.ts are promoted from `staged/A2-T3/edits/` to `src/`/`scripts/`.
 >
 > Author: A2 Tier 3 P3 (2026-05-24).
 > Decisions cravadas: **D55** (default OFF, opt-in via `NOX_READS_AUDIT=1`) + **D58** (env-driven retention default 90d + archive policy). See `docs/DECISIONS.md` 2026-05-24 entry.
@@ -186,7 +186,7 @@ DETACH DATABASE archive;
 
 For programmatic access from JS:
 ```js
-import { getReadsAuditStats } from '../staged-A2-T3/edits/src/lib/reads-audit.js';
+import { getReadsAuditStats } from '../staged/A2-T3/edits/src/lib/reads-audit.js';
 const stats = getReadsAuditStats();
 // → { total_rows: BigInt, rows_24h: BigInt, oldest_ts: BigInt|null, newest_ts: BigInt|null }
 ```
@@ -211,7 +211,7 @@ sed -i '/reads-audit-sweep/d' /etc/cron.d/nox-mem-reads-audit-sweep
 
 ## 6. Integration: how to wrap a search call
 
-This is the snippet for the eventual prod migration (when `staged-A2-T3/edits/` gets promoted into `src/`):
+This is the snippet for the eventual prod migration (when `staged/A2-T3/edits/` gets promoted into `src/`):
 
 ```typescript
 // src/server/api-server.ts (or wherever the search HTTP handler lives)
@@ -274,7 +274,7 @@ unset NOX_READS_AUDIT
 | Limitation | Plan |
 |---|---|
 | `/api/health` doesn't expose readsAudit stats yet | P4 — same PR as audit checkpoints |
-| No call-site instrumentation in prod search/answer paths yet | P5 promotion of `staged-A2-T3/edits/` → `src/` |
+| No call-site instrumentation in prod search/answer paths yet | P5 promotion of `staged/A2-T3/edits/` → `src/` |
 | Sweep cron is operator-managed, not auto-installed by the package | By design (D58: env-driven, not opinionated about systemd/cron flavor) |
 | Archive DB has same cipher key as main | Intentional (D54); cross-key migration is out of A2 Tier 3 scope |
 | `audit_checkpoints` Merkle-light chain not wired in P3 | P4 (D56 — Ed25519 manual signing) |
@@ -286,7 +286,7 @@ unset NOX_READS_AUDIT
 
 - Recon spec: `specs/2026-05-24-A2-tier3-crypto-audit-RECON.md` §4.3 F1 + §10 D-A2T3-2/5
 - Decisions: `docs/DECISIONS.md` D54-D58 (2026-05-24)
-- Parent pattern: `staged-1.7a/edits/op-audit.ts` (the write-side `withOpAudit()` wrapper)
-- P1 PR #280 — SQLCipher key-open wire-up (`staged-A2-T3/edits/src/lib/db.ts`)
+- Parent pattern: `staged/1.7a/edits/op-audit.ts` (the write-side `withOpAudit()` wrapper)
+- P1 PR #280 — SQLCipher key-open wire-up (`staged/A2-T3/edits/src/lib/db.ts`)
 - P2 PR #286 — migration tool for encrypted ↔ plaintext
 - Memory: `[[a1-op-audit-module]]`, `[[no-getdb-in-eval-scripts]]`, `[[sqlite-text-affinity-coerces-int-back]]`

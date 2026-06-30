@@ -4,7 +4,7 @@
 >
 > **Scope:** UPSERT-based reindex + 4-layer defense (UPSERT / withOpAudit / dry-run / wipe-invariant) + canary test.
 >
-> **Artifacts:** `staged-reindex-emergency/edits/src/{reindex.ts,reindex-errors.ts,__tests__/reindex.no-wipe.test.ts}` (real prod files live at `/root/.openclaw/workspace/tools/nox-mem/src/`).
+> **Artifacts:** `staged/reindex-emergency/edits/src/{reindex.ts,reindex-errors.ts,__tests__/reindex.no-wipe.test.ts}` (real prod files live at `/root/.openclaw/workspace/tools/nox-mem/src/`).
 
 ---
 
@@ -306,10 +306,10 @@ crontab -e   # re-comment reindex line
 
 Per the emergency protocol: this PR ships:
 
-1. `staged-reindex-emergency/edits/src/reindex.ts` — fixed implementation
-2. `staged-reindex-emergency/edits/src/reindex-errors.ts` — error class (test-friendly)
-3. `staged-reindex-emergency/edits/src/__tests__/reindex.no-wipe.test.ts` — canary
-4. `staged-reindex-emergency/edits/src/db.ts` + `lib/{op-audit,ingest-router}.ts` — stubs for staged-dir build only (DO NOT deploy)
+1. `staged/reindex-emergency/edits/src/reindex.ts` — fixed implementation
+2. `staged/reindex-emergency/edits/src/reindex-errors.ts` — error class (test-friendly)
+3. `staged/reindex-emergency/edits/src/__tests__/reindex.no-wipe.test.ts` — canary
+4. `staged/reindex-emergency/edits/src/db.ts` + `lib/{op-audit,ingest-router}.ts` — stubs for staged-dir build only (DO NOT deploy)
 5. `docs/REINDEX-EMERGENCY-FIX-RUNBOOK.md` — this file
 6. `audits/2026-05-24-reindex-incident-analysis.md` — root cause writeup
 
