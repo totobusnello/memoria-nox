@@ -2,8 +2,8 @@
 # Note: markdownlint-cli2 requires /**  suffix for directory wildcards
 
 # Archive / legacy
-_archive-pre-split-20260501/
-_archive-pre-split-20260501/**
+archive/pre-split-20260501/
+archive/pre-split-20260501/**
 _archive-pre-split-*/
 _archive-pre-split-*/**
 archive/

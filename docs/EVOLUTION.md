@@ -2,7 +2,7 @@
 
 > Timeline completa das versões do nox-mem. CLAUDE.md só referencia a **versão atual** (v3.6d) — detalhe de versões anteriores mora aqui.
 >
-> ⚠️ **Versões v3.7+ contêm contexto OpenClaw plataforma** (routing, auth-profiles, plugins, RelayPlane, monkey-patch) porque o trabalho dessa janela foi entrelaçado. Detalhes de plataforma OpenClaw vivem agora em `~/Claude/Projetos/openclaw-vps/infra/`. Versão mestra pré-split em `_archive-pre-split-20260501/EVOLUTION.md.bak`.
+> ⚠️ **Versões v3.7+ contêm contexto OpenClaw plataforma** (routing, auth-profiles, plugins, RelayPlane, monkey-patch) porque o trabalho dessa janela foi entrelaçado. Detalhes de plataforma OpenClaw vivem agora em `~/Claude/Projetos/openclaw-vps/infra/`. Versão mestra pré-split em `archive/pre-split-20260501/EVOLUTION.md.bak`.
 
 ## v3.7b (Apr 24 18:20) — Routing rework + auth hardening + thinking=max
 

@@ -387,6 +387,22 @@ If you use nox-mem in your research or production:
 
 See [`CITATION.cff`](CITATION.cff) for the canonical citation file format.
 
+## Repository layout
+
+The repo is a research lab and a working product; the tree reflects both.
+
+| Path | What's in it |
+|---|---|
+| [`paper/`](paper/) | The paper (`paper-tecnico-nox-mem.md`), built PDF (`build/`), `refs.bib`, `CHANGELOG.md` |
+| [`eval/`](eval/) | Evaluation harnesses — EverMemBench, LongMemEval, LoCoMo, the Q4 cross-system comparison (`q4-comparison/`) |
+| [`benchmark/`](benchmark/) | Cross-system comparison harness + `latency-cost/` production-SOTA measurements |
+| [`staged/`](staged/) | Implementation patch sets cited by the paper as *"Implementation:"* pointers — see [`staged/README.md`](staged/README.md) |
+| [`clients/`](clients/) · [`sdk/`](sdk/) · [`integrations/`](integrations/) · [`examples/`](examples/) | Language clients, SDK, IDE/agent integrations, runnable examples (default `localhost:18802`) |
+| [`docs/`](docs/) · [`docs-site/`](docs-site/) | Architecture, decisions, handoff, incidents (the "pain diary"), runbooks; published docs site |
+| [`specs/`](specs/) · [`audits/`](audits/) · [`plans/`](plans/) | Pre-registered specs, post-change audits, planning history (open-research transparency) |
+| [`tests/`](tests/) · [`validation/`](validation/) | Test suites and deploy/validation reports |
+| `archive/` · `handoffs/` · `experiments/` · `lessons/` · `runbooks/` | Working/research artifacts kept for traceability |
+
 ## Documentation
 
 | Topic | File |

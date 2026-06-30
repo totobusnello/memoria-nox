@@ -4,7 +4,7 @@
 > **Maintainer:** Toto (bus factor = 1)
 > **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings
 >
-> ⚠️ **Runbooks de plataforma OpenClaw** (gateway down, monkey-patch invalidado, OpenClaw upgrade quebrou, claude-cli auth flap, disk space, graph-memory probe, heartbeat queue) migraram pra `~/Claude/Projetos/openclaw-vps/infra/runbooks/`. Versão mestra pré-split em `_archive-pre-split-20260501/RUNBOOKS.md.bak`.
+> ⚠️ **Runbooks de plataforma OpenClaw** (gateway down, monkey-patch invalidado, OpenClaw upgrade quebrou, claude-cli auth flap, disk space, graph-memory probe, heartbeat queue) migraram pra `~/Claude/Projetos/openclaw-vps/infra/runbooks/`. Versão mestra pré-split em `archive/pre-split-20260501/RUNBOOKS.md.bak`.
 
 ## Índice rápido por sintoma (memoria-only)
 

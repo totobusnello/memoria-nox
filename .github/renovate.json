@@ -133,7 +133,7 @@
     "**/node_modules/**",
     "**/.cache/**",
     "**/dist/**",
-    "_archive-pre-split-20260501/**",
+    "archive/pre-split-20260501/**",
     "archive/**"
   ],
 
