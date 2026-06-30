@@ -28,11 +28,18 @@ Paper completo e auto-suficiente, zero `[PENDING]`:
 
 **Executado local no Mac (sem pod), all-Gemini @ 3072d, full n=2,482 (1.982 LoCoMo + 500 LongMemEval).** Uma única run entregou **rc4** (all-Gemini) **e rc2** (per-category) — o aggregate do full set categorizado produz per-dataset e per-category juntos.
 
-- **§6.3.2 nova — controlled-embedding:** ambos os sistemas em `gemini-embedding-001` @ **3072d** (não 768d — preflight refutou a premissa do plano original, commit `a6e7e4d`; medido nox=3072 / mem0=3072 com a key real). **nox-mem lidera os dois**: LongMemEval 0.5255 vs 0.4061 (+0.119); **LoCoMo 0.4952 vs 0.4407 (+0.055) — inverte** o split as-configured do §6.3. Overall 0.5013 vs 0.4337.
-- **§6.4 per-category preenchido** (era 100% `[deferred]`): nox-mem lidera as 5 categorias representadas; maiores margens em **adversarial** (+0.142) e **temporal** (+0.118), menor em single-hop (+0.006); `numeric` = n/a (n<10). Consistente com a tese §5 (vantagem vem da fusão multi-sinal, não só do embedding).
-- **Confounds residuais declarados** (§6.3.2, per §6.6): (a) mem0 mudou de 0.1.x→2.0.10 entre a canonical e o rc4 (exigiu fix de compat na API `search`/`get_all`) → 0.4337 ≠ o mem0 0.4686 do §6.3; (b) task_type assimétrico a favor do nox (nox usa `RETRIEVAL_*`, mem0 não). rc4 ≠ isolamento de arquitetura puro.
+- **§6.3.2 nova — controlled-embedding:** ambos os sistemas em `gemini-embedding-001` @ **3072d** (não 768d — preflight refutou a premissa do plano original, commit `a6e7e4d`; medido nox=3072 / mem0=3072 com a key real). **nox-mem supera o mem0 nos dois**: LongMemEval 0.5255 vs 0.4061 (+0.119); **LoCoMo 0.4952 vs 0.4407 (+0.055) — inverte** o split as-configured do §6.3. Overall 0.5013 vs 0.4337.
+- **§6.4 per-category preenchido** (era 100% `[deferred]`): nox-mem supera o mem0 nas 5 categorias representadas; maiores margens em **adversarial** (+0.142) e **temporal** (+0.118), menor em single-hop (+0.006); `numeric` = n/a (n<10). Consistente com a tese §5 (vantagem vem da fusão multi-sinal, não só do embedding).
+- **Confounds residuais declarados** (§6.3.2, per §6.6): (a) mem0 mudou de 0.1.x→2.0.10 entre a canonical e o rc4 (exigiu fix de compat na API `search`/`get_all`) → 0.4337 ≠ o mem0 0.4686 do §6.3; (b) vector backend faiss→Chroma; (c) sample scope n=100→2.482. rc4 ≠ isolamento de arquitetura puro.
 - **Abstract `[Q4 NUMBERS]` preenchidos** (split as-configured + controlled) em `abstract.md` e `arxiv-submission-ready.md`.
-- **Tese atualizada (não substituída):** §6.3 mantém o split honesto as-configured; §6.3.2 mostra que sob embedding controlado a vantagem do nox é robusta (lidera ambos). As duas leituras coexistem — mais defensável que apagar o split.
+- **Tese atualizada (não substituída):** §6.3 mantém o split honesto as-configured; §6.3.2 mostra que sob embedding controlado a vantagem do nox é robusta (supera o mem0 nos dois). As duas leituras coexistem — mais defensável que apagar o split.
+
+### v1.0.0-rc4 — ablação task-type (2026-06-30, confound (d) neutralizado)
+
+- **Ablação do confound (d) (task-type asymmetry).** O único viés que *favorecia* o nox no rc4 era o task-type do embedding (nox passa `RETRIEVAL_DOCUMENT`/`RETRIEVAL_QUERY`, mem0 não). Re-rodei o nox com **embedding genérico** (`NOX_EMBED_GENERIC_TASKTYPE=1` — sem task-type, exatamente como o mem0 chama o mesmo modelo) contra o **mesmo** baseline mem0, full n=2.482 — comparação simétrica "nenhum dos dois usa task-type", mantendo (a)–(c) constantes.
+- **Resultado:** o nox cai só **0.5013 → 0.4979 overall (−0.34 pp)** e **ainda supera o mem0 (0.4337)** em overall, ambos datasets (LoCoMo 0.4920 vs 0.4407; LME 0.5215 vs 0.4061) e **todas as 5 categorias**. O task-type contribui ≤0.34 pp → **não explica a inversão**. A vitória é arquitetural (hybrid FTS5 + dense + RRF), não artefato de modo de embedding.
+- **Caveat de rigor declarado:** o corpus genérico re-ingerido teve **99.03% gold coverage** (23 de 2.370 gold chunks distintos ausentes vs 100% no run task-type — variância transitória de ingest), handicap que **só prejudica o nox** — a vitória persiste apesar dele. Raws: `eval/q4-comparison/output/rc4-ablation/`.
+- Paper atualizado: §6.3.2 (confounds 4→3 + parágrafo de ablação), §6.4, §6.7, §7.1, status box, abstract (`abstract.md` + `arxiv-submission-ready.md`), `docs/COMPARISON.md`.
 - **Infra — 4 bloqueadores de execução corrigidos:** `_self_check` 768→3072 (import quebrado), `google-genai` faltante (mem0 embedder), `runner_rc4.py` criado, mem0 2.0.10 `search`/`get_all` API. Smoke validado (dims 3072=3072, gold-match 100% nos dois datasets, billing path exercitado). Raws: `eval/q4-comparison/output/rc4/_aggregate.{json,md}`.
 
 ---
@@ -41,9 +48,9 @@ Paper completo e auto-suficiente, zero `[PENDING]`:
 
 | rc | Incremento | O que agrega ao paper | ETA | Custo |
 |---|---|---|---|---|
-| ~~**rc2**~~ ✅ **DONE (2026-06-29)** | §6.4 per-category breakdown | ✅ preenchido pela run rc4 (full set categorizado → aggregate per-category). nox lidera as 5 categorias. | — | feito junto do rc4 |
+| ~~**rc2**~~ ✅ **DONE (2026-06-29)** | §6.4 per-category breakdown | ✅ preenchido pela run rc4 (full set categorizado → aggregate per-category). nox supera o mem0 nas 5 categorias. | — | feito junto do rc4 |
 | **~~rc3~~ ❌ DROPPED** | ~~Claude backbone~~ | **Cortado 2026-06-28** (Toto: não pagar Anthropic; Max OAuth = policy violation, bloqueado — ev `RESULTS-BACKBONE-MATRIX.md:154-157`). Paper já tem 2 backbones (gpt-4.1-mini + Gemini-3-flash) → tese backbone-agnostic sustentada. Config `pipeline-backbone-claude.yaml` fica pronta caso reative com modelo **grátis** (OpenRouter free / local). | — | $0 (não roda) |
-| ~~**rc4**~~ ✅ **DONE (2026-06-29)** | all-Gemini fair variant | ✅ ambos @ Gemini 3072d, full n=2.482. **Inverteu o split: nox lidera ambos** (LME +0.119, LoCoMo +0.055). §6.3.2. Confounds residuais (versão mem0, task_type) declarados. | — | ~$2 Gemini prepaid |
+| ~~**rc4**~~ ✅ **DONE (2026-06-29/30)** | all-Gemini fair variant | ✅ ambos @ Gemini 3072d, full n=2.482. **Inverteu o split: nox supera o mem0 nos dois** (LME +0.119, LoCoMo +0.055). §6.3.2. 3 confounds residuais declarados; task-type **ablacionado e neutralizado** (06-30: nox genérico ainda ganha, −0.34 pp). | — | ~$2 Gemini prepaid |
 | **v1.0.0** ← **próximo** | sweep claims + polish + submit | audita abstract-claims vs conteúdo, rebuild `.pdf`/`.docx`, submit arXiv | ½ dia | — |
 
 > Recheck antes de rc2/rc4: confirmar se os resultados raw da canonical run 06-15 sobreviveram (pod dedicado já terminado) — se não, re-rodar n=100×2×3 do zero.

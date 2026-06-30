@@ -353,22 +353,23 @@ def _get_genai():
     return genai
 
 
+def _generic_tasktype() -> bool:
+    """Ablation flag (§6.3.2 confound (d)): when set, omit Gemini's retrieval
+    task_type so nox-mem embeds like a system that does not set it (e.g. mem0).
+    Default (unset) preserves production behavior (RETRIEVAL_DOCUMENT/QUERY)."""
+    return os.environ.get("NOX_EMBED_GENERIC_TASKTYPE", "").lower() in ("1", "true", "yes")
+
+
 def _embed_text(genai, text: str) -> list[float]:
     """Embed a single text with Gemini embedding-001."""
-    result = genai.embed_content(
-        model=_GEMINI_EMBED_MODEL,
-        content=text,
-        task_type="RETRIEVAL_DOCUMENT",
-    )
+    kwargs = {} if _generic_tasktype() else {"task_type": "RETRIEVAL_DOCUMENT"}
+    result = genai.embed_content(model=_GEMINI_EMBED_MODEL, content=text, **kwargs)
     return result["embedding"]
 
 
 def _embed_query(genai, text: str) -> list[float]:
-    result = genai.embed_content(
-        model=_GEMINI_EMBED_MODEL,
-        content=text,
-        task_type="RETRIEVAL_QUERY",
-    )
+    kwargs = {} if _generic_tasktype() else {"task_type": "RETRIEVAL_QUERY"}
+    result = genai.embed_content(model=_GEMINI_EMBED_MODEL, content=text, **kwargs)
     return result["embedding"]
 
 
