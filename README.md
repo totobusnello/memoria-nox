@@ -5,7 +5,7 @@
   </picture>
 </p>
 
-<h1 align="center">Pain-weighted hybrid memory with shadow discipline &mdash; yours by design.</h1>
+<h1 align="center">Pain-weighted hybrid memory for LLM agents &mdash; self-hosted, yours by design.</h1>
 
 <p align="center"><em>The only agent memory that&rsquo;s genuinely yours. SQLite on your disk, provider your choice, zero vendor lock-in.</em></p>
 
@@ -26,10 +26,7 @@
 </p>
 
 <p align="center">
-  <!-- PENDENTE Sat 2026-05-30: Insert asciinema CLI demo GIF + F10 dashboard GIF -->
-  <!-- See docs/launch-demo-plan.md for capture flow -->
-  <!-- Replace src below with real GIF path once recorded -->
-  <img alt="nox-mem CLI + observability dashboards demo" src="docs/assets/demo-placeholder.png">
+  <img alt="nox-mem CLI demo" src="assets/readme/demo.gif" width="720">
 </p>
 
 <p align="center">
