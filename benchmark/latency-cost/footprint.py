@@ -14,13 +14,13 @@ Environment:
 
 Usage:
     # On VPS (measures local proc):
-    python benchmarks/latency-cost/footprint.py
+    python benchmark/latency-cost/footprint.py
 
     # From local machine (remote mode disabled, uses cached measurements):
-    python benchmarks/latency-cost/footprint.py --cached
+    python benchmark/latency-cost/footprint.py --cached
 
 Output:
-    JSON to benchmarks/latency-cost/results/footprint.json
+    JSON to benchmark/latency-cost/results/footprint.json
 """
 
 import argparse
@@ -225,7 +225,7 @@ def measure_peak_rss_under_load(api_url: str, concurrency: int = 10) -> dict:
 def main():
     parser = argparse.ArgumentParser(description="nox-mem footprint measurement")
     parser.add_argument("--api-url", default=DEFAULT_API_URL)
-    parser.add_argument("--output", default="benchmarks/latency-cost/results/footprint.json")
+    parser.add_argument("--output", default="benchmark/latency-cost/results/footprint.json")
     parser.add_argument("--cached", action="store_true",
                         help="Use pre-measured values (for local/offline analysis)")
     args = parser.parse_args()

@@ -14,14 +14,14 @@ Configs measured:
   6. kg_plus_hybrid    — KG walk + hybrid search (sequential)
 
 Usage:
-    python benchmarks/latency-cost/latency.py [--api-url URL] [--n N] [--output FILE]
+    python benchmark/latency-cost/latency.py [--api-url URL] [--n N] [--output FILE]
 
 Environment:
     NOX_API_URL — defaults to http://127.0.0.1:18802 (production port)
     NOX_BENCH_N — number of measured iterations (default: 100)
 
 Output:
-    JSON to --output path (default: benchmarks/latency-cost/results/latency_raw.json)
+    JSON to --output path (default: benchmark/latency-cost/results/latency_raw.json)
 """
 
 import argparse
@@ -290,7 +290,7 @@ def main():
     parser.add_argument("--api-url", default=DEFAULT_API_URL)
     parser.add_argument("--n", type=int, default=DEFAULT_N, help="measured iterations per config")
     parser.add_argument("--warmup", type=int, default=DEFAULT_WARMUP)
-    parser.add_argument("--output", default="benchmarks/latency-cost/results/latency_raw.json")
+    parser.add_argument("--output", default="benchmark/latency-cost/results/latency_raw.json")
     parser.add_argument("--skip-preflight", action="store_true")
     args = parser.parse_args()
 

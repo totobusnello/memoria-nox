@@ -21,7 +21,7 @@ Cost model:
       - gemini-2.5-flash-lite: $0.000083/query (~500 in + 150 out tokens)
 
 Usage:
-    python benchmarks/latency-cost/cost.py [--output FILE]
+    python benchmark/latency-cost/cost.py [--output FILE]
 """
 
 import argparse
@@ -361,7 +361,7 @@ def build_scale_projections(nox_retrieval_per_query: float, nox_answer_per_query
 
 def main():
     parser = argparse.ArgumentParser(description="nox-mem cost calculator")
-    parser.add_argument("--output", default="benchmarks/latency-cost/results/cost_analysis.json")
+    parser.add_argument("--output", default="benchmark/latency-cost/results/cost_analysis.json")
     args = parser.parse_args()
 
     nox_costs = build_nox_mem_costs()

@@ -1,0 +1,20 @@
+# Normalize line endings
+* text=auto eol=lf
+
+# Binary assets (no diff/merge, exclude from linguist language stats)
+*.pdf    binary
+*.docx   binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.pickle binary
+*.db     binary
+
+# Generated / data artifacts — keep out of language stats
+paper/build/**       linguist-generated
+assets/**            linguist-documentation
+eval/**/cache/**     linguist-generated
+*.ipynb              linguist-documentation

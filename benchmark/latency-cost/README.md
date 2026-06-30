@@ -1,4 +1,4 @@
-# benchmarks/latency-cost — Production SOTA Benchmark
+# benchmark/latency-cost — Production SOTA Benchmark
 
 Measures nox-mem production characteristics (latency, cost, RAM, throughput)
 and compares against published Zep / Mem0 / MemOS / LangMem / Letta numbers.
@@ -25,29 +25,29 @@ and compares against published Zep / Mem0 / MemOS / LangMem / Letta numbers.
 set -a; source /root/.openclaw/.env; set +a
 
 # Latency benchmark (requires nox-mem API running on :18802)
-python benchmarks/latency-cost/latency.py \
+python benchmark/latency-cost/latency.py \
   --api-url http://127.0.0.1:18802 \
   --n 100 \
-  --output benchmarks/latency-cost/results/latency_raw.json
+  --output benchmark/latency-cost/results/latency_raw.json
 
 # Cost analysis (static calculation, no API required)
-python benchmarks/latency-cost/cost.py \
-  --output benchmarks/latency-cost/results/cost_analysis.json
+python benchmark/latency-cost/cost.py \
+  --output benchmark/latency-cost/results/cost_analysis.json
 
 # Footprint (requires /proc access for RSS measurement)
-python benchmarks/latency-cost/footprint.py \
+python benchmark/latency-cost/footprint.py \
   --api-url http://127.0.0.1:18802 \
-  --output benchmarks/latency-cost/results/footprint.json
+  --output benchmark/latency-cost/results/footprint.json
 ```
 
 ### From local machine (cached measurements)
 
 ```bash
 # Uses pre-measured values from 2026-05-29 VPS run
-python benchmarks/latency-cost/footprint.py --cached
+python benchmark/latency-cost/footprint.py --cached
 
 # Cost analysis runs anywhere
-python benchmarks/latency-cost/cost.py
+python benchmark/latency-cost/cost.py
 ```
 
 ## Key Numbers (2026-05-29, production 69k-chunk corpus)

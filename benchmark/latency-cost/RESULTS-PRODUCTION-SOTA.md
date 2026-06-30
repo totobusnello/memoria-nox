@@ -205,22 +205,22 @@ Throughput scales with quota tier. For high-traffic workloads, options:
 # Prerequisites: VPS access + nox-mem running on :18802
 
 # Run latency benchmark
-python benchmarks/latency-cost/latency.py \
+python benchmark/latency-cost/latency.py \
   --api-url http://127.0.0.1:18802 \
   --n 100 --warmup 10 \
-  --output benchmarks/latency-cost/results/latency_raw.json
+  --output benchmark/latency-cost/results/latency_raw.json
 
 # Run cost analysis
-python benchmarks/latency-cost/cost.py \
-  --output benchmarks/latency-cost/results/cost_analysis.json
+python benchmark/latency-cost/cost.py \
+  --output benchmark/latency-cost/results/cost_analysis.json
 
 # Run footprint measurement (on VPS with /proc access)
-python benchmarks/latency-cost/footprint.py \
+python benchmark/latency-cost/footprint.py \
   --api-url http://127.0.0.1:18802 \
-  --output benchmarks/latency-cost/results/footprint.json
+  --output benchmark/latency-cost/results/footprint.json
 
 # Use cached measurements (from local machine)
-python benchmarks/latency-cost/footprint.py --cached
+python benchmark/latency-cost/footprint.py --cached
 ```
 
 ---
