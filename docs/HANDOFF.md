@@ -6,7 +6,7 @@
 
 ## 🟢 Estado atual (2026-06-30)
 
-**Paper arXiv-ready no núcleo.** Zero `[PENDING]` no paper inteiro. **rc4 + rc2 fechados + ablação task-type fechada.**
+**Paper `v1.0.0` frozen + repo PÚBLICO e polido. arXiv submetido até o gate de endorsement.** (Detalhe técnico do paper preservado nos bullets abaixo.)
 
 - **§5 — 12 dimensões SOTA** (EverMemBench 5-batch, MuSiQue, HotPotQA, LoCoMo, LongMemEval cross-bench, produção). Sustenta o paper sozinha.
 - **§6 — Q4 head-to-head FEITO + controlled-embedding (rc4) FEITO.** §6.3 (canonical n=100, 06-15): split honesto as-configured — nox ganha LME (0.5234 vs 0.4764), Mem0 ganha LoCoMo (0.4686 vs 0.4263). **§6.3.2 nova (rc4, 06-29, ambos Gemini 3072d, full n=2.482): o split inverte — nox supera o mem0 em AMBOS** (LME 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407; overall 0.5013 vs 0.4337) **e as 5 categorias** (§6.4 preenchido = rc2 done). 3 confounds residuais declarados (mem0 0.1.x→2.0.10; backend faiss→Chroma; sample scope). **Task-type ablacionado (06-30):** nox com embedding genérico (sem task-type, igual ao mem0) cai só −0.34 pp (0.4979) e ainda ganha em tudo → confound (d) neutralizado, vitória é arquitetural. Zep/Letta/EverMind = 3 gaps documentados.
@@ -15,21 +15,22 @@
 - **prod v3.8** — 94.9k chunks, ~99.99% vector coverage, salience `active`.
 - **Eval harness** — schema-bootstrap fix (nox-ws PR #24) + pacote de observabilidade nos adapters (varredura GLM+Kimi + recheck, `b2ae144`).
 
-**Paper em `v1.0.0-rc4`** (changelog: `paper/CHANGELOG.md`). rc2 (per-category) + rc4 (all-Gemini) fechados 06-29 numa run; rc3 (Claude backbone) dropado (sem $0 possível — Max OAuth é policy violation). **Resta só `v1.0.0`: sweep final de claims + polish + submit arXiv.** Sem bloqueador.
+**Paper `v1.0.0`** (header bumped, changelog `paper/CHANGELOG.md`, `paper/build/*.pdf` 389KB / 0 glyph warnings). **Repo PÚBLICO** `github.com/totobusnello/memoria-nox`: scrub de infra (IPs/Tailscale) + reorg `staged-*/`→`staged/`, About+topics (honest framing), README (H1 de-jargonizado + demo.gif real), **release `v1.0.0`** com PDF anexado, **social preview** live (card honesto nox vs Mem0, og:image custom 2560×1280, byte-idêntico), **gitleaks full-history 0 leaks** (config `staged[-/]`). **arXiv `submit/7771319`** configurada (cs.IR primary + cs.LG/cs.AI cross, CC BY 4.0, Submittal Agreement aceito) — **bloqueada SÓ no endorsement gate**, aguardando 1 endorser. Submission id + código + contatos dos endorsers + passos do submit em **`paper/arxiv-metadata.txt` (local, não-commitado)**. Endorsers BR contatados: Nogueira (UNICAMP/Maritaca), Eduardo (`eduseiti@dca.fee.unicamp.br`), Rodrygo Santos (`rodrygo@dcc.ufmg.br`).
 
 ---
 
-## 🎯 Próximos passos — só falta v1.0.0 (sweep + submit)
+## 🎯 Próximos passos — RETOMAR AQUI
 
-rc2/rc3/rc4 resolvidos. **Resta o sweep final pra publicar:**
+**Gate único: um endorser aprovar o endorsement** (link/código em `paper/arxiv-metadata.txt`, local). Assim que aprovar:
 
-1. **Sweep de claims → v1.0.0 → arXiv.** Auditar abstract-claims vs conteúdo (agora que o §6.3.2 + §6.4 entraram), checar consistência de números entre §5/§6/abstract, rebuild `.pdf`/`.docx` via `scripts/build-paper.sh`, bump header `**Paper version:**` → v1.0.0, submit. **~½ dia.**
-   - ⚠️ Revisar no sweep: o §6.3.2 introduz a tese "nox supera o mem0 sob embedding controlado" — garantir que abstract/intro/conclusão estejam coerentes com as DUAS leituras (split as-configured + controlled), sem over-claim. Os 3 confounds residuais (versão mem0, backend, sample scope) precisam aparecer onde o resultado for citado; o task-type já foi ablacionado e neutralizado (06-30).
-   - Contagem do abstract refeita pós-ablação: **296 palavras** (`abstract.md` §2, limite 300). OK.
+1. **Retomar `submit/7771319`** (arxiv.org, logado): upload do PDF `paper/build/paper-tecnico-nox-mem.pdf` → colar metadados de `paper/arxiv-metadata.txt` (title · abstract 1805c ASCII ≤1920 · comments · cs.IR primary + cs.LG/cs.AI cross · CC BY 4.0) → **submit final (clique do Toto)**.
+   - Fallback se o arXiv recusar PDF-only (TeX-generated): `scripts/build-paper.sh --tex-only` → subir `.tex` + `refs.bib`.
+2. **Pós-arXiv ID:** `CITATION.cff` (trocar "submission pending" pelo ID real) + badge arXiv no `README.md`.
+3. **GTM:** disparar emails/LinkedIn de lançamento; drafts de post de lançamento pendentes (#5).
 
-**Decisão de framing (Toto, 06-29):** somar o rc4 sem apagar o split honesto — §6.3 (as-configured) + §6.3.2 (controlled) coexistem. Mais robusto que substituir a tese. Ablação task-type (06-30) blinda o §6.3.2 contra a objeção "a vantagem é só do task-type bonus".
+**Decisão de framing (Toto, 06-29):** §6.3 (as-configured) + §6.3.2 (controlled) coexistem; ablação task-type (06-30) blinda o §6.3.2. **Sweep de claims v1.0.0 já feito** (abstract↔§5/§6 coerentes, confounds citados onde o resultado aparece).
 
-**Paralela (não-paper):** GTM Phase 2 — gate D43 já satisfeito; comercial, migra pra `nox-supermem`. Não bloqueia nem incrementa o paper.
+**Paralela (não-paper):** GTM Phase 2 — gate D43 satisfeito; comercial migra pra `nox-supermem`. Não bloqueia o paper.
 
 ---
 
@@ -61,7 +62,18 @@ Dual SOTA em multi-hop QA clássico **sem fine-tuning**. LongMemEval cross-bench
 
 ---
 
-## 🗓️ Histórico recente (verbatim, 06-28 → 06-24)
+## 🗓️ Histórico recente (verbatim, 06-30 → 06-24)
+
+## Tue 2026-06-30 — paper v1.0.0 frozen, repo público polido, arXiv submetido até o endorsement gate
+
+> Do paper-pronto ao repo-público-pronto-pra-tráfego, numa sessão.
+>
+> **Paper:** bump `v1.0.0` (PRs #447–448) + cite Quati (§F7); abstract/conclusão reescritos carregando as DUAS leituras sem mascarar a vitória do Mem0 em LoCoMo as-configured (#446); ablação task-type integrada §6.3.2 (#444).
+> **Repo público:** scrub infra + reorg `staged-*/`→`staged/` (PR #449); README/CITATION→v1.0.0 (#445); **release `v1.0.0`** + PDF (`gh release`); About+topics honest framing; README H1 de-jargonizado + demo.gif real (`491ba58`); social card 1280×640 honesto (Chrome headless) + banner de-jargonizado (light+dark) + gitleaks `staged[-/]` full-history **0 leaks** (`01a1fbc`). Social preview confirmado live (og:image custom 2560×1280, byte-idêntico ao gerado).
+> **arXiv:** `submit/7771319` configurada (cs.IR + cs.LG/cs.AI, CC BY 4.0, agreement aceito); `paper/arxiv-metadata.txt` (local) = title + abstract 1805c ASCII (≤1920; o longo de 2240 estourava) + comments + cats + submit id + código de endorsement + endorsers + passos do submit. Endorsement code corrente vive **no arquivo local** (supersedeu o anterior). Endorsers BR contatados: Nogueira (UNICAMP/Maritaca), Eduardo, Rodrygo Santos.
+> **gitleaks recheck (lição):** scan default achou 6 — TODOS false positives (fixtures do redator P7: chave `…EXAMPLEKEY…`, JWT demo do jwt.io, label "AWS/GCP/Anthropic/"). A config tinha `staged/P7…` mas o full-history vê o path antigo `staged-P7…` (pré-rename) → fix `staged[-/]` casa ambos, validado 0. Codex pegou o teto de 1920c do abstract; Kimi achou o demo placeholder 404 + sugeriu About/topics.
+>
+> **Próxima ação:** endorser aprova o endorsement → retoma submit (upload PDF + cola metadata + submit final do Toto). Código/link/passos em `paper/arxiv-metadata.txt` (local).
 
 ## Sun 2026-06-28 — sessão: HyDE fechado + PR #24 + varredura GLM/Kimi + HANDOFF sanitizado + plano de evolução do paper
 
