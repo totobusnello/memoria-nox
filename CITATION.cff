@@ -19,8 +19,8 @@ type: software
 repository-code: "https://github.com/totobusnello/memoria-nox"
 url: "https://github.com/totobusnello/memoria-nox"
 license: MIT
-date-released: "2026-05-24"  # v1.0.0-rc1 tag date (actual, not planned launch)
-version: "1.0.0-rc1"
+date-released: "2026-06-30"  # v1.0.0-rc4 paper state (rc4 controlled-embedding + task-type ablation)
+version: "1.0.0-rc4"
 keywords:
   - memory
   - hybrid retrieval
@@ -40,5 +40,5 @@ preferred-citation:
   year: 2026
   identifiers:
     - type: other
-      value: "arXiv:[PENDENTE 2026-06-02]"
-      description: "arXiv preprint — update after submission"
+      value: "arXiv: cs.IR (submission pending)"
+      description: "arXiv preprint — update with the real arXiv ID after submission"

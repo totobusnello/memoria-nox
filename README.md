@@ -20,9 +20,9 @@
   <a href="https://github.com/totobusnello/memoria-nox/stargazers"><img src="https://img.shields.io/github/stars/totobusnello/memoria-nox?style=for-the-badge&color=00C896" alt="Stars"></a>
   <a href="https://github.com/totobusnello/memoria-nox/actions/workflows/lint-and-typecheck.yml"><img src="https://img.shields.io/github/actions/workflow/status/totobusnello/memoria-nox/lint-and-typecheck.yml?style=for-the-badge&color=00C896&label=ci" alt="CI"></a>
   <a href="https://www.bestpractices.dev/projects/12896"><img src="https://img.shields.io/cii/level/12896?style=for-the-badge&color=00C896&label=OpenSSF" alt="OpenSSF Best Practices: passing"></a>
-  <a href="paper/publication/latex/paper.pdf"><img src="https://img.shields.io/badge/paper-v1.1-00C896?style=for-the-badge" alt="Paper v1.1"></a>
-  <a href="[PENDENTE Tue 06-02 arXiv URL]"><img src="https://img.shields.io/badge/arXiv-PENDENTE-b31b1b?style=for-the-badge" alt="arXiv preprint"></a>
-  <img src="https://img.shields.io/badge/version-1.0.0--rc1-00C896?style=for-the-badge" alt="version 1.0.0-rc1">
+  <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.0--rc4-00C896?style=for-the-badge" alt="Paper v1.0.0-rc4"></a>
+  <img src="https://img.shields.io/badge/arXiv-pending%20(cs.IR)-b31b1b?style=for-the-badge" alt="arXiv preprint cs.IR, submission pending">
+  <img src="https://img.shields.io/badge/version-1.0.0--rc4-00C896?style=for-the-badge" alt="version 1.0.0-rc4">
 </p>
 
 <p align="center">
@@ -151,7 +151,7 @@ Most agent memory systems force a trade you should not have to make: send your d
 
 The moat is not just portability. It is **shadow discipline**: every ranking change ships in shadow mode for at least seven days, with salience scores exposed on `/api/health` for offline comparison, before it is ever allowed to influence a real query. The pain field on each chunk (`severity 0.1 trivial → 1.0 prod-outage`) ensures that incidents stay retrievable when their lessons matter, not when their dates are fresh. The retrieval logic is small enough to read in one sitting, and every score in the eval harness is auditable from the SQL up.
 
-memoria-nox is a research lab and a working product. The paper *The Pain Diary and Shadow Discipline* (v1.1, 31 pages, arXiv cs.IR target) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **68,995 chunks** and **15,646 entities / 21,533 relations** with a monthly OPEX under **$11**.
+memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* (v1.0.0-rc4, arXiv cs.IR target) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **94.9k chunks** and **~15.6k entities / ~21.5k relations** with a monthly OPEX under **$11**.
 
 ## Architecture
 
@@ -254,11 +254,11 @@ Verified against the live corpus. Wave A (18 PRs merged 2026-05-20) completed th
 
 | Metric | Value | Source |
 |---|---|---|
-| Chunks in production | **68,995** (100% embedded, Gemini 3072d) | live corpus snapshot 2026-05-21 |
-| KG | **15,646 entities / 21,533 relations** | live corpus snapshot 2026-05-17 |
+| Chunks in production | **94.9k** (~99.99% embedded, Gemini 3072d) | live corpus snapshot 2026-06-04 |
+| KG | **~15.6k entities / ~21.5k relations** | live corpus snapshot 2026-06-04 |
 | Internal golden nDCG@10 (n=78, honest set) | **0.6813** &mdash; +9.8pp / +16.9% over paper baseline 0.5831 | run 85, post-cure golden, R01c-v1.1 |
-| vs BM25 Pyserini (Anserini-tuned, n=60) | **4.0&times; better** (BM25 = 0.1475) | paper v1.1 baseline |
-| vs multilingual-e5-base (n=60) | **1.9&times; better** (e5 = 0.3070) | paper v1.1 baseline |
+| vs BM25 Pyserini (Anserini-tuned, n=60) | **4.0&times; better** (BM25 = 0.1475) | paper §5 baseline |
+| vs multilingual-e5-base (n=60) | **1.9&times; better** (e5 = 0.3070) | paper §5 baseline |
 | Answer primitive p95 latency | **101.74ms** total (42&times; under 4.3s budget; mock LLM @ 100ms) | P1 benchmark, PR&nbsp;#40 |
 | Provider abstraction overhead | **0.0025ms** absolute per LLM call (target &lt;0.5ms) | A3 benchmark, PR&nbsp;#39 |
 | L4 regex-first typed-link extraction | **95.8% precision/recall**, **80% Gemini calls eliminated** | synthetic corpus n=20, PR&nbsp;#38 |
@@ -307,6 +307,21 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 >
 > **The 3 systems that did not run are a deployability penalty, not an omission.** **Zep** needs a privileged Docker host (won't start unprivileged); **Letta** routes retrieval through an LLM agent turn at ~16 min/query; **EverMind-AI** needs 5 services + 2 paid third-party keys. On the axis that decides whether the system runs at all &mdash; deployability / efficiency / autonomy &mdash; three of five competitors could not produce a single result, while nox-mem produced one from one file. Bounded honestly: this is not a retrieval-quality claim about them (we hold no numbers for them), it is the operational asymmetry the paper §6.9 quantifies.
 
+### Q4 controlled-embedding variant (rc4, 2026-06-29 — both systems on Gemini 3072d, full n=2,482)
+
+*The split above is under each system's **native** embedder (nox Gemini 3072d, mem0 OpenAI 1536d). The most obvious confound on that split is the embedding provider itself. Equalizing it — both on `gemini-embedding-001` @ 3072d, over the full evaluation set (1,982 LoCoMo + 500 LongMemEval) — **inverts the split**. Detail: [`paper §6.3.2`](paper/paper-tecnico-nox-mem.md) · [`docs/COMPARISON.md`](docs/COMPARISON.md).*
+
+| System (all-Gemini 3072d, n=2,482) | LongMemEval nDCG@10 | LoCoMo nDCG@10 | Overall |
+|---|---:|---:|---:|
+| **nox-mem (hybrid)** | **0.5255** | **0.4952** | **0.5013** |
+| mem0 (Gemini embedder, Chroma) | 0.4061 | 0.4407 | 0.4337 |
+
+> **With the embedder matched, nox-mem outperforms mem0 on both datasets** (LongMemEval +0.119, LoCoMo +0.055; 95% CIs disjoint) **and all 5 represented query categories** — the mem0 LoCoMo win in the as-configured run was substantially an OpenAI-embedder effect, not a retrieval-architecture advantage. Three residual confounds are declared (mem0 0.1.x→2.0.10 version drift, faiss→Chroma backend, n=100→2,482 sample scope): this is an embedding-**matched** comparison, not a pure architecture isolation.
+>
+> **Task-type ablation (2026-06-30) — the one asymmetry that favored nox is ruled out.** nox passes Gemini's `RETRIEVAL_*` task types; mem0 does not. Re-running nox with a **generic** embedding (no task type, exactly how mem0 calls the model) drops it only **0.5013 → 0.4979 overall (−0.34 pp)** and it **still wins overall, both datasets** (LoCoMo 0.4920 vs 0.4407; LME 0.5215 vs 0.4061) **and all 5 categories**. The win is architectural (hybrid FTS5 + dense + RRF), not an embedding-mode artifact. (Rigor caveat: the re-ingested generic corpus reached 99.03% gold coverage — a handicap that only lowers nox; the win persists.)
+>
+> **Both readings stand side by side, by design** — the as-configured split (above) is the honest "each system as it ships" view; the controlled variant is the "same embedder, who wins on architecture" view. We do not delete one to flatter the other.
+
 The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`docs/COMPARISON.md`](docs/COMPARISON.md). The seven-axis differentiation:
 
 <p align="center">
@@ -325,7 +340,7 @@ The two axes with **zero coverage in the memory-systems literature** &mdash; **p
 | Typed knowledge graph with edge reasons | partial | &times; | &check; | &times; | &check; |
 | Shadow-mode ranking discipline | &times; | &times; | &times; | &times; | &check; |
 | Pain-weighted salience | &times; | &times; | &times; | &times; | &check; |
-| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.1) |
+| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.0.0-rc4) |
 | MIT, no usage caps, no telemetry phone-home | partial | &check; | &check; | &check; | &check; |
 
 ## Works with every agent
@@ -338,17 +353,16 @@ Per-agent setup: [`docs/integrations/`](docs/integrations/). The MCP server expo
 
 ## Paper and citation
 
-**Title:** *The Pain Diary and Shadow Discipline: A Memory System That Learns from Its Own Incidents*
+**Title:** *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents*
 
-**Status:** v1.1 compiled (31-page PDF) &middot; arXiv target: cs.IR &middot; submission pending Q4 gate
+**Status:** v1.0.0-rc4 (2026-06-29) &middot; arXiv target: cs.IR &middot; Q4 gate passed (D43) &middot; submission pending endorsement
 
-**PDF:** [`paper/publication/latex/paper.pdf`](paper/publication/latex/paper.pdf)
+**PDF:** [`paper/build/paper-tecnico-nox-mem.pdf`](paper/build/paper-tecnico-nox-mem.pdf) &middot; changelog: [`paper/CHANGELOG.md`](paper/CHANGELOG.md)
 
 ```bibtex
-@article{busnello2026noxmem,
-  title   = {The Pain Diary and Shadow Discipline:
-             A Memory System That Learns from Its Own Incidents},
-  author  = {Busnello, Toto},
+@article{busnello2026noxmempaper,
+  title   = {nox-mem: Pain-Weighted Hybrid Memory for LLM Agents},
+  author  = {Busnello, Luiz Antonio},
   year    = {2026},
   journal = {arXiv preprint (cs.IR, submission pending)},
   url     = {https://github.com/totobusnello/memoria-nox}
@@ -366,8 +380,8 @@ If you use nox-mem in your research or production:
   year    = {2026},
   month   = {6},
   url     = {https://github.com/totobusnello/memoria-nox},
-  version = {1.0.0-rc1},
-  note    = {arXiv:[PENDENTE Tue 06-02]}
+  version = {1.0.0-rc4},
+  note    = {arXiv: cs.IR (submission pending)}
 }
 ```
 
@@ -385,7 +399,7 @@ See [`CITATION.cff`](CITATION.cff) for the canonical citation file format.
 | Incident log (the pain diary that feeds salience) | [`docs/INCIDENTS.md`](docs/INCIDENTS.md) |
 | Operational rules and critical constraints | [`CLAUDE.md`](CLAUDE.md) |
 | Deploy guide for Wave B staged patches | [`docs/DEPLOY-WAVE-B.md`](docs/DEPLOY-WAVE-B.md) (when merged) |
-| Paper &mdash; *The Pain Diary and Shadow Discipline* | [`paper/`](paper/) |
+| Paper &mdash; *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* | [`paper/`](paper/) &middot; [`paper/CHANGELOG.md`](paper/CHANGELOG.md) |
 | Wave B post-mortem (2026-05-18) | [`docs/post-mortems/WAVE-B-2026-05-18.md`](docs/post-mortems/WAVE-B-2026-05-18.md) |
 | VPS health monitoring (IP swap + API outage detector) | [`scripts/vps-healthcheck.sh`](scripts/vps-healthcheck.sh) |
 | Observability dashboard (F10 Phase A + B, deployed 2026-05-21) | [`specs/2026-05-01-F10-observability-dashboard.md`](specs/2026-05-01-F10-observability-dashboard.md) &mdash; live `/observability/{health,evals}.html` on the API server |
