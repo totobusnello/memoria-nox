@@ -69,7 +69,7 @@ The single design principle that ties these closures together is **pain weightin
 
 ### 2.1 Infrastructure Overview
 
-The system runs on a Hostinger KVM4 VPS accessible via Tailscale VPN (IP: 100.87.8.44). Five systemd-managed services provide the runtime environment:
+The system runs on a Hostinger KVM4 VPS accessible via Tailscale VPN (IP: <NOX_TAILSCALE_IP>). Five systemd-managed services provide the runtime environment:
 
 | Service | Port | Type | Function |
 |---------|------|------|----------|

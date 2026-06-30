@@ -1,6 +1,6 @@
 # nox-mem Performance Baseline & Path B Critique — 2026-04-18
 
-Read-only audit on VPS 100.87.8.44. DB: 135 MB, 1,951 chunks, 6,627 vec rows (NB: health endpoint reports `vectorCoverage.embedded=6627 / total=1951` — likely counting vec rows not distinct chunk_ids; orphan claim needs re-verification, but semantic is definitely failing in production — see finding #1).
+Read-only audit on VPS <NOX_TAILSCALE_IP>. DB: 135 MB, 1,951 chunks, 6,627 vec rows (NB: health endpoint reports `vectorCoverage.embedded=6627 / total=1951` — likely counting vec rows not distinct chunk_ids; orphan claim needs re-verification, but semantic is definitely failing in production — see finding #1).
 
 ## 1. Latency baseline (live VPS, localhost curl)
 

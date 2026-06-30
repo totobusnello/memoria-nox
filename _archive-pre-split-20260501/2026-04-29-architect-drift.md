@@ -1,7 +1,7 @@
 # Architect drift audit — 2026-04-29
 
 > Pós-optimization-marathon (corpus tripled, OpenClaw v.25→v.26, latency 39.8s→10.4s, .git 11GB→134MB).
-> Auditor: architect-reviewer. Method: docs vs VPS reality (`ssh root@100.87.8.44`).
+> Auditor: architect-reviewer. Method: docs vs VPS reality (`ssh root@<NOX_TAILSCALE_IP>`).
 
 ---
 

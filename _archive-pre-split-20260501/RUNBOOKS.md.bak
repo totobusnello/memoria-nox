@@ -2,7 +2,7 @@
 
 > **Última atualização:** 2026-05-01 — schema v.29 corrigido
 > **Maintainer:** Toto (bus factor = 1)
-> **Sistema:** VPS Hostinger KVM 4, `root@100.87.8.44` (Tailscale) / `$NOX_VPS_HOST` (público)
+> **Sistema:** VPS Hostinger KVM 4, `root@<NOX_TAILSCALE_IP>` (Tailscale) / `$NOX_VPS_HOST` (público)
 > **Stack:** TypeScript, better-sqlite3, FTS5, sqlite-vec, Gemini embeddings, systemd, OpenClaw v2026.4.29
 >
 > ⚠️ **Schema migration nota (v.26+):** provider `claude-cli/*` foi REMOVIDO. Hoje:
@@ -63,10 +63,10 @@
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'systemctl status openclaw-gateway --no-pager -l | head -30'
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "10 min ago" --no-pager | tail -40'
-ssh root@100.87.8.44 'ps aux | grep -E "openclaw|node" | grep -v grep'
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .status 2>/dev/null || echo "API DOWN"'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl status openclaw-gateway --no-pager -l | head -30'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "10 min ago" --no-pager | tail -40'
+ssh root@<NOX_TAILSCALE_IP> 'ps aux | grep -E "openclaw|node" | grep -v grep'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq .status 2>/dev/null || echo "API DOWN"'
 ```
 
 ### Decision tree
@@ -95,37 +95,37 @@ Nenhum dos acima (log limpo ou apenas EADDRINUSE)?
 
 ```bash
 # Tentativa 1: restart simples
-ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 8 && systemctl is-active openclaw-gateway'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart openclaw-gateway && sleep 8 && systemctl is-active openclaw-gateway'
 
 # Tentativa 2: porta 18789 presa por orphan
-ssh root@100.87.8.44 'fuser -k 18789/tcp; sleep 2; systemctl restart openclaw-gateway'
+ssh root@<NOX_TAILSCALE_IP> 'fuser -k 18789/tcp; sleep 2; systemctl restart openclaw-gateway'
 
 # Duplo gateway (user-level systemd):
-ssh root@100.87.8.44 'XDG_RUNTIME_DIR=/run/user/0 systemctl --user list-units | grep openclaw'
+ssh root@<NOX_TAILSCALE_IP> 'XDG_RUNTIME_DIR=/run/user/0 systemctl --user list-units | grep openclaw'
 # Se aparecer openclaw-gateway.service no user scope:
-ssh root@100.87.8.44 'XDG_RUNTIME_DIR=/run/user/0 systemctl --user stop openclaw-gateway && \
+ssh root@<NOX_TAILSCALE_IP> 'XDG_RUNTIME_DIR=/run/user/0 systemctl --user stop openclaw-gateway && \
   XDG_RUNTIME_DIR=/run/user/0 systemctl --user disable openclaw-gateway && \
   mv /root/.config/systemd/user/openclaw-gateway.service /root/.config/systemd/user/openclaw-gateway.service.disabled'
-ssh root@100.87.8.44 'systemctl restart openclaw-gateway'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart openclaw-gateway'
 
 # Fallback: rollback via ckpt (se upgrade recente causou)
-ssh root@100.87.8.44 'ckpt list | head -3'
+ssh root@<NOX_TAILSCALE_IP> 'ckpt list | head -3'
 # Pegar ID do último ckpt saudável e rodar:
-ssh root@100.87.8.44 'bash /root/rollback-<VERSION>.sh'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/rollback-<VERSION>.sh'
 ```
 
 ### Pós-fix verificação
 
 ```bash
 # Gateway respondendo?
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "2 min ago" --no-pager | grep "ready"'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "2 min ago" --no-pager | grep "ready"'
 # Esperado: "[gateway] ready (X plugins: ...; Ys)"
 
 # Nenhum restart nos últimos 2min?
-ssh root@100.87.8.44 'systemctl status openclaw-gateway --no-pager | grep -E "Active:|restarts"'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl status openclaw-gateway --no-pager | grep -E "Active:|restarts"'
 
 # nox-mem-api ainda up?
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .status'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq .status'
 ```
 
 ### Prevenção
@@ -153,12 +153,12 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .status'
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total, orphans: .vectorCoverage.orphans}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total, orphans: .vectorCoverage.orphans}"'
 # Checar se nightly travou (lock preso)
-ssh root@100.87.8.44 'ls -la /tmp/nox-maintenance.lock 2>/dev/null && echo "LOCK ATIVO" || echo "lock ok"'
+ssh root@<NOX_TAILSCALE_IP> 'ls -la /tmp/nox-maintenance.lock 2>/dev/null && echo "LOCK ATIVO" || echo "lock ok"'
 # Checar se session-distill ou outro step está pendurado
-ssh root@100.87.8.44 'ps aux | grep -E "nox-mem|session-distill" | grep -v grep'
-ssh root@100.87.8.44 'tail -20 /var/log/nox-maintenance.log'
+ssh root@<NOX_TAILSCALE_IP> 'ps aux | grep -E "nox-mem|session-distill" | grep -v grep'
+ssh root@<NOX_TAILSCALE_IP> 'tail -20 /var/log/nox-maintenance.log'
 ```
 
 ### Decision tree
@@ -182,27 +182,27 @@ Orphans > 0?
 
 ```bash
 # Se session-distill pendurado (kill + liberar lock):
-ssh root@100.87.8.44 'pids=$(ps aux | grep "session-distill\|nox-maintenance" | grep -v grep | awk "{print \$2}"); kill $pids 2>/dev/null; rm -f /tmp/nox-maintenance.lock; echo "Limpo"'
+ssh root@<NOX_TAILSCALE_IP> 'pids=$(ps aux | grep "session-distill\|nox-maintenance" | grep -v grep | awk "{print \$2}"); kill $pids 2>/dev/null; rm -f /tmp/nox-maintenance.lock; echo "Limpo"'
 
 # Rodar vectorize manual (SEMPRE com env source):
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
 
 # Se vectorize falha silenciosamente (Done: 0 embedded, N errors):
 # Validar chave Gemini antes de tudo:
-ssh root@100.87.8.44 'grep GEMINI_API_KEY /root/.openclaw/.env | head -1'
+ssh root@<NOX_TAILSCALE_IP> 'grep GEMINI_API_KEY /root/.openclaw/.env | head -1'
 # Se vazia ou chave revogada: atualizar .env com chave nova → restart nox-mem-api
-ssh root@100.87.8.44 'systemctl restart nox-mem-api nox-mem-watcher'
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api nox-mem-watcher'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
 ```
 
 ### Pós-fix verificação
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{embedded: .vectorCoverage.embedded, total: .vectorCoverage.total}"'
 # Esperado: embedded == total (ou gap < 50 — recém-ingestados)
 
 # Canário manual:
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "nox-mem sistema de memória" --hybrid 2>&1 | head -5'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem search "nox-mem sistema de memória" --hybrid 2>&1 | head -5'
 # Esperado: match_type incluindo "semantic"
 ```
 
@@ -231,11 +231,11 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem searc
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'tail -10 /var/log/nox-schema-invariants.log'
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{section: .sectionDistribution, retention: .retention, total: .chunks.total}"'
+ssh root@<NOX_TAILSCALE_IP> 'tail -10 /var/log/nox-schema-invariants.log'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{section: .sectionDistribution, retention: .retention, total: .chunks.total}"'
 # Checar se reindex rodou recentemente:
-ssh root@100.87.8.44 'journalctl -u nox-mem-watcher --since "1 hour ago" --no-pager | grep -i "reindex\|ingest" | tail -20'
-ssh root@100.87.8.44 'openclaw cron list 2>/dev/null | grep -i reindex'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u nox-mem-watcher --since "1 hour ago" --no-pager | grep -i "reindex\|ingest" | tail -20'
+ssh root@<NOX_TAILSCALE_IP> 'openclaw cron list 2>/dev/null | grep -i reindex'
 ```
 
 ### Decision tree
@@ -259,15 +259,15 @@ ops_audit mostra op recente com status "failed" ou "running" há horas?
 
 ```bash
 # Reingestar todos os entity files (após confirmar que ingest-router está correto no build):
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   find /root/.openclaw/workspace/tools/nox-mem/memory/entities -name "*.md" | \
   while read f; do nox-mem ingest-entity "$f"; done 2>&1 | tail -10'
 
 # Vectorizar os novos chunks:
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize 2>&1 | tail -5'
 
 # Se cron end-of-day (ee15b430) ainda tem "reindex" no step 11:
-ssh root@100.87.8.44 'openclaw cron list | grep ee15b430'
+ssh root@<NOX_TAILSCALE_IP> 'openclaw cron list | grep ee15b430'
 # Se necessário corrigir: (UNTESTED — usar com cuidado)
 # openclaw cron edit ee15b430-ec10-4698-b25f-7fc4e1169417 --step 11 "Execute: nox-mem consolidate"
 ```
@@ -275,10 +275,10 @@ ssh root@100.87.8.44 'openclaw cron list | grep ee15b430'
 ### Pós-fix verificação
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{compiled: .sectionDistribution.compiled, never_decay: .retention.never_decay}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{compiled: .sectionDistribution.compiled, never_decay: .retention.never_decay}"'
 # Esperado: compiled=183, never_decay>=92
 
-ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
+ssh root@<NOX_TAILSCALE_IP> 'tail -3 /var/log/nox-schema-invariants.log'
 # Esperado: "All invariants OK" no próximo ciclo de 15min
 ```
 
@@ -307,11 +307,11 @@ ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{salience: .salience, searchTelemetry: .searchTelemetry}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{salience: .salience, searchTelemetry: .searchTelemetry}"'
 # Verificar quando foi ativado:
-ssh root@100.87.8.44 'journalctl -u nox-mem-api --since "30 min ago" --no-pager | grep -i "salience\|NOX_SALIENCE" | tail -20'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u nox-mem-api --since "30 min ago" --no-pager | grep -i "salience\|NOX_SALIENCE" | tail -20'
 # Baseline shadow antes da ativação (para comparação):
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.stats"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.stats"'
 ```
 
 ### Decision tree
@@ -334,25 +334,25 @@ Stats mostram archive_candidates absurdamente alto (ex: >50% do corpus)?
 
 ```bash
 # Rollback salience para shadow-mode (IMEDIATO):
-ssh root@100.87.8.44 'grep -n "NOX_SALIENCE_MODE" /root/.openclaw/.env'
+ssh root@<NOX_TAILSCALE_IP> 'grep -n "NOX_SALIENCE_MODE" /root/.openclaw/.env'
 # Editar .env: NOX_SALIENCE_MODE=shadow
-ssh root@100.87.8.44"sed -i 's/^NOX_SALIENCE_MODE=active/NOX_SALIENCE_MODE=shadow/' /root/.openclaw/.env"
-ssh root@100.87.8.44 'systemctl restart nox-mem-api && sleep 3 && curl -s http://127.0.0.1:18802/api/health | jq .salience.mode'
+ssh root@<NOX_TAILSCALE_IP>"sed -i 's/^NOX_SALIENCE_MODE=active/NOX_SALIENCE_MODE=shadow/' /root/.openclaw/.env"
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api && sleep 3 && curl -s http://127.0.0.1:18802/api/health | jq .salience.mode'
 # Esperado: "shadow"
 
 # Se section_boost também foi ativado:
-ssh root@100.87.8.44"sed -i 's/^NOX_SECTION_BOOST_MODE=active/NOX_SECTION_BOOST_MODE=shadow/' /root/.openclaw/.env"
-ssh root@100.87.8.44 'systemctl restart nox-mem-api'
+ssh root@<NOX_TAILSCALE_IP>"sed -i 's/^NOX_SECTION_BOOST_MODE=active/NOX_SECTION_BOOST_MODE=shadow/' /root/.openclaw/.env"
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api'
 ```
 
 ### Pós-fix verificação
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.mode"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq ".salience.mode"'
 # Esperado: "shadow"
 
 # Teste de sanidade de ranking (query de referência conhecida):
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   nox-mem search "openclaw gateway fratricide issue 62028" --limit 3 2>&1'
 # Esperado: resultado relevante sobre o monkey-patch no top 3
 ```
@@ -383,12 +383,12 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "10 min ago" --no-pager | grep -i "401\|not logged\|invalid auth\|fallback" | tail -20'
-ssh root@100.87.8.44 'ls -la /root/.claude/.credentials.json && wc -c /root/.claude/.credentials.json'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "10 min ago" --no-pager | grep -i "401\|not logged\|invalid auth\|fallback" | tail -20'
+ssh root@<NOX_TAILSCALE_IP> 'ls -la /root/.claude/.credentials.json && wc -c /root/.claude/.credentials.json'
 # Se wc mostra 0 ou <100 bytes: arquivo foi truncado (truncação cíclica ~8h)
-ssh root@100.87.8.44 'lsattr /root/.claude/.credentials.json'
+ssh root@<NOX_TAILSCALE_IP> 'lsattr /root/.claude/.credentials.json'
 # Esperado: "----i---" (imutável via chattr +i)
-ssh root@100.87.8.44 'env | grep CLAUDE_CODE_OAUTH'
+ssh root@<NOX_TAILSCALE_IP> 'env | grep CLAUDE_CODE_OAUTH'
 # Esperado: linha em branco (variável NÃO deve existir no env)
 ```
 
@@ -415,29 +415,29 @@ credentials.json OK mas still 401?
 
 ```bash
 # Checar se credentials.json está íntegro:
-ssh root@100.87.8.44 'cat /root/.claude/.credentials.json | jq ".claudeAiOauth.accessToken" | cut -c1-20'
+ssh root@<NOX_TAILSCALE_IP> 'cat /root/.claude/.credentials.json | jq ".claudeAiOauth.accessToken" | cut -c1-20'
 
 # Restaurar de backup se truncado:
-ssh root@100.87.8.44 'chattr -i /root/.claude/.credentials.json && \
+ssh root@<NOX_TAILSCALE_IP> 'chattr -i /root/.claude/.credentials.json && \
   cp /root/.claude/.credentials.json.bak /root/.claude/.credentials.json && \
   chattr +i /root/.claude/.credentials.json && \
   echo "Restaurado e protegido"'
 
 # Validar que env não tem conflito:
-ssh root@100.87.8.44 'grep -n "CLAUDE_CODE_OAUTH_TOKEN" /root/.openclaw/.env'
+ssh root@<NOX_TAILSCALE_IP> 'grep -n "CLAUDE_CODE_OAUTH_TOKEN" /root/.openclaw/.env'
 # Se não tiver # no início: comentar a linha
-ssh root@100.87.8.44 "sed -i 's/^CLAUDE_CODE_OAUTH_TOKEN=/#DISABLED_CLAUDE_CODE_OAUTH_TOKEN=/' /root/.openclaw/.env"
+ssh root@<NOX_TAILSCALE_IP> "sed -i 's/^CLAUDE_CODE_OAUTH_TOKEN=/#DISABLED_CLAUDE_CODE_OAUTH_TOKEN=/' /root/.openclaw/.env"
 
 # Resetar sessions.json se preso em fallback:
-ssh root@100.87.8.44 'echo "{}" > /root/.openclaw/agents/main/sessions/sessions.json'
+ssh root@<NOX_TAILSCALE_IP> 'echo "{}" > /root/.openclaw/agents/main/sessions/sessions.json'
 # Para todos os agentes (se necessário):
-ssh root@100.87.8.44 'for agent in main nox atlas boris cipher forge lex; do
+ssh root@<NOX_TAILSCALE_IP> 'for agent in main nox atlas boris cipher forge lex; do
   f="/root/.openclaw/agents/$agent/sessions/sessions.json"
   [ -f "$f" ] && echo "{}" > "$f" && echo "Reset $agent"
 done'
 
 # Restart gateway após correções:
-ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 5 && \
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart openclaw-gateway && sleep 5 && \
   journalctl -u openclaw-gateway --since "30 sec ago" --no-pager | grep -E "ready|claude-cli|401"'
 ```
 
@@ -445,14 +445,14 @@ ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 5 && \
 
 ```bash
 # Validar que CLI está autenticado:
-ssh root@100.87.8.44 'claude auth status 2>&1 | head -5'
+ssh root@<NOX_TAILSCALE_IP> 'claude auth status 2>&1 | head -5'
 # Esperado: "Logged in" com email
 
 # Verificar que sessions voltaram para claude-cli:
-ssh root@100.87.8.44 'cat /root/.openclaw/agents/main/sessions/sessions.json | jq "to_entries | .[0] | .value.model" 2>/dev/null || echo "Sessions vazio (OK)"'
+ssh root@<NOX_TAILSCALE_IP> 'cat /root/.openclaw/agents/main/sessions/sessions.json | jq "to_entries | .[0] | .value.model" 2>/dev/null || echo "Sessions vazio (OK)"'
 
 # Monitorar 5min para garantir que não flap:
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "3 min ago" --no-pager | grep -c "401" && echo "401 errors" || echo "0 auth errors"'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "3 min ago" --no-pager | grep -c "401" && echo "401 errors" || echo "0 auth errors"'
 ```
 
 ### Prevenção
@@ -481,14 +481,14 @@ ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "3 min ago" --no-pa
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "5 min ago" --no-pager | grep -c "Started openclaw-gateway"'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "5 min ago" --no-pager | grep -c "Started openclaw-gateway"'
 # Se > 3: fratricide loop
 
-ssh root@100.87.8.44 'cat /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js | grep -A5 "cleanStaleGatewayProcessesSync" | head -15'
+ssh root@<NOX_TAILSCALE_IP> 'cat /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js | grep -A5 "cleanStaleGatewayProcessesSync" | head -15'
 # Esperado: função deve retornar "return [];" imediatamente
 # Se não retornar []: patch perdido
 
-ssh root@100.87.8.44 'ls /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js'
+ssh root@<NOX_TAILSCALE_IP> 'ls /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js'
 # O hash no nome muda a cada versão (ex: BUk5aJLm, CegQx-K9, etc.)
 ```
 
@@ -511,35 +511,35 @@ Gateway em loop mas você precisa de janela para intervenção?
 
 ```bash
 # Parar loop de emergência (dá janela para intervenção sem novos spawns):
-ssh root@100.87.8.44 'mkdir -p /etc/systemd/system/openclaw-gateway.service.d/ && \
+ssh root@<NOX_TAILSCALE_IP> 'mkdir -p /etc/systemd/system/openclaw-gateway.service.d/ && \
   echo -e "[Service]\nRestart=no" > /etc/systemd/system/openclaw-gateway.service.d/no-restart.conf && \
   systemctl daemon-reload'
 
 # Matar todos os processos gateway:
-ssh root@100.87.8.44 'pkill -9 -f "openclaw-gateway" 2>/dev/null; fuser -k 18789/tcp 2>/dev/null; echo "Limpo"'
+ssh root@<NOX_TAILSCALE_IP> 'pkill -9 -f "openclaw-gateway" 2>/dev/null; fuser -k 18789/tcp 2>/dev/null; echo "Limpo"'
 
 # Reaplicar monkey-patch (idempotente):
-ssh root@100.87.8.44 'bash /root/reapply-monkey-patch.sh'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/reapply-monkey-patch.sh'
 
 # Validar que patch foi aplicado (verificar corpo da função, não só grep-count):
-ssh root@100.87.8.44 'cat /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js | grep -A3 "cleanStaleGatewayProcessesSync" | head -8'
+ssh root@<NOX_TAILSCALE_IP> 'cat /usr/lib/node_modules/openclaw/dist/restart-stale-pids-*.js | grep -A3 "cleanStaleGatewayProcessesSync" | head -8'
 # Esperado: primeira linha do corpo = "return [];"
 
 # Remover drop-in de emergência:
-ssh root@100.87.8.44 'rm /etc/systemd/system/openclaw-gateway.service.d/no-restart.conf && systemctl daemon-reload'
+ssh root@<NOX_TAILSCALE_IP> 'rm /etc/systemd/system/openclaw-gateway.service.d/no-restart.conf && systemctl daemon-reload'
 
 # Iniciar gateway:
-ssh root@100.87.8.44 'systemctl start openclaw-gateway && sleep 10 && systemctl status openclaw-gateway --no-pager | head -10'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl start openclaw-gateway && sleep 10 && systemctl status openclaw-gateway --no-pager | head -10'
 ```
 
 ### Pós-fix verificação
 
 ```bash
 # 3 minutos de observação (fratricide cicla a cada ~20s, 3min = 9 ciclos potenciais):
-ssh root@100.87.8.44 'sleep 30 && journalctl -u openclaw-gateway --since "35 sec ago" --no-pager | grep -c "Started openclaw-gateway"'
+ssh root@<NOX_TAILSCALE_IP> 'sleep 30 && journalctl -u openclaw-gateway --since "35 sec ago" --no-pager | grep -c "Started openclaw-gateway"'
 # Esperado: 0 ou 1 (apenas o start inicial)
 
-ssh root@100.87.8.44 'systemctl status openclaw-gateway --no-pager | grep "Active:"'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl status openclaw-gateway --no-pager | grep "Active:"'
 # Esperado: "Active: active (running) since..."
 ```
 
@@ -571,12 +571,12 @@ ssh root@100.87.8.44 'systemctl status openclaw-gateway --no-pager | grep "Activ
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "15 min ago" --no-pager | grep -E "ERR_MODULE|harness|Unrecognized|Error" | head -20'
-ssh root@100.87.8.44 'openclaw --version 2>/dev/null || echo "openclaw binary erro"'
-ssh root@100.87.8.44 'ckpt list | head -5'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "15 min ago" --no-pager | grep -E "ERR_MODULE|harness|Unrecognized|Error" | head -20'
+ssh root@<NOX_TAILSCALE_IP> 'openclaw --version 2>/dev/null || echo "openclaw binary erro"'
+ssh root@<NOX_TAILSCALE_IP> 'ckpt list | head -5'
 # Checar se rollback script existe para versão anterior:
-ssh root@100.87.8.44 'ls /root/rollback-*.sh 2>/dev/null | head -5'
-ssh root@100.87.8.44 'cat /root/.openclaw/upgrade-watcher/state.json 2>/dev/null | jq "{current, previous, lastUpgrade}"'
+ssh root@<NOX_TAILSCALE_IP> 'ls /root/rollback-*.sh 2>/dev/null | head -5'
+ssh root@<NOX_TAILSCALE_IP> 'cat /root/.openclaw/upgrade-watcher/state.json 2>/dev/null | jq "{current, previous, lastUpgrade}"'
 ```
 
 ### Decision tree
@@ -604,34 +604,34 @@ Monkey-patch também precisa ser reaplicado?
 
 ```bash
 # Opção 1: Rollback via ckpt (preferido se checkpoint existe):
-ssh root@100.87.8.44 'ckpt list | head -3'
+ssh root@<NOX_TAILSCALE_IP> 'ckpt list | head -3'
 # Pegar ID do último ckpt antes do upgrade:
-ssh root@100.87.8.44 'ckpt restore <checkpoint-id>'
-ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 8 && systemctl is-active openclaw-gateway'
+ssh root@<NOX_TAILSCALE_IP> 'ckpt restore <checkpoint-id>'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart openclaw-gateway && sleep 8 && systemctl is-active openclaw-gateway'
 
 # Opção 2: Rollback via script dedicado:
-ssh root@100.87.8.44 'ls /root/rollback-*.sh'
-ssh root@100.87.8.44 'bash /root/rollback-<VERSION_ANTERIOR>.sh'
+ssh root@<NOX_TAILSCALE_IP> 'ls /root/rollback-*.sh'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/rollback-<VERSION_ANTERIOR>.sh'
 
 # Opção 3: Rollback manual npm (UNTESTED — usar só se sem ckpt):
-ssh root@100.87.8.44 'npm install -g openclaw@<VERSION_ANTERIOR> && \
+ssh root@<NOX_TAILSCALE_IP> 'npm install -g openclaw@<VERSION_ANTERIOR> && \
   bash /root/reapply-monkey-patch.sh && \
   systemctl restart openclaw-gateway'
 
 # Após qualquer rollback, validar monkey-patch (ver RB-06):
-ssh root@100.87.8.44 'bash /root/reapply-monkey-patch.sh'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/reapply-monkey-patch.sh'
 
 # Se novo upgrade é inevitável (não reverter):
 # Usar APENAS o script dedicado que inclui auto-rollback em fratricide:
-ssh root@100.87.8.44 'bash /root/upgrade-<NEW_VERSION>.sh'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/upgrade-<NEW_VERSION>.sh'
 ```
 
 ### Pós-fix verificação
 
 ```bash
-ssh root@100.87.8.44 'openclaw --version'
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "2 min ago" --no-pager | grep "ready"'
-ssh root@100.87.8.44 '/root/bin/improvements check 2>/dev/null | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'openclaw --version'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "2 min ago" --no-pager | grep "ready"'
+ssh root@<NOX_TAILSCALE_IP> '/root/bin/improvements check 2>/dev/null | tail -5'
 # Esperado: 13/13 OK (ou próximo disso)
 ```
 
@@ -661,13 +661,13 @@ ssh root@100.87.8.44 '/root/bin/improvements check 2>/dev/null | tail -5'
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'df -h /root /var /tmp'
-ssh root@100.87.8.44 'du -sh /root/.openclaw/workspace/tools/nox-mem/backups/ 2>/dev/null; \
+ssh root@<NOX_TAILSCALE_IP> 'df -h /root /var /tmp'
+ssh root@<NOX_TAILSCALE_IP> 'du -sh /root/.openclaw/workspace/tools/nox-mem/backups/ 2>/dev/null; \
   du -sh /var/backups/nox-mem/pre-op/ 2>/dev/null; \
   du -sh /root/.openclaw/ 2>/dev/null; \
   du -sh /var/log/nox-*.log 2>/dev/null'
-ssh root@100.87.8.44 'ls -lh /var/backups/nox-mem/pre-op/ 2>/dev/null | tail -20'
-ssh root@100.87.8.44 'ls -lh /root/.openclaw/backups/*.db 2>/dev/null | tail -10'
+ssh root@<NOX_TAILSCALE_IP> 'ls -lh /var/backups/nox-mem/pre-op/ 2>/dev/null | tail -20'
+ssh root@<NOX_TAILSCALE_IP> 'ls -lh /root/.openclaw/backups/*.db 2>/dev/null | tail -10'
 ```
 
 ### Decision tree
@@ -693,34 +693,34 @@ node_modules em /root/.openclaw/extensions/* ocupando muito?
 
 ```bash
 # Purgar snapshots pré-op vencidos (>7 dias):
-ssh root@100.87.8.44 'find /var/backups/nox-mem/pre-op/ -name "*.db" -mtime +7 -exec rm -v {} \; 2>/dev/null'
+ssh root@<NOX_TAILSCALE_IP> 'find /var/backups/nox-mem/pre-op/ -name "*.db" -mtime +7 -exec rm -v {} \; 2>/dev/null'
 
 # Purgar backups diários vencidos (>7 dias, se cron de purge falhou):
-ssh root@100.87.8.44 'find /root/.openclaw/backups/ -name "*.db" -mtime +7 -exec rm -v {} \; 2>/dev/null'
+ssh root@<NOX_TAILSCALE_IP> 'find /root/.openclaw/backups/ -name "*.db" -mtime +7 -exec rm -v {} \; 2>/dev/null'
 
 # Purgar logs grandes (logrotate manual se necessário):
-ssh root@100.87.8.44 'logrotate -f /etc/logrotate.d/nox 2>/dev/null && echo "Logrotate OK"'
+ssh root@<NOX_TAILSCALE_IP> 'logrotate -f /etc/logrotate.d/nox 2>/dev/null && echo "Logrotate OK"'
 
 # Purgar checkpoints antigos (ckpt) [UNTESTED — validar sintaxe do ckpt cli]:
-ssh root@100.87.8.44 'ckpt list'
+ssh root@<NOX_TAILSCALE_IP> 'ckpt list'
 # Para cada ckpt >14 dias não crítico: ckpt remove <id>
 
 # Purgar plugin-runtime-deps de extensões desativadas:
-ssh root@100.87.8.44 'du -sh /root/.openclaw/extensions/*/node_modules 2>/dev/null | sort -hr | head -10'
+ssh root@<NOX_TAILSCALE_IP> 'du -sh /root/.openclaw/extensions/*/node_modules 2>/dev/null | sort -hr | head -10'
 # Se extensão desativada tem node_modules pesados: rm -rf node_modules dentro dela
 
 # Verificar espaço recuperado:
-ssh root@100.87.8.44 'df -h /root'
+ssh root@<NOX_TAILSCALE_IP> 'df -h /root'
 ```
 
 ### Pós-fix verificação
 
 ```bash
-ssh root@100.87.8.44 'df -h /root | grep -v Filesystem'
+ssh root@<NOX_TAILSCALE_IP> 'df -h /root | grep -v Filesystem'
 # Esperado: < 80% usado
 
 # Nightly vai funcionar no próximo run — validar amanhã:
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .dbSizeMB'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq .dbSizeMB'
 # Baseline atual: ~318MB
 ```
 
@@ -749,12 +749,12 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .dbSizeMB'
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{embedding: .embeddingApi, kg: .kgExtraction, salience: .salience.mode}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{embedding: .embeddingApi, kg: .kgExtraction, salience: .salience.mode}"'
 # IMPORTANTE: probe errors no health endpoint vêm de processo separado — podem ser stale
 # Validar com teste real em runtime:
-ssh root@100.87.8.44 'journalctl -u nox-mem-api --since "10 min ago" --no-pager | grep -iE "gemini|embedding|quota|rate.limit|401|403" | tail -20'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u nox-mem-api --since "10 min ago" --no-pager | grep -iE "gemini|embedding|quota|rate.limit|401|403" | tail -20'
 # Checar modelo Gemini configurado:
-ssh root@100.87.8.44 'grep -E "GEMINI|gemini" /root/.openclaw/.env | grep -v "^#" | head -10'
+ssh root@<NOX_TAILSCALE_IP> 'grep -E "GEMINI|gemini" /root/.openclaw/.env | grep -v "^#" | head -10'
 ```
 
 ### Decision tree
@@ -782,31 +782,31 @@ Erros mostram "DEPRECATED" ou model não encontrado?
 
 ```bash
 # Validar chave Gemini com teste real (SEMPRE source env antes):
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   nox-mem vectorize --limit 1 2>&1'
 # Se "Done: 1 embedded, 0 errors": probe era stale, não há problema real
 
 # Se chave revogada: atualizar .env + restart:
 # 1. Obter nova chave no Google AI Studio (externo — não automatizável)
-# 2. ssh root@100.87.8.44 'sed -i "s/^GEMINI_API_KEY=.*/GEMINI_API_KEY=<NOVA_CHAVE>/" /root/.openclaw/.env'
+# 2. ssh root@<NOX_TAILSCALE_IP> 'sed -i "s/^GEMINI_API_KEY=.*/GEMINI_API_KEY=<NOVA_CHAVE>/" /root/.openclaw/.env'
 # 3. systemctl restart nox-mem-api nox-mem-watcher
 # 4. set -a; source .env; set +a; nox-mem vectorize 2>&1 | tail -3
 
 # Se modelo errado (flash vs flash-lite):
-ssh root@100.87.8.44 'grep -n "gemini" /root/.openclaw/.env | head -10'
+ssh root@<NOX_TAILSCALE_IP> 'grep -n "gemini" /root/.openclaw/.env | head -10'
 # Corrigir para flash-lite:
-ssh root@100.87.8.44"sed -i 's/gemini-2\.5-flash\b/gemini-2.5-flash-lite/g' /root/.openclaw/.env"
-ssh root@100.87.8.44 'systemctl restart nox-mem-api nox-mem-watcher'
+ssh root@<NOX_TAILSCALE_IP>"sed -i 's/gemini-2\.5-flash\b/gemini-2.5-flash-lite/g' /root/.openclaw/.env"
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api nox-mem-watcher'
 ```
 
 ### Pós-fix verificação
 
 ```bash
 # Vectorize real com ≥5 chunks:
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize --limit 5 2>&1 | tail -3'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem vectorize --limit 5 2>&1 | tail -3'
 # Esperado: "Done: 5 embedded, 0 errors"
 
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".vectorCoverage"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq ".vectorCoverage"'
 # Confirmar embedded próximo de total
 ```
 
@@ -835,11 +835,11 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq ".vectorCov
 ### Diagnóstico inicial (read-only)
 
 ```bash
-ssh root@100.87.8.44 'journalctl -u openclaw-gateway --since "30 min ago" --no-pager | grep -c "Unknown Channel"'
-ssh root@100.87.8.44 'ls -la /root/.openclaw/delivery-queue/*.json 2>/dev/null | wc -l && echo "arquivos na fila"'
-ssh root@100.87.8.44 'ls -lat /root/.openclaw/delivery-queue/*.json 2>/dev/null | head -10'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u openclaw-gateway --since "30 min ago" --no-pager | grep -c "Unknown Channel"'
+ssh root@<NOX_TAILSCALE_IP> 'ls -la /root/.openclaw/delivery-queue/*.json 2>/dev/null | wc -l && echo "arquivos na fila"'
+ssh root@<NOX_TAILSCALE_IP> 'ls -lat /root/.openclaw/delivery-queue/*.json 2>/dev/null | head -10'
 # Checar heartbeat do main agent (não deve ter target):
-ssh root@100.87.8.44 'grep -A10 '"'"'heartbeat'"'"' /root/.openclaw/openclaw.json | head -15'
+ssh root@<NOX_TAILSCALE_IP> 'grep -A10 '"'"'heartbeat'"'"' /root/.openclaw/openclaw.json | head -15'
 ```
 
 ### Decision tree
@@ -868,20 +868,20 @@ Erros diminuem sozinhos (mtime dos arquivos é antigo, sem novos)?
 
 ```bash
 # Cleanup automático de órfãos (>7 dias, Unknown Channel, recovery budget exceeded):
-ssh root@100.87.8.44 'bash /root/.openclaw/workspace/tools/delivery-queue-cleanup.sh'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/.openclaw/workspace/tools/delivery-queue-cleanup.sh'
 
 # Cleanup manual se script não existe:
-ssh root@100.87.8.44 'find /root/.openclaw/delivery-queue/ -name "*.json" -mtime +7 -exec rm -v {} \; 2>/dev/null'
+ssh root@<NOX_TAILSCALE_IP> 'find /root/.openclaw/delivery-queue/ -name "*.json" -mtime +7 -exec rm -v {} \; 2>/dev/null'
 
 # Se heartbeat do main agent está causando Unknown Channel:
 # Verificar config atual:
-ssh root@100.87.8.44 'openclaw config get agents.main.heartbeat 2>/dev/null'
+ssh root@<NOX_TAILSCALE_IP> 'openclaw config get agents.main.heartbeat 2>/dev/null'
 # Se tem target discord sem canal válido: remover target
 # (UNTESTED — validar com `openclaw config --help` antes)
-# ssh root@100.87.8.44 'openclaw config set agents.main.heartbeat.enabled false'
+# ssh root@<NOX_TAILSCALE_IP> 'openclaw config set agents.main.heartbeat.enabled false'
 
 # Após cleanup, restart para limpar estado de delivery-recovery em memória:
-ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 5 && \
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart openclaw-gateway && sleep 5 && \
   journalctl -u openclaw-gateway --since "30 sec ago" --no-pager | grep -c "Unknown Channel" && \
   echo "Unknown Channel events após restart (esperado: 0)"'
 ```
@@ -890,11 +890,11 @@ ssh root@100.87.8.44 'systemctl restart openclaw-gateway && sleep 5 && \
 
 ```bash
 # Verificar que fila está limpa:
-ssh root@100.87.8.44 'ls /root/.openclaw/delivery-queue/*.json 2>/dev/null | wc -l'
+ssh root@<NOX_TAILSCALE_IP> 'ls /root/.openclaw/delivery-queue/*.json 2>/dev/null | wc -l'
 # Esperado: 0 ou poucos arquivos recentes (< 1h)
 
 # Verificar que log não está acumulando novos Unknown Channel:
-ssh root@100.87.8.44 'sleep 60 && journalctl -u openclaw-gateway --since "65 sec ago" --no-pager | grep "Unknown Channel" | wc -l'
+ssh root@<NOX_TAILSCALE_IP> 'sleep 60 && journalctl -u openclaw-gateway --since "65 sec ago" --no-pager | grep "Unknown Channel" | wc -l'
 # Esperado: 0
 ```
 

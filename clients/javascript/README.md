@@ -17,7 +17,7 @@ npm install @noxmem/client
 ```js
 import { NoxMemClient } from "@noxmem/client";
 
-const client = new NoxMemClient({ baseUrl: "http://187.77.234.79:18802" });
+const client = new NoxMemClient({ baseUrl: "http://localhost:18802" });
 
 // Health check
 const snap = await client.health();

@@ -13,13 +13,13 @@ CONTEXTO OBRIGATÓRIO — ler ANTES de qualquer ação:
 4. /Users/lab/Claude/Projetos/memoria-nox/docs/nox-neural-memory.md  (v14)
 
 SANITY CHECK (3 comandos — esperar tudo verde):
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, salience:.salience.mode, section:.sectionDistribution, opsAudit:.opsAudit, db:.dbSizeMB}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, salience:.salience.mode, section:.sectionDistribution, opsAudit:.opsAudit, db:.dbSizeMB}"'
 # Esperado: total=9692+, embedded=total, salience=shadow, section.compiled=183, db≈172
 
-ssh root@100.87.8.44 'tail -5 /var/log/nox-schema-invariants.log'
+ssh root@<NOX_TAILSCALE_IP> 'tail -5 /var/log/nox-schema-invariants.log'
 # Esperado: 5 entries OK (5 invariants verdes — section_nonnull≥600 compiled≈183 feedback_wrong=0 ops_failed=0 boost_mismatch=0)
 
-ssh root@100.87.8.44 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
 # Esperado: 27 pass 0 fail (14 retention + 7 E2E + 6 outros)
 
 ESTADO ATUAL (2026-04-26 ~17:00 BRT):
@@ -59,7 +59,7 @@ OPÇÃO A — Salience activation gate (RECOMENDADA se for 2026-04-30+)
   # Se "NOT READY" → aguardar mais dias
 
 OPÇÃO B — Section_boost decision gate (se for 2026-05-01+)
-  ssh root@100.87.8.44 'bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7'
+  ssh root@<NOX_TAILSCALE_IP> 'bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7'
   # Decidir ativar via NOX_SECTION_BOOST_MODE=active no .env + restart api
 
 OPÇÃO C — Wave 3 cleanup (~2h, opcional pré-gate)
@@ -118,10 +118,10 @@ Pergunta pro Toto ANTES de começar: qual data hoje? Se 04-30+ → A. Se 05-01+ 
 ```
 Retomando nox-mem v3.7+ (schema v10 + ops_audit append-only, 9692 chunks, 5 camadas defesa + 27 fixes, 27 tests).
 Leia handoffs/MASTER-HANDOFF-2026-04-26.md.
-Sanity: ssh 100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total,opsAudit:.opsAudit,section:.sectionDistribution}"'
+Sanity: ssh <NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total,opsAudit:.opsAudit,section:.sectionDistribution}"'
 Esperado: 9692+, opsAudit active, section.compiled=183.
 Schema invariants: tail /var/log/nox-schema-invariants.log
-Tests: ssh 100.87.8.44 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
+Tests: ssh <NOX_TAILSCALE_IP> 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
 Próximo gate: 2026-04-30 salience activation (bash /root/.openclaw/scripts/activate-salience.sh check).
 PT-BR: "você" não "tu".
 ```

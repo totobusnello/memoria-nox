@@ -155,16 +155,16 @@ Pré-requisitos (preparados ANTES, não improvisado):
 Em incident (1h total):
 ```bash
 # 1. Activate OPENAI_API_KEY (uncomment .env)
-ssh root@100.87.8.44 'sed -i "s/^# OPENAI_API_KEY=/OPENAI_API_KEY=/" /root/.openclaw/.env'
+ssh root@<NOX_TAILSCALE_IP> 'sed -i "s/^# OPENAI_API_KEY=/OPENAI_API_KEY=/" /root/.openclaw/.env'
 
 # 2. Switch provider
-ssh root@100.87.8.44 'sed -i "s/^NOX_EMBEDDING_PROVIDER=gemini/NOX_EMBEDDING_PROVIDER=openai/" /root/.openclaw/.env'
+ssh root@<NOX_TAILSCALE_IP> 'sed -i "s/^NOX_EMBEDDING_PROVIDER=gemini/NOX_EMBEDDING_PROVIDER=openai/" /root/.openclaw/.env'
 
 # 3. Restart services
-ssh root@100.87.8.44 'systemctl restart nox-mem-api nox-mem-watcher'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl restart nox-mem-api nox-mem-watcher'
 
 # 4. Smoke test embedding
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   curl -s https://api.openai.com/v1/embeddings \
   -H "Authorization: Bearer ${OPENAI_API_KEY}" \
   -H "Content-Type: application/json" \
@@ -172,7 +172,7 @@ ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
 # Esperado: 3072
 
 # 5. Search smoke test
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; \
   nox-mem search "nox-mem sistema memoria" --hybrid 2>&1 | head -5'
 ```
 

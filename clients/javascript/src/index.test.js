@@ -32,7 +32,7 @@ function mockFetch(responses) {
 describe("NoxMemClient constructor", () => {
   it("uses default base URL", () => {
     const c = new NoxMemClient();
-    assert.equal(c.baseUrl, "http://187.77.234.79:18802");
+    assert.equal(c.baseUrl, "http://localhost:18802");
   });
 
   it("strips trailing slash from baseUrl", () => {

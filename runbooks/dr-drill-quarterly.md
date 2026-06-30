@@ -23,7 +23,7 @@ Sem drill, descobrimos que o backup quebrou no momento do incident — pior cen�
 ### Step 1: snapshot fresco via VACUUM INTO
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
   set -a; source /root/.openclaw/.env; set +a
   TS=$(date +%Y%m%d-%H%M%S)
   DRILL=/tmp/nox-mem-drill-$TS.db
@@ -39,7 +39,7 @@ ssh root@100.87.8.44 '
 ### Step 2: integrity check
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
   DRILL=$(ls -t /tmp/nox-mem-drill-*.db | head -1)
   START=$(date +%s)
   RESULT=$(sqlite3 $DRILL "PRAGMA integrity_check;" | head -3)
@@ -53,7 +53,7 @@ ssh root@100.87.8.44 '
 ### Step 3: schema + counts validation
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
   DRILL=$(ls -t /tmp/nox-mem-drill-*.db | head -1)
   sqlite3 $DRILL "
     SELECT \"user_version\" AS k, user_version AS v FROM pragma_user_version;
@@ -70,7 +70,7 @@ ssh root@100.87.8.44 '
 ### Step 4: invariants check (section + retention)
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
   DRILL=$(ls -t /tmp/nox-mem-drill-*.db | head -1)
   sqlite3 $DRILL "
     SELECT section, COUNT(*) FROM chunks WHERE section IS NOT NULL GROUP BY section;
@@ -91,7 +91,7 @@ Atualmente bloqueado: `db.js:7` não honra `NOX_DB_PATH`, logo `nox-mem search` 
 
 ```bash
 # placeholder F14b futuro
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
   DRILL=$(ls -t /tmp/nox-mem-drill-*.db | head -1)
   set -a; source /root/.openclaw/.env; set +a
   NOX_DB_PATH=$DRILL nox-mem search "nox-mem sistema memoria" --hybrid 2>&1 | head -5
@@ -102,7 +102,7 @@ ssh root@100.87.8.44 '
 ### Step 6: cleanup
 
 ```bash
-ssh root@100.87.8.44 'rm -f /tmp/nox-mem-drill-*.db && echo "cleaned"'
+ssh root@<NOX_TAILSCALE_IP> 'rm -f /tmp/nox-mem-drill-*.db && echo "cleaned"'
 ```
 
 ---

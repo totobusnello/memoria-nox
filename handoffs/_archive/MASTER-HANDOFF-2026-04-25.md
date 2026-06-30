@@ -192,7 +192,7 @@ b5fba08 feat(safety): A1 op-audit module — atomic snapshot + audit log
 
 ```bash
 # Health snapshot pós-sessão
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{
   total: .chunks.total,
   vc: .vectorCoverage,
   salience: .salience.mode,
@@ -259,13 +259,13 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
 
 ### Sanity check (1 comando)
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, salience:.salience.mode, section:.sectionDistribution, opsAudit:.opsAudit, db:.dbSizeMB}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, salience:.salience.mode, section:.sectionDistribution, opsAudit:.opsAudit, db:.dbSizeMB}"'
 # Esperado: total=9540+, embedded=total, salience=shadow, section.compiled=183, opsAudit (active), db=~172
 ```
 
 ### Schema invariants (NOVO canário)
 ```bash
-ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
+ssh root@<NOX_TAILSCALE_IP> 'tail -3 /var/log/nox-schema-invariants.log'
 # Esperado: 3 entries OK (rodam */15min)
 ```
 
@@ -273,7 +273,7 @@ ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
 
 **A — 2026-04-30 manhã: Salience gate activation (RECOMENDADA)**
 ```bash
-ssh root@100.87.8.44 'bash /root/.openclaw/scripts/activate-salience.sh check'
+ssh root@<NOX_TAILSCALE_IP> 'bash /root/.openclaw/scripts/activate-salience.sh check'
 # Se "READY" → bash activate-salience.sh --apply
 # Se "NOT READY" → esperar mais alguns dias
 ```
@@ -332,8 +332,8 @@ Dia épico. Saímos de um incident em produção (section/retention wipe) → ha
 
 **Próxima janela abre com:**
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .'
-ssh root@100.87.8.44 'tail -3 /var/log/nox-schema-invariants.log'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq .'
+ssh root@<NOX_TAILSCALE_IP> 'tail -3 /var/log/nox-schema-invariants.log'
 # Se 04-30: bash /root/.openclaw/scripts/activate-salience.sh check
 ```
 

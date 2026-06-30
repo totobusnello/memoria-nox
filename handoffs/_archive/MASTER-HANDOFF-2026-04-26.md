@@ -142,7 +142,7 @@ Origem: `nightly-maintenance.sh` Phase 2 (sábado 04-25 23:00 BRT, DOM=25 odd) c
 
 ```bash
 # Sanity check 1-cmd
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{
   total: .chunks.total,
   embedded: .vectorCoverage.embedded,
   salience: .salience.mode,
@@ -173,14 +173,14 @@ ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{
 
 ```bash
 # 1. Sanity check
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, salience:.salience.mode, section:.sectionDistribution, opsAudit:.opsAudit, db:.dbSizeMB}"'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq "{total:.chunks.total, vc:.vectorCoverage, salience:.salience.mode, section:.sectionDistribution, opsAudit:.opsAudit, db:.dbSizeMB}"'
 
 # 2. Schema invariants (NOVA invariant 5 zombie-detect)
-ssh root@100.87.8.44 'tail -5 /var/log/nox-schema-invariants.log'
+ssh root@<NOX_TAILSCALE_IP> 'tail -5 /var/log/nox-schema-invariants.log'
 # Esperado: OK (5 invariants verde) ou WARN early-zombie se houver running >60min
 
 # 3. Test suite quick check
-ssh root@100.87.8.44 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
 # Esperado: 27 pass, 0 fail
 ```
 
@@ -191,12 +191,12 @@ ssh root@100.87.8.44 'cd /root/.openclaw/workspace/tools/nox-mem && node --test 
 ### Gate principal (recomendado: aguardar)
 - **2026-04-30 (terça, em 4 dias):** salience activation
   ```bash
-  ssh root@100.87.8.44 'bash /root/.openclaw/scripts/activate-salience.sh check'
+  ssh root@<NOX_TAILSCALE_IP> 'bash /root/.openclaw/scripts/activate-salience.sh check'
   # Se "READY: baseline 7d OK" → bash activate-salience.sh --apply
   ```
 - **2026-05-01 (quarta, em 5 dias):** section_boost decision
   ```bash
-  ssh root@100.87.8.44 'bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7'
+  ssh root@<NOX_TAILSCALE_IP> 'bash /root/.openclaw/scripts/analyze-shadow-telemetry.sh 7'
   ```
 
 ### Pode fazer ANTES do gate (opcionais)
@@ -292,9 +292,9 @@ Dia produtivíssimo. Saímos de "sistema com 5 camadas hardened" → 1 sanity ch
 
 **Próxima janela abre com:**
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | jq .'
-ssh root@100.87.8.44 'tail -5 /var/log/nox-schema-invariants.log'
-ssh root@100.87.8.44 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | jq .'
+ssh root@<NOX_TAILSCALE_IP> 'tail -5 /var/log/nox-schema-invariants.log'
+ssh root@<NOX_TAILSCALE_IP> 'cd /root/.openclaw/workspace/tools/nox-mem && node --test dist/__tests__/ 2>&1 | tail -5'
 # Se 04-30: bash /root/.openclaw/scripts/activate-salience.sh check
 ```
 

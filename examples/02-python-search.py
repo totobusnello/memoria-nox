@@ -14,7 +14,7 @@ import sys
 from urllib.request import urlopen
 from urllib.parse import urlencode
 
-BASE_URL = os.environ.get("BASE_URL", "http://187.77.234.79:18802").rstrip("/")
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:18802").rstrip("/")
 
 
 def health() -> dict:

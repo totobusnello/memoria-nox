@@ -30,7 +30,7 @@ cd memoria-nox
 ### Acesso à VPS (produção)
 
 ```bash
-ssh root@100.87.8.44          # via Tailscale (preferencial)
+ssh root@<NOX_TAILSCALE_IP>          # via Tailscale (preferencial)
 ssh root@$NOX_VPS_HOST        # via IP público (fallback)
 ```
 

@@ -20,7 +20,7 @@
 ## Pre-flight (on the VPS)
 
 ```bash
-ssh root@srv1465941.hstgr.cloud
+ssh root@<NOX_VPS_HOST>
 cd /root/.openclaw/workspace/tools/nox-mem
 
 # 1. Load env so withOpAudit + Gemini work.
@@ -47,12 +47,12 @@ WORKTREE=/Users/lab/Claude/Projetos/memoria-nox/.claude/worktrees/agent-aeedc498
 VPS=/root/.openclaw/workspace/tools/nox-mem
 
 scp "$WORKTREE/staged-1.7a/edits/salience.ts" \
-    root@srv1465941.hstgr.cloud:$VPS/src/salience.ts
+    root@<NOX_VPS_HOST>:$VPS/src/salience.ts
 scp "$WORKTREE/staged-1.7a/edits/search.ts" \
-    root@srv1465941.hstgr.cloud:$VPS/src/search.ts
+    root@<NOX_VPS_HOST>:$VPS/src/search.ts
 
 # On the VPS:
-ssh root@srv1465941.hstgr.cloud
+ssh root@<NOX_VPS_HOST>
 cd /root/.openclaw/workspace/tools/nox-mem
 
 # Type-check and build.
@@ -110,7 +110,7 @@ Numbers above are forward-looking estimates — final nDCG to be measured agains
 ## Rollback
 
 ```bash
-ssh root@srv1465941.hstgr.cloud
+ssh root@<NOX_VPS_HOST>
 cd /root/.openclaw/workspace/tools/nox-mem
 
 # Restore the pre-op snapshot if anything looks broken.

@@ -17,7 +17,7 @@ from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 from urllib.error import HTTPError
 
-BASE_URL = os.environ.get("BASE_URL", "http://187.77.234.79:18802").rstrip("/")
+BASE_URL = os.environ.get("BASE_URL", "http://localhost:18802").rstrip("/")
 
 
 def answer(question: str, limit: int = 5) -> dict:

@@ -3,7 +3,7 @@
 # config and runs locomo_ablation_eval.py against it. Outputs one JSON per
 # ablation into $RESULTS_DIR.
 #
-# Designed for VPS srv1465941.hstgr.cloud — eval.db at /root/.openclaw/eval/locomo-prod-path/eval.db
+# Designed for VPS <NOX_VPS_HOST> — eval.db at /root/.openclaw/eval/locomo-prod-path/eval.db
 # 2nd nox-mem instance bind to 18803 with NOX_DB_PATH override.
 #
 # Pre-reqs satisfied at top of this script:

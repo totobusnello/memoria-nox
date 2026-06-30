@@ -28,7 +28,7 @@
 
 set -euo pipefail
 
-VPS_HOST="${VPS_HOST:-root@100.87.8.44}"
+VPS_HOST="${VPS_HOST:-root@your-vps-host}"
 REMOTE_VAULT="${REMOTE_VAULT:-/root/ObsidianVault-build/}"
 LOCAL_VAULT="${LOCAL_VAULT:-$HOME/ObsidianVault/}"
 LOG="${LOG:-/tmp/nox-obsidian-sync.log}"

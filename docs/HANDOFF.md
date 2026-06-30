@@ -220,7 +220,7 @@ Rotação **1 → 93** em 9h (run do cron 24h, que mistura o período pré-fix t
 3. Rebuild paper `.pdf`/`.docx` (pandoc/xelatex) — pendente, pré-arXiv.
 
 ### ⚠️ Nota operacional — SSH público (porta 22) bloqueado
-A porta 22 da VPS deu timeout no fim da sessão (**ping OK, IP inalterado** `$NOX_VPS_HOST`, serviço saudável via API). Provável **fail2ban** pelas dezenas de conexões SSH da sessão; costuma auto-liberar em ~10-30min. **Contorno que funcionou: Tailscale SSH** (`root@srv1465941.tail4caa5b.ts.net`) bypassa a porta 22 pública. A API HTTP via Tailscale (`https://srv1465941.tail4caa5b.ts.net` + Bearer em `~/.config/nox-mem/token`) também respondeu normal. Se o SSH público persistir bloqueado amanhã, usar o hostname Tailscale.
+A porta 22 da VPS deu timeout no fim da sessão (**ping OK, IP inalterado** `$NOX_VPS_HOST`, serviço saudável via API). Provável **fail2ban** pelas dezenas de conexões SSH da sessão; costuma auto-liberar em ~10-30min. **Contorno que funcionou: Tailscale SSH** (`root@<NOX_TAILSCALE_HOST>`) bypassa a porta 22 pública. A API HTTP via Tailscale (`https://<NOX_TAILSCALE_HOST>` + Bearer em `~/.config/nox-mem/token`) também respondeu normal. Se o SSH público persistir bloqueado amanhã, usar o hostname Tailscale.
 
 ### Estado
 - Serviço nox-mem-api: active, env `NOX_BRIEF_DIVERSITY=active`, vectorCoverage 70251/70251 **orphans=0** (órfão de 22/06 segue limpo).

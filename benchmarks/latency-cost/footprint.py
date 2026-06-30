@@ -271,7 +271,7 @@ def main():
             },
             "peak_rss_under_load": peak_rss,
             "hardware_context": {
-                "vps": "Hostinger VPS (187.77.234.79)",
+                "vps": "Hostinger VPS (<VPS_IP>)",
                 "vcpus": 4,
                 "ram_total_mb": 15987,
                 "os": "Linux",
@@ -344,7 +344,7 @@ CACHED_MEASUREMENTS = {
         },
     },
     "hardware_context": {
-        "vps": "Hostinger VPS (187.77.234.79)",
+        "vps": "Hostinger VPS (<VPS_IP>)",
         "vcpus": 4,
         "ram_total_mb": 15987,
         "os": "Linux",

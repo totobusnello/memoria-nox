@@ -344,7 +344,7 @@ check_vps_health() {
     log_verbose "Tailscale detected: using nox-vps.tailnet"
   else
     # Fallback: attempt direct IP (will fail outside tailnet, that's expected)
-    vps_url="http://187.77.234.79:18802/api/health"
+    vps_url="http://your-vps-host:18802/api/health"
     log_verbose "Tailscale unavailable: using public IP fallback (will fail outside tailnet)"
   fi
 

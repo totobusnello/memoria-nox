@@ -9,7 +9,7 @@ from requests import Session
 
 from .types import AnswerResponse, HealthSnapshot, SearchResult
 
-_DEFAULT_BASE_URL = "http://187.77.234.79:18802"
+_DEFAULT_BASE_URL = "http://localhost:18802"
 _MAX_RETRIES = 3
 _RETRY_BACKOFF_BASE = 0.5  # seconds
 

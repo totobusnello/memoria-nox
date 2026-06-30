@@ -181,7 +181,7 @@ Toto reportou "layout não está bom, tem coisa cortada" → disparei vision age
 #### A.1 — `integrate_beir_results.py` (863 linhas, stdlib only)
 **Workflow amanhã:**
 ```bash
-ssh root@100.87.8.44 'ls -lah /root/beir-results/'
+ssh root@<NOX_TAILSCALE_IP> 'ls -lah /root/beir-results/'
 python3 paper/publication/baselines/integrate_beir_results.py
 ```
 - SCP results from VPS Tailscale IP
@@ -362,7 +362,7 @@ Tag aplicada: **`v1.0.0-paper-draft`** (sincroniza com CITATION.cff version fiel
 
 6. **Cross-agent visibility** — agents disparados em paralelo não veem outputs uns dos outros. Submit-runbook agent flaggou TBDs de arquivos que outros agents já tinham criado. Sempre verificar pós-completion.
 
-7. **Tailscale vs public IP** — ssh access via Tailscale (100.87.8.44) preferível pra scripts que rodam consistentemente; public IP só pra emergency.
+7. **Tailscale vs public IP** — ssh access via Tailscale (<NOX_TAILSCALE_IP>) preferível pra scripts que rodam consistentemente; public IP só pra emergency.
 
 ---
 

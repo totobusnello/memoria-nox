@@ -80,7 +80,7 @@ Hoje restauramos a camada semântica do nox-mem que estava silenciosamente quebr
 
 ### Comando de rollback total (DB)
 ```bash
-ssh root@100.87.8.44 'systemctl stop nox-mem-api nox-mem-watcher && \
+ssh root@<NOX_TAILSCALE_IP> 'systemctl stop nox-mem-api nox-mem-watcher && \
   cp /root/.openclaw/workspace/backups/nox-mem-pre-nightly-20260418-125019.db \
      /root/.openclaw/workspace/tools/nox-mem/nox-mem.db && \
   systemctl start nox-mem-api nox-mem-watcher'
@@ -88,7 +88,7 @@ ssh root@100.87.8.44 'systemctl stop nox-mem-api nox-mem-watcher && \
 
 ### Comando de rollback do código (exemplo Tier 1)
 ```bash
-ssh root@100.87.8.44 'cd /root/.openclaw/workspace/tools/nox-mem && \
+ssh root@<NOX_TAILSCALE_IP> 'cd /root/.openclaw/workspace/tools/nox-mem && \
   cp /root/.openclaw/workspace/backups/tier1-20260418-122336/*.ts src/ && \
   cp /root/.openclaw/workspace/backups/tier1-20260418-122336/*.js dist/ && \
   systemctl restart nox-mem-api'
@@ -130,7 +130,7 @@ Se algum vermelho → abre este doc na seção correspondente.
 
 **Observação:** `DISCORD_WEBHOOK` NÃO está configurado em `/root/.openclaw/.env` (só `DISCORD_BOT_TOKEN` do bot). Se quiser receber ping no celular às 06:30, adicionar a webhook URL:
 ```bash
-ssh root@100.87.8.44 'echo "DISCORD_WEBHOOK=<url_aqui>" >> /root/.openclaw/.env'
+ssh root@<NOX_TAILSCALE_IP> 'echo "DISCORD_WEBHOOK=<url_aqui>" >> /root/.openclaw/.env'
 ```
 Sem isso, morning-report ainda roda e loga em `/var/log/nox-morning.log` — o script local `check-nox-mem.sh` mostra a última entrada.
 
@@ -140,19 +140,19 @@ Abra SSH para a VPS e rode um por um. **Todos devem retornar verde.** Se algum f
 
 ### 1. Nightly-maintenance rodou limpo?
 ```bash
-ssh root@100.87.8.44 'tail -50 /var/log/nox-maintenance.log'
+ssh root@<NOX_TAILSCALE_IP> 'tail -50 /var/log/nox-maintenance.log'
 ```
 Esperado: logs de reindex → consolidate → vectorize → kg-build → kg-prune sem erros. Se o vectorize reclamou de 429, Gemini quota pode estar batendo.
 
 ### 2. Canary passou?
 ```bash
-ssh root@100.87.8.44 'tail -5 /var/log/nox-canary.log'
+ssh root@<NOX_TAILSCALE_IP> 'tail -5 /var/log/nox-canary.log'
 ```
 Esperado: `OK: total=10 semantic=N fts=M orphans=0` onde `semantic > 0`. Se semantic=0 → camada voltou a quebrar, investigar.
 
 ### 3. Sistema íntegro?
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | python3 -m json.tool'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | python3 -m json.tool'
 ```
 Esperado:
 - `vectorCoverage.orphans = 0`
@@ -161,19 +161,19 @@ Esperado:
 
 ### 4. Zero restarts automáticos em 24h?
 ```bash
-ssh root@100.87.8.44 'journalctl -u nox-mem-api --since "24 hours ago" --no-pager | grep -c "Started nox-mem-api"'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl -u nox-mem-api --since "24 hours ago" --no-pager | grep -c "Started nox-mem-api"'
 ```
 Esperado: **0 ou 1** (1 se houve manutenção programada). Qualquer número > 2 → probe está quebrado de novo ou serviço crashando.
 
 ### 5. 429 Gemini sob controle?
 ```bash
-ssh root@100.87.8.44 'journalctl --since "24 hours ago" --no-pager 2>/dev/null | grep -cE "Resource exhausted"'
+ssh root@<NOX_TAILSCALE_IP> 'journalctl --since "24 hours ago" --no-pager 2>/dev/null | grep -cE "Resource exhausted"'
 ```
 Esperado: **0-5**. Valores maiores sugerem loop runaway em algum cron (como Apr 12-15).
 
 ### 6. Trigger CASCADE ativo?
 ```bash
-ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "SELECT name FROM sqlite_master WHERE type=\"trigger\" AND name=\"trg_chunks_delete_cascade\";"'
+ssh root@<NOX_TAILSCALE_IP> 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db "SELECT name FROM sqlite_master WHERE type=\"trigger\" AND name=\"trg_chunks_delete_cascade\";"'
 ```
 Esperado: `trg_chunks_delete_cascade`. Se vazio → alguém removeu, reinstalar.
 
@@ -226,33 +226,33 @@ Listadas do relatório dos specialists, NÃO atacar sem o Tier 3 rodando 7+ dias
 
 ### Re-embed total se precisar (~74s, zero 429)
 ```bash
-ssh root@100.87.8.44 'set -a; . /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> 'set -a; . /root/.openclaw/.env; set +a; \
   cd /root/.openclaw/workspace/tools/nox-mem && \
   node dist/index.js vectorize --force'
 ```
 
 ### Crystalize uma procedure
 ```bash
-curl -X POST http://100.87.8.44:18802/api/crystallize \
+curl -X POST http://<NOX_TAILSCALE_IP>:18802/api/crystallize \
   -H "Content-Type: application/json" \
   -d '{"title":"...","steps":["step 1","..."],"agent":"nox","tags":["tag"]}'
 ```
 
 ### Reflect com cache
 ```bash
-curl -G "http://100.87.8.44:18802/api/reflect" \
+curl -G "http://<NOX_TAILSCALE_IP>:18802/api/reflect" \
   --data-urlencode "q=your question here"
 ```
 
 ### Ver reflect cache stats
 ```bash
-ssh root@100.87.8.44 'curl -s http://127.0.0.1:18802/api/health | \
+ssh root@<NOX_TAILSCALE_IP> 'curl -s http://127.0.0.1:18802/api/health | \
   python3 -c "import sys,json; print(json.dumps(json.load(sys.stdin)[\"reflectCache\"],indent=2))"'
 ```
 
 ### Verificar se um chunk específico tem embedding
 ```bash
-ssh root@100.87.8.44 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
+ssh root@<NOX_TAILSCALE_IP> 'sqlite3 /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
   "SELECT c.id, c.chunk_type, CASE WHEN m.chunk_id IS NOT NULL THEN \"yes\" ELSE \"NO\" END as embedded \
    FROM chunks c LEFT JOIN vec_chunk_map m ON m.chunk_id = c.id WHERE c.id = <ID>;"'
 ```

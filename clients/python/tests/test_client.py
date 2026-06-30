@@ -12,7 +12,7 @@ from nox_mem.types import AnswerResponse, HealthSnapshot, SearchResult
 class TestClientInit(unittest.TestCase):
     def test_default_base_url(self):
         c = NoxMemClient()
-        self.assertEqual(c.base_url, "http://187.77.234.79:18802")
+        self.assertEqual(c.base_url, "http://localhost:18802")
 
     def test_custom_base_url_strips_trailing_slash(self):
         c = NoxMemClient(base_url="http://localhost:18802/")

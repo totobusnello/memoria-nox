@@ -69,7 +69,7 @@ P — Produtização NOX-Supermem                        [🔒 HORIZONTE FINAL]
 ## 2. ESTADO ATUAL DO SISTEMA (2026-04-21 final)
 
 ### Infra
-- **VPS:** Hostinger KVM 4 @ `root@100.87.8.44` (Tailscale) / `root@$NOX_VPS_HOST` (público)
+- **VPS:** Hostinger KVM 4 @ `root@<NOX_TAILSCALE_IP>` (Tailscale) / `root@$NOX_VPS_HOST` (público)
 - **OpenClaw:** v2026.4.15 (commit `041266a`) + monkey-patch Issue #62028 ativo
 - **Node.js:** v22.22.2 com wrapper `--no-warnings`
 - **6 serviços active:** openclaw-gateway, nox-mem-watcher, nox-mem-api, relayplane-proxy, tailscaled, fail2ban
@@ -242,7 +242,7 @@ Fechou os 5 pendentes do `Handoff_20.04.docx`:
 
 ```bash
 # Antes de qualquer nox-mem CLI via SSH/cron
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; nox-mem <comando>'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; nox-mem <comando>'
 
 # Verificar saúde real do sistema
 curl http://127.0.0.1:18802/api/health | jq .vectorCoverage

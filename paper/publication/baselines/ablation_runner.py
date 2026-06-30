@@ -27,11 +27,11 @@ USO RÁPIDO
   # Execução real (exige confirmação interativa):
   python ablation_runner.py \\
     --queries /path/to/golden_queries.jsonl \\
-    --vps-host root@187.77.234.79 \\
+    --vps-host root@<VPS_IP> \\
     --env-path /root/.openclaw/.env
 
   # Usar env var no lugar de --vps-host:
-  export NOX_VPS_HOST=root@187.77.234.79
+  export NOX_VPS_HOST=root@<VPS_IP>
   python ablation_runner.py --queries golden_queries.jsonl
 
 -------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ logger = logging.getLogger("ablation_runner")
 # ---------------------------------------------------------------------------
 
 _DEFAULT_ENV_PATH = "/root/.openclaw/.env"
-_DEFAULT_VPS_HOST = "root@187.77.234.79"
+_DEFAULT_VPS_HOST = "root@<VPS_IP>"
 _DEFAULT_OUTPUT_DIR = Path(__file__).parent.parent / "results"
 _HEALTH_URL = "http://127.0.0.1:18802/api/health"
 _HEALTH_TIMEOUT_S = 90   # max seconds to wait for API to recover after restart
@@ -189,7 +189,7 @@ def _ssh(
     is passed as a single quoted string and executed by the remote shell.
 
     Args:
-        host: SSH target, e.g. ``root@187.77.234.79``.
+        host: SSH target, e.g. ``root@<VPS_IP>``.
         command: Shell command to run on the remote host.
         check: If True, raise CalledProcessError on non-zero exit.
         capture_output: If True, capture stdout/stderr and return them.
@@ -245,7 +245,7 @@ def restart_nox_mem_services(
     must call ``restore_baseline_env`` to recover.
 
     Args:
-        host: SSH target string (e.g. ``root@187.77.234.79``).
+        host: SSH target string (e.g. ``root@<VPS_IP>``).
         env_path: Absolute path to .env on the remote host.
         env_overrides: Dict of var names → values to apply.
             Empty dict = no env changes (baseline case).

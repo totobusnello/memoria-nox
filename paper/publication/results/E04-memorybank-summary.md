@@ -29,16 +29,16 @@ GitHub repo `https://github.com/zhongwanjun/MemoryBank-SiliconFriend` was **publ
 
 Check load first:
 ```bash
-ssh root@100.87.8.44 "cat /proc/loadavg"
+ssh root@<NOX_TAILSCALE_IP> "cat /proc/loadavg"
 ```
 Abort if 5-min avg > 3.5 (BEIR priority).
 
 Copy adapter + run smoke test:
 ```bash
 scp paper/publication/baselines/memorybank_adapter.py \
-    root@100.87.8.44:/root/memorybank-baselines/
+    root@<NOX_TAILSCALE_IP>:/root/memorybank-baselines/
 
-ssh root@100.87.8.44 "mkdir -p /root/memorybank-baselines && \
+ssh root@<NOX_TAILSCALE_IP> "mkdir -p /root/memorybank-baselines && \
   python3.11 -m venv /tmp/memorybank-venv && \
   /tmp/memorybank-venv/bin/pip install -q requests && \
   tmux new-session -d -s memorybank-eval \
@@ -53,12 +53,12 @@ ssh root@100.87.8.44 "mkdir -p /root/memorybank-baselines && \
 
 Monitor:
 ```bash
-ssh root@100.87.8.44 "tail -f /tmp/memorybank-smoke.log"
+ssh root@<NOX_TAILSCALE_IP> "tail -f /tmp/memorybank-smoke.log"
 ```
 
 Full pipeline after smoke passes:
 ```bash
-ssh root@100.87.8.44 "nice -n 19 ionice -c 3 \
+ssh root@<NOX_TAILSCALE_IP> "nice -n 19 ionice -c 3 \
   /tmp/memorybank-venv/bin/python /root/memorybank-baselines/memorybank_adapter.py full \
     --clone-dir /tmp/memorybank-repo \
     --db /tmp/nox-mem-memorybank.db \
@@ -68,17 +68,17 @@ ssh root@100.87.8.44 "nice -n 19 ionice -c 3 \
 
 Vectorize + eval (requires nox-mem env + API):
 ```bash
-ssh root@100.87.8.44 "set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> "set -a; source /root/.openclaw/.env; set +a; \
   NOX_DB_PATH=/tmp/nox-mem-memorybank.db \
   nice -n 19 ionice -c 3 \
   nox-mem vectorize --all 2>&1 | tee /tmp/memorybank-vectorize.log"
 
 # Start API on TEMP DB (kills production API temporarily)
-ssh root@100.87.8.44 "set -a; source /root/.openclaw/.env; set +a; \
+ssh root@<NOX_TAILSCALE_IP> "set -a; source /root/.openclaw/.env; set +a; \
   NOX_DB_PATH=/tmp/nox-mem-memorybank.db \
   node /root/.openclaw/workspace/tools/nox-mem/dist/index.js serve &"
 
-ssh root@100.87.8.44 "nice -n 19 ionice -c 3 \
+ssh root@<NOX_TAILSCALE_IP> "nice -n 19 ionice -c 3 \
   /tmp/memorybank-venv/bin/python /root/memorybank-baselines/memorybank_adapter.py eval \
     --queries /tmp/memorybank-eval-queries.jsonl \
     --output  /tmp/memorybank-results.jsonl \
@@ -88,9 +88,9 @@ ssh root@100.87.8.44 "nice -n 19 ionice -c 3 \
 
 Pull results:
 ```bash
-scp root@100.87.8.44:/tmp/memorybank-results.jsonl \
+scp root@<NOX_TAILSCALE_IP>:/tmp/memorybank-results.jsonl \
     paper/publication/results/memorybank-nox-results.jsonl
-scp root@100.87.8.44:/tmp/memorybank-manifest.json \
+scp root@<NOX_TAILSCALE_IP>:/tmp/memorybank-manifest.json \
     paper/publication/results/memorybank-manifest.json
 ```
 

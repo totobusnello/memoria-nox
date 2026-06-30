@@ -35,14 +35,14 @@
 
 ## Task 0: Recon pins (read-only, sem commit)
 
-Pina 4 fatos que o código das tasks seguintes referencia. Executar via SSH (`ssh root@100.87.8.44`), tudo read-only.
+Pina 4 fatos que o código das tasks seguintes referencia. Executar via SSH (`ssh root@<NOX_TAILSCALE_IP>`), tudo read-only.
 
 **Files:** nenhum (só leitura).
 
 - [ ] **Step 0.1: Formato de `chunks.created_at`**
 
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && sqlite3 nox-mem.db \"SELECT typeof(created_at), created_at FROM chunks ORDER BY rowid DESC LIMIT 2;\""
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && sqlite3 nox-mem.db \"SELECT typeof(created_at), created_at FROM chunks ORDER BY rowid DESC LIMIT 2;\""
 ```
 
 Expected: `text|2026-06-...` (ISO8601). Evidência prévia: `datetime(created_at/1000,'unixepoch')` retornou 1970+2s ⇒ TEXT ISO coagido pra número. **Se vier `integer`**, ajustar comparações do Task 4/5 para epoch (`created_at >= strftime('%s', :since)`), e anotar aqui.
@@ -50,7 +50,7 @@ Expected: `text|2026-06-...` (ISO8601). Evidência prévia: `datetime(created_at
 - [ ] **Step 0.2: Métrica de distância do `vec_chunks`**
 
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && sqlite3 nox-mem.db \"SELECT sql FROM sqlite_master WHERE name='vec_chunks';\" && grep -n 'MATCH' src/search*.ts src/lib/*.ts 2>/dev/null | head -5"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && sqlite3 nox-mem.db \"SELECT sql FROM sqlite_master WHERE name='vec_chunks';\" && grep -n 'MATCH' src/search*.ts src/lib/*.ts 2>/dev/null | head -5"
 ```
 
 Expected: DDL do vec0 (com ou sem `distance_metric=cosine`) + o snippet KNN que o `search.ts` já usa. Anotar: (a) métrica; (b) query KNN canônica do repo — o `churn.ts` REUSA esse padrão, não inventa outro.
@@ -58,7 +58,7 @@ Expected: DDL do vec0 (com ou sem `distance_metric=cosine`) + o snippet KNN que 
 - [ ] **Step 0.3: Test runner**
 
 ```bash
-ssh root@100.87.8.44 "cd /root/.openclaw/workspace/tools/nox-mem && cat package.json | jq -r '.scripts | {test, build}' && ls src/__tests__/ | head -5"
+ssh root@<NOX_TAILSCALE_IP> "cd /root/.openclaw/workspace/tools/nox-mem && cat package.json | jq -r '.scripts | {test, build}' && ls src/__tests__/ | head -5"
 ```
 
 Expected: script de test (vitest ou node:test) + exemplos existentes. O test do Task 4 segue o padrão dos arquivos em `src/__tests__/`.
@@ -66,7 +66,7 @@ Expected: script de test (vitest ou node:test) + exemplos existentes. O test do 
 - [ ] **Step 0.4: Formato real de entity file**
 
 ```bash
-ssh root@100.87.8.44 "ls /root/.openclaw/workspace/memory/entities/*/ | head; head -40 \$(find /root/.openclaw/workspace/memory/entities -name '*.md' | head -1)"
+ssh root@<NOX_TAILSCALE_IP> "ls /root/.openclaw/workspace/memory/entities/*/ | head; head -40 \$(find /root/.openclaw/workspace/memory/entities -name '*.md' | head -1)"
 ```
 
 Expected: exemplo vivo com frontmatter YAML + section compiled + timeline. O Task 2 copia ESTE formato exato (headings reais do parser em `src/ingest-entity.ts`), não o esqueleto genérico abaixo.
@@ -80,7 +80,7 @@ Expected: exemplo vivo com frontmatter YAML + section compiled + timeline. O Tas
 - [ ] **Step 1.1: Clone fresco + branch**
 
 ```bash
-ssh root@100.87.8.44 'TASK=/tmp/cipher-simbiose-$(uuidgen | cut -c1-8) && git clone --depth 5 https://github.com/totobusnello/nox-workspace.git $TASK && cd $TASK && git checkout -b feat/cipher-simbiose-itens-1-2-3 && echo "WORKDIR=$TASK"'
+ssh root@<NOX_TAILSCALE_IP> 'TASK=/tmp/cipher-simbiose-$(uuidgen | cut -c1-8) && git clone --depth 5 https://github.com/totobusnello/nox-workspace.git $TASK && cd $TASK && git checkout -b feat/cipher-simbiose-itens-1-2-3 && echo "WORKDIR=$TASK"'
 ```
 
 Expected: `WORKDIR=/tmp/cipher-simbiose-XXXXXXXX`. **Anotar o path — todas as tasks 2-6 editam NESTE clone.** (Referido como `$WORKDIR` daqui em diante.)
@@ -88,7 +88,7 @@ Expected: `WORKDIR=/tmp/cipher-simbiose-XXXXXXXX`. **Anotar o path — todas as 
 - [ ] **Step 1.2: Symlink node_modules (build/test sem npm ci)**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR/tools/nox-mem && ln -s /root/.openclaw/workspace/tools/nox-mem/node_modules node_modules && npx tsc --noEmit 2>&1 | head -5'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR/tools/nox-mem && ln -s /root/.openclaw/workspace/tools/nox-mem/node_modules node_modules && npx tsc --noEmit 2>&1 | head -5'
 ```
 
 Expected: tsc roda limpo (ou só erros pré-existentes conhecidos). Se symlink falhar com native modules: `npm ci` (~3min) como fallback.
@@ -130,7 +130,7 @@ Disciplina de stewardship dos documentos de agentes (SOUL.md, MEMORY.md, TOOLS.m
 - [ ] **Step 2.2: Commit**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR && git add memory/entities/process/doc-steward.md && git commit -m "feat(steward): entity process/doc-steward — escrita 3-secoes do Cipher (item 1 plano simbiose)"'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR && git add memory/entities/process/doc-steward.md && git commit -m "feat(steward): entity process/doc-steward — escrita 3-secoes do Cipher (item 1 plano simbiose)"'
 ```
 
 - [ ] **Step 2.3: Ingest no prod (após merge — ver Task 7.4)** — placeholder de ordem: o ingest acontece DEPOIS do merge+pull, comando documentado no Task 7.
@@ -176,7 +176,7 @@ Toda escrita vai na timeline de `memory/entities/process/doc-steward.md` e re-in
 - [ ] **Step 3.3: Verificar coerência (diff do bloco entre os 6 = vazio)**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR && for a in nox atlas boris cipher forge lex; do sed -n "/## Memória nox-mem — answer vs search/,/auditabilidade/p" agents/$a/SOUL.md | md5sum; done'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR && for a in nox atlas boris cipher forge lex; do sed -n "/## Memória nox-mem — answer vs search/,/auditabilidade/p" agents/$a/SOUL.md | md5sum; done'
 ```
 
 Expected: 6 hashes IDÊNTICOS.
@@ -184,7 +184,7 @@ Expected: 6 hashes IDÊNTICOS.
 - [ ] **Step 3.4: Commit**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR && git add agents/*/SOUL.md && git commit -m "docs(souls): politica answer vs search nos 6 agentes + adendo escrita Cipher (item 3 plano simbiose)"'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR && git add agents/*/SOUL.md && git commit -m "docs(souls): politica answer vs search nos 6 agentes + adendo escrita Cipher (item 3 plano simbiose)"'
 ```
 
 ---
@@ -240,7 +240,7 @@ describe("detectChurn", () => {
 - [ ] **Step 4.2: Rodar e ver falhar**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR/tools/nox-mem && npx vitest run src/__tests__/churn.test.ts 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR/tools/nox-mem && npx vitest run src/__tests__/churn.test.ts 2>&1 | tail -5'
 ```
 
 Expected: FAIL — `Cannot find module '../churn'`. (Trocar comando pelo runner do Step 0.3 se não for vitest.)
@@ -341,7 +341,7 @@ export function churnReportMd(pairs: ChurnPair[], since: string): string {
 - [ ] **Step 5.2: Rodar o teste e ver passar**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR/tools/nox-mem && npx vitest run src/__tests__/churn.test.ts 2>&1 | tail -5'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR/tools/nox-mem && npx vitest run src/__tests__/churn.test.ts 2>&1 | tail -5'
 ```
 
 Expected: PASS (1 test). Se falhar por métrica de distância: ajustar `distToSim` conforme Step 0.2 — esse é o único ponto móvel.
@@ -349,7 +349,7 @@ Expected: PASS (1 test). Se falhar por métrica de distância: ajustar `distToSi
 - [ ] **Step 5.3: Commit**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR && git add tools/nox-mem/src/churn.ts tools/nox-mem/src/__tests__/churn.test.ts && git commit -m "feat(churn): detectChurn por embedding KNN sobre vec_chunks + report md (item 2 plano simbiose)"'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR && git add tools/nox-mem/src/churn.ts tools/nox-mem/src/__tests__/churn.test.ts && git commit -m "feat(churn): detectChurn por embedding KNN sobre vec_chunks + report md (item 2 plano simbiose)"'
 ```
 
 ---
@@ -396,7 +396,7 @@ Nota: CLI usa `getDb()` normalmente (proibição de getDb é para EVAL scripts, 
 - [ ] **Step 6.2: Build + smoke no clone apontando pro DB prod (read-only)**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR/tools/nox-mem && npx tsc && set -a && source /root/.openclaw/.env && set +a && node dist/index.js churn --changed-since 2026-05-05T00:00:00Z --threshold 0.85 2>&1 | head -20'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR/tools/nox-mem && npx tsc && set -a && source /root/.openclaw/.env && set +a && node dist/index.js churn --changed-since 2026-05-05T00:00:00Z --threshold 0.85 2>&1 | head -20'
 ```
 
 Expected: report com N pares plausíveis (maio teve re-decisões conhecidas: D48 saga, IP swap, worktree 3×) ou `Nenhum churn`. **Crash = fix antes de seguir.** Threshold 0.85 no smoke pra reduzir ruído; default fica 0.80.
@@ -404,7 +404,7 @@ Expected: report com N pares plausíveis (maio teve re-decisões conhecidas: D48
 - [ ] **Step 6.3: Commit**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR && git add tools/nox-mem/src/index.ts && git commit -m "feat(cli): comando churn --changed-since com report md/json (item 2 plano simbiose)"'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR && git add tools/nox-mem/src/index.ts && git commit -m "feat(cli): comando churn --changed-since com report md/json (item 2 plano simbiose)"'
 ```
 
 ---
@@ -414,7 +414,7 @@ ssh root@100.87.8.44 'cd $WORKDIR && git add tools/nox-mem/src/index.ts && git c
 - [ ] **Step 7.1: Push + PR**
 
 ```bash
-ssh root@100.87.8.44 'cd $WORKDIR && git push -u origin feat/cipher-simbiose-itens-1-2-3'
+ssh root@<NOX_TAILSCALE_IP> 'cd $WORKDIR && git push -u origin feat/cipher-simbiose-itens-1-2-3'
 gh pr create --repo totobusnello/nox-workspace --head feat/cipher-simbiose-itens-1-2-3 --title "Cipher simbiose itens 1-3: entity doc-steward + politica answer/search 6 SOULs + churn por embedding" --body "Plano: memoria-nox specs/2026-06-05-cipher-simbiose-itens-1-2-3.md. Item 1: entity process/doc-steward (3 secoes). Item 3: bloco identico nos 6 SOULs + adendo Cipher. Item 2: src/churn.ts (KNN sqlite-vec, \$0 Gemini) + CLI churn + test."
 ```
 
@@ -423,7 +423,7 @@ gh pr create --repo totobusnello/nox-workspace --head feat/cipher-simbiose-itens
 - [ ] **Step 7.3: Pull + build no working tree prod**
 
 ```bash
-ssh root@100.87.8.44 'cd /root/.openclaw/workspace && git branch --show-current && git pull && cd tools/nox-mem && npx tsc && echo BUILD_OK'
+ssh root@<NOX_TAILSCALE_IP> 'cd /root/.openclaw/workspace && git branch --show-current && git pull && cd tools/nox-mem && npx tsc && echo BUILD_OK'
 ```
 
 Expected: `main` + `BUILD_OK`. Sem restart de serviço (api-server não mudou).
@@ -431,7 +431,7 @@ Expected: `main` + `BUILD_OK`. Sem restart de serviço (api-server não mudou).
 - [ ] **Step 7.4: Ingest do entity (item 1 vira dado)**
 
 ```bash
-ssh root@100.87.8.44 'set -a; source /root/.openclaw/.env; set +a; cd /root/.openclaw/workspace/tools/nox-mem && node dist/index.js ingest-entity ../../memory/entities/process/doc-steward.md && sqlite3 nox-mem.db "SELECT section, count(*) FROM chunks WHERE title LIKE \"%doc-steward%\" GROUP BY section;"'
+ssh root@<NOX_TAILSCALE_IP> 'set -a; source /root/.openclaw/.env; set +a; cd /root/.openclaw/workspace/tools/nox-mem && node dist/index.js ingest-entity ../../memory/entities/process/doc-steward.md && sqlite3 nox-mem.db "SELECT section, count(*) FROM chunks WHERE title LIKE \"%doc-steward%\" GROUP BY section;"'
 ```
 
 Expected: N+2 chunks com sections `frontmatter`/`compiled`/`timeline` (N eventos). Validar também `curl -s http://127.0.0.1:18802/api/health | jq .sectionDistribution`.
@@ -439,7 +439,7 @@ Expected: N+2 chunks com sections `frontmatter`/`compiled`/`timeline` (N eventos
 - [ ] **Step 7.5: Cron mensal (dia 1, 03:17 — off-minute)**
 
 ```bash
-ssh root@100.87.8.44 'cat >> /var/spool/cron/crontabs/root <<EOF
+ssh root@<NOX_TAILSCALE_IP> 'cat >> /var/spool/cron/crontabs/root <<EOF
 # ── Churn mensal (re-decisões = knowledge gaps) — plano Cipher simbiose 2026-06-05
 17 3 1 * * set -a; . /root/.openclaw/.env; set +a; cd /root/.openclaw/workspace/tools/nox-mem && node dist/index.js churn --changed-since \$(date -d "1 month ago" +\%Y-\%m-01)T00:00:00Z --report /root/.openclaw/workspace/memory/reports/churn-\$(date +\%Y-\%m).md >> /var/log/nox-churn.log 2>&1
 EOF
@@ -451,7 +451,7 @@ Expected: linha instalada. Nota deliberada: `memory/reports/` é watched → rep
 - [ ] **Step 7.6: Smoke do brief pós-SOULs (personas leem SOUL no boot)**
 
 ```bash
-ssh root@100.87.8.44 'curl -s -H "Authorization: Bearer $(cat /root/.config/nox-mem/token 2>/dev/null || echo X)" https://srv1465941.tail4caa5b.ts.net/api/brief?scope=cipher | head -5; for a in nox atlas boris cipher forge lex; do wc -l /root/.openclaw/workspace/agents/$a/SOUL.md; done'
+ssh root@<NOX_TAILSCALE_IP> 'curl -s -H "Authorization: Bearer $(cat /root/.config/nox-mem/token 2>/dev/null || echo X)" https://<NOX_TAILSCALE_HOST>/api/brief?scope=cipher | head -5; for a in nox atlas boris cipher forge lex; do wc -l /root/.openclaw/workspace/agents/$a/SOUL.md; done'
 ```
 
 Expected: brief responde 200 + 6 SOULs com +14/+17 linhas vs baseline (92-158 → 106-175).

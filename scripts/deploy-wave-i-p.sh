@@ -23,7 +23,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # CONFIG
 # ---------------------------------------------------------------------------
-VPS_HOST="root@187.77.234.79"
+VPS_HOST="root@your-vps-host"
 VPS_NX="/root/.openclaw/workspace/tools/nox-mem"
 VPS_BACKUP_DIR="/var/backups/nox-mem/pre-op"
 VPS_LOG="/var/log/nox-mem-deploy-wave-i-p.log"

@@ -2,7 +2,7 @@
 # vps-healthcheck.sh — Detecta IP swaps ou outages na VPS nox-mem cedo
 #
 # Contexto: incident 2026-05-20 — Hostinger floating-IP rebalance moveu VPS
-# de 45.43.85.86 → 187.77.234.79 silenciosamente; recovery levou ~30min.
+# de your-vps-host → your-vps-host silenciosamente; recovery levou ~30min.
 # Este script roda periodicamente (cron) e alerta se a VPS ficar inacessível.
 #
 # Cron sugerido (a cada 15 min, alerta visual no Mac):
@@ -99,7 +99,7 @@ ${BOLD}Exit codes:${RESET}
 
 ${BOLD}Exemplos:${RESET}
   # Teste manual:
-  $0 --ip 187.77.234.79
+  $0 --ip your-vps-host
 
   # Cron a cada 15 min com alerta macOS:
   */15 * * * * $0 --quiet || /usr/bin/osascript -e 'display notification "VPS unreachable" with title "nox-mem"'
@@ -150,7 +150,7 @@ else
   if [[ -z "$VPS_IP" ]]; then
     _ts_ip=""
     if command -v tailscale >/dev/null 2>&1; then
-      _ts_ip="$(tailscale status 2>/dev/null | awk '/srv1465941|nox-vps/{print $1; exit}')"
+      _ts_ip="$(tailscale status 2>/dev/null | awk '/your-vps-host|nox-vps/{print $1; exit}')"
     fi
     _env_ip="$(printenv VPS_IP 2>/dev/null || true)"
     if [[ -n "$_ts_ip" ]]; then

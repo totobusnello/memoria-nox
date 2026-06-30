@@ -64,7 +64,7 @@
 
 ```bash
 # 1. Verificar estado pós-sessão-anterior
-ssh root@100.87.8.44 'systemctl is-active openclaw-gateway && curl -s http://127.0.0.1:18802/api/health | jq .vectorCoverage'
+ssh root@<NOX_TAILSCALE_IP> 'systemctl is-active openclaw-gateway && curl -s http://127.0.0.1:18802/api/health | jq .vectorCoverage'
 
 # 2. Inventário local
 cd ~/Claude/Projetos && find . -maxdepth 3 -name '*.md' -not -path '*/node_modules/*' | head -30

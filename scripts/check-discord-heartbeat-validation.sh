@@ -4,7 +4,7 @@
 # Uso: bash scripts/check-discord-heartbeat-validation.sh
 # Roda 2026-04-21 manhã após rotina 07h-12h
 
-VPS_HOST="root@100.87.8.44"
+VPS_HOST="root@your-vps-host"
 
 echo "╔══════════════════════════════════════════════════════════════════╗"
 echo "║  Validação pós cost reduction pass — 2026-04-21                  ║"

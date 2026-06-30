@@ -86,8 +86,8 @@ Restart at `2026-05-23 20:57:48 -03`. New PID 2315705 listening clean on `http:/
 Boot log lines (last two):
 
 ```
-May 23 20:57:48 srv1465941 node[2315705]: [nox-mem-api] Listening on http://127.0.0.1:18802
-May 23 20:57:48 srv1465941 node[2315705]: [nox-mem-api] shadow tracker DB handle wired
+May 23 20:57:48 <NOX_VPS_HOST> node[2315705]: [nox-mem-api] Listening on http://127.0.0.1:18802
+May 23 20:57:48 <NOX_VPS_HOST> node[2315705]: [nox-mem-api] shadow tracker DB handle wired
 ```
 
 The `shadow tracker DB handle wired` line confirms CHANGE 0 Option C executed successfully — singleton tracker now has the shared `getDb()` handle for append-only persistence to `shadow_runs`.

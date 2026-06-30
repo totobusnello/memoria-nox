@@ -262,7 +262,7 @@ Every destructive op (reindex / consolidate / compact / crystallize / kg-prune) 
 ┌─────────────────────────────────────────────────────────────┐
 │  Hostinger VPS — Ubuntu 22.04                               │
 │  8 cores · 16 GB RAM · NVMe                                 │
-│  IP: $NOX_VPS_HOST  (floating; previous: 45.43.85.86)       │
+│  IP: $NOX_VPS_HOST  (floating; previous: <VPS_IP>)       │
 │                                                             │
 │  ┌─────────────────────────────────────────────────┐        │
 │  │ systemd: nox-mem-api.service                    │        │

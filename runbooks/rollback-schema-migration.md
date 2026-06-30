@@ -6,7 +6,7 @@
 
 ## Pré-requisitos
 
-- SSH root VPS (`ssh root@100.87.8.44`)
+- SSH root VPS (`ssh root@<NOX_TAILSCALE_IP>`)
 - Backup pré-migration existe em `/root/.openclaw/workspace/tools/nox-mem/backups/nox-mem-pre-v<N>-*.db`
 - Conhece a versão estável anterior (current schema_version: v10)
 
@@ -14,7 +14,7 @@
 
 ### 1. STOP serviços que escrevem no DB
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 systemctl stop nox-mem-api nox-mem-watcher openclaw-gateway
 ps -ef | grep -E "nox-mem|openclaw" | grep -v grep | grep -v stop
 # Confirmar todos pararam
@@ -23,7 +23,7 @@ ps -ef | grep -E "nox-mem|openclaw" | grep -v grep | grep -v stop
 
 ### 2. Identificar backup alvo
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 ls -la /root/.openclaw/workspace/tools/nox-mem/backups/nox-mem-pre-v* | sort -r
 # Escolher o mais recente que preceda a migration buggy
 
@@ -39,7 +39,7 @@ Esperado: `ok` + `user_version` correto.
 
 **Se o problema é a migration nova (v11+ broken):**
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 cd /root/.openclaw/workspace/tools/nox-mem/src
 # Restaurar db.ts pra versão pré-v11
 cp db.ts.bak-pre-v11-<DATE> db.ts
@@ -50,7 +50,7 @@ npm run build 2>&1 | tail -3
 ### 4. Restore DB via safeRestore() (recomendado)
 
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 cd /root/.openclaw/workspace/tools/nox-mem
 node -e "
 import(\"./dist/lib/op-audit.js\").then(m => {
@@ -75,7 +75,7 @@ import(\"./dist/lib/op-audit.js\").then(m => {
 
 ### 5. Restart + validate
 ```bash
-ssh root@100.87.8.44 '
+ssh root@<NOX_TAILSCALE_IP> '
 systemctl start nox-mem-api nox-mem-watcher openclaw-gateway
 sleep 5
 systemctl is-active nox-mem-api nox-mem-watcher openclaw-gateway

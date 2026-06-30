@@ -1,7 +1,7 @@
 {
   "meta": {
     "generated": "2026-05-29",
-    "measurement_host": "Hostinger VPS 187.77.234.79",
+    "measurement_host": "Hostinger VPS <VPS_IP>",
     "corpus": "69,135 production chunks (nox-mem.db 1,206 MB)",
     "node_version": "v22.22.2",
     "nox_mem_version": "v3.8",
