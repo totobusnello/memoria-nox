@@ -133,11 +133,7 @@
 \section{nox-mem: Pain-Weighted Hybrid Memory for LLM
 Agents}\label{nox-mem-pain-weighted-hybrid-memory-for-llm-agents}
 
-\textbf{nox-mem v3.8 --- §5 fifth revision May--June 2026 (Wave A +
-EverMemBench 5-batch Phase D/G/H v2 + Lab Q1 standalones + Wave B/C
-composability + Backbone Matrix Gemini-3-flash + LoCoMo dual + MuSiQue +
-HotPotQA dual SOTA + LongMemEval cross-bench + Production operational
-characteristics)}
+\textbf{Technical report --- v1.0.0 (arXiv preprint)}
 
 \textbf{Paper version:} v1.0.0 (2026-06-30) --- frozen for arXiv
 submission; changelog in \texttt{paper/CHANGELOG.md}
@@ -1031,26 +1027,26 @@ near-duplicate variants are collapsed by token-containment so the budget
 is spent on distinct content.
 
 \textbf{An honest measurement, and a methodology caveat.} Running
-priming in production (6 agents, \textasciitilde6.7k serves/day)
-surfaced a failure mode worth reporting. Over a clean 7-day window the
-brief served only \textbf{83 distinct chunks across 46.8k serves (0.18\%
-diversity)}, median content age 48 days: salience, dominated by
-importance and the accumulated pain of old incidents, produces a
-near-static top set, and recently-written content (the very output the
-loop produces) rarely enters --- we measured \textbf{931 recent
-(\textless=7d), relevant chunks (importance \textgreater= 0.7 or pain
-\textgreater= 0.7) that were never once served}. More instructive was a
-\emph{negative} result on evaluation: we could not measure a downstream
-``follow-up rate'' (does a primed chunk get used later?) because the
-signal does not exist --- in 7 days there were \textbf{3 genuine
-searches and 0 \texttt{answer} calls}. This is structural, not a logging
-gap: priming-by-injection delivers the knowledge \emph{into the context
-window}, so the agent does not re-query what it already holds.
-\textbf{The utility of an injection-based primer is therefore a property
-of the served set (diversity, freshness, coverage of what matters) ---
-not of downstream re-retrieval.} Memory work that imports a re-query
-metric from RAG-style retrieval will mis-evaluate this class of
-mechanism.
+priming in production (6 agents + shared workspace store,
+\textasciitilde6.7k serves/day) surfaced a failure mode worth reporting.
+Over a clean 7-day window the brief served only \textbf{83 distinct
+chunks across 46.8k serves (0.18\% diversity)}, median content age 48
+days: salience, dominated by importance and the accumulated pain of old
+incidents, produces a near-static top set, and recently-written content
+(the very output the loop produces) rarely enters --- we measured
+\textbf{931 recent (\textless=7d), relevant chunks (importance
+\textgreater= 0.7 or pain \textgreater= 0.7) that were never once
+served}. More instructive was a \emph{negative} result on evaluation: we
+could not measure a downstream ``follow-up rate'' (does a primed chunk
+get used later?) because the signal does not exist --- in 7 days there
+were \textbf{3 genuine searches and 0 \texttt{answer} calls}. This is
+structural, not a logging gap: priming-by-injection delivers the
+knowledge \emph{into the context window}, so the agent does not re-query
+what it already holds. \textbf{The utility of an injection-based primer
+is therefore a property of the served set (diversity, freshness,
+coverage of what matters) --- not of downstream re-retrieval.} Memory
+work that imports a re-query metric from RAG-style retrieval will
+mis-evaluate this class of mechanism.
 
 \textbf{Diversity term (D2).} The fix follows the same discipline as
 §3.4.3: it does \textbf{not} fork \texttt{calculateSalience} (that would
