@@ -14,3 +14,12 @@
 \usepackage{fontspec}
 \usepackage{amssymb}
 \usepackage{amsmath}
+
+% ---------------------------------------------------------------------------
+% Compact wide tables: shrink all longtables + tighten column padding so
+% multi-column comparison tables (e.g. the 9-column "Six Gaps") don't squeeze
+% a prose column down to one word per line. All arXiv-safe (etoolbox in TeX Live).
+% ---------------------------------------------------------------------------
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\footnotesize}
+\setlength{\tabcolsep}{4pt}

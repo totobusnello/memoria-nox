@@ -104,6 +104,15 @@
 \usepackage{fontspec}
 \usepackage{amssymb}
 \usepackage{amsmath}
+
+% ---------------------------------------------------------------------------
+% Compact wide tables: shrink all longtables + tighten column padding so
+% multi-column comparison tables (e.g. the 9-column "Six Gaps") don't squeeze
+% a prose column down to one word per line. All arXiv-safe (etoolbox in TeX Live).
+% ---------------------------------------------------------------------------
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\footnotesize}
+\setlength{\tabcolsep}{4pt}
 \usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
@@ -345,24 +354,18 @@ MeMo
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-1 & Static injection (memory frozen at session start) & PASS live
-writeback (inotifywait \textless1s) & NB: partial & PASS & PASS & PASS &
-FAIL batch & FAIL retrain \\
-2 & No temporal decay (every chunk weighed the same forever) & PASS
-salience × recency, typed retention (§8.2) & FAIL & FAIL & PASS & NB:
-partial & FAIL & FAIL \\
-3 & No provenance (cannot trace a result back to a source) & PASS
-\texttt{chunk\_id} + \texttt{source\_file} (§4) & NB: partial & PASS &
-PASS & PASS & PASS & FAIL baked in weights \\
-4 & Flat memory (no hierarchy / sectioning / typed structure) & PASS KG
-+ entity files + \texttt{section\_boost} (§3.1, §8) & FAIL & FAIL & PASS
-& PASS hyper & PASS dual-level & FAIL \\
-5 & No writeback (cannot promote findings into durable memory) & PASS
-\texttt{crystallize} + \texttt{reflect} + \texttt{consolidate} (§3.4) &
-NB: partial & PASS & PASS & PASS EvoAgent & FAIL & FAIL \\
-6 & Indexing delay (changes invisible until nightly batch) & PASS
-inotifywait \textless1s, idempotent re-ingest (§3.1) & NB: & PASS & PASS
-& NB: & NB: batch & FAIL retrain \\
+1 & Static injection & PASS: live writeback & NB: partial & PASS & PASS
+& PASS & FAIL batch & FAIL retrain \\
+2 & No temporal decay & PASS: salience + retention & FAIL & FAIL & PASS
+& NB: partial & FAIL & FAIL \\
+3 & No provenance & PASS: chunk\_id + source\_file & NB: partial & PASS
+& PASS & PASS & PASS & FAIL baked-in \\
+4 & Flat memory & PASS: KG + section\_boost & FAIL & FAIL & PASS & PASS
+hyper & PASS dual-level & FAIL \\
+5 & No writeback & PASS: crystallize/reflect/consolidate & NB: partial &
+PASS & PASS & PASS EvoAgent & FAIL & FAIL \\
+6 & Indexing delay & PASS: inotifywait \textless1s & NB: & PASS & PASS &
+NB: & NB: batch & FAIL retrain \\
 \end{longtable}
 }
 

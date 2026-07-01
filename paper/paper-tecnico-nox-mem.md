@@ -45,12 +45,12 @@ Across these systems, six recurring gaps appear in the design space. Each gap mo
 
 | # | Gap | nox-mem | mem0 | Letta | Zep | EverOS | LightRAG | MeMo |
 |---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | Static injection (memory frozen at session start) | PASS live writeback (inotifywait <1s) | NB: partial | PASS | PASS | PASS | FAIL batch | FAIL retrain |
-| 2 | No temporal decay (every chunk weighed the same forever) | PASS salience × recency, typed retention (§8.2) | FAIL | FAIL | PASS | NB: partial | FAIL | FAIL |
-| 3 | No provenance (cannot trace a result back to a source) | PASS `chunk_id` + `source_file` (§4) | NB: partial | PASS | PASS | PASS | PASS | FAIL baked in weights |
-| 4 | Flat memory (no hierarchy / sectioning / typed structure) | PASS KG + entity files + `section_boost` (§3.1, §8) | FAIL | FAIL | PASS | PASS hyper | PASS dual-level | FAIL |
-| 5 | No writeback (cannot promote findings into durable memory) | PASS `crystallize` + `reflect` + `consolidate` (§3.4) | NB: partial | PASS | PASS | PASS EvoAgent | FAIL | FAIL |
-| 6 | Indexing delay (changes invisible until nightly batch) | PASS inotifywait <1s, idempotent re-ingest (§3.1) | NB: | PASS | PASS | NB: | NB: batch | FAIL retrain |
+| 1 | Static injection | PASS: live writeback | NB: partial | PASS | PASS | PASS | FAIL batch | FAIL retrain |
+| 2 | No temporal decay | PASS: salience + retention | FAIL | FAIL | PASS | NB: partial | FAIL | FAIL |
+| 3 | No provenance | PASS: chunk_id + source_file | NB: partial | PASS | PASS | PASS | PASS | FAIL baked-in |
+| 4 | Flat memory | PASS: KG + section\_boost | FAIL | FAIL | PASS | PASS hyper | PASS dual-level | FAIL |
+| 5 | No writeback | PASS: crystallize/reflect/consolidate | NB: partial | PASS | PASS | PASS EvoAgent | FAIL | FAIL |
+| 6 | Indexing delay | PASS: inotifywait <1s | NB: | PASS | PASS | NB: | NB: batch | FAIL retrain |
 
 **Why each gap matters, and how nox-mem closes it:**
 
