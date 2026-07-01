@@ -156,15 +156,17 @@ LLM agents organized around a single design principle:
 design}. Every retrieval and retention decision is governed by an
 evidence-weighted salience formula in which \emph{pain} --- an
 operator-assigned severity in {[}0.1, 1.0{]}, persisted on every chunk
---- is a first-class signal; the formula itself evolved from
-multiplicative to additive form through the system's own shadow-mode
-telemetry (§5.2), and every ranking change is gated by a mandatory
-shadow phase before production activation. Compared to existing memory
-systems (mem0, Letta, Zep, EverOS, LightRAG, and MeMo), nox-mem offers
-several advantages: \textbf{(a)} \emph{live writeback with sub-second
-indexing} (inotifywait-driven, no batch retrain or daily reindex
-required), \textbf{(b)} \emph{typed temporal decay}
-(per-\texttt{chunk\_type} retention windows with never-decay for
+--- is a first-class signal (its isolated retrieval effect is
+directional and not yet statistically significant, §7.1, and
+section-aware ranking is the dominant empirical driver, §5.1.3); the
+formula itself evolved from multiplicative to additive form through the
+system's own shadow-mode telemetry (§5.2), and every ranking change is
+gated by a mandatory shadow phase before production activation. Compared
+to existing memory systems (mem0, Letta, Zep, EverOS, LightRAG, and
+MeMo), nox-mem offers several advantages: \textbf{(a)} \emph{live
+writeback with sub-second indexing} (inotifywait-driven, no batch
+retrain or daily reindex required), \textbf{(b)} \emph{typed temporal
+decay} (per-\texttt{chunk\_type} retention windows with never-decay for
 feedback/person --- see §2 and §8.2), \textbf{(c)} \emph{full provenance
 to chunk and source} (every retrieval result carries \texttt{chunk\_id}
 + \texttt{source\_file}, every destructive op is wrapped in
@@ -182,7 +184,10 @@ knowledge graph entities with \textasciitilde21.5k relations (as of
 agents with isolated yet interconnectable memory spaces. On the
 entity-flavored golden set (n=100), the full ablation stack reaches
 \textbf{nDCG@10 = 0.6237} (+78.8\% over the G3 pre-Wave-A baseline;
-§5.1.1). On the EverMemBench cross-system benchmark (5-batch, n=3,121),
+§5.1.1). A \textbf{Conditional Hard Mutex} (G10d) gates section and
+source-type boosts by query entity count, recovering multi-hop (+1.58\%
+nDCG@10) and adversarial (+3.04\% nDCG@10, +6.25\% MRR) regressions
+(§5.5). On the EverMemBench cross-system benchmark (5-batch, n=3,121),
 nox-mem scores \textbf{62.22\%} with Gemini-2.5-flash (+2.95 pp over
 MemOS; §5.1.5), \textbf{51.68\%} with GPT-4.1-mini (+9.13 pp over MemOS,
 95\% CI {[}49.88, 53.49{]}; §5.1.6), and \textbf{63.28\% Overall +
@@ -216,16 +221,17 @@ F\_MH lever on Gemini-3-flash at +2.01 pp.~An architectural lock
 discovery (§5.5.7) reveals that composability projections must account
 for both backbone-portability and code-level architectural composability
 --- two independent non-trivial requirements. The Q4 cross-system
-comparison (§6) provides pre-registered, same-corpus head-to-head
-numbers against five competing memory systems. Under each system's
-native embedder the two leaders \textbf{split} --- Mem0 wins LoCoMo
-(nDCG@10 0.469 vs 0.426), nox-mem wins LongMemEval (§6.3); controlling
-the embedding provider (both Gemini-3072d, full n=2,482) \textbf{inverts
-the split}, with nox-mem outperforming Mem0 on both datasets
-(LongMemEval 0.526 vs 0.406; LoCoMo 0.495 vs 0.441) and all five
-represented categories --- a task-type ablation rules out the one
-asymmetry favoring nox-mem, with three residual confounds declared
-(§6.3.2).
+comparison (§6) provides pre-registered, same-corpus results against
+five competing memory systems (two, Mem0 and agentmemory, produced
+head-to-head quality numbers; three were documented deployment
+non-runs). Under each system's native embedder the two leaders
+\textbf{split} --- Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426), nox-mem
+wins LongMemEval (§6.3); controlling the embedding provider (both
+Gemini-3072d, full n=2,482) \textbf{inverts the split}, with nox-mem
+outperforming Mem0 on both datasets (LongMemEval 0.526 vs 0.406; LoCoMo
+0.495 vs 0.441) and all five represented categories --- a task-type
+ablation rules out the one asymmetry favoring nox-mem, with three
+residual confounds declared (§6.3.2).
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -1306,8 +1312,8 @@ reports Q3 orchestration mechanism-class findings --- including the
 backbone-conditional knob portability study} (§5.5.5--§5.5.6), the
 \textbf{architectural composability lock discovery} (§5.5.7), and the
 \textbf{Wave 2 capstone deferral} (§5.5.8) --- §5.6 cross-validates on
-LongMemEval, §5.7 reports production SOTA (latency / cost / footprint),
-§5.8 documents the methodology and honest limitations.
+LongMemEval, §5.7 reports operational characteristics (latency / cost /
+footprint), §5.8 documents the methodology and honest limitations.
 
 \textbf{Dual-baseline reporting convention (D74, 2026-05-31).}
 Orchestration-mechanism evaluations in this revision report against
@@ -3609,7 +3615,7 @@ EverMind-AI & EverOS published bench & repo clone
 }
 
 Each system runs with its publicly documented default configuration
-(principle §6.5.3): no competitor is adversarially tuned to
+(principle 3 of §6.5): no competitor is adversarially tuned to
 underperform.
 
 \subsubsection{6.3 Per-system per-dataset
@@ -3750,7 +3756,7 @@ reported side by side; we do not cherry-pick the one nox-mem wins.
 \textbf{Caveats (per-system composition, declared per §6.5).} (a)
 \textbf{Embedding providers differ by native default} --- nox-mem Gemini
 3072d, Mem0 OpenAI 1536d, agentmemory its own default; this is the
-``as-configured'' fair-comparison stance (§6.5.5); the
+``as-configured'' fair-comparison stance (§6.5, principle 5); the
 controlled-embedding experiment that equalizes this confound is reported
 in §6.3.2 (rc4, all-Gemini) and inverts the LoCoMo result. (b)
 \textbf{Store composition differs}: nox-mem and agentmemory were queried
@@ -3807,11 +3813,11 @@ comparison; they are deferred as optional baselines (§7.2).
 eval)}\label{embedding-matched-variant-rc4-all-gemini-full-eval}
 
 The §6.3 split is reported under each system's \emph{native default}
-embedder (the ``as-configured'' stance, §6.5.5). Because nox-mem
-defaults to Gemini 3072d and Mem0 to OpenAI 1536d, the most obvious
-confound on the split is the embedding provider itself. To probe it we
-ran an \textbf{embedding-matched} variant --- \textbf{rc4} --- in which
-both systems use the \textbf{same embedder}:
+embedder (the ``as-configured'' stance, §6.5, principle 5). Because
+nox-mem defaults to Gemini 3072d and Mem0 to OpenAI 1536d, the most
+obvious confound on the split is the embedding provider itself. To probe
+it we ran an \textbf{embedding-matched} variant --- \textbf{rc4} --- in
+which both systems use the \textbf{same embedder}:
 \texttt{gemini-embedding-001} at 3072d (the model and dimensionality
 nox-mem runs in production), with Mem0 re-pointed to it via an external
 config patch (\texttt{lib/all\_gemini\_config}). This was \textbf{not} a
