@@ -17,13 +17,7 @@
 
 ## §2 Abstract (≤300 palavras)
 
-Memory systems for LLM agents typically optimize for developer ergonomics, sacrificing retrieval quality or imposing vendor lock-in. Standardized cross-system benchmarks are scarce, making per-system accuracy claims difficult to reproduce or compare.
-
-We present **nox-mem**, an open-source hybrid memory layer that combines FTS5 keyword retrieval, sqlite-vec dense retrieval, and Reciprocal Rank Fusion (RRF) over a zero-dependency SQLite database. We introduce a *pain-weighted salience* formula — a weighted-additive score `W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access` (weights 0.55 / 0.15 / 0.10 / 0.20) — where `pain` encodes incident severity (0.1 trivial → 1.0 production outage) as a design signal to keep high-stakes memories retrievable when recency is low (isolated effect directional, not yet significant — §7.1). We further propose a **Conditional Hard Mutex** (G10d), which gates section and source-type boosts on query entity count (threshold τ=2), recovering multi-hop (+1.58% nDCG@10) and adversarial (+3.04% nDCG@10, +6.25% MRR) regressions, at the cost of moderate single-hop dilution.
-
-We pre-register our methodology and report nine ablation generations (G3 through G10d) on an entity-flavored golden set (n=100), and benchmark against five production-grade memory systems (Mem0, Zep, Letta, agentmemory, EverMind-AI) on LongMemEval and LoCoMo. Under each system's native embedder the two leaders split the benchmarks; controlling the embedding provider (both Gemini-3072d, full n=2,482) inverts the split — nox-mem outperforms the market leader (Mem0) on both LongMemEval (nDCG@10 0.526 vs 0.406) and LoCoMo (0.495 vs 0.441), and on all five represented query categories; an embedding task-type ablation confirms the gain is architectural, with residual confounds declared.
-
-Contributions: (i) pain-weighted salience formula that incorporates incident severity into memory scoring; (ii) Conditional Hard Mutex ablation protocol for boost interaction; (iii) open benchmark methodology reproducible against five competitors; (iv) production-stable single-file deployment (SQLite + FTS5 + sqlite-vec, zero external services). Code (MIT) and full evaluation harness: https://github.com/totobusnello/memoria-nox.
+LLM-agent memory systems often trade retrieval quality or portability for developer ergonomics, and cross-system benchmarks remain scarce. We present nox-mem, an open-source hybrid memory layer combining FTS5 keyword retrieval, sqlite-vec dense retrieval, and Reciprocal Rank Fusion over a single-file SQLite store; the default embedding layer is a swappable cloud provider, with an FTS5-only offline fallback. Its pain-weighted salience score, W_IMPORTANCE*importance + W_RECENCY*recency + W_PAIN*pain + W_ACCESS*access_score (weights 0.55 / 0.15 / 0.10 / 0.20), adds incident severity as a retrieval signal. Pain-weighting is a design signal whose isolated effect is directional and not yet significant; section-aware ranking is the empirical driver (99.85% of the ablated gain). We also introduce a Conditional Hard Mutex (G10d) that gates section and source-type boosts when a query names at most two entities, recovering multi-hop (+1.58% nDCG@10) and adversarial (+3.04% nDCG@10, +6.25% MRR) regressions. We pre-register methodology, report nine ablation generations (G3-G10d) on an n=100 golden set, and benchmark five memory systems (Mem0, Zep, Letta, agentmemory, EverMind-AI): two (Mem0, agentmemory) produce head-to-head quality numbers on LongMemEval and LoCoMo; three are documented deployment non-runs. Native embedders split the two leaders; under controlled embedding (both Gemini-3072d, n=2,482) nox-mem beats Mem0 on LongMemEval (nDCG@10 0.526 vs 0.406) and LoCoMo (0.495 vs 0.441) and on all five populated query categories. A task-type ablation rules out task-type asymmetry; architecture is the leading explanation, residual confounds declared. Contributions: pain-weighted salience, the Conditional Hard Mutex boost-interaction ablation, an open five-system benchmark, and single-file self-hosted deployment. Code (MIT) and evaluation harness: https://github.com/totobusnello/memoria-nox.
 
 ---
 
@@ -36,7 +30,7 @@ Contributions: (i) pain-weighted salience formula that incorporates incident sev
 | **Affiliation** | Independent Researcher |
 | **Email** | lab@nuvini.com.br |
 | **Primary category** | cs.IR — Information Retrieval |
-| **Cross-list** | cs.LG — Machine Learning; cs.AI — Artificial Intelligence |
+| **Cross-list** | cs.LG — Machine Learning |
 | **Comments field** | Code: https://github.com/totobusnello/memoria-nox · MIT license |
 | **License** | CC BY 4.0 (paper); MIT (code) |
 | **Report number** | (deixar em branco) |
@@ -47,7 +41,7 @@ Contributions: (i) pain-weighted salience formula that incorporates incident sev
 
 > Rodar após geração: `wc -w paper/abstract.md`
 >
-> Contagem do §2 isolado: ~287 palavras (dentro do limite ≤300; ~2.2k chars — se o formulário arXiv recusar por char-limit, encurtar o parágrafo de Contributions).
+> Contagem do abstract (versao arXiv, ASCII): 254 palavras / 1909 chars (dentro do limite <=1920). Espelha exatamente o bloco de paper/arxiv-metadata.txt.
 
 ---
 
@@ -56,7 +50,7 @@ Contributions: (i) pain-weighted salience formula that incorporates incident sev
 - [ ] Conta arXiv ativa + endorsement cs.IR obtido (first-time submitter precisa de endorser)
 - [ ] Título copiado do §3 acima → campo "Title" no formulário
 - [ ] Abstract copiado do §2 acima → campo "Abstract" (verificar ≤1920 chars)
-- [ ] Categorias selecionadas: cs.IR primary, cs.LG + cs.AI cross-list
+- [ ] Categorias selecionadas: cs.IR primary, cs.LG cross-list
 - [ ] Arquivos fonte enviados (`.tex` via `scripts/build-paper.sh --tex-only`)
 - [ ] `refs.bib` incluído junto com os fontes
 - [ ] Licença selecionada: CC BY 4.0

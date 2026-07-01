@@ -1,7 +1,6 @@
-% refs.bib — Referências canônicas do paper nox-mem
-% Uso: §5.5 G10d, §5.6/§5.7 ablações, §6 Q4 COMPARISON
-% Verificação URLs/DOIs/arXiv: CONCLUÍDA 2026-05-22 (ver paper/refs-verification-log.md)
-% Pendências residuais documentadas no log — ver seção SKIPPED/MANUAL
+% refs.bib -- canonical references for the nox-mem paper
+% Used in: G10d (Sec 5.5), ablations (Sec 5.6/5.7), Q4 cross-system comparison (Sec 6)
+% URL/DOI/arXiv verification log: paper/refs-verification-log.md
 
 % ============================================================
 % §6 Q4 COMPARISON — sistemas concorrentes
@@ -12,7 +11,7 @@
   title        = {{Mem0}: The Memory Layer for {AI} Agents},
   year         = {2024},
   howpublished = {\url{https://github.com/mem0ai/mem0}},
-  note         = {Version latest-stable. Acesso: 2026-05-22. GitHub verificado 200. % VERIFIED 2026-05-22 — repo OK; no arXiv paper found as of verification date}
+  note         = {Software: open-source memory layer for LLM agents; PostgreSQL/Qdrant backend, OpenAI embeddings by default.}
 }
 
 @misc{zep_2024,
@@ -20,7 +19,7 @@
   title        = {Zep: Long-Term Memory for {AI} Assistants},
   year         = {2024},
   howpublished = {\url{https://github.com/getzep/zep}},
-  note         = {Repositório oficial getzep/zep. GitHub verificado 200. % VERIFIED 2026-05-22 — repo OK; paper "Zep: A Temporal Knowledge Graph Architecture for Agent Memory" não localizado em arXiv como publicação formal; citar como software}
+  note         = {Software: temporal knowledge-graph memory service; OpenAI embedding is the OSS default.}
 }
 
 @article{packer2023memgpt,
@@ -32,7 +31,7 @@
   archivePrefix = {arXiv},
   primaryClass = {cs.AI},
   url          = {https://arxiv.org/abs/2310.08560},
-  note         = {Framework Letta (letta-ai/letta) é a produtização do MemGPT. % VERIFIED 2026-05-22 — arXiv 200, autores confirmados via abstract page}
+  note         = {Letta (letta-ai/letta) is the productization of MemGPT.}
 }
 
 @misc{letta_2024,
@@ -40,7 +39,7 @@
   title        = {Letta: Open {LLM} Agent Framework with Stateful Memory},
   year         = {2024},
   howpublished = {\url{https://github.com/letta-ai/letta}},
-  note         = {Antigo MemGPT; ver também \cite{packer2023memgpt}. Acesso: 2026-05-22. GitHub verificado 200 (letta-ai/letta, criado 2023-10-11). % VERIFIED 2026-05-22}
+  note         = {Formerly MemGPT; see also Packer et al. (2023).}
 }
 
 @misc{agentmemory_2026,
@@ -48,7 +47,7 @@
   title        = {agentmemory: \#1 Persistent Memory for {AI} Coding Agents},
   year         = {2026},
   howpublished = {\url{https://github.com/rohitg00/agentmemory}},
-  note         = {Repositório rohitg00/agentmemory. GitHub verificado 200. Criado 2026-02-25 (não 2024 como indicado inicialmente). % VERIFIED 2026-05-22 — ano corrigido para 2026; author handle rohitg00 confirmado; título atualizado per descrição do repo}
+  note         = {Software: persistent memory for AI coding agents (rohitg00/agentmemory).}
 }
 
 @misc{evermind_2025,
@@ -56,7 +55,7 @@
   title        = {{EverOS}: Self-Organizing Memory Operating System for Long-Horizon Reasoning},
   year         = {2025},
   howpublished = {\url{https://github.com/EverMind-AI/EverOS}},
-  note         = {GitHub verificado 200 (criado 2025-10-28, 5469+ stars). Paper associado: EverMemOS arXiv:2601.02163 (Hu et al., 2026). % VERIFIED 2026-05-22 — repo OK; ano corrigido para 2025; título alinhado com paper EverMemOS; arXiv paper encontrado}
+  note         = {Software: EverOS memory operating system; publishes the EverMemBench dataset.}
 }
 
 % ============================================================
@@ -72,7 +71,7 @@
   archivePrefix = {arXiv},
   primaryClass = {cs.IR},
   url          = {https://arxiv.org/abs/2410.05779},
-  note         = {HKUDS group. Repositório: HKUDS/LightRAG (35k+ stars, MIT). Referenciado em nox-mem pelo padrão de KG incremental merge com LLM summarization de descrições duplicadas. % VERIFIED 2026-05-22 — arXiv 200; autores corrigidos (eram Edge et al. / Microsoft GraphRAG — ERRO); chave renomeada de edge2025lightrag para guo2024lightrag}
+  note         = {HKUDS/LightRAG (MIT); referenced for the incremental KG-merge-with-LLM-summarization pattern.}
 }
 
 % ============================================================
@@ -88,7 +87,7 @@
   archivePrefix = {arXiv},
   primaryClass = {cs.CL},
   url          = {https://arxiv.org/abs/2410.10813},
-  note         = {ICLR 2025. % VERIFIED 2026-05-22 — arXiv 200; autores corrigidos (He Hongwei→Wang Hongwei, Liu Wenhao→Yu Wenhao, demais substituídos); venue confirmado: ICLR 2025 via arXiv comments}
+  note         = {ICLR 2025.}
 }
 
 @inproceedings{maharana2024locomo,
@@ -98,7 +97,7 @@
   year         = {2024},
   publisher    = {Association for Computational Linguistics},
   url          = {https://aclanthology.org/2024.acl-long.747/},
-  note         = {Dataset LoCoMo. ACL 2024 (Long Papers). % VERIFIED 2026-06-14 — ACL Anthology 2024.acl-long.747 confirmed}
+  note         = {LoCoMo dataset; ACL 2024 (Long Papers).}
 }
 
 % ============================================================
@@ -114,7 +113,7 @@
   publisher    = {ACM},
   doi          = {10.1145/1571941.1572114},
   url          = {https://dl.acm.org/doi/10.1145/1571941.1572114},
-  note         = {Algoritmo RRF usado na fusão BM25 + semântico (k=60). % VERIFIED 2026-05-22 — DOI resolves 302→dl.acm.org (403 expected for bots; DOI valid)}
+  note         = {RRF used for BM25 + semantic fusion (k=60).}
 }
 
 @article{robertson2009bm25,
@@ -128,7 +127,7 @@
   publisher    = {Now Publishers},
   doi          = {10.1561/1500000019},
   url          = {https://doi.org/10.1561/1500000019},
-  note         = {Base teórica do FTS5 BM25 no SQLite. % VERIFIED 2026-05-22 — DOI resolves 302→nowpublishers/emerald (403 expected for bots; DOI valid)}
+  note         = {Theoretical basis for FTS5 BM25 in SQLite.}
 }
 
 % ============================================================
@@ -140,7 +139,7 @@
   title        = {sqlite-vec: A Vector Search Extension for {SQLite}},
   year         = {2024},
   howpublished = {\url{https://github.com/asg017/sqlite-vec}},
-  note         = {Repositório asg017/sqlite-vec (criado 2024-04-20, 7622+ stars). Extensão usada para vetores 3072d (Gemini) em nox-mem. % VERIFIED 2026-05-22 — GitHub 200; author Garcia,Alex confirmed; no formal VLDB/academic paper found as of verification date}
+  note         = {asg017/sqlite-vec; extension used for 3072-dimensional vectors.}
 }
 
 @misc{google2024geminiembedding,
@@ -148,7 +147,7 @@
   title        = {Gemini Embedding Model: \texttt{gemini-embedding-001}},
   year         = {2024},
   howpublished = {\url{https://ai.google.dev/gemini-api/docs/models}},
-  note         = {Modelo usado em nox-mem para embeddings 3072d. % VERIFIED 2026-05-22 — URL returns 200; paper técnico canônico: citar Gemini Technical Report se disponível antes de arXiv submit; URL suficiente para software cite}
+  note         = {Embedding model used for 3072-dimensional vectors.}
 }
 
 % ============================================================
@@ -157,10 +156,10 @@
 
 @misc{busnello2026noxmem,
   author       = {Busnello, Luiz Antonio},
-  title        = {nox-mem: Pain-Weighted Hybrid Memory with Shadow Discipline},
+  title        = {nox-mem: Pain-Weighted Hybrid Memory for LLM Agents},
   year         = {2026},
   howpublished = {\url{https://github.com/totobusnello/memoria-nox}},
-  note         = {Sistema descrito neste paper. v3.7, May 2026. Inclui G10d per-category mutex (§5.5), salience formula (§5.6), temporal spike v2 (§5.7). % VERIFIED 2026-05-22 — GitHub repo public (200); URL canônica confirmada; CITATION.cff usa mesmo URL (commit 112798f); atualizar nota com arXiv ID após submit 2026-06-02}
+  note         = {System described in this paper (v1.0.0, 2026); update with arXiv ID after submission.}
 }
 
 % ============================================================
@@ -172,5 +171,5 @@
   title     = {Quati: A {Brazilian} {Portuguese} Information Retrieval Dataset from Native Speakers},
   booktitle = {Proc. 15th Brazilian Symposium in Information and Human Language Technology (STIL)},
   year      = {2024},
-  note      = {arXiv:2404.06976}
+  note         = {STIL 2024; arXiv:2404.06976.}
 }
