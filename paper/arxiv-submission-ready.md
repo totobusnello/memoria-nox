@@ -1,4 +1,7 @@
 # arXiv Submission Guide — Ready to Submit
+
+> ⚠️ **SUPERSEDED (2026-07-01).** The canonical, current submission fields live in **`paper/arxiv-metadata.txt`**: the honest 1909-char ASCII abstract, categories **cs.IR + cs.LG** (cs.AI dropped), and the secured endorser (**Rodrigo Nogueira**). The §1 abstract, target dates, and endorser candidates in THIS file are the 2026-05-24 draft and are OUT OF DATE — do not paste from here. Kept only for the generic §2–§3 upload/flow steps.
+
 **Paper:** nox-mem: Pain-Weighted Hybrid Memory for LLM Agents  
 **Submission target:** Tue 2026-06-02, before 14h00 ET (11h00 BRT)  
 **Prepared:** 2026-05-24  
@@ -53,10 +56,9 @@ Contributions: (i) pain-weighted salience formula that incorporates incident sev
 cs.IR
 ```
 
-### Cross-list Categories (select all three)
+### Cross-list Categories
 ```
 cs.LG
-cs.AI
 ```
 
 ### License
@@ -110,7 +112,7 @@ This tells arXiv's AutoTeX to use XeLaTeX. Without it, AutoTeX may try pdflatex 
 2. Click "Start new submission"
 3. Select subject area: **Computer Science**
 4. Select primary category: **cs.IR**
-5. Add cross-list: **cs.LG**, **cs.AI**
+5. Add cross-list: **cs.LG**
 6. Upload file (option A or B per §2)
 7. Verify preview — check title renders, first page of PDF visible
 8. Fill metadata form:

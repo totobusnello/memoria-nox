@@ -160,7 +160,7 @@ operator-assigned severity in {[}0.1, 1.0{]}, persisted on every chunk
 directional and not yet statistically significant, §7.1, and
 section-aware ranking is the dominant empirical driver, §5.1.3); the
 formula itself evolved from multiplicative to additive form through the
-system's own shadow-mode telemetry (§5.2), and every ranking change is
+system's own shadow-mode telemetry (§5.1.2), and every ranking change is
 gated by a mandatory shadow phase before production activation. Compared
 to existing memory systems (mem0, Letta, Zep, EverOS, LightRAG, and
 MeMo), nox-mem offers several advantages: \textbf{(a)} \emph{live
@@ -187,7 +187,7 @@ entity-flavored golden set (n=100), the full ablation stack reaches
 §5.1.1). A \textbf{Conditional Hard Mutex} (G10d) gates section and
 source-type boosts by query entity count, recovering multi-hop (+1.58\%
 nDCG@10) and adversarial (+3.04\% nDCG@10, +6.25\% MRR) regressions
-(§5.5). On the EverMemBench cross-system benchmark (5-batch, n=3,121),
+(§5.1.4). On the EverMemBench cross-system benchmark (5-batch, n=3,121),
 nox-mem scores \textbf{62.22\%} with Gemini-2.5-flash (+2.95 pp over
 MemOS; §5.1.5), \textbf{51.68\%} with GPT-4.1-mini (+9.13 pp over MemOS,
 95\% CI {[}49.88, 53.49{]}; §5.1.6), and \textbf{63.28\% Overall +
@@ -1031,7 +1031,7 @@ near-duplicate variants are collapsed by token-containment so the budget
 is spent on distinct content.
 
 \textbf{An honest measurement, and a methodology caveat.} Running
-priming in production (7 agents, \textasciitilde6.7k serves/day)
+priming in production (6 agents, \textasciitilde6.7k serves/day)
 surfaced a failure mode worth reporting. Over a clean 7-day window the
 brief served only \textbf{83 distinct chunks across 46.8k serves (0.18\%
 diversity)}, median content age 48 days: salience, dominated by
@@ -2395,7 +2395,8 @@ Verdict
 \textbf{73.37\%} & 65--72\% (DPR+FiD reader SOTA) & \textbf{nox-mem
 SOTA} \\
 \textbf{LoCoMo dev} & retrieval@10 strict & \textbf{74.52\%} & 66.88\%
-(Mem0 F1 SOTA) & \textbf{nox-mem SOTA on retrieval ceiling} \\
+(Mem0 answer-F1, different metric) & \textbf{retrieval ceiling; not
+comparable to Mem0 F1} \\
 \textbf{LoCoMo dev (F1 push)} & F1 (verbosity-sensitive) & 51.85\% &
 66.88\% (Mem0 SOTA) & rank-5, verbosity gap \\
 \textbf{EverMemBench F\_MH} & strict EM (multi-hop chain on long conv) &
@@ -4026,8 +4027,8 @@ adversarial cell (nox-mem's largest margin, +0.142) should be read as
 contributes at least 10 numeric-typed queries (open-domain is likewise
 LongMemEval-only), so per the n\textless10 rule those cells are not
 scored rather than extrapolated --- avoiding the type of regression seen
-in §5.5 (temporal \texttt{n/a} in G10b due to a degenerate corpus gap).
-The category labeler is
+in §5.1.4 (temporal \texttt{n/a} in G10b due to a degenerate corpus
+gap). The category labeler is
 \texttt{eval/q4-comparison/lib/category\_labeler.py}.
 
 \subsubsection{6.5 Fair-comparison
@@ -4646,8 +4647,8 @@ significant in
 isolation}\label{l8-pain-signal-is-directional-but-not-statistically-significant-in-isolation}
 
 The ``pain-weighted hybrid memory'' framing rests primarily on the
-additive salience formula (§5.2) and section-aware ranking (§5.3). The
-\texttt{pain} dimension contributes W\_PAIN = 0.10 of the salience
+additive salience formula (§5.1.2) and section-aware ranking (§5.1.3).
+The \texttt{pain} dimension contributes W\_PAIN = 0.10 of the salience
 weight, but its isolated causal contribution has not been validated to
 statistical significance: the E10 pain ablation
 (\texttt{paper/publication/paper-draft-sec4-7.md} §5.5) reports Δ =
@@ -4684,15 +4685,15 @@ ranking
 changes}\label{f2-f10-phase-cd-shadow-tracker-empirical-ab-for-ranking-changes}
 
 F10 Phase A (\texttt{/observability/health.html}) and Phase B
-(\texttt{/observability/evals.html}) are deployed (§5.6, decision D53).
-Phase C targets a shadow-mode query logger that captures production
-queries, executes them against a candidate ranking config in parallel,
-and accumulates query-level nDCG deltas before any promotion decision.
-Phase D operationalizes this into a pre-promotion gate: any ranking
-change (boost weight adjustment, mutex threshold, salience weight) that
-has not accumulated \textgreater=50 shadow queries with p \textless{}
-0.05 improvement is blocked from reaching the production endpoint. This
-closes the observability gap identified in
+(\texttt{/observability/evals.html}) are deployed (§5.7.4, decision
+D53). Phase C targets a shadow-mode query logger that captures
+production queries, executes them against a candidate ranking config in
+parallel, and accumulates query-level nDCG deltas before any promotion
+decision. Phase D operationalizes this into a pre-promotion gate: any
+ranking change (boost weight adjustment, mutex threshold, salience
+weight) that has not accumulated \textgreater=50 shadow queries with p
+\textless{} 0.05 improvement is blocked from reaching the production
+endpoint. This closes the observability gap identified in
 \texttt{ship-ranking-changes-in-shadow-mode-first} --- currently the
 shadow mode is a flag toggle, not an integrated eval pipeline. Ref:
 \texttt{docs/ROADMAP.md} F10, decision D53, PR \#207/\#212.
@@ -4704,8 +4705,8 @@ The Q4 per-method benchmark (§6,
 \texttt{specs/2026-05-21-per-method-benchmark-comparison.md})
 establishes the cross-system baseline. Phase B targets per-query-type
 boost calibration: given that keyword queries respond differently from
-natural-language queries (G10c §5.5), and single-hop vs multi-hop have
-opposing mutex trade-offs (G10b §5.5), a routing layer that selects
+natural-language queries (G10c §5.1.4), and single-hop vs multi-hop have
+opposing mutex trade-offs (G10b §5.1.4), a routing layer that selects
 ranking parameters based on query-type classification has measurable
 potential upside. Estimated Lab Q1 item. Ref:
 \texttt{specs/2026-05-21-per-method-benchmark-comparison.md},
@@ -5200,11 +5201,11 @@ baseline), with \texttt{section\_boost} identified as the dominant
 driver (99.85\% of the lift recovered by A3 alone) and the additive
 salience formula validated by the
 \texttt{active\ \textgreater{}\ shadow} reversal. The G10d conditional
-mutex evolution (§5.5, deployed 2026-05-21) consolidates the canonical
+mutex evolution (§5.1.4, deployed 2026-05-21) consolidates the canonical
 boost stack
 \texttt{section\_boost\ ×\ source\_type\_boost\ (Hard\ Mutex\ gated\ by\ query\_entity\_count\ \textless{}=\ 2)\ ×\ salience\ v2\ additive}
 in production, recovering multi-hop and adversarial regressions with
-contained dilution on single-hop. The F10 layer (§5.6, decision D53)
+contained dilution on single-hop. The F10 layer (§5.7.4, decision D53)
 makes production state verifiable at any time via the Phase A dashboard
 (\texttt{/observability/health.html}) + Phase B dashboard
 (\texttt{/observability/evals.html}).
