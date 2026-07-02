@@ -352,7 +352,7 @@ Per-agent setup: [`docs/integrations/`](docs/integrations/). The MCP server expo
 
 **Title:** *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents*
 
-**Status:** v1.0.0 (2026-06-30, frozen for submission) &middot; arXiv target: cs.IR &middot; Q4 gate passed (D43) &middot; submission pending endorsement
+**Status:** v1.0.0 (2026-06-30, frozen for submission) &middot; arXiv target: cs.IR &middot; Q4 gate passed (D43) &middot; submitted to arXiv, in moderation (ID pending)
 
 **PDF:** [`paper/build/paper-tecnico-nox-mem.pdf`](paper/build/paper-tecnico-nox-mem.pdf) &middot; changelog: [`paper/CHANGELOG.md`](paper/CHANGELOG.md)
 

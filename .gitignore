@@ -7,6 +7,9 @@ node_modules/
 .claude/
 .claire/   # Claude agent harness internal state (not for version control)
 
+# arXiv submission metadata — holds the endorsement code (secret); LOCAL ONLY, never commit
+paper/arxiv-metadata.txt
+
 # Backup files from sed/edit operations — never commit
 *.bak
 *.bak2
