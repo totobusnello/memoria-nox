@@ -64,7 +64,8 @@ Quando produtizar (Hotmart/instalador/marketing) → migra pra `nox-supermem/`.
 | Convenções detalhadas | `docs/CONVENTIONS.md` |
 | Specs técnicos | `specs/*.md` |
 | Audits de schema/search/KG | `audits/*.md` |
-| Paper técnico | `paper/paper-tecnico-nox-mem.md` / `.docx` |
+| Paper técnico (Paper 1) | `paper/paper-tecnico-nox-mem.md` / `.docx` |
+| Planejamento Paper 2 (Interventional Memory) | `paper2-interventional/` (começar pelo `README.md`) |
 
 **Histórico arquivado:**
 
