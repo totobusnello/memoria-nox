@@ -18,7 +18,8 @@ Nada de execução do Paper 2 começa antes de:
 ## Checklist de metodologia (a coisa de verdade — 80% do paper)
 
 - [x] Rascunho de **pré-registro OSF** — `PREREG-DRAFT.md` v0.2 (2026-07-12): v0.1 + review adversarial GLM (5 FATAL/7 GRAVE/10 menor, `REVIEWS-PREREG.md`) incorporada. Primário incondicional (density/session-hour) + co-primárias; stopping em epochs; fleet-wide epochs + serving snapshots; pilot pré-registrado; estimando em potential outcomes. **Pendente: decisão de rota (§0) + itens [TO LOCK]**
-- [ ] **Decisão de rota** (§0 do PREREG-DRAFT): 1-conservadora / 2-redesenho (2-lite recomendada) / 3-análise formal
+- [x] **Decisão de rota** ✅ **2-lite** (Toto, 2026-07-12): epochs fleet-wide + serving-side snapshots; rota 1 = fallback documentado (ver `DECISIONS.md`)
+- [ ] **Spec do serving-side snapshot** (nox-mem: brief servido do snapshot de início de epoch, writes intocados) — pré-requisito de engenharia da 2-lite; shadow-validar antes do pilot
 - [ ] Desenho de **randomização SUTVA-safe** (cluster por agente / bloco de tempo / washout)
 - [ ] Spec de **sanitização** do benchmark (hashing, buckets, esquema de labels, IAA)
 - [ ] Recrutar **auditor externo** (≥1, outra instituição)

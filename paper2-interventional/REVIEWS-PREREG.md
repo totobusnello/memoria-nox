@@ -38,3 +38,5 @@ Ethics/IRB (adjudicadores humanos = subjects) · PAP executável com input sint�
 | **3. Análise formal** | Mantém desenho; estimando em PO + co-primárias + bounds de interferência + pilot pré-registrado | Médio | Viável, mas F1/F4 seguem difíceis de defender em D&B |
 
 GLM: rota 3 **não** é segura pra D&B sem a rota 2. Recomendação da casa registrada no v0.2 §0.
+
+**→ DECIDIDO (Toto, 2026-07-12): Rota 2-lite** — epochs fleet-wide + serving-side snapshots. Rota 1 fica como fallback documentado. Detalhe em `DECISIONS.md` + `PREREG-DRAFT.md` §0.

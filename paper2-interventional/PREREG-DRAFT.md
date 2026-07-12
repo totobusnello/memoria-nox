@@ -1,11 +1,11 @@
 # OSF Pre-Registration — DRAFT v0.2 (NOT LOCKED)
 
-> **Status:** working draft, 2026-07-12. v0.1 was adversarially reviewed by GLM-5.2 same day (5 FATAL / 7 GRAVE / 10 minor — full verdict in `REVIEWS-PREREG.md`); v0.2 incorporates every fix that does not depend on the route decision. **Locking is blocked by two things:** (i) the **route decision** (§0) and (ii) the **[TO LOCK]** items (§9). This document becomes binding only when registered on OSF with a public timestamp **before** any A/B data collection.
+> **Status:** working draft, 2026-07-12. v0.1 was adversarially reviewed by GLM-5.2 same day (5 FATAL / 7 GRAVE / 10 minor — full verdict in `REVIEWS-PREREG.md`); v0.2 incorporates every fix that does not depend on the route decision. **Route decided 2026-07-12 (Toto): Route 2-lite** (§0). Locking now blocked only on the **[TO LOCK]** items (§9). This document becomes binding only when registered on OSF with a public timestamp **before** any A/B data collection.
 > **Companion docs:** `CONCEPT-NOTE.md` · `METHODOLOGY.md` · `DECISIONS.md` · `REVIEWS-PREREG.md`.
 
 ---
 
-## 0. Route decision (OPEN — blocks lock; Toto's call)
+## 0. Route decision — ✅ DECIDED: Route 2-lite (Toto, 2026-07-12)
 
 The v0.1 design (cluster = agent × time-block + washout over a *shared* store) does **not** neutralize cross-arm interference: treated sessions write content that control sessions later read, and agents in different arms co-exist on the store in real time (F1). Three defensible routes:
 
@@ -15,7 +15,9 @@ The v0.1 design (cluster = agent × time-block + washout over a *shared* store) 
 | **2 — Clean redesign** | Full causal claim | Arm switch per **whole agent-fleet epoch** with **per-arm store state** (snapshot/flush between epochs) | High (ops) | COLM full / NeurIPS D&B |
 | **3 — Formal analysis** | Causal claim **as bounds**, not point | Keep design; potential-outcomes estimand + interference bounds (Aronow–Samii-style) + restricted co-estimands | Medium | COLM (D&B risky) |
 
-**House recommendation (pending Toto):** Route **2-lite** — keep the crossover but make the *epoch* fleet-wide (all 6 agents switch arm together per time-block, so no cross-agent arm mixing exists at any instant) and add a **store snapshot at each epoch boundary**: each arm's briefs are served from the snapshot taken at its epoch start (serving-side freeze), while writes continue to the live store for production safety. This removes simultaneous cross-arm contamination (all agents same arm) and bounds carry-over to the snapshot boundary; residual carry-over (behavior in epoch *k* shaping the snapshot of epoch *k+1*) is handled by the first-epoch-after-washout estimand + A-B-A-B sensitivity (§5). Everything below is written to be compatible with Routes 2/2-lite and degrades gracefully to Route 1 by dropping §1-H1's causal phrasing.
+**DECIDED — Route 2-lite** (Toto, 2026-07-12): keep the crossover but make the *epoch* fleet-wide (all 6 agents switch arm together per time-block, so no cross-agent arm mixing exists at any instant) and add a **store snapshot at each epoch boundary**: each arm's briefs are served from the snapshot taken at its epoch start (serving-side freeze), while writes continue to the live store for production safety. This removes simultaneous cross-arm contamination (all agents same arm) and bounds carry-over to the snapshot boundary; residual carry-over (behavior in epoch *k* shaping the snapshot of epoch *k+1*) is handled by the first-epoch-after-washout estimand + A-B-A-B sensitivity (§5). Rationale vs. alternatives: Route 1 gives up the causal claim the paper needs for COLM full / D&B; Route 3 leaves F1/F4 indefensible per the GLM verdict; full Route 2 (per-arm store with write flush) buys little over 2-lite at much higher operational risk to production. Route 1 remains the documented **fallback** if the snapshot mechanism proves operationally infeasible — the design below degrades to it by dropping §1-H1's causal phrasing.
+
+**Engineering prerequisite created by this decision:** the **serving-side snapshot mechanism** (brief served from epoch-start snapshot; writes untouched) — spec item §9.3, to be implemented and shadow-validated in nox-mem before the pilot.
 
 ## 1. Study Information
 
@@ -133,7 +135,7 @@ The retrospective decision-replay benchmark and the counterfactual replay harnes
 
 ## 9. Open items blocking lock
 
-1. **§0 route decision (Toto).**
+1. ~~§0 route decision~~ ✅ **Route 2-lite (Toto, 2026-07-12).**
 2. Named external auditor + named independent data monitor.
 3. Epoch length + washout (24h + 2h proposed) · snapshot mechanism spec (serving-side freeze).
 4. W_OUTCOME formula value (0.15) + low-stakes allowlist.

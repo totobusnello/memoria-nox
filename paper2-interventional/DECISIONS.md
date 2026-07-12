@@ -1,7 +1,16 @@
 # Martelo — Decisões travadas (Paper 2)
 
 > Convergência de 3 vozes adversariais (Codex/Kimi/GLM) + síntese. Detalhe das vozes em `REVIEWS.md`.
-> Data: 2026-07-05.
+> Data: 2026-07-05. Atualizado 2026-07-12 (rota do desenho experimental).
+
+## ✅ Rota do desenho A/B — **2-lite** (Toto, 2026-07-12)
+
+Contexto: o GLM challenge do `PREREG-DRAFT.md` v0.1 (ver `REVIEWS-PREREG.md`) mostrou que cluster agente×bloco + washout **não** resolve o SUTVA — carry-over via writes compartilhados + contaminação cross-agent simultânea.
+
+**Decisão: Route 2-lite** — crossover com **epochs fleet-wide** (os 6 agentes trocam de braço juntos; nenhum instante com braços misturados) + **serving-side snapshot** por epoch (brief servido do snapshot do início do epoch; writes seguem no store vivo, intocados). Carry-over residual (conteúdo do snapshot moldado pelo braço anterior) tratado por co-estimativas pré-commitadas (A→B-restricted, lag-1, bounds).
+
+- **Rejeitadas:** Rota 1 (conservadora) abre mão do claim causal que o paper precisa pra COLM full/D&B — fica como **fallback documentado** se o snapshot for inviável operacionalmente; Rota 3 (análise formal sobre o desenho velho) deixa F1/F4 indefensáveis (veredito GLM); Rota 2 full (store per-arm + flush) custa muito ops pra pouco ganho sobre a 2-lite.
+- **Pré-requisito de engenharia criado:** mecanismo de serving-side snapshot no nox-mem, implementado e validado em shadow antes do pilot (item §9.3 do PREREG-DRAFT).
 
 ## ✅ Spine (confirmado pelas 3 vozes)
 
