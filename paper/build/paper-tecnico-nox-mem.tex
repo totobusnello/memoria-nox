@@ -128,10 +128,11 @@
 \section{nox-mem: Pain-Weighted Hybrid Memory for LLM
 Agents}\label{nox-mem-pain-weighted-hybrid-memory-for-llm-agents}
 
-\textbf{Technical report --- v1.0.0 (arXiv preprint)}
+\textbf{Technical report --- v1.0.1 (arXiv preprint)}
 
-\textbf{Paper version:} v1.0.0 (2026-06-30) --- frozen for arXiv
-submission; changelog in \texttt{paper/CHANGELOG.md}
+\textbf{Paper version:} v1.0.1 (2026-07-12) --- post-submit honesty
+residual (S1/S3), staged for arXiv replacement; changelog in
+\texttt{paper/CHANGELOG.md}
 
 \textbf{Author:} Luiz Antonio Busnello (Toto) \textbf{Platform:}
 OpenClaw Autonomous Agent Platform \textbf{Infrastructure:} Hostinger
@@ -197,32 +198,33 @@ EverMemBench F\_MH paradox shows the 3--7\% absolute is a
 corpus-structural property, not a multi-hop reasoning ceiling.
 Production characteristics are strong across three self-hosted
 operational axes: \textbf{KG path retrieval p50 = 2.9 ms} (sub-10 ms
-class, §5.7.1), \textbf{cost \$0/query KG path and \textasciitilde667×
-cheaper than Mem0 Cloud on hybrid} (§5.7.2), and \textbf{399 MB RSS}
-(resident set size) \textbf{self-hosted single-process} footprint
-(§5.7.3). The cross-bench LongMemEval validation (n=300, §5.6) confirms
-the same per-category fingerprint across an orthogonal benchmark
-distribution. Wave 2 (2026-05-31 -- 2026-06-02, §5.5.4--§5.5.8)
-contributes an empirical per-backbone × per-knob composability study:
-three Wave A single-stage retrieval knobs (KG path, AC, MQ) transfer at
-only 0--40\% efficiency from gpt-4.1-mini to Gemini-3-flash (D75),
-establishing that retrieval-stage compensation mechanisms attenuate on
-stronger backbones; IterB ReAct (§5.5.2) remains the sole validated
-F\_MH lever on Gemini-3-flash at +2.01 pp.~An architectural lock
-discovery (§5.5.7) reveals that composability projections must account
-for both backbone-portability and code-level architectural composability
---- two independent non-trivial requirements. The Q4 cross-system
-comparison (§6) provides pre-registered, same-corpus results against
-five competing memory systems (two, Mem0 and agentmemory, produced
-head-to-head quality numbers; three were documented deployment
-non-runs). Under each system's native embedder the two leaders
-\textbf{split} --- Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426), nox-mem
-wins LongMemEval (§6.3); controlling the embedding provider (both
-Gemini-3072d, full n=2,482) \textbf{inverts the split}, with nox-mem
-outperforming Mem0 on both datasets (LongMemEval 0.526 vs 0.406; LoCoMo
-0.495 vs 0.441) and all five represented categories --- a task-type
-ablation rules out the one asymmetry favoring nox-mem, with three
-residual confounds declared (§6.3.2).
+class, §5.7.1), \textbf{cost \$0/query KG path; hybrid
+\textasciitilde667× below Mem0 Cloud list price} (self-hosted vs managed
+SaaS, not like-for-like; §5.7.2), and \textbf{399 MB RSS} (resident set
+size) \textbf{self-hosted single-process} footprint (§5.7.3). The
+cross-bench LongMemEval validation (n=300, §5.6) confirms the same
+per-category fingerprint across an orthogonal benchmark distribution.
+Wave 2 (2026-05-31 -- 2026-06-02, §5.5.4--§5.5.8) contributes an
+empirical per-backbone × per-knob composability study: three Wave A
+single-stage retrieval knobs (KG path, AC, MQ) transfer at only 0--40\%
+efficiency from gpt-4.1-mini to Gemini-3-flash (D75), establishing that
+retrieval-stage compensation mechanisms attenuate on stronger backbones;
+IterB ReAct (§5.5.2) remains the sole validated F\_MH lever on
+Gemini-3-flash at +2.01 pp.~An architectural lock discovery (§5.5.7)
+reveals that composability projections must account for both
+backbone-portability and code-level architectural composability --- two
+independent non-trivial requirements. The Q4 cross-system comparison
+(§6) provides pre-registered, same-corpus results against five competing
+memory systems (two, Mem0 and agentmemory, produced head-to-head quality
+numbers; three were documented deployment non-runs). Under each system's
+native embedder the two leaders \textbf{split} --- Mem0 wins LoCoMo
+(nDCG@10 0.469 vs 0.426), nox-mem wins LongMemEval (§6.3); controlling
+the embedding provider (both Gemini-3072d, full n=2,482) \textbf{inverts
+the split}, with nox-mem outperforming Mem0 on both datasets
+(LongMemEval 0.526 vs 0.406; LoCoMo 0.495 vs 0.441) and all five
+represented categories --- a task-type ablation rules out the one
+asymmetry favoring nox-mem, with three residual confounds declared
+(§6.3.2).
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -3904,13 +3906,15 @@ overall nDCG@10 falls only \textbf{0.5013 → 0.4979 (−0.34 pp)} and
 \textbf{still outperforms Mem0 (0.4337) on overall, both datasets
 (LoCoMo 0.4920 vs 0.4407; LongMemEval 0.5215 vs 0.4061), and all five
 categories}. The task-type asymmetry therefore contributes at most 0.34
-pp and does \textbf{not} explain the §6.3 → §6.3.2 inversion: the win is
-architectural (hybrid FTS5 + dense + RRF fusion), not an embedding-mode
-artifact. (Rigor caveat: the re-ingested generic corpus reached 99.03\%
-gold coverage --- 23 of 2,370 distinct gold chunks absent vs 100\% in
-the task-type run, a transient-ingest handicap that can only
-\emph{lower} nox-mem's score; the win persists despite it.) Ablation
-output: \texttt{eval/q4-comparison/output/rc4-ablation/}.
+pp and does \textbf{not} explain the §6.3 → §6.3.2 inversion: the
+task-type asymmetry does not explain the inversion; architecture (hybrid
+FTS5 + dense + RRF fusion) remains the leading explanation, with the
+three residual confounds of §6.3.2 still declared. (Rigor caveat: the
+re-ingested generic corpus reached 99.03\% gold coverage --- 23 of 2,370
+distinct gold chunks absent vs 100\% in the task-type run, a
+transient-ingest handicap that can only \emph{lower} nox-mem's score;
+the win persists despite it.) Ablation output:
+\texttt{eval/q4-comparison/output/rc4-ablation/}.
 
 \textbf{LoCoMo claim taxonomy (orientation).} ``Who wins LoCoMo''
 depends entirely on metric and configuration; the paper reports four

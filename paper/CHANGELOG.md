@@ -6,13 +6,25 @@
 
 ## Esquema
 
-- `v1.0.0-rcN` — release candidates pré-publicação **(estamos aqui)**
-- `v1.0.0` — sweep final (abstract-claims audit + polish) + submit arXiv
-- `v1.0.x` / `v1.1.0` — revisões pós-publicação (arXiv v2+)
+- `v1.0.0-rcN` — release candidates pré-publicação
+- `v1.0.0` — sweep final (abstract-claims audit + polish) + submit arXiv (submetida, `submit/7771319`)
+- `v1.0.x` / `v1.1.0` — revisões pós-publicação (arXiv v2+) **(estamos aqui: v1.0.1 staged)**
 
 Cada rc: bump no header do paper (`**Paper version:**`) + entrada aqui + (opcional) git tag `v1.0.0-rcN`.
 
 ---
+
+## v1.0.1 — 2026-07-12 (staged na branch `patch/v1.0.1-arxiv-replacement`, aguardando anúncio do arXiv)
+
+Residual da review adversarial pós-submit (plano completo + status por item: `paper/publication/v1.0.1-post-submit-patch-plan.md`). Duas frases, zero experimentos novos — o gap era retórico:
+
+- **S1 (§6.3.2, task-type ablation):** "the win is architectural … not an embedding-mode artifact" → "the task-type asymmetry does not explain the inversion; architecture remains the leading explanation, with the three residual confounds of §6.3.2 still declared". Remove a contradição interna com a própria frase "not a surgical architecture-only isolation".
+- **S3 (body abstract):** "~667× cheaper than Mem0 Cloud on hybrid" → "hybrid ~667× below Mem0 Cloud list price (self-hosted vs managed SaaS, not like-for-like; §5.7.2)" — o abstract agora carrega o mesmo hedge que o §5.7.2.
+- Header do paper → v1.0.1.
+
+**Não mudou:** título (B2 = decisão de 2026-07-01: manter "Pain-Weighted" + hedge, risco aceito); abstract do arXiv em `arxiv-metadata.txt` (o campo abstract da submissão não contém os trechos alterados — nenhuma mudança de metadata necessária no replacement).
+
+**Como aplicar (replacement):** ver runbook em `paper/publication/v1.0.1-post-submit-patch-plan.md` §"Runbook do replacement".
 
 ## Histórico
 
