@@ -19,14 +19,16 @@
 
 ---
 
-## 🎯 Próximos passos — RETOMAR AQUI
+## 🎯 Próximos passos — RETOMAR AQUI (atualizado 2026-07-12)
 
-**Gate único: um endorser aprovar o endorsement** (link/código em `paper/arxiv-metadata.txt`, local). Assim que aprovar:
+**SUBMETIDO.** `submit/7771319` entrou na fila de moderação em ~2026-07-01/05 (endorsement Rodrigo Nogueira OK, TeX/xelatex SUCCESS). **Gate atual: o arXiv anunciar o ID `2507.XXXXX`.** Em 2026-07-12 ainda sem anúncio (5+ dias úteis; acima do normal de 1–3 → provável on-hold de moderação, comum pra primeiro paper de autor independente — não é rejeição).
 
-1. **Retomar `submit/7771319`** (arxiv.org, logado): upload do PDF `paper/build/paper-tecnico-nox-mem.pdf` → colar metadados de `paper/arxiv-metadata.txt` (title · abstract 1805c ASCII ≤1920 · comments · cs.IR primary + cs.LG/cs.AI cross · CC BY 4.0) → **submit final (clique do Toto)**.
-   - Fallback se o arXiv recusar PDF-only (TeX-generated): `scripts/build-paper.sh --tex-only` → subir `.tex` + `refs.bib`.
-2. **Pós-arXiv ID:** `CITATION.cff` (trocar "submission pending" pelo ID real) + badge arXiv no `README.md`.
-3. **GTM:** disparar emails/LinkedIn de lançamento; drafts de post de lançamento pendentes (#5).
+1. **Checar status (só o Toto):** arxiv.org/user logado → status da 7771319; e a caixa do email da conta arXiv (`lab@generantis.com.br` — não chega nada em lab@nuvini). Se >2 semanas sem movimento: email pra `moderation@arxiv.org` citando o submit id.
+2. **Quando o ID sair → replacement v1.0.1 (branch PRONTA):** `patch/v1.0.1-arxiv-replacement` tem o residual da review pós-submit aplicado (2 frases: S1 §6.3.2 + S3 abstract 667×) + PDF/.tex rebuilds verificados. **Runbook passo-a-passo: `paper/publication/v1.0.1-post-submit-patch-plan.md` §"Runbook do replacement"** (merge → rebuild se preciso → Replace no arXiv → vira v2).
+3. **Pós-arXiv ID (independente do replacement):** `CITATION.cff` (trocar "submission pending" pelo ID real) + badge arXiv no `README.md`.
+4. **GTM:** disparar emails/LinkedIn de lançamento; drafts de post de lançamento pendentes (#5).
+
+**Review pós-submit (07-01/07-06):** 2 blockers + 4 should-fix — status por item verificado 07-12 em `paper/publication/v1.0.1-post-submit-patch-plan.md` (maioria já aplicada pré-submit; título mantido por decisão do Toto, risco aceito; residual = a branch acima).
 
 **Decisão de framing (Toto, 06-29):** §6.3 (as-configured) + §6.3.2 (controlled) coexistem; ablação task-type (06-30) blinda o §6.3.2. **Sweep de claims v1.0.0 já feito** (abstract↔§5/§6 coerentes, confounds citados onde o resultado aparece).
 
