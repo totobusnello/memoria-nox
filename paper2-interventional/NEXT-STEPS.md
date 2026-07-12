@@ -13,11 +13,12 @@ Nada de execução do Paper 2 começa antes de:
 
 ~~**Concept note de 1 página**~~ ✅ **FEITA (antecipada 2026-07-12, autorizada pelo Toto)** → **`CONCEPT-NOTE.md`** — problema · claim em 2 camadas · 2 figuras · reusa/constrói · guardas (SUTVA + pré-registro + adjudicação + artefato + COI) embutidas; em inglês (vai circular pra auditor externo). Execução segue gated no ID.
 
-**Novo primeiro entregável pós-ID:** rascunho de **pré-registro OSF** (primeiro item do checklist abaixo).
+**Novo primeiro entregável pós-ID:** ~~rascunho de pré-registro OSF~~ ✅ **FEITO (v0.2, 2026-07-12)** → **decisão de ROTA do desenho** (`PREREG-DRAFT.md` §0 — bloqueia o lock; call do Toto).
 
 ## Checklist de metodologia (a coisa de verdade — 80% do paper)
 
-- [ ] Rascunho de **pré-registro OSF** (outcome primário, sample size, stopping rule)
+- [x] Rascunho de **pré-registro OSF** — `PREREG-DRAFT.md` v0.2 (2026-07-12): v0.1 + review adversarial GLM (5 FATAL/7 GRAVE/10 menor, `REVIEWS-PREREG.md`) incorporada. Primário incondicional (density/session-hour) + co-primárias; stopping em epochs; fleet-wide epochs + serving snapshots; pilot pré-registrado; estimando em potential outcomes. **Pendente: decisão de rota (§0) + itens [TO LOCK]**
+- [ ] **Decisão de rota** (§0 do PREREG-DRAFT): 1-conservadora / 2-redesenho (2-lite recomendada) / 3-análise formal
 - [ ] Desenho de **randomização SUTVA-safe** (cluster por agente / bloco de tempo / washout)
 - [ ] Spec de **sanitização** do benchmark (hashing, buckets, esquema de labels, IAA)
 - [ ] Recrutar **auditor externo** (≥1, outra instituição)
