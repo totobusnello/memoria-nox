@@ -16,6 +16,7 @@ Paper 1 (*Pain-Weighted Hybrid Memory*, submetido cs.IR+cs.LG) teve um achado ho
 
 | Arquivo | Conteúdo |
 |---|---|
+| [`CONCEPT-NOTE.md`](CONCEPT-NOTE.md) | **A concept note de 1 página (EN)** — destilado pronto pra circular (auditor externo, colaboradores); guardas embutidas. Feita 2026-07-12 (antecipada com autorização) |
 | [`CONCEPT.md`](CONCEPT.md) | A tese, o claim, a âncora de fronteira, o moat |
 | [`DECISIONS.md`](DECISIONS.md) | O martelo — decisões travadas (framing, título, venue) + razões |
 | [`REVIEWS.md`](REVIEWS.md) | Revisão adversarial de 3 vozes (Codex/Kimi/GLM) — convergência e divergência |

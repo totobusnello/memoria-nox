@@ -11,9 +11,9 @@ Nada de execução do Paper 2 começa antes de:
 
 ## Quando o ID sair → primeiro entregável
 
-**Concept note de 1 página** com as guardas já embutidas (não como remendo):
+~~**Concept note de 1 página**~~ ✅ **FEITA (antecipada 2026-07-12, autorizada pelo Toto)** → **`CONCEPT-NOTE.md`** — problema · claim em 2 camadas · 2 figuras · reusa/constrói · guardas (SUTVA + pré-registro + adjudicação + artefato + COI) embutidas; em inglês (vai circular pra auditor externo). Execução segue gated no ID.
 
-- Problema · claim · as 2 figuras · o que reusa · o que constrói · a seção de método com **SUTVA + pré-registro desde o dia 1**.
+**Novo primeiro entregável pós-ID:** rascunho de **pré-registro OSF** (primeiro item do checklist abaixo).
 
 ## Checklist de metodologia (a coisa de verdade — 80% do paper)
 
@@ -35,7 +35,7 @@ Nada de execução do Paper 2 começa antes de:
 ## Timeline (rough, condicional ao ID)
 
 - **T0** = arXiv ID do Paper 1 público.
-- T0 + dias: concept note + rascunho de pré-registro.
+- T0 + dias: ~~concept note~~ (✅ pronta, 2026-07-12) + rascunho de pré-registro.
 - Depois: desenho SUTVA + harness replay → pré-registro trancado → A/B → análise → draft.
 
 ## Fora de escopo (não fazer aqui)
