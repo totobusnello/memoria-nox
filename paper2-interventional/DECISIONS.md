@@ -1,7 +1,28 @@
 # Martelo — Decisões travadas (Paper 2)
 
 > Convergência de 3 vozes adversariais (Codex/Kimi/GLM) + síntese. Detalhe das vozes em `REVIEWS.md`.
-> Data: 2026-07-05. Atualizado 2026-07-12 (rota do desenho experimental).
+> Data: 2026-07-05. Atualizado 2026-07-12 (rota do desenho) e 2026-07-25 (modelo de independência).
+
+## ✅ Modelo de independência — **estrutural, sem pessoas** (Toto, 2026-07-25)
+
+Contexto: o desenho v0.2 exigia **auditor externo** + **data monitor independente** (pessoas nomeadas, distintas). Custo real: lead time de convite, dependência de terceiro para operar o estudo, e risco de o projeto travar num "não".
+
+**Decisão: nenhum humano nos dois papéis.** Cada garantia que eles davam vira mecanismo verificável:
+
+| Garantia | Antes (pessoa) | Agora (mecanismo) |
+|---|---|---|
+| Randomização não escolhida a dedo | monitor gera e guarda a seed | **beacon público `drand`** — round que não existe no momento do registro; qualquer um recomputa |
+| Parada não-interessada | monitor decide o abort | **regra numérica congelada**, arm-blind, que derruba o estudo inteiro (nunca um braço) |
+| Regras fixadas antes dos dados | auditor assina pré-unblinding | **hash dos veredictos publicado ANTES do join** com os rótulos de braço (ordering proof) |
+| Exclusões arm-blind | auditor verifica | **exclusões são código** que não tem o artefato de rótulos no escopo — lê-se o commit |
+| Adjudicação sem viés de braço | humanos cegos | **painel de LLMs de famílias de treino distintas**, prompt hasheado, maioria + mediana, Fleiss' κ |
+
+- **Claim causal PRESERVADO.** A identificação causal vem da randomização, não da supervisão. Seed derivada de beacon é *mais* difícil de manipular que seed guardada por pessoa. O §1-H1 fica como está.
+- **Limitação declarada (não escondida):** ninguém independente observa a execução em tempo real; a verificação é **post-hoc e aberta**, não *ex ante* e delegada. Some-se a perda do desempate humano em casos de fronteira (tratado mecanicamente em §4.1).
+- **Ganho colateral:** sem sujeitos nem contribuintes humanos, a seção de ética simplifica e a isenção de IRB fica direta.
+- **Rejeitado:** convidar auditor "leve" (2h de sign-off) — Toto optou por zero dependência externa, 2026-07-25.
+
+Detalhe completo: `PREREG-DRAFT.md` §0b (+ §2 seed/blinding, §3 abort, §4.1 painel, §5 exclusões, §7 COI).
 
 ## ✅ Rota do desenho A/B — **2-lite** (Toto, 2026-07-12)
 

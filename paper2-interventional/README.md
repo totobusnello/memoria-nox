@@ -16,7 +16,7 @@ Paper 1 (*Pain-Weighted Hybrid Memory*, submetido cs.IR+cs.LG) teve um achado ho
 
 | Arquivo | Conteúdo |
 |---|---|
-| [`CONCEPT-NOTE.md`](CONCEPT-NOTE.md) | **A concept note de 1 página (EN)** — destilado pronto pra circular (auditor externo, colaboradores); guardas embutidas. Feita 2026-07-12 (antecipada com autorização) |
+| [`CONCEPT-NOTE.md`](CONCEPT-NOTE.md) | **A concept note de 1 página (EN)** — destilado pronto pra circular (colaboradores, venues, leitores do artefato); guardas embutidas. Feita 2026-07-12; guarda de adjudicação reescrita 2026-07-25 (sem auditor humano) |
 | [`PREREG-DRAFT.md`](PREREG-DRAFT.md) | **Rascunho do pré-registro OSF (v0.2, EN)** — NOT LOCKED; bloqueado na decisão de rota (§0) + itens [TO LOCK] |
 | [`REVIEWS-PREREG.md`](REVIEWS-PREREG.md) | Review adversarial GLM do pré-registro (2026-07-12): 5 FATAL/7 GRAVE/10 menor + as 3 rotas |
 | [`CONCEPT.md`](CONCEPT.md) | A tese, o claim, a âncora de fronteira, o moat |

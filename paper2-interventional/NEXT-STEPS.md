@@ -11,7 +11,7 @@ Nada de execução do Paper 2 começa antes de:
 
 ## Quando o ID sair → primeiro entregável
 
-~~**Concept note de 1 página**~~ ✅ **FEITA (antecipada 2026-07-12, autorizada pelo Toto)** → **`CONCEPT-NOTE.md`** — problema · claim em 2 camadas · 2 figuras · reusa/constrói · guardas (SUTVA + pré-registro + adjudicação + artefato + COI) embutidas; em inglês (vai circular pra auditor externo). Execução segue gated no ID.
+~~**Concept note de 1 página**~~ ✅ **FEITA (antecipada 2026-07-12, autorizada pelo Toto)** → **`CONCEPT-NOTE.md`** — problema · claim em 2 camadas · 2 figuras · reusa/constrói · guardas (SUTVA + pré-registro + adjudicação + artefato + COI) embutidas; em inglês. Execução segue gated no ID. *(A guarda de adjudicação foi reescrita em 2026-07-25 — sem auditor humano; ver `PREREG-DRAFT.md` §0b.)*
 
 **Novo primeiro entregável pós-ID:** ~~rascunho de pré-registro OSF~~ ✅ **FEITO (v0.2, 2026-07-12)** → **decisão de ROTA do desenho** (`PREREG-DRAFT.md` §0 — bloqueia o lock; call do Toto).
 
@@ -22,7 +22,7 @@ Nada de execução do Paper 2 começa antes de:
 - [ ] **Spec do serving-side snapshot** (nox-mem: brief servido do snapshot de início de epoch, writes intocados) — pré-requisito de engenharia da 2-lite; shadow-validar antes do pilot
 - [ ] Desenho de **randomização SUTVA-safe** (cluster por agente / bloco de tempo / washout)
 - [ ] Spec de **sanitização** do benchmark (hashing, buckets, esquema de labels, IAA)
-- [ ] Recrutar **auditor externo** (≥1, outra instituição)
+- [x] ~~Recrutar **auditor externo** (≥1, outra instituição)~~ **CANCELADO por decisão (Toto, 2026-07-25)** — sem pessoas; independência estrutural via beacon público + abort mecânico + painel multi-família + hashes de ordenação (`PREREG-DRAFT.md` §0b)
 - [ ] Selecionar **≥2 baselines** pra rodar por gente de fora do time
 - [ ] Construir **counterfactual replay harness** (offline, grosso)
 - [ ] Construir **A/B low-stakes** ao vivo (validação)

@@ -36,7 +36,7 @@ Os 6 agentes compartilham memória e conversam. Randomização **ingênua** on/o
 
 - Quem decide "essa ação repetida conta como failure" **não pode ser parte** (juiz = parte).
 - Adjudicação **cega** quanto ao braço.
-- **Auditor externo** (≥1 pesquisador de fora, idealmente outra instituição) assina que o pipeline `trace-bruto → action → outcome → failure` é determinístico e especificado **antes** da análise.
+- ~~**Auditor externo**~~ **REVISADO 2026-07-25 (Toto): sem auditor humano.** Que o pipeline `trace-bruto → action → outcome → failure` é determinístico e especificado **antes** da análise passa a ser *provado*, não *atestado*: commit congelado + hash, veredictos hasheados e timestampados **antes** do join com os rótulos de braço, exclusões como código incapaz de ler braço. Verificável por qualquer leitor, a qualquer momento. Ver `PREREG-DRAFT.md` §0b.
 
 ### 4. Artefato público
 
