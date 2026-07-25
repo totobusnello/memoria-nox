@@ -60,7 +60,7 @@ Retenção deslizante de **3 snapshots** (corrente, anterior, +1 de folga) mant�
 | Risco | Detecção | Mitigação |
 |---|---|---|
 | Janela de cópia no boundary (VACUUM INTO de ~2 GB não é instantâneo) | medir em T1 | Snapshot **antes** do boundary lógico; brief continua servindo o snapshot anterior até o novo estar íntegro (troca atômica por symlink) |
-| `vec0` / sqlite-vec não abrir no snapshot | T2 | Verificar carga da extensão + JOIN `vec_chunk_map→chunks` no arquivo copiado; sem isso o brief perde o caminho semântico |
+| ~~`vec0` / sqlite-vec não abrir no snapshot~~ | ✅ **fechado em T2 (25/07)** | Extensão carrega, JOIN casa 68.068 com 0 órfãos, KNN roda em ~200 ms e o top-10 é byte-idêntico ao live em 20/20 queries |
 | Duas conexões (snapshot read-only + live para `brief_log`) | T3 | **Não usar `ATTACH`** — lição registrada em `[[feedback_vacuum_into_attach_reverse_pattern]]`: better-sqlite3 tem limitação de contexto. Abrir os dois bancos separadamente |
 | Snapshot corrompido / incompleto serve brief vazio | T4 | Health check pós-cópia (contagens + `PRAGMA integrity_check`) antes da troca; falha ⇒ mantém o anterior e alerta |
 | Deriva silenciosa: brief passa a servir do live sem ninguém notar | T5 | `/api/health` expõe `servingSnapshot{path, sha256, epochId, takenAt}`; ausência é RED |
@@ -97,7 +97,7 @@ Retenção deslizante de **3 snapshots** (corrente, anterior, +1 de folga) mant�
 
 **K1 — VEREDICTO: PASSA.** 3 snapshots = ~4,5 G = **1,6% do espaço livre**, contra os ≥20% de folga exigidos. Margem larguíssima: mesmo retendo **todos** os ~60 epochs (~90 G) ainda caberia. A retenção deslizante permanece o desenho (previsibilidade e higiene), mas deixa de ser restrição de viabilidade. **A Route 2-lite está de pé; o degrade para Route 1 por espaço está descartado.**
 
-**⚠️ `vec_chunks` — teste INCONCLUSIVO, não aprovado.** A consulta ao snapshot pelo `sqlite3` CLI retornou `Error: in prepare, no such module: vec0`. Isso é a **limitação conhecida do CLI sem a extensão carregada** (mesma assinatura do incidente de 2026-06-04), **não** evidência de que os vetores se perderam. Evidência indireta a favor da integridade: o snapshot tem os mesmos 1,5 G do fonte, e os vetores respondem por ~860 MB desse total — se tivessem sido descartados, o arquivo seria drasticamente menor; e `vec_chunk_map` veio íntegro. **Mas isso não prova legibilidade.** **T2 permanece obrigatório** e é agora o principal risco técnico aberto: validar com `better-sqlite3` + `sqliteVec.load()`, rodando o JOIN `vec_chunk_map→chunks` no arquivo copiado. Se o caminho semântico não abrir no snapshot, o brief servido dele perde metade da busca híbrida — e aí sim a rota é ameaçada, por motivo técnico e não por espaço.
+**~~⚠️ `vec_chunks` — teste INCONCLUSIVO~~ → RESOLVIDO em T2, ver §T2 abaixo.** O `Error: in prepare, no such module: vec0` do `sqlite3` CLI era, como se suspeitava, limitação do CLI sem a extensão carregada — não perda de vetores. Confirmado com `better-sqlite3` + `sqliteVec.load()`.
 
 **Nota de corpus:** o live reporta **68.070 chunks** (`/api/health`), não os 94,9k que o `CLAUDE.md` ainda cita (número de 2026-06-04, anterior ao dedup). Divergência de documentação a corrigir fora desta spec.
 
@@ -106,7 +106,27 @@ Retenção deslizante de **3 snapshots** (corrente, anterior, +1 de folga) mant�
 ### Chunk B — Mecanismo
 
 - [ ] **T1** Implementar `snapshotForEpoch(epochId)`: `VACUUM INTO` para `/var/lib/nox-mem/epochs/<epochId>.db` + `PRAGMA integrity_check` + manifesto (SHA-256, contagens por tabela, `user_version`).
-- [ ] **T2** Validar sqlite-vec no arquivo copiado: carregar `vec0`, rodar JOIN `vec_chunk_map→chunks`, confirmar que o caminho semântico funciona no snapshot.
+- [x] **T2** ✅ **VALIDADO 2026-07-25 na VPS.** O caminho semântico abre e é fiel no snapshot. Resultados abaixo.
+
+#### T2 — resultados medidos
+
+Snapshot fresco por `VACUUM INTO` (**8,05 s**, 1,5 G — consistente com os 9,77 s do T0), aberto read-only com `better-sqlite3` + `sqliteVec.load()`.
+
+| Verificação | Resultado |
+|---|---|
+| `vec0` carrega no snapshot | **OK** (`vec_chunks USING vec0(embedding FLOAT[3072])`) |
+| Contagens snapshot vs live | `chunks` 68.077=68.077 · `vec_chunk_map` 68.068=68.068 · `vec_chunks` 70.142=70.142 |
+| JOIN `vec_chunk_map→chunks` | 68.068 casados, **0 órfãos de mapa** |
+| `PRAGMA integrity_check` | `ok` · `user_version` 18 (bate com o live) |
+| KNN real (`MATCH` + `k`) | funciona; **192–206 ms** para k=10 sobre 70k vetores |
+
+**O critério que decide: equivalência, não perfeição.** A pergunta certa não é "o KNN do snapshot é bom?" e sim "o snapshot se comporta como o live?". Em **20/20** queries independentes (seeds espalhados por `vec_rowid % 997 = 3`), o top-10 veio **byte-idêntico** — mesmos `rowid`, mesmas distâncias com 6 casas. **A cópia é fiel; o braço de tratamento mede o mesmo mecanismo do controle, só congelado.**
+
+**⚠️ Achado colateral — 29,2% do corpus é texto duplicado.** Ao testar self-match, três seeds se encontraram em rank 3–5 com distância `0.000000`, e um não se achou no top-10: estavam **empatados em zero com cópias idênticas de si mesmos**. Medido: **19.869 de 68.068 chunks vetorizados (29,2%) estão em 4.303 grupos de texto idêntico; o maior grupo tem 629 cópias.**
+
+Isso **não** ameaça o T2 (o live tem exatamente o mesmo comportamento — é por isso que a equivalência dá 20/20), mas é **confound declarável do Paper 2**: se o brief serve por KNN, um top-k pode ser preenchido por gêmeos do mesmo texto, e a diversidade do que é servido cai sem que o ranking acuse. Interage diretamente com o coverage-sampling do D2. **Ação:** quantificar o impacto no que o brief efetivamente serve (não no corpus bruto) e declarar no prereg — entra como item novo em §9. Não bloqueia T1/T3.
+
+**Nota:** os 2.074 vetores sem entrada em `vec_chunk_map` (70.142 − 68.068) são os órfãos pré-existentes que o cron das 06:20 poda; o snapshot os reproduz fielmente, como esperado.
 - [ ] **T3** Serving split: `/api/brief` lê corpus do snapshot (conexão read-only) e `brief_log` do live. **Duas conexões, sem `ATTACH`.**
 - [ ] **T4** Troca atômica por symlink (`current.db` → `<epochId>.db`) só após integrity check passar; falha mantém o anterior e alerta.
 - [ ] **T5** Retenção deslizante (manter 3, podar o resto preservando manifesto) + `servingSnapshot` em `/api/health`.
