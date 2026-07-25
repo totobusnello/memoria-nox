@@ -122,11 +122,28 @@ Snapshot fresco por `VACUUM INTO` (**8,05 s**, 1,5 G — consistente com os 9,77
 
 **O critério que decide: equivalência, não perfeição.** A pergunta certa não é "o KNN do snapshot é bom?" e sim "o snapshot se comporta como o live?". Em **20/20** queries independentes (seeds espalhados por `vec_rowid % 997 = 3`), o top-10 veio **byte-idêntico** — mesmos `rowid`, mesmas distâncias com 6 casas. **A cópia é fiel; o braço de tratamento mede o mesmo mecanismo do controle, só congelado.**
 
-**⚠️ Achado colateral — 29,2% do corpus é texto duplicado.** Ao testar self-match, três seeds se encontraram em rank 3–5 com distância `0.000000`, e um não se achou no top-10: estavam **empatados em zero com cópias idênticas de si mesmos**. Medido: **19.869 de 68.068 chunks vetorizados (29,2%) estão em 4.303 grupos de texto idêntico; o maior grupo tem 629 cópias.**
+**Achado colateral — 29,2% do corpus é texto duplicado, mas isso NÃO chega ao brief.** Ao testar self-match, três seeds se encontraram em rank 3–5 com distância `0.000000` e um não se achou no top-10: estavam **empatados em zero com cópias idênticas de si mesmos**. Medido no corpus: **19.869 de 68.068 chunks vetorizados (29,2%) estão em 4.303 grupos de texto idêntico; o maior grupo tem 629 cópias.**
 
-Isso **não** ameaça o T2 (o live tem exatamente o mesmo comportamento — é por isso que a equivalência dá 20/20), mas é **confound declarável do Paper 2**: se o brief serve por KNN, um top-k pode ser preenchido por gêmeos do mesmo texto, e a diversidade do que é servido cai sem que o ranking acuse. Interage diretamente com o coverage-sampling do D2. **Ação:** quantificar o impacto no que o brief efetivamente serve (não no corpus bruto) e declarar no prereg — entra como item novo em §9. Não bloqueia T1/T3.
+Isso não ameaça o T2 (o live se comporta igual — é por isso que a equivalência dá 20/20). Levantou-se a hipótese de que fosse confound do Paper 2: se o brief serve por similaridade, um top-k poderia ser preenchido por gêmeos do mesmo texto. **Medido em `brief_log` sobre 7 dias (7.141 briefs, 50.848 slots): hipótese REFUTADA — 0,00% dos slots servidos são texto duplicado de outro slot.** Nos 7 dias, 362 chunks distintos servidos correspondem a 361 textos distintos. A duplicação do corpus mora em regiões que o brief não alcança. **Nada a declarar no §9 por esta via.**
+
+#### ⚠️ O que a medição encontrou de verdade: `brief_log` não identifica o brief
+
+A investigação passou por um falso positivo instrutivo. Agrupando `brief_log` por `(scope, agent, served_at)`, 10,34% dos slots pareciam `chunk_id` repetido — o que sugeriria falha de dedup na montagem. **Não é bug.** Evidência que fecha:
+
+- multiplicidade máxima é **exatamente 2×**, nunca 3;
+- distribuição bimodal — 3.539 grupos de 10 slots com **zero** repetição, 574 grupos de 20 slots com repetição em **todos**;
+- a ordem de inserção do pior grupo mostra duas sequências idênticas de 10, ids contíguos, **diferindo só no último item** (o slot fresh rotacionando).
+
+São **dois briefs consecutivos servidos dentro do mesmo segundo**. `pickDedup` (`src/api/brief.ts:350`) é hermético — `seenIds` bloqueia repetição em todas as fases, inclusive a fresh — e o `INSERT` percorre `result.items`, já deduplicado.
+
+**A falha real é de instrumento:** o schema é `brief_log(id, chunk_id, scope, agent, served_at)`, **sem `brief_id`**, e `served_at` tem resolução de 1 segundo. **Não há como separar dois briefs coincidentes no mesmo segundo** — e isso acontece em ~9% dos casos hoje.
+
+Para o Paper 2 isso importa: o desfecho é medido **por brief servido**. Sem `brief_id`, qualquer análise por-brief funde silenciosamente briefs co-ocorrentes, exatamente como aconteceu comigo aqui. **Ação: adicionar `brief_id` (ou `served_at` com resolução de ms) antes do início do estudo — vira item novo do §9 e pré-requisito de T3.** É barato: coluna nova, sem ALTER destrutivo, mesmo padrão da criação do `brief_log`.
+
+**Nota de método:** esta seção mudou de conclusão três vezes (duplicata de corpus → bug de dedup → artefato de agrupamento). O que a estabilizou foi olhar a ordem de inserção bruta em vez de confiar no agregado. Registrado porque o mesmo agrupamento ingênuo está disponível para quem for analisar o desfecho do estudo.
 
 **Nota:** os 2.074 vetores sem entrada em `vec_chunk_map` (70.142 − 68.068) são os órfãos pré-existentes que o cron das 06:20 poda; o snapshot os reproduz fielmente, como esperado.
+- [ ] **T2b** ⚠️ **NOVO (pré-requisito de T3).** Adicionar `brief_id` ao `brief_log` (ou `served_at` em ms). Sem isso não há como atribuir slot a brief quando dois coincidem no mesmo segundo (~9% hoje) — e o desfecho do estudo é medido por brief.
 - [ ] **T3** Serving split: `/api/brief` lê corpus do snapshot (conexão read-only) e `brief_log` do live. **Duas conexões, sem `ATTACH`.**
 - [ ] **T4** Troca atômica por symlink (`current.db` → `<epochId>.db`) só após integrity check passar; falha mantém o anterior e alerta.
 - [ ] **T5** Retenção deslizante (manter 3, podar o resto preservando manifesto) + `servingSnapshot` em `/api/health`.
