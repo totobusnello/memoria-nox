@@ -200,7 +200,7 @@ The retrospective decision-replay benchmark and the counterfactual replay harnes
 
 1. ~~§0 route decision~~ ✅ **Route 2-lite (Toto, 2026-07-12).**
 2. ~~Named external auditor + named independent data monitor~~ ✅ **CLOSED by decision, not by appointment (Toto, 2026-07-25): no humans in either role; independence is structural (§0b).** Replaced by: public beacon seed (§2), mechanical abort (§3), multi-family LLM panel (§4.1), ordering proof via pre-join verdict hash (§2), exclusions-as-code (§5).
-3. Epoch length + washout (24h + 2h proposed) · snapshot mechanism spec (serving-side freeze).
+3. Epoch length + washout (24h + 2h proposed) · ~~snapshot mechanism spec~~ ✅ **SPEC WRITTEN 2026-07-25** → `specs/2026-07-25-P2S1-serving-side-snapshot.md`. Design settled: physical `VACUUM INTO` snapshot per epoch freezing **the corpus only** (`chunks`, `chunks_fts`, `vec_chunks`, `vec_chunk_map`); `brief_log` stays on the live store because the D2 coverage sampler is stateful *within* an epoch (freezing it would degenerate the brief and change what the treatment arm measures). Sliding retention of 3 snapshots keeps disk cost constant, not linear in epochs. **Still [TO LOCK]: the measured parameters** (T0) — DB size, `VACUUM INTO` duration, free disk — and **kill criterion K1**: if the VPS cannot hold 3 concurrent snapshots with ≥20% headroom, the mechanism is infeasible and this registration degrades to Route 1 (§0), dropping §1-H1's causal phrasing.
 4. W_OUTCOME formula value (0.15) + low-stakes allowlist.
 5. `sig()` taxonomy + frozen pipeline commit + synthetic-input PAP hash.
 6. Severity (0.5) + Fleiss' κ (≥ 0.75) thresholds.

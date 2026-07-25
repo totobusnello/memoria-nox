@@ -1,0 +1,109 @@
+# P2S1 — Serving-side snapshot (pré-requisito de engenharia do Paper 2)
+
+> **Status:** 📐 SPEC — não implementada.
+> **Origem:** `paper2-interventional/PREREG-DRAFT.md` §0 (Route 2-lite) item §9.3. É o **único bloqueador de engenharia** entre o desenho atual e o piloto.
+> **Consequência de falhar:** a rota degrada para **Route 1** (fallback documentado) e o paper **perde o claim causal**. Por isso a spec traz *kill criteria* explícitos — descobrir a inviabilidade agora custa uma spec; descobrir depois do pré-registro trancado custa o paper.
+> **Data:** 2026-07-25.
+
+---
+
+## 1. O que o experimento exige
+
+Route 2-lite pede: **os briefs do epoch _k_ são servidos a partir do estado do store no início de _k_** (congelamento no lado do serving), enquanto **os writes continuam indo para o store vivo**, sem interrupção, por segurança de produção.
+
+Objetivo causal: impedir que conteúdo escrito *durante* o epoch _k_ apareça nos briefs do próprio epoch _k_. Isso confina o carry-over à fronteira entre snapshots e torna o estimando (§2 do prereg) bem definido.
+
+## 2. Três achados que moldam o desenho
+
+Levantados do sistema real antes de especificar:
+
+**A1 — O serving path já é read-only sobre `chunks`.**
+`docs/ARCHITECTURE.md:333` e `docs/PRIMITIVES.md:288`: `/api/brief` é read-only sobre `chunks`; a única escrita é em `brief_log`. **Isso torna o congelamento viável sem tocar no caminho de escrita** — não há mutação a redirecionar.
+
+**A2 — `VACUUM INTO` é seguro com o banco vivo e já é padrão da casa.**
+`docs-site/.../backup-runbook.md:43` ("VACUUM INTO is safe while DB is live") e `withOpAudit()` já o usam para snapshots pré-op atômicos. Não é mecanismo novo: é reuso.
+
+**A3 — ⚠️ O coverage-sampling do D2 é _stateful dentro do epoch_.**
+`docs/HANDOFF.md:169`: o slot fresh ordena por `MAX(served_at)` do `brief_log` (nunca-servido primeiro). Ou seja, **o que foi servido às 08:00 muda o que é servido às 09:00**. Se congelássemos o `brief_log` junto com o corpus, a rotação de cobertura pararia dentro do epoch e o braço de tratamento passaria a medir *outra coisa* (um brief degenerado), não a política.
+
+> **Decisão de arquitetura que decorre de A3:** o snapshot congela **o corpus** (`chunks`, `chunks_fts`, `vec_chunks`, `vec_chunk_map`), **não o estado de serving**. `brief_log` permanece no store vivo, lido e escrito normalmente. É exatamente o que o estimando pede — congelar *quais chunks estão disponíveis*, não a mecânica de rotação intra-epoch.
+
+## 3. Opções de mecanismo
+
+| # | Mecanismo | Espaço | Fidelidade | Risco |
+|---|---|---|---|---|
+| **M1** | **Snapshot físico** via `VACUUM INTO` no boundary; brief lê do arquivo do epoch | Alto (ver §4) | **Exata** — inclui updates e deletes | Janela de cópia no boundary |
+| **M2** | **Snapshot lógico**: sem cópia; filtro `created_at <= epoch_start` no serving | Zero | **Aproximada** — não captura updates nem deletes posteriores | Vies silencioso se updates forem frequentes |
+| **M3** | Híbrido: M2 como caminho normal + M1 semanal como verificação de fidelidade | Baixo | Aproximada, com erro medido | Complexidade |
+
+**Recomendação: M1, com retenção deslizante (§4).** Motivo: M2 tem um modo de falha silencioso — um chunk editado durante o epoch continua visível na versão nova, e o congelamento vira ficção sem que nada acuse. Num pré-registro que reivindica identificação causal, uma aproximação não-medida no mecanismo central é passivo, não economia. M2 fica como fallback se e somente se o custo de M1 for proibitivo *e* o erro de aproximação for medido e declarado (task T7).
+
+## 4. O risco escondido: espaço em disco
+
+O ponto que quase derruba a rota, e que precisa ser medido **antes** de qualquer implementação.
+
+Ordem de grandeza: ~94,9k chunks e ~70k vetores de 3072 dimensões. A 4 bytes por float, só os vetores somam ~860 MB, antes de `chunks`, FTS5 e KG. Um snapshot completo deve ficar na casa do **1–2 GB**.
+
+Se o estudo tiver 40–60 epochs de 24h e todos os snapshots fossem retidos, seriam **60–120 GB** — inviável na VPS.
+
+**Mitigação (e é o que torna M1 viável): não é preciso reter todos.** A análise só precisa de:
+
+- o snapshot do epoch **corrente** (serving), e
+- o do epoch **anterior** (co-estimativa A→B, §5 do prereg).
+
+Retenção deslizante de **3 snapshots** (corrente, anterior, +1 de folga) mantém o custo **constante em ~3–6 GB**, não linear no número de epochs. Cada snapshot descartado deixa para trás seu **SHA-256 + manifesto** (contagens por tabela, `user_version`, chunk ids servidos) — o suficiente para auditoria posterior sem guardar o arquivo.
+
+**⛔ Kill criterion K1:** se `df` na VPS não sustentar 3 snapshots simultâneos com ≥20% de folga, M1 morre. Rota: tentar M3; se também não couber, **degradar para Route 1** e ajustar o prereg.
+
+## 5. Riscos adicionais
+
+| Risco | Detecção | Mitigação |
+|---|---|---|
+| Janela de cópia no boundary (VACUUM INTO de ~2 GB não é instantâneo) | medir em T1 | Snapshot **antes** do boundary lógico; brief continua servindo o snapshot anterior até o novo estar íntegro (troca atômica por symlink) |
+| `vec0` / sqlite-vec não abrir no snapshot | T2 | Verificar carga da extensão + JOIN `vec_chunk_map→chunks` no arquivo copiado; sem isso o brief perde o caminho semântico |
+| Duas conexões (snapshot read-only + live para `brief_log`) | T3 | **Não usar `ATTACH`** — lição registrada em `[[feedback_vacuum_into_attach_reverse_pattern]]`: better-sqlite3 tem limitação de contexto. Abrir os dois bancos separadamente |
+| Snapshot corrompido / incompleto serve brief vazio | T4 | Health check pós-cópia (contagens + `PRAGMA integrity_check`) antes da troca; falha ⇒ mantém o anterior e alerta |
+| Deriva silenciosa: brief passa a servir do live sem ninguém notar | T5 | `/api/health` expõe `servingSnapshot{path, sha256, epochId, takenAt}`; ausência é RED |
+| Consumo de I/O do VACUUM impacta produção | T1 | Rodar no vale de tráfego; medir latência de `/api/brief` durante a cópia |
+
+## 6. Critérios de aceite
+
+- [ ] Brief servido do snapshot é **byte-idêntico** ao brief que o mesmo código produziria contra o store vivo congelado no mesmo instante (validação em shadow, sem tráfego real).
+- [ ] Escrita no store vivo **não é afetada** — nenhum write path muda; `ops_audit` sem entradas novas por causa disso.
+- [ ] `brief_log` continua registrando serves e a rotação de cobertura do D2 **segue viva dentro do epoch** (contra-prova de A3: cobertura intra-epoch > 1 chunk distinto).
+- [ ] Troca de snapshot no boundary é **atômica** — nenhuma requisição vê estado intermediário.
+- [ ] Espaço em disco **constante** ao longo de ≥7 boundaries consecutivos (prova da retenção deslizante).
+- [ ] `/api/health` reporta o snapshot em uso e seu hash.
+
+## 7. Tasks
+
+### Chunk A — Medição (bloqueia tudo; nada é implementado antes)
+
+- [ ] **T0** Medir na VPS: tamanho real do DB, tempo de `VACUUM INTO`, espaço livre em disco, latência de `/api/brief` durante a cópia. **Avaliar K1.** Sem esses números a spec é especulação.
+
+### Chunk B — Mecanismo
+
+- [ ] **T1** Implementar `snapshotForEpoch(epochId)`: `VACUUM INTO` para `/var/lib/nox-mem/epochs/<epochId>.db` + `PRAGMA integrity_check` + manifesto (SHA-256, contagens por tabela, `user_version`).
+- [ ] **T2** Validar sqlite-vec no arquivo copiado: carregar `vec0`, rodar JOIN `vec_chunk_map→chunks`, confirmar que o caminho semântico funciona no snapshot.
+- [ ] **T3** Serving split: `/api/brief` lê corpus do snapshot (conexão read-only) e `brief_log` do live. **Duas conexões, sem `ATTACH`.**
+- [ ] **T4** Troca atômica por symlink (`current.db` → `<epochId>.db`) só após integrity check passar; falha mantém o anterior e alerta.
+- [ ] **T5** Retenção deslizante (manter 3, podar o resto preservando manifesto) + `servingSnapshot` em `/api/health`.
+
+### Chunk C — Validação
+
+- [ ] **T6** Shadow: rodar N boundaries sem tráfego real, verificar todos os critérios do §6.
+- [ ] **T7** Medir o erro de M2 contra M1 (quantos chunks divergiriam por epoch se usássemos só o filtro lógico) — é o número que decide se M2 é fallback aceitável, e entra no prereg como declaração.
+- [ ] **T8** Ensaio de falha: snapshot corrompido, disco cheio, `vec0` ausente. Confirmar que o sistema degrada para o snapshot anterior em vez de servir vazio.
+
+### Chunk D — Fechamento
+
+- [ ] **T9** Atualizar `PREREG-DRAFT.md` §9 item 3 com os parâmetros medidos (duração do boundary, retenção, hashes) e fechar o item.
+- [ ] **T10** Se K1 falhar: escrever o degrade para Route 1 no prereg (remover fraseado causal do §1-H1) e registrar em `paper2-interventional/DECISIONS.md`.
+
+## 8. Fora de escopo
+
+Não muda: caminho de escrita, watcher/ingest, vectorize, KG, consolidação noturna, `withOpAudit()`. O snapshot é **aditivo ao serving**; se desligado por env, o sistema volta ao comportamento atual.
+
+## 9. Flag
+
+`NOX_EPOCH_SNAPSHOT=off|shadow|active`, mesmo padrão de `NOX_BRIEF_DIVERSITY`. Default `off`. Produção só vai para `active` depois de T6 verde.
