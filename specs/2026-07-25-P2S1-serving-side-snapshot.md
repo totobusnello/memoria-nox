@@ -79,7 +79,29 @@ Retenção deslizante de **3 snapshots** (corrente, anterior, +1 de folga) mant�
 
 ### Chunk A — Medição (bloqueia tudo; nada é implementado antes)
 
-- [ ] **T0** Medir na VPS: tamanho real do DB, tempo de `VACUUM INTO`, espaço livre em disco, latência de `/api/brief` durante a cópia. **Avaliar K1.** Sem esses números a spec é especulação.
+- [x] **T0** ✅ **MEDIDO 2026-07-25 na VPS de produção.** Resultados abaixo. **K1 PASSA com folga.**
+
+#### T0 — números medidos
+
+| Métrica | Valor | Leitura |
+|---|---|---|
+| Disco `/` | 387 G total · 109 G usados · **279 G livres** (28%) | — |
+| `nox-mem.db` | **1,5 G** | estimativa da spec (1–2 G) confirmada |
+| WAL / SHM | 4,9 M / 32 K | saudável (truncamento em dia) |
+| **`VACUUM INTO`** | **9,77 s** · exit 0 | rápido; cabe folgado no boundary |
+| Snapshot gerado | 1,5 G · `PRAGMA integrity_check` = **ok** | — |
+| Fidelidade `chunks` | **68.070** no snapshot = 68.070 no live | idêntico |
+| Fidelidade `vec_chunk_map` | **68.068** = `vectorCoverage.embedded` do live | idêntico |
+| DB fonte pós-operação | intacto (mtime e tamanho inalterados) | confirma A2 |
+| Inodes | 3% usados | sem pressão |
+
+**K1 — VEREDICTO: PASSA.** 3 snapshots = ~4,5 G = **1,6% do espaço livre**, contra os ≥20% de folga exigidos. Margem larguíssima: mesmo retendo **todos** os ~60 epochs (~90 G) ainda caberia. A retenção deslizante permanece o desenho (previsibilidade e higiene), mas deixa de ser restrição de viabilidade. **A Route 2-lite está de pé; o degrade para Route 1 por espaço está descartado.**
+
+**⚠️ `vec_chunks` — teste INCONCLUSIVO, não aprovado.** A consulta ao snapshot pelo `sqlite3` CLI retornou `Error: in prepare, no such module: vec0`. Isso é a **limitação conhecida do CLI sem a extensão carregada** (mesma assinatura do incidente de 2026-06-04), **não** evidência de que os vetores se perderam. Evidência indireta a favor da integridade: o snapshot tem os mesmos 1,5 G do fonte, e os vetores respondem por ~860 MB desse total — se tivessem sido descartados, o arquivo seria drasticamente menor; e `vec_chunk_map` veio íntegro. **Mas isso não prova legibilidade.** **T2 permanece obrigatório** e é agora o principal risco técnico aberto: validar com `better-sqlite3` + `sqliteVec.load()`, rodando o JOIN `vec_chunk_map→chunks` no arquivo copiado. Se o caminho semântico não abrir no snapshot, o brief servido dele perde metade da busca híbrida — e aí sim a rota é ameaçada, por motivo técnico e não por espaço.
+
+**Nota de corpus:** o live reporta **68.070 chunks** (`/api/health`), não os 94,9k que o `CLAUDE.md` ainda cita (número de 2026-06-04, anterior ao dedup). Divergência de documentação a corrigir fora desta spec.
+
+**Pendente de T0 (não bloqueante):** latência de `/api/brief` durante a cópia — medir junto com T6, em shadow, onde o efeito é observável sem instrumentar produção só para isso.
 
 ### Chunk B — Mecanismo
 
