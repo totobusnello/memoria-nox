@@ -19,11 +19,13 @@
 
 ---
 
-## 🎯 Próximos passos — RETOMAR AQUI (atualizado 2026-07-12)
+## 🎯 Próximos passos — RETOMAR AQUI (atualizado 2026-07-25)
 
-**SUBMETIDO.** `submit/7771319` entrou na fila de moderação em ~2026-07-01/05 (endorsement Rodrigo Nogueira OK, TeX/xelatex SUCCESS). **Gate atual: o arXiv anunciar o ID `2507.XXXXX`.** Em 2026-07-12 ainda sem anúncio (5+ dias úteis; acima do normal de 1–3 → provável on-hold de moderação, comum pra primeiro paper de autor independente — não é rejeição).
+**SUBMETIDO, EM `on hold` — INQUIRY JÁ ENVIADO. NÃO REPETIR.** `submit/7771319` na moderação desde 2026-07-01 (endorsement Rodrigo Nogueira OK, TeX/xelatex SUCCESS). **Gate atual: o arXiv anunciar o ID `2507.XXXXX`.**
 
-1. **Checar status (só o Toto):** arxiv.org/user logado → status da 7771319; e a caixa do email da conta arXiv (`lab@generantis.com.br` — não chega nada em lab@nuvini). Se >2 semanas sem movimento: email pra `moderation@arxiv.org` citando o submit id.
+**Status VERIFICADO em 2026-07-25** (leitura direta de `arxiv.org/user` logado): status literal **`on hold`**, coluna Expires vazia, nenhuma mensagem de moderação pendente. Delete/Unsubmit **travados pelo próprio arXiv** ("currently being considered by our moderators") ⇒ moderação humana ativa, **não é rejeição**. 24 dias corridos / ~18 úteis vs baseline de 1–2 úteis. Doutrina oficial do `on hold`: *"no action is required on your part"*, *"On Hold submissions will not expire"*, *"do not make a duplicate submission"*.
+
+1. ~~Checar status + email pra moderação~~ **✅ FEITO em 2026-07-25.** Inquiry enviado de `lab@generantis.com.br` → `moderation@arxiv.org`; voltou auto-reply da fila ERRADA (endorsement — ver 🪤 "Armadilha de roteamento" no runbook); correção enviada no MESMO thread pedindo repasse à moderação. **⛔ NÃO mandar novo contato antes de ~2026-08-08** — duplicata piora e é desaconselhada pelo próprio arXiv. Se precisar depois dessa data, ir pelo botão **"View request"** do auto-reply (abre o ticket no portal Jira **sem exigir conta Atlassian**), não por email novo. Detalhes + textos prontos: `paper/publication/v1.0.1-post-submit-patch-plan.md` §"Follow-up de moderação — ARMADO".
 2. **Quando o ID sair → replacement v1.0.1 (branch PRONTA):** `patch/v1.0.1-arxiv-replacement` tem o residual da review pós-submit aplicado (2 frases: S1 §6.3.2 + S3 abstract 667×) + PDF/.tex rebuilds verificados. **Runbook passo-a-passo: `paper/publication/v1.0.1-post-submit-patch-plan.md` §"Runbook do replacement"** (merge → rebuild se preciso → Replace no arXiv → vira v2).
 3. **Pós-arXiv ID (independente do replacement):** `CITATION.cff` (trocar "submission pending" pelo ID real) + badge arXiv no `README.md`.
 4. **GTM:** disparar emails/LinkedIn de lançamento; drafts de post de lançamento pendentes (#5).
