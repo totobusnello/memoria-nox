@@ -91,7 +91,7 @@ Quando produtizar (Hotmart/instalador/marketing) → migra pra `nox-supermem/`.
 ### Schema (V7)
 - `chunks` + `chunks_fts` (FTS5) — **94.9k chunks** ativos (sincronizado 2026-06-04 pós-limpeza _retired; jun teve bulk import Mac workspace +34k via watcher sem allowlist → 5.6k de skills aposentadas removidos com snapshot — ver INCIDENTS 2026-06-04)
 - `vec_chunks` + `vec_chunk_map` (sqlite-vec, 3072d) — ~99.97% coverage
-- `kg_entities` (~15.6k) + `kg_relations` (~21.5k) — Gemini 2.5 Flash extraction (incremental nightly; sincronizado 2026-06-04)
+- `kg_entities` (**15.615**) + `kg_relations` (**17.934**) — sincronizado **2026-07-25**. O número antigo (~21.5k) ficou 2 meses defasado enquanto o grafo drenava para **554** por bug de compounding no decaimento (`pruneKnowledgeGraph`); ver `docs/INCIDENTS.md#2026-07-25`. Manutenção agora tem duas vias distintas: **`kg-build --limit`** (LLM, descobre relação nova, amostrado) e **`kg-confirm`** (JOIN por `evidence_chunk_id`, mantém relação existente, exaustivo e sem LLM)
 - **Schema v10** (2026-04-23): `retention_days` v8 + `pain` v9 + `section` v10
   - `retention_days` — typed retention (feedback/person=NULL never-decay, lesson 180d, decision/project 365d, team 120d, daily 90d, pending 30d, graph_node 60d, default 90d)
   - `pain` REAL DEFAULT 0.2 — severity 0.1 trivial → 1.0 prod-outage
