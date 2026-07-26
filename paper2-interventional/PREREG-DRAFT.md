@@ -219,7 +219,36 @@ Mechanism implemented and **in production**: per-epoch snapshot with auditable m
 M2 (logical `created_at` filter) remains a **documented fallback with measured error**, not the design: 0.144% of corpus rows and 0 of 7,235 served slots per 24 h epoch (T7). Failure drills pass 5/5 — a corrupted snapshot does not flip the pointer, an absent snapshot degrades to the live store **with a stated reason and a RED health check**, and absent `vec0` degrades partially rather than totally (T8).
 
 **Still open before the pilot:** epoch length + washout (24 h + 2 h proposed) remain **[TO LOCK]**; boundary rotation is not yet scheduled (operational, not mechanism).
-> ### ⛔ 0. INSTRUMENTATION BLOCKER (found 2026-07-26, precedes items 4–8)
+> ### ✅ 0. RESOLVED 2026-07-26 — the action stream exists; it was never OpenClaw's to hold
+>
+> **The blocker below is dissolved, and not by instrumentation.** OpenClaw spawns `claude-cli` as a subprocess and parses its `stream-json` output; it is the **Claude CLI**, not OpenClaw, that persists the transcript. Hence the exhaustive search inside OpenClaw returned zero — the store was never there.
+>
+> **Location:** `/root/.claude/projects/<cwd-encoded>/*.jsonl`. Provenance is established by the directory names, which encode each agent's working directory: `…-agents-nox`, `…-agents-cipher`, `…-agents-forge`, `…-agents-boris`, `…-agents-atlas`, `…-agents-lex`, `…-agents-gordon-gekko`. These are the production agents, not interactive sessions.
+>
+> **Measured 2026-07-26** (content window 2026-07-12 → 2026-07-26):
+>
+> | | |
+> |---|---|
+> | `tool_use` blocks | **4,492** |
+> | `tool_result` (paired outcomes) | **4,490** |
+> | `is_error: true` | **431 (9.6%)** |
+> | Distinct `sig()` = tool × target-class | **71** |
+> | Signatures with ≥1 failure | **38** |
+> | Signatures with **≥2** failures — the repeat candidates | **27** |
+>
+> Volume by agent: nox 1,299 · forge 956 · workspace 951 · cipher 736 · boris 456 · atlas 48 · lex 38 · gordon-gekko 8. **Highly uneven** — leave-one-agent-out robustness (§5) will be dominated by the top four.
+>
+> Failure rate varies by two orders of magnitude across signatures — `Write|file:doc` 47.8%, `mcp__openclaw__message` 28.2%, `Edit|file:doc` 24.0%, against `Bash|fs:read` 2.5%. That spread is what makes a signature-matched repeat definition meaningful rather than a global average.
+>
+> **`is_error` is a candidate signal, not the verdict.** Two signatures are suspicious on their face — a `message` class at **100%** error (27/27) and `Write|file:doc` at 47.8% — which smell like workflow errors (e.g. "file not read yet") rather than task failures. This is exactly why §4.1 specifies an adjudication panel: `is_error` selects episodes *for* adjudication; it does not decide them. Route 3 (`task_runs`) died at 2 failures in 400; this corpus offers 431 with paired outcomes and a signature dimension.
+>
+> **⏳ URGENT — the window is rolling, not cumulative.** Files on disk go back only to **2026-07-18** (~8 days), accruing at ~350/day; content inside reaches 07-12. No `cleanupPeriodDays` is set, so the Claude Code default retention applies and **history is being pruned from the tail while we plan**. The pilot needs accumulated history. **Archiving these transcripts to durable storage is now the cheapest, most time-sensitive action in the whole project** — every day of delay is a day of tail permanently lost. This is an additive copy job, not instrumentation.
+>
+> Consequently items 4–8 are unblocked for calibration, and item 5's taxonomy is derivable today (the 71 signatures above are the first cut).
+>
+> ---
+>
+> ### ⛔ 0-bis. The original blocker, kept for the record (found and resolved the same day, 2026-07-26)
 >
 > **The executed-action stream that §4.1 is defined over does not exist.** Repeated failure is defined as *"an executed action `a` in an analyzed session"* with signature `sig(a)`. Attempting to derive the `sig()` taxonomy from data (item 5) found that agent session records persist **prompts and completions only** — no tool calls, no arguments, no results.
 >
