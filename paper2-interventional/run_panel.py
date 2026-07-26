@@ -24,6 +24,7 @@ import os
 import re
 import sys
 import time
+import subprocess
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -46,18 +47,52 @@ def _ler(p: str) -> str:
 
 PAINEL = [
     # (id, familia, modelo, protocolo, base_url, fn-da-chave)
-    ("openai",   "OpenAI",   "gpt-5.6-sol", "openai",    "https://api.openai.com/v1",
-     lambda: os.environ["OPENAI_API_KEY"]),
     ("zhipu",    "Zhipu",    "glm-5.2",     "anthropic", "https://api.z.ai/api/anthropic",
      lambda: _ler("~/.config/glm/token")),
     ("xai",      "xAI",      "grok-4.5",    "anthropic", "https://api.x.ai",
      lambda: _ler("~/.config/grok/token")),
-    ("moonshot", "Moonshot", "k3",          "openai",    "https://api.kimi.com/coding/v1",
-     lambda: re.search(r'api_key\s*=\s*"([^"]+)"',
-                       _ler("~/.kimi-code/config.toml")).group(1)),
+    # Sem API key medida: entram pela conexao CLI, que carrega a credencial
+    # de assinatura do titular. Custa muito mais token (o CLI sobe um agent
+    # loop por chamada — medido: ~22k tokens de overhead num prompt trivial
+    # do codex) e e mais lento. Decisao do titular, registrada.
+    ("moonshot", "Moonshot", "k3",           "cli", "kimi",   None),
+    ("openai",   "OpenAI",   "gpt-5.6-sol",  "cli", "codex",  None),
     ("google",   "Google",   "gemini-2.5-pro", "gemini",   "https://generativelanguage.googleapis.com/v1beta",
      lambda: os.environ["GEMINI_API_KEY"]),
 ]
+
+# ⚠️ ANTHROPIC ficou FORA por desenho, nao por credencial: os agentes julgados
+# rodam em `claude-cli`, entao Anthropic no painel seria a familia julgando a
+# propria saida (§4.1, conflito ator-juiz). Para incluir, acrescente
+#   ("anthropic", "Anthropic", "claude-opus-5", "cli", "claude", None)
+# e o §4.1 passa a exigir o leave-one-family-out como resultado principal,
+# nao como robustez.
+
+# Como cada CLI e invocado. `stdin=True` mantem o episodio fora de `ps`.
+CLIS = {
+    "kimi":   {"cmd": [str(Path("~/.kimi-code/bin/kimi").expanduser()), "-p"], "stdin": False},
+    "codex":  {"cmd": ["codex", "exec", "--skip-git-repo-check", "-"],        "stdin": True},
+    "claude": {"cmd": ["claude", "--bare", "-p"],                             "stdin": True},
+}
+
+
+def chamar_cli(alvo: str, texto: str, timeout: int) -> str:
+    """
+    Roda o painelista pelo CLI. O CLI sobe um agent loop — mais caro e mais
+    lento que a API, e o unico caminho quando a credencial e de assinatura.
+
+    ⚠️ `kimi` nao le stdin (`-p` exige o argumento), entao o episodio vai em
+    argv e fica visivel em `ps` enquanto a chamada dura. Maquina local, usuario
+    unico, conteudo ja redigido — aceitavel, e declarado em vez de escondido.
+    """
+    c = CLIS[alvo]
+    if c["stdin"]:
+        r = subprocess.run(c["cmd"], input=texto, capture_output=True,
+                           text=True, timeout=timeout, cwd="/tmp")
+    else:
+        r = subprocess.run([*c["cmd"], texto], capture_output=True,
+                           text=True, timeout=timeout, cwd="/tmp")
+    return r.stdout or r.stderr
 
 
 def carregar_prompt() -> tuple[str, str]:
@@ -111,6 +146,8 @@ def chamar(protocolo: str, base: str, modelo: str, chave: str, texto: str, timeo
         cands = d.get("candidates") or [{}]
         return "".join(p.get("text", "") for p in
                        (cands[0].get("content", {}).get("parts") or []))
+    if protocolo == "cli":
+        return chamar_cli(base, texto, timeout)
     raise ValueError(protocolo)
 
 
@@ -147,7 +184,8 @@ def julgar(pan, ep, prompt, timeout) -> dict:
     ultimo = ""
     for tentativa in (1, 2):          # §4.1: um reenvio, depois conta como ausente
         try:
-            ultimo = chamar(proto, base, modelo, get_chave(), texto, timeout)
+            ultimo = chamar(proto, base, modelo,
+                            get_chave() if get_chave else "", texto, timeout)
             p = parsear(ultimo)
             if p:
                 return {**base_reg, **p, "attempts": tentativa, "status": "ok"}
@@ -184,9 +222,14 @@ def main() -> int:
 
     # Falha cedo e barato: credencial ausente vira erro agora, não depois de
     # 300 episódios (lição: preflight tem que exercer o caminho de cobrança).
-    for pid, _, _, _, _, get in painel:
+    for pid, _, _, proto, base, get in painel:
         try:
-            if not get():
+            if proto == "cli":
+                # Preflight do CLI: o binario tem que existir AGORA, nao no
+                # episodio 200.
+                subprocess.run([CLIS[base]["cmd"][0], "--version"],
+                               capture_output=True, timeout=30, check=True)
+            elif not get():
                 raise ValueError("vazia")
         except Exception as e:
             print(f"ERRO: credencial de '{pid}' indisponivel ({type(e).__name__})", file=sys.stderr)
