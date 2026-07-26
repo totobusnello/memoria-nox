@@ -105,7 +105,10 @@ Retenção deslizante de **3 snapshots** (corrente, anterior, +1 de folga) mant�
 
 ### Chunk B — Mecanismo
 
-- [ ] **T1** Implementar `snapshotForEpoch(epochId)`: `VACUUM INTO` para `/var/lib/nox-mem/epochs/<epochId>.db` + `PRAGMA integrity_check` + manifesto (SHA-256, contagens por tabela, `user_version`).
+- [x] **T1** ✅ **EM PRODUÇÃO 2026-07-26** — `snapshotForEpoch()` em `src/lib/epoch-snapshot.ts` ([#34](https://github.com/totobusnello/nox-workspace/pull/34) + [#35](https://github.com/totobusnello/nox-workspace/pull/35)). Smoke na VPS: **1,60 GB em 17,8 s**, `integrity_check` ok, `user_version` 18, manifesto atestando as 6 tabelas do corpus (`chunks` 68.115 · `chunks_fts` 68.115 · `vec_chunks` 70.149 · `vec_chunk_map` 68.075 · `kg_entities` 15.621 · `kg_relations` 18.074).
+  - **Primitiva `atomicSnapshotTo()` extraída** do `op-audit` para `lib/atomic-snapshot.ts`: o op-audit valida `NOX_DB_PATH` **no escopo de módulo**, então só importá-lo dispara o guard — a primitiva não podia carregar política que não é dela. Proteções (`.tmp` + integrity + re-stat TOCTOU + rename + `0600`) seguem em **uma** implementação.
+  - **Invariante travada em teste:** escrita posterior ao boundary **não** aparece no snapshot do próprio epoch. Sem ela o congelamento é ficção e o claim causal cai junto. 6/6 passando.
+  - ⚠️ **Armadilha reincidente:** o manifesto nascia com `vec_chunks: -1` porque abria o snapshot sem carregar `vec0` — mesma causa que deixou o teste do T0 inconclusivo. Só apareceu no smoke em produção, não nos testes.
 - [x] **T2** ✅ **VALIDADO 2026-07-25 na VPS.** O caminho semântico abre e é fiel no snapshot. Resultados abaixo.
 
 #### T2 — resultados medidos
