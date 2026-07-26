@@ -94,7 +94,7 @@ The auditor's pre-unblinding sign-off is replaced by an **ordering proof**, whic
 
 Because the verdict hash carries a public timestamp that precedes the join, adjudication cannot have been tuned to arm without breaking the hash — a check any reader can perform, at any time, without having been present.
 
-**Ethics (M1).** **No human subjects and no human research contributors participate in this study.** Adjudication is performed by a frozen multi-model panel (§4.1), not by people; the only human involvement is the sole author's, and it is confined to mechanically-triggered tie-breaks under the rule in §4.1. The agents' user is the author himself (own production system); no third-party user data enters the benchmark un-hashed. Low-stakes restriction + mechanical safety abort (§3) bound operational harm. IRB: with no human subjects and no third-party data, independent-researcher exemption applies; statement filed at lock **[TO LOCK: statement]**.
+**Ethics (M1).** **No human subjects and no human research contributors participate in this study.** Adjudication is performed by a frozen multi-model panel (§4.1), not by people; the only human involvement is the sole author's, and it is confined to mechanically-triggered tie-breaks under the rule in §4.1. The agents' user is the author himself (own production system); no third-party user data enters the benchmark un-hashed. Low-stakes restriction + mechanical safety abort (§3) bound operational harm. IRB: with no human subjects and no third-party data, independent-researcher exemption applies; the filed statement is **Appendix C**.
 
 ## 3. Sampling Plan
 
@@ -210,15 +210,118 @@ Mechanism implemented and **in production (mode `off`)**: per-epoch snapshot wit
 6. Severity (0.5) + Fleiss' κ (≥ 0.75) thresholds.
 7. Pilot function `f` locked **before** pilot; then N_epochs, MDE (20%), calendar end, power curve.
 8. Coverage floor (95%) + unadjudicable ceiling (10%) + winsorization (p95).
-9. Appendix A (H3 figure specs) + Appendix B (bounds math) written.
-10. Ethics/IRB statement (simplified — no human subjects, no human contributors; §2 Ethics).
+9. ~~Appendix A (H3 figure specs) + Appendix B (bounds math) written~~ ✅ **WRITTEN 2026-07-26.** A: three frozen figures (retrieval-vs-decision scatter per metric + ordering slope chart), inclusion rules, no binning, and the stated condition that would falsify the H3 narrative. B: bounded-carry-over assumption (B1), the bound τ̂ ± δ·|p₁−p₀|, and the observation that |p₁−p₀| is a **design** quantity driven to zero by transition balancing — so the bound narrows by construction, not by assumption. **Still [TO LOCK]: the numeric δ**, which can only be honestly fixed from the pilot's same-arm transition distribution (before it = invented; after seeing effects = adaptive).
+10. ~~Ethics/IRB statement~~ ✅ **WRITTEN 2026-07-26** → **Appendix C**. Exemption is claimed on the substantive ground (no human subjects, no third-party data), and the appendix states plainly what the study *does* touch — the author's own production system — and what bounds harm there (low-stakes restriction + mechanical abort). It also declares the COI without softening it.
 
 **New [TO LOCK] items created by the v0.3 independence model:** drand chain hash · `T_seed` (UTC instant, post-registration / pre-M4) · Bitcoin fallback height rule · abort rule parameters (severity 0.8 · window 3 epochs · 3× baseline · 90-day baseline period) · panel size and exact model ids · adjudication prompt hash · minimum valid verdicts for majority (3).
 
-## Appendix A — H3 figure specs (stub, pre-commit before unblind)
+## Appendix A — H3 figure specs (pre-committed; frozen before unblinding)
 
-Fig. A: scatter, x = nDCG@10 per policy-epoch, y = H1 density per policy-epoch; marker = arm; report Spearman ρ + CI. Axes, binning, and inclusion rules to be frozen here before unblinding. **[TO WRITE]**
+H3 is exploratory and yields **no confirmatory claim**. Its role is falsifiable in one direction only: if retrieval metrics ordered the policies the way H1 does, the paper's central argument — that retrieval quality is a proxy that can come apart from decision quality — would be weakened. These specs are frozen here so that the figures cannot be chosen after seeing which ones flatter that argument.
 
-## Appendix B — Interference bounds (stub)
+**Unit of observation.** One point per *policy-epoch* (arm × epoch), not per brief. Per-brief points would inflate n by a factor of the brief count and invite reading precision that the design does not support.
 
-Bounded-interference assumption + Aronow–Samii-style partial identification for τ under snapshot carry-over; bound parameter = max per-epoch spillover. **[TO WRITE — required for Route 3, recommended for Route 2-lite]**
+**Fig. A1 — retrieval vs. decision.** Scatter. *x* = mean nDCG@10 over the briefs served in that policy-epoch; *y* = H1 repeated-failure density (failures / session-hour) for the same policy-epoch. Marker shape by arm, no colour dependence (accessibility). One OLS line per arm with 95% CI band. Reported statistic: **Spearman ρ with bootstrap CI (10,000 resamples, epoch-level resampling)** — rank-based because neither axis is assumed linear or normal.
+
+**Fig. A2 — the same, for recall@10.** Identical construction. Reported separately rather than averaged with nDCG: they answer different questions (ranking quality vs. coverage) and collapsing them would hide a divergence between the two.
+
+**Fig. A3 — ordering disagreement.** Slope chart. Left axis ranks the two arms by mean nDCG@10; right axis ranks them by H1 density. A crossing line **is** the visual statement of H3. Annotated with the count of epochs in which the two orderings disagree.
+
+**Inclusion rules (frozen).**
+- Only post-washout epochs (§2), consistent with the primary analysis set.
+- Epochs failing the coverage floor (§9.8) are excluded from A1–A3 and **shown as a separate count**, never silently dropped.
+- No winsorization on the retrieval axes. Winsorization applies to task regret (§4.2) only; applying it here would smooth exactly the tail that H3 is about.
+
+**Binning.** None. Raw points. If overplotting obscures the pattern at the realized *n*, add transparency — never bin, because binning choices are precisely the free parameter this appendix exists to remove.
+
+**What would falsify the H3 narrative.** Spearman ρ CI excluding zero *with the sign that makes retrieval track decision quality*, in both A1 and A2, plus no ordering disagreement in A3. That outcome is reportable as-is; it does not invalidate H1, but it removes the paper's proxy-divergence argument and must be stated in the abstract if observed.
+
+---
+
+## Appendix B — Interference bounds under snapshot carry-over
+
+### B.1 Why bounds and not a point estimate
+
+The crossover is fleet-wide (§0), so no two agents are in different arms at the same instant — cross-agent contamination is designed out. What remains is **temporal**: epoch *k* is served from snapshot *S_k*, and *S_k* was written during epoch *k−1*, under *its* arm. So the potential outcome in *k* depends on *k*'s assignment **and** on *k−1*'s.
+
+That is interference, and it violates the SUTVA form under which a difference-in-means identifies the direct effect. The design attacks it three ways (§5): restricting to A→B transitions, adjusting for lag-1 arm, and — here — **bounding** the direct effect under an explicit, declared limit on how much the predecessor arm can matter.
+
+### B.2 Setup
+
+Let epochs be indexed *k = 1 … K*, each with arm *W_k ∈ {0,1}*. Write the potential outcome as
+
+> *Y_k(w, w′)* — outcome in epoch *k* when its own arm is *w* and its predecessor's arm is *w′*.
+
+The **direct effect** is the estimand of interest:
+
+> *τ = E[ Y_k(1, w′) − Y_k(0, w′) ]*, averaged over the realized distribution of *w′*.
+
+The naive contrast *τ̂ = Ȳ(W=1) − Ȳ(W=0)* is biased by carry-over whenever *P(w′=1 | w=1) ≠ P(w′=1 | w=0)*, which the balancing constraints reduce but do not force to zero at finite *K*.
+
+### B.3 The bounded-interference assumption
+
+**Assumption B1 (bounded carry-over).** There exists δ ≥ 0 such that, for all *k* and all *w*,
+
+> | *Y_k(w, 1) − Y_k(w, 0)* | ≤ δ
+
+That is: the predecessor's arm can move the outcome by at most δ, whatever the epoch's own arm. δ is on the **outcome scale** (repeated failures per session-hour), so it is interpretable and must be justified, not assumed convenient.
+
+B1 is weaker than no-interference (δ = 0) and strictly weaker than a parametric lag-1 model, which assumes carry-over is *linear and additive* in the predecessor arm. B1 assumes only that it is **bounded**.
+
+### B.4 The bounds
+
+Under B1, with *p₁ = P(w′ = 1 | w = 1)* and *p₀ = P(w′ = 1 | w = 0)* estimated from the realized sequence:
+
+> *τ ∈ [ τ̂ − δ·|p₁ − p₀| , τ̂ + δ·|p₁ − p₀| ]*
+
+The width is **δ · |p₁ − p₀|**, which factorizes usefully:
+
+- **δ** is the substantive question — how much can yesterday's policy shape today's outcome through the snapshot?
+- **|p₁ − p₀|** is a **design** quantity, computable from the assignment sequence before any outcome is seen, and driven to zero by transition-balancing. At perfect balance the bound collapses to a point regardless of δ.
+
+This is the practical payoff of pre-registering the balancing constraints: it makes the bound narrow by construction rather than by assumption.
+
+### B.5 Choosing δ — and why it is not free
+
+δ must be **pre-committed**. Two anchors, both reported:
+
+1. **Empirical anchor.** The observed epoch-to-epoch variation in the primary outcome under the *same* arm (control→control transitions) upper-bounds what non-arm noise contributes. δ is set to the p95 of the absolute epoch-to-epoch difference in those same-arm transitions. This is conservative: it attributes *all* same-arm drift to carry-over.
+
+2. **Mechanistic anchor.** The measured content divergence between successive snapshots. From T7 of the snapshot spec, the corpus divergence per 24 h epoch is **0.144%** and the divergence in what the brief actually serves was **0 of 7,235 slots** in the one epoch with serving data. A snapshot that is ~99.86% identical to its predecessor cannot plausibly carry a large behavioural effect — but the serving-level figure has **n = 1** and is reported as such.
+
+**[TO LOCK]** the numeric δ, after the pilot supplies the same-arm transition distribution. Locking it before that would be inventing a number; locking it after seeing treatment effects would be adaptive. The pilot is the only window in which it can be honestly fixed.
+
+### B.6 Reporting rule
+
+Reported alongside the primary and the other two co-estimates (§5), always together and always with δ stated in outcome units:
+
+- if the bound **excludes zero**, the causal claim survives even under the pre-committed worst case;
+- if it **includes zero** while the point estimate does not, that is reported as-is — the effect is not robust to carry-over of magnitude δ, and the abstract says so.
+
+Concordance across the four (primary, A→B-restricted, lag-1, bounds) is the strength of the claim. Divergence is not repaired; it is reported.
+
+### B.7 What this appendix does not do
+
+It does not bound **cross-agent** interference — the fleet-wide design removes it by construction, not by assumption, and if that design changes this appendix no longer applies. It also does not cover carry-over at lags > 1: the washout (§2) plus first-epoch-after-washout estimand are what address those, and B1 is silent about them by construction.
+
+---
+
+## Appendix C — Ethics and IRB statement
+
+**Human subjects: none.** No person is enrolled, assigned, observed as a subject, or asked to perform any task for this study. The units of randomization are software agents; the units of observation are their execution traces.
+
+**Human research contributors: none.** Adjudication — the only step that could plausibly require human judgement — is performed by a frozen panel of language models from distinct training families (§4.1). The sole author's involvement is confined to mechanically-triggered tie-breaks under a rule fixed before unblinding, and each such intervention is logged with its trigger. This is deliberate: the independence model of this registration is **structural**, not delegated to people (§0b), precisely because the author is also the operator and the beneficiary.
+
+**Third-party data: none un-hashed.** The agents operate on the author's own production system. Content that enters the benchmark does so as hashed chunk identifiers and derived metrics (§4.3), never as raw text from any third party. No data is collected from anyone who is not the author.
+
+**IRB determination.** Under the common-rule definition, research with no human subjects and no identifiable private information about living individuals does not require IRB review. As an independent researcher without institutional affiliation for this work, no IRB of record exists; this appendix is the filed determination and the basis for it. If the design later admits any human participant or third-party data, this determination lapses and review must be sought before that change takes effect.
+
+**What the study does touch.** It manipulates the memory policy of a live production system that the author depends on daily. That is a real operational risk, not a hypothetical one, and it is bounded rather than dismissed:
+
+- the treatment arm is restricted to a pre-registered **low-stakes allowlist** (§9.4), so high-consequence actions never vary by arm;
+- a **mechanical abort rule** (§3) halts the whole study — never a single arm, which would unblind — on a pre-committed severity/frequency trigger, without requiring the author to notice or to agree;
+- the serving-side snapshot mechanism **degrades to the live store** rather than serving nothing, so a failure in the experimental apparatus cannot deny the system its memory (§P2S1 T8).
+
+**Conflict of interest.** Maximal and irreducible: the author designed the system under test, owns it, benefits from a positive result, and is the only person in the loop. This registration does not claim that conflict away. It answers it by removing discretion — public-beacon seed, mechanical abort, frozen multi-family adjudication, exclusions-as-code, and an ordering proof published before the join is executed (§0b, §2). Every one of those is verifiable by a third party from the artifact alone, which is the point: the reader is not asked to trust the author's restraint.
+
+**Animals, deception, compensation, consent:** not applicable — no participants exist to be deceived, compensated, or consented.
