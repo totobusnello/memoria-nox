@@ -15,6 +15,14 @@ Nada de execução do Paper 2 começa antes de:
 
 **Novo primeiro entregável pós-ID:** ~~rascunho de pré-registro OSF~~ ✅ **FEITO (v0.2, 2026-07-12)** → **decisão de ROTA do desenho** (`PREREG-DRAFT.md` §0 — bloqueia o lock; call do Toto).
 
+## Duas trilhas em paralelo (2026-07-26)
+
+O mecanismo de snapshot — que era o **único bloqueador de engenharia** — está em produção (P2S1 T1–T5, modo `off`). Isso abriu paralelismo entre a engenharia restante (T6/T7/T8) e as decisões do §9.
+
+→ **`PLAN-2-TRILHAS.md`** traz o plano, os dois acoplamentos reais (o shadow do T6 produz a variância que a curva de poder precisa; o hash do pipeline congelado exige que a engenharia pare) e a ordem recomendada.
+
+⚠️ O gate acima continua valendo: ele **não** bloqueia decisão nem escrita, mas bloqueia o **piloto**.
+
 ## Checklist de metodologia (a coisa de verdade — 80% do paper)
 
 - [x] Rascunho de **pré-registro OSF** — `PREREG-DRAFT.md` v0.2 (2026-07-12): v0.1 + review adversarial GLM (5 FATAL/7 GRAVE/10 menor, `REVIEWS-PREREG.md`) incorporada. Primário incondicional (density/session-hour) + co-primárias; stopping em epochs; fleet-wide epochs + serving snapshots; pilot pré-registrado; estimando em potential outcomes. **Pendente: decisão de rota (§0) + itens [TO LOCK]**
