@@ -240,8 +240,9 @@ Isso importa porque muda o modo de falha do M2: para um arquivo re-ingerido, **M
 
 ### Chunk D — Fechamento
 
-- [ ] **T9** Atualizar `PREREG-DRAFT.md` §9 item 3 com os parâmetros medidos (duração do boundary, retenção, hashes) e fechar o item.
-- [ ] **T10** Se K1 falhar: escrever o degrade para Route 1 no prereg (remover fraseado causal do §1-H1) e registrar em `paper2-interventional/DECISIONS.md`.
+- [x] **T9** ✅ **2026-07-26** — §9 item 3 fechado com os números medidos (cópia 1,5 G / 14,0 s, retenção 3, hashes no manifesto, latência durante a cópia).
+- [x] **T-rot** ✅ **2026-07-26** — rotação de boundary agendada (`nox-epoch-boundary.sh`, 06:00 BRT, versionado em `nox-scripts`). Guarda de espaço antes de copiar (6 GiB), recusa apontar para manifesto com `integrity != ok`, e sem `|| true` no health. Smoke: epoch `e20260726T145716Z`, 68.213 chunks, podou 1, 9 manifestos.
+- [x] **T10** ✅ **MORTO** — K1 passou com folga (1,8% do espaço livre contra os ≥20% exigidos). Route 1 fica como fallback documentado, não como trabalho.
 
 ## 8. Fora de escopo
 
