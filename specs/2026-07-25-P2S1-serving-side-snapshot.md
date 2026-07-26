@@ -161,7 +161,60 @@ Para o Paper 2 isso importa: o desfecho é medido **por brief servido**. Sem `br
 
 ### Chunk C — Validação
 
-- [ ] **T6** Shadow: rodar N boundaries sem tráfego real, verificar todos os critérios do §6.
+- [x] **T6** ✅ **2026-07-26** — [nox-workspace#39](https://github.com/totobusnello/nox-workspace/pull/39). 8 boundaries na VPS, **6/6 critérios do §6**. Suíte **338 passam / 0 falham** (era 294/0).
+
+#### T6 — o modo shadow não existia
+
+Ao começar a task descobri que `resolveCorpus` tratava `shadow` e `active` igual: os dois devolviam o snapshot. **Ligar a flag "segura" em produção trocaria o corpus servido** — o oposto do que shadow significa no resto da casa (`NOX_SALIENCE_MODE`, `NOX_BRIEF_DIVERSITY`: computa e não aplica). O único teste que tocava em `shadow` era o drill do T8, que só afirmava "nenhum modo devolve handle nulo" — passava.
+
+Duas armadilhas no desenho da correção:
+
+**Ordem.** O braço shadow roda **antes** do `INSERT` em `brief_log`. O ordenador de cobertura do D2 lê `MAX(served_at)` do vivo; com o INSERT primeiro, o braço shadow veria outro estado de serving e o slot fresh giraria por outro motivo — divergência atribuída ao corpus sendo artefato do instrumento. É o mesmo falso positivo que o T2 já produziu.
+
+**Mesmo código.** A composição saiu para `composeBrief()`, usada pelos dois braços. Com caminhos separados, a divergência misturaria diferença de corpus com diferença de implementação.
+
+#### T6 — os 6 critérios
+
+| Critério §6 | Resultado |
+|---|---|
+| Brief do snapshot ≡ do vivo no boundary | **327/327 idênticos** (jaccard 1,0; idade ≤76 s) |
+| Caminho de escrita intocado | `ops_audit` **126 → 126** |
+| Rotação do D2 viva intra-epoch | **210 chunks distintos em 386 briefs** (contra-prova de A3) |
+| Troca atômica | **300 requisições, 0 não-200** durante o swap |
+| Espaço constante em ≥7 boundaries | **3 `.db` após 8 boundaries**, 4,5 G estável desde o 3º |
+| `/api/health` reporta snapshot + hash | `{mode, epochId, path, sha256, takenAt, degraded}` completo |
+
+Manifestos preservados: **8** (auditoria de epoch podado). Cópia: **1,5 G em 14,0 s**.
+
+**T0 pendente, fechado:** latência do `/api/brief` **durante** a cópia, n=61 — **p50 87 ms · p95 240 ms · máx 300 ms**. Não é zero: o baseline do F1 é ~58 ms, então a cópia custa ~30 ms na mediana. Cabe no vale de tráfego; declarar em vez de dizer "sem impacto".
+
+#### ⚠️ O controle positivo, e o que ele revelou
+
+327/327 idênticos satisfaz o critério — e **um instrumento quebrado produziria o mesmo número**. Se o braço shadow estivesse comparando o vivo consigo mesmo, a identidade seria perfeita e vazia. Rodei o controle: chunk sintético com `pain=1.0` e `importance=1.0` inserido no **vivo** depois do boundary, 10 briefs, limpeza completa depois (chunk + linhas de `brief_log`; corpus voltou a 68.175).
+
+O instrumento detectou — o probe apareceu em `only_live` e o chunk deslocado em `only_snapshot`. **O braço shadow lê mesmo o snapshot.**
+
+Mas o número que importa é outro: **1 de 10**. Um chunk no teto das duas dimensões entrou uma vez e foi expulso. O mecanismo é a fórmula de salience v2: `access` pesa 0,20 e o probe nasce com `access_count=0`, então ele não bate chunk estabelecido no slot primário — entra pelo slot de cobertura e sai assim que é servido.
+
+**Isso dá o teto estrutural da dose.** Conteúdo escrito durante o epoch alcança o brief quase só pelos `freshSlots: 2` (default D3). A dose não é limitada pela churn do corpus — é limitada pela arquitetura do brief. Corrobora o T7 (0 de 7.235 slots) com mecanismo, não com sorte.
+
+**Consequência para o §9.7:** a viabilidade do MDE depende da dose, e a dose tem teto de projeto. Vai para o prereg como declaração.
+
+#### T6b — o que continua rodando
+
+Shadow ficou **ligado em produção** (drop-in do systemd, `NOX_EPOCH_SNAPSHOT=shadow`, reversível com `rm` + `daemon-reload`). Serve do vivo; só mede. O snapshot `t6-b08` envelhece naturalmente e cada `/api/brief` real grava uma comparação com `snapshot_age_s`.
+
+Estado da coleta: **346 comparações, 12 sem idade (3,5%)** — as gravadas antes de o ponteiro resolver, identificáveis e não descartadas em silêncio. Idade máxima observada: **76 s**. A curva dose-vs-idade precisa de dias, não de mais código.
+
+⚠️ **Nenhum cron cria epochs.** A rotação de boundary é operacionalização (Chunk D), não T6.
+
+#### ⚠️ Achado colateral: `shadow_runs` não existia no schema
+
+A tabela existia **em produção** com índices e triggers append-only, mas **nenhum caminho do repo a criava** — o `src/lib/shadow-tracker-schema.sql` citado no docstring do shadow-tracker não existe. Como o `_persist` é best-effort por desenho (falha vira contador + stderr, nunca throw), numa instalação nova **todo** o modo shadow — salience, D2 e o próprio T6 — gravaria zero sem que nada acusasse.
+
+Reconstruída do `sqlite_master` de produção e adicionada ao `db.ts`, mesma rota do `eval_*`/`ocr_jobs` do T2b. Dois testes cravam: `getDb()` sozinho cria a tabela, e o append-only aborta `DELETE`/`UPDATE`.
+
+**Nota de método:** eu quase declarei o oposto. A primeira consulta disse "não existe" — mas eu tinha consultado um banco de 40 KB de março em vez do real de 1,6 GB apontado por `NOX_DB_PATH`.
 - [x] **T7** ✅ **MEDIDO 2026-07-26** — sobre **dois epochs reais de 24 h** (backups diários 22→23 e 23→24/07), não simulação.
 
 #### T7 — o erro do M2, em três níveis

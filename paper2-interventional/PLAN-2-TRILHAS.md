@@ -16,11 +16,19 @@ Isso permite paralelismo real. Mas as trilhas **não são independentes em dois 
 
 ## Os dois acoplamentos que importam
 
-**1. O shadow (T6) produz o número que a curva de poder (§9.7) precisa.**
+**1. ~~O shadow (T6) produz o número que a curva de poder (§9.7) precisa.~~ — ERRADO, corrigido em 26/07.**
 
-O item 7 do §9 pede `N_epochs`, MDE e curva de poder. Curva de poder exige **estimativa de variância** do desfecho entre epochs. Essa estimativa não existe hoje — e a rodada de shadow do T6, que roda N boundaries sem tráfego real, é exatamente o instrumento que a produz.
+> **O que eu escrevi aqui estava errado.** A afirmação era que a rodada de shadow do T6 produziria a estimativa de variância que a curva de poder exige. Ao executar o T6 e reler o §9.7 lado a lado, não fecha: o item pede `r̂` (taxa de oportunidade por hora-sessão), `p̂0` (taxa condicional de repetição no controle) e **ICC** — todas quantidades de **desfecho**. O shadow roda sem braços vivos e sem desfecho; ele mede **exposição**, não resultado.
+>
+> O próprio prereg já dizia isso e eu não tinha cruzado: *"Pre-registered pilot (F5 fix). Before the pilot runs, we lock: the pilot's own metric definitions (`r̂`, `p̂0`, ICC estimate)…"*. As quantidades vêm do **piloto**, que é replay-only e está gated no arXiv.
+>
+> ⇒ **§9.7b é gated no piloto, não no T6.** T6 não destrava a curva de poder. O acoplamento que eu tinha desenhado não existe.
 
-⇒ **T6 vem antes de fechar §9.7.** Não por burocracia: sem ele a curva de poder seria chutada.
+**O que o T6 produz de verdade — e é necessário por outro motivo: a dose.**
+
+Quanto os dois braços diferem no que servem. Medido em 26/07: o brief só admite conteúdo novo pelos `freshSlots: 2`, e um chunk com `pain=1.0`/`importance=1.0` entrou em **1 de 10** briefs antes de ser expulso (nasce com `access_count=0`, e `access` pesa 0,20 na salience v2).
+
+Dose perto de zero é achado forte **e ruim**: tratamento homeopático, e nenhum `N` salva o estudo. Isso entra no §9.7 como restrição de viabilidade — não como insumo da fórmula.
 
 **2. O hash do pipeline congelado (§9.5) exige que a engenharia pare de mexer.**
 
