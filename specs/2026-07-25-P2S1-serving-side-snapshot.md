@@ -155,8 +155,9 @@ Para o Paper 2 isso importa: o desfecho é medido **por brief servido**. Sem `br
   - **Escala medida antes de desenhar:** o `WHERE` devolve **170** linhas (agente) e **693** (global) contra pool de 400 — trazer tudo é barato.
   - **`off` é bit-idêntico por construção:** o caminho dividido só roda com handles diferentes; em `off` a query original executa intocada.
   - **Teste de equivalência (5/5):** corpus e live no mesmo banco ⇒ split devolve o que a query única devolvia. Sem isso, erro na replicação da ordenação quebraria o D2 sem alarme.
-- [ ] **T4** Troca atômica por symlink (`current.db` → `<epochId>.db`) só após integrity check passar; falha mantém o anterior e alerta.
-- [ ] **T5** Retenção deslizante (manter 3, podar o resto preservando manifesto) + `servingSnapshot` em `/api/health`.
+- [x] **T4** ✅ **EM PRODUÇÃO 2026-07-26** — [#37](https://github.com/totobusnello/nox-workspace/pull/37). `rename()` sobre symlink (atômico no mesmo FS): `symlink()` falha se o destino existe, então `unlink`+`symlink` abriria janela sem ponteiro. Só troca após reconferir `integrity_check` do manifesto. **`resolveCorpus` passa a preferir o ponteiro** — "mais recente por mtime" era corrida (durante a cópia o mtime já é o mais novo e o arquivo ainda não está íntegro).
+- [x] **T5** ✅ **EM PRODUÇÃO 2026-07-26** — [#37](https://github.com/totobusnello/nox-workspace/pull/37). Mantém 3, poda preservando `.manifest.json`, e **nunca poda o alvo do `current`**. `/api/health.servingSnapshot` expõe `{mode, epochId, path, sha256, takenAt, degraded}` — `off` não é degradação; RED é `degraded: true`. Smoke em prod: ciclo snapshot→point→prune com 2 epochs, manifestos preservados.
+  - `EPOCHS_DIR` virou `epochsDir()`: como `const` de módulo amarrava no import, exigia restart para mudar e deixava o caminho de degradação **intestável**. Descoberto por 2 testes falhando — mesma família da lição do singleton `getDb()`.
 
 ### Chunk C — Validação
 
