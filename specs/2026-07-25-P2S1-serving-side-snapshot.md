@@ -162,7 +162,27 @@ Para o Paper 2 isso importa: o desfecho é medido **por brief servido**. Sem `br
 ### Chunk C — Validação
 
 - [ ] **T6** Shadow: rodar N boundaries sem tráfego real, verificar todos os critérios do §6.
-- [ ] **T7** Medir o erro de M2 contra M1 (quantos chunks divergiriam por epoch se usássemos só o filtro lógico) — é o número que decide se M2 é fallback aceitável, e entra no prereg como declaração.
+- [x] **T7** ✅ **MEDIDO 2026-07-26** — sobre **dois epochs reais de 24 h** (backups diários 22→23 e 23→24/07), não simulação.
+
+#### T7 — o erro do M2, em três níveis
+
+| Nível | 22→23/07 | 23→24/07 | Leitura |
+|---|---|---|---|
+| Corpus | 72 / 67.801 (**0,106%**) | 123 / 67.899 (**0,181%**) | agregado **0,144%** |
+| Chunks servidos | — | **0 de 175** | — |
+| **Slots servidos** | — | **0 de 7.235 (0,000%)** | é o que decide |
+
+**A composição não é o que a spec supunha.** O §3 temia "chunk editado durante o epoch continua visível na versão nova". Na prática **não há `UPDATE` em `chunks`**: a comparação direta de `chunk_text` deu **zero** atualizações in-place.
+
+Mas a primeira leitura disso — "então é tudo deleção, erro conservador" — **estava errada**, e a recheca derrubou: dos 123 apagados, **100 tiveram o conteúdo reaparecendo sob outro `id`**. É update implementado como *delete + reinsert*, produto da re-ingestão de arquivos alterados (`memory/lessons.md`, `active-tasks.md`, `session-context.json`, `obra-bvv-log.md`). Só **23** eram deleção de verdade.
+
+Isso importa porque muda o modo de falha do M2: para um arquivo re-ingerido, **M1 mostra a versão congelada e M2 não mostra nada** — o chunk velho sumiu do live e o novo é filtrado por `created_at`. M2 não serve conteúdo velho; ele **perde conteúdo**.
+
+**E o impacto medido no serving foi nulo.** Hipótese do porquê: a churn se concentra em arquivos de alta rotatividade e baixa salience, que não ganham slot no brief. É mecanismo plausível, não sorte — mas **não verificado**.
+
+⚠️ **Ressalva de amostra:** corpus tem n=2 epochs; o nível de serving tem **n=1** (só há `brief_log` para essa janela). 0,000% não é "impossível", é "não observado em um epoch".
+
+**Consequência:** M2 sobe de "aproximação com modo de falha silencioso" para **fallback com erro medido e declarável**. O desenho segue M1 — ele é exato, já está construído e em produção, e o custo caiu por terra no K1. M2 fica documentado como degrade viável.
 - [ ] **T8** Ensaio de falha: snapshot corrompido, disco cheio, `vec0` ausente. Confirmar que o sistema degrada para o snapshot anterior em vez de servir vazio.
 
 ### Chunk D — Fechamento
