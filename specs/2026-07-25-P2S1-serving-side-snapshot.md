@@ -183,7 +183,7 @@ Isso importa porque muda o modo de falha do M2: para um arquivo re-ingerido, **M
 ⚠️ **Ressalva de amostra:** corpus tem n=2 epochs; o nível de serving tem **n=1** (só há `brief_log` para essa janela). 0,000% não é "impossível", é "não observado em um epoch".
 
 **Consequência:** M2 sobe de "aproximação com modo de falha silencioso" para **fallback com erro medido e declarável**. O desenho segue M1 — ele é exato, já está construído e em produção, e o custo caiu por terra no K1. M2 fica documentado como degrade viável.
-- [ ] **T8** Ensaio de falha: snapshot corrompido, disco cheio, `vec0` ausente. Confirmar que o sistema degrada para o snapshot anterior em vez de servir vazio.
+- [x] **T8** ✅ **2026-07-26** — [#38](https://github.com/totobusnello/nox-workspace/pull/38), 5/5. Os três cenários da spec (snapshot corrompido não vira o ponteiro; snapshot ausente cai no live **com motivo** e o health acusa RED; `vec0` ausente degrada **parcialmente** — o corpus abre e o FTS responde). Mais dois que a spec não pedia: `.tmp` não sobra (arquivo truncado não pode virar epoch) e **nenhum modo devolve handle nulo**, inclusive lixo no env. O critério que o teste crava: **degradação silenciosa é pior que a falha** — cair no live é aceitável, cair no live sem ninguém saber não é.
 
 ### Chunk D — Fechamento
 
