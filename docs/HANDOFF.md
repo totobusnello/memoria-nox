@@ -4,6 +4,57 @@
 
 ---
 
+## 🟢 Estado atual (2026-07-26) — Paper 2: engenharia ACABOU, painel PRONTO, **esperando ordem de rodar**
+
+> ⏸️ **Próxima ação é do Toto:** mandar rodar o calibration set de 300 e declarar a seed de amostragem.
+> Comando pronto: `extract_episodes.py --sample 300 --seed <declarada>` (na VPS) → `run_panel.py` (no Mac, onde vivem as credenciais). 1.500 chamadas, **~14M tokens**.
+> A seed **não** precisa vir do beacon — o beacon governa atribuição de braço, não amostragem de calibração. Mas tem que ser declarada **antes**, nunca escolhida depois de ver resultado.
+
+### P2S1 — FECHADA (T0–T10)
+Mecanismo de snapshot por epoch em produção. **T6 fechou 6/6 critérios do §6** em 8 boundaries; suíte **338/0** na VPS. `NOX_EPOCH_SNAPSHOT=shadow` **ligado** (serve do vivo, só mede) acumulando dose-vs-idade. Rotação de boundary agendada 06:00 BRT. Detalhe em `specs/2026-07-25-P2S1-serving-side-snapshot.md`.
+
+⚠️ **O modo `shadow` não existia** — `resolveCorpus` tratava `shadow` e `active` igual, então a flag "segura" trocaria o corpus servido. Corrigido em nox-workspace#39.
+
+### O bloqueador que apareceu e morreu no mesmo dia
+Ao derivar a taxonomia do `sig()`, descobri que **o OpenClaw não persiste tool call nenhum** (79 `.jsonl`, 5.226 eventos, zero). Sem ações executadas, H1 não é mensurável e o piloto não roda.
+
+**Resolvido:** o stream sempre existiu em **`/root/.claude/projects/`** — o OpenClaw sobe `claude-cli` como subprocess e é o **CLI** que persiste. Procedência provada pelos nomes de diretório (cwd de cada agente).
+
+**4.560 episódios · 434 `is_error` (9,5%) · 71 assinaturas · 27 com ≥2 falhas.**
+
+⏳ **E um cron apagava isso** (`-mtime +7` **e** qualquer arquivo pequeno com >12h). **Arquivamento vivo desde 26/07 19:08 UTC**: `nox-archive-transcripts.sh`, cron `40 3,9,15,21`, `rsync` **sem `--delete`**.
+
+### §9 do pré-registro — o que fechou hoje
+| Item | Estado |
+|---|---|
+| 0 (stream de ações) | ✅ resolvido + arquivado |
+| 3 (snapshot) | ✅ medido e travado |
+| 4 (`W_OUTCOME`) | ✅ **medido — 0,15 não é nudge** |
+| 5 (taxonomia `sig()`) | ✅ derivada: **14 coarse / 72 primary / 162 fine**; falta só o hash do commit congelado |
+| 6, 8 | estrutura travada + **2 defeitos corrigidos**; corte numérico espera calibration set |
+| 7a (função `f`) | ✅ **travada** — `sizing.py`, SHA-256 do vetor sintético |
+| 9, 10 (apêndices) | ✅ escritos |
+
+**Item 4 medido:** o top-10 da salience cabe em **0,043** e o gap rank 8→9 é **0,0010**. Com `W=0,15`, **303 chunks** entram no alcance de um brief de 10 slots e **todos os 10 titulares ficam deslocáveis** — 3,5× o spread inteiro. Não é nudge, é autoridade para reescrever o brief. Recomendado parametrizar relativo ao spread.
+
+**Dois defeitos corrigidos, nenhum precisava de dado:** o gate `|r| > 0,2` disparava por acaso em **25,9% no K=34** que o sizing devolve (virou TOST); e coverage é variável **pós-randomização**, então arm-blind não licenciava condicionar nela (entrou ITT sem exclusão como co-estimativa).
+
+**Severidade virou rubrica ordinal S0–S4** — o float livre deixava o abort do §3 pedindo mediana exatamente 1,0, praticamente indisparável. Era defeito de segurança, não de métrica.
+
+### Painel de adjudicação — ligado e testado, não rodado
+Zhipu `glm-5.2` · xAI `grok-4.5` · Google `gemini-2.5-pro` (API) · Moonshot `k3` · OpenAI `gpt-5.6-sol` (CLI). Smoke 3×5 = 15/15.
+
+**Anthropic fora por desenho:** os agentes rodam em `claude-cli`; seria família julgando a própria saída.
+
+Artefatos: `paper2-interventional/{sizing.py, extract_episodes.py, run_panel.py, adjudication_prompt.md}`. Prompt SHA-256 `5b22f02c…` (rascunho aprovado, ainda não travado).
+
+⚠️ **Orçamento corrigido:** eu havia estimado ~1,7M tokens supondo painel todo por API. Com dois painelistas por CLI (agent loop por chamada) é **~14M**.
+
+### Ainda gated
+Piloto do Paper 2 continua preso ao arXiv (`submit/7771319`, não recontatar antes de ~08/08). **O calibration set não está gated nisso** e cabe inteiro na janela.
+
+---
+
 ## 🟢 Estado atual (2026-06-30)
 
 **Paper `v1.0.0` frozen + repo PÚBLICO e polido. arXiv submetido até o gate de endorsement.** (Detalhe técnico do paper preservado nos bullets abaixo.)
