@@ -1,228 +1,196 @@
 {
-  "generated": "2026-07-25T05:33:27.075Z",
+  "generated": "2026-07-26T05:49:44.445Z",
   "window_days": 30,
   "keys": [
     "A2.export.encrypted.500chunks_3072d.archive_mb",
-    "A2.export.plain.500chunks_3072d.archive_mb",
-    "A2.export.plain.500chunks_3072d.duration_ms"
+    "A2.export.plain.500chunks_3072d.archive_mb"
   ],
   "rows": [
-    {
-      "date": "2026-06-25",
-      "overall": "FAIL",
-      "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303557395935059,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656,
-      "A2.export.plain.500chunks_3072d.duration_ms": 223
-    },
     {
       "date": "2026-06-26",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303555488586426,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656
     },
     {
       "date": "2026-06-27",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303544998168945,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357964515686035,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357964515686035
     },
     {
       "date": "2026-06-28",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303545951843262,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656
     },
     {
       "date": "2026-06-29",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303554534912109,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834
     },
     {
       "date": "2026-06-30",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303560256958008,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357949256896973,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357949256896973
     },
     {
       "date": "2026-07-01",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303557395935059,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.3579511642456055,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.3579511642456055
     },
     {
       "date": "2026-07-02",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303554534912109,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023
     },
     {
       "date": "2026-07-03",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303552627563477,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834
     },
     {
       "date": "2026-07-04",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303546905517578,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.3579511642456055,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.3579511642456055
     },
     {
       "date": "2026-07-05",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303556442260742,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656
     },
     {
       "date": "2026-07-06",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.30355167388916,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834
     },
     {
       "date": "2026-07-07",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303554534912109,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023
     },
     {
       "date": "2026-07-08",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303552627563477,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834
     },
     {
       "date": "2026-07-09",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.30356502532959,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719
     },
     {
       "date": "2026-07-10",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303546905517578,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357949256896973,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357949256896973
     },
     {
       "date": "2026-07-11",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.3035383224487305,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023
     },
     {
       "date": "2026-07-12",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303559303283691,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023
     },
     {
       "date": "2026-07-13",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303528785705566,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719
     },
     {
       "date": "2026-07-14",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303566932678223,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357946395874023
     },
     {
       "date": "2026-07-15",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.3035478591918945,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719
     },
     {
       "date": "2026-07-16",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303556442260742,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357962608337402,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357962608337402
     },
     {
       "date": "2026-07-17",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303542137145996,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357962608337402,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357962608337402
     },
     {
       "date": "2026-07-18",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303552627563477,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719
     },
     {
       "date": "2026-07-19",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303567886352539,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357963562011719
     },
     {
       "date": "2026-07-20",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303566932678223,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656
     },
     {
       "date": "2026-07-21",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.30355167388916,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357945442199707,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357945442199707
     },
     {
       "date": "2026-07-22",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303556442260742,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357949256896973,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357949256896973
     },
     {
       "date": "2026-07-23",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303548812866211,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357969284057617,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357969284057617
     },
     {
       "date": "2026-07-24",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303542137145996,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357949256896973,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357949256896973
     },
     {
       "date": "2026-07-25",
       "overall": "PASS",
       "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303556442260742,
-      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656,
-      "A2.export.plain.500chunks_3072d.duration_ms": null
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.357948303222656
+    },
+    {
+      "date": "2026-07-26",
+      "overall": "PASS",
+      "A2.export.encrypted.500chunks_3072d.archive_mb": 6.303560256958008,
+      "A2.export.plain.500chunks_3072d.archive_mb": 5.35794734954834
     }
   ]
 }

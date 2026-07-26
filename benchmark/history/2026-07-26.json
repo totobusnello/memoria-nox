@@ -1,29 +1,19 @@
 {
   "version": "1.0.0-wave-j",
   "baseline_timestamp": "2026-05-18T00:00:00.000Z",
-  "run_timestamp": "2026-06-25T06:38:30.271Z",
+  "run_timestamp": "2026-07-26T05:49:43.214Z",
   "host": "macos-m-series",
-  "node_version": "v22.23.0",
+  "node_version": "v22.23.1",
   "drift_threshold_pct": 25,
   "dry_run": false,
   "total_metrics": 29,
-  "measured": 3,
+  "measured": 2,
   "passed": 2,
-  "failed": 1,
+  "failed": 0,
   "skipped": 9,
-  "baseline_only": 17,
-  "overall_status": "FAIL",
-  "failures": [
-    {
-      "metric_key": "A2.export.plain.500chunks_3072d.duration_ms",
-      "baseline": 168,
-      "measured": 223,
-      "drift_pct": 32.73809523809524,
-      "status": "FAIL",
-      "source_pr": 41,
-      "unit": "ms"
-    }
-  ],
+  "baseline_only": 18,
+  "overall_status": "PASS",
+  "failures": [],
   "results": [
     {
       "metric_key": "P1.answer.pipeline.total.p50_ms",
@@ -134,17 +124,18 @@
     {
       "metric_key": "A2.export.plain.500chunks_3072d.duration_ms",
       "baseline": 168,
-      "measured": 223,
-      "drift_pct": 32.73809523809524,
-      "status": "FAIL",
+      "measured": null,
+      "drift_pct": null,
+      "status": "BASELINE_ONLY",
       "source_pr": 41,
-      "unit": "ms"
+      "unit": "ms",
+      "skip_reason": "Design-time estimate or invariant — not runnable in CI"
     },
     {
       "metric_key": "A2.export.plain.500chunks_3072d.archive_mb",
       "baseline": 5.4,
-      "measured": 5.357948303222656,
-      "drift_pct": -0.7787351255063722,
+      "measured": 5.35794734954834,
+      "drift_pct": -0.7787527861418613,
       "status": "PASS",
       "source_pr": 41,
       "unit": "MB"
@@ -182,8 +173,8 @@
     {
       "metric_key": "A2.export.encrypted.500chunks_3072d.archive_mb",
       "baseline": 6.3,
-      "measured": 6.303557395935059,
-      "drift_pct": 0.05646660214379002,
+      "measured": 6.303560256958008,
+      "drift_pct": 0.05651201520647603,
       "status": "PASS",
       "source_pr": 41,
       "unit": "MB"
@@ -345,8 +336,8 @@
       "notes": "28 metrics across 7 subsystems: pipeline, search, answer(P1), provider(A3), hooks(P2), viewer(P5), system+runtime."
     }
   ],
-  "nightly_date": "2026-06-25",
-  "github_run_id": "28151777630",
-  "github_sha": "c1f9f286f7fcd5d6dce0d16a1bd259f4dceaf9eb",
+  "nightly_date": "2026-07-26",
+  "github_run_id": "30189999702",
+  "github_sha": "b0bd87fc19d2b778776f4b844ab4b18c6808a2db",
   "nightly_threshold_pct": 25
 }
