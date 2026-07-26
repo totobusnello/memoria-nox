@@ -1,9 +1,10 @@
 # P2S1 — Serving-side snapshot (pré-requisito de engenharia do Paper 2)
 
-> **Status:** 📐 SPEC — não implementada.
-> **Origem:** `paper2-interventional/PREREG-DRAFT.md` §0 (Route 2-lite) item §9.3. É o **único bloqueador de engenharia** entre o desenho atual e o piloto.
-> **Consequência de falhar:** a rota degrada para **Route 1** (fallback documentado) e o paper **perde o claim causal**. Por isso a spec traz *kill criteria* explícitos — descobrir a inviabilidade agora custa uma spec; descobrir depois do pré-registro trancado custa o paper.
-> **Data:** 2026-07-25.
+> **Status:** ✅ **FECHADA 2026-07-26** — T0–T10 concluídas, mecanismo em produção, rotação de boundary agendada. `NOX_EPOCH_SNAPSHOT=shadow` ligado (serve do vivo, só mede).
+> **Origem:** `paper2-interventional/PREREG-DRAFT.md` §0 (Route 2-lite) item §9.3. Era o **único bloqueador de engenharia** entre o desenho e o piloto — e continuou sendo até fechar.
+> **K1 passou com folga** (1,8% do espaço livre contra os ≥20% exigidos): Route 1 fica como fallback documentado e o claim causal do §1-H1 permanece.
+> ⚠️ **Fechar esta spec NÃO desbloqueia o piloto.** Ao derivar a taxonomia do `sig()` descobriu-se que **não existe stream de ações executadas** — ver §9 item 0 do prereg. O bloqueador saiu da engenharia de memória e foi para a instrumentação do runtime dos agentes.
+> **Data:** 2026-07-25 · **fechada** 2026-07-26.
 
 ---
 
