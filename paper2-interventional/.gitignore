@@ -1,0 +1,5 @@
+# Episódios extraídos carregam conteúdo real de trabalho. A redação é rede,
+# não garantia — e este repo é PÚBLICO. Nunca versionar o corpus.
+*.episodes.jsonl
+episodes/
+calib-*.jsonl

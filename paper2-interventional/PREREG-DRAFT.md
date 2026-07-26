@@ -131,7 +131,23 @@ The rule halts the **whole study**, never one arm — so it is **symmetric by co
 >
 > **Locked:** condition (ii) is the **binary verdict**. Severity governs condition (i) only — which past episodes count as *failure episodes* eligible to seed a repeat. So τ moves the opportunity side alone, the sensitivity band has a single interpretation, and the metric is monotone in τ by construction.
 **Primary metric:** repeated failures **per analyzed session-hour** (unconditional density). Session-hours are pre-treatment-defined exposure units.
-**Signature `sig()`:** command-class × target-class **[TO LOCK: taxonomy + frozen commit]**; robustness at one level coarser and finer pre-committed.
+**Signature `sig()`:** command-class × target-class. **Taxonomy derived from the measured action distribution and implemented in `extract_episodes.py` (2026-07-26)**; the frozen commit hash is the remaining **[TO LOCK]**.
+
+The classes were **derived, not invented** — reading them off 4,560 real executed actions rather than introspecting about what agents might do. Three granularities are defined *before* any outcome is seen, because §5 pre-commits robustness "one level coarser and finer" and that check is meaningless if the levels are chosen afterwards:
+
+| Level | Definition | Distinct signatures observed |
+|---|---|---|
+| **coarse** | tool-family × target-family — `{read, write, execute, delegate, search, mcp, other} × {file, vcs, process, state, external, none}` | **14** |
+| **primary** | tool × target-class — the level §4.1 matches repeats on | **72** |
+| **fine** | primary × command verb (e.g. `git:push` distinct from `git:log`) | **162** |
+
+Target class is always the *class* of what the action touches, never the literal value: a path resolves to `file:source` / `file:doc` / `file:config` / `file:db` / `file:test` / `file:script`, a shell command to `git:mutation` / `git:read` / `fs:mutation` / `fs:read` / `build-run` / `service` / `db` / `network` / `scheduling`. Literals are unbounded and would make every action its own signature, which is the degenerate case where no repeat is ever detected.
+
+**Corpus properties, measured:** 4,560 episodes (`tool_use` paired with its `tool_result`), **434 carrying `is_error`**, spanning eight agents. Extraction is deterministic — the same archive yields the identical SHA-256 on re-run, verified — so the episode corpus is hashable and the pre-registration is checkable rather than merely asserted.
+
+**Calibration sampling is stratified by primary signature and seeded**, refusing to run without an explicit seed (an unseeded sample is not pre-registrable). Stratification is not cosmetic: `Bash|shell:other` alone is ~27% of the corpus, so a naive random draw of 300 would be dominated by it and would never test the rubric against the tail. Verified: a 300-episode draw covers **all 72** primary signatures. The production seed will be derived from the beacon (§2), not chosen.
+
+**Redaction before adjudication.** Episodes go to an external LLM panel, so the extractor redacts API keys, tokens, JWTs, IPs and e-mail addresses before emission — verified on the full corpus (990 e-mails, 191 IPs, 10 keys, 1 JWT replaced; zero residual matches for the dangerous patterns). This is a net, not a guarantee, and is declared as such.
 **Failure episode:** severity at or above the primary level of the rubric below **[TO LOCK: level]** (sensitivity: primary level ± 1 level; M9), adjudicated by the frozen panel.
 
 #### Severity rubric — anchored ordinal, replacing the free decimal (2026-07-26)
