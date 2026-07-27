@@ -70,6 +70,24 @@ O `prune-claude-sessions.sh` roda 04:23 BRT — entre a passada das 03:40 e a da
 
 ⚠️ **`manifestos: 10` NÃO é vazamento — é desenho, e um deles é evidência que não pode ser limpa.** `pruneEpochs(keep=3)` apaga o `.db` e **preserva o `.manifest.json` de propósito** (SHA-256 + contagens + `user_version` auditam um epoch antigo sem guardar 1,5 GB). Os 8 manifestos `t6-*` são **a evidência das 8 boundaries do teste T6** — eu ia limpá-los como resíduo e teria apagado a prova de um marco fechado. O `t6-b08.db` (1,6 GB) ocupa hoje um dos 3 slots e sai sozinho na boundary de 28/07; **não limpar à mão**.
 
+### Primeira leitura da curva dose-vs-idade do shadow (27/07, ~1,5 dia de dados)
+
+**2.358 medições** em `shadow_runs` (`feature = p2s1-epoch-snapshot`; as métricas vivem no JSON de `metadata` — a tabela é genérica de A/B, colunas fixas `baseline_value`/`shadow_value` ficam nulas).
+
+| idade do snapshot | n | briefs idênticos | jaccard médio | jaccard mín |
+|---|---|---|---|---|
+| < 1 h | 462 | 97,8% | 0,9934 | 0,667 |
+| 1–6 h | 720 | 92,4% | 0,9766 | 0,538 |
+| 6–12 h | 873 | 90,1% | 0,9701 | 0,538 |
+| 12–24 h | 291 | **71,8%** | 0,9146 | 0,538 |
+| > 24 h | 0 | — | — | — |
+
+**Monotônica — o instrumento funciona.** 233 divergentes em 2.358 (9,9%). Quando diverge, o jaccard fica em 0,91–0,99: difere por **~1 item de 8–10**, não em bloco.
+
+⚠️ **Três limites do que isto ainda NÃO diz:** (1) idade máxima observada é **17,9 h**, então a linha `> 24 h` está vazia e a cauda do epoch não foi amostrada; (2) é ~1,5 dia de dados, um único ciclo semanal; (3) divergir do vivo **não é defeito** — é o preço declarado de congelar o corpus, e o que importa para o §5 é ser determinístico e auditável, o que é.
+
+🔍 **A verificar (não é conclusão):** T7/T8 mediram **0,144% de divergência de corpus**; aqui o brief diverge ~10%. Se o elo for causal, é a amplificação esperada de um `top-k` — mudança mínima de salience reordena a fronteira. Foram medições em dias e condições diferentes; **precisa ser medido no mesmo epoch antes de virar afirmação**.
+
 **Alerta de crontab (resolvido).** Os dois jobs acima levaram a contagem legítima de 39 para **41**, e o `health-probe.sh` (CHECK 10, faixa 25–40, roda 10/10 min) alertou **28× em 4 h**. Teto subiu para 45 — folga finita, **piso intocado** (é ele que pega o crontab zerado do incident do `crontab -l | sed | crontab -`). Motivo e data escritos no próprio arquivo; commit `3a723a8` em `nox-scripts`. Confirmado pelo cron real às 20:50: `OK: Crontab (41 lines)`.
 
 > Lição registrada: ao mexer em recurso vigiado, procurar a sonda **na mesma mudança**. Alarme que dispara sempre vira decoração — foi assim que o decaimento do KG drenou por dois meses.
