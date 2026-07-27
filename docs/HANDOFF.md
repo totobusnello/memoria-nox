@@ -53,6 +53,27 @@ Artefatos: `paper2-interventional/{sizing.py, extract_episodes.py, run_panel.py,
 ### Ainda gated
 Piloto do Paper 2 continua preso ao arXiv (`submit/7771319`, não recontatar antes de ~08/08). **O calibration set não está gated nisso** e cabe inteiro na janela.
 
+### Operação (27/07) — os dois jobs novos rodaram sozinhos, e o archive já provou o seu valor
+
+**`nox-archive-transcripts` — 4 execuções naturais, e a terceira é a prova:**
+
+| Hora (BRT) | origem | arquivo | já-resgatados |
+|---|---|---|---|
+| 21:40 (26/07) | 3.103 | 3.103 | 0 |
+| 03:40 | 3.149 | 3.149 | 0 |
+| **09:40** | **2.916** | **3.227** | **311** |
+| 15:40 | 3.016 | 3.327 | 311 |
+
+O `prune-claude-sessions.sh` roda 04:23 BRT — entre a passada das 03:40 e a das 09:40. Depois dela, **311 arquivos passaram a existir só no arquivo**: são episódios de ação que o prune apagou da origem e que estariam perdidos sem o `rsync` sem `--delete`. O corpus do Paper 2 está em 352 MB / 3.327 arquivos e cresce ~100/dia.
+
+**`nox-epoch-boundary` — primeira rotação natural, 06:00 BRT:** epoch `e20260727T090002Z`, SHA-256 `c11a3a37…`, 67.629 chunks, `mode: shadow`, `degraded: false`. Podou 1 snapshot antigo.
+
+⚠️ **`manifestos: 10` NÃO é vazamento — é desenho, e um deles é evidência que não pode ser limpa.** `pruneEpochs(keep=3)` apaga o `.db` e **preserva o `.manifest.json` de propósito** (SHA-256 + contagens + `user_version` auditam um epoch antigo sem guardar 1,5 GB). Os 8 manifestos `t6-*` são **a evidência das 8 boundaries do teste T6** — eu ia limpá-los como resíduo e teria apagado a prova de um marco fechado. O `t6-b08.db` (1,6 GB) ocupa hoje um dos 3 slots e sai sozinho na boundary de 28/07; **não limpar à mão**.
+
+**Alerta de crontab (resolvido).** Os dois jobs acima levaram a contagem legítima de 39 para **41**, e o `health-probe.sh` (CHECK 10, faixa 25–40, roda 10/10 min) alertou **28× em 4 h**. Teto subiu para 45 — folga finita, **piso intocado** (é ele que pega o crontab zerado do incident do `crontab -l | sed | crontab -`). Motivo e data escritos no próprio arquivo; commit `3a723a8` em `nox-scripts`. Confirmado pelo cron real às 20:50: `OK: Crontab (41 lines)`.
+
+> Lição registrada: ao mexer em recurso vigiado, procurar a sonda **na mesma mudança**. Alarme que dispara sempre vira decoração — foi assim que o decaimento do KG drenou por dois meses.
+
 ---
 
 ## 🟢 Estado atual (2026-06-30)
