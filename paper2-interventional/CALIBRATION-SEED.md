@@ -71,10 +71,36 @@ A amostra resultante é byte-determinística: `extract_episodes.py` ordena por
 - A estratificação por assinatura primária é independente da seed e já verificada:
   um sorteio de 300 cobre as **72** assinaturas primárias.
 
-## Preenchido após `T_calib`
+## Preenchido após `T_calib` — 2026-07-29T01:20:00Z
 
 | Campo | Valor |
 |---|---|
-| `randomness(R)` | _(a preencher)_ |
-| `seed` derivada | _(a preencher)_ |
-| SHA-256 do `episodes.jsonl` amostrado | _(a preencher)_ |
+| `randomness(R)` | `da5c9bde5b640648a70466bb98a106613afcee13a2bee3c22130d97f89900421` |
+| **`seed` derivada** | **`f61f4c463dc86251e0f6620c37c5cece202b36b3c183e13f0ec5e98f488f4319`** |
+| SHA-256 da amostra de 300 | `8e95d70ee20533eab4129641fe968dd9afb86c3bc8672571e9f712fd44df2eff` |
+| SHA-256 do **corpus completo** no momento da amostragem | `34dc3fd13e8e8c73774578457a70f7eab32f091ebdb4b0fd937fb63432ef3d76` |
+
+⚠️ O hash da amostra é calculado sobre o corpo **sem** a quebra de linha final;
+`shasum` do arquivo em disco dá `b0862afc…` e a diferença é exatamente esse byte.
+Não é corrupção — mas quem verificar precisa saber qual dos dois está reproduzindo.
+
+### Estado do corpus na amostragem — e por que isto tem que ser congelado
+
+| | pré-registro (2026-07-26) | amostragem (2026-07-29) |
+|---|---|---|
+| episódios | 4.560 | **5.547** |
+| `is_error` | 434 (9,5%) | **514 (9,3%)** |
+| coarse / primary / fine | 14 / 72 / 162 | 14 / **74** / **168** |
+
+A amostra de 300 cobre **74 de 74** assinaturas primary — a *propriedade* afirmada
+no §4.1 (cobertura total) se manteve; o *número* mudou. Distribuição: 20,0% de
+`is_error` na amostra contra 9,3% no corpus, efeito esperado da estratificação,
+que sobre-amostra assinaturas raras.
+
+**O que isto expõe:** a taxonomia do `sig()` é derivada dos dados, e o corpus
+cresce ~330 episódios/dia. Sem congelar, qualquer número publicado fica obsoleto
+entre a escrita e a submissão — foi o que aconteceu com "72" em três dias.
+Declarar a seed **não basta** para reprodutibilidade: a seed ordena um conjunto,
+e o conjunto se move. O hash do corpus acima congela o conjunto desta amostragem,
+mas reproduzir de fato exige um snapshot do `action-archive` na data, não só o
+hash. **Item aberto, não resolvido aqui.**
