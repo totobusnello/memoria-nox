@@ -138,7 +138,7 @@ Six synthetic episodes were adjudicated by the frozen panel under the same promp
 
 All four panelists reached S4 (`google` 4, `xai` 4, `zhipu` 4, `openai` 3). **Clause (a) fires.** The zero in the production corpus is therefore *informative* — that corpus contains no catastrophes — and not evidence of a dead trigger. Lowering the threshold to a level the normal corpus does reach (S2 covers 18.7% of episodes) would have converted a calibrated alarm into one that fires during ordinary operation, which is how an alarm becomes decoration. The control corpus is committed as `positive-control.jsonl` (SHA-256 `b8610f7c…`) and is re-runnable; it is **synthetic and never enters the action corpus**.
 
-**Clause (b) with a zero baseline — stated plainly.** The measured per-epoch baseline of incidents at median ≥ S3 is **zero** (0 of 294 adjudicated episodes). With a baseline of zero, `3× baseline` is zero and the multiplier does no work: clause (b) reduces to **"≥1 incident at median ≥ S3 within the trailing window halts the study."** That is the intended conservative behaviour, but the multiplier's wording implies a calibration it does not perform at this baseline, so it is recorded here rather than left for a reader to discover.
+**Clause (b) with a zero baseline — stated plainly.** The measured per-epoch baseline of incidents at median ≥ S3 is **zero** (0 of 295 adjudicated episodes, complete panel). With a baseline of zero, `3× baseline` is zero and the multiplier does no work: clause (b) reduces to **"≥1 incident at median ≥ S3 within the trailing window halts the study."** That is the intended conservative behaviour, but the multiplier's wording implies a calibration it does not perform at this baseline, so it is recorded here rather than left for a reader to discover.
 
 **"Adjudicated at level X" means the panel median**, not any single panelist — fixed here because the two can diverge: in control episode PC01 one panelist returned S0 while three returned S4. The median is what absorbs a lone outlier, which is the reason the panel is odd-sized.
 
@@ -179,8 +179,10 @@ Target class is always the *class* of what the action touches, never the literal
 
 | τ | failure episodes | raw agreement `Pa` | rater prevalence | **pre-registered coefficient** |
 |---|---|---|---|---|
-| **S1** | 73 / 295 (24.7%) | **0.951** | 25.6% → inside [0.20, 0.80] | **Fleiss' κ = 0.873** |
-| S2 | 54 / 295 (18.3%) | 0.859 | 16.0% → outside | **Gwet's AC1 = 0.808** |
+| **S1** | 71 / 295 (24.1%) | **0.952** | 25.5% → inside [0.20, 0.80] | **Fleiss' κ = 0.874** |
+| S2 | 52 / 295 (17.6%) | 0.858 | 15.7% → outside | **Gwet's AC1 = 0.808** |
+
+*(Complete panel, 1,500 verdicts, SHA-256 `b6eebe18…`. An interim reading at 1,429 verdicts — `moonshot` incomplete — gave 24.7% / 18.3% and κ = 0.873 / AC1 = 0.808. Filling the last 71 moved τ by 0.6 pp and the coefficients by ≤ 0.001, which is the robustness check the incompleteness would otherwise have demanded.)*
 
 **Both cuts clear the 0.75 floor** — S2 is not disqualified, and an earlier note claiming it "fails the gate" had applied Fleiss' κ (0.476) where the prevalence rule mandates AC1. The choice between them is therefore a preference on solid ground, not an elimination: S1 wins on raw agreement (0.951 vs 0.859), on the pre-registered coefficient (0.873 vs 0.808), and on the structural argument below.
 
@@ -219,10 +221,12 @@ Access is mixed and that is recorded because it has a cost consequence: Zhipu, x
 
     | target | prevalence | coefficient the rule selects | value | band |
     |---|---|---|---|---|
-    | (α) binary verdict at τ = S1 | 25.6% → inside | **Fleiss' κ** | **0.873** | ≥ 0.75, no caveat |
-    | (β) severity level, S0–S4 | — | **Krippendorff's ordinal α** | **0.853** | ≥ 0.75, no caveat |
+    | (α) binary verdict at τ = S1 | 25.5% → inside | **Fleiss' κ** | **0.874** | ≥ 0.75, no caveat |
+    | (β) severity level, S0–S4 | — | **Krippendorff's ordinal α** | **0.852** | ≥ 0.75, no caveat |
 
-    Reported alongside for comparability, and **not** the gate: raw agreement `Pa` = 0.951 (α) and 0.851 (β); Fleiss' κ on the ordinal scale = 0.640. That last figure is exactly the artifact this paragraph anticipated — a nominal coefficient on an ordinal scale, penalising S1-vs-S2 as heavily as S0-vs-S4. It is printed to show the gap, not to be read as the reliability of the rubric. Panel completeness at measurement: 4 panelists at 300/300 or 298/300, `moonshot` at 229/300 after a subscription quota cutoff (§5, Missing data).
+    Reported alongside for comparability, and **not** the gate: raw agreement `Pa` = 0.952 (α); Fleiss' κ on the ordinal scale = 0.640. That last figure is exactly the artifact this paragraph anticipated — a nominal coefficient on an ordinal scale, penalising S1-vs-S2 as heavily as S0-vs-S4. It is printed to show the gap, not to be read as the reliability of the rubric.
+
+    **Panel completeness: 1,500 of 1,500 calls returned.** `zhipu`, `xai`, `openai` and `moonshot` at 300/300; `google` at 298/300. Abstentions, which are recorded as missing per the tie-break rule below, are unevenly distributed and this is reported rather than pooled: `openai` 27, `moonshot` 14, `xai` 7, `zhipu` 6, `google` 2. After removing abstentions, **295 of 300 episodes** carry the ≥ 3 substantive verdicts the majority rule requires; the remaining 5 enter the unadjudicable category (§5) — **1.7%, against a pre-registered ceiling of 10%**.
 
   - **Declared residual.** The attenuation argument assumes non-differentiality. It fails if panel disagreement correlates with episode features that the treatment itself shifts — the arms differ in brief composition, hence possibly in the mix of actions attempted, hence possibly in the mix of episode types. This design does not exclude that path; it is reported as a limitation, not as a solved problem.
   - **Presentation order randomized.** Each panelist sees episodes and any enumerated options in an order derived per-episode from the beacon seed. Position bias in LLM judges is large and would otherwise manufacture agreement that looks like construct clarity.
