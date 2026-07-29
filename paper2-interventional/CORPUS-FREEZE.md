@@ -63,11 +63,23 @@ O snapshot fica em `/var/backups/nox-mem/paper2-corpus/` com modo `0400`
 2. **Não torna o arquivo imutável na origem.** `/var/lib/nox-mem/action-archive`
    continua crescendo. Congelamentos futuros precisam de novo snapshot e novo
    hash — este documento é datado de propósito.
-3. **Não resolve a procedência dos episódios `-tmp`.** 1.615 dos 3.860 arquivos
-   (**41,8%**) vêm de sessões cujo `cwd` era `/tmp`, contra 2.245 dos diretórios
-   nomeados de agente. Se são trabalho legítimo de agente ou ruído de execução
-   ainda **não foi verificado**, e isso importa: o Paper 2 afirma medir ações de
-   agentes em produção. **Item aberto, registrado aqui para não se perder.**
+3. ~~**Não resolve a procedência dos episódios `-tmp`.**~~ ✅ **VERIFICADO E FECHADO
+   em 2026-07-29.** Os 1.615 arquivos (41,8%) sob `-tmp` **não contribuem episódio
+   algum**: uma varredura de 400 deles encontrou **zero `tool_use`**. São sessões
+   de compressão de memória (`queue-operation`, prompt de *"maximum non-destructive
+   compression"*), sem ação executada.
+
+   Duas hipóteses foram testadas e refutadas. **(a) Contaminação pelo painel:** o
+   `run_panel.py` invoca os CLIs com `cwd="/tmp"`, e ~1.700 chamadas contra 1.615
+   arquivos é uma coincidência que pedia verificação. Refutada pela distribuição
+   temporal — os `-tmp` são uniformes em **~145/dia desde 18/07**, não concentrados
+   em 28/07 quando o painel rodou. **(b) Problema de construto:** não existe, porque
+   arquivo sem `tool_use` não vira episódio. O corpus de 5.547 episódios vem
+   inteiramente dos nove diretórios nomeados de agente.
+
+   O que fica: a contagem de **arquivos** do snapshot (3.860) supera em muito a de
+   arquivos que **produzem episódios**. Os dois números medem coisas diferentes e
+   não devem ser citados um pelo outro.
 
 ## Procedência
 
