@@ -4,7 +4,45 @@
 
 ---
 
-## 🟢 Estado atual (2026-07-26) — Paper 2: engenharia ACABOU, painel PRONTO, **esperando ordem de rodar**
+## 🟢 Estado atual (2026-07-29) — calibração RODADA, τ travado, pré-registro em `[TO LOCK]` 31 → 11
+
+> ▶️ **Próxima ação: peça 3 do piloto — decidir o escopo da adjudicação.** É a única das quatro peças que custa dinheiro. Hoje só 5,32% do corpus está adjudicado, e por isso `p̂0 = 0,0398` é um **piso** (470 oportunidades sem desfecho). Adjudicar os 5.547 custa ~**$37** e ~8 h; amostra proporcional.
+
+### Calibração — fechada, painel completo 1.500/1.500
+
+Seed do beacon `drand` quicknet round **30828212** → `f61f4c46…`, declarada em commit `65cddf9` com o round ainda **226 à frente** (precedência verificável por terceiro). **τ = S1 travado**: Fleiss' κ **0,874**; Krippendorff α ordinal **0,852**; ambos acima do piso de 0,75. Verdicts: `b6eebe18…`.
+
+**O gatilho do §3 está VIVO — verificado, não presumido.** S4 apareceu **zero vezes em 1.289 verdicts** do corpus real, o que é indistinguível de gatilho desarmado. Controle positivo (`positive-control.jsonl`, 4 catástrofes sintéticas + 2 benignos pareados) deu **S4 em 4/4, zero falso positivo**. Eu ia "consertar" baixando o gatilho para S2 — que cobre 18,7% da operação normal — e teria transformado alarme calibrado em decoração.
+
+### Quatro achados que mudaram cláusulas
+
+1. **Baseline do abort de "90 dias" era insatisfazível** (archive começa 18/07, `brief_id` completo só desde 26/07) → virou *"histórico completo, mínimo 14 dias"*. **Portão: piloto não antes de 09/08.**
+2. **Duração de sessão é bimodal** — mediana **22 s**, p95 9,6 min, **p99 33,5 h**, máx 158 h. Washout de 2h cobre 96,8%; os 3,2% restantes atravessam epochs inteiros e nenhum washout resolve → viraram estrato próprio.
+3. **Version pin de CLI é ilusório** — `codex-cli` foi 0.144.5→0.145.0 sozinho em 24 h. Os 3 painelistas de API são reprodutíveis por id; os 2 de CLI **só pela saída registrada**.
+4. **Frota virou allowlist congelada, não headcount** — eram 6, viraram 7, um suspenso. `fleet-wide` exige simultaneidade, não cardinalidade.
+
+### Corpus congelado
+
+`CORPUS-FREEZE.md`: snapshot `ba5fcc81…` (3.860 arquivos / 409 MB → 107 MB), manifesto de 3.860 hashes **no repo**, `sig()` pinado em `c0abe143`. Taxonomia deriva com o corpus (72→74 primary em 3 dias), por isso número só vale contra snapshot nomeado.
+
+### Piloto — 4 peças, 2 feitas
+
+| peça | estado |
+|---|---|
+| 1. definições de `r̂`/`p̂0`/`ICC` | ✅ operacionais, commit `07aebf5` |
+| 2. harness de replay | ✅ `pilot_replay.py`, commit `cea9120` |
+| 3. escopo da adjudicação | ⏳ **próxima — decisão de custo** |
+| 4. avaliar `f` | ⏸️ **09/08** (`f` roda UMA vez; 11 epochs hoje, 21 em 09/08) |
+
+⚠️ **O piloto é replay-only e NÃO depende do arXiv.** O que dependia era o experimento com braços vivos.
+
+### Onde estão os artefatos
+
+Verdicts e corpus **fora do repo público**, em `/var/backups/nox-mem/paper2-corpus/` na VPS (modo `0400`, `MANIFEST.txt` com SHA-256). O scratchpad da sessão é efêmero — não confiar nele.
+
+---
+
+## 🟢 Estado anterior (2026-07-26) — Paper 2: engenharia ACABOU, painel PRONTO, **esperando ordem de rodar**
 
 > ⏸️ **Próxima ação é do Toto:** mandar rodar o calibration set de 300 e declarar a seed de amostragem.
 > Comando pronto: `extract_episodes.py --sample 300 --seed <declarada>` (na VPS) → `run_panel.py` (no Mac, onde vivem as credenciais). 1.500 chamadas, **~14M tokens**.
