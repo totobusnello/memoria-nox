@@ -126,7 +126,23 @@ Because the verdict hash carries a public timestamp that precedes the join, adju
 
 **Existing data.** Registration precedes all treatment-arm traffic. Historical logs are used only for (a) operational definitions, (b) the **pre-registered pilot** below, (c) the separate observational benchmark.
 
-**Pre-registered pilot (F5 fix).** Before the pilot runs, we lock: the pilot's own metric definitions (`r̂` = opportunity rate/session-hour, `p̂0` = control conditional repeat rate, ICC estimate), the executable sizing script (committed, seeded), and the **deterministic function** `N_epochs = f(r̂, p̂0, ICC, MDE)`. The pilot is replay-only (no live arms). After the pilot, `f` is evaluated once and its output locked — no re-runs, no post-hoc MDE shopping.
+**Pre-registered pilot (F5 fix).** Before the pilot runs, we lock: the pilot's own metric definitions, the executable sizing script (committed, seeded), and the **deterministic function** `N_epochs = f(r̂, p̂0, ICC, MDE)`. The pilot is replay-only (no live arms). After the pilot, `f` is evaluated once and its output locked — no re-runs, no post-hoc MDE shopping.
+
+#### Pilot metric definitions — LOCKED 2026-07-29
+
+Named in v0.3, operationalised here. Each is stated so that two people writing the replay independently would produce the same number.
+
+**Opportunity.** An executed action `a`, in a session starting after the epoch's 2 h washout, for which the serving snapshot at session start contained ≥ 1 *failure episode* `a_past` with `sig(a_past) = sig(a)` at **`primary`** granularity, written ≥ 1 epoch length before the epoch start. "Failure episode" is severity ≥ **τ = S1** by panel median (§4.1). Opportunity is a property of condition (i) alone and **does not depend on how `a` turned out** — that is what keeps `p̂0` a conditional rate rather than a tautology.
+
+**`r̂` = opportunities ÷ analysed session-hours**, pooled over pilot epochs. The denominator is post-washout exposure, the same quantity the sizing script calls `hours_per_epoch`.
+
+**`p̂0` = repeats ÷ opportunities**, where a *repeat* is an opportunity whose own outcome is adjudicated failure (condition (ii), the **binary** verdict — severity governs (i) only). Computed over control-arm epochs; in the replay-only pilot, **every epoch is control by construction**, since no treatment has been applied. This is stated because it is the reason a replay can estimate `p̂0` at all.
+
+**`ICC` = intra-epoch correlation of the outcome**, the repeat count per session-hour, estimated by **one-way random-effects ANOVA on epoch as the grouping factor**: `ICC = (MS_between − MS_within) / (MS_between + (m̄ − 1)·MS_within)`, with `m̄` the mean session-hours per epoch. Negative estimates are **truncated to 0**, the conservative direction: `DE = 1 + (m̄ − 1)·ICC ≥ 1` never deflates the required sample.
+
+**⚠️ Snapshot composition is reconstructed by timestamp, not read from disk.** Condition (i) asks what the snapshot *contained*, but `pruneEpochs(keep=3)` retains only the three most recent snapshot databases — the historical ones are gone by design, with only their manifests kept. The replay therefore reconstructs membership as *"chunk existed and was written before the epoch boundary"*, using `created_at`. This is an **approximation, and it is declared rather than hidden**: it can diverge from the physical snapshot wherever a chunk was deleted or rewritten between its creation and the boundary. The measured corpus divergence per 24 h epoch is **0.144%** (T7), which bounds the error but does not eliminate it. **Sensitivity:** the three retained snapshots are replayed both ways — reconstructed and read from disk — and the two `r̂` values reported side by side. If they diverge by more than the T7 bound, the approximation is reported as a limitation on `N_epochs` rather than absorbed silently.
+
+**Exactly-once discipline.** These definitions and `sizing.py` are frozen now, before any of `r̂`, `p̂0` or `ICC` has been computed on real data. The pilot produces those three numbers and nothing else; `f` consumes them once.
 
 **Treatment dose — a design ceiling, measured (P2S1 T6, 2026-07-26).** Power is usually discussed as if the treatment contrast were whatever the mechanism happens to deliver. Here it is **bounded by the brief's architecture**, and the bound was measured before locking `N`.
 
