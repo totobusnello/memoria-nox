@@ -166,7 +166,7 @@ The classes were **derived, not invented** — reading them off 4,560 real execu
 
 Target class is always the *class* of what the action touches, never the literal value: a path resolves to `file:source` / `file:doc` / `file:config` / `file:db` / `file:test` / `file:script`, a shell command to `git:mutation` / `git:read` / `fs:mutation` / `fs:read` / `build-run` / `service` / `db` / `network` / `scheduling`. Literals are unbounded and would make every action its own signature, which is the degenerate case where no repeat is ever detected.
 
-**Corpus properties, measured on the frozen snapshot (2026-07-29T09:46:09Z):** **5,547 episodes** (`tool_use` paired with its `tool_result`), **514 carrying `is_error`** (9.3%), spanning nine agent directories. Extraction is deterministic — the same archive yields the identical SHA-256 on re-run, verified — so the episode corpus is hashable and the pre-registration is checkable rather than merely asserted.
+**Corpus properties, measured on the frozen snapshot (2026-07-29T09:46:09Z):** **5,547 episodes** (`tool_use` paired with its `tool_result`), **514 carrying `is_error`** (9.3%), spanning **eight sources — seven named agents** (`atlas`, `boris`, `cipher`, `forge`, `gordon-gekko`, `lex`, `nox`) **plus the workspace root**. A ninth directory (`-tmp`, 1,615 files, 41.8% of the archive) contributes **zero** episodes: those sessions are memory-compression jobs with no executed action, verified by parse (`CORPUS-FREEZE.md`). Extraction is deterministic — the same archive yields the identical SHA-256 on re-run, verified — so the episode corpus is hashable and the pre-registration is checkable rather than merely asserted.
 
 ⚠️ **These counts are snapshot-relative, and the earlier ones were not wrong — they expired.** The v0.3 text recorded 4,560 episodes / 434 errors / 14-72-162 signatures on 2026-07-26. The archive grows ~330 episodes per day, so by the 2026-07-29 sampling it had moved to the figures above. A derived taxonomy over a live corpus has no stable cardinality; the counts are only meaningful against a named snapshot. The snapshot, its manifest, and the frozen `sig()` implementation are hashed in **`CORPUS-FREEZE.md`** — reproduction runs against that artifact, not against the live archive.
 
@@ -327,7 +327,7 @@ Mechanism implemented and **in production**: per-epoch snapshot with auditable m
 
 M2 (logical `created_at` filter) remains a **documented fallback with measured error**, not the design: 0.144% of corpus rows and 0 of 7,235 served slots per 24 h epoch (T7). Failure drills pass 5/5 — a corrupted snapshot does not flip the pointer, an absent snapshot degrades to the live store **with a stated reason and a RED health check**, and absent `vec0` degrades partially rather than totally (T8).
 
-**Still open before the pilot:** epoch length + washout (24 h + 2 h proposed) remain **[TO LOCK]**; boundary rotation is not yet scheduled (operational, not mechanism).
+**Still open before the pilot:** epoch length + washout (24 h + 2 h proposed) remain **[TO LOCK]**. ~~boundary rotation is not yet scheduled~~ **✅ SCHEDULED AND RUNNING since 2026-07-27** — `cron 0 6 * * *` invoking `nox-epoch-boundary.sh`, verified in the live crontab on 2026-07-29; first natural rotation produced epoch `e20260727T090002Z` (operational, not mechanism).
 > ### ✅ 0. RESOLVED 2026-07-26 — the action stream exists; it was never OpenClaw's to hold
 >
 > **The blocker below is dissolved, and not by instrumentation.** OpenClaw spawns `claude-cli` as a subprocess and parses its `stream-json` output; it is the **Claude CLI**, not OpenClaw, that persists the transcript. Hence the exhaustive search inside OpenClaw returned zero — the store was never there.
@@ -355,7 +355,7 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
 >
 > **⏳ Why it was urgent — the window was rolling, not cumulative.** Files on disk go back only to **2026-07-18** (~8 days), accruing at ~350/day; content inside reaches 07-12. No `cleanupPeriodDays` is set, so the Claude Code default retention applies and **history is being pruned from the tail while we plan**. The pilot needs accumulated history. **Archiving these transcripts to durable storage is now the cheapest, most time-sensitive action in the whole project** — every day of delay is a day of tail permanently lost. This is an additive copy job, not instrumentation.
 >
-> Consequently items 4–8 are unblocked for calibration, and item 5's taxonomy is derivable today (the 71 signatures above are the first cut).
+> Consequently items 4–8 are unblocked for calibration, and item 5's taxonomy is derivable today (the 71 signatures observed at that date were the first cut; on the frozen snapshot of 2026-07-29 the count is **74** primary — see the taxonomy table and `CORPUS-FREEZE.md` for why a derived taxonomy has no stable cardinality over a live corpus).
 >
 > ---
 >
