@@ -461,7 +461,19 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
 9. ~~Appendix A (H3 figure specs) + Appendix B (bounds math) written~~ ✅ **WRITTEN 2026-07-26.** A: three frozen figures (retrieval-vs-decision scatter per metric + ordering slope chart), inclusion rules, no binning, and the stated condition that would falsify the H3 narrative. B: bounded-carry-over assumption (B1), the bound τ̂ ± δ·|p₁−p₀|, and the observation that |p₁−p₀| is a **design** quantity driven to zero by transition balancing — so the bound narrows by construction, not by assumption. **Still [TO LOCK]: the numeric δ**, which can only be honestly fixed from the pilot's same-arm transition distribution (before it = invented; after seeing effects = adaptive).
 10. ~~Ethics/IRB statement~~ ✅ **WRITTEN 2026-07-26** → **Appendix C**. Exemption is claimed on the substantive ground (no human subjects, no third-party data), and the appendix states plainly what the study *does* touch — the author's own production system — and what bounds harm there (low-stakes restriction + mechanical abort). It also declares the COI without softening it.
 
-**New [TO LOCK] items created by the v0.3 independence model:** drand chain hash · `T_seed` (UTC instant, post-registration / pre-M4) · Bitcoin fallback height rule · abort rule parameters (severity 0.8 · window 3 epochs · 3× baseline · 90-day baseline period) · panel size and exact model ids · adjudication prompt hash · minimum valid verdicts for majority (3).
+**Items created by the v0.3 independence model — status as of 2026-07-29:**
+
+| item | status |
+|---|---|
+| drand chain hash | ✅ quicknet `52db9ba7…`, exercised end-to-end for the calibration seed |
+| Bitcoin fallback height rule | ✅ declared (`CALIBRATION-SEED.md`) |
+| abort rule parameters | ✅ severity now **S4 / ≥S3** on the anchored rubric (not 0.8); window **3 epochs**; **3×**; baseline window **changed from 90 days to full-history-min-14-days** — the 90 was unsatisfiable |
+| panel size and exact model ids | ✅ five families, ids locked; **versions recorded as observed, not pinned** — the CLI panelists self-update |
+| adjudication prompt hash | ✅ `5b22f02c…`, governed all 1,500 calibration calls |
+| minimum valid verdicts for majority | ✅ **3**, exercised — 5 of 300 episodes fell below it |
+| **`T_seed_assign` (UTC instant, post-registration / pre-M4)** | ⏳ **open by construction** — cannot exist before the OSF timestamp |
+
+**All remaining `[TO LOCK]` items are blocked structurally, not by effort:** `N_epochs` and the calendar end date, the `p95` winsorization point, `α` (the spread-relative dose), and the numeric `δ` all require the pilot's same-arm transition distribution; `T_seed_assign` requires the registration to exist first. Nothing else is waiting on a decision.
 
 ## Appendix A — H3 figure specs (pre-committed; frozen before unblinding)
 
