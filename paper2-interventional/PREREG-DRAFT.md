@@ -60,7 +60,7 @@ The v0.1 design (cluster = agent × time-block + washout over a *shared* store) 
 
 **Seed — public randomness beacon (replaces the data monitor; §0b).** The assignment sequence is generated once by a committed, deterministic script from a seed that **does not exist at registration time and is outside author control**:
 
-- **Beacon:** `drand` / League of Entropy, mainnet chain **[TO LOCK: chain hash]** (30 s rounds, publicly verifiable BLS output, multi-organization threshold — no single party, including the authors, can predict or influence it).
+- **Beacon:** `drand` / League of Entropy — **LOCKED 2026-07-29: quicknet, chain `52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971`** (3 s rounds, genesis `1692803367`, publicly verifiable BLS output, multi-organization threshold — no single party, including the authors, can predict or influence it). Same chain already exercised end-to-end for the calibration seed (`CALIBRATION-SEED.md`), so the derivation path is verified rather than assumed.
 - **Derivation rule, committed at registration:** `seed = SHA256(randomness_hex(R))`, where `R` is the **first drand round with timestamp ≥ T_seed_assign**, and `T_seed_assign` is a wall-clock instant **[TO LOCK: date/time UTC]** that is strictly after the OSF registration timestamp and strictly before the first treatment epoch (M4).
   - **`randomness_hex` is the lowercase ASCII hex string, hashed as text — not the decoded bytes.** The two differ: for round 30800000, `SHA256(ascii)` = `1ae88fbf27fe83bc…` while `SHA256(bytes)` = `0e6824e682b9d776…`. Leaving this implicit would make third-party verification a coin flip.
   - **Endpoint is the v1 API**, `https://api.drand.sh/<chain>/public/<R>`. The v2 endpoint returns only `round` and `signature` — it has no `randomness` field, so a rule that does not name the endpoint is not reproducible. (Both points verified against the live API, 2026-07-28.)
@@ -83,7 +83,13 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
 
 **Arms.**
 - **Control:** production brief policy at freeze commit **[TO LOCK: hash]** (`NOX_BRIEF_DIVERSITY=active`).
-- **Treatment:** identical + additive outcome-weighted term `W_OUTCOME × severity` on chunks linked to adjudicated-failure episodes **[TO LOCK: W_OUTCOME, proposed 0.15; sensitivity {0.10, 0.15, 0.20} pre-registered as secondary]** (additive per the Paper-1 v3.4 lesson: multiplicative boosts are unstable).
+- **Treatment:** identical + additive outcome-weighted term `W_OUTCOME × severity` on chunks linked to adjudicated-failure episodes, severity per the ordinal mapping in §4.1. **LOCKED 2026-07-29:** the coefficient is re-expressed as `W_OUTCOME = w × Δ_cut` — a multiple of the measured salience spread at the brief cut, not a bare constant — with sensitivity over `w ∈ {0.5, 1.0, 2.0}` pre-registered as secondary, replacing the absolute `{0.10, 0.15, 0.20}`. (Additive per the Paper-1 v3.4 lesson: multiplicative boosts are unstable.)
+
+  **Severity stays graded — an earlier draft of this lock collapsed it to binary and was wrong.** The collapse was justified by Fleiss' κ = 0.640 over the five levels, read as failing the ≥ 0.75 floor. Fleiss' κ is a *nominal* coefficient, which this section already warns against for exactly this scale: it scores an S1-vs-S2 disagreement as harshly as S0-vs-S4. Under the coefficient this protocol actually pre-registers for target (β), **Krippendorff's ordinal α = 0.853** — above the floor, reported without caveat. The graded severity is reliable; the number that said otherwise was the wrong statistic.
+
+  **Why relative to the spread.** `0.15` is uninterpretable on its own. Measured against the salience spacing it has to move — `Δ_cut = 0.043`, the spread across the top-10 slots (§9-4) — it is **3.5× the entire spread**, which is authority to rewrite the brief rather than a nudge. Stating the dose as a multiple of `Δ_cut` makes it self-interpreting: `w = 1.0` can displace roughly one boundary position, which is what "nudge" was supposed to mean. It also removes a parameter — one `w` replaces `W_OUTCOME` plus a five-level mapping.
+
+  **`Δ_cut` is frozen pre-treatment.** It is measured over the baseline period preceding the pilot and fixed at registration. It is *not* recomputed per epoch: treatment changes brief composition, so a live `Δ_cut` would be a post-randomization quantity and would break randomization-based inference — the same defect corrected for coverage on 2026-07-26, and it would have been reintroduced here.
 - **Scope:** low-stakes sessions only, per pre-committed task-type allowlist **[TO LOCK]**; high-stakes sessions always get control and are excluded (this exclusion is arm-independent by construction).
 
 **Blinding (no auditor sign-off; §0b).** Outcome adjudication is blind to arm: adjudicators receive episodes with arm labels, sub-day timestamps, and policy metadata stripped. The trace→action→outcome→failure pipeline is deterministic, frozen at commit **[TO LOCK: hash]**, and validated end-to-end on a **synthetic input set with committed expected-output hash** (M2).
@@ -155,12 +161,14 @@ The classes were **derived, not invented** — reading them off 4,560 real execu
 | Level | Definition | Distinct signatures observed |
 |---|---|---|
 | **coarse** | tool-family × target-family — `{read, write, execute, delegate, search, mcp, other} × {file, vcs, process, state, external, none}` | **14** |
-| **primary** | tool × target-class — the level §4.1 matches repeats on | **72** |
-| **fine** | primary × command verb (e.g. `git:push` distinct from `git:log`) | **162** |
+| **primary** | tool × target-class — the level §4.1 matches repeats on | **74** |
+| **fine** | primary × command verb (e.g. `git:push` distinct from `git:log`) | **168** |
 
 Target class is always the *class* of what the action touches, never the literal value: a path resolves to `file:source` / `file:doc` / `file:config` / `file:db` / `file:test` / `file:script`, a shell command to `git:mutation` / `git:read` / `fs:mutation` / `fs:read` / `build-run` / `service` / `db` / `network` / `scheduling`. Literals are unbounded and would make every action its own signature, which is the degenerate case where no repeat is ever detected.
 
-**Corpus properties, measured:** 4,560 episodes (`tool_use` paired with its `tool_result`), **434 carrying `is_error`**, spanning eight agents. Extraction is deterministic — the same archive yields the identical SHA-256 on re-run, verified — so the episode corpus is hashable and the pre-registration is checkable rather than merely asserted.
+**Corpus properties, measured on the frozen snapshot (2026-07-29T09:46:09Z):** **5,547 episodes** (`tool_use` paired with its `tool_result`), **514 carrying `is_error`** (9.3%), spanning nine agent directories. Extraction is deterministic — the same archive yields the identical SHA-256 on re-run, verified — so the episode corpus is hashable and the pre-registration is checkable rather than merely asserted.
+
+⚠️ **These counts are snapshot-relative, and the earlier ones were not wrong — they expired.** The v0.3 text recorded 4,560 episodes / 434 errors / 14-72-162 signatures on 2026-07-26. The archive grows ~330 episodes per day, so by the 2026-07-29 sampling it had moved to the figures above. A derived taxonomy over a live corpus has no stable cardinality; the counts are only meaningful against a named snapshot. The snapshot, its manifest, and the frozen `sig()` implementation are hashed in **`CORPUS-FREEZE.md`** — reproduction runs against that artifact, not against the live archive.
 
 **Calibration sampling is stratified by primary signature and seeded**, refusing to run without an explicit seed (an unseeded sample is not pre-registrable). Stratification is not cosmetic: `Bash|shell:other` alone is ~27% of the corpus, so a naive random draw of 300 would be dominated by it and would never test the rubric against the tail. Verified: a 300-episode draw covers **all 72** primary signatures. The production seed is **derived from a public beacon round, not chosen** — but from a *distinct* round from the one in §2, and the distinction is forced by chronology rather than preference. The §2 round is defined at `T_seed_assign`, strictly **after** OSF registration; the severity cutoff this calibration produces is a `[TO LOCK]` item that must be filled **in** that registration. Calibration therefore precedes registration, which precedes `T_seed_assign` — so calibration cannot use the §2 seed. It uses `T_seed_calib`, declared and published before the corresponding round existed. Parameters, derivation rule, and third-party verification command: `CALIBRATION-SEED.md`.
 
@@ -169,10 +177,12 @@ Target class is always the *class* of what the action touches, never the literal
 
 **Why S1, from the calibration set and not from taste.** The 300-episode calibration (seed `f61f4c46…`, §4.1) yields two candidate cuts and they are not equally sound:
 
-| τ | failure episodes | panel unanimity | pairwise agreement |
-|---|---|---|---|
-| **S1** | 75 / 294 (25.5%) | **91.5%** | 92–99% |
-| S2 | 55 / 294 (18.7%) | 74.1% | 78–93% |
+| τ | failure episodes | raw agreement `Pa` | rater prevalence | **pre-registered coefficient** |
+|---|---|---|---|---|
+| **S1** | 73 / 295 (24.7%) | **0.951** | 25.6% → inside [0.20, 0.80] | **Fleiss' κ = 0.873** |
+| S2 | 54 / 295 (18.3%) | 0.859 | 16.0% → outside | **Gwet's AC1 = 0.808** |
+
+**Both cuts clear the 0.75 floor** — S2 is not disqualified, and an earlier note claiming it "fails the gate" had applied Fleiss' κ (0.476) where the prevalence rule mandates AC1. The choice between them is therefore a preference on solid ground, not an elimination: S1 wins on raw agreement (0.951 vs 0.859), on the pre-registered coefficient (0.873 vs 0.808), and on the structural argument below.
 
 The S0/S1 boundary is stable; the S1/S2 boundary is not anchored. `zhipu` assigns S1 to 19.0% and S2 to 6.1% of episodes; `xai` inverts it — S1 5.5%, S2 18.4%. Both agree on S0 at ~75%, so they agree that a failure occurred and disagree systematically about its degree. At τ = S2 that disagreement enters the estimand directly; at τ = S1 it is irrelevant, because both cuts fall on the same side. The threshold was chosen for the boundary the panel can hold, not for the failure rate it produces.
 
@@ -200,11 +210,20 @@ Both properties the decimal lacked now hold. The sensitivity band is **primary �
 
 Access is mixed and that is recorded because it has a cost consequence: Zhipu, xAI and Google are reached through metered APIs (~1.1k tokens per adjudication); Moonshot and OpenAI have no metered key available and are reached through their CLIs, each of which spins an agent loop per call (measured: ~22k tokens of overhead on a trivial prompt). The panel is therefore roughly **an order of magnitude more expensive than an all-API panel** — ~14M tokens for a 300-episode calibration set rather than ~1.7M — chosen so that correlated annotator bias is mitigated by provenance diversity rather than by assumed impartiality. Protocol:
 
-- **Frozen prompt.** One adjudication prompt, identical for every panelist, hashed and registered pre-hoc **[TO LOCK: prompt hash]**. Model identifiers and versions are pinned **[TO LOCK: exact model ids]**.
+- **Frozen prompt.** One adjudication prompt, identical for every panelist, hashed and registered pre-hoc — **LOCKED 2026-07-29: `5b22f02c1a557417fe874b98cdf8a3ad6441cada74d69ace8e54f82b3438b03e`**, the SHA-256 of the prompt *body* as extracted and sent (the containing file hashes to `3767fdb5…`; the two are different objects and both are recorded in `CORPUS-FREEZE.md`). This hash governed all 1,685 adjudication calls executed to date. Model identifiers **LOCKED**: `glm-5.2` (Zhipu) · `grok-4.5` (xAI) · `gemini-2.5-pro` (Google) · `k3` (Moonshot) · `gpt-5.6-sol` (OpenAI).
 - **Independence.** Each panelist judges every episode in isolation — no panelist sees another's verdict, and no chain-of-panel aggregation occurs before all verdicts are recorded.
 - **Verdict.** Binary failure/not-failure by **simple majority**; severity by **median** of panelist severities (odd panel ⇒ no binary tie; median is well-defined and robust to a single outlier panelist).
 - **Reliability.** Agreement is reported for **two targets, separately, because they are different measurements**: (α) the **binary verdict**, and (β) the **severity level**. The v0.2 text named "Fleiss' κ" without saying which — and Fleiss' κ is a *nominal* statistic, so applying it to the ordinal rubric above would score S1-vs-S4 and S3-vs-S4 as equally wrong. Locked coefficients: for (β), **Krippendorff's ordinal α**; for (α), a **mechanical prevalence rule** — if the positive class falls outside [0.20, 0.80] in the calibration set, report **Gwet's AC1**, otherwise **Fleiss' κ**. Both are always reported alongside raw agreement, and Fleiss' κ is reported in every case for comparability with the literature even when it is not the gate.
   - **Graduated floor, not a cliff.** ≥ **[TO LOCK: 0.75]** → primary reported without a reliability caveat · **0.60–0.75** → primary reported **with** a mandatory caveat in the abstract and the attenuation bound · < **0.60** → inconclusive on reliability grounds. Rationale for graduating rather than gating: adjudication is arm-blind by construction (§2), so misclassification is non-differential and **attenuates toward the null**, and the permutation test's type-I error is exact regardless of agreement. A low coefficient therefore costs **power and effect magnitude, not validity** — a conservative error, and one that does not justify discarding a study already paid for. The 0.75 is retained as the top of the clean band; it is Fleiss' own "excellent" cut.
+  - **Measured on the calibration set (2026-07-29), by the rule above — both clear the floor.**
+
+    | target | prevalence | coefficient the rule selects | value | band |
+    |---|---|---|---|---|
+    | (α) binary verdict at τ = S1 | 25.6% → inside | **Fleiss' κ** | **0.873** | ≥ 0.75, no caveat |
+    | (β) severity level, S0–S4 | — | **Krippendorff's ordinal α** | **0.853** | ≥ 0.75, no caveat |
+
+    Reported alongside for comparability, and **not** the gate: raw agreement `Pa` = 0.951 (α) and 0.851 (β); Fleiss' κ on the ordinal scale = 0.640. That last figure is exactly the artifact this paragraph anticipated — a nominal coefficient on an ordinal scale, penalising S1-vs-S2 as heavily as S0-vs-S4. It is printed to show the gap, not to be read as the reliability of the rubric. Panel completeness at measurement: 4 panelists at 300/300 or 298/300, `moonshot` at 229/300 after a subscription quota cutoff (§5, Missing data).
+
   - **Declared residual.** The attenuation argument assumes non-differentiality. It fails if panel disagreement correlates with episode features that the treatment itself shifts — the arms differ in brief composition, hence possibly in the mix of actions attempted, hence possibly in the mix of episode types. This design does not exclude that path; it is reported as a limitation, not as a solved problem.
   - **Presentation order randomized.** Each panelist sees episodes and any enumerated options in an order derived per-episode from the beacon seed. Position bias in LLM judges is large and would otherwise manufacture agreement that looks like construct clarity.
 - **Tie-break / abstention.** If a panelist errors or abstains, its verdict is recorded as missing and majority is computed over the remainder; if fewer than **[TO LOCK: 3]** valid verdicts remain, the episode joins the unadjudicable category (§5, Missing data). The author intervenes **only** when the mechanical rule cannot resolve, and then on an arm-blind episode, with every such intervention logged and counted in the paper.
