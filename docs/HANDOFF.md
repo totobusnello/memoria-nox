@@ -4,9 +4,59 @@
 
 ---
 
-## 🟢 Estado atual (2026-07-29) — calibração RODADA, τ travado, pré-registro em `[TO LOCK]` 31 → 11
+## 🟢 Estado atual (2026-07-29 noite) — peça 3 FECHADA, `p̂0` deixou de ser piso, e a projeção de K errou por 2-3×
 
-> ▶️ **Próxima ação: peça 3 do piloto — decidir o escopo da adjudicação.** É a única das quatro peças que custa dinheiro. Hoje só 5,32% do corpus está adjudicado, e por isso `p̂0 = 0,0398` é um **piso** (470 oportunidades sem desfecho). Adjudicar os 5.547 custa ~**$37** e ~8 h; amostra proporcional.
+> ▶️ **Próxima ação: fechar a regra de contagem PAR no pré-registro.** É um `[TO LOCK]` novo, descoberto rodando a peça 3, e ele **bloqueia** a rodada oficial de `f` — sem ele o tamanho do estudo é indeterminado em 20%.
+
+### A adjudicação rodou: 1.140 episódios, 5.700 chamadas, 88 min
+
+Censo do estrato `is_error` (414) + amostra uniforme de 800 do complemento, pela regra de sorteio declarada **antes** em `PILOT-PROJECTION.md` (`SEED_B = b214ca6f…`, ordenação por hash, sem PRNG). **4 de 5 painelistas completos**; `moonshot` parou em 88/1.140 por cota. Cobertura: **1.114/1.140 com ≥3 vereditos** (2,3% inadjudicável, contra teto de 10%).
+
+**A intercalação por hash provou o valor:** os 88 da Kimi são as posições 0–87, mas `is_error` entre eles é **29,5% contra 32,2%** do alvo — o corte por cota ficou cego ao estrato. Sem intercalar, os 88 seriam todos do estrato A e a composição do painel correlacionaria com o estrato, num painel cujos membros divergem sistematicamente (zhipu S1 19,0% vs xai 5,5%).
+
+### Os três números do piloto, com o estimador do desenho
+
+| | censo (sem pesos) | **estratificado-HT** |
+|---|---|---|
+| `r_hat` | 28,59 | **28,76** |
+| `p̂0` | 0,0993 *(piso)* | **0,1109** |
+| `icc` | 0,0351 | **0,0228** |
+| oport. sem desfecho | 1.729 | **12** |
+
+`p̂0` **deixou de ser piso** — era o objetivo da peça. `hours_per_epoch = 6,06` · `session_hours_per_epoch = 70,43` · 14 epochs analisáveis.
+
+### Dois defeitos no harness, corrigidos em `0ef3e43`
+
+1. **Condição (ii) estava pela mediana de severidade**, mas o §4.1 trava *"condition (ii) is the binary verdict. Severity governs condition (i) only."*
+2. **Faltavam pesos de Horvitz-Thompson** — sem eles o estimador subcontava os repeats do estrato amostrado por `N_B/n_B = 5,2×`.
+
+### O `[TO LOCK]` novo, e por que ele bloqueia
+
+Com contagem **par** de vereditos, a mediana superior aceita **2 de 4** (empate virando falha) e a maioria simples exige **3 de 4**. O pré-registro só afirma ausência de empate por supor painel ímpar — premissa que abstenção e falha de cota derrubam. **987 dos 1.140 episódios têm exatamente 4 vereditos**: contagem par é a regra, não a exceção.
+
+Só **14 empates exatos** em 1.013 episódios pares (1,4%) — mas o peso 5,204 do estrato B amplifica cada um em 5×, e o swing é de **20% no tamanho do estudo**: mediana superior dá K=53, as duas leituras fiéis (maioria estrita; empate ⇒ inadjudicável) convergem em **K=64**. Adotado no harness: maioria estrita, empate ⇒ `not_failure` — conservador (subestima falhas ⇒ infla K).
+
+### A projeção declarada errou por 2-3×, e a declaração é o que torna isso auditável
+
+`PILOT-PROJECTION.md` (commit `76344dd`, **anterior** a qualquer chamada nova) declarou **K = 21**. Com dados reais o número fica em **~48–64**, dependendo do tratamento do ICC. Decomposição da diferença: `icc` foi de 0,0078 → 0,023–0,036 (o valor da peça 2 vinha de 5% de cobertura, onde quase não havia repeat para gerar variância between) e `λ0` caiu 4,50 → 3,19. Os dois fatores multiplicados explicam a diferença inteira.
+
+**Consequência prática:** o estudo passa de ~42 dias para **~100–130 dias**. O MDE está travado em 20% e mexer nele agora *depois de ver K* é exatamente o "MDE shopping" que o §9 proíbe — o caminho previsto é rodar o K viável e publicar a curva de poder, que é o que `f` já devolve.
+
+⚠️ **Item aberto:** o ICC divergiu entre modo censo (0,0351) e HT (0,0228) porque ponderar as densidades por sessão altera a variância. Estimar ICC sob pesos amostrais não é padrão — precisa decisão antes do `f`.
+
+### `f` NÃO rodou
+
+Tudo acima veio de reimplementação em rascunho, não de `sizing.py`. `f` roda **uma vez**, depois de 09/08, com 21 epochs.
+
+### Artefatos
+
+`/var/backups/nox-mem/paper2-corpus/verdicts/` na VPS, modo `0400`: `peca3-pass1.jsonl` (`dddb9823…`) · `peca3-novos.jsonl` (`8a4e7877…`) · `MANIFEST.txt` atualizado. **Não reproduzíveis** — o `codex-cli` já trocou de versão.
+
+---
+
+## 🟢 Estado anterior (2026-07-29 manhã) — calibração RODADA, τ travado, pré-registro em `[TO LOCK]` 31 → 11
+
+> ✅ **Peça 3 fechada** — ver o bloco de 2026-07-29 noite acima.
 
 ### Calibração — fechada, painel completo 1.500/1.500
 
