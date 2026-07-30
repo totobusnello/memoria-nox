@@ -200,8 +200,23 @@ def julgar(pan, ep, prompt, timeout) -> dict:
             if tentativa == 1:
                 time.sleep(2)
                 continue
+    # ── Cota exaurida NAO e ausencia de veredito ────────────────────────────
+    # `missing` significa "perguntamos e nao houve resposta utilizavel" — conta
+    # contra o teto de nao-adjudicaveis do §5. Cota exaurida significa "ainda
+    # nao perguntamos": a chamada esta PENDENTE e tem que ser retentada num
+    # ciclo posterior. Registrar as duas como `missing` foi o que produziu
+    # 88,6% de contagem PAR na peca 3 (moonshot 88/1.140) contra 8,8% na
+    # calibracao, onde o painel rodou ate o fim — e paridade e o que faz um
+    # parametro nao especificado mover o estudo em 20%.
+    #
+    # Deliberadamente conservador: so classifica como `quota` com sinal
+    # inequivoco. Classificar erro comum como cota causaria retry infinito.
+    baixo = ultimo.lower()
+    pendente = ("usage limit" in baixo or "quota" in baixo
+                or "rate limit" in baixo or "429" in baixo)
     return {**base_reg, "verdict": None, "level": None, "reason": "",
-            "attempts": 2, "status": "missing", "detail": ultimo[:200]}
+            "attempts": 2, "status": "quota" if pendente else "missing",
+            "detail": ultimo[:200]}
 
 
 def main() -> int:
@@ -254,6 +269,7 @@ def main() -> int:
         d[r["status"]] += 1
     print(json.dumps({
         "prompt_sha256": phash, "chamadas": len(res),
+        "pendentes_por_cota": sum(1 for r in res if r.get("status") == "quota"),
         "segundos": round(time.time() - t0, 1),
         "por_painelista": por_pan,
         "out": str(saida),
