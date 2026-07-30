@@ -6,9 +6,41 @@
 
 ## 🟢 Estado atual (2026-07-29 noite) — peça 3 FECHADA, `p̂0` deixou de ser piso, e a projeção de K errou por 2-3×
 
-> ▶️ **Próxima ação: decidir o volume de adjudicação do ESTUDO VIVO.** É o único item aberto que não espera dado, e ele bloqueia o `f` — ver "O gap que o ICC expôs" abaixo.
+> ▶️ **Próxima ação: acumular epochs.** Todos os bloqueadores de decisão caíram (paridade · ICC · volume/painel). O que falta é cluster: 11 epochs não estimam ICC, e eles chegam de graça a 1/dia.
 >
-> ⏳ Em paralelo, sem intervenção: backlog do moonshot (1.050 chamadas, `tmux -L peca3`, sessão `moon`) e acumulação de epochs (1/dia, de graça).
+> ⏳ Sem intervenção: backlog do moonshot (`tmux -L peca3`, sessão `moon`) — **demovido de bloqueador**, ver abaixo.
+
+### Estudo vivo: censo com painel API-only — TRAVADO
+
+O gap que o ICC expôs era o volume de adjudicação do estudo vivo: ~38.000 episódios, e a cota do CLI da Moonshot (~100/janela) faz do censo de 5 painelistas ~380 janelas.
+
+**Subamostrar é dominado por princípio:** `E_a = K·T·λ0`, então amostrar à taxa `f` multiplica os epochs por `1/f` e o número **absoluto** de episódios adjudicados fica invariante. Não compra volume — troca throughput por calendário, num estudo que já tem ~130 dias.
+
+Então reduz-se o painel, e a redução foi **medida antes de adotada**, sobre os 1.500 vereditos que já existiam (custo zero):
+
+| painel | Fleiss κ | Kripp. α | Pa | prevalência | ≥3 vereditos |
+|---|---|---|---|---|---|
+| 5 famílias (ref.) | 0,8815 | 0,8557 | 0,9551 | 0,254 | 295/300 |
+| **3 de API** | **0,8747** | **0,8380** | 0,9512 | 0,265 | 287/300 |
+
+Ambos acima do piso de 0,75; perda de **0,7pp em κ**; prevalência segue dentro de [0,20;0,80] ⇒ a regra seleciona o **mesmo** coeficiente, então as linhas são comparáveis.
+
+**Divergência declarada com direção:** 4 de 287 (**1,39%**), todas no mesmo sentido — padrão `[S0,S0,S0,S2,S2]`, os painelistas de CLI ficam em S0 e removê-los transforma minoria de 2-em-5 em maioria de 2-em-3. Painel reduzido acha *um pouco mais* falha, concentrado em borderline genuinamente dividido.
+
+**Dois defeitos antigos que isto fecha de graça:** os painelistas de CLI **não eram reprodutíveis por versão** (só pela saída registrada) — API é reprodutível por identificador; e **paridade morre na origem**, porque 3 é ímpar e sem cota.
+
+⚠️ **O que fica pior:** com exatamente 3, **uma abstenção** derruba abaixo do piso — 8 de 300 (2,67%) medido, dentro do teto de 10% mas frágil. Mitigação seria 4ª família de API, que exige credencial inexistente.
+
+### Piloto recalculado com o instrumento do estudo
+
+| | painel misto | **API-only (vale)** |
+|---|---|---|
+| `r̂` | 28,76 | **28,60** |
+| `p̂0` | 0,1109 | **0,1154** |
+| `icc` | 0,0228 | **0,0219** |
+| repeats | 270,6 | **280,0** |
+
+Mais repeats, na direção que a divergência previa. **Cobertura igual** (1.394 vs 1.410) porque os 3 de API estavam completos — e é por isso que **o backlog do moonshot deixou de ser bloqueador**. Ele segue rodando porque alimenta o leave-one-family-out (compromisso do §4.1) e eleva a medida de divergência de 287 para 1.140 episódios, mas nada espera por ele.
 
 ### ICC sob pesos amostrais — resolvido, e a resposta é um limite, não um número
 

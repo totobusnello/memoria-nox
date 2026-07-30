@@ -166,7 +166,30 @@ Four decisions, locked:
 - **(c) Accumulate epochs before evaluating `f`.** Epochs arrive at one per day at no cost. Running the single permitted evaluation of `f` on an ICC the data cannot support would spend the exactly-once discipline on noise. This supersedes the earlier "not before 2026-08-09" gate, which was set by the abort baseline and is now the *earlier* of the two constraints.
 - **(d) Report the power curve across the ICC confidence interval,** not only at the point estimate. §3 already commits to publishing the curve rather than a single number; under an ICC this uncertain, the curve stops being a formality and becomes the honest result.
 
-⚠️ **An open gap this exposed, and it feeds back into `DE`.** This registration does not fix the **adjudication volume of the live study**. At `K` ≈ 48 per arm the study spans 96 epochs × ~396 episodes ≈ **38,000 episodes**; the Moonshot panelist is reached through a CLI whose quota admits ~100 calls per window, so a census is roughly 380 quota windows and is not feasible. The live study will therefore have to subsample or re-seat the panel — and subsampling adds variance that `DE` must carry. **This must be decided before `f` is evaluated, not discovered during.**
+#### Live-study adjudication volume and panel — LOCKED 2026-07-30: **census, API-only panel**
+
+The gap the ICC analysis exposed: this registration fixed the *calibration* panel but never fixed the **adjudication volume of the live study**. At `K` ≈ 48 per arm the study spans 96 epochs × ~396 episodes ≈ **38,000 episodes**. The Moonshot panelist is reached through a CLI whose quota admits ~100 calls per window, so a five-panelist census is ~380 quota windows — not feasible.
+
+**Subsampling is dominated on principle, not on preference.** Expected observed events are `E_a = K·T·λ_0`; adjudicating a fraction `f` multiplies the epochs required by `1/f`, so the **absolute number of adjudicated episodes is invariant to `f`**. Subsampling buys no adjudication volume at all — it converts a throughput problem into a calendar problem, on a study whose calendar is already ~130 days. It also adds sampling variance that `DE` would then have to carry.
+
+**Therefore the panel is reduced instead, and the reduction was measured before being adopted — on the existing 1,500 calibration verdicts, at zero marginal cost.** Restricting to the three API-reached families (`glm-5.2`, `grok-4.5`, `gemini-2.5-pro`) and re-running the same locked coefficient rule on the same 300-episode calibration set:
+
+| panel | Fleiss' κ | Krippendorff ordinal α | `Pa` | prevalence | ≥3 verdicts |
+|---|---|---|---|---|---|
+| five families (reference) | 0.8815 | 0.8557 | 0.9551 | 0.254 | 295/300 |
+| **three API families** | **0.8747** | **0.8380** | 0.9512 | 0.265 | 287/300 |
+
+Both coefficients clear the **0.75** floor with no caveat, the loss is **0.7 pp on κ** and 1.8 pp on α, and prevalence stays inside `[0.20, 0.80]` so the mechanical rule selects the *same* coefficient — the two rows are directly comparable rather than merely adjacent.
+
+**Declared divergence, with its direction.** Majority verdicts differ on **4 of 287 comparable episodes (1.39%)**, and all four move the same way: the pattern is `[S0,S0,S0,S2,S2]`, where the CLI-reached panelists sit at S0 and removing them turns a 2-of-5 minority into a 2-of-3 majority. The reduced panel therefore finds *slightly more* failures, concentrated in genuinely split borderline episodes. This is reported as a systematic, directional, measured effect — it is what the leave-one-family-out analysis exists to expose, and it is not argued away.
+
+**Two pre-existing defects this closes at no cost.** (i) §4.1 already conceded that the two CLI panelists are **not reproducible by version, only by recorded output**; an API-only panel is reproducible by model identifier, so the live study's instrument becomes fully re-instantiable. (ii) **Parity dies at the source** — three is odd and has no quota, so the operational lock above ("finalize only after every panelist returns") becomes trivially satisfiable instead of requiring ~10 quota windows per batch.
+
+**What gets worse, stated plainly.** With exactly three panelists a **single abstention** drops an episode below the 3-verdict floor: measured, 8 of 300 (2.67%) on the calibration set, inside the 10% ceiling but fragile — one provider outage or a rise in abstention rate would breach it. Mitigation, not adopted here because it needs a credential that does not exist yet: seat a fourth API family.
+
+**Consequence for the pilot.** The pilot exists to size a study whose measuring instrument is now the three-family panel, so the pilot's `r̂`/`p̂0`/`ICC` are computed with **that same panel**, not with the five-family panel — otherwise the sizing inputs and the study's own measurements would come from different instruments. The five-family verdicts remain the reference for reliability and for the leave-one-family-out analysis. The calibration set and `τ = S1` are unaffected: both were established on five families and stay so.
+
+**The calibration panel does not change.** Five families adjudicated the calibration set, that is what τ and the reliability coefficients rest on, and this lock changes only the panel that adjudicates the *live study*.
 
 **Exactly-once discipline.** These definitions and `sizing.py` are frozen now, before any of `r̂`, `p̂0` or `ICC` has been computed on real data. The pilot produces those three numbers and nothing else; `f` consumes them once.
 
