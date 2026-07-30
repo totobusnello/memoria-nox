@@ -11,7 +11,8 @@ DEFINICOES (travadas em PREREG-DRAFT.md §3, "Pilot metric definitions")
 ----------------------------------------------------------------------
 Epoch      24h, boundary 06:00 BRT = 09:00 UTC.
 Washout    primeiras 2h de cada epoch, excluidas da analise.
-Failure    episodio com severidade mediana do painel >= tau (S1).
+Failure    MAIORIA ESTRITA do painel em `failure` (>50% dos vereditos
+           substantivos). Corrigido 2026-07-29 — ver a nota abaixo.
 Oportunidade
            acao `a` executada pos-washout tal que existe failure episode
            `a_past` com sig_primary(a_past) == sig_primary(a) escrito
@@ -42,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import hashlib
 import json
 import statistics
 import sys
@@ -70,10 +72,35 @@ def epoch_de(t: datetime) -> tuple[datetime, float]:
 
 
 def carregar_verdicts(p: Path) -> dict[str, str]:
-    """episode_id -> 'failure' | 'not_failure', pela MEDIANA do painel.
+    """episode_id -> 'failure' | 'not_failure', por MAIORIA ESTRITA.
 
-    Abstencao conta como ausente (§4.1); episodio com < 3 vereditos
-    substantivos fica de fora e sera tratado como `unknown`.
+    CORRECAO 2026-07-29 — a versao anterior usava `v[len(v)//2]`, a mediana
+    SUPERIOR, para as duas condicoes. Duas coisas estavam erradas nisso.
+
+    1. O §4.1 do pre-registro trava, literalmente: *"condition (ii) is the
+       binary verdict. Severity governs condition (i) only."* Severidade
+       decide quais episodios PASSADOS semeiam um repeat; o desfecho do
+       episodio corrente e o veredito binario por **maioria simples**.
+    2. Com contagem PAR a mediana superior nao e a maioria. Para 4 vereditos
+       ordenados v0<=v1<=v2<=v3, `v[2] >= tau` significa 2 de 4 acima do
+       corte — um EMPATE resolvido a favor de `failure`. Maioria simples
+       exige 3 de 4. A mediana INFERIOR (`v[1]`) e que coincide com ela.
+
+    Por que isso nao e detalhe: 987 dos 1.140 episodios da peca 3 tem
+    exatamente 4 vereditos substantivos (moonshot parou em 88/1.140 por
+    cota). Contagem par e a REGRA, nao a excecao — e o pre-registro so
+    afirma ausencia de empate por assumir painel impar ("odd panel => no
+    binary tie"), premissa que abstencao e falha de cota derrubam.
+    Medido: as duas leituras fieis (maioria estrita; empate => inadjudicavel)
+    dao K = 64; a mediana superior da 53. Swing de 20% num parametro que o
+    pre-registro nunca especificou.
+
+    Empate exato (n/2 falhas, so possivel com n par) resolve para
+    `not_failure` — um empate nao e maioria. Conservador: subestima falhas,
+    logo subestima lambda_0, logo INFLA K. Erra para estudo mais longo.
+
+    Abstencao conta como ausente (§4.1); < 3 vereditos substantivos vira
+    `unknown`.
     """
     por_ep: dict[str, list[int]] = collections.defaultdict(list)
     for linha in p.read_text().splitlines():
@@ -91,9 +118,8 @@ def carregar_verdicts(p: Path) -> dict[str, str]:
     for ep, v in por_ep.items():
         if len(v) < 3:
             continue
-        v.sort()
-        mediana = v[len(v) // 2]
-        out[ep] = "failure" if mediana >= corte else "not_failure"
+        n_falha = sum(1 for x in v if x >= corte)
+        out[ep] = "failure" if n_falha * 2 > len(v) else "not_failure"
     return out
 
 
@@ -106,6 +132,7 @@ class Episodio:
     epoch: datetime
     offset_h: float
     estado: str  # failure | not_failure | unknown
+    err: bool    # is_error — estratificador do desenho (§4 de PILOT-PROJECTION.md)
 
 
 def carregar_episodios(p: Path, verdicts: dict[str, str]) -> list[Episodio]:
@@ -122,6 +149,7 @@ def carregar_episodios(p: Path, verdicts: dict[str, str]) -> list[Episodio]:
             id=d["episode_id"], ts=t, sessao=d["session"],
             sig=d["sig_primary"], epoch=e, offset_h=off,
             estado=verdicts.get(d["episode_id"], "unknown"),
+            err=bool(d.get("is_error")),
         ))
     eps.sort(key=lambda x: x.ts)
     return eps
@@ -169,6 +197,11 @@ def main() -> int:
     ap.add_argument("--verdicts", required=True, help="JSONL do run_panel")
     ap.add_argument("--min-epochs", type=int, default=0,
                     help="recusa rodar com menos epochs analisaveis que isto (gate do §3)")
+    ap.add_argument("--seed-b", default="",
+                    help="SEED_B do desenho estratificado (§4 de PILOT-PROJECTION.md); "
+                         "sem ela o script roda em modo censo, sem pesos")
+    ap.add_argument("--n-b", type=int, default=800,
+                    help="tamanho da amostra do estrato nao-is_error (default 800)")
     ap.add_argument("--json", action="store_true", help="saida so em JSON")
     a = ap.parse_args()
 
@@ -198,16 +231,43 @@ def main() -> int:
     oport_unknown = 0
     analisaveis = [e for e in eps if e.offset_h >= WASHOUT_H]
 
+    # ── Desenho amostral ────────────────────────────────────────────────────
+    # Sem `--seed-b`, o script assume CENSO: todo episodio pesa 1 e episodios
+    # de desfecho desconhecido entram como oportunidade — o que faz de
+    # `p0_hat` um PISO, e o aviso no fim diz isso.
+    #
+    # Com `--seed-b`, ele reproduz o desenho estratificado declarado no §4 de
+    # PILOT-PROJECTION.md (censo do estrato is_error + amostra uniforme de
+    # `--n-b` do complemento, ordenada por hash) e aplica pesos de
+    # Horvitz-Thompson. Sem esses pesos o estimador subconta os repeats do
+    # estrato amostrado por um fator N_B/n_B — aqui, 5.2x — e `lambda_0` sai
+    # deflacionado. Nao e conservador nem otimista por acaso: e simplesmente
+    # o estimador errado para o desenho.
+    if a.seed_b:
+        estrato_a = [e for e in analisaveis if e.err]
+        resto = [e for e in analisaveis if not e.err]
+        chave = lambda e: hashlib.sha256(
+            a.seed_b.encode("ascii") + b"|" + e.id.encode()).hexdigest()
+        estrato_b = sorted(resto, key=chave)[: a.n_b]
+        peso = {e.id: 1.0 for e in estrato_a}
+        peso.update({e.id: len(resto) / len(estrato_b) for e in estrato_b})
+        analisaveis = estrato_a + estrato_b
+    else:
+        peso = {e.id: 1.0 for e in analisaveis}
+
     for e in analisaveis:
         t0 = primeiro_failure.get(e.sig)
         if t0 is None or t0 > e.epoch - limiar:
             continue                      # condicao (i) nao satisfeita
-        oport_por_epoch[e.epoch] += 1
+        if a.seed_b and e.estado == "unknown":
+            oport_unknown += 1            # fora do estimador: peso nao definido
+            continue
+        oport_por_epoch[e.epoch] += peso[e.id]
         if e.estado == "failure":
-            repeat_por_epoch[e.epoch] += 1
-            repeat_por_sessao[(e.epoch, e.sessao)] += 1
+            repeat_por_epoch[e.epoch] += peso[e.id]
+            repeat_por_sessao[(e.epoch, e.sessao)] += peso[e.id]
         elif e.estado == "unknown":
-            oport_unknown += 1            # desfecho nao adjudicado
+            oport_unknown += 1            # desfecho nao adjudicado (modo censo)
 
     epochs = sorted(ep for ep in horas if horas[ep] > 0)
     if a.min_epochs and len(epochs) < a.min_epochs:
@@ -245,6 +305,8 @@ def main() -> int:
             "oportunidades_com_desfecho_unknown": oport_unknown,
         },
         "assinaturas_com_failure_conhecido": len(primeiro_failure),
+        "desenho": "estratificado-HT" if a.seed_b else "censo",
+        "regra_desfecho": "maioria estrita (>50%); empate => not_failure",
         "tau": TAU,
     }
 
