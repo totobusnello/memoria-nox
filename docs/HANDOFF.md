@@ -6,7 +6,29 @@
 
 ## 🟢 Estado atual (2026-07-29 noite) — peça 3 FECHADA, `p̂0` deixou de ser piso, e a projeção de K errou por 2-3×
 
-> ▶️ **Próxima ação: esperar o backlog do moonshot fechar** (1.050 chamadas, ~2 dias, rodando em `tmux -L peca3`, sessão `moon`). Depois dele: recalcular `r̂`/`p̂0`/`icc` e só então rodar `f`.
+> ▶️ **Próxima ação: decidir o volume de adjudicação do ESTUDO VIVO.** É o único item aberto que não espera dado, e ele bloqueia o `f` — ver "O gap que o ICC expôs" abaixo.
+>
+> ⏳ Em paralelo, sem intervenção: backlog do moonshot (1.050 chamadas, `tmux -L peca3`, sessão `moon`) e acumulação de epochs (1/dia, de graça).
+
+### ICC sob pesos amostrais — resolvido, e a resposta é um limite, não um número
+
+Eu ia escolher entre HT ponderado (0,0228) e sem peso (0,0351). **Os dois estavam dentro do ruído.** Bootstrap por epoch em 11 clusters:
+
+| variante | ICC | DE (m̄=70,4) | **IC95% do DE** |
+|---|---|---|---|
+| HT ponderado | 0,0806 | 6,60 | **[1,00 · 14,66]** |
+| sem peso | 0,1363 | 10,47 | **[1,00 · 18,44]** |
+| **estrato A só (censo)** | **0,0447** | **4,10** | **[1,00 · 7,77]** |
+
+Os três IC contêm **zero** e cada ponto cai dentro do IC dos outros. Causa: **11 clusters não estimam ICC** (precisa 30–50; SE analítico = 0,025, batendo com o bootstrap), e **m̄ = 70,4 amplifica** — ±0,025 em ρ vira ±1,7 no DE. Projetando: 30 epochs → IC ~[0,016 · 0,074]; 50 epochs → ~[0,023 · 0,067]. **O DE fica incerto por fator ~2 mesmo com 50 epochs** — irredutível neste desenho.
+
+**Travado (aprovado 29/07):** (a) estimador = **estrato censado**, por princípio — único livre de variância de peso e carrega **229 de ~270 repeats (85%)**; (b) dimensionar no **limite superior de 95%**, porque erro de sizing é assimétrico (subdimensionar invalida, sobredimensionar custa calendário); (c) **acumular epochs antes do `f`** — chegam de graça, e gastar a avaliação única sobre ruído é desperdício irreversível; (d) publicar a **curva de poder ao longo do IC do ICC**, que deixa de ser formalidade.
+
+⚠️ **(c) supersede o portão de 09/08.** Aquele vinha do baseline do abort; agora é o *menor* dos dois prazos.
+
+### O gap que o ICC expôs — e ele realimenta o DE
+
+O pré-registro **não fixa o volume de adjudicação do estudo vivo**. Com K≈48/braço: 96 epochs × ~396 episódios ≈ **38.000 episódios**. A Moonshot entra por CLI com cota de ~100 chamadas/janela ⇒ censo = ~380 janelas, **inviável**. Então o estudo vivo tem que **subamostrar ou trocar o painel** — e subamostragem adiciona variância que o DE precisa carregar. **Decidir antes do `f`, não durante.**
 >
 > ✅ **Regra de paridade TRAVADA** no §4.1 — era o bloqueador. Três camadas: trava operacional (cota ≠ abstenção) · maioria estrita com empate ⇒ `not_failure` · divulgação obrigatória com *empate ⇒ falha* como sensibilidade.
 

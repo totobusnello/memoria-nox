@@ -144,6 +144,30 @@ Named in v0.3, operationalised here. Each is stated so that two people writing t
 
 **⚠️ Snapshot composition is reconstructed by timestamp, not read from disk.** Condition (i) asks what the snapshot *contained*, but `pruneEpochs(keep=3)` retains only the three most recent snapshot databases — the historical ones are gone by design, with only their manifests kept. The replay therefore reconstructs membership as *"chunk existed and was written before the epoch boundary"*, using `created_at`. This is an **approximation, and it is declared rather than hidden**: it can diverge from the physical snapshot wherever a chunk was deleted or rewritten between its creation and the boundary. The measured corpus divergence per 24 h epoch is **0.144%** (T7), which bounds the error but does not eliminate it. **Sensitivity:** the three retained snapshots are replayed both ways — reconstructed and read from disk — and the two `r̂` values reported side by side. If they diverge by more than the T7 bound, the approximation is reported as a limitation on `N_epochs` rather than absorbed silently.
 
+#### `ICC` under a stratified adjudication sample — LOCKED 2026-07-30, and the lock is mostly an admission
+
+Piece 3 adjudicated a **stratified** sample (census of the `is_error` stratum + a uniform draw of 800 from the complement, `PILOT-PROJECTION.md` §4), which raises a question the definition above does not answer: should the per-session repeat densities that feed the ANOVA be **Horvitz-Thompson weighted**? Weighting corrects the stratum mixture but injects variance that is an artifact of the design; not weighting leaves the mixture distorted, because the `is_error` stratum is 9% of the corpus and 34% of the adjudicated sample. Measured on 11 contributing epochs:
+
+| variant | ICC | `DE` at `m̄` = 70.4 | **95% bootstrap CI on `DE`** |
+|---|---|---|---|
+| HT-weighted, full design | 0.0806 | 6.60 | **[1.00, 14.66]** |
+| unweighted, full design | 0.1363 | 10.47 | **[1.00, 18.44]** |
+| censused stratum only | 0.0447 | 4.10 | **[1.00, 7.77]** |
+
+**All three intervals contain zero, and each point estimate lies inside the others' intervals.** The estimator choice is inside the sampling noise — the question as posed is not the binding one. Two reasons, and both are structural rather than fixable by computation:
+
+1. **Eleven clusters cannot estimate an ICC.** ICC precision requires on the order of 30–50 clusters. The analytic standard error for these data is 0.025, matching the bootstrap.
+2. **`m̄` = 70.4 amplifies whatever error remains.** In `DE = 1 + (m̄ − 1)·ICC`, a ±0.025 error in the ICC is a ±1.7 error in `DE`. Projecting the analytic SE forward: 30 epochs give an ICC CI of roughly [0.016, 0.074] and 50 epochs [0.023, 0.067] — better, but **`DE` stays uncertain by about a factor of two even at 50 epochs.** This is irreducible under this design, not a matter of waiting long enough.
+
+Four decisions, locked:
+
+- **(a) Estimator: the censused stratum, unweighted.** On principle, not on the number it yields — it is the only variant free of weight-induced variance, and it carries **229 of ~270 repeats (85%)**, so the clustering of the repeat process is substantially its clustering. The HT-weighted and fully-unweighted variants are reported alongside, never as the primary.
+- **(b) Size on the upper 95% confidence limit of the ICC, not the point estimate.** Sizing error is asymmetric: under-sizing invalidates a completed study, over-sizing costs calendar. Standard trial-design practice, and here it is the difference between `DE` = 4.10 and 7.77 — not a refinement.
+- **(c) Accumulate epochs before evaluating `f`.** Epochs arrive at one per day at no cost. Running the single permitted evaluation of `f` on an ICC the data cannot support would spend the exactly-once discipline on noise. This supersedes the earlier "not before 2026-08-09" gate, which was set by the abort baseline and is now the *earlier* of the two constraints.
+- **(d) Report the power curve across the ICC confidence interval,** not only at the point estimate. §3 already commits to publishing the curve rather than a single number; under an ICC this uncertain, the curve stops being a formality and becomes the honest result.
+
+⚠️ **An open gap this exposed, and it feeds back into `DE`.** This registration does not fix the **adjudication volume of the live study**. At `K` ≈ 48 per arm the study spans 96 epochs × ~396 episodes ≈ **38,000 episodes**; the Moonshot panelist is reached through a CLI whose quota admits ~100 calls per window, so a census is roughly 380 quota windows and is not feasible. The live study will therefore have to subsample or re-seat the panel — and subsampling adds variance that `DE` must carry. **This must be decided before `f` is evaluated, not discovered during.**
+
 **Exactly-once discipline.** These definitions and `sizing.py` are frozen now, before any of `r̂`, `p̂0` or `ICC` has been computed on real data. The pilot produces those three numbers and nothing else; `f` consumes them once.
 
 **Treatment dose — a design ceiling, measured (P2S1 T6, 2026-07-26).** Power is usually discussed as if the treatment contrast were whatever the mechanism happens to deliver. Here it is **bounded by the brief's architecture**, and the bound was measured before locking `N`.
