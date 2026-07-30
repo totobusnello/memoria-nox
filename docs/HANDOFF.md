@@ -6,7 +6,30 @@
 
 ## 🟢 Estado atual (2026-07-29 noite) — peça 3 FECHADA, `p̂0` deixou de ser piso, e a projeção de K errou por 2-3×
 
-> ▶️ **Próxima ação: fechar a regra de contagem PAR no pré-registro.** É um `[TO LOCK]` novo, descoberto rodando a peça 3, e ele **bloqueia** a rodada oficial de `f` — sem ele o tamanho do estudo é indeterminado em 20%.
+> ▶️ **Próxima ação: esperar o backlog do moonshot fechar** (1.050 chamadas, ~2 dias, rodando em `tmux -L peca3`, sessão `moon`). Depois dele: recalcular `r̂`/`p̂0`/`icc` e só então rodar `f`.
+>
+> ✅ **Regra de paridade TRAVADA** no §4.1 — era o bloqueador. Três camadas: trava operacional (cota ≠ abstenção) · maioria estrita com empate ⇒ `not_failure` · divulgação obrigatória com *empate ⇒ falha* como sensibilidade.
+
+### A regra de paridade, e por que a trava operacional é 90% da solução
+
+| | paridade | empate exato |
+|---|---|---|
+| Calibração — 5/5 completos | 8,8% | **0,3%** (1 de 295) |
+| Peça 3 — moonshot 88/1.140 | 88,6% | **1,2%** (13) |
+
+Rodar o painel até o fim derruba paridade **10×**. O empate era sintoma de falha operacional, não propriedade do painel — então a trava principal não é estatística: **um episódio só é finalizado quando todo painelista da allowlist devolveu veredito ou abstenção, e exaustão de cota não é abstenção**. `run_panel.py` agora emite `status: "quota"` separado de `"missing"` (`dd86856`), o que torna a trava verificável por máquina em vez de prometida.
+
+Para o resíduo de 0,3%: **maioria estrita, empate ⇒ `not_failure`**. Subestima falhas ⇒ deflaciona `λ0` ⇒ **infla K**: erra para estudo mais longo, nunca underpowered. Alternativas recusadas por princípio, não pelo número — *empate ⇒ falha* é anti-conservador; *empate ⇒ inadjudicável* condiciona ausência de dado à **discordância do painel**, variável pós-randomização, atacando a premissa de não-diferencialidade; *dropar para ímpar* tem resposta dependente de qual painelista sai.
+
+⚠️ **O mecanismo que generaliza:** só **14 empates** em 1.013 episódios pares (1,4%), mas 11 caíram no estrato de peso **5,204** — 1,4% dos casos moveu o estudo em 20%. **Em desenho ponderado, borda se julga por frequência × peso, nunca por frequência.**
+
+### Backlog do moonshot — rodando
+
+1.050 episódios, chunks de 150, **sonda de 2 chamadas** antes de cada chunk (não queimar 1.050 respostas 403 para descobrir que a cota fechou). Idempotente: recalcula o restante a cada volta do que já gravou, então pausa do Mac não perde nada. Log em `~/.paper2-verdicts/moonshot-loop.log`.
+
+⚠️ **Defeito que peguei antes de deixar rodar:** o loop era `for ciclo in $(seq 1 40)`. Com a cota abrindo a cada ~5h e sonos de 30 min são ~10 iterações dormindo por abertura — 40 iterações cobririam ~4 aberturas, metade do backlog, e o loop **encerraria com código de sucesso**. Trocado por deadline de parede de 4 dias.
+
+⚠️ **Os números da peça 3 são PROVISÓRIOS até o backlog fechar.** Completar o painel não só remove empates — pode virar classificações (2-de-4 vira 2-de-5 ou 3-de-5).
 
 ### A adjudicação rodou: 1.140 episódios, 5.700 chamadas, 88 min
 
