@@ -38,6 +38,9 @@ claude-credentials.json
 # VPS IP atual — local-only, muda com Hostinger floating-IP rebalance
 .vps-current-ip
 
+# Hostname do nó da VPS no tailnet — local-only, repo é público
+.vps-tailscale-host
+
 # Build artifacts — generated from src/; never commit
 dist/
 
