@@ -47,6 +47,12 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 IP_FILE="$REPO_ROOT/.vps-current-ip"
+# Hostname do nó da VPS no tailnet. Este repo é público, então o nome real não
+# vive no script: vem de env VPS_TS_HOST ou deste arquivo (gitignored, igual
+# .vps-current-ip). Sem ele, o resolvedor Tailscale abaixo não casa nada e o
+# script cai no IP público + ping ICMP — o caminho frágil que gerava falsos
+# "unreachable" pós-wake do Mac (lição 2026-06-04, reincidiu após o scrub).
+TS_HOST_FILE="$REPO_ROOT/.vps-tailscale-host"
 
 # VPS health URL resolution strategy (in order):
 #   1. env NOX_HEALTH_URL (user override)
@@ -148,20 +154,35 @@ else
   # via SSH (curl localhost dentro da VPS); Tailscale-direct não serve (bind local).
   # Resolver IP pro SSH: --ip > Tailscale IP (estável, não swapa) > env VPS_IP > .vps-current-ip.
   if [[ -z "$VPS_IP" ]]; then
+    # Nome do nó no tailnet: env > arquivo local > placeholders (repo público).
+    _ts_host="$(printenv VPS_TS_HOST 2>/dev/null || true)"
+    if [[ -z "$_ts_host" && -f "$TS_HOST_FILE" ]]; then
+      _ts_host="$(tr -d '[:space:]' < "$TS_HOST_FILE")"
+    fi
+    [[ -z "$_ts_host" ]] && _ts_host="your-vps-host|nox-vps"
+
     _ts_ip=""
     if command -v tailscale >/dev/null 2>&1; then
-      _ts_ip="$(tailscale status 2>/dev/null | awk '/your-vps-host|nox-vps/{print $1; exit}')"
+      _ts_ip="$(tailscale status 2>/dev/null | awk -v pat="$_ts_host" '$0 ~ pat {print $1; exit}')"
     fi
     _env_ip="$(printenv VPS_IP 2>/dev/null || true)"
     if [[ -n "$_ts_ip" ]]; then
       VPS_IP="$_ts_ip"
       VIA_TAILSCALE=1
-      [[ "$QUIET" -eq 0 ]] && info "Usando Tailscale IP $VPS_IP (estável)"
+      [[ "$QUIET" -eq 0 ]] && info "Usando Tailscale IP $VPS_IP (estável, nó '$_ts_host')"
     elif [[ -n "$_env_ip" ]]; then
       VPS_IP="$_env_ip"
     elif [[ -f "$IP_FILE" ]]; then
       VPS_IP="$(tr -d '[:space:]' < "$IP_FILE")"
     fi
+  fi
+
+  # IP do tailnet (CGNAT 100.64.0.0/10) chega aqui por --ip ou env VPS_IP também.
+  # Marcar como Tailscale pula o ping ICMP: o tailnet não garante ICMP e o SSH+API
+  # já cobrem o check — era esse ping que disparava o falso positivo.
+  if [[ "$VIA_TAILSCALE" -eq 0 && "$VPS_IP" =~ ^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\. ]]; then
+    VIA_TAILSCALE=1
+    [[ "$QUIET" -eq 0 ]] && info "IP $VPS_IP é do tailnet — pulando ping ICMP"
   fi
 
   if [[ -z "$VPS_IP" ]]; then
