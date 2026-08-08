@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-wave-j",
   "baseline_timestamp": "2026-05-18T00:00:00.000Z",
-  "run_timestamp": "2026-07-08T05:40:17.150Z",
+  "run_timestamp": "2026-08-08T04:02:41.352Z",
   "host": "macos-m-series",
   "node_version": "v22.23.1",
   "drift_threshold_pct": 25,
@@ -134,8 +134,8 @@
     {
       "metric_key": "A2.export.plain.500chunks_3072d.archive_mb",
       "baseline": 5.4,
-      "measured": 5.35794734954834,
-      "drift_pct": -0.7787527861418613,
+      "measured": 5.357946395874023,
+      "drift_pct": -0.7787704467773503,
       "status": "PASS",
       "source_pr": 41,
       "unit": "MB"
@@ -173,8 +173,8 @@
     {
       "metric_key": "A2.export.encrypted.500chunks_3072d.archive_mb",
       "baseline": 6.3,
-      "measured": 6.303552627563477,
-      "drift_pct": 0.056390913705980004,
+      "measured": 6.303545951843262,
+      "drift_pct": 0.05628494989304598,
       "status": "PASS",
       "source_pr": 41,
       "unit": "MB"
@@ -336,8 +336,8 @@
       "notes": "28 metrics across 7 subsystems: pipeline, search, answer(P1), provider(A3), hooks(P2), viewer(P5), system+runtime."
     }
   ],
-  "nightly_date": "2026-07-08",
-  "github_run_id": "28920293071",
-  "github_sha": "cfd9a9097c69a2518b6e62c915cf179b0a34333d",
+  "nightly_date": "2026-08-08",
+  "github_run_id": "31238533563",
+  "github_sha": "217be5d2009d285399c2f4b76226f944b844726b",
   "nightly_threshold_pct": 25
 }
