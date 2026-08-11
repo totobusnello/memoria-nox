@@ -51,6 +51,13 @@ PAINEL = [
      lambda: _ler("~/.config/glm/token")),
     ("xai",      "xAI",      "grok-4.5",    "anthropic", "https://api.x.ai",
      lambda: _ler("~/.config/grok/token")),
+    # Adicionado 2026-08-11 para o desenho reduzido de 3 (§9 extensao de
+    # janela). Mesma familia de protocolo do zhipu/xai (Anthropic-compatible);
+    # credencial ja existia (~/Claude/scripts/deepseek), so nunca tinha entrado
+    # no painel de adjudicacao. Nunca medida contra as outras nesta funcao ate
+    # agora — ver nota de kappa/alpha no chamador.
+    ("deepseek", "DeepSeek", "deepseek-v4-pro", "anthropic", "https://api.deepseek.com/anthropic",
+     lambda: _ler("~/.config/deepseek/token")),
     # Sem API key medida: entram pela conexao CLI, que carrega a credencial
     # de assinatura do titular. Custa muito mais token (o CLI sobe um agent
     # loop por chamada — medido: ~22k tokens de overhead num prompt trivial
@@ -60,6 +67,17 @@ PAINEL = [
     ("google",   "Google",   "gemini-2.5-pro", "gemini",   "https://generativelanguage.googleapis.com/v1beta",
      lambda: os.environ["GEMINI_API_KEY"]),
 ]
+
+# DeepSeek intercala um bloco "thinking" antes do "text" na resposta Anthropic-
+# compatible (confirmado por chamada crua em 2026-08-11: prompt trivial gastou
+# 57 tokens de saida so no "we are asked..."). Com max_tokens=300 (o piso que
+# zhipu/xai/openai/google atendem sem missing — 1140x5=5700 bate exato na
+# peca3), o thinking de um prompt real (mais longo que o smoke test) pode
+# consumir o teto inteiro e devolver content=[] so com o bloco thinking — a
+# MESMA armadilha do Gemini ja documentada (200 OK com conteudo vazio). Achado
+# na integracao: 1 smoke test de 2 ja deu "missing" com detail="" (resposta
+# vazia, nao erro). Fix: teto maior SO para quem precisa.
+MAX_TOKENS_OVERRIDE = {"deepseek": 1500}
 
 # ⚠️ ANTHROPIC ficou FORA por desenho, nao por credencial: os agentes julgados
 # rodam em `claude-cli`, entao Anthropic no painel seria a familia julgando a
@@ -119,18 +137,19 @@ def _post(url: str, headers: dict, corpo: dict, timeout: int) -> dict:
         return json.loads(r.read())
 
 
-def chamar(protocolo: str, base: str, modelo: str, chave: str, texto: str, timeout: int) -> str:
+def chamar(protocolo: str, base: str, modelo: str, chave: str, texto: str, timeout: int,
+           max_tokens: int = 300) -> str:
     """Devolve o texto cru da resposta. Temperatura 0 onde o provedor aceita."""
     if protocolo == "anthropic":
         d = _post(f"{base}/v1/messages",
                   {"x-api-key": chave, "anthropic-version": "2023-06-01"},
-                  {"model": modelo, "max_tokens": 300, "temperature": 0,
+                  {"model": modelo, "max_tokens": max_tokens, "temperature": 0,
                    "messages": [{"role": "user", "content": texto}]}, timeout)
         return "".join(b.get("text", "") for b in d.get("content", []))
     if protocolo == "openai":
         d = _post(f"{base}/chat/completions",
                   {"Authorization": f"Bearer {chave}"},
-                  {"model": modelo, "max_tokens": 300, "temperature": 0,
+                  {"model": modelo, "max_tokens": max_tokens, "temperature": 0,
                    "messages": [{"role": "user", "content": texto}]}, timeout)
         return d["choices"][0]["message"]["content"] or ""
     if protocolo == "gemini":
@@ -182,10 +201,11 @@ def julgar(pan, ep, prompt, timeout) -> dict:
     base_reg = {"episode_id": ep["episode_id"], "panelist": pid,
                 "family": familia, "model": modelo}
     ultimo = ""
+    max_tok = MAX_TOKENS_OVERRIDE.get(pid, 300)
     for tentativa in (1, 2):          # §4.1: um reenvio, depois conta como ausente
         try:
             ultimo = chamar(proto, base, modelo,
-                            get_chave() if get_chave else "", texto, timeout)
+                            get_chave() if get_chave else "", texto, timeout, max_tok)
             p = parsear(ultimo)
             if p:
                 return {**base_reg, **p, "attempts": tentativa, "status": "ok"}
