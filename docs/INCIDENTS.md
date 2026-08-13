@@ -2,6 +2,37 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-08-13 (tarde) — corrida de adjudicação: dois processos na mesma fila, 40 episódios adjudicados em duplicata
+
+### Severity: yellow — 40 chamadas desperdiçadas (2,7%), zero perda de dado, mas contaminação a corrigir antes do replay
+
+### TL;DR
+O loop automático da extensão Moonshot (`extensao-moonshot-loop.sh`) estava em `sleep` de cooldown. Assumindo que continuaria dormindo, disparei ciclos manuais em paralelo. O loop **acordou no meio** (ciclo 29, gravado 12:34Z) e leu o mesmo `extensao-moonshot-ainda-restante.jsonl` que o ciclo manual `m2` estava processando (gravado 12:36Z). Resultado: **40 episódios adjudicados duas vezes pelo mesmo painelista**.
+
+### Root cause
+`extensao-moonshot-ainda-restante.jsonl` é estado compartilhado **sem lock**. O padrão é read-modify-write: cada processo recalcula o restante, escreve o arquivo, e consome os N primeiros. Dois processos que leem antes de qualquer um gravar consomem o mesmo prefixo da fila. O script nunca previu concorrência porque só existia um consumidor.
+
+Contribuiu: eu inferi "está dormindo" de um `ps` que mostrava `sleep 10800`, e tratei isso como garantia de que continuaria dormindo. Um `sleep` observado é um estado, não um contrato.
+
+### O que funcionou
+- **Namespace separado** (`cycle-m*` vs `cycle-29`): nenhum arquivo foi sobrescrito. O bug de 12/08, que custou ~110 vereditos, não se repetiu.
+- **Sonda de 2 antes de cada ciclo**: quando a cota fechou às 13:37Z, a sonda voltou `{'quota': 2}` e a sequência abortou **antes** de queimar os 40 seguintes.
+- **Idempotência por `episode_id`**: o `restante()` deduplica, então a duplicata não corrompeu a contabilidade do backlog.
+
+### Impacto e correção
+- 40 de 1.482 adjudicações (2,7%) desperdiçadas.
+- ⚠️ **Contaminação real:** 40 episódios com dois vereditos do mesmo painelista. Se a consolidação contar vereditos em vez de pares `(episode_id, panelist)` únicos, viram voto duplo do `moonshot`. **Verificar o pipeline de replay antes de usar.**
+- Regra de desduplicação (independente de conteúdo): manter a adjudicação cronologicamente anterior. Ver `paper2-interventional/STABILITY-TEST.md` §6, incluindo a declaração de que a regra foi escrita após inspeção dos dados.
+
+### Achado inesperado
+Os 40 pares dão a única medida de **estabilidade intra-painelista** que o projeto tem: mesmo modelo, mesmo `prompt_sha256`, execuções independentes → **39 concordam, 1 diverge** (`failure` vs `abstain`). É a premissa que o κ do painel assume e nunca testou. n=40 e amostra contígua tornam o número não-publicável como está; o teste desenhado para convertê-lo em estimativa (n=100, sorteio semeado por beacon drand declarado antes de existir) está em `paper2-interventional/STABILITY-TEST.md`.
+
+### Prevenção
+- Loop automático parado às 13:39:59Z; daqui pra frente, **um consumidor por vez**.
+- Antes de reativar: lockfile (`flock`) em torno do read-modify-write do `ainda-restante.jsonl`, ou consumo por claim atômico em vez de prefixo de fila.
+
+Memória: `[[feedback_safety_probe_output_is_paid_work]]`.
+
 ## 2026-06-22 (manhã) — morning report 1 RED: órfão de vetor pós-`compact` (cascade trigger falhou em 1/854)
 
 **Severidade:** muito baixa (cosmético; zero impacto funcional, zero perda). **Detecção:** morning report → `🔴 vectorCoverage: 1 orphans (cascade trigger failed?)`; Toto reportou via screenshot de manhã.
