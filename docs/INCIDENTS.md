@@ -21,7 +21,7 @@ Contribuiu: eu inferi "está dormindo" de um `ps` que mostrava `sleep 10800`, e 
 
 ### Impacto e correção
 - 40 de 1.482 adjudicações (2,7%) desperdiçadas.
-- ⚠️ **Contaminação real:** 40 episódios com dois vereditos do mesmo painelista. Se a consolidação contar vereditos em vez de pares `(episode_id, panelist)` únicos, viram voto duplo do `moonshot`. **Verificar o pipeline de replay antes de usar.**
+- **Contaminação medida (mesmo dia):** o pipeline **não** dedupa — `pilot_replay.carregar_verdicts()` agrega por `episode_id` sem `panelist` na chave. Resultado sobre o corpus real: **39 episódios ficaram com painel PAR** (4 votos), e **0 vereditos consolidados mudaram**. Os pares concordavam, então o voto duplo reforçou o mesmo lado sem nunca gerar o empate 2–2 que a maioria estrita resolveria em silêncio para `not_failure`. ⚠️ Benigno **por acaso, não por desenho**: a premissa "painel ímpar, sem empate por construção" foi violada em 39 episódios e só não causou dano porque a estabilidade intra-painelista era alta ali. Correção (dedupe por `(episode_id, panelist)`, mantendo o cronologicamente anterior) segue necessária e está pendente de aprovação — patch no pipeline de análise de estudo pré-registrado não se aplica sem decisão explícita.
 - Regra de desduplicação (independente de conteúdo): manter a adjudicação cronologicamente anterior. Ver `paper2-interventional/STABILITY-TEST.md` §6, incluindo a declaração de que a regra foi escrita após inspeção dos dados.
 
 ### Achado inesperado

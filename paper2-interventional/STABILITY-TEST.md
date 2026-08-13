@@ -70,7 +70,29 @@ Independente do teste, o corpus tem 40 episódios com dois vereditos do mesmo pa
 
 ⚠️ **Declaração obrigatória:** esta regra foi escrita **depois** de eu ter visto que 39 dos 40 concordam e qual é o par divergente. A escolha é defensável por não depender do conteúdo, mas a cegueira não existe e isso fica registrado aqui em vez de ser omitido.
 
-**A verificar antes do replay:** se o pipeline de consolidação dedupa por `(episode_id, panelist)`. Se não dedupa, os 40 já estariam contaminando qualquer contagem de votos.
+### 6.1 Verificado — e medido (2026-08-13T19:2xZ)
+
+O pipeline **não dedupa**. `pilot_replay.carregar_verdicts()` agrega por `episode_id` apenas:
+
+```python
+por_ep[r["episode_id"]].append(NIVEIS.index(nivel))
+...
+out[ep] = "failure" if n_falha * 2 > len(v) else "not_failure"
+```
+
+Sem `panelist` na chave, a segunda adjudicação do `moonshot` entra como voto adicional. Medição sobre o corpus real (`extensao-pass1.jsonl` + todos os `extensao-moonshot-cycle-*.jsonl`, τ=S1):
+
+| | |
+|---|---|
+| Episódios com painelista repetido (após filtrar `abstain`) | **39** |
+| Desses, com painel **par** (4 votos em vez de 3) | **39** |
+| Vereditos consolidados **alterados** | **0** |
+
+**Zero mudanças** — porque os 39 pares concordavam, e o voto duplo apenas reforçou o mesmo lado. O empate 2–2, que a maioria estrita resolveria silenciosamente para `not_failure`, nunca chegou a ocorrer.
+
+⚠️ **Isto é resultado benigno por acidente, não por desenho.** A premissa de painel ímpar — "sem empate por construção" — foi violada em 39 episódios, e só não produziu dano porque a estabilidade intra-painelista era alta naqueles casos. É exatamente a classe de falha registrada em `[[feedback_by_construction_can_be_voided_by_ops_failure]]`: a garantia estrutural morre por falha operacional, e o harness decide em silêncio o que a spec não disse.
+
+**Correção necessária mesmo com impacto zero:** dedupe por `(episode_id, panelist)` mantendo o registro cronologicamente anterior. Restaura a imparidade e impede que a próxima colisão — que pode não ser benigna — passe sem ser notada. **Patch no `pilot_replay.py` pendente de aprovação**: mexer no pipeline de análise de um estudo pré-registrado não é alteração a se fazer sem decisão explícita, mesmo quando o efeito medido é nulo.
 
 ## 7. Proveniência
 
