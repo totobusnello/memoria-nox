@@ -263,6 +263,26 @@ Objetivo: UX competitiva com agentmemory + memanto, sem comprometer pilares Q+A.
 
 ---
 
+### S-series — derivada do survey TMLR (aberta 2026-08-13, GATED em análise)
+
+> **Origem:** Huang et al., *A Survey of Agent Memory in the Second Half*, TMLR 07/2026 (arXiv:2602.06052v4) — 218 papers, virou o mapa canônico da área. Ao cruzar a taxonomia (substrate × cognitive mechanism × subject) e as Tables 3/4 contra o nosso sistema, sobraram 5 lacunas. Análise completa: memória `[[project_agent_memory_survey_tmlr_2602_06052]]`.
+>
+> **Regra da série:** cada item entra como **investigação**, não como commitment. Nenhum vira sprint sem passar o seu próprio gate. Item que passa migra para o pilar de destino (Q/A/P) e sai daqui. Item que não passa vira linha no `DECISIONS.md` sob **NÃO FAZEMOS**, com a razão — a omissão passa a ser deliberada e registrada, que é o ponto.
+>
+> **Disciplina:** o estado atual descrito abaixo vem da documentação e da memória do projeto. **Verificar contra o código antes de qualquer implementação** — em particular S2 e S3, onde a afirmação "não temos" pode estar errada.
+
+| # | Item | O gate — o que precisa ser verdade pra valer | Destino se passar |
+|---|---|---|---|
+| **S1** | **False Memory Rate + Memory Integrity no KG** — métricas do HaluMem (Table 3): FMR = taxa de relações fabricadas; MI = cobertura da extração. Hoje o `kg-build` extrai via LLM **sem nenhuma medida de precisão**. O dreno de 17.9k→554 por decay com compounding foi achado por acidente, não por métrica (`docs/INCIDENTS.md#2026-07-25`). | FMR amostrado (n≥100 relações, adjudicação humana ou painel) dá taxa **acima de ~5%** — abaixo disso o custo de medir semanalmente não se paga. Medir **uma vez** custa pouco e decide. | Lab (número publicável) + A (trustworthy) |
+| **S2** | **Abstenção calibrada** (`AB` da Table 4; §9.4 trata *trustworthy memory* como objetivo de primeira classe). `/api/brief` e `/api/answer` hoje sempre respondem; um piso de confiança devolveria vazio em vez de completar com o resto do ranking. | Existe faixa de score onde o item retornado é **pior que nada** — mensurável no `brief_log` por follow-up rate. Sem essa evidência é preferência estética, não feature. | P (UX/confiança) |
+| **S3** | **Memória procedural** — nosso eixo mais fraco no mapa do survey. É onde os ganhos de workflow automation aparecem (AWM, ToolMem, Synapse: templates induzidos de trajetórias bem-sucedidas). Temos `crystallize` subutilizado e, parado, o insumo exato que esses trabalhos consomem: o **corpus de tool_use** (1.016 chamadas em 2 dias numa única conta). | O corpus tem **padrões recorrentes** de sequência de ferramentas — não só volume. Verificar por frequência de n-gramas de tool antes de construir qualquer coisa. ⚠️ Cuidado com colisão de escopo: esse mesmo corpus é insumo do Paper 2. | P + Lab (fecha circuito com Paper 2) |
+| **S4** | **Dedup como rotina, não faxina** — §9.3 e o artigo de memory engineering listam deduplicação entre as rotinas de manutenção **obrigatórias**. Temos **29,2% do corpus em texto duplicado**, medido, conhecido e nunca fechado. Deixou de ser débito e virou desvio de prática padrão da área. | Nenhum — este é o único da série que **não precisa de gate de valor**, só de gate de segurança: regra #6 (dry-run + snapshot atômico) e validação pós-op via `/api/health`. O valor já está medido. | A (higiene de corpus) |
+| **S5** | **Trust level por chunk + sanitização no write path** — §9.4 trata *memory poisoning* como risco de primeira classe. Temos `evidence_chunk_id` no KG, mas o watcher ingere de fontes heterogêneas sem nível de confiança. | Não é urgente; o gate é de **timing**, não de valor: adicionar coluna de trust depois custa migração de 94,9k chunks + rebuild. Decidir *antes* do próximo bump de schema, não isolado. | A (pilar Autonomy) |
+
+**Explicitamente fora da série (candidato a NÃO FAZEMOS):** memória paramétrica/latente e memory controller treinado por RL (§9.3 — MEM1, Mem-α). É para onde o survey aponta, e é onde recusamos ir: exige treino, mata o "roda local e barato" do pilar A, e o custo de pesquisa não cabe na capacity. Registrar no `DECISIONS.md` agora que a omissão ficou visível no mapa da área.
+
+---
+
 ## 7. GTM Phase 2 — Viral launch (CONDITIONAL)
 
 **Gate D43:** aberto 2026-05-18. Threshold ≥+15% nDCG@10 atendido (+18.8%). Execution gated em Q4 COMPARISON.md com nox-mem em cima ou empatando topo.
