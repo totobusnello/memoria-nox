@@ -285,8 +285,13 @@ def main() -> int:
 
     por_pan: dict[str, dict[str, int]] = {}
     for r in res:
-        d = por_pan.setdefault(r["panelist"], {"ok": 0, "missing": 0})
-        d[r["status"]] += 1
+        # `status` tambem pode ser "quota" (cota do provider fechada). Contar
+        # com chave fixa {"ok","missing"} estourava KeyError e derrubava o
+        # sumario DEPOIS de o arquivo ja ter sido gravado — o trabalho estava
+        # salvo, mas o processo saia com exit 1 e parecia falha total. Bloqueou
+        # a extensao em 2026-08-12 e de novo no teste de estabilidade em 08-14.
+        d = por_pan.setdefault(r["panelist"], {"ok": 0, "missing": 0, "quota": 0})
+        d[r["status"]] = d.get(r["status"], 0) + 1
     print(json.dumps({
         "prompt_sha256": phash, "chamadas": len(res),
         "pendentes_por_cota": sum(1 for r in res if r.get("status") == "quota"),
