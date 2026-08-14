@@ -265,6 +265,11 @@ def main() -> int:
     ap.add_argument("--seed-b", default="",
                     help="SEED_B do desenho estratificado (§4 de PILOT-PROJECTION.md); "
                          "sem ela o script roda em modo censo, sem pesos")
+    ap.add_argument("--estrato-b-ids", default="",
+                    help="arquivo com um episode_id por linha: a amostra ja sorteada "
+                         "do estrato B. Use quando o corpus une universos de seeds "
+                         "diferentes (ver comentario no corpo). Tem precedencia sobre "
+                         "--seed-b/--n-b; exige mesma TAXA de amostragem entre eles.")
     ap.add_argument("--n-b", type=int, default=800,
                     help="tamanho da amostra do estrato nao-is_error (default 800)")
     ap.add_argument("--json", action="store_true", help="saida so em JSON")
@@ -320,12 +325,62 @@ def main() -> int:
     # estrato amostrado por um fator N_B/n_B — aqui, 5.2x — e `lambda_0` sai
     # deflacionado. Nao e conservador nem otimista por acaso: e simplesmente
     # o estimador errado para o desenho.
-    if a.seed_b:
+    # ── Corpus com MAIS DE UMA seed (extensao 2, 2026-08-14) ────────────────
+    # O sorteio acima ordena TODO o `resto` por uma unica seed. Isso deixa de
+    # funcionar quando o corpus e a uniao de dois universos amostrados por
+    # seeds diferentes, cada uma declarada antes do seu proprio round:
+    # re-sortear a uniao produziria uma TERCEIRA amostra, que nenhuma das duas
+    # declaracoes cobre.
+    #
+    # `--estrato-b-ids` resolve isso pela unica via honesta: le a lista de
+    # sorteados de um arquivo, em vez de re-derivar. Cada ID da lista continua
+    # sendo derivavel da sua seed publica aplicada ao seu proprio universo —
+    # a auditoria por terceiro nao perde nada, so passa a ter dois passos.
+    #
+    # ⚠️ O ESTIMADOR NAO MUDA. O peso segue `len(resto)/len(estrato_b)`, e ele
+    # so permanece valido porque as duas extensoes usam a MESMA TAXA (19,2%):
+    # 1.576/8.194 = 5,199 e 122/635 = 5,205, uniao 1.698/8.829 = 5,200. Se uma
+    # extensao futura usar taxa diferente, este caminho passa a estar ERRADO e
+    # o codigo precisa de peso por estrato — nao de mais um arquivo de IDs.
+    estratificado = bool(a.estrato_b_ids or a.seed_b)
+    if a.estrato_b_ids:
+        ids = {l.strip() for l in Path(a.estrato_b_ids).read_text().splitlines() if l.strip()}
+        estrato_a = [e for e in analisaveis if e.err]
+        resto = [e for e in analisaveis if not e.err]
+        estrato_b = [e for e in resto if e.id in ids]
+        faltando = len(ids) - len(estrato_b)
+        if faltando:
+            print(f"aviso: {faltando} ids da amostra nao estao no universo/pos-washout",
+                  file=sys.stderr)
+        peso = {e.id: 1.0 for e in estrato_a}
+        peso.update({e.id: len(resto) / len(estrato_b) for e in estrato_b})
+        analisaveis = estrato_a + estrato_b
+    elif a.seed_b:
+        # CORRECAO 2026-08-14 — o sorteio roda sobre `eps` (universo BRUTO), nao
+        # sobre `analisaveis` (pos-washout). A versao anterior sorteava os `n_b`
+        # do complemento JA filtrado por washout, e isso estava errado por dois
+        # motivos que se somavam:
+        #
+        # 1. CONJUNTO ERRADO. O desenho declarado em EXTENSION-SEED-2026-08-11
+        #    §"Desenho" e "1.576 de 8.194" — 8.194 e o complemento no bruto, e e
+        #    sobre ele que a amostra foi de fato sorteada e adjudicada (99,3% de
+        #    reproducao). Sorteando pos-washout (6.675) o script escolhia OUTRO
+        #    conjunto de 1.576: apenas 1.259 deles tinham veredito, e os 317
+        #    restantes entravam como `unknown`. Medido: `unknown` cai de 232
+        #    para 44 com a correcao.
+        # 2. PESO ERRADO. `len(resto_pw)/n_b` = 6.675/1.576 = 4,235, contra o
+        #    peso HT de 5,2x que o proprio desenho declara como alvo. O estrato
+        #    B saia subcontado em ~20%.
+        #
+        # Efeito nos tres numeros do piloto (corpus da extensao 1):
+        #   r_hat  22,78 -> 27,86 | p0_hat 0,1310 -> 0,1159 | icc 0,1169 -> 0,1016
         estrato_a = [e for e in analisaveis if e.err]
         resto = [e for e in analisaveis if not e.err]
         chave = lambda e: hashlib.sha256(
             a.seed_b.encode("ascii") + b"|" + e.id.encode()).hexdigest()
-        estrato_b = sorted(resto, key=chave)[: a.n_b]
+        sorteados = {e.id for e in sorted(
+            [e for e in eps if not e.err], key=chave)[: a.n_b]}
+        estrato_b = [e for e in resto if e.id in sorteados]
         peso = {e.id: 1.0 for e in estrato_a}
         peso.update({e.id: len(resto) / len(estrato_b) for e in estrato_b})
         analisaveis = estrato_a + estrato_b
@@ -336,7 +391,7 @@ def main() -> int:
         t0 = primeiro_failure.get(e.sig)
         if t0 is None or t0 > e.epoch - limiar:
             continue                      # condicao (i) nao satisfeita
-        if a.seed_b and e.estado == "unknown":
+        if estratificado and e.estado == "unknown":
             oport_unknown += 1            # fora do estimador: peso nao definido
             continue
         oport_por_epoch[e.epoch] += peso[e.id]
@@ -382,7 +437,7 @@ def main() -> int:
             "oportunidades_com_desfecho_unknown": oport_unknown,
         },
         "assinaturas_com_failure_conhecido": len(primeiro_failure),
-        "desenho": "estratificado-HT" if a.seed_b else "censo",
+        "desenho": "estratificado-HT" if estratificado else "censo",
         "regra_desfecho": "maioria estrita (>50%); empate => not_failure",
         "tau": TAU,
     }
