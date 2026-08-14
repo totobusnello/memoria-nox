@@ -205,7 +205,29 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 
 **Sample size & power (G1 fix).** MDE target: **20% relative (LOCKED 2026-07-29)** change in H1 (not 40% — implausibly large for a brief-composition nudge). At lock we commit a **power curve** (power vs. true relative effect at the locked N), not a single point. If the locked N yields <80% power at the 20% MDE, we either extend the pre-committed window **before** lock or lock with an explicit "powered only for effects ≥ X%" declaration in the abstract of the registration.
 
-**Stopping rule (F3 fix).** Fixed horizon defined **only in pre-treatment units**: data collection ends at **[TO LOCK: N_epochs]** randomized epochs or the pre-committed calendar end date **[TO LOCK]**, whichever comes first. Opportunity counts play **no role** in stopping. No interim analyses; no optional stopping.
+> #### The escape clause above is hereby exercised — 2026-08-15, before any outcome data exists
+>
+> **`N_epochs` is locked at 154 randomized epochs, and the registration will declare "powered only for effects ≥ 25% relative".**
+>
+> The 20% MDE target is **not** amended and remains on the record as what was wanted. What this clause does is exactly what it was written for: report honestly that the locked N does not reach 80% power at 20%, and say so in the abstract rather than let the reader assume otherwise. Sizing at 20% would require **242 epochs at the point estimate of the ICC and 410 at its upper confidence bound** — 8 to 13.5 months of continuous fleet operation. The 154 epochs locked here are the 25% figure at the point estimate; at the ICC's upper bound the same MDE needs 256.
+>
+> **Inputs, all fixed before this lock and none of them outcome data from the study** (`SIZING-2026-08-14-v2.md`, replay over 30 epochs of historical corpus, no live arms):
+>
+> | | |
+> |---|---|
+> | `r̂` | 28,648576 |
+> | `p̂0` | 0,116457 |
+> | ICC | 0,098459, IC 95% **[0,0570 ; 0,1814]** (Searle; bootstrap de cluster confirma) |
+> | `hours_per_epoch` / `session_hours_per_epoch` | 5,1867 / 50,4667 |
+> | design effect | 5,87 |
+>
+> **Epoch length is NOT changed.** It stays at the locked 24 h. Shortening to 8 h would reach the same MDE in 113 days at the point estimate — a real saving — but it would be an amendment to a locked value, and it would lean on a 2 h washout whose sufficiency has been verified only *without* treatment (`WASHOUT-SENSITIVITY-2026-08-14.md`: the natural boundary effect is confined to <2 h, which removes an objection but does not establish carry-over behaviour under an active arm). Buying calendar with an unverified premise is the wrong trade for a study whose whole contribution is methodological.
+>
+> **What this costs, stated plainly:** a true effect of 20% — the size originally judged plausible for a brief-composition nudge — will not be reliably detected. If the study returns null, that null is evidence against effects ≥25%, and is *not* evidence against effects in the 15–20% band. The abstract must say this, not bury it in a limitations section.
+>
+> **Why this is not MDE shopping.** The §3 rule is "after the pilot, `f` is evaluated once and its output locked — no re-runs, no post-hoc MDE shopping". `f` was evaluated on the pilot corpus, which contains **no arm assignment and no study outcome**; the arms have not run. The prohibition targets choosing an MDE after seeing an effect, and there is no effect to have seen. The decision, its inputs, and its cost are recorded here **before** the first randomized epoch.
+
+**Stopping rule (F3 fix).** Fixed horizon defined **only in pre-treatment units**: data collection ends at **154 randomized epochs (LOCKED 2026-08-15)** or the pre-committed calendar end date **[TO LOCK — 154 epochs at 24 h is ~5,1 months of fleet operation; the calendar date must be set from the first randomized epoch, which has not yet occurred]**, whichever comes first. Opportunity counts play **no role** in stopping. No interim analyses; no optional stopping.
 **Safety abort — mechanical, no monitor (§0b).** Discretion is removed rather than delegated. A script in the frozen commit evaluates the following **arm-blind** rule at every epoch boundary, over the incident stream only (it never reads arm labels):
 
 > **Halt the study** if either (a) ≥1 incident adjudicated at level **S4** (§4.1 rubric — data loss, production broken, or reversal needing intervention outside the agent's scope) occurs in an analyzed epoch, **or** (b) the count of incidents at level **≥ S3** within a trailing window of **3 epochs (LOCKED)** exceeds **3× (LOCKED)** the per-epoch baseline rate computed over **the full action history available in the frozen snapshot, with a hard minimum of 14 days (LOCKED 2026-07-29, replacing "90 days")**.
