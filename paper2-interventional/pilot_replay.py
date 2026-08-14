@@ -46,6 +46,7 @@ import collections
 import glob
 import hashlib
 import json
+import math
 import statistics
 import sys
 from dataclasses import dataclass
@@ -236,24 +237,149 @@ def span_por_sessao(eps: list[Episodio]) -> dict[tuple[datetime, str], float]:
     }
 
 
-def icc_anova(por_epoch: dict[datetime, list[float]]) -> float:
-    """ICC de efeitos aleatorios (one-way). Negativo -> 0 (conservador)."""
+def _betainc(a: float, b: float, x: float) -> float:
+    """Beta incompleta regularizada I_x(a,b) — fracao continuada de Lentz.
+
+    Stdlib pura DE PROPOSITO. Este script e pre-registrado: um terceiro tem de
+    poder rodar o replay sem instalar nada. `scipy` daria a mesma coisa em uma
+    linha, e `tests/test_icc_ci.py` confronta as duas implementacoes — mas a
+    dependencia fica no TESTE, nunca no caminho canonico.
+    """
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    lbeta = (math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b)
+             + a * math.log(x) + b * math.log1p(-x))
+    if x < (a + 1.0) / (a + b + 2.0):
+        return math.exp(lbeta) * _betacf(a, b, x) / a
+    return 1.0 - math.exp(lbeta) * _betacf(b, a, 1.0 - x) / b
+
+
+def _betacf(a: float, b: float, x: float, itmax: int = 300, eps: float = 3e-16) -> float:
+    qab, qap, qam = a + b, a + 1.0, a - 1.0
+    c, d = 1.0, 1.0 - qab * x / qap
+    if abs(d) < 1e-300:
+        d = 1e-300
+    d = 1.0 / d
+    h = d
+    for m in range(1, itmax + 1):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        c = 1.0 + aa / c
+        if abs(d) < 1e-300:
+            d = 1e-300
+        if abs(c) < 1e-300:
+            c = 1e-300
+        d = 1.0 / d
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        c = 1.0 + aa / c
+        if abs(d) < 1e-300:
+            d = 1e-300
+        if abs(c) < 1e-300:
+            c = 1e-300
+        d = 1.0 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < eps:
+            break
+    return h
+
+
+def _f_cdf(x: float, d1: float, d2: float) -> float:
+    if x <= 0.0:
+        return 0.0
+    return _betainc(d1 / 2.0, d2 / 2.0, d1 * x / (d1 * x + d2))
+
+
+def _f_ppf(p: float, d1: float, d2: float) -> float:
+    """Quantil da F por bissecao sobre a CDF. Monotona, logo a bissecao basta."""
+    lo, hi = 1e-12, 1.0
+    while _f_cdf(hi, d1, d2) < p and hi < 1e12:
+        hi *= 2.0
+    for _ in range(200):
+        mid = (lo + hi) / 2.0
+        if _f_cdf(mid, d1, d2) < p:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2.0
+
+
+def icc_anova(por_epoch: dict[datetime, list[float]],
+              alfa: float = 0.05) -> dict[str, float | int | None]:
+    """ICC de efeitos aleatorios (one-way) com IC exato de Searle.
+
+    Devolve os QUADRADOS MEDIOS junto com o ponto e o intervalo. Antes esta
+    funcao devolvia so o `float`, e o SIZING-2026-08-14 teve de estimar a
+    largura do IC RECONSTRUINDO a ANOVA num script separado — que deu 0,0964
+    contra os 0,1175 do canonico e obrigou o documento a dizer "isto indica a
+    largura, nao e o intervalo oficial". Com os MS expostos o IC sai do mesmo
+    codigo que produz o ponto, e a divergencia deixa de existir.
+
+    IC (Searle 1971, one-way): com F = MSb/MSw e g.l. (k-1, n-k),
+        F_L = F / F_{1-alfa/2},  F_U = F / F_{alfa/2}
+        ICC_bound = (F_bound - 1) / (F_bound + m_bar - 1)
+
+    ⚠️ APROXIMACAO DECLARADA: `m_bar = n/k` é a media aritmetica dos tamanhos de
+    cluster. O IC exato de Searle assume clusters BALANCEADOS, e os nossos nao
+    sao (30 epochs, tamanhos de 1 a ~100, dois deles parciais por censura a
+    direita). Para desbalanceamento moderado o intervalo e conhecido por ser
+    levemente ANTICONSERVADOR — estreito demais. Ele serve para decidir se a
+    incerteza e da ordem de dezenas ou de centenas de dias; nao serve como
+    intervalo publicavel sem uma nota. Um IC por bootstrap de cluster resolve,
+    custa mais, e nao foi pre-especificado.
+
+    `icc` negativo -> 0 (conservador), e o limite inferior tambem.
+    """
     grupos = [v for v in por_epoch.values() if v]
+    vazio = {"icc": 0.0, "ms_between": None, "ms_within": None, "f": None,
+             "gl_between": None, "gl_within": None, "m_bar": None,
+             "ic_low": None, "ic_high": None, "ic_alfa": alfa}
     if len(grupos) < 2:
-        return 0.0
+        return vazio
     todos = [x for g in grupos for x in g]
-    n = len(todos)
-    k = len(grupos)
+    n, k = len(todos), len(grupos)
     if n <= k:
-        return 0.0
+        return vazio
     media = statistics.fmean(todos)
     ms_between = sum(len(g) * (statistics.fmean(g) - media) ** 2 for g in grupos) / (k - 1)
     ms_within = sum((x - statistics.fmean(g)) ** 2 for g in grupos for x in g) / (n - k)
     m_bar = n / k
     denom = ms_between + (m_bar - 1) * ms_within
     if denom <= 0:
-        return 0.0
-    return max(0.0, (ms_between - ms_within) / denom)
+        return vazio
+    icc = max(0.0, (ms_between - ms_within) / denom)
+
+    out: dict[str, float | int | None] = {
+        "icc": round(icc, 6),
+        "ms_between": round(ms_between, 8),
+        "ms_within": round(ms_within, 8),
+        "gl_between": k - 1,
+        "gl_within": n - k,
+        "m_bar": round(m_bar, 4),
+        "ic_alfa": alfa,
+        "f": None, "ic_low": None, "ic_high": None,
+    }
+    if ms_within > 0:
+        f = ms_between / ms_within
+        d1, d2 = float(k - 1), float(n - k)
+        fl = f / _f_ppf(1.0 - alfa / 2.0, d1, d2)
+        fu = f / _f_ppf(alfa / 2.0, d1, d2)
+        lim = lambda fb: (fb - 1.0) / (fb + m_bar - 1.0)
+        # Clamp em [0,1] nos DOIS limites. O superior tambem pode sair negativo:
+        # quando F < F_{alfa/2}, os dados sao compativeis com ausencia total de
+        # efeito de cluster e a formula devolve um numero abaixo de zero. Como
+        # o ICC nao e definido fora de [0,1], o intervalo colapsa em [0, 0] —
+        # que se le como "nao ha evidencia de estrutura de cluster", nao como
+        # "o ICC vale exatamente zero".
+        out["f"] = round(f, 6)
+        out["ic_low"] = round(min(1.0, max(0.0, lim(fl))), 6)
+        out["ic_high"] = round(min(1.0, max(0.0, lim(fu))), 6)
+    return out
 
 
 def main() -> int:
@@ -419,10 +545,13 @@ def main() -> int:
             dens[ep].append(repeat_por_sessao.get((ep, s), 0) / h)
     epochs_degenerados = [ep for ep in epochs if sessoes_por_epoch[ep] < 2]
 
+    icc_out = icc_anova(dict(dens))
+
     saida = {
         "r_hat": round(tot_oport / tot_horas, 6) if tot_horas else None,
         "p0_hat": round(tot_repeat / tot_oport, 6) if tot_oport else None,
-        "icc": round(icc_anova(dict(dens)), 6),
+        "icc": icc_out["icc"],
+        "icc_anova": icc_out,
         "hours_per_epoch": round(tot_horas / len(epochs), 4) if epochs else None,
         "session_hours_per_epoch": round(
             sum(sessoes_por_epoch[ep] for ep in epochs) / len(epochs), 4) if epochs else None,

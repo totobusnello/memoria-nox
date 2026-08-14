@@ -149,20 +149,43 @@ def _post(url: str, headers: dict, corpo: dict, timeout: int) -> dict:
 
 
 def chamar(protocolo: str, base: str, modelo: str, chave: str, texto: str, timeout: int,
-           max_tokens: int = 300) -> str:
-    """Devolve o texto cru da resposta. Temperatura 0 onde o provedor aceita."""
+           max_tokens: int = 300) -> tuple[str, dict]:
+    """Devolve `(texto_cru, meta)`. Temperatura 0 onde o provedor aceita.
+
+    O `meta` existe por duas falhas de 2026-08-14 que so foram diagnosticaveis
+    por chamada crua fora do harness — o que significa que o harness nao estava
+    registrando o que precisava.
+
+    1. `model` SERVIDO vs PEDIDO. `api.z.ai` passou a responder **glm-5.3** a
+       pedidos de `glm-5.2`. O registro gravava so o pedido, entao os 3.348
+       vereditos `zhipu` ja coletados afirmam "glm-5.2" sem poder prova-lo. Um
+       painel nao pode declarar sua composicao sem isto.
+    2. Resposta 200 com texto VAZIO. Quando o modelo gasta o orcamento em
+       blocos `thinking`, `content` vem sem nenhum bloco de texto e a
+       concatenacao devolve `""`. O registro de falha gravava `detail=ultimo`,
+       que nesse caso e string vazia — e foi por isso que 6 episodios ficaram
+       com causa desconhecida depois de 4 tentativas. `stop_reason` e os tipos
+       de bloco distinguem "truncou por max_tokens" de "recusou" de "vazio".
+    """
     if protocolo == "anthropic":
         d = _post(f"{base}/v1/messages",
                   {"x-api-key": chave, "anthropic-version": "2023-06-01"},
                   {"model": modelo, "max_tokens": max_tokens, "temperature": 0,
                    "messages": [{"role": "user", "content": texto}]}, timeout)
-        return "".join(b.get("text", "") for b in d.get("content", []))
+        blocos = d.get("content", []) or []
+        return ("".join(b.get("text", "") for b in blocos),
+                {"served": d.get("model"), "stop": d.get("stop_reason"),
+                 "blocos": [b.get("type") for b in blocos],
+                 "usage": d.get("usage")})
     if protocolo == "openai":
         d = _post(f"{base}/chat/completions",
                   {"Authorization": f"Bearer {chave}"},
                   {"model": modelo, "max_tokens": max_tokens, "temperature": 0,
                    "messages": [{"role": "user", "content": texto}]}, timeout)
-        return d["choices"][0]["message"]["content"] or ""
+        ch = (d.get("choices") or [{}])[0]
+        return (ch.get("message", {}).get("content") or "",
+                {"served": d.get("model"), "stop": ch.get("finish_reason"),
+                 "usage": d.get("usage")})
     if protocolo == "gemini":
         d = _post(f"{base}/models/{modelo}:generateContent",
                   {"x-goog-api-key": chave},
@@ -174,10 +197,16 @@ def chamar(protocolo: str, base: str, modelo: str, chave: str, texto: str, timeo
                    # virado 300 veredictos "missing" sem explicacao.
                    "generationConfig": {"temperature": 0, "maxOutputTokens": 4000}}, timeout)
         cands = d.get("candidates") or [{}]
-        return "".join(p.get("text", "") for p in
-                       (cands[0].get("content", {}).get("parts") or []))
+        partes = cands[0].get("content", {}).get("parts") or []
+        return ("".join(p.get("text", "") for p in partes),
+                {"served": d.get("modelVersion"),
+                 "stop": cands[0].get("finishReason"),
+                 "blocos": [("text" if "text" in p else next(iter(p), "?")) for p in partes],
+                 "usage": d.get("usageMetadata")})
     if protocolo == "cli":
-        return chamar_cli(base, texto, timeout)
+        # O CLI nao expoe metadados de resposta; `served` fica None em vez de
+        # ecoar o pedido, para nao inventar uma confirmacao que nao existe.
+        return chamar_cli(base, texto, timeout), {"served": None, "stop": None}
     raise ValueError(protocolo)
 
 
@@ -212,14 +241,32 @@ def julgar(pan, ep, prompt, timeout) -> dict:
     base_reg = {"episode_id": ep["episode_id"], "panelist": pid,
                 "family": familia, "model": modelo}
     ultimo = ""
+    meta: dict = {}
     max_tok = MAX_TOKENS_OVERRIDE.get(pid, 300)
     for tentativa in (1, 2):          # §4.1: um reenvio, depois conta como ausente
         try:
-            ultimo = chamar(proto, base, modelo,
-                            get_chave() if get_chave else "", texto, timeout, max_tok)
+            ultimo, meta = chamar(proto, base, modelo,
+                                  get_chave() if get_chave else "", texto, timeout, max_tok)
             p = parsear(ultimo)
             if p:
-                return {**base_reg, **p, "attempts": tentativa, "status": "ok"}
+                return {**base_reg, **p, "attempts": tentativa, "status": "ok",
+                        "model_served": meta.get("served"),
+                        "stop_reason": meta.get("stop")}
+            # ── Truncamento por raciocinio: dobra o orcamento e reenvia ──────
+            # Diagnosticado em 2026-08-14 nos 6 episodios que o `zhipu` recusou
+            # em 4 ciclos: `stop=max_tokens` com `blocos=['thinking']` e
+            # `output_tokens` batendo exatamente no teto — o modelo gastou tudo
+            # pensando e nao sobrou orcamento para a resposta. Nao e conteudo
+            # nem tamanho do episodio (`input_tokens` variava de 384 a 2.336).
+            #
+            # Dobrar e preferivel a subir a constante: um teto fixo maior paga
+            # o custo em TODA chamada e continua sendo um chute que o proximo
+            # modelo com raciocinio mais longo derruba de novo. Aqui so paga
+            # quem precisa, e a condicao de disparo e observada, nao suposta.
+            if (meta.get("stop") == "max_tokens" and not (ultimo or "").strip()
+                    and tentativa == 1):
+                max_tok *= 2
+                continue
         except urllib.error.HTTPError as e:
             ultimo = f"HTTP {e.code}"
             if e.code in (429, 500, 502, 503, 529) and tentativa == 1:
@@ -245,9 +292,23 @@ def julgar(pan, ep, prompt, timeout) -> dict:
     baixo = ultimo.lower()
     pendente = ("usage limit" in baixo or "quota" in baixo
                 or "rate limit" in baixo or "429" in baixo)
+    # `detail` nunca mais pode sair vazio sem dizer por que. Quando a chamada
+    # devolveu 200 com texto vazio, `ultimo` E "" — e foi exatamente isso que
+    # deixou 6 episodios sem causa conhecida em 2026-08-14. O meta preenche a
+    # lacuna: `stop=max_tokens` com `blocos=['thinking']` diz truncamento por
+    # raciocinio; `stop=end_turn` com texto vazio diz recusa silenciosa.
+    if ultimo:
+        detalhe = ultimo[:200]
+    elif meta:
+        detalhe = ("resposta 200 sem texto — " +
+                   json.dumps({k: meta.get(k) for k in ("served", "stop", "blocos", "usage")},
+                              ensure_ascii=False)[:300])
+    else:
+        detalhe = "sem resposta e sem metadados (falha antes do HTTP)"
     return {**base_reg, "verdict": None, "level": None, "reason": "",
             "attempts": 2, "status": "quota" if pendente else "missing",
-            "detail": ultimo[:200]}
+            "model_served": meta.get("served"), "stop_reason": meta.get("stop"),
+            "detail": detalhe}
 
 
 def main() -> int:
