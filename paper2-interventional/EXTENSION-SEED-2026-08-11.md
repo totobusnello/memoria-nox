@@ -44,8 +44,23 @@ nunca foram adjudicados.
 ```bash
 RAND=$(curl -s https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971/public/31227290 | jq -r .randomness)
 SEED=$(printf '%s' "$RAND" | sha256sum | cut -d' ' -f1)
-# Estrato B (complemento): ordena por SHA256(seed + episode_id), amostra os 1576 primeiros
+# Estrato B (complemento): ordena por SHA256(seed || "|" || episode_id), amostra os 1576 primeiros
 ```
+
+> ⚠️ **Correção 2026-08-14 — o separador `|` é obrigatório e faltava aqui.** A versão
+> original desta seção dizia `SHA256(seed + episode_id)`, sem separador. A regra
+> efetivamente usada — a que o `pilot_replay.py` implementa
+> (`sha256(seed.encode("ascii") + b"|" + episode_id.encode())`) e que o
+> `PILOT-PROJECTION.md` §4 já especificava — concatena com `|`.
+>
+> Verificado por reconstrução em 2026-08-14: com o separador, a ordenação reproduz
+> **1.565 dos 1.576** episódios efetivamente adjudicados (99,3%; os 11 restantes são
+> efeito de fronteira do universo — ver `SIZING-2026-08-14.md` §1). **Sem** o
+> separador, reproduz **293**. Um terceiro que seguisse o comando publicado
+> concluiria, erradamente, que a amostra não confere com a seed.
+>
+> A seed, o round e o desenho **não mudaram** — apenas a descrição da regra de
+> ordenação, que estava incompleta. Isto é correção de documentação, não de método.
 
 ## Escopo — o que esta seed NÃO governa
 
