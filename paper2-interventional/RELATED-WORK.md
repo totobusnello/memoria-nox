@@ -1,6 +1,6 @@
 # Related Work — Paper 2 (Interventional Memory)
 
-> **Status:** v0.2, 2026-08-13. Sections 1, 2, 5 and 6 are written against a source **read in full** (Huang et al., TMLR 07/2026). Sections 3 and 4 are written against **abstracts and metadata read directly from arXiv**, plus each work's row in the survey's own tables — **not against the full papers**. Every claim below is at abstract granularity and is marked as such; before any of it enters a manuscript, the papers marked ⚠️ must be read in full, because the manuscript's positioning depends on them.
+> **Status:** v0.3, 2026-08-15. Sections 1, 2, 4, 4.1, 5 and 6 are written against sources **read in full** — Huang et al. (TMLR 07/2026), MemoryArena (2602.16313) and Evo-Memory (2511.20857). Section 3 remains at **abstract-and-metadata granularity** and is marked as such; §3.1's Evo-Memory row is superseded by §4.1.
 >
 > Prior to this file the Paper 2 workspace contained **no external citation of any kind** — this is the first.
 
@@ -61,18 +61,34 @@ Read at abstract granularity 2026-08-13. The common structure: **all are benchma
 
 ---
 
-## 4. ⚠️ Direct prior art — MemoryArena, and what it costs us
+## 4. Direct prior art — MemoryArena, read in full (2026-08-15)
 
-**MemoryArena** — arXiv:2602.16313 (He, Wang, Zhi, Hu, …, McAuley, Choi, Pentland; 18 Feb 2026). Abstract, verbatim in the load-bearing part:
+**MemoryArena** — arXiv:2602.16313 (He, Wang, Zhi, Hu, …, McAuley, Choi, Pentland; 18 Feb 2026). It states the gap this paper opens with — *retrieval metrics do not capture how memory guides decisions* — and states it first.
 
-> "Existing evaluations of agents with memory typically assess memorization and action in isolation. One class of benchmarks evaluates memorization by testing recall of past conversations or text **but fails to capture how memory is used to guide future decisions**. Another class focuses on agents acting in single-session tasks without the need for long-term memory. However, in realistic settings, memorization and action are tightly coupled…"
+**Design, as read.** 766 human-crafted tasks over four environments (bundled web shopping, group travel planning, progressive web search, formal math/physics reasoning), averaging 6.9 interdependent subtasks and 57 action steps. Each subtask runs in its own session; the trace is inaccessible once the session ends, which is what forces the persistent-memory dependency. Formalised as a Memory-Agent-Environment loop with `Retrieve` and `Update`, and interpreted as a POMDP where external memory approximates belief-state estimation. Metrics: Task Success Rate, Progress Score, and SR@*k* by subtask depth. Task agent held fixed (GPT-5.1-mini) while the memory system varies across long-context buffers, four external memory systems (MemGPT, Mem0, Mem0-g, ReasoningBank) and four RAG variants.
 
-**This must be confronted, not buried.** MemoryArena states the gap this paper opens with — *retrieval metrics do not capture how memory guides decisions* — and states it first, in February 2026. Two consequences, both mandatory:
+**What the full read settles — the distinguishing axis did not narrow.** The worry in the previous version of this section was that MemoryArena might already contrast memory-augmented against memory-free conditions in a way that leaves us only pre-registration. It does contrast them, but **observationally**: every system is run over the same fixed task suite and the systems are compared to each other. There is **no randomisation, no assignment mechanism, and no counterfactual estimand** — the paper does not claim one, and its framing (an "evaluation gym") does not require one. The comparison is between *systems*, holding tasks fixed; ours is between *policies*, holding the system fixed and randomising over traffic the researcher did not choose.
 
-1. **The novelty claim must move.** Our contribution is **not** the observation that the field measures representation instead of decision; that observation is published prior art with a strong author list. Our contribution is the **method**: a pre-registered, randomised crossover on a live production fleet, with adjudicated outcomes and a declared seed — an *experiment*, where MemoryArena builds a *benchmark*. Benchmarks establish comparability under researcher-chosen tasks; randomisation establishes an effect estimate under the traffic the system actually receives. Both are needed; they are not the same claim.
-2. **Any framing that implies we noticed it first is now false** and would be caught by any reviewer who knows this literature — plausibly including the survey authors, since Julian McAuley and Yu Wang appear on both MemoryArena and the survey.
+**A finding of theirs that our design is built to test causally.** Under the heading *"External Memory and RAG Systems Are Not Universally Beneficial"*, they report that augmenting the agent with external memory or RAG does **not** consistently beat the model's own long-context history, and attribute it to representation mismatch and training mismatch. This is exactly the kind of claim that an observational comparison can surface but not identify: it is confounded with which tasks were curated, with the fixed backbone, and with each system's tuning. Our contribution is not to notice this — they noticed it — but to make it an **estimand**.
 
-⚠️ **MemoryArena must be read in full before the manuscript is drafted.** Its design decisions constrain how we position: if it already contrasts memory-augmented against memory-free conditions, the distinguishing axis narrows to live-traffic randomisation and pre-registration alone — still a real axis, but a narrower one that must be claimed precisely.
+Two consequences for the manuscript, both unchanged and both mandatory:
+
+1. **The novelty claim sits on the method.** Not the observation that the field measures representation instead of decision — that is published prior art with a strong author list. The method: a pre-registered, randomised crossover on a live production fleet, with adjudicated outcomes and a seed declared before the beacon round existed.
+2. **Any framing that implies we noticed it first is false** and would be caught by any reviewer who knows this literature — plausibly including the survey authors, since Julian McAuley and Yu Wang appear on both MemoryArena and the survey.
+
+### 4.1 Evo-Memory, read in full (2026-08-15) — and the opening it leaves
+
+**Evo-Memory** — arXiv:2511.20857 (Wei, Sachdeva, Coleman, …, Chi, Wang, Pereira, Kang, Cheng; Nov 2025, v2 May 2026; Google Research + UIUC). Restructures ten static datasets into streaming task sequences under a unified `search → synthesis → evolve` loop, benchmarks ten-plus memory modules on Gemini-2.5 and Claude backbones, and proposes ExpRAG and ReMem. API cost reported on the order of tens of thousands of USD.
+
+**The load-bearing sentence for us**, verbatim from §A.2:
+
+> "Across all experiments, we maintain a **unified task sequence ordering** within each dataset, ensuring consistent memory evolution dynamics for all models."
+
+Order is **held fixed**, and fixing it is presented — correctly, for their purpose — as a fairness measure: every system sees the same stream. But their own §4.2.3 then measures how much order matters, comparing Easy→Hard against Hard→Easy, and finds swings of up to **12 points** of average success (ExpRAG 0.57 vs 0.69) with the same system on the same tasks. They conclude by highlighting *"the importance of task sequence design for fair evaluation and effective learning"*, and they list "Sequence robustness" among their four metric dimensions — evaluated across **two chosen orders**, not sampled ones.
+
+**This is the clearest opening in the literature for a randomised design, and it is one the authors themselves point at.** Order of experience is a first-order determinant of measured memory performance; the field's response so far has been to *hold it constant and disclose that*, which controls it for comparability across systems but leaves the effect of any one policy entangled with the particular order chosen. Randomisation is the standard answer to precisely this problem, and no one in this literature applies it.
+
+Note also that the first author is a core contributor to the Huang et al. survey, and that MemoryArena's Table 1 marks Evo-Memory as having no enforced cross-session dependency — the two nearest neighbours already disagree about each other's coverage, which is worth one sentence as evidence that the evaluation question is unsettled.
 
 **"hypotree"** — carried in our project notes as prior art; the actual citation was never resolved and it is not cited in the survey. Either resolve it to a real work or drop it from our notes; an unresolvable reference is worse than none.
 
@@ -88,14 +104,16 @@ Read at abstract granularity 2026-08-13. The common structure: **all are benchma
 
 ## 6. Positioning, one sentence
 
-The observation that memory evaluation scores representation rather than decision is established (MemoryArena, Feb 2026; Evo-Memory, Nov 2025); what is not established is an **effect estimate** — this paper randomises memory composition across epochs on a live agent fleet, under a pre-registered protocol with adjudicated outcomes, to measure whether the policy changes what agents *do* under the traffic they actually receive.
+The observation that memory evaluation scores representation rather than decision is established (MemoryArena, Feb 2026; Evo-Memory, Nov 2025), and that the *order* in which experience arrives moves measured memory performance by double-digit margins is established too (Evo-Memory §4.2.3) — what is not established is an **effect estimate under randomised order**: this paper randomises memory composition across epochs on a live agent fleet, under a pre-registered protocol with adjudicated outcomes, to measure whether the policy changes what agents *do* under the traffic they actually receive.
+
+The three sit in a clean progression, and the manuscript should say so plainly: MemoryArena fixes the *tasks* and varies the *system*; Evo-Memory fixes the *order* and varies the *system*; we fix the *system* and randomise the *policy over unchosen traffic*. Each controls what the previous left free. None of the three subsumes another.
 
 ---
 
 ## Open before manuscript
 
-1. ⚠️ Read **MemoryArena** (2602.16313) in full — the positioning in §4 depends on its design.
-2. ⚠️ Read **Evo-Memory** (2511.20857) in full — nearest neighbour on the test-time-learning axis.
+1. ✅ **MemoryArena** (2602.16313) read in full 2026-08-15 — §4 rewritten. The distinguishing axis did **not** narrow: their comparison is observational, between systems on fixed tasks.
+2. ✅ **Evo-Memory** (2511.20857) read in full 2026-08-15 — §4.1 added. They hold task order fixed by design and separately measure that order is worth up to 12 points; they recommend care in sequence design, which is the problem randomisation solves.
 3. Read InterruptBench (2604.00892) — the only non-stationary neighbour.
 4. Resolve or drop "hypotree".
 5. Decide whether HaluMem's MI/FMR are adopted as KG-health instruments (roadmap S1) — an engineering decision, separate from this paper.
@@ -103,6 +121,7 @@ The observation that memory evaluation scores representation rather than decisio
 ## Provenance
 
 - Survey read in full 2026-08-13; string counts reproduced via `pdftotext` over `2602.06052v4`. arXiv IDs for §3 extracted from the survey's own bibliography, then confirmed against arXiv.
-- §3 and §4 written from arXiv abstracts and metadata, **not** from full papers.
+- §3 written from arXiv abstracts and metadata, **not** from full papers.
+- §4 and §4.1 written from the full texts of 2602.16313 and 2511.20857, read 2026-08-15. Quotations verified against the arXiv HTML.
 - Analysis and the Stanford-authorship finding: memory `[[project_agent_memory_survey_tmlr_2602_06052]]`.
 - Gap statement also recorded, dated, in `PREREG-DRAFT.md` §1 as a declared non-substantive addition.
