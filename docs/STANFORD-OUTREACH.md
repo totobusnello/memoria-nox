@@ -1,8 +1,8 @@
 # Stanford — aproximação de colaboração
 
-> **Status:** v0.1, 2026-08-13. Documento operacional. Antes disto, a operação existia só em notas de sessão (`.remember/`), sem canônico.
+> **Status:** v0.2, 2026-08-15. Documento operacional. Antes da v0.1 a operação existia só em notas de sessão (`.remember/`), sem canônico.
 > **Gate:** 14 dias de telemetria de fases — **verificado**, fecha 21/08.
-> **Decisão pendente do Toto:** ordem e corte das 4 aproximações (§4).
+> **Corte decidido 2026-08-15:** ~~A2~~ descartado (harness não é público), **A1 + A3 juntos**, A4 em canal separado depois. As duas verificações que o corte esperava (§2, ✅) estão feitas.
 
 ---
 
@@ -34,7 +34,25 @@ Do abstract: *"first systems characterization of agent memory"*; taxonomia orien
 
 **Por que isso é o alvo forte:** o PR #40/#41 instrumentou exatamente essa decomposição — nossas fases são `construction` / `query` / `maintenance` — mas **em produção contínua sobre uma fleet real**, não em bancada sobre benchmark suites. Eles caracterizaram 10 sistemas em ambiente controlado; nós temos o mesmo tipo de perfilamento rodando 24/7 num sistema em uso, e "fleet-scale management" é uma das próprias recomendações deles.
 
-⚠️ **A confirmar antes do contato:** (i) quais são os 4 eixos da taxonomia — a nota de 07/08 diz que *mutability* é um deles e que seria "nossa célula vazia", mas isso não foi verificado contra o paper; (ii) se o harness foi de fato open-sourced e onde; (iii) afiliações — Tambe e Weissman são Stanford EE pelo que sei, mas a página do abstract não lista afiliação e isso não foi confirmado.
+### ✅ Verificado 2026-08-15 — paper lido na íntegra
+
+**(i) Os 4 eixos são `construction` · `storage` · `retrieval` · `mutability`.** A nota de 07/08 estava certa: *mutability* é um deles. A Tabela 1 dá três valores ao eixo — `append`, `consolidate`, `mutate` — e a distribuição é informativa: os três sistemas com `mutate` (A-Mem, Letta, MIRIX) são **todos** Paradigma IV, isto é, todos têm `Agent Ctrl ✓` — a mutação é decidida por um LLM em loop.
+
+**(ii) O harness NÃO está público.** O texto diz *"(to be open-sourced)"* nas duas vezes em que o menciona — no §3.3 e na lista de contribuições. **A2 está morto por ora**, e a mensagem não pode pedir um ponteiro que ainda não existe. Vira, no máximo, uma frase de disponibilidade futura.
+
+**(iii) Afiliações confirmadas: Stanford.** Correspondência `yomri@stanford.edu`; agradecimentos ao Stanford Marlowe computing cluster, ao Stanford PORTAL e ao programa de afiliados industriais MemoryDAX, e à Knight-Hennessy Fellowship. Verhelst e Geens são de outra instituição (índice 3); Pentland aparece com dupla afiliação (1,4).
+
+### A célula vazia existe, e é mais concreta do que a conjectura
+
+Não é só que nossa combinação de eixos não aparece — é que **os autores pedem explicitamente o que temos**, duas vezes:
+
+> §2.1, sobre a etapa de manutenção: *"In many current systems, maintenance is weak or absent: memory accumulates indefinitely with no freshness or pruning policy, which becomes critical for long-lived agents…"*
+
+> **Recomendação 9:** *"Because all evaluated systems accumulate state monotonically by default, operators must add independent pruning or forgetting policies to bound fleet-scale storage and token costs."*
+
+**Nenhum dos dez sistemas caracterizados tem política de esquecimento.** O nox-mem tem: `retention_days` tipado por classe de conteúdo, decaimento por salience, `pruneEpochs`, `kg-prune`, `consolidate`. E tem algo que vale mais do que ter: **o registro de quando isso deu errado** — o decaimento com compounding que drenou o grafo de ~21,5k para 554 nós, com diagnóstico e recuperação documentados (`docs/INCIDENTS.md#2026-07-25`). Um operador que só afirma ter política de forgetting é menos crível que um que mostra a fatura de tê-la operado.
+
+A posição precisa nos quatro eixos, para a mensagem: construção **mista** (determinística para FTS5/embeddings, LLM-mediada só no `kg-build`, amostrada); storage **multi-store** (SQLite + FTS5 + sqlite-vec + KG tipado); retrieval **híbrido** (BM25 + denso + RRF); mutability **`mutate`, mas sem controle agêntico** — a manutenção é cron determinístico, não decisão de LLM em loop. É essa última célula que a Tabela 1 não contém: mutabilidade de Paradigma IV com o perfil de custo de Paradigma III.
 
 ### Alvo B — o survey
 
@@ -54,7 +72,8 @@ Ordenado por raridade, não por esforço:
 
 1. **Telemetria de fases em produção contínua**, sobre uma fleet de 7 agentes, com custo e latência por fase. Caracterização de bancada não captura amortização real por volume de query nem o padrão de manutenção ao longo de semanas — e ambos estão entre as recomendações deles.
 2. **Um experimento randomizado pré-registrado** rodando sobre essa mesma fleet (Paper 2), com seed declarada antes do round existir e outcome adjudicado por painel multi-modelo com κ registrado.
-3. **Um sistema completo, self-hosted, auditável**, com snapshots atômicos, audit log append-only e provenance por chunk — que pode ser o 11º sistema no harness deles.
+3. **Uma política de esquecimento em produção** — `retention_days` tipado, decay por salience, `pruneEpochs`, `kg-prune` — que é literalmente a **Recomendação 9** deles, e que **nenhum dos 10 sistemas caracterizados possui**. Com o incidente de 25/07 documentado: ter operado a política vale mais que anunciá-la.
+4. **Um sistema completo, self-hosted, auditável**, com snapshots atômicos, audit log append-only e provenance por chunk — candidato a 11º sistema **quando** o harness for liberado.
 
 **O que não temos:** afiliação, e um Paper 1 com ID público (arXiv em moderação, alto volume). O primeiro não muda; o segundo pode destravar a qualquer momento.
 
@@ -67,11 +86,15 @@ Ordenado por raridade, não por esforço:
 | # | Aproximação | Pedido concreto | Força | Risco |
 |---|---|---|---|---|
 | **A1** | **Dados de produção como complemento à caracterização.** "Vocês caracterizaram 10 sistemas em bancada; temos o mesmo perfilamento de fases rodando em produção há N dias numa fleet de 7 agentes. Interessa?" | Oferecer o dataset de telemetria de fases. Sem pedir nada em troca na primeira mensagem. | **Maior.** É o único ativo que ninguém replica sem operar um sistema em produção. Não depende do arXiv ID. Não toca no território do MemoryArena. | Nenhum óbvio. Pode simplesmente não haver resposta. |
-| **A2** | **Ser o 11º sistema no harness.** Quando/se o harness for público, rodar o nox-mem nele e devolver os resultados — incluindo os casos em que perdemos. | Pedir o ponteiro do harness; oferecer rodar e publicar o resultado íntegro. | Alta. Custo baixo pra eles, sinal de boa-fé forte. | Depende de o harness ser público — **não verificado**. |
-| **A3** | **A célula vazia da taxonomia de 4 eixos** (*mutability*, se a nota estiver certa). | Discussão técnica: onde o nox-mem cai nos 4 eixos e por que a célula está vazia. | Média. Interessante, mas é conversa, não entrega. | **Depende de ler o paper** — hoje é conjectura baseada numa nota. |
+| ~~**A2**~~ | ~~**Ser o 11º sistema no harness.**~~ **MORTO por ora (verificado 15/08):** o paper diz *"(to be open-sourced)"* — o harness **não existe publicamente**. | — | — | Não se pede ponteiro para o que não foi liberado. Sobrevive só como uma frase de disponibilidade futura dentro de A1. |
+| **A3** | **A célula vazia — CONFIRMADA e mais forte que a conjectura (15/08).** Os 4 eixos são construction/storage/retrieval/**mutability**; nenhum dos 10 sistemas tem política de esquecimento, e a **Recomendação 9 deles pede exatamente isso**. | Mostrar `retention_days` tipado + decay + prune **e o incidente de 25/07** (decay com compounding drenou o grafo 21,5k→554, com recuperação documentada). | **Subiu para alta.** Deixou de ser conversa: é a recomendação deles já implementada, com a fatura de tê-la operado. | Nenhum. Não depende de arXiv ID nem do harness. |
 | **A4** | **Via survey / James Zou.** A §9.6 descreve o desenho que já implementamos. | Diferente em natureza: é sobre o Paper 2, não sobre sistemas. Pessoas diferentes. | Média-alta, mas **outro canal e outro momento**. | Misturar com A1–A3 confunde a mensagem. Mandar depois, não junto. |
 
-**Recomendação:** **A1 primeiro, sozinho.** É o único que não depende de nada não-verificado, não depende do arXiv ID, e oferece antes de pedir. A2 entra na mesma mensagem só se a checagem do harness confirmar que é público. A3 depois de ler o paper. A4 como canal separado, depois.
+**Recomendação REVISTA após as verificações de 15/08:** **A1 + A3 na mesma mensagem, A2 descartado, A4 como canal separado depois.**
+
+O que mudou: A2 morreu (harness não é público) e A3 subiu de "conversa" para "entrega", porque deixou de ser conjectura sobre uma célula vazia e virou *a Recomendação 9 deles, implementada e operada em produção, com incidente documentado*. A1 e A3 se reforçam — a telemetria de fases mostra o custo do write path em produção contínua; a política de forgetting mostra o que fazemos com o estado que esse write path acumula. São as duas metades da mesma coisa, e separá-las enfraquece as duas.
+
+A mensagem segue **oferecendo, sem pedir nada** — a única mudança é que agora oferece duas coisas verificadas em vez de uma verificada e uma conjectural.
 
 ---
 
@@ -87,10 +110,10 @@ Ordenado por raridade, não por esforço:
 ## 6. Antes de enviar — checklist
 
 - [ ] 21/08: confirmar 14 dias completos de telemetria e extrair os números finais (custo/query, ratio de construction, custo de manutenção)
-- [ ] Ler **2606.06448** integralmente — confirmar os 4 eixos e a tal célula vazia
-- [ ] Verificar se o harness é público e onde
-- [ ] Confirmar afiliações e o canal de contato correto
-- [ ] Toto: cortar e ordenar as aproximações do §4
+- [x] Ler **2606.06448** integralmente — ✅ 15/08. Eixos: construction/storage/retrieval/**mutability**. Célula vazia confirmada, e a Recomendação 9 pede o que temos.
+- [x] Verificar se o harness é público e onde — ✅ 15/08. **Não é**: "(to be open-sourced)". A2 descartado.
+- [x] Confirmar afiliações — ✅ Stanford (`yomri@stanford.edu`, Marlowe cluster, PORTAL/MemoryDAX, Knight-Hennessy). Falta decidir **para quem** escrever: correspondência é Omri, mas o cluster que liga ao MemoryArena é He/Pentland.
+- [x] Toto: cortar e ordenar as aproximações do §4 — ✅ 15/08, **A1 + A3**.
 - [ ] Redigir a mensagem de A1 e revisar contra o §5
 
 ---
@@ -98,6 +121,6 @@ Ordenado por raridade, não por esforço:
 ## Proveniência
 
 - Gate verificado por leitura direta do `provider_telemetry` em prod, 2026-08-13.
-- 2606.06448 e 2602.16313 lidos **no nível de abstract**, não integralmente.
+- 2606.06448 lido **na íntegra** 2026-08-15 (eixos, harness, afiliações, Recomendação 9). 2602.16313 lido na íntegra 2026-08-15 — ver `paper2-interventional/RELATED-WORK.md` §4.
 - As 4 aproximações originais de 07/08 estão perdidas; estas são reconstrução declarada.
 - Contexto do survey: memória `[[project_agent_memory_survey_tmlr_2602_06052]]`; posicionamento: `paper2-interventional/RELATED-WORK.md`.
