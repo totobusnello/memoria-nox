@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import argparse
 import collections
+import glob
 import hashlib
 import json
 import statistics
@@ -71,8 +72,51 @@ def epoch_de(t: datetime) -> tuple[datetime, float]:
     return e, (t - e).total_seconds() / 3600
 
 
-def carregar_verdicts(p: Path) -> dict[str, str]:
+def episodios_instaveis(padroes: list[str]) -> set[str]:
+    """Episodios cujo veredito de um MESMO painelista oscila entre replicas.
+
+    Regra do STABILITY-TEST.md §9.2, adotada 2026-08-14. Censo dos 21 episodios
+    de desempate (xai e zhipu em lados opostos de tau) com 5 replicas cada
+    mostrou que **10 deles (47,6%) oscilam** — tres em 3F/3N exato. Nesses o
+    painelista e voto de minerva por definicao, logo o desfecho consolidado
+    sai da execucao, nao do episodio.
+
+    CRITERIO AMPLO: qualquer oscilacao marca o episodio, tratando 5-1 igual a
+    3-3. Um criterio graduado (so 4-2 e 3-3) e defensavel, mas NAO foi
+    pre-especificado — escolhe-lo depois de ver a distribuicao seria escolher
+    com os dados na mao. O amplo e o menos favoravel a nos, e por isso o menos
+    suspeito. Revisar com dados quando houver replicas do corpus completo.
+
+    Custo medido no corpus de 2026-08-14: 10 episodios, 0,69% bruto e 0,79%
+    ponderado por Horvitz-Thompson (a amplificacao pelo peso 5,2 do estrato B
+    ficou em 1,14x, nao nos 15x temidos).
+
+    O episodio marcado NAO recebe veredito: `carregar_episodios` resolve para
+    `unknown`, exatamente como "menos de 3 vereditos substantivos". Ou seja,
+    instabilidade vira ausencia de evidencia, nao voto de moeda.
+    """
+    corte = NIVEIS.index(TAU)
+    lados: dict[tuple[str, str], set[bool]] = collections.defaultdict(set)
+    for padrao in padroes:
+        for caminho in sorted(glob.glob(padrao)):
+            for linha in Path(caminho).read_text().splitlines():
+                if not linha.strip():
+                    continue
+                r = json.loads(linha)
+                if r.get("status") != "ok" or r.get("verdict") == "abstain":
+                    continue
+                nivel = r.get("level")
+                if nivel in NIVEIS:
+                    lados[(r["episode_id"], r.get("panelist"))].add(
+                        NIVEIS.index(nivel) >= corte)
+    return {ep for (ep, _), s in lados.items() if len(s) > 1}
+
+
+def carregar_verdicts(p: Path, instaveis: frozenset[str] = frozenset()) -> dict[str, str]:
     """episode_id -> 'failure' | 'not_failure', por MAIORIA ESTRITA.
+
+    `instaveis` (de `episodios_instaveis`) sao omitidos do resultado e portanto
+    resolvem para `unknown` — ver STABILITY-TEST.md §9.2.
 
     CORRECAO 2026-07-29 — a versao anterior usava `v[len(v)//2]`, a mediana
     SUPERIOR, para as duas condicoes. Duas coisas estavam erradas nisso.
@@ -134,6 +178,8 @@ def carregar_verdicts(p: Path) -> dict[str, str]:
     out: dict[str, str] = {}
     corte = NIVEIS.index(TAU)
     for ep, por_painelista in por_ep.items():
+        if ep in instaveis:
+            continue  # oscila entre replicas -> `unknown` (STABILITY-TEST.md §9.2)
         v = list(por_painelista.values())
         if len(v) < 3:
             continue
@@ -222,9 +268,21 @@ def main() -> int:
     ap.add_argument("--n-b", type=int, default=800,
                     help="tamanho da amostra do estrato nao-is_error (default 800)")
     ap.add_argument("--json", action="store_true", help="saida so em JSON")
+    ap.add_argument("--replicas", nargs="*", default=[],
+                    help="globs de JSONL com replicas do painel (ex: "
+                         "'~/.paper2-verdicts/tiebreak-rep*.jsonl'). Episodios cujo "
+                         "veredito oscila entre replicas viram `unknown` — "
+                         "STABILITY-TEST.md §9.2. Sem isto, o script roda sem a regra.")
     a = ap.parse_args()
 
-    verdicts = carregar_verdicts(Path(a.verdicts))
+    instaveis = frozenset()
+    if a.replicas:
+        padroes = [str(Path(x).expanduser()) for x in a.replicas]
+        instaveis = frozenset(episodios_instaveis(padroes))
+        print(f"regra de instabilidade ativa: {len(instaveis)} episodios -> unknown",
+              file=sys.stderr)
+
+    verdicts = carregar_verdicts(Path(a.verdicts), instaveis)
     eps = carregar_episodios(Path(a.episodes), verdicts)
     if not eps:
         print("ERRO: nenhum episodio com ts+session", file=sys.stderr)
