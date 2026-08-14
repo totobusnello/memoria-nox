@@ -77,7 +77,18 @@ PAINEL = [
 # MESMA armadilha do Gemini ja documentada (200 OK com conteudo vazio). Achado
 # na integracao: 1 smoke test de 2 ja deu "missing" com detail="" (resposta
 # vazia, nao erro). Fix: teto maior SO para quem precisa.
-MAX_TOKENS_OVERRIDE = {"deepseek": 1500}
+# 2026-08-14: `zhipu` caiu na MESMA armadilha, e por drift do provider. A API
+# `api.z.ai/api/anthropic` passou a servir **glm-5.3** para o pedido `glm-5.2`
+# (confirmado por chamada crua: `"model":"glm-5.3"` na resposta), e o 5.3 emite
+# bloco "thinking" antes do texto. Com max_tokens=300 o JSON do veredito sai
+# truncado no meio (`{"verdict": "`) ou nao sai. Efeito medido no censo do
+# estrato A: **27 missing de 30**, com quota=0 — nao era cota.
+#
+# ⚠️ O campo `model` gravado em cada registro e o que o script PEDE, nao o que a
+# API SERVE. Ele diz "glm-5.2" em todos os 3.348 vereditos do zhipu ja
+# coletados, o que NAO prova que foram julgados por 5.2. Ver
+# `docs/INCIDENTS.md#2026-08-14`.
+MAX_TOKENS_OVERRIDE = {"deepseek": 1500, "zhipu": 1500}
 
 # ⚠️ ANTHROPIC ficou FORA por desenho, nao por credencial: os agentes julgados
 # rodam em `claude-cli`, entao Anthropic no painel seria a familia julgando a

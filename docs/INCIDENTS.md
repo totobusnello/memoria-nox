@@ -2,6 +2,35 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-08-14 (noite) — drift de modelo no painel: `api.z.ai` serve glm-5.3 para pedidos de glm-5.2
+
+### Severity: orange — bug de coleta corrigido em minutos; a dúvida metodológica que ele expõe é permanente
+
+### TL;DR
+Ao rodar o painel sobre 30 episódios do censo do estrato A, o painelista `zhipu` devolveu **27 missing de 30**, com `quota: 0` — não era cota. (Os 30 foram adjudicados por um diagnóstico de lacuna que se revelou falso — ver §"Nota" no fim desta entrada. Sem esse erro, o drift abaixo teria passado despercebido.) Chamada crua à API revelou duas coisas: ela responde **`"model":"glm-5.3"`** a um pedido de `glm-5.2`, e o 5.3 emite bloco `"type":"thinking"` antes do texto. Com `max_tokens=300`, o thinking consome o orçamento e o JSON do veredito sai truncado (`{"verdict": "`) ou não sai.
+
+### Fix
+`zhipu` adicionado ao `MAX_TOKENS_OVERRIDE` (1500), exatamente como o `deepseek` já estava desde 11/08 — o código **já documentava esta armadilha em detalhe**, incluindo o paralelo com o Gemini ("200 OK com conteúdo vazio"). O padrão era conhecido; o que mudou foi qual painelista caiu nele.
+
+### ⚠️ O problema que o fix não resolve
+O campo `model` gravado em cada registro é **o que o script pede, não o que a API serve**. Os **3.348 vereditos do zhipu** já coletados (1.140 na peça 3 + 2.208 na extensão) dizem `glm-5.2` — e isso **não prova** que foram julgados por 5.2. O provider pode ter migrado a qualquer momento entre 30/07 e hoje, sem aviso e sem deixar rastro no nosso corpus.
+
+Isto é precisamente o modo de falha que `PILOT-PROJECTION.md` §4 identifica ao justificar por que não fazer o censo completo dos 4.577: *"nesse prazo o `codex-cli` muda de versão sozinho… Drift de versão **dentro** de uma única adjudicação é pior que uma banda de ±1 época: significa episódios do mesmo corpus julgados por software diferente."* O desenho antecipou o risco para os CLIs e o mitigou encurtando a janela — mas a mesma exposição existia na API, e ali não havia mitigação nem detecção.
+
+### O que fazer
+1. **Gravar o modelo SERVIDO** (`response["model"]`) em cada registro, não apenas o pedido. Sem isso não há como detectar drift futuro nem auditar o passado.
+2. Decidir como o Paper 2 declara o painel: hoje `EXTENSION-SEED-2026-08-11.md` afirma "zhipu (GLM-5.2)", afirmação que não é mais sustentável para vereditos coletados via API.
+3. Considerar se isto altera o κ=0,8747 medido em 29/07 — ele foi calibrado sobre vereditos cuja versão de modelo agora é incerta.
+
+Nada disto é decidível sem o item 1 rodando por um tempo.
+
+### Nota — a lacuna que motivou a corrida não existia (yellow)
+O `SIZING-2026-08-14.md` afirmava que o estrato A tinha "603 de 633 adjudicados, faltam 30". Contando por par único `(episode_id, panelist)`, eram **632 de 633**: faltava **1**. O erro veio de contar **linhas** de veredito em vez de pares únicos, num arquivo que continha **40 duplicatas** da corrida de 13/08 — o mesmo defeito que o patch de dedupe já havia corrigido dentro do `pilot_replay.py`, e que eu não apliquei à contagem feita à mão fora dele.
+
+**A lição não é "conte direito".** É que uma correção aplicada ao código não se propaga sozinha às contagens ad-hoc feitas ao lado dele: enquanto o script deduplica, qualquer `wc -l` ou `Counter` escrito na mão continua vendo o corpus sujo. Depois de corrigir um defeito de duplicação, auditar **todo número derivado do mesmo arquivo**, não só o caminho corrigido.
+
+Custo: ~123 chamadas de painel. Efeito do único episódio realmente novo: ICC 0,117534 → 0,116907 — nenhuma conclusão do sizing muda. Corpus consolidado em `verdicts-extensao-full-v2.jsonl` (6.627 pares únicos, sem duplicatas).
+
 ## 2026-08-13 (tarde) — corrida de adjudicação: dois processos na mesma fila, 40 episódios adjudicados em duplicata
 
 ### Severity: yellow — 40 chamadas desperdiçadas (2,7%), zero perda de dado, mas contaminação a corrigir antes do replay
