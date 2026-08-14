@@ -140,6 +140,56 @@ O teste acima foi amostra **uniforme**, e por isso tem quase todo o seu poder on
 
 **Não fazer:** ajustar prompt, temperatura ou parâmetros do painelista. Invalidaria os 1.442 vereditos já coletados e seria escolher o instrumento depois de ver o resultado.
 
+## 9. CENSO DOS DESEMPATES — executado 2026-08-14T09:33–09:49Z
+
+O §8.3 previa amostra estratificada de ~100 sobre ~300. **Errado:** a estimativa de 300 vinha de discordância de *level* (240 no corpus, ~17%); a discordância que **atravessa τ=S1** — a única que cria desempate sobre `failure`/`not_failure` — são **21 episódios em 1.442 (1,46%)**. População pequena o bastante para **censo**, o que elimina amostragem e seed: não há como acusar escolha de amostra.
+
+**Desenho:** os 21 episódios, **5 réplicas cada** (105 chamadas, 100% ok, mesmo `prompt_sha256`), somadas à adjudicação original = 6 observações por episódio.
+
+```
+UNÂNIMES nas 6:   11
+OSCILANTES:       10   (47,6%)
+
+08dbe564  FNFFNN  3F/3N     14eeb72e  NFNFNN  2F/4N
+1a46289e  NFFNFN  3F/3N     dc56238c  NFNFFF  4F/2N
+5d9ba5d9  FNNNFF  3F/3N     e15081c2  NFNFFF  4F/2N
+480d41a6  FNFFFF  5F/1N     ec03b721  FFNFFN  4F/2N
+4f77fa6f  NNNFNN  1F/5N     f962162d  FFFFFN  5F/1N
+```
+
+**Confirma a hipótese do §8.2, e por censo, não por inferência.** Nestes 21 o `moonshot` é voto de minerva por definição (xai e zhipu em lados opostos de τ), logo **em 10 episódios o desfecho consolidado muda conforme a execução**. Três são 3–3: o veredito sai literalmente no cara-ou-coroa.
+
+| | |
+|---|---|
+| instabilidade global (§8, amostra uniforme) | **1%** |
+| observações discordantes dentro dos desempates | **20 de 126 = 15,9%** |
+| episódios de desempate que oscilam | **10 de 21 = 47,6%** |
+
+A média de 99% não estava errada — media o lugar errado. Os 98,5% de episódios fáceis afogavam a borda onde o painel decide.
+
+### 9.1 Impacto ponderado — a preocupação NÃO se confirmou
+
+O desenho pondera por Horvitz-Thompson: estrato A (`is_error=true`) é censo, peso 1,0; estrato B, amostra de 800 em 4.163, peso ≈ 5,2. Havia razão para temer amplificação: este projeto já viu 1,4% de empates × peso 5,2 virarem 20% de influência.
+
+| | |
+|---|---|
+| oscilantes por estrato | A: **3** · B: **7** |
+| fração não-ponderada | 0,69% |
+| **fração ponderada** | **0,79%** |
+
+Amplificação de **1,14×**, não 15×: o denominador também é dominado por B, então o peso se cancela em boa parte. **Os resultados do estudo não estão ameaçados.** Hipótese levantada, medida, e não sustentada — fica registrada porque o registro do que se testou e não se confirmou é parte do método.
+
+### 9.2 Regra proposta
+
+**Episódio de desempate cujo veredito oscila entre execuções → `unknown`.** Coerente com o tratamento que o desenho já dá a "menos de 3 vereditos substantivos": instabilidade vira ausência de evidência, não voto de moeda. Custo: **0,8% da massa ponderada**.
+
+**Custo operacional, agora conhecido:** replicar os desempates 5×. São ~1,5% do corpus — 21 hoje, mais ~11 quando os 737 restantes forem adjudicados.
+
+⚠️ **Limites desta evidência, declarados:**
+- A hipótese veio de observação **post-hoc** (p=0,02 sobre n=2). O **censo** é a evidência; aquele p-valor é motivação, não confirmação.
+- "Oscilante" está definido por 6 observações. Um 5–1 pode ser genuinamente estável com um outlier, e a regra o trata igual a um 3–3. Um critério graduado (ex.: só 4–2 e 3–3) é defensável e **não foi pré-especificado** — por isso não o adotei sozinho.
+- O censo cobre o corpus **atual**. Os 737 não adjudicados gerarão novos desempates.
+
 ## 7. Proveniência
 
 - Colisão detectada 2026-08-13 ~13:39Z; loop automático parado às 13:39:59Z.
