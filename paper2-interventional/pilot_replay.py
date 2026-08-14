@@ -102,7 +102,25 @@ def carregar_verdicts(p: Path) -> dict[str, str]:
     Abstencao conta como ausente (§4.1); < 3 vereditos substantivos vira
     `unknown`.
     """
-    por_ep: dict[str, list[int]] = collections.defaultdict(list)
+    # Dedupe por (episode_id, panelist) — nao por episode_id sozinho.
+    #
+    # Motivo (incident 2026-08-13, docs/INCIDENTS.md): dois processos
+    # adjudicaram a mesma fila em paralelo e 40 episodios receberam DOIS
+    # vereditos do mesmo painelista. Agregando so por episode_id, o segundo
+    # entra como voto extra: 39 episodios viraram painel PAR (4 votos), e a
+    # maioria estrita abaixo resolve empate 2-2 silenciosamente para
+    # `not_failure`. Naquele caso o impacto medido foi ZERO (os pares
+    # concordavam), mas a premissa de painel impar — "sem empate por
+    # construcao" — tinha sido violada sem ninguem notar.
+    #
+    # Regra: mantem o PRIMEIRO registro de cada (episodio, painelista) na
+    # ordem do arquivo de entrada. Quando o arquivo e montado concatenando as
+    # rodadas em ordem de geracao, "primeiro no arquivo" == cronologicamente
+    # anterior, que e a regra declarada em STABILITY-TEST.md §6. Se o chamador
+    # concatenar fora de ordem, a regra degrada para "primeiro visto" — ainda
+    # deterministica e independente do conteudo do veredito, que e a
+    # propriedade que importa para nao escolher resultado.
+    por_ep: dict[str, dict[str, int]] = collections.defaultdict(dict)
     for linha in p.read_text().splitlines():
         if not linha.strip():
             continue
@@ -111,11 +129,12 @@ def carregar_verdicts(p: Path) -> dict[str, str]:
             continue
         nivel = r.get("level")
         if nivel in NIVEIS:
-            por_ep[r["episode_id"]].append(NIVEIS.index(nivel))
+            por_ep[r["episode_id"]].setdefault(r.get("panelist"), NIVEIS.index(nivel))
 
     out: dict[str, str] = {}
     corte = NIVEIS.index(TAU)
-    for ep, v in por_ep.items():
+    for ep, por_painelista in por_ep.items():
+        v = list(por_painelista.values())
         if len(v) < 3:
             continue
         n_falha = sum(1 for x in v if x >= corte)
