@@ -78,6 +78,33 @@ SEED=$(printf '%s' "$RAND" | sha256sum | cut -d' ' -f1)
 - Não altera τ, nem o painel, nem a regra de desfecho, nem a regra de
   instabilidade (`STABILITY-TEST.md` §9.2).
 
+## Verificação da extração (2026-08-14, pós-declaração)
+
+O universo foi regenerado do `action-archive` da VPS e **bate exatamente com o
+desenho declarado acima**: 700 episódios, 65 no estrato A, 47 sessões distintas.
+Sorteio dos 122 pelo round 31309420 (`randomness` `6a9b71b4…f0b57`,
+`seed = SHA256(randomness)` = `fd9b4027…aa85`) fecha em **19,213%** — o 19,235%
+declarado é a fração exata `1.576/8.194`; 122 é seu arredondamento para inteiro.
+
+### ⚠️ Censura à direita no último epoch de toda extração
+
+A mesma extração mostrou o epoch **11/08 com 316 episódios**, contra os **264**
+congelados no `universo-extensao.jsonl` da extensão 1 — porque aquela extração
+rodou *durante* o 11/08 e capturou 83,5% do epoch. **Todo último epoch de uma
+extração é parcial**, e isso não estava registrado em lugar nenhum.
+
+Consequências, nesta ordem:
+
+1. **O epoch 11/08 da extensão 1 fica como está.** Completá-lo agora seria mexer
+   no corpus depois de ver o resultado do sizing — exatamente o que o desenho
+   proíbe. Ele entra como cluster menor, o que o ICC comporta.
+2. **O epoch 14/08 desta extensão também é parcial** (244 episódios, extraído às
+   ~23:00 UTC de um epoch que só fecha às 09:00 UTC de 15/08). Entra parcial, e
+   isto está declarado *antes* da adjudicação, não depois.
+3. Para extrações futuras: **descartar o epoch corrente** ou esperar sua
+   fronteira. Um cluster truncado não enviesa o ICC por si só, mas reduz m̄ de
+   forma não-aleatória — e m̄ é o termo que domina o design effect.
+
 ## O que esta extensão não resolve
 
 Mesmo com sucesso total, chegamos a **30 epochs — o piso, não uma folga**. O
