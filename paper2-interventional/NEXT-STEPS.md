@@ -4,7 +4,7 @@
 
 ## Onde estamos
 
-O **pré-registro está pronto para o OSF.** Nenhum `[TO LOCK]` espera análise. O estudo **não começou** — nenhum epoch randomizado existe, e tudo que foi medido é pré-tratamento, sobre corpus histórico sem atribuição de braço.
+O **pré-registro está pronto para o OSF** (v1.3). Nenhum `[TO LOCK]` espera análise. Em 15/08 medir a dose expôs e fechou um termo indefinido no braço de tratamento (`linked`) — ver `LINK-FEASIBILITY-2026-08-15.md`. O estudo **não começou** — nenhum epoch randomizado existe, e tudo que foi medido é pré-tratamento, sobre corpus histórico sem atribuição de braço.
 
 O gate do arXiv ID do Paper 1 **não bloqueia mais o Paper 2**. Ele bloqueava a *publicação*; o pré-registro e o piloto seguiram sem ele, e o moderador respondeu em 13/08 que o atraso é volume — sem ação nossa. Não recontatar.
 
@@ -18,9 +18,10 @@ Registrar dispara, em ordem: `T_seed_assign` fica declarável (deve ser posterio
 
 | | O quê | Nota |
 |---|---|---|
-| 1 | Executar o estudo — **174 epochs** | ~5,7 meses. Sem análise interina, sem parada opcional |
-| 2 | ~~Ler InterruptBench~~ | ✅ 15/08 — `RELATED-WORK.md` §4.2 |
-| 3 | ~~Resolver "hypotree"~~ | ✅ 15/08 — era um **MCP server**, não um paper. §4.3 |
+| 1 | Fixar o operacional da escrita: qual componente escreve o chunk e com que template | Não muda número travado; tem de existir antes do 1º epoch |
+| 2 | Executar o estudo — **174 epochs** | ~5,7 meses. Sem análise interina, sem parada opcional |
+| 3 | ~~Ler InterruptBench~~ | ✅ 15/08 — `RELATED-WORK.md` §4.2 |
+| 4 | ~~Resolver "hypotree"~~ | ✅ 15/08 — era um **MCP server**, não um paper. §4.3 |
 
 ## Aberto, e não é trabalho nosso
 
