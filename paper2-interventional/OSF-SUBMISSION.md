@@ -10,8 +10,8 @@
 
 | Arquivo | Onde | Nota |
 |---|---|---|
-| `PREREG-v1.0-2026-08-15.pdf` | scratchpad da sessão (212 KB) | Anexo principal. Emoji e símbolos convertidos para ASCII — os números travados foram verificados após a conversão |
-| `PREREG-v1.0-2026-08-15.html` | scratchpad (150 KB) | Preserva tabelas e formatação melhor que o PDF; anexar como secundário se o OSF aceitar |
+| `PREREG-v1.1-2026-08-15.pdf` | ⚠️ **a regerar** | Anexo principal. Emoji e símbolos convertidos para ASCII — os números travados foram verificados após a conversão |
+| `PREREG-v1.1-2026-08-15.html` | ⚠️ **a regerar** | Preserva tabelas e formatação melhor que o PDF; anexar como secundário se o OSF aceitar |
 | `PREREG-DRAFT.md` | repo | O original. O PDF é derivado dele |
 
 ⚠️ **O que NÃO anexar:** nada de `~/.paper2-verdicts/` nem do `action-archive`. Os episódios carregam conteúdo real de trabalho. O registro aponta para hashes (`CORPUS-FREEZE.md`, `corpus-manifest-*.txt`), não para o corpus.
@@ -24,7 +24,7 @@
 
 **Descrição (abstract do registro):**
 
-> Retrieval metrics score representation, not decision. This study measures whether the composition of an agent's memory changes what the agent *does*, using a fleet-wide randomised crossover on live production traffic rather than a curated benchmark. Epochs of 24 h are assigned to arms by a public randomness beacon whose round is declared before it exists; outcomes are adjudicated blind by a frozen multi-model panel; the primary outcome is repeated-failure density per session-hour. N = 154 epochs, powered for relative effects ≥ 25%. All parameters were fixed on a historical corpus with no arm assignment, before any randomised epoch existed.
+> Retrieval metrics score representation, not decision. This study measures whether the composition of an agent's memory changes what the agent *does*, using a fleet-wide randomised crossover on live production traffic rather than a curated benchmark. Epochs of 24 h are assigned to arms by a public randomness beacon whose round is declared before it exists; outcomes are adjudicated blind by a frozen multi-model panel; the primary outcome is repeated-failure density per session-hour. N = 174 epochs, powered for relative effects >= 30%, sized on the upper confidence limit of the intra-cluster correlation. All parameters were fixed on a historical corpus with no arm assignment, before any randomised epoch existed.
 
 **Licença:** CC-BY 4.0 — mesma do repo, e o registro é para ser citado.
 
@@ -51,7 +51,7 @@
 ## Verificações feitas antes de declarar v1.0
 
 - [x] Todos os `[TO LOCK]` que exigiam análise, fechados (N, δ, p95; α já estava)
-- [x] Números travados consistentes em todas as menções — corrigida **uma** contradição real: a tabela de riscos ainda listava "MDE 20%" como mitigação, quando o lock é 25% via cláusula de escape
+- [x] Números travados consistentes em todas as menções — corrigidas duas contradições reais: a tabela de riscos listava "MDE 20%" como mitigação, e o `N` estava dimensionado no **ponto** do ICC quando o lock (b) de 30/07 manda dimensionar no **limite superior**. Lock final: **N = 174, MDE 30%, limite superior** (e o valor histórico a 25% no ponto era 152, não 154)
 - [x] Cabeçalho do documento atualizado de "DRAFT v0.3 (NOT LOCKED)" para "v1.0, READY TO REGISTER"
-- [x] PDF gerado e conferido — `154 randomized epochs`, `36,67`, `7,45 s`, `65 206` presentes após a conversão
+- [ ] ⚠️ **PDF/HTML precisam ser regerados** — os que estão no scratchpad carregam `154` / `25%`, superados. Conferir após a conversão: `174 randomized epochs`, `≥ 30%`, `36,67`, `7,45 s`, `65 206`
 - [x] Nenhum dado de episódio no repo público

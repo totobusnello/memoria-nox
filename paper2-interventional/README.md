@@ -29,7 +29,7 @@ Métricas de retrieval (nDCG/recall) medem **representação**, não **decisão*
 | Rota do desenho (§0) | ✅ Route 2-lite, 12/07 |
 | Epoch 24 h · washout 2 h · τ=S1 · painel · prompt | ✅ 29/07 |
 | `α` (dose relativa ao spread) | ✅ 29/07 — `w × Δ_cut`, `w ∈ {0.5, 1.0, 2.0}` |
-| `N_epochs` = **154** · "powered only for effects ≥ 25%" | ✅ 15/08 |
+| `N_epochs` = **174** · "powered only for effects ≥ 30%" · dimensionado no **limite superior** do ICC | ✅ 15/08 (corrigido no mesmo dia: o primeiro lock, 154 ao ponto, violava o lock (b) de 30/07 — e 154 era 152) |
 | `δ` (bound de carry-over) = **36,67** | ✅ 15/08 |
 | `p95` do task regret = **7,45 s** / **65 206 tokens** | ✅ 15/08 |
 | `T_seed_assign` | ⏳ exige a registração OSF existir |

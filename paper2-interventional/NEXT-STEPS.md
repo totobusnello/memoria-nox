@@ -18,7 +18,7 @@ Registrar dispara, em ordem: `T_seed_assign` fica declarável (deve ser posterio
 
 | | O quê | Nota |
 |---|---|---|
-| 1 | Executar o estudo — 154 epochs | ~5,1 meses. Sem análise interina, sem parada opcional |
+| 1 | Executar o estudo — **174 epochs** | ~5,7 meses. Sem análise interina, sem parada opcional |
 | 2 | ~~Ler InterruptBench~~ | ✅ 15/08 — `RELATED-WORK.md` §4.2 |
 | 3 | ~~Resolver "hypotree"~~ | ✅ 15/08 — era um **MCP server**, não um paper. §4.3 |
 
@@ -31,5 +31,5 @@ Registrar dispara, em ordem: `T_seed_assign` fica declarável (deve ser posterio
 
 Ambas ficaram no registro **antes** do primeiro epoch, e existem para serem verificadas contra o que acontecer, não para serem lembradas seletivamente:
 
-1. **`N = 154` provavelmente é conservador.** Os parâmetros do regime maduro do corpus dariam N=46 (106 no limite superior do ICC). Se estiver certo, o estudo chega ao horizonte com mais poder que o planejado. Ver `PREREG-DRAFT.md`, Apêndice B, nota de não-estacionariedade.
+1. **`N = 174` provavelmente é conservador.** Os parâmetros do regime maduro do corpus dariam N=46 a MDE 25% (106 no limite superior do ICC) — e o lock é mais folgado ainda, por dimensionar a 30% no limite superior. Se estiver certo, o estudo chega ao horizonte com mais poder que o planejado. Ver `PREREG-DRAFT.md`, Apêndice B, nota de não-estacionariedade.
 2. **O painel não pode provar que julgou com glm-5.2** nos 3.348 vereditos anteriores a 14/08. `model_served` passou a ser gravado, mas não é retroativo. Se a composição do painel virar questão de revisão, esta é a resposta honesta.
