@@ -364,7 +364,24 @@ Access is mixed and that is recorded because it has a cost consequence: Zhipu, x
 
 ### 4.2 Secondary outcomes
 
-Task regret (excess time-to-resolution + token cost vs. best known resolution of the same signature, winsorized at **[TO LOCK: p95]**); the H1a–c co-primary family (§1).
+Task regret (excess time-to-resolution + token cost vs. best known resolution of the same signature, winsorized at **p95 — LOCKED 2026-08-15**); the H1a–c co-primary family (§1).
+
+> #### Task regret — winsorization points, and an ambiguity in the original wording
+>
+> | component | winsorized at |
+> |---|---|
+> | excess time-to-resolution | **7,45 s** |
+> | excess token cost | **65 206 tokens** |
+>
+> **Why two numbers and not one.** As written above, task regret is "excess time-to-resolution **+** token cost". Those are seconds and tokens; summing them requires a conversion rate the registration never declared. Inventing one now — with the distribution already measured — would be choosing an estimator with the data in view. The two components are therefore **winsorized separately and reported as a family**, in the same spirit as the Holm-corrected H1a–c. This resolves an ambiguity in the original phrasing rather than changing the outcome: no component is added or removed, and if a defensible seconds-per-token rate is ever declared, the summed version is recoverable from the two.
+>
+> **Measured over the frozen action corpus, not the study.** 10 868 `tool_use`/`tool_result` pairs; 10 724 episodes carry regret; 0 discarded for missing timestamp and 0 for missing `usage`. "Best known resolution" is the **minimum among successful episodes** of the same signature — using the global minimum would let a fast, cheap failure define the floor, and a failure is not a resolution. Signatures with fewer than 5 successful episodes do not define a reliable floor and are excluded (47 of 106 signatures, but only 144 of 10 868 episodes — the excluded signatures are the rare tail).
+>
+> **The one free choice was tested.** That minimum-per-signature threshold is the only parameter here that was not forced by the definition. Varying it across {3, 5, 10, 20} moves the time p95 between 7,441 s and 7,588 s (2%) and the token p95 between 64 862 and 65 220 (0,5%). The locked values do not depend on it.
+>
+> **Token accounting, declared:** input + output + `cache_creation`, **excluding `cache_read`**. Cached reads bill at a fraction of the rate, and counting them at full price would inflate long sessions — precisely the ones that accumulate cache. The choice understates the cost of long sessions and is conservative for regret.
+>
+> Script: `task_regret.py`. It **imports** the signature functions from `extract_episodes.py` and never modifies it — that file is LOCKED at commit `c0abe143` with a registered SHA-256, and the taxonomy must stay byte-identical to the frozen corpus.
 
 ### 4.3 Covariates / recorded
 
@@ -576,11 +593,11 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
 | `N_epochs` | ✅ **154, LOCKED 2026-08-15** (§3, exercising the "powered only for effects ≥ X%" clause at 25%). |
 | numeric `δ` | ✅ **36,67, LOCKED 2026-08-15** (Appendix B.5) — the only one of the five that genuinely needed the same-arm transition distribution. |
 | `α` (spread-relative dose) | ✅ **Already locked 2026-07-29** and has been for weeks. The `[TO LOCK: α]` still visible in §9 sits *inside a quoted adversarial-review block*; it is the reviewer's recommendation, which §2 **accepted and implemented** as `W_OUTCOME = w × Δ_cut` with `w ∈ {0.5, 1.0, 2.0}`. `w` *is* that `α`. Listing it here was a stale reference to a resolved item. |
-| `p95` winsorization | ⏳ **Open, and it never depended on same-arm transitions.** It is the winsorization point of *task regret* (§4.2, secondary) — excess time-to-resolution plus token cost against the best known resolution of the same signature. That needs a task-regret distribution, which is a different quantity entirely and is not derivable from the current corpus. |
+| `p95` winsorization | ✅ **LOCKED 2026-08-15** — 7,45 s (time) and 65 206 tokens (cost), measured over the frozen action corpus by `task_regret.py`. It never depended on same-arm transitions: it is the winsorization point of *task regret* (§4.2, secondary), a different quantity entirely. An earlier note here said it was "not derivable from the current corpus" — **that was wrong**: the archive carries `usage` blocks on the messages that emit each `tool_use`, so both components are measurable. |
 | calendar end date | ⏳ Blocked structurally — requires the first randomized epoch, which has not occurred. |
 | `T_seed_assign` | ⏳ Blocked structurally — requires the OSF registration to exist first. |
 
-So: two of the six are now locked, one was already locked and mis-listed, and three remain — of which two resolve themselves in sequence and only `p95` needs work.
+So: **three of the six are locked**, one was already locked and mis-listed, and the two that remain — the calendar end date and `T_seed_assign` — are blocked structurally and resolve themselves in sequence: register on OSF, which fixes `T_seed_assign`; run the first randomized epoch, which fixes the calendar date. **No `[TO LOCK]` item is waiting on analysis.**
 
 ## Appendix A — H3 figure specs (pre-committed; frozen before unblinding)
 
