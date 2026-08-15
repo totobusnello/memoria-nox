@@ -569,7 +569,18 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
 | minimum valid verdicts for majority | ✅ **3**, exercised — 5 of 300 episodes fell below it |
 | **`T_seed_assign` (UTC instant, post-registration / pre-M4)** | ⏳ **open by construction** — cannot exist before the OSF timestamp |
 
-**All remaining `[TO LOCK]` items are blocked structurally, not by effort:** `N_epochs` and the calendar end date, the `p95` winsorization point, `α` (the spread-relative dose), and the numeric `δ` all require the pilot's same-arm transition distribution; `T_seed_assign` requires the registration to exist first. Nothing else is waiting on a decision.
+**Remaining `[TO LOCK]` items — corrected 2026-08-15.** The previous version of this paragraph grouped five items as "all requiring the pilot's same-arm transition distribution". That grouping was wrong on two counts and is superseded:
+
+| Item | Status |
+|---|---|
+| `N_epochs` | ✅ **154, LOCKED 2026-08-15** (§3, exercising the "powered only for effects ≥ X%" clause at 25%). |
+| numeric `δ` | ✅ **36,67, LOCKED 2026-08-15** (Appendix B.5) — the only one of the five that genuinely needed the same-arm transition distribution. |
+| `α` (spread-relative dose) | ✅ **Already locked 2026-07-29** and has been for weeks. The `[TO LOCK: α]` still visible in §9 sits *inside a quoted adversarial-review block*; it is the reviewer's recommendation, which §2 **accepted and implemented** as `W_OUTCOME = w × Δ_cut` with `w ∈ {0.5, 1.0, 2.0}`. `w` *is* that `α`. Listing it here was a stale reference to a resolved item. |
+| `p95` winsorization | ⏳ **Open, and it never depended on same-arm transitions.** It is the winsorization point of *task regret* (§4.2, secondary) — excess time-to-resolution plus token cost against the best known resolution of the same signature. That needs a task-regret distribution, which is a different quantity entirely and is not derivable from the current corpus. |
+| calendar end date | ⏳ Blocked structurally — requires the first randomized epoch, which has not occurred. |
+| `T_seed_assign` | ⏳ Blocked structurally — requires the OSF registration to exist first. |
+
+So: two of the six are now locked, one was already locked and mis-listed, and three remain — of which two resolve themselves in sequence and only `p95` needs work.
 
 ## Appendix A — H3 figure specs (pre-committed; frozen before unblinding)
 
@@ -645,7 +656,42 @@ This is the practical payoff of pre-registering the balancing constraints: it ma
 
 2. **Mechanistic anchor.** The measured content divergence between successive snapshots. From T7 of the snapshot spec, the corpus divergence per 24 h epoch is **0.144%** and the divergence in what the brief actually serves was **0 of 7,235 slots** in the one epoch with serving data. A snapshot that is ~99.86% identical to its predecessor cannot plausibly carry a large behavioural effect — but the serving-level figure has **n = 1** and is reported as such.
 
-**[TO LOCK]** the numeric δ, after the pilot supplies the same-arm transition distribution. Locking it before that would be inventing a number; locking it after seeing treatment effects would be adaptive. The pilot is the only window in which it can be honestly fixed.
+~~**[TO LOCK]** the numeric δ~~ **✅ δ = 36,67 repeated failures per session-hour — LOCKED 2026-08-15.**
+
+Computed exactly as B.5 defines it: the p95 (linear interpolation) of the absolute epoch-to-epoch difference in the primary outcome across same-arm transitions, over the 30-epoch pilot corpus in which **every epoch is control**. 27 of the 29 possible transitions were used; **2 were discarded because the epochs are not calendar-adjacent** (11/07→16/07, a 120 h gap, and 31/07→02/08, 48 h). A difference across a multi-day gap accumulates drift from the whole interval and is not an epoch-to-epoch transition; including them would have inflated δ. Script: `delta_carryover.py`.
+
+**δ is 4,8× the mean per-epoch density (7,69).** That is large, and it is meant to be: B.5 attributes *all* same-arm drift to carry-over, when most of it is traffic noise. The bound it feeds is `τ̂ ± δ·|p₁−p₀|`, and `|p₁−p₀|` is a **design** quantity driven toward zero by transition balancing — so a large δ multiplied by a near-zero transition imbalance still yields a narrow bound. The conservatism is priced in deliberately.
+
+**Checked against the obvious objection.** A δ this size could have been an artifact of the corpus's early epochs, where the density is near zero. It is not: recomputed over the mature half of the corpus alone (see the note below), δ is **39,60** — slightly *larger*. δ is driven by ordinary epoch-to-epoch traffic variation, not by the regime transition.
+
+---
+
+#### ⚠️ What computing δ exposed — the pilot corpus is not stationary
+
+Producing δ required looking at per-epoch density for the first time, and it showed something none of the earlier analyses had: **the outcome is not stationary across the pilot corpus.** The first epochs carry density ≈ 0 and later ones an order of magnitude more. The cause is structural, not noise — condition (i) requires a same-signature failure episode written ≥1 epoch earlier, and that stock **grows from 0 to 64 signatures across the corpus without saturating**. On 2026-08-14, the last epoch available, it was still climbing.
+
+Split by that stock (a cut that depends only on condition (i), never on the outcome), at its median of 34 signatures:
+
+| | full corpus | mature half (16 ep) | young half (14 ep) |
+|---|---|---|---|
+| `r̂` | 28,65 | **44,15** | 15,26 |
+| `p̂0` | 0,1165 | **0,1398** | 0,0580 |
+| ICC | 0,0985 | **0,0455** | 0,0149 |
+| ICC 95% CI | [0,057 ; 0,181] | [0,013 ; 0,132] | [0,001 ; 0,067] |
+| δ | 36,67 | 39,60 | 6,87 |
+
+**All three sizing inputs move `N` the same way, and it is downward.** At MDE 25% the mature-half parameters give **N = 46** against the 154 locked from the full corpus — and even at the *upper* bound of the mature ICC, **N = 106**, still below the full-corpus point estimate. The design effect falls from 5,87 to 3,25.
+
+**`N` is NOT being changed, and the reason matters more than the number.** Four grounds, in order of weight:
+
+1. **The lock was made hours earlier, and every reason to reopen it points the same way: a shorter study.** That is precisely the pattern pre-registration exists to prevent. A justification that always arrives in the convenient direction deserves more suspicion, not less — even when, as here, it is mechanistically sound.
+2. **The mature half has 16 clusters, below the 30–50 floor §9 requires for an ICC estimate.** Its ICC of 0,0455 carries a CI of [0,013 ; 0,132] — wide enough that the honest reading is "somewhere below the full-corpus figure", not a replacement value.
+3. **Nobody knows which regime the real study runs in.** The stock is still growing, so the live study will also run under a trend — and the mature half already contains its own residual trend (stock 34→64). Whether stationarity is ever reached is an open empirical question about the system, not a fact this corpus settles.
+4. **The cost of being wrong is asymmetric.** Over-sizing spends calendar; under-sizing spends the study. 154 epochs erring toward conservative is the cheap mistake.
+
+**This is registered as a prediction, not a hedge:** if `N = 154` proves conservative, the study will reach its pre-committed horizon with more power than planned. That is a stated expectation on the record now, before the first randomized epoch — not something to be claimed afterwards.
+
+The asymmetry it does surface is real and should be named: **§5 residualizes trend in the test** (outcome regressed on study-day, residuals permuted) while the sizing does not. Sizing on a trend-inflated ICC is conservative and therefore safe, so it is left as is — but the inconsistency is now on the record rather than undiscovered. Script: `maturity_sensitivity.py`.
 
 ### B.6 Reporting rule
 
