@@ -20,6 +20,7 @@ Métricas de retrieval (nDCG/recall) medem **representação**, não **decisão*
 | 2 | [`PREREG-DRAFT.md`](PREREG-DRAFT.md) | **O documento central** (124 KB). O registro inteiro: hipóteses, desenho, locks, apêndices. Tudo que decide algo está aqui ou é citado daqui. |
 | 3 | [`RELATED-WORK.md`](RELATED-WORK.md) | Onde este trabalho se situa. **Leia antes de escrever qualquer claim de novidade.** |
 | 4 | [`SIZING-2026-08-14-v2.md`](SIZING-2026-08-14-v2.md) | Os números que dimensionam o estudo, e o que ainda é incerto neles. |
+| 5 | [`OSF-SUBMISSION.md`](OSF-SUBMISSION.md) | Checklist e metadados da submissão — o próximo passo do projeto. |
 
 ## O registro — o que está travado, e quando
 

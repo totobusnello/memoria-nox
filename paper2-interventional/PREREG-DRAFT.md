@@ -1,6 +1,10 @@
-# OSF Pre-Registration — DRAFT v0.3 (NOT LOCKED)
+# OSF Pre-Registration — v1.0, READY TO REGISTER
 
-> **Status:** working draft, 2026-07-25. v0.1 was adversarially reviewed by GLM-5.2 (5 FATAL / 7 GRAVE / 10 minor — full verdict in `REVIEWS-PREREG.md`); v0.2 incorporated every fix independent of the route decision; **Route 2-lite decided 2026-07-12** (§0). **v0.3 (2026-07-25, Toto's call): no human auditor and no human data monitor will be appointed. Independence is provided structurally — by public randomness, frozen hashes, mechanical rules, and open artifacts — rather than delegated to named individuals** (§0b). Locking now blocked only on the remaining **[TO LOCK]** items (§9). This document becomes binding only when registered on OSF with a public timestamp **before** any A/B data collection.
+> **Status: v1.0 — ready for OSF submission, 2026-08-15.** Every `[TO LOCK]` item that required analysis is closed. The two that remain resolve in sequence and by construction: `T_seed_assign` needs the OSF registration timestamp to exist first, and the calendar end date needs the first randomized epoch, which has not occurred. **No randomized epoch exists; the study has not started.** Everything measured here is pre-treatment, over a historical corpus with no arm assignment.
+>
+> **Locked 2026-08-15:** `N_epochs` = 154 · MDE declared at 25% via the §3 escape clause (the 20% target is not amended, and is not reached) · `δ` = 36,67 · task-regret `p95` = 7,45 s / 65 206 tokens.
+>
+> **Version history.** v0.1, 2026-07-25. v0.1 was adversarially reviewed by GLM-5.2 (5 FATAL / 7 GRAVE / 10 minor — full verdict in `REVIEWS-PREREG.md`); v0.2 incorporated every fix independent of the route decision; **Route 2-lite decided 2026-07-12** (§0). **v0.3 (2026-07-25, Toto's call): no human auditor and no human data monitor will be appointed. Independence is provided structurally — by public randomness, frozen hashes, mechanical rules, and open artifacts — rather than delegated to named individuals** (§0b). Locking now blocked only on the remaining **[TO LOCK]** items (§9). This document becomes binding only when registered on OSF with a public timestamp **before** any A/B data collection.
 > **Companion docs:** `CONCEPT-NOTE.md` · `METHODOLOGY.md` · `DECISIONS.md` · `REVIEWS-PREREG.md`.
 
 ---
@@ -428,7 +432,7 @@ It is replaced by an **equivalence test**, which matches the claim actually bein
 | Collider / post-treatment denominator | Unconditional primary + co-primary family | — |
 | Optional stopping | Horizon in epochs/calendar only; symmetric abort | Abort = informative censoring (sensitivity) |
 | Permutation validity | Trend-residualized; sharp-null scope declared; CI separate | Sharp null covers total effect only |
-| Underpowering (rare events) | Density metric, pilot-sized power curve, MDE 20%, re-scope-before-lock | Effects < MDE undetectable (declared) |
+| Underpowering (rare events) | Density metric, pilot-sized power curve, **N = 154 locked at MDE 25% with the "powered only for effects ≥ X%" clause exercised (§3)**, re-scope-before-lock | **Effects < 25% relative undetectable — declared in the abstract, not in a limitations section.** The 20% target originally judged plausible for a brief-composition nudge is *not* reached: a null result is evidence against effects ≥25%, and not against the 15–20% band |
 | Adjudication conflict | Frozen multi-family LLM panel, majority + median, Fleiss' κ floor; verdict hash published pre-join | Correlated bias across panelists not fully excludable (§4.1) |
 | Self-interested stopping | Mechanical arm-blind abort rule; halts whole study, never one arm | — |
 | Manipulated randomization | Public `drand` beacon round postdating registration; anyone can recompute | — |
