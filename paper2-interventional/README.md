@@ -1,6 +1,8 @@
 # Paper 2 — Interventional Memory
 
-> **Status (2026-08-15): pré-registro a dois passos estruturais do OSF.** Não é mais planejamento — o piloto rodou, 7.184 pares (episódio, painelista) foram adjudicados, e quatro dos seis `[TO LOCK]` estão fechados. Os dois restantes não esperam análise: `T_seed_assign` se resolve ao registrar; a data-limite, no primeiro epoch randomizado.
+> **Status (2026-08-15): ⛔ registro BLOQUEADO em um termo indefinido.** O termo `linked` do braço de tratamento (`W_OUTCOME × severity` sobre *"chunks linked to adjudicated-failure episodes"*) nunca foi definido operacionalmente — não há chave de junção entre episódios e chunks. Braço subespecificado não é randomizável. Ver `PREREG-DRAFT.md` §9-4.
+>
+> **Antes disso era:** pré-registro a dois passos estruturais do OSF. Não é mais planejamento — o piloto rodou, 7.184 pares (episódio, painelista) foram adjudicados, e quatro dos seis `[TO LOCK]` estão fechados. Os dois restantes não esperam análise: `T_seed_assign` se resolve ao registrar; a data-limite, no primeiro epoch randomizado.
 >
 > **O que ainda não aconteceu:** nenhum epoch randomizado. O estudo não começou. Tudo abaixo é pré-tratamento.
 
@@ -54,6 +56,7 @@ Cada uma foi commitada e enviada ao repositório **antes** do round de beacon co
 | [`PILOT-PROJECTION.md`](PILOT-PROJECTION.md) | O desenho da adjudicação por peças e por que não se faz censo dos 4.577 |
 | [`SIZING-2026-08-14.md`](SIZING-2026-08-14.md) | 🔴 **Superado no mesmo dia** — três números errados por um bug no replay. Mantido como registro da retratação |
 | [`SIZING-2026-08-14-v2.md`](SIZING-2026-08-14-v2.md) | Sizing válido, 30 clusters. ICC 0,0985 [0,057 ; 0,181] |
+| [`DOSE-REACH-2026-08-15.json`](DOSE-REACH-2026-08-15.json) | A dose travada **move o brief** — 4 a 7 dos 10 slots na severidade modal. E expôs a lacuna do `linked` |
 | [`STABILITY-TEST.md`](STABILITY-TEST.md) | Estabilidade agregada 99% **esconde** 47,6% de oscilação nos desempates |
 | [`WASHOUT-SENSITIVITY-2026-08-14.md`](WASHOUT-SENSITIVITY-2026-08-14.md) | O washout de 2 h está bem calibrado — a borda dura <2 h. Registra também um confundidor de composição em que caí |
 
@@ -73,6 +76,7 @@ Todos determinísticos, stdlib pura salvo nota. Nenhum usa `random` sem seed.
 | `washout_sensitivity.py` | Exploratório — o washout basta? |
 | `maturity_sensitivity.py` | Exploratório — ⚠️ o corpus **não é estacionário** |
 | `icc_bootstrap.py` | Exploratório — bootstrap de cluster; refutou a ressalva de que Searle estaria estreito |
+| `dose_reach.mjs` | Exploratório — alcance de deslocamento nas doses **travadas** (as de 26/07 não eram). Read-only sobre o pool de produção |
 | `tests/test_icc_ci.py` | Confronta a F em stdlib contra `scipy` (150 pontos). `scipy` **só aqui** |
 
 **Exploratório** = não pré-especificado, não altera número travado, declarado como tal no cabeçalho do próprio script.

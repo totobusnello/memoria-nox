@@ -1,6 +1,10 @@
-# OSF Pre-Registration — v1.1, READY TO REGISTER
+# OSF Pre-Registration — v1.2, **BLOCKED** on one undefined term
 
-> **Status: v1.1 — ready for OSF submission, 2026-08-15.** *(Date-gated conditions written in the future tense elsewhere in this document — "no earlier than 2026-08-09" and similar — were all satisfied before this status line was written.)* Every `[TO LOCK]` item that required analysis is closed. The two that remain resolve in sequence and by construction: `T_seed_assign` needs the OSF registration timestamp to exist first, and the calendar end date needs the first randomized epoch, which has not occurred. **No randomized epoch exists; the study has not started.** Everything measured here is pre-treatment, over a historical corpus with no arm assignment.
+> ### ⛔ NOT READY TO REGISTER — blocked 2026-08-15, after v1.1 was declared ready
+>
+> A pre-treatment measurement run today (`dose_reach.mjs`) answered the dose question and, in doing so, exposed that the treatment arm contains an **undefined term**: `W_OUTCOME × severity` applies to *"chunks linked to adjudicated-failure episodes"*, and **"linked" is never operationally defined** — there is no join key between episodes and chunks, and the obvious wiring is explicitly forbidden. An underspecified arm is not randomisable, so registration waits on one lock. Detail in §3 (the dose measurement) and §9-4 (the gap). Everything else in this document is unchanged and remains locked.
+>
+> **Status: v1.2 — 2026-08-15.** *(Date-gated conditions written in the future tense elsewhere in this document — "no earlier than 2026-08-09" and similar — were all satisfied before this status line was written.)* Every `[TO LOCK]` item that required analysis is closed. The two that remain resolve in sequence and by construction: `T_seed_assign` needs the OSF registration timestamp to exist first, and the calendar end date needs the first randomized epoch, which has not occurred. **No randomized epoch exists; the study has not started.** Everything measured here is pre-treatment, over a historical corpus with no arm assignment.
 >
 > ### ✅ `N_epochs` corrigido para cumprir o lock (b) — 2026-08-15
 >
@@ -234,6 +238,30 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 > 1. **A null on H1 is reported as jointly ambiguous.** It will be written as *"either no effect ≥30%, or a dose ceiling below 30% — this design cannot separate them"*, never as evidence that memory composition does not change behaviour.
 > 2. **The dose-arm contrast (`w ∈ {0.5, 1.0, 2.0}`) is the only internal handle on this.** If H1 is null while showing no gradient across `w`, a ceiling is the more parsimonious reading; a gradient without significance points at power. This is a reading rule, declared before data, not a test.
 > 3. **The shadow dose–age curve is reported alongside the primary result regardless of outcome**, because it is the only pre-treatment evidence about how much of the brief the treatment can actually reach.
+>
+> ---
+>
+> #### ⚠️ MEASURED 2026-08-15 — the paragraph above was written on a false premise, and is superseded in part
+>
+> It claimed the dose question *"cannot be obtained without running the intervention"*. That is wrong, and the registration already contained the method: §9-4 measured displacement reach on the live candidate pool on 2026-07-26. What it did **not** do is measure it at the doses that will actually run. The 2026-07-26 note covered `W_OUTCOME ∈ {0.10, 0.15, 0.20}`; the 2026-07-29 lock re-expressed the dose as `w × Δ_cut` with `Δ_cut = 0.043`, i.e. **`W_OUTCOME ∈ {0.0215, 0.043, 0.086}` — every locked dose below the lowest value ever measured.** The famous sentence *"0.15 is authority to rewrite the brief"* therefore describes **no dose this study will administer**.
+>
+> Measured now by `dose_reach.mjs` (read-only, same 500-row candidate pool and the real `calculateSalience`; full output in `DOSE-REACH-2026-08-15.json`). It reproduces the historical figures within corpus drift — 0.15 at severity 1.0 gives 326 chunks in reach today against the 303 reported in July — which is what licenses reading the new rows.
+>
+> **The severity that matters is not the ceiling.** Over the 3 812 unique (episode, panelist) `failure` verdicts of the frozen pilot corpus: **S1 69,73% · S2 29,62% · S3 0,58% · S4 0,08%** — median **S1**, mean **0,3275**. The severity = 1.0 ceiling used throughout §9-4 is reached by **3 verdicts in 3 812**.
+>
+> | dose | boost at empirical median (S1) | chunks reaching the cut | of 10 incumbents, displaceable |
+> |---|---|---|---|
+> | `w = 0.5` | 0,0054 | 3 | **4** |
+> | `w = 1.0` | 0,0107 | 5 | **5** |
+> | `w = 2.0` | 0,0215 | 12 | **7** |
+>
+> **The mechanism is alive at the locked doses, and it is a nudge rather than a rewrite** — which is what §2 said it wanted and had never checked. At the modal severity the lowest dose puts 4 of 10 slots in play and the highest 7; none of the three reaches the total-rewrite regime that 0.15 produces. The `w` arm is therefore a real gradient and not three labels for the same brief.
+>
+> **What this does and does not settle.** It settles that the treatment can change brief *composition* at the doses locked. It does **not** settle that changed composition changes behaviour by 30% — that remains unmeasurable before the intervention, and the three pre-commitments above stand unchanged. What it removes is the stronger worry: the study is not powered for an effect the mechanism cannot produce at all.
+>
+> **Δ_cut drift, declared:** the top-10 spread measured today is **0,0349** against the **0,043** frozen at lock — −0,0081, about 19% narrower. `Δ_cut` is frozen pre-treatment by design (§2) and is **not** updated; the drift is recorded because it means the locked doses are slightly *larger* relative to today's spread than they were at lock, which moves the effect in the direction of more displacement, not less.
+>
+> ⛔ **This measurement also exposed a gap that no `[TO LOCK]` list contains — see the note that follows §9-4.**
 
 **Sample size & power (G1 fix).** MDE target: **20% relative (LOCKED 2026-07-29)** change in H1 (not 40% — implausibly large for a brief-composition nudge). At lock we commit a **power curve** (power vs. true relative effect at the locked N), not a single point. If the locked N yields <80% power at the 20% MDE, we either extend the pre-committed window **before** lock or lock with an explicit "powered only for effects ≥ X%" declaration in the abstract of the registration.
 
@@ -613,6 +641,14 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
    > **Recommendation:** parameterize `W_OUTCOME` **relative to the observed salience spread at the cut** rather than as a round absolute. E.g. `W_OUTCOME = α × (s_1 − s_N)`, which at the measured top-10 spread makes α = 1 mean "a maximum-severity episode moves from the cut to the top" — an interpretable unit that survives corpus drift, whereas 0.15 silently means something different as the distribution changes. **[TO LOCK: α]**, with the absolute value it implies recorded at lock.
    >
    > Caveat: the figures are the **ceiling** (severity = 1.0, chunk already in the pool). Realized displacement also depends on how many episode-linked chunks exist and their severity distribution — which needs item 0.
+>
+   > ⛔ **UNRESOLVED, and it is not on any lock list — found 2026-08-15.** The caveat above says realized displacement needs "item 0", the episode corpus. That corpus now exists (7 184 adjudicated pairs, 30 epochs) and the severity half of the caveat is answered above. **The other half is not, because the term it depends on was never defined.** §2 specifies the treatment as `W_OUTCOME × severity` on *"chunks linked to adjudicated-failure episodes"*, and **nowhere in this registration, in `specs/`, or in the implementation is "linked" given an operational definition.** The one obvious wiring is explicitly forbidden two lines below — *"Do not wire this to the existing `pain` column"* — without a replacement being named.
+   >
+   > This is not a refinement. Episodes are `tool_use`/`tool_result` pairs in the action archive; chunks are nox-mem memory rows. **There is no join key between them.** The link has to be constructed, and how it is constructed decides which chunks get boosted — that is, it decides the treatment itself. Two defensible constructions (by `sig()` signature; by source-file provenance) would boost different sets and are not interchangeable.
+   >
+   > **It is registered here as open rather than resolved on the spot**, because choosing the construction is a design decision with the pilot corpus in view, and the right place for it is a declared lock with its rationale — not a footnote written in the same hour it was found. **The study cannot start until it is closed:** without it the treatment arm is underspecified, and an underspecified arm is not randomisable.
+   >
+   > Recorded plainly: this survived v0.1 through v1.1, one GLM review, one Kimi review and one Grok review. Every reader — including the ones looking for exactly this — read `W_OUTCOME × severity` and checked the coefficient, never the set it multiplies.
    ⚠️ **Do not wire this to the existing `pain` column.** Measured 2026-07-26: `pain` is a **topical** signal, not an episodic one. It is set two ways, neither of which is a per-episode severity judgment — (a) a v9 backfill (2026-04) that assigned 0.5 to 3,773 chunks, and (b) `inferPain()`, which adds +0.5 when a regex for `incident|outage|breach|critical|emergency|sev-[0-2]|p0` matches the **text**. So a document *about* failure scores like a failure: the largest `pain=0.5` groups are SEC filings (F-4, 20-F, securities purchase agreements) and the `pain≥0.9` set is led by a rollback-mechanisms skill doc and an incident-response reference. Distribution is degenerate — 62,425 chunks at exactly 0.2, 4,129 at exactly 0.5, 566 at 1.0. A treatment keyed to `pain` would boost SEC filings, not lessons. Severity must come from the adjudication panel (§4.1), as already specified.
 5. `sig()` taxonomy + frozen pipeline commit + synthetic-input PAP hash. ⛔ **Taxonomy blocked on item 0** — it cannot be derived from an action stream that is not recorded, and inventing the classes would be designing the taxonomy toward the result. The **pipeline freeze and PAP hash are unblocked** (P2S1 closed) and can proceed independently.
 6. Severity (0.5) + Fleiss' κ (≥ 0.75) thresholds.
