@@ -19,8 +19,8 @@ Registrar dispara, em ordem: `T_seed_assign` fica declarável (deve ser posterio
 | | O quê | Nota |
 |---|---|---|
 | 1 | Executar o estudo — 154 epochs | ~5,1 meses. Sem análise interina, sem parada opcional |
-| 2 | Ler InterruptBench (2604.00892) | O único vizinho não-estacionário que falta |
-| 3 | Resolver ou descartar "hypotree" | Referência não resolvível nas notas; pior que nenhuma |
+| 2 | ~~Ler InterruptBench~~ | ✅ 15/08 — `RELATED-WORK.md` §4.2 |
+| 3 | ~~Resolver "hypotree"~~ | ✅ 15/08 — era um **MCP server**, não um paper. §4.3 |
 
 ## Aberto, e não é trabalho nosso
 

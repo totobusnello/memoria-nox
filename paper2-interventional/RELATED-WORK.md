@@ -1,6 +1,6 @@
 # Related Work — Paper 2 (Interventional Memory)
 
-> **Status:** v0.3, 2026-08-15. Sections 1, 2, 4, 4.1, 5 and 6 are written against sources **read in full** — Huang et al. (TMLR 07/2026), MemoryArena (2602.16313) and Evo-Memory (2511.20857). Section 3 remains at **abstract-and-metadata granularity** and is marked as such; §3.1's Evo-Memory row is superseded by §4.1.
+> **Status:** v0.4, 2026-08-15. Sections 1, 2, 4, 4.1, 5 and 6 are written against sources **read in full**; §4.2 at abstract level (sufficient — the point is a distinction, not an overlap); §4.3 resolves a dangling reference — Huang et al. (TMLR 07/2026), MemoryArena (2602.16313) and Evo-Memory (2511.20857). Section 3 remains at **abstract-and-metadata granularity** and is marked as such; §3.1's Evo-Memory row is superseded by §4.1.
 >
 > Prior to this file the Paper 2 workspace contained **no external citation of any kind** — this is the first.
 
@@ -90,7 +90,24 @@ Order is **held fixed**, and fixing it is presented — correctly, for their pur
 
 Note also that the first author is a core contributor to the Huang et al. survey, and that MemoryArena's Table 1 marks Evo-Memory as having no enforced cross-session dependency — the two nearest neighbours already disagree about each other's coverage, which is worth one sentence as evidence that the evaluation question is unsettled.
 
-**"hypotree"** — carried in our project notes as prior art; the actual citation was never resolved and it is not cited in the survey. Either resolve it to a real work or drop it from our notes; an unresolvable reference is worse than none.
+### 4.2 InterruptBench — the other non-stationarity, and it is not ours
+
+**InterruptBench** — arXiv:2604.00892 (Zou et al., Apr 2026). Derived from WebArena-Lite, it formalises three interruption types (addition, revision, retraction) and evaluates six backbones on whether agents adapt when the *user changes their mind* mid-task.
+
+Read at abstract granularity, and that suffices for our purpose, because the relevant point is a **distinction, not an overlap**. Both works are about non-stationarity, but of different objects:
+
+- **Theirs:** the *user's intent* changes during execution. The environment and the agent's memory are stable; the target moves.
+- **Ours:** the *memory itself* changes because it accumulates. Intent is whatever production traffic brings, and the thing that drifts is the stock of eligible signatures — which we measured growing from 0 to 64 across the pilot corpus without saturating (`PREREG-DRAFT.md`, Appendix B note).
+
+Neither subsumes the other, and conflating them would be a mistake: an agent could be perfectly interruptible and still have a memory whose composition never changes what it does. Worth one sentence in the manuscript as the nearest work on the non-stationary axis, with the distinction stated.
+
+### 4.3 "hypotree" — resolved 2026-08-15, and it was not a paper
+
+Carried in our notes as prior art with an unresolvable citation. It resolves to an **MCP server** (`mcpservers.org/servers/tygryso/hypotree`, published 2026-07-31), not to an academic work — which is why it never appeared in the survey's 218 references and why the citation could not be found.
+
+It is worth knowing about anyway, because it occupies the same cell we do. Its own description — *"Current agent memory is passive: vector stores and scratchpads accumulate facts but never revise them"* — is the same complaint the systems-characterisation paper makes in its Recommendation 9, and it implements the same answer we do: a hypothesis DAG over SQLite-WAL that retracts dependent beliefs when a premise collapses, tagged *"memory that forgets"*.
+
+**Cite as a related system, never as prior art for the claim.** It makes no measurement claim, runs no experiment, and reports no effect. The pending note in our records is closed: it was neither a paper nor a competitor, and carrying it as an unresolved reference for weeks was worse than either.
 
 ---
 
@@ -114,8 +131,8 @@ The three sit in a clean progression, and the manuscript should say so plainly: 
 
 1. ✅ **MemoryArena** (2602.16313) read in full 2026-08-15 — §4 rewritten. The distinguishing axis did **not** narrow: their comparison is observational, between systems on fixed tasks.
 2. ✅ **Evo-Memory** (2511.20857) read in full 2026-08-15 — §4.1 added. They hold task order fixed by design and separately measure that order is worth up to 12 points; they recommend care in sequence design, which is the problem randomisation solves.
-3. Read InterruptBench (2604.00892) — the only non-stationary neighbour.
-4. Resolve or drop "hypotree".
+3. ✅ **InterruptBench** (2604.00892) read at abstract level 2026-08-15 — §4.2. Their non-stationarity is the *user's intent*; ours is the *memory stock*. Distinct, and the manuscript must say so.
+4. ✅ **"hypotree" resolved 2026-08-15** — §4.3. It is an **MCP server**, not a paper; that is why the citation was never findable. Cite as a related system, never as prior art.
 5. Decide whether HaluMem's MI/FMR are adopted as KG-health instruments (roadmap S1) — an engineering decision, separate from this paper.
 
 ## Provenance
