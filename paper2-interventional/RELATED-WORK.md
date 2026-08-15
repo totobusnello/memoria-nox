@@ -1,6 +1,12 @@
 # Related Work — Paper 2 (Interventional Memory)
 
-> **Status:** v0.4, 2026-08-15. Sections 1, 2, 4, 4.1, 5 and 6 are written against sources **read in full**; §4.2 at abstract level (sufficient — the point is a distinction, not an overlap); §4.3 resolves a dangling reference — Huang et al. (TMLR 07/2026), MemoryArena (2602.16313) and Evo-Memory (2511.20857). Section 3 remains at **abstract-and-metadata granularity** and is marked as such; §3.1's Evo-Memory row is superseded by §4.1.
+> **Status:** v0.4, 2026-08-15.
+>
+> Sections 1, 2, 4, 4.1, 5 and 6 are written against three sources **read in full**: Huang et al. (TMLR 07/2026), MemoryArena (2602.16313) and Evo-Memory (2511.20857).
+>
+> §4.2 (InterruptBench) is at abstract level, and that is sufficient — the point there is a *distinction*, not an overlap. §4.3 closes a reference that had been dangling in our notes for weeks.
+>
+> Section 3 remains at **abstract-and-metadata granularity**. Two of its rows are superseded by later sections: Evo-Memory by §4.1 and InterruptBench by §4.2. They are left in place because §3 is the map of the neighbourhood; §4 is where the confrontation happens.
 >
 > Prior to this file the Paper 2 workspace contained **no external citation of any kind** — this is the first.
 
