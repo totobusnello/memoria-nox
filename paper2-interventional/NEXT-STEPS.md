@@ -1,53 +1,35 @@
 # Próximos passos — Paper 2
 
-> Postura atual: **esperando o arXiv ID do Paper 1** (`2507.XXXXX`, em *on hold* desde 2026-07-01).
+> **Reescrito 2026-08-15.** A versão anterior abria com *"Nada de execução do Paper 2 começa antes de o Paper 1 sair do hold"* — e a execução tinha começado: o piloto rodou, 7.184 pares foram adjudicados, quatro locks fecharam. O documento afirmava o oposto do estado real, que é a pior coisa que um documento de estado pode fazer. Histórico dos gates originais: `git log -- NEXT-STEPS.md`.
 
-## Gate
+## Onde estamos
 
-Nada de execução do Paper 2 começa antes de:
+O **pré-registro está pronto para o OSF.** Nenhum `[TO LOCK]` espera análise. O estudo **não começou** — nenhum epoch randomizado existe, e tudo que foi medido é pré-tratamento, sobre corpus histórico sem atribuição de braço.
 
-1. **Paper 1 sair do hold** (ID `2507.XXXXX` público).
-2. Fechar o loop técnico do Paper 1 (badge do README + `CITATION.cff` + os 2 blocos BibTeX com o ID real — arquivos na raiz do repo).
+O gate do arXiv ID do Paper 1 **não bloqueia mais o Paper 2**. Ele bloqueava a *publicação*; o pré-registro e o piloto seguiram sem ele, e o moderador respondeu em 13/08 que o atraso é volume — sem ação nossa. Não recontatar.
 
-## Quando o ID sair → primeiro entregável
+## O próximo passo, e por que é este
 
-~~**Concept note de 1 página**~~ ✅ **FEITA (antecipada 2026-07-12, autorizada pelo Toto)** → **`CONCEPT-NOTE.md`** — problema · claim em 2 camadas · 2 figuras · reusa/constrói · guardas (SUTVA + pré-registro + adjudicação + artefato + COI) embutidas; em inglês. Execução segue gated no ID. *(A guarda de adjudicação foi reescrita em 2026-07-25 — sem auditor humano; ver `PREREG-DRAFT.md` §0b.)*
+**Registrar no OSF.** É o que transforma o documento de arquivo-no-nosso-repo em ativo público datado. Sem timestamp externo anterior à coleta, a palavra "pré-registrado" no paper inteiro se apoia só no nosso `git log` — que é bom, mas é nosso.
 
-**Novo primeiro entregável pós-ID:** ~~rascunho de pré-registro OSF~~ ✅ **FEITO (v0.2, 2026-07-12)** → **decisão de ROTA do desenho** (`PREREG-DRAFT.md` §0 — bloqueia o lock; call do Toto).
+Registrar dispara, em ordem: `T_seed_assign` fica declarável (deve ser posterior ao timestamp OSF e anterior ao primeiro epoch de tratamento) → primeiro epoch randomizado → data-limite de calendário. Os dois `[TO LOCK]` restantes caem por consequência.
 
-## Duas trilhas em paralelo (2026-07-26)
+## Depois disso
 
-O mecanismo de snapshot — que era o **único bloqueador de engenharia** — está em produção (P2S1 T1–T5, modo `off`). Isso abriu paralelismo entre a engenharia restante (T6/T7/T8) e as decisões do §9.
+| | O quê | Nota |
+|---|---|---|
+| 1 | Executar o estudo — 154 epochs | ~5,1 meses. Sem análise interina, sem parada opcional |
+| 2 | Ler InterruptBench (2604.00892) | O único vizinho não-estacionário que falta |
+| 3 | Resolver ou descartar "hypotree" | Referência não resolvível nas notas; pior que nenhuma |
 
-→ **`PLAN-2-TRILHAS.md`** traz o plano, os dois acoplamentos reais (o shadow do T6 produz a variância que a curva de poder precisa; o hash do pipeline congelado exige que a engenharia pare) e a ordem recomendada.
+## Aberto, e não é trabalho nosso
 
-⚠️ O gate acima continua valendo: ele **não** bloqueia decisão nem escrita, mas bloqueia o **piloto**.
+- **Para quem escrever no Stanford** (`docs/STANFORD-OUTREACH.md`): correspondência do 2606.06448 é da Omri; o cluster que liga ao MemoryArena é He/Pentland. Decisão do Toto.
+- **arXiv ID do Paper 1**: sem ação possível.
 
-## Checklist de metodologia (a coisa de verdade — 80% do paper)
+## Previsões registradas — cobrar depois
 
-- [x] Rascunho de **pré-registro OSF** — `PREREG-DRAFT.md` v0.2 (2026-07-12): v0.1 + review adversarial GLM (5 FATAL/7 GRAVE/10 menor, `REVIEWS-PREREG.md`) incorporada. Primário incondicional (density/session-hour) + co-primárias; stopping em epochs; fleet-wide epochs + serving snapshots; pilot pré-registrado; estimando em potential outcomes. **Pendente: decisão de rota (§0) + itens [TO LOCK]**
-- [x] **Decisão de rota** ✅ **2-lite** (Toto, 2026-07-12): epochs fleet-wide + serving-side snapshots; rota 1 = fallback documentado (ver `DECISIONS.md`)
-- [ ] **Spec do serving-side snapshot** (nox-mem: brief servido do snapshot de início de epoch, writes intocados) — pré-requisito de engenharia da 2-lite; shadow-validar antes do pilot
-- [ ] Desenho de **randomização SUTVA-safe** (cluster por agente / bloco de tempo / washout)
-- [ ] Spec de **sanitização** do benchmark (hashing, buckets, esquema de labels, IAA)
-- [x] ~~Recrutar **auditor externo** (≥1, outra instituição)~~ **CANCELADO por decisão (Toto, 2026-07-25)** — sem pessoas; independência estrutural via beacon público + abort mecânico + painel multi-família + hashes de ordenação (`PREREG-DRAFT.md` §0b)
-- [ ] Selecionar **≥2 baselines** pra rodar por gente de fora do time
-- [ ] Construir **counterfactual replay harness** (offline, grosso)
-- [ ] Construir **A/B low-stakes** ao vivo (validação)
+Ambas ficaram no registro **antes** do primeiro epoch, e existem para serem verificadas contra o que acontecer, não para serem lembradas seletivamente:
 
-## Riscos / kill-conditions (GLM)
-
-- ❌ **Sem pré-registro** → whitepaper de vendor, não passa.
-- ❌ **SUTVA cross-agent não tratado** → reviewer 2 mata em NeurIPS D&B, desk-reject provável em COLM.
-- ❌ **"Causal" sobrevendido** → desk-reject por inflation terminológica.
-- ⚠️ **Selection/survivorship** nos traces + **Hawthorne/drift** na janela do A/B — endereçar no desenho.
-
-## Timeline (rough, condicional ao ID)
-
-- **T0** = arXiv ID do Paper 1 público.
-- T0 + dias: ~~concept note~~ (✅ pronta, 2026-07-12) + rascunho de pré-registro.
-- Depois: desenho SUTVA + harness replay → pré-registro trancado → A/B → análise → draft.
-
-## Fora de escopo (não fazer aqui)
-
-- Produtização / campanha de estrelas do `nox-mem` → repo-produto `nox-mem` (ex-supermem), outra conversa. Este workspace é só o paper.
+1. **`N = 154` provavelmente é conservador.** Os parâmetros do regime maduro do corpus dariam N=46 (106 no limite superior do ICC). Se estiver certo, o estudo chega ao horizonte com mais poder que o planejado. Ver `PREREG-DRAFT.md`, Apêndice B, nota de não-estacionariedade.
+2. **O painel não pode provar que julgou com glm-5.2** nos 3.348 vereditos anteriores a 14/08. `model_served` passou a ser gravado, mas não é retroativo. Se a composição do painel virar questão de revisão, esta é a resposta honesta.
