@@ -42,9 +42,17 @@ package should be read against it.
 
 Two consequences are registered **before** any arm data exists, so that widening
 them later is visibly an amendment rather than a refinement: the effectively
-treated population is **~30% of failures** (severity S2 and above), and reaching
-the modal S1 failure would require `w ≈ 6.0` — three times the top of the locked
-band.
+treated population is **~30% of failures** (severity S2 and above) **provided the
+failure recurs within about a week**, and reaching the modal S1 failure would
+require `w ≈ 6.0` — three times the top of the locked band.
+
+The one-week condition is not a caveat added in prose; it is measured. The
+written chunk's salience decays as `2^(−age/180)` through the 0.15-weighted
+recency term, and Sec. 3 requires the chunk to be at least 24 h old before it can
+act. At 24 h an S2 episode needs `w = 1.85`, inside the locked band; at **6.66
+days** it crosses `w = 2.0` and is out of reach at every locked dose. The dose
+table in Sec. 2 is a **freshest-case ceiling**, and it is published with the
+decay alongside it rather than as a single number.
 
 ## How to check that this was fixed in advance
 
@@ -74,8 +82,8 @@ hand-rolled F distribution against it, never in the canonical path.
 ## What is here
 
 **The registration**
-`PREREG-DRAFT.md` — the central document (v1.4). Everything that decides
-anything is here or cited from here. `PREREG-v1.4-2026-08-16.pdf` / `.html` are
+`PREREG-DRAFT.md` — the central document (v1.5). Everything that decides
+anything is here or cited from here. `PREREG-v1.5-2026-08-16.pdf` / `.html` are
 the same document rendered; the Markdown is authoritative.
 
 **How the design was sized, and what is uncertain in it**

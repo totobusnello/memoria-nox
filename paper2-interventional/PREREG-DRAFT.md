@@ -1,4 +1,13 @@
-# OSF Pre-Registration — v1.4, READY TO REGISTER
+# OSF Pre-Registration — v1.5, READY TO REGISTER
+
+> ### ✅ Timestamp anchor locked, and the dose table restated as a ceiling — 2026-08-16
+>
+> An independent adversarial review (DeepSeek V4-Pro) found that the field lock recorded earlier the same day was **incomplete in a way that changes a published number**: it locked `retention_days` but omitted the four timestamp fields the 0.15-weighted recency term actually reads, while asserting that write timing entered no dose number. The dose table had been computed at chunk age **zero**; §3 requires the chunk to be ≥ 24 h old before it can act, with no upper bound.
+>
+> Closed by measurement and by locking the anchor: the chunk carries the **write instant**, not the failure's timestamp. The consequences are now published as a decay table in §2 — at the structural minimum of 24 h the locked band still holds (S2 needs `w = 1.85`), it stops holding at **6.66 days**, and the claim "~30% of failures effectively treated" is restated as **conditional on recurrence within ≈ 1 week**. `w ≈ 6.0` for modal S1 is likewise a floor at age zero, 7.49 at 30 days.
+>
+> **No locked number is invalidated** — `r̂`, `p̂0`, the ICC, `N_epochs` and the outcome definition are untouched. What changed is that a claim about the treatment's reach, previously stated unconditionally, now carries the condition that was always implicit in it. Registered before any arm data exists.
+
 
 > ### ✅ The written chunk's structured fields locked — 2026-08-16
 >
@@ -6,7 +15,7 @@
 >
 > Closed by recording, not by deciding: `chunk_type`, `source_type`, `pain`, `importance`, `access_count`, `retention_days` and `tier` are now **LOCKED in §2** at exactly the values `dose_reach.mjs` and `link_feasibility.mjs` ran under. **No number changes**, because these were always the values behind them. What genuinely remains open is narrower and named: which component performs the write, the chunk's **free text** (which enters no salience term), and the write's instant within the epoch.
 >
-> **Status: v1.4 — 2026-08-16.** Everything the v1.3 status line asserted still holds: every `[TO LOCK]` item that required analysis is closed, the two that remain resolve by construction from the registration timestamp, and **no randomized epoch exists — the study has not started.**
+> **Status: v1.5 — 2026-08-16.** Everything the v1.3 status line asserted still holds: every `[TO LOCK]` item that required analysis is closed, the two that remain resolve by construction from the registration timestamp, and **no randomized epoch exists — the study has not started.**
 
 > ### ✅ Unblocked 2026-08-15 — `linked` locked as identity
 >
@@ -173,7 +182,12 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   >
   > **Dose–response reading rule, revised.** The rule pre-committed above ("a gradient across `w` points at power, its absence at a ceiling") assumed a continuous dose. Measurement shows the action is a **threshold at the coverage-slot boundary**: for S2 the transition sits between `w = 1.0` and `w = 2.0`. The rule is restated: **a step between `w = 1.0` and `w = 2.0`, concentrated in S2 episodes, is the signature the mechanism predicts.** Its absence is evidence against the mechanism as specified; a smooth gradient across all three would be evidence that something other than coverage-slot admission is driving the outcome, and would be reported as such.
   >
-  > **The written chunk's structured fields — LOCKED 2026-08-16, because the dose numbers above already depend on them.** An earlier version of this paragraph called the chunk template "still open... neither enters `r̂`, `p̂0`, the ICC or the outcome definition". The claim about `r̂`, `p̂0` and the ICC is true and stands. The claim about the template was **wrong by omission**: every dose number in this section — the S2 threshold between `w = 1.0` and `w = 2.0`, the reach of each `w`, the `w ≈ 6.0` that modal S1 would require — was computed by `dose_reach.mjs` and `link_feasibility.mjs` over a chunk with specific field values. Salience v2 is `0.55·importance + 0.15·recency + 0.10·pain + 0.20·access`, so those fields *are* the baseline the dose is added to. Choosing them later, after the dose block is published, would silently invalidate it. They are therefore recorded here as locked, not as pending:
+  > **The written chunk's structured fields — LOCKED 2026-08-16, because the dose numbers above already depend on them.** An earlier version of this paragraph called the chunk template "still open... neither enters `r̂`, `p̂0`, the ICC or the outcome definition". The claim about `r̂`, `p̂0` and the ICC is true and stands. The claim about the template was **wrong by omission**: every dose number in this section — the S2 threshold between `w = 1.0` and `w = 2.0`, the `w ≈ 6.0` that modal S1 would require, whether a written chunk enters the coverage slots at all — depends on the written chunk's field values, and those had never been written down. (The *reach* and *displaceable* counts are the exception: they are properties of the incumbent pool, not of the challenger, and the paragraph below separates the two.)
+
+  >
+  > **The two measurements answer different questions, and only one of them constructs a chunk.** `dose_reach.mjs` measures the **bar**: it reads the top `CANDIDATE_POOL = 500` chunks of the live store *without filtering by type* — because the brief's cut is set by the real, mixed incumbent population, and restricting it to one type would measure a brief that does not exist — and from them measures the top-10 spread and how many incumbents a given boost could displace. It does **not** derive `Δ_cut`: `Δ_cut = 0.043` is frozen at the 2026-07-29 lock and the script reports the drift of the live spread against it (measured 0.0349, drift −0.0081). `link_feasibility.mjs` measures the **challenger**: it constructs the chunk that the treatment would write and asks whether it clears that bar through the two `freshSlots`. Only the challenger's fields are a design choice, and only they are locked below. `Δ_cut = 0.043` is a measured property of the corpus, frozen separately at the 2026-07-29 lock.
+  >
+  > Salience v2 is `0.55·importance + 0.15·recency + 0.10·pain + 0.20·access`, so the challenger's fields *are* the baseline the dose is added to. Choosing them later, after the dose block is published, would silently invalidate it. They are therefore recorded here as locked, not as pending:
   >
   > | Field | Locked value | Why it is not free |
   > |---|---|---|
@@ -187,7 +201,31 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   >
   > These values are not a new decision. They are what the measurement already ran under, written down before registration rather than after — which is the whole difference between a locked parameter and a defensible-sounding one.
   >
-  > **Still open, and genuinely operational:** (a) which component performs the write — the adjudication pipeline is the natural home; (b) the chunk's **free text**, which affects lexical and semantic retrievability but enters no salience term and therefore no dose number; (c) the write's timing within the epoch, bounded by the structural constraint that §3's `Opportunity` already requires the failure episode to have been written ≥ 1 epoch length before the epoch start. All three are fixed before the first randomised epoch and recorded in the deviations changelog (M3) if they are settled after the registration timestamp. None enters `r̂`, `p̂0`, the ICC, the outcome definition, or the dose table above.
+  > ### The timestamp anchor — LOCKED 2026-08-16, and the dose table is a ceiling
+  >
+  > The table above locks `retention_days` and omits the four fields that actually drive the recency term: `source_date`, `created_at`, `updated_at`, `last_accessed_at`. That omission mattered, and an adversarial review (DeepSeek V4-Pro, 2026-08-16) found it. Recency is `2^(−age_days / retention_days)` anchored on `last_accessed_at ?? source_date` and carries **weight 0.15** in salience v2 — the second-largest term after importance. `link_feasibility.mjs` constructed the challenger with `source_date = created_at = now` and `last_accessed_at = null`, i.e. **at age zero**. Every published dose number is therefore a freshest-case value, and the paragraph that follows previously asserted that write timing "enters no dose number", which was **false**.
+  >
+  > **Locked:** the written chunk carries `source_date = created_at = updated_at =` **the instant of the write**, and `last_accessed_at = null`. It does *not* inherit the timestamp of the failure episode it describes. This is the construction the measurement ran under, and it is the one that keeps the chunk's age equal to *time since the lesson was recorded* rather than *time since the failure happened* — the quantity the decay is meant to represent.
+  >
+  > **The consequence, computed and registered before any arm data exists.** The chunk cannot act in the epoch it is written: §3's `Opportunity` requires the failure episode to have been written **≥ 1 epoch length (24 h)** before the epoch start. So the age at which the boost is applied is at minimum 24 h, and is **unbounded above** — a signature that recurs after 30 days acts through a 30-day-old chunk. Minimum `w` to enter the two coverage slots, against the measured coverage cut of 0.7342:
+  >
+  > | chunk age | S1 | **S2** | S3 | S4 |
+  > |---|---|---|---|---|
+  > | 0 (the published table) | 5.97 | **1.82** | 0.44 | 0.00 |
+  > | **24 h — the structural minimum** | 6.03 | **1.85** | 0.46 | 0.00 |
+  > | 7 d | 6.34 | **2.01** | 0.56 | 0.00 |
+  > | 30 d | 7.49 | **2.58** | 0.95 | 0.13 |
+  > | 90 d | 10.06 | **3.87** | 1.80 | 0.77 |
+  >
+  > Three things this fixes in place, none of which can now be chosen after seeing data:
+  >
+  > 1. **At the structural minimum the locked band still holds.** At 24 h, S2 needs `w = 1.85`, inside `w ∈ {0.5, 1.0, 2.0}`. The `w = 1.0 → 2.0` threshold that §2 pre-commits as the mechanism's signature survives at the shortest age the design permits.
+  > 2. **It stops holding at 6.66 days.** That is where S2's requirement crosses `w = 2.0`. Beyond it, S2 episodes are unreachable at every locked dose. The claim "the effectively treated population is ~30% of failures (S2 and above)" is therefore **conditional on recurrence within ≈ 1 week**, and is restated that way here rather than quietly carrying a stronger reading.
+  > 3. **`w ≈ 6.0` for modal S1 was already the ceiling, not the requirement.** It is 6.03 at 24 h and 7.49 at 30 days. Widening the band to reach S1 would need more than the figure §2 quotes, and quoting the age-zero number without this table would have understated by how much.
+  >
+  > **Reproduce:** salience v2 is `0.55·importance + 0.15·recency + 0.10·pain + 0.20·access`; a `lesson` chunk takes `importance = 0.90` from `IMPORTANCE_BY_TYPE` and `access = 0`, so `base(sev, age) = 0.495 + 0.15·2^(−age/180) + 0.10·sev` and `w_min = (0.7342 − base) / (0.043 · sev)`. At age 0 this returns 1.82 for S2 and 5.97 for S1, reproducing the figures §2 already published as "1.8" and "≈ 6.0".
+  >
+  > **Still open, and genuinely operational:** (a) which component performs the write — the adjudication pipeline is the natural home; (b) the chunk's **free text**, which affects lexical and semantic retrievability but enters no salience term and therefore no dose number; (c) the write's position *within* the epoch — bounded above by the epoch boundary and below by nothing, and worth at most `2^(−1/180)` of recency, i.e. **0.00058 of a salience point — 75× smaller than `Δ_cut`**, and smaller than the last decimal any dose number here is quoted to. Both remaining items are fixed before the first randomised epoch and recorded in the deviations changelog (M3) if settled after the registration timestamp. Neither enters `r̂`, `p̂0`, the ICC, the outcome definition, or the dose table above — and unlike the previous version of this sentence, that is now a checked statement rather than an assumed one.
 
   **Severity stays graded — an earlier draft of this lock collapsed it to binary and was wrong.** The collapse was justified by Fleiss' κ = 0.640 over the five levels, read as failing the ≥ 0.75 floor. Fleiss' κ is a *nominal* coefficient, which this section already warns against for exactly this scale: it scores an S1-vs-S2 disagreement as harshly as S0-vs-S4. Under the coefficient this protocol actually pre-registers for target (β), **Krippendorff's ordinal α = 0.853** — above the floor, reported without caveat. The graded severity is reliable; the number that said otherwise was the wrong statistic.
 
