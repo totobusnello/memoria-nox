@@ -1,0 +1,53 @@
+{
+  "distribuicao_severidade_do_a_past": {
+    "S1": 0.7707,
+    "S2": 0.2293
+  },
+  "fracao_alcancavel_por_dose": {
+    "0.5": 0.0,
+    "1.0": 0.0,
+    "10.0": 1.0,
+    "2.0": 0.1966,
+    "4.0": 0.2293,
+    "6.0": 0.2293,
+    "8.0": 1.0
+  },
+  "horas_analisadas": 155.6,
+  "idade_do_a_past_dias": {
+    "max": 25.83,
+    "mediana": 2.42,
+    "p25": 1.92,
+    "p75": 4.11
+  },
+  "oportunidades_ponderadas": 4457.77,
+  "p0_hat_restrito_por_dose": {
+    "0.5": null,
+    "1.0": null,
+    "10.0": 0.116457,
+    "2.0": 0.103994,
+    "4.0": 0.107618,
+    "6.0": 0.107618,
+    "8.0": 0.116457
+  },
+  "r_hat_irrestrito": 28.6486,
+  "r_hat_restrito_por_dose": {
+    "0.5": 0.0,
+    "1.0": 0.0,
+    "10.0": 28.6486,
+    "2.0": 5.6324,
+    "4.0": 6.5688,
+    "6.0": 6.5688,
+    "8.0": 28.6486
+  },
+  "repeats_ponderados": 519.14,
+  "sem_severidade_do_a_past": 0,
+  "teto_de_efeito_incondicional_por_dose": {
+    "0.5": 0.0,
+    "1.0": 0.0,
+    "10.0": 1.0,
+    "2.0": 0.1756,
+    "4.0": 0.2119,
+    "6.0": 0.2119,
+    "8.0": 1.0
+  }
+}
