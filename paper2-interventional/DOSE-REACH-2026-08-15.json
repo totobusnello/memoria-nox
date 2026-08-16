@@ -1,233 +1,233 @@
 {
-  "db": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
-  "measured_at": "2026-08-15T10:22:17.944Z",
-  "candidate_pool": 500,
   "brief_slots": 10,
+  "by_dose": {
+    "W=0.10 (historical)": {
+      "W_OUTCOME": 0.1,
+      "at_severity": {
+        "S1": {
+          "boost": 0.025,
+          "displaceable": 8,
+          "reaches": 15
+        },
+        "S2": {
+          "boost": 0.05,
+          "displaceable": 10,
+          "reaches": 56
+        },
+        "S3": {
+          "boost": 0.07500000000000001,
+          "displaceable": 10,
+          "reaches": 143
+        },
+        "S4": {
+          "boost": 0.1,
+          "displaceable": 10,
+          "reaches": 204
+        },
+        "emp_mean": {
+          "boost": 0.03275,
+          "displaceable": 9,
+          "reaches": 27
+        },
+        "emp_median(S1)": {
+          "boost": 0.025,
+          "displaceable": 8,
+          "reaches": 15
+        }
+      },
+      "locked": false
+    },
+    "W=0.15 (historical)": {
+      "W_OUTCOME": 0.15,
+      "at_severity": {
+        "S1": {
+          "boost": 0.0375,
+          "displaceable": 10,
+          "reaches": 37
+        },
+        "S2": {
+          "boost": 0.075,
+          "displaceable": 10,
+          "reaches": 143
+        },
+        "S3": {
+          "boost": 0.11249999999999999,
+          "displaceable": 10,
+          "reaches": 234
+        },
+        "S4": {
+          "boost": 0.15,
+          "displaceable": 10,
+          "reaches": 326
+        },
+        "emp_mean": {
+          "boost": 0.049125,
+          "displaceable": 10,
+          "reaches": 56
+        },
+        "emp_median(S1)": {
+          "boost": 0.0375,
+          "displaceable": 10,
+          "reaches": 37
+        }
+      },
+      "locked": false
+    },
+    "W=0.20 (historical)": {
+      "W_OUTCOME": 0.2,
+      "at_severity": {
+        "S1": {
+          "boost": 0.05,
+          "displaceable": 10,
+          "reaches": 56
+        },
+        "S2": {
+          "boost": 0.1,
+          "displaceable": 10,
+          "reaches": 204
+        },
+        "S3": {
+          "boost": 0.15000000000000002,
+          "displaceable": 10,
+          "reaches": 326
+        },
+        "S4": {
+          "boost": 0.2,
+          "displaceable": 10,
+          "reaches": 472
+        },
+        "emp_mean": {
+          "boost": 0.0655,
+          "displaceable": 10,
+          "reaches": 114
+        },
+        "emp_median(S1)": {
+          "boost": 0.05,
+          "displaceable": 10,
+          "reaches": 56
+        }
+      },
+      "locked": false
+    },
+    "w=0.5  (LOCKED)": {
+      "W_OUTCOME": 0.0215,
+      "at_severity": {
+        "S1": {
+          "boost": 0.005375,
+          "displaceable": 4,
+          "reaches": 3
+        },
+        "S2": {
+          "boost": 0.01075,
+          "displaceable": 5,
+          "reaches": 5
+        },
+        "S3": {
+          "boost": 0.016125,
+          "displaceable": 6,
+          "reaches": 7
+        },
+        "S4": {
+          "boost": 0.0215,
+          "displaceable": 7,
+          "reaches": 12
+        },
+        "emp_mean": {
+          "boost": 0.00704125,
+          "displaceable": 4,
+          "reaches": 5
+        },
+        "emp_median(S1)": {
+          "boost": 0.005375,
+          "displaceable": 4,
+          "reaches": 3
+        }
+      },
+      "locked": true
+    },
+    "w=1.0  (LOCKED)": {
+      "W_OUTCOME": 0.043,
+      "at_severity": {
+        "S1": {
+          "boost": 0.01075,
+          "displaceable": 5,
+          "reaches": 5
+        },
+        "S2": {
+          "boost": 0.0215,
+          "displaceable": 7,
+          "reaches": 12
+        },
+        "S3": {
+          "boost": 0.03225,
+          "displaceable": 9,
+          "reaches": 26
+        },
+        "S4": {
+          "boost": 0.043,
+          "displaceable": 10,
+          "reaches": 43
+        },
+        "emp_mean": {
+          "boost": 0.0140825,
+          "displaceable": 6,
+          "reaches": 6
+        },
+        "emp_median(S1)": {
+          "boost": 0.01075,
+          "displaceable": 5,
+          "reaches": 5
+        }
+      },
+      "locked": true
+    },
+    "w=2.0  (LOCKED)": {
+      "W_OUTCOME": 0.086,
+      "at_severity": {
+        "S1": {
+          "boost": 0.0215,
+          "displaceable": 7,
+          "reaches": 12
+        },
+        "S2": {
+          "boost": 0.043,
+          "displaceable": 10,
+          "reaches": 43
+        },
+        "S3": {
+          "boost": 0.0645,
+          "displaceable": 10,
+          "reaches": 109
+        },
+        "S4": {
+          "boost": 0.086,
+          "displaceable": 10,
+          "reaches": 180
+        },
+        "emp_mean": {
+          "boost": 0.028165,
+          "displaceable": 9,
+          "reaches": 20
+        },
+        "emp_median(S1)": {
+          "boost": 0.0215,
+          "displaceable": 7,
+          "reaches": 12
+        }
+      },
+      "locked": true
+    }
+  },
+  "candidate_pool": 500,
+  "cut": 0.8524383337247062,
+  "db": "<production store>",
+  "delta_cut_drift": -0.00810534450281171,
+  "delta_cut_locked": 0.043,
+  "gap_rank_n_minus_1_to_n": 0.0015211654592425239,
+  "measured_at": "2026-08-15T10:22:17.944Z",
   "pool_span": {
     "max": 0.8873329892218945,
     "min": 0.5987558522977204
   },
-  "cut": 0.8524383337247062,
-  "top_n_spread": 0.03489465549718829,
-  "delta_cut_locked": 0.043,
-  "delta_cut_drift": -0.00810534450281171,
-  "gap_rank_n_minus_1_to_n": 0.0015211654592425239,
-  "by_dose": {
-    "w=0.5  (LOCKED)": {
-      "W_OUTCOME": 0.0215,
-      "locked": true,
-      "at_severity": {
-        "S1": {
-          "boost": 0.005375,
-          "reaches": 3,
-          "displaceable": 4
-        },
-        "S2": {
-          "boost": 0.01075,
-          "reaches": 5,
-          "displaceable": 5
-        },
-        "S3": {
-          "boost": 0.016125,
-          "reaches": 7,
-          "displaceable": 6
-        },
-        "S4": {
-          "boost": 0.0215,
-          "reaches": 12,
-          "displaceable": 7
-        },
-        "emp_median(S1)": {
-          "boost": 0.005375,
-          "reaches": 3,
-          "displaceable": 4
-        },
-        "emp_mean": {
-          "boost": 0.00704125,
-          "reaches": 5,
-          "displaceable": 4
-        }
-      }
-    },
-    "w=1.0  (LOCKED)": {
-      "W_OUTCOME": 0.043,
-      "locked": true,
-      "at_severity": {
-        "S1": {
-          "boost": 0.01075,
-          "reaches": 5,
-          "displaceable": 5
-        },
-        "S2": {
-          "boost": 0.0215,
-          "reaches": 12,
-          "displaceable": 7
-        },
-        "S3": {
-          "boost": 0.03225,
-          "reaches": 26,
-          "displaceable": 9
-        },
-        "S4": {
-          "boost": 0.043,
-          "reaches": 43,
-          "displaceable": 10
-        },
-        "emp_median(S1)": {
-          "boost": 0.01075,
-          "reaches": 5,
-          "displaceable": 5
-        },
-        "emp_mean": {
-          "boost": 0.0140825,
-          "reaches": 6,
-          "displaceable": 6
-        }
-      }
-    },
-    "w=2.0  (LOCKED)": {
-      "W_OUTCOME": 0.086,
-      "locked": true,
-      "at_severity": {
-        "S1": {
-          "boost": 0.0215,
-          "reaches": 12,
-          "displaceable": 7
-        },
-        "S2": {
-          "boost": 0.043,
-          "reaches": 43,
-          "displaceable": 10
-        },
-        "S3": {
-          "boost": 0.0645,
-          "reaches": 109,
-          "displaceable": 10
-        },
-        "S4": {
-          "boost": 0.086,
-          "reaches": 180,
-          "displaceable": 10
-        },
-        "emp_median(S1)": {
-          "boost": 0.0215,
-          "reaches": 12,
-          "displaceable": 7
-        },
-        "emp_mean": {
-          "boost": 0.028165,
-          "reaches": 20,
-          "displaceable": 9
-        }
-      }
-    },
-    "W=0.10 (historical)": {
-      "W_OUTCOME": 0.1,
-      "locked": false,
-      "at_severity": {
-        "S1": {
-          "boost": 0.025,
-          "reaches": 15,
-          "displaceable": 8
-        },
-        "S2": {
-          "boost": 0.05,
-          "reaches": 56,
-          "displaceable": 10
-        },
-        "S3": {
-          "boost": 0.07500000000000001,
-          "reaches": 143,
-          "displaceable": 10
-        },
-        "S4": {
-          "boost": 0.1,
-          "reaches": 204,
-          "displaceable": 10
-        },
-        "emp_median(S1)": {
-          "boost": 0.025,
-          "reaches": 15,
-          "displaceable": 8
-        },
-        "emp_mean": {
-          "boost": 0.03275,
-          "reaches": 27,
-          "displaceable": 9
-        }
-      }
-    },
-    "W=0.15 (historical)": {
-      "W_OUTCOME": 0.15,
-      "locked": false,
-      "at_severity": {
-        "S1": {
-          "boost": 0.0375,
-          "reaches": 37,
-          "displaceable": 10
-        },
-        "S2": {
-          "boost": 0.075,
-          "reaches": 143,
-          "displaceable": 10
-        },
-        "S3": {
-          "boost": 0.11249999999999999,
-          "reaches": 234,
-          "displaceable": 10
-        },
-        "S4": {
-          "boost": 0.15,
-          "reaches": 326,
-          "displaceable": 10
-        },
-        "emp_median(S1)": {
-          "boost": 0.0375,
-          "reaches": 37,
-          "displaceable": 10
-        },
-        "emp_mean": {
-          "boost": 0.049125,
-          "reaches": 56,
-          "displaceable": 10
-        }
-      }
-    },
-    "W=0.20 (historical)": {
-      "W_OUTCOME": 0.2,
-      "locked": false,
-      "at_severity": {
-        "S1": {
-          "boost": 0.05,
-          "reaches": 56,
-          "displaceable": 10
-        },
-        "S2": {
-          "boost": 0.1,
-          "reaches": 204,
-          "displaceable": 10
-        },
-        "S3": {
-          "boost": 0.15000000000000002,
-          "reaches": 326,
-          "displaceable": 10
-        },
-        "S4": {
-          "boost": 0.2,
-          "reaches": 472,
-          "displaceable": 10
-        },
-        "emp_median(S1)": {
-          "boost": 0.05,
-          "reaches": 56,
-          "displaceable": 10
-        },
-        "emp_mean": {
-          "boost": 0.0655,
-          "reaches": 114,
-          "displaceable": 10
-        }
-      }
-    }
-  }
+  "top_n_spread": 0.03489465549718829
 }

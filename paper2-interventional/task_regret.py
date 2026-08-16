@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Task-regret distribution — input for the `[TO LOCK: p95]` of Sec. 4.2.
+"""Task-regret distribution — the measurement that produced Sec. 4.2's p95.
+
+[!] The `[TO LOCK: p95]` this script was written to feed was CLOSED on
+2026-08-15: p95 = 7.45 s / 65,206 tokens. Quotes of the open form below are
+historical, kept because they are what the section said when the script ran.
 
 Sec. 4.2 defines the secondary outcome as *"excess time-to-resolution + token
 cost vs. best known resolution of the same signature, winsorized at [TO LOCK:

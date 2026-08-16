@@ -17,18 +17,29 @@
  * query as `src/api/brief.ts::fetchRankedPool`, re-ranks with the real
  * `calculateSalience`, and reports displacement reach. It writes nothing.
  *
- * Usage (on the VPS):
- *   set -a; source /root/.openclaw/.env; set +a
- *   node dose_reach.mjs [--n 10] [--json]
+ * Usage (runs against a live nox-mem store; it writes nothing):
+ *   NOX_SALIENCE_MODULE=<path to dist/salience.js> \
+ *   NOX_DB_PATH=<path to nox-mem.db> node dose_reach.mjs [--n 10] [--json]
+ *
+ * Both paths are required and neither is defaulted to a host path: this script
+ * is deposited publicly and reads a production store, so the location of that
+ * store is the operator's to supply, not this file's to publish.
  */
 
 import Database from "better-sqlite3";
-import { calculateSalience } from "/root/.openclaw/workspace/tools/nox-mem/dist/salience.js";
+const SALIENCE_MODULE = process.env.NOX_SALIENCE_MODULE;
+if (!SALIENCE_MODULE) {
+  console.error("NOX_SALIENCE_MODULE is required: path to the nox-mem build's dist/salience.js");
+  process.exit(2);
+}
+const { calculateSalience } = await import(SALIENCE_MODULE);
 
 const CANDIDATE_POOL = 500; // brief.ts:94 — do not change, this mirrors production
-const DB =
-  process.env.NOX_DB_PATH ??
-  "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db";
+const DB = process.env.NOX_DB_PATH;
+if (!DB) {
+  console.error("NOX_DB_PATH is required: path to nox-mem.db (read-only)");
+  process.exit(2);
+}
 
 const argv = process.argv.slice(2);
 const N = Number(argv[argv.indexOf("--n") + 1]) || 10; // brief slots
@@ -104,7 +115,7 @@ function reach(W, sev) {
 }
 
 const out = {
-  db: DB,
+  db: "<supplied via NOX_DB_PATH>",
   measured_at: new Date(nowMs).toISOString(),
   candidate_pool: CANDIDATE_POOL,
   brief_slots: N,

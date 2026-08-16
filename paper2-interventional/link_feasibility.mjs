@@ -16,16 +16,21 @@
  *      and does the locked dose `w ∈ {0.5, 1.0, 2.0}` decide the outcome there?
  *
  * Run on the VPS, from the nox-mem directory:
- *   set -a; source /root/.openclaw/.env; set +a
+ *   NOX_SALIENCE_MODULE=<path to dist/salience.js> NOX_DB_PATH=<path to nox-mem.db> \
  *   node link_feasibility.mjs
  */
 
 import Database from "better-sqlite3";
 import { readdirSync, readFileSync } from "node:fs";
-import { calculateSalience } from "./dist/salience.js";
+const SALIENCE_MODULE = process.env.NOX_SALIENCE_MODULE;
+if (!SALIENCE_MODULE) {
+  console.error("NOX_SALIENCE_MODULE is required: path to the nox-mem build's dist/salience.js");
+  process.exit(2);
+}
+const { calculateSalience } = await import(SALIENCE_MODULE);
 
-const DB = process.env.NOX_DB_PATH ?? "./nox-mem.db";
-const EPISODES = process.env.NOX_EPISODES_DIR ?? "/root/paper2-episodes";
+const DB = process.env.NOX_DB_PATH ?? "./nox-mem.db";  // caller supplies
+const EPISODES = process.env.NOX_EPISODES_DIR ?? "./paper2-episodes";
 const CANDIDATE_POOL = 500; // brief.ts:94
 const FRESH_CANDIDATE_POOL = 400; // brief.ts:101
 const FRESH_SLOTS = 2; // D3 default
