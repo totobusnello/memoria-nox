@@ -74,16 +74,16 @@ locked. The prompt hash governed all 1,685 adjudication calls executed to date.
 The corpus the taxonomy was derived over is frozen by hash in
 `CORPUS-FREEZE.md`.
 
-**Scripts with no dependencies.** `sizing.py` and `pilot_replay.py` are pure
-standard library on purpose — a third party must be able to run them without
+**Scripts with no dependencies.** `sizing.py`, `pilot_replay.py` and
+`assign_arms.py` are pure standard library on purpose — a third party must be able to run them without
 installing anything. `scipy` appears only in a test that confronts the
 hand-rolled F distribution against it, never in the canonical path.
 
 ## What is here
 
 **The registration**
-`PREREG-DRAFT.md` — the central document (v1.8). Everything that decides
-anything is here or cited from here. `PREREG-v1.8-2026-08-16.pdf` / `.html` are
+`PREREG-DRAFT.md` — the central document (v1.9). Everything that decides
+anything is here or cited from here. `PREREG-v1.9-2026-08-16.pdf` / `.html` are
 the same document rendered; the Markdown is authoritative.
 
 **How the design was sized, and what is uncertain in it**
@@ -100,8 +100,15 @@ the same document rendered; the Markdown is authoritative.
 `RELATED-WORK.md` — read before reading any novelty claim.
 
 **The instruments**
+`assign_arms.py` — **the randomisation itself.** It produces the epoch→arm
+sequence from the beacon-derived seed, and the same code path produces the
+permutation draws for the sharp-null test, so the test cannot drift from the
+design it is testing. `verify` recomputes a published sequence and re-checks
+the registered balance tolerance. Until 2026-08-16 the registration referred to
+this script as if it existed; it did not.
+
 `extract_episodes.py` (locked) · `sizing.py` · `pilot_replay.py` ·
-`run_panel.py` · `icc_bootstrap.py` · `task_regret.py` ·
+`reachable_share.py` · `run_panel.py` · `icc_bootstrap.py` · `task_regret.py` ·
 `delta_carryover.py` · `washout_sensitivity.py` ·
 `maturity_sensitivity.py` · `stability_sample.py` ·
 `dose_reach.mjs` · `link_feasibility.mjs`

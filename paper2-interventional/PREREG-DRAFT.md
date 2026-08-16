@@ -1,4 +1,48 @@
-# OSF Pre-Registration — v1.8, READY TO REGISTER
+# OSF Pre-Registration — v1.9, READY TO REGISTER
+
+> ### 🔴 The assignment script did not exist — 2026-08-16
+>
+> §2 registers, as a pre-hoc artifact, *"the assignment script (with its commit hash)"*, and Appendix B refers to it in the present tense: *"the constraint set is what the assignment script implements"*. **There was no such script anywhere in the repository.** This is the same defect class corrected on 2026-08-15, when *"transition-balancing"* turned out to be a mechanism the design did not have — except that here the missing artifact is the randomisation itself.
+>
+> It also reordered the plan. The registration carries the script's commit hash, so the script has to exist and be committed **before** registering, not after.
+>
+> Written as `assign_arms.py`, and writing it forced three things into the open that the registered sentence needs in order to be executable, and that no `[TO LOCK]` list contained:
+>
+> **(1) The dose allocation was never stated.** `sizing.py` powers a **two**-arm contrast at K = 87 per arm; §2 locks a three-value dose band and calls `w` *"a real gradient, not three labels for one brief"*, with a reading rule predicting a step at each transition. Those coexist under exactly one allocation, now registered: **87 control · 29 per dose** (87 = 29 × 3, no remainder). The primary pools the three doses as *treatment*, which is what the 87/87 power assumes, so **every locked number is untouched**. The dose–response reading rule is secondary and runs at **29 per dose** — stated here, before any result exists, because 29 is a far weaker instrument than 87 and a reader is entitled to know that in advance.
+>
+> **(2) The scheme and its tolerance.** Stratified block randomisation over four strata — calendar-half × weekday/weekend, the two constraints §2 already registers — with two-way controlled rounding so **both** marginals stay exact and every cell lands on the floor or ceiling of its share. Registered tolerance: `|n(g,s) − exact| < 1`, the tightest any integer allocation can meet.
+>
+> **(3) The same scheme serves the permutation test.** §5 re-randomises *"under the same balancing constraints"*; one implementation now serves both, because a permutation test drawing from a different distribution than the assignment did is not a valid null.
+>
+> ⚠️ **The first version of the script asserted the tolerance held "by construction" and it did not** — it apportioned per stratum and then repaired the group marginals by moving labels, which perturbs cells that were already correct. On the first test seed it produced a deviation of **1.17 against a tolerance of 1.0**. Recorded rather than quietly fixed, because the docstring claimed the property before it was true. The controlled-rounding version was then swept over **7,300 cases** (365 start dates × 20 seeds): maximum deviation **0.8333**, zero violations.
+>
+> Verified end-to-end against the live beacon: for round 30800000 both hashes §2 publishes reproduce exactly — `SHA256(ascii)` = `1ae88fbf…`, `SHA256(bytes)` = `0e6824e6…` — and the script uses the registered ASCII rule.
+
+
+> ### 🔴 A mechanical fix corrupted the notation it was correcting — 2026-08-16
+>
+> Commit `bc14670` (v1.4) converted Portuguese decimal commas to English separators across the English documents. Its pattern was not guarded against commas that are **set and interval delimiters**, so it silently rewrote four of them, and they stood in every deposit from v1.4 through v1.8:
+>
+> | was | became | where |
+> |---|---|---|
+> | `a ∈ {0,1}` | `a ∈ {0.1}` | §2, the estimand's arm set |
+> | `W_k ∈ {0,1}` | `W_k ∈ {0.1}` | Appendix B, the same set |
+> | `a float in [0,1]` | `[0.1]` | §4.1, the withdrawn v0.2 severity scale |
+> | `bounded in [0,1]` | `[0.1]` | `SIZING-2026-08-14-v2.md`, on the ICC |
+>
+> The first two are the damaging ones: *"arm `a ∈ {0.1}`"* reads as a **one-element set containing 0.1**, which is not a two-arm design. All four are restored.
+>
+> Worth stating rather than fixing quietly, because the correction that caused it was itself one of this package's mechanical censuses. A census reads and reports; a mechanical **rewrite** can introduce exactly the class of silent content change the censuses exist to catch. The guard the pattern needed — never touch a comma inside `{}` or `[]` — is obvious only after it fails.
+
+
+> ### The v1.9 adversarial round, including the finding that did not survive
+>
+> Two independent voices read the v1.9 material — one the script (Codex / gpt-5.6-sol), one the design changes (DeepSeek V4-Pro). Five findings were adopted and are marked at the point of each change: the **dose–response power table** (§2, the largest of them — no power analysis for the secondary contrast existed), the **cluster-granularity justification** for the BCa jackknife, the **unequal-voiding clause** on bootstrap stratification, the **narrowing of the negative-binomial fallback** so a boundary fit is a result rather than a trigger, and the **correction of what the calendar slack is for**.
+>
+> One finding is **rejected, and recorded rather than dropped.** Codex reported as *critical* an integer overflow in the script's rejection sampler, `(2**64 // n) * n`. Checked: Python integers are arbitrary-precision and do not overflow, and at `n = 2³²` the resulting zero-rejection is **exact** — because 2⁶⁴ divides evenly by 2³² — rather than accidental as the report claimed. What survives is narrower and real: a **reimplementation in a fixed-width 64-bit language** would overflow there, and the script promises portability. The expression is now written overflow-safe and the caveat is in the code. Verified identical output over five seeds before and after.
+>
+> Recorded because a pre-registration that lists only the findings it accepted is reporting a filtered review.
+
 
 > ### ✅ Missing-data rule: code brought to the document — 2026-08-16
 >
@@ -46,7 +90,7 @@
 >
 > Closed by recording, not by deciding: `chunk_type`, `source_type`, `pain`, `importance`, `access_count`, `retention_days` and `tier` are now **LOCKED in §2** at exactly the values `dose_reach.mjs` and `link_feasibility.mjs` ran under. **No number changes**, because these were always the values behind them. What genuinely remains open is narrower and named: which component performs the write, the chunk's **free text** (which enters no salience term), and the write's instant within the epoch.
 >
-> **Status: v1.8 — 2026-08-16.** Everything the v1.3 status line asserted still holds: every `[TO LOCK]` item that required analysis is closed, the two that remain resolve by construction from the registration timestamp, and **no randomized epoch exists — the study has not started.**
+> **Status: v1.9 — 2026-08-16.** Everything the v1.3 status line asserted still holds, with one item fewer outstanding: every `[TO LOCK]` item that required analysis is closed, the calendar end date became a **formula** on 2026-08-16 (§5) rather than a pending value, so **`T_seed_assign` is the only one left** — and it resolves by construction from the registration timestamp. **No randomized epoch exists — the study has not started.**
 
 > ### ✅ Unblocked 2026-08-15 — `linked` locked as identity
 >
@@ -129,6 +173,8 @@ The v0.1 design (cluster = agent × time-block + washout over a *shared* store) 
 
 - **H1 (primary, confirmatory):** the **unconditional repeated-failure density** (repeated failures per session-hour, §4.1) *differs* between arms. Expected direction: lower under treatment.
 - **H1a–c (co-primary family, Holm-corrected; F2 fix):** (a) eligible-opportunity rate per session-hour; (b) repeat-attempt rate given opportunity; (c) repeated-failure rate given opportunity. Reported jointly so a change in the denominator cannot masquerade as (or mask) an effect in the conditional rate.
+
+  > **H1b defined — LOCKED 2026-08-16.** *"Repeat-attempt rate"* was listed but never defined, and it is the one member of the family whose meaning is not fixed by §3's `Opportunity`. An opportunity yields a **repeat attempt** if the session emits at least one action whose signature `sig()` equals that of `a_past` — **whatever its outcome**; it yields a **repeated failure** (H1c) if such an action is additionally adjudicated as a failure at severity ≥ τ. So every repeated failure is a repeat attempt and not conversely: **H1c ⊆ H1b ⊆ H1a**, which is the nesting that makes the joint reporting work. The distinction is the substantive one for this paper — a treatment that stops the agent from *retrying* is a different mechanism from one that lets it retry and succeed, and only reporting both can tell them apart. Both are computed by the frozen pipeline (commit `c0abe143`) from the same signature function; neither requires new instrumentation.
 - **H2 (secondary, confirmatory):** task regret (§4.2) differs between arms.
 - **H3 (exploratory, declared):** retrieval metrics (nDCG@10, recall@10) computed on the same briefs do not order the policies the way H1 does. **Figure specs for H3 are pre-committed in Appendix A before unblinding** (M5); no confirmatory claim from H3.
 
@@ -153,12 +199,50 @@ Observed roster activity over the frozen snapshot window (2026-07-18 → 07-28) 
   - **`randomness_hex` is the lowercase ASCII hex string, hashed as text — not the decoded bytes.** The two differ: for round 30800000, `SHA256(ascii)` = `1ae88fbf27fe83bc…` while `SHA256(bytes)` = `0e6824e682b9d776…`. Leaving this implicit would make third-party verification a coin flip.
   - **Endpoint is the v1 API**, `https://api.drand.sh/<chain>/public/<R>`. The v2 endpoint returns only `round` and `signature` — it has no `randomness` field, so a rule that does not name the endpoint is not reproducible. (Both points verified against the live API, 2026-07-28.)
 - **What is registered pre-hoc:** the chain hash, `T_seed_assign`, the derivation rule above, the assignment script (with its commit hash), and the balancing constraints. **What is not knowable pre-hoc:** the seed itself.
+
+  > #### The assignment script — `assign_arms.py`, LOCKED 2026-08-16
+  >
+  > Until this date the bullet above registered a script that **did not exist**, and Appendix B described what it *implements*. It exists now, and what it does is registered here rather than left to the reader of the code.
+  >
+  > **Allocation — registered, and previously only implied.** `sizing.py` powers a two-arm contrast at K = 87 per arm; the dose band above is three-valued and is called a real gradient. The allocation that satisfies both:
+  >
+  > | group | epochs | role |
+  > |---|---|---|
+  > | control | **87** | primary comparator |
+  > | `w = 2.0` | **29** | ⎫ |
+  > | `w = 4.0` | **29** | ⎬ pooled as *treatment* in the primary |
+  > | `w = 7.5` | **29** | ⎭ |
+  >
+  > The primary contrast is 87 vs 87, exactly what the power calculation assumes, so `r̂`, `p̂0`, the ICC and `N_epochs` are untouched. **The dose–response reading rule of the designation block is therefore secondary and runs at 29 epochs per dose.**
+  >
+  > > **How weak, in numbers — computed 2026-08-16, not asserted.** An earlier draft of this paragraph said only that 29 is *"a much weaker instrument"*, which is the kind of qualitative hedge that lets a reader supply whatever number flatters their prior. An adversarial review (DeepSeek V4-Pro) called it: no power analysis for the secondary contrast existed anywhere, so nobody could tell whether a null dose–response falsified the mechanism or merely reflected `n`. Run through the same `sizing.py` at the same locked inputs (the identity check: K = 87 at MDE 30% reproduces the lock exactly):
+  > >
+  > > | true relative effect | power at **K = 29** (dose vs dose) | power at **K = 87** (primary) |
+  > > |---|---|---|
+  > > | 20% | 18.3% | 44.7% |
+  > > | **30%** | **36.8%** | **80.3%** |
+  > > | 40% | 60.2% | 97.0% |
+  > > | 50% | 81.0% | 99.8% |
+  > >
+  > > **MDE at 80% power: 49.4% relative** at the ICC's upper bound (38.9% at the point estimate), against 30% for the primary.
+  > >
+  > > **The consequence, stated so it cannot be read the other way: absence of the predicted steps is close to uninformative.** At the effect size the study is powered for, the dose contrast would miss the step about two times in three. A null dose–response is therefore reported as *"not detectable at this n"* and **is not** reported as evidence against the mechanism. Only a step that *appears* carries information here, and asymmetric evidence is what a 29-epoch contrast can honestly deliver. Registered before any epoch exists, so this cannot later be presented as a caveat discovered in the data.
+  >
+  > **Scheme.** Stratified block randomisation. Strata are the two constraints already registered above, crossed: **calendar-half × weekday/weekend** (weekend = Sat/Sun in the 06:00 BRT boundary timezone; an epoch is labelled by its start date). The group × stratum table is produced by **two-way controlled rounding** — every cell is the floor or the ceiling of its exact share, and both marginals are exact — after which labels are shuffled within each stratum by a seeded Fisher–Yates. Balance is thus a property of the construction, with no rejection step and hence no acceptance rate that could fail.
+  >
+  > **Tolerance — registered.** For every group `g` and stratum `s`: `|n(g,s) − |g|·|s|/N| < 1`. This is the tightest tolerance an integer allocation can meet, and it is asserted **after** measurement, not before: swept over 365 start dates × 20 seeds (7,300 assignments), the maximum deviation observed is **0.8333** with zero violations. If no controlled rounding exists for a given horizon, the script **aborts**; it never relaxes the tolerance silently.
+  >
+  > **Entropy.** Not Python's `random` — seeding it reproducibly across languages is a promise this study cannot keep, and *"re-run the committed script"* has to mean re-run it in any language. The stream is counter-mode SHA-256, `block_i = SHA256(seed ‖ "|" ‖ ascii(i))`, with uniform draws by rejection on the top multiple of *n*, so a reimplementation matches draw for draw.
+  >
+  > **Permutation reuse.** §5's sharp-null test re-randomises *"under the same balancing constraints"*; `assign_arms.py permute` produces those draws from the same code path, seeded `SHA256(seed ‖ "|perm|" ‖ i)` so the full permutation set is reproducible from the published assignment alone. A permutation test drawing from a different distribution than the assignment did would not be a valid null, and two implementations would eventually diverge.
+  >
+  > **Verification.** `assign_arms.py verify` recomputes the seed from `randomness_hex`, re-runs the assignment, re-checks the tolerance, and compares the script's own SHA-256 against the one recorded in the assignment file. Tampering with a single epoch's arm is caught twice over — by recomputation and by the tolerance.
 - **Verification:** anyone can, at any time, fetch round `R` from any drand relay, recompute the seed, re-run the committed script, and confirm the published assignment sequence bit-for-bit. Manipulation would require forging a threshold signature from the League of Entropy.
 - **Fallback (if the beacon is unreachable at `T_seed_assign`):** `seed = SHA256(block_hash(H))` where `H` is the **first Bitcoin block height mined at or after `T_seed`**, pre-declared in the same registration. Fallback use is itself logged in the deviations changelog (M3).
 
 Both the derived seed and the resulting assignment sequence are published to OSF **before the first treatment epoch** (M4), together with the round number, the raw beacon output, and the recomputation script.
 
-**Estimand (potential outcomes; G4 fix).** For session-hour unit *i* in epoch *k*, let `Y_i(a, S_k)` be the outcome under arm `a ∈ {0.1}` with serving snapshot `S_k`. The estimand is the average serving-policy effect
+**Estimand (potential outcomes; G4 fix).** For session-hour unit *i* in epoch *k*, let `Y_i(a, S_k)` be the outcome under arm `a ∈ {0,1}` with serving snapshot `S_k`. The estimand is the average serving-policy effect
 `τ = E[ Y_i(1, S_k) − Y_i(0, S_k) ]`
 over the realized snapshot sequence — i.e., the effect of *which chunks are served*, with the write path identical in both arms and snapshots evolving under the realized mixed history. This is a **policy effect along the realized trajectory**, not the effect of deploying the treatment permanently; that broader estimand is declared out of reach of this design and is not claimed.
 
@@ -295,7 +379,21 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   > 3. **The write happens in the same epoch as the episode it describes.** The 24 h structural minimum comes from §3's `Opportunity`, which gates on the *failure episode*, not on the chunk. If the writing component lags past an epoch boundary — and item (a) below leaves that component open — a chunk can be younger than 24 h when it acts, making the age-0 row live rather than unreachable. That direction is *favourable* to the treatment, which is precisely why it must be declared rather than discovered later.
   > 4. **A recurrence does not refresh the chunk.** The table assumes a signature recurring at day 30 acts through a 30-day-old chunk. If the writer instead updates the existing chunk, `updated_at` and `last_accessed_at` move and recency resets toward 1.0, making the 7 d / 30 d / 90 d rows too pessimistic. **Which of the two happens is not yet fixed**, and the choice belongs to item (a).
   >
-  > **Still open, and operational:** (a) which component performs the write, and whether a recurrence writes a new chunk or updates the existing one — the adjudication pipeline is the natural home for both; (b) the chunk's **free text**; (c) the write's position *within* the epoch, worth at most `1 − 2^(−1/180)` of recency, i.e. **0.00058 of a salience point — 75× smaller than `Δ_cut`** — though its effect on *eligibility* under condition 3 is not bounded by that figure. All three are fixed before the first randomised epoch and recorded in the deviations changelog (M3) if settled after the registration timestamp. **None of them changes `r̂`, `p̂0`, the ICC, `N_epochs` or the outcome definition** — that much is structural, since those come from the replay under §3's model and involve no written chunk at all. What they *can* move is the dose table, and the four conditions above say exactly how.
+  > **~~Still open, and operational~~ — ALL THREE LOCKED 2026-08-16.** They were (a) which component performs the write and whether a recurrence inserts or updates; (b) the chunk's **free text**; (c) the write's position *within* the epoch, worth at most `1 − 2^(−1/180)` of recency, i.e. **0.00058 of a salience point — 75× smaller than `Δ_cut`** — though its effect on *eligibility* under condition 3 is not bounded by that figure. **None of them changes `r̂`, `p̂0`, the ICC, `N_epochs` or the outcome definition** — that much is structural, since those come from the replay under §3's model and involve no written chunk at all. What they *can* move is the dose table, and the four conditions above say exactly how. Settled before the registration timestamp, so none enters the deviations changelog:
+  >
+  > **(a) The writer is the adjudication consolidation step, and a recurrence INSERTS.** The chunk is written by the same step that consolidates the panel's majority verdict, in the same transaction — so a chunk exists if and only if a verdict exists, and the two cannot drift apart. A recurrence of an already-seen signature writes a **new** chunk; it never updates the existing one. This is not a preference: **condition 4 above assigns this exact choice to item (a)** and states its consequence — an update would move `updated_at` and `last_accessed_at`, resetting recency toward 1.0 and making the 7 d / 30 d / 90 d rows of the dose table too pessimistic. The decay table was computed under no-refresh, so *insert* is the option that keeps every published dose number valid. Update would have invalidated them.
+  >
+  > **(b) Free text — fixed template.** It enters **no** salience term, so it moves no dose number; but it is what the agent actually reads when the chunk reaches a brief, so leaving it free would make the treatment a different intervention on different days. Locked form, three lines, no model-generated prose:
+  >
+  > ```
+  > Failure recorded: <sig() at the primary level>
+  > Severity <S1|S2|S3|S4>, adjudicated <YYYY-MM-DD>.
+  > Episode <episode_id>.
+  > ```
+  >
+  > Nothing else — no summary, no recommendation, no free-form diagnosis. A generated summary would put an LLM inside the treatment, and the effect could then not be attributed to *composition*, which is the paper's claim. The text is a pointer; the intervention is that the pointer is **served**.
+  >
+  > **(c) Position within the epoch: whenever consolidation completes**, with no scheduling or batching to a boundary. Batching would make write time a function of the clock rather than of the episode, and a synchronised write instant across many chunks is exactly the kind of shared structure that could correlate with the epoch boundary. Condition 3 requires the write to land in the episode's **own** epoch; consolidation runs on the episode's own traffic, so this holds by construction unless the panel's providers are unavailable across a boundary. **That case is a deviation and is logged (M3), not silently absorbed** — a chunk written into a later epoch enters at age 0 during an epoch that can already serve it, which is the direction favourable to the treatment.
 
   **Severity stays graded — an earlier draft of this lock collapsed it to binary and was wrong.** The collapse was justified by Fleiss' κ = 0.640 over the five levels, read as failing the ≥ 0.75 floor. Fleiss' κ is a *nominal* coefficient, which this section already warns against for exactly this scale: it scores an S1-vs-S2 disagreement as harshly as S0-vs-S4. Under the coefficient this protocol actually pre-registers for target (β), **Krippendorff's ordinal α = 0.853** — above the floor, reported without caveat. The graded severity is reliable; the number that said otherwise was the wrong statistic.
 
@@ -475,7 +573,15 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 >
 > The same test applies to the 25%→30% move made on the day of the lock, and it passes for the same reason — **but the honest framing is not "it passes", it is "there is nothing yet against which it could fail".** The move was made with the full grid above in view, to satisfy a standard (lock (b)) that was already on the record and was being violated. What makes it auditable is not the argument: it is that `r̂`, `p̂0` and the ICC were fixed and published in `SIZING-2026-08-14-v2.md` **before** the MDE was chosen, so anyone can recompute every cell of that table and confirm 174 is the entry it claims to be.
 
-**Stopping rule (F3 fix).** Fixed horizon defined **only in pre-treatment units**: data collection ends at **174 randomized epochs (LOCKED 2026-08-15)** or the pre-committed calendar end date **[TO LOCK — 174 epochs at 24 h is ~5.7 months of fleet operation; the calendar date must be set from the first randomized epoch, which has not yet occurred]**, whichever comes first. Opportunity counts play **no role** in stopping. No interim analyses; no optional stopping.
+**Stopping rule (F3 fix).** Fixed horizon defined **only in pre-treatment units**: data collection ends at **174 randomized epochs (LOCKED 2026-08-15)** or the pre-committed calendar end date, whichever comes first. Opportunity counts play **no role** in stopping. No interim analyses; no optional stopping.
+
+> **The calendar date is now a formula rather than a pending value — LOCKED 2026-08-16.** It stood as `[TO LOCK]` on the ground that it *"must be set from the first randomized epoch, which has not yet occurred"*. That is true of the **date** and false of the **rule**: the rule can be written now, and writing it after watching the calendar run would be adaptive in exactly the way this section forbids.
+>
+> **`calendar_end = date(first randomized epoch) + 240 days.`**
+>
+> 174 epochs at 24 h consume 174 days if none is voided, so 240 leaves **66 days (38%) of slack**. The cap exists to bound the study, **not to truncate it**: it is set so that it almost certainly does not bind, and if it does bind the study reports fewer than 174 epochs with the shortfall stated. Sizing is on epochs, never on days, so a binding cap costs power and nothing else.
+>
+> **What the slack is actually for — corrected after adversarial review, 2026-08-16.** The sentence above originally offered the 66 days for *"epochs voided by the §3 abort rule or by fleet downtime"*, listing two consumers as if they shared the budget. They do not. §3 records the **baseline of incidents at median severity ≥ S3 as zero** over the frozen corpus, so aborts are expected to consume approximately none of it. **The 66 days are, in practice, entirely a downtime budget**, and the cap binds if and only if the fleet is down for more than 66 of the 240 days — 27% of the calendar. Stating the single real consumer is more useful than listing two, because it makes the failure condition checkable while the study runs rather than only in hindsight. The date itself is published to OSF together with the assignment sequence, before the first treatment epoch (M4).
 **Safety abort — mechanical, no monitor (§0b).** Discretion is removed rather than delegated. A script in the frozen commit evaluates the following **arm-blind** rule at every epoch boundary, over the incident stream only (it never reads arm labels):
 
 > **Halt the study** if either (a) ≥1 incident adjudicated at level **S4** (§4.1 rubric — data loss, production broken, or reversal needing intervention outside the agent's scope) occurs in an analyzed epoch, **or** (b) the count of incidents at level **≥ S3** within a trailing window of **3 epochs (LOCKED)** exceeds **3× (LOCKED)** the per-epoch baseline rate computed over **the full action history available in the frozen snapshot, with a hard minimum of 14 days (LOCKED 2026-07-29, replacing "90 days")**.
@@ -557,7 +663,7 @@ The S0/S1 boundary is stable; the S1/S2 boundary is not anchored. `zhipu` assign
 
 #### Severity rubric — anchored ordinal, replacing the free decimal (2026-07-26)
 
-The v0.2 scale was a float in [0.1]. Five independently prompted models do not share a metric on such a scale, so the median of five decimals is a number without a common referent — and two concrete harms follow. First, a sensitivity band of {0.4, 0.5, 0.6} may fall entirely inside a region no panelist actually uses, making the band vacuous rather than informative. Second, and worse: **§3's mechanical abort triggers on median severity exactly 1.0**, which requires three of five panelists to pin the ceiling of an unanchored scale — something LLM panels rarely do. The rule protecting production may have been practically untriggerable, which is a safety defect, not a metrics detail.
+The v0.2 scale was a float in [0,1]. Five independently prompted models do not share a metric on such a scale, so the median of five decimals is a number without a common referent — and two concrete harms follow. First, a sensitivity band of {0.4, 0.5, 0.6} may fall entirely inside a region no panelist actually uses, making the band vacuous rather than informative. Second, and worse: **§3's mechanical abort triggers on median severity exactly 1.0**, which requires three of five panelists to pin the ceiling of an unanchored scale — something LLM panels rarely do. The rule protecting production may have been practically untriggerable, which is a safety defect, not a metrics detail.
 
 Locked instead: **five discrete levels with operational descriptions**, judged against what the failure *cost*, not how bad it felt.
 
@@ -663,9 +769,39 @@ Agent id (**defined by OS-level identity**: systemd unit / session namespace, M7
 1. **Sharp-null test:** epoch-level permutation test (re-randomize epoch→arm under the same balancing constraints, **10,000 (LOCKED 2026-07-29)** permutations) on the **trend-residualized** outcome (outcome regressed on study-day, residuals permuted). Declared scope: this tests the sharp null of *zero total effect (direct + carry-over)*; rejection alone does not attribute magnitude.
 2. **Effect estimate + CI:** difference in H1 density with cluster (epoch) bootstrap CI. Magnitude claims come from here, never from the permutation p-value.
 
+   > **Bootstrap fully specified — LOCKED 2026-08-16.** The line above said *"cluster (epoch) bootstrap CI"* and stopped there: no resample count, no interval construction, no resampling unit for the two arms. Three unstated choices, each of which moves an interval. Registered now:
+   >
+   > - **Resampling unit:** the epoch, drawn **with replacement, stratified by arm** — 87 control epochs from the control set and 87 treatment epochs from the treatment set, per draw. Unstratified resampling would let arm sizes fluctuate across draws and would widen the interval for a reason that has nothing to do with the effect: the design fixed those sizes.
+   >
+   >   **It cuts both ways, and the other way is the one worth watching.** Stratifying also *narrows* the interval, by forbidding the arm-size imbalance an unstratified draw would produce. That is legitimate **only because the design fixed the arm sizes ex ante** — the bootstrap is mirroring a real constraint, not imposing a convenient one. The case where it stops being legitimate is **unequal voiding**: if the §3 abort rule (or downtime) removes materially more epochs from one arm than the other, the realized sizes are no longer 87/87 and stratifying to the *realized* counts would narrow the interval around an imbalance the design did not choose. **Pre-committed:** if the realized arm sizes differ by more than 5 epochs, the stratified interval is reported **alongside** an unstratified one, and the difference between them is reported rather than resolved.
+   > - **Resamples: 10,000**, matching the permutation count already locked at 2026-07-29 — one number for both, so neither can be tuned against the other.
+   > - **Construction: BCa** (bias-corrected and accelerated), acceleration from the **leave-one-epoch-out jackknife** over all 174 epochs. Percentile is the declared fallback, used **only** if the acceleration is undefined (zero jackknife variance), and its use is reported.
+   >
+   >   Textbook BCa jackknifes the *observation*; this jackknifes the *cluster*, and the granularity difference is deliberate rather than an oversight (flagged by adversarial review, 2026-08-16). The estimand is a **cluster-level statistic** — a difference of epoch-level densities — and the resampling unit is the epoch, so the acceleration must be estimated at the unit the bootstrap actually perturbs. A per-session jackknife would estimate the influence of an observation on a statistic whose sampling variation is between epochs, and would understate it.
+   >
+   > Appendix A's Spearman ρ keeps its own already-registered 10,000 epoch-level resamples; it is a rank statistic on a different quantity and is not folded into this rule.
+
 **Co-estimates (interference; pre-committed):** A→B-restricted estimate; lag-1-adjusted estimate; partial-identification bounds (§2). Concordance across the four is the claim's strength; divergence is reported as-is.
 
-**Secondary estimator (sensitivity):** logistic/Poisson mixed model with arm fixed effect, **agent as fixed stratum** (no agent random effect — the fleet is an allowlist of ~7 named agents plus the workspace root, far too few clusters for a random effect; G7), epoch random effect.
+> **The lag-1 model — LOCKED 2026-08-16.** *"Predecessor arm as covariate"* named a covariate, not a model, and left the covariate's own coding open now that arms are four-valued. Registered: the **same model family as the secondary estimator below**, with one added regressor — a **binary** indicator for whether the predecessor epoch was any treatment arm. Binary rather than four-level because carry-over runs through *snapshot content*, and §2 locks the write as happening in **both** arms: what the predecessor's dose changes is behaviour, not what is written. A four-level lag would spend three degrees of freedom on a gradient the mechanism does not predict at this stage, and at 174 epochs those degrees of freedom are not free.
+
+**Secondary estimator (sensitivity):** mixed model with arm fixed effect, **agent as fixed stratum** (no agent random effect — the fleet is an allowlist of ~7 named agents plus the workspace root, far too few clusters for a random effect; G7), epoch random intercept.
+
+> **Which family, and no adaptive choice — LOCKED 2026-08-16.** This line read *"logistic/Poisson mixed model"*. A slash is an open choice sitting inside a document whose purpose is to leave none, and the two are not interchangeable: they answer different denominators. Resolved by the outcome's own shape rather than by fit:
+>
+> | hypothesis | outcome | family |
+> |---|---|---|
+> | H1, H1a | a **rate** over exposure | **negative binomial**, log link, offset `log(session-hours)` |
+> | H1b, H1c | a **proportion** given opportunity | **binomial**, logit link, denominator = opportunities |
+>
+> **Negative binomial rather than Poisson, always** — not chosen after inspecting dispersion. A Poisson is the NB with dispersion → 0, so fitting NB unconditionally costs one parameter and cannot understate the variance, whereas *"Poisson unless overdispersed"* is a data-dependent model choice made after seeing the data, which is what pre-registration exists to prevent.
+>
+> **The fallback, narrowed after adversarial review (DeepSeek V4-Pro, 2026-08-16).** The previous wording — *"if the NB fit fails to converge, refit Poisson"* — called convergence failure *"a numerical event, not an inference"*, and that is only true of one of the two ways it happens. NB can fail to converge because the optimiser is stuck (singular Hessian, zero step) **or because the data have no overdispersion to estimate**, and the second is a fact about the data. A rule that treats them alike is a back door into exactly the data-dependent model choice the paragraph above forbids. Separated:
+>
+> - **Dispersion converging to the boundary is a SUCCESSFUL fit**, not a failure. An NB whose dispersion parameter goes to zero *is* the Poisson, reported as an NB fit at the boundary, with the boundary noted. No refit, no fallback, no choice made after seeing the data.
+> - **The fallback fires only on genuine numerical failure** of the declared optimiser at its declared settings — the optimiser, its tolerance and its iteration cap are recorded in the analysis code committed with the registration, so "failed to converge" is a reproducible verdict rather than an analyst's judgement. Its use is reported.
+>
+> This leaves the grey zone empty by construction: the case that could have been abused is now a valid result rather than a trigger.
 
 **Multiple comparisons.** H1 at α=0.05 two-sided; H1a–c + H2 Holm-corrected within the secondary family. **The two task-regret components (time, tokens) enter that Holm family as two members, not one — LOCKED 2026-08-15.** Splitting a summed outcome into two makes the correction stricter, not looser, which is the direction that keeps the split from being a way to buy significance; treating them as a single member would require a pooling rule, and pooling is exactly what the missing conversion rate makes impossible (§4.2). H3 exploratory, effect sizes only, figures per pre-committed Appendix A specs.
 
@@ -728,7 +864,7 @@ The retrospective decision-replay benchmark and the counterfactual replay harnes
 
 ## 9. Open items blocking lock — **HISTORICAL SECTION, closed 2026-08-15**
 
-> ⚠️ **Read this section as archaeology, not as a checklist.** It is the running log of what blocked the lock, kept intact because the order in which things were decided is itself part of the record. Every item below is closed except the two named in the status banner (calendar end date and `T_seed_assign`), both of which are open *by construction* — they require the registration to exist. Present-tense phrases inside it ("Still open", "Still blocked on item 0") describe the state **at the time each was written** and are struck or annotated where they are no longer true. The authoritative current state is the table at the end of this section.
+> ⚠️ **Read this section as archaeology, not as a checklist.** It is the running log of what blocked the lock, kept intact because the order in which things were decided is itself part of the record. Every item below is closed except the one named in the status banner (`T_seed_assign`), which is open *by construction* — it requires the registration to exist. (The calendar end date was the second until 2026-08-16, when §5 replaced the pending date with a formula.) Present-tense phrases inside it ("Still open", "Still blocked on item 0") describe the state **at the time each was written** and are struck or annotated where they are no longer true. The authoritative current state is the table at the end of this section.
 
 1. ~~§0 route decision~~ ✅ **Route 2-lite (Toto, 2026-07-12).**
 2. ~~Named external auditor + named independent data monitor~~ ✅ **CLOSED by decision, not by appointment (Toto, 2026-07-25): no humans in either role; independence is structural (§0b).** Replaced by: public beacon seed (§2), mechanical abort (§3), multi-family LLM panel (§4.1), ordering proof via pre-join verdict hash (§2), exclusions-as-code (§5).
@@ -878,7 +1014,7 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
 | calendar end date | ⏳ Blocked structurally — requires the first randomized epoch, which has not occurred. |
 | `T_seed_assign` | ⏳ Blocked structurally — requires the OSF registration to exist first. |
 
-So: **three of the six are locked**, one was already locked and mis-listed, and the two that remain — the calendar end date and `T_seed_assign` — are blocked structurally and resolve themselves in sequence: register on OSF, which fixes `T_seed_assign`; run the first randomized epoch, which fixes the calendar date. **No `[TO LOCK]` item is waiting on analysis.**
+So: **three of the six are locked**, one was already locked and mis-listed, and of the two that remained one has since closed: the **calendar end date became a formula on 2026-08-16** (§5 — `first epoch + 240 days`), because what blocked it was the *date*, not the *rule*, and writing the rule after watching the calendar run would have been adaptive. **`T_seed_assign` is the only item still open**, and it is blocked structurally: registering on OSF fixes it. **No `[TO LOCK]` item is waiting on analysis.**
 
 ## Appendix A — H3 figure specs (pre-committed; frozen before unblinding)
 
@@ -913,7 +1049,7 @@ That is interference, and it violates the SUTVA form under which a difference-in
 
 ### B.2 Setup
 
-Let epochs be indexed *k = 1 … K*, each with arm *W_k ∈ {0.1}*. Write the potential outcome as
+Let epochs be indexed *k = 1 … K*, each with arm *W_k ∈ {0,1}*. Write the potential outcome as
 
 > *Y_k(w, w′)* — outcome in epoch *k* when its own arm is *w* and its predecessor's arm is *w′*.
 

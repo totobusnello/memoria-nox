@@ -1,0 +1,9 @@
+body{font:11pt/1.5 Georgia,serif;max-width:46em;margin:2em auto;padding:0 1em}
+table{border-collapse:collapse;width:100%;font-size:9.5pt;margin:1em 0}
+td,th{border:1px solid #999;padding:4px 7px;vertical-align:top}
+th{background:#eee}
+code{font:9.5pt Menlo,monospace;background:#f4f4f4;padding:1px 3px}
+pre{background:#f4f4f4;padding:8px;overflow-x:auto;font-size:9pt}
+blockquote{border-left:3px solid #bbb;margin-left:0;padding-left:1em;color:#333}
+h1{font-size:19pt}h2{font-size:15pt;border-bottom:1px solid #ccc;padding-bottom:3px}h3{font-size:12.5pt}
+@page{margin:1.6cm}

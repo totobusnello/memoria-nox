@@ -4,7 +4,7 @@
 
 ## Onde estamos
 
-O **pré-registro está pronto para o OSF** (v1.8). Nenhum `[TO LOCK]` espera análise. Em 15/08 medir a dose expôs e fechou um termo indefinido no braço de tratamento (`linked`) — ver `LINK-FEASIBILITY-2026-08-15.md`. O estudo **não começou** — nenhum epoch randomizado existe, e tudo que foi medido é pré-tratamento, sobre corpus histórico sem atribuição de braço.
+O **pré-registro está pronto para o OSF** (v1.9). Nenhum `[TO LOCK]` espera análise. Em 15/08 medir a dose expôs e fechou um termo indefinido no braço de tratamento (`linked`) — ver `LINK-FEASIBILITY-2026-08-15.md`. O estudo **não começou** — nenhum epoch randomizado existe, e tudo que foi medido é pré-tratamento, sobre corpus histórico sem atribuição de braço.
 
 O gate do arXiv ID do Paper 1 **não bloqueia mais o Paper 2**. Ele bloqueava a *publicação*; o pré-registro e o piloto seguiram sem ele, e o moderador respondeu em 13/08 que o atraso é volume — sem ação nossa. Não recontatar.
 
@@ -18,10 +18,24 @@ Registrar dispara, em ordem: `T_seed_assign` fica declarável (deve ser posterio
 
 | | O quê | Nota |
 |---|---|---|
-| 1 | Fixar o operacional da escrita: qual componente escreve o chunk e com que template | Não muda número travado; tem de existir antes do 1º epoch |
+| 1 | ~~Fixar o operacional da escrita~~ | ✅ 16/08 — os três itens (quem escreve e se recorrência insere ou atualiza; texto livre; instante dentro do epoch) travados no §2. **Insert, nunca update** era o que a condição 4 exigia para a tabela de dose continuar válida |
 | 2 | Executar o estudo — **174 epochs** | ~5,7 meses. Sem análise interina, sem parada opcional |
 | 3 | ~~Ler InterruptBench~~ | ✅ 15/08 — `RELATED-WORK.md` §4.2 |
 | 4 | ~~Resolver "hypotree"~~ | ✅ 15/08 — era um **MCP server**, não um paper. §4.3 |
+
+## O que 16/08 fechou, e o que ele reordenou
+
+O script de alocação **não existia** — o §2 o registrava como artefato pré-hoc "com o hash do commit", e o Apêndice B falava dele no presente. Escrito como `assign_arms.py`, testado em 7.300 casos.
+
+Isso **reordena o plano**: o registro carimba o hash do commit do script, então o script precisa estar commitado *antes* de registrar no OSF. Não depois.
+
+Escrevê-lo forçou para fora três coisas que nenhuma lista de `[TO LOCK]` continha:
+
+1. **A alocação das doses nunca foi escrita.** Agora registrada: 87 controle / 29 por dose. O primário continua 87×87 — nenhum número travado se move — mas a regra de leitura dose-resposta roda a **29 por dose**, e isso está dito antes de existir resultado.
+2. **O esquema e a tolerância.** Randomização em blocos estratificados (metade-de-calendário × dia-útil/fim-de-semana), arredondamento controlado bidirecional, tolerância `< 1` por célula.
+3. **A mesma rotina serve o teste de permutação** do §5 — um teste que sorteia de distribuição diferente da que atribuiu não é um nulo válido.
+
+Junto foram fechados os buracos do plano de análise que o Codex listou: bootstrap (10.000, BCa, reamostragem por epoch estratificada por braço), família do modelo (binomial negativa para taxa, binomial-logit para proporção, sem escolha adaptativa), forma do lag-1 (indicador binário), definição do H1b (`H1c ⊆ H1b ⊆ H1a`) e a fórmula da data-limite (`primeiro epoch + 240 dias`).
 
 ## Aberto, e não é trabalho nosso
 
