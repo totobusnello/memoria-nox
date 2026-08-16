@@ -10,8 +10,8 @@
 
 | Arquivo | Onde | Nota |
 |---|---|---|
-| `PREREG-v1.5-2026-08-16.pdf` | scratchpad da sessão (1,1 MB, 49 pp) | **Anexo principal.** Emoji e símbolos convertidos para ASCII; gerado via Chrome headless a partir do HTML (a instalação LaTeX local está incompleta). Números travados conferidos no texto extraído |
-| `PREREG-v1.5-2026-08-16.html` | scratchpad (192 KB) | Preserva tabelas e formatação melhor que o PDF; anexar como secundário se o OSF aceitar |
+| `PREREG-v1.6-2026-08-16.pdf` | scratchpad da sessão (1,1 MB, 49 pp) | **Anexo principal.** Emoji e símbolos convertidos para ASCII; gerado via Chrome headless a partir do HTML (a instalação LaTeX local está incompleta). Números travados conferidos no texto extraído |
+| `PREREG-v1.6-2026-08-16.html` | scratchpad (192 KB) | Preserva tabelas e formatação melhor que o PDF; anexar como secundário se o OSF aceitar |
 | `PREREG-DRAFT.md` | repo | O original. O PDF é derivado dele |
 
 ⚠️ **O que NÃO anexar:** nada de `~/.paper2-verdicts/` nem do `action-archive`. Os episódios carregam conteúdo real de trabalho. O registro aponta para hashes (`CORPUS-FREEZE.md`, `corpus-manifest-*.txt`), não para o corpus.
