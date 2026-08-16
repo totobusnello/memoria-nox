@@ -1,69 +1,70 @@
-# Extensão do painel — declaração da seed de amostragem (janela 30/07–11/08)
+# Panel extension — sampling seed declaration (window 2026-07-30 → 08-11)
 
-> **Registrado antes de o round existir.** Este arquivo é commitado e enviado
-> ao repositório público em 2026-08-11, **antes** do round de beacon indicado
-> abaixo ser emitido. O histórico do repositório é o carimbo de precedência —
-> mesmo mecanismo de `CALIBRATION-SEED.md` e do `SEED_B` do §4 de
-> `PILOT-PROJECTION.md`.
+> **Registered before the round existed.** This file is committed and pushed to
+> the public repository on 2026-08-11, **before** the beacon round named below is
+> emitted. The repository history is the precedence stamp — the same mechanism as
+> `CALIBRATION-SEED.md` and the `SEED_B` of `PILOT-PROJECTION.md` §4.
 
-## Por que esta extensão existe
+## Why this extension exists
 
-Completar o painel do moonshot (1.050/1.050, 11/08) e reconciliar o painel de
-5 famílias no `pilot_replay.py` confirmou o mesmo número de epochs analisáveis
-de 29/07: **12 epochs, 11 usáveis para ICC** — abaixo do piso de 30–50 que o
-§9 exige. O corpus de ação (resgatado do bug de `CLAUDE_CONFIG_DIR` fixo,
-10/08) contém **27 epochs distintos** no total, dos quais **8.826 episódios**
-nunca foram adjudicados.
+Completing the moonshot panel (1,050/1,050, 2026-08-11) and reconciling the
+five-family panel in `pilot_replay.py` confirmed the same count of analysable
+epochs as on 2026-07-29: **12 epochs, 11 usable for the ICC** — below the 30–50
+floor that §9 requires. The action corpus (recovered from the hard-coded
+`CLAUDE_CONFIG_DIR` bug of 2026-08-10) contains **27 distinct epochs** in total,
+of which **8,826 episodes** were never adjudicated.
 
-## Desenho — travado antes da amostra
+## Design — locked before the sample
 
-| Campo | Valor |
+| Field | Value |
 |---|---|
-| Estrato A (`is_error`, censo) | **632** episódios — todos, sem amostragem |
-| Estrato B (complemento, amostra) | **1.576** de 8.194 — peso HT alvo **5,2×**, o mesmo regime já caracterizado na peça 3 (não introduz variância nova) |
-| Painel | **3 famílias**: `zhipu` (GLM-5.2) · `xai` (Grok-4.5) · `moonshot` (K3) |
-| Painel testado e descartado | `zhipu`/`xai`/`deepseek` — medido em 11/08 contra o calibration set de 300 (n=266 completos): **Fleiss' κ = 0,6464** (abaixo do piso 0,75), Krippendorff's α ordinal = 0,8250 (acima). Divergência não resolvida a favor do trio — optou-se pelo trio já validado nos dois coeficientes (`zhipu`/`xai`/`moonshot`, κ=0,8747/α=0,8557, medido em 29/07) |
-| Total de episódios | 2.208 |
-| Chamadas totais (3 painelistas) | 6.624 |
+| Stratum A (`is_error`, census) | **632** episodes — all of them, no sampling |
+| Stratum B (complement, sampled) | **1,576** of 8,194 — target HT weight **5.2×**, the same regime already characterised in piece 3 (introduces no new variance) |
+| Panel | **3 families**: `zhipu` (GLM-5.2) · `xai` (Grok-4.5) · `moonshot` (K3) |
+| Panel tested and discarded | `zhipu`/`xai`/`deepseek` — measured on 2026-08-11 against the 300-episode calibration set (n=266 complete): **Fleiss' κ = 0.6464** (below the 0.75 floor), Krippendorff's ordinal α = 0.8250 (above). The divergence was not resolved in the trio's favour — we kept the trio already validated on both coefficients (`zhipu`/`xai`/`moonshot`, κ=0.8747 / α=0.8557, measured 2026-07-29) |
+| Total episodes | 2,208 |
+| Total calls (3 panelists) | 6,624 |
 
-## Seed — parâmetros travados
+## Seed — locked parameters
 
-| Campo | Valor |
+| Field | Value |
 |---|---|
 | Beacon | `drand` / League of Entropy — **quicknet** |
 | Chain hash | `52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971` |
-| Período | 3 s · genesis `1692803367` |
+| Period | 3 s · genesis `1692803367` |
 | `T_declare` | **2026-08-11T21:48:59Z** |
-| Regra de `R` | primeiro round com folga ≥ 5 min sobre `T_declare`, para o commit preceder o reveal com margem confortável, não apenas formalmente |
-| **`R` (pré-computado)** | **31227290** — `ts(R)` = `2026-08-11T21:53:57Z` |
+| Rule for `R` | first round with ≥ 5 min of slack over `T_declare`, so that the commit precedes the reveal by a comfortable margin, not merely formally |
+| **`R` (pre-computed)** | **31227290** — `ts(R)` = `2026-08-11T21:53:57Z` |
 | Endpoint | `https://api.drand.sh/<chain>/public/<R>` — **v1** |
-| Derivação | `seed = SHA256( ascii_hex(randomness) )`, hex minúsculo, sem `0x`, sem espaços — mesma regra de encoding do `CALIBRATION-SEED.md` (ASCII, não bytes decodificados) |
+| Derivation | `seed = SHA256( ascii_hex(randomness) )`, lowercase hex, no `0x`, no whitespace — the same encoding rule as `CALIBRATION-SEED.md` (ASCII, not decoded bytes) |
 
-## Verificação por terceiro
+## Third-party verification
 
 ```bash
 RAND=$(curl -s https://api.drand.sh/52db9ba70e0cc0f6eaf7803dd07447a1f5477735fd3f661792ba94600c84e971/public/31227290 | jq -r .randomness)
 SEED=$(printf '%s' "$RAND" | sha256sum | cut -d' ' -f1)
-# Estrato B (complemento): ordena por SHA256(seed || "|" || episode_id), amostra os 1576 primeiros
+# Stratum B (complement): order by SHA256(seed || "|" || episode_id), take the first 1576
 ```
 
-> ⚠️ **Correção 2026-08-14 — o separador `|` é obrigatório e faltava aqui.** A versão
-> original desta seção dizia `SHA256(seed + episode_id)`, sem separador. A regra
-> efetivamente usada — a que o `pilot_replay.py` implementa
-> (`sha256(seed.encode("ascii") + b"|" + episode_id.encode())`) e que o
-> `PILOT-PROJECTION.md` §4 já especificava — concatena com `|`.
+> ⚠️ **Correction 2026-08-14 — the `|` separator is mandatory and was missing
+> here.** The original version of this section said `SHA256(seed + episode_id)`,
+> with no separator. The rule actually used — the one `pilot_replay.py`
+> implements (`sha256(seed.encode("ascii") + b"|" + episode_id.encode())`) and
+> which `PILOT-PROJECTION.md` §4 already specified — concatenates with `|`.
 >
-> Verificado por reconstrução em 2026-08-14: com o separador, a ordenação reproduz
-> **1.565 dos 1.576** episódios efetivamente adjudicados (99,3%; os 11 restantes são
-> efeito de fronteira do universo — ver `SIZING-2026-08-14.md` §1). **Sem** o
-> separador, reproduz **293**. Um terceiro que seguisse o comando publicado
-> concluiria, erradamente, que a amostra não confere com a seed.
+> Verified by reconstruction on 2026-08-14: with the separator, the ordering
+> reproduces **1,565 of the 1,576** episodes actually adjudicated (99.3%; the
+> remaining 11 are a universe boundary effect — see `SIZING-2026-08-14.md` §1).
+> **Without** the separator it reproduces **293**. A third party following the
+> published command would wrongly conclude that the sample does not match the
+> seed.
 >
-> A seed, o round e o desenho **não mudaram** — apenas a descrição da regra de
-> ordenação, que estava incompleta. Isto é correção de documentação, não de método.
+> The seed, the round and the design **did not change** — only the description of
+> the ordering rule, which was incomplete. This is a documentation fix, not a
+> method fix.
 
-## Escopo — o que esta seed NÃO governa
+## Scope — what this seed does NOT govern
 
-- Não governa atribuição de braço do estudo vivo (isso segue sendo o §2).
-- Não é resultado. Governa apenas quais 1.576 dos 8.194 episódios do
-  complemento vão ao painel — o censo do estrato A não precisa de seed.
+- It does not govern arm assignment in the live study (that remains §2).
+- It is not a result. It governs only which 1,576 of the complement's 8,194
+  episodes go to the panel — the stratum A census needs no seed.

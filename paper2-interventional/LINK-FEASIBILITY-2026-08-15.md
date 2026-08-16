@@ -1,93 +1,95 @@
-# `linked` — o que dá para construir, medido
+# `linked` — what can actually be built, measured
 
-> **2026-08-15.** Exploratório, pré-tratamento, read-only. Não altera número
-> travado. Script: `link_feasibility.mjs`. Existe porque a medição de dose
-> (`dose_reach.mjs`) expôs que o termo `linked` do §2 nunca foi definido.
+> **2026-08-15.** Exploratory, pre-treatment, read-only. Changes no locked
+> number. Script: `link_feasibility.mjs`. It exists because the dose measurement
+> (`dose_reach.mjs`) exposed that §2's `linked` term had never been defined.
 
-## 1. Não há chave de junção — e não é oversight recuperável
+## 1. There is no join key — and it is not a recoverable oversight
 
 | | |
 |---|---|
-| sessões distintas nos episódios | 789 |
-| UUIDs de sessão em `source_file` de chunks | 48 |
-| **interseção** | **0** |
-| chunks vindos do action-archive | **0** |
-| chunks com `episode` em `metadata` | **0** |
+| distinct sessions across the episodes | 789 |
+| session UUIDs in chunk `source_file` | 48 |
+| **intersection** | **0** |
+| chunks originating from the action archive | **0** |
+| chunks carrying `episode` in `metadata` | **0** |
 
-Os UUIDs de sessão dos episódios são do **Claude CLI** (`/root/.claude/projects`);
-os dos chunks são do **OpenClaw** (`sessions/<agente>/…`). Namespaces distintos.
-Não há link latente: o link tem de ser **construído**, e como se constrói decide
-quais chunks recebem o boost — ou seja, decide o tratamento.
+The episodes' session UUIDs come from the **Claude CLI**
+(`/root/.claude/projects`); the chunks' come from **OpenClaw**
+(`sessions/<agent>/…`). Disjoint namespaces. There is no latent link waiting to
+be found: the link has to be **constructed**, and how it is constructed decides
+which chunks receive the boost — that is, it decides the treatment itself.
 
-## 2. As três construções, e por que duas caem
+## 2. The three constructions, and why two fail
 
-**A — casar chunks existentes por assinatura (`sig()`), textualmente.**
-Rejeitada, e pelo argumento que o próprio documento já registra: chunks não têm
-assinatura, então o casamento seria FTS sobre os tokens da assinatura. Isso mede
-**adjacência de tópico**, não vínculo episódico — exatamente o defeito pelo qual
-a coluna `pain` foi proibida como wiring (`Do not wire this to the existing pain
-column`, §9-4; memória `feedback_pain_column_is_topical_not_episodic`). Pior:
-transforma a heurística de casamento num parâmetro livre do tratamento.
+**A — match existing chunks by signature (`sig()`), textually.**
+Rejected, on the argument this document already makes elsewhere: chunks carry no
+signature, so the match would be FTS over the signature's tokens. That scores
+**topical adjacency, not episodic linkage** — precisely the defect for which the
+`pain` column is forbidden as a wiring (`Do not wire this to the existing pain
+column`, §9-4). Worse, it would make the matching heuristic a free parameter of
+the treatment.
 
-**C — mudar os pesos da salience para chunks de episódio** (ex.: isentar da
-penalidade de `access_count`). Rejeitada: o braço de controle é *"production
-brief policy"*. Mexer na fórmula para o estudo funcionar contamina o controle e
-destrói a comparação que o desenho inteiro existe para fazer.
+**C — change the salience weights for episode chunks** (e.g. exempting them from
+the `access_count` penalty). Rejected: the control arm *is* the production brief
+policy. Altering the formula so the study can work contaminates the control and
+destroys the comparison the whole design exists to make.
 
-**B — escrever a memória a partir do episódio adjudicado**, com `episode_id` no
-`metadata`, e aplicar `W_OUTCOME × severity` sobre ela. O vínculo passa a ser
-**por construção**: auditável, sem heurística, sem chave inventada. É a única que
-sobra — e é também a que corresponde à tese do paper (memória de falhas evita
-repeti-las), enquanto reponderar chunks pré-existentes que nunca foram sobre os
-episódios não transmite informação de falha nenhuma.
+**B — write the memory from the adjudicated episode**, carrying `episode_id` in
+`metadata`, and apply `W_OUTCOME × severity` to it. The link becomes one of
+**construction**: auditable, no heuristic, no invented key. It is the only one
+left — and it is also the one that matches the paper's thesis (memory of
+failures avoids repeating them), whereas re-weighting pre-existing chunks that
+were never about the episodes transmits no failure information at all.
 
-## 3. B funciona? Medido
+## 3. Does B work? Measured
 
-Chunk escrito como `chunk_type='lesson'` → importance **0,90**
-(`IMPORTANCE_BY_TYPE`), `access_count = 0`, `pain` = severidade.
+Chunk written as `chunk_type='lesson'` → importance **0.90**
+(`IMPORTANCE_BY_TYPE`), `access_count = 0`, `pain` = severity.
 
-| corte | valor |
+| cut | value |
 |---|---|
-| slot 10 do pool principal | **0,8524** |
-| fresh slot 2 (`freshSlots = 2`) | **0,7342** |
+| slot 10 of the main pool | **0.8524** |
+| coverage slot 2 (`freshSlots = 2`) | **0.7342** |
 
-| sev | share dos failures | base | w=0,5 | w=1,0 | w=2,0 | entra? | `w` mínimo |
+| sev | share of failures | base | w=0.5 | w=1.0 | w=2.0 | enters? | minimum `w` |
 |---|---|---|---|---|---|---|---|
-| **S1** | **69,73%** | 0,6700 | 0,6754 | 0,6808 | 0,6915 | nunca | **6,0** |
-| **S2** | **29,62%** | 0,6950 | 0,7058 | 0,7165 | **0,7380** | só a `w=2,0` | 1,8 |
-| S3 | 0,58% | 0,7200 | **0,7361** | 0,7522 | 0,7845 | a partir de `w=0,5` | 0,4 |
-| S4 | 0,08% | 0,7450 | — | — | — | já entra sem dose | 0 |
+| **S1** | **69.73%** | 0.6700 | 0.6754 | 0.6808 | 0.6915 | never | **6.0** |
+| **S2** | **29.62%** | 0.6950 | 0.7058 | 0.7165 | **0.7380** | only at `w=2.0` | 1.8 |
+| S3 | 0.58% | 0.7200 | **0.7361** | 0.7522 | 0.7845 | from `w=0.5` | 0.4 |
+| S4 | 0.08% | 0.7450 | — | — | — | already, unboosted | 0 |
 
-**Três leituras, nesta ordem de importância:**
+**Three readings, in this order of importance:**
 
-1. **O slot principal é inalcançável para conteúdo novo em qualquer dose travada.**
-   O melhor caso fica 0,0214 abaixo do corte. Toda a ação do tratamento acontece
-   nos **2 coverage slots**, não nos 8 principais.
-2. **A dose decide, e decide onde tem massa.** Em S2 — 29,62% dos failures — só
-   `w = 2,0` entra. Isso é um gradiente dose-resposta real, com 30% do corpus
-   como população tratada efetiva. O braço `w` não é rótulo.
-3. **A falha modal está fora de alcance.** S1 é 69,73% dos failures e precisaria
-   de `w ≈ 6,0` — três vezes o topo da faixa travada `{0,5 · 1,0 · 2,0}`.
-   Estendê-la seria **emenda**, não cláusula de escape: `w` foi travado em
-   29/07 com a faixa explícita.
+1. **The main slot is unreachable for new content at any locked dose.** The best
+   case falls 0.0214 short of the cut. The entire treatment acts through the
+   **2 coverage slots**, never the 8 primary ones.
+2. **The dose decides, and it decides where the mass is.** At S2 — 29.62% of
+   failures — only `w = 2.0` gets in. That is a real dose–response gradient,
+   with 30% of the corpus as the effective treated population. The `w` arm is
+   not a label.
+3. **The modal failure is out of reach.** S1 is 69.73% of failures and would
+   need `w ≈ 6.0` — three times the top of the locked band
+   `{0.5 · 1.0 · 2.0}`. Widening it would be an **amendment**, not an escape
+   clause: `w` was locked on 2026-07-29 with that band stated explicitly.
 
-## 4. O que isto obriga a declarar
+## 4. What this forces us to declare
 
-- A **população tratada efetiva é ~30% dos failures** (S2+), não todos. Isso
-  aperta ainda mais o efeito detectável e pertence ao abstract, não a
-  limitações.
-- O efeito de `w` é **binário na fronteira do fresh slot** para S2, não
-  contínuo. A regra de leitura dose-resposta pré-comprometida no §3 tem de ser
-  reescrita nesses termos.
-- `w ≈ 6,0` como o que seria preciso para alcançar S1 fica **registrado agora**,
-  antes de qualquer dado de braço, para que estendê-lo depois seja visivelmente
-  uma emenda e não um refinamento.
+- The **effective treated population is ~30% of failures** (S2 and above), not
+  all of them. This tightens the detectable effect further and belongs in the
+  abstract, not in a limitations section.
+- The effect of `w` is a **threshold at the coverage-slot boundary** for S2, not
+  a continuum. The pre-committed dose–response reading rule in §3 has to be
+  rewritten in those terms.
+- `w ≈ 6.0` as what reaching S1 would require is **recorded now**, before any
+  arm data exists, so that widening the band later is visibly an amendment
+  rather than a refinement.
 
-## 5. O que continua aberto
+## 5. What remains open
 
-A construção B ainda precisa de decisões que **não** são medição: quem escreve o
-chunk (o próprio pipeline de adjudicação?), quando (fim do epoch? imediato?),
-com que texto, e se a escrita acontece nos **dois** braços com só o boost
-diferindo — que é a única forma de o contraste isolar a ponderação em vez de
-confundir escrita com ponderação. Essa última é a mais importante e é decisão de
-desenho, não de número.
+Construction B still needs decisions that are **not** measurement: which
+component writes the chunk (the adjudication pipeline being the natural home),
+when (end of epoch? immediately?), with what text, and whether the write happens
+in **both** arms with only the boost differing — which is the only way for the
+contrast to isolate weighting rather than confounding writing with weighting.
+That last one matters most and is a design decision, not a number.

@@ -1,78 +1,120 @@
-# Teste de estabilidade intra-painelista (test–retest) — spec
+# Intra-panelist stability (test–retest) — spec
 
-> **Status:** declarado 2026-08-13T13:47Z, **antes de a seed existir** e antes de qualquer sorteio.
-> **Natureza:** **exploratório**, não confirmatório. Não altera o PREREG, não toca H1–H3, não entra em nenhuma família corrigida.
-> **Origem:** acidente operacional (§1). O achado veio antes do desenho — por isso a cegueira precisa ser reconstruída, e o §4 diz como.
+> **Status:** declared 2026-08-13T13:47Z, **before the seed existed** and before any draw.
+> **Nature:** **exploratory**, not confirmatory. It does not alter the PREREG, does not touch H1–H3, and enters no corrected family.
+> **Origin:** an operational accident (§1). The finding came before the design — which is why blinding has to be reconstructed, and §4 says how.
 
 ---
 
-## 1. Como isto apareceu
+## 1. How this came about
 
-Em 2026-08-13, dois processos adjudicaram o mesmo backlog em paralelo: o loop automático (`extensao-moonshot-loop.sh`, ciclo 29, gravado 12:34Z) e um ciclo manual disparado nesta sessão (`cycle-m2`, gravado ~12:36Z). Ambos leram o mesmo `extensao-moonshot-ainda-restante.jsonl` antes de qualquer um gravar. Nenhum lock existia.
+On 2026-08-13, two processes adjudicated the same backlog in parallel: the
+automatic loop (`extensao-moonshot-loop.sh`, cycle 29, written 12:34Z) and a
+manual cycle fired in this session (`cycle-m2`, written ~12:36Z). Both read the
+same `extensao-moonshot-ainda-restante.jsonl` before either wrote. No lock
+existed.
 
-Resultado: **40 episódios adjudicados duas vezes pelo mesmo painelista** (`moonshot`), com o mesmo `prompt_sha256` (`5b22f02c…`), em execuções independentes.
+Result: **40 episodes adjudicated twice by the same panelist** (`moonshot`), with
+the same `prompt_sha256` (`5b22f02c…`), in independent runs.
 
-Comparando os 40 pares: **39 concordam, 1 diverge** (`b1ec491db1b16642`: `failure` na execução do ciclo 29, `abstain` na do m2).
+Comparing the 40 pairs: **39 agree, 1 diverges** (`b1ec491db1b16642`: `failure`
+in the cycle-29 run, `abstain` in the m2 run).
 
-Ou seja: uma corrida acidental produziu, de graça, a única medida de **estabilidade intra-avaliador** que este projeto tem. É uma dimensão que o κ do painel **assume** e nunca testou — κ mede concordância *entre* painelistas partindo do princípio de que cada um é estável consigo mesmo.
+In other words: an accidental race produced, for free, the only measure of
+**intra-rater stability** this project has. It is a dimension the panel's κ
+**assumes** and never tested — κ measures agreement *between* panelists on the
+premise that each is stable with itself.
 
-## 2. Por que os 40 acidentais não bastam
+## 2. Why the 40 accidental pairs are not enough
 
-Três limitações, todas fatais para uso publicável:
+Three limitations, all fatal for publishable use:
 
-1. **n = 40** — o intervalo de confiança binomial de 39/40 é aproximadamente **[87,7% ; 99,9%]**. Largo demais para sustentar afirmação.
-2. **Amostra não aleatória** — são os 40 primeiros episódios da fila naquele instante, um bloco contíguo. Não representa o corpus.
-3. **Cegueira perdida** — o resultado foi inspecionado antes de haver desenho. Qualquer regra escolhida agora sobre *esses* 40 é suspeita por construção.
+1. **n = 40** — the binomial confidence interval for 39/40 is roughly
+   **[87.7% ; 99.9%]**. Far too wide to support a claim.
+2. **Non-random sample** — they are the first 40 episodes in the queue at that
+   instant, a contiguous block. It does not represent the corpus.
+3. **Blinding lost** — the result was inspected before any design existed. Any
+   rule chosen now over *those* 40 is suspect by construction.
 
-Servem como **indício** que motiva o teste. Não como estimativa.
+They serve as an **indication** that motivates the test. Not as an estimate.
 
-## 3. Desenho
+## 3. Design
 
-**Pergunta.** Dado o mesmo episódio, o mesmo painelista e o mesmo prompt, com que frequência o veredito se repete?
+**Question.** Given the same episode, the same panelist and the same prompt, how
+often does the verdict repeat?
 
-**População de sorteio.** Todos os episódios do backlog da extensão com veredito `ok` do painelista `moonshot` no momento do sorteio, **excluindo os 40 da colisão** — esses já tiveram o resultado visto, e incluí-los importaria a quebra de cegueira para dentro da amostra.
+**Draw population.** All episodes from the extension backlog with an `ok` verdict
+from panelist `moonshot` at draw time, **excluding the 40 from the collision** —
+those have already had their result seen, and including them would import the
+blinding break into the sample.
 
-**Tamanho.** n = 100. Com concordância verdadeira em torno de 97%, o IC de Wilson fica em cerca de ±3,3 pp — estreito o bastante para ser reportável, e 100 chamadas é custo desprezível.
+**Size.** n = 100. With true agreement around 97%, the Wilson CI is about
+±3.3 pp — narrow enough to report, and 100 calls is negligible cost.
 
-**Sorteio.** Amostra aleatória simples sem reposição, semeada pelo beacon drand (§4).
+**Draw.** Simple random sample without replacement, seeded by the drand beacon
+(§4).
 
-**Execução.** Re-adjudicar os 100 sorteados com `run_panel.py --only moonshot`, mesmos `--workers 2`, e **o mesmo `prompt_sha256`** — se o hash do prompt divergir, o teste está medindo outra coisa e deve ser abortado.
+**Execution.** Re-adjudicate the 100 drawn with `run_panel.py --only moonshot`,
+same `--workers 2`, and **the same `prompt_sha256`** — if the prompt hash
+diverges, the test is measuring something else and must be aborted.
 
-**Saída.** `extensao-moonshot-stability-<round>.jsonl`, **fora** do glob `extensao-moonshot-cycle-*.jsonl` — não pode entrar na contabilidade do backlog nem virar voto no painel.
+**Output.** `extensao-moonshot-stability-<round>.jsonl`, **outside** the
+`extensao-moonshot-cycle-*.jsonl` glob — it must not enter backlog accounting nor
+become a vote on the panel.
 
-## 4. Seed — declarada antes de existir
+## 4. Seed — declared before it existed
 
 | | |
 |---|---|
-| Chain | drand mainnet, `8990e7a9aaed2ffe…`, período 30 s |
-| Round observado ao declarar | **6.373.253** (2026-08-13T13:43:55Z) |
-| **Round alvo declarado** | **6.373.493** |
-| Ocorre em | ≈ 2026-08-13T15:37Z (≈ 1h54 após a declaração) |
+| Chain | drand mainnet, `8990e7a9aaed2ffe…`, period 30 s |
+| Round observed at declaration | **6,373,253** (2026-08-13T13:43:55Z) |
+| **Declared target round** | **6,373,493** |
+| Occurs at | ≈ 2026-08-13T15:37Z (≈ 1 h 54 after the declaration) |
 
-No momento desta declaração o round alvo **ainda não havia sido gerado**, portanto o `randomness` era desconhecido para todos, inclusive para quem escreve. O sorteio usa `random.Random(int(randomness, 16))` sobre a população ordenada por `episode_id` — determinístico e reproduzível por qualquer terceiro que baixe o mesmo round.
+At the moment of this declaration the target round **had not yet been
+generated**, so its `randomness` was unknown to everyone, including the author.
+The draw uses `random.Random(int(randomness, 16))` over the population ordered by
+`episode_id` — deterministic and reproducible by any third party who downloads
+the same round.
 
-Isto reconstrói a cegueira que o §1 perdeu: a amostra não pode ter sido escolhida para produzir resultado nenhum.
+This reconstructs the blinding that §1 lost: the sample cannot have been chosen
+to produce any particular result.
 
-## 5. Métrica e o que se pode afirmar
+## 5. Metric and what may be claimed
 
-- **Primária:** proporção de pares idênticos, com IC de Wilson 95%.
-- **Secundária, descritiva:** matriz de transição entre categorias de veredito — importa saber se a instabilidade se concentra na fronteira com `abstain` (como no único caso divergente observado) ou se atinge as categorias substantivas.
+- **Primary:** proportion of identical pairs, with a 95% Wilson CI.
+- **Secondary, descriptive:** transition matrix between verdict categories — it
+  matters whether the instability concentrates at the boundary with `abstain` (as
+  in the single divergent case observed) or reaches the substantive categories.
 
-**Não se pode afirmar** com este teste: nada sobre H1–H3; nada sobre os outros painelistas (o teste é só do `moonshot`); nada causal.
+**What may not be claimed** from this test: anything about H1–H3; anything about
+the other panelists (the test covers only `moonshot`); anything causal.
 
-**Uso pretendido:** um parágrafo de limitação/validação metodológica. Se a estabilidade for alta, o κ do painel ganha um piso justificado. Se for baixa, é uma ameaça real ao desenho e precisa ser reportada como tal — **este teste pode gerar resultado inconveniente, e o compromisso é publicá-lo do mesmo jeito**.
+**Intended use:** a paragraph of methodological limitation/validation. If
+stability is high, the panel's κ gains a justified floor. If it is low, that is a
+real threat to the design and must be reported as such — **this test can produce
+an inconvenient result, and the commitment is to publish it either way**.
 
-## 6. Tratamento das 40 duplicatas na consolidação
+## 6. Handling the 40 duplicates in consolidation
 
-Independente do teste, o corpus tem 40 episódios com dois vereditos do mesmo painelista. **Isto precisa ser resolvido antes de qualquer replay**, ou eles viram voto duplo do `moonshot`.
+Independently of the test, the corpus has 40 episodes with two verdicts from the
+same panelist. **This must be resolved before any replay**, or they become a
+double `moonshot` vote.
 
-**Regra, escolhida por ser independente do conteúdo:** manter a adjudicação **cronologicamente anterior** (a do `cycle-29`, gravado 12:34Z, sobre a do `cycle-m2`, 12:36Z), descartando a posterior. A regra não olha o veredito, só a ordem de gravação.
+**Rule, chosen because it is independent of content:** keep the
+**chronologically earlier** adjudication (cycle-29's, written 12:34Z, over
+cycle-m2's, 12:36Z), discarding the later one. The rule does not look at the
+verdict, only at write order.
 
-⚠️ **Declaração obrigatória:** esta regra foi escrita **depois** de eu ter visto que 39 dos 40 concordam e qual é o par divergente. A escolha é defensável por não depender do conteúdo, mas a cegueira não existe e isso fica registrado aqui em vez de ser omitido.
+⚠️ **Mandatory declaration:** this rule was written **after** I had seen that 39
+of the 40 agree and which pair diverges. The choice is defensible for not
+depending on content, but the blinding does not exist and that is recorded here
+rather than omitted.
 
-### 6.1 Verificado — e medido (2026-08-13T19:2xZ)
+### 6.1 Verified — and measured (2026-08-13T19:2xZ)
 
-O pipeline **não dedupa**. `pilot_replay.carregar_verdicts()` agrega por `episode_id` apenas:
+The pipeline **does not dedupe**. `pilot_replay.carregar_verdicts()` aggregates
+by `episode_id` alone:
 
 ```python
 por_ep[r["episode_id"]].append(NIVEIS.index(nivel))
@@ -80,75 +122,122 @@ por_ep[r["episode_id"]].append(NIVEIS.index(nivel))
 out[ep] = "failure" if n_falha * 2 > len(v) else "not_failure"
 ```
 
-Sem `panelist` na chave, a segunda adjudicação do `moonshot` entra como voto adicional. Medição sobre o corpus real (`extensao-pass1.jsonl` + todos os `extensao-moonshot-cycle-*.jsonl`, τ=S1):
+Without `panelist` in the key, `moonshot`'s second adjudication enters as an
+extra vote. Measurement over the real corpus (`extensao-pass1.jsonl` + all
+`extensao-moonshot-cycle-*.jsonl`, τ=S1):
 
 | | |
 |---|---|
-| Episódios com painelista repetido (após filtrar `abstain`) | **39** |
-| Desses, com painel **par** (4 votos em vez de 3) | **39** |
-| Vereditos consolidados **alterados** | **0** |
+| Episodes with a repeated panelist (after filtering `abstain`) | **39** |
+| Of those, with an **even** panel (4 votes instead of 3) | **39** |
+| Consolidated verdicts **changed** | **0** |
 
-**Zero mudanças** — porque os 39 pares concordavam, e o voto duplo apenas reforçou o mesmo lado. O empate 2–2, que a maioria estrita resolveria silenciosamente para `not_failure`, nunca chegou a ocorrer.
+**Zero changes** — because the 39 pairs agreed, and the double vote merely
+reinforced the same side. The 2–2 tie, which strict majority would silently
+resolve to `not_failure`, never occurred.
 
-⚠️ **Isto é resultado benigno por acidente, não por desenho.** A premissa de painel ímpar — "sem empate por construção" — foi violada em 39 episódios, e só não produziu dano porque a estabilidade intra-painelista era alta naqueles casos. É exatamente a classe de falha registrada em `[[feedback_by_construction_can_be_voided_by_ops_failure]]`: a garantia estrutural morre por falha operacional, e o harness decide em silêncio o que a spec não disse.
+⚠️ **This is a benign result by accident, not by design.** The odd-panel premise
+— "no ties by construction" — was violated in 39 episodes, and only escaped
+causing damage because intra-panelist stability was high in those cases. It is
+exactly the class of failure recorded in
+`[[feedback_by_construction_can_be_voided_by_ops_failure]]`: the structural
+guarantee dies through an operational failure, and the harness silently decides
+what the spec did not say.
 
-**Correção necessária mesmo com impacto zero:** dedupe por `(episode_id, panelist)` mantendo o registro cronologicamente anterior. Restaura a imparidade e impede que a próxima colisão — que pode não ser benigna — passe sem ser notada. **Patch no `pilot_replay.py` pendente de aprovação**: mexer no pipeline de análise de um estudo pré-registrado não é alteração a se fazer sem decisão explícita, mesmo quando o efeito medido é nulo.
+**Correction needed even at zero impact:** dedupe by `(episode_id, panelist)`
+keeping the chronologically earlier record. It restores oddness and prevents the
+next collision — which may not be benign — from passing unnoticed. **Patch to
+`pilot_replay.py` pending approval**: touching the analysis pipeline of a
+pre-registered study is not a change to make without an explicit decision, even
+when the measured effect is nil.
 
-## 8. RESULTADO — executado 2026-08-14T09:16–09:27Z
+## 7. RESULT — executed 2026-08-14T09:16–09:27Z
 
-100/100 adjudicadas, `prompt_sha256` = `5b22f02c…` (idêntico ao das rodadas originais), 0 pendências de cota.
+100/100 adjudicated, `prompt_sha256` = `5b22f02c…` (identical to the original
+runs), 0 quota pendencies.
 
 ```
-concordam: 99   divergem: 1
-estabilidade: 0.9900   IC95 Wilson: [0.9455 ; 0.9982]
+agree: 99   diverge: 1
+stability: 0.9900   Wilson 95% CI: [0.9455 ; 0.9982]
 
 not_failure -> not_failure: 55
 failure     -> failure:     44
 failure     -> not_failure:  1
 ```
 
-### 8.1 A magnitude não ameaça o κ
+### 7.1 The magnitude does not threaten κ
 
-Com estabilidade de 99% (piso do IC em 94,6%), a instabilidade individual **não é o fator que limita** o κ de 0,8747 do painel — o teto que ela impõe fica bem acima disso. Logo o desacordo entre painelistas é **genuíno** (critério ou dificuldade), não ruído de reamostragem do modelo. Isto fortalece a interpretação do κ.
+At 99% stability (CI floor 94.6%), individual instability is **not the limiting
+factor** on the panel's κ of 0.8747 — the ceiling it imposes sits well above
+that. So disagreement between panelists is **genuine** (criterion or difficulty),
+not model resampling noise. This strengthens the interpretation of κ.
 
-### 8.2 ⚠️ Mas a média esconde onde a divergência cai
+### 7.2 ⚠️ But the average hides where the divergence falls
 
-O único caso divergente, `aa6591cf2a05c044`:
+The single divergent case, `aa6591cf2a05c044`:
 
-| | veredito | level |
+| | verdict | level |
 |---|---|---|
-| moonshot 1ª | `failure` | S1 |
-| moonshot 2ª | `not_failure` | S0 |
+| moonshot 1st | `failure` | S1 |
+| moonshot 2nd | `not_failure` | S0 |
 | xai | `failure` | S2 |
 | zhipu | `not_failure` | S0 |
 
-**xai e zhipu já discordavam entre si.** O moonshot era o voto de desempate — e é ele que oscila, **invertendo o consolidado** (2/3 acima de τ vira 1/3).
+**xai and zhipu already disagreed with each other.** moonshot was the tie-breaking
+vote — and it is the one that oscillates, **inverting the consolidated outcome**
+(2/3 above τ becomes 1/3).
 
-Contexto: **21 dos 100** episódios da amostra tinham discordância xai×zhipu, e a única divergência caiu nesse grupo.
+Context: **21 of the 100** sampled episodes had an xai×zhipu disagreement, and
+the only divergence fell in that group.
 
-- instabilidade global: **1%**
-- condicional a desempate: **1/21 ≈ 4,8%**
-- condicional a não-desempate: **0/79 = 0%**
+- global instability: **1%**
+- conditional on a tie-break: **1/21 ≈ 4.8%**
+- conditional on no tie-break: **0/79 = 0%**
 
-Sob independência, a chance de a única divergência cair no grupo de 21% é 21% — **n=1 não prova nada** (p≈0,21). Mas a estrutura é a pior possível: nos ~21% do corpus onde os outros dois divergem, o moonshot decide sozinho, e a média global de 99% **dilui** essa borda com os 79% fáceis. Mesma classe de erro que [[feedback_by_construction_can_be_voided_by_ops_failure]] e [[feedback_always_check_then_recheck_conclusions]] registram: agregado tranquilizador encobrindo concentração na borda que decide.
+Under independence, the chance that the single divergence lands in the 21% group
+is 21% — **n=1 proves nothing** (p≈0.21). But the structure is the worst
+possible: in the ~21% of the corpus where the other two diverge, moonshot decides
+alone, and the global 99% average **dilutes** that edge with the 79% easy cases.
+The same class of error recorded in
+[[feedback_by_construction_can_be_voided_by_ops_failure]] and
+[[feedback_always_check_then_recheck_conclusions]]: a reassuring aggregate
+concealing concentration at the edge that decides.
 
-### 8.3 Próximo teste — estratificado no desempate
+### 7.3 Next test — stratified on the tie-breaks
 
-O teste acima foi amostra **uniforme**, e por isso tem quase todo o seu poder onde não importa. O que falta: amostra **estratificada nos episódios de desempate** (xai×zhipu discordantes). No corpus completo devem ser ~300 (21% de 1.442); replicar 100 *desses* separa 4,8% de 0% com poder real. Custo: 100 chamadas, mesma mecânica, **nova seed drand declarada antes de existir**.
+The test above used a **uniform** sample, and therefore spends almost all its
+power where it does not matter. What is missing: a sample **stratified on the
+tie-break episodes** (xai×zhipu disagreeing). In the full corpus these should be
+~300 (21% of 1,442); replicating 100 *of those* separates 4.8% from 0% with real
+power. Cost: 100 calls, same mechanics, **a new drand seed declared before it
+exists**.
 
-**Regra condicional, a pré-declarar antes de rodar:** se a concentração se confirmar, episódio cujo voto de desempate oscila entre execuções vira **`unknown`** — coerente com o tratamento que o desenho já dá a "menos de 3 vereditos substantivos". Instabilidade vira ausência de evidência, não voto de moeda.
+**Conditional rule, to be pre-declared before running:** if the concentration is
+confirmed, an episode whose tie-breaking vote oscillates between runs becomes
+**`unknown`** — consistent with the treatment the design already gives to "fewer
+than 3 substantive verdicts". Instability becomes absence of evidence, not a coin
+flip.
 
-**Não fazer:** ajustar prompt, temperatura ou parâmetros do painelista. Invalidaria os 1.442 vereditos já coletados e seria escolher o instrumento depois de ver o resultado.
+**Do not:** adjust the prompt, temperature or panelist parameters. That would
+invalidate the 1,442 verdicts already collected and would mean choosing the
+instrument after seeing the result.
 
-## 9. CENSO DOS DESEMPATES — executado 2026-08-14T09:33–09:49Z
+## 8. TIE-BREAK CENSUS — executed 2026-08-14T09:33–09:49Z
 
-O §8.3 previa amostra estratificada de ~100 sobre ~300. **Errado:** a estimativa de 300 vinha de discordância de *level* (240 no corpus, ~17%); a discordância que **atravessa τ=S1** — a única que cria desempate sobre `failure`/`not_failure` — são **21 episódios em 1.442 (1,46%)**. População pequena o bastante para **censo**, o que elimina amostragem e seed: não há como acusar escolha de amostra.
+§7.3 anticipated a stratified sample of ~100 over ~300. **Wrong:** the estimate
+of 300 came from *level* disagreement (240 in the corpus, ~17%); the disagreement
+that **crosses τ=S1** — the only kind that creates a tie-break over
+`failure`/`not_failure` — is **21 episodes in 1,442 (1.46%)**. A population small
+enough for a **census**, which eliminates sampling and seed: there is no way to
+allege sample selection.
 
-**Desenho:** os 21 episódios, **5 réplicas cada** (105 chamadas, 100% ok, mesmo `prompt_sha256`), somadas à adjudicação original = 6 observações por episódio.
+**Design:** the 21 episodes, **5 replicates each** (105 calls, 100% ok, same
+`prompt_sha256`), added to the original adjudication = 6 observations per
+episode.
 
 ```
-UNÂNIMES nas 6:   11
-OSCILANTES:       10   (47,6%)
+UNANIMOUS across 6:   11
+OSCILLATING:          10   (47.6%)
 
 08dbe564  FNFFNN  3F/3N     14eeb72e  NFNFNN  2F/4N
 1a46289e  NFFNFN  3F/3N     dc56238c  NFNFFF  4F/2N
@@ -157,41 +246,62 @@ OSCILANTES:       10   (47,6%)
 4f77fa6f  NNNFNN  1F/5N     f962162d  FFFFFN  5F/1N
 ```
 
-**Confirma a hipótese do §8.2, e por censo, não por inferência.** Nestes 21 o `moonshot` é voto de minerva por definição (xai e zhipu em lados opostos de τ), logo **em 10 episódios o desfecho consolidado muda conforme a execução**. Três são 3–3: o veredito sai literalmente no cara-ou-coroa.
+**Confirms the §7.2 hypothesis, and by census rather than inference.** In these
+21, `moonshot` is the casting vote by definition (xai and zhipu on opposite sides
+of τ), so **in 10 episodes the consolidated outcome changes with the run**. Three
+are 3–3: the verdict is literally a coin toss.
 
 | | |
 |---|---|
-| instabilidade global (§8, amostra uniforme) | **1%** |
-| observações discordantes dentro dos desempates | **20 de 126 = 15,9%** |
-| episódios de desempate que oscilam | **10 de 21 = 47,6%** |
+| global instability (§7, uniform sample) | **1%** |
+| discordant observations within tie-breaks | **20 of 126 = 15.9%** |
+| tie-break episodes that oscillate | **10 of 21 = 47.6%** |
 
-A média de 99% não estava errada — media o lugar errado. Os 98,5% de episódios fáceis afogavam a borda onde o painel decide.
+The 99% average was not wrong — it averaged the wrong place. The 98.5% of easy
+episodes drowned out the edge where the panel decides.
 
-### 9.1 Impacto ponderado — a preocupação NÃO se confirmou
+### 8.1 Weighted impact — the concern was NOT confirmed
 
-O desenho pondera por Horvitz-Thompson: estrato A (`is_error=true`) é censo, peso 1,0; estrato B, amostra de 800 em 4.163, peso ≈ 5,2. Havia razão para temer amplificação: este projeto já viu 1,4% de empates × peso 5,2 virarem 20% de influência.
+The design weights by Horvitz–Thompson: stratum A (`is_error=true`) is a census,
+weight 1.0; stratum B, a sample of 800 from 4,163, weight ≈ 5.2. There was reason
+to fear amplification: this project has already seen 1.4% of ties × weight 5.2
+turn into 20% of influence.
 
 | | |
 |---|---|
-| oscilantes por estrato | A: **3** · B: **7** |
-| fração não-ponderada | 0,69% |
-| **fração ponderada** | **0,79%** |
+| oscillating by stratum | A: **3** · B: **7** |
+| unweighted fraction | 0.69% |
+| **weighted fraction** | **0.79%** |
 
-Amplificação de **1,14×**, não 15×: o denominador também é dominado por B, então o peso se cancela em boa parte. **Os resultados do estudo não estão ameaçados.** Hipótese levantada, medida, e não sustentada — fica registrada porque o registro do que se testou e não se confirmou é parte do método.
+Amplification of **1.14×**, not 15×: the denominator is also dominated by B, so
+the weight largely cancels. **The study's results are not threatened.** A
+hypothesis raised, measured, and not sustained — recorded because keeping a
+record of what was tested and not confirmed is part of the method.
 
-### 9.2 Regra proposta
+### 8.2 Proposed rule
 
-**Episódio de desempate cujo veredito oscila entre execuções → `unknown`.** Coerente com o tratamento que o desenho já dá a "menos de 3 vereditos substantivos": instabilidade vira ausência de evidência, não voto de moeda. Custo: **0,8% da massa ponderada**.
+**A tie-break episode whose verdict oscillates between runs → `unknown`.**
+Consistent with the treatment the design already gives to "fewer than 3
+substantive verdicts": instability becomes absence of evidence, not a coin flip.
+Cost: **0.8% of the weighted mass**.
 
-**Custo operacional, agora conhecido:** replicar os desempates 5×. São ~1,5% do corpus — 21 hoje, mais ~11 quando os 737 restantes forem adjudicados.
+**Operational cost, now known:** replicating the tie-breaks 5×. They are ~1.5% of
+the corpus — 21 today, plus ~11 once the remaining 737 are adjudicated.
 
-⚠️ **Limites desta evidência, declarados:**
-- A hipótese veio de observação **post-hoc** (p=0,02 sobre n=2). O **censo** é a evidência; aquele p-valor é motivação, não confirmação.
-- "Oscilante" está definido por 6 observações. Um 5–1 pode ser genuinamente estável com um outlier, e a regra o trata igual a um 3–3. Um critério graduado (ex.: só 4–2 e 3–3) é defensável e **não foi pré-especificado** — por isso não o adotei sozinho.
-- O censo cobre o corpus **atual**. Os 737 não adjudicados gerarão novos desempates.
+⚠️ **Limits of this evidence, declared:**
+- The hypothesis came from a **post-hoc** observation (p=0.02 over n=2). The
+  **census** is the evidence; that p-value is motivation, not confirmation.
+- "Oscillating" is defined over 6 observations. A 5–1 may be genuinely stable
+  with one outlier, and the rule treats it the same as a 3–3. A graded criterion
+  (e.g. only 4–2 and 3–3) is defensible and **was not pre-specified** — which is
+  why I did not adopt it unilaterally.
+- The census covers the **current** corpus. The 737 unadjudicated episodes will
+  generate new tie-breaks.
 
-## 7. Proveniência
+## 9. Provenance
 
-- Colisão detectada 2026-08-13 ~13:39Z; loop automático parado às 13:39:59Z.
-- Contagem de duplicatas e comparação de vereditos: varredura de `extensao-moonshot-cycle-*.jsonl` em `~/.paper2-verdicts/`.
-- Contexto: `[[feedback_safety_probe_output_is_paid_work]]`, `docs/INCIDENTS.md#2026-08-13`.
+- Collision detected 2026-08-13 ~13:39Z; automatic loop stopped at 13:39:59Z.
+- Duplicate counting and verdict comparison: sweep of
+  `extensao-moonshot-cycle-*.jsonl` in `~/.paper2-verdicts/`.
+- Context: `[[feedback_safety_probe_output_is_paid_work]]`,
+  `docs/INCIDENTS.md#2026-08-13`.

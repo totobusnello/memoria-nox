@@ -1,102 +1,103 @@
-# O washout de 2h basta? — análise exploratória, 2026-08-14
+# Is the 2 h washout enough? — exploratory analysis, 2026-08-14
 
-> ⚠️ **Exploratória, não pré-especificada.** Não entra no desfecho do estudo e
-> não altera nenhum número do `pilot_replay`. Existe para desbloquear uma
-> decisão de desenho: `SIZING-2026-08-14-v2.md` §4 mostra que encurtar o epoch
-> é a única alavanca que compra calendário sem vender MDE (24h→242 d,
-> 8h→113 d), mas o washout é **fixo em 2h** — custa 8% de um epoch de 24h e
-> 25% de um de 8h — e a premissa de que 2h bastam nunca foi verificada.
+> ⚠️ **Exploratory, not pre-specified.** It does not enter the study outcome and
+> changes no `pilot_replay` number. It exists to unblock a design decision:
+> `SIZING-2026-08-14-v2.md` §4 shows that shortening the epoch is the only lever
+> that buys calendar without selling MDE (24 h→242 d, 8 h→113 d), but the
+> washout is **fixed at 2 h** — costing 8% of a 24 h epoch and 25% of an 8 h one
+> — and the premise that 2 h suffices had never been verified.
 
-## Resposta curta
+## Short answer
 
-**Sim, para o efeito de borda que existe sem tratamento.** A anomalia está
-concentrada nas duas primeiras horas e o nível de base já é atingido em 2–4h.
-O washout de 2h captura o fenômeno inteiro, com pouca folga e pouco
-desperdício.
+**Yes, for the boundary effect that exists without treatment.** The anomaly is
+concentrated in the first two hours and the baseline level is already reached by
+2–4 h. A 2 h washout captures the whole phenomenon, with little slack and little
+waste.
 
-Isso **não** licencia epoch curto sozinho — ver §4.
+This does **not** on its own license a short epoch — see §4.
 
-## 1. Onde o efeito está: incidência de erro
+## 1. Where the effect is: error incidence
 
-`is_error` é **censo** — sem amostragem, sem peso, sem composição que possa
-confundir. É o teste limpo.
+`is_error` is a **census** — no sampling, no weighting, no composition that could
+confound. It is the clean test.
 
-| zona | n | taxa `is_error` | IC 95% |
+| zone | n | `is_error` rate | 95% CI |
 |---|---|---|---|
-| **0–2h** | 2.090 | **10,67%** | [9,42% ; 12,07%] |
-| 2–4h | 1.616 | 6,68% | [5,57% ; 8,01%] |
-| 4–6h | 1.112 | 4,50% | [3,43% ; 5,88%] |
-| 6–12h | 2.614 | 6,69% | [5,80% ; 7,72%] |
-| 12–24h | 2.147 | 6,61% | [5,64% ; 7,74%] |
+| **0–2 h** | 2,090 | **10.67%** | [9.42% ; 12.07%] |
+| 2–4 h | 1,616 | 6.68% | [5.57% ; 8.01%] |
+| 4–6 h | 1,112 | 4.50% | [3.43% ; 5.88%] |
+| 6–12 h | 2,614 | 6.69% | [5.80% ; 7.72%] |
+| 12–24 h | 2,147 | 6.61% | [5.64% ; 7.74%] |
 
-0–2h contra todo o resto: **10,67% vs 6,34%**, diferença **+4,33 pp**,
-IC 95% **[+2,89 ; +5,76]**, não cruza zero.
+0–2 h against everything else: **10.67% vs 6.34%**, difference **+4.33 pp**,
+95% CI **[+2.89 ; +5.76]**, not crossing zero.
 
-A fronteira do epoch **não é um ponto neutro**: erra-se 68% mais nas duas
-primeiras horas. E o efeito **termina ali** — 2–4h (6,68%) já é
-indistinguível de 12–24h (6,61%). O washout está bem calibrado: nem curto
-demais, nem generoso.
+The epoch boundary is **not a neutral point**: 68% more errors occur in the first
+two hours. And the effect **ends there** — 2–4 h (6.68%) is already
+indistinguishable from 12–24 h (6.61%). The washout is well calibrated: neither
+too short nor generous.
 
-O bin 4–6h (4,50%) fica *abaixo* da base, com IC quase tocando-a. Não tenho
-explicação e não vou inventar uma; com n=1.112 e cinco bins olhados, é o tipo
-de coisa que aparece por acaso.
+The 4–6 h bin (4.50%) falls *below* baseline, with its CI almost touching it. I
+have no explanation and will not invent one; with n=1,112 and five bins
+inspected, it is the kind of thing that appears by chance.
 
-## 2. Uma armadilha que eu caí, e por que ela fica registrada
+## 2. A trap I fell into, and why it stays on the record
 
-A primeira leitura desta análise comparou `p0` agregado entre zonas e concluiu
-que havia efeito de borda: **0,397 em 0–2h contra 0,316 em 2h+**, IC da
-diferença [+0,026 ; +0,136], sem cruzar zero. Parecia limpo.
+The first reading of this analysis compared aggregate `p0` across zones and
+concluded there was a boundary effect: **0.397 in 0–2 h against 0.316 in 2 h+**,
+difference CI [+0.026 ; +0.136], not crossing zero. It looked clean.
 
-Estava errado. A **composição** varia entre as zonas:
+It was wrong. The **composition** varies across zones:
 
-| zona | % estrato A | `p0` no A | `p0` no B |
+| zone | % stratum A | `p0` in A | `p0` in B |
 |---|---|---|---|
-| 0–2h | **37,5%** | 0,967 (n=151) | 0,056 (n=252) |
-| 2–6h | 30,5% | 0,880 (n=108) | 0,037 (n=246) |
-| 6h+ | 29,8% | 0,960 (n=227) | 0,056 (n=534) |
+| 0–2 h | **37.5%** | 0.967 (n=151) | 0.056 (n=252) |
+| 2–6 h | 30.5% | 0.880 (n=108) | 0.037 (n=246) |
+| 6 h+ | 29.8% | 0.960 (n=227) | 0.056 (n=534) |
 
-Com `p0_A ≈ 0,96` contra `p0_B ≈ 0,05`, uma diferença de 7 pontos na proporção
-de A move o agregado sozinha. Aplicando a composição de 2h+ à zona 0–2h:
-`0,30 × 0,967 + 0,70 × 0,056 = 0,329`, contra os 0,316 observados. **O efeito
-some.** Dentro de cada estrato não há gradiente algum.
+With `p0_A ≈ 0.96` against `p0_B ≈ 0.05`, a 7-point difference in the share of A
+moves the aggregate on its own. Applying the 2 h+ composition to the 0–2 h zone:
+`0.30 × 0.967 + 0.70 × 0.056 = 0.329`, against the 0.316 observed. **The effect
+vanishes.** Within each stratum there is no gradient at all.
 
-O agregado continua na saída do script, marcado
-`testes_confundidos_NAO_USAR`, em vez de removido — quem reproduzir precisa
-ver a armadilha, não um resultado limpo que esconde que ela existia.
+The aggregate remains in the script's output, flagged
+`testes_confundidos_NAO_USAR` ("confounded tests — DO NOT USE"), rather than
+removed: whoever reproduces this needs to see the trap, not a clean result that
+hides that it existed.
 
-Note que a composição variar **é** o achado do §1 visto por outro ângulo: há
-mais estrato A em 0–2h porque se erra mais em 0–2h. O sinal era real; o
-estimador é que estava errado.
+Note that the composition varying **is** the §1 finding seen from another angle:
+there is more stratum A in 0–2 h *because* more errors happen in 0–2 h. The
+signal was real; it was the estimator that was wrong.
 
-## 3. E o `p0`?
+## 3. And `p0`?
 
-Não há gradiente de `p0` dentro de estrato. O que muda perto da fronteira é
-**quantos erros acontecem**, não **com que frequência um erro conhecido se
-repete**. São coisas diferentes, e só a segunda é o desfecho do estudo.
+There is no `p0` gradient within stratum. What changes near the boundary is **how
+many errors happen**, not **how often a known error repeats**. These are
+different things, and only the second is the study's outcome.
 
-## 4. O que isto NÃO autoriza
+## 4. What this does NOT authorise
 
-**No corpus do replay, todo epoch é controle — nunca houve troca de braço.**
-Portanto isto não mede carry-over de tratamento. Mede a estrutura temporal
-intra-epoch na ausência de intervenção: ritmo de trabalho, sessões que
-atravessam a fronteira, fuso.
+**In the replay corpus every epoch is control — no arm switch ever occurred.**
+This therefore does not measure treatment carry-over. It measures the
+intra-epoch temporal structure in the absence of intervention: work rhythm,
+sessions crossing the boundary, time zone.
 
-A lógica é assimétrica, e é preciso ser explícito sobre a direção:
+The logic is asymmetric, and the direction must be explicit:
 
-- Gradiente aqui **provaria** que 2h não bastam nem sem tratamento.
-- Ausência de gradiente **não prova** que bastam sob tratamento.
+- A gradient here **would prove** that 2 h is not enough even without treatment.
+- The absence of a gradient **does not prove** that it is enough under treatment.
 
-O que este resultado faz é remover uma objeção, não conceder uma licença. A
-premissa "2h lavam o efeito do braço anterior" segue sem evidência direta —
-só se sabe agora que ela não está sendo contrariada pelo comportamento
-natural do sistema.
+What this result does is remove an objection, not grant a licence. The premise
+"2 h washes out the previous arm's effect" remains without direct evidence — all
+that is now known is that it is not being contradicted by the system's natural
+behaviour.
 
-Para epoch curto especificamente: como o efeito de borda natural dura menos de
-2h, o washout de 2h continua capturando-o em epochs de 8h ou 6h. O que piora
-não é a suficiência, é o **custo** — 25% do epoch a 8h, 33% a 6h — e isso a
-tabela do §4 do sizing já modela.
+For short epochs specifically: since the natural boundary effect lasts under
+2 h, a 2 h washout still captures it in 8 h or 6 h epochs. What worsens is not
+sufficiency but **cost** — 25% of the epoch at 8 h, 33% at 6 h — and the sizing
+document's §4 table already models that.
 
-## 5. Reprodução
+## 5. Reproduction
 
 ```
 python3 washout_sensitivity.py \
@@ -106,7 +107,7 @@ python3 washout_sensitivity.py \
   --replicas 'tiebreak-rep*.jsonl' 'tiebreak-v2-rep*.jsonl' 'extensao-moonshot-cycle-*.jsonl'
 ```
 
-Corpus: 9.579 episódios, 30 epochs, 7.184 pares `(episódio, painelista)`.
-Testes de proporção rodam em contagens **brutas** — o peso HT amplifica o
-estrato B por ~5,2× e inflaria qualquer `n` usado num teste, produzindo
-significância onde não há.
+Corpus: 9,579 episodes, 30 epochs, 7,184 `(episode, panelist)` pairs. Proportion
+tests run on **raw** counts — the HT weight amplifies stratum B by ~5.2× and
+would inflate any `n` used in a test, manufacturing significance where there is
+none.
