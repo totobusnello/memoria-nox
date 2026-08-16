@@ -34,7 +34,7 @@ package should be read against it.
 | Detectable effect | **30%** relative, via Sec. 3's escape clause — the 20% target is *not* amended and is *not* reached |
 | Sized on | the **upper** 95% confidence limit of the ICC, not the point estimate |
 | ICC | **0.0985**, 95% CI **[0.0570 ; 0.1814]** (Searle, one-way), 30 clusters, m̄ = 55.96 |
-| `r̂` / `p̂0` | **28.648576** opportunities per unit exposure / **0.116457** failure rate under control |
+| `r̂` / `p̂0` | **29.838403** opportunities per unit exposure / **0.111813** failure rate under control — the latter a **floor**, since unadjudicable outcomes sit in the denominator and can only move into the numerator |
 | Design effect | **5.87** |
 | Severity cut τ | **S1**, outcome by strict majority; an exact tie resolves to `not_failure` |
 | Treatment dose | `W_OUTCOME = w × Δ_cut`, `Δ_cut = 0.043`, `w ∈ {2.0, 4.0, 7.5}`, boosting **one designated chunk** per opportunity |
@@ -42,7 +42,7 @@ package should be read against it.
 
 Two consequences are registered **before** any arm data exists, so that widening
 them later is visibly an amendment rather than a refinement: the effectively
-treated population is **~30% of failures** (severity S2 and above) **provided the
+treated population is bounded by the dose's reach (severity S2 and above) **provided the
 failure recurs within about a week**, and reaching the modal S1 failure would
 require `w ≈ 6.0` — three times the top of the locked band.
 
@@ -82,8 +82,8 @@ hand-rolled F distribution against it, never in the canonical path.
 ## What is here
 
 **The registration**
-`PREREG-DRAFT.md` — the central document (v1.7). Everything that decides
-anything is here or cited from here. `PREREG-v1.7-2026-08-16.pdf` / `.html` are
+`PREREG-DRAFT.md` — the central document (v1.8). Everything that decides
+anything is here or cited from here. `PREREG-v1.8-2026-08-16.pdf` / `.html` are
 the same document rendered; the Markdown is authoritative.
 
 **How the design was sized, and what is uncertain in it**

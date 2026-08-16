@@ -1,10 +1,21 @@
-# OSF Pre-Registration — v1.7, READY TO REGISTER
+# OSF Pre-Registration — v1.8, READY TO REGISTER
+
+> ### ✅ Missing-data rule: code brought to the document — 2026-08-16
+>
+> §5 has locked, since 2026-07-29: *"unadjudicable outcomes → third category, reported, **excluded from numerator**"*. `pilot_replay.py`'s stratified branch — the one that produced every canonical number — was excluding them from the **denominator as well**: complete-case analysis, a rule that was never registered. Its census branch always followed §5, so one script implemented two rules depending on a flag, and the document's own rule was the one not in force.
+>
+> Corrected in the estimator, not in §5: changing a locked rule to match an implementation is the inverse of what a pre-registration is for. `r̂` **28.648576 → 29.838403** · `p̂0` **0.116457 → 0.111813**.
+>
+> **`N_epochs` = 174 does not move, and could not.** `r̂ × p̂0 = (opportunities/hours) × (repeats/opportunities) = repeats/hours` — the opportunity count cancels, so λ₀ cannot depend on how opportunities are counted. The ICC, its interval and m̄ are likewise unchanged: they are computed over repeat densities, and an unadjudicable outcome is not a repeat.
+>
+> What the rule does decide is what `p̂0` **means**: under §5 it is a genuine **floor**, since an unknown can only ever move into the numerator. A floor on `p̂0` is a ceiling on `N` — the same direction of error this design takes everywhere else.
+
 
 > ### ✅ Designation rule locked, dose band revised — 2026-08-16
 >
 > A whole-package review (Codex) found that H1 could not be tested by the design as specified: stated on the **unconditional** repeated-failure density and powered for 30%, while the treatment's physical ceiling was **17.56%**. Four earlier reviews had each confirmed a constraint in isolation; none took the sum.
 >
-> Measurement (`REACHABILITY-2026-08-16.md`) located the cause in an **unspecified default**, not in the mechanism: *which* matching chunk receives the boost. Boosting all matches reaches 19.66% of opportunities; boosting **one designated match** — the easiest to reach — reaches **57.46%** at the same dose, and lifts the ceiling to **60.18%, twice the MDE**. It also makes brief saturation impossible by construction: at a dose that reaches everything, boosting all matches would put nine or more chunks into a ten-slot brief in **46%** of opportunities.
+> Measurement (`REACHABILITY-2026-08-16.md`) located the cause in an **unspecified default**, not in the mechanism: *which* matching chunk receives the boost. Boosting all matches reaches 19.79% of opportunities; boosting **one designated match** — the easiest to reach — reaches **58.27%** at the same dose, and lifts the ceiling to **60.18%, twice the MDE**. It also makes brief saturation impossible by construction: at a dose that reaches everything, boosting all matches would put nine or more chunks into a ten-slot brief in **46%** of opportunities.
 >
 > **Locked:** one designated chunk per opportunity, and the band `w ∈ {2.0, 4.0, 7.5}` replacing `{0.5, 1.0, 2.0}` — measured, the two lower arms reached **exactly zero**, so the step this document previously pre-committed as the mechanism's signature would have appeared even with a null mechanism.
 >
@@ -35,7 +46,7 @@
 >
 > Closed by recording, not by deciding: `chunk_type`, `source_type`, `pain`, `importance`, `access_count`, `retention_days` and `tier` are now **LOCKED in §2** at exactly the values `dose_reach.mjs` and `link_feasibility.mjs` ran under. **No number changes**, because these were always the values behind them. What genuinely remains open is narrower and named: which component performs the write, the chunk's **free text** (which enters no salience term), and the write's instant within the epoch.
 >
-> **Status: v1.7 — 2026-08-16.** Everything the v1.3 status line asserted still holds: every `[TO LOCK]` item that required analysis is closed, the two that remain resolve by construction from the registration timestamp, and **no randomized epoch exists — the study has not started.**
+> **Status: v1.8 — 2026-08-16.** Everything the v1.3 status line asserted still holds: every `[TO LOCK]` item that required analysis is closed, the two that remain resolve by construction from the registration timestamp, and **no randomized epoch exists — the study has not started.**
 
 > ### ✅ Unblocked 2026-08-15 — `linked` locked as identity
 >
@@ -210,7 +221,7 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   >
   > | | boosting **all** matches | boosting **one designated** match |
   > |---|---|---|
-  > | reach at `w = 2.0` | 19.66% | **57.46%** |
+  > | reach at `w = 2.0` | 19.79% | **58.27%** |
   > | ceiling on the unconditional effect | 17.56% — **below** the 30% MDE | **60.18% — twice it** |
   > | opportunities boosting ≥ 9 chunks into a 10-slot brief, at `w = 7.5` | **46%** | **0% — one slot, by construction** |
   >
@@ -220,9 +231,9 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   >
   > | `w` | `W_OUTCOME` | reach | ceiling | what enters |
   > |---|---|---|---|---|
-  > | **2.0** | 0.0860 | **57.46%** | 60.18% | the freshest S2 |
-  > | **4.0** | 0.1720 | **77.81%** | 75.62% | all S2 |
-  > | **7.5** | 0.3225 | **100.00%** | 100.00% | S1 — 77.07% of matched failures |
+  > | **2.0** | 0.0860 | **58.27%** | 60.18% | the freshest S2 |
+  > | **4.0** | 0.1720 | **78.58%** | 75.62% | all S2 |
+  > | **7.5** | 0.3225 | **100.00%** | 100.00% | S1 — 76.96% of matched failures |
   >
   > Why the old band could not stay: measured, `w = 0.5` and `w = 1.0` reach **exactly zero** under either designation policy. Two of the three arms were structurally inert, which means the *"step between `w = 1.0` and `w = 2.0`"* that the previous version of this paragraph pre-committed as the mechanism's signature **would have appeared even if the mechanism did not exist**. A reading rule that a null mechanism satisfies is not a reading rule. `w = 2.0` is retained, so one arm is unchanged.
   >
@@ -445,8 +456,10 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 >
 > | | |
 > |---|---|
-> | `r̂` | 28.648576 |
-> | `p̂0` | 0.116457 |
+> | `r̂` | 29.838403 |
+> | `p̂0` | 0.111813 |
+> ⚠️ **Corrected 2026-08-16 — the missing-data rule, and why `N` did not move.** §5 locks *"unadjudicable outcomes → third category, reported, **excluded from numerator**"*. `pilot_replay.py`'s stratified branch — the one that produced every canonical number — was excluding them from the **denominator too**: complete-case analysis, a different rule that was never registered. (Its census branch always followed §5, so the same script implemented two rules depending on a flag.) Corrected: `r̂` **28.648576 → 29.838403**, `p̂0` **0.116457 → 0.111813**. **The ICC, its interval, m̄ and `N_epochs` = 174 are all unchanged**, and not by luck: `r̂ × p̂0 = (opportunities/hours) × (repeats/opportunities) = repeats/hours`, so the opportunity count cancels and λ₀ cannot depend on how opportunities are counted. The rule decides what `p̂0` *means* — under §5's rule it is a genuine **floor**, since an unknown can only ever move into the numerator — not what the study costs.
+
 > | ICC | 0.098459, IC 95% **[0.0570 ; 0.1814]** (Searle; bootstrap de cluster confirma) |
 > | `hours_per_epoch` | 5.1867 (horas-sessão por epoch) |
 | `session_hours_per_epoch` | **50.4667 — e este campo contém SESSÕES, não horas** |

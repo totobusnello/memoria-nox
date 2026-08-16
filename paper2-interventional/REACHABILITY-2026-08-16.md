@@ -29,7 +29,7 @@ produces — same washout, same stratification, same Horvitz–Thompson weights 
 asks, for each opportunity, whether the treatment could have displaced anything.
 
 **The validation that matters:** the script reports `r_hat_irrestrito` =
-**28.6486**, identical to the canonical `r̂` = 28.648576 from
+**29.8384**, identical to the canonical `r̂` = 29.838403 from
 `SIZING-2026-08-14-v2.md`. What follows is not a parallel calculation; it is the
 same study viewed along another axis.
 
@@ -56,15 +56,15 @@ matching the strict-majority rule applied to the binary verdict (correction of
 
 | | |
 |---|---|
-| Opportunities (HT-weighted) | 4,457.77 over 155.6 session-hours |
+| Opportunities (HT-weighted) | 4,642.91 over 155.6 session-hours |
 | Repeats (HT-weighted) | 519.14 |
-| Severity of `a_past` | **S1 77.07% · S2 22.93% · S3 0% · S4 0%** |
-| Age of `a_past` | median **2.42 d** · p25 1.92 · p75 4.11 · max 25.83 |
+| Severity of `a_past` | **S1 76.96% · S2 23.04% · S3 0% · S4 0%** |
+| Age of `a_past` | median **2.43 d** · p75 4.34 · max 25.83 |
 | `a_past` with no consolidated severity | 0 |
 
 Two things follow immediately. **S3 and S4 do not occur** among matched past
 failures, so the severity axis in practice has two values, not four. And **age is
-not the binding constraint**: at a median of 2.42 days almost every chunk sits
+not the binding constraint**: at a median of 2.43 days almost every chunk sits
 well inside the 6.66-day cliff Sec. 2 publishes. What binds is severity.
 
 ## 4. Reach is a step function with two cliffs
@@ -73,11 +73,11 @@ well inside the 6.66-day cliff Sec. 2 publishes. What binds is severity.
 |---|---|---|---|
 | 0.5 | **0.00%** | 0.00% | 0.0000 |
 | 1.0 | **0.00%** | 0.00% | 0.0000 |
-| **2.0** | 19.66% | **17.56%** | 5.6324 |
-| 4.0 | 22.93% | 21.19% | 6.5688 |
-| 6.0 | 22.93% | 21.19% | 6.5688 |
-| **8.0** | **100.00%** | **100.00%** | **28.6486** |
-| 10.0 | 100.00% | 100.00% | 28.6486 |
+| **2.0** | 19.79% | **17.56%** | 5.9032 |
+| 4.0 | 23.04% | 21.19% | 6.8752 |
+| 6.0 | 23.04% | 21.19% | 6.8752 |
+| **8.0** | **100.00%** | **100.00%** | **29.8384** |
+| 10.0 | 100.00% | 100.00% | 29.8384 |
 
 The "ceiling on unconditional effect" is the share of *repeats* the dose can
 touch: if the treatment removed 100% of what it reaches, H1's outcome would fall
@@ -88,7 +88,7 @@ Dose required, by severity and age:
 | age | S1 | S2 |
 |---|---|---|
 | 1 d | 6.03 | 1.85 |
-| **2.42 d (median)** | **6.10** | **1.89** |
+| **2.43 d (median)** | **6.10** | **1.89** |
 | 4.11 d (p75) | 6.19 | 1.93 |
 | 25.83 d (max) | 7.29 | 2.48 |
 
@@ -109,17 +109,17 @@ two lower arms are structurally inert. A pre-committed reading rule that a null
 mechanism satisfies is not a reading rule.
 
 **(3) Restricting the primary to the reachable set is exact but not viable.**
-Sizing on `r̂` = 5.6324 and `p̂0` = 0.104 at the ICC's upper limit gives **984
+Sizing on `r̂` = 5.9032 and the restricted `p̂0` at the ICC's upper limit gives **~940
 epochs** at MDE 30% — 2.7 years — because restricting cuts `r̂` fivefold and `r̂`
 is the exposure denominator.
 
 ## 6. The property that changes the comparison
 
-**At `w ≈ 8`, `r̂` restricted returns to 28.6486 — identical to unrestricted.**
+**At `w ≈ 8`, `r̂` restricted returns to 29.8384 — identical to unrestricted.**
 The restriction dissolves because nothing is left outside it.
 
 The 984 epochs were never the price of conditioning the hypothesis. They were the
-price of conditioning it on **19.66%**. With a dose that reaches the whole
+price of conditioning it on **19.79%**. With a dose that reaches the whole
 opportunity set, H1 stays unconditional, the ceiling becomes 100% against an MDE
 of 30%, and `N_epochs` returns to **174**.
 
@@ -168,8 +168,8 @@ and boosting **exactly one per opportunity**:
 | dose | reach, most-recent | reach, best-match | ceiling, best-match |
 |---|---|---|---|
 | 1.0 | 0.00% | 0.00% | 0.00% |
-| **2.0 (already locked)** | 19.66% | **57.46%** | **60.18%** |
-| 3.0–6.0 | 22.93% | 77.81% | 75.62% |
+| **2.0 (already locked)** | 19.79% | **58.27%** | **60.18%** |
+| 4.0 | 23.04% | 78.58% | 75.62% |
 | 8.0 | 100.00% | 100.00% | 100.00% |
 
 **At `w = 2.0` — a dose that is already locked — the ceiling rises from 17.56% to
@@ -191,7 +191,7 @@ three arms remain structurally inert.
 ## 8. Open, and not settled here
 
 - **The band is a proposal, not a lock.** `w ∈ {2.0, 6.0, 8.0}` gives reaches of
-  19.66% / 22.93% / 100% — three distinct plateaus with a named mechanism at
+  19.79% / 23.04% / 100% — three distinct plateaus with a named mechanism at
   each: fresh S2, all S2, S1 enters. Whether to adopt it is the principal's.
 - **Displacement at the new dose is unmeasured.** A chunk rising by 0.344 pushes
   something out of ten slots, and what leaves has not been measured.
@@ -200,6 +200,23 @@ three arms remain structurally inert.
 - **S3/S4 are absent from this corpus**, so the severity gradient is untested at
   the top of the scale. A future corpus containing them would change the reach
   table, in the favourable direction.
+
+## 8-bis. Recomputed 2026-08-16 under the corrected missing-data rule
+
+Every number above was first computed while `pilot_replay.py` excluded
+unadjudicable outcomes from **both** numerator and denominator — complete-case,
+which is not the rule §5 registers. The estimator now follows §5 (denominator
+only), and this document was recomputed against it.
+
+**What moved:** opportunities 4,457.77 → 4,642.91 and `r̂` 28.648576 → 29.838403,
+so every reach *fraction* shifts by a few tenths of a point (19.66% → 19.79% at
+`w = 2.0`; 57.46% → 58.27% under one-designated-chunk).
+
+**What did not move, and could not:** every **ceiling** — 17.56%, 60.18%, 75.62%,
+100% — is `reachable repeats / total repeats`, and unadjudicable outcomes are not
+repeats. The argument of §5 and §7-bis rests entirely on the ceilings, so it is
+untouched by the rule. Likewise `N_epochs` = 174: `r̂ × p̂0 = repeats/hours`, so
+the opportunity count cancels out of λ₀ entirely.
 
 ## 9. Provenance
 

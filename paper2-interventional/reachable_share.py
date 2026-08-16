@@ -174,8 +174,11 @@ def main() -> int:
         elegiveis = [c for c in cands if c.ts <= e.epoch - limiar]
         if not elegiveis:
             continue
-        if e.estado == "unknown":
-            continue                      # outside the estimator, as in the replay
+        # Missing data follows Sec. 5, as `pilot_replay.py` now does: an
+        # unadjudicable outcome stays in the denominator and out of the
+        # numerator. It cannot be reachable-with-a-repeat, so it enters `tot`
+        # (and the severity/age tables) but never `alcanca_rep`.
+        unknown = e.estado == "unknown" 
         w_ep = peso[e.id]
         tot += w_ep
         if e.estado == "failure":

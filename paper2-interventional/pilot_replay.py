@@ -445,8 +445,9 @@ def main() -> int:
     analisaveis = [e for e in eps if e.offset_h >= WASHOUT_H]
 
     # -- Sampling design -------------------------------------------------------
-    # Without `--seed-b`, the script assumes a CENSUS: every episode weighs 1 and
-    # episodes of unknown outcome enter as opportunities — which makes `p0_hat` a
+    # Without `--seed-b`, the script assumes a CENSUS: every episode weighs 1.
+    # Episodes of unknown outcome enter as opportunities in BOTH modes — see the
+    # missing-data note in the estimator loop below — which makes `p0_hat` a
     # FLOOR, and the warning at the end says so.
     #
     # With `--seed-b`, it reproduces the stratified design declared in Sec. 4 of
@@ -522,15 +523,36 @@ def main() -> int:
         t0 = primeiro_failure.get(e.sig)
         if t0 is None or t0 > e.epoch - limiar:
             continue                      # condition (i) not satisfied
-        if estratificado and e.estado == "unknown":
-            oport_unknown += 1            # outside the estimator: weight undefined
-            continue
+        # -- Missing data: ONE rule, in both modes (corrected 2026-08-16) --------
+        # Sec. 5 locks it on 2026-07-29: "Unadjudicable outcomes -> third
+        # category, reported, **excluded from numerator**". Excluded from the
+        # numerator, NOT from the denominator.
+        #
+        # The stratified branch used to `continue` here, dropping the episode
+        # from both — complete-case analysis, which is a different rule and was
+        # never the registered one. The census branch always did what Sec. 5
+        # says. So the same script implemented two rules depending on a flag,
+        # and every canonical number came out of the branch that contradicts the
+        # document. Measured on the 30-epoch corpus: p0_hat 0.116457
+        # (complete-case) against 0.111813 (Sec. 5's rule) — 3.99% apart, and
+        # N_epochs 174 against 180.
+        #
+        # The comment that justified the drop ("weight undefined") was also
+        # wrong: `analisaveis` has been reassigned to `estrato_a + estrato_b`
+        # above, so every episode reaching this loop carries a weight.
+        #
+        # Why Sec. 5's rule and not the code's: it makes `p0_hat` a genuine
+        # FLOOR — an unknown can only ever move an opportunity into the
+        # numerator, never out of it — hence a CEILING on N. That is the same
+        # direction of error the rest of this design takes deliberately (strict
+        # majority inflates K; sizing on the ICC's upper limit), and it is the
+        # property the warning printed at the end of this script asserts.
         oport_por_epoch[e.epoch] += peso[e.id]
         if e.estado == "failure":
             repeat_por_epoch[e.epoch] += peso[e.id]
             repeat_por_sessao[(e.epoch, e.sessao)] += peso[e.id]
         elif e.estado == "unknown":
-            oport_unknown += 1            # outcome not adjudicated (census mode)
+            oport_unknown += 1            # in the denominator, out of the numerator
 
     epochs = sorted(ep for ep in horas if horas[ep] > 0)
     if a.min_epochs and len(epochs) < a.min_epochs:
