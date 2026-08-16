@@ -31,8 +31,8 @@ Métricas de retrieval (nDCG/recall) medem **representação**, não **decisão*
 | `α` (dose relativa ao spread) | ✅ 29/07 — `w × Δ_cut`, `w ∈ {0.5, 1.0, 2.0}` |
 | `linked` = **identidade** (chunk escrito do episódio) · escrita nos 2 braços | ✅ 15/08 |
 | `N_epochs` = **174** · "powered only for effects ≥ 30%" · dimensionado no **limite superior** do ICC | ✅ 15/08 (corrigido no mesmo dia: o primeiro lock, 154 ao ponto, violava o lock (b) de 30/07 — e 154 era 152) |
-| `δ` (bound de carry-over) = **36,67** | ✅ 15/08 |
-| `p95` do task regret = **7,45 s** / **65 206 tokens** | ✅ 15/08 |
+| `δ` (bound de carry-over) = **36.67** | ✅ 15/08 |
+| `p95` do task regret = **7.45 s** / **65 206 tokens** | ✅ 15/08 |
 | `T_seed_assign` | ⏳ exige a registração OSF existir |
 | Data-limite de calendário | ⏳ exige o primeiro epoch randomizado |
 
@@ -54,10 +54,10 @@ Cada uma foi commitada e enviada ao repositório **antes** do round de beacon co
 |---|---|
 | [`PILOT-PROJECTION.md`](PILOT-PROJECTION.md) | O desenho da adjudicação por peças e por que não se faz censo dos 4.577 |
 | [`SIZING-2026-08-14.md`](SIZING-2026-08-14.md) | 🔴 **Superado no mesmo dia** — três números errados por um bug no replay. Mantido como registro da retratação |
-| [`SIZING-2026-08-14-v2.md`](SIZING-2026-08-14-v2.md) | Sizing válido, 30 clusters. ICC 0,0985 [0,057 ; 0,181] |
+| [`SIZING-2026-08-14-v2.md`](SIZING-2026-08-14-v2.md) | Sizing válido, 30 clusters. ICC 0.0985 [0.057 ; 0.181] |
 | [`DOSE-REACH-2026-08-15.json`](DOSE-REACH-2026-08-15.json) | A dose travada **move o brief** — e expôs a lacuna do `linked` |
 | [`LINK-FEASIBILITY-2026-08-15.md`](LINK-FEASIBILITY-2026-08-15.md) | Não há chave de junção. Duas construções caem, uma funciona — em **~30%** dos failures, pelos 2 coverage slots |
-| [`STABILITY-TEST.md`](STABILITY-TEST.md) | Estabilidade agregada 99% **esconde** 47,6% de oscilação nos desempates |
+| [`STABILITY-TEST.md`](STABILITY-TEST.md) | Estabilidade agregada 99% **esconde** 47.6% de oscilação nos desempates |
 | [`WASHOUT-SENSITIVITY-2026-08-14.md`](WASHOUT-SENSITIVITY-2026-08-14.md) | O washout de 2 h está bem calibrado — a borda dura <2 h. Registra também um confundidor de composição em que caí |
 
 ## Scripts

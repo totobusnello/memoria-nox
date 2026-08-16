@@ -1,4 +1,12 @@
-# OSF Pre-Registration — v1.3, READY TO REGISTER
+# OSF Pre-Registration — v1.4, READY TO REGISTER
+
+> ### ✅ The written chunk's structured fields locked — 2026-08-16
+>
+> An adversarial review of the deposit package charged that the write mechanism was open to post-hoc choice. That charge was **wrong** — the write happening in *both arms* has been locked in bold in §2 since 2026-08-15, and the review quoted the document where the question was asked rather than where it was answered. But checking it exposed a real defect pointing the other way: §2 called the chunk template *"still open"* while every dose number in that same section had already been computed over a chunk with specific field values. The document was calling free something its own published numbers depended on.
+>
+> Closed by recording, not by deciding: `chunk_type`, `source_type`, `pain`, `importance`, `access_count`, `retention_days` and `tier` are now **LOCKED in §2** at exactly the values `dose_reach.mjs` and `link_feasibility.mjs` ran under. **No number changes**, because these were always the values behind them. What genuinely remains open is narrower and named: which component performs the write, the chunk's **free text** (which enters no salience term), and the write's instant within the epoch.
+>
+> **Status: v1.4 — 2026-08-16.** Everything the v1.3 status line asserted still holds: every `[TO LOCK]` item that required analysis is closed, the two that remain resolve by construction from the registration timestamp, and **no randomized epoch exists — the study has not started.**
 
 > ### ✅ Unblocked 2026-08-15 — `linked` locked as identity
 >
@@ -6,7 +14,7 @@
 >
 > **Every locked number survives**, because `r̂`, `p̂0` and the ICC were computed by the replay under §3's model all along. What changed is what the registration now declares: the **effective treated population is ~30% of failures** (S2 and above), the treatment acts only through the **2 coverage slots**, and reaching the modal S1 failure would need `w ≈ 6.0` — recorded before any arm data, so widening the band later is visibly an amendment.
 >
-> **Status: v1.3 — 2026-08-15.** *(Date-gated conditions written in the future tense elsewhere in this document — "no earlier than 2026-08-09" and similar — were all satisfied before this status line was written.)* Every `[TO LOCK]` item that required analysis is closed. The two that remain resolve in sequence and by construction: `T_seed_assign` needs the OSF registration timestamp to exist first, and the calendar end date needs the first randomized epoch, which has not occurred. **No randomized epoch exists; the study has not started.** Everything measured here is pre-treatment, over a historical corpus with no arm assignment.
+> **Status at that point: v1.3 — 2026-08-15.** *(Date-gated conditions written in the future tense elsewhere in this document — "no earlier than 2026-08-09" and similar — were all satisfied before this status line was written.)* Every `[TO LOCK]` item that required analysis is closed. The two that remain resolve in sequence and by construction: `T_seed_assign` needs the OSF registration timestamp to exist first, and the calendar end date needs the first randomized epoch, which has not occurred. **No randomized epoch exists; the study has not started.** Everything measured here is pre-treatment, over a historical corpus with no arm assignment.
 >
 > ### ✅ `N_epochs` corrigido para cumprir o lock (b) — 2026-08-15
 >
@@ -16,7 +24,7 @@
 >
 > ⚠️ **Os dois defeitos são independentes e o segundo é o menor.** Errar 152 por 154 é aritmética; dimensionar no ponto quando um lock manda dimensionar no limite superior é padrão de decisão. O primeiro se corrige com um número, o segundo com uma regra — e é o segundo que a memória `feedback_estimator_choice_inside_the_noise` já registrava. o lock (b) exigia a coluna do limite superior. Pior que o número foi o padrão: a mesma nota aplicava disciplina para *não* reduzir de 154 para 46 — "toda razão que aponta para estudo mais curto merece mais suspeita" — sem notar que 154 já era uma redução silenciosa frente ao que um lock anterior exigia. Conservador onde era barato, não conservador onde custava calendário.
 >
-> **Corrigido no mesmo dia, antes de qualquer epoch randomizado: `N_epochs` = 174, MDE declarado em 30%, dimensionado no LIMITE SUPERIOR do ICC (0,1814).**
+> **Corrigido no mesmo dia, antes de qualquer epoch randomizado: `N_epochs` = 174, MDE declarado em 30%, dimensionado no LIMITE SUPERIOR do ICC (0.1814).**
 >
 > | MDE | no ponto | **no limite superior — o que o lock (b) manda** |
 > |---|---|---|
@@ -26,12 +34,12 @@
 >
 > A escolha de 30% em vez de 25% é alocação de calendário (174 dias contra 256), tomada com a tabela inteira à vista e **antes** de existir qualquer dado de braço. O que ela compra não é um estudo mais curto que o correto — é o estudo correto sob o lock que já estava no papel. O que ela custa está no §3 e no abstract: efeitos abaixo de 30% relativos não serão detectados de forma confiável.
 >
-> **Locked 2026-08-15:** `N_epochs` = **174** · MDE declared at **30%** via the §3 escape clause, sized on the **upper confidence limit** of the ICC per lock (b) (the 20% target is not amended, and is not reached) · `δ` = 36,67 · task-regret `p95` = 7,45 s / 65 206 tokens.
+> **Locked 2026-08-15:** `N_epochs` = **174** · MDE declared at **30%** via the §3 escape clause, sized on the **upper confidence limit** of the ICC per lock (b) (the 20% target is not amended, and is not reached) · `δ` = 36.67 · task-regret `p95` = 7.45 s / 65 206 tokens.
 >
 > **Version history.** v0.1, 2026-07-25. v0.1 was adversarially reviewed by GLM-5.2 (5 FATAL / 7 GRAVE / 10 minor — full verdict in `REVIEWS-PREREG.md`); v0.2 incorporated every fix independent of the route decision; **Route 2-lite decided 2026-07-12** (§0) — the route decision *precedes* v0.1 because the routes were argued out in `DECISIONS.md` before this document existed; v0.1 is the first draft that assumes the decision, not the one that made it. v0.1 and v0.3 share the date 2026-07-25 because both landed that day: v0.1 was reviewed and revised within the same session. **v0.3 (2026-07-25, Toto's call): no human auditor and no human data monitor will be appointed. Independence is provided structurally — by public randomness, frozen hashes, mechanical rules, and open artifacts — rather than delegated to named individuals** (§0b). Locking now blocked only on the remaining **[TO LOCK]** items (§9). This document becomes binding only when registered on OSF with a public timestamp **before** any A/B data collection.
 > **Companion docs:** `CONCEPT-NOTE.md` · `METHODOLOGY.md` · `DECISIONS.md` · `REVIEWS-PREREG.md`.
 >
-> **Decimal separator.** This document mixes `,` and `.` as the decimal mark: text written in Portuguese and figures quoted from the Portuguese analysis documents use `0,0985`; text written in English and figures quoted from English-language reviews use `0.0985`. It is a provenance artefact, not two different numbers. Deliberately not normalised, because rewriting quoted figures would break the correspondence with the source documents they are cited from.
+> **Decimal separator.** This document mixes `,` and `.` as the decimal mark: text written in Portuguese and figures quoted from the Portuguese analysis documents use `0.0985`; text written in English and figures quoted from English-language reviews use `0.0985`. It is a provenance artefact, not two different numbers. Deliberately not normalised, because rewriting quoted figures would break the correspondence with the source documents they are cited from.
 
 ---
 
@@ -110,14 +118,14 @@ Observed roster activity over the frozen snapshot window (2026-07-18 → 07-28) 
 
 Both the derived seed and the resulting assignment sequence are published to OSF **before the first treatment epoch** (M4), together with the round number, the raw beacon output, and the recomputation script.
 
-**Estimand (potential outcomes; G4 fix).** For session-hour unit *i* in epoch *k*, let `Y_i(a, S_k)` be the outcome under arm `a ∈ {0,1}` with serving snapshot `S_k`. The estimand is the average serving-policy effect
+**Estimand (potential outcomes; G4 fix).** For session-hour unit *i* in epoch *k*, let `Y_i(a, S_k)` be the outcome under arm `a ∈ {0.1}` with serving snapshot `S_k`. The estimand is the average serving-policy effect
 `τ = E[ Y_i(1, S_k) − Y_i(0, S_k) ]`
 over the realized snapshot sequence — i.e., the effect of *which chunks are served*, with the write path identical in both arms and snapshots evolving under the realized mixed history. This is a **policy effect along the realized trajectory**, not the effect of deploying the treatment permanently; that broader estimand is declared out of reach of this design and is not claimed.
 
 **Interference handling (F1 fix, layered):**
 1. **No simultaneous mixing:** fleet-wide epochs — at no instant do treated and control sessions coexist.
 2. **Serving-side snapshot:** briefs in epoch *k* are served from snapshot `S_k` (store state at epoch start, post-washout); writes continue to the live store untouched. Carry-over is thus confined to *content* differences between successive snapshots.
-3. **Washout: first 2 h of each epoch excluded from analysis — LOCKED 2026-07-29, sized against the measured session-duration distribution, not proposed.** *(Two different p95s appear in this registration and must not be conflated: the **session-span** p95 of 9.6 min sizes the washout here; the **task-regret** p95 of 7,45 s / 65 206 tokens in Appendix B is the cost of a repeated failure. Different estimands, different units, no contradiction.)* Over the frozen snapshot (525 multi-episode sessions): median span **22 s**, p90 **3.6 min**, p95 **9.6 min**. A 2 h window therefore clears **96.8%** of sessions with three orders of magnitude to spare, and the value is retained (rather than tightened to ~10 min) purely as margin.
+3. **Washout: first 2 h of each epoch excluded from analysis — LOCKED 2026-07-29, sized against the measured session-duration distribution, not proposed.** *(Two different p95s appear in this registration and must not be conflated: the **session-span** p95 of 9.6 min sizes the washout here; the **task-regret** p95 of 7.45 s / 65 206 tokens in Appendix B is the cost of a repeated failure. Different estimands, different units, no contradiction.)* Over the frozen snapshot (525 multi-episode sessions): median span **22 s**, p90 **3.6 min**, p95 **9.6 min**. A 2 h window therefore clears **96.8%** of sessions with three orders of magnitude to spare, and the value is retained (rather than tightened to ~10 min) purely as margin.
 
    ⚠️ **The distribution is bimodal and the tail is not a washout problem.** p99 jumps to **33.5 h** and the maximum is **158 h** — a discontinuity of two orders of magnitude above p95, consistent with two populations: interactive sessions (seconds to minutes) and long-running processes (days). **3.2% of sessions outlast an entire 24 h epoch**, and some span six. No washout length fixes this: the brief is served once at session start, so such a session is correctly attributed to its starting epoch, but its *actions* continue to execute for days, potentially while the fleet has switched arms. Boundary-straddling sessions are assigned to the epoch of their start, flagged, with sensitivity with/without — and, additionally pre-committed here, **sessions whose span exceeds one epoch length are reported as their own stratum**, since for them the arm assignment is genuinely ambiguous rather than merely edge-adjacent.
 4. **Primary carry-over guard:** the primary analysis set is **all post-washout session-hours**; a pre-committed co-estimate restricts to epochs whose *predecessor was control* (A→B transitions), isolating treatment effects from treatment-shaped snapshots (F4/GLM fix #1).
@@ -243,7 +251,7 @@ Piece 3 adjudicated a **stratified** sample (census of the `is_error` stratum + 
 **All three intervals contain zero, and each point estimate lies inside the others' intervals.** The estimator choice is inside the sampling noise — the question as posed is not the binding one. Two reasons, and both are structural rather than fixable by computation:
 
 1. **Eleven clusters cannot estimate an ICC.** ICC precision requires on the order of 30–50 clusters. The analytic standard error for these data is 0.025, matching the bootstrap.
-2. **`m̄` = 70.4 amplifies whatever error remains.** In `DE = 1 + (m̄ − 1)·ICC`, a ±0.025 error in the ICC is a ±1.7 error in `DE`. Projecting the analytic SE forward: 30 epochs give an ICC CI of roughly [0.016, 0.074] and 50 epochs [0.023, 0.067] — better, but **`DE` stays uncertain by about a factor of two even at 50 epochs.** ⚠️ **These two intervals are SUPERSEDED and are kept only as the projection that was made at 11 clusters.** They were extrapolated from an 11-epoch ICC of ≈0,045; the 30-epoch corpus was later measured and the official interval is **[0,0570 ; 0,1814] around 0,0985** (`SIZING-2026-08-14-v2.md`, Searle, confirmed by cluster bootstrap) — roughly twice as high and twice as wide as this projection anticipated. Do not read the three intervals as one ICC story: two are forecasts made before the measurement, one is the measurement. This is irreducible under this design, not a matter of waiting long enough.
+2. **`m̄` = 70.4 amplifies whatever error remains.** In `DE = 1 + (m̄ − 1)·ICC`, a ±0.025 error in the ICC is a ±1.7 error in `DE`. Projecting the analytic SE forward: 30 epochs give an ICC CI of roughly [0.016, 0.074] and 50 epochs [0.023, 0.067] — better, but **`DE` stays uncertain by about a factor of two even at 50 epochs.** ⚠️ **These two intervals are SUPERSEDED and are kept only as the projection that was made at 11 clusters.** They were extrapolated from an 11-epoch ICC of ≈0.045; the 30-epoch corpus was later measured and the official interval is **[0.0570 ; 0.1814] around 0.0985** (`SIZING-2026-08-14-v2.md`, Searle, confirmed by cluster bootstrap) — roughly twice as high and twice as wide as this projection anticipated. Do not read the three intervals as one ICC story: two are forecasts made before the measurement, one is the measurement. This is irreducible under this design, not a matter of waiting long enough.
 
 Four decisions, locked:
 
@@ -303,19 +311,19 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 >
 > Measured now by `dose_reach.mjs` (read-only, same 500-row candidate pool and the real `calculateSalience`; full output in `DOSE-REACH-2026-08-15.json`). It reproduces the historical figures within corpus drift — 0.15 at severity 1.0 gives 326 chunks in reach today against the 303 reported in July — which is what licenses reading the new rows.
 >
-> **The severity that matters is not the ceiling.** Over the 3 812 unique (episode, panelist) `failure` verdicts of the frozen pilot corpus: **S1 69,73% · S2 29,62% · S3 0,58% · S4 0,08%** — median **S1**, mean **0,3275**. The severity = 1.0 ceiling used throughout §9-4 is reached by **3 verdicts in 3 812**.
+> **The severity that matters is not the ceiling.** Over the 3 812 unique (episode, panelist) `failure` verdicts of the frozen pilot corpus: **S1 69.73% · S2 29.62% · S3 0.58% · S4 0.08%** — median **S1**, mean **0.3275**. The severity = 1.0 ceiling used throughout §9-4 is reached by **3 verdicts in 3 812**.
 >
 > | dose | boost at empirical median (S1) | chunks reaching the cut | of 10 incumbents, displaceable |
 > |---|---|---|---|
-> | `w = 0.5` | 0,0054 | 3 | **4** |
-> | `w = 1.0` | 0,0107 | 5 | **5** |
-> | `w = 2.0` | 0,0215 | 12 | **7** |
+> | `w = 0.5` | 0.0054 | 3 | **4** |
+> | `w = 1.0` | 0.0107 | 5 | **5** |
+> | `w = 2.0` | 0.0215 | 12 | **7** |
 >
 > **The mechanism is alive at the locked doses, and it is a nudge rather than a rewrite** — which is what §2 said it wanted and had never checked. At the modal severity the lowest dose puts 4 of 10 slots in play and the highest 7; none of the three reaches the total-rewrite regime that 0.15 produces. The `w` arm is therefore a real gradient and not three labels for the same brief.
 >
 > **What this does and does not settle.** It settles that the treatment can change brief *composition* at the doses locked. It does **not** settle that changed composition changes behaviour by 30% — that remains unmeasurable before the intervention, and the three pre-commitments above stand unchanged. What it removes is the stronger worry: the study is not powered for an effect the mechanism cannot produce at all.
 >
-> **Δ_cut drift, declared:** the top-10 spread measured today is **0,0349** against the **0,043** frozen at lock — −0,0081, about 19% narrower. `Δ_cut` is frozen pre-treatment by design (§2) and is **not** updated; the drift is recorded because it means the locked doses are slightly *larger* relative to today's spread than they were at lock, which moves the effect in the direction of more displacement, not less.
+> **Δ_cut drift, declared:** the top-10 spread measured today is **0.0349** against the **0.043** frozen at lock — −0.0081, about 19% narrower. `Δ_cut` is frozen pre-treatment by design (§2) and is **not** updated; the drift is recorded because it means the locked doses are slightly *larger* relative to today's spread than they were at lock, which moves the effect in the direction of more displacement, not less.
 >
 > ⛔ **This measurement also exposed a gap that no `[TO LOCK]` list contains — see the note that follows §9-4.**
 
@@ -329,7 +337,7 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 >
 > The 20% MDE target is **not** amended and remains on the record as what was wanted. What this clause does is exactly what it was written for: report honestly that the locked N does not reach 80% power at 20%, and say so in the abstract rather than let the reader assume otherwise. Sizing at 20% would require **410 epochs at the ICC's upper confidence bound** (242 at the point estimate) — 13.5 months of continuous fleet operation. The full grid, all on the same inputs, with the column lock (b) mandates in bold:
 >
-> | MDE relativo | no ponto | **no limite superior (0,1814)** |
+> | MDE relativo | no ponto | **no limite superior (0.1814)** |
 > |---|---|---|
 > | 20% (alvo travado em 29/07) | 242 | 410 |
 > | 25% | 152 | 256 |
@@ -340,14 +348,14 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 >
 > | | |
 > |---|---|
-> | `r̂` | 28,648576 |
-> | `p̂0` | 0,116457 |
-> | ICC | 0,098459, IC 95% **[0,0570 ; 0,1814]** (Searle; bootstrap de cluster confirma) |
-> | `hours_per_epoch` | 5,1867 (horas-sessão por epoch) |
-| `session_hours_per_epoch` | **50,4667 — e este campo contém SESSÕES, não horas** |
-> | design effect | 5,87 |
+> | `r̂` | 28.648576 |
+> | `p̂0` | 0.116457 |
+> | ICC | 0.098459, IC 95% **[0.0570 ; 0.1814]** (Searle; bootstrap de cluster confirma) |
+> | `hours_per_epoch` | 5.1867 (horas-sessão por epoch) |
+| `session_hours_per_epoch` | **50.4667 — e este campo contém SESSÕES, não horas** |
+> | design effect | 5.87 |
 
-> ⚠️ **O nome `session_hours_per_epoch` mente, e o valor está certo.** O campo carrega a **contagem de sessões** por epoch, que é o `m̄` que o design effect exige (`DE = 1 + (m̄−1)·ICC`); `sizing.py` o consome como `m_bar` e `pilot_replay.py` o computa como `sum(sessões)/epochs`. Confere: `1 + (50,4667−1)×0,098459 = 5,87`. O §3 já registra a armadilha — *"`m̄` counts sessions, not session-hours — corrected 2026-07-30 after the harness exposed it"* — mas a correção foi feita no **valor** e o **nome do campo nunca mudou**. Renomeá-lo agora alteraria a saída JSON de um script cujos resultados já estão citados em documentos datados; fica declarado em vez de renomeado. **Quem reimplementar deve alimentar `sizing.py` com sessões por epoch, não com horas.**
+> ⚠️ **O nome `session_hours_per_epoch` mente, e o valor está certo.** O campo carrega a **contagem de sessões** por epoch, que é o `m̄` que o design effect exige (`DE = 1 + (m̄−1)·ICC`); `sizing.py` o consome como `m_bar` e `pilot_replay.py` o computa como `sum(sessões)/epochs`. Confere: `1 + (50.4667−1)×0.098459 = 5.87`. O §3 já registra a armadilha — *"`m̄` counts sessions, not session-hours — corrected 2026-07-30 after the harness exposed it"* — mas a correção foi feita no **valor** e o **nome do campo nunca mudou**. Renomeá-lo agora alteraria a saída JSON de um script cujos resultados já estão citados em documentos datados; fica declarado em vez de renomeado. **Quem reimplementar deve alimentar `sizing.py` com sessões por epoch, não com horas.**
 >
 > **Epoch length is NOT changed.** It stays at the locked 24 h. Shortening to 8 h would reach the same MDE in far fewer calendar days — a real saving — but it would be an amendment to a locked value, and it would lean on a 2 h washout whose sufficiency has been verified only *without* treatment (`WASHOUT-SENSITIVITY-2026-08-14.md`: the natural boundary effect is confined to <2 h, which removes an objection but does not establish carry-over behaviour under an active arm). Buying calendar with an unverified premise is the wrong trade for a study whose whole contribution is methodological.
 >
@@ -357,7 +365,7 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 >
 > The same test applies to the 25%→30% move made on the day of the lock, and it passes for the same reason — **but the honest framing is not "it passes", it is "there is nothing yet against which it could fail".** The move was made with the full grid above in view, to satisfy a standard (lock (b)) that was already on the record and was being violated. What makes it auditable is not the argument: it is that `r̂`, `p̂0` and the ICC were fixed and published in `SIZING-2026-08-14-v2.md` **before** the MDE was chosen, so anyone can recompute every cell of that table and confirm 174 is the entry it claims to be.
 
-**Stopping rule (F3 fix).** Fixed horizon defined **only in pre-treatment units**: data collection ends at **174 randomized epochs (LOCKED 2026-08-15)** or the pre-committed calendar end date **[TO LOCK — 174 epochs at 24 h is ~5,7 months of fleet operation; the calendar date must be set from the first randomized epoch, which has not yet occurred]**, whichever comes first. Opportunity counts play **no role** in stopping. No interim analyses; no optional stopping.
+**Stopping rule (F3 fix).** Fixed horizon defined **only in pre-treatment units**: data collection ends at **174 randomized epochs (LOCKED 2026-08-15)** or the pre-committed calendar end date **[TO LOCK — 174 epochs at 24 h is ~5.7 months of fleet operation; the calendar date must be set from the first randomized epoch, which has not yet occurred]**, whichever comes first. Opportunity counts play **no role** in stopping. No interim analyses; no optional stopping.
 **Safety abort — mechanical, no monitor (§0b).** Discretion is removed rather than delegated. A script in the frozen commit evaluates the following **arm-blind** rule at every epoch boundary, over the incident stream only (it never reads arm labels):
 
 > **Halt the study** if either (a) ≥1 incident adjudicated at level **S4** (§4.1 rubric — data loss, production broken, or reversal needing intervention outside the agent's scope) occurs in an analyzed epoch, **or** (b) the count of incidents at level **≥ S3** within a trailing window of **3 epochs (LOCKED)** exceeds **3× (LOCKED)** the per-epoch baseline rate computed over **the full action history available in the frozen snapshot, with a hard minimum of 14 days (LOCKED 2026-07-29, replacing "90 days")**.
@@ -439,7 +447,7 @@ The S0/S1 boundary is stable; the S1/S2 boundary is not anchored. `zhipu` assign
 
 #### Severity rubric — anchored ordinal, replacing the free decimal (2026-07-26)
 
-The v0.2 scale was a float in [0,1]. Five independently prompted models do not share a metric on such a scale, so the median of five decimals is a number without a common referent — and two concrete harms follow. First, a sensitivity band of {0.4, 0.5, 0.6} may fall entirely inside a region no panelist actually uses, making the band vacuous rather than informative. Second, and worse: **§3's mechanical abort triggers on median severity exactly 1.0**, which requires three of five panelists to pin the ceiling of an unanchored scale — something LLM panels rarely do. The rule protecting production may have been practically untriggerable, which is a safety defect, not a metrics detail.
+The v0.2 scale was a float in [0.1]. Five independently prompted models do not share a metric on such a scale, so the median of five decimals is a number without a common referent — and two concrete harms follow. First, a sensitivity band of {0.4, 0.5, 0.6} may fall entirely inside a region no panelist actually uses, making the band vacuous rather than informative. Second, and worse: **§3's mechanical abort triggers on median severity exactly 1.0**, which requires three of five panelists to pin the ceiling of an unanchored scale — something LLM panels rarely do. The rule protecting production may have been practically untriggerable, which is a safety defect, not a metrics detail.
 
 Locked instead: **five discrete levels with operational descriptions**, judged against what the failure *cost*, not how bad it felt.
 
@@ -453,7 +461,7 @@ Locked instead: **five discrete levels with operational descriptions**, judged a
 
 Both properties the decimal lacked now hold. The sensitivity band is **primary ± 1 level**, well-positioned by construction rather than by luck — the pathology observed in the `pain` proxy (where 0.4 and 0.5 differ by 23 chunks while 0.6 drops 84% of the set) cannot arise on a scale whose steps are defined by distinct operational tests. And **§3's abort becomes operative**: its clause (a) reads **S4**, clause (b) reads **≥ S3**, both of which a panel can actually reach because each has a description to agree on. Where the analysis needs a numeric severity (the `W_OUTCOME × severity` term of §2), levels map to `S0→0, S1→0.25, S2→0.5, S3→0.75, S4→1.0`; the mapping is fixed here and is not a free parameter.
 
-> ⚠️ **This subsection describes the FIVE-family panel, which is the CALIBRATION instrument. The LIVE study adjudicates with THREE API families** (`zhipu` / `xai` / `google`) — locked 2026-07-30 in §3, *after* measuring on the 1,500 calibration verdicts that the reduction costs κ 0,8815 → 0,8747. Wherever this subsection says "five", read it as the panel that produced κ, α and the rubric. Two properties are re-asserted for the live three-family panel and do not carry over silently: **odd size** (3 is odd; strict majority, exact tie → `not_failure`) and **leave-one-family-out**, which for the live panel is leave-one-of-three-out and is reported as a robustness check, not as an overlap remedy.
+> ⚠️ **This subsection describes the FIVE-family panel, which is the CALIBRATION instrument. The LIVE study adjudicates with THREE API families** (`zhipu` / `xai` / `google`) — locked 2026-07-30 in §3, *after* measuring on the 1,500 calibration verdicts that the reduction costs κ 0.8815 → 0.8747. Wherever this subsection says "five", read it as the panel that produced κ, α and the rubric. Two properties are re-asserted for the live three-family panel and do not carry over silently: **odd size** (3 is odd; strict majority, exact tie → `not_failure`) and **leave-one-family-out**, which for the live panel is leave-one-of-three-out and is reported as a robustness check, not as an overlap remedy.
 
 **Adjudication panel (replaces human adjudicators; §0b).** Episodes are judged by an **odd-sized panel of LLMs drawn from distinct training families** — **5 families, wired and smoke-tested 2026-07-26: Zhipu `glm-5.2` · xAI `grok-4.5` · Google `gemini-2.5-pro` · Moonshot `k3` (kimi-code 0.29.1) · OpenAI `gpt-5.6-sol` (codex-cli 0.145.0)**.
 
@@ -518,7 +526,7 @@ Task regret (excess time-to-resolution + token cost vs. best known resolution of
 >
 > | component | winsorized at |
 > |---|---|
-> | excess time-to-resolution | **7,45 s** |
+> | excess time-to-resolution | **7.45 s** |
 > | excess token cost | **65 206 tokens** |
 >
 > **Why two numbers and not one.** As written above, task regret is "excess time-to-resolution **+** token cost". Those are seconds and tokens; summing them requires a conversion rate the registration never declared. Inventing one now — with the distribution already measured — would be choosing an estimator with the data in view. The two components are therefore **winsorized separately and reported as a family**, in the same spirit as the Holm-corrected H1a–c. This resolves an ambiguity in the original phrasing rather than changing the outcome: no component is added or removed, and if a defensible seconds-per-token rate is ever declared, the summed version is recoverable from the two.
@@ -529,7 +537,7 @@ Task regret (excess time-to-resolution + token cost vs. best known resolution of
 >
 > **Measured over the frozen action corpus, not the study.** 10 868 `tool_use`/`tool_result` pairs; 10 724 episodes carry regret; 0 discarded for missing timestamp and 0 for missing `usage`. "Best known resolution" is the **minimum among successful episodes** of the same signature — using the global minimum would let a fast, cheap failure define the floor, and a failure is not a resolution. Signatures with fewer than 5 successful episodes do not define a reliable floor and are excluded (47 of 106 signatures, but only 144 of 10 868 episodes — the excluded signatures are the rare tail).
 >
-> **The one free choice was tested.** That minimum-per-signature threshold is the only parameter here that was not forced by the definition. Varying it across {3, 5, 10, 20} moves the time p95 between 7,441 s and 7,588 s (2%) and the token p95 between 64 862 and 65 220 (0,5%). The locked values do not depend on it.
+> **The one free choice was tested.** That minimum-per-signature threshold is the only parameter here that was not forced by the definition. Varying it across {3, 5, 10, 20} moves the time p95 between 7,441 s and 7,588 s (2%) and the token p95 between 64 862 and 65 220 (0.5%). The locked values do not depend on it.
 >
 > **Token accounting, declared:** input + output + `cache_creation`, **excluding `cache_read`**. Cached reads bill at a fraction of the rate, and counting them at full price would inflate long sessions — precisely the ones that accumulate cache. The choice understates the cost of long sessions and is conservative for regret.
 >
@@ -580,7 +588,7 @@ It is replaced by an **equivalence test**, which matches the claim actually bein
 | Collider / post-treatment denominator | Unconditional primary + co-primary family | — |
 | Optional stopping | Horizon in epochs/calendar only; symmetric abort | Abort = informative censoring (sensitivity) |
 | Permutation validity | Trend-residualized; sharp-null scope declared; CI separate | Sharp null covers total effect only |
-| Underpowering (rare events) | Density metric, pilot-sized power curve, **N = 174 locked at MDE 30%, sized on the ICC upper confidence limit (0,1814) per lock (b), with the "powered only for effects ≥ X%" clause exercised (§3)**, re-scope-before-lock | **Effects < 30% relative undetectable — declared in the abstract, not in a limitations section.** The 20% target originally judged plausible for a brief-composition nudge is *not* reached: a null result is evidence against effects ≥30%, and not against the 15–30% band |
+| Underpowering (rare events) | Density metric, pilot-sized power curve, **N = 174 locked at MDE 30%, sized on the ICC upper confidence limit (0.1814) per lock (b), with the "powered only for effects ≥ X%" clause exercised (§3)**, re-scope-before-lock | **Effects < 30% relative undetectable — declared in the abstract, not in a limitations section.** The 20% target originally judged plausible for a brief-composition nudge is *not* reached: a null result is evidence against effects ≥30%, and not against the 15–30% band |
 | Adjudication conflict | Frozen multi-family LLM panel, majority + median, Fleiss' κ floor; verdict hash published pre-join | Correlated bias across panelists not fully excludable (§4.1) |
 | Self-interested stopping | Mechanical arm-blind abort rule; halts whole study, never one arm | — |
 | Manipulated randomization | Public `drand` beacon round postdating registration; anyone can recompute | — |
@@ -753,10 +761,10 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
 
 | Item | Status |
 |---|---|
-| `N_epochs` | ✅ **174, LOCKED 2026-08-15** (§3, exercising the "powered only for effects ≥ X%" clause at 30%; sized on the ICC **upper** confidence limit 0,1814, as lock (b) of 2026-07-30 requires). |
-| numeric `δ` | ✅ **36,67, LOCKED 2026-08-15** (Appendix B.5) — the only one of the five that genuinely needed the same-arm transition distribution. |
+| `N_epochs` | ✅ **174, LOCKED 2026-08-15** (§3, exercising the "powered only for effects ≥ X%" clause at 30%; sized on the ICC **upper** confidence limit 0.1814, as lock (b) of 2026-07-30 requires). |
+| numeric `δ` | ✅ **36.67, LOCKED 2026-08-15** (Appendix B.5) — the only one of the five that genuinely needed the same-arm transition distribution. |
 | `α` (spread-relative dose) | ✅ **Already locked 2026-07-29** and has been for weeks. The `[TO LOCK: α]` still visible in §9 sits *inside a quoted adversarial-review block*; it is the reviewer's recommendation, which §2 **accepted and implemented** as `W_OUTCOME = w × Δ_cut` with `w ∈ {0.5, 1.0, 2.0}`. `w` *is* that `α`. Listing it here was a stale reference to a resolved item. |
-| `p95` winsorization | ✅ **LOCKED 2026-08-15** — 7,45 s (time) and 65 206 tokens (cost), measured over the frozen action corpus by `task_regret.py`. It never depended on same-arm transitions: it is the winsorization point of *task regret* (§4.2, secondary), a different quantity entirely. An earlier note here said it was "not derivable from the current corpus" — **that was wrong**: the archive carries `usage` blocks on the messages that emit each `tool_use`, so both components are measurable. |
+| `p95` winsorization | ✅ **LOCKED 2026-08-15** — 7.45 s (time) and 65 206 tokens (cost), measured over the frozen action corpus by `task_regret.py`. It never depended on same-arm transitions: it is the winsorization point of *task regret* (§4.2, secondary), a different quantity entirely. An earlier note here said it was "not derivable from the current corpus" — **that was wrong**: the archive carries `usage` blocks on the messages that emit each `tool_use`, so both components are measurable. |
 | calendar end date | ⏳ Blocked structurally — requires the first randomized epoch, which has not occurred. |
 | `T_seed_assign` | ⏳ Blocked structurally — requires the OSF registration to exist first. |
 
@@ -795,7 +803,7 @@ That is interference, and it violates the SUTVA form under which a difference-in
 
 ### B.2 Setup
 
-Let epochs be indexed *k = 1 … K*, each with arm *W_k ∈ {0,1}*. Write the potential outcome as
+Let epochs be indexed *k = 1 … K*, each with arm *W_k ∈ {0.1}*. Write the potential outcome as
 
 > *Y_k(w, w′)* — outcome in epoch *k* when its own arm is *w* and its predecessor's arm is *w′*.
 
@@ -828,9 +836,9 @@ The width is **δ · |p₁ − p₀|**, which factorizes usefully:
 
   > 🔴 **Correction 2026-08-15 — the mechanism this line invoked does not exist.** The sentence previously read "driven to zero by transition-balancing". The randomisation constraints actually registered in §2 balance **weekday/weekend and calendar halves** — there is **no transition-count constraint anywhere in this document**, and none in the assignment script. The bound was therefore resting on a design property the design does not have.
   >
-  > **What that costs, computed rather than asserted.** With `N` = 174 (~87 epochs per arm) and no transition constraint, |p₁ − p₀| behaves like the imbalance of a constrained coin: SD ≈ 0,076, so **E|p₁ − p₀| ≈ 0,06–0,08**. At δ = 36,67 that is a typical half-width of **≈ 2,4 repeated failures per session-hour**, against a mean density of 7,69. The bound does not "collapse to a point" — under the assignment sequence expected *by chance*, it is wide enough to contain an effect of the size the study is powered for.
+  > **What that costs, computed rather than asserted.** With `N` = 174 (~87 epochs per arm) and no transition constraint, |p₁ − p₀| behaves like the imbalance of a constrained coin: SD ≈ 0.076, so **E|p₁ − p₀| ≈ 0.06–0.08**. At δ = 36.67 that is a typical half-width of **≈ 2.4 repeated failures per session-hour**, against a mean density of 7.69. The bound does not "collapse to a point" — under the assignment sequence expected *by chance*, it is wide enough to contain an effect of the size the study is powered for.
   >
-  > **Pre-committed here, before any assignment exists:** the realised |p₁ − p₀| is computed from the assignment sequence **before unblinding** (it needs no outcome) and reported unconditionally. If it exceeds **0,02**, the carry-over bound is reported with its realised width and declared **non-informative**, rather than presented as a narrow interval. This threshold is fixed now because fixing it after seeing the sequence would be choosing the standard that flatters the sequence drawn.
+  > **Pre-committed here, before any assignment exists:** the realised |p₁ − p₀| is computed from the assignment sequence **before unblinding** (it needs no outcome) and reported unconditionally. If it exceeds **0.02**, the carry-over bound is reported with its realised width and declared **non-informative**, rather than presented as a narrow interval. This threshold is fixed now because fixing it after seeing the sequence would be choosing the standard that flatters the sequence drawn.
   >
   > Adding a transition-count constraint to §2 would be the stronger fix, and it is **not** taken: §2 is locked, the constraint set is what the assignment script implements, and rewriting a locked randomisation rule to make an appendix bound look better is the exact move this registration exists to prevent. The honest path is to keep the design and report when its bound is uninformative.
 
@@ -844,13 +852,13 @@ This is the practical payoff of pre-registering the balancing constraints: it ma
 
 2. **Mechanistic anchor.** The measured content divergence between successive snapshots. From T7 of the snapshot spec, the corpus divergence per 24 h epoch is **0.144%** and the divergence in what the brief actually serves was **0 of 7,235 slots** in the one epoch with serving data. A snapshot that is ~99.86% identical to its predecessor cannot plausibly carry a large behavioural effect — but the serving-level figure has **n = 1** and is reported as such.
 
-~~**[TO LOCK]** the numeric δ~~ **✅ δ = 36,67 repeated failures per session-hour — LOCKED 2026-08-15.**
+~~**[TO LOCK]** the numeric δ~~ **✅ δ = 36.67 repeated failures per session-hour — LOCKED 2026-08-15.**
 
 Computed exactly as B.5 defines it: the p95 (linear interpolation) of the absolute epoch-to-epoch difference in the primary outcome across same-arm transitions, over the 30-epoch pilot corpus in which **every epoch is control**. 27 of the 29 possible transitions were used; **2 were discarded because the epochs are not calendar-adjacent** (11/07→16/07, a 120 h gap, and 31/07→02/08, 48 h). A difference across a multi-day gap accumulates drift from the whole interval and is not an epoch-to-epoch transition; including them would have inflated δ. Script: `delta_carryover.py`.
 
-**δ is 4,8× the mean per-epoch density (7,69).** That is large, and it is meant to be: B.5 attributes *all* same-arm drift to carry-over, when most of it is traffic noise. The bound it feeds is `τ̂ ± δ·|p₁−p₀|`. ⚠️ **An earlier version of this paragraph claimed `|p₁−p₀|` is "driven toward zero by transition balancing" and concluded the bound stays narrow. That claim was withdrawn on 2026-08-15: no transition-count constraint is registered in §2.** Under the assignment sequence expected by chance, the typical half-width is ≈ 2,6 against a mean density of 7,69 — see the correction and the pre-committed 0,02 threshold in B.4.
+**δ is 4.8× the mean per-epoch density (7.69).** That is large, and it is meant to be: B.5 attributes *all* same-arm drift to carry-over, when most of it is traffic noise. The bound it feeds is `τ̂ ± δ·|p₁−p₀|`. ⚠️ **An earlier version of this paragraph claimed `|p₁−p₀|` is "driven toward zero by transition balancing" and concluded the bound stays narrow. That claim was withdrawn on 2026-08-15: no transition-count constraint is registered in §2.** Under the assignment sequence expected by chance, the typical half-width is ≈ 2.6 against a mean density of 7.69 — see the correction and the pre-committed 0.02 threshold in B.4.
 
-**Checked against the obvious objection.** A δ this size could have been an artifact of the corpus's early epochs, where the density is near zero. It is not: recomputed over the mature half of the corpus alone (see the note below), δ is **39,60** — slightly *larger*. δ is driven by ordinary epoch-to-epoch traffic variation, not by the regime transition.
+**Checked against the obvious objection.** A δ this size could have been an artifact of the corpus's early epochs, where the density is near zero. It is not: recomputed over the mature half of the corpus alone (see the note below), δ is **39.60** — slightly *larger*. δ is driven by ordinary epoch-to-epoch traffic variation, not by the regime transition.
 
 ---
 
@@ -862,18 +870,18 @@ Split by that stock (a cut that depends only on condition (i), never on the outc
 
 | | full corpus | mature half (16 ep) | young half (14 ep) |
 |---|---|---|---|
-| `r̂` | 28,65 | **44,15** | 15,26 |
-| `p̂0` | 0,1165 | **0,1398** | 0,0580 |
-| ICC | 0,0985 | **0,0455** | 0,0149 |
-| ICC 95% CI | [0,057 ; 0,181] | [0,013 ; 0,132] | [0,001 ; 0,067] |
-| δ | 36,67 | 39,60 | 6,87 |
+| `r̂` | 28.65 | **44.15** | 15.26 |
+| `p̂0` | 0.1165 | **0.1398** | 0.0580 |
+| ICC | 0.0985 | **0.0455** | 0.0149 |
+| ICC 95% CI | [0.057 ; 0.181] | [0.013 ; 0.132] | [0.001 ; 0.067] |
+| δ | 36.67 | 39.60 | 6.87 |
 
-**All three sizing inputs move `N` the same way, and it is downward.** The arithmetic here is at **MDE 25%**, which was the working target when it was computed; it is left at 25% so it stays comparable to the full-corpus figure produced under the same MDE (**N = 152**, the point estimate — *not* the lock, which is 174 at MDE 30% on the ICC upper limit). At MDE 25% the mature-half parameters give **N = 46** against that 152 — and even at the *upper* bound of the mature ICC, **N = 106**, still below the full-corpus point estimate. The design effect falls from 5,87 to 3,25.
+**All three sizing inputs move `N` the same way, and it is downward.** The arithmetic here is at **MDE 25%**, which was the working target when it was computed; it is left at 25% so it stays comparable to the full-corpus figure produced under the same MDE (**N = 152**, the point estimate — *not* the lock, which is 174 at MDE 30% on the ICC upper limit). At MDE 25% the mature-half parameters give **N = 46** against that 152 — and even at the *upper* bound of the mature ICC, **N = 106**, still below the full-corpus point estimate. The design effect falls from 5.87 to 3.25.
 
 **`N` is NOT being changed, and the reason matters more than the number.** Four grounds, in order of weight:
 
 1. **The lock was made hours earlier, and every reason to reopen it points the same way: a shorter study.** That is precisely the pattern pre-registration exists to prevent. A justification that always arrives in the convenient direction deserves more suspicion, not less — even when, as here, it is mechanistically sound.
-2. **The mature half has 16 clusters, below the 30–50 floor §9 requires for an ICC estimate.** Its ICC of 0,0455 carries a CI of [0,013 ; 0,132] — wide enough that the honest reading is "somewhere below the full-corpus figure", not a replacement value.
+2. **The mature half has 16 clusters, below the 30–50 floor §9 requires for an ICC estimate.** Its ICC of 0.0455 carries a CI of [0.013 ; 0.132] — wide enough that the honest reading is "somewhere below the full-corpus figure", not a replacement value.
 3. **Nobody knows which regime the real study runs in.** The stock is still growing, so the live study will also run under a trend — and the mature half already contains its own residual trend (stock 34→64). Whether stationarity is ever reached is an open empirical question about the system, not a fact this corpus settles.
 4. **The cost of being wrong is asymmetric.** Over-sizing spends calendar; under-sizing spends the study. 174 epochs erring toward conservative is the cheap mistake.
 
@@ -881,7 +889,7 @@ Split by that stock (a cut that depends only on condition (i), never on the outc
 
 A consequence of the non-stationarity above that is **not** neutralised by the trend residualisation in §5, because it is about interpretation rather than validity.
 
-The MDE is **relative** (30%) and the baseline it is relative to *moves*: `p̂0` is 0,116 over the full corpus and 0,140 over the mature half. "30% relative" at the start of the study and at its end are different absolute effects. Worse at the low end: in epochs where the stock of eligible signatures is small, the treatment is **mechanically incapable** of the effect — `W_OUTCOME` reweights chunks linked to adjudicated-failure episodes, and where few such episodes exist there is little for it to move.
+The MDE is **relative** (30%) and the baseline it is relative to *moves*: `p̂0` is 0.116 over the full corpus and 0.140 over the mature half. "30% relative" at the start of the study and at its end are different absolute effects. Worse at the low end: in epochs where the stock of eligible signatures is small, the treatment is **mechanically incapable** of the effect — `W_OUTCOME` reweights chunks linked to adjudicated-failure episodes, and where few such episodes exist there is little for it to move.
 
 So the estimand is **an average over the realised trajectory**, not an effect at a fixed operating point, and its value depends in part on *when* the study runs. Three consequences, all pre-committed:
 

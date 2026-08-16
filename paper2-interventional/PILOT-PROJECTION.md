@@ -96,7 +96,7 @@ corpus julgados por software diferente. A banda comprada não paga o defeito
 introduzido.
 
 **Sub-adjudicar é conservador, e a direção importa.** 34 das 74 assinaturas
-primary nunca produzem `is_error` (468 episódios, 8,4% do corpus). Elas só
+primary nunca produzem `is_error` (468 episódios, 8.4% do corpus). Elas só
 ganham condição (i) por uma falha adjudicada do estrato B. Sem isso, as
 oportunidades ficam em **2.439** contra um teto de **3.870**, os repeats são
 subcontados, `lambda_0` é deflacionado e **`K` sai inflado**. O erro é para
@@ -135,18 +135,18 @@ de como ele foi sorteado. Os que não caírem **não entram** na estimativa de
 
 ## 5. Um achado que muda o texto do §4.1, não o desenho
 
-A taxa de falha de **25,5%** que o pré-registro reporta é propriedade da
+A taxa de falha de **25.5%** que o pré-registro reporta é propriedade da
 **amostra de calibração**, e o pré-registro a rotula corretamente como tal
 ("rater prevalence", "in the calibration set"). Mas a amostra foi estratificada
-por assinatura, o que sobre-representou `is_error` em **2,3×**. A taxa
-pós-estratificada do corpus é **14,7%**, não 25,5% — inflação de 1,76×.
+por assinatura, o que sobre-representou `is_error` em **2.3×**. A taxa
+pós-estratificada do corpus é **14.7%**, não 25.5% — inflação de 1.76×.
 
 Consequência: a regra mecânica de prevalência selecionou **Fleiss' κ** com base
 numa prevalência que o próprio desenho amostral produziu. Numa adjudicação
-representativa do corpus a prevalência cai **fora** de [0,20; 0,80] e a **mesma
+representativa do corpus a prevalência cai **fora** de [0.20; 0.80] e a **mesma
 regra**, sem alteração, selecionaria **Gwet's AC1**.
 
-Isto **não invalida** τ = S1 nem κ = 0,874 — a estratificação por assinatura é
+Isto **não invalida** τ = S1 nem κ = 0.874 — a estratificação por assinatura é
 deliberada e está justificada no §4.1 (uma amostra ingênua seria dominada por
 `Bash|shell:other`, ~27% do corpus, e nunca testaria a rubrica na cauda). O que
 exige registro é que a comparação entre o coeficiente da calibração e o de uma
