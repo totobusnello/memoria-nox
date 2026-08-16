@@ -1,25 +1,27 @@
 #!/usr/bin/env python3
-"""IC do ICC por bootstrap de cluster — checa se o IC de Searle está estreito.
+"""ICC confidence interval by cluster bootstrap — checks whether Searle's CI is
+too narrow.
 
-⚠️ EXPLORATORIA, NAO PRE-ESPECIFICADA. Não substitui o IC publicado pelo
-`pilot_replay`; serve para saber se aquele intervalo pode ser confiado.
+[!] EXPLORATORY, NOT PRE-SPECIFIED. It does not replace the CI published by
+`pilot_replay`; it exists to tell whether that interval can be trusted.
 
-POR QUE
-O IC de Searle implementado no `pilot_replay.icc_anova` assume clusters
-BALANCEADOS. Os nossos não são: 30 epochs com tamanhos de 1 a ~100, dois deles
-parciais por censura à direita, m̄ = 55,96. Para desbalanceamento moderado o
-intervalo de Searle é conhecido por ser levemente ANTICONSERVADOR — estreito
-demais. `SIZING-2026-08-14-v2.md` §5 declara isso e diz que bootstrap resolve.
+WHY
+The Searle CI implemented in `pilot_replay.icc_anova` assumes BALANCED
+clusters. Ours are not: 30 epochs with sizes from 1 to ~100, two of them
+partial through right-censoring, m_bar = 55.96. For moderate imbalance
+Searle's interval is known to be slightly ANTICONSERVATIVE — too narrow.
+`SIZING-2026-08-14-v2.md` Sec. 5 declares this and says a bootstrap settles it.
 
-Este script resolve. Reamostra EPOCHS INTEIROS com reposição (o cluster é a
-unidade de reamostragem — reamostrar sessões destruiria justamente a estrutura
-que o ICC mede) e recalcula o ICC em cada réplica, com a mesma `icc_anova` do
-canônico. O intervalo sai dos percentis.
+This script settles it. It resamples WHOLE EPOCHS with replacement (the cluster
+is the resampling unit — resampling sessions would destroy precisely the
+structure the ICC measures) and recomputes the ICC on each replicate, with the
+same `icc_anova` as the canonical path. The interval comes from the
+percentiles.
 
-DETERMINISMO
-Sem `random` sem seed. A seed vem de `--seed`, e o default é derivado do
-mesmo beacon da extensão 2 — se um terceiro rodar com a mesma seed, obtém os
-mesmos números.
+DETERMINISM
+No unseeded `random`. The seed comes from `--seed`, and the default is derived
+from extension 2's beacon — a third party running with the same seed obtains
+the same numbers.
 
     python3 icc_bootstrap.py --episodes ... --verdicts ... --estrato-b-ids ... [-B 5000]
 """
@@ -37,9 +39,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import pilot_replay as pr
 
-# Seed da extensão 2 (round drand 31309420), declarada antes do round existir.
-# Usar uma seed JA PUBLICA em vez de inventar uma nova: nada aqui depende de
-# aleatoriedade não auditável.
+# Extension 2's seed (drand round 31309420), declared before the round existed.
+# Using an ALREADY PUBLIC seed rather than inventing a new one: nothing here
+# depends on unauditable randomness.
 SEED_PADRAO = "fd9b4027dbdf223d689e02a2b33f6bca09b92ced41acebc332b0c8d4efc1aa85"
 
 
@@ -73,11 +75,11 @@ def main() -> int:
     peso.update({e.id: len(resto) / len(estrato_b) for e in estrato_b})
     selecionados = estrato_a + estrato_b
 
-    # ⚠️ `eps`, nao `selecionados`. A duracao de uma sessao e um fato dela, nao
-    # da amostra: calcular o span so sobre os episodios sorteados encolhe o
-    # denominador da densidade e infla o ICC. Medido: 0,1204 contra os 0,0985
-    # do canonico — um IC construido sobre esse ponto nao seria o IC do
-    # estimador publicado.
+    # [!] `eps`, not `selecionados`. A session's duration is a fact about the
+    # session, not about the sample: computing the span over only the drawn
+    # episodes shrinks the density's denominator and inflates the ICC. Measured:
+    # 0.1204 against the canonical 0.0985 — a CI built on that point would not be
+    # the CI of the published estimator.
     spans = pr.span_por_sessao(eps)
     repeat_por_sessao: dict[tuple, float] = collections.defaultdict(float)
     sessoes_por_epoch: dict[object, set] = collections.defaultdict(set)
@@ -92,8 +94,8 @@ def main() -> int:
         if e.estado == "failure":
             repeat_por_sessao[(e.epoch, e.sessao)] += peso[e.id]
 
-    # Densidade por sessão, agrupada por epoch — exatamente o insumo do ANOVA
-    # no canônico, inclusive a exclusão de epochs com < 2 sessões.
+    # Per-session density, grouped by epoch — exactly the ANOVA input of the
+    # canonical path, including the exclusion of epochs with < 2 sessions.
     epochs = sorted(ep for ep in horas if horas[ep] > 0)
     dens: dict[object, list[float]] = collections.defaultdict(list)
     for (ep, s), h in spans.items():
@@ -104,9 +106,9 @@ def main() -> int:
     chaves = sorted(dens)
     k = len(chaves)
 
-    # Reamostragem de CLUSTERS INTEIROS. Se um epoch é sorteado duas vezes, ele
-    # entra como dois clusters distintos — é isso que preserva a estrutura de
-    # variância entre-cluster que o ICC estima.
+    # Resampling of WHOLE CLUSTERS. If an epoch is drawn twice it enters as two
+    # distinct clusters — that is what preserves the between-cluster variance
+    # structure the ICC estimates.
     rng = random.Random(int(hashlib.sha256(a.seed.encode()).hexdigest()[:16], 16))
     amostras: list[float] = []
     degenerados = 0

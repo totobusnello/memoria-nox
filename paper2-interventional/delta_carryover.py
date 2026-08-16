@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-"""δ do Apêndice B — âncora empírica do bound de carry-over.
+"""delta of Appendix B — the empirical anchor of the carry-over bound.
 
-O §B.5 define: *"δ is set to the p95 of the absolute epoch-to-epoch difference
-in those same-arm transitions"*, sobre o desfecho primário do H1 — **repeated
-failures per session-hour**. É deliberadamente conservador: atribui **toda** a
-deriva same-arm a carry-over, quando a maior parte dela é ruído de tráfego.
+Sec. B.5 defines it: *"delta is set to the p95 of the absolute epoch-to-epoch
+difference in those same-arm transitions"*, over H1's primary outcome —
+**repeated failures per session-hour**. It is deliberately conservative: it
+attributes **all** same-arm drift to carry-over, when most of it is traffic
+noise.
 
-POR QUE SÓ AGORA, E POR QUE NÃO DEPOIS
-`[TO LOCK]` desde o início, com a janela explicitada no próprio §B.5: travar
-antes do piloto seria inventar um número; travar depois de ver efeitos de
-tratamento seria adaptativo. O piloto é a única janela honesta — e ele fechou
-com 30 epochs, **todos de controle**, que é exatamente a distribuição
-same-arm (control→control) que a definição pede.
+WHY ONLY NOW, AND WHY NOT LATER
+A `[TO LOCK]` item from the start, with its window spelled out in Sec. B.5
+itself: locking before the pilot would mean inventing a number; locking after
+seeing treatment effects would be adaptive. The pilot is the only honest
+window — and it closed with 30 epochs, **all of them control**, which is
+exactly the same-arm (control->control) distribution the definition asks for.
 
-⚠️ TRANSIÇÕES SÓ ENTRE EPOCHS CALENDARICAMENTE ADJACENTES. O corpus tem
-lacunas (16-17/07 sem episódios utilizáveis, 01/08 ausente). Uma diferença
-entre epochs separados por dias não é uma "transição epoch-a-epoch": ela
-acumula deriva de todo o intervalo e inflaria δ. Pares não-adjacentes são
-contados e relatados, nunca usados.
+[!] TRANSITIONS ONLY BETWEEN CALENDAR-ADJACENT EPOCHS. The corpus has gaps
+(2026-07-16/17 with no usable episodes, 2026-08-01 absent). A difference
+between epochs days apart is not an "epoch-to-epoch transition": it accumulates
+drift over the whole interval and would inflate delta. Non-adjacent pairs are
+counted and reported, never used.
 
     python3 delta_carryover.py --episodes ... --verdicts ... --estrato-b-ids ...
 """
@@ -35,8 +36,9 @@ import pilot_replay as pr
 
 
 def p95(xs: list[float]) -> float:
-    """p95 por interpolação linear. Com n pequeno o método importa: o
-    'nearest-rank' saltaria para o máximo e δ herdaria um único outlier."""
+    """p95 by linear interpolation. With small n the method matters:
+    'nearest-rank' would jump to the maximum and delta would inherit a single
+    outlier."""
     if not xs:
         return float("nan")
     s = sorted(xs)

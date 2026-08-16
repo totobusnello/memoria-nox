@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-Executa o painel de adjudicação (§4.1) sobre um arquivo de episódios.
+Runs the adjudication panel (Sec. 4.1) over a file of episodes.
 
-Cada painelista julga cada episódio **isolado** — sem ver os outros episódios,
-sem ver o veredito de ninguém, sem ver `is_error`, sem ver o agente. O prompt é
-idêntico para os cinco e vem de `adjudication_prompt.md`, cujo SHA-256 é
-registrado junto com os resultados: se o prompt mudar, o hash muda e o leitor vê.
+Each panelist judges each episode **in isolation** — without seeing the other
+episodes, without seeing anyone's verdict, without seeing `is_error`, without
+seeing the agent. The prompt is identical for all five and comes from
+`adjudication_prompt.md`, whose SHA-256 is recorded alongside the results: if
+the prompt changes, the hash changes and the reader sees it.
 
-CREDENCIAIS
-Lidas de arquivo/env no momento do uso e nunca impressas, nunca gravadas no
-output, nunca passadas em linha de comando (onde apareceriam em `ps`).
+CREDENTIALS
+Read from file/env at the moment of use and never printed, never written to the
+output, never passed on the command line (where they would appear in `ps`).
 
-⚠️ CONTEÚDO REAL SAI DAQUI PARA CINCO APIs EXTERNAS. Os episódios já passaram
-pela redação do `extract_episodes.py`, que é rede e não garantia.
+[!] REAL CONTENT LEAVES HERE FOR FIVE EXTERNAL APIs. The episodes have already
+gone through the redaction in `extract_episodes.py`, which is a net, not a
+guarantee.
 """
 
 from __future__ import annotations
@@ -33,71 +35,73 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent
 
 
-# ─── Painelistas ─────────────────────────────────────────────────────────────
+# --- Panelists ---------------------------------------------------------------
 #
-# Cinco famílias de treino distintas. **Anthropic ficou de fora de propósito**:
-# os agentes julgados rodam em `claude-cli`, então Anthropic no painel seria a
-# família julgando a própria saída (ver §4.1, conflito ator-juiz). Como há cinco
-# famílias não-Anthropic disponíveis, dá para ter diversidade de procedência
-# igual e conflito zero — e o painel segue ímpar, que é o que evita empate.
+# Five distinct training families. **Anthropic was left out deliberately**: the
+# agents under judgement run on `claude-cli`, so Anthropic on the panel would be
+# the family judging its own output (see Sec. 4.1, actor-judge conflict). Since
+# five non-Anthropic families are available, we get equal provenance diversity
+# and zero conflict — and the panel stays odd, which is what avoids ties.
 
 def _ler(p: str) -> str:
     return Path(p).expanduser().read_text().strip()
 
 
 PAINEL = [
-    # (id, familia, modelo, protocolo, base_url, fn-da-chave)
+    # (id, family, model, protocol, base_url, key-fn)
     ("zhipu",    "Zhipu",    "glm-5.2",     "anthropic", "https://api.z.ai/api/anthropic",
      lambda: _ler("~/.config/glm/token")),
     ("xai",      "xAI",      "grok-4.5",    "anthropic", "https://api.x.ai",
      lambda: _ler("~/.config/grok/token")),
-    # Adicionado 2026-08-11 para o desenho reduzido de 3 (§9 extensao de
-    # janela). Mesma familia de protocolo do zhipu/xai (Anthropic-compatible);
-    # credencial ja existia (~/Claude/scripts/deepseek), so nunca tinha entrado
-    # no painel de adjudicacao. Nunca medida contra as outras nesta funcao ate
-    # agora — ver nota de kappa/alpha no chamador.
+    # Added 2026-08-11 for the reduced 3-family design (Sec. 9 window
+    # extension). Same protocol family as zhipu/xai (Anthropic-compatible); the
+    # credential already existed (~/Claude/scripts/deepseek), it had simply never
+    # entered the adjudication panel. Never measured against the others in this
+    # role until now — see the kappa/alpha note in the caller.
     ("deepseek", "DeepSeek", "deepseek-v4-pro", "anthropic", "https://api.deepseek.com/anthropic",
      lambda: _ler("~/.config/deepseek/token")),
-    # Sem API key medida: entram pela conexao CLI, que carrega a credencial
-    # de assinatura do titular. Custa muito mais token (o CLI sobe um agent
-    # loop por chamada — medido: ~22k tokens de overhead num prompt trivial
-    # do codex) e e mais lento. Decisao do titular, registrada.
+    # No metered API key: these come in over the CLI connection, which carries
+    # the principal's subscription credential. It costs far more tokens (the CLI
+    # spins up an agent loop per call — measured: ~22k tokens of overhead on a
+    # trivial codex prompt) and is slower. The principal's decision, recorded.
     ("moonshot", "Moonshot", "k3",           "cli", "kimi",   None),
     ("openai",   "OpenAI",   "gpt-5.6-sol",  "cli", "codex",  None),
     ("google",   "Google",   "gemini-2.5-pro", "gemini",   "https://generativelanguage.googleapis.com/v1beta",
      lambda: os.environ["GEMINI_API_KEY"]),
 ]
 
-# DeepSeek intercala um bloco "thinking" antes do "text" na resposta Anthropic-
-# compatible (confirmado por chamada crua em 2026-08-11: prompt trivial gastou
-# 57 tokens de saida so no "we are asked..."). Com max_tokens=300 (o piso que
-# zhipu/xai/openai/google atendem sem missing — 1140x5=5700 bate exato na
-# peca3), o thinking de um prompt real (mais longo que o smoke test) pode
-# consumir o teto inteiro e devolver content=[] so com o bloco thinking — a
-# MESMA armadilha do Gemini ja documentada (200 OK com conteudo vazio). Achado
-# na integracao: 1 smoke test de 2 ja deu "missing" com detail="" (resposta
-# vazia, nao erro). Fix: teto maior SO para quem precisa.
-# 2026-08-14: `zhipu` caiu na MESMA armadilha, e por drift do provider. A API
-# `api.z.ai/api/anthropic` passou a servir **glm-5.3** para o pedido `glm-5.2`
-# (confirmado por chamada crua: `"model":"glm-5.3"` na resposta), e o 5.3 emite
-# bloco "thinking" antes do texto. Com max_tokens=300 o JSON do veredito sai
-# truncado no meio (`{"verdict": "`) ou nao sai. Efeito medido no censo do
-# estrato A: **27 missing de 30**, com quota=0 — nao era cota.
+# DeepSeek interleaves a "thinking" block before the "text" one in the
+# Anthropic-compatible response (confirmed by a raw call on 2026-08-11: a
+# trivial prompt spent 57 output tokens on "we are asked..." alone). With
+# max_tokens=300 (the floor zhipu/xai/openai/google meet with no missing —
+# 1140x5=5700 matched exactly in piece 3), the thinking of a real prompt (longer
+# than the smoke test) can consume the whole ceiling and return content=[] with
+# only the thinking block — the SAME trap already documented for Gemini (200 OK
+# with empty content). Found during integration: 1 smoke test out of 2 already
+# gave "missing" with detail="" (empty response, not an error). Fix: a larger
+# ceiling ONLY for those who need it.
+# 2026-08-14: `zhipu` fell into the SAME trap, and through provider drift. The
+# `api.z.ai/api/anthropic` API started serving **glm-5.3** for a `glm-5.2`
+# request (confirmed by a raw call: `"model":"glm-5.3"` in the response), and
+# 5.3 emits a "thinking" block before the text. With max_tokens=300 the verdict
+# JSON comes out truncated mid-string (`{"verdict": "`) or not at all. Measured
+# effect in the stratum A census: **27 missing out of 30**, with quota=0 — it
+# was not quota.
 #
-# ⚠️ O campo `model` gravado em cada registro e o que o script PEDE, nao o que a
-# API SERVE. Ele diz "glm-5.2" em todos os 3.348 vereditos do zhipu ja
-# coletados, o que NAO prova que foram julgados por 5.2. Ver
+# [!] The `model` field recorded in each row is what the script REQUESTS, not
+# what the API SERVES. It says "glm-5.2" in all 3,348 zhipu verdicts already
+# collected, which does NOT prove they were judged by 5.2. See
 # `docs/INCIDENTS.md#2026-08-14`.
 MAX_TOKENS_OVERRIDE = {"deepseek": 1500, "zhipu": 1500}
 
-# ⚠️ ANTHROPIC ficou FORA por desenho, nao por credencial: os agentes julgados
-# rodam em `claude-cli`, entao Anthropic no painel seria a familia julgando a
-# propria saida (§4.1, conflito ator-juiz). Para incluir, acrescente
+# [!] ANTHROPIC is OUT by design, not for lack of a credential: the agents under
+# judgement run on `claude-cli`, so Anthropic on the panel would be the family
+# judging its own output (Sec. 4.1, actor-judge conflict). To include it, add
 #   ("anthropic", "Anthropic", "claude-opus-5", "cli", "claude", None)
-# e o §4.1 passa a exigir o leave-one-family-out como resultado principal,
-# nao como robustez.
+# and Sec. 4.1 then requires leave-one-family-out as the primary result, not as
+# a robustness check.
 
-# Como cada CLI e invocado. `stdin=True` mantem o episodio fora de `ps`.
+# How each CLI is invoked. `stdin=True` keeps the episode out of `ps`.
 CLIS = {
     "kimi":   {"cmd": [str(Path("~/.kimi-code/bin/kimi").expanduser()), "-p"], "stdin": False},
     "codex":  {"cmd": ["codex", "exec", "--skip-git-repo-check", "-"],        "stdin": True},
@@ -107,12 +111,14 @@ CLIS = {
 
 def chamar_cli(alvo: str, texto: str, timeout: int) -> str:
     """
-    Roda o painelista pelo CLI. O CLI sobe um agent loop — mais caro e mais
-    lento que a API, e o unico caminho quando a credencial e de assinatura.
+    Runs the panelist through the CLI. The CLI spins up an agent loop — more
+    expensive and slower than the API, and the only route when the credential is
+    a subscription one.
 
-    ⚠️ `kimi` nao le stdin (`-p` exige o argumento), entao o episodio vai em
-    argv e fica visivel em `ps` enquanto a chamada dura. Maquina local, usuario
-    unico, conteudo ja redigido — aceitavel, e declarado em vez de escondido.
+    [!] `kimi` does not read stdin (`-p` requires the argument), so the episode
+    goes in argv and is visible in `ps` for the duration of the call. Local
+    machine, single user, content already redacted — acceptable, and declared
+    rather than hidden.
     """
     c = CLIS[alvo]
     if c["stdin"]:
@@ -138,7 +144,7 @@ def montar(prompt: str, ep: dict) -> str:
             .replace("{{result_excerpt}}", ep["result_excerpt"]))
 
 
-# ─── Transporte ──────────────────────────────────────────────────────────────
+# --- Transport ---------------------------------------------------------------
 
 def _post(url: str, headers: dict, corpo: dict, timeout: int) -> dict:
     req = urllib.request.Request(
@@ -150,22 +156,22 @@ def _post(url: str, headers: dict, corpo: dict, timeout: int) -> dict:
 
 def chamar(protocolo: str, base: str, modelo: str, chave: str, texto: str, timeout: int,
            max_tokens: int = 300) -> tuple[str, dict]:
-    """Devolve `(texto_cru, meta)`. Temperatura 0 onde o provedor aceita.
+    """Returns `(raw_text, meta)`. Temperature 0 where the provider accepts it.
 
-    O `meta` existe por duas falhas de 2026-08-14 que so foram diagnosticaveis
-    por chamada crua fora do harness — o que significa que o harness nao estava
-    registrando o que precisava.
+    `meta` exists because of two failures on 2026-08-14 that were only
+    diagnosable by a raw call outside the harness — which means the harness was
+    not recording what it needed to.
 
-    1. `model` SERVIDO vs PEDIDO. `api.z.ai` passou a responder **glm-5.3** a
-       pedidos de `glm-5.2`. O registro gravava so o pedido, entao os 3.348
-       vereditos `zhipu` ja coletados afirmam "glm-5.2" sem poder prova-lo. Um
-       painel nao pode declarar sua composicao sem isto.
-    2. Resposta 200 com texto VAZIO. Quando o modelo gasta o orcamento em
-       blocos `thinking`, `content` vem sem nenhum bloco de texto e a
-       concatenacao devolve `""`. O registro de falha gravava `detail=ultimo`,
-       que nesse caso e string vazia — e foi por isso que 6 episodios ficaram
-       com causa desconhecida depois de 4 tentativas. `stop_reason` e os tipos
-       de bloco distinguem "truncou por max_tokens" de "recusou" de "vazio".
+    1. `model` SERVED vs REQUESTED. `api.z.ai` began answering **glm-5.3** to
+       `glm-5.2` requests. The record stored only the request, so the 3,348
+       `zhipu` verdicts already collected assert "glm-5.2" without being able to
+       prove it. A panel cannot declare its composition without this.
+    2. A 200 response with EMPTY text. When the model spends its budget on
+       `thinking` blocks, `content` arrives with no text block at all and the
+       concatenation returns `""`. The failure record stored `detail=ultimo`,
+       which in that case is the empty string — and that is why 6 episodes were
+       left with an unknown cause after 4 attempts. `stop_reason` and the block
+       types distinguish "truncated by max_tokens" from "refused" from "empty".
     """
     if protocolo == "anthropic":
         d = _post(f"{base}/v1/messages",
@@ -190,11 +196,12 @@ def chamar(protocolo: str, base: str, modelo: str, chave: str, texto: str, timeo
         d = _post(f"{base}/models/{modelo}:generateContent",
                   {"x-goog-api-key": chave},
                   {"contents": [{"parts": [{"text": texto}]}],
-                   # Gemini 2.5 conta tokens de *thinking* contra este teto e
-                   # nao aceita thinkingBudget=0 (HTTP 400). Medido: ~260 de
-                   # pensamento antes da primeira palavra, entao 300 devolvia
-                   # 200 OK com conteudo VAZIO — falha silenciosa que teria
-                   # virado 300 veredictos "missing" sem explicacao.
+                   # Gemini 2.5 counts *thinking* tokens against this ceiling
+                   # and does not accept thinkingBudget=0 (HTTP 400). Measured:
+                   # ~260 tokens of thought before the first word, so 300
+                   # returned 200 OK with EMPTY content — a silent failure that
+                   # would have become 300 "missing" verdicts with no
+                   # explanation.
                    "generationConfig": {"temperature": 0, "maxOutputTokens": 4000}}, timeout)
         cands = d.get("candidates") or [{}]
         partes = cands[0].get("content", {}).get("parts") or []
@@ -204,8 +211,9 @@ def chamar(protocolo: str, base: str, modelo: str, chave: str, texto: str, timeo
                  "blocos": [("text" if "text" in p else next(iter(p), "?")) for p in partes],
                  "usage": d.get("usageMetadata")})
     if protocolo == "cli":
-        # O CLI nao expoe metadados de resposta; `served` fica None em vez de
-        # ecoar o pedido, para nao inventar uma confirmacao que nao existe.
+        # The CLI exposes no response metadata; `served` stays None rather than
+        # echoing the request, so as not to invent a confirmation that does not
+        # exist.
         return chamar_cli(base, texto, timeout), {"served": None, "stop": None}
     raise ValueError(protocolo)
 
@@ -214,10 +222,11 @@ _JSON = re.compile(r"\{.*?\}", re.S)
 
 def parsear(bruto: str) -> dict | None:
     """
-    Tolerante a cerca de código e a texto ao redor — mas NÃO a conteúdo ausente.
-    Resposta que não parseia vira veredito ausente (§4.1), nunca abstenção:
-    abstenção é decisão do painelista, falha de parse é do pipeline, e confundir
-    as duas contamina o teto de não-adjudicáveis do §5.
+    Tolerant of code fences and surrounding text — but NOT of absent content. A
+    response that does not parse becomes an absent verdict (Sec. 4.1), never an
+    abstention: abstention is the panelist's decision, a parse failure is the
+    pipeline's, and conflating the two contaminates Sec. 5's unadjudicable
+    ceiling.
     """
     m = _JSON.search(bruto or "")
     if not m:
@@ -252,17 +261,18 @@ def julgar(pan, ep, prompt, timeout) -> dict:
                 return {**base_reg, **p, "attempts": tentativa, "status": "ok",
                         "model_served": meta.get("served"),
                         "stop_reason": meta.get("stop")}
-            # ── Truncamento por raciocinio: dobra o orcamento e reenvia ──────
-            # Diagnosticado em 2026-08-14 nos 6 episodios que o `zhipu` recusou
-            # em 4 ciclos: `stop=max_tokens` com `blocos=['thinking']` e
-            # `output_tokens` batendo exatamente no teto — o modelo gastou tudo
-            # pensando e nao sobrou orcamento para a resposta. Nao e conteudo
-            # nem tamanho do episodio (`input_tokens` variava de 384 a 2.336).
+            # -- Reasoning truncation: double the budget and resend ----------
+            # Diagnosed on 2026-08-14 in the 6 episodes `zhipu` refused across 4
+            # cycles: `stop=max_tokens` with `blocos=['thinking']` and
+            # `output_tokens` hitting the ceiling exactly — the model spent
+            # everything thinking and had no budget left for the answer. It is
+            # not content, nor episode size (`input_tokens` ranged from 384 to
+            # 2,336).
             #
-            # Dobrar e preferivel a subir a constante: um teto fixo maior paga
-            # o custo em TODA chamada e continua sendo um chute que o proximo
-            # modelo com raciocinio mais longo derruba de novo. Aqui so paga
-            # quem precisa, e a condicao de disparo e observada, nao suposta.
+            # Doubling is preferable to raising the constant: a larger fixed
+            # ceiling pays the cost on EVERY call and is still a guess that the
+            # next longer-reasoning model knocks down again. Here only those who
+            # need it pay, and the trigger condition is observed, not assumed.
             if (meta.get("stop") == "max_tokens" and not (ultimo or "").strip()
                     and tentativa == 1):
                 max_tok *= 2
@@ -278,25 +288,26 @@ def julgar(pan, ep, prompt, timeout) -> dict:
             if tentativa == 1:
                 time.sleep(2)
                 continue
-    # ── Cota exaurida NAO e ausencia de veredito ────────────────────────────
-    # `missing` significa "perguntamos e nao houve resposta utilizavel" — conta
-    # contra o teto de nao-adjudicaveis do §5. Cota exaurida significa "ainda
-    # nao perguntamos": a chamada esta PENDENTE e tem que ser retentada num
-    # ciclo posterior. Registrar as duas como `missing` foi o que produziu
-    # 88,6% de contagem PAR na peca 3 (moonshot 88/1.140) contra 8,8% na
-    # calibracao, onde o painel rodou ate o fim — e paridade e o que faz um
-    # parametro nao especificado mover o estudo em 20%.
+    # -- An exhausted quota is NOT an absent verdict --------------------------
+    # `missing` means "we asked and there was no usable answer" — it counts
+    # against Sec. 5's unadjudicable ceiling. An exhausted quota means "we have
+    # not asked yet": the call is PENDING and must be retried in a later cycle.
+    # Recording both as `missing` is what produced 88.6% EVEN panel counts in
+    # piece 3 (moonshot 88/1,140) against 8.8% in the calibration, where the
+    # panel ran to completion — and parity is what lets an unspecified parameter
+    # move the study by 20%.
     #
-    # Deliberadamente conservador: so classifica como `quota` com sinal
-    # inequivoco. Classificar erro comum como cota causaria retry infinito.
+    # Deliberately conservative: it only classifies as `quota` on an unambiguous
+    # signal. Classifying an ordinary error as quota would cause infinite
+    # retries.
     baixo = ultimo.lower()
     pendente = ("usage limit" in baixo or "quota" in baixo
                 or "rate limit" in baixo or "429" in baixo)
-    # `detail` nunca mais pode sair vazio sem dizer por que. Quando a chamada
-    # devolveu 200 com texto vazio, `ultimo` E "" — e foi exatamente isso que
-    # deixou 6 episodios sem causa conhecida em 2026-08-14. O meta preenche a
-    # lacuna: `stop=max_tokens` com `blocos=['thinking']` diz truncamento por
-    # raciocinio; `stop=end_turn` com texto vazio diz recusa silenciosa.
+    # `detail` may never again come out empty without saying why. When the call
+    # returned 200 with empty text, `ultimo` IS "" — and that is exactly what
+    # left 6 episodes without a known cause on 2026-08-14. `meta` fills the gap:
+    # `stop=max_tokens` with `blocos=['thinking']` says reasoning truncation;
+    # `stop=end_turn` with empty text says silent refusal.
     if ultimo:
         detalhe = ultimo[:200]
     elif meta:
@@ -327,13 +338,13 @@ def main() -> int:
         eps = eps[: a.limit]
     painel = [p for p in PAINEL if not a.only or p[0] in a.only.split(",")]
 
-    # Falha cedo e barato: credencial ausente vira erro agora, não depois de
-    # 300 episódios (lição: preflight tem que exercer o caminho de cobrança).
+    # Fail early and cheaply: a missing credential becomes an error now, not
+    # after 300 episodes (lesson: preflight must exercise the billing path).
     for pid, _, _, proto, base, get in painel:
         try:
             if proto == "cli":
-                # Preflight do CLI: o binario tem que existir AGORA, nao no
-                # episodio 200.
+                # CLI preflight: the binary must exist NOW, not at episode
+                # 200.
                 subprocess.run([CLIS[base]["cmd"][0], "--version"],
                                capture_output=True, timeout=30, check=True)
             elif not get():
@@ -357,11 +368,11 @@ def main() -> int:
 
     por_pan: dict[str, dict[str, int]] = {}
     for r in res:
-        # `status` tambem pode ser "quota" (cota do provider fechada). Contar
-        # com chave fixa {"ok","missing"} estourava KeyError e derrubava o
-        # sumario DEPOIS de o arquivo ja ter sido gravado — o trabalho estava
-        # salvo, mas o processo saia com exit 1 e parecia falha total. Bloqueou
-        # a extensao em 2026-08-12 e de novo no teste de estabilidade em 08-14.
+        # `status` can also be "quota" (the provider's quota closed). Counting
+        # with a fixed {"ok","missing"} key raised KeyError and brought down the
+        # summary AFTER the file had already been written — the work was saved,
+        # but the process exited 1 and looked like total failure. It blocked the
+        # extension on 2026-08-12 and again in the stability test on 08-14.
         d = por_pan.setdefault(r["panelist"], {"ok": 0, "missing": 0, "quota": 0})
         d[r["status"]] = d.get(r["status"], 0) + 1
     print(json.dumps({

@@ -1,43 +1,44 @@
 #!/usr/bin/env python3
 """
-§9 item 7 — harness de replay do piloto.
+Sec. 9 item 7 — the pilot replay harness.
 
-Produz EXATAMENTE tres numeros — `r_hat`, `p0_hat`, `icc` — mais as duas
-quantidades de exposicao que `sizing.py` consome (`hours_per_epoch`,
-`session_hours_per_epoch`). Nada alem disso: quem escolhe `mde` e o
-pre-registro, quem calcula `N_epochs` e `sizing.py`, e ele roda uma vez so.
+Produces EXACTLY three numbers — `r_hat`, `p0_hat`, `icc` — plus the two
+exposure quantities that `sizing.py` consumes (`hours_per_epoch`,
+`session_hours_per_epoch`). Nothing beyond that: the pre-registration chooses
+`mde`, `sizing.py` computes `N_epochs`, and this runs exactly once.
 
-DEFINICOES (travadas em PREREG-DRAFT.md §3, "Pilot metric definitions")
-----------------------------------------------------------------------
-Epoch      24h, boundary 06:00 BRT = 09:00 UTC.
-Washout    primeiras 2h de cada epoch, excluidas da analise.
-Failure    MAIORIA ESTRITA do painel em `failure` (>50% dos vereditos
-           substantivos). Corrigido 2026-07-29 — ver a nota abaixo.
-Oportunidade
-           acao `a` executada pos-washout tal que existe failure episode
-           `a_past` com sig_primary(a_past) == sig_primary(a) escrito
-           >= 1 epoch length ANTES do inicio do epoch de `a`.
-           Depende so da condicao (i) — NAO olha como `a` terminou.
-Repeat     oportunidade cujo proprio desfecho e failure (condicao (ii)).
-r_hat      oportunidades / horas-sessao analisadas.
-p0_hat     repeats / oportunidades  (no replay todo epoch e controle).
-icc        ANOVA de efeitos aleatorios, epoch como fator; negativo -> 0.
+DEFINITIONS (locked in PREREG-DRAFT.md Sec. 3, "Pilot metric definitions")
+-------------------------------------------------------------------------
+Epoch       24 h, boundary 06:00 BRT = 09:00 UTC.
+Washout     the first 2 h of each epoch, excluded from analysis.
+Failure     STRICT MAJORITY of the panel on `failure` (>50% of substantive
+            verdicts). Corrected 2026-07-29 — see the note below.
+Opportunity an action `a` executed post-washout such that a failure episode
+            `a_past` exists with sig_primary(a_past) == sig_primary(a),
+            written >= 1 epoch length BEFORE the start of `a`'s epoch.
+            Depends on condition (i) alone — it does NOT look at how `a`
+            turned out.
+Repeat      an opportunity whose own outcome is failure (condition (ii)).
+r_hat       opportunities / analysed session-hours.
+p0_hat      repeats / opportunities  (in the replay every epoch is control).
+icc         random-effects ANOVA, epoch as the factor; negative -> 0.
 
-A CIRCULARIDADE, E COMO ELA E TRATADA
--------------------------------------
-Marcar oportunidade exige saber quais episodios PASSADOS sao failure, e
-medir `p0_hat` exige saber se o episodio ATUAL e failure. Ambos vem do
-painel. Como a adjudicacao e cara, este script nao assume cobertura total:
-cada episodio entra como `failure`, `not_failure` ou `unknown`, e o
-relatorio informa quanta massa esta em `unknown`. Um `p0_hat` calculado
-sobre cobertura parcial e reportado com a cobertura ao lado, nunca sozinho.
+THE CIRCULARITY, AND HOW IT IS HANDLED
+--------------------------------------
+Marking an opportunity requires knowing which PAST episodes are failures, and
+measuring `p0_hat` requires knowing whether the CURRENT episode is a failure.
+Both come from the panel. Since adjudication is expensive, this script does not
+assume full coverage: every episode enters as `failure`, `not_failure` or
+`unknown`, and the report states how much mass sits in `unknown`. A `p0_hat`
+computed over partial coverage is reported with its coverage alongside, never
+on its own.
 
-APROXIMACAO DECLARADA
----------------------
-A condicao (i) pergunta o que o snapshot CONTINHA. `pruneEpochs(keep=3)`
-apaga os .db historicos de proposito, entao a pertinencia e reconstruida
-por timestamp (`ts < boundary`). Divergencia conhecida: 0,144%/epoch (T7).
-Ver a nota de sensibilidade no pre-registro.
+DECLARED APPROXIMATION
+----------------------
+Condition (i) asks what the snapshot CONTAINED. `pruneEpochs(keep=3)` deletes
+the historical .db files by design, so membership is reconstructed by timestamp
+(`ts < boundary`). Known divergence: 0.144%/epoch (T7). See the sensitivity
+note in the pre-registration.
 """
 from __future__ import annotations
 
@@ -56,7 +57,7 @@ from pathlib import Path
 BOUNDARY_UTC_H = 9      # 06:00 BRT
 EPOCH_H = 24.0
 WASHOUT_H = 2.0
-PISO_SESSAO_H = 1 / 60  # sessao de uma acao so conta 1 minuto, nao zero
+PISO_SESSAO_H = 1 / 60  # a single-action session counts as 1 minute, not zero
 TAU = "S1"
 NIVEIS = ["S0", "S1", "S2", "S3", "S4"]
 
@@ -74,27 +75,28 @@ def epoch_de(t: datetime) -> tuple[datetime, float]:
 
 
 def episodios_instaveis(padroes: list[str]) -> set[str]:
-    """Episodios cujo veredito de um MESMO painelista oscila entre replicas.
+    """Episodes whose verdict from the SAME panelist oscillates across replicas.
 
-    Regra do STABILITY-TEST.md §9.2, adotada 2026-08-14. Censo dos 21 episodios
-    de desempate (xai e zhipu em lados opostos de tau) com 5 replicas cada
-    mostrou que **10 deles (47,6%) oscilam** — tres em 3F/3N exato. Nesses o
-    painelista e voto de minerva por definicao, logo o desfecho consolidado
-    sai da execucao, nao do episodio.
+    Rule from STABILITY-TEST.md Sec. 9.2, adopted 2026-08-14. A census of the 21
+    tie-break episodes (xai and zhipu on opposite sides of tau) with 5 replicas
+    each showed that **10 of them (47.6%) oscillate** -- three at an exact 3F/3N.
+    In those the panelist is the casting vote by definition, so the consolidated
+    outcome comes out of the execution, not out of the episode.
 
-    CRITERIO AMPLO: qualquer oscilacao marca o episodio, tratando 5-1 igual a
-    3-3. Um criterio graduado (so 4-2 e 3-3) e defensavel, mas NAO foi
-    pre-especificado — escolhe-lo depois de ver a distribuicao seria escolher
-    com os dados na mao. O amplo e o menos favoravel a nos, e por isso o menos
-    suspeito. Revisar com dados quando houver replicas do corpus completo.
+    BROAD CRITERION: any oscillation marks the episode, treating 5-1 the same as
+    3-3. A graded criterion (only 4-2 and 3-3) is defensible, but was NOT
+    pre-specified -- choosing it after seeing the distribution would be choosing
+    with the data in hand. The broad one is the least favourable to us, and for
+    that reason the least suspect. To be revisited with data once replicas of the
+    full corpus exist.
 
-    Custo medido no corpus de 2026-08-14: 10 episodios, 0,69% bruto e 0,79%
-    ponderado por Horvitz-Thompson (a amplificacao pelo peso 5,2 do estrato B
-    ficou em 1,14x, nao nos 15x temidos).
+    Cost measured on the 2026-08-14 corpus: 10 episodes, 0.69% raw and 0.79%
+    Horvitz-Thompson weighted (amplification by stratum B's 5.2 weight came out
+    at 1.14x, not the feared 15x).
 
-    O episodio marcado NAO recebe veredito: `carregar_episodios` resolve para
-    `unknown`, exatamente como "menos de 3 vereditos substantivos". Ou seja,
-    instabilidade vira ausencia de evidencia, nao voto de moeda.
+    A marked episode receives NO verdict: `carregar_episodios` resolves it to
+    `unknown`, exactly as "fewer than 3 substantive verdicts" does. That is,
+    instability becomes absence of evidence, not a coin toss.
     """
     corte = NIVEIS.index(TAU)
     lados: dict[tuple[str, str], set[bool]] = collections.defaultdict(set)
@@ -116,55 +118,55 @@ def episodios_instaveis(padroes: list[str]) -> set[str]:
 def carregar_verdicts(p: Path, instaveis: frozenset[str] = frozenset()) -> dict[str, str]:
     """episode_id -> 'failure' | 'not_failure', por MAIORIA ESTRITA.
 
-    `instaveis` (de `episodios_instaveis`) sao omitidos do resultado e portanto
-    resolvem para `unknown` — ver STABILITY-TEST.md §9.2.
+    `instaveis` (from `episodios_instaveis`) are omitted from the result and so
+    resolve to `unknown` -- see STABILITY-TEST.md Sec. 9.2.
 
-    CORRECAO 2026-07-29 — a versao anterior usava `v[len(v)//2]`, a mediana
-    SUPERIOR, para as duas condicoes. Duas coisas estavam erradas nisso.
+    CORRECTION 2026-07-29 -- the previous version used `v[len(v)//2]`, the UPPER
+    median, for both conditions. Two things were wrong with that.
 
     1. O §4.1 do pre-registro trava, literalmente: *"condition (ii) is the
-       binary verdict. Severity governs condition (i) only."* Severidade
-       decide quais episodios PASSADOS semeiam um repeat; o desfecho do
-       episodio corrente e o veredito binario por **maioria simples**.
-    2. Com contagem PAR a mediana superior nao e a maioria. Para 4 vereditos
-       ordenados v0<=v1<=v2<=v3, `v[2] >= tau` significa 2 de 4 acima do
-       corte — um EMPATE resolvido a favor de `failure`. Maioria simples
-       exige 3 de 4. A mediana INFERIOR (`v[1]`) e que coincide com ela.
+       binary verdict. Severity governs condition (i) only."* Severity
+       decides which PAST episodes seed a repeat; the current episode's
+       outcome is the binary verdict by **simple majority**.
+    2. With an EVEN count the upper median is not the majority. For 4 ordered
+       verdicts v0<=v1<=v2<=v3, `v[2] >= tau` means 2 of 4 above the cut -- a
+       TIE resolved in favour of `failure`. A simple majority requires 3 of 4.
+       It is the LOWER median (`v[1]`) that coincides with it.
 
-    Por que isso nao e detalhe: 987 dos 1.140 episodios da peca 3 tem
-    exatamente 4 vereditos substantivos (moonshot parou em 88/1.140 por
-    cota). Contagem par e a REGRA, nao a excecao — e o pre-registro so
-    afirma ausencia de empate por assumir painel impar ("odd panel => no
-    binary tie"), premissa que abstencao e falha de cota derrubam.
-    Medido: as duas leituras fieis (maioria estrita; empate => inadjudicavel)
-    dao K = 64; a mediana superior da 53. Swing de 20% num parametro que o
-    pre-registro nunca especificou.
+    Why this is not a detail: 987 of piece 3's 1,140 episodes have exactly 4
+    substantive verdicts (moonshot stopped at 88/1,140 on quota). An even count
+    is the RULE, not the exception -- and the pre-registration only asserts the
+    absence of ties by assuming an odd panel ("odd panel => no binary tie"), a
+    premise that abstention and quota failure knock down.
+    Measured: the two faithful readings (strict majority; tie => unadjudicable)
+    give K = 64; the upper median gives 53. A 20% swing in a parameter the
+    pre-registration never specified.
 
-    Empate exato (n/2 falhas, so possivel com n par) resolve para
-    `not_failure` — um empate nao e maioria. Conservador: subestima falhas,
-    logo subestima lambda_0, logo INFLA K. Erra para estudo mais longo.
+    An exact tie (n/2 failures, possible only with even n) resolves to
+    `not_failure` -- a tie is not a majority. Conservative: it underestimates
+    failures, hence underestimates lambda_0, hence INFLATES K. It errs towards a
+    longer study.
 
     Abstencao conta como ausente (§4.1); < 3 vereditos substantivos vira
     `unknown`.
     """
-    # Dedupe por (episode_id, panelist) — nao por episode_id sozinho.
+    # Dedupe by (episode_id, panelist) — not by episode_id alone.
     #
-    # Motivo (incident 2026-08-13, docs/INCIDENTS.md): dois processos
-    # adjudicaram a mesma fila em paralelo e 40 episodios receberam DOIS
-    # vereditos do mesmo painelista. Agregando so por episode_id, o segundo
-    # entra como voto extra: 39 episodios viraram painel PAR (4 votos), e a
-    # maioria estrita abaixo resolve empate 2-2 silenciosamente para
-    # `not_failure`. Naquele caso o impacto medido foi ZERO (os pares
-    # concordavam), mas a premissa de painel impar — "sem empate por
-    # construcao" — tinha sido violada sem ninguem notar.
+    # Reason (incident 2026-08-13, docs/INCIDENTS.md): two processes adjudicated
+    # the same queue in parallel and 40 episodes received TWO verdicts from the
+    # same panelist. Aggregating by episode_id alone, the second enters as an
+    # extra vote: 39 episodes became EVEN panels (4 votes), and the strict
+    # majority below resolves a 2-2 tie silently to `not_failure`. In that case
+    # the measured impact was ZERO (the pairs agreed), but the odd-panel premise
+    # — "no ties by construction" — had been violated without anyone noticing.
     #
-    # Regra: mantem o PRIMEIRO registro de cada (episodio, painelista) na
-    # ordem do arquivo de entrada. Quando o arquivo e montado concatenando as
-    # rodadas em ordem de geracao, "primeiro no arquivo" == cronologicamente
-    # anterior, que e a regra declarada em STABILITY-TEST.md §6. Se o chamador
-    # concatenar fora de ordem, a regra degrada para "primeiro visto" — ainda
-    # deterministica e independente do conteudo do veredito, que e a
-    # propriedade que importa para nao escolher resultado.
+    # Rule: keep the FIRST record of each (episode, panelist) in input-file
+    # order. When the file is assembled by concatenating the rounds in order of
+    # generation, "first in the file" == chronologically earlier, which is the
+    # rule declared in STABILITY-TEST.md Sec. 6. If the caller concatenates out
+    # of order, the rule degrades to "first seen" — still deterministic and
+    # independent of verdict content, which is the property that matters for not
+    # choosing a result.
     por_ep: dict[str, dict[str, int]] = collections.defaultdict(dict)
     for linha in p.read_text().splitlines():
         if not linha.strip():
@@ -180,7 +182,7 @@ def carregar_verdicts(p: Path, instaveis: frozenset[str] = frozenset()) -> dict[
     corte = NIVEIS.index(TAU)
     for ep, por_painelista in por_ep.items():
         if ep in instaveis:
-            continue  # oscila entre replicas -> `unknown` (STABILITY-TEST.md §9.2)
+            continue  # oscillates across replicas -> `unknown` (STABILITY-TEST.md Sec. 9.2)
         v = list(por_painelista.values())
         if len(v) < 3:
             continue
@@ -222,11 +224,12 @@ def carregar_episodios(p: Path, verdicts: dict[str, str]) -> list[Episodio]:
 
 
 def span_por_sessao(eps: list[Episodio]) -> dict[tuple[datetime, str], float]:
-    """Horas de cada sessao, chaveado por (epoch, sessao).
+    """Hours of each session, keyed by (epoch, session).
 
-    A SESSAO e a unidade de analise do ANOVA — o epoch e o cluster. Por isso
-    o span fica por sessao em vez de ja somado: com uma observacao por epoch
-    nao ha variancia within, e o ICC sai identicamente 0 por construcao.
+    The SESSION is the ANOVA's unit of analysis -- the epoch is the cluster.
+    That is why the span stays per session rather than pre-summed: with one
+    observation per epoch there is no within variance, and the ICC comes out
+    identically 0 by construction.
     """
     ts_por_sessao: dict[tuple[datetime, str], list[datetime]] = collections.defaultdict(list)
     for e in eps:
@@ -240,10 +243,11 @@ def span_por_sessao(eps: list[Episodio]) -> dict[tuple[datetime, str], float]:
 def _betainc(a: float, b: float, x: float) -> float:
     """Beta incompleta regularizada I_x(a,b) — fracao continuada de Lentz.
 
-    Stdlib pura DE PROPOSITO. Este script e pre-registrado: um terceiro tem de
-    poder rodar o replay sem instalar nada. `scipy` daria a mesma coisa em uma
-    linha, e `tests/test_icc_ci.py` confronta as duas implementacoes — mas a
-    dependencia fica no TESTE, nunca no caminho canonico.
+    Pure stdlib ON PURPOSE. This script is pre-registered: a third party must be
+    able to run the replay without installing anything. `scipy` would give the
+    same thing in one line, and `tests/test_icc_ci.py` confronts the two
+    implementations -- but the dependency stays in the TEST, never in the
+    canonical path.
     """
     if x <= 0.0:
         return 0.0
@@ -296,7 +300,7 @@ def _f_cdf(x: float, d1: float, d2: float) -> float:
 
 
 def _f_ppf(p: float, d1: float, d2: float) -> float:
-    """Quantil da F por bissecao sobre a CDF. Monotona, logo a bissecao basta."""
+    """F quantile by bisection over the CDF. Monotone, so bisection suffices."""
     lo, hi = 1e-12, 1.0
     while _f_cdf(hi, d1, d2) < p and hi < 1e12:
         hi *= 2.0
@@ -313,25 +317,26 @@ def icc_anova(por_epoch: dict[datetime, list[float]],
               alfa: float = 0.05) -> dict[str, float | int | None]:
     """ICC de efeitos aleatorios (one-way) com IC exato de Searle.
 
-    Devolve os QUADRADOS MEDIOS junto com o ponto e o intervalo. Antes esta
-    funcao devolvia so o `float`, e o SIZING-2026-08-14 teve de estimar a
-    largura do IC RECONSTRUINDO a ANOVA num script separado — que deu 0,0964
-    contra os 0,1175 do canonico e obrigou o documento a dizer "isto indica a
-    largura, nao e o intervalo oficial". Com os MS expostos o IC sai do mesmo
-    codigo que produz o ponto, e a divergencia deixa de existir.
+    Returns the MEAN SQUARES alongside the point estimate and the interval.
+    This function previously returned only the `float`, and SIZING-2026-08-14 had
+    to estimate the CI width by RECONSTRUCTING the ANOVA in a separate script --
+    which gave 0.0964 against the canonical 0.1175 and forced the document to say
+    "this indicates the width, it is not the official interval". With the mean
+    squares exposed, the CI comes out of the same code that produces the point,
+    and the divergence ceases to exist.
 
     IC (Searle 1971, one-way): com F = MSb/MSw e g.l. (k-1, n-k),
         F_L = F / F_{1-alfa/2},  F_U = F / F_{alfa/2}
         ICC_bound = (F_bound - 1) / (F_bound + m_bar - 1)
 
-    ⚠️ APROXIMACAO DECLARADA: `m_bar = n/k` é a media aritmetica dos tamanhos de
-    cluster. O IC exato de Searle assume clusters BALANCEADOS, e os nossos nao
-    sao (30 epochs, tamanhos de 1 a ~100, dois deles parciais por censura a
-    direita). Para desbalanceamento moderado o intervalo e conhecido por ser
-    levemente ANTICONSERVADOR — estreito demais. Ele serve para decidir se a
-    incerteza e da ordem de dezenas ou de centenas de dias; nao serve como
-    intervalo publicavel sem uma nota. Um IC por bootstrap de cluster resolve,
-    custa mais, e nao foi pre-especificado.
+    WARNING -- DECLARED APPROXIMATION: `m_bar = n/k` is the arithmetic mean of
+    the cluster sizes. Searle's exact CI assumes BALANCED clusters, and ours are
+    not (30 epochs, sizes from 1 to ~100, two of them partial through
+    right-censoring). For moderate imbalance the interval is known to be slightly
+    ANTICONSERVATIVE -- too narrow. It serves to decide whether the uncertainty
+    is of the order of tens or of hundreds of days; it does not serve as a
+    publishable interval without a note. A cluster-bootstrap CI resolves this,
+    costs more, and was not pre-specified.
 
     `icc` negativo -> 0 (conservador), e o limite inferior tambem.
     """
@@ -370,12 +375,12 @@ def icc_anova(por_epoch: dict[datetime, list[float]],
         fl = f / _f_ppf(1.0 - alfa / 2.0, d1, d2)
         fu = f / _f_ppf(alfa / 2.0, d1, d2)
         lim = lambda fb: (fb - 1.0) / (fb + m_bar - 1.0)
-        # Clamp em [0,1] nos DOIS limites. O superior tambem pode sair negativo:
-        # quando F < F_{alfa/2}, os dados sao compativeis com ausencia total de
-        # efeito de cluster e a formula devolve um numero abaixo de zero. Como
-        # o ICC nao e definido fora de [0,1], o intervalo colapsa em [0, 0] —
-        # que se le como "nao ha evidencia de estrutura de cluster", nao como
-        # "o ICC vale exatamente zero".
+        # Clamp to [0,1] at BOTH limits. The upper one can also come out
+        # negative: when F < F_{alpha/2}, the data are compatible with a complete
+        # absence of cluster effect and the formula returns a number below zero.
+        # Since the ICC is not defined outside [0,1], the interval collapses to
+        # [0, 0] — which reads as "no evidence of cluster structure", not as "the
+        # ICC is exactly zero".
         out["f"] = round(f, 6)
         out["ic_low"] = round(min(1.0, max(0.0, lim(fl))), 6)
         out["ic_high"] = round(min(1.0, max(0.0, lim(fu))), 6)
@@ -387,36 +392,36 @@ def main() -> int:
     ap.add_argument("--episodes", required=True, help="JSONL do extract_episodes")
     ap.add_argument("--verdicts", required=True, help="JSONL do run_panel")
     ap.add_argument("--min-epochs", type=int, default=0,
-                    help="recusa rodar com menos epochs analisaveis que isto (gate do §3)")
+                    help="refuse to run with fewer analysable epochs than this (Sec. 3 gate)")
     ap.add_argument("--seed-b", default="",
-                    help="SEED_B do desenho estratificado (§4 de PILOT-PROJECTION.md); "
-                         "sem ela o script roda em modo censo, sem pesos")
+                    help="SEED_B of the stratified design (Sec. 4 of PILOT-PROJECTION.md); "
+                         "without it the script runs in census mode, unweighted")
     ap.add_argument("--estrato-b-ids", default="",
-                    help="arquivo com um episode_id por linha: a amostra ja sorteada "
-                         "do estrato B. Use quando o corpus une universos de seeds "
-                         "diferentes (ver comentario no corpo). Tem precedencia sobre "
-                         "--seed-b/--n-b; exige mesma TAXA de amostragem entre eles.")
+                    help="file with one episode_id per line: the already-drawn sample "
+                         "from stratum B. Use it when the corpus unites universes from "
+                         "different seeds (see the comment in the body). Takes precedence "
+                         "over --seed-b/--n-b; requires the same sampling RATE across them.")
     ap.add_argument("--n-b", type=int, default=800,
-                    help="tamanho da amostra do estrato nao-is_error (default 800)")
-    ap.add_argument("--json", action="store_true", help="saida so em JSON")
+                    help="sample size of the non-is_error stratum (default 800)")
+    ap.add_argument("--json", action="store_true", help="JSON output only")
     ap.add_argument("--replicas", nargs="*", default=[],
-                    help="globs de JSONL com replicas do painel (ex: "
-                         "'~/.paper2-verdicts/tiebreak-rep*.jsonl'). Episodios cujo "
-                         "veredito oscila entre replicas viram `unknown` — "
-                         "STABILITY-TEST.md §9.2. Sem isto, o script roda sem a regra.")
+                    help="JSONL globs with panel replicas (e.g. "
+                         "'~/.paper2-verdicts/tiebreak-rep*.jsonl'). Episodes whose "
+                         "verdict oscillates across replicas become `unknown` -- "
+                         "STABILITY-TEST.md Sec. 9.2. Without this the script runs without the rule.")
     a = ap.parse_args()
 
     instaveis = frozenset()
     if a.replicas:
         padroes = [str(Path(x).expanduser()) for x in a.replicas]
         instaveis = frozenset(episodios_instaveis(padroes))
-        print(f"regra de instabilidade ativa: {len(instaveis)} episodios -> unknown",
+        print(f"instability rule active: {len(instaveis)} episodes -> unknown",
               file=sys.stderr)
 
     verdicts = carregar_verdicts(Path(a.verdicts), instaveis)
     eps = carregar_episodios(Path(a.episodes), verdicts)
     if not eps:
-        print("ERRO: nenhum episodio com ts+session", file=sys.stderr)
+        print("ERROR: no episode with ts+session", file=sys.stderr)
         return 2
 
     spans = span_por_sessao(eps)
@@ -426,7 +431,7 @@ def main() -> int:
         horas[ep] += h
         sessoes_por_epoch[ep] += 1
 
-    # failure episodes conhecidos, por assinatura, com o timestamp mais antigo
+    # known failure episodes, by signature, with the earliest timestamp
     primeiro_failure: dict[str, datetime] = {}
     for e in eps:
         if e.estado == "failure" and (e.sig not in primeiro_failure or e.ts < primeiro_failure[e.sig]):
@@ -439,35 +444,35 @@ def main() -> int:
     oport_unknown = 0
     analisaveis = [e for e in eps if e.offset_h >= WASHOUT_H]
 
-    # ── Desenho amostral ────────────────────────────────────────────────────
-    # Sem `--seed-b`, o script assume CENSO: todo episodio pesa 1 e episodios
-    # de desfecho desconhecido entram como oportunidade — o que faz de
-    # `p0_hat` um PISO, e o aviso no fim diz isso.
+    # -- Sampling design -------------------------------------------------------
+    # Without `--seed-b`, the script assumes a CENSUS: every episode weighs 1 and
+    # episodes of unknown outcome enter as opportunities — which makes `p0_hat` a
+    # FLOOR, and the warning at the end says so.
     #
-    # Com `--seed-b`, ele reproduz o desenho estratificado declarado no §4 de
-    # PILOT-PROJECTION.md (censo do estrato is_error + amostra uniforme de
-    # `--n-b` do complemento, ordenada por hash) e aplica pesos de
-    # Horvitz-Thompson. Sem esses pesos o estimador subconta os repeats do
-    # estrato amostrado por um fator N_B/n_B — aqui, 5.2x — e `lambda_0` sai
-    # deflacionado. Nao e conservador nem otimista por acaso: e simplesmente
-    # o estimador errado para o desenho.
-    # ── Corpus com MAIS DE UMA seed (extensao 2, 2026-08-14) ────────────────
-    # O sorteio acima ordena TODO o `resto` por uma unica seed. Isso deixa de
-    # funcionar quando o corpus e a uniao de dois universos amostrados por
-    # seeds diferentes, cada uma declarada antes do seu proprio round:
-    # re-sortear a uniao produziria uma TERCEIRA amostra, que nenhuma das duas
-    # declaracoes cobre.
+    # With `--seed-b`, it reproduces the stratified design declared in Sec. 4 of
+    # PILOT-PROJECTION.md (census of the is_error stratum + uniform sample of
+    # `--n-b` from the complement, ordered by hash) and applies Horvitz-Thompson
+    # weights. Without those weights the estimator undercounts the sampled
+    # stratum's repeats by a factor N_B/n_B — here, 5.2x — and `lambda_0` comes
+    # out deflated. It is neither conservative nor optimistic by accident: it is
+    # simply the wrong estimator for the design.
+    # -- Corpus with MORE THAN ONE seed (extension 2, 2026-08-14) ---------------
+    # The draw above orders ALL of `resto` by a single seed. That stops working
+    # when the corpus is the union of two universes sampled under different
+    # seeds, each declared before its own round: re-drawing the union would
+    # produce a THIRD sample, which neither declaration covers.
     #
-    # `--estrato-b-ids` resolve isso pela unica via honesta: le a lista de
-    # sorteados de um arquivo, em vez de re-derivar. Cada ID da lista continua
-    # sendo derivavel da sua seed publica aplicada ao seu proprio universo —
-    # a auditoria por terceiro nao perde nada, so passa a ter dois passos.
+    # `--estrato-b-ids` solves this the only honest way: it reads the list of
+    # drawn IDs from a file instead of re-deriving it. Every ID in the list
+    # remains derivable from its own public seed applied to its own universe —
+    # third-party audit loses nothing, it just becomes a two-step check.
     #
-    # ⚠️ O ESTIMADOR NAO MUDA. O peso segue `len(resto)/len(estrato_b)`, e ele
-    # so permanece valido porque as duas extensoes usam a MESMA TAXA (19,2%):
-    # 1.576/8.194 = 5,199 e 122/635 = 5,205, uniao 1.698/8.829 = 5,200. Se uma
-    # extensao futura usar taxa diferente, este caminho passa a estar ERRADO e
-    # o codigo precisa de peso por estrato — nao de mais um arquivo de IDs.
+    # [!] THE ESTIMATOR DOES NOT CHANGE. The weight remains
+    # `len(resto)/len(estrato_b)`, and it stays valid only because both
+    # extensions use the SAME RATE (19.2%): 1,576/8,194 = 5.199 and 122/635 =
+    # 5.205, union 1,698/8,829 = 5.200. If a future extension uses a different
+    # rate, this path becomes WRONG and the code needs per-stratum weights — not
+    # another file of IDs.
     estratificado = bool(a.estrato_b_ids or a.seed_b)
     if a.estrato_b_ids:
         ids = {l.strip() for l in Path(a.estrato_b_ids).read_text().splitlines() if l.strip()}
@@ -476,30 +481,30 @@ def main() -> int:
         estrato_b = [e for e in resto if e.id in ids]
         faltando = len(ids) - len(estrato_b)
         if faltando:
-            print(f"aviso: {faltando} ids da amostra nao estao no universo/pos-washout",
+            print(f"warning: {faltando} sample ids are not in the universe/post-washout",
                   file=sys.stderr)
         peso = {e.id: 1.0 for e in estrato_a}
         peso.update({e.id: len(resto) / len(estrato_b) for e in estrato_b})
         analisaveis = estrato_a + estrato_b
     elif a.seed_b:
-        # CORRECAO 2026-08-14 — o sorteio roda sobre `eps` (universo BRUTO), nao
-        # sobre `analisaveis` (pos-washout). A versao anterior sorteava os `n_b`
-        # do complemento JA filtrado por washout, e isso estava errado por dois
-        # motivos que se somavam:
+        # CORRECTION 2026-08-14 — the draw runs over `eps` (the RAW universe),
+        # not over `analisaveis` (post-washout). The previous version drew the
+        # `n_b` from the complement ALREADY filtered by washout, and that was
+        # wrong for two compounding reasons:
         #
-        # 1. CONJUNTO ERRADO. O desenho declarado em EXTENSION-SEED-2026-08-11
-        #    §"Desenho" e "1.576 de 8.194" — 8.194 e o complemento no bruto, e e
-        #    sobre ele que a amostra foi de fato sorteada e adjudicada (99,3% de
-        #    reproducao). Sorteando pos-washout (6.675) o script escolhia OUTRO
-        #    conjunto de 1.576: apenas 1.259 deles tinham veredito, e os 317
-        #    restantes entravam como `unknown`. Medido: `unknown` cai de 232
-        #    para 44 com a correcao.
-        # 2. PESO ERRADO. `len(resto_pw)/n_b` = 6.675/1.576 = 4,235, contra o
-        #    peso HT de 5,2x que o proprio desenho declara como alvo. O estrato
-        #    B saia subcontado em ~20%.
+        # 1. WRONG SET. The design declared in EXTENSION-SEED-2026-08-11,
+        #    "Design", is "1,576 of 8,194" — 8,194 is the complement in the raw,
+        #    and that is where the sample was actually drawn and adjudicated
+        #    (99.3% reproduction). Drawing post-washout (6,675) made the script
+        #    pick ANOTHER set of 1,576: only 1,259 of them had verdicts, and the
+        #    remaining 317 entered as `unknown`. Measured: `unknown` falls from
+        #    232 to 44 with the fix.
+        # 2. WRONG WEIGHT. `len(resto_pw)/n_b` = 6,675/1,576 = 4.235, against the
+        #    HT weight of 5.2x that the design itself declares as the target.
+        #    Stratum B came out undercounted by ~20%.
         #
-        # Efeito nos tres numeros do piloto (corpus da extensao 1):
-        #   r_hat  22,78 -> 27,86 | p0_hat 0,1310 -> 0,1159 | icc 0,1169 -> 0,1016
+        # Effect on the pilot's three numbers (extension-1 corpus):
+        #   r_hat  22.78 -> 27.86 | p0_hat 0.1310 -> 0.1159 | icc 0.1169 -> 0.1016
         estrato_a = [e for e in analisaveis if e.err]
         resto = [e for e in analisaveis if not e.err]
         chave = lambda e: hashlib.sha256(
@@ -516,16 +521,16 @@ def main() -> int:
     for e in analisaveis:
         t0 = primeiro_failure.get(e.sig)
         if t0 is None or t0 > e.epoch - limiar:
-            continue                      # condicao (i) nao satisfeita
+            continue                      # condition (i) not satisfied
         if estratificado and e.estado == "unknown":
-            oport_unknown += 1            # fora do estimador: peso nao definido
+            oport_unknown += 1            # outside the estimator: weight undefined
             continue
         oport_por_epoch[e.epoch] += peso[e.id]
         if e.estado == "failure":
             repeat_por_epoch[e.epoch] += peso[e.id]
             repeat_por_sessao[(e.epoch, e.sessao)] += peso[e.id]
         elif e.estado == "unknown":
-            oport_unknown += 1            # desfecho nao adjudicado (modo censo)
+            oport_unknown += 1            # outcome not adjudicated (census mode)
 
     epochs = sorted(ep for ep in horas if horas[ep] > 0)
     if a.min_epochs and len(epochs) < a.min_epochs:
@@ -536,9 +541,9 @@ def main() -> int:
     tot_repeat = sum(repeat_por_epoch.values())
     tot_horas = sum(horas[ep] for ep in epochs)
 
-    # ANOVA: uma observacao por SESSAO (unidade), agrupada por epoch (cluster).
-    # Epochs com < 2 sessoes nao contribuem variancia within e sao excluidos
-    # do ICC — reportados a parte para nao sumirem em silencio.
+    # ANOVA: one observation per SESSION (unit), grouped by epoch (cluster).
+    # Epochs with < 2 sessions contribute no within variance and are excluded
+    # from the ICC — reported separately so they do not vanish silently.
     dens: dict[datetime, list[float]] = collections.defaultdict(list)
     for (ep, s), h in spans.items():
         if ep in epochs and sessoes_por_epoch[ep] >= 2:
@@ -579,8 +584,8 @@ def main() -> int:
     cob = saida["cobertura_adjudicacao"]
     if cob["pct"] < 100:
         print(f"\n⚠️  cobertura de adjudicacao {cob['pct']}% — "
-              f"{cob['oportunidades_com_desfecho_unknown']} oportunidades sem desfecho adjudicado.\n"
-              f"    p0_hat acima e um PISO: os unknown so podem aumenta-lo.", file=sys.stderr)
+              f"{cob['oportunidades_com_desfecho_unknown']} opportunities with no adjudicated outcome.\n"
+              f"    the p0_hat above is a FLOOR: the unknowns can only raise it.", file=sys.stderr)
     return 0
 
 

@@ -1,44 +1,46 @@
 #!/usr/bin/env python3
-"""Sensibilidade dos parâmetros de sizing à MATURIDADE do corpus.
+"""Sensitivity of the sizing parameters to corpus MATURITY.
 
-⚠️ EXPLORATORIA, NAO PRE-ESPECIFICADA. Não altera nenhum número travado. Existe
-porque o cálculo de δ (Apêndice B) expôs algo que nenhuma das análises
-anteriores tinha olhado.
+[!] EXPLORATORY, NOT PRE-SPECIFIED. It changes no locked number. It exists
+because computing delta (Appendix B) exposed something none of the earlier
+analyses had looked at.
 
-O QUE FOI ENCONTRADO
-A densidade de repeated failure por epoch não é estacionária. Nos primeiros
-epochs do corpus ela é praticamente zero e depois sobe uma ordem de grandeza.
-A causa não é ruído: a condição (i) de oportunidade exige um *failure episode*
-com a mesma assinatura escrito ≥1 epoch antes, e esse estoque **cresce de 0 a
-64 assinaturas ao longo do corpus, sem saturar**. Em 2026-08-14, o último
-epoch disponível, ele ainda estava subindo.
+WHAT WAS FOUND
+Repeated-failure density per epoch is not stationary. In the corpus's first
+epochs it is practically zero and then rises by an order of magnitude. The
+cause is not noise: opportunity condition (i) requires a *failure episode* with
+the same signature written >= 1 epoch earlier, and that stock **grows from 0 to
+64 signatures across the corpus without saturating**. On 2026-08-14, the last
+available epoch, it was still climbing.
 
-POR QUE ISSO IMPORTA PARA O SIZING
-`r̂`, `p̂0` e ICC foram estimados sobre o corpus inteiro, isto é, sobre uma
-mistura de regimes. Três consequências, em direções que **não** se cancelam:
+WHY THIS MATTERS FOR SIZING
+`r_hat`, `p0_hat` and the ICC were estimated over the whole corpus, that is,
+over a mixture of regimes. Three consequences, in directions that do **not**
+cancel:
 
-1. `p̂0` é puxado para baixo pelos epochs iniciais (taxa ~0,005 contra ~0,12
-   depois). `p̂0` menor ⇒ `N` maior.
-2. O ICC é inflado, porque a transição regime-inicial→regime-maduro é variância
-   *entre* clusters que não é estrutura de cluster — é tendência.
-   ICC maior ⇒ design effect maior ⇒ `N` maior.
-3. δ (§B.5) herda a mesma transição e fica inflado.
+1. `p0_hat` is pulled down by the early epochs (rate ~0.005 against ~0.12
+   later). A smaller `p0_hat` => a larger `N`.
+2. The ICC is inflated, because the early-regime -> mature-regime transition is
+   between-cluster variance that is not cluster structure — it is trend.
+   A larger ICC => a larger design effect => a larger `N`.
+3. delta (Sec. B.5) inherits the same transition and comes out inflated.
 
-Ou seja: os três parâmetros erram no mesmo sentido, e `N = 154` é
-provavelmente **conservador** — mas por um motivo que não era conhecido quando
-foi travado, e isso precisa ser dito.
+That is: all three parameters err in the same direction, and the locked
+`N = 174` is probably **conservative** — but for a reason that was not known when it was
+locked, and that has to be said.
 
-O QUE ESTE SCRIPT NAO RESOLVE
-Não sabe se a não-estacionariedade é artefato de janela ou propriedade do
-sistema. Se o estoque de assinaturas cresce indefinidamente com o uso, então
-o estudo real **também** rodará sob tendência, e residualizar no sizing seria
-otimista. O §5 do pré-registro já residualiza tendência **no teste** (outcome
-regredido em study-day, resíduos permutados); o sizing não. Essa assimetria é
-o achado, e resolvê-la é decisão do titular, não deste script.
+WHAT THIS SCRIPT DOES NOT SETTLE
+It does not know whether the non-stationarity is a window artefact or a
+property of the system. If the signature stock grows indefinitely with use,
+then the real study **will also** run under a trend, and residualising in the
+sizing would be optimistic. Sec. 5 of the pre-registration already residualises
+trend **in the test** (outcome regressed on study-day, residuals permuted); the
+sizing does not. That asymmetry is the finding, and resolving it is the
+principal's decision, not this script's.
 
-O corte por maturidade é feito por **estoque de assinaturas elegíveis**, que
-depende só da condição (i) e nunca do desfecho do epoch corrente — não é um
-corte escolhido olhando o resultado.
+The maturity split is made by **stock of eligible signatures**, which depends
+only on condition (i) and never on the current epoch's outcome — it is not a
+cut chosen by looking at the result.
 
     python3 maturity_sensitivity.py --episodes ... --verdicts ... --estrato-b-ids ...
 """
@@ -143,8 +145,8 @@ def main() -> int:
             "n_transicoes": len(difs),
         }
 
-    # Corte por estoque, NAO por desfecho. A mediana do estoque parte o corpus
-    # em duas metades de maturidade, sem olhar repeats.
+    # Split by stock, NOT by outcome. The stock median cuts the corpus into two
+    # maturity halves without looking at repeats.
     mediana_estoque = sorted(estoque.values())[len(estoque) // 2]
     maduros = [ep for ep in todos_epochs if estoque[ep] >= mediana_estoque]
     jovens = [ep for ep in todos_epochs if estoque[ep] < mediana_estoque]

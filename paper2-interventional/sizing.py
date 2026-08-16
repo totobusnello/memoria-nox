@@ -80,7 +80,7 @@ _Z = {0.80: 0.8416212335729143, 0.90: 1.2815515655446004,
 
 def z(p: float) -> float:
     if p not in _Z:
-        raise ValueError(f"quantil {p} nao esta na tabela travada: {sorted(_Z)}")
+        raise ValueError(f"quantile {p} is not in the locked table: {sorted(_Z)}")
     return _Z[p]
 
 
@@ -97,28 +97,28 @@ class SizingInputs:
 
     def validate(self) -> None:
         if not 0 < self.mde < 1:
-            raise ValueError("mde tem que estar em (0,1) — e efeito RELATIVO")
+            raise ValueError("mde must lie in (0,1) -- it is a RELATIVE effect")
         if not 0 <= self.icc < 1:
-            raise ValueError("icc tem que estar em [0,1)")
+            raise ValueError("icc must lie in [0,1)")
         for nome in ("r_hat", "p0_hat", "hours_per_epoch", "session_hours_per_epoch"):
             if getattr(self, nome) <= 0:
-                raise ValueError(f"{nome} tem que ser > 0")
+                raise ValueError(f"{nome} must be > 0")
         if self.p0_hat >= 1:
-            raise ValueError("p0_hat e uma taxa condicional — tem que ser < 1")
+            raise ValueError("p0_hat is a conditional rate -- it must be < 1")
 
 
 def design_effect(icc: float, m_bar: float) -> float:
-    """DE = 1 + (m_bar - 1) * icc. Com m_bar <= 1 nao ha cluster: DE = 1."""
+    """DE = 1 + (m_bar - 1) * icc. With m_bar <= 1 there is no cluster: DE = 1."""
     return 1.0 + max(0.0, m_bar - 1.0) * icc
 
 
 def epochs_per_arm(inp: SizingInputs) -> tuple[int, dict]:
-    """K por braco. Devolve tambem os intermediarios, para auditoria."""
+    """K per arm. Also returns the intermediates, for auditing."""
     inp.validate()
     lam0 = inp.r_hat * inp.p0_hat
     lam1 = lam0 * (1.0 - inp.mde)
     if lam1 <= 0:
-        raise ValueError("mde de 100% — rate ratio zero nao tem log")
+        raise ValueError("mde of 100% -- a zero rate ratio has no log")
 
     zsum = z(1 - inp.alpha / 2) + z(inp.power)
     log_rr = math.log(lam1 / lam0)          # negativo; so o quadrado importa
@@ -135,7 +135,7 @@ def epochs_per_arm(inp: SizingInputs) -> tuple[int, dict]:
 
 
 def power_at(inp: SizingInputs, k_per_arm: int, efeito: float) -> float:
-    """Poder para um efeito relativo verdadeiro, com K fixo. É a curva do §3."""
+    """Power for a true relative effect, with K fixed. This is Sec. 3's curve."""
     lam0 = inp.r_hat * inp.p0_hat
     lam1 = lam0 * (1.0 - efeito)
     if lam1 <= 0:
@@ -144,14 +144,14 @@ def power_at(inp: SizingInputs, k_per_arm: int, efeito: float) -> float:
     e0 = k_per_arm * inp.hours_per_epoch * lam0 / de
     e1 = k_per_arm * inp.hours_per_epoch * lam1 / de
     se = math.sqrt(1 / e0 + 1 / e1)
-    # Normal padrao via erf — sem dependencia externa.
+    # Standard normal via erf -- no external dependency.
     zc = z(1 - inp.alpha / 2)
     arg = abs(math.log(lam1 / lam0)) / se - zc
     return 0.5 * (1.0 + math.erf(arg / math.sqrt(2.0)))
 
 
 def f(inp: SizingInputs, grade: tuple[float, ...] = (0.05, 0.10, 0.15, 0.20, 0.30, 0.40)) -> dict:
-    """A funcao pre-registrada. Deterministica: mesmos inputs, mesmo output."""
+    """The pre-registered function. Deterministic: same inputs, same output."""
     k, detalhe = epochs_per_arm(inp)
     return {
         "inputs": asdict(inp),
@@ -163,10 +163,11 @@ def f(inp: SizingInputs, grade: tuple[float, ...] = (0.05, 0.10, 0.15, 0.20, 0.3
     }
 
 
-# ── Vetor sintetico: fixa o comportamento do arquivo, nao o resultado do estudo ──
-# Os numeros abaixo NAO sao estimativas do sistema real. Sao entradas arbitrarias
-# e fixas cuja unica funcao e produzir um hash estavel. Trocar a matematica muda
-# o hash; um leitor detecta a troca sem ter visto o original.
+# -- Synthetic vector: pins the file's behaviour, not the study's result -------
+# The numbers below are NOT estimates of the real system. They are arbitrary,
+# fixed inputs whose only function is to produce a stable hash. Changing the
+# mathematics changes the hash; a reader detects the swap without ever having
+# seen the original.
 SINTETICO = SizingInputs(
     r_hat=0.40, p0_hat=0.25, icc=0.05, mde=0.20,
     hours_per_epoch=12.0, session_hours_per_epoch=8.0,

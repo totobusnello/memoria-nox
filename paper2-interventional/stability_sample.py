@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Sorteia a amostra do teste de estabilidade intra-painelista (STABILITY-TEST.md).
+"""Draws the sample for the intra-panelist stability test (STABILITY-TEST.md).
 
-A seed vem do beacon drand no round DECLARADO EM 2026-08-13T13:47Z, antes de o
-round existir. Rodar este script depois nao muda nada: o sorteio e deterministico
-dado o round, e qualquer terceiro reproduz baixando o mesmo round.
+The seed comes from the drand beacon at the round DECLARED ON 2026-08-13T13:47Z,
+before that round existed. Running this script later changes nothing: the draw
+is deterministic given the round, and any third party reproduces it by
+downloading the same round.
 
-Uso:
-    python3 stability_sample.py            # sorteia e grava o jsonl de entrada
-    python3 stability_sample.py --check    # so verifica se o round ja saiu
+Usage:
+    python3 stability_sample.py            # draw and write the input jsonl
+    python3 stability_sample.py --check    # only check whether the round is out
 
-Depois:
+Then:
     python3 run_panel.py --episodes <saida> --only moonshot --workers 2 \
         --out ~/.paper2-verdicts/extensao-moonshot-stability-6373493.jsonl
     python3 stability_sample.py --score    # compara com os vereditos originais
@@ -39,7 +40,7 @@ def fetch_round(rnd):
 
 
 def load_originals():
-    """episode_id -> (verdict, arquivo, ordem). Detecta duplicatas da colisao."""
+    """episode_id -> (verdict, file, order). Detects duplicates from the race."""
     seen = {}
     dups = set()
     for f in sorted(glob.glob(BACKLOG_GLOB)):
@@ -53,7 +54,7 @@ def load_originals():
             eid = r["episode_id"]
             if eid in seen:
                 dups.add(eid)
-                # mantem o cronologicamente anterior (regra do STABILITY-TEST.md §6)
+                # keep the chronologically earlier one (STABILITY-TEST.md Sec. 6 rule)
                 if mtime < seen[eid][2]:
                     seen[eid] = (r.get("verdict"), f, mtime)
             else:
@@ -98,7 +99,7 @@ def main():
         if n == 0:
             sys.exit("nenhum par comparavel")
         p = agree / n
-        # IC de Wilson 95%
+        # 95% Wilson CI
         z = 1.959963985
         d = 1 + z * z / n
         c = (p + z * z / (2 * n)) / d
@@ -121,7 +122,7 @@ def main():
     if a.check:
         return
 
-    # populacao: adjudicados ok pelo moonshot, EXCLUINDO os 40 da colisao (§3)
+    # population: adjudicated ok by moonshot, EXCLUDING the 40 from the race (Sec. 3)
     pool = sorted(eid for eid in originals if eid not in dups)
     print(f"populacao: {len(pool)} (excluidos {len(dups)} da colisao)")
     if len(pool) < N:

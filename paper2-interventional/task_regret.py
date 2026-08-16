@@ -1,32 +1,32 @@
 #!/usr/bin/env python3
-"""Distribuição de task regret — insumo para o `[TO LOCK: p95]` do §4.2.
+"""Task-regret distribution — input for the `[TO LOCK: p95]` of Sec. 4.2.
 
-O §4.2 define o desfecho secundário como *"excess time-to-resolution + token
+Sec. 4.2 defines the secondary outcome as *"excess time-to-resolution + token
 cost vs. best known resolution of the same signature, winsorized at [TO LOCK:
-p95]"*. Este script mede a distribuição de onde esse p95 sai.
+p95]"*. This script measures the distribution that p95 comes from.
 
-⚠️ NÃO TOCA no `extract_episodes.py`. Aquele arquivo está LOCKED — commit
-`c0abe143`, SHA-256 registrado em `CORPUS-FREEZE.md` — e a taxonomia de
-assinaturas depende dele byte a byte. Este script **importa** as funções de
-assinatura de lá e re-percorre o corpus por conta própria para colher as duas
-quantidades que o extractor não emite (duração e tokens), sem alterar uma
-linha do original.
+[!] IT DOES NOT TOUCH `extract_episodes.py`. That file is LOCKED — commit
+`c0abe143`, SHA-256 registered in `CORPUS-FREEZE.md` — and the signature
+taxonomy depends on it byte for byte. This script **imports** the signature
+functions from there and re-walks the corpus on its own to collect the two
+quantities the extractor does not emit (duration and tokens), without changing
+a line of the original.
 
-O PAREAMENTO É O MESMO, DE PROPÓSITO
-`tool_use` → `tool_result` por `tool_use_id`, na ordem do arquivo, com
-`pendentes` descartando resultado sem uso pareado. Reproduzir a lógica em vez
-de reusá-la seria arriscar divergir do corpus congelado; ela é copiada
-deliberadamente, e o `episode_id` é derivado pela mesma fórmula para que as
-linhas possam ser unidas ao corpus oficial.
+THE PAIRING IS THE SAME, DELIBERATELY
+`tool_use` -> `tool_result` by `tool_use_id`, in file order, with `pendentes`
+discarding any result without a paired use. Reimplementing the logic rather
+than reusing it would risk diverging from the frozen corpus; it is copied
+deliberately, and `episode_id` is derived by the same formula so that rows can
+be joined to the official corpus.
 
-⚠️ AMBIGUIDADE REAL NA DEFINIÇÃO, e ela não é resolvida aqui
-"excess time-to-resolution **+** token cost" soma segundos com tokens, que não
-têm dimensão comum. Somá-los exigiria uma taxa de conversão que o pré-registro
-nunca declarou, e inventá-la agora — depois de ver os dados — seria escolher o
-estimador com o resultado à vista. Este script portanto reporta os **dois
-componentes separadamente**, cada um com seu p95, e deixa a escolha entre
-(a) dois desfechos secundários, (b) uma soma com taxa declarada, ou (c) a
-retirada do desfecho, para quem trava.
+[!] A REAL AMBIGUITY IN THE DEFINITION, and it is not resolved here
+"excess time-to-resolution **+** token cost" adds seconds to tokens, which have
+no common dimension. Summing them would require a conversion rate the
+pre-registration never declared, and inventing one now — after seeing the data
+— would mean choosing the estimator with the result in view. This script
+therefore reports the **two components separately**, each with its own p95, and
+leaves the choice between (a) two secondary outcomes, (b) a sum with a declared
+rate, or (c) dropping the outcome, to whoever locks it.
 
     python3 task_regret.py --raiz /var/lib/nox-mem/action-archive
 """
@@ -52,13 +52,13 @@ def parse_ts(s: str) -> datetime | None:
 
 
 def tokens_da_mensagem(ev: dict) -> int | None:
-    """Tokens billados da mensagem que emitiu o `tool_use`.
+    """Billed tokens of the message that emitted the `tool_use`.
 
-    Conta input + output + cache_creation, e **exclui `cache_read`**: token
-    lido de cache é cobrado a fração do preço e contá-lo cheio inflaria o
-    custo de sessões longas — que são exatamente as que acumulam cache. A
-    escolha é conservadora para o regret (subestima o custo de sessões longas)
-    e está declarada por isso.
+    Counts input + output + cache_creation, and **excludes `cache_read`**: a
+    cached-read token is billed at a fraction of the price and counting it at
+    full rate would inflate the cost of long sessions — which are exactly the
+    ones that accumulate cache. The choice is conservative for regret (it
+    understates the cost of long sessions) and is declared for that reason.
     """
     u = (ev.get("message") or {}).get("usage")
     if not isinstance(u, dict):
@@ -83,8 +83,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--raiz", default="/var/lib/nox-mem/action-archive")
     ap.add_argument("--min-por-assinatura", type=int, default=5,
-                    help="assinaturas com menos episodios que isto nao definem "
-                         "um 'best known' confiavel e sao excluidas do regret")
+                    help="signatures with fewer episodes than this do not define "
+                         "a reliable 'best known' and are excluded from the regret")
     a = ap.parse_args()
 
     linhas: list[dict] = []
@@ -142,9 +142,10 @@ def main() -> int:
     for r in linhas:
         por_sig[r["sig"]].append(r)
 
-    # "best known resolution": o minimo observado entre episodios BEM-SUCEDIDOS
-    # da mesma assinatura. Usar o minimo global (incluindo erros) daria um piso
-    # artificialmente baixo — uma falha instantanea e barata, e nao e resolucao.
+    # "best known resolution": the minimum observed among SUCCESSFUL episodes of
+    # the same signature. Using the global minimum (errors included) would give
+    # an artificially low floor — a failure is instant and cheap, and a failure
+    # is not a resolution.
     regret_t: list[float] = []
     regret_k: list[float] = []
     sigs_usadas = sigs_descartadas = 0

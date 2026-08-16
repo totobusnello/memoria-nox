@@ -75,11 +75,11 @@ const withEpisodeMeta = db
 console.log("1. JOIN KEY");
 console.log(`   sessões distintas nos episódios      ${epSessions.size}`);
 console.log(`   UUIDs em source_file de chunks       ${chunkUuids.size}`);
-console.log(`   INTERSEÇÃO                           ${overlap}`);
-console.log(`   chunks vindos do action-archive      ${fromArchive}`);
-console.log(`   chunks com episode em metadata       ${withEpisodeMeta}`);
+console.log(`   INTERSECTION                         ${overlap}`);
+console.log(`   chunks originating in action-archive ${fromArchive}`);
+console.log(`   chunks with episode in metadata      ${withEpisodeMeta}`);
 console.log(
-  `   => ${overlap + fromArchive + withEpisodeMeta === 0 ? "NÃO EXISTE chave de junção. O link tem de ser CONSTRUÍDO." : "há substrato — investigar"}`,
+  `   => ${overlap + fromArchive + withEpisodeMeta === 0 ? "NO join key EXISTS. The link must be CONSTRUCTED." : "there is substrate -- investigate"}`,
 );
 
 // ── 2 & 3. Would a written failure memory reach the brief? ───────────────────
@@ -129,7 +129,7 @@ for (const [lvl, sev] of Object.entries(SEVERITY)) {
     source_type: "lesson",
     tier: null,
     pain: sev,
-    importance: null, // deixa a tabela por tipo decidir — é o que o ingest faz
+    importance: null, // let the per-type table decide -- that is what the ingest does
     retention_days: 180,
     source_date: iso,
     created_at: iso,

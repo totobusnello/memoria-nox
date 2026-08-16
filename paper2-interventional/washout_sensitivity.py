@@ -1,32 +1,33 @@
 #!/usr/bin/env python3
-"""Sensibilidade ao washout — quanto tempo de borda de epoch é preciso descartar?
+"""Washout sensitivity — how much epoch-boundary time must be discarded?
 
-⚠️ ANALISE EXPLORATORIA, NAO PRE-ESPECIFICADA. Ela não entra no desfecho do
-estudo e não altera nenhum número do `pilot_replay`. Existe para responder uma
-pergunta que bloqueia uma decisão de desenho: **o washout de 2h basta?**
+[!] EXPLORATORY ANALYSIS, NOT PRE-SPECIFIED. It does not enter the study
+outcome and changes no `pilot_replay` number. It exists to answer a question
+that blocks a design decision: **is the 2 h washout enough?**
 
-POR QUE A PERGUNTA IMPORTA AGORA
-`SIZING-2026-08-14-v2.md` §4 mostra que encurtar o epoch é a única alavanca que
-compra calendário sem vender MDE (24h→242 d, 8h→113 d). Mas o washout é FIXO em
-2h: ele custa 8% de um epoch de 24h e 25% de um de 8h. Pior, a premissa de que
-2h bastam para lavar o efeito do braço anterior foi calibrada para epochs de
-24h e nunca foi verificada. Encurtar o epoch aproxima as trocas de braço, e uma
-premissa não verificada fica mais exigida, não menos.
+WHY THE QUESTION MATTERS NOW
+`SIZING-2026-08-14-v2.md` Sec. 4 shows that shortening the epoch is the only
+lever that buys calendar without selling MDE (24 h->242 d, 8 h->113 d). But the
+washout is FIXED at 2 h: it costs 8% of a 24 h epoch and 25% of an 8 h one.
+Worse, the premise that 2 h suffices to wash out the previous arm's effect was
+calibrated for 24 h epochs and was never verified. Shortening the epoch brings
+arm switches closer together, and an unverified premise is then asked for more,
+not less.
 
-O QUE ESTE SCRIPT MEDE, E O QUE ELE NAO PODE MEDIR
-Ele mede o perfil de `p0` (repeats/oportunidades) e da densidade de
-oportunidades ao longo das horas desde a fronteira do epoch, no corpus do
-replay. Se houver efeito de borda residual além de 2h, ele aparece como
-gradiente nas primeiras horas pós-washout.
+WHAT THIS SCRIPT MEASURES, AND WHAT IT CANNOT MEASURE
+It measures the profile of `p0` (repeats/opportunities) and of opportunity
+density across the hours since the epoch boundary, in the replay corpus. If any
+residual boundary effect survives past 2 h, it shows up as a gradient in the
+first post-washout hours.
 
-⚠️ LIMITE FUNDAMENTAL: no corpus do replay **todo epoch é controle** — nunca
-houve troca de braço. Portanto isto NAO mede carry-over de tratamento. Mede o
-que existe de estrutura temporal intra-epoch na ausência de intervenção: ritmo
-de trabalho, sessões que atravessam a fronteira, efeitos de fuso. Um gradiente
-aqui é evidência de que a fronteira do epoch não é um ponto neutro — o que é
-condição NECESSARIA para o washout ser suficiente, não suficiente para
-afirmá-lo. Ausência de gradiente não prova que 2h bastam sob tratamento;
-presença de gradiente prova que 2h não bastam nem sem ele.
+[!] FUNDAMENTAL LIMIT: in the replay corpus **every epoch is control** — no arm
+switch ever occurred. So this does NOT measure treatment carry-over. It
+measures whatever intra-epoch temporal structure exists in the absence of
+intervention: work rhythm, sessions crossing the boundary, time-zone effects. A
+gradient here is evidence that the epoch boundary is not a neutral point —
+which is a NECESSARY condition for the washout to be sufficient, not enough to
+assert it. Absence of a gradient does not prove 2 h suffices under treatment;
+presence of a gradient proves 2 h does not suffice even without it.
 
     python3 washout_sensitivity.py --episodes ... --verdicts ... --estrato-b-ids ...
 """
@@ -64,7 +65,8 @@ def main() -> int:
     limiar = timedelta(hours=pr.EPOCH_H)
 
     ids = {l.strip() for l in Path(a.estrato_b_ids).read_text().splitlines() if l.strip()}
-    # Sem filtro de washout: o ponto do exercicio e OLHAR a zona descartada.
+    # No washout filter: the whole point of the exercise is to LOOK AT the
+    # discarded zone.
     estrato_a = [e for e in eps if e.err]
     resto = [e for e in eps if not e.err]
     estrato_b = [e for e in resto if e.id in ids]
@@ -74,10 +76,11 @@ def main() -> int:
     oport: dict[int, float] = collections.defaultdict(float)
     repeat: dict[int, float] = collections.defaultdict(float)
     desconhecido: dict[int, int] = collections.defaultdict(int)
-    # Contagens BRUTAS em paralelo. O peso HT amplifica o estrato B por ~5,2x,
-    # o que infla qualquer n usado num teste de proporcao e produz significancia
-    # onde nao ha. Todo teste abaixo roda no bruto; os pesos ficam para a
-    # estimativa pontual, que e o que eles existem para corrigir.
+    # RAW counts kept in parallel. The HT weight amplifies stratum B by ~5.2x,
+    # which inflates any n used in a proportion test and manufactures
+    # significance where there is none. Every test below runs on raw counts; the
+    # weights are reserved for the point estimate, which is what they exist to
+    # correct.
     oport_n: dict[int, int] = collections.defaultdict(int)
     repeat_n: dict[int, int] = collections.defaultdict(int)
     for e in estrato_a + estrato_b:
@@ -105,8 +108,8 @@ def main() -> int:
                 "p0_bruto": round(rn / n, 4) if n else None}
 
     def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float] | None:
-        """IC de Wilson — não degenera com k=0 nem com n pequeno, ao contrário
-        do intervalo normal, que devolve [0,0] e finge certeza."""
+        """Wilson CI — does not degenerate at k=0 or small n, unlike the normal
+        interval, which returns [0,0] and feigns certainty."""
         if n == 0:
             return None
         p = k / n
@@ -116,13 +119,13 @@ def main() -> int:
         return (round(max(0.0, c - h), 4), round(min(1.0, c + h), 4))
 
     def compara(nome: str, a_ls, b_ls) -> dict:
-        """Diferença de proporções entre dois conjuntos de bins, no BRUTO."""
+        """Difference of proportions between two sets of bins, on RAW counts."""
         ka, na = sum(l["repeats_bruto"] for l in a_ls), sum(l["n_bruto"] for l in a_ls)
         kb, nb = sum(l["repeats_bruto"] for l in b_ls), sum(l["n_bruto"] for l in b_ls)
         if not (na and nb):
             return {"comparacao": nome, "conclusivo": False}
         pa, pb = ka / na, kb / nb
-        # Erro-padrão da diferença sob a hipótese de proporções independentes.
+        # Standard error of the difference under independent proportions.
         se = (pa * (1 - pa) / na + pb * (1 - pb) / nb) ** 0.5
         dif = pa - pb
         return {
@@ -150,19 +153,19 @@ def main() -> int:
             "unknown": desconhecido[b],
         })
 
-    # ── p0 POR ESTRATO — a comparacao agregada e confundida ─────────────────
-    # Primeira leitura desta analise concluiu "ha efeito de borda": p0 bruto de
-    # 0,397 em 0-2h contra 0,316 em 2h+, IC da diferenca sem cruzar zero. Estava
-    # ERRADO. A proporcao de estrato A varia por zona (37,5% em 0-2h contra
-    # ~30% depois) e p0_A ~ 0,96 contra p0_B ~ 0,05 — logo a diferenca agregada
-    # mede COMPOSICAO, nao borda. Aplicando a composicao de 2h+ a zona 0-2h:
-    # 0,30*0,967 + 0,70*0,056 = 0,329, contra os 0,316 observados. O "efeito"
-    # some.
+    # -- p0 BY STRATUM: the aggregate comparison is confounded -----------------
+    # The first reading of this analysis concluded "there is a boundary effect":
+    # raw p0 of 0.397 in 0-2h against 0.316 in 2h+, difference CI not crossing
+    # zero. It was WRONG. The share of stratum A varies by zone (37.5% in 0-2h
+    # against ~30% later) and p0_A ~ 0.96 against p0_B ~ 0.05 — so the aggregate
+    # difference measures COMPOSITION, not the boundary. Applying the 2h+
+    # composition to the 0-2h zone: 0.30*0.967 + 0.70*0.056 = 0.329, against the
+    # 0.316 observed. The "effect" vanishes.
     #
-    # Dentro de cada estrato nao ha gradiente algum. Por isso o agregado fica
-    # marcado como NAO USAR na saida, em vez de removido: quem reproduzir a
-    # analise precisa ver a armadilha, nao um resultado limpo que esconde que
-    # ela existe.
+    # Within each stratum there is no gradient at all. That is why the aggregate
+    # stays flagged DO-NOT-USE in the output rather than being removed: whoever
+    # reproduces the analysis needs to see the trap, not a clean result that
+    # hides that it existed.
     zonas: dict[str, dict[str, int]] = collections.defaultdict(
         lambda: {"A": 0, "B": 0, "repA": 0, "repB": 0})
     for e in estrato_a + estrato_b:
@@ -184,9 +187,9 @@ def main() -> int:
             "n_B": d["B"], "p0_B": round(d["repB"] / d["B"], 4) if d["B"] else None,
         })
 
-    # ── Incidencia de erro no UNIVERSO — o teste que de fato responde ───────
-    # `is_error` e censo: nao ha amostragem, nao ha peso, nao ha composicao a
-    # confundir. Se a fronteira do epoch tem efeito, ele aparece aqui limpo.
+    # -- Error incidence over the UNIVERSE: the test that actually answers -----
+    # `is_error` is a census: no sampling, no weighting, no composition to
+    # confound. If the epoch boundary has an effect, it shows up here cleanly.
     inc_bins = [(0, 2), (2, 4), (4, 6), (6, 12), (12, 24)]
     incidencia = []
     for lo, hi in inc_bins:
@@ -199,9 +202,9 @@ def main() -> int:
     dentro = [l for l in linhas if l["inicio_h"] < pr.WASHOUT_H]
     fora = [l for l in linhas if l["inicio_h"] >= pr.WASHOUT_H]
 
-    # Primeiras 2h APOS o washout vs o resto do epoch — o teste que interessa:
-    # se o washout de 2h fosse curto demais, a zona logo apos ele ainda
-    # carregaria o efeito de borda.
+    # First 2h AFTER the washout vs the rest of the epoch — the test that
+    # matters: if the 2h washout were too short, the zone right after it would
+    # still carry the boundary effect.
     logo_apos = [l for l in linhas if pr.WASHOUT_H <= l["inicio_h"] < pr.WASHOUT_H + 4]
     restante = [l for l in linhas if l["inicio_h"] >= pr.WASHOUT_H + 4]
 
