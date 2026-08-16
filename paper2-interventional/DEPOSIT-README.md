@@ -1,0 +1,153 @@
+# Interventional Memory — pre-registration and evidence package
+
+> *In the repository this file is `DEPOSIT-README.md`; in the deposit it is
+> `README.md`. The repository's own `README.md` is a navigation index for
+> contributors and points at working documents that are deliberately not
+> deposited.*
+
+**The study has not started.** No randomised epoch exists, no arm has been
+assigned, and no outcome has been observed. Everything measured in this package
+is **pre-treatment**, over a historical corpus. That is the point of depositing
+it now: the design, the numbers that size it, and the rules that will analyse it
+are fixed and timestamped **before** any data that could adapt them exists.
+
+## What this is
+
+Retrieval metrics (nDCG, recall) measure **representation**, not **decision** —
+and an agent's memory exists to keep it from repeating costly actions. This is a
+**pre-registered randomised crossover on live production traffic** that measures
+that directly: fleet-wide 24 h epochs, arms assigned from a public randomness
+beacon, a 2 h washout, and an outcome adjudicated by a panel of LLMs from three
+distinct training families under a frozen, hash-locked prompt.
+
+**The observation that retrieval is the wrong instrument is not ours.**
+MemoryArena (February 2026) published it first. Our contribution is the
+**method** — randomised, pre-registered, on traffic nobody selected — not the
+diagnosis. `RELATED-WORK.md` states the boundary precisely, and no claim in this
+package should be read against it.
+
+## The locked design
+
+| | |
+|---|---|
+| Epochs | **174** (2 arms), 24 h each, boundary 09:00 UTC |
+| Detectable effect | **30%** relative, via Sec. 3's escape clause — the 20% target is *not* amended and is *not* reached |
+| Sized on | the **upper** 95% confidence limit of the ICC, not the point estimate |
+| ICC | **0.0985**, 95% CI **[0.0570 ; 0.1814]** (Searle, one-way), 30 clusters, m̄ = 55.96 |
+| `r̂` / `p̂0` | **28.648576** opportunities per unit exposure / **0.116457** failure rate under control |
+| Design effect | **5.87** |
+| Severity cut τ | **S1**, outcome by strict majority; an exact tie resolves to `not_failure` |
+| Treatment dose | `W_OUTCOME = w × Δ_cut`, `Δ_cut = 0.043`, `w ∈ {0.5, 1.0, 2.0}` |
+| Carry-over bound δ | **36.67** |
+
+Two consequences are registered **before** any arm data exists, so that widening
+them later is visibly an amendment rather than a refinement: the effectively
+treated population is **~30% of failures** (severity S2 and above), and reaching
+the modal S1 failure would require `w ≈ 6.0` — three times the top of the locked
+band.
+
+## How to check that this was fixed in advance
+
+The package does not ask to be believed. Three mechanisms make it checkable:
+
+**Seeds declared before the randomness existed.** Each sampling seed names a
+`drand` (League of Entropy, quicknet) round, and the file naming it was committed
+and pushed to a public repository *before that round was emitted* — ten minutes
+before, in the case of extension 2. Repository history is the precedence stamp.
+`CALIBRATION-SEED.md`, `EXTENSION-SEED-2026-08-11.md`,
+`EXTENSION-2-SEED-2026-08-14.md` each carry the chain hash, the round, the
+derivation rule and a shell command a third party can run.
+
+**Artifacts pinned by hash.** `extract_episodes.py` (SHA-256
+`e860357bd9f1fc0690ec8a817b7f6d23ac0c237882152d3a8714f7c0af7748b2`) and the
+adjudication prompt body (`5b22f02c1a557417fe874b98cdf8a3ad6441cada74d69ace8e54f82b3438b03e`,
+in the file `adjudication_prompt.md`, which itself hashes to `3767fdb5…`) are
+locked. The prompt hash governed all 1,685 adjudication calls executed to date.
+The corpus the taxonomy was derived over is frozen by hash in
+`CORPUS-FREEZE.md`.
+
+**Scripts with no dependencies.** `sizing.py` and `pilot_replay.py` are pure
+standard library on purpose — a third party must be able to run them without
+installing anything. `scipy` appears only in a test that confronts the
+hand-rolled F distribution against it, never in the canonical path.
+
+## What is here
+
+**The registration**
+`PREREG-DRAFT.md` — the central document (v1.4). Everything that decides
+anything is here or cited from here. `PREREG-v1.4-2026-08-16.pdf` / `.html` are
+the same document rendered; the Markdown is authoritative.
+
+**How the design was sized, and what is uncertain in it**
+`SIZING-2026-08-14-v2.md` · `STABILITY-TEST.md` ·
+`WASHOUT-SENSITIVITY-2026-08-14.md` · `LINK-FEASIBILITY-2026-08-15.md` ·
+`DOSE-REACH-2026-08-15.json`
+
+**Provenance and precedence**
+`CORPUS-FREEZE.md` · `corpus-manifest-20260729T094609Z.txt` ·
+`CALIBRATION-SEED.md` · `EXTENSION-SEED-2026-08-11.md` ·
+`EXTENSION-2-SEED-2026-08-14.md`
+
+**Where this sits in the literature**
+`RELATED-WORK.md` — read before reading any novelty claim.
+
+**The instruments**
+`extract_episodes.py` (locked) · `sizing.py` · `pilot_replay.py` ·
+`run_panel.py` · `icc_bootstrap.py` · `task_regret.py` ·
+`delta_carryover.py` · `washout_sensitivity.py` ·
+`maturity_sensitivity.py` · `stability_sample.py` ·
+`dose_reach.mjs` · `link_feasibility.mjs`
+
+**The adjudication**
+`adjudication_prompt.md` (Portuguese, hash-locked — the prompt actually sent) ·
+`adjudication_prompt.en.md` (informative English translation, **not**
+interchangeable: a translated prompt is a different prompt and a different hash)
+· `positive-control.jsonl` (synthetic, never enters the action corpus)
+
+**Reading aids**
+`OUTPUT-KEYS.md` — the scripts emit JSON with Portuguese keys, for the reason
+given there; this translates them. `EXTERNAL-REFERENCES.md` — every reference in
+this package that points outside it, and where it actually lives.
+
+## What is deliberately not here
+
+The **adjudicated verdicts and the episode corpus** are not deposited. They are
+the contents of actions executed by live agents in production, and depositing
+them would publish that. What is deposited instead is everything needed to check
+the reasoning: the code that produced and consumed them, the seeds that
+determine every sample, and the hashes.
+
+This is a real limitation and it is stated rather than implied: a third party can
+verify every seed, every hash, and every computation, and can reproduce the
+sampling given an equivalent archive — but cannot re-derive the verdicts.
+
+## Language
+
+The package is in English. Two exceptions, both deliberate:
+`adjudication_prompt.md` is Portuguese because it is hash-locked and translating
+it would break the lock; and the scripts' JSON output keys are Portuguese because
+they are the names under which every published number was recorded — renaming
+them would make the scripts' output disagree with the documents. `OUTPUT-KEYS.md`
+translates them.
+
+## Honest reading of the state
+
+Four things a reviewer should know without having to dig for them:
+
+1. **The panel cannot prove it judged with `glm-5.2`** on verdicts collected
+   before 2026-08-14. The provider began serving `glm-5.3` for `glm-5.2`
+   requests and the harness recorded only the request. It records the served
+   model from now on; it cannot do so retroactively.
+2. **Two corpus epochs are partial** (2026-08-11 and 2026-08-14) through
+   right-censoring at extraction, declared before adjudication rather than after.
+3. **30 clusters is Sec. 9's floor, not slack.** The ICC interval is wide, and
+   the width is worth more calendar than the point estimate is.
+4. **The positive control was completed unblinded**, on 2026-08-15, after the
+   other four verdicts were known. It is reported because a result obtained
+   unblinded and declared is worth more than a gap explained away.
+
+## Citation
+
+Cite the DOI of this deposit. The pre-registration is versioned; `PREREG-DRAFT.md`
+carries its own version and a dated record of every lock and every correction,
+including the ones that were wrong the first time.
