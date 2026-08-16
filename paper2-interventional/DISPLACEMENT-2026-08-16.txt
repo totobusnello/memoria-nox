@@ -1,0 +1,70 @@
+DB            <production store>
+pool          500 rows, 10 brief slots
+salience      0.8873 -> 0.5982
+top-10 spread  0.0349   (Delta_cut locked at 0.043, drift -0.0081)
+rank 9->10 gap  0.0015
+
+dose                 W_OUT    sev              boost   reaches  displaceable
+w=2.0  (candidate)   0.0860  S1               0.0215       12             7
+w=2.0  (candidate)   0.0860  S2               0.0430       43            10
+w=2.0  (candidate)   0.0860  S3               0.0645      108            10
+w=2.0  (candidate)   0.0860  S4               0.0860      181            10
+w=2.0  (candidate)   0.0860  emp_median(S1)   0.0215       12             7
+w=2.0  (candidate)   0.0860  emp_mean         0.0282       20             9
+
+w=6.0  (candidate)   0.2580  S1               0.0645      108            10
+w=6.0  (candidate)   0.2580  S2               0.1290      274            10
+w=6.0  (candidate)   0.2580  S3               0.1935      472            10
+w=6.0  (candidate)   0.2580  S4               0.2580      490            10
+w=6.0  (candidate)   0.2580  emp_median(S1)   0.0645      108            10
+w=6.0  (candidate)   0.2580  emp_mean         0.0845      173            10
+
+w=8.0  (candidate)   0.3440  S1               0.0860      181            10
+w=8.0  (candidate)   0.3440  S2               0.1720      429            10
+w=8.0  (candidate)   0.3440  S3               0.2580      490            10
+w=8.0  (candidate)   0.3440  S4               0.3440      490            10
+w=8.0  (candidate)   0.3440  emp_median(S1)   0.0860      181            10
+w=8.0  (candidate)   0.3440  emp_mean         0.1127      235            10
+
+w=0.5  (LOCKED)      0.0215  S1               0.0054        3             4
+w=0.5  (LOCKED)      0.0215  S2               0.0107        5             5
+w=0.5  (LOCKED)      0.0215  S3               0.0161        7             6
+w=0.5  (LOCKED)      0.0215  S4               0.0215       12             7
+w=0.5  (LOCKED)      0.0215  emp_median(S1)   0.0054        3             4
+w=0.5  (LOCKED)      0.0215  emp_mean         0.0070        5             4
+
+w=1.0  (LOCKED)      0.0430  S1               0.0107        5             5
+w=1.0  (LOCKED)      0.0430  S2               0.0215       12             7
+w=1.0  (LOCKED)      0.0430  S3               0.0323       26             9
+w=1.0  (LOCKED)      0.0430  S4               0.0430       43            10
+w=1.0  (LOCKED)      0.0430  emp_median(S1)   0.0107        5             5
+w=1.0  (LOCKED)      0.0430  emp_mean         0.0141        6             6
+
+w=2.0  (LOCKED)      0.0860  S1               0.0215       12             7
+w=2.0  (LOCKED)      0.0860  S2               0.0430       43            10
+w=2.0  (LOCKED)      0.0860  S3               0.0645      108            10
+w=2.0  (LOCKED)      0.0860  S4               0.0860      181            10
+w=2.0  (LOCKED)      0.0860  emp_median(S1)   0.0215       12             7
+w=2.0  (LOCKED)      0.0860  emp_mean         0.0282       20             9
+
+W=0.10 (historical)  0.1000  S1               0.0250       15             8
+W=0.10 (historical)  0.1000  S2               0.0500       56            10
+W=0.10 (historical)  0.1000  S3               0.0750      144            10
+W=0.10 (historical)  0.1000  S4               0.1000      205            10
+W=0.10 (historical)  0.1000  emp_median(S1)   0.0250       15             8
+W=0.10 (historical)  0.1000  emp_mean         0.0328       27             9
+
+W=0.15 (historical)  0.1500  S1               0.0375       37            10
+W=0.15 (historical)  0.1500  S2               0.0750      144            10
+W=0.15 (historical)  0.1500  S3               0.1125      235            10
+W=0.15 (historical)  0.1500  S4               0.1500      326            10
+W=0.15 (historical)  0.1500  emp_median(S1)   0.0375       37            10
+W=0.15 (historical)  0.1500  emp_mean         0.0491       56            10
+
+W=0.20 (historical)  0.2000  S1               0.0500       56            10
+W=0.20 (historical)  0.2000  S2               0.1000      205            10
+W=0.20 (historical)  0.2000  S3               0.1500      326            10
+W=0.20 (historical)  0.2000  S4               0.2000      473            10
+W=0.20 (historical)  0.2000  emp_median(S1)   0.0500       56            10
+W=0.20 (historical)  0.2000  emp_mean         0.0655      113            10
+

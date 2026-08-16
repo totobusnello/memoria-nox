@@ -137,6 +137,57 @@ nothing, because it cannot separate *"outcome weighting does not work"* from
 behaviour at all is the prerequisite for a dose-finding study, not a substitute
 for one.
 
+## 7-bis. Measured after §7 — and it dissolves the trade-off
+
+Two further measurements were run, in this order, and the second reverses the
+recommendation the first supported.
+
+**(a) How many chunks are boosted at the same time.** `dose_reach.mjs` reports
+that at `w = 6` and `w = 8` all ten brief slots are displaceable, and that the
+pool of chunks able to clear the cut grows roughly tenfold (43 → 429 for S2). But
+that script counts chunks that *would* cross **if boosted**, and only signature
+matches are boosted. Measuring the actual simultaneous count, per opportunity:
+
+| dose | 0 boosted | 1 | 2 | ≥9 boosted |
+|---|---|---|---|---|
+| `w = 2.0` (locked) | 42.5% | 18.0% | 11.7% | 5.7% |
+| `w = 6.0` | 22.2% | 21.9% | 21.5% | 17.6% |
+| `w = 8.0` | 0% | 14.3% | 3.5% | **46.1%** |
+
+At `w = 8`, **46% of opportunities would boost nine or more chunks into a
+ten-slot brief**. The treated brief stops being a reweighted ranking and becomes
+failure-lessons-only; any effect measured would be confounded with the agent
+having lost its other context. **The high-dose recommendation of §7 dies here.**
+
+**(b) Which chunk the treatment designates.** Everything above assumed the
+*most recent* matching failure is the one boosted. That was never specified — it
+falls under the open item "which component performs the write". Designating
+instead the chunk that is **easiest to reach** (highest severity for its age),
+and boosting **exactly one per opportunity**:
+
+| dose | reach, most-recent | reach, best-match | ceiling, best-match |
+|---|---|---|---|
+| 1.0 | 0.00% | 0.00% | 0.00% |
+| **2.0 (already locked)** | 19.66% | **57.46%** | **60.18%** |
+| 3.0–6.0 | 22.93% | 77.81% | 75.62% |
+| 8.0 | 100.00% | 100.00% | 100.00% |
+
+**At `w = 2.0` — a dose that is already locked — the ceiling rises from 17.56% to
+60.18%, twice the 30% MDE.** And boosting exactly one chunk makes the saturation
+of (a) impossible by construction: one slot, never nine.
+
+So the trade-off between "reaches too little" and "saturates the brief" was not a
+property of the mechanism. It was a consequence of an unspecified choice —
+*which* matching chunk gets the boost — that the document had already listed as
+open, and whose default nobody had examined.
+
+**What this suggests, without locking it:** keep the dose band, add the rule that
+the treatment boosts exactly one designated chunk per opportunity — the
+easiest-to-reach match. `N_epochs` stays 174, H1 stays unconditional, and the
+brief stays diverse. The dose-response band still needs revisiting on its own
+terms: `w = 0.5` and `w = 1.0` reach nothing under either policy, so two of the
+three arms remain structurally inert.
+
 ## 8. Open, and not settled here
 
 - **The band is a proposal, not a lock.** `w ∈ {2.0, 6.0, 8.0}` gives reaches of

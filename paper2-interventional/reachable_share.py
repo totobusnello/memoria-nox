@@ -118,6 +118,9 @@ def main() -> int:
     ap.add_argument("--estrato-b-ids", required=True)
     ap.add_argument("--replicas", nargs="*", default=[])
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--politica", choices=("recente", "melhor"), default="recente",
+                    help="which matching chunk the treatment designates: the most "
+                         "recent (default) or the easiest to reach")
     ap.add_argument("--doses", default="",
                     help="comma-separated doses to evaluate instead of the locked band; "
                          "exploratory only, does not change any locked value")
@@ -159,6 +162,8 @@ def main() -> int:
     op_alc: dict[float, dict[object, float]] = {w: collections.defaultdict(float) for w in doses}
     rp_alc: dict[float, dict[object, float]] = {w: collections.defaultdict(float) for w in doses}
     idades: list[float] = []
+    competidores: dict[int, float] = collections.defaultdict(float)
+    comp_por_dose: dict[float, dict[int, float]] = {w: collections.defaultdict(float) for w in doses}
     sem_severidade = 0
 
     for e in estrato_a + estrato_b:
@@ -175,13 +180,51 @@ def main() -> int:
         tot += w_ep
         if e.estado == "failure":
             repeats_tot += w_ep
-        a_past = elegiveis[-1]            # MOST RECENT — see module docstring
+        if a.politica == "melhor":
+            # Pick the candidate that is EASIEST to reach, not the newest. Under a
+            # one-boosted-chunk-per-opportunity policy this is the chunk the
+            # treatment would designate, and it can only raise reach.
+            cands_sev = [(c, sev_por_ep.get(c.id)) for c in elegiveis]
+            cands_sev = [(c, nv) for c, nv in cands_sev if nv is not None]
+            if not cands_sev:
+                sem_severidade += w_ep
+                continue
+            a_past = min(cands_sev, key=lambda cn: w_min(
+                SEV_VALUE[cn[1]], (e.ts - cn[0].ts).total_seconds() / 86400.0))[0]
+        else:
+            a_past = elegiveis[-1]        # MOST RECENT — see module docstring
         nivel = sev_por_ep.get(a_past.id)
         if nivel is None:
             sem_severidade += w_ep
             continue
         sev = SEV_VALUE[nivel]
         idade = (e.ts - a_past.ts).total_seconds() / 86400.0
+
+        # How many chunks would be boosted AT THE SAME TIME for this opportunity.
+        #
+        # This is the question `dose_reach.mjs` cannot answer: its `reaches`
+        # counts chunks that WOULD cross the cut if boosted, but only chunks
+        # matching the signature are boosted. If typically 1-2 match, the
+        # treatment occupies 1-2 of 10 slots and the brief stays diverse; if 8
+        # match, the treated brief becomes nothing but failure lessons and the
+        # arm is a different system rather than a reweighted ranking.
+        n_boost = 0
+        for c in elegiveis:
+            nv = sev_por_ep.get(c.id)
+            if nv is None:
+                continue
+            idade_c = (e.ts - c.ts).total_seconds() / 86400.0
+            for w in doses:
+                if w >= w_min(SEV_VALUE[nv], idade_c):
+                    n_boost += 1
+                    break
+        competidores[min(n_boost, 12)] += w_ep
+        for w in doses:
+            k = sum(1 for c in elegiveis
+                    if sev_por_ep.get(c.id) is not None
+                    and w >= w_min(SEV_VALUE[sev_por_ep[c.id]],
+                                   (e.ts - c.ts).total_seconds() / 86400.0))
+            comp_por_dose[w][min(k, 12)] += w_ep
         idades.append(idade)
         por_sev[nivel] += w_ep
         need = w_min(sev, idade)
@@ -211,6 +254,13 @@ def main() -> int:
         "r_hat_restrito_por_dose": {str(w): round(alcanca[w] / horas_tot, 4) for w in doses},
         "p0_hat_restrito_por_dose": {
             str(w): (round(alcanca_rep[w] / alcanca[w], 6) if alcanca[w] else None) for w in DOSES
+        },
+        "chunks_impulsionados_simultaneos": {
+            str(k): round(v / tot, 4) for k, v in sorted(competidores.items())
+        },
+        "chunks_impulsionados_por_dose": {
+            str(w): {str(k): round(v / tot, 4) for k, v in sorted(comp_por_dose[w].items())}
+            for w in doses
         },
         "r_hat_irrestrito": round(tot / horas_tot, 4),
         "horas_analisadas": round(horas_tot, 2),
