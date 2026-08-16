@@ -113,14 +113,14 @@ const freshPool = db
 const cutMain = mainPool[N - 1];
 const cutFresh = freshPool[FRESH_SLOTS - 1];
 
-console.log("\n2/3. ALCANCE DE UMA MEMÓRIA DE FALHA RECÉM-ESCRITA");
-console.log(`   corte do slot ${N} principal   ${cutMain.toFixed(4)}`);
-console.log(`   corte do fresh slot ${FRESH_SLOTS}       ${cutFresh.toFixed(4)}`);
+console.log("\n2/3. REACH OF A NEWLY WRITTEN FAILURE MEMORY");
+console.log(`   main slot ${N} cut            ${cutMain.toFixed(4)}`);
+console.log(`   fresh slot ${FRESH_SLOTS} cut             ${cutFresh.toFixed(4)}`);
 console.log(
   `\n   chunk_type='lesson' => importance 0.90 (IMPORTANCE_BY_TYPE), access_count=0, pain=severidade`,
 );
 console.log(
-  "   sev  share    base      w=0.5     w=1.0     w=2.0   | entra nos fresh slots?   w mínimo",
+  "   sev  share    base      w=0.5     w=1.0     w=2.0   | enters the fresh slots?  min w",
 );
 
 for (const [lvl, sev] of Object.entries(SEVERITY)) {
@@ -144,11 +144,11 @@ for (const [lvl, sev] of Object.entries(SEVERITY)) {
   console.log(
     `   ${lvl}   ${(SHARE[lvl] * 100).toFixed(2).padStart(5)}%  ${base.toFixed(4)}   ` +
       doses.map((d) => d.toFixed(4)).join("    ") +
-      `  | ${doses.map((d) => (d >= cutFresh ? "SIM" : "não")).join(" ")}` +
-      `   ${wMin === 0 ? "já entra" : wMin.toFixed(1)}`,
+      `  | ${doses.map((d) => (d >= cutFresh ? "YES" : "no ")).join(" ")}` +
+      `   ${wMin === 0 ? "already in" : wMin.toFixed(1)}`,
   );
 }
 console.log(
-  `\n   Nenhuma dose alcança o slot principal: o melhor caso fica ${(cutMain - calculateSalience({ chunk_type: "lesson", pain: 1, importance: null, retention_days: 180, source_date: iso, created_at: iso, updated_at: iso, access_count: 0 }, now) - 2 * DELTA_CUT).toFixed(4)} abaixo do corte.`,
+  `\n   No dose reaches the main slot: the best case falls ${(cutMain - calculateSalience({ chunk_type: "lesson", pain: 1, importance: null, retention_days: 180, source_date: iso, created_at: iso, updated_at: iso, access_count: 0 }, now) - 2 * DELTA_CUT).toFixed(4)} below the cut.`,
 );
 db.close();

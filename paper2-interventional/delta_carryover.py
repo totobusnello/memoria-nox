@@ -109,7 +109,7 @@ def main() -> int:
 
     print(json.dumps({
         "definicao": "p95 da |diferenca epoch-a-epoch| na densidade de repeated "
-                     "failure por hora-sessao, transicoes same-arm (control->control)",
+                     "failure per session-hour, same-arm transitions (control->control)",
         "epochs": len(epochs),
         "transicoes_adjacentes_usadas": len(adjacentes),
         "transicoes_descartadas_por_salto": len(saltos),

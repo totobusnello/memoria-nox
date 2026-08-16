@@ -534,7 +534,7 @@ def main() -> int:
 
     epochs = sorted(ep for ep in horas if horas[ep] > 0)
     if a.min_epochs and len(epochs) < a.min_epochs:
-        print(f"ERRO: {len(epochs)} epochs analisaveis, minimo exigido {a.min_epochs}", file=sys.stderr)
+        print(f"ERROR: {len(epochs)} analysable epochs, minimum required {a.min_epochs}", file=sys.stderr)
         return 3
 
     tot_oport = sum(oport_por_epoch.values())

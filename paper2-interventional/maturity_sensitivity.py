@@ -152,7 +152,7 @@ def main() -> int:
     jovens = [ep for ep in todos_epochs if estoque[ep] < mediana_estoque]
 
     print(json.dumps({
-        "corte": f"estoque de assinaturas elegiveis >= mediana ({mediana_estoque})",
+        "corte": f"stock of eligible signatures >= median ({mediana_estoque})",
         "corpus_inteiro": bloco(todos_epochs),
         "metade_madura": bloco(maduros),
         "metade_jovem": bloco(jovens),

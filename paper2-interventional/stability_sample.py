@@ -77,7 +77,7 @@ def main():
 
     if a.score:
         if not OUT_VERDICTS.exists():
-            sys.exit(f"ainda nao existe: {OUT_VERDICTS}")
+            sys.exit(f"does not exist yet: {OUT_VERDICTS}")
         agree = disagree = 0
         transitions = {}
         for line in open(OUT_VERDICTS):
@@ -97,7 +97,7 @@ def main():
             transitions[(before, after)] = transitions.get((before, after), 0) + 1
         n = agree + disagree
         if n == 0:
-            sys.exit("nenhum par comparavel")
+            sys.exit("no comparable pair")
         p = agree / n
         # 95% Wilson CI
         z = 1.959963985
@@ -116,7 +116,7 @@ def main():
     try:
         beacon = fetch_round(ROUND)
     except Exception as e:
-        sys.exit(f"round {ROUND} indisponivel ({e}) — ainda nao saiu? Espere e repita.")
+        sys.exit(f"round {ROUND} unavailable ({e}) -- not emitted yet? Wait and retry.")
     rnd_hex = beacon["randomness"]
     print(f"round {ROUND} OK, randomness = {rnd_hex[:24]}...")
     if a.check:

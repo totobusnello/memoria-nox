@@ -133,7 +133,7 @@ def main() -> int:
     searle = (ponto["ic_low"], ponto["ic_high"])
     boot = (pct(0.025), pct(0.975))
     print(json.dumps({
-        "metodo": "bootstrap de cluster (epochs inteiros, com reposicao)",
+        "metodo": "cluster bootstrap (whole epochs, with replacement)",
         "reamostras": a.reamostras,
         "reamostras_degeneradas": degenerados,
         "seed": a.seed,
