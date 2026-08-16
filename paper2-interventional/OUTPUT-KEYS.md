@@ -78,6 +78,9 @@ are already in English.
 | `assinaturas_com_failure_conhecido` | signatures with a known best-case outcome |
 | `assinaturas_descartadas_por_n_baixo` | signatures dropped for too few episodes |
 | `min_por_assinatura` | minimum episodes per signature |
+| `assinaturas_usadas` | signatures actually used in the regret computation |
+| `episodios_sem_usage` | episodes with no token-usage record |
+| `erros` | errors |
 
 ## Washout and epoch boundary (`washout_sensitivity.py`, `delta_carryover.py`)
 
@@ -91,6 +94,7 @@ are already in English.
 | `logo_apos_washout_2_6h` | just after the washout, 2–6 h |
 | `restante_6h_em_diante` | remainder, 6 h onward |
 | `incidencia_de_erro_no_universo` | error incidence over the whole universe (census) |
+| `testes_confundidos_NAO_USAR` | *"confounded tests — DO NOT USE"*: comparisons kept in the output but marked unusable, because a stratified design makes an aggregate contrast measure stratum composition rather than the effect. Kept rather than deleted so the discarded analysis stays on the record |
 | `corpus_inteiro`, `corpus_total` | the full corpus |
 | `washout_h`, `gap_h`, `bin_h`, `inicio_h` | hours: washout length, gap, bin width, start |
 | `transicoes_adjacentes_usadas` | adjacent epoch transitions used |

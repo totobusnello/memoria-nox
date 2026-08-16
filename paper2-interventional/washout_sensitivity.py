@@ -218,7 +218,7 @@ def main() -> int:
         "restante_6h_em_diante": agreg(restante),
         "testes_confundidos_NAO_USAR": [
             compara("zona descartada (0-2h) vs analisada (2h+)", dentro, fora),
-            compara("logo apos washout (2-6h) vs restante (6h+)", logo_apos, restante),
+            compara("just after washout (2-6h) vs remainder (6h+)", logo_apos, restante),
         ],
         "por_estrato": por_estrato,
         "incidencia_de_erro_no_universo": incidencia,

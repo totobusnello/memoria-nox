@@ -34,23 +34,23 @@
 >
 > **Status at that point: v1.3 — 2026-08-15.** *(Date-gated conditions written in the future tense elsewhere in this document — "no earlier than 2026-08-09" and similar — were all satisfied before this status line was written.)* Every `[TO LOCK]` item that required analysis is closed. The two that remain resolve in sequence and by construction: `T_seed_assign` needs the OSF registration timestamp to exist first, and the calendar end date needs the first randomized epoch, which has not occurred. **No randomized epoch exists; the study has not started.** Everything measured here is pre-treatment, over a historical corpus with no arm assignment.
 >
-> ### ✅ `N_epochs` corrigido para cumprir o lock (b) — 2026-08-15
+> ### ✅ `N_epochs` corrected to comply with lock (b) — 2026-08-15
 >
-> Revisão adversarial (Kimi/Moonshot) encontrou, e a verificação confirmou: o lock **(b) de 2026-07-30** determina *"Size on the upper 95% confidence limit of the ICC, **not** the point estimate"* — sub-dimensionar invalida um estudo completo, super-dimensionar custa calendário — e explicitamente *"not a refinement"*.
+> An adversarial review (Kimi/Moonshot) found it and verification confirmed it: lock **(b), of 2026-07-30**, requires *"Size on the upper 95% confidence limit of the ICC, **not** the point estimate"* — under-sizing invalidates an entire study, over-sizing costs calendar — and explicitly *"not a refinement"*.
 >
-> **O primeiro lock deste dia violou isso sem dizer.** `N` = 154 era MDE 25% **no ponto estimado** — e nem isso: o valor canônico a 25% no ponto é **152** (`sizing.py` com os inputs de `SIZING-2026-08-14-v2.md`; a tabela §3 daquele documento sempre disse 152). O 154 era um erro de dois epochs que se propagou por sete menções sem nunca ter saído do código.
+> **This day's first lock violated that without saying so.** `N` = 154 was MDE 25% **at the point estimate** — and not even that: the canonical value at 25% on the point is **152** (`sizing.py` with the inputs from `SIZING-2026-08-14-v2.md`; that document's §3 table always said 152). The 154 was a two-epoch error that propagated through seven mentions without ever having come out of the code.
 >
-> ⚠️ **Os dois defeitos são independentes e o segundo é o menor.** Errar 152 por 154 é aritmética; dimensionar no ponto quando um lock manda dimensionar no limite superior é padrão de decisão. O primeiro se corrige com um número, o segundo com uma regra — e é o segundo que a memória `feedback_estimator_choice_inside_the_noise` já registrava. o lock (b) exigia a coluna do limite superior. Pior que o número foi o padrão: a mesma nota aplicava disciplina para *não* reduzir de 154 para 46 — "toda razão que aponta para estudo mais curto merece mais suspeita" — sem notar que 154 já era uma redução silenciosa frente ao que um lock anterior exigia. Conservador onde era barato, não conservador onde custava calendário.
+> ⚠️ **The two defects are independent, and the second is the smaller one.** Writing 154 for 152 is arithmetic; sizing on the point when a lock mandates the upper limit is a decision pattern. The first is corrected with a number, the second with a rule. Worse than the number was the pattern: the same note applied discipline *not* to cut from 154 to 46 — "any reason pointing at a shorter study deserves more suspicion" — without noticing that 154 was already a silent cut against what an earlier lock required. Conservative where it was cheap, not conservative where it cost calendar.
 >
-> **Corrigido no mesmo dia, antes de qualquer epoch randomizado: `N_epochs` = 174, MDE declarado em 30%, dimensionado no LIMITE SUPERIOR do ICC (0.1814).**
+> **Corrected the same day, before any randomised epoch: `N_epochs` = 174, MDE declared at 30%, sized on the ICC's UPPER LIMIT (0.1814).**
 >
-> | MDE | no ponto | **no limite superior — o que o lock (b) manda** |
+> | MDE | at the point | **at the upper limit — what lock (b) mandates** |
 > |---|---|---|
 > | 20% | 242 | 410 |
 > | 25% | ~~152~~ | 256 |
 > | **30%** | 102 | **174 ← LOCKED** |
 >
-> A escolha de 30% em vez de 25% é alocação de calendário (174 dias contra 256), tomada com a tabela inteira à vista e **antes** de existir qualquer dado de braço. O que ela compra não é um estudo mais curto que o correto — é o estudo correto sob o lock que já estava no papel. O que ela custa está no §3 e no abstract: efeitos abaixo de 30% relativos não serão detectados de forma confiável.
+> Choosing 30% over 25% is calendar allocation (174 days against 256), made with the whole table in view and **before** any arm data exists. What it buys is not a shorter study than the correct one — it is the correct study under the lock that was already on paper. What it costs is in §3 and in the abstract: effects below 30% relative will not be reliably detected.
 >
 > **Locked 2026-08-15:** `N_epochs` = **174** · MDE declared at **30%** via the §3 escape clause, sized on the **upper confidence limit** of the ICC per lock (b) (the 20% target is not amended, and is not reached) · `δ` = 36.67 · task-regret `p95` = 7.45 s / 65 206 tokens.
 >
@@ -395,9 +395,9 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 >
 > The 20% MDE target is **not** amended and remains on the record as what was wanted. What this clause does is exactly what it was written for: report honestly that the locked N does not reach 80% power at 20%, and say so in the abstract rather than let the reader assume otherwise. Sizing at 20% would require **410 epochs at the ICC's upper confidence bound** (242 at the point estimate) — 13.5 months of continuous fleet operation. The full grid, all on the same inputs, with the column lock (b) mandates in bold:
 >
-> | MDE relativo | no ponto | **no limite superior (0.1814)** |
+> | Relative MDE | at the point | **at the upper limit (0.1814)** |
 > |---|---|---|
-> | 20% (alvo travado em 29/07) | 242 | 410 |
+> | 20% (target locked 2026-07-29) | 242 | 410 |
 > | 25% | 152 | 256 |
 > | **30%** | 102 | **174 ← LOCKED** |
 > | 35% | 74 | 124 |
@@ -413,7 +413,7 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 | `session_hours_per_epoch` | **50.4667 — e este campo contém SESSÕES, não horas** |
 > | design effect | 5.87 |
 
-> ⚠️ **O nome `session_hours_per_epoch` mente, e o valor está certo.** O campo carrega a **contagem de sessões** por epoch, que é o `m̄` que o design effect exige (`DE = 1 + (m̄−1)·ICC`); `sizing.py` o consome como `m_bar` e `pilot_replay.py` o computa como `sum(sessões)/epochs`. Confere: `1 + (50.4667−1)×0.098459 = 5.87`. O §3 já registra a armadilha — *"`m̄` counts sessions, not session-hours — corrected 2026-07-30 after the harness exposed it"* — mas a correção foi feita no **valor** e o **nome do campo nunca mudou**. Renomeá-lo agora alteraria a saída JSON de um script cujos resultados já estão citados em documentos datados; fica declarado em vez de renomeado. **Quem reimplementar deve alimentar `sizing.py` com sessões por epoch, não com horas.**
+> ⚠️ **The name `session_hours_per_epoch` lies, and the value is right.** The field carries the **session count** per epoch, which is the `m̄` the design effect requires (`DE = 1 + (m̄−1)·ICC`); `sizing.py` consumes it as `m_bar` and `pilot_replay.py` computes it as `sum(sessions)/epochs`. It checks out: `1 + (50.4667−1)×0.098459 = 5.87`. §3 already records the trap — *"`m̄` counts sessions, not session-hours — corrected 2026-07-30 after the harness exposed it"* — but the correction was made to the **value** and the **field name never changed**. Renaming it now would alter the JSON output of a script whose results are already cited in dated documents; it is declared rather than renamed. **Anyone reimplementing must feed `sizing.py` sessions per epoch, not hours.**
 >
 > **Epoch length is NOT changed.** It stays at the locked 24 h. Shortening to 8 h would reach the same MDE in far fewer calendar days — a real saving — but it would be an amendment to a locked value, and it would lean on a 2 h washout whose sufficiency has been verified only *without* treatment (`WASHOUT-SENSITIVITY-2026-08-14.md`: the natural boundary effect is confined to <2 h, which removes an objection but does not establish carry-over behaviour under an active arm). Buying calendar with an unverified premise is the wrong trade for a study whose whole contribution is methodological.
 >

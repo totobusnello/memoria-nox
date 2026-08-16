@@ -134,12 +134,12 @@ def main():
     eps = episodes_by_id()
     missing = [e for e in picked if e not in eps]
     if missing:
-        sys.exit(f"{len(missing)} sorteados sem episodio de origem — abortar, corpus inconsistente")
+        sys.exit(f"{len(missing)} drawn without a source episode -- aborting, corpus inconsistent")
 
     OUT_SAMPLE.write_text(
         "\n".join(json.dumps(eps[e], ensure_ascii=False, sort_keys=True) for e in picked) + "\n"
     )
-    print(f"gravado: {OUT_SAMPLE}  ({N} episodios)")
+    print(f"written: {OUT_SAMPLE}  ({N} episodes)")
     print("\nproximo passo:")
     print(f"  python3 run_panel.py --episodes {OUT_SAMPLE} --only {PANELIST} \\")
     print(f"      --workers 2 --out {OUT_VERDICTS}")

@@ -73,7 +73,7 @@ const withEpisodeMeta = db
   .get().n;
 
 console.log("1. JOIN KEY");
-console.log(`   sessões distintas nos episódios      ${epSessions.size}`);
+console.log(`   distinct sessions in the episodes    ${epSessions.size}`);
 console.log(`   UUIDs em source_file de chunks       ${chunkUuids.size}`);
 console.log(`   INTERSECTION                         ${overlap}`);
 console.log(`   chunks originating in action-archive ${fromArchive}`);

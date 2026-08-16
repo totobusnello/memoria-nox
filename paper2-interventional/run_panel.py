@@ -132,7 +132,7 @@ def chamar_cli(alvo: str, texto: str, timeout: int) -> str:
 
 def carregar_prompt() -> tuple[str, str]:
     raw = (RAIZ / "adjudication_prompt.md").read_text()
-    corpo = raw.split("# Prompt (texto enviado a cada painelista, verbatim)", 1)[1]
+    corpo = raw.split("# Prompt (text sent to each panelist, verbatim)", 1)[1]
     corpo = corpo.split("<!--", 1)[0].strip()
     return corpo, hashlib.sha256(corpo.encode()).hexdigest()
 
@@ -315,7 +315,7 @@ def julgar(pan, ep, prompt, timeout) -> dict:
                    json.dumps({k: meta.get(k) for k in ("served", "stop", "blocos", "usage")},
                               ensure_ascii=False)[:300])
     else:
-        detalhe = "sem resposta e sem metadados (falha antes do HTTP)"
+        detalhe = "no response and no metadata (failure before HTTP)"
     return {**base_reg, "verdict": None, "level": None, "reason": "",
             "attempts": 2, "status": "quota" if pendente else "missing",
             "model_served": meta.get("served"), "stop_reason": meta.get("stop"),
@@ -348,12 +348,12 @@ def main() -> int:
                 subprocess.run([CLIS[base]["cmd"][0], "--version"],
                                capture_output=True, timeout=30, check=True)
             elif not get():
-                raise ValueError("vazia")
+                raise ValueError("empty")
         except Exception as e:
-            print(f"ERRO: credencial de '{pid}' indisponivel ({type(e).__name__})", file=sys.stderr)
+            print(f"ERROR: credential for '{pid}' unavailable ({type(e).__name__})", file=sys.stderr)
             return 2
 
-    print(f"prompt_sha256={phash}  episodios={len(eps)}  painelistas={len(painel)}  "
+    print(f"prompt_sha256={phash}  episodes={len(eps)}  panelists={len(painel)}  "
           f"chamadas={len(eps)*len(painel)}", file=sys.stderr)
 
     tarefas = [(p, e) for e in eps for p in painel]
