@@ -1,4 +1,15 @@
-# OSF Pre-Registration — v1.6, READY TO REGISTER
+# OSF Pre-Registration — v1.7, READY TO REGISTER
+
+> ### ✅ Designation rule locked, dose band revised — 2026-08-16
+>
+> A whole-package review (Codex) found that H1 could not be tested by the design as specified: stated on the **unconditional** repeated-failure density and powered for 30%, while the treatment's physical ceiling was **17.56%**. Four earlier reviews had each confirmed a constraint in isolation; none took the sum.
+>
+> Measurement (`REACHABILITY-2026-08-16.md`) located the cause in an **unspecified default**, not in the mechanism: *which* matching chunk receives the boost. Boosting all matches reaches 19.66% of opportunities; boosting **one designated match** — the easiest to reach — reaches **57.46%** at the same dose, and lifts the ceiling to **60.18%, twice the MDE**. It also makes brief saturation impossible by construction: at a dose that reaches everything, boosting all matches would put nine or more chunks into a ten-slot brief in **46%** of opportunities.
+>
+> **Locked:** one designated chunk per opportunity, and the band `w ∈ {2.0, 4.0, 7.5}` replacing `{0.5, 1.0, 2.0}` — measured, the two lower arms reached **exactly zero**, so the step this document previously pre-committed as the mechanism's signature would have appeared even with a null mechanism.
+>
+> **No estimate changes:** `r̂`, `p̂0`, the ICC and `N_epochs` = 174 are untouched, and H1 stays unconditional. Registered before any randomised epoch exists.
+
 
 > ### ✅ The assertion of inertness withdrawn — 2026-08-16
 >
@@ -24,7 +35,7 @@
 >
 > Closed by recording, not by deciding: `chunk_type`, `source_type`, `pain`, `importance`, `access_count`, `retention_days` and `tier` are now **LOCKED in §2** at exactly the values `dose_reach.mjs` and `link_feasibility.mjs` ran under. **No number changes**, because these were always the values behind them. What genuinely remains open is narrower and named: which component performs the write, the chunk's **free text** (which enters no salience term), and the write's instant within the epoch.
 >
-> **Status: v1.6 — 2026-08-16.** Everything the v1.3 status line asserted still holds: every `[TO LOCK]` item that required analysis is closed, the two that remain resolve by construction from the registration timestamp, and **no randomized epoch exists — the study has not started.**
+> **Status: v1.7 — 2026-08-16.** Everything the v1.3 status line asserted still holds: every `[TO LOCK]` item that required analysis is closed, the two that remain resolve by construction from the registration timestamp, and **no randomized epoch exists — the study has not started.**
 
 > ### ✅ Unblocked 2026-08-15 — `linked` locked as identity
 >
@@ -151,7 +162,7 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
 
 **Arms.**
 - **Control:** production brief policy `NOX_BRIEF_DIVERSITY=active`, activated by the systemd drop-in `d2-brief-diversity-active.conf` — **LOCKED 2026-07-29, SHA-256 `76726519559ffbe65283610b9d4efe4c17a0d74933363c235e3859ef28af267c`** (the companion `p2s1-shadow.conf`, which carries `NOX_EPOCH_SNAPSHOT`, hashes to `3d27b98d…`). The policy is pinned to the drop-in rather than to a repository commit because that file is what the running service reads; a commit hash would not have caught a drift between repo and host.
-- **Treatment:** identical + additive outcome-weighted term `W_OUTCOME × severity` on chunks linked to adjudicated-failure episodes, severity per the ordinal mapping in §4.1. **LOCKED 2026-07-29:** the coefficient is re-expressed as `W_OUTCOME = w × Δ_cut` — a multiple of the measured salience spread at the brief cut, not a bare constant — with sensitivity over `w ∈ {0.5, 1.0, 2.0}` pre-registered as secondary, replacing the absolute `{0.10, 0.15, 0.20}`. (Additive per the Paper-1 v3.4 lesson: multiplicative boosts are unstable.)
+- **Treatment:** identical + additive outcome-weighted term `W_OUTCOME × severity` on chunks linked to adjudicated-failure episodes, severity per the ordinal mapping in §4.1. **LOCKED 2026-07-29:** the coefficient is re-expressed as `W_OUTCOME = w × Δ_cut` — a multiple of the measured salience spread at the brief cut, not a bare constant — with sensitivity over `w` pre-registered as secondary, replacing the absolute `{0.10, 0.15, 0.20}`. **The band was `{0.5, 1.0, 2.0}` from 2026-07-29 to 2026-08-16 and is now `{2.0, 4.0, 7.5}`** — see the designation-and-band lock below; measurement showed the two lower arms could reach nothing. (Additive per the Paper-1 v3.4 lesson: multiplicative boosts are unstable.)
 
   > #### `linked` — LOCKED 2026-08-15. The link is identity, not a match.
   >
@@ -189,7 +200,35 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   > 3. **The modal failure is out of reach.** S1 is 69.73% of failures and would need `w ≈ 6.0` — three times the top of the locked band. **Registered now, before any arm data exists**, so that widening the band later is visibly an amendment and not a refinement.
   > 4. **`w` is therefore a real gradient**, not three labels for one brief: it decides the outcome for S2, where the mass is. This is what the T6 dose-ceiling worry needed and never had.
   >
-  > **Dose–response reading rule, revised.** The rule pre-committed above ("a gradient across `w` points at power, its absence at a ceiling") assumed a continuous dose. Measurement shows the action is a **threshold at the coverage-slot boundary**: for S2 the transition sits between `w = 1.0` and `w = 2.0`. The rule is restated: **a step between `w = 1.0` and `w = 2.0`, concentrated in S2 episodes, is the signature the mechanism predicts.** Its absence is evidence against the mechanism as specified; a smooth gradient across all three would be evidence that something other than coverage-slot admission is driving the outcome, and would be reported as such.
+  > ### Designation rule and dose band — LOCKED 2026-08-16, and both replace earlier values
+  >
+  > A whole-package review (Codex) observed that H1 is stated on the **unconditional** repeated-failure density and powered for a 30% relative change, while the treatment acts only on a subset of failures. Measuring the sum of the constraints — rather than each in isolation, as four earlier block-level reviews had done — showed the earlier specification could not test its own hypothesis. `REACHABILITY-2026-08-16.md` reports the measurement; the two locks below are its consequence.
+  >
+  > **(i) The treatment boosts exactly ONE designated chunk per opportunity: the matching failure chunk with the lowest `w_min(severity, age)` — the easiest to reach.** Which chunk receives the boost had never been specified; it fell under "which component performs the write", which §2 had classified as operational. It is not operational — it decides whether the study works.
+  >
+  > Two measurements, in the order they were run:
+  >
+  > | | boosting **all** matches | boosting **one designated** match |
+  > |---|---|---|
+  > | reach at `w = 2.0` | 19.66% | **57.46%** |
+  > | ceiling on the unconditional effect | 17.56% — **below** the 30% MDE | **60.18% — twice it** |
+  > | opportunities boosting ≥ 9 chunks into a 10-slot brief, at `w = 7.5` | **46%** | **0% — one slot, by construction** |
+  >
+  > The first row is why the earlier specification was untestable: with the whole reachable population removed at 100% efficacy, the outcome would still move less than the study was powered to detect. The third is why simply raising the dose was not the fix: at a dose that reaches everything, boosting every match turns the treated brief into failure-lessons-only in 46% of opportunities, and any effect would be confounded with the agent having lost the rest of its context. Designating one chunk removes both problems at once — and it was never a mechanism problem, but the unexamined default of a choice the document itself had listed as open.
+  >
+  > **(ii) The dose band becomes `w ∈ {2.0, 4.0, 7.5}`**, replacing `{0.5, 1.0, 2.0}`. Reach is a step function with three plateaus, and each arm sits at a plateau's **middle**, so its reach is robust to small error in the reach model rather than perched on a cliff:
+  >
+  > | `w` | `W_OUTCOME` | reach | ceiling | what enters |
+  > |---|---|---|---|---|
+  > | **2.0** | 0.0860 | **57.46%** | 60.18% | the freshest S2 |
+  > | **4.0** | 0.1720 | **77.81%** | 75.62% | all S2 |
+  > | **7.5** | 0.3225 | **100.00%** | 100.00% | S1 — 77.07% of matched failures |
+  >
+  > Why the old band could not stay: measured, `w = 0.5` and `w = 1.0` reach **exactly zero** under either designation policy. Two of the three arms were structurally inert, which means the *"step between `w = 1.0` and `w = 2.0`"* that the previous version of this paragraph pre-committed as the mechanism's signature **would have appeared even if the mechanism did not exist**. A reading rule that a null mechanism satisfies is not a reading rule. `w = 2.0` is retained, so one arm is unchanged.
+  >
+  > **Dose–response reading rule, restated.** The three arms are separated by *which severity class becomes admissible*, not by a smooth gradient. The mechanism predicts **a step at `w = 2.0 → 4.0` concentrated in S2 episodes, and a second at `4.0 → 7.5` concentrated in S1**. Absence of both is evidence against the mechanism as specified. A monotone effect *without* the steps landing on those transitions would indicate something other than coverage-slot admission is driving the outcome, and would be reported as such.
+  >
+  > **What does not change:** `r̂`, `p̂0`, the ICC, `N_epochs` = 174 and the outcome definition are untouched — H1 stays **unconditional**, and it is now testable because the ceiling exceeds the MDE at every arm. Registered before any randomised epoch exists.
   >
   > **The written chunk's structured fields — LOCKED 2026-08-16, because the dose numbers above already depend on them.** An earlier version of this paragraph called the chunk template "still open... neither enters `r̂`, `p̂0`, the ICC or the outcome definition". The claim about `r̂`, `p̂0` and the ICC is true and stands. The claim about the template was **wrong by omission**: every dose number in this section — the S2 threshold between `w = 1.0` and `w = 2.0`, the `w ≈ 6.0` that modal S1 would require, whether a written chunk enters the coverage slots at all — depends on the written chunk's field values, and those had never been written down. (The *reach* and *displaceable* counts are the exception: they are properties of the incumbent pool, not of the challenger, and the paragraph below separates the two.)
 
@@ -228,7 +267,7 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   >
   > Three things this fixes in place, none of which can now be chosen after seeing data:
   >
-  > 1. **At the structural minimum the locked band still holds.** At 24 h, S2 needs `w = 1.85`, inside `w ∈ {0.5, 1.0, 2.0}`. The `w = 1.0 → 2.0` threshold that §2 pre-commits as the mechanism's signature survives at the shortest age the design permits.
+  > 1. **At the structural minimum the locked band still holds.** At 24 h, S2 needs `w = 1.85`, and the band's lowest arm is `w = 2.0`. The S2 transition that §2 pre-commits as part of the mechanism's signature survives at the shortest age the design permits.
   > 2. **It stops holding at 6.66 days.** That is where S2's requirement crosses `w = 2.0`. Beyond it, S2 episodes are unreachable at every locked dose. The claim "the effectively treated population is ~30% of failures (S2 and above)" is therefore **conditional on recurrence within ≈ 1 week**, and is restated that way here rather than quietly carrying a stronger reading.
   > 3. **`w ≈ 6.0` for modal S1 was already the ceiling, not the requirement.** It is 6.03 at 24 h and 7.49 at 30 days. Widening the band to reach S1 would need more than the figure §2 quotes, and quoting the age-zero number without this table would have understated by how much.
   >
@@ -358,7 +397,7 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 > This is stated rather than repaired because repairing it requires a dose–response measurement that does not exist and cannot be obtained without running the intervention. What follows from it, pre-committed here:
 > 
 > 1. **A null on H1 is reported as jointly ambiguous.** It will be written as *"either no effect ≥30%, or a dose ceiling below 30% — this design cannot separate them"*, never as evidence that memory composition does not change behaviour.
-> 2. **The dose-arm contrast (`w ∈ {0.5, 1.0, 2.0}`) is the only internal handle on this.** If H1 is null while showing no gradient across `w`, a ceiling is the more parsimonious reading; a gradient without significance points at power. This is a reading rule, declared before data, not a test.
+> 2. **The dose-arm contrast (`w ∈ {2.0, 4.0, 7.5}`) is the only internal handle on this.** If H1 is null while showing no gradient across `w`, a ceiling is the more parsimonious reading; a gradient without significance points at power. This is a reading rule, declared before data, not a test.
 > 3. **The shadow dose–age curve is reported alongside the primary result regardless of outcome**, because it is the only pre-treatment evidence about how much of the brief the treatment can actually reach.
 >
 > ---
@@ -759,7 +798,7 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
    >
    > This is **consistent with, not contrary to,** the T6 dose ceiling. The two measure different things: the architecture blocks *unweighted* new content from the primary slots (T6: a max-pain, max-importance chunk entered 1 of 10 briefs, via the coverage slot), while `W_OUTCOME` at 0.15 **overrides that architecture outright** — the same chunk plus 0.15 lands above the pool maximum.
    >
-   > ⚠️ *(Quoted reviewer text below. The literal string `[TO LOCK: α]` that appears inside it is **HISTORICAL** — `α` was locked on 2026-07-29 as `w × Δ_cut`, `w ∈ {0.5, 1.0, 2.0}`. A grep for `[TO LOCK` will match it; it is not an open item.)*
+   > ⚠️ *(Quoted reviewer text below. The literal string `[TO LOCK: α]` that appears inside it is **HISTORICAL** — `α` was locked on 2026-07-29 as `w × Δ_cut`; the band was revised to `w ∈ {2.0, 4.0, 7.5}` on 2026-08-16. A grep for `[TO LOCK` will match it; it is not an open item.)*
    > **Recommendation:** parameterize `W_OUTCOME` **relative to the observed salience spread at the cut** rather than as a round absolute. E.g. `W_OUTCOME = α × (s_1 − s_N)`, which at the measured top-10 spread makes α = 1 mean "a maximum-severity episode moves from the cut to the top" — an interpretable unit that survives corpus drift, whereas 0.15 silently means something different as the distribution changes. **[TO LOCK: α]**, with the absolute value it implies recorded at lock.
    >
    > Caveat: the figures are the **ceiling** (severity = 1.0, chunk already in the pool). Realized displacement also depends on how many episode-linked chunks exist and their severity distribution — which needs item 0.
@@ -821,7 +860,7 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
 |---|---|
 | `N_epochs` | ✅ **174, LOCKED 2026-08-15** (§3, exercising the "powered only for effects ≥ X%" clause at 30%; sized on the ICC **upper** confidence limit 0.1814, as lock (b) of 2026-07-30 requires). |
 | numeric `δ` | ✅ **36.67, LOCKED 2026-08-15** (Appendix B.5) — the only one of the five that genuinely needed the same-arm transition distribution. |
-| `α` (spread-relative dose) | ✅ **Already locked 2026-07-29** and has been for weeks. The `[TO LOCK: α]` still visible in §9 sits *inside a quoted adversarial-review block*; it is the reviewer's recommendation, which §2 **accepted and implemented** as `W_OUTCOME = w × Δ_cut` with `w ∈ {0.5, 1.0, 2.0}`. `w` *is* that `α`. Listing it here was a stale reference to a resolved item. |
+| `α` (spread-relative dose) | ✅ **Already locked 2026-07-29** and has been for weeks. The `[TO LOCK: α]` still visible in §9 sits *inside a quoted adversarial-review block*; it is the reviewer's recommendation, which §2 **accepted and implemented** as `W_OUTCOME = w × Δ_cut`. `w` *is* that `α`. (The band itself was revised on 2026-08-16 to `{2.0, 4.0, 7.5}`; the lock on the *form* of `α` is the 2026-07-29 one.) Listing it here was a stale reference to a resolved item. |
 | `p95` winsorization | ✅ **LOCKED 2026-08-15** — 7.45 s (time) and 65 206 tokens (cost), measured over the frozen action corpus by `task_regret.py`. It never depended on same-arm transitions: it is the winsorization point of *task regret* (§4.2, secondary), a different quantity entirely. An earlier note here said it was "not derivable from the current corpus" — **that was wrong**: the archive carries `usage` blocks on the messages that emit each `tool_use`, so both components are measurable. |
 | calendar end date | ⏳ Blocked structurally — requires the first randomized epoch, which has not occurred. |
 | `T_seed_assign` | ⏳ Blocked structurally — requires the OSF registration to exist first. |

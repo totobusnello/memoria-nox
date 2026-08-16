@@ -37,7 +37,7 @@ package should be read against it.
 | `r̂` / `p̂0` | **28.648576** opportunities per unit exposure / **0.116457** failure rate under control |
 | Design effect | **5.87** |
 | Severity cut τ | **S1**, outcome by strict majority; an exact tie resolves to `not_failure` |
-| Treatment dose | `W_OUTCOME = w × Δ_cut`, `Δ_cut = 0.043`, `w ∈ {0.5, 1.0, 2.0}` |
+| Treatment dose | `W_OUTCOME = w × Δ_cut`, `Δ_cut = 0.043`, `w ∈ {2.0, 4.0, 7.5}`, boosting **one designated chunk** per opportunity |
 | Carry-over bound δ | **36.67** |
 
 Two consequences are registered **before** any arm data exists, so that widening
@@ -82,8 +82,8 @@ hand-rolled F distribution against it, never in the canonical path.
 ## What is here
 
 **The registration**
-`PREREG-DRAFT.md` — the central document (v1.6). Everything that decides
-anything is here or cited from here. `PREREG-v1.6-2026-08-16.pdf` / `.html` are
+`PREREG-DRAFT.md` — the central document (v1.7). Everything that decides
+anything is here or cited from here. `PREREG-v1.7-2026-08-16.pdf` / `.html` are
 the same document rendered; the Markdown is authoritative.
 
 **How the design was sized, and what is uncertain in it**

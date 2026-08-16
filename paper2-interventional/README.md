@@ -28,7 +28,7 @@ Métricas de retrieval (nDCG/recall) medem **representação**, não **decisão*
 |---|---|
 | Rota do desenho (§0) | ✅ Route 2-lite, 12/07 |
 | Epoch 24 h · washout 2 h · τ=S1 · painel · prompt | ✅ 29/07 |
-| `α` (dose relativa ao spread) | ✅ 29/07 — `w × Δ_cut`, `w ∈ {0.5, 1.0, 2.0}` |
+| `α` (dose relativa ao spread) | ✅ 29/07 — `w × Δ_cut` · **banda revisada 16/08 para `w ∈ {2.0, 4.0, 7.5}` + regra de designação de 1 chunk** (`REACHABILITY-2026-08-16.md`) |
 | `linked` = **identidade** (chunk escrito do episódio) · escrita nos 2 braços | ✅ 15/08 |
 | `N_epochs` = **174** · "powered only for effects ≥ 30%" · dimensionado no **limite superior** do ICC | ✅ 15/08 (corrigido no mesmo dia: o primeiro lock, 154 ao ponto, violava o lock (b) de 30/07 — e 154 era 152) |
 | `δ` (bound de carry-over) = **36.67** | ✅ 15/08 |
