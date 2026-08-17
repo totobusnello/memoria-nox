@@ -3,6 +3,27 @@
 > **2026-08-15.** Exploratory, pre-treatment, read-only. Changes no locked
 > number. Script: `link_feasibility.mjs`. It exists because the dose measurement
 > (`dose_reach.mjs`) exposed that §2's `linked` term had never been defined.
+>
+> ⚠️ **SUPERSEDED BAND — §3 and §4 below are computed at `w ∈ {0.5, 1.0, 2.0}`
+> and are kept verbatim as the record of what was measured on 2026-08-15.** The
+> registered band became `{2.0, 4.0, 7.5}` on 2026-08-16, because `w = 0.5` and
+> `w = 1.0` were found to reach exactly zero opportunities — two of three arms
+> were structurally inert. Three statements below are false under the current
+> band and are **not** corrected in place, for the same reason `dose_reach.mjs`
+> keeps its old doses: this file is the instrument that produced
+> `DOSE-REACH-2026-08-15.json`, and a dated measurement that silently acquires
+> today's numbers is worse than one that is plainly out of date.
+>
+> | §3 / §4 says | under `{2.0, 4.0, 7.5}` |
+> |---|---|
+> | *"the best case falls 0.0214 short of the cut"* | exact for `w = 2.0`, S4; at `w = 7.5` the best case **exceeds** the main cut by `0.2151` |
+> | *"the modal failure is out of reach … `w ≈ 6.0`, three times the top of the locked band"* | 6.0 is **below** the top; S1 needs `w = 5.97` and is reachable at `w = 7.5` |
+> | *"the effective treated population is ~30% of failures (S2 and above)"* | 30% at `w = 2.0`; **100%** at `w = 7.5` |
+>
+> The `w_min` column of §3's table — 6.0 / 1.8 / 0.4 / 0 — is **not** superseded:
+> it does not depend on the band, and it recomputes to 5.97 / 1.82 / 0.44 at the
+> published precision. `PREREG-DRAFT.md` §2 is the only authority on the current
+> band and carries the corrected consequences.
 
 ## 1. There is no join key — and it is not a recoverable oversight
 

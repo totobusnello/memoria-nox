@@ -33,26 +33,60 @@ package should be read against it.
 | Epochs | **174** (2 arms), 24 h each, boundary 09:00 UTC |
 | Detectable effect | **30%** relative, via Sec. 3's escape clause — the 20% target is *not* amended and is *not* reached |
 | Sized on | the **upper** 95% confidence limit of the ICC, not the point estimate |
-| ICC | **0.0985**, 95% CI **[0.0570 ; 0.1814]** (Searle, one-way), 30 clusters, m̄ = 55.96 |
+| ICC | **0.0985**, 95% CI **[0.0570 ; 0.1814]** (Searle, one-way), 30 clusters, m̄ = 55.96 over the 27 that carry ≥ 2 sessions |
 | `r̂` / `p̂0` | **29.838403** opportunities per unit exposure / **0.111813** failure rate under control — the latter a **floor**, since unadjudicable outcomes sit in the denominator and can only move into the numerator |
-| Design effect | **5.87** |
+| Design effect | **5.87**, i.e. `1 + (50.4667 − 1) × 0.098459` |
 | Severity cut τ | **S1**, outcome by strict majority; an exact tie resolves to `not_failure` |
 | Treatment dose | `W_OUTCOME = w × Δ_cut`, `Δ_cut = 0.043`, `w ∈ {2.0, 4.0, 7.5}`, boosting **one designated chunk** per opportunity |
 | Carry-over bound δ | **36.67** |
 
-Two consequences are registered **before** any arm data exists, so that widening
-them later is visibly an amendment rather than a refinement: the effectively
-treated population is bounded by the dose's reach (severity S2 and above) **provided the
-failure recurs within about a week**, and reaching the modal S1 failure would
-require `w ≈ 6.0` — three times the top of the locked band.
+> **Two different `m̄` appear above and the difference is not a typo.** The ICC's
+> `m̄ = 55.96` averages over the **27** epochs that carry at least two sessions —
+> an epoch with one session contributes no within-variance and is excluded by the
+> registered rule, reported rather than dropped. The design effect's
+> `m̄ = 50.4667` averages over all **30**. Recomputing `DE` from 55.96 gives 6.41
+> and will look like an error; it is the wrong denominator, not the wrong
+> arithmetic.
 
-The one-week condition is not a caveat added in prose; it is measured. The
-written chunk's salience decays as `2^(−age/180)` through the 0.15-weighted
-recency term, and Sec. 3 requires the chunk to be at least 24 h old before it can
-act. At 24 h an S2 episode needs `w = 1.85`, inside the locked band; at **6.66
-days** it crosses `w = 2.0` and is out of reach at every locked dose. The dose
-table in Sec. 2 is a **freshest-case ceiling**, and it is published with the
-decay alongside it rather than as a single number.
+Two consequences are registered **before** any arm data exists, so that widening
+them later is visibly an amendment rather than a refinement.
+
+**First: the boost acts on the two coverage slots and never on the eight primary
+ones — by construction.** Until 2026-08-17 this package derived that from
+arithmetic instead: at the band `w ∈ {0.5, 1.0, 2.0}` no dose could clear the
+main cut, the best case falling `0.0214` short. That margin is exact for
+`w = 2.0` at severity S4, the top of the **old** band, and it stopped being true
+when the band became `{2.0, 4.0, 7.5}` on 2026-08-16 — at `w = 7.5` the best case
+**exceeds** the main cut by `0.2151`, and an S2 chunk crosses it up to 6.75 days
+of age. The restriction is now a property of where the boost is applied, which is
+also how every reachability number in this package was measured, rather than a
+consequence that a change of band could silently repeal. `PREREG-DRAFT.md` §2
+carries the full correction and the three neighbouring claims that went stale
+with it.
+
+**Second: the population the treatment can reach depends on the arm, and reaching
+the modal failure is the top arm's property alone.** S1 is 69.73% of failures and
+needs `w = 5.97` at age zero, rising to 6.03 at 24 h and 7.49 at 30 days; the
+band's top is 7.5. So S1 is unreachable at `w = 2.0` and `w = 4.0`, and reachable
+at `w = 7.5` within a 30-day window — a margin of 0.0056 in `w`, far too thin to
+be treated as a design property. S2 (29.62%) enters from `w = 2.0`, and S3 and S4
+from below the band entirely.
+
+The age condition is not a caveat added in prose; it is measured. The written
+chunk's salience decays as `2^(−age/180)` through the 0.15-weighted recency term,
+and Sec. 3 requires the chunk to be at least 24 h old before it can act. At 24 h
+an S2 episode needs `w = 1.85`, inside the band; at **6.66 days** it crosses
+`w = 2.0` and is out of reach at that dose — though not at `w = 4.0`, which
+carries S2 to 97 days. The dose table in Sec. 2 is a **freshest-case ceiling**,
+published with the decay alongside it rather than as a single number.
+
+A third constraint, measured on 2026-08-17 and not visible in the reach
+arithmetic at all: the coverage pool is filtered by **age** as well as salience —
+7 days in the agent-scoped pool, 30 in the global one. It costs `w = 2.0` exactly
+nothing (that dose only ever reaches S2, which the 6.66-day cliff already caps
+below the window), 18.45 points at `w = 4.0` and 11.94 at `w = 7.5`. **H1's
+testability rests on the `w = 2.0` ceiling of 60.18% against a 30% MDE, so the
+primary contrast is untouched**; the cost falls on the dose–response arms.
 
 ## How to check that this was fixed in advance
 
@@ -106,6 +140,15 @@ permutation draws for the sharp-null test, so the test cannot drift from the
 design it is testing. `verify` recomputes a published sequence and re-checks
 the registered balance tolerance. Until 2026-08-16 the registration referred to
 this script as if it existed; it did not.
+
+`claims_check.py` — **the guard against the defect that produced this version.**
+It recomputes every band-dependent quantity this package states, compares each
+against the number the documents print, and then sweeps the package for the
+superseded phrasings, failing on any occurrence outside a declared allowlist of
+dated records. `--show` prints the table. It exists because prose asserting a
+computed result is a cache with no invalidation: nothing links the sentence to
+the parameter it depends on, and a reviewer checks whether the sentence is
+coherent, not whether its inputs still hold.
 
 `extract_episodes.py` (locked) · `sizing.py` · `pilot_replay.py` ·
 `reachable_share.py` · `run_panel.py` · `icc_bootstrap.py` · `task_regret.py` ·

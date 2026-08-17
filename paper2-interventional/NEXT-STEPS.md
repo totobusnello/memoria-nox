@@ -10,14 +10,21 @@ O gate do arXiv ID do Paper 1 **não bloqueia mais o Paper 2**. Ele bloqueava a 
 
 ## ✅ PUBLICADO no Zenodo — 17/08/2026
 
-**DOI da versão** `10.5281/zenodo.21964094` · **DOI do conceito**
-`10.5281/zenodo.21964093` (resolve sempre para a última versão — é o que se cita).
-v1.10, 38 arquivos, CC-BY-4.0. O carimbo público existe e é anterior a qualquer
-epoch, que é a propriedade que o desenho precisa.
+**DOI do conceito** `10.5281/zenodo.21964093` — resolve sempre para a última
+versão, e é o único que se cita. **v1.9** foi publicada em 17/08 sob o DOI de
+versão `10.5281/zenodo.21964094`, com 38 arquivos, CC-BY-4.0. O carimbo público
+existe e é anterior a qualquer epoch, que é a propriedade que o desenho precisa.
+
+**v1.10 é uma versão nova**, com 39 arquivos: as quatro afirmações do §2 que
+ficaram obsoletas quando a banda mudou, os três portões do fresh pool, os quatro
+travamentos que faltavam, e `claims_check.py` — o guarda que recomputa cada
+afirmação dependente da banda e varre o pacote atrás das frases superadas. Ela
+recebe DOI de versão próprio na publicação; anotar aqui quando sair.
 
 ⚠️ **Os arquivos ficaram imutáveis.** Qualquer conserto daqui em diante é uma
 versão nova, nunca uma edição — o custo de um defeito subiu, e a auditoria
-arquivo-a-arquivo passa a ser pré-requisito de cada versão.
+arquivo-a-arquivo passa a ser pré-requisito de cada versão. A v1.10 é a primeira
+prova disso: ela existe porque a v1.9 saiu com uma frase falsa na linha 306.
 
 ⚠️ **Ainda falta o OSF, e não é formalidade.** O pré-registro nomeia OSF 15
 vezes, incluindo *"becomes binding only when registered on OSF with a public

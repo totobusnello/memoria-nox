@@ -15,8 +15,9 @@ A whole-package review (Codex, 2026-08-16) observed that Sec. 1's H1 is stated o
 the **unconditional** repeated-failure density and sized for a **30% relative**
 change in it, while the locked treatment can only act on failures of severity S2
 and above. Four earlier block-level reviews had each confirmed a constraint —
-two coverage slots, first admission only, S1 out of reach, reach decaying with
-chunk age — and none took the sum.
+two coverage slots, first admission only, S1 out of reach **at the band then in
+force** (`{0.5, 1.0, 2.0}`; §7-bis below is what replaced it), reach decaying
+with chunk age — and none took the sum.
 
 The sum is the finding. Each constraint was declared honestly; together they
 bound the maximum achievable effect below the effect the study is powered to
