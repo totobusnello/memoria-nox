@@ -12,7 +12,7 @@
 >
 > and the equal-size formula therefore **understates** it. Understating the design effect understates the variance, which under-powers the study — and lock **(b) of 2026-07-30** exists precisely to forbid that direction: *"under-sizing invalidates an entire study, over-sizing costs calendar"*, sized on the ICC's **upper** confidence limit, *"not a refinement"*. So **`N` = 174 never satisfied the lock it was written to satisfy.** Correcting it is not discretion; leaving it would be knowingly running a study below its own registered floor.
 >
-> | | published (v1.9–v1.10) | corrected |
+> | | as registered (v1.9 deposited, v1.10 undeposited) | corrected |
 > |---|---|---|
 > | design-effect formula | `1 + (m̄ − 1)×ρ` | `1 + ((cv² + 1)×m̄ − 1)×ρ` |
 > | `cv²` | absent (implicitly 0) | **0.3833 — now a locked input** |

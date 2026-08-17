@@ -36,8 +36,13 @@ being wrong that looked like being right:
    multiplication sign. It was mapped to `-`, which is fine for the first and
    corrupts the second — `` `DE = 1 + (m̄ − 1)·ρ` `` rendered as
    `1 + (m_bar - 1)-rho`, which reads as **subtraction**. The numeric guard
-   passed every time, correctly: no value changed, only an operator. **It stood
-   in the v1.9 and v1.10 deposits.** Fixed at the source (multiplication is now
+   passed every time, correctly: no value changed, only an operator. **It is in
+   the v1.9 deposit**, the only version published on Zenodo (`10.5281/zenodo.21964094`,
+   38 files) — v1.10 was written and never deposited, so the corrupted operator
+   reached the public record exactly once. ⚠️ *An earlier phrasing of this bullet
+   said "the v1.9 and v1.10 deposits", which was an unverified assertion: it
+   assumed a deposit existed because a version existed. Corrected after querying
+   the Zenodo API.* Fixed at the source (multiplication is now
    `×`, which `asciify` spaces) and defended by `check_no_multiplication_dot`,
    which aborts on a middle dot touching an operand. That guard's own limit is
    in its docstring and is real: multiplication written with spaces on *both*
@@ -51,5 +56,10 @@ being wrong that looked like being right:
 
 The guard exists because a mechanical rewrite already damaged this document
 once: the decimal-separator pass of v1.4 turned `a ∈ {0,1}` into `a ∈ {0.1}` and
-it stood in four deposits. `PREREG-DRAFT.md` records it in the **v1.9 entry** of
+it stood in four deposits. ⚠️ **That count is unverified and is probably wrong:**
+the Zenodo concept carries exactly **one** published version, so "four deposits"
+cannot mean four published records. It may have meant four rendered PDF/HTML
+pairs, or four drafts. It is flagged rather than rewritten because guessing what
+it meant would replace an uncertain number with an invented one.
+`PREREG-DRAFT.md` records it in the **v1.9 entry** of
 its version history — no longer the topmost note, since v1.11 opens the document.
