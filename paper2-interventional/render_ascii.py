@@ -47,7 +47,44 @@ EMOJI = {
 }
 
 
+# U+00B7 MIDDLE DOT is used in this package for TWO unrelated things: as a list
+# separator ("117 control - 39 per dose") and as a multiplication sign. MAP sends
+# it to "-", which is harmless for the first and CORRUPTS THE SECOND: the source
+# `(m_bar - 1)*rho`, written with a middle dot, rendered as `(m_bar - 1)-rho`,
+# which a reader parses as subtraction. The numeric guard is structurally blind to
+# this -- no value changed, only an operator -- and it stood in the v1.9 and v1.10
+# deposits. Fixed at the source on 2026-08-17 (multiplication is now U+00D7, which
+# asciify spaces), and this guard exists so the class cannot silently return.
+#
+# The discriminator is TIGHT AND DELIBERATELY INCOMPLETE: a middle dot with no
+# whitespace on at least one side is multiplication (`)*rho`, `0.55*importance`,
+# `K*T`, `delta*|p1-p0|`). A separator in this package always has whitespace on
+# both sides, so this yields no false positives -- which is the property that
+# matters for a guard that aborts a render.
+#
+# What it does NOT catch, stated rather than glossed: multiplication written WITH
+# spaces on both sides, e.g. `(0.043 . sev)`. Two such cases existed and were
+# fixed by hand. There is no mechanical way to tell them from a separator, so the
+# residual risk is real and is recorded here instead of being papered over.
+MULTIPLICATION_DOT = re.compile(r"\S\u00b7|\u00b7\S")
+
+
+def check_no_multiplication_dot(text: str, label: str = "input") -> None:
+    """Abort if U+00B7 touches an operand, i.e. is being used as multiplication."""
+    hits = [
+        text[max(0, m.start() - 45):m.end() + 45].replace("\n", " ")
+        for m in MULTIPLICATION_DOT.finditer(text)
+    ]
+    if hits:
+        raise SystemExit(
+            f"{label}: U+00B7 used as multiplication in {len(hits)} place(s) -- it "
+            f"transliterates to '-' and would read as subtraction. Use U+00D7.\n  "
+            + "\n  ".join(hits[:8])
+        )
+
+
 def asciify(text: str) -> str:
+    check_no_multiplication_dot(text, "source")
     for k, v in EMOJI.items():
         text = text.replace(k, v)
     # "x" is a word character, so a bare substitution glues: `)x0.098459`.

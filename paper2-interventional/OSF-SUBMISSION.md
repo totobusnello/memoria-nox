@@ -10,8 +10,8 @@
 
 | Arquivo | Onde | Nota |
 |---|---|---|
-| `PREREG-v1.11-2026-08-17.pdf` | scratchpad da sessão (1,8 MB, 75 pp) | **Anexo principal.** Emoji e símbolos convertidos para ASCII; gerado via Chrome headless a partir do HTML (a instalação LaTeX local está incompleta). Números travados conferidos no texto extraído |
-| `PREREG-v1.11-2026-08-17.html` | scratchpad (263 KB) | Preserva tabelas e formatação melhor que o PDF; anexar como secundário se o OSF aceitar |
+| `PREREG-v1.11-2026-08-17.pdf` | scratchpad da sessão (1,9 MB, 85 pp) | **Anexo principal.** Emoji e símbolos convertidos para ASCII; gerado via Chrome headless a partir do HTML (a instalação LaTeX local está incompleta). Números travados conferidos no texto extraído |
+| `PREREG-v1.11-2026-08-17.html` | scratchpad (290 KB) | Preserva tabelas e formatação melhor que o PDF; anexar como secundário se o OSF aceitar |
 | `PREREG-DRAFT.md` | repo | O original. O PDF é derivado dele |
 
 ⚠️ **O que NÃO anexar:** nada de `~/.paper2-verdicts/` nem do `action-archive`. Os episódios carregam conteúdo real de trabalho. O registro aponta para hashes (`CORPUS-FREEZE.md`, `corpus-manifest-*.txt`), não para o corpus.
@@ -51,7 +51,7 @@
 ## Verificações feitas antes de declarar v1.0
 
 - [x] Todos os `[TO LOCK]` que exigiam análise, fechados (N, δ, p95; α já estava)
-- [x] **17/08 — emenda v1.11, `N` 174 → 234.** Correção de erro, não reajuste de tamanho: o efeito de desenho vinha da fórmula de **cluster igual** (`1 + (m̄−1)·ρ`) num desenho cujos epochs vão de 1 a 115 sessões. Sob a fórmula correta (`cv²` = 0,3833, travado como **entrada**) o DE vai de 9,973754 para 13,482928 e o `N` no limite superior do ICC a MDE 30% vai para **234** (alocação 117/39/39/39, exata). Direção importa: a fórmula antiga **sub-dimensionava**, que é o que o lock (b) de 30/07 existe para proibir — logo 174 nunca satisfez o padrão sob o qual foi escrito. MDE inalterada em 30%; `r̂`, `p̂0`, ICC, `m̄`, `λ₀`, `δ`, banda de dose e alcance intocados. Emendado **antes** de qualquer epoch randomizado, de qualquer braço atribuído e do round do beacon
+- [x] **17/08 — emenda v1.11, `N` 174 → 234.** Correção de erro, não reajuste de tamanho: o efeito de desenho vinha da fórmula de **cluster igual** (`1 + (m̄−1)×ρ`) num desenho cujos epochs vão de 1 a 115 sessões. Sob a fórmula correta (`cv²` = 0,3833, travado como **entrada**) o DE vai de 9,973754 para 13,482928 e o `N` no limite superior do ICC a MDE 30% vai para **234** (alocação 117/39/39/39, exata). Direção importa: a fórmula antiga **sub-dimensionava**, que é o que o lock (b) de 30/07 existe para proibir — logo 174 nunca satisfez o padrão sob o qual foi escrito. MDE inalterada em 30%; `r̂`, `p̂0`, ICC, `m̄`, `λ₀`, `δ`, banda de dose e alcance intocados. Emendado **antes** de qualquer epoch randomizado, de qualquer braço atribuído e do round do beacon
 - [x] Números travados consistentes em todas as menções — corrigidas duas contradições reais: a tabela de riscos listava "MDE 20%" como mitigação, e o `N` estava dimensionado no **ponto** do ICC quando o lock (b) de 30/07 manda dimensionar no **limite superior**. Lock final: **N = 174, MDE 30%, limite superior** (e o valor histórico a 25% no ponto era 152, não 154)
 - [x] Cabeçalho do documento atualizado de "DRAFT v0.3 (NOT LOCKED)" para "v1.0, READY TO REGISTER"
 - [x] ~~PDF/HTML regerados em 15/08 12:08~~ (v1.1, superado pelo lock do `linked`) e conferidos no texto extraído: `174 randomized epochs`, `30% relative`, `36,67`, `7,45 s`, `65 206`, `0,1814`. Os arquivos v1.0 (com `154`/`25%`) foram apagados para não serem anexados por engano
