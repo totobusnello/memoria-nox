@@ -55,6 +55,7 @@ repository and host (`PREREG-DRAFT.md` §2).
 | `paper2-interventional/PILOT-PROJECTION.md` — the pilot's projected quantities, superseded by `SIZING-2026-08-14-v2.md` and kept as the record of what was projected before it was measured | `PREREG-DRAFT.md`, both `EXTENSION-*-SEED` files |
 | `paper2-interventional/REVIEWS-PREREG.md` — the full adversarial verdict on v0.1 (GLM-5.2: 5 FATAL / 7 GRAVE / 10 minor) | `PREREG-DRAFT.md` §9, version history |
 | `paper2-interventional/tests/test_icc_ci.py` — confronts the pure-stdlib F implementation of `icc_bootstrap.py` against `scipy`; the only place `scipy` appears, and never on the canonical path | `SIZING-2026-08-14-v2.md` |
+| `paper2-interventional/OSF-SUBMISSION.md` — the OSF submission checklist, in Portuguese, carrying the abstract that will be registered there. Not deposited because it is an operating checklist rather than a result, and because the abstract it carries is reproduced in the registration itself; cited here because `claims_check.py` names it as one of the files it sweeps, and because on 2026-08-17 it was found holding two stale claims and the wrong attachment version — the reason the sweep now covers Portuguese as well as English | `claims_check.py` |
 
 **`REVIEWS-PREREG.md` deserves a word, because its absence reads worse than the
 others.** This package argues that a registration should show the review that

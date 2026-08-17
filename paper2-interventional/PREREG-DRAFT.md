@@ -75,6 +75,21 @@
 > Worth stating rather than fixing quietly, because the correction that caused it was itself one of this package's mechanical censuses. A census reads and reports; a mechanical **rewrite** can introduce exactly the class of silent content change the censuses exist to catch. The guard the pattern needed — never touch a comma inside `{}` or `[]` — is obvious only after it fails.
 
 
+> ### The v1.10 adversarial round, and the fact that most of it did not happen the first time
+>
+> Four voices were dispatched over v1.10: Codex (`gpt-5.6-sol`), GLM-5.3, Kimi (Moonshot) and Grok 4.5. **Three of the four returned a review with no provider receipt**, and two of those, when asked plainly, said the wrapper shell had read the files and answered by itself rather than calling the external model. This is worth registering rather than tidying away, because of what it did to the verdict: Codex's **unattributed** review returned **PASS — no fatal or grave defects**, complete with a per-number verification table; its **attributed** re-run, with a receipt showing `exit: 0` over 548 KB of output, returned **FAIL with three GRAVE defects**. One of them was the abstract that will become the permanent OSF registration, which still carried the superseded reach claim and named the **v1.8** PDF as its attachment — the version predating the band change and every correction since.
+>
+> What the round produced, after attribution:
+>
+> | voice | outcome | what it found |
+> |---|---|---|
+> | Codex | receipt, FAIL | the OSF abstract; a stale claim in the repository README hidden by a filename collision in the guard's own allowlist; and that `claims_check.py` overstated what it checked |
+> | GLM-5.3 | receipt on the second dispatch, after the first timed out at 600 s | six defects, including that 60.18% is the *weakest arm's* ceiling and not the pooled primary's (78.6%), and two errors introduced by the v1.10 corrections themselves |
+> | Kimi | timed out; partial output reported honestly | the lead that became §2's scope correction — the largest change in this version |
+> | Grok | provider error (HTTP 400), reported with the exit code and no substitute analysis | — |
+>
+> Two lessons are recorded because they generalise past this study. **A review without a receipt is not a review**: the shell is a capable model of the same training family as the author, so what it produces is plausible, correctly formatted, and structurally unable to disagree in the way an external voice can. And **the failures that timed out were failures of scope, not of credentials** — the wrapper answered a trivial probe in seconds; the prompts had pointed at a 220 KB document. Re-dispatching GLM against a narrow target produced six findings where the broad target had produced none that could be attributed.
+
 > ### The v1.9 adversarial round, including the finding that did not survive
 >
 > Two independent voices read the v1.9 material — one the script (Codex / gpt-5.6-sol), one the design changes (DeepSeek V4-Pro). Five findings were adopted and are marked at the point of each change: the **dose–response power table** (§2, the largest of them — no power analysis for the secondary contrast existed), the **cluster-granularity justification** for the BCa jackknife, the **unequal-voiding clause** on bootstrap stratification, the **narrowing of the negative-binomial fallback** so a boundary fit is a result rather than a trigger, and the **correction of what the calendar slack is for**.
