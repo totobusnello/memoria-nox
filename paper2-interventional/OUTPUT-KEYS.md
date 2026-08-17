@@ -140,3 +140,40 @@ are already in English.
 | `taxa` | rate |
 | `razao_p99_p95` | ratio of the 99th to the 95th percentile |
 | `delta_p95` | delta at the 95th percentile |
+
+## Dose reachability (`reachable_share.py`)
+
+⚠️ **Added 2026-08-17.** This section did not exist, in any version, and its
+absence was the largest hole in this glossary: `reachable_share.py` produces the
+reach figures the registration leans on hardest — the 58.27% at `w = 2.0` and the
+60.18% ceiling that H1's testability rests on — and every one of its keys is in
+Portuguese. A reader opening `REACHABILITY-TOP1-2026-08-16.json` had nothing to
+read it with. It was found by re-reading the files that were byte-identical to
+the previous version, on the principle that "already audited" is not a property
+of a file, only of an occasion.
+
+| Key | Meaning |
+|---|---|
+| `oportunidades_ponderadas` | opportunities, Horvitz–Thompson weighted |
+| `sem_severidade_do_a_past` | weighted opportunities whose `a_past` carries no severity |
+| `distribuicao_severidade_do_a_past` | severity distribution of the seeding past failure |
+| `idade_do_a_past_dias` | age of the seeding past failure, in days (`mediana`, `p25`, `p75`, `max`) |
+| `fracao_alcancavel_por_dose` | share of opportunities the dose can reach |
+| `r_hat_restrito_por_dose` | `r̂` restricted to reachable opportunities |
+| `p0_hat_restrito_por_dose` | `p̂0` restricted to reachable opportunities |
+| `chunks_impulsionados_simultaneos` | distribution of how many chunks are boosted at once |
+| `chunks_impulsionados_por_dose` | the same, split by dose |
+| `r_hat_irrestrito` | `r̂` over all opportunities, unrestricted |
+| `horas_analisadas` | session-hours analysed |
+| `repeats_ponderados` | weighted repeats |
+| `teto_de_efeito_incondicional_por_dose` | ceiling on the unconditional effect: the share of repeats the dose can touch |
+
+**The `_run` block — added 2026-08-17, and absent from both deposited JSONs.**
+Runs from this version stamp their own provenance: `doses`, `politica` (the
+designation rule, `melhor` or `recente`), `replicas` (the instability replica
+files), `cut_fresh`, `delta_cut`, and `inputs_sha256`. It exists because the two
+deposited artifacts record none of it — recovering how they were produced meant
+trusting a sentence in another document, and both were in fact run with flags
+that differed from the script's own defaults. **A JSON without `_run` is
+therefore a pre-2026-08-17 artifact**, and that is how the two in this deposit
+identify themselves; `REACHABILITY-2026-08-16.md` §9 records their command lines.
