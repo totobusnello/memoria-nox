@@ -324,12 +324,14 @@ Observed roster activity over the frozen snapshot window (2026-07-18 → 07-28) 
   >
   > **Allocation — registered, and previously only implied.** `sizing.py` powers a two-arm contrast at K = 87 per arm; the dose band above is three-valued and is called a real gradient. The allocation that satisfies both:
   >
-  > | group | epochs | role |
-  > |---|---|---|
-  > | control | **87** | primary comparator |
-  > | `w = 2.0` | **29** | ⎫ |
-  > | `w = 4.0` | **29** | ⎬ pooled as *treatment* in the primary |
-  > | `w = 7.5` | **29** | ⎭ |
+  > | group | epochs (as published) | **epochs — AMENDED 2026-08-17** | role |
+  > |---|---|---|---|
+  > | control | 87 | **117** | primary comparator |
+  > | `w = 2.0` | 29 | **39** | ⎫ |
+  > | `w = 4.0` | 29 | **39** | ⎬ pooled as *treatment* in the primary |
+  > | `w = 7.5` | 29 | **39** | ⎭ |
+  >
+  > ⚠️ The amended column is the live allocation; 234 = 117 + 3×39 exactly, where 174 = 87 + 3×29 also happened to divide. See the head of this document for why `N` moved.
   >
   > The primary contrast is 87 vs 87, exactly what the power calculation assumes, so `r̂`, `p̂0`, the ICC and `N_epochs` are untouched. **The dose–response reading rule of the designation block is therefore secondary and runs at 29 epochs per dose.**
   >
@@ -343,6 +345,17 @@ Observed roster activity over the frozen snapshot window (2026-07-18 → 07-28) 
   > > | 50% | 81.0% | 99.8% |
   > >
   > > **MDE at 80% power: 49.4% relative** at the ICC's upper bound (38.9% at the point estimate), against 30% for the primary.
+  > >
+  > > ⚠️ **AMENDED 2026-08-17 (v1.11) — the allocation grew and the secondary did NOT get stronger.** Under the corrected unequal-cluster design effect the allocation is **117 control · 39 per dose**, and a reader could reasonably assume 39 buys more than 29. It does not. Recomputed at the amended inputs:
+  > >
+  > > > | true relative effect | power at **K = 39** (dose vs dose, amended) | power at **K = 29** (as published) | power at **K = 117** (primary, amended) |
+  > > > |---|---|---|---|
+  > > > | 20% | 18.2% | 18.3% | 44.6% |
+  > > > | **30%** | **36.7%** | 36.8% | **80.1%** |
+  > > > | 40% | 60.0% | 60.2% | 96.9% |
+  > > > | 50% | 80.8% | 81.0% | 99.8% |
+  > >
+  > > **MDE at 80% power: 49.5% relative** at the ICC's upper bound (38.6% at the point estimate) — against **49.4%** before the amendment. The two are the same instrument: `K` rose from 29 to 39 by very nearly the factor by which the design effect rose, so the *effective* sample per dose arm is unchanged. **The correction restores the primary's power and buys the dose–response contrast nothing.** Said explicitly because the arithmetic invites the opposite reading, and because a secondary that looks stronger on paper while being identical in fact is exactly the sort of thing a reader should be able to catch without recomputing.
   > >
   > > **The consequence, stated so it cannot be read the other way: absence of the predicted steps is close to uninformative.** At the effect size the study is powered for, the dose contrast would miss the step about two times in three. A null dose–response is therefore reported as *"not detectable at this n"* and **is not** reported as evidence against the mechanism. Only a step that *appears* carries information here, and asymmetric evidence is what a 29-epoch contrast can honestly deliver. Registered before any epoch exists, so this cannot later be presented as a caveat discovered in the data.
   >
