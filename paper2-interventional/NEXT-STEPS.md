@@ -8,9 +8,29 @@ O **pré-registro está pronto para o OSF** (v1.9). Nenhum `[TO LOCK]` espera an
 
 O gate do arXiv ID do Paper 1 **não bloqueia mais o Paper 2**. Ele bloqueava a *publicação*; o pré-registro e o piloto seguiram sem ele, e o moderador respondeu em 13/08 que o atraso é volume — sem ação nossa. Não recontatar.
 
+## ✅ PUBLICADO no Zenodo — 17/08/2026
+
+**DOI da versão** `10.5281/zenodo.21964094` · **DOI do conceito**
+`10.5281/zenodo.21964093` (resolve sempre para a última versão — é o que se cita).
+v1.9, 38 arquivos, CC-BY-4.0. O carimbo público existe e é anterior a qualquer
+epoch, que é a propriedade que o desenho precisa.
+
+⚠️ **Os arquivos ficaram imutáveis.** Qualquer conserto daqui em diante é uma
+versão nova, nunca uma edição — o custo de um defeito subiu, e a auditoria
+arquivo-a-arquivo passa a ser pré-requisito de cada versão.
+
+⚠️ **Ainda falta o OSF, e não é formalidade.** O pré-registro nomeia OSF 15
+vezes, incluindo *"becomes binding only when registered on OSF with a public
+timestamp"*, e o `T_seed_assign` está definido como *"strictly after the OSF
+registration timestamp"*. Sem o registro no OSF esse âncora não tem a que se
+prender, e um revisor que lê "OSF" e acha só um preprint no Zenodo tem uma
+pergunta sobre procedimento — a pior de responder. Registrar no OSF apontando
+para o DOI do Zenodo resolve, sem desfazer nada: o carimbo do Zenodo é anterior e
+só reforça a precedência.
+
 ## O próximo passo, e por que é este
 
-**Registrar no OSF.** É o que transforma o documento de arquivo-no-nosso-repo em ativo público datado. Sem timestamp externo anterior à coleta, a palavra "pré-registrado" no paper inteiro se apoia só no nosso `git log` — que é bom, mas é nosso.
+**Registrar no OSF.** O Zenodo já transformou o documento em ativo público datado — o que falta é o registro no registro que o próprio documento nomeia (ver acima). Sem ele, `T_seed_assign` não tem âncora e a cláusula de vinculação não é literalmente verdadeira.
 
 Registrar dispara, em ordem: `T_seed_assign` fica declarável (deve ser posterior ao timestamp OSF e anterior ao primeiro epoch de tratamento) → primeiro epoch randomizado → data-limite de calendário. Os dois `[TO LOCK]` restantes caem por consequência.
 
