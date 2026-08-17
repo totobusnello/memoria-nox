@@ -142,11 +142,25 @@ for one.
 Two further measurements were run, in this order, and the second reverses the
 recommendation the first supported.
 
-**(a) How many chunks are boosted at the same time.** `dose_reach.mjs` reports
+**(a) How many chunks are boosted at the same time.** `dose_reach.mjs`, re-run
+against the production store at candidate doses `w ∈ {2.0, 6.0, 8.0}`, reports
 that at `w = 6` and `w = 8` all ten brief slots are displaceable, and that the
-pool of chunks able to clear the cut grows roughly tenfold (43 → 429 for S2). But
-that script counts chunks that *would* cross **if boosted**, and only signature
-matches are boosted. Measuring the actual simultaneous count, per opportunity:
+pool of chunks able to clear the cut grows roughly tenfold (43 → 429 for S2).
+
+> **Where these numbers live, and why the script alone will not reproduce
+> them.** The raw output of that run is deposited as
+> `DISPLACEMENT-2026-08-16.txt` — the `43` and the `429` are its `w=2.0 S2` and
+> `w=8.0 S2` rows. The deposited `dose_reach.mjs` carries a **hardcoded** dose
+> array at the band that was registered until 2026-08-16, `w ∈ {0.5, 1.0, 2.0}`,
+> and takes no dose flag; the candidate doses were obtained by editing that
+> array. The script is left frozen because it is the instrument behind
+> `DOSE-REACH-2026-08-15.json`, which dated documents cite. So: to reproduce
+> this paragraph, edit `DOSES` in the script; to *check* it without re-running
+> anything, read `DISPLACEMENT-2026-08-16.txt`.
+
+But that script counts chunks that *would* cross **if boosted**, and only
+signature matches are boosted. Measuring the actual simultaneous count, per
+opportunity:
 
 | dose | 0 boosted | 1 | 2 | ≥9 boosted |
 |---|---|---|---|---|

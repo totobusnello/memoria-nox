@@ -13,6 +13,29 @@
  * EVERY LOCKED DOSE IS BELOW THE LOWEST VALUE EVER MEASURED. This script
  * measures reach at the doses that will actually run.
  *
+ * ────────────────────────────────────────────────────────────────────────────
+ * ⚠️ SUPERSEDED BAND — read this before reading the numbers below.
+ *
+ * The band `w ∈ {0.5, 1.0, 2.0}` written throughout this file, and the label
+ * `(LOCKED)` on those three doses, were true from 2026-07-29 to 2026-08-16.
+ * They are NOT the registered band any more. §2 of PREREG-DRAFT.md replaced it
+ * with `w ∈ {2.0, 4.0, 7.5}` on 2026-08-16, because measurement showed that
+ * `w = 0.5` and `w = 1.0` reach EXACTLY ZERO opportunities — two of the three
+ * arms were structurally inert.
+ *
+ * The band is deliberately NOT updated here. This file is the instrument that
+ * produced `DOSE-REACH-2026-08-15.json`, which dated documents already cite;
+ * changing the doses would make the script disagree with its own published
+ * output. Same reasoning as OUTPUT-KEYS.md gives for not renaming the JSON
+ * keys: a glossary is cheap, a divergence between artifact and document is the
+ * defect this study exists to avoid.
+ *
+ * To measure the CURRENT band, edit DOSES below — which is also how the
+ * candidate doses `w ∈ {2.0, 6.0, 8.0}` reported in
+ * `REACHABILITY-2026-08-16.md` §7-bis were produced. That run's raw output is
+ * deposited as `DISPLACEMENT-2026-08-16.txt`; this script takes no dose flag.
+ * ────────────────────────────────────────────────────────────────────────────
+ *
  * READ-ONLY. Opens the production DB read-only, runs the same candidate-pool
  * query as `src/api/brief.ts::fetchRankedPool`, re-ranks with the real
  * `calculateSalience`, and reports displacement reach. It writes nothing.
@@ -61,8 +84,15 @@ const SEVERITY = {
   emp_mean: 0.3275,
 };
 
-// The doses. `locked` are the ones that will run; `historical` reproduce the
-// 2026-07-26 numbers so the two measurements can be compared on one scale.
+// The doses. `historical` reproduce the 2026-07-26 numbers so the two
+// measurements can be compared on one scale.
+//
+// ⚠️ The `(LOCKED)` labels and the `locked: true` flag below are FROZEN AT THE
+// 2026-07-29 STATE and are wrong as a description of the current registration:
+// the band became `w ∈ {2.0, 4.0, 7.5}` on 2026-08-16. They are kept verbatim
+// because this file must keep producing `DOSE-REACH-2026-08-15.json` byte for
+// byte. Read `locked` as "locked when this ran", never as "locked now"; §2 of
+// PREREG-DRAFT.md is the only authority on the current band.
 const DELTA_CUT = 0.043; // frozen pre-treatment at the 2026-07-29 lock
 const DOSES = [
   { label: "w=0.5  (LOCKED)", w: 0.5, W: 0.5 * DELTA_CUT, locked: true },

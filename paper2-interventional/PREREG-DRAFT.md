@@ -44,6 +44,19 @@
 > Recorded because a pre-registration that lists only the findings it accepted is reporting a filtered review.
 
 
+> ### File-by-file audit of the deposit — 2026-08-17
+>
+> Before publication, all 38 deposited files were checked individually rather than in aggregate. They are byte-identical to the repository (38/38 by MD5), all twelve Python instruments compile, no retired value appears outside a correction note, and no damaged set notation survives outside the table that documents it. Three defects were found, all documentary, none touching a locked number:
+>
+> **(1) Two instruments asserted a superseded lock.** `dose_reach.mjs` labelled the doses `w = 0.5 / 1.0 / 2.0` as `(LOCKED)`, and `link_feasibility.mjs` called the same band "the locked dose" — the band this document replaced on 2026-08-16 *because the two lower arms reach exactly zero*. A deposited file was therefore stating, as current, a lock the registration had discarded. **Fixed by annotation, not by editing the band:** both scripts are the instruments behind `DOSE-REACH-2026-08-15.json` and `LINK-FEASIBILITY-2026-08-15.md`, and changing their doses would make each disagree with its own published output — the same reasoning `OUTPUT-KEYS.md` gives for not renaming JSON keys.
+>
+> **(2) A citation pointed at the wrong instrument.** `REACHABILITY-2026-08-16.md` §7-bis attributed displaceability at `w = 6` and `w = 8` to `dose_reach.mjs`, whose deposited dose array is hardcoded to the old band and takes no flag. The numbers are in the deposit — they are rows of `DISPLACEMENT-2026-08-16.txt` — but that file was never named at the citation. Now it is, together with what a reader must edit to reproduce the run.
+>
+> **(3) Seven cited artifacts were neither deposited nor declared.** `EXTERNAL-REFERENCES.md` exists precisely to account for what sits outside the package, and covered 19 of 26. The missing seven are now listed: three live in the public repository (`PILOT-PROJECTION.md`, `REVIEWS-PREREG.md`, `tests/test_icc_ci.py`) and four are operational cron scripts on the production host, each now paired with the artifact that makes its claim checkable without it.
+>
+> The audit's own false alarm is worth one line: `tests/test_icc_ci.py` was first reported as existing nowhere public, because the check matched basenames and the file is one directory down. A censusing script that normalises away part of the identifier will manufacture findings as readily as it catches them.
+
+
 > ### ✅ Missing-data rule: code brought to the document — 2026-08-16
 >
 > §5 has locked, since 2026-07-29: *"unadjudicable outcomes → third category, reported, **excluded from numerator**"*. `pilot_replay.py`'s stratified branch — the one that produced every canonical number — was excluding them from the **denominator as well**: complete-case analysis, a rule that was never registered. Its census branch always followed §5, so one script implemented two rules depending on a flag, and the document's own rule was the one not in force.

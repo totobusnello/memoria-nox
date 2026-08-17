@@ -13,7 +13,15 @@
  *   2. If a failure memory were WRITTEN from an episode, would it reach the
  *      brief through the main slots?
  *   3. Would it reach the brief through the coverage (`freshSlots = 2`) slots,
- *      and does the locked dose `w ∈ {0.5, 1.0, 2.0}` decide the outcome there?
+ *      and does the dose decide the outcome there?
+ *
+ * ⚠️ SUPERSEDED BAND. The `w ∈ {0.5, 1.0, 2.0}` used at line ~146 was the
+ * registered band from 2026-07-29 to 2026-08-16. It is not any more: §2 of
+ * PREREG-DRAFT.md replaced it with `w ∈ {2.0, 4.0, 7.5}` on 2026-08-16, after
+ * measurement showed the two lower doses reach EXACTLY ZERO opportunities. The
+ * band is not updated here on purpose — this file produced the numbers cited in
+ * `LINK-FEASIBILITY-2026-08-15.md`, and editing it would make the instrument
+ * disagree with its own dated output. §2 is the authority on the current band.
  *
  * Run on the VPS, from the nox-mem directory:
  *   NOX_SALIENCE_MODULE=<path to dist/salience.js> NOX_DB_PATH=<path to nox-mem.db> \
@@ -143,6 +151,7 @@ for (const [lvl, sev] of Object.entries(SEVERITY)) {
     access_count: 0,
   };
   const base = calculateSalience(chunk, now);
+  // Superseded band — see the header. Frozen so the dated output reproduces.
   const doses = [0.5, 1.0, 2.0].map((w) => base + w * DELTA_CUT * sev);
   const gap = cutFresh - base;
   const wMin = gap <= 0 ? 0 : gap / (DELTA_CUT * sev);
