@@ -2,6 +2,26 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-08-17 12:22-15:07 (2h45) — Canário RED por crédito prepago Gemini esgotado (não corrupção)
+
+### Severity: yellow — serviço nunca caiu, só degradou pra FTS-only; resolvido por recarga de saldo, sem mudança de código
+
+### TL;DR
+`semantic-canary.sh` (cron `22,52 * * * *`) começou a disparar `RED: semantic=0/total=2/fts=0` às 12:22 e repetiu a cada 30min até 15:07 (5+ alertas Discord). `/api/health` do banco principal seguia saudável o tempo todo (66.999 chunks, 66.995 embedded, 0 orphans) — não era wipe nem cascade órfão como os incidents de abril. `journalctl -u nox-mem-api` mostrou a causa real: todo `embedQuery` ao Gemini retornando **HTTP 429 `RESOURCE_EXHAUSTED` — "Your prepayment credits are depleted"**, um saldo prepago zerado na conta Google AI Studio vinculada à `GEMINI_API_KEY`, não o quota gratuito de 3M/d já documentado na regra #3 do CLAUDE.md.
+
+### Por que o self-heal não pegou
+O self-heal do canário chama `nox-mem vectorize`, que também depende do Gemini pra reembutir — mesma causa raiz, mesma falha. `SELF-HEAL: vectorize rc=0 out=` seguido de `FAILED — post-heal total=2 semantic=0` em todas as 6 tentativas: o `rc=0` é enganoso (o processo terminou sem erro fatal), mas `[VECTORIZE] Done: 0 embedded, 66995 skipped, 4 errors` mostra que nada novo foi embutido porque a API seguia recusando.
+
+### Fix
+Toto recarregou o saldo prepago no AI Studio. Confirmado por: (1) chamada `embedContent` direta via `curl` com a key isolada respondeu com vetor válido; (2) rerun manual do canário após limpar `/tmp/nox-canary-fail.stamp` → `OK: total=10 semantic=8 fts=2 orphans=0`. Nenhum código mudou.
+
+### Aprendizado
+- `total=2/semantic=0/fts=0` (vs. o `total>0/fts>0` dos incidents de órfão de abril) é a assinatura de "Gemini rejeitando toda chamada", não de dado corrompido — vale a pena o canário diferenciar essa causa no log pra não confundir on-call com os incidents de cascade.
+- Self-heal que depende do MESMO provider que falhou não é self-heal — é retry disfarçado. Quando a causa é billing/quota externo, `vectorize` nunca vai corrigir sozinho; o alerta devia dizer isso explicitamente em vez de só "self-heal FAILED".
+- `unreachable:18802` no debounce, isolado, não significa serviço fora do ar — foi timeout transitório enquanto `/api/health` respondia normal via curl direto. Confirmar sempre com um curl manual antes de assumir crash.
+
+---
+
 ## 2026-08-14 (noite) — drift de modelo no painel: `api.z.ai` serve glm-5.3 para pedidos de glm-5.2
 
 ### Severity: orange — bug de coleta corrigido em minutos; a dúvida metodológica que ele expõe é permanente
