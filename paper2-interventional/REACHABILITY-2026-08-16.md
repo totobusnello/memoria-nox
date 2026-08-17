@@ -59,8 +59,10 @@ matching the strict-majority rule applied to the binary verdict (correction of
 | Opportunities (HT-weighted) | 4,642.91 over 155.6 session-hours |
 | Repeats (HT-weighted) | 519.14 |
 | Severity of `a_past` | **S1 76.96% · S2 23.04% · S3 0% · S4 0%** |
-| Age of `a_past` | median **2.43 d** · p75 4.34 · max 25.83 |
+| Age of `a_past` | median **2.43 d** · p75 4.34 · max 25.83 — ⚠️ **most-recent policy**; see below |
 | `a_past` with no consolidated severity | 0 |
+
+> ⚠️ **The age row is the `--politica recente` distribution, and the LOCKED policy is `melhor` (2026-08-17).** §7-bis adopts one-designated-chunk, i.e. the easiest to reach, and that policy designates different chunks and therefore has different ages: median **3.39 d** · p25 2.12 · p75 **5.69** · max 27.08 (`REACHABILITY-TOP1-2026-08-16.json`, which reproduces exactly on re-run). The reach and ceiling figures throughout §7-bis are the locked policy's and are correct; it is this table that describes the superseded one. Anyone recomputing `w_min` from the ages above, under the locked rule, will get the wrong answer — and the difference matters, because 5.69 d sits much closer to the fresh-pool age window than 4.34 d does.
 
 Two things follow immediately. **S3 and S4 do not occur** among matched past
 failures, so the severity axis in practice has two values, not four. And **age is

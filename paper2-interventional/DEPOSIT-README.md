@@ -82,8 +82,8 @@ hand-rolled F distribution against it, never in the canonical path.
 ## What is here
 
 **The registration**
-`PREREG-DRAFT.md` — the central document (v1.9). Everything that decides
-anything is here or cited from here. `PREREG-v1.9-2026-08-16.pdf` / `.html` are
+`PREREG-DRAFT.md` — the central document (v1.10). Everything that decides
+anything is here or cited from here. `PREREG-v1.10-2026-08-17.pdf` / `.html` are
 the same document rendered; the Markdown is authoritative.
 
 **How the design was sized, and what is uncertain in it**

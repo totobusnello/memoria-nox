@@ -1,4 +1,36 @@
-# OSF Pre-Registration — v1.9, READY TO REGISTER
+# OSF Pre-Registration — v1.10
+
+> ### 🔴 A published claim was stale, and the fresh pool has gates the reach model never contained — 2026-08-17
+>
+> v1.9 was deposited on Zenodo on 2026-08-17 (`10.5281/zenodo.21964094`). Designing the implementation — asking *where in the code does each mechanism sentence live* — found defects that eleven versions, five adversarial voices and a file-by-file audit had all passed over. Zenodo files are immutable, so this is a new version; v1.9 remains retrievable under the same concept DOI.
+>
+> **(1) The dose band changed on 2026-08-16 and the claims derived from it were not recomputed.** Four statements in §2 were computed under `{0.5, 1.0, 2.0}` and are false under `{2.0, 4.0, 7.5}`:
+>
+> | was published | recomputed under the current band |
+> |---|---|
+> | *"No locked dose reaches the main slots — the best case falls 0.0214 short"* | the `0.0214` is exact **for `w = 2.0`, S4**. At `w = 7.5` the best case **exceeds** the main cut by 0.2151 |
+> | *"S1 — never, at any locked dose"* | S1 needs `w = 5.97`; the band's top is **7.5**. S1 is reachable |
+> | *"The modal failure is out of reach … three times the top of the locked band"* | 6.0 is **below** the top of the band, not three times it |
+> | *"the effective treated population is ~30% of failures"* | 100% at `w = 7.5`, by the reach table this document already publishes |
+>
+> The arithmetic elsewhere reproduces to the fourth decimal — the `w_min` table (5.97 / 1.82 / 0.44), the 6.66-day cliff, the 0.0214 under the old band. This was not sloppy computation; it was **prose stating a computed result, which is a cache with no invalidation**. A reviewer checks whether a sentence is coherent, not whether its inputs still hold, and every one of these was coherent and had been correct when written.
+>
+> **(2) Entry into the coverage slots is gated by a `WHERE` clause the reach model omits.** Production filters fresh candidates on three conditions, none of which appears in `reachable_share.py`:
+>
+> - `COALESCE(importance,0) >= 0.7 OR COALESCE(pain,0) >= 0.7` — **passes**: verified that the ingest path populates the `importance` column via `inferImportance(chunk_type)`, so the written chunk carries 0.90 (67,510 of 67,510 chunks in the store have the column populated; zero NULL). Checked because, had the column been left NULL as a literal reading of the field lock suggests, S1 and S2 would fail the gate and reach would be **zero for 100% of the corpus**.
+> - **an age window** — 7 days for the agent sub-pool, 30 for the global one. Measured cost:
+>
+>   | dose | published | under the 7-day window |
+>   |---|---|---|
+>   | `w = 2.0` | 58.27% | **58.27%** — unchanged |
+>   | `w = 4.0` | 78.58% | **60.13%** |
+>   | `w = 7.5` | 100.00% | **88.06%** |
+>
+>   `w = 2.0` cannot move, and not by luck: at that dose only S2 is reachable and `w_min(S2, age) ≤ 2.0` requires age ≤ 6.66 days, already inside the window. **H1's testability rests entirely on the `w = 2.0` ceiling of 60.18% against an MDE of 30%, so the primary is untouched;** what the window costs is the dose–response arms, already the weaker instrument (MDE 49.4% at K = 29).
+> - **a `source_file` pattern.** The global sub-pool, and its 30-day window, admit `source_file LIKE 'memory/entities/%'`. Under that window **every published reach number holds exactly.** §2 now locks the written chunk's `source_file` accordingly — on the merits, since the longer window exists (in the code's own comment) because that store "consolidates in bursts, and 7 days would leave it empty", which is the regime of an offline adjudication writer, and since a failure lesson is fleet-relevant rather than scoped to the agent that failed. Stated plainly because it deserves suspicion: the option recommended here is also the one that preserves the published numbers.
+>
+> **(3) Consequences registered rather than left implicit** — the boost is confined to the coverage ranking; `CUT_FRESH` is frozen for the same reason `Δ_cut` is; the designation rule is restated at the granularity at which it was actually measured; and a rule is registered for epochs where arm resolution fails. Each is marked at the point it applies.
+
 
 > ### 🔴 The assignment script did not exist — 2026-08-16
 >
@@ -250,6 +282,14 @@ Observed roster activity over the frozen snapshot window (2026-07-18 → 07-28) 
   > **Permutation reuse.** §5's sharp-null test re-randomises *"under the same balancing constraints"*; `assign_arms.py permute` produces those draws from the same code path, seeded `SHA256(seed ‖ "|perm|" ‖ i)` so the full permutation set is reproducible from the published assignment alone. A permutation test drawing from a different distribution than the assignment did would not be a valid null, and two implementations would eventually diverge.
   >
   > **Verification.** `assign_arms.py verify` recomputes the seed from `randomness_hex`, re-runs the assignment, re-checks the tolerance, and compares the script's own SHA-256 against the one recorded in the assignment file. Tampering with a single epoch's arm is caught twice over — by recomputation and by the tolerance.
+  >
+  > **When arm resolution fails — LOCKED 2026-08-17.** The serving code resolves the epoch's arm by reading the published assignment file, hash-pinned; it holds no assignment of its own. Three things can make that fail at run time: the file's hash does not match the registered one, the epoch's date is absent from the map, or the service restarts mid-epoch. The safe behaviour is to apply **no boost**, and that is what will happen — but **fail-closed is not arm-neutral**: it silently converts a treatment epoch into a control one and biases the estimate **toward the null**. A rule is registered now rather than chosen after the affected epochs are visible:
+  >
+  > 1. The primary is analysed **as assigned (ITT)** — an epoch that failed to apply its arm is still analysed in the arm the sequence gave it. This is the conservative direction and the one that preserves the randomisation.
+  > 2. The count of affected epochs, and the fraction of each epoch's briefs affected, are **reported unconditionally**, whatever they are.
+  > 3. A **pre-committed sensitivity** excludes affected epochs entirely, reported alongside the primary and never in place of it.
+  >
+  > Detection is not a judgement call: every brief writes a decision record carrying the resolved arm, the dose and the assignment file's SHA-256, so "this epoch failed to apply its arm" is a query rather than a recollection.
 - **Verification:** anyone can, at any time, fetch round `R` from any drand relay, recompute the seed, re-run the committed script, and confirm the published assignment sequence bit-for-bit. Manipulation would require forging a threshold signature from the League of Entropy.
 - **Fallback (if the beacon is unreachable at `T_seed_assign`):** `seed = SHA256(block_hash(H))` where `H` is the **first Bitcoin block height mined at or after `T_seed`**, pre-declared in the same registration. Fallback use is itself logged in the deviations changelog (M3).
 
@@ -298,15 +338,17 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   >
   > | severity | share of failures | base salience | enters the 2 coverage slots | `w` needed |
   > |---|---|---|---|---|
-  > | **S1** | **69.73%** | 0.6700 | **never, at any locked dose** | **6.0** |
-  > | **S2** | **29.62%** | 0.6950 | **only at `w = 2.0`** | 1.8 |
-  > | S3 | 0.58% | 0.7200 | from `w = 0.5` | 0.4 |
+  > | **S1** | **69.73%** | 0.6700 | **at `w = 7.5`** | **5.97** |
+  > | **S2** | **29.62%** | 0.6950 | from `w = 2.0` | 1.82 |
+  > | S3 | 0.58% | 0.7200 | from `w = 2.0` | 0.44 |
   > | S4 | 0.08% | 0.7450 | already, unboosted | 0 |
   >
-  > 1. **No locked dose reaches the main slots** — the best case falls 0.0214 short. The entire treatment acts through the **2 coverage slots**, never the 8 primary ones.
-  > 2. **The effective treated population is ~30% of failures (S2 and above), not all of them.** This is declared in the abstract, not in a limitations section.
-  > 3. **The modal failure is out of reach.** S1 is 69.73% of failures and would need `w ≈ 6.0` — three times the top of the locked band. **Registered now, before any arm data exists**, so that widening the band later is visibly an amendment and not a refinement.
-  > 4. **`w` is therefore a real gradient**, not three labels for one brief: it decides the outcome for S2, where the mass is. This is what the T6 dose-ceiling worry needed and never had.
+  > > ⚠️ **This table and the four consequences below were CORRECTED on 2026-08-17.** They were computed under the band `{0.5, 1.0, 2.0}` and were not revisited when the band became `{2.0, 4.0, 7.5}` on 2026-08-16. The `w` column is unchanged in substance — those are properties of the salience formula, not of the band, and they reproduce to the second decimal (5.9721 / 1.8233 / 0.4403; the earlier 6.0 / 1.8 / 0.4 were the same numbers rounded). What changed is the **middle column**, which reads the `w` values against the band. The previous version said S1 was reachable at no locked dose and that S3 entered "from `w = 0.5`" — both true of the old band, both false of this one.
+  >
+  > 1. **The treatment acts through the 2 coverage slots and never the 8 primary ones — now BY CONSTRUCTION, having been arithmetic before.** The earlier text derived this from a margin: *"the best case falls 0.0214 short"*, which is exact for `w = 2.0` at S4 and **wrong for the current band** — at `w = 7.5` the best case exceeds the main cut by 0.2151, and an S2 chunk clears it out to 6.75 days of age. Since the corpus is 23.04% S2 with a median matched age of 3.39 days, most S2 chunks would sit inside that window, and the top arm would put failure lessons into the primary slots — reintroducing exactly the brief saturation the designation rule was adopted to prevent. **Locked instead: the boost is applied only in the coverage-slot ranking, never in the main-pool re-rank.** This is not a patch over an inconvenient number; it is what was measured. `reachable_share.py` defines `w_min` against `CUT_FRESH` alone and never models main-slot ingress, so every published reach figure is a coverage-slot quantity, and confining the boost there makes the implementation reproduce them by construction.
+  > 2. **The effective treated population depends on the dose, and the range is the point.** At `w = 2.0` it is the freshest S2 — 58.27% of opportunities, ceiling 60.18%. At `w = 7.5` it is all of them. The abstract states the per-arm figures, not a single number, and states them as reach on opportunities rather than as a share of failures.
+  > 3. **The modal failure is reachable only at the top of the band.** S1 is 69.73% of failures and needs `w = 5.97`; the band's top is 7.5. The earlier text called this "out of reach … three times the top of the locked band", which was true when the top was 2.0. It is now the opposite: the top arm exists *because* of this requirement, and it is the arm the dose–response reading rule predicts a second step at.
+  > 4. **`w` is therefore a real gradient**, not three labels for one brief: each dose admits a different severity class, and the class it admits is where the mass moves. This is what the T6 dose-ceiling worry needed and never had.
   >
   > ### Designation rule and dose band — LOCKED 2026-08-16, and both replace earlier values
   >
@@ -353,13 +395,50 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   > | `importance` | not set explicitly — the per-type table decides | Writing a literal here would bypass `IMPORTANCE_BY_TYPE` and detach the chunk from the measured baseline. |
   > | `access_count` | `0` at write time | The 0.20-weighted access term is what makes a new chunk reach the brief **only** through the two `freshSlots`; this is the ceiling P2S1 measured. |
   > | `retention_days` | `180` (the `lesson` typed retention) | Determines whether the chunk survives to the epochs in which it can act. |
+  > | `source_file` | under **`memory/entities/`** | ⬇ see the eligibility block below — this field decides which fresh sub-pool the chunk enters, and therefore which age window applies to every reach number. |
+  > | `metadata.episode_id` | the episode's id | The link, per the identity lock above. |
+  > | `metadata.sig_primary`, `metadata.severity` | the frozen pipeline's values | ⬇ **added 2026-08-17.** Designation groups candidates by signature and orders them by severity; chunks carry neither today. Reading them out of the free text would make the mechanism text-mediated, which §2 condition 1 excludes. Neither field enters any salience term, so no dose number moves. |
+  >
+  > > #### Coverage-slot eligibility — LOCKED 2026-08-17, and it was missing from the reach model
+  > >
+  > > Every reach figure in this document is a **coverage-slot** quantity: `reachable_share.py` defines `w_min` against `CUT_FRESH` and never models the main pool. But entry into that slot is gated by a `WHERE` clause in production that the reach model does not contain. The three conditions, and what each does to the written chunk:
+  > >
+  > > | gate | the chunk | consequence |
+  > > |---|---|---|
+  > > | `COALESCE(importance,0) >= 0.7 OR COALESCE(pain,0) >= 0.7` | **passes** — the ingest path writes the column via `inferImportance(chunk_type)`, giving 0.90 | verified against the store: 67,510 of 67,510 chunks carry the column, none NULL. Had it been NULL — which a literal reading of *"`importance` not set explicitly"* invites — S1 and S2 would both fail, and reach would be **zero for the whole corpus** |
+  > > | an **age window** | 7 days in the agent sub-pool, **30 in the global one** | binds only above `w = 2.0`; measured below |
+  > > | `source_file LIKE` | the global sub-pool admits `memory/entities/%` | which is why that prefix is locked in the field table above |
+  > >
+  > > **Measured cost of the age window** (`reachable_share.py` with the window imposed, all else identical):
+  > >
+  > > | dose | published | 7-day window | 30-day window |
+  > > |---|---|---|---|
+  > > | `w = 2.0` | 58.27% | **58.27%** | **58.27%** |
+  > > | `w = 4.0` | 78.58% | 60.13% | **78.58%** |
+  > > | `w = 7.5` | 100.00% | 88.06% | **100.00%** |
+  > >
+  > > `w = 2.0` is invariant by arithmetic, not by luck: that dose reaches only S2, and `w_min(S2, age) ≤ 2.0` requires age ≤ 6.66 days, already inside the tighter window. **H1's testability rests on the `w = 2.0` ceiling of 60.18% against an MDE of 30%, so the primary outcome is untouched by this correction.**
+  > >
+  > > **Why `memory/entities/`, stated so the reasoning can be attacked.** It is also the option that preserves the published numbers, and that deserves to be said before the justification rather than after. The justification is independent: the longer window exists, per the serving code's own comment, because that store *"consolidates in bursts, and 7 days would leave it empty"* — which is the regime of an offline adjudication writer that emits when a panel completes; and a failure lesson is relevant to the whole fleet, not to the agent that happened to fail, which is what the global sub-pool is for. The alternative — an agent-scoped path — would cost 18.45 pp at `w = 4.0` and 11.94 pp at `w = 7.5` and buy nothing.
+  > >
+  > > **`CUT_FRESH = 0.7342` is FROZEN**, for the reason `Δ_cut` is: designation is `argmin (0.7342 − base)/(Δ_cut·sev)`, so the constant decides *which chunk is designated*. Recomputing it from the live pool would make the designation a post-randomization quantity. It was measured pre-treatment and does not move.
+  >
+  > > #### Designation, at the granularity it was measured — LOCKED 2026-08-17
+  > >
+  > > *"Exactly one boosted chunk per opportunity"* is not evaluable where the boost is applied. Briefs are composed at **session start**; an opportunity is defined (§3) by an **executed action**; the session's actions do not exist yet. The rule needs a referent that exists at composition time, and the measurement already used one: `reachable_share.py` groups candidates by `sig`, then takes the argmin of `w_min` within the group. Since an opportunity is individuated by its signature, the two are the same function.
+  > >
+  > > **Registered:** at brief composition, partition eligible failure chunks in the serving snapshot by `sig_primary`; within each group designate the single chunk with the lowest `w_min(severity, age)`; boost only designated chunks. Ties: lowest `w_min`, then earliest `created_at`, then lexicographic `chunk_id`. For any opportunity that materialises, exactly one chunk matching its signature was boosted — the quantity that was measured.
+  > >
+  > > Two properties follow and are registered because they are load-bearing. **Designation is dose-independent** (`w_min` does not depend on `w`), so the arms differ in dose and never in which chunk is lifted — which is what makes the dose–response reading rule interpretable at all. And **the designation pool is the never-served set**: once served, `access` contributes 0.20, larger than any locked dose, and the chunk leaves the fresh pool permanently, so designation falls to the next-best in its group. The lever is getting a chunk in **once**, not holding it in.
+  > >
+  > > ⚠️ **What this does NOT establish.** §7-bis of `REACHABILITY-2026-08-16.md` says one-chunk designation makes brief saturation "impossible by construction — one slot, never nine". That claim rests on a count of **same-signature** competitors, which is the only kind the measurement could see. At serving time the boosted chunks are one per *distinct signature present*, which is not bounded by the designation rule. Saturation is bounded instead by `freshSlots = 2` — two of ten slots, at every dose — and by the coverage-only restriction above. The bound is real; the reason given for it was wrong.
   > | `tier` | `null` | No tier boost; the contrast must isolate `W_OUTCOME`. |
   >
   > These values are not a new decision. They are what the measurement already ran under, written down before registration rather than after — which is the whole difference between a locked parameter and a defensible-sounding one.
   >
   > ### The timestamp anchor — LOCKED 2026-08-16, and the dose table is a ceiling
   >
-  > The table above locks `retention_days` and omits the four fields that actually drive the recency term: `source_date`, `created_at`, `updated_at`, `last_accessed_at`. That omission mattered, and an adversarial review (DeepSeek V4-Pro, 2026-08-16) found it. Recency is `2^(−age_days / retention_days)` anchored on `last_accessed_at ?? source_date` and carries **weight 0.15** in salience v2. (It is *not* the second-largest term overall — `access` carries 0.20 — but `access` is a **binary used/unused signal** and is 0 for a chunk that has never been served, so for the challenger at write time recency is the largest live term after importance.) `link_feasibility.mjs` constructed the challenger with `source_date = created_at = now` and `last_accessed_at = null`, i.e. **at age zero**. Every published dose number is therefore a freshest-case value, and the paragraph that follows previously asserted that write timing "enters no dose number", which was **false**.
+  > The table above locks `retention_days` and omits the four fields that actually drive the recency term: `source_date`, `created_at`, `updated_at`, `last_accessed_at`. That omission mattered, and an adversarial review (DeepSeek V4-Pro, 2026-08-16) found it. Recency is `2^(−age_days / retention_days)` anchored on `last_accessed_at ?? source_date` and carries **weight 0.15** in salience v2. (It is *not* the second-largest term overall — `access` carries 0.20 — but `access` is 0 for a chunk that has never been served, so for the challenger at write time recency is the largest live term after importance. ⚠️ *Corrected 2026-08-17: this parenthesis called `access` a "binary used/unused signal". The implementation is graded — `clamp01(log1p(access_count)/log(1000))`, saturating toward 1.0 near a thousand accesses — and the weight was fitted against a distribution that is 87% zero, which is what "binary" described. No number moves: the challenger is written at `access_count = 0`, where both readings give exactly 0, and the incumbent cut was measured by calling the real `calculateSalience`. The characterisation was loose; the arithmetic was not.*) `link_feasibility.mjs` constructed the challenger with `source_date = created_at = now` and `last_accessed_at = null`, i.e. **at age zero**. Every published dose number is therefore a freshest-case value, and the paragraph that follows previously asserted that write timing "enters no dose number", which was **false**.
   >
   > **Locked:** the written chunk carries `source_date = created_at = updated_at =` **the instant of the write**, and `last_accessed_at = null`. It does *not* inherit the timestamp of the failure episode it describes. This is the construction the measurement ran under, and it is the one that keeps the chunk's age equal to *time since the lesson was recorded* rather than *time since the failure happened* — the quantity the decay is meant to represent.
   >
@@ -376,8 +455,10 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   > Three things this fixes in place, none of which can now be chosen after seeing data:
   >
   > 1. **At the structural minimum the locked band still holds.** At 24 h, S2 needs `w = 1.85`, and the band's lowest arm is `w = 2.0`. The S2 transition that §2 pre-commits as part of the mechanism's signature survives at the shortest age the design permits.
-  > 2. **It stops holding at 6.66 days.** That is where S2's requirement crosses `w = 2.0`. Beyond it, S2 episodes are unreachable at every locked dose. The claim "the effectively treated population is ~30% of failures (S2 and above)" is therefore **conditional on recurrence within ≈ 1 week**, and is restated that way here rather than quietly carrying a stronger reading.
-  > 3. **`w ≈ 6.0` for modal S1 was already the ceiling, not the requirement.** It is 6.03 at 24 h and 7.49 at 30 days. Widening the band to reach S1 would need more than the figure §2 quotes, and quoting the age-zero number without this table would have understated by how much.
+  > 2. **At `w = 2.0` it stops holding at 6.66 days** — that is where S2's requirement crosses that dose. ⚠️ **Corrected 2026-08-17:** the sentence continued *"beyond it, S2 episodes are unreachable at every locked dose"*, which was true of the band `{0.5, 1.0, 2.0}` and is false of `{2.0, 4.0, 7.5}`: `w = 4.0` carries S2 well past a week, and `w = 7.5` past a month. The conditional-on-recurrence-within-a-week reading therefore attaches to the **lowest arm only**, and is restated that way rather than left to carry across the band.
+  >
+  >    **This is where the fresh-pool age window binds, and it is the reason the two upper arms lose reach.** Production admits a fresh candidate only within an age window — 7 days for the agent sub-pool, 30 for the global one — and `reachable_share.py` models no window at all. Measured: at `w = 2.0` reach is unchanged at 58.27%, because that dose already cannot see past 6.66 days; at `w = 4.0` it falls 78.58% → 60.13%; at `w = 7.5`, 100% → 88.06%. Under the 30-day window every published figure holds exactly, which is why §2 locks the written chunk's `source_file` into the sub-pool that carries it.
+  > 3. **`w ≈ 6.0` for modal S1 is the age-zero floor, not the requirement.** It is 6.03 at 24 h and 7.49 at 30 days — so quoting the age-zero number without this table understates what S1 costs. ⚠️ **Corrected 2026-08-17:** the sentence ended *"widening the band to reach S1 would need more than the figure §2 quotes"*, written when the band topped out at 2.0. The band **was** widened, to 7.5, on 2026-08-16 — and `7.5 > 7.4944` by **0.0056**, so on the salience arithmetic alone the top arm reaches S1 even at 30 days. That margin is far too thin to register as a property: a hundredth of a dose unit decides it, and `Δ_cut` itself has drifted by 0.0081 since it was frozen. What actually decides the question is the **fresh-pool age window** of item 2, which closes at 7 days for the agent sub-pool and 30 for the global one. So the honest reading of the second predicted step is that it lands on S1 **within the age window**, and the 30-day row of this table sits on the window's edge rather than inside the mechanism.
   >
   > **Reproduce:** salience v2 is `0.55·importance + 0.15·recency + 0.10·pain + 0.20·access`; a `lesson` chunk takes `importance = 0.90` from `IMPORTANCE_BY_TYPE` and `access = 0`, so `base(sev, age) = 0.495 + 0.15·2^(−age/180) + 0.10·sev` and `w_min = (0.7342 − base) / (0.043 · sev)`. At age 0 this returns 1.82 for S2 and 5.97 for S1, reproducing the figures §2 already published as "1.8" and "≈ 6.0".
   >
