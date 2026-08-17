@@ -3,9 +3,9 @@
 
 WHY THIS EXISTS
 ---------------
-On 2026-08-17, one day after the pre-registration was deposited to Zenodo as an
-immutable record, planning the implementation found a defect that five
-adversarial reviewers and several mechanical censuses had walked past:
+On 2026-08-17, roughly two hours after the pre-registration was deposited to
+Zenodo as an immutable record, planning the implementation found a defect that
+five adversarial reviewers and several mechanical censuses had walked past:
 
     PREREG-DRAFT.md:306 — "No locked dose reaches the main slots — the best case
     falls 0.0214 short. The entire treatment acts through the 2 coverage slots,
@@ -28,33 +28,49 @@ So the fix cannot be discipline. It has to be a script.
 
 WHAT IT DOES
 ------------
-Two passes, and the second is the one that earns its keep.
+Three passes. The first is arithmetic, the second and third are the ones that
+earn their keep.
 
-1. RECOMPUTE. Every quantity the registration states about reach — `w_min` per
-   severity and age, the age cliffs per dose, the excess over the main cut, the
-   reachable shares — is derived here from the frozen constants alone. Change a
-   constant, and the expected values change with it.
+1. RECOMPUTE (`claims`). Every quantity the registration DERIVES about reach --
+   `w_min` per severity and age, the age cliffs per dose, the excess over the
+   main cut -- is recomputed here from the frozen constants alone and compared
+   against a literal typed in this file. Change a constant and the comparison
+   breaks. It does NOT read the documents; see the note above `claims()`.
 
-2. SWEEP. Walk every deposited document for the literal numbers and the phrase
-   patterns that depend on the band, and require each occurrence to be either
-   (a) consistent with pass 1, or (b) listed in KNOWN_STALE below as a dated
-   record deliberately preserved. Anything else fails.
+2. SWEEP (`sweep`). Walk every file in the package, recursively, for the literal
+   numbers AND the phrase patterns that depend on the band, in both languages
+   the package is written in. An occurrence is allowed only in a file that is
+   both named in KNOWN_STALE and carries a correction marker -- the name alone
+   is not enough, because two different files here are called `README.md`.
+
+3. CROSS-CHECK (`cross_check`, `doc_check`). Parse the band declaration out of
+   the other scripts and compare it to BAND, because a stale literal is not a
+   stale string and no regex distinguishes a superseded tuple quoted in a
+   correction comment from a live one. Then read the MEASURED reach figures out
+   of the JSON artifact and require the prose to still state them, so a
+   measurement cannot be dropped instead of updated.
 
 Pass 2 is what makes a NEW stale claim impossible rather than improbable. A
 document that acquires `0.0214` tomorrow, in a context nobody registered as
 historical, stops the check.
 
-WHAT IT DOES NOT DO — stated because overclaiming here would be the same defect
-this file exists to catch. The allowlist is per FILE, not per occurrence. A new
-stale claim written into `PREREG-DRAFT.md` itself — the document most likely to
-acquire one, since every correction note there quotes the text it corrects —
-passes the sweep untouched. Narrowing the allowlist to line ranges was
-considered and rejected: line numbers move with every edit, so the guard would
-fail open on exactly the edits it is meant to police. Pass 1 still covers those
-files, because it recomputes from the constants rather than reading the prose.
-The residual exposure is therefore: a NEW prose claim, in an allowlisted file,
-that is not one of the thirteen quantities pass 1 recomputes. Adding a claim to
-`claims()` is the way to close that for any specific sentence worth the line.
+WHAT IT DOES NOT DO -- stated because overclaiming here would be the same defect
+this file exists to catch, and because an earlier version of this section DID
+overclaim, in two ways that an external review found before I did.
+
+The allowlist is per FILE, not per occurrence. A new stale claim written into
+`PREREG-DRAFT.md` itself -- the document most likely to acquire one, since every
+correction note there quotes the text it corrects -- passes the sweep, provided
+it is not one of the quantities pass 1 or 3 covers. Narrowing the allowlist to
+line ranges was considered and rejected: line numbers move with every edit, so
+the guard would fail open on exactly the edits it is meant to police. Requiring
+a correction marker in the file is the weaker but stable substitute.
+
+The phrase list is a LIST. It catches the four claims that went stale on
+2026-08-16 and their translations; it does not catch a fifth way of saying the
+same thing that nobody has written yet. Every pattern here was added after a
+defect, not before one. Read the "ok" as "none of the known failure shapes are
+present", never as "the package is consistent".
 
 USAGE
     python3 claims_check.py            # check, exit 1 on any failure
@@ -66,6 +82,7 @@ No dependencies: standard library only, like every other canonical script here.
 from __future__ import annotations
 
 import argparse
+import json
 import math
 import re
 import sys
@@ -119,8 +136,17 @@ def max_age(sev: float, w: float, cut: float = CUT_FRESH) -> float | None:
 
 
 # ---------------------------------------------------------------------------
-# The claims. Each is (label, computed value, tolerance) and each is asserted
-# against the number the deposited documents actually print.
+# The claims.
+#
+# ⚠️ WHAT THIS COMPARES, precisely — an earlier version of this comment said each
+# claim is "asserted against the number the deposited documents actually print",
+# which was false and is the exact defect this file exists to catch, committed
+# inside the file itself. `claims()` compares a value RECOMPUTED from the frozen
+# constants against a literal TYPED HERE. If a document silently changed the
+# number it prints, this pass would not notice; what it notices is a constant
+# changing underneath a number that was once right. `doc_check()` below closes
+# the other half for the measured quantities, by reading them out of the JSON
+# artifacts and grepping the documents for disagreement.
 # ---------------------------------------------------------------------------
 
 
@@ -175,6 +201,30 @@ BAND_DEPENDENT = [
     (r"out of reach at every locked dose", "false at w = 7.5"),
     (r"no locked dose reaches the main slots", "false at w = 7.5"),
     (r"\{0\.5[ ,;·]+1\.0[ ,;·]+2\.0\}", "the superseded band written as a set"),
+    # Added 2026-08-17 after `reachable_share.py` was found defaulting to the old
+    # band under the comment "the locked band". An earlier review called excluding
+    # the tuple form defensible, on the grounds that the sweep targets prose; the
+    # script that produces the reach numbers is exactly where it was not.
+    (r"\(0\.5,\s*1\.0,\s*2\.0\)", "the superseded band written as a tuple"),
+    # These were among the four original stale claims and the first version of
+    # this sweep did not look for any of them. That is how the OSF abstract and
+    # the repository README kept theirs: the numeric patterns above do not appear
+    # in a sentence that says "about 30% of failures" in words.
+    #
+    # ⚠️ BILINGUAL, and this was not an afterthought — it was a hole. The package
+    # is written in two languages: the registration and the deposited documents
+    # in English, and the working documents that route the project in Portuguese,
+    # including `OSF-SUBMISSION.md`, whose abstract becomes the permanent public
+    # OSF registration. The first version of these three patterns was
+    # English-only, so the sweep was structurally blind to the half of the corpus
+    # where two of the surviving stale claims actually lived. A positive-control
+    # run caught it: a synthetic "~30% dos failures" passed cleanly.
+    (r"(?:about|~|approximately|cerca de|aproximadamente|em torno de)\s*30\s*%\s*(?:of|dos|das|de)\s+(?:the\s+|os\s+|as\s+)?(?:failures|falhas)",
+     "reach is 30% only at w = 2.0; 100% at w = 7.5"),
+    (r"(?:only\s+at\s+severity|apenas\s+(?:a\s+)?severidade|s[oó]\s+(?:a\s+)?severidade)\s*S2\s+(?:and above|e acima|ou acima|para cima)",
+     "true at w = 2.0 only; S1 is reachable at w = 7.5"),
+    (r"S1[^.\n]{0,40}(?:never|nunca)[^.\n]{0,40}(?:locked dose|dose travada)",
+     "S1 needs w = 5.97 and the band's top is 7.5"),
 ]
 
 # Deliberately preserved occurrences: dated records, and the correction notes
@@ -189,6 +239,12 @@ KNOWN_STALE = {
     # the deposit renames DEPOSIT-README.md to README.md, so an allowlist keyed
     # on the repository name fails open in the repository and closed in the
     # deposit — the direction that at least announces itself, but still wrong.
+    # ⚠️ Keyed by name, and two DIFFERENT files are called README.md: the
+    # deposit's front page (DEPOSIT-README.md renamed) and the repository's own
+    # navigation index. Exempting the name exempted both, and the repository
+    # README was carrying a stale "~30% of failures" that the sweep therefore
+    # never reported. The exemption now requires the file to CARRY a correction
+    # marker, so a file that merely shares the name is still swept.
     "README.md": "DEPOSIT-README.md under its in-deposit name",
     # Dated measurements, superseded-header'd rather than rewritten.
     "LINK-FEASIBILITY-2026-08-15.md": "2026-08-15 measurement, header marks it",
@@ -198,17 +254,40 @@ KNOWN_STALE = {
     "DOSE-REACH-2026-08-15.json": "the output itself",
     "DISPLACEMENT-2026-08-16.txt": "raw output of the candidate-band run",
     "claims_check.py": "this file names the patterns in order to search for them",
+    # Allowlisted for the REGEX only, and only because `cross_check` below reads
+    # its band declaration structurally and compares it to BAND. That is the
+    # right layering: the file quotes the superseded tuple inside a correction
+    # comment, which no regex can distinguish from a live one, while the thing
+    # that actually matters — what the script will USE — is checked by parsing
+    # rather than by matching. Removing cross_check would silently downgrade this
+    # entry from "checked a better way" to "not checked".
+    "reachable_share.py": "correction comment quotes the old tuple; cross_check covers the real value",
 }
 
 SCAN_SUFFIXES = {".md", ".py", ".mjs", ".json", ".txt", ".jsonl"}
 
+# An allowlist entry only takes effect if the file actually says, somewhere, that
+# it is preserving superseded text on purpose. Without this, exempting a NAME
+# exempts every file that happens to carry it.
+MARKERS = ("SUPERSEDED", "CORRECTED", "superseded", "corrected 2026", "the old band",
+           "band then in force", "LOCKED when this ran", "locked when this ran")
+
+
+def _is_marked(path: Path) -> bool:
+    try:
+        return any(m in path.read_text(encoding="utf-8") for m in MARKERS)
+    except (UnicodeDecodeError, OSError):
+        return True  # binary or unreadable: nothing to sweep anyway
+
 
 def sweep(root: Path) -> list[str]:
     failures = []
-    for path in sorted(root.iterdir()):
+    for path in sorted(root.rglob("*")):
         if not path.is_file() or path.suffix not in SCAN_SUFFIXES:
             continue
-        if path.name in KNOWN_STALE:
+        if "__pycache__" in path.parts or ".git" in path.parts:
+            continue
+        if path.name in KNOWN_STALE and _is_marked(path):
             continue
         try:
             text = path.read_text(encoding="utf-8")
@@ -221,6 +300,78 @@ def sweep(root: Path) -> list[str]:
                     f"{path.name}:{line}: band-dependent claim outside the "
                     f"allowlist — {reason!r} (matched {m.group(0)!r})"
                 )
+    return failures
+
+
+def doc_check(root: Path) -> list[str]:
+    """Check the MEASURED quantities against the artifact, not against a literal.
+
+    `claims()` recomputes from constants, which covers the arithmetic but not the
+    measurements: the reachable shares come out of a run over the corpus and
+    cannot be derived from `DELTA_CUT` and friends. Those numbers travel through
+    the documents as typed percentages, so they can drift from the JSON that
+    produced them exactly the way the prose drifted from the band.
+
+    So: read them out of `REACHABILITY-TOP1-2026-08-16.json`, and require that
+    each still appears somewhere in the prose. A number that vanishes is as much
+    a defect as a number that changes -- it means a document was rewritten and
+    the measurement it rested on was dropped rather than updated.
+    """
+    failures = []
+    art = root / "REACHABILITY-TOP1-2026-08-16.json"
+    if not art.exists():
+        return [f"{art.name}: missing — the measured reach figures cannot be checked"]
+    data = json.loads(art.read_text(encoding="utf-8"))
+
+    corpus = {
+        p.name: p.read_text(encoding="utf-8", errors="ignore")
+        for p in root.rglob("*.md")
+        if "__pycache__" not in p.parts
+    }
+
+    for key, label in (
+        ("fracao_alcancavel_por_dose", "reachable share"),
+        ("teto_de_efeito_incondicional_por_dose", "unconditional ceiling"),
+    ):
+        for dose, frac in sorted(data[key].items()):
+            if float(dose) not in BAND:
+                continue
+            pct = f"{frac * 100:.2f}"
+            if not any(pct in text for text in corpus.values()):
+                failures.append(
+                    f"{art.name}: {label} at w = {dose} is {pct}%, and no document "
+                    f"in the package states it — dropped rather than updated?"
+                )
+    return failures
+
+
+def cross_check(root: Path) -> list[str]:
+    """Assert that the OTHER scripts agree with the band declared here.
+
+    A regex sweep catches a stale value written as text. It does not catch a
+    stale value that is simply a different literal — `reachable_share.py` held
+    `DOSES = (0.5, 1.0, 2.0)` for a day after the band moved, and would have gone
+    on holding `(1.0, 3.0, 5.0)` just as quietly. This reads the declaration out
+    of each script that carries one and compares it to BAND.
+    """
+    failures = []
+    targets = {
+        "reachable_share.py": r"^DOSES\s*=\s*\(([^)]*)\)",
+    }
+    for name, pattern in targets.items():
+        path = root / name
+        if not path.exists():
+            failures.append(f"{name}: expected to be present and carry a band declaration")
+            continue
+        m = re.search(pattern, path.read_text(encoding="utf-8"), re.MULTILINE)
+        if not m:
+            failures.append(f"{name}: no band declaration found — did it move or get renamed?")
+            continue
+        declared = tuple(float(x) for x in m.group(1).split(",") if x.strip())
+        if declared != BAND:
+            failures.append(
+                f"{name}: declares the band as {declared}, this file locks {BAND}"
+            )
     return failures
 
 
@@ -274,6 +425,8 @@ def main() -> int:
             )
 
     failures.extend(sweep(Path(args.root)))
+    failures.extend(cross_check(Path(args.root)))
+    failures.extend(doc_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

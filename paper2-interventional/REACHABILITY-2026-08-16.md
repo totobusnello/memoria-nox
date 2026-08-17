@@ -241,3 +241,51 @@ the opportunity count cancels out of λ₀ entirely.
 epochs) with the instability rule of `STABILITY-TEST.md` §9.2 active. Output:
 `REACHABILITY-2026-08-16.json`. Verdicts and episode corpus are held outside the
 repository — see `EXTERNAL-REFERENCES.md`.
+
+**The exact invocations, recorded 2026-08-17 — they were not, before.** Neither
+deposited JSON carries the flags that produced it, and both were run with flags
+that differed from the script's defaults, so "run `reachable_share.py`" was not a
+reproducible instruction. Paths are the operator host's; the file names are the
+ones `EXTERNAL-REFERENCES.md` resolves.
+
+```sh
+# REACHABILITY-2026-08-16.json — the exploratory dose sweep
+python3 reachable_share.py --json \
+  --episodes universo-combinado.jsonl \
+  --verdicts verdicts-combinado-v2.jsonl \
+  --estrato-b-ids estrato-b-ids.txt \
+  --replicas 'tiebreak-rep*.jsonl' 'tiebreak-v2-rep*.jsonl' 'extensao-moonshot-cycle-*.jsonl' \
+  --politica recente \
+  --doses 0.5,1.0,2.0,4.0,6.0,8.0,10.0
+
+# REACHABILITY-TOP1-2026-08-16.json — the locked band under the registered policy
+python3 reachable_share.py --json \
+  --episodes universo-combinado.jsonl \
+  --verdicts verdicts-combinado-v2.jsonl \
+  --estrato-b-ids estrato-b-ids.txt \
+  --replicas 'tiebreak-rep*.jsonl' 'tiebreak-v2-rep*.jsonl' 'extensao-moonshot-cycle-*.jsonl' \
+  --politica melhor \
+  --doses 2.0,4.0,7.5
+```
+
+⚠️ **Three things about those flags were wrong in the script and are corrected in
+this version**, none of which moved a published number — every number here came
+from an explicit flag — but all three would have misled anyone reproducing from
+the deposit, which is the only reason the scripts are deposited at all:
+
+- `DOSES` defaulted to `(0.5, 1.0, 2.0)` under the comment *"the locked band"*.
+  It is now `(2.0, 4.0, 7.5)`. The comment asserted a locked value and was not
+  revisited when the value changed — the same failure the v1.10 header corrects
+  in prose, in a code comment instead.
+- `--politica` defaulted to `recente`, which is **not** the registered
+  designation rule. It now defaults to `melhor`. §3's age table above was
+  produced under `recente` and is marked accordingly where it appears.
+- Two of the output keys read the module-level `DOSES` while the rest read the
+  local `doses`, kept in agreement only by a `globals()` reassignment. Removed;
+  all keys now read the same value. It was correct, and it was one deleted line
+  away from silently reporting two keys at the default band.
+
+Runs from this version onward stamp a `_run` block into the JSON — doses,
+policy, replica names, cuts, and the SHA-256 of each input — so the flags travel
+with the artifact instead of with a sentence in a document. **The two JSONs above
+predate it, and its absence is how they identify themselves.**

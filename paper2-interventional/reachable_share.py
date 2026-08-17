@@ -51,6 +51,7 @@ hypothesis the pre-registration should state.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import collections
 import json
 from datetime import timedelta
@@ -64,7 +65,17 @@ IMPORTANCE_LESSON = 0.90          # IMPORTANCE_BY_TYPE['lesson']
 RETENTION_LESSON = 180            # typed retention for `lesson`
 CUT_FRESH = 0.7342                # coverage-slot cut, measured (LINK-FEASIBILITY)
 DELTA_CUT = 0.043                 # frozen at the 2026-07-29 lock
-DOSES = (0.5, 1.0, 2.0)           # the locked band
+# ⚠️ CORRECTED 2026-08-17. This default read `(0.5, 1.0, 2.0)` with the comment
+# "the locked band" until today. The band became `{2.0, 4.0, 7.5}` on 2026-08-16
+# and the default was not moved, so `reachable_share.py` with no `--doses` flag
+# silently evaluated the SUPERSEDED band while its own comment asserted the
+# opposite. Both deposited JSONs were produced with an explicit `--doses`, so no
+# published number was ever wrong -- but a third party reproducing the work from
+# the deposit, which is the whole point of depositing it, would have got the old
+# band and been told it was the locked one. Same defect class as the prose the
+# v1.10 header corrects: a comment stating a locked value is a cache with no
+# invalidation.
+DOSES = (2.0, 4.0, 7.5)           # LOCKED 2026-08-16 -- PREREG-DRAFT.md Sec. 2
 SEV_VALUE = {"S1": 0.25, "S2": 0.50, "S3": 0.75, "S4": 1.00}
 
 
@@ -118,16 +129,18 @@ def main() -> int:
     ap.add_argument("--estrato-b-ids", required=True)
     ap.add_argument("--replicas", nargs="*", default=[])
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--politica", choices=("recente", "melhor"), default="recente",
-                    help="which matching chunk the treatment designates: the most "
-                         "recent (default) or the easiest to reach")
+    ap.add_argument("--politica", choices=("recente", "melhor"), default="melhor",
+                    help="which matching chunk the treatment designates: the "
+                         "easiest to reach (`melhor`, the registered rule and the "
+                         "default) or the most recent (`recente`, exploratory). "
+                         "Until 2026-08-17 this defaulted to `recente`, so the "
+                         "default run did not implement the registered designation")
     ap.add_argument("--doses", default="",
-                    help="comma-separated doses to evaluate instead of the locked band; "
-                         "exploratory only, does not change any locked value")
+                    help="comma-separated doses to evaluate INSTEAD of the locked "
+                         "band; exploratory only, does not change any locked value")
     a = ap.parse_args()
 
     doses = tuple(float(x) for x in a.doses.split(",")) if a.doses else DOSES
-    globals()["DOSES"] = doses
     instaveis = frozenset(pr.episodios_instaveis(a.replicas)) if a.replicas else frozenset()
     verdicts = pr.carregar_verdicts(Path(a.verdicts), instaveis)
     sev_por_ep = severidade_consolidada(Path(a.verdicts), instaveis)
@@ -244,6 +257,23 @@ def main() -> int:
     med = idades[len(idades) // 2] if idades else float("nan")
 
     out = {
+        # Provenance of THIS run. Added 2026-08-17, because the two deposited
+        # JSONs record none: neither carries the doses, the designation policy or
+        # the replica set that produced it, so recovering how they were made means
+        # trusting a prose sentence in another file. The analysis keys below are
+        # unchanged; this one is additive, and its absence is how a pre-2026-08-17
+        # artifact identifies itself.
+        "_run": {
+            "doses": [str(w) for w in doses],
+            "politica": a.politica,
+            "replicas": sorted(Path(r).name for r in a.replicas),
+            "cut_fresh": CUT_FRESH,
+            "delta_cut": DELTA_CUT,
+            "inputs_sha256": {
+                Path(f).name: hashlib.sha256(Path(f).read_bytes()).hexdigest()
+                for f in (a.episodes, a.verdicts, a.estrato_b_ids)
+            },
+        },
         "oportunidades_ponderadas": round(tot, 2),
         "sem_severidade_do_a_past": round(sem_severidade, 2),
         "distribuicao_severidade_do_a_past": {k: round(v / tot, 4) for k, v in sorted(por_sev.items())},
@@ -256,7 +286,7 @@ def main() -> int:
         "fracao_alcancavel_por_dose": {str(w): round(alcanca[w] / tot, 4) for w in doses},
         "r_hat_restrito_por_dose": {str(w): round(alcanca[w] / horas_tot, 4) for w in doses},
         "p0_hat_restrito_por_dose": {
-            str(w): (round(alcanca_rep[w] / alcanca[w], 6) if alcanca[w] else None) for w in DOSES
+            str(w): (round(alcanca_rep[w] / alcanca[w], 6) if alcanca[w] else None) for w in doses
         },
         "chunks_impulsionados_simultaneos": {
             str(k): round(v / tot, 4) for k, v in sorted(competidores.items())
@@ -274,7 +304,7 @@ def main() -> int:
         "repeats_ponderados": round(repeats_tot, 2),
         "teto_de_efeito_incondicional_por_dose": {
             str(w): (round(alcanca_rep[w] / repeats_tot, 4) if repeats_tot else None)
-            for w in DOSES
+            for w in doses
         },
     }
     if a.json:

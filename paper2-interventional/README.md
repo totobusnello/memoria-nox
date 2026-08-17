@@ -56,7 +56,7 @@ Cada uma foi commitada e enviada ao repositório **antes** do round de beacon co
 | [`SIZING-2026-08-14.md`](SIZING-2026-08-14.md) | 🔴 **Superado no mesmo dia** — três números errados por um bug no replay. Mantido como registro da retratação |
 | [`SIZING-2026-08-14-v2.md`](SIZING-2026-08-14-v2.md) | Sizing válido, 30 clusters. ICC 0.0985 [0.057 ; 0.181] |
 | [`DOSE-REACH-2026-08-15.json`](DOSE-REACH-2026-08-15.json) | A dose travada **move o brief** — e expôs a lacuna do `linked` |
-| [`LINK-FEASIBILITY-2026-08-15.md`](LINK-FEASIBILITY-2026-08-15.md) | Não há chave de junção. Duas construções caem, uma funciona — em **~30%** dos failures, pelos 2 coverage slots |
+| [`LINK-FEASIBILITY-2026-08-15.md`](LINK-FEASIBILITY-2026-08-15.md) | Não há chave de junção. Duas construções caem, uma funciona — pelos 2 coverage slots. ⚠️ Os **~30%** que este documento cita valem para `w = 2.0`; a banda mudou em 16/08 e no topo o alcance é 100% |
 | [`STABILITY-TEST.md`](STABILITY-TEST.md) | Estabilidade agregada 99% **esconde** 47.6% de oscilação nos desempates |
 | [`WASHOUT-SENSITIVITY-2026-08-14.md`](WASHOUT-SENSITIVITY-2026-08-14.md) | O washout de 2 h está bem calibrado — a borda dura <2 h. Registra também um confundidor de composição em que caí |
 

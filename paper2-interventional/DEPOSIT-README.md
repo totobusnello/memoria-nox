@@ -154,13 +154,23 @@ the registered balance tolerance. Until 2026-08-16 the registration referred to
 this script as if it existed; it did not.
 
 `claims_check.py` — **the guard against the defect that produced this version.**
-It recomputes every band-dependent quantity this package states, compares each
-against the number the documents print, and then sweeps the package for the
-superseded phrasings, failing on any occurrence outside a declared allowlist of
-dated records. `--show` prints the table. It exists because prose asserting a
-computed result is a cache with no invalidation: nothing links the sentence to
-the parameter it depends on, and a reviewer checks whether the sentence is
-coherent, not whether its inputs still hold.
+Three passes: it recomputes every *derived* band-dependent quantity from the
+frozen constants; it sweeps the package, recursively and in both languages it is
+written in, for the superseded phrasings, allowing them only in a file that is
+both named in its allowlist and carries a correction marker; and it cross-checks
+the *measured* figures by parsing the band declaration out of the other scripts
+and reading the reach shares back out of the JSON artifact. `--show` prints the
+table.
+
+It exists because prose asserting a computed result is a cache with no
+invalidation: nothing links the sentence to the parameter it depends on, and a
+reviewer checks whether the sentence is coherent, not whether its inputs still
+hold. Its own docstring states what it does **not** cover, including two
+overclaims an external review found in an earlier version of that very
+paragraph. Its phrase list is a list — it catches the shapes that have already
+failed here, not shapes nobody has written yet — and its "ok" should be read as
+*none of the known failure shapes are present*, never as *the package is
+consistent*.
 
 `extract_episodes.py` (locked) · `sizing.py` · `pilot_replay.py` ·
 `reachable_share.py` · `run_panel.py` · `icc_bootstrap.py` · `task_regret.py` ·
