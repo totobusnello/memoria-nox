@@ -116,7 +116,24 @@ from dataclasses import dataclass, asdict
 # Locked design constants.  Changing any of these is an amendment, not a fix.
 # ---------------------------------------------------------------------------
 
-N_EPOCHS = 174                    # LOCKED 2026-08-15, sizing.py
+# ⚠️ AMENDED 2026-08-17: 174 -> 234. Declared as an ERROR CORRECTION, not a
+# re-size. `sizing.py` computed the design effect with the equal-cluster-size
+# formula while epoch sizes run from 1 to 115 sessions; that understates the
+# design effect and therefore UNDER-SIZES the study, which is the one direction
+# lock (b) of 2026-07-30 exists to forbid ("under-sizing invalidates an entire
+# study, over-sizing costs calendar"). So 174 never satisfied the lock it was
+# written to satisfy. The amendment is published before any epoch is randomised,
+# before any arm is assigned and before the beacon round that seeds the
+# assignment is drawn, so no outcome information could inform it.
+#
+# 234 = 117 control + 39 per dose arm, exact with no remainder — where 174
+# needed the 87/29 rounding. Balance holds: 60 of 60 test seeds land inside the
+# registered tolerance with exact marginals, max deviation 0.5 against 1.0.
+#
+# The superseded value is kept here rather than deleted: `--epochs 174` still
+# reproduces the published v1.9/v1.10 sequence, and `sizing.py` without `--cv2`
+# still returns 174, so the record of what was published stays executable.
+N_EPOCHS = 234                    # AMENDED 2026-08-17 (was 174, LOCKED 2026-08-15)
 DOSES = (2.0, 4.0, 7.5)           # LOCKED 2026-08-16, Sec. 2 designation block
 CONTROL = "control"
 GROUPS = (CONTROL,) + tuple(f"w{d:g}" for d in DOSES)
@@ -239,7 +256,7 @@ def stratum_of(e: Epoch, n: int) -> str:
 
 
 def group_sizes(n: int) -> dict[str, int]:
-    """87 control, 29 per dose, at N = 174.  Scales proportionally otherwise.
+    """117 control, 39 per dose, at N = 234.  Scales proportionally otherwise.
 
     The proportional fallback exists so the script can be exercised on short
     test horizons; the study itself runs at N_EPOCHS and the exact split is the

@@ -6,6 +6,16 @@
 > design can actually test.
 >
 > **What it is not:** a decision. The decisions remain the principal's.
+>
+> ⚠️ **`N_epochs` in this document is stale — 2026-08-17.** Every mention below of
+> `N_epochs` = 174 was written under a design effect computed with the
+> **equal-cluster** formula. Under the applicable unequal-cluster form
+> (`cv²` = 0.3833, locked 2026-08-17) it is **234**. The point those passages make
+> is unaffected and is why they are not rewritten: they argue that `N_epochs` does
+> **not move** in response to the reachability rule, because `r̂ × p̂0 = repeats /
+> hours` and the opportunity count cancels. That argument is untouched — what
+> moved `N` was the variance term, not the rate. Every reachability number here
+> stands exactly.
 
 ---
 

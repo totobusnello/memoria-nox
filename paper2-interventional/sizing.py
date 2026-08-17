@@ -94,6 +94,13 @@ class SizingInputs:
     session_hours_per_epoch: float  # m_bar — para o design effect
     alpha: float = 0.05
     power: float = 0.80
+    # cv2 = variancia relativa dos tamanhos de cluster, (sd/media)^2 das sessoes
+    # por epoch. DEFAULT 0.0 DE PROPOSITO: com cv2=0 a formula colapsa em
+    # 1+(m_bar-1)*icc, que e exatamente o que esta script computava ate
+    # 2026-08-17 — de modo que o N=174 publicado na v1.9/v1.10 continua
+    # reproduzivel por quem passar as entradas daquelas versoes. A emenda e
+    # explicita, nao retroativa.
+    cv2: float = 0.0
 
     def validate(self) -> None:
         if not 0 < self.mde < 1:
@@ -105,11 +112,47 @@ class SizingInputs:
                 raise ValueError(f"{nome} must be > 0")
         if self.p0_hat >= 1:
             raise ValueError("p0_hat is a conditional rate -- it must be < 1")
+        if self.cv2 < 0:
+            raise ValueError("cv2 is a squared coefficient of variation -- it must be >= 0")
 
 
-def design_effect(icc: float, m_bar: float) -> float:
-    """DE = 1 + (m_bar - 1) * icc. With m_bar <= 1 there is no cluster: DE = 1."""
-    return 1.0 + max(0.0, m_bar - 1.0) * icc
+def design_effect(icc: float, m_bar: float, cv2: float = 0.0) -> float:
+    """DE = 1 + ((cv2 + 1) * m_bar - 1) * icc.  With m_bar <= 1 there is no cluster: DE = 1.
+
+    ⚠️ AMENDED 2026-08-17 — an error correction, not a re-run of the sizing.
+
+    Until today this computed `1 + (m_bar - 1) * icc`, the design effect for
+    clusters of EQUAL size. The clusters here are epochs and their sizes run
+    from 1 to 115 sessions: the equal-size formula does not apply, and it
+    UNDERSTATES the design effect, which under-sizes the study. That direction
+    matters, because lock (b) of 2026-07-30 mandates sizing on the upper 95%
+    confidence limit of the ICC precisely on the grounds that "under-sizing
+    invalidates an entire study, over-sizing costs calendar". The published
+    N = 174 therefore did not satisfy the lock it was written to satisfy — the
+    equal-cluster formula gave back, silently, the margin the upper limit was
+    chosen to buy.
+
+    With `cv2 = 0` the expression is identical to the old one, so every number
+    published before today remains reproducible from this file. The amendment is
+    the new argument, not a rewrite of the old behaviour.
+
+    THE WINDOW cv2 IS MEASURED OVER IS PART OF THE LOCK, and for a reason: on a
+    non-stationary pilot the choice of window is a choice of estimand, so any
+    rule that lets it be picked afterwards reopens the freedom this whole
+    function exists to close. The registered rule is the only one that needs no
+    defence of its own: **cv2 is measured over the same window as every other
+    sizing input** — all 30 epochs of the replay corpus. It is not chosen for
+    its value. That it also happens to be the largest of the candidate windows
+    (0.3833 over the whole pilot, against 0.2633 / 0.2333 / 0.2333 for the first
+    half, second half and last eight) is stated because a reader is entitled to
+    check whether the consistent choice and the conservative choice were the
+    same one here. They were; had they diverged, consistency would still have
+    governed.
+    """
+    if cv2 < 0:
+        raise ValueError("cv2 must be >= 0")
+    m_eff = (cv2 + 1.0) * m_bar
+    return 1.0 + max(0.0, m_eff - 1.0) * icc
 
 
 def epochs_per_arm(inp: SizingInputs) -> tuple[int, dict]:
@@ -123,7 +166,7 @@ def epochs_per_arm(inp: SizingInputs) -> tuple[int, dict]:
     zsum = z(1 - inp.alpha / 2) + z(inp.power)
     log_rr = math.log(lam1 / lam0)          # negativo; so o quadrado importa
     k_bruto = (zsum ** 2) * (1 / lam1 + 1 / lam0) / (inp.hours_per_epoch * log_rr ** 2)
-    de = design_effect(inp.icc, inp.session_hours_per_epoch)
+    de = design_effect(inp.icc, inp.session_hours_per_epoch, inp.cv2)
     k = math.ceil(k_bruto * de)
 
     return k, {
@@ -140,7 +183,7 @@ def power_at(inp: SizingInputs, k_per_arm: int, efeito: float) -> float:
     lam1 = lam0 * (1.0 - efeito)
     if lam1 <= 0:
         return 1.0
-    de = design_effect(inp.icc, inp.session_hours_per_epoch)
+    de = design_effect(inp.icc, inp.session_hours_per_epoch, inp.cv2)
     e0 = k_per_arm * inp.hours_per_epoch * lam0 / de
     e1 = k_per_arm * inp.hours_per_epoch * lam1 / de
     se = math.sqrt(1 / e0 + 1 / e1)
@@ -187,7 +230,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="Funcao de sizing pre-registrada (§9 item 7a)")
     ap.add_argument("--selftest", action="store_true",
                     help="roda o vetor sintetico e imprime o hash do PAP")
-    for campo in ("r-hat", "p0-hat", "icc", "mde", "hours-per-epoch", "session-hours-per-epoch"):
+    for campo in ("r-hat", "p0-hat", "icc", "mde", "hours-per-epoch", "session-hours-per-epoch", "cv2"):
         ap.add_argument(f"--{campo}", type=float)
     a = ap.parse_args()
 
@@ -198,4 +241,5 @@ if __name__ == "__main__":
             r_hat=a.r_hat, p0_hat=a.p0_hat, icc=a.icc, mde=a.mde,
             hours_per_epoch=a.hours_per_epoch,
             session_hours_per_epoch=a.session_hours_per_epoch,
+            cv2=(0.0 if a.cv2 is None else a.cv2),
         )), indent=2, sort_keys=True))

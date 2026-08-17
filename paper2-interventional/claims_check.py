@@ -85,6 +85,8 @@ import argparse
 import json
 import math
 import re
+import hashlib
+import subprocess
 import sys
 from pathlib import Path
 
@@ -375,6 +377,101 @@ def cross_check(root: Path) -> list[str]:
     return failures
 
 
+# --- sizing, locked 2026-08-17 (amendment v1.11) ---------------------------
+# These are not band-dependent, so they are checked by a separate pass. They are
+# here because the defect that produced them is the same one this file exists to
+# catch: `N` = 174 was a computed result quoted in prose across the package, and
+# it stayed quoted after the formula that produced it was found to be wrong.
+SIZING_INPUTS = dict(
+    r_hat=29.838403, p0_hat=0.111813, icc=0.18141, mde=0.30,
+    hours_per_epoch=5.1867, session_hours_per_epoch=50.4667, cv2=0.3833,
+)
+N_EPOCHS_LOCKED = 234
+DESIGN_EFFECT_LOCKED = 13.482928
+CV2_LOCKED = 0.3833
+ALLOCATION_LOCKED = {"control": 117, "w2": 39, "w4": 39, "w7.5": 39}
+
+
+def sizing_check(root: Path) -> list[str]:
+    """Re-run `sizing.py` and `assign_arms.py` and assert the locked outputs.
+
+    This is a RUN, not a regex: the point of the 2026-08-17 amendment is that a
+    formula was wrong while every number derived from it reproduced perfectly.
+    Only executing the current code can catch the next instance of that.
+
+    Limit, stated because it is real: this asserts that the deposited scripts
+    still produce the locked values. It does NOT assert that the formula inside
+    them is the right one for the design — that is a question about applicability,
+    which no self-check can answer, and which is exactly how the 174 survived
+    eleven versions and five adversarial voices.
+    """
+    failures = []
+    sizing = root / "sizing.py"
+    if not sizing.exists():
+        return [f"sizing.py not found under {root}"]
+
+    argv = [sys.executable, str(sizing)]
+    for key, val in SIZING_INPUTS.items():
+        argv += [f"--{key.replace('_', '-')}", str(val)]
+    proc = subprocess.run(argv, capture_output=True, text=True)
+    if proc.returncode != 0:
+        return [f"sizing.py exited {proc.returncode}: {proc.stderr.strip()[:200]}"]
+    out = json.loads(proc.stdout)
+
+    got_n = out["N_epochs_total"]
+    if got_n != N_EPOCHS_LOCKED:
+        failures.append(f"N_epochs: sizing.py returns {got_n}, this file locks {N_EPOCHS_LOCKED}")
+    got_de = out["intermediarios"]["design_effect"]
+    if abs(got_de - DESIGN_EFFECT_LOCKED) > 1e-6:
+        failures.append(f"design effect: sizing.py returns {got_de}, locked {DESIGN_EFFECT_LOCKED}")
+    got_cv2 = out["inputs"].get("cv2")
+    if got_cv2 != CV2_LOCKED:
+        failures.append(f"cv2: sizing.py echoes {got_cv2}, locked {CV2_LOCKED}")
+
+    # The equal-cluster formula is the defect itself; assert it is gone by
+    # checking that cv2 actually changes the answer. If a future edit dropped the
+    # term, every number above would still reproduce at cv2=0 and the check would
+    # pass while the design effect was wrong again.
+    argv_zero = [a for a in argv]
+    argv_zero[argv_zero.index("--cv2") + 1] = "0.0"
+    zero = json.loads(subprocess.run(argv_zero, capture_output=True, text=True).stdout)
+    if zero["intermediarios"]["design_effect"] >= got_de:
+        failures.append(
+            "design effect does not increase with cv2 — the unequal-cluster term "
+            "is not being applied, which is the 2026-08-17 defect returning"
+        )
+
+    assign = root / "assign_arms.py"
+    if not assign.exists():
+        failures.append(f"assign_arms.py not found under {root}")
+        return failures
+    src = assign.read_text(encoding="utf-8")
+    m = re.search(r"^N_EPOCHS\s*=\s*(\d+)", src, re.MULTILINE)
+    if not m:
+        failures.append("assign_arms.py: no N_EPOCHS declaration found")
+    elif int(m.group(1)) != N_EPOCHS_LOCKED:
+        failures.append(
+            f"assign_arms.py declares N_EPOCHS = {m.group(1)}, sizing locks {N_EPOCHS_LOCKED}"
+        )
+    else:
+        seed = hashlib.sha256(b"claims_check").hexdigest()
+        proc = subprocess.run(
+            [sys.executable, str(assign), "assign", "--seed", seed, "--start", "2026-09-01"],
+            capture_output=True, text=True,
+        )
+        if proc.returncode != 0:
+            failures.append(f"assign_arms.py exited {proc.returncode}")
+        else:
+            bal = json.loads(proc.stdout)["balanceamento"]
+            if bal["grupos"] != ALLOCATION_LOCKED:
+                failures.append(
+                    f"allocation: assign_arms.py gives {bal['grupos']}, locked {ALLOCATION_LOCKED}"
+                )
+            if not bal["dentro_da_tolerancia"]:
+                failures.append("assign_arms.py: balance outside the registered tolerance")
+    return failures
+
+
 def show() -> None:
     print(f"band            w in {{{', '.join(str(w) for w in BAND)}}}")
     print(f"Delta_cut       {DELTA_CUT}")
@@ -414,6 +511,7 @@ def main() -> int:
         return 0
 
     failures: list[str] = []
+    failures += sizing_check(Path(args.root))
 
     for label, computed, published, tol in claims():
         if computed is None or computed == math.inf:

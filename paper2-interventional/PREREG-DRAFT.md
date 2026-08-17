@@ -1,4 +1,41 @@
-# OSF Pre-Registration — v1.10
+# OSF Pre-Registration — v1.11
+
+> ### 🔴 The design effect was computed with the wrong formula, and it under-sized the study — 2026-08-17
+>
+> **This is an error correction plus a feasibility update. It is not a re-size.** No target moved, no MDE was reshopped, and the sizing function's signature is byte-identical to the one locked on 2026-08-15. What changed is that one of its **inputs** was wrong, in the one direction the design's own locks forbid.
+>
+> `sizing.py` computed the design effect as `DE = 1 + (m̄ − 1)·ρ`. That formula assumes **equal cluster sizes**. Epoch sizes in this design are anything but: across the 30-epoch pilot window they run from **1 to 115 sessions**, with squared coefficient of variation **cv² = 0.3833**. For unequal clusters the design effect is
+>
+> ```
+> DE = 1 + ((cv² + 1)·m̄ − 1)·ρ
+> ```
+>
+> and the equal-size formula therefore **understates** it. Understating the design effect understates the variance, which under-powers the study — and lock **(b) of 2026-07-30** exists precisely to forbid that direction: *"under-sizing invalidates an entire study, over-sizing costs calendar"*, sized on the ICC's **upper** confidence limit, *"not a refinement"*. So **`N` = 174 never satisfied the lock it was written to satisfy.** Correcting it is not discretion; leaving it would be knowingly running a study below its own registered floor.
+>
+> | | published (v1.9–v1.10) | corrected |
+> |---|---|---|
+> | design-effect formula | `1 + (m̄ − 1)·ρ` | `1 + ((cv² + 1)·m̄ − 1)·ρ` |
+> | `cv²` | absent (implicitly 0) | **0.3833 — now a locked input** |
+> | DE at ρ = 0.18141 (upper limit) | 9.973754 | **13.482928** |
+> | `N_epochs` at MDE 30%, upper limit | 174 | **234** |
+> | allocation | 87 control · 29 per dose | **117 control · 39 per dose** |
+>
+> **`cv²` is registered as a locked input, not left to the run.** It is measured over the **same 30-epoch pilot window** as every other sizing input (`r̂`, `p̂0`, the ICC, `m̄`), for consistency of window rather than for its value. Stated plainly because it deserves suspicion: 0.3833 over the whole window is also the **largest** of the candidate estimates — the pilot's halves give 0.2633 and 0.2333, and its last eight epochs 0.2333 — so the choice is simultaneously the consistent one and the conservative one, and a reader can check both claims against the pilot. Fixing it as an input matters because otherwise the bootstrap re-estimates it per draw and smuggles a regime choice into the interval.
+>
+> **It also resolves an incoherence the deposit already carried.** The front page published *"design effect 5.87"* beside *"epochs 174"*. Those come from **different regimes**: 5.87 is the DE at the ICC **point** estimate, which yields `N` = 102; 174 comes from the **upper limit**, whose DE is 9.9738. Two sizing regimes stood side by side in one table with nothing marking the difference. Under the corrected formula the table now reports one regime throughout.
+>
+> **Timing, which is the whole of why this is admissible.** The amendment is published **before any epoch is randomised, before any arm is assigned, and before the drand round that seeds the assignment has been drawn**. No outcome, and no arm label, exists yet anywhere. `assign_arms.py` keeps `--epochs 174` working, and `sizing.py` without `--cv2` still returns 174, so the published record stays executable rather than being overwritten.
+>
+> **What does not move, and could not:** `r̂` = 29.838403, `p̂0` = 0.111813, the ICC and its interval (0.098459 [0.057023; 0.18141]), `m̄`, `λ₀` = 3.336321, `δ` = 36.67, the outcome definition, the dose band `{2.0, 4.0, 7.5}`, every reach number, and H1's unconditional status. `cv²` enters the variance, not the rate.
+>
+> **What moves with `N`, each corrected at the point it appears:** the allocation (117/39/39/39 — exact, where 174 needed the 87/29 rounding), the MDE grid, the calendar horizon (234 days: 2026-09-01 → 2027-04-22, ~7.7 months) and its cap (323 days, preserving the registered 38% slack), the bootstrap's per-arm resampling counts, the jackknife's epoch count, and the carry-over bound of Appendix B.
+>
+> **One consequence is an argument for 234 independent of power.** The registered carry-over bound is proportional to `E|p₁ − p₀|`, which shrinks with sequence length. Measured over 40 seeds of the actual assignment script: `E|p₁ − p₀|` = 0.0679 at 174 and **0.0526 at 234**, so the bound's half-width falls from 2.490 to **1.928** repeated failures per session-hour — **22.6% narrower**. The longer study does not merely buy power; it tightens the one quantity the design cannot randomise away.
+>
+> ⚠️ **The non-stationarity note in Appendix B now cuts both ways, and stays.** It argues `N` = 174 was probably conservative because the corpus's mature regime has a lower ICC. The same non-stationarity is what produces `cv²`: sessions per epoch fall roughly tenfold across the pilot, so the dispersion that inflates the design effect and the drift that deflates the ICC are **the same phenomenon**. The note is not evidence that 234 is now excessive; it is evidence that the pilot window is heterogeneous, which is the condition under which the unequal-cluster formula is mandatory rather than optional. Both are left on the record, since a reader is entitled to see the tension rather than the resolution I happen to prefer.
+>
+> ⚠️ **How this was found, since it bears on what else may be there.** It came from an adversarial voice (DeepSeek) asking whether the design effect assumed equal cluster sizes — a question about a **formula's applicability**, which no amount of recomputing the arithmetic would have surfaced, because the arithmetic was correct for the formula used. It is the fourth defect in two days found by asking *"what does this expression assume?"* rather than *"does this number reproduce?"*. The four-voice panel then split on what to do (one against reopening at all, one for fixing the information rather than `N`, one for amending but keeping 174 for credibility, one for correcting as a duty), which is recorded here because the decision was a judgement between defensible positions, not a calculation.
+
 
 > ### 🔴 A published claim was stale, and the fresh pool has gates the reach model never contained — 2026-08-17
 >
@@ -118,7 +155,7 @@
 >
 > Corrected in the estimator, not in §5: changing a locked rule to match an implementation is the inverse of what a pre-registration is for. `r̂` **28.648576 → 29.838403** · `p̂0` **0.116457 → 0.111813**.
 >
-> **`N_epochs` = 174 does not move, and could not.** `r̂ × p̂0 = (opportunities/hours) × (repeats/opportunities) = repeats/hours` — the opportunity count cancels, so λ₀ cannot depend on how opportunities are counted. The ICC, its interval and m̄ are likewise unchanged: they are computed over repeat densities, and an unadjudicable outcome is not a repeat.
+> **`N_epochs` = 174 does not move, and could not.** ⚠️ **Superseded 2026-08-17 (v1.11): `N_epochs` = 234. The claim below is preserved as written — it was correct about *its own* correction, which genuinely did not move `N`; what moved `N` was a different defect, in the design-effect formula.** `r̂ × p̂0 = (opportunities/hours) × (repeats/opportunities) = repeats/hours` — the opportunity count cancels, so λ₀ cannot depend on how opportunities are counted. The ICC, its interval and m̄ are likewise unchanged: they are computed over repeat densities, and an unadjudicable outcome is not a repeat.
 >
 > What the rule does decide is what `p̂0` **means**: under §5 it is a genuine **floor**, since an unknown can only ever move into the numerator. A floor on `p̂0` is a ceiling on `N` — the same direction of error this design takes everywhere else.
 
@@ -131,7 +168,7 @@
 >
 > **Locked:** one designated chunk per opportunity, and the band `w ∈ {2.0, 4.0, 7.5}` replacing `{0.5, 1.0, 2.0}` — measured, the two lower arms reached **exactly zero**, so the step this document previously pre-committed as the mechanism's signature would have appeared even with a null mechanism.
 >
-> **No estimate changes:** `r̂`, `p̂0`, the ICC and `N_epochs` = 174 are untouched, and H1 stays unconditional. Registered before any randomised epoch exists.
+> **No estimate changes:** `r̂`, `p̂0`, the ICC and `N_epochs` = 174 are untouched, and H1 stays unconditional. ⚠️ **Superseded 2026-08-17 (v1.11): `N_epochs` = 234. The claim below is preserved as written — it was correct about *its own* correction, which genuinely did not move `N`; what moved `N` was a different defect, in the design-effect formula.** Registered before any randomised epoch exists.
 
 
 > ### ✅ The assertion of inertness withdrawn — 2026-08-16
@@ -176,7 +213,7 @@
 >
 > ⚠️ **The two defects are independent, and the second is the smaller one.** Writing 154 for 152 is arithmetic; sizing on the point when a lock mandates the upper limit is a decision pattern. The first is corrected with a number, the second with a rule. Worse than the number was the pattern: the same note applied discipline *not* to cut from 154 to 46 — "any reason pointing at a shorter study deserves more suspicion" — without noticing that 154 was already a silent cut against what an earlier lock required. Conservative where it was cheap, not conservative where it cost calendar.
 >
-> **Corrected the same day, before any randomised epoch: `N_epochs` = 174, MDE declared at 30%, sized on the ICC's UPPER LIMIT (0.1814).**
+> **Corrected the same day, before any randomised epoch: `N_epochs` = 174, MDE declared at 30%, sized on the ICC's UPPER LIMIT (0.1814).** ⚠️ **Superseded 2026-08-17 (v1.11): 234.** The standard asserted here — size on the upper limit — is the very standard that the equal-cluster design-effect formula was silently violating; this block fixed the ICC regime and left the formula wrong.
 >
 > | MDE | at the point | **at the upper limit — what lock (b) mandates** |
 > |---|---|---|
@@ -184,9 +221,20 @@
 > | 25% | ~~152~~ | 256 |
 > | **30%** | 102 | **174 ← LOCKED** |
 >
-> Choosing 30% over 25% is calendar allocation (174 days against 256), made with the whole table in view and **before** any arm data exists. What it buys is not a shorter study than the correct one — it is the correct study under the lock that was already on paper. What it costs is in §3 and in the abstract: effects below 30% relative will not be reliably detected.
+> ⚠️ **AMENDED 2026-08-17 (v1.11).** Every cell above uses the **equal-cluster** design effect (5.870442 at the point, 9.973754 at the upper limit). Under the unequal-cluster formula with the locked `cv²` = 0.3833 the design effects become 7.775021 and 13.482928, and the grid reads:
 >
-> **Locked 2026-08-15:** `N_epochs` = **174** · MDE declared at **30%** via the §3 escape clause, sized on the **upper confidence limit** of the ICC per lock (b) (the 20% target is not amended, and is not reached) · `δ` = 36.67 · task-regret `p95` = 7.45 s / 65 206 tokens.
+> > | MDE | at the point | **at the upper limit — what lock (b) mandates** |
+> > |---|---|---|
+> > | 20% | 320 | 554 |
+> > | 25% | 200 | 346 |
+> > | **30%** | 136 | **234 ← LOCKED 2026-08-17** |
+> > | 35% | 98 | 168 |
+>
+> The choice of 30% is unchanged and is not re-argued; only the cell it selects moved. Both grids are kept so that the effect of the formula is visible cell by cell rather than asserted. The 20% target still is not reached, and now costs **554** epochs rather than 410.
+
+> Choosing 30% over 25% is calendar allocation (174 days against 256; **234 against 346** under the corrected design effect), made with the whole table in view and **before** any arm data exists. What it buys is not a shorter study than the correct one — it is the correct study under the lock that was already on paper. What it costs is in §3 and in the abstract: effects below 30% relative will not be reliably detected.
+>
+> **Locked 2026-08-15:** `N_epochs` = **174** (⚠️ **amended to 234 on 2026-08-17**) · MDE declared at **30%** via the §3 escape clause, sized on the **upper confidence limit** of the ICC per lock (b) (the 20% target is not amended, and is not reached) · `δ` = 36.67 · task-regret `p95` = 7.45 s / 65 206 tokens.
 >
 > **Version history.** v0.1, 2026-07-25. v0.1 was adversarially reviewed by GLM-5.2 (5 FATAL / 7 GRAVE / 10 minor — full verdict in `REVIEWS-PREREG.md`); v0.2 incorporated every fix independent of the route decision; **Route 2-lite decided 2026-07-12** (§0) — the route decision *precedes* v0.1 because the routes were argued out in `DECISIONS.md` before this document existed; v0.1 is the first draft that assumes the decision, not the one that made it. v0.1 and v0.3 share the date 2026-07-25 because both landed that day: v0.1 was reviewed and revised within the same session. **v0.3 (2026-07-25, Toto's call): no human auditor and no human data monitor will be appointed. Independence is provided structurally — by public randomness, frozen hashes, mechanical rules, and open artifacts — rather than delegated to named individuals** (§0b). Locking now blocked only on the remaining **[TO LOCK]** items (§9). This document becomes binding only when registered on OSF with a public timestamp **before** any A/B data collection.
 > **Companion docs:** `CONCEPT-NOTE.md` · `METHODOLOGY.md` · `DECISIONS.md` · `REVIEWS-PREREG.md`.
@@ -403,7 +451,7 @@ over the realized snapshot sequence — i.e., the effect of *which chunks are se
   >
   > **Dose–response reading rule, restated.** The three arms are separated by *which severity class becomes admissible*, not by a smooth gradient. The mechanism predicts **a step at `w = 2.0 → 4.0` concentrated in S2 episodes, and a second at `4.0 → 7.5` concentrated in S1**. Absence of both is evidence against the mechanism as specified. A monotone effect *without* the steps landing on those transitions would indicate something other than coverage-slot admission is driving the outcome, and would be reported as such.
   >
-  > **What does not change:** `r̂`, `p̂0`, the ICC, `N_epochs` = 174 and the outcome definition are untouched — H1 stays **unconditional**, and it is now testable because the ceiling exceeds the MDE at every arm. Registered before any randomised epoch exists.
+  > **What does not change:** `r̂`, `p̂0`, the ICC, `N_epochs` = 174 (⚠️ **now 234, v1.11**) and the outcome definition are untouched — H1 stays **unconditional**, and it is now testable because the ceiling exceeds the MDE at every arm. Registered before any randomised epoch exists.
   >
   > **The written chunk's structured fields — LOCKED 2026-08-16, because the dose numbers above already depend on them.** An earlier version of this paragraph called the chunk template "still open... neither enters `r̂`, `p̂0`, the ICC or the outcome definition". The claim about `r̂`, `p̂0` and the ICC is true and stands. The claim about the template was **wrong by omission**: every dose number in this section — the S2 threshold between `w = 1.0` and `w = 2.0`, the `w ≈ 6.0` that modal S1 would require, whether a written chunk enters the coverage slots at all — depends on the written chunk's field values, and those had never been written down. (The *reach* and *displaceable* counts are the exception: they are properties of the incumbent pool, not of the challenger, and the paragraph below separates the two.)
 
@@ -599,7 +647,7 @@ Four decisions, locked:
 
 #### Live-study adjudication volume and panel — LOCKED 2026-07-30: **census, API-only panel**
 
-The gap the ICC analysis exposed: this registration fixed the *calibration* panel but never fixed the **adjudication volume of the live study**. ⚠️ **The arithmetic below uses the sizing current on 2026-07-30 (`K` ≈ 48 per arm, 96 epochs). `N_epochs` was locked at 174 on 2026-08-15 — 87 per arm — so every volume figure in this subsection is an UNDERSTATEMENT by ~1.8×.** The conclusion it reaches (census, API-only panel; subsampling dominated) is unaffected and gets *stronger* with more epochs, which is why the numbers were not silently rewritten: the reasoning is auditable against the sizing that produced it. At `K` ≈ 48 per arm the study spans 96 epochs × ~396 episodes ≈ **38,000 episodes**. The Moonshot panelist is reached through a CLI whose quota admits ~100 calls per window, so a five-panelist census is ~380 quota windows — not feasible.
+The gap the ICC analysis exposed: this registration fixed the *calibration* panel but never fixed the **adjudication volume of the live study**. ⚠️ **The arithmetic below uses the sizing current on 2026-07-30 (`K` ≈ 48 per arm, 96 epochs). `N_epochs` was locked at 174 on 2026-08-15 and amended to 234 on 2026-08-17 — 117 per arm — so every volume figure in this subsection is an UNDERSTATEMENT by ~2.4×** (it was stated as ~1.8× under 174, and that factor is corrected here rather than left to compound). The conclusion it reaches (census, API-only panel; subsampling dominated) is unaffected and gets *stronger* with more epochs, which is why the numbers were not silently rewritten: the reasoning is auditable against the sizing that produced it. At `K` ≈ 48 per arm the study spans 96 epochs × ~396 episodes ≈ **38,000 episodes**. The Moonshot panelist is reached through a CLI whose quota admits ~100 calls per window, so a five-panelist census is ~380 quota windows — not feasible.
 
 **Subsampling is dominated on principle, not on preference.** Expected observed events are `E_a = K·T·λ_0`; adjudicating a fraction `f` multiplies the epochs required by `1/f`, so the **absolute number of adjudicated episodes is invariant to `f`**. Subsampling buys no adjudication volume at all — it converts a throughput problem into a calendar problem, on a study whose calendar is already ~130 days. It also adds sampling variance that `DE` would then have to carry.
 
@@ -670,9 +718,9 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 
 > #### The escape clause above is hereby exercised — 2026-08-15, before any outcome data exists
 >
-> **`N_epochs` is locked at 174 randomized epochs, and the registration will declare "powered only for effects ≥ 30% relative".**
+> **`N_epochs` is locked at 174 randomized epochs, and the registration will declare "powered only for effects ≥ 30% relative".** ⚠️ **AMENDED 2026-08-17 (v1.11) to 234 epochs; the MDE declaration of 30% is unchanged.** See the head of this document — the design effect was computed with the equal-cluster formula.
 >
-> ⚠️ **Corrected the same day, before any randomized epoch.** The first version of this lock read *154 epochs at 25%* — the **point estimate** of the ICC, and off by two even there (`sizing.py` returns **152**, which is what `SIZING-2026-08-14-v2.md` §3 has said all along). Lock **(b) of 2026-07-30** requires sizing on the **upper 95% confidence limit** ("not the point estimate", "not a refinement"), which at 25% is 256 epochs. Adversarial review (Kimi) caught the silent violation. The correction chooses the MDE, not the standard: **30% on the upper limit = 174**, which honours lock (b) *and* costs less calendar than 256. See the block at the head of this document.
+> ⚠️ **Corrected the same day, before any randomized epoch.** The first version of this lock read *154 epochs at 25%* — the **point estimate** of the ICC, and off by two even there (`sizing.py` returns **152**, which is what `SIZING-2026-08-14-v2.md` §3 has said all along). Lock **(b) of 2026-07-30** requires sizing on the **upper 95% confidence limit** ("not the point estimate", "not a refinement"), which at 25% is 256 epochs. Adversarial review (Kimi) caught the silent violation. The correction chooses the MDE, not the standard: **30% on the upper limit = 174**, which honours lock (b) *and* costs less calendar than 256. ⚠️ **Superseded 2026-08-17: 234.** Honouring lock (b) on the *ICC regime* was not enough — the design effect itself was computed with the equal-cluster formula, so this correction fixed one violation of lock (b) while a second one stood. See the block at the head of this document.
 >
 > The 20% MDE target is **not** amended and remains on the record as what was wanted. What this clause does is exactly what it was written for: report honestly that the locked N does not reach 80% power at 20%, and say so in the abstract rather than let the reader assume otherwise. Sizing at 20% would require **410 epochs at the ICC's upper confidence bound** (242 at the point estimate) — 13.5 months of continuous fleet operation. The full grid, all on the same inputs, with the column lock (b) mandates in bold:
 >
@@ -681,7 +729,17 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 > | 20% (target locked 2026-07-29) | 242 | 410 |
 > | 25% | 152 | 256 |
 > | **30%** | 102 | **174 ← LOCKED** |
-> | 35% | 74 | 124 |
+> | 35% | 74 | 124 |>
+> ⚠️ **AMENDED 2026-08-17 (v1.11).** Every cell above uses the **equal-cluster** design effect (5.870442 at the point, 9.973754 at the upper limit). Under the unequal-cluster formula with the locked `cv²` = 0.3833 the design effects become 7.775021 and 13.482928, and the grid reads:
+>
+> > | MDE | at the point | **at the upper limit — what lock (b) mandates** |
+> > |---|---|---|
+> > | 20% | 320 | 554 |
+> > | 25% | 200 | 346 |
+> > | **30%** | 136 | **234 ← LOCKED 2026-08-17** |
+> > | 35% | 98 | 168 |
+>
+> The choice of 30% is unchanged and is not re-argued; only the cell it selects moved. Both grids are kept so that the effect of the formula is visible cell by cell rather than asserted. The 20% target still is not reached, and now costs **554** epochs rather than 410.
 >
 > **Inputs, all fixed before this lock and none of them outcome data from the study** (`SIZING-2026-08-14-v2.md`, replay over 30 epochs of historical corpus, no live arms):
 >
@@ -689,12 +747,12 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 > |---|---|
 > | `r̂` | 29.838403 |
 > | `p̂0` | 0.111813 |
-> ⚠️ **Corrected 2026-08-16 — the missing-data rule, and why `N` did not move.** §5 locks *"unadjudicable outcomes → third category, reported, **excluded from numerator**"*. `pilot_replay.py`'s stratified branch — the one that produced every canonical number — was excluding them from the **denominator too**: complete-case analysis, a different rule that was never registered. (Its census branch always followed §5, so the same script implemented two rules depending on a flag.) Corrected: `r̂` **28.648576 → 29.838403**, `p̂0` **0.116457 → 0.111813**. **The ICC, its interval, m̄ and `N_epochs` = 174 are all unchanged**, and not by luck: `r̂ × p̂0 = (opportunities/hours) × (repeats/opportunities) = repeats/hours`, so the opportunity count cancels and λ₀ cannot depend on how opportunities are counted. The rule decides what `p̂0` *means* — under §5's rule it is a genuine **floor**, since an unknown can only ever move into the numerator — not what the study costs.
+> ⚠️ **Corrected 2026-08-16 — the missing-data rule, and why `N` did not move.** §5 locks *"unadjudicable outcomes → third category, reported, **excluded from numerator**"*. `pilot_replay.py`'s stratified branch — the one that produced every canonical number — was excluding them from the **denominator too**: complete-case analysis, a different rule that was never registered. (Its census branch always followed §5, so the same script implemented two rules depending on a flag.) Corrected: `r̂` **28.648576 → 29.838403**, `p̂0` **0.116457 → 0.111813**. **The ICC, its interval, m̄ and `N_epochs` = 174 are all unchanged**, and not by luck: ⚠️ **Superseded 2026-08-17 (v1.11): `N_epochs` = 234. The claim below is preserved as written — it was correct about *its own* correction, which genuinely did not move `N`; what moved `N` was a different defect, in the design-effect formula.** `r̂ × p̂0 = (opportunities/hours) × (repeats/opportunities) = repeats/hours`, so the opportunity count cancels and λ₀ cannot depend on how opportunities are counted. The rule decides what `p̂0` *means* — under §5's rule it is a genuine **floor**, since an unknown can only ever move into the numerator — not what the study costs.
 
 > | ICC | 0.098459, IC 95% **[0.0570 ; 0.1814]** (Searle; bootstrap de cluster confirma) |
 > | `hours_per_epoch` | 5.1867 (horas-sessão por epoch) |
 | `session_hours_per_epoch` | **50.4667 — e este campo contém SESSÕES, não horas** |
-> | design effect | 5.87 |
+> | design effect | 5.87 ⚠️ **equal-cluster formula — superseded 2026-08-17; the unequal-cluster value at this ICC is 7.775021** |
 
 > ⚠️ **The name `session_hours_per_epoch` lies, and the value is right.** The field carries the **session count** per epoch, which is the `m̄` the design effect requires (`DE = 1 + (m̄−1)·ICC`); `sizing.py` consumes it as `m_bar` and `pilot_replay.py` computes it as `sum(sessions)/epochs`. It checks out: `1 + (50.4667−1)×0.098459 = 5.87`. §3 already records the trap — *"`m̄` counts sessions, not session-hours — corrected 2026-07-30 after the harness exposed it"* — but the correction was made to the **value** and the **field name never changed**. Renaming it now would alter the JSON output of a script whose results are already cited in dated documents; it is declared rather than renamed. **Anyone reimplementing must feed `sizing.py` sessions per epoch, not hours.**
 >
@@ -704,15 +762,15 @@ Positive control: a synthetic chunk inserted into the live store after a boundar
 >
 > **Why this is not MDE shopping.** The §3 rule is "after the pilot, `f` is evaluated once and its output locked — no re-runs, no post-hoc MDE shopping". `f` was evaluated on the pilot corpus, which contains **no arm assignment and no study outcome**; the arms have not run. The prohibition targets choosing an MDE after seeing an effect, and there is no effect to have seen. The decision, its inputs, and its cost are recorded here **before** the first randomized epoch.
 >
-> The same test applies to the 25%→30% move made on the day of the lock, and it passes for the same reason — **but the honest framing is not "it passes", it is "there is nothing yet against which it could fail".** The move was made with the full grid above in view, to satisfy a standard (lock (b)) that was already on the record and was being violated. What makes it auditable is not the argument: it is that `r̂`, `p̂0` and the ICC were fixed and published in `SIZING-2026-08-14-v2.md` **before** the MDE was chosen, so anyone can recompute every cell of that table and confirm 174 is the entry it claims to be.
+> The same test applies to the 25%→30% move made on the day of the lock, and it passes for the same reason — **but the honest framing is not "it passes", it is "there is nothing yet against which it could fail".** The move was made with the full grid above in view, to satisfy a standard (lock (b)) that was already on the record and was being violated. What makes it auditable is not the argument: it is that `r̂`, `p̂0` and the ICC were fixed and published in `SIZING-2026-08-14-v2.md` **before** the MDE was chosen, so anyone can recompute every cell of that table and confirm 174 is the entry it claims to be — and, under the corrected design effect, that the same cell now reads **234**.
 
-**Stopping rule (F3 fix).** Fixed horizon defined **only in pre-treatment units**: data collection ends at **174 randomized epochs (LOCKED 2026-08-15)** or the pre-committed calendar end date, whichever comes first. Opportunity counts play **no role** in stopping. No interim analyses; no optional stopping.
+**Stopping rule (F3 fix).** Fixed horizon defined **only in pre-treatment units**: data collection ends at **234 randomized epochs (AMENDED 2026-08-17; was 174, LOCKED 2026-08-15)** or the pre-committed calendar end date, whichever comes first. Opportunity counts play **no role** in stopping. No interim analyses; no optional stopping.
 
 > **The calendar date is now a formula rather than a pending value — LOCKED 2026-08-16.** It stood as `[TO LOCK]` on the ground that it *"must be set from the first randomized epoch, which has not yet occurred"*. That is true of the **date** and false of the **rule**: the rule can be written now, and writing it after watching the calendar run would be adaptive in exactly the way this section forbids.
 >
 > **`calendar_end = date(first randomized epoch) + 240 days.`**
 >
-> 174 epochs at 24 h consume 174 days if none is voided, so 240 leaves **66 days (38%) of slack**. The cap exists to bound the study, **not to truncate it**: it is set so that it almost certainly does not bind, and if it does bind the study reports fewer than 174 epochs with the shortfall stated. Sizing is on epochs, never on days, so a binding cap costs power and nothing else.
+> 234 epochs at 24 h consume 234 days if none is voided, so the cap is **AMENDED 2026-08-17 to 323 days**, leaving **89 days (38%) of slack** — the same slack fraction the 240-day cap gave against 174 epochs, rescaled rather than re-argued. The cap exists to bound the study, **not to truncate it**: it is set so that it almost certainly does not bind, and if it does bind the study reports fewer than 234 epochs with the shortfall stated. Sizing is on epochs, never on days, so a binding cap costs power and nothing else.
 >
 > **What the slack is actually for — corrected after adversarial review, 2026-08-16.** The sentence above originally offered the 66 days for *"epochs voided by the §3 abort rule or by fleet downtime"*, listing two consumers as if they shared the budget. They do not. §3 records the **baseline of incidents at median severity ≥ S3 as zero** over the frozen corpus, so aborts are expected to consume approximately none of it. **The 66 days are, in practice, entirely a downtime budget**, and the cap binds if and only if the fleet is down for more than 66 of the 240 days — 27% of the calendar. Stating the single real consumer is more useful than listing two, because it makes the failure condition checkable while the study runs rather than only in hindsight. The date itself is published to OSF together with the assignment sequence, before the first treatment epoch (M4).
 **Safety abort — mechanical, no monitor (§0b).** Discretion is removed rather than delegated. A script in the frozen commit evaluates the following **arm-blind** rule at every epoch boundary, over the incident stream only (it never reads arm labels):
@@ -904,11 +962,11 @@ Agent id (**defined by OS-level identity**: systemd unit / session namespace, M7
 
    > **Bootstrap fully specified — LOCKED 2026-08-16.** The line above said *"cluster (epoch) bootstrap CI"* and stopped there: no resample count, no interval construction, no resampling unit for the two arms. Three unstated choices, each of which moves an interval. Registered now:
    >
-   > - **Resampling unit:** the epoch, drawn **with replacement, stratified by arm** — 87 control epochs from the control set and 87 treatment epochs from the treatment set, per draw. Unstratified resampling would let arm sizes fluctuate across draws and would widen the interval for a reason that has nothing to do with the effect: the design fixed those sizes.
+   > - **Resampling unit:** the epoch, drawn **with replacement, stratified by arm** — 117 control epochs from the control set and 117 treatment epochs from the treatment set, per draw (**AMENDED 2026-08-17**; was 87 and 87). Unstratified resampling would let arm sizes fluctuate across draws and would widen the interval for a reason that has nothing to do with the effect: the design fixed those sizes.
    >
    >   **It cuts both ways, and the other way is the one worth watching.** Stratifying also *narrows* the interval, by forbidding the arm-size imbalance an unstratified draw would produce. That is legitimate **only because the design fixed the arm sizes ex ante** — the bootstrap is mirroring a real constraint, not imposing a convenient one. The case where it stops being legitimate is **unequal voiding**: if the §3 abort rule (or downtime) removes materially more epochs from one arm than the other, the realized sizes are no longer 87/87 and stratifying to the *realized* counts would narrow the interval around an imbalance the design did not choose. **Pre-committed:** if the realized arm sizes differ by more than 5 epochs, the stratified interval is reported **alongside** an unstratified one, and the difference between them is reported rather than resolved.
    > - **Resamples: 10,000**, matching the permutation count already locked at 2026-07-29 — one number for both, so neither can be tuned against the other.
-   > - **Construction: BCa** (bias-corrected and accelerated), acceleration from the **leave-one-epoch-out jackknife** over all 174 epochs. Percentile is the declared fallback, used **only** if the acceleration is undefined (zero jackknife variance), and its use is reported.
+   > - **Construction: BCa** (bias-corrected and accelerated), acceleration from the **leave-one-epoch-out jackknife** over all 234 epochs (**AMENDED 2026-08-17**; was 174). Percentile is the declared fallback, used **only** if the acceleration is undefined (zero jackknife variance), and its use is reported.
    >
    >   Textbook BCa jackknifes the *observation*; this jackknifes the *cluster*, and the granularity difference is deliberate rather than an oversight (flagged by adversarial review, 2026-08-16). The estimand is a **cluster-level statistic** — a difference of epoch-level densities — and the resampling unit is the epoch, so the acceleration must be estimated at the unit the bootstrap actually perturbs. A per-session jackknife would estimate the influence of an observation on a statistic whose sampling variation is between epochs, and would understate it.
    >
@@ -916,7 +974,7 @@ Agent id (**defined by OS-level identity**: systemd unit / session namespace, M7
 
 **Co-estimates (interference; pre-committed):** A→B-restricted estimate; lag-1-adjusted estimate; partial-identification bounds (§2). Concordance across the four is the claim's strength; divergence is reported as-is.
 
-> **The lag-1 model — LOCKED 2026-08-16.** *"Predecessor arm as covariate"* named a covariate, not a model, and left the covariate's own coding open now that arms are four-valued. Registered: the **same model family as the secondary estimator below**, with one added regressor — a **binary** indicator for whether the predecessor epoch was any treatment arm. Binary rather than four-level because carry-over runs through *snapshot content*, and §2 locks the write as happening in **both** arms: what the predecessor's dose changes is behaviour, not what is written. A four-level lag would spend three degrees of freedom on a gradient the mechanism does not predict at this stage, and at 174 epochs those degrees of freedom are not free.
+> **The lag-1 model — LOCKED 2026-08-16.** *"Predecessor arm as covariate"* named a covariate, not a model, and left the covariate's own coding open now that arms are four-valued. Registered: the **same model family as the secondary estimator below**, with one added regressor — a **binary** indicator for whether the predecessor epoch was any treatment arm. Binary rather than four-level because carry-over runs through *snapshot content*, and §2 locks the write as happening in **both** arms: what the predecessor's dose changes is behaviour, not what is written. A four-level lag would spend three degrees of freedom on a gradient the mechanism does not predict at this stage, and at 234 epochs those degrees of freedom are still not free.
 
 **Secondary estimator (sensitivity):** mixed model with arm fixed effect, **agent as fixed stratum** (no agent random effect — the fleet is an allowlist of ~7 named agents plus the workspace root, far too few clusters for a random effect; G7), epoch random intercept.
 
@@ -939,6 +997,15 @@ Agent id (**defined by OS-level identity**: systemd unit / session namespace, M7
 **Multiple comparisons.** H1 at α=0.05 two-sided; H1a–c + H2 Holm-corrected within the secondary family. **The two task-regret components (time, tokens) enter that Holm family as two members, not one — LOCKED 2026-08-15.** Splitting a summed outcome into two makes the correction stricter, not looser, which is the direction that keeps the split from being a way to buy significance; treating them as a single member would require a pooling rule, and pooling is exactly what the missing conversion rate makes impossible (§4.2). H3 exploratory, effect sizes only, figures per pre-committed Appendix A specs.
 
 **Exclusions (ex-ante, arm-blind; G3 fix).** All exclusion rules are deterministic, evaluable without arm labels, frozen at the pipeline commit, and applied by script before unblinding. **Arm-blindness is not attested by an auditor but is checkable by inspection (§0b):** the exclusion code takes the episode corpus as its only input — the arm-label artifact is not in scope for that module — so any reader can confirm by reading the frozen commit that no exclusion rule *could* have consulted an arm label. The set of excluded units is itself hashed and published before the join. Rules: washout windows; boundary-straddling sessions (flag + sensitivity); epochs overlapping `ops_audit`-logged manual memory interventions (**both arms equally, by timestamp**); epochs with `brief_log` coverage < **95% (LOCKED 2026-07-29)**, coverage computed arm-blind.
+
+> **The coverage *formula* — LOCKED 2026-08-17.** The 95% threshold has been locked since 2026-07-29; the quantity it thresholds was never written down, which makes the threshold unevaluable. Registered:
+>
+> ```
+> coverage(epoch) = |{ s : s starts in the epoch AND ∃ brief_log row for s with brief_id NOT NULL }|
+>                 ÷ |{ s : s starts in the epoch }|
+> ```
+>
+> Both sets are over sessions, not briefs, and the **denominator is taken from the session corpus rather than from `brief_log`** — deliberately, because a coverage measure whose denominator is drawn from the very table whose failures it is meant to detect reads 100% exactly when logging drops a row entirely. Sessions excluded by the washout are excluded from both sets, so coverage is computed on the analysed exposure and not on the epoch's wall-clock. Arm-blind: neither set is a function of the arm label, and the computation takes the session corpus and `brief_log` as its only inputs. **A caveat that survives the formula:** coverage remains a **post-randomisation** variable, which is why the mandatory no-exclusion ITT co-estimate below is not optional.
 
 **The floor is satisfied, and it dates the earliest usable epoch.** Measured on the frozen epoch snapshots: `brief_id` — the field that identifies which brief was served — was absent for every row through 2026-07-24, appeared mid-day on 07-25 (16.9%), and has been at **100.0% on 07-26, 07-27, 07-28 and 07-29** (~7,300 rows/day). The 95% floor therefore sits comfortably below observed behaviour and exists to absorb transient logging failure, not to be a live constraint. **Consequence, pre-committed: epochs before 2026-07-26 are ineligible by construction** — not excluded on a statistical criterion, but because the instrument that measures coverage did not yet record it. This is the same date that gates the 14-day baseline minimum in §3, so both point at the same earliest pilot start.
 
@@ -964,10 +1031,11 @@ It is replaced by an **equivalence test**, which matches the claim actually bein
 | Researcher DOF | This registration + pre-registered pilot function | — |
 | Simultaneous cross-arm interference | Fleet-wide epochs (no mixing, by construction) | — |
 | Carry-over via shared writes | Serving snapshots + washout + A→B co-estimate + lag-1 + bounds | Snapshot content shaped by prior arm; bounded, not eliminated |
+| **Carry-over via pool depletion — REGISTERED 2026-08-17** | First-vs-second-calendar-half robustness (already pre-committed in §5); reported as a channel rather than adjusted for | ⚠️ **Not covered by the snapshot argument, and not lag-1.** The coverage slots draw from a **never-served** pool. Serving a chunk removes it from that pool **permanently and monotonically** — so a treatment epoch that surfaces a chunk changes the *candidate set* of every later epoch, not only its successor. Two things make this a distinct channel rather than a restatement: (i) §2 confines carry-over to *content* differences between successive snapshots, and this is a difference in the served/never-served state rather than in corpus content; (ii) the snapshot freezes the **corpus** (`chunks`, `chunks_fts`, `vec_chunks`, `vec_chunk_map`) while `brief_log` is deliberately left on the **live** store (§9 item 3), so whichever of the two the never-served predicate reads decides whether the snapshot bounds this at all — and by that spec it does not. The lag-1 regressor cannot absorb it because the effect is cumulative in the number of prior treatment epochs, not a function of the immediate predecessor. **Registered handle, chosen because it needs no new instrument:** §5's pre-committed first-vs-second-calendar-half comparison is exactly the contrast a monotone depletion channel would show up in, and it is reported whether or not it moves. This is declared as a **bounded-but-unadjusted** channel: no correction is applied, and a monotone decline in the treatment contrast across calendar halves is pre-registered here as the signature that would indicate it. |
 | Collider / post-treatment denominator | Unconditional primary + co-primary family | — |
 | Optional stopping | Horizon in epochs/calendar only; symmetric abort | Abort = informative censoring (sensitivity) |
 | Permutation validity | Trend-residualized; sharp-null scope declared; CI separate | Sharp null covers total effect only |
-| Underpowering (rare events) | Density metric, pilot-sized power curve, **N = 174 locked at MDE 30%, sized on the ICC upper confidence limit (0.1814) per lock (b), with the "powered only for effects ≥ X%" clause exercised (§3)**, re-scope-before-lock | **Effects < 30% relative undetectable — declared in the abstract, not in a limitations section.** The 20% target originally judged plausible for a brief-composition nudge is *not* reached: a null result is evidence against effects ≥30%, and not against the 15–30% band |
+| Underpowering (rare events) | Density metric, pilot-sized power curve, **N = 234 locked at MDE 30%, sized on the ICC upper confidence limit (0.1814) with the unequal-cluster design effect (cv² = 0.3833) per lock (b) — AMENDED 2026-08-17, was 174 under the equal-cluster formula, with the "powered only for effects ≥ X%" clause exercised (§3)**, re-scope-before-lock | **Effects < 30% relative undetectable — declared in the abstract, not in a limitations section.** The 20% target originally judged plausible for a brief-composition nudge is *not* reached: a null result is evidence against effects ≥30%, and not against the 15–30% band |
 | Adjudication conflict | Frozen multi-family LLM panel, majority + median, Fleiss' κ floor; verdict hash published pre-join | Correlated bias across panelists not fully excludable (§4.1) |
 | Self-interested stopping | Mechanical arm-blind abort rule; halts whole study, never one arm | — |
 | Manipulated randomization | Public `drand` beacon round postdating registration; anyone can recompute | — |
@@ -1140,7 +1208,10 @@ M2 (logical `created_at` filter) remains a **documented fallback with measured e
 
 | Item | Status |
 |---|---|
-| `N_epochs` | ✅ **174, LOCKED 2026-08-15** (§3, exercising the "powered only for effects ≥ X%" clause at 30%; sized on the ICC **upper** confidence limit 0.1814, as lock (b) of 2026-07-30 requires). |
+| `N_epochs` | ✅ **234, AMENDED 2026-08-17** (was 174, LOCKED 2026-08-15). §3's "powered only for effects ≥ X%" clause at 30%; sized on the ICC **upper** confidence limit 0.1814 as lock (b) of 2026-07-30 requires, with the **unequal-cluster** design effect 13.482928. The published 174 used `1 + (m̄−1)·ρ`, which assumes equal cluster sizes and so under-sized the study — the one direction lock (b) forbids. Amended before any epoch, any arm and the seeding beacon round. |
+| `cv²` (cluster-size dispersion) | ✅ **0.3833, LOCKED 2026-08-17** — measured over the same 30-epoch pilot window as `r̂`, `p̂0`, the ICC and `m̄`. A locked **input**, not re-estimated per bootstrap draw. |
+| Allocation | ✅ **117 control · 39 per dose, AMENDED 2026-08-17** (was 87 · 29). Exact with no remainder. |
+| Calendar cap | ✅ **323 days, AMENDED 2026-08-17** (was 240), preserving the registered 38% slack over `N`. |
 | numeric `δ` | ✅ **36.67, LOCKED 2026-08-15** (Appendix B.5) — the only one of the five that genuinely needed the same-arm transition distribution. |
 | `α` (spread-relative dose) | ✅ **Already locked 2026-07-29** and has been for weeks. The `[TO LOCK: α]` still visible in §9 sits *inside a quoted adversarial-review block*; it is the reviewer's recommendation, which §2 **accepted and implemented** as `W_OUTCOME = w × Δ_cut`. `w` *is* that `α`. (The band itself was revised on 2026-08-16 to `{2.0, 4.0, 7.5}`; the lock on the *form* of `α` is the 2026-07-29 one.) Listing it here was a stale reference to a resolved item. |
 | `p95` winsorization | ✅ **LOCKED 2026-08-15** — 7.45 s (time) and 65 206 tokens (cost), measured over the frozen action corpus by `task_regret.py`. It never depended on same-arm transitions: it is the winsorization point of *task regret* (§4.2, secondary), a different quantity entirely. An earlier note here said it was "not derivable from the current corpus" — **that was wrong**: the archive carries `usage` blocks on the messages that emit each `tool_use`, so both components are measurable. |
@@ -1215,7 +1286,7 @@ The width is **δ · |p₁ − p₀|**, which factorizes usefully:
 
   > 🔴 **Correction 2026-08-15 — the mechanism this line invoked does not exist.** The sentence previously read "driven to zero by transition-balancing". The randomisation constraints actually registered in §2 balance **weekday/weekend and calendar halves** — there is **no transition-count constraint anywhere in this document**, and none in the assignment script. The bound was therefore resting on a design property the design does not have.
   >
-  > **What that costs, computed rather than asserted.** With `N` = 174 (~87 epochs per arm) and no transition constraint, |p₁ − p₀| behaves like the imbalance of a constrained coin: SD ≈ 0.076, so **E|p₁ − p₀| ≈ 0.06–0.08**. At δ = 36.67 that is a typical half-width of **≈ 2.4 repeated failures per session-hour**, against a mean density of 7.69. The bound does not "collapse to a point" — under the assignment sequence expected *by chance*, it is wide enough to contain an effect of the size the study is powered for.
+  > **What that costs, computed rather than asserted.** With `N` = 234 (~117 epochs per arm) and no transition constraint, |p₁ − p₀| behaves like the imbalance of a constrained coin. Measured over 40 seeds of `assign_arms.py` itself rather than approximated: **E|p₁ − p₀| = 0.0526**, which at δ = 36.67 is a typical half-width of **1.928 repeated failures per session-hour**, against a mean density of 7.69. ⚠️ **AMENDED 2026-08-17:** under the superseded `N` = 174 the same measurement gives 0.0679 and 2.490 — so the correction to `N` narrows this bound by **22.6%**, which is an argument for 234 that does not go through power at all. The bound does not "collapse to a point" — under the assignment sequence expected *by chance*, it is wide enough to contain an effect of the size the study is powered for.
   >
   > **Pre-committed here, before any assignment exists:** the realised |p₁ − p₀| is computed from the assignment sequence **before unblinding** (it needs no outcome) and reported unconditionally. If it exceeds **0.02**, the carry-over bound is reported with its realised width and declared **non-informative**, rather than presented as a narrow interval. This threshold is fixed now because fixing it after seeing the sequence would be choosing the standard that flatters the sequence drawn.
   >
@@ -1255,14 +1326,16 @@ Split by that stock (a cut that depends only on condition (i), never on the outc
 | ICC 95% CI | [0.057 ; 0.181] | [0.013 ; 0.132] | [0.001 ; 0.067] |
 | δ | 36.67 | 39.60 | 6.87 |
 
-**All three sizing inputs move `N` the same way, and it is downward.** The arithmetic here is at **MDE 25%**, which was the working target when it was computed; it is left at 25% so it stays comparable to the full-corpus figure produced under the same MDE (**N = 152**, the point estimate — *not* the lock, which is 174 at MDE 30% on the ICC upper limit). At MDE 25% the mature-half parameters give **N = 46** against that 152 — and even at the *upper* bound of the mature ICC, **N = 106**, still below the full-corpus point estimate. The design effect falls from 5.87 to 3.25.
+⚠️ **AMENDED 2026-08-17 (v1.11) — read this note with the design-effect correction in hand.** The dispersion that forced the unequal-cluster formula (`cv²` = 0.3833) and the drift described below are **the same non-stationarity**: sessions per epoch fall roughly tenfold across the pilot window. So this note's conclusion — that the mature regime would give a smaller `N` — coexists with a correction that made `N` larger, and neither cancels the other. What the note establishes is that the pilot window is heterogeneous; heterogeneity is exactly the condition under which the equal-cluster design effect is invalid. The note is preserved unrewritten below, at the numbers it was computed on.
+
+**All three sizing inputs move `N` the same way, and it is downward.** The arithmetic here is at **MDE 25%**, which was the working target when it was computed; it is left at 25% so it stays comparable to the full-corpus figure produced under the same MDE (**N = 152**, the point estimate — *not* the lock, which is 174 at MDE 30% on the ICC upper limit — **amended to 234 on 2026-08-17**). At MDE 25% the mature-half parameters give **N = 46** against that 152 — and even at the *upper* bound of the mature ICC, **N = 106**, still below the full-corpus point estimate. The design effect falls from 5.87 to 3.25.
 
 **`N` is NOT being changed, and the reason matters more than the number.** Four grounds, in order of weight:
 
 1. **The lock was made hours earlier, and every reason to reopen it points the same way: a shorter study.** That is precisely the pattern pre-registration exists to prevent. A justification that always arrives in the convenient direction deserves more suspicion, not less — even when, as here, it is mechanistically sound.
 2. **The mature half has 16 clusters, below the 30–50 floor §9 requires for an ICC estimate.** Its ICC of 0.0455 carries a CI of [0.013 ; 0.132] — wide enough that the honest reading is "somewhere below the full-corpus figure", not a replacement value.
 3. **Nobody knows which regime the real study runs in.** The stock is still growing, so the live study will also run under a trend — and the mature half already contains its own residual trend (stock 34→64). Whether stationarity is ever reached is an open empirical question about the system, not a fact this corpus settles.
-4. **The cost of being wrong is asymmetric.** Over-sizing spends calendar; under-sizing spends the study. 174 epochs erring toward conservative is the cheap mistake.
+4. **The cost of being wrong is asymmetric.** Over-sizing spends calendar; under-sizing spends the study. 174 epochs erring toward conservative is the cheap mistake. ⚠️ **And it was not erring toward conservative.** This bullet asserted the direction of its own error without checking the formula that produced the number: under the unequal-cluster design effect, 174 was on the **under-sized** side — the expensive mistake, not the cheap one. Preserved verbatim because the reasoning is right and the premise was false, which is the more useful thing for a reader to see.
 
 #### The estimand slides with the calendar — declared 2026-08-15
 
@@ -1278,7 +1351,7 @@ So the estimand is **an average over the realised trajectory**, not an effect at
 
 None of this changes the sharp-null permutation test, whose type-I error is exact regardless: arm is orthogonal to study-day by construction (calendar-half balancing), and the outcome is trend-residualised before permutation. What changes is what a *point estimate* means.
 
-**This is registered as a prediction, not a hedge:** if `N = 174` proves conservative, the study will reach its pre-committed horizon with more power than planned. That is a stated expectation on the record now, before the first randomized epoch — not something to be claimed afterwards.
+**This is registered as a prediction, not a hedge:** if `N = 234` (**amended 2026-08-17**; 174 as written when this was drafted) proves conservative, the study will reach its pre-committed horizon with more power than planned. That is a stated expectation on the record now, before the first randomized epoch — not something to be claimed afterwards.
 
 The asymmetry it does surface is real and should be named: **§5 residualizes trend in the test** (outcome regressed on study-day, residuals permuted) while the sizing does not. Sizing on a trend-inflated ICC is conservative and therefore safe, so it is left as is — but the inconsistency is now on the record rather than undiscovered. Script: `maturity_sensitivity.py`.
 

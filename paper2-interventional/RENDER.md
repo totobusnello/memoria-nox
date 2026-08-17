@@ -34,4 +34,4 @@ being wrong that looked like being right:
 The guard exists because a mechanical rewrite already damaged this document
 once: the decimal-separator pass of v1.4 turned `a ∈ {0,1}` into `a ∈ {0.1}` and
 it stood in four deposits. `PREREG-DRAFT.md` records it in the **v1.9 entry** of
-its version history — no longer the topmost note, since v1.10 opens the document.
+its version history — no longer the topmost note, since v1.11 opens the document.

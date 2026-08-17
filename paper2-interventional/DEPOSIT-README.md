@@ -30,12 +30,14 @@ package should be read against it.
 
 | | |
 |---|---|
-| Epochs | **174** (2 arms), 24 h each, boundary 09:00 UTC |
+| Epochs | **234** (2 arms for the primary; 4 groups — 117 control · 39 per dose), 24 h each, boundary 09:00 UTC |
 | Detectable effect | **30%** relative, via Sec. 3's escape clause — the 20% target is *not* amended and is *not* reached |
 | Sized on | the **upper** 95% confidence limit of the ICC, not the point estimate |
 | ICC | **0.0985**, 95% CI **[0.0570 ; 0.1814]** (Searle, one-way), 30 clusters, m̄ = 55.96 over the 27 that carry ≥ 2 sessions |
 | `r̂` / `p̂0` | **29.838403** opportunities per unit exposure / **0.111813** failure rate under control — the latter a **floor**, since unadjudicable outcomes sit in the denominator and can only move into the numerator |
-| Design effect | **5.87**, i.e. `1 + (50.4667 − 1) × 0.098459` |
+| Design effect | **13.482928** at the ICC's upper limit, i.e. `1 + ((0.3833 + 1) × 50.4667 − 1) × 0.18141` |
+| Cluster-size dispersion `cv²` | **0.3833**, measured over the same 30-epoch pilot window as every other sizing input |
+| Calendar | 234 epochs from 2026-09-01, cap **323 days** (38% slack) |
 | Severity cut τ | **S1**, outcome by strict majority; an exact tie resolves to `not_failure` |
 | Treatment dose | `W_OUTCOME = w × Δ_cut`, `Δ_cut = 0.043`, `w ∈ {2.0, 4.0, 7.5}`, boosting **one designated chunk** per opportunity |
 | Carry-over bound δ | **36.67** |
@@ -47,6 +49,41 @@ package should be read against it.
 > `m̄ = 50.4667` averages over all **30**. Recomputing `DE` from 55.96 gives 6.41
 > and will look like an error; it is the wrong denominator, not the wrong
 > arithmetic.
+
+> ### ⚠️ Amended 2026-08-17 — the design effect was computed for equal cluster sizes
+>
+> Earlier versions of this table published `N` = **174** beside a design effect of
+> **5.87**. Two things were wrong with that pair.
+>
+> First, they came from **different regimes**: 5.87 is the design effect at the
+> ICC's *point* estimate, which sizes at 102 epochs; 174 comes from the *upper*
+> limit, whose design effect is 9.9738. One table, two regimes, nothing marking
+> the difference.
+>
+> Second — and this is what moved `N` — both values used
+> `DE = 1 + (m̄ − 1) · ρ`, which assumes **equal cluster sizes**. Epoch sizes here
+> run from 1 to 115 sessions (`cv²` = 0.3833), so the correct form is
+> `DE = 1 + ((cv² + 1) · m̄ − 1) · ρ`. The equal-size formula *understates* the
+> design effect, hence understates the variance, hence **under-sizes the study** —
+> the one direction the registration's own sizing lock exists to forbid. `N` = 174
+> therefore never satisfied the standard it was written to satisfy. Corrected:
+> **`N` = 234**, design effect **13.482928**, allocation **117 / 39 / 39 / 39**
+> (exact, where 174 required rounding to 87 / 29).
+>
+> This is an **error correction plus a feasibility update**, not a re-size. The
+> MDE stays at 30%; `r̂`, `p̂0`, the ICC and its interval, `m̄`, `λ₀`, `δ`, the dose
+> band and every reachability number are untouched — `cv²` enters the variance,
+> not the rate. The amendment is published **before any epoch is randomised,
+> before any arm is assigned, and before the beacon round that seeds the
+> assignment has been drawn**, so no outcome or arm label existed anywhere that
+> could have informed it. `sizing.py` without `--cv2` still returns 174 and
+> `assign_arms.py --epochs 174` still reproduces the published sequence, so the
+> superseded record stays executable rather than overwritten.
+>
+> Found by an adversarial voice asking whether the design effect assumed equal
+> cluster sizes — a question about a **formula's applicability**, which
+> recomputing the arithmetic could never have surfaced, because the arithmetic was
+> correct for the formula used.
 
 Two consequences are registered **before** any arm data exists, so that widening
 them later is visibly an amendment rather than a refinement.
@@ -120,7 +157,7 @@ hand-rolled F distribution against it, never in the canonical path.
 
 **The registration**
 `PREREG-DRAFT.md` — the central document (v1.10). Everything that decides
-anything is here or cited from here. `PREREG-v1.10-2026-08-17.pdf` / `.html` are
+anything is here or cited from here. `PREREG-v1.11-2026-08-17.pdf` / `.html` are
 the same document rendered; the Markdown is authoritative.
 
 `render_ascii.py` · `render.css` · `RENDER.md` — how the PDF and HTML are
