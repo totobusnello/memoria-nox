@@ -184,6 +184,12 @@ KNOWN_STALE = {
     # The correction itself has to quote what it corrects.
     "PREREG-DRAFT.md": "carries the corrections; quoting the stale text is the point",
     "DEPOSIT-README.md": "same, on the deposit's front page",
+    # The same file, under the name it carries INSIDE the deposit. Both keys are
+    # needed and the omission was caught by this check on its first real run:
+    # the deposit renames DEPOSIT-README.md to README.md, so an allowlist keyed
+    # on the repository name fails open in the repository and closed in the
+    # deposit — the direction that at least announces itself, but still wrong.
+    "README.md": "DEPOSIT-README.md under its in-deposit name",
     # Dated measurements, superseded-header'd rather than rewritten.
     "LINK-FEASIBILITY-2026-08-15.md": "2026-08-15 measurement, header marks it",
     "REACHABILITY-2026-08-16.md": "narrates the reviews that motivated the widening",

@@ -120,6 +120,18 @@ hand-rolled F distribution against it, never in the canonical path.
 anything is here or cited from here. `PREREG-v1.10-2026-08-17.pdf` / `.html` are
 the same document rendered; the Markdown is authoritative.
 
+`render_ascii.py` · `render.css` · `RENDER.md` — how the PDF and HTML are
+produced, deposited so that the rendered copies are checkable rather than
+merely present. `render_ascii.py` transliterates symbols but never values, and
+**aborts if the multiset of numeric tokens differs between input and output**;
+`RENDER.md` records the four ways that guard was wrong before it was right, each
+of which looked like success. It exists because a mechanical rewrite already
+damaged this document once: the decimal-separator pass of v1.4 turned
+`a ∈ {0,1}` into `a ∈ {0.1}`, and it stood in four deposits before anyone read
+it. Unlike the analysis scripts these are not dependency-free — they need
+`pandoc` and a headless Chrome — which is why the Markdown, not the PDF, is
+authoritative.
+
 **How the design was sized, and what is uncertain in it**
 `SIZING-2026-08-14-v2.md` · `STABILITY-TEST.md` ·
 `WASHOUT-SENSITIVITY-2026-08-14.md` · `LINK-FEASIBILITY-2026-08-15.md` ·
