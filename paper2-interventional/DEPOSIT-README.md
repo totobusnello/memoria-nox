@@ -76,8 +76,11 @@ The age condition is not a caveat added in prose; it is measured. The written
 chunk's salience decays as `2^(−age/180)` through the 0.15-weighted recency term,
 and Sec. 3 requires the chunk to be at least 24 h old before it can act. At 24 h
 an S2 episode needs `w = 1.85`, inside the band; at **6.66 days** it crosses
-`w = 2.0` and is out of reach at that dose — though not at `w = 4.0`, which
-carries S2 to 97 days. The dose table in Sec. 2 is a **freshest-case ceiling**,
+`w = 2.0` and is out of reach at that dose — though not at `w = 4.0`, whose
+salience arithmetic carries S2 to 97 days. That last figure is a property of the
+cut, not of what the system will serve: the coverage pool admits a candidate only
+within 30 days, so the 97 is unreachable in practice and is quoted here only
+because the decay table in Sec. 2 states it. The dose table in Sec. 2 is a **freshest-case ceiling**,
 published with the decay alongside it rather than as a single number.
 
 A third constraint, measured on 2026-08-17 and not visible in the reach
