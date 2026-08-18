@@ -145,7 +145,12 @@ O cabeçalho da v1.10 — hoje publicado no Zenodo e anexado ao registro OSF —
 
 `inferChunkTypeFromPath()` reconhece **só** `entities/agents/`,
 `entities/projects/`, `entities/people/` e `entities/systems/`. **Não existe caso
-para `lessons/`** — cai no `return "other"`. E `inferImportance("other")` =
+para `lessons/`** — cai no `return "other"`. ⚠️ *Afiado em 18/08 pela auditoria do §2:*
+*existem **duas** implementações da mesma regra — `ingest.ts:detectChunkType`
+**tem** o caso `memory/entities/lessons/` e devolve `"lesson"`. Quem roda no
+caminho de entities é a outra (`ingest-entity.ts:244`), que não tem. Dizer
+"não existe caso para lessons/" sem qualificar o módulo é falso e mandaria o
+patch consertar o arquivo errado.* E `inferImportance("other")` =
 `FALLBACK_IMPORTANCE` = **0,40**, não 0,90.
 
 Medido nos 168 chunks reais de `memory/entities/lessons/`:
