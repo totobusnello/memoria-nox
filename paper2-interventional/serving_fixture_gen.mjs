@@ -89,7 +89,7 @@ function probe(sev, ageDays) {
             n_baseline: cur.length, n_servido: alt.length };
   } catch (e) { out = { erro: String(e).slice(0, 160) }; }
   db.prepare("DELETE FROM chunks WHERE id=?").run(id);
-  return { salience: Number(sal.toFixed(6)), ...out };
+  return { salience: sal, ...out };
 }
 
 const fixture = { gerado_em: new Date(NOW).toISOString(), now_ms: NOW,
