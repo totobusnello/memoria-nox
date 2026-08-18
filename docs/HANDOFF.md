@@ -4,6 +4,57 @@
 
 ---
 
+## 🔴 Estado atual (2026-08-18) — o §2 modelava um limiar que o código não aplica; componente 1 no ar em PR
+
+> ▶️ **Próxima ação: decisão de desenho do Toto — dose absoluta ou relativa ao cut do agente.** Ela destrava a emenda v1.12 e o componente 2. Nada mais depende de medição.
+
+### O que caiu
+
+Auditoria claim-por-claim do §2 contra o código de produção
+(`paper2-interventional/AUDIT-SECTION2-SERVING-2026-08-18.md`): **14 afirmações
+travadas caem de um defeito de raiz só.** O §2 modela entrada no brief como
+*cruzar um corte* (`CUT_FRESH = 0.7342`); a produção não aplica corte nenhum —
+`pick` fase 3 toma os 2 primeiros nunca-servidos, sem limiar. **Entrar é vencer
+fila, não cruzar barra.** Dose, banda, alcance, tetos e a testabilidade de H1
+vieram todos do modelo morto, incluindo a frase que garantia que o desfecho
+primário ficava intocado.
+
+Medido, dirigindo `dist/` na VPS:
+
+| | |
+|---|---|
+| ingresso a `w = 0` | 4 severidades × 6 agentes, idades 1 d e 7 d; nada a 30 d — a **janela de idade** decide |
+| sob 30 d do inflow do estudo | **só S4@1d entra** — 0,08% das falhas. A dose vira **desempate entre chunks do estudo** |
+| cut principal real | 0,6100–0,7922 por agente (registrado: 0,8524) |
+| `Δ_cut = 0.043` | atravessa **3–11 slots** (gap adjacente 0,0038–0,0157) — a dose é **mais agressiva** que o texto |
+| gate de cobertura | **126 de 168** chunks de lesson reprovam — duas implementações de inferência de tipo |
+
+**Sobrevive intacta a camada de desenho inteira** — `N = 234`, ICC, painel,
+calendário, `assign_arms.py`, washout, α ordinal — e as travas de método. Nada
+aqui olha dado de braço.
+
+### O que subiu
+
+**Componente 1 (write path de falha adjudicada):** `totobusnello/nox-workspace#42`,
+pronto para review. Arm-blind por construção, atrás de `NOX_P2_WRITE_PATH=on`.
+Verificação 12/12 + golden 12/12 byte-idêntico, contra cópia throwaway do DB de
+produção, com controle positivo nos dois. Falta só a camada HTTP, que é deploy.
+
+Ele é o que **mede a taxa real de episódios adjudicados por epoch** — os
+`~396/epoch` são projeção, e todo cut medido depende dela.
+
+### Fila
+
+1. ⏳ **Toto:** dose absoluta vs relativa ao cut do agente (o cut é por-agente, 0,61–0,79)
+2. deploy do #42 + os 3 testes HTTP ⇒ taxa real de episódios
+3. emenda **v1.12** única (Zenodo + 2º registro OSF) cobrindo a tabela inteira
+4. componentes 2 e 3, `shadow → active`, freeze, sorteio, epoch 1
+
+⚠️ Aberto e operacional: **a escrita de entities parou em agosto** (749 jun → 6 jul
+→ 0 ago), e é ela que deixa o sub-pool global vazio.
+
+---
+
 ## 🟢 Estado atual (2026-07-29 noite) — peça 3 FECHADA, `p̂0` deixou de ser piso, e a projeção de K errou por 2-3×
 
 > ▶️ **Próxima ação: acumular epochs.** Todos os bloqueadores de decisão caíram (paridade · ICC · volume/painel). O que falta é cluster: 11 epochs não estimam ICC, e eles chegam de graça a 1/dia.
