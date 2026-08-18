@@ -78,29 +78,37 @@ medida esse degrau é **real e cai onde foi registrado** — o que muda são os
 números de alcance, não a banda. E o braço baixo virar quase-nulo (0,66%) é
 propriedade útil: vira **comparador ativo**, não braço inerte com rótulo.
 
-## O que NÃO fica: qual contraste é primário
+## O contraste primário NÃO muda — e eu quase o mudei sem precisar
 
-O §2 diz, e é a frase que a auditoria derrubou:
+O §2 diz, em duas linhas (89 e 521):
 
-> *"A testabilidade de H1 repousa no teto de 60,18% de `w = 2.0` contra um MDE de
-> 30%, então o desfecho primário fica intocado por esta correção."*
+> *"A testabilidade de H1 repousa inteiramente no teto de 60,18% de `w = 2.0`
+> contra um MDE de 30%, então o primário fica intocado."*
 
-A 0,66%, `w = 2.0` não sustenta H1. As opções, com os números na mão:
+**Isso é falso, e já era antes desta auditoria.** O contraste primário registrado
+não é contra braço nenhum: §3 (linhas 344-351) aloca **117 controle vs 117
+tratamento**, com os três braços *pooled* como tratamento. O GLM-5.3 já tinha
+apontado exatamente isto na revisão da v1.10 — *"60,18% é o teto do braço mais
+fraco, não do primário pooled (78,6%)"* — e a correção não alcançou as duas
+linhas onde a afirmação vive.
 
-| contraste primário | alcance | contra MDE 30% |
+Sob o mecanismo medido:
+
+| | alcance pooled | contra MDE 30% |
 |---|---|---|
-| controle vs `w = 2.0` (registrado) | 0,66% | **morto** |
-| controle vs `w = 4.0` | 30,28% | na navalha — teto ≈ MDE |
-| **controle vs `w = 7.5`** | 100,00% | folgado |
+| registrado | 78,95% | folgado |
+| **medido** | **43,65%** | **ainda folgado** |
 
-**Recomendação: `w = 7.5` vira o contraste primário**, com 4,0 e 2,0 como o
-gradiente dose-resposta pré-comprometido. É a direção que preserva o estudo em
-vez de a que o lisonjeia: move o desfecho primário para o braço onde o mecanismo
-comprovadamente alcança a população, e mantém intactos o gradiente e sua regra de
-leitura.
+**O primário sobrevive intacto.** Nenhuma mudança de contraste, nenhuma
+re-alocação, `r̂`/`p̂0`/ICC/`N_epochs` intocados.
 
-Nada disto olha dado de braço — não existe. É propriedade do mecanismo, medida
-antes do sorteio, que é a ordem fixada em 17/08.
+⚠️ **Uma ressalva que não dá para omitir:** 43,65% é *alcance*. A quantidade que
+o §2 compara contra o MDE é o **teto sobre o efeito incondicional**, que é outra
+conta (a `w = 2.0`: alcance 58,27% → teto 60,18%). O artefato que produzia tetos
+— `REACHABILITY-2026-08-16.md` — é do modelo morto. O teto pooled tem de ser
+recomputado sob o mecanismo medido antes de "sobrevive" virar afirmação final; a
+margem (43,65% vs 30%) é grande o bastante para tornar a inversão improvável, e
+pequena o bastante para não ser assumida.
 
 ## Fica em aberto para a v1.12
 
