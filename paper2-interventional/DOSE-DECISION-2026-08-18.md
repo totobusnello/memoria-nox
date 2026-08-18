@@ -114,9 +114,22 @@ pequena o bastante para não ser assumida.
 
 O teto tem definição operacional (`REACHABILITY-2026-08-16.md` §8): **`repeats
 alcançáveis / repeats totais`**. A recomputação é de **uma constante**:
-`w_min` mirava `CUT_FRESH = 0.7342`; sob o mecanismo medido mira o **ocupante do
-slot 2** — o S4 mais fresco, `base_salience(1.00, 1 d) = 0.744495`, medido
-`0.744818` na VPS. Pesos, estratos e política de designação ficam idênticos
+`w_min` mirava `CUT_FRESH = 0.7342`; a recomputação mira `0.744495`.
+
+⚠️ **Revisão adversarial (Grok 4.6, 2026-08-18) — a identidade que escrevi aqui é
+falsa.** Chamei `0.744495` de *"o ocupante do slot 2, medido 0.744818"*. São
+coisas diferentes, e na verdade eu usei **três** números como se fossem um:
+
+| valor | o que é de fato |
+|---|---|
+| `0.744495` | analítico: `base_salience(S4, 1 d)`, o valor da fixture |
+| `0.744380` | o ocupante do slot 2 em `CUTS-MEASURED` (`mais_30_dias`) |
+| `0.744818` | o ocupante do slot 2 em `queue_spacing` sobre `p2-real.db` |
+
+A conclusão sobrevive — os três exigem de S2 `w` = 2,320 / 2,326 / 2,341, todos
+acima de 2,0. Mas **a dispersão entre eles já era a endogeneidade se manifestando**,
+e eu a li como ruído de arredondamento. O que entra na emenda é a faixa, nunca um
+dos três valores. Pesos, estratos e política de designação ficam idênticos
 (`reachable_share_fila.py`, diff de 1 linha).
 
 **Validação antes de acreditar no novo número:** rodado sem a mudança, o script
@@ -199,9 +212,64 @@ que este documento já corrigiu duas vezes em depósito público.
 **Ordem revista:** deploy do #42 → medir λ e a distribuição de severidade
 realizada → só então re-centrar a banda e escrever **uma** emenda v1.12.
 
-O que já está firme e não depende de λ: o modelo de corte não existe (auditoria),
-a fila é escada de severidade, a via de cobertura é agente-independente, o
-primário é pooled 117 vs 117, e o teto pooled a λ = 396 é 58,48%.
+**O que se escreve SEM λ** — a emenda não fica bloqueada inteira, e dizer que
+ficava era excesso de cautela (Grok):
+
+1. o modelo de corte não existe; entrar é vencer fila;
+2. a escada de severidade — sai do **lock de campos + janela de 30 d**, não de λ;
+3. o contraste primário é pooled, 117 vs 117;
+4. `CUT_FRESH` não pode sobreviver como modelo de serving;
+5. `w = 2.0` está na borda de uma quantidade que flutua — pelo **critério do
+   próprio §2** (arm no meio do platô), a justificativa da banda cai.
+
+**O que NÃO se escreve sem λ:** nenhum percentual, nenhum `w` necessário, o teto
+de 58,48%, *"o primário sobrevive"*, e `{2.0, 4.0, 7.5}` como platôs.
+
+⚠️ *Uma versão anterior desta lista dizia que o teto pooled de 58,48% estava
+"firme e não dependia de λ" — e o próprio item trazia "a λ = 396" dentro dele.
+Contradição literal, apanhada pelo Grok.*
+
+## Revisão adversarial — Grok 4.6, 2026-08-18 (recibo `exit 0`, 2.577 bytes)
+
+⚠️ **Nota de procedimento:** a primeira tentativa foi por casca de agente e ela foi
+para idle **sem chamar o provider** — zero recibos naquele dia, em qualquer
+diretório. Sondar o wrapper direto separou credencial (boa: `grok-4.6`, `exit 0`,
+7 s) de escopo do agente. As duas correções acima e as três abaixo vêm da chamada
+verificada por recibo, não da casca.
+
+Além da identidade da constante e da autocontradição do "firme", três achados
+que eu não tinha:
+
+### (a) *"A via de cobertura é agente-independente"* é estado contingente, não mecanismo
+
+Registrei como propriedade. É consequência de `agentFresh = 0` nos seis agentes —
+e isso vale porque **o armazém parou de escrever** (entities: 749 jun → 6 jul → 0
+ago). Se a escrita voltar, os sub-pools por agente se enchem, a janela deles é de
+**7** dias (contra 30 do global), e a via passa a ser agente-dependente.
+
+Como registrar: *"hoje o sub-pool por agente está vazio nos seis, então a via de
+cobertura é de fato global; isso é estado operacional e pode reverter"* — e a
+robustez leave-one-agent-out, que já é pré-registrada, é a defesa.
+
+### (b) O dreno de 672 briefs/dia foi declarado e depois ignorado
+
+Todas as medições de fila são **rank instantâneo**. Mas o pool é consumido: cada
+brief servido marca 2 candidatos como servidos e os tira da fila de nunca-servidos.
+Ocupação sob dreno ≠ ordenação num instante. Nenhuma medição minha exerceu isso, e
+`pool_selfcompetition.py` — que mede exatamente o dreno — não foi religado depois
+que o modelo mudou.
+
+### (c) *"S3/S4 nunca são designados"* é artefato do modelo morto
+
+A política de designação `melhor` escolhe por `argmin w_min`, e `w_min` depende da
+constante que acabou de ser derrubada. Trocar a barra **muda quem é designado**.
+Logo o `{S1 21,42%, S2 78,58%}` que reportei é uma leitura do modelo de corte, não
+uma propriedade da fila — e a comparação com o número depositado, que reusa a
+mesma política, herda isso.
+
+**Consequência para a emenda:** a distribuição de severidade do designado não
+entra como número. O que entra é a **regra** (um chunk por assinatura, o de menor
+`w_min`), com a ressalva de que `w_min` precisa de referente novo.
 
 ## Fica em aberto para a v1.12
 

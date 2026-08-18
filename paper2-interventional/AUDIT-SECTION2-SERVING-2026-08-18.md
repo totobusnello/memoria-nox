@@ -125,6 +125,19 @@ mais do que ela diz:
 Nada aqui vem de olhar dados de braço — não existem. Tudo é propriedade do
 mecanismo, medida antes do sorteio, que é a ordem que o Toto fixou em 17/08.
 
+## ⚠️ Correção pós-revisão adversarial (Grok 4.6, 2026-08-18)
+
+A auditoria trata a **independência de agente** da via de cobertura como achado
+medido. É medido, mas **não é propriedade do mecanismo**: vale porque
+`agentFresh = 0` nos seis agentes, e isso porque a escrita de entities parou
+(749 jun → 6 jul → 0 ago). Se voltar, os sub-pools por agente enchem, e a janela
+deles é de **7 dias** contra 30 do global — a via vira agente-dependente.
+
+Vale para toda linha desta tabela medida sobre o pool vazio de hoje: é o estado do
+armazém, não a construção. As linhas que **não** dependem disso são as que saem do
+código (`pick` sem limiar, as duas implementações de inferência de tipo, `pain`
+por regex) e do lock de campos (a escada de severidade).
+
 ## O que a auditoria não resolve
 
 1. **A taxa real de episódios adjudicados por epoch.** Todo corte medido depende
