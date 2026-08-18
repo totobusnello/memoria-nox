@@ -110,6 +110,68 @@ recomputado sob o mecanismo medido antes de "sobrevive" virar afirmação final;
 margem (43,65% vs 30%) é grande o bastante para tornar a inversão improvável, e
 pequena o bastante para não ser assumida.
 
+## O teto, recomputado sobre o corpus — a ressalva acima está fechada
+
+O teto tem definição operacional (`REACHABILITY-2026-08-16.md` §8): **`repeats
+alcançáveis / repeats totais`**. A recomputação é de **uma constante**:
+`w_min` mirava `CUT_FRESH = 0.7342`; sob o mecanismo medido mira o **ocupante do
+slot 2** — o S4 mais fresco, `base_salience(1.00, 1 d) = 0.744495`, medido
+`0.744818` na VPS. Pesos, estratos e política de designação ficam idênticos
+(`reachable_share_fila.py`, diff de 1 linha).
+
+**Validação antes de acreditar no novo número:** rodado sem a mudança, o script
+reproduz `0.5827 / 0.7858 / 1.0` e pooled **78,60%** — exatamente os valores
+depositados. O instrumento está certo; o que muda é a barra.
+
+| braço | teto registrado | **teto medido** | o que admite |
+|---|---|---|---|
+| `w = 2.0` | 60,18% | **0,00%** | nada — **inerte** |
+| `w = 4.0` | 75,62% | **75,62%** | S2 |
+| `w = 7.5` | 100,00% | **99,81%** | S1 + S2 |
+| **pooled (o primário)** | 78,60% | **58,48%** | — |
+
+**O primário sobrevive com folga de quase 2× sobre o MDE de 30%**, sem mudar
+contraste, alocação, `r̂`, `p̂0`, ICC ou `N_epochs`.
+
+### A escada tem dois degraus, não quatro
+
+Medido, o chunk **designado** é S1 em 21,42% e S2 em 78,58% das oportunidades —
+**S3 e S4 nunca são designados**, por serem raros demais para alguma vez serem o
+match mais fácil de alcançar. Então a escada útil é:
+
+```
+S2  ->  w = 2,33        S1  ->  w = 6,98
+```
+
+E a banda travada cai exatamente em volta dela: `2.0 < 2,33 < 4.0 < 6,98 < 7.5`.
+
+**As duas regras de leitura pré-comprometidas são confirmadas, não quebradas:** o
+§2 pré-registra *"um degrau em `w = 2.0 → 4.0` concentrado em S2"* e um segundo
+degrau em S1 no topo. Medido, o primeiro degrau é 0% → 75,62% ao cruzar 2,33
+(**é** S2) e o segundo é 75,62% → 99,81% ao cruzar 6,98 (**é** S1).
+
+### `w = 2.0` vira controle negativo, e isso é ganho
+
+O §2 (linha 478) matou a banda antiga com este argumento:
+
+> *"Dois dos três braços eram estruturalmente inertes ⇒ o degrau apareceria mesmo
+> se o mecanismo não existisse. Uma regra de leitura que um mecanismo nulo
+> satisfaz não é regra de leitura."*
+
+Agora **um** braço é inerte — mas o degrau pré-comprometido não é o que ele
+produz: é o de 2.0→4.0, que é real. O argumento não o condena.
+
+Melhor: um braço cujo teto é **provadamente 0** é um **controle negativo
+pré-registrado**. Se o desfecho se mover ali, é sinal de falsificação — viés de
+adjudicação, vazamento de braço, ou o mecanismo não sendo o que dizemos. O estudo
+ganha um instrumento que não tinha, sem gastar epoch nenhum a mais.
+
+**Recomendação: manter tudo.** Banda, alocação 117/39/39/39, pooling dos três no
+primário. O que entra na v1.12 são os números e o novo papel de `w = 2.0`.
+
+A alternativa — poolar só `{4.0, 7.5}` para um teto de 87,7% — trocaria 117 vs 117
+por 117 vs 78 e obrigaria a refazer a potência, para comprar folga que já existe.
+
 ## Fica em aberto para a v1.12
 
 - *"Um slot, by construction"* foi medido sob o modelo morto. A designação é um
