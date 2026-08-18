@@ -127,3 +127,88 @@ Não despacha braço, não aplica boost, não lê `ASSIGNMENT.json`, não tem no
 epoch de tratamento. São os componentes 2 e 3, e ambos dependem da decisão de
 desenho ainda aberta (dose absoluta vs relativa ao cut do agente — ver
 `CUTS-MEASURED-2026-08-18.json`).
+
+---
+
+## 9. ⚠️ Lendo o `ingest-entity.ts` para escrever o patch, cinco correções — e uma delas derruba uma afirmação REGISTRADA
+
+Nada abaixo veio de reconstrução: é leitura do código na VPS mais medição no
+corpus real, em 2026-08-18.
+
+### (a) A afirmação verificada na v1.10 está errada, e o número certo vem de outra linha
+
+O cabeçalho da v1.10 — hoje publicado no Zenodo e anexado ao registro OSF — diz:
+
+> *"`COALESCE(importance,0) >= 0.7 OR COALESCE(pain,0) >= 0.7` — **passes**:
+> verified that the ingest path populates the `importance` column via
+> `inferImportance(chunk_type)`, so the written chunk carries 0.90"*
+
+`inferChunkTypeFromPath()` reconhece **só** `entities/agents/`,
+`entities/projects/`, `entities/people/` e `entities/systems/`. **Não existe caso
+para `lessons/`** — cai no `return "other"`. E `inferImportance("other")` =
+`FALLBACK_IMPORTANCE` = **0,40**, não 0,90.
+
+Medido nos 168 chunks reais de `memory/entities/lessons/`:
+
+| chunk_type | importance | pain | n | passa o gate |
+|---|---|---|---|---|
+| `other` | **0,40** | 0,20 | **126** | **0** |
+| `other` | 0,90 | 0,20 | 41 | 41 |
+| `other` | 0,90 | 0,70 | 1 | 1 |
+
+O 0,90 existe, mas vem de **outra linha**: `compiledImportance =
+Math.max(importance, 0.9)`, que se aplica **só à seção `compiled`**. A verificação
+nomeou o mecanismo errado e acertou o número por sorte, para 1 chunk de N.
+
+**Consequência de desenho:** por episódio, **apenas o chunk `compiled` entra no
+pool de cobertura**. Frontmatter e timeline nascem com 0,40 e são invisíveis ao
+caminho de cobertura. O write path tem de garantir seção `compiled`, e o
+`p2_verdict.chunk_id` tem de apontar para **ela**, não para o primeiro chunk.
+
+### (b) `pain` NÃO é a severidade adjudicada — é heurística de keyword no texto
+
+O §2 registra `pain` como *"the adjudicated severity of the episode (S1→0.25 …
+S4→1.0)"* e diz que é **"the treatment's carrier"**. O ingest escreve
+`inferPain(chunkType, texto)` = `PAIN_BY_TYPE["other"] ?? 0.2`, mais 0,5 se o
+texto casar `HIGH_PAIN_PATTERN`. Ou seja: **o carrier do tratamento seria um
+regex sobre prosa.** É a mesma classe de
+`feedback_pain_column_is_topical_not_episodic` (um documento *sobre* falha pontua
+como falha).
+
+**O patch tem de escrever `pain` explicitamente**, sobrepondo `inferPain`, dentro
+da mesma transação. Sem isso o mecanismo carrega o sinal errado em silêncio.
+
+### (c) A transação registrada exige extrair um núcleo síncrono
+
+`ingestEntityFile` é `async`, e transação do better-sqlite3 **não pode** conter
+`await`. Mas o corpo **não tem nenhum `await`** — o `async` é vestigial. Então a
+extração é barata: expor `ingestEntityFileSync(content, relPath, db, overrides)`
+e deixar o wrapper `async` chamando-a. Aí o handler faz UMA transação com o chunk
+e o veredito, e embeda depois do commit, como o `ingest.ts` já faz.
+
+### (d) Um episódio produz N chunks, não 1
+
+Frontmatter + compiled + timeline. `p2_verdict.chunk_id` singular no §2 deste spec
+está errado: aponta para o chunk `compiled` (o único que passa o gate), e a
+invariante reversa audita por `source_file`, não por `chunk_id`.
+
+### (e) Re-ingest apaga e o trigger cascateia
+
+`ingestEntityFile` faz `DELETE FROM chunks WHERE source_file = ?` para ser
+idempotente — e `trg_chunks_delete_cascade` limpa os vetores. Isso dá
+idempotência de graça, mas deixaria `p2_verdict.chunk_id` pendurado. O
+`p2_verdict` é keyed por `episode_id`, então re-ingest do mesmo episódio tem de
+**re-apontar** o `chunk_id` na mesma transação, não inserir linha nova.
+
+## 10. O que isto muda no que já está registrado
+
+| | |
+|---|---|
+| Afirmação de que o chunk carrega `importance = 0.90` via `inferImportance` | **falsa**; o 0,90 vem do `Math.max` do compiled, e só nele |
+| `pain` = severidade adjudicada | **não é o que o ingest escreve**; exige override explícito |
+| `chunk_type` do chunk escrito | será `"other"`, nunca `"lesson"` |
+| Alcance / `w_min` / salience em `serving_model.py` | **inalterados** — o modelo passa `importance` e `retention_days` explícitos, e ambos conferem com o medido (0,90 no compiled, 180 d) |
+
+Ou seja: a matemática de salience sobrevive; o que não sobrevive é a descrição de
+**como** o chunk chega a ela. As duas primeiras linhas entram na emenda v1.12,
+junto com a decisão de dose absoluta vs relativa.
