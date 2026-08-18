@@ -150,27 +150,58 @@ E a banda travada cai exatamente em volta dela: `2.0 < 2,33 < 4.0 < 6,98 < 7.5`.
 degrau em S1 no topo. Medido, o primeiro degrau é 0% → 75,62% ao cruzar 2,33
 (**é** S2) e o segundo é 75,62% → 99,81% ao cruzar 6,98 (**é** S1).
 
-### `w = 2.0` vira controle negativo, e isso é ganho
+### ⛔ `w = 2.0` NÃO é controle negativo — a barra é endógena e estocástica
 
-O §2 (linha 478) matou a banda antiga com este argumento:
+*(Esta subseção substitui uma recomendação anterior minha, que dizia para manter
+tudo e reenquadrar `w = 2.0` como controle negativo pré-registrado. Estava errada
+pelo mesmo motivo que o `CUT_FRESH`: eu troquei uma constante por outra constante,
+quando a quantidade é **variável**.)*
 
-> *"Dois dos três braços eram estruturalmente inertes ⇒ o degrau apareceria mesmo
-> se o mecanismo não existisse. Uma regra de leitura que um mecanismo nulo
-> satisfaz não é regra de leitura."*
+A barra do slot 2 é o **S4 mais fresco dentro da janela de 30 d**. S4 é 0,08% das
+falhas. Se não houver S4 na janela, a barra desce para o S3 mais fresco. Logo a
+barra **não é uma constante** — depende da composição diária do pool, que depende
+da taxa de episódios, que **nunca foi medida**.
 
-Agora **um** braço é inerte — mas o degrau pré-comprometido não é o que ele
-produz: é o de 2.0→4.0, que é real. O argumento não o condena.
+Pior: a medição que produziu `0.744495` usou seeding sintético com
+`Math.max(1, ceil(396 × share))`, o que **forçou ≥ 1 S4 por dia**. A constante saiu
+do meu próprio piso artificial.
 
-Melhor: um braço cujo teto é **provadamente 0** é um **controle negativo
-pré-registrado**. Se o desfecho se mover ali, é sinal de falsificação — viés de
-adjudicação, vazamento de braço, ou o mecanismo não sendo o que dizemos. O estudo
-ganha um instrumento que não tinha, sem gastar epoch nenhum a mais.
+Quanto a dose que S2 precisa se move com a taxa λ de episódios por epoch:
 
-**Recomendação: manter tudo.** Banda, alocação 117/39/39/39, pooling dos três no
-primário. O que entra na v1.12 são os números e o novo papel de `w = 2.0`.
+| λ (episódios/epoch) | S4 esperados em 30 d | P(nenhum S4) | barra | `w` p/ S2 | `w = 2.0` alcança S2? |
+|---|---|---|---|---|---|
+| **396** (a projeção) | 9,50 | ~0% | 0,7433 | **2,27** | não — por 0,27 |
+| 200 | 4,80 | 0,8% | 0,7415 | 2,19 | não |
+| 100 | 2,40 | 9,1% | 0,7380 | **2,02** | na navalha |
+| 40 | 0,96 | 38,3% | 0,7287 | **1,59** | **sim** |
+| sem S4 (barra = S3) | 0 | — | 0,7195 | **1,16** | **sim** |
 
-A alternativa — poolar só `{4.0, 7.5}` para um teto de 87,7% — trocaria 117 vs 117
-por 117 vs 78 e obrigaria a refazer a potência, para comprar folga que já existe.
+E mesmo fixando λ = 396, a idade do S4 mais fresco faz a barra oscilar em 0,0163,
+o que move a exigência de S2 entre **1,59 e 2,35**.
+
+**`w = 2.0` cai DENTRO dessa faixa.** Não é ativo nem inerte: é estocasticamente
+uma coisa ou outra, conforme a composição do pool no dia. Um controle negativo
+precisa de teto zero **por construção**, não zero em média — então o reenquadre
+não se sustenta. E o §2 (linha 470) trava a banda com o critério oposto:
+
+> *"cada braço fica no MEIO de um platô, então seu alcance é robusto a erro
+> pequeno no modelo em vez de empoleirado numa borda."*
+
+`w = 2.0` está empoleirado na borda. Pelo critério do próprio documento, sai.
+
+### Consequência: a emenda não pode ser escrita ainda
+
+A decisão de dose **não é um julgamento** — é uma função de λ, que é exatamente o
+que o componente 1 (`nox-workspace#42`) mede e ninguém mediu. Registrar uma banda
+agora seria travar um número derivado de uma projeção, que é a classe de defeito
+que este documento já corrigiu duas vezes em depósito público.
+
+**Ordem revista:** deploy do #42 → medir λ e a distribuição de severidade
+realizada → só então re-centrar a banda e escrever **uma** emenda v1.12.
+
+O que já está firme e não depende de λ: o modelo de corte não existe (auditoria),
+a fila é escada de severidade, a via de cobertura é agente-independente, o
+primário é pooled 117 vs 117, e o teto pooled a λ = 396 é 58,48%.
 
 ## Fica em aberto para a v1.12
 
