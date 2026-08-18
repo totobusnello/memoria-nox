@@ -1,0 +1,198 @@
+{
+ "now": "2026-08-18T11:26:24.989Z",
+ "cenarios": [
+  {
+   "rotulo": "corpus_real_sem_inflow",
+   "globalFresh": 0,
+   "topo_global": [],
+   "por_agente": [
+    {
+     "agente": "nox",
+     "agentFresh": 0,
+     "n_principais": 10,
+     "cut_principal": 0.6851,
+     "slots_cobertura": []
+    },
+    {
+     "agente": "atlas",
+     "agentFresh": 0,
+     "n_principais": 10,
+     "cut_principal": 0.7613,
+     "slots_cobertura": []
+    },
+    {
+     "agente": "boris",
+     "agentFresh": 0,
+     "n_principais": 10,
+     "cut_principal": 0.6925,
+     "slots_cobertura": []
+    },
+    {
+     "agente": "cipher",
+     "agentFresh": 0,
+     "n_principais": 10,
+     "cut_principal": 0.7922,
+     "slots_cobertura": []
+    },
+    {
+     "agente": "forge",
+     "agentFresh": 0,
+     "n_principais": 10,
+     "cut_principal": 0.7051,
+     "slots_cobertura": []
+    },
+    {
+     "agente": "lex",
+     "agentFresh": 0,
+     "n_principais": 10,
+     "cut_principal": 0.61,
+     "slots_cobertura": []
+    }
+   ]
+  },
+  {
+   "rotulo": "mais_1_dia",
+   "globalFresh": 399,
+   "topo_global": [
+    0.744957,
+    0.719957,
+    0.719957
+   ],
+   "por_agente": [
+    {
+     "agente": "nox",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.6851,
+     "slots_cobertura": [
+      0.745,
+      0.72
+     ]
+    },
+    {
+     "agente": "atlas",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.7613,
+     "slots_cobertura": [
+      0.745,
+      0.72
+     ]
+    },
+    {
+     "agente": "boris",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.6925,
+     "slots_cobertura": [
+      0.745,
+      0.72
+     ]
+    },
+    {
+     "agente": "cipher",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.7922,
+     "slots_cobertura": [
+      0.745,
+      0.72
+     ]
+    },
+    {
+     "agente": "forge",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.7051,
+     "slots_cobertura": [
+      0.745,
+      0.72
+     ]
+    },
+    {
+     "agente": "lex",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.61,
+     "slots_cobertura": [
+      0.745,
+      0.72
+     ]
+    }
+   ]
+  },
+  {
+   "rotulo": "mais_30_dias",
+   "globalFresh": 400,
+   "topo_global": [
+    0.744957,
+    0.744957,
+    0.74438
+   ],
+   "por_agente": [
+    {
+     "agente": "nox",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.6851,
+     "slots_cobertura": [
+      0.745,
+      0.7444
+     ]
+    },
+    {
+     "agente": "atlas",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.7613,
+     "slots_cobertura": [
+      0.745,
+      0.7444
+     ]
+    },
+    {
+     "agente": "boris",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.6925,
+     "slots_cobertura": [
+      0.745,
+      0.7444
+     ]
+    },
+    {
+     "agente": "cipher",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.7922,
+     "slots_cobertura": [
+      0.745,
+      0.7444
+     ]
+    },
+    {
+     "agente": "forge",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.7051,
+     "slots_cobertura": [
+      0.745,
+      0.7444
+     ]
+    },
+    {
+     "agente": "lex",
+     "agentFresh": 0,
+     "n_principais": 8,
+     "cut_principal": 0.61,
+     "slots_cobertura": [
+      0.745,
+      0.7444
+     ]
+    }
+   ]
+  }
+ ],
+ "inflow_1d": 399,
+ "inflow_mais_29d": 11970
+}
