@@ -6,7 +6,7 @@ exclui de propósito a camada de desenho — randomização, `N = 234`, ICC, pai
 adjudicação, calendário, `assign_arms.py` — que não é tocada por nada aqui.
 
 **Autoridade.** O código, não a reconstrução. Cada veredito abaixo aponta para um
-de cinco artefatos:
+de **seis** artefatos:
 
 | artefato | o que é |
 |---|---|
@@ -55,7 +55,7 @@ Legenda: ✅ verdadeiro · 🔴 falso · 🟡 verdadeiro pelo motivo errado · �
 |---|---|---|---|---|
 | B1 | 450, 474-476 | alcance **58,27% / 78,58% / 100%**, tetos 60,18% / 75,62% / 100% | 🔴 | **No corpus de hoje o alcance é 100% dentro da janela a qualquer dose, `w = 0` incluído, e 0% fora.** A função-escada de três platôs não tem contraparte. |
 | B2 | 478 | *"`w = 0.5` e `w = 1.0` alcançam exatamente zero"* — o argumento que matou a banda antiga | 🔴 | Alcançam o mesmo que `w = 0`: tudo, dentro da janela. **O argumento é vazio.** A troca de banda em si é inócua; a justificativa registrada não. |
-| B3 | 521 | *"a testabilidade de H1 repousa no teto de 60,18% de `w = 2.0` contra um MDE de 30%, então o desfecho primário fica intocado por esta correção"* | 🔴 | A premissa caiu, logo **o desfecho primário NÃO fica intocado** — é exatamente o oposto do que a frase assegura. A testabilidade tem de ser re-derivada do mecanismo medido. |
+| B3 | 521 | *"a testabilidade de H1 repousa no teto de 60,18% de `w = 2.0` contra um MDE de 30%, então o desfecho primário fica intocado por esta correção"* | 🔴 | A frase é falsa **duas vezes**: o primário não é `w = 2.0`, é o pooled (§3:344-351); e 60,18% é o teto do braço mais fraco. ⚠️ *Correção 2026-08-19 (Kimi K2): a redação anterior concluía daí que **"o desfecho primário NÃO fica intocado — é exatamente o oposto"**. Isso é **non sequitur** — premissa caída não torna a conclusão falsa. Recomputado sobre o corpus, o primário pooled sobrevive. O que cai é a **justificativa**, não o desfecho.* |
 | B4 | 519, 565 | tabela ajustada pela janela (88,06%, 60,13%) | 🔴 | Mesmo modelo, mesma sorte. |
 | B5 | — | *(não registrado, e é o achado)* | 🆕 | **Sob 30 dias do inflow do próprio estudo, só S4@1d entra** — todo o resto é expulso pelos chunks do próprio estudo (`INGRESS-INFLOW`). S4 é **0,08% das falhas**. No regime em que o estudo roda, o alcance não-impulsionado é ~nulo, e a dose passa a agir como **desempate entre os chunks do estudo**, não como limiar contra incumbentes. Mecanismo coerente — só não é o registrado. Depende do volume de escrita, que é a medição que ainda falta. |
 

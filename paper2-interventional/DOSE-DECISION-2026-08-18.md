@@ -41,7 +41,10 @@ ambos registrados.
 
 ## A dose, contra a barra que existe
 
-A barra do slot 2 sob inflow é o **S4 mais fresco** (S4 ≈ 0,08% de ~396/dia ⇒ ~1/dia):
+A barra do slot 2 sob inflow é o **S4 mais fresco**. ⚠️ *Uma versão desta linha
+dizia "S4 ≈ 0,08% de ~396/dia ⇒ **~1/dia**". É falso: 396 × 0,0008 = **0,32/dia**, e a
+tabela de λ deste mesmo documento já dizia 9,50 em 30 d. O "~1/dia" era o piso
+sintético do seeding, não a taxa.*
 **0,7445** analítico, **0,744818** medido. A dose necessária para passá-lo:
 
 | sev | share das falhas | base @1d | `w` necessário | registrado (vs `CUT_FRESH`) |
@@ -69,7 +72,18 @@ de dose — e essa fração é a diferença entre o braço mais baixo alcançar 
 Duas derivações independentes deram os mesmos três números: a analítica acima e a
 contagem de `INGRESS-INFLOW` (só S4@1d entra sem boost).
 
-## A banda fica
+## ~~A banda fica~~ — ⛔ SUPERADA, ver a seção da barra endógena
+
+> ⚠️ **Esta seção inteira está morta e fica só como registro.** Ela recomenda o
+> contrário do que o documento conclui adiante, e a revisão adversarial (Kimi K2,
+> 2026-08-19) apanhou a coexistência: *"recomendação e retratação no mesmo texto"*.
+>
+> ⚠️ **E os `0,66%` abaixo estão errados.** São estimativa minha ponderada por
+> share, supondo que toda oportunidade tem candidato de cada severidade. Medido
+> sobre o corpus, o alcance de `w = 2.0` é **0,00% exato** (confirmado por sinal
+> independente: `p0_hat_restrito` volta `null`, o que só ocorre com `alcanca == 0`).
+> O documento chegou a carregar **três** valores para o mesmo braço — 0,66%, 0,00%
+> e "0% → 75,62%". O válido é **0,00%**.
 
 Não recomendo re-centrar. Cada braço continua pousando numa **classe de
 severidade distinta**, que é exatamente a regra de leitura dose-resposta que o §2
@@ -123,7 +137,7 @@ coisas diferentes, e na verdade eu usei **três** números como se fossem um:
 | valor | o que é de fato |
 |---|---|
 | `0.744495` | analítico: `base_salience(S4, 1 d)`, o valor da fixture |
-| `0.744380` | o ocupante do slot 2 em `CUTS-MEASURED` (`mais_30_dias`) |
+| `0.744380` | **`topo_global[2]`** de `CUTS-MEASURED` (`mais_30_dias`) — ⚠️ *não* é o ocupante do slot 2, que o artefato registra como `0.7444` em `slots_cobertura`. Eu conflei os dois campos (Kimi K2) |
 | `0.744818` | o ocupante do slot 2 em `queue_spacing` sobre `p2-real.db` |
 
 A conclusão sobrevive — os três exigem de S2 `w` = 2,320 / 2,326 / 2,341, todos
@@ -327,6 +341,68 @@ Para P5, sim — 72/72 células. Então a manutenção é legítima, **sob três
 | P5 (nunca os 8 principais) | PASS **condicional** | as três condições acima |
 | P6 (re-centrar após λ) | PASS, contaminado | *"396 é projeção"* está certo; a banda tem de ir como subdeterminada |
 | `Δ_cut = 0.043` | **FAIL parcial** | congelar o **valor** é ato legítimo do documento; mas as **unidades** de `w` vêm do modelo morto. Congelar sem redefinir o significado é herdar unidades do cadáver — redefinir contra o espaçamento da fila, antes do sorteio |
+
+## Revisão adversarial final — Kimi K2 sobre os dois documentos inteiros
+*(recibo `exit 0`, 191 s, prompt 32.142 bytes, output 40.702 bytes, 2026-08-19)*
+
+As três correções acima vieram dela. Faltam quatro, e duas são estruturais.
+
+### (i) As shares de severidade não têm artefato — e não somam 1
+
+`{S1 69,73% · S2 29,62% · S3 0,58% · S4 0,08%}` sustenta a tabela de alcance, a
+tabela de λ e todo cálculo de dose. Rastreada:
+
+- **hard-coded em 6 arquivos** (`claims_check.py`, `serving_model.py`,
+  `dose_reach.mjs`, `serving_fixture_gen.mjs`, `cuts_measure.mjs`, e o §2);
+- **nenhum JSON a carrega** — o único registro em prosa é
+  `LINK-FEASIBILITY-2026-08-15.md`, artefato do modelo morto, onde aparece como
+  *"frozen pilot corpus"* sem procedência;
+- **soma 100,01%.** (É a origem do `100,01%` que apareceu na minha tabela de
+  alcance e que eu tratei como arredondamento.)
+
+Pior: os JSONs carregam **outra** distribuição, de outra quantidade — a severidade
+do chunso **designado**: `{S1 76,96 · S2 23,04}` sob política `recente` e
+`{S1 21,42 · S2 78,58}` sob `melhor`. **Três distribuições de severidade circulam
+nos documentos** e só duas têm artefato.
+
+**Consequência:** ou a proveniência das shares é recuperada e depositada, ou elas
+saem da emenda — e com elas todo número ponderado por share.
+
+### (ii) "Por construção" de um construto que ainda não existe
+
+Escrevi que a escada de severidade *"é estrutura, não acidente — sai do lock de
+campos e da janela"*. Mas o lock de campos (`compiled ⇒ importance 0,90`,
+`pain = severidade`) é exatamente o que a auditoria prova que a produção **não
+implementa** (126 de 168 reprovam; `pain` é regex tópico). Ele passa a existir com
+o **componente 1**, que não está deployado.
+
+Ou seja: **toda a derivação de dose pressupõe um write path inexistente**, e o
+"mecanismo medido" é o mecanismo de um componente não implantado, exercitado por
+seeding sintético. Isso tem de estar na emenda como premissa declarada, não
+implícito.
+
+### (iii) Uma emenda ou duas — os dois documentos discordam
+
+A auditoria fecha com *"uma emenda v1.12 única cobrindo a tabela inteira de uma
+vez"*. Este documento conclui que parte se escreve agora e a banda só depois de λ
+— o que implica **v1.13**. Dois planos incompatíveis para um objeto imutável.
+
+**Resolvido: UMA emenda, depois de λ.** O ganho de publicar metade agora é nulo (o
+depósito v1.11 já está lá e a emenda não é urgente), e o custo de duas emendas é
+exatamente a fricção que este projeto já pagou duas vezes.
+
+### (iv) O gate do sorteio, que nenhum documento enuncia
+
+O sorteio (`T_seed_assign`) está **bloqueado** até λ medido e banda re-registrada.
+Isso estava implícito na sequência e nunca foi escrito como condição. Escrever.
+
+### O que sobreviveu à verificação
+
+Kimi conferiu contra os artefatos antes de atacar, e confirmou: B5 bate com
+`INGRESS-INFLOW`; slots idênticos e `agentFresh = 0` batem com `CUTS-MEASURED`;
+cut principal 0,6100–0,7922; o degrau 0,0250 > spread 0,0164; os `w` necessários
+6,98 / 2,33 / 0,78 nas unidades de `Δ_cut`; a tabela de Poisson (`e^−0,96` = 38,3%);
+D1 (42+42+84 = 168, dos quais 126 reprovam); A2 e C1 consistentes com 12 × 6.
 
 ## Fica em aberto para a v1.12
 
