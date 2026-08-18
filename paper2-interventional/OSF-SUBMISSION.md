@@ -1,6 +1,29 @@
 # Submissão OSF — checklist e metadados
 
-> **Preparado 2026-08-15.** Tudo abaixo está pronto; **o envio é seu**, porque exige login e porque registrar é publicação externa e irreversível. A API v2 do OSF não documenta criação de registros — o caminho é a web UI.
+> ### ✅ REGISTRADO — 2026-08-18T07:56:44Z, GUID `yf7d2`
+>
+> | | |
+> |---|---|
+> | URL | **https://osf.io/yf7d2/** |
+> | `date_registered` | **2026-08-18T07:56:44.270663Z** — é este o timestamp externo que ancora o `T_seed_assign` |
+> | Schema | **Open-Ended Registration** v3 (`5df83f7dd28338001ac0ab0d`), como este documento recomendava |
+> | Anexos | `PREREG-v1.11-2026-08-17.pdf` (2.004.652 B) · `.html` (298.817 B) · `PREREG-DRAFT.md` (249.710 B) — sha256 dos três conferidos contra o local **e** contra o depósito do Zenodo |
+> | Licença | CC-By Attribution 4.0 International; copyright holder Luiz Antonio Busnello, 2026 |
+> | Subjects | Artificial Intelligence and Robotics · Applied Statistics (o OSF anexou os ancestrais) |
+> | Embargo | **nenhum** — público imediato, conforme a recomendação abaixo |
+> | Estado | arquivamento **concluído** 07:58:05Z; `pending_registration_approval: true` |
+>
+> ⏳ **Falta um clique seu, ou o prazo.** O OSF manda um e-mail de aprovação a cada admin. A janela é de **48 h** (da meia-noite do dia da submissão à meia-noite do segundo dia); se nenhum admin rejeitar, o registro é **aprovado automaticamente** e fica público. Não existe caminho de aprovação pela interface web — só o link do e-mail (documentação do OSF, `help.osf.io/article/330`). Aprovar pelo e-mail deixa público agora; não fazer nada deixa público no fim do prazo. **Rejeitar é a única ação que o descarta.**
+>
+> ⚠️ **A API v2 documenta sim a criação de registros** — a nota abaixo dizia que não e o caminho seria a web UI. Foi feito inteiramente por API: `POST /v2/draft_registrations/` → `PATCH` (título, descrição, licença, tags, subjects, `registration_responses`) → upload via WaterButler no draft node → `POST /v2/registrations/`. Duas armadilhas: `subjects` exige **lista simples de ids** (uma lista de caminhos hierárquicos dá 400), e registrar **falha com 400** sem ao menos um subject — nada disso aparece no formulário da UI.
+>
+> ⚠️ **Não mexer nos arquivos do draft node `g9qtx` durante o arquivamento.** A própria página avisa que qualquer alteração nessa janela causa falha de arquivamento e **perda do timestamp**. O arquivamento já terminou, então esse risco passou.
+>
+> **`T_seed_assign` NÃO foi declarado.** Ver o cabeçalho do `PREREG-DRAFT.md`: a decisão de 17/08 é sortear **depois** de congelar o mecanismo, e o mecanismo não está congelado (`staged/P2S2-outcome/` não construído, `NOX_EPOCH_SNAPSHOT` ainda em `shadow`).
+
+---
+
+> **Preparado 2026-08-15.** Tudo abaixo está pronto; **o envio é seu**, porque exige login e porque registrar é publicação externa e irreversível. ~~A API v2 do OSF não documenta criação de registros — o caminho é a web UI.~~ *(Corrigido em 18/08: foi tudo por API — ver o bloco acima.)*
 
 ## Template: **Open-Ended Registration**
 

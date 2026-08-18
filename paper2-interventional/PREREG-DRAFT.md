@@ -1,5 +1,20 @@
 # OSF Pre-Registration — v1.11
 
+> ### 🔒 REGISTERED — OSF `yf7d2`, 2026-08-18T07:56:44Z
+>
+> | | |
+> |---|---|
+> | OSF registration | **https://osf.io/yf7d2/** — GUID `yf7d2` |
+> | `date_registered` | **2026-08-18T07:56:44.270663Z** (UTC) |
+> | Schema | Open-Ended Registration (v3) — the 85-page document is the attachment, not a re-typed form |
+> | Attached | `PREREG-v1.11-2026-08-17.pdf` · `.html` · `PREREG-DRAFT.md`, sha256 verified against the deposit |
+> | Evidence package | Zenodo **`10.5281/zenodo.21978476`** (concept `10.5281/zenodo.21964093`), 42 files |
+> | Embargo | **none** — public immediate |
+>
+> ⚠️ **This block was written AFTER the registration and is therefore NOT in the registered copy** — the GUID could not exist before the GUID was minted. The registered attachment is the v1.11 document without this header; the repository is the living mirror, as `OSF-SUBMISSION.md` states. Anyone comparing the two will find exactly this difference, which is why it is named here rather than left to be discovered.
+>
+> **`T_seed_assign` is deliberately NOT declared yet.** The chain requires an instant strictly after the OSF timestamp and before the first treatment epoch, committed before the corresponding drand round exists. The standing sequencing decision (2026-08-17) is that the draw happens **after the mechanism is frozen**, so that nobody builds while knowing the arm order — and the mechanism is not frozen: `staged/P2S2-outcome/` is unbuilt and `NOX_EPOCH_SNAPSHOT` is still `shadow`, while the registered estimand requires `active`. Declaring the seed now would buy nothing and would spend the one guarantee the beacon exists to provide.
+
 > ### 🔴 The design effect was computed with the wrong formula, and it under-sized the study — 2026-08-17
 >
 > **This is an error correction plus a feasibility update. It is not a re-size.** No target moved, no MDE was reshopped, and the sizing function's signature is byte-identical to the one locked on 2026-08-15. What changed is that one of its **inputs** was wrong, in the one direction the design's own locks forbid.
