@@ -1,0 +1,44 @@
+{
+ "nox": {
+  "n": 10,
+  "topo": 0.8873,
+  "base": 0.6851,
+  "spread_total": 0.2022,
+  "gap_mediano": 0.0074
+ },
+ "atlas": {
+  "n": 10,
+  "topo": 0.8873,
+  "base": 0.7613,
+  "spread_total": 0.126,
+  "gap_mediano": 0.0157
+ },
+ "boris": {
+  "n": 10,
+  "topo": 0.8873,
+  "base": 0.6925,
+  "spread_total": 0.1948,
+  "gap_mediano": 0.0094
+ },
+ "cipher": {
+  "n": 10,
+  "topo": 0.8873,
+  "base": 0.7922,
+  "spread_total": 0.0951,
+  "gap_mediano": 0.0042
+ },
+ "forge": {
+  "n": 10,
+  "topo": 0.8873,
+  "base": 0.7051,
+  "spread_total": 0.1822,
+  "gap_mediano": 0.0136
+ },
+ "lex": {
+  "n": 10,
+  "topo": 0.8873,
+  "base": 0.61,
+  "spread_total": 0.2773,
+  "gap_mediano": 0.0038
+ }
+}

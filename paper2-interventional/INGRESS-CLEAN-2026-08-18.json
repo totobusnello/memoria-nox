@@ -1,0 +1,438 @@
+{
+ "db": "/tmp/p2-clean.db",
+ "now": "2026-08-18T14:52:29.034Z",
+ "casos": {
+  "S1@1d": {
+   "nox": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6695,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6695,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6695,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6695,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6695,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6695,
+    "no_baseline": false
+   }
+  },
+  "S1@7d": {
+   "nox": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6661,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6661,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6661,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6661,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6661,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6661,
+    "no_baseline": false
+   }
+  },
+  "S1@30d": {
+   "nox": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   }
+  },
+  "S2@1d": {
+   "nox": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6945,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6945,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6945,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6945,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6945,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6945,
+    "no_baseline": false
+   }
+  },
+  "S2@7d": {
+   "nox": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6911,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6911,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6911,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6911,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6911,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.6911,
+    "no_baseline": false
+   }
+  },
+  "S2@30d": {
+   "nox": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   }
+  },
+  "S3@1d": {
+   "nox": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7195,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7195,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7195,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7195,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7195,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7195,
+    "no_baseline": false
+   }
+  },
+  "S3@7d": {
+   "nox": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7161,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7161,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7161,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7161,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7161,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7161,
+    "no_baseline": false
+   }
+  },
+  "S3@30d": {
+   "nox": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   }
+  },
+  "S4@1d": {
+   "nox": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7445,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7445,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7445,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7445,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7445,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7445,
+    "no_baseline": false
+   }
+  },
+  "S4@7d": {
+   "nox": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7411,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7411,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7411,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7411,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7411,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": true,
+    "via": "cobertura",
+    "salience": 0.7411,
+    "no_baseline": false
+   }
+  },
+  "S4@30d": {
+   "nox": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "atlas": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "boris": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "cipher": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "forge": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   },
+   "lex": {
+    "servido": false,
+    "via": null,
+    "no_baseline": false
+   }
+  }
+ }
+}
