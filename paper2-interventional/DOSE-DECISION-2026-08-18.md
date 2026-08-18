@@ -271,6 +271,63 @@ mesma política, herda isso.
 entra como número. O que entra é a **regra** (um chunk por assinatura, o de menor
 `w_min`), com a ressalva de que `w_min` precisa de referente novo.
 
+## Revisão adversarial — Kimi K2, 2026-08-18 (recibo `exit 0`, 13.170 bytes)
+
+Rodado em paralelo ao Grok, em eixos disjuntos (coerência e viés, contra
+aritmética e premissas). Verificou os números contra a auditoria **antes** de
+atacar.
+
+### A omissão que nenhum dos meus eixos nomeou
+
+> *"B5 — sob inflow real, alcance não-impulsionado ~nulo e a dose vira **desempate
+> entre os chunks do próprio estudo** — é a descoberta mais relevante para a
+> interpretação de H1, e P1–P6 não a mencionam."*
+
+Está certo. Eu achei B5, escrevi na auditoria, e **não o pus na lista do que vai
+ser registrado**. Junto com ele: declarar que todo número "com inflow" veio de
+pool **semeado sinteticamente por mim**, e comprometer re-medição quando a escrita
+orgânica voltar. Emenda que omite o achado central e a proveniência sintética dos
+dados nasce incompleta.
+
+### O viés de conveniência, localizado
+
+Kimi **refuta parcialmente** a suspeita: manter o primário pooled (P4) é o que a
+evidência manda, não preferência — a lista "o que sobrevive intacto" é conclusão
+de medição. O motivated reasoning está em **dois pontos exatos**:
+
+1. **P5** (manter conclusão trocando justificativa) — ver o teste abaixo.
+2. **Manter a banda.** B2 mostrou que o argumento que matou a banda **antiga** era
+   vazio. Logo a banda atual é uma decisão cuja justificativa registrada **não
+   existe**. Escrever "banda mantida" como default neutro é o vício. O honesto é
+   registrá-la como **subdeterminada, pendente da medição de λ**, com o critério de
+   decisão explícito **antes** do sorteio.
+
+### O teste que separa emenda honesta de racionalização
+
+> *"A conclusão seria alcançada do mecanismo novo sozinho, por quem nunca leu a
+> versão publicada?"*
+
+Para P5, sim — 72/72 células. Então a manutenção é legítima, **sob três condições**:
+
+- declarar a justificativa antiga **falsa** e a conclusão **re-estabelecida**,
+  nunca "confirmada";
+- **proibir a expressão "by construction"** — foi o pecado original;
+- registrar a nova justificativa (ordem de seleção em `pick`) como **contingente à
+  versão/hash do código**, não como propriedade eterna. Sem isso troco um modelo
+  morto por uma conjectura viva sem âncora.
+
+### Correções de redação que mudam o conteúdo
+
+| item | veredito | o que muda |
+|---|---|---|
+| P1 (não há corte) | **PASS** robusto | propriedade de código |
+| P2 (escada de severidade) | PASS **com reescrita** | *"idade **nunca** cruza banda"* é forte demais — vira *"não cruza enquanto os coeficientes atuais valerem"*, verificável em código |
+| P3 (agente-independente) | **nasce overclaiming** | como fato medido é artefato (pool vazio é degenerado); como propriedade de código sobrevive **se** a query de cobertura não tiver predicado de agente. Reescrever como propriedade de código + nota de que a medição foi em estado degenerado |
+| P4 (primário pooled) | **PASS** | nada no mecanismo toca randomização |
+| P5 (nunca os 8 principais) | PASS **condicional** | as três condições acima |
+| P6 (re-centrar após λ) | PASS, contaminado | *"396 é projeção"* está certo; a banda tem de ir como subdeterminada |
+| `Δ_cut = 0.043` | **FAIL parcial** | congelar o **valor** é ato legítimo do documento; mas as **unidades** de `w` vêm do modelo morto. Congelar sem redefinir o significado é herdar unidades do cadáver — redefinir contra o espaçamento da fila, antes do sorteio |
+
 ## Fica em aberto para a v1.12
 
 - *"Um slot, by construction"* foi medido sob o modelo morto. A designação é um
