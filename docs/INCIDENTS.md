@@ -2,6 +2,38 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-08-19 (06:30) — `nox-mem-api` reiniciado 4× em 1h: a política do probe, não a porta
+
+### Severity: orange — serviço servindo normalmente nos dois lados da janela; o dano é write kill mid-flight, silencioso, e a mesma classe do incident de 2026-04-18
+
+### TL;DR
+Morning report abriu `🔴 nox-mem-api restarted 4x in last hour (probe likely broken again)`. Mas todo o resto do relatório mostra o serviço **vivo**: `/api/health` respondeu ao próprio report às 06:30 (67024/67024, orphans 0), o canário de 06:00 respondeu `/api/search` (`OK: total=10 semantic=8 fts=2`), 0 erros no nightly, WAL 4MB, disco 58%, zero 429. Quatro restarts de um serviço que funciona — **o restart é o defeito**, não o sintoma.
+
+### Causa raiz
+O Tier 0 de 2026-04-18 corrigiu o **endereço** que o probe consulta (`NOX_API_PORT` do `.env` em vez de `:18800` hardcoded). Nunca corrigiu o **julgamento**. O bloco `nox-mem-api` do `health-probe.sh` continua sendo: um `curl -sf --max-time 3` falhou ⇒ `systemctl restart`. Sem debounce, sem cooldown, sem circuit breaker — **é o único serviço do probe sem os três** (o gateway, logo acima no mesmo arquivo, tem breaker de 3 falhas desde sempre).
+
+Quatro agravantes, na ordem em que mordem:
+
+1. **3s não distingue "morto" de "ocupado".** `/api/health` faz COUNT/JOIN sobre ~95k chunks, percorre `vec_chunk_map` e ainda faz `systemctl show` por serviço. O p50 de query em prod é 1470ms — quase metade do orçamento inteiro do probe. O `morning-report.sh` dá 5s ao mesmo endpoint; o canário dá 15s ao search. O probe, único que tem gatilho, dá 3s.
+2. **Todo modo de falha vira morte.** `curl -sf` falha igual para connection-refused (morto de verdade), timeout (vivo mas travado) e HTTP 5xx (vivo, um subsistema quebrado). Restart só conserta o primeiro — e no terceiro caso mata writes sem tocar na falha real.
+3. **Reinicia dentro do próprio boot.** Cold start carrega sqlite-vec sobre ~95k×3072d, ~30s. Nada impedia o probe de bater num unit `activating` e reiniciar de novo. O `semantic-canary.sh` debounce 2 falhas consecutivas **exatamente por causa desses ~30s** — o script que *causa* os boots não tinha a mesma proteção.
+4. **Sem alerta e sem evidência.** O ramo da API nunca escreve em `$ALERTS` (nenhum Discord dispara) e loga uma linha sem HTTP code, sem curl rc, sem estado do listener. Seis horas depois o morning report não tem o que atribuir — daí o texto ser um chute (`probe likely broken again`), que sairia idêntico para crash-loop do systemd, OOM kill ou deploy manual.
+
+### Fix (staged, aguardando deploy — `staged/health-probe-restart-loop/`)
+Probe classifica antes de agir: porta não bound + unit não `activating` ⇒ restart imediato (não há nada escutando, não há write pra matar); porta bound com timeout/erro ⇒ restart só na **2ª falha consecutiva**; unit `activating` ⇒ **nunca**; processo respondendo 4xx/5xx ⇒ **nunca** (restart não conserta DB/schema quebrado), alerta em vez disso. Mais: timeout 3s→8s, um retry in-run, cooldown de 10min, **circuit breaker em 3 restarts/hora**, espera de readiness pós-restart, e falha de API agora chega no Discord na hora.
+
+Pior caso sai de **12 restarts/h silenciosos e não atribuídos** para **≤3, cada um com motivo escrito**, depois breaker travado + alerta.
+
+Cada restart passa a gravar `/var/lib/nox-health/api-restarts.log`, e o `morning-report.sh` separa a contagem do journal por causa: `restarts 1h : 4 (probe 2 / self 2; last probe reason: hung http=000 rc=28)`. `probe 0 / self N` é o diagnóstico oposto (crash-loop / OOM) e antes era rotulado com a mesma frase.
+
+Dois bugs menores achados no mesmo arquivo e corrigidos junto: `curl` agora usa `--noproxy '*'` (o `set -a; . .env` do Tier 0 exporta **toda** variável do arquivo — um `http_proxy` ali dentro faria o probe reiniciar a API a cada 5 min), e o breaker do gateway deixa de ser limpo por `$FAILED`, que também é setado pelos checks de SQLite e `node.real` (DB ilegível mantinha o breaker do *gateway* travado com o gateway saudável).
+
+### ⚠️ O espelho está 4 meses defasado
+`scripts/vps-mirror/README.md` marca última sync em **2026-04-19**, e `docs/HANDOFF.md:256` mostra que o script vivo divergiu: mora no repo `nox-scripts` (commit `3a723a8`), é numerado por `CHECK` e roda **de 10 em 10 min**, não 5. O patch foi escrito contra o snapshot espelhado ⇒ **portar o bloco `nox-mem-api`, não sobrescrever o arquivo vivo**. Ver o README do staged para o procedimento e para os comandos de verificação na VPS (inclusive o `grep proxy` no `.env`, que ainda não foi descartado como causa desta ocorrência específica).
+
+### Aprendizado
+**Corrigir o endereço de um probe não corrige a política dele.** O audit de 2026-04-18 (`audits/sre-deepening-2026-04-18.md:11-21`) diagnosticou porta e cadência e parou ali; a política de "1 falha ⇒ restart" sobreviveu intacta ao incident que ela causou e voltou a disparar 4 meses depois. Corolário operacional: **todo restart automático precisa de motivo gravado** — enquanto o único registro for "N restarts", o relatório vai continuar chutando qual componente falhou.
+
 ## 2026-08-14 (noite) — drift de modelo no painel: `api.z.ai` serve glm-5.3 para pedidos de glm-5.2
 
 ### Severity: orange — bug de coleta corrigido em minutos; a dúvida metodológica que ele expõe é permanente
