@@ -11,7 +11,7 @@ This patch set makes the probe classify before it acts, bounds how often it may 
 | `restarts 1h` | 4 | ~4 of the 12 probes in the window restarted the API — **intermittent**, not the constant loop of 2026-04-18 |
 | `chunks embedded` | 67024/67024, orphans 0 | API answered `/api/health` for `morning-report.sh` (5s timeout) at 06:30 |
 | `canary` | `OK: total=10 semantic=8 fts=2` | API served `/api/search` at 06:00 |
-| `query` write-path | 51× **1470ms** avg | p50 latency is already ~½ of the probe's whole 3s budget |
+| `query` write-path | 51× 1470ms avg | LLM-call telemetry (tokens + cost), **not** endpoint latency — does not bear on the probe's budget |
 | `wal size` / `disk` / `429` | 4MB / 58% / 0 | no resource pressure, no quota wall |
 
 So the service was **alive and serving on both sides of the window**. Four restarts of a service that works is the failure — each one kills writes mid-flight, which is exactly the damage mode of INCIDENTS `2026-04-18` (288 restarts/day, 6,627 orphaned rows, semantic search silently dead for weeks).
@@ -32,7 +32,7 @@ fi
 Six defects, in the order they bite:
 
 1. **One `curl` failure = one restart.** No confirmation. The `semantic-canary.sh` in the same directory debounces two consecutive failures *specifically because* "restart transitório do processo Node, ~30s de boot" — the probe that causes those boots has no such guard.
-2. **3s timeout cannot distinguish "dead" from "busy".** `/api/health` counts and JOINs over ~95k chunks, walks `vec_chunk_map`, and shells out to `systemctl show` per service. Prod p50 for a query is already 1470ms. `morning-report.sh` allows 5s for the same endpoint; the canary allows 15s for search. The probe — the only one with a trigger — allows 3s.
+2. **3s timeout cannot distinguish "dead" from "busy".** `/api/health` counts and JOINs over ~95k chunks, walks `vec_chunk_map`, and shells out to `systemctl show` per service. Measured on prod 2026-08-19 it answers in **0.70s**, so 3s is not tight *today* — but it is the tightest budget in the fleet for the heaviest-shelling endpoint, and it is the only one wired to a restart: `morning-report.sh` allows 5s for the same endpoint, the canary allows 15s for search. Widening to 8s is cheap insurance; the classification below is what actually fixes the storm.
 3. **Every failure mode is treated as death.** `curl -sf` fails identically for connection-refused (really dead), timeout (alive but blocked), and HTTP 5xx (alive, one subsystem broken). A restart fixes only the first, and actively harms the third by killing in-flight writes while the real fault stays.
 4. **No cooldown, and it restarts into its own boot.** A cold start loads sqlite-vec over ~95k×3072d vectors and takes ~30s. Nothing stops the probe from hitting the service while `systemd` still reports `activating` and restarting it again.
 5. **No circuit breaker.** The gateway stops after 3 restarts and alerts. The API — the service that owns the database — restarts forever, silently.

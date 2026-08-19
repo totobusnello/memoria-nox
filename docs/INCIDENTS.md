@@ -2,6 +2,38 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-08-19 (14:52) — canário `/api/search` unreachable: não era queda, era p95 de 18s
+
+### Severity: orange — EM INVESTIGAÇÃO. Serviço up desde 06:56 sem restart; o que degradou foi latência de busca, e o alerta pegou a cauda dela
+
+### TL;DR
+Canário alertou `nox-mem canary: /api/search unreachable on port 18802 (2x consecutivo)`. **Não houve queda:** `ExecMainStartTimestamp=06:56:21 -03`, porta bound, PID estável, nenhum start desde 06:56 — e o `/api/health` respondendo dentro de 3s o dia inteiro (senão o probe antigo teria reiniciado). Medido durante a triagem: `health 0.698s`, `search 0.857s`.
+
+O que o `search_telemetry` mostra das ~40 queries anteriores:
+
+| Métrica | Valor |
+|---|---|
+| `p95_latency_ms` (24h, `/api/health.searchTelemetry`) | **18.231** |
+| queries > 10s | 13 de ~40 |
+| queries > 15s (timeout do canário) | **6 de ~40 (~15%)** |
+| `has_semantic` | **1 em todas**, inclusive nas de 24s |
+| `semantic_ratio` (24h) | 1,0 |
+| `vectorCoverage` | 67024/67024, orphans 0 |
+
+### A leitura
+`has_semantic=1` nas linhas lentas quer dizer que **as buscas completaram** — não houve erro, não houve fallback, só espera. E com ~15% das rodadas passando de 15s, duas falhas consecutivas de canário a cada 30 min era questão de tempo: **o alerta é a cauda de uma degradação crônica, não um evento pontual.** A janela 14:22–14:52 não tem nada de especial além de ter sido a primeira em que dois sorteios ruins caíram juntos.
+
+### O defeito estrutural que isto expõe (independente da causa da lentidão)
+`searchSemantic` (`search.ts:472-577`) envolve tudo num `try/catch` que cai pra FTS **em erro**. O `await embedText(query)` da linha 488 vai **sem timeout e sem `AbortSignal`** — e o provider Gemini (`staged/A3/.../embedding/gemini.ts:105`) chama `fetchFn` sem `signal` também. Provider lento não é erro, é espera: o `catch` não roda, o fallback FTS-only nunca acontece, e a requisição fica pendurada até o limite do undici (~300s), 20× o timeout do canário.
+
+Isso deixa a **Tier 1 do RB-05 meio falsa**: *"`src/search.ts` já tem fallback FTS-only quando Gemini API falha"* — tem, para **falha**; para **lentidão**, não tem. Mesma classe da lição de sábado (op bloqueante precisa de wrapper de timeout explícito), agora no caminho de query em vez do de deploy.
+
+### Aberto
+Falta separar **provider lento** de **custo local** (o `search_telemetry` tem `reranker_mode` / `reranker_latency_ms`, e um cross-encoder ligado explicaria latência sem envolver o Gemini) e ver se a lentidão é janela ou o dia todo — a consulta é agregar por hora com `ts`, que existe na tabela e não foi selecionado na primeira leitura. Fix do timeout fica staged assim que `src/embed.ts` for lido (o repo só tem o stub `.d.ts`).
+
+### Relação com a entrada das 06:30
+Nenhuma causal, mas uma coincidência útil: o probe antigo bate no `/api/health`, que ficou rápido o tempo todo — por isso **não reiniciou nada** durante esta degradação. Se batesse no `/api/search`, teria reiniciado a API no meio de um provider lento, e o restart não consertaria nada. É exatamente o caso "processo vivo ⇒ nunca reiniciar" do PR #452.
+
 ## 2026-08-19 (06:30) — `nox-mem-api` reiniciado 4× em 1h: a política do probe, não a porta
 
 ### Severity: orange — serviço servindo normalmente nos dois lados da janela; o dano é write kill mid-flight, silencioso, e a mesma classe do incident de 2026-04-18
@@ -14,7 +46,9 @@ O Tier 0 de 2026-04-18 corrigiu o **endereço** que o probe consulta (`NOX_API_P
 
 Quatro agravantes, na ordem em que mordem:
 
-1. **3s não distingue "morto" de "ocupado".** `/api/health` faz COUNT/JOIN sobre ~95k chunks, percorre `vec_chunk_map` e ainda faz `systemctl show` por serviço. O p50 de query em prod é 1470ms — quase metade do orçamento inteiro do probe. O `morning-report.sh` dá 5s ao mesmo endpoint; o canário dá 15s ao search. O probe, único que tem gatilho, dá 3s.
+1. **3s não distingue "morto" de "ocupado".** `/api/health` faz COUNT/JOIN sobre ~95k chunks, percorre `vec_chunk_map` e ainda faz `systemctl show` por serviço. Medido em prod no mesmo dia, ele responde em **0,70s** — então 3s não está apertado *hoje*; o que está errado é ser o orçamento mais curto da frota no endpoint que mais faz trabalho, e o único ligado a um restart (o `morning-report.sh` dá 5s ao mesmo endpoint, o canário dá 15s ao search). Subir pra 8s é seguro barato; o que conserta o storm é a classificação, não o número.
+
+   ⚠️ **Correção (mesmo dia):** a primeira redação desta entrada citava "p50 de query em prod 1470ms" lendo a linha `query 51x 987tok 0.000148 1470ms` do relatório. Aquela linha é telemetria de **write-path** (chamadas LLM com tokens e custo), não latência de endpoint. A latência real de search do dia está na entrada de 14:52.
 2. **Todo modo de falha vira morte.** `curl -sf` falha igual para connection-refused (morto de verdade), timeout (vivo mas travado) e HTTP 5xx (vivo, um subsistema quebrado). Restart só conserta o primeiro — e no terceiro caso mata writes sem tocar na falha real.
 3. **Reinicia dentro do próprio boot.** Cold start carrega sqlite-vec sobre ~95k×3072d, ~30s. Nada impedia o probe de bater num unit `activating` e reiniciar de novo. O `semantic-canary.sh` debounce 2 falhas consecutivas **exatamente por causa desses ~30s** — o script que *causa* os boots não tinha a mesma proteção.
 4. **Sem alerta e sem evidência.** O ramo da API nunca escreve em `$ALERTS` (nenhum Discord dispara) e loga uma linha sem HTTP code, sem curl rc, sem estado do listener. Seis horas depois o morning report não tem o que atribuir — daí o texto ser um chute (`probe likely broken again`), que sairia idêntico para crash-loop do systemd, OOM kill ou deploy manual.
