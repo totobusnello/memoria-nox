@@ -4,6 +4,55 @@
 
 ---
 
+## 🟢 Estado atual (2026-08-19) — componente 1 EM PRODUÇÃO; falta uma rodada de painel
+
+> ▶️ **Próxima ação: rodar o painel sobre uma janela recente para medir λ** (taxa de
+> episódios *adjudicados como falha* por epoch). É o último número que a emenda
+> v1.12 precisa. O denominador já está medido: **309,4 episódios/epoch**.
+
+### Em produção hoje
+
+| | |
+|---|---|
+| `NOX_API_TOKEN` | **rotado** 2026-08-19 (nunca havia sido; 11 arquivos compartilhavam o valor). Um só consumidor: `api-server.ts:120` |
+| `nox-workspace#42` | **mergeado e deployado** — write path de falha adjudicada, arm-blind, atrás de `NOX_P2_WRITE_PATH=on` |
+| `nox-workspace#43` | **mergeado e deployado** — guarda de isolamento do log |
+| golden test em prod | briefs **idênticos** ao pré-deploy nos 3 agentes, com a flag ligada |
+| verificação | 12/12 (schema/invariantes/idempotência) + golden 12/12 byte-idêntico + 7/7 HTTP |
+
+O que importa nos testes HTTP: **localhost sem Bearer → 401**. O gate geral deixaria
+passar; esta rota exige o token incondicionalmente.
+
+### Medido em 19/08
+
+- **309,4 episódios/epoch** (10 dias completos recentes); piloto dava 319 ⇒ **o volume
+  da frota não mudou**. Projeção do §9 era ~396: ~15% acima.
+- Volume total do estudo: 234 × 309,4 = **72.400** episódios ⇒ 724 janelas de quota
+  Moonshot. A decisão de painel reduzido do §9 fica de pé em qualquer base.
+- `is_error` caiu de ~16% para ~2-5% **com o total estável** — sinal real, candidato a
+  covariável de tempo.
+- Os 7 agentes estão no archive; o stream vive em `.claude-nuvini-team` (failover) e o
+  archive está em paridade.
+
+### Bloqueio da emenda v1.12
+
+Uma emenda, não duas (decidido). Falta λ. **Escreve-se sem λ:** o corte não existe, a
+escada de severidade, o primário é pooled 117 vs 117, `CUT_FRESH` não sobrevive como
+modelo, `w = 2.0` está na borda. **Não se escreve sem λ:** percentual nenhum, `w`
+necessário, teto pooled, "o primário sobrevive", a banda como platôs.
+
+⚠️ O sorteio (`T_seed_assign`) está bloqueado até λ medido e banda re-registrada.
+
+### Revisões adversariais desta rodada (todas com recibo verificado)
+
+Grok 4.6 (2.577 B) e Kimi K2 (13.170 B + 40.702 B) acharam 12 defeitos que o censo
+mecânico não pegou, incluindo dois estruturais: as shares de severidade estavam sem
+proveniência (recuperada — `SHARES-PROVENANCE-2026-08-19.md`, e a **unidade** estava
+errada: por veredito, não por episódio) e "por construção" apoiado num lock de campos
+que a produção não implementava.
+
+---
+
 ## 🔴 Estado atual (2026-08-18) — o §2 modelava um limiar que o código não aplica; componente 1 no ar em PR
 
 > ▶️ **Próxima ação: decisão de desenho do Toto — dose absoluta ou relativa ao cut do agente.** Ela destrava a emenda v1.12 e o componente 2. Nada mais depende de medição.
