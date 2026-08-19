@@ -2,6 +2,77 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-08-19 (14:52) — canário `/api/search` unreachable: não era queda, era p95 de 18s
+
+### Severity: orange — EM INVESTIGAÇÃO. Serviço up desde 06:56 sem restart; o que degradou foi latência de busca, e o alerta pegou a cauda dela
+
+### TL;DR
+Canário alertou `nox-mem canary: /api/search unreachable on port 18802 (2x consecutivo)`. **Não houve queda:** `ExecMainStartTimestamp=06:56:21 -03`, porta bound, PID estável, nenhum start desde 06:56 — e o `/api/health` respondendo dentro de 3s o dia inteiro (senão o probe antigo teria reiniciado). Medido durante a triagem: `health 0.698s`, `search 0.857s`.
+
+O que o `search_telemetry` mostra das ~40 queries anteriores:
+
+| Métrica | Valor |
+|---|---|
+| `p95_latency_ms` (24h, `/api/health.searchTelemetry`) | **18.231** |
+| queries > 10s | 13 de ~40 |
+| queries > 15s (timeout do canário) | **6 de ~40 (~15%)** |
+| `has_semantic` | **1 em todas**, inclusive nas de 24s |
+| `semantic_ratio` (24h) | 1,0 |
+| `vectorCoverage` | 67024/67024, orphans 0 |
+
+### A leitura
+`has_semantic=1` nas linhas lentas quer dizer que **as buscas completaram** — não houve erro, não houve fallback, só espera. E com ~15% das rodadas passando de 15s, duas falhas consecutivas de canário a cada 30 min era questão de tempo: **o alerta é a cauda de uma degradação crônica, não um evento pontual.** A janela 14:22–14:52 não tem nada de especial além de ter sido a primeira em que dois sorteios ruins caíram juntos.
+
+### O defeito estrutural que isto expõe (independente da causa da lentidão)
+`searchSemantic` (`search.ts:472-577`) envolve tudo num `try/catch` que cai pra FTS **em erro**. O `await embedText(query)` da linha 488 vai **sem timeout e sem `AbortSignal`** — e o provider Gemini (`staged/A3/.../embedding/gemini.ts:105`) chama `fetchFn` sem `signal` também. Provider lento não é erro, é espera: o `catch` não roda, o fallback FTS-only nunca acontece, e a requisição fica pendurada até o limite do undici (~300s), 20× o timeout do canário.
+
+Isso deixa a **Tier 1 do RB-05 meio falsa**: *"`src/search.ts` já tem fallback FTS-only quando Gemini API falha"* — tem, para **falha**; para **lentidão**, não tem. Mesma classe da lição de sábado (op bloqueante precisa de wrapper de timeout explícito), agora no caminho de query em vez do de deploy.
+
+### O que a leitura do `embed.ts` acrescentou
+O caminho de query não tem **uma** camada sem orçamento, tem três encaixadas: `fetch` sem `signal` (teto do undici, ~300s), `fetchWithRetry` com `maxAttempts=4` e backoff 1s→2s→4s (**7s de espera pura + 4 requests** = ~19s no pior caso, a faixa exata das linhas de 15–24s), e o `catch` do `searchSemantic` que nunca roda porque a escada eventualmente sucede. Fix em `staged/embed-timeout-query-path/`.
+
+Correção sobre a correção da entrada das 06:30: a linha `query 51x ... 1470ms` **é** telemetria do `recordProviderCost` com `caller="embed.embedQuery"`, com o `t0` antes do `fetchWithRetry` — ou seja, é a latência média da chamada de embedding da query, escada incluída. Não é latência de endpoint (isso continua valendo), mas também não é irrelevante: é um componente direto do search. E tem viés: `recordProviderCost` só grava **depois** que existe `resp`, então abort/socket/DNS não deixam linha — a média exclui as piores chamadas.
+
+### Aberto
+Falta a distribuição por chamada (`SELECT ts, latency_ms, ok FROM provider_cost WHERE caller='embed.embedQuery'`): se acompanhar as buscas, é o provider + a escada; se ficar estável em ~1,5s enquanto o search vai a 18s, o tempo está **depois** do embedding, e os candidatos passam a ser locais — KNN linear do `sqlite-vec` (67.024 × 3072 × 4B ≈ **823 MB varridos por query**), `ensureVecTable()` rodando DDL a cada busca, `loadExtension` ~3× por query e `countEmbedded()` contando 67k linhas antes de cada busca. A variância de 20× com a mesma query voltando em 852ms logo depois favorece cache de página, o que aponta mais pro scan do que pro provider.
+
+### Relação com a entrada das 06:30
+Nenhuma causal, mas uma coincidência útil: o probe antigo bate no `/api/health`, que ficou rápido o tempo todo — por isso **não reiniciou nada** durante esta degradação. Se batesse no `/api/search`, teria reiniciado a API no meio de um provider lento, e o restart não consertaria nada. É exatamente o caso "processo vivo ⇒ nunca reiniciar" do PR #452.
+
+## 2026-08-19 (06:30) — `nox-mem-api` reiniciado 4× em 1h: a política do probe, não a porta
+
+### Severity: orange — serviço servindo normalmente nos dois lados da janela; o dano é write kill mid-flight, silencioso, e a mesma classe do incident de 2026-04-18
+
+### TL;DR
+Morning report abriu `🔴 nox-mem-api restarted 4x in last hour (probe likely broken again)`. Mas todo o resto do relatório mostra o serviço **vivo**: `/api/health` respondeu ao próprio report às 06:30 (67024/67024, orphans 0), o canário de 06:00 respondeu `/api/search` (`OK: total=10 semantic=8 fts=2`), 0 erros no nightly, WAL 4MB, disco 58%, zero 429. Quatro restarts de um serviço que funciona — **o restart é o defeito**, não o sintoma.
+
+### Causa raiz
+O Tier 0 de 2026-04-18 corrigiu o **endereço** que o probe consulta (`NOX_API_PORT` do `.env` em vez de `:18800` hardcoded). Nunca corrigiu o **julgamento**. O bloco `nox-mem-api` do `health-probe.sh` continua sendo: um `curl -sf --max-time 3` falhou ⇒ `systemctl restart`. Sem debounce, sem cooldown, sem circuit breaker — **é o único serviço do probe sem os três** (o gateway, logo acima no mesmo arquivo, tem breaker de 3 falhas desde sempre).
+
+Quatro agravantes, na ordem em que mordem:
+
+1. **3s não distingue "morto" de "ocupado".** `/api/health` faz COUNT/JOIN sobre ~95k chunks, percorre `vec_chunk_map` e ainda faz `systemctl show` por serviço. Medido em prod no mesmo dia, ele responde em **0,70s** — então 3s não está apertado *hoje*; o que está errado é ser o orçamento mais curto da frota no endpoint que mais faz trabalho, e o único ligado a um restart (o `morning-report.sh` dá 5s ao mesmo endpoint, o canário dá 15s ao search). Subir pra 8s é seguro barato; o que conserta o storm é a classificação, não o número.
+
+   ⚠️ **Correção (mesmo dia):** a primeira redação desta entrada citava "p50 de query em prod 1470ms" lendo a linha `query 51x 987tok 0.000148 1470ms` do relatório. Aquela linha é telemetria de **write-path** (chamadas LLM com tokens e custo), não latência de endpoint. A latência real de search do dia está na entrada de 14:52.
+2. **Todo modo de falha vira morte.** `curl -sf` falha igual para connection-refused (morto de verdade), timeout (vivo mas travado) e HTTP 5xx (vivo, um subsistema quebrado). Restart só conserta o primeiro — e no terceiro caso mata writes sem tocar na falha real.
+3. **Reinicia dentro do próprio boot.** Cold start carrega sqlite-vec sobre ~95k×3072d, ~30s. Nada impedia o probe de bater num unit `activating` e reiniciar de novo. O `semantic-canary.sh` debounce 2 falhas consecutivas **exatamente por causa desses ~30s** — o script que *causa* os boots não tinha a mesma proteção.
+4. **Sem alerta e sem evidência.** O ramo da API nunca escreve em `$ALERTS` (nenhum Discord dispara) e loga uma linha sem HTTP code, sem curl rc, sem estado do listener. Seis horas depois o morning report não tem o que atribuir — daí o texto ser um chute (`probe likely broken again`), que sairia idêntico para crash-loop do systemd, OOM kill ou deploy manual.
+
+### Fix (staged, aguardando deploy — `staged/health-probe-restart-loop/`)
+Probe classifica antes de agir: porta não bound + unit não `activating` ⇒ restart imediato (não há nada escutando, não há write pra matar); porta bound com timeout/erro ⇒ restart só na **2ª falha consecutiva**; unit `activating` ⇒ **nunca**; processo respondendo 4xx/5xx ⇒ **nunca** (restart não conserta DB/schema quebrado), alerta em vez disso. Mais: timeout 3s→8s, um retry in-run, cooldown de 10min, **circuit breaker em 3 restarts/hora**, espera de readiness pós-restart, e falha de API agora chega no Discord na hora.
+
+Pior caso sai de **12 restarts/h silenciosos e não atribuídos** para **≤3, cada um com motivo escrito**, depois breaker travado + alerta.
+
+Cada restart passa a gravar `/var/lib/nox-health/api-restarts.log`, e o `morning-report.sh` separa a contagem do journal por causa: `restarts 1h : 4 (probe 2 / self 2; last probe reason: hung http=000 rc=28)`. `probe 0 / self N` é o diagnóstico oposto (crash-loop / OOM) e antes era rotulado com a mesma frase.
+
+Dois bugs menores achados no mesmo arquivo e corrigidos junto: `curl` agora usa `--noproxy '*'` (o `set -a; . .env` do Tier 0 exporta **toda** variável do arquivo — um `http_proxy` ali dentro faria o probe reiniciar a API a cada 5 min), e o breaker do gateway deixa de ser limpo por `$FAILED`, que também é setado pelos checks de SQLite e `node.real` (DB ilegível mantinha o breaker do *gateway* travado com o gateway saudável).
+
+### ⚠️ O espelho está 4 meses defasado
+`scripts/vps-mirror/README.md` marca última sync em **2026-04-19**, e `docs/HANDOFF.md:256` mostra que o script vivo divergiu: mora no repo `nox-scripts` (commit `3a723a8`), é numerado por `CHECK` e roda **de 10 em 10 min**, não 5. O patch foi escrito contra o snapshot espelhado ⇒ **portar o bloco `nox-mem-api`, não sobrescrever o arquivo vivo**. Ver o README do staged para o procedimento e para os comandos de verificação na VPS (inclusive o `grep proxy` no `.env`, que ainda não foi descartado como causa desta ocorrência específica).
+
+### Aprendizado
+**Corrigir o endereço de um probe não corrige a política dele.** O audit de 2026-04-18 (`audits/sre-deepening-2026-04-18.md:11-21`) diagnosticou porta e cadência e parou ali; a política de "1 falha ⇒ restart" sobreviveu intacta ao incident que ela causou e voltou a disparar 4 meses depois. Corolário operacional: **todo restart automático precisa de motivo gravado** — enquanto o único registro for "N restarts", o relatório vai continuar chutando qual componente falhou.
+
 ## 2026-08-14 (noite) — drift de modelo no painel: `api.z.ai` serve glm-5.3 para pedidos de glm-5.2
 
 ### Severity: orange — bug de coleta corrigido em minutos; a dúvida metodológica que ele expõe é permanente

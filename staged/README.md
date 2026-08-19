@@ -20,7 +20,7 @@ exact diff that produced it.
 | `P*` | **Product** pillar (answer primitive, temporal, SSE viewer, mobile, extension) | `staged/P1`, `staged/P3`, `staged/P5`, `staged/P6-mobile`, `staged/P7-browser-extension` |
 | `L*` | **Lab** / retrieval research | `staged/L2`, `staged/L3`, `staged/L4` |
 | `G4` … `G17` | Ablation **generations** (the G3→G10d boost-stack trajectory + Wave G/J fixes) | `staged/G5`, `staged/G10`, `staged/G11-G17` |
-| *named* | Standalone features / fixes | `staged/cors`, `staged/graphify-ingest`, `staged/migrations`, `staged/observability`, `staged/prometheus`, `staged/privacy`, `staged/temporal-spike`, `staged/reindex-emergency`, `staged/watcher-healthcheck-fix`, `staged/wire-up`, `staged/wire-up-adapters` |
+| *named* | Standalone features / fixes | `staged/cors`, `staged/embed-timeout-query-path`, `staged/graphify-ingest`, `staged/health-probe-restart-loop`, `staged/migrations`, `staged/observability`, `staged/prometheus`, `staged/privacy`, `staged/temporal-spike`, `staged/reindex-emergency`, `staged/watcher-healthcheck-fix`, `staged/wire-up`, `staged/wire-up-adapters` |
 
 ## How to read a patch set
 
