@@ -28,8 +28,13 @@ O que o `search_telemetry` mostra das ~40 queries anteriores:
 
 Isso deixa a **Tier 1 do RB-05 meio falsa**: *"`src/search.ts` já tem fallback FTS-only quando Gemini API falha"* — tem, para **falha**; para **lentidão**, não tem. Mesma classe da lição de sábado (op bloqueante precisa de wrapper de timeout explícito), agora no caminho de query em vez do de deploy.
 
+### O que a leitura do `embed.ts` acrescentou
+O caminho de query não tem **uma** camada sem orçamento, tem três encaixadas: `fetch` sem `signal` (teto do undici, ~300s), `fetchWithRetry` com `maxAttempts=4` e backoff 1s→2s→4s (**7s de espera pura + 4 requests** = ~19s no pior caso, a faixa exata das linhas de 15–24s), e o `catch` do `searchSemantic` que nunca roda porque a escada eventualmente sucede. Fix em `staged/embed-timeout-query-path/`.
+
+Correção sobre a correção da entrada das 06:30: a linha `query 51x ... 1470ms` **é** telemetria do `recordProviderCost` com `caller="embed.embedQuery"`, com o `t0` antes do `fetchWithRetry` — ou seja, é a latência média da chamada de embedding da query, escada incluída. Não é latência de endpoint (isso continua valendo), mas também não é irrelevante: é um componente direto do search. E tem viés: `recordProviderCost` só grava **depois** que existe `resp`, então abort/socket/DNS não deixam linha — a média exclui as piores chamadas.
+
 ### Aberto
-Falta separar **provider lento** de **custo local** (o `search_telemetry` tem `reranker_mode` / `reranker_latency_ms`, e um cross-encoder ligado explicaria latência sem envolver o Gemini) e ver se a lentidão é janela ou o dia todo — a consulta é agregar por hora com `ts`, que existe na tabela e não foi selecionado na primeira leitura. Fix do timeout fica staged assim que `src/embed.ts` for lido (o repo só tem o stub `.d.ts`).
+Falta a distribuição por chamada (`SELECT ts, latency_ms, ok FROM provider_cost WHERE caller='embed.embedQuery'`): se acompanhar as buscas, é o provider + a escada; se ficar estável em ~1,5s enquanto o search vai a 18s, o tempo está **depois** do embedding, e os candidatos passam a ser locais — KNN linear do `sqlite-vec` (67.024 × 3072 × 4B ≈ **823 MB varridos por query**), `ensureVecTable()` rodando DDL a cada busca, `loadExtension` ~3× por query e `countEmbedded()` contando 67k linhas antes de cada busca. A variância de 20× com a mesma query voltando em 852ms logo depois favorece cache de página, o que aponta mais pro scan do que pro provider.
 
 ### Relação com a entrada das 06:30
 Nenhuma causal, mas uma coincidência útil: o probe antigo bate no `/api/health`, que ficou rápido o tempo todo — por isso **não reiniciou nada** durante esta degradação. Se batesse no `/api/search`, teria reiniciado a API no meio de um provider lento, e o restart não consertaria nada. É exatamente o caso "processo vivo ⇒ nunca reiniciar" do PR #452.
