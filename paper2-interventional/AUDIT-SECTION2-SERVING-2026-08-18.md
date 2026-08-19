@@ -149,6 +149,32 @@ por regex) e do lock de campos (a escada de severidade).
 3. **Por que a escrita de entities parou em agosto** — operacional, e é ela que
    torna o sub-pool global vazio.
 
+## O sub-pool vazio, diagnosticado — 2026-08-19
+
+A auditoria trata o sub-pool global vazio como risco de "estado contingente que
+pode reverter". Diagnosticado, o quadro é melhor e mais estável:
+
+| verificação | resultado |
+|---|---|
+| `nox-mem-watch.service` | **active running** |
+| entity files no disco | **184** |
+| `source_file` distintos sob `memory/entities/%` no DB | **184** — paridade exata |
+| mtime do arquivo mais novo | **2026-07-10** |
+
+**Não é falha de ingest — é falha de autoria.** O watcher funciona, o ingest
+funciona, disco e DB estão em paridade. O que parou foi o processo que *escrevia*
+entity files, em julho.
+
+Duas consequências, opostas em sinal:
+
+- ✅ **Para o mecanismo:** o pipeline que o `#42` vai usar está de pé e comprovado.
+  E se a autoria não voltar, o regime medido em `pool_do_estudo` — chunks do estudo
+  competindo **só entre si** — é o regime real, não um artefato.
+- ⚠️ **Para a validade:** isso é uma condição de contorno **não registrada** da qual
+  todo número de competição depende. Entra na emenda como premissa declarada, com a
+  data da última escrita orgânica (**2026-07-10**) e o compromisso de re-medir se a
+  autoria voltar.
+
 ## Destino
 
 Uma emenda **v1.12** única (Zenodo + segundo registro OSF), cobrindo a tabela
