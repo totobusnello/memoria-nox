@@ -54,7 +54,6 @@ mkdir -p "$STATE_DIR" 2>/dev/null || true
 log() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG"; }
 
 NOW=$(date +%s)
-FAILED=0
 GATEWAY_OK=1
 ALERTS=""
 
@@ -70,7 +69,6 @@ if ss -tlnp 2>/dev/null | grep -q ':18789'; then
 else
     log "FAIL: Gateway port 18789 not listening"
     ALERTS="${ALERTS}Gateway DOWN. "
-    FAILED=1
     GATEWAY_OK=0
 
     # Circuit breaker check
@@ -252,14 +250,12 @@ if sqlite3 "$DB" "SELECT count(*) FROM chunks LIMIT 1" > /dev/null 2>&1; then
 else
     log "FAIL: SQLite DB unreadable"
     ALERTS="${ALERTS}SQLite FAIL. "
-    FAILED=1
 fi
 
 # 5. Node.js wrapper integrity
 if [ ! -f /usr/bin/node.real ]; then
     log "CRITICAL: node.real missing — wrapper broken"
     ALERTS="${ALERTS}Node wrapper BROKEN. "
-    FAILED=1
 fi
 
 # 6. Memory check (warn if <1GB free)
@@ -277,8 +273,9 @@ if [ -n "$ALERTS" ] && [ -n "$DISCORD_WEBHOOK" ]; then
 fi
 
 # Clear the gateway circuit breaker when the *gateway* is healthy. It used to
-# key off $FAILED, so an unreadable DB or a missing node wrapper kept the
-# gateway breaker latched open even though the gateway was fine.
+# key off a shared $FAILED flag that the SQLite and node.real checks also set,
+# so an unreadable DB kept the gateway breaker latched open even though the
+# gateway was fine. $ALERTS still carries every failure to Discord.
 if [ "$GATEWAY_OK" -eq 1 ] && [ -f "$CIRCUIT_FILE" ]; then
     rm -f "$CIRCUIT_FILE"
     log "Circuit breaker cleared — gateway healthy"

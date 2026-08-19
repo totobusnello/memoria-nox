@@ -120,7 +120,7 @@ chmod +x "${STUB_BIN}"/*
 # consecutive-failure policy).
 new_scenario() {
   SCENARIO="$1"
-  STUB_STATE="${SUITE_TMP}/${SCENARIO}"
+  export STUB_STATE="${SUITE_TMP}/${SCENARIO}"   # exported: every stub reads it
   mkdir -p "$STUB_STATE"
   : > "${STUB_STATE}/curl_calls"
   : > "${STUB_STATE}/systemctl_restarts"
@@ -136,7 +136,6 @@ new_scenario() {
 run_probe() {
   printf '%s\n' "$@" > "${STUB_STATE}/curl_seq"
   PATH="${STUB_BIN}:${PATH}" \
-  STUB_STATE="$STUB_STATE" \
   NOX_API_PORT=18802 \
   NOX_ENV_FILE="${SUITE_TMP}/nonexistent.env" \
   NOX_HEALTH_LOG="$PROBE_LOG" \
