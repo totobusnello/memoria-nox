@@ -1,3 +1,20 @@
+> # 🔴 RETRATADO EM PARTE — 2026-08-20
+>
+> As seções que tratam a fila como **ponto de massa** e validam a "barra viva
+> 0,7345 ≈ `CUT_FRESH` 0,7342" estão **erradas**. Os 0,7345 são o topo do
+> subconjunto **já servido**, não a barra; a barra medida é **0,684477** (os 38
+> nunca-servidos) e não é um limiar de salience — `fetchFreshCandidates` ordena
+> `last_served ASC` **primeiro**, com salience só como desempate.
+>
+> A coincidência com 0,7342 é numerologia. A tabela de dose derivada dela não vale.
+>
+> Correção completa, com o mecanismo real e o achado de que a barra é um **estoque
+> em dreno** (38 hoje, ~14/dia): **`BAR-RETRACTION-2026-08-20.md`**.
+>
+> O que sobrevive: a escolha da opção **2a** sobre a 2b — mas por outra razão
+> (a homogeneidade vale no subconjunto **nunca-servido**, não no pool inteiro),
+> e o conserto do prefixo em si, que está medido e correto.
+
 # Opção 2 medida: consertar o padrão **restaura** a tabela de dose registrada
 
 > Item 1 da ordem acordada. Read-only, cópia fresca do corpus de hoje
