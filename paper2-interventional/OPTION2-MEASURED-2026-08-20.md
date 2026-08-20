@@ -96,3 +96,57 @@ desloca **um dos 52 arbitrariamente**, não "o mais fraco". Precisa ser declarad
 sqlite3 -readonly "$NOX_DB_PATH" "VACUUM INTO '/tmp/p2-hoje.db'"
 node opcao2.mjs /tmp/p2-hoje.db
 ```
+
+
+---
+
+## ✅ Implantado — 2026-08-20
+
+Aprovado pelo Toto, `nox-workspace#44` (squash `4239d1be`), buildado e em produção.
+
+```ts
+const GLOBAL_FRESH_PATTERNS = ["memory/entities/%", "memory/lessons.md"];
+```
+
+**Efeito medido em produção**, contra baseline capturado imediatamente antes:
+
+| agente | itens novos | brief mudou? |
+|---|---|---|
+| nox · atlas · boris · cipher · forge · lex | **2 cada** | sim, nos seis |
+| **total** | **12/60 — 20,0%** | |
+
+Exatamente `freshSlots = 2` por agente. Nem 1, nem 3: o mecanismo voltou a
+funcionar como projetado, nos seis agentes ao mesmo tempo.
+
+Os itens que entraram, verificados no DB:
+
+```
+memory/lessons.md | importance 0.90 | pain 0.90 | salience 0.7345
+```
+
+⚠️ `pain = 0.90`, não 0,20 — o `inferPain` casou `HIGH_PAIN_PATTERN` no texto das
+lições. Isso **não** muda a barra (a salience medida, 0,7345, bate com a prevista,
+0,7347357, dentro do decaimento de algumas horas), mas confirma pelo lado prático
+o que a auditoria já dizia: `pain` em produção é **regex sobre prosa**, e é por
+isso que o write path do estudo o sobrepõe explicitamente.
+
+**A barra viva é 0,7345**; `CUT_FRESH` registrado é **0,7342**. Diferença de
+**0,0003** — mais perto ainda do que a medição em cópia dava.
+
+Zero erros no log desde o deploy.
+
+### O que isto fecha
+
+| | |
+|---|---|
+| regressão de produção | **consertada** — 2 de 10 slots do brief voltaram a servir |
+| estimando do §2 | **restaurado** — o tratamento agora **repesa** um pool disputado, não preenche vazio |
+| tabela de dose registrada | **volta a valer** (S1 6,07 · S2 1,87 · S3 0,47 · S4 0,00) |
+| `CUT_FRESH = 0.7342` | **volta a ser descrição fiel**, com 0,0003 de erro |
+
+### O que isto abre
+
+Os 52 competidores agora são reais, então **os números de competição medidos entre
+18 e 19/08 sob pool vazio estão obsoletos** — `CUTS-MEASURED`, `INGRESS-*` e a
+tabela de λ da barra endógena mediram um regime que não existe mais. Precisam ser
+refeitos sob o pool restaurado, e é isso que a emenda vai citar.
