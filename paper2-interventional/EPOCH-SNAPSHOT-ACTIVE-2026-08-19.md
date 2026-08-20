@@ -26,8 +26,12 @@ agentes:
 **O flip é no-op hoje**, e é reproduzível (`diverg.mjs`), não uma leitura de buffer
 volátil.
 
-⚠️ **E o soak não testa o mecanismo sob carga.** O corpus está estático desde que a
-autoria de entity files parou (**2026-07-10**). A primeira divergência real virá
+⚠️ **E o soak não testa o mecanismo sob carga.** ⚠️ *Corrigido 2026-08-20:* esta frase dizia que *"o corpus
+está estático desde que a autoria de entity files parou (2026-07-10)"*. **É falso** —
+232 chunks foram escritos nos últimos 7 dias. O que está estático é o prefixo
+`memory/entities/%`, para onde os padrões de cobertura apontam e onde ninguém mais
+escreve. O corpus **servido** (main pool) está vivo; o pool de **cobertura** é que
+está inerte. Ver `COVERAGE-POOL-PREFIX-DEFECT-2026-08-20.md`. A primeira divergência real virá
 das escritas do próprio estudo. Dizer "soakado" sem esta ressalva seria alegar
 evidência que não existe.
 

@@ -161,7 +161,16 @@ pode reverter". Diagnosticado, o quadro é melhor e mais estável:
 | `source_file` distintos sob `memory/entities/%` no DB | **184** — paridade exata |
 | mtime do arquivo mais novo | **2026-07-10** |
 
-**Não é falha de ingest — é falha de autoria.** O watcher funciona, o ingest
+⚠️ **CORRIGIDO 2026-08-20 — não é falha de autoria; é falha de PREFIXO.** A
+autoria nunca parou: 232 chunks escritos nos últimos 7 dias, `memory/lessons.md`
+recebendo lição **todos os dias**. O que mudou foi o **formato** — de
+`memory/entities/lessons/<slug>.md` (3 seções) para o agregado plano
+`memory/lessons.md` — e `GLOBAL_FRESH_PATTERNS = ["memory/entities/%"]` continua
+apontando para o formato antigo. Há **103+ chunks elegíveis** fora dos padrões.
+Ver `COVERAGE-POOL-PREFIX-DEFECT-2026-08-20.md`. A frase original abaixo fica como
+registro do que eu concluí de um `ls` em vez de uma query.
+
+~~**Não é falha de ingest — é falha de autoria.**~~ O watcher funciona, o ingest
 funciona, disco e DB estão em paridade. O que parou foi o processo que *escrevia*
 entity files, em julho.
 
