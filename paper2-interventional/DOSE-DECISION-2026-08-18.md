@@ -1,3 +1,9 @@
+> ⚠️ **SUPERADO EM PARTE — 2026-08-20.** Os números aqui foram medidos com o
+> sub-pool global de cobertura **vazio** (prefixo órfão desde a migração de julho;
+> consertado no PR #44) e contra uma "barra" em unidades de salience que **não
+> existe** — o pool ordena por `last_served ASC` primeiro. Ver
+> `BAR-RETRACTION-2026-08-20.md`. O raciocínio segue válido; os níveis, não.
+
 # A dose, re-derivada do mecanismo medido
 
 > Sucessor de todo cálculo de dose feito contra `CUT_FRESH`. Insumo da emenda v1.12.
