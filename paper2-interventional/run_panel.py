@@ -130,11 +130,37 @@ def chamar_cli(alvo: str, texto: str, timeout: int) -> str:
     return r.stdout or r.stderr
 
 
+# Fronteira de extracao do corpo do prompt. NAO TRADUZIR: esta string e
+# load-bearing — e o delimitador que define QUAL texto entra no sha256 travado.
+# Foi traduzida para ingles em d11afee (2026-08-16), num commit de censo de
+# DOCUMENTACAO, e isso quebrou o harness em silencio: o arquivo lido esta em PT,
+# o split passou a procurar o marcador EN, `carregar_prompt` levantava IndexError
+# antes da primeira chamada. Ficou 6 dias assim porque nao houve rodada.
+MARCADOR_PROMPT = "# Prompt (texto enviado a cada painelista, verbatim)"
+
+# SHA-256 do corpo, travado no §4.1 e depositado (CORPUS-FREEZE, DEPOSIT-README).
+# O hash era GRAVADO junto dos resultados mas nunca CONFERIDO — o que torna o
+# registro uma anotacao, nao um guarda. Agora ele morde.
+PROMPT_SHA256_TRAVADO = "5b22f02c1a557417fe874b98cdf8a3ad6441cada74d69ace8e54f82b3438b03e"
+
+
 def carregar_prompt() -> tuple[str, str]:
     raw = (RAIZ / "adjudication_prompt.md").read_text()
-    corpo = raw.split("# Prompt (text sent to each panelist, verbatim)", 1)[1]
+    if MARCADOR_PROMPT not in raw:
+        raise SystemExit(
+            f"marcador ausente em adjudication_prompt.md: {MARCADOR_PROMPT!r}\n"
+            "o instrumento congelado nao pode ser reproduzido — recusando rodar."
+        )
+    corpo = raw.split(MARCADOR_PROMPT, 1)[1]
     corpo = corpo.split("<!--", 1)[0].strip()
-    return corpo, hashlib.sha256(corpo.encode()).hexdigest()
+    h = hashlib.sha256(corpo.encode()).hexdigest()
+    if h != PROMPT_SHA256_TRAVADO and not os.environ.get("NOX_P2_PROMPT_AMENDADO"):
+        raise SystemExit(
+            f"prompt divergente do travado:\n  obtido  {h}\n  travado {PROMPT_SHA256_TRAVADO}\n"
+            "vereditos com outro prompt NAO sao comparaveis a calibracao (kappa/alfa).\n"
+            "Se a mudanca e intencional e emendada, rode com NOX_P2_PROMPT_AMENDADO=1."
+        )
+    return corpo, h
 
 
 def montar(prompt: str, ep: dict) -> str:
