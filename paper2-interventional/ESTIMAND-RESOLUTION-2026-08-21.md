@@ -102,3 +102,33 @@ projeção.
 **Consequência de sequenciamento:** a rodada do painel deixa de ser o último passo
 antes do sorteio e passa a ser o **primeiro** passo da medição que decide o
 desenho.
+
+---
+
+## 6. Decisão do Toto — 2026-08-21
+
+| questão | decisão |
+|---|---|
+| rodada do painel agora | **não** |
+| medição de ativação pré-tratamento antes do sorteio | **sim** |
+
+**Dependência que isso cria, declarada:** a medição de ativação exige chunks reais
+do estudo → exige falhas adjudicadas → exige o painel. Com o painel parado, a
+**fração de ativação não é mensurável**. O passo aprovado fica armado e esperando.
+
+**O que avança sem o painel:**
+
+1. **Componente 2 — wiring do dual-compute.** `current` = controle (sem boost),
+   `alt` = tratamento (boost em estágio (b)), `diff` = deslocamento. Flag-gated,
+   boost zero quando controle, um único call site. Verificável **sem** chunk do
+   estudo: o teste golden prova invariância do caminho de controle.
+2. **Instrumentação do log de ativação** — para que a coleta comece no instante em
+   que o primeiro veredito chegar, em vez de depois.
+3. **Seções da emenda já fechadas** — esclarecimento do estimando, ausência de
+   barra, estágio (b), ITT + reporte de ativação. Nenhuma depende de λ.
+
+**Meio-caminho disponível, não solicitado:** uma rodada de painel **reduzida** (~30
+episódios em vez de ~325, ~1/10 da quota) não dá λ com precisão, mas produz
+chunks reais suficientes para uma estimativa grosseira de ativação — que é uma
+pergunta binária ("desloca ou não") antes de ser uma pergunta de magnitude. Fica
+registrado como opção, não adotado.
