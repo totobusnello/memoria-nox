@@ -27,8 +27,8 @@ Dois fatos estruturais que nenhum documento registrou:
 
 1. **O cut principal é agente-heterogêneo** (0,610 → 0,792, span de 0,18). Não é
    uma constante do sistema; é uma propriedade de cada agente.
-2. **A cobertura hoje supera o principal em 5 dos 6 agentes.** Os picks de
-   cobertura estão a 0,7344 — acima do cut de todos menos `cipher`. A hierarquia
+2. **A cobertura hoje supera o principal em 4 dos 6 agentes.** ⚠️ *(corrigido de "5" em 21/08 após revisão do Grok — erro aritmético: 0,7344 não supera atlas 0,7613 nem cipher 0,7922.)* Os picks de
+   cobertura estão a 0,7344 — acima do cut de lex, nox, boris e forge — **4 de 6**, não 5 (erro aritmético corrigido 21/08 após revisão do Grok): não supera atlas (0,7613) nem cipher (0,7922). A hierarquia
    "cobertura é o caminho fraco, principal é o forte" **está invertida**.
 
 ## Severidade domina idade — a dose não pode reordenar

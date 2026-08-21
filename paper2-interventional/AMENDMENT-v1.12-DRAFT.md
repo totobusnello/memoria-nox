@@ -68,7 +68,7 @@ principal e o cap de 3/10 — ambos foram desenhados para consertar um problema 
 não existe. O que resta a emendar é a **descrição** do mecanismo, não o mecanismo.
 
 ⚠️ E retiro a justificativa que dei para revisar o 449 ("os picks de cobertura a
-0,7344 já superam o cut principal em 5 dos 6 agentes"). O número é real e medido
+0,7344 já superam o cut principal em 4 dos 6 agentes"). O número é real e medido
 em 21/08 — mas em 20/08 os picks eram 0,684477, porque o estoque de nunca-servidos
 ainda não havia drenado. Publiquei duas medições de regimes diferentes em
 documentos adjacentes sem datar o regime, o que permitiu que o mesmo número
@@ -96,6 +96,48 @@ que carrega todo o argumento vive na VPS
 (`/root/.openclaw/workspace/tools/nox-mem/`) e é inauditável por quem lê o
 depósito. A emenda tem de **carregar o trecho de código**, com o hash do commit
 servindo, não só o path.
+
+## 2-ter. Achados da segunda voz (Grok) — convergência e três itens novos
+
+O Grok chegou ao **mesmo furo** que o Kimi, por caminho independente: o canal é
+*first-admission vs incumbente nunca-servido*, e a dose paga o gap
+(`2,0 × 0,043 × 0,25 = 0,0215` contra um gap de `0,0145`). Duas famílias de treino
+distintas convergindo no mesmo defeito é o sinal mais forte que essa bateria dá.
+
+Três itens que o Kimi não levantou:
+
+**(i) Erro aritmético meu — 4 de 6, não 5.** `0,7344` supera lex (0,6100), nox
+(0,6851), boris (0,6925) e forge (0,7051); **não** supera atlas (0,7613) nem cipher
+(0,7922). Corrigido em `ARMS-DISTINGUISHABLE-2026-08-21.md` e aqui.
+
+**(ii) O texto registrado não diz QUAL ranking recebe o boost.** A linha 449 diz
+*"in the coverage-slot ranking"* — mas há **dois** estágios:
+
+| estágio | chave | tem recência? |
+|---|---|---|
+| pré-rank SQL (`LIMIT 400`) | `0.55·imp + 0.10·pain + 0.1·[access>0]` | **não** |
+| `ranked.sort` (JS) | `calculateSalience` completa | **sim** |
+
+Toda a aritmética desta emenda usa o segundo. Se o boost entrasse no primeiro, o
+degrau de `0,0250` e o span de recência de `0,0164` **não existiriam** — a chave
+não tem termo de recência. A emenda tem de **nomear o estágio**, não herdar a
+ambiguidade.
+
+**(iii) A composição do pool incumbente, medida.** O Grok acusou que medi *um
+arquivo* e chamei de pool. Medido: dos dois padrões elegíveis,
+
+| padrão | chunks elegíveis | dentro da janela de 30 d |
+|---|---|---|
+| `memory/entities/%` | 190 | **0** |
+| `memory/lessons.md` | 52 | **52** |
+
+`memory/entities/%` contribui **zero** — os 190 chunks são todos mais velhos que a
+janela, resíduo da migração de formato de julho. Então o pool incumbente **é**
+aquele arquivo; não foi recorte, foi o conjunto. ⚠️ Mas isso não vale para os
+chunks do estudo: o write path escreve em `memory/entities/lessons/…` com idade 0,
+logo **dentro** da janela. No epoch 1 o pool é *chunks do estudo (entities, novos)*
+disputando com *o fluxo de `lessons.md`* (~33/dia autorados). É essa a competição
+a modelar.
 
 ## 3. Correções a declarar
 
