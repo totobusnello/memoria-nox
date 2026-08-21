@@ -53,6 +53,35 @@ cenário, **o conjunto servido é idêntico em todos os braços.**
 este achado **não espera a rodada do painel** — e muda o que a rodada do painel é
 para.
 
+### Dois trechos do próprio registro que CORROBORAM a nulidade
+
+O censo mecânico procurou furo e achou reforço.
+
+**§3:705 — o controle positivo de julho já mediu este mecanismo.**
+
+> *"a synthetic chunk inserted into the live store after a boundary at `pain = 1.0`,
+> `importance = 1.0` — the ceiling of both dimensions — entered **1 of 10** briefs
+> and was then crowded out, **because being served made it no longer
+> never-served**."*
+
+Um chunk no **teto das duas dimensões** entrou uma vez e saiu. Sob um modelo de
+limiar isso é inexplicável (teto de salience deveria entrar sempre); sob o
+mecanismo medido é exatamente o previsto: entrou por ser nunca-servido, e perdeu
+a elegibilidade ao ser servido. A medição de 2026-07-26 já continha a resposta —
+faltava a leitura.
+
+**§3:705 — o segundo canal existe, e é insensível à dose.** A mesma linha declara
+que conteúdo novo alcança o brief *"through the coverage slots, or by displacing a
+primary slot on salience alone"*. O segundo caminho está aberto — mas como o 449
+proíbe aplicar o boost no re-rank principal, a salience que compete lá é a
+**`base`, sem `w`**. Canal aberto, dose-independente. A nulidade sobrevive.
+
+**§2:466 — a designação fecha o resto.** *"0% — one slot, by construction"*: com
+uma única correspondência designada por grupo de assinatura, no máximo **1** slot
+carrega chunk impulsionado. E a designação é `argmin (0.7342 − base)/(Δ_cut·sev)`,
+que **não depende de `w`** — o próprio documento registra isso. Logo a dose não
+escolhe nem *qual* chunk é designado, nem *se* ele entra.
+
 ### Por que os números registrados não expuseram isso
 
 A tabela do §2:440 mede `w` contra `CUT_FRESH = 0.7342`, tratando a entrada na
