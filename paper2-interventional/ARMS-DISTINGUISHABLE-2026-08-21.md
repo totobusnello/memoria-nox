@@ -1,3 +1,18 @@
+> # 🔴 SUPERADO NO MESMO DIA — 2026-08-21
+>
+> A leitura de "três braços distinguíveis com dose-resposta monótona (+2/+5/+6)"
+> **não se sustenta**. É aritmética da fórmula `base(sev,idade)` avaliada contra
+> limiares, **sem um único desfecho observado**: nenhum chunk designado foi
+> servido em nenhum `w`, porque o write path tem zero linhas.
+>
+> As margens que sustentavam os platôs são **0,0070** e **0,0035**, contra um
+> spread de cut entre agentes de **0,1822** — 2 a 4% da variação observada.
+>
+> E o "terceiro platô" não é um degrau: S1 designado a `w = 7,5` (0,7506) passa
+> **S3 (0,7200) e S4 (0,7450)**, atravessando duas classes de severidade.
+>
+> Correção completa e concessão em `AMENDMENT-v1.12-DRAFT.md` §2-quater.
+
 # Os três braços são distinguíveis — e o canal não é o registrado
 
 **Data:** 2026-08-21 · **Depende de:** `BAR-RETRACTION-2026-08-20.md`

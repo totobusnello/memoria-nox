@@ -139,6 +139,89 @@ logo **dentro** da janela. No epoch 1 o pool é *chunks do estudo (entities, nov
 disputando com *o fluxo de `lessons.md`* (~33/dia autorados). É essa a competição
 a modelar.
 
+## 2-quater. Terceira voz (DeepSeek): concessão da carga central
+
+A crítica que sustenta as outras: **troquei uma aritmética de nulidade por uma
+aritmética de dose-resposta, e nenhuma das duas tem desfecho observado.** Isto é
+correto e eu concedo.
+
+Nenhum chunk designado foi servido em `w` nenhum. `p2_verdict` **não existe** no
+banco de produção — o write path está no ar e tem zero linhas, porque nenhum
+veredito foi postado. Os "três platôs" são identidades de `base(sev,idade)`
+avaliadas contra limiares; não são medição de nada.
+
+### Quatro correções concretas
+
+**(a) O terceiro platô atravessa duas classes de severidade.** S1 designado a
+`w = 7,5` vale **0,7506** e passa **S3 (0,7200) e S4 (0,7450)**. Descrevi como
+"passa também o S3". Não é degrau alinhado a classe.
+
+**(b) As margens estão dentro do ruído.**
+
+| quantidade | valor |
+|---|---|
+| margem de `w = 2,0` acima da barra | **0,0070** |
+| margem de `w = 2,0` abaixo do S2 não-designado | **0,0035** |
+| spread do cut principal entre agentes | **0,1822** |
+
+As margens são 2–4% da variação observada. Chamar isso de platô limpo foi
+otimismo construído sobre 24 h.
+
+**(c) Escolher `0,684477` como "a barra" é, ela mesma, uma emenda não registrada.**
+A barra é **input** do efeito. Substituí o `0,8524` registrado por um valor medido,
+escolhido entre seis, sem regra de decisão declarada. É a mesma classe de erro que
+motivou a retratação da manhã. A emenda tem de registrar **a regra que escolhe a
+barra**, não um valor.
+
+**(d) Retiro a taxa de autoria de "~33/dia".** Não é estimável a partir de
+`created_at`, porque re-ingest recria os chunks e reseta o campo. Os "232 em 7
+dias" que citei são, muito provavelmente, artefato de re-ingest. Autoria elegível
+observada: **52 num único instante (20/08 02:02:03) e 0 nos outros 9 dias**.
+
+### O estimando não está especificado — e isso é o item mais grave
+
+O registro define entrada como **cruzar um limiar**. A dinâmica medida é de
+**fila** (buffer 38→0 em um dia, dreno ~600 picks/dia). São estimandos diferentes:
+
+| leitura | estimando |
+|---|---|
+| limiar | `P(salience_designado > barra)` — precisa de barra fixa |
+| fila | `P(designado servido em ≤ k slots)` — hazard, barra pode ser vazia |
+
+A aritmética que publiquei usa o primeiro; o sistema executa o segundo. Em dia de
+buffer vazio **até `w = 0` serve**, e o estimando de limiar fica mal-definido
+quando o conjunto comparador é vazio ou unitário. A emenda precisa **escolher o
+estimando**, declarar o estado da fila em T0, e dar a regra para dias de buffer
+vazio (sucesso / censura / exclusão).
+
+### Uma objeção que NÃO procede, verificada
+
+DeepSeek perguntou por que trato como inertes os 190 chunks de
+`memory/entities/%`. A `WHERE` de `fetchFreshCandidates` (`brief.ts:605-608`) tem
+filtro de idade — `julianday('now') − julianday(COALESCE(source_date, created_at)) <= freshMaxAgeDays`.
+Medido: os 190 têm **42,1 a 78,9 dias**, contra janela de 30. São excluídos pela
+consulta. Inércia confirmada por medição, não por suposição.
+
+### E um achado novo, pior que o confundimento que eu já havia escrito
+
+O filtro usa `COALESCE(source_date, created_at)`. Os 52 chunks de `lessons.md`
+**têm** `source_date` — e todos os 52 carregam a **mesma data, 2026-08-20**, igual
+ao `created_at`. Para um arquivo de 200 KB e 1.324 linhas que vem acumulando, 52
+chunks compartilharem uma única `source_date` significa que o campo registra **o
+evento de ingest, não a proveniência de cada lição**.
+
+Consequência: re-ingest **rejuvenesce o arquivo inteiro** — para elegibilidade
+(volta para dentro da janela de 30 d) e para o termo de recência da salience. Não
+é só o histórico de serve que é zerado; é a idade. Isso amplia o confundimento da
+§1 de `QUEUE-REGIME-2026-08-21.md`.
+
+### O que fica
+
+Não dá para estabelecer dose-resposta por aritmética. Precisa de **desfecho
+observado por braço**, que precisa do write path com linhas, que precisa do painel.
+**Paro de calcular níveis.** A emenda declara mecanismo, estimando e regras de
+decisão; os níveis vêm da medição depois.
+
 ## 3. Correções a declarar
 
 Cinco já decididas antes desta rodada:
