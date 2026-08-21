@@ -25,13 +25,32 @@ reportado, dado que ele é dependente de estado?*
 
 O tratamento entra assim:
 
+⚠️ **Correção 2026-08-21, após ler `composeBrief`:** uma versão anterior desta
+seção dizia que `current` era o controle e `alt` o tratamento. **Errado.** Os dois
+já têm papel ocupado pelo D2:
+
+| existente | conteúdo |
+|---|---|
+| `current` | baseline **pré-D2** — pick por salience pura, sem slots de cobertura |
+| `alt` | **com** os slots de cobertura — é o que produção serve (`NOX_BRIEF_DIVERSITY=active`, `brief.ts:860`) |
+
+Reaproveitá-los destruiria a instrumentação do D2 e trocaria o que é servido. O
+dual-compute do Paper 2 precisa de uma **terceira** composição:
+
 | papel | conteúdo |
 |---|---|
-| `current` | ranking de **controle** — salience sem boost |
-| `alt` | ranking de **tratamento** — salience com `W_OUTCOME` |
-| `diff` | o **deslocamento**, por brief |
+| `alt` | **controle** — cobertura sem boost (o que se serve hoje) |
+| `alt_boosted` | **tratamento** — cobertura com `W_OUTCOME` |
+| `diff(alt, alt_boosted)` | o **deslocamento**, por brief |
 
-Serve-se o ranking do braço designado; logam-se **os dois**.
+`current` mantém o papel que já tem. Serve-se `alt` ou `alt_boosted` conforme o
+braço; logam-se os dois.
+
+**E o precedente do modo é o mesmo do D2** (`brief.ts:836-860`):
+`off | shadow | active`, fail-open, `shadow` computa e loga o diff mas serve o
+não-tratado. **Isso significa que `shadow` entrega exatamente a medição de ativação
+pré-tratamento aprovada** — mede a fração de briefs em que o boost deslocaria algo,
+sem servir tratamento e sem sortear braço.
 
 ### Isso resolve as duas questões de uma vez
 
