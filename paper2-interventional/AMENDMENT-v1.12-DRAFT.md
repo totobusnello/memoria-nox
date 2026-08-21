@@ -222,6 +222,52 @@ observado por braço**, que precisa do write path com linhas, que precisa do pai
 **Paro de calcular níveis.** A emenda declara mecanismo, estimando e regras de
 decisão; os níveis vêm da medição depois.
 
+## 2-quinquies. A designação exclui 65% dos chunks escritos — medido
+
+Primeira medição com a população real (55 chunks de falha adjudicada, 2026-08-21):
+
+| tamanho do grupo de assinatura | quantos grupos | chunks |
+|---|---|---|
+| 1 | 12 | 12 |
+| 2 | 2 | 4 |
+| 4 | 2 | 8 |
+| 6 | 1 | 6 |
+| 8 | 1 | 8 |
+| **17** | **1** | **17** |
+| **total** | **19** | **55** |
+
+A regra registrada impulsiona **um chunk por grupo de assinatura**. Logo:
+
+- **19 de 55 chunks (34,5%)** entram na população tratada;
+- **36 (65,5%) não recebem boost nenhum** — são escritos, competem no pool, e o
+  tratamento não os alcança;
+- o maior grupo concentra **17 chunks (31% do total) numa única assinatura**, onde
+  16 competem sem boost contra 1 impulsionado.
+
+**Por que isto importa para o estimando.** É exatamente o mecanismo que as duas
+vozes adversariais identificaram ao derrubar minha tese de nulidade: o pool mistura
+designados e não-designados, e é dessa mistura que a dose extrai efeito. Agora está
+quantificado — e a razão 19:36 significa que a maior parte do que o write path
+escreve é, do ponto de vista do tratamento, **massa de controle dentro do braço de
+tratamento**.
+
+⚠️ Isso não é defeito: a designação foi adotada precisamente para impedir o brief
+só-de-lições-de-falha (§2:466, "46% das oportunidades" sob boost-em-todos). Mas a
+§2 nunca declarou a **fração** que a regra exclui, e ela é grande.
+
+## 2-sexies. Dois fatos operacionais medidos com a população real
+
+**(a) O gate de cobertura admite um candidato por episódio.** Cada episódio gera 2
+chunks (frontmatter + compiled). Medido: os 55 `compiled` têm `importance` 0,90 e
+**passam**; os 55 `frontmatter` têm 0,40 e **nenhum passa**. O desenho está correto,
+e agora verificado em vez de suposto.
+
+**(b) O write path não embeda.** 110 chunks escritos, 110 sem vetor. O docstring
+afirmava embedar; `embedText` nunca foi chamado (corrigido em `nox-workspace#48`).
+Benigno para o estudo — o caminho de cobertura é SQL puro e o gate de maturidade
+segura o chunk por ≥ 24 h, muito depois do `vectorize` do cron. Mas na janela o
+chunk é invisível à busca semântica, e isso é fato sobre o corpus durante o estudo.
+
 ## 3. Correções a declarar
 
 Cinco já decididas antes desta rodada:
