@@ -4,6 +4,106 @@
 
 ---
 
+## 🟢 Estado atual (2026-08-22, 01h) — os 3 componentes no ar; painel rodado; ativação é time-gated
+
+> ▶️ **Próxima ação: em 2026-08-23 depois das 09:00Z**, ler
+> `/root/.openclaw/logs/p2-serving.ndjson` e medir a **fração de ativação** (`churn`
+> por agente). É o número que decide banda e `N`. Antes disso não há o que medir — e
+> `churn > 0` antes de 23/08 09:00Z significa que o gate de maturidade está furado.
+>
+> Enquanto isso, o único trabalho desbloqueado é **consolidar a emenda v1.12**:
+> `paper2-interventional/AMENDMENT-v1.12-DRAFT.md` hoje é remendo de retratações e
+> precisa virar prosa depositável.
+
+### Em produção hoje (4 PRs, todos mergeados e deployados)
+
+| PR | o que |
+|---|---|
+| `#45` | **componente 2** — dual-compute do boost. `alt` = controle, `altBoosted` = tratamento, `diffP2` = deslocamento por brief. Boost no estágio (b) (`ranked.sort`), população pelo JOIN com `p2_verdict.chunk_id` |
+| `#46` | **componente 3** — regra de parada mecânica, arm-blind por construção da fonte (`p2_verdict` não tem coluna de braço). Constantes travadas: janela 3 epochs, multiplicador 3×, baseline mín. 14 dias |
+| `#47` | **gate de maturidade** — o chunk não pode agir no epoch em que foi escrito (`written_at <= início − 24h`), conforme §3:642 + §2:550 |
+| `#48` | docstring do write path corrigido: ele **não** embeda |
+
+Estado observável: `NOX_P2_OUTCOME=shadow`, `NOX_P2_SHADOW_W=2.0`,
+`NOX_P2_SERVING_LOG` recebendo linhas. `p2_verdict` com **280** linhas (225 S0 sem
+chunk · 33 S1 · 22 S2), invariante chunk⇔veredito **55/55**. `abort-check` em
+`exit 4` — 7 dias de histórico contra o gate de 14, **recusa avaliar** em vez de
+reportar "sem halt". Suíte **340/0/1**.
+
+### O painel rodou — 870/870, zero quota, 960,7 s
+
+**Antes de rodar, achei o harness quebrado desde 16/08:** o commit `d11afee`, um
+censo de *documentação*, traduziu para inglês o marcador que delimita o corpo do
+prompt; `carregar_prompt` levantava `IndexError` **antes da primeira chamada**. O
+corpo nunca mudou (dá o `5b22f02c…` travado). Conserto real não foi a string: o
+hash **era gravado e nunca conferido**. Agora o runner recusa rodar se divergir
+(`d09b3cb`).
+
+Cadeia de precedência: declaração pushada **22:17:50Z**, rodada `31515871` emitida
+**22:22:57Z**. Amostra estratificada — censo dos 48 `is_error` + 242 de 1.257 a
+19,235% — bateu exata com o declarado; o amostrador recusa escrever se divergir.
+
+| | |
+|---|---|
+| **λ̂** | **0,0775** [0,0539 ; 0,1011] |
+| Consolidado | 225 S0 · 33 S1 · 22 S2 · **0 S3 · 0 S4** |
+| Abstenções | 12 ⇒ 10 episódios abaixo do piso (3,45%, contra 2,67% na calibração) |
+
+**Zero S3/S4 em 870 chamadas** confirma o baseline zero do §3 em dados frescos — a
+cláusula (b) do abort segue em "≥1 derruba".
+
+### 🔴 O achado do dia: o estrato S2 repousa em UMA família
+
+Share de S2 nas próprias falhas: **moonshot 24,2% · zhipu 25,9% · xai 72,2%**. Os
+três concordam sobre *haver* falha e divergem sobre *quão grave* (concordância par a
+par no nível: 87,9/88,8/89,4% — parecidas entre si). E **dos 22 S2 consolidados, 22
+têm `xai = S2`**; sem xai sobreviveriam 5.
+
+Como `W_OUTCOME ∝ severity` e a §2 trata "S2 e acima" como população tratada, o
+tamanho dela depende da calibração de severidade de um painelista. O §9 registrou
+leave-one-family-out sobre o veredito **binário**; o eixo que carrega a dose é o
+**nível**, e ninguém tinha olhado. ⚠️ Não usar LOFO para medir isso — mediana
+inferior de 3 é o valor do meio, de 2 vira o **mínimo**, e o estimador muda junto.
+
+### Medido com a população real
+
+- **A designação exclui 65%.** 19 grupos de assinatura para 55 chunks (12×1, 2×2,
+  2×4, 1×6, 1×8, **1×17**). Um boost por grupo ⇒ **19 de 55 tratados**, 36 sem
+  boost, e 17 chunks (31%) numa única assinatura. A maior parte do que o write path
+  escreve é **massa de controle dentro do braço de tratamento**.
+- **Gate de cobertura correto:** 55 `compiled` (imp 0,90) passam, 55 `frontmatter`
+  (0,40) **nenhum** passa — um candidato por episódio.
+- **`churn = 0` não é resultado sobre a dose.** O snapshot servido é de
+  `21/08 09:00:51Z` e contém **0** chunks do estudo e nem a tabela `p2_verdict` —
+  escritos ~13 h depois. O zero mede ausência de população.
+
+### O que eu retratei hoje (importa para não reconstruir errado)
+
+1. **A intervenção NÃO é nula.** Provei nulidade com monotonicidade de `W_OUTCOME`
+   supondo *todos* os chunks impulsionados; a designação impulsiona **um por grupo**
+   ⇒ o pool mistura designados e não-designados ⇒ a dose reordena. Kimi e Grok
+   acharam o mesmo furo por caminhos independentes.
+2. **Os "três platôs" também eram aritmética** sem desfecho observado (DeepSeek).
+   Margens de 0,0070 e 0,0035 contra spread de agente de 0,1822.
+3. **Não existe "a barra".** O pool ordena `last_served ASC` primeiro; salience só
+   desempata entre nunca-servidos. Publiquei 4 valores em 4 dias porque é **estado**.
+4. **O cut principal é agente-heterogêneo** (0,610–0,792), não o `0,8524` registrado.
+5. **λ̂ = 7,75% é consistente com o desenho** — o `~30%` registrado é share *das
+   falhas*, e o parâmetro é `p̂0 = 0,1118` entre **oportunidades**. Anunciei como
+   "4× menor" e estava comparando referentes diferentes.
+
+### Fila
+
+| item | estado |
+|---|---|
+| Medir ativação | **23/08 após 09:00Z** — time-gated pelo próprio gate de maturidade |
+| Consolidar emenda v1.12 | desbloqueado, é o trabalho de amanhã |
+| `T_seed_assign` | só **depois** de congelar o mecanismo emendado |
+| Gate Stanford | série completa (2.064 rows, 14 dias, 07→20/08) |
+| `edge-typing.test.ts` deixa `nox-mem.db` no cwd | pré-existente; suíte falha 2 ao re-rodar sem limpar |
+
+---
+
 ## 🟢 Estado atual (2026-08-19) — componente 1 EM PRODUÇÃO; falta uma rodada de painel
 
 > ▶️ **Próxima ação: rodar o painel sobre uma janela recente para medir λ** (taxa de
