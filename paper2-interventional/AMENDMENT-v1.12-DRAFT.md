@@ -8,132 +8,94 @@ ordem "congela o mecanismo, depois sorteia" foi adotada em 17/08.
 
 ---
 
-## 🔴 1. O achado que ordena todo o resto: a intervenção registrada é nula por construção
+## 🔴 1. RETRATADO — a intervenção NÃO é nula. O furo veio da designação
 
-O §2, linha 449, **trava** o mecanismo:
+**Um rascunho anterior desta emenda (commits `38ee268`, `4eca015`) afirmava que a
+intervenção registrada era nula em todos os braços.** Está errado. A revisão
+adversarial (Kimi, recibo 2026-08-21T132205, 56.687 bytes) achou o furo e ele
+verifica.
 
-> *"Locked instead: the boost is applied only in the coverage-slot ranking, never
-> in the main-pool re-rank."*
+### O que eu errei
 
-A restrição foi adotada em boa-fé, para impedir que o braço de topo enchesse os 8
-slots principais de lições de falha. Medido o caminho de cobertura, ela fecha o
-único canal do tratamento. Três premissas, todas verificadas:
+Argumentei que `W_OUTCOME = w · Δ_cut · severity` é monotônico em `severity`, logo
+não reordena as severidades, logo o conjunto servido é idêntico em todo braço.
 
-**(A) O caminho de cobertura não ordena por salience.**
-`fetchFreshCandidates` (`src/api/brief.ts:698-701`) ordena
-`ORDER BY last_served ASC, <proxy> DESC LIMIT 400`, e o `ranked.sort` seguinte
-repete a hierarquia. Um chunk **nunca-servido** passa à frente de todo já-servido,
-qualquer que seja a salience dos dois. Salience só desempata **entre**
-nunca-servidos. (Ver `BAR-RETRACTION-2026-08-20.md`.)
+Isso vale **se todos os chunks forem impulsionados**. A regra de designação
+registrada impulsiona **um chunk por grupo de assinatura** (§2:466, *"one
+designated chunk per opportunity"*). Portanto o pool de nunca-servidos mistura
+**designados (com `w`) e não-designados (sem `w`)** — e aí a dose reordena:
 
-**(B) Todo chunk de falha adjudicada é nunca-servido no instante em que age.**
-Por construção do write path: é escrito na adjudicação e servido depois. Logo
-entra nos 2 slots de cobertura **a `w = 0`**, sem precisar de dose.
-
-**(C) A dose não pode reordenar as severidades.**
-`W_OUTCOME = w · Δ_cut · severity` **escala com** a severidade, então é
-monotônica nela. Verificado em toda a banda:
-
-| `w` | S1 | S2 | S3 | S4 | ordem |
-|---|---|---|---|---|---|
-| 0 | 0,6700 | 0,6950 | 0,7200 | 0,7450 | S1<S2<S3<S4 |
-| 2,0 | 0,6915 | 0,7380 | 0,7845 | 0,8310 | S1<S2<S3<S4 |
-| 4,0 | 0,7130 | 0,7810 | 0,8490 | 0,9170 | S1<S2<S3<S4 |
-| 7,5 | 0,7506 | 0,8563 | 0,9619 | 1,0675 | S1<S2<S3<S4 |
-
-E a idade não inverte: o degrau de severidade a `w = 0` é **0,0250**, contra um
-span de recência de **0,0164** em toda a janela de 30 dias. Um S2 recém-escrito
-perde para um S3 de 30 dias, em `w = 0` e em `w = 7,5`.
-
-**Conclusão.** Se há ≤ 2 chunks do estudo disputando, todos entram a `w = 0`. Se
-há > 2, entram os 2 de maior severidade — e `w` preserva essa ordem. Em qualquer
-cenário, **o conjunto servido é idêntico em todos os braços.**
-
-⚠️ **A nulidade não depende de λ.** Vale para qualquer taxa de chegada. Portanto
-este achado **não espera a rodada do painel** — e muda o que a rodada do painel é
-para.
-
-### Dois trechos do próprio registro que CORROBORAM a nulidade
-
-O censo mecânico procurou furo e achou reforço.
-
-**§3:705 — o controle positivo de julho já mediu este mecanismo.**
-
-> *"a synthetic chunk inserted into the live store after a boundary at `pain = 1.0`,
-> `importance = 1.0` — the ceiling of both dimensions — entered **1 of 10** briefs
-> and was then crowded out, **because being served made it no longer
-> never-served**."*
-
-Um chunk no **teto das duas dimensões** entrou uma vez e saiu. Sob um modelo de
-limiar isso é inexplicável (teto de salience deveria entrar sempre); sob o
-mecanismo medido é exatamente o previsto: entrou por ser nunca-servido, e perdeu
-a elegibilidade ao ser servido. A medição de 2026-07-26 já continha a resposta —
-faltava a leitura.
-
-**§3:705 — o segundo canal existe, e é insensível à dose.** A mesma linha declara
-que conteúdo novo alcança o brief *"through the coverage slots, or by displacing a
-primary slot on salience alone"*. O segundo caminho está aberto — mas como o 449
-proíbe aplicar o boost no re-rank principal, a salience que compete lá é a
-**`base`, sem `w`**. Canal aberto, dose-independente. A nulidade sobrevive.
-
-**§2:466 — a designação fecha o resto.** *"0% — one slot, by construction"*: com
-uma única correspondência designada por grupo de assinatura, no máximo **1** slot
-carrega chunk impulsionado. E a designação é `argmin (0.7342 − base)/(Δ_cut·sev)`,
-que **não depende de `w`** — o próprio documento registra isso. Logo a dose não
-escolhe nem *qual* chunk é designado, nem *se* ele entra.
-
-### Por que os números registrados não expuseram isso
-
-A tabela do §2:440 mede `w` contra `CUT_FRESH = 0.7342`, tratando a entrada na
-cobertura como **cruzar um limiar**. `reachable_share.py` faz o mesmo
-(`w_min = (0.7342 − base)/(Δ_cut·sev)`). Não existe esse limiar: `pick` fase 3
-toma os primeiros `freshSlots` **sem comparação**. Todos os números de alcance
-publicados são propriedades de um modelo que a produção não executa.
-
----
-
-## 2. Mecanismo emendado — proposta
-
-O canal tem de ser reaberto, e a restrição do 449 revista. O que a medição
-sustenta:
-
-**Aplicar `W_OUTCOME` no re-rank do pool principal**, exatamente o que o 449
-proíbe — porque é o único ponto do caminho de serviço em que salience decide algo
-e a dose pode mover.
-
-Medido ao vivo em 21/08, o cut do slot principal **por agente**:
-
-| agente | lex | nox | boris | forge | atlas | cipher |
-|---|---|---|---|---|---|---|
-| cut principal | 0,6100 | 0,6851 | 0,6925 | 0,7051 | 0,7613 | 0,7922 |
-
-Cruzamentos de agente×severidade alcançados, com as severidades que de fato
-ocorrem (S1 78,93% / S2 21,07% / **S3 e S4 zero em 707 episódios**):
-
-| braço | via S1 | via S2 | total | Δ vs controle |
+| `w` | S1 **designado** | S2 não-desig. | S3 não-desig. | reordena? |
 |---|---|---|---|---|
-| controle (`w=0`) | 1/6 | 3/6 | 4 | — |
-| `w = 2,0` | 2/6 | 4/6 | 6 | **+2** |
-| `w = 4,0` | 4/6 | 5/6 | 9 | **+5** |
-| `w = 7,5` | 4/6 | 6/6 | 10 | **+6** |
+| 0 | 0,6700 | 0,6950 | 0,7200 | não |
+| 2,0 | 0,6915 | 0,6950 | 0,7200 | não |
+| **4,0** | **0,7130** | 0,6950 | 0,7200 | **S1d > S2** |
+| **7,5** | **0,7506** | 0,6950 | 0,7200 | **S1d > S2, S1d > S3** |
 
-**Os três braços passam a ser distinguíveis, com dose-resposta monótona e
-saturante** (+2, +5, +6 — o topo compra um agente a mais que o meio).
+E contra o estoque incumbente de nunca-servidos (barra medida 0,684477), a dose
+**vira a entrada**:
 
-### E a saturação que o 449 queria evitar
+| `w` | S1@0d designado | entra? |
+|---|---|---|
+| 0 | 0,6700 | não |
+| **2,0** | **0,6915** | **entra** |
+| 4,0 | 0,7130 | entra |
+| 7,5 | 0,7506 | entra |
 
-A preocupação era colocar lições de falha nos slots principais. Medido hoje: os
-picks de cobertura estão a **0,7344**, **acima do cut principal em 5 dos 6
-agentes**. Lições de falha já ocupam posições acima do cut principal pelo caminho
-de cobertura, sem tratamento nenhum. A fronteira que o 449 protege **já está
-cruzada pelo status quo**; o que resta a controlar é a *contagem*, não o *tipo*.
+Este é o contraexemplo do Kimi, reproduzido com os números do próprio dossiê.
 
-**Proposta:** bound numérico em vez de proibição — **no máximo 3 dos 10 itens do
-brief podem ser chunks de falha adjudicada**, cap avaliado na composição,
-idêntico nos dois braços, registrado antes do sorteio. Isso preserva o canal e
-limita a saturação por um número verificável, em vez de fechá-la por decreto.
+### O que isso significa — e é notícia boa
 
----
+**O mecanismo registrado funciona, mas por uma razão diferente da registrada.** Não
+por *cruzar um limiar* `CUT_FRESH`; por **vencer o desempate de salience entre
+nunca-servidos**. E a estrutura que emerge é justamente a de três platôs que a
+banda queria:
+
+- `w = 2,0` — o S1 designado passa a barra do estoque incumbente, mas **não** passa
+  um S2 não-designado
+- `w = 4,0` — o S1 designado passa o S2 não-designado
+- `w = 7,5` — passa também o S3
+
+Dose-resposta com três degraus distintos, saindo do mecanismo real. O estudo está
+em melhor forma do que a minha afirmação de nulidade, e melhor do que o próprio
+raciocínio do registro.
+
+### Consequência para a proposta de conserto
+
+**A revisão da linha 449 pode ser desnecessária.** O canal existe dentro da
+restrição registrada. Retiro a proposta de aplicar o boost no re-rank do pool
+principal e o cap de 3/10 — ambos foram desenhados para consertar um problema que
+não existe. O que resta a emendar é a **descrição** do mecanismo, não o mecanismo.
+
+⚠️ E retiro a justificativa que dei para revisar o 449 ("os picks de cobertura a
+0,7344 já superam o cut principal em 5 dos 6 agentes"). O número é real e medido
+em 21/08 — mas em 20/08 os picks eram 0,684477, porque o estoque de nunca-servidos
+ainda não havia drenado. Publiquei duas medições de regimes diferentes em
+documentos adjacentes sem datar o regime, o que permitiu que o mesmo número
+aparecesse em dois papéis opostos. Falha de documentação minha, não do revisor.
+
+## 2. Retratado também: "não depende de λ"
+
+Afirmei que a nulidade não dependia da taxa de chegada. Além de a nulidade ter
+caído, a afirmação estava mal fundamentada em si: a competição se dá contra o
+**estoque instantâneo de nunca-servidos**, que é a diferença entre taxa de autoria
+e taxa de dreno. Ambas variam.
+
+E já errei essa projeção uma vez, no dia anterior: estimei que o estoque de 38
+levaria ~3 dias para drenar e ele zerou em **1** (52 primeiros-serves). Uma
+dinâmica que eu projetei errado 24 h antes não sustenta um "por construção".
+
+**Enunciado correto:** o efeito da dose é **condicional ao regime** — ao estoque de
+nunca-servidos e à sua composição de severidades no instante do brief. Isso é
+empírico e datado, não teoremático.
+
+## 2-bis. Defeito de reprodutibilidade a consertar
+
+O Kimi registrou que `src/api/brief.ts` **não existe neste repositório** — o código
+que carrega todo o argumento vive na VPS
+(`/root/.openclaw/workspace/tools/nox-mem/`) e é inauditável por quem lê o
+depósito. A emenda tem de **carregar o trecho de código**, com o hash do commit
+servindo, não só o path.
 
 ## 3. Correções a declarar
 
