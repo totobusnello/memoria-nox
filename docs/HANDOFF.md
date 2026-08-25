@@ -4,7 +4,97 @@
 
 ---
 
-## 🟢 Estado atual (2026-08-22, 01h) — os 3 componentes no ar; painel rodado; ativação é time-gated
+## 🟢 Estado atual (2026-08-25, 15h) — v1.12 reescrita e commitada; depósito é a próxima ação
+
+> ▶️ **Próxima ação: ler o veredito do GLM** (última revisão independente, disparada
+> 15:28) e **decidir o depósito**. ⚠️ Conferir o **recibo** com `exit: 0` antes de
+> aceitar qualquer veredito — hoje duas invocações alegaram verificações que não
+> podiam ter feito (o wrapper não faz SSH). Se limpo: depositar Zenodo v1.12 +
+> emenda no OSF `yf7d2`, relendo campo a campo em formato InvenioRDM antes do passo
+> irreversível.
+
+### O que mudou de natureza
+
+A emenda deixou de declarar mecanismo **e estimando** e passou a ser
+**descritiva** (commit `16a7226`, 672 linhas). Razão medida: `servido="controle"`
+em **2.221 de 2.221** registros ⇒ **zero desfecho sob tratamento** ⇒ `N` e
+`T_seed_assign` não são estimáveis em shadow. Os 2.221 registros são declarados
+**piloto descritivo que não entra em análise confirmatória**; o estimando vai a
+**registro prospectivo separado**.
+
+Quatro vozes (Grok, DeepSeek, GLM, Codex) vetaram a redação anterior. Kimi
+revisou a reescrita e achou 3 bloqueantes, todos corrigidos.
+
+### Janela de piloto CONGELADA
+
+`[2026-08-21T22:57:00Z ; 2026-08-25T10:22:00Z]`. Números emitidos por
+`pilot_window_stats.mjs`, travados em `PILOT-WINDOW-2026-08-25.json`
+(`--assert-json` falha se divergir). A série cresce 28 registros/hora — contagem
+citada como instante envelheceria num depósito imutável.
+
+| | |
+|---|---|
+| total · churn>0 · deslocamentos | 2.221 · 102 · 111 (93×1 + 9×2) |
+| pré-gate / pós-gate | 954 com **0** / 1.267 com 102 = **8,1%** |
+| série horária pós-gate | 47 h · média 7,8% · mediana 3,6% · 0,0–46,4% · 14 h com zero |
+| autoria | entram **16/16** ids e **111/111** eventos do estudo; saem 25/33 e 99/111 |
+
+### 🔴 O defeito que bloqueia o registro prospectivo (§5)
+
+**A designação não está validamente congelada.** O código consome
+`CUT_FRESH = 0,7342` (`brief-outcome.ts:235-238`) cujo referente a emenda
+retrata. E o desempate registrado (`w_min` → `created_at` → `chunk_id`,
+`PREREG-DRAFT.md:535`) **nomeia uma coluna que não existe** em `p2_verdict` —
+não é só não-implementado, é não-implementável como escrito.
+
+Medido: **5 dos 7** grupos multi-membro têm empate em `w_min` (19 grupos totais).
+Como todos os 55 chunks compartilham `written_at`, `w_min` é função só da
+severidade. Nesses 5 grupos **o designado saiu da ordem incidental do SQLite**.
+Os 111 deslocamentos são reproduzíveis como agregado mas **não atribuíveis a
+regra determinística**.
+
+⚠️ **Decisão pendente do Toto:** escolher a regra de designação substituta. Não é
+implementação — é decisão, e ela decide o tratamento em 5 dos 19 grupos.
+
+### Ordem de operações (§8 da emenda)
+
+1. Depositar a v1.12 — **declara o defeito antes de consertá-lo**, senão o
+   documento descreve um sistema que já não existe (o `commit 2740ded3` citado)
+2. Consertar a designação (4 itens do §5.3)
+3. Registro prospectivo do estimando/estimador/variância
+4. `T_seed_assign` (= gerar `ASSIGNMENT.json` com sha256, seed ancorada no OSF)
+5. Passar a `active` via drop-in; verificar por **estado observável** que
+   `servido` alterna e que `p2_arm_unresolved` é zero
+6. Epoch 1
+
+### Retratações e achados do dia
+
+14 retratações consolidadas no §4. As de hoje: o vocabulário de **"desempate"**
+(a salience **seleciona 2 entre 12–31**, medido — grupo de empate tem 12 a 31
+chunks e `fresh_added` é 2 em todos os registros); `CUT_FRESH` (0,8524 é o cut do
+pool **principal**, o congelado é 0,7342); e a taxa de ativação (**8,1%**
+pós-gate, não 4,6% da série inteira).
+
+Também caiu a leitura de 24/08 de que a série seria transiente de depleção: o
+zero das primeiras 954 decisões é o **gate de maturidade**, e a transição
+`churn = 0 → > 0` **não** coincide com a migração de host (o gate abriu 2h37
+antes do snapshot; o hiato de coleta censurou a janela).
+
+### Notas operacionais
+
+- **Piloto segue rodando** em shadow. A janela depositada está fechada, então
+  nada do que vier depois a contamina.
+- **Infra migrou** para o KVM2 (2 cores/8 GB); o KVM8 ficou só para
+  pesquisa (K=8). KVM2 estabilizou em load ~0,7 (era 8,36 no dia da migração).
+- **Dois hiatos** de 23/08 declarados no §6 com reconciliação: 4 ciclos/28
+  registros **perdidos** + 12 ciclos/84 **nunca gerados** = 16 ciclos = 112 =
+  672−560.
+- ⚠️ `codex-cli` atualizado 0.139.0 → **0.149.1** (`gpt-5.6-sol` exige ≥0.14x; o
+  binário do brew é symlink para o pacote npm).
+
+---
+
+## Estado anterior (2026-08-22, 01h) — os 3 componentes no ar; painel rodado; ativação é time-gated
 
 > ▶️ **Próxima ação: em 2026-08-23 depois das 09:00Z**, ler
 > `/root/.openclaw/logs/p2-serving.ndjson` e medir a **fração de ativação** (`churn`
