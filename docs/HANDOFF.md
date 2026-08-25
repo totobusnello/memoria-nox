@@ -6,12 +6,15 @@
 
 ## 🟢 Estado atual (2026-08-25, 15h) — v1.12 reescrita e commitada; depósito é a próxima ação
 
-> ▶️ **Próxima ação: ler o veredito do GLM** (última revisão independente, disparada
-> 15:28) e **decidir o depósito**. ⚠️ Conferir o **recibo** com `exit: 0` antes de
-> aceitar qualquer veredito — hoje duas invocações alegaram verificações que não
-> podiam ter feito (o wrapper não faz SSH). Se limpo: depositar Zenodo v1.12 +
-> emenda no OSF `yf7d2`, relendo campo a campo em formato InvenioRDM antes do passo
-> irreversível.
+> ▶️ **Próxima ação: depositar** — Zenodo v1.12 + emenda no OSF `yf7d2`, relendo
+> campo a campo em formato InvenioRDM antes do passo irreversível (um `PUT` com
+> forma legada devolve 200 e apaga autor e licença em silêncio).
+>
+> O GLM fechou a rodada com `exit: 0` e **achou defeito real** — as correções
+> entraram em `75fc353` (retratações 15-17). ⚠️ Conferir o **recibo** com
+> `exit: 0` antes de aceitar qualquer veredito: hoje duas invocações do Grok não
+> produziram análise (uma sem recibo, outra `exit: 124`) porque eu montei o
+> briefing com paths de servidor e o wrapper não faz SSH.
 
 ### O que mudou de natureza
 
@@ -23,7 +26,15 @@ em **2.221 de 2.221** registros ⇒ **zero desfecho sob tratamento** ⇒ `N` e
 **registro prospectivo separado**.
 
 Quatro vozes (Grok, DeepSeek, GLM, Codex) vetaram a redação anterior. Kimi
-revisou a reescrita e achou 3 bloqueantes, todos corrigidos.
+revisou a reescrita e achou 3 bloqueantes; o GLM revisou depois e achou 6, dos
+quais 4 procedem. Todos corrigidos. **17 retratações** no §4.
+
+⚠️ Duas alegações do GLM foram **refutadas por medição** e ficam no Anexo B: a
+população 1.305 é consistente (o peso divide o frame pela **amostra** 242, não
+pelos 234 adjudicados, e o frame de A é 48, não 46 ⇒ `48 + 1.257 = 1.305` exato);
+e o desenho amostral do estrato B **está** declarado — em `LAMBDA-SEED`, que eu
+simplesmente não passei à revisão. Mas a lição contrária vale: a alegação
+rejeitada sobre `base` carregava o defeito que derrubou duas afirmações.
 
 ### Janela de piloto CONGELADA
 
@@ -47,11 +58,18 @@ retrata. E o desempate registrado (`w_min` → `created_at` → `chunk_id`,
 `PREREG-DRAFT.md:535`) **nomeia uma coluna que não existe** em `p2_verdict` —
 não é só não-implementado, é não-implementável como escrito.
 
-Medido: **5 dos 7** grupos multi-membro têm empate em `w_min` (19 grupos totais).
-Como todos os 55 chunks compartilham `written_at`, `w_min` é função só da
-severidade. Nesses 5 grupos **o designado saiu da ordem incidental do SQLite**.
-Os 111 deslocamentos são reproduzíveis como agregado mas **não atribuíveis a
-regra determinística**.
+Medido: **4 dos 7** grupos multi-membro têm empate exato em `w_min` (19 grupos
+totais) e nesses **o designado saiu da ordem incidental do SQLite**. Os 111
+deslocamentos são reproduzíveis como agregado mas **não atribuíveis a regra
+determinística**.
+
+⚠️ Esse número era **5 de 7** até 15h55; caiu para 4 quando o GLM levantou que
+`base` podia não ser invariante entre chunks de mesma severidade e eu fui medir.
+`salienceBase` é `calculateSalience` (`src/salience.ts:246`), que tem
+`0,20 · log1p(access_count)/log(1000)` e **nenhum** termo em `written_at` — os 55
+chunks têm 9 bases distintas. E como `access_count` cresce quando o chunk é
+servido, a estrutura de empates **varia no tempo**: o 4/7 é do fechamento da
+janela, não da época dos 111 deslocamentos, e aquela não é recuperável.
 
 ⚠️ **Decisão pendente do Toto:** escolher a regra de designação substituta. Não é
 implementação — é decisão, e ela decide o tratamento em 5 dos 19 grupos.
