@@ -1,0 +1,143 @@
+# Decisão pendente — a regra de designação substituta
+
+> **Status:** aberta, aguardando o Toto. Bloqueia o registro prospectivo (§5.3 da
+> `AMENDMENT-v1.12.md`), não bloqueia o depósito da v1.12.
+>
+> **Por que é decisão e não implementação:** a regra decide **quem recebe
+> tratamento** em 4 dos 19 grupos de assinatura. Qualquer escolha feita depois de
+> olhar o resultado é grau de liberdade do pesquisador. A escolha vem antes do
+> `ASSIGNMENT.json`, e o `ASSIGNMENT.json` vem antes do Epoch 1.
+
+---
+
+## O que está quebrado, em três fatos medidos
+
+**1. A regra consome uma constante cujo referente a emenda retrata.**
+`w_min = (CUT_FRESH − base) / (Δ_cut · severidade)` com `CUT_FRESH = 0,7342`
+(`brief-outcome.ts:235-238`). A retratação 13 estabelece que `0,7342` é o cut do
+**slot de cobertura**, não do pool principal — e a retratação 3 estabelece que
+**não há limiar** que o `pick` aplique. A designação depende de um número que
+descreve algo que o mecanismo não faz.
+
+**2. O desempate registrado nomeia uma coluna que não existe.**
+`PREREG-DRAFT.md:535` registra *"lowest `w_min`, then earliest `created_at`, then
+lexicographic `chunk_id`"*. O schema de `p2_verdict` é `episode_id, severity,
+sig_primary, sig_coarse, chunk_id, source_file, panel_hash, adjudicated_at,
+written_at` — **sem `created_at`**. Não é "não implementado": é não-implementável
+como escrito. E o código não implementa nível nenhum de desempate — a query não
+tem `ORDER BY` e a comparação é `wMin < atual.wMin`, estritamente menor. Em
+empate vence a ordem de linhas que o SQLite devolver.
+
+**3. A regra não está congelada — ela deriva de um campo mutável.**
+`base` é `calculateSalience` (`src/salience.ts:246`), que inclui
+`0,20 · clamp01(log1p(access_count)/log(1000))`. Nos 55 chunks, `access_count`
+varia de 1 a 5 e `base` assume **9 valores distintos**.
+
+> ✅ **Verificado, e é a boa notícia:** `access_count` é incrementado **somente**
+> por `recordAccess` em `src/search.ts:396`, chamado só pelos caminhos de
+> `search`. **O serving de brief não incrementa.** Logo **não existe** o laço
+> designação → serving → designação que eu suspeitei. O que existe é uma
+> dependência em **tráfego de busca exógeno**: qualquer `/api/search` sem
+> `?track=false` move `base` e pode mover o designado. A regra não é
+> pós-randomização; é apenas **não congelada**.
+
+---
+
+## Requisitos que a substituta tem de satisfazer
+
+| # | requisito | por quê |
+|---|---|---|
+| R1 | **Total** — nenhum empate possível | senão a ordem do SQLite decide |
+| R2 | Ler **apenas** colunas imutáveis de `p2_verdict` | congelamento verificável; nada de `access_count`, `salience`, `last_served` |
+| R3 | Independente de `CUT_FRESH` e de `Δ_cut` | referentes retratados |
+| R4 | Reproduzível de fora, a partir dos artefatos publicados | um terceiro tem de poder recomputar a designação |
+| R5 | Declarada **antes** de gerar o `ASSIGNMENT.json` | ordem de operações do §8 |
+
+---
+
+## As opções
+
+### A — Severidade máxima, desempate por `chunk_id` lexicográfico
+
+```
+designado(g) = argmin_{c ∈ g} ( −severidade(c), chunk_id(c) )
+```
+
+- ✅ Satisfaz R1–R5. Uma linha de SQL: `ORDER BY severity DESC, chunk_id ASC`.
+- ✅ **Maximiza a dose.** `W_OUTCOME = w · Δ_cut · severidade`, então designar o
+  membro mais grave é a designação de maior potência para o mesmo `w`.
+- ✅ Aproxima o comportamento observado: nos 7 grupos multi-membro o mínimo de
+  `w_min` já caía sobre os membros de severidade máxima.
+- 🔴 **Amarra a designação a um único painelista.** Medido em
+  `LAMBDA-RESULTS-2026-08-21.md`: o share de S2 nas falhas é 24,2% (moonshot),
+  25,9% (zhipu) e **72,2% (xai)**. Os três concordam que houve falha e discordam
+  sobre a gravidade. Uma regra que designa por severidade máxima faz a atribuição
+  de tratamento herdar a calibração de severidade do xai.
+
+### B — Sorteio pseudoaleatório com seed declarada
+
+```
+designado(g) = argmin_{c ∈ g} SHA256( seed ‖ "|" ‖ sig_primary ‖ "|" ‖ chunk_id )
+```
+
+- ✅ Satisfaz R1–R5. **Mesma maquinaria já usada e auditada** na amostra de λ
+  (`LAMBDA-SEED-2026-08-21.md:66-75`): seed derivada de fonte pública, hex
+  minúsculo, separador `|` obrigatório, declarada e pushada antes da rodada.
+- ✅ **Remove o confundimento de calibração.** A designação passa a ser
+  independente de severidade, logo independente de qual painelista pontuou mais
+  duro.
+- 🔴 **Perde dose.** A dose esperada cai para a média de severidade do grupo em
+  vez do máximo. Com 4 grupos empatados e composição majoritária S1/S2, a perda é
+  da ordem de um terço da dose nesses grupos.
+- 🔴 Exige uma seed nova, declarada antes e ancorada no OSF — mais um artefato
+  com precedência a provar.
+
+### C — Uma designação por célula (`sig_primary` × severidade)
+
+- ✅ Elimina o empate por construção dentro da célula, e a severidade deixa de
+  competir com a identidade.
+- 🔴 **Muda a unidade do desenho.** Hoje a unidade é o grupo de assinatura; isso
+  a torna a célula. `N`, o estimando e a razão de designação mudam todos. Não é
+  conserto de defeito, é redesenho.
+
+### D — `chunk_id` mais baixo
+
+- ✅ Trivialmente total, uma linha.
+- 🔴 `chunk_id` é ordem de inserção, que é ordem de adjudicação. Correlaciona com
+  o momento da rodada de painel e possivelmente com o conteúdo. É arbitrariedade
+  **não declarada**, que é o defeito atual com outra roupa.
+
+---
+
+## Recomendação
+
+**B**, e a razão é uma só: o defeito que estou consertando é *designação decidida
+por acidente*. A opção A troca o acidente da ordem do SQLite pelo **critério de
+um painelista** — e a memória do projeto já registra que o estrato S2 repousa numa
+única família (`xai` responde por 72,2% do share de S2). Trocar um viés opaco por
+um viés nomeado é progresso, mas trocá-lo por **nenhum** é melhor, e o custo é
+poder, que se compra com `w` ou com épocas.
+
+A perda de dose é real e mensurável antes de decidir: dá para computar a dose
+esperada sob A e sob B a partir de `p2_verdict`, sem tocar em desfecho. **Se você
+quiser, eu rodo esse número antes de você escolher** — é leitura, não intervenção.
+
+Se a preferência for A, ela é defensável desde que a dependência da calibração do
+xai seja **declarada no registro prospectivo** como limitação, não descoberta
+depois.
+
+---
+
+## Fora de escopo desta decisão
+
+- O `Δ_cut` e o `w` — dose, não designação.
+- O `T_seed_assign` — é o passo seguinte, e o sorteio de **braço** não se
+  confunde com o de **designado**. A opção B introduz uma segunda seed; as duas
+  precisam de nomes distintos no registro.
+
+---
+
+*Proveniência: `AMENDMENT-v1.12.md` §5.2, §5.2-bis, §5.3 · `PREREG-DRAFT.md:535`
+· `LAMBDA-RESULTS-2026-08-21.md` (shares por família) ·
+`LAMBDA-SEED-2026-08-21.md:66-75` (maquinaria de seed) · `src/salience.ts:246` e
+`src/search.ts:396` (lidos em 2026-08-25).*

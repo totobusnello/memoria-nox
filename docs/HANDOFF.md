@@ -72,7 +72,17 @@ servido, a estrutura de empates **varia no tempo**: o 4/7 é do fechamento da
 janela, não da época dos 111 deslocamentos, e aquela não é recuperável.
 
 ⚠️ **Decisão pendente do Toto:** escolher a regra de designação substituta. Não é
-implementação — é decisão, e ela decide o tratamento em 5 dos 19 grupos.
+implementação — é decisão, e ela decide o tratamento em 4 dos 19 grupos. Opções,
+requisitos e recomendação em **`paper2-interventional/DECISION-designacao-2026-08-25.md`**.
+Recomendo **B** (sorteio com seed declarada, mesma maquinaria do λ) sobre **A**
+(severidade máxima): A troca o acidente da ordem do SQLite pela calibração de um
+painelista — `xai` responde por 72,2% do share de S2. Custo de B é dose, e dá
+para medir esse custo antes de decidir, sem tocar em desfecho.
+
+✅ Achado ao documentar: `access_count` só é incrementado por `recordAccess`
+(`src/search.ts:396`), nos caminhos de `search`. **Brief serving não incrementa**
+⇒ não existe laço designação → serving → designação. A designação não é
+pós-randomização; é **não congelada** (depende de tráfego de busca exógeno).
 
 ### Ordem de operações (§8 da emenda)
 

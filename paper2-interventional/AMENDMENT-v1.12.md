@@ -551,11 +551,19 @@ Reincidência da classe *uma reconstrução pode modelar uma regra que o código
 nunca aplica*: eu medi empates em `severidade × sig_primary` no banco e **afirmei**
 que eram empates em `w_min`, por um argumento que o código refuta.
 
-⚠️ **A estrutura de empates varia no tempo.** `access_count` cresce quando o
-chunk é servido, então `base` muda ao longo da própria série. O 4 de 7 é medido
-no fechamento da janela; **não é a estrutura vigente durante os 111
-deslocamentos**, e essa não é recuperável — o log de designação ausente (§5.3) é
-exatamente o que a teria registrado.
+⚠️ **A estrutura de empates varia no tempo.** `base` depende de `access_count`,
+que é mutável. O 4 de 7 é medido no fechamento da janela; **não é a estrutura
+vigente durante os 111 deslocamentos**, e essa não é recuperável — o log de
+designação ausente (§5.3) é exatamente o que a teria registrado.
+
+✅ **Mas o laço que isso poderia implicar não existe, e fica declarado.**
+`access_count` é incrementado **somente** por `recordAccess`
+(`src/search.ts:396`), chamado apenas pelos caminhos de `search`. **O serving de
+brief não incrementa.** Logo não há realimentação designação → serving →
+designação, e a designação **não é** quantidade pós-randomização. O que ela é:
+**não congelada** — dependente de tráfego de busca exógeno ao experimento
+(qualquer `/api/search` sem `?track=false` pode mover o designado). Defeito menor
+do que uma realimentação, e ainda assim incompatível com um registro prospectivo.
 
 **Consequência retroativa, declarada:** os 111 deslocamentos, os 8,1% e a tabela
 de autoria do §3.3 foram medidos sob essa designação. Eles são **reproduzíveis
@@ -574,10 +582,13 @@ log ausente teria registrado.
 
 ### 5.3 O que precisa acontecer antes do registro prospectivo
 
-1. **Substituir a regra de designação** por uma regra **total** e independente de
-   `CUT_FRESH`, e congelá-la em código.
-2. **Implementar desempate determinístico** — `created_at`, depois `chunk_id` —
-   ou registrar explicitamente a regra nova que o substitui.
+1. **Substituir a regra de designação** por uma regra **total**, independente de
+   `CUT_FRESH` e que leia **só colunas imutáveis** de `p2_verdict` — a atual lê
+   `access_count` através de `base` e por isso não está congelada. As opções, os
+   requisitos e a recomendação estão em `DECISION-designacao-2026-08-25.md`; a
+   escolha é decisão de desenho e precede o `ASSIGNMENT.json`.
+2. **Registrar a regra nova de desempate.** A registrada não pode ser
+   implementada: `created_at` não existe em `p2_verdict`. Substituir, não codificar.
 3. **Definir e medir `Δ_cut`** sob referente novo (§1.5), ou substituí-lo por
    quantidade que exista.
 4. **Logar por chamada** `designated_ids` e `boost_by_id`. Hoje o log guarda os
