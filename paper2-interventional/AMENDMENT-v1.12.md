@@ -53,6 +53,15 @@ entram em análise confirmatória. O estimando, o estimador, a variância e a
 população-alvo vão em **registro prospectivo separado**, posterior a esta emenda
 e às correções do §5, rotulado como informado pelo piloto.
 
+**E o que esta emenda *é*, positivamente:** a descrição de uma série de decisões
+de serving **condicional à designação que foi de fato executada** — não a uma
+regra re-executável. Em 4 dos 19 grupos de assinatura o designado saiu da ordem
+incidental de linhas do SQLite (§5.2-bis), e a designação é recomputada a cada
+brief. Os agregados (111 deslocamentos, 8,1%, tabela de autoria do §3.3) são
+**reproduzíveis** — o snapshot os congela — e **não são atribuíveis** a uma regra
+determinística. Toda leitura desta emenda como medição de mecanismo, e não como
+descrição de execução, está fora do que ela sustenta.
+
 O termo **"by construction"** não é usado nesta emenda em nenhuma afirmação
 substantiva: foi a frase que carregou os defeitos de 16 e 17/08, e a v1.11
 mostrou que uma garantia dessa forma pode ser anulada por falha operacional.
@@ -189,16 +198,45 @@ Rodada de painel de 2026-08-21, 870/870 chamadas. Declaração da seed pushada
 
 λ̂ é **Horvitz-Thompson estratificado**, não proporção simples:
 
-| estrato | |
+**População-alvo: 1.305 episódios** — universo dos epochs 2026-08-15 → 08-20,
+fronteira 09:00 UTC (`LAMBDA-SEED-2026-08-21.md:36`). Desenho travado **antes**
+da amostra, no mesmo documento:
+
+| estrato | frame | amostra | adjudicados | falhas |
+|---|---|---|---|---|
+| A (`is_error`) — **censo** | 48 | 48 | 46 | 44 |
+| B (complemento) — **amostra** | 1.257 | 242 (**19,25%**) | 234 | 11 (4,70%) |
+| | **1.305** | **290** | **280** | |
+
+| | |
 |---|---|
-| A (`is_error`) — **censo** | 46 adjudicados, 44 falhas |
-| B — **amostra**, peso HT 5,194215 | 234 adjudicados, 11 falhas (4,70%) |
-| inadjudicáveis (abaixo do piso de 3 vereditos) | 10 de 290 (3,45%) |
+| peso HT do estrato B | **5,194215** = 1.257 / 242 |
+| inadjudicáveis (abaixo do piso de 3 vereditos) | 10 de 290 (3,45%) — 2 em A, 8 em B |
 | **λ̂** | **0,077499** |
 | SE | 0,012023 |
 | **IC95** | **[0,0539 ; 0,1011]** |
 
-Reprodução: `0,077499 ± 1,96 × 0,012023 = [0,0539 ; 0,1011]`.
+Reprodução completa: `(44 + 5,194215 × 11) / 1.305 = 101,136 / 1.305 = 0,077499`
+e `0,077499 ± 1,96 × 0,012023 = [0,0539 ; 0,1011]`.
+
+Seleção do estrato B: ordenação por `SHA256(seed ‖ "|" ‖ episode_id)` e tomada
+dos 242 primeiros — amostra pseudoaleatória sem reposição, `seed` declarada e
+pushada antes da rodada (`LAMBDA-SEED-2026-08-21.md:66-75`). Os 10
+inadjudicáveis ficam **fora do numerador e dentro do denominador**.
+
+⚠️ A taxa de projeto declarada no desenho é **19,235%** ("idêntica à das
+extensões 1 e 2", `LAMBDA-SEED-2026-08-21.md:41`); a taxa **realizada** é
+`242/1.257 = 19,25%`. Os dois números não são o mesmo e nenhum deriva do outro —
+o de projeto é herdado das extensões anteriores, o realizado é o quociente. O
+peso HT usa o realizado.
+
+⚠️ **Publicado por exigência de reconstrução** (GLM, 2026-08-25): a versão
+anterior desta tabela dava o peso `5,194215` e os *adjudicados*, mas não o
+denominador nem os tamanhos de frame e amostra. Quem tentasse reconstruir a
+população multiplicando `234 × 5,194215 + 46` chegaria a **1.261,4** e a λ̂
+`0,0802` — o peso divide o frame pela **amostra** (242), não pelos adjudicados
+(234), e o estrato A tem frame 48, não 46. A lacuna era documental, não
+aritmética, mas num depósito imutável é o mesmo defeito.
 
 ⚠️ **Nota de leitura, registrada porque duas revisões adversariais tropeçaram
 aqui.** λ̂ **não** é `22/280 = 0,0786`, e o IC não é binomial. Sob Wald com
@@ -286,7 +324,13 @@ Todo deslocamento é causado por um chunk da população do estudo, sem exceçã
 111 eventos. Do lado que sai, 89,2% dos eventos também atingem chunks do estudo
 — não-designados. Isso é o mecanismo previsto: a regra designa um chunk por
 grupo de assinatura, o pool mistura designados e não-designados, e a dose atua
-sobre essa mistura. Os 12 eventos de saída (10,8%) que atingem chunks de fora do
+sobre essa mistura.
+
+⚠️ **Ler "designa" a menos do §5.2-bis.** A designação é determinística **só até
+o empate**: em 4 dos 19 grupos ela caiu na ordem incidental do SQLite, e é
+recomputada a cada brief. Os 16 ids que entram são portanto a **união dos
+conjuntos designados ao longo da série**, não um conjunto estável de designados
+— o "100% do estudo" sobrevive, a leitura de "os 16 designados" não. Os 12 eventos de saída (10,8%) que atingem chunks de fora do
 estudo são o contato da intervenção com o resto do corpus.
 
 ### 3.4 A série oscila; não decai
@@ -304,16 +348,24 @@ eventos**, que fecha exatamente com o agregado do §3.3:
 A série completa está em `PILOT-WINDOW-2026-08-25.json`
 (`serie_horaria_pos_gate.taxas_pct`), emitida pelo script.
 
-O que o dado sustenta: a série é **incompatível com depleção monotônica até
-zero** — o último dia da janela ainda tem 11 eventos — e tem **variância horária
-alta** (0% a 46,4%, mediana 3,6% contra média 7,8%: distribuição assimétrica com
-cauda de rajadas). Médias diárias pós-gate: 13,6% → 7,3% → 3,8%.
+O que o dado sustenta: a série **ainda não depletou** — o último dia da janela
+tem 11 eventos — e tem **variância horária alta** (0% a 46,4%, mediana 3,6%
+contra média 7,8%: distribuição assimétrica com cauda de rajadas). Médias
+diárias pós-gate: 13,6% → 7,3% → 3,8%.
 
 ⚠️ **O que o dado NÃO sustenta, e fica retratado:** que a série "oscila sem
 tendência". Três médias diárias decrescentes não identificam ausência de
 tendência mais do que identificam depleção; com 47 horas e essa variância,
-nenhuma das duas leituras é distinguível. O enunciado defensável é o do parágrafo
-acima — incompatível com depleção a zero, variância alta — e nada além.
+nenhuma das duas leituras é distinguível.
+
+🔴 **Retratado nesta versão** (GLM, 2026-08-25): a redação anterior fechava com
+"incompatível com depleção monotônica até zero … e nada além". Na leitura estrita
+("não depletou *dentro da janela*") isso se sustenta; na leitura larga
+("incompatível com um processo de depleção em curso") é **refutado pelo próprio
+dado** — 13,6 → 7,3 → 3,8 é estritamente decrescente e compatível com transiente
+que atingiria zero *depois* da janela. Enunciado defensável: **ainda não
+depletada; compatível tanto com regime persistente quanto com transiente
+decrescente não concluído.** Escolher entre os dois exige janela maior.
 
 Fica retratada também a leitura de 2026-08-24 de que a série seria um transiente
 de depleção monotônica até zero: ela se apoiava num recorte de cinco pontos
@@ -362,13 +414,16 @@ registrada, nem a nova — os 8,1% entram nele.
 | 5 | 21/08 | a intervenção é nula em todos os braços | não é nula; a designação mistura o pool (§3.3) |
 | 6 | 21/08 | "três platôs" de dose-resposta | aritmética sem desfecho; margens 0,0070/0,0035 contra spread de 0,1822 |
 | 7 | 22/08 | `churn = 0` mede ausência de população | mede o gate de maturidade (§3.2) |
-| 8 | 24/08 | o boost é arquiteturalmente inerte | atua, e o canal existe: 111 deslocamentos em 102 decisões (§1.4) |
-| 9 | 24/08 | a série é transiente de depleção monotônica | oscila sem tendência (§3.4) |
+| 8 | 24/08 | o boost é arquiteturalmente inerte | atua, e o canal existe: 111 deslocamentos em 102 decisões (§1.4) — ⚠️ agregado condicional à designação executada (§5.2-bis) |
+| 9 | 24/08 | a série é transiente de depleção monotônica | **ainda não depletada**; as duas leituras são indistinguíveis em 47 h (§3.4) |
 | 10 | 24/08 | a transição coincide com a migração de host | coincide com o gate, 2h37 antes do snapshot (§6) |
 | 11 | 25/08 | a salience decide "entre nunca-servidos" | 0 de 102 envolvem nunca-servido (§1.4) |
 | 12 | 25/08 | a salience "desempata", e o estimando é "inversão de desempate" | ela **seleciona 2 entre 12–31** (§1.3); estimando retirado, vai a registro prospectivo (§0) |
 | 13 | 25/08 | `CUT_FRESH = 0,8524` | 0,8524 é o cut do pool **principal**; `CUT_FRESH` é **0,7342** (§1.1) |
 | 14 | 25/08 | a taxa de ativação é 4,6% | 8,1% pós-gate; 4,6% contamina o denominador (§3.3) |
+| 15 | 25/08 | `w_min` é função apenas da severidade porque `written_at` é idêntico | `salienceBase` não tem termo em `written_at` e tem termo log-proporcional em `access_count`; 9 bases distintas (§5.2-bis) |
+| 16 | 25/08 | o empate de `w_min` ocorre em **5 de 7** grupos, na severidade **mínima** | **4 de 7**, na severidade **máxima** — `w_min` decresce em severidade (§5.2-bis) |
+| 17 | 25/08 | a série é "incompatível com depleção monotônica até zero, e nada além" | sustenta-se só na leitura estrita; a larga é refutada por 13,6 → 7,3 → 3,8 (§3.4) |
 
 Correções pontuais que permanecem válidas:
 
@@ -444,31 +499,70 @@ nomeia como primeiro critério de desempate **não existe na tabela** — o dese
 registrado não é implementável como escrito, e precisa ser reformulado, não só
 codificado.
 
-### 5.2-bis O empate não é hipotético: ocorre em 5 dos 7 grupos
+### 5.2-bis O empate não é hipotético: ocorre em 4 dos 7 grupos
 
-Como todos os 55 chunks compartilham `written_at` (§3.5), a idade é idêntica e
-`w_min` passa a ser função apenas da severidade. Logo **empate em `w_min`
-equivale a empate na severidade mínima do grupo**. Medido em `p2_verdict`:
+`w_min = (c_designação − base) / (Δ_cut · severidade)`, onde `base` é o
+`salienceBase` do próprio chunk — `calculateSalience` (`src/salience.ts:246`),
+não a expressão do `ORDER BY`:
+
+```
+base = 0,55·importância + 0,15·recência + 0,10·pain + 0,20·acesso
+acesso = clamp01( log1p(access_count) / log(1000) )
+```
+
+Medido nos 55 chunks em `2026-08-25T10:22:00Z`: `importance` é uniforme (0,9) e
+`created_at` é idêntico, mas `access_count` (1 a 5) e `last_accessed_at` (dois
+valores) variam — e o termo de acesso é **log-proporcional, não binário**.
+`base` assume **9 valores distintos**, e o empate em `w_min` exige empate em
+`base`, não só em severidade.
+
+Onde `base < c_designação` — **50 dos 55** chunks — o numerador é positivo e
+`w_min` **decresce** em severidade. Nos outros **5** (`base` = 0,7394 em quatro,
+0,7446 em um) o numerador é negativo e o sinal se inverte: `w_min` é negativo,
+isto é, o chunk seria designado já em `w = 0`. Medido, o mínimo de cada um dos 7
+grupos multi-membro cai sobre os membros de severidade **máxima** — mas por
+composição das duas regiões, não por uma monotonicidade única.
 
 | | |
 |---|---|
 | grupos de assinatura | 19 |
 | com mais de um membro | 7 |
-| **com empate na severidade mínima** | **5 de 7** |
+| **com empate exato no mínimo de `w_min`** | **4 de 7** |
 
-Composição dos 7 grupos multi-membro: `{S1:5, S2:1}` · `{S1:2}` ·
-`{S1:10, S2:7}` · `{S1:3, S2:5}` · `{S1:4}` · `{S2:3, S1:1}` · `{S1:1, S2:1}`.
+| grupo | n | severidade do mínimo | empatados | `w_min` (·Δ_cut) |
+|---|---|---|---|---|
+| `Bash\|build/run` | 4 | S2 | **3** | 0,04273 |
+| `Bash\|fs:mutacao` | 2 | S2 | 1 | 0,04273 |
+| `Bash\|shell:outro` | 17 | S2 | 1 | −0,020887 |
+| `Edit\|arquivo:doc` | 2 | S1 | **2** | 0,185461 |
+| `Read\|arquivo:outro` | 4 | S1 | **4** | 0,185461 |
+| `mcp__openclaw__message\|sem-alvo` | 6 | S2 | 1 | 0,04273 |
+| `mcp__openclaw__web_fetch\|rede` | 8 | S2 | **5** | 0,04273 |
 
-Em 5 desses 7 grupos, dois ou mais chunks disputam o mínimo com `w_min`
-idêntico, e **quem foi designado saiu da ordem incidental de linhas do SQLite.**
-O defeito é material, não teórico.
+Em 4 desses 7 grupos (**4 dos 19** totais) dois ou mais chunks disputam o mínimo
+com `w_min` idêntico, e **quem foi designado saiu da ordem incidental de linhas
+do SQLite.** O defeito é material, não teórico.
+
+🔴 **Retratado nesta versão** (encontrado por revisão adversarial GLM, 2026-08-25):
+a redação anterior dizia **5 de 7**, derivando de que "todos compartilham
+`written_at`, logo `w_min` é função apenas da severidade". A derivação é falsa —
+`salienceBase` não tem termo em `written_at`, e tem termo em `access_count`.
+Reincidência da classe *uma reconstrução pode modelar uma regra que o código
+nunca aplica*: eu medi empates em `severidade × sig_primary` no banco e **afirmei**
+que eram empates em `w_min`, por um argumento que o código refuta.
+
+⚠️ **A estrutura de empates varia no tempo.** `access_count` cresce quando o
+chunk é servido, então `base` muda ao longo da própria série. O 4 de 7 é medido
+no fechamento da janela; **não é a estrutura vigente durante os 111
+deslocamentos**, e essa não é recuperável — o log de designação ausente (§5.3) é
+exatamente o que a teria registrado.
 
 **Consequência retroativa, declarada:** os 111 deslocamentos, os 8,1% e a tabela
 de autoria do §3.3 foram medidos sob essa designação. Eles são **reproduzíveis
 como agregado** — o snapshot os congela — mas **não são atribuíveis a uma regra
 de designação determinística**: a sua magnitude é condicional à designação
 incidental que foi de fato executada, e uma re-execução da mesma regra poderia
-designar outro chunk em até 5 dos 19 grupos. Isso não invalida o piloto como
+designar outro chunk em até 4 dos 19 grupos. Isso não invalida o piloto como
 descrição do que aconteceu; invalida qualquer leitura dele como medição de uma
 regra re-executável.
 
@@ -606,6 +700,8 @@ formato legado retorna 200 e descarta autor e licença em silêncio.
 |---|---|---|
 | λ̂ = 0,077499 · SE 0,012023 · IC [0,0539; 0,1011] | `LAMBDA-RESULTS-2026-08-21.md` | 2026-08-21 |
 | estrato A 44/46 · estrato B 11/234 · peso HT 5,194215 | `LAMBDA-RESULTS-2026-08-21.md` | 2026-08-21 |
+| população 1.305 · frame A 48 / B 1.257 · amostra B 242 (19,235%) | `LAMBDA-SEED-2026-08-21.md:36-41` | travado antes da amostra |
+| seleção do estrato B: `SHA256(seed ‖ "\|" ‖ episode_id)`, 242 primeiros | `LAMBDA-SEED-2026-08-21.md:66-75` | seed pushada 2026-08-21 22:17:50Z |
 | 870/870 chamadas · 10 inadjudicáveis · 3,45% | `LAMBDA-RESULTS-2026-08-21.md` | 2026-08-21 |
 | `p̂0 = 0,111813` | `PREREG-DRAFT.md` | registro 2026-08-18 |
 | shares por família: moonshot 24,2 · zhipu 25,9 · xai 72,2 | `LAMBDA-RESULTS-2026-08-21.md` | 2026-08-21 |
@@ -623,7 +719,8 @@ formato legado retorna 200 e descarta autor e licença em silêncio.
 | `served_at` sem fração de segundo: 0 de 559.158 | `brief_log` | 2026-08-25 |
 | autoria: entram 16/16 ids e 111/111 eventos do estudo; saem 25/33 ids e 99/111 eventos (89,2%) | `p2-serving.ndjson` × `p2_verdict`, janela fechada | janela fechada |
 | série horária pós-gate: 47 horas · média 7,8% · mediana 3,6% · 0,0–46,4% · 14 horas com zero | `pilot_window_stats.mjs` → `serie_horaria_pos_gate` | janela fechada |
-| empate de `w_min`: 5 de 7 grupos multi-membro (19 grupos totais) | `p2_verdict`, severidade × `sig_primary` | 2026-08-25 |
+| `salienceBase` dos 55: 9 valores distintos · `importance` uniforme 0,9 · `access_count` ∈ {1..5} · 50 abaixo e 5 acima de 0,7342 | `calculateSalience` (`src/salience.ts:246`) × `chunks`, em `nowMs = 2026-08-25T10:22:00Z` | 2026-08-25 |
+| empate exato de `w_min`: **4 de 7** grupos multi-membro (19 grupos totais) | `w_min = (0,7342 − base)/(Δ_cut·sev)` sobre `salienceBase` computado | 2026-08-25 |
 | `p2_verdict` **não tem** coluna `created_at` | `.schema p2_verdict` | 2026-08-25 |
 | 954 = 30 + 672 + 252 (corte por epoch, não por dia civil) | `p2-serving.ndjson` × campo `epoch` | janela fechada |
 | 97,7% dos registros nos minutos do cron (07/22/37/52) | `p2-serving.ndjson`, distribuição de minuto | 2026-08-24 |
@@ -642,7 +739,7 @@ formato legado retorna 200 e descarta autor e licença em silêncio.
 
 ## Anexo B — revisões adversariais
 
-Seis passagens, quatro famílias de modelo, todas com recibo verificado. As
+Sete passagens, quatro famílias de modelo, todas com recibo verificado. As
 segundas rodadas foram instruídas a atacar a **hipótese revisada da rodada
 anterior**, não a pergunta original.
 
@@ -655,6 +752,7 @@ anterior**, não a pergunta original.
 | Grok | prosa | citação falsa no Anexo A; "76/9" obsoleto; "129 pares" inflado; off-by-one nos ciclos; 4,6% com denominador contaminado; **"desempate" é o nome errado** |
 | GLM | decisão | separou a defesa em três superfícies: magnitude protegida, **escolha de estimando não protegida**, leitura de código não é contaminação; λ̂ **não migra** para estimando novo |
 | Codex | decisão | veto ao estimando retroativo; replay contrafactual é descritivo da população finita, não confirmatório; `D(i)` por posto **não é recuperável** dos logs; **a designação ainda consome `CUT_FRESH`** (§5) |
+| GLM | prosa | **`base` pode não ser invariante entre chunks de mesma severidade** → mediu-se, e não é: retratações 15 e 16, o empate cai de 5/7 para **4/7**; denominador 1.305 ausente do §2; desenho amostral do estrato B não citado; §3.4 afirma mais do que o dado sustenta na leitura larga; §0 declarava três vezes o que o piloto não é e nenhuma vez o que é |
 
 Alegações de revisão verificadas e **rejeitadas** por medição, registradas para
 que não reapareçam:
@@ -665,8 +763,24 @@ que não reapareçam:
 | o canal primário é o grupo `NULL` de nunca-servidos | 0 de 102 registros envolvem nunca-servido (§1.4) |
 | `brief_log` foi reinicializado na migração | é sequencial e contínuo: id 551680 às 11:37:09, id 551819 às 15:52:08 |
 | há incompatibilidade segundo × milissegundo em `lastServedMs` | `served_at` não tem fração de segundo em 0 de 559.158 linhas; `parseDbDateMs` não trunca (§1.2) |
+| a população 1.305 é inconsistente com o peso publicado (`46 + 234 × 5,194215 = 1.261,4`) | o peso é frame/**amostra** = 1.257/242, e o frame de A é 48, não 46: `48 + 1.257 = 1.305` exato (§2). A lacuna era de publicação, e foi sanada |
+| o desenho amostral do estrato B (mecanismo, fração, frame) não está declarado em nenhum documento | está em `LAMBDA-SEED-2026-08-21.md:36-75`, travado antes da amostra — não foi passado à revisão. Agora citado no §2 e no Anexo A |
 
-Três das quatro alegações rejeitadas vieram de rodadas executadas sem acesso ao
-sistema ou ao artefato citado. Fica registrado como nota de método: **revisão sem
-acesso produz mecanismo plausível e não verificado**, e as suas alegações
-factuais precisam ser medidas antes de aceitas.
+Cinco das seis alegações rejeitadas vieram de rodadas executadas sem acesso ao
+sistema ou ao artefato citado — em dois casos porque **eu não passei o artefato**.
+Fica registrado como nota de método: **revisão sem acesso produz mecanismo
+plausível e não verificado**, e as suas alegações factuais precisam ser medidas
+antes de aceitas.
+
+⚠️ E a contrapartida, que a rodada do GLM demonstrou: uma alegação **rejeitada**
+pode carregar um defeito **real**. A hipótese "`base` pode não ser invariante" foi
+levantada com hedge explícito e sem acesso ao código; medida, ela derrubou duas
+afirmações do §5.2-bis. Rejeitar a alegação e descartar a dúvida não são a mesma
+operação.
+
+Duas invocações do Grok em 2026-08-25 **não produziram análise** e ficam
+registradas para que os seus resultados não sejam citados: uma sem recibo, outra
+com recibo `exit: 124` (timeout de 31 min, 94 bytes). Causa em ambas: eu montei o
+briefing com paths de servidor remoto, e o wrapper adversarial não faz SSH. A
+contribuição do Grok nesta tabela é apenas a da rodada de prosa
+(recibo `exit: 0`, 11.423 bytes).
