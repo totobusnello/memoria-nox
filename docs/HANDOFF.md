@@ -6,9 +6,13 @@
 
 ## 🟢 Estado atual (2026-08-25, 15h) — v1.12 reescrita e commitada; depósito é a próxima ação
 
-> ▶️ **Próxima ação: depositar** — Zenodo v1.12 + emenda no OSF `yf7d2`, relendo
-> campo a campo em formato InvenioRDM antes do passo irreversível (um `PUT` com
-> forma legada devolve 200 e apaga autor e licença em silêncio).
+> ✅ **DEPOSITADO 2026-08-26T14:01Z** — Zenodo **`10.5281/zenodo.22110203`**
+> (conceito `10.5281/zenodo.21964093`), version 1.12, **60 arquivos**, state
+> `done`. Tag `paper2-v1.12` no repo aponta para o commit exato.
+>
+> ▶️ **Próxima ação: sua decisão sobre a regra de designação** —
+> `paper2-interventional/DECISION-designacao-2026-08-25.md`. Recomendo a opção B
+> (sorteio com seed declarada). Sem ela o registro prospectivo não pode começar.
 >
 > O GLM fechou a rodada com `exit: 0` e **achou defeito real** — as correções
 > entraram em `75fc353` (retratações 15-17). ⚠️ Conferir o **recibo** com
