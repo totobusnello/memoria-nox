@@ -2,6 +2,7 @@
 # Depósito da v1.12 no Zenodo — DUAS FASES, e a segunda é a irreversível.
 #
 #   ./deposit-v1.12.sh prepare   → cria o draft, sobe arquivos, grava metadados. PARA.
+#   ./deposit-v1.12.sh metadata  → regrava e reconfere os metadados do draft existente.
 #   ./deposit-v1.12.sh publish   → PUBLICA. Imutável a partir daqui.
 #
 # Token: export ZENODO_TOKEN=... (escopos deposit:write + deposit:actions)
@@ -49,6 +50,68 @@ NOVOS=(
 
 jqr() { python3 -c "import sys,json; print(json.load(sys.stdin)$1)"; }
 
+# Grava os metadados e reconfere. Separado de `prepare` para poder repetir sem
+# criar draft novo: `POST /versions` é idempotente enquanto o draft não publica,
+# mas repetir prepare re-importaria e re-subiria 15 arquivos por nada.
+metadata() {
+  [ -f "$STATE" ] || { echo "✗ sem draft: rode 'prepare' primeiro"; exit 1; }
+  DRAFT=$(cat "$STATE")
+
+  echo "▸ grava os metadados no draft $DRAFT (envia forma InvenioRDM)"
+  curl -sf -X PUT "${AUTH[@]}" -H "Content-Type: application/json" \
+    -d "@$DIR/zenodo-v1.12-metadata.json" "$API/records/$DRAFT/draft" >/dev/null
+
+  echo "▸ relê e confere campo a campo o que o PUT legado apagava"
+  curl -sf "${AUTH[@]}" "$API/records/$DRAFT/draft" > "$DIR/.draft-readback.json"
+  # ⚠️ O PUT aceita InvenioRDM, mas o GET do draft devolve a serialização
+  # LEGADA (`creators: [{name, affiliation}]`, `license`, `keywords`, `language`,
+  # `access_right`, `files` como lista). A primeira versão deste bloco leu
+  # `person_or_org` no readback e estourou KeyError — a asserção tem de falar a
+  # língua da RESPOSTA, não a do pedido. Ler a forma legada é o que prova que o
+  # servidor guardou o que se quis, e não que o payload voltou ecoado.
+  python3 - "$DIR/.draft-readback.json" "$DIR" <<'PY'
+import json, sys
+d = json.load(open(sys.argv[1])); m = d["metadata"]; DIR = sys.argv[2]
+def chk(nome, obtido, esperado):
+    ok = obtido == esperado
+    print(f"     {'ok  ' if ok else '✗✗  '}{nome:16} {obtido!r}"
+          + ("" if ok else f"   ESPERADO {esperado!r}"))
+    return 0 if ok else 1
+lic = m.get("license")
+f  = chk("version",       m.get("version"), "1.12")
+f += chk("creators",      [c.get("name") for c in m.get("creators", [])], ["Busnello, Luiz Antonio"])
+f += chk("affiliation",   [c.get("affiliation") for c in m.get("creators", [])], ["Independent Researcher"])
+f += chk("license",       lic.get("id") if isinstance(lic, dict) else lic, "cc-by-4.0")
+f += chk("resource_type", (m.get("resource_type") or {}).get("subtype"), "preprint")
+f += chk("language",      m.get("language"), "eng")
+f += chk("access_right",  m.get("access_right"), "open")
+f += chk("keywords",      len(m.get("keywords") or []), 10)
+f += chk("publication",   m.get("publication_date"), "2026-08-26")
+f += chk("files",         len(d.get("files", [])), 54)
+# Igualdade de BYTES contra a fonte local. Exceção conhecida é asserção fraca:
+# o `<hr>` que o sanitizador do Zenodo descartava foi removido da fonte para
+# que esta comparação possa ser exata.
+local = (open(f"{DIR}/zenodo-v1.12-description-new-block.html", encoding="utf-8").read()
+         + open(f"{DIR}/_v111-description.html", encoding="utf-8").read())
+f += chk("description",   len(m.get("description", "")), len(local))
+if m.get("description") != local:
+    import difflib
+    print("     ✗✗  description difere byte a byte:")
+    for tag, i1, i2, j1, j2 in difflib.SequenceMatcher(
+            None, local, m.get("description", ""), autojunk=False).get_opcodes():
+        if tag != "equal":
+            print(f"         {tag} local[{i1}:{i2}]={local[i1:i2]!r} -> remoto={m['description'][j1:j2]!r}")
+    f += 1
+else:
+    print("     ok  description      idêntica byte a byte")
+print()
+if f:
+    print(f"✗ {f} divergência(s) — NÃO publicar. Corrigir e repetir: $0 metadata")
+    sys.exit(1)
+print("✓ draft íntegro — 0 divergências.")
+PY
+}
+
 prepare() {
   echo "▸ gate: claims_check.py precisa passar antes de qualquer coisa"
   ( cd "$PKG" && python3 claims_check.py ) || { echo "✗ claims_check FALHOU — abortado"; exit 1; }
@@ -86,41 +149,7 @@ prepare() {
     echo "     + $f ($(wc -c <"$PKG/$f" | tr -d ' ') B)"
   done
 
-  echo "▸ 5/6 grava os metadados (forma InvenioRDM)"
-  curl -sf -X PUT "${AUTH[@]}" -H "Content-Type: application/json" \
-    -d "@$DIR/zenodo-v1.12-metadata.json" "$API/records/$DRAFT/draft" >/dev/null
-
-  echo "▸ 6/6 relê o draft e confere campo a campo o que o PUT legado apagava"
-  curl -sf "${AUTH[@]}" "$API/records/$DRAFT/draft" > "$DIR/.draft-readback.json"
-  python3 - "$DIR/.draft-readback.json" <<'PY'
-import json, sys
-d = json.load(open(sys.argv[1])); m = d["metadata"]
-def chk(nome, obtido, esperado):
-    ok = obtido == esperado
-    print(f"     {'ok ' if ok else '✗✗ '} {nome:16} {obtido!r}")
-    return ok
-falhas = 0
-falhas += not chk("version", m.get("version"), "1.12")
-falhas += not chk("creators", [c["person_or_org"]["name"] for c in m.get("creators", [])],
-                  ["Busnello, Luiz Antonio"])
-falhas += not chk("affiliation", [a["name"] for c in m.get("creators", []) for a in c.get("affiliations", [])],
-                  ["Independent Researcher"])
-falhas += not chk("rights", [r.get("id") for r in m.get("rights", [])], ["cc-by-4.0"])
-falhas += not chk("resource_type", m.get("resource_type", {}).get("id"), "publication-preprint")
-falhas += not chk("languages", [l.get("id") for l in m.get("languages", [])], ["eng"])
-falhas += not chk("subjects", len(m.get("subjects", [])), 10)
-falhas += not chk("files", len(d.get("files", {}).get("entries", {})), 54)
-if m.get("description", "").startswith("<p><strong>VERSION 1.12"):
-    print("     ok  description começa no bloco da 1.12")
-else:
-    print("     ✗✗  description NÃO começa no bloco da 1.12"); falhas += 1
-print()
-if falhas:
-    print(f"✗ {falhas} campo(s) divergem — NÃO publicar. Corrigir e repetir o passo 5.")
-    sys.exit(1)
-print("✓ draft íntegro.")
-PY
-
+  metadata
   echo
   echo "══ PARADO ANTES DO IRREVERSÍVEL ══"
   echo "  Revisar no navegador: https://zenodo.org/uploads/$DRAFT"
@@ -145,7 +174,8 @@ PY
 }
 
 case "${1:-}" in
-  prepare) prepare ;;
-  publish) publish ;;
-  *) echo "uso: $0 {prepare|publish}"; exit 2 ;;
+  prepare)  prepare ;;
+  metadata) metadata ;;   # regrava + reconfere, sem recriar o draft
+  publish)  publish ;;
+  *) echo "uso: $0 {prepare|metadata|publish}"; exit 2 ;;
 esac
