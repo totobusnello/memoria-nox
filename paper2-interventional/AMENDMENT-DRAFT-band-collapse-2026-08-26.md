@@ -1,20 +1,19 @@
-# Emenda — colapso da banda e eliminação de `Δ_cut`
+# Emenda — `Δ_cut` perde estatuto de parâmetro, e o estudo fica BLOQUEADO
 
 **Registro emendado:** OSF `yf7d2` (registrado 2026-08-18T07:56:44Z) · Zenodo
 concept `10.5281/zenodo.21964093`, última versão depositada **v1.12**
 (`10.5281/zenodo.22110203`, 2026-08-26T14:01Z).
 
 **Versão: a ser atribuída no depósito.** Este arquivo é **rascunho** e não carrega
-número. A lição é de 2026-08-25: número de versão é fato do depósito, não rótulo do
-texto — chamar um rascunho de "v1.13" já criou uma v1.12 fantasma numa redação
-anterior, quando a última real era a v1.11.
+número. Número de versão é fato do depósito, não rótulo do texto.
 
-**Redigida:** 2026-08-26, à noite, depois de a designação ser congelada às 20:28Z e
-de `Δ_cut` ser medido entre 20:35Z e 21:00Z.
+**Redigida:** 2026-08-26 à noite. **Reescrita integralmente às 23:40Z** depois de
+duas revisões adversariais (GLM-5.3 e Codex/gpt-5.6-sol, recibos no Anexo B)
+derrubarem **duas das cinco decisões** da primeira redação. O que caiu está no §7,
+nomeado, porque uma emenda que esconde o que a revisão matou não vale como emenda.
 
 **Código servindo.** Último commit que tocou `src/`: **`0087c918`**
-(2026-08-26T20:25:01Z), no repo `nox-workspace`. Pinos por arquivo, para os que
-esta emenda cita por linha:
+(2026-08-26T20:25:01Z), repo `nox-workspace`.
 
 | arquivo | commit | data |
 |---|---|---|
@@ -24,49 +23,53 @@ esta emenda cita por linha:
 | `src/salience.ts` | `aca868c7` | 2026-08-02T12:37:55−03:00 |
 
 `brief-diversity.ts` está inalterado desde junho, e é onde vive o comparador que
-esta emenda mede. Isso importa: a dominância lexicográfica que ela reporta **não é
-consequência de mudança recente** — está no código desde antes de o Paper 2
-existir.
+esta emenda mede. A dominância que ela reporta **não é consequência de mudança
+recente** — está no código desde antes de o Paper 2 existir.
 
 ---
 
 ## §0. Natureza e limites desta emenda
 
-**O que ela é.** Duas coisas, e nada mais: **fecha** o defeito que a v1.12 §5
-declarou aberto — a designação —, e **abre e resolve** o item 3 do §5.3 daquela
-emenda, `Δ_cut`.
+**O que ela faz, e é só isto:**
 
-**O que ela faz de substantivo.** Retira do desenho um fator manipulado que, medido,
-não existe. A banda `w ∈ {2,0 · 4,0 · 7,5}` deixa de ser três níveis de dose e
-passa a **um** braço de tratamento. `Δ_cut` deixa de ser parâmetro.
+1. **Fecha** o defeito que a v1.12 §5 declarou aberto — a designação (§1).
+2. **Retira `Δ_cut` do estatuto de parâmetro científico**, porque a quantidade que
+   ele escala é lexicograficamente dominada (§2, §3).
+3. **INVALIDA a banda `{2,0 · 4,0 · 7,5}` como escala de dose**, sem substituí-la
+   por outra (§3).
+4. **BLOQUEIA o início do estudo** até um protocolo de calibração prospectivo
+   existir (§5).
 
-**O que ela NÃO faz.** Não muda o mecanismo de intervenção (o boost continua
-aditivo em `salience`, no estágio (b)). Não reabre λ, nem a série de piloto, nem as
-28 retratações da v1.12. Não declara o `T_seed_assign`.
+**O que ela deliberadamente NÃO faz, e a primeira redação fazia:**
 
-**⚠️ Ela move um elemento declarado imóvel.** `PREREG-DRAFT.md:44` lista a banda
-`{2.0, 4.0, 7.5}` entre *"what does not move, and could not"*. Ela move. A razão
-não é conveniência nem resultado: é que a quantidade pela qual a banda multiplica
-(`Δ_cut`) não tem referente, e um multiplicador sem multiplicando não define
-níveis. Mover um elemento imóvel exige exatamente o que este documento faz —
-declarar, medir, e depositar antes do sorteio de braço.
+- **NÃO** fixa um braço único em `w = 4,0`. Essa escolha era pós-calibração
+  vestida de propriedade derivada (§7.1).
+- **NÃO** troca o estimando primário para condicional à oportunidade. Isso
+  **reabria a F2**, uma FATAL fechada em 2026-07-12 (§7.2).
+- **NÃO** define `N` a partir de taxa de oportunidade medida. Isso **reabria a
+  F3** (§7.3).
 
-**Uma coisa boa, dita sem consolo.** A ausência de dose foi detectada **antes** de
-o experimento consumir amostra. A contribuição declarada do Paper 2 é o **método**;
-um mecanismo que se descobre inerte antes de rodar é produto do método, não falha
-dele. Isso não reduz a gravidade do achado — reduz o custo.
+**Por que descritiva e bloqueante, em vez de redesenhadora.** A v1.12 já foi
+depositada como emenda descritiva, e por bom motivo: mudar mecanismo no mesmo
+documento que o descreve é indistinguível de racionalizar a mudança. Aqui vale em
+dobro — as duas decisões de desenho que a primeira redação tomou foram as duas que
+a revisão derrubou.
+
+**A contribuição declarada do Paper 2 é o método.** Um mecanismo que se descobre
+inerte, ou cuja oportunidade se descobre mal definida, **antes** de consumir
+amostra, é produto do método. Isso não reduz a gravidade; reduz o custo.
 
 ---
 
 ## §1. Fechado: a designação
 
 A v1.12 §5 declarava, corretamente, que a regra de designação não estava
-validamente congelada, por três defeitos medidos: consumia `CUT_FRESH` como
-limiar que o código não aplica, o desempate registrado nomeava `created_at`
-(coluna inexistente em `p2_verdict`, logo **não-implementável**), e `w_min`
-derivava de `access_count`, mutável por tráfego de busca exógeno.
+validamente congelada: consumia `CUT_FRESH` como limiar que o código não aplica, o
+desempate registrado nomeava `created_at` (coluna inexistente em `p2_verdict`, logo
+**não-implementável**), e `w_min` derivava de `access_count`, mutável por tráfego
+de busca exógeno.
 
-**Substituída, declarada e vigente.**
+**Substituída, declarada, verificada e vigente.**
 
 | | |
 |---|---|
@@ -75,38 +78,36 @@ derivava de `access_count`, mutável por tráfego de busca exógeno.
 | declaração | `DESIGNATION-SEED-2026-08-26.md`, push **20:07:24Z** *(data do GitHub)* |
 | rodada | drand quicknet **31657512**, emissão **20:25:00Z** — folga **1.056 s** |
 | estado na declaração | `GET .../public/31657512` → **HTTP 425**, não emitida |
-| frame | `p2-verdict-frame-2026-08-26.csv`, 55 linhas, `sha256` `9d0d80d6…`, push **20:08:55Z** — também antes do sorteio |
+| frame | `p2-verdict-frame-2026-08-26.csv`, 55 linhas, `sha256` `9d0d80d6…`, push **20:08:55Z** |
 | seed | `e5d134ee110a33870f68963ae47a39bbee208586328d2311ac6626eed42122d7` |
 | conjunto | 19 grupos, 19 designados distintos, `sha256` `e549420907cd…da001b` |
-| congelado em | `DESIGNATION-2026-08-26.json`, preso por path + `sha256` no serving |
+| congelado em | `DESIGNATION-2026-08-26.json`, preso por path + `sha256` |
 | vigente desde | **20:28Z** |
 
-**`sig_primary` saiu da chave**, e isso foi corrigido às 19:40Z, antes de congelar.
-Todos os 19 valores reais contêm `|` — o próprio separador —, então o layout
-aprovado às 14:47Z não era injetivo: `seed ‖ "Bash|shell:outro" ‖ 308226` e
-`seed ‖ "Bash" ‖ "shell:outro|308226"` são a mesma sequência de bytes. A correção
-foi remover o campo, não trocar o separador, porque cada chunk pertence a
-exatamente um grupo (0 de 55 em mais de um, excluídas as 225 linhas S0, que têm
-`chunk_id NULL`). A propriedade estatística é idêntica; o ganho é a chave passar a
-depender só de ids congelados.
+**`sig_primary` saiu da chave**, corrigido às 19:40Z, antes de congelar: todos os 19
+valores reais contêm `|`, o próprio separador, logo o layout aprovado às 14:47Z não
+era injetivo. Removido o campo em vez de trocado o separador, porque cada chunk
+pertence a exatamente um grupo (0 de 55 em mais de um, excluídas as 225 linhas S0,
+que têm `chunk_id NULL`). Propriedade estatística idêntica; ganho é a chave passar
+a depender só de ids congelados.
 
 **Verificação cruzada em duas implementações lendo fontes diferentes.** A TS
-(`designadosGlobais`) consultou `p2_verdict` **ao vivo**; o Python
-(`designation_verify.py`) leu o **CSV depositado** 16 minutos antes. Os `sha256` do
-conjunto batem, o que prova de uma vez que as derivações são a mesma regra **e** que
-o frame publicado corresponde à tabela real. Cinco mutações do fonte TS foram
-confirmadas fazendo os testes falharem (separador removido, seed como bytes, sha1
-no lugar de sha256, filtro de S0 removido, desempate entregue à ordem de linha).
+consultou `p2_verdict` **ao vivo**; o Python leu o **CSV depositado** 16 min antes.
+Os `sha256` do conjunto batem, o que prova de uma vez que as derivações são a mesma
+regra **e** que o frame corresponde à tabela. Cinco mutações do fonte TS foram
+confirmadas fazendo os testes falharem.
+
+⚠️ **Isto é o único item desta emenda que está fechado.** Todo o resto é
+diagnóstico e bloqueio.
 
 ---
 
-## §2. Medido: `Δ_cut` não tem referente a encontrar
+## §2. `Δ_cut` não tem referente a encontrar
 
-A v1.12 §1.5 declarou `Δ_cut = 0,043` como *"pendente de definição operacional e de
-medição"*. Essa formulação supõe que existe definição a achar. **Não existe**, e a
-razão é estrutural.
+A v1.12 §1.5 declarou `Δ_cut = 0,043` *"pendente de definição operacional e de
+medição"* — formulação que supõe existir definição a achar.
 
-O comparador do pool de cobertura é lexicográfico
+O comparador do pool de cobertura é **lexicográfico**
 (`src/api/brief-diversity.ts:130-140`):
 
 ```ts
@@ -117,13 +118,15 @@ return bSalience - aSalience;    // salience só desempata last_served IDÊNTICO
 ```
 
 O boost é aditivo **em `salience`**, a coordenada subordinada. Quando `last_served`
-difere, o comparador devolve `al − bl` e **nunca consulta `salience`**. Nenhum
-valor de `w · Δ_cut · severidade` atravessa a diferença.
+difere, o comparador devolve `al − bl` e **nunca consulta `salience`**.
 
-### O estado medido do pool
+**Esta parte é dedutiva, não estatística**, e é a única afirmação estrutural que
+esta emenda faz. Não depende de medição nenhuma.
 
-Snapshot de epoch `e20260826T060003Z.db` como corpus, DB vivo como estado de
-serving, `freshSlots = 2`:
+### O que a medição mostra, e o que ela NÃO estabelece
+
+Um estado do pool, medido 20:35Z–21:00Z (snapshot de epoch como corpus, DB vivo
+como estado de serving, `freshSlots = 2`):
 
 | posição | `last_served` | `salience` | do estudo? |
 |---|---|---|---|
@@ -133,252 +136,344 @@ serving, `freshSlots = 2`:
 | **3** | **`2026-08-26 18:37:06`** | **0,712751** | **sim** (308220) |
 
 O chunk do estudo tem `salience` **mais alta** e perde, porque foi servido **um
-segundo depois**. Um segundo é barreira absoluta.
+segundo depois**.
 
 | | |
 |---|---|
-| candidatos no pool | **108** (o `WHERE` corta bem antes do `LIMIT 400`) |
+| candidatos no pool | **108** (o `WHERE` corta antes do `LIMIT 400`) |
 | chunks do estudo no pool | **55 de 55** |
 | **nunca-servidos no pool** | **0** |
 | grupos de `last_served` distintos | 44 |
-| tamanhos de grupo | 1: 3 · 2: 29 · 3: 1 · **4: 11** |
+| tamanhos de grupo | 1: 3 · 2: 29 · 3: 1 · 4: 11 |
+| pares adjacentes envolvendo estudo | 38 pares, **11 exatamente zero**, 27 positivos |
+| gap máximo **intragrupo** | **0,031809** |
 
-### Barredura de dose, dual-compute offline
+⚠️ **`0,031809` é o gap máximo DENTRO de grupos de `last_served` idêntico**, não do
+pool inteiro. A primeira redação não dizia qual, e o GLM cobrou.
 
-Sete agentes (`nox`, `lex`, `atlas`, `boris`, `cipher`, `forge`, sem agente),
-`n = 10`, provedor instrumentado:
+### A varredura de dose NÃO é evidência da afirmação estrutural
 
-| `w` | boosts emitidos | `churn` |
-|---|---|---|
-| 2,0 | 19 | **0** em 7/7 |
-| 4,0 | 19 | **0** em 7/7 |
-| 7,5 | 19 | **0** em 7/7 |
-| **1.000** | 19 | **0** em 7/7 |
-| **100.000** | 19 | **0** em 7/7 |
+Varredura offline no caminho de produção, 7 agentes, `n = 10`: `churn` **0** em
+`w ∈ {2,0 · 4,0 · 7,5 · 1.000 · 100.000}`, com 19 boosts emitidos por chamada.
 
-Os 19 boosts **são** emitidos, e `churn` é zero até em `w = 100.000`.
+⚠️ **Isto tem valor probatório NULO para a afirmação geral**, e a primeira redação
+a apresentava como *"demonstração direta da dominância"*. No estado medido não há
+grupo qualificável na fronteira; nesse estado `churn = 0` é **garantido pela
+estrutura para qualquer `w`**, inclusive 100.000. Corroborar um teorema com um
+experimento que não podia dar outro resultado não é corroborar.
 
-### A banda satura no braço mais baixo
+O que a varredura foi, de fato: um **controle positivo que falhou**, e cuja falha
+me apontou para a estrutura. É diagnóstico, não prova. O GLM identificou a
+circularidade.
 
-Gaps de `salience` entre pares adjacentes **dentro de grupos de empate** que
-envolvem estudo: 38 pares, dos quais **11 (28,9%) exatamente zero**, e 27
-positivos com máximo **0,031809**.
+### A taxa histórica é decisivamente diferente de zero, e NÃO é estacionária
+
+A primeira redação publicou `132 / 3.166 = 4,1693%` como linha de base. **Está
+errado por diluição:** as 954 decisões pré-gate têm churn **estruturalmente
+impossível** (0 de 954) e inflam o denominador. Comparar contagem filtrada com
+não-filtrada é a mesma classe da retratação 2.
+
+Base correta, **pós-gate** (epochs ≥ 23/08), janela fechada
+`2026-08-21T22:57:48.194Z` → `2026-08-26T19:52:07.775Z`:
+
+| dia | n | com `churn` | taxa | deslocamentos |
+|---|---|---|---|---|
+| 23/08 | 308 | 42 | **13,6364%** | 47 |
+| 24/08 | 672 | 49 | 7,2917% | 53 |
+| 25/08 | 672 | 21 | 3,1250% | 21 |
+| 26/08 | 560 | 20 | 3,5714% | 20 |
+| **total** | **2.212** | **132** | **5,9675%** | **141** |
+
+**A taxa cai ~4× em quatro dias.** Nenhuma taxa agregada pode ser citada como "a"
+linha de base. E `5,9675%` está a ~11,8 desvios-padrão de zero: **o mecanismo age**.
+A afirmação defensável é *"a dose age somente via colisão, e satura acima de um
+limiar"*, nunca *"a dose não existe"*.
+
+⚠️ Os `111 deslocamentos em 102 decisões` da v1.12 (retratação 8) são **soma de
+`churn`** sobre **1.267** decisões pós-gate = 8,05% — janela que termina antes da
+desta emenda. Recomputado até 25/08 inclusive dá 112/1.652 = 6,78%. Os números não
+são incompatíveis; são janelas diferentes de uma série que decai. A v1.12 não
+errou, e esta emenda **não a retrata** — mas a comparação exige as duas janelas na
+mesa, e a primeira redação não as punha.
+
+---
+
+## §3. A banda é invalidada, e nenhuma outra é declarada
+
+**`W_OUTCOME = w · Δ_cut · severidade` não define escala de dose**, porque `Δ_cut`
+não tem referente. A banda `{2,0 · 4,0 · 7,5}` fica **invalidada como escala**.
+
+O que se mede quando há colisão:
 
 | `w` | S1 (0,25) | vence | S2 (0,5) | vence |
 |---|---|---|---|---|
-| **2,0** | 0,0215 | 16/27 | 0,0430 | **27/27** |
-| 4,0 | 0,0430 | **27/27** | 0,0860 | 27/27 |
+| **2,0** | 0,0215 | 16/27 | 0,0430 | 27/27 |
+| 4,0 | 0,0430 | 27/27 | 0,0860 | 27/27 |
 | 7,5 | 0,0806 | 27/27 | 0,1613 | 27/27 |
 
-**A única faixa com discriminação de dose é S1 entre `w = 2,0` e `w = 4,0`.** Todo
-o resto da banda é indistinguível de si mesmo.
+⚠️ **11 dos 27 gaps DISTINGUEM `w = 2,0` de `w = 4,0` para S1.** Logo "a banda tem
+níveis indistinguíveis" é **falso** para esse par, e a primeira redação dizia *"a
+dimensão de dose não existe — medido, não suposto"*. Os dois revisores apontaram a
+mesma contradição interna. O que o snapshot sustenta é `w = 4,0 ≈ w = 7,5`
+**naquele estado**, não que colapsar seja inevitável.
 
-### A condição de ativação, e ela existe no código
+**Por que a banda cai mesmo assim:** não porque os níveis sejam indistinguíveis,
+mas porque **a unidade em que estão expressos não existe**. Um multiplicador de uma
+quantidade sem referente não é uma dose, mesmo quando dois de seus valores produzem
+resultados diferentes. A substituição — se houver — é objeto do protocolo
+prospectivo do §5, não desta emenda.
 
-Os grupos de empate são **os lotes de um mesmo brief**: um brief insere N linhas em
-`brief_log` na mesma transação, logo com o mesmo `served_at` — e `served_at` tem
-resolução de **segundo**. Daí a ativação exigir que o grupo **na fronteira de
-seleção** seja:
+⚠️ **Não é possível ter as duas coisas.** A primeira redação definia o tratamento
+como *"magnitude suficiente para vencer qualquer gap dentro de empate"* **e**
+fixava valores absolutos. Se a magnitude é fixa, um gap futuro de 0,045 derrota S1
+a `w = 4,0`; se ela se adapta aos gaps, deixa de ser fixa e passa a depender de
+dado pós-tratamento. Contradição apontada pelo Codex, e real.
 
-1. **misto** — contenha estudo e não-estudo; se puro-estudo, o boost reordena
-   estudo contra estudo e não desloca controle;
-2. **maior que `freshSlots`** — se `|grupo| ≤ 2`, todos entram e não há disputa.
-
-Medido: **5 de 44 grupos (11,4%)** qualificariam se estivessem na fronteira. O
-melhor colocado entre eles começa na **posição 15**, e a fronteira é 0–1.
-
-⚠️ Não confundir com a posição 3: lá há um grupo **misto**, mas de tamanho 2, e
-tamanho 2 não qualifica — com `freshSlots = 2` os dois membros entram e não há
-disputa. O primeiro grupo que satisfaz **as duas** condições está na posição 15.
-A distinção importa porque é ela que separa "há um chunk do estudo perto da
-fronteira" de "há oportunidade de tratamento".
-
-Compare com o `churn` positivo histórico: **132 de 3.166 = 4,1693%**, em janela
-fechada por `sha256` do NDJSON (`2026-08-21T22:57:48.194Z` →
-`2026-08-26T19:52:07.775Z`). Mesma ordem de grandeza — o que é o que se espera, já
-que qualificar não basta: o boost ainda tem de vencer o gap e o deslocado tem de
-estar no brief.
-
-### O que a medição NÃO estabelece
-
-⚠️ **Não estabelece que o mecanismo é inerte.** A varredura mediu **um** estado do
-pool, e zero num instante é compatível com uma taxa de 4%. O achado é
-**estrutural**: *sem colisão na fronteira, dose nenhuma age*. A frequência da
-colisão é propriedade da série temporal.
-
-⚠️ **O controle positivo que passa não é o harness offline.** Montei dois, e ambos
-deram zero em `w = 100.000`. O primeiro estava genuinamente errado — usei o DB vivo
-como corpus **e** como estado de serving, quando produção serve o corpus do
-snapshot de epoch (`NOX_EPOCH_SNAPSHOT=active`) e o `brief_log` do vivo, o que
-ativa caminho de código diferente. Corrigido. O segundo, no caminho certo, também
-deu zero, e aí não era defeito. O controle positivo que **passa** é o teste
-unitário que constrói dois chunks **nunca-servidos** — empate em `NULL` — e vê o
-boost deslocar. O mecanismo funciona exatamente onde há empate.
+Sobre extrapolar dos 27 gaps: mesmo sob independência — generosa, porque os valores
+se repetem e compartilham grupos — 27 observações todas abaixo de 0,043 dão limite
+superior unilateral de ~**10,5%** para excedência futura. Não é garantia de
+saturação, e a margem observada é **0,043 / 0,031809 ≈ 1,35×**.
 
 ---
 
-## §3. As cinco decisões
+## §4. Três defeitos que a revisão expôs e que esta emenda declara sem resolver
 
-### 3.1 A banda colapsa para um braço
+### 4.1 A definição de oportunidade NÃO corresponde ao pipeline
 
-`w ∈ {2,0 · 4,0 · 7,5}` → **dois braços: controle e tratamento**, com o tratamento
-em `w = 4,0`.
+A primeira redação definia oportunidade como *"grupo da fronteira misto e maior que
+`freshSlots`"*, e media 5 de 44 grupos. **A definição é incompleta**, e por três
+razões independentes:
 
-**Por que 4,0 e não 2,0:** a `w = 4,0` o boost vence **27/27** dos gaps positivos
-em **ambas** as severidades; a `w = 2,0` o S1 vence apenas 16/27. Escolher o valor
-que satura em toda a população evita que a severidade se torne, de fato, um segundo
-fator de tratamento não declarado.
+- **`interleaveFresh` + `pickDedup`.** Há dois subpools ordenados separadamente, e
+  a seleção rejeita por dedup, near-dup e pinned. A fronteira efetiva é a dos
+  **dois primeiros ACEITOS**, não dos dois primeiros brutos. Um grupo de tamanho 2
+  pode importar se candidatos anteriores forem rejeitados; um de tamanho 4 pode não
+  importar se estiver atrás dos dois aceitos.
+- **Grupo puro-estudo não é inerte.** Se o designado impulsionado substitui **outro
+  chunk do estudo**, o designado É servido e o tratamento É entregue. O que grupo
+  puro-estudo impede é deslocar **controle**. ⚠️ Uma análise intermediária minha
+  desta noite afirmou que o mecanismo *"consome a própria oportunidade"* com base
+  em 70,9% dos chunks do estudo estarem em grupo puro — **isso superou o dado** e
+  fica retratado aqui antes de entrar em qualquer versão depositada.
+- **`last_served IS NULL` ⇒ `−∞`.** Nesse estrato os nunca-servidos lideram e o
+  boost **funciona** (é o que o teste unitário verifica). Hoje há 0 no pool, mas o
+  estrato existe.
 
-**Por que colapsar e não manter três:** manter níveis indistinguíveis gasta poder
-estatístico para estimar zero, e a diferença medida entre eles é **menor que o
-gap máximo do pool** em toda a banda exceto uma célula. Um desenho de resposta-dose
-cujo braço mais baixo já satura não pode exibir resposta-dose.
+Logo **os 5/44 não medem a oportunidade do código**, e não podem sustentar `N`,
+poder, nem definição de estimando. A definição correta exige replay do pipeline
+completo.
 
-### 3.2 `Δ_cut` é eliminado, não redefinido
+### 4.2 O snapshot foi contaminado pelo processo de verificação, e importa
 
-O tratamento passa a ser definido por propriedade, não por produto de constantes:
+Três sondas minhas em `/api/brief` às 19:58Z escreveram 15 linhas em `brief_log`,
+movendo `last_served` de 3 chunks do estudo de `18:07:0x` para `19:58:1x`.
 
-> **Tratamento:** termo aditivo em `salience`, aplicado ao chunk designado, de
-> magnitude suficiente para vencer qualquer gap de `salience` dentro de um grupo de
-> `last_served` idêntico.
+⚠️ **A justificativa que eu dei para não apagá-las usava a variável errada.**
+Argumentei que os 3 *"já tinham 47-48 servings"* — mas o comparador não olha
+**contagem**, olha **`MAX(served_at)`**. Numa emenda que afirma "um segundo é
+barreira absoluta", tratar um deslocamento de 1h51 como inconsequente é incoerente.
+O Codex apontou.
 
-O valor operacional (`0,172 = 4,0 · 0,043 · 1,0` no teto de severidade; `0,043`
-para S1, `0,086` para S2) fica registrado como **implementação da propriedade**,
-justificado pelo máximo medido de **0,031809**, e não como parâmetro com
-interpretação própria.
+Medido, observado × descontaminado (excluindo `served_at ≥ 19:58:00`):
 
-⚠️ **Não é renomeação.** Renomear preservando o valor é a classe de defeito da
-retratação 2 da v1.12 — trocar o rótulo e manter a aritmética. Aqui a aritmética
-deixa de ter estatuto: nenhuma afirmação do paper passa a depender do valor de
-`Δ_cut`, porque a única propriedade que importa é *vencer o gap*, e ela é
-verificável por consulta.
+| métrica | observado | descontaminado |
+|---|---|---|
+| grupos de `last_served` | 45 | 41 |
+| posição do 1º chunk do estudo | 1 | 0 |
+| **menor posição de grupo qualificável** | **1** | **18** |
+| grupos puro-estudo | 14 | 15 |
+| grupos mistos | 18 | 12 |
+| chunks do estudo em grupo puro | 32 | 36 |
 
-### 3.3 O estimando passa a ser condicional à oportunidade
+**A contaminação altera a conclusão.** Posição 1 está **dentro** da fronteira
+(`freshSlots = 2` cobre 0–1): no estado observado **há** oportunidade na fronteira,
+e no descontaminado o primeiro qualificável está na posição 18.
 
-A v1.12 e o pré-registro tratam o efeito como incondicional. Medido, isso é
-insustentável: em briefs sem colisão na fronteira o tratamento é **estruturalmente
-incapaz** de agir, e incluí-los no denominador estima a taxa de colisão, não o
-efeito.
+E há um segundo fato no mesmo par de colunas: às 20:35Z eu medi *"nenhum grupo
+qualificável alcança a fronteira"*; às 23:30Z há um na posição 1. **O estado
+rotaciona com o tráfego.** Nenhum instante — contaminado ou não — sustenta uma
+constante de registro.
 
-> **Conjunto de oportunidade:** decisões de brief em que o grupo de `last_served`
-> na fronteira de seleção é misto e tem mais membros que `freshSlots`.
+### 4.3 `last_served` não é congelado pelo snapshot de epoch, e realimenta
 
-Essa definição é **computável a partir do registro** — `designated_ids` e
-`boost_by_id` no log de serving, mais `brief_log`, dão os dois predicados. É o
-contraste com `Δ_cut`, cuja definição registrada ("spread no cut") nomeava algo que
-o código não tem.
+Servir um brief escreve em `brief_log` (`brief.ts:1086`, sem gate de tracking),
+`brief_log` define `last_served`, e `last_served` ordena o pool **seguinte**. Logo o
+tratamento em `T` altera a estrutura de grupos em `T+1`: o efeito é **dinâmico**, e
+nenhuma varredura de estado único pode vê-lo. Apontado pelo GLM.
 
-O efeito incondicional continua reportável, e **deve** ser, como produto do efeito
-condicional pela taxa de oportunidade. O que sai do desenho é tratá-lo como o
-estimando primário.
+⚠️ **E o freeze de serving do Route 2-lite não cobre isso.** O snapshot de epoch
+congela o **corpus**; `brief_log` vive no **DB vivo**. Portanto a coordenada
+**dominante** da ordenação nunca é congelada — o desenho congela os insumos da
+coordenada subordinada (`importance`, `pain`, `access_count`) e deixa a dominante
+solta, atravessando fronteiras de epoch.
 
-### 3.4 O boost NÃO se move para `last_served`
-
-A saída óbvia seria pôr o tratamento na coordenada dominante — tratar o chunk como
-servido `k` segundos antes. Aí a dose existiria de verdade, mensurável em segundos,
-e a resposta-dose voltaria.
-
-**Recusado aqui, e não por mérito.** Isso é **mecanismo novo**, não calibração:
-muda o que a emenda declara intervir. Se algum dia valer, vale com a disciplina
-que a opção B teve — medir, decidir com o número na mesa, declarar antes de
-implementar, depositar. Enfiá-lo nesta emenda seria trocar o mecanismo no mesmo
-documento que o descreve.
-
-### 3.5 A taxa de colisão NÃO se torna o estimando
-
-A terceira saída seria assumir que o tratamento é *por construção* gated por
-colisão e reportar a taxa como o resultado.
-
-**Rejeitada.** É promover uma limitação estrutural a achado, o que é precisamente
-o movimento condenado pela retratação 2. A colisão é propriedade do esquema de
-`served_at` com resolução de segundo — um detalhe de implementação do `brief_log`,
-não um fenômeno de memória.
+Isto interage com a F1 (carry-over) do `REVIEWS-PREREG.md` e **precisa de
+tratamento no protocolo prospectivo**, não aqui.
 
 ---
 
-## §4. Retratações novas
+## §5. O estudo fica BLOQUEADO. O que precede o desbloqueio
+
+**Estimando primário permanece o INCONDICIONAL registrado** — ITT por
+epoch/session-hour. Taxa de ativação, `churn` e composição dos deslocamentos ficam
+**secundários mecanísticos**.
+
+**`N` permanece o registrado.** Não é recalculado por esta emenda, e não pode ser
+recalculado a partir de contagem de oportunidades.
+
+O desbloqueio exige um **protocolo de calibração prospectivo**, registrado antes de
+observar mais dado, contendo no mínimo:
+
+1. **Definição de oportunidade por replay do pipeline completo** — `interleaveFresh`,
+   `pickDedup`, pinned, dedup, `LIMIT 400`, estrato `NULL` — não por censo de
+   grupos num pool.
+2. **Janela de calendário de calibração**, com início e fim declarados, e o estado
+   de `brief_log` **descontaminado** de sondas, com sensibilidade publicada nos dois
+   estados.
+3. **Unidade de reamostragem** = dia ou epoch, nunca par-de-gap (senão é
+   pseudorreplicação).
+4. **`N = f(dados)` como script executável commitado antes de rodar** — é a F5 do
+   `REVIEWS-PREREG.md`, e horizonte **fixo em blocos/calendário**, nunca em
+   contagem de oportunidades (F3).
+5. **Regra de no-go explícita**, e proibição de parar quando "houver oportunidades
+   suficientes".
+6. **Tratamento do carry-over de `last_served`** através das fronteiras de epoch
+   (§4.3), em interação com a F1.
+7. **Gatilho de monitoramento** que dispare se aparecer gap intragrupo acima da
+   magnitude escolhida — sem isso, com braço único, uma falha de saturação é
+   indetectável.
+
+⚠️ **`T_seed_assign` continua não declarado**, e agora por razão mais forte: não se
+sorteia braço de uma escala invalidada.
+
+---
+
+## §6. Retratações novas
 
 Continuam a numeração da v1.12, que fecha em 28.
 
 | # | data | retratado | o que substitui |
 |---|---|---|---|
-| **29** | 26/08 | `Δ_cut` está "pendente de definição operacional e de medição" (v1.12 §1.5) — supõe definição a achar | não há: a quantidade é lexicograficamente dominada. Eliminado como parâmetro (§3.2) |
-| **30** | 26/08 | `w ∈ {2,0 · 4,0 · 7,5}` são três níveis de dose | satura no braço mais baixo para S2; ≤ 2 níveis distinguíveis, e só para S1. Colapsa para um braço (§3.1) |
-| **31** | 26/08 | a banda está entre *"what does not move, and could not"* (`PREREG-DRAFT.md:44`) | move, e a razão é o multiplicando não existir (§0) |
-| **32** | 26/08 | `W_OUTCOME = w × Δ_cut` é "a multiple of the measured salience spread at the brief cut" (`PREREG-DRAFT.md:414`) | não há cut; o referente honesto é o gap dentro de grupo de empate, cuja distribuição está publicada (§2) |
-| **33** | 26/08 | o chunk do estudo é nunca-servido, logo está sempre entre os 400 (`brief-outcome.ts:17-22`) | zero nunca-servidos no pool; os 55 já foram servidos, os 3 amostrados com 47-48 servings cada. A conclusão (estar no pool) segue verdadeira por outra razão: o pool tem 108, não 400 |
-| **34** | 26/08 | a designação é defeito **aberto** (v1.12 §5) | fechada 26/08 20:28Z, com precedência verificável (§1) |
-| **35** | 26/08 | o efeito é incondicional | condicional à oportunidade, com o conjunto definido por predicado computável (§3.3) |
-
-**Refinamento, não retratação.** A retratação 8 da v1.12 afirma que o boost atua —
-*"111 deslocamentos em 102 decisões"* — já hedgeada como condicional à designação
-executada. Ela permanece verdadeira, e agora se sabe **onde**: aqueles 111
-deslocamentos ocorreram nas situações de colisão. O número não muda; sua
-interpretação fica mais estreita.
+| **29** | 26/08 | `Δ_cut` está "pendente de definição operacional e de medição" (v1.12 §1.5) — supõe definição a achar | não há: a quantidade é lexicograficamente dominada. Perde estatuto de parâmetro (§2) |
+| **30** | 26/08 | `W_OUTCOME = w × Δ_cut` é *"a multiple of the measured salience spread at the brief cut"* (`PREREG-DRAFT.md:414`) | não há cut; o referente que existe é o gap **intragrupo**, publicado no §2 |
+| **31** | 26/08 | a banda `{2,0 · 4,0 · 7,5}` está entre *"what does not move, and could not"* (`PREREG-DRAFT.md:44`) | invalidada como escala de dose, **sem substituição** (§3) |
+| **32** | 26/08 | o chunk do estudo é nunca-servido, logo está sempre entre os 400 (`brief-outcome.ts:17-22`) | 0 nunca-servidos no pool; os 55 já foram servidos. A conclusão vale por outra razão: o pool tem 108 |
+| **33** | 26/08 | a designação é defeito **aberto** (v1.12 §5) | fechada 26/08 20:28Z, com precedência verificável (§1) |
+| **34** | 26/08 | linha de base de `churn` = 132/3.166 = 4,1693% | diluída por 954 decisões pré-gate com churn estruturalmente impossível. Base pós-gate: **132/2.212 = 5,9675%**, e a série **não é estacionária** (13,64% → 3,57%) (§2) |
+| **35** | 26/08 | a oportunidade é "grupo da fronteira misto e maior que `freshSlots`", medida em 5/44 | incompleta: ignora `interleaveFresh`/`pickDedup`/pinned/dedup, o estrato `NULL`, e o fato de grupo puro-estudo entregar tratamento (§4.1) |
 
 ---
 
-## §5. Consequência para `N`, e o que fica pendente
+## §7. O que a revisão adversarial matou, nomeado
 
-**`N` não pode ser fixado agora, e fixá-lo com o número velho seria erro.** Os
-4,1693% de `churn` positivo são de quando havia **1** designado por grupo escolhido
-por `w_min`. Sob a regra nova há **19** designados, e a taxa de oportunidade deve
-subir. A magnitude do aumento é medível, mas só com janela real: a regra nova está
-vigente desde 20:28Z e a série acumula a ~26 linhas/h.
+Três decisões da primeira redação desta emenda **caíram**. Ficam registradas porque
+uma emenda que apaga o que a revisão derrubou não é auditável.
 
-**Recomendação operacional:** deixar a janela acumular — um dia dá ~600 decisões —
-e recalcular `N` sobre a taxa de oportunidade medida sob a regra vigente, com a
-mesma disciplina de janela fechada por `sha256` que esta emenda usa em toda parte.
+### 7.1 Fixar um braço único em `w = 4,0` — RETIRADO
 
-Pendente, e explicitamente fora desta emenda:
+Eu apresentava como propriedade derivada (*"vence 27/27 em ambas as severidades"*).
+É **pós-calibração informada pelo piloto**: o valor foi escolhido olhando os 27
+gaps observados. E o argumento era parcialmente tautológico — S2 já vence 27/27 a
+`w = 2,0`, logo a tabela não isola nada sobre 4,0. Some-se a contradição do §3
+(magnitude fixa **ou** adaptativa, não as duas) e a margem de 1,35× a partir de 27
+observações. Colapsar pode ser boa decisão operacional; **não é conclusão
+estrutural**, e não entra por esta emenda.
 
-- **`T_seed_assign`.** Continua não declarado. Sortear braço de uma banda que esta
-  emenda colapsa seria gastar o sorteio, e a decisão de 2026-08-17 já condiciona o
-  sorteio ao mecanismo congelado.
-- **`N` final**, dependente da janela acima.
-- **Mover o boost para `last_served`** (§3.4), se algum dia.
+### 7.2 Estimando condicional à oportunidade — RETIRADO, e era regressão
+
+`REVIEWS-PREREG.md` **F2**, de 2026-07-12, classificou exatamente esta classe como
+**FATAL**: *"RFR condicionado a oportunidade tem viés de seleção pós-tratamento
+(collider). O denominador (oportunidades elegíveis) é ele próprio afetado pelo
+tratamento… Fix: primário **incondicional**."*
+
+Minha retratação 35 da primeira redação dizia literalmente *"o efeito é
+incondicional → condicional à oportunidade"*. **Eu retratei o conserto e restaurei
+o defeito**, seis semanas depois de ele ter sido fechado, num documento novo. E é
+demonstrável que `O_i(1) ≠ O_i(0)`: a oportunidade depende de `last_served`, que o
+tratamento altera (§4.3). Condicionar em `O` observado seleciona um mediador
+pós-tratamento.
+
+Classe do defeito: **classe de defeito não fica consertada onde foi achada.** O
+conserto exigiria grepar toda frase que se apoia na premissa, e eu não grepei
+`REVIEWS-PREREG.md` antes de propor.
+
+### 7.3 `N` recalculado sobre taxa de oportunidade — RETIRADO
+
+`REVIEWS-PREREG.md` **F3**: *"Stopping rule em N oportunidades = optional stopping
+disfarçado. N de oportunidades é pós-tratamento; o tempo de parada vira função do
+efeito. Fix: horizonte fixo em blocos randomizados / calendário."* Minha §5 mandava
+*"acumular a janela e recalcular `N` sobre a taxa de oportunidade medida"*. Mesma
+regressão que 7.2.
 
 ---
 
-## §6. Ordem de operações
+## §8. Ordem de operações
 
-1. Esta emenda depositada. *(A banda está no pré-registro; mudá-la sem depósito
-   seria alterar desenho registrado sem selo.)*
-2. Janela de ativação acumulada sob a regra vigente; taxa de oportunidade medida.
-3. `N` recalculado sobre essa taxa.
-4. Registro prospectivo do estimando condicional.
-5. `T_seed_assign` declarado, com precedência verificável, e `ASSIGNMENT.json`
-   publicado.
-6. `NOX_P2_OUTCOME=active`.
-7. Epoch 1.
+1. Esta emenda depositada. Ela **invalida** a banda e **bloqueia** o estudo.
+2. Protocolo de calibração prospectivo registrado (§5, os 7 itens).
+3. Calibração executada dentro da janela de calendário declarada.
+4. Escala de dose — se houver — declarada por emenda própria.
+5. `T_seed_assign` e `ASSIGNMENT.json`.
+6. `NOX_P2_OUTCOME=active`. 7. Epoch 1.
 
-Nada de 4 a 7 começa antes de 1 a 3.
+Nada de 3 a 7 começa antes de 1 e 2.
 
 ---
 
-## Anexo — proveniência
+## §9. Reprodutibilidade — uma lacuna aberta
 
-**Medições desta emenda.** Todas de 2026-08-26, entre 20:35Z e 21:00Z, sobre
-`e20260826T060003Z.db` (corpus) e o DB vivo (estado de serving). Scripts
-versionados em `nox-workspace`, commit `1b0d7df6`:
-`scripts/mede-delta.mjs` (estrutura de empate), `scripts/dose2.mjs` (dual-compute
-no caminho de produção), `scripts/controle-positivo.mjs` (doses absurdas),
-`scripts/dose-response.mjs` (**a primeira versão, errada** — mantida versionada
-como registro do erro, não para uso). Nenhum escreve em `brief_log`:
-`buildBriefDiverse` não faz tracking, logo a medição não contamina `last_served`.
-Detalhe completo em `MEASUREMENT-delta-cut-2026-08-26.md`.
+⚠️ **Um terceiro NÃO consegue reproduzir as medições desta emenda hoje.** Duas
+razões, ambas a resolver antes do depósito:
 
-**Achado colateral registrado.** `/api/brief` **não tem gate de tracking** —
-`brief.ts:1086` insere em `brief_log` sempre, e `brief_log` alimenta `last_served`.
-Não existe equivalente ao `?track=false` do `/api/search`. Três sondas minhas de
-verificação escreveram 15 linhas tocando 3 chunks do estudo; **não foram apagadas**,
-e a razão inverteu minha decisão inicial: os 3 já tinham 47-48 servings, o último
-1h51 antes, logo são as linhas 48/49 de uma série que o tráfego real já produzia —
-não a mudança qualitativa nunca-servido → servido, que seria consequente. Registro
-em `DECISION-designacao-2026-08-25.md`.
+- os blobs de código depositados na v1.12 são da regra **anterior** (designação por
+  `w_min`); esta emenda cita `0087c918`, que não está depositado;
+- os scripts de medição (`mede-delta.mjs`, `dose2.mjs`, `controle-positivo.mjs`,
+  `ordem.mjs`, `autoextincao.py`, `descontamina.py`) vivem em `nox-workspace`, repo
+  **privado**.
 
-**Fontes.** `AMENDMENT-v1.12.md` §1.5, §4, §5.3 · `PREREG-DRAFT.md:44`, `:414` ·
-`DECISION-designacao-2026-08-25.md` · `DESIGNATION-SEED-2026-08-26.md` ·
-`DESIGNATION-2026-08-26.json` · `p2-verdict-frame-2026-08-26.csv` ·
-`MEASUREMENT-delta-cut-2026-08-26.md` · `src/api/brief-diversity.ts:130-140`,
-`:53-63` · `src/api/brief.ts:719-748`, `:1086` · `src/paper2/brief-outcome.ts:17-22`.
+O `DELTA-CUT-MEASUREMENT-2026-08-26.json` e o
+`p2-verdict-frame-2026-08-26.csv` estão públicos e cobrem os dados; o **código que
+os produziu, não**. Depositar a emenda sem fechar isto repetiria o defeito que a
+retratação 1 da v1.12 registra — documento que referencia artefato inexistente.
+
+---
+
+## Anexo A — proveniência
+
+Medições de 2026-08-26, 20:35Z–23:30Z, sobre `e20260826T060003Z.db` (corpus) e o DB
+vivo (estado de serving). Nenhum script escreve em `brief_log`:
+`buildBriefDiverse` não faz tracking. Detalhe em
+`MEASUREMENT-delta-cut-2026-08-26.md`.
+
+Fontes: `AMENDMENT-v1.12.md` §1.5, §4, §5.3 · `PREREG-DRAFT.md:44`, `:414` ·
+`REVIEWS-PREREG.md` F1, F2, F3, F5 · `DECISION-designacao-2026-08-25.md` ·
+`DESIGNATION-SEED-2026-08-26.md` · `DESIGNATION-2026-08-26.json` ·
+`p2-verdict-frame-2026-08-26.csv` · `src/api/brief-diversity.ts:130-140`, `:53-63` ·
+`src/api/brief.ts:719-748`, `:1086` · `src/paper2/brief-outcome.ts:17-22`.
+
+## Anexo B — revisões adversariais desta emenda
+
+Duas famílias de treino distintas, ambas com recibo verificável, ambas
+**recomendando não depositar a primeira redação**.
+
+| voz | modelo | `exit` | bytes | `sha256` do output | recibo |
+|---|---|---|---|---|---|
+| GLM | `glm-5.3` | 0 | 9.535 | `fd0851001d0e285d…` | `adversary-receipt-glm-2026-08-26T231155-90950.txt` |
+| Codex | OpenAI gpt-5.6-sol | 0 | 1.472.973 | `efd9342789d6ed29…` | `adversary-receipt-codex-2026-08-26T231314-92025.txt` |
+
+⚠️ **O GLM revisou sem os arquivos** — declarou *"nenhum arquivo foi anexado"* e
+trabalhou sobre o briefing. Isso invalida os achados dele sobre *o que a emenda
+omite*, e preserva os **lógicos**: a circularidade da varredura, os ~11σ da linha
+de base contra a leitura forte, a realimentação de `last_served`, e a natureza de
+medida-de-conjunto do `churn`.
+
+**Um achado do GLM foi REFUTADO por medição:** ele levantou que `churn` é
+set-difference, logo reordenação interna ao conjunto selecionado seria invisível.
+Testei comparando as **sequências** posição a posição — 28 casos, 4 doses × 7
+agentes, incluindo `w = 100.000`: **0 casos** com ordem diferente. O ponto
+arquitetural é correto e fica registrado como limitação da métrica; o canal
+escondido não existe neste estado.
+
+O recibo do Codex estava num **terceiro** diretório (`.remember/` da raiz do repo,
+não do subdiretório) — a mesma armadilha de 2026-08-25. Ausência de recibo no lugar
+esperado não é ausência de recibo.

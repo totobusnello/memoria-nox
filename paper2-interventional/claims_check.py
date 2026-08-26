@@ -410,20 +410,50 @@ def delta_cut_check(root: Path) -> list[str]:
     ancorado(rf"candidatos no pool.*?\*\*{data['pool']}\*\*", "pool size", str(data["pool"]))
     ancorado(rf"grupos de `last_served` distintos.*?{data['grupos_last_served']}",
              "distinct last_served groups", str(data["grupos_last_served"]))
-    ancorado(rf"{data['pares_adjacentes_envolvendo_estudo']} pares",
-             "adjacent pairs involving the study",
-             str(data["pares_adjacentes_envolvendo_estudo"]))
-    ancorado(rf"\*\*{data['gaps_exatamente_zero']} \({100 * data['gaps_exatamente_zero'] // data['pares_adjacentes_envolvendo_estudo']}"
-             rf"[,.]\d+%\) exatamente zero\*\*",
-             "exactly-zero gaps", str(data["gaps_exatamente_zero"]))
-    ancorado(rf"\*\*{data['grupos_mistos_qualificaveis']} de {data['grupos_last_served']} grupos",
-             "qualifying mixed groups", str(data["grupos_mistos_qualificaveis"]))
-    ancorado(rf"\*\*posição {data['posicao_primeiro_grupo_misto_qualificavel']}\*\*",
-             "first qualifying group position",
-             str(data["posicao_primeiro_grupo_misto_qualificavel"]))
-    # O gap máximo sustenta "a banda satura": precisão publicada, ancorada.
+    ancorado(rf"{data['pares_adjacentes_envolvendo_estudo']} pares, \*\*"
+             rf"{data['gaps_exatamente_zero']} exatamente zero\*\*",
+             "pairs and exactly-zero gaps",
+             f"{data['pares_adjacentes_envolvendo_estudo']}/{data['gaps_exatamente_zero']}")
+    ancorado(rf"os {data['grupos_mistos_qualificaveis']}/{data['grupos_last_served']} "
+             rf"n[ãa]o medem a oportunidade",
+             "qualifying mixed groups (now retracted as a measure of opportunity)",
+             f"{data['grupos_mistos_qualificaveis']}/{data['grupos_last_served']}")
     gmax = f"{data['gap_maximo']:.6f}".replace(".", ",")
-    ancorado(rf"máximo \*\*{re.escape(gmax)}\*\*", "max within-tie gap", gmax)
+    ancorado(rf"gap máximo \*\*intragrupo\*\* \| \*\*{re.escape(gmax)}\*\*",
+             "max within-tie gap", gmax)
+
+    # A base de churn foi CORRIGIDA: a pós-gate é a boa, e a antiga tem de aparecer
+    # marcada como superseded, não desaparecer.
+    b = data["churn_baseline"]
+    boa = b["base_correta_pos_gate"]
+    pct = f"{100 * boa['positivo'] / boa['total']:.4f}".replace(".", ",")
+    ancorado(rf"\*\*{boa['positivo']}/{boa['total'] // 1000}\.{boa['total'] % 1000:03d} = "
+             rf"{re.escape(pct)}%\*\*", "post-gate baseline rate", pct + "%")
+    velho = b["SUPERSEDIDO_todas_as_decisoes"]
+    velho_pct = f"{velho['pct']:.4f}".replace(".", ",")
+    ancorado(rf"{velho['positivo']}/{velho['total'] // 1000}\.{velho['total'] % 1000:03d} = "
+             rf"{re.escape(velho_pct)}%", "superseded diluted rate (must stay, marked)",
+             velho_pct + "%")
+    # A série tem de estar publicada: taxa não-estacionária citada como constante é
+    # o defeito que esta emenda retrata (retratação 34).
+    for dia in b["serie_diaria_pos_gate"]:
+        dpct = f"{dia['pct']:.4f}".replace(".", ",")
+        if dpct.rstrip("0").rstrip(",") not in texto and dpct not in texto:
+            failures.append(
+                f"{alvo.name}: daily rate for {dia['dia']} is {dpct}% and the document "
+                f"does not state it — a non-stationary series cited as one number is "
+                f"exactly retraction 34"
+            )
+    # A contaminação altera a conclusão: as duas colunas têm de estar na mesa.
+    # ⚠️ `str(v) not in texto` seria vacuidade — "1" casa em qualquer lugar. As duas
+    # colunas têm de aparecer NA MESMA LINHA da tabela de sensibilidade, que é a
+    # única forma de a comparação estar de fato publicada.
+    c = data["contaminacao_por_sondas"]
+    obs = c["observado"]["menor_pos_qualificavel"]
+    des = c["descontaminado"]["menor_pos_qualificavel"]
+    ancorado(rf"menor posição de grupo qualificável\*\* \| \*\*{obs}\*\* \| \*\*{des}\*\*",
+             "contamination sensitivity (observed vs decontaminated, same row)",
+             f"{obs} vs {des}")
 
     gaps = data["gaps_positivos"]
     if len(gaps) != 27:
@@ -452,12 +482,6 @@ def delta_cut_check(root: Path) -> list[str]:
             f"{art.name}: the amendment says w=2.0/S1 discriminates, but it also "
             f"saturates ({2.0 * d * 0.25:.6f} > {data['gap_maximo']:.6f})"
         )
-
-    b = data["churn_baseline"]
-    pct = f"{100 * b['positivo'] / b['total']:.4f}".replace(".", ",")
-    ancorado(rf"\*\*{b['positivo']} de {b['total'] // 1000}\.{b['total'] % 1000:03d}"
-             rf" = {re.escape(pct)}%\*\*",
-             "baseline positive-churn rate", pct + "%")
 
     return failures
 
