@@ -350,6 +350,118 @@ def doc_check(root: Path) -> list[str]:
     return failures
 
 
+def delta_cut_check(root: Path) -> list[str]:
+    """Guard the `Δ_cut` measurement of 2026-08-26 the way doc_check guards reach.
+
+    The band-collapse amendment rests on quantities that came out of a run over
+    the live pool, not out of arithmetic on constants: the gap distribution
+    inside `last_served` tie groups, the pool composition, and the per-arm win
+    counts against those gaps. `claims()` cannot recompute them and `sweep()`
+    does not know them, so before this function existed the amendment's central
+    table sat OUTSIDE the guard entirely -- verified on 2026-08-26 by mutating
+    `4,1693%` to `9,9999%` and the `w = 7,5` cell to `0,9999`, and watching
+    `claims_check.py` print "sweep clean" both times.
+
+    Two things are asserted, and they fail differently:
+
+     1. the measured figures still appear in the prose -- a number that vanishes
+        is as much a defect as one that changes (same argument as doc_check);
+     2. the win counts are RECOMPUTED from the stored gap list, so a reader does
+        not have to trust that `w = 2,0` for S1 really wins 16 of 27. This is why
+        the artifact stores every positive gap and not just the quantiles.
+    """
+    failures = []
+    art = root / "DELTA-CUT-MEASUREMENT-2026-08-26.json"
+    if not art.exists():
+        return [f"{art.name}: missing — the Δ_cut measurement cannot be checked"]
+    data = json.loads(art.read_text(encoding="utf-8"))
+
+    # ⚠️ Presença tem de ser verificada CONTRA O DOCUMENTO e ANCORADA NUM RÓTULO.
+    # A primeira versão desta função fazia `str(valor) in "\n".join(todos_os_md)`, e
+    # o teste de mutação de 2026-08-26 mostrou que isso é decoração: falsifiquei
+    # `4,1693%` na emenda e passou (o número segue em outros dois documentos), e
+    # `posição 15` -> `posição 99` também passou (a string "15" casa em qualquer
+    # lugar do pacote). Número pequeno buscado por substring em corpus inteiro é um
+    # guarda que nunca morde. Cada checagem abaixo amarra o valor a uma palavra
+    # vizinha, no arquivo que faz a afirmação.
+    alvo = root / "AMENDMENT-DRAFT-band-collapse-2026-08-26.md"
+    if not alvo.exists():
+        # O rascunho virou depósito e foi renomeado: procurar quem herdou a seção.
+        herdeiros = [
+            p for p in root.rglob("*.md")
+            if "condição de ativação" in p.read_text(encoding="utf-8", errors="ignore").lower()
+        ]
+        if not herdeiros:
+            return failures + [
+                f"{alvo.name}: missing and no document carries the activation-condition "
+                f"section — the Δ_cut measurement lost its home"
+            ]
+        alvo = herdeiros[0]
+    texto = alvo.read_text(encoding="utf-8", errors="ignore")
+
+    def ancorado(padrao: str, rotulo: str, valor: str) -> None:
+        """Exige `valor` numa vizinhança que o identifica, não em qualquer lugar."""
+        if not re.search(padrao, texto):
+            failures.append(
+                f"{alvo.name}: {rotulo} should read {valor} anchored to its label "
+                f"(/{padrao}/ does not match) — measurement dropped or falsified?"
+            )
+
+    ancorado(rf"candidatos no pool.*?\*\*{data['pool']}\*\*", "pool size", str(data["pool"]))
+    ancorado(rf"grupos de `last_served` distintos.*?{data['grupos_last_served']}",
+             "distinct last_served groups", str(data["grupos_last_served"]))
+    ancorado(rf"{data['pares_adjacentes_envolvendo_estudo']} pares",
+             "adjacent pairs involving the study",
+             str(data["pares_adjacentes_envolvendo_estudo"]))
+    ancorado(rf"\*\*{data['gaps_exatamente_zero']} \({100 * data['gaps_exatamente_zero'] // data['pares_adjacentes_envolvendo_estudo']}"
+             rf"[,.]\d+%\) exatamente zero\*\*",
+             "exactly-zero gaps", str(data["gaps_exatamente_zero"]))
+    ancorado(rf"\*\*{data['grupos_mistos_qualificaveis']} de {data['grupos_last_served']} grupos",
+             "qualifying mixed groups", str(data["grupos_mistos_qualificaveis"]))
+    ancorado(rf"\*\*posição {data['posicao_primeiro_grupo_misto_qualificavel']}\*\*",
+             "first qualifying group position",
+             str(data["posicao_primeiro_grupo_misto_qualificavel"]))
+    # O gap máximo sustenta "a banda satura": precisão publicada, ancorada.
+    gmax = f"{data['gap_maximo']:.6f}".replace(".", ",")
+    ancorado(rf"máximo \*\*{re.escape(gmax)}\*\*", "max within-tie gap", gmax)
+
+    gaps = data["gaps_positivos"]
+    if len(gaps) != 27:
+        failures.append(f"{art.name}: expected 27 positive gaps, artifact has {len(gaps)}")
+    d = data["delta_cut_herdado"]
+    # Recomputa as contagens de vitória. Fonte da verdade: o artefato.
+    esperado = {(2.0, "S1"): 16, (2.0, "S2"): 27, (4.0, "S1"): 27,
+                (4.0, "S2"): 27, (7.5, "S1"): 27, (7.5, "S2"): 27}
+    for (w, sev), quantos in sorted(esperado.items()):
+        boost = w * d * (0.25 if sev == "S1" else 0.5)
+        vence = sum(1 for g in gaps if g < boost)
+        if vence != quantos:
+            failures.append(
+                f"{art.name}: w={w} {sev} boost {boost:.4f} beats {vence}/{len(gaps)} "
+                f"gaps, the amendment claims {quantos}/27"
+            )
+    # A afirmação estrutural: o braço MAIS BAIXO já satura para S2.
+    if not (2.0 * d * 0.5) > data["gap_maximo"]:
+        failures.append(
+            f"{art.name}: the amendment says w=2.0/S2 saturates, but "
+            f"{2.0 * d * 0.5:.6f} <= max gap {data['gap_maximo']:.6f}"
+        )
+    # E a faixa que discrimina existe: S1 a w=2.0 NÃO vence tudo.
+    if (2.0 * d * 0.25) > data["gap_maximo"]:
+        failures.append(
+            f"{art.name}: the amendment says w=2.0/S1 discriminates, but it also "
+            f"saturates ({2.0 * d * 0.25:.6f} > {data['gap_maximo']:.6f})"
+        )
+
+    b = data["churn_baseline"]
+    pct = f"{100 * b['positivo'] / b['total']:.4f}".replace(".", ",")
+    ancorado(rf"\*\*{b['positivo']} de {b['total'] // 1000}\.{b['total'] % 1000:03d}"
+             rf" = {re.escape(pct)}%\*\*",
+             "baseline positive-churn rate", pct + "%")
+
+    return failures
+
+
 def cross_check(root: Path) -> list[str]:
     """Assert that the OTHER scripts agree with the band declared here.
 
@@ -538,6 +650,7 @@ def main() -> int:
     failures.extend(sweep(Path(args.root)))
     failures.extend(cross_check(Path(args.root)))
     failures.extend(doc_check(Path(args.root)))
+    failures.extend(delta_cut_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

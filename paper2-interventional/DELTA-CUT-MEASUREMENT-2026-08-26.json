@@ -1,0 +1,70 @@
+{
+  "medido_em": "2026-08-26T20:35Z/21:00Z",
+  "corpus": "e20260826T060003Z.db",
+  "serve_state": "nox-mem.db (vivo)",
+  "fresh_slots": 2,
+  "default_n": 10,
+  "delta_cut_herdado": 0.043,
+  "pool": 108,
+  "estudo_no_pool": 55,
+  "nunca_servidos_no_pool": 0,
+  "grupos_last_served": 44,
+  "tamanhos_de_grupo": {
+    "1": 3,
+    "2": 29,
+    "3": 1,
+    "4": 11
+  },
+  "pares_adjacentes_envolvendo_estudo": 38,
+  "gaps_exatamente_zero": 11,
+  "gaps_positivos": [
+    0.0009302263,
+    0.0015299852,
+    0.0040011073,
+    0.0040011073,
+    0.0040011073,
+    0.0040011073,
+    0.0049313336,
+    0.0055310925,
+    0.0055310925,
+    0.0064613189,
+    0.0080888826,
+    0.0132605827,
+    0.0185386811,
+    0.0194689075,
+    0.0200686664,
+    0.0200686664,
+    0.025,
+    0.025,
+    0.025,
+    0.0265299852,
+    0.0265299852,
+    0.0265299852,
+    0.0265299852,
+    0.0265299852,
+    0.0290011073,
+    0.0305310925,
+    0.031808735
+  ],
+  "gap_maximo": 0.031808735,
+  "grupos_mistos_qualificaveis": 5,
+  "posicao_primeiro_estudo": 3,
+  "posicao_primeiro_grupo_misto_qualificavel": 15,
+  "churn_baseline": {
+    "positivo": 132,
+    "total": 3166,
+    "janela": [
+      "2026-08-21T22:57:48.194Z",
+      "2026-08-26T19:52:07.775Z"
+    ],
+    "sha256_ndjson": "5f31297e674f0438c65db493133507d77f390b1e1fcceea04e04c8ee3104c78d"
+  },
+  "varredura_de_dose_churn_zero_em": [
+    2.0,
+    4.0,
+    7.5,
+    1000,
+    100000
+  ],
+  "agentes_varridos": 7
+}
