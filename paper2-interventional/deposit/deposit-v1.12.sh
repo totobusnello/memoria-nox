@@ -173,9 +173,48 @@ print("  URL           :", d["links"].get("self_html"))
 PY
 }
 
+# Reenvia ao draft todo arquivo cujo md5 local difere do que está lá. Necessário
+# porque revisar o texto DEPOIS de `prepare` deixa o draft com a versão velha —
+# e o draft não avisa. Confere os 54 por checksum e mexe só nos divergentes.
+sync_files() {
+  [ -f "$STATE" ] || { echo "✗ sem draft: rode 'prepare' primeiro"; exit 1; }
+  DRAFT=$(cat "$STATE")
+  curl -sf "${AUTH[@]}" "$API/records/$DRAFT/draft/files" > "$DIR/.draft-files.json"
+  MUD=$(python3 - "$DIR/.draft-files.json" "$PKG" <<'PY'
+import json, sys, hashlib, os
+entries = json.load(open(sys.argv[1]))["entries"]; PKG = sys.argv[2]
+def md5(p):
+    h = hashlib.md5()
+    with open(p, "rb") as fh:
+        for b in iter(lambda: fh.read(1 << 20), b""): h.update(b)
+    return "md5:" + h.hexdigest()
+for e in entries:
+    k = e["key"]
+    local = os.path.join(PKG, "DEPOSIT-README.md" if k == "README.md" else k)
+    if not os.path.exists(local):      # herdado da v1.11, sem par local (PDF/HTML)
+        continue
+    if e.get("checksum") != md5(local):
+        print(k)
+PY
+)
+  if [ -z "$MUD" ]; then echo "▸ nenhum arquivo divergente — draft já espelha o local"; return 0; fi
+  echo "▸ divergentes, reenviando:"
+  for f in $MUD; do
+    L="$PKG/$f"; [ "$f" = "README.md" ] && L="$PKG/DEPOSIT-README.md"
+    curl -sf -X DELETE "${AUTH[@]}" "$API/records/$DRAFT/draft/files/$f" >/dev/null
+    curl -sf -X POST "${AUTH[@]}" -H "Content-Type: application/json" \
+      -d "[{\"key\": \"$f\"}]" "$API/records/$DRAFT/draft/files" >/dev/null
+    curl -sf -X PUT "${AUTH[@]}" -H "Content-Type: application/octet-stream" \
+      --data-binary "@$L" "$API/records/$DRAFT/draft/files/$f/content" >/dev/null
+    curl -sf -X POST "${AUTH[@]}" "$API/records/$DRAFT/draft/files/$f/commit" >/dev/null
+    echo "     ↻ $f ($(wc -c <"$L" | tr -d ' ') B)"
+  done
+}
+
 case "${1:-}" in
   prepare)  prepare ;;
-  metadata) metadata ;;   # regrava + reconfere, sem recriar o draft
+  sync)     sync_files; metadata ;;   # reenvia arquivos alterados + regrava metadados
+  metadata) metadata ;;               # só metadados, sem recriar o draft
   publish)  publish ;;
-  *) echo "uso: $0 {prepare|metadata|publish}"; exit 2 ;;
+  *) echo "uso: $0 {prepare|sync|metadata|publish}"; exit 2 ;;
 esac
