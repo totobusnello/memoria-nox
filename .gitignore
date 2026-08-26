@@ -64,3 +64,8 @@ build/
 venv/
 .venv/
 .omc/
+
+# Zenodo deposit — estado local do draft, nunca versionar
+paper2-interventional/deposit/.draft-id
+paper2-interventional/deposit/.draft-readback.json
+paper2-interventional/deposit/.published.json

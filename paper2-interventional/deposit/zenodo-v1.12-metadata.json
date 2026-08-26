@@ -1,0 +1,75 @@
+{
+  "access": {
+    "record": "public",
+    "files": "public"
+  },
+  "files": {
+    "enabled": true
+  },
+  "metadata": {
+    "resource_type": {
+      "id": "publication-preprint"
+    },
+    "title": "Interventional Memory: A Pre-Registered Randomised Crossover Measuring Whether Agent Memory Changes Agent Behaviour",
+    "publication_date": "2026-08-26",
+    "version": "1.12",
+    "languages": [
+      {
+        "id": "eng"
+      }
+    ],
+    "rights": [
+      {
+        "id": "cc-by-4.0"
+      }
+    ],
+    "creators": [
+      {
+        "person_or_org": {
+          "type": "personal",
+          "family_name": "Busnello",
+          "given_name": "Luiz Antonio",
+          "name": "Busnello, Luiz Antonio"
+        },
+        "affiliations": [
+          {
+            "name": "Independent Researcher"
+          }
+        ]
+      }
+    ],
+    "subjects": [
+      {
+        "subject": "pre-registration"
+      },
+      {
+        "subject": "agent memory"
+      },
+      {
+        "subject": "randomised crossover"
+      },
+      {
+        "subject": "LLM agents"
+      },
+      {
+        "subject": "causal inference"
+      },
+      {
+        "subject": "retrieval evaluation"
+      },
+      {
+        "subject": "interventional evaluation"
+      },
+      {
+        "subject": "production traffic"
+      },
+      {
+        "subject": "intra-cluster correlation"
+      },
+      {
+        "subject": "open science"
+      }
+    ],
+    "description": "<p><strong>VERSION 1.12 (2026-08-26) &mdash; the amendment is descriptive, and it says so.</strong> This version adds <code>AMENDMENT-v1.12.md</code>, which does three things and refuses a fourth. It declares facts about the serving mechanism, the corpus and a pilot series; it retracts seventeen earlier claims, each with the measurement that replaces it; and it names the defects that must be fixed before the confirmatory study starts. It does <strong>not</strong> specify an estimand, does not fix <em>N</em>, and does not establish a causal effect.</p>\n\n<p><strong>Why it cannot.</strong> In 2,221 of 2,221 serving decisions logged between 2026-08-21T22:57Z and 2026-08-25T10:22Z, the mode was <code>shadow</code> and the brief actually served was the <em>control</em> arm. The treated arm was computed, logged and discarded. With no outcome observed under treatment, <em>N</em> and the assignment timestamp are not estimable from this series, and any estimand written now would be post-observational &mdash; the series was seen before the wording. The 2,221 records are therefore declared a <strong>descriptive pilot that does not enter confirmatory analysis</strong>. The estimand, estimator, variance and target population go into a separate prospective registration, later than this deposit and later than the fixes below, labelled as pilot-informed.</p>\n\n<p><strong>The open defect, stated rather than repaired.</strong> The designation rule &mdash; which chunk of a signature group receives the boost &mdash; is not validly frozen. It consumes a constant, <code>CUT_FRESH = 0.7342</code>, whose referent this amendment retracts: 0.7342 is the coverage-slot cut, and no threshold of that kind is applied by the code that composes a brief. The registered tie-break (<code>w_min</code>, then <code>created_at</code>, then <code>chunk_id</code>) names a column that <strong>does not exist</strong> in the verdict table, so it is not implementable as written rather than merely unimplemented; and the code implements no tie-break at all, so ties fall to whatever row order SQLite returns. Measured at the window close, exact ties in <code>w_min</code> occur in <strong>4 of the 7</strong> multi-member signature groups, out of 19 groups. In those, the designated chunk came from incidental row order. The aggregates in this amendment are therefore <em>reproducible</em> &mdash; a frozen window and a guard script pin them &mdash; but <em>not attributable</em> to a deterministic rule. <code>DECISION-designacao-2026-08-25.md</code> sets out the replacement options, the requirements a replacement must meet, and a recommendation.</p>\n\n<p><strong>Numbers are emitted, not asserted.</strong> An earlier draft of this amendment cited the pilot count as a snapshot: <em>n</em> = 2,256 &ldquo;measured at 10:22Z&rdquo;. The cron writes 28 records an hour, so within ninety minutes the live log held 2,263 &mdash; and the frozen window ending at 10:22Z actually holds 2,221, meaning label and measurement never corresponded. In an immutable deposit such a figure becomes false on its own, with no edit to trigger review. The fix is structural: the window is declared as a closed interval, every aggregate over it is emitted by <code>pilot_window_stats.mjs</code>, and the script accepts <code>--assert-json</code> and exits non-zero if the window stops reproducing <code>PILOT-WINDOW-2026-08-25.json</code>. The clipped log is deposited as <code>p2-serving-WINDOW-2026-08-25.ndjson</code> (2,221 records, integer chunk ids and timestamps only, no corpus content), so a third party can run the guard rather than take the prose on trust.</p>\n\n<p><strong>Also corrected in this version.</strong> Section 2 now publishes what the &lambda; estimate needs in order to be reconstructed: the target population of 1,305 episodes, the two stratum frames (48 by census, 1,257 sampled at 242), the realised sampling rate, and the seeded selection rule &mdash; so that <code>(44 + 5.194215 &times; 11) / 1,305 = 0.077499</code> can be checked in full. An adversarial review had reconstructed the population as 1,261.4 from the published components and concluded the record was inconsistent; the reconstruction was wrong, because the Horvitz-Thompson weight divides the frame by the <em>sample</em> and not by the adjudicated subset, but the gap it exposed was real and documentary. <code>claims_check.py</code> gains a structural check it was missing: a one-line variant of the reachability script carried its own dose-band declaration that nothing was parsing.</p>\n\n<p><strong>Adversarial review.</strong> Seven passages across four model families, every one with a verified receipt. Two invocations that produced no analysis are recorded as such, with the reason, so that no result is attributed to them. Claims raised in review and refuted by measurement are listed with their refutations, and so is the converse case: a claim that was refuted while the doubt behind it turned out to be correct, and cost two retractions.</p>\n\n<hr>\n\n<p><strong>VERSION 1.10 (2026-08-17) &mdash; what changed, and why there is a new version at all.</strong> This version corrects the deposited record rather than extending it. Version 1.9 shipped with four statements about how far the treatment reaches that had been computed under an earlier dose band and were never recomputed when the band was widened on 2026-08-16. One of them said that no locked dose reaches the brief&rsquo;s eight primary slots; at the top dose it does. They are corrected in place, with the superseded text quoted beside each correction rather than deleted. Three further changes are substantive. The restriction of the boost to the two coverage slots is now a registered property of where the boost is applied, instead of an arithmetic consequence that a change of band could silently repeal. The scope rule, which excluded high-stakes sessions from treatment, is restated as an exclusion applied to the <em>outcome</em> rather than to the brief &mdash; a brief is composed at session start and the allowlist classifies actions that do not exist yet &mdash; and the ethics appendix is corrected to the weaker claim that is the true one: no high-consequence action drives a result, not that none followed a boosted brief. And <code>claims_check.py</code> is added, which recomputes every band-dependent quantity from the frozen constants and fails on divergence, because prose stating a computed result is a cache with no invalidation. <strong>No estimate, sample size, hypothesis or analysis rule changed.</strong> Version 1.9 remains retrievable under the same concept DOI, and the adversarial round that produced these corrections &mdash; including that three of four reviewer invocations returned no provider receipt &mdash; is recorded in the registration itself.</p>\n<p>THIS DEPOSIT IS A PRE-REGISTRATION: a study design, hypotheses and analysis plan fixed and published BEFORE the study runs. No outcome data exists at the time of deposit and no randomised epoch has been executed. Zenodo offers no dedicated resource type for pre-registrations, so this record is typed as a preprint and labelled here instead.</p>\n<p>Retrieval metrics score representation, not decision. This study measures whether the composition of an agent's memory changes what the agent does, using a fleet-wide randomised crossover on live production traffic rather than a curated benchmark. Epochs of 24 h are assigned to arms by a public randomness beacon whose round is declared before it exists; outcomes are adjudicated blind by a frozen multi-model panel; the primary outcome is repeated-failure density per session-hour.</p>\n<p>N = 234 epochs, powered for relative effects of 30% or more, sized on the upper confidence limit of the intra-cluster correlation (ICC 0.0985, 95% CI [0.0570; 0.1814]) rather than on its point estimate, and with a design effect that accounts for unequal cluster sizes (cv-squared = 0.3833, a locked input measured over the same pilot window as every other sizing parameter). The treatment writes one memory chunk per adjudicated-failure episode, in both arms, and differs only in a serving-time salience boost, so the contrast isolates weighting from creation.</p>\n<p>Measurement performed before registration establishes what the boost can reach. A chunk written from a failure episode enters a brief only through two coverage slots, and its reach depends on the severity it carries and on its age. Under the locked designation rule &mdash; the treatment boosts one chunk per failure signature present in the brief, the easiest of that signature to reach &mdash; the lowest dose in the band reaches 58% of opportunities and bounds the achievable effect at 60%, against a minimum detectable effect of 30%; the top dose reaches all of them, the modal S1 failure included. An earlier specification that boosted every match reached 19.8% and bounded the effect below the MDE, which would have made the primary hypothesis untestable; that is recorded in the deposit rather than removed. The three doses are pooled as one treatment arm for the primary contrast, so the dose-response comparison between them runs at 39 epochs per dose and is powered only for effects near 49.5% &mdash; a null there is reported as not detectable, never as evidence against the mechanism. These bounds are declared here rather than discovered later.</p>\n<p>VERIFIABILITY. The deposit carries the SHA-256 manifests of the frozen episode corpus, of the locked extractor and of the adjudication prompt; the three sampling seeds, each derived from a drand beacon round that was declared in a public commit before that round existed; and every analysis script, all deterministic and standard-library only. Anyone can recompute the sizing grid, the carry-over bound, the p95 winsorisation points and the intra-cluster correlation from the published inputs.</p>\n<p><br>WHAT IS DELIBERATELY ABSENT. No episode content is deposited. The adjudicated corpus contains real production work and stays out; this record points to it by hash. The only JSON Lines file included, positive-control.jsonl, holds six synthetic control episodes written by hand.</p>\n<p>All parameters were fixed on a historical corpus with no arm assignment, before any randomised epoch existed. Companion repository: https://github.com/totobusnello/memoria-nox (paper2-interventional/).</p>\n<p><strong>WHAT CHANGED IN VERSION 1.11.</strong> An error correction, published before any epoch was randomised, before any arm was assigned and before the public beacon round that seeds the assignment was drawn. The design effect had been computed with the equal-cluster-size formula 1 + (m-bar - 1) * rho, while epoch sizes in this design run from 1 to 115 sessions. The applicable form is 1 + ((cv-squared + 1) * m-bar - 1) * rho, and the equal-size formula understates it, hence understates the variance, hence under-sizes the study &mdash; the one direction the registration's own sizing lock exists to forbid. N therefore moves from 174 to 234 and the allocation from 87 control / 29 per dose to 117 / 39. The minimum detectable effect stays at 30% and is not re-argued; the rate parameters, the ICC and its interval, m-bar, the carry-over constant, the dose band and every reachability number are untouched, because cv-squared enters the variance and not the rate. The dose-response contrast does not become stronger: K rose from 29 to 39 by nearly the factor the design effect rose, so its own detectable effect is 49.5% against 49.4% before. Version 1.9 remains retrievable under the same concept DOI, and both scripts still reproduce the superseded numbers on request. Version 1.10 was written and never deposited. This version also registers the coverage formula whose threshold had been locked since 2026-07-29 without the quantity ever being defined, and a carry-over channel through depletion of the never-served candidate pool that the snapshot argument does not bound.</p>"
+  }
+}
