@@ -10,9 +10,15 @@
 > (conceito `10.5281/zenodo.21964093`), version 1.12, **60 arquivos**, state
 > `done`. Tag `paper2-v1.12` no repo aponta para o commit exato.
 >
-> ▶️ **Próxima ação: sua decisão sobre a regra de designação** —
-> `paper2-interventional/DECISION-designacao-2026-08-25.md`. Recomendo a opção B
-> (sorteio com seed declarada). Sem ela o registro prospectivo não pode começar.
+> ✅ **Regra de designação DECIDIDA 2026-08-26T14:47Z — opção B** (sorteio
+> pseudoaleatório com seed declarada). Custo aceito: 8,8% de dose agregada, para
+> remover a dependência da calibração de uma família do painel.
+>
+> ▶️ **Próxima ação: declarar a seed de designação com precedência verificável** —
+> pushar a declaração ANTES de a rodada de aleatoriedade existir, como no
+> `LAMBDA-SEED-2026-08-21.md`. ⚠️ Não é o `T_seed_assign`: designação escolhe
+> *qual chunk*, `T_seed_assign` escolhe *qual braço*. Nomes e declarações
+> separados.
 >
 > O GLM fechou a rodada com `exit: 0` e **achou defeito real** — as correções
 > entraram em `75fc353` (retratações 15-17). ⚠️ Conferir o **recibo** com

@@ -1,7 +1,33 @@
-# Decisão pendente — a regra de designação substituta
+# Decisão — a regra de designação substituta
 
-> **Status:** aberta, aguardando o Toto. Bloqueia o registro prospectivo (§5.3 da
-> `AMENDMENT-v1.12.md`), não bloqueia o depósito da v1.12.
+> ## ✅ DECIDIDO 2026-08-26T14:47Z — **opção B**, sorteio pseudoaleatório com seed declarada
+>
+> Decisão do Toto, tomada **depois** de a medição do custo estar na mesa (8,8% de
+> dose agregada) e **antes** de qualquer linha de código da regra nova. A ordem
+> importa: decisão de desenho registrada após a implementação é indistinguível de
+> racionalização da implementação.
+>
+> | | |
+> |---|---|
+> | Regra | `designado(g) = argmin_{c ∈ g} SHA256( seed ‖ "\|" ‖ sig_primary ‖ "\|" ‖ chunk_id )` |
+> | Custo aceito | **8,8%** de dose agregada (5 dos 19 grupos mudam) |
+> | O que se compra | independência da calibração de severidade de **uma** família do painel (`xai` = 72,2% do share de S2) |
+> | Satisfaz | R1 total · R2 só colunas imutáveis de `p2_verdict` · R3 sem `CUT_FRESH`/`Δ_cut` · R4 reproduzível de fora · R5 declarada antes do `ASSIGNMENT.json` |
+>
+> ⚠️ **Esta seed NÃO é o `T_seed_assign`.** São dois sorteios distintos com
+> propósitos distintos: esta designa **qual chunk** recebe o boost dentro do
+> grupo; o `T_seed_assign` sorteia **qual braço** cada epoch recebe. Precisam de
+> nomes distintos no registro e de declarações separadas. Confundi-los seria
+> permitir que quem conhece uma inferisse a outra.
+>
+> ⚠️ **A seed precisa de precedência verificável**, na mesma disciplina do λ: a
+> declaração é pushada **antes** de a rodada de aleatoriedade existir
+> (`LAMBDA-SEED-2026-08-21.md` foi pushado 22:17:50Z, rodada `31515871` emitida
+> 22:22:57Z). Sem isso a seed é escolhível a posteriori e a regra volta a ser
+> discricionária — o defeito que esta decisão existe para consertar.
+>
+> **Estado:** decisão fechada; implementação e declaração de seed pendentes
+> (§5.3 da `AMENDMENT-v1.12.md`, itens 1, 2 e 4).
 >
 > **Por que é decisão e não implementação:** a regra decide **quem recebe
 > tratamento** em 4 dos 19 grupos de assinatura. Qualquer escolha feita depois de
