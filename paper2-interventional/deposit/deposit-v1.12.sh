@@ -189,15 +189,41 @@ publish() {
   [ -f "$STATE" ] || { echo "✗ sem draft: rode 'prepare' primeiro"; exit 1; }
   DRAFT=$(cat "$STATE")
   echo "▸ publicando o draft $DRAFT — IMUTÁVEL a partir daqui"
-  OUT=$(curl -sf -X POST "${AUTH[@]}" "$API/records/$DRAFT/draft/actions/publish")
-  echo "$OUT" > "$DIR/.published.json"
+
+  # ⚠️ NUNCA `-sf` aqui. A primeira versão deste bloco usava `curl -sf`, que
+  # descarta o corpo da resposta em erro; com `set -e` o script abortou no
+  # `$(...)` sem imprimir uma linha, e a saída ficou indistinguível de sucesso
+  # silencioso. Esconder o erro do único passo irreversível é o pior lugar
+  # possível para essa escolha. Agora: captura corpo E status, e só declara
+  # sucesso se o status for 2xx.
+  BODY=$(mktemp)
+  CODE=$(curl -s -o "$BODY" -w '%{http_code}' \
+    -X POST "${AUTH[@]}" "$API/records/$DRAFT/draft/actions/publish" || echo 000)
+
+  if [ "${CODE:0:1}" != "2" ]; then
+    echo "✗ NÃO publicado — HTTP $CODE. O draft segue intacto."
+    echo "  Resposta do Zenodo:"
+    python3 - "$BODY" <<'PY' || cat "$BODY"
+import json, sys
+d = json.load(open(sys.argv[1]))
+print("   ", d.get("message") or d.get("status") or "(sem mensagem)")
+for e in d.get("errors", []):
+    print(f"    · campo {e.get('field')!r}: {e.get('messages') or e.get('message')}")
+PY
+    rm -f "$BODY"
+    return 1
+  fi
+
+  mv "$BODY" "$DIR/.published.json"
   python3 - "$DIR/.published.json" <<'PY'
 import json, sys
 d = json.load(open(sys.argv[1]))
-print("  DOI de versão :", d.get("doi") or d.get("pids", {}).get("doi", {}).get("identifier"))
-print("  version       :", d["metadata"].get("version"))
-print("  arquivos      :", len(d.get("files", {}).get("entries", {})))
-print("  URL           :", d["links"].get("self_html"))
+print("  DOI de versão :", d.get("doi") or (d.get("pids") or {}).get("doi", {}).get("identifier"))
+print("  version       :", (d.get("metadata") or {}).get("version"))
+fs = d.get("files")
+n = len(fs.get("entries", {})) if isinstance(fs, dict) else len(fs or [])
+print("  arquivos      :", n)
+print("  URL           :", (d.get("links") or {}).get("self_html"))
 PY
 }
 
