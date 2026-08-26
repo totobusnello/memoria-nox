@@ -40,10 +40,42 @@
 > população depois de ver o sorteio, e a verificação por terceiro deixa de depender
 > do banco.
 >
-> ▶️ **Próxima ação: derivar a seed de `R`** (já emitida a esta altura), gravar
-> `randomness` + seed + conjunto de 19 + sha256 na seção "Resultado" da declaração,
-> conferir **TS × Python** por sha256 do conjunto, e só então ligar
-> `NOX_P2_DESIGNATION` + `..._SHA256` por drop-in.
+> ✅ **Seed derivada e regra VIGENTE desde 20:28Z.** `randomness`
+> `8fd8522f…67a6d` → seed `e5d134ee…22d7`; 19 grupos, 19 designados,
+> `sha256` do conjunto `e549420907cd…da001b`. **TS × Python concordam lendo
+> fontes diferentes** — a TS consultou `p2_verdict` ao vivo, o Python leu o CSV
+> depositado 16 min antes, e hashes iguais provam de uma vez que as derivações são
+> a mesma regra **e** que o frame corresponde à tabela. Boosts conferem com
+> `w·Δ_cut·sev`: 0,0215 (S1) e 0,043 (S2); sorteio deu S1=10/S2=9, dose 7,0000
+> (esperança 6,6134, máximo de A 7,2500).
+>
+> 🔴 **`Δ_cut` MEDIDO, e não pode ter referente.** `coverageCompare`
+> (`brief-diversity.ts:130-140`) é **lexicográfico**: se `last_served` difere,
+> devolve `al − bl` e **nunca consulta `salience`**. O boost é aditivo em
+> `salience`, a coordenada subordinada. Pool medido: posições 0-2 com
+> `last_served 18:37:05` (não-estudo), primeiro chunk do estudo na posição 3 com
+> `18:37:06` — **um segundo depois** — e `freshSlots = 2`. Ele tem `salience`
+> **mais alta** (0,7128 vs 0,6822) e perde. Varredura offline no caminho de
+> produção: `churn` **0** em `w = 2,0/4,0/7,5` **e em `w = 1.000` e `w = 100.000`**,
+> com 19 boosts emitidos. A banda satura no braço mais baixo: maior gap 0,031809 <
+> boost de S2 a `w=2,0` (0,043).
+>
+> ▶️ **Próxima ação: as duas revisões adversariais da emenda**
+> (`AMENDMENT-DRAFT-band-collapse-2026-08-26.md`, rascunho **sem número** — número
+> é fato do depósito). Rodando GLM e Codex. Depois: depositar → acumular janela de
+> ativação → recalcular `N` → registro prospectivo → `T_seed_assign`.
+>
+> ⚠️ **`N` NÃO pode ser fixado com os 4,1693%.** Essa taxa é de quando havia **1**
+> designado por grupo escolhido por `w_min`; agora são **19**. A taxa nova precisa
+> de janela real (~26 linhas/h desde 20:28Z).
+>
+> ⚠️ **O `claims_check` NÃO enxergava a emenda** — mutei a taxa e a banda inteira e
+> ele imprimiu "sweep clean" nas duas vezes. `delta_cut_check` fechou isso, mas a
+> **primeira versão era decoração**: `str(valor) in join(todos_os_md)` deixava
+> passar falsificação no documento que afirma (o número segue em outros docs) e
+> `"15"` casa em qualquer lugar. Reescrito para ancorar ao rótulo **no arquivo que
+> afirma** e para **recomputar** as contagens de vitória a partir dos 27 gaps
+> depositados. **7 mutações, 7 mordem.**
 >
 > ⚠️ **O `churn` do shadow está em ZERO por desenho, e isso foi declarado às
 > 20:05Z, antes do restart.** Sem conjunto designado o mapa de boost é vazio. Linha
