@@ -131,7 +131,7 @@ que a regra de designação consome (§5).
 Duas funções decidem, e são reproduzidas aqui em vez de referenciadas por path
 (o defeito de reprodutibilidade do §7).
 
-**`coverageCompare`** — `src/api/brief-diversity.ts:131-142`:
+**`coverageCompare`** — `src/api/brief-diversity.ts:130-140`:
 
 ```js
 export function coverageCompare(aLastServedMs, aSalience, bLastServedMs, bSalience) {
@@ -142,7 +142,7 @@ export function coverageCompare(aLastServedMs, aSalience, bLastServedMs, bSalien
 }
 ```
 
-**`ordenarCobertura`** — `src/api/brief.ts:608-618`, onde a dose entra:
+**`ordenarCobertura`** — `src/api/brief.ts:607-618`, onde a dose entra:
 
 ```js
 const eff = (c) => c.salience + (boosts?.get(c.row.id) ?? 0);
@@ -488,6 +488,7 @@ registrada, nem a nova — os 8,1% entram nele.
 | 25 | 26/08 | o §7 dizia "isto mitiga, não resolve — o registro prospectivo deve carregar o blob" | adiava um conserto que não precisava de adiamento; os 5 módulos vão **nesta** versão, com `SERVING-CODE-MANIFEST.md` (§7) |
 | 26 | 26/08 | o §3.4 citava os números retratados e os vigentes na mesma frase | quarentena explícita 🚫: uma revisão de 26/08 leu os 25 valores como série corrente e recomputou média 12,1% (§3.4) |
 | 27 | 26/08 | o §1.1 tratava `cut_principal` × 0,8524 como ressalva de leitura | é **achado**: uma grandeza agente-heterogênea cuja medição de um agente foi publicada como constante; duas revisões tropeçaram (§1.1) |
+| 28 | 26/08 | duas faixas de linha citadas estavam deslocadas | `brief-diversity.ts:131-142` (a função é **130-140**; a faixa começava no meio da assinatura e invadia a `interface` seguinte) e `brief.ts:608-618` (é **607-618**, perdia a linha do `function`). Descoberto **porque** os blobs foram depositados — o §7 se auto-verificou |
 Correções pontuais que permanecem válidas:
 
 - **`0,7344` supera 4 dos 6 agentes**, não 5 (lex, nox, boris, forge; não atlas
@@ -746,7 +747,7 @@ tamanho e sha256 de cada um):
 do pacote (`db.js`, o cliente de embeddings, a camada FTS5), que **não** vai
 depositado — logo os blobs são **auditáveis, não executáveis** isoladamente. É
 uma afirmação mais estreita que reprodutibilidade, e é a honesta. O que muda:
-quem lê a citação `brief.ts:608-618` agora pode abrir a linha 608 em vez de
+quem lê a citação `brief.ts:607-618` agora pode abrir a linha 608 em vez de
 confiar na transcrição.
 
 ---

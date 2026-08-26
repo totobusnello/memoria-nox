@@ -3,3 +3,7 @@
 *.episodes.jsonl
 episodes/
 calib-*.jsonl
+deposit/.draft-id
+deposit/.draft-files.json
+deposit/.draft-readback.json
+deposit/.published.json
