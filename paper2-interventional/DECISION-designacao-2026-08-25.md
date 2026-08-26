@@ -9,7 +9,7 @@
 >
 > | | |
 > |---|---|
-> | Regra | `designado(g) = argmin_{c ∈ g} SHA256( seed ‖ "\|" ‖ sig_primary ‖ "\|" ‖ chunk_id )` |
+> | Regra | `designado(g) = argmin_{c ∈ g} SHA256( seed ‖ "\|" ‖ chunk_id )` |
 > | Custo aceito | **8,8%** de dose agregada (5 dos 19 grupos mudam) |
 > | O que se compra | independência da calibração de severidade de **uma** família do painel (`xai` = 72,2% do share de S2) |
 > | Satisfaz | R1 total · R2 só colunas imutáveis de `p2_verdict` · R3 sem `CUT_FRESH`/`Δ_cut` · R4 reproduzível de fora · R5 declarada antes do `ASSIGNMENT.json` |
@@ -30,7 +30,8 @@
 > (§5.3 da `AMENDMENT-v1.12.md`, itens 1, 2 e 4).
 >
 > **Por que é decisão e não implementação:** a regra decide **quem recebe
-> tratamento** em 4 dos 19 grupos de assinatura. Qualquer escolha feita depois de
+> tratamento** em 7 dos 19 grupos de assinatura (os multi-membro; nos outros 12 há
+> um único chunk e não há escolha). Qualquer escolha feita depois de
 > olhar o resultado é grau de liberdade do pesquisador. A escolha vem antes do
 > `ASSIGNMENT.json`, e o `ASSIGNMENT.json` vem antes do Epoch 1.
 
@@ -103,8 +104,43 @@ designado(g) = argmin_{c ∈ g} ( −severidade(c), chunk_id(c) )
 ### B — Sorteio pseudoaleatório com seed declarada
 
 ```
-designado(g) = argmin_{c ∈ g} SHA256( seed ‖ "|" ‖ sig_primary ‖ "|" ‖ chunk_id )
+designado(g) = argmin_{c ∈ g} SHA256( seed ‖ "|" ‖ chunk_id )
 ```
+
+> ⚠️ **O layout desta linha mudou em 2026-08-26T19:40Z, depois de a opção B já
+> estar decidida.** Não é repactuação da decisão — a escolha entre A e B segue de
+> pé, com o mesmo custo de 8,8%. É correção do material da chave, e está aqui em
+> vez de silenciosa porque a linha anterior foi aprovada como está.
+>
+> **O que estava escrito:** `SHA256( seed ‖ "|" ‖ sig_primary ‖ "|" ‖ chunk_id )`.
+>
+> **O defeito:** **todos** os 19 valores de `sig_primary` contêm `|` — o próprio
+> separador (`Bash|shell:outro`, `Read|arquivo:doc`). O layout portanto **não é
+> injetivo**, e a colisão é concreta, não hipotética: `seed ‖ "Bash|shell:outro" ‖
+> 308226` e `seed ‖ "Bash" ‖ "shell:outro|308226"` são a **mesma sequência de
+> bytes**. Não é explorável — `sig_primary` vem de `p2_verdict`, cujo conjunto de
+> valores é fechado e publicado, não de entrada livre — mas registrar isso como
+> "colisão conhecida e aceita" é posição pior do que não ter a colisão, e o custo
+> de consertar antes de a seed existir é zero.
+>
+> **Por que a correção é remover o campo e não trocar o separador:** verificado
+> sobre `p2_verdict` que **cada chunk pertence a exatamente um `sig_primary`** (0
+> de 55 em mais de um grupo). Pertencimento a grupo já é *função* de `chunk_id`,
+> logo `sig_primary` na chave não carrega informação — só ambiguidade. A
+> propriedade estatística é idêntica: dentro de cada grupo o argmin segue uniforme,
+> e os grupos são disjuntos, logo os sorteios seguem independentes.
+>
+> **Ganho que não é cosmético:** a chave passa a depender **só de ids congelados**.
+> Sob o layout anterior, renomear um `sig_primary` mudaria todo designado daquele
+> grupo; sob este, não muda nada. É a mesma classe de mutabilidade que invalidou a
+> regra da v1.12 via `access_count`, e vale fechá-la nos dois lugares.
+>
+> **O que explicitamente NÃO foi argumento:** medi os dois layouts sob a seed de
+> teste `ab`×32 (3 dos 19 designados diferem; soma de severidade 6,5000 contra
+> 6,7500). Esses números **não** entraram na decisão e não devem entrar em nenhuma
+> outra: a seed real não existe ainda, e escolher layout pelo resultado sob uma
+> seed disponível é pescaria de seed — o mesmo vício que fez esta decisão preferir
+> rodada drand nova a sub-seed rotulada. A escolha é pelo argumento de layout.
 
 - ✅ Satisfaz R1–R5. **Mesma maquinaria já usada e auditada** na amostra de λ
   (`LAMBDA-SEED-2026-08-21.md:66-75`): seed derivada de fonte pública, hex
