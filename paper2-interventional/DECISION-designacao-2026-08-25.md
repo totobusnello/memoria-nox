@@ -288,6 +288,44 @@ O par `designated_ids` × `boost_by_id` é o que fecha a verificação: o primei
 que a **regra diz**, o segundo é o que o **código fez**. Ter só um dos dois era o
 que permitia à regra anterior parecer aplicada.
 
+### Resultado da verificação, 2026-08-26T19:58Z — e o que ela NÃO prova
+
+Restart às 19:58Z. Os três sinais bateram: `p2_designation_seed_ausente` **uma**
+vez com `motivo: "NOX_P2_DESIGNATION ausente"`, `/api/health` 200, e as linhas
+novas do NDJSON trazem `designated_ids: []` e `boost_by_id: {}` — campos ausentes
+em 100% das 3.166 anteriores. `churn` positivo: 0.
+
+⚠️ **Mas N = 3, e 3 não é evidência de zero.** Com base de 4,1693%, três linhas dão
+zero por acaso com probabilidade 0,88. O que está provado é o **mecanismo** (mapa
+vazio por construção, 26/26 no teste e 5 mutações mordendo), não a taxa. A
+comparação 4,1693% → 0 só ganha força com N de tráfego real, que acumula a ~26
+linhas/h. **Deve ser reconferida** contra uma janela fechada de algumas centenas de
+linhas antes de ser citada como resultado.
+
+### Achado colateral: sondar `/api/brief` ESCREVE estado de serving
+
+Os três briefs de verificação foram sondas minhas, e `/api/brief` **não tem gate de
+tracking** — `brief.ts:1086` insere em `brief_log` sempre, e `brief_log` é o que
+alimenta `last_served`, que ordena o pool de cobertura (`last_served ASC`). Não há
+equivalente ao `?track=false` do `/api/search`. Logo cada sonda perturba o estado
+que o estudo mede.
+
+Quantificado: 15 linhas (3 briefs × 5 itens) sobre 573.113, tocando 9 chunks
+distintos, **3 deles do estudo** — 308222, 308280, 308284.
+
+**Decidi NÃO apagar, e a razão inverteu a minha recomendação inicial.** Os três já
+tinham **47-48 servings cada**, o mais recente 2026-08-26 18:07:0x, menos de duas
+horas antes. As minhas linhas são as de número 48/49 numa série que o tráfego real
+já produzia; `last_served` andou de 18:07 para 19:58 em chunks servidos com
+cadência aproximadamente horária. Não é a mudança qualitativa que eu supus
+("nunca-servido" → "servido"), que seria consequente porque a docstring do módulo
+apoia a permanência do chunk do estudo nos 400 justamente em ele ser
+nunca-servido. Apagar seria mutar dado de produção por um ganho não medível.
+
+Consequência operacional, para não repetir: **não sondar `/api/brief` para levantar
+N.** O N vem de tráfego real. A tentativa de fabricar N teria custado 120 briefs =
+600 linhas em `brief_log`, aí sim consequente.
+
 **Estado do código na VPS neste instante:** `npx tsc` limpo; 26/26 no
 `p2-outcome.test.js` e 379 passes / 0 falhas / 1 skip na suíte inteira (380);
 5 mutações do fonte confirmadas mordendo (separador removido → 3 falhas; seed como
