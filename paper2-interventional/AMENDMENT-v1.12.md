@@ -453,6 +453,8 @@ registrada, nem a nova — os 8,1% entram nele.
 | 20 | 26/08 | taxa de 23/08 = **7,5%** na tabela do §3.1 | `42/560` mistura 252 decisões pré-gate; pós-gate é `42/308` = **13,6%** — a contaminação da retratação 14, reincidindo na mesma emenda (§3.1) |
 | 21 | 26/08 | o Anexo A citava `p2-serving.ndjson` como fonte | esse nome não existe no depósito; a fonte depositada é `p2-serving-WINDOW-2026-08-25.ndjson`, o recorte da janela (7 citações) |
 | 22 | 26/08 | Anexo A: "amostra B 242 (19,235%)" | põe num parêntese só a contagem realizada e a taxa **de projeto**, como se uma derivasse da outra; realizada é `242/1.257` = 19,25% (§2) |
+| 23 | 26/08 | a capa do depósito dizia "everything measured … **over a historical corpus**" | verdade na v1.11; a v1.12 acrescenta 2.221 decisões de serving **ao vivo** e a rodada de painel sobre episódios de 15–20/08. Segue pré-tratamento, não segue só-corpus (`DEPOSIT-README.md`) |
+| 24 | 26/08 | a capa listava `PREREG-DRAFT.md` como "the central document (v1.11)" e não mencionava a emenda | a emenda é a razão de existir a v1.12 e não aparecia na capa; guia de arquivos reescrito com os 12 novos, e os renders `PREREG-v1.11-*` declarados como **não** re-renderizados |
 
 Correções pontuais que permanecem válidas:
 

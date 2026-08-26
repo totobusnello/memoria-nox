@@ -7,9 +7,42 @@
 
 **The study has not started.** No randomised epoch exists, no arm has been
 assigned, and no outcome has been observed. Everything measured in this package
-is **pre-treatment**, over a historical corpus. That is the point of depositing
-it now: the design, the numbers that size it, and the rules that will analyse it
-are fixed and timestamped **before** any data that could adapt them exists.
+is **pre-treatment**. That is the point of depositing it now: the design, the
+numbers that size it, and the rules that will analyse it are fixed and
+timestamped **before** any data that could adapt them exists.
+
+⚠️ **CORRECTED for v1.12.** This paragraph used to add *"over a historical
+corpus"*. That was true of v1.11 and is no longer true of the whole package:
+v1.12 adds a **pilot series of 2,221 live serving decisions** taken between
+2026-08-21 and 2026-08-25 in `shadow` mode, plus the λ panel round over episodes
+from 2026-08-15 to 08-20. Those are measurements over production traffic, not
+over a frozen historical corpus. They remain **pre-treatment** — in 2,221 of
+2,221 decisions the brief served was the control arm, and no arm has been
+assigned — but the corpus is no longer the only thing measured. The distinction
+matters because "historical corpus" invites the reading that nothing in this
+package touched live serving, and something did.
+
+## Start here, for v1.12
+
+`AMENDMENT-v1.12.md` is the document this version exists for. It is
+**descriptive**: it declares facts about the serving mechanism and the pilot
+series, retracts **24** earlier claims with the measurement that replaces each,
+and names the defects that must be fixed before the confirmatory study starts.
+It deliberately specifies **no** estimand and fixes **no** `N` — with zero
+outcome observed under treatment, neither is estimable from this series, and any
+estimand written after seeing the series would be post-observational.
+
+Read it before `PREREG-DRAFT.md`. Where the two disagree, the amendment is
+later and says so; the registration is preserved as registered.
+
+⚠️ **One defect is declared open rather than repaired.** The designation rule —
+which chunk of a signature group receives the boost — is not validly frozen: it
+consumes a constant whose referent the amendment retracts, the registered
+tie-break names a column that does not exist, and exact ties occur in 4 of the 7
+multi-member signature groups, where the designated chunk came from incidental
+SQLite row order. The aggregates in the amendment are **reproducible** and **not
+attributable** to a deterministic rule. `DECISION-designacao-2026-08-25.md`
+carries the replacement options and a recommendation.
 
 ## What this is
 
@@ -88,6 +121,29 @@ package should be read against it.
 Two consequences are registered **before** any arm data exists, so that widening
 them later is visibly an amendment rather than a refinement.
 
+> ### ⚠️ Read the next two blocks against `AMENDMENT-v1.12.md` §1.1
+>
+> They are the v1.11 text, preserved. Two things in them the amendment retracts.
+>
+> **The phrase "by construction."** The amendment declines to use it in any
+> substantive claim, because it was the phrase that carried the defects of 16 and
+> 17 August, and because v1.11 showed a guarantee of that shape can be voided by
+> an operational failure. The *claim* it decorates here — that the boost acts on
+> the coverage slots and never on the primary ones — **survives**, and the
+> amendment re-derives it from the code: the boost is added to salience inside
+> `ordenarCobertura`, which orders only the coverage candidates. It survives as a
+> property of the code path, not as a construction.
+>
+> **The arithmetic about "clearing the main cut."** The amendment finds no
+> threshold comparison in the serving code at all, and finds that the registered
+> `0.8524` is one agent's measurement generalised into a system constant, lying
+> outside the span later measured across agents (0.610–0.792,
+> `CUTS-MEASURED-2026-08-18.json`). The margins quoted below — `0.0214`,
+> `0.2151`, "6.75 days" — are arithmetic over that constant, and are correct
+> arithmetic over a quantity whose referent the amendment retracts. They are kept
+> because the superseded record should stay legible, not because they still
+> license a conclusion.
+
 **First: the boost acts on the two coverage slots and never on the eight primary
 ones — by construction.** Until 2026-08-17 this package derived that from
 arithmetic instead: at the band `w ∈ {0.5, 1.0, 2.0}` no dose could clear the
@@ -155,10 +211,45 @@ hand-rolled F distribution against it, never in the canonical path.
 
 ## What is here
 
+**The amendment (new in v1.12)**
+`AMENDMENT-v1.12.md` — read first; see *Start here* above.
+`DECISION-designacao-2026-08-25.md` — the open designation defect, its
+requirements and the replacement options.
+
+**The pilot series, and the guard that pins it**
+`p2-serving-WINDOW-2026-08-25.ndjson` — the 2,221 serving decisions, clipped to
+the closed window `[2026-08-21T22:57:00Z ; 2026-08-25T10:22:00Z]`. Integer chunk
+ids, timestamps and mode flags only; no corpus content.
+`pilot_window_stats.mjs` — emits every series figure the amendment cites, and
+accepts `--assert-json` to fail if the window stops reproducing
+`PILOT-WINDOW-2026-08-25.json`. The live log grows 28 records an hour, so a count
+cited as a snapshot would go false inside an immutable deposit on its own; the
+window is declared closed and the guard is deposited so a third party can run it
+rather than trust the prose.
+
+**λ, and where the treated population's size comes from**
+`LAMBDA-SEED-2026-08-21.md` — the sampling design, locked before the sample:
+population 1,305, stratum A a census of 48, stratum B 242 drawn from 1,257 by
+`SHA256(seed ‖ episode_id)`. `LAMBDA-RESULTS-2026-08-21.md` — the
+Horvitz-Thompson estimate and the limitation that matters: 22 of 22 consolidated
+S2 verdicts carry `xai = S2`, so the size of the treated population depends on
+one panel family's severity calibration.
+
+**The cuts, measured rather than assumed**
+`CUTS-MEASURED-2026-08-18.json` · `cuts_measure.mjs` ·
+`AUDIT-SECTION2-SERVING-2026-08-18.md` · `SHARES-PROVENANCE-2026-08-19.md` ·
+`reachable_share_fila.py` — the last is a one-line variant of
+`reachable_share.py` under the amended reading of `CUT_FRESH`, and its dose band
+is now parsed by `claims_check.py` rather than merely allowlisted.
+
 **The registration**
-`PREREG-DRAFT.md` — the central document (v1.11). Everything that decides
-anything is here or cited from here. `PREREG-v1.11-2026-08-17.pdf` / `.html` are
-the same document rendered; the Markdown is authoritative.
+`PREREG-DRAFT.md` — the registered document, registered as v1.11 and preserved
+as registered, save for one added block that declares itself to be outside the
+registered copy (the OSF GUID, which could not exist before it was minted).
+Everything the design decides is here or cited from here.
+`PREREG-v1.11-2026-08-17.pdf` / `.html` are the v1.11 document rendered — they
+are **not** re-rendered for v1.12 and do not contain the amendment; the Markdown
+is authoritative and `AMENDMENT-v1.12.md` is later than all three.
 
 `render_ascii.py` · `render.css` · `RENDER.md` — how the PDF and HTML are
 produced, deposited so that the rendered copies are checkable rather than
