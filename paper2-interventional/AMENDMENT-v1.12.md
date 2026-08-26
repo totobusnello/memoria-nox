@@ -9,8 +9,24 @@ ele.
 
 **Redigida:** 2026-08-25. **Uma** emenda, conforme decidido em 2026-08-19.
 
-**Código servindo:** commit `2740ded3` (2026-08-25T02:43:16Z) em
-`/root/.openclaw/workspace/tools/nox-mem/`.
+**Código servindo.** Último commit que tocou `src/`: **`1464db87`**
+(2026-08-22T01:04:13+02:00). Pinos por arquivo, para os cinco que esta emenda
+transcreve ou cita por linha:
+
+| arquivo | commit | data |
+|---|---|---|
+| `src/api/brief.ts` | `c3c14c19` | 2026-08-22T00:57:18+02:00 |
+| `src/paper2/brief-outcome.ts` | `c3c14c19` | 2026-08-22T00:57:18+02:00 |
+| `src/salience.ts` | `aca868c7` | 2026-08-02T12:37:55-03:00 |
+| `src/api/brief-diversity.ts` | `ad2ca37e` | 2026-06-26T15:28:23-03:00 |
+| `src/search.ts` | `aee41849` | 2026-06-07T21:42:53-03:00 |
+
+⚠️ Uma redação anterior escrevia *"commit `2740ded3` (2026-08-25T02:43:16Z)"*.
+`2740ded3` era apenas o `HEAD` daquele dia — um commit de encerramento de sessão
+que **não tocou `src/`**. Citar o `HEAD` é citar um artefato cuja relação com a
+afirmação é incidental, e que envelhece: em 2026-08-26 o `HEAD` já era
+`5466276b`, também sem nenhuma mudança em `src/`. Os pinos acima são estáveis
+porque nomeiam o commit que produziu **cada** trecho citado.
 
 **Janela de piloto — FECHADA.** Todo número de série desta emenda é computado
 sobre `[2026-08-21T22:57:00Z ; 2026-08-25T10:22:00Z]`, e **somente** sobre ela.
@@ -269,14 +285,22 @@ limitação, sem correção proposta.
 
 ### 3.1 Composição
 
-| dia | registros | `churn > 0` | |
-|---|---|---|---|
-| 21/08 (parcial, desde 22:57Z) | 30 | 0 | — |
-| 22/08 | 672 | 0 | 0,0% |
-| 23/08 (dois hiatos, §6) | 560 | 42 | 7,5% |
-| 24/08 | 672 | 49 | 7,3% |
-| 25/08 (parcial, até 10:22Z) | 287 | 11 | 3,8% |
-| **total** | **2.221** | **102** | — |
+| dia civil | registros | `churn > 0` | dos quais pós-gate | taxa **pós-gate** |
+|---|---|---|---|---|
+| 21/08 (parcial, desde 22:57Z) | 30 | 0 | 0 | — (pré-gate) |
+| 22/08 | 672 | 0 | 0 | — (pré-gate) |
+| 23/08 (dois hiatos, §6) | 560 | 42 | 308 | **13,6%** |
+| 24/08 | 672 | 49 | 672 | **7,3%** |
+| 25/08 (parcial, até 10:22Z) | 287 | 11 | 287 | **3,8%** |
+| **total** | **2.221** | **102** | **1.267** | **8,1%** |
+
+⚠️ **A coluna de taxa é pós-gate, e a distinção não é cosmética.** Dividir os 42
+eventos de 23/08 pelos 560 registros do dia civil dá **7,5%** — número que uma
+redação anterior desta tabela publicava. Ele mistura no denominador as 252
+decisões de 23/08 anteriores às 09:00Z, que são pré-gate e têm zero por
+construção mecânica (§3.2). É a **mesma contaminação de denominador** da
+retratação 14, uma linha abaixo na mesma emenda. A taxa pós-gate de 23/08 é
+`42/308 = 13,6%`.
 
 Dia completo = 672 registros = 96 ciclos × 7 personas (cron nos minutos
 07/22/37/52, 4 ciclos/hora). O dia 21/08 tem 30 registros porque a coleta começou
@@ -333,7 +357,7 @@ conjuntos designados ao longo da série**, não um conjunto estável de designad
 — o "100% do estudo" sobrevive, a leitura de "os 16 designados" não. Os 12 eventos de saída (10,8%) que atingem chunks de fora do
 estudo são o contato da intervenção com o resto do corpus.
 
-### 3.4 A série oscila; não decai
+### 3.4 A série ainda não depletou — e as duas leituras são indistinguíveis
 
 Série horária pós-gate na janela congelada — **47 horas, 1.267 registros, 102
 eventos**, que fecha exatamente com o agregado do §3.3:
@@ -424,6 +448,11 @@ registrada, nem a nova — os 8,1% entram nele.
 | 15 | 25/08 | `w_min` é função apenas da severidade porque `written_at` é idêntico | `salienceBase` não tem termo em `written_at` e tem termo log-proporcional em `access_count`; 9 bases distintas (§5.2-bis) |
 | 16 | 25/08 | o empate de `w_min` ocorre em **5 de 7** grupos, na severidade **mínima** | **4 de 7**, na severidade **máxima** — `w_min` decresce em severidade (§5.2-bis) |
 | 17 | 25/08 | a série é "incompatível com depleção monotônica até zero, e nada além" | sustenta-se só na leitura estrita; a larga é refutada por 13,6 → 7,3 → 3,8 (§3.4) |
+| 18 | 26/08 | "código servindo: commit `2740ded3`" | era o `HEAD` do dia, um `chore` que **não tocou `src/`**; o pino estável é `1464db87` mais os cinco por arquivo (cabeçalho, §7) |
+| 19 | 26/08 | o título do §3.4, "a série oscila; não decai" | o corpo do próprio §3.4 já retratava as duas metades; título trocado |
+| 20 | 26/08 | taxa de 23/08 = **7,5%** na tabela do §3.1 | `42/560` mistura 252 decisões pré-gate; pós-gate é `42/308` = **13,6%** — a contaminação da retratação 14, reincidindo na mesma emenda (§3.1) |
+| 21 | 26/08 | o Anexo A citava `p2-serving.ndjson` como fonte | esse nome não existe no depósito; a fonte depositada é `p2-serving-WINDOW-2026-08-25.ndjson`, o recorte da janela (7 citações) |
+| 22 | 26/08 | Anexo A: "amostra B 242 (19,235%)" | põe num parêntese só a contagem realizada e a taxa **de projeto**, como se uma derivasse da outra; realizada é `242/1.257` = 19,25% (§2) |
 
 Correções pontuais que permanecem válidas:
 
@@ -657,11 +686,17 @@ existe no repositório do depósito — o código que carrega o argumento vive n
 de produção e era inauditável por quem lê o registro.
 
 Conserto: os trechos que decidem o mecanismo estão reproduzidos em linha no §1.2
-e §5, com arquivo e número de linha, amarrados ao commit `2740ded3`. A regra que
-gerou o defeito fica declarada:
+e §5, com arquivo e número de linha, amarrados aos **pinos por arquivo** do
+cabeçalho. A regra que gerou o defeito fica declarada:
 
-> Todo número desta emenda é datado e amarrado ao commit servindo. Nomear o
-> **arquivo e a linha** que produz o número, não o script que o recomputa.
+> Todo número desta emenda é datado e amarrado ao commit que produziu **o arquivo
+> citado**, não ao `HEAD` do dia. Nomear o **arquivo e a linha** que produz o
+> número, não o script que o recomputa.
+
+⚠️ E a razão de a regra dizer "o arquivo citado": a redação anterior amarrava
+tudo ao `HEAD`, que naquele dia era um commit de encerramento de sessão sem
+nenhuma mudança em `src/`. O pino era verdadeiro e irrelevante — nomeava um
+objeto que não tinha relação causal com o trecho citado.
 
 ⚠️ Isto mitiga, não resolve. Citação amarrada a um commit num host privado não é
 reprodutibilidade plena. O registro prospectivo deve **carregar o blob** dos
@@ -711,30 +746,30 @@ formato legado retorna 200 e descarta autor e licença em silêncio.
 |---|---|---|
 | λ̂ = 0,077499 · SE 0,012023 · IC [0,0539; 0,1011] | `LAMBDA-RESULTS-2026-08-21.md` | 2026-08-21 |
 | estrato A 44/46 · estrato B 11/234 · peso HT 5,194215 | `LAMBDA-RESULTS-2026-08-21.md` | 2026-08-21 |
-| população 1.305 · frame A 48 / B 1.257 · amostra B 242 (19,235%) | `LAMBDA-SEED-2026-08-21.md:36-41` | travado antes da amostra |
+| população 1.305 · frame A 48 / B 1.257 · amostra B 242 · taxa de projeto 19,235% (realizada 19,25%) | `LAMBDA-SEED-2026-08-21.md:36-41` | travado antes da amostra |
 | seleção do estrato B: `SHA256(seed ‖ "\|" ‖ episode_id)`, 242 primeiros | `LAMBDA-SEED-2026-08-21.md:66-75` | seed pushada 2026-08-21 22:17:50Z |
 | 870/870 chamadas · 10 inadjudicáveis · 3,45% | `LAMBDA-RESULTS-2026-08-21.md` | 2026-08-21 |
 | `p̂0 = 0,111813` | `PREREG-DRAFT.md` | registro 2026-08-18 |
 | shares por família: moonshot 24,2 · zhipu 25,9 · xai 72,2 | `LAMBDA-RESULTS-2026-08-21.md` | 2026-08-21 |
 | 22 de 22 S2 consolidados com `xai = S2` | `LAMBDA-RESULTS-2026-08-21.md` | 2026-08-21 |
 | 2.221 registros · 102 com `churn > 0` · 111 deslocamentos · 93/9 | `pilot_window_stats.mjs` + `PILOT-WINDOW-2026-08-25.json` | janela fechada |
-| pré-gate 954 com 0 · pós-gate 1.267 com 102 = 8,1% | `p2-serving.ndjson` × campo `epoch` | 2026-08-25T10:22Z |
-| 100 de 102 com `last_served` comum · 0 com `NULL` | `p2-serving.ndjson` × `brief_log` | 2026-08-25T10:22Z |
+| pré-gate 954 com 0 · pós-gate 1.267 com 102 = 8,1% | `p2-serving-WINDOW-2026-08-25.ndjson` × campo `epoch` | 2026-08-25T10:22Z |
+| 100 de 102 com `last_served` comum · 0 com `NULL` | `p2-serving-WINDOW-2026-08-25.ndjson` × `brief_log` | 2026-08-25T10:22Z |
 | 86/86 sem violação (teste estrito) | recibo `adversary-receipt-kimi-2026-08-24T195720` | 2026-08-24 |
-| `fresh_added` = 2 em 2.221 de 2.221 | `p2-serving.ndjson` | 2026-08-25T10:22Z |
+| `fresh_added` = 2 em 2.221 de 2.221 | `p2-serving-WINDOW-2026-08-25.ndjson` | 2026-08-25T10:22Z |
 | grupo de `last_served` da frente: 12 a 31 | `brief_log`, amostra de 6 decisões | 2026-08-25 |
 | grupo de empate médio 13,5 (22/08) vs 15,5 (24/08) | `brief_log` | 2026-08-24 |
 | `written_at` = 2026-08-21 22:51:23, único para os 280 | `p2_verdict` | 2026-08-25 |
 | primeiro serve dos 55: 22/08 19:23:43 → 21:07:19 | `brief_log` | 2026-08-25 |
-| primeiro `churn > 0`: 2026-08-23T17:52:04Z | `p2-serving.ndjson` | 2026-08-25 |
+| primeiro `churn > 0`: 2026-08-23T17:52:04Z | `p2-serving-WINDOW-2026-08-25.ndjson` | 2026-08-25 |
 | `served_at` sem fração de segundo: 0 de 559.158 | `brief_log` | 2026-08-25 |
-| autoria: entram 16/16 ids e 111/111 eventos do estudo; saem 25/33 ids e 99/111 eventos (89,2%) | `p2-serving.ndjson` × `p2_verdict`, janela fechada | janela fechada |
+| autoria: entram 16/16 ids e 111/111 eventos do estudo; saem 25/33 ids e 99/111 eventos (89,2%) | `p2-serving-WINDOW-2026-08-25.ndjson` × `p2_verdict`, janela fechada | janela fechada |
 | série horária pós-gate: 47 horas · média 7,8% · mediana 3,6% · 0,0–46,4% · 14 horas com zero | `pilot_window_stats.mjs` → `serie_horaria_pos_gate` | janela fechada |
 | `salienceBase` dos 55: 9 valores distintos · `importance` uniforme 0,9 · `access_count` ∈ {1..5} · 50 abaixo e 5 acima de 0,7342 | `calculateSalience` (`src/salience.ts:246`) × `chunks`, em `nowMs = 2026-08-25T10:22:00Z` | 2026-08-25 |
 | empate exato de `w_min`: **4 de 7** grupos multi-membro (19 grupos totais) | `w_min = (0,7342 − base)/(Δ_cut·sev)` sobre `salienceBase` computado | 2026-08-25 |
 | `p2_verdict` **não tem** coluna `created_at` | `.schema p2_verdict` | 2026-08-25 |
-| 954 = 30 + 672 + 252 (corte por epoch, não por dia civil) | `p2-serving.ndjson` × campo `epoch` | janela fechada |
-| 97,7% dos registros nos minutos do cron (07/22/37/52) | `p2-serving.ndjson`, distribuição de minuto | 2026-08-24 |
+| 954 = 30 + 672 + 252 (corte por epoch, não por dia civil) | `p2-serving-WINDOW-2026-08-25.ndjson` × campo `epoch` | janela fechada |
+| 97,7% dos registros nos minutos do cron (07/22/37/52) | `p2-serving-WINDOW-2026-08-25.ndjson`, distribuição de minuto | 2026-08-24 |
 | shares por-veredito S1 69,73 · S2 29,62 · S3 0,58 · S4 0,08 | `SHARES-PROVENANCE-2026-08-19.md:41` | 2026-08-19 |
 | shares por-episódio S1 78,93 · S2 21,07 · S3 0 · S4 0 | `SHARES-PROVENANCE-2026-08-19.md:42` | 2026-08-19 |
 | `Δ_cut = 0,043` (valor herdado, referente pendente) | `AUDIT-SECTION2-SERVING-2026-08-18.md` | 2026-08-18 |
@@ -744,9 +779,9 @@ formato legado retorna 200 e descarta autor e licença em silêncio.
 | cut principal 0,8524 · cut de cobertura 0,7342 | `PREREG-DRAFT.md:438` | registro |
 | `CUT_FRESH = 0,7342` congelado para designação | `PREREG-DRAFT.md:525` | registro |
 | desempate registrado: `w_min`, `created_at`, `chunk_id` | `PREREG-DRAFT.md:535` | registro |
-| `cDesignacao` default 0.7342 | `brief-outcome.ts:235-238` | commit `2740ded3` |
+| `cDesignacao` default 0.7342 | `brief-outcome.ts:235-238` | commit `c3c14c19` |
 | 190 chunks `entities/%` com 42,1–78,9 dias | `chunks` × janela de 30 d | 2026-08-21 |
-| commit servindo `2740ded3` | `git rev-parse HEAD` no host | 2026-08-25T09:57Z |
+| último commit em `src/`: `1464db87` · pinos por arquivo (5) | `git log -1 -- src/` e `git log -1 -- <arquivo>` no host | 2026-08-26T10:35Z |
 
 ## Anexo B — revisões adversariais
 
