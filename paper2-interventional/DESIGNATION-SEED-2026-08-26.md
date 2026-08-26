@@ -1,11 +1,11 @@
 # Designação do Paper 2 — declaração da seed de sorteio
 
-> **Registrada antes de a rodada existir.** Este arquivo é commitado e pushado ao
-> repositório público em **2026-08-26T20:1xZ** (timestamp exato no commit),
-> **antes** de a rodada do beacon nomeada abaixo ser emitida — ela sai às
-> **20:25:00Z**. Verificado no momento da escrita: `GET .../public/31657512`
-> devolvia **HTTP 425** (rodada ainda não emitida). O histórico do repo é o selo de
-> precedência — mesmo mecanismo de `CALIBRATION-SEED.md`,
+> **Registrada antes de a rodada existir.** Este arquivo foi commitado e pushado ao
+> repositório público em **2026-08-26T20:07:27Z** (commit `40d2462`), **antes** de a
+> rodada do beacon nomeada abaixo ser emitida — ela sai às **20:25:00Z**. Folga
+> real: **1.053 s = 17 min 33 s**, sobre um requisito de ≥ 300 s. Verificado no
+> momento da escrita: `GET .../public/31657512` devolvia **HTTP 425** (rodada ainda
+> não emitida). O histórico do repo é o selo de precedência — mesmo mecanismo de `CALIBRATION-SEED.md`,
 > `EXTENSION-SEED-2026-08-11.md`, `EXTENSION-2-SEED-2026-08-14.md` e
 > `LAMBDA-SEED-2026-08-21.md`.
 
@@ -143,7 +143,7 @@ cinco minutos de espera.
 | **Rodada `R`** | **31657512** |
 | Emissão de `R` | **2026-08-26T20:25:00Z** |
 | Estado de `R` na escrita | **HTTP 425** — não emitida |
-| Regra para `R` | primeira rodada com ≥ 5 min de folga sobre `T_declare`; folga real declarada no commit (alvo ≥ 300 s, `T_declare` máximo **20:20:00Z**) |
+| Regra para `R` | ≥ 5 min de folga sobre `T_declare`. `T_declare` = **20:07:27Z**, folga real **1.053 s** (limite era 20:20:00Z) |
 | Endpoint | `https://api.drand.sh/<chain>/public/<R>` — **v1** (o v2 **não** devolve `randomness`) |
 | Derivação | `seed = SHA256( ascii_hex(randomness) )`, hex minúsculo, sem `0x`, sem espaço |
 | **Ordenação** | `key(c) = SHA256( ascii(seed) \|\| "\|" \|\| c.chunk_id )` — o separador `\|` é **obrigatório** |
