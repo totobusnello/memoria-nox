@@ -96,6 +96,18 @@ f += chk("access_right",  m.get("access_right"), "open")
 f += chk("keywords",      len(m.get("keywords") or []), 10)
 f += chk("publication",   m.get("publication_date"), "2026-08-26")
 f += chk("files",         len(d.get("files", [])), 60)
+# related_identifiers: o GET legado devolve como `related_identifiers` com
+# `relation` (string) em vez de `relation_type.id`. Confere pelo par
+# (relação, identificador) na forma que vier, sem supor a chave.
+rel = m.get("related_identifiers") or []
+def par(r):
+    rt = r.get("relation") or (r.get("relation_type") or {}).get("id") or ""
+    return (rt.lower().replace("_", ""), r.get("identifier"))
+f += chk("related(n)",    len(rel), 2)
+f += chk("rel OSF",       ("issupplementto", "https://osf.io/yf7d2/") in {par(r) for r in rel}, True)
+f += chk("rel repo(tag)", ("issupplementedby",
+    "https://github.com/totobusnello/memoria-nox/tree/paper2-v1.12/paper2-interventional")
+    in {par(r) for r in rel}, True)
 # Igualdade de BYTES contra a fonte local. Exceção conhecida é asserção fraca:
 # o `<hr>` que o sanitizador do Zenodo descartava foi removido da fonte para
 # que esta comparação possa ser exata.
