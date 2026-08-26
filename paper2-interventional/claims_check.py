@@ -264,6 +264,9 @@ KNOWN_STALE = {
     # rather than by matching. Removing cross_check would silently downgrade this
     # entry from "checked a better way" to "not checked".
     "reachable_share.py": "correction comment quotes the old tuple; cross_check covers the real value",
+    # Same file, one line apart (CUT_FRESH). Same justification, and it holds only
+    # because `cross_check` now parses this name too — see the note there.
+    "reachable_share_fila.py": "one-line variant of the above; cross_check covers the real value",
 }
 
 SCAN_SUFFIXES = {".md", ".py", ".mjs", ".json", ".txt", ".jsonl"}
@@ -359,6 +362,16 @@ def cross_check(root: Path) -> list[str]:
     failures = []
     targets = {
         "reachable_share.py": r"^DOSES\s*=\s*\(([^)]*)\)",
+        # ⚠️ Added 2026-08-26. `reachable_share_fila.py` is a one-line variant of
+        # the above (it differs only in CUT_FRESH: 0.744495, the occupant reading
+        # amended on 2026-08-18, against 0.7342). It carries its own DOSES
+        # declaration and nothing was reading it. The sweep DID report it, as an
+        # un-allowlisted quote of the superseded tuple inside its correction
+        # comment — and the tempting fix, allowlisting the name, is exactly the
+        # downgrade the `reachable_share.py` entry warns about: "not checked"
+        # dressed as "checked a better way". So it gets the structural check
+        # FIRST, and the allowlist entry only afterwards.
+        "reachable_share_fila.py": r"^DOSES\s*=\s*\(([^)]*)\)",
     }
     for name, pattern in targets.items():
         path = root / name
