@@ -139,22 +139,30 @@ prepare() {
     "$API/records/$DRAFT/draft/actions/files-import" >/dev/null
   echo "     importados: $(curl -sf "${AUTH[@]}" "$API/records/$DRAFT/draft/files" | jqr "['entries'].__len__()")"
 
+  # A capa vive no repo como DEPOSIT-README.md e no depósito como README.md.
+  # Sem este mapeamento o DELETE erra a chave e o upload criaria um segundo
+  # arquivo com o nome errado — o `claims_check` já documenta essa mesma pegadinha
+  # na sua allowlist, e ela morde aqui também.
+  chave() { [ "$1" = "DEPOSIT-README.md" ] && echo "README.md" || echo "$1"; }
+
   echo "▸ 3/6 remove os ${#SUBSTITUIR[@]} que serão substituídos"
   for f in "${SUBSTITUIR[@]}"; do
-    curl -sf -X DELETE "${AUTH[@]}" "$API/records/$DRAFT/draft/files/$f" >/dev/null
-    echo "     - $f"
+    K=$(chave "$f")
+    curl -sf -X DELETE "${AUTH[@]}" "$API/records/$DRAFT/draft/files/$K" >/dev/null
+    echo "     - $K"
   done
 
   echo "▸ 4/6 sobe ${#SUBSTITUIR[@]} substituídos + ${#NOVOS[@]} novos"
   for f in "${SUBSTITUIR[@]}" "${NOVOS[@]}"; do
     [ -f "$PKG/$f" ] || { echo "✗ não existe: $PKG/$f"; exit 1; }
+    K=$(chave "$f")
     curl -sf -X POST "${AUTH[@]}" -H "Content-Type: application/json" \
-      -d "[{\"key\": \"$f\"}]" "$API/records/$DRAFT/draft/files" >/dev/null
+      -d "[{\"key\": \"$K\"}]" "$API/records/$DRAFT/draft/files" >/dev/null
     curl -sf -X PUT "${AUTH[@]}" -H "Content-Type: application/octet-stream" \
-      --data-binary "@$PKG/$f" "$API/records/$DRAFT/draft/files/$f/content" >/dev/null
+      --data-binary "@$PKG/$f" "$API/records/$DRAFT/draft/files/$K/content" >/dev/null
     curl -sf -X POST "${AUTH[@]}" \
-      "$API/records/$DRAFT/draft/files/$f/commit" >/dev/null
-    echo "     + $f ($(wc -c <"$PKG/$f" | tr -d ' ') B)"
+      "$API/records/$DRAFT/draft/files/$K/commit" >/dev/null
+    echo "     + $K ($(wc -c <"$PKG/$f" | tr -d ' ') B)"
   done
 
   metadata
@@ -188,34 +196,46 @@ sync_files() {
   [ -f "$STATE" ] || { echo "✗ sem draft: rode 'prepare' primeiro"; exit 1; }
   DRAFT=$(cat "$STATE")
   curl -sf "${AUTH[@]}" "$API/records/$DRAFT/draft/files" > "$DIR/.draft-files.json"
-  MUD=$(python3 - "$DIR/.draft-files.json" "$PKG" <<'PY'
+  # Duas categorias, e a segunda foi o primeiro defeito desta função: ela só
+  # olhava o que JÁ estava no draft, então um arquivo novo adicionado ao pacote
+  # depois do `prepare` nunca subia — e o draft continuaria "sem divergências"
+  # enquanto faltasse arquivo.
+  ESPERADOS=("${SUBSTITUIR[@]}" "${NOVOS[@]}")
+  PLAN=$(python3 - "$DIR/.draft-files.json" "$PKG" "${ESPERADOS[@]}" <<'PY'
 import json, sys, hashlib, os
 entries = json.load(open(sys.argv[1]))["entries"]; PKG = sys.argv[2]
+esperados = sys.argv[3:]
 def md5(p):
     h = hashlib.md5()
     with open(p, "rb") as fh:
         for b in iter(lambda: fh.read(1 << 20), b""): h.update(b)
     return "md5:" + h.hexdigest()
-for e in entries:
-    k = e["key"]
-    local = os.path.join(PKG, "DEPOSIT-README.md" if k == "README.md" else k)
-    if not os.path.exists(local):      # herdado da v1.11, sem par local (PDF/HTML)
-        continue
-    if e.get("checksum") != md5(local):
-        print(k)
+def local_de(k): return os.path.join(PKG, "DEPOSIT-README.md" if k == "README.md" else k)
+no_draft = {e["key"]: e for e in entries}
+for k, e in no_draft.items():                       # divergentes
+    p = local_de(k)
+    if os.path.exists(p) and e.get("checksum") != md5(p):
+        print("R", k)
+for k in esperados:                                  # ausentes
+    dk = "README.md" if k == "DEPOSIT-README.md" else k
+    if dk not in no_draft:
+        print("A", dk)
 PY
 )
-  if [ -z "$MUD" ]; then echo "▸ nenhum arquivo divergente — draft já espelha o local"; return 0; fi
-  echo "▸ divergentes, reenviando:"
-  for f in $MUD; do
+  if [ -z "$PLAN" ]; then echo "▸ nenhuma divergência e nenhum ausente — draft espelha o local"; return 0; fi
+  echo "$PLAN" | while read -r acao f; do
     L="$PKG/$f"; [ "$f" = "README.md" ] && L="$PKG/DEPOSIT-README.md"
-    curl -sf -X DELETE "${AUTH[@]}" "$API/records/$DRAFT/draft/files/$f" >/dev/null
+    [ -f "$L" ] || { echo "     ✗ não existe: $L"; exit 1; }
+    if [ "$acao" = "R" ]; then
+      curl -sf -X DELETE "${AUTH[@]}" "$API/records/$DRAFT/draft/files/$f" >/dev/null
+    fi
     curl -sf -X POST "${AUTH[@]}" -H "Content-Type: application/json" \
       -d "[{\"key\": \"$f\"}]" "$API/records/$DRAFT/draft/files" >/dev/null
     curl -sf -X PUT "${AUTH[@]}" -H "Content-Type: application/octet-stream" \
       --data-binary "@$L" "$API/records/$DRAFT/draft/files/$f/content" >/dev/null
     curl -sf -X POST "${AUTH[@]}" "$API/records/$DRAFT/draft/files/$f/commit" >/dev/null
-    echo "     ↻ $f ($(wc -c <"$L" | tr -d ' ') B)"
+    [ "$acao" = "R" ] && echo "     ↻ $f ($(wc -c <"$L" | tr -d ' ') B)" \
+                      || echo "     + $f ($(wc -c <"$L" | tr -d ' ') B)"
   done
 }
 
