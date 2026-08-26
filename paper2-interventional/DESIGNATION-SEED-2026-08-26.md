@@ -156,11 +156,24 @@ RAND=$(curl -s https://api.drand.sh/$CHAIN/public/31657512 | jq -r .randomness)
 SEED=$(printf '%s' "$RAND" | sha256sum | cut -d' ' -f1)
 
 # O conjunto designado, recomputado do zero:
-python3 designation_verify.py --round 31657512 --verdicts p2_verdict.csv
-# onde p2_verdict.csv sai de
-#   SELECT DISTINCT sig_primary, severity, chunk_id FROM p2_verdict
-#    WHERE chunk_id IS NOT NULL AND severity IN ('S1','S2');
+python3 designation_verify.py --round 31657512 \
+        --verdicts p2-verdict-frame-2026-08-26.csv
 ```
+
+O frame está **depositado neste repositório** —
+`p2-verdict-frame-2026-08-26.csv`, 55 linhas, `sha256`
+`9d0d80d68ffc61733426b0850d2c0f920b4b0b7a3052bd9865d6930ba3f5178a` — e foi
+commitado às **20:08:55Z**, também **antes** de `R` existir. Isso importa: com o
+frame publicado antes do sorteio, não há como ajustar a população depois de ver o
+resultado. É o resultado exato de
+
+```sql
+SELECT DISTINCT sig_primary, severity, chunk_id FROM p2_verdict
+ WHERE chunk_id IS NOT NULL AND severity IN ('S1','S2')
+ ORDER BY sig_primary, chunk_id;
+```
+
+e a verificação por terceiro não depende de acesso ao banco.
 
 `designation_verify.py --self-test` trava o layout de bytes sem tocar a rede: seis
 checagens, entre elas o **teste negativo do separador** (sem o `|` a chave muda) e
