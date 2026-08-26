@@ -239,6 +239,63 @@ depois.
 
 ---
 
+## Consequência operacional, declarada ANTES de subir
+
+Escrito 2026-08-26T20:05Z, com o código já compilado e testado na VPS e **antes**
+do restart que o torna vivo. A ordem é o ponto: um zero explicado depois do fato é
+indistinguível de um zero racionalizado.
+
+**O que vai acontecer:** a regra nova exige um conjunto designado congelado, preso
+por `NOX_P2_DESIGNATION` + `NOX_P2_DESIGNATION_SHA256`. Esse arquivo **ainda não
+existe** — ele é produto da declaração de seed, que é o passo seguinte. Sem ele
+`carregarDesignados` recusa, `boostsParaCandidatos` devolve mapa vazio, e o
+`churn` medido pelo shadow vai a **zero exato**.
+
+**Não é regressão. É a regra velha saindo de circulação antes de a nova entrar** —
+e é assim de propósito: o alternativo seria manter servindo uma designação cujos
+três defeitos estão retratados na emenda.
+
+**Linha de base, para que o zero seja atribuível.** Janela FECHADA e presa por
+hash, não série viva:
+
+| | |
+|---|---|
+| arquivo | `/root/.openclaw/logs/p2-serving.ndjson` |
+| sha256 | `5f31297e674f0438c65db493133507d77f390b1e1fcceea04e04c8ee3104c78d` |
+| bytes | 1.256.348 |
+| janela | `2026-08-21T22:57:48.194Z` → `2026-08-26T19:52:07.775Z` |
+| linhas | 3.166 |
+| `churn` = 0 / 1 / 2 | 3.034 / 123 / 9 |
+| **`churn` > 0** | **132 de 3.166 = 4,1693%** |
+| soma das partes == total | ✓ |
+| `w` | 2.0 em 100% das linhas |
+| `servido` | `controle` em 100% das linhas |
+
+Os 132 são o que desaparece. Se depois do restart o `churn` positivo **não** for
+zero, o defeito é meu e não do desenho — significaria que algum caminho ainda
+impulsiona sem conjunto designado.
+
+**Como confirmar, e por estado observável.** Não por log de startup, que é a lição
+do drop-in de systemd que desligou a flag em silêncio enquanto
+`systemctl is-active` seguia dizendo `active`:
+
+1. `p2_designation_seed_ausente` aparece no journal **uma** vez por processo;
+2. novas linhas do NDJSON trazem `designated_ids: []` e `boost_by_id: {}` — os
+   dois campos aditivos do item 4 do §5.3, ausentes nas 3.166 anteriores;
+3. `churn` positivo em 0 das linhas novas.
+
+O par `designated_ids` × `boost_by_id` é o que fecha a verificação: o primeiro é o
+que a **regra diz**, o segundo é o que o **código fez**. Ter só um dos dois era o
+que permitia à regra anterior parecer aplicada.
+
+**Estado do código na VPS neste instante:** `npx tsc` limpo; 26/26 no
+`p2-outcome.test.js` e 379 passes / 0 falhas / 1 skip na suíte inteira (380);
+5 mutações do fonte confirmadas mordendo (separador removido → 3 falhas; seed como
+bytes → 3; sha1 no lugar de sha256 → 2; sem o filtro de S0/`chunk_id NULL` → 1;
+desempate entregue à ordem de linha → 1). Asserção que não morde não é asserção.
+
+---
+
 ## Fora de escopo desta decisão
 
 - O `Δ_cut` e o `w` — dose, não designação.
