@@ -86,9 +86,50 @@ designado(g) = argmin_{c ∈ g} SHA256( seed ‖ "|" ‖ sig_primary ‖ "|" ‖
 - ✅ **Remove o confundimento de calibração.** A designação passa a ser
   independente de severidade, logo independente de qual painelista pontuou mais
   duro.
-- 🔴 **Perde dose.** A dose esperada cai para a média de severidade do grupo em
-  vez do máximo. Com 4 grupos empatados e composição majoritária S1/S2, a perda é
-  da ordem de um terço da dose nesses grupos.
+- 🔴 **Perde dose — 8,8% no agregado. MEDIDO 2026-08-26.**
+
+  A dose esperada cai do **máximo** de severidade do grupo para a **média**.
+  Sobre `p2_verdict` (19 grupos, 55 chunks; `severity` e `sig_primary` são
+  campos congelados desde 2026-08-21T22:51:23, então a medição não envelhece):
+
+  | | soma de severidade sobre os 19 grupos |
+  |---|---|
+  | A (máximo) | **7,2500** |
+  | B (sorteio, esperança) | **6,6134** |
+  | **perda** | **8,8%** |
+
+  Só **5 dos 19** grupos diferem — nos outros 14 a severidade é única, e A e B
+  designam a mesma dose. Por grupo que difere:
+
+  | grupo | n | composição | A | E[B] | perda |
+  |---|---|---|---|---|---|
+  | `mcp__openclaw__message\|sem-alvo` | 6 | S1:5 · S2:1 | 0,50 | 0,2917 | 41,7% |
+  | `Bash\|shell:outro` | 17 | S1:10 · S2:7 | 0,50 | 0,3529 | 29,4% |
+  | `Bash\|fs:mutacao` | 2 | S1:1 · S2:1 | 0,50 | 0,3750 | 25,0% |
+  | `mcp__openclaw__web_fetch\|rede` | 8 | S1:3 · S2:5 | 0,50 | 0,4062 | 18,8% |
+  | `Bash\|build/run` | 4 | S1:1 · S2:3 | 0,50 | 0,4375 | 12,5% |
+
+  Em `W_OUTCOME = w · Δ_cut · severidade`, com `Δ_cut = 0,043`:
+
+  | `w` | Σ A | Σ E[B] | perda |
+  |---|---|---|---|
+  | 2,0 | 0,6235 | 0,5687 | 0,0548 |
+  | 4,0 | 1,2470 | 1,1375 | 0,1095 |
+  | 7,5 | 2,3381 | 2,1328 | 0,2053 |
+
+  🔴 **Retratação da minha própria prosa nesta seção.** A redação de 25/08 dizia
+  *"a perda é da ordem de um terço da dose nesses grupos"* e falava de **4**
+  grupos empatados. Errado nas duas pontas: os grupos que **diferem em dose** são
+  **5** (conjunto diferente dos 4 que empatam em `w_min` — empate e diferença de
+  dose não são a mesma condição), e "um terço" descreve a média dos 5 grupos
+  isolados (25,5%), não o agregado, que é **8,8%** porque 14 grupos não mudam.
+  Estimativa em prosa onde havia medição disponível — a classe de sempre.
+
+  **Leitura da grandeza:** 8,8% é pequeno diante do espaçamento da própria banda
+  — o menor passo é 2,0 → 4,0, um aumento de 100%. A perda não move grupo nenhum
+  entre doses. ⚠️ E não converto isso em afirmação de poder: o estimando foi
+  retirado (retratação 12), então não existe curva de poder vigente contra a qual
+  medir. A afirmação é sobre **dose**, não sobre poder.
 - 🔴 Exige uma seed nova, declarada antes e ancorada no OSF — mais um artefato
   com precedência a provar.
 
@@ -118,9 +159,17 @@ um painelista** — e a memória do projeto já registra que o estrato S2 repous
 um viés nomeado é progresso, mas trocá-lo por **nenhum** é melhor, e o custo é
 poder, que se compra com `w` ou com épocas.
 
-A perda de dose é real e mensurável antes de decidir: dá para computar a dose
-esperada sob A e sob B a partir de `p2_verdict`, sem tocar em desfecho. **Se você
-quiser, eu rodo esse número antes de você escolher** — é leitura, não intervenção.
+**E o preço agora está medido: 8,8%** (tabelas acima). A troca é explícita:
+
+> **8,8% de dose agregada** para remover a dependência da calibração de
+> severidade de **um** painelista.
+
+O `xai` responde por **72,2%** do share de S2 contra 24,2% e 25,9% dos outros, e
+nos 5 grupos que diferem a opção A designa **S2 em todos os 5** — isto é, a
+designação seria decidida, nesses grupos, pela família que pontua mais duro. B
+troca isso por 8,8% de dose, e 8,8% cabe folgado dentro de um passo de banda.
+
+Com o número na mesa, a recomendação fica mais firme, não menos.
 
 Se a preferência for A, ela é defensável desde que a dependência da calibração do
 xai seja **declarada no registro prospectivo** como limitação, não descoberta
