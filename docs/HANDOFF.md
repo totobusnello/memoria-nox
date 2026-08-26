@@ -27,7 +27,7 @@ em **2.221 de 2.221** registros ⇒ **zero desfecho sob tratamento** ⇒ `N` e
 
 Quatro vozes (Grok, DeepSeek, GLM, Codex) vetaram a redação anterior. Kimi
 revisou a reescrita e achou 3 bloqueantes; o GLM revisou depois e achou 6, dos
-quais 4 procedem. Todos corrigidos. **25 retratações** no §4.
+quais 4 procedem. Todos corrigidos. **27 retratações** no §4.
 
 ⚠️ Duas alegações do GLM foram **refutadas por medição** e ficam no Anexo B: a
 população 1.305 é consistente (o peso divide o frame pela **amostra** 242, não

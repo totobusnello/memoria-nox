@@ -96,12 +96,24 @@ limiar**. Três formas dessa afirmação caem:
 - **O cut não é constante do sistema.** O campo `cut_principal` de
   `CUTS-MEASURED-2026-08-18.json` é agente-heterogêneo: **0,610 a 0,792**, span
   0,182 (nox 0,6851 · atlas 0,7613 · boris 0,6925 · …).
-  ⚠️ **É a mesma grandeza que o registro publica como `0,8524`**
-  (`PREREG-DRAFT.md:438`, "main-pool cut"). Não são duas quantidades: o valor
-  registrado é **uma medição de um agente, generalizada** para constante do
-  sistema, e está **fora** do span medido em 18/08. Onde esta emenda escreve
-  "cut do pool principal = 0,8524", está citando o registro, não uma medição
-  vigente.
+
+  > ⚠️ **Um nome, duas coisas — e a confusão é o achado, não um descuido da
+  > redação.** `cut_principal` (o campo, medido) e "main-pool cut = 0,8524" (o
+  > registro, `PREREG-DRAFT.md:438`) **nomeiam a mesma grandeza** e **não têm o
+  > mesmo valor**: 0,8524 está **fora** do span 0,610–0,792 medido em 18/08.
+  >
+  > A leitura correta não é "há duas quantidades e uma colisão de nome". É:
+  > **existe uma grandeza, ela é agente-heterogênea, e o registro publicou a
+  > medição de um agente como se fosse constante do sistema.** Um valor fora do
+  > span medido não é uma segunda quantidade — é a mesma, mal generalizada.
+  >
+  > Consequência de leitura: onde esta emenda escreve "cut do pool principal =
+  > 0,8524", está **citando o registro**, nunca uma medição vigente. Duas
+  > revisões adversariais independentes (2026-08-25 e 2026-08-26) reportaram este
+  > ponto como colisão de referente; a segunda depois de uma primeira tentativa
+  > minha de desambiguar. Duas leituras tropeçando no mesmo lugar é evidência
+  > sobre a redação, então ela está agora enunciada como achado, e não como
+  > ressalva.
 - **Publiquei quatro valores em quatro dias** (0,7342 → 0,744495 → 0,7345 →
   0,684477) tratando cada um como "a barra". Não são medições concorrentes do
   mesmo parâmetro: são **estados** de um estoque em dreno, medidos em datas
@@ -395,13 +407,30 @@ Fica retratada também a leitura de 2026-08-24 de que a série seria um transien
 de depleção monotônica até zero: ela se apoiava num recorte de cinco pontos
 decrescentes.
 
-⚠️ **Correção de um defeito da própria redação.** Uma versão anterior deste §3.4
-publicou uma série de **25 valores** que somava 85 eventos, contra os 102 do
-pós-gate. O recorte começava em 2026-08-23T15:52Z — a **retomada da coleta após a
-migração** — e não na abertura do gate às 09:00Z, com regra de seleção não
-declarada. Pior: era o único número da emenda que não estava no snapshot nem era
-computado pelo script, de modo que o `--assert-json` não o protegia. A série
-agora é emitida pelo script e congelada.
+> ### 🚫 SUPERADO — os números deste bloco NÃO são desta emenda
+>
+> Todo valor entre as marcas 🚫 abaixo é **retratado**. Nenhum deles descreve a
+> série vigente, que é a das **47 horas / 1.267 registros / 102 eventos** da
+> tabela acima. Este bloco existe para que o registro superado fique legível,
+> não para ser lido como medição.
+>
+> 🚫 Uma versão anterior deste §3.4 publicou uma série de **25 valores** que
+> somava **85 eventos**. Quem calcular a média sobre ela obtém ~12%, e esse
+> número **não é uma taxa desta emenda** — é aritmética sobre um recorte
+> defeituoso. O recorte começava em 2026-08-23T15:52Z, a **retomada da coleta
+> após a migração**, e não na abertura do gate às 09:00Z, com regra de seleção
+> não declarada. Pior: era o único número da emenda que não estava no snapshot
+> nem era computado pelo script, de modo que o `--assert-json` não o protegia. 🚫
+>
+> A série agora é emitida pelo script e congelada em
+> `PILOT-WINDOW-2026-08-25.json`.
+>
+> ⚠️ **Por que a quarentena é explícita.** Uma revisão adversarial de 2026-08-26
+> leu este parágrafo como se os 25 valores fossem a série corrente, recomputou a
+> média em 12,1% e reportou divergência contra os 102 congelados. A leitura era
+> compreensível: o parágrafo citava os números retratados e os vigentes na mesma
+> frase, e a única marca de tempo passado era o verbo. Num depósito imutável,
+> texto que **pode** ser lido como vigente **será**.
 
 ### 3.5 A ativação medida é de um batch, e é teto
 
@@ -457,6 +486,8 @@ registrada, nem a nova — os 8,1% entram nele.
 | 24 | 26/08 | a capa listava `PREREG-DRAFT.md` como "the central document (v1.11)" e não mencionava a emenda | a emenda é a razão de existir a v1.12 e não aparecia na capa; guia de arquivos reescrito com os 12 novos, e os renders `PREREG-v1.11-*` declarados como **não** re-renderizados |
 
 | 25 | 26/08 | o §7 dizia "isto mitiga, não resolve — o registro prospectivo deve carregar o blob" | adiava um conserto que não precisava de adiamento; os 5 módulos vão **nesta** versão, com `SERVING-CODE-MANIFEST.md` (§7) |
+| 26 | 26/08 | o §3.4 citava os números retratados e os vigentes na mesma frase | quarentena explícita 🚫: uma revisão de 26/08 leu os 25 valores como série corrente e recomputou média 12,1% (§3.4) |
+| 27 | 26/08 | o §1.1 tratava `cut_principal` × 0,8524 como ressalva de leitura | é **achado**: uma grandeza agente-heterogênea cuja medição de um agente foi publicada como constante; duas revisões tropeçaram (§1.1) |
 Correções pontuais que permanecem válidas:
 
 - **`0,7344` supera 4 dos 6 agentes**, não 5 (lex, nox, boris, forge; não atlas

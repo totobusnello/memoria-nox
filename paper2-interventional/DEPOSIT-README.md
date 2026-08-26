@@ -26,7 +26,7 @@ package touched live serving, and something did.
 
 `AMENDMENT-v1.12.md` is the document this version exists for. It is
 **descriptive**: it declares facts about the serving mechanism and the pilot
-series, retracts **25** earlier claims with the measurement that replaces each,
+series, retracts **27** earlier claims with the measurement that replaces each,
 and names the defects that must be fixed before the confirmatory study starts.
 It deliberately specifies **no** estimand and fixes **no** `N` — with zero
 outcome observed under treatment, neither is estimable from this series, and any
