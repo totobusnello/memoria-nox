@@ -456,6 +456,7 @@ registrada, nem a nova — os 8,1% entram nele.
 | 23 | 26/08 | a capa do depósito dizia "everything measured … **over a historical corpus**" | verdade na v1.11; a v1.12 acrescenta 2.221 decisões de serving **ao vivo** e a rodada de painel sobre episódios de 15–20/08. Segue pré-tratamento, não segue só-corpus (`DEPOSIT-README.md`) |
 | 24 | 26/08 | a capa listava `PREREG-DRAFT.md` como "the central document (v1.11)" e não mencionava a emenda | a emenda é a razão de existir a v1.12 e não aparecia na capa; guia de arquivos reescrito com os 12 novos, e os renders `PREREG-v1.11-*` declarados como **não** re-renderizados |
 
+| 25 | 26/08 | o §7 dizia "isto mitiga, não resolve — o registro prospectivo deve carregar o blob" | adiava um conserto que não precisava de adiamento; os 5 módulos vão **nesta** versão, com `SERVING-CODE-MANIFEST.md` (§7) |
 Correções pontuais que permanecem válidas:
 
 - **`0,7344` supera 4 dos 6 agentes**, não 5 (lex, nox, boris, forge; não atlas
@@ -700,9 +701,22 @@ tudo ao `HEAD`, que naquele dia era um commit de encerramento de sessão sem
 nenhuma mudança em `src/`. O pino era verdadeiro e irrelevante — nomeava um
 objeto que não tinha relação causal com o trecho citado.
 
-⚠️ Isto mitiga, não resolve. Citação amarrada a um commit num host privado não é
-reprodutibilidade plena. O registro prospectivo deve **carregar o blob** dos
-módulos de serving e designação.
+✅ **E o blob entra nesta versão.** Uma redação anterior deste §7 fechava com
+*"isto mitiga, não resolve — o registro prospectivo deve carregar o blob dos
+módulos de serving e designação"*, adiando o conserto. Não há razão para adiar:
+os cinco módulos que esta emenda transcreve ou cita por linha vão depositados,
+com proveniência em `SERVING-CODE-MANIFEST.md` (path original, commit, data,
+tamanho e sha256 de cada um):
+
+`serving-brief.ts` · `serving-brief-diversity.ts` · `serving-brief-outcome.ts` ·
+`serving-salience.ts` · `serving-search.ts`
+
+⚠️ **E o que isso não é.** São os módulos, não o sistema. Eles importam do resto
+do pacote (`db.js`, o cliente de embeddings, a camada FTS5), que **não** vai
+depositado — logo os blobs são **auditáveis, não executáveis** isoladamente. É
+uma afirmação mais estreita que reprodutibilidade, e é a honesta. O que muda:
+quem lê a citação `brief.ts:608-618` agora pode abrir a linha 608 em vez de
+confiar na transcrição.
 
 ---
 

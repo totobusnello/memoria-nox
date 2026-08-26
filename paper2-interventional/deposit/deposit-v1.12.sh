@@ -28,6 +28,7 @@ AUTH=(-H "Authorization: Bearer $ZENODO_TOKEN")
 # Arquivos já no depósito que MUDARAM no repo desde 17/08 (conferido por md5).
 # Precisam de delete + reupload; files-import traz a versão velha.
 SUBSTITUIR=(
+  DEPOSIT-README.md         # reescrita para v1.12: capa descrevia pacote v1.11
   PREREG-DRAFT.md          # + bloco do registro OSF (que se declara fora da cópia registrada)
   claims_check.py          # + cross_check do DOSES do reachable_share_fila.py
   run_panel.py             # fix d09b3cb: marcador do prompt restaurado, hash travado morde
@@ -47,6 +48,12 @@ NOVOS=(
   AUDIT-SECTION2-SERVING-2026-08-18.md
   SHARES-PROVENANCE-2026-08-19.md
   reachable_share_fila.py
+  SERVING-CODE-MANIFEST.md
+  serving-brief.ts
+  serving-brief-diversity.ts
+  serving-brief-outcome.ts
+  serving-salience.ts
+  serving-search.ts
 )
 
 jqr() { python3 -c "import sys,json; print(json.load(sys.stdin)$1)"; }
@@ -88,7 +95,7 @@ f += chk("language",      m.get("language"), "eng")
 f += chk("access_right",  m.get("access_right"), "open")
 f += chk("keywords",      len(m.get("keywords") or []), 10)
 f += chk("publication",   m.get("publication_date"), "2026-08-26")
-f += chk("files",         len(d.get("files", [])), 54)
+f += chk("files",         len(d.get("files", [])), 60)
 # Igualdade de BYTES contra a fonte local. Exceção conhecida é asserção fraca:
 # o `<hr>` que o sanitizador do Zenodo descartava foi removido da fonte para
 # que esta comparação possa ser exata.

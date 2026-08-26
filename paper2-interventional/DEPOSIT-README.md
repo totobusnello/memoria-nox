@@ -26,7 +26,7 @@ package touched live serving, and something did.
 
 `AMENDMENT-v1.12.md` is the document this version exists for. It is
 **descriptive**: it declares facts about the serving mechanism and the pilot
-series, retracts **24** earlier claims with the measurement that replaces each,
+series, retracts **25** earlier claims with the measurement that replaces each,
 and names the defects that must be fixed before the confirmatory study starts.
 It deliberately specifies **no** estimand and fixes **no** `N` — with zero
 outcome observed under treatment, neither is estimable from this series, and any
@@ -234,6 +234,17 @@ population 1,305, stratum A a census of 48, stratum B 242 drawn from 1,257 by
 Horvitz-Thompson estimate and the limitation that matters: 22 of 22 consolidated
 S2 verdicts carry `xai = S2`, so the size of the treated population depends on
 one panel family's severity calibration.
+
+**The serving code itself (new in v1.12)**
+`serving-brief.ts` · `serving-brief-diversity.ts` · `serving-brief-outcome.ts` ·
+`serving-salience.ts` · `serving-search.ts`, with path, commit, date, size and
+sha256 in `SERVING-CODE-MANIFEST.md`. Until v1.12 the code carrying the mechanism
+lived only on a private host, so every citation of the form `brief.ts:608-618`
+was unauditable by whoever read the registration — a defect the amendment's §7
+declares and this closes. ⚠️ These are the **modules, not the system**: they
+import from parts of the package that are not deposited, so they are auditable
+and **not executable standalone**. That is narrower than reproducibility and is
+the honest claim.
 
 **The cuts, measured rather than assumed**
 `CUTS-MEASURED-2026-08-18.json` · `cuts_measure.mjs` ·
