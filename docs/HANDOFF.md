@@ -4,7 +4,7 @@
 
 ---
 
-## 🟢 Estado atual (2026-08-25, 15h) — v1.12 reescrita e commitada; depósito é a próxima ação
+## 🟢 Estado atual (2026-08-26, 20:20Z) — regra nova NO AR e inerte; seed declarada, esperando a rodada
 
 > ✅ **DEPOSITADO 2026-08-26T14:01Z** — Zenodo **`10.5281/zenodo.22110203`**
 > (conceito `10.5281/zenodo.21964093`), version 1.12, **60 arquivos**, state
@@ -14,11 +14,61 @@
 > pseudoaleatório com seed declarada). Custo aceito: 8,8% de dose agregada, para
 > remover a dependência da calibração de uma família do painel.
 >
-> ▶️ **Próxima ação: declarar a seed de designação com precedência verificável** —
-> pushar a declaração ANTES de a rodada de aleatoriedade existir, como no
-> `LAMBDA-SEED-2026-08-21.md`. ⚠️ Não é o `T_seed_assign`: designação escolhe
-> *qual chunk*, `T_seed_assign` escolhe *qual braço*. Nomes e declarações
-> separados.
+> ✅ **Layout da chave CORRIGIDO 19:40Z, antes de congelar:**
+> `argmin SHA256(seed ‖ "|" ‖ chunk_id)` — `sig_primary` **saiu** da chave. Todos
+> os 19 valores reais contêm `|`, o próprio separador, então o layout aprovado não
+> era injetivo. Removido em vez de trocar o separador porque cada chunk pertence a
+> exatamente 1 grupo ⇒ o campo não carregava informação. Ganho: a chave depende só
+> de ids congelados.
+>
+> ✅ **Fase 1 NO AR (restart 19:58Z), e deliberadamente INERTE.** Na VPS:
+> `designadosGlobais` (derivação global, não condicional ao pool),
+> `carregarDesignados` (arquivo congelado preso por path+sha256, como o
+> `ASSIGNMENT.json`), `chaveDeDesignacao` (contrato de bytes), guarda de drift.
+> `cDesignacao()` e `NOX_P2_C_DESIGNACAO` **removidas** — constante retratada não
+> fica viva. Log ganhou `designated_ids` + `boost_by_id`. Testes: 26/26 no módulo,
+> **379 passes / 0 falhas / 1 skip** na suíte de 380, e **5 mutações do fonte
+> confirmadas mordendo**.
+>
+> ✅ **Seed declarada com precedência verificável.**
+> `DESIGNATION-SEED-2026-08-26.md`, rodada **`R = 31657512`**, emissão
+> **20:25:00Z**. Push do commit `40d2462` às **20:07:24Z** *(data do GitHub, não do
+> meu relógio)* — folga **1.056 s** sobre requisito de 300 s, e `GET
+> .../public/31657512` devolvia **HTTP 425** na escrita. O **frame** de 55 linhas
+> também está depositado (`p2-verdict-frame-2026-08-26.csv`, sha256 `9d0d80d6…`,
+> 20:08:55Z): congelar o quadro antes da aleatoriedade fecha a porta de ajustar a
+> população depois de ver o sorteio, e a verificação por terceiro deixa de depender
+> do banco.
+>
+> ▶️ **Próxima ação: derivar a seed de `R`** (já emitida a esta altura), gravar
+> `randomness` + seed + conjunto de 19 + sha256 na seção "Resultado" da declaração,
+> conferir **TS × Python** por sha256 do conjunto, e só então ligar
+> `NOX_P2_DESIGNATION` + `..._SHA256` por drop-in.
+>
+> ⚠️ **O `churn` do shadow está em ZERO por desenho, e isso foi declarado às
+> 20:05Z, antes do restart.** Sem conjunto designado o mapa de boost é vazio. Linha
+> de base para atribuição, em janela FECHADA por sha256 do NDJSON
+> (`2026-08-21T22:57:48.194Z` → `2026-08-26T19:52:07.775Z`, 3.166 linhas): `churn`
+> positivo **132 = 4,1693%**. São esses 132 que devem desaparecer. **N=3 na
+> verificação pós-restart não é evidência** (p=0,88 de dar zero por acaso) — o
+> mecanismo está provado, a taxa precisa de tráfego real (~26 linhas/h).
+>
+> ⚠️ **Não sondar `/api/brief` para levantar N.** Ele não tem gate de tracking
+> (`brief.ts:1086` insere em `brief_log` sempre, e `brief_log` alimenta
+> `last_served`, que ordena o pool). Não existe `?track=false` como no
+> `/api/search`. As 3 sondas de verificação escreveram 15 linhas tocando 3 chunks
+> do estudo; **não apaguei**, e a razão inverteu minha decisão inicial: os 3 já
+> tinham 47-48 servings, o último 1h51 antes, logo são as linhas 48/49 de uma série
+> que o tráfego real já produzia — não a mudança qualitativa nunca-servido →
+> servido. Registrado em `DECISION-designacao-2026-08-25.md`.
+>
+> ⚠️ **O TS novo está NÃO-COMMITADO na VPS** (`nox-workspace`, repo privado; 3
+> arquivos modificados). Código vivo em produção sem commit — e existe mecanismo
+> de "auto session wrap-up" que o engoliria com mensagem genérica.
+>
+> ⚠️ **`T_seed_assign` continua aberto.** Designação escolhe *qual chunk*;
+> `T_seed_assign` escolhe *qual braço*. Nomes e declarações separados — confundi-los
+> permitiria a quem conhece uma inferir a outra.
 >
 > O GLM fechou a rodada com `exit: 0` e **achou defeito real** — as correções
 > entraram em `75fc353` (retratações 15-17). ⚠️ Conferir o **recibo** com
