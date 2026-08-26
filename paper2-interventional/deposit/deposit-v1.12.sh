@@ -2,7 +2,8 @@
 # Depósito da v1.12 no Zenodo — DUAS FASES, e a segunda é a irreversível.
 #
 #   ./deposit-v1.12.sh prepare   → cria o draft, sobe arquivos, grava metadados. PARA.
-#   ./deposit-v1.12.sh metadata  → regrava e reconfere os metadados do draft existente.
+#   ./deposit-v1.12.sh sync      → reenvia arquivos alterados + regrava metadados. PARA.
+#   ./deposit-v1.12.sh metadata  → regrava e reconfere só os metadados.
 #   ./deposit-v1.12.sh publish   → PUBLICA. Imutável a partir daqui.
 #
 # Token: export ZENODO_TOKEN=... (escopos deposit:write + deposit:actions)
