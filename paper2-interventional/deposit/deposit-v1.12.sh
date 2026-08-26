@@ -71,6 +71,15 @@ metadata() {
 
   echo "▸ relê e confere campo a campo o que o PUT legado apagava"
   curl -sf "${AUTH[@]}" "$API/records/$DRAFT/draft" > "$DIR/.draft-readback.json"
+  # ⚠️ A forma LEGADA não expõe `publisher` — e `publisher` é exigido para
+  # registrar o DOI, então a conferência de 15 campos era cega justamente para um
+  # campo que bloqueia a publicação. Descoberto pelo HTTP 400 do publish, não
+  # pela verificação. Lição: **a forma que se lê determina o que se pode
+  # verificar**; um campo ausente da serialização é invisível, não ausente.
+  # Por isso o readback agora é DUPLO: legado (o que já provou pegar apagamento
+  # de autor/licença) e InvenioRDM (a forma que o PUT envia).
+  curl -sf -H "Accept: application/vnd.inveniordm.v1+json" "${AUTH[@]}" \
+    "$API/records/$DRAFT/draft" > "$DIR/.draft-readback-rdm.json"
   # ⚠️ O PUT aceita InvenioRDM, mas o GET do draft devolve a serialização
   # LEGADA (`creators: [{name, affiliation}]`, `license`, `keywords`, `language`,
   # `access_right`, `files` como lista). A primeira versão deste bloco leu
@@ -124,6 +133,10 @@ if m.get("description") != local:
     f += 1
 else:
     print("     ok  description      idêntica byte a byte")
+# Campos que SÓ existem na serialização InvenioRDM.
+rdm = json.load(open(f"{DIR}/.draft-readback-rdm.json")).get("metadata", {})
+f += chk("publisher",     rdm.get("publisher"), "Zenodo")
+f += chk("rdm version",   rdm.get("version"), "1.12")
 print()
 if f:
     print(f"✗ {f} divergência(s) — NÃO publicar. Corrigir e repetir: $0 metadata")
