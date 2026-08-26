@@ -219,15 +219,57 @@ como bytes (3), sha1 no lugar de sha256 (2), filtro de S0/`chunk_id NULL` removi
 (1), desempate entregue à ordem de linha (1). Asserção que não morde não é
 asserção.
 
-## Resultado — a preencher DEPOIS de `R` ser emitida
+## Resultado
+
+`R` foi emitida em **2026-08-26T20:25:10Z** (observada; a fronteira nominal da
+rodada é 20:25:00Z). Derivado imediatamente depois.
 
 | Campo | Valor |
 |---|---|
-| `randomness` de `R` | _(preencher)_ |
-| `seed` derivada | _(preencher)_ |
-| conjunto designado (19 ids) | _(preencher)_ |
-| `sha256` do conjunto | _(preencher)_ |
-| TS × Python concordam | _(preencher)_ |
+| `randomness` de `R` | `8fd8522f2f34b5cc62b41158ad1e0a3170a27ea587fc8aa2e160d10e2ff67a6d` |
+| `seed` derivada | `e5d134ee110a33870f68963ae47a39bbee208586328d2311ac6626eed42122d7` |
+| grupos | 19 |
+| chunks considerados | 55 |
+| **`sha256` do conjunto** | **`e549420907cd55955923395f7a5a5d775b57ca60f24fbdcb58adca3ad2da001b`** |
+| TS × Python | **concordam** — `sha256` idêntico, mapa idêntico, ids idênticos |
+
+### O conjunto designado
+
+| grupo (`sig_primary`) | designado |
+|---|---|
+| `Bash\|build/run` | 308256 |
+| `Bash\|fs:leitura` | 308240 |
+| `Bash\|fs:mutacao` | 308300 |
+| `Bash\|shell:outro` | 308292 |
+| `Edit\|arquivo:doc` | 308218 |
+| `Monitor\|shell:outro` | 308316 |
+| `Read\|arquivo:doc` | 308216 |
+| `Read\|arquivo:outro` | 308284 |
+| `ToolSearch\|consulta` | 308286 |
+| `mcp__kaption-whatsapp__query\|sem-alvo` | 308238 |
+| `mcp__openclaw__automations\|sem-alvo` | 308280 |
+| `mcp__openclaw__browser\|rede` | 308270 |
+| `mcp__openclaw__memory_get\|arquivo:doc` | 308312 |
+| `mcp__openclaw__memory_search\|consulta` | 308264 |
+| `mcp__openclaw__message\|sem-alvo` | 308306 |
+| `mcp__openclaw__sessions_send\|sem-alvo` | 308296 |
+| `mcp__openclaw__terminal\|shell:outro` | 308222 |
+| `mcp__openclaw__web_fetch\|rede` | 308230 |
+| `mcp__plugin_context_mode_context_mode__ctx_batch_execute\|sem-alvo` | 308274 |
+
+19 grupos, 19 designados, todos distintos. O artefato congelado é
+`DESIGNATION-2026-08-26.json`, depositado neste repositório e preso na VPS por
+`NOX_P2_DESIGNATION` + `NOX_P2_DESIGNATION_SHA256`.
+
+### A concordância TS × Python é mais forte do que parece
+
+As duas implementações leram **fontes diferentes**: a TS
+(`designadosGlobais` em `src/paper2/brief-outcome.ts`) consultou a tabela
+`p2_verdict` **ao vivo** na VPS; o Python (`designation_verify.py`) leu o
+**CSV depositado** às 20:08:55Z. Concordarem no `sha256` do conjunto prova duas
+coisas de uma vez: que as derivações são a mesma regra, **e** que o frame publicado
+corresponde à tabela real. Se o frame tivesse sido editado, ou se a tabela tivesse
+mudado entre 20:08:55Z e 20:25Z, os hashes divergiriam.
 
 ## O que esta seed NÃO decide
 
