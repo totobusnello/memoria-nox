@@ -89,7 +89,52 @@ duplicatas exatas** no corpus — o top-10 é arbitrário ali. Casa com os 29,2%
 texto duplicado já medidos, e reforça a manchete: o que o agente recebe é decidido
 por capacidade e estrutura, não por relevância.
 
-## 5. Recomendação
+## 5. ✅ EXECUTADO em produção (2026-08-28 22:30–22:35 UTC)
+
+O Toto autorizou (*"faz o rebuild"*). Envelope da D77 cumprido integralmente.
+
+| | |
+|---|---|
+| chunks do índice | 103 → **66** |
+| shadow alocada | 1.236 → **792 MB** |
+| **arquivo do DB** | 1.637,8 → **1.189,8 MB** (**−448 MB**) |
+| vetores | 69.261 → **67.187** (os 2.074 sem map descartados) |
+| **latência medida em produção** | **409,3 ms** (n=6) ⇒ **−38,7%** sobre os 668,2 |
+| duração | 42,6 s de repack + 13,6 s de `VACUUM` |
+
+**O ganho ficou MAIOR que os 33,1% previstos** — 38,7% — porque o rebuild também
+descartou os 2.074 vetores sem linha de map, que eram varridos pelo `MATCH` e só
+então jogados fora pelo `JOIN vec_chunk_map`. Pagavam I/O e distância para nunca
+poder retornar nada.
+
+**Verificação, por estado observável:** `quick_check = ok` · índice = map = chunks =
+**67.187** · discrepância **0** · `/api/health` devolve
+`{"orphans": 0, "indexOnly": 0}` · zero órfãos map-side · zero tabelas residuais
+`_reb` · busca real pelo endpoint devolve 5 resultados `semantic` · `ops_audit`
+registra `rebuild-vec0-index | success | affected=67187` no `db_path` correto.
+
+⚠️ **Duas coisas que só a execução ensinou.**
+
+1. **`ALTER TABLE ... RENAME` numa tabela vec0 retorna sucesso e DESTRÓI o índice.**
+   Renomeia só a entrada da virtual table; as shadow tables ficam com o nome antigo
+   (`vec_x_chunks`, `vec_x_rowids`, …) e a tabela nova fica ilegível
+   (`Error preparing rowid scan: no such table`). Descoberto em **cópia**, antes de
+   produção. Por isso o caminho é duplo-copy: nova → drop original → recria com o
+   nome original → copia de volta.
+2. **`VACUUM` É necessário DEPOIS, e isto não contradiz o §1.** O `DROP` liberou
+   317.209 páginas e o SQLite não as devolve ao SO: o arquivo **cresceu** para
+   2.432 MB. `VACUUM` não recupera o vazio *dentro* do blob (só o repack faz isso) —
+   mas recupera as páginas livres, e sem ele o ganho de espaço não se realiza e os
+   backups diários passariam a copiar 2,4 GB.
+
+**A evidência dos 2.074 está preservada** no snapshot pré-op de 1.635 MB
+(`/var/backups/nox-mem/pre-op/rebuild-vec0-index-main-20260827223038-*.db`),
+retention 7 d. Origem deles segue **não identificada** — o descarte não a investigou.
+
+Script: `measurement/rebuild-vec0-index.mjs`, que exige `--executar` para mutar e
+`--op-audit` para tocar produção.
+
+## 6. Recomendação (histórico, antes da execução)
 
 O rebuild passa a ter **dois** argumentos medidos, não zero:
 

@@ -1418,6 +1418,17 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   empate exato (distância `0,000000`), e a correspondência é perfeita — divergem só
   as sondas cujo bloco de empate excede o `LIMIT 10` (130 e 15; as outras dez têm 1
   a 6). Onde há 130 chunks a distância zero, qualquer 10 é resposta correta.
+- **✅ EXECUTADO 2026-08-28 22:30–22:35 UTC** (Toto: *"faz o rebuild"*). Resultado:
+  103 → **66** chunks, arquivo **1.637,8 → 1.189,8 MB** (−448 MB), 69.261 → 67.187
+  vetores, e **latência 409,3 ms em produção = −38,7%** — maior que os 33,1%
+  previstos, porque o descarte dos 2.074 sem-map removeu vetores que eram varridos
+  pelo `MATCH` e descartados só no `JOIN`. Verificado por estado observável;
+  `ops_audit` registra `success | affected=67187`. Duas lições da execução: **(a)**
+  `ALTER TABLE RENAME` em tabela vec0 retorna sucesso e **destrói** o índice
+  (shadow tables ficam com o nome antigo) — descoberto em cópia; **(b)** `VACUUM`
+  **é** necessário DEPOIS do repack, porque o `DROP` deixou 317.209 páginas livres e
+  o arquivo havia crescido para 2.432 MB. Isso não contradiz o item 2 abaixo:
+  `VACUUM` não recupera o vazio *dentro* do blob, só as páginas livres.
 - **Recomendação: FAZER**, porque os três argumentos agora são medidos e não
   supostos — latência (−33,1%), espaço (420 MB / 1,64 GB) e limpeza dos **2.074**
   vetores fora do map, classe que **nenhum** guarda atual alcança (regra 9).
