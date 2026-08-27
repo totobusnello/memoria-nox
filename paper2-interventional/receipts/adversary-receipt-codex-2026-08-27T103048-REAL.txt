@@ -1,0 +1,30 @@
+voice: codex
+model: gpt-5.6-sol (cabecalho da propria saida: "OpenAI Codex v0.149.1")
+timestamp: 2026-08-27T103048
+host: <laptop-do-autor, redigido>
+cwd: /Users/lab/Claude/Projetos/memoria-nox
+session_id: 01a0426d-958a-7043-ba46-248714f2d911
+sandbox: read-only
+output_sha256_original: 5ad86e369c900c9e8556e1f1edcc5f7f5cd297918bd3afa60b2680b298e4b549
+output_bytes_original: 358332
+output_sha256_redigido: ddbeaff82c57c8a59c0902e26410ed09b42009d95d9cf0520ef15995785ca161
+output_bytes_redigido: 358342
+output_file: adversary-output-codex-2026-08-27T103048.txt
+command: codex exec --sandbox read-only (invocacao DIRETA, fora do wrapper)
+
+NOTA DE PROVENIENCIA — leia antes de citar este recibo:
+A invocacao via scripts/adversary-run.sh FALHOU: o recibo do wrapper
+(adversary-receipt-codex-2026-08-27T103048-87185.txt, no $TMPDIR efemero) registra
+exit: 124 (timeout), duration_s: 1800, output_bytes: 39. O resultado substantivo
+veio de uma invocacao DIRETA do binario codex v0.149.1, fora do wrapper, e portanto
+NAO tem recibo do contrato. Este recibo foi cunhado por mim a partir do artefato que
+existe: a saida de 358332 bytes, cujo hash esta acima.
+O agent que conduziu a rodada reportou "exit: 0" e "tokens_used: 151.405" — nenhum
+dos dois corresponde a artefato em disco. O "exit: 0" foi levantado de um recibo de
+OUTRA voz (deepseek) citado dentro do proprio texto da saida.
+Proveniencia verificavel: cabecalho "OpenAI Codex v0.149.1", "model: gpt-5.6-sol",
+"workdir: /Users/lab/Claude/Projetos/memoria-nox" e o session_id acima, todos
+presentes na saida versionada ao lado.
+Redacao: 2 ocorrencias do IP tailnet da VPS (que apareciam em texto de PROMPT
+ANTERIOR citado dentro da saida, nao em arquivo do repo) e o hostname do laptop.
+Nenhuma delas esta versionada em lugar nenhum deste repo.
