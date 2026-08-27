@@ -1,5 +1,44 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-08-27 (noite) — §5 do Paper 2 fechado; Proposição 1 verificada
+
+**§5 escrito e verificado.** A derivação sai do comparador citado verbatim:
+ordem lexicográfica em `(last_served, −salience)`, bônus só na coordenada
+subordinada ⇒ permuta **dentro** de estrato, nunca entre. Corolário que importa
+mais que o teto: **se `last_served` fosse injetiva o bônus seria identicamente
+inerte** — todo o espaço de manobra vem de empates na coordenada dominante.
+
+**Teste (`--modo porque`, 350 estados, paridade com o artefato de dose):**
+17 estados mudam, 20 ids entram, **0** entradas fora do estrato de quem saiu.
+Mutante (estrato próprio por id) ⇒ **20 violações**, aborta. O zero é resultado.
+
+⚠️ **A primeira versão do teste era inválida** e o §5.6 do manuscrito registra:
+classificava o designado por posição num pool que ela mesma montava, deu 25 contra
+17 e só 1 dos 17 na classe. `interleaveFresh`/`FRESH_CANDIDATE_POOL` não são
+exportados ⇒ era reconstrução. Teste válido só usa grandezas registradas.
+
+⚠️ **`freshSlots = 2` não é medido:** default de `DIVERSITY_DEFAULTS`, sem
+override na unit nem no `.env`, e é **teto** dos slots preenchidos. `brief_log`
+não tem coluna de origem de slot ⇒ a divisão 8/2 não é observável no registro.
+
+**Gatilhos:** status agora emite `ts_inicio`/`ts_fim`/`duracao_s` (a rodada
+levava 911 s e era rotulada pelo início); `timeout` 1500→2700 s (folga era 1,65×,
+e estourar dá RED por capacidade). Steal time deste host: 0–6%.
+
+**Monitoramento:** `integrity` não alarmava por ausência perpétua (a perna de
+idade exigia idade que só existe com linha). Fechado, 4 pernas testadas.
+Autocorreção: os cron jobs deste host começaram em **23/08 ~15:40** — nenhum
+domingo passou, `no runs yet` era verdade. Check rodado à mão: PASS.
+
+**Próximo bloqueador:** §7 (~1 página) e §1/§8 em prosa. Antes de submeter:
+recomputar a contagem de "pre-registration" no survey contra o PDF.
+
+⚠️ **Pendente de decisão do Toto:** rotação do webhook do Discord (exposto em
+transcript por `bash -x`) e o rebuild do índice vec0 (420 MB recuperáveis, só por
+reempacotamento — `VACUUM` não serve).
+
+---
+
 > Estado-vivo enxuto. Histórico ≤ 2026-06-14 em `handoffs/_archive/HANDOFF-2026-04-28-a-2026-06-14.md`.
 
 ---
