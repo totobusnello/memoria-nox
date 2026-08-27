@@ -138,7 +138,36 @@ declarar a janela do item 2.** Não pelo pressuposto de que a decisão foi execu
 "decidido" e "no ar" são fatos diferentes, e este projeto já pagou por confundi-los (o
 drop-in de systemd sem `[Service]` que desligou uma flag em silêncio).
 
-### Harness (a construir DEPOIS de congelar este documento)
+### ✅ Harness CONSTRUÍDA E RODADA — 27/08
+
+`measurement/replay-oportunidade.mjs`. Resultado integral em
+**`REPLAY-OPORTUNIDADE-2026-08-27.md`**; artefatos em `measurement/out/`.
+
+**Fidelidade: 350 de 350 briefs da janela fechada** reproduzem a produção —
+composição do controle, `churn`, `would_enter` e `would_leave` — com zero churn
+inventado e zero perdido. O defeito do §4 de `DEVIATIONS-FOR-PAPER.md`
+("oportunidade não corresponde ao pipeline") está **fechado**.
+
+Três correções que esta seção do protocolo precisa receber, porque a rodada as
+produziu:
+
+1. **A âncora exigida abaixo é internamente inconsistente.** "44 grupos" é a
+   figura **contaminada**, que vem junto com **posição 3**; descontaminada é
+   `43 / 0`. Exigir `44 grupos` **e** exclusão de sondas pede um estado que
+   nenhuma configuração produz. As duas colunas estão declaradas na harness e as
+   duas reproduzem exatas.
+2. **"serve-state limitado a `T_REF`" é insuficiente, e não por descuido de
+   redação.** `brief_log.served_at` tem resolução de **segundo** e 46,9% dos
+   briefs dividem o segundo com outro. Existem estados verdadeiros que nenhum
+   corte temporal expressa. O corte tem de ser por **`brief_log.id`**
+   (`AUTOINCREMENT` = ordem de inserção). Sob corte temporal estrito a contagem
+   de desfecho sai **14 em vez de 12**.
+3. **"sondas excluídas por `brief_id`" está certo para o estimando e errado para
+   validar contra a produção** — a produção *viu* as 25 linhas de sonda. São dois
+   serve-states diferentes para duas perguntas diferentes, e a harness aceita os
+   dois por argumento.
+
+### Obrigações da harness (as originais, mantidas para registro)
 
 `replay-oportunidade.mjs`, com estas obrigações, todas herdadas de erro já cometido:
 
@@ -204,12 +233,18 @@ depende de `seenIds`, que depende do que foi servido.
 
 O estudo **não começa** se, ao fim da janela:
 
-1. o controle positivo do item 1 não mover nada em nenhum estado (canal inexistente);
+1. ~~o controle positivo do item 1 não mover nada em nenhum estado (canal inexistente)~~
+   → ✅ **RESPONDIDA 27/08: PASSA.** `w = 100.000` move 17 de 350 estados, e a resposta é
+   monótona de `w = 0` (0 estados) a `w = 7,5` (17), saturando ali. O canal existe. Esta
+   condição **não** dispara;
 2. a taxa de oportunidade for baixa o bastante para `N` estourar o horizonte de
    calendário viável;
 3. a distribuição de gap intragrupo não for estacionária na janela — porque escala
    calibrada sobre quantidade não estacionária não transporta;
-4. o replay não reproduzir as âncoras publicadas.
+4. ~~o replay não reproduzir as âncoras publicadas~~ → ✅ **RESPONDIDA: reproduz.** As
+   duas configurações de sonda reproduzem exatas, e o replay bate com a produção em
+   **350 de 350** briefs. Restam abertas as condições **2** (taxa vs. horizonte) e **3**
+   (estacionariedade do gap intragrupo).
 
 ⛔ **Proibido parar quando "houver oportunidades suficientes".** O horizonte é a janela.
 
@@ -231,8 +266,18 @@ efeito **na presença** de carry-over, o que muda o que o paper pode afirmar. **
 ## Item 7 — Gatilho de monitoramento para falha de saturação
 
 Com braço único, uma falha de saturação é **indetectável** sem gatilho. Dispara e
-interrompe se aparecer gap intragrupo **acima da magnitude escolhida** — hoje o máximo
-observado é `0,031808734967844865` e a margem contra `0,043` é apenas **1,35×**.
+interrompe se aparecer gap intragrupo **acima da magnitude escolhida**.
+
+🔴 **A calibração deste gatilho está INVÁLIDA e não pode ser implementada como escrita.**
+O texto original dizia: *"hoje o máximo observado é `0,031808734967844865` e a margem
+contra `0,043` é apenas 1,35×"*. Esse máximo é do sub-pool **global** (108 candidatos de
+`memory/entities/%`) — e o pipeline intercala **dois** sub-pools. A varredura de dose
+mostra estados novos se movendo até `w = 7,5`, isto é, muito além do que `0,0318`
+preveria: **existem gaps maiores no sub-pool do agente, e eles não foram medidos.**
+
+Pré-requisito do item 7, portanto: medir a distribuição de gap intra-estrato no sub-pool
+do **agente** com a mesma harness do item 1 — e não com um censo de pool reimplementado,
+que é como o `0,0318` foi obtido.
 
 O gatilho lê o log, **não sonda o endpoint** (item 2).
 
@@ -258,13 +303,13 @@ teria trocado o número certo pelo errado "consertando" o documento.
 
 | item | estado |
 |---|---|
-| 1 — oportunidade | **especificado** aqui; e o dual-compute **já roda** em `shadow`, logo a taxa já é medida (3,1429%) — resta o replay para as condições 1–4 |
+| 1 — oportunidade | ✅ **FECHADO 27/08** — replay reproduz a produção em 350/350; controle positivo **PASSA**; teto do canal = 17/350 = 4,86% |
 | 2 — janela | mecanismo especificado; datas **a declarar** |
 | 3 — reamostragem | especificado (dia, ou epoch se houver dependência) |
 | 4 — `N = f(dados)` | mecanismo especificado; script a escrever e commitar antes |
-| 5 — no-go | **especificado**, 4 condições |
+| 5 — no-go | condições **1 e 4 respondidas** (não disparam); **2 e 3 abertas** |
 | 6 — carry-over | **aberto por desenho** — 3 opções, escolha a declarar antes |
-| 7 — gatilho | especificado; a implementar |
+| 7 — gatilho | 🔴 **calibração inválida** — o `0,0318` é de um sub-pool só; medir o do agente antes |
 | 8 — procedência | **especificado**, vale para todo o resto |
 
 **Não desbloqueia nada ainda.** O que desbloqueia é o item 1 rodando com controle
@@ -274,5 +319,7 @@ positivo passando, e a escolha do item 6 declarada.
 log. É a configuração que a calibração quer. A ativação vira passo explícito **depois**
 do no-go do item 5, não antes.
 
-**Próxima ação:** construir `replay-oportunidade.mjs` (item 1), que é o único item cuja
-harness ainda não existe, e cujo controle positivo é condição de no-go.
+**Próxima ação (27/08, depois do item 1):** medir a distribuição de gap intra-estrato no
+sub-pool do **agente**, com a harness do item 1. É pré-requisito de **duas** coisas ao
+mesmo tempo — a calibração do gatilho do item 7 e qualquer afirmação do paper sobre a
+banda — e é o único número que a rodada de dose provou faltar.

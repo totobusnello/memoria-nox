@@ -1,0 +1,301 @@
+{
+  "procedencia": {
+    "gerado_em": "2026-08-27T15:20:10.493Z",
+    "modo": "campo",
+    "corte_serve_state": "estrito",
+    "corpus": "/var/lib/nox-mem/epochs/e20260827T060001Z.db",
+    "corpus_sha256_primeiros_1MB": "78c4141cc32b451e68212b2d39b5fcc69bed5d7078f7300d1a81c878e1831987",
+    "vivo": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+    "designacao": "/root/.openclaw/paper2/DESIGNATION-2026-08-26.json",
+    "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+    "designados": 19,
+    "sondas_excluidas": [],
+    "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95"
+  },
+  "campo": {
+    "log": "/root/p2-replay/p2-serving-CLOSED-WINDOW-2026-08-26T2028-2026-08-27T0900.ndjson",
+    "briefs_no_log": 350,
+    "replayados": 11,
+    "erros": 0,
+    "bate_churn": 10,
+    "bate_entra": 10,
+    "fidelidade_churn": 0.9090909090909091,
+    "detalhe": [
+      {
+        "ts": "2026-08-27T07:07:06.241Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308230
+        ],
+        "would_leave": [
+          308494,
+          308234
+        ],
+        "producao": {
+          "churn": 2,
+          "would_enter": [
+            308292,
+            308230
+          ],
+          "would_leave": [
+            308494,
+            308234
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T05:52:07.837Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 1,
+        "would_enter": [
+          308300
+        ],
+        "would_leave": [
+          308272
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308300
+          ],
+          "would_leave": [
+            308272
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T03:37:03.158Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308248
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308274
+          ],
+          "would_leave": [
+            308248
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T01:37:06.113Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 1,
+        "would_enter": [
+          308222
+        ],
+        "would_leave": [
+          308322
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308222
+          ],
+          "would_leave": [
+            308322
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T01:37:04.300Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308248
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308274
+          ],
+          "would_leave": [
+            308248
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T00:07:02.076Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308463
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308312
+          ],
+          "would_leave": [
+            308463
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-26T23:52:03.161Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 1,
+        "would_enter": [
+          308222
+        ],
+        "would_leave": [
+          308322
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308222
+          ],
+          "would_leave": [
+            308322
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-26T23:07:05.650Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308264
+          ],
+          "would_leave": [
+            308258
+          ],
+          "boosts": 19
+        },
+        "bate_churn": false,
+        "bate_entra": false
+      },
+      {
+        "ts": "2026-08-26T21:52:02.887Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308248
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308274
+          ],
+          "would_leave": [
+            308248
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-26T21:37:03.493Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308491
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308292
+          ],
+          "would_leave": [
+            308491
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-26T21:37:02.736Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308468
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308292
+          ],
+          "would_leave": [
+            308468
+          ],
+          "boosts": 19
+        },
+        "bate_churn": true,
+        "bate_entra": true
+      }
+    ]
+  }
+}

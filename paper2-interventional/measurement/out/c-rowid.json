@@ -1,0 +1,592 @@
+{
+  "procedencia": {
+    "gerado_em": "2026-08-27T15:25:42.445Z",
+    "modo": "campo",
+    "corte_serve_state": "rowid",
+    "corpus": "/var/lib/nox-mem/epochs/e20260826T060003Z.db",
+    "corpus_sha256_primeiros_1MB": "56826f69d6bd32da6c114e2053ddf36f6011a554b7ea1a8986884f4fcafc7c04",
+    "vivo": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+    "designacao": "/root/.openclaw/paper2/DESIGNATION-2026-08-26.json",
+    "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+    "designados": 19,
+    "sondas_excluidas": [],
+    "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95"
+  },
+  "campo": {
+    "log": "/root/p2-replay/p2-serving-CLOSED-WINDOW-2026-08-26T2028-2026-08-27T0900.ndjson",
+    "briefs_no_log": 350,
+    "replayados": 11,
+    "erros": 0,
+    "bate_churn": 11,
+    "bate_entra": 11,
+    "bate_controle": 11,
+    "fidelidade_churn": 1,
+    "detalhe": [
+      {
+        "ts": "2026-08-27T07:07:06.241Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 576265,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308230
+        ],
+        "would_leave": [
+          308494,
+          308234
+        ],
+        "producao": {
+          "churn": 2,
+          "would_enter": [
+            308292,
+            308230
+          ],
+          "would_leave": [
+            308494,
+            308234
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308494,
+          308234,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          308494,
+          308234,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T05:52:07.837Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 575885,
+        "churn": 1,
+        "would_enter": [
+          308300
+        ],
+        "would_leave": [
+          308272
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308300
+          ],
+          "would_leave": [
+            308272
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308272,
+          285044,
+          308316,
+          298048
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308272,
+          285044,
+          308316,
+          298048
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T03:37:03.158Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 575235,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308248
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308274
+          ],
+          "would_leave": [
+            308248
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308294,
+          117886,
+          308248,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          308294,
+          117886,
+          308248,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T01:37:06.113Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 574725,
+        "churn": 1,
+        "would_enter": [
+          308222
+        ],
+        "would_leave": [
+          308322
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308222
+          ],
+          "would_leave": [
+            308322
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          308278,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          308322,
+          308278,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T01:37:04.300Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 574695,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308248
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308274
+          ],
+          "would_leave": [
+            308248
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308294,
+          285037,
+          288200,
+          303592,
+          308248,
+          285044,
+          298048
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          308294,
+          285037,
+          288200,
+          303592,
+          308248,
+          285044,
+          298048
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-27T00:07:02.076Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 574245,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308463
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308312
+          ],
+          "would_leave": [
+            308463
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308240,
+          117887,
+          308463,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308240,
+          117887,
+          308463,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-26T23:52:03.161Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 574185,
+        "churn": 1,
+        "would_enter": [
+          308222
+        ],
+        "would_leave": [
+          308322
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308222
+          ],
+          "would_leave": [
+            308322
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          117886,
+          308278,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          308322,
+          117886,
+          308278,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-26T23:07:05.650Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 574015,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308258
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308264
+          ],
+          "would_leave": [
+            308258
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308457,
+          118081,
+          285483,
+          308258
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308457,
+          118081,
+          285483,
+          308258
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-26T21:52:02.887Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 573615,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308248
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308274
+          ],
+          "would_leave": [
+            308248
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308302,
+          308248,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308302,
+          308248,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-26T21:37:03.493Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 573555,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308491
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308292
+          ],
+          "would_leave": [
+            308491
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308472,
+          308491,
+          117886,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          308472,
+          308491,
+          117886,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      },
+      {
+        "ts": "2026-08-26T21:37:02.736Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 573545,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308468
+        ],
+        "producao": {
+          "churn": 1,
+          "would_enter": [
+            308292
+          ],
+          "would_leave": [
+            308468
+          ],
+          "boosts": 19
+        },
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308459,
+          308468,
+          117886,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_controle": true,
+        "controle_producao": [
+          116467,
+          112241,
+          116107,
+          308459,
+          308468,
+          117886,
+          117887,
+          265170,
+          298214,
+          273772
+        ],
+        "bate_churn": true,
+        "bate_entra": true
+      }
+    ]
+  }
+}

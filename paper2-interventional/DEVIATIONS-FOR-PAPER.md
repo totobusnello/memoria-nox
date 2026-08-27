@@ -11,38 +11,68 @@
 ## O custo aceito, dito sem eufemismo
 
 Enquanto isto não for reportado, o registro público (`10.5281/zenodo.22110203` e OSF
-`yf7d2`) afirma três coisas **falsas** e uma **desatualizada**:
+`yf7d2`) afirma coisas **falsas** — e, em **duas** linhas, está *pior* que a realidade
+(seta ⬇). Atualizado 27/08 com o replay do pipeline real:
 
-| o registro diz | o que se mediu |
-|---|---|
-| `Δ_cut = 0,043` é *"the measured salience spread at the brief cut"* | não existe cut: o código não aplica limiar. O comparador é lexicográfico e `salience` só desempata `last_served` idêntico |
-| a banda `{2,0 · 4,0 · 7,5}` está entre *"what does not move, and could not"* | não é escala calibrada de dose — a unidade em que está expressa não tem referente registrado |
-| a alocação é `117/39/39/39` | suspensa junto com a banda |
-| *(v1.12 §5)* a designação é defeito **aberto** | **fechada** em 26/08 20:28Z, com precedência verificável de 1.056 s |
+| o registro diz | o que se mediu | |
+|---|---|---|
+| `Δ_cut = 0,043` é *"the measured salience spread at the brief cut"* | não existe cut: o código não aplica limiar. O comparador é lexicográfico e `salience` só desempata `last_served` idêntico | ⬆ |
+| a banda `{2,0 · 4,0 · 7,5}` está entre *"what does not move, and could not"* | **move**: 11 / 15 / 17 estados de 350, monótono, saturando exatamente no topo da banda. A unidade segue sem referente registrado, mas a banda **não** é vazia | ⬇ |
+| a alocação é `117/39/39/39` | suspensa junto com a banda — e a razão de suspender mudou: não é que as doses sejam indistinguíveis, é que a escala não tem referente | ⬆ |
+| *(v1.12 §5)* a designação é defeito **aberto** | **fechada** em 26/08 20:28Z, com precedência verificável de 1.056 s | ⬇ |
 
-⚠️ **A quarta linha é a que mais incomoda:** é a única em que o registro está *pior* que
-a realidade. As três primeiras superestimam o desenho; esta subestima o que já foi
-consertado, e some sozinha se o paper demorar — porque quem ler vai supor que o defeito
-segue aberto.
+⚠️ **As duas linhas ⬇ são as que mais incomodam,** e são as que o tempo não conserta.
+As ⬆ superestimam o desenho: quem ler vai achar o estudo mais forte do que é, e a
+correção só melhora a percepção do rigor. As ⬇ fazem o contrário — o registro afirma
+que o parâmetro não tem efeito quando tem, e que um defeito está aberto quando foi
+fechado. Quem ler daqui a um ano vai acreditar nas duas.
+
+⚠️ E a linha da banda mudou de status **por causa de um defeito de instrumento meu**,
+não por dado novo: o controle positivo que produziu o "não move" rodava sobre um pool
+reimplementado. Isso é matéria do §5, não nota de rodapé.
 
 ## O que o paper tem de carregar
 
 Fonte integral: `AMENDMENT-DRAFT-band-collapse-2026-08-26.md` (retratações 29–44) e
 `REMEDIATION-2026-08-27.md`. O resumo abaixo é índice, não substituto.
 
-### 1. O achado estrutural, que é dedutivo
+### 1. O achado estrutural — 🔴 PARCIALMENTE REVERTIDO em 27/08
 
-`W_OUTCOME = w · Δ_cut · severidade` não define escala de dose. O boost é aditivo em
-`salience`, a coordenada **subordinada** de um comparador lexicográfico: quando
-`last_served` difere, `salience` nunca é consultada. Controle positivo com `w = 100.000`
-dá `churn` **0** com os 19 boosts emitidos — dose absurda sem efeito não é ruído, é
-prova de que o parâmetro não está na coordenada que decide.
+> ⚠️ **O que estava escrito aqui vinha de um controle positivo rodado sobre um pool
+> REIMPLEMENTADO.** O replay do pipeline real
+> (`REPLAY-OPORTUNIDADE-2026-08-27.md`, fidelidade 350/350 contra a produção)
+> mediu o contrário em três pontos. O texto original fica abaixo, riscado, porque
+> retratação apagada não é retratação.
 
-A quantidade que existe é o **gap de `salience` dentro de estratos de `last_served`
-idêntico**: 38 pares adjacentes, 11 exatamente zero, 27 positivos, máximo
-0,031808734967844865. A banda mapeia em `{16, 27, 27}` de 27, e o menor `w` que vence
-todos em S1 é **2,9590** — logo as duas doses superiores são indistinguíveis por
-construção do dado, não por falta de n.
+**O que sobrevive, e é dedutivo:** o boost é aditivo em `salience`, a coordenada
+**subordinada** de um comparador lexicográfico — quando `last_served` difere,
+`salience` nunca é consultada. Isso é verdade, é o que produz a **saturação**, e é
+o que impede o parâmetro de ter alcance ilimitado.
+
+**O que cai:**
+
+| ~~o registro e a emenda dizem~~ | medido no pipeline real (9 doses × 350 estados) |
+|---|---|
+| ~~`w = 100.000` dá `churn` **0**~~ | churn **20**, em **17 de 350** estados |
+| ~~"o parâmetro não está na coordenada que decide"~~ | decide **dentro** do estrato — e é lá que a medida de desfecho vive |
+| ~~as duas doses superiores são "indistinguíveis por construção do dado"~~ | `2,0 → 11`, `4,0 → 15`, `7,5 → 17` estados: **distinguíveis** |
+
+A resposta é **monótona** (0 → 5 → 8 → 11 → 15 → 17 estados para
+`w = 0 / 0,5 / 1 / 2 / 4 / 7,5`) e **satura exatamente em `w = 7,5`**: de 15 a
+100.000 o resultado é idêntico. O teto do canal é **17/350 = 4,86%**. E `w = 2`
+reproduz o `11/350 = 3,1429%` publicado — o replay é fiel também no agregado.
+
+⚠️ **Isto é a segunda linha em que o registro público está PIOR que a realidade** —
+afirma que o parâmetro não tem efeito quando tem. Como a designação (§2), não se
+conserta com o tempo: quem ler vai supor que o canal é vazio.
+
+**A quantidade de gap intra-estrato segue publicada e não foi refutada** — 38 pares
+adjacentes, 11 exatamente zero, 27 positivos, máximo 0,031808734967844865 — mas
+o paper **não pode** usá-la para argumentar sobre a banda sem antes medir os gaps
+do sub-pool do **agente**: aqueles 0,0318 são do sub-pool **global** (108
+candidatos de `memory/entities/%`), e o pipeline intercala dois sub-pools. A
+saturação em 7,5, muito acima do que 0,0318 preveria, é a evidência de que os
+gaps do outro sub-pool são maiores e **não foram medidos**.
 
 ### 2. O que a designação fechou, e como
 
@@ -71,10 +101,13 @@ não estabelece aumento, redução nem equivalência.
 
 ### 4. Os defeitos que ficam abertos
 
-- **Oportunidade não corresponde ao pipeline.** Nada aqui faz replay de
-  `interleaveFresh`, `pickDedup`, `pinned`, near-dup ou o corte do `LIMIT 400`. Mede-se
-  **ordenação**, não **seleção**. Os `5/44` grupos qualificáveis não medem a
-  oportunidade do código e não sustentam `N`, poder nem estimando.
+- ✅ **FECHADO 27/08 — oportunidade agora corresponde ao pipeline.**
+  `measurement/replay-oportunidade.mjs` importa `buildBriefDiverse` do `dist` e
+  reproduz a produção em **350 de 350** briefs da janela fechada (composição do
+  controle, `churn`, `would_enter`, `would_leave`; zero inventado, zero perdido).
+  Os `5/44` grupos qualificáveis seguem **não** sendo a oportunidade do código —
+  a do código é `11/350` em `w = 2` e tem teto de `17/350`. Detalhe em
+  `REPLAY-OPORTUNIDADE-2026-08-27.md`.
 - **Auto-extinção NÃO testada.** A série reconstruída é toda anterior ao tratamento.
 - **`last_served` não é congelado pelo snapshot de epoch** e realimenta: o tratamento em
   `T` altera a estrutura de grupos em `T+1`. Interage com a **F1** (carry-over).
@@ -94,6 +127,17 @@ método**:
   histórico enquanto o conteúdo sobreviveu;
 - duas correções que a revisão adversarial me levou a propor estavam **erradas**, e o
   rascunho certo — vinham do rollback, não da exclusão das sondas.
+- **no serving, `julianday('now')` decide a população elegível** apesar de a função
+  receber `nowMs` por argumento: o brief não é função pura de (corpus, serve-state,
+  `nowMs`);
+- **`brief_log.served_at` tem resolução de segundo** e 46,9% dos briefs dividem o segundo
+  com outro. Nenhum corte temporal reproduz o estado; sob corte estrito o replay inventa
+  churn 3× e perde 1×, e a contagem de desfecho sai **14 em vez de 12**. O corte tem de
+  ser por `brief_log.id` (`AUTOINCREMENT`);
+- **`ordenarCobertura` descarta `lastServedMs` do que devolve**, então agrupar pela chave
+  que ordenou o pool dá um grupo só, em silêncio;
+- **o controle positivo publicado media o instrumento, não o sistema** — e produziu o
+  número que virou a retratação central. Ver §1.
 
 ### 6. Procedência, para o paper não repetir o erro que descreve
 

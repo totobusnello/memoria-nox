@@ -1,0 +1,40 @@
+{
+  "procedencia": {
+    "gerado_em": "2026-08-27T15:57:40.156Z",
+    "modo": "ancora",
+    "corte_serve_state": "inclusivo",
+    "corpus": "/var/lib/nox-mem/epochs/e20260826T060003Z.db",
+    "corpus_sha256_primeiros_1MB": "56826f69d6bd32da6c114e2053ddf36f6011a554b7ea1a8986884f4fcafc7c04",
+    "vivo": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+    "designacao": "/root/.openclaw/paper2/DESIGNATION-2026-08-26.json",
+    "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+    "designados": 19,
+    "sondas_excluidas": [],
+    "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95"
+  },
+  "ancora": {
+    "publicada": {
+      "pool": 108,
+      "estudo_no_pool": 55,
+      "grupos_last_served": 44,
+      "nunca_servidos": 0,
+      "posicao_primeiro_estudo": 3
+    },
+    "observada": {
+      "t_ref": "2026-08-26T20:35:00.000Z",
+      "offset_idade_dias": 0.807502025462963,
+      "serve_state": {
+        "linhas": 573263,
+        "descartadas_por_sonda": 0,
+        "corte": "2026-08-26 20:35:00"
+      },
+      "pool": 108,
+      "estudo_no_pool": 55,
+      "grupos_last_served": 44,
+      "nunca_servidos": 0,
+      "posicao_primeiro_estudo": 3,
+      "configuracao": "com_sondas"
+    },
+    "divergencias": {}
+  }
+}

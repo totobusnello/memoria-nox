@@ -1,0 +1,114 @@
+{
+  "_comentario": [
+    "Números que REPLAY-OPORTUNIDADE-2026-08-27.md afirma. `replay-resumo.py --assert-json`",
+    "compara com a rodada e FALHA se divergirem. Existe porque prosa que afirma um",
+    "resultado calculado é cache sem invalidação — e porque nesta linha de trabalho um",
+    "guarda que só protege parte dos números já deixou passar o número que sustentava",
+    "uma retratação.",
+    "A seção `dose` é preenchida pela rodada de 9 doses (dose-350-v3.json)."
+  ],
+  "campo": [
+    {
+      "rotulo": "rowid",
+      "corte": "rowid",
+      "briefs_no_log": 350,
+      "replayados": 350,
+      "nao_localizados": 0,
+      "bate_controle": 350,
+      "bate_churn": 350,
+      "bate_entra": 350,
+      "churn_producao": 12,
+      "churn_replay": 12,
+      "inventado": 0,
+      "perdido": 0
+    },
+    {
+      "rotulo": "estrito",
+      "corte": "estrito",
+      "briefs_no_log": 350,
+      "replayados": 350,
+      "nao_localizados": 0,
+      "bate_churn": 346,
+      "bate_entra": 346,
+      "churn_producao": 12,
+      "churn_replay": 14,
+      "inventado": 3,
+      "perdido": 1
+    }
+  ],
+  "dose": {
+    "estados": 350,
+    "linhas": [
+      {
+        "w": 0,
+        "estados": 350,
+        "mexeu": 0,
+        "churn_total": 0,
+        "boosts": 0
+      },
+      {
+        "w": 0.5,
+        "estados": 350,
+        "mexeu": 5,
+        "churn_total": 5,
+        "boosts": 19
+      },
+      {
+        "w": 1,
+        "estados": 350,
+        "mexeu": 8,
+        "churn_total": 8,
+        "boosts": 19
+      },
+      {
+        "w": 2,
+        "estados": 350,
+        "mexeu": 11,
+        "churn_total": 12,
+        "boosts": 19
+      },
+      {
+        "w": 4,
+        "estados": 350,
+        "mexeu": 15,
+        "churn_total": 18,
+        "boosts": 19
+      },
+      {
+        "w": 7.5,
+        "estados": 350,
+        "mexeu": 17,
+        "churn_total": 20,
+        "boosts": 19
+      },
+      {
+        "w": 15,
+        "estados": 350,
+        "mexeu": 17,
+        "churn_total": 20,
+        "boosts": 19
+      },
+      {
+        "w": 100,
+        "estados": 350,
+        "mexeu": 17,
+        "churn_total": 20,
+        "boosts": 19
+      },
+      {
+        "w": 100000,
+        "estados": 350,
+        "mexeu": 17,
+        "churn_total": 20,
+        "boosts": 19
+      }
+    ],
+    "controle_positivo": {
+      "doses_absurdas": [
+        100000
+      ],
+      "mexeu_em_algum_estado": true,
+      "veredito": "PASSA — o canal existe e responde à dose"
+    }
+  }
+}

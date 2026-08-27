@@ -12,6 +12,23 @@ tabelas ninguém pode recomputar.
 
 ## O que cada um faz
 
+### 🟢 A harness canônica — use esta
+
+| script | o que mede | número que sustenta |
+|---|---|---|
+| **`replay-oportunidade.mjs`** | replay do canal de boost **importando `buildBriefDiverse` do `dist`** — passa por `fetchRankedPool`, `fetchFreshCandidates`, `ordenarCobertura`, `interleaveFresh`, `pinned`, near-dup e as 5 fases do `pickDedup`. Três modos: `ancora`, `campo`, `dose` | fidelidade **350/350** contra a produção (controle, `churn`, `would_enter`); dose monótona 0→17 estados saturando em `w = 7,5`; teto **17/350 = 4,86%**. Ver `../REPLAY-OPORTUNIDADE-2026-08-27.md` |
+| `replay-resumo.py` | emite as tabelas daquela nota e as **trava** com `--assert-json` | 9/9 mutações detectadas |
+| `irmaos-no-segundo.py` | exposição ao defeito de resolução de `served_at` | **46,9%** dos 350 briefs dividem o segundo com outro |
+
+⚠️ **Todo script abaixo desta linha mede ORDENAÇÃO sobre pool reimplementado.** Serve
+para inspecionar coordenadas, não para sustentar oportunidade, `N`, poder ou estimando —
+e dois deles produziram números que o replay refutou. Três obrigações da harness canônica
+que nenhum deles cumpre: corte de serve-state por **`brief_log.id`** (temporal não
+reproduz), `T_REF` transladado no knob de idade (o serving lê `julianday('now')`), e
+reprodução de âncora **nas duas** configurações de sonda.
+
+### Os anteriores, por coordenada
+
 ### Estrutura do pool e os gaps
 
 | script | o que mede | número que sustenta |
@@ -24,8 +41,8 @@ tabelas ninguém pode recomputar.
 
 | script | o que mede | número |
 |---|---|---|
-| `dose2.mjs` | dual-compute offline **no caminho de produção** (corpus = snapshot de epoch, serve-state = vivo) | `churn` 0 em `w ∈ {2 · 4 · 7,5}` |
-| `controle-positivo.mjs` | doses absurdas, para o nulo não passar sem checagem | `churn` 0 em `w = 100.000`, com 19 boosts emitidos |
+| ~~`dose2.mjs`~~ | 🔴 **REFUTADO 27/08 pela mesma razão.** "Caminho de produção" ali era o corpus certo com a **ordenação reimplementada** — não passava por `interleaveFresh` nem `pickDedup`. O real dá 11 / 15 / 17 estados em `w ∈ {2 · 4 · 7,5}`. Registro do erro. | — |
+| ~~`controle-positivo.mjs`~~ | 🔴 **REFUTADO 27/08 — media o instrumento, não o sistema.** Reimplementava a ordenação do sub-pool global; o pipeline real dá `churn` **20** em `w = 100.000`, não 0. Este `0` virou a retratação central da emenda. Versionado como registro do erro, **não para uso.** | — |
 | `dose-response.mjs` | ⚠️ **A PRIMEIRA VERSÃO, ERRADA.** Usou o DB vivo como corpus **e** como serve-state, exercitando caminho que produção não usa (`NOX_EPOCH_SNAPSHOT=active`). Versionado como registro do erro, **não para uso.** | — |
 
 ### A série de `churn`
