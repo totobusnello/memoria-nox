@@ -168,9 +168,12 @@ Duas explicações competem: **curadoria** (tipos mais curados são mais exposto
 **`lesson` está em 100% porque tem 53 linhas.** A relevância atribuída pelo sistema não
 prediz exposição; o tamanho da coleção prediz.
 
-**[FALTA — Figura 1:]** dispersão `log₁₀(tamanho)` × `% exposto`, um ponto por tipo,
-rótulo em cada ponto, reta de regressão e as duas faixas (n ≥ 1.000 · n < 100) sombreadas
-para mostrar a ausência de sobreposição. É a figura mais importante do paper.
+**Figura 1** — `measurement/out/fig1-capacidade.svg`: dispersão `log₁₀(tamanho)` ×
+`% exposto`, um ponto por tipo com rótulo, reta de regressão e as duas faixas
+(n ≥ 1.000 · n < 100) sombreadas, porque **a ausência de sobreposição é o achado** e
+precisa ser vista, não afirmada. Gerada por `fig1-capacidade.py --dados
+out/superficie.json` — derivada do artefato travado, então muda se o dado mudar;
+figura desenhada à mão seria prosa afirmando resultado calculado.
 
 ### 4.3 A superfície do brief é um carrossel de 201 itens
 
@@ -317,7 +320,9 @@ Três consequências, e as três são mensuráveis em vez de argumentáveis:
 
 1. o teto de decisões alteráveis é a fração de estados em que o corte cai
    **estritamente dentro** de um estrato **e** um designado está do lado
-   não-selecionado. Medido em §4.4: **17/350 = 4,86%**;
+   não-selecionado. Medido em §4.4: **17/350 = 4,86%** — e em §5.6 esses mesmos 17
+   estados são exatamente aqueles em que há troca, com **todas** as 20 entradas
+   ocorrendo dentro do estrato de quem saiu;
 2. **se `ℓ` fosse injetiva, `b` não teria efeito nenhum.** Todo estrato seria
    unitário, nada atravessaria o corte, e a intervenção seria identicamente
    inerte. Todo o espaço de manobra da intervenção vem de **empates na
@@ -400,7 +405,33 @@ produção e pelo replay validado 350/350, não derivadas.
 `replay-oportunidade.mjs --modo porque --corte rowid --so-ts-file ts-350.txt`
 aborta se houver uma única entrada sem parceiro.
 
-**[PENDENTE — rodada em curso.]** Resultado a inserir aqui.
+**Resultado.**
+
+| | |
+|---|---|
+| estados replayados | **350** (erros: 0) |
+| estados em que o conjunto servido muda | **17** |
+| ids que entram, somados | **20** |
+| **entradas sem saída no mesmo estrato** | **0** |
+| Proposição 1 | **sobrevive** |
+
+Os `17` e os `20` **reproduzem exatamente** o artefato de dose independente
+(`mexeu = 17`, `churn_total = 20` em `w = 100.000`), e essa reprodução é o que
+torna o zero interpretável: garante que as duas rodadas falam da mesma população.
+
+⚠️ **E o zero foi verificado contra a possibilidade de ser um teste que não
+olha.** Mutando a função de estrato para dar a cada id um estrato próprio — sob o
+que nenhuma entrada teria parceiro — o modo reporta **20 violações em 17
+estados** e aborta. A asserção morde no máximo possível, logo o `0` da tabela é
+resultado, não silêncio de instrumento.
+
+**Procedência da rodada.** Corpus = snapshot de epoch
+`e20260826T060003Z.db`, exclusão de sondas = nenhuma, corte por ordem de
+inserção, designação com `sha256` conferido — idênticos ao artefato de dose. ⚠️ A
+primeira execução deste teste divergiu (13 estados, não 17) porque eu havia
+trocado **duas** coisas de uma vez, corpus vivo e exclusão de 6 sondas; o diff do
+bloco `procedencia` dos dois artefatos mostrou as duas. **Diff de procedência
+antes de comparar número** é regra, não zelo.
 
 ## 6. Defeitos de instrumento — e reportá-los é parte da contribuição
 
