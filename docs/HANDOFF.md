@@ -1,5 +1,37 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-08-28 (madrugada) — vec0 medido e correções do dia incorporadas aos canônicos
+
+**Reempacotar o índice vec0 corta 33,1% da latência de busca** (668,2 → 446,8 ms,
+n=60 por braço, −221 ms). Medido em cópia; produção intocada. A aritmética do
+tamanho previa ~34% e fechou: 103 chunks/1.236 MB → **68**/816 MB. As 2 de 12
+sondas que divergiram são bloco de empate exato maior que o `LIMIT` (130 e 15 a
+distância zero) ⇒ já arbitrárias. **Recomendação: fazer, com o envelope da D77.
+NÃO executado — decisão do Toto.**
+
+**⚠️ Retratação de três alegações minhas de 27/08** (commit `65e91ad`): são **16**
+colunas sem escritor e não 13 (lista digitada no meu script); foram **seis**
+instantes distintos e não um commit; e "sem `CUT` ⇒ regressão" vale só para um
+grupo — os `reason_boost_*` **têm** `CUT`. O commit que eu culpei é 10 h POSTERIOR
+à morte, e a assinatura no dado é buraco de 1h19 ⇒ **deploy**, não código.
+
+**Incorporado nos canônicos:**
+- `CLAUDE.md` regras **8–11**: censo de coluna sem escritor · guarda cujo predicado
+  exige o dado que falta · vec0 é a única cópia dos embeddings (+ `BigInt` no rowid)
+  · o ganho de 33,1% e como medi-lo sem se enganar;
+- `docs/INCIDENTS.md`: telemetria de busca muda desde 19/05 (descoberta 3,3 meses
+  depois) · os **2.074** vetores inalcançáveis e invisíveis aos três guardas;
+- `docs/DECISIONS.md` **D77**: recomendação, envelope de segurança e por que não é
+  urgente (o desperdício **não recorre** — `prune` 0/dia, `vectorize` 0);
+- morning report: contador `vec0 fora do map`, alarmando no **crescimento**.
+
+**Próximo, no nox-mem (código):** os dois guardas cegos precisam de perna própria —
+detector de rowid-sem-map no `prune-orphan-vectors` e campo novo no
+`/api/health.vectorCoverage`. E religar o escritor de `search_telemetry`, que é
+pré-requisito da comparação brief-vs-busca dentro de janela.
+
+---
+
 ## 2026-08-27 (noite) — §5 do Paper 2 fechado; Proposição 1 verificada
 
 **§5 escrito e verificado.** A derivação sai do comparador citado verbatim:

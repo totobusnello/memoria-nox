@@ -1388,3 +1388,53 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   - Burn more budget retrying capstone in current Hostinger environment
 - **Cross-links:** PR #426 (capstone draft, abandoned), PR #423 (R0 KG NO-GO), PR #424 (AC NO-GO), PR #425 (MQ NO-GO), PR #419 + D74 (IterB only validated lever), PR #397 + D70 (Gemini-3-flash backbone), D75 (Phase 1.5 closure prerequisite), memory `[[capstone-aborted-hostinger-throttling-indeterminate]]`, `[[ort-num-threads-cap-during-capstone]]`, `[[iterB-architectural-lock-short-circuits-wave-a-knobs]]`, `[[wave-2-phase-1-5-ac-mq-no-replicate-gemini-3-flash]]`, `[[wave-2-composability-matrix-plan]]`.
 - *Origem:* sessão 2026-05-31 17:40 BRT → 2026-06-02 ~17:55 BRT (~48h elapsed). Agents: `ad607d7734881c5f5` (original capstone), `ac838a0621554c73b` (resume 1), `a495bbebb6426e016` (resume 2 + yaml patch), manual cleanup direct. Two Hostinger VPS reboots. Three resume attempts. Final abort decision Tue 2026-06-02 ~17:55 BRT after batch 005 confirmed 0/50 questions completed in 23h.
+
+---
+
+#### D77 — Reempacotar o índice vec0: recomendado, com envelope de segurança; execução pendente do Toto
+
+- *Data:* 2026-08-28 (medição), decisão de executar **em aberto**
+- **Contexto.** A shadow table do vec0 aloca em chunks fixos de 1024 vetores
+  (12.582.912 B = 1024 × 3072 × 4). Medido: **103** chunks alocados para **69.261**
+  vetores válidos, quando **68** bastariam ⇒ 34% dos slots vazios, 420 MB de
+  alocação morta na shadow (1,64 GB somando o vivo e 3 backups diários).
+- **Decisão de método antes de decidir o mérito.** Duas sessões (esta e
+  `openclaw-vps-de`) chegaram independentemente a "é cosmético, 1,7% de disco" e
+  **nenhuma das duas quis afirmar ganho de performance a partir de aritmética de
+  tamanho**. Slot vazio tem bit zerado no `validity` e não custa cálculo de
+  distância; a pergunta aberta era se os **bytes** ainda são lidos. Fomos medir.
+- **Resultado (medido em cópia, produção intocada):**
+
+| braço | mediana | n |
+|---|---|---|
+| fragmentado (103 chunks, 1.236 MB) | 668,2 ms | 60 |
+| reempacotado (68 chunks, 816 MB) | **446,8 ms** | 60 |
+
+  **−33,1% de latência por busca semântica (−221 ms).** A hipótese de I/O previa
+  ~34%. O reempacotamento fechou ao chunk (103 → 68 exatos) em 19,5 s.
+  Artefato: `paper2-interventional/measurement/out/bench-vec0-2026-08-28.json`.
+- **Verificação de que o ganho não custa correção.** 10 de 12 sondas devolveram
+  resposta idêntica; as 2 divergentes são **inteiramente** dentro de blocos de
+  empate exato (distância `0,000000`), e a correspondência é perfeita — divergem só
+  as sondas cujo bloco de empate excede o `LIMIT 10` (130 e 15; as outras dez têm 1
+  a 6). Onde há 130 chunks a distância zero, qualquer 10 é resposta correta.
+- **Recomendação: FAZER**, porque os três argumentos agora são medidos e não
+  supostos — latência (−33,1%), espaço (420 MB / 1,64 GB) e limpeza dos **2.074**
+  vetores fora do map, classe que **nenhum** guarda atual alcança (regra 9).
+- **NÃO FAZEMOS sem este envelope:**
+  1. snapshot atômico via `withOpAudit()` **antes** — o vec0 é a **única** cópia
+     dos embeddings neste sistema (regra 10), então erro custa 69.261 embeddings
+     pagos ao Gemini;
+  2. `VACUUM` **não serve** e não deve ser tentado: não existe um único chunk
+     totalmente vazio (o vec0 já devolve esses), o vazio está *dentro* de 69 chunks
+     parciais e é invisível para o SQLite;
+  3. conferência pós-op por `/api/health.vectorCoverage` (`embedded == total`,
+     `orphans == 0`) **e** pelo baseline de ocupação por chunk, não por log de
+     startup — a lição do drop-in de systemd que desligou a flag em silêncio;
+  4. janela sem `vectorize`/`prune-orphan` concorrente (`flock` da manutenção).
+- **Por que não é urgente:** o índice está **correto** (canary OK, 67.187/67.187
+  embedded, 0 orphans pela definição do health) e o desperdício **não recorre** —
+  `prune-orphan` apaga 0/dia em 4 rodadas e `vectorize` embeda 0 em 6, sem cron de
+  `reindex`. Logo o ganho **persiste** depois de feito, e esperar não o degrada.
+- **Cross-links:** `paper2-interventional/VEC0-REEMPACOTAMENTO-2026-08-28.md`,
+  regras 9/10/11 do `CLAUDE.md`, `docs/INCIDENTS.md#2026-08-27` (os 2.074).

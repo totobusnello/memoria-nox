@@ -2,6 +2,73 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-05-19 ~15:00 → descoberto 2026-08-27 (3,3 meses) — telemetria de busca por chunk emudeceu numa fronteira de deploy
+
+### Severity: yellow — nenhuma degradação de serviço; perda é de OBSERVABILIDADE, e ela bloqueou uma medição do paper
+
+### TL;DR
+`search_telemetry.top_chunk_ids`, `top_scores` e `query_text` — o único instrumento
+com identificação de chunk por busca — pararam de ser escritos em **2026-05-19
+14:47:04 UTC**. A tabela continuou recebendo linhas (7 colunas), então nenhum alerta
+disparou: `COUNT(*)` seguiu crescendo. Descoberto 3,3 meses depois, ao tentar
+comparar as duas superfícies de exposição **dentro** de uma janela.
+
+### Assinatura, e por que é deploy e não commit
+A série tem um **buraco de 1h19** (última linha com ids às `14:47:04`, próxima linha
+às `16:06:06`) e, a partir dele, nulo para sempre. O commit que removeu o `INSERT` de
+23 colunas (`7fdaab4f`, *"eod: 2026-05-19 — nox-mem repair"*) é de **2026-05-20
+01:03 UTC** — **dez horas depois**. Ele removeu código que **já estava mudo**.
+
+⚠️ A primeira análise (27/08, manhã) culpou o commit, afirmou "13 colunas sem
+escritor" e concluiu "sem `CUT` ⇒ regressão em bloco". As três caíram na medição
+da noite: são **16** colunas, em **seis** instantes distintos, e num deles existe
+`CUT` (`078ee2f9`, E05b reason-boost) ⇒ ali foi **retirada deliberada**. Ver regra 8
+do `CLAUDE.md`.
+
+### Consequência
+- comparação brief-vs-busca **dentro de janela** é impossível até religar o escritor;
+- `requesting_agent` nulo foi usado por engano como assinatura de origem — é nulo
+  para **todos** desde 18/05. O teste válido para "isto é o canário do cron" é o
+  **minuto do cron**: 325 de 343 linhas (**94,8%**) em janela fechada de 7 dias caem
+  nos dois minutos por hora do `semantic-canary.sh`.
+
+### Aprendizado
+`COUNT(*)` crescendo não é prova de instrumento vivo. Instrumento por-coluna precisa
+de guarda por-coluna, e o guarda tem de olhar **distintos numa janela recente** — não
+"não-nulo" (o `DEFAULT` preenche) nem "distintos > 1" (o histórico infla).
+
+---
+
+## 2026-08-27 → aberto — 2.074 vetores inalcançáveis e invisíveis a TODOS os guardas
+
+### Severity: yellow — não afeta busca (os vetores só ocupam espaço), mas a classe é invisível e pode crescer em silêncio
+
+### TL;DR
+`vec_chunks_rowids` (vetores válidos no índice vec0) = **69.261** contra
+`vec_chunk_map` = **67.187**, com **zero** linhas de map cujo chunk não exista.
+Logo **2.074** vetores válidos não têm linha no map: inalcançáveis pela busca e
+imprunáveis pela ferramenta que existe para isso.
+
+### Por que nenhum guarda vê
+Os três medem a partir do **map**: `prune-orphan-vectors` varre
+`FROM vec_chunk_map LEFT JOIN chunks`, `/api/health.vectorCoverage.orphans` é
+`totalMap − embedded`, e o RED do morning report lê esse `orphans`. Um vetor que
+perdeu a linha de map não pode aparecer em nenhum dos três — e todos reportam `0`.
+
+### Origem: NÃO identificada
+Nem o `prune` nem o `trg_chunks_delete_cascade` podem tê-los criado: os dois são
+atômicos (`db.transaction` e trigger de statement). Candidatos históricos, nenhum
+verificado: wipe+restore de 19/05, purga de 5,6 mil chunks de skills aposentadas em
+04/06, migração por `VACUUM INTO` do A2 Tier 3.
+
+### Mitigação em vigor
+Contador de discrepância no morning report (`vec0 fora do map`), alarmando no
+**crescimento** e não no valor — assim os 2.074 parados não viram amarelo
+permanente, e crescimento fica visível. Se a diferença ficar estável, isso por si é
+evidência de que o mecanismo morreu.
+
+---
+
 ## 2026-08-17 12:22-15:07 (2h45) — Canário RED por crédito prepago Gemini esgotado (não corrupção)
 
 ### Severity: yellow — serviço nunca caiu, só degradou pra FTS-only; resolvido por recarga de saldo, sem mudança de código

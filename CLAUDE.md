@@ -158,6 +158,83 @@ Detalhes incident: `docs/INCIDENTS.md#2026-04-25`. Audits pós-fix: `audits/2026
 
 `sed -i` em SQLite corrompe page boundaries. Filter `grep -rl | grep -E '\.(json|md|sh|txt|jsonl|env)$'`. Recovery via pre-vacuum backup outside sweep scope. Lesson 2026-05-01.
 
+### 8. "Coluna sem escritor" não se estabelece por `grep` (2026-08-27)
+
+Três métodos dão três respostas e **todas erradas**:
+
+| método | por que mente |
+|---|---|
+| `grep` por `INSERT` | perde `UPDATE` e SQL dinâmico — perdeu 3 colunas de 25 |
+| "coluna não-nula ⇒ tem escritor" | `DEFAULT` preenche toda linha ⇒ 11 falsos vivos |
+| "distintos > 1 ⇒ tem escritor" | histórico pré-morte infla: `reranker_latency_ms` tem **394** distintos, todos anteriores |
+
+**Censo válido:** `COUNT(DISTINCT col)` **numa janela posterior** à morte suspeita
+(≤1 ⇒ sem escritor), cruzado com a lista literal de colunas da `INSERT` extraída do
+fonte. E "última escrita real" tem de **excluir o default**, senão toda coluna com
+`DEFAULT` responde "a última linha do banco".
+
+⚠️ **E não atribuir a morte a um commit sem comparar horários.** `7fdaab4f` é de
+`2026-05-20 01:03 UTC`; a escrita parou `2026-05-19 14:47 UTC`, **10 h antes**. Um
+diff que *explica* o efeito não é prova de que o *causou*. Buraco na série
+(`LAG(ts)`) é assinatura de deploy/restart, não de código.
+
+Resultado atual: **16** das 25 colunas de `search_telemetry` sem escritor, em
+**seis** instantes distintos. Num deles existe `CUT` (`078ee2f9`, E05b) ⇒ retirada
+**deliberada**; no de `top_chunk_ids` não existe ⇒ regressão. Censo computado em
+`paper2-interventional/measurement/superficie-de-exposicao.py`.
+
+### 9. Guarda cujo predicado exige o dado que falta não cobre a falta do dado (2026-08-27)
+
+Três instrumentos deste sistema caíram nisso, no mesmo dia:
+
+| guarda | predicado | classe que ele não pode ver |
+|---|---|---|
+| `prune-orphan-vectors` | `FROM vec_chunk_map LEFT JOIN chunks WHERE c.id IS NULL` | vetor cuja **linha de map** desapareceu |
+| `/api/health.vectorCoverage.orphans` | `totalMap − embedded` | idem — também parte do map |
+| `integrity` no morning report | `AGE > 8d`, e a idade só existe se houver linha | **ausência perpétua** de execução |
+
+Medido: `vec_chunks_rowids` = 69.261 contra `vec_chunk_map` = 67.187 ⇒ **2.074
+vetores válidos, inalcançáveis e imprunáveis**, com `orphans: 0` nos três.
+
+> **Teste antes de aceitar um `nothing to do`:** *em que estado do mundo este guarda
+> ficaria calado por **não ter o dado**, em vez de por não haver problema?* Se existe
+> tal estado, ele precisa de perna própria.
+
+E quando duas tabelas devem estar em bijeção, medir a diferença **nos dois
+sentidos** — `A \ B` e `B \ A` respondem perguntas diferentes.
+
+### 10. vec0: o índice é a ÚNICA cópia dos embeddings (2026-08-28)
+
+Varrido por **tipo** de coluna (`BLOB`), não por nome: só existem as shadow tables
+`vec_chunks_*` e `reflect_cache.query_embedding` — que é cache de *query*, não de
+chunk. O OpenClaw tem `memory_index_chunks.embedding` como rede de reconstrução;
+**o nox-mem não tem.** Qualquer operação sobre o índice que dê errado custa 69.261
+embeddings, que só voltam pagando Gemini. ⇒ snapshot atômico obrigatório, sem
+exceção.
+
+Dois fatos operacionais do vec0, medidos:
+
+- aloca em **chunks fixos de 1024 vetores** = 12.582.912 B exatos, e **devolve** o
+  chunk que esvazia por completo (`chunk_id` chega a 177 com 103 presentes ⇒ ~75
+  liberados). O resíduo é só de chunks **parciais**;
+- `better-sqlite3` liga `number` como REAL e o vec0 **recusa** rowid não-inteiro
+  (`Only integers are allows for primary key values`). Cru, `Number()` e
+  `Math.trunc()` falham; **só `BigInt` passa.** Mesma família de
+  `CAST(? AS INTEGER)`.
+
+### 11. Reempacotar o índice vec0 corta 33,1% da latência de busca (2026-08-28)
+
+Medido em cópia (`measurement/bench-vec0-reempacotamento.mjs`, artefato
+`out/bench-vec0-2026-08-28.json`): 103 chunks/1.236 MB → 68/816 MB, e mediana
+**668,2 → 446,8 ms** (n=60 por braço, **−221 ms/busca**). A hipótese de I/O previa
+~34%: os bytes **são** lidos.
+
+⚠️ Ao medir isso: as duas tabelas no **mesmo arquivo** (comparar arquivos mede qual
+o SO cacheou), A/B intercalado com ordem alternada, aquecimento descartado (1º KNN
+= 1.356 ms contra ~650), mediana em vez de média. E **conferir que a resposta não
+muda** — aqui 2 de 12 sondas divergiram, e as duas eram bloco de empate exato maior
+que o `LIMIT` (130 e 15 a distância zero), logo já arbitrárias.
+
 ## Roadmap canônico
 
 **Single source of truth:** `docs/ROADMAP.md`.
