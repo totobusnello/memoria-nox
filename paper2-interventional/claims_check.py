@@ -358,6 +358,54 @@ def doc_check(root: Path) -> list[str]:
     return failures
 
 
+def blob_check(root: Path) -> list[str]:
+    """Confere que os blobs depositados batem com o `sha256` do manifesto.
+
+    Existe porque 2026-08-27 mostrou as duas metades do mesmo defeito. Primeiro, a
+    emenda pinava o código em `0087c918`, um objeto que NÃO EXISTE no repositório —
+    nem commit, nem ref, nem reflog — porque um merge reescreveu os hashes do lado da
+    VPS. Segundo, ao transferir os blobs, a primeira tentativa normalizou o fim de
+    arquivo e produziu 44749 bytes onde o original tem 44748: um blob "depositado" que
+    não era o arquivo.
+
+    Nenhuma das duas falhas é visível na prosa. Um manifesto cujos hashes não batem lê
+    exatamente como um que bate, e a citação `brief.ts:1086` continua parecendo
+    precisa apontando para linha nenhuma.
+    """
+    failures = []
+    man = root / "SERVING-CODE-MANIFEST.md"
+    if not man.exists():
+        return [f"{man.name}: ausente — os blobs de serving ficam sem proveniência"]
+    texto = man.read_text(encoding="utf-8")
+    # Linhas de tabela com sha256 COMPLETO (64 hex) são as que este guarda cobre; as
+    # da v1.12 trazem hash truncado e ficam de fora, declaradamente.
+    linhas = re.findall(r"^\| `([^`]+)` \| `([^`]+)` \| (\d+) \| `([0-9a-f]{64})` \|",
+                        texto, re.M)
+    if not linhas:
+        return [f"{man.name}: nenhuma linha com sha256 completo — o manifesto não pina nada"]
+    for depositado, original, bytes_esperados, sha_esperado in linhas:
+        f = root / depositado
+        if not f.exists():
+            failures.append(
+                f"{man.name}: pina `{depositado}` (de `{original}`) e o arquivo não existe "
+                f"— artefato REGISTRADO que não está no pacote"
+            )
+            continue
+        b = f.read_bytes()
+        if len(b) != int(bytes_esperados):
+            failures.append(
+                f"{depositado}: {len(b)} bytes, manifesto diz {bytes_esperados} — "
+                f"transporte alterou o arquivo (fim de linha? newline final?)"
+            )
+        got = hashlib.sha256(b).hexdigest()
+        if got != sha_esperado:
+            failures.append(
+                f"{depositado}: sha256 {got[:16]}…, manifesto diz {sha_esperado[:16]}… "
+                f"— o blob depositado NÃO é o arquivo que o manifesto declara"
+            )
+    return failures
+
+
 def _afirmada(frase: str, texto: str) -> list[int]:
     """Linhas em que `frase` é AFIRMADA — não citada, não numa tabela de retratação.
 
@@ -880,6 +928,7 @@ def main() -> int:
     failures.extend(cross_check(Path(args.root)))
     failures.extend(doc_check(Path(args.root)))
     failures.extend(delta_cut_check(Path(args.root)))
+    failures.extend(blob_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

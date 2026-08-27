@@ -19,19 +19,35 @@ medições afetadas foram **refeitas**, e o que a remediação achou está em
 remediação as retirou antes de entrarem aqui (§7.4). O rascunho estava certo nos dois
 pontos.
 
-**Código servindo.** Último commit que tocou `src/`: **`0087c918`**
-(2026-08-26T20:25:01Z), repo `nox-workspace`.
+**Código servindo, depositado.** Último commit que tocou `src/`: **`1da78560`**
+(2026-08-26T20:25:01+00:00), repo `nox-workspace`. Os blobs estão neste pacote, com
+`sha256` por arquivo em `SERVING-CODE-MANIFEST.md`.
 
-| arquivo | commit | data |
-|---|---|---|
-| `src/api/brief.ts` | `0087c918` | 2026-08-26T20:25:01Z |
-| `src/paper2/brief-outcome.ts` | `0087c918` | 2026-08-26T20:25:01Z |
-| `src/api/brief-diversity.ts` | `ad2ca37e` | 2026-06-26T15:28:23−03:00 |
-| `src/salience.ts` | `aca868c7` | 2026-08-02T12:37:55−03:00 |
+| arquivo | commit | data | `sha256` do blob |
+|---|---|---|---|
+| `src/api/brief.ts` | `1da78560` | 2026-08-26T20:25:01+00:00 | `27dbe9962a2903aa…` |
+| `src/paper2/brief-outcome.ts` | `1da78560` | 2026-08-26T20:25:01+00:00 | `b3a3b1a8c72fe791…` |
+| `src/__tests__/p2-outcome.test.ts` | `1da78560` | 2026-08-26T20:25:01+00:00 | `62ba78d141aafe4c…` |
+| `src/api/brief-diversity.ts` | `ad2ca37e` | 2026-06-26T15:28:23−03:00 | *(v1.12)* |
+| `src/salience.ts` | `aca868c7` | 2026-08-02T12:37:55−03:00 | *(v1.12)* |
 
 `brief-diversity.ts` está inalterado desde junho, e é onde vive o comparador que
 esta emenda mede. A dominância que ela reporta **não é consequência de mudança
 recente** — está no código desde antes de o Paper 2 existir.
+
+⚠️ **Redações anteriores desta emenda pinavam o código em `0087c918`, e esse objeto
+não existe.** Não é commit, não está em ref nenhuma, não está no reflog. O conteúdo é
+o certo — `1da78560` tem o mesmo timestamp de committer e a mesma mensagem, e os
+arquivos contêm exatamente as funções que o §1 descreve. O que mudou foi o **nome**:
+o merge `5174e0fa` (*"reconcilia VPS (17 commits, 23-26/ago) com origin"*, 21:02:13Z
+da mesma noite) reescreveu os hashes dos commits do lado da VPS.
+
+**Hash de commit não é identificador estável através de reconciliação de histórico.**
+Um documento que pina código só por commit adquire citação pendurada no instante em
+que alguém rebaseia, e a falha é silenciosa: a prosa continua lendo como precisa. Por
+isso cada linha da tabela carrega também o `sha256` dos **bytes do arquivo** — esse
+pino sobrevive a qualquer reescrita, e é o que um terceiro pode conferir contra o blob
+depositado sem acesso ao repositório privado.
 
 ---
 
@@ -578,6 +594,7 @@ Continuam a numeração da v1.12, que fecha em 28.
 | **40** | 27/08 | *(2ª redação)* a base é `132/2.212 = 5,9675%`, e está a "~11,8 desvios-padrão de zero" | **132/2.226 = 5,9299%**. O teste-z contra zero sai: zero é fronteira do espaço binomial (§2) |
 | **41** | 27/08 | *(2ª redação)* os `111 deslocamentos` da v1.12 dão `8,05%` sobre 1.267 decisões | são **duas** quantidades: 102 decisões com churn = **8,0505%**; 111 deslocamentos somados = **8,7609%**. O rótulo estava trocado (§2) |
 | **42** | 27/08 | *(2ª redação)* nenhum dos 38 pares tem gap negativo, apresentado como observação | verdadeiro **por construção** da ordenação (`salience DESC` dentro do empate) — não é achado (§2) |
+| **43** | 27/08 | *(2ª redação)* o código servindo está no commit `0087c918` | **esse objeto não existe** no repo — nem commit, nem ref, nem reflog. É `1da78560`; o merge `5174e0fa` reescreveu os hashes do lado da VPS. Conteúdo idêntico, nome pendurado. Blobs agora presos por `sha256` de bytes (cabeçalho e §9) |
 
 ---
 
@@ -642,9 +659,9 @@ correção, degradando o documento em nome de consertá-lo.
 
 ## §8. Ordem de operações
 
-0. **Blobs de código do commit `0087c918` depositados** — é pré-requisito do
+0. ✅ **Blobs de código depositados** (commit `1da78560`) — era pré-requisito do
    depósito desta emenda (§9), e a segunda redação listava isto *depois* do passo 1,
-   contradizendo o próprio §9.
+   contradizendo o próprio §9. **Fechado em 27/08.**
 1. Esta emenda depositada. Ela **invalida** a banda e **bloqueia** o estudo.
 2. Protocolo de calibração prospectivo registrado (§5, os 8 itens).
 3. Calibração executada dentro da janela de calendário declarada.
@@ -690,10 +707,20 @@ tailnet ou token; `gitleaks` sem achados. Os caminhos absolutos de servidor fica
 como estavam — trocá-los por placeholders faria o script **parecer** reproduzível
 sem ser.
 
-⚠️ **Ainda aberto: os blobs de código.** Os depositados na v1.12 são da regra
-**anterior** (designação por `w_min`); esta emenda cita `0087c918`, que não está
-depositado. **É o passo 0 do §8** — caso contrário a emenda referencia código que
-ninguém pode ler, que é o defeito da retratação 1 da v1.12.
+✅ **Fechado: os blobs de código.** Os depositados na v1.12 eram da regra **anterior**
+(designação por `w_min`). Os três arquivos do commit `1da78560` estão neste pacote —
+`serving-brief.ts`, `serving-brief-outcome.ts` e `serving-p2-outcome-test.ts` — com
+`sha256` por arquivo em `SERVING-CODE-MANIFEST.md`, conferidos **byte a byte** contra
+`git show` no host que serve.
+
+O arquivo de teste é novo no depósito e não é decoração: o §1 afirma que *"cinco
+mutações do fonte TS foram confirmadas fazendo os testes falharem"*, e sem o teste
+essa afirmação é infalsificável por quem lê.
+
+⚠️ **Ao depositar, apareceu o defeito do pino.** O commit que as redações anteriores
+citavam (`0087c918`) **não existe** — ver o bloco no cabeçalho. O conteúdo estava
+certo e o nome, errado, por reescrita de histórico. Os blobs agora estão presos por
+`sha256` de bytes, que é o pino que sobrevive a rebase.
 
 ⚠️ **E uma limitação que os scripts não resolvem.** Nenhum deles faz replay do
 pipeline completo: não exercitam `interleaveFresh`, `pickDedup`, `pinned`, near-dup
@@ -717,7 +744,7 @@ diagnóstico expôs o buraco real: `ancorado` se satisfaz com **uma** ocorrênci
 uma tabela que discorde da citação em bloco passa. Corrigido prendendo a **contagem**
 de ocorrências dos quatro valores multi-citados, e conferindo que as duas cópias dos
 27 gaps (num artefato de 26/08 e num de 27/08) são idênticas — só uma era lida, e a
-outra podia derivar em silêncio. Estado final: **18 falsificações, 18 mordidas.**
+outra podia derivar em silêncio. Estado final: **22 falsificações, 22 mordidas** — as quatro últimas cobrindo os blobs depositados, inclusive o defeito exato que eu cometi ao transferi-los: um `rstrip` normalizou o fim de arquivo e produziu 44.749 bytes onde o original tem 44.748. Um blob "depositado" que não era o arquivo, e invisível na prosa.
 
 ⚠️ **E um defeito de sentido oposto ao habitual.** A primeira versão da checagem de
 frase acusou o próprio documento **três vezes** por ele *citar* o texto que retrata.

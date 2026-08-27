@@ -48,7 +48,7 @@ import {
 } from "./brief-diversity.js";
 import {
   boostsParaCandidatos,
-  cDesignacao,
+  carregarDesignados,
   doseDeShadow,
   epochInicioISO,
   epochInicioMs,
@@ -593,9 +593,7 @@ export function serveCounts(
  * Recebe os candidatos com a salience BASE e devolve id -> ajuste aditivo.
  * Injetado de fora para que este modulo nao conheca o Paper 2.
  */
-export type ProvedorDeBoost = (
-  cands: { id: number; salienceBase: number }[],
-) => Map<number, number>;
+export type ProvedorDeBoost = (cands: { id: number }[]) => Map<number, number>;
 
 /**
  * Ordena o pool de cobertura e descarta `lastServedMs`.
@@ -609,7 +607,7 @@ function ordenarCobertura(
   provedor?: ProvedorDeBoost,
 ): RankedCandidate[] {
   const boosts = provedor
-    ? provedor(ranked.map((c) => ({ id: c.row.id, salienceBase: c.salience })))
+    ? provedor(ranked.map((c) => ({ id: c.row.id })))
     : undefined;
   const eff = (c: RankedCandidate & { lastServedMs: number | null }) =>
     c.salience + (boosts?.get(c.row.id) ?? 0);
@@ -922,6 +920,11 @@ function composeBrief(
     );
   }
   let provedor: ProvedorDeBoost | undefined;
+  // Uniao dos boosts efetivamente emitidos, e o conjunto designado congelado.
+  // Ambos entram no log de replay: o primeiro e o que o codigo FEZ, o segundo e o
+  // que a regra DIZ, e a comparacao dos dois e a verificacao.
+  const p2BoostPorId = new Map<number, number>();
+  let p2Designados = new Set<number>();
   let servirTratado = false;
   let p2w = 0;
   if (p2.mode !== "off") {
@@ -943,10 +946,19 @@ function composeBrief(
       }
     }
     if (p2w > 0) {
-      const c = cDesignacao();
       // Gate de maturidade: o chunk nao pode agir no epoch em que foi escrito.
       const inicio = epochInicioMs(epochInicioISO(Date.now()));
-      provedor = (cands) => boostsParaCandidatos(live, cands, p2w, c, inicio);
+      // Acumula a UNIAO dos boosts das >=2 invocacoes por brief
+      // (`ordenarCobertura` chama em :714 e :753; `fetchFreshCandidates` em
+      // :843-851). O Map de cada chamada morre no `sort`, e sem este acumulador o
+      // log nao teria como provar que o codigo boostou o conjunto designado — a
+      // diferenca entre "a regra diz" e "o codigo fez".
+      p2Designados = carregarDesignados().ids;
+      provedor = (cands) => {
+        const m = boostsParaCandidatos(live, cands, p2w, inicio);
+        for (const [id, b] of m) p2BoostPorId.set(id, b);
+        return m;
+      };
     }
     // `active` sem o D2 `active` nao tem canal: os slots de cobertura nem sao
     // servidos. Grita em vez de fingir que trata.
@@ -983,6 +995,15 @@ function composeBrief(
         would_enter: diffP2.would_enter,
         would_leave: diffP2.would_leave,
         fresh_added: diffP2.fresh_added,
+        // Aditivos 2026-08-26, item 4 do §5.3. `designated_ids` e o conjunto
+        // congelado inteiro (19 ids); `boost_by_id` so os que estavam no pool E
+        // passaram o gate de maturidade. `boost_by_id` vazio com
+        // `designated_ids` cheio NAO e defeito — e o caso normal de um brief cujo
+        // pool nao tocou nenhum designado.
+        designated_ids: [...p2Designados].sort((a, b) => a - b),
+        boost_by_id: Object.fromEntries(
+          [...p2BoostPorId.entries()].sort((a, b) => a[0] - b[0]),
+        ),
       });
     }
     if (cfg.mode === "shadow") {

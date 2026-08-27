@@ -117,6 +117,142 @@ interface DbMinimo {
 }
 
 /**
+ * A chave de ordenação da designação. O layout de bytes vive AQUI e em
+ * `paper2-interventional/designation_verify.py`, e em nenhum outro lugar.
+ *
+ * `SHA256( seed_hex ‖ "|" ‖ chunk_id )`, tudo ASCII: a seed é a string hex
+ * minúscula (NÃO os 32 bytes decodificados), o separador é obrigatório, o
+ * chunk_id é o inteiro em decimal.
+ *
+ * ⚠️ O separador não é decorativo. `extract_episodes.py:226` faz
+ * `sha256(seed + episode_id)` sem ele e reproduziu 293 de 1.576 episódios
+ * (`EXTENSION-SEED-2026-08-11.md:49-64`). Havia três implementações inline da
+ * derivação neste repo e nenhuma compartilhada.
+ *
+ * ⚠️ `sig_primary` NÃO entra na chave, e é deliberado: todos os 19 valores reais
+ * contêm `|`, o próprio separador, o que tornaria o layout não-injetivo. Como cada
+ * chunk pertence a exatamente um grupo (verificado: 0 de 55 em mais de um, uma vez
+ * excluídas as linhas S0, que têm `chunk_id NULL`), o campo não carregaria
+ * informação — só ambiguidade. Registro em `DECISION-designacao-2026-08-25.md`, §B.
+ */
+export function chaveDeDesignacao(seedHex: string, chunkId: number): string {
+  return createHash("sha256").update(`${seedHex}|${chunkId}`, "ascii").digest("hex");
+}
+
+/**
+ * Deriva o conjunto designado sobre a tabela INTEIRA — um chunk por grupo de
+ * assinatura, o de menor chave.
+ *
+ * Global, não condicional ao pool: a designação de um grupo não pode depender de
+ * quem apareceu no brief de agora. Sob a regra anterior isso era invisível porque
+ * cada fatia recomputava o argmin local, e `boostsParaCandidatos` é chamada ≥2
+ * vezes por brief com fatias diferentes (`brief.ts:714`, `:753`, `:843-851`).
+ *
+ * ⚠️ Esta função é a DERIVAÇÃO, usada para produzir a declaração de seed e nos
+ * testes. Ela NÃO é a fonte do que se serve: `p2_verdict` é tabela viva
+ * (`write-path.ts:189` insere), então recomputar a cada brief faria o conjunto
+ * designado mudar quando uma adjudicação nova entrasse — o oposto de congelado.
+ * Quem serve lê o arquivo preso por sha256 em `carregarDesignados`.
+ *
+ * Filtra `severity` positiva E `chunk_id IS NOT NULL`. Hoje as duas condições
+ * coincidem exatamente (225 linhas S0, todas com chunk_id nulo), mas a coincidência
+ * é fato do dado e não restrição de schema — se divergirem, quero as duas mordendo.
+ */
+export function designadosGlobais(db: DbMinimo, seedHex: string): Map<string, number> {
+  const linhas = db
+    .prepare(
+      `SELECT DISTINCT sig_primary, chunk_id FROM p2_verdict
+        WHERE chunk_id IS NOT NULL AND severity IN ('S1','S2','S3','S4')`,
+    )
+    .all() as { sig_primary: string; chunk_id: number }[];
+  const grupos = new Map<string, number[]>();
+  for (const l of linhas) {
+    const g = grupos.get(l.sig_primary);
+    if (g) g.push(l.chunk_id);
+    else grupos.set(l.sig_primary, [l.chunk_id]);
+  }
+  const out = new Map<string, number>();
+  for (const [sig, ids] of grupos) {
+    // Ordena por (chave, chunk_id). A chave já é total na prática; o segundo termo
+    // torna o desempate explícito em vez de herdado da ordem de linhas do SQLite —
+    // exatamente o defeito que esta regra existe para consertar.
+    let melhor = ids[0];
+    let melhorChave = chaveDeDesignacao(seedHex, melhor);
+    for (const id of ids.slice(1)) {
+      const k = chaveDeDesignacao(seedHex, id);
+      if (k < melhorChave || (k === melhorChave && id < melhor)) {
+        melhor = id;
+        melhorChave = k;
+      }
+    }
+    out.set(sig, melhor);
+  }
+  return out;
+}
+
+/** sha256 canônico do conjunto designado. Mesma serialização do Python. */
+export function impressaoDoConjunto(desig: Map<string, number>): string {
+  const ordenado = [...desig.keys()].sort();
+  const canon = `{${ordenado.map((k) => `${JSON.stringify(k)}:${desig.get(k)}`).join(",")}}`;
+  return createHash("sha256").update(canon, "utf8").digest("hex");
+}
+
+export interface DesignadosCarregados {
+  ok: boolean;
+  ids: Set<number>;
+  seed: string | null;
+  motivo?: string;
+}
+
+const SEM_DESIGNADOS: DesignadosCarregados = { ok: false, ids: new Set(), seed: null };
+
+/**
+ * Lê o conjunto designado CONGELADO, preso por caminho + sha256.
+ *
+ * Mesmo par de env vars que `resolverBraco` usa, mesma razão: divergência de hash
+ * ⇒ recusa, porque servir tratamento a partir de um conjunto não verificado é pior
+ * que não servir. Ausente ⇒ mapa vazio, e o chamador grita.
+ *
+ * O arquivo é exatamente a saída de `designation_verify.py`, e é o que a declaração
+ * de seed publica. Não há caminho default: a lição do PR #43 é que isolar o DB não
+ * isola o log, e um default aqui serviria tratamento em teste.
+ */
+export function carregarDesignados(
+  env: NodeJS.ProcessEnv = process.env,
+): DesignadosCarregados {
+  const caminho = env.NOX_P2_DESIGNATION;
+  if (!caminho) return { ...SEM_DESIGNADOS, motivo: "NOX_P2_DESIGNATION ausente" };
+  const shaEsperado = env.NOX_P2_DESIGNATION_SHA256;
+  if (!shaEsperado)
+    return { ...SEM_DESIGNADOS, motivo: "NOX_P2_DESIGNATION_SHA256 ausente" };
+  let cru: Buffer;
+  try {
+    cru = readFileSync(caminho);
+  } catch (e) {
+    return { ...SEM_DESIGNADOS, motivo: `DESIGNATION ilegível: ${String(e)}` };
+  }
+  const sha = createHash("sha256").update(cru).digest("hex");
+  if (sha !== shaEsperado)
+    return { ...SEM_DESIGNADOS, motivo: `sha256 divergente (${sha.slice(0, 12)}…)` };
+  let doc: { seed?: string; designados?: Record<string, number> };
+  try {
+    doc = JSON.parse(cru.toString("utf8"));
+  } catch (e) {
+    return { ...SEM_DESIGNADOS, motivo: `DESIGNATION inválido: ${String(e)}` };
+  }
+  const designados = doc.designados;
+  if (!designados || typeof designados !== "object")
+    return { ...SEM_DESIGNADOS, motivo: "campo `designados` ausente" };
+  const ids = new Set<number>();
+  for (const v of Object.values(designados)) {
+    if (!Number.isInteger(v)) return { ...SEM_DESIGNADOS, motivo: `chunk_id não inteiro: ${String(v)}` };
+    ids.add(v);
+  }
+  if (ids.size === 0) return { ...SEM_DESIGNADOS, motivo: "conjunto designado vazio" };
+  return { ok: true, ids, seed: typeof doc.seed === "string" ? doc.seed : null };
+}
+
+/**
  * Boost por candidato, para os chunks da população do estudo.
  *
  * A população é definida pelo **join autoritativo** com `p2_verdict.chunk_id` —
@@ -126,17 +262,30 @@ interface DbMinimo {
  * `W_OUTCOME = w · Δ_cut · severity_pain`, aditivo (a lição v3.4 do Paper 1: boost
  * multiplicativo empilhável é instável).
  *
- * ⚠️ Aplica a **regra de designação registrada** — um chunk por grupo de
- * assinatura, `argmin (C − base)/(Δ_cut·sev)` — com a constante `C` explícita
- * como parâmetro, porque ela está sob emenda: `C` foi registrada como
- * `CUT_FRESH = 0.7342`, um limiar que o `pick` não aplica. Manter explícita para
- * que a troca seja um diff, não uma reinterpretação.
+ * ⚠️ Aplica a regra de designação **substituta**, decidida em 2026-08-26
+ * (`DECISION-designacao-2026-08-25.md`, opção B): sorteio pseudoaleatório com seed
+ * declarada, um chunk por grupo, `argmin SHA256(seed ‖ "|" ‖ chunk_id)`.
+ *
+ * A regra ANTERIOR — `argmin (C − base)/(Δ_cut·sev)` com `C = CUT_FRESH = 0.7342`
+ * — foi removida, não deixada como código morto, por três defeitos medidos e
+ * retratados na `AMENDMENT-v1.12.md` (retratações 3, 4, 13, 26, 27):
+ *
+ *  1. `C` era um limiar que o `pick` nunca aplica — a emenda retrata o referente;
+ *  2. o desempate registrado nomeava `created_at`, coluna que não existe em
+ *     `p2_verdict` — não era não-implementado, era não-implementável;
+ *  3. `w_min` derivava de `salienceBase`, que inclui
+ *     `0.20 · log1p(access_count)/log(1000)`, e `access_count` é mutável por
+ *     tráfego de busca exógeno ⇒ a designação não era função só de dados
+ *     congelados. Empate exato em 4 dos 7 grupos multi-membro, e nesses o
+ *     designado saía da ordem incidental de linhas do SQLite.
+ *
+ * Consequência de tipo: `salienceBase` deixou de ser lido. O parâmetro se estreita
+ * para `{ id }` justamente para que o compilador prove que não é mais consultado.
  */
 export function boostsParaCandidatos(
   db: DbMinimo,
-  candidatos: { id: number; salienceBase: number }[],
+  candidatos: { id: number }[],
   w: number,
-  cDesignacao: number,
   /**
    * Inicio do epoch corrente, em ms. Quando presente, aplica o GATE DE
    * MATURIDADE registrado: so entra na populacao tratada o chunk escrito
@@ -153,20 +302,41 @@ export function boostsParaCandidatos(
    * lock de 2026-08-16, §2 linha 202.
    */
   epochInicioMs?: number,
+  env: NodeJS.ProcessEnv = process.env,
 ): Map<number, number> {
   const vazio = new Map<number, number>();
   if (w <= 0 || candidatos.length === 0) return vazio;
-  const porId = new Map(candidatos.map((c) => [c.id, c.salienceBase]));
-  const ids = [...porId.keys()];
-  let linhas: { chunk_id: number; severity: string; sig_primary: string }[];
+
+  const d = carregarDesignados(env);
+  if (!d.ok) {
+    // Não neutro: converte tratamento em controle e enviesa pro nulo, igual à
+    // falha de resolução de braço. Grita uma vez por processo e é contado.
+    if (!avisouFaltaDeDesignacao) {
+      avisouFaltaDeDesignacao = true;
+      console.error(
+        JSON.stringify({ tag: "p2_designation_seed_ausente", motivo: d.motivo ?? null }),
+      );
+    }
+    return vazio;
+  }
+  conferirDrift(db, d, env);
+
+  // Interseção com o pool. O conjunto designado é GLOBAL e congelado: um grupo
+  // cujo designado não apareceu neste pool simplesmente não recebe boost — não se
+  // promove o segundo colocado, porque isso reintroduziria dependência do pool.
+  const ids = candidatos.map((c) => c.id).filter((id) => d.ids.has(id));
+  if (ids.length === 0) return vazio;
+
+  // Gate de maturidade e severidade vêm do DB, e SÓ para os designados.
   const corte =
     epochInicioMs === undefined
       ? null
       : new Date(epochInicioMs - 86400000).toISOString().slice(0, 19).replace("T", " ");
+  let linhas: { chunk_id: number; severity: string }[];
   try {
     linhas = db
       .prepare(
-        `SELECT chunk_id, severity, sig_primary FROM p2_verdict
+        `SELECT chunk_id, severity FROM p2_verdict
           WHERE chunk_id IN (${ids.map(() => "?").join(",")})` +
           (corte === null ? "" : " AND written_at <= ?"),
       )
@@ -174,22 +344,62 @@ export function boostsParaCandidatos(
   } catch {
     return vazio; // p2_verdict ausente (write path nunca acionado) — fail-open
   }
-  if (linhas.length === 0) return vazio;
 
-  // Designação: um por grupo de assinatura, o de menor w_min.
-  const porSig = new Map<string, { chunk_id: number; sev: number; wMin: number }>();
+  const out = new Map<number, number>();
   for (const l of linhas) {
     const sev = SEVERIDADE_PAIN[l.severity];
     if (sev === undefined || sev <= 0) continue; // S0 não tem chunk
-    const base = porId.get(l.chunk_id);
-    if (base === undefined) continue;
-    const wMin = (cDesignacao - base) / (P2_DELTA_CUT * sev);
-    const atual = porSig.get(l.sig_primary);
-    if (!atual || wMin < atual.wMin) porSig.set(l.sig_primary, { chunk_id: l.chunk_id, sev, wMin });
+    // `set`, não `+=`: um chunk designado em dois grupos recebe UM boost. Hoje não
+    // ocorre (0 de 55 em mais de um grupo), e a asserção do teste trava isso.
+    out.set(l.chunk_id, w * P2_DELTA_CUT * sev);
   }
-  const out = new Map<number, number>();
-  for (const { chunk_id, sev } of porSig.values()) out.set(chunk_id, w * P2_DELTA_CUT * sev);
   return out;
+}
+
+let avisouFaltaDeDesignacao = false;
+let conferiuDrift = false;
+
+/** Só para teste: o aviso é uma-vez-por-processo e a ordem dos testes o consumiria. */
+export function _resetAvisoDeDesignacao(): void {
+  avisouFaltaDeDesignacao = false;
+  conferiuDrift = false;
+}
+
+/**
+ * Guarda de drift: recomputa a designação sobre `p2_verdict` como está AGORA e
+ * compara com o conjunto congelado. Divergência ⇒ grita; o arquivo continua sendo
+ * a autoridade.
+ *
+ * Existe porque `p2_verdict` é tabela viva. Se uma adjudicação nova entrar num
+ * grupo, o argmin daquele grupo pode mudar, e sem esta comparação o conjunto
+ * servido e o conjunto derivável divergiriam em silêncio — a diferença entre
+ * "congelado" e "congelado e verificado". Uma vez por processo: a query é de 55
+ * linhas, mas o brief é caminho quente.
+ */
+function conferirDrift(db: DbMinimo, d: DesignadosCarregados, env: NodeJS.ProcessEnv): void {
+  if (conferiuDrift || d.seed === null) return;
+  conferiuDrift = true;
+  if (env.NOX_P2_DESIGNATION_SKIP_DRIFT === "1") return;
+  let vivo: Map<string, number>;
+  try {
+    vivo = designadosGlobais(db, d.seed);
+  } catch {
+    return; // p2_verdict ausente — o fail-open do caminho principal já cobre
+  }
+  const idsVivos = new Set(vivo.values());
+  const faltando = [...d.ids].filter((i) => !idsVivos.has(i));
+  const sobrando = [...idsVivos].filter((i) => !d.ids.has(i));
+  if (faltando.length || sobrando.length) {
+    console.error(
+      JSON.stringify({
+        tag: "p2_designation_drift",
+        congelados: d.ids.size,
+        derivados_agora: idsVivos.size,
+        no_arquivo_e_nao_derivado: faltando.sort((a, b) => a - b),
+        derivado_e_nao_no_arquivo: sobrando.sort((a, b) => a - b),
+      }),
+    );
+  }
 }
 
 /** Espelha `SEVERITY_PAIN` do write-path; duplicado aqui para não acoplar módulos. */
@@ -227,15 +437,13 @@ export function doseDeShadow(env: NodeJS.ProcessEnv = process.env): number {
   return Number.isFinite(w) && w > 0 ? w : 0;
 }
 
-/**
- * Constante da regra de designacao. Registrada como `CUT_FRESH = 0.7342` -- um
- * limiar que o `pick` nao aplica (ver BAR-RETRACTION-2026-08-20). Fica explicita
- * e sobrescrivel para que a emenda seja um diff, nao uma reinterpretacao.
- */
-export function cDesignacao(env: NodeJS.ProcessEnv = process.env): number {
-  const c = Number(env.NOX_P2_C_DESIGNACAO ?? "0.7342");
-  return Number.isFinite(c) ? c : 0.7342;
-}
+// `cDesignacao()` foi REMOVIDA em 2026-08-26, junto com `NOX_P2_C_DESIGNACAO`.
+// Devolvia `CUT_FRESH = 0.7342`, um limiar que o `pick` nunca aplica, e a emenda
+// v1.12 retrata o referente (retratações 3, 4, 13). Deixar uma constante retratada
+// viva "para o diff ficar legível" é convite a reuso — a regra que a consumia foi
+// substituída inteira (ver `boostsParaCandidatos` e
+// `DECISION-designacao-2026-08-25.md`). Se aparecer numa branch antiga, é do
+// período pré-emenda e não deve voltar.
 
 let avisouFaltaDeLog = false;
 
