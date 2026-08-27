@@ -4,6 +4,44 @@
 
 ---
 
+
+## 🟢 27/08 — item 1 do protocolo de calibração FECHADO, e ele reverteu a emenda
+
+`measurement/replay-oportunidade.mjs` importa `buildBriefDiverse` do `dist` e reproduz a
+**produção em 350 de 350** briefs da janela fechada (composição do controle, `churn`,
+`would_enter`, `would_leave`; zero inventado, zero perdido). Isso fecha o defeito do §4
+de `DEVIATIONS-FOR-PAPER.md` — "mede-se ordenação, não seleção".
+
+**E derruba o §1.** O controle positivo publicado (`w = 100.000` ⇒ churn 0) rodava sobre
+um pool **reimplementado**. No pipeline real, 9 doses × 350 estados:
+
+| `w` | 0 | 0,5 | 1 | 2 | 4 | 7,5 | 15 | 100 | 100.000 |
+|---|---|---|---|---|---|---|---|---|---|
+| estados que mexem | 0 | 5 | 8 | **11** | 15 | **17** | 17 | 17 | 17 |
+
+Monótono, **satura exatamente em `w = 7,5`** (topo da banda registrada), teto
+**17/350 = 4,86%**, e `w = 2` devolve o `11/350 = 3,1429%` publicado. As três doses
+registradas **são distinguíveis**. O argumento estrutural (comparador lexicográfico)
+sobrevive — é o que produz a saturação; a conclusão tirada dele, não.
+
+⚠️ **O registro público agora tem DUAS linhas em que está pior que a realidade:** a
+designação (defeito fechado descrito como aberto) e a banda (parâmetro com efeito
+descrito como sem efeito). Falsidade que subestima não se conserta com o tempo.
+
+**Três defeitos de instrumento novos, no código de PRODUÇÃO:** o serving filtra a
+população elegível com `julianday('now')` apesar de receber `nowMs`; `brief_log.served_at`
+tem resolução de **segundo** e 46,9% dos briefs dividem o segundo (⇒ o corte de replay
+tem de ser por `brief_log.id`, e sob corte temporal a contagem sai 14 em vez de 12);
+`ordenarCobertura` descarta a chave que ordenou o pool.
+
+**Próxima ação:** medir a distribuição de gap intra-estrato no sub-pool do **agente** com
+a harness canônica. É pré-requisito de duas coisas — a calibração do gatilho do item 7
+(o `0,0318` é do sub-pool global e está inválido) e qualquer afirmação do paper sobre a
+banda. Depósito v1.13 segue **preparado e não executado**; a opção 3 (agrupar) ficou mais
+atraente, porque agora há resultado positivo a registrar junto.
+
+Integral: `paper2-interventional/REPLAY-OPORTUNIDADE-2026-08-27.md`. Commit `e4a5cc3`.
+
 ## 🟡 Estado atual (2026-08-27, 16:52 BRT) — emenda PRONTA e NÃO depositada, por decisão; desvios vão no paper
 
 > **O estudo está bloqueado por decisão da própria emenda, não por impedimento
