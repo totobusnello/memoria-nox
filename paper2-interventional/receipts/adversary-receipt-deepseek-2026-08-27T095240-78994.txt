@@ -1,0 +1,12 @@
+voice: deepseek
+model: deepseek-v4-pro
+timestamp: 2026-08-27T095240
+host: <laptop-do-autor, redigido>
+cwd: /Users/lab/Claude/Projetos/memoria-nox/.claude/worktrees/agent-aa48ef4be1e1b2502
+prompt_sha256: f8f0dbec8049112f564f9407e55d6fa4bae2df2fe1a91c41ab43e4385c7c5e5d
+prompt_bytes: 4329
+exit: 0
+duration_s: 485
+output_sha256: 0197090d5365eae64688b8d185a7371edd4d4af0eab42557939d0cee6480aa9f
+output_bytes: 14413
+command: env DEEPSEEK_MODEL=deepseek-v4-pro /Users/lab/Claude/scripts/deepseek <prompt>

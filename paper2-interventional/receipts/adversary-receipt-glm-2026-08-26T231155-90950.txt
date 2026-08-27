@@ -1,0 +1,12 @@
+voice: glm
+model: glm-5.3
+timestamp: 2026-08-26T231155
+host: <laptop-do-autor, redigido>
+cwd: /Users/lab/Claude/Projetos/memoria-nox/.claude/worktrees/agent-aaaee6c7b83eee81c
+prompt_sha256: 709c792179fb1e04c897b81fd4da267b0a2d4cc0c8a8869a513f9fbc6b43d514
+prompt_bytes: 3989
+exit: 0
+duration_s: 90
+output_sha256: fd0851001d0e285d35f943b795b66746d9d4a5d76166ed59ee9af532d4223091
+output_bytes: 9535
+command: env GLM_MODEL=glm-5.3 /Users/lab/Claude/scripts/glm <prompt>

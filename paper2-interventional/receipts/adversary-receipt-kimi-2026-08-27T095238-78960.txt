@@ -1,0 +1,12 @@
+voice: kimi
+model: assinatura(Moonshot/K2)
+timestamp: 2026-08-27T095238
+host: <laptop-do-autor, redigido>
+cwd: /Users/lab/Claude/Projetos/memoria-nox
+prompt_sha256: 033b4ad5bb7ed46f7f3718a05369250a9344a5cf960fb7a7564c1946cf98a21d
+prompt_bytes: 2670
+exit: 0
+duration_s: 617
+output_sha256: b456cf258005e0eb9e9fd37c6c2fc9ef65e6c477e50af0314322b21a6741b1d2
+output_bytes: 58869
+command: /Users/lab/.kimi-code/bin/kimi -p <prompt>
