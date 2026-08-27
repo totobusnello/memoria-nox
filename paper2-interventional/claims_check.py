@@ -292,6 +292,14 @@ def sweep(root: Path) -> list[str]:
             continue
         if "__pycache__" in path.parts or ".git" in path.parts:
             continue
+        # ⚠️ `receipts/` guarda a SAÍDA das vozes adversariais, preservada byte a byte
+        # (só `host:` e o IP da VPS foram redigidos, e isso está declarado lá). Elas
+        # CITAM a banda superseded porque leram os documentos históricos. Editá-las
+        # para satisfazer o sweep falsificaria o registro da revisão, que é justamente
+        # o que elas existem para provar. Limitação declarada, não resolvida: o guarda
+        # não policia esse diretório, e um número obsoleto que apareça só ali passa.
+        if "receipts" in path.parts:
+            continue
         if path.name in KNOWN_STALE and _is_marked(path):
             continue
         try:
@@ -350,6 +358,54 @@ def doc_check(root: Path) -> list[str]:
     return failures
 
 
+def _afirmada(frase: str, texto: str) -> list[int]:
+    """Linhas em que `frase` é AFIRMADA — não citada, não numa tabela de retratação.
+
+    ⚠️ Presença simples não distingue asserção de citação, e a primeira versão desta
+    checagem acusou três vezes o próprio documento por ele CITAR o texto que retrata.
+    É a classe do guarda-decoração invertida: em vez de nunca morder, mordia o
+    inocente. Uma emenda é obrigada a citar o que retrata; um guarda que proíbe a
+    citação proíbe a auditabilidade.
+
+    Isenta duas formas, e só estas duas:
+      - linha que começa com `|` — fila da tabela de retratações;
+      - ocorrência encostada em aspas (tipográficas ou ASCII) ou em `*` na mesma linha.
+
+    ⚠️ Custo declarado: aceitar aspas ASCII abre evasão — bastaria envolver uma
+    afirmação real em aspas para escapar. É trade-off consciente e o risco é baixo,
+    porque texto entre aspas lê como citação para o revisor humano também. O que NÃO
+    é aceitável é o oposto: um guarda que proíbe citar o texto retratado força a
+    emenda a esconder o que a revisão derrubou.
+    """
+    fora = []
+    for ln, linha in enumerate(texto.splitlines(), 1):
+        if frase not in linha:
+            continue
+        if linha.lstrip().startswith("|"):
+            continue
+        if any(f'{a}{frase}' in linha or f'{frase}{b}' in linha
+               for a, b in (('\u201c', '\u201d'), ('"', '"'), ('*', '*'))):
+            continue
+        fora.append(ln)
+    return fora
+
+
+def _remediacao(root: Path) -> dict:
+    """Artefato da remediação de 2026-08-27.
+
+    Existe separado do `DELTA-CUT-MEASUREMENT-2026-08-26.json` de propósito: aquele
+    ficou como registro do que a 2ª redação media, com o script que fazia rollback
+    temporal em vez de descontaminação. Sobrescrevê-lo apagaria a evidência do erro.
+    """
+    art = root / "REMEDIATION-2026-08-27.json"
+    if not art.exists():
+        raise FileNotFoundError(
+            "REMEDIATION-2026-08-27.json ausente — as medições remediadas não podem "
+            "ser conferidas, e são elas que a emenda publica"
+        )
+    return json.loads(art.read_text(encoding="utf-8"))
+
+
 def delta_cut_check(root: Path) -> list[str]:
     """Guard the `Δ_cut` measurement of 2026-08-26 the way doc_check guards reach.
 
@@ -375,6 +431,10 @@ def delta_cut_check(root: Path) -> list[str]:
     if not art.exists():
         return [f"{art.name}: missing — the Δ_cut measurement cannot be checked"]
     data = json.loads(art.read_text(encoding="utf-8"))
+    # A remediação de 27/08 é a fonte de verdade para tudo que os scripts de 26/08
+    # mediram com rollback temporal, janela aberta ou `julianday('now')`. Carregada
+    # aqui, no topo, porque metade das âncoras abaixo depende dela.
+    rem = _remediacao(root)
 
     # ⚠️ Presença tem de ser verificada CONTRA O DOCUMENTO e ANCORADA NUM RÓTULO.
     # A primeira versão desta função fazia `str(valor) in "\n".join(todos_os_md)`, e
@@ -407,6 +467,26 @@ def delta_cut_check(root: Path) -> list[str]:
                 f"(/{padrao}/ does not match) — measurement dropped or falsified?"
             )
 
+    def ocorrencias(literal: str, esperado: int, rotulo: str) -> None:
+        """Exige que TODAS as ocorrências de um valor concordem.
+
+        ⚠️ O teste de mutação de 27/08 mostrou que `ancorado` sozinho é satisfeito por
+        UMA ocorrência: quatro falsificações passaram porque o valor aparece 2–3 vezes
+        no documento e eu havia mutado só a primeira. Isso não é mutação ruim de
+        laboratório — é o buraco real: uma tabela que discorde da citação em bloco
+        passa pelo guarda. Prender a contagem faz qualquer divergência interna morder.
+
+        O custo é que edição legítima que mude o número de menções tem de atualizar o
+        esperado aqui, DE PROPÓSITO. Num documento a caminho do depósito, isso é
+        aceitável; num documento vivo, seria atrito.
+        """
+        visto = texto.count(literal)
+        if visto != esperado:
+            failures.append(
+                f"{alvo.name}: {rotulo} aparece {visto}× e deveria aparecer {esperado}× "
+                f"({literal!r}) — ou uma ocorrência divergiu, ou uma foi removida"
+            )
+
     ancorado(rf"candidatos no pool.*?\*\*{data['pool']}\*\*", "pool size", str(data["pool"]))
     ancorado(rf"grupos de `last_served` distintos.*?{data['grupos_last_served']}",
              "distinct last_served groups", str(data["grupos_last_served"]))
@@ -418,17 +498,22 @@ def delta_cut_check(root: Path) -> list[str]:
              rf"n[ãa]o medem a oportunidade",
              "qualifying mixed groups (now retracted as a measure of opportunity)",
              f"{data['grupos_mistos_qualificaveis']}/{data['grupos_last_served']}")
-    gmax = f"{data['gap_maximo']:.6f}".replace(".", ",")
+    # ⚠️ Precisão INTEIRA, não arredondada: `0,031809` é compatível com mais de uma
+    # reconstrução (a de definição errada dava 0,0463), então o dígito longo é o que
+    # amarra o número à definição. Fonte: o artefato da remediação.
+    gmax = str(rem["descontaminacao_correta"]["observado"]["gap_maximo"]).replace(".", ",")
     ancorado(rf"gap máximo \*\*intragrupo\*\* \| \*\*{re.escape(gmax)}\*\*",
-             "max within-tie gap", gmax)
+             "max within-tie gap (full precision)", gmax)
 
     # A base de churn foi CORRIGIDA: a pós-gate é a boa, e a antiga tem de aparecer
     # marcada como superseded, não desaparecer.
     b = data["churn_baseline"]
-    boa = b["base_correta_pos_gate"]
-    pct = f"{100 * boa['positivo'] / boa['total']:.4f}".replace(".", ",")
-    ancorado(rf"\*\*{boa['positivo']}/{boa['total'] // 1000}\.{boa['total'] % 1000:03d} = "
-             rf"{re.escape(pct)}%\*\*", "post-gate baseline rate", pct + "%")
+    # ⚠️ `base_correta_pos_gate` do artefato de 26/08 ficou SUPERSEDED: media uma janela
+    # mais curta (2.212) e não excluía sondas. A verdade é a janela fechada da remediação.
+    ag = rem["janela_fechada"]["regra_velha_pos_gate_agregado"]
+    pct = f"{100 * ag['k'] / ag['n']:.4f}".replace(".", ",")
+    ancorado(rf"\*\*{ag['k']}/{ag['n'] // 1000}\.{ag['n'] % 1000:03d} = "
+             rf"{re.escape(pct)}%\*\*", "post-gate baseline rate (closed window)", pct + "%")
     velho = b["SUPERSEDIDO_todas_as_decisoes"]
     velho_pct = f"{velho['pct']:.4f}".replace(".", ",")
     ancorado(rf"{velho['positivo']}/{velho['total'] // 1000}\.{velho['total'] % 1000:03d} = "
@@ -436,11 +521,11 @@ def delta_cut_check(root: Path) -> list[str]:
              velho_pct + "%")
     # A série tem de estar publicada: taxa não-estacionária citada como constante é
     # o defeito que esta emenda retrata (retratação 34).
-    for dia in b["serie_diaria_pos_gate"]:
-        dpct = f"{dia['pct']:.4f}".replace(".", ",")
+    for dia, (k, n) in sorted(rem["janela_fechada"]["regra_velha_serie_diaria"].items()):
+        dpct = f"{100 * k / n:.4f}".replace(".", ",")
         if dpct.rstrip("0").rstrip(",") not in texto and dpct not in texto:
             failures.append(
-                f"{alvo.name}: daily rate for {dia['dia']} is {dpct}% and the document "
+                f"{alvo.name}: daily rate for {dia} is {dpct}% ({k}/{n}) and the document "
                 f"does not state it — a non-stationary series cited as one number is "
                 f"exactly retraction 34"
             )
@@ -448,12 +533,35 @@ def delta_cut_check(root: Path) -> list[str]:
     # ⚠️ `str(v) not in texto` seria vacuidade — "1" casa em qualquer lugar. As duas
     # colunas têm de aparecer NA MESMA LINHA da tabela de sensibilidade, que é a
     # única forma de a comparação estar de fato publicada.
-    c = data["contaminacao_por_sondas"]
-    obs = c["observado"]["menor_pos_qualificavel"]
-    des = c["descontaminado"]["menor_pos_qualificavel"]
-    ancorado(rf"menor posição de grupo qualificável\*\* \| \*\*{obs}\*\* \| \*\*{des}\*\*",
-             "contamination sensitivity (observed vs decontaminated, same row)",
-             f"{obs} vs {des}")
+    # ⚠️ A fonte da sensibilidade mudou em 2026-08-27: o `contaminacao_por_sondas` do
+    # artefato de 26/08 foi produzido pelo script que fazia ROLLBACK TEMPORAL, não
+    # descontaminação (REMEDIATION-2026-08-27.md §1). A verdade agora é o artefato
+    # da remediação, e é ele que este guarda lê.
+    dc = rem["descontaminacao_correta"]
+    obs, des = dc["observado"], dc["descontaminado"]
+    ancorado(rf"posição do 1º chunk do estudo \| \*\*{obs['posicao_primeiro_estudo']}\*\* \| "
+             rf"\*\*{des['posicao_primeiro_estudo']}\*\*",
+             "contamination sensitivity on position (observed vs decontaminated, same row)",
+             f"{obs['posicao_primeiro_estudo']} vs {des['posicao_primeiro_estudo']}")
+    # E o que NÃO muda tem de estar afirmado, senão a independência do §3 fica implícita.
+    for campo in ("pares_adjacentes_no_grupo", "gaps_exatamente_zero", "gaps_positivos"):
+        if obs[campo] != des[campo]:
+            failures.append(
+                f"REMEDIATION-2026-08-27.json: {campo} muda com a descontaminação "
+                f"({obs[campo]} -> {des[campo]}), mas a emenda afirma que nenhuma "
+                f"estatística de gap muda"
+            )
+    if obs["gap_maximo"] != des["gap_maximo"]:
+        failures.append("REMEDIATION: gap_maximo muda com a descontaminação")
+    # As 5 sondas — a segunda redação contava 3, e o número é o que sustenta a §4.2.
+    s = rem["sondas"]
+    if len(s["brief_ids"]) != s["quantas"] or s["quantas"] * 5 != s["linhas_em_brief_log"]:
+        failures.append(
+            f"REMEDIATION: {s['quantas']} sondas, {len(s['brief_ids'])} ids, "
+            f"{s['linhas_em_brief_log']} linhas — não fecham em 5 linhas por sonda"
+        )
+    ancorado(rf"\*\*cinco\*\* sondas, \*\*{s['linhas_em_brief_log']}\*\* linhas",
+             "probe count (five probes, 25 rows)", str(s["linhas_em_brief_log"]))
 
     gaps = data["gaps_positivos"]
     if len(gaps) != 27:
@@ -483,40 +591,87 @@ def delta_cut_check(root: Path) -> list[str]:
             f"saturates ({2.0 * d * 0.25:.6f} > {data['gap_maximo']:.6f})"
         )
 
-    # --- regra nova: a taxa e o IC sao RECOMPUTADOS de k/n, nao conferidos ---
-    rn = data["regra_nova_ativacao"]
-    pct = 100 * rn["ativacoes"] / rn["decisoes"]
+    # --- regra nova: janela FECHADA, taxa e IC RECOMPUTADOS de k/n ---
+    jf = rem["janela_fechada"]
+    rn = jf["regra_nova"]
+    pct = 100 * rn["k"] / rn["n"]
     if abs(pct - rn["pct"]) > 5e-5:
-        failures.append(
-            f"{art.name}: {rn['ativacoes']}/{rn['decisoes']} = {pct:.4f}%, artifact says {rn['pct']}%"
-        )
-    lo, hi = _wilson(rn["ativacoes"], rn["decisoes"])
-    for got, want, nome in ((lo, rn["ic95_wilson"][0], "lower"), (hi, rn["ic95_wilson"][1], "upper")):
+        failures.append(f"REMEDIATION: {rn['k']}/{rn['n']} = {pct:.4f}%, artefato diz {rn['pct']}%")
+    lo, hi = _wilson(rn["k"], rn["n"])
+    for got, want, nome in ((lo, rn["wilson95"][0], "inferior"), (hi, rn["wilson95"][1], "superior")):
         if abs(got - want) > 0.01:
-            failures.append(
-                f"{art.name}: Wilson {nome} bound recomputes to {got:.2f}, artifact says {want}"
-            )
-    ancorado(rf"\*\*{rn['ativacoes']}/{rn['decisoes']}\*\* \| \*\*{str(rn['pct']).replace('.', ',')}%\*\*",
-             "new-rule activation rate", f"{rn['ativacoes']}/{rn['decisoes']}")
-    ancorado(rf"\*\*{rn['designated_ids_igual_19_em']} de {rn['boost_by_id_igual_19_em']}\*\* decis",
-             "mechanism integrity (19/19 in every decision)",
-             str(rn["designated_ids_igual_19_em"]))
-    # A comparacao com o ultimo dia da regra velha e o que sustenta "nao move":
-    uv = rn["comparacao"]["regra_velha_ultimo_dia"]
-    if not (uv["ic95"][0] <= rn["pct"] <= uv["ic95"][1]):
+            failures.append(f"REMEDIATION: Wilson {nome} recomputa {got:.2f}, artefato diz {want}")
+    ancorado(rf"\*\*{rn['k']}/{rn['n']}\*\* \| \*\*3,1429%\*\*",
+             "new-rule activation rate (closed window)", f"{rn['k']}/{rn['n']}")
+    ancorado(rf"\*\*{rn['n']} de {rn['n']}\*\* decis",
+             "mechanism integrity (19/19 in every decision)", str(rn["n"]))
+    # A janela tem de estar FECHADA no texto — foi o defeito que gerou o 11/310.
+    ini, fim = jf["intervalo"]
+    ancorado(rf"\[{re.escape(ini)} , {re.escape(fim)}\)",
+             "closed window declared with both endpoints", fim)
+
+    # Os quatro valores que o teste de mutação mostrou serem satisfeitos por uma
+    # ocorrência só. A contagem vem do estado conferido em 2026-08-27T12:20Z.
+    ini_j, fim_j = jf["intervalo"]
+    ocorrencias(f"{fim_j})", 2, "fim da janela fechada")
+    ag_ = jf["regra_velha_pos_gate_agregado"]
+    pct_ag = f"{100 * ag_['k'] / ag_['n']:.4f}".replace(".", ",")
+    ocorrencias(f"**{ag_['k']}/{ag_['n'] // 1000}.{ag_['n'] % 1000:03d} = {pct_ag}%**", 2,
+                "linha de base pós-gate")
+    d26 = jf["regra_velha_serie_diaria"]["2026-08-26"]
+    ocorrencias(f"{100 * d26[0] / d26[1]:.4f}".replace(".", ",") + "%", 3,
+                "taxa diária de 26/08")
+    # ⚠️ Os 27 gaps vivem em DOIS artefatos, e só um era lido — o outro podia derivar
+    # em silêncio. Mutar a cópia não conferida foi uma das quatro que não morderam.
+    if sorted(rem["saturacao"]["gaps_positivos"]) != sorted(data["gaps_positivos"]):
         failures.append(
-            f"{art.name}: the amendment says the rates are indistinguishable, but "
-            f"{rn['pct']}% falls outside the old rule's last-day CI {uv['ic95']}"
+            "REMEDIATION-2026-08-27.json e DELTA-CUT-MEASUREMENT-2026-08-26.json "
+            "discordam na lista dos 27 gaps — a duplicação derivou"
         )
 
-    # --- auto-extincao: a serie tem de estar publicada, e NAO ser crescente ---
-    ae = data["autoextincao_testada"]
-    pcts = [x["pct"] for x in ae["serie"]]
-    if pcts == sorted(pcts) and pcts[0] < pcts[-1]:
+    # A soma da serie diaria da regra velha tem de fechar no agregado.
+    serie = jf["regra_velha_serie_diaria"]
+    sk = sum(v[0] for v in serie.values()); sn = sum(v[1] for v in serie.values())
+    ag = jf["regra_velha_pos_gate_agregado"]
+    if (sk, sn) != (ag["k"], ag["n"]):
         failures.append(
-            f"{art.name}: the series IS monotonically increasing, so the amendment's "
-            f"'REFUTADA — estavel e oscilante' no longer holds: {pcts}"
+            f"REMEDIATION: soma da serie diaria = {sk}/{sn}, agregado diz {ag['k']}/{ag['n']}"
         )
+
+    # ⚠️ CONSERTO CONCEITUAL (2026-08-27). A versao anterior deste guarda exigia que a
+    # taxa nova caisse DENTRO do IC da antiga, e chamava isso de "as taxas sao
+    # indistinguiveis". Sobreposicao de IC NAO e equivalencia: a assercao codificava um
+    # raciocinio invalido como invariante. O que o guarda tem de garantir agora e o
+    # oposto — que a emenda NAO afirme equivalencia, e que a comparacao confundida NAO
+    # seja usada como efeito.
+    proibidas = ["praticamente idêntico", "as taxas são indistinguíveis",
+                 "refuta uma suposição", "largamente sobrepostos"]
+    # ⚠️ Presença simples NAO distingue asserção de CITAÇÃO. A primeira versão desta
+    # checagem acusou três vezes o próprio documento por ele CITAR o texto que retrata
+    # — mesma classe do guarda-decoração, invertida: em vez de nunca morder, mordia o
+    # inocente. Isenta-se linha de tabela de retratação e ocorrência entre aspas.
+    for frase in proibidas:
+        for ln in _afirmada(frase, texto):
+            failures.append(
+                f"{alvo.name}:{ln}: afirma \"{frase}\" fora de citação — equivalência ou "
+                f"refutação sem TOST com margem pré-especificada (ver §4.1-bis)"
+            )
+    ancorado(r"não se estabelece aumento,\s*\n?>?\s*redução nem equivalência",
+             "the amendment refuses to claim any direction", "não se estabelece")
+    ancorado(r"agregada é \*\*significante e não deve ser usada\*\*",
+             "the confounded pooled comparison is marked unusable", "não deve ser usada")
+
+    # --- auto-extincao: NAO TESTADA. A serie e toda anterior ao tratamento. ---
+    for ln in _afirmada("testada e NÃO se sustenta", texto):
+        failures.append(
+            f"{alvo.name}:{ln}: afirma que a auto-extinção foi 'testada e NÃO se sustenta' "
+            f"fora de citação. A série é toda anterior ao tratamento (retratação 36)"
+        )
+    # ⚠️ Terceira vez que uma âncora falha por eu escrever o regex supondo a MINHA
+    # pontuação: a prosa põe o negrito em volta da frase inteira, não do trecho.
+    ancorado(r"\*\*A hipótese de auto-extinção NÃO foi testada",
+             "auto-extinction is declared untested, not refuted", "NÃO foi testada")
+    ae = data["autoextincao_testada"]
     for x in ae["serie"]:
         ancorado(rf"{x['est_em_puro']} de 55 — \*\*{str(x['pct']).replace('.', ',')}%\*\*",
                  f"pure-study fraction at {x['corte']}", f"{x['pct']}%")
