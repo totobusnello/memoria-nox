@@ -111,6 +111,24 @@ contrafactual, não efeito.
 — por construção, e não por falta de n. `active` é requisito do **estudo**, não da
 calibração, e a ordem correta é calibrar em `shadow` e só então ativar.
 
+### ✅ Discrepância de estado RESOLVIDA — 27/08, por observação
+
+Duas fontes independentes concordando:
+
+| fonte | diz |
+|---|---|
+| drop-in `p2s2-shadow.conf` | `NOX_P2_OUTCOME=shadow`, `NOX_P2_SHADOW_W=2.0` — **com** cabeçalho `[Service]`, logo válido |
+| log da janela fechada | `modo: shadow` e `servido: controle` em **352 de 352**, `w=2` em todas |
+
+**A transição para `active`, decidida em 24/08, nunca foi executada.** Não é falha
+silenciosa: o drop-in está correto e declara `shadow` deliberadamente. O que havia era
+uma **decisão registrada em memória como se fosse estado** — e "decidido" não é "no ar".
+
+Isto **não bloqueia** a calibração; ao contrário, é a configuração que ela quer. Bloqueia
+o **estudo**, e a ativação passa a ser passo explícito depois do no-go do item 5.
+
+*(Registro anterior desta seção, mantido porque a dúvida era legítima:)*
+
 ⚠️ **Discrepância de estado a resolver antes de qualquer coisa.** A decisão de sair de
 `shadow` para `active` foi tomada em **24/08** (registrada em
 `project_paper2_shadow_exhausted_needs_active`), e em 27/08 o log diz `shadow` em 352 de
@@ -252,7 +270,9 @@ teria trocado o número certo pelo errado "consertando" o documento.
 **Não desbloqueia nada ainda.** O que desbloqueia é o item 1 rodando com controle
 positivo passando, e a escolha do item 6 declarada.
 
-⚠️ **Primeira ação, antes de tudo:** conferir `NOX_P2_OUTCOME` por estado observável no
-processo servindo. A decisão de ir para `active` é de 24/08 e o log de 27/08 diz `shadow`
-em 352 de 352 — e o protocolo depende de saber qual dos dois é verdade, porque `shadow`
-é o que a calibração quer e `active` é o que o estudo exige.
+✅ **Primeira ação FEITA:** `NOX_P2_OUTCOME=shadow`, confirmado por drop-in **e** por
+log. É a configuração que a calibração quer. A ativação vira passo explícito **depois**
+do no-go do item 5, não antes.
+
+**Próxima ação:** construir `replay-oportunidade.mjs` (item 1), que é o único item cuja
+harness ainda não existe, e cujo controle positivo é condição de no-go.
