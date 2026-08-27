@@ -25,10 +25,26 @@ grupo — os `reason_boost_*` **têm** `CUT`. O commit que eu culpei é 10 h POS
   urgente (o desperdício **não recorre** — `prune` 0/dia, `vectorize` 0);
 - morning report: contador `vec0 fora do map`, alarmando no **crescimento**.
 
-**Próximo, no nox-mem (código):** os dois guardas cegos precisam de perna própria —
-detector de rowid-sem-map no `prune-orphan-vectors` e campo novo no
-`/api/health.vectorCoverage`. E religar o escritor de `search_telemetry`, que é
-pré-requisito da comparação brief-vs-busca dentro de janela.
+**✅ Feito no nox-mem (código), commit `32f78109` na VPS, empurrado:**
+1. `search.ts` — **religado** o escritor de `query_text`/`top_chunk_ids`/`top_scores`.
+   Verificado: busca real gravou (delta +1 sobre 6.318 congelados desde maio);
+2. `prune-orphan-vectors.ts` — `countIndexOnlyVectors()`, que **conta** a classe
+   invisível nos três caminhos de retorno (inclusive no `no orphans`, que era
+   verdadeiro e cego). **Não apaga**: origem não identificada, e apagar sem saber a
+   origem é apagar evidência;
+3. `api-server.ts` — `vectorCoverage.indexOnly`. Produção agora devolve
+   `{"orphans": 0, "indexOnly": 2074}`, os dois lado a lado.
+
+Testes: **5 novos** (`src/__tests__/index-only-vectors.test.ts`), 5/5. Suíte
+377/380 — as 2 falhas são pré-existentes em `edge-typing` (KG), reproduzem isoladas,
+e o diff está confinado a 3 arquivos, nenhum de KG/schema.
+
+**Repo público `totobusnello/nox-mem` — PR #25 aberto**, só com a correção que se
+aplica lá (`indexOnly` no health). As outras duas ficaram fora **de propósito**: o
+módulo do `prune` não existe no *core-kit trim*, e o schema dele não tem as colunas
+de telemetria — adicioná-las é decisão de produto, não correção. Base:
+`docs/REDEPLOY-VPS-LINEAGE-PLAN.md` do repo público, que registra em 17/06 que os
+lineages são **intencionalmente diferentes** e a direção é promover fix por fix.
 
 ---
 
