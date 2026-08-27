@@ -10,10 +10,21 @@ número. Número de versão é fato do depósito, não rótulo do texto.
 **Histórico de redação.** Primeira redação 2026-08-26 à noite. **Segunda redação
 26/08 23:40Z**, depois de duas revisões adversariais (GLM-5.3 e Codex/gpt-5.6-sol)
 derrubarem **três das cinco decisões** da primeira — o que caiu está no §7, nomeado.
-**Terceira passagem 27/08, até 12:00Z**, depois de mais três revisões (DeepSeek
-V4-Pro, Kimi, e Codex como voz decisória) apontarem **defeitos de instrumento**: as
-medições afetadas foram **refeitas**, e o que a remediação achou está em
-`REMEDIATION-2026-08-27.md`. Recibos e saídas das cinco vozes em `receipts/`.
+**Terceira passagem 27/08**, depois de mais três revisões (DeepSeek V4-Pro, Kimi, e
+Codex como voz decisória) apontarem **defeitos de instrumento**: as medições afetadas
+foram **refeitas**, e o que a remediação achou está em
+`REMEDIATION-2026-08-27.md`. **Recibos** das cinco vozes em `receipts/`; a **saída
+integral** só da voz decisória — as outras quatro não foram persistidas e são
+irrecuperáveis (§9).
+
+**Sexta leitura 27/08, 13:00Z (Fable), e foi a primeira a verificar de fora.** Buscou
+a rodada drand na API pública, reproduziu a seed, **rederivou os 19 designados a partir
+do CSV depositado** e recomputou toda a estatística — o núcleo do §1 e do §2 resistiu.
+Achou um defeito que cinco leituras deixaram passar: o documento afirmava ter as saídas
+das cinco vozes, e há **uma** (retratação 44). É a mesma classe dos outros dois defeitos
+que sobreviveram à revisão — o commit `0087c918` e as cinco sondas: **afirmação
+verificável que ninguém verificou**. As três só caíram quando alguém tentou *usar* o
+que o texto afirmava.
 
 ⚠️ **Duas correções que a terceira rodada me fez propor estavam ERRADAS**, e a
 remediação as retirou antes de entrarem aqui (§7.4). O rascunho estava certo nos dois
@@ -405,7 +416,8 @@ janela fechada (`measurement/remedia-serie.py`):
 | | |
 |---|---|
 | janela | **`[2026-08-26T20:28:00Z , 2026-08-27T09:00:00Z)`** |
-| NDJSON | `sha256` `ca7ff52a7242bb031e5661fcab9d37a130a1f3b8331826175abf6ff0b382310a`, 3.542 linhas, 1.571.982 B |
+| NDJSON de origem | `sha256` `ca7ff52a7242bb031e5661fcab9d37a130a1f3b8331826175abf6ff0b382310a`, 3.542 linhas, 1.571.982 B — vive no host, **não** depositado |
+| extrato **depositado** | `p2-serving-CLOSED-WINDOW-2026-08-26T2028-2026-08-27T0900.ndjson`, 352 linhas, 302.470 B, `sha256` `5734036200316339e308d6c216ed59d75b071eb7f47d1db733856225ca644d28` |
 | sondas | 2 decisões sem `agent` na janela, excluídas *(o NDJSON não tem `brief_id`, logo o discriminador ali é `agent` ausente)* |
 | conferência | a soma das 13 horas fecha em 11/350, idêntica ao bloco |
 
@@ -445,6 +457,8 @@ deve subir") e que sustentava o plano de recalcular `N`, retirado no §7.3 — m
 
 Integridade do mecanismo na mesma janela: `designated_ids` = 19 e `boost_by_id` = 19
 em **350 de 350** decisões — todos os designados no pool **e** maduros, sempre.
+Recomputável do extrato depositado, e a sexta leitura cobrou justamente que essa
+contagem não tinha artefato que a sustentasse.
 
 ### 4.2 O processo de verificação contaminou o estado, e o script que "descontaminava" não descontaminava
 
@@ -480,7 +494,9 @@ discriminador tem de ser o conjunto **enumerado** de `brief_id`.
 
 ⚠️ **`measurement/descontamina.py` fazia rollback temporal, não descontaminação.** A
 linha 9 corta `served_at < 19:58`, removendo **3.735 linhas** para excluir **25** de
-sonda — **148× a mais**. O `README.md` de `measurement/` afirmava que ele "reconstrói
+sonda. Duas leituras do fator, e ambas ficam na mesa porque a prosa anterior misturava
+as duas: **149,4× o necessário** (3.735/25) ou **148,4× a mais** que o necessário
+((3.735−25)/25). O `README.md` de `measurement/` afirmava que ele "reconstrói
 o estado excluindo as 15 linhas das minhas sondas": falso no mecanismo **e** no
 número. Fica versionado como registro do erro, marcado.
 
@@ -594,6 +610,7 @@ Continuam a numeração da v1.12, que fecha em 28.
 | **40** | 27/08 | *(2ª redação)* a base é `132/2.212 = 5,9675%`, e está a "~11,8 desvios-padrão de zero" | **132/2.226 = 5,9299%**. O teste-z contra zero sai: zero é fronteira do espaço binomial (§2) |
 | **41** | 27/08 | *(2ª redação)* os `111 deslocamentos` da v1.12 dão `8,05%` sobre 1.267 decisões | são **duas** quantidades: 102 decisões com churn = **8,0505%**; 111 deslocamentos somados = **8,7609%**. O rótulo estava trocado (§2) |
 | **42** | 27/08 | *(2ª redação)* nenhum dos 38 pares tem gap negativo, apresentado como observação | verdadeiro **por construção** da ordenação (`salience DESC` dentro do empate) — não é achado (§2) |
+| **44** | 27/08 | *(3ª redação)* "recibos **e saídas** das cinco vozes em `receipts/`" | só **uma** saída existe — as das quatro primeiras vozes nunca foram persistidas e são irrecuperáveis. O `receipts/README.md` do mesmo pacote já declarava o oposto: **dois arquivos do depósito se contradiziam** (§9, Anexo B) |
 | **43** | 27/08 | *(2ª redação)* o código servindo está no commit `0087c918` | **esse objeto não existe** no repo — nem commit, nem ref, nem reflog. É `1da78560`; o merge `5174e0fa` reescreveu os hashes do lado da VPS. Conteúdo idêntico, nome pendurado. Blobs agora presos por `sha256` de bytes (cabeçalho e §9) |
 
 ---
@@ -697,10 +714,26 @@ declarada, não resolvida.
 é resolvido pelo snapshot mais recente (§4.3). Os remediados exigem `T_REF` **e**
 caminho de snapshot como argumentos.
 
-✅ **Recibos e saídas das revisões adversariais versionados** em `receipts/`, com a
-proveniência e as redações declaradas no `README.md` de lá. Antes desta passagem os
-recibos viviam em `$TMPDIR`, que o sistema apaga — requisito de auditoria cujo
-artefato mora em diretório efêmero não é requisito.
+⚠️ **Recibos das cinco vozes versionados em `receipts/` — mas só UMA saída.** Antes
+desta passagem os recibos viviam em `$TMPDIR`, que o sistema apaga: requisito de
+auditoria cujo artefato mora em diretório efêmero não é requisito. Ao copiá-los,
+apareceu a lacuna maior — **as saídas das quatro primeiras vozes nunca foram
+persistidas** (foram consumidas pelos agents que as chamaram) e hoje são
+**irrecuperáveis**: zero arquivos de saída em `$TMPDIR`. Só a do Codex decisório
+existe, versionada.
+
+Consequência, e ela é desconfortável: para GLM, Codex-1ª-rodada, DeepSeek e Kimi, um
+terceiro pode confirmar **que houve execução** com aquele `prompt_sha256` e
+`output_sha256`, e **não pode ler o que a voz disse** nem conferir se o relato que eu
+faço no Anexo B é fiel. As caracterizações do Anexo B sobre essas quatro são, portanto,
+**inverificáveis por terceiro** — inclusive a afirmação de que o GLM revisou sem os
+arquivos. Ficam declaradas como tal, não removidas: removê-las esconderia que a revisão
+aconteceu.
+
+⚠️ Uma redação anterior deste §9 e do cabeçalho afirmava "recibos **e saídas** das
+cinco vozes", contradizendo o `receipts/README.md` do mesmo pacote, que declara o
+oposto. Achado pela sexta leitura (Fable) — dois arquivos do mesmo depósito se
+contradiziam, o que é pior que uma afirmação errada isolada. Retratação 44.
 
 Varredura antes de publicar, porque o repositório é público: nenhum IP, hostname de
 tailnet ou token; `gitleaks` sem achados. Os caminhos absolutos de servidor ficaram
@@ -744,7 +777,7 @@ diagnóstico expôs o buraco real: `ancorado` se satisfaz com **uma** ocorrênci
 uma tabela que discorde da citação em bloco passa. Corrigido prendendo a **contagem**
 de ocorrências dos quatro valores multi-citados, e conferindo que as duas cópias dos
 27 gaps (num artefato de 26/08 e num de 27/08) são idênticas — só uma era lida, e a
-outra podia derivar em silêncio. Estado final: **22 falsificações, 22 mordidas** — as quatro últimas cobrindo os blobs depositados, inclusive o defeito exato que eu cometi ao transferi-los: um `rstrip` normalizou o fim de arquivo e produziu 44.749 bytes onde o original tem 44.748. Um blob "depositado" que não era o arquivo, e invisível na prosa.
+outra podia derivar em silêncio. Estado final: **27 falsificações, 27 mordidas** — as quatro últimas cobrindo os blobs depositados, inclusive o defeito exato que eu cometi ao transferi-los: um `rstrip` normalizou o fim de arquivo e produziu 44.749 bytes onde o original tem 44.748. Um blob "depositado" que não era o arquivo, e invisível na prosa.
 
 ⚠️ **E um defeito de sentido oposto ao habitual.** A primeira versão da checagem de
 frase acusou o próprio documento **três vezes** por ele *citar* o texto que retrata.
@@ -784,8 +817,10 @@ Fontes: `AMENDMENT-v1.12.md` §1.5, §4, §5.3 · `PREREG-DRAFT.md:44`, `:414`, 
 
 ## Anexo B — revisões adversariais desta emenda
 
-**Cinco revisões, quatro famílias de treino distintas, todas com recibo.** As saídas
-integrais estão versionadas em `receipts/`.
+**Seis revisões, cinco famílias de treino distintas, todas com recibo.** ⚠️ A **saída
+integral** está versionada apenas para a voz decisória (Codex, 3ª rodada); as das
+quatro primeiras não sobreviveram e são irrecuperáveis — ver §9. Para essas quatro, o
+que este anexo relata é **inverificável por terceiro**.
 
 ### Sobre a primeira redação — as duas recomendaram não depositar
 
@@ -813,7 +848,13 @@ escondido não existe neste estado.
 |---|---|---|---|---|
 | DeepSeek | `deepseek-v4-pro` | 0 | 14.413 | `0197090d5365eae6…` |
 | Kimi | Moonshot/K2 | 0 | 58.869 | `b456cf258005e0eb…` |
-| Codex *(voz decisória)* | gpt-5.6-sol, v0.149.1 | ⚠️ ver abaixo | 358.332 | `5ad86e369c900c9e…` |
+| Codex *(voz decisória)* | gpt-5.6-sol, v0.149.1 | ⚠️ ver abaixo | 358.332 → **358.342** | `5ad86e369c900c9e…` → **`ddbeaff82c57c8a5…`** |
+
+⚠️ **Dois hashes, e o depositado é o segundo.** O primeiro par (358.332 B,
+`5ad86e36…`) é a saída **como emitida**; o segundo (358.342 B, `ddbeaff8…`) é o
+**arquivo em `receipts/`**, depois de redigir 2 ocorrências do IP tailnet da VPS e o
+hostname do laptop. Conferir a tabela contra o depósito dá mismatch se só um for
+citado — apontado pela sexta leitura. Os dois estão no recibo `-REAL`.
 
 DeepSeek e Kimi convergiram, independentemente, no mesmo bloqueador central: o §3 e
 a retratação 30 se anulavam. O Codex arbitrou, e apontou que a reformulação que eu

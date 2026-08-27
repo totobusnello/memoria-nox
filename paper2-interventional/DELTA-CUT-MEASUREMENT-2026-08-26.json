@@ -1,243 +1,269 @@
 {
-  "agentes_varridos": 7,
-  "autoextincao_testada": {
-    "hipotese": "a fracao em grupo puro-estudo cresce com o tratamento",
-    "resultado": "REFUTADA — estavel e oscilante",
-    "serie": [
-      {
-        "corte": "2026-08-23",
-        "est_em_puro": 34,
-        "grupos": 26,
-        "mistos": 8,
-        "pct": 61.8,
-        "puro": 9
-      },
-      {
-        "corte": "2026-08-24",
-        "est_em_puro": 36,
-        "grupos": 40,
-        "mistos": 11,
-        "pct": 65.5,
-        "puro": 13
-      },
-      {
-        "corte": "2026-08-25",
-        "est_em_puro": 34,
-        "grupos": 41,
-        "mistos": 11,
-        "pct": 61.8,
-        "puro": 15
-      },
-      {
-        "corte": "2026-08-26",
-        "est_em_puro": 36,
-        "grupos": 41,
-        "mistos": 12,
-        "pct": 65.5,
-        "puro": 15
-      }
-    ]
+ "_SUPERSEDED": {
+  "em": "2026-08-27",
+  "por": "REMEDIATION-2026-08-27.json",
+  "aviso": "Varias chaves deste artefato afirmam como fato vivo o que a emenda RETRATA. Preservado sem alteracao de valor porque e o registro do que foi medido e como; sobrescrever apagaria a evidencia do erro.",
+  "chaves_retratadas": {
+   "autoextincao_testada.resultado": "retratacao 36 — a serie e toda anterior ao tratamento; a hipotese fica NAO TESTADA",
+   "contaminacao_por_sondas.linhas_em_brief_log": "retratacao 37 — eram 5 sondas e 25 linhas, nao 3 e 15",
+   "contaminacao_por_sondas.descontaminado": "retratacao 38 — produzido por corte temporal (3.735 linhas), nao por exclusao de sonda",
+   "regra_nova_ativacao": "retratacao 39 — 11/310 vinha de janela ABERTA; o valor e 11/350 = 3,1429%",
+   "churn_baseline.base_correta_pos_gate": "retratacao 40 — 132/2.212 = 5,9675% -> 132/2.226 = 5,9299%"
   },
-  "churn_baseline": {
-    "SUPERSEDIDO_todas_as_decisoes": {
-      "pct": 4.1693,
-      "por_que_errado": "954 decisoes pre-gate tem churn estruturalmente impossivel (0/954) e diluem o denominador",
-      "positivo": 132,
-      "total": 3166
-    },
-    "base_correta_pos_gate": {
-      "deslocamentos": 141,
-      "pct": 5.9675,
-      "positivo": 132,
-      "total": 2212
-    },
-    "estacionaria": false,
-    "janela": [
-      "2026-08-21T22:57:48.194Z",
-      "2026-08-26T19:52:07.775Z"
-    ],
-    "pre_gate": {
-      "positivo": 0,
-      "total": 954
-    },
-    "serie_diaria_pos_gate": [
-      {
-        "com_churn": 42,
-        "deslocamentos": 47,
-        "dia": "2026-08-23",
-        "n": 308,
-        "pct": 13.6364
-      },
-      {
-        "com_churn": 49,
-        "deslocamentos": 53,
-        "dia": "2026-08-24",
-        "n": 672,
-        "pct": 7.2917
-      },
-      {
-        "com_churn": 21,
-        "deslocamentos": 21,
-        "dia": "2026-08-25",
-        "n": 672,
-        "pct": 3.125
-      },
-      {
-        "com_churn": 20,
-        "deslocamentos": 20,
-        "dia": "2026-08-26",
-        "n": 560,
-        "pct": 3.5714
-      }
-    ],
-    "sha256_ndjson": "5f31297e674f0438c65db493133507d77f390b1e1fcceea04e04c8ee3104c78d",
-    "v112_comparavel": {
-      "deslocamentos": 111,
-      "nota": "soma de churn sobre 1.267 decisoes pos-gate; janela termina antes desta",
-      "pct": 8.05,
-      "positivo": 102,
-      "total": 1267
-    }
-  },
-  "contaminacao_por_sondas": {
-    "altera_a_conclusao": true,
-    "chunks": [
-      308222,
-      308280,
-      308284
-    ],
-    "chunks_do_estudo_afetados": 3,
-    "descontaminado": {
-      "est_em_misto": 19,
-      "est_em_puro": 36,
-      "grupos": 41,
-      "menor_pos_qualificavel": 18,
-      "mistos": 12,
-      "pos_1o_estudo": 0,
-      "puro": 15
-    },
-    "linhas_em_brief_log": 15,
-    "medido_em": "2026-08-26T23:30Z",
-    "moveu_last_served_de": "2026-08-26 18:07:0x",
-    "nota": "posicao 1 esta DENTRO da fronteira (freshSlots=2 cobre 0-1)",
-    "observado": {
-      "est_em_misto": 22,
-      "est_em_puro": 32,
-      "grupos": 45,
-      "menor_pos_qualificavel": 1,
-      "mistos": 18,
-      "pos_1o_estudo": 1,
-      "puro": 14
-    },
-    "para": "2026-08-26 19:58:1x",
-    "quando": "2026-08-26T19:58Z"
-  },
-  "corpus": "e20260826T060003Z.db",
-  "default_n": 10,
-  "delta_cut_herdado": 0.043,
-  "estudo_no_pool": 55,
-  "fresh_slots": 2,
-  "gap_maximo": 0.031808735,
-  "gaps_exatamente_zero": 11,
-  "gaps_positivos": [
-    0.0009302263,
-    0.0015299852,
-    0.0040011073,
-    0.0040011073,
-    0.0040011073,
-    0.0040011073,
-    0.0049313336,
-    0.0055310925,
-    0.0055310925,
-    0.0064613189,
-    0.0080888826,
-    0.0132605827,
-    0.0185386811,
-    0.0194689075,
-    0.0200686664,
-    0.0200686664,
-    0.025,
-    0.025,
-    0.025,
-    0.0265299852,
-    0.0265299852,
-    0.0265299852,
-    0.0265299852,
-    0.0265299852,
-    0.0290011073,
-    0.0305310925,
-    0.031808735
-  ],
-  "grupos_last_served": 44,
-  "grupos_mistos_qualificaveis": 5,
-  "instante_do_pool": "2026-08-26T20:35Z/21:00Z",
-  "medido_em": "2026-08-26T20:35Z/21:00Z",
-  "nunca_servidos_no_pool": 0,
-  "pares_adjacentes_envolvendo_estudo": 38,
-  "pool": 108,
-  "posicao_primeiro_estudo": 3,
-  "posicao_primeiro_grupo_misto_qualificavel_2035Z": 15,
-  "regra_nova_ativacao": {
-    "ativacoes": 11,
-    "boost_by_id_igual_19_em": 310,
-    "comparacao": {
-      "regra_velha_5dias": {
-        "ic95": [
-          5.02,
-          6.98
-        ],
-        "k": 132,
-        "n": 2229,
-        "pct": 5.9219
-      },
-      "regra_velha_ultimo_dia": {
-        "ic95": [
-          2.32,
-          5.45
-        ],
-        "k": 20,
-        "n": 560,
-        "pct": 3.5714
-      }
-    },
-    "conclusao": "19 designados nao movem a taxa; o gargalo e a colisao de last_served",
-    "decisoes": 310,
-    "designated_ids_igual_19_em": 310,
-    "ic95_wilson": [
-      1.99,
-      6.24
-    ],
-    "janela": [
-      "2026-08-26T20:28:00Z",
-      "2026-08-27T07:22:09.248Z"
-    ],
-    "pct": 3.5484,
-    "sha256_ndjson_na_leitura": "d0785f5ee1f54433"
-  },
-  "reordenacao_dentro_do_conjunto": {
-    "agentes": 7,
-    "casos_com_ordem_diferente": 0,
-    "casos_testados": 28,
-    "doses": [
-      2.0,
-      4.0,
-      7.5,
-      100000
-    ],
-    "nota": "churn e set-difference; canal de reordenacao testado e ausente neste estado"
-  },
-  "serve_state": "nox-mem.db (vivo)",
-  "tamanhos_de_grupo": {
-    "1": 3,
-    "2": 29,
-    "3": 1,
-    "4": 11
-  },
-  "varredura_de_dose_churn_zero_em": [
-    2.0,
-    4.0,
-    7.5,
-    1000,
-    100000
+  "chaves_que_PERMANECEM_validas": [
+   "gaps_positivos (os 27, conferidos identicos em REMEDIATION)",
+   "gap_maximo",
+   "gaps_exatamente_zero",
+   "pares_adjacentes_envolvendo_estudo",
+   "pool",
+   "estudo_no_pool",
+   "grupos_last_served",
+   "nunca_servidos_no_pool",
+   "tamanhos_de_grupo",
+   "posicao_primeiro_estudo",
+   "instante_do_pool",
+   "corpus"
   ]
+ },
+ "agentes_varridos": 7,
+ "autoextincao_testada": {
+  "hipotese": "a fracao em grupo puro-estudo cresce com o tratamento",
+  "resultado": "REFUTADA — estavel e oscilante",
+  "serie": [
+   {
+    "corte": "2026-08-23",
+    "est_em_puro": 34,
+    "grupos": 26,
+    "mistos": 8,
+    "pct": 61.8,
+    "puro": 9
+   },
+   {
+    "corte": "2026-08-24",
+    "est_em_puro": 36,
+    "grupos": 40,
+    "mistos": 11,
+    "pct": 65.5,
+    "puro": 13
+   },
+   {
+    "corte": "2026-08-25",
+    "est_em_puro": 34,
+    "grupos": 41,
+    "mistos": 11,
+    "pct": 61.8,
+    "puro": 15
+   },
+   {
+    "corte": "2026-08-26",
+    "est_em_puro": 36,
+    "grupos": 41,
+    "mistos": 12,
+    "pct": 65.5,
+    "puro": 15
+   }
+  ]
+ },
+ "churn_baseline": {
+  "SUPERSEDIDO_todas_as_decisoes": {
+   "pct": 4.1693,
+   "por_que_errado": "954 decisoes pre-gate tem churn estruturalmente impossivel (0/954) e diluem o denominador",
+   "positivo": 132,
+   "total": 3166
+  },
+  "base_correta_pos_gate": {
+   "deslocamentos": 141,
+   "pct": 5.9675,
+   "positivo": 132,
+   "total": 2212
+  },
+  "estacionaria": false,
+  "janela": [
+   "2026-08-21T22:57:48.194Z",
+   "2026-08-26T19:52:07.775Z"
+  ],
+  "pre_gate": {
+   "positivo": 0,
+   "total": 954
+  },
+  "serie_diaria_pos_gate": [
+   {
+    "com_churn": 42,
+    "deslocamentos": 47,
+    "dia": "2026-08-23",
+    "n": 308,
+    "pct": 13.6364
+   },
+   {
+    "com_churn": 49,
+    "deslocamentos": 53,
+    "dia": "2026-08-24",
+    "n": 672,
+    "pct": 7.2917
+   },
+   {
+    "com_churn": 21,
+    "deslocamentos": 21,
+    "dia": "2026-08-25",
+    "n": 672,
+    "pct": 3.125
+   },
+   {
+    "com_churn": 20,
+    "deslocamentos": 20,
+    "dia": "2026-08-26",
+    "n": 560,
+    "pct": 3.5714
+   }
+  ],
+  "sha256_ndjson": "5f31297e674f0438c65db493133507d77f390b1e1fcceea04e04c8ee3104c78d",
+  "v112_comparavel": {
+   "deslocamentos": 111,
+   "nota": "soma de churn sobre 1.267 decisoes pos-gate; janela termina antes desta",
+   "pct": 8.05,
+   "positivo": 102,
+   "total": 1267
+  }
+ },
+ "contaminacao_por_sondas": {
+  "altera_a_conclusao": true,
+  "chunks": [
+   308222,
+   308280,
+   308284
+  ],
+  "chunks_do_estudo_afetados": 3,
+  "descontaminado": {
+   "est_em_misto": 19,
+   "est_em_puro": 36,
+   "grupos": 41,
+   "menor_pos_qualificavel": 18,
+   "mistos": 12,
+   "pos_1o_estudo": 0,
+   "puro": 15
+  },
+  "linhas_em_brief_log": 15,
+  "medido_em": "2026-08-26T23:30Z",
+  "moveu_last_served_de": "2026-08-26 18:07:0x",
+  "nota": "posicao 1 esta DENTRO da fronteira (freshSlots=2 cobre 0-1)",
+  "observado": {
+   "est_em_misto": 22,
+   "est_em_puro": 32,
+   "grupos": 45,
+   "menor_pos_qualificavel": 1,
+   "mistos": 18,
+   "pos_1o_estudo": 1,
+   "puro": 14
+  },
+  "para": "2026-08-26 19:58:1x",
+  "quando": "2026-08-26T19:58Z"
+ },
+ "corpus": "e20260826T060003Z.db",
+ "default_n": 10,
+ "delta_cut_herdado": 0.043,
+ "estudo_no_pool": 55,
+ "fresh_slots": 2,
+ "gap_maximo": 0.031808735,
+ "gaps_exatamente_zero": 11,
+ "gaps_positivos": [
+  0.0009302263,
+  0.0015299852,
+  0.0040011073,
+  0.0040011073,
+  0.0040011073,
+  0.0040011073,
+  0.0049313336,
+  0.0055310925,
+  0.0055310925,
+  0.0064613189,
+  0.0080888826,
+  0.0132605827,
+  0.0185386811,
+  0.0194689075,
+  0.0200686664,
+  0.0200686664,
+  0.025,
+  0.025,
+  0.025,
+  0.0265299852,
+  0.0265299852,
+  0.0265299852,
+  0.0265299852,
+  0.0265299852,
+  0.0290011073,
+  0.0305310925,
+  0.031808735
+ ],
+ "grupos_last_served": 44,
+ "grupos_mistos_qualificaveis": 5,
+ "instante_do_pool": "2026-08-26T20:35Z/21:00Z",
+ "medido_em": "2026-08-26T20:35Z/21:00Z",
+ "nunca_servidos_no_pool": 0,
+ "pares_adjacentes_envolvendo_estudo": 38,
+ "pool": 108,
+ "posicao_primeiro_estudo": 3,
+ "posicao_primeiro_grupo_misto_qualificavel_2035Z": 15,
+ "regra_nova_ativacao": {
+  "ativacoes": 11,
+  "boost_by_id_igual_19_em": 310,
+  "comparacao": {
+   "regra_velha_5dias": {
+    "ic95": [
+     5.02,
+     6.98
+    ],
+    "k": 132,
+    "n": 2229,
+    "pct": 5.9219
+   },
+   "regra_velha_ultimo_dia": {
+    "ic95": [
+     2.32,
+     5.45
+    ],
+    "k": 20,
+    "n": 560,
+    "pct": 3.5714
+   }
+  },
+  "conclusao": "19 designados nao movem a taxa; o gargalo e a colisao de last_served",
+  "decisoes": 310,
+  "designated_ids_igual_19_em": 310,
+  "ic95_wilson": [
+   1.99,
+   6.24
+  ],
+  "janela": [
+   "2026-08-26T20:28:00Z",
+   "2026-08-27T07:22:09.248Z"
+  ],
+  "pct": 3.5484,
+  "sha256_ndjson_na_leitura": "d0785f5ee1f54433"
+ },
+ "reordenacao_dentro_do_conjunto": {
+  "agentes": 7,
+  "casos_com_ordem_diferente": 0,
+  "casos_testados": 28,
+  "doses": [
+   2.0,
+   4.0,
+   7.5,
+   100000
+  ],
+  "nota": "churn e set-difference; canal de reordenacao testado e ausente neste estado"
+ },
+ "serve_state": "nox-mem.db (vivo)",
+ "tamanhos_de_grupo": {
+  "1": 3,
+  "2": 29,
+  "3": 1,
+  "4": 11
+ },
+ "varredura_de_dose_churn_zero_em": [
+  2.0,
+  4.0,
+  7.5,
+  1000,
+  100000
+ ]
 }

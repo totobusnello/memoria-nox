@@ -4,7 +4,7 @@ Existe para fechar o §9 da `AMENDMENT-DRAFT-band-collapse-2026-08-26.md`, que
 declarava a lacuna: *"um terceiro NÃO consegue reproduzir as medições desta emenda
 hoje"*, porque os scripts viviam só no repo `nox-workspace`, que é **privado**.
 
-**Cinco dos catorze não estavam versionados em lugar nenhum** — nasceram como
+**Cinco dos dezenove não estavam versionados em lugar nenhum** — nasceram como
 heredoc, foram copiados para `/var/tmp` na VPS e produziram números que entraram na
 emenda. `autoextincao.py`, `descontamina.py`, `serie.py`, `rebase.py` e
 `pos-regra.py` estão aqui porque a alternativa era depositar um documento cujas
@@ -43,7 +43,7 @@ tabelas ninguém pode recomputar.
 
 | script | o que mede | número |
 |---|---|---|
-| ~~`descontamina.py`~~ | ⚠️ **NÃO descontamina — ver `REMEDIATION-2026-08-27.md` §1.** A linha 9 corta por **tempo** (`served_at < 19:58`), removendo **3.735** linhas para excluir **25** de sonda: 148× a mais. Esta descrição, que dizia "excluindo as 15 linhas das minhas sondas", era falsa no mecanismo **e** no número. Fica versionado como registro do erro. | — |
+| ~~`descontamina.py`~~ | ⚠️ **NÃO descontamina — ver `REMEDIATION-2026-08-27.md` §1.** A linha 9 corta por **tempo** (`served_at < 19:58`), removendo **3.735** linhas para excluir **25** de sonda: **149,4× o necessário**, ou 148,4× *a mais* que o necessário. Esta descrição, que dizia "excluindo as 15 linhas das minhas sondas", era falsa no mecanismo **e** no número. Fica versionado como registro do erro. | — |
 | `remedia-descontamina.py` | exclusão exata por `brief_id` (5 sondas, 25 linhas), `T_REF` fixado | muda `posicao_primeiro_estudo` (3 → 0) e `grupos` (44 → 43); **nenhuma** estatística de gap muda |
 | `asof-sonda-vs-tempo.py` | 2×2 que separa efeito de sonda de efeito de tempo | efeito das sondas em 27/08 09:00Z: **nenhum** (12 h de tráfego orgânico lavaram) |
 | `autoextincao.py` | composição dos grupos de `last_served` reconstruída dia a dia | 61,8% → 65,5% em grupo puro-estudo. ⚠️ **Não testa auto-extinção sob tratamento** — toda a série é controle/shadow. E usa `julianday('now')`: população elegível muda a cada execução |

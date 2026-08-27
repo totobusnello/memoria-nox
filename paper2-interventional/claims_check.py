@@ -358,6 +358,76 @@ def doc_check(root: Path) -> list[str]:
     return failures
 
 
+def janela_check(root: Path) -> list[str]:
+    """Recomputa a taxa central da emenda a partir do EXTRATO DEPOSITADO.
+
+    Até 2026-08-27 o `11/350` do §4.1-bis era conferível apenas contra um JSON que eu
+    mesmo escrevi: o NDJSON de origem vive no host e não está no pacote. A sexta
+    leitura (Fable) cobrou isso — "a janela não é recomputável do pacote" — e a
+    resposta foi depositar o extrato da janela fechada. Este guarda fecha o laço: a
+    taxa, a exclusão de sondas e a integridade `19/19` saem do arquivo, não da prosa.
+
+    Também confere a lacuna oposta: a emenda **não pode** afirmar mais saídas
+    adversariais do que existem em `receipts/`. Essa foi a única classe de defeito que
+    sobreviveu a seis leituras — a autodescrição do depósito.
+    """
+    failures = []
+    rem = _remediacao(root)
+    jf = rem["janela_fechada"]
+    ini, fim = jf["intervalo"]
+    nome = "p2-serving-CLOSED-WINDOW-2026-08-26T2028-2026-08-27T0900.ndjson"
+    f = root / nome
+    if not f.exists():
+        return [f"{nome}: ausente — a taxa central da emenda volta a ser inconferível do pacote"]
+    linhas = [l for l in f.read_text(encoding="utf-8").splitlines() if l.strip()]
+    rows = [json.loads(l) for l in linhas]
+    fora = [r["ts"] for r in rows if not (ini <= r["ts"] < fim)]
+    if fora:
+        failures.append(
+            f"{nome}: {len(fora)} linha(s) fora da janela declarada [{ini}, {fim}) "
+            f"— a primeira é {fora[0]}"
+        )
+    sonda = [r for r in rows if not r.get("agent")]
+    limpo = [r for r in rows if r.get("agent")]
+    k = sum(1 for r in limpo if r.get("churn", 0) > 0)
+    esp = jf["regra_nova"]
+    if (k, len(limpo)) != (esp["k"], esp["n"]):
+        failures.append(
+            f"{nome}: recomputa {k}/{len(limpo)}, a emenda publica {esp['k']}/{esp['n']}"
+        )
+    if len(sonda) != 2:
+        failures.append(
+            f"{nome}: {len(sonda)} decisões sem `agent`, a emenda declara 2 (as sondas)"
+        )
+    # `designated_ids` = 19 e `boost_by_id` = 19 em TODAS — a integridade do mecanismo.
+    d19 = sum(1 for r in limpo if len(r.get("designated_ids", [])) == 19)
+    b19 = sum(1 for r in limpo if len(r.get("boost_by_id", {})) == 19)
+    if d19 != len(limpo) or b19 != len(limpo):
+        failures.append(
+            f"{nome}: designated_ids==19 em {d19}/{len(limpo)} e boost_by_id==19 em "
+            f"{b19}/{len(limpo)} — a emenda afirma {len(limpo)} de {len(limpo)} em ambos"
+        )
+
+    # --- a autodescrição do depósito: saídas afirmadas vs saídas existentes ---
+    rec = root / "receipts"
+    saidas = sorted(rec.glob("adversary-output-*")) if rec.exists() else []
+    alvo = root / "AMENDMENT-DRAFT-band-collapse-2026-08-26.md"
+    if alvo.exists():
+        texto = alvo.read_text(encoding="utf-8")
+        if len(saidas) < 5 and re.search(r"[Rr]ecibos e saídas das cinco vozes", texto):
+            failures.append(
+                f"{alvo.name}: afirma 'recibos e saídas das cinco vozes' e existem "
+                f"{len(saidas)} saída(s) em receipts/ — autodescrição do depósito falsa "
+                f"(retratação 44)"
+            )
+        if len(saidas) < 5 and "As saídas integrais estão versionadas" in texto:
+            failures.append(
+                f"{alvo.name}: afirma que as saídas integrais estão versionadas e só "
+                f"{len(saidas)} existe(m) (retratação 44)"
+            )
+    return failures
+
+
 def blob_check(root: Path) -> list[str]:
     """Confere que os blobs depositados batem com o `sha256` do manifesto.
 
@@ -929,6 +999,7 @@ def main() -> int:
     failures.extend(doc_check(Path(args.root)))
     failures.extend(delta_cut_check(Path(args.root)))
     failures.extend(blob_check(Path(args.root)))
+    failures.extend(janela_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

@@ -1,5 +1,14 @@
 # `Δ_cut` — medição sob referente novo (item 3 do §5.3)
 
+> 🔴 **SUPERSEDED EM PARTE — 2026-08-27.** Este documento mede com instrumentos que a
+> `REMEDIATION-2026-08-27.md` corrigiu, e afirma como fato vivo várias coisas que a
+> emenda **retrata**: a auto-extinção como "REFUTADA" (retratação 36), "3 sondas / 15
+> linhas" (37), a descontaminação por corte temporal (38), `11/310` de janela aberta
+> (39), `132/2.212 = 5,9675%` (40), o rótulo do `8,05%` (41) e a linha de base diluída
+> `4,1693%` (34). Fica no pacote **como registro do que foi medido e como**, não como
+> fonte de número. Para os números vigentes, ler `REMEDIATION-2026-08-27.md` e a tabela
+> de retratações da emenda.
+
 > **Medição, não decisão.** A `AMENDMENT-v1.12.md` §1.5 declara `Δ_cut = 0,043`
 > como *pendente de definição operacional e de medição*, e o item 3 do §5.3 pede
 > "definir e medir sob referente novo, **ou substituí-lo por quantidade que
