@@ -1,0 +1,137 @@
+{
+  "gerado_em": "2026-08-27T20:25:03Z",
+  "db": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+  "corpus": 67187,
+  "cumulativo_exato": {
+    "brief": 1787,
+    "busca": 9755,
+    "uniao": 11051,
+    "nenhuma_superficie": 56288,
+    "pct_nenhuma": 83.78,
+    "servidos_no_brief_e_depois_apagados": 152,
+    "invisiveis_que_passam_o_piso": 10008,
+    "invisiveis_elegiveis_por_tipo": {
+      "distilled": 8928,
+      "team": 859,
+      "other": 142,
+      "daily": 50,
+      "decision": 7,
+      "project": 6,
+      "pending": 6,
+      "person": 5,
+      "feedback": 5
+    }
+  },
+  "gradiente_de_curadoria": [
+    {
+      "tipo": "other",
+      "total": 32920,
+      "exposto": 3515,
+      "pct": 10.7
+    },
+    {
+      "tipo": "team",
+      "total": 15308,
+      "exposto": 3327,
+      "pct": 21.7
+    },
+    {
+      "tipo": "distilled",
+      "total": 14456,
+      "exposto": 2822,
+      "pct": 19.5
+    },
+    {
+      "tipo": "daily",
+      "total": 3231,
+      "exposto": 798,
+      "pct": 24.7
+    },
+    {
+      "tipo": "graph_node",
+      "total": 1046,
+      "exposto": 282,
+      "pct": 27.0
+    },
+    {
+      "tipo": "lesson",
+      "total": 53,
+      "exposto": 53,
+      "pct": 100.0
+    },
+    {
+      "tipo": "project",
+      "total": 43,
+      "exposto": 36,
+      "pct": 83.7
+    },
+    {
+      "tipo": "shared",
+      "total": 40,
+      "exposto": 13,
+      "pct": 32.5
+    },
+    {
+      "tipo": "digest",
+      "total": 25,
+      "exposto": 15,
+      "pct": 60.0
+    },
+    {
+      "tipo": "feedback",
+      "total": 17,
+      "exposto": 12,
+      "pct": 70.6
+    },
+    {
+      "tipo": "test",
+      "total": 14,
+      "exposto": 14,
+      "pct": 100.0
+    },
+    {
+      "tipo": "person",
+      "total": 14,
+      "exposto": 8,
+      "pct": 57.1
+    },
+    {
+      "tipo": "decision",
+      "total": 11,
+      "exposto": 4,
+      "pct": 36.4
+    }
+  ],
+  "concentracao_do_brief": {
+    "janela_7d": [
+      "2026-08-20",
+      "2026-08-27"
+    ],
+    "slots_historicos_ATE_AGORA_serie_viva": 579983,
+    "desde": "2026-06-04 17:51:26",
+    "ate": "2026-08-27 20:22:13",
+    "distintos_7d": 201,
+    "slots_7d": 46295,
+    "briefs_7d": 4632,
+    "chunks_em_100pct_dos_briefs_7d": 3,
+    "pct_top10": 47.16,
+    "pct_top20": 61.46
+  },
+  "janela_comum": {
+    "inicio": "2026-06-04",
+    "brief_exato": 1787,
+    "busca_limite_inferior": 2321,
+    "entities_total": 865,
+    "entities_brief_exato": 245,
+    "entities_busca_limite_inferior": 151,
+    "aviso": "busca é LIMITE INFERIOR (last_accessed_at guarda só o último acesso). O bound sustenta 'invisibilidade no MÁXIMO tanto', não o contrário — para invisibilidade alta use o cumulativo."
+  },
+  "instrumento_desligado": {
+    "tabela": "search_telemetry.top_chunk_ids",
+    "linhas_totais_serie_viva": 13010,
+    "linhas_com_ids_serie_viva": 6318,
+    "ultimo_com_ids": "2026-05-19 14:47:04",
+    "com_ids_na_janela_comum": 0,
+    "consequencia": "sem isto não existe comparação brief-vs-busca DENTRO de janela; religá-lo é pré-requisito para essa comparação"
+  }
+}

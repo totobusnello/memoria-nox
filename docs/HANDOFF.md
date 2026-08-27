@@ -5,6 +5,56 @@
 ---
 
 
+
+## 🟢 27/08 — reframe APROVADO: a manchete é a superfície, não a intervenção
+
+O paper deixa de perguntar *"a memória interventiva funciona?"* e passa a responder
+**"o que uma memória de agente em produção realmente entrega, e por que uma intervenção
+plausível não muda isso"**. A intervenção vira o **instrumento** que prova que o teto é
+estrutural. Integral: `paper2-interventional/SUPERFICIE-2026-08-27.md`.
+
+**As duas superfícies, contagem exata** (`brief_log` cobre a vida inteira do `/api/brief`
+e não tem poda; `access_count` cobre toda a busca, e o brief nunca escreve nessa coluna):
+
+| corpus | brief | busca | união | **nunca exposto** |
+|---|---|---|---|---|
+| 67.187 | 1.787 | 9.755 | 11.051 | **56.288 = 83,78%** |
+
+Desses, **10.008** passam o próprio piso de relevância do sistema.
+
+**O achado, e ele sobreviveu a um teste que quase o derrubou:** a leitura "a curadoria
+funciona, o gradiente de tipo prova" é **falsa**. Correlação entre `log₁₀(tamanho do
+tipo)` e `% exposto` = **−0,728** (ρ = −0,714): o tamanho explica **53%** da variância, e
+a separação não tem sobreposição — 5 tipos com n ≥ 1.000 ficam em 10,7–27,0%, 8 tipos com
+n < 100 em 32,5–100%. `lesson` está em 100% porque tem 53 linhas, não porque é lição.
+**O que o agente vê é decidido pela capacidade fixa da superfície, não pela relevância
+que o próprio sistema atribui.**
+
+**E é a mesma medida do teto da intervenção.** Janela fechada `[20/08, 27/08)`: 46.295
+slots em 4.632 briefs, **201** chunks distintos, **3** presentes em **100%** dos briefs,
+top-10 = **47,16%**. Comparador lexicográfico congela 8 dos 10 slots, sobram 2, e bônus
+aditivo neles tem teto de **4,86%**. Não são dois resultados — é um.
+
+⚠️ **Não existe desfecho a jusante instrumentado:** `answer_telemetry`,
+`confidence_eval_log` e `agent_events` com **0 linhas**, e `search_telemetry` medindo o
+**canário do cron** (48/dia = 2/hora × 24, `requesting_agent` não populado), não o agente.
+**O reframe não precisa de um** — e essa é a maior simplificação disponível: a manchete é
+superfície + mecanismo, e o contrafactual é **observado** por brief.
+
+⚠️ **Uma inversão que quase entrou na nota:** cumulativamente a busca alcança 617 das 865
+entities curadas contra 245 do brief; na **janela comum** dá brief **245** × busca **≥
+151** — o brief alcança *mais*. E `search_telemetry.top_chunk_ids` parou de ser populado
+em **2026-05-19 14:47:04** (zero de 04/06 em diante), o que torna qualquer comparação
+brief-vs-busca **dentro de janela** impossível hoje.
+
+**Protocolo:** item 6 ✅ **DECIDIDO** — estimando na presença de carry-over com
+randomização por **dia** (por brief tem interferência fatal via `last_served`; por agente
+não salva porque o sub-pool global é compartilhado). Itens 2 e 4 passam a **opcionais**
+sob o reframe. Item 1 ✅ fechado, item 7 ✅ no ar.
+
+**Próxima ação:** escrever o manuscrito — que hoje **não existe**. As três seções da
+manchete estão medidas, travadas por `--assert-json` e reproduzíveis.
+
 ## 🟢 27/08 — item 1 do protocolo de calibração FECHADO, e ele reverteu a emenda
 
 `measurement/replay-oportunidade.mjs` importa `buildBriefDiverse` do `dist` e reproduz a

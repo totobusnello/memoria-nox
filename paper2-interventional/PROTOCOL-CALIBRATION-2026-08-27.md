@@ -262,6 +262,34 @@ de amostra; (b) modelar a dependência explicitamente; (c) declarar o estimando 
 efeito **na presença** de carry-over, o que muda o que o paper pode afirmar. **A escolha
 é de desenho e precisa ser declarada antes, não escolhida depois de ver a série.**
 
+### ✅ DECIDIDO 2026-08-27 — (c), com randomização em nível de DIA
+
+Declarado **antes** de qualquer série ser olhada, que é a única condição que torna a
+escolha válida.
+
+**Escolha: estimando declarado como efeito NA PRESENÇA de carry-over, com
+randomização em nível de dia/epoch.**
+
+Por que as outras duas caem, e cada uma por um motivo medido:
+
+| alternativa | por que não |
+|---|---|
+| randomizar **por brief** (≈670 unidades/dia, contrafactual observado pelo dual-compute) | interferência fatal: tratar o brief *k* altera `last_served` e portanto o pool do brief *k+1*. A unidade não é independente por construção do mecanismo |
+| randomizar **por agente** | não salva: `last_served` **e** o sub-pool global são compartilhados entre agentes. A interferência atravessa o cluster. E em `T_REF` o sub-pool do **agente** estava vazio, então o canal é o global — comum a todos |
+| **washout** entre epochs | custo de amostra num desenho cuja unidade já é o dia |
+
+**O que se aceita:** `n` passa a ser **dias**, e o desfecho precisa de precisão alta
+por dia. **O que se ganha:** a parte **descritiva** não precisa de randomização
+nenhuma, porque o dual-compute **observa** o contrafactual por brief — o replay
+reproduz 350/350.
+
+⚠️ **E o §5 de `../SUPERFICIE-2026-08-27.md` esvazia a urgência disto:** não existe
+desfecho a jusante instrumentado (`answer_telemetry`, `confidence_eval_log` e
+`agent_events` com **0 linhas**; `search_telemetry` medindo o canário do cron, não o
+agente). Com o reframe aprovado, a manchete é superfície + mecanismo e **não exige
+randomização** — logo este item fica **decidido e em espera**, não decidido e
+bloqueando.
+
 ---
 
 ## Item 7 — Gatilho de monitoramento para falha de saturação
@@ -379,11 +407,11 @@ teria trocado o número certo pelo errado "consertando" o documento.
 | item | estado |
 |---|---|
 | 1 — oportunidade | ✅ **FECHADO 27/08** — replay reproduz a produção em 350/350; controle positivo **PASSA**; teto do canal = 17/350 = 4,86% |
-| 2 — janela | mecanismo especificado; datas **a declarar** |
+| 2 — janela | mecanismo especificado; datas **a declarar** — e **opcional** sob o reframe, só morde se a alegação interventiva virar manchete |
 | 3 — reamostragem | especificado (dia, ou epoch se houver dependência) |
-| 4 — `N = f(dados)` | mecanismo especificado; script a escrever e commitar antes |
+| 4 — `N = f(dados)` | **opcional** sob o reframe (§5 da nota de superfície): sem desfecho a jusante instrumentado, não há `N` a dimensionar |
 | 5 — no-go | condições **1 e 4 respondidas** (não disparam); **2 e 3 abertas** |
-| 6 — carry-over | **aberto por desenho** — 3 opções, escolha a declarar antes |
+| 6 — carry-over | ✅ **DECIDIDO 27/08:** opção (c) + randomização por **dia**, declarada antes de olhar série. Em espera: o reframe não exige randomização |
 | 7 — gatilho | ✅ **redesenhado e NO AR** — (a) diário 05:41Z e (b) horário :09, status lido pelo morning report; 6/6 mutações mordem. Pendência: (a) recusa `active` até a dose vir do `ASSIGNMENT` |
 | 8 — procedência | **especificado**, vale para todo o resto |
 
