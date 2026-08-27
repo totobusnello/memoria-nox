@@ -50,11 +50,27 @@ tem resolução de **segundo** e 46,9% dos briefs dividem o segundo (⇒ o corte
 tem de ser por `brief_log.id`, e sob corte temporal a contagem sai 14 em vez de 12);
 `ordenarCobertura` descarta a chave que ordenou o pool.
 
-**Próxima ação:** redesenhar o gatilho do item 7 em torno de `w_min` (a distância), não
-de gap adjacente — e acrescentar um gatilho para **composição do canal** (sub-pool do
-agente saindo do vazio), que hoje não existe. Depósito v1.13 segue **preparado e não
-executado**; a opção 3 (agrupar) ficou mais atraente, porque agora há resultado positivo
-a registrar junto.
+**✅ Item 7 no ar (27/08).** Dois gatilhos, fonte em `measurement/`, implantados em
+`/root/.openclaw/scripts/p2/`, status em `/var/lib/nox-mem/p2/` lido pelo
+`morning-report.sh` às 06:30Z. Cron: 40 → 42 linhas (backup em
+`/root/.openclaw/crontab.bak-20260827T175704Z`).
+
+- **(a) saturação, diário 05:41Z** — a regra é uma identidade, não um limiar:
+  `churn(w_servido) == churn(w_absurdo)` ⇒ RED. Custa 2 doses de replay, não 23.
+  Primeira rodada real (dia UTC de 26/08): 672 estados, `w=2` move 25, `w=100.000` move
+  52, folga **0,4808** → GREEN.
+- **(b) composição do canal, horário :09** — RED no **primeiro** chunk elegível para
+  `agentFresh`. Limiares vêm de `DIVERSITY_DEFAULTS` no `dist` e o script **aborta** se as
+  cláusulas do `WHERE` mudarem no fonte.
+
+6/6 mutações mordem, incluindo status velho ⇒ YELLOW e morte por sinal ⇒ RED.
+⚠️ O (a) **recusa rodar em `active`**: lá a dose vem do `ASSIGNMENT.json`, não de
+`NOX_P2_SHADOW_W` — é item a implementar antes da ativação.
+
+**Próxima ação:** o que resta do protocolo são **decisões**, não medições — item 2
+(declarar a janela antes de abrir), item 6 (carry-over: washout · modelar dependência ·
+estimando na presença de carry-over) e item 4 (o `N = f(dados)`, que depende do 6).
+Depósito v1.13 segue **preparado e não executado**.
 
 Integral: `paper2-interventional/REPLAY-OPORTUNIDADE-2026-08-27.md`. Commit `e4a5cc3`.
 

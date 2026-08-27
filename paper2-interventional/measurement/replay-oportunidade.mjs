@@ -274,7 +274,11 @@ function provedorEm(vivoRO, w, tRefMs, env) {
 
 // ─── execução ──────────────────────────────────────────────────────────────
 
-const TMP = join("/var/tmp", `replay-oportunidade-${randomUUID()}`);
+/**
+ * `/var/tmp`, nunca `/tmp`: cópia descartável de DB em tmpfs come RAM. `--tmp-base`
+ * existe para o gatilho poder apontar para outro volume sem editar este arquivo.
+ */
+const TMP = join(A["tmp-base"] ?? "/var/tmp", `replay-oportunidade-${randomUUID()}`);
 mkdirSync(TMP, { recursive: true });
 const limpar = () => { if (!A["manter-tmp"]) try { rmSync(TMP, { recursive: true, force: true }); } catch {} };
 process.on("exit", limpar);

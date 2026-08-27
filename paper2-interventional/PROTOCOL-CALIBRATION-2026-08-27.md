@@ -290,15 +290,69 @@ agente" — está **refutada**: em `T_REF` o sub-pool do agente é **vazio**. 26
 importance e **zero** passam a janela de `freshMaxAgeDays = 7`. Logo
 `interleaveFresh([], global) === global` e todo o canal é o sub-pool global.
 
-**Redesenho do item 7, em duas partes:**
+### ✅ Item 7 REDESENHADO E NO AR — 27/08
 
-- **(a) gatilho de saturação sobre `w_min`**, não sobre gap adjacente: monitorar a
-  distribuição de limiar por estado (hoje mín 0,02 · mediana 1,7 · máx 4,4, espalhamento
-  220×) e disparar se a massa se aproximar da dose servida;
-- **(b) gatilho de COMPOSIÇÃO DO CANAL**, que hoje não existe em lugar nenhum: o
-  sub-pool do agente estar vazio é um fato sobre um instante, não uma propriedade. Uma
-  rajada de sessões o faz reaparecer, `interleaveFresh` deixa de ser função-zero, e a
-  escala de dose muda **sob os pés do estudo** sem nenhum alarme.
+Fonte em `measurement/`; implantado em `/root/.openclaw/scripts/p2/` (que carrega
+`PROCEDENCIA.md` dizendo que é cópia, não fonte). Status em `/var/lib/nox-mem/p2/`,
+lido pelo `morning-report.sh` às 06:30Z.
+
+**(a) `gatilho-saturacao.sh` — diário, 05:41Z.** A operacionalização é uma
+**identidade**, não um limiar arbitrário:
+
+> saturado ⟺ `churn(w_servido) == churn(w_absurdo)`
+
+Se a dose servida já produz tudo que qualquer dose produziria, a dose não está
+identificada. Isso custa **duas** doses de replay, não 23: não é preciso localizar
+`w_min`, só comparar as pontas. Reporta a **folga** `mexem(servido)/mexem(absurdo)`;
+`≥ 0,9` é YELLOW, igualdade é RED, `mexem(absurdo) == 0` é RED (canal sem capacidade).
+
+Primeira rodada real, dia UTC de 26/08 inteiro: 677 briefs, 672 estados,
+`w=2` move 25 · `w=100.000` move 52 · folga **0,4808** → **GREEN**.
+
+⚠️ **Rótulo obrigatório na saída (`semantica=`).** `mexem_servido` **não** é "quantas
+oportunidades ocorreram na janela": o replay aplica a designação **atual** aos estados
+de ontem. Numa janela que atravessa troca de regra — 26/08 atravessa a de 20:28Z — os
+dois números divergem, e um seria lido como o outro.
+
+**(b) `gatilho-composicao.mjs` — horário, :09.** `RED` no **primeiro** chunk elegível
+para `agentFresh`, sem faixa amarela: a escala de dose de 27/08 pressupõe `agentFresh`
+vazio, e um único candidato entrando já muda `interleaveFresh` de função-zero para
+intercalação real. Os limiares vêm de `DIVERSITY_DEFAULTS` no `dist`, **não digitados** —
+e o script confere as cláusulas do `WHERE` no fonte e **aborta** se mudarem, em vez de
+vigiar o predicado velho.
+
+**Quatro propriedades que os dois têm, e cada uma é dívida paga:**
+
+| propriedade | erro que a originou |
+|---|---|
+| não sondam `/api/brief` — leem log e corpus | o endpoint **escreve** em `brief_log` o estado que mede (5 sondas, 25 linhas) |
+| janela **fechada** nos dois extremos + `sha256` do recorte | uma janela aberta por cima fez um `11/310` envelhecer para 359 |
+| chamam a harness canônica em vez de reimplementar | o controle positivo publicado media o instrumento, não o sistema |
+| status **velho** conta YELLOW, ilegível conta RED, e o gatilho reporta a **própria morte** por sinal | silêncio não é sucesso: gatilho parado é indistinguível de gatilho sem achado |
+
+**Testado por mutação, 6/6 mordidas:** corpus sintético com 1 chunk de sessão recente →
+RED · `--w-servido 15` (que sabemos igual a 100.000) → RED SATURADO com folga 1,0 ·
+janela vazia → YELLOW · cláusula do fonte alterada → aborta · status RED no arquivo →
+report vira RED (exit 2) · status com 10 h → YELLOW, não GREEN.
+
+⚠️ **O que fica declarado como aproximação:** `current.db` roda às 06:00Z, então um dia
+UTC inteiro atravessa **dois** corpora e o replay usa um. Medido em 27/08: para os 11
+eventos da janela conhecida, os snapshots de 26/08 e 27/08 dão resultado **idêntico** —
+a escolha foi inerte. Inerte não é garantido, e a aproximação vai em cada linha do
+NDJSON.
+
+⚠️ **E o (a) se recusa a rodar em `active`:** ali a dose vem do braço resolvido no
+`ASSIGNMENT.json`, não de `NOX_P2_SHADOW_W`. Vigiar com a dose errada é pior que não
+vigiar — reportaria GREEN sobre outra grandeza. Sai YELLOW com o motivo, e isso é um
+item a implementar **antes** da ativação.
+
+### O desenho, para registro
+
+- **(a)** gatilho de saturação sobre a dose servida vs. dose absurda, não sobre gap
+  adjacente — a distribuição de `w_min` (mín 0,02 · mediana 1,7 · máx 4,4, espalhamento
+  220×) é o que dá contexto ao veredito;
+- **(b)** gatilho de composição do canal: o sub-pool do agente estar vazio é fato sobre
+  um instante, não propriedade.
 
 O gatilho lê o log, **não sonda o endpoint** (item 2).
 
@@ -330,7 +384,7 @@ teria trocado o número certo pelo errado "consertando" o documento.
 | 4 — `N = f(dados)` | mecanismo especificado; script a escrever e commitar antes |
 | 5 — no-go | condições **1 e 4 respondidas** (não disparam); **2 e 3 abertas** |
 | 6 — carry-over | **aberto por desenho** — 3 opções, escolha a declarar antes |
-| 7 — gatilho | 🔴 **inválido na grandeza** — vigia passo adjacente, mecanismo exige distância. Redesenho (a)+(b) especificado; (b) é novo e mais urgente |
+| 7 — gatilho | ✅ **redesenhado e NO AR** — (a) diário 05:41Z e (b) horário :09, status lido pelo morning report; 6/6 mutações mordem. Pendência: (a) recusa `active` até a dose vir do `ASSIGNMENT` |
 | 8 — procedência | **especificado**, vale para todo o resto |
 
 **Não desbloqueia nada ainda.** O que desbloqueia é o item 1 rodando com controle
@@ -344,7 +398,10 @@ do no-go do item 5, não antes.
 sub-pool do agente~~ → ✅ **FEITA, e refutou a própria hipótese:** o sub-pool do agente é
 **vazio** por idade, e a grandeza que governa é distância, não passo. Ver item 7 acima.
 
-**Próxima ação:** implementar o item 7 redesenhado — (a) gatilho sobre `w_min` e (b)
-gatilho de composição do canal. O (b) não estava em nenhum documento antes de 27/08 e é
-o mais urgente: é a única ameaça identificada que muda a escala de dose **durante** o
-estudo, em silêncio.
+~~**Próxima ação:** implementar o item 7 redesenhado~~ → ✅ **FEITO**, os dois no ar.
+
+**Próxima ação:** os itens que restam são **decisões**, não medições — e é onde eu paro:
+o **item 2** (declarar `T_início`/`T_fim` antes de a janela abrir), o **item 6**
+(carry-over: washout · modelar a dependência · estimando na presença de carry-over) e o
+**item 4** (o script de `N = f(dados)`, que depende da escolha do 6). Nenhum deles é
+meu para escolher sozinho.

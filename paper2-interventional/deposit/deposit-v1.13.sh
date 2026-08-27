@@ -242,7 +242,7 @@ PY
     # deste detector codificava o /24 da tailnet — num repo PUBLICO, e a caminho de um
     # deposito IMUTAVEL, isso reduzia o endereco a 10 candidatos. O detector generico e
     # estritamente melhor: pega qualquer tailnet, e nao divulga a nossa.
-    if LC_ALL=C grep -qEi '(ghp_|sk-[A-Za-z0-9]{20}|AIza[0-9A-Za-z_-]{35}|BEGIN [A-Z ]*PRIVATE KEY|100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.[0-9]+\.[0-9]+|srv1[0-9]{6}|\.ts\.net)' "$PKG/$f"; then
+    if LC_ALL=C grep -qEi '(ghp_|sk-[A-Za-z0-9]{20}|AIza[0-9A-Za-z_-]{35}|BEGIN [A-Z ]*PRIVATE KEY|100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\.[0-9]+\.[0-9]+|srv1[0-9]{6}|\.ts\.net|discord(app)?\.com/api/webhooks/|hooks\.slack\.com/services/)' "$PKG/$f"; then
       echo "✗ segredo/endereço em $f — abortado"; exit 1
     fi
   done

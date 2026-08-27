@@ -20,6 +20,22 @@ tabelas ninguém pode recomputar.
 | `replay-resumo.py` | emite as tabelas daquela nota e as **trava** com `--assert-json` | 9/9 mutações detectadas |
 | `irmaos-no-segundo.py` | exposição ao defeito de resolução de `served_at` | **46,9%** dos 350 briefs dividem o segundo com outro |
 
+### 🟢 Os gatilhos do item 7 — em produção desde 27/08
+
+| script | item | cadência | o que dispara |
+|---|---|---|---|
+| `gatilho-saturacao.sh` | 7(a) | diária 05:41Z | `churn(w_servido) == churn(w_absurdo)` ⇒ RED (dose não identificada); folga ≥ 0,9 ⇒ YELLOW |
+| `gatilho-composicao.mjs` | 7(b) | horária :09 | **um** chunk elegível para `agentFresh` ⇒ RED (a escala de dose pressupõe vazio) |
+
+Implantados em `/root/.openclaw/scripts/p2/`; status em `/var/lib/nox-mem/p2/`, lido pelo
+`morning-report.sh`. **A fonte é aqui** — a cópia na VPS carrega um `PROCEDENCIA.md`
+dizendo isso, porque repo e produção divergindo em silêncio é o defeito que o item 8
+existe para evitar.
+
+Nenhum dos dois sonda `/api/brief`: o endpoint **escreve** em `brief_log` o estado que
+mede. Status **velho** conta YELLOW e linha ilegível conta RED — e o (a) reporta a
+própria morte por sinal, porque gatilho parado é indistinguível de gatilho sem achado.
+
 ⚠️ **Todo script abaixo desta linha mede ORDENAÇÃO sobre pool reimplementado.** Serve
 para inspecionar coordenadas, não para sustentar oportunidade, `N`, poder ou estimando —
 e dois deles produziram números que o replay refutou. Três obrigações da harness canônica
