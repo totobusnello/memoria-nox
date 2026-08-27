@@ -1,0 +1,40 @@
+{
+  "gerado_em": "2026-08-28",
+  "harness": "bench-vec0-reempacotamento.mjs",
+  "parametros": {
+    "sondas": 12,
+    "reps": 5,
+    "k": 10
+  },
+  "antes": {
+    "chunks": 103,
+    "ocupados": 69261,
+    "alocados": 105472,
+    "mb": 1236
+  },
+  "depois": {
+    "chunks": 68,
+    "ocupados": 69261,
+    "alocados": 69632,
+    "mb": 816
+  },
+  "reempacotamento_s": 19.5,
+  "latencia_ms": {
+    "fragmentado_mediana": 668.2,
+    "reempacotado_mediana": 446.8,
+    "n_por_braco": 60
+  },
+  "ganho_pct": 33.1,
+  "sondas_resposta_identica": "10/12",
+  "divergencias": {
+    "causa": "empate EXATO em distancia 0,000000 nos dois bracos",
+    "empatados_em_zero_por_sonda": {
+      "2": 130,
+      "3": 15,
+      "outras_10": "1 a 6"
+    },
+    "conclusao": "divergem SO as sondas cujo bloco de empate excede o LIMIT 10; onde ha 130 chunks a distancia zero, qualquer 10 e resposta correta"
+  },
+  "steal_time_host_pct": "0-6",
+  "producao_tocada": false
+}

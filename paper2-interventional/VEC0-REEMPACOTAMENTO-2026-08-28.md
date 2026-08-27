@@ -5,7 +5,7 @@
 > apagada.
 >
 > Harness: `measurement/bench-vec0-reempacotamento.mjs` · log
-> `measurement/out/bench-vec0-2026-08-28.log`.
+> `measurement/out/bench-vec0-2026-08-28.json`.
 
 ---
 
