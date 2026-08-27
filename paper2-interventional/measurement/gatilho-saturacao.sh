@@ -75,6 +75,13 @@ done
 [ -n "$FIM" ]    || FIM="$(date -u -d 'today 00:00' +%Y-%m-%dT%H:%M:%SZ)"
 
 TS="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+# `T0` existe porque `TS` é o instante de INÍCIO e o status é escrito no FIM: a
+# rodada de 2026-08-27 começou 18:07:30 e gravou 18:22:40 (911 s de replay). Um
+# `ts=` sozinho rotula um intervalo de 15 min pelo seu começo — a mesma forma de
+# defeito de "série viva citada como instante". Daqui em diante a linha carrega
+# início, fim e duração, e a duração é o que avisa que a janela está crescendo
+# ANTES de o `timeout` do wrapper matar a rodada e virar RED por capacidade.
+T0="$(date -u +%s)"
 # `/var/tmp`, nunca `/tmp`: cópia descartável em tmpfs come RAM.
 TMP="$(mktemp -d "$TMPBASE/p2-gatilho-saturacao-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
@@ -84,7 +91,7 @@ trap 'rm -rf "$TMP"' EXIT
 # checar frescura. O morning report checa, mas depender disso é deixar a mensagem
 # certa para o lugar errado. Aqui o gatilho reporta a própria morte.
 morte_por_sinal() {
-  local l="RED p2-saturacao-da-dose motivo=interrompido-por-sinal:$1 (provavel timeout do wrapper; a janela pode ter crescido) janela=[$INICIO,$FIM) ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  local l="RED p2-saturacao-da-dose motivo=interrompido-por-sinal:$1 (provavel timeout do wrapper; a janela pode ter crescido) janela=[$INICIO,$FIM) ts_inicio=$TS ts_fim=$(date -u +%Y-%m-%dT%H:%M:%SZ) duracao_s=$(( $(date -u +%s) - T0 ))"
   echo "$l"
   [ -n "$STATUS" ] && printf '%s\n' "$l" > "$STATUS"
   rm -rf "$TMP"
@@ -94,7 +101,7 @@ trap 'morte_por_sinal TERM' TERM
 trap 'morte_por_sinal INT' INT
 
 emitir() {  # $1=estado $2=resto da linha
-  local linha="$1 p2-saturacao-da-dose $2 janela=[$INICIO,$FIM) ts=$TS"
+  local linha="$1 p2-saturacao-da-dose $2 janela=[$INICIO,$FIM) ts_inicio=$TS ts_fim=$(date -u +%Y-%m-%dT%H:%M:%SZ) duracao_s=$(( $(date -u +%s) - T0 ))"
   echo "$linha"
   [ -n "$STATUS" ] && printf '%s\n' "$linha" > "$STATUS"
   return 0

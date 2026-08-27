@@ -47,10 +47,17 @@ if [ "$MODO" = "active" ]; then
 fi
 [ -n "$W" ] || morre RED shadow-w-ausente-no-unit
 
-# `timeout 1500` (25 min): o job roda 05:41 e o morning-report le o status as 06:30.
+# `timeout` (min) : o job roda 05:41 e o morning-report le o status as 06:30.
 # Sem teto, uma janela grande atrasaria o report em vez de so atrasar a si mesma —
 # e um job que estoura o horario reporta o dia anterior como se fosse o de hoje.
-exec timeout 1500 /root/.openclaw/scripts/p2/gatilho-saturacao.sh \
+#
+# 1500 s era folga de apenas 1,65x: a rodada de 2026-08-27 levou 911 s medidos
+# (677 estados de um dia). Estourar o teto faz o gatilho reportar RED por
+# `interrompido-por-sinal` — RED por CAPACIDADE, nao por defeito do mecanismo, que
+# e a especie de alarme que ensina a ignorar alarme. 2700 s da 2,96x sobre o
+# medido e ainda cabe entre 05:41 e 06:30. `duracao_s` na linha de status e o que
+# avisa antes: se ela passar de ~1800 s, subir o teto ANTES de virar RED.
+exec timeout 2700 /root/.openclaw/scripts/p2/gatilho-saturacao.sh \
   --raiz /root/.openclaw/workspace/tools/nox-mem \
   --harness /root/.openclaw/scripts/p2/replay-oportunidade.mjs \
   --log "$LOGP" \
