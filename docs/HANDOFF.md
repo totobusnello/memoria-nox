@@ -4,7 +4,7 @@
 
 ---
 
-## 🔴 Estado atual (2026-08-27, 12:40Z) — emenda na TERCEIRA redação, estudo BLOQUEADO, próximo passo é depositar os blobs
+## 🟡 Estado atual (2026-08-27, 16:52 BRT) — emenda PRONTA e NÃO depositada, por decisão; desvios vão no paper
 
 > **O estudo está bloqueado por decisão da própria emenda, não por impedimento
 > externo.** `Δ_cut` perdeu estatuto de parâmetro: o referente que o registro nomeia
@@ -58,13 +58,27 @@
 > Correção estrutural: o manifesto passa a pinar por **`sha256` dos bytes**, que
 > sobrevive a rebase e é conferível sem acesso ao repo privado.
 >
-> **Próximo passo:** depositar a emenda no Zenodo (nova versão do conceito
-> `10.5281/zenodo.21964093`). Depois: protocolo prospectivo de 8 itens →
-> `T_seed_assign` → `ASSIGNMENT.json` → `active` → Epoch 1.
+> 🟡 **DECISÃO 27/08 16:52 BRT — não emendar o registro por enquanto.** O pré-registro
+> fica como registrado e os desvios são declarados no **paper**. A obrigação está em
+> `paper2-interventional/DEVIATIONS-FOR-PAPER.md`, criada porque não havia manuscrito
+> nem doc de desvios: "reportar depois" sem lugar onde ficar é "não reportar".
 >
-> ⚠️ Antes do depósito, reler `feedback_the_serialization_you_read_bounds_what_you_can_verify`
-> e `feedback_rdm_put_silently_drops_legacy_shaped_metadata` — o PUT no Zenodo já
-> apagou autor e licença uma vez devolvendo HTTP 200.
+> O depósito v1.13 está **preparado e não executado** — 99 arquivos, 45 uploads, três
+> gates passando, readback duplo. Nada foi enviado ao Zenodo. Voltar atrás custa o token
+> e um `prepare`.
+>
+> ⚠️ Custo aceito: o registro público segue afirmando três coisas falsas (`Δ_cut`, a
+> banda, a alocação) **e** declarando a designação como defeito *aberto* quando está
+> fechada — esta última é a única em que o registro está **pior** que a realidade, e ela
+> não se resolve com o tempo.
+>
+> **Próximo passo:** o protocolo prospectivo de calibração (8 itens do §5), que é o que
+> desbloqueia o estudo. Depois: `T_seed_assign` → `ASSIGNMENT.json` → `active` → Epoch 1.
+>
+> ⚠️ Se o depósito voltar à mesa: reler
+> `feedback_the_serialization_you_read_bounds_what_you_can_verify` e
+> `feedback_rdm_put_silently_drops_legacy_shaped_metadata` — o PUT no Zenodo já apagou
+> autor e licença uma vez devolvendo HTTP 200 — e reconferir os 6 substituídos por md5.
 
 ---
 

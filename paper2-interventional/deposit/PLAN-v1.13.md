@@ -1,7 +1,12 @@
 # Plano do depósito v1.13 — preparado 2026-08-27, NÃO executado
 
-> Nada foi enviado ao Zenodo. Este documento é o que se executa depois de você
-> decidir os dois pontos abertos no fim.
+> 🟡 **EM ESPERA desde 2026-08-27T16:52 BRT.** O Toto decidiu **não emendar o registro
+> por enquanto** — os desvios vão no paper (`../DEVIATIONS-FOR-PAPER.md`). Nada foi
+> enviado ao Zenodo: nem draft criado.
+>
+> O plano fica **pronto e válido**, não arquivado. Se a decisão mudar, é token +
+> `prepare`. ⚠️ Antes disso, reconferir por md5 os **6 substituídos**: `claims_check.py`
+> e a emenda seguem recebendo edições, e o `sync` só corrige o que sabe comparar.
 
 ## Por que **v1.13** e não v1.12-bis
 

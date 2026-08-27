@@ -4,8 +4,21 @@
 concept `10.5281/zenodo.21964093`, última versão depositada **v1.12**
 (`10.5281/zenodo.22110203`, 2026-08-26T14:01Z).
 
-**Versão: a ser atribuída no depósito.** Este arquivo é **rascunho** e não carrega
-número. Número de versão é fato do depósito, não rótulo do texto.
+> 🟡 **STATUS 2026-08-27T16:52 BRT — NÃO DEPOSITADA, por decisão.** O Toto optou por
+> **não emendar o registro por enquanto**: o pré-registro fica como registrado e os
+> desvios vão no **paper**. Este documento passa a ser o **registro interno** que
+> alimenta essa seção do paper, e a obrigação está em `DEVIATIONS-FOR-PAPER.md`.
+> A máquina do depósito (`deposit/PLAN-v1.13.md`, `deposit/deposit-v1.13.sh`) está
+> pronta e intocada — nada foi enviado ao Zenodo.
+>
+> ⚠️ Consequência aceita, e ela é assimétrica: enquanto isto não for reportado, o
+> registro público afirma três coisas falsas sobre `Δ_cut`, a banda e a alocação, **e**
+> declara a designação como defeito *aberto* quando ela está fechada. Essa última é a
+> única em que o registro está **pior** que a realidade.
+
+**Versão: não atribuída.** Este arquivo é **rascunho** e não carrega número. Número de
+versão é fato do depósito, não rótulo do texto — e como não houve depósito, não há
+número. *(A v1.13 preparada em 27/08 permanece preparada, não publicada.)*
 
 **Histórico de redação.** Primeira redação 2026-08-26 à noite. **Segunda redação
 26/08 23:40Z**, depois de duas revisões adversariais (GLM-5.3 e Codex/gpt-5.6-sol)
