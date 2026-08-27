@@ -129,17 +129,46 @@ de `$(...)`, a saída fica **indistinguível de sucesso**: na v1.12 o script imp
 - [ ] nenhum arquivo com IP, hostname de tailnet ou token *(`receipts/` já redigido)*
 - [ ] `git status` limpo e tag `paper2-v1.13` apontando para o commit depositado
 
-## Duas decisões que são suas
+## Duas decisões — DECIDIDAS pelo Toto em 2026-08-27T13:22 BRT
 
-**1. A saída do Codex (358.342 B) entra no registro permanente?**
-A favor: é a única saída adversarial que existe, o Anexo B faz afirmação sobre ela, e
-sem ela a revisão da 3ª rodada é inverificável como as outras quatro. Contra: são 358
-KB de log de raciocínio de um modelo num registro científico permanente, e ela cita
-trechos de prompts anteriores meus. **Minha recomendação: entra.** O custo é tamanho; o
-ganho é a única auditabilidade real que a revisão tem.
+**1. A saída do Codex (358.342 B) entra no registro permanente — SIM.**
+Era a decisão dele porque o custo é dela: 358 KB de log de raciocínio de um modelo num
+registro científico imutável, citando trechos de prompts anteriores. O ganho é que a
+revisão da 3ª rodada passa a ser a **única** auditável — as outras quatro não
+sobreviveram (retratação 44), e sem esta o Anexo B inteiro seria relato sem lastro.
 
-**2. `measurement/` e `receipts/` entram, ou só a emenda + artefatos?**
-Entrando, o depósito vai de 60 para 99 arquivos e cumpre o que o §9 promete. Não
-entrando, o §9 tem de ser reescrito para dizer que os scripts vivem **só** no GitHub
-(que é público, mas mutável — e um registro imutável apontando para repo mutável é
-exatamente o defeito da retratação 1 da v1.12). **Minha recomendação: entram.**
+**2. `measurement/` (20) e `receipts/` (7) entram — SIM.**
+Com isso o depósito vai de 60 para **99 arquivos** e o §9 passa a cumprir o que promete.
+A alternativa era reescrever o §9 para dizer que os scripts vivem só no GitHub — que é
+público mas **mutável**, e registro imutável apontando para repositório mutável é
+exatamente o defeito da retratação 1 da v1.12.
+
+Nenhuma das duas exigiu mudança no script: as duas listas já estavam em `NOVOS`, e a
+decisão confirmou a proposta em vez de alterá-la. Fica registrado aqui porque decisão
+de escopo de depósito é parte da auditoria — quem ler o registro em 2028 deve poder
+saber que a inclusão foi deliberada e por quê.
+
+## Como executar
+
+O token não está no ambiente desta sessão nem no keychain, e não vou procurá-lo pelo
+disco. No terminal do Claude Code, `!` roda o comando na sessão e a saída volta para a
+conversa:
+
+```
+! export ZENODO_TOKEN=…
+```
+
+Depois disso eu rodo `prepare`, que **para antes do irreversível** e devolve a URL do
+draft para você revisar no navegador. Ou você roda direto:
+
+```
+cd paper2-interventional/deposit
+./deposit-v1.13.sh prepare     # cria draft, importa, sobe 45, grava metadados. PARA.
+./deposit-v1.13.sh check       # readback duplo, não escreve nada
+./deposit-v1.13.sh publish     # IRREVERSÍVEL — só com o check verde
+```
+
+⚠️ Se algo der errado entre `prepare` e `publish`, o draft é descartável sem
+consequência: `curl -X DELETE -H "Authorization: Bearer $ZENODO_TOKEN"
+https://zenodo.org/api/records/<draft>/draft`. O que **não** é descartável é o
+`publish`.
