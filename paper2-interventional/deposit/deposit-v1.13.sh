@@ -26,7 +26,15 @@ DIR="$(cd "$(dirname "$0")" && pwd)"
 PKG="$(cd "$DIR/.." && pwd)"       # paper2-interventional/
 STATE="$DIR/.draft-id-v113"
 
-: "${ZENODO_TOKEN:?export ZENODO_TOKEN antes de rodar}"
+# Token: env var tem precedência; senão, o store por-arquivo do Mac, que é o padrão
+# já instalado (~/.config/secrets/<NOME>, 10 segredos lá). Guardar ali tira o token da
+# conversa e do histórico de shell, e sobrevive à sessão — em 26/08 ele foi passado à
+# mão e não ficou em lugar nenhum, o que obrigou a refazer o passo hoje.
+SECRET_FILE="$HOME/.config/secrets/ZENODO_TOKEN"
+if [ -z "${ZENODO_TOKEN:-}" ] && [ -r "$SECRET_FILE" ]; then
+  ZENODO_TOKEN="$(tr -d '\r\n' < "$SECRET_FILE")"
+fi
+: "${ZENODO_TOKEN:?sem token — grave em ~/.config/secrets/ZENODO_TOKEN (chmod 600) ou exporte ZENODO_TOKEN}"
 AUTH=(-H "Authorization: Bearer $ZENODO_TOKEN")
 
 # Já no depósito e MUDARAM no repo desde 26/08 (conferido por md5 contra
