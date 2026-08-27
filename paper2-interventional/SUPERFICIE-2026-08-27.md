@@ -116,20 +116,41 @@ semana, visto pelo lado da intervenção.
 `search_telemetry.top_chunk_ids` — o único instrumento com timestamp por chunk —
 parou em **2026-05-19 14:47:04** e tem **zero** linhas na janela comum.
 
-E aqui a classificação mudou depois de eu procurar o motivo, o que importa porque
-"desligada de propósito" seria escolha de desenho a respeitar e "apagada" é
-regressão a consertar. O commit `7fdaab4f` (*"eod: 2026-05-19 — nox-mem repair
-(import mismatch)"*) **removeu** o `INSERT` de 23 colunas junto com o tipo
-`topChunkIds?: number[]`, num commit de fim de dia que também mexeu em
-`CONTEXT.md` e em memória de agentes; sobrou o `INSERT` de 7 colunas em
-`src/search.ts:608`. **13 colunas** ficaram sem nenhum escritor
-(`top_chunk_ids`, `top_scores`, `requesting_agent`, os 3 `reason_boost_*`, os 2
-`temporal_*`, os 5 `reranker_*`).
+E aqui a classificação mudou **duas** vezes, e a segunda corrige a primeira.
 
-Este projeto **registra** retirada deliberada com `CUT` no título do commit (ex.:
-*"CUT E05b reason-boost — bias arquitetural confirmado"*). **Não existe `CUT`
-para esta telemetria** ⇒ regressão, sem ninguém notar por 3,3 meses. Logo religar
-o escritor é proposta legítima, não violação de desenho.
+**Primeira versão (errada):** *"o commit `7fdaab4f` removeu o `INSERT` de 23
+colunas, deixando 13 colunas sem escritor; não existe `CUT` ⇒ regressão"*. Três
+defeitos nela, todos de método:
+
+1. **13 estava errado — são 16.** A lista era **digitada**. O censo mecânico que a
+   produziu grepava `INSERT` e por isso perdeu 3 colunas; e as duas alternativas
+   óbvias também falham: *"não-nulo"* mente porque `DEFAULT` preenche toda linha
+   (11 falsos vivos), e *"distintos > 1"* mente porque o histórico pré-morte infla
+   (`reranker_latency_ms` tem **394** valores distintos, todos anteriores). O teste
+   que vale é **distintos dentro de uma janela posterior à morte suspeita**,
+   cruzado com a lista literal de colunas da `INSERT` extraída do fonte;
+2. **não foi um commit — foram seis instantes**, em dez dias:
+
+| última escrita real | colunas | leitura |
+|---|---|---|
+| 2026-05-09 22:41:50 | 6 `reranker_*` | reranker desligado |
+| 2026-05-17 14:17:03 | 3 `reason_boost_*` | **E05b, e existe `CUT`** (`078ee2f9`) ⇒ **retirada deliberada** |
+| 2026-05-18 21:13:26 | `requesting_agent` | evento próprio |
+| 2026-05-18 21:37:41 | `was_temporal_query` | evento próprio |
+| **2026-05-19 14:47:04** | **`query_text`, `top_chunk_ids`, `top_scores`, `temporal_boost_mode`** | fronteira de **deploy** — ver (3) |
+| nunca | `golden_id` | |
+
+3. **e o nexo causal está refutado pelo próprio horário.** `7fdaab4f` é de
+   **2026-05-20 01:03 UTC**; o grupo que me interessa parou em **2026-05-19 14:47
+   UTC**, **dez horas antes**. O que há no dado é um **buraco de 1h19** nas linhas
+   (14:47:04 → 16:06:06) e, a partir dele, nulo para sempre — assinatura de
+   restart/deploy. O commit removeu código **que já estava mudo**.
+
+**O que sobra, e sustenta o resto desta nota:** `top_chunk_ids` — o único
+instrumento com timestamp por chunk — parou numa fronteira de deploy em 19/05,
+**sem `CUT` correspondente**, e ficou 3,3 meses assim. Para esse grupo a leitura
+"regressão, não retirada" continua válida, e religar o escritor é proposta
+legítima. Para os `reason_boost_*` ela é **falsa**: ali houve decisão registrada.
 
 ⚠️ **E a comparação INVERTE quando escopada.** Cumulativamente a busca alcança 617
 das 865 entities curadas contra 245 do brief, o que sugere "a busca alcança o

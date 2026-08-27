@@ -224,10 +224,11 @@ maior que qualquer passo entre vizinhos e ainda insuficiente ⇒ o item atravess
 Seção obrigatória, e ela vem **antes** da discussão de propósito:
 
 - **nenhum efeito sobre o agente.** Não há desfecho a jusante instrumentado: três
-  tabelas de qualidade voltada ao agente com **0 linhas**, e a telemetria de busca
+  tabelas de qualidade voltada ao agente com **0 linhas**; a telemetria de busca
   registra a **sonda de saúde do cron** — em janela fechada de 7 dias, **325 de 343
   linhas (94,8%)** caem nos dois minutos por hora em que o cron dispara, sobrando
-  **2,6 linha/dia** atribuível a agente;
+  **2,6 linha/dia** atribuível a agente; e das 25 colunas dessa tabela, **16 não
+  têm escritor** hoje, entre elas a única com identificação por chunk;
 - **nada randomizado.** Toda comparação temporal é antes/depois. A comparação contra o
   agregado pós-gate mede **composição de dias** (p = 0,0326 e inutilizável); a
   comparação adjacente defensável é subpotente (~7%);
@@ -446,7 +447,10 @@ método**. Catálogo, com o custo medido de cada um:
 | controle positivo rodado sobre pipeline **reimplementado** | produziu "dose absurda ⇒ efeito zero", que virou retratação central. O pipeline real dá **20** eventos |
 | grid grosso | saturação *pareceu* cair exatamente no topo da banda registrada; com 23 doses está em `(4,0 ; 4,4]` |
 | gatilho de monitoramento calibrado sobre gap **adjacente** | vigia grandeza que não limita o mecanismo: fica **verde enquanto satura** |
-| telemetria de busca por chunk **apagada** por commit de fim de dia (`7fdaab4f`, 2026-05-19): `INSERT` de 23 colunas trocado por um de 7, deixando **13 colunas sem escritor** e **sem `CUT`** no título — a convenção deste projeto para retirada deliberada | comparação entre superfícies **dentro de janela** é impossível, e passou **3,3 meses** sem ninguém notar. Além disso um campo sem escritor (`requesting_agent`) foi por mim usado como se fosse assinatura de origem: nulo para todo mundo não distingue nada |
+| telemetria de busca por chunk **muda** desde 2026-05-19 14:47:04, numa fronteira de deploy (buraco de 1h19 nas linhas, e nulo para sempre depois), **sem `CUT`** — a convenção deste projeto para retirada deliberada | comparação entre superfícies **dentro de janela** é impossível, e passou **3,3 meses** sem ninguém notar |
+| **atribuir a morte de um instrumento a um commit, sem conferir o horário** | eu publiquei que `7fdaab4f` a apagou; o commit é de **2026-05-20 01:03 UTC** e a escrita parou **dez horas antes**. Ele removeu código que já estava mudo. Um diff que *explica* o efeito não é prova de que o *causou* |
+| **censo de "colunas sem escritor" por grep, por não-nulo, ou por distintos>1** | os três dão respostas diferentes e todas erradas: grep perde `UPDATE` e SQL dinâmico (−3 colunas), `DEFAULT` produz 11 falsos vivos, e o histórico pré-morte infla os distintos (`reranker_latency_ms`: **394**, todos anteriores). O censo válido é **distintos numa janela posterior**, cruzado com a lista literal da `INSERT`: **16** colunas, em **seis** instantes distintos ao longo de 10 dias — e num deles existe `CUT`, logo é **retirada**, não regressão |
+| campo sem escritor usado como **assinatura de origem** | `requesting_agent` nulo foi por mim tratado como prova de que a telemetria media o cron; é nulo para todo mundo desde 2026-05-18. O teste válido é o **minuto do cron** (94,8%) |
 | comparação de contagem **filtrada** com **não-filtrada** | inverteu o sinal de uma conclusão: 617×245 cumulativo vira 245×≥151 na janela comum |
 | série viva citada como instantâneo | um `n` mudou em minutos e a asserção pegou |
 | **teste de uma derivação sobre pool RECONSTRUÍDO** (`interleaveFresh` não é exportado) | classificou 25 estados como alteráveis contra 17 reais, e só **1 das 17** caía na classe; 24 violações do pressuposto de prefixo eram o sintoma. O teste válido usa só grandezas **registradas** (§5.6) |

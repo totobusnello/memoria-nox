@@ -140,6 +140,8 @@
   },
   "instrumento_apagado": {
     "colunas_sem_escritor": [
+      "query_text",
+      "golden_id",
       "top_chunk_ids",
       "top_scores",
       "requesting_agent",
@@ -152,8 +154,48 @@
       "reranker_top_k_in",
       "reranker_top_k_out",
       "reranker_latency_ms",
-      "reranker_position_changes"
+      "reranker_position_changes",
+      "reranker_lift_score"
     ],
+    "colunas_escritas_pela_insert": [
+      "query_hash",
+      "query_words",
+      "variants_count",
+      "results_count",
+      "has_semantic",
+      "latency_ms",
+      "expansion_skipped_reason"
+    ],
+    "mortas_por_data": {
+      "2026-05-19 14:47:04": [
+        "query_text",
+        "top_chunk_ids",
+        "top_scores",
+        "temporal_boost_mode"
+      ],
+      "nunca escrita": [
+        "golden_id"
+      ],
+      "2026-05-18 21:13:26": [
+        "requesting_agent"
+      ],
+      "2026-05-17 14:17:03": [
+        "reason_boost_applied",
+        "reason_relations_used",
+        "reason_boost_mode"
+      ],
+      "2026-05-18 21:37:41": [
+        "was_temporal_query"
+      ],
+      "2026-05-09 22:41:50": [
+        "reranker_mode",
+        "reranker_top_k_in",
+        "reranker_top_k_out",
+        "reranker_latency_ms",
+        "reranker_position_changes",
+        "reranker_lift_score"
+      ]
+    },
     "ultimo_com_ids": "2026-05-19 14:47:04",
     "com_ids_na_janela_comum": 0
   }

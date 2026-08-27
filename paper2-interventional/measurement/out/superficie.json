@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-08-27T20:47:40Z",
+  "gerado_em": "2026-08-27T21:52:11Z",
   "db": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
   "corpus": 67187,
   "cumulativo_exato": {
@@ -107,9 +107,9 @@
       "2026-08-20",
       "2026-08-27"
     ],
-    "slots_historicos_ATE_AGORA_serie_viva": 580053,
+    "slots_historicos_ATE_AGORA_serie_viva": 580403,
     "desde": "2026-06-04 17:51:26",
-    "ate": "2026-08-27 20:37:06",
+    "ate": "2026-08-27 21:52:07",
     "distintos_7d": 201,
     "slots_7d": 46295,
     "briefs_7d": 4632,
@@ -142,6 +142,8 @@
     "tabela": "search_telemetry.top_chunk_ids",
     "diagnostico": "NÃO é retirada deliberada: o commit 7fdaab4f ('eod: 2026-05-19 — nox-mem repair (import mismatch)') APAGOU o INSERT de 23 colunas (top_chunk_ids, top_scores, requesting_agent, reason_boost_*, reranker_*) num commit de fim de dia que também mexeu em CONTEXT.md e memória de agentes. Sobrou o INSERT de 7 colunas em search.ts:608. Este projeto REGISTRA retirada deliberada com 'CUT' no título do commit (ex.: 'CUT E05b reason-boost — bias arquitetural confirmado'); não existe CUT para esta telemetria. Ausência de CUT ⇒ regressão, não decisão — e ninguém notou por 3,3 meses.",
     "colunas_sem_escritor": [
+      "query_text",
+      "golden_id",
       "top_chunk_ids",
       "top_scores",
       "requesting_agent",
@@ -154,9 +156,50 @@
       "reranker_top_k_in",
       "reranker_top_k_out",
       "reranker_latency_ms",
-      "reranker_position_changes"
+      "reranker_position_changes",
+      "reranker_lift_score"
     ],
-    "linhas_totais_serie_viva": 13010,
+    "colunas_escritas_pela_insert": [
+      "query_hash",
+      "query_words",
+      "variants_count",
+      "results_count",
+      "has_semantic",
+      "latency_ms",
+      "expansion_skipped_reason"
+    ],
+    "criterio_sem_escritor": "distintos == <=1 em ts >= 2026-05-20 E fora da lista de colunas da INSERT de src/search.ts. ⚠️ Limite: coluna VIVA cujo valor seja constante na janela seria classificada como morta — por isso o segundo critério, e por isso a lista da INSERT é extraída do fonte.",
+    "mortas_por_data": {
+      "2026-05-19 14:47:04": [
+        "query_text",
+        "top_chunk_ids",
+        "top_scores",
+        "temporal_boost_mode"
+      ],
+      "nunca escrita": [
+        "golden_id"
+      ],
+      "2026-05-18 21:13:26": [
+        "requesting_agent"
+      ],
+      "2026-05-17 14:17:03": [
+        "reason_boost_applied",
+        "reason_relations_used",
+        "reason_boost_mode"
+      ],
+      "2026-05-18 21:37:41": [
+        "was_temporal_query"
+      ],
+      "2026-05-09 22:41:50": [
+        "reranker_mode",
+        "reranker_top_k_in",
+        "reranker_top_k_out",
+        "reranker_latency_ms",
+        "reranker_position_changes",
+        "reranker_lift_score"
+      ]
+    },
+    "linhas_totais_serie_viva": 13013,
     "linhas_com_ids_serie_viva": 6318,
     "ultimo_com_ids": "2026-05-19 14:47:04",
     "com_ids_na_janela_comum": 0,

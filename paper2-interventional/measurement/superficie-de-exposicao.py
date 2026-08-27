@@ -46,6 +46,7 @@ Uso:
 """
 import argparse
 import json
+import re
 import sqlite3
 import subprocess
 import sys
@@ -67,6 +68,11 @@ def main():
     ap.add_argument("--piso-pain", type=float, default=0.7)
     ap.add_argument("--out")
     ap.add_argument("--assert-json")
+    ap.add_argument("--fonte-search", required=True,
+                    help="caminho de src/search.ts. Obrigatório: a lista de colunas "
+                         "da INSERT é o segundo critério do censo de colunas sem "
+                         "escritor, e digitá-la aqui foi o defeito que este argumento "
+                         "existe para impedir.")
     a = ap.parse_args()
 
     c = sqlite3.connect(f"file:{a.db}?mode=ro", uri=True)
@@ -144,6 +150,45 @@ def main():
         WHERE source_file LIKE 'memory/entities/%' AND last_accessed_at >= ?""", ini)
 
     # ─── o instrumento que está desligado ─────────────────────────────────
+    #
+    # Censo das colunas SEM escritor, computado. Dois critérios, e o segundo existe
+    # porque o primeiro sozinho classificaria como morta uma coluna viva de valor
+    # constante na janela.
+    CORTE_ESCRITOR = "2026-05-20"      # dia seguinte à morte suspeita
+    try:
+        FONTE_SEARCH = open(a.fonte_search, encoding="utf-8", errors="replace").read()
+    except OSError as e:
+        print("⛔ não consegui ler --fonte-search: %s" % e, file=sys.stderr)
+        sys.exit(2)
+    m_ins = re.search(r"INSERT INTO search_telemetry \(([^)]*)\)", FONTE_SEARCH)
+    if not m_ins:
+        print("⛔ não achei a INSERT de search_telemetry no fonte — sem ela o censo "
+              "de colunas sem escritor não tem o segundo critério", file=sys.stderr)
+        sys.exit(2)
+    escritas = [x.strip() for x in m_ins.group(1).split(",")]
+    sem_escritor, mortas_por_data = [], {}
+    for _i, nome, _t, _nn, _d, _pk in c.execute("PRAGMA table_info(search_telemetry)"):
+        if nome in escritas or nome in ("id", "ts"):
+            continue
+        dist = um(c, 'SELECT COUNT(DISTINCT "%s") FROM search_telemetry WHERE ts >= ?'
+                  % nome, CORTE_ESCRITOR)
+        if dist <= 1:
+            sem_escritor.append(nome)
+            # ⚠️ "última escrita real" tem de EXCLUIR o default, senão para coluna com
+            # DEFAULT a resposta é sempre "a última linha antes do corte" — foi o que
+            # agrupou 11 colunas num instante falso (2026-05-19 23:47:02) na primeira
+            # versão deste cômputo.
+            if _d is None:
+                cond = '"%s" IS NOT NULL' % nome
+                par = ()
+            else:
+                cond = '"%s" IS NOT NULL AND "%s" <> %s' % (nome, nome, _d)
+                par = ()
+            ult = um(c, 'SELECT MAX(ts) FROM search_telemetry WHERE %s AND ts < ?'
+                     % cond, CORTE_ESCRITOR, *par)
+            # agrupa por instante da última escrita real: instantes DIFERENTES ⇒
+            # commits diferentes, e a narrativa de "um commit apagou tudo" cai.
+            mortas_por_data.setdefault(ult or "nunca escrita", []).append(nome)
     st_tot = um(c, "SELECT COUNT(*) FROM search_telemetry")
     st_ids = um(c, "SELECT COUNT(*) FROM search_telemetry WHERE top_chunk_ids IS NOT NULL AND top_chunk_ids <> ''")
     st_ultimo = um(c, "SELECT MAX(ts) FROM search_telemetry WHERE top_chunk_ids IS NOT NULL AND top_chunk_ids <> ''")
@@ -230,12 +275,21 @@ def main():
                 "commit (ex.: 'CUT E05b reason-boost — bias arquitetural confirmado'); "
                 "não existe CUT para esta telemetria. Ausência de CUT ⇒ regressão, "
                 "não decisão — e ninguém notou por 3,3 meses."),
-            "colunas_sem_escritor": ["top_chunk_ids", "top_scores", "requesting_agent",
-                                     "reason_boost_applied", "reason_relations_used",
-                                     "reason_boost_mode", "was_temporal_query",
-                                     "temporal_boost_mode", "reranker_mode",
-                                     "reranker_top_k_in", "reranker_top_k_out",
-                                     "reranker_latency_ms", "reranker_position_changes"],
+            # ⚠️ COMPUTADO, e a lista digitada que estava aqui dava 13 — errado.
+            # Três métodos falharam antes deste, cada um por um motivo diferente:
+            #   grep por INSERT       -> perde UPDATE e SQL dinâmico (perdeu 3 colunas)
+            #   "não-nulo"            -> DEFAULT preenche toda linha (11 falsos vivos)
+            #   "distintos > 1"       -> o histórico pré-morte infla (394 distintos!)
+            # O teste que vale é DISTINTOS DENTRO DE UMA JANELA depois da morte
+            # suspeita, cruzado com a lista literal de colunas da INSERT do fonte.
+            "colunas_sem_escritor": sem_escritor,
+            "colunas_escritas_pela_insert": escritas,
+            "criterio_sem_escritor": (
+                f"distintos == {'<=1'} em ts >= {CORTE_ESCRITOR} E fora da lista de "
+                "colunas da INSERT de src/search.ts. ⚠️ Limite: coluna VIVA cujo valor "
+                "seja constante na janela seria classificada como morta — por isso o "
+                "segundo critério, e por isso a lista da INSERT é extraída do fonte."),
+            "mortas_por_data": mortas_por_data,
             "linhas_totais_serie_viva": st_tot,
             "linhas_com_ids_serie_viva": st_ids,
             "ultimo_com_ids": st_ultimo,
