@@ -434,7 +434,14 @@ janela fechada (`measurement/remedia-serie.py`):
 | sondas | 2 decisões sem `agent` na janela, excluídas *(o NDJSON não tem `brief_id`, logo o discriminador ali é `agent` ausente)* |
 | conferência | a soma das 13 horas fecha em 11/350, idêntica ao bloco |
 
-| regime | ativações | taxa | Wilson 95% |
+⚠️ **"Ativação" aqui é CONTRAFACTUAL, não tratamento entregue.** Conferido no arquivo
+depositado: `modo: shadow` e `servido: controle` em **352 de 352** decisões da janela. O
+código computa os dois braços por desenho (`alt` e `altBoosted`, com `diffP2` sendo a
+diferença) e serve o **controle**. Logo `churn > 0` significa *"o conjunto servido teria
+diferido se o boost valesse"* — que é a taxa de **oportunidade**, e não uma taxa de
+efeito. Nenhum tratamento foi entregue em nenhuma das 352.
+
+| regime | oportunidade (contrafactual) | taxa | Wilson 95% |
 |---|---|---|---|
 | regra anterior, pós-gate **agregado** | 132/2.226 | 5,9299% | [5,02 ; 6,99] |
 | regra anterior, **último dia** (26/08) | 20/574 | 3,4843% | [2,27 ; 5,32] |
@@ -454,7 +461,8 @@ de dias, não efeito. Toda a diferença vem de incluir 23 e 24/08, que concentra
 dos eventos em 44% do n de uma série declinante. E a comparação adjacente, que é a
 defensável, é **subpotente**: o poder para a diferença observada é da ordem de 7%.
 
-**Enunciado defensável, e nada além dele:**
+**Enunciado defensável, e nada além dele** — lembrando que as três taxas são
+contrafactuais em `shadow`, não efeitos:
 
 > Na janela fechada `[2026-08-26T20:28:00Z , 2026-08-27T09:00:00Z)`, sob a regra
 > nova, observaram-se 11 ativações em 350 decisões (3,1429%; Wilson [1,76; 5,54]).
@@ -623,6 +631,7 @@ Continuam a numeração da v1.12, que fecha em 28.
 | **40** | 27/08 | *(2ª redação)* a base é `132/2.212 = 5,9675%`, e está a "~11,8 desvios-padrão de zero" | **132/2.226 = 5,9299%**. O teste-z contra zero sai: zero é fronteira do espaço binomial (§2) |
 | **41** | 27/08 | *(2ª redação)* os `111 deslocamentos` da v1.12 dão `8,05%` sobre 1.267 decisões | são **duas** quantidades: 102 decisões com churn = **8,0505%**; 111 deslocamentos somados = **8,7609%**. O rótulo estava trocado (§2) |
 | **42** | 27/08 | *(2ª redação)* nenhum dos 38 pares tem gap negativo, apresentado como observação | verdadeiro **por construção** da ordenação (`salience DESC` dentro do empate) — não é achado (§2) |
+| **45** | 27/08 | *(3ª redação)* o §4.1-bis chamava `11/350` de "taxa de ativação", o que lê como tratamento entregue | é taxa de **oportunidade contrafactual**: `modo: shadow` e `servido: controle` em **352 de 352**. Nenhum tratamento foi entregue na janela (§4.1-bis) |
 | **44** | 27/08 | *(3ª redação)* "recibos **e saídas** das cinco vozes em `receipts/`" | só **uma** saída existe — as das quatro primeiras vozes nunca foram persistidas e são irrecuperáveis. O `receipts/README.md` do mesmo pacote já declarava o oposto: **dois arquivos do depósito se contradiziam** (§9, Anexo B) |
 | **43** | 27/08 | *(2ª redação)* o código servindo está no commit `0087c918` | **esse objeto não existe** no repo — nem commit, nem ref, nem reflog. É `1da78560`; o merge `5174e0fa` reescreveu os hashes do lado da VPS. Conteúdo idêntico, nome pendurado. Blobs agora presos por `sha256` de bytes (cabeçalho e §9) |
 
