@@ -45,10 +45,26 @@
 > sobreposição de IC não é equivalência). Teste de mutação: **18 falsificações, 18
 > mordidas**.
 >
-> **Próximo passo, e é o passo 0 do §8:** depositar os blobs de código do commit
-> `0087c918` (repo `nox-workspace`, privado). Sem isso a emenda cita código que
-> ninguém pode ler — exatamente o defeito da retratação 1 da v1.12. Só então:
-> depositar a emenda → protocolo prospectivo de 8 itens → `T_seed_assign`.
+> ✅ **Passo 0 do §8 FECHADO 27/08:** blobs de serving depositados, conferidos byte a
+> byte — `serving-brief.ts` (44.748 B), `serving-brief-outcome.ts` (21.213 B) e
+> `serving-p2-outcome-test.ts` (22.673 B, novo, porque o §1 afirma que 5 mutações do
+> fonte fizeram os testes falharem e sem o arquivo isso é infalsificável).
+>
+> 🔴 **E o depósito revelou que o commit que a emenda citava NÃO EXISTE.** `0087c918`
+> não é commit, não está em ref nem no reflog, em nenhum dos 15 repos do host. O
+> conteúdo estava certo — é `1da78560`, mesmo timestamp e mensagem —; o **nome** morreu
+> quando o merge `5174e0fa` reconciliou a VPS com o origin, 37 min depois. Cinco vozes
+> adversariais leram a emenda e nenhuma checou se o hash resolvia. Retratação 43.
+> Correção estrutural: o manifesto passa a pinar por **`sha256` dos bytes**, que
+> sobrevive a rebase e é conferível sem acesso ao repo privado.
+>
+> **Próximo passo:** depositar a emenda no Zenodo (nova versão do conceito
+> `10.5281/zenodo.21964093`). Depois: protocolo prospectivo de 8 itens →
+> `T_seed_assign` → `ASSIGNMENT.json` → `active` → Epoch 1.
+>
+> ⚠️ Antes do depósito, reler `feedback_the_serialization_you_read_bounds_what_you_can_verify`
+> e `feedback_rdm_put_silently_drops_legacy_shaped_metadata` — o PUT no Zenodo já
+> apagou autor e licença uma vez devolvendo HTTP 200.
 
 ---
 
