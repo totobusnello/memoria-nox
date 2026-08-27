@@ -235,6 +235,28 @@ o SO cacheou), A/B intercalado com ordem alternada, aquecimento descartado (1º 
 muda** — aqui 2 de 12 sondas divergiram, e as duas eram bloco de empate exato maior
 que o `LIMIT` (130 e 15 a distância zero), logo já arbitrárias.
 
+### 12. Coluna existir no schema NÃO autoriza escrevê-la (2026-08-28)
+
+`search_telemetry.query_text` existe no `CREATE` — e o comentário três linhas acima
+diz *"query_hash is sha1 hex prefix, **não armazenamos texto cru da query por
+privacidade**"*. A coluna chegou lá por **drift**: foi reconciliada em 2026-07-25
+alinhando o repo ao que já havia em produção (*"existiam em produção mas não no
+CREATE do repo"*), o que é alinhamento de schema, **não** autorização de escrita.
+
+Religar telemetria por chunk sem ler isso me fez gravar 5 linhas de texto cru antes
+de perceber. Corrigido no mesmo dia: `top_chunk_ids`/`top_scores` ficam (são ids
+internos e é o que a comparação entre superfícies precisa), `query_text` sai.
+
+> **Antes de escrever numa coluna que você não escreveu antes, ler o comentário do
+> `CREATE`.** Coluna presente por drift e coluna presente por decisão são
+> indistinguíveis pelo `PRAGMA table_info`.
+
+E o corolário que fecha o ciclo com a regra 8: **ausência deliberada precisa de
+teste que a proteja.** Sem ele, ausência é indistinguível de esquecimento — foi a
+confusão que custou 3,3 meses no `top_chunk_ids`. O teste implantado lê a `INSERT`
+do fonte e exige que `query_text` **não** esteja e que as outras duas **estejam**;
+mutação confirmada (reintroduzir `query_text` faz falhar).
+
 ## Roadmap canônico
 
 **Single source of truth:** `docs/ROADMAP.md`.
