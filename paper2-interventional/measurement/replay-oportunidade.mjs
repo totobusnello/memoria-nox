@@ -9,7 +9,8 @@
  * aberto: nada fazia replay de `interleaveFresh`, `pickDedup`, `pinned`,
  * near-dup nem do corte do `LIMIT 400`.
  *
- * Três modos, e o terceiro é condição de no-go:
+ * Cinco modos. `dose` é condição de no-go; `porque` é teste falsificável da
+ * derivação formal do §5 do manuscrito:
  *
  *   ancora  reproduz a âncora publicada (pool 108, 55 do estudo, 44 grupos,
  *           0 nunca-servidos, posição 0) usando `fetchFreshCandidates` REAL.
@@ -23,6 +24,12 @@
  *   dose    varredura de `w` sobre estados reais. Se `w = 100.000` não move
  *           NADA em NENHUM estado, o canal não existe e o estudo morre aqui —
  *           o que é um resultado.
+ *   porque  testa a Proposição 1 do §5 (o bônus permuta DENTRO de estrato de
+ *           `last_served` e nunca atravessa) contra o que a produção registra:
+ *           em todo estado que muda, cada id que ENTRA tem de compartilhar
+ *           `last_served` com algum id que SAI. Uma entrada sem parceiro REFUTA
+ *           a proposição e o modo aborta. Usa só `would_enter`/`would_leave` e o
+ *           serve-state — nada de pool reconstruído (ver comentário no bloco).
  *
  * ─── O defeito de relógio que este script tem de contornar ─────────────────
  *
@@ -90,7 +97,7 @@ const exigir = (k) => {
 };
 
 const MODO = exigir("modo");
-if (!["ancora", "campo", "dose", "gaps"].includes(MODO)) {
+if (!["ancora", "campo", "dose", "gaps", "porque"].includes(MODO)) {
   console.error(`--modo inválido: ${MODO}`); process.exit(2);
 }
 const RAIZ = resolve(exigir("raiz"));
@@ -392,7 +399,7 @@ if (MODO === "ancora") {
   }
 }
 
-if (MODO === "campo" || MODO === "dose") {
+if (MODO === "campo" || MODO === "dose" || MODO === "porque") {
   const LOG = resolve(exigir("log-campo"));
   const briefs = readFileSync(LOG, "utf8").split("\n").filter((l) => l.trim())
     .map((l) => JSON.parse(l))
@@ -461,6 +468,14 @@ if (MODO === "campo" || MODO === "dose") {
 
   const idMaxTopo = CORTE === "rowid" ? idDoBrief(ordenados[0]) : null;
   const sv = serveStateDerivado(vivoRO, msDe(ordenados[0].ts), TMP, idMaxTopo);
+  /**
+   * Estratos de `last_served` vêm do SERVE-STATE podado, nunca do banco vivo: o
+   * vivo inclui serves POSTERIORES ao estado que se replica, e estrato errado
+   * inverte a classificação inteira do modo `porque`.
+   */
+  const lsPorque = MODO === "porque"
+    ? sv.db.prepare("SELECT MAX(served_at) m FROM brief_log WHERE chunk_id = ?")
+    : null;
   const podar = sv.db.prepare(CORTE === "inclusivo"
     ? "DELETE FROM brief_log WHERE served_at > ?"
     : CORTE === "rowid"
@@ -482,6 +497,60 @@ if (MODO === "campo" || MODO === "dose") {
       podar.run(new Date(tRefMs).toISOString().slice(0, 19).replace("T", " "));
     }
     const params = { scope: r.scope, agent: r.agent ?? undefined, n: r.ids_controle.length, format: "json" };
+
+    /**
+     * ─── Modo `porque`: teste FALSIFICÁVEL da Proposição 1 do §5 ─────────────
+     *
+     * A proposição diz: o comparador é lexicográfico em `(last_served, −salience)`
+     * e o bônus entra só na coordenada subordinada, logo ele permuta DENTRO de um
+     * estrato de `last_served` e nunca atravessa estratos.
+     *
+     * Consequência DIRETAMENTE observável, sem reconstruir nada: em todo estado em
+     * que o conjunto servido muda, cada id que ENTRA tem de compartilhar
+     * `last_served` com algum id que SAI. Se um id entrar vindo de um estrato em
+     * que ninguém saiu, a proposição está falsa.
+     *
+     * ⚠️ Esta é a SEGUNDA versão deste modo. A primeira classificava cada estado
+     * pela posição do designado num pool que ELA MESMA montava (`poolGlobal` +
+     * estratos + corte). Resultado: 25 "alcançáveis" contra 17 que de fato mexem,
+     * e — decisivo — apenas 1 dos 17 caía na classe. `interleaveFresh` e
+     * `FRESH_CANDIDATE_POOL` não são exportados, então aquele pool era uma
+     * RECONSTRUÇÃO, e 24 violações do pressuposto de prefixo eram o sintoma. Testar
+     * uma derivação sobre um pipeline reconstruído não testa nada — é a lição de
+     * 27/08 aplicada ao próprio instrumento que ia verificá-la.
+     *
+     * Esta versão usa apenas `would_enter`, `would_leave` (que a produção registra)
+     * e o `last_served` do serve-state podado. Nada é montado.
+     */
+    if (MODO === "porque") {
+      const cfg = cfgEm(tRefMs);
+      const wAbs = A.w ? Number(A.w[0]) : 100000;
+      const pv = provedorEm(vivoRO, wAbs, tRefMs, ENV);
+      let out;
+      try {
+        out = brief.buildBriefDiverse(corpus, params, cfg, tRefMs, sv.db, pv.fn);
+      } catch (e) {
+        res.push({ ts: r.ts, agent: r.agent, erro: String(e && e.message || e) });
+        continue;
+      }
+      const d = out.diffP2;
+      const est = (id) => String(lsPorque.get(id).m ?? null);
+      const entra = (d?.would_enter ?? []).map((id) => ({ id, estrato: est(id) }));
+      const sai = (d?.would_leave ?? []).map((id) => ({ id, estrato: est(id) }));
+      const estratosQueSaem = new Set(sai.map((x) => x.estrato));
+      const semParceiro = entra.filter((x) => !estratosQueSaem.has(x.estrato));
+      res.push({
+        ts: r.ts, agent: r.agent, rowid_corte: idProprio, w: wAbs,
+        churn: d ? d.churn : 0,
+        entra, sai,
+        /** Zero é o que a proposição exige. Qualquer valor > 0 a refuta. */
+        entradas_sem_saida_no_mesmo_estrato: semParceiro.length,
+        detalhe_violacao: semParceiro,
+        boosts_emitidos: pv.emitidos.size,
+      });
+      continue;
+    }
+
     for (const w of doses) {
       const dose = w ?? r.w;
       const pv = provedorEm(vivoRO, dose, tRefMs, ENV);
@@ -522,7 +591,32 @@ if (MODO === "campo" || MODO === "dose") {
   }
   sv.db.close();
 
-  if (MODO === "campo") {
+  if (MODO === "porque") {
+    const n = res.filter((x) => !x.erro).length;
+    const comChurn = res.filter((x) => !x.erro && x.churn > 0);
+    const viol = res.filter((x) => (x.entradas_sem_saida_no_mesmo_estrato ?? 0) > 0);
+    saida.porque = {
+      estados: n, erros: res.filter((x) => x.erro).length,
+      w_absurdo: res.find((x) => x.w)?.w ?? null,
+      estados_com_mudanca: comChurn.length,
+      ids_que_entram: comChurn.reduce((a, x) => a + x.entra.length, 0),
+      /**
+       * O teste da Proposição 1. Zero é o que ela exige: toda entrada acontece
+       * dentro de um estrato em que houve saída. Qualquer violação a refuta, e
+       * nesse caso a derivação NÃO vai para o paper.
+       */
+      entradas_sem_saida_no_mesmo_estrato: viol.reduce(
+        (a, x) => a + x.entradas_sem_saida_no_mesmo_estrato, 0),
+      estados_violando: viol.length,
+      proposicao_1_sobrevive: viol.length === 0,
+      detalhe: res,
+    };
+    if (viol.length > 0) {
+      falhou = true;
+      console.error(`⛔ PROPOSIÇÃO 1 REFUTADA em ${viol.length} estados: id entrou vindo`);
+      console.error("   de estrato onde ninguém saiu ⇒ o bônus atravessou estrato.");
+    }
+    } else if (MODO === "campo") {
     const n = res.filter((x) => !x.erro).length;
     const okC = res.filter((x) => x.bate_churn).length;
     const okE = res.filter((x) => x.bate_entra).length;
@@ -571,6 +665,15 @@ if (MODO === "campo" || MODO === "dose") {
 
 if (MODO === "gaps") {
   const tRefMs = msDe(exigir("t-ref"));
+  /**
+   * Obrigatório e sem default: o maior `w_min` é resultado do `--modo dose`, e um
+   * default aqui seria exatamente o cache sem invalidação que este bloco documenta.
+   */
+  const W_MIN_MAX = Number(exigir("w-min-max"));
+  if (!Number.isFinite(W_MIN_MAX) || W_MIN_MAX <= 0) {
+    console.error("--w-min-max precisa ser um número positivo (vem do artefato de dose)");
+    process.exit(2);
+  }
   const agentes = exigir("agentes").split(",").map((x) => x.trim()).filter(Boolean);
   const sv = serveStateDerivado(vivoRO, tRefMs, TMP);
   const cfg = cfgEm(tRefMs);
@@ -670,18 +773,28 @@ if (MODO === "gaps") {
      * 1. aquele máximo é da coluna FILTRADA (só pares com chunk do estudo). Sem filtro,
      *    no mesmo pool e no mesmo instante, o máximo é maior;
      * 2. e nenhuma das duas colunas limita o mecanismo, porque o boost precisa vencer a
-     *    DISTÂNCIA até os 2 slots de cobertura, não o PASSO até o vizinho. Medido: 2 dos
-     *    17 estados só viram em `w = 7,5`, que em S1 vale boost 0,16125 — 3,1x o maior
-     *    passo adjacente do pool. Passo não cota distância.
+     *    DISTÂNCIA até os 2 slots de cobertura, não o PASSO até o vizinho.
+     *
+     * ⚠️ A primeira versão deste bloco DIGITAVA `7.5` como o maior `w_min` observado, e
+     * afirmava em prosa que "2 dos 17 estados só viram em w = 7,5". As duas coisas
+     * ficaram FALSAS quando o grid fino (23 doses) mostrou máximo 4,4 — a coincidência
+     * com o topo da banda registrada era resolução de grid, não achado. Era prosa
+     * afirmando resultado calculado dentro do próprio instrumento que existe para
+     * impedir isso. Agora o valor vem de `--w-min-max`, exigido por este modo, e o
+     * artefato de dose é a única fonte dele.
      */
     calibracao_do_item_7: {
       gap_max_publicado_filtrado: 0.031808734967844865,
       gap_max_observado_filtrado: glob.so_pares_com_chunk_do_estudo.gap_max,
       gap_max_observado_sem_filtro: glob.todos_os_pares.gap_max,
-      w_min_observado_no_pipeline_real: 7.5,
-      boost_S1_em_w_7_5: 7.5 * p2.P2_DELTA_CUT * 0.5,
+      w_min_max_fonte: A["w-min-max"] ? "argumento --w-min-max" : null,
+      w_min_max_observado: W_MIN_MAX,
+      boost_S1_no_w_min_max: W_MIN_MAX * p2.P2_DELTA_CUT * 0.5,
+      razao_boost_sobre_passo_adjacente: glob.todos_os_pares.gap_max
+        ? (W_MIN_MAX * p2.P2_DELTA_CUT * 0.5) / glob.todos_os_pares.gap_max
+        : null,
       passo_adjacente_cota_a_distancia:
-        7.5 * p2.P2_DELTA_CUT * 0.5 <= (glob.todos_os_pares.gap_max ?? 0),
+        W_MIN_MAX * p2.P2_DELTA_CUT * 0.5 <= (glob.todos_os_pares.gap_max ?? 0),
     },
   };
   sv.db.close();

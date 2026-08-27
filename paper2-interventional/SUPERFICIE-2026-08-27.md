@@ -97,9 +97,12 @@ guarda que grita sozinho deixa de ser lido. A primeira versão desta seção cit
 `5.199 briefs` de uma janela `date('now','-7 day')`; em minutos virou 5.206, e o
 `--assert-json` pegou. É o mesmo defeito que já custou uma retratação aqui.
 
-O mecanismo, do código: comparador **lexicográfico** congela 8 dos 10 slots
-(`last_served` decide antes de `salience` ser consultada), sobram **2** slots
-rotativos, e bônus **aditivo** em `salience` só age lá. Medido em 350 briefs com
+O mecanismo, do código: comparador **lexicográfico** (`last_served` decide antes
+de `salience` ser consultada), e bônus **aditivo** em `salience` só age nos slots
+de cobertura — `freshSlots = 2` de 10. ⚠️ Esse 2 é **default de configuração**
+(`DIVERSITY_DEFAULTS`, sem override na unit nem no `.env` — verificado) e é
+**teto** dos slots preenchidos, não cota: `brief_log` não tem coluna de origem de
+slot, então a divisão 8/2 não é observável no registro. Medido em 350 briefs com
 replay fiel 350/350: teto de **17/350 = 4,86%** dos briefs, saturando em
 `w ∈ (4,0; 4,4]`.
 

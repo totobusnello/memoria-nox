@@ -23,8 +23,9 @@
 3. a exposição é governada pelo **tamanho da coleção**, não pela relevância que o
    próprio sistema atribui: `r = −0,728` entre `log₁₀(tamanho)` e `% exposto`, e
    nenhuma sobreposição entre tipos grandes (10,7–27,0%) e pequenos (32,5–100%);
-4. o mecanismo é dedutível do código — um comparador **lexicográfico** congela 8 de 10
-   slots do brief — e prediz um **teto** para qualquer bônus aditivo no score;
+4. o mecanismo é dedutível do código — um comparador **lexicográfico** deixa o score
+   como coordenada **subordinada**, e só os slots de cobertura (`freshSlots = 2` de 10)
+   o consultam — e isso prediz um **teto** para qualquer bônus aditivo no score;
 5. testamos a predição com uma intervenção de dose crescente em produção, com replay
    fiel ao pipeline real em **350 de 350** briefs: resposta monótona, teto de
    **4,86%** dos briefs, saturação em `w ∈ (4,0; 4,4]`;
@@ -65,9 +66,11 @@ lá, e nada mais que isso:
 - corpus SQLite com FTS5 + vetores; **67.187** chunks no instante da medição;
 - **duas** superfícies de exposição, e só duas: o **brief proativo** (`/api/brief`,
   consumido no início de cada sessão de agente, 10 itens) e a **busca** sob demanda;
-- o brief compõe 10 slots: 8 pelo pool principal ordenado por `salience`, e **2**
-  reservados a um pool de *cobertura* ordenado por um comparador **lexicográfico**
-  `(last_served ASC, salience DESC)`;
+- o brief compõe 10 slots: `n − freshSlots` pelo pool principal ordenado por
+  `salience`, e até `freshSlots` reservados a um pool de *cobertura* ordenado por
+  um comparador **lexicográfico** `(last_served ASC, salience DESC)`. Em produção
+  `freshSlots = 2` — default de configuração sem override, e **teto** dos slots
+  preenchidos, não cota (§5.3);
 - 6 agentes, ~670 briefs/dia.
 
 ⚠️ Declarar explicitamente que é **um** sistema. A generalização do §7 é **dedutiva**
@@ -231,18 +234,173 @@ Seção obrigatória, e ela vem **antes** da discussão de propósito:
 
 ## 5. Mecanismo
 
-**[FALTA — derivação formal, ~1 página.]** O que ela tem de conter:
+Esta seção é dedutiva. O que ela prova vale para qualquer ranker com a mesma
+forma, e é a razão pela qual um estudo em `n = 1` sistema ainda diz algo geral
+(§7). Toda a estrutura vem de sete linhas de código, citadas em vez de
+parafraseadas.
 
-- o comparador como ordem lexicográfica sobre `(last_served, −salience)`;
-- proposição: um bônus `b > 0` aplicado a `salience` altera a ordem **apenas** entre
-  itens com `last_served` idêntico. Prova imediata da definição;
-- corolário (o teto): a fração de decisões alteráveis é limitada pela fração de
-  decisões que caem dentro de estrato — quantidade **medível**, e medida em §4.4;
-- corolário 2 (saturação): existe `b*` finito acima do qual nenhuma ordem muda mais,
-  a saber `b* = max` gap intra-estrato **ao longo da distância percorrida** — e é por
-  isso que o gap **adjacente** não é a grandeza certa (§4.4);
-- e a consequência de desenho: para mover uma superfície de capacidade fixa é preciso
-  mudar a **coordenada dominante** ou a **capacidade**, não o score subordinado.
+### 5.1 O objeto
+
+Seja `P` o conjunto de candidatos elegíveis (o *pool*). Cada `c ∈ P` tem:
+
+- `ℓ(c) ∈ ℝ ∪ {−∞}` — instante do último serve, com `−∞` para nunca-servido;
+- `s(c) ∈ ℝ` — a `salience`.
+
+O comparador de produção, verbatim (`src/api/brief-diversity.ts:130-140`):
+
+```ts
+const al = aLastServedMs ?? Number.NEGATIVE_INFINITY;
+const bl = bLastServedMs ?? Number.NEGATIVE_INFINITY;
+if (al !== bl) return al - bl;      // ASC: menos-recentemente-servido primeiro
+return bSalience - aSalience;       // tie: maior salience
+```
+
+Isto é exatamente a ordem lexicográfica `≺` sobre o par `(ℓ(c), −s(c))`:
+
+> `c ≺ c′` ⟺ `ℓ(c) < ℓ(c′)`, ou `ℓ(c) = ℓ(c′)` e `s(c) > s(c′)`.
+
+A intervenção é uma função `b : P → ℝ₊`, nula fora do conjunto designado `D`. Ela
+entra em um único ponto (`src/api/brief.ts:612-614`):
+
+```ts
+const eff = (c) => c.salience + (boosts?.get(c.row.id) ?? 0);
+ranked.sort((a, b) => coverageCompare(a.lastServedMs, eff(a), b.lastServedMs, eff(b)));
+```
+
+Ou seja: `b` desloca **apenas** o segundo argumento de `coverageCompare`. Escreva
+`≺_b` para a ordem resultante.
+
+### 5.2 Proposição 1 — invariância entre estratos
+
+*Para quaisquer `c, c′` com `ℓ(c) ≠ ℓ(c′)`, a ordem relativa de `c` e `c′` é a
+mesma sob `≺` e sob `≺_b`, para toda `b`.*
+
+**Prova.** Se `ℓ(c) ≠ ℓ(c′)`, o comparador retorna na primeira linha, cujo valor
+`al − bl` não depende de nenhum dos argumentos de `salience`. Logo `b` não pode
+alterá-lo. ∎
+
+Defina `c ∼ c′` ⟺ `ℓ(c) = ℓ(c′)`. As classes de equivalência são os **estratos**.
+Note que todos os nunca-servidos caem num único estrato (`ℓ = −∞`).
+
+**Corolário 1 (a ordem é uma concatenação).** A sequência ordenada sob `≺_b` é a
+concatenação, sobre os estratos em ordem crescente de `ℓ`, de cada estrato
+ordenado internamente por `−s_b`. Em consequência, **`b` permuta dentro de
+estratos e nunca move um item de um estrato para outro.**
+
+### 5.3 Corolário 2 — o teto, e onde ele vive
+
+A superfície tem capacidade fixa: dos 10 slots do brief, o pool de cobertura
+alimenta no máximo `K = freshSlots`. Em produção `K = 2`, e a procedência desse
+número precisa ser dita com cuidado, porque ele **não** é medido no log:
+
+- é o default `DIVERSITY_DEFAULTS.freshSlots = 2`, sobrescrevível por
+  `NOX_BRIEF_DIV_FRESH_SLOTS`, e **não há override** nem na unit systemd nem no
+  `.env` — verificado;
+- é um **teto**, não uma cota: o laço de preenchimento sai em
+  `if (freshGot >= freshSlots) break`, então um brief pode ter menos;
+- e `brief_log` **não tem coluna** que marque a origem do slot, logo a divisão
+  "8 principais + 2 de cobertura" não é observável no registro. É configuração
+  mais código, e está declarada como tal.
+
+O conjunto servido pelo pool de cobertura é o prefixo de tamanho `≤ K` de `≺_b`.
+
+*O conjunto servido muda sob `b` somente se existir um estrato que contenha ao
+mesmo tempo um item selecionado e um não-selecionado.*
+
+**Prova.** Por Corolário 1, `b` só permuta dentro de estratos. Um estrato
+inteiramente contido no prefixo tem seus itens permutados entre posições todas
+selecionadas ⇒ o **conjunto** não muda. Um estrato inteiramente fora do prefixo,
+idem. Resta o estrato que **atravessa** o corte, e por Corolário 1 há no máximo
+um. ∎
+
+Três consequências, e as três são mensuráveis em vez de argumentáveis:
+
+1. o teto de decisões alteráveis é a fração de estados em que o corte cai
+   **estritamente dentro** de um estrato **e** um designado está do lado
+   não-selecionado. Medido em §4.4: **17/350 = 4,86%**;
+2. **se `ℓ` fosse injetiva, `b` não teria efeito nenhum.** Todo estrato seria
+   unitário, nada atravessaria o corte, e a intervenção seria identicamente
+   inerte. Todo o espaço de manobra da intervenção vem de **empates na
+   coordenada dominante** — no nox-mem, do estrato dos nunca-servidos e da
+   resolução de segundo de `served_at`;
+3. o teto **não é um parâmetro do desenho**: é uma propriedade da distribuição de
+   `ℓ` no pool, que o próprio tráfego produz.
+
+### 5.4 Corolário 3 — saturação, e por que passo não é a grandeza
+
+Dentro do estrato que atravessa o corte, a ordem é por `−s_b`. Seja `c_K` o item
+selecionado de menor posição nesse estrato (o que está imediatamente acima do
+corte). Um designado `d` não-selecionado entra no conjunto servido se e somente se
+
+```
+b(d)  >  s(c_K) − s(d)
+```
+
+O lado direito é uma **distância até o corte**, não o passo até o vizinho
+imediato de `d`. Como o pool é finito e há finitos estados, existe
+
+```
+b* = max sobre os estados  ( s(c_K) − s(d) )   <  ∞
+```
+
+e para toda `b > b*` nenhuma ordem mais muda: **a saturação é uma identidade, não
+um limiar escolhido.** Medida: `b*` corresponde a `w ∈ (4,0 ; 4,4]`, com
+`w_min` variando **220×** entre estados (0,02 a 4,4).
+
+⚠️ **É aqui que um gatilho de monitoramento erra.** O item 7 do registro vigiava
+`max_j (s(c_j) − s(c_{j+1}))`, o maior passo entre **adjacentes**. Vale sempre
+`passo ≤ distância`, e medido: o maior `w_min` (4,4) vale bônus 0,0946, **1,79×**
+o maior passo adjacente do pool (0,05272). Um gatilho calibrado no passo fica
+**verde enquanto o canal satura** — foi o que forçou a reimplementação do item 7
+como a identidade `churn(w_servido) = churn(w_absurdo)`.
+
+### 5.5 A consequência de desenho
+
+Uma superfície de capacidade fixa ordenada lexicograficamente é **imune, por
+construção, a intervenções na coordenada subordinada**. Para mover o que o agente
+vê há três alavancas, e o score não é uma delas:
+
+| alavanca | efeito |
+|---|---|
+| a coordenada **dominante** (`ℓ`: política de rotação) | reordena entre estratos — sem teto |
+| a **capacidade** `K` | muda quantos estratos atravessam o corte |
+| a **elegibilidade** (quem entra em `P`) | muda o objeto, não a ordem |
+| ~~o score subordinado~~ | limitado por Corolário 2, saturando em `b*` |
+
+E é a mesma conclusão da §3 por outro caminho: a exposição é governada por
+capacidade, não por relevância. A §3 mede isso na população de chunks; a §5
+prova por que nenhum ajuste de relevância poderia mudá-lo.
+
+### 5.6 O teste que esta derivação tem de passar
+
+A derivação é falsificável, e vale contar como a primeira tentativa de testá-la
+**falhou por defeito do teste** — porque o episódio pertence ao §6 e é a razão de
+o teste atual ter a forma que tem.
+
+**Tentativa 1, inválida.** Classificar os 350 estados pela posição do designado no
+pool ordenado: fora do pool / já selecionado / em estrato diferente do corte /
+no estrato do corte. A predição era que a última classe tivesse exatamente as 17
+do teto. Resultado: **25**, e — decisivo — apenas **1 das 17** caía nela.
+`interleaveFresh` e `FRESH_CANDIDATE_POOL` **não são exportados** pelo binário de
+produção, então aquele pool era uma **reconstrução**, e as **24** violações do
+pressuposto de prefixo eram o sintoma. Testar uma derivação contra um pipeline
+reconstruído não testa a derivação: testa a reconstrução.
+
+**Teste 2, sobre grandezas registradas.** A Proposição 1 tem uma consequência que
+não exige montar pool nenhum:
+
+> Em todo estado em que o conjunto servido muda, cada id que **entra** tem de
+> compartilhar `last_served` com algum id que **sai**.
+
+Se um id entra vindo de um estrato em que ninguém saiu, o bônus atravessou
+estrato e a Proposição 1 é falsa. As três grandezas — `would_enter`,
+`would_leave` e `last_served` no serve-state podado — são **registradas** pela
+produção e pelo replay validado 350/350, não derivadas.
+
+`replay-oportunidade.mjs --modo porque --corte rowid --so-ts-file ts-350.txt`
+aborta se houver uma única entrada sem parceiro.
+
+**[PENDENTE — rodada em curso.]** Resultado a inserir aqui.
 
 ## 6. Defeitos de instrumento — e reportá-los é parte da contribuição
 
@@ -260,6 +418,8 @@ método**. Catálogo, com o custo medido de cada um:
 | telemetria de busca por chunk **apagada** por commit de fim de dia (`7fdaab4f`, 2026-05-19): `INSERT` de 23 colunas trocado por um de 7, deixando **13 colunas sem escritor** e **sem `CUT`** no título — a convenção deste projeto para retirada deliberada | comparação entre superfícies **dentro de janela** é impossível, e passou **3,3 meses** sem ninguém notar. Além disso um campo sem escritor (`requesting_agent`) foi por mim usado como se fosse assinatura de origem: nulo para todo mundo não distingue nada |
 | comparação de contagem **filtrada** com **não-filtrada** | inverteu o sinal de uma conclusão: 617×245 cumulativo vira 245×≥151 na janela comum |
 | série viva citada como instantâneo | um `n` mudou em minutos e a asserção pegou |
+| **teste de uma derivação sobre pool RECONSTRUÍDO** (`interleaveFresh` não é exportado) | classificou 25 estados como alteráveis contra 17 reais, e só **1 das 17** caía na classe; 24 violações do pressuposto de prefixo eram o sintoma. O teste válido usa só grandezas **registradas** (§5.6) |
+| valor **digitado** dentro do próprio instrumento de verificação | `w_min` máximo ficou fixado em `7,5` no script e envelheceu para falso quando o grid fino deu `4,4`; agora é argumento obrigatório vindo do artefato de dose |
 
 **[FALTA]** decidir se este catálogo é seção do paper ou **apêndice + paper de métodos
 separado**. Recomendação: seção curta aqui (as 4 linhas que afetam os números
