@@ -150,6 +150,23 @@ def main():
     st_na_janela = um(c, """SELECT COUNT(*) FROM search_telemetry
         WHERE ts >= ? AND top_chunk_ids IS NOT NULL AND top_chunk_ids <> ''""", ini)
 
+    # ─── a telemetria de busca mede o CANÁRIO, e o teste é o minuto do cron ────
+    #
+    # O cron roda `22,52 * * * *`. Se as linhas se agrupam nesses minutos, a tabela
+    # mede a sonda de saúde, não o agente.
+    #
+    # ⚠️ O teste ANTERIOR estava errado no motivo: eu havia usado "`requesting_agent`
+    # não populado" como evidência de que era o canário. Mas essa coluna é nula para
+    # TODOS — o `INSERT` que a preenchia foi apagado em 2026-05-19 (ver
+    # `instrumento_apagado`). Coluna vazia por remoção de escritor não distingue
+    # canário de agente. O minuto distingue.
+    MIN_CANARIO = (21, 22, 23, 51, 52, 53)
+    st_jan = c.execute("""SELECT CAST(substr(ts,15,2) AS INTEGER) m, COUNT(*)
+                            FROM search_telemetry WHERE ts >= ? AND ts < ?
+                           GROUP BY m""", (d7ini, fim)).fetchall()
+    st_n = sum(n for _, n in st_jan)
+    st_can = sum(n for m, n in st_jan if m in MIN_CANARIO)
+
     out = {
         "gerado_em": subprocess.run(["date", "-u", "+%Y-%m-%dT%H:%M:%SZ"],
                                     capture_output=True, text=True).stdout.strip(),
@@ -191,8 +208,34 @@ def main():
                       "acesso). O bound sustenta 'invisibilidade no MÁXIMO tanto', "
                       "não o contrário — para invisibilidade alta use o cumulativo."),
         },
-        "instrumento_desligado": {
+        "canario_vs_agente": {
+            "janela_7d": [d7ini, fim],
+            "cron": "22,52 * * * *",
+            "linhas": st_n,
+            "nos_minutos_do_canario": st_can,
+            "pct_canario": round(100 * st_can / st_n, 1) if st_n else None,
+            "restante_por_dia": round((st_n - st_can) / 7, 1) if st_n else None,
+            "conclusao": ("a tabela mede a sonda de saúde do cron, não o agente; "
+                          "o que sobra é ~2-3 linhas/dia"),
+        },
+        "instrumento_apagado": {
             "tabela": "search_telemetry.top_chunk_ids",
+            "diagnostico": (
+                "NÃO é retirada deliberada: o commit 7fdaab4f ('eod: 2026-05-19 — "
+                "nox-mem repair (import mismatch)') APAGOU o INSERT de 23 colunas "
+                "(top_chunk_ids, top_scores, requesting_agent, reason_boost_*, "
+                "reranker_*) num commit de fim de dia que também mexeu em CONTEXT.md "
+                "e memória de agentes. Sobrou o INSERT de 7 colunas em search.ts:608. "
+                "Este projeto REGISTRA retirada deliberada com 'CUT' no título do "
+                "commit (ex.: 'CUT E05b reason-boost — bias arquitetural confirmado'); "
+                "não existe CUT para esta telemetria. Ausência de CUT ⇒ regressão, "
+                "não decisão — e ninguém notou por 3,3 meses."),
+            "colunas_sem_escritor": ["top_chunk_ids", "top_scores", "requesting_agent",
+                                     "reason_boost_applied", "reason_relations_used",
+                                     "reason_boost_mode", "was_temporal_query",
+                                     "temporal_boost_mode", "reranker_mode",
+                                     "reranker_top_k_in", "reranker_top_k_out",
+                                     "reranker_latency_ms", "reranker_position_changes"],
             "linhas_totais_serie_viva": st_tot,
             "linhas_com_ids_serie_viva": st_ids,
             "ultimo_com_ids": st_ultimo,

@@ -111,9 +111,22 @@ semana, visto pelo lado da intervenção.
 
 ⚠️ **Comparação brief-vs-busca DENTRO de janela é impossível hoje.**
 `search_telemetry.top_chunk_ids` — o único instrumento com timestamp por chunk —
-teve 6.150 linhas populadas em maio/2026 e **zero** de 2026-06-04 em diante; parou
-em **2026-05-19 14:47:04**. Instrumentação que existe e está desligada, quarta
-ocorrência dessa classe nesta linha de trabalho.
+parou em **2026-05-19 14:47:04** e tem **zero** linhas na janela comum.
+
+E aqui a classificação mudou depois de eu procurar o motivo, o que importa porque
+"desligada de propósito" seria escolha de desenho a respeitar e "apagada" é
+regressão a consertar. O commit `7fdaab4f` (*"eod: 2026-05-19 — nox-mem repair
+(import mismatch)"*) **removeu** o `INSERT` de 23 colunas junto com o tipo
+`topChunkIds?: number[]`, num commit de fim de dia que também mexeu em
+`CONTEXT.md` e em memória de agentes; sobrou o `INSERT` de 7 colunas em
+`src/search.ts:608`. **13 colunas** ficaram sem nenhum escritor
+(`top_chunk_ids`, `top_scores`, `requesting_agent`, os 3 `reason_boost_*`, os 2
+`temporal_*`, os 5 `reranker_*`).
+
+Este projeto **registra** retirada deliberada com `CUT` no título do commit (ex.:
+*"CUT E05b reason-boost — bias arquitetural confirmado"*). **Não existe `CUT`
+para esta telemetria** ⇒ regressão, sem ninguém notar por 3,3 meses. Logo religar
+o escritor é proposta legítima, não violação de desenho.
 
 ⚠️ **E a comparação INVERTE quando escopada.** Cumulativamente a busca alcança 617
 das 865 entities curadas contra 245 do brief, o que sugere "a busca alcança o
@@ -133,11 +146,18 @@ Inventário, medido:
 
 | candidato | estado |
 |---|---|
-| `search_telemetry` (buscas/dia) | ⛔ **é o canário, não o agente.** 41–57/dia em 14 dias, `requesting_agent` **não populado**, e 48 = 2/hora × 24 = `semantic-canary.sh` do cron |
+| `search_telemetry` (buscas/dia) | ⛔ **é o canário, não o agente.** Janela fechada `[20/08, 27/08)`: **325 de 343 linhas (94,8%)** caem nos minutos do cron `22,52 * * * *` (± 1 min) do `semantic-canary.sh`. Sobra **2,6 linha/dia** que possa ser agente |
 | `answer_telemetry` | ⛔ **0 linhas** |
 | `confidence_eval_log` | ⛔ **0 linhas** |
 | `agent_events` | ⛔ **0 linhas** |
 | diversidade de cobertura por dia (`brief_log`) | ✅ tem variância real (35 → 49 → 87 → 193 → 141 distintos/dia) mas ⚠️ **não estacionária**, com mudança de regime em 21–22/08 |
+
+⚠️ **A evidência do canário foi trocada, e o motivo é a mesma lição.** A primeira
+versão desta linha apoiava a conclusão em *"`requesting_agent` não populado"*.
+Isso não distingue nada: aquela coluna é nula para **todo mundo** porque o
+escritor dela foi apagado no `7fdaab4f` (§4). Um campo sem escritor não é
+assinatura de origem — é ausência de instrumento. O teste que separa de fato é o
+**minuto do cron**, acima, e ele é forte: 94,8% em dois minutos por hora.
 
 As três tabelas que mediriam qualidade voltada ao agente estão **vazias**. Logo a
 escolha honesta é uma de duas: instrumentar algo novo (trabalho real, atrasa o

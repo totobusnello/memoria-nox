@@ -219,7 +219,9 @@ Seção obrigatória, e ela vem **antes** da discussão de propósito:
 
 - **nenhum efeito sobre o agente.** Não há desfecho a jusante instrumentado: três
   tabelas de qualidade voltada ao agente com **0 linhas**, e a telemetria de busca
-  registra a **sonda de saúde do cron** (48/dia = 2/hora × 24), não o agente;
+  registra a **sonda de saúde do cron** — em janela fechada de 7 dias, **325 de 343
+  linhas (94,8%)** caem nos dois minutos por hora em que o cron dispara, sobrando
+  **2,6 linha/dia** atribuível a agente;
 - **nada randomizado.** Toda comparação temporal é antes/depois. A comparação contra o
   agregado pós-gate mede **composição de dias** (p = 0,0326 e inutilizável); a
   comparação adjacente defensável é subpotente (~7%);
@@ -255,7 +257,7 @@ método**. Catálogo, com o custo medido de cada um:
 | controle positivo rodado sobre pipeline **reimplementado** | produziu "dose absurda ⇒ efeito zero", que virou retratação central. O pipeline real dá **20** eventos |
 | grid grosso | saturação *pareceu* cair exatamente no topo da banda registrada; com 23 doses está em `(4,0 ; 4,4]` |
 | gatilho de monitoramento calibrado sobre gap **adjacente** | vigia grandeza que não limita o mecanismo: fica **verde enquanto satura** |
-| telemetria de busca por chunk **desligada** desde 2026-05-19 | comparação entre superfícies **dentro de janela** é impossível |
+| telemetria de busca por chunk **apagada** por commit de fim de dia (`7fdaab4f`, 2026-05-19): `INSERT` de 23 colunas trocado por um de 7, deixando **13 colunas sem escritor** e **sem `CUT`** no título — a convenção deste projeto para retirada deliberada | comparação entre superfícies **dentro de janela** é impossível, e passou **3,3 meses** sem ninguém notar. Além disso um campo sem escritor (`requesting_agent`) foi por mim usado como se fosse assinatura de origem: nulo para todo mundo não distingue nada |
 | comparação de contagem **filtrada** com **não-filtrada** | inverteu o sinal de uma conclusão: 617×245 cumulativo vira 245×≥151 na janela comum |
 | série viva citada como instantâneo | um `n` mudou em minutos e a asserção pegou |
 

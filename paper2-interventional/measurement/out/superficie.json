@@ -1,5 +1,5 @@
 {
-  "gerado_em": "2026-08-27T20:25:03Z",
+  "gerado_em": "2026-08-27T20:47:40Z",
   "db": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
   "corpus": 67187,
   "cumulativo_exato": {
@@ -107,9 +107,9 @@
       "2026-08-20",
       "2026-08-27"
     ],
-    "slots_historicos_ATE_AGORA_serie_viva": 579983,
+    "slots_historicos_ATE_AGORA_serie_viva": 580053,
     "desde": "2026-06-04 17:51:26",
-    "ate": "2026-08-27 20:22:13",
+    "ate": "2026-08-27 20:37:06",
     "distintos_7d": 201,
     "slots_7d": 46295,
     "briefs_7d": 4632,
@@ -126,8 +126,36 @@
     "entities_busca_limite_inferior": 151,
     "aviso": "busca é LIMITE INFERIOR (last_accessed_at guarda só o último acesso). O bound sustenta 'invisibilidade no MÁXIMO tanto', não o contrário — para invisibilidade alta use o cumulativo."
   },
-  "instrumento_desligado": {
+  "canario_vs_agente": {
+    "janela_7d": [
+      "2026-08-20",
+      "2026-08-27"
+    ],
+    "cron": "22,52 * * * *",
+    "linhas": 343,
+    "nos_minutos_do_canario": 325,
+    "pct_canario": 94.8,
+    "restante_por_dia": 2.6,
+    "conclusao": "a tabela mede a sonda de saúde do cron, não o agente; o que sobra é ~2-3 linhas/dia"
+  },
+  "instrumento_apagado": {
     "tabela": "search_telemetry.top_chunk_ids",
+    "diagnostico": "NÃO é retirada deliberada: o commit 7fdaab4f ('eod: 2026-05-19 — nox-mem repair (import mismatch)') APAGOU o INSERT de 23 colunas (top_chunk_ids, top_scores, requesting_agent, reason_boost_*, reranker_*) num commit de fim de dia que também mexeu em CONTEXT.md e memória de agentes. Sobrou o INSERT de 7 colunas em search.ts:608. Este projeto REGISTRA retirada deliberada com 'CUT' no título do commit (ex.: 'CUT E05b reason-boost — bias arquitetural confirmado'); não existe CUT para esta telemetria. Ausência de CUT ⇒ regressão, não decisão — e ninguém notou por 3,3 meses.",
+    "colunas_sem_escritor": [
+      "top_chunk_ids",
+      "top_scores",
+      "requesting_agent",
+      "reason_boost_applied",
+      "reason_relations_used",
+      "reason_boost_mode",
+      "was_temporal_query",
+      "temporal_boost_mode",
+      "reranker_mode",
+      "reranker_top_k_in",
+      "reranker_top_k_out",
+      "reranker_latency_ms",
+      "reranker_position_changes"
+    ],
     "linhas_totais_serie_viva": 13010,
     "linhas_com_ids_serie_viva": 6318,
     "ultimo_com_ids": "2026-05-19 14:47:04",

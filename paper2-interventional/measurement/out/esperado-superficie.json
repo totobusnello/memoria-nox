@@ -47,10 +47,6 @@
     "entities_brief_exato": 245,
     "entities_busca_limite_inferior": 151
   },
-  "instrumento_desligado": {
-    "ultimo_com_ids": "2026-05-19 14:47:04",
-    "com_ids_na_janela_comum": 0
-  },
   "gradiente_de_curadoria": [
     {
       "tipo": "other",
@@ -130,5 +126,35 @@
       "exposto": 4,
       "pct": 36.4
     }
-  ]
+  ],
+  "canario_vs_agente": {
+    "janela_7d": [
+      "2026-08-20",
+      "2026-08-27"
+    ],
+    "cron": "22,52 * * * *",
+    "linhas": 343,
+    "nos_minutos_do_canario": 325,
+    "pct_canario": 94.8,
+    "restante_por_dia": 2.6
+  },
+  "instrumento_apagado": {
+    "colunas_sem_escritor": [
+      "top_chunk_ids",
+      "top_scores",
+      "requesting_agent",
+      "reason_boost_applied",
+      "reason_relations_used",
+      "reason_boost_mode",
+      "was_temporal_query",
+      "temporal_boost_mode",
+      "reranker_mode",
+      "reranker_top_k_in",
+      "reranker_top_k_out",
+      "reranker_latency_ms",
+      "reranker_position_changes"
+    ],
+    "ultimo_com_ids": "2026-05-19 14:47:04",
+    "com_ids_na_janela_comum": 0
+  }
 }
