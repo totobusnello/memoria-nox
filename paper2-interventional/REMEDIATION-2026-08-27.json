@@ -1,0 +1,265 @@
+{
+ "medido_em": "2026-08-27T09:00:00Z",
+ "gatilho": "3a rodada adversarial (Codex gpt-5.6-sol), 3 defeitos de instrumento confirmados no codigo",
+ "procedencia_da_janela": {
+  "arquivo": "/root/.openclaw/logs/p2-serving.ndjson",
+  "sha256": "ca7ff52a7242bb031e5661fcab9d37a130a1f3b8331826175abf6ff0b382310a",
+  "bytes": 1571982,
+  "linhas": 3542,
+  "ts_min": "2026-08-21T22:57:48.194Z",
+  "ts_max": "2026-08-27T09:07:06.123Z"
+ },
+ "sondas": {
+  "quantas": 5,
+  "linhas_em_brief_log": 25,
+  "brief_ids": [
+   "473f85e8-43ae-4883-baa2-2d76407af941",
+   "c48e8353-cd95-4bd5-997b-dc921e2a0cac",
+   "6ff2d9c4-79f2-4526-8eb5-c42d60bbeea6",
+   "90a105f5-ef33-4135-8e54-b4e978bbb1ee",
+   "66977ec1-2809-44df-91b8-c158ce0e68e8"
+  ],
+  "duas_dentro_da_janela_pos_regra": [
+   "2026-08-26 20:28:55",
+   "2026-08-26 20:28:56"
+  ],
+  "linhas_que_o_corte_temporal_removia": 3735,
+  "fator_de_excesso": 149.4,
+  "agent_null_nao_serve_como_marcador": {
+   "linhas": 15569,
+   "briefs": 5889,
+   "desde": "2026-06-04 17:51:26"
+  }
+ },
+ "descontaminacao_correta": {
+  "corpus": "/var/lib/nox-mem/epochs/e20260826T060003Z.db",
+  "T_REF": "2026-08-26 20:35:00",
+  "observado": {
+   "pool": 108,
+   "grupos_last_served": 44,
+   "posicao_primeiro_estudo": 3,
+   "pares_adjacentes_no_grupo": 38,
+   "gaps_exatamente_zero": 11,
+   "gaps_positivos": 27,
+   "gap_maximo": 0.031808734967844865
+  },
+  "descontaminado": {
+   "pool": 108,
+   "grupos_last_served": 43,
+   "posicao_primeiro_estudo": 0,
+   "pares_adjacentes_no_grupo": 38,
+   "gaps_exatamente_zero": 11,
+   "gaps_positivos": 27,
+   "gap_maximo": 0.031808734967844865
+  },
+  "muda": [
+   "grupos_last_served",
+   "posicao_primeiro_estudo"
+  ],
+  "nao_muda": [
+   "pool",
+   "pares",
+   "zeros",
+   "gaps_positivos",
+   "gap_maximo"
+  ],
+  "correcoes_minhas_que_ficam_RETIRADAS": {
+   "19_de_27": "ERRADA — o correto e 16/27, do rascunho",
+   "40_pares_13_zeros": "ERRADA — o correto e 38 pares / 11 zeros, do rascunho",
+   "origem_do_erro": "vinham do rollback temporal, nao da exclusao das sondas"
+  }
+ },
+ "definicoes_de_par_no_mesmo_instante": {
+  "adjacente_global": {
+   "pares": 67,
+   "zeros": 15,
+   "positivos": 52,
+   "gap_max": 0.05680873496784489
+  },
+  "adjacente_no_grupo_PUBLICADA": {
+   "pares": 38,
+   "zeros": 11,
+   "positivos": 27,
+   "gap_max": 0.031808734967844865
+  },
+  "todos_no_grupo": {
+   "pares": 60,
+   "zeros": 12,
+   "positivos": 48,
+   "gap_max": 0.055530958354663706
+  },
+  "ancoras_publicadas_reproduzidas": [
+   "pool=108",
+   "estudo_no_pool=55",
+   "grupos_last_served=44",
+   "nunca_servidos=0",
+   "posicao_primeiro_estudo=3",
+   "tamanhos_de_grupo chaves {1,2,3,4}",
+   "gap_maximo bate na 9a decimal"
+  ]
+ },
+ "saturacao": {
+  "gaps_positivos": [
+   0.0009302263,
+   0.0015299852,
+   0.0040011073,
+   0.0040011073,
+   0.0040011073,
+   0.0040011073,
+   0.0049313336,
+   0.0055310925,
+   0.0055310925,
+   0.0064613189,
+   0.0080888826,
+   0.0132605827,
+   0.0185386811,
+   0.0194689075,
+   0.0200686664,
+   0.0200686664,
+   0.025,
+   0.025,
+   0.025,
+   0.0265299852,
+   0.0265299852,
+   0.0265299852,
+   0.0265299852,
+   0.0265299852,
+   0.0290011073,
+   0.0305310925,
+   0.031808735
+  ],
+  "delta_cut": 0.043,
+  "vitorias_S1": {
+   "w=2.0": 16,
+   "w=4.0": 27,
+   "w=7.5": 27,
+   "w=100000": 27
+  },
+  "vitorias_S2": {
+   "w=2.0": 27,
+   "w=4.0": 27,
+   "w=7.5": 27
+  },
+  "menor_w_que_vence_todos_S1": 2.959,
+  "nota_nao_negatividade": "os 38 pares nao tem gap negativo POR CONSTRUCAO (ordenacao salience DESC dentro do empate); nao e achado empirico"
+ },
+ "instante_importa": {
+  "T_REF_1": "2026-08-26 22:00:00",
+  "T_REF_2": "2026-08-27 09:00:00",
+  "sem_sondas_nos_dois": {
+   "grupos": [
+    45,
+    41
+   ],
+   "qualificaveis": [
+    5,
+    7
+   ],
+   "menor_pos_qualificavel": [
+    24,
+    44
+   ],
+   "puros": [
+    15,
+    14
+   ],
+   "mistos": [
+    17,
+    13
+   ]
+  },
+  "efeito_so_das_sondas_em_T_REF_2": "NENHUM — 12h de trafego organico lavaram",
+  "corpus_que_producao_serve_hoje": "e20260827T060001Z.db (mais recente, NAO o do JSON de 26/08)"
+ },
+ "janela_fechada": {
+  "intervalo": [
+   "2026-08-26T20:28:00Z",
+   "2026-08-27T09:00:00Z"
+  ],
+  "regra_nova": {
+   "k": 11,
+   "n": 350,
+   "pct": 3.142857142857143,
+   "wilson95": [
+    1.7649,
+    5.5403
+   ]
+  },
+  "regra_velha_pos_gate_agregado": {
+   "k": 132,
+   "n": 2226,
+   "pct": 5.929919137466307,
+   "wilson95": [
+    5.0166,
+    6.9877
+   ]
+  },
+  "regra_velha_ultimo_dia": {
+   "k": 20,
+   "n": 574,
+   "pct": 3.484320557491289
+  },
+  "regra_velha_serie_diaria": {
+   "2026-08-23": [
+    42,
+    308
+   ],
+   "2026-08-24": [
+    49,
+    672
+   ],
+   "2026-08-25": [
+    21,
+    672
+   ],
+   "2026-08-26": [
+    20,
+    574
+   ]
+  },
+  "concentracao_nos_2_primeiros_dias": {
+   "eventos_pct": 68.94,
+   "n_pct": 44.02
+  },
+  "segmento_plano_25_26": {
+   "k": 41,
+   "n": 1246,
+   "pct": 3.290529695024077
+  },
+  "soma_das_horas_confere": true,
+  "comparacoes": {
+   "agregada_CONFUNDIDA": {
+    "dif_pp": -2.7871,
+    "newcombe95": [
+     -4.53,
+     -0.22
+    ],
+    "fisher_p": 0.03258,
+    "uso": "NAO USAR — mede composicao de dias"
+   },
+   "adjacente": {
+    "dif_pp": -0.3415,
+    "newcombe95": [
+     -2.64,
+     2.35
+    ],
+    "fisher_p": 0.8523,
+    "uso": "a defensavel; nao estabelece nada"
+   }
+  },
+  "numeros_do_rascunho_RETIRADOS": [
+   "8/268",
+   "20/560",
+   "11/310",
+   "2.212",
+   "2,9851%",
+   "3,5714%",
+   "-0,023 pp",
+   "z=-0,018"
+  ]
+ },
+ "nao_resolvido": [
+  "replay do pipeline completo (interleaveFresh, pickDedup, pinned, near-dup, LIMIT 400)",
+  "identificacao causal — todas as comparacoes sao antes/depois, nao randomizadas"
+ ]
+}
