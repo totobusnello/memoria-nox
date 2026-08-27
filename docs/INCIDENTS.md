@@ -36,6 +36,11 @@ Correção sobre a correção da entrada das 06:30: a linha `query 51x ... 1470m
 ### Aberto
 Falta a distribuição por chamada (`SELECT ts, latency_ms, ok FROM provider_cost WHERE caller='embed.embedQuery'`): se acompanhar as buscas, é o provider + a escada; se ficar estável em ~1,5s enquanto o search vai a 18s, o tempo está **depois** do embedding, e os candidatos passam a ser locais — KNN linear do `sqlite-vec` (67.024 × 3072 × 4B ≈ **823 MB varridos por query**), `ensureVecTable()` rodando DDL a cada busca, `loadExtension` ~3× por query e `countEmbedded()` contando 67k linhas antes de cada busca. A variância de 20× com a mesma query voltando em 852ms logo depois favorece cache de página, o que aponta mais pro scan do que pro provider.
 
+### Contexto cruzado (sessão `openclaw-vps-de`, mesma KVM, mesmo dia)
+O `openclaw-agent.sqlite` do agente `main` tem **896 MB** — 446 MB de `memory_embedding_cache` + 338 MB de `memory_index_chunks`, vetores como `embedding TEXT` num cache que nunca evicta (openclaw/openclaw#131089). **Schema do OpenClaw, não do nox-mem**, mas mesmo disco e mesmo page cache que os ~823 MB de `vec_chunks`. Se o scan for a causa, a pergunta seguinte é por que ele não fica em cache — e um vizinho de 896 MB é candidato direto.
+
+⚠️ **`ANALYZE` já foi testado e piorou** (55.933ms → 65.415ms nos 13 DBs, `sqlite_stat1` vazio antes). Não usar como tentativa de cura aqui.
+
 ### Relação com a entrada das 06:30
 Nenhuma causal, mas uma coincidência útil: o probe antigo bate no `/api/health`, que ficou rápido o tempo todo — por isso **não reiniciou nada** durante esta degradação. Se batesse no `/api/search`, teria reiniciado a API no meio de um provider lento, e o restart não consertaria nada. É exatamente o caso "processo vivo ⇒ nunca reiniciar" do PR #452.
 

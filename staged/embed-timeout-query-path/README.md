@@ -63,6 +63,14 @@ sqlite3 -header -column nox-mem.db \
 
 A variância de 20× (1,3s → 24s) com a mesma query voltando em 852ms logo depois favorece cache de página — o que aponta mais pro scan do que pro provider. **Medir antes de mexer.**
 
+### O vizinho de disco, que não é do nox-mem mas disputa a mesma RAM
+
+Medição da sessão `openclaw-vps-de` na mesma KVM (2026-08-19): o `openclaw-agent.sqlite` do agente `main` tem **896 MB**, sendo 446 MB de `memory_embedding_cache` + 338 MB de `memory_index_chunks` — vetores gravados como `embedding TEXT` (JSON: 66 KB onde caberiam 12 KB) num cache que nunca evicta (`pruneEmbeddingCacheIfNeeded()` existe mas é inalcançável; openclaw/openclaw#131089).
+
+Essas tabelas **não são do nox-mem** — schema do OpenClaw, DB diferente. Mas moram no mesmo disco e disputam o mesmo page cache que os ~823 MB de vetores do `vec_chunks`. Se a hipótese do scan se confirmar, a pergunta seguinte não é "por que o scan é lento" e sim "por que ele não fica em cache" — e 896 MB de vizinho passando por ali é candidato direto. `free -m` + o tamanho dos dois DBs decidem.
+
+⚠️ **Não rodar `ANALYZE` como tentativa de cura.** A mesma sessão testou: `sqlite_stat1` estava vazio nos 13 DBs, rodou `ANALYZE` em todos, e o tempo **piorou** (55.933ms → 65.415ms). Hipótese refutada com medição, não confirmada.
+
 ## Referências
 
 - `docs/INCIDENTS.md#2026-08-19-1452` — a entrada deste incident

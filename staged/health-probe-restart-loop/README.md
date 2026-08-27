@@ -98,7 +98,13 @@ Covered: healthy no-op · transient recovery on retry · first hung probe does *
 
 `scripts/vps-mirror/README.md` records the last sync as **2026-04-19**, and `docs/HANDOFF.md:256` shows the live script has since diverged — it lives in the `nox-scripts` repo (commit `3a723a8`), is `CHECK`-numbered (CHECK 10 = crontab line count), and runs **every 10 min**, not 5. These edits are written against the mirrored snapshot.
 
-**So: port the nox-mem-api block into the live file, do not overwrite it wholesale.** If the live cadence is `*/10`, keep `NOX_PROBE_FAIL_THRESHOLD=2` (20 min to act on a hung-but-listening API) or set it to `1` if 20 min of degradation is too long — every other guard (cooldown, breaker, classification) still holds either way.
+**So: port the nox-mem-api block into the live file, do not overwrite it wholesale.**
+
+**And on a `*/10` cadence, set `NOX_PROBE_FAIL_THRESHOLD=1`.** This is not a style preference — `nox-mem-api` has a documented **event-loop freeze** failure mode (process `active`, port bound, HTTP mute) whose only cure *is* `systemctl restart`. Under the new policy that lands in `hung` → restart after N consecutive probes, so a threshold of 2 at `*/10` doubles the MTTR of that specific failure from ~10 to ~20 minutes.
+
+The debounce is the **weakest of the three guards** and the only one that costs recovery time: with threshold `1`, the 10-min cooldown and the 3-restarts/hour breaker still cap the worst case at **≤3 restarts/h** (versus 12 today), and the classification still refuses to restart a booting or 5xx-serving process. Threshold `2` earns its keep on a `*/5` cadence, where 10 minutes of confirmation is cheap; at `*/10` it mostly buys a longer outage.
+
+**What the probe deliberately does not do:** run `PRAGMA integrity_check` before restarting. Corruption is *exposed* by a restart, not caused by it, so the check belongs in the post-restart triage and in `withOpAudit()` — not inside a 5-minute cron probe, where a full check over ~95k chunks would blow the interval and become its own outage.
 
 ## Deploy
 
