@@ -4,7 +4,55 @@
 
 ---
 
-## 🟢 Estado atual (2026-08-26, 20:20Z) — regra nova NO AR e inerte; seed declarada, esperando a rodada
+## 🔴 Estado atual (2026-08-27, 12:40Z) — emenda na TERCEIRA redação, estudo BLOQUEADO, próximo passo é depositar os blobs
+
+> **O estudo está bloqueado por decisão da própria emenda, não por impedimento
+> externo.** `Δ_cut` perdeu estatuto de parâmetro: o referente que o registro nomeia
+> ("salience spread at the brief cut") não existe — o comparador do pool é
+> lexicográfico e `salience` só desempata `last_served` idêntico. A banda
+> `{2,0 · 4,0 · 7,5}` está **invalidada como escala calibrada**; recalibração
+> prospectiva fica aberta.
+>
+> **Cinco revisões adversariais, quatro famílias.** GLM e Codex sobre a 1ª redação
+> (derrubaram 3 de 5 decisões, incluindo uma **regressão da FATAL F2** que eu havia
+> reintroduzido). DeepSeek, Kimi e Codex sobre a 2ª — DeepSeek e Kimi acharam
+> independentemente o mesmo bloqueador central (§3 e retratação 30 se anulavam), e o
+> Codex arbitrou a formulação. Recibos **e saídas** versionados em
+> `paper2-interventional/receipts/`.
+>
+> ⚠️ **O recibo do Codex da 3ª rodada é irregular e está declarado:** o wrapper deu
+> `exit: 124` (timeout 1.800 s, 39 bytes); o resultado veio de invocação direta, fora
+> do contrato. Recibo cunhado a partir do artefato (358.332 B, `sha256 5ad86e36…`).
+>
+> ✅ **Três defeitos de instrumento REMEDIDOS** (`REMEDIATION-2026-08-27.md`):
+> a "descontaminação" era rollback temporal de **148×** (3.735 linhas removidas para
+> excluir 25); `julianday('now')` em 3 scripts fazia a população mudar a cada
+> execução; e `pos-regra.py` tinha janela aberta por cima (o `11/310` já era 359).
+> Números que caem: `8/268`, `20/560`, `11/310`, `2.212`, `2,9851%`, `3,5714%`.
+> Números que entram: **11/350 = 3,1429%** em janela fechada, base **132/2.226 =
+> 5,9299%**.
+>
+> ⚠️ **Duas correções que eu ia aplicar estavam ERRADAS** — `19/27` e `40 pares/13
+> zeros` vinham do rollback, não da exclusão das sondas. O rascunho estava certo
+> (`16/27`, `38/11`). Registrado no §7.4 da emenda.
+>
+> ⚠️ **Eram cinco sondas, não três** — 25 linhas, não 15. Duas às 20:28:55–56, **55 s
+> depois de o mecanismo subir**, porque foram elas que verificaram que ele subira.
+> Nenhuma das cinco vozes achou isso.
+>
+> ✅ **`claims_check.py` consertado**, incluindo a remoção de uma invariante que
+> codificava raciocínio inválido (exigia a taxa nova **dentro** do IC da antiga —
+> sobreposição de IC não é equivalência). Teste de mutação: **18 falsificações, 18
+> mordidas**.
+>
+> **Próximo passo, e é o passo 0 do §8:** depositar os blobs de código do commit
+> `0087c918` (repo `nox-workspace`, privado). Sem isso a emenda cita código que
+> ninguém pode ler — exatamente o defeito da retratação 1 da v1.12. Só então:
+> depositar a emenda → protocolo prospectivo de 8 itens → `T_seed_assign`.
+
+---
+
+## Estado anterior (2026-08-26, 20:20Z) — regra nova NO AR e inerte; seed declarada, esperando a rodada
 
 > ✅ **DEPOSITADO 2026-08-26T14:01Z** — Zenodo **`10.5281/zenodo.22110203`**
 > (conceito `10.5281/zenodo.21964093`), version 1.12, **60 arquivos**, state
