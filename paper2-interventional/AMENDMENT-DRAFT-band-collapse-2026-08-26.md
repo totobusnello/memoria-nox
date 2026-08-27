@@ -263,6 +263,46 @@ Logo **os 5/44 não medem a oportunidade do código**, e não podem sustentar `N
 poder, nem definição de estimando. A definição correta exige replay do pipeline
 completo.
 
+**A hipótese de auto-extinção foi testada e NÃO se sustenta.** Ela previa que a
+fração de chunks do estudo em grupo puro-estudo **crescesse** com o tratamento.
+Reconstruída dia a dia a partir de `brief_log` (`measurement/autoextincao.py`):
+
+| corte | grupos | puro-estudo | mistos | chunks do estudo em grupo puro |
+|---|---|---|---|---|
+| 23/08 | 26 | 9 | 8 | 34 de 55 — **61,8%** |
+| 24/08 | 40 | 13 | 11 | 36 de 55 — **65,5%** |
+| 25/08 | 41 | 15 | 11 | 34 de 55 — **61,8%** |
+| 26/08 | 41 | 15 | 12 | 36 de 55 — **65,5%** |
+
+**Estável e oscilante, não crescente.** A fração alta é propriedade do corpus — os
+chunks do estudo são co-servidos porque entram no mesmo brief —, não consequência
+acumulada do tratamento. A queda de 13,64% para 3,57% na taxa de `churn` **não** se
+explica por auto-extinção, e fica sem explicação medida nesta emenda.
+
+### 4.1-bis Multiplicar designados por 19 NÃO move a taxa
+
+A regra nova entrou às 20:28Z de 26/08 e designa **19** chunks, um por grupo, contra
+**1** da regra anterior por `w_min`. Se o gargalo fosse *quem* é designado, a taxa
+de ativação subiria.
+
+Janela fechada `2026-08-26T20:28:00Z` → `2026-08-27T07:22:09.248Z`, 310 decisões,
+`sha256` do NDJSON `d0785f5ee1f54433…`:
+
+| regime | ativações | taxa | IC95 (Wilson) |
+|---|---|---|---|
+| regra anterior, pós-gate, 5 dias | 132/2.229 | 5,9219% | [5,02; 6,98] |
+| regra anterior, **último dia** (26/08) | 20/560 | 3,5714% | [2,32; 5,45] |
+| **regra nova (sorteio com seed)** | **11/310** | **3,5484%** | **[1,99; 6,24]** |
+
+**Praticamente idêntico ao último dia da regra anterior**, com intervalos
+largamente sobrepostos. A designação **não** é o gargalo — a colisão de
+`last_served` na fronteira é. Isto refuta uma suposição que a primeira redação
+desta emenda carregava ("com 19 designados a taxa deve subir") e que sustentava o
+plano de recalcular `N`, retirado no §7.3.
+
+Integridade do mecanismo na mesma janela: `designated_ids` = 19 e `boost_by_id` = 19
+em **310 de 310** decisões — todos os designados no pool **e** maduros, sempre.
+
 ### 4.2 O snapshot foi contaminado pelo processo de verificação, e importa
 
 Três sondas minhas em `/api/brief` às 19:58Z escreveram 15 linhas em `brief_log`,
@@ -420,21 +460,33 @@ Nada de 3 a 7 começa antes de 1 e 2.
 
 ---
 
-## §9. Reprodutibilidade — uma lacuna aberta
+## §9. Reprodutibilidade
 
-⚠️ **Um terceiro NÃO consegue reproduzir as medições desta emenda hoje.** Duas
-razões, ambas a resolver antes do depósito:
+**Fechado em 2026-08-27T09:47Z, metade.**
 
-- os blobs de código depositados na v1.12 são da regra **anterior** (designação por
-  `w_min`); esta emenda cita `0087c918`, que não está depositado;
-- os scripts de medição (`mede-delta.mjs`, `dose2.mjs`, `controle-positivo.mjs`,
-  `ordem.mjs`, `autoextincao.py`, `descontamina.py`) vivem em `nox-workspace`, repo
-  **privado**.
+✅ **Os scripts estão públicos.** Os **catorze** que produziram os números desta
+emenda estão em `measurement/`, com `README.md` mapeando cada um ao número que
+sustenta. ⚠️ **Cinco deles não estavam versionados em lugar nenhum** —
+`autoextincao.py`, `descontamina.py`, `serie.py`, `rebase.py` e `pos-regra.py`
+nasceram como heredoc, viveram em `/var/tmp` na VPS, e produziram tabelas que
+entraram neste documento. Um deles, `dose-response.mjs`, está versionado
+**explicitamente como registro de erro** (usou o DB vivo como corpus e serve-state,
+caminho que produção não usa) e não para uso.
 
-O `DELTA-CUT-MEASUREMENT-2026-08-26.json` e o
-`p2-verdict-frame-2026-08-26.csv` estão públicos e cobrem os dados; o **código que
-os produziu, não**. Depositar a emenda sem fechar isto repetiria o defeito que a
-retratação 1 da v1.12 registra — documento que referencia artefato inexistente.
+Varredura antes de publicar, porque o repositório é público: nenhum IP, hostname de
+tailnet ou token; `gitleaks` sem achados. Os caminhos absolutos de servidor ficaram
+como estavam — trocá-los por placeholders faria o script **parecer** reproduzível
+sem ser.
+
+⚠️ **Ainda aberto: os blobs de código.** Os depositados na v1.12 são da regra
+**anterior** (designação por `w_min`); esta emenda cita `0087c918`, que não está
+depositado. **Fechar isto é pré-requisito do depósito** — caso contrário a emenda
+referencia código que ninguém pode ler, que é o defeito da retratação 1 da v1.12.
+
+⚠️ **E uma limitação que os scripts não resolvem.** Nenhum deles faz replay do
+pipeline completo: não exercitam `interleaveFresh`, `pickDedup`, `pinned`, near-dup
+nem o corte do `LIMIT 400` com pool acima de 400. Logo medem **ordenação**, não
+**seleção** — a mesma lacuna do §4.1, e o item 1 do protocolo prospectivo.
 
 ---
 

@@ -1,5 +1,43 @@
 {
   "agentes_varridos": 7,
+  "autoextincao_testada": {
+    "hipotese": "a fracao em grupo puro-estudo cresce com o tratamento",
+    "resultado": "REFUTADA — estavel e oscilante",
+    "serie": [
+      {
+        "corte": "2026-08-23",
+        "est_em_puro": 34,
+        "grupos": 26,
+        "mistos": 8,
+        "pct": 61.8,
+        "puro": 9
+      },
+      {
+        "corte": "2026-08-24",
+        "est_em_puro": 36,
+        "grupos": 40,
+        "mistos": 11,
+        "pct": 65.5,
+        "puro": 13
+      },
+      {
+        "corte": "2026-08-25",
+        "est_em_puro": 34,
+        "grupos": 41,
+        "mistos": 11,
+        "pct": 61.8,
+        "puro": 15
+      },
+      {
+        "corte": "2026-08-26",
+        "est_em_puro": 36,
+        "grupos": 41,
+        "mistos": 12,
+        "pct": 65.5,
+        "puro": 15
+      }
+    ]
+  },
   "churn_baseline": {
     "SUPERSEDIDO_todas_as_decisoes": {
       "pct": 4.1693,
@@ -139,6 +177,43 @@
   "pool": 108,
   "posicao_primeiro_estudo": 3,
   "posicao_primeiro_grupo_misto_qualificavel_2035Z": 15,
+  "regra_nova_ativacao": {
+    "ativacoes": 11,
+    "boost_by_id_igual_19_em": 310,
+    "comparacao": {
+      "regra_velha_5dias": {
+        "ic95": [
+          5.02,
+          6.98
+        ],
+        "k": 132,
+        "n": 2229,
+        "pct": 5.9219
+      },
+      "regra_velha_ultimo_dia": {
+        "ic95": [
+          2.32,
+          5.45
+        ],
+        "k": 20,
+        "n": 560,
+        "pct": 3.5714
+      }
+    },
+    "conclusao": "19 designados nao movem a taxa; o gargalo e a colisao de last_served",
+    "decisoes": 310,
+    "designated_ids_igual_19_em": 310,
+    "ic95_wilson": [
+      1.99,
+      6.24
+    ],
+    "janela": [
+      "2026-08-26T20:28:00Z",
+      "2026-08-27T07:22:09.248Z"
+    ],
+    "pct": 3.5484,
+    "sha256_ndjson_na_leitura": "d0785f5ee1f54433"
+  },
   "reordenacao_dentro_do_conjunto": {
     "agentes": 7,
     "casos_com_ordem_diferente": 0,

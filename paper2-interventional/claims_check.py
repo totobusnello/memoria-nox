@@ -483,7 +483,57 @@ def delta_cut_check(root: Path) -> list[str]:
             f"saturates ({2.0 * d * 0.25:.6f} > {data['gap_maximo']:.6f})"
         )
 
+    # --- regra nova: a taxa e o IC sao RECOMPUTADOS de k/n, nao conferidos ---
+    rn = data["regra_nova_ativacao"]
+    pct = 100 * rn["ativacoes"] / rn["decisoes"]
+    if abs(pct - rn["pct"]) > 5e-5:
+        failures.append(
+            f"{art.name}: {rn['ativacoes']}/{rn['decisoes']} = {pct:.4f}%, artifact says {rn['pct']}%"
+        )
+    lo, hi = _wilson(rn["ativacoes"], rn["decisoes"])
+    for got, want, nome in ((lo, rn["ic95_wilson"][0], "lower"), (hi, rn["ic95_wilson"][1], "upper")):
+        if abs(got - want) > 0.01:
+            failures.append(
+                f"{art.name}: Wilson {nome} bound recomputes to {got:.2f}, artifact says {want}"
+            )
+    ancorado(rf"\*\*{rn['ativacoes']}/{rn['decisoes']}\*\* \| \*\*{str(rn['pct']).replace('.', ',')}%\*\*",
+             "new-rule activation rate", f"{rn['ativacoes']}/{rn['decisoes']}")
+    ancorado(rf"\*\*{rn['designated_ids_igual_19_em']} de {rn['boost_by_id_igual_19_em']}\*\* decis",
+             "mechanism integrity (19/19 in every decision)",
+             str(rn["designated_ids_igual_19_em"]))
+    # A comparacao com o ultimo dia da regra velha e o que sustenta "nao move":
+    uv = rn["comparacao"]["regra_velha_ultimo_dia"]
+    if not (uv["ic95"][0] <= rn["pct"] <= uv["ic95"][1]):
+        failures.append(
+            f"{art.name}: the amendment says the rates are indistinguishable, but "
+            f"{rn['pct']}% falls outside the old rule's last-day CI {uv['ic95']}"
+        )
+
+    # --- auto-extincao: a serie tem de estar publicada, e NAO ser crescente ---
+    ae = data["autoextincao_testada"]
+    pcts = [x["pct"] for x in ae["serie"]]
+    if pcts == sorted(pcts) and pcts[0] < pcts[-1]:
+        failures.append(
+            f"{art.name}: the series IS monotonically increasing, so the amendment's "
+            f"'REFUTADA — estavel e oscilante' no longer holds: {pcts}"
+        )
+    for x in ae["serie"]:
+        ancorado(rf"{x['est_em_puro']} de 55 — \*\*{str(x['pct']).replace('.', ',')}%\*\*",
+                 f"pure-study fraction at {x['corte']}", f"{x['pct']}%")
+
     return failures
+
+
+def _wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
+    """IC de Wilson em pontos percentuais. Aqui, e nao no artefato, para que o
+    artefato possa estar errado e o guarda notar."""
+    if n == 0:
+        return (0.0, 0.0)
+    p = k / n
+    d = 1 + z * z / n
+    c = p + z * z / (2 * n)
+    m = z * math.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+    return ((c - m) / d * 100, (c + m) / d * 100)
 
 
 def cross_check(root: Path) -> list[str]:
