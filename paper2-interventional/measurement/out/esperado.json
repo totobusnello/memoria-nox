@@ -110,5 +110,45 @@
       "mexeu_em_algum_estado": true,
       "veredito": "PASSA — o canal existe e responde à dose"
     }
+  },
+  "limiar": {
+    "estados": 17,
+    "erros": 0,
+    "doses": 23,
+    "grid_min": 0.02,
+    "grid_max": 13,
+    "nao_monotonos": 0,
+    "sem_limiar_no_grid": 0,
+    "w_min_min": 0.02,
+    "w_min_p50": 1.7,
+    "w_min_max": 4.4
+  },
+  "gaps": {
+    "t_ref": "2026-08-26T20:35:00.000Z",
+    "global_todos": {
+      "pool": 108,
+      "estratos": 44,
+      "pares_no_estrato": 64,
+      "zeros": 34,
+      "positivos": 30,
+      "gap_max": 0.05272030881340717
+    },
+    "global_so_estudo": {
+      "pool": 108,
+      "estratos": 44,
+      "pares_no_estrato": 38,
+      "zeros": 11,
+      "positivos": 27,
+      "gap_max": 0.031808734967844865
+    },
+    "agentes_com_pool_vazio": [
+      "nox",
+      "atlas",
+      "boris",
+      "cipher",
+      "forge",
+      "lex"
+    ],
+    "passo_adjacente_cota_a_distancia": false
   }
 }

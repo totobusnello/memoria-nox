@@ -19,9 +19,25 @@ um pool **reimplementado**. No pipeline real, 9 doses × 350 estados:
 |---|---|---|---|---|---|---|---|---|---|
 | estados que mexem | 0 | 5 | 8 | **11** | 15 | **17** | 17 | 17 | 17 |
 
-Monótono, **satura exatamente em `w = 7,5`** (topo da banda registrada), teto
-**17/350 = 4,86%**, e `w = 2` devolve o `11/350 = 3,1429%` publicado. As três doses
-registradas **são distinguíveis**. O argumento estrutural (comparador lexicográfico)
+Monótono — em cada um dos 350 estados, não só no agregado — teto **17/350 = 4,86%**, e
+`w = 2` devolve o `11/350 = 3,1429%` publicado. As três doses registradas **são
+distinguíveis**.
+
+⚠️ **Correção do grid grosso:** a saturação está em `(4,0 ; 4,4]`, **não** em 7,5. Grid
+fino de 23 doses sobre os 17 estados: `w_min` mínimo 0,02, mediana 1,7, **máximo 4,4**
+(espalhamento 220×). A "coincidência" com o topo da banda era o instrumento.
+
+**Duas coisas mais, e a segunda é a mais urgente:**
+1. **A grandeza que governa é DISTÂNCIA, não passo.** O maior `w_min` vale boost 0,0946
+   em S1 — 1,79× o maior passo adjacente do pool (0,0527). O gatilho do item 7, calibrado
+   sobre passo adjacente, **pode ficar verde enquanto o canal satura**: inválido no nível
+   da grandeza, não do número. O censo reproduz a âncora publicada exata (38/11/27/0,0318)
+   na coluna filtrada, e dá 64/34/30/0,0527 sem filtro.
+2. **O sub-pool do agente está VAZIO** em `T_REF` — 265/6.001/3.011 chunks de
+   `sessions/<agente>/%` passam o piso de importance e **zero** passam a janela de 7 dias.
+   Logo `interleaveFresh([], global) === global` e todo o canal é o sub-pool global. Uma
+   rajada de sessões muda a composição do canal **sob os pés do estudo**, e isso não está
+   vigiado em lugar nenhum. O argumento estrutural (comparador lexicográfico)
 sobrevive — é o que produz a saturação; a conclusão tirada dele, não.
 
 ⚠️ **O registro público agora tem DUAS linhas em que está pior que a realidade:** a
@@ -34,11 +50,11 @@ tem resolução de **segundo** e 46,9% dos briefs dividem o segundo (⇒ o corte
 tem de ser por `brief_log.id`, e sob corte temporal a contagem sai 14 em vez de 12);
 `ordenarCobertura` descarta a chave que ordenou o pool.
 
-**Próxima ação:** medir a distribuição de gap intra-estrato no sub-pool do **agente** com
-a harness canônica. É pré-requisito de duas coisas — a calibração do gatilho do item 7
-(o `0,0318` é do sub-pool global e está inválido) e qualquer afirmação do paper sobre a
-banda. Depósito v1.13 segue **preparado e não executado**; a opção 3 (agrupar) ficou mais
-atraente, porque agora há resultado positivo a registrar junto.
+**Próxima ação:** redesenhar o gatilho do item 7 em torno de `w_min` (a distância), não
+de gap adjacente — e acrescentar um gatilho para **composição do canal** (sub-pool do
+agente saindo do vazio), que hoje não existe. Depósito v1.13 segue **preparado e não
+executado**; a opção 3 (agrupar) ficou mais atraente, porque agora há resultado positivo
+a registrar junto.
 
 Integral: `paper2-interventional/REPLAY-OPORTUNIDADE-2026-08-27.md`. Commit `e4a5cc3`.
 

@@ -235,8 +235,9 @@ O estudo **não começa** se, ao fim da janela:
 
 1. ~~o controle positivo do item 1 não mover nada em nenhum estado (canal inexistente)~~
    → ✅ **RESPONDIDA 27/08: PASSA.** `w = 100.000` move 17 de 350 estados, e a resposta é
-   monótona de `w = 0` (0 estados) a `w = 7,5` (17), saturando ali. O canal existe. Esta
-   condição **não** dispara;
+   monótona de `w = 0` (0 estados) até saturar em **`(4,0 ; 4,4]`** com 17 estados —
+   grid de 23 doses; o "7,5" de um grid mais grosso era artefato de resolução. O canal
+   existe. Esta condição **não** dispara;
 2. a taxa de oportunidade for baixa o bastante para `N` estourar o horizonte de
    calendário viável;
 3. a distribuição de gap intragrupo não for estacionária na janela — porque escala
@@ -268,16 +269,36 @@ efeito **na presença** de carry-over, o que muda o que o paper pode afirmar. **
 Com braço único, uma falha de saturação é **indetectável** sem gatilho. Dispara e
 interrompe se aparecer gap intragrupo **acima da magnitude escolhida**.
 
-🔴 **A calibração deste gatilho está INVÁLIDA e não pode ser implementada como escrita.**
-O texto original dizia: *"hoje o máximo observado é `0,031808734967844865` e a margem
-contra `0,043` é apenas 1,35×"*. Esse máximo é do sub-pool **global** (108 candidatos de
-`memory/entities/%`) — e o pipeline intercala **dois** sub-pools. A varredura de dose
-mostra estados novos se movendo até `w = 7,5`, isto é, muito além do que `0,0318`
-preveria: **existem gaps maiores no sub-pool do agente, e eles não foram medidos.**
+🔴 **A calibração deste gatilho está INVÁLIDA — e não pelo número, pela GRANDEZA.**
 
-Pré-requisito do item 7, portanto: medir a distribuição de gap intra-estrato no sub-pool
-do **agente** com a mesma harness do item 1 — e não com um censo de pool reimplementado,
-que é como o `0,0318` foi obtido.
+O texto original dizia: *"hoje o máximo observado é `0,031808734967844865` e a margem
+contra `0,043` é apenas 1,35×"*. Medido em 27/08 com a harness do item 1:
+
+1. aquele `0,0318` é a coluna **filtrada** (só pares em que um dos dois chunks é do
+   estudo). Sem filtro, mesmo pool e instante, o máximo é **0,05272**. A harness
+   reproduz **as duas** exatas — a filtrada é a quarta âncora publicada que ela recupera;
+2. **e nenhuma das duas cota o mecanismo.** O maior limiar por estado é `w_min = 4,4`,
+   que em S1 vale boost **0,0946** — **1,79×** o maior passo adjacente do pool inteiro.
+   Boost maior que qualquer passo entre vizinhos e ainda insuficiente só pode significar
+   que o designado atravessa **várias posições** até os 2 slots de cobertura. A grandeza
+   é **distância acumulada**, não passo. **O gatilho pode ficar verde enquanto o canal
+   satura.**
+
+⚠️ E a hipótese que motivou este pré-requisito — "existem gaps maiores no sub-pool do
+agente" — está **refutada**: em `T_REF` o sub-pool do agente é **vazio**. 265 (nox),
+6.001 (cipher) e 3.011 (atlas) chunks de `sessions/<agente>/%` passam o piso de
+importance e **zero** passam a janela de `freshMaxAgeDays = 7`. Logo
+`interleaveFresh([], global) === global` e todo o canal é o sub-pool global.
+
+**Redesenho do item 7, em duas partes:**
+
+- **(a) gatilho de saturação sobre `w_min`**, não sobre gap adjacente: monitorar a
+  distribuição de limiar por estado (hoje mín 0,02 · mediana 1,7 · máx 4,4, espalhamento
+  220×) e disparar se a massa se aproximar da dose servida;
+- **(b) gatilho de COMPOSIÇÃO DO CANAL**, que hoje não existe em lugar nenhum: o
+  sub-pool do agente estar vazio é um fato sobre um instante, não uma propriedade. Uma
+  rajada de sessões o faz reaparecer, `interleaveFresh` deixa de ser função-zero, e a
+  escala de dose muda **sob os pés do estudo** sem nenhum alarme.
 
 O gatilho lê o log, **não sonda o endpoint** (item 2).
 
@@ -309,7 +330,7 @@ teria trocado o número certo pelo errado "consertando" o documento.
 | 4 — `N = f(dados)` | mecanismo especificado; script a escrever e commitar antes |
 | 5 — no-go | condições **1 e 4 respondidas** (não disparam); **2 e 3 abertas** |
 | 6 — carry-over | **aberto por desenho** — 3 opções, escolha a declarar antes |
-| 7 — gatilho | 🔴 **calibração inválida** — o `0,0318` é de um sub-pool só; medir o do agente antes |
+| 7 — gatilho | 🔴 **inválido na grandeza** — vigia passo adjacente, mecanismo exige distância. Redesenho (a)+(b) especificado; (b) é novo e mais urgente |
 | 8 — procedência | **especificado**, vale para todo o resto |
 
 **Não desbloqueia nada ainda.** O que desbloqueia é o item 1 rodando com controle
@@ -319,7 +340,11 @@ positivo passando, e a escolha do item 6 declarada.
 log. É a configuração que a calibração quer. A ativação vira passo explícito **depois**
 do no-go do item 5, não antes.
 
-**Próxima ação (27/08, depois do item 1):** medir a distribuição de gap intra-estrato no
-sub-pool do **agente**, com a harness do item 1. É pré-requisito de **duas** coisas ao
-mesmo tempo — a calibração do gatilho do item 7 e qualquer afirmação do paper sobre a
-banda — e é o único número que a rodada de dose provou faltar.
+~~**Próxima ação (27/08, depois do item 1):** medir a distribuição de gap intra-estrato no
+sub-pool do agente~~ → ✅ **FEITA, e refutou a própria hipótese:** o sub-pool do agente é
+**vazio** por idade, e a grandeza que governa é distância, não passo. Ver item 7 acima.
+
+**Próxima ação:** implementar o item 7 redesenhado — (a) gatilho sobre `w_min` e (b)
+gatilho de composição do canal. O (b) não estava em nenhum documento antes de 27/08 e é
+o mais urgente: é a única ameaça identificada que muda a escala de dose **durante** o
+estudo, em silêncio.

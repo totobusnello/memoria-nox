@@ -17,6 +17,9 @@
  *   campo   replay dos briefs do log da janela fechada, comparando
  *           churn/would_enter/would_leave com o que a PRODUÇÃO registrou.
  *           É a âncora mais forte disponível: valida o pipeline inteiro.
+ *   gaps    censo de gap de `salience` DENTRO de estratos de `last_served` idêntico,
+ *           por sub-pool (agente e global), com o pool montado pelo código real. O
+ *           `0,0318` publicado é só do sub-pool GLOBAL; o do agente nunca foi medido.
  *   dose    varredura de `w` sobre estados reais. Se `w = 100.000` não move
  *           NADA em NENHUM estado, o canal não existe e o estudo morre aqui —
  *           o que é um resultado.
@@ -87,7 +90,7 @@ const exigir = (k) => {
 };
 
 const MODO = exigir("modo");
-if (!["ancora", "campo", "dose"].includes(MODO)) {
+if (!["ancora", "campo", "dose", "gaps"].includes(MODO)) {
   console.error(`--modo inválido: ${MODO}`); process.exit(2);
 }
 const RAIZ = resolve(exigir("raiz"));
@@ -396,6 +399,16 @@ if (MODO === "campo" || MODO === "dose") {
     alvo = alvo.filter((r) => r.ts === A["so-ts"]);
     if (alvo.length === 0) { console.error(`nenhum brief com ts=${A["so-ts"]}`); process.exit(2); }
   }
+  if (A["so-ts-file"]) {
+    const set = new Set(readFileSync(resolve(A["so-ts-file"]), "utf8").split("\n")
+      .map((x) => x.trim()).filter((x) => x && !x.startsWith("#")));
+    const antes = alvo.length;
+    alvo = alvo.filter((r) => set.has(r.ts));
+    if (alvo.length !== set.size) {
+      console.error(`⚠️ --so-ts-file lista ${set.size} ts mas ${alvo.length} casaram no log (de ${antes})`);
+      process.exit(2);
+    }
+  }
   const doses = MODO === "dose" ? (A.w ?? [2, 100000]) : [null];
 
   /**
@@ -550,6 +563,124 @@ if (MODO === "campo" || MODO === "dose") {
       console.error("   parâmetro não está na coordenada que decide. Isto é um RESULTADO.");
     }
   }
+}
+
+if (MODO === "gaps") {
+  const tRefMs = msDe(exigir("t-ref"));
+  const agentes = exigir("agentes").split(",").map((x) => x.trim()).filter(Boolean);
+  const sv = serveStateDerivado(vivoRO, tRefMs, TMP);
+  const cfg = cfgEm(tRefMs);
+  const ls = sv.db.prepare("SELECT MAX(served_at) m FROM brief_log WHERE chunk_id = ?");
+
+  /**
+   * Definição de par: **adjacentes DENTRO do estrato de `last_served` idêntico**. É a
+   * única das três testadas em 27/08 que reproduz o `DELTA-CUT-MEASUREMENT-2026-08-26`
+   * na 9ª decimal, e é a semanticamente certa: `salience` só decide dentro de empate.
+   * As outras duas (adjacentes na ordenação global; todos os pares no estrato) ficam
+   * fora de propósito — ver REMEDIATION-2026-08-27.md §2.
+   */
+  function censo(pool, soEstudo) {
+    const chave = new Map(pool.map((c) => [c.row.id, ls.get(c.row.id).m ?? null]));
+    const estratos = new Map();
+    for (const c of pool) {
+      const k = String(chave.get(c.row.id));
+      if (!estratos.has(k)) estratos.set(k, []);
+      estratos.get(k).push(c);
+    }
+    const gaps = [];
+    let zeros = 0, pares = 0;
+    for (let i = 0; i + 1 < pool.length; i++) {
+      const a = pool[i], b = pool[i + 1];
+      if (String(chave.get(a.row.id)) !== String(chave.get(b.row.id))) continue;
+      if (soEstudo && !estudo.has(a.row.id) && !estudo.has(b.row.id)) continue;
+      pares++;
+      const d = Math.abs(a.salience - b.salience);
+      if (d < 1e-12) zeros++; else gaps.push(d);
+    }
+    gaps.sort((x, y) => x - y);
+    const q = (p) => (gaps.length ? gaps[Math.min(gaps.length - 1, Math.floor(p * gaps.length))] : null);
+    return {
+      pool: pool.length,
+      estratos: estratos.size,
+      nunca_servidos: pool.filter((c) => chave.get(c.row.id) === null).length,
+      pares_no_estrato: pares,
+      zeros,
+      positivos: gaps.length,
+      gap_min: gaps[0] ?? null,
+      gap_p50: q(0.5),
+      gap_p90: q(0.9),
+      gap_max: gaps.at(-1) ?? null,
+      /** `w` que vence o maior gap deste sub-pool, por severidade. */
+      w_para_gap_max: gaps.length
+        ? { S1: gaps.at(-1) / (p2.P2_DELTA_CUT * 0.5), S2: gaps.at(-1) / (p2.P2_DELTA_CUT * 1.0) }
+        : null,
+    };
+  }
+
+  const porAgente = {};
+  for (const ag of agentes) {
+    const pats = brief.scopePatterns("global", ag);
+    const pl = brief.fetchFreshCandidates(corpus, pats, cfg, tRefMs, sv.db, undefined);
+    porAgente[ag] = {
+      patterns: pats,
+      todos_os_pares: censo(pl, false),
+      /**
+       * ⚠️ Quando `pool` é 0 aqui, NÃO é que os patterns não casem: em
+       * `T_REF = 2026-08-26 20:35Z` havia 265 (nox), 6.001 (cipher) e 3.011 (atlas)
+       * chunks em `sessions/<agente>/%` passando o piso de importance, e **zero**
+       * passando a janela de `freshMaxAgeDays = 7`. O sub-pool do agente está vazio
+       * por IDADE. Consequência: `interleaveFresh([], global) === global`, e o canal
+       * inteiro é o sub-pool global.
+       */
+    };
+  }
+  const poolG = brief.fetchFreshCandidates(
+    corpus, GLOBAL_FRESH_PATTERNS,
+    { ...cfg, freshMaxAgeDays: cfg.freshGlobalMaxAgeDays }, tRefMs, sv.db, undefined);
+  const glob = {
+    /**
+     * DUAS colunas, e a distinção não é cosmética: `gap-defs.mjs` (de onde vem o
+     * `0,031808734967844865` publicado) só conta pares em que ao menos um chunk é do
+     * estudo. Mas o boost move o designado para além de quem estiver acima dele, seja
+     * do estudo ou não — logo a coluna que limita o mecanismo é `todos_os_pares`.
+     * Comparar a publicada com a não-filtrada seria comparar contagem filtrada com
+     * não-filtrada, que é defeito conhecido desta linha de trabalho.
+     */
+    todos_os_pares: censo(poolG, false),
+    so_pares_com_chunk_do_estudo: censo(poolG, true),
+  };
+
+  saida.gaps = {
+    t_ref: new Date(tRefMs).toISOString(),
+    offset_idade_dias: cfg._offset_dias,
+    definicao_de_par: "adjacentes dentro do estrato de last_served idêntico",
+    serve_state: { linhas: sv.linhas, corte: sv.corte, op: sv.op },
+    sub_pool_global: glob,
+    sub_pool_agente: porAgente,
+    /**
+     * O que este modo veio testar, e o veredito é NEGATIVO para a calibração do item 7.
+     *
+     * O gatilho foi calibrado com `0,031808734967844865` e margem 1,35x contra
+     * `Δ_cut = 0,043`. Duas coisas o invalidam, e a segunda no nível da grandeza:
+     *
+     * 1. aquele máximo é da coluna FILTRADA (só pares com chunk do estudo). Sem filtro,
+     *    no mesmo pool e no mesmo instante, o máximo é maior;
+     * 2. e nenhuma das duas colunas limita o mecanismo, porque o boost precisa vencer a
+     *    DISTÂNCIA até os 2 slots de cobertura, não o PASSO até o vizinho. Medido: 2 dos
+     *    17 estados só viram em `w = 7,5`, que em S1 vale boost 0,16125 — 3,1x o maior
+     *    passo adjacente do pool. Passo não cota distância.
+     */
+    calibracao_do_item_7: {
+      gap_max_publicado_filtrado: 0.031808734967844865,
+      gap_max_observado_filtrado: glob.so_pares_com_chunk_do_estudo.gap_max,
+      gap_max_observado_sem_filtro: glob.todos_os_pares.gap_max,
+      w_min_observado_no_pipeline_real: 7.5,
+      boost_S1_em_w_7_5: 7.5 * p2.P2_DELTA_CUT * 0.5,
+      passo_adjacente_cota_a_distancia:
+        7.5 * p2.P2_DELTA_CUT * 0.5 <= (glob.todos_os_pares.gap_max ?? 0),
+    },
+  };
+  sv.db.close();
 }
 
 console.log(JSON.stringify(saida, null, 2));

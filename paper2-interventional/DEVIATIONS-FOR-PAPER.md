@@ -17,7 +17,7 @@ Enquanto isto não for reportado, o registro público (`10.5281/zenodo.22110203`
 | o registro diz | o que se mediu | |
 |---|---|---|
 | `Δ_cut = 0,043` é *"the measured salience spread at the brief cut"* | não existe cut: o código não aplica limiar. O comparador é lexicográfico e `salience` só desempata `last_served` idêntico | ⬆ |
-| a banda `{2,0 · 4,0 · 7,5}` está entre *"what does not move, and could not"* | **move**: 11 / 15 / 17 estados de 350, monótono, saturando exatamente no topo da banda. A unidade segue sem referente registrado, mas a banda **não** é vazia | ⬇ |
+| a banda `{2,0 · 4,0 · 7,5}` está entre *"what does not move, and could not"* | **move**: 11 / 15 / 17 estados de 350, monótono. A unidade segue sem referente registrado, mas a banda **não** é vazia — e sua dose superior está **acima** da saturação, que fica em `(4,0 ; 4,4]` | ⬇ |
 | a alocação é `117/39/39/39` | suspensa junto com a banda — e a razão de suspender mudou: não é que as doses sejam indistinguíveis, é que a escala não tem referente | ⬆ |
 | *(v1.12 §5)* a designação é defeito **aberto** | **fechada** em 26/08 20:28Z, com precedência verificável de 1.056 s | ⬇ |
 
@@ -57,22 +57,41 @@ o que impede o parâmetro de ter alcance ilimitado.
 | ~~"o parâmetro não está na coordenada que decide"~~ | decide **dentro** do estrato — e é lá que a medida de desfecho vive |
 | ~~as duas doses superiores são "indistinguíveis por construção do dado"~~ | `2,0 → 11`, `4,0 → 15`, `7,5 → 17` estados: **distinguíveis** |
 
-A resposta é **monótona** (0 → 5 → 8 → 11 → 15 → 17 estados para
-`w = 0 / 0,5 / 1 / 2 / 4 / 7,5`) e **satura exatamente em `w = 7,5`**: de 15 a
-100.000 o resultado é idêntico. O teto do canal é **17/350 = 4,86%**. E `w = 2`
-reproduz o `11/350 = 3,1429%` publicado — o replay é fiel também no agregado.
+A resposta é **monótona** — e monótona em cada um dos 350 estados, não só no
+agregado (0 → 5 → 8 → 11 → 15 → 17 estados para `w = 0 / 0,5 / 1 / 2 / 4 / 7,5`) —
+e **satura**. O teto do canal é **17/350 = 4,86%**. E `w = 2` reproduz o
+`11/350 = 3,1429%` publicado: o replay é fiel também no agregado.
+
+⚠️ **O ponto de saturação está em `(4,0 ; 4,4]`, não em 7,5.** Com grid de 23 doses
+sobre os 17 estados, o maior limiar individual é `w_min = 4,4` (mediana 1,7, mínimo
+0,02 — espalhamento de 220×). O "7,5" era o ponto seguinte de um grid grosso, e a
+aparente coincidência com o topo da banda registrada era o instrumento, não o
+sistema. **A banda registrada tem, portanto, a dose superior ACIMA da saturação** —
+`7,5` e qualquer valor maior são indistinguíveis entre si, mas `4,0` e `7,5`
+continuam distinguíveis (15 vs 17 estados).
 
 ⚠️ **Isto é a segunda linha em que o registro público está PIOR que a realidade** —
 afirma que o parâmetro não tem efeito quando tem. Como a designação (§2), não se
 conserta com o tempo: quem ler vai supor que o canal é vazio.
 
-**A quantidade de gap intra-estrato segue publicada e não foi refutada** — 38 pares
-adjacentes, 11 exatamente zero, 27 positivos, máximo 0,031808734967844865 — mas
-o paper **não pode** usá-la para argumentar sobre a banda sem antes medir os gaps
-do sub-pool do **agente**: aqueles 0,0318 são do sub-pool **global** (108
-candidatos de `memory/entities/%`), e o pipeline intercala dois sub-pools. A
-saturação em 7,5, muito acima do que 0,0318 preveria, é a evidência de que os
-gaps do outro sub-pool são maiores e **não foram medidos**.
+**A quantidade de gap intra-estrato segue publicada e foi CONFIRMADA** — 38 pares
+adjacentes, 11 zeros, 27 positivos, máximo 0,031808734967844865, reproduzidos exatos
+pela harness nova. Mas o paper **não pode** usá-la para argumentar sobre a banda, por
+duas razões medidas em 27/08:
+
+1. aquele máximo é da coluna **filtrada** (só pares em que ao menos um chunk é do
+   estudo). Sem filtro, no mesmo pool e instante, é **0,05272**. O boost move o
+   designado para além de quem estiver acima dele, seja do estudo ou não;
+2. e nenhuma das duas colunas **cota** o mecanismo: o maior `w_min` (4,4) vale boost
+   `0,0946` em S1, **1,79×** o maior passo adjacente do pool. A grandeza que governa é
+   a **distância** até os 2 slots de cobertura, não o **passo** até o vizinho.
+
+⚠️ E a hipótese de que os gaps maiores viessem do sub-pool do **agente** está
+**refutada**: em `T_REF` o sub-pool do agente é **vazio** — 265/6.001/3.011 chunks de
+`sessions/<agente>/%` passam o piso de importance e **zero** passam a janela de 7 dias.
+`interleaveFresh([], global) === global`: todo o canal é o sub-pool global. Isso é fato
+sobre aquele instante, e uma rajada de sessões muda a composição do canal sob os pés do
+estudo — o que o paper tem de declarar como ameaça.
 
 ### 2. O que a designação fechou, e como
 
@@ -137,7 +156,19 @@ método**:
 - **`ordenarCobertura` descarta `lastServedMs` do que devolve**, então agrupar pela chave
   que ordenou o pool dá um grupo só, em silêncio;
 - **o controle positivo publicado media o instrumento, não o sistema** — e produziu o
-  número que virou a retratação central. Ver §1.
+  número que virou a retratação central. Ver §1;
+- **grid grosso produziu um ponto de saturação neat demais.** Um salto de `w = 4` para
+  `7,5` fez a saturação *parecer* cair exatamente no topo da banda registrada. Com 23
+  doses ela está em `(4,0 ; 4,4]`. Eu sinalizei a coincidência como suspeita antes de
+  saber a razão, e a razão era a mais chata possível: resolução do meu grid;
+- **o gatilho de saturação do item 7 vigia a grandeza errada.** Foi calibrado sobre gap
+  entre **adjacentes** (`0,0318`, "margem 1,35× contra `Δ_cut`"), mas o mecanismo exige
+  vencer a **distância** até os 2 slots de cobertura: o maior `w_min` observado vale
+  1,79× o maior passo adjacente do pool. O gatilho pode ficar verde enquanto o canal
+  satura;
+- **a composição do canal não está vigiada por nada.** O sub-pool do agente está vazio
+  por idade em `T_REF`; se voltar a encher, `interleaveFresh` deixa de ser função-zero e
+  a escala de dose muda sem que nenhum alarme dispare.
 
 ### 6. Procedência, para o paper não repetir o erro que descreve
 

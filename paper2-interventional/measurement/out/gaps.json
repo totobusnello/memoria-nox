@@ -1,0 +1,177 @@
+{
+  "procedencia": {
+    "gerado_em": "2026-08-27T16:53:08.791Z",
+    "modo": "gaps",
+    "corte_serve_state": "inclusivo",
+    "corpus": "/var/lib/nox-mem/epochs/e20260826T060003Z.db",
+    "corpus_sha256_primeiros_1MB": "56826f69d6bd32da6c114e2053ddf36f6011a554b7ea1a8986884f4fcafc7c04",
+    "vivo": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+    "designacao": "/root/.openclaw/paper2/DESIGNATION-2026-08-26.json",
+    "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+    "designados": 19,
+    "sondas_excluidas": [],
+    "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95"
+  },
+  "gaps": {
+    "t_ref": "2026-08-26T20:35:00.000Z",
+    "offset_idade_dias": 0.8460420601851852,
+    "definicao_de_par": "adjacentes dentro do estrato de last_served idêntico",
+    "serve_state": {
+      "linhas": 573263,
+      "corte": "2026-08-26 20:35:00",
+      "op": "<="
+    },
+    "sub_pool_global": {
+      "todos_os_pares": {
+        "pool": 108,
+        "estratos": 44,
+        "nunca_servidos": 0,
+        "pares_no_estrato": 64,
+        "zeros": 34,
+        "positivos": 30,
+        "gap_min": 0.0009303604990740233,
+        "gap_p50": 0.020068666377598743,
+        "gap_p90": 0.04999999999999993,
+        "gap_max": 0.05272030881340717,
+        "w_para_gap_max": {
+          "S1": 2.452107386670101,
+          "S2": 1.2260536933350505
+        }
+      },
+      "so_pares_com_chunk_do_estudo": {
+        "pool": 108,
+        "estratos": 44,
+        "nunca_servidos": 0,
+        "pares_no_estrato": 38,
+        "zeros": 11,
+        "positivos": 27,
+        "gap_min": 0.0009303604990740233,
+        "gap_p50": 0.01946904164533625,
+        "gap_p90": 0.029000973123327167,
+        "gap_max": 0.031808734967844865,
+        "w_para_gap_max": {
+          "S1": 1.4794760450160402,
+          "S2": 0.7397380225080201
+        }
+      }
+    },
+    "sub_pool_agente": {
+      "nox": {
+        "patterns": [
+          "sessions/nox/%"
+        ],
+        "todos_os_pares": {
+          "pool": 0,
+          "estratos": 0,
+          "nunca_servidos": 0,
+          "pares_no_estrato": 0,
+          "zeros": 0,
+          "positivos": 0,
+          "gap_min": null,
+          "gap_p50": null,
+          "gap_p90": null,
+          "gap_max": null,
+          "w_para_gap_max": null
+        }
+      },
+      "atlas": {
+        "patterns": [
+          "sessions/atlas/%"
+        ],
+        "todos_os_pares": {
+          "pool": 0,
+          "estratos": 0,
+          "nunca_servidos": 0,
+          "pares_no_estrato": 0,
+          "zeros": 0,
+          "positivos": 0,
+          "gap_min": null,
+          "gap_p50": null,
+          "gap_p90": null,
+          "gap_max": null,
+          "w_para_gap_max": null
+        }
+      },
+      "boris": {
+        "patterns": [
+          "sessions/boris/%"
+        ],
+        "todos_os_pares": {
+          "pool": 0,
+          "estratos": 0,
+          "nunca_servidos": 0,
+          "pares_no_estrato": 0,
+          "zeros": 0,
+          "positivos": 0,
+          "gap_min": null,
+          "gap_p50": null,
+          "gap_p90": null,
+          "gap_max": null,
+          "w_para_gap_max": null
+        }
+      },
+      "cipher": {
+        "patterns": [
+          "sessions/cipher/%"
+        ],
+        "todos_os_pares": {
+          "pool": 0,
+          "estratos": 0,
+          "nunca_servidos": 0,
+          "pares_no_estrato": 0,
+          "zeros": 0,
+          "positivos": 0,
+          "gap_min": null,
+          "gap_p50": null,
+          "gap_p90": null,
+          "gap_max": null,
+          "w_para_gap_max": null
+        }
+      },
+      "forge": {
+        "patterns": [
+          "sessions/forge/%"
+        ],
+        "todos_os_pares": {
+          "pool": 0,
+          "estratos": 0,
+          "nunca_servidos": 0,
+          "pares_no_estrato": 0,
+          "zeros": 0,
+          "positivos": 0,
+          "gap_min": null,
+          "gap_p50": null,
+          "gap_p90": null,
+          "gap_max": null,
+          "w_para_gap_max": null
+        }
+      },
+      "lex": {
+        "patterns": [
+          "sessions/lex/%"
+        ],
+        "todos_os_pares": {
+          "pool": 0,
+          "estratos": 0,
+          "nunca_servidos": 0,
+          "pares_no_estrato": 0,
+          "zeros": 0,
+          "positivos": 0,
+          "gap_min": null,
+          "gap_p50": null,
+          "gap_p90": null,
+          "gap_max": null,
+          "w_para_gap_max": null
+        }
+      }
+    },
+    "calibracao_do_item_7": {
+      "gap_max_publicado_filtrado": 0.031808734967844865,
+      "gap_max_observado_filtrado": 0.031808734967844865,
+      "gap_max_observado_sem_filtro": 0.05272030881340717,
+      "w_min_observado_no_pipeline_real": 7.5,
+      "boost_S1_em_w_7_5": 0.16124999999999998,
+      "passo_adjacente_cota_a_distancia": false
+    }
+  }
+}

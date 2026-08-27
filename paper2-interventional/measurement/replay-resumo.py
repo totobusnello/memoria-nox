@@ -63,21 +63,78 @@ def tab_dose(d):
     }
 
 
+def tab_limiar(d):
+    """w_min por estado a partir de um JSON em forma de `dose` com grid fino."""
+    import collections
+    por = collections.defaultdict(dict)
+    erros = 0
+    for x in d["dose"]["detalhe"]:
+        if x.get("erro"):
+            erros += 1
+            continue
+        por[x["ts"]][x["w"]] = x["churn"]
+    ws = sorted({w for m in por.values() for w in m})
+    naomono = 0
+    wmins = []
+    for m in por.values():
+        seq = [m.get(w, 0) for w in ws]
+        if any(seq[i] > seq[i + 1] for i in range(len(seq) - 1)):
+            naomono += 1
+        wm = next((w for w in ws if (m.get(w) or 0) > 0), None)
+        wmins.append(wm)
+    tem = sorted(w for w in wmins if w is not None)
+    return {
+        "estados": len(por),
+        "erros": erros,
+        "doses": len(ws),
+        "grid_min": ws[0],
+        "grid_max": ws[-1],
+        "nao_monotonos": naomono,
+        "sem_limiar_no_grid": sum(1 for w in wmins if w is None),
+        "w_min_min": tem[0] if tem else None,
+        "w_min_p50": tem[len(tem) // 2] if tem else None,
+        "w_min_max": tem[-1] if tem else None,
+    }
+
+
+def tab_gaps(d):
+    g = d["gaps"]
+    return {
+        "t_ref": g["t_ref"],
+        "global_todos": {k: g["sub_pool_global"]["todos_os_pares"][k]
+                         for k in ("pool", "estratos", "pares_no_estrato", "zeros",
+                                   "positivos", "gap_max")},
+        "global_so_estudo": {k: g["sub_pool_global"]["so_pares_com_chunk_do_estudo"][k]
+                             for k in ("pool", "estratos", "pares_no_estrato", "zeros",
+                                       "positivos", "gap_max")},
+        "agentes_com_pool_vazio": [a for a, v in g["sub_pool_agente"].items()
+                                   if v["todos_os_pares"]["pool"] == 0],
+        "passo_adjacente_cota_a_distancia":
+            g["calibracao_do_item_7"]["passo_adjacente_cota_a_distancia"],
+    }
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--campo")
     ap.add_argument("--campo-estrito")
     ap.add_argument("--dose")
+    ap.add_argument("--limiar")
+    ap.add_argument("--gaps")
     ap.add_argument("--assert-json")
     a = ap.parse_args()
 
-    out = {"campo": [], "dose": None}
+    out = {"campo": [], "dose": None, "limiar": None, "gaps": None}
     if a.campo:
         out["campo"].append(tab_campo(carrega(a.campo), "rowid"))
     if a.campo_estrito:
         out["campo"].append(tab_campo(carrega(a.campo_estrito), "estrito"))
     if a.dose:
         out["dose"] = tab_dose(carrega(a.dose))
+    if a.limiar:
+        out["limiar"] = tab_limiar(carrega(a.limiar))
+    if a.gaps:
+        out["gaps"] = tab_gaps(carrega(a.gaps))
 
     print(json.dumps(out, indent=2, ensure_ascii=False))
 
@@ -113,6 +170,20 @@ def main():
                                 confere(f"dose[w={lin['w']}].{kk}", o.get(kk), vv)
                     else:
                         confere(f"dose.{k}", out["dose"].get(k), v)
+
+        for sec in ("limiar", "gaps"):
+            if esp.get(sec) is None:
+                continue
+            if out[sec] is None:
+                falhas.append(f"{sec} ausente na rodada")
+                continue
+            def desce(caminho, e, o):
+                if isinstance(e, dict):
+                    for k, v in e.items():
+                        desce(f"{caminho}.{k}", v, (o or {}).get(k))
+                else:
+                    confere(caminho, o, e)
+            desce(sec, esp[sec], out[sec])
 
         if falhas:
             print("\n⛔ ASSERÇÃO FALHOU — a nota afirma número que a rodada não produz:",

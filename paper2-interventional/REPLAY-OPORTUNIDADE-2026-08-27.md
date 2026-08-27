@@ -162,9 +162,11 @@ Quatro leituras, e a ordem importa:
 2. **A dose de produção reproduz o número publicado.** `w = 2` dá 11 estados e 3,14%
    — os mesmos `11/350 = 3,1429%` da janela fechada. O replay não é só fiel brief a
    brief; é fiel no agregado que a emenda publica.
-3. **A resposta é monótona e satura exatamente em `w = 7,5`.** De 15 a 100.000 o
-   resultado é idêntico ao de 7,5. O teto é **17/350 = 4,86%** — a capacidade do canal,
-   qualquer que seja a dose.
+3. **A resposta é monótona — em todos os 350 estados, individualmente** — e satura. O
+   teto é **17/350 = 4,86%**: a capacidade do canal, qualquer que seja a dose.
+   ⚠️ **O ponto de saturação NÃO é 7,5.** Ver §5.1: com grid fino, todos os 17 estados
+   viram até `w = 4,4`. O `7,5` deste grid grosso é só o ponto seguinte acima do
+   limiar verdadeiro.
 4. **As três doses registradas são DISTINGUÍVEIS:** `2,0 → 11`, `4,0 → 15`,
    `7,5 → 17` estados (12, 18, 20 eventos de churn).
 
@@ -198,9 +200,13 @@ que a banda é vazia quando ela é justamente a faixa entre sub-saturação e
 saturação. É a segunda linha do registro em que a realidade é *melhor* que o que
 está publicado, e nenhuma das duas se conserta com o tempo.
 
-⚠️ **E não afirmo que a banda foi bem escolhida de propósito.** A saturação cair
-exatamente em `7,5`, o topo da banda, é observação; o que a decisão de 26/08
-registra é outra derivação. Coincidência favorável não é desenho.
+⚠️ **A "coincidência" com o topo da banda era o meu instrumento, e eu a sinalizei
+como suspeita antes de saber por quê.** O grid grosso saltava de 4 para 7,5, então
+o menor ponto em que os 17 estados apareciam era 7,5 — e isso *pareceu* cair
+exatamente no topo da banda registrada. Com grid de 23 doses (§5.1) o limiar máximo
+é **4,4**, e o topo da banda fica **acima** da saturação. Terceira vez nesta linha de
+trabalho em que instrumento grosso produziu número neat demais; a desconfiança
+estava certa e a explicação era a mais chata possível.
 
 ⚠️ **O que ainda não está medido, e não vou inferir:** por que a saturação chega
 onde chega. O gap máximo intra-estrato publicado (0,0318) foi medido **só no
@@ -208,6 +214,76 @@ sub-pool global**, e o pipeline real tem dois sub-pools intercalados mais a
 disputa contra o pool principal por `salience` crua no `pickDedup`. Os gaps do
 sub-pool do agente **não foram medidos**. Sem eles, a localização da saturação é
 observação, não mecanismo.
+
+### 5.1 O limiar por estado — `w_min`, medido no grid fino
+
+`replay-resumo.py --limiar out/limiar-17.json`. Grid de **23 doses** entre `0,02` e `13`,
+aplicado aos **17** estados que a varredura grossa mostrou que chegam a mexer (a lista é
+completa: a resposta é monótona nos 350, logo estado que mexe em algum `w` mexe em
+100.000).
+
+| | |
+|---|---|
+| estados | 17 |
+| doses | 23 (`0,02` … `13`) |
+| não monótonos | **0** |
+| sem limiar dentro do grid | **0** |
+| `w_min` mínimo | **0,02** (o piso do grid) |
+| `w_min` mediano | **1,7** |
+| `w_min` máximo | **4,4** |
+
+Espalhamento de **220×** entre o menor e o maior limiar. Cinco estados viram no piso do
+grid (`w = 0,02`, boost de `0,00043` em S1) — são quase-empates, e a resposta ali é
+"qualquer boost serve". Dois exigem `4,4`.
+
+### 5.2 A grandeza que governa é DISTÂNCIA, não PASSO — e isso invalida o item 7 na raiz
+
+`replay-resumo.py --gaps out/gaps.json`, mesmo `T_REF` e corpus da âncora, pool montado
+pelo `fetchFreshCandidates` real:
+
+| coluna | pool | estratos | pares no estrato | zeros | positivos | `gap_max` |
+|---|---|---|---|---|---|---|
+| só pares com chunk do estudo *(a publicada)* | 108 | 44 | **38** | **11** | **27** | **0,031808734967844865** |
+| todos os pares | 108 | 44 | 64 | 34 | 30 | 0,05272030881340717 |
+
+A primeira linha **reproduz a âncora publicada exata** — quarta âncora independente que
+esta harness recupera. E as duas colunas medem coisas diferentes: comparar a publicada
+com a não-filtrada seria comparar contagem filtrada com não-filtrada, defeito conhecido
+desta linha de trabalho. A que limita o mecanismo é a **sem filtro**, porque o boost
+move o designado para além de quem estiver acima dele, do estudo ou não.
+
+⚠️ **Mas nenhuma das duas cota o mecanismo.** O maior `w_min` observado é `4,4`, que em S1
+vale boost **0,0946** — **1,79×** o maior passo adjacente do pool inteiro (`0,0527`). Um
+boost maior que qualquer passo entre vizinhos e ainda insuficiente só pode significar
+uma coisa: o designado atravessa **várias posições** até alcançar os 2 slots de cobertura.
+A grandeza é a **distância acumulada**, não o passo.
+
+O gatilho do item 7 foi calibrado sobre passo adjacente (`0,0318`, com margem "1,35×"
+contra `Δ_cut`). **Ele pode ficar verde enquanto o canal satura**, porque vigia uma
+quantidade que não limita o que ele deveria detectar. A calibração está inválida no nível
+da grandeza, não do número.
+
+### 5.3 E o sub-pool do agente está VAZIO — o canal inteiro é o global
+
+Eu esperava achar gaps maiores no sub-pool do agente. Não há sub-pool do agente:
+
+| agente | patterns | pool em `T_REF` |
+|---|---|---|
+| nox · atlas · boris · cipher · forge · lex | `sessions/<agente>/%` | **0** |
+
+E **não** é que os patterns não casem. Em `T_REF` havia 265 (nox), 6.001 (cipher) e 3.011
+(atlas) chunks em `sessions/<agente>/%` passando o piso de `importance ≥ 0,7`, e **zero**
+passando a janela de `freshMaxAgeDays = 7`. O sub-pool do agente está vazio **por idade**.
+
+Consequência: `interleaveFresh([], global) === global`. Todo o canal de tratamento é o
+sub-pool **global** — 108 candidatos de `memory/entities/%` e `memory/lessons.md`. A
+intercalação de dois sub-pools, que o código implementa e comenta em detalhe, é
+**função-zero neste regime**.
+
+⚠️ Isto é um fato sobre `T_REF = 2026-08-26 20:35Z`, não uma propriedade permanente: basta
+uma rajada de sessões para o sub-pool do agente reaparecer e a composição do canal mudar
+sob os pés do estudo. **Vigiar isso é mais urgente que o gatilho do item 7** — e nenhum
+documento anterior o registra.
 
 ## 6. O que isto licencia, e o que não
 
@@ -226,7 +302,10 @@ ids que entram e saem. É o pré-requisito do item 4 (o `N = f(dados)`) e do ite
   intra-estrato do sub-pool do **agente**;
 - **nada sobre carry-over.** `last_served` não é congelado pelo snapshot de epoch
   e realimenta: tratar em `T` altera a estrutura de estratos em `T+1`. É o item 6
-  do protocolo, deliberadamente aberto.
+  do protocolo, deliberadamente aberto;
+- **nenhuma calibração de dose que sobreviva à composição do canal mudar.** Todos os
+  números aqui valem com o sub-pool do agente **vazio** (§5.3). Se ele reaparecer, a
+  distribuição de `w_min` muda e a escala tem de ser remedida.
 
 ## 7. Um resultado negativo que vale registrar
 
