@@ -358,6 +358,34 @@ def doc_check(root: Path) -> list[str]:
     return failures
 
 
+ANCORAS_DA_EMENDA = ("perde estatuto de parâmetro", "a banda é invalidada",
+                     "gap máximo **intragrupo**")
+
+
+def _alvo_emenda(root: Path) -> Path | None:
+    """O documento que carrega a emenda, resolvido por CONTEÚDO e não por nome.
+
+    ⚠️ Duas funções deste script prendiam o nome `AMENDMENT-DRAFT-band-collapse-...md`.
+    No dia do depósito o arquivo é renomeado (`AMENDMENT-v1.13.md`, como a v1.12 foi), e
+    aí uma delas quebrava por motivo errado e a outra **falhava aberta** — a checagem
+    simplesmente não rodava, sem dizer nada. Falhar aberto num guarda é pior que
+    falhar: o verde passa a significar "não olhei".
+
+    Cada âncora foi conferida em 2026-08-27 como presente na emenda e ausente de todo
+    outro `.md` do pacote. `receipts/` fica fora: são saídas externas que CITAM a
+    emenda inteira e casariam com qualquer âncora.
+    """
+    if (direto := root / "AMENDMENT-DRAFT-band-collapse-2026-08-26.md").exists():
+        return direto
+    for p in sorted(root.rglob("*.md")):
+        if "receipts" in p.parts:
+            continue
+        texto = p.read_text(encoding="utf-8", errors="ignore").lower()
+        if any(a in texto for a in ANCORAS_DA_EMENDA):
+            return p
+    return None
+
+
 def janela_check(root: Path) -> list[str]:
     """Recomputa a taxa central da emenda a partir do EXTRATO DEPOSITADO.
 
@@ -411,8 +439,13 @@ def janela_check(root: Path) -> list[str]:
     # --- a autodescrição do depósito: saídas afirmadas vs saídas existentes ---
     rec = root / "receipts"
     saidas = sorted(rec.glob("adversary-output-*")) if rec.exists() else []
-    alvo = root / "AMENDMENT-DRAFT-band-collapse-2026-08-26.md"
-    if alvo.exists():
+    alvo = _alvo_emenda(root)
+    if alvo is None:
+        failures.append(
+            "nenhum .md do pacote carrega a emenda (âncoras: "
+            f"{', '.join(ANCORAS_DA_EMENDA)}) — a checagem das saídas não pode rodar"
+        )
+    else:
         texto = alvo.read_text(encoding="utf-8")
         if len(saidas) < 5 and re.search(r"[Rr]ecibos e saídas das cinco vozes", texto):
             failures.append(
@@ -562,19 +595,12 @@ def delta_cut_check(root: Path) -> list[str]:
     # lugar do pacote). Número pequeno buscado por substring em corpus inteiro é um
     # guarda que nunca morde. Cada checagem abaixo amarra o valor a uma palavra
     # vizinha, no arquivo que faz a afirmação.
-    alvo = root / "AMENDMENT-DRAFT-band-collapse-2026-08-26.md"
-    if not alvo.exists():
-        # O rascunho virou depósito e foi renomeado: procurar quem herdou a seção.
-        herdeiros = [
-            p for p in root.rglob("*.md")
-            if "condição de ativação" in p.read_text(encoding="utf-8", errors="ignore").lower()
+    alvo = _alvo_emenda(root)
+    if alvo is None:
+        return failures + [
+            "nenhum .md do pacote carrega a emenda (âncoras: "
+            f"{', '.join(ANCORAS_DA_EMENDA)}) — a medição de Δ_cut perdeu o documento"
         ]
-        if not herdeiros:
-            return failures + [
-                f"{alvo.name}: missing and no document carries the activation-condition "
-                f"section — the Δ_cut measurement lost its home"
-            ]
-        alvo = herdeiros[0]
     texto = alvo.read_text(encoding="utf-8", errors="ignore")
 
     def ancorado(padrao: str, rotulo: str, valor: str) -> None:

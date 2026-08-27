@@ -22,6 +22,50 @@ assigned — but the corpus is no longer the only thing measured. The distinctio
 matters because "historical corpus" invites the reading that nothing in this
 package touched live serving, and something did.
 
+## Start here, for v1.13
+
+`AMENDMENT-v1.13.md` is the document this version exists for. It **withdraws
+`Δ_cut = 0.043` from the status of a scientific parameter** and **blocks the start of
+the study** until a prospective calibration protocol is registered. The block is a
+decision of the amendment, not an external impediment.
+
+It is descriptive, like v1.12: it declares facts, retracts **15** further claims
+(29–43) with the measurement replacing each, and names what remains open. Seven of
+those retractions retract *its own earlier redactions* — the amendment went through
+three redactions and six adversarial reviews, and what fell is named in its §7 rather
+than quietly removed.
+
+Read it before `PREREG-DRAFT.md` and before `AMENDMENT-v1.12.md`. Where they disagree,
+the later document says so; the registration is preserved as registered.
+
+✅ **The defect v1.12 declared open is closed.** The designation rule is now a draw
+with a publicly declared seed — drand quicknet round `31657512`, declared 1,056 seconds
+before the round was emitted, with the verdict frame deposited *before* the randomness
+existed. `DESIGNATION-SEED-2026-08-26.md` carries the parameters and
+`designation_verify.py` lets a third party rederive the 19 designated chunks from
+`p2-verdict-frame-2026-08-26.csv` and the public beacon alone. One reviewer did exactly
+that and obtained the same set hash.
+
+### File keys are FLAT — the mapping matters for the citations
+
+The deposit has no directories, so paths cited inside the documents are prefixed here.
+Without this table, a citation like `measurement/gap-defs.mjs` resolves to nothing:
+
+| cited in the documents as | deposited as |
+|---|---|
+| `src/api/brief.ts` and the other four serving modules | `serving-brief.ts`, `serving-brief-diversity.ts`, `serving-brief-outcome.ts`, `serving-salience.ts`, `serving-search.ts` |
+| `src/__tests__/p2-outcome.test.ts` | `serving-p2-outcome-test.ts` |
+| `measurement/<file>` | `measurement-<file>` (20 files) |
+| `receipts/<file>` | `receipts-<file>` (7 files) |
+| this file | `README.md` |
+
+`SERVING-CODE-MANIFEST.md` carries the original path, commit and `sha256` of every
+code blob. ⚠️ The blobs are pinned by **`sha256` of file bytes**, not only by commit:
+an earlier redaction cited a commit hash that no longer exists, its name having been
+rewritten by a history reconciliation while the content survived.
+
+---
+
 ## Start here, for v1.12
 
 `AMENDMENT-v1.12.md` is the document this version exists for. It is
