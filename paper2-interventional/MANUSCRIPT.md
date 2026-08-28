@@ -49,7 +49,11 @@ O mecanismo do canal de cobertura é **dedutível do código**. Ele ordena por u
 não uma resposta proporcional, para qualquer bônus aditivo no score **desse canal**.
 Testamos com dose crescente em produção e replay fiel ao pipeline real em **350 de 350**
 briefs: resposta monótona em cada estado, saturação em `w ∈ (4,0; 4,4]`, teto de
-**4,86%** dos briefs.
+**4,86%** dos briefs. E o teto não é constante do mecanismo, em dois eixos que medimos:
+sob a mesma regra com outro sorteio de designados ele vai a **7,43%** (mediana 5,71%, e o
+sorteio em vigor é o menor de nove), e truncando a resolução do timestamp de segundo para
+minuto ou hora vai a **36%** e **80%** — sem alterar uma linha de código. **O alcance do
+mecanismo é fixado por decisões que ninguém tomou como política.**
 
 ⚠️ **O que não afirmamos.** Nenhum efeito sobre o comportamento do agente: não há
 desfecho a jusante instrumentado (§5.4). Que a concentração seja *errada* — uma política
