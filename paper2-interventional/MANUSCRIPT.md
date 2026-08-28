@@ -475,17 +475,48 @@ Três leituras, e cada uma precisa da anterior:
 3. **as entradas são duas injeções discretas.** A de 22/08 é uma **única leva de
    ingestão**: 108 chunks criados entre 21/08 22:51 e 22/08 02:01, de 56 arquivos.
 
-O mecanismo, então, é a interação de duas coisas já documentadas: o pool de cobertura
-exige `freshMaxAgeDays = 7`, e a ingestão chega **em lotes**. Cada lote alimenta o canal
-por exatamente 7 dias e depois expira; entre lotes o pool fica **vazio**,
-`interleaveFresh([], global) === global`, e os 2 slots de cobertura caem no pool global,
-que está congelado. A leva de 09–10/08 alimentou até 16/08 e morreu em 17/08 — sete dias
-depois de 10/08.
+O mecanismo, então, é a interação de duas coisas: a ingestão chega **em lotes**, e o
+sub-pool de cobertura **por agente** exige `freshMaxAgeDays = 7`. Cada lote alimenta o
+canal por sete dias e some; entre lotes esse sub-pool fica **vazio**,
+`interleaveFresh([], global) === global`, e os 2 slots caem no pool **global**, que está
+congelado.
 
-📌 **Predição datada, e é falsificável antes da submissão:** a leva de 21–22/08 tem
-5,92–6,47 dias em 28/08. Ela **expira em 29/08**, e o canal volta a servir zero frescos
-a menos que outro lote chegue. Se isso não acontecer, o mecanismo aqui descrito está
-errado.
+⚠️ **Há duas janelas, e citar só a primeira seria enganoso.**
+`brief-diversity.ts:61-62` fixa `freshMaxAgeDays = 7` para o sub-pool por agente e
+`freshGlobalMaxAgeDays = 30` para o global (`brief.ts:809`, `:845`), sem override no
+ambiente. Um lote portanto continua **elegível** no canal global por mais 23 dias depois
+de sair do canal por agente — e mesmo assim para de ser servido. Não é contradição: o
+global ordena por `last_served ASC`, e quem acabou de ser servido vai para o **fim** da
+fila, atrás de qualquer coisa menos-recentemente-servida dentro dos 30 dias. **Elegível
+e alcançável são coisas diferentes**, e essa distinção é o que sustenta o parágrafo
+anterior.
+
+**A verificação não depende de esperar.** O lote de 09–10/08 já viveu o ciclo inteiro, e
+retrodição sobre dado que já existe é teste mais forte que predição — o resultado não
+pode ser ajustado depois (`measurement/ciclo-do-lote.py`, artefato
+`BATCH-CYCLE-2026-08-28.json`):
+
+| dia | do lote servidos | idade mín. | **idade máx.** |
+|---|---:|---:|---:|
+| 09/08 | 21 | 0,00 | 0,95 |
+| 10–15/08 | 75 | 0,00 → 4,92 | 1,83 → **6,95** |
+| 16/08 | **54** | 5,92 | **6,91** |
+| 17/08 em diante | **0** | — | — |
+
+O que localiza o corte é a **máxima**, não a mínima: se o predicado é `idade ≤ K`, nenhum
+dia pode exibir máxima ≥ K. Em oito dias de serviço a máxima **nunca alcança 7,00** —
+chega a 6,95 e para. E em 16/08 o lote encolhe de 75 para 54: são os que cruzaram os sete
+dias saindo, um a um, no dia em que cruzaram. Em 17/08 zera e **não volta** — apesar dos
+23 dias de elegibilidade global restantes. O script aborta se qualquer dia servir algo
+com idade ≥ o corte declarado; declarando 6,5 em vez de 7, ele acusa dois dias e sai com
+erro, logo o `corte respeitado` da tabela é asserção que morde.
+
+📌 **A predição datada segue valendo, agora como confirmação e não como única
+evidência.** O lote de 21–22/08 tem máxima servida de **6,53** dias em 28/08 e cruza 7,00
+entre 28/08 22:51 e 29/08 02:01 UTC. Previsto para 29/08: os 108 chunks do lote servidos
+**zero** vezes, e o total de distintos caindo de 141 para ≈ 33, salvo chegada de lote
+novo. No ciclo anterior a mesma conta deu 100 → 49 contra 46 previstos. Se o lote
+continuar sendo servido em 29/08, o mecanismo aqui descrito está errado.
 
 **Por que isso é resultado e não nota de rodapé:** a renovação da superfície não é
 governada pela relevância nem pelo ranker — é governada por **quando alguém ingeriu um
@@ -1179,6 +1210,7 @@ Tudo em `measurement/`, com `--assert-json` travando cada número citado:
 | superfície de exposição | `superficie-de-exposicao.py` | `out/superficie.json` |
 | replay + dose + limiar + gaps | `replay-oportunidade.mjs` · `replay-resumo.py` | `out/c-350-v3.json` · `out/dose-350-v3.json` · `out/limiar-17.json` · `out/gaps.json` |
 | granularidade do teto (§5.7) | `replay-oportunidade.mjs --granularidade` · `granularidade-do-teto.py` | `out/gran-{seg,min,hora,dia}.json` · `out/gran3-{seg,min,hora}.json` · `CEILING-GRANULARITY-2026-08-28.json` |
+| ciclo do lote no canal de cobertura (§4.3.1) | `ciclo-do-lote.py` · `regime-cobertura.py` | `BATCH-CYCLE-2026-08-28.json` |
 | exposição ao defeito de resolução | `irmaos-no-segundo.py` | — |
 | gatilhos de monitoramento | `gatilho-saturacao.sh` · `gatilho-composicao.mjs` | `implantacao/` |
 

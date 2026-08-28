@@ -1,0 +1,124 @@
+{
+  "db": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+  "corte_dias": 7.0,
+  "lotes": [
+    {
+      "criado_de": "2026-08-09",
+      "criado_ate_exclusivo": "2026-08-11",
+      "chunks_criados": 200,
+      "chunks_do_lote_que_chegaram_a_ser_servidos": 75,
+      "serie": [
+        {
+          "dia": "2026-08-09",
+          "servidos": 21,
+          "idade_min": 0.0,
+          "idade_max": 0.95
+        },
+        {
+          "dia": "2026-08-10",
+          "servidos": 75,
+          "idade_min": 0.0,
+          "idade_max": 1.83
+        },
+        {
+          "dia": "2026-08-11",
+          "servidos": 75,
+          "idade_min": 0.92,
+          "idade_max": 2.95
+        },
+        {
+          "dia": "2026-08-12",
+          "servidos": 75,
+          "idade_min": 1.93,
+          "idade_max": 3.81
+        },
+        {
+          "dia": "2026-08-13",
+          "servidos": 75,
+          "idade_min": 2.92,
+          "idade_max": 4.95
+        },
+        {
+          "dia": "2026-08-14",
+          "servidos": 75,
+          "idade_min": 3.92,
+          "idade_max": 5.95
+        },
+        {
+          "dia": "2026-08-15",
+          "servidos": 75,
+          "idade_min": 4.92,
+          "idade_max": 6.95
+        },
+        {
+          "dia": "2026-08-16",
+          "servidos": 54,
+          "idade_min": 5.92,
+          "idade_max": 6.91
+        }
+      ],
+      "ultimo_dia_com_servico": "2026-08-16",
+      "dias_sem_servico_no_meio": [],
+      "voltou_depois_de_zerar": false,
+      "dias_acima_do_corte": [],
+      "corte_respeitado": true,
+      "idade_maxima_jamais_servida": 6.95
+    },
+    {
+      "criado_de": "2026-08-21",
+      "criado_ate_exclusivo": "2026-08-23",
+      "chunks_criados": 199,
+      "chunks_do_lote_que_chegaram_a_ser_servidos": 109,
+      "serie": [
+        {
+          "dia": "2026-08-22",
+          "servidos": 108,
+          "idade_min": 0.72,
+          "idade_max": 1.03
+        },
+        {
+          "dia": "2026-08-23",
+          "servidos": 108,
+          "idade_min": 0.92,
+          "idade_max": 2.04
+        },
+        {
+          "dia": "2026-08-24",
+          "servidos": 108,
+          "idade_min": 1.92,
+          "idade_max": 3.04
+        },
+        {
+          "dia": "2026-08-25",
+          "servidos": 108,
+          "idade_min": 2.92,
+          "idade_max": 4.04
+        },
+        {
+          "dia": "2026-08-26",
+          "servidos": 109,
+          "idade_min": 3.92,
+          "idade_max": 5.04
+        },
+        {
+          "dia": "2026-08-27",
+          "servidos": 108,
+          "idade_min": 4.92,
+          "idade_max": 6.04
+        },
+        {
+          "dia": "2026-08-28",
+          "servidos": 108,
+          "idade_min": 5.92,
+          "idade_max": 6.53
+        }
+      ],
+      "ultimo_dia_com_servico": "2026-08-28",
+      "dias_sem_servico_no_meio": [],
+      "voltou_depois_de_zerar": false,
+      "dias_acima_do_corte": [],
+      "corte_respeitado": true,
+      "idade_maxima_jamais_servida": 6.53
+    }
+  ]
+}
