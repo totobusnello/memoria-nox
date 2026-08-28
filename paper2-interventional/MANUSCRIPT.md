@@ -166,8 +166,15 @@ Três parâmetros dessa descrição são, eles mesmos, resultados — e o §5 os
 álgebra do comparador, e não empírica; quantos sistemas compartilham essa forma é
 pergunta aberta que o diagnóstico publicado permite responder um sistema por vez.
 
-**[FALTA: figura de arquitetura — corpus → dois canais → 10 slots, com o comparador
-anotado no canal de cobertura.]**
+**Figura 0** — `measurement/out/fig0-arquitetura.svg`: corpus → dois canais → 10 slots,
+com o comparador anotado no canal de cobertura e os 2 slots dele destacados.
+
+⚠️ É a **única** figura do paper que não deriva de dado: um diagrama de arquitetura é
+afirmação sobre o **código**, não sobre uma medição, e a geometria é escrita à mão. Mas
+todo **número** rotulado nela vem de `out/superficie.json` — rótulo digitado envelhece
+para falso em silêncio, e neste projeto já envelheceu uma vez. O gerador **aborta** se a
+identidade `expostos-vivos + nunca-expostos = corpus` deixar de fechar; foi ele que
+expôs, ao ser escrito, que a soma ingênua excede o corpus em 152.
 
 ⚠️ Declarar explicitamente que é **um** sistema. A generalização do §7 é **dedutiva**
 (da álgebra do comparador), não empírica.
@@ -227,8 +234,11 @@ bater no desfecho.
 | **nunca exposto por nenhuma** | **56.288 = 83,78%** |
 | desses, passam o próprio piso de relevância do sistema | **10.008** |
 
-*(152 chunks servidos no brief foram depois apagados do corpus — daí
-`corpus − união ≠ nunca-exposto`.)*
+⚠️ **As duas linhas contam populações diferentes**, e a soma denuncia: 11.051 + 56.288
+= 67.339, **152 a mais** que o corpus. A união conta o que já foi exposto *alguma vez*,
+inclusive 152 chunks servidos no brief e **apagados depois**; o complemento conta o que
+existe *hoje* e nunca foi. Descontando-os, 10.899 + 56.288 = 67.187 exato. O percentual
+citado é sobre o corpus vivo, que é a população da qual se pode dizer "nunca exposto".
 
 ⚠️ **E a leitura tentadora é falsa.** Dos 10.008, **8.928** são fragmentos de sessão de
 205 caracteres em média. O achado não é "dez mil lições invisíveis".
