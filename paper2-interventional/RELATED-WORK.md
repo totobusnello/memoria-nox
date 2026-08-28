@@ -144,6 +144,7 @@ The three sit in a clean progression, and the manuscript should say so plainly: 
 ## Provenance
 
 - Survey read in full 2026-08-13; string counts reproduced via `pdftotext` over `2602.06052v4`. arXiv IDs for §3 extracted from the survey's own bibliography, then confirmed against arXiv.
+- **Counts recomputed 2026-08-28** by `measurement/survey-string-count.py` against the v4 PDF pinned by sha256 `497e95492cb4bd8a8b45f813afabbb1d202c98076fb5f091be316a9b271b46a6` (429,387 chars; 63 end-of-line hyphenations stitched before counting; body and bibliography counted separately). The 2026-08-13 reading note is confirmed exactly: all eight *pre-registration* spellings **0/0**, `interventional` **1**, `counterfactual` **1**. New from the recompute: `randomized`/`randomised` and `ablation`/`ablations` are also **0** — the absence is of the whole methodological family, not of one term. A positive control (`memory`, `agent`, `benchmark`, `evaluation` above floors) gates the run, because a broken extraction yields zero for free.
 - §3 written from arXiv abstracts and metadata, **not** from full papers.
 - §4 and §4.1 written from the full texts of 2602.16313 and 2511.20857, read 2026-08-15. Quotations verified against the arXiv HTML.
 - Analysis and the Stanford-authorship finding: memory `[[project_agent_memory_survey_tmlr_2602_06052]]`.

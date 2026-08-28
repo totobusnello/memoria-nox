@@ -37,15 +37,71 @@ desfecho a jusante instrumentado (§5.4).
 
 ## 1. Introdução
 
-**[FALTA — parágrafos 1–3.]** Esqueleto do argumento:
+Um sistema de memória para agentes é julgado, hoje, pela qualidade da recuperação:
+dado um conjunto de queries, quão bem ele ordena o que é relevante. É a pergunta que os
+benchmarks respondem e é a pergunta que a engenharia otimiza — embeddings melhores,
+reranking, expansão de query. Ela pressupõe, sem dizer, que o que o agente recebe é o
+topo dessa ordenação.
 
-- **O gap.** O survey canônico da área (TMLR 2602.06052v4) mapeia arquiteturas e
-  benchmarks de memória para agentes. Benchmarks medem nDCG/recall sobre conjuntos de
-  queries. Nenhum mede a **superfície de entrega**: quantos itens distintos um agente
-  em produção realmente vê, e quais. E o survey tem **zero** ocorrências de
-  "pre-registration" — a área não tem literatura de metodologia experimental para
-  intervenções em memória viva. **[FALTA: confirmar a contagem de ocorrências contra o
-  PDF v4 antes de submeter; hoje o número vem de nota de leitura, não de recomputo.]**
+Em produção, não é. O que chega ao agente passa antes por uma **superfície de entrega**
+de capacidade fixa: um brief de 10 itens no início da sessão, e a busca sob demanda.
+Dez slots, servidos algumas centenas de vezes por dia, contra um corpus de dezenas de
+milhares de itens. Se essa superfície é o gargalo, então melhorar a ordenação não
+melhora a exposição, e boa parte do esforço da área está otimizando uma coordenada que
+não é a que decide. Isso é verificável, e ninguém verificou: medir exige acesso ao
+sistema **em operação**, não a um conjunto de queries.
+
+Este paper mede. Por 12 semanas, instrumentamos as duas superfícies de exposição de um
+sistema de memória em produção — 6 agentes, ~670 briefs/dia, 67.187 chunks — e
+registramos, item a item, o que cada uma entregou. **83,78% do corpus nunca foi exposto
+por nenhuma das duas.** E o que decide quem entra não é a relevância que o próprio
+sistema atribui: é o **tamanho da coleção** a que o item pertence
+(`r = −0,728` entre `log₁₀(tamanho)` e `% exposto`, sem uma única sobreposição entre
+tipos grandes e pequenos). Um tipo com 53 itens é exposto em 100%; um com 32.920, em
+10,7%.
+
+O achado tem mecanismo, e o mecanismo é **dedutível do código** em vez de inferido dos
+dados: os slots de cobertura são ordenados por um comparador **lexicográfico**
+`(last_served ASC, salience DESC)`, que só consulta o score quando a primeira
+coordenada empata. Qualquer bônus aditivo no score age, portanto, na coordenada
+**subordinada** — e isso prediz um **teto**, não uma resposta proporcional. Testamos a
+predição intervindo em produção com dose crescente e replay fiel ao pipeline real em
+350 de 350 briefs: a resposta é monótona, satura em `w ∈ (4,0; 4,4]`, e o teto é
+**4,86%** dos briefs. A predição sobrevive ao teste que poderia tê-la matado.
+
+⚠️ **O que este paper não afirma:** que a exposição mudou o **comportamento** do agente.
+Não há desfecho a jusante instrumentado, e a §5.4 diz por quê. O objeto medido é a
+superfície, não o efeito dela.
+
+- **O gap.** O survey canônico da área (TMLR 2602.06052v4, 218 papers) mapeia
+  arquiteturas e benchmarks de memória para agentes. Benchmarks medem nDCG/recall sobre
+  conjuntos de queries. Nenhum mede a **superfície de entrega**: quantos itens distintos
+  um agente em produção realmente vê, e quais.
+
+  E o vocabulário de metodologia experimental **não está lá**. Recomputado sobre o PDF
+  v4 (`measurement/survey-string-count.py`, sha256 `497e9549…b46a6`, 429.387 caracteres,
+  63 hifenizações de fim de linha costuradas antes de contar):
+
+  | termo | corpo | bibliografia |
+  |---|---|---|
+  | `pre-registration` / `preregistration` (e as 6 outras grafias) | **0** | **0** |
+  | `randomized` / `randomised` | **0** | **0** |
+  | `ablation` / `ablations` | **0** | **0** |
+  | `interventional` | 1 | 0 |
+  | `counterfactual` | 1 | 0 |
+
+  Não é ausência de uma palavra: é ausência da **família inteira**. Um survey de 218
+  papers que diz `memory` 1.169 vezes e `randomized` nenhuma não está omitindo um
+  termo — está descrevendo um campo cujo instrumento é o benchmark offline, não o
+  experimento. As duas ocorrências que existem são singulares e uma delas, a de
+  `counterfactual`, aparece como direção futura sugerida.
+
+  ⚠️ **Zero é o resultado que uma extração quebrada produz de graça**, então a contagem
+  roda com controle positivo (`memory`, `agent`, `benchmark`, `evaluation` acima de
+  pisos) e aborta se ele falhar. O controle chegou a disparar por `ablation=0`: era o
+  **piso** que estava errado — survey cataloga, não ablaciona — e a checagem direta
+  (`memory`=1.208, `benchmark`=126 no mesmo texto) mostrou a extração íntegra. O termo
+  saiu do controle e virou dado.
 - **Por que a pergunta importa.** Se a superfície tem capacidade fixa e pequena,
   então melhorar *ranking* não melhora *exposição* — e a maior parte do trabalho de
   engenharia de memória (embeddings melhores, reranking, expansão de query) está
@@ -535,12 +591,23 @@ versão citada. Hoje o último depósito é a v1.12, anterior a tudo isto.
 
 ## O que falta, em ordem de quem bloqueia quem
 
-1. **Figura 1** (tamanho × exposição) — é a figura do paper e o dado está pronto;
-2. **§5, derivação formal** — pura escrita, nada a medir;
-3. **§1 e §8** — introdução e trabalho relacionado; exige leitura, não medição;
-4. **recomputar a contagem de "pre-registration" no survey** antes de afirmá-la;
-5. **explicar a quebra de regime de 21–22/08** na diversidade de cobertura;
-6. **decidir S2**: reportar separado como exploratório, ou remover;
-7. **Abstract**, por último;
-8. **depósito** com o manuscrito + artefatos, e aí a emenda agrupada faz sentido: um
+✅ **Figura 1** — gerada por `fig1-capacidade.py` a partir de `out/superficie.json`
+(commit `dea2d4a`); reconferida em 28/08, reproduz byte a byte, logo ainda deriva do
+dado e não é desenho.
+✅ **§5, derivação formal** — escrita em 27/08, com o teste que primeiro refutou o
+próprio instrumento e depois passou (17 estados · 20 entradas · 0 cruzadas).
+✅ **contagem de "pre-registration" no survey** — recomputada em 28/08 sobre o PDF v4
+pinado por sha256, com controle positivo. Confirma a nota de 13/08 e acrescenta que
+`randomized` e `ablation` também são zero.
+
+Falta:
+
+1. **§1** — parágrafos de abertura; o esqueleto e os números já estão no lugar;
+2. **§8 e §9** — trabalho relacionado (~1 página, exige leitura) e discussão;
+3. **Figuras 2 e 3** — concentração e dose-resposta; os dados existem;
+4. **explicar a quebra de regime de 21–22/08** na diversidade de cobertura — é o único
+   item que exige **medição nova**;
+5. **decidir S2**: reportar separado como exploratório, ou remover;
+6. **Abstract**, por último;
+7. **depósito** com o manuscrito + artefatos, e aí a emenda agrupada faz sentido: um
    registro só, declarando os desvios **e** o resultado novo.
