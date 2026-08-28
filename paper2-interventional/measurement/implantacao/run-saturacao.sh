@@ -54,14 +54,20 @@ else
   [ -n "$W" ] || morre RED shadow-w-ausente-no-unit
 fi
 
-# ⚠️ A janela muda com o modo, e o horário do job não acompanhou.
-# Em shadow a janela é o dia UTC anterior e o job às 05:41Z reporta algo que
-# fechou há 5 h. Em active a janela é o epoch [E 09:00Z, E+1 09:00Z), e às 05:41Z
-# o último epoch FECHADO terminou às 09:00Z de ONTEM — ou seja, ~21 h de atraso.
-# Não é defeito (o gatilho recusa medir epoch aberto, que é o certo), mas é
-# latência de alarme, e latência de alarme é decisão, não acidente: mover o timer
-# para ~09:10Z faz o gatilho reportar o epoch que acabou de fechar.
-# `duracao_s` e a janela na própria linha são o que deixa isso auditável.
+# ⚠️ HORÁRIO: 09:12Z, movido de 05:41Z em 2026-08-28. A janela muda com o modo.
+# Em active ela é o epoch [E 09:00Z, E+1 09:00Z), e às 05:41Z o último epoch
+# FECHADO terminava às 09:00Z de ONTEM — ~21 h de latência de alarme. Às 09:12Z o
+# gatilho reporta o epoch que acabou de fechar 12 min antes.
+#
+# 🔴 E o horário antigo tinha um segundo defeito, achado ao conferir o guarda: o
+# `morning-report.sh` (06:30Z) YELLOWa status com mais de 30 h, mas às 05:41Z uma
+# rodada PULADA envelhece só até 24,8 h ⇒ passava despercebida. Às 09:12Z a idade
+# normal é 21,3 h e a de uma rodada pulada é 45,3 h ⇒ o guarda morde. O orçamento
+# de 30 h ficou como está: 8,7 h de folga para atraso legítimo.
+#
+# ⚠️ Em `shadow` o efeito colateral é que o report descreve uma janela ~24 h mais
+# velha. Aceito: o destino é `active`, a linha carrega `janela=[...]` explícita, e
+# um alarme que detecta rodada pulada vale mais que um número recente.
 
 if [ "$MODO" = "active" ]; then
   exec timeout 2700 /root/.openclaw/scripts/p2/gatilho-saturacao.sh \

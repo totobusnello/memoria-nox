@@ -23,9 +23,11 @@ Por (3) o gatilho passou a **cruzar o log com o `ASSIGNMENT`** — epoch × epoc
 braço designado × `servido`, dose designada × `w` do log. É a única coisa em toda a
 instrumentação que compara **o que devia ser servido com o que foi**.
 
-⚠️ **Decisão pendente (não é defeito):** o job roda 05:41Z. Em `active`, o último
-epoch fechado terminou às 09:00Z do dia anterior ⇒ **~21 h** de latência de alarme.
-Mover o timer para ~09:10Z resolve. Registrado no wrapper, não executado.
+✅ **Horário movido 05:41Z → 09:12Z**, e a conferência do guarda achou um defeito
+que não era o motivo da mudança: o `morning-report.sh` (06:30Z) YELLOWa status com
+mais de 30 h, mas às 05:41Z uma **rodada pulada** envelhecia só até 24,8 h ⇒ **um
+dia inteiro sem gatilho passava como GREEN**. Às 09:12Z: normal 21,3 h, pulada
+45,3 h ⇒ morde, com 8,7 h de folga. Orçamento de 30 h mantido.
 
 Verificação: 10 casos de mutação (`measurement/teste-gatilho-active.sh`) e os testes
 mordem — neutralizar o cruzamento derruba T3/T4/T7, aceitar epoch aberto derruba T2.

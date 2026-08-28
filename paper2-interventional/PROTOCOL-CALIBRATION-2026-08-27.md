@@ -401,11 +401,20 @@ braço designado × `servido`, dose designada × `w` registrado. Divergência é
 este é o alarme mais valioso do script — é a única coisa em toda a instrumentação
 que compara **o que devia ser servido com o que foi**.
 
-⚠️ **Latência de alarme, declarada:** o job roda 05:41Z. Em shadow isso reporta um
-dia que fechou há 5 h; em `active` o último epoch fechado terminou às 09:00Z de
-*ontem*, ~21 h antes. Não é defeito — é a recusa correta de medir epoch aberto —
-mas mover o timer para **~09:10Z** faz o gatilho reportar o epoch que acabou de
-fechar. Decisão pendente, registrada no wrapper.
+✅ **Horário movido 05:41Z → 09:12Z** (28/08). Em `active` o epoch fecha às 09:00Z,
+então às 05:41Z o gatilho reportaria um epoch que terminou ~21 h antes; às 09:12Z
+reporta o que fechou 12 min antes.
+
+🔴 **E o horário antigo escondia um segundo defeito, achado ao conferir o guarda
+junto com a mudança.** O `morning-report.sh` roda 06:30Z e YELLOWa status com mais
+de **30 h**. Às 05:41Z a idade normal era 0,8 h e a de uma **rodada pulada**, 24,8 h
+— **abaixo do teto** ⇒ um dia inteiro sem gatilho passava como GREEN. Às 09:12Z a
+idade normal é 21,3 h e a de uma rodada pulada é 45,3 h ⇒ o guarda morde, com 8,7 h
+de folga para atraso legítimo. O orçamento de 30 h ficou como está.
+
+⚠️ Efeito colateral aceito: em `shadow` o report passa a descrever uma janela ~24 h
+mais velha. A linha carrega `janela=[...]` explícita, e alarme que detecta rodada
+pulada vale mais que número recente.
 
 **Testado por mutação, 10 casos** (`measurement/teste-gatilho-active.sh`), e os
 testes mordem: neutralizar o cruzamento derruba T3/T4/T7; aceitar epoch aberto
