@@ -633,22 +633,31 @@ medido; omiti-lo seria não reportar o controle.
 maior que qualquer passo entre vizinhos e ainda insuficiente ⇒ o item atravessa
 **várias** posições até alcançar os 2 slots.
 
-### 4.5 O que este desenho **não** identifica
+### 4.5 O que estas medições **não** identificam
 
-Seção obrigatória, e ela vem **antes** da discussão de propósito:
+Seção obrigatória, e ela vem **antes** da discussão de propósito. O limite mais
+importante é o primeiro, e ele vale para tudo que este paper reporta:
 
-- **nenhum efeito sobre o agente.** Não há desfecho a jusante instrumentado: três
-  tabelas de qualidade voltada ao agente com **0 linhas**; a telemetria de busca
-  registra a **sonda de saúde do cron** — em janela fechada de 7 dias, **325 de 343
-  linhas (94,8%)** caem nos dois minutos por hora em que o cron dispara, sobrando
-  **2,6 linha/dia** atribuível a agente; e das 25 colunas dessa tabela, **16 não
-  têm escritor** hoje, entre elas a única com identificação por chunk;
-- **nada randomizado.** Toda comparação temporal é antes/depois. A comparação contra o
-  agregado pós-gate mede **composição de dias** (p = 0,0326 e inutilizável); a
-  comparação adjacente defensável é subpotente (~7%);
-- **auto-extinção não testada** — a série é toda anterior ao tratamento;
-- **carry-over não modelado.** O estado de cobertura não é congelado e realimenta:
-  tratar em `T` altera a estrutura de estratos em `T+1`.
+- **nada aqui diz que a exposição faltante importa.** Não há desfecho a jusante
+  instrumentado: três tabelas de qualidade voltada ao agente com **0 linhas**; a
+  telemetria de busca registra sobretudo a **sonda de saúde do cron** — em janela fechada
+  de 7 dias, **325 de 343 linhas (94,8%)** caem nos dois minutos por hora em que o cron
+  dispara, sobrando **2,6 linha/dia** atribuível a agente; e das 25 colunas dessa tabela,
+  **16 não têm escritor** hoje, entre elas a única com identificação por chunk. Que
+  83,78% do corpus nunca tenha chegado ao agente é fato sobre a **superfície**, não sobre
+  a utilidade do que ficou de fora. Um leitor que conclua "o sistema está perdendo
+  informação valiosa" foi além do que se mediu;
+- **nada é randomizado, e nada precisa ser.** Este paper não estima efeito de
+  intervenção. Toda comparação é descritiva ou dedutiva: a superfície é censo, e o teto
+  do §5 é consequência do comparador verificada por replay. A estimação de efeito é o
+  objeto do estudo interventivo, que **não** está reportado aqui (ver "Relação com o
+  pré-registro");
+- **um sistema, um corpus, um operador.** Os números de exposição são deste sistema. O
+  que generaliza é o **método** e a forma do argumento — comparador lexicográfico impõe
+  teto, e o teto depende da granularidade da chave —, não as porcentagens;
+- **o estado de cobertura realimenta.** `last_served` não é congelado: servir em `T`
+  altera a estrutura de estratos em `T+1`. Isso limita qualquer extrapolação do teto para
+  regimes de tratamento sustentado.
 
 ## 5. Mecanismo
 
@@ -923,9 +932,15 @@ o achado. E o efeito não é só de quantidade: num dos estados o id que entra m
 
 A contribuição declarada (v) **é o método**, então omitir isto tiraria do paper uma das
 coisas que ele tem para dar. O catálogo integral tem **16** entradas e vive no Apêndice
-E. Aqui ficam as **sete que mudaram um número que este paper reporta** — porque sem elas
-o leitor não tem como auditar os números, e é esse o critério de corte, não o interesse
-da lição.
+E. Aqui ficam as **seis que mudaram um número que este paper reporta** — porque sem elas o
+leitor não tem como auditar os números, e é esse o critério de corte, não o interesse da
+lição.
+
+⚠️ O critério exclui uma que seria a mais citável de todas: um `κ` agregado de **0,874**
+reportado ao lado de uma estratificação que depende de outra fronteira, onde o painel
+concorda apenas **0,31–0,53**. Ela não entra porque **não muda nenhum número deste
+paper** — muda o estrato de análise do estudo interventivo, e vai reportada lá. Aplicar o
+critério contra a lição de que mais gostamos é o que o torna critério.
 
 | defeito | número que ele mudou |
 |---|---|
@@ -935,9 +950,8 @@ da lição.
 | grid grosso | saturação *pareceu* cair exatamente no topo da banda registrada; com 23 doses está em `(4,0 ; 4,4]` |
 | telemetria de busca por chunk **muda** desde 2026-05-19 14:47:04, numa fronteira de deploy (buraco de 1h19 nas linhas, e nulo para sempre depois), **sem `CUT`** — a convenção deste projeto para retirada deliberada | comparação entre superfícies **dentro de janela** é impossível, e passou **3,3 meses** sem ninguém notar |
 | comparação de contagem **filtrada** com **não-filtrada** | inverteu o sinal de uma conclusão: 617×245 cumulativo vira 245×≥151 na janela comum |
-| **um κ agregado reportado ao lado de uma estratificação que depende de outra fronteira** | `κ = 0,874` é o veredito falha/sucesso ≈ o corte S0/S1 (κ **0,868–0,930**). Na fronteira S1/S2, que é a que define o estrato, o κ é **0,309–0,528**. O painel concorda sobre **se** falhou e não sobre **quão grave** — e um número só escondia isso (Apêndice C.1) |
 
-O padrão que atravessa as sete, e que é o achado transferível: **cada uma passou por
+O padrão que atravessa as seis, e que é o achado transferível: **cada uma passou por
 verificação e sobreviveu.** Não são erros de descuido — são erros em que o instrumento
 de verificação compartilhava a premissa errada do que verificava. Um controle positivo
 rodado sobre o pipeline reimplementado confirma o pipeline reimplementado; um censo de
@@ -1117,39 +1131,39 @@ não-exposição seja *ruim*: parte do corpus é log, e log não precisa ser lid
 útil — o número estabelece a **escala** da população que nenhuma métrica de recuperação
 alcança, não um prejuízo. E que a exposição mude o comportamento do agente: não medimos.
 
-## Apêndice A — Desvios do pré-registro
+## Apêndice A — Relação com o pré-registro
 
-Íntegro em `DEVIATIONS-FOR-PAPER.md`. O pré-registro está depositado (OSF `yf7d2`,
-Zenodo `10.5281/zenodo.22110203`) e **não foi emendado**: a escolha foi deixá-lo como
-registrado e declarar cada desvio aqui. Isso só é honesto se a lista for completa e se
-os desvios que **favorecem** o estudo aparecerem com a mesma proeminência dos que o
-prejudicam — então a coluna de direção é obrigatória.
+Há um pré-registro público (OSF `yf7d2`, Zenodo `10.5281/zenodo.22110203`) e **este paper
+não é o estudo que ele registra.** O registro cobre um estudo **interventivo** — designar
+chunks, servir uma dose, estimar efeito — que no fechamento deste manuscrito **não havia
+começado**: o serving nunca saiu de shadow e nenhuma alocação de braço foi emitida. Os
+resultados interventivos serão reportados separadamente.
+
+O que este paper reporta são as medições feitas **enquanto** aquele estudo era construído:
+a superfície, o carrossel, o mecanismo e seu teto. Elas não estavam pré-registradas, e
+dizê-lo é a única forma honesta de apresentá-las — são **exploratórias e descritivas**,
+não confirmatórias.
+
+⚠️ **Três coisas que medimos aqui contradizem o registro, e vão ditas aqui porque o
+registro é público e alguém vai cruzar os dois:**
 
 | o registro afirma | o que se mediu | direção |
 |---|---|---|
-| `Δ_cut = 0,043` é *"the measured salience spread at the brief cut"* | **não existe cut**: o código não aplica limiar. O comparador é lexicográfico e `salience` só desempata `last_served` idêntico | ⬆ superestima |
-| a banda `{2 · 4 · 7,5}` está entre *"what does not move, and could not"* | **move**: 11 / 15 / 17 estados de 350, monótono. A dose superior está **acima** da saturação, que fica em `(4,0 ; 4,4]` | ⬇ **subestima** |
-| a alocação é `117/39/39/39` | suspensa junto com a banda — e a razão mudou: não é que as doses sejam indistinguíveis, é que a escala não tem referente | ⬆ superestima |
-| *(v1.12 §5)* a designação é defeito **aberto** | **fechada** em 26/08 20:28Z, com precedência verificável de **1.056 s** sobre a rodada drand | ⬇ **subestima** |
-| estratificação por severidade com **S2** como estrato de análise | o painel tem κ **0,31–0,53** nessa fronteira; análises substantivas migram para **`≥ S1`** (κ 0,87–0,93). Ver Apêndice C.1 | ⬆ superestima |
+| `Δ_cut = 0,043` é *"the measured salience spread at the brief cut"* | **não existe cut**: o código não aplica limiar. O comparador é lexicográfico e `salience` só desempata `last_served` idêntico (§5.1) | ⬆ o registro promete mais |
+| a banda `{2 · 4 · 7,5}` está entre *"what does not move, and could not"* | **move**: 11 / 15 / 17 estados de 350, monótono, com saturação em `(4,0 ; 4,4]` (§5.4) | ⬇ o registro promete **menos** |
+| *(v1.12 §5)* a designação é defeito **aberto** | **fechada** em 26/08 20:28Z, com precedência verificável de 1.056 s sobre a rodada drand (Apêndice B) | ⬇ o registro promete **menos** |
 
-⚠️ **As duas linhas ⬇ são as que incomodam, e são as que o tempo não conserta.** As ⬆
-fazem o registro prometer mais do que o desenho entrega — quem ler acha o estudo mais
-forte do que é, e corrigi-las custa alegação mas ganha rigor. As ⬇ fazem o oposto: o
-registro afirma que um parâmetro **não** tem efeito quando tem, e que um defeito está
-**aberto** quando foi fechado. Ninguém corrige sozinho um erro que o favorece.
+**As duas linhas ⬇ são as que importam**, porque ninguém corrige sozinho um erro que o
+favorece: o registro afirma que um parâmetro **não** tem efeito quando tem, e que um
+defeito está **aberto** quando foi fechado.
 
-⚠️ **E a linha da banda mudou de status por um defeito de instrumento meu**, não por
-dado novo: o controle positivo que produziu o *"não move"* rodava sobre um pool
-**reimplementado**. Isso é matéria do §5.6, não nota de rodapé.
+⚠️ E a linha da banda mudou de status por **defeito de instrumento nosso**, não por dado
+novo: o controle positivo que produziu o *"não move"* rodava sobre um pool
+**reimplementado**. É matéria do §5.6, não nota de rodapé.
 
-**Sobre o desvio de S2, especificamente.** Trocar o estrato de análise depois de ver os
-dados é exatamente o movimento que um pré-registro existe para impedir, então ele
-precisa de justificativa que não seja o resultado: a justificativa é uma propriedade do
-**instrumento** (concordância entre painelistas), medida sobre os votos e independente
-de qualquer desfecho. Nenhuma estimativa foi comparada entre as duas opções antes de
-escolher — e o critério, "usar a fronteira em que o painel concorda", teria sido o mesmo
-qualquer que fosse o sinal.
+A lista íntegra de desvios — inclusive os que só afetam o estudo interventivo, como a
+migração do estrato de análise de `S2` para `≥ S1` por concordância do painel — vive em
+`DEVIATIONS-FOR-PAPER.md` e pertence ao paper interventivo.
 
 ## Apêndice B — Cadeia da designação
 
@@ -1158,53 +1172,18 @@ declaração pushada **20:07:24Z** — **1.056 s** de precedência, com a rodada
 HTTP 425 no momento da escrita. Um revisor independente rederivou o conjunto designado
 usando **apenas** o beacon público e o CSV depositado.
 
-## Apêndice C — Painel de adjudicação
+## Apêndice C — O painel, e por que ele não está aqui
 
-Painel de 3 famílias (`moonshot` · `xai` · `zhipu`), 280 episódios com voto dos três,
-870 chamadas. Adjudicações: **S0 = 225 · S1 = 33 · S2 = 22**, e **zero** em S3/S4.
+A população de 55 chunks em 19 grupos vem de `p2_verdict`, produto de um painel de
+adjudicação de severidade de 3 famílias. O painel, sua concordância por fronteira e o
+parâmetro de taxa que ele estima pertencem ao **estudo interventivo** e são reportados lá
+— inclusive o achado de que um `κ` agregado de 0,874 escondia concordância de apenas
+0,31–0,53 na fronteira `≥ S2`, contra 0,87–0,93 em `≥ S1`.
 
-### C.1 🔴 Um κ agregado escondia que o painel é confiável numa fronteira e não na outra
-
-O `κ = 0,874` publicado descreve o veredito **falha/sucesso**. Reportá-lo ao lado da
-tabela de estratos convida a ler os estratos como igualmente confiáveis. Medido por
-fronteira (`painel-limiar-vs-desacordo.py`):
-
-| par | **κ(≥S1)** | **κ(≥S2)** | Jaccard do conjunto ≥S2 |
-|---|---|---|---|
-| moonshot × xai | **0,868** | 0,528 | 0,395 |
-| moonshot × zhipu | **0,870** | 0,309 | 0,208 |
-| xai × zhipu | **0,930** | 0,442 | 0,316 |
-
-O painel concorda quase perfeitamente sobre **se** houve falha e mal concorda sobre
-**quão grave** ela foi. O 0,874 é, essencialmente, o corte S0/S1.
-
-E o diagnóstico fino desmonta a leitura fácil de que "o problema é o `xai`":
-
-- `xai` é **quase superconjunto** dos outros dois — 1 de 16 e 1 de 13 fora. Isso é
-  **deslocamento de limiar**, e limiar deslocado se corrige normalizando;
-- mas `moonshot` × `zhipu`, que têm severidade quase igual (16 e 13 graves), têm
-  interseção **5**, com 11 e 8 exclusivos. Esses dois **não** discordam sobre onde
-  cortar: discordam sobre **quais** episódios são graves. Nenhuma normalização resolve.
-
-📌 **Controle positivo do instrumento:** a nota de 21/08 registra que "sem `xai`
-sobreviveriam 5". `|moonshot ∩ zhipu| = 5`, reproduzido exatamente — o script lê a mesma
-coisa que a rodada original.
-
-⚠️ **Não se usa leave-one-family-out para nada disto.** Com 3 painelistas a mediana
-inferior é o valor do meio; com 2, vira o mínimo. O LOO mistura mudança de estimador com
-mudança de painel, e indicava 40% → 9,3% no share de S2, número que carrega o artefato.
-Tudo acima é contagem direta sobre os votos.
-
-**Consequência adotada:** as análises substantivas usam **`≥ S1`**, que é onde o painel
-tem κ 0,87–0,93; a divisão S1/S2 é reportada como **achado de instrumento**, não como
-estrato de análise. Isso é desvio do pré-registro e está declarado no Apêndice A.
-
-### C.2 A regra de parada degenerou
-
-A regra pré-registrada usa incidentes **≥ S3**, cujo baseline medido é **zero** em 870
-chamadas. Isso a reduz a "≥ 1 evento derruba". É lição de desenho, e entra como tal:
-uma regra de parada calibrada sobre um estrato que nunca ocorre não é conservadora — é
-inexistente até o primeiro evento, e depois é absoluta.
+Para o que **este** paper reporta, o painel entra de um jeito só: ele fixou uma população.
+Os 19 designados são **um conjunto fixo e publicamente rederivável** (Apêndice B), e é
+tudo de que o §5 precisa. Ver a ressalva do §5.1 sobre qual dos dois números do §5 depende
+do rótulo de severidade e qual não depende.
 
 ## Apêndice D — Artefatos
 
