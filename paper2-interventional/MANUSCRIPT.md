@@ -518,6 +518,11 @@ entre 28/08 22:51 e 29/08 02:01 UTC. Previsto para 29/08: os 108 chunks do lote 
 novo. No ciclo anterior a mesma conta deu 100 → 49 contra 46 previstos. Se o lote
 continuar sendo servido em 29/08, o mecanismo aqui descrito está errado.
 
+A predição está registrada em `PREDICTION-2026-08-29.md`, **commitado em 28/08**, antes de
+o dia produzir brief nenhum — e é verificável por um comando que devolve veredito no
+código de saída, com `NÃO MEDIDA` como terceiro estado distinto de `CONFIRMADA`. Se o cron
+não rodar em 29/08, o teste diz isso em vez de calar.
+
 **Por que isso é resultado e não nota de rodapé:** a renovação da superfície não é
 governada pela relevância nem pelo ranker — é governada por **quando alguém ingeriu um
 lote**. É a mesma tese do §4.2 num segundo eixo: capacidade e calendário decidem, não

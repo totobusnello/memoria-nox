@@ -49,6 +49,10 @@ def main():
                     help="criado_de:criado_ate (ate EXCLUSIVO), ex 2026-08-09:2026-08-11")
     ap.add_argument("--corte", type=float, default=7.0,
                     help="freshMaxAgeDays do sub-pool por agente (default 7, o de produção)")
+    ap.add_argument("--esperar-zero-em", metavar="YYYY-MM-DD",
+                    help="asserção: o lote tem de ter sido servido ZERO vezes nesse dia. "
+                         "Sai 1 se foi servido — ou se o dia ainda não tem brief nenhum, "
+                         "porque 'nao medido' não é 'confirmado'.")
     ap.add_argument("--out")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
@@ -114,6 +118,26 @@ def main():
                   f"{a.corte} — o corte não é {a.corte}.", file=sys.stderr)
             for x in violam:
                 print(f"     {x['dia']}: idade_max = {x['idade_max']}", file=sys.stderr)
+        if a.esperar_zero_em:
+            d = a.esperar_zero_em
+            servido = next((x["servidos"] for x in serie if x["dia"] == d), 0)
+            # ⚠️ ausência de linha do LOTE nesse dia é ambígua: pode ser "o lote não foi
+            # servido" (o que se prevê) ou "não houve brief nenhum" (medição que não
+            # aconteceu). Distinguir exige olhar o brief_log inteiro, não só o lote.
+            houve_brief = c.execute(
+                "SELECT COUNT(*) FROM brief_log WHERE substr(served_at,1,10) = ?",
+                (d,)).fetchone()[0]
+            lote["predicao"] = {
+                "dia": d, "servidos_do_lote": servido,
+                "briefs_no_dia": houve_brief,
+                "veredito": ("CONFIRMADA" if servido == 0 and houve_brief > 0 else
+                             "NAO MEDIDA — nenhum brief nesse dia" if houve_brief == 0 else
+                             "REFUTADA"),
+            }
+            if lote["predicao"]["veredito"] != "CONFIRMADA":
+                print(f"⛔ predição {lote['predicao']['veredito']} para {d}: "
+                      f"lote servido {servido}x em {houve_brief} linhas de brief_log.",
+                      file=sys.stderr)
         saida["lotes"].append(lote)
 
     if a.json:
@@ -134,7 +158,10 @@ def main():
     if a.out:
         json.dump(saida, open(a.out, "w"), indent=2, ensure_ascii=False)
         print(f"\n→ {a.out}")
-    return 0 if all(L["corte_respeitado"] for L in saida["lotes"]) else 1
+    ok = all(L["corte_respeitado"] for L in saida["lotes"]) and all(
+        L.get("predicao", {}).get("veredito", "CONFIRMADA") == "CONFIRMADA"
+        for L in saida["lotes"])
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
