@@ -22,9 +22,13 @@ superfícies pelas quais um sistema de memória em operação entrega conteúdo 
 de 6 agentes: um brief proativo de 10 itens e a busca sob demanda.
 
 O brief entregou **583.973 slots** — **8,7 vezes** o tamanho do corpus, o suficiente para
-servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks distintos:
-2,66%**. Sob serviço uniforme a cobertura esperada seria 99,98%. **A capacidade não é o
-gargalo; a política de ordenação é.** Somando a busca, **83,78% do corpus nunca foi
+servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks distintos: 2,66%** —
+**325 slots gastos por chunk distinto.** Essa razão é o teste que separa as duas
+hipóteses: sob gargalo de capacidade ela seria ≈ 1, com cada slot mostrando algo novo
+até esgotar; sob gargalo de política, ≫ 1. **A capacidade não obriga o resultado; a
+ordenação o produz.** (A cobertura de 99,98% sob serviço uniforme aparece como limite
+aritmético do que a capacidade permitiria, não como política recomendada — servir
+memória ao acaso seria pior que não servir.) Somando a busca, **83,78% do corpus nunca foi
 exposto por nenhuma das duas superfícies.**
 
 **Os dois canais da superfície congelam, por motivos opostos e nenhum ligado a
@@ -267,12 +271,48 @@ bater no desfecho.
 
 | | |
 |---|---|
-| corpus | **67.187** |
-| exposto no brief | 1.787 |
-| exposto na busca | 9.755 |
-| união | 11.051 |
-| **nunca exposto por nenhuma** | **56.288 = 83,78%** |
+| corpus **vivo** | **67.187** |
+| exposto no brief (histórico) | 1.787 |
+| exposto na busca (histórico) | 9.755 |
+| união histórica | 11.051 |
+| — desses, **apagados depois** | 152 |
+| **união viva** = 11.051 − 152 | **10.899** |
+| **nunca exposto por nenhuma** = 67.187 − 10.899 | **56.288 = 83,78%** |
 | desses, passam o próprio piso de relevância do sistema | **10.008** |
+
+A tabela fecha em **um** universo — o corpus vivo — e a linha dos 152 é o que faz a
+ponte. A versão anterior listava a união histórica ao lado do complemento vivo, e quem
+subtraísse `67.187 − 11.051` obtinha 56.136 em vez de 56.288. Os números estavam certos
+e a tabela, não.
+
+#### 4.1.1 Capacidade não obriga o resultado — e a distinção é testável
+
+⚠️ **Uma objeção que precisa ser respondida antes de qualquer coisa: 583.973 slots
+acumulados não são fungíveis.** A superfície entrega **10 itens por sessão**, e se uma
+sessão precisasse de mais de 10 itens relevantes, a capacidade estaria vinculante *hoje*,
+por mais folga que houvesse no acumulado. A objeção é correta e restringe a alegação:
+não afirmamos que 10 slots por sessão sejam muitos.
+
+**A alegação é sobre rotação, não sobre tamanho da sessão.** A pergunta medida é quantos
+itens *distintos* a superfície já mostrou alguma vez, e para essa pergunta os slots
+**são** fungíveis no tempo: nada obriga a sessão de hoje a mostrar os mesmos 10 itens de
+ontem, e mostrar dez itens diferentes por sessão jamais violaria o limite de dez.
+
+E as duas hipóteses fazem **predições diferentes e opostas** sobre a mesma quantidade:
+
+| se o gargalo é… | então `slots / distintos` deveria ser… | observado |
+|---|---|---|
+| **capacidade** — não há onde colocar mais | ≈ 1, cada slot mostrando algo novo até esgotar | — |
+| **política** — há onde, e reusa-se o mesmo | ≫ 1 | **325** |
+
+**325 slots gastos por chunk distinto.** Não é um contraste contra o espantalho do
+serviço uniforme; é uma razão que a hipótese de capacidade não pode produzir. Se a
+superfície estivesse saturada de itens novos, essa razão seria próxima de 1.
+
+📌 É por isso que o contrafactual uniforme (99,98%) aparece neste paper como **limite
+superior aritmético** e não como política recomendada. Servir memória ao acaso seria
+pior que não servir — o número existe para dizer o que a capacidade *permitiria*, não o
+que se deveria fazer.
 
 🔴 **As duas superfícies não são a mesma espécie de coisa, e a maior delas não é uma
 decisão do sistema.** Dos 10.899 chunks vivos já expostos, **9.755 vieram da busca** —
@@ -291,7 +331,7 @@ citado é sobre o corpus vivo, que é a população da qual se pode dizer "nunca
 ⚠️ **E a leitura tentadora é falsa.** Dos 10.008, **8.928** são fragmentos de sessão de
 205 caracteres em média. O achado não é "dez mil lições invisíveis".
 
-### 4.2 O achado: capacidade, não relevância
+### 4.2 Resultado secundário: exposição correlaciona com tamanho de coleção
 
 | tipo | exposto/total | % |
 |---|---|---|
@@ -485,6 +525,14 @@ Os três chunks presentes em **100% dos 4.632 briefs** da semana são exatamente
 hoje.** O topo do brief é um **fóssil do tráfego de busca de meses atrás**. E não é caso
 isolado: dos 9.755 chunks com algum acesso, **7.908 (81%) estão há mais de 60 dias sem
 serem acessados**, com o componente de acesso intacto.
+
+📌 **E os três constantes são provavelmente do pool principal — provavelmente não: são,
+por dedução.** O canal de cobertura ordena por `last_served ASC`. Um chunk servido no
+brief anterior tem o `last_served` mais recente possível, logo fica no **fim** dessa
+ordem, atrás de todo o estrato dos nunca-servidos. Um chunk presente em 4.632 de 4.632
+briefs não pode ter sido escolhido por um comparador que prioriza o menos-recentemente-
+servido. Isso decompõe a concentração entre os dois canais sem precisar de uma coluna de
+posição no log — que não existe.
 
 ⚠️ **O laço de realimentação NÃO é fechado pelo sistema, e isso é decisão de desenho
 deliberada.** `access_count` é incrementado apenas em `search.ts:396`, e o brief declara
@@ -913,9 +961,16 @@ monotonicidade**, e essa é uma afirmação que texto integral poderia refinar.
 Três afirmações, e nenhuma além.
 
 **Primeira: a não-exposição deste sistema é resultado de política, não de capacidade.**
-É a afirmação que a medição inverteu em relação à hipótese com que começamos. O brief
-entregou 8,7 vezes o corpus em slots e cobriu 2,66% — 325 slots por chunk distinto. Não
-há aqui nenhuma restrição física a remover; há uma ordenação que revisita. Isso muda o
+É a afirmação que a medição inverteu em relação à hipótese com que começamos, e ela é
+falsificável por uma razão simples: **`slots / distintos`**. Sob gargalo de capacidade
+essa razão fica perto de 1 — cada slot mostra algo novo até o corpus esgotar. Sob
+gargalo de política, ela cresce sem limite. Medimos **325**. Não há aqui restrição
+física a remover; há uma ordenação que revisita.
+
+⚠️ A objeção correta a isso é que os slots não são fungíveis: a superfície entrega 10
+por sessão, e nada garante que uma sessão tolere mais de 10. Verdade — e a alegação não
+depende disso. Mostrar **dez itens diferentes** por sessão nunca violaria o limite de
+dez; o que falta não é tamanho de sessão, é **rotação entre sessões** (§4.1.1). Isso muda o
 que se pode pedir: enquanto a superfície parece pequena, "expor mais" é um pedido
 impossível; medida a folga, é um pedido de **desenho**.
 
