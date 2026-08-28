@@ -27,12 +27,17 @@ servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks disti
 gargalo; a política de ordenação é.** Somando a busca, **83,78% do corpus nunca foi
 exposto por nenhuma das duas superfícies.**
 
-O desperdício tem endereço, e é o canal desenhado para evitá-lo. Dos 10 slots, 8 vêm de
-um pool ordenado por score e convergem: **3 chunks aparecem em 100% dos briefs** e o
-top-10 leva **47,16%** dos slots de uma semana. Os outros 2 são um canal de *cobertura*,
-que existe para dar chance ao nunca-servido — e ele **congela**: alimentado por lotes de
-ingestão com janela de 7 dias, passou **cinco dias seguidos** servindo zero itens novos,
-com a idade mínima do que serviu subindo exatamente +1,00 por dia.
+**Os dois canais da superfície congelam, por motivos opostos e nenhum ligado a
+capacidade.** Os 8 slots do pool principal são ordenados por um score cujos termos, com
+uma exceção, **não decaem** — o componente de acesso é monótono num contador que só
+sobe. Os 3 chunks presentes em **100%** dos 4.632 briefs da semana foram acessados pela
+última vez há 90, 30 e 42 dias: o topo do brief é um **fóssil do tráfego de busca de
+meses atrás**, e o top-10 leva **47,16%** dos slots. Os outros 2 slots são um canal de
+*cobertura*, que existe para dar chance ao nunca-servido — e **congela** por outra razão:
+alimentado por lotes de ingestão com janela de 7 dias, passou **cinco dias seguidos**
+servindo zero itens novos, com a idade mínima do que serviu subindo exatamente +1,00 por
+dia. O canal que responderia a um ajuste de score é o que ninguém ajusta; o desenhado
+para corrigir o outro é o que não responde a score.
 
 O mecanismo do canal de cobertura é **dedutível do código**. Ele ordena por um comparador
 **lexicográfico** `(last_served ASC, salience DESC)`: o score é a coordenada
@@ -453,6 +458,55 @@ mérito.
 chunks sumiram por inteiro). Contagem de exposição sai de `brief_log`; só o que precisa
 de metadado faz JOIN, e declara a perda.
 
+#### 4.3.2 O outro canal também congela — pelo motivo oposto
+
+Se o canal de cobertura falha por calendário e por álgebra, sobra a pergunta que a tese
+precisa responder: **por que os outros 8 slots concentram?** Ali o score é a coordenada
+dominante e um bônus aditivo não tem teto — logo a concentração não pode ser explicada
+por surdez ao score. Ela tem outra causa, e é lida direto da fórmula.
+
+`salience = 0,55·importância + 0,15·recência + 0,10·dor + 0,20·acesso`
+
+Dos quatro termos, **três não decaem**. Importância e dor são estáticas. O termo de
+acesso é `0,20 · log1p(access_count)/log(1000)` sobre um contador **monótono**: ele
+sobe e nunca desce. Só a recência decai — e para um chunk velho ela já chegou ao piso e
+deixou de diferenciar. Resultado: **o score de um chunk antigo e outrora popular é
+monótono não-decrescente e fica permanentemente perto do seu teto.**
+
+Os três chunks presentes em **100% dos 4.632 briefs** da semana são exatamente isso:
+
+| chunk | tipo | importância | dor | `access_count` | último acesso | idade |
+|---|---|---|---|---|---|---|
+| 112241 | `team` | 0,80 | **1,00** | 414 | 2026-05-30 | 125 d |
+| 116107 | `team` | 0,80 | **1,00** | 363 | 2026-07-29 | 125 d |
+| 116467 | `team` | 0,80 | **1,00** | 911 | 2026-07-17 | 125 d |
+
+**Foram acessados pela última vez há 90, 30 e 42 dias — e ganham todos os briefs de
+hoje.** O topo do brief é um **fóssil do tráfego de busca de meses atrás**. E não é caso
+isolado: dos 9.755 chunks com algum acesso, **7.908 (81%) estão há mais de 60 dias sem
+serem acessados**, com o componente de acesso intacto.
+
+⚠️ **O laço de realimentação NÃO é fechado pelo sistema, e isso é decisão de desenho
+deliberada.** `access_count` é incrementado apenas em `search.ts:396`, e o brief declara
+no cabeçalho que é *"read-only sobre `chunks`; NÃO toca `access_count`"*. Então servir no
+brief não aumenta a prioridade de nada — o que separa este caso do laço de realimentação
+clássico de recomendação (Chaney et al.), em que a exposição se auto-reforça. Aqui a
+exposição no brief **não** se auto-reforça; o que existe é uma **codificação permanente,
+sem decaimento, de tráfego passado**. Se o laço se fecha, fecha pelo agente — que vê o
+item e talvez volte a buscá-lo — e isso nós não medimos.
+
+**A simetria que completa a tese.** Os dois canais da superfície congelam, por motivos
+opostos e nenhum deles ligado a capacidade:
+
+| canal | slots | por que congela | responde a ajuste de score? |
+|---|---|---|---|
+| pool principal | 8 | score determinístico com componente **monótono e sem decaimento** | **sim** — e ninguém ajusta |
+| cobertura | 2 | janela de 7 dias sobre ingestão em lotes; ordem **lexicográfica** | **não** — teto de 4,86% (§5) |
+
+O canal que *poderia* ser corrigido por score é o que ninguém corrige; o que foi
+desenhado para corrigir o outro é o que não responde a score. É por isso que a folga de
+8,7× não vira cobertura.
+
 ### 4.4 A predição dedutiva, e o teste
 
 O comparador de cobertura é **lexicográfico**: quando `last_served` difere, `salience`
@@ -872,13 +926,23 @@ que ninguém a escolhesse explicitamente — `freshSlots = 2` é default de conf
 override, e `freshMaxAgeDays = 7` interage com o calendário de ingestão de um jeito que
 nenhum documento de desenho previu.
 
-**Segunda: o canal que existe para corrigir a concentração é o que menos funciona.** Ele
-tem 2 dos 10 slots, e nos dois eixos que medimos ele falha por razões alheias à
-relevância: **congela** entre lotes de ingestão (cinco dias servindo zero itens novos,
-idade mínima subindo +1,00/dia) e é **estruturalmente surdo ao score**, porque ordena
-lexicograficamente e o score é a coordenada subordinada. A segunda falha tem **teto
-analítico**, medido em 4,86% dos briefs — e derivável do código antes de qualquer
-experimento.
+**Segunda: os dois canais congelam, e a assimetria entre eles é o achado.** O de
+cobertura — 2 dos 10 slots — falha por calendário (cinco dias servindo zero itens novos)
+e por ser **estruturalmente surdo ao score**, com **teto analítico** de 4,86% derivável
+do código antes de qualquer experimento. O pool principal — os outros 8 — falha pelo
+motivo contrário: ali o score **é** a coordenada dominante, e três dos seus quatro termos
+**não decaem**. O componente de acesso é monótono num contador que só sobe, de modo que o
+topo do brief é um fóssil de tráfego de busca de meses atrás (último acesso há 90, 30 e
+42 dias, em chunks que ganham 4.632 de 4.632 briefs).
+
+**O canal que responderia a ajuste de score é o que ninguém ajusta; o desenhado para
+corrigir o outro é o que não responde a score.** É essa tesoura, e não a capacidade, que
+produz os 2,66%.
+
+⚠️ E vale distinguir isto do laço de realimentação clássico de recomendação: aqui a
+exposição no brief **não** se auto-reforça — `access_count` só é incrementado pela busca,
+e o brief é declaradamente read-only sobre ele. O que existe não é um laço, é uma
+**codificação permanente e sem decaimento de tráfego passado**.
 
 A consequência de desenho é desconfortável e vale dizer inteira: **projetamos uma
 intervenção cujo teto era derivável do código antes de ela ser implantada.** Quem for
