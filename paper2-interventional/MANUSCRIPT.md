@@ -1,4 +1,4 @@
-# Capacity, not relevance: what a production agent-memory system actually surfaces
+# Spare capacity, starved coverage: what a production agent-memory system actually surfaces
 
 > 🟡 **ESQUELETO, 2026-08-27.** Primeira versão do manuscrito do Paper 2, escrita
 > depois do reframe. **Regra deste arquivo:** onde há número, ele vem de artefato
@@ -19,79 +19,96 @@ conjuntos de queries. Ninguém mede o que o agente **de fato recebe** em produç
 recuperação é condicional a uma query ter sido feita, de modo que o item que nenhuma
 query alcança tem nDCG indefinido, não baixo. Instrumentamos, por 12 semanas, as duas
 superfícies pelas quais um sistema de memória em operação entrega conteúdo a uma frota
-de 6 agentes: um brief proativo de 10 itens e a busca sob demanda. **83,78% de 67.187
-chunks nunca foram expostos por nenhuma das duas.**
+de 6 agentes: um brief proativo de 10 itens e a busca sob demanda.
 
-O que decide a exposição não é a relevância que o próprio sistema atribui, e sim o
-**tamanho da coleção** a que o item pertence: `r = −0,728` entre `log₁₀(tamanho)` e
-`% exposto`, sem uma única sobreposição entre tipos grandes (10,7–27,0%) e pequenos
-(32,5–100%). A renovação da superfície tampouco é governada pelo ranker: o canal de
-cobertura é alimentado por **lotes de ingestão** com janela de 7 dias e, entre lotes,
-serve exatamente o mesmo conjunto por dias seguidos.
+O brief entregou **583.973 slots** — **8,7 vezes** o tamanho do corpus, o suficiente para
+servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks distintos:
+2,66%**. Sob serviço uniforme a cobertura esperada seria 99,98%. **A capacidade não é o
+gargalo; a política de ordenação é.** Somando a busca, **83,78% do corpus nunca foi
+exposto por nenhuma das duas superfícies.**
 
-⚠️ Duas ressalvas que o resultado carrega: dos 10.899 expostos, **9.755 vieram da busca,
-que é iniciada pelo agente** — só o brief é entrega decidida pelo sistema; e tamanho de
-coleção pode ser **proxy de como o tipo é produzido** (pipeline de lote contra escrita
-humana), de modo que curadoria não é descartada como causa comum.
+O desperdício tem endereço, e é o canal desenhado para evitá-lo. Dos 10 slots, 8 vêm de
+um pool ordenado por score e convergem: **3 chunks aparecem em 100% dos briefs** e o
+top-10 leva **47,16%** dos slots de uma semana. Os outros 2 são um canal de *cobertura*,
+que existe para dar chance ao nunca-servido — e ele **congela**: alimentado por lotes de
+ingestão com janela de 7 dias, passou **cinco dias seguidos** servindo zero itens novos,
+com a idade mínima do que serviu subindo exatamente +1,00 por dia.
 
-O mecanismo é **dedutível do código**, não inferido dos dados. O canal de cobertura
-ordena por um comparador **lexicográfico** `(last_served ASC, salience DESC)`: o score é
-a coordenada **subordinada** e só decide dentro de empates da dominante. Isso prediz um
-**teto** — não uma resposta proporcional — para qualquer bônus aditivo no score **desse
-canal**. ⚠️ Os outros 8 slots vêm de um pool ordenado por score puro, onde um bônus
-aditivo **não** tem teto: a imunidade é do canal de cobertura, não da superfície toda.
-Testamos a predição com dose crescente em produção e replay fiel ao pipeline real em
-**350 de 350** briefs: a resposta é monótona em cada estado, satura em `w ∈ (4,0; 4,4]`
-e o teto é **4,86%** dos briefs.
+O mecanismo do canal de cobertura é **dedutível do código**. Ele ordena por um comparador
+**lexicográfico** `(last_served ASC, salience DESC)`: o score é a coordenada
+**subordinada** e só decide dentro de empates da dominante — o que prediz um **teto**,
+não uma resposta proporcional, para qualquer bônus aditivo no score **desse canal**.
+Testamos com dose crescente em produção e replay fiel ao pipeline real em **350 de 350**
+briefs: resposta monótona em cada estado, saturação em `w ∈ (4,0; 4,4]`, teto de
+**4,86%** dos briefs.
 
-Reportamos também o catálogo dos **defeitos de instrumento** que a medição exigiu, dos
-quais sete mudaram um número aqui reportado. Cada um passou por verificação e
-sobreviveu, porque o verificador compartilhava a premissa errada do que verificava —
-e quatro foram achados porque um número **bateu bem demais**.
+⚠️ **O que não afirmamos.** Nenhum efeito sobre o comportamento do agente: não há
+desfecho a jusante instrumentado (§5.4). Que a concentração seja *errada* — uma política
+que serve 10 itens por sessão **deve** concentrar, e servir uniformemente seria inútil;
+o achado é que a não-exposição é **resultado de política e não limite de capacidade**,
+logo é endereçável. E não afirmamos nada sobre a área: é **um** sistema, a generalização
+do mecanismo é dedutiva e vale para qualquer ranker com ordem lexicográfica e bônus na
+coordenada subordinada. Quantos sistemas têm essa forma é pergunta em aberto, e o
+diagnóstico executável que publicamos existe para que outros a respondam um por vez.
 
-⚠️ **Não afirmamos efeito sobre o comportamento do agente**: não há desfecho a jusante
-instrumentado (§5.4). O objeto medido é a superfície, não a consequência dela. E é
-**um** sistema: a generalização do mecanismo é dedutiva, válida para qualquer ranker com
-ordem lexicográfica e bônus na coordenada subordinada, e quantos sistemas têm essa forma
-é pergunta que o diagnóstico executável publicado permite responder um por vez.
+⚠️ Duas ressalvas de leitura: dos 10.899 chunks expostos, **9.755 vieram da busca, que é
+iniciada pelo agente** — só o brief é entrega decidida pelo sistema, e é sobre ele que
+valem as alegações de mecanismo. E o tamanho de coleção, que correlaciona com exposição
+(§4.2), pode ser **proxy de como o tipo é produzido**: curadoria não é descartada como
+causa comum.
 
 ## 1. Introdução
 
-Um sistema de memória para agentes é julgado, hoje, pela qualidade da recuperação:
-dado um conjunto de queries, quão bem ele ordena o que é relevante. É a pergunta que os
-benchmarks respondem e é a pergunta que a engenharia otimiza — embeddings melhores,
-reranking, expansão de query. Ela pressupõe, sem dizer, que o que o agente recebe é o
-topo dessa ordenação.
+Um sistema de memória para agentes é julgado, hoje, pela qualidade da recuperação: dado
+um conjunto de queries, quão bem ele ordena o que é relevante. É a pergunta que os
+benchmarks respondem e é a que a engenharia otimiza — embeddings melhores, reranking,
+expansão de query. Ela pressupõe, sem dizer, que o que o agente recebe é o topo dessa
+ordenação.
 
-Em produção, não é. O que chega ao agente passa antes por uma **superfície de entrega**
-de capacidade fixa: um brief de 10 itens no início da sessão, e a busca sob demanda.
-Dez slots, servidos algumas centenas de vezes por dia, contra um corpus de dezenas de
-milhares de itens. Se essa superfície é o gargalo, então melhorar a ordenação não
-melhora a exposição, e boa parte do esforço da área está otimizando uma coordenada que
-não é a que decide. Isso é verificável, e ninguém verificou: medir exige acesso ao
-sistema **em operação**, não a um conjunto de queries.
+A pergunta que ninguém faz é anterior: **o que o agente recebe, de fato?** Ela não é
+respondível com um conjunto de queries, porque exige o sistema em operação — e é
+respondível, porque toda entrega passa por um número pequeno de superfícies que se pode
+instrumentar. Aqui são duas: um brief proativo de 10 itens no início de cada sessão, e a
+busca sob demanda.
 
-Este paper mede. Por 12 semanas, instrumentamos as duas superfícies de exposição de um
-sistema de memória em produção — 6 agentes, ~670 briefs/dia, 67.187 chunks — e
-registramos, item a item, o que cada uma entregou. **83,78% do corpus nunca foi exposto
-por nenhuma das duas.** E o que decide quem entra não é a relevância que o próprio
-sistema atribui: é o **tamanho da coleção** a que o item pertence
-(`r = −0,728` entre `log₁₀(tamanho)` e `% exposto`, sem uma única sobreposição entre
-tipos grandes e pequenos). Um tipo com 53 itens é exposto em 100%; um com 32.920, em
-10,7%.
+**A resposta esperada seria "não cabe". Não é.** Em 84,7 dias o brief entregou **583.973
+slots** a 67.187 chunks — capacidade para servir cada chunk **8,7 vezes**. Serviu **1.787
+distintos, 2,66% do corpus**; sob serviço uniforme a cobertura esperada seria 99,98%.
+Somando a busca, **83,78% do corpus nunca foi exposto**. A não-exposição não é imposta
+pelo número de slots: é produzida pela ordenação.
 
-O achado tem mecanismo, e o mecanismo é **dedutível do código** em vez de inferido dos
-dados: os slots de cobertura são ordenados por um comparador **lexicográfico**
-`(last_served ASC, salience DESC)`, que só consulta o score quando a primeira
-coordenada empata. Qualquer bônus aditivo no score age, portanto, na coordenada
-**subordinada** — e isso prediz um **teto**, não uma resposta proporcional. Testamos a
-predição intervindo em produção com dose crescente e replay fiel ao pipeline real em
-350 de 350 briefs: a resposta é monótona, satura em `w ∈ (4,0; 4,4]`, e o teto é
-**4,86%** dos briefs. A predição sobrevive ao teste que poderia tê-la matado.
+⚠️ Isso não é acusação à política. Uma superfície de 10 itens **deve** concentrar —
+servir memória ao acaso seria pior que não servir. O que muda com o número é a natureza
+do problema: enquanto se acredita que a superfície é pequena demais, a não-exposição é
+um fato da vida; medido que ela é 8,7× maior que o corpus, a não-exposição vira uma
+**escolha de política**, e escolha se examina.
 
-⚠️ **O que este paper não afirma:** que a exposição mudou o **comportamento** do agente.
-Não há desfecho a jusante instrumentado, e a §5.4 diz por quê. O objeto medido é a
-superfície, não o efeito dela.
+Examinamos, e o desperdício tem endereço. Os 8 slots do pool principal convergem: 3
+chunks aparecem em **100%** dos briefs, e o top-10 leva **47,16%** dos slots de uma
+semana. Os 2 slots restantes são um canal de **cobertura**, que existe precisamente para
+dar chance ao nunca-servido — e é ele que falha, por dois motivos que nada têm a ver com
+relevância:
+
+1. **calendário.** O canal só considera itens com menos de 7 dias, e a ingestão chega em
+   **lotes**. Entre lotes o pool fica vazio e o canal serve o mesmo conjunto por dias:
+   medimos **cinco dias seguidos** com zero itens novos, com a idade mínima do que foi
+   servido subindo exatamente **+1,00 por dia** — a assinatura de um conjunto congelado;
+2. **álgebra.** O canal ordena por um comparador **lexicográfico**
+   `(last_served ASC, salience DESC)`, no qual o score é a coordenada **subordinada** e
+   só decide dentro de empates da dominante. Isso prediz — dedutivamente, a partir de
+   sete linhas de código — um **teto** para qualquer bônus aditivo no score desse canal.
+
+A predição é testável e nós a testamos, com dose crescente em produção e replay fiel ao
+pipeline real em 350 de 350 briefs: monótona em cada estado, saturando em
+`w ∈ (4,0; 4,4]`, teto de **4,86%** dos briefs. Ela sobreviveu ao teste que poderia
+tê-la matado — e a um instrumento anterior que a **confirmou pelo motivo errado** (§5.6).
+
+⚠️ **Escopo, dito antes dos resultados e não depois.** É **um** sistema. Não medimos
+efeito sobre o comportamento do agente — não há desfecho a jusante instrumentado (§5.4).
+Não afirmamos que a área otimiza a coordenada errada: afirmamos que existe uma
+coordenada que os benchmarks não medem, damos o instrumento para medi-la, e deixamos a
+pergunta em aberto. E, das duas superfícies, só o brief é decidido pelo sistema — a
+busca é iniciada pelo agente, e responde por 9.755 dos 10.899 chunks já expostos.
 
 - **O gap.** O survey canônico da área (TMLR 2602.06052v4, 218 papers) mapeia
   arquiteturas e benchmarks de memória para agentes. Benchmarks medem nDCG/recall sobre
@@ -122,18 +139,28 @@ superfície, não o efeito dela.
   **piso** que estava errado — survey cataloga, não ablaciona — e a checagem direta
   (`memory`=1.208, `benchmark`=126 no mesmo texto) mostrou a extração íntegra. O termo
   saiu do controle e virou dado.
-- **Por que a pergunta importa.** Se a superfície tem capacidade fixa e pequena,
-  então melhorar *ranking* não melhora *exposição* — e a maior parte do trabalho de
-  engenharia de memória (embeddings melhores, reranking, expansão de query) está
-  otimizando a coordenada errada. Essa é uma alegação verificável e é o que o paper
-  testa.
-- **Contribuições.** (i) a primeira medição de superfície de exposição de um sistema de
-  memória de agente em produção; (ii) o achado capacidade-sobre-relevância, com o teste
-  que mostra o tamanho predizendo melhor que a relevância que o sistema atribui — sem
-  descartar curadoria como **causa comum** dos dois; (iii) uma predição dedutiva de teto para
-  intervenções aditivas, testada com dose-resposta e replay fiel; (iv) o **diagnóstico
-  executável** (`measurement/`), para que a medição seja reproduzível em outro sistema;
-  (v) um catálogo de defeitos de instrumento que a área ainda não documentou.
+- **Por que a pergunta importa.** ~~Se a superfície tem capacidade fixa e pequena, então
+  melhorar ranking não melhora exposição, e a área otimiza a coordenada errada.~~ **Essa
+  era a hipótese com que este trabalho começou, e a medição a contradiz:** a superfície
+  não é pequena — é 8,7× o corpus. O que importa é o que sobra depois disso: uma
+  superfície com folga entrega 2,66%, e o canal que existiria para corrigir isso é
+  governado por calendário de ingestão e por uma ordem lexicográfica em que o score não
+  decide. Se outros sistemas têm essa forma é pergunta em aberto — não uma alegação
+  deste paper — e o diagnóstico publicado existe para que seja respondida.
+- **Contribuições.** (i) a medição da superfície de exposição de um sistema de memória
+  de agente **em produção**, com o resultado de que a capacidade excede o corpus em 8,7×
+  e mesmo assim 83,78% nunca é exposto; (ii) a localização do gargalo no **canal de
+  cobertura**, com os dois mecanismos que o congelam — janela de 7 dias sobre ingestão
+  em lotes, e ordem lexicográfica que rebaixa o score a coordenada subordinada; (iii)
+  uma predição **dedutiva** de teto para bônus aditivos nesse canal, testada com
+  dose-resposta e replay fiel; (iv) o **diagnóstico executável** (`measurement/`), para
+  que a medição seja reproduzível em outro sistema.
+
+  ⚠️ **O catálogo de defeitos de instrumento (Apêndice E) não entra como contribuição**,
+  e a razão é honesta: são **16 defeitos que nós cometemos**, sete deles alterando um
+  número que este paper reporta. Reportá-los é obrigação, não mérito — e sobretudo, sete
+  achados **não limitam** os não achados. Estão no apêndice porque quem for reproduzir a
+  medição vai cair nos mesmos, não porque nos credenciam.
 
 ## 2. Sistema sob medição
 
@@ -369,9 +396,12 @@ Janela fechada `[2026-08-20 , 2026-08-27)`:
 **30,0%** dos slots — e no corte do top-10. Gerada por `fig2-concentracao.py --dados
 out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.
 
-⚠️ A diagonal de igualdade na figura é referência de **leitura**, não hipótese nula: um
-brief de 10 slots servido 4.632 vezes não poderia distribuir 46.295 slots igualmente
-entre 67.187 chunks nem em princípio — só cabem 201.
+🔴 **Uma frase da versão anterior desta seção estava errada, e o erro é o do paper
+inteiro em miniatura.** Ela dizia que a distribuição igual era impossível "em princípio,
+porque só cabem 201". **Cabiam 46.295** — um por slot. Os 201 são o **medido**, não o
+teto, e chamá-los de teto transforma um resultado em pigeonhole e ensina o leitor a achar
+a curva inevitável. A diagonal é referência de **leitura**; o achado é que a curva está
+tão longe dela com folga de 230× para não estar.
 
 #### 4.3.1 O carrossel não gira: ele salta, e entre saltos congela
 
@@ -802,11 +832,20 @@ em partes da psicologia; em CS de sistemas, não. O survey de 218 papers da §8.
 **zero** de `randomized`/`randomised` e de `ablation` (§1). A ausência é da família
 metodológica inteira, não de um termo.
 
-Isso condiciona o que este paper pode oferecer como precedente: não há convenção
-estabelecida sobre o que declarar antes de intervir num sistema de memória vivo. O
-Apêndice A registra nossos desvios do próprio pré-registro — inclusive os que
-invalidaram medições publicadas — porque um precedente que só mostra o caminho limpo
-não é precedente utilizável.
+🔴 **E este paper não reivindica ser esse precedente**, porque não seria honesto. O
+registro prospectivo que depositamos (OSF `yf7d2`) é de **outro estudo**: um crossover
+randomizado sobre o **comportamento** do agente, que não rodou — as três tabelas que
+mediriam desfecho a jusante estão vazias (§4.5). O que este manuscrito reporta é
+**descritivo** e não foi pré-registrado.
+
+O Apêndice A registra os desvios daquele registro assim mesmo, e a razão é estreita:
+enquanto o depósito público existir afirmando coisas que a medição contradiz — inclusive
+**duas que subestimam o próprio desenho** — deixá-las de pé é escolher que o erro
+sobreviva. Isso é obrigação de correção, não credencial metodológica.
+
+O que a ausência de vocabulário experimental no survey sustenta é mais modesto: não há
+convenção estabelecida sobre o que declarar antes de intervir num sistema de memória
+vivo, e nós descobrimos isso da forma cara.
 
 📌 **Procedência desta seção.** MemoryArena e Evo-Memory foram lidos **integralmente**
 em 15/08 (`RELATED-WORK.md` §4 e §4.1); o survey, integralmente em 13/08, com as
@@ -817,39 +856,51 @@ monotonicidade**, e essa é uma afirmação que texto integral poderia refinar.
 
 ## 9. Discussão
 
-Duas afirmações, e nenhuma além.
+Três afirmações, e nenhuma além.
 
-**Primeira: quando a capacidade é o gargalo, melhorar a ordenação não melhora a
-exposição.** Neste sistema a superfície entrega 10 itens por brief contra 67.187
-chunks, e o que decide quem entra correlaciona com o tamanho da coleção
-(`r = −0,728`), não com a relevância atribuída. Um embedding melhor reordena os
-candidatos; não cria slot. Isso não diz que trabalho de *ranking* é inútil — diz que
-o ganho dele é limitado por uma quantidade que a área não mede, e que **é medível**:
-o diagnóstico publicado (`measurement/`) computa a superfície de exposição de qualquer
-sistema que registre o que entregou. A pergunta "quantos itens distintos meu sistema já
-serviu, e quais?" deveria ser barata de responder, e hoje não é — não por dificuldade
-técnica, mas porque ninguém instrumenta para ela. Foram **16 colunas de telemetria sem
-escritor** neste próprio sistema, em seis instantes distintos, uma delas a que
-registrava exatamente quais chunks a busca devolveu (§6).
+**Primeira: a não-exposição deste sistema é resultado de política, não de capacidade.**
+É a afirmação que a medição inverteu em relação à hipótese com que começamos. O brief
+entregou 8,7 vezes o corpus em slots e cobriu 2,66% — 325 slots por chunk distinto. Não
+há aqui nenhuma restrição física a remover; há uma ordenação que revisita. Isso muda o
+que se pode pedir: enquanto a superfície parece pequena, "expor mais" é um pedido
+impossível; medida a folga, é um pedido de **desenho**.
 
-**Segunda: uma intervenção em memória viva tem de declarar em que coordenada age.**
-Um bônus aditivo na coordenada **subordinada** de um comparador lexicográfico tem teto
-**analítico**, não empírico: ele só pode mover o que está empatado na coordenada
-dominante (§5.2). Medimos o teto — 4,86% dos briefs, saturando em `w ∈ (4,0; 4,4]` — e
-a predição veio da leitura do comparador, antes da dose-resposta. A consequência de
-desenho é desconfortável e vale dizer inteira: **projetamos uma intervenção cujo teto
-era derivável do código antes de ela ser implantada.** Quem for intervir num ranker
-deveria fazer essa derivação primeiro; custa uma tarde de leitura e economiza uma
-rodada experimental.
+⚠️ E não decorre disso que a política esteja errada. Uma superfície de 10 itens tem de
+concentrar, e servir uniformemente destruiria o valor dela. O que decorre é que a
+fronteira entre "o que o agente vê" e "o que existe" foi **escolhida**, quase sempre sem
+que ninguém a escolhesse explicitamente — `freshSlots = 2` é default de configuração sem
+override, e `freshMaxAgeDays = 7` interage com o calendário de ingestão de um jeito que
+nenhum documento de desenho previu.
 
-⚠️ **O que não afirmamos.** Que a exposição mudou o comportamento do agente — não há
-desfecho a jusante instrumentado (§5.4). Que 83,78% de não-exposição seja *ruim* —
-parte do corpus é log, e log não precisa ser lido para ser útil; o que o número
-estabelece é a **escala** da população que nenhuma métrica de recuperação alcança. E
-que o mecanismo generalize empiricamente: ele generaliza **dedutivamente**, para
-qualquer ranker com ordem lexicográfica e bônus na coordenada subordinada, e quantos
-sistemas têm essa forma é uma pergunta aberta que o diagnóstico permite responder uma
-instalação por vez.
+**Segunda: o canal que existe para corrigir a concentração é o que menos funciona.** Ele
+tem 2 dos 10 slots, e nos dois eixos que medimos ele falha por razões alheias à
+relevância: **congela** entre lotes de ingestão (cinco dias servindo zero itens novos,
+idade mínima subindo +1,00/dia) e é **estruturalmente surdo ao score**, porque ordena
+lexicograficamente e o score é a coordenada subordinada. A segunda falha tem **teto
+analítico**, medido em 4,86% dos briefs — e derivável do código antes de qualquer
+experimento.
+
+A consequência de desenho é desconfortável e vale dizer inteira: **projetamos uma
+intervenção cujo teto era derivável do código antes de ela ser implantada.** Quem for
+intervir num ranker deveria ler o comparador primeiro e perguntar *em que coordenada
+minha alavanca age*; custa uma tarde e economiza uma rodada experimental.
+
+**Terceira: nada disto é visível pelas métricas que a área usa** — e essa é a única
+afirmação que passa deste sistema para fora, porque é sobre o **instrumento**, não sobre
+o resultado. nDCG e recall são condicionais a uma query ter sido feita; um item que
+nenhuma query alcança e nenhum brief inclui não tem score baixo, tem score **indefinido**.
+Medir a superfície de entrega exige o sistema em operação e um registro por item do que
+foi servido — que este sistema quase não tinha: **16 colunas de telemetria sem escritor**,
+em seis instantes distintos, uma delas exatamente a que registrava quais chunks a busca
+devolveu (§6).
+
+⚠️ **O que não afirmamos.** Que a área otimiza a coordenada errada: é **um** sistema, e a
+única generalização que fazemos é dedutiva — para qualquer ranker com ordem lexicográfica
+e bônus na coordenada subordinada, o teto existe. Quantos sistemas têm essa forma é
+pergunta em aberto, e é para respondê-la que o diagnóstico está publicado. Que 83,78% de
+não-exposição seja *ruim*: parte do corpus é log, e log não precisa ser lido para ser
+útil — o número estabelece a **escala** da população que nenhuma métrica de recuperação
+alcança, não um prejuízo. E que a exposição mude o comportamento do agente: não medimos.
 
 ## Apêndice A — Desvios do pré-registro
 
