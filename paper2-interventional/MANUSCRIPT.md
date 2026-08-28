@@ -579,6 +579,8 @@ método**. Catálogo, com o custo medido de cada um:
 | série viva citada como instantâneo | um `n` mudou em minutos e a asserção pegou |
 | **teste de uma derivação sobre pool RECONSTRUÍDO** (`interleaveFresh` não é exportado) | classificou 25 estados como alteráveis contra 17 reais, e só **1 das 17** caía na classe; 24 violações do pressuposto de prefixo eram o sintoma. O teste válido usa só grandezas **registradas** (§5.6) |
 | valor **digitado** dentro do próprio instrumento de verificação | `w_min` máximo ficou fixado em `7,5` no script e envelheceu para falso quando o grid fino deu `4,4`; agora é argumento obrigatório vindo do artefato de dose |
+| **um κ agregado reportado ao lado de uma estratificação que depende de outra fronteira** | `κ = 0,874` é o veredito falha/sucesso ≈ o corte S0/S1 (κ **0,868–0,930**). Na fronteira S1/S2, que é a que define o estrato, o κ é **0,309–0,528**. O painel concorda sobre **se** falhou e não sobre **quão grave** — e um número só escondia isso (Apêndice C.1) |
+| **"o problema é o painelista discordante"** — que aqui era falso | `xai` é quase superconjunto dos outros (1 de 16 e 1 de 13 fora): deslocamento de limiar, corrigível por normalização. O desacordo irredutível está entre as **duas famílias de severidade parecida** (16 e 13 graves, interseção **5**), que discordam sobre **quais** episódios. Culpar o outlier teria "consertado" a família errada |
 
 **[FALTA]** decidir se este catálogo é seção do paper ou **apêndice + paper de métodos
 separado**. Recomendação: seção curta aqui (as 4 linhas que afetam os números
@@ -731,14 +733,51 @@ usando **apenas** o beacon público e o CSV depositado.
 
 ## Apêndice C — Painel de adjudicação
 
-`κ = 0,874`, `α = 0,852`. Adjudicações: **S0 = 225 · S1 = 33 · S2 = 22**, e
-**zero** em S3/S4.
+Painel de 3 famílias (`moonshot` · `xai` · `zhipu`), 280 episódios com voto dos três,
+870 chamadas. Adjudicações: **S0 = 225 · S1 = 33 · S2 = 22**, e **zero** em S3/S4.
 
-⚠️ **Duas fragilidades a declarar, não a esconder:** (i) o estrato **S2 repousa numa
-única família** do painel (72,2% do share) — o paper deve reportar S1 e S2 separados e
-tratar S2 como exploratório, ou remover S2; (ii) a regra de parada pré-registrada usa
-incidentes ≥ S3, cujo baseline é **zero**, o que a degenera para "≥ 1 evento derruba".
-Isso é lição de desenho e entra como tal.
+### C.1 🔴 Um κ agregado escondia que o painel é confiável numa fronteira e não na outra
+
+O `κ = 0,874` publicado descreve o veredito **falha/sucesso**. Reportá-lo ao lado da
+tabela de estratos convida a ler os estratos como igualmente confiáveis. Medido por
+fronteira (`painel-limiar-vs-desacordo.py`):
+
+| par | **κ(≥S1)** | **κ(≥S2)** | Jaccard do conjunto ≥S2 |
+|---|---|---|---|
+| moonshot × xai | **0,868** | 0,528 | 0,395 |
+| moonshot × zhipu | **0,870** | 0,309 | 0,208 |
+| xai × zhipu | **0,930** | 0,442 | 0,316 |
+
+O painel concorda quase perfeitamente sobre **se** houve falha e mal concorda sobre
+**quão grave** ela foi. O 0,874 é, essencialmente, o corte S0/S1.
+
+E o diagnóstico fino desmonta a leitura fácil de que "o problema é o `xai`":
+
+- `xai` é **quase superconjunto** dos outros dois — 1 de 16 e 1 de 13 fora. Isso é
+  **deslocamento de limiar**, e limiar deslocado se corrige normalizando;
+- mas `moonshot` × `zhipu`, que têm severidade quase igual (16 e 13 graves), têm
+  interseção **5**, com 11 e 8 exclusivos. Esses dois **não** discordam sobre onde
+  cortar: discordam sobre **quais** episódios são graves. Nenhuma normalização resolve.
+
+📌 **Controle positivo do instrumento:** a nota de 21/08 registra que "sem `xai`
+sobreviveriam 5". `|moonshot ∩ zhipu| = 5`, reproduzido exatamente — o script lê a mesma
+coisa que a rodada original.
+
+⚠️ **Não se usa leave-one-family-out para nada disto.** Com 3 painelistas a mediana
+inferior é o valor do meio; com 2, vira o mínimo. O LOO mistura mudança de estimador com
+mudança de painel, e indicava 40% → 9,3% no share de S2, número que carrega o artefato.
+Tudo acima é contagem direta sobre os votos.
+
+**Consequência adotada:** as análises substantivas usam **`≥ S1`**, que é onde o painel
+tem κ 0,87–0,93; a divisão S1/S2 é reportada como **achado de instrumento**, não como
+estrato de análise. Isso é desvio do pré-registro e está declarado no Apêndice A.
+
+### C.2 A regra de parada degenerou
+
+A regra pré-registrada usa incidentes **≥ S3**, cujo baseline medido é **zero** em 870
+chamadas. Isso a reduz a "≥ 1 evento derruba". É lição de desenho, e entra como tal:
+uma regra de parada calibrada sobre um estrato que nunca ocorre não é conservadora — é
+inexistente até o primeiro evento, e depois é absoluta.
 
 ## Apêndice D — Artefatos
 
@@ -775,8 +814,9 @@ sha256, com controle positivo.
 
 Falta:
 
-1. **decidir S2** — reportar separado como exploratório, ou remover. É decisão, não
-   trabalho; ver a fragilidade no Apêndice C;
+1. ✅ **S2 decidido pela medição, não por preferência** (28/08): análises substantivas
+   em `≥ S1` (κ 0,87–0,93); a divisão S1/S2 vira achado de instrumento (κ 0,31–0,53).
+   Falta só **declarar o desvio no Apêndice A**;
 2. **§2** — descrição do sistema, 3 parágrafos + figura de arquitetura;
 3. **decidir o catálogo de defeitos** — seção do paper ou apêndice + paper de métodos;
 4. **Abstract**, por último;
