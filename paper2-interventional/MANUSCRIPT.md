@@ -14,26 +14,39 @@
 
 ## Abstract
 
-**[FALTA — escrever por último.]** O que ele tem de dizer, na ordem, e nada além:
+Sistemas de memória para agentes são avaliados pela qualidade da recuperação sobre
+conjuntos de queries. Ninguém mede o que o agente **de fato recebe** em produção — e a
+recuperação é condicional a uma query ter sido feita, de modo que o item que nenhuma
+query alcança tem nDCG indefinido, não baixo. Instrumentamos, por 12 semanas, as duas
+superfícies pelas quais um sistema de memória em operação entrega conteúdo a uma frota
+de 6 agentes: um brief proativo de 10 itens e a busca sob demanda. **83,78% de 67.187
+chunks nunca foram expostos por nenhuma das duas.**
 
-1. sistemas de memória para agentes são avaliados por qualidade de *retrieval* sobre
-   queries; ninguém mede o que o agente **de fato recebe** em produção;
-2. medimos as duas superfícies de exposição de um sistema em produção por 12 semanas:
-   **83,78%** de 67.187 chunks nunca foram expostos por nenhuma delas;
-3. a exposição é governada pelo **tamanho da coleção**, não pela relevância que o
-   próprio sistema atribui: `r = −0,728` entre `log₁₀(tamanho)` e `% exposto`, e
-   nenhuma sobreposição entre tipos grandes (10,7–27,0%) e pequenos (32,5–100%);
-4. o mecanismo é dedutível do código — um comparador **lexicográfico** deixa o score
-   como coordenada **subordinada**, e só os slots de cobertura (`freshSlots = 2` de 10)
-   o consultam — e isso prediz um **teto** para qualquer bônus aditivo no score;
-5. testamos a predição com uma intervenção de dose crescente em produção, com replay
-   fiel ao pipeline real em **350 de 350** briefs: resposta monótona, teto de
-   **4,86%** dos briefs, saturação em `w ∈ (4,0; 4,4]`;
-6. e reportamos o catálogo de defeitos de **instrumento** que a medição exigiu, porque
-   sem ele nenhum dos números acima seria verificável.
+O que decide a exposição não é a relevância que o próprio sistema atribui, e sim o
+**tamanho da coleção** a que o item pertence: `r = −0,728` entre `log₁₀(tamanho)` e
+`% exposto`, sem uma única sobreposição entre tipos grandes (10,7–27,0%) e pequenos
+(32,5–100%). A renovação da superfície tampouco é governada pelo ranker: o canal de
+cobertura é alimentado por **lotes de ingestão** com janela de 7 dias e, entre lotes,
+serve exatamente o mesmo conjunto por dias seguidos.
 
-⚠️ O abstract **não** pode afirmar efeito sobre o comportamento do agente. Não há
-desfecho a jusante instrumentado (§5.4).
+O mecanismo é **dedutível do código**, não inferido dos dados. O canal de cobertura
+ordena por um comparador **lexicográfico** `(last_served ASC, salience DESC)`: o score é
+a coordenada **subordinada** e só decide dentro de empates da dominante. Isso prediz um
+**teto** — não uma resposta proporcional — para qualquer bônus aditivo no score.
+Testamos a predição com dose crescente em produção e replay fiel ao pipeline real em
+**350 de 350** briefs: a resposta é monótona em cada estado, satura em `w ∈ (4,0; 4,4]`
+e o teto é **4,86%** dos briefs.
+
+Reportamos também o catálogo dos **defeitos de instrumento** que a medição exigiu, dos
+quais sete mudaram um número aqui reportado. Cada um passou por verificação e
+sobreviveu, porque o verificador compartilhava a premissa errada do que verificava —
+e quatro foram achados porque um número **bateu bem demais**.
+
+⚠️ **Não afirmamos efeito sobre o comportamento do agente**: não há desfecho a jusante
+instrumentado (§5.4). O objeto medido é a superfície, não a consequência dela. E é
+**um** sistema: a generalização do mecanismo é dedutiva, válida para qualquer ranker com
+ordem lexicográfica e bônus na coordenada subordinada, e quantos sistemas têm essa forma
+é pergunta que o diagnóstico executável publicado permite responder um por vez.
 
 ## 1. Introdução
 
@@ -116,18 +129,45 @@ superfície, não o efeito dela.
 
 ## 2. Sistema sob medição
 
-**[FALTA — descrição de 3 parágrafos + 1 figura de arquitetura.]** O que precisa estar
-lá, e nada mais que isso:
+O sistema é a memória persistente de uma frota de **6 agentes** de codificação em
+operação contínua, servindo ~**670 briefs/dia**. O corpus é um SQLite único com busca
+léxica (FTS5), vetores densos e um grafo de entidades; no instante da medição,
+**67.187** chunks. Um chunk é uma unidade de texto com tipo (`lesson`, `decision`,
+`daily`, …), data de origem e três escalares que alimentam a ordenação: `importance`,
+`pain` e `access_count`. Nada disto é específico do sistema; o que importa para o paper
+é a **forma** da superfície, não a implementação por baixo.
 
-- corpus SQLite com FTS5 + vetores; **67.187** chunks no instante da medição;
-- **duas** superfícies de exposição, e só duas: o **brief proativo** (`/api/brief`,
-  consumido no início de cada sessão de agente, 10 itens) e a **busca** sob demanda;
-- o brief compõe 10 slots: `n − freshSlots` pelo pool principal ordenado por
-  `salience`, e até `freshSlots` reservados a um pool de *cobertura* ordenado por
-  um comparador **lexicográfico** `(last_served ASC, salience DESC)`. Em produção
-  `freshSlots = 2` — default de configuração sem override, e **teto** dos slots
-  preenchidos, não cota (§5.3);
-- 6 agentes, ~670 briefs/dia.
+Há exatamente **duas** superfícies pelas quais um chunk pode chegar a um agente, e é o
+que torna a população mensurável:
+
+1. o **brief proativo** (`/api/brief`), montado no início de cada sessão e **sempre com
+   10 itens**. Nenhum agente pede: ele recebe;
+2. a **busca sob demanda**, quando o agente decide procurar.
+
+Toda exposição passa por uma das duas. "Nunca exposto" é, portanto, uma propriedade
+verificável e não uma inferência — é a ausência de registro nas duas.
+
+A composição do brief é onde o mecanismo vive. Dos 10 slots, `10 − freshSlots` vêm de um
+pool principal ordenado por `salience` (uma soma aditiva de importância, recência, dor e
+acesso), e até `freshSlots` são reservados a um pool de **cobertura**, cuja função
+declarada é dar chance ao que ainda não foi servido. O pool de cobertura é ordenado por
+um comparador **lexicográfico** `(last_served ASC, salience DESC)`.
+
+Três parâmetros dessa descrição são, eles mesmos, resultados — e o §5 os estabelece:
+
+- **`freshSlots = 2`** em produção, e por *default de configuração sem override*: o
+  número que governa a renovação inteira da superfície nunca foi escolhido;
+- é **teto**, não cota — os 2 slots são preenchidos *se* houver candidato elegível, e o
+  §4.3.1 mostra cinco dias seguidos em que não houve;
+- e o comparador ser **lexicográfico** — e não uma soma ponderada — é o que dá ao
+  `salience` o papel de coordenada **subordinada** dentro do canal de cobertura.
+
+⚠️ **É um sistema.** A generalização do mecanismo (§5) é **dedutiva**, a partir da
+álgebra do comparador, e não empírica; quantos sistemas compartilham essa forma é
+pergunta aberta que o diagnóstico publicado permite responder um sistema por vez.
+
+**[FALTA: figura de arquitetura — corpus → dois canais → 10 slots, com o comparador
+anotado no canal de cobertura.]**
 
 ⚠️ Declarar explicitamente que é **um** sistema. A generalização do §7 é **dedutiva**
 (da álgebra do comparador), não empírica.
@@ -560,31 +600,32 @@ antes de comparar número** é regra, não zelo.
 
 ## 6. Defeitos de instrumento — e reportá-los é parte da contribuição
 
-O paper perde a contribuição declarada se omitir isto, porque a contribuição **é o
-método**. Catálogo, com o custo medido de cada um:
+A contribuição declarada (v) **é o método**, então omitir isto tiraria do paper uma das
+coisas que ele tem para dar. O catálogo integral tem **16** entradas e vive no Apêndice
+E. Aqui ficam as **sete que mudaram um número que este paper reporta** — porque sem elas
+o leitor não tem como auditar os números, e é esse o critério de corte, não o interesse
+da lição.
 
-| defeito | consequência medida |
+| defeito | número que ele mudou |
 |---|---|
-| relógio do banco dentro do filtro de elegibilidade, apesar de a função receber o instante por argumento | o brief não é função pura de (corpus, estado, `nowMs`); replay ingênuo mede outra população |
-| `served_at` com resolução de **segundo** e 6 agentes disparando em 1–2 s | **46,9%** dos briefs dividem o segundo; nenhum corte temporal reproduz o estado. Sob corte estrito o replay **inventa** 3 e **perde** 1 evento: desfecho sai **14 em vez de 12** (+16,7%) |
-| o ordenador **descarta** a chave que ordenou o pool | agrupar por ela dá **um** grupo, em silêncio |
 | controle positivo rodado sobre pipeline **reimplementado** | produziu "dose absurda ⇒ efeito zero", que virou retratação central. O pipeline real dá **20** eventos |
-| grid grosso | saturação *pareceu* cair exatamente no topo da banda registrada; com 23 doses está em `(4,0 ; 4,4]` |
-| gatilho de monitoramento calibrado sobre gap **adjacente** | vigia grandeza que não limita o mecanismo: fica **verde enquanto satura** |
-| telemetria de busca por chunk **muda** desde 2026-05-19 14:47:04, numa fronteira de deploy (buraco de 1h19 nas linhas, e nulo para sempre depois), **sem `CUT`** — a convenção deste projeto para retirada deliberada | comparação entre superfícies **dentro de janela** é impossível, e passou **3,3 meses** sem ninguém notar |
-| **atribuir a morte de um instrumento a um commit, sem conferir o horário** | eu publiquei que `7fdaab4f` a apagou; o commit é de **2026-05-20 01:03 UTC** e a escrita parou **dez horas antes**. Ele removeu código que já estava mudo. Um diff que *explica* o efeito não é prova de que o *causou* |
-| **censo de "colunas sem escritor" por grep, por não-nulo, ou por distintos>1** | os três dão respostas diferentes e todas erradas: grep perde `UPDATE` e SQL dinâmico (−3 colunas), `DEFAULT` produz 11 falsos vivos, e o histórico pré-morte infla os distintos (`reranker_latency_ms`: **394**, todos anteriores). O censo válido é **distintos numa janela posterior**, cruzado com a lista literal da `INSERT`: **16** colunas, em **seis** instantes distintos ao longo de 10 dias — e num deles existe `CUT`, logo é **retirada**, não regressão |
-| campo sem escritor usado como **assinatura de origem** | `requesting_agent` nulo foi por mim tratado como prova de que a telemetria media o cron; é nulo para todo mundo desde 2026-05-18. O teste válido é o **minuto do cron** (94,8%) |
-| comparação de contagem **filtrada** com **não-filtrada** | inverteu o sinal de uma conclusão: 617×245 cumulativo vira 245×≥151 na janela comum |
-| série viva citada como instantâneo | um `n` mudou em minutos e a asserção pegou |
 | **teste de uma derivação sobre pool RECONSTRUÍDO** (`interleaveFresh` não é exportado) | classificou 25 estados como alteráveis contra 17 reais, e só **1 das 17** caía na classe; 24 violações do pressuposto de prefixo eram o sintoma. O teste válido usa só grandezas **registradas** (§5.6) |
-| valor **digitado** dentro do próprio instrumento de verificação | `w_min` máximo ficou fixado em `7,5` no script e envelheceu para falso quando o grid fino deu `4,4`; agora é argumento obrigatório vindo do artefato de dose |
+| `served_at` com resolução de **segundo** e 6 agentes disparando em 1–2 s | **46,9%** dos briefs dividem o segundo; nenhum corte temporal reproduz o estado. Sob corte estrito o replay **inventa** 3 e **perde** 1 evento: desfecho sai **14 em vez de 12** (+16,7%) |
+| grid grosso | saturação *pareceu* cair exatamente no topo da banda registrada; com 23 doses está em `(4,0 ; 4,4]` |
+| telemetria de busca por chunk **muda** desde 2026-05-19 14:47:04, numa fronteira de deploy (buraco de 1h19 nas linhas, e nulo para sempre depois), **sem `CUT`** — a convenção deste projeto para retirada deliberada | comparação entre superfícies **dentro de janela** é impossível, e passou **3,3 meses** sem ninguém notar |
+| comparação de contagem **filtrada** com **não-filtrada** | inverteu o sinal de uma conclusão: 617×245 cumulativo vira 245×≥151 na janela comum |
 | **um κ agregado reportado ao lado de uma estratificação que depende de outra fronteira** | `κ = 0,874` é o veredito falha/sucesso ≈ o corte S0/S1 (κ **0,868–0,930**). Na fronteira S1/S2, que é a que define o estrato, o κ é **0,309–0,528**. O painel concorda sobre **se** falhou e não sobre **quão grave** — e um número só escondia isso (Apêndice C.1) |
-| **"o problema é o painelista discordante"** — que aqui era falso | `xai` é quase superconjunto dos outros (1 de 16 e 1 de 13 fora): deslocamento de limiar, corrigível por normalização. O desacordo irredutível está entre as **duas famílias de severidade parecida** (16 e 13 graves, interseção **5**), que discordam sobre **quais** episódios. Culpar o outlier teria "consertado" a família errada |
 
-**[FALTA]** decidir se este catálogo é seção do paper ou **apêndice + paper de métodos
-separado**. Recomendação: seção curta aqui (as 4 linhas que afetam os números
-reportados) e o catálogo integral em apêndice.
+O padrão que atravessa as sete, e que é o achado transferível: **cada uma passou por
+verificação e sobreviveu.** Não são erros de descuido — são erros em que o instrumento
+de verificação compartilhava a premissa errada do que verificava. Um controle positivo
+rodado sobre o pipeline reimplementado confirma o pipeline reimplementado; um censo de
+colunas mortas feito por `grep` herda a cegueira do `grep`. A defesa que funcionou, nas
+sete, foi a mesma: **reproduzir uma âncora publicada antes de variar qualquer coisa**.
+
+⚠️ E há uma assimetria que vale dizer: quatro dos sete foram achados porque um número
+**bateu bem demais** — saturação exatamente no topo da banda registrada, dose absurda
+com efeito exatamente zero. Concordância suspeita foi um detector melhor que discordância.
 
 ## 7. Ameaças à validade
 
@@ -719,10 +760,37 @@ instalação por vez.
 
 ## Apêndice A — Desvios do pré-registro
 
-Íntegro em `DEVIATIONS-FOR-PAPER.md`. O pré-registro (OSF `yf7d2`, Zenodo
-`10.5281/zenodo.22110203`) afirma quatro coisas que a medição contradiz, **duas delas
-em direção que subestima o próprio desenho**, e o apêndice tem de listar as quatro com
-a mesma proeminência.
+Íntegro em `DEVIATIONS-FOR-PAPER.md`. O pré-registro está depositado (OSF `yf7d2`,
+Zenodo `10.5281/zenodo.22110203`) e **não foi emendado**: a escolha foi deixá-lo como
+registrado e declarar cada desvio aqui. Isso só é honesto se a lista for completa e se
+os desvios que **favorecem** o estudo aparecerem com a mesma proeminência dos que o
+prejudicam — então a coluna de direção é obrigatória.
+
+| o registro afirma | o que se mediu | direção |
+|---|---|---|
+| `Δ_cut = 0,043` é *"the measured salience spread at the brief cut"* | **não existe cut**: o código não aplica limiar. O comparador é lexicográfico e `salience` só desempata `last_served` idêntico | ⬆ superestima |
+| a banda `{2 · 4 · 7,5}` está entre *"what does not move, and could not"* | **move**: 11 / 15 / 17 estados de 350, monótono. A dose superior está **acima** da saturação, que fica em `(4,0 ; 4,4]` | ⬇ **subestima** |
+| a alocação é `117/39/39/39` | suspensa junto com a banda — e a razão mudou: não é que as doses sejam indistinguíveis, é que a escala não tem referente | ⬆ superestima |
+| *(v1.12 §5)* a designação é defeito **aberto** | **fechada** em 26/08 20:28Z, com precedência verificável de **1.056 s** sobre a rodada drand | ⬇ **subestima** |
+| estratificação por severidade com **S2** como estrato de análise | o painel tem κ **0,31–0,53** nessa fronteira; análises substantivas migram para **`≥ S1`** (κ 0,87–0,93). Ver Apêndice C.1 | ⬆ superestima |
+
+⚠️ **As duas linhas ⬇ são as que incomodam, e são as que o tempo não conserta.** As ⬆
+fazem o registro prometer mais do que o desenho entrega — quem ler acha o estudo mais
+forte do que é, e corrigi-las custa alegação mas ganha rigor. As ⬇ fazem o oposto: o
+registro afirma que um parâmetro **não** tem efeito quando tem, e que um defeito está
+**aberto** quando foi fechado. Ninguém corrige sozinho um erro que o favorece.
+
+⚠️ **E a linha da banda mudou de status por um defeito de instrumento meu**, não por
+dado novo: o controle positivo que produziu o *"não move"* rodava sobre um pool
+**reimplementado**. Isso é matéria do §5.6, não nota de rodapé.
+
+**Sobre o desvio de S2, especificamente.** Trocar o estrato de análise depois de ver os
+dados é exatamente o movimento que um pré-registro existe para impedir, então ele
+precisa de justificativa que não seja o resultado: a justificativa é uma propriedade do
+**instrumento** (concordância entre painelistas), medida sobre os votos e independente
+de qualquer desfecho. Nenhuma estimativa foi comparada entre as duas opções antes de
+escolher — e o critério, "usar a fronteira em que o painel concorda", teria sido o mesmo
+qualquer que fosse o sinal.
 
 ## Apêndice B — Cadeia da designação
 
@@ -795,30 +863,47 @@ versão citada. Hoje o último depósito é a v1.12, anterior a tudo isto.
 
 ---
 
+## Apêndice E — Catálogo integral de defeitos de instrumento
+
+As sete do §6 mais as nove abaixo. A separação é por **consequência**, não por
+importância: estas não mudaram nenhum número reportado neste paper — o que não as torna
+menos transferíveis, e três delas são as lições que eu esperaria serem as mais úteis a
+terceiros.
+
+| defeito | consequência medida |
+|---|---|
+| relógio do banco dentro do filtro de elegibilidade, apesar de a função receber o instante por argumento | o brief não é função pura de (corpus, estado, `nowMs`); replay ingênuo mede outra população |
+| o ordenador **descarta** a chave que ordenou o pool | agrupar por ela dá **um** grupo, em silêncio |
+| gatilho de monitoramento calibrado sobre gap **adjacente** | vigia grandeza que não limita o mecanismo: fica **verde enquanto satura** |
+| **atribuir a morte de um instrumento a um commit, sem conferir o horário** | eu publiquei que `7fdaab4f` a apagou; o commit é de **2026-05-20 01:03 UTC** e a escrita parou **dez horas antes**. Ele removeu código que já estava mudo. Um diff que *explica* o efeito não é prova de que o *causou* |
+| **censo de "colunas sem escritor" por grep, por não-nulo, ou por distintos>1** | os três dão respostas diferentes e todas erradas: grep perde `UPDATE` e SQL dinâmico (−3 colunas), `DEFAULT` produz 11 falsos vivos, e o histórico pré-morte infla os distintos (`reranker_latency_ms`: **394**, todos anteriores). O censo válido é **distintos numa janela posterior**, cruzado com a lista literal da `INSERT`: **16** colunas, em **seis** instantes distintos ao longo de 10 dias — e num deles existe `CUT`, logo é **retirada**, não regressão |
+| campo sem escritor usado como **assinatura de origem** | `requesting_agent` nulo foi por mim tratado como prova de que a telemetria media o cron; é nulo para todo mundo desde 2026-05-18. O teste válido é o **minuto do cron** (94,8%) |
+| série viva citada como instantâneo | um `n` mudou em minutos e a asserção pegou |
+| valor **digitado** dentro do próprio instrumento de verificação | `w_min` máximo ficou fixado em `7,5` no script e envelheceu para falso quando o grid fino deu `4,4`; agora é argumento obrigatório vindo do artefato de dose |
+| **"o problema é o painelista discordante"** — que aqui era falso | `xai` é quase superconjunto dos outros (1 de 16 e 1 de 13 fora): deslocamento de limiar, corrigível por normalização. O desacordo irredutível está entre as **duas famílias de severidade parecida** (16 e 13 graves, interseção **5**), que discordam sobre **quais** episódios. Culpar o outlier teria "consertado" a família errada |
+
 ## O que falta, em ordem de quem bloqueia quem
 
-Feito (28/08, salvo indicação):
+Feito em 28/08, salvo indicação:
 
-✅ **Figura 1** — `fig1-capacidade.py` sobre `out/superficie.json` (commit `dea2d4a`);
-reconferida hoje, reproduz byte a byte ⇒ ainda deriva do dado, não é desenho.
-✅ **Figuras 2 e 3** — `fig2-concentracao.py` e `fig3-dose-resposta.py`, cada uma com
-guarda próprio (a 2 aborta se a curva não somar `slots_7d`; a 3, se os dois grids
-divergirem onde se cruzam).
-✅ **§5, derivação formal** — 27/08, com o teste que primeiro refutou o próprio
-instrumento e depois passou.
-✅ **§1, §8, §9** — escritos.
-✅ **contagem de "pre-registration" no survey** — recomputada sobre o PDF v4 pinado por
-sha256, com controle positivo.
-✅ **quebra de regime de 21–22/08** — explicada em §4.3.1, com **predição datada para
-29/08** que a falsifica se errada.
+✅ **§1, §2, §8, §9** escritos · **§5** em 27/08 · **Abstract** escrito.
+✅ **Figuras 1, 2 e 3** — cada uma derivada de artefato travado, com guarda próprio.
+✅ **contagem do survey** recomputada sobre o PDF pinado por sha256, com controle positivo.
+✅ **quebra de regime de 21–22/08** — explicada (§4.3.1), com predição datada para 29/08.
+✅ **S2** — decidido pela medição: substantivas em `≥ S1` (κ 0,87–0,93), a divisão S1/S2
+vira achado de instrumento (κ 0,31–0,53). Desvio declarado no Apêndice A.
+✅ **catálogo de defeitos** — 7 no corpo (as que mudaram número reportado), 16 no
+Apêndice E. Sem paper de métodos separado.
 
 Falta:
 
-1. ✅ **S2 decidido pela medição, não por preferência** (28/08): análises substantivas
-   em `≥ S1` (κ 0,87–0,93); a divisão S1/S2 vira achado de instrumento (κ 0,31–0,53).
-   Falta só **declarar o desvio no Apêndice A**;
-2. **§2** — descrição do sistema, 3 parágrafos + figura de arquitetura;
-3. **decidir o catálogo de defeitos** — seção do paper ou apêndice + paper de métodos;
-4. **Abstract**, por último;
-5. **depósito** com o manuscrito + artefatos, e aí a emenda agrupada faz sentido: um
+1. **figura de arquitetura** do §2 — corpus → dois canais → 10 slots, com o comparador
+   anotado no canal de cobertura. É a única figura que não deriva de artefato, porque
+   descreve estrutura e não dado;
+2. **verificar a predição de 29/08** — se a leva de 21–22/08 não secar, o §4.3.1 está
+   errado e tem de ser reescrito antes de qualquer depósito;
+3. **passagem de revisão adversarial** — vozes de famílias distintas sobre o manuscrito
+   inteiro; a lição registrada é que revisão adversarial e censo mecânico pegam classes
+   **disjuntas** de defeito, e só o segundo foi feito até aqui;
+4. **depósito** com o manuscrito + artefatos, e aí a emenda agrupada faz sentido: um
    registro só, declarando os desvios **e** o resultado novo.
