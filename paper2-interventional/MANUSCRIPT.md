@@ -533,20 +533,116 @@ reportados) e o catálogo integral em apêndice.
 
 ## 8. Trabalho relacionado
 
-**[FALTA — ~1 página.]** Eixos:
-- benchmarks de memória para agentes e o que eles medem (e não medem);
-- literatura de *exposure/position bias* em recomendação — é onde existe o vocabulário
-  de "capacidade da superfície", e a ponte ainda não foi feita para memória de agente;
-- pré-registro em CS de sistemas: o gap que o survey evidencia.
+### 8.1 O que a área de memória para agentes mede
+
+O survey canônico (TMLR 2602.06052v4) particiona as métricas em uso em três famílias —
+baseadas em acurácia, em similaridade e em LLM-como-juiz — e todas as três pontuam a
+**representação**: dado um conjunto de queries, quão bem o sistema recupera o que é
+relevante. MemoryArena (2602.16313) e Evo-Memory (2511.20857) são as vizinhas mais
+próximas e ambas comparam **sistemas** sobre tarefas fixas. Nenhuma mede o que o
+sistema **entregou** ao agente sob o tráfego que ele de fato recebeu.
+
+A célula vazia não é um detalhe de cobertura: uma métrica de recuperação é condicional
+a uma query ter sido feita. Um item que nenhuma query alcança e que nenhum brief inclui
+tem nDCG indefinido, não baixo — e é exatamente a população que este paper mede
+(83,78%).
+
+### 8.2 Exposição em recomendação — onde o vocabulário existe
+
+A noção de que a atenção entregue é um recurso **finito e alocável**, distinto da
+relevância estimada, está madura em recuperação e recomendação. Singh e Joachims
+(KDD '18) formulam alocação de exposição como restrição otimizável; Diaz et al.
+(CIKM '20) tornam a **exposição esperada** uma métrica de avaliação, sobre rankings
+estocásticos. A literatura de *popularity bias* mede o fenômeno correlato do lado do
+catálogo — itens da cauda longa recebem exposição desproporcionalmente menor que sua
+prevalência (survey de Klimashevskaia et al., UMUAI 2024, sobre 123 trabalhos) — e
+Chaney et al. (RecSys '18) mostram que o laço de realimentação entre o que é exposto e
+o que é aprendido aumenta homogeneidade ao longo do tempo.
+
+Nosso resultado é *popularity bias* onde a "popularidade" é **o tamanho da coleção a
+que o item pertence**, e o laço de realimentação de Chaney tem análogo direto:
+`access_count` entra na `salience`, então o que foi exposto fica mais exposível.
+
+O trabalho mais próximo do nosso achado é Bower et al. (2022), que mostra que a
+desigualdade de exposição se origina **antes** da ordenação, no conjunto de candidatos
+— e que randomizar o passo seguinte pode até piorá-la. Concordamos na localização e
+divergimos no mecanismo, e a divergência é o ponto:
+
+> ⚠️ **Essa literatura pressupõe que exposição é monótona no score que se controla** —
+> é o que autoriza redistribuir exposição tornando o ranking estocástico. Aqui a
+> pressuposição **falha estruturalmente**: os slots de cobertura são ordenados por um
+> comparador **lexicográfico**, o score é a coordenada **subordinada**, e um bônus
+> aditivo no score só age dentro de **empates** da coordenada dominante (§5.2). Um
+> lever construído sobre score não move o que a coordenada dominante já decidiu — e
+> isso não é uma questão de magnitude do bônus, é a álgebra do comparador.
+
+Daí a ponte não ser só terminológica. O vocabulário de capacidade de superfície importa
+para memória de agente, e a técnica padrão de redistribuição **não transfere** sem
+antes verificar em que coordenada a ordenação decide. Essa verificação é o diagnóstico
+que publicamos.
+
+⚠️ Duas ressalvas de escopo. A analogia é de **mecanismo**, não de aplicação: lá quem
+consome é um usuário humano com posição e atenção decrescentes, aqui é um agente que
+recebe 10 itens de uma vez, e não há modelo de posição. E "justiça de exposição" é uma
+questão normativa que **não** levantamos: o argumento aqui é de utilidade e de
+diagnóstico, não de equidade entre itens.
+
+### 8.3 Pré-registro em CS de sistemas
+
+O registro prospectivo de hipótese, desfecho e análise é rotina em ensaios clínicos e
+em partes da psicologia; em CS de sistemas, não. O survey de 218 papers da §8.1 tem
+**zero** ocorrências de qualquer grafia de *pre-registration* — e, medido junto,
+**zero** de `randomized`/`randomised` e de `ablation` (§1). A ausência é da família
+metodológica inteira, não de um termo.
+
+Isso condiciona o que este paper pode oferecer como precedente: não há convenção
+estabelecida sobre o que declarar antes de intervir num sistema de memória vivo. O
+Apêndice A registra nossos desvios do próprio pré-registro — inclusive os que
+invalidaram medições publicadas — porque um precedente que só mostra o caminho limpo
+não é precedente utilizável.
+
+📌 **Procedência desta seção.** MemoryArena e Evo-Memory foram lidos **integralmente**
+em 15/08 (`RELATED-WORK.md` §4 e §4.1); o survey, integralmente em 13/08, com as
+contagens recomputadas em 28/08 sobre o PDF pinado por sha256. Os trabalhos de
+recomendação da §8.2 foram lidos em **resumo e metadados**, não em texto integral —
+declaro porque a afirmação que faço sobre eles é sobre a **pressuposição de
+monotonicidade**, e essa é uma afirmação que texto integral poderia refinar.
 
 ## 9. Discussão
 
-**[FALTA]** Duas afirmações, e nenhuma além:
-1. otimizar ranking não melhora exposição quando a capacidade é o gargalo — e
-   capacidade é medível com o diagnóstico publicado;
-2. intervenções em memória viva precisam declarar a **coordenada** em que agem, porque
-   um bônus na coordenada subordinada de um comparador lexicográfico tem teto
-   analítico.
+Duas afirmações, e nenhuma além.
+
+**Primeira: quando a capacidade é o gargalo, melhorar a ordenação não melhora a
+exposição.** Neste sistema a superfície entrega 10 itens por brief contra 67.187
+chunks, e o que decide quem entra correlaciona com o tamanho da coleção
+(`r = −0,728`), não com a relevância atribuída. Um embedding melhor reordena os
+candidatos; não cria slot. Isso não diz que trabalho de *ranking* é inútil — diz que
+o ganho dele é limitado por uma quantidade que a área não mede, e que **é medível**:
+o diagnóstico publicado (`measurement/`) computa a superfície de exposição de qualquer
+sistema que registre o que entregou. A pergunta "quantos itens distintos meu sistema já
+serviu, e quais?" deveria ser barata de responder, e hoje não é — não por dificuldade
+técnica, mas porque ninguém instrumenta para ela. Foram **16 colunas de telemetria sem
+escritor** neste próprio sistema, em seis instantes distintos, uma delas a que
+registrava exatamente quais chunks a busca devolveu (§6).
+
+**Segunda: uma intervenção em memória viva tem de declarar em que coordenada age.**
+Um bônus aditivo na coordenada **subordinada** de um comparador lexicográfico tem teto
+**analítico**, não empírico: ele só pode mover o que está empatado na coordenada
+dominante (§5.2). Medimos o teto — 4,86% dos briefs, saturando em `w ∈ (4,0; 4,4]` — e
+a predição veio da leitura do comparador, antes da dose-resposta. A consequência de
+desenho é desconfortável e vale dizer inteira: **projetamos uma intervenção cujo teto
+era derivável do código antes de ela ser implantada.** Quem for intervir num ranker
+deveria fazer essa derivação primeiro; custa uma tarde de leitura e economiza uma
+rodada experimental.
+
+⚠️ **O que não afirmamos.** Que a exposição mudou o comportamento do agente — não há
+desfecho a jusante instrumentado (§5.4). Que 83,78% de não-exposição seja *ruim* —
+parte do corpus é log, e log não precisa ser lido para ser útil; o que o número
+estabelece é a **escala** da população que nenhuma métrica de recuperação alcança. E
+que o mecanismo generalize empiricamente: ele generaliza **dedutivamente**, para
+qualquer ranker com ordem lexicográfica e bônus na coordenada subordinada, e quantos
+sistemas têm essa forma é uma pergunta aberta que o diagnóstico permite responder uma
+instalação por vez.
 
 ## Apêndice A — Desvios do pré-registro
 
