@@ -1,5 +1,96 @@
 # nox-mem HANDOFF — estado vivo
 
+## ▶️ AMANHÃ (2026-08-29) — o que fazer, em ordem
+
+**Decisão do Toto em 28/08: dois papers.** O da superfície vai a depósito assim que o
+gate passar; o interventivo vira trabalho próprio. Mapa em
+`paper2-interventional/PAPER-SPLIT-2026-08-28.md`. O Paper A está **estruturalmente
+fechado** — nada de escrita pendente.
+
+### 1. Rodar o gate do lote (bloqueia tudo o resto)
+
+```
+cd paper2-interventional
+python3 measurement/ciclo-do-lote.py \
+  --db /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
+  --lote 2026-08-21:2026-08-23 --corte 7 \
+  --esperar-zero-em 2026-08-29 --out BATCH-CYCLE-2026-08-29.json
+```
+
+O veredito é o **código de saída**, não julgamento:
+
+| saída | significado | o que fazer |
+|---|---|---|
+| `exit 0` · CONFIRMADA | o lote foi servido zero vezes e houve brief no dia | segue para o passo 2 |
+| `exit 1` · REFUTADA | o lote continua sendo servido depois dos 7 dias | **§4.3.1 é reescrito antes de qualquer depósito.** A retrodição de 09–10/08 continua fato, mas deixa de generalizar |
+| `exit 1` · NÃO MEDIDA | não houve brief nenhum em 29/08 (cron parado, VPS fora) | **não conta como confirmação.** Investigar o cron e repetir no dia seguinte |
+
+Predição registrada **antes** do dia em `PREDICTION-2026-08-29.md`: 108 chunks servidos
+zero vezes, distintos caindo de 141 para ≈33. A segunda é aproximada e não falseia
+sozinha (no ciclo anterior previu 46, observou 49) — quem decide é a primeira.
+
+### 2. Depósito do Paper A — **exige aprovação explícita do Toto**
+
+Nunca depositar sem ela. Ao preparar:
+
+- ⚠️ **o número de versão é fato do depósito, não rótulo do texto** — resolver pelo estado
+  do Zenodo, nunca assumir "v1.13";
+- ⚠️ o registro existente (OSF `yf7d2`, Zenodo `10.5281/zenodo.22110203`) é o
+  **pré-registro do estudo interventivo**. O Paper A é trabalho distinto — decidir se vira
+  registro novo ou versão, e não misturar;
+- artefatos citados no Apêndice D têm de acompanhar.
+
+### 3. Se sobrar tempo (nada disso bloqueia)
+
+- **Interação designação × granularidade** não foi medida: o §5.7 é todo sob a designação
+  em vigor e o §5.7.1 todo sob resolução de segundo. Declarado no texto como limite.
+- **Paper B não começou.** `NOX_P2_OUTCOME=shadow`, sem `ASSIGNMENT.json`, Fase 3 do plano
+  de designação intocada — registro prospectivo do estimando → `ASSIGNMENT.json` →
+  `active` → Epoch 1. Se for para `active`, a dose servida hoje (`w = 2,0`) está **abaixo**
+  da saturação, que fica em `(4,0; 4,4]`; é escolha de desenho com trade-off medido.
+- **`colocation-probe.sh`** (`benchmark/latency-cost/`) nunca rodou e `/var/log/nox-mem/`
+  não existe na VPS. Ele mede interferência de latência durante a janela do `kg-build`,
+  que é **semanal, aos domingos** — a série de `provider_telemetry` respondeu custo, não
+  interferência.
+
+### Estado em que a sessão de 28/08 fechou
+
+Nada rodando: sem tmux, sem processo, working tree limpo, tudo pushado até `c849309`.
+Cron da VPS segue normal (`p2-composicao` de hora em hora, `p2-saturacao` 09:12Z).
+
+**Decidido e encerrado:** o webhook do Discord exposto **não** será rotacionado (decisão do
+Toto — não retomar o assunto).
+
+---
+
+
+## 2026-08-28 (tarde) — dois achados que mudaram como o teto é reportado
+
+**O teto de 4,86% não é constante do mecanismo, em dois eixos independentes.**
+
+1. **Resolução de `served_at`** (§5.7, `CEILING-GRANULARITY-2026-08-28.json`). O
+   comparador é lexicográfico, então o teto é função de quantos empates o **formato** da
+   chave produz — e a resolução é o default do `datetime('now')`. Truncando: 4,86% →
+   36,29% → 80,29% → 99,43% de segundo a dia, sem tocar em código. Uma predição minha
+   morreu no teste: coarsening **não** é monótono nos conjuntos, porque fundir estrato
+   move o braço de **controle** junto. Cirúrgico porque `served_at` tem **um** consumidor
+   vivo — `serveCounts` está exportado, testado e nunca chamado.
+2. **Qual chunk o sorteio pegou** (§5.7.1,
+   `CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json`). Oito designações alternativas da
+   mesma regra: 4,86%–7,43%, mediana 5,71%, e **a designação em vigor é a menor das
+   nove**. As alternativas movem *outros* briefs, não só mais.
+
+**§4.3.1 verificado por retrodição** (`BATCH-CYCLE-2026-08-28.json`): o lote de 09–10/08
+serviu 8 dias, idade **máxima** nunca alcançando 7,00, encolheu 75→54 em 16/08 e zerou em
+17/08 sem voltar. E o texto citava só uma das **duas** janelas — há `freshMaxAgeDays = 7`
+(por agente) e `freshGlobalMaxAgeDays = 30` (global). Elegível ≠ alcançável: o global
+ordena por `last_served ASC` e quem acabou de ser servido vai para o fim da fila.
+
+**Separação em dois papers executada:** §4.5 reescrito, Apêndice A virou "relação com o
+pré-registro", Apêndice C saiu, §5.1 ganhou a proveniência de `D`. E o **§6 perdeu uma
+linha pelo critério que ele próprio declara** — o κ de 0,874 é a lição mais citável do
+conjunto e não muda número nenhum deste paper. Sete viraram seis.
+
 ## 2026-08-28 — o gatilho do item 7(a) deixa de recusar `active`
 
 Era o único item de implementação declarado como **bloqueio da ativação**. Estava
