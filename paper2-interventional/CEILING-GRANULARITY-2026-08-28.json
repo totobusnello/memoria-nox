@@ -1,0 +1,190 @@
+{
+  "gerado_por": "measurement/granularidade-do-teto.py",
+  "pergunta": "o teto de alcançabilidade é do comparador ou da resolução de served_at?",
+  "ancora_nativa_reproduzida": {
+    "estados": 350,
+    "mexeu": 17
+  },
+  "invariantes_conferidos": [
+    "corpus_sha256_primeiros_1MB",
+    "corte_serve_state",
+    "designacao_sha256",
+    "designados",
+    "doses",
+    "fonte_brief_ts_sha256",
+    "n_estados"
+  ],
+  "tabela": [
+    {
+      "granularidade": "seg",
+      "estados": 350,
+      "mexeu": 17,
+      "teto_pct": 4.86,
+      "churn_total": 20,
+      "boosts_emitidos": 19,
+      "erros": 0
+    },
+    {
+      "granularidade": "min",
+      "estados": 350,
+      "mexeu": 127,
+      "teto_pct": 36.29,
+      "churn_total": 162,
+      "boosts_emitidos": 19,
+      "erros": 0
+    },
+    {
+      "granularidade": "hora",
+      "estados": 350,
+      "mexeu": 281,
+      "teto_pct": 80.29,
+      "churn_total": 427,
+      "boosts_emitidos": 19,
+      "erros": 0
+    },
+    {
+      "granularidade": "dia",
+      "estados": 350,
+      "mexeu": 348,
+      "teto_pct": 99.43,
+      "churn_total": 689,
+      "boosts_emitidos": 19,
+      "erros": 0
+    }
+  ],
+  "monotonia_da_contagem": true,
+  "aninhamento_dos_conjuntos": [
+    {
+      "de": "seg",
+      "para": "min",
+      "ganhos": 111,
+      "perdas": 1,
+      "estados_perdidos": [
+        "2026-08-26T20:52:04.856Z"
+      ],
+      "aninhado": false
+    },
+    {
+      "de": "min",
+      "para": "hora",
+      "ganhos": 156,
+      "perdas": 2,
+      "estados_perdidos": [
+        "2026-08-27T05:37:05.210Z",
+        "2026-08-27T07:37:02.488Z"
+      ],
+      "aninhado": false
+    },
+    {
+      "de": "hora",
+      "para": "dia",
+      "ganhos": 67,
+      "perdas": 0,
+      "estados_perdidos": [],
+      "aninhado": true
+    }
+  ],
+  "conjuntos_aninhados": false,
+  "diagnostico_dos_perdidos": {
+    "2026-08-26T20:52:04.856Z": {
+      "por_granularidade": {
+        "seg": {
+          "churn": 1,
+          "would_enter": [
+            308216
+          ],
+          "would_leave": [
+            308246
+          ],
+          "designado_ja_no_controle": []
+        },
+        "min": {
+          "churn": 0,
+          "would_enter": [],
+          "would_leave": [],
+          "designado_ja_no_controle": [
+            308216
+          ]
+        },
+        "hora": {
+          "churn": 0,
+          "would_enter": [],
+          "would_leave": [],
+          "designado_ja_no_controle": [
+            308216
+          ]
+        }
+      },
+      "mecanismo": "redundancia — a fusão promoveu o designado no CONTROLE"
+    },
+    "2026-08-27T05:37:05.210Z": {
+      "por_granularidade": {
+        "seg": {
+          "churn": 1,
+          "would_enter": [
+            308284
+          ],
+          "would_leave": [
+            308282
+          ],
+          "designado_ja_no_controle": []
+        },
+        "min": {
+          "churn": 1,
+          "would_enter": [
+            308284
+          ],
+          "would_leave": [
+            308282
+          ],
+          "designado_ja_no_controle": []
+        },
+        "hora": {
+          "churn": 0,
+          "would_enter": [],
+          "would_leave": [],
+          "designado_ja_no_controle": []
+        }
+      },
+      "mecanismo": "inalcancabilidade — o estrato inteiro desceu abaixo do corte e o bônus não atravessa estrato (Proposição 1)"
+    },
+    "2026-08-27T07:37:02.488Z": {
+      "por_granularidade": {
+        "seg": {
+          "churn": 1,
+          "would_enter": [
+            308284
+          ],
+          "would_leave": [
+            308282
+          ],
+          "designado_ja_no_controle": []
+        },
+        "min": {
+          "churn": 1,
+          "would_enter": [
+            308296
+          ],
+          "would_leave": [
+            308282
+          ],
+          "designado_ja_no_controle": []
+        },
+        "hora": {
+          "churn": 0,
+          "would_enter": [],
+          "would_leave": [],
+          "designado_ja_no_controle": []
+        }
+      },
+      "mecanismo": "inalcancabilidade — o estrato inteiro desceu abaixo do corte e o bônus não atravessa estrato (Proposição 1)"
+    }
+  },
+  "artefatos": {
+    "seg": "gran-seg.json",
+    "min": "gran-min.json",
+    "hora": "gran-hora.json",
+    "dia": "gran-dia.json"
+  },
+  "artefatos_em": "measurement/out/"
+}

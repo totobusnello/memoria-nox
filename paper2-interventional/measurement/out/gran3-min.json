@@ -1,0 +1,112 @@
+{
+  "procedencia": {
+    "gerado_em": "2026-08-28T11:30:16.995Z",
+    "modo": "dose",
+    "corte_serve_state": "rowid",
+    "granularidade_last_served": "min",
+    "corpus": "/var/lib/nox-mem/epochs/e20260826T060003Z.db",
+    "corpus_sha256_primeiros_1MB": "56826f69d6bd32da6c114e2053ddf36f6011a554b7ea1a8986884f4fcafc7c04",
+    "vivo": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+    "designacao": "/root/.openclaw/paper2/DESIGNATION-2026-08-26.json",
+    "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+    "designados": 19,
+    "sondas_excluidas": [],
+    "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95"
+  },
+  "dose": {
+    "log": "/root/p2-replay/p2-serving-CLOSED-WINDOW-2026-08-26T2028-2026-08-27T0900.ndjson",
+    "estados": 3,
+    "tabela": [
+      {
+        "w": 100000,
+        "estados": 3,
+        "mexeu": 2,
+        "churn_total": 2,
+        "boosts": 19
+      }
+    ],
+    "detalhe": [
+      {
+        "ts": "2026-08-27T07:37:02.488Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 576355,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308222,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-08-27T05:37:05.210Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 575815,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308222,
+          288200,
+          303592,
+          308282,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-08-26T20:52:04.856Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 573335,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308246,
+          117887,
+          265170,
+          308216,
+          298214,
+          273772
+        ]
+      }
+    ],
+    "controle_positivo": {
+      "doses_absurdas": [
+        100000
+      ],
+      "mexeu_em_algum_estado": true,
+      "veredito": "PASSA — o canal existe e responde à dose"
+    }
+  }
+}

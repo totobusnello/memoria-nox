@@ -17,6 +17,7 @@ tabelas ninguém pode recomputar.
 | script | o que mede | número que sustenta |
 |---|---|---|
 | **`replay-oportunidade.mjs`** | replay do canal de boost **importando `buildBriefDiverse` do `dist`** — passa por `fetchRankedPool`, `fetchFreshCandidates`, `ordenarCobertura`, `interleaveFresh`, `pinned`, near-dup e as 5 fases do `pickDedup`. Três modos: `ancora`, `campo`, `dose` | fidelidade **350/350** contra a produção (controle, `churn`, `would_enter`); dose monótona 0→17 estados saturando em `w = 7,5`; teto **17/350 = 4,86%**. Ver `../REPLAY-OPORTUNIDADE-2026-08-27.md` |
+| **`granularidade-do-teto.py`** | consolida o contrafactual de granularidade da chave de estrato: mesmo replay, mesmo corpus, mesma designação, mesmos 350 estados, variando só a resolução de `served_at`. Guardas testados por mutação: invariância de procedência entre os quatro braços, rótulo × procedência, e reprodução da âncora nativa | teto **4,86% → 36,29% → 80,29% → 99,43%** de segundo a dia. Conjuntos **não** aninhados (3 estados saem), por dois mecanismos opostos — redundância e inalcançabilidade. Ver `../CEILING-GRANULARITY-2026-08-28.json` |
 | `replay-resumo.py` | emite as tabelas daquela nota e as **trava** com `--assert-json` | 9/9 mutações detectadas |
 | `irmaos-no-segundo.py` | exposição ao defeito de resolução de `served_at` | **46,9%** dos 350 briefs dividem o segundo com outro |
 

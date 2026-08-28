@@ -107,6 +107,42 @@ const CORTE = A.corte ?? "estrito";
 if (!["estrito", "inclusivo", "rowid"].includes(CORTE)) {
   console.error(`--corte inválido: ${CORTE} (estrito|inclusivo|rowid)`); process.exit(2);
 }
+/**
+ * ─── `--granularidade`: o teto é propriedade do algoritmo ou do FORMATO? ────
+ *
+ * O comparador é lexicográfico em `(last_served, −salience)` e o bônus só age
+ * DENTRO de um empate da coordenada dominante (Proposição 1, modo `porque`).
+ * Logo o teto de alcançabilidade não é função do comparador sozinho: é função
+ * de quantos empates o formato de `served_at` produz. E a resolução de
+ * `served_at` é herdada do `datetime('now')` do SQLite — ninguém a escolheu
+ * como parâmetro de desenho.
+ *
+ * Truncar `served_at` é o contrafactual que separa as duas coisas. É
+ * COARSENING: só funde estratos, nunca divide ⇒ o teto tem de ser monótono
+ * não-decrescente em `seg → min → hora → dia`. Essa monotonia é o autoteste do
+ * instrumento: se ela quebrar, o defeito é do script, não do achado.
+ *
+ * ⚠️ Truncar SEM repor os zeros seria um viés silencioso, não uma coarsening:
+ * `"2026-08-28 10:52"` é PREFIXO de `"2026-08-28 10:52:12"`, e prefixo ordena
+ * antes. Um estrato truncado passaria à frente de um não-truncado do mesmo
+ * minuto em vez de empatar com ele. Por isso trunca-e-repõe.
+ *
+ * ⚠️ Aplicado DEPOIS do corte do serve-state, nunca antes: truncar primeiro
+ * moveria linhas através do próprio corte.
+ *
+ * Cirúrgico por um fato verificado no fonte, não por suposição: `served_at`
+ * tem UM consumidor vivo. O outro (`serveCounts`, janela de novelty-penalty)
+ * está exportado e testado, mas **nenhum caminho de produção o chama** — é o
+ * resto do mecanismo A, que o tune de 06-26 substituiu por cobertura
+ * (`brief.ts:588`). Logo truncar não contamina contagem de janela nenhuma.
+ */
+const GRAN = A.granularidade ?? "seg";
+const GRAN_LEN = { seg: 19, min: 16, hora: 13, dia: 10 }[GRAN];
+if (GRAN_LEN === undefined) {
+  console.error(`--granularidade inválida: ${GRAN} (seg|min|hora|dia)`); process.exit(2);
+}
+/** "2026-08-28 10:52:12" → "2026-08-28 10:52:00" (repõe, não encurta). */
+const truncaPad = (s) => s.slice(0, GRAN_LEN) + "1970-01-01 00:00:00".slice(GRAN_LEN);
 
 // ─── o que o dist tem de fornecer, e o que ele NÃO exporta ─────────────────
 
@@ -254,10 +290,41 @@ function serveStateDerivado(vivoRO, tRefMs, dir, idMax = null) {
   d.transaction(() => {
     for (const l of linhas) ins.run(l.chunk_id, l.scope, l.agent, l.served_at, l.brief_id);
   })();
+  /**
+   * Coarsening, depois do corte. Com `--granularidade seg` isto TEM de ser
+   * no-op byte a byte: é o teste de mutação do `truncaPad`, e ele roda em toda
+   * execução, não só quando alguém lembra.
+   */
+  let reescritas = 0;
+  let estratos;
+  {
+    const sel = d.prepare("SELECT id, served_at FROM brief_log");
+    const upd = d.prepare("UPDATE brief_log SET served_at = ? WHERE id = ?");
+    d.transaction(() => {
+      for (const l of sel.all()) {
+        const t = truncaPad(l.served_at);
+        if (t !== l.served_at) { upd.run(t, l.id); reescritas++; }
+      }
+    })();
+    if (GRAN === "seg" && reescritas > 0) {
+      throw new Error(
+        `truncaPad NÃO é identidade em granularidade nativa: reescreveu ${reescritas} ` +
+        `linhas. O padding está errado e TODA granularidade grosseira estaria também.`);
+    }
+    estratos = {
+      chunks_com_serve: d.prepare(
+        "SELECT COUNT(*) c FROM (SELECT chunk_id FROM brief_log GROUP BY chunk_id)").get().c,
+      estratos_distintos: d.prepare(
+        "SELECT COUNT(DISTINCT m) c FROM (SELECT MAX(served_at) m FROM brief_log GROUP BY chunk_id)").get().c,
+      maior_estrato: d.prepare(
+        "SELECT MAX(c) c FROM (SELECT COUNT(*) c FROM (SELECT chunk_id, MAX(served_at) m FROM brief_log GROUP BY chunk_id) GROUP BY m)").get().c,
+    };
+  }
   const total = idMax === null
     ? vivoRO.prepare(`SELECT COUNT(*) c FROM brief_log WHERE served_at ${op} ?`).get(corte).c
     : vivoRO.prepare("SELECT COUNT(*) c FROM brief_log WHERE id < ?").get(idMax).c;
-  return { db: d, path: p, linhas: linhas.length, descartadas: total - linhas.length, corte, op, idMax };
+  return { db: d, path: p, linhas: linhas.length, descartadas: total - linhas.length,
+           corte, op, idMax, granularidade: GRAN, linhas_reescritas: reescritas, ...estratos };
 }
 
 // ─── provedor de boost: replica brief.ts:957 ───────────────────────────────
@@ -313,6 +380,7 @@ const proc = {
   gerado_em: new Date().toISOString(),
   modo: MODO,
   corte_serve_state: CORTE,
+  granularidade_last_served: GRAN,
   corpus: CORPUS,
   corpus_sha256_primeiros_1MB: createHash("sha256")
     .update(readFileSync(CORPUS).subarray(0, 1 << 20)).digest("hex"),
@@ -570,6 +638,14 @@ if (MODO === "campo" || MODO === "dose" || MODO === "porque") {
         would_enter: d ? d.would_enter : null,
         would_leave: d ? d.would_leave : null,
       };
+      /**
+       * O conjunto de CONTROLE é gravado sempre, não só no modo `campo`. Motivo
+       * concreto (28/08): no teste de granularidade, 3 estados deixam de mexer
+       * ao engrossar o estrato, e sem o controle de cada granularidade não dá
+       * para distinguir "o designado já entrou sozinho" de "o designado saiu de
+       * contenção" — duas leituras opostas do mesmo churn=0.
+       */
+      item.ids_controle_replay = out.alt.items.map((i) => i.id);
       if (w === null) {
         item.producao = { churn: r.churn, would_enter: r.would_enter, would_leave: r.would_leave, boosts: Object.keys(r.boost_by_id).length };
         /**
@@ -579,7 +655,6 @@ if (MODO === "campo" || MODO === "dose" || MODO === "porque") {
          * churn que bate por coincidência (controle errado + tratado errado)
          * passaria por fidelidade.
          */
-        item.ids_controle_replay = out.alt.items.map((i) => i.id);
         item.bate_controle =
           JSON.stringify(item.ids_controle_replay) === JSON.stringify(r.ids_controle);
         item.controle_producao = r.ids_controle;

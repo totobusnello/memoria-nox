@@ -823,6 +823,66 @@ trocado **duas** coisas de uma vez, corpus vivo e exclusão de 6 sondas; o diff 
 bloco `procedencia` dos dois artefatos mostrou as duas. **Diff de procedência
 antes de comparar número** é regra, não zelo.
 
+### 5.7 O teto de 4,86% é propriedade do FORMATO, não do comparador
+
+A Proposição 1 diz que o bônus permuta dentro de um empate de `last_served` e nunca
+atravessa. Disso segue, dedutivamente, que o teto de alcançabilidade não é propriedade
+do comparador sozinho: é propriedade de **quantos empates o formato de `last_served`
+produz**. E a resolução de `served_at` é herdada do `datetime('now')` do SQLite —
+segundo. Ninguém a escolheu como parâmetro de desenho; ela é o default de uma função de
+biblioteca.
+
+O contrafactual que separa as duas coisas é o mesmo replay com a chave de estrato
+truncada e reposta com zeros (`--granularidade`, em `replay-oportunidade.mjs`). Truncar
+é cirúrgico aqui por um fato verificado no fonte: **`served_at` tem um único consumidor
+vivo no serving**, a chave de estrato. O outro (`serveCounts`, janela do
+novelty-penalty) está exportado e testado, mas nenhum caminho de produção o chama — é o
+resto do mecanismo A, substituído por cobertura no tune de 06-26 (`brief.ts:588`).
+
+| resolução de `served_at` | briefs que mudam | teto |
+|---|---:|---:|
+| **segundo — a de produção** | **17** / 350 | **4,86%** |
+| minuto | 127 / 350 | 36,29% |
+| hora | 281 / 350 | 80,29% |
+| dia | 348 / 350 | 99,43% |
+
+Corpus, designação, corte, dose e o conjunto dos 350 estados são **byte a byte os
+mesmos** nas quatro linhas; o script consolidador aborta se qualquer um divergir, e a
+granularidade nativa tem de reproduzir o `17/350` publicado antes de a tabela ser
+emitida (as duas asserções foram testadas por mutação). Artefato:
+`CEILING-GRANULARITY-2026-08-28.json`.
+
+A intuição do porquê está no tamanho dos empates, e ela vem de **outra população** —
+os 1.787 chunks já servidos alguma vez, sobre o histórico inteiro do `brief_log`, sem a
+poda por brief que o replay aplica. Nessa população, truncar leva o número de estratos
+distintos de **1.139** (segundo) para 951, 311 e 57, e o maior estrato de **14** para
+61, 89 e 186. Os dois conjuntos de números respondem perguntas diferentes e não devem ser
+lidos na mesma linha: um descreve a estrutura de empates do corpus servido, o outro conta
+briefs que mudam no replay.
+
+**A leitura.** Um mecanismo que alcança 4,86% dos briefs alcançaria 36% se o sistema
+gravasse a hora com um campo a menos. O número que este paper reporta como teto do canal
+é, em boa medida, um fato sobre a largura de um campo de texto.
+
+⚠️ **Uma predição nossa morreu neste teste, e ela fica.** A nota de desenho dizia:
+"coarsening só funde estratos, nunca divide ⇒ o teto é monótono não-decrescente, e essa
+monotonia é o autoteste do instrumento". A contagem de fato sobe, mas os **conjuntos não
+são aninhados** — 1 estado sai de segundo→minuto, 2 de minuto→hora. O erro é que fundir
+estrato mexe também no braço de **controle**, e o churn é a diferença entre os dois
+braços. Medidos, os três perdidos se dividem em mecanismos opostos:
+
+- **redundância** — sob minuto, o designado passa a entrar **sozinho** no controle; a
+  intervenção fica sem o que fazer;
+- **inalcançabilidade** — sob hora, o estrato inteiro do designado desce abaixo do corte
+  de seleção, e o bônus não atravessa estrato. É a Proposição 1 mordendo na direção
+  contrária.
+
+Logo a monotonia da contagem é empírica, não estrutural, e o consolidador a **reporta**
+em vez de a exigir — um guarda que afirmasse aninhamento estaria errado e teria escondido
+o achado. E o efeito não é só de quantidade: num dos estados o id que entra muda de
+`308284` sob segundo para `308296` sob minuto. A resolução do timestamp decide também
+**qual** chunk é beneficiado.
+
 ## 6. Defeitos de instrumento — e reportá-los é parte da contribuição
 
 A contribuição declarada (v) **é o método**, então omitir isto tiraria do paper uma das
@@ -1118,6 +1178,7 @@ Tudo em `measurement/`, com `--assert-json` travando cada número citado:
 |---|---|---|
 | superfície de exposição | `superficie-de-exposicao.py` | `out/superficie.json` |
 | replay + dose + limiar + gaps | `replay-oportunidade.mjs` · `replay-resumo.py` | `out/c-350-v3.json` · `out/dose-350-v3.json` · `out/limiar-17.json` · `out/gaps.json` |
+| granularidade do teto (§5.7) | `replay-oportunidade.mjs --granularidade` · `granularidade-do-teto.py` | `out/gran-{seg,min,hora,dia}.json` · `out/gran3-{seg,min,hora}.json` · `CEILING-GRANULARITY-2026-08-28.json` |
 | exposição ao defeito de resolução | `irmaos-no-segundo.py` | — |
 | gatilhos de monitoramento | `gatilho-saturacao.sh` · `gatilho-composicao.mjs` | `implantacao/` |
 
