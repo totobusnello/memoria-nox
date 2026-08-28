@@ -251,6 +251,56 @@ out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.
 brief de 10 slots servido 4.632 vezes não poderia distribuir 46.295 slots igualmente
 entre 67.187 chunks nem em princípio — só cabem 201.
 
+#### 4.3.1 O carrossel não gira: ele salta, e entre saltos congela
+
+A diversidade diária tinha uma "quebra de regime" em 21–22/08 que ficou listada como
+ameaça sem explicação. Ela tem explicação, é mecânica, e o mecanismo importa mais que
+a quebra (`measurement/regime-cobertura.py`):
+
+| dia | distintos | ∩ com ontem | retido | novos | frescos ≤7d | idade mín. servida |
+|---|---|---|---|---|---|---|
+| 16/08 | 100 | 89 | 80,9% | 3 | 54 | 5,92 |
+| **17/08** | 49 | 43 | 43,0% | 1 | **0** | **13,96** |
+| 18/08 | 49 | 41 | 83,7% | 0 | **0** | **14,96** |
+| 19/08 | 35 | 35 | 71,4% | 0 | **0** | **15,96** |
+| 20/08 | 87 | 35 | 100% | 52 | **0** | **16,96** |
+| 21/08 | 85 | 85 | 97,7% | 0 | **0** | **17,96** |
+| **22/08** | 193 | 85 | 100% | **108** | **108** | **0,72** |
+| 23–27/08 | 141–146 | 141 | ~100% | 0–5 | 108–113 | 0,92 → 4,92 |
+
+Três leituras, e cada uma precisa da anterior:
+
+1. **a interseção com o dia anterior é ~100%** quase todo dia. Nada *sai* do conjunto
+   servido; o que varia é só o que **entra**. Não é carrossel girando, é acréscimo;
+2. **de 17 a 21/08 nenhum chunk com menos de 7 dias foi servido — cinco dias seguidos**
+   — e a idade mínima servida sobe **exatamente +1,00 por dia** (13,96 → 17,96). Essa
+   é a assinatura de um conjunto **literalmente congelado**, envelhecendo;
+3. **as entradas são duas injeções discretas.** A de 22/08 é uma **única leva de
+   ingestão**: 108 chunks criados entre 21/08 22:51 e 22/08 02:01, de 56 arquivos.
+
+O mecanismo, então, é a interação de duas coisas já documentadas: o pool de cobertura
+exige `freshMaxAgeDays = 7`, e a ingestão chega **em lotes**. Cada lote alimenta o canal
+por exatamente 7 dias e depois expira; entre lotes o pool fica **vazio**,
+`interleaveFresh([], global) === global`, e os 2 slots de cobertura caem no pool global,
+que está congelado. A leva de 09–10/08 alimentou até 16/08 e morreu em 17/08 — sete dias
+depois de 10/08.
+
+📌 **Predição datada, e é falsificável antes da submissão:** a leva de 21–22/08 tem
+5,92–6,47 dias em 28/08. Ela **expira em 29/08**, e o canal volta a servir zero frescos
+a menos que outro lote chegue. Se isso não acontecer, o mecanismo aqui descrito está
+errado.
+
+**Por que isso é resultado e não nota de rodapé:** a renovação da superfície não é
+governada pela relevância nem pelo ranker — é governada por **quando alguém ingeriu um
+lote**. É a mesma tese do §4.2 num segundo eixo: capacidade e calendário decidem, não
+mérito.
+
+⚠️ **Uma armadilha de contagem, registrada porque quase me pegou.** Contar isto com
+`JOIN chunks` faz 20/08 aparecer com 33 distintos onde `brief_log` diz 85 — os outros
+**52 não existem mais** (servidos e apagados depois; é a injeção de 20/08, cujos 52
+chunks sumiram por inteiro). Contagem de exposição sai de `brief_log`; só o que precisa
+de metadado faz JOIN, e declara a perda.
+
 ### 4.4 A predição dedutiva, e o teste
 
 O comparador de cobertura é **lexicográfico**: quando `last_served` difere, `salience`
@@ -544,8 +594,11 @@ reportados) e o catálogo integral em apêndice.
 - tipos pequenos (`decision` n=11, `person` n=14, `feedback` n=17) não sustentam
   leitura individual — entram só no teste de correlação;
 - `access_count` é "exposto alguma vez", sem histórico por evento;
-- a diversidade de cobertura por dia tem **quebra de regime** em 21–22/08, ainda sem
-  explicação;
+- ~~a diversidade de cobertura por dia tem quebra de regime em 21–22/08, ainda sem
+  explicação~~ → **explicada** (§4.3.1): não é quebra, é canal alimentado a lotes com
+  janela de 7 dias. Vira **limite declarado**, não ameaça aberta: qualquer desfecho
+  construído sobre diversidade diária é não-estacionário por dependência do calendário
+  de ingestão, e uma janela que não contenha um lote mede zero por construção;
 - a intervenção correu em modo **shadow**: o contrafactual é observado, mas nada foi
   servido tratado. Toda taxa é **taxa de oportunidade**, não efeito.
 
@@ -705,23 +758,27 @@ versão citada. Hoje o último depósito é a v1.12, anterior a tudo isto.
 
 ## O que falta, em ordem de quem bloqueia quem
 
-✅ **Figura 1** — gerada por `fig1-capacidade.py` a partir de `out/superficie.json`
-(commit `dea2d4a`); reconferida em 28/08, reproduz byte a byte, logo ainda deriva do
-dado e não é desenho.
-✅ **§5, derivação formal** — escrita em 27/08, com o teste que primeiro refutou o
-próprio instrumento e depois passou (17 estados · 20 entradas · 0 cruzadas).
-✅ **contagem de "pre-registration" no survey** — recomputada em 28/08 sobre o PDF v4
-pinado por sha256, com controle positivo. Confirma a nota de 13/08 e acrescenta que
-`randomized` e `ablation` também são zero.
+Feito (28/08, salvo indicação):
+
+✅ **Figura 1** — `fig1-capacidade.py` sobre `out/superficie.json` (commit `dea2d4a`);
+reconferida hoje, reproduz byte a byte ⇒ ainda deriva do dado, não é desenho.
+✅ **Figuras 2 e 3** — `fig2-concentracao.py` e `fig3-dose-resposta.py`, cada uma com
+guarda próprio (a 2 aborta se a curva não somar `slots_7d`; a 3, se os dois grids
+divergirem onde se cruzam).
+✅ **§5, derivação formal** — 27/08, com o teste que primeiro refutou o próprio
+instrumento e depois passou.
+✅ **§1, §8, §9** — escritos.
+✅ **contagem de "pre-registration" no survey** — recomputada sobre o PDF v4 pinado por
+sha256, com controle positivo.
+✅ **quebra de regime de 21–22/08** — explicada em §4.3.1, com **predição datada para
+29/08** que a falsifica se errada.
 
 Falta:
 
-1. **§1** — parágrafos de abertura; o esqueleto e os números já estão no lugar;
-2. **§8 e §9** — trabalho relacionado (~1 página, exige leitura) e discussão;
-3. **Figuras 2 e 3** — concentração e dose-resposta; os dados existem;
-4. **explicar a quebra de regime de 21–22/08** na diversidade de cobertura — é o único
-   item que exige **medição nova**;
-5. **decidir S2**: reportar separado como exploratório, ou remover;
-6. **Abstract**, por último;
-7. **depósito** com o manuscrito + artefatos, e aí a emenda agrupada faz sentido: um
+1. **decidir S2** — reportar separado como exploratório, ou remover. É decisão, não
+   trabalho; ver a fragilidade no Apêndice C;
+2. **§2** — descrição do sistema, 3 parágrafos + figura de arquitetura;
+3. **decidir o catálogo de defeitos** — seção do paper ou apêndice + paper de métodos;
+4. **Abstract**, por último;
+5. **depósito** com o manuscrito + artefatos, e aí a emenda agrupada faz sentido: um
    registro só, declarando os desvios **e** o resultado novo.
