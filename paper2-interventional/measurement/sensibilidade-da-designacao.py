@@ -66,6 +66,99 @@ def designados(seed_hex: str, linhas):
             for sig, cids in sorted(por_grupo.items())}
 
 
+def analisar(a):
+    """Modo análise. Não gera nada — lê o que foi gerado e medido."""
+    import glob
+    if not a.publicado:
+        raise SystemExit("--resultados exige --publicado (o run da designação real)")
+    # ⚠️ O MANIFESTO tem de estar NO diretório dos resultados. A primeira versão deste
+    # bloco caía num irmão (`../desig/MANIFESTO.json`) quando o local faltava — e num
+    # teste de mutação isso fez o guarda da frase ler o manifesto CERTO e não morder.
+    # Guarda que resolve para outro arquivo que não o fornecido é pior que guarda nenhum.
+    mp = os.path.join(a.resultados, "MANIFESTO.json")
+    if not os.path.exists(mp):
+        raise SystemExit(f"falta {mp} — o manifesto tem de estar junto dos resultados, "
+                         f"para que a frase conferida seja a que os gerou.")
+    man = json.load(open(mp))
+    if man["frase"] != FRASE:
+        raise SystemExit(
+            f"MANIFESTO gerado com outra frase ({man['frase']!r}) — as seeds não são as "
+            f"desta versão do script e a distribuição não é reprodutível.")
+    porsha = {m["sha256"]: m for m in man["designacoes"]}
+
+    pub = json.load(open(a.publicado))
+    t = pub["dose"]["tabela"][0]
+    base = {"rotulo": "publicada", "mexeu": t["mexeu"], "churn": t["churn_total"],
+            "estados": pub["dose"]["estados"],
+            "designacao_sha256": pub["procedencia"]["designacao_sha256"]}
+    estados_pub = {x["ts"] for x in pub["dose"]["detalhe"]
+                   if not x.get("erro") and (x.get("churn") or 0) > 0}
+
+    linhas, invar = [base], []
+    for p in sorted(glob.glob(os.path.join(a.resultados, "sens-*.json"))):
+        d = json.load(open(p))
+        pr, tt = d["procedencia"], d["dose"]["tabela"][0]
+        # ── guarda: cada rodada tem de ter usado a designação que diz ter usado ──
+        m = porsha.get(pr["designacao_sha256"])
+        if m is None:
+            raise SystemExit(
+                f"{os.path.basename(p)}: designacao_sha256 {pr['designacao_sha256'][:12]}… "
+                f"não está no MANIFESTO. A rodada usou uma designação que este script não "
+                f"gerou — a distribuição seria sobre outra coisa.")
+        # ── guarda: nada além da designação pode ter mudado ──
+        for k in ("corpus_sha256_primeiros_1MB", "corte_serve_state",
+                  "fonte_brief_ts_sha256", "granularidade_last_served"):
+            if pr.get(k) != pub["procedencia"].get(k):
+                raise SystemExit(
+                    f"{os.path.basename(p)}: {k} difere do run publicado "
+                    f"({pr.get(k)} vs {pub['procedencia'].get(k)}). Mais de uma coisa mudou.")
+        if d["dose"]["estados"] != base["estados"]:
+            raise SystemExit(f"{os.path.basename(p)}: {d['dose']['estados']} estados, "
+                             f"publicado tem {base['estados']}")
+        est = {x["ts"] for x in d["dose"]["detalhe"]
+               if not x.get("erro") and (x.get("churn") or 0) > 0}
+        linhas.append({"rotulo": f"sens-{m['i']:02d}", "seed": m["seed"],
+                       "mexeu": tt["mexeu"], "churn": tt["churn_total"],
+                       "estados": d["dose"]["estados"],
+                       "designacao_sha256": pr["designacao_sha256"],
+                       "estados_em_comum_com_a_publicada": len(est & estados_pub)})
+
+    vs = [l["mexeu"] for l in linhas[1:]]
+    vs_ord = sorted(vs)
+    n = len(vs)
+    med = (vs_ord[n // 2] if n % 2 else (vs_ord[n // 2 - 1] + vs_ord[n // 2]) / 2)
+    todos = sorted(vs + [base["mexeu"]])
+    saida = {
+        "gerado_por": "measurement/sensibilidade-da-designacao.py --resultados",
+        "frase_da_familia": FRASE,
+        "pergunta": "o teto depende de QUAL chunk de cada grupo o sorteio pegou?",
+        "estados_por_rodada": base["estados"],
+        "publicada": base["mexeu"],
+        "alternativas": vs,
+        "min": min(todos), "max": max(todos), "mediana_das_alternativas": med,
+        "media_das_alternativas": round(sum(vs) / n, 2),
+        "posto_da_publicada": todos.index(base["mexeu"]) + 1,
+        "de_quantas": len(todos),
+        "publicada_e_o_minimo": base["mexeu"] == min(todos),
+        "teto_pct": {l["rotulo"]: round(100 * l["mexeu"] / l["estados"], 2) for l in linhas},
+        "linhas": linhas,
+    }
+    print(f"{'designação':<12}{'mexeu':>7}{'teto':>9}{'churn':>7}{'∩ pub':>7}")
+    for l in linhas:
+        print(f"{l['rotulo']:<12}{l['mexeu']:>7}{100*l['mexeu']/l['estados']:>8.2f}%"
+              f"{l['churn']:>7}{l.get('estados_em_comum_com_a_publicada','—'):>7}")
+    print(f"\n{n} alternativas: min={min(vs)} max={max(vs)} mediana={med} "
+          f"média={saida['media_das_alternativas']}  |  publicada={base['mexeu']} "
+          f"(posto {saida['posto_da_publicada']} de {saida['de_quantas']})")
+    if saida["publicada_e_o_minimo"]:
+        print(f"⚠️ a designação publicada é a MENOR das {saida['de_quantas']} — reportar o "
+              f"teto dela como 'o teto' subestima o que a mesma regra produz em média.")
+    if a.out:
+        json.dump(saida, open(a.out, "w"), indent=2, ensure_ascii=False)
+        print(f"→ {a.out}")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--verdicts", required=True)
@@ -73,7 +166,16 @@ def main():
     ap.add_argument("--saida-dir", required=True)
     ap.add_argument("--referencia", help="DESIGNATION real, para conferir que a "
                                          "derivação local reproduz a publicada")
+    ap.add_argument("--resultados", metavar="DIR",
+                    help="modo análise: lê sens-NN.json + o run da designação publicada "
+                         "e emite a distribuição do teto. Exige --publicado.")
+    ap.add_argument("--publicado", metavar="JSON",
+                    help="artefato de dose da designação REAL (out/gran-seg.json)")
+    ap.add_argument("--out")
     a = ap.parse_args()
+
+    if a.resultados:
+        return analisar(a)
 
     linhas = []
     with open(a.verdicts) as f:

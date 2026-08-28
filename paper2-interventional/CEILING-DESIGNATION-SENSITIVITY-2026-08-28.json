@@ -1,0 +1,116 @@
+{
+  "gerado_por": "measurement/sensibilidade-da-designacao.py --resultados",
+  "frase_da_familia": "paper2|sensibilidade-da-designacao|2026-08-28",
+  "pergunta": "o teto depende de QUAL chunk de cada grupo o sorteio pegou?",
+  "estados_por_rodada": 350,
+  "publicada": 17,
+  "alternativas": [
+    22,
+    20,
+    17,
+    22,
+    18,
+    20,
+    26,
+    18
+  ],
+  "min": 17,
+  "max": 26,
+  "mediana_das_alternativas": 20.0,
+  "media_das_alternativas": 20.38,
+  "posto_da_publicada": 1,
+  "de_quantas": 9,
+  "publicada_e_o_minimo": true,
+  "teto_pct": {
+    "publicada": 4.86,
+    "sens-01": 6.29,
+    "sens-02": 5.71,
+    "sens-03": 4.86,
+    "sens-04": 6.29,
+    "sens-05": 5.14,
+    "sens-06": 5.71,
+    "sens-07": 7.43,
+    "sens-08": 5.14
+  },
+  "linhas": [
+    {
+      "rotulo": "publicada",
+      "mexeu": 17,
+      "churn": 20,
+      "estados": 350,
+      "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76"
+    },
+    {
+      "rotulo": "sens-01",
+      "seed": "ab111cb64909e7b13817e5b302c0e3411acbd7592261bf7950d3c706d9c4d1c9",
+      "mexeu": 22,
+      "churn": 22,
+      "estados": 350,
+      "designacao_sha256": "72e54b2b1e24a3597b7ba14f112346dcc6b427a894ce4def65352cd1f82a54e4",
+      "estados_em_comum_com_a_publicada": 12
+    },
+    {
+      "rotulo": "sens-02",
+      "seed": "a2f050f06e88eeb8568d3c020c14f066296aa8608f6c6fd2b0c127e4bfb22200",
+      "mexeu": 20,
+      "churn": 21,
+      "estados": 350,
+      "designacao_sha256": "4a6dde866385acb7eadb7082fa32a278b633f3590292501482d1dd868f821196",
+      "estados_em_comum_com_a_publicada": 14
+    },
+    {
+      "rotulo": "sens-03",
+      "seed": "2ceb8d1dd18b487f8aaf2fb5480c82333fe87d29f571137c100a1d33db4fd4cf",
+      "mexeu": 17,
+      "churn": 17,
+      "estados": 350,
+      "designacao_sha256": "36f6a16a07ab86f53566a8a14c09811bdef846ef54046ac3d82cc19cb12f9f80",
+      "estados_em_comum_com_a_publicada": 11
+    },
+    {
+      "rotulo": "sens-04",
+      "seed": "6565c5528f900df1c545a36f747d015562737c39f9a9fdb0ae838a5a94c6e1d8",
+      "mexeu": 22,
+      "churn": 22,
+      "estados": 350,
+      "designacao_sha256": "e1194db3914b0d2f03b5bbd0e5c722f231c033cf664e70839a420ecbeee8b067",
+      "estados_em_comum_com_a_publicada": 12
+    },
+    {
+      "rotulo": "sens-05",
+      "seed": "b5d7da61b2e91d0e0fd030b7f89512708fa1a1a9d0ec48a8695e6450d150b10e",
+      "mexeu": 18,
+      "churn": 18,
+      "estados": 350,
+      "designacao_sha256": "0a1041e8f77473adf19cfb3accb548d75c3f5b9eb017dcb0176dd4b3840659aa",
+      "estados_em_comum_com_a_publicada": 12
+    },
+    {
+      "rotulo": "sens-06",
+      "seed": "8e1744728fef74b7075d930a8464fab4f2974eed7bc1831287accd26154067c2",
+      "mexeu": 20,
+      "churn": 21,
+      "estados": 350,
+      "designacao_sha256": "16e737fde773925c2e2268b521f2b2dbc0459097935046d9f677a9caa7419fe3",
+      "estados_em_comum_com_a_publicada": 11
+    },
+    {
+      "rotulo": "sens-07",
+      "seed": "203bebaf35699af5c3346ed30cb960f303fce18ae3758514b1e2ed70d9d1c086",
+      "mexeu": 26,
+      "churn": 26,
+      "estados": 350,
+      "designacao_sha256": "ea161a69db4a655d934626d320e1667f46cac13e7ddba4f7725ed50389e45d0d",
+      "estados_em_comum_com_a_publicada": 11
+    },
+    {
+      "rotulo": "sens-08",
+      "seed": "7fc71924603335addeff0d7917e706591f6daadd2205b6b47bfe7c5647d36d35",
+      "mexeu": 18,
+      "churn": 21,
+      "estados": 350,
+      "designacao_sha256": "ddc607a6975020743ba315e62a015ec4b4c7d33733baf0d3a91f80522cadd752",
+      "estados_em_comum_com_a_publicada": 9
+    }
+  ]
+}

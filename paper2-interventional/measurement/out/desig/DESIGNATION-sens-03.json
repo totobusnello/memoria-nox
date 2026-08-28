@@ -1,0 +1,26 @@
+{
+  "designados": {
+    "Bash|build/run": 308272,
+    "Bash|fs:leitura": 308240,
+    "Bash|fs:mutacao": 308300,
+    "Bash|shell:outro": 308254,
+    "Edit|arquivo:doc": 308218,
+    "Monitor|shell:outro": 308316,
+    "Read|arquivo:doc": 308216,
+    "Read|arquivo:outro": 308232,
+    "ToolSearch|consulta": 308286,
+    "mcp__kaption-whatsapp__query|sem-alvo": 308238,
+    "mcp__openclaw__automations|sem-alvo": 308280,
+    "mcp__openclaw__browser|rede": 308270,
+    "mcp__openclaw__memory_get|arquivo:doc": 308312,
+    "mcp__openclaw__memory_search|consulta": 308264,
+    "mcp__openclaw__message|sem-alvo": 308228,
+    "mcp__openclaw__sessions_send|sem-alvo": 308296,
+    "mcp__openclaw__terminal|shell:outro": 308222,
+    "mcp__openclaw__web_fetch|rede": 308282,
+    "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo": 308274
+  },
+  "origem": "sensibilidade: SHA256(paper2|sensibilidade-da-designacao|2026-08-28|3)",
+  "regra": "argmin SHA256(seed || '|' || chunk_id) por sig_primary",
+  "seed": "2ceb8d1dd18b487f8aaf2fb5480c82333fe87d29f571137c100a1d33db4fd4cf"
+}

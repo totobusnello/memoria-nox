@@ -909,6 +909,46 @@ briefs que mudam no replay.
 gravasse a hora com um campo a menos. O número que este paper reporta como teto do canal
 é, em boa medida, um fato sobre a largura de um campo de texto.
 
+#### 5.7.1 E o teto também depende de QUAL chunk o sorteio pegou
+
+A regra de designação escolhe **um chunk por grupo de assinatura** por sorteio com seed
+declarada. A escolha dentro do grupo é, por construção, arbitrária — então o `17/350`
+pode ser propriedade do comparador ou acidente do sorteio, e a diferença importa para
+como o número é lido.
+
+Refizemos o mesmo replay com **oito designações alternativas**, geradas pela mesma regra
+sobre a mesma população, variando só a seed. As seeds vêm de família derivada
+deterministicamente de uma frase fixa no script — escolhê-las à mão permitiria pescar o
+resultado, já que o beacon é público — e **todas as oito são reportadas**
+(`CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json`):
+
+| | mexem / 350 | teto |
+|---|---:|---:|
+| designação **em vigor** | **17** | **4,86%** |
+| mínimo das oito alternativas | 17 | 4,86% |
+| mediana | 20 | 5,71% |
+| máximo | 26 | 7,43% |
+
+A arbitrariedade é limitada por construção: **12 dos 19 grupos são unitários**, então
+nenhuma seed pode mexer em mais de 7 designados — e de fato as alternativas compartilham
+12 a 14 dos 19 com a que está em vigor.
+
+**Duas leituras, e a segunda é desconfortável.** A primeira: o teto é robusto em ordem de
+grandeza. Nove sorteios da mesma regra dão de 4,86% a 7,43%; nenhum chega perto de mudar
+a conclusão de que o mecanismo alcança poucos por cento dos briefs. A segunda: **a
+designação em vigor é a menor das nove.** Reportar `4,86%` como "o teto do mecanismo"
+descreve o sorteio que calhou, e ele é o extremo favorável — a mesma regra produz mediana
+`5,71%`. Onde este paper diz `4,86%`, leia-se *o teto sob a designação em vigor*; o teto
+da regra é a distribuição inteira.
+
+⚠️ E as alternativas não movem só *mais* briefs: elas movem **outros**. A interseção com
+os 17 originais fica entre 9 e 14. Junto com o achado da granularidade — em que o
+beneficiário troca de identidade ao mudar a resolução — o padrão é o mesmo: **qual chunk
+recebe exposição é decidido por detalhes que ninguém escolheu como política.**
+
+⚠️ Não medimos a interação entre os dois eixos (designação × granularidade); a tabela do
+§5.7 é toda sob a designação em vigor, e esta é toda sob resolução de segundo.
+
 ⚠️ **Uma predição nossa morreu neste teste, e ela fica.** A nota de desenho dizia:
 "coarsening só funde estratos, nunca divide ⇒ o teto é monótono não-decrescente, e essa
 monotonia é o autoteste do instrumento". A contagem de fato sobe, mas os **conjuntos não
@@ -1194,6 +1234,7 @@ Tudo em `measurement/`, com `--assert-json` travando cada número citado:
 | superfície de exposição | `superficie-de-exposicao.py` | `out/superficie.json` |
 | replay + dose + limiar + gaps | `replay-oportunidade.mjs` · `replay-resumo.py` | `out/c-350-v3.json` · `out/dose-350-v3.json` · `out/limiar-17.json` · `out/gaps.json` |
 | granularidade do teto (§5.7) | `replay-oportunidade.mjs --granularidade` · `granularidade-do-teto.py` | `out/gran-{seg,min,hora,dia}.json` · `out/gran3-{seg,min,hora}.json` · `CEILING-GRANULARITY-2026-08-28.json` |
+| sensibilidade do teto à designação (§5.7.1) | `sensibilidade-da-designacao.py` | `out/sens-*.json` · `CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json` |
 | ciclo do lote no canal de cobertura (§4.3.1) | `ciclo-do-lote.py` · `regime-cobertura.py` | `BATCH-CYCLE-2026-08-28.json` |
 | exposição ao defeito de resolução | `irmaos-no-segundo.py` | — |
 | gatilhos de monitoramento | `gatilho-saturacao.sh` · `gatilho-composicao.mjs` | `implantacao/` |
