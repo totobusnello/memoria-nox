@@ -242,8 +242,14 @@ Janela fechada `[2026-08-20 , 2026-08-27)`:
 | presentes em **100%** dos briefs | **3** |
 | top-10 | **47,16%** dos slots · top-20 **61,46%** |
 
-**[FALTA — Figura 2:]** curva de concentração (rank × share cumulativo) dos chunks
-servidos, com marca nos 3 constantes e no top-10.
+**Figura 2** — `measurement/out/fig2-concentracao.svg`: curva de Lorenz do carrossel
+(rank × share cumulativo dos slots), com marca nos 3 constantes — que sozinhos tomam
+**30,0%** dos slots — e no corte do top-10. Gerada por `fig2-concentracao.py --dados
+out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.
+
+⚠️ A diagonal de igualdade na figura é referência de **leitura**, não hipótese nula: um
+brief de 10 slots servido 4.632 vezes não poderia distribuir 46.295 slots igualmente
+entre 67.187 chunks nem em princípio — só cabem 201.
 
 ### 4.4 A predição dedutiva, e o teste
 
@@ -267,8 +273,20 @@ Teste em produção, dose crescente, 350 estados reais, replay fiel:
   **220×**), 0 estados não monótonos, 0 sem limiar no grid;
 - a dose servida reproduz a taxa publicada: `w = 2` dá **11/350 = 3,1429%**.
 
-**[FALTA — Figura 3:]** dose-resposta em eixo `w` logarítmico, com a banda registrada
-`{2,0 · 4,0 · 7,5}` marcada e a região de saturação sombreada.
+**Figura 3** — `measurement/out/fig3-dose-resposta.svg`: as duas séries de dose-resposta
+em eixo `w` logarítmico — grid grosso (9 doses × 350 estados) e grid fino (23 doses × os
+17 que se movem) — com a banda registrada `{2 · 4 · 7,5}` marcada no eixo, a linha do
+teto `17/350` e a região de saturação. Gerada por `fig3-dose-resposta.py`.
+
+⚠️ **As duas séries têm denominadores diferentes e o mesmo numerador**, e é o que
+autoriza sobrepô-las: um estado fora dos 17 não se move em dose alguma. Isso não é
+argumento, é conferível — as séries compartilham exatamente **uma** dose (`w = 1`) e ali
+as duas dão **8**. O script **aborta** se deixarem de bater, porque duas curvas no mesmo
+eixo que discordam onde se cruzam são uma figura mentindo em silêncio.
+
+⚠️ E o **controle negativo** `w = 0 ⇒ 0/350` aparece como anotação, não como ponto: zero
+não existe em eixo log. Espremê-lo no primeiro tick seria plotar `w = 0,015`, que não foi
+medido; omiti-lo seria não reportar o controle.
 
 ⚠️ **A grandeza que governa é distância, não passo.** O maior `w_min` (4,4) vale bônus
 `0,0946`, **1,79×** o maior gap entre candidatos adjacentes no pool (`0,05272`). Bônus

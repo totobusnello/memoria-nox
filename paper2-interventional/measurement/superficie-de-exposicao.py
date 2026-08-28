@@ -241,6 +241,13 @@ def main():
             "chunks_em_100pct_dos_briefs_7d": em_todos,
             "pct_top10": round(100 * sum(n for _, n in d7[:10]) / tot7, 2) if tot7 else None,
             "pct_top20": round(100 * sum(n for _, n in d7[:20]) / tot7, 2) if tot7 else None,
+            # Curva completa rank × slots, para a Figura 2. `pct_top10`/`pct_top20` são
+            # dois pontos DESTA série: emiti-la em vez de só os dois resumos é o que
+            # impede a figura de ser desenho — ela passa a derivar do mesmo artefato que
+            # o texto cita, e muda junto se o dado mudar. Só as contagens: `chunk_id`
+            # ficaria de fora por privacidade se fosse conteúdo, mas aqui nem é preciso,
+            # porque a figura é sobre a FORMA da distribuição, não sobre quais itens.
+            "curva_slots_por_rank": [n for _, n in d7],
         },
         "janela_comum": {
             "inicio": ini,

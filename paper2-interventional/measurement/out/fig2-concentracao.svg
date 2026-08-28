@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 440" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11">
+<style>:root{--ink:#1a1a1a;--mut:#6b6b6b;--grid:#e3e3e3;--cur:#b4472f;--mark:#2f6bb4}@media (prefers-color-scheme:dark){:root{--ink:#eaeaea;--mut:#9a9a9a;--grid:#333;--cur:#e08a70;--mark:#79a9e0}}text{fill:var(--ink)}.mut{fill:var(--mut)}</style>
+<rect width="760" height="440" fill="transparent"/>
+<line x1="62" y1="382.0" x2="736" y2="382.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="386.0" text-anchor="end" class="mut">0%</text>
+<line x1="62" y1="298.0" x2="736" y2="298.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="302.0" text-anchor="end" class="mut">25%</text>
+<line x1="62" y1="214.0" x2="736" y2="214.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="218.0" text-anchor="end" class="mut">50%</text>
+<line x1="62" y1="130.0" x2="736" y2="130.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="134.0" text-anchor="end" class="mut">75%</text>
+<line x1="62" y1="46.0" x2="736" y2="46.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="54" y="50.0" text-anchor="end" class="mut">100%</text>
+<line x1="62.0" y1="46" x2="62.0" y2="382" stroke="var(--grid)" stroke-width="1"/>
+<text x="62.0" y="400" text-anchor="middle" class="mut">0</text>
+<line x1="229.7" y1="46" x2="229.7" y2="382" stroke="var(--grid)" stroke-width="1"/>
+<text x="229.7" y="400" text-anchor="middle" class="mut">50</text>
+<line x1="397.3" y1="46" x2="397.3" y2="382" stroke="var(--grid)" stroke-width="1"/>
+<text x="397.3" y="400" text-anchor="middle" class="mut">100</text>
+<line x1="565.0" y1="46" x2="565.0" y2="382" stroke="var(--grid)" stroke-width="1"/>
+<text x="565.0" y="400" text-anchor="middle" class="mut">150</text>
+<line x1="732.6" y1="46" x2="732.6" y2="382" stroke="var(--grid)" stroke-width="1"/>
+<text x="732.6" y="400" text-anchor="middle" class="mut">200</text>
+<line x1="62" y1="382.0" x2="736" y2="46.0" stroke="var(--mut)" stroke-width="1" stroke-dasharray="3 4" opacity="0.6"/>
+<text x="479.9" y="187.1" class="mut" font-size="10" transform="rotate(-19 479.9 187.1)">distribuição igual entre os 201 servidos</text>
+<polyline points="62.0,382.0 65.4,348.4 68.7,314.8 72.1,281.1 75.4,271.6 78.8,262.0 82.1,252.4 85.5,242.8 88.8,233.2 92.2,228.4 95.5,223.5 98.9,218.7 102.2,213.9 105.6,209.1 108.9,204.3 112.3,199.5 115.7,194.7 119.0,189.9 122.4,185.1 125.7,180.3 129.1,175.5 132.4,170.7 135.8,165.9 139.1,161.1 142.5,156.3 145.8,151.6 149.2,146.8 152.5,142.0 155.9,137.2 159.2,132.4 162.6,127.6 166.0,122.8 169.3,118.0 172.7,113.5 176.0,109.1 179.4,106.6 182.7,104.3 186.1,103.9 189.4,103.5 192.8,103.1 196.1,102.8 199.5,102.4 202.8,102.0 206.2,101.6 209.5,101.3 212.9,100.9 216.2,100.5 219.6,100.2 223.0,99.8 226.3,99.4 229.7,99.1 233.0,98.7 236.4,98.3 239.7,97.9 243.1,97.6 246.4,97.2 249.8,96.8 253.1,96.5 256.5,96.1 259.8,95.7 263.2,95.4 266.5,95.0 269.9,94.6 273.3,94.2 276.6,93.9 280.0,93.5 283.3,93.1 286.7,92.8 290.0,92.4 293.4,92.0 296.7,91.7 300.1,91.3 303.4,90.9 306.8,90.5 310.1,90.2 313.5,89.8 316.8,89.4 320.2,89.1 323.6,88.7 326.9,88.3 330.3,88.0 333.6,87.6 337.0,87.2 340.3,86.9 343.7,86.5 347.0,86.1 350.4,85.8 353.7,85.4 357.1,85.0 360.4,84.7 363.8,84.3 367.1,84.0 370.5,83.6 373.9,83.2 377.2,82.9 380.6,82.5 383.9,82.1 387.3,81.8 390.6,81.4 394.0,81.0 397.3,80.7 400.7,80.3 404.0,80.0 407.4,79.6 410.7,79.2 414.1,78.9 417.4,78.5 420.8,78.1 424.1,77.8 427.5,77.4 430.9,77.1 434.2,76.7 437.6,76.3 440.9,76.0 444.3,75.6 447.6,75.2 451.0,74.9 454.3,74.5 457.7,74.2 461.0,73.8 464.4,73.4 467.7,73.1 471.1,72.7 474.4,72.3 477.8,72.0 481.2,71.6 484.5,71.2 487.9,70.9 491.2,70.5 494.6,70.2 497.9,69.8 501.3,69.4 504.6,69.1 508.0,68.7 511.3,68.3 514.7,68.0 518.0,67.6 521.4,67.3 524.7,66.9 528.1,66.5 531.5,66.2 534.8,65.8 538.2,65.4 541.5,65.1 544.9,64.7 548.2,64.4 551.6,64.0 554.9,63.6 558.3,63.3 561.6,62.9 565.0,62.5 568.3,62.2 571.7,61.8 575.0,61.5 578.4,61.1 581.8,60.7 585.1,60.4 588.5,60.0 591.8,59.6 595.2,59.3 598.5,58.9 601.9,58.5 605.2,58.2 608.6,57.8 611.9,57.5 615.3,57.1 618.6,56.7 622.0,56.4 625.3,56.0 628.7,55.6 632.0,55.3 635.4,54.9 638.8,54.6 642.1,54.2 645.5,53.8 648.8,53.5 652.2,53.1 655.5,52.8 658.9,52.4 662.2,52.1 665.6,51.7 668.9,51.3 672.3,51.0 675.6,50.6 679.0,50.3 682.3,49.9 685.7,49.6 689.1,49.2 692.4,48.9 695.8,48.5 699.1,48.1 702.5,47.8 705.8,47.4 709.2,47.1 712.5,46.7 715.9,46.4 719.2,46.0 722.6,46.0 725.9,46.0 729.3,46.0 732.6,46.0 736.0,46.0" fill="none" stroke="var(--cur)" stroke-width="2"/>
+<line x1="72.1" y1="46" x2="72.1" y2="382" stroke="var(--mark)" stroke-width="1.2" stroke-dasharray="4 3"/>
+<circle cx="72.1" cy="281.1" r="4" fill="var(--mark)"/>
+<text x="80.1" y="275.1" fill="var(--mark)" font-size="10">3 chunks em 100% dos briefs = 30.0% dos slots</text>
+<line x1="95.5" y1="46" x2="95.5" y2="382" stroke="var(--mark)" stroke-width="1.2" stroke-dasharray="4 3"/>
+<circle cx="95.5" cy="223.5" r="4" fill="var(--mark)"/>
+<text x="103.5" y="239.5" fill="var(--mark)" font-size="10">top-10 = 47.16% dos slots</text>
+<text x="62" y="20" font-size="13" font-weight="600">A superfície do brief é um carrossel: 201 chunks distintos em 46.295 slots</text>
+<text x="62" y="36" class="mut">janela fechada [2026-08-20, 2026-08-27) · 4.632 briefs · top-20 = 61.46%</text>
+<text x="399.0" y="424" text-anchor="middle" class="mut">chunks servidos, ordenados por slots recebidos</text>
+<text x="14" y="214.0" class="mut" text-anchor="middle" transform="rotate(-90 14 214.0)">share cumulativo dos slots</text>
+</svg>
