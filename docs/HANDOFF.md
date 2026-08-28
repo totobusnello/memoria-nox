@@ -1,5 +1,27 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-08-28 — propagação ao repo público: dois PRs abertos
+
+As correções do dia chegaram ao `totobusnello/nox-mem` (linhagem publicada, que
+é intencionalmente distinta da VPS — ver `docs/REDEPLOY-VPS-LINEAGE-PLAN.md`;
+promoção é **uma correção por vez**, não sincronização):
+
+| PR | o quê | estado |
+|---|---|---|
+| [#25](https://github.com/totobusnello/nox-mem/pull/25) | `indexOnly` em `/api/health` + `prune-orphan-vectors` — a classe de vetor **invisível** aos três instrumentos | aberto |
+| [#26](https://github.com/totobusnello/nox-mem/pull/26) | `top_chunk_ids`/`top_scores` na telemetria (schema **v19**) | aberto |
+
+⚠️ **O PR #26 NÃO leva `query_text`, e isso é o ponto.** O comentário do v6 em
+`db.ts` declara que o texto cru da query não é armazenado; a coluna existe em
+alguns DBs por reconciliação de drift, e **existir não é autorização para
+escrever** — foi exatamente o erro que eu cometi na VPS em 27/08 e reverti no
+mesmo dia. O teste B1 lê o `INSERT` do fonte e falha se ela reaparecer.
+
+Verificação: 4 testes novos, **mutação testada nos dois sentidos** (tirar
+`migrateToV9` derruba só A2; pôr `query_text` derruba B1 e B2), suíte completa
+**590/590** no node 22. O Mac não compila `better-sqlite3` no node 26 — a
+verificação rodou em cópia descartável na VPS, fora do caminho de produção.
+
 ## 2026-08-28 (madrugada) — vec0 medido e correções do dia incorporadas aos canônicos
 
 **Reempacotar o índice vec0 corta 33,1% da latência de busca** (668,2 → 446,8 ms,
