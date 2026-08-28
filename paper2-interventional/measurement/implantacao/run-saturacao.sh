@@ -40,12 +40,41 @@ case "$MODO" in
   shadow|active) ;;
   *) morre YELLOW "p2-outcome=${MODO:-vazio}-nada-a-vigiar" ;;
 esac
-# Em `active` a dose vem do braço resolvido, não de NOX_P2_SHADOW_W. Vigiar com a
-# dose errada é pior que não vigiar: reportaria GREEN sobre outra grandeza.
+# Em `active` a dose vem do braço resolvido, não de NOX_P2_SHADOW_W. Implementado
+# em 28/08 (antes disto o wrapper se recusava a rodar em active, e a recusa era
+# certa: vigiar com a dose errada reportaria GREEN sobre outra grandeza).
+ASSIGN=""; ASSIGN_SHA=""
 if [ "$MODO" = "active" ]; then
-  morre YELLOW "modo=active-dose-vem-do-ASSIGNMENT-nao-de-SHADOW_W:reimplementar-antes-de-ativar"
+  ASSIGN="$(pega NOX_P2_ASSIGNMENT)"
+  ASSIGN_SHA="$(pega NOX_P2_ASSIGNMENT_SHA256)"
+  [ -n "$ASSIGN" ] || morre RED assignment-ausente-no-unit
+  [ -n "$ASSIGN_SHA" ] || morre RED assignment-sha256-ausente-no-unit
+  [ -f "$ASSIGN" ] || morre RED assignment-nao-existe-no-disco:"$ASSIGN"
+else
+  [ -n "$W" ] || morre RED shadow-w-ausente-no-unit
 fi
-[ -n "$W" ] || morre RED shadow-w-ausente-no-unit
+
+# ⚠️ A janela muda com o modo, e o horário do job não acompanhou.
+# Em shadow a janela é o dia UTC anterior e o job às 05:41Z reporta algo que
+# fechou há 5 h. Em active a janela é o epoch [E 09:00Z, E+1 09:00Z), e às 05:41Z
+# o último epoch FECHADO terminou às 09:00Z de ONTEM — ou seja, ~21 h de atraso.
+# Não é defeito (o gatilho recusa medir epoch aberto, que é o certo), mas é
+# latência de alarme, e latência de alarme é decisão, não acidente: mover o timer
+# para ~09:10Z faz o gatilho reportar o epoch que acabou de fechar.
+# `duracao_s` e a janela na própria linha são o que deixa isso auditável.
+
+if [ "$MODO" = "active" ]; then
+  exec timeout 2700 /root/.openclaw/scripts/p2/gatilho-saturacao.sh \
+    --raiz /root/.openclaw/workspace/tools/nox-mem \
+    --harness /root/.openclaw/scripts/p2/replay-oportunidade.mjs \
+    --log "$LOGP" \
+    --corpus /var/lib/nox-mem/epochs/current.db \
+    --vivo /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
+    --designacao "$DESIG" --designacao-sha256 "$DESIG_SHA" \
+    --modo active --assignment "$ASSIGN" --assignment-sha256 "$ASSIGN_SHA" \
+    --status "$STATUS" \
+    --ndjson /var/lib/nox-mem/p2/gatilhos.ndjson
+fi
 
 # `timeout` (min) : o job roda 05:41 e o morning-report le o status as 06:30.
 # Sem teto, uma janela grande atrasaria o report em vez de so atrasar a si mesma —

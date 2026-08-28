@@ -26,6 +26,15 @@ tabelas ninguém pode recomputar.
 |---|---|---|---|
 | `gatilho-saturacao.sh` | 7(a) | diária 05:41Z | `churn(w_servido) == churn(w_absurdo)` ⇒ RED (dose não identificada); folga ≥ 0,9 ⇒ YELLOW |
 | `gatilho-composicao.mjs` | 7(b) | horária :09 | **um** chunk elegível para `agentFresh` ⇒ RED (a escala de dose pressupõe vazio) |
+| `teste-gatilho-active.sh` | — | sob demanda | 10 casos de mutação do caminho `--modo active` do (a) |
+
+**`--modo active` do (a), implantado 28/08.** A dose deixa de vir de flag e passa a
+vir do `ASSIGNMENT.json` (caminho + `sha256`, o mesmo par que o `resolverBraco` usa);
+a janela deixa de ser o dia UTC e passa a ser o epoch `[E 09:00Z, E+1 09:00Z)`, **só
+se já fechado**. E o gatilho **cruza o log com o ASSIGNMENT** — epoch, braço e dose —
+porque `resolverBraco` devolve controle em toda falha, o que torna "controle no log"
+ambíguo entre sorteio e `ASSIGNMENT` ilegível. A segunda hipótese enviesa para o nulo,
+e sem o cruzamento é silenciosa.
 
 Implantados em `/root/.openclaw/scripts/p2/`; status em `/var/lib/nox-mem/p2/`, lido pelo
 `morning-report.sh`. **A fonte é aqui** — a cópia na VPS carrega um `PROCEDENCIA.md`

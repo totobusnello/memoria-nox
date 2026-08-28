@@ -1,5 +1,37 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-08-28 — o gatilho do item 7(a) deixa de recusar `active`
+
+Era o único item de implementação declarado como **bloqueio da ativação**. Estava
+assim desde 27/08: em `active` a dose vem do braço sorteado no `ASSIGNMENT.json` e
+não de `NOX_P2_SHADOW_W`, então o wrapper preferia sair YELLOW a vigiar com a dose
+errada. Agora ele vigia.
+
+O que o modo `active` forçou, e que não era detalhe de implementação:
+
+1. **A janela deixa de ser o dia UTC.** O epoch vira às **09:00Z**, logo um dia UTC
+   atravessa **dois** epochs e possivelmente dois braços. A janela vira
+   `[E 09:00Z, E+1 09:00Z)`, só de epoch **já fechado**.
+2. **Epoch de controle não tem dose para saturar** — a pergunta é indefinida ali.
+   GREEN, mas com o motivo escrito.
+3. 🔴 **`resolverBraco` devolve controle em TODA falha.** É a escolha certa para
+   servir (não serve tratamento a partir de sequência não verificada) e a errada
+   para vigiar: "controle no log" fica **ambíguo** entre sorteio e `ASSIGNMENT`
+   ilegível, e a segunda hipótese enviesa o estudo para o nulo **em silêncio**.
+
+Por (3) o gatilho passou a **cruzar o log com o `ASSIGNMENT`** — epoch × epoch,
+braço designado × `servido`, dose designada × `w` do log. É a única coisa em toda a
+instrumentação que compara **o que devia ser servido com o que foi**.
+
+⚠️ **Decisão pendente (não é defeito):** o job roda 05:41Z. Em `active`, o último
+epoch fechado terminou às 09:00Z do dia anterior ⇒ **~21 h** de latência de alarme.
+Mover o timer para ~09:10Z resolve. Registrado no wrapper, não executado.
+
+Verificação: 10 casos de mutação (`measurement/teste-gatilho-active.sh`) e os testes
+mordem — neutralizar o cruzamento derruba T3/T4/T7, aceitar epoch aberto derruba T2.
+Implantado em `/root/.openclaw/scripts/p2/` com sha conferido contra a fonte, e a
+cópia anterior batia com o `HEAD` (zero drift).
+
 ## 2026-08-28 — propagação ao repo público: dois PRs abertos
 
 As correções do dia chegaram ao `totobusnello/nox-mem` (linhagem publicada, que

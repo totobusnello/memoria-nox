@@ -165,7 +165,13 @@ método**:
   entre **adjacentes** (`0,0318`, "margem 1,35× contra `Δ_cut`"), mas o mecanismo exige
   vencer a **distância** até os 2 slots de cobertura: o maior `w_min` observado vale
   1,79× o maior passo adjacente do pool. O gatilho pode ficar verde enquanto o canal
-  satura;
+  satura. *Substituído 27/08 por uma identidade — `churn(w_servido) == churn(w_absurdo)` —
+  e estendido a `active` em 28/08, quando a dose passa a vir do `ASSIGNMENT.json`;*
+- **um gatilho de braço único não distingue controle sorteado de resolução falhada.**
+  `resolverBraco` devolve controle em *toda* falha, por desenho — o que é a escolha
+  certa para servir e a errada para vigiar: enviesa o estudo para o nulo e não deixa
+  rastro. Só se resolve **cruzando** o `ASSIGNMENT` com o log de serving, e essa
+  conferência não existia até 28/08;
 - **a composição do canal não está vigiada por nada.** O sub-pool do agente está vazio
   por idade em `T_REF`; se voltar a encher, `interleaveFresh` deixa de ser função-zero e
   a escala de dose muda sem que nenhum alarme dispare.

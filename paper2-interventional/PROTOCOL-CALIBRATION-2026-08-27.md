@@ -369,10 +369,47 @@ eventos da janela conhecida, os snapshots de 26/08 e 27/08 dão resultado **idê
 a escolha foi inerte. Inerte não é garantido, e a aproximação vai em cada linha do
 NDJSON.
 
-⚠️ **E o (a) se recusa a rodar em `active`:** ali a dose vem do braço resolvido no
+~~⚠️ **E o (a) se recusa a rodar em `active`:** ali a dose vem do braço resolvido no
 `ASSIGNMENT.json`, não de `NOX_P2_SHADOW_W`. Vigiar com a dose errada é pior que não
 vigiar — reportaria GREEN sobre outra grandeza. Sai YELLOW com o motivo, e isso é um
-item a implementar **antes** da ativação.
+item a implementar **antes** da ativação.~~ → ✅ **IMPLEMENTADO 28/08.**
+
+### ✅ O caminho `active` do (a) — 28/08
+
+`--modo active` lê o braço e a dose do `ASSIGNMENT.json`, preso por caminho **e**
+`sha256`, no mesmo par de env vars que o `resolverBraco` usa. `--w-servido` e
+`--assignment` são **mutuamente exclusivos**: passar os dois é erro de uso, não
+precedência silenciosa.
+
+Três consequências que o modo força, e que não eram detalhe de implementação:
+
+1. **A janela deixa de ser o dia UTC.** O epoch vira às **09:00Z**
+   (`epochInicioISO`: `getUTCHours() < 9 ? ontem : hoje`), então um dia UTC
+   atravessa **dois** epochs — e portanto, possivelmente, dois braços. A janela
+   passa a ser `[E 09:00Z, E+1 09:00Z)`, e **só de epoch já fechado**: medir
+   janela que ainda cresce é o defeito de "série viva citada como instante".
+2. **Epoch de controle não tem dose para saturar.** A pergunta do item 7(a) é
+   *indefinida* ali. Sai GREEN **com o motivo escrito** — GREEN mudo sobre
+   pergunta não feita é indistinguível de GREEN sobre pergunta respondida.
+3. 🔴 **`resolverBraco` devolve controle em TODA falha** (`ok:false`), por desenho,
+   para não servir tratamento a partir de sequência não verificada. Logo
+   *"controle no log"* é **ambíguo** entre sorteio e `ASSIGNMENT` ilegível — e a
+   segunda hipótese enviesa o estudo para o nulo em silêncio.
+
+Por (3), o gatilho lê o `ASSIGNMENT` ele mesmo e **cruza com o log**: epoch × epoch,
+braço designado × `servido`, dose designada × `w` registrado. Divergência é RED, e
+este é o alarme mais valioso do script — é a única coisa em toda a instrumentação
+que compara **o que devia ser servido com o que foi**.
+
+⚠️ **Latência de alarme, declarada:** o job roda 05:41Z. Em shadow isso reporta um
+dia que fechou há 5 h; em `active` o último epoch fechado terminou às 09:00Z de
+*ontem*, ~21 h antes. Não é defeito — é a recusa correta de medir epoch aberto —
+mas mover o timer para **~09:10Z** faz o gatilho reportar o epoch que acabou de
+fechar. Decisão pendente, registrada no wrapper.
+
+**Testado por mutação, 10 casos** (`measurement/teste-gatilho-active.sh`), e os
+testes mordem: neutralizar o cruzamento derruba T3/T4/T7; aceitar epoch aberto
+derruba T2. T9 trava a não-regressão do caminho `shadow`.
 
 ### O desenho, para registro
 
