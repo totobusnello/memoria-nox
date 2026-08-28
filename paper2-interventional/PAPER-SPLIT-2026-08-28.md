@@ -54,10 +54,11 @@ O Paper A portanto pode descrever os 19 como **um conjunto fixo, publicamente
 rederivável, de um chunk por grupo de assinatura**, apontando para B o critério que
 produziu a população — e declarando a dependência da banda.
 
-⚠️ **Aberto até a sensibilidade da designação voltar:** se o teto balançar entre seeds, o
-`4,86%` é ponto amostral e o §5.7 tem de reportar dispersão em vez de ponto. A análise
-varia só o que pode variar — **12 dos 19 grupos são unitários**, então nenhuma seed mexe
-em mais de 7. Rodando em 28/08; o §5 só é editado depois dela.
+✅ **Fechado em 28/08.** A sensibilidade voltou: 8 designações alternativas dão teto de
+4,86% a 7,43%, mediana 5,71% — robusto em ordem de grandeza, e **a designação em vigor é a
+menor das nove**. O §5.7.1 reporta a distribuição, e o §5.1 ganhou a proveniência de `D`
+mais a ressalva de qual dos dois números herda o rótulo de severidade. O Paper A não
+precisa do painel além de uma frase e um ponteiro.
 
 ## O que este documento não decide
 

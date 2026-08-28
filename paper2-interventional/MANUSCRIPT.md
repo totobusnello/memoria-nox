@@ -697,6 +697,23 @@ ranked.sort((a, b) => coverageCompare(a.lastServedMs, eff(a), b.lastServedMs, ef
 Ou seja: `b` desloca **apenas** o segundo argumento de `coverageCompare`. Escreva
 `≺_b` para a ordem resultante.
 
+**De onde vem `D`, e o que disso importa aqui.** O conjunto designado tem **19 chunks —
+um por grupo de assinatura**, sorteados de uma população de 55 por regra com seed
+declarada e precedência verificável sobre o beacon (Apêndice B). Para o que este paper
+mede, `D` é apenas **um conjunto fixo e rederivável por terceiro**: um revisor
+independente reproduziu os 19 usando só o beacon público e o CSV depositado. O critério
+que selecionou os 55 é adjudicação de severidade por painel, e pertence ao estudo
+interventivo (Apêndice C).
+
+⚠️ **Um dos dois números do §5 herda essa proveniência e o outro não.** O bônus efetivo é
+`W = w · Δ_cut · severity_pain`, então o rótulo do painel escala a dose **por chunk**:
+
+- o **teto** (§5.3, §5.7) é medido com `w = 100.000`, dose em que o multiplicador satura
+  junto com tudo. É **independente** do rótulo de severidade;
+- a **banda de saturação** `(4,0; 4,4]` (§5.4) **não é**: ela localiza uma dose, e a dose
+  efetiva de cada chunk depende do multiplicador. Lida como propriedade do comparador,
+  ela seria mais geral do que é.
+
 ### 5.2 Proposição 1 — invariância entre estratos
 
 *Para quaisquer `c, c′` com `ℓ(c) ≠ ℓ(c′)`, a ordem relativa de `c` e `c′` é a
