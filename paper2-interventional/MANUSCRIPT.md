@@ -261,15 +261,57 @@ citado é sobre o corpus vivo, que é a população da qual se pode dizer "nunca
 | `distilled` | 2.822/14.456 | 19,5 |
 | `other` | 3.515/32.920 | **10,7** |
 
-Duas explicações competem: **curadoria** (tipos mais curados são mais expostos) e
-**tamanho** (coleções pequenas cabem na superfície). O teste separa:
+⚠️ **A tabela acima usa um filtro, e ele estava no código e não no texto.**
+`superficie-de-exposicao.py` seleciona tipos com `HAVING total >= 10`, o que exclui
+`pending` (n=6) e `procedure` (n=3). **Ambos têm 0% de exposição e ambos são pequenos**
+— ou seja, o filtro remove exatamente a evidência que contraria "pequeno ⇒ muito
+exposto". Um filtro que só pode ajudar precisa ser declarado, e o efeito dele, medido
+(`measurement/robustez-tamanho-exposicao.py`).
 
-- `log₁₀(tamanho)` × `% exposto`: **Pearson r = −0,728**, **Spearman ρ = −0,714**,
-  **r² = 0,530**;
-- **sem sobreposição**: 5 tipos com n ≥ 1.000 ficam em **10,7–27,0%**; 8 tipos com
-  n < 100, em **32,5–100%**;
-- dentro dos grandes a ordem é quase monótona **em tamanho**
-  (1.046→27,0% · 3.231→24,7% · 15.308→21,7% · 14.456→19,5% · 32.920→10,7%).
+Duas explicações competem: **curadoria** (tipos mais curados são mais expostos) e
+**tamanho** (coleções pequenas cabem na superfície). O teste separa — mas a força do
+teste depende de como se conta:
+
+| análise | 13 tipos (com filtro) | 15 tipos (sem filtro) |
+|---|---|---|
+| Pearson `r` (log₁₀ n × % exposto) | **−0,728** | **−0,334** |
+| Spearman ρ | −0,687 | **−0,098** |
+| **β binomial** (logit, ponderado por n) | **−0,982** | **−0,961** |
+
+🔴 **A correlação de percentuais é frágil ao filtro; o modelo binomial não é.** A razão
+é que correlacionar percentuais dá a um tipo de 3 chunks o mesmo peso de um com 32.920.
+O modelo binomial usa todos os tipos e pesa cada um pela informação que carrega — os
+dois excluídos movem o coeficiente em **2%**, não pela metade. **É o binomial que este
+paper reporta**, e a correlação fica como descrição da figura, não como teste.
+
+**β = −0,961 ⇒ as chances de exposição caem para ×0,38 a cada década de tamanho.**
+
+⚠️ **E o erro-padrão do modelo é inutilizável.** Ele dá `± 0,027` (z = −35) porque supõe
+67.187 observações independentes; o preditor é **constante dentro do tipo**, então a
+unidade de independência é o tipo e o `n` efetivo é **15**. Pelo jackknife sobre tipos:
+**EP = 0,471, z = −2,0**. Deixar **um** tipo de fora move β para dentro de
+`[−1,12 ; −0,51]`. O achado sobrevive, e sobrevive **por pouco** — dizer o contrário
+seria vender como robusto um resultado que uma única coleção pode quase pela metade.
+
+📌 **Corolário que o mesmo argumento impõe:** recalcular a correlação "no nível do
+chunk" **não** responde à objeção ecológica. Como `log₁₀(tamanho)` não varia dentro do
+tipo, o `r` ponto-bisserial sobre 67.187 chunks (**−0,150**) apenas repondera os mesmos
+15 pontos. Desagregar um preditor que é propriedade do grupo não cria informação.
+
+**O que sobrevive intacto, e é a forma mais forte do achado:** *nenhum tipo pequeno cai
+dentro da faixa dos grandes.* Os 5 tipos com n ≥ 1.000 ocupam **10,7–27,0%**, e nenhum
+dos 10 tipos com n < 100 está nesse intervalo — eles estão **acima** (32,5% a 100%) ou
+**em zero**. ⚠️ A frase "sem sobreposição" da versão anterior era mais forte que isso e
+**falsa com os 15 tipos**: incluindo `pending` e `procedure`, a faixa dos pequenos passa
+a ser 0–100%, que contém a dos grandes inteira. Os dois casos em zero são explicáveis
+(`pending` tem 6 dias de idade; `procedure` tem 3 chunks) e a explicação é *post hoc* —
+está aqui como limite, não como defesa.
+
+**E o confundidor idade não explica o achado.** Tipos grandes são, de fato, mais velhos
+(`r(log n, idade) = +0,41`), mas a parcial controlando idade fica em **−0,709** — quase
+inalterada. Restringindo aos 9 tipos com idade média ≥ 70 dias, onde a idade é
+aproximadamente constante, a relação **fortalece**: `r = −0,843`, ρ = −0,883. O mesmo
+vale para importância média (parcial −0,685) e para o tamanho do texto (−0,732).
 
 **`lesson` está em 100% porque tem 53 linhas.** A relevância atribuída pelo sistema não
 prediz exposição; o tamanho da coleção prediz.
