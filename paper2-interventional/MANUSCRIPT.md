@@ -29,10 +29,17 @@ O que decide a exposição não é a relevância que o próprio sistema atribui,
 cobertura é alimentado por **lotes de ingestão** com janela de 7 dias e, entre lotes,
 serve exatamente o mesmo conjunto por dias seguidos.
 
+⚠️ Duas ressalvas que o resultado carrega: dos 10.899 expostos, **9.755 vieram da busca,
+que é iniciada pelo agente** — só o brief é entrega decidida pelo sistema; e tamanho de
+coleção pode ser **proxy de como o tipo é produzido** (pipeline de lote contra escrita
+humana), de modo que curadoria não é descartada como causa comum.
+
 O mecanismo é **dedutível do código**, não inferido dos dados. O canal de cobertura
 ordena por um comparador **lexicográfico** `(last_served ASC, salience DESC)`: o score é
 a coordenada **subordinada** e só decide dentro de empates da dominante. Isso prediz um
-**teto** — não uma resposta proporcional — para qualquer bônus aditivo no score.
+**teto** — não uma resposta proporcional — para qualquer bônus aditivo no score **desse
+canal**. ⚠️ Os outros 8 slots vêm de um pool ordenado por score puro, onde um bônus
+aditivo **não** tem teto: a imunidade é do canal de cobertura, não da superfície toda.
 Testamos a predição com dose crescente em produção e replay fiel ao pipeline real em
 **350 de 350** briefs: a resposta é monótona em cada estado, satura em `w ∈ (4,0; 4,4]`
 e o teto é **4,86%** dos briefs.
@@ -122,7 +129,8 @@ superfície, não o efeito dela.
   testa.
 - **Contribuições.** (i) a primeira medição de superfície de exposição de um sistema de
   memória de agente em produção; (ii) o achado capacidade-sobre-relevância, com o teste
-  que descarta a explicação por curadoria; (iii) uma predição dedutiva de teto para
+  que mostra o tamanho predizendo melhor que a relevância que o sistema atribui — sem
+  descartar curadoria como **causa comum** dos dois; (iii) uma predição dedutiva de teto para
   intervenções aditivas, testada com dose-resposta e replay fiel; (iv) o **diagnóstico
   executável** (`measurement/`), para que a medição seja reproduzível em outro sistema;
   (v) um catálogo de defeitos de instrumento que a área ainda não documentou.
@@ -234,6 +242,14 @@ bater no desfecho.
 | **nunca exposto por nenhuma** | **56.288 = 83,78%** |
 | desses, passam o próprio piso de relevância do sistema | **10.008** |
 
+🔴 **As duas superfícies não são a mesma espécie de coisa, e a maior delas não é uma
+decisão do sistema.** Dos 10.899 chunks vivos já expostos, **9.755 vieram da busca** —
+que é **iniciada pelo agente**. Exposição por busca reflete o que o agente **procurou**;
+só o brief (1.787) é entrega que o sistema decide sozinho. Isso não invalida o
+complemento — "nunca exposto" continua sendo ausência de registro nas duas — mas
+restringe o que se pode dizer da causa: o número de 83,78% mede **o que não chegou**, e
+não **o que o ranker recusou**. As alegações sobre mecanismo (§5) valem para o brief.
+
 ⚠️ **As duas linhas contam populações diferentes**, e a soma denuncia: 11.051 + 56.288
 = 67.339, **152 a mais** que o corpus. A união conta o que já foi exposto *alguma vez*,
 inclusive 152 chunks servidos no brief e **apagados depois**; o complemento conta o que
@@ -313,8 +329,22 @@ inalterada. Restringindo aos 9 tipos com idade média ≥ 70 dias, onde a idade 
 aproximadamente constante, a relação **fortalece**: `r = −0,843`, ρ = −0,883. O mesmo
 vale para importância média (parcial −0,685) e para o tamanho do texto (−0,732).
 
+🔴 **E o confundidor que sobra depois da idade é o que impede a conclusão forte.** O
+§4.3.1 mostra que a ingestão chega em **lotes de arquivos**: tipos grandes são os
+alimentados por pipeline automático; tipos pequenos são escritos à mão. Isso é
+**curadoria disfarçada de tamanho** — uma causa comum dos dois, que nenhuma correlação
+entre eles pode separar. O paper **não descarta** a hipótese de curadoria; o que ele
+mostra é que o tamanho prediz melhor do que a *relevância que o próprio sistema
+atribui*, que é uma afirmação mais fraca e é a que os dados sustentam.
+
+⚠️ **Duas propriedades da composição do corpus limitam o quanto a separação surpreende.**
+Não existe tipo com `n` entre **53 e 1.046** — com um vazio no meio do eixo, alguma
+separação entre "grandes" e "pequenos" está garantida pela composição, não descoberta. E
+`other` sozinho é **49%** do corpus, então o agregado de 83,78% é, em boa parte, um tipo.
+
 **`lesson` está em 100% porque tem 53 linhas.** A relevância atribuída pelo sistema não
-prediz exposição; o tamanho da coleção prediz.
+prediz exposição; o tamanho da coleção prediz — com a ressalva, acima, de que o tamanho
+pode ser proxy de como o tipo é produzido.
 
 **Figura 1** — `measurement/out/fig1-capacidade.svg`: dispersão `log₁₀(tamanho)` ×
 `% exposto`, um ponto por tipo com rótulo, reta de regressão e as duas faixas
@@ -589,9 +619,20 @@ vê há três alavancas, e o score não é uma delas:
 | a **elegibilidade** (quem entra em `P`) | muda o objeto, não a ordem |
 | ~~o score subordinado~~ | limitado por Corolário 2, saturando em `b*` |
 
-E é a mesma conclusão da §3 por outro caminho: a exposição é governada por
-capacidade, não por relevância. A §3 mede isso na população de chunks; a §5
-prova por que nenhum ajuste de relevância poderia mudá-lo.
+🔴 **E a tabela vale para o canal de cobertura, que são 2 dos 10 slots — não para a
+superfície inteira.** Os outros 8 vêm do pool principal, ordenado por `salience` **pura**
+(§2), onde um bônus aditivo age na coordenada dominante e **não tem teto**. Escrever "o
+score não é alavanca" sem essa qualificação seria falso para 80% dos slots, e é uma
+qualificação que o Abstract precisa carregar, não só esta seção.
+
+A conclusão correta é mais estreita e continua valendo: **o canal que existe justamente
+para dar chance ao não-servido é o único imune a ajustes de relevância.** A superfície
+tem duas partes com álgebras diferentes, e a parte reservada à cobertura é a que não
+responde ao score.
+
+E é a mesma conclusão da §4 por outro caminho: naquele canal a exposição é governada por
+capacidade e por ordem de rotação, não por relevância. A §4 mede isso na população de
+chunks; a §5 prova por que nenhum ajuste de relevância poderia mudá-lo **ali**.
 
 ### 5.6 O teste que esta derivação tem de passar
 
