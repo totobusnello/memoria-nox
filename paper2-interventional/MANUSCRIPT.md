@@ -296,6 +296,16 @@ relevância do **próprio sistema** (`importance ≥ 0,7 OR pain ≥ 0,7`, verba
 `brief.ts:642`), **10.008 = 74,75% nunca foram expostos**. Condicionar à relevância
 declarada reduz a taxa em 9 pontos e o valor absoluto em 5,6×; não a dissolve.
 
+⚠️ **E a leitura tentadora desse número é falsa — a qualificação viaja com ele.** Dos
+10.008, **8.928 (89,2%) são `distilled`**: fragmentos de sessão de **232 caracteres** em
+média (`measurement/composicao-do-piso.py`,
+`out/FLOOR-COMPOSITION-2026-08-29.json`). O achado não é "dez mil lições invisíveis"; é
+que a superfície não mostra nem os fragmentos que o próprio sistema marcou como
+relevantes. ⚠️ Uma versão anterior desta frase dizia **205** caracteres, que é a média de
+**todos os 14.456 `distilled` do corpus** e não a dos 8.928 que a frase nomeia — número
+certo atribuído à população errada, de uma consulta *ad hoc* que não deixou artefato. Só
+apareceu ao recomputar.
+
 **A taxa é incondicional, e essa é a objeção com direção desconhecida.** Um chunk criado
 na semana 11 da janela teve 7 dias de oportunidade de exposição; um da semana 1 teve 84.
 Os dois entram iguais no denominador. Se o corpus tivesse crescido depressa perto do
@@ -372,8 +382,6 @@ inclusive 152 chunks servidos no brief e **apagados depois**; o complemento cont
 existe *hoje* e nunca foi. Descontando-os, 10.899 + 56.288 = 67.187 exato. O percentual
 citado é sobre o corpus vivo, que é a população da qual se pode dizer "nunca exposto".
 
-⚠️ **E a leitura tentadora é falsa.** Dos 10.008, **8.928** são fragmentos de sessão de
-205 caracteres em média. O achado não é "dez mil lições invisíveis".
 
 ### 4.2 Resultado secundário: exposição correlaciona com tamanho de coleção
 

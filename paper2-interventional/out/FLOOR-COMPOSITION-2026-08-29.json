@@ -1,0 +1,77 @@
+{
+  "elegiveis_nunca_expostos": 10008,
+  "por_tipo": [
+    {
+      "tipo": "distilled",
+      "chunks": 8928,
+      "pct_do_piso": 89.2,
+      "comprimento_medio": 231.9
+    },
+    {
+      "tipo": "team",
+      "chunks": 859,
+      "pct_do_piso": 8.6,
+      "comprimento_medio": 710.3
+    },
+    {
+      "tipo": "other",
+      "chunks": 142,
+      "pct_do_piso": 1.4,
+      "comprimento_medio": 2412.1
+    },
+    {
+      "tipo": "daily",
+      "chunks": 50,
+      "pct_do_piso": 0.5,
+      "comprimento_medio": 672.3
+    },
+    {
+      "tipo": "decision",
+      "chunks": 7,
+      "pct_do_piso": 0.1,
+      "comprimento_medio": 634.1
+    },
+    {
+      "tipo": "project",
+      "chunks": 6,
+      "pct_do_piso": 0.1,
+      "comprimento_medio": 2924.8
+    },
+    {
+      "tipo": "pending",
+      "chunks": 6,
+      "pct_do_piso": 0.1,
+      "comprimento_medio": 790.7
+    },
+    {
+      "tipo": "person",
+      "chunks": 5,
+      "pct_do_piso": 0.0,
+      "comprimento_medio": 381.2
+    },
+    {
+      "tipo": "feedback",
+      "chunks": 5,
+      "pct_do_piso": 0.0,
+      "comprimento_medio": 178.6
+    }
+  ],
+  "tipo_dominante": {
+    "tipo": "distilled",
+    "chunks": 8928,
+    "pct_do_piso": 89.2,
+    "comprimento_medio": 231.9
+  },
+  "contraste_de_populacao": {
+    "nota": "a média do tipo inteiro NÃO é a média do subconjunto da manchete",
+    "tipo": "distilled",
+    "no_corpus_inteiro": {
+      "chunks": 14456,
+      "comprimento_medio": 205.1
+    },
+    "no_subconjunto_da_manchete": {
+      "chunks": 8928,
+      "comprimento_medio": 231.9
+    }
+  }
+}

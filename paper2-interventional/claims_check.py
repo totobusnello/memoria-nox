@@ -994,6 +994,53 @@ def coorte_check(root: Path) -> list[str]:
             f"artefato dá {mad}% <= {d['pct_agregado']}% — a conclusão inverteu"
         )
 
+    # (4b) a qualificação que impede a leitura "dez mil lições invisíveis". Ela só
+    #      protege se viajar COM a manchete e se os números forem os do subconjunto —
+    #      a versão de 27/08 citava a média do tipo inteiro (205) como se fosse a do
+    #      subconjunto (232), e ficava a duas seções de distância do número que
+    #      qualificava.
+    fart = root / "out" / "FLOOR-COMPOSITION-2026-08-29.json"
+    if not fart.exists():
+        fails.append(f"{fart.name} ausente — a qualificação dos 10.008 não tem artefato")
+    else:
+        f = json.loads(fart.read_text(encoding="utf-8"))
+        dom, cc = f["tipo_dominante"], f["contraste_de_populacao"]
+        # o artefato guarda o dominante em DOIS lugares (`por_tipo[0]` e
+        # `tipo_dominante`). Se divergirem, o guarda abaixo lê um e o leitor humano
+        # lê o outro — foi o que uma mutação de 29/08 explorou sem querer.
+        if f["por_tipo"] and f["por_tipo"][0] != dom:
+            fails.append(
+                f"{fart.name}: `por_tipo[0]` e `tipo_dominante` divergem — "
+                f"{f['por_tipo'][0]} vs {dom}"
+            )
+        # ⚠️ `d[...]` e não `p`: `p` só é ligado no bloco (4), abaixo. Escrever `p`
+        # aqui deu UnboundLocalError — o mesmo defeito de ordenação que este mesmo
+        # dia expôs em `lacuna-no-eixo-de-tamanho.py`, e pelo mesmo motivo.
+        piso = d["condicionado_ao_piso"]
+        if f["elegiveis_nunca_expostos"] != piso["nunca_expostos"]:
+            fails.append(
+                f"§4.1: a composição mede {f['elegiveis_nunca_expostos']} elegíveis e a "
+                f"coorte mede {piso['nunca_expostos']} — populações divergiram"
+            )
+        cm = f"{dom['comprimento_medio']:.0f}"
+        pc = str(dom["pct_do_piso"]).replace(".", ",")
+        alvo = (rf"\*\*{dom['chunks']:,}".replace(",", r"\.") +
+                rf" \({re.escape(pc)}%\) são `{dom['tipo']}`\*\*: fragmentos de sessão "
+                rf"de \*\*{cm} caracteres\*\*")
+        if not re.search(alvo, texto):
+            fails.append(
+                f"§4.1: a qualificação deveria ler {dom['chunks']} ({pc}%) `{dom['tipo']}` "
+                f"de {cm} caracteres, ancorada — /{alvo}/ não casa"
+            )
+        # a média do tipo inteiro só pode aparecer marcada COMO a do tipo inteiro
+        mc = f"{cc['no_corpus_inteiro']['comprimento_medio']:.0f}"
+        if mc in texto and not re.search(
+                rf"\*\*{mc}\*\* caracteres,? que é a média de\s*\n?\*\*todos os", texto):
+            fails.append(
+                f"§4.1: {mc} aparece sem estar marcado como a média do tipo INTEIRO — "
+                f"é exatamente a confusão de população de 27/08"
+            )
+
     # (4) o número condicionado ao piso, que virou co-manchete do título
     # ⚠️ O número aparece DUAS vezes — no título do §4.1 e no parágrafo que o deriva —
     # e `f"{pf}%" in texto` foi satisfeito pela outra quando a mutação alterou só uma
