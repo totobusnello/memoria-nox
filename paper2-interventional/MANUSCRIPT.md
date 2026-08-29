@@ -460,21 +460,30 @@ primeiro — "cada lote de ingestão alimenta o canal por sete dias e expira" �
 refutada por uma predição datada que registramos antes do dia** (§6 e
 `PREDICTION-2026-08-29.md`). O que a refutação expôs é melhor que o que ela derrubou.
 
-**O canal enxerga 0,16% do corpus.** Sua população elegível é definida por três filtros
-que compõem (`brief.ts:135,642,645`; `brief-diversity.ts:59-62`): dois padrões de caminho
-(`memory/entities/%` e `memory/lessons.md`), um piso de `importance ≥ 0,7 OR pain ≥ 0,7`,
-e uma janela de idade. Medido (`measurement/pool-elegivel.py`,
-`POOL-ELEGIVEL-2026-08-29.json`):
+**O canal enxerga 0,16% do corpus.** Ele é a **união de dois sub-pools**, cada um com seus
+padrões de caminho e sua janela (`brief.ts:135,642,645`; `brief-diversity.ts:59-62`):
+
+| sub-pool | padrões | janela | elegíveis |
+|---|---|---:|---:|
+| por agente | `sessions/<agente>/%` | 7 d | **0** |
+| global | `memory/entities/%`, `memory/lessons.md` | 30 d | **108** |
+
+Sobre ambos incide o piso `importance ≥ 0,7 OR pain ≥ 0,7`. Medido em quatro dias
+(`measurement/pool-elegivel.py`, `POOL-ELEGIVEL-2026-08-28.json`):
 
 | | |
 |---|---:|
 | corpus vivo | 67.187 |
 | **pool elegível do canal** | **108** — 0,161% |
 | desses, nunca servidos | **0** |
-| servidos no dia | **108 — 100% do pool** |
-| slots de cobertura por candidato elegível | **12,4×** |
+| servidos no dia | **108 — 100% do pool**, em 26, 27, 28 e 29/08 |
+| slots de cobertura por candidato elegível | **12,4×** (dia fechado) |
 
-**O pool é esgotado todos os dias.** Há doze vezes mais slots que candidatos, então a
+⚠️ O último número é de **dia fechado**: em 29/08, medido com o dia ainda em curso, dá
+5,6× simplesmente porque menos briefs ocorreram. O script marca `dia_parcial` para que os
+dois não sejam comparados.
+
+**O pool é esgotado todos os dias medidos.** Há doze vezes mais slots que candidatos, então a
 ordenação `last_served ASC` ordena mas **não exclui ninguém**: todo elegível aparece,
 todo dia. Não há carrossel girando nem lote expirando — há um pool pequeno demais para
 que a rotação seja uma pergunta.
@@ -501,14 +510,27 @@ extrapolação não era.** É o mesmo defeito de "verificar um invariante sobre 
 errado" que o §6 cataloga, cometido desta vez sobre o próprio mecanismo que o paper
 descreve.
 
-⚠️ **E o instrumento que testou a predição não podia distinguir os canais.** `brief_log`
+**A atribuição por canal foi medida, não inferida.** A objeção decisiva a tudo acima é que
+`brief_log` não registra a origem de cada serve, e uma regra de elegibilidade **exclui mas
+não atribui**: os mesmos 108 serves seriam igualmente compatíveis com "a cobertura parou
+aos 7 dias e o pool principal serviu tudo". O teste que separa as duas hipóteses não
+precisa de coluna nova — basta rodar o **mesmo estado** duas vezes pelo código real, uma
+com `freshSlots = 2` (produção) e outra com `freshSlots = 0`, e diferenciar. O que
+desaparece ao desligar o canal é, por construção, o que o canal entregou.
+
+Em 40 briefs de 29/08 (`CHANNEL-ATTRIBUTION-2026-08-29.json`): **80 slots** atribuídos à
+cobertura — exatamente 2 por brief, os 40 —, **62 chunks distintos**, e **todos os 62 são
+do lote de 21–22/08**. A cobertura *estava* servindo o lote aos 7,4 dias; a hipótese
+alternativa está descartada por medição.
+
+⚠️ **Sem esse teste, o argumento era assimétrico.** `brief_log`
 **não registra por qual canal cada linha foi servida** — não há coluna de origem. Contar
 serves de um lote mede a **união** do pool principal com o de cobertura, e o pool
 principal não tem filtro de idade nenhum. Foi por isso que o guarda de corte acusou
 "idade 7,42 servida" como violação da janela de 7 dias: parte daqueles serves nunca
-esteve sujeita a janela alguma. A atribuição correta é por **elegibilidade reconstruída
-do predicado do código** — um chunk que não passa o predicado do canal não pode ter sido
-servido por ele.
+esteve sujeita a janela alguma. Usar essa limitação para anular o guarda antigo sem
+aplicá-la à explicação nova seria escolher a régua pelo resultado — e a explicação nova
+sofria do mesmo viés de união até o teste diferencial acima existir.
 
 **Por que isso é resultado e não nota de rodapé:** a renovação da superfície não é
 governada por relevância nem pelo ranker. É governada por quais **caminhos de arquivo**
@@ -1242,7 +1264,8 @@ Tudo em `measurement/`, com `--assert-json` travando cada número citado:
 | replay + dose + limiar + gaps | `replay-oportunidade.mjs` · `replay-resumo.py` | `out/c-350-v3.json` · `out/dose-350-v3.json` · `out/limiar-17.json` · `out/gaps.json` |
 | granularidade do teto (§5.7) | `replay-oportunidade.mjs --granularidade` · `granularidade-do-teto.py` | `out/gran-{seg,min,hora,dia}.json` · `out/gran3-{seg,min,hora}.json` · `CEILING-GRANULARITY-2026-08-28.json` |
 | sensibilidade do teto à designação (§5.7.1) | `sensibilidade-da-designacao.py` | `out/sens-*.json` · `CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json` |
-| pool elegível do canal de cobertura (§4.3.1) | `pool-elegivel.py` | `POOL-ELEGIVEL-2026-08-29.json` |
+| pool elegível do canal de cobertura (§4.3.1) | `pool-elegivel.py` | `POOL-ELEGIVEL-2026-08-28.json` |
+| atribuição diferencial por canal (§4.3.1) | `replay-oportunidade.mjs --modo canal` | `CHANNEL-ATTRIBUTION-2026-08-29.json` |
 | ciclo do lote, e a predição refutada (§4.3.1, §6) | `ciclo-do-lote.py` · `regime-cobertura.py` | `BATCH-CYCLE-2026-08-28.json` · `BATCH-CYCLE-2026-08-29.json` · `PREDICTION-2026-08-29.md` |
 | exposição ao defeito de resolução | `irmaos-no-segundo.py` | — |
 | gatilhos de monitoramento | `gatilho-saturacao.sh` · `gatilho-composicao.mjs` | `implantacao/` |

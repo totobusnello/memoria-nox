@@ -97,7 +97,7 @@ const exigir = (k) => {
 };
 
 const MODO = exigir("modo");
-if (!["ancora", "campo", "dose", "gaps", "porque"].includes(MODO)) {
+if (!["ancora", "campo", "dose", "gaps", "porque", "canal"].includes(MODO)) {
   console.error(`--modo inválido: ${MODO}`); process.exit(2);
 }
 const RAIZ = resolve(exigir("raiz"));
@@ -467,7 +467,7 @@ if (MODO === "ancora") {
   }
 }
 
-if (MODO === "campo" || MODO === "dose" || MODO === "porque") {
+if (MODO === "campo" || MODO === "dose" || MODO === "porque" || MODO === "canal") {
   const LOG = resolve(exigir("log-campo"));
   const briefs = readFileSync(LOG, "utf8").split("\n").filter((l) => l.trim())
     .map((l) => JSON.parse(l))
@@ -489,6 +489,24 @@ if (MODO === "campo" || MODO === "dose" || MODO === "porque") {
     }
   }
   const doses = MODO === "dose" ? (A.w ?? [2, 100000]) : [null];
+
+  /**
+   * ─── Modo `canal`: ATRIBUIÇÃO diferencial, porque o log não a registra ────
+   *
+   * `brief_log` não tem coluna de origem, então "o chunk X foi servido" não diz
+   * por qual canal. A revisão adversarial de 29/08 mostrou que isso derruba
+   * tanto o guarda antigo quanto a explicação nova: os mesmos serves são
+   * compatíveis com "a cobertura continuou servindo" e com "a cobertura parou e
+   * o pool principal serviu tudo". Regra que exclui não atribui.
+   *
+   * O teste que decide não precisa de coluna nova: rodar o MESMO estado duas
+   * vezes pelo código real, uma com `freshSlots` de produção e outra com
+   * `freshSlots = 0`, e diferenciar. O que desaparece quando o canal é desligado
+   * É, por construção, o que o canal entregou. Nada é reconstruído.
+   *
+   * ⚠️ Só vale se os dois braços forem idênticos em TUDO menos `freshSlots` —
+   * mesmo corpus, mesmo serve-state podado, mesmo instante, sem boost nos dois.
+   */
 
   /**
    * Um serve-state só, no T_REF MÁXIMO, e poda monótona descendo pelos briefs:
@@ -590,7 +608,75 @@ if (MODO === "campo" || MODO === "dose" || MODO === "porque") {
      * Esta versão usa apenas `would_enter`, `would_leave` (que a produção registra)
      * e o `last_served` do serve-state podado. Nada é montado.
      */
-    if (MODO === "porque") {
+    if (MODO === "canal") {
+      const cfg = cfgEm(tRefMs);
+      const params2 = { ...params };
+      let comCob, semCob;
+      try {
+        comCob = brief.buildBriefDiverse(corpus, params2, cfg, tRefMs, sv.db, undefined);
+        semCob = brief.buildBriefDiverse(
+          corpus, params2, { ...cfg, freshSlots: 0 }, tRefMs, sv.db, undefined);
+      } catch (e) {
+        res.push({ ts: r.ts, agent: r.agent, erro: String(e && e.message || e) });
+        continue;
+      }
+      const A_ = comCob.alt.items.map((i) => i.id);
+      const B_ = semCob.alt.items.map((i) => i.id);
+      const setB = new Set(B_);
+      const daCobertura = A_.filter((id) => !setB.has(id));
+      res.push({
+        ts: r.ts, agent: r.agent,
+        fresh_slots_producao: cfg.freshSlots,
+        servido_com_cobertura: A_,
+        servido_sem_cobertura: B_,
+        atribuido_a_cobertura: daCobertura,
+        n_atribuido: daCobertura.length,
+      });
+      continue;
+    }
+    if (MODO === "canal") {
+    const ok = res.filter((x) => !x.erro);
+    const lote = new Set((A["ids-lote"]
+      ? readFileSync(resolve(A["ids-lote"]), "utf8").split(/\s+/).filter(Boolean).map(Number)
+      : []));
+    const atrib = ok.flatMap((x) => x.atribuido_a_cobertura);
+    const uniq = [...new Set(atrib)];
+    const doLote = uniq.filter((id) => lote.has(id));
+    saida.canal = {
+      estados: ok.length, erros: res.length - ok.length,
+      fresh_slots: ok[0]?.fresh_slots_producao ?? null,
+      slots_atribuidos_a_cobertura: atrib.length,
+      chunks_distintos_da_cobertura: uniq.length,
+      ids_da_cobertura: uniq.sort((a, b) => a - b),
+      lote_declarado: lote.size,
+      do_lote_atribuidos_a_cobertura: doLote.length,
+      ids_do_lote_na_cobertura: doLote.sort((a, b) => a - b),
+      /**
+       * A pergunta que a refutação deixou em aberto, agora respondível: se ZERO
+       * chunks do lote aparecem atribuídos à cobertura, então a cobertura PAROU
+       * — e a predição original estava certa, com os serves observados vindo do
+       * pool principal. Se aparecem, a cobertura seguiu servindo.
+       */
+      veredito: lote.size === 0 ? "sem --ids-lote, nada a concluir sobre o lote"
+        : doLote.length === 0
+          ? "COBERTURA PAROU para o lote — os serves observados vieram de outro canal"
+          : "COBERTURA SEGUIU servindo o lote",
+    };
+    if (ok.length === 0) {
+      falhou = true;
+      console.error("⛔ nenhum estado replayado — nada a atribuir.");
+    }
+    // guarda: desligar o canal TEM de mudar alguma coisa em algum estado; se não
+    // mudar em nenhum, ou `freshSlots` não é o knob, ou o pool está vazio, e nos
+    // dois casos a atribuição não mediu o que diz medir.
+    if (ok.length > 0 && atrib.length === 0) {
+      console.error("⚠️ desligar freshSlots não mudou NENHUM estado. Ou o pool de");
+      console.error("   cobertura está vazio nesses instantes, ou o knob não é esse.");
+      console.error("   Zero aqui NÃO é 'a cobertura não serviu o lote' — é 'não medi'.");
+      saida.canal.veredito = "NAO MEDIDO — desligar o canal não mudou nada em estado nenhum";
+    }
+    saida.canal.detalhe = res;
+  } else if (MODO === "porque") {
       const cfg = cfgEm(tRefMs);
       const wAbs = A.w ? Number(A.w[0]) : 100000;
       const pv = provedorEm(vivoRO, wAbs, tRefMs, ENV);
@@ -666,7 +752,49 @@ if (MODO === "campo" || MODO === "dose" || MODO === "porque") {
   }
   sv.db.close();
 
-  if (MODO === "porque") {
+  if (MODO === "canal") {
+    const ok = res.filter((x) => !x.erro);
+    const lote = new Set((A["ids-lote"]
+      ? readFileSync(resolve(A["ids-lote"]), "utf8").split(/\s+/).filter(Boolean).map(Number)
+      : []));
+    const atrib = ok.flatMap((x) => x.atribuido_a_cobertura);
+    const uniq = [...new Set(atrib)];
+    const doLote = uniq.filter((id) => lote.has(id));
+    saida.canal = {
+      estados: ok.length, erros: res.length - ok.length,
+      fresh_slots: ok[0]?.fresh_slots_producao ?? null,
+      slots_atribuidos_a_cobertura: atrib.length,
+      chunks_distintos_da_cobertura: uniq.length,
+      ids_da_cobertura: uniq.sort((a, b) => a - b),
+      lote_declarado: lote.size,
+      do_lote_atribuidos_a_cobertura: doLote.length,
+      ids_do_lote_na_cobertura: doLote.sort((a, b) => a - b),
+      /**
+       * A pergunta que a refutação deixou em aberto, agora respondível: se ZERO
+       * chunks do lote aparecem atribuídos à cobertura, então a cobertura PAROU
+       * — e a predição original estava certa, com os serves observados vindo do
+       * pool principal. Se aparecem, a cobertura seguiu servindo.
+       */
+      veredito: lote.size === 0 ? "sem --ids-lote, nada a concluir sobre o lote"
+        : doLote.length === 0
+          ? "COBERTURA PAROU para o lote — os serves observados vieram de outro canal"
+          : "COBERTURA SEGUIU servindo o lote",
+    };
+    if (ok.length === 0) {
+      falhou = true;
+      console.error("⛔ nenhum estado replayado — nada a atribuir.");
+    }
+    // guarda: desligar o canal TEM de mudar alguma coisa em algum estado; se não
+    // mudar em nenhum, ou `freshSlots` não é o knob, ou o pool está vazio, e nos
+    // dois casos a atribuição não mediu o que diz medir.
+    if (ok.length > 0 && atrib.length === 0) {
+      console.error("⚠️ desligar freshSlots não mudou NENHUM estado. Ou o pool de");
+      console.error("   cobertura está vazio nesses instantes, ou o knob não é esse.");
+      console.error("   Zero aqui NÃO é 'a cobertura não serviu o lote' — é 'não medi'.");
+      saida.canal.veredito = "NAO MEDIDO — desligar o canal não mudou nada em estado nenhum";
+    }
+    saida.canal.detalhe = res;
+  } else if (MODO === "porque") {
     const n = res.filter((x) => !x.erro).length;
     const comChurn = res.filter((x) => !x.erro && x.churn > 0);
     const viol = res.filter((x) => (x.entradas_sem_saida_no_mesmo_estrato ?? 0) > 0);

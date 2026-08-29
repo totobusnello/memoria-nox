@@ -1,5 +1,5 @@
 {
-  "dia": "2026-08-29",
+  "dia": "2026-08-28",
   "corpus": 67187,
   "predicado": {
     "padroes": [
@@ -9,12 +9,15 @@
     "idade_max_dias": 30,
     "piso": "importance >= 0.7 OR pain >= 0.7"
   },
+  "sub_pool_global": 108,
+  "sub_pool_por_agente": 0,
   "pool_elegivel": 108,
   "pct_do_corpus": 0.161,
   "nunca_servidos_no_pool": 0,
   "servidos_no_dia": 108,
   "cobertura_do_pool_no_dia": 100.0,
-  "briefs_no_dia": 287,
-  "slots_de_cobertura_no_dia": 574,
-  "slots_por_candidato": 5.3
+  "briefs_no_dia": 672,
+  "slots_de_cobertura_no_dia": 1344,
+  "slots_por_candidato": 12.4,
+  "dia_parcial": false
 }

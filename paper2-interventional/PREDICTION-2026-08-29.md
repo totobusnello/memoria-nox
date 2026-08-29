@@ -18,8 +18,16 @@ válida; a extrapolação não era.
 
 **Cumprido o que este documento mandava fazer em caso de refutação:** o §4.3.1 foi
 **substituído** antes de qualquer depósito. A explicação nova — pool elegível de 108
-chunks (0,16% do corpus), esgotado 100% todo dia, com 12,4 slots por candidato — é mais
-forte que a que caiu, e está medida em `POOL-ELEGIVEL-2026-08-29.json`.
+chunks (0,16% do corpus), esgotado 100% em cada um dos quatro dias medidos, com 12,4
+slots por candidato em dia fechado — é mais forte que a que caiu, e está medida em
+`POOL-ELEGIVEL-2026-08-28.json`.
+
+⚠️ **E ela só ficou estabelecida depois de uma revisão adversarial derrubá-la.** O
+DeepSeek apontou, corretamente, que elegibilidade **exclui mas não atribui**: os 108
+serves eram igualmente compatíveis com "a cobertura parou aos 7 dias, como a predição
+dizia, e o pool principal serviu tudo". Resolvido por teste diferencial — mesmo estado,
+`freshSlots = 2` contra `freshSlots = 0` — em `CHANNEL-ATTRIBUTION-2026-08-29.json`: 80
+slots, 62 chunks distintos, **todos do lote**. A cobertura estava servindo.
 
 ⚠️ **O valor de ter registrado a predição antes está exatamente aqui.** Sem o registro,
 "o lote continua sendo servido" seria um fato solto, fácil de acomodar. Com ele, foi uma

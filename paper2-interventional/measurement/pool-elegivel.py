@@ -47,6 +47,11 @@ FRESH_GLOBAL_MAX_AGE_DAYS = 30
 FRESH_MIN_IMP = 0.7
 FRESH_MIN_PAIN = 0.7
 FRESH_SLOTS = 2  # slots de cobertura por brief
+# O canal é a UNIÃO de dois sub-pools. Medir só o global e chamar de "o canal"
+# subestima por construção — objeção levantada em revisão adversarial (29/08) e
+# procedente, ainda que aqui o segundo termo seja vazio.
+AGENT_FRESH_PATTERN = "sessions/%"
+FRESH_MAX_AGE_DAYS = 7
 
 
 def main():
@@ -80,6 +85,14 @@ def main():
         f"SELECT COUNT(*) FROM chunks WHERE {onde} AND id IN "
         f"(SELECT chunk_id FROM brief_log WHERE substr(served_at,1,10) = ?)",
         args + [a.dia]).fetchone()[0]
+    agente = c.execute(
+        "SELECT COUNT(*) FROM chunks WHERE "
+        "julianday(?) - julianday(COALESCE(source_date, created_at)) <= ? "
+        "AND (COALESCE(importance,0) >= ? OR COALESCE(pain,0) >= ?) "
+        "AND source_file LIKE ?",
+        (ref, FRESH_MAX_AGE_DAYS, FRESH_MIN_IMP, FRESH_MIN_PAIN,
+         AGENT_FRESH_PATTERN)).fetchone()[0]
+
     briefs = c.execute(
         "SELECT COUNT(DISTINCT brief_id) FROM brief_log WHERE substr(served_at,1,10)=?",
         (a.dia,)).fetchone()[0]
@@ -91,14 +104,19 @@ def main():
         "predicado": {"padroes": GLOBAL_FRESH_PATTERNS,
                       "idade_max_dias": FRESH_GLOBAL_MAX_AGE_DAYS,
                       "piso": f"importance >= {FRESH_MIN_IMP} OR pain >= {FRESH_MIN_PAIN}"},
-        "pool_elegivel": pool,
-        "pct_do_corpus": round(100 * pool / corpus, 3) if corpus else None,
+        "sub_pool_global": pool,
+        "sub_pool_por_agente": agente,
+        "pool_elegivel": pool + agente,
+        "pct_do_corpus": round(100 * (pool + agente) / corpus, 3) if corpus else None,
         "nunca_servidos_no_pool": nunca,
         "servidos_no_dia": servidos_dia,
         "cobertura_do_pool_no_dia": round(100 * servidos_dia / pool, 1) if pool else None,
         "briefs_no_dia": briefs,
         "slots_de_cobertura_no_dia": slots,
-        "slots_por_candidato": round(slots / pool, 1) if pool else None,
+        "slots_por_candidato": round(slots / (pool + agente), 1) if (pool + agente) else None,
+        # ⚠️ num dia PARCIAL este número é menor por construção — menos briefs
+        # ocorreram. Comparar entre dias exige dia fechado dos dois lados.
+        "dia_parcial": briefs < 400,
     }
 
     # ── guardas ────────────────────────────────────────────────────────────
@@ -119,13 +137,17 @@ def main():
         print(json.dumps(saida, indent=2, ensure_ascii=False))
     else:
         print(f"dia {a.dia}")
-        print(f"  pool elegível do canal global : {pool} de {corpus} "
+        print(f"  sub-pool global / por agente  : {pool} / {agente}")
+        print(f"  pool elegível do canal        : {pool + agente} de {corpus} "
               f"({saida['pct_do_corpus']}% do corpus)")
         print(f"  nunca servidos dentro do pool : {nunca}")
         print(f"  servidos no dia               : {servidos_dia} "
               f"({saida['cobertura_do_pool_no_dia']}% do pool)")
         print(f"  briefs / slots de cobertura   : {briefs} / {slots}")
         print(f"  slots por candidato elegível  : {saida['slots_por_candidato']}×")
+        if saida["dia_parcial"]:
+            print(f"  ⚠️ DIA PARCIAL ({briefs} briefs) — 'slots por candidato' é menor por "
+                  f"construção; não comparar com dia fechado.")
         if saida["cobertura_do_pool_no_dia"] == 100.0:
             print("  ⇒ o pool é ESGOTADO no dia: a ordenação por last_served ordena, "
                   "mas não exclui ninguém.")
