@@ -28,7 +28,10 @@ o corpus inteiro nove vezes. Não se conclui daí que a ordenação esteja errad
 não foi a falta de espaço que produziu o número. A capacidade **por sessão** (10 itens)
 não é testada aqui. (A cobertura de 99,98% sob serviço uniforme aparece como limite
 aritmético do que a capacidade permitiria, não como política recomendada.) Somando a busca, **83,78% do corpus nunca foi
-exposto por nenhuma das duas superfícies.**
+exposto por nenhuma das duas superfícies** — ⚠️ e a mudança de universo entre as duas
+frases é deliberada: a folga de capacidade acima é **do brief**, enquanto os 83,78%
+contam a **união**. Os outros 9.755 expostos vieram de busca, que é iniciada pelo agente,
+não entregue pelo sistema; a alegação sobre mecanismo é sobre o brief.
 
 **Os dois canais da superfície congelam, por motivos opostos e nenhum ligado a
 capacidade.** Os 8 slots do pool principal são ordenados por um score cujos termos, com
@@ -104,10 +107,14 @@ semana. Os 2 slots restantes são um canal de **cobertura**, que existe precisam
 servir o nunca-servido — e é ele que falha, por dois motivos que nada têm a ver com
 relevância:
 
-1. **calendário.** O canal só considera itens com menos de 7 dias, e a ingestão chega em
-   **lotes**. Entre lotes o pool fica vazio e o canal serve o mesmo conjunto por dias:
-   medimos **cinco dias seguidos** com zero itens novos, com a idade mínima do que foi
-   servido subindo exatamente **+1,00 por dia** — a assinatura de um conjunto congelado;
+1. **calendário.** O canal recorta por idade, e a ingestão chega em **lotes**. Entre
+   lotes o pool fica vazio e o canal serve o mesmo conjunto por dias: medimos **cinco
+   dias seguidos** com zero itens novos, com a idade mínima do que foi servido subindo
+   exatamente **+1,00 por dia** — a assinatura de um conjunto congelado. ⚠️ **A janela
+   não é única, e uma versão anterior desta frase dizia "menos de 7 dias" como se
+   fosse:** são dois sub-pools, o por-agente com 7 dias e o global com 30 (§4.3.1). A
+   observação dos cinco dias é do primeiro; aplicar a janela dele ao segundo foi o erro
+   que uma predição registrada refutou;
 2. **álgebra.** O canal ordena por um comparador **lexicográfico**
    `(last_served ASC, salience DESC)`, no qual o score é a coordenada **subordinada** e
    só decide dentro de empates da dominante. Isso prediz — dedutivamente, a partir de
@@ -164,7 +171,9 @@ busca é iniciada pelo agente, e responde por 9.755 dos 10.899 chunks já expost
   deste paper — e o diagnóstico publicado existe para que seja respondida.
 - **Contribuições.** (i) a medição da superfície de exposição de um sistema de memória
   de agente **em produção**, com o resultado de que a capacidade excede o corpus em 8,7×
-  e mesmo assim 83,78% nunca é exposto; (ii) a localização do gargalo no **canal de
+  e mesmo assim 83,78% nunca é exposto — ⚠️ número que soma as **duas** superfícies,
+  enquanto a capacidade citada é só a do brief, e o §4.1.1 delimita o que cada uma
+  autoriza a concluir; (ii) a localização do gargalo no **canal de
   cobertura**, com os dois mecanismos que o congelam — uma população elegível de **108
   chunks (0,16% do corpus)**, recortada por padrões de caminho, e ordem lexicográfica que
   rebaixa o score a coordenada subordinada; (iii)
@@ -173,8 +182,8 @@ busca é iniciada pelo agente, e responde por 9.755 dos 10.899 chunks já expost
   que a medição seja reproduzível em outro sistema.
 
   ⚠️ **O catálogo de defeitos de instrumento (Apêndice E) não entra como contribuição**,
-  e a razão é honesta: são **16 defeitos que nós cometemos**, sete deles alterando um
-  número que este paper reporta. Reportá-los é obrigação, não mérito — e sobretudo, sete
+  e a razão é honesta: são **17 defeitos que nós cometemos**, oito deles alterando um
+  número que este paper reporta. Reportá-los é obrigação, não mérito — e sobretudo, oito
   achados **não limitam** os não achados. Estão no apêndice porque quem for reproduzir a
   medição vai cair nos mesmos, não porque nos credenciam.
 
@@ -311,8 +320,8 @@ declarada reduz a taxa em 9 pontos e o valor absoluto em 5,6×; não a dissolve.
 complementar tem de ser dito, porque é a maior parte:** dos 56.288 nunca expostos,
 **46.280 — 82,2% — não passam o piso do próprio sistema.** Quem sustentar que a
 não-exposição é, em boa medida, filtragem correta de material irrelevante tem esses 82%
-a favor. O que a co-manchete estabelece é que **sobra** um décimo do corpus que o sistema
-marcou como relevante e nunca mostrou.
+a favor. O que a co-manchete estabelece é que **sobram 10.008 chunks — 14,9% do
+corpus** — que o sistema marcou como relevantes e nunca mostrou.
 
 ⚠️ **E a leitura tentadora desse número é falsa — a qualificação viaja com ele.** Dos
 10.008, **8.928 (89,2%) são `distilled`**: fragmentos de sessão de **232 caracteres** em
@@ -402,6 +411,12 @@ citado é sobre o corpus vivo, que é a população da qual se pode dizer "nunca
 
 
 ### 4.2 Resultado secundário: exposição correlaciona com tamanho de coleção
+
+⚠️ **"Exposto" aqui é a UNIÃO das duas superfícies** (`brief_log` ∪ `access_count > 0`),
+a mesma definição do §4.1 — e vale dizer porque a maior parte dela é **busca**, que o
+agente inicia. O gradiente abaixo descreve o que o agente **encontrou** somado ao que o
+sistema **entregou**; separar as duas contribuições por tipo exigiria atribuição que
+`brief_log` não registra.
 
 | tipo | exposto/total | % |
 |---|---|---|
@@ -512,26 +527,26 @@ prediz exposição; o tamanho da coleção prediz — com a ressalva, acima, de 
 pode ser proxy de como o tipo é produzido.
 
 **Figura 1** — `measurement/out/fig1-capacidade.svg`: dispersão `log₁₀(tamanho)` ×
-`% exposto`, um ponto por tipo com rótulo e as duas faixas (n ≥ 1.000 · n < 100)
-sombreadas, porque **a separação das duas nuvens é o achado** e precisa ser vista, não
-afirmada.
+`% exposto`, **um ponto para cada um dos 15 tipos**, com as duas faixas (n ≥ 1.000 ·
+n < 100) sombreadas e o trecho do eixo sem observação marcado. Gerada por
+`fig1-capacidade.py --dados out/SIZE-EXPOSURE-15-2026-08-29.json`, artefato travado.
 
-🔴 **A figura desenha 13 tipos, não 15** — ela é gerada sobre o artefato que já traz o
-filtro `HAVING total >= 10`, e os dois excluídos, `pending` e `procedure`, são
-**exatamente os que quebram a leitura de separação**, porque estão em zero. Uma figura
-que mostra separação limpa enquanto o texto ao lado declara que a separação limpa é
-falsa com os 15 é pior que nenhuma figura: o leitor acredita no que vê. Os dois pontos
-faltantes ficam declarados aqui, e a legenda da figura os nomeia.
+⚠️ **Três decisões de desenho, e as três são retratações de versões anteriores da
+figura.** (i) Ela era gerada sobre o artefato com `HAVING total >= 10` e mostrava **13**
+tipos — e os dois omitidos, `pending` e `procedure`, são exatamente os que estão em 0% e
+quebram a leitura de separação limpa. Uma figura que afirma visualmente o que o texto
+refuta é pior que figura nenhuma, porque o leitor acredita no que vê antes de ler a
+ressalva; **e uma ressalva colocada abaixo da figura não resolve, pela mesma razão.** O
+guarda em `fig1-capacidade.py` agora **recusa** o artefato filtrado. (ii) A **reta de
+regressão** saiu: ela atravessava 1,295 décadas sem um único ponto, o que é afirmar
+graficamente a continuidade que o §4.2 retira do texto. No lugar, o trecho vai
+sombreado e rotulado *sem observação*. (iii) Com os 15 tipos o Pearson da figura é
+**−0,334**, não −0,728 — a figura mostra o número frágil, que é o honesto, e o modelo
+binomial fica no texto.
 
-⚠️ **A legenda anterior dizia "a ausência de sobreposição é o achado", e essa frase é
-falsa com os 15 tipos** — `pending` e `procedure`, ambos em zero, fazem a faixa dos
-pequenos conter a dos grandes inteira. O que a figura mostra é mais fraco e é o que o
-texto acima afirma: nenhum tipo pequeno cai *dentro* da faixa dos grandes; eles estão
-acima dela ou em zero. ⚠️ **E a reta de regressão**, que a versão anterior traçava,
-atravessa 1,295 décadas sem um único ponto — desenhá-la é afirmar graficamente a
-continuidade que o §4.2 retira. Ou sai, ou vai marcada como interpolação em faixa vazia. Gerada por `fig1-capacidade.py --dados
-out/superficie.json` — derivada do artefato travado, então muda se o dado mudar;
-figura desenhada à mão seria prosa afirmando resultado calculado.
+**O que a figura mostra, então:** os 5 tipos grandes se apertam em **10,7–27,0%**,
+enquanto os 10 pequenos se espalham por **0–100%**. Não é separação; é **variância
+radicalmente maior no pequeno**, com a faixa dos pequenos contendo a dos grandes.
 
 ### 4.3 A superfície do brief é um carrossel de 201 itens
 
@@ -1140,7 +1155,7 @@ o achado. E o efeito não é só de quantidade: num dos estados o id que entra m
 ## 6. Defeitos de instrumento — e reportá-los é parte da contribuição
 
 A contribuição declarada (v) **é o método**, então omitir isto tiraria do paper uma das
-coisas que ele tem para dar. O catálogo integral tem **16** entradas e vive no Apêndice
+coisas que ele tem para dar. O catálogo integral tem **17** entradas e vive no Apêndice
 E. Aqui ficam as **oito que mudaram um número que este paper reporta** — porque sem elas o
 leitor não tem como auditar os números, e é esse o critério de corte, não o interesse da
 lição.
@@ -1167,9 +1182,9 @@ verificação e sobreviveu.** Não são erros de descuido — são erros em que 
 de verificação compartilhava a premissa errada do que verificava. Um controle positivo
 rodado sobre o pipeline reimplementado confirma o pipeline reimplementado; um censo de
 colunas mortas feito por `grep` herda a cegueira do `grep`. A defesa que funcionou, nas
-sete, foi a mesma: **reproduzir uma âncora publicada antes de variar qualquer coisa**.
+oito, foi a mesma: **reproduzir uma âncora publicada antes de variar qualquer coisa**.
 
-⚠️ E há uma assimetria que vale dizer: quatro dos sete foram achados porque um número
+⚠️ E há uma assimetria que vale dizer: quatro das oito foram achadas porque um número
 **bateu bem demais** — saturação exatamente no topo da banda registrada, dose absurda
 com efeito exatamente zero. Concordância suspeita foi um detector melhor que discordância.
 
@@ -1464,7 +1479,7 @@ versão citada. Hoje o último depósito é a v1.12, anterior a tudo isto.
 
 ## Apêndice E — Catálogo integral de defeitos de instrumento
 
-As sete do §6 mais as nove abaixo. A separação é por **consequência**, não por
+As oito do §6 mais as nove abaixo. A separação é por **consequência**, não por
 importância: estas não mudaram nenhum número reportado neste paper — o que não as torna
 menos transferíveis, e três delas são as lições que eu esperaria serem as mais úteis a
 terceiros.

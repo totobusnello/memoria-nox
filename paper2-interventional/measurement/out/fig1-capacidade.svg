@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 470" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11">
 <style>:root{--ink:#1a1a1a;--mut:#6b6b6b;--grid:#e3e3e3;--big:#b4472f;--small:#2f6bb4}@media (prefers-color-scheme:dark){:root{--ink:#eaeaea;--mut:#9a9a9a;--grid:#333;--big:#e08a70;--small:#79a9e0}}text{fill:var(--ink)}.mut{fill:var(--mut)}</style>
 <rect width="760" height="470" fill="transparent"/>
-<rect x="78" y="63.2" width="658" height="232.7" fill="var(--small)" opacity="0.10"/>
-<text x="732" y="182.6" text-anchor="end" fill="var(--small)" font-size="10">n &lt; 100: 32.5–100.0%</text>
+<rect x="78" y="63.2" width="658" height="344.8" fill="var(--small)" opacity="0.10"/>
+<text x="732" y="238.6" text-anchor="end" fill="var(--small)" font-size="10">n &lt; 100: 0.0–100.0%</text>
 <rect x="78" y="314.9" width="658" height="56.2" fill="var(--big)" opacity="0.10"/>
 <text x="732" y="346.0" text-anchor="end" fill="var(--big)" font-size="10">n ≥ 1.000: 10.7–27.0%</text>
 <line x1="78" y1="408.0" x2="736" y2="408.0" stroke="var(--grid)" stroke-width="1"/>
@@ -51,8 +51,12 @@
 <text x="119.9" y="202.1" text-anchor="middle" font-size="10">person</text>
 <circle cx="102.1" cy="282.5" r="4.5" fill="var(--small)"/>
 <text x="102.1" y="273.5" text-anchor="middle" font-size="10">decision</text>
+<circle cx="57.3" cy="408.0" r="4.5" fill="var(--small)"/>
+<text x="57.3" y="399.0" text-anchor="middle" font-size="10">pending</text>
+<circle cx="6.1" cy="408.0" r="4.5" fill="var(--small)"/>
+<text x="6.1" y="399.0" text-anchor="middle" font-size="10">procedure</text>
 <text x="78" y="20" font-size="13" font-weight="600">Exposição é governada pelo tamanho da coleção, não pela curadoria</text>
-<text x="78" y="36" class="mut">Pearson r = -0.728 · r² = 0.530 · n = 13 tipos · as duas faixas não se sobrepõem</text>
+<text x="78" y="36" class="mut">Pearson r = -0.334 · r² = 0.112 · n = 15 tipos · as duas faixas não se sobrepõem</text>
 <text x="407" y="444" text-anchor="middle" class="mut">chunks no tipo (escala log)</text>
 <text x="16" y="227" class="mut" transform="rotate(-90 16 227)" text-anchor="middle">% exposto em alguma superfície</text>
 </svg>

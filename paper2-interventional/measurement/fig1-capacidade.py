@@ -38,6 +38,27 @@ def main():
     with open(a.dados) as f:
         tipos = json.load(f)["gradiente_de_curadoria"]
 
+    # ⚠️ GUARDA: recusar o artefato FILTRADO. `superficie-de-exposicao.py:124` aplica
+    # `HAVING total >= 10`, e os dois tipos que ele remove — `pending` (n=6) e
+    # `procedure` (n=3) — estão ambos em 0% de exposição, ou seja, são exatamente os
+    # contraexemplos da leitura "os pequenos são muito expostos". Desenhar sobre os 13
+    # produz uma figura que AFIRMA VISUALMENTE o que o texto do §4.2 refuta, e o leitor
+    # acredita no que vê antes de ler a ressalva. Achado de revisão adversarial, 29/08.
+    if len(tipos) < 15:
+        raise SystemExit(
+            f"⛔ o artefato traz {len(tipos)} tipos; a figura exige os 15 sem filtro. "
+            f"Use `out/SIZE-EXPOSURE-15-*.json`, não `measurement/out/superficie.json` "
+            f"— este último é filtrado por `HAVING total >= 10` e omite justamente os "
+            f"dois tipos em 0%."
+        )
+    zeros = [t["tipo"] for t in tipos if t["pct"] == 0]
+    if not zeros:
+        raise SystemExit(
+            "⛔ nenhum tipo com 0% de exposição no artefato — ou o corpus mudou, ou "
+            "o filtro voltou por outro caminho. A figura não pode ser desenhada sem "
+            "os contraexemplos."
+        )
+
     xs = [math.log10(t["total"]) for t in tipos]
     ys = [t["pct"] for t in tipos]
     r, (mx, my, b) = pearson(xs, ys)

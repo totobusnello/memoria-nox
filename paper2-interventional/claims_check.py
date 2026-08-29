@@ -890,6 +890,61 @@ CV2_LOCKED = 0.3833
 ALLOCATION_LOCKED = {"control": 117, "w2": 39, "w4": 39, "w7.5": 39}
 
 
+def catalogo_check(root: Path) -> list[str]:
+    """Conta as duas tabelas do catálogo de defeitos e trava as menções ao total.
+
+    ⚠️ Achado de revisão adversarial (Grok, 29/08): o texto dizia "16 defeitos, sete
+    deles alterando um número" em cinco lugares, enquanto a tabela do §6 já tinha
+    **oito** linhas e o Apêndice E, nove — 17 no total. Uma entrada foi acrescentada
+    sem que os contadores acompanhassem, que é o destino de toda contagem escrita à
+    mão num documento vivo.
+
+    Este guarda conta as linhas e exige que o texto concorde. É o tipo de verificação
+    que não precisa de artefato: a fonte da verdade é o próprio documento.
+    """
+    doc = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+
+    def linhas_de(inicio: str, fim: str) -> int:
+        # ⚠️ `fim` procurado A PARTIR de `inicio`: buscá-lo do começo do documento
+        # devolve a primeira ocorrência do delimitador, que está ANTES da seção, e o
+        # guarda passa a reportar contagem negativa como se fosse divergência do
+        # texto. Foi o que aconteceu na primeira versão, e o diagnóstico apontava
+        # para o lugar errado.
+        i = doc.find(inicio)
+        j = doc.find(fim, i + len(inicio)) if i >= 0 else -1
+        if i < 0 or j <= i:
+            return -1
+        return len([l for l in doc[i:j].splitlines()
+                    if l.startswith("|") and not l.startswith("|---")
+                    and "| número que ele mudou" not in l])
+
+    n6 = linhas_de("## 6. Defeitos", "### 6.1")
+    nE = linhas_de("As oito do §6 mais as nove abaixo", "\n## ") - 1  # menos o cabeçalho
+    if n6 < 0:
+        return ["§6: não encontrei os limites da tabela de defeitos"]
+    total = n6 + nE
+    por_extenso = {7: "sete", 8: "oito", 9: "nove", 10: "dez"}
+    e6, eE = por_extenso.get(n6, str(n6)), por_extenso.get(nE, str(nE))
+    fails = []
+    for padrao, rotulo in (
+        (rf"\*\*{total} defeitos que nós cometemos\*\*, {e6} deles", "§1: total e subtotal"),
+        (rf"catálogo integral tem \*\*{total}\*\* entradas", "§6: catálogo integral"),
+        (rf"as \*\*{e6} que mudaram um número", "§6: subtotal na abertura"),
+        # ⚠️ o `**` fecha DEPOIS da frase, não depois do numeral — o padrão anterior
+        # exigia `as **oito** que`, e o texto escreve `as **oito que mudaram ...**`.
+        # Guarda com âncora errada não morde e não avisa: some do relatório.
+        (rf"O padrão que atravessa as {e6},", "§6: 'atravessa as N'"),
+        (rf"As {e6} do §6 mais as {eE} abaixo", "Apêndice E: a soma"),
+    ):
+        if not re.search(padrao, doc):
+            fails.append(
+                f"{rotulo} — a tabela do §6 tem {n6} entradas e o Apêndice E tem {nE} "
+                f"({total} no total), e /{padrao}/ não casa. Contagem escrita à mão "
+                f"desincronizou da tabela."
+            )
+    return fails
+
+
 def registro_check(root: Path) -> list[str]:
     """Toda função `*_check` do arquivo tem de estar registrada no `main()`.
 
@@ -1200,6 +1255,23 @@ def coorte_check(root: Path) -> list[str]:
             f"ao seu rótulo; texto e artefato divergiram"
         )
 
+    # (4d) a fração do CORPUS que os elegíveis-invisíveis representam. Recomputada:
+    #      uma versão do texto escrevia "um décimo", e são 14,9% — arredondamento
+    #      para baixo que fazia o achado parecer menor do que é.
+    # ⚠️ `fk` NÃO serve aqui: ele está ligado ao laço da tabela de coortes acima e
+    # vale 52.432. Terceira vez em um dia que escrevo um guarda sobre variável
+    # ligada noutro escopo — o diagnóstico saiu com o número errado e apontou para
+    # o lugar errado. Expressão direta.
+    nfk = f"{d['condicionado_ao_piso']['nunca_expostos']:,}".replace(",", ".")
+    frac = f"{100 * d['condicionado_ao_piso']['nunca_expostos'] / d['corpus']:.1f}"
+    frac = frac.replace(".", ",")
+    if not re.search(rf"\*\*sobram {nfk} chunks — {re.escape(frac)}% do\s*\n?corpus\*\*",
+                     texto):
+        fails.append(
+            f"§4.1: a fração do corpus recomputa {frac}% de {nfk} chunks — não casa "
+            f"ancorada ao rótulo; 'um décimo' foi a forma errada desse número"
+        )
+
     # (4) o número condicionado ao piso, que virou co-manchete do título
     # ⚠️ O número aparece DUAS vezes — no título do §4.1 e no parágrafo que o deriva —
     # e `f"{pf}%" in texto` foi satisfeito pela outra quando a mutação alterou só uma
@@ -1363,6 +1435,7 @@ def main() -> int:
     failures.extend(superficie_check(Path(args.root)))
     failures.extend(cobertura_check(Path(args.root)))
     failures.extend(registro_check(Path(args.root)))
+    failures.extend(catalogo_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)
