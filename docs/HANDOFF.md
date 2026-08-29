@@ -23,9 +23,28 @@ alegou oito edições que **não foram aplicadas** — o script abortou no prime
 
 ### ▶️ ESTADO / PRÓXIMO PASSO
 
-**Rodando agora:** duas revisões adversariais em paralelo, alvos disjuntos — DeepSeek sobre
-o §4.3.1 substituído e a refutação, GLM sobre §5.7/§5.7.1 (granularidade e sensibilidade da
-designação). Esperar os dois antes de mexer no manuscrito.
+**Voltaram e foram aplicadas:** DeepSeek (§4.3.1 e a refutação), GLM (§5.7/§5.7.1) e Kimi
+(5 itens sobre o §4.1/§4.2). Da rodada do Kimi saíram quatro mudanças, e duas delas são
+**retiradas de alegação**, não correções de número:
+
+| o quê | onde |
+|---|---|
+| coorte por idade — a censura temporal **desinfla**, não infla (a coorte com oportunidade máxima é a mais não-exposta, 85,50% × 83,78%) | §4.1, `exposicao-por-coorte.py` |
+| co-manchete nova: **10.008 = 74,75%** dos que passam o piso do próprio sistema nunca foram expostos | §4.1 |
+| ⛔ retirada: `×0,38 por década de tamanho` — o eixo tem **zero** tipos entre n=53 e n=1.046 (32,1% da amplitude vazia) | §4.2, `lacuna-no-eixo-de-tamanho.py` |
+| ⛔ retirada: "o teste separa curadoria de tamanho" — não separa, e nenhuma variável do corpus mede curadoria | §4.2 |
+
+Mais 13 substituições lexicais (item 5) e a correção de um erro de atribuição que
+sobreviveu a três revisões: "205 caracteres" era a média de **todos** os 14.456
+`distilled`, não a dos 8.928 que a frase nomeia (**232**). Veio de consulta *ad hoc* de
+27/08 sem artefato, e só apareceu ao virar script. Os três desvios estão registrados em
+`DEVIATIONS-FOR-PAPER.md §7`.
+
+**Rodando agora:** Grok e Codex sobre o manuscrito **consolidado** — as duas vozes que
+nunca leram este paper, e ninguém leu a versão que existe depois das mudanças de hoje.
+Grok ataca o argumento (com varredura de eco das alegações retiradas); Codex ataca a
+máquina de verificação (alegação sem guarda, guarda que não pode morder, guarda satisfeito
+por ocorrência coincidente).
 
 **Depois delas:** aplicar o que sobreviver e, então, o depósito do Paper A — que **exige
 aprovação explícita do Toto** e resolver o número de versão pelo estado do Zenodo, nunca

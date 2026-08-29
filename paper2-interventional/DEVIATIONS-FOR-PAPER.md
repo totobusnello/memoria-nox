@@ -182,6 +182,32 @@ Toda medição citada precisa de **`T_REF` + caminho do snapshot de corpus + jan
 fechada**, e de reprodução de âncora publicada antes de variar qualquer coisa. Sem os
 três, a tabela envelhece para falsa — foi o que aconteceu duas vezes aqui.
 
+### 7. Alegações retiradas em 2026-08-29, e por quê
+
+Três, todas no Paper A (o diagnóstico observacional), todas achadas por revisão
+adversarial ou por recomputar o que estava em prosa. **Nenhuma foi retirada por ter sido
+refutada por dado novo** — as três foram retiradas por *não estarem estabelecidas pelo
+dado que existia*, que é uma classe diferente e mais incômoda.
+
+| alegação retirada | por quê | o que ficou no lugar |
+|---|---|---|
+| `β = −0,961 ⇒ ×0,38 por década de tamanho` | o eixo de tamanho tem um vazio: **zero** tipos entre n=53 e n=1.046, 32,1% da amplitude sem um único ponto. "Por década" convida à leitura pontual numa faixa sem observação | o contraste entre as duas nuvens — 5 tipos grandes em 10,7–27,0%, 8 dos 10 pequenos acima de 32,5% |
+| "o teste **separa** curadoria de tamanho" (§4.2) | não separa. As parciais controlam idade, importância média e comprimento de texto; **nenhuma é curadoria**, e o corpus não tem variável que a meça | declaração explícita de que os dois seguem confundidos por construção |
+| "8.928 fragmentos de sessão de **205** caracteres" | os 205 são a média de **todos os 14.456 `distilled` do corpus**, não a dos 8.928 que a frase nomeia — que é **232**. Número certo, população errada | o número do subconjunto, com a população nomeada e artefato |
+
+⚠️ **A terceira merece nota de método**, porque é a que o paper descreve acontecendo com
+outros: a frase vinha de consulta *ad hoc* de 27/08 que não deixou artefato, e sobreviveu
+a três revisões adversariais — nenhuma das quais tinha como recomputá-la. Só apareceu
+quando o número virou script, dois dias depois, por outro motivo. **Prosa que afirma
+resultado calculado é cache sem invalidação**, e a demonstração é esta.
+
+Em contrapartida, uma alegação foi **promovida** no mesmo dia, e o desvio é simétrico:
+"dos 13.388 chunks que passam o piso de relevância do próprio sistema, 10.008 = 74,75%
+nunca foram expostos" estava enterrada num aviso e virou co-manchete do §4.1. A objeção
+que a motivou (a taxa é incondicional; chunks jovens não tiveram oportunidade) foi medida
+e **aponta para o lado oposto**: a coorte com oportunidade máxima é a mais não-exposta.
+Corrigir pela censura temporal aumentaria a taxa reportada.
+
 ## Se a decisão mudar
 
 A máquina do depósito está pronta e **não executada**: `deposit/PLAN-v1.13.md` e
