@@ -12,7 +12,7 @@
 **Tese.** A não-exposição deste sistema é resultado de política, não de capacidade:
 83,78% do corpus vivo nunca chegou ao agente; o brief entregou 8,7× o corpus em slots e
 cobriu 2,66% (325 slots por chunk distinto); a renovação é governada por **tamanho de
-coleção** e por **calendário de ingestão**, não por curadoria; e o mecanismo que poderia
+coleção** e por **padrões de caminho que recortam 0,16% do corpus**, não por curadoria; e o mecanismo que poderia
 corrigir isso tem teto de 4,86% dos briefs — teto que é, em boa medida, fato sobre a
 **resolução de um campo de texto**.
 
@@ -64,3 +64,14 @@ precisa do painel além de uma frase e um ponteiro.
 
 Veículo, ordem de submissão e se o Paper B reaproveita o texto de método do A. Nada disso
 bloqueia o depósito, e decidir agora seria decidir sem informação.
+
+## ⚠️ Atualização 2026-08-29 — a predição do §4.3.1 foi REFUTADA e a seção substituída
+
+O gate saiu `exit 1`. Dois sub-pools de cobertura, não um: por agente (`sessions/%`, 7 d) e
+global (`entities/%` + `lessons.md`, 30 d). A retrodição era do primeiro, a predição do
+segundo. O §4.3.1 foi reescrito em torno do que a investigação achou — pool elegível de
+**108 de 67.187 (0,161%)**, **esgotado 100% todo dia**, 12,4 slots por candidato — e a
+tese do Paper A acima foi atualizada para refletir isso. Ver `PREDICTION-2026-08-29.md`.
+
+O depósito continua condicionado à aprovação do Toto; o bloqueio técnico do gate está
+resolvido, mas por substituição, não por confirmação.
