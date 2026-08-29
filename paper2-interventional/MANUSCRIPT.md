@@ -1,4 +1,13 @@
-# Spare capacity, starved coverage: what a production agent-memory system actually surfaces
+# Spare capacity, narrow surface: what a production agent-memory system actually surfaces
+
+> 🔴 **O título mudou em 2026-08-29, e a razão é do próprio paper.** Ele era *"Spare
+> capacity, **starved coverage**"*, e revisão adversarial apontou duas falhas na
+> metáfora. Primeira: o canal de cobertura **não** passa fome — ele esgota o pool
+> elegível a 100% todo dia (§4.3.1); faminto é o corpus, não a cobertura, de modo que a
+> imagem invertia o mecanismo descrito no corpo. Segunda: *starved* é normativo, e o
+> §4.5 recusa explicitamente esse julgamento — "um leitor que conclua 'o sistema está
+> perdendo informação valiosa' foi além do que se mediu". Um subtítulo não pode vender a
+> conclusão que o corpo declina.
 
 > 🟡 **ESQUELETO, 2026-08-27.** Primeira versão do manuscrito do Paper 2, escrita
 > depois do reframe. **Regra deste arquivo:** onde há número, ele vem de artefato
@@ -334,7 +343,8 @@ complementar tem de ser dito, porque é a maior parte:** dos 56.288 nunca expost
 **46.280 — 82,2% — não passam nem esse piso.** Quem sustentar que a
 não-exposição é, em boa medida, filtragem correta de material irrelevante tem esses 82%
 a favor. O que a co-manchete estabelece é que **sobram 10.008 chunks — 14,9% do
-corpus** — que o sistema marcou como relevantes e nunca mostrou.
+corpus** — que o canal de cobertura consideraria elegíveis e que nenhuma superfície
+jamais mostrou.
 
 ⚠️ **E a leitura tentadora desse número é falsa — a qualificação viaja com ele.** Dos
 10.008, **8.928 (89,2%) são `distilled`**: fragmentos de sessão de **232 caracteres** em
@@ -519,7 +529,17 @@ está aqui como limite, não como defesa.
 **E o confundidor idade não explica o achado.** Tipos grandes são, de fato, mais velhos
 (`r(log n, idade) = +0,41`), mas a parcial controlando idade fica em **−0,709** — quase
 inalterada. Restringindo aos 9 tipos com idade média ≥ 70 dias, onde a idade é
-aproximadamente constante, a relação **fortalece**: `r = −0,843`, ρ = −0,883. O mesmo
+aproximadamente constante, a relação **fortalece**: `r = −0,843`, ρ = −0,883.
+
+🔴 **Estas parciais são sobre os 13 tipos filtrados, e por isso herdam a fragilidade que
+o parágrafo anterior acabou de estabelecer.** "Quase inalterada" é em relação a −0,728,
+que é o Pearson **com** o filtro; o Pearson dos 15 é −0,334, e contra ele −0,709 não
+seria "quase inalterado" — seria o dobro. Os "9 tipos com idade ≥ 70 dias" também são 9
+dos 13. ⚠️ Uma versão anterior desta seção trazia estas parciais sem dizer sobre qual
+conjunto foram computadas, imediatamente depois de demover o −0,728 por fragilidade ao
+filtro — órfãs de um número que a própria seção já tinha retirado. **O que elas
+estabelecem, então, é limitado: que dentro do recorte filtrado a idade não explica o
+gradiente.** Não são evidência sobre os 15. O mesmo
 vale para importância média (parcial −0,685) e para o tamanho do texto (−0,732).
 
 🔴 **E o confundidor que sobra depois da idade é o que impede a conclusão forte.** O
@@ -707,7 +727,17 @@ hoje.** O topo do brief é determinado pelo tráfego de busca de meses atrás �
 
 Recomputando a salience dos 149 chunks servidos na janela com o componente de acesso em
 zero (`measurement/contrafactual-do-topo.py`, `out/TOP-COUNTERFACTUAL-2026-08-29.json`),
-os três **saem do top-10 e caem para além da centésima posição**. ⚠️ A objeção que
+os três **saem do top-10 e caem para além da centésima posição**.
+
+⚠️ **A população do contrafactual são os 149 já servidos, e a escolha precisa de
+justificativa porque o conjunto é definido pelo score original** — objeção levantada em
+revisão adversarial, e correta em forma. A escolha é **conservadora**, por um argumento
+que não depende de medição: recomputar sobre um pool maior só pode acrescentar
+competidores, e acrescentar competidores nunca melhora a posição de ninguém. Logo
+128–131 é um **limite inferior** para a queda — sobre o pool completo os três cairiam
+igual ou mais. Quanto mais, não medimos, e fica declarado.
+
+⚠️ A objeção que
 motivou esta medição — levantada em revisão adversarial — era que `pain = 1,00` e
 `importance = 0,80` poderiam bastar para pô-los no topo, tornando o acesso irrelevante e
 a palavra "determinado" forte demais. **A objeção era procedente em forma e falsa em
@@ -1189,7 +1219,7 @@ o achado. E o efeito não é só de quantidade: num dos estados o id que entra m
 
 ## 6. Defeitos de instrumento — e reportá-los é parte da contribuição
 
-A contribuição declarada (v) **é o método**, então omitir isto tiraria do paper uma das
+A contribuição declarada (iii) **é o método**, então omitir isto tiraria do paper uma das
 coisas que ele tem para dar. O catálogo integral tem **17** entradas e vive no Apêndice
 E. Aqui ficam as **oito que mudaram um número que este paper reporta** — porque sem elas o
 leitor não tem como auditar os números, e é esse o critério de corte, não o interesse da
@@ -1541,7 +1571,7 @@ Feito em 28/08, salvo indicação:
 ✅ **quebra de regime de 21–22/08** — explicada (§4.3.1), com predição datada para 29/08.
 ✅ **S2** — decidido pela medição: substantivas em `≥ S1` (κ 0,87–0,93), a divisão S1/S2
 vira achado de instrumento (κ 0,31–0,53). Desvio declarado no Apêndice A.
-✅ **catálogo de defeitos** — 7 no corpo (as que mudaram número reportado), 16 no
+✅ **catálogo de defeitos** — 8 no corpo (as que mudaram número reportado), 9 no
 Apêndice E. Sem paper de métodos separado.
 
 Falta:
