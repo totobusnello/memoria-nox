@@ -38,9 +38,9 @@ sobe. Os 3 chunks presentes em **100%** dos 4.632 briefs da semana foram acessad
 última vez há 90, 30 e 42 dias: o topo do brief é um **fóssil do tráfego de busca de
 meses atrás**, e o top-10 leva **47,16%** dos slots. Os outros 2 slots são um canal de
 *cobertura*, que existe para dar chance ao nunca-servido — e **congela** por outra razão:
-alimentado por lotes de ingestão com janela de 7 dias, passou **cinco dias seguidos**
-servindo zero itens novos, com a idade mínima do que serviu subindo exatamente +1,00 por
-dia. O canal que responderia a um ajuste de score é o que ninguém ajusta; o desenhado
+sua população elegível é de **108 chunks num corpus de 67.187** — 0,16%, recortados por
+dois padrões de caminho — e ele a esgota **inteira, todo dia**, com 12,4 slots por
+candidato. Não sobra nunca-servido para dar chance a. O canal que responderia a um ajuste de score é o que ninguém ajusta; o desenhado
 para corrigir o outro é o que não responde a score.
 
 O mecanismo do canal de cobertura é **dedutível do código**. Ele ordena por um comparador
@@ -157,14 +157,15 @@ busca é iniciada pelo agente, e responde por 9.755 dos 10.899 chunks já expost
   era a hipótese com que este trabalho começou, e a medição a contradiz:** a superfície
   não é pequena — é 8,7× o corpus. O que importa é o que sobra depois disso: uma
   superfície com folga entrega 2,66%, e o canal que existiria para corrigir isso é
-  governado por calendário de ingestão e por uma ordem lexicográfica em que o score não
-  decide. Se outros sistemas têm essa forma é pergunta em aberto — não uma alegação
+  governado por dois padrões de caminho que enxergam 0,16% do corpus, e por uma ordem
+  lexicográfica em que o score não decide. Se outros sistemas têm essa forma é pergunta em aberto — não uma alegação
   deste paper — e o diagnóstico publicado existe para que seja respondida.
 - **Contribuições.** (i) a medição da superfície de exposição de um sistema de memória
   de agente **em produção**, com o resultado de que a capacidade excede o corpus em 8,7×
   e mesmo assim 83,78% nunca é exposto; (ii) a localização do gargalo no **canal de
-  cobertura**, com os dois mecanismos que o congelam — janela de 7 dias sobre ingestão
-  em lotes, e ordem lexicográfica que rebaixa o score a coordenada subordinada; (iii)
+  cobertura**, com os dois mecanismos que o congelam — uma população elegível de **108
+  chunks (0,16% do corpus)**, recortada por padrões de caminho, e ordem lexicográfica que
+  rebaixa o score a coordenada subordinada; (iii)
   uma predição **dedutiva** de teto para bônus aditivos nesse canal, testada com
   dose-resposta e replay fiel; (iv) o **diagnóstico executável** (`measurement/`), para
   que a medição seja reproduzível em outro sistema.
@@ -569,7 +570,7 @@ opostos e nenhum deles ligado a capacidade:
 | canal | slots | por que congela | responde a ajuste de score? |
 |---|---|---|---|
 | pool principal | 8 | score determinístico com componente **monótono e sem decaimento** | **sim** — e ninguém ajusta |
-| cobertura | 2 | janela de 7 dias sobre ingestão em lotes; ordem **lexicográfica** | **não** — teto de 4,86% (§5) |
+| cobertura | 2 | população elegível de **108 chunks** (0,16% do corpus), esgotada 100% por dia; ordem **lexicográfica** | **não** — teto de 4,86% (§5) |
 
 O canal que *poderia* ser corrigido por score é o que ninguém corrige; o que foi
 desenhado para corrigir o outro é o que não responde a score. É por isso que a folga de
@@ -1016,10 +1017,12 @@ com efeito exatamente zero. Concordância suspeita foi um detector melhor que di
   leitura individual — entram só no teste de correlação;
 - `access_count` é "exposto alguma vez", sem histórico por evento;
 - ~~a diversidade de cobertura por dia tem quebra de regime em 21–22/08, ainda sem
-  explicação~~ → **explicada** (§4.3.1): não é quebra, é canal alimentado a lotes com
-  janela de 7 dias. Vira **limite declarado**, não ameaça aberta: qualquer desfecho
-  construído sobre diversidade diária é não-estacionário por dependência do calendário
-  de ingestão, e uma janela que não contenha um lote mede zero por construção;
+  explicação~~ → **explicada** (§4.3.1), e a primeira explicação que demos foi **refutada
+  por predição datada** antes de chegar ao depósito (§6). Não é quebra de regime: o pool
+  elegível tem 108 chunks e é esgotado 100% por dia, então a diversidade diária mede
+  **quando entrou material novo dentro dos padrões**, não rotação. Vira limite declarado:
+  desfecho construído sobre diversidade diária é não-estacionário por dependência do
+  calendário de ingestão, e uma janela sem ingestão nova mede zero por construção;
 - a intervenção correu em modo **shadow**: o contrafactual é observado, mas nada foi
   servido tratado. Toda taxa é **taxa de oportunidade**, não efeito.
 
@@ -1131,11 +1134,12 @@ impossível; medida a folga, é um pedido de **desenho**.
 concentrar, e servir uniformemente destruiria o valor dela. O que decorre é que a
 fronteira entre "o que o agente vê" e "o que existe" foi **escolhida**, quase sempre sem
 que ninguém a escolhesse explicitamente — `freshSlots = 2` é default de configuração sem
-override, e `freshMaxAgeDays = 7` interage com o calendário de ingestão de um jeito que
-nenhum documento de desenho previu.
+override, e os dois padrões de `GLOBAL_FRESH_PATTERNS` recortam 0,16% do corpus de um
+jeito que nenhum documento de desenho previu.
 
 **Segunda: os dois canais congelam, e a assimetria entre eles é o achado.** O de
-cobertura — 2 dos 10 slots — falha por calendário (cinco dias servindo zero itens novos)
+cobertura — 2 dos 10 slots — falha por **população**: 108 elegíveis num corpus de 67.187,
+com zero nunca-servidos restando e 12,4 slots por candidato
 e por ser **estruturalmente surdo ao score**, com **teto analítico** de 4,86% derivável
 do código antes de qualquer experimento. O pool principal — os outros 8 — falha pelo
 motivo contrário: ali o score **é** a coordenada dominante, e três dos seus quatro termos
