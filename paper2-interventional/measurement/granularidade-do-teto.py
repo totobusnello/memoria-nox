@@ -177,34 +177,49 @@ def main():
         for spec in a.diag:
             rot, caminho, d = carrega(spec)
             dd[rot] = {x["ts"]: x for x in d["dose"]["detalhe"]}
-        alvo = sorted({t for p in aninh for t in p["estados_perdidos"]})
-        for ts in alvo:
-            linha = {}
-            for rot in ORDEM:
-                x = dd.get(rot, {}).get(ts)
-                if x is None:
+        # ⚠️ Esta classificação já esteve ERRADA, e o erro é instrutivo: a versão
+        # anterior juntava `would_enter` de TODAS as granularidades e testava contra o
+        # controle da granularidade corrente (`for g in ORDEM for c in ...`). Isso
+        # cruza braços que não se comparam e transforma a taxonomia numa heurística
+        # com cara de medição. Achado por revisão adversarial em 2026-08-29.
+        #
+        # A pergunta correta é por TRANSIÇÃO, não por granularidade: o estado deixou
+        # de mexer indo de `a` (fina) para `b` (grossa). O id que entrava em `a` está
+        # no CONTROLE de `b`? Se está, a fusão o promoveu sozinho ⇒ redundância. Se
+        # não está e mesmo assim o churn zerou, o estrato dele saiu de alcance ⇒
+        # inalcançabilidade. Só `a` e `b` entram na conta.
+        for par in aninh:
+            a_, b_ = par["de"], par["para"]
+            for ts in par["estados_perdidos"]:
+                xa, xb = dd.get(a_, {}).get(ts), dd.get(b_, {}).get(ts)
+                if xa is None or xb is None:
+                    diag[ts] = {"transicao": f"{a_}→{b_}",
+                                "mecanismo": "NAO CLASSIFICADO — falta o estado "
+                                             "replayado em uma das duas granularidades"}
                     continue
-                ctl = set(x.get("ids_controle_replay") or [])
-                entra = x.get("would_enter") or []
-                linha[rot] = {
-                    "churn": x.get("churn"),
-                    "would_enter": entra,
-                    "would_leave": x.get("would_leave"),
-                    "designado_ja_no_controle": sorted(
-                        c for g in ORDEM for c in (dd.get(g, {}).get(ts, {}).get("would_enter") or [])
-                        if c in ctl),
+                entrou_em_a = list(xa.get("would_enter") or [])
+                ctl_b = set(xb.get("ids_controle_replay") or [])
+                promovidos = sorted(c for c in entrou_em_a if c in ctl_b)
+                if not ctl_b:
+                    mec = ("NAO CLASSIFICADO — o controle de %s não foi registrado, "
+                           "e sem ele redundância e inalcançabilidade são "
+                           "indistinguíveis" % b_)
+                elif promovidos:
+                    mec = ("redundancia — o designado que entrava em %s já está no "
+                           "CONTROLE de %s" % (a_, b_))
+                else:
+                    mec = ("inalcancabilidade — o designado que entrava em %s NÃO está "
+                           "no controle de %s e ainda assim o churn zerou: o estrato "
+                           "saiu de alcance (Proposição 1)" % (a_, b_))
+                diag[ts] = {
+                    "transicao": f"{a_}→{b_}",
+                    a_: {"churn": xa.get("churn"), "would_enter": entrou_em_a,
+                         "would_leave": xa.get("would_leave")},
+                    b_: {"churn": xb.get("churn"),
+                         "controle_registrado": bool(ctl_b)},
+                    "entrou_em_%s_e_esta_no_controle_de_%s" % (a_, b_): promovidos,
+                    "mecanismo": mec,
                 }
-            # classificação: se em alguma granularidade grosseira o id que entrava
-            # numa mais fina aparece NO CONTROLE, a intervenção virou redundante;
-            # se nunca aparece e mesmo assim o churn zera, ficou inalcançável.
-            virou_controle = any(v["designado_ja_no_controle"] for v in linha.values())
-            diag[ts] = {
-                "por_granularidade": linha,
-                "mecanismo": "redundancia — a fusão promoveu o designado no CONTROLE"
-                             if virou_controle else
-                             "inalcancabilidade — o estrato inteiro desceu abaixo do corte "
-                             "e o bônus não atravessa estrato (Proposição 1)",
-            }
 
     saida = {
         "gerado_por": "measurement/granularidade-do-teto.py",
@@ -228,10 +243,7 @@ def main():
         print(f"  {p['de']:>4} → {p['para']:<5} +{p['ganhos']:<4} −{p['perdas']}"
               + (f"  {p['estados_perdidos']}" if p["perdas"] else ""))
     for ts, v in diag.items():
-        print(f"\n  {ts}: {v['mecanismo']}")
-        for g, x in v["por_granularidade"].items():
-            print(f"     {g:5} churn={x['churn']} entra={x['would_enter']} "
-                  f"sai={x['would_leave']} já-no-controle={x['designado_ja_no_controle']}")
+        print(f"\n  {ts} [{v.get('transicao','?')}]: {v['mecanismo']}")
 
     if a.out:
         json.dump(saida, open(a.out, "w"), indent=2, ensure_ascii=False)

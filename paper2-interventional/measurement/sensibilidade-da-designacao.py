@@ -123,6 +123,22 @@ def analisar(a):
                        "designacao_sha256": pr["designacao_sha256"],
                        "estados_em_comum_com_a_publicada": len(est & estados_pub)})
 
+    # ── guarda: a simetria que faltava ─────────────────────────────────────
+    # A checagem acima é resultado→manifesto: toda rodada tem de vir de uma designação
+    # declarada. Ela NÃO impedia o inverso — gerar k=20, rodar replay só nas 8
+    # convenientes e omitir as outras 12 passava ileso, e "todas as oito são
+    # reportadas" seria verdade sobre as oito sem dizer que só oito existiram.
+    # Apontado por revisão adversarial em 2026-08-29. O guarda agora exige
+    # manifesto→resultado também: toda designação declarada precisa ter rodado.
+    vistos = {l["designacao_sha256"] for l in linhas[1:]}
+    faltando = [m for m in man["designacoes"] if m["sha256"] not in vistos]
+    if faltando:
+        raise SystemExit(
+            "MANIFESTO declara %d designação(ões) sem resultado correspondente: %s. "
+            "Reportar só as que rodaram é seleção pós-hoc com aparência de censo — ou "
+            "rode todas, ou regenere o manifesto com o k que de fato foi usado."
+            % (len(faltando), ", ".join(m["arquivo"] for m in faltando)))
+
     vs = [l["mexeu"] for l in linhas[1:]]
     vs_ord = sorted(vs)
     n = len(vs)
@@ -140,6 +156,11 @@ def analisar(a):
         "posto_da_publicada": todos.index(base["mexeu"]) + 1,
         "de_quantas": len(todos),
         "publicada_e_o_minimo": base["mexeu"] == min(todos),
+        # ⚠️ empatar no mínimo não é ser "a menor". Escrever "a menor das nove" quando
+        # uma alternativa dá o mesmo valor é afirmar unicidade que o dado não tem.
+        "alternativas_que_empatam_no_minimo": sum(1 for v in vs if v == min(todos)),
+        "publicada_e_o_UNICO_minimo": base["mexeu"] == min(todos)
+                                      and sum(1 for v in vs if v == min(todos)) == 0,
         "teto_pct": {l["rotulo"]: round(100 * l["mexeu"] / l["estados"], 2) for l in linhas},
         "linhas": linhas,
     }
@@ -151,8 +172,12 @@ def analisar(a):
           f"média={saida['media_das_alternativas']}  |  publicada={base['mexeu']} "
           f"(posto {saida['posto_da_publicada']} de {saida['de_quantas']})")
     if saida["publicada_e_o_minimo"]:
-        print(f"⚠️ a designação publicada é a MENOR das {saida['de_quantas']} — reportar o "
-              f"teto dela como 'o teto' subestima o que a mesma regra produz em média.")
+        emp = saida["alternativas_que_empatam_no_minimo"]
+        print(f"⚠️ a designação publicada está no MÍNIMO das {saida['de_quantas']}"
+              + (f" (empatada com {emp} alternativa(s))" if emp else " (única)")
+              + " — reportar o teto dela como 'o teto' descreve o extremo, não a regra.")
+        print(f"   ⚠️ com {n} alternativas, P(posto 1) ≈ {1/(n+1):.0%} sob permutação: "
+              f"isto NÃO estabelece que a publicada seja atípica.")
     if a.out:
         json.dump(saida, open(a.out, "w"), indent=2, ensure_ascii=False)
         print(f"→ {a.out}")

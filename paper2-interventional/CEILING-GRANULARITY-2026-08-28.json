@@ -87,104 +87,66 @@
   "conjuntos_aninhados": false,
   "diagnostico_dos_perdidos": {
     "2026-08-26T20:52:04.856Z": {
-      "por_granularidade": {
-        "seg": {
-          "churn": 1,
-          "would_enter": [
-            308216
-          ],
-          "would_leave": [
-            308246
-          ],
-          "designado_ja_no_controle": []
-        },
-        "min": {
-          "churn": 0,
-          "would_enter": [],
-          "would_leave": [],
-          "designado_ja_no_controle": [
-            308216
-          ]
-        },
-        "hora": {
-          "churn": 0,
-          "would_enter": [],
-          "would_leave": [],
-          "designado_ja_no_controle": [
-            308216
-          ]
-        }
+      "transicao": "seg→min",
+      "seg": {
+        "churn": 1,
+        "would_enter": [
+          308216
+        ],
+        "would_leave": [
+          308246
+        ]
       },
-      "mecanismo": "redundancia — a fusão promoveu o designado no CONTROLE"
+      "min": {
+        "churn": 0,
+        "controle_registrado": true
+      },
+      "entrou_em_seg_e_esta_no_controle_de_min": [
+        308216
+      ],
+      "mecanismo": "redundancia — o designado que entrava em seg já está no CONTROLE de min"
     },
     "2026-08-27T05:37:05.210Z": {
-      "por_granularidade": {
-        "seg": {
-          "churn": 1,
-          "would_enter": [
-            308284
-          ],
-          "would_leave": [
-            308282
-          ],
-          "designado_ja_no_controle": []
-        },
-        "min": {
-          "churn": 1,
-          "would_enter": [
-            308284
-          ],
-          "would_leave": [
-            308282
-          ],
-          "designado_ja_no_controle": []
-        },
-        "hora": {
-          "churn": 0,
-          "would_enter": [],
-          "would_leave": [],
-          "designado_ja_no_controle": []
-        }
+      "transicao": "min→hora",
+      "min": {
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308282
+        ]
       },
-      "mecanismo": "inalcancabilidade — o estrato inteiro desceu abaixo do corte e o bônus não atravessa estrato (Proposição 1)"
+      "hora": {
+        "churn": 0,
+        "controle_registrado": true
+      },
+      "entrou_em_min_e_esta_no_controle_de_hora": [],
+      "mecanismo": "inalcancabilidade — o designado que entrava em min NÃO está no controle de hora e ainda assim o churn zerou: o estrato saiu de alcance (Proposição 1)"
     },
     "2026-08-27T07:37:02.488Z": {
-      "por_granularidade": {
-        "seg": {
-          "churn": 1,
-          "would_enter": [
-            308284
-          ],
-          "would_leave": [
-            308282
-          ],
-          "designado_ja_no_controle": []
-        },
-        "min": {
-          "churn": 1,
-          "would_enter": [
-            308296
-          ],
-          "would_leave": [
-            308282
-          ],
-          "designado_ja_no_controle": []
-        },
-        "hora": {
-          "churn": 0,
-          "would_enter": [],
-          "would_leave": [],
-          "designado_ja_no_controle": []
-        }
+      "transicao": "min→hora",
+      "min": {
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308282
+        ]
       },
-      "mecanismo": "inalcancabilidade — o estrato inteiro desceu abaixo do corte e o bônus não atravessa estrato (Proposição 1)"
+      "hora": {
+        "churn": 0,
+        "controle_registrado": true
+      },
+      "entrou_em_min_e_esta_no_controle_de_hora": [],
+      "mecanismo": "inalcancabilidade — o designado que entrava em min NÃO está no controle de hora e ainda assim o churn zerou: o estrato saiu de alcance (Proposição 1)"
     }
   },
   "artefatos": {
-    "seg": "gran-seg.json",
-    "min": "gran-min.json",
-    "hora": "gran-hora.json",
-    "dia": "gran-dia.json"
-  },
-  "artefatos_em": "measurement/out/"
+    "seg": "/private/tmp/claude-501/-Users-lab-Claude-Projetos-memoria-nox/84cb6c09-c9ff-4c66-a79b-c8b374b273bb/scratchpad/gran-seg.json",
+    "min": "/private/tmp/claude-501/-Users-lab-Claude-Projetos-memoria-nox/84cb6c09-c9ff-4c66-a79b-c8b374b273bb/scratchpad/gran-min.json",
+    "hora": "/private/tmp/claude-501/-Users-lab-Claude-Projetos-memoria-nox/84cb6c09-c9ff-4c66-a79b-c8b374b273bb/scratchpad/gran-hora.json",
+    "dia": "/private/tmp/claude-501/-Users-lab-Claude-Projetos-memoria-nox/84cb6c09-c9ff-4c66-a79b-c8b374b273bb/scratchpad/gran-dia.json"
+  }
 }

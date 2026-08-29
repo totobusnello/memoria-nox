@@ -50,8 +50,8 @@ não uma resposta proporcional, para qualquer bônus aditivo no score **desse ca
 Testamos com dose crescente em produção e replay fiel ao pipeline real em **350 de 350**
 briefs: resposta monótona em cada estado, saturação em `w ∈ (4,0; 4,4]`, teto de
 **4,86%** dos briefs. E o teto não é constante do mecanismo, em dois eixos que medimos:
-sob a mesma regra com outro sorteio de designados ele vai a **7,43%** (mediana 5,71%, e o
-sorteio em vigor é o menor de nove), e truncando a resolução do timestamp de segundo para
+sob a mesma regra com outro sorteio de designados ele chega a **7,43%** (o sorteio em
+vigor fica no mínimo da distribuição, empatado com outro), e truncando a resolução do timestamp de segundo para
 minuto ou hora vai a **36%** e **80%** — sem alterar uma linha de código. **O alcance do
 mecanismo é fixado por decisões que ninguém tomou como política.**
 
@@ -929,9 +929,17 @@ distintos de **1.139** (segundo) para 951, 311 e 57, e o maior estrato de **14**
 lidos na mesma linha: um descreve a estrutura de empates do corpus servido, o outro conta
 briefs que mudam no replay.
 
-**A leitura.** Um mecanismo que alcança 4,86% dos briefs alcançaria 36% se o sistema
-gravasse a hora com um campo a menos. O número que este paper reporta como teto do canal
-é, em boa medida, um fato sobre a largura de um campo de texto.
+**A leitura, e o cuidado que ela exige.** Um mecanismo que alcança 4,86% dos briefs
+alcançaria 36% se o sistema gravasse a hora com um campo a menos.
+
+⚠️ Seria overclaim dizer que o teto é "um fato sobre a largura de um campo de texto". Ele
+é fato sobre a razão entre **cadência de serving** e **resolução da chave**: são os
+serves concentrados no mesmo segundo que criam os empates, e num sistema que servisse um
+item por hora a mesma largura de campo não moveria quase nada. O que a medição estabelece
+é que **um dos dois termos dessa razão foi herdado de um default** — a resolução vem do
+`datetime('now')` do SQLite, não de decisão de desenho — e que mexer só nele desloca o
+alcance do mecanismo em uma ordem de grandeza. Não isolamos os dois termos; fazê-lo
+exigiria repetir a tabela sobre um corpus com cadência artificialmente espaçada.
 
 #### 5.7.1 E o teto também depende de QUAL chunk o sorteio pegou
 
@@ -954,19 +962,26 @@ resultado, já que o beacon é público — e **todas as oito são reportadas**
 | máximo | 26 | 7,43% |
 
 A arbitrariedade é limitada por construção: **12 dos 19 grupos são unitários**, então
-nenhuma seed pode mexer em mais de 7 designados — e de fato as alternativas compartilham
-12 a 14 dos 19 com a que está em vigor.
+nenhuma seed pode mexer em mais de 7 designados.
 
-**Duas leituras, e a segunda é desconfortável.** A primeira: o teto é robusto em ordem de
-grandeza. Nove sorteios da mesma regra dão de 4,86% a 7,43%; nenhum chega perto de mudar
-a conclusão de que o mecanismo alcança poucos por cento dos briefs. A segunda: **a
-designação em vigor é a menor das nove.** Reportar `4,86%` como "o teto do mecanismo"
-descreve o sorteio que calhou, e ele é o extremo favorável — a mesma regra produz mediana
-`5,71%`. Onde este paper diz `4,86%`, leia-se *o teto sob a designação em vigor*; o teto
-da regra é a distribuição inteira.
+**Duas leituras, e a segunda é desconfortável.** A primeira, que os dados aguentam: o
+teto é **robusto em ordem de grandeza** — nove sorteios da mesma regra dão de 4,86% a
+7,43%, e nenhum chega perto de mudar a conclusão de que o mecanismo alcança poucos por
+cento dos briefs. A segunda: **a designação em vigor está no mínimo da distribuição** —
+empatada com `sens-03`, que também dá 17, e não sozinha. Reportar `4,86%` como "o teto do
+mecanismo" descreve o extremo, não a regra.
+
+⚠️ **E até aí é preciso não exagerar.** Com 8 alternativas, a probabilidade de a
+designação pré-especificada cair no posto 1 é ≈ 11% sob permutação: estar no mínimo **não
+estabelece** que ela seja atípica. A mediana `5,71%` é ponto de n = 8, com desvio ≈ 2,9
+estados — qualquer intervalo razoável cobre de 17 a 22, então a mediana **não** deve ser
+lida como "o valor que a regra produz". O que se sustenta é mais simples e mais fraco:
+onde este paper diz `4,86%`, leia-se *o teto sob a designação em vigor*, e o teto da regra
+é uma **distribuição** que não medimos com precisão suficiente para resumir num número.
 
 ⚠️ E as alternativas não movem só *mais* briefs: elas movem **outros**. A interseção com
-os 17 originais fica entre 9 e 14. Junto com o achado da granularidade — em que o
+os 17 estados originais fica entre 9 e 14 (`estados_em_comum_com_a_publicada` no
+artefato — é sobre **estados de replay**, não sobre quais chunks foram designados). Junto com o achado da granularidade — em que o
 beneficiário troca de identidade ao mudar a resolução — o padrão é o mesmo: **qual chunk
 recebe exposição é decidido por detalhes que ninguém escolheu como política.**
 

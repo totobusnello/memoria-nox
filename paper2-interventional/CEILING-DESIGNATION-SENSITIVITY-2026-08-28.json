@@ -21,6 +21,8 @@
   "posto_da_publicada": 1,
   "de_quantas": 9,
   "publicada_e_o_minimo": true,
+  "alternativas_que_empatam_no_minimo": 1,
+  "publicada_e_o_UNICO_minimo": false,
   "teto_pct": {
     "publicada": 4.86,
     "sens-01": 6.29,
