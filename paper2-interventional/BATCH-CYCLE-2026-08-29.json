@@ -1,0 +1,87 @@
+{
+  "db": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+  "corte_dias": 7.0,
+  "lotes": [
+    {
+      "criado_de": "2026-08-21",
+      "criado_ate_exclusivo": "2026-08-23",
+      "chunks_criados": 199,
+      "chunks_do_lote_que_chegaram_a_ser_servidos": 109,
+      "serie": [
+        {
+          "dia": "2026-08-22",
+          "servidos": 108,
+          "idade_min": 0.72,
+          "idade_max": 1.03
+        },
+        {
+          "dia": "2026-08-23",
+          "servidos": 108,
+          "idade_min": 0.92,
+          "idade_max": 2.04
+        },
+        {
+          "dia": "2026-08-24",
+          "servidos": 108,
+          "idade_min": 1.92,
+          "idade_max": 3.04
+        },
+        {
+          "dia": "2026-08-25",
+          "servidos": 108,
+          "idade_min": 2.92,
+          "idade_max": 4.04
+        },
+        {
+          "dia": "2026-08-26",
+          "servidos": 109,
+          "idade_min": 3.92,
+          "idade_max": 5.04
+        },
+        {
+          "dia": "2026-08-27",
+          "servidos": 108,
+          "idade_min": 4.92,
+          "idade_max": 6.04
+        },
+        {
+          "dia": "2026-08-28",
+          "servidos": 108,
+          "idade_min": 5.92,
+          "idade_max": 7.04
+        },
+        {
+          "dia": "2026-08-29",
+          "servidos": 108,
+          "idade_min": 6.92,
+          "idade_max": 7.42
+        }
+      ],
+      "ultimo_dia_com_servico": "2026-08-29",
+      "dias_sem_servico_no_meio": [],
+      "voltou_depois_de_zerar": false,
+      "dias_acima_do_corte": [
+        {
+          "dia": "2026-08-28",
+          "servidos": 108,
+          "idade_min": 5.92,
+          "idade_max": 7.04
+        },
+        {
+          "dia": "2026-08-29",
+          "servidos": 108,
+          "idade_min": 6.92,
+          "idade_max": 7.42
+        }
+      ],
+      "corte_respeitado": false,
+      "idade_maxima_jamais_servida": 7.42,
+      "predicao": {
+        "dia": "2026-08-29",
+        "servidos_do_lote": 108,
+        "briefs_no_dia": 2520,
+        "veredito": "REFUTADA"
+      }
+    }
+  ]
+}

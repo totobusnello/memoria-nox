@@ -1,0 +1,20 @@
+{
+  "dia": "2026-08-29",
+  "corpus": 67187,
+  "predicado": {
+    "padroes": [
+      "memory/entities/%",
+      "memory/lessons.md"
+    ],
+    "idade_max_dias": 30,
+    "piso": "importance >= 0.7 OR pain >= 0.7"
+  },
+  "pool_elegivel": 108,
+  "pct_do_corpus": 0.161,
+  "nunca_servidos_no_pool": 0,
+  "servidos_no_dia": 108,
+  "cobertura_do_pool_no_dia": 100.0,
+  "briefs_no_dia": 287,
+  "slots_de_cobertura_no_dia": 574,
+  "slots_por_candidato": 5.3
+}

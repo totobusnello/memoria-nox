@@ -1,5 +1,33 @@
 # Predição do §4.3.1 — registrada em 2026-08-28, antes do dia existir
 
+## ❌ DESFECHO: REFUTADA (2026-08-29 09:02Z)
+
+`exit 1`, veredito `REFUTADA`. O lote foi servido **108 vezes** em 29/08, com idade máxima
+de **7,42** dias. Artefato: `BATCH-CYCLE-2026-08-29.json`.
+
+O guarda do corte disparou junto — dois dias servindo com idade ≥ 7,0 (7,04 e 7,42) — e
+**também esse alarme estava mal-endereçado**: `brief_log` não registra o canal, então
+aquele guarda mediu a união do pool de cobertura com o pool principal, e o principal não
+tem filtro de idade nenhum.
+
+**Diagnóstico.** Há dois sub-pools de cobertura. O lote da retrodição (09–10/08) era
+`sessions/boris/…` — sub-pool **por agente**, janela de 7 dias, e parou limpo aos 7,0. O
+lote desta predição (21–22/08) é `entities/%` + `lessons.md` — sub-pool **global**, janela
+de **30** dias. Apliquei a janela de um canal a um lote do outro. A retrodição continua
+válida; a extrapolação não era.
+
+**Cumprido o que este documento mandava fazer em caso de refutação:** o §4.3.1 foi
+**substituído** antes de qualquer depósito. A explicação nova — pool elegível de 108
+chunks (0,16% do corpus), esgotado 100% todo dia, com 12,4 slots por candidato — é mais
+forte que a que caiu, e está medida em `POOL-ELEGIVEL-2026-08-29.json`.
+
+⚠️ **O valor de ter registrado a predição antes está exatamente aqui.** Sem o registro,
+"o lote continua sendo servido" seria um fato solto, fácil de acomodar. Com ele, foi uma
+refutação com data, número e consequência declarada — e a consequência foi executada.
+
+---
+
+
 > **Precedência.** Este arquivo é escrito e commitado em **2026-08-28**, quando o dia
 > 2026-08-29 ainda não produziu brief nenhum. O registro antecipado é o que impede que a
 > predição seja ajustada depois de conhecido o resultado — a mesma disciplina dos
