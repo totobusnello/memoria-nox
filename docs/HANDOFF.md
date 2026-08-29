@@ -1,65 +1,42 @@
 # nox-mem HANDOFF — estado vivo
 
-## ▶️ AMANHÃ (2026-08-29) — o que fazer, em ordem
+## 2026-08-29 — o gate REPROVOU, e o §4.3.1 foi substituído
 
-**Decisão do Toto em 28/08: dois papers.** O da superfície vai a depósito assim que o
-gate passar; o interventivo vira trabalho próprio. Mapa em
-`paper2-interventional/PAPER-SPLIT-2026-08-28.md`. O Paper A está **estruturalmente
-fechado** — nada de escrita pendente.
+`ciclo-do-lote.py --esperar-zero-em 2026-08-29` saiu **`exit 1`, REFUTADA**: o lote foi
+servido 108× com idade máxima de 7,42 dias, contra zero previsto.
+`PREDICTION-2026-08-29.md` mandava reescrever antes de qualquer depósito. Cumprido.
 
-### 1. Rodar o gate do lote (bloqueia tudo o resto)
+**Causa.** Dois sub-pools de cobertura, não um: por agente (`sessions/<agente>/%`, 7 d) e
+global (`entities/%` + `lessons.md`, **30 d**). O lote da retrodição era do primeiro, o da
+predição é do segundo. Janela de um canal aplicada a lote do outro.
 
-```
-cd paper2-interventional
-python3 measurement/ciclo-do-lote.py \
-  --db /root/.openclaw/workspace/tools/nox-mem/nox-mem.db \
-  --lote 2026-08-21:2026-08-23 --corte 7 \
-  --esperar-zero-em 2026-08-29 --out BATCH-CYCLE-2026-08-29.json
-```
+**O que entrou no lugar** (`pool-elegivel.py`, `POOL-ELEGIVEL-2026-08-29.json`): o canal
+enxerga **108 chunks de 67.187 — 0,161%** — com **zero** nunca-servidos restantes, e
+**esgota o pool inteiro todo dia** (12,4 slots por candidato). Não há lote a esperar; há um
+recorte a alargar. A tese foi propagada para §1, §4.3, §6, §7, §9 e o `PAPER-SPLIT`.
 
-O veredito é o **código de saída**, não julgamento:
+⚠️ **Três erros meus no caminho, todos no §6 ou em memória:** piso contado como `AND` onde
+o código diz `OR` (13 vs 128); explicação construída sobre `GLOBAL_FRESH_PATTERNS`
+memorizado de 19/08, quando o código já tinha dois padrões (55 vs 108); e um commit que
+alegou oito edições que **não foram aplicadas** — o script abortou no primeiro `assert` e o
+`claims_check` passou verde sobre o arquivo intacto.
 
-| saída | significado | o que fazer |
-|---|---|---|
-| `exit 0` · CONFIRMADA | o lote foi servido zero vezes e houve brief no dia | segue para o passo 2 |
-| `exit 1` · REFUTADA | o lote continua sendo servido depois dos 7 dias | **§4.3.1 é reescrito antes de qualquer depósito.** A retrodição de 09–10/08 continua fato, mas deixa de generalizar |
-| `exit 1` · NÃO MEDIDA | não houve brief nenhum em 29/08 (cron parado, VPS fora) | **não conta como confirmação.** Investigar o cron e repetir no dia seguinte |
+### ▶️ ESTADO / PRÓXIMO PASSO
 
-Predição registrada **antes** do dia em `PREDICTION-2026-08-29.md`: 108 chunks servidos
-zero vezes, distintos caindo de 141 para ≈33. A segunda é aproximada e não falseia
-sozinha (no ciclo anterior previu 46, observou 49) — quem decide é a primeira.
+**Rodando agora:** duas revisões adversariais em paralelo, alvos disjuntos — DeepSeek sobre
+o §4.3.1 substituído e a refutação, GLM sobre §5.7/§5.7.1 (granularidade e sensibilidade da
+designação). Esperar os dois antes de mexer no manuscrito.
 
-### 2. Depósito do Paper A — **exige aprovação explícita do Toto**
+**Depois delas:** aplicar o que sobreviver e, então, o depósito do Paper A — que **exige
+aprovação explícita do Toto** e resolver o número de versão pelo estado do Zenodo, nunca
+pelo rótulo do texto. O pré-registro existente (OSF `yf7d2`, Zenodo
+`10.5281/zenodo.22110203`) é do estudo **interventivo**; o Paper A é trabalho distinto.
 
-Nunca depositar sem ela. Ao preparar:
+**Não bloqueia:** Paper B nunca começou (`NOX_P2_OUTCOME=shadow`, sem `ASSIGNMENT.json`);
+interação designação × granularidade não medida; `colocation-probe.sh` nunca rodou e o
+`kg-build` que ele observaria é semanal, aos domingos.
 
-- ⚠️ **o número de versão é fato do depósito, não rótulo do texto** — resolver pelo estado
-  do Zenodo, nunca assumir "v1.13";
-- ⚠️ o registro existente (OSF `yf7d2`, Zenodo `10.5281/zenodo.22110203`) é o
-  **pré-registro do estudo interventivo**. O Paper A é trabalho distinto — decidir se vira
-  registro novo ou versão, e não misturar;
-- artefatos citados no Apêndice D têm de acompanhar.
-
-### 3. Se sobrar tempo (nada disso bloqueia)
-
-- **Interação designação × granularidade** não foi medida: o §5.7 é todo sob a designação
-  em vigor e o §5.7.1 todo sob resolução de segundo. Declarado no texto como limite.
-- **Paper B não começou.** `NOX_P2_OUTCOME=shadow`, sem `ASSIGNMENT.json`, Fase 3 do plano
-  de designação intocada — registro prospectivo do estimando → `ASSIGNMENT.json` →
-  `active` → Epoch 1. Se for para `active`, a dose servida hoje (`w = 2,0`) está **abaixo**
-  da saturação, que fica em `(4,0; 4,4]`; é escolha de desenho com trade-off medido.
-- **`colocation-probe.sh`** (`benchmark/latency-cost/`) nunca rodou e `/var/log/nox-mem/`
-  não existe na VPS. Ele mede interferência de latência durante a janela do `kg-build`,
-  que é **semanal, aos domingos** — a série de `provider_telemetry` respondeu custo, não
-  interferência.
-
-### Estado em que a sessão de 28/08 fechou
-
-Nada rodando: sem tmux, sem processo, working tree limpo, tudo pushado até `c849309`.
-Cron da VPS segue normal (`p2-composicao` de hora em hora, `p2-saturacao` 09:12Z).
-
-**Decidido e encerrado:** o webhook do Discord exposto **não** será rotacionado (decisão do
-Toto — não retomar o assunto).
+**Decidido e encerrado:** dois papers (28/08); webhook do Discord **não** será rotacionado.
 
 ---
 
