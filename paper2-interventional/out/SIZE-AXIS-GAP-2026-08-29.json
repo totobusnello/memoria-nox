@@ -1,0 +1,63 @@
+{
+  "tipos": 15,
+  "amplitude_do_eixo_decadas": 4.04,
+  "maior_lacuna": {
+    "decadas": 1.295,
+    "de": {
+      "tipo": "lesson",
+      "n": 53
+    },
+    "para": {
+      "tipo": "graph_node",
+      "n": 1046
+    }
+  },
+  "pct_da_amplitude_sem_ponto": 32.1,
+  "tres_maiores_lacunas": [
+    {
+      "decadas": 1.295,
+      "de": {
+        "tipo": "lesson",
+        "n": 53
+      },
+      "para": {
+        "tipo": "graph_node",
+        "n": 1046
+      }
+    },
+    {
+      "decadas": 0.651,
+      "de": {
+        "tipo": "daily",
+        "n": 3231
+      },
+      "para": {
+        "tipo": "distilled",
+        "n": 14456
+      }
+    },
+    {
+      "decadas": 0.49,
+      "de": {
+        "tipo": "graph_node",
+        "n": 1046
+      },
+      "para": {
+        "tipo": "daily",
+        "n": 3231
+      }
+    }
+  ],
+  "nuvem_pequenos": {
+    "tipos": 10,
+    "n_min": 3,
+    "n_max": 53
+  },
+  "nuvem_grandes": {
+    "tipos": 5,
+    "n_min": 1046,
+    "n_max": 32920
+  },
+  "tipos_na_faixa_intermediaria": 0,
+  "nao_separado": "tamanho vs curadoria — nenhuma variável do corpus mede curadoria"
+}

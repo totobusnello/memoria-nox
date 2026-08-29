@@ -401,8 +401,12 @@ exposto". Um filtro que só pode ajudar precisa ser declarado, e o efeito dele, 
 (`measurement/robustez-tamanho-exposicao.py`).
 
 Duas explicações competem: **curadoria** (tipos mais curados são mais expostos) e
-**tamanho** (coleções pequenas cabem na superfície). O teste separa — mas a força do
-teste depende de como se conta:
+**tamanho** (coleções pequenas cabem na superfície). ⚠️ **Nada aqui as separa**, e a
+versão anterior desta frase dizia que o teste separava — não separa. O que os testes
+abaixo separam é *artefato de filtro* de *sinal*; as parciais mais adiante controlam
+idade, importância média e comprimento de texto, e **nenhuma delas é curadoria**. Não
+existe no corpus variável que a meça, então "tamanho" e "curadoria" permanecem
+confundidos por construção. O que muda de fato conforme a contagem é a força:
 
 | análise | 13 tipos (com filtro) | 15 tipos (sem filtro) |
 |---|---|---|
@@ -416,7 +420,26 @@ O modelo binomial usa todos os tipos e pesa cada um pela informação que carreg
 dois excluídos movem o coeficiente em **2%**, não pela metade. **É o binomial que este
 paper reporta**, e a correlação fica como descrição da figura, não como teste.
 
-**β = −0,961 ⇒ as chances de exposição caem para ×0,38 a cada década de tamanho.**
+**β = −0,961.** ⚠️ **Mas "×0,38 por década de tamanho" é uma parametrização que o
+eixo não sustenta, e a versão anterior a reportava assim.** Os 15 tipos não se
+distribuem ao longo do tamanho: são **duas nuvens** com um vazio entre elas
+(`measurement/lacuna-no-eixo-de-tamanho.py`, `out/SIZE-AXIS-GAP-2026-08-29.json`).
+
+| | |
+|---|---|
+| tipos com n < 100 | **10** (de 3 a 53) |
+| tipos com 100 ≤ n < 1.000 | **0** |
+| tipos com n ≥ 1.000 | **5** (de 1.046 a 32.920) |
+| maior lacuna no eixo log₁₀(n) | **1,295 décadas**, entre `lesson` (53) e `graph_node` (1.046) |
+| — como fração da amplitude do eixo | **32,1%, sem um único ponto** |
+
+Uma inclinação ajustada sobre duas nuvens é, aritmeticamente, a diferença entre elas
+dividida pela distância entre elas. Ela **descreve** os dados; o que ela não faz é
+autorizar leitura pontual dentro do vazio — "um tipo de 300 chunks teria ×0,38 da chance
+de um de 30" é uma predição para a qual **não há observação nenhuma** neste corpus. Com
+n = 15 unidades independentes e um terço do eixo vazio, a forma defensável do achado é
+o contraste entre as nuvens, não a taxa: **os 5 tipos grandes ocupam 10,7–27,0% de
+exposição; dos 10 pequenos, 8 estão acima de 32,5% e 2 estão em zero.**
 
 ⚠️ **E o erro-padrão do modelo é inutilizável.** Ele dá `± 0,027` (z = −35) porque supõe
 67.187 observações independentes; o preditor é **constante dentro do tipo**, então a

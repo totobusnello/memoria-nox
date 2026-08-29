@@ -890,6 +890,50 @@ CV2_LOCKED = 0.3833
 ALLOCATION_LOCKED = {"control": 117, "w2": 39, "w4": 39, "w7.5": 39}
 
 
+def eixo_check(root: Path) -> list[str]:
+    """Trava a tabela do vazio no eixo de tamanho (§4.2) contra o artefato.
+
+    A conclusão que ela sustenta — "×0,38 por década interpola numa faixa sem
+    observação" — depende de UM fato: a faixa 100–1.000 estar vazia. O script de
+    medição já aborta se ela deixar de estar; aqui o que se trava é que o documento
+    não continue afirmando o vazio depois disso.
+    """
+    art = root / "out" / "SIZE-AXIS-GAP-2026-08-29.json"
+    doc = root / "MANUSCRIPT.md"
+    if not art.exists():
+        return [f"{art.name} ausente — a tabela do vazio no §4.2 não tem artefato"]
+    d = json.loads(art.read_text(encoding="utf-8"))
+    texto = doc.read_text(encoding="utf-8")
+    fails = []
+    if d["tipos_na_faixa_intermediaria"] != 0:
+        fails.append(
+            f"§4.2: o artefato tem {d['tipos_na_faixa_intermediaria']} tipo(s) na faixa "
+            f"intermediária — 'duas nuvens' deixou de valer e o texto ainda afirma"
+        )
+    dec = str(d["maior_lacuna"]["decadas"]).replace(".", ",")
+    pct = str(d["pct_da_amplitude_sem_ponto"]).replace(".", ",")
+    for padrao, rotulo in (
+        (rf"maior lacuna no eixo[^|]*\|[^|]*\*\*{re.escape(dec)} décadas\*\*, entre "
+         rf"`{d['maior_lacuna']['de']['tipo']}` \({d['maior_lacuna']['de']['n']}\)",
+         f"maior lacuna ({dec} décadas)"),
+        (rf"\*\*{re.escape(pct)}%, sem um único ponto\*\*",
+         f"fração da amplitude ({pct}%)"),
+        (rf"100 ≤ n < 1\.000 \| \*\*{d['tipos_na_faixa_intermediaria']}\*\*",
+         "faixa intermediária vazia"),
+        (rf"tipos com n < 100 \| \*\*{d['nuvem_pequenos']['tipos']}\*\* "
+         rf"\(de {d['nuvem_pequenos']['n_min']} a {d['nuvem_pequenos']['n_max']}\)",
+         "nuvem dos pequenos"),
+        (rf"tipos com n ≥ 1\.000 \| \*\*{d['nuvem_grandes']['tipos']}\*\* "
+         rf"\(de 1\.046 a 32\.920\)", "nuvem dos grandes"),
+    ):
+        if not re.search(padrao, texto):
+            fails.append(
+                f"§4.2: {rotulo} não casa ancorado ao seu rótulo (/{padrao}/) — "
+                f"a tabela do vazio divergiu do artefato"
+            )
+    return fails
+
+
 def coorte_check(root: Path) -> list[str]:
     """Amarra a tabela de coortes do §4.1 ao artefato, e o §4.1 ao §5 pelo agregado.
 
@@ -1109,6 +1153,7 @@ def main() -> int:
     failures.extend(blob_check(Path(args.root)))
     failures.extend(janela_check(Path(args.root)))
     failures.extend(coorte_check(Path(args.root)))
+    failures.extend(eixo_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)
