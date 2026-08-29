@@ -988,6 +988,33 @@ recebe exposição é decidido por detalhes que ninguém escolheu como política
 ⚠️ Não medimos a interação entre os dois eixos (designação × granularidade); a tabela do
 §5.7 é toda sob a designação em vigor, e esta é toda sob resolução de segundo.
 
+⚠️ **Uma parte crescente desta tabela é decidida por um desempate que ninguém declarou.**
+Truncar cria empates, e quando dois candidatos empatam em `last_served` **e** em
+`salience`, o comparador não os separa — quem decide é a ordem de linha do SQLite. A
+expressão de salience deste canal é grossa por construção
+(`0,55·importance + 0,10·pain + 0,1 se access > 0`): entre os 108 elegíveis ela assume
+apenas **seis valores distintos**. Medida a exposição
+(`measurement/empates-por-granularidade.py`, `TIEBREAK-EXPOSURE-2026-08-29.json`):
+
+| resolução | pares indistinguíveis | % dos pares | maior bloco |
+|---|---:|---:|---:|
+| **segundo — a de produção** | **68** | **1,18%** | 4 |
+| minuto | 269 | 4,66% | 10 |
+| hora | 917 | 15,87% | 33 |
+| dia | 1.656 | 28,66% | 42 |
+
+O contra-argumento natural — "os dois braços compartilham a mesma ordem arbitrária, logo
+ela se cancela" — **não vale**: `churn` é diferença simétrica de dois conjuntos, e
+permutar a ordem move os dois de maneira não correlacionada justamente na fronteira do
+corte, onde o churn nasce e morre.
+
+O que sobrevive e o que não: a **direção** e a **ordem de grandeza** do efeito, porque a
+exposição cresce 24× enquanto o teto cresce 20×, e porque na resolução que este paper
+efetivamente reporta ela é de **1,18% dos pares**. Os valores exatos das linhas
+grosseiras — 127, 281, 348 — carregam um componente arbitrário que **não quantificamos**;
+fazê-lo exigiria rerodar as 4×350 com uma terceira coordenada de desempate explícita, e
+declaramos que não o fizemos.
+
 ⚠️ **Uma predição nossa morreu neste teste, e ela fica.** A nota de desenho dizia:
 "coarsening só funde estratos, nunca divide ⇒ o teto é monótono não-decrescente, e essa
 monotonia é o autoteste do instrumento". A contagem de fato sobe, mas os **conjuntos não
@@ -1278,6 +1305,7 @@ Tudo em `measurement/`, com `--assert-json` travando cada número citado:
 | superfície de exposição | `superficie-de-exposicao.py` | `out/superficie.json` |
 | replay + dose + limiar + gaps | `replay-oportunidade.mjs` · `replay-resumo.py` | `out/c-350-v3.json` · `out/dose-350-v3.json` · `out/limiar-17.json` · `out/gaps.json` |
 | granularidade do teto (§5.7) | `replay-oportunidade.mjs --granularidade` · `granularidade-do-teto.py` | `out/gran-{seg,min,hora,dia}.json` · `out/gran3-{seg,min,hora}.json` · `CEILING-GRANULARITY-2026-08-28.json` |
+| exposição a desempate arbitrário (§5.7) | `empates-por-granularidade.py` | `TIEBREAK-EXPOSURE-2026-08-29.json` |
 | sensibilidade do teto à designação (§5.7.1) | `sensibilidade-da-designacao.py` | `out/sens-*.json` · `CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json` |
 | pool elegível do canal de cobertura (§4.3.1) | `pool-elegivel.py` | `POOL-ELEGIVEL-2026-08-28.json` |
 | atribuição diferencial por canal (§4.3.1) | `replay-oportunidade.mjs --modo canal` | `CHANNEL-ATTRIBUTION-2026-08-29.json` |

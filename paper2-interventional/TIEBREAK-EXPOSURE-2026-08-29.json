@@ -1,0 +1,33 @@
+{
+  "pool_elegivel": 108,
+  "valores_distintos_de_salience": 6,
+  "pares_possiveis": 5778,
+  "expressao_de_salience": "0.55*COALESCE(importance,0.5) + 0.10*COALESCE(pain,0.2) + CASE WHEN COALESCE(access_count,0)>0 THEN 0.1 ELSE 0 END",
+  "por_granularidade": [
+    {
+      "granularidade": "seg",
+      "pares_indistinguiveis": 68,
+      "maior_bloco_indistinguivel": 4,
+      "pct_dos_pares": 1.18
+    },
+    {
+      "granularidade": "min",
+      "pares_indistinguiveis": 269,
+      "maior_bloco_indistinguivel": 10,
+      "pct_dos_pares": 4.66
+    },
+    {
+      "granularidade": "hora",
+      "pares_indistinguiveis": 917,
+      "maior_bloco_indistinguivel": 33,
+      "pct_dos_pares": 15.87
+    },
+    {
+      "granularidade": "dia",
+      "pares_indistinguiveis": 1656,
+      "maior_bloco_indistinguivel": 42,
+      "pct_dos_pares": 28.66
+    }
+  ],
+  "nao_medido": "quanto dos tetos 127/281/348 vem da ordem arbitrária — exigiria rerodar 4×350 com terceira coordenada de desempate explícita"
+}
