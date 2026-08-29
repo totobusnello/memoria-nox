@@ -21,7 +21,7 @@ query alcança tem nDCG indefinido, não baixo. Instrumentamos, por 12 semanas, 
 superfícies pelas quais um sistema de memória em operação entrega conteúdo a uma frota
 de 6 agentes: um brief proativo de 10 itens e a busca sob demanda.
 
-O brief entregou **583.973 slots** — **8,7 vezes** o tamanho do corpus, o suficiente para
+O brief entregou **583.763 slots** — **8,7 vezes** o tamanho do corpus, o suficiente para
 servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks distintos: 2,66%**. A
 capacidade **agregada**, portanto, não obrigava esse resultado: havia espaço para mostrar
 o corpus inteiro nove vezes. Não se conclui daí que a ordenação esteja errada — só que
@@ -83,7 +83,7 @@ respondível, porque toda entrega passa por um número pequeno de superfícies q
 instrumentar. Aqui são duas: um brief proativo de 10 itens no início de cada sessão, e a
 busca sob demanda.
 
-**A resposta esperada seria "não cabe". Não é.** Em 84,7 dias o brief entregou **583.973
+**A resposta esperada seria "não cabe". Não é.** Em 84,7 dias o brief entregou **583.763
 slots** a 67.187 chunks — capacidade para servir cada chunk **8,7 vezes**. Serviu **1.787
 distintos, 2,66% do corpus**; sob serviço uniforme a cobertura esperada seria 99,98%.
 Somando a busca, **83,78% do corpus nunca foi exposto**. A não-exposição não é imposta
@@ -295,8 +295,18 @@ e a tabela, não.
 **A linha do piso é uma manchete, não uma nota de rodapé.** Um leitor pode conceder o
 agregado e recusar a consequência: se a maior parte dos 56.288 fosse ruído de baixo
 valor, não haveria o que entregar. Não é o caso — dos 13.388 chunks que passam o piso de
-relevância do **próprio sistema** (`importance ≥ 0,7 OR pain ≥ 0,7`, verbatim de
-`brief.ts:642`), **10.008 = 74,75% nunca foram expostos**. Condicionar à relevância
+relevância do **próprio sistema**, **10.008 = 74,75% nunca foram expostos**.
+
+⚠️ **Esse "piso do próprio sistema" merece precisão, porque ele não é uma constante do
+código.** A *forma* do predicado está em `brief.ts:642` — `(COALESCE(importance,0) >= ?
+OR COALESCE(pain,0) >= ?)`, e o `OR` é do código, não nosso. Os *valores* 0,7/0,7 estão
+em `brief-diversity.ts:59-60`, e são **defaults sobrescrevíveis em tempo de execução**
+por `NOX_BRIEF_DIV_FRESH_MIN_IMP` e `NOX_BRIEF_DIV_FRESH_MIN_PAIN` (`:88-89`). Verificado
+no processo servidor em 2026-08-29: nenhuma das duas está definida, nem no ambiente do
+processo nem no `.env`, logo os defaults valem e os números acima são os de produção. Uma
+versão anterior desta frase dizia "verbatim de `brief.ts:642`" para os *valores*, que
+estão noutro arquivo — e apresentar configuração de runtime como constante de código é
+o tipo de imprecisão que faz um número correto envelhecer para errado sem aviso. Condicionar à relevância
 declarada reduz a taxa em 9 pontos e o valor absoluto em 5,6×; não a dissolve. ⚠️ **E o
 complementar tem de ser dito, porque é a maior parte:** dos 56.288 nunca expostos,
 **46.280 — 82,2% — não passam o piso do próprio sistema.** Quem sustentar que a
@@ -342,7 +352,7 @@ desconhecida e não é mensurável com os dados que temos.
 
 #### 4.1.1 Capacidade agregada não obriga o resultado — e o que isso não estabelece
 
-⚠️ **Uma objeção que precisa ser respondida antes de qualquer coisa: 583.973 slots
+⚠️ **Uma objeção que precisa ser respondida antes de qualquer coisa: 583.763 slots
 acumulados não são fungíveis.** A superfície entrega **10 itens por sessão**, e se uma
 sessão precisasse de mais de 10 itens relevantes, a capacidade estaria vinculante *hoje*,
 por mais folga que houvesse no acumulado. A objeção é correta e restringe a alegação:
@@ -354,7 +364,7 @@ itens *distintos* a superfície já mostrou alguma vez, e para essa pergunta os 
 ontem, e mostrar dez itens diferentes por sessão jamais violaria o limite de dez.
 
 **E a evidência de que a capacidade agregada não vincula é uma linha de aritmética, não
-um teste:** 583.973 slots contra 67.187 chunks. Havia espaço para mostrar tudo, nove
+um teste:** 583.763 slots contra 67.187 chunks. Havia espaço para mostrar tudo, nove
 vezes. Isso é o que se pode afirmar, e basta para o que o parágrafo anterior sustenta.
 
 ⚠️ **Uma versão anterior desta seção trazia aqui uma tabela de "predições opostas"** —
@@ -1163,6 +1173,35 @@ sete, foi a mesma: **reproduzir uma âncora publicada antes de variar qualquer c
 **bateu bem demais** — saturação exatamente no topo da banda registrada, dose absurda
 com efeito exatamente zero. Concordância suspeita foi um detector melhor que discordância.
 
+### 6.1 Quanto deste paper o verificador de fato verifica
+
+Uma disciplina de verificação que não se mede a si mesma é declaração de intenção. O
+`claims_check.py` recomputa alegações contra artefato e falha se divergirem — mas até
+2026-08-29 ninguém tinha perguntado *sobre quantas*. Revisão adversarial fez a pergunta,
+e a primeira medição (`measurement/censo-de-alegacoes-sem-guarda.py`,
+`out/CLAIM-COVERAGE-2026-08-29.json`) mostrou **19 das 32** alegações numéricas curadas
+sem guarda nenhuma — 59,4%.
+
+Depois de escrever os guardas que faltavam, **10 das 32 seguem sem guarda — 31,2%**, e
+elas estão nomeadas no artefato. As que ficam são, na maioria, números de análise
+estatística (`β`, Pearson, erro-padrão do jackknife) e tetos de sensibilidade que vivem
+em artefatos que o verificador ainda não lê.
+
+🔴 **O erro que essa lacuna já produziu, e que só apareceu porque a lacuna foi medida:**
+o manuscrito afirmava **583.973** slots acumulados em cinco lugares. O artefato diz
+**583.763**. Um dígito, nenhum artefato com o valor do texto, e nada que acusasse — era
+o número mais citado do paper, base da tese de capacidade, e o menos protegido. ⚠️ Pior:
+o campo se chama `slots_historicos_ATE_AGORA_serie_viva` e a grandeza **cresce ~7.500 por
+dia** (hoje a série viva vale 591.323). Citar uma série viva sem fixar o instante é
+escrever um número que envelhece para falso sozinho; por isso a alegação carrega os
+**84,7 dias** e o `T_REF` do artefato, e o guarda novo **recomputa** os derivados (8,7× e
+2,66%) em vez de só conferir que o texto não mudou.
+
+⚠️ **E a contagem de ocorrências virou parte do guarda**, porque `valor in texto` é
+satisfeito por qualquer ocorrência: três mutações passaram no primeiro teste por eu ter
+alterado só a primeira de várias menções ao mesmo número. O custo assumido é que edição
+legítima que mude o número de menções precisa atualizar a contagem de propósito.
+
 ## 7. Ameaças à validade
 
 - ⚠️ **`n = 1` sistema.** É a ameaça principal e não tem mitigação dentro deste paper.
@@ -1282,7 +1321,7 @@ Três afirmações, e nenhuma além.
 **Primeira: a não-exposição deste sistema é resultado de política, não de capacidade.**
 É a afirmação que a medição inverteu em relação à hipótese com que começamos. O que a
 sustenta é **uma linha de aritmética mais um mecanismo**, e não um teste estatístico:
-583.973 slots contra 67.187 chunks — capacidade para mostrar tudo nove vezes — enquanto
+583.763 slots contra 67.187 chunks — capacidade para mostrar tudo nove vezes — enquanto
 o brief serviu 1.787 distintos. Não há aqui restrição física a remover; há uma ordenação
 que revisita, e o §5 mostra por qual caminho.
 

@@ -890,6 +890,152 @@ CV2_LOCKED = 0.3833
 ALLOCATION_LOCKED = {"control": 117, "w2": 39, "w4": 39, "w7.5": 39}
 
 
+def registro_check(root: Path) -> list[str]:
+    """Toda função `*_check` do arquivo tem de estar registrada no `main()`.
+
+    ⚠️ Limite real do censo de cobertura, achado por mutação em 29/08: ele mede se o
+    número aparece no **fonte** do verificador ou nos artefatos que ele lê, e não
+    consegue ver a diferença entre um guarda que **existe** e um guarda que é
+    **chamado**. Remover `failures.extend(eixo_check(...))` do `main()` deixa o censo
+    inalterado e a proteção em zero — guarda órfão é indistinguível de guarda ativo
+    para quem conta ocorrências de texto.
+
+    Este guarda fecha exatamente esse buraco, e nada além dele: não afirma que as
+    checagens são boas, só que nenhuma está desligada em silêncio.
+    """
+    fonte = (root / "claims_check.py").read_text(encoding="utf-8")
+    definidas = set(re.findall(r"^def (\w+_check)\(", fonte, re.M))
+    corpo_main = fonte.split("def main(")[-1]
+    chamadas = set(re.findall(r"(\w+_check)\(Path\(args\.root\)\)", corpo_main))
+    orfas = sorted(definidas - chamadas - {"registro_check"})
+    if orfas:
+        return [
+            f"claims_check.py: {len(orfas)} guarda(s) definido(s) e NUNCA chamado(s) "
+            f"no main: {orfas} — guarda órfão protege zero e não aparece em censo algum"
+        ]
+    return []
+
+
+def cobertura_check(root: Path) -> list[str]:
+    """Roda o censo de cobertura e exige que o paper declare a taxa que ele tem.
+
+    Um paper que se apresenta como verificável precisa dizer **quanto** verifica. Sem
+    isto, "cada alegação tem guarda" é afirmação sobre a intenção, não sobre o estado —
+    e o estado, quando medido pela primeira vez (revisão adversarial do Codex, 29/08),
+    era 59,4% das alegações numéricas sem guarda nenhuma.
+
+    O guarda trava a taxa nos dois sentidos: se ela **piorar**, o texto passa a mentir;
+    se **melhorar**, o texto está desatualizado para menos e a declaração tem de subir.
+    """
+    script = root / "measurement" / "censo-de-alegacoes-sem-guarda.py"
+    if not script.exists():
+        return [f"{script.name} ausente — a taxa de cobertura declarada não é medida"]
+    proc = subprocess.run([sys.executable, str(script), "--json"],
+                          capture_output=True, text=True)
+    if proc.returncode != 0:
+        return [f"censo de cobertura saiu {proc.returncode}: {proc.stderr.strip()[:200]}"]
+    c = json.loads(proc.stdout)
+    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    pct = f"{c['pct_sem_guarda']:.1f}".replace(".", ",")
+    n = c["contagem"].get("SEM_GUARDA", 0)
+    if not re.search(rf"\*\*{n} das {c['alegacoes_curadas']}[^*.]*(?:\*\*)?[^.]*?"
+                     rf"{re.escape(pct)}%", texto):
+        return [
+            f"§ metodologia: o censo mede {n}/{c['alegacoes_curadas']} sem guarda "
+            f"({pct}%) e o texto não declara esse par — uma taxa de cobertura não "
+            f"declarada é a alegação mais fácil de deixar envelhecer"
+        ]
+    return []
+
+
+def superficie_check(root: Path) -> list[str]:
+    """Ancora os números do §1/§4.1 ao artefato da superfície, e RECOMPUTA os derivados.
+
+    ⚠️ Este guarda existe porque a sua ausência custou um erro publicável. O manuscrito
+    afirmava **583.973** slots em cinco lugares; o artefato diz **583.763**. Um dígito,
+    nenhum artefato com o valor do texto, e nada que acusasse — o número mais citado do
+    paper (é a base da tese de capacidade) era o menos protegido.
+
+    ⚠️ E o campo se chama `slots_historicos_ATE_AGORA_serie_viva`: a grandeza **cresce**
+    ~7.500/dia. Hoje a série viva vale 591.323. Citar a série sem fixar o instante é
+    escrever um número que envelhece para falso sozinho — por isso o `T_REF` do artefato
+    é parte da alegação, e o texto tem de dizer os 84,7 dias.
+
+    Os derivados (8,7× e 2,66%) são **recomputados**, não ancorados: ancorar confere que
+    o texto não mudou, recomputar confere que ele é aritmeticamente consistente com o
+    resto. Foi a segunda que faltou.
+    """
+    art = root / "measurement" / "out" / "superficie.json"
+    doc = root / "MANUSCRIPT.md"
+    if not art.exists():
+        return [f"{art.name} ausente — os números do §1 não têm artefato"]
+    d = json.loads(art.read_text(encoding="utf-8"))
+    texto = doc.read_text(encoding="utf-8")
+    fails = []
+    cum, conc = d["cumulativo_exato"], d["concentracao_do_brief"]
+    corpus = d["corpus"]
+
+    def mil(n: int) -> str:
+        return f"{n:,}".replace(",", ".")
+
+    # (1) valores diretos, ancorados ao rótulo que os identifica
+    for padrao, rotulo, valor in (
+        (rf"\*\*{mil(conc['slots_historicos_ATE_AGORA_serie_viva'])} slots\*\*",
+         "slots acumulados", conc["slots_historicos_ATE_AGORA_serie_viva"]),
+        (rf"Serviu \*\*{mil(cum['brief'])}\s*\n?distintos", "distintos no brief", cum["brief"]),
+        (rf"exposto na busca \(histórico\) \| {mil(cum['busca'])}", "expostos na busca", cum["busca"]),
+        (rf"\*\*apagados depois\*\* \| {cum['servidos_no_brief_e_depois_apagados']}",
+         "servidos e apagados", cum["servidos_no_brief_e_depois_apagados"]),
+        (rf"top-10 leva \*\*{str(conc['pct_top10']).replace('.', ',')}%\*\*",
+         "fração do top-10", conc["pct_top10"]),
+        (rf"{mil(conc['briefs_7d'])} briefs da semana", "briefs na janela", conc["briefs_7d"]),
+    ):
+        if not re.search(padrao, texto):
+            fails.append(
+                f"§1/§4.1: {rotulo} deveria ler {valor} ancorado ao rótulo "
+                f"(/{padrao}/ não casa) — texto e artefato divergiram"
+            )
+
+    # (2) derivados: RECOMPUTAR, e travar a CONTAGEM de ocorrências.
+    # ⚠️ `re.search` e `in texto` são satisfeitos por UMA ocorrência: três mutações
+    # de 29/08 passaram porque o valor aparece 2–6 vezes e eu havia mutado só a
+    # primeira. É o mesmo defeito que `ocorrencias()` documenta no `delta_cut_check`,
+    # e ele reapareceu aqui porque a classe não fica consertada onde foi achada.
+    # Custo assumido: edição legítima que mude o número de menções atualiza a
+    # contagem aqui, de propósito.
+    # ⚠️ Atualizado DE PROPÓSITO em 29/08: a §6.1 nova cita `583.763` e `2,66%` mais
+    # uma vez cada, ao explicar o erro que a falta de guarda produziu.
+    OCORRENCIAS = {"8,7 vezes": 2, "47,16%": 3, "10.899": 6, "2,66%": 5, "583.763": 6}
+
+    def conta(literal: str, rotulo: str) -> None:
+        esperado = OCORRENCIAS.get(literal)
+        visto = texto.count(literal)
+        if esperado is None:
+            fails.append(f"{rotulo}: {literal!r} sem contagem declarada neste guarda")
+        elif visto != esperado:
+            fails.append(
+                f"§1/§4.1: {rotulo} — {literal!r} aparece {visto}× e deveria aparecer "
+                f"{esperado}×; ou uma ocorrência divergiu, ou foi removida"
+            )
+
+    mult = conc["slots_historicos_ATE_AGORA_serie_viva"] / corpus
+    conta(f"{mult:.1f}".replace(".", ",") + " vezes", "slots/corpus recomputado")
+    pct = 100 * cum["brief"] / corpus
+    conta(f"{pct:.2f}".replace(".", ",") + "%", "cobertura do brief recomputada")
+    conta(mil(conc["slots_historicos_ATE_AGORA_serie_viva"]), "slots acumulados")
+    conta(str(conc["pct_top10"]).replace(".", ",") + "%", "fração do top-10")
+
+    # (3) a união viva, que é a linha que fecha a tabela do §4.1 em um universo
+    viva = cum["uniao"] - cum["servidos_no_brief_e_depois_apagados"]
+    if viva + cum["nenhuma_superficie"] != corpus:
+        fails.append(
+            f"§4.1: {viva} + {cum['nenhuma_superficie']} != {corpus} — a tabela deixou "
+            f"de fechar num universo só"
+        )
+    conta(mil(viva), "união viva recomputada")
+    return fails
+
+
 def eixo_check(root: Path) -> list[str]:
     """Trava a tabela do vazio no eixo de tamanho (§4.2) contra o artefato.
 
@@ -1040,6 +1186,19 @@ def coorte_check(root: Path) -> list[str]:
                 f"§4.1: {mc} aparece sem estar marcado como a média do tipo INTEIRO — "
                 f"é exatamente a confusão de população de 27/08"
             )
+
+    # (4c) o COMPLEMENTAR, que o §4.1 passou a declarar: dos nunca-expostos, quantos
+    #      ficam ABAIXO do piso. Recomputado, não ancorado — é derivado de dois
+    #      números que este mesmo guarda já trava.
+    abaixo = d["nunca_expostos"] - d["condicionado_ao_piso"]["nunca_expostos"]
+    fabaixo = f"{abaixo:,}".replace(",", ".")
+    pabaixo = f"{100 * abaixo / d['nunca_expostos']:.1f}".replace(".", ",")
+    if not re.search(rf"\*\*{re.escape(fabaixo)} — {re.escape(pabaixo)}% — não passam o "
+                     rf"piso", texto):
+        fails.append(
+            f"§4.1: o complementar recomputa {fabaixo} ({pabaixo}%) — não casa ancorado "
+            f"ao seu rótulo; texto e artefato divergiram"
+        )
 
     # (4) o número condicionado ao piso, que virou co-manchete do título
     # ⚠️ O número aparece DUAS vezes — no título do §4.1 e no parágrafo que o deriva —
@@ -1201,6 +1360,9 @@ def main() -> int:
     failures.extend(janela_check(Path(args.root)))
     failures.extend(coorte_check(Path(args.root)))
     failures.extend(eixo_check(Path(args.root)))
+    failures.extend(superficie_check(Path(args.root)))
+    failures.extend(cobertura_check(Path(args.root)))
+    failures.extend(registro_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

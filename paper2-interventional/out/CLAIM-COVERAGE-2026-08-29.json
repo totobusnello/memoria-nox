@@ -1,0 +1,242 @@
+{
+  "alegacoes_curadas": 32,
+  "artefatos_lidos_pelo_verificador": [
+    "measurement/out/superficie.json",
+    "out/EXPOSURE-BY-COHORT-2026-08-29.json",
+    "out/FLOOR-COMPOSITION-2026-08-29.json",
+    "out/SIZE-AXIS-GAP-2026-08-29.json"
+  ],
+  "artefatos_citados_mas_ausentes": [],
+  "contagem": {
+    "COBERTO": 15,
+    "COBERTURA_FRACA": 7,
+    "SEM_GUARDA": 10
+  },
+  "pct_sem_guarda": 31.2,
+  "detalhe": [
+    {
+      "valor": "583.763",
+      "rotulo": "slots acumulados na janela",
+      "estado": "COBERTO",
+      "no_verificador": true,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "8,7",
+      "rotulo": "capacidade em múltiplos do corpus",
+      "estado": "COBERTURA_FRACA",
+      "no_verificador": true,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "67.187",
+      "rotulo": "corpus vivo",
+      "estado": "COBERTO",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "1.787",
+      "rotulo": "distintos servidos no brief",
+      "estado": "COBERTO",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "2,66%",
+      "rotulo": "cobertura do brief",
+      "estado": "COBERTURA_FRACA",
+      "no_verificador": true,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "99,98%",
+      "rotulo": "cobertura sob serviço uniforme",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "83,78%",
+      "rotulo": "nunca exposto, agregado",
+      "estado": "COBERTO",
+      "no_verificador": true,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "56.288",
+      "rotulo": "nunca expostos, absoluto",
+      "estado": "COBERTO",
+      "no_verificador": true,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "10.899",
+      "rotulo": "união viva de expostos",
+      "estado": "COBERTO",
+      "no_verificador": true,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "9.755",
+      "rotulo": "expostos pela busca",
+      "estado": "COBERTO",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "152",
+      "rotulo": "servidos e apagados depois",
+      "estado": "COBERTURA_FRACA",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "47,16%",
+      "rotulo": "fração dos slots no top-10",
+      "estado": "COBERTO",
+      "no_verificador": true,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "4.632",
+      "rotulo": "briefs na semana",
+      "estado": "COBERTO",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "108",
+      "rotulo": "pool elegível do canal de cobertura",
+      "estado": "COBERTURA_FRACA",
+      "no_verificador": true,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "0,161%",
+      "rotulo": "pool como fração do corpus",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "12,4",
+      "rotulo": "slots por candidato elegível",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "10.008",
+      "rotulo": "elegíveis e nunca expostos",
+      "estado": "COBERTO",
+      "no_verificador": true,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "74,75%",
+      "rotulo": "taxa condicionada ao piso",
+      "estado": "COBERTO",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "13.388",
+      "rotulo": "chunks que passam o piso",
+      "estado": "COBERTO",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "46.280",
+      "rotulo": "nunca expostos ABAIXO do piso",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "82,2%",
+      "rotulo": "fração dos nunca expostos abaixo do piso",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "8.928",
+      "rotulo": "distilled entre os elegíveis",
+      "estado": "COBERTO",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "232",
+      "rotulo": "comprimento médio do subconjunto",
+      "estado": "COBERTURA_FRACA",
+      "no_verificador": true,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "85,50%",
+      "rotulo": "coorte madura, nunca exposto",
+      "estado": "COBERTO",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "1,295",
+      "rotulo": "maior lacuna no eixo, em décadas",
+      "estado": "COBERTO",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "32,1%",
+      "rotulo": "lacuna como fração da amplitude",
+      "estado": "COBERTURA_FRACA",
+      "no_verificador": false,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "−0,961",
+      "rotulo": "beta binomial, 15 tipos",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "−0,728",
+      "rotulo": "Pearson, 13 tipos",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "0,471",
+      "rotulo": "erro-padrão por jackknife",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "4,86%",
+      "rotulo": "teto do canal, resolução de segundo",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    },
+    {
+      "valor": "36%",
+      "rotulo": "teto sob granularidade de minuto",
+      "estado": "COBERTURA_FRACA",
+      "no_verificador": true,
+      "no_artefato_lido": true
+    },
+    {
+      "valor": "80%",
+      "rotulo": "teto sob granularidade de hora",
+      "estado": "SEM_GUARDA",
+      "no_verificador": false,
+      "no_artefato_lido": false
+    }
+  ]
+}
