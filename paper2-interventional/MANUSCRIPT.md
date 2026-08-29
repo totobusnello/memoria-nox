@@ -34,13 +34,13 @@ exposto por nenhuma das duas superfícies.**
 capacidade.** Os 8 slots do pool principal são ordenados por um score cujos termos, com
 uma exceção, **não decaem** — o componente de acesso é monótono num contador que só
 sobe. Os 3 chunks presentes em **100%** dos 4.632 briefs da semana foram acessados pela
-última vez há 90, 30 e 42 dias: o topo do brief é um **fóssil do tráfego de busca de
-meses atrás**, e o top-10 leva **47,16%** dos slots. Os outros 2 slots são um canal de
-*cobertura*, que existe para dar chance ao nunca-servido — e **congela** por outra razão:
+última vez há 90, 30 e 42 dias: o topo do brief é determinado pelo tráfego de busca de
+meses atrás, e o top-10 leva **47,16%** dos slots. Os outros 2 slots são um canal de
+*cobertura*, cuja finalidade declarada é servir o nunca-servido — e **congela** por outra razão:
 sua população elegível é de **108 chunks num corpus de 67.187** — 0,16%, recortados por
 dois padrões de caminho — e ele a esgota **inteira, todo dia**, com 12,4 slots por
-candidato. Não sobra nunca-servido para dar chance a. O canal que responderia a um ajuste de score é o que ninguém ajusta; o desenhado
-para corrigir o outro é o que não responde a score.
+candidato. Não sobra nunca-servido a servir. O canal que responderia a um ajuste de score é o que ninguém ajusta; o desenhado
+para compensar o outro é o que não responde a score.
 
 O mecanismo do canal de cobertura é **dedutível do código**. Ele ordena por um comparador
 **lexicográfico** `(last_served ASC, salience DESC)`: o score é a coordenada
@@ -58,7 +58,7 @@ mecanismo é fixado por decisões que ninguém tomou como política.**
 desfecho a jusante instrumentado (§5.4). Que a concentração seja *errada* — uma política
 que serve 10 itens por sessão **deve** concentrar, e servir uniformemente seria inútil;
 o achado é que a não-exposição é **resultado de política e não limite de capacidade**,
-logo é endereçável. E não afirmamos nada sobre a área: é **um** sistema, a generalização
+logo é revisável por decisão de desenho. E não afirmamos nada sobre a área: é **um** sistema, a generalização
 do mecanismo é dedutiva e vale para qualquer ranker com ordem lexicográfica e bônus na
 coordenada subordinada. Quantos sistemas têm essa forma é pergunta em aberto, e o
 diagnóstico executável que publicamos existe para que outros a respondam um por vez.
@@ -95,10 +95,10 @@ do problema: enquanto se acredita que a superfície é pequena demais, a não-ex
 um fato da vida; medido que ela é 8,7× maior que o corpus, a não-exposição vira uma
 **escolha de política**, e escolha se examina.
 
-Examinamos, e o desperdício tem endereço. Os 8 slots do pool principal convergem: 3
+Examinamos, e a concentração tem endereço. Os 8 slots do pool principal convergem: 3
 chunks aparecem em **100%** dos briefs, e o top-10 leva **47,16%** dos slots de uma
 semana. Os 2 slots restantes são um canal de **cobertura**, que existe precisamente para
-dar chance ao nunca-servido — e é ele que falha, por dois motivos que nada têm a ver com
+servir o nunca-servido — e é ele que falha, por dois motivos que nada têm a ver com
 relevância:
 
 1. **calendário.** O canal só considera itens com menos de 7 dias, e a ingestão chega em
@@ -155,7 +155,7 @@ busca é iniciada pelo agente, e responde por 9.755 dos 10.899 chunks já expost
   melhorar ranking não melhora exposição, e a área otimiza a coordenada errada.~~ **Essa
   era a hipótese com que este trabalho começou, e a medição a contradiz:** a superfície
   não é pequena — é 8,7× o corpus. O que importa é o que sobra depois disso: uma
-  superfície com folga entrega 2,66%, e o canal que existiria para corrigir isso é
+  superfície com folga entrega 2,66%, e o canal que existiria para compensar isso é
   governado por dois padrões de caminho que enxergam 0,16% do corpus, e por uma ordem
   lexicográfica em que o score não decide. Se outros sistemas têm essa forma é pergunta em aberto — não uma alegação
   deste paper — e o diagnóstico publicado existe para que seja respondida.
@@ -198,7 +198,7 @@ verificável e não uma inferência — é a ausência de registro nas duas.
 A composição do brief é onde o mecanismo vive. Dos 10 slots, `10 − freshSlots` vêm de um
 pool principal ordenado por `salience` (uma soma aditiva de importância, recência, dor e
 acesso), e até `freshSlots` são reservados a um pool de **cobertura**, cuja função
-declarada é dar chance ao que ainda não foi servido. O pool de cobertura é ordenado por
+declarada é servir o que ainda não foi servido. O pool de cobertura é ordenado por
 um comparador **lexicográfico** `(last_served ASC, salience DESC)`.
 
 Três parâmetros dessa descrição são, eles mesmos, resultados — e o §5 os estabelece:
@@ -271,7 +271,7 @@ bater no desfecho.
 
 ## 4. Resultados
 
-### 4.1 Exposição: 83,78% do corpus nunca chegou ao agente — e 74,75% do que passa o piso do próprio sistema
+### 4.1 Exposição: 83,78% do corpus nunca foi exposto — e 74,75% do que passa o piso do próprio sistema
 
 | | |
 |---|---|
@@ -627,7 +627,7 @@ Os três chunks presentes em **100% dos 4.632 briefs** da semana são exatamente
 | 116467 | `team` | 0,80 | **1,00** | 911 | 2026-07-17 | 125 d |
 
 **Foram acessados pela última vez há 90, 30 e 42 dias — e ganham todos os briefs de
-hoje.** O topo do brief é um **fóssil do tráfego de busca de meses atrás**. E não é caso
+hoje.** O topo do brief é determinado pelo tráfego de busca de meses atrás. E não é caso
 isolado: dos 9.755 chunks com algum acesso, **7.908 (81%) estão há mais de 60 dias sem
 serem acessados**, com o componente de acesso intacto.
 
@@ -657,7 +657,7 @@ opostos e nenhum deles ligado a capacidade:
 | cobertura | 2 | população elegível de **108 chunks** (0,16% do corpus), esgotada 100% por dia; ordem **lexicográfica** | **não** — teto de 4,86% (§5) |
 
 O canal que *poderia* ser corrigido por score é o que ninguém corrige; o que foi
-desenhado para corrigir o outro é o que não responde a score. É por isso que a folga de
+desenhado para compensar o outro é o que não responde a score. É por isso que a folga de
 8,7× não vira cobertura.
 
 ### 4.4 A predição dedutiva, e o teste
@@ -889,7 +889,7 @@ score não é alavanca" sem essa qualificação seria falso para 80% dos slots, 
 qualificação que o Abstract precisa carregar, não só esta seção.
 
 A conclusão correta é mais estreita e continua valendo: **o canal que existe justamente
-para dar chance ao não-servido é o único imune a ajustes de relevância.** A superfície
+para servir o não-servido é o único imune a ajustes de relevância.** A superfície
 tem duas partes com álgebras diferentes, e a parte reservada à cobertura é a que não
 responde ao score.
 
@@ -1270,11 +1270,11 @@ e por ser **estruturalmente surdo ao score**, com **teto analítico** de 4,86% d
 do código antes de qualquer experimento. O pool principal — os outros 8 — falha pelo
 motivo contrário: ali o score **é** a coordenada dominante, e três dos seus quatro termos
 **não decaem**. O componente de acesso é monótono num contador que só sobe, de modo que o
-topo do brief é um fóssil de tráfego de busca de meses atrás (último acesso há 90, 30 e
+topo do brief é determinado por tráfego de busca de meses atrás (último acesso há 90, 30 e
 42 dias, em chunks que ganham 4.632 de 4.632 briefs).
 
 **O canal que responderia a ajuste de score é o que ninguém ajusta; o desenhado para
-corrigir o outro é o que não responde a score.** É essa tesoura, e não a capacidade, que
+compensar o outro é o que não responde a score.** É essa tesoura, e não a capacidade, que
 produz os 2,66%.
 
 ⚠️ E vale distinguir isto do laço de realimentação clássico de recomendação: aqui a
