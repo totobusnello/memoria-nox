@@ -890,6 +890,46 @@ CV2_LOCKED = 0.3833
 ALLOCATION_LOCKED = {"control": 117, "w2": 39, "w4": 39, "w7.5": 39}
 
 
+def contrafactual_check(root: Path) -> list[str]:
+    """Trava a tabela do contrafactual do topo (§5) ao artefato.
+
+    A alegação que ela sustenta é a mais causal do paper — "o topo do brief é
+    DETERMINADO pelo tráfego de busca de meses atrás" — e ela só se sustenta porque as
+    posições mudam de 2/3/5 para 131/129/128 quando o componente de acesso é zerado.
+    Se o artefato mudar e as posições convergirem, a palavra "determinado" deixa de
+    valer e o texto tem de acusar.
+    """
+    art = root / "out" / "TOP-COUNTERFACTUAL-2026-08-29.json"
+    if not art.exists():
+        return [f"{art.name} ausente — a alegação causal do §5 perdeu o contrafactual"]
+    d = json.loads(art.read_text(encoding="utf-8"))
+    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    fails = []
+    if d.get("veredito") != "DETERMINA":
+        fails.append(
+            f"§5: o contrafactual devolve veredito {d.get('veredito')!r} e o texto diz "
+            f"'determinado' — a alegação causal deixou de estar sustentada"
+        )
+    for l in d["detalhe"]:
+        alvo = (rf"\| {l['chunk_id']} \|[^|]*\|[^|]*\|[^|]*{l['access_count']}[^|]*\| "
+                rf"\*\*{l['posicao_com_acesso']}\*\* \| \*\*"
+                rf"{l['posicao_sem_acesso']}\*\* \|")
+        if not re.search(alvo, texto):
+            fails.append(
+                f"§5: a linha do chunk {l['chunk_id']} deveria ler acessos="
+                f"{l['access_count']}, posição {l['posicao_com_acesso']} → "
+                f"{l['posicao_sem_acesso']} — não casa ancorada ao id"
+            )
+    # o número de comparação que dá força ao argumento
+    if f"{d['candidatos_servidos_na_janela']} chunks servidos na janela" not in texto:
+        fails.append(
+            f"§5: a população do contrafactual ({d['candidatos_servidos_na_janela']} "
+            f"chunks servidos na janela) não está declarada — sem ela as posições não "
+            f"têm denominador"
+        )
+    return fails
+
+
 def catalogo_check(root: Path) -> list[str]:
     """Conta as duas tabelas do catálogo de defeitos e trava as menções ao total.
 
@@ -1248,8 +1288,8 @@ def coorte_check(root: Path) -> list[str]:
     abaixo = d["nunca_expostos"] - d["condicionado_ao_piso"]["nunca_expostos"]
     fabaixo = f"{abaixo:,}".replace(",", ".")
     pabaixo = f"{100 * abaixo / d['nunca_expostos']:.1f}".replace(".", ",")
-    if not re.search(rf"\*\*{re.escape(fabaixo)} — {re.escape(pabaixo)}% — não passam o "
-                     rf"piso", texto):
+    if not re.search(rf"\*\*{re.escape(fabaixo)} — {re.escape(pabaixo)}% — não passam nem "
+                     rf"esse piso", texto):
         fails.append(
             f"§4.1: o complementar recomputa {fabaixo} ({pabaixo}%) — não casa ancorado "
             f"ao seu rótulo; texto e artefato divergiram"
@@ -1281,8 +1321,10 @@ def coorte_check(root: Path) -> list[str]:
     fk = f"{p['nunca_expostos']:,}".replace(",", ".")
     fn = f"{p['chunks']:,}".replace(",", ".")
     for padrao, onde in (
-        (rf"### 4\.1 [^\n]*{re.escape(pf)}% do que passa o piso", "título do §4.1"),
-        (rf"{re.escape(fn)} chunks que passam o piso", "denominador do piso no parágrafo"),
+        (rf"### 4\.1 [^\n]*{re.escape(pf)}% do que o canal de cobertura considera",
+         "título do §4.1"),
+        (rf"{re.escape(fn)} chunks que passam o piso de\s*\n?elegibilidade do "
+         rf"\*\*canal de cobertura\*\*", "denominador, com o canal nomeado"),
         (rf"\*\*{re.escape(fk)} = {re.escape(pf)}% nunca foram expostos\*\*",
          "co-manchete no parágrafo"),
     ):
@@ -1436,6 +1478,7 @@ def main() -> int:
     failures.extend(cobertura_check(Path(args.root)))
     failures.extend(registro_check(Path(args.root)))
     failures.extend(catalogo_check(Path(args.root)))
+    failures.extend(contrafactual_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

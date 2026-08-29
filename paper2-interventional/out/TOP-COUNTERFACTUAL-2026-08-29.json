@@ -1,0 +1,37 @@
+{
+  "briefs_na_janela": 4632,
+  "candidatos_servidos_na_janela": 149,
+  "top_considerado": 10,
+  "onipresentes": 3,
+  "saem_do_top_sem_acesso": 3,
+  "detalhe": [
+    {
+      "chunk_id": 116467,
+      "importance": 0.8,
+      "pain": 1.0,
+      "access_count": 911,
+      "posicao_com_acesso": 2,
+      "posicao_sem_acesso": 131,
+      "sai_do_top": true
+    },
+    {
+      "chunk_id": 112241,
+      "importance": 0.8,
+      "pain": 1.0,
+      "access_count": 414,
+      "posicao_com_acesso": 3,
+      "posicao_sem_acesso": 129,
+      "sai_do_top": true
+    },
+    {
+      "chunk_id": 116107,
+      "importance": 0.8,
+      "pain": 1.0,
+      "access_count": 363,
+      "posicao_com_acesso": 5,
+      "posicao_sem_acesso": 128,
+      "sai_do_top": true
+    }
+  ],
+  "veredito": "DETERMINA"
+}

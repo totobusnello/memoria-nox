@@ -283,7 +283,7 @@ bater no desfecho.
 
 ## 4. Resultados
 
-### 4.1 Exposição: 83,78% do corpus nunca foi exposto — e 74,75% do que passa o piso do próprio sistema
+### 4.1 Exposição: 83,78% do corpus nunca foi exposto — e 74,75% do que o canal de cobertura considera elegível
 
 | | |
 |---|---|
@@ -294,7 +294,7 @@ bater no desfecho.
 | — desses, **apagados depois** | 152 |
 | **união viva** = 11.051 − 152 | **10.899** |
 | **nunca exposto por nenhuma** = 67.187 − 10.899 | **56.288 = 83,78%** |
-| desses, passam o próprio piso de relevância do sistema | **10.008** |
+| desses, elegíveis pelo piso do **canal de cobertura** | **10.008** |
 
 A tabela fecha em **um** universo — o corpus vivo — e a linha dos 152 é o que faz a
 ponte. A versão anterior listava a união histórica ao lado do complemento vivo, e quem
@@ -304,10 +304,23 @@ e a tabela, não.
 **A linha do piso é uma manchete, não uma nota de rodapé.** Um leitor pode conceder o
 agregado e recusar a consequência: se a maior parte dos 56.288 fosse ruído de baixo
 valor, não haveria o que entregar. Não é o caso — dos 13.388 chunks que passam o piso de
-relevância do **próprio sistema**, **10.008 = 74,75% nunca foram expostos**.
+elegibilidade do **canal de cobertura**, **10.008 = 74,75% nunca foram expostos**.
 
-⚠️ **Esse "piso do próprio sistema" merece precisão, porque ele não é uma constante do
-código.** A *forma* do predicado está em `brief.ts:642` — `(COALESCE(importance,0) >= ?
+🔴 **O rótulo desse piso precisa ser exato, e uma versão anterior desta seção o inflava.**
+Ele **não** é um piso de relevância do sistema: `freshMinImp` e `freshMinPain` vivem em
+`DIVERSITY_DEFAULTS`, ao lado de `freshSlots: 2`, e só entram por `fetchFreshCandidates`
+— ou seja, são o critério de elegibilidade **do canal de cobertura de 2 slots**. Os 8
+slots do pool principal não aplicam filtro nenhum de importância. Dizer "o próprio
+sistema marcou como relevante" atribuía a um julgamento global o que é o limiar de
+entrada de um canal.
+
+⚠️ **E os dois lados da razão vêm de universos diferentes**, o que restringe a leitura:
+o numerador conta não-exposição pelas **duas** superfícies (brief ∪ busca), enquanto o
+denominador é o critério de **um** canal. A grandeza é legítima — "o canal de cobertura
+consideraria este chunk, e nenhuma superfície jamais o mostrou" — mas não é "o sistema
+julgou relevante e se recusou a servir".
+
+⚠️ **O piso também não é constante do código.** A *forma* do predicado está em `brief.ts:642` — `(COALESCE(importance,0) >= ?
 OR COALESCE(pain,0) >= ?)`, e o `OR` é do código, não nosso. Os *valores* 0,7/0,7 estão
 em `brief-diversity.ts:59-60`, e são **defaults sobrescrevíveis em tempo de execução**
 por `NOX_BRIEF_DIV_FRESH_MIN_IMP` e `NOX_BRIEF_DIV_FRESH_MIN_PAIN` (`:88-89`). Verificado
@@ -318,7 +331,7 @@ estão noutro arquivo — e apresentar configuração de runtime como constante 
 o tipo de imprecisão que faz um número correto envelhecer para errado sem aviso. Condicionar à relevância
 declarada reduz a taxa em 9 pontos e o valor absoluto em 5,6×; não a dissolve. ⚠️ **E o
 complementar tem de ser dito, porque é a maior parte:** dos 56.288 nunca expostos,
-**46.280 — 82,2% — não passam o piso do próprio sistema.** Quem sustentar que a
+**46.280 — 82,2% — não passam nem esse piso.** Quem sustentar que a
 não-exposição é, em boa medida, filtragem correta de material irrelevante tem esses 82%
 a favor. O que a co-manchete estabelece é que **sobram 10.008 chunks — 14,9% do
 corpus** — que o sistema marcou como relevantes e nunca mostrou.
@@ -683,7 +696,29 @@ Os três chunks presentes em **100% dos 4.632 briefs** da semana são exatamente
 | 116467 | `team` | 0,80 | **1,00** | 911 | 2026-07-17 | 125 d |
 
 **Foram acessados pela última vez há 90, 30 e 42 dias — e ganham todos os briefs de
-hoje.** O topo do brief é determinado pelo tráfego de busca de meses atrás. E não é caso
+hoje.** O topo do brief é determinado pelo tráfego de busca de meses atrás — e
+"determinado" aqui é **contrafactual medido**, não leitura da fórmula.
+
+| chunk | `importance` | `pain` | acessos | posição | posição com o acesso **zerado** |
+|---|---:|---:|---:|---:|---:|
+| 116467 | 0,80 | 1,00 | 911 | **2** | **131** |
+| 112241 | 0,80 | 1,00 | 414 | **3** | **129** |
+| 116107 | 0,80 | 1,00 | 363 | **5** | **128** |
+
+Recomputando a salience dos 149 chunks servidos na janela com o componente de acesso em
+zero (`measurement/contrafactual-do-topo.py`, `out/TOP-COUNTERFACTUAL-2026-08-29.json`),
+os três **saem do top-10 e caem para além da centésima posição**. ⚠️ A objeção que
+motivou esta medição — levantada em revisão adversarial — era que `pain = 1,00` e
+`importance = 0,80` poderiam bastar para pô-los no topo, tornando o acesso irrelevante e
+a palavra "determinado" forte demais. **A objeção era procedente em forma e falsa em
+substância:** esses valores são altos, mas não únicos — 128 outros chunks os alcançam
+sem o termo de acesso, e é o tráfego antigo que desempata.
+
+⚠️ **Registro de como a alegação chegou a precisar disso.** A frase dizia "o topo do
+brief é um *fóssil* do tráfego de busca de meses atrás", e a metáfora foi substituída por
+"determinado por" numa passagem que tirava juízo de valor do texto. Só que "determinado"
+é uma afirmação **causal mais forte** que a metáfora que substituiu: neutralizar o tom
+endureceu a alegação. O contrafactual acima existe porque a troca a deixou a descoberto. E não é caso
 isolado: dos 9.755 chunks com algum acesso, **7.908 (81%) estão há mais de 60 dias sem
 serem acessados**, com o componente de acesso intacto.
 
