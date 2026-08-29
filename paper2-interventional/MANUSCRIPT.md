@@ -87,7 +87,10 @@ busca sob demanda.
 slots** a 67.187 chunks — capacidade para servir cada chunk **8,7 vezes**. Serviu **1.787
 distintos, 2,66% do corpus**; sob serviço uniforme a cobertura esperada seria 99,98%.
 Somando a busca, **83,78% do corpus nunca foi exposto**. A não-exposição não é imposta
-pelo número de slots: é produzida pela ordenação.
+pelo número de slots. ⚠️ **A parte que a ordenação explica é a do brief** — os outros
+9.755 expostos vieram de busca, que é iniciada pelo agente, e o §4.1.1 delimita o que se
+pode atribuir a cada superfície. A alegação sobre mecanismo é sobre o brief, e o número
+agregado mede o que não chegou, não o que o ranker recusou.
 
 ⚠️ Isso não é acusação à política. Uma superfície de 10 itens **deve** concentrar —
 servir memória ao acaso seria pior que não servir. O que muda com o número é a natureza
@@ -294,7 +297,12 @@ agregado e recusar a consequência: se a maior parte dos 56.288 fosse ruído de 
 valor, não haveria o que entregar. Não é o caso — dos 13.388 chunks que passam o piso de
 relevância do **próprio sistema** (`importance ≥ 0,7 OR pain ≥ 0,7`, verbatim de
 `brief.ts:642`), **10.008 = 74,75% nunca foram expostos**. Condicionar à relevância
-declarada reduz a taxa em 9 pontos e o valor absoluto em 5,6×; não a dissolve.
+declarada reduz a taxa em 9 pontos e o valor absoluto em 5,6×; não a dissolve. ⚠️ **E o
+complementar tem de ser dito, porque é a maior parte:** dos 56.288 nunca expostos,
+**46.280 — 82,2% — não passam o piso do próprio sistema.** Quem sustentar que a
+não-exposição é, em boa medida, filtragem correta de material irrelevante tem esses 82%
+a favor. O que a co-manchete estabelece é que **sobra** um décimo do corpus que o sistema
+marcou como relevante e nunca mostrou.
 
 ⚠️ **E a leitura tentadora desse número é falsa — a qualificação viaja com ele.** Dos
 10.008, **8.928 (89,2%) são `distilled`**: fragmentos de sessão de **232 caracteres** em
@@ -494,9 +502,24 @@ prediz exposição; o tamanho da coleção prediz — com a ressalva, acima, de 
 pode ser proxy de como o tipo é produzido.
 
 **Figura 1** — `measurement/out/fig1-capacidade.svg`: dispersão `log₁₀(tamanho)` ×
-`% exposto`, um ponto por tipo com rótulo, reta de regressão e as duas faixas
-(n ≥ 1.000 · n < 100) sombreadas, porque **a ausência de sobreposição é o achado** e
-precisa ser vista, não afirmada. Gerada por `fig1-capacidade.py --dados
+`% exposto`, um ponto por tipo com rótulo e as duas faixas (n ≥ 1.000 · n < 100)
+sombreadas, porque **a separação das duas nuvens é o achado** e precisa ser vista, não
+afirmada.
+
+🔴 **A figura desenha 13 tipos, não 15** — ela é gerada sobre o artefato que já traz o
+filtro `HAVING total >= 10`, e os dois excluídos, `pending` e `procedure`, são
+**exatamente os que quebram a leitura de separação**, porque estão em zero. Uma figura
+que mostra separação limpa enquanto o texto ao lado declara que a separação limpa é
+falsa com os 15 é pior que nenhuma figura: o leitor acredita no que vê. Os dois pontos
+faltantes ficam declarados aqui, e a legenda da figura os nomeia.
+
+⚠️ **A legenda anterior dizia "a ausência de sobreposição é o achado", e essa frase é
+falsa com os 15 tipos** — `pending` e `procedure`, ambos em zero, fazem a faixa dos
+pequenos conter a dos grandes inteira. O que a figura mostra é mais fraco e é o que o
+texto acima afirma: nenhum tipo pequeno cai *dentro* da faixa dos grandes; eles estão
+acima dela ou em zero. ⚠️ **E a reta de regressão**, que a versão anterior traçava,
+atravessa 1,295 décadas sem um único ponto — desenhá-la é afirmar graficamente a
+continuidade que o §4.2 retira. Ou sai, ou vai marcada como interpolação em faixa vazia. Gerada por `fig1-capacidade.py --dados
 out/superficie.json` — derivada do artefato travado, então muda se o dado mudar;
 figura desenhada à mão seria prosa afirmando resultado calculado.
 
@@ -1189,8 +1212,14 @@ Chaney et al. (RecSys '18) mostram que o laço de realimentação entre o que é
 o que é aprendido aumenta homogeneidade ao longo do tempo.
 
 Nosso resultado é *popularity bias* onde a "popularidade" é **o tamanho da coleção a
-que o item pertence**, e o laço de realimentação de Chaney tem análogo direto:
-`access_count` entra na `salience`, então o que foi exposto fica mais exposível.
+que o item pertence**. ⚠️ **O laço de Chaney tem aqui um análogo apenas parcial, e a
+diferença é de desenho, não de acaso:** `access_count` entra na `salience`, mas é
+incrementado **só pela busca** (`search.ts:396`) — o brief é declaradamente *read-only*
+sobre `chunks`. Então servir no brief **não** aumenta a prioridade de nada, e o laço
+clássico, em que a exposição se auto-reforça, **não fecha dentro do sistema** (§4.3.2). O
+que existe é uma codificação permanente, sem decaimento, de tráfego de busca passado. Se
+o laço se fecha, fecha **pelo agente**, que vê o item e talvez volte a buscá-lo — e isso
+não medimos.
 
 O trabalho mais próximo do nosso achado é Bower et al. (2022), que mostra que a
 desigualdade de exposição se origina **antes** da ordenação, no conjunto de candidatos
@@ -1251,11 +1280,17 @@ monotonicidade**, e essa é uma afirmação que texto integral poderia refinar.
 Três afirmações, e nenhuma além.
 
 **Primeira: a não-exposição deste sistema é resultado de política, não de capacidade.**
-É a afirmação que a medição inverteu em relação à hipótese com que começamos, e ela é
-falsificável por uma razão simples: **`slots / distintos`**. Sob gargalo de capacidade
-essa razão fica perto de 1 — cada slot mostra algo novo até o corpus esgotar. Sob
-gargalo de política, ela cresce sem limite. Medimos **325**. Não há aqui restrição
-física a remover; há uma ordenação que revisita.
+É a afirmação que a medição inverteu em relação à hipótese com que começamos. O que a
+sustenta é **uma linha de aritmética mais um mecanismo**, e não um teste estatístico:
+583.973 slots contra 67.187 chunks — capacidade para mostrar tudo nove vezes — enquanto
+o brief serviu 1.787 distintos. Não há aqui restrição física a remover; há uma ordenação
+que revisita, e o §5 mostra por qual caminho.
+
+⚠️ **Uma versão anterior desta seção sustentava a mesma conclusão pela razão
+`slots / distintos` = 325**, apresentada como teste que separava capacidade de política.
+O §4.1.1 retira esse argumento e a retirada vale aqui também: **qualquer política
+concentradora produz uma razão ≫ 1, inclusive uma correta**, de modo que a razão media
+concentração e a inferência para *defeito* vinha de graça.
 
 ⚠️ A objeção correta a isso é que os slots não são fungíveis: a superfície entrega 10
 por sessão, e nada garante que uma sessão tolere mais de 10. Verdade — e a alegação não

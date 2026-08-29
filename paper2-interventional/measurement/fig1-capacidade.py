@@ -15,6 +15,11 @@ import json
 import math
 
 
+# limites do vazio no eixo, verbatim de `lacuna-no-eixo-de-tamanho.py`:
+# maior tipo pequeno (lesson) e menor tipo grande (graph_node).
+VAZIO = (53, 1046)
+
+
 def pearson(xs, ys):
     n = len(xs)
     mx, my = sum(xs) / n, sum(ys) / n
@@ -83,10 +88,17 @@ def main():
         s.append(f'<text x="{px(d):.1f}" y="{T + ph + 16:.0f}" text-anchor="middle" '
                  f'class="mut">10<tspan dy="-4" font-size="8">{d}</tspan></text>')
 
-    # reta de regressão
-    s.append(f'<line x1="{px(x0):.1f}" y1="{py(my + b * (x0 - mx)):.1f}" '
-             f'x2="{px(x1):.1f}" y2="{py(my + b * (x1 - mx)):.1f}" '
-             f'stroke="var(--mut)" stroke-width="1.4" stroke-dasharray="5 4"/>')
+    # ⚠️ A RETA DE REGRESSÃO FOI RETIRADA em 2026-08-29, e não por estética.
+    # O eixo tem um vazio de 1,295 décadas — 32,1% da amplitude, zero tipos entre
+    # n=53 e n=1.046 (`lacuna-no-eixo-de-tamanho.py`). Uma reta atravessando esse
+    # trecho AFIRMA GRAFICAMENTE a continuidade que o §4.2 retira do texto, e é a
+    # forma mais difícil de retratar: o leitor lê a inclinação sem ler a ressalva.
+    # No lugar dela, uma faixa que marca explicitamente onde não há observação.
+    gx0, gx1 = math.log10(VAZIO[0]), math.log10(VAZIO[1])
+    s.append(f'<rect x="{px(gx0):.1f}" y="{T}" width="{px(gx1) - px(gx0):.1f}" '
+             f'height="{ph}" fill="var(--mut)" opacity="0.07"/>')
+    s.append(f'<text x="{(px(gx0) + px(gx1)) / 2:.1f}" y="{T + 16}" '
+             f'text-anchor="middle" class="mut">sem observação</text>')
 
     # pontos + rótulos
     for t, x, y in zip(tipos, xs, ys):
