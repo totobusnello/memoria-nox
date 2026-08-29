@@ -1,0 +1,40 @@
+{
+  "corpus": 67187,
+  "nunca_expostos": 65552,
+  "pct_agregado": 97.57,
+  "por_coorte": [
+    {
+      "coorte": "a) < 1 semana",
+      "chunks": 96,
+      "nunca_expostos": 96,
+      "pct_nunca_exposto": 100.0
+    },
+    {
+      "coorte": "b) 1-4 semanas",
+      "chunks": 1213,
+      "nunca_expostos": 803,
+      "pct_nunca_exposto": 66.2
+    },
+    {
+      "coorte": "c) 4-12 semanas",
+      "chunks": 4553,
+      "nunca_expostos": 3621,
+      "pct_nunca_exposto": 79.53
+    },
+    {
+      "coorte": "d) > 12 semanas",
+      "chunks": 61325,
+      "nunca_expostos": 61032,
+      "pct_nunca_exposto": 99.52
+    }
+  ],
+  "chunks_com_menos_de_4_semanas": 1309,
+  "pct_do_corpus_que_e_jovem": 1.95,
+  "coorte_madura_pct_nunca_exposto": 99.52,
+  "condicionado_ao_piso": {
+    "piso": "importance >= 0.7 OR pain >= 0.7",
+    "chunks": 13388,
+    "nunca_expostos": 11761,
+    "pct": 87.85
+  }
+}

@@ -22,13 +22,12 @@ superfícies pelas quais um sistema de memória em operação entrega conteúdo 
 de 6 agentes: um brief proativo de 10 itens e a busca sob demanda.
 
 O brief entregou **583.973 slots** — **8,7 vezes** o tamanho do corpus, o suficiente para
-servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks distintos: 2,66%** —
-**325 slots gastos por chunk distinto.** Essa razão é o teste que separa as duas
-hipóteses: sob gargalo de capacidade ela seria ≈ 1, com cada slot mostrando algo novo
-até esgotar; sob gargalo de política, ≫ 1. **A capacidade não obriga o resultado; a
-ordenação o produz.** (A cobertura de 99,98% sob serviço uniforme aparece como limite
-aritmético do que a capacidade permitiria, não como política recomendada — servir
-memória ao acaso seria pior que não servir.) Somando a busca, **83,78% do corpus nunca foi
+servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks distintos: 2,66%**. A
+capacidade **agregada**, portanto, não obrigava esse resultado: havia espaço para mostrar
+o corpus inteiro nove vezes. Não se conclui daí que a ordenação esteja errada — só que
+não foi a falta de espaço que produziu o número. A capacidade **por sessão** (10 itens)
+não é testada aqui. (A cobertura de 99,98% sob serviço uniforme aparece como limite
+aritmético do que a capacidade permitiria, não como política recomendada.) Somando a busca, **83,78% do corpus nunca foi
 exposto por nenhuma das duas superfícies.**
 
 **Os dois canais da superfície congelam, por motivos opostos e nenhum ligado a
@@ -272,7 +271,7 @@ bater no desfecho.
 
 ## 4. Resultados
 
-### 4.1 Exposição: 83,78% do corpus nunca chegou ao agente
+### 4.1 Exposição: 83,78% do corpus nunca chegou ao agente — e 74,75% do que passa o piso do próprio sistema
 
 | | |
 |---|---|
@@ -290,7 +289,40 @@ ponte. A versão anterior listava a união histórica ao lado do complemento viv
 subtraísse `67.187 − 11.051` obtinha 56.136 em vez de 56.288. Os números estavam certos
 e a tabela, não.
 
-#### 4.1.1 Capacidade não obriga o resultado — e a distinção é testável
+**A linha do piso é uma manchete, não uma nota de rodapé.** Um leitor pode conceder o
+agregado e recusar a consequência: se a maior parte dos 56.288 fosse ruído de baixo
+valor, não haveria o que entregar. Não é o caso — dos 13.388 chunks que passam o piso de
+relevância do **próprio sistema** (`importance ≥ 0,7 OR pain ≥ 0,7`, verbatim de
+`brief.ts:642`), **10.008 = 74,75% nunca foram expostos**. Condicionar à relevância
+declarada reduz a taxa em 9 pontos e o valor absoluto em 5,6×; não a dissolve.
+
+**A taxa é incondicional, e essa é a objeção com direção desconhecida.** Um chunk criado
+na semana 11 da janela teve 7 dias de oportunidade de exposição; um da semana 1 teve 84.
+Os dois entram iguais no denominador. Se o corpus tivesse crescido depressa perto do
+fim, uma fatia dos 56.288 seria "novo demais para julgar" em vez de "não entregue".
+Estratificando por idade (`measurement/exposicao-por-coorte.py`,
+`out/EXPOSURE-BY-COHORT-2026-08-29.json`):
+
+| coorte | chunks | nunca expostos | % |
+|---|---:|---:|---:|
+| < 1 semana | 96 | 90 | 93,75% |
+| 1–4 semanas | 1.213 | 753 | 62,08% |
+| 4–12 semanas | 4.553 | 3.013 | 66,18% |
+| **> 12 semanas** | **61.325** | **52.432** | **85,50%** |
+
+O viés existe e aponta para o **outro lado**. A coorte com oportunidade **máxima** — 91,3%
+do corpus, mais de doze semanas de exposição possível — é a **mais** não-exposta (85,50%
+contra 83,78% agregado), e as duas coortes jovens juntas são 1,95% do corpus, pequenas
+demais para mover o agregado em qualquer direção. Corrigir pela censura temporal
+**aumentaria** a taxa reportada. Reportamos a menor.
+
+⚠️ **Uma terceira perna da mesma objeção é incontável por construção, e fica declarada:**
+chunk criado e apagado dentro da janela sem nunca ter sido exposto não aparece em
+população nenhuma — o complemento é sobre o corpus *vivo*. Que o inverso exista (os 152
+servidos e depois apagados) prova que há churn na janela. A direção desse viés é
+desconhecida e não é mensurável com os dados que temos.
+
+#### 4.1.1 Capacidade agregada não obriga o resultado — e o que isso não estabelece
 
 ⚠️ **Uma objeção que precisa ser respondida antes de qualquer coisa: 583.973 slots
 acumulados não são fungíveis.** A superfície entrega **10 itens por sessão**, e se uma
@@ -303,16 +335,23 @@ itens *distintos* a superfície já mostrou alguma vez, e para essa pergunta os 
 **são** fungíveis no tempo: nada obriga a sessão de hoje a mostrar os mesmos 10 itens de
 ontem, e mostrar dez itens diferentes por sessão jamais violaria o limite de dez.
 
-E as duas hipóteses fazem **predições diferentes e opostas** sobre a mesma quantidade:
+**E a evidência de que a capacidade agregada não vincula é uma linha de aritmética, não
+um teste:** 583.973 slots contra 67.187 chunks. Havia espaço para mostrar tudo, nove
+vezes. Isso é o que se pode afirmar, e basta para o que o parágrafo anterior sustenta.
 
-| se o gargalo é… | então `slots / distintos` deveria ser… | observado |
-|---|---|---|
-| **capacidade** — não há onde colocar mais | ≈ 1, cada slot mostrando algo novo até esgotar | — |
-| **política** — há onde, e reusa-se o mesmo | ≫ 1 | **325** |
-
-**325 slots gastos por chunk distinto.** Não é um contraste contra o espantalho do
-serviço uniforme; é uma razão que a hipótese de capacidade não pode produzir. Se a
-superfície estivesse saturada de itens novos, essa razão seria próxima de 1.
+⚠️ **Uma versão anterior desta seção trazia aqui uma tabela de "predições opostas"** —
+razão `slots/distintos` ≈ 1 sob gargalo de capacidade contra ≫ 1 sob gargalo de política,
+com 325 observado — apresentada como o teste que separava as duas hipóteses. **Ela foi
+retirada, e a razão de retirá-la é instrutiva.** Primeiro, a predição "≈ 1" não é
+derivada da hipótese de capacidade: é a hipótese reescrita na unidade da razão, de modo
+que observar ≫ 1 *é* observar folga — medida com duas regiões rotuladas, não teste com
+taxa de erro. Segundo, a hipótese que ela derrubava já estava morta pela aritmética acima,
+enquanto a hipótese que um defensor sustentaria — demanda por sessão acima de 10 — é a
+que declaramos fora de escopo. Terceiro, e decisivo: **qualquer política concentradora
+produz ≫ 1**, inclusive uma correta. Num corpus com milhares de fragmentos de sessão e
+3.231 chunks do tipo `daily`, uma razão perto de 1 significaria servir digests obsoletos
+— seria a política *pior*. A razão media concentração, e a inferência para *defeito* vinha
+de graça.
 
 📌 É por isso que o contrafactual uniforme (99,98%) aparece neste paper como **limite
 superior aritmético** e não como política recomendada. Servir memória ao acaso seria

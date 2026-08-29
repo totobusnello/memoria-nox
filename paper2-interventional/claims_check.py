@@ -890,6 +890,88 @@ CV2_LOCKED = 0.3833
 ALLOCATION_LOCKED = {"control": 117, "w2": 39, "w4": 39, "w7.5": 39}
 
 
+def coorte_check(root: Path) -> list[str]:
+    """Amarra a tabela de coortes do §4.1 ao artefato, e o §4.1 ao §5 pelo agregado.
+
+    A tabela é prosa afirmando resultado calculado — sem guarda, é cache sem
+    invalidação. Cada linha é ancorada ao RÓTULO da coorte, não solta no texto: o
+    teste de mutação de 27/08 mostrou que valor sem âncora é satisfeito por qualquer
+    ocorrência coincidente.
+
+    ⚠️ O guarda que importa mais não é nenhuma linha da tabela: é a igualdade
+    `nunca_expostos == 56.288`. O artefato usa a definição de exposição da UNIÃO das
+    duas superfícies (brief ∪ `access_count > 0`); uma primeira versão do script
+    contou só o brief e devolveu 97,57%, número correto para OUTRA grandeza. Travar o
+    agregado contra a tabela do §4.1 faz o universo errado morder aqui, e não no
+    parágrafo.
+    """
+    art = root / "out" / "EXPOSURE-BY-COHORT-2026-08-29.json"
+    doc = root / "MANUSCRIPT.md"
+    if not art.exists():
+        return [f"{art.name} ausente — a tabela de coortes do §4.1 não tem artefato"]
+    if not doc.exists():
+        return ["MANUSCRIPT.md ausente"]
+    d = json.loads(art.read_text(encoding="utf-8"))
+    texto = doc.read_text(encoding="utf-8")
+    fails = []
+
+    # (1) o agregado do artefato TEM de ser o da tabela do §4.1 — universos comensuráveis
+    if d["nunca_expostos"] != 56288 or d["pct_agregado"] != 83.78:
+        fails.append(
+            f"coorte: artefato agrega {d['nunca_expostos']} ({d['pct_agregado']}%) contra "
+            f"os 56.288/83,78% do §4.1 — definição de 'exposto' divergiu entre os dois"
+        )
+
+    # (2) cada linha, ancorada ao rótulo da coorte
+    rot = {"a) < 1 semana": r"\| < 1 semana \|", "b) 1-4 semanas": r"\| 1–4 semanas \|",
+           "c) 4-12 semanas": r"\| 4–12 semanas \|",
+           "d) > 12 semanas": r"\| \*\*> 12 semanas\*\* \|"}
+    for l in d["por_coorte"]:
+        pref = rot.get(l["coorte"])
+        if pref is None:
+            fails.append(f"coorte {l['coorte']!r} sem âncora declarada neste guarda")
+            continue
+        n, k = l["chunks"], l["nunca_expostos"]
+        pct = f"{l['pct_nunca_exposto']:.2f}".replace(".", ",")
+        # milhar com ponto, como o documento escreve
+        fn, fk = f"{n:,}".replace(",", "."), f"{k:,}".replace(",", ".")
+        if not re.search(pref + rf"[^|]*{re.escape(fn)}[^|]*\|[^|]*{re.escape(fk)}"
+                         rf"[^|]*\|[^|]*{re.escape(pct)}%", texto):
+            fails.append(
+                f"§4.1: linha {l['coorte']!r} deveria ler {fn}/{fk}/{pct}% ancorada ao "
+                f"rótulo — não casa; medição caiu ou a tabela divergiu do artefato"
+            )
+
+    # (3) a AFIRMAÇÃO de direção do viés, que é o que o §4.1 conclui
+    mad = d["coorte_madura_pct_nunca_exposto"]
+    if mad <= d["pct_agregado"]:
+        fails.append(
+            f"§4.1 afirma que a coorte madura é MAIS não-exposta que o agregado, mas o "
+            f"artefato dá {mad}% <= {d['pct_agregado']}% — a conclusão inverteu"
+        )
+
+    # (4) o número condicionado ao piso, que virou co-manchete do título
+    # ⚠️ O número aparece DUAS vezes — no título do §4.1 e no parágrafo que o deriva —
+    # e `f"{pf}%" in texto` foi satisfeito pela outra quando a mutação alterou só uma
+    # (M4, 29/08, não mordeu). Cada ocorrência tem de ser ancorada ao SEU contexto.
+    p = d["condicionado_ao_piso"]
+    pf = f"{p['pct']:.2f}".replace(".", ",")
+    fk = f"{p['nunca_expostos']:,}".replace(",", ".")
+    fn = f"{p['chunks']:,}".replace(",", ".")
+    for padrao, onde in (
+        (rf"### 4\.1 [^\n]*{re.escape(pf)}% do que passa o piso", "título do §4.1"),
+        (rf"{re.escape(fn)} chunks que passam o piso", "denominador do piso no parágrafo"),
+        (rf"\*\*{re.escape(fk)} = {re.escape(pf)}% nunca foram expostos\*\*",
+         "co-manchete no parágrafo"),
+    ):
+        if not re.search(padrao, texto):
+            fails.append(
+                f"§4.1: {onde} deveria ler {fk} de {fn} = {pf}% ancorado ao seu contexto "
+                f"(/{padrao}/ não casa) — divergiu do artefato"
+            )
+    return fails
+
+
 def sizing_check(root: Path) -> list[str]:
     """Re-run `sizing.py` and `assign_arms.py` and assert the locked outputs.
 
@@ -1026,6 +1108,7 @@ def main() -> int:
     failures.extend(delta_cut_check(Path(args.root)))
     failures.extend(blob_check(Path(args.root)))
     failures.extend(janela_check(Path(args.root)))
+    failures.extend(coorte_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)
