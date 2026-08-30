@@ -1,0 +1,56 @@
+{
+  "gerado_por": "measurement/robustez-tamanho-exposicao.py",
+  "dados": "measurement/out/tipos-2026-08-28.csv",
+  "pergunta": "o achado tamanho×exposição sobrevive ao filtro, à idade e à escolha de estimador?",
+  "correlacoes": {
+    "pearson_13_publicados": -0.728,
+    "pearson_15_todos": -0.334,
+    "spearman_15_todos": -0.098
+  },
+  "binomial": {
+    "todos_15": {
+      "tipos": 15,
+      "beta_log10n": -0.961,
+      "razao_de_chances_por_decada": 0.38,
+      "ep_do_modelo": 0.027,
+      "ep_do_modelo_e_invalido_porque": "supõe 67 mil observações independentes; a unidade real é o TIPO",
+      "ep_jackknife_sobre_tipos": 0.471,
+      "z_jackknife": -2.0,
+      "beta_deixando_um_tipo_de_fora": [
+        -1.121,
+        -0.51
+      ]
+    },
+    "publicados_13": {
+      "tipos": 13,
+      "beta_log10n": -0.982,
+      "razao_de_chances_por_decada": 0.37,
+      "ep_do_modelo": 0.027,
+      "ep_do_modelo_e_invalido_porque": "supõe 67 mil observações independentes; a unidade real é o TIPO",
+      "ep_jackknife_sobre_tipos": 0.473,
+      "z_jackknife": -2.1,
+      "beta_deixando_um_tipo_de_fora": [
+        -1.153,
+        -0.532
+      ]
+    }
+  },
+  "ponto_bisserial_no_chunk": -0.15,
+  "ponto_bisserial_nao_e_independente_porque": "log10(tamanho) é constante dentro do tipo; o n efetivo segue sendo o número de tipos",
+  "excluidos_pelo_filtro": [
+    {
+      "tipo": "pending",
+      "n": 6,
+      "expostos": 0,
+      "pct": 0.0,
+      "idade_dias": 6
+    },
+    {
+      "tipo": "procedure",
+      "n": 3,
+      "expostos": 0,
+      "pct": 0.0,
+      "idade_dias": 33
+    }
+  ]
+}

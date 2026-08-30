@@ -208,6 +208,44 @@ que a motivou (a taxa é incondicional; chunks jovens não tiveram oportunidade)
 e **aponta para o lado oposto**: a coorte com oportunidade máxima é a mais não-exposta.
 Corrigir pela censura temporal aumentaria a taxa reportada.
 
+### 8. Uma afirmação de completude falsa no manifesto da v1.12 (achada em 30/08)
+
+`SERVING-CODE-MANIFEST.md` argumenta — corretamente — que hash de commit não sobrevive
+a uma reconciliação de histórico, e conclui: *"é por isso que **toda linha acima**
+carrega o sha256 dos bytes do arquivo — esse pino sobrevive a qualquer reescrita, e é o
+que um leitor pode conferir contra o blob depositado sem acesso ao repositório
+privado."*
+
+**Três das seis linhas não carregavam sha256.** As da segunda tabela traziam só o hash
+de commit — o pino que o próprio parágrafo acabara de declarar instável. O leitor que
+aceitasse a promessa e fosse conferir `serving-brief-diversity.ts` contra o blob
+depositado não teria contra o que conferir, e precisaria exatamente do acesso que a
+frase promete dispensar.
+
+O arquivo mais exposto pela lacuna é o mais citado: `serving-brief-diversity.ts` carrega
+o `DIVERSITY_DEFAULTS`, de onde sai o piso 0,7/0,7 de uma das duas manchetes.
+
+**Remediação, sem tocar no registro.** Os três `sha256` foram computados sobre os blobs
+da tag `paper2-v1.12` — byte a byte idênticos aos arquivos em disco, conferido por
+`git show paper2-v1.12:… | shasum -a 256` — e acrescentados ao manifesto no repositório:
+
+| arquivo | bytes | sha256 |
+|---|---|---|
+| `serving-brief-diversity.ts` | 8712 | `34c9aee5f80311c8aff5c0ae35f37dd6dbf52f31a9f940b01cdb8d205c69e7a2` |
+| `serving-salience.ts` | 12553 | `083399fc190920ff8f2a590bd74876e25b1f95552515977920edb64025924684` |
+| `serving-search.ts` | 29622 | `d76034e2b7796744ae5836af02c5a1155ddc5750f0fa2d94875f63b9b1b723d3` |
+
+A v1.12 depositada permanece como está. Os valores acima pinam os mesmos bytes, então
+quem for conferir o depósito consegue.
+
+⚠️ **Por que nenhuma das seis revisões adversariais pegou.** Todas leram o parágrafo
+como argumento, e o argumento está certo — hash de commit realmente não é pino estável.
+O defeito não estava na tese, e sim no **alcance do quantificador**: "toda linha acima"
+foi escrito olhando a primeira tabela e passou a quantificar as duas. É uma classe que
+revisão não vê, porque exige contar linhas de tabela contra uma palavra, e nova para
+este catálogo: as anteriores eram rótulo divergindo do predicado, não quantificador
+divergindo do escopo.
+
 ## Se a decisão mudar
 
 A máquina do depósito está pronta e **não executada**: `deposit/PLAN-v1.13.md` e

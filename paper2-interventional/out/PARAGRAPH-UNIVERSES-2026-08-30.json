@@ -1,0 +1,446 @@
+{
+  "paragrafos_com_2_ou_mais_universos": 23,
+  "graves": [],
+  "todos": [
+    {
+      "linha": 33,
+      "superficies": [
+        "brief",
+        "busca",
+        "contrafactual",
+        "corpus",
+        "slots",
+        "união"
+      ],
+      "numeros": [
+        "1.787",
+        "2,66",
+        "583.763",
+        "67.187",
+        "83,78",
+        "9.755",
+        "99,98"
+      ],
+      "percentuais_colidindo": [
+        "2,66 (cobertura do brief)",
+        "83,78 (nunca exposto, agregado)",
+        "99,98 (cobertura uniforme)"
+      ],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "O brief entregou **583.763 slots** — **8,7 vezes** o tamanho do corpus, o suficiente para servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks distintos: 2,66%**. A capacidade **"
+    },
+    {
+      "linha": 45,
+      "superficies": [
+        "corpus",
+        "pool"
+      ],
+      "numeros": [
+        "108",
+        "67.187"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "**Os dois canais da superfície congelam, por motivos opostos e nenhum ligado a capacidade.** Os 8 slots do pool principal são ordenados por um score cujos termos, com uma exceção, **não decaem** — o c"
+    },
+    {
+      "linha": 111,
+      "superficies": [
+        "busca",
+        "união"
+      ],
+      "numeros": [
+        "10.899",
+        "9.755"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "⚠️ Duas ressalvas de leitura: dos 10.899 chunks expostos, **9.755 vieram da busca, que é iniciada pelo agente** — só o brief é entrega decidida pelo sistema, e é sobre ele que valem as alegações de me"
+    },
+    {
+      "linha": 131,
+      "superficies": [
+        "brief",
+        "busca",
+        "contrafactual",
+        "corpus",
+        "slots",
+        "união"
+      ],
+      "numeros": [
+        "1.787",
+        "2,66",
+        "583.763",
+        "67.187",
+        "83,78",
+        "9.755",
+        "99,98"
+      ],
+      "percentuais_colidindo": [
+        "2,66 (cobertura do brief)",
+        "83,78 (nunca exposto, agregado)",
+        "99,98 (cobertura uniforme)"
+      ],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "**A resposta esperada seria \"não cabe\". Não é.** Em 84,7 dias o brief entregou **583.763 slots** a 67.187 chunks — capacidade para servir cada chunk **8,7 vezes**. Serviu **1.787 distintos, 2,66% do c"
+    },
+    {
+      "linha": 170,
+      "superficies": [
+        "busca",
+        "união"
+      ],
+      "numeros": [
+        "10.899",
+        "9.755"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "⚠️ **Escopo, dito antes dos resultados e não depois.** É **um** sistema. Não medimos efeito sobre o comportamento do agente — não há desfecho a jusante instrumentado (§5.4). Não afirmamos que a área o"
+    },
+    {
+      "linha": 200,
+      "superficies": [
+        "brief",
+        "pool",
+        "união"
+      ],
+      "numeros": [
+        "108",
+        "2,66",
+        "83,78"
+      ],
+      "percentuais_colidindo": [
+        "2,66 (cobertura do brief)",
+        "83,78 (nunca exposto, agregado)"
+      ],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "⚠️ **Zero é o resultado que uma extração quebrada produz de graça**, então a contagem roda com controle positivo (`memory`, `agent`, `benchmark`, `evaluation` acima de pisos) e aborta se ele falhar. O"
+    },
+    {
+      "linha": 328,
+      "superficies": [
+        "piso",
+        "união"
+      ],
+      "numeros": [
+        "74,75",
+        "83,78"
+      ],
+      "percentuais_colidindo": [
+        "83,78 (nunca exposto, agregado)",
+        "74,75 (taxa condicionada ao piso)"
+      ],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "### 4.1 Exposição: 83,78% do corpus nunca foi exposto — e 74,75% do que passa o piso de importância do canal de cobertura"
+    },
+    {
+      "linha": 330,
+      "superficies": [
+        "brief",
+        "busca",
+        "corpus",
+        "piso",
+        "união"
+      ],
+      "numeros": [
+        "1.787",
+        "10.008",
+        "10.899",
+        "56.288",
+        "67.187",
+        "83,78",
+        "9.755"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "| | | |---|---| | corpus **vivo** | **67.187** | | exposto no brief (histórico) | 1.787 | | exposto na busca (histórico) | 9.755 | | união histórica | 11.051 | | — desses, **apagados depois** | 152 | "
+    },
+    {
+      "linha": 341,
+      "superficies": [
+        "corpus",
+        "união"
+      ],
+      "numeros": [
+        "56.288",
+        "67.187"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "A tabela fecha em **um** universo — o corpus vivo — e a linha dos 152 é o que faz a ponte. A versão anterior listava a união histórica ao lado do complemento vivo, e quem subtraísse `67.187 − 11.051` "
+    },
+    {
+      "linha": 346,
+      "superficies": [
+        "piso",
+        "união"
+      ],
+      "numeros": [
+        "10.008",
+        "13.388",
+        "56.288",
+        "74,75"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "**A linha do piso é uma manchete, não uma nota de rodapé.** Um leitor pode conceder o agregado e recusar a consequência: se a maior parte dos 56.288 fosse ruído de baixo valor, não haveria o que entre"
+    },
+    {
+      "linha": 362,
+      "superficies": [
+        "piso",
+        "união"
+      ],
+      "numeros": [
+        "10.008",
+        "46.280",
+        "56.288",
+        "82,2"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "⚠️ **O piso também não é constante do código.** A *forma* do predicado está em `brief.ts:642` — `(COALESCE(importance,0) >= ? OR COALESCE(pain,0) >= ?)`, e o `OR` é do código, não nosso. Os *valores* "
+    },
+    {
+      "linha": 379,
+      "superficies": [
+        "piso",
+        "pool"
+      ],
+      "numeros": [
+        "10.008",
+        "108",
+        "13.388"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "🔴 **Passar o piso não é ser elegível, e a diferença é de duas ordens de grandeza.** O canal aplica **três** condições conjuntas: o piso (`importance ≥ 0,7 OR pain ≥ 0,7`), um recorte por **padrão de c"
+    },
+    {
+      "linha": 412,
+      "superficies": [
+        "coorte",
+        "união"
+      ],
+      "numeros": [
+        "83,78",
+        "85,50"
+      ],
+      "percentuais_colidindo": [
+        "83,78 (nunca exposto, agregado)",
+        "85,50 (coorte madura)"
+      ],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "O viés existe e aponta para o **outro lado**. A coorte com oportunidade **máxima** — 91,3% do corpus, mais de doze semanas de exposição possível — é a **mais** não-exposta (85,50% contra 83,78% agrega"
+    },
+    {
+      "linha": 437,
+      "superficies": [
+        "corpus",
+        "slots"
+      ],
+      "numeros": [
+        "583.763",
+        "67.187"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "**E a evidência de que a capacidade agregada não vincula é uma linha de aritmética, não um teste:** 583.763 slots contra 67.187 chunks. Havia espaço para mostrar tudo, nove vezes. Isso é o que se pode"
+    },
+    {
+      "linha": 448,
+      "superficies": [
+        "brief",
+        "busca",
+        "união"
+      ],
+      "numeros": [
+        "1.787",
+        "10.899",
+        "83,78",
+        "9.755"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "🔴 **As duas superfícies não são a mesma espécie de coisa, e a maior delas não é uma decisão do sistema.** Dos 10.899 chunks vivos já expostos, **9.755 vieram da busca** — que é **iniciada pelo agente*"
+    },
+    {
+      "linha": 456,
+      "superficies": [
+        "corpus",
+        "união"
+      ],
+      "numeros": [
+        "10.899",
+        "56.288",
+        "67.187"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "⚠️ **As duas linhas contam populações diferentes**, e a soma denuncia: 11.051 + 56.288 = 67.339, **152 a mais** que o corpus. A união conta o que já foi exposto *alguma vez*, inclusive 152 chunks serv"
+    },
+    {
+      "linha": 667,
+      "superficies": [
+        "corpus",
+        "pool"
+      ],
+      "numeros": [
+        "0,161",
+        "108",
+        "67.187"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "| | | |---|---:| | corpus vivo | 67.187 | | **pool elegível do canal** | **108** — 0,161% | | desses, nunca servidos | **0** | | servidos no dia | **108 — 100% do pool**, em 26, 27, 28 e 29/08 | | slo"
+    },
+    {
+      "linha": 822,
+      "superficies": [
+        "pool",
+        "replay"
+      ],
+      "numeros": [
+        "108",
+        "4,86"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "| canal | slots | por que congela | responde a ajuste de score? | |---|---|---|---| | pool principal | 8 | score determinístico com componente **monótono e sem decaimento** | **sim** — e ninguém ajust"
+    },
+    {
+      "linha": 1318,
+      "superficies": [
+        "contrafactual",
+        "piso",
+        "pool",
+        "replay"
+      ],
+      "numeros": [
+        "0,161",
+        "4,86",
+        "46.280",
+        "82,2",
+        "99,98"
+      ],
+      "percentuais_colidindo": [
+        "82,2 (fração sob o piso)",
+        "0,161 (pool como % do corpus)",
+        "4,86 (teto do canal)",
+        "99,98 (cobertura uniforme)"
+      ],
+      "transicao_declarada": false,
+      "meta": true,
+      "em_apendice_h": false,
+      "trecho": "| origem | alegações | remédio | |---|---|---| | derivável de números já travados | 99,98% · 8,7× · cobertura do brief · 46.280 · 82,2% | recomputar no guarda | | artefato existente e nunca lido | 0,1"
+    },
+    {
+      "linha": 1339,
+      "superficies": [
+        "brief",
+        "slots"
+      ],
+      "numeros": [
+        "2,66",
+        "583.763"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": false,
+      "meta": true,
+      "em_apendice_h": false,
+      "trecho": "🔴 **O erro que essa lacuna já produziu, e que só apareceu porque a lacuna foi medida:** o manuscrito afirmava **583.973** slots acumulados em cinco lugares. O artefato diz **583.763**. Um dígito, nenh"
+    },
+    {
+      "linha": 1470,
+      "superficies": [
+        "brief",
+        "corpus",
+        "slots"
+      ],
+      "numeros": [
+        "1.787",
+        "583.763",
+        "67.187"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "**Primeira: a não-exposição deste sistema é resultado de política, não de capacidade.** É a afirmação que a medição inverteu em relação à hipótese com que começamos. O que a sustenta é **uma linha de "
+    },
+    {
+      "linha": 1493,
+      "superficies": [
+        "corpus",
+        "pool",
+        "replay"
+      ],
+      "numeros": [
+        "108",
+        "4,86",
+        "67.187"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": false,
+      "trecho": "**Segunda: os dois canais congelam, e a assimetria entre eles é o achado.** O de cobertura — 2 dos 10 slots — falha por **população**: 108 elegíveis num corpus de 67.187, com zero nunca-servidos resta"
+    },
+    {
+      "linha": 1663,
+      "superficies": [
+        "piso",
+        "pool",
+        "slots"
+      ],
+      "numeros": [
+        "108",
+        "13.388",
+        "583.763"
+      ],
+      "percentuais_colidindo": [],
+      "transicao_declarada": true,
+      "meta": false,
+      "em_apendice_h": true,
+      "trecho": "| correção aplicada | onde ela não alcançou | quem achou | |---|---|---| | o piso é do canal, mas passar o piso ≠ ser elegível | o canal aplica **três** condições; o piso sozinho dá 13.388 e as três d"
+    }
+  ],
+  "nao_decide": "comparar populações é o método do paper; o que se reprova é comparar sem declarar a fronteira, e só entre percentuais"
+}

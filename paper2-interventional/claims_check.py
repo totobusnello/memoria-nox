@@ -480,12 +480,40 @@ def blob_check(root: Path) -> list[str]:
     if not man.exists():
         return [f"{man.name}: ausente — os blobs de serving ficam sem proveniência"]
     texto = man.read_text(encoding="utf-8")
-    # Linhas de tabela com sha256 COMPLETO (64 hex) são as que este guarda cobre; as
-    # da v1.12 trazem hash truncado e ficam de fora, declaradamente.
-    linhas = re.findall(r"^\| `([^`]+)` \| `([^`]+)` \| (\d+) \| `([0-9a-f]{64})` \|",
-                        texto, re.M)
+    # ⚠️ DUAS formas de tabela, e a primeira versão deste guarda só via uma.
+    #
+    #   (a) `| dep | orig | bytes | sha |`                        — 4 colunas
+    #   (b) `| dep | orig | commit | committed | bytes | sha |`    — 6 colunas
+    #
+    # O regex antigo cobria só (a). As três linhas de (b) — `brief-diversity`,
+    # `salience`, `search` — ficavam fora, e ficavam fora JUSTAMENTE porque não tinham
+    # sha256: o guarda calava por não ter o dado, não por não haver problema. É a
+    # forma canônica do defeito da regra 9 do CLAUDE.md, e ela sobreviveu aqui porque
+    # o comentário antigo chamava a lacuna de "declaradamente fora", o que a fazia ler
+    # como decisão em vez de omissão.
+    linhas = [(d, o, b, s) for d, o, b, s in
+              re.findall(r"^\| `([^`]+)` \| `([^`]+)` \| (\d+) \| `([0-9a-f]{64})` \|",
+                         texto, re.M)]
+    linhas += [(d, o, b, s) for d, o, _c, _t, b, s in
+               re.findall(r"^\| `([^`]+)` \| `([^`]+)` \| `([^`]+)` \| ([^|]+) \| "
+                          r"(\d+) \| `([0-9a-f]{64})` \|", texto, re.M)]
     if not linhas:
         return [f"{man.name}: nenhuma linha com sha256 completo — o manifesto não pina nada"]
+
+    # ── completude: todo blob depositado tem de estar pinado por sha256 ──────
+    # Sem isto o guarda só verifica o que já foi declarado, e um arquivo acrescentado
+    # ao pacote sem hash entra sem que nada acuse — que foi exatamente o que aconteceu
+    # com os três da tabela (b) entre 26/08 e 30/08.
+    pinados = {d for d, _o, _b, _s in linhas}
+    em_disco = {p.name for p in root.glob("serving-*.ts")}
+    sem_pino = sorted(em_disco - pinados)
+    if sem_pino:
+        failures.append(
+            f"{man.name}: {len(sem_pino)} blob(s) de serving no pacote SEM sha256 no "
+            f"manifesto: {sem_pino} — o manifesto afirma que toda linha carrega o hash "
+            f"dos bytes, e um leitor sem o repositório privado não consegue conferir "
+            f"estes contra o depósito"
+        )
     for depositado, original, bytes_esperados, sha_esperado in linhas:
         f = root / depositado
         if not f.exists():
@@ -930,6 +958,58 @@ def terceiro_eixo_check(root: Path) -> list[str]:
                 f"§5.7.2 diz que o teto correu SEM excluir sondas, mas o artefato "
                 f"declara {len(se)} excluída(s) — o eixo deixou de ser não-medido"
             )
+
+    # ── o par pareado que mediu o eixo no teto (30/08) ──────────────────────
+    # ⚠️ O que este bloco protege NÃO é só o número: é o PAREAMENTO. Um par cujos
+    # braços diferem em mais de uma coisa produz uma diferença inatribuível com
+    # aparência de achado — e havia um exemplo vivo neste repositório. O par
+    # `campo-churn` sugeria "fidelidade cai de 0,909 a 0" e é inutilizável: os dois
+    # braços saíram de VERSÕES DIFERENTES do script, 98 segundos de intervalo, e o
+    # único sinal foi um campo de procedência AUSENTE de um lado. Por isso o guarda
+    # exige que a procedência difira em exatamente dois campos, nomeados.
+    n1 = root / "out" / "CEILING-PROBE-EXCLUSION-none-2026-08-30.json"
+    n2 = root / "out" / "CEILING-PROBE-EXCLUSION-probes-2026-08-30.json"
+    if not n1.exists() or not n2.exists():
+        fails.append(
+            "§5.7.2: o par pareado da exclusão de sondas sumiu — a tabela 17/13 e a "
+            "afirmação de que o teto cai voltam a ser prosa sem artefato")
+        return fails
+    A = json.loads(n1.read_text(encoding="utf-8"))
+    B = json.loads(n2.read_text(encoding="utf-8"))
+    pa, pb = A["procedencia"], B["procedencia"]
+    difs = sorted(k for k in set(pa) | set(pb) if str(pa.get(k)) != str(pb.get(k)))
+    if difs != ["gerado_em", "sondas_excluidas"]:
+        fails.append(
+            f"§5.7.2: os dois braços diferem em {difs} — o pareamento exige que só "
+            f"`gerado_em` e `sondas_excluidas` difiram; qualquer outro campo torna a "
+            f"diferença inatribuível, como no par `campo-churn`")
+    # o braço de controle TEM de reproduzir o valor publicado; sem isso a comparação
+    # com os 4,86% é entre corpora, não entre convenções.
+    ta, tb = A["dose"]["tabela"][0], B["dose"]["tabela"][0]
+    if ta["mexeu"] != 17 or ta["estados"] != 350:
+        fails.append(
+            f"§5.7.2: o braço SEM exclusão dá {ta['mexeu']}/{ta['estados']}, e o "
+            f"publicado é 17/350 — o controle de reprodução falhou, então a diferença "
+            f"volta a ser atribuível ao corpus tanto quanto às sondas")
+    if tb["mexeu"] != 13:
+        fails.append(f"§5.7.2: braço COM exclusão dá {tb['mexeu']}/350, texto afirma 13")
+    for alvo, rot in (("3,71", "teto sob exclusão"), ("4,86", "teto publicado")):
+        if alvo not in texto:
+            fails.append(f"§5.7.2: {rot} ({alvo}%) ausente do texto")
+    # ⚠️ O achado mais forte é a NÃO-ANINHAÇÃO: de 17 e 13 estados sensíveis, só 1 é
+    # comum. Quem comparasse apenas os totais leria "quatro a menos" e concluiria que a
+    # convenção quase não importa. Se um dia os conjuntos passarem a se aninhar, o
+    # parágrafo que diz "reorganiza quase inteiramente" fica falso e nada acusaria.
+    ma = {r["ts"] for r in A["dose"]["detalhe"] if r.get("churn", 0) > 0}
+    mb = {r["ts"] for r in B["dose"]["detalhe"] if r.get("churn", 0) > 0}
+    if len(ma & mb) > 3:
+        fails.append(
+            f"§5.7.2 afirma que os conjuntos sensíveis quase não se sobrepõem, mas "
+            f"agora {len(ma & mb)} dos {len(ma)}/{len(mb)} são comuns — o achado da "
+            f"não-aninhação enfraqueceu e o texto não acompanhou")
+    # os 350 estados TÊM de ser os mesmos, ou não há pareamento nenhum
+    if [r["ts"] for r in A["dose"]["detalhe"]] != [r["ts"] for r in B["dose"]["detalhe"]]:
+        fails.append("§5.7.2: os 350 estados diferem entre os braços — não é um par")
     return fails
 
 
@@ -959,6 +1039,15 @@ def censos_check(root: Path) -> list[str]:
         # invisível dentro de `ancora-sondas.json` (§5.7.2).
         ("auditoria-da-cadeia.py",
          "artefato medido e nunca lido, ou citado e ausente do disco"),
+        # ⚠️ Quarto censo (30/08), no eixo que os três anteriores não cobrem: a
+        # ADJACÊNCIA. Os outros julgam uma frase de cada vez — rótulo contra
+        # predicado, verbo contra objeto, artefato contra leitura. Este julga o
+        # PARÁGRAFO, porque há um defeito que só existe entre duas frases ambas
+        # corretas: `2,66%` (só o brief) encostado em `83,78%` (brief ∪ busca).
+        # Nenhuma das duas mente, e a diferença entre elas não significa nada.
+        # Sobreviveu a cinco revisões adversariais porque revisor lê frase a frase.
+        ("censo-de-universos-no-paragrafo.py",
+         "dois percentuais de superfícies diferentes sem fronteira declarada"),
     ):
         p = root / "measurement" / script
         if not p.exists():
@@ -1258,6 +1347,135 @@ def eixo_check(root: Path) -> list[str]:
                 f"§4.2: {rotulo} não casa ancorado ao seu rótulo (/{padrao}/) — "
                 f"a tabela do vazio divergiu do artefato"
             )
+    return fails
+
+
+def sem_guarda_check(root: Path) -> list[str]:
+    """Fecha as dez alegações que o censo de 30/08 achou circulando sem verificação.
+
+    O censo `censo-de-alegacoes-sem-guarda.py` mediu **31,2%** das alegações numéricas
+    do manuscrito sem nenhum guarda. Não é hipótese: duas alegações já envelheceram
+    para falsas exatamente por isso (`583.973`, que nunca existiu em artefato nenhum, e
+    os `205` caracteres atribuídos à população errada). Um número sem guarda é uma
+    aposta em que ninguém vai reeditar o script que o produziu.
+
+    Três origens distintas, e a distinção importa porque o remédio difere:
+
+    | origem | alegações | como se verifica |
+    |---|---|---|
+    | derivável de números já travados | 99,98% · 8,7 · 2,66% · 46.280 · 82,2% | recomputar aqui |
+    | artefato existente e nunca lido | 0,161% · 12,4 · 4,86% · 36% · 80% · 32,1% · 232 | abrir e comparar |
+    | artefato que NÃO EXISTIA | −0,961 · −0,728 · 0,471 | o script não gravava nada |
+
+    🔴 A terceira linha é a mais séria e foi descoberta ao escrever este guarda.
+    `robustez-tamanho-exposicao.py` rodou de 27/08 a 30/08 **sem gravar artefato**: os
+    coeficientes que sustentam o §4.2 inteiro — inclusive o `β` que é o resultado que
+    SOBREVIVE aos 15 tipos — existiam só no `stdout`, foram lidos por um humano e
+    transcritos à mão. Trocar o CSV de entrada mudaria os três, e o texto seguiria
+    afirmando os antigos sem que nada acusasse. O `--out` foi acrescentado em 30/08 e
+    `out/SIZE-ROBUSTNESS-2026-08-30.json` é o primeiro artefato que eles têm.
+    """
+    doc = root / "MANUSCRIPT.md"
+    if not doc.exists():
+        return ["MANUSCRIPT.md ausente"]
+    texto = doc.read_text(encoding="utf-8")
+    fails = []
+
+    def afirma(s: str) -> bool:
+        return s in texto
+
+    # ── (a) deriváveis: recomputadas, não copiadas ──────────────────────────
+    SLOTS, CORPUS, DISTINTOS = 583_763, 67_187, 1_787
+    NUNCA, PISO_NUNCA = 56_288, 10_008
+
+    cap = SLOTS / CORPUS                                   # 8,688…
+    if not afirma(f"{cap:.1f}".replace(".", ",")):
+        fails.append(f"capacidade: {SLOTS}/{CORPUS} = {cap:.1f}× e o texto não afirma")
+    cob = 100 * DISTINTOS / CORPUS                          # 2,659…
+    if not afirma(f"{cob:.2f}".replace(".", ",")):
+        fails.append(f"cobertura do brief: {cob:.2f}% ausente do texto")
+    # cobertura esperada se os mesmos slots fossem sorteados uniformemente
+    unif = 100 * (1 - (1 - 1 / CORPUS) ** SLOTS)             # 99,983…
+    if not afirma(f"{unif:.2f}".replace(".", ",")):
+        fails.append(
+            f"contrafactual uniforme: 1−(1−1/{CORPUS})^{SLOTS} = {unif:.2f}% e o texto "
+            f"não afirma — é o limite superior que dá sentido ao 2,66%")
+    abaixo = NUNCA - PISO_NUNCA                             # 46.280
+    if not afirma(f"{abaixo:,}".replace(",", ".")):
+        fails.append(f"nunca expostos abaixo do piso: {NUNCA}−{PISO_NUNCA} = {abaixo}")
+    frac = 100 * abaixo / NUNCA                             # 82,22…
+    if not afirma(f"{frac:.1f}".replace(".", ",")):
+        fails.append(f"fração abaixo do piso: {frac:.1f}% ausente do texto")
+
+    # ── (b) artefatos que existiam e ninguém abria ──────────────────────────
+    def art(rel: str):
+        p = root / rel
+        return json.loads(p.read_text(encoding="utf-8")) if p.exists() else None
+
+    pool = art("POOL-ELEGIVEL-2026-08-28.json")
+    if pool is None:
+        fails.append("POOL-ELEGIVEL-2026-08-28.json ausente — o pool de 108 fica sem lastro")
+    else:
+        for campo, esperado, rot in (("pool_elegivel", 108, "pool elegível"),
+                                     ("pct_do_corpus", 0.161, "pool como % do corpus"),
+                                     ("slots_por_candidato", 12.4, "slots por candidato")):
+            if pool.get(campo) != esperado:
+                fails.append(f"pool: artefato diz {campo}={pool.get(campo)}, "
+                             f"manuscrito afirma {esperado} ({rot})")
+
+    gran = art("CEILING-GRANULARITY-2026-08-28.json")
+    if gran is None:
+        fails.append("CEILING-GRANULARITY-2026-08-28.json ausente — os tetos ficam sem lastro")
+    else:
+        tetos = {l["granularidade"]: l["teto_pct"] for l in gran["tabela"]}
+        # ⚠️ O texto arredonda: 36,29→36%, 80,29→80%. O guarda compara o VALOR do
+        # artefato com o arredondamento que o texto usa, não a string — comparar
+        # string faria o guarda morder o arredondamento honesto.
+        for g, alvo in (("seg", "4,86"), ("min", "36"), ("hora", "80")):
+            if g not in tetos:
+                fails.append(f"teto: granularidade '{g}' ausente do artefato")
+            elif not afirma(alvo):
+                fails.append(f"teto {g}: artefato diz {tetos[g]}%, texto não afirma {alvo}")
+        if not (tetos.get("seg", 0) < tetos.get("min", 0) < tetos.get("hora", 0)):
+            fails.append(f"teto: monotonia quebrada no artefato — {tetos}")
+
+    lac = art("out/SIZE-AXIS-GAP-2026-08-29.json")
+    if lac and lac.get("pct_da_amplitude_sem_ponto") != 32.1:
+        fails.append(f"lacuna do eixo: artefato diz "
+                     f"{lac.get('pct_da_amplitude_sem_ponto')}%, manuscrito afirma 32,1%")
+
+    piso = art("out/FLOOR-COMPOSITION-2026-08-29.json")
+    if piso:
+        c = piso["tipo_dominante"]["comprimento_medio"]
+        if round(c) != 232:
+            fails.append(f"comprimento do subconjunto: artefato diz {c}, texto afirma 232")
+        # ⚠️ o par que já produziu a atribuição à população errada em 29/08
+        inteiro = piso["contraste_de_populacao"]["no_corpus_inteiro"]["comprimento_medio"]
+        if abs(inteiro - 205.1) > 0.05:
+            fails.append(f"contraste: média do tipo inteiro mudou para {inteiro} — o "
+                         f"§4.1 contrasta 232 contra 205,1 e o contraste envelheceu")
+
+    # ── (c) o artefato que não existia até 30/08 ────────────────────────────
+    rob = art("out/SIZE-ROBUSTNESS-2026-08-30.json")
+    if rob is None:
+        fails.append(
+            "out/SIZE-ROBUSTNESS-2026-08-30.json ausente — β, r e o EP jackknife do "
+            "§4.2 voltam a ser prosa sem artefato, que é como estiveram de 27 a 30/08")
+    else:
+        b15 = rob["binomial"]["todos_15"]
+        for got, alvo, rot in ((b15["beta_log10n"], -0.961, "β binomial, 15 tipos"),
+                               (b15["ep_jackknife_sobre_tipos"], 0.471, "EP jackknife"),
+                               (rob["correlacoes"]["pearson_13_publicados"], -0.728,
+                                "Pearson, 13 publicados")):
+            if abs(got - alvo) > 0.0005:
+                fails.append(f"{rot}: artefato diz {got}, manuscrito afirma {alvo}")
+        # o argumento do §4.2 é que o β sobrevive ao filtro e o r não; se isso
+        # inverter, a seção inteira muda de conclusão e o número sozinho não acusa.
+        if abs(rob["correlacoes"]["spearman_15_todos"]) > 0.15:
+            fails.append(
+                f"ρ Spearman subiu para {rob['correlacoes']['spearman_15_todos']} — o "
+                f"§4.2 se apoia em ele ser desprezível (−0,098) para demover a "
+                f"correlação em favor do β")
     return fails
 
 
@@ -1563,6 +1781,7 @@ def main() -> int:
     failures.extend(blob_check(Path(args.root)))
     failures.extend(janela_check(Path(args.root)))
     failures.extend(coorte_check(Path(args.root)))
+    failures.extend(sem_guarda_check(Path(args.root)))
     failures.extend(eixo_check(Path(args.root)))
     failures.extend(superficie_check(Path(args.root)))
     failures.extend(cobertura_check(Path(args.root)))

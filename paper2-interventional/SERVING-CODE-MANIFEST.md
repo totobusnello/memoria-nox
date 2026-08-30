@@ -24,11 +24,16 @@ declarada"*.
 
 Unchanged since v1.12, and re-verified at the same commit:
 
-| deposited as | original path | commit | committed | bytes |
-|---|---|---|---|---|
-| `serving-brief-diversity.ts` | `src/api/brief-diversity.ts` | `ad2ca37e` | 2026-06-26T15:28:23−03:00 | 8712 |
-| `serving-salience.ts` | `src/salience.ts` | `aca868c7` | 2026-08-02T12:37:55−03:00 | 12553 |
-| `serving-search.ts` | `src/search.ts` | `aee41849` | 2026-06-07T21:42:53−03:00 | 29622 |
+| deposited as | original path | commit | committed | bytes | sha256 |
+|---|---|---|---|---|---|
+| `serving-brief-diversity.ts` | `src/api/brief-diversity.ts` | `ad2ca37e` | 2026-06-26T15:28:23−03:00 | 8712 | `34c9aee5f80311c8aff5c0ae35f37dd6dbf52f31a9f940b01cdb8d205c69e7a2` |
+| `serving-salience.ts` | `src/salience.ts` | `aca868c7` | 2026-08-02T12:37:55−03:00 | 12553 | `083399fc190920ff8f2a590bd74876e25b1f95552515977920edb64025924684` |
+| `serving-search.ts` | `src/search.ts` | `aee41849` | 2026-06-07T21:42:53−03:00 | 29622 | `d76034e2b7796744ae5836af02c5a1155ddc5750f0fa2d94875f63b9b1b723d3` |
+
+⚠️ **A coluna `sha256` desta segunda tabela foi acrescentada em 2026-08-30 e não
+existia na v1.12 depositada** — ver a nota ao fim desta seção. Os três valores foram
+computados sobre os blobs da tag `paper2-v1.12`, byte a byte idênticos aos arquivos em
+disco, de modo que pinam exatamente o que foi depositado.
 
 **`1da78560` is the last commit touching `tools/nox-mem/src/`**, and none of the three
 files above changed between it and the fetch for this deposit
@@ -62,6 +67,29 @@ someone rebases, and the failure is silent: the prose still reads as precise. Th
 why every row above carries the **sha256 of the file bytes** — that pin survives any
 history rewrite, and it is the one a reader can check against the deposited blob
 without access to the private repository.
+
+🔴 **Esta frase era falsa na v1.12, e o modo como era falsa é o próprio assunto do
+parágrafo.** Três das seis linhas — as da segunda tabela — traziam **só** o hash de
+commit, isto é, exatamente o pino que o parágrafo acima acaba de declarar instável. Um
+leitor que aceitasse a promessa e tentasse conferir `serving-brief-diversity.ts` contra
+o blob depositado não teria contra o que conferir, e precisaria do repositório privado
+— que é justamente o acesso que a frase promete dispensar.
+
+A lacuna não era decorativa: `serving-brief-diversity.ts` carrega o
+`DIVERSITY_DEFAULTS`, de onde sai o piso 0,7/0,7 que sustenta uma das duas manchetes
+do paper. O pino mais fraco cobria o arquivo mais citado.
+
+Os três `sha256` foram computados em 2026-08-30 e acrescentados acima. **A v1.12
+depositada permanece como está** — o registro não se reescreve; o desvio está declarado
+em `DEVIATIONS-FOR-PAPER.md` e entra no paper, conforme a decisão de 27/08 de não
+emendar. Quem for conferir a v1.12 usa os valores desta tabela, que pinam os mesmos
+bytes.
+
+⚠️ A lição operacional, para os depósitos seguintes: **uma afirmação de completude
+("toda linha acima…") tem de ser verificada contra a tabela, não contra a intenção.**
+Escrevi a frase pensando na primeira tabela e ela ficou quantificando as duas. Nenhuma
+das seis revisões adversariais pegou, porque todas leram o parágrafo como argumento — e
+o argumento está certo. O que estava errado era o alcance do quantificador.
 
 ## What this is not
 

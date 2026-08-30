@@ -28,7 +28,9 @@ onde tipos.csv tem: tipo,n,expostos,idade_media,imp_media,tam_texto
 """
 import argparse
 import csv
+import json
 import math
+import sys
 
 
 def pearson(xs, ys):
@@ -67,6 +69,7 @@ def parcial(xs, ys, zs):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dados", required=True)
+    ap.add_argument("--out")
     a = ap.parse_args()
 
     T = []
@@ -185,6 +188,56 @@ def main():
     print("   ⇒ ambos pequenos e com 0% exposto: são contraexemplos ao padrão")
     print("     'pequeno ⇒ muito exposto', e o filtro os remove.")
 
+    # ── artefato ──────────────────────────────────────────────────────────────
+    # ⚠️ Este script passou de 27/08 a 30/08 SEM gravar nada. Os três números que o
+    # §4.2 mais usa — β = −0,961, EP jackknife = 0,471, r = −0,728 — existiam só no
+    # stdout, foram lidos por um humano e transcritos à mão para o manuscrito. É a
+    # forma exata do defeito "prosa que afirma resultado calculado é cache sem
+    # invalidação": mudar o CSV de entrada mudaria os coeficientes e o texto seguiria
+    # afirmando os antigos, sem que nada acusasse.
+    if a.out:
+        x13 = [t["lx"] for t in T if t["n"] >= 10]
+        y13 = [t["pct"] for t in T if t["n"] >= 10]
+        x15 = [t["lx"] for t in T]
+        y15 = [t["pct"] for t in T]
+        blocos = {}
+        for rot, sub in (("todos_15", T), ("publicados_13", [t for t in T if t["n"] >= 10])):
+            b0, b1, _, ep = irls(sub)
+            bj, ej, lo, hi = jack(sub)
+            blocos[rot] = {
+                "tipos": len(sub), "beta_log10n": round(b1, 3),
+                "razao_de_chances_por_decada": round(math.exp(b1), 2),
+                "ep_do_modelo": round(ep, 3),
+                "ep_do_modelo_e_invalido_porque":
+                    "supõe 67 mil observações independentes; a unidade real é o TIPO",
+                "ep_jackknife_sobre_tipos": round(ej, 3),
+                "z_jackknife": round(b1 / ej, 1),
+                "beta_deixando_um_tipo_de_fora": [round(lo, 3), round(hi, 3)],
+            }
+        json.dump({
+            "gerado_por": "measurement/robustez-tamanho-exposicao.py",
+            "dados": a.dados,
+            "pergunta": "o achado tamanho×exposição sobrevive ao filtro, à idade e à "
+                        "escolha de estimador?",
+            "correlacoes": {
+                "pearson_13_publicados": round(pearson(x13, y13), 3),
+                "pearson_15_todos": round(pearson(x15, y15), 3),
+                "spearman_15_todos": round(spearman(x15, y15), 3),
+            },
+            "binomial": blocos,
+            "ponto_bisserial_no_chunk": round(rb, 3),
+            "ponto_bisserial_nao_e_independente_porque":
+                "log10(tamanho) é constante dentro do tipo; o n efetivo segue sendo o "
+                "número de tipos",
+            "excluidos_pelo_filtro": [
+                {"tipo": t["tipo"], "n": t["n"], "expostos": t["exp"],
+                 "pct": round(t["pct"], 1), "idade_dias": round(t["idade"])}
+                for t in T if t["n"] < 10
+            ],
+        }, open(a.out, "w"), indent=2, ensure_ascii=False)
+        print(f"\n→ {a.out}")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -71,7 +71,7 @@ existe e não foi medido**, e a auditoria de 30/08 o encontrou num artefato que 
 nunca lemos: excluir as linhas das nossas próprias sondas de saúde muda a âncora do
 replay, e o teto foi computado **sem** excluí-las (§5.7.2).
 
-#### 5.7.2 Um terceiro eixo, não medido, e agora não mensurável
+#### 5.7.2 Um terceiro eixo: a âncora medida, o teto não
 
 🔴 **Achado de auditoria da cadeia de artefatos (30/08), não de revisão.** O replay que
 produz o teto de 4,86% correu com `sondas_excluidas: []` — nenhuma das nossas próprias
@@ -84,20 +84,94 @@ gravados em 27/08 e nunca lidos por ninguém** (`measurement/out/ancora-sondas.j
 | grupos de `last_served` distintos | 44 | **43** |
 | posição do primeiro chunk do estudo | 3 | **0** |
 
-A âncora se move. **Se o teto se move junto, não sabemos** — o replay nunca foi rodado
-sob a outra convenção, e o paper reportava "dois eixos" quando há três.
+A âncora se move, e o paper reportava "dois eixos" quando há três. **O teto se move
+junto** — medido em 30/08, depois de esta seção ter existido dois dias afirmando que não
+sabíamos:
 
-⚠️ **E ele não é mais mensurável na condição original.** O corpus do replay,
-`e20260826T060003Z.db`, era um snapshot de epoch e foi rotacionado; em 30/08 restavam
-apenas os de 28 a 30/08. O backup diário de 26/08 existe mas é de outro instante — o
-`sha256` do primeiro MB não bate com o pino publicado. Um número reproduzível **por
-hash** deixou de ser reproduzível **por dado**, e a distinção é a lição: pinar o
-identificador de um artefato não o preserva.
+| | sem excluir | excluindo as sondas |
+|---|---:|---:|
+| estados que mexem (de 350) | 17 | **13** |
+| teto | 4,86% | **3,71%** |
+| `churn` total | 20 | **13** |
+| estados sensíveis em comum | — | **1** |
+
+Duas leituras, e a segunda é a mais forte.
+
+**O teto cai cerca de um quarto.** Os 4,86% publicados incluem o efeito das nossas
+próprias sondas de verificação: cinco briefs que existem porque *confirmamos que o
+mecanismo tinha subido*. O ato de medir se somou ao que estava sendo medido, e a versão
+descontaminada da alcançabilidade é **menor** que a publicada. A direção importa para
+como se lê o paper: o teto publicado é uma cota superior **frouxa**, e afrouxada por nós
+— o argumento de que a superfície é estreita sai reforçado, não enfraquecido.
+
+🔴 **E a identidade quase não se preserva: de 17 e 13 estados sensíveis, apenas UM é
+comum aos dois braços.** Os conjuntos não são aninhados. A exclusão não retira alguns
+estados de um conjunto estável — ela **reorganiza quase inteiramente qual conjunto é
+sensível**. Isso é uma sensibilidade muito maior do que a diferença entre 17 e 13
+sugere, e só aparece comparando **identidades**; quem olhasse apenas os totais leria
+"quatro estados a menos" e concluiria que a convenção quase não importa.
+
+**Como isto foi medido, já que a condição original se perdeu.** Desenho pareado: os dois
+braços correm sobre o mesmo corpus de 30/08, o mesmo log de 350 estados, a mesma
+designação, e variam **apenas** a exclusão — a procedência dos dois artefatos difere em
+exatamente dois campos, `gerado_em` (2 segundos) e `sondas_excluidas`. Os 350 estados são
+idênticos e na mesma ordem, com o mesmo `rowid_corte`, verificado elemento a elemento.
+
+⚠️ **O controle que valida a comparação com o número publicado:** o braço sem exclusão,
+rodado no corpus de 30/08, devolve **exatamente 17/350 = 4,86%** — o valor publicado
+sobre o corpus de 26/08. A troca de corpus não move o teto, logo o braço com exclusão é
+comparável ao publicado, e não apenas ao seu próprio par. Sem esse controle, a diferença
+seria atribuível ao corpus tanto quanto às sondas.
+
+📌 Os artefatos são `out/CEILING-PROBE-EXCLUSION-none-2026-08-30.json` e
+`out/CEILING-PROBE-EXCLUSION-probes-2026-08-30.json`.
+
+⚠️ **A condição original não é mais reproduzível — mas a sensibilidade é mensurável.**
+São duas coisas, e uma versão anterior desta seção dizia "não mensurável", concedendo
+mais ignorância do que os fatos exigem. O corpus do replay, `e20260826T060003Z.db`, era
+um snapshot de epoch e foi rotacionado; em 30/08 restavam apenas os de 28 a 30/08, e o
+backup diário de 26/08 é de outro instante — o `sha256` do primeiro MB não bate com o
+pino publicado. Logo o **nível** do teto sob exclusão de sondas não é recuperável.
+
+O que **foi** recuperável é se a exclusão move o teto, pelo desenho pareado descrito
+acima — que é o mesmo dos dois artefatos de âncora, um nível abaixo. Duas condições
+tornaram isso possível, e foram verificadas **antes** de rodar:
+
+- o log de janela fechada com os 350 estados **sobreviveu** à rotação (é um `.ndjson`, não
+  um snapshot de banco), e a designação em disco bate com o `sha256` publicado;
+- varrendo o corpus de 30/08 pela mesma assinatura que identificou as sondas em 27/08 —
+  brief com 5 linhas em vez das 10 de um brief orgânico — aparecem **exatamente as mesmas
+  cinco**, e nenhuma nova. A exclusão é o mesmo ato nos dois corpora.
+
+🔴 **Um par de artefatos que parecia responder isso, e não responde.** Existem na máquina
+de serving um `campo-churn.json` e um `campo-churn-sem-exclusao.json`, e a leitura direta
+sugere um achado dramático: a fidelidade do replay ao campo cai de **0,909 para 0** quando
+as sondas são excluídas. **Esse par não é utilizável.** O braço com exclusão foi gerado
+às 15:17:11 e não registra `corte_serve_state`; o sem exclusão foi gerado às 15:18:55 e
+registra `estrito`. O campo passou a existir nos 98 segundos entre os dois: são **versões
+diferentes do script**, e a queda pode ser da exclusão ou da mudança de código, sem como
+separar.
+
+⚠️ Dois braços gerados com minutos de diferença parecem pareados e podem não ser. O que
+os desempata não é a proximidade no tempo, e sim a **procedência campo a campo** — aqui,
+um campo *ausente* de um lado foi o único sinal de que o instrumento tinha mudado no
+meio. Um campo que falta não se destaca na leitura; foi preciso diferenciar as duas
+procedências para vê-lo.
 
 📌 O que isso muda na leitura do teto: os 4,86% continuam sendo o valor sob a convenção
 declarada nos artefatos, e os dois eixos medidos continuam válidos. O que cai é a
-sugestão de que os eixos medidos esgotam a sensibilidade. Não esgotam, e este é o
-exemplo.
+sugestão de que os eixos medidos esgotam a sensibilidade. Não esgotam — e o terceiro,
+uma vez medido, é **o maior dos três em efeito relativo** sobre a identidade dos estados
+sensíveis, ainda que o menor em efeito sobre a contagem.
+
+⚠️ **A lição de processo, que é maior que o número.** Este eixo existia em dois
+artefatos gravados em 27/08 e **nunca lidos**; foi encontrado por auditoria mecânica da
+cadeia script→artefato→alegação, não por revisão. Entre a descoberta e a medição,
+esta seção passou dois dias afirmando *"se o teto se move junto, não sabemos"* — uma
+declaração de ignorância honesta, e desnecessária: a medição custou duas rodadas de meia
+hora sobre material que estava todo em disco. **Declarar ignorância é mais barato que
+medir, e por isso é o caminho que se toma por inércia.** Vale perguntar, antes de
+escrever que não se sabe, quanto custaria saber.
 
 ⚠️ **O que não afirmamos.** Nenhum efeito sobre o comportamento do agente: não há
 desfecho a jusante instrumentado (§5.4). Que a concentração seja *errada* — uma política
@@ -1311,10 +1385,30 @@ e a primeira medição (`measurement/censo-de-alegacoes-sem-guarda.py`,
 `out/CLAIM-COVERAGE-2026-08-29.json`) mostrou **19 das 32** alegações numéricas curadas
 sem guarda nenhuma — 59,4%.
 
-Depois de escrever os guardas que faltavam, **10 das 32 seguem sem guarda — 31,2%**, e
-elas estão nomeadas no artefato. As que ficam são, na maioria, números de análise
-estatística (`β`, Pearson, erro-padrão do jackknife) e tetos de sensibilidade que vivem
-em artefatos que o verificador ainda não lê.
+Uma segunda rodada de guardas, em 30/08, fechou o resto: **0 das 32 seguem sem guarda —
+0,0%**. As dez que restavam vinham de três origens distintas, e a distinção importa
+porque só a terceira era grave:
+
+| origem | alegações | remédio |
+|---|---|---|
+| derivável de números já travados | 99,98% · 8,7× · cobertura do brief · 46.280 · 82,2% | recomputar no guarda |
+| artefato existente e nunca lido | 0,161% · 12,4 · 4,86% · 36% · 80% · 32,1% · 232 | abrir e comparar |
+| **artefato que não existia** | **−0,961 · −0,728 · 0,471** | o script não gravava nada |
+
+🔴 **A terceira linha só apareceu ao escrever o guarda, e é o achado desta seção.**
+`measurement/robustez-tamanho-exposicao.py` rodou de 27 a 30/08 **sem gravar artefato
+algum** — sem `--out`, sem `json.dump`. Os três coeficientes que sustentam o §4.2
+inteiro, inclusive o `β` que é o resultado que *sobrevive* aos 15 tipos, existiram
+apenas no `stdout`, foram lidos por um humano e transcritos à mão para o texto. Trocar o
+CSV de entrada mudaria os três e o manuscrito seguiria afirmando os antigos, sem que
+nada acusasse. É a forma exata do defeito que esta seção descreve — prosa afirmando
+resultado calculado é cache sem invalidação — encontrada nos números que o paper usa
+para se defender da objeção mais forte que recebeu.
+
+⚠️ E note *onde* ela estava: não num número periférico, mas no que a §4.2 apresenta como
+o estimador mais robusto. O grau de proteção de uma alegação não guarda relação com a
+sua centralidade — se guardasse, esta teria sido a primeira. `out/SIZE-ROBUSTNESS-2026-08-30.json`
+é o primeiro artefato que os três têm.
 
 🔴 **O erro que essa lacuna já produziu, e que só apareceu porque a lacuna foi medida:**
 o manuscrito afirmava **583.973** slots acumulados em cinco lugares. O artefato diz
