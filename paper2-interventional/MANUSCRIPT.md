@@ -644,6 +644,20 @@ padrões de caminho e sua janela (`brief.ts:135,642,645`; `brief-diversity.ts:59
 | por agente | `sessions/<agente>/%` | 7 d | **0** |
 | global | `memory/entities/%`, `memory/lessons.md` | 30 d | **108** |
 
+🔴 **O zero do sub-pool por agente não vem de falta de material, e a distinção decide o
+que se pode dizer do canal.** Em 30/08, **10.899** chunks de `sessions/%` passam o piso
+de importância — e **nenhum** entra na janela de 7 dias, porque o mais novo deles tem
+**20,5 dias**. Não é que o sistema não tenha memória de sessão relevante; é que a
+ingestão dessa família parou há três semanas, e a janela do sub-pool é de uma. **Metade
+do canal de cobertura está inerte por idade, não por desenho.**
+
+⚠️ Isso torna a composição do canal instável de um modo que a tabela acima esconde: uma
+rajada de sessões novas repovoaria o sub-pool por agente e mudaria o pool elegível — e
+com ele o denominador do teto — sem que uma linha de código mude. A obrigação de dizer
+isto estava registrada em `DEVIATIONS-FOR-PAPER.md` desde 27/08 e **não tinha sido
+cumprida**; foi a retrospectiva de 30/08 que a encontrou, cruzando os compromissos
+registrados contra o que o manuscrito de fato carrega.
+
 Sobre ambos incide o piso `importance ≥ 0,7 OR pain ≥ 0,7`. Medido em quatro dias
 (`measurement/pool-elegivel.py`, `POOL-ELEGIVEL-2026-08-28.json`):
 
