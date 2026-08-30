@@ -1,0 +1,602 @@
+{
+  "gerado_por": "montagem do pacote do Paper A",
+  "arquivos": 119,
+  "bytes_totais": 4236013,
+  "itens": [
+    {
+      "path": "MANUSCRIPT.md",
+      "bytes": 126564,
+      "sha256": "e59f00730d7cb968b39098850aff7e602605fa0c5bacc9f650701a2a12832dc8"
+    },
+    {
+      "path": "claims_check.py",
+      "bytes": 112646,
+      "sha256": "d17378326a9323a7875f3941430f951b157c30057f97125b894efdcdae5431bb"
+    },
+    {
+      "path": "measurement/asof-sonda-vs-tempo.py",
+      "bytes": 2706,
+      "sha256": "2ae73be9b043cabde6e5a50f0397dfb8831dc9b83d48aa31c0c91760fd7ee126"
+    },
+    {
+      "path": "measurement/auditoria-da-cadeia.py",
+      "bytes": 11974,
+      "sha256": "eac067fdeeba8da62361e7f67be217df9fd02cd08139e2c8747b74b1ddb9e65e"
+    },
+    {
+      "path": "measurement/autoextincao.py",
+      "bytes": 1690,
+      "sha256": "4c3bcf0ea80914a715336fc43f58c80db62b4801749d4e41fbf099057253aeb5"
+    },
+    {
+      "path": "measurement/base-rate-h1c.py",
+      "bytes": 4238,
+      "sha256": "6f7b11b917890a37e2eb588392edd979d0a85131547f6be183f8e83d1fc883d6"
+    },
+    {
+      "path": "measurement/baseline.py",
+      "bytes": 951,
+      "sha256": "b6b23f05882c0b3e0303712b45433cef6ca58f2a5c980d528dfc0b1f8d18b0a1"
+    },
+    {
+      "path": "measurement/censo-de-alegacoes-sem-guarda.py",
+      "bytes": 8581,
+      "sha256": "8d7c724cf7cf67a4067aaa2ad5e423fd425167d95ee0842ae1a19580480bb65c"
+    },
+    {
+      "path": "measurement/censo-de-rotulos-de-populacao.py",
+      "bytes": 8897,
+      "sha256": "ca704696a74716250701ae65894968f716afe1e667b87a4bfdb7cddb7f07a3a8"
+    },
+    {
+      "path": "measurement/censo-de-universos-no-paragrafo.py",
+      "bytes": 10079,
+      "sha256": "82349a6a14cb6c3b486133dedde275b11cc3db6ec43322c2ba65aedb406b442f"
+    },
+    {
+      "path": "measurement/censo-vocabulario-de-serving.py",
+      "bytes": 13587,
+      "sha256": "3a62ed3f0118729077b76552581f9b185a06b64630c28fab1cd4ce6808a77e00"
+    },
+    {
+      "path": "measurement/ciclo-do-lote.py",
+      "bytes": 8539,
+      "sha256": "9e6d2659abe6fe781621b404a60cfa814e6dfb7119cf19ab7d2eab5e533180ff"
+    },
+    {
+      "path": "measurement/coerencia-entre-documentos.py",
+      "bytes": 7869,
+      "sha256": "af466df80f4cdf9f615deb9425df58aab601fa50eed8ef009f6f213f93f0e681"
+    },
+    {
+      "path": "measurement/composicao-do-piso.py",
+      "bytes": 5298,
+      "sha256": "4d05170e5082211c99f941404381395c62b9271fda1bcf93f3e74688e6dc3ae7"
+    },
+    {
+      "path": "measurement/concentracao-de-oportunidades.py",
+      "bytes": 14256,
+      "sha256": "0a2c980b3a91de1b363299564cc2532787d890d39891dd5e071a6f4e0c12327d"
+    },
+    {
+      "path": "measurement/contrafactual-do-topo.py",
+      "bytes": 6267,
+      "sha256": "1e8c679c05e9e55b2a5fe24bb997ac80a32b7d6734d3ad54ee3e86ee887275d5"
+    },
+    {
+      "path": "measurement/densidade-de-avisos.py",
+      "bytes": 6366,
+      "sha256": "803b926d79368f7d1f6b97339a5db14a72a7128f244a17ab735631e10a9d50fc"
+    },
+    {
+      "path": "measurement/descontamina.py",
+      "bytes": 2522,
+      "sha256": "8fcac4656f6e24e5f8a2fb314bab1761a3fe67d5d8057d26a3f583297cb2e67f"
+    },
+    {
+      "path": "measurement/empates-por-granularidade.py",
+      "bytes": 5917,
+      "sha256": "908e6717c36ddc46a0571b9d86437ddd315029e9ceb23f4f8f8ca0fe387002e1"
+    },
+    {
+      "path": "measurement/exposicao-por-coorte.py",
+      "bytes": 6494,
+      "sha256": "6aabec442f0acdedb2a0be98ce48ad33e590a5ce8010b77455f978a73c4c62a0"
+    },
+    {
+      "path": "measurement/fig0-arquitetura.py",
+      "bytes": 9183,
+      "sha256": "01a36b3fb4459f627332b3c74b5702e1604ec99c13a7822202cac61c562bf7b4"
+    },
+    {
+      "path": "measurement/fig1-capacidade.py",
+      "bytes": 7306,
+      "sha256": "6e86402e327ac25789125d56e404e361b4b55c74b81e8e2d60f04048aa90fbef"
+    },
+    {
+      "path": "measurement/fig2-concentracao.py",
+      "bytes": 5967,
+      "sha256": "ae3f0ae92951767429ef7ef180e528403e71cb60c9e0e7e87a1e186328e195fc"
+    },
+    {
+      "path": "measurement/fig3-dose-resposta.py",
+      "bytes": 8261,
+      "sha256": "c363bb9f26d044ae68329fba6cb23c5d6174d945e56da2bcf9caa74f17311ad0"
+    },
+    {
+      "path": "measurement/granularidade-do-teto.py",
+      "bytes": 12800,
+      "sha256": "b421fe7193fd4ccebfb8c2e06c189d5398be7412c71f45db0f55d24521e64e54"
+    },
+    {
+      "path": "measurement/irmaos-no-segundo.py",
+      "bytes": 1040,
+      "sha256": "ba3571384ca985a2adf4193e2a7a13722157c8fc6ad97820fb0ae2dbf6eb6707"
+    },
+    {
+      "path": "measurement/lacuna-no-eixo-de-tamanho.py",
+      "bytes": 5370,
+      "sha256": "714dfcaa5bb2188a1bddfed2eaf29d5f3a0a8608300d2de114a6ee84b2f69fd5"
+    },
+    {
+      "path": "measurement/pool-elegivel.py",
+      "bytes": 8128,
+      "sha256": "eada7e8c1d667d654a3a8beadd3a95b13446faf26f2928d11ea94ac5bab33def"
+    },
+    {
+      "path": "measurement/pos-regra.py",
+      "bytes": 1690,
+      "sha256": "ad2ed8de281d7bc042d3c1d7862e27ac3b9982bbd0c5b8aa97b95d9999c13fa4"
+    },
+    {
+      "path": "measurement/potencia-h1c.py",
+      "bytes": 6122,
+      "sha256": "ada744f429e041a680f5833498ca4bb7f5e3e5185df3a22395edfc6d2312c937"
+    },
+    {
+      "path": "measurement/rebase.py",
+      "bytes": 1254,
+      "sha256": "74fe8c750a2dd6a9122e74bafb05fbe3cfd468064af32834e20039eb451fe1c1"
+    },
+    {
+      "path": "measurement/regime-cobertura.py",
+      "bytes": 5784,
+      "sha256": "4701ccb6c6ea33517e30116892d60c92dd20d7ca5f60ef86ed183ac487387b9d"
+    },
+    {
+      "path": "measurement/remedia-descontamina.py",
+      "bytes": 3298,
+      "sha256": "768784ce71eea8fb8b38a36388bbba675df5af5bf81aeb0e240100e0cfdb0ec6"
+    },
+    {
+      "path": "measurement/remedia-serie.py",
+      "bytes": 2844,
+      "sha256": "3aeb2b7444e6630fa080790f6fdd70c4799e19ee7dbf6a9822eaddfc4d2f8f3d"
+    },
+    {
+      "path": "measurement/replay-resumo.py",
+      "bytes": 7042,
+      "sha256": "e2deb35bba5c2ad574fb66ea23cc170b5e96f7f772939ffa0f1957e7a93d1d5f"
+    },
+    {
+      "path": "measurement/robustez-tamanho-exposicao.py",
+      "bytes": 11382,
+      "sha256": "30b4be2a70e7ed7e8fe60801d55fb5849cde178e5a955ce2ff37d82df82af08c"
+    },
+    {
+      "path": "measurement/sensibilidade-da-designacao.py",
+      "bytes": 13805,
+      "sha256": "ee6cfad2dcaf773ce309cc32bba609e644f501a0f6d5193c0279918eb934f7eb"
+    },
+    {
+      "path": "measurement/serie.py",
+      "bytes": 1094,
+      "sha256": "850b25d8fb323d29709a71e6167a16fe065de447878c87952cd76fc2000cb737"
+    },
+    {
+      "path": "measurement/superficie-de-exposicao.py",
+      "bytes": 18584,
+      "sha256": "91c7eecd7268daf1998b8d45b8270aa74ca8762719cc2e519566dd85f0b2e6fa"
+    },
+    {
+      "path": "measurement/survey-string-count.py",
+      "bytes": 6432,
+      "sha256": "6dc399706bf573529369a808860215c2ac785e109859b7d38c8de20591b1b8dc"
+    },
+    {
+      "path": "measurement/tendencia.py",
+      "bytes": 1584,
+      "sha256": "e33d00db2aef3f6fd6980657beeed0dfd0febe83985b11716bba3aa45432eaa4"
+    },
+    {
+      "path": "measurement/verifica.py",
+      "bytes": 906,
+      "sha256": "64c6142a6449a6d196f53a7d5d99a6302efda35d10f50928632ad61c40881667"
+    },
+    {
+      "path": "measurement/verifica2.py",
+      "bytes": 1170,
+      "sha256": "0154789fee0e3ce67c6c6be3ba6d1abc7ebb0a5a20b5885e97286beee756fd05"
+    },
+    {
+      "path": "measurement/bench-vec0-reempacotamento.mjs",
+      "bytes": 6247,
+      "sha256": "a46e111f4f78f30c4132c5867476b97097c4e530350e703faaf62660f8be6109"
+    },
+    {
+      "path": "measurement/controle-positivo.mjs",
+      "bytes": 1713,
+      "sha256": "30cc7b9f59b5d8589bf7b324127433699c7ce3d8184237ef7181bf5e3fb54f1c"
+    },
+    {
+      "path": "measurement/dose-response.mjs",
+      "bytes": 1601,
+      "sha256": "2c1b7ee7756dbe2925fed1deabde5de06ad0a07feb917b6cbeff32002f0801b3"
+    },
+    {
+      "path": "measurement/dose2.mjs",
+      "bytes": 1827,
+      "sha256": "f47a2daa0b3bedaa3eb8ea3c5f290efea752eed31b126f728eb5ba8ba9d9c7b5"
+    },
+    {
+      "path": "measurement/gap-defs.mjs",
+      "bytes": 3336,
+      "sha256": "91d01da89a8e78c304174411baf59ffcf487ffc99766f2021be304f494fb5c30"
+    },
+    {
+      "path": "measurement/gatilho-composicao.mjs",
+      "bytes": 5904,
+      "sha256": "c57baad794c4331c9d65f346bf0ea6a69c259898226f56cb72a827bc036d0ceb"
+    },
+    {
+      "path": "measurement/mede-delta.mjs",
+      "bytes": 1714,
+      "sha256": "442a9f9aa5dbdc1c258d93a120e39edb4c09ead4c3be793a4f8326d34f15e8d9"
+    },
+    {
+      "path": "measurement/ordem.mjs",
+      "bytes": 1970,
+      "sha256": "43632b6fcef102dbdfaa6e300b8fcadc4d03a95cd4b71de79f00408559f89861"
+    },
+    {
+      "path": "measurement/p2-designation-crosscheck.mjs",
+      "bytes": 568,
+      "sha256": "7e1c7ea9895eb30f8b6839c14a05224d9284a01021c9094a462ea23246838749"
+    },
+    {
+      "path": "measurement/rebuild-vec0-index.mjs",
+      "bytes": 7493,
+      "sha256": "b3676f5db13ce7ee410b3bf3fd7c594ea546948eed7a09e2dfbf2adf69a3b571"
+    },
+    {
+      "path": "measurement/replay-oportunidade.mjs",
+      "bytes": 48726,
+      "sha256": "4540906a0b8d1da256d12a0180e74a55ea20aecb247036d2f9e1c2dbd37fe91d"
+    },
+    {
+      "path": "measurement/teto-pool-principal.mjs",
+      "bytes": 3420,
+      "sha256": "dfbc0bd0bba67691e542e5e6c1bd0cf7fe0da7cb45a3f12a6e5317a1675481dd"
+    },
+    {
+      "path": "out/CEILING-PROBE-EXCLUSION-none-2026-08-30.json",
+      "bytes": 164341,
+      "sha256": "87005fdcbd937c2617fedef7f602d5ae29de0bdc44018713437474108a4592dd"
+    },
+    {
+      "path": "out/CEILING-PROBE-EXCLUSION-probes-2026-08-30.json",
+      "bytes": 164259,
+      "sha256": "3cf3574c0c7436e835498656cc9c6220ee630960bc2f926926b9f32f68cf277b"
+    },
+    {
+      "path": "out/CHAIN-AUDIT-2026-08-30.json",
+      "bytes": 31352,
+      "sha256": "367b1e298e83bdd004e1920a2707aac3b7e9bbd8bc5a149888e5f33790f99856"
+    },
+    {
+      "path": "out/CLAIM-COVERAGE-2026-08-29.json",
+      "bytes": 6052,
+      "sha256": "2a4fad9ac013b76174caf0fdab7966d8f0dadfb510580823763c306e724b99bd"
+    },
+    {
+      "path": "out/CONCENTRATION-2026-08-30.json",
+      "bytes": 4297,
+      "sha256": "5c276ada0828dd1e634296331e2f45f20c4496f949a146107b82c86f72026949"
+    },
+    {
+      "path": "out/DOC-COHERENCE-2026-08-30.json",
+      "bytes": 157,
+      "sha256": "ec9b663b2037bca4661be036b9a0e18c423772f3025cdd8431aea767b2094e8a"
+    },
+    {
+      "path": "out/EXPOSURE-BY-COHORT-2026-08-29.json",
+      "bytes": 889,
+      "sha256": "90f7a5ec9eeedd7d34022c497a5ff3d9cadfbc2718ce0e24279a6e386824570f"
+    },
+    {
+      "path": "out/FLOOR-COMPOSITION-2026-08-29.json",
+      "bytes": 1569,
+      "sha256": "cdc9c357f9bb73b66e25c373b73855f1577e67deb4310343d0a2f0cce632b400"
+    },
+    {
+      "path": "out/H1C-BASE-RATE-2026-08-30.json",
+      "bytes": 774,
+      "sha256": "c92c84fb42dc3e794618631b7c9b9bbf11a070bd112b3ed94fc2b17b45802d4c"
+    },
+    {
+      "path": "out/H1C-POWER-2026-08-30.json",
+      "bytes": 1083,
+      "sha256": "48aa2765a133030dfb89a9af8a50ae33eeb0f3d0e23279e8bf8ee0f7d63daadf"
+    },
+    {
+      "path": "out/MAIN-POOL-CEILING-2026-08-30.json",
+      "bytes": 1388,
+      "sha256": "ab3d264ec7b5fe45aa32dd5ae4a5861a91f308da23c628a04e6136b1d4f17e28"
+    },
+    {
+      "path": "out/MANIFESTO.json",
+      "bytes": 2231,
+      "sha256": "c0f9003fe32858341d6dd589a2f6bf65e4d53efa8c3561c6cea7e78dbe13b4fb"
+    },
+    {
+      "path": "out/PARAGRAPH-UNIVERSES-2026-08-30.json",
+      "bytes": 13388,
+      "sha256": "b6dd709694ddfadc3bd4ec407b88f8355c8887dca574a0b6da91ef608dff4587"
+    },
+    {
+      "path": "out/POPULATION-LABELS-2026-08-30.json",
+      "bytes": 15344,
+      "sha256": "44464f3b8d14e87517ac09cfa21dc82281d0054f7f9db1aeb1b02d1f783a8e8b"
+    },
+    {
+      "path": "out/SERVING-VOCAB-2026-08-30.json",
+      "bytes": 564,
+      "sha256": "39932ac9fd43391f4181e4cfa9a577bdc3773c19bfe85aec886f1fac987fa3c6"
+    },
+    {
+      "path": "out/SIZE-AXIS-GAP-2026-08-29.json",
+      "bytes": 1097,
+      "sha256": "7578a832983656816d2310eda5fa3f71db4ddf1e0943ef5f3bb025947526379c"
+    },
+    {
+      "path": "out/SIZE-EXPOSURE-15-2026-08-29.json",
+      "bytes": 1977,
+      "sha256": "81508aec16e8a59e127191e2e2ea1c02a1e8d2219adfa2344dd6939db0585da3"
+    },
+    {
+      "path": "out/SIZE-ROBUSTNESS-2026-08-30.json",
+      "bytes": 1611,
+      "sha256": "77e93a10764cccbace54e0102bb77e2b1e050e37b61679582b63fcde9b6e1ba2"
+    },
+    {
+      "path": "out/TOP-COUNTERFACTUAL-2026-08-29.json",
+      "bytes": 790,
+      "sha256": "ab8133807ea20c340eda8ac3ec46fa154f236034d8026cac11dafff8a25c3444"
+    },
+    {
+      "path": "out/WARNING-DENSITY-2026-08-30.json",
+      "bytes": 837,
+      "sha256": "b2acf7355d77eb038c1cb22a126de32394b893787c814e6d15bfe0c33cca6054"
+    },
+    {
+      "path": "out/ancora-sem-exclusao.json",
+      "bytes": 1308,
+      "sha256": "22d9e2e0207b4d5f0521181284cc440a348525a29b15574cb7ac9ce2cb89afc9"
+    },
+    {
+      "path": "out/ancora-sondas.json",
+      "bytes": 1544,
+      "sha256": "ef8f91ce65af27a577a3358ef7108fdd6899f10a4b187e081ecb247ed808b739"
+    },
+    {
+      "path": "out/bench-vec0-2026-08-28.json",
+      "bytes": 950,
+      "sha256": "7895062e83f6015c04e6947167533dbf8b00e547f808cb12f9ffeb3fdd7c4adb"
+    },
+    {
+      "path": "out/bench-vec0-2026-08-28.log",
+      "bytes": 442,
+      "sha256": "842c84ce78eaead8218d8160fded8845d3586b1e131c8dfc7475888be2fbe863"
+    },
+    {
+      "path": "out/c-27.json",
+      "bytes": 6566,
+      "sha256": "d7f83889d3edc50d10c76cf7ae8d01100293ce1f9ea47b6666dadf58122cde75"
+    },
+    {
+      "path": "out/c-350-v3.json",
+      "bytes": 318075,
+      "sha256": "fec5ef6ebf581b3a8b52844704e0a19630faf3479ecf991ae41cff89f78165a5"
+    },
+    {
+      "path": "out/c-350.json",
+      "bytes": 141080,
+      "sha256": "331d2d2557aabaefdc8485e6437cd7c24b34e2bcaab44663d433426536c95512"
+    },
+    {
+      "path": "out/c-incl.json",
+      "bytes": 6081,
+      "sha256": "0c43a73d65619393679393090ff380ce5ad7af4c0839615a1613eea5a606a84c"
+    },
+    {
+      "path": "out/c-rowid.json",
+      "bytes": 12188,
+      "sha256": "8e9dca302113590bb8cda0b5739036618121dd31d6a5e61a60ff04929ef04620"
+    },
+    {
+      "path": "out/dose-350-v3.json",
+      "bytes": 753307,
+      "sha256": "895c16d84fe620a30560e96da53959c56fe3c6250f8e6dd788402dab67431f8d"
+    },
+    {
+      "path": "out/esperado-superficie.json",
+      "bytes": 4417,
+      "sha256": "9b48e7934c46b87abbd616ea4235643c2b4d10831ee44fe6a3368b04618d31f0"
+    },
+    {
+      "path": "out/esperado.json",
+      "bytes": 3329,
+      "sha256": "7f9b3bc31c5f77e3e309fce74f273a79f1130eeb607dec73abce768f460832fa"
+    },
+    {
+      "path": "out/estados-que-mexem.txt",
+      "bytes": 425,
+      "sha256": "0f780a49c60bc30f17541b357543ac8da1fc25a8bdbef94c221be0693a8a5c48"
+    },
+    {
+      "path": "out/fig0-arquitetura.svg",
+      "bytes": 5743,
+      "sha256": "017d56f2f923586b488f5e7a020e6b7daed708a9b25ae473cc0e4b5da631cbb2"
+    },
+    {
+      "path": "out/fig1-capacidade.svg",
+      "bytes": 4988,
+      "sha256": "05e61d5b05215d8f26c8242eb116209ddd778ee087f0d30befff4968ce8c9345"
+    },
+    {
+      "path": "out/fig2-concentracao.svg",
+      "bytes": 5539,
+      "sha256": "358fe0d739b273e9af3550a48c2f99990674f0f472abd9d2ca31168f830f7c76"
+    },
+    {
+      "path": "out/fig3-dose-resposta.svg",
+      "bytes": 7205,
+      "sha256": "7add2be40ad7975ceb021168f84c2b51b7eac4e730fa618dc8d46091240e4757"
+    },
+    {
+      "path": "out/gaps.json",
+      "bytes": 4855,
+      "sha256": "6212dce6c40dc175267271f2482bdb8e425f216ad5a659f641dad571f0d3454e"
+    },
+    {
+      "path": "out/gran-dia.json",
+      "bytes": 115673,
+      "sha256": "ff112593a8efd16bb8fcefb7e86f8eba2cdeb369fd2382482cf31c8c5559f891"
+    },
+    {
+      "path": "out/gran-hora.json",
+      "bytes": 105170,
+      "sha256": "eda7dae48cf570d6d03400c0da661b6f6f33ecb4bc66463a161adcd515c4f674"
+    },
+    {
+      "path": "out/gran-min.json",
+      "bytes": 93165,
+      "sha256": "4c0aa80571293a2b26f0c40948aeb912cc8a1af7071500c8bb9d5727363fae30"
+    },
+    {
+      "path": "out/gran-seg.json",
+      "bytes": 86291,
+      "sha256": "b684eac93640312b5ecd9589c323c63b3ecddef990527bea3fad0314a3b454c9"
+    },
+    {
+      "path": "out/gran3-hora.json",
+      "bytes": 2598,
+      "sha256": "f162bd822fe4d5978c14d413bb2be0feb684dcb5ba86e21392764e69235021d1"
+    },
+    {
+      "path": "out/gran3-min.json",
+      "bytes": 2685,
+      "sha256": "49102da36df88dcb5d641f0a74a72a78f94f6d013232439a9b8636ea10c121c9"
+    },
+    {
+      "path": "out/gran3-seg.json",
+      "bytes": 2737,
+      "sha256": "d627a42854bac5e6f2f67f8e94d1e4c76926a204e1fc3c9426833516f54e7035"
+    },
+    {
+      "path": "out/limiar-17.json",
+      "bytes": 109105,
+      "sha256": "16d8d06a0f7e776fe3acee2c970f5eec94b1864d8d878dddeb4aba21c7d79f9c"
+    },
+    {
+      "path": "out/porque-350-v3.json",
+      "bytes": 914,
+      "sha256": "eb2d1db9d62ce5329e9f29204262f40cd533d9a31c9d3a5eb0dbb8a13b86de69"
+    },
+    {
+      "path": "out/sens-01.json",
+      "bytes": 164488,
+      "sha256": "c4d34d960b85d26a6fc04173d7d7de6ce0d028f1bff6704f5ea11570217bdeab"
+    },
+    {
+      "path": "out/sens-02.json",
+      "bytes": 164420,
+      "sha256": "f6b83c250f559bfd8140c70708f5ebb56bdb71d279936031bfde09e7aa09c111"
+    },
+    {
+      "path": "out/sens-03.json",
+      "bytes": 164228,
+      "sha256": "4d72da23a8bccda0d47ec0c7270af78befd1801e0130f286a51ae26a2847c78d"
+    },
+    {
+      "path": "out/sens-04.json",
+      "bytes": 164488,
+      "sha256": "ad8a7e477367172aadd2c12a27e81379b479fba590f246fc26db992b953071f7"
+    },
+    {
+      "path": "out/sens-05.json",
+      "bytes": 164280,
+      "sha256": "588a4d797393c85dc1acf46a22064d3619137f456546670f4a71577a27ca386a"
+    },
+    {
+      "path": "out/sens-06.json",
+      "bytes": 164420,
+      "sha256": "cd480423f6f0fd51aab7f2742b8f19df22c526af7874faf46e7b333237b55ab7"
+    },
+    {
+      "path": "out/sens-07.json",
+      "bytes": 164696,
+      "sha256": "a4c02a39f1a491b5304cc80cbb7d807757e4ec0957cd76e93505f17cd0fa51c4"
+    },
+    {
+      "path": "out/sens-08.json",
+      "bytes": 164388,
+      "sha256": "de13a64f0b36809c14ee2c65a2e19a339fe7e59b92a9831854cdaa128896016c"
+    },
+    {
+      "path": "out/superficie.json",
+      "bytes": 7703,
+      "sha256": "64bc81d12de79361ff50315ba02584f870180ee5dbc88e6735f13bcd540e5faa"
+    },
+    {
+      "path": "out/tipos-2026-08-28.csv",
+      "bytes": 488,
+      "sha256": "3c530795f48c5473a9c27d48b561ca892128ae9f54e2bc653e0071430ebc8554"
+    },
+    {
+      "path": "SERVING-CODE-MANIFEST.md",
+      "bytes": 6297,
+      "sha256": "effdb8f010260aee6359f1dacef50076912dfd6d8efad90749b0de5a809596dc"
+    },
+    {
+      "path": "DEVIATIONS-FOR-PAPER.md",
+      "bytes": 18933,
+      "sha256": "0a900adf5b6ab01e2496671da42d23ef5adbb9caea5735b39c1f0ebcb8eedfa6"
+    },
+    {
+      "path": "PROSPECTIVE-ESTIMAND-2026-08-30.md",
+      "bytes": 20305,
+      "sha256": "8ea35c7682bb07d8bce8ea0469cd28317e316b2d8ee4722d682d644398cfa2cd"
+    },
+    {
+      "path": "DESIGN-REVISION-2026-08-30.md",
+      "bytes": 14606,
+      "sha256": "1c7356dcfb23e04f26f5cab4af9253632a9c636626d28fa17d6e2ba4b005ddd4"
+    },
+    {
+      "path": "serving-brief-diversity.ts",
+      "bytes": 8712,
+      "sha256": "34c9aee5f80311c8aff5c0ae35f37dd6dbf52f31a9f940b01cdb8d205c69e7a2"
+    },
+    {
+      "path": "serving-salience.ts",
+      "bytes": 12553,
+      "sha256": "083399fc190920ff8f2a590bd74876e25b1f95552515977920edb64025924684"
+    },
+    {
+      "path": "serving-search.ts",
+      "bytes": 29622,
+      "sha256": "d76034e2b7796744ae5836af02c5a1155ddc5750f0fa2d94875f63b9b1b723d3"
+    }
+  ]
+}

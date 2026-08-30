@@ -22,21 +22,28 @@ assigned — but the corpus is no longer the only thing measured. The distinctio
 matters because "historical corpus" invites the reading that nothing in this
 package touched live serving, and something did.
 
-## Start here, for v1.13
+## Start here, for v1.12 — and a correction about v1.13
 
-`AMENDMENT-v1.13.md` is the document this version exists for. It **withdraws
-`Δ_cut = 0.043` from the status of a scientific parameter** and **blocks the start of
-the study** until a prospective calibration protocol is registered. The block is a
-decision of the amendment, not an external impediment.
+🔴 **An earlier version of this section announced a v1.13 that was never deposited, and
+pointed at an `AMENDMENT-v1.13.md` that does not exist.** The published record is
+**v1.12** (`10.5281/zenodo.22110203`, 2026-08-26), and the version number is a fact
+about the deposit, never a label in this text — checked against the Zenodo API, not
+against memory.
 
-It is descriptive, like v1.12: it declares facts, retracts **15** further claims
-(29–43) with the measurement replacing each, and names what remains open. Seven of
-those retractions retract *its own earlier redactions* — the amendment went through
-three redactions and six adversarial reviews, and what fell is named in its §7 rather
-than quietly removed.
+What happened: the v1.13 amendment was drafted, its deposit machinery was built and
+gated, and then on **2026-08-27** it was decided **not to amend the registration for
+now**. The deviations it would have declared go into the paper instead, in
+`DEVIATIONS-FOR-PAPER.md`. The machinery stays in `deposit/` unexecuted; the draft
+amendment does not exist as a file, which is why the pointer above was broken.
 
-Read it before `PREREG-DRAFT.md` and before `AMENDMENT-v1.12.md`. Where they disagree,
-the later document says so; the registration is preserved as registered.
+The consequence has to be stated plainly, because it is a cost and not a detail:
+**the public registration still declares the designation defect as open.** Anyone
+auditing v1.12 will find it open. The resolution lives outside the registration — in
+`DESIGNATION-SEED-2026-08-26.md`, in `DESIGNATION-2026-08-26.json`, and in the
+prospective estimand record. That is an accepted consequence of not amending.
+
+**Start here:** `AMENDMENT-v1.12.md`, then `PREREG-DRAFT.md`. Where they disagree, the
+later document says so; the registration is preserved as registered.
 
 ✅ **The defect v1.12 declared open is closed.** The designation rule is now a draw
 with a publicly declared seed — drand quicknet round `31657512`, declared 1,056 seconds

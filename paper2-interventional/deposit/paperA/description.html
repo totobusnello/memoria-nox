@@ -1,0 +1,59 @@
+<p><strong>Um sistema de memória em produção, servindo seis agentes por doze semanas, nunca
+expôs 83,78% do próprio corpus — e não foi por falta de espaço.</strong> O canal proativo
+entregou 583.763 slots contra 67.187 chunks, capacidade para mostrar tudo oito vezes, e
+mostrou 1.787 chunks distintos: 2,66%.</p>
+
+<p>Este trabalho mede a <em>superfície de exposição</em> de um sistema de memória para
+agentes: quantos itens distintos um agente em produção de fato recebe, e quais. É uma
+coordenada que os benchmarks da área não medem — eles avaliam nDCG e recall sobre
+conjuntos de queries, e nenhuma dessas métricas enxerga o que nunca foi alcançado por
+query nenhuma. O survey canônico da área (TMLR 2602.06052v4, 218 papers) não registra o
+termo.</p>
+
+<h3>O que está medido</h3>
+<ul>
+  <li><strong>A não-exposição é resultado de política, não limite de capacidade.</strong>
+      Sob serviço uniforme a cobertura esperada seria 99,98%.</li>
+  <li><strong>Os dois canais da superfície congelam, por motivos opostos.</strong> O de
+      cobertura esgota 100% de um pool elegível de 108 chunks todo dia; o principal é
+      determinado por tráfego de busca de meses atrás e não responde a ajuste de score.</li>
+  <li><strong>A exposição cai com o tamanho da coleção.</strong> Os cinco tipos com mais
+      de mil chunks se apertam em 10,7–27,0% de exposição; dos dez tipos pequenos, oito
+      estão acima de 32,5% e dois estão em zero. O tamanho, porém, não é separável de
+      curadoria: nenhuma variável do corpus mede a segunda.</li>
+</ul>
+
+<h3>O que <em>não</em> está medido, e o paper diz isso</h3>
+<p>Não há desfecho a jusante instrumentado: nada aqui estabelece que a não-exposição
+custe valor ao agente. A generalização do mecanismo é <strong>dedutiva</strong> — vale
+para qualquer ranker com ordem lexicográfica e bônus na coordenada subordinada — e não
+empírica: <strong>é um sistema</strong>. E das duas superfícies medidas, só o brief é
+decidido pelo sistema; a busca é iniciada pelo agente e responde pela maior parte da
+exposição registrada.</p>
+
+<h3>Defeitos de instrumento como parte da contribuição</h3>
+<p>O §6 e o Apêndice E catalogam <strong>17 defeitos de instrumento</strong> encontrados
+durante o trabalho, oito deles alterando números que já estavam escritos. Estão no paper
+porque a taxa em que uma medição de produção produz defeitos silenciosos é ela própria um
+resultado — e porque cada correção nomeia quem a achou e o que a teria evitado. Entre
+elas: um valor citado em cinco lugares sem nenhum artefato que o contivesse; três
+coeficientes que viveram apenas em <code>stdout</code> por quatro dias; um artefato
+reescrito a cada execução sendo citado como fonte histórica; e um guarda cuja expressão
+regular o tornava incapaz de falhar.</p>
+
+<h3>O pacote</h3>
+<p>Além do manuscrito, o depósito inclui o verificador (<code>claims_check.py</code>, 19
+guardas que recomputam as alegações numéricas contra os artefatos), os seis censos
+mecânicos, os 57 artefatos de medição, os 53 scripts que os geram e os três módulos de
+serving pinados por <code>sha256</code> dos blobs. A intenção é que cada número do paper
+seja recomputável por um terceiro sem acesso ao sistema — e o pacote traz os artefatos, e
+não apenas os seus hashes, porque um corpus pinado por identificador já foi perdido neste
+mesmo trabalho, levando 280 episódios adjudicados junto.</p>
+
+<p><strong>Relação com o pré-registro.</strong> Este é um estudo observacional concluído.
+O ensaio intervencional que ele antecede está pré-registrado em
+<a href="https://doi.org/10.5281/zenodo.22110203">10.5281/zenodo.22110203</a> e ainda não
+começou: nenhum epoch randomizado existe, nenhum braço foi atribuído. Os desvios entre o
+registro público e o que valerá para o Epoch 1 estão declarados em
+<code>DEVIATIONS-FOR-PAPER.md</code>, incluindo o mais delicado — o registro continua
+declarando aberto um defeito de designação que foi resolvido fora dele.</p>

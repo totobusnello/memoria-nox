@@ -1924,6 +1924,73 @@ def remissao_check(root: Path) -> list[str]:
     return fails
 
 
+def deposito_check(root: Path) -> list[str]:
+    """Trava a `description` do depósito do Paper A contra o paper e o pacote.
+
+    🔴 Este guarda existe porque a primeira redação da description dizia "21 defeitos,
+    doze deles alterando números" e "17 guardas". O paper diz **oito** no §6 e **nove**
+    no Apêndice E — 17 no total, oito alterando números — e os guardas são **18**. Três
+    números errados escritos de memória, na véspera de irem para um registro
+    **imutável**. Um depósito não tem errata: o que for publicado fica.
+
+    ⚠️ A description NÃO pode citar um número que o manuscrito não contenha, e as
+    contagens do pacote são recomputadas do disco, nunca lidas do texto.
+    """
+    fails: list[str] = []
+    desc = root / "deposit" / "paperA" / "description.html"
+    if not desc.exists():
+        return []  # pacote ainda não montado — não é defeito
+    d = desc.read_text(encoding="utf-8")
+    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+
+    # (1) todo número da description existe no manuscrito
+    for n in sorted({m for m in re.findall(
+            r"\b\d{1,3}(?:\.\d{3})+\b|\b\d+,\d+%|\b\d+,\d+\b|\b\d{2,3}%", d)}):
+        if n not in texto:
+            fails.append(
+                f"depósito: a description cita {n!r} e o manuscrito não — número que "
+                f"iria para um registro imutável sem estar no paper"
+            )
+
+    # (2) a contagem de defeitos: recomputada do §6 e do Apêndice E via o texto que o
+    #     `catalogo_check` já trava, não recontada aqui (contador ad-hoc ao lado do
+    #     instrumento validado é a classe de 2026-08-30).
+    m6 = re.search(r"as \*\*(\w+) que mudaram um número", texto)
+    mE = re.search(r"As (\w+) do §6 mais as (\w+) abaixo", texto)
+    if m6 and mE:
+        if not re.search(rf"<strong>17 defeitos de instrumento</strong>", d):
+            fails.append("depósito: a description não diz 17 defeitos ancorado")
+        # ⚠️ Ancorado ao CONTEXTO, não à presença da palavra. A primeira versão fazia
+        # `if m6.group(1) not in d`, e a mutação oito→doze passou ileso porque "oito"
+        # também aparece em "oito estão acima de 32,5%". Presença de substring no
+        # documento concatenado é decoração — a mesma lição de 2026-08-26/27.
+        if not re.search(rf"\b{re.escape(m6.group(1))} deles alterando números", d):
+            fails.append(
+                f"depósito: o §6 diz {m6.group(1)!r} defeitos que mudaram números e a "
+                f"description não diz isso ancorado — as duas contagens divergiram"
+            )
+
+    # (3) contagens do pacote: recomputadas do disco
+    man = root / "deposit" / "paperA" / "MANIFEST.json"
+    if man.exists():
+        itens = [i["path"] for i in json.loads(man.read_text(encoding="utf-8"))["itens"]]
+        for pref, rot in (("out/", "artefatos"), ("measurement/", "scripts")):
+            n = sum(1 for p in itens if p.startswith(pref))
+            if not re.search(rf"\b{n}\b", d):
+                fails.append(
+                    f"depósito: o pacote tem {n} {rot} em {pref} e a description não "
+                    f"diz esse número — recomputado do manifesto"
+                )
+    guardas = len(re.findall(r"^def (\w+_check)\(",
+                             (root / "claims_check.py").read_text(encoding="utf-8"), re.M))
+    if not re.search(rf"<code>claims_check\.py</code>,\s*\n?{guardas}\s*\n?guardas", d):
+        fails.append(
+            f"depósito: são {guardas} guardas e a description não diz isso ancorado — "
+            f"o número muda toda vez que um guarda entra"
+        )
+    return fails
+
+
 def sizing_check(root: Path) -> list[str]:
     """Re-run `sizing.py` and `assign_arms.py` and assert the locked outputs.
 
@@ -2072,6 +2139,7 @@ def main() -> int:
     failures.extend(censos_check(Path(args.root)))
     failures.extend(terceiro_eixo_check(Path(args.root)))
     failures.extend(remissao_check(Path(args.root)))
+    failures.extend(deposito_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)
