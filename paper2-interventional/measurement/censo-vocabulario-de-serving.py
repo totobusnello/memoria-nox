@@ -81,6 +81,44 @@ NEGACAO = [
 ]
 
 
+# ⚠️ Classe descoberta em 30/08 por leitura de arco, e que este censo NÃO pegava.
+# A tabela de dose do §4.4 trazia a coluna `w = 2` rotulada `(servido)`, com a
+# ressalva — "significa a dose em vigor no shadow" — no parágrafo imediatamente acima.
+# O censo classificou como legítima porque a vizinhança tinha "estados", e um revisor
+# humano leu "Testamos … (servido) … Resultado" como estudo interventivo entregue.
+#
+# O que torna a célula de tabela diferente de prosa: **ela é lida sem o parágrafo que a
+# precede.** Um leitor varre a tabela, e a defesa que mora fora dela não o alcança.
+# Logo um verbo de entrega dentro de célula precisa ser autossuficiente — não pode
+# depender de contexto externo para não afirmar demais.
+#
+# Isto é ESTREITO de propósito: só reprova o verbo de entrega SOZINHO numa célula
+# (entre `|`), sem termo legítimo dentro da própria célula. `| estados servidos |`
+# passa, `| **2** (servido) |` não.
+def em_celula_isolada(texto: str, ini: int, fim: int) -> bool:
+    lin0 = texto.rfind("\n", 0, ini) + 1
+    lin1 = texto.find("\n", fim)
+    linha = texto[lin0:lin1 if lin1 > 0 else len(texto)]
+    if linha.count("|") < 2:
+        return False
+    # ⚠️ A primeira versão exigia só que a CÉLULA não repetisse o objeto, e mordeu o
+    # inocente: `| servidos no dia |` é rótulo de contagem de chunks, legítimo, e não
+    # repete "chunks" porque a tabela já o diz. O que separa esse caso de
+    # `| **2** (servido) |` não é a célula — é a LINHA: no overclaim, o verbo qualifica
+    # um valor da dose, e a linha inteira é sobre `w`. Exigir a intervenção na linha
+    # distingue os dois sem desligar o guarda.
+    if not any(re.search(p, linha, re.I) for p in INTERVENCAO + [r"`w`"]):
+        return False
+    p_ini = texto.rfind("|", lin0, ini)
+    p_fim = texto.find("|", fim)
+    if p_ini < 0 or p_fim < 0:
+        return False
+    celula = texto[p_ini + 1:p_fim]
+    if len(celula) > 60:
+        return False
+    return not any(re.search(p, celula, re.I) for p in LEGITIMO + NEGACAO)
+
+
 def classifica(ctx: str, termo_citado: bool = False) -> str:
     # ⚠️ Um verbo ENTRE ASPAS é citação do rótulo, não afirmação de entrega — o texto
     # está explicando o que a palavra significa naquela coluna, que é o oposto de
@@ -132,13 +170,27 @@ def main():
                         antes.rfind("- "), antes.rfind("| "))
             if corte >= 0:
                 ctx = antes[corte + 2:] + texto[m.start():fim].replace("\n", " ")
+            # ⚠️ Aspas E crase. O Apêndice H descreve a correção escrevendo o rótulo
+            # errado — `(servido)` — entre crases, que é como se cita um rótulo de
+            # código. Sem incluir a crase, o censo reprova a própria retratação, que é
+            # o modo como um guarda perde a confiança de quem o lê. Isto NÃO desliga a
+            # detecção do caso real: na tabela o rótulo vinha entre parênteses, sem
+            # crase, e a mutação continua mordendo.
+            aspas = ('"', '`')
+            citado = (texto[max(0, m.start() - 1)] in aspas
+                      and texto[m.end():m.end() + 1] in aspas)
+            if not citado:
+                viz_a, viz_d = texto[max(0, m.start() - 3):m.start()], texto[m.end():m.end() + 3]
+                citado = any(c in viz_a for c in aspas) and any(c in viz_d for c in aspas)
+            classe = classifica(ctx, termo_citado=citado)
+            # célula de tabela isolada: a defesa fora dela não alcança quem varre a
+            # tabela, então o rótulo tem de bastar por si.
+            if not citado and em_celula_isolada(texto, m.start(), m.end()):
+                classe = "ROTULO_DE_CELULA_SEM_DEFESA"
             achados.append({
                 "linha": texto[:m.start()].count("\n") + 1,
                 "termo": m.group(0),
-                "classe": classifica(
-                    ctx,
-                    termo_citado=(texto[max(0, m.start() - 1)] == '"'
-                                  and texto[m.end():m.end() + 1] == '"')),
+                "classe": classe,
                 "contexto": ctx.strip(),
             })
     achados.sort(key=lambda d: d["linha"])
@@ -185,7 +237,8 @@ def main():
     #     30/08: repor "a dose servida em produção" passou incólume.
     #     Reprova só `OVERCLAIM_PROVAVEL`; `AMBIGUO` exige leitura humana e não pode
     #     travar o verificador, senão o guarda vira ruído e é desligado.
-    overclaims = [x for x in achados if x["classe"] == "OVERCLAIM_PROVAVEL"]
+    overclaims = [x for x in achados
+                  if x["classe"] in ("OVERCLAIM_PROVAVEL", "ROTULO_DE_CELULA_SEM_DEFESA")]
     if overclaims:
         print(f"⛔ {len(overclaims)} verbo(s) de entrega aplicado(s) à INTERVENÇÃO, "
               f"que nunca foi servida (o paper corre em shadow):", file=sys.stderr)

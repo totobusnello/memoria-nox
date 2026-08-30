@@ -1275,7 +1275,7 @@ def superficie_check(root: Path) -> list[str]:
                    # grandeza (chunks de `sessions/%` que passam o piso), cujo
                    # tamanho coincide com o da união viva neste instante. A
                    # colisão está declarada no texto; a contagem sobe de propósito.
-                   "10.899": 9}
+                   "10.899": 11}
 
     def conta(literal: str, rotulo: str) -> None:
         esperado = OCORRENCIAS.get(literal)

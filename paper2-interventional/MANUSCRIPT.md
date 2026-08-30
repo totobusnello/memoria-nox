@@ -24,7 +24,8 @@
 ## Abstract
 
 Sistemas de memória para agentes são avaliados pela qualidade da recuperação sobre
-conjuntos de queries. Ninguém mede o que o agente **de fato recebe** em produção — e a
+conjuntos de queries. Nos 218 papers do survey canônico da área, nenhum mede o que o
+agente **de fato recebe** em produção — e a
 recuperação é condicional a uma query ter sido feita, de modo que o item que nenhuma
 query alcança tem nDCG indefinido, não baixo. Instrumentamos, por 12 semanas, as duas
 superfícies pelas quais um sistema de memória em operação entrega conteúdo a uma frota
@@ -37,17 +38,19 @@ o corpus inteiro nove vezes. Não se conclui daí que a ordenação esteja errad
 não foi a falta de espaço que produziu o número. A capacidade **por sessão** (10 itens)
 não é testada aqui. (A cobertura de 99,98% sob serviço uniforme aparece como limite
 aritmético do que a capacidade permitiria, não como política recomendada.) Somando a busca, **83,78% do corpus nunca foi
-exposto por nenhuma das duas superfícies** — ⚠️ e a mudança de universo entre as duas
-frases é deliberada: a folga de capacidade acima é **do brief**, enquanto os 83,78%
-contam a **união**. Os outros 9.755 expostos vieram de busca, que é iniciada pelo agente,
-não entregue pelo sistema; a alegação sobre mecanismo é sobre o brief.
+exposto por nenhuma das duas superfícies**. A mudança de universo entre as duas frases é
+deliberada e precisa ser lida: a folga de capacidade acima é **do brief**, enquanto os
+83,78% contam a **união**. E a exposição que existe é, na maior parte, **iniciada pelo
+agente e não entregue pelo sistema** — 9.755 dos 10.899 chunks expostos vieram de busca.
+A superfície que o sistema decide, o brief, expôs 1.787. Toda alegação deste paper sobre
+*mecanismo* é sobre o brief; os 83,78% descrevem o estado, não o culpado.
 
 **Os dois canais da superfície congelam, por motivos opostos e nenhum ligado a
 capacidade.** Os 8 slots do pool principal são ordenados por um score cujos termos, com
 uma exceção, **não decaem** — o componente de acesso é monótono num contador que só
 sobe. Os 3 chunks presentes em **100%** dos 4.632 briefs da semana foram acessados pela
-última vez há 90, 30 e 42 dias: o topo do brief é determinado pelo tráfego de busca de
-meses atrás, e o top-10 leva **47,16%** dos slots. Os outros 2 slots são um canal de
+última vez há 90, 30 e 42 dias: **as três primeiras posições** do brief são determinadas
+pelo tráfego de busca de meses atrás, e o top-10 leva **47,16%** dos slots. Os outros 2 slots são um canal de
 *cobertura*, cuja finalidade declarada é servir o nunca-servido — e **congela** por outra razão:
 sua população elegível é de **108 chunks num corpus de 67.187** — 0,16%, recortados por
 dois padrões de caminho — e ele a esgota **inteira, todo dia**, com 12,4 slots por
@@ -832,8 +835,14 @@ Os três chunks presentes em **100% dos 4.632 briefs** da semana são exatamente
 | 116467 | `team` | 0,80 | **1,00** | 911 | 2026-07-17 | 125 d |
 
 **Foram acessados pela última vez há 90, 30 e 42 dias — e ganham todos os briefs de
-hoje.** O topo do brief é determinado pelo tráfego de busca de meses atrás — e
-"determinado" aqui é **contrafactual medido**, não leitura da fórmula.
+hoje.** As posições que eles ocupam são determinadas pelo tráfego de busca de meses
+atrás — e "determinado" aqui é **contrafactual medido**, não leitura da fórmula.
+
+⚠️ **O escopo da palavra, corrigido em 30/08.** Uma leitura de arco observou que "o topo
+do brief é determinado" generaliza dos **três** chunks que o contrafactual move para o
+topo inteiro, e que o suporte é um recompute sobre 149 dos 201 chunks da janela. O que
+está medido é a posição desses três: zerar o componente de acesso os leva de 2/3/5 para
+131/129/128 entre 149 servidos. É uma afirmação sobre eles, não sobre as dez posições.
 
 | chunk | `importance` | `pain` | acessos | posição | posição com o acesso **zerado** |
 |---|---:|---:|---:|---:|---:|
@@ -910,10 +919,13 @@ de `last_served` idêntico. Logo qualquer intervenção desse tipo tem **teto**,
 a fração de briefs em que a decisão cai num empate de `last_served`.
 
 Replay contrafactual com dose crescente sobre 350 estados de brief reais, fiel ao
-pipeline de serving. ⚠️ **"Servido" na coluna `w = 2` significa a dose em vigor no
-*shadow*** — a composição tratada foi computada e registrada, e nunca entregue ao agente:
+pipeline de serving. A coluna `w = 2` é a dose em vigor no *shadow*: a composição tratada
+sob ela foi computada e registrada, e **nunca entregue a agente nenhum**. ⚠️ Até 30/08
+essa coluna vinha rotulada apenas `(servido)`, com a ressalva nesta linha — e uma leitura
+de arco mostrou que o rótulo sozinho sugere entrega ao agente, porque **um rótulo de
+tabela é lido sem o parágrafo que o precede**. Ver Apêndice H.
 
-| `w` | 0 | 0,5 | 1 | **2** (servido) | 4 | 7,5 | 15 | 100 | 100.000 |
+| `w` | 0 | 0,5 | 1 | **2** (dose do *shadow*) | 4 | 7,5 | 15 | 100 | 100.000 |
 |---|---|---|---|---|---|---|---|---|---|
 | estados que mudam | **0** | 5 | 8 | **11** | 15 | 17 | 17 | 17 | **17** |
 | eventos de deslocamento | 0 | 5 | 8 | 12 | 18 | 20 | 20 | 20 | 20 |
@@ -1744,6 +1756,10 @@ corrigir onde o defeito foi achado não o corrige onde ele também está.
 | a distribuição igual é impossível "porque só cabem 201" | **cabiam 46.295** — o medido foi tratado como teto, o que torna a curva inevitável por construção | interna |
 | a janela do canal de cobertura é de 7 dias | são **dois** sub-pools, 7 e 30 dias; a janela de um foi aplicada ao lote do outro | predição registrada |
 | "fóssil" → "determinado" (neutralização de tom) | a troca **endureceu** a alegação: "determinado" é causalmente mais forte que a metáfora, e exigiu contrafactual que não existia | DeepSeek |
+| a coluna `w = 2` rotulada **`(servido)`** | a defesa — "significa a dose em vigor no *shadow*" — morava no parágrafo **acima** da tabela, e ninguém lê tabela junto com o parágrafo anterior | DeepSeek |
+| "Ninguém mede o que o agente de fato recebe" | universal sobre a literatura inteira sustentado por **um** censo de vocabulário de um survey de 218 papers | DeepSeek |
+| "o **topo** do brief é determinado pelo tráfego" | o contrafactual mede **três** chunks; "o topo" generaliza para as dez posições | DeepSeek |
+| os 83,78% atribuídos a decisão do sistema | **9.755 dos 10.899** expostos vieram de busca iniciada pelo agente; a ressalva existia, mas atrás de um ⚠️ no meio do parágrafo | DeepSeek |
 
 ## Apêndice E — Catálogo integral de defeitos de instrumento
 
