@@ -1350,6 +1350,85 @@ def eixo_check(root: Path) -> list[str]:
     return fails
 
 
+def estimando_check(root: Path) -> list[str]:
+    """Trava o registro prospectivo do estimando aos artefatos que o sustentam.
+
+    O documento é escrito **antes** do Epoch 1 e a sua função é ser conferível depois.
+    Duas classes de defeito o tornariam inútil, e as duas já ocorreram neste projeto:
+
+    1. **transcrição que envelhece** — o §1 copia desfecho, τ, `N` e estimador do
+       pré-registro. Cópia sem guarda é cache sem invalidação, e foi assim que o
+       `583.973` viveu cinco lugares;
+    2. **a aritmética da condição de detectabilidade** — o §2 afirma que a dose que
+       testa H1 altera 3,14% dos briefs e que isso exige ~10× de concentração contra um
+       MDE de 30%. Os dois números são **derivados**, não citados: se a tabela de dose
+       mudar, a condição inteira muda e o texto seguiria afirmando a antiga.
+
+    ⚠️ O §2 é a parte do documento que pode reprovar o desenho antes de ele começar. É
+    justamente a que não pode depender da minha memória da tabela.
+    """
+    doc = root / "PROSPECTIVE-ESTIMAND-2026-08-30.md"
+    if not doc.exists():
+        return ["PROSPECTIVE-ESTIMAND-2026-08-30.md ausente — o Paper B perde o "
+                "documento que declara o estimando antes do primeiro epoch"]
+    texto = doc.read_text(encoding="utf-8")
+    fails = []
+
+    art = root / "measurement" / "out" / "dose-350-v3.json"
+    if not art.exists():
+        return [f"{art.name} ausente — a condição de detectabilidade do §2 fica sem lastro"]
+    tab = {str(r["w"]): r for r in json.loads(art.read_text(encoding="utf-8"))["dose"]["tabela"]}
+
+    # (1) a dose primária e o teto, recomputados da tabela
+    if "2" not in tab or "7.5" not in tab:
+        return [f"{art.name}: doses 2 e 7.5 ausentes da tabela — o §2 as cita"]
+    d2, d75 = tab["2"], tab["7.5"]
+    pct2 = 100 * d2["mexeu"] / d2["estados"]
+    pct75 = 100 * d75["mexeu"] / d75["estados"]
+    if f"{d2['mexeu']}/{d2['estados']}" not in texto:
+        fails.append(f"§2: a dose w=2 altera {d2['mexeu']}/{d2['estados']} briefs e o "
+                     f"registro não afirma essa fração")
+    if f"{pct2:.2f}".replace(".", ",") not in texto:
+        fails.append(f"§2: {pct2:.2f}% (dose primária) ausente do registro")
+    if f"{pct75:.2f}".replace(".", ",") not in texto:
+        fails.append(f"§2: {pct75:.2f}% (teto do canal) ausente do registro")
+
+    # (2) ⚠️ o argumento SÓ vale enquanto a dose máxima do estudo estiver NO teto. Se
+    #     uma dose do estudo passasse a mover mais que o teto medido, a frase "a revisão
+    #     teria de mudar o canal, não a dose" ficaria falsa — e é dela que sai a
+    #     consequência 3, a única que pode barrar o Epoch 1.
+    teto = max(r["mexeu"] for r in tab.values())
+    if d75["mexeu"] != teto:
+        fails.append(
+            f"§2: a dose máxima do estudo (w=7,5) move {d75['mexeu']}, e o teto da "
+            f"tabela é {teto} — o registro afirma que nenhuma dose ultrapassa o teto, "
+            f"e essa frase sustenta a consequência que pode barrar o Epoch 1")
+
+    # (3) a concentração exigida é MDE ÷ fração alterada, recomputada
+    conc = 30.0 / pct2
+    if f"{conc:.0f}×" not in texto and f"{conc:.1f}" not in texto:
+        fails.append(f"§2: a concentração exigida é {conc:.2f}× (MDE 30% ÷ {pct2:.2f}%) "
+                     f"e o registro não a afirma")
+
+    # (4) transcrições que o §1 declara serem cópia — divergir delas é defeito do
+    #     documento, e ele diz isso de si mesmo
+    pre = root / "PREREG-DRAFT.md"
+    if pre.exists():
+        p = pre.read_text(encoding="utf-8")
+        for valor, rot in (("234", "N_epochs"), ("117/39/39/39", "alocação"),
+                           ("323 days", "cap de calendário")):
+            if valor in p and valor.replace(" days", " dias") not in texto and valor not in texto:
+                fails.append(f"§1/§4: {rot} = «{valor}» está no PREREG e não no registro")
+    # (5) precedência: o documento afirma zero epochs randomizados. Se o ASSIGNMENT
+    #     passar a existir, a afirmação de precedência envelheceu e o documento deixa
+    #     de ser prospectivo — que é a única propriedade que o torna valioso.
+    if (root / "ASSIGNMENT.json").exists() and "zero epochs randomizados" in texto:
+        fails.append(
+            "PROSPECTIVE-ESTIMAND: afirma 'zero epochs randomizados existentes' e "
+            "ASSIGNMENT.json já existe — a alegação de precedência envelheceu")
+    return fails
+
+
 def sem_guarda_check(root: Path) -> list[str]:
     """Fecha as dez alegações que o censo de 30/08 achou circulando sem verificação.
 
@@ -1782,6 +1861,7 @@ def main() -> int:
     failures.extend(janela_check(Path(args.root)))
     failures.extend(coorte_check(Path(args.root)))
     failures.extend(sem_guarda_check(Path(args.root)))
+    failures.extend(estimando_check(Path(args.root)))
     failures.extend(eixo_check(Path(args.root)))
     failures.extend(superficie_check(Path(args.root)))
     failures.extend(cobertura_check(Path(args.root)))

@@ -181,7 +181,15 @@ def main():
     #     errado — e reportaria "nenhum órfão" por cegueira.
     # (3) todo artefato que o `claims_check` abre tem de estar no universo auditado;
     #     se não estiver, a auditoria é cega justamente onde o verificador confia.
-    lidos_pelo_verif = set(re.findall(r'root / "([A-Za-z0-9._-]+\.json)"', verificador))
+    # ⚠️ `root / "X.json"` aparece no verificador em DOIS papéis diferentes, e tratá-los
+    # igual acusa o inocente: um artefato que ele ABRE tem de existir e ser auditável;
+    # um arquivo cuja AUSÊNCIA ele testa (`.exists()` como asserção de precedência) não
+    # é artefato nenhum — é justamente a inexistência que está sendo afirmada. O guarda
+    # do estimando testa se `ASSIGNMENT.json` já existe para detectar que a alegação de
+    # precedência envelheceu; exigir que ele exista inverteria o sentido do teste.
+    lidos_pelo_verif = {m.group(1) for m in
+                        re.finditer(r'root / "([A-Za-z0-9._-]+\.json)"([^\n]*)', verificador)
+                        if ".exists()" not in m.group(2)}
     nomes = {p.name for p in artefatos}
     invisiveis = sorted(lidos_pelo_verif - nomes)
     if invisiveis:
