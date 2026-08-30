@@ -30,7 +30,7 @@ import sys
 # manuscrito. Citá-los não é obrigatório, e alarmar sobre eles é ruído.
 NAO_PRECISAM_CITACAO = {
     "CLAIM-COVERAGE", "WARNING-DENSITY", "SERVING-VOCAB", "POPULATION-LABELS",
-    "CHAIN-AUDIT", "BATCH-CYCLE", "PREDICTION",
+    "CHAIN-AUDIT", "BATCH-CYCLE", "PREDICTION", "DOC-COHERENCE",
 }
 
 

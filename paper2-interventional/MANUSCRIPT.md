@@ -647,7 +647,10 @@ padrões de caminho e sua janela (`brief.ts:135,642,645`; `brief-diversity.ts:59
 🔴 **O zero do sub-pool por agente não vem de falta de material, e a distinção decide o
 que se pode dizer do canal.** Em 30/08, **10.899** chunks de `sessions/%` passam o piso
 de importância — e **nenhum** entra na janela de 7 dias, porque o mais novo deles tem
-**20,5 dias**. Não é que o sistema não tenha memória de sessão relevante; é que a
+**20,5 dias**. ⚠️ **Esse 10.899 não tem relação com o 10.899 da união viva de expostos
+do §4.1**: são conjuntos distintos cujos tamanhos coincidem neste instante. Conferido —
+a interseção entre eles é **1.971**, e a união viva medida no mesmo dia é **10.926**. A
+coincidência é do calendário, não da grandeza, e some no próximo dia. Não é que o sistema não tenha memória de sessão relevante; é que a
 ingestão dessa família parou há três semanas, e a janela do sub-pool é de uma. **Metade
 do canal de cobertura está inerte por idade, não por desenho.**
 
