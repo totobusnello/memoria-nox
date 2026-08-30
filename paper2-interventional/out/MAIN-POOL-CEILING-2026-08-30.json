@@ -1,0 +1,47 @@
+{
+  "gerado_por": "measurement/teto-pool-principal.mjs",
+  "pergunta": "o boost teria alcance no POOL PRINCIPAL (8 slots), onde o canal de cobertura tem teto de 4,86%?",
+  "CONTRAFACTUAL": "o codigo NAO aplica boost no pool principal; isto modela o ORDENADOR usando pool e calculateSalience reais",
+  "estados": 350,
+  "designado_no_pool_de_500": 350,
+  "ja_no_top8_sem_boost": 0,
+  "melhor_posicao": {
+    "min": 243,
+    "max": 243
+  },
+  "boost_necessario": {
+    "min": 0.1313,
+    "mediana": 0.1316,
+    "max": 0.1319
+  },
+  "severidade_dos_designados": {
+    "S1": 10,
+    "S2": 9,
+    "S3": 0,
+    "S4": 0
+  },
+  "boost_por_dose_e_severidade": {
+    "w=2.0": {
+      "S1": 0.0215,
+      "S2": 0.043
+    },
+    "w=4.0": {
+      "S1": 0.043,
+      "S2": 0.086
+    },
+    "w=7.5": {
+      "S1": 0.0806,
+      "S2": 0.1612
+    }
+  },
+  "dose_minima_para_entrar": {
+    "S1": 12.24,
+    "S2": 6.12
+  },
+  "veredito": {
+    "w=2,0 (testa H1)": "NENHUM designado alcanca o top-8",
+    "w=4,0": "NENHUM — S2 precisa de w>=6,12",
+    "w=7,5 (maxima)": "os 9 designados S2 alcancam; os 10 S1 nao (precisam de w>=12,24)"
+  },
+  "consequencia": "o pool principal e ~20x mais permeavel que o canal de cobertura, mas so na dose maxima e so para metade dos designados — e 9 chunks entrando num pool de 8 slots e SATURACAO, o mesmo defeito que a correcao de 2026-08-16 evitou no outro canal"
+}

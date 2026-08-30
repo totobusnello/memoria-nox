@@ -95,6 +95,66 @@ pré-registro novo, não uma emenda.
 
 ---
 
+## 3-bis. Medido em 2026-08-30: o teto do pool principal
+
+`out/MAIN-POOL-CEILING-2026-08-30.json`, sobre os **mesmos 350 estados**, usando a query
+de candidatos do código e `calculateSalience` do `dist`.
+
+⚠️ **É contrafactual sobre código que não existe.** A produção aplica o boost apenas no
+ranking de cobertura; não há pipeline real a replicar. O que se mediu é o **ordenador**:
+onde os designados caem no pool principal e quanto de boost os levaria ao top-8. Vale na
+direção *"se nem assim alcança, não alcança"*.
+
+| | valor |
+|---|---|
+| estados com designado no pool de 500 | **350 de 350** |
+| já no top-8 sem boost | **0** |
+| melhor posição do designado | **243** — idêntica nos 350 estados |
+| boost necessário para o top-8 | **0,1313 – 0,1319** (mediana **0,1316**) |
+
+📌 A posição 243 e o boost necessário **não variam** ao longo de 12,5 horas. O topo do
+pool principal é estático na janela — o que é o mesmo achado do Paper A visto de outro
+ângulo: o componente de acesso não decai, então quem está no topo permanece.
+
+**Quanto de boost as doses produzem** (`w × 0,043 × severidade`, severidades
+`S1 = 0,25`, `S2 = 0,5`):
+
+| dose | S1 | S2 | alcança? |
+|---:|---:|---:|---|
+| `w = 2,0` — testa H1 | 0,0215 | 0,0430 | **não**, nenhuma |
+| `w = 4,0` | 0,0430 | 0,0860 | **não**, nenhuma |
+| `w = 7,5` — máxima | 0,0806 | **0,1612** | **só S2** |
+
+Dose mínima: **S2 ⇒ `w ≥ 6,12`**; **S1 ⇒ `w ≥ 12,24`**, acima de toda a banda registrada.
+
+E a severidade dos 19 designados é **10 S1 (53%) e 9 S2 (47%)** — **nenhum S3 ou S4**.
+
+### O que isto decide
+
+**O pool principal é ~20× mais permeável que o canal de cobertura** — um designado que
+alcança o top-8 entra em praticamente *todos* os briefs, contra 4,86% no canal. A opção B
+não morre pelo motivo que mataria o canal.
+
+🔴 **Mas ela morre por outro, e o defeito é conhecido.** Sob `w = 7,5`, os **9** designados
+S2 alcançam o top-8 **simultaneamente** — e o pool principal tem **8** slots. Isso é
+saturação, exatamente o defeito que a correção de 2026-08-16 evitou no outro canal ao
+travar *"um designado por oportunidade"*: lá, medido, *"boostar todos os matches poria
+nove ou mais chunks num brief de dez slots em 46% das oportunidades"*.
+
+A opção B, na forma direta, **reintroduz no pool principal o defeito que foi corrigido no
+canal de cobertura**. Ela só sobrevive com uma regra de admissão que a correção de 16/08
+já teve de inventar uma vez — e essa regra, no pool principal, não é *"um por
+oportunidade"*: as oportunidades não são o ordenador do pool principal, então a regra
+teria de ser desenhada do zero.
+
+⚠️ E há uma assimetria que muda o caráter da intervenção: no canal de cobertura o boost
+altera **4,86%** dos briefs; no pool principal alteraria **quase todos**. Deixa de ser uma
+intervenção marginal num canal reservado e passa a ser uma mudança do que a frota inteira
+recebe, o tempo todo. Isso é defensável como estudo, mas é **outro estudo** — com outro
+perfil de risco e outra regra de aborto.
+
+---
+
 ## 4. Recomendação
 
 **B, e não porque é a mais barata — é a mais cara depois de A.** É a única em que o

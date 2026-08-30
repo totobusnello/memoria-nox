@@ -116,7 +116,7 @@ def main():
     # porque pertencem ao outro estudo. Varrer só o manuscrito passou a produzir órfão
     # falso — e um guarda que acusa o inocente é desligado na terceira vez.
     CITANTES = ["MANUSCRIPT.md", "PROSPECTIVE-ESTIMAND-2026-08-30.md",
-                "DEVIATIONS-FOR-PAPER.md"]
+                "DEVIATIONS-FOR-PAPER.md", "DESIGN-REVISION-2026-08-30.md"]
     texto = "\n".join((raiz / n).read_text(encoding="utf-8")
                       for n in CITANTES if (raiz / n).exists())
     verificador = (raiz / "claims_check.py").read_text(encoding="utf-8") \
