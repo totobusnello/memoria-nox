@@ -97,6 +97,87 @@ como `CONCENTRATION-<data>.json`, com três consequências fixadas agora:
    nenhuma dose o ultrapassa. A revisão teria de mudar o **canal**, não a dose — o que é
    outro estudo, e seria registrado como tal.
 
+### 2-bis. Medida em 2026-08-30 — e o número passa pela razão errada
+
+`out/CONCENTRATION-2026-08-30.json`, gerado por
+`measurement/concentracao-de-oportunidades.py`. **Nenhum epoch randomizado existe.**
+
+| | valor |
+|---|---|
+| oportunidades no corpus | 1.526 |
+| cobertas por assinatura que a dose promove | 611 — **40,0%** |
+| fração de briefs alterada | 3,14% (recomputada do artefato de dose) |
+| **concentração, limite superior** | **12,74×** |
+| faixa nominal | ≥10× — *"o desenho segue"* |
+
+Nominalmente o desenho passa. **Ele não passa.**
+
+🔴 **93,8% da cobertura vem de uma única assinatura.**
+
+| oportunidades | % das cobertas | assinatura |
+|---:|---:|---|
+| **573** | **93,8%** | `Bash\|shell:outro` |
+| 25 | 4,1% | `mcp__openclaw__memory_search\|consulta` |
+| 12 | 2,0% | `mcp__openclaw__memory_get\|arquivo:doc` |
+| 1 | 0,2% | `mcp__openclaw__web_fetch\|rede` |
+
+Removida ela, a cobertura cai de 40,0% para **2,5%** e a concentração para **0,79×** —
+*abaixo* da uniformidade, isto é, as demais assinaturas promovidas caem em oportunidades
+**menos** do que o acaso daria.
+
+⚠️ **E `Bash|shell:outro` é a pior assinatura possível para carregar esse peso.** É o
+balde de menor especificidade do esquema — tudo que a taxonomia não classifica — e o
+próprio pré-registro observa que ela sozinha é ~27% do corpus, motivo pelo qual a
+amostragem de calibração precisou ser estratificada para não ser dominada por ela. Uma
+lição de falha rotulada *"Bash, shell, outro"* é fraca exatamente onde a intervenção
+precisa ser forte: prevenir **uma** repetição específica. A concentração que faz o
+desenho passar é concentração sobre a assinatura que menos informa.
+
+📌 **Três das sete assinaturas que a dose promove não aparecem em oportunidade nenhuma**
+— `Bash|fs:mutacao`, `mcp__openclaw__terminal|shell:outro` e o `ctx_batch_execute`.
+Quase metade do que a dose consegue promover é inerte no corpus.
+
+**Leitura, e ela é uma decisão de desenho, não de cálculo.** A faixa pré-registrada foi
+escrita supondo um agregado; o agregado medido repousa num estrato. As três faixas do §2
+não previram esse caso — e não prever não é o mesmo que autorizar a leitura conveniente.
+Duas leituras defensáveis:
+
+1. **pela letra**, 12,74× ⇒ faixa ≥10× ⇒ segue;
+2. **pela substância**, a concentração informativa é 0,79× ⇒ faixa <3× ⇒ revisar antes de
+   começar.
+
+⚠️ Registro que **a segunda é a minha leitura**, e a razão é que a faixa existe para
+responder *"o efeito tem por onde aparecer?"*. Um efeito que só pode aparecer através de
+lições rotuladas "shell, outro" tem por onde aparecer no papel e não no mecanismo. Mas a
+escolha entre as duas é do responsável pelo estudo, e fica registrada aqui **antes** de
+qualquer dado de braço para que não possa ser feita depois, à luz de um resultado.
+
+⚠️ **Duas limitações que valem para os dois lados.** (a) O corpus congelado do
+pré-registro **não existe mais** (§2-ter), então isto corre sobre o archive vivo, 1.843
+episódios contra os 5.547 declarados. (b) O número é um **limite superior**: supõe que
+promover a assinatura certa sempre acerta a sessão certa. Um teto que reprova é
+conclusivo; um teto que aprova não é — e este aprova por 12,74× de teto sobre um
+mecanismo cuja parte informativa dá 0,79×.
+
+### 2-ter. 🔴 O corpus congelado do pré-registro não existe
+
+`CORPUS-FREEZE.md` declara que a reprodução roda contra
+`action-archive-20260729T094609Z.tar.gz` (107 MB, 5.547 episódios,
+`sha256 ba5fcc81…`), em `/var/backups/nox-mem/paper2-corpus/` com modo `0400`, e que
+*"quem reproduzir a partir deste snapshot obtém 5.547 episódios"*.
+
+Procurado em 2026-08-30 por **nome**, por **tamanho** (~107 MB) e por **`sha256`** em
+toda a máquina: não existe, e o diretório também não. É a terceira ocorrência da mesma
+classe em três dias — depois do corpus do teto (rotacionado) e dos três `.ts` pinados por
+hash de commit (recuperados). **Pinar o identificador de um artefato não o preserva.**
+
+O que sobreviveu é a `sig()`: `extract_episodes.py` tem `sha256` `e860357bd9f1fc06…`,
+idêntico ao congelado. A taxonomia é reproduzível; o corpus sobre o qual foi derivada não
+é. A alegação de reprodutibilidade do §4.1 do pré-registro **não pode ser cumprida por um
+terceiro**, e isso entra no paper.
+
+---
+
 📌 O item 3 é a razão de este documento existir antes da seed e não depois. Descobrir
 isso no mês 8 de um estudo de 234 dias custaria o estudo inteiro; descobri-lo agora custa
 uma medição sobre dados que já estão congelados.

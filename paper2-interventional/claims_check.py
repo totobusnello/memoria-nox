@@ -1419,7 +1419,35 @@ def estimando_check(root: Path) -> list[str]:
                            ("323 days", "cap de calendário")):
             if valor in p and valor.replace(" days", " dias") not in texto and valor not in texto:
                 fails.append(f"§1/§4: {rot} = «{valor}» está no PREREG e não no registro")
-    # (5) precedência: o documento afirma zero epochs randomizados. Se o ASSIGNMENT
+    # (5) 🔴 a concentração medida, e o que a torna frágil. O §2-bis afirma que o
+    #     agregado passa a faixa mas repousa numa assinatura; se a decomposição mudar,
+    #     a leitura inteira muda e o texto seguiria afirmando a antiga. Este é o guarda
+    #     que impede a leitura conveniente de sobreviver a um corpus novo.
+    conc = root / "out" / "CONCENTRATION-2026-08-30.json"
+    if conc.exists():
+        c = json.loads(conc.read_text(encoding="utf-8"))
+        lou = c.get("leave_one_signature_out") or {}
+        for got, alvo, rot in (
+                (c.get("concentracao_LIMITE_SUPERIOR"), 12.74, "concentração nominal"),
+                (lou.get("concentracao_sem_ela"), 0.79, "concentração sem a maior"),
+                (round(100 * c.get("cobertura", 0), 1), 40.0, "cobertura")):
+            if got is None or abs(got - alvo) > 0.051:
+                fails.append(f"§2-bis: {rot} = {got}, o registro afirma {alvo}")
+        share = lou.get("share_das_cobertas")
+        if share is None or share < 0.80:
+            fails.append(
+                f"§2-bis afirma que a concentração repousa numa assinatura "
+                f"({share} do total), e essa é a base para ler o resultado como "
+                f"reprovado na substância — se a dependência caiu, a leitura muda")
+        if "0,79" not in texto or "12,74" not in texto:
+            fails.append("§2-bis: a concentração nominal e a do leave-one-out têm de "
+                         "aparecer JUNTAS no texto — citar só uma é a leitura seletiva "
+                         "que o parágrafo existe para impedir")
+    elif "12,74" in texto:
+        fails.append("§2-bis cita a concentração e out/CONCENTRATION-2026-08-30.json "
+                     "não existe — a pré-condição do Epoch 1 ficou sem lastro")
+
+    # (6) precedência: o documento afirma zero epochs randomizados. Se o ASSIGNMENT
     #     passar a existir, a afirmação de precedência envelheceu e o documento deixa
     #     de ser prospectivo — que é a única propriedade que o torna valioso.
     if (root / "ASSIGNMENT.json").exists() and "zero epochs randomizados" in texto:

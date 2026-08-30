@@ -1,0 +1,163 @@
+{
+  "gerado_por": "measurement/concentracao-de-oportunidades.py",
+  "pergunta": "as oportunidades de falha repetida caem nas assinaturas que a dose w=2,0 consegue promover?",
+  "corpus": {
+    "episodios": 1843,
+    "com_is_error": 181,
+    "assinaturas_distintas": 57,
+    "ATENCAO": "archive VIVO, não o congelado do CORPUS-FREEZE.md — aquele (5.547 episódios) não existe mais na máquina, procurado por nome, tamanho e sha256 em 2026-08-30"
+  },
+  "assinaturas_promovidas_sob_w2": [
+    "Bash|fs:mutacao",
+    "Bash|shell:outro",
+    "mcp__openclaw__memory_get|arquivo:doc",
+    "mcp__openclaw__memory_search|consulta",
+    "mcp__openclaw__terminal|shell:outro",
+    "mcp__openclaw__web_fetch|rede",
+    "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+  ],
+  "oportunidades": 1526,
+  "oportunidades_cobertas": 611,
+  "cobertura": 0.4004,
+  "fracao_de_briefs_alterada": 0.031429,
+  "fonte_da_fracao": "artefato: 11/350",
+  "concentracao_LIMITE_SUPERIOR": 12.74,
+  "faixa_pre_registrada": "≥10x — o desenho segue",
+  "mde_alcancavel_no_melhor_caso": 0.4004,
+  "mde_registrado": 0.3,
+  "por_assinatura": {
+    "Bash|shell:outro": {
+      "total": 573,
+      "coberta": true
+    },
+    "Bash|fs:leitura": {
+      "total": 277,
+      "coberta": false
+    },
+    "Bash|build/run": {
+      "total": 148,
+      "coberta": false
+    },
+    "mcp__openclaw__browser|sem-alvo": {
+      "total": 86,
+      "coberta": false
+    },
+    "mcp__openclaw__message|sem-alvo": {
+      "total": 81,
+      "coberta": false
+    },
+    "Read|arquivo:doc": {
+      "total": 60,
+      "coberta": false
+    },
+    "Edit|arquivo:doc": {
+      "total": 44,
+      "coberta": false
+    },
+    "Bash|git:leitura": {
+      "total": 42,
+      "coberta": false
+    },
+    "mcp__openclaw__browser|rede": {
+      "total": 35,
+      "coberta": false
+    },
+    "mcp__firecrawl__firecrawl_search|consulta": {
+      "total": 26,
+      "coberta": false
+    },
+    "mcp__openclaw__memory_search|consulta": {
+      "total": 25,
+      "coberta": true
+    },
+    "mcp__firecrawl__firecrawl_scrape|rede": {
+      "total": 18,
+      "coberta": false
+    },
+    "Write|arquivo:doc": {
+      "total": 14,
+      "coberta": false
+    },
+    "mcp__openclaw__memory_get|arquivo:doc": {
+      "total": 12,
+      "coberta": true
+    },
+    "mcp__openclaw__sessions_list|sem-alvo": {
+      "total": 11,
+      "coberta": false
+    },
+    "Read|arquivo:config": {
+      "total": 9,
+      "coberta": false
+    },
+    "mcp__openclaw__gateway|arquivo:outro": {
+      "total": 9,
+      "coberta": false
+    },
+    "Bash|rede": {
+      "total": 8,
+      "coberta": false
+    },
+    "WebSearch|consulta": {
+      "total": 8,
+      "coberta": false
+    },
+    "mcp__openclaw__sessions_send|sem-alvo": {
+      "total": 7,
+      "coberta": false
+    },
+    "mcp__openclaw__session_status|sem-alvo": {
+      "total": 7,
+      "coberta": false
+    },
+    "mcp__openclaw__openclaw|sem-alvo": {
+      "total": 6,
+      "coberta": false
+    },
+    "Read|arquivo:outro": {
+      "total": 6,
+      "coberta": false
+    },
+    "mcp__openclaw__gateway|sem-alvo": {
+      "total": 4,
+      "coberta": false
+    },
+    "Edit|arquivo:config": {
+      "total": 2,
+      "coberta": false
+    },
+    "mcp__openclaw__ask_user|sem-alvo": {
+      "total": 2,
+      "coberta": false
+    },
+    "mcp__openclaw__message|consulta": {
+      "total": 2,
+      "coberta": false
+    },
+    "mcp__openclaw__nodes|sem-alvo": {
+      "total": 2,
+      "coberta": false
+    },
+    "WebFetch|delegacao": {
+      "total": 1,
+      "coberta": false
+    },
+    "mcp__openclaw__web_fetch|rede": {
+      "total": 1,
+      "coberta": true
+    }
+  },
+  "leave_one_signature_out": {
+    "maior_contribuinte": "Bash|shell:outro",
+    "oportunidades_dela": 573,
+    "share_das_cobertas": 0.9378,
+    "cobertura_sem_ela": 0.0249,
+    "concentracao_sem_ela": 0.79,
+    "assinaturas_promovidas_com_zero_oportunidades": [
+      "Bash|fs:mutacao",
+      "mcp__openclaw__terminal|shell:outro",
+      "mcp__plugin_context_mode_context_mode__ctx_batch_execute|sem-alvo"
+    ]
+  },
+  "e_limite_superior_porque": "supõe acoplamento perfeito entre promover a assinatura e acertar a sessão; brief_log não tem session_id, então o acoplamento real não é medível por este caminho"
+}

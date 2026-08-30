@@ -110,7 +110,15 @@ def main():
     if not doc.exists():
         print("⛔ MANUSCRIPT.md não encontrado", file=sys.stderr)
         return 1
-    texto = doc.read_text(encoding="utf-8")
+    # ⚠️ O universo de documentos que CITAM artefatos cresceu com o Paper B. Enquanto
+    # só existia o manuscrito, "citado" e "citado no manuscrito" eram a mesma coisa; o
+    # registro prospectivo do estimando cita artefatos que o manuscrito nunca citará,
+    # porque pertencem ao outro estudo. Varrer só o manuscrito passou a produzir órfão
+    # falso — e um guarda que acusa o inocente é desligado na terceira vez.
+    CITANTES = ["MANUSCRIPT.md", "PROSPECTIVE-ESTIMAND-2026-08-30.md",
+                "DEVIATIONS-FOR-PAPER.md"]
+    texto = "\n".join((raiz / n).read_text(encoding="utf-8")
+                      for n in CITANTES if (raiz / n).exists())
     verificador = (raiz / "claims_check.py").read_text(encoding="utf-8") \
         if (raiz / "claims_check.py").exists() else ""
 
