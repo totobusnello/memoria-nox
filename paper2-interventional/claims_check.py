@@ -1487,6 +1487,76 @@ def estimando_check(root: Path) -> list[str]:
             if val.replace(".", ",") not in r:
                 fails.append(f"§3-ter: {rot} = {val}% não aparece na revisão")
 
+    # (6-bis) o §3-bis promove H1c a PRIMÁRIA, e a tabela dele tem sete números que
+    #     vêm de dois artefatos. Transcritos à mão, eles são exatamente a classe do
+    #     §4.2 — três coeficientes que viveram no stdout por quatro dias. Aqui cada um
+    #     é RECOMPUTADO e ancorado ao seu rótulo, e a decisão de parada (~20% de
+    #     cobertura) é recomputada da aritmética, não lida do texto.
+    for nome, chaves in (
+        ("out/H1C-BASE-RATE-2026-08-30.json",
+         (("p0", "{:.4f}", r"\*\*0,0782\*\*"),
+          ("oportunidades_por_dia.mediana", "{:.0f}", r"\*\*213\*\*"))),
+        ("out/H1C-POWER-2026-08-30.json",
+         (("design_effect", "{:.2f}", r"\*\*21,87\*\*"),
+          ("n_efetivo_por_braco", "{:,.0f}", r"\*\*1\.139\*\*"),
+          ("mde_relativo_h1c", "{:.3f}", r"\*\*36,7%\*\*"),
+          ("cenarios.todas as cobertas.efeito_necessario_nas_cobertas",
+           "{:.3f}", r"\*\*91,7%\*\*"))),
+    ):
+        art = root / nome
+        if not art.exists():
+            fails.append(f"{art.name} ausente — o §3-bis promove H1c sem artefato")
+            continue
+        a = json.loads(art.read_text(encoding="utf-8"))
+        for caminho, _fmt, padrao in chaves:
+            v = a
+            for parte in caminho.split("."):
+                v = v[parte] if isinstance(v, dict) else None
+                if v is None:
+                    break
+            if v is None:
+                fails.append(f"{art.name}: chave {caminho!r} sumiu — o §3-bis cita um "
+                             f"número que o artefato não tem mais")
+                continue
+            if not re.search(padrao, texto):
+                fails.append(
+                    f"§3-bis: {caminho} = {v} não aparece ancorado (/{padrao}/ não "
+                    f"casa) — o registro prospectivo divergiu do artefato"
+                )
+    # a folga de 8,3 pontos e o limiar de parada são DERIVADOS: recomputá-los é o que
+    # impede que uma reedição do texto mude a conclusão sem mudar a medição.
+    hp = root / "out" / "H1C-POWER-2026-08-30.json"
+    if hp.exists():
+        h = json.loads(hp.read_text(encoding="utf-8"))
+        cen = h.get("cenarios", {}).get("todas as cobertas", {})
+        exigido = cen.get("efeito_necessario_nas_cobertas")
+        cob = cen.get("cobertura")
+        if exigido is not None:
+            folga = f"{100 * (1 - exigido):.1f}".replace(".", ",")
+            if not re.search(rf"\*\*{re.escape(folga)} pontos\*\*", texto):
+                fails.append(
+                    f"§3-bis: a folga recomputa {folga} pontos e o texto não diz isso "
+                    f"ancorado — a conclusão 'apertada' perdeu o seu número"
+                )
+        # limiar de parada: o exigido é `MDE / cobertura`, logo cruza 100% quando a
+        # cobertura cai ao próprio MDE. ⚠️ A primeira redação do §3-bis dizia "~20%",
+        # escrito sem derivar; este guarda o derrubou na primeira execução. Não afrouxar
+        # para uma faixa — é o valor exato que decide encerrar o braço.
+        if exigido and cob:
+            limiar = f"{100 * cob * exigido:.1f}".replace(".", ",")
+            if not re.search(rf"abaixo de \*\*{re.escape(limiar)}%\*\*", texto):
+                fails.append(
+                    f"§3-bis: o limiar de parada recomputa {limiar}% e o texto não o diz "
+                    f"ancorado — a regra de parada divergiu da aritmética que a gera"
+                )
+            margem = f"{100 * (cob - cob * exigido):.1f}".replace(".", ",")
+            if not re.search(rf"\*\*{re.escape(margem)} pontos de\s*\n?cobertura\*\*",
+                             texto):
+                fails.append(
+                    f"§3-bis: a margem até o limiar recomputa {margem} pontos de "
+                    f"cobertura e o texto não diz isso ancorado"
+                )
+
     # (7) precedência: o documento afirma zero epochs randomizados. Se o ASSIGNMENT
     #     passar a existir, a afirmação de precedência envelheceu e o documento deixa
     #     de ser prospectivo — que é a única propriedade que o torna valioso.

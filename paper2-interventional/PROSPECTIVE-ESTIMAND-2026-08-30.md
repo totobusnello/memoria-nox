@@ -214,6 +214,74 @@ com todas as letras — está em `DEVIATIONS-FOR-PAPER.md`.
 
 ---
 
+## 3-bis. 🔴 H1c passa a **primária**, e H1 desce a secundária
+
+Esta é a mudança de desenho mais séria deste documento, e ela é **consequência aritmética
+do §2**, não preferência. Está registrada aqui **antes** de `T_seed_assign`, que é a única
+posição em que uma troca de desfecho primário é honesta.
+
+**O problema, em uma linha.** O registro público dimensiona para uma redução de **30% em
+H1 incondicional** — a taxa sobre *todos* os briefs. O §2 mediu que o mecanismo altera
+**3,14%** dos briefs sob a dose em vigor. Um efeito de 30% no agregado exigiria, portanto,
+um efeito condicional de **955%** nos briefs que ele de fato toca. Não existe intervenção
+que reduza uma taxa em mais do que 100%: **H1 como primária é impossível de detectar,
+e isso é verdade independentemente do N.**
+
+**A saída, e o preço dela.** H1c — *"entre as oportunidades cobertas, a taxa cai"* — é a
+hipótese que o mecanismo pode mover, porque o denominador dela é o conjunto que ele toca.
+Ela já é parte do desenho registrado, com o aninhamento `H1c ⊆ H1b ⊆ H1a` travado em
+2026-08-16; o que muda é a **posição**, não a definição.
+
+| grandeza | valor | fonte |
+|---|---|---|
+| `p0` (janela **fechada** 24–29/08, bordas parciais excluídas) | **0,0782** | `out/H1C-BASE-RATE-2026-08-30.json` |
+| oportunidades/dia (mediana) | **213** | idem |
+| epochs registrados | **234** | pré-registro |
+| ICC | **0,0985** | pré-registro |
+| efeito de desenho | **21,87** | recomputado |
+| n efetivo por braço | **1.139** | recomputado |
+| MDE relativo alcançável em H1c | **36,7%** | `out/H1C-POWER-2026-08-30.json` |
+| efeito exigido nas cobertas (cobertura 40%) | **91,7%** | idem |
+
+**A conclusão é apertada e tem de ser dita como tal:** o exigido (91,7%) cabe abaixo de
+100% por **8,3 pontos**. É possível, não confortável. Sob a hipótese pessimista — em que
+só as **2,5%** de oportunidades *informativas* respondem — o exigido vai a **1.467%** e o
+desenho é **impossível**. As duas pontas estão no artefato, e o guarda em
+`measurement/potencia-h1c.py` falha se a otimista virar impossível **ou** a pessimista
+virar possível.
+
+⚠️ **Três ressalvas que viajam com este número, e nenhuma é cosmética.**
+
+1. **`p0 = 0,0782` é um teto, não uma taxa.** Ele usa `is_error` como *proxy* do veredito
+   do painel a τ=S1. O veredito real é mais raro, então o efeito exigido é **maior** do
+   que 91,7%, não menor. Se a razão entre proxy e veredito for pior que ~1,09, o desenho
+   deixa de ser possível — e essa razão **não está medida**.
+2. **As oportunidades/dia variam 78–358 na janela fechada — 4,6×.** A mediana é frágil
+   como parâmetro de dimensionamento, e o cálculo de potência é **ordem de grandeza**,
+   não previsão. Uma janela ruim consome o folgado de 8,3 pontos sozinha.
+3. **A cobertura de 40% é hipótese, não medição.** Ela é o que separa o cenário possível
+   do impossível, e é o parâmetro mais frouxo de todos. Medi-la antes do Epoch 1 é o
+   único trabalho que pode ainda reprovar este desenho.
+
+🔴 **E o limiar de parada é muito mais apertado do que a folga de 8,3 pontos sugere.**
+O efeito exigido nas cobertas é `MDE / cobertura`, então ele cruza 100% quando a cobertura
+cai a **36,7%** — que é o próprio MDE. A hipótese de trabalho é **40%**. A distância entre
+o desenho possível e o impossível não é de 8,3 pontos de *efeito*: é de **3,3 pontos de
+cobertura**. Uma primeira redação desta seção dizia "~20%", número que escrevi sem
+derivar; o guarda em `claims_check.py` recomputou `MDE / cobertura` e o derrubou. É o
+mesmo defeito que o §6.1 do Paper A cataloga, cometido no documento que existe para
+impedi-lo.
+
+**O que fica registrado, então:** H1c primária, H1/H1a/H1b secundárias e reportadas com
+o mesmo rigor. O aninhamento não muda. E a **decisão de parar** é declarada aqui, antes
+de qualquer dado: se a cobertura medida no Epoch 1 ficar abaixo de **36,7%**, o efeito
+exigido passa de 100% e o braço interventivo é encerrado com resultado nulo **por
+impossibilidade de desenho, não por ausência de efeito**. Essa distinção é o que este
+parágrafo existe para proteger — e, dada a margem de 3,3 pontos, **medir a cobertura é a
+primeira coisa que o Epoch 1 tem de fazer**, não a última.
+
+---
+
 ## 4. `T_seed_assign` — a regra, e a ordem que ela impõe
 
 `T_seed_assign` é o instante que define qual rodada drand fixa a **atribuição de braços**.
