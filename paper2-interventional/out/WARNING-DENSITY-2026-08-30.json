@@ -1,49 +1,50 @@
 {
-  "linhas_do_documento": 1621,
-  "paragrafos": 298,
-  "paragrafos_marcados": 79,
-  "pct_paragrafos_marcados": 26.5,
-  "paragrafos_do_corpo": 262,
-  "corpo_marcados": 73,
-  "pct_corpo_marcado": 27.9,
+  "linhas_do_documento": 1641,
+  "paragrafos": 300,
+  "paragrafos_marcados": 84,
+  "pct_paragrafos_marcados": 28.0,
+  "paragrafos_do_corpo": 264,
+  "corpo_marcados": 78,
+  "pct_corpo_marcado": 29.5,
   "marcadores_por_tipo": {
-    "⚠️": 66,
-    "🔴": 10,
+    "⚠️": 71,
+    "🔴": 11,
     "🟡": 1,
     "📌": 6,
     "✅": 6,
     "🟢": 0
   },
-  "marcadores_total": 89,
+  "marcadores_total": 95,
   "ressalvas_repetidas": {
     "é um sistema / não generaliza": {
       "ocorrencias": 4,
       "linhas": [
-        73,
-        247,
-        1439
+        75,
+        250,
+        1458
       ]
     },
     "busca é iniciada pelo agente": {
       "ocorrencias": 6,
       "linhas": [
         42,
-        79,
-        103,
-        141,
-        407
+        81,
+        105,
+        144,
+        419
       ]
     },
     "retratação de versão anterior": {
-      "ocorrencias": 11,
+      "ocorrencias": 13,
       "linhas": [
-        308,
-        334,
-        350,
-        453,
-        522,
-        1542,
-        1556
+        311,
+        337,
+        354,
+        362,
+        465,
+        534,
+        1561,
+        1575
       ]
     }
   }

@@ -294,7 +294,7 @@ bater no desfecho.
 
 ## 4. Resultados
 
-### 4.1 Exposição: 83,78% do corpus nunca foi exposto — e 74,75% do que o canal de cobertura considera elegível
+### 4.1 Exposição: 83,78% do corpus nunca foi exposto — e 74,75% do que passa o piso de importância do canal de cobertura
 
 | | |
 |---|---|
@@ -305,7 +305,7 @@ bater no desfecho.
 | — desses, **apagados depois** | 152 |
 | **união viva** = 11.051 − 152 | **10.899** |
 | **nunca exposto por nenhuma** = 67.187 − 10.899 | **56.288 = 83,78%** |
-| desses, elegíveis pelo piso do **canal de cobertura** | **10.008** |
+| desses, passam o **piso de importância** do canal de cobertura | **10.008** |
 
 A tabela fecha em **um** universo — o corpus vivo — e a linha dos 152 é o que faz a
 ponte. A versão anterior listava a união histórica ao lado do complemento vivo, e quem
@@ -342,8 +342,17 @@ complementar tem de ser dito, porque é a maior parte:** dos 56.288 nunca expost
 **46.280 — 82,2% — não passam nem esse piso.** Quem sustentar que a
 não-exposição é, em boa medida, filtragem correta de material irrelevante tem esses 82%
 a favor. O que a co-manchete estabelece é que **sobram 10.008 chunks — 14,9% do
-corpus** — que o canal de cobertura consideraria elegíveis e que nenhuma superfície
-jamais mostrou.
+corpus** — que passam o piso de importância do canal de cobertura e que nenhuma
+superfície jamais mostrou.
+
+🔴 **Passar o piso não é ser elegível, e a diferença é de duas ordens de grandeza.** O
+canal aplica **três** condições conjuntas: o piso (`importance ≥ 0,7 OR pain ≥ 0,7`),
+um recorte por **padrão de caminho** e uma **janela de idade**. O piso sozinho seleciona
+13.388; as três juntas selecionam **108** (§4.3.1) — e desses, zero nunca-servidos. Os
+10.008 **não** são "chunks que o canal quis servir e não serviu": são chunks cuja
+importância o canal reconheceria **se eles chegassem até ele**, e o que os impede de
+chegar é o recorte de caminho, não a ordenação. ⚠️ Uma versão anterior deste parágrafo
+dizia "que o canal consideraria elegíveis" — que é falso pelo mesmo motivo (H-2).
 
 ⚠️ **E a leitura tentadora desse número é falsa — a qualificação viaja com ele.** Dos
 10.008, **8.928 (89,2%) são `distilled`**: fragmentos de sessão de **232 caracteres** em
@@ -793,7 +802,7 @@ pipeline de serving. ⚠️ **"Servido" na coluna `w = 2` significa a dose em vi
 - **saturação em `w ∈ (4,0 ; 4,4]`** — grid fino de 23 doses sobre os 17 estados que
   se movem: `w_min` mínimo **0,02**, mediana **1,7**, máximo **4,4** (espalhamento
   **220×**), 0 estados não monótonos, 0 sem limiar no grid;
-- a dose servida reproduz a taxa publicada: `w = 2` dá **11/350 = 3,1429%**.
+- a dose em vigor no *shadow* reproduz a taxa publicada: `w = 2` dá **11/350 = 3,1429%**.
 
 **Figura 3** — `measurement/out/fig3-dose-resposta.svg`: as duas séries de dose-resposta
 em eixo `w` logarítmico — grid grosso (9 doses × 350 estados) e grid fino (23 doses × os
@@ -1420,7 +1429,7 @@ e por ser **estruturalmente surdo ao score**, com **teto analítico** de 4,86% d
 do código antes de qualquer experimento. O pool principal — os outros 8 — falha pelo
 motivo contrário: ali o score **é** a coordenada dominante, e três dos seus quatro termos
 **não decaem**. O componente de acesso é monótono num contador que só sobe, de modo que o
-topo do brief é determinado por tráfego de busca de meses atrás (último acesso há 90, 30 e
+topo do brief é determinado por tráfego de busca de meses atrás — contrafactual medido, §4.3.2 (último acesso há 90, 30 e
 42 dias, em chunks que ganham 4.632 de 4.632 briefs).
 
 **O canal que responderia a ajuste de score é o que ninguém ajusta; o desenhado para
@@ -1539,6 +1548,14 @@ interrompendo o argumento para relatar o diff. Medido antes de mexer
 marcadores em 288 parágrafos — 26,7% deles marcados**, sendo a retratação a maior
 categoria de repetição.
 
+🔴 **A limpeza foi parcial, e o número depois da mudança tem de estar aqui, senão este
+apêndice alega um efeito que não demonstra.** No corpo — antes dos apêndices, que é o que
+um revisor lê primeiro — restam **78 de 264
+parágrafos marcados (29,5%)**. A conta
+agregada não serve para julgar: mover material para um apêndice não muda o total, e o
+apêndice traz avisos próprios. O que falta é decidir quais ⚠️ viram texto corrido, e isso
+é julgamento editorial que não foi feito.
+
 O material é parte da contribuição declarada — o método — e por isso não foi descartado.
 Mas ele pertence aqui, e no corpo fica só o estado corrigido, com remissão onde o leitor
 precisa saber *por que* o texto está como está.
@@ -1577,6 +1594,7 @@ corrigir onde o defeito foi achado não o corrige onde ele também está.
 
 | correção aplicada | onde ela não alcançou | quem achou |
 |---|---|---|
+| o piso é do canal, mas passar o piso ≠ ser elegível | o canal aplica **três** condições; o piso sozinho dá 13.388 e as três dão **108** | DeepSeek |
 | o piso é do canal de cobertura, não do sistema | a frase "que o sistema marcou como relevantes", vinte linhas abaixo, na mesma seção | GLM |
 | o Pearson de 13 tipos é frágil ao filtro | as parciais (`−0,709`, `r=−0,843`) que se comparam a ele | GLM |
 | brief ≠ busca | Contribuições (i), abstract, §4.2, §8.2 | Grok |

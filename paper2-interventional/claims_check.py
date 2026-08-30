@@ -1321,7 +1321,11 @@ def coorte_check(root: Path) -> list[str]:
     fk = f"{p['nunca_expostos']:,}".replace(",", ".")
     fn = f"{p['chunks']:,}".replace(",", ".")
     for padrao, onde in (
-        (rf"### 4\.1 [^\n]*{re.escape(pf)}% do que o canal de cobertura considera",
+        # ⚠️ "considera elegível" foi para "passa o piso de importância" em 30/08:
+        # passar o piso é UMA das três condições do canal (piso + padrão de caminho +
+        # janela), e o pool elegível de fato é 108, não 13.388. Terceira redação deste
+        # rótulo, e as duas anteriores eram falsas em graus diferentes.
+        (rf"### 4\.1 [^\n]*{re.escape(pf)}% do que passa o piso de importância",
          "título do §4.1"),
         (rf"{re.escape(fn)} chunks que passam o piso de\s*\n?elegibilidade do "
          rf"\*\*canal de cobertura\*\*", "denominador, com o canal nomeado"),
