@@ -32,9 +32,9 @@ superfícies pelas quais um sistema de memória em operação entrega conteúdo 
 de 6 agentes: um brief proativo de 10 itens e a busca sob demanda.
 
 O brief entregou **583.763 slots** — **8,7 vezes** o tamanho do corpus, o suficiente para
-servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks distintos: 2,66%**. A
+servir cada um dos 67.187 chunks oito vezes. Entregou **1.787 chunks distintos: 2,66%**. A
 capacidade **agregada**, portanto, não obrigava esse resultado: havia espaço para mostrar
-o corpus inteiro nove vezes. Não se conclui daí que a ordenação esteja errada — só que
+o corpus inteiro oito vezes. Não se conclui daí que a ordenação esteja errada — só que
 não foi a falta de espaço que produziu o número. A capacidade **por sessão** (10 itens)
 não é testada aqui. (A cobertura de 99,98% sob serviço uniforme aparece como limite
 aritmético do que a capacidade permitiria, não como política recomendada.) Somando a busca, **83,78% do corpus nunca foi
@@ -413,8 +413,9 @@ bater no desfecho.
 | **nunca exposto por nenhuma** = 67.187 − 10.899 | **56.288 = 83,78%** |
 | desses, passam o **piso de importância** do canal de cobertura | **10.008** |
 
-A tabela fecha em **um** universo — o corpus vivo — e a linha dos 152 é o que faz a
-ponte (↩ H-3.2).
+A tabela fecha em **um** universo — o corpus vivo. A ponte entre a união **histórica**
+(11.051) e o complemento **vivo** é a linha dos 152 chunks servidos no brief e apagados
+depois: `11.051 − 152 = 10.899` expostos vivos, e `67.187 − 10.899 = 56.288` (↩ H-3.2).
 
 **A linha do piso é uma manchete, não uma nota de rodapé.** Um leitor pode conceder o
 agregado e recusar a consequência: se a maior parte dos 56.288 fosse ruído de baixo
@@ -503,7 +504,7 @@ itens *distintos* a superfície já mostrou alguma vez, e para essa pergunta os 
 ontem, e mostrar dez itens diferentes por sessão jamais violaria o limite de dez.
 
 **E a evidência de que a capacidade agregada não vincula é uma linha de aritmética, não
-um teste:** 583.763 slots contra 67.187 chunks. Havia espaço para mostrar tudo, nove
+um teste:** 583.763 slots contra 67.187 chunks. Havia espaço para mostrar tudo, oito
 vezes. Isso é o que se pode afirmar, e basta para o que o parágrafo anterior sustenta.
 
 📌 A seção trazia aqui uma tabela de "predições opostas" (razão `slots/distintos` ≈ 1 contra ≫ 1) apresentada como o teste que separava as duas hipóteses. Foi **retirada**; o argumento está no Apêndice H-1.
@@ -528,7 +529,7 @@ existe *hoje* e nunca foi. Descontando-os, 10.899 + 56.288 = 67.187 exato. O per
 citado é sobre o corpus vivo, que é a população da qual se pode dizer "nunca exposto".
 
 
-### 4.2 Resultado secundário: exposição cai com o tamanho da coleção — β = −0,961, e o tamanho não é separável de curadoria
+### 4.2 Resultado secundário: os tipos grandes se apertam em 10,7–27,0% de exposição — e o tamanho não é separável de curadoria
 
 ⚠️ **"Exposto" aqui é a UNIÃO das duas superfícies** (`brief_log` ∪ `access_count > 0`),
 a mesma definição do §4.1 — e vale dizer porque a maior parte dela é **busca**, que o
@@ -552,7 +553,7 @@ sistema **entregou**; separar as duas contribuições por tipo exigiria atribui�
 | `distilled` | 2.822/14.456 | 19,5 |
 | `other` | 3.515/32.920 | **10,7** |
 
-⚠️ **A tabela acima usa um filtro, e ele estava no código e não no texto.**
+⚠️ **A tabela acima usa um filtro que está no código e não estava no texto — e continua no código.**
 `superficie-de-exposicao.py` seleciona tipos com `HAVING total >= 10`, o que exclui
 `pending` (n=6) e `procedure` (n=3). **Ambos têm 0% de exposição e ambos são pequenos**
 — ou seja, o filtro remove exatamente a evidência que contraria "pequeno ⇒ muito
@@ -1165,7 +1166,11 @@ não exige montar pool nenhum:
 Se um id entra vindo de um estrato em que ninguém saiu, o bônus atravessou
 estrato e a Proposição 1 é falsa. As três grandezas — `would_enter`,
 `would_leave` e `last_served` no serve-state podado — são **registradas** pela
-produção e pelo replay validado 350/350, não derivadas.
+produção e pelo replay, não derivadas. ⚠️ **"350/350" é cobertura, não validação:**
+significa que os 350 estados de brief da janela foram reproduzidos, cada um a partir do
+seu serve-state registrado. O que foi *validado* — e contra o quê — está no §5.6: a
+reconstrução do pool foi **retirada** por produzir 24 violações do pressuposto de
+prefixo, e o que resta usa só grandezas registradas.
 
 `replay-oportunidade.mjs --modo porque --corte rowid --so-ts-file ts-350.txt`
 aborta se houver uma única entrada sem parceiro.
@@ -1382,11 +1387,23 @@ Uma disciplina de verificação que não se mede a si mesma é declaração de i
 `claims_check.py` recomputa alegações contra artefato e falha se divergirem — mas até
 2026-08-29 ninguém tinha perguntado *sobre quantas*. Revisão adversarial fez a pergunta,
 e a primeira medição (`measurement/censo-de-alegacoes-sem-guarda.py`,
-`out/CLAIM-COVERAGE-2026-08-29.json`) mostrou **19 das 32** alegações numéricas curadas
-sem guarda nenhuma — 59,4%.
+`measurement/censo-de-alegacoes-sem-guarda.py`) mostrou **19 das 32** alegações numéricas
+curadas sem guarda nenhuma — 59,4%.
 
-Uma segunda rodada de guardas, em 30/08, fechou o resto: **0 das 32 seguem sem guarda —
-0,0%**. As dez que restavam vinham de três origens distintas, e a distinção importa
+🔴 **E o artefato dessa medição não existe mais, pelo motivo que este próprio parágrafo
+descreve.** `out/CLAIM-COVERAGE-2026-08-29.json` é reescrito a cada execução do censo:
+hoje ele diz **10 de 32 — 31,2%**, que é o estado depois da rodada de 29/08, não os 19
+que o texto atribuía a ele. Uma versão anterior desta frase o citava como fonte do
+59,4%, e a citação era falsa desde a segunda vez que o script rodou. O número dos 19 tem
+como registro este parágrafo e o commit da rodada, **não** um artefato — que é
+exatamente o defeito que a seção cataloga, cometido pela seção que o cataloga. Achado
+por revisão adversarial (Codex, 30/08); a lição operacional é que **artefato reescrito
+in loco não serve de citação histórica** — ou o nome carrega o instante, ou a alegação
+não pode apontar para ele.
+
+Foram, portanto, **duas** rodadas de guardas, e o texto anterior mencionava só uma: a de
+**29/08** fechou nove (19 → 10) e a de **30/08** fechou as dez restantes, chegando a
+**0 das 32 — 0,0%**. Essas dez vinham de três origens distintas, e a distinção importa
 porque só a terceira era grave:
 
 | origem | alegações | remédio |
@@ -1412,7 +1429,8 @@ sua centralidade — se guardasse, esta teria sido a primeira. `out/SIZE-ROBUSTN
 
 🔴 **O erro que essa lacuna já produziu, e que só apareceu porque a lacuna foi medida:**
 o manuscrito afirmava **583.973** slots acumulados em cinco lugares. O artefato diz
-**583.763**. Um dígito, nenhum artefato com o valor do texto, e nada que acusasse — era
+**583.763**. Dois dígitos e 210 slots de diferença, nenhum artefato com o valor do texto,
+e nada que acusasse — era
 o número mais citado do paper, base da tese de capacidade, e o menos protegido. ⚠️ Pior:
 o campo se chama `slots_historicos_ATE_AGORA_serie_viva` e a grandeza **cresce ~7.500 por
 dia** (hoje a série viva vale 591.323). Citar uma série viva sem fixar o instante é
@@ -1472,7 +1490,9 @@ distingue.**
   diagnóstico executável para que terceiros meçam o próprio sistema;
 - tipos pequenos (`decision` n=11, `person` n=14, `feedback` n=17) não sustentam
   leitura individual — entram só no teste de correlação;
-- `access_count` é "exposto alguma vez", sem histórico por evento;
+- `access_count` é "**acessado por busca** alguma vez", sem histórico por evento — e
+  **não** "exposto alguma vez": o brief nunca escreve nessa coluna (§2, §4.3.2). Quem
+  mede exposição precisa da união com `brief_log`, nunca desta coluna sozinha;
 - ~~a diversidade de cobertura por dia tem quebra de regime em 21–22/08, ainda sem
   explicação~~ → **explicada** (§4.3.1), e a primeira explicação que demos foi **refutada
   por predição datada** antes de chegar ao depósito (§6). Não é quebra de regime: o pool
@@ -1582,7 +1602,8 @@ Três afirmações, e nenhuma além.
 **Primeira: a não-exposição deste sistema é resultado de política, não de capacidade.**
 É a afirmação que a medição inverteu em relação à hipótese com que começamos. O que a
 sustenta é **uma linha de aritmética mais um mecanismo**, e não um teste estatístico:
-583.763 slots contra 67.187 chunks — capacidade para mostrar tudo nove vezes — enquanto
+583.763 slots — a série viva **no instante do congelamento, 2026-08-29** (§6.1) — contra
+67.187 chunks, capacidade para mostrar tudo **8,7 vezes**, enquanto
 o brief serviu 1.787 distintos. Não há aqui restrição física a remover; há uma ordenação
 que revisita, e o §5 mostra por qual caminho.
 
@@ -1724,14 +1745,16 @@ versão citada. Hoje o último depósito é a v1.12, anterior a tudo isto.
 Este apêndice existe por um achado de revisão adversarial sobre a **forma** do
 documento, não sobre um número: a narrativa de cada correção estava no corpo,
 interrompendo o argumento para relatar o diff. Medido antes de mexer
-(`measurement/densidade-de-avisos.py`, `out/WARNING-DENSITY-2026-08-30.json`): **87
-marcadores em 288 parágrafos — 26,7% deles marcados**, sendo a retratação a maior
-categoria de repetição.
+(`measurement/densidade-de-avisos.py`, `out/WARNING-DENSITY-2026-08-30.json`): **87 marcadores
+distribuídos por 77 dos 288 parágrafos — 26,7% marcados**, sendo a retratação a maior
+categoria de repetição. ⚠️ As duas unidades são distintas e a redação anterior as
+justapunha (*"87 marcadores em 288 parágrafos — 26,7%"*), o que dá 30,2% se lido como
+razão. O número comparável ao de baixo é o de **parágrafos marcados**.
 
 🔴 **A limpeza foi parcial, e o número depois da mudança tem de estar aqui, senão este
 apêndice alega um efeito que não demonstra.** No corpo — antes dos apêndices, que é o que
-um revisor lê primeiro — restam **89 de 296
-parágrafos marcados (30,1%)**. A conta
+um revisor lê primeiro — restam **91 de 297
+parágrafos marcados (30,6%)**. A conta
 agregada não serve para julgar: mover material para um apêndice não muda o total, e o
 apêndice traz avisos próprios.
 
