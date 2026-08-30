@@ -1,0 +1,18 @@
+{
+  "ocorrencias": 82,
+  "por_classe": {
+    "NEGADO": 32,
+    "LEGITIMO_PROVAVEL": 48,
+    "AMBIGUO": 1,
+    "CITADO": 1
+  },
+  "para_leitura_humana": [
+    {
+      "linha": 135,
+      "termo": "servida",
+      "classe": "AMBIGUO",
+      "contexto": "⚠️ estados de produção, intervenção **não servida** (modo *shadow*, §7): monótona em cada estado, saturando em `w ∈ (4,0; 4,4]`, teto de **"
+    }
+  ],
+  "nao_decide": "a classificação é por vizinhança léxica; as bordas exigem leitura. O valor do script é não esquecer nenhuma ocorrência."
+}

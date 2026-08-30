@@ -1,0 +1,307 @@
+{
+  "populacoes": [
+    {
+      "valor": "67.187",
+      "script": "superficie-de-exposicao.py",
+      "condicoes": [
+        "nenhuma — é o corpus vivo inteiro"
+      ],
+      "mencoes": 14,
+      "contextos": [
+        {
+          "linha": 34,
+          "trecho": "O brief entregou **583.763 slots** — **8,7 vezes** o tamanho do corpus, o suficiente para servir cada um dos 67.187 chunks quase nove vezes. Entregou **1.787 chunks distintos:"
+        },
+        {
+          "linha": 52,
+          "trecho": "ervir o nunca-servido — e **congela** por outra razão: sua população elegível é de **108 chunks num corpus de 67.187** — 0,16%, recortados por dois padrões de caminho — e ele a"
+        },
+        {
+          "linha": 101,
+          "trecho": "demanda.  **A resposta esperada seria \"não cabe\". Não é.** Em 84,7 dias o brief entregou **583.763 slots** a 67.187 chunks — capacidade para servir cada chunk **8,7 vezes**. S"
+        },
+        {
+          "linha": 206,
+          "trecho": "é um SQLite único com busca léxica (FTS5), vetores densos e um grafo de entidades; no instante da medição, **67.187** chunks. Um chunk é uma unidade de texto com tipo (`lesson"
+        },
+        {
+          "linha": 301,
+          "trecho": "to — e 74,75% do que passa o piso de importância do canal de cobertura  | | | |---|---| | corpus **vivo** | **67.187** | | exposto no brief (histórico) | 1.787 | | exposto na b"
+        },
+        {
+          "linha": 307,
+          "trecho": "**apagados depois** | 152 | | **união viva** = 11.051 − 152 | **10.899** | | **nunca exposto por nenhuma** = 67.187 − 10.899 | **56.288 = 83,78%** | | desses, passam o **piso"
+        },
+        {
+          "linha": 312,
+          "trecho": "que faz a ponte. A versão anterior listava a união histórica ao lado do complemento vivo, e quem subtraísse `67.187 − 11.051` obtinha 56.136 em vez de 56.288. Os números estav"
+        },
+        {
+          "linha": 407,
+          "trecho": "ncia de que a capacidade agregada não vincula é uma linha de aritmética, não um teste:** 583.763 slots contra 67.187 chunks. Havia espaço para mostrar tudo, nove vezes. Isso é"
+        },
+        {
+          "linha": 428,
+          "trecho": "e **apagados depois**; o complemento conta o que existe *hoje* e nunca foi. Descontando-os, 10.899 + 56.288 = 67.187 exato. O percentual citado é sobre o corpus vivo, que é a p"
+        },
+        {
+          "linha": 505,
+          "trecho": "2 estão em zero.**  ⚠️ **E o erro-padrão do modelo é inutilizável.** Ele dá `± 0,027` (z = −35) porque supõe 67.187 observações independentes; o preditor é **constante dentro"
+        },
+        {
+          "linha": 513,
+          "trecho": "o** responde à objeção ecológica. Como `log₁₀(tamanho)` não varia dentro do tipo, o `r` ponto-bisserial sobre 67.187 chunks (**−0,150**) apenas repondera os mesmos 15 pontos. D"
+        },
+        {
+          "linha": 621,
+          "trecho": "tro dias (`measurement/pool-elegivel.py`, `POOL-ELEGIVEL-2026-08-28.json`):  | | | |---|---:| | corpus vivo | 67.187 | | **pool elegível do canal** | **108** — 0,161% | | desse"
+        },
+        {
+          "linha": 1405,
+          "trecho": "a sustenta é **uma linha de aritmética mais um mecanismo**, e não um teste estatístico: 583.763 slots contra 67.187 chunks — capacidade para mostrar tudo nove vezes — enquanto"
+        },
+        {
+          "linha": 1426,
+          "trecho": "tre eles é o achado.** O de cobertura — 2 dos 10 slots — falha por **população**: 108 elegíveis num corpus de 67.187, com zero nunca-servidos restando e 12,4 slots por candidat"
+        }
+      ],
+      "script_existe": true
+    },
+    {
+      "valor": "56.288",
+      "script": "superficie-de-exposicao.py",
+      "condicoes": [
+        "NOT (id IN brief_log OR access_count > 0)"
+      ],
+      "mencoes": 7,
+      "contextos": [
+        {
+          "linha": 307,
+          "trecho": "| 152 | | **união viva** = 11.051 − 152 | **10.899** | | **nunca exposto por nenhuma** = 67.187 − 10.899 | **56.288 = 83,78%** | | desses, passam o **piso de importância** do"
+        },
+        {
+          "linha": 312,
+          "trecho": "a a união histórica ao lado do complemento vivo, e quem subtraísse `67.187 − 11.051` obtinha 56.136 em vez de 56.288. Os números estavam certos e a tabela, não.  **A linha do p"
+        },
+        {
+          "linha": 316,
+          "trecho": ", não uma nota de rodapé.** Um leitor pode conceder o agregado e recusar a consequência: se a maior parte dos 56.288 fosse ruído de baixo valor, não haveria o que entregar. Não"
+        },
+        {
+          "linha": 341,
+          "trecho": "valor absoluto em 5,6×; não a dissolve. ⚠️ **E o complementar tem de ser dito, porque é a maior parte:** dos 56.288 nunca expostos, **46.280 — 82,2% — não passam nem esse piso"
+        },
+        {
+          "linha": 370,
+          "trecho": "e 84. Os dois entram iguais no denominador. Se o corpus tivesse crescido depressa perto do fim, uma fatia dos 56.288 seria \"novo demais para julgar\" em vez de \"não entregue\". E"
+        },
+        {
+          "linha": 425,
+          "trecho": "smo (§5) valem para o brief.  ⚠️ **As duas linhas contam populações diferentes**, e a soma denuncia: 11.051 + 56.288 = 67.339, **152 a mais** que o corpus. A união conta o que"
+        },
+        {
+          "linha": 428,
+          "trecho": "no brief e **apagados depois**; o complemento conta o que existe *hoje* e nunca foi. Descontando-os, 10.899 + 56.288 = 67.187 exato. O percentual citado é sobre o corpus vivo,"
+        }
+      ],
+      "script_existe": true
+    },
+    {
+      "valor": "13.388",
+      "script": "exposicao-por-coorte.py",
+      "condicoes": [
+        "importance >= 0,7 OR pain >= 0,7"
+      ],
+      "mencoes": 3,
+      "contextos": [
+        {
+          "linha": 317,
+          "trecho": "ência: se a maior parte dos 56.288 fosse ruído de baixo valor, não haveria o que entregar. Não é o caso — dos 13.388 chunks que passam o piso de elegibilidade do **canal de cob"
+        },
+        {
+          "linha": 351,
+          "trecho": "0,7 OR pain ≥ 0,7`), um recorte por **padrão de caminho** e uma **janela de idade**. O piso sozinho seleciona 13.388; as três juntas selecionam **108** (§4.3.1) — e desses, zer"
+        },
+        {
+          "linha": 1597,
+          "trecho": "| o piso é do canal, mas passar o piso ≠ ser elegível | o canal aplica **três** condições; o piso sozinho dá 13.388 e as três dão **108** | DeepSeek | | o piso é do canal de c"
+        }
+      ],
+      "script_existe": true
+    },
+    {
+      "valor": "10.008",
+      "script": "composicao-do-piso.py",
+      "condicoes": [
+        "importance >= 0,7 OR pain >= 0,7",
+        "NOT (id IN brief_log OR access_count > 0)"
+      ],
+      "mencoes": 5,
+      "contextos": [
+        {
+          "linha": 308,
+          "trecho": "67.187 − 10.899 | **56.288 = 83,78%** | | desses, passam o **piso de importância** do canal de cobertura | **10.008** |  A tabela fecha em **um** universo — o corpus vivo — e"
+        },
+        {
+          "linha": 318,
+          "trecho": "ue entregar. Não é o caso — dos 13.388 chunks que passam o piso de elegibilidade do **canal de cobertura**, **10.008 = 74,75% nunca foram expostos**.  🔴 **Esse piso é de um can"
+        },
+        {
+          "linha": 344,
+          "trecho": "iltragem correta de material irrelevante tem esses 82% a favor. O que a co-manchete estabelece é que **sobram 10.008 chunks — 14,9% do corpus** — que passam o piso de importânc"
+        },
+        {
+          "linha": 352,
+          "trecho": "piso sozinho seleciona 13.388; as três juntas selecionam **108** (§4.3.1) — e desses, zero nunca-servidos. Os 10.008 **não** são \"chunks que o canal quis servir e não serviu\":"
+        },
+        {
+          "linha": 358,
+          "trecho": "lo mesmo motivo (H-2).  ⚠️ **E a leitura tentadora desse número é falsa — a qualificação viaja com ele.** Dos 10.008, **8.928 (89,2%) são `distilled`**: fragmentos de sessão de"
+        }
+      ],
+      "script_existe": true
+    },
+    {
+      "valor": "108",
+      "script": "pool-elegivel.py",
+      "condicoes": [
+        "importance >= 0,7 OR pain >= 0,7",
+        "source_file LIKE 'memory/entities/%' OR 'memory/lessons.md'",
+        "idade <= 30 dias (sub-pool global) / 7 dias (por agente)"
+      ],
+      "mencoes": 14,
+      "contextos": [
+        {
+          "linha": 52,
+          "trecho": "finalidade declarada é servir o nunca-servido — e **congela** por outra razão: sua população elegível é de **108 chunks num corpus de 67.187** — 0,16%, recortados por dois"
+        },
+        {
+          "linha": 188,
+          "trecho": "o do gargalo no **canal de   cobertura**, com os dois mecanismos que o congelam — uma população elegível de **108   chunks (0,16% do corpus)**, recortada por padrões de cami"
+        },
+        {
+          "linha": 351,
+          "trecho": "**padrão de caminho** e uma **janela de idade**. O piso sozinho seleciona 13.388; as três juntas selecionam **108** (§4.3.1) — e desses, zero nunca-servidos. Os 10.008 **não"
+        },
+        {
+          "linha": 614,
+          "trecho": "agente | `sessions/<agente>/%` | 7 d | **0** | | global | `memory/entities/%`, `memory/lessons.md` | 30 d | **108** |  Sobre ambos incide o piso `importance ≥ 0,7 OR pain ≥"
+        },
+        {
+          "linha": 622,
+          "trecho": "`POOL-ELEGIVEL-2026-08-28.json`):  | | | |---|---:| | corpus vivo | 67.187 | | **pool elegível do canal** | **108** — 0,161% | | desses, nunca servidos | **0** | | servidos"
+        },
+        {
+          "linha": 624,
+          "trecho": "| | **pool elegível do canal** | **108** — 0,161% | | desses, nunca servidos | **0** | | servidos no dia | **108 — 100% do pool**, em 26, 27, 28 e 29/08 | | slots de cobert"
+        },
+        {
+          "linha": 637,
+          "trecho": "Isso muda onde a escassez mora. **No dia, a cobertura do pool elegível é 100%.** Num brief, são 2 slots para 108 candidatos. O que a ordenação decide — e o que a intervençã"
+        },
+        {
+          "linha": 660,
+          "trecho": "_log` não registra a origem de cada serve, e uma regra de elegibilidade **exclui mas não atribui**: os mesmos 108 serves seriam igualmente compatíveis com \"a cobertura parou"
+        },
+        {
+          "linha": 777,
+          "trecho": "onente **monótono e sem decaimento** | **sim** — e ninguém ajusta | | cobertura | 2 | população elegível de **108 chunks** (0,16% do corpus), esgotada 100% por dia; ordem **"
+        },
+        {
+          "linha": 1179,
+          "trecho": "de salience deste canal é grossa por construção (`0,55·importance + 0,10·pain + 0,1 se access > 0`): entre os 108 elegíveis ela assume apenas **seis valores distintos**. Med"
+        },
+        {
+          "linha": 1242,
+          "trecho": "da predição é do segundo. A predição datada **refutou** a seção, que foi substituída: o pool elegível é de **108 chunks (0,16% do corpus)** e é **esgotado 100% todo dia** |"
+        },
+        {
+          "linha": 1299,
+          "trecho": "utada   por predição datada** antes de chegar ao depósito (§6). Não é quebra de regime: o pool   elegível tem 108 chunks e é esgotado 100% por dia, então a diversidade diári"
+        },
+        {
+          "linha": 1426,
+          "trecho": "congelam, e a assimetria entre eles é o achado.** O de cobertura — 2 dos 10 slots — falha por **população**: 108 elegíveis num corpus de 67.187, com zero nunca-servidos res"
+        },
+        {
+          "linha": 1597,
+          "trecho": "as passar o piso ≠ ser elegível | o canal aplica **três** condições; o piso sozinho dá 13.388 e as três dão **108** | DeepSeek | | o piso é do canal de cobertura, não do sis"
+        }
+      ],
+      "script_existe": true
+    },
+    {
+      "valor": "149",
+      "script": "contrafactual-do-topo.py",
+      "condicoes": [
+        "servido na janela 20–27/08",
+        "ainda existente em chunks"
+      ],
+      "mencoes": 3,
+      "contextos": [
+        {
+          "linha": 722,
+          "trecho": "1,00 | 414 | **3** | **129** | | 116107 | 0,80 | 1,00 | 363 | **5** | **128** |  Recomputando a salience dos 149 chunks servidos na janela com o componente de acesso em zer"
+        },
+        {
+          "linha": 726,
+          "trecho": "n`), os três **saem do top-10 e caem para além da centésima posição**.  ⚠️ **A população do contrafactual são 149, e o §4.3 fala em 201 distintos na mesma janela — a diferen"
+        },
+        {
+          "linha": 729,
+          "trecho": "hunk apagado não tem `importance`, `pain` nem `access_count` para recompor a salience. O recompute é sobre os 149 sobreviventes, e isso **reforça** a leitura conservadora ab"
+        }
+      ],
+      "script_existe": true
+    },
+    {
+      "valor": "201",
+      "script": "superficie-de-exposicao.py",
+      "condicoes": [
+        "servido na janela 20–27/08"
+      ],
+      "mencoes": 6,
+      "contextos": [
+        {
+          "linha": 580,
+          "trecho": "pequeno**, com a faixa dos pequenos contendo a dos grandes.  ### 4.3 A superfície do brief é um carrossel de 201 itens  Janela fechada `[2026-08-20 , 2026-08-27)`:  | | | |"
+        },
+        {
+          "linha": 587,
+          "trecho": "0 , 2026-08-27)`:  | | | |---|---| | slots servidos | **46.295** em **4.632** briefs | | chunks distintos | **201** | | presentes em **100%** dos briefs | **3** | | top-10 |"
+        },
+        {
+          "linha": 596,
+          "trecho": "fig2-concentracao.py --dados out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.  🔴 **Os 201 são o medido, não o teto.** Cabiam **46.295** — um por slot"
+        },
+        {
+          "linha": 726,
+          "trecho": "top-10 e caem para além da centésima posição**.  ⚠️ **A população do contrafactual são 149, e o §4.3 fala em 201 distintos na mesma janela — a diferença precisa ser dita.**"
+        },
+        {
+          "linha": 727,
+          "trecho": "ctual são 149, e o §4.3 fala em 201 distintos na mesma janela — a diferença precisa ser dita.** São os mesmos 201; **52 foram apagados desde então**, e chunk apagado não tem"
+        },
+        {
+          "linha": 1602,
+          "trecho": "os foram corrigidos, mas nenhum guarda existia | Codex | | a distribuição igual é impossível \"porque só cabem 201\" | **cabiam 46.295** — o medido foi tratado como teto, o qu"
+        }
+      ],
+      "script_existe": true
+    }
+  ],
+  "rotulos_reincidentes": [],
+  "rotulos_citados_em_retratacao": [
+    {
+      "linha": 355,
+      "trecho": "o canal consideraria elegí",
+      "por_que_e_risco": "confunde UMA condição com as TRÊS"
+    },
+    {
+      "linha": 1598,
+      "trecho": "o sistema marcou como relevante",
+      "por_que_e_risco": "atribui julgamento global a limiar de canal"
+    }
+  ],
+  "nao_decide": "nomear população é ato de linguagem; o script põe rótulo e predicado lado a lado e deixa o julgamento para quem lê"
+}

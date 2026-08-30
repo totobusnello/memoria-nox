@@ -890,6 +890,37 @@ CV2_LOCKED = 0.3833
 ALLOCATION_LOCKED = {"control": 117, "w2": 39, "w4": 39, "w7.5": 39}
 
 
+def censos_check(root: Path) -> list[str]:
+    """Roda os censos mecânicos e propaga a falha deles.
+
+    ⚠️ Estes existem porque revisão adversarial e censo mecânico pegam classes
+    **disjuntas**, e seis rodadas do primeiro tinham sido feitas contra quase nada do
+    segundo. As duas classes que reincidiram — verbo de entrega aplicado à intervenção,
+    e rótulo que nomeia população maior do que mede — são exatamente as que revisão não
+    pega de forma confiável: elas vivem no que o arco *sugere*, não no que a frase
+    afirma, e sobreviveram a cinco leituras cada.
+
+    O `registro_check` garante que um guarda definido está sendo chamado; este garante
+    que os censos, que vivem fora do `claims_check`, entram no mesmo veredito.
+    """
+    fails = []
+    for script, o_que in (
+        ("censo-vocabulario-de-serving.py",
+         "verbo de entrega aplicado à intervenção (o paper corre em shadow)"),
+        ("censo-de-rotulos-de-populacao.py",
+         "rótulo que nomeia população maior do que a que mede"),
+    ):
+        p = root / "measurement" / script
+        if not p.exists():
+            fails.append(f"{script} ausente — o censo que vigia «{o_que}» não roda")
+            continue
+        r = subprocess.run([sys.executable, str(p)], capture_output=True, text=True)
+        if r.returncode != 0:
+            primeira = (r.stderr.strip().splitlines() or ["(sem diagnóstico)"])[0]
+            fails.append(f"{script} saiu {r.returncode}: {primeira[:180]}")
+    return fails
+
+
 def contrafactual_check(root: Path) -> list[str]:
     """Trava a tabela do contrafactual do topo (§5) ao artefato.
 
@@ -1483,6 +1514,7 @@ def main() -> int:
     failures.extend(registro_check(Path(args.root)))
     failures.extend(catalogo_check(Path(args.root)))
     failures.extend(contrafactual_check(Path(args.root)))
+    failures.extend(censos_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

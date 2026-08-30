@@ -1442,7 +1442,7 @@ e o brief é declaradamente read-only sobre ele. O que existe não é um laço, 
 **codificação permanente e sem decaimento de tráfego passado**.
 
 A consequência de desenho é desconfortável e vale dizer inteira: **projetamos uma
-intervenção cujo teto era derivável do código antes de ela ser implantada.** Quem for
+intervenção cujo teto era derivável do código **antes de qualquer coisa ser servida** — e, no fechamento deste manuscrito, nada ainda foi. Quem for
 intervir num ranker deveria ler o comparador primeiro e perguntar *em que coordenada
 minha alavanca age*; custa uma tarde e economiza uma rodada experimental.
 
