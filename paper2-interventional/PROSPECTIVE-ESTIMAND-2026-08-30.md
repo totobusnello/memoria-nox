@@ -305,14 +305,32 @@ declarada.
 3. esperar, derivar, conferir a sequência de atribuição TS × Python por `sha256`;
 4. publicar `ASSIGNMENT.json` + a data de fim de calendário
    (`primeiro epoch + 323 dias`) no OSF, antes do primeiro epoch de tratamento;
-5. ligar `NOX_P2_DESIGNATION_SEED`, `NOX_P2_ASSIGNMENT`, `NOX_P2_ASSIGNMENT_SHA256`,
-   `NOX_P2_OUTCOME=active`;
+5. ligar `NOX_P2_ASSIGNMENT`, `NOX_P2_ASSIGNMENT_SHA256`, `NOX_P2_OUTCOME=active`;
 6. Epoch 1.
 
-⚠️ **A declarar antes do passo 5, para que ninguém leia o efeito como defeito:** hoje o
-`churn` do *shadow* é **zero**, e é zero porque sem seed no ambiente o mapa de boost sai
-vazio — o mecanismo está inerte por construção, não quebrado. Ligar a seed faz o número
-sair de zero. Essa transição é o mecanismo funcionando.
+🔴 **Duas correções ao passo 5 e à ressalva que o seguia, ambas medidas em 2026-08-30
+contra a produção — e ambas eram afirmações que envelheceram para falsas.**
+
+**(a) A designação já está ligada, e não pela variável que o texto supunha.** O passo 5
+listava `NOX_P2_DESIGNATION_SEED`; a produção usa `NOX_P2_DESIGNATION`, apontando para o
+**arquivo** `DESIGNATION-2026-08-26.json` com `NOX_P2_DESIGNATION_SHA256` pinado — o que
+é mais forte, porque serve o conjunto derivado em vez de rederivá-lo a cada partida. O
+`sha256` bate nos três lugares: repositório, VPS e pino do drop-in `p2-designation.conf`.
+Restam ao passo 5 apenas as três variáveis acima.
+
+**(b) O `churn` do *shadow* não é zero.** A ressalva anterior dizia que era, "porque sem
+seed no ambiente o mapa de boost sai vazio". Medido no log de serving: `designated_ids`
+vem **não-vazio em 1.344 de 1.344** decisões das últimas 48 h, e na janela **fechada**
+2026-08-24 a 08-29 o `churn` é **151 de 4.037 = 3,74%**. A afirmação foi escrita quando a
+seed ainda não estava no ambiente e não foi revista quando passou a estar — a classe
+*"série viva citada como instante envelhece para falsa"*, cometida no documento que
+existe para fixar instantes.
+
+⚠️ **O que a ressalva deveria dizer, e diz agora:** o mecanismo **já opera** em *shadow*,
+alterando 3,74% dos briefs na janela fechada. Isso é consistente com o teto medido no
+Paper A (3,14% sob `w = 2,0`) e é o motivo de H1c ter virado primária — não há transição
+de zero a esperar no passo 5. O que muda ali é **qual braço cada epoch recebe**, não se o
+mecanismo funciona.
 
 ---
 

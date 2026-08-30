@@ -1,0 +1,21 @@
+{
+  "gerado_por": "leitura de /root/.openclaw/logs/p2-serving.ndjson na VPS (2026-08-30)",
+  "pergunta": "o churn do shadow é zero, como o registro prospectivo afirmava?",
+  "resposta": "não — a designação está ligada pelo arquivo e o mecanismo opera",
+  "JANELA_FECHADA": {"de": "2026-08-24", "ate": "2026-08-29", "dias": 6,
+                     "bordas_excluidas_por_serem_parciais": ["2026-08-23", "2026-08-30"]},
+  "decisoes": 4037,
+  "com_churn": 151,
+  "taxa_churn": 0.0374,
+  "designated_ids_nao_vazio_em_48h": {"de": 1344, "total": 1344},
+  "por_dia": {
+    "2026-08-24": {"n": 672, "churn": 49},
+    "2026-08-25": {"n": 672, "churn": 21},
+    "2026-08-26": {"n": 677, "churn": 25},
+    "2026-08-27": {"n": 672, "churn": 15},
+    "2026-08-28": {"n": 672, "churn": 11},
+    "2026-08-29": {"n": 672, "churn": 30}
+  },
+  "comparacao": "teto do Paper A sob w=2,0 é 3,14% dos briefs; medido 3,74%",
+  "ATENCAO": "taxa diária varia 1,64%–7,50% na série completa; a janela fechada é a citável"
+}

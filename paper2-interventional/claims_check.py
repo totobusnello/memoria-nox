@@ -1557,6 +1557,31 @@ def estimando_check(root: Path) -> list[str]:
                     f"cobertura e o texto não diz isso ancorado"
                 )
 
+    # (6-ter) o §4 afirmava que o churn do shadow era ZERO, "porque sem seed no ambiente
+    #     o mapa de boost sai vazio". Medido em 30/08: 151/4.037 = 3,74% na janela
+    #     fechada, e `designated_ids` não-vazio em 1.344 de 1.344 decisões. A afirmação
+    #     envelheceu quando a seed entrou no ambiente e ninguém a revisitou. Aqui ela é
+    #     ancorada ao artefato — e o guarda proíbe que a versão "é zero" volte.
+    art = root / "out" / "SHADOW-CHURN-2026-08-30.json"
+    if not art.exists():
+        fails.append(f"{art.name} ausente — o §4 volta a afirmar o churn sem artefato")
+    else:
+        s = json.loads(art.read_text(encoding="utf-8"))
+        taxa = f"{100 * s['taxa_churn']:.2f}".replace(".", ",")
+        alvo = (rf"\*\*{s['com_churn']:,}".replace(",", r"\.") +
+                rf" de {s['decisoes']:,}".replace(",", r"\.") +
+                rf" = {re.escape(taxa)}%\*\*")
+        if not re.search(alvo, texto):
+            fails.append(
+                f"§4: o churn do shadow recomputa {s['com_churn']} de {s['decisoes']} "
+                f"= {taxa}% e o texto não diz isso ancorado (/{alvo}/ não casa)"
+            )
+        if re.search(r"`churn` do \*shadow\* é \*\*zero\*\*", texto):
+            fails.append(
+                "§4: a afirmação 'o churn do shadow é zero' voltou ao texto — ela é "
+                "falsa desde que a designação entrou no ambiente (out/SHADOW-CHURN)"
+            )
+
     # (7) precedência: o documento afirma zero epochs randomizados. Se o ASSIGNMENT
     #     passar a existir, a afirmação de precedência envelheceu e o documento deixa
     #     de ser prospectivo — que é a única propriedade que o torna valioso.
