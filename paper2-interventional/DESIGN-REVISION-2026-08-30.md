@@ -155,6 +155,66 @@ perfil de risco e outra regra de aborto.
 
 ---
 
+## 3-ter. ✅ Decidido: opção C — H1c passa a primária
+
+**Decisão do Toto, 2026-08-30.** A família co-primária H1a–c, registrada desde
+2026-08-16, é promovida a primária. `T_seed_assign` segue não declarado; nenhum epoch
+randomizado existe.
+
+**A legitimidade depende de três condições, e as três valem:** (i) H1a–c **já estão
+registradas** — não são hipóteses inventadas agora; (ii) **nenhum dado de braço existe**;
+(iii) a troca está declarada **antes**, aqui. Se qualquer uma falhasse, isto seria
+*outcome switching*.
+
+### A potência, calculada pela primeira vez
+
+`out/H1C-POWER-2026-08-30.json` (`measurement/potencia-h1c.py`). H1c é
+`falhas repetidas / oportunidade` — proporção, binomial logit, denominador =
+oportunidades, tudo já travado no PREREG §5.
+
+Medido no archive vivo: `p0 = 0,0963` (o PREREG registra `p̂0 = 0,1118` — concordância
+independente razoável) e **191 oportunidades/dia**.
+
+| | valor |
+|---|---|
+| oportunidades por braço, bruto | 22.347 |
+| *design effect* (m=191, ICC=0,0985) | 19,7 |
+| **N efetivo por braço** | **1.133** |
+| MDE relativo em H1c | **33,2%** |
+
+📌 33,2% é praticamente o mesmo MDE que H1 tinha (30%). **Trocar o denominador não
+comprou potência estatística** — comprou outra coisa, que é o que importa:
+
+| hipótese | cobertura | efeito necessário **nas cobertas** | |
+|---|---:|---:|---|
+| H1 incondicional | 3,1% | **955%** | 🔴 impossível por construção |
+| **H1c**, cenário otimista | 40,0% | **83%** | ✅ **exigente, mas possível** |
+| H1c, só assinaturas informativas | 2,5% | **1.328%** | 🔴 impossível |
+
+**É essa a diferença que sustenta C.** H1 pedia um efeito acima de 100% — não havia
+resultado possível, nem em princípio. H1c pede 83%, que é alto e alcançável.
+
+🔴 **E a terceira linha é a ressalva que não pode sumir.** Os 40% de cobertura são, em
+93,8%, a assinatura-balde `Bash|shell:outro`. Se as lições genéricas **não** funcionarem
+— e é plausível que não, porque uma lição rotulada "shell, outro" mal identifica o que
+repetir —, a cobertura efetiva é 2,5% e H1c volta a ser impossível.
+
+**Pré-comprometimento, antes de qualquer dado:** o resultado de H1c será reportado
+**junto** com a decomposição da cobertura por assinatura. Um efeito nulo em H1c **não
+distingue** "o mecanismo não funciona" de "as lições que ele promove são genéricas demais
+para funcionar", e essa indistinção vai no abstract, não em nota de rodapé. Um efeito
+positivo, por sua vez, terá de ser checado contra a hipótese de que veio das ~6% de
+oportunidades cobertas por assinaturas específicas.
+
+⚠️ **Três aproximações no cálculo**, e nenhuma se cancela com as outras: o ICC vem do
+PREREG e foi estimado para densidade por *session-hour*, não para proporção por
+oportunidade; `p0` e as oportunidades/dia vêm do archive vivo, já que o congelado não
+existe; e `is_error` é proxy do veredito do painel a τ=S1. O resultado é ordem de
+grandeza, não número de dimensionamento — e é suficiente para a decisão que ele informa,
+que é binária.
+
+---
+
 ## 4. Recomendação
 
 **B, e não porque é a mais barata — é a mais cara depois de A.** É a única em que o

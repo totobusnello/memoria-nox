@@ -1,0 +1,38 @@
+{
+  "gerado_por": "measurement/potencia-h1c.py",
+  "pergunta": "o N já registrado sustenta H1c como primária?",
+  "entradas": {
+    "p0": 0.0963,
+    "oportunidades_por_dia": 191.0,
+    "epochs": 234,
+    "icc": 0.098459
+  },
+  "oportunidades_por_braco_bruto": 22347,
+  "design_effect": 19.71,
+  "n_efetivo_por_braco": 1133,
+  "p1_detectavel": 0.0643,
+  "mde_relativo_h1c": 0.3319,
+  "mde_registrado_h1": 0.3,
+  "cenarios": {
+    "todas as cobertas": {
+      "cobertura": 0.4,
+      "efeito_necessario_nas_cobertas": 0.8297,
+      "possivel": true
+    },
+    "só as informativas": {
+      "cobertura": 0.025,
+      "efeito_necessario_nas_cobertas": 13.2756,
+      "possivel": false
+    }
+  },
+  "comparacao_com_h1_incondicional": {
+    "fracao_de_briefs_alterada": 0.0314,
+    "efeito_necessario": 9.55,
+    "possivel": false
+  },
+  "aproximacoes": [
+    "ICC estimado para densidade por session-hour, não para proporção por oportunidade",
+    "p0 e oportunidades/dia do archive VIVO — o congelado não existe mais",
+    "is_error é proxy do veredito do painel a τ=S1"
+  ]
+}

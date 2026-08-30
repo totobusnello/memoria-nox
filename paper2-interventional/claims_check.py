@@ -1447,7 +1447,36 @@ def estimando_check(root: Path) -> list[str]:
         fails.append("§2-bis cita a concentração e out/CONCENTRATION-2026-08-30.json "
                      "não existe — a pré-condição do Epoch 1 ficou sem lastro")
 
-    # (6) precedência: o documento afirma zero epochs randomizados. Se o ASSIGNMENT
+    # (6) 🔴 a decisão C e a potência de H1c. O que este bloco protege é a
+    #     TRIPLA de números que torna a decisão legível: o MDE que o N sustenta, o
+    #     efeito necessário no cenário otimista, e o do pessimista. Citar só o
+    #     otimista seria exatamente a leitura seletiva que a decisão evita.
+    pw = root / "out" / "H1C-POWER-2026-08-30.json"
+    rev = root / "DESIGN-REVISION-2026-08-30.md"
+    if pw.exists() and rev.exists():
+        h = json.loads(pw.read_text(encoding="utf-8"))
+        r = rev.read_text(encoding="utf-8")
+        cen = h.get("cenarios", {})
+        otim = cen.get("todas as cobertas", {})
+        pess = cen.get("só as informativas", {})
+        # o argumento inteiro é "H1 impossível, H1c possível" — se isso inverter, o
+        # documento passa a recomendar uma opção que a própria medição derrubou.
+        if not otim.get("possivel"):
+            fails.append("§3-ter: H1c deixou de ser alcançável no cenário otimista — a "
+                         "opção C perdeu a sua única justificativa")
+        if pess.get("possivel"):
+            fails.append("§3-ter: o cenário pessimista virou possível — o par de "
+                         "cenários deixou de discriminar e a ressalva perdeu sentido")
+        if h.get("comparacao_com_h1_incondicional", {}).get("possivel"):
+            fails.append("§3-ter: H1 incondicional consta como possível — a revisão "
+                         "inteira parte de ela não ser")
+        for val, rot in ((f"{100*h.get('mde_relativo_h1c', 0):.1f}", "MDE de H1c"),
+                         (f"{100*otim.get('efeito_necessario_nas_cobertas', 0):.0f}",
+                          "efeito no cenário otimista")):
+            if val.replace(".", ",") not in r:
+                fails.append(f"§3-ter: {rot} = {val}% não aparece na revisão")
+
+    # (7) precedência: o documento afirma zero epochs randomizados. Se o ASSIGNMENT
     #     passar a existir, a afirmação de precedência envelheceu e o documento deixa
     #     de ser prospectivo — que é a única propriedade que o torna valioso.
     if (root / "ASSIGNMENT.json").exists() and "zero epochs randomizados" in texto:
