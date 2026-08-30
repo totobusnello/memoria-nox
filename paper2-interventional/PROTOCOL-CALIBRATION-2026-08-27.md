@@ -141,7 +141,7 @@ drop-in de systemd sem `[Service]` que desligou uma flag em silêncio).
 ### ✅ Harness CONSTRUÍDA E RODADA — 27/08
 
 `measurement/replay-oportunidade.mjs`. Resultado integral em
-**`REPLAY-OPORTUNIDADE-2026-08-27.md`**; artefatos em `measurement/out/`.
+**`REPLAY-OPORTUNIDADE-2026-08-27.md`**; artefatos em `out/`.
 
 **Fidelidade: 350 de 350 briefs da janela fechada** reproduzem a produção —
 composição do controle, `churn`, `would_enter` e `would_leave` — com zero churn

@@ -47,7 +47,7 @@ def main():
     if len(tipos) < 15:
         raise SystemExit(
             f"⛔ o artefato traz {len(tipos)} tipos; a figura exige os 15 sem filtro. "
-            f"Use `out/SIZE-EXPOSURE-15-*.json`, não `measurement/out/superficie.json` "
+            f"Use `out/SIZE-EXPOSURE-15-*.json`, não `out/superficie.json` "
             f"— este último é filtrado por `HAVING total >= 10` e omite justamente os "
             f"dois tipos em 0%."
         )

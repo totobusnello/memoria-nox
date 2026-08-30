@@ -172,27 +172,39 @@ registradas** — não são hipóteses inventadas agora; (ii) **nenhum dado de b
 `falhas repetidas / oportunidade` — proporção, binomial logit, denominador =
 oportunidades, tudo já travado no PREREG §5.
 
-Medido no archive vivo: `p0 = 0,0963` (o PREREG registra `p̂0 = 0,1118` — concordância
-independente razoável) e **191 oportunidades/dia**.
+Medido em **janela fechada** (`out/H1C-BASE-RATE-2026-08-30.json`, 24–29/08, seis dias):
+`p0 = 0,0782` e **213 oportunidades/dia** (mediana).
+
+⚠️ **A primeira versão deste parágrafo usava `p0 = 0,0963` e 191/dia, de janela
+aberta** — incluindo o primeiro dia do archive e o dia corrente, ambos **parciais**.
+Fechar a janela moveu as duas quantidades e **piorou** o resultado. É a razão de fixar a
+janela antes de citar: uma série viva citada como instante não erra devagar, erra na
+direção que ninguém escolheu.
 
 | | valor |
 |---|---|
-| oportunidades por braço, bruto | 22.347 |
-| *design effect* (m=191, ICC=0,0985) | 19,7 |
-| **N efetivo por braço** | **1.133** |
-| MDE relativo em H1c | **33,2%** |
+| oportunidades por braço, bruto | 24.921 |
+| *design effect* (m=213, ICC=0,0985) | 21,9 |
+| **N efetivo por braço** | **1.139** |
+| MDE relativo em H1c | **36,7%** |
 
-📌 33,2% é praticamente o mesmo MDE que H1 tinha (30%). **Trocar o denominador não
-comprou potência estatística** — comprou outra coisa, que é o que importa:
+📌 36,7% é da mesma ordem do MDE que H1 tinha (30%). **Trocar o denominador não comprou
+potência estatística** — comprou outra coisa, que é o que importa:
 
 | hipótese | cobertura | efeito necessário **nas cobertas** | |
 |---|---:|---:|---|
 | H1 incondicional | 3,1% | **955%** | 🔴 impossível por construção |
-| **H1c**, cenário otimista | 40,0% | **83%** | ✅ **exigente, mas possível** |
-| H1c, só assinaturas informativas | 2,5% | **1.328%** | 🔴 impossível |
+| **H1c**, cenário otimista | 40,0% | **91,7%** | ✅ **possível, e por pouco** |
+| H1c, só assinaturas informativas | 2,5% | **1.467%** | 🔴 impossível |
 
 **É essa a diferença que sustenta C.** H1 pedia um efeito acima de 100% — não havia
-resultado possível, nem em princípio. H1c pede 83%, que é alto e alcançável.
+resultado possível, nem em princípio. H1c pede 91,7%, que cabe abaixo de 100% e portanto
+é alcançável.
+
+⚠️ **Mas "possível" aqui significa possível por 8 pontos percentuais**, não com folga.
+Exigir que a intervenção elimine 92% das falhas repetidas nas oportunidades que alcança é
+uma aposta forte. A decisão por C permanece — é a única opção que sobrevive ao material
+existente — e a margem estreita entra no relato do desenho, não numa nota.
 
 🔴 **E a terceira linha é a ressalva que não pode sumir.** Os 40% de cobertura são, em
 93,8%, a assinatura-balde `Bash|shell:outro`. Se as lições genéricas **não** funcionarem

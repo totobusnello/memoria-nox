@@ -1,0 +1,24 @@
+{
+  "gerado_por": "measurement/base-rate-h1c.py",
+  "JANELA_FECHADA": {
+    "de": "2026-08-24",
+    "ate": "2026-08-29",
+    "dias": 6
+  },
+  "bordas_excluidas_por_serem_parciais": [
+    "2026-08-23",
+    "2026-08-30"
+  ],
+  "oportunidades": 1304,
+  "falhas_repetidas_proxy_is_error": 102,
+  "p0": 0.0782,
+  "oportunidades_por_dia": {
+    "mediana": 213.0,
+    "media": 217.3,
+    "min": 78,
+    "max": 358
+  },
+  "p0_e_um_TETO_porque": "is_error é proxy do veredito do painel a τ=S1",
+  "corpus": "archive VIVO — o congelado do CORPUS-FREEZE.md não existe mais",
+  "ATENCAO_VARIACAO": "oportunidades/dia variam 78–358 na janela fechada (4.6×). A média é frágil como parâmetro de dimensionamento e o cálculo de potência deve ser lido como ordem de grandeza."
+}

@@ -7,8 +7,8 @@
 > que o teto é estrutural.
 >
 > Medição: `measurement/superficie-de-exposicao.py`; artefato
-> `measurement/out/superficie.json`, travado por
-> `measurement/out/esperado-superficie.json`. Nenhum número desta nota é digitado.
+> `out/superficie.json`, travado por
+> `out/esperado-superficie.json`. Nenhum número desta nota é digitado.
 >
 > Reproduzir: `./superficie-de-exposicao.py --db <nox-mem.db> --fim 2026-08-27
 > --assert-json out/esperado-superficie.json`

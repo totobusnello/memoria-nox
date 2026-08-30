@@ -8,7 +8,7 @@
 >
 > Harness: `measurement/replay-oportunidade.mjs`. Tabelas emitidas por
 > `measurement/replay-resumo.py` (nenhum número desta nota é digitado).
-> Artefatos: `measurement/out/` (JSON de cada rodada).
+> Artefatos: `out/` (JSON de cada rodada).
 
 ---
 

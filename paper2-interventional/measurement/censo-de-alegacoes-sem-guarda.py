@@ -88,15 +88,15 @@ def main():
 
     # artefatos que o verificador de fato abre — só estes podem cobrir um número
     # ⚠️ Os artefatos são lidos por DOIS caminhos no verificador — `out/` e
-    # `measurement/out/` — e uma primeira versão desta extração capturava só o nome
-    # final, apontando `measurement/out/superficie.json` para `out/`. O guarda (2)
+    # `out/` — e uma primeira versão desta extração capturava só o nome
+    # final, apontando `out/superficie.json` para `out/`. O guarda (2)
     # abaixo mordeu na hora, o que é o comportamento certo: caminho errado faria o
     # censo achar que há menos guarda do que há.
     diretos = set(re.findall(r'"((?:measurement/)?out/[^"]+\.json)"', verificador))
     montados = set()
     for pre, nome in re.findall(r'/ "(measurement|out)"(?: / "out")? / "([^"]+\.json)"',
                                 verificador):
-        montados.add(f"measurement/out/{nome}" if pre == "measurement" else f"out/{nome}")
+        montados.add(f"out/{nome}" if pre == "measurement" else f"out/{nome}")
     lidos = sorted(diretos | montados)
     corpo_artefatos = ""
     faltando = []

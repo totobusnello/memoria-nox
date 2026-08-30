@@ -67,29 +67,29 @@ ORFAOS_ACEITOS = {
     "REACHABILITY-2026-08-16.json",
     "REACHABILITY-FILA-2026-08-18.json",
     "SPREAD-SLOTS-2026-08-18.json",
-    "measurement/out/MANIFESTO.json",
-    "measurement/out/bench-vec0-2026-08-28.json",
-    "measurement/out/c-27.json",
-    "measurement/out/c-incl.json",
-    "measurement/out/c-rowid.json",
-    "measurement/out/esperado-superficie.json",
-    "measurement/out/esperado.json",
-    "measurement/out/gran-dia.json",
-    "measurement/out/gran-hora.json",
-    "measurement/out/gran-min.json",
-    "measurement/out/gran-seg.json",
-    "measurement/out/gran3-hora.json",
-    "measurement/out/gran3-min.json",
-    "measurement/out/gran3-seg.json",
-    "measurement/out/porque-350-v3.json",
-    "measurement/out/sens-01.json",
-    "measurement/out/sens-02.json",
-    "measurement/out/sens-03.json",
-    "measurement/out/sens-04.json",
-    "measurement/out/sens-05.json",
-    "measurement/out/sens-06.json",
-    "measurement/out/sens-07.json",
-    "measurement/out/sens-08.json",
+    "out/MANIFESTO.json",
+    "out/bench-vec0-2026-08-28.json",
+    "out/c-27.json",
+    "out/c-incl.json",
+    "out/c-rowid.json",
+    "out/esperado-superficie.json",
+    "out/esperado.json",
+    "out/gran-dia.json",
+    "out/gran-hora.json",
+    "out/gran-min.json",
+    "out/gran-seg.json",
+    "out/gran3-hora.json",
+    "out/gran3-min.json",
+    "out/gran3-seg.json",
+    "out/porque-350-v3.json",
+    "out/sens-01.json",
+    "out/sens-02.json",
+    "out/sens-03.json",
+    "out/sens-04.json",
+    "out/sens-05.json",
+    "out/sens-06.json",
+    "out/sens-07.json",
+    "out/sens-08.json",
 }
 
 
@@ -124,12 +124,12 @@ def main():
 
     scripts = sorted(p.name for p in (raiz / "measurement").glob("*.py"))
     # ⚠️ TRÊS diretórios, não dois. A primeira versão varria só `out/` e
-    # `measurement/out/` e perdia os artefatos da RAIZ — que são justamente os que o
+    # `out/` e perdia os artefatos da RAIZ — que são justamente os que o
     # `claims_check` lê (`DELTA-CUT-MEASUREMENT`, `REMEDIATION`). Uma auditoria cega
     # a um terço do universo reporta "tudo certo" com convicção. Mesma classe do
     # recibo adversarial que eu procurei no `.remember/` errado.
     artefatos = sorted([p for p in (raiz / "out").glob("*.json")] +
-                       [p for p in (raiz / "measurement" / "out").glob("*.json")] +
+                       [p for p in (raiz / "out").glob("*.json")] +
                        [p for p in raiz.glob("*.json")],
                        key=lambda p: p.name)
 
@@ -164,7 +164,7 @@ def main():
             sem_saida.append(s)
 
     # artefatos citados no texto que NÃO existem em disco
-    citados = set(re.findall(r"`((?:out|measurement/out)/[A-Za-z0-9._-]+\.json)`", texto))
+    citados = set(re.findall(r"`((?:out|out)/[A-Za-z0-9._-]+\.json)`", texto))
     existentes = {str(p.relative_to(raiz)) for p in artefatos}
     citados_ausentes = sorted(citados - existentes)
 

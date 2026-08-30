@@ -66,7 +66,7 @@ import json
 import pathlib
 import sys
 
-# Fração dos briefs que a dose w=2,0 altera — 11/350, de `measurement/out/dose-350-v3.json`.
+# Fração dos briefs que a dose w=2,0 altera — 11/350, de `out/dose-350-v3.json`.
 # ⚠️ Não é constante de conveniência: é o denominador da concentração, e o script a
 # recomputa do artefato quando ele está disponível em vez de confiar neste valor.
 FRACAO_ALTERADA_PADRAO = 11 / 350

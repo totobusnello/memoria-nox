@@ -79,7 +79,7 @@ replay, e o teto foi computado **sem** excluí-las (§5.7.2).
 🔴 **Achado de auditoria da cadeia de artefatos (30/08), não de revisão.** O replay que
 produz o teto de 4,86% correu com `sondas_excluidas: []` — nenhuma das nossas próprias
 sondas de saúde foi retirada do `serve_state`. Existiam, no repositório, **dois artefatos
-gravados em 27/08 e nunca lidos por ninguém** (`measurement/out/ancora-sondas.json` e
+gravados em 27/08 e nunca lidos por ninguém** (`out/ancora-sondas.json` e
 `ancora-sem-exclusao.json`) que mostram que essa escolha **não é neutra**:
 
 | | sem excluir | excluindo as 25 linhas de 5 sondas |
@@ -130,8 +130,7 @@ seria atribuível ao corpus tanto quanto às sondas.
 `out/CEILING-PROBE-EXCLUSION-probes-2026-08-30.json`.
 
 ⚠️ **A condição original não é mais reproduzível — mas a sensibilidade é mensurável.**
-São duas coisas, e uma versão anterior desta seção dizia "não mensurável", concedendo
-mais ignorância do que os fatos exigem. O corpus do replay, `e20260826T060003Z.db`, era
+São duas coisas (↩ H-3.1). O corpus do replay, `e20260826T060003Z.db`, era
 um snapshot de epoch e foi rotacionado; em 30/08 restavam apenas os de 28 a 30/08, e o
 backup diário de 26/08 é de outro instante — o `sha256` do primeiro MB não bate com o
 pino publicado. Logo o **nível** do teto sob exclusão de sondas não é recuperável.
@@ -209,9 +208,8 @@ busca sob demanda.
 slots** a 67.187 chunks — capacidade para servir cada chunk **8,7 vezes**. Serviu **1.787
 distintos, 2,66% do corpus**; sob serviço uniforme a cobertura esperada seria 99,98%.
 Somando a busca, **83,78% do corpus nunca foi exposto**. A não-exposição não é imposta
-pelo número de slots. ⚠️ **A parte que a ordenação explica é a do brief** — os outros
-9.755 expostos vieram de busca, que é iniciada pelo agente, e o §4.1.1 delimita o que se
-pode atribuir a cada superfície. A alegação sobre mecanismo é sobre o brief, e o número
+pelo número de slots. ⚠️ **A parte que a ordenação explica é a do brief** — o §4.1.1
+delimita o que se pode atribuir a cada superfície. A alegação sobre mecanismo é sobre o brief, e o número
 agregado mede o que não chegou, não o que o ranker recusou.
 
 ⚠️ Isso não é acusação à política. Uma superfície de 10 itens **deve** concentrar —
@@ -248,8 +246,8 @@ tê-la matado — e a um instrumento anterior que a **confirmou pelo motivo erra
 efeito sobre o comportamento do agente — não há desfecho a jusante instrumentado (§5.4).
 Não afirmamos que a área otimiza a coordenada errada: afirmamos que existe uma
 coordenada que os benchmarks não medem, damos o instrumento para medi-la, e deixamos a
-pergunta em aberto. E, das duas superfícies, só o brief é decidido pelo sistema — a
-busca é iniciada pelo agente, e responde por 9.755 dos 10.899 chunks já expostos.
+pergunta em aberto. E, das duas superfícies, só o brief é decidido pelo sistema; a
+outra é iniciada pelo agente e responde pela maior parte da exposição (§4.1.1).
 
 - **O gap.** O survey canônico da área (TMLR 2602.06052v4, 218 papers) mapeia
   arquiteturas e benchmarks de memória para agentes. Benchmarks medem nDCG/recall sobre
@@ -345,12 +343,12 @@ Três parâmetros dessa descrição são, eles mesmos, resultados — e o §5 os
 álgebra do comparador, e não empírica; quantos sistemas compartilham essa forma é
 pergunta aberta que o diagnóstico publicado permite responder um sistema por vez.
 
-**Figura 0** — `measurement/out/fig0-arquitetura.svg`: corpus → dois canais → 10 slots,
+**Figura 0** — `out/fig0-arquitetura.svg`: corpus → dois canais → 10 slots,
 com o comparador anotado no canal de cobertura e os 2 slots dele destacados.
 
 ⚠️ É a **única** figura do paper que não deriva de dado: um diagrama de arquitetura é
 afirmação sobre o **código**, não sobre uma medição, e a geometria é escrita à mão. Mas
-todo **número** rotulado nela vem de `measurement/out/superficie.json` — rótulo digitado envelhece
+todo **número** rotulado nela vem de `out/superficie.json` — rótulo digitado envelhece
 para falso em silêncio, e neste projeto já envelheceu uma vez. O gerador **aborta** se a
 identidade `expostos-vivos + nunca-expostos = corpus` deixar de fechar; foi ele que
 expôs, ao ser escrito, que a soma ingênua excede o corpus em 152.
@@ -398,7 +396,7 @@ Conferir a composição do **braço de controle** é o que impede fidelidade por
 coincidência: sem essa coluna, um brief com controle e tratado ambos errados poderia
 bater no desfecho.
 
-`replay-resumo.py --campo measurement/out/c-350-v3.json --campo-estrito measurement/out/c-350.json`
+`replay-resumo.py --campo out/c-350-v3.json --campo-estrito out/c-350.json`
 
 ## 4. Resultados
 
@@ -416,9 +414,7 @@ bater no desfecho.
 | desses, passam o **piso de importância** do canal de cobertura | **10.008** |
 
 A tabela fecha em **um** universo — o corpus vivo — e a linha dos 152 é o que faz a
-ponte. A versão anterior listava a união histórica ao lado do complemento vivo, e quem
-subtraísse `67.187 − 11.051` obtinha 56.136 em vez de 56.288. Os números estavam certos
-e a tabela, não.
+ponte (↩ H-3.2).
 
 **A linha do piso é uma manchete, não uma nota de rodapé.** Um leitor pode conceder o
 agregado e recusar a consequência: se a maior parte dos 56.288 fosse ruído de baixo
@@ -441,13 +437,12 @@ OR COALESCE(pain,0) >= ?)`, e o `OR` é do código, não nosso. Os *valores* 0,7
 em `brief-diversity.ts:59-60`, e são **defaults sobrescrevíveis em tempo de execução**
 por `NOX_BRIEF_DIV_FRESH_MIN_IMP` e `NOX_BRIEF_DIV_FRESH_MIN_PAIN` (`:88-89`). Verificado
 no processo servidor em 2026-08-29: nenhuma das duas está definida, nem no ambiente do
-processo nem no `.env`, logo os defaults valem e os números acima são os de produção. Uma
-versão anterior desta frase dizia "verbatim de `brief.ts:642`" para os *valores*, que
-estão noutro arquivo — e apresentar configuração de runtime como constante de código é
-o tipo de imprecisão que faz um número correto envelhecer para errado sem aviso. Condicionar à relevância
-declarada reduz a taxa em 9 pontos e o valor absoluto em 5,6×; não a dissolve. ⚠️ **E o
-complementar tem de ser dito, porque é a maior parte:** dos 56.288 nunca expostos,
-**46.280 — 82,2% — não passam nem esse piso.** Quem sustentar que a
+processo nem no `.env`, logo os defaults valem e os números acima são os de produção
+(↩ H-3.3).
+
+Condicionar à relevância declarada reduz a taxa em 9 pontos e o valor absoluto em 5,6×;
+não a dissolve. **E o complementar tem de ser dito, porque é a maior parte:** dos 56.288
+nunca expostos, **46.280 — 82,2% — não passam nem esse piso.** Quem sustentar que a
 não-exposição é, em boa medida, filtragem correta de material irrelevante tem esses 82%
 a favor. O que a co-manchete estabelece é que **sobram 10.008 chunks — 14,9% do
 corpus** — que passam o piso de importância do canal de cobertura e que nenhuma
@@ -459,18 +454,14 @@ um recorte por **padrão de caminho** e uma **janela de idade**. O piso sozinho 
 13.388; as três juntas selecionam **108** (§4.3.1) — e desses, zero nunca-servidos. Os
 10.008 **não** são "chunks que o canal quis servir e não serviu": são chunks cuja
 importância o canal reconheceria **se eles chegassem até ele**, e o que os impede de
-chegar é o recorte de caminho, não a ordenação. ⚠️ Uma versão anterior deste parágrafo
-dizia "que o canal consideraria elegíveis" — que é falso pelo mesmo motivo (H-2).
+chegar é o recorte de caminho, não a ordenação (↩ H-2).
 
 ⚠️ **E a leitura tentadora desse número é falsa — a qualificação viaja com ele.** Dos
 10.008, **8.928 (89,2%) são `distilled`**: fragmentos de sessão de **232 caracteres** em
 média (`measurement/composicao-do-piso.py`,
 `out/FLOOR-COMPOSITION-2026-08-29.json`). O achado não é "dez mil lições invisíveis"; é
 que a superfície não mostra nem os fragmentos que o próprio sistema marcou como
-relevantes. ⚠️ Uma versão anterior desta frase dizia **205** caracteres, que é a média de
-**todos os 14.456 `distilled` do corpus** e não a dos 8.928 que a frase nomeia — número
-certo atribuído à população errada, de uma consulta *ad hoc* que não deixou artefato. Só
-apareceu ao recomputar.
+relevantes (↩ H-3.4).
 
 **A taxa é incondicional, e essa é a objeção com direção desconhecida.** Um chunk criado
 na semana 11 da janela teve 7 dias de oportunidade de exposição; um da semana 1 teve 84.
@@ -537,7 +528,7 @@ existe *hoje* e nunca foi. Descontando-os, 10.899 + 56.288 = 67.187 exato. O per
 citado é sobre o corpus vivo, que é a população da qual se pode dizer "nunca exposto".
 
 
-### 4.2 Resultado secundário: exposição correlaciona com tamanho de coleção
+### 4.2 Resultado secundário: exposição cai com o tamanho da coleção — β = −0,961, e o tamanho não é separável de curadoria
 
 ⚠️ **"Exposto" aqui é a UNIÃO das duas superfícies** (`brief_log` ∪ `access_count > 0`),
 a mesma definição do §4.1 — e vale dizer porque a maior parte dela é **busca**, que o
@@ -569,9 +560,8 @@ exposto". Um filtro que só pode ajudar precisa ser declarado, e o efeito dele, 
 (`measurement/robustez-tamanho-exposicao.py`).
 
 Duas explicações competem: **curadoria** (tipos mais curados são mais expostos) e
-**tamanho** (coleções pequenas cabem na superfície). ⚠️ **Nada aqui as separa**, e a
-versão anterior desta frase dizia que o teste separava — não separa. O que os testes
-abaixo separam é *artefato de filtro* de *sinal*; as parciais mais adiante controlam
+**tamanho** (coleções pequenas cabem na superfície). **Nada aqui as separa** (↩ H-3.5).
+O que os testes abaixo separam é *artefato de filtro* de *sinal*; as parciais mais adiante controlam
 idade, importância média e comprimento de texto, e **nenhuma delas é curadoria**. Não
 existe no corpus variável que a meça, então "tamanho" e "curadoria" permanecem
 confundidos por construção. O que muda de fato conforme a contagem é a força:
@@ -609,7 +599,7 @@ n = 15 unidades independentes e um terço do eixo vazio, a forma defensável do 
 o contraste entre as nuvens, não a taxa: **os 5 tipos grandes ocupam 10,7–27,0% de
 exposição; dos 10 pequenos, 8 estão acima de 32,5% e 2 estão em zero.**
 
-⚠️ **E o erro-padrão do modelo é inutilizável.** Ele dá `± 0,027` (z = −35) porque supõe
+**E o erro-padrão do modelo é inutilizável.** Ele dá `± 0,027` (z = −35) porque supõe
 67.187 observações independentes; o preditor é **constante dentro do tipo**, então a
 unidade de independência é o tipo e o `n` efetivo é **15**. Pelo jackknife sobre tipos:
 **EP = 0,471, z = −2,0**. Deixar **um** tipo de fora move β para dentro de
@@ -635,18 +625,16 @@ está aqui como limite, não como defesa.
 inalterada. Restringindo aos 9 tipos com idade média ≥ 70 dias, onde a idade é
 aproximadamente constante, a relação **fortalece**: `r = −0,843`, ρ = −0,883.
 
-🔴 **Estas parciais são sobre os 13 tipos filtrados, e por isso herdam a fragilidade que
+**Estas parciais são sobre os 13 tipos filtrados, e por isso herdam a fragilidade que
 o parágrafo anterior acabou de estabelecer.** "Quase inalterada" é em relação a −0,728,
 que é o Pearson **com** o filtro; o Pearson dos 15 é −0,334, e contra ele −0,709 não
 seria "quase inalterado" — seria o dobro. Os "9 tipos com idade ≥ 70 dias" também são 9
-dos 13. ⚠️ Uma versão anterior desta seção trazia estas parciais sem dizer sobre qual
-conjunto foram computadas, imediatamente depois de demover o −0,728 por fragilidade ao
-filtro — órfãs de um número que a própria seção já tinha retirado. **O que elas
+dos 13 (↩ H-3.6). **O que elas
 estabelecem, então, é limitado: que dentro do recorte filtrado a idade não explica o
 gradiente.** Não são evidência sobre os 15. O mesmo
 vale para importância média (parcial −0,685) e para o tamanho do texto (−0,732).
 
-🔴 **E o confundidor que sobra depois da idade é o que impede a conclusão forte.** O
+**E o confundidor que sobra depois da idade é o que impede a conclusão forte.** O
 §4.3.1 mostra que a ingestão chega em **lotes de arquivos**: tipos grandes são os
 alimentados por pipeline automático; tipos pequenos são escritos à mão. Isso é
 **curadoria disfarçada de tamanho** — uma causa comum dos dois, que nenhuma correlação
@@ -654,7 +642,7 @@ entre eles pode separar. O paper **não descarta** a hipótese de curadoria; o q
 mostra é que o tamanho prediz melhor do que a *relevância que o próprio sistema
 atribui*, que é uma afirmação mais fraca e é a que os dados sustentam.
 
-⚠️ **Duas propriedades da composição do corpus limitam o quanto a separação surpreende.**
+**Duas propriedades da composição do corpus limitam o quanto a separação surpreende.**
 Não existe tipo com `n` entre **53 e 1.046** — com um vazio no meio do eixo, alguma
 separação entre "grandes" e "pequenos" está garantida pela composição, não descoberta. E
 `other` sozinho é **49%** do corpus, então o agregado de 83,78% é, em boa parte, um tipo.
@@ -663,7 +651,7 @@ separação entre "grandes" e "pequenos" está garantida pela composição, não
 prediz exposição; o tamanho da coleção prediz — com a ressalva, acima, de que o tamanho
 pode ser proxy de como o tipo é produzido.
 
-**Figura 1** — `measurement/out/fig1-capacidade.svg`: dispersão `log₁₀(tamanho)` ×
+**Figura 1** — `out/fig1-capacidade.svg`: dispersão `log₁₀(tamanho)` ×
 `% exposto`, **um ponto para cada um dos 15 tipos**, com as duas faixas (n ≥ 1.000 ·
 n < 100) sombreadas e o trecho do eixo sem observação marcado. Gerada por
 `fig1-capacidade.py --dados out/SIZE-EXPOSURE-15-2026-08-29.json`, artefato travado.
@@ -696,10 +684,10 @@ Janela fechada `[2026-08-20 , 2026-08-27)`:
 | presentes em **100%** dos briefs | **3** |
 | top-10 | **47,16%** dos slots · top-20 **61,46%** |
 
-**Figura 2** — `measurement/out/fig2-concentracao.svg`: curva de Lorenz do carrossel
+**Figura 2** — `out/fig2-concentracao.svg`: curva de Lorenz do carrossel
 (rank × share cumulativo dos slots), com marca nos 3 constantes — que sozinhos tomam
 **30,0%** dos slots — e no corte do top-10. Gerada por `fig2-concentracao.py --dados
-measurement/out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.
+out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.
 
 🔴 **Os 201 são o medido, não o teto.** Cabiam **46.295** — um por slot. Tratar o medido
 como teto transformaria um resultado em pigeonhole e ensinaria o leitor a achar a curva
@@ -938,7 +926,7 @@ tabela é lido sem o parágrafo que o precede**. Ver Apêndice H.
   **220×**), 0 estados não monótonos, 0 sem limiar no grid;
 - a dose em vigor no *shadow* reproduz a taxa publicada: `w = 2` dá **11/350 = 3,1429%**.
 
-**Figura 3** — `measurement/out/fig3-dose-resposta.svg`: as duas séries de dose-resposta
+**Figura 3** — `out/fig3-dose-resposta.svg`: as duas séries de dose-resposta
 em eixo `w` logarítmico — grid grosso (9 doses × 350 estados) e grid fino (23 doses × os
 17 que se movem) — com a banda registrada `{2 · 4 · 7,5}` marcada no eixo, a linha do
 teto `17/350` e a região de saturação. Gerada por `fig3-dose-resposta.py`.
@@ -1437,6 +1425,44 @@ satisfeito por qualquer ocorrência: três mutações passaram no primeiro teste
 alterado só a primeira de várias menções ao mesmo número. O custo assumido é que edição
 legítima que mude o número de menções precisa atualizar a contagem de propósito.
 
+### 6.2 Pinar o identificador de um artefato não o preserva — três vezes
+
+Os oito defeitos acima são de instrumento: um número medido errado, uma constante sem
+referente, um guarda que não morde. Este é de outra natureza, e só ficou visível quando a
+terceira ocorrência apareceu — em três dias, em três mecanismos independentes:
+
+| artefato | como estava pinado | o que aconteceu |
+|---|---|---|
+| corpus do replay do teto (`e20260826T060003Z.db`) | `sha256` do primeiro MB, publicado | **rotacionado** — snapshot de epoch, retenção o apagou; o backup diário do mesmo dia é de outro instante e não bate |
+| três módulos de *serving* (`brief-diversity`, `salience`, `search`) | **hash de commit** | um merge reescreveu os hashes; recuperados em 30/08 e repinados por `sha256` dos bytes |
+| corpus congelado do estudo interventivo | `sha256`, caminho e modo `0400` declarados | **não existe** — procurado por nome, tamanho e hash; nem o diretório. Com ele foram os **280 episódios adjudicados**, dos quais **zero** sobrevivem no archive vivo |
+
+**Os três pinos eram corretos e os três falharam do mesmo jeito.** Um `sha256` publicado
+identifica um artefato sem exigir confiança em quem o publicou — essa é exatamente a
+propriedade que se quer. O que ele **não** faz é impedir que o artefato desapareça, e
+essas duas coisas são fáceis de confundir porque o hash *parece* um ato de preservação.
+É um ato de **identificação**. A retenção não lê hashes.
+
+⚠️ **O terceiro caso mostra o custo na sua forma pura.** O painel adjudicou 280
+episódios; a tabela guardou `sig_primary`, `severity` e `chunk_id`; o material julgado
+sumiu. Sobrou **veredito sem evidência** — verificável contra si mesmo e irrecuperável
+para qualquer terceiro. E o que sobreviveu foi justamente o que estava **versionado em
+repositório** em vez de pinado por hash: a função `sig()`, cujo `sha256`
+(`e860357bd9f1fc06…`) confere com o congelado porque o arquivo está no git.
+
+📌 A regra que sai disto, e que vale para qualquer depósito: **depositar o blob, não o
+hash.** Se o artefato é grande demais para depositar, então a alegação de
+reprodutibilidade que se apoia nele precisa dizer que ele é perecível — o que é uma
+alegação bem mais fraca, e é a verdadeira.
+
+⚠️ E vale registrar como isto foi encontrado, porque o modo importa: **nenhuma das três
+foi achada por revisão.** As duas primeiras saíram de auditoria mecânica da cadeia
+script→artefato→alegação; a terceira, de tentar usar o corpus e ele não estar lá. Um
+revisor lendo `CORPUS-FREEZE.md` vê um documento impecável — caminho, tamanho, hash,
+modo de arquivo, comando de verificação. Tudo correto, e o arquivo não existe. **Nenhuma
+leitura distingue um pino válido de um pino órfão; só a tentativa de usar o artefato
+distingue.**
+
 ## 7. Ameaças à validade
 
 - ⚠️ **`n = 1` sistema.** É a ameaça principal e não tem mitigação dentro deste paper.
@@ -1677,8 +1703,8 @@ Tudo em `measurement/`, com `--assert-json` travando cada número citado:
 
 | o quê | script | artefato |
 |---|---|---|
-| superfície de exposição | `superficie-de-exposicao.py` | `measurement/out/superficie.json` |
-| replay + dose + limiar + gaps | `replay-oportunidade.mjs` · `replay-resumo.py` | `measurement/out/c-350-v3.json` · `measurement/out/dose-350-v3.json` · `measurement/out/limiar-17.json` · `measurement/out/gaps.json` |
+| superfície de exposição | `superficie-de-exposicao.py` | `out/superficie.json` |
+| replay + dose + limiar + gaps | `replay-oportunidade.mjs` · `replay-resumo.py` | `out/c-350-v3.json` · `out/dose-350-v3.json` · `out/limiar-17.json` · `out/gaps.json` |
 | granularidade do teto (§5.7) | `replay-oportunidade.mjs --granularidade` · `granularidade-do-teto.py` | `out/gran-{seg,min,hora,dia}.json` · `out/gran3-{seg,min,hora}.json` · `CEILING-GRANULARITY-2026-08-28.json` |
 | exposição a desempate arbitrário (§5.7) | `empates-por-granularidade.py` | `TIEBREAK-EXPOSURE-2026-08-29.json` |
 | sensibilidade do teto à designação (§5.7.1) | `sensibilidade-da-designacao.py` | `out/sens-*.json` · `CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json` |
@@ -1704,11 +1730,25 @@ categoria de repetição.
 
 🔴 **A limpeza foi parcial, e o número depois da mudança tem de estar aqui, senão este
 apêndice alega um efeito que não demonstra.** No corpo — antes dos apêndices, que é o que
-um revisor lê primeiro — restam **78 de 264
-parágrafos marcados (29,5%)**. A conta
+um revisor lê primeiro — restam **89 de 296
+parágrafos marcados (30,1%)**. A conta
 agregada não serve para julgar: mover material para um apêndice não muda o total, e o
-apêndice traz avisos próprios. O que falta é decidir quais ⚠️ viram texto corrido, e isso
-é julgamento editorial que não foi feito.
+apêndice traz avisos próprios.
+
+⚠️ **E o agregado esconde o que decide a leitura: os avisos são concentrados.** Medido em
+30/08, o §4.2 tinha **12 marcadores em 21 parágrafos** e o §4.1.1 tinha 5 em 8, enquanto o
+§5 inteiro ficava entre 8% e 17%. Um leitor que aprende a pular ⚠️ aprende no §4.2 — e é
+lá que estão as retratações que mudam o que o resultado significa. A intervenção de 30/08
+foi por isso **cirúrgica e não global**, em duas frentes: (i) as retratações do §4.1, §4.2
+e §5.7.2 vieram para o H-3, deixando remissão; (ii) três parágrafos que **são o
+resultado** — o erro-padrão inutilizável, o confundidor que impede a conclusão forte, as
+duas propriedades da composição do corpus — perderam o marcador sem perder uma palavra.
+O marcador ali anunciava como opcional exatamente o que não é.
+
+⚠️ **O que continua sem decisão** é a terceira espécie: os avisos de *procedência* e de
+*escopo*, que `measurement/densidade-de-avisos.py` promete classificar no seu próprio
+cabeçalho e **não classifica** — o script conta repetição, que é o que ele mede sem
+julgamento. Enquanto a classificação for manual, a redução restante é editorial.
 
 O material é parte da contribuição declarada — o método — e por isso não foi descartado.
 Mas ele pertence aqui, e no corpo fica só o estado corrigido, com remissão onde o leitor
@@ -1760,6 +1800,50 @@ corrigir onde o defeito foi achado não o corrige onde ele também está.
 | "Ninguém mede o que o agente de fato recebe" | universal sobre a literatura inteira sustentado por **um** censo de vocabulário de um survey de 218 papers | DeepSeek |
 | "o **topo** do brief é determinado pelo tráfego" | o contrafactual mede **três** chunks; "o topo" generaliza para as dez posições | DeepSeek |
 | os 83,78% atribuídos a decisão do sistema | **9.755 dos 10.899** expostos vieram de busca iniciada pelo agente; a ressalva existia, mas atrás de um ⚠️ no meio do parágrafo | DeepSeek |
+
+### H-3 — Seis retratações que moravam no meio do resultado
+
+Estas seis estavam **dentro** dos §4.1, §4.2 e §5.7.2, cada uma interrompendo a frase que
+carregava o achado para relatar o que uma versão anterior daquela mesma frase dizia. O
+leitor externo nunca viu a versão anterior; para ele o parágrafo alternava entre um
+resultado e a errata de um documento que não existe. O estado corrigido ficou no corpo,
+com remissão; a narrativa da correção é esta.
+
+**H-3.1 · §5.7.2 — "não mensurável" concedia mais ignorância do que os fatos exigiam.**
+A seção afirmou por dois dias que o terceiro eixo do teto não era mensurável. São **duas**
+coisas distintas: o *nível* do teto sob exclusão de sondas não é recuperável (o corpus
+`e20260826T060003Z.db` era snapshot de epoch e foi rotacionado), mas a *sensibilidade*
+é — o log dos 350 estados é `.ndjson` e sobreviveu. Declarar ignorância é mais barato que
+medir, e por isso é o caminho da inércia.
+
+**H-3.2 · §4.1 — a tabela fechava em dois universos.** A versão anterior listava a união
+**histórica** ao lado do complemento **vivo**; quem subtraísse `67.187 − 11.051` obtinha
+56.136 em vez de 56.288. Cada número estava certo; a tabela, não. A linha dos 152 chunks
+servidos-e-depois-apagados é o que faz a ponte, e ela passou a ser explícita.
+
+**H-3.3 · §4.1 — "verbatim de `brief.ts:642`" para valores que estão noutro arquivo.** A
+*forma* do predicado está lá; os *valores* `0,7 / 0,7` estão em `brief-diversity.ts:59-60`
+e são **defaults sobrescrevíveis** por variável de ambiente. Apresentar configuração de
+runtime como constante de código é o que faz um número correto envelhecer para errado sem
+aviso — a mesma classe que o §6 cataloga.
+
+**H-3.4 · §4.1 — o comprimento médio era o de outra população.** A frase nomeia os
+**8.928** `distilled` que passam o piso, e a versão anterior citava **205** caracteres, que é a média de
+**todos os 14.456 `distilled` do corpus** — não a dos 8.928. Número certo, população
+errada, de uma consulta *ad hoc* que não deixou artefato. O valor correto é **232**, e só
+apareceu ao recomputar: sobreviveu a três revisões porque nenhuma delas podia
+recomputá-lo.
+
+**H-3.5 · §4.2 — "o teste separava curadoria de tamanho".** Não separa, e nada na seção
+separa: não existe no corpus variável que meça curadoria. O que os testes separam é
+*artefato de filtro* de *sinal*. As duas explicações permanecem confundidas por
+construção, e agora o texto e o título dizem isso.
+
+**H-3.6 · §4.2 — parciais órfãs do número que a própria seção tinha retirado.** As
+parciais (`−0,709`, `r = −0,843`) apareciam sem dizer sobre qual conjunto foram
+computadas, **imediatamente depois** de o texto demover o `−0,728` por fragilidade ao
+filtro. São os 13 tipos filtrados, e contra o Pearson dos 15 (`−0,334`) "quase inalterada"
+seria o dobro. Achada por GLM (ver H-2).
 
 ## Apêndice E — Catálogo integral de defeitos de instrumento
 

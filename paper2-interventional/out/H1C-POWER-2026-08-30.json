@@ -2,26 +2,26 @@
   "gerado_por": "measurement/potencia-h1c.py",
   "pergunta": "o N já registrado sustenta H1c como primária?",
   "entradas": {
-    "p0": 0.0963,
-    "oportunidades_por_dia": 191.0,
+    "p0": 0.0782,
+    "oportunidades_por_dia": 213.0,
     "epochs": 234,
     "icc": 0.098459
   },
-  "oportunidades_por_braco_bruto": 22347,
-  "design_effect": 19.71,
-  "n_efetivo_por_braco": 1133,
-  "p1_detectavel": 0.0643,
-  "mde_relativo_h1c": 0.3319,
+  "oportunidades_por_braco_bruto": 24921,
+  "design_effect": 21.87,
+  "n_efetivo_por_braco": 1139,
+  "p1_detectavel": 0.0495,
+  "mde_relativo_h1c": 0.3668,
   "mde_registrado_h1": 0.3,
   "cenarios": {
     "todas as cobertas": {
       "cobertura": 0.4,
-      "efeito_necessario_nas_cobertas": 0.8297,
+      "efeito_necessario_nas_cobertas": 0.917,
       "possivel": true
     },
     "só as informativas": {
       "cobertura": 0.025,
-      "efeito_necessario_nas_cobertas": 13.2756,
+      "efeito_necessario_nas_cobertas": 14.6722,
       "possivel": false
     }
   },

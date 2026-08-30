@@ -925,8 +925,8 @@ def terceiro_eixo_check(root: Path) -> list[str]:
     ausência declarada precisa de teste que a proteja, senão fica indistinguível de
     esquecimento. É a mesma lição que o `top_chunk_ids` custou 3,3 meses.
     """
-    a1 = root / "measurement" / "out" / "ancora-sem-exclusao.json"
-    a2 = root / "measurement" / "out" / "ancora-sondas.json"
+    a1 = root / "out" / "ancora-sem-exclusao.json"
+    a2 = root / "out" / "ancora-sondas.json"
     if not a1.exists() or not a2.exists():
         return [f"{a1.name} / {a2.name}: um dos artefatos do terceiro eixo sumiu — a "
                 f"tabela do §5.7.2 perdeu o lastro"]
@@ -949,7 +949,7 @@ def terceiro_eixo_check(root: Path) -> list[str]:
             fails.append(f"§5.7.2: {rot} não casa com os artefatos (/{pat}/)")
     # o replay do teto TEM de continuar declarando que não excluiu sondas — se um dia
     # excluir, o §5.7.2 passa a mentir na direção oposta.
-    porque = root / "measurement" / "out" / "porque-350-v3.json"
+    porque = root / "out" / "porque-350-v3.json"
     if porque.exists():
         se = json.loads(porque.read_text(encoding="utf-8"))["procedencia"].get(
             "sondas_excluidas")
@@ -1230,7 +1230,7 @@ def superficie_check(root: Path) -> list[str]:
     o texto não mudou, recomputar confere que ele é aritmeticamente consistente com o
     resto. Foi a segunda que faltou.
     """
-    art = root / "measurement" / "out" / "superficie.json"
+    art = root / "out" / "superficie.json"
     doc = root / "MANUSCRIPT.md"
     if not art.exists():
         return [f"{art.name} ausente — os números do §1 não têm artefato"]
@@ -1275,7 +1275,11 @@ def superficie_check(root: Path) -> list[str]:
                    # grandeza (chunks de `sessions/%` que passam o piso), cujo
                    # tamanho coincide com o da união viva neste instante. A
                    # colisão está declarada no texto; a contagem sobe de propósito.
-                   "10.899": 11}
+                   # ⚠️ −1 em 30/08 (item B3): a ressalva "a busca é iniciada pelo
+                   # agente" aparecia 5× no corpo; duas repetições viraram ponteiro
+                   # ao §4.1.1, que é onde ela é o argumento e não a lembrança. A
+                   # do §2 levava consigo a única menção a 10.899 daquele parágrafo.
+                   "10.899": 10}
 
     def conta(literal: str, rotulo: str) -> None:
         esperado = OCORRENCIAS.get(literal)
@@ -1374,7 +1378,7 @@ def estimando_check(root: Path) -> list[str]:
     texto = doc.read_text(encoding="utf-8")
     fails = []
 
-    art = root / "measurement" / "out" / "dose-350-v3.json"
+    art = root / "out" / "dose-350-v3.json"
     if not art.exists():
         return [f"{art.name} ausente — a condição de detectabilidade do §2 fica sem lastro"]
     tab = {str(r["w"]): r for r in json.loads(art.read_text(encoding="utf-8"))["dose"]["tabela"]}
@@ -1780,6 +1784,69 @@ def coorte_check(root: Path) -> list[str]:
     return fails
 
 
+def remissao_check(root: Path) -> list[str]:
+    """Trava a migração de retratações para o Apêndice H (item B2, 30/08).
+
+    Sete retratações moravam DENTRO do §4.1/§4.2/§5.7.2, interrompendo a frase que
+    carrega o achado para relatar o que uma versão anterior daquela frase dizia. Foram
+    para o Apêndice H, e no corpo ficou uma remissão `↩ H-n`.
+
+    ⚠️ A migração cria uma classe de defeito nova, e é ela que este guarda cobre:
+    **remissão que aponta para entrada inexistente**. Um `↩ H-3.7` que ninguém escreveu
+    é pior que o parágrafo original — o leitor procura a explicação e não acha, e nada
+    no documento denuncia. `grep` no texto concatenado não serve (a própria remissão
+    contém a string procurada), então casa-se contra o cabeçalho da entrada.
+
+    ⚠️ E a densidade é **série viva**: o Apêndice H afirmava "78 de 264 (29,5%)", número
+    que envelheceu no mesmo dia em que uma seção nova foi escrita. Aqui ela é
+    RECOMPUTADA do artefato, nunca lida do texto — a lição de que instante citado como
+    se fosse constante vira falsidade por decurso de prazo.
+    """
+    fails: list[str] = []
+    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+
+    # (1) toda remissão acha a sua entrada
+    # ⚠️ A primeira versão usava `(H-[\d.]+?)(?=[\s).,])` — lazy, com o PONTO dentro da
+    # classe do lookahead. Em `↩ H-3.9` ela casava `H-3` e parava, e `### H-3 —` existe:
+    # a perna nunca podia falhar. Foi achada exigindo a MENSAGEM da mutação e não a
+    # contagem de falhas — a mutação disparava, mas pela perna (2), e o placar dizia
+    # "3/3 mordem". Guarda cujo predicado não alcança o defeito é decoração.
+    for alvo in sorted(set(re.findall(r"↩ (H-\d+(?:\.\d+)*)", texto))):
+        # entrada de nível 1 é `### H-2 —`; de nível 2 é `**H-3.4 · `
+        if not re.search(rf"^### {re.escape(alvo)} —", texto, re.M) and \
+           not re.search(rf"^\*\*{re.escape(alvo)} · ", texto, re.M):
+            fails.append(
+                f"Apêndice H: a remissão `↩ {alvo}` não tem entrada — o leitor que a "
+                f"seguir não acha a explicação, e nada no documento denuncia"
+            )
+
+    # (2) e nenhuma entrada H-3.x fica órfã: se ninguém remete a ela, ela virou
+    #     material solto no apêndice em vez de correção de um ponto do texto.
+    for entrada in sorted(set(re.findall(r"^\*\*(H-3\.\d+) · ", texto, re.M))):
+        if f"↩ {entrada}" not in texto:
+            fails.append(
+                f"Apêndice H: {entrada} existe e ninguém remete a ela — retratação sem "
+                f"o ponto do corpo que ela corrige"
+            )
+
+    # (3) a densidade: recomputada do artefato, e o Apêndice H tem de citá-la
+    art = root / "out" / "WARNING-DENSITY-2026-08-30.json"
+    if not art.exists():
+        fails.append(f"{art.name} ausente — a densidade do Apêndice H volta a ser prosa")
+        return fails
+    d = json.loads(art.read_text(encoding="utf-8"))
+    pct = str(d["pct_corpo_marcado"]).replace(".", ",")
+    padrao = (rf"\*\*{d['corpo_marcados']} de {d['paragrafos_do_corpo']}\s*\n?"
+              rf"par[áa]grafos marcados \({re.escape(pct)}%\)\*\*")
+    if not re.search(padrao, texto):
+        fails.append(
+            f"Apêndice H: a densidade recomputa {d['corpo_marcados']} de "
+            f"{d['paragrafos_do_corpo']} ({pct}%) e o texto não diz isso ancorado "
+            f"(/{padrao}/ não casa) — o número do apêndice envelheceu"
+        )
+    return fails
+
+
 def sizing_check(root: Path) -> list[str]:
     """Re-run `sizing.py` and `assign_arms.py` and assert the locked outputs.
 
@@ -1927,6 +1994,7 @@ def main() -> int:
     failures.extend(contrafactual_check(Path(args.root)))
     failures.extend(censos_check(Path(args.root)))
     failures.extend(terceiro_eixo_check(Path(args.root)))
+    failures.extend(remissao_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)
