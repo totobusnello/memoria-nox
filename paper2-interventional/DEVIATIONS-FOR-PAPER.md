@@ -246,6 +246,34 @@ revisão não vê, porque exige contar linhas de tabela contra uma palavra, e no
 este catálogo: as anteriores eram rótulo divergindo do predicado, não quantificador
 divergindo do escopo.
 
+### 9. O corpus congelado do Paper 2 não existe — e os episódios adjudicados também não
+
+`CORPUS-FREEZE.md` declara que a reprodução roda contra
+`action-archive-20260729T094609Z.tar.gz` (107 MB, 5.547 episódios, `sha256 ba5fcc81…`),
+em `/var/backups/nox-mem/paper2-corpus/` com modo `0400`, e afirma: *"quem reproduzir a
+partir deste snapshot obtém 5.547 episódios"*.
+
+Procurado em 2026-08-30 por **nome**, por **tamanho** (~107 MB) e por **`sha256`** em
+toda a máquina de serving: não existe, e o diretório também não.
+
+🔴 **E a consequência é maior que a perda de reprodutibilidade:** dos **280** episódios
+adjudicados em `p2_verdict`, **zero** estão no archive vivo. O painel julgou 280
+episódios que hoje ninguém pode ler. As 55 lições e os 19 grupos de designação existem
+como veredito sem evidência — `sig_primary`, `severity` e `chunk_id` sobreviveram na
+tabela; o material que os justificava, não.
+
+**O que sobreviveu:** a `sig()`. `extract_episodes.py` tem `sha256 e860357bd9f1fc06…`,
+idêntico ao congelado no pré-registro. A taxonomia é reproduzível; o corpus sobre o qual
+foi derivada, e o material que o painel viu, não são.
+
+⚠️ **Por que isto entra no paper e não numa nota operacional.** É a **terceira** ocorrência
+da mesma classe em três dias — o corpus do teto (rotacionado, §5.7.2), os três `.ts`
+pinados por hash de commit (recuperados, §8) e este. Um paper cuja tese metodológica é
+que a verificação precisa ser mecânica não pode omitir que a sua própria disciplina de
+congelamento falhou três vezes, e sempre do mesmo modo: **pinar o identificador de um
+artefato não o preserva**. A regra que sai disto, e que vale para todo depósito futuro, é
+depositar o **blob**, não o hash.
+
 ## Se a decisão mudar
 
 A máquina do depósito está pronta e **não executada**: `deposit/PLAN-v1.13.md` e

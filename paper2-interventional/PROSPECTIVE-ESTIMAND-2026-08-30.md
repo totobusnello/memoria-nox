@@ -137,6 +137,18 @@ desenho passar é concentração sobre a assinatura que menos informa.
 — `Bash|fs:mutacao`, `mcp__openclaw__terminal|shell:outro` e o `ctx_batch_execute`.
 Quase metade do que a dose consegue promover é inerte no corpus.
 
+> ### ✅ Decidido em 2026-08-30 — leitura pela substância
+>
+> O Toto leu o resultado pela substância: faixa `<3×`, **revisar o desenho antes de
+> começar**. `T_seed_assign` não foi declarado e o ambiente segue sem
+> `NOX_P2_OUTCOME`. O diagnóstico completo, as quatro opções e a recomendação estão em
+> `DESIGN-REVISION-2026-08-30.md`.
+>
+> Medido depois desta decisão e a favor dela: sob `w = 7,5`, a dose **máxima**, a
+> concentração sem a maior assinatura é **2,9×** — ainda na faixa que manda revisar. E
+> `w = 100.000` produz o mesmo conjunto de 12 chunks que `w = 7,5`. **Nenhuma dose
+> corrige.**
+
 **Leitura, e ela é uma decisão de desenho, não de cálculo.** A faixa pré-registrada foi
 escrita supondo um agregado; o agregado medido repousa num estrato. As três faixas do §2
 não previram esse caso — e não prever não é o mesmo que autorizar a leitura conveniente.
