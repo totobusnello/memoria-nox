@@ -1100,7 +1100,7 @@ def superficie_check(root: Path) -> list[str]:
     # contagem aqui, de propósito.
     # ⚠️ Atualizado DE PROPÓSITO em 29/08: a §6.1 nova cita `583.763` e `2,66%` mais
     # uma vez cada, ao explicar o erro que a falta de guarda produziu.
-    OCORRENCIAS = {"8,7 vezes": 2, "47,16%": 3, "10.899": 6, "2,66%": 5, "583.763": 6}
+    OCORRENCIAS = {"8,7 vezes": 2, "47,16%": 3, "10.899": 6, "2,66%": 5, "583.763": 7}  # +1: Apêndice H-2 (30/08)
 
     def conta(literal: str, rotulo: str) -> None:
         esperado = OCORRENCIAS.get(literal)

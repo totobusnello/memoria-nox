@@ -119,11 +119,10 @@ relevância:
 1. **calendário.** O canal recorta por idade, e a ingestão chega em **lotes**. Entre
    lotes o pool fica vazio e o canal serve o mesmo conjunto por dias: medimos **cinco
    dias seguidos** com zero itens novos, com a idade mínima do que foi servido subindo
-   exatamente **+1,00 por dia** — a assinatura de um conjunto congelado. ⚠️ **A janela
-   não é única, e uma versão anterior desta frase dizia "menos de 7 dias" como se
-   fosse:** são dois sub-pools, o por-agente com 7 dias e o global com 30 (§4.3.1). A
-   observação dos cinco dias é do primeiro; aplicar a janela dele ao segundo foi o erro
-   que uma predição registrada refutou;
+   exatamente **+1,00 por dia** — a assinatura de um conjunto congelado. A janela **não é
+   única**: são dois sub-pools, o por-agente com 7 dias e o global com 30 (§4.3.1), e a
+   observação dos cinco dias é do primeiro. Aplicar a janela de um ao lote do outro é um
+   erro que cometemos e que uma predição registrada refutou (H-2);
 2. **álgebra.** O canal ordena por um comparador **lexicográfico**
    `(last_served ASC, salience DESC)`, no qual o score é a coordenada **subordinada** e
    só decide dentro de empates da dominante. Isso prediz — dedutivamente, a partir de
@@ -315,13 +314,10 @@ agregado e recusar a consequência: se a maior parte dos 56.288 fosse ruído de 
 valor, não haveria o que entregar. Não é o caso — dos 13.388 chunks que passam o piso de
 elegibilidade do **canal de cobertura**, **10.008 = 74,75% nunca foram expostos**.
 
-🔴 **O rótulo desse piso precisa ser exato, e uma versão anterior desta seção o inflava.**
-Ele **não** é um piso de relevância do sistema: `freshMinImp` e `freshMinPain` vivem em
-`DIVERSITY_DEFAULTS`, ao lado de `freshSlots: 2`, e só entram por `fetchFreshCandidates`
-— ou seja, são o critério de elegibilidade **do canal de cobertura de 2 slots**. Os 8
-slots do pool principal não aplicam filtro nenhum de importância. Dizer "o próprio
-sistema marcou como relevante" atribuía a um julgamento global o que é o limiar de
-entrada de um canal.
+🔴 **Esse piso é de um canal, não do sistema.** `freshMinImp` e `freshMinPain` vivem em
+`DIVERSITY_DEFAULTS`, ao lado de `freshSlots: 2`, e só entram por `fetchFreshCandidates`:
+são o critério de elegibilidade **do canal de cobertura de 2 slots**. Os 8 slots do pool
+principal não aplicam filtro de importância nenhum. (H-2)
 
 ⚠️ **E os dois lados da razão vêm de universos diferentes**, o que restringe a leitura:
 o numerador conta não-exposição pelas **duas** superfícies (brief ∪ busca), enquanto o
@@ -399,19 +395,7 @@ ontem, e mostrar dez itens diferentes por sessão jamais violaria o limite de de
 um teste:** 583.763 slots contra 67.187 chunks. Havia espaço para mostrar tudo, nove
 vezes. Isso é o que se pode afirmar, e basta para o que o parágrafo anterior sustenta.
 
-⚠️ **Uma versão anterior desta seção trazia aqui uma tabela de "predições opostas"** —
-razão `slots/distintos` ≈ 1 sob gargalo de capacidade contra ≫ 1 sob gargalo de política,
-com 325 observado — apresentada como o teste que separava as duas hipóteses. **Ela foi
-retirada, e a razão de retirá-la é instrutiva.** Primeiro, a predição "≈ 1" não é
-derivada da hipótese de capacidade: é a hipótese reescrita na unidade da razão, de modo
-que observar ≫ 1 *é* observar folga — medida com duas regiões rotuladas, não teste com
-taxa de erro. Segundo, a hipótese que ela derrubava já estava morta pela aritmética acima,
-enquanto a hipótese que um defensor sustentaria — demanda por sessão acima de 10 — é a
-que declaramos fora de escopo. Terceiro, e decisivo: **qualquer política concentradora
-produz ≫ 1**, inclusive uma correta. Num corpus com milhares de fragmentos de sessão e
-3.231 chunks do tipo `daily`, uma razão perto de 1 significaria servir digests obsoletos
-— seria a política *pior*. A razão media concentração, e a inferência para *defeito* vinha
-de graça.
+📌 A seção trazia aqui uma tabela de "predições opostas" (razão `slots/distintos` ≈ 1 contra ≫ 1) apresentada como o teste que separava as duas hipóteses. Foi **retirada**; o argumento está no Apêndice H-1.
 
 📌 É por isso que o contrafactual uniforme (99,98%) aparece neste paper como **limite
 superior aritmético** e não como política recomendada. Servir memória ao acaso seria
@@ -597,12 +581,10 @@ Janela fechada `[2026-08-20 , 2026-08-27)`:
 **30,0%** dos slots — e no corte do top-10. Gerada por `fig2-concentracao.py --dados
 out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.
 
-🔴 **Uma frase da versão anterior desta seção estava errada, e o erro é o do paper
-inteiro em miniatura.** Ela dizia que a distribuição igual era impossível "em princípio,
-porque só cabem 201". **Cabiam 46.295** — um por slot. Os 201 são o **medido**, não o
-teto, e chamá-los de teto transforma um resultado em pigeonhole e ensina o leitor a achar
-a curva inevitável. A diagonal é referência de **leitura**; o achado é que a curva está
-tão longe dela com folga de 230× para não estar.
+🔴 **Os 201 são o medido, não o teto.** Cabiam **46.295** — um por slot. Tratar o medido
+como teto transformaria um resultado em pigeonhole e ensinaria o leitor a achar a curva
+inevitável. A diagonal é referência de **leitura**; o achado é que a curva está tão longe
+dela **com folga de 230× para não estar**. (H-2)
 
 #### 4.3.1 O carrossel não gira porque não há por onde girar
 
@@ -1405,11 +1387,7 @@ sustenta é **uma linha de aritmética mais um mecanismo**, e não um teste esta
 o brief serviu 1.787 distintos. Não há aqui restrição física a remover; há uma ordenação
 que revisita, e o §5 mostra por qual caminho.
 
-⚠️ **Uma versão anterior desta seção sustentava a mesma conclusão pela razão
-`slots / distintos` = 325**, apresentada como teste que separava capacidade de política.
-O §4.1.1 retira esse argumento e a retirada vale aqui também: **qualquer política
-concentradora produz uma razão ≫ 1, inclusive uma correta**, de modo que a razão media
-concentração e a inferência para *defeito* vinha de graça.
+📌 Esta seção sustentava a mesma conclusão pela razão `slots/distintos` = 325, retirada pelo motivo do Apêndice H-1.
 
 ⚠️ A objeção correta a isso é que os slots não são fungíveis: a superfície entrega 10
 por sessão, e nada garante que uma sessão tolere mais de 10. Verdade — e a alegação não
@@ -1541,6 +1519,61 @@ Tudo em `measurement/`, com `--assert-json` travando cada número citado:
 versão citada. Hoje o último depósito é a v1.12, anterior a tudo isto.
 
 ---
+
+## Apêndice H — Histórico de correções
+
+Este apêndice existe por um achado de revisão adversarial sobre a **forma** do
+documento, não sobre um número: a narrativa de cada correção estava no corpo,
+interrompendo o argumento para relatar o diff. Medido antes de mexer
+(`measurement/densidade-de-avisos.py`, `out/WARNING-DENSITY-2026-08-30.json`): **87
+marcadores em 288 parágrafos — 26,7% deles marcados**, sendo a retratação a maior
+categoria de repetição.
+
+O material é parte da contribuição declarada — o método — e por isso não foi descartado.
+Mas ele pertence aqui, e no corpo fica só o estado corrigido, com remissão onde o leitor
+precisa saber *por que* o texto está como está.
+
+⚠️ O que **não** veio para cá: condições de validade e limites de escopo. Esses
+qualificam a alegação no ponto em que ela é feita, e movê-los seria repetir o erro que a
+própria Figura 1 ensinou — ressalva deslocada do ponto de leitura não protege ninguém.
+
+### H-1 — A razão `slots / distintos`, retirada como teste
+
+⚠️ **Uma versão anterior desta seção trazia aqui uma tabela de "predições opostas"** —
+razão `slots/distintos` ≈ 1 sob gargalo de capacidade contra ≫ 1 sob gargalo de política,
+com 325 observado — apresentada como o teste que separava as duas hipóteses. **Ela foi
+retirada, e a razão de retirá-la é instrutiva.** Primeiro, a predição "≈ 1" não é
+derivada da hipótese de capacidade: é a hipótese reescrita na unidade da razão, de modo
+que observar ≫ 1 *é* observar folga — medida com duas regiões rotuladas, não teste com
+taxa de erro. Segundo, a hipótese que ela derrubava já estava morta pela aritmética acima,
+enquanto a hipótese que um defensor sustentaria — demanda por sessão acima de 10 — é a
+que declaramos fora de escopo. Terceiro, e decisivo: **qualquer política concentradora
+produz ≫ 1**, inclusive uma correta. Num corpus com milhares de fragmentos de sessão e
+3.231 chunks do tipo `daily`, uma razão perto de 1 significaria servir digests obsoletos
+— seria a política *pior*. A razão media concentração, e a inferência para *defeito* vinha
+de graça.
+
+⚠️ **Uma versão anterior desta seção sustentava a mesma conclusão pela razão
+`slots / distintos` = 325**, apresentada como teste que separava capacidade de política.
+O §4.1.1 retira esse argumento e a retirada vale aqui também: **qualquer política
+concentradora produz uma razão ≫ 1, inclusive uma correta**, de modo que a razão media
+concentração e a inferência para *defeito* vinha de graça.
+
+### H-2 — Onde mais a correção não alcançou
+
+Cada uma destas foi encontrada por revisão adversarial **depois** de a correção
+correspondente já ter sido aplicada noutro ponto do texto — que é o padrão desta classe:
+corrigir onde o defeito foi achado não o corrige onde ele também está.
+
+| correção aplicada | onde ela não alcançou | quem achou |
+|---|---|---|
+| o piso é do canal de cobertura, não do sistema | a frase "que o sistema marcou como relevantes", vinte linhas abaixo, na mesma seção | GLM |
+| o Pearson de 13 tipos é frágil ao filtro | as parciais (`−0,709`, `r=−0,843`) que se comparam a ele | GLM |
+| brief ≠ busca | Contribuições (i), abstract, §4.2, §8.2 | Grok |
+| `583.973` → `583.763` | nenhuma — o valor estava em cinco lugares e todos foram corrigidos, mas nenhum guarda existia | Codex |
+| a distribuição igual é impossível "porque só cabem 201" | **cabiam 46.295** — o medido foi tratado como teto, o que torna a curva inevitável por construção | interna |
+| a janela do canal de cobertura é de 7 dias | são **dois** sub-pools, 7 e 30 dias; a janela de um foi aplicada ao lote do outro | predição registrada |
+| "fóssil" → "determinado" (neutralização de tom) | a troca **endureceu** a alegação: "determinado" é causalmente mais forte que a metáfora, e exigiu contrafactual que não existia | DeepSeek |
 
 ## Apêndice E — Catálogo integral de defeitos de instrumento
 
