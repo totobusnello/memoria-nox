@@ -348,4 +348,14 @@ Este documento **não**:
 - autoriza o Epoch 1. A concentração do §2 é pré-condição, e o passo 1 pode reprovar o
   desenho.
 
-**Escrito 2026-08-30, com zero epochs randomizados existentes.**
+**Escrito 2026-08-30, quando nenhum epoch randomizado existia** — `ASSIGNMENT.json` não
+estava no repositório e `NOX_P2_OUTCOME` era `shadow`.
+
+⚠️ **A atribuição passou a existir no mesmo dia, e por isso esta linha foi reescrita.**
+A declaração `ASSIGN-SEED-2026-08-30.md` foi empurrada às **21:18:35Z** com a rodada
+drand 31774052 ainda em HTTP 425; a rodada emitiu às **21:32:04Z** e o `ASSIGNMENT.json`
+foi derivado dela. A precedência deste documento sobre a atribuição continua **verdadeira
+e verificável** — o commit é anterior à emissão, e os dois horários vêm de fontes
+independentes. O que mudou é que a frase no presente ("zero epochs existentes") envelhece
+sozinha, e o guarda em `claims_check.py` a derrubou assim que o arquivo apareceu. Uma
+alegação de precedência tem de ser escrita no passado, com o instante nomeado.

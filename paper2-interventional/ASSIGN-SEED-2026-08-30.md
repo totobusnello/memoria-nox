@@ -127,6 +127,27 @@ existe.
 
 ## Resultado
 
-**[A PREENCHER APÓS A EMISSÃO DE `R`]** — `randomness_hex`, `seed`, a sequência de
-atribuição e o `sha256_da_atribuicao`. Enquanto esta seção disser isto, a rodada não foi
-consumida.
+A rodada emitiu em **2026-08-30T21:32:04Z** — **13 min 29 s** depois do push da
+declaração (`57980ed`, 21:18:35Z). Os dois horários são fatos independentes: um do Git,
+outro do beacon.
+
+| Campo | Valor |
+|---|---|
+| `randomness` de `R` | `b32cf63d65fd6ca8dbd9d9b08a0bb77efe7144f18bad3dbbfce6816d498d55fd` |
+| `seed = SHA256(ascii_hex(randomness))` | `e86436153592e2655e095c58a96400ed4292b69ace6f53f65c0e41b87b290087` |
+| **`sha256_da_atribuicao`** | **`2426d13de4cd90e6391573e9edc54786c9fb4ca4304f0ea51e09ca916e5c5bd9`** |
+| Distribuição | controle = 117 · tratamento_1 = 39 · tratamento_2 = 39 · tratamento_3 = 39 |
+| Arquivo | `ASSIGNMENT.json` |
+
+**Os oito primeiros epochs**, para conferência a olho contra o recompute de terceiro:
+
+`1:controle` · `2:controle` · `3:controle` · `4:tratamento_3` · `5:controle` · `6:controle` · `7:tratamento_2` · `8:controle`
+
+✅ **Concordância verificada.** O bloco de verificação publicado acima — que não depende
+deste repositório, só do beacon — e o `assignment_derive.py` produzem o **mesmo**
+`sha256_da_atribuicao`. A conferência foi feita comparando os dois hashes, não olhando as
+234 linhas.
+
+⚠️ **Este documento não é mais alterável.** A rodada foi consumida; não existe versão
+desta seed que possa ser "corrigida". Qualquer defeito encontrado a partir daqui é
+declarado como desvio, não emendado no sorteio.
