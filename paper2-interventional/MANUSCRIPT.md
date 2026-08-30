@@ -58,8 +58,10 @@ O mecanismo do canal de cobertura é **dedutível do código**. Ele ordena por u
 **lexicográfico** `(last_served ASC, salience DESC)`: o score é a coordenada
 **subordinada** e só decide dentro de empates da dominante — o que prediz um **teto**,
 não uma resposta proporcional, para qualquer bônus aditivo no score **desse canal**.
-Testamos com dose crescente em produção e replay fiel ao pipeline real em **350 de 350**
-briefs: resposta monótona em cada estado, saturação em `w ∈ (4,0; 4,4]`, teto de
+Testamos com dose crescente por **replay contrafactual** sobre **350 de 350** estados de
+brief reais, fiel ao pipeline de serving — ⚠️ **os estados são de produção; a intervenção
+não foi servida.** O modo é *shadow*: a composição tratada é computada e registrada, e o
+que o agente recebeu foi sempre o controle (§7). Resultado: resposta monótona em cada estado, saturação em `w ∈ (4,0; 4,4]`, teto de
 **4,86%** dos briefs. E o teto não é constante do mecanismo, em dois eixos que medimos:
 sob a mesma regra com outro sorteio de designados ele chega a **7,43%** (o sorteio em
 vigor fica no mínimo da distribuição, empatado com outro), e truncando a resolução do timestamp de segundo para
@@ -128,8 +130,9 @@ relevância:
    só decide dentro de empates da dominante. Isso prediz — dedutivamente, a partir de
    sete linhas de código — um **teto** para qualquer bônus aditivo no score desse canal.
 
-A predição é testável e nós a testamos, com dose crescente em produção e replay fiel ao
-pipeline real em 350 de 350 briefs: monótona em cada estado, saturando em
+A predição é testável e nós a testamos, com dose crescente em **replay contrafactual**
+sobre 350 de 350 estados de brief reais, fiel ao pipeline de serving — ⚠️ estados de
+produção, intervenção **não servida** (modo *shadow*, §7): monótona em cada estado, saturando em
 `w ∈ (4,0; 4,4]`, teto de **4,86%** dos briefs. Ela sobreviveu ao teste que poderia
 tê-la matado — e a um instrumento anterior que a **confirmou pelo motivo errado** (§5.6).
 
@@ -711,9 +714,14 @@ Recomputando a salience dos 149 chunks servidos na janela com o componente de ac
 zero (`measurement/contrafactual-do-topo.py`, `out/TOP-COUNTERFACTUAL-2026-08-29.json`),
 os três **saem do top-10 e caem para além da centésima posição**.
 
-⚠️ **A população do contrafactual são os 149 já servidos, e a escolha precisa de
-justificativa porque o conjunto é definido pelo score original** — objeção levantada em
-revisão adversarial, e correta em forma. A escolha é **conservadora**, por um argumento
+⚠️ **A população do contrafactual são 149, e o §4.3 fala em 201 distintos na mesma
+janela — a diferença precisa ser dita.** São os mesmos 201; **52 foram apagados desde
+então**, e chunk apagado não tem `importance`, `pain` nem `access_count` para recompor a
+salience. O recompute é sobre os 149 sobreviventes, e isso **reforça** a leitura
+conservadora abaixo: os 52 ausentes seriam competidores a mais.
+
+⚠️ **E o conjunto é definido pelo score original, o que a objeção adversarial apontou
+como possível circularidade — corretamente, em forma.** A escolha é **conservadora**, por um argumento
 que não depende de medição: recomputar sobre um pool maior só pode acrescentar
 competidores, e acrescentar competidores nunca melhora a posição de ninguém. Logo
 128–131 é um **limite inferior** para a queda — sobre o pool completo os três cairiam
@@ -770,7 +778,9 @@ O comparador de cobertura é **lexicográfico**: quando `last_served` difere, `s
 de `last_served` idêntico. Logo qualquer intervenção desse tipo tem **teto**, e o teto é
 a fração de briefs em que a decisão cai num empate de `last_served`.
 
-Teste em produção, dose crescente, 350 estados reais, replay fiel:
+Replay contrafactual com dose crescente sobre 350 estados de brief reais, fiel ao
+pipeline de serving. ⚠️ **"Servido" na coluna `w = 2` significa a dose em vigor no
+*shadow*** — a composição tratada foi computada e registrada, e nunca entregue ao agente:
 
 | `w` | 0 | 0,5 | 1 | **2** (servido) | 4 | 7,5 | 15 | 100 | 100.000 |
 |---|---|---|---|---|---|---|---|---|---|
