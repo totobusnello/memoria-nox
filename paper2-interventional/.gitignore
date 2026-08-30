@@ -8,3 +8,6 @@ deposit/.draft-files.json
 deposit/.draft-readback.json
 deposit/.draft-readback-rdm.json
 deposit/.published.json
+deposit/paperA/.draft-id
+deposit/paperA/.readback-*.json
+deposit/paperA/.metadata-final.json
