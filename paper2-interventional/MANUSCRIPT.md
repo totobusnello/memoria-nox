@@ -66,7 +66,38 @@ que o agente recebeu foi sempre o controle (§7). Resultado: resposta monótona 
 sob a mesma regra com outro sorteio de designados ele chega a **7,43%** (o sorteio em
 vigor fica no mínimo da distribuição, empatado com outro), e truncando a resolução do timestamp de segundo para
 minuto ou hora vai a **36%** e **80%** — sem alterar uma linha de código. **O alcance do
-mecanismo é fixado por decisões que ninguém tomou como política.**
+mecanismo é fixado por decisões que ninguém tomou como política.** 🔴 **Um terceiro eixo
+existe e não foi medido**, e a auditoria de 30/08 o encontrou num artefato que gravamos e
+nunca lemos: excluir as linhas das nossas próprias sondas de saúde muda a âncora do
+replay, e o teto foi computado **sem** excluí-las (§5.7.2).
+
+#### 5.7.2 Um terceiro eixo, não medido, e agora não mensurável
+
+🔴 **Achado de auditoria da cadeia de artefatos (30/08), não de revisão.** O replay que
+produz o teto de 4,86% correu com `sondas_excluidas: []` — nenhuma das nossas próprias
+sondas de saúde foi retirada do `serve_state`. Existiam, no repositório, **dois artefatos
+gravados em 27/08 e nunca lidos por ninguém** (`measurement/out/ancora-sondas.json` e
+`ancora-sem-exclusao.json`) que mostram que essa escolha **não é neutra**:
+
+| | sem excluir | excluindo as 25 linhas de 5 sondas |
+|---|---:|---:|
+| grupos de `last_served` distintos | 44 | **43** |
+| posição do primeiro chunk do estudo | 3 | **0** |
+
+A âncora se move. **Se o teto se move junto, não sabemos** — o replay nunca foi rodado
+sob a outra convenção, e o paper reportava "dois eixos" quando há três.
+
+⚠️ **E ele não é mais mensurável na condição original.** O corpus do replay,
+`e20260826T060003Z.db`, era um snapshot de epoch e foi rotacionado; em 30/08 restavam
+apenas os de 28 a 30/08. O backup diário de 26/08 existe mas é de outro instante — o
+`sha256` do primeiro MB não bate com o pino publicado. Um número reproduzível **por
+hash** deixou de ser reproduzível **por dado**, e a distinção é a lição: pinar o
+identificador de um artefato não o preserva.
+
+📌 O que isso muda na leitura do teto: os 4,86% continuam sendo o valor sob a convenção
+declarada nos artefatos, e os dois eixos medidos continuam válidos. O que cai é a
+sugestão de que os eixos medidos esgotam a sensibilidade. Não esgotam, e este é o
+exemplo.
 
 ⚠️ **O que não afirmamos.** Nenhum efeito sobre o comportamento do agente: não há
 desfecho a jusante instrumentado (§5.4). Que a concentração seja *errada* — uma política
@@ -242,7 +273,7 @@ com o comparador anotado no canal de cobertura e os 2 slots dele destacados.
 
 ⚠️ É a **única** figura do paper que não deriva de dado: um diagrama de arquitetura é
 afirmação sobre o **código**, não sobre uma medição, e a geometria é escrita à mão. Mas
-todo **número** rotulado nela vem de `out/superficie.json` — rótulo digitado envelhece
+todo **número** rotulado nela vem de `measurement/out/superficie.json` — rótulo digitado envelhece
 para falso em silêncio, e neste projeto já envelheceu uma vez. O gerador **aborta** se a
 identidade `expostos-vivos + nunca-expostos = corpus` deixar de fechar; foi ele que
 expôs, ao ser escrito, que a soma ingênua excede o corpus em 152.
@@ -290,7 +321,7 @@ Conferir a composição do **braço de controle** é o que impede fidelidade por
 coincidência: sem essa coluna, um brief com controle e tratado ambos errados poderia
 bater no desfecho.
 
-`replay-resumo.py --campo out/c-350-v3.json --campo-estrito out/c-350.json`
+`replay-resumo.py --campo measurement/out/c-350-v3.json --campo-estrito measurement/out/c-350.json`
 
 ## 4. Resultados
 
@@ -591,7 +622,7 @@ Janela fechada `[2026-08-20 , 2026-08-27)`:
 **Figura 2** — `measurement/out/fig2-concentracao.svg`: curva de Lorenz do carrossel
 (rank × share cumulativo dos slots), com marca nos 3 constantes — que sozinhos tomam
 **30,0%** dos slots — e no corte do top-10. Gerada por `fig2-concentracao.py --dados
-out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.
+measurement/out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.
 
 🔴 **Os 201 são o medido, não o teto.** Cabiam **46.295** — um por slot. Tratar o medido
 como teto transformaria um resultado em pigeonhole e ensinaria o leitor a achar a curva
@@ -1523,8 +1554,8 @@ Tudo em `measurement/`, com `--assert-json` travando cada número citado:
 
 | o quê | script | artefato |
 |---|---|---|
-| superfície de exposição | `superficie-de-exposicao.py` | `out/superficie.json` |
-| replay + dose + limiar + gaps | `replay-oportunidade.mjs` · `replay-resumo.py` | `out/c-350-v3.json` · `out/dose-350-v3.json` · `out/limiar-17.json` · `out/gaps.json` |
+| superfície de exposição | `superficie-de-exposicao.py` | `measurement/out/superficie.json` |
+| replay + dose + limiar + gaps | `replay-oportunidade.mjs` · `replay-resumo.py` | `measurement/out/c-350-v3.json` · `measurement/out/dose-350-v3.json` · `measurement/out/limiar-17.json` · `measurement/out/gaps.json` |
 | granularidade do teto (§5.7) | `replay-oportunidade.mjs --granularidade` · `granularidade-do-teto.py` | `out/gran-{seg,min,hora,dia}.json` · `out/gran3-{seg,min,hora}.json` · `CEILING-GRANULARITY-2026-08-28.json` |
 | exposição a desempate arbitrário (§5.7) | `empates-por-granularidade.py` | `TIEBREAK-EXPOSURE-2026-08-29.json` |
 | sensibilidade do teto à designação (§5.7.1) | `sensibilidade-da-designacao.py` | `out/sens-*.json` · `CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json` |

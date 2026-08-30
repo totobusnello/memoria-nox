@@ -890,6 +890,49 @@ CV2_LOCKED = 0.3833
 ALLOCATION_LOCKED = {"control": 117, "w2": 39, "w4": 39, "w7.5": 39}
 
 
+def terceiro_eixo_check(root: Path) -> list[str]:
+    """Trava o §5.7.2 aos dois artefatos que estiveram órfãos por três dias.
+
+    A alegação é sobre uma ausência — "existe um terceiro eixo e não o medimos" — e
+    ausência declarada precisa de teste que a proteja, senão fica indistinguível de
+    esquecimento. É a mesma lição que o `top_chunk_ids` custou 3,3 meses.
+    """
+    a1 = root / "measurement" / "out" / "ancora-sem-exclusao.json"
+    a2 = root / "measurement" / "out" / "ancora-sondas.json"
+    if not a1.exists() or not a2.exists():
+        return [f"{a1.name} / {a2.name}: um dos artefatos do terceiro eixo sumiu — a "
+                f"tabela do §5.7.2 perdeu o lastro"]
+    d1 = json.loads(a1.read_text(encoding="utf-8"))["ancora"]["publicada"]
+    d2 = json.loads(a2.read_text(encoding="utf-8"))["ancora"]["publicada"]
+    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    fails = []
+    if d1 == d2:
+        fails.append(
+            "§5.7.2 afirma que a exclusão de sondas MOVE a âncora, mas os dois "
+            "artefatos agora coincidem — o achado inverteu e o texto não acompanhou"
+        )
+    for pat, rot in (
+        (rf"grupos de `last_served` distintos \| {d1['grupos_last_served']} \| "
+         rf"\*\*{d2['grupos_last_served']}\*\*", "linha dos grupos"),
+        (rf"posição do primeiro chunk do estudo \| {d1['posicao_primeiro_estudo']} \| "
+         rf"\*\*{d2['posicao_primeiro_estudo']}\*\*", "linha da posição"),
+    ):
+        if not re.search(pat, texto):
+            fails.append(f"§5.7.2: {rot} não casa com os artefatos (/{pat}/)")
+    # o replay do teto TEM de continuar declarando que não excluiu sondas — se um dia
+    # excluir, o §5.7.2 passa a mentir na direção oposta.
+    porque = root / "measurement" / "out" / "porque-350-v3.json"
+    if porque.exists():
+        se = json.loads(porque.read_text(encoding="utf-8"))["procedencia"].get(
+            "sondas_excluidas")
+        if se:
+            fails.append(
+                f"§5.7.2 diz que o teto correu SEM excluir sondas, mas o artefato "
+                f"declara {len(se)} excluída(s) — o eixo deixou de ser não-medido"
+            )
+    return fails
+
+
 def censos_check(root: Path) -> list[str]:
     """Roda os censos mecânicos e propaga a falha deles.
 
@@ -909,6 +952,13 @@ def censos_check(root: Path) -> list[str]:
          "verbo de entrega aplicado à intervenção (o paper corre em shadow)"),
         ("censo-de-rotulos-de-populacao.py",
          "rótulo que nomeia população maior do que a que mede"),
+        # ⚠️ Terceiro censo, e o que motivou os outros dois a existirem: artefato
+        # medido, gravado e NUNCA LIDO. Nenhuma revisão pega isto — para notar a
+        # ausência de uma leitura seria preciso lembrar de algo que não está no texto.
+        # Foi assim que um TERCEIRO eixo de sensibilidade do teto ficou três dias
+        # invisível dentro de `ancora-sondas.json` (§5.7.2).
+        ("auditoria-da-cadeia.py",
+         "artefato medido e nunca lido, ou citado e ausente do disco"),
     ):
         p = root / "measurement" / script
         if not p.exists():
@@ -1515,6 +1565,7 @@ def main() -> int:
     failures.extend(catalogo_check(Path(args.root)))
     failures.extend(contrafactual_check(Path(args.root)))
     failures.extend(censos_check(Path(args.root)))
+    failures.extend(terceiro_eixo_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

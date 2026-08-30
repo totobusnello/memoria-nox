@@ -1,0 +1,1176 @@
+{
+  "scripts": 36,
+  "artefatos": 62,
+  "artefatos_orfaos": [
+    {
+      "artefato": "CUTS-MEASURED-2026-08-18.json",
+      "rotulo": "CUTS-MEASURED",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 3399
+    },
+    {
+      "artefato": "DESIGNATION-2026-08-26.json",
+      "rotulo": "DESIGNATION",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "sensibilidade-da-designacao.py"
+      ],
+      "bytes": 1782
+    },
+    {
+      "artefato": "FIXTURE-SERVING-2026-08-18.json",
+      "rotulo": "FIXTURE-SERVING",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 12451
+    },
+    {
+      "artefato": "INGRESS-CLEAN-2026-08-18.json",
+      "rotulo": "INGRESS-CLEAN",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 7741
+    },
+    {
+      "artefato": "INGRESS-INFLOW-2026-08-18.json",
+      "rotulo": "INGRESS-INFLOW",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 6480
+    },
+    {
+      "artefato": "INGRESS-RESTORED-2026-08-20.json",
+      "rotulo": "INGRESS-RESTORED",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 7386
+    },
+    {
+      "artefato": "measurement/out/MANIFESTO.json",
+      "rotulo": "MANIFESTO",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "sensibilidade-da-designacao.py"
+      ],
+      "bytes": 2231
+    },
+    {
+      "artefato": "PILOT-WINDOW-2026-08-25.json",
+      "rotulo": "PILOT-WINDOW",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1461
+    },
+    {
+      "artefato": "REACHABILITY-2026-08-16.json",
+      "rotulo": "REACHABILITY",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 2560
+    },
+    {
+      "artefato": "REACHABILITY-FILA-2026-08-18.json",
+      "rotulo": "REACHABILITY-FILA",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 5237
+    },
+    {
+      "artefato": "SPREAD-SLOTS-2026-08-18.json",
+      "rotulo": "SPREAD-SLOTS",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 675
+    },
+    {
+      "artefato": "measurement/out/ancora-sem-exclusao.json",
+      "rotulo": "ancora-sem-exclusao",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1308
+    },
+    {
+      "artefato": "measurement/out/ancora-sondas.json",
+      "rotulo": "ancora-sondas",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1544
+    },
+    {
+      "artefato": "measurement/out/bench-vec0-2026-08-28.json",
+      "rotulo": "bench-vec0",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 950
+    },
+    {
+      "artefato": "measurement/out/c-27.json",
+      "rotulo": "c-27",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 6566
+    },
+    {
+      "artefato": "measurement/out/c-incl.json",
+      "rotulo": "c-incl",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 6081
+    },
+    {
+      "artefato": "measurement/out/c-rowid.json",
+      "rotulo": "c-rowid",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 12188
+    },
+    {
+      "artefato": "measurement/out/esperado-superficie.json",
+      "rotulo": "esperado-superficie",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 4417
+    },
+    {
+      "artefato": "measurement/out/esperado.json",
+      "rotulo": "esperado",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "replay-resumo.py",
+        "superficie-de-exposicao.py",
+        "survey-string-count.py"
+      ],
+      "bytes": 3329
+    },
+    {
+      "artefato": "measurement/out/gran-dia.json",
+      "rotulo": "gran-dia",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py"
+      ],
+      "bytes": 115673
+    },
+    {
+      "artefato": "measurement/out/gran-hora.json",
+      "rotulo": "gran-hora",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py"
+      ],
+      "bytes": 105170
+    },
+    {
+      "artefato": "measurement/out/gran-min.json",
+      "rotulo": "gran-min",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py"
+      ],
+      "bytes": 93165
+    },
+    {
+      "artefato": "measurement/out/gran-seg.json",
+      "rotulo": "gran-seg",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py",
+        "sensibilidade-da-designacao.py"
+      ],
+      "bytes": 86291
+    },
+    {
+      "artefato": "measurement/out/gran3-hora.json",
+      "rotulo": "gran3-hora",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 2598
+    },
+    {
+      "artefato": "measurement/out/gran3-min.json",
+      "rotulo": "gran3-min",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 2685
+    },
+    {
+      "artefato": "measurement/out/gran3-seg.json",
+      "rotulo": "gran3-seg",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py"
+      ],
+      "bytes": 2737
+    },
+    {
+      "artefato": "measurement/out/porque-350-v3.json",
+      "rotulo": "porque-350-v3",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 914
+    },
+    {
+      "artefato": "measurement/out/sens-01.json",
+      "rotulo": "sens-01",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164488
+    },
+    {
+      "artefato": "measurement/out/sens-02.json",
+      "rotulo": "sens-02",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164420
+    },
+    {
+      "artefato": "measurement/out/sens-03.json",
+      "rotulo": "sens-03",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164228
+    },
+    {
+      "artefato": "measurement/out/sens-04.json",
+      "rotulo": "sens-04",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164488
+    },
+    {
+      "artefato": "measurement/out/sens-05.json",
+      "rotulo": "sens-05",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164280
+    },
+    {
+      "artefato": "measurement/out/sens-06.json",
+      "rotulo": "sens-06",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164420
+    },
+    {
+      "artefato": "measurement/out/sens-07.json",
+      "rotulo": "sens-07",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164696
+    },
+    {
+      "artefato": "measurement/out/sens-08.json",
+      "rotulo": "sens-08",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164388
+    }
+  ],
+  "artefatos_sem_script_gerador": [
+    {
+      "artefato": "CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json",
+      "rotulo": "CEILING-DESIGNATION-SENSITIVITY",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 3618
+    },
+    {
+      "artefato": "CUTS-MEASURED-2026-08-18.json",
+      "rotulo": "CUTS-MEASURED",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 3399
+    },
+    {
+      "artefato": "DOSE-REACH-2026-08-15.json",
+      "rotulo": "DOSE-REACH",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 5109
+    },
+    {
+      "artefato": "out/EXPOSURE-BY-COHORT-2026-08-29.json",
+      "rotulo": "EXPOSURE-BY-COHORT",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 889
+    },
+    {
+      "artefato": "EXPOSURE-BY-COHORT-2026-08-29.json",
+      "rotulo": "EXPOSURE-BY-COHORT",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 890
+    },
+    {
+      "artefato": "FIXTURE-SERVING-2026-08-18.json",
+      "rotulo": "FIXTURE-SERVING",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 12451
+    },
+    {
+      "artefato": "out/FLOOR-COMPOSITION-2026-08-29.json",
+      "rotulo": "FLOOR-COMPOSITION",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 1569
+    },
+    {
+      "artefato": "INGRESS-CLEAN-2026-08-18.json",
+      "rotulo": "INGRESS-CLEAN",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 7741
+    },
+    {
+      "artefato": "INGRESS-INFLOW-2026-08-18.json",
+      "rotulo": "INGRESS-INFLOW",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 6480
+    },
+    {
+      "artefato": "INGRESS-RESTORED-2026-08-20.json",
+      "rotulo": "INGRESS-RESTORED",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 7386
+    },
+    {
+      "artefato": "PILOT-WINDOW-2026-08-25.json",
+      "rotulo": "PILOT-WINDOW",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1461
+    },
+    {
+      "artefato": "POOL-ELEGIVEL-2026-08-28.json",
+      "rotulo": "POOL-ELEGIVEL",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 530
+    },
+    {
+      "artefato": "REACHABILITY-2026-08-16.json",
+      "rotulo": "REACHABILITY",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 2560
+    },
+    {
+      "artefato": "REACHABILITY-FILA-2026-08-18.json",
+      "rotulo": "REACHABILITY-FILA",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 5237
+    },
+    {
+      "artefato": "REACHABILITY-TOP1-2026-08-16.json",
+      "rotulo": "REACHABILITY-TOP1",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 1733
+    },
+    {
+      "artefato": "out/SIZE-AXIS-GAP-2026-08-29.json",
+      "rotulo": "SIZE-AXIS-GAP",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 1097
+    },
+    {
+      "artefato": "SPREAD-SLOTS-2026-08-18.json",
+      "rotulo": "SPREAD-SLOTS",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 675
+    },
+    {
+      "artefato": "TIEBREAK-EXPOSURE-2026-08-29.json",
+      "rotulo": "TIEBREAK-EXPOSURE",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1004
+    },
+    {
+      "artefato": "out/TOP-COUNTERFACTUAL-2026-08-29.json",
+      "rotulo": "TOP-COUNTERFACTUAL",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 790
+    },
+    {
+      "artefato": "measurement/out/ancora-sem-exclusao.json",
+      "rotulo": "ancora-sem-exclusao",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1308
+    },
+    {
+      "artefato": "measurement/out/ancora-sondas.json",
+      "rotulo": "ancora-sondas",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1544
+    },
+    {
+      "artefato": "measurement/out/bench-vec0-2026-08-28.json",
+      "rotulo": "bench-vec0",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 950
+    },
+    {
+      "artefato": "measurement/out/c-27.json",
+      "rotulo": "c-27",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 6566
+    },
+    {
+      "artefato": "measurement/out/c-incl.json",
+      "rotulo": "c-incl",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 6081
+    },
+    {
+      "artefato": "measurement/out/c-rowid.json",
+      "rotulo": "c-rowid",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 12188
+    },
+    {
+      "artefato": "measurement/out/esperado-superficie.json",
+      "rotulo": "esperado-superficie",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 4417
+    },
+    {
+      "artefato": "measurement/out/gran3-hora.json",
+      "rotulo": "gran3-hora",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 2598
+    },
+    {
+      "artefato": "measurement/out/gran3-min.json",
+      "rotulo": "gran3-min",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 2685
+    },
+    {
+      "artefato": "measurement/out/porque-350-v3.json",
+      "rotulo": "porque-350-v3",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 914
+    },
+    {
+      "artefato": "measurement/out/sens-01.json",
+      "rotulo": "sens-01",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164488
+    },
+    {
+      "artefato": "measurement/out/sens-02.json",
+      "rotulo": "sens-02",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164420
+    },
+    {
+      "artefato": "measurement/out/sens-03.json",
+      "rotulo": "sens-03",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164228
+    },
+    {
+      "artefato": "measurement/out/sens-04.json",
+      "rotulo": "sens-04",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164488
+    },
+    {
+      "artefato": "measurement/out/sens-05.json",
+      "rotulo": "sens-05",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164280
+    },
+    {
+      "artefato": "measurement/out/sens-06.json",
+      "rotulo": "sens-06",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164420
+    },
+    {
+      "artefato": "measurement/out/sens-07.json",
+      "rotulo": "sens-07",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164696
+    },
+    {
+      "artefato": "measurement/out/sens-08.json",
+      "rotulo": "sens-08",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164388
+    }
+  ],
+  "scripts_sem_artefato": [
+    "asof-sonda-vs-tempo.py",
+    "autoextincao.py",
+    "descontamina.py",
+    "pos-regra.py",
+    "rebase.py",
+    "remedia-descontamina.py",
+    "remedia-serie.py",
+    "robustez-tamanho-exposicao.py",
+    "serie.py",
+    "tendencia.py",
+    "verifica.py",
+    "verifica2.py"
+  ],
+  "artefatos_citados_e_ausentes": [],
+  "detalhe": [
+    {
+      "artefato": "BATCH-CYCLE-2026-08-28.json",
+      "rotulo": "BATCH-CYCLE",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "auditoria-da-cadeia.py"
+      ],
+      "bytes": 2993
+    },
+    {
+      "artefato": "BATCH-CYCLE-2026-08-29.json",
+      "rotulo": "BATCH-CYCLE",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "auditoria-da-cadeia.py"
+      ],
+      "bytes": 2053
+    },
+    {
+      "artefato": "CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json",
+      "rotulo": "CEILING-DESIGNATION-SENSITIVITY",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 3618
+    },
+    {
+      "artefato": "CEILING-GRANULARITY-2026-08-28.json",
+      "rotulo": "CEILING-GRANULARITY",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "auditoria-da-cadeia.py",
+        "granularidade-do-teto.py"
+      ],
+      "bytes": 3987
+    },
+    {
+      "artefato": "out/CHAIN-AUDIT-2026-08-30.json",
+      "rotulo": "CHAIN-AUDIT",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "auditoria-da-cadeia.py"
+      ],
+      "bytes": 20688
+    },
+    {
+      "artefato": "out/CLAIM-COVERAGE-2026-08-29.json",
+      "rotulo": "CLAIM-COVERAGE",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "auditoria-da-cadeia.py"
+      ],
+      "bytes": 6052
+    },
+    {
+      "artefato": "CUTS-MEASURED-2026-08-18.json",
+      "rotulo": "CUTS-MEASURED",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 3399
+    },
+    {
+      "artefato": "DELTA-CUT-MEASUREMENT-2026-08-26.json",
+      "rotulo": "DELTA-CUT-MEASUREMENT",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": true,
+      "gerado_por": [
+        "auditoria-da-cadeia.py"
+      ],
+      "bytes": 6068
+    },
+    {
+      "artefato": "DESIGNATION-2026-08-26.json",
+      "rotulo": "DESIGNATION",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "sensibilidade-da-designacao.py"
+      ],
+      "bytes": 1782
+    },
+    {
+      "artefato": "DOSE-REACH-2026-08-15.json",
+      "rotulo": "DOSE-REACH",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 5109
+    },
+    {
+      "artefato": "out/EXPOSURE-BY-COHORT-2026-08-29.json",
+      "rotulo": "EXPOSURE-BY-COHORT",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 889
+    },
+    {
+      "artefato": "EXPOSURE-BY-COHORT-2026-08-29.json",
+      "rotulo": "EXPOSURE-BY-COHORT",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 890
+    },
+    {
+      "artefato": "FIXTURE-SERVING-2026-08-18.json",
+      "rotulo": "FIXTURE-SERVING",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 12451
+    },
+    {
+      "artefato": "out/FLOOR-COMPOSITION-2026-08-29.json",
+      "rotulo": "FLOOR-COMPOSITION",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 1569
+    },
+    {
+      "artefato": "INGRESS-CLEAN-2026-08-18.json",
+      "rotulo": "INGRESS-CLEAN",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 7741
+    },
+    {
+      "artefato": "INGRESS-INFLOW-2026-08-18.json",
+      "rotulo": "INGRESS-INFLOW",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 6480
+    },
+    {
+      "artefato": "INGRESS-RESTORED-2026-08-20.json",
+      "rotulo": "INGRESS-RESTORED",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 7386
+    },
+    {
+      "artefato": "measurement/out/MANIFESTO.json",
+      "rotulo": "MANIFESTO",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "sensibilidade-da-designacao.py"
+      ],
+      "bytes": 2231
+    },
+    {
+      "artefato": "PILOT-WINDOW-2026-08-25.json",
+      "rotulo": "PILOT-WINDOW",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1461
+    },
+    {
+      "artefato": "POOL-ELEGIVEL-2026-08-28.json",
+      "rotulo": "POOL-ELEGIVEL",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 530
+    },
+    {
+      "artefato": "out/POPULATION-LABELS-2026-08-30.json",
+      "rotulo": "POPULATION-LABELS",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "auditoria-da-cadeia.py"
+      ],
+      "bytes": 15344
+    },
+    {
+      "artefato": "REACHABILITY-2026-08-16.json",
+      "rotulo": "REACHABILITY",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 2560
+    },
+    {
+      "artefato": "REACHABILITY-FILA-2026-08-18.json",
+      "rotulo": "REACHABILITY-FILA",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 5237
+    },
+    {
+      "artefato": "REACHABILITY-TOP1-2026-08-16.json",
+      "rotulo": "REACHABILITY-TOP1",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 1733
+    },
+    {
+      "artefato": "REMEDIATION-2026-08-27.json",
+      "rotulo": "REMEDIATION",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": true,
+      "gerado_por": [
+        "auditoria-da-cadeia.py"
+      ],
+      "bytes": 5632
+    },
+    {
+      "artefato": "out/SERVING-VOCAB-2026-08-30.json",
+      "rotulo": "SERVING-VOCAB",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "auditoria-da-cadeia.py"
+      ],
+      "bytes": 564
+    },
+    {
+      "artefato": "out/SIZE-AXIS-GAP-2026-08-29.json",
+      "rotulo": "SIZE-AXIS-GAP",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 1097
+    },
+    {
+      "artefato": "out/SIZE-EXPOSURE-15-2026-08-29.json",
+      "rotulo": "SIZE-EXPOSURE-15",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "fig1-capacidade.py"
+      ],
+      "bytes": 1977
+    },
+    {
+      "artefato": "SPREAD-SLOTS-2026-08-18.json",
+      "rotulo": "SPREAD-SLOTS",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 675
+    },
+    {
+      "artefato": "TIEBREAK-EXPOSURE-2026-08-29.json",
+      "rotulo": "TIEBREAK-EXPOSURE",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1004
+    },
+    {
+      "artefato": "out/TOP-COUNTERFACTUAL-2026-08-29.json",
+      "rotulo": "TOP-COUNTERFACTUAL",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [],
+      "bytes": 790
+    },
+    {
+      "artefato": "out/WARNING-DENSITY-2026-08-30.json",
+      "rotulo": "WARNING-DENSITY",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "auditoria-da-cadeia.py"
+      ],
+      "bytes": 881
+    },
+    {
+      "artefato": "measurement/out/ancora-sem-exclusao.json",
+      "rotulo": "ancora-sem-exclusao",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1308
+    },
+    {
+      "artefato": "measurement/out/ancora-sondas.json",
+      "rotulo": "ancora-sondas",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 1544
+    },
+    {
+      "artefato": "measurement/out/bench-vec0-2026-08-28.json",
+      "rotulo": "bench-vec0",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 950
+    },
+    {
+      "artefato": "measurement/out/c-27.json",
+      "rotulo": "c-27",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 6566
+    },
+    {
+      "artefato": "measurement/out/c-350-v3.json",
+      "rotulo": "c-350-v3",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "replay-resumo.py"
+      ],
+      "bytes": 318075
+    },
+    {
+      "artefato": "measurement/out/c-350.json",
+      "rotulo": "c-350",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "replay-resumo.py"
+      ],
+      "bytes": 141080
+    },
+    {
+      "artefato": "measurement/out/c-incl.json",
+      "rotulo": "c-incl",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 6081
+    },
+    {
+      "artefato": "measurement/out/c-rowid.json",
+      "rotulo": "c-rowid",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 12188
+    },
+    {
+      "artefato": "measurement/out/dose-350-v3.json",
+      "rotulo": "dose-350-v3",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "fig3-dose-resposta.py"
+      ],
+      "bytes": 753307
+    },
+    {
+      "artefato": "measurement/out/esperado-superficie.json",
+      "rotulo": "esperado-superficie",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 4417
+    },
+    {
+      "artefato": "measurement/out/esperado.json",
+      "rotulo": "esperado",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "replay-resumo.py",
+        "superficie-de-exposicao.py",
+        "survey-string-count.py"
+      ],
+      "bytes": 3329
+    },
+    {
+      "artefato": "measurement/out/gaps.json",
+      "rotulo": "gaps",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "replay-resumo.py"
+      ],
+      "bytes": 4855
+    },
+    {
+      "artefato": "measurement/out/gran-dia.json",
+      "rotulo": "gran-dia",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py"
+      ],
+      "bytes": 115673
+    },
+    {
+      "artefato": "measurement/out/gran-hora.json",
+      "rotulo": "gran-hora",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py"
+      ],
+      "bytes": 105170
+    },
+    {
+      "artefato": "measurement/out/gran-min.json",
+      "rotulo": "gran-min",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py"
+      ],
+      "bytes": 93165
+    },
+    {
+      "artefato": "measurement/out/gran-seg.json",
+      "rotulo": "gran-seg",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py",
+        "sensibilidade-da-designacao.py"
+      ],
+      "bytes": 86291
+    },
+    {
+      "artefato": "measurement/out/gran3-hora.json",
+      "rotulo": "gran3-hora",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 2598
+    },
+    {
+      "artefato": "measurement/out/gran3-min.json",
+      "rotulo": "gran3-min",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 2685
+    },
+    {
+      "artefato": "measurement/out/gran3-seg.json",
+      "rotulo": "gran3-seg",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "granularidade-do-teto.py"
+      ],
+      "bytes": 2737
+    },
+    {
+      "artefato": "measurement/out/limiar-17.json",
+      "rotulo": "limiar-17",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": false,
+      "gerado_por": [
+        "fig3-dose-resposta.py"
+      ],
+      "bytes": 109105
+    },
+    {
+      "artefato": "measurement/out/porque-350-v3.json",
+      "rotulo": "porque-350-v3",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 914
+    },
+    {
+      "artefato": "measurement/out/sens-01.json",
+      "rotulo": "sens-01",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164488
+    },
+    {
+      "artefato": "measurement/out/sens-02.json",
+      "rotulo": "sens-02",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164420
+    },
+    {
+      "artefato": "measurement/out/sens-03.json",
+      "rotulo": "sens-03",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164228
+    },
+    {
+      "artefato": "measurement/out/sens-04.json",
+      "rotulo": "sens-04",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164488
+    },
+    {
+      "artefato": "measurement/out/sens-05.json",
+      "rotulo": "sens-05",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164280
+    },
+    {
+      "artefato": "measurement/out/sens-06.json",
+      "rotulo": "sens-06",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164420
+    },
+    {
+      "artefato": "measurement/out/sens-07.json",
+      "rotulo": "sens-07",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164696
+    },
+    {
+      "artefato": "measurement/out/sens-08.json",
+      "rotulo": "sens-08",
+      "citado_no_manuscrito": false,
+      "lido_pelo_verificador": false,
+      "gerado_por": [],
+      "bytes": 164388
+    },
+    {
+      "artefato": "measurement/out/superficie.json",
+      "rotulo": "superficie",
+      "citado_no_manuscrito": true,
+      "lido_pelo_verificador": true,
+      "gerado_por": [
+        "censo-de-alegacoes-sem-guarda.py",
+        "censo-de-rotulos-de-populacao.py",
+        "fig0-arquitetura.py",
+        "fig1-capacidade.py",
+        "fig2-concentracao.py",
+        "robustez-tamanho-exposicao.py",
+        "superficie-de-exposicao.py"
+      ],
+      "bytes": 7703
+    }
+  ]
+}
