@@ -2,7 +2,7 @@
   "gerado_por": "montagem do pacote do Paper A",
   "nota": "o Zenodo limita 100 arquivos por registro; artefatos e scripts vão compactados, e o sha256 aqui é de CADA arquivo individual, não do zip. Nada que vá solto se repete dentro de um zip.",
   "arquivos": 120,
-  "bytes_totais": 4243492,
+  "bytes_totais": 4244289,
   "envio": {
     "soltos": 10,
     "artefatos.zip": {
@@ -41,8 +41,8 @@
     },
     {
       "path": "PROSPECTIVE-ESTIMAND-2026-08-30.md",
-      "bytes": 21579,
-      "sha256": "ac6bac5a137cffcb35ac8d16bc3066efa1ae505ed34d3d9751e51b83b2cadaad",
+      "bytes": 22376,
+      "sha256": "dd01b574923647f8cc8935d8284a5d01962dbb736692eef9e178fee9679d8b55",
       "no_deposito": "solto"
     },
     {

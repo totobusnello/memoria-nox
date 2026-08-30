@@ -150,6 +150,10 @@ if not m.get("rights"):       falhas.append("rights (licença) VAZIO (forma RDM)
 if not m.get("title"):        falhas.append("title vazio")
 if m.get("version") != "1.0": falhas.append(f"version = {m.get('version')!r}, esperado '1.0'")
 if not m.get("related_identifiers"): falhas.append("related_identifiers VAZIO")
+# 🔴 `publisher` é obrigatório para REGISTRAR O DOI e só existe na forma RDM. Ele
+# não aparece na legada, então um gate que lesse a legada nunca o veria — e o
+# publish falharia depois de todos os checks passarem, que foi o que aconteceu.
+if not m.get("publisher"):    falhas.append("publisher AUSENTE — bloqueia o publish")
 
 # forma legada: confirma que o mesmo registro é visto pelos dois caminhos
 if str(leg.get("id")) != str(rdm.get("id")):

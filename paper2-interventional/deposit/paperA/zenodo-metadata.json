@@ -1,10 +1,11 @@
 {
   "metadata": {
-    "resource_type": { "id": "publication-preprint" },
+    "resource_type": {
+      "id": "publication-preprint"
+    },
     "title": "Spare capacity, narrow surface: what a production agent-memory system actually surfaces",
     "publication_date": "2026-08-30",
     "version": "1.0",
-    "language": { "id": "por" },
     "creators": [
       {
         "person_or_org": {
@@ -13,37 +14,73 @@
           "given_name": "Luiz Antonio",
           "family_name": "Busnello"
         },
-        "affiliations": [{ "name": "Independent Researcher" }]
+        "affiliations": [
+          {
+            "name": "Independent Researcher"
+          }
+        ]
       }
     ],
-    "rights": [{ "id": "cc-by-4.0" }],
+    "rights": [
+      {
+        "id": "cc-by-4.0"
+      }
+    ],
     "subjects": [
-      { "subject": "agent memory" },
-      { "subject": "retrieval" },
-      { "subject": "exposure surface" },
-      { "subject": "production measurement" },
-      { "subject": "instrument defects" }
+      {
+        "subject": "agent memory"
+      },
+      {
+        "subject": "retrieval"
+      },
+      {
+        "subject": "exposure surface"
+      },
+      {
+        "subject": "production measurement"
+      },
+      {
+        "subject": "instrument defects"
+      }
     ],
     "related_identifiers": [
       {
         "identifier": "10.5281/zenodo.22110203",
         "scheme": "doi",
-        "relation_type": { "id": "iscontinuedby" },
-        "resource_type": { "id": "publication-preprint" }
+        "relation_type": {
+          "id": "iscontinuedby"
+        },
+        "resource_type": {
+          "id": "publication-preprint"
+        }
       },
       {
         "identifier": "https://osf.io/yf7d2/",
         "scheme": "url",
-        "relation_type": { "id": "references" },
-        "resource_type": { "id": "publication-preprint" }
+        "relation_type": {
+          "id": "references"
+        },
+        "resource_type": {
+          "id": "publication-preprint"
+        }
       },
       {
         "identifier": "https://github.com/totobusnello/memoria-nox/tree/main/paper2-interventional",
         "scheme": "url",
-        "relation_type": { "id": "issupplementedby" },
-        "resource_type": { "id": "software" }
+        "relation_type": {
+          "id": "issupplementedby"
+        },
+        "resource_type": {
+          "id": "software"
+        }
       }
     ],
-    "description": "PLACEHOLDER — substituído byte a byte por deposit/paperA/description.html no momento do depósito. Se este texto aparecer no registro publicado, o gate de description falhou e o depósito deve ser retirado."
+    "description": "PLACEHOLDER — substituído byte a byte por deposit/paperA/description.html no momento do depósito. Se este texto aparecer no registro publicado, o gate de description falhou e o depósito deve ser retirado.",
+    "publisher": "Zenodo",
+    "languages": [
+      {
+        "id": "por"
+      }
+    ]
   }
 }
