@@ -1,0 +1,1182 @@
+{
+  "_nota": "forma consumida por src/paper2/brief-outcome.ts::resolverBraco. A FONTE é ASSIGNMENT.json (assign_arms.py); este arquivo é uma tradução mecânica, verificável por assignment_to_serving.py --check.",
+  "fonte": {
+    "arquivo": "ASSIGNMENT.json",
+    "round": 31774052,
+    "seed": "e86436153592e2655e095c58a96400ed4292b69ace6f53f65c0e41b87b290087",
+    "esquema": "stratified block randomization; strata = calendar-half x weekday/weekend; largest-remainder apportionment; seeded Fisher-Yates within stratum",
+    "script_sha256": "a44d7b86eee95d26ce5701c3061420b36eb3a51e26378ca5e6db91efbcf03acb"
+  },
+  "epochs": [
+    {
+      "epoch_inicio": "2026-09-01",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-09-02",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-03",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-04",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-09-05",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-09-06",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-09-07",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-08",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-09-09",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-09-10",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-11",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-12",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-09-13",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-14",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-09-15",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-09-16",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-09-17",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-18",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-19",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-09-20",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-21",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-22",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-23",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-09-24",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-09-25",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-09-26",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-09-27",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-09-28",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-29",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-09-30",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-01",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-10-02",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-03",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-04",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-10-05",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-10-06",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-07",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-08",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-09",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-10-10",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-10-11",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-10-12",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-10-13",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-14",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-15",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-16",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-17",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-18",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-19",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-10-20",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-10-21",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-22",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-23",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-24",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-10-25",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-26",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-10-27",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-10-28",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-10-29",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-10-30",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-10-31",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-01",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-02",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-03",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-11-04",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-11-05",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-11-06",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-11-07",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-11-08",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-11-09",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-11-10",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-11",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-11-12",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-13",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-14",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-11-15",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-16",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-11-17",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-11-18",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-19",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-11-20",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-11-21",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-22",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-23",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-24",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-11-25",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-26",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-27",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-28",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-29",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-11-30",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-12-01",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-02",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-03",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-04",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-12-05",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-12-06",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-12-07",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-12-08",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-09",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-12-10",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-11",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-12",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-13",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-14",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-12-15",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-16",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-12-17",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-12-18",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-19",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-12-20",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-12-21",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-12-22",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-12-23",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-24",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2026-12-25",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2026-12-26",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-27",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-28",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2026-12-29",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-30",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2026-12-31",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-01",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-02",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-03",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-04",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-01-05",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-06",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-01-07",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-08",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-01-09",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-10",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-01-11",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-01-12",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-13",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-14",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-15",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-16",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-17",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-18",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-19",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-20",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-01-21",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-22",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-01-23",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-24",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-25",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-26",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-27",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-01-28",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-29",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-01-30",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-01-31",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-01",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-02-02",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-03",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-02-04",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-05",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-02-06",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-07",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-02-08",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-09",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-02-10",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-02-11",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-12",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-13",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-02-14",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-15",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-02-16",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-17",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-02-18",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-19",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-02-20",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-21",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-02-22",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-02-23",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-02-24",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-02-25",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-02-26",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-02-27",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-02-28",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-01",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-02",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-03",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-03-04",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-05",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-06",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-03-07",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-03-08",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-03-09",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-03-10",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-11",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-12",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-13",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-14",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-15",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-03-16",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-03-17",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-18",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-19",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-03-20",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-03-21",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-22",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-23",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-03-24",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-03-25",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-03-26",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-03-27",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-28",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-29",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-30",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-03-31",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-04-01",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-04-02",
+      "arm": "treatment",
+      "w": 4.0
+    },
+    {
+      "epoch_inicio": "2027-04-03",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-04-04",
+      "arm": "treatment",
+      "w": 2.0
+    },
+    {
+      "epoch_inicio": "2027-04-05",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-06",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-04-07",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-08",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-09",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-10",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-04-11",
+      "arm": "treatment",
+      "w": 7.5
+    },
+    {
+      "epoch_inicio": "2027-04-12",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-13",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-14",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-15",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-16",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-17",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-18",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-19",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-20",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-21",
+      "arm": "control",
+      "w": 0
+    },
+    {
+      "epoch_inicio": "2027-04-22",
+      "arm": "treatment",
+      "w": 2.0
+    }
+  ]
+}

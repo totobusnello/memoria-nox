@@ -115,8 +115,13 @@ def main():
     # registro prospectivo do estimando cita artefatos que o manuscrito nunca citará,
     # porque pertencem ao outro estudo. Varrer só o manuscrito passou a produzir órfão
     # falso — e um guarda que acusa o inocente é desligado na terceira vez.
+    # ⚠️ +1 em 30/08: `ASSIGN-SEED-2026-08-30.md` é documento de REGISTRO e cita
+    # artefatos (o ASSIGNMENT servido, o sha256 dele). Sem ele na lista, um artefato
+    # declarado ali aparecia como órfão — o guarda acusava o inocente por varrer o
+    # conjunto errado de citantes, não por o artefato estar solto.
     CITANTES = ["MANUSCRIPT.md", "PROSPECTIVE-ESTIMAND-2026-08-30.md",
-                "DEVIATIONS-FOR-PAPER.md", "DESIGN-REVISION-2026-08-30.md"]
+                "DEVIATIONS-FOR-PAPER.md", "DESIGN-REVISION-2026-08-30.md",
+                "ASSIGN-SEED-2026-08-30.md"]
     texto = "\n".join((raiz / n).read_text(encoding="utf-8")
                       for n in CITANTES if (raiz / n).exists())
     verificador = (raiz / "claims_check.py").read_text(encoding="utf-8") \

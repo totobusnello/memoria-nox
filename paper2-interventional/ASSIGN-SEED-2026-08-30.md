@@ -151,3 +151,72 @@ deste repositório, só do beacon — e o `assignment_derive.py` produzem o **me
 ⚠️ **Este documento não é mais alterável.** A rodada foi consumida; não existe versão
 desta seed que possa ser "corrigida". Qualquer defeito encontrado a partir daqui é
 declarado como desvio, não emendado no sorteio.
+
+---
+
+## 🔴 RETRACTION — the rule declared above is not the registered one
+
+**Filed 2026-08-30, hours after the round was consumed. From here on this repository's
+paper and deposit documents are written in English.**
+
+The section *"Desenho — travado antes do sorteio"* above declares a **global sort** of
+234 epochs by `SHA256(seed ‖ "|" ‖ epoch_index)`, with the first 117 taking control. That
+is **not** the assignment rule of this study, and it never was.
+
+**The registered rule is stratified.** `assign_arms.py` — committed **2026-08-16** and
+deposited inside Zenodo v1.12, two weeks before the drand round was drawn — implements
+*stratified block randomization; strata = calendar-half × weekday/weekend;
+largest-remainder apportionment; seeded Fisher-Yates within stratum*. `PREREG-DRAFT.md`
+locks it as "constrained randomization" over "weekday/weekend" strata. I wrote the
+declaration from a plan instead of from the registered instrument, and produced a rule
+of my own.
+
+**Why this is recoverable, and the argument has to be checkable rather than asserted.**
+No researcher degree of freedom was exercised, because the correct rule *precedes the
+randomness*: it is in a deposited artifact whose commit date (2026-08-16) is two weeks
+earlier than round 31774052 (emitted 2026-08-30T21:32:04Z). The seed is entropy and
+carries no rule with it. Choosing between two rules *after* seeing the randomness would
+be indefensible — but one of the two was never a candidate: it was mine, invented today,
+and it is retracted here rather than quietly replaced.
+
+**What stands, unchanged:**
+
+| | |
+|---|---|
+| round | **31774052**, HTTP 425 at declaration time, emitted 13 min 29 s after the push |
+| `randomness` | `b32cf63d65fd6ca8dbd9d9b08a0bb77efe7144f18bad3dbbfce6816d498d55fd` |
+| `seed` | `e86436153592e2655e095c58a96400ed4292b69ace6f53f65c0e41b87b290087` |
+| precedence | commit `57980ed`, 21:18:35Z — anterior to emission, from independent clocks |
+
+**What is replaced:** the assignment itself. `ASSIGNMENT.json` is now the output of
+`assign_arms.py assign --round 31774052 --start 2026-09-01 --epochs 234`, allocation
+117 control / 39 per dose over the band `w ∈ {2.0, 4.0, 7.5}`, calendar
+**2026-09-01 → 2027-04-22**. The superseded file is kept out of the repository; its
+distribution happened to be 117/39/39/39 as well, which is exactly why a count check
+would not have caught the error.
+
+### A third shape, and the defect it hid
+
+The canonical file and the serving code do not speak the same format, and nothing in the
+repository connected them:
+
+- `assign_arms.py` emits `{"atribuicao": {"2026-09-01": "w4", …}}`;
+- `resolverBraco` (`src/paper2/brief-outcome.ts`) reads `parsed.epochs ?? []` and looks
+  up `epoch_inicio`.
+
+Handed the canonical file, it finds an empty list, fails every lookup, and returns
+**control with a reason string** — for every brief, silently. This is not hypothetical:
+`NOX_P2_OUTCOME=active` ran in production for roughly ten minutes on 2026-08-30 and the
+serving log recorded `servido: control` in **7 of 7** decisions. `systemctl is-active`
+said `active` the whole time.
+
+`assignment_to_serving.py` performs the translation as a pure relabelling and verifies it
+by round-trip — every epoch must reconstruct the canonical group, or nothing is written.
+Its output is `ASSIGNMENT-SERVING.json` (234 epochs, `sha256`
+`8957cc5fe8696204c8a71416c0e1f89374d46f1f75db982c52067adbb43d625c`), and that is the file
+the service reads; `ASSIGNMENT.json` remains the registered source.
+
+⚠️ **And the calendar makes the point sharper: 2026-08-30 is not in the sequence at
+all.** Epoch 1 is **2026-09-01**. Turning the study on before that date serves control by
+design, not by defect — which is precisely the reading a "we are live" announcement would
+have obscured.
