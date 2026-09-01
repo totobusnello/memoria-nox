@@ -2,6 +2,42 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-09-01 04:52 → 11:07 UTC — Seis RED do canário com a camada semântica intacta: a assinatura `total=2/semantic=0/fts=0` NÃO é diagnóstica
+
+### Severity: yellow — zero degradação de serviço; o custo foi ruído de alerta, `vectorize` desnecessário 2×/hora e uma lição anterior que se provou incompleta
+
+### TL;DR
+`semantic-canary.sh` disparou seis RED num dia, todos com `semantic=0 / total=2 / fts=0`. A busca esteve **saudável o tempo todo** — cobertura 67.187/67.187, zero órfãos, e a mesma query rodada à mão devolvia `semantic=8 / fts=2`. A causa estava no próprio canário: `search.ts:701` marca `match_type: "hybrid"` quando o chunk vem das **duas** listas (FTS *e* semântica), e o canário contava só `== "semantic"`. Quando a sobreposição é total, todo resultado vira `hybrid`, ele lê `semantic=0` e declara a camada caída. O predicado correto já existia dez linhas adiante, em `search.ts:711`.
+
+### ⚠️ Corrige o aprendizado de 2026-08-17
+
+Aquela entrada (mais abaixo) registrou que `total=2/semantic=0/fts=0` "é a assinatura de *Gemini rejeitando toda chamada*". **Não é.** A mesma assinatura tem pelo menos duas causas, e distingui-las exige ler a **mensagem** do 429, não a forma do resultado:
+
+| data | mensagem no journal | causa | Gemini |
+|---|---|---|---|
+| 2026-08-17 | `Your prepayment credits are depleted` | saldo prepago zerado | de fato recusando |
+| 2026-09-01 | `Quota exceeded … requests_per_minute_per_base_model` | rate limit transitório, **retryado com sucesso** | funcionando |
+
+Em 01/09 seis sondas seguidas devolveram o resultado correto, **incluindo as três que registraram 429** — o `fetchWithRetry` (de `2026-05-04-noxmem-429-false-auto-heals`, infra) absorve. O 429 era ruído; o RED vinha do bug de classificação.
+
+A incoerência que denunciava isso desde 17/08, e que ninguém perseguiu: `total=2` com `semantic=0` **e** `fts=0`. Dois resultados e nenhum classificado só é possível se o classificador não conhece o rótulo que eles carregam. Um `total>0` com todas as categorias zeradas nunca é "camada caída" — é partição incompleta.
+
+### Fix
+Aplicado na VPS e propagado à fonte de deploy:
+1. `parse_summary` conta `hybrid` como semântica **e** como fts;
+2. **COVERAGE-GATE** antes do `vectorize` do self-heal — com `embedded == total` e `orphans == 0` não há o que vetorizar, e chamar o Gemini ali gasta a quota do mesmo provider que acabou de recusar (implementa em código a lição 4 de 04/05, escrita havia 4 meses e nunca convertida em guarda);
+3. cron do canário `22,52` → `16,46`.
+
+Validado por isolamento, não pela resposta viva — a resposta **alterna de forma** entre chamadas (`10 (8/2)` ou `2 (hybrid 2)`) e só a segunda dispara o falso RED, o que torna teste de mutação sobre saída ao vivo inconclusivo. `parse_summary` exercitada com JSON fixo: só-hybrid → não alerta; mistura → correto; **só-FTS → ainda alerta** (o guarda não ficou cego).
+
+### Aprendizados
+- **Um monitor que reimplementa um predicado do sistema que ele vigia é uma segunda implementação, e diverge.** Se o código vigiado já decide, o monitor chama ou copia literalmente — nunca reescreve "equivalente".
+- **Assinatura de sintoma não é diagnóstico de causa.** Foi o que a entrada de 17/08 assumiu, e custou 6 falsos alarmes até alguém desconfiar da soma que não fechava.
+- **Rodar o canário à mão notifica o Toto.** O RED das 11:02 fui eu que gerei, testando.
+- Post-mortem completo, com os três erros de investigação: `openclaw-vps/infra/lessons/2026-09-01-canary-hybrid-false-red.md`.
+
+---
+
 ## 2026-05-19 ~15:00 → descoberto 2026-08-27 (3,3 meses) — telemetria de busca por chunk emudeceu numa fronteira de deploy
 
 ### Severity: yellow — nenhuma degradação de serviço; perda é de OBSERVABILIDADE, e ela bloqueou uma medição do paper
@@ -83,7 +119,7 @@ O self-heal do canário chama `nox-mem vectorize`, que também depende do Gemini
 Toto recarregou o saldo prepago no AI Studio. Confirmado por: (1) chamada `embedContent` direta via `curl` com a key isolada respondeu com vetor válido; (2) rerun manual do canário após limpar `/tmp/nox-canary-fail.stamp` → `OK: total=10 semantic=8 fts=2 orphans=0`. Nenhum código mudou.
 
 ### Aprendizado
-- `total=2/semantic=0/fts=0` (vs. o `total>0/fts>0` dos incidents de órfão de abril) é a assinatura de "Gemini rejeitando toda chamada", não de dado corrompido — vale a pena o canário diferenciar essa causa no log pra não confundir on-call com os incidents de cascade.
+- ~~`total=2/semantic=0/fts=0` … é a assinatura de "Gemini rejeitando toda chamada", não de dado corrompido~~ — ⚠️ **RETRATADO em 2026-09-01: essa assinatura NÃO é diagnóstica.** Ela também é produzida por um bug de classificação no próprio canário (não conhecia o rótulo `match_type: "hybrid"`), com o Gemini funcionando. Distinguir exige ler a **mensagem** do 429 — `prepayment credits are depleted` (billing, como aqui) contra `Quota exceeded … per_minute` (rate limit transitório, que o retry absorve). Ver a entrada de 2026-09-01 no topo deste arquivo. O que de fato denunciava algo errado, e passou batido aqui, é que `total=2` com `fts=0` **e** `semantic=0` é incoerente por construção: dois resultados e nenhum classificado.
 - Self-heal que depende do MESMO provider que falhou não é self-heal — é retry disfarçado. Quando a causa é billing/quota externo, `vectorize` nunca vai corrigir sozinho; o alerta devia dizer isso explicitamente em vez de só "self-heal FAILED".
 - `unreachable:18802` no debounce, isolado, não significa serviço fora do ar — foi timeout transitório enquanto `/api/health` respondia normal via curl direto. Confirmar sempre com um curl manual antes de assumir crash.
 

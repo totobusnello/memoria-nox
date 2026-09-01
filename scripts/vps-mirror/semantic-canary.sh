@@ -37,7 +37,7 @@ discord() {
 QUERY="como funciona a memória persistente e o knowledge graph do sistema"
 
 run_query() {
-    curl -sf --max-time 15 -G "http://127.0.0.1:${NOX_API_PORT}/api/search" \
+    curl -sf --max-time 45 -G "http://127.0.0.1:${NOX_API_PORT}/api/search" \
         --data-urlencode "q=${QUERY}" \
         --data-urlencode "limit=10" \
         --data-urlencode "track=false" 2>/dev/null
@@ -52,8 +52,13 @@ try:
         print("FORMAT_ERROR 0 0 0")
         sys.exit(0)
     total = len(d)
-    semantic = sum(1 for r in d if isinstance(r, dict) and r.get("match_type") == "semantic")
-    fts = sum(1 for r in d if isinstance(r, dict) and r.get("match_type") == "fts")
+    # `hybrid` = o chunk veio das DUAS listas (search.ts:701). Conta como
+    # semantica E como fts: a camada semantica contribuiu para ele. Excluir o
+    # rotulo produz falso "semantic=0" com o sistema saudavel — o proprio
+    # nox-mem usa este predicado em search.ts:711.
+    tipos = [r.get("match_type") for r in d if isinstance(r, dict)]
+    semantic = sum(1 for t in tipos if t in ("semantic", "hybrid"))
+    fts = sum(1 for t in tipos if t in ("fts", "hybrid"))
     print(f"OK {total} {semantic} {fts}")
 except Exception:
     print("PARSE_ERROR 0 0 0")
@@ -82,6 +87,53 @@ self_heal() {
         return 1
     fi
 
+    # --- COVERAGE-GATE (2026-09-01) ---------------------------------------
+    # `vectorize` conserta UMA causa: chunk sem vetor. Se a cobertura ja esta
+    # completa, a causa e outra, e chamar o Gemini aqui e ativamente nocivo: o
+    # 429 que disparou este heal veio de quota, e o vectorize consome a MESMA
+    # quota do MESMO provider que acabou de recusar.
+    #
+    # Medido em 2026-09-01, e a primeira hipotese foi REFUTADA pela medicao
+    # seguinte — fica registrado porque a conclusao errada era plausivel:
+    #
+    #   hipotese (falsa): os 429 vinham da colisao de cron entre este canary
+    #     (:22,:52) e o nox-mem-brief-refresh (:7,:22,:37,:52), porque as 45
+    #     ocorrencias do dia caiam todas nesses dois minutos.
+    #   refutacao: rodando este canary MANUALMENTE as 11:02 — minuto sem cron
+    #     nenhum — o 429 apareceu igual. Ele se concentra nos minutos do cron
+    #     apenas porque o canary e o unico consumidor de embedQuery no host.
+    #   e o 429 nem era o problema: seis sondas seguidas devolveram o resultado
+    #     CORRETO (total 10 / semantic 8 / fts 2), incluindo as tres que
+    #     registraram 429 — o embedQuery retenta com backoff e passa.
+    #
+    # A causa real do RED estava neste script: contava `match_type == "semantic"`
+    # sem incluir `"hybrid"`, que e justamente o rotulo de quem veio das DUAS
+    # listas (search.ts:701). Corrigido em parse_summary no mesmo dia.
+    #
+    # Este gate permanece por um motivo independente e ainda valido: a cobertura
+    # estava em 67.187/67.187 com orphans=0, e o self-heal chamava `vectorize`
+    # assim mesmo — gastando a quota do MESMO provider que acabara de recusar,
+    # para consertar uma causa que nao existia.
+    local cov emb tot orph
+    cov=$(curl -sf --max-time 15 "http://127.0.0.1:${NOX_API_PORT}/api/health" 2>/dev/null \
+          | python3 -c 'import sys,json
+try:
+    v = json.load(sys.stdin).get("vectorCoverage") or {}
+    print(v.get("embedded", -1), v.get("total", -1), v.get("orphans", -1))
+except Exception:
+    print(-1, -1, -1)' 2>/dev/null)
+    emb=$(echo "$cov" | awk '{print $1}')
+    tot=$(echo "$cov" | awk '{print $2}')
+    orph=$(echo "$cov" | awk '{print $3}')
+    # Falha ao LER a cobertura (-1) nao vira skip: sem o dado, o gate nao pode
+    # afirmar que esta tudo bem, e deixa o heal seguir. Guarda cujo predicado
+    # exige o dado que falta nao cobre a falta do dado.
+    if [ "${tot:--1}" != "-1" ] && [ "${emb:--1}" = "${tot}" ] && [ "${orph:--1}" = "0" ]; then
+        log "SELF-HEAL: SKIPPED — cobertura completa (${emb}/${tot}, orphans=0); vectorize nao cura isto e gastaria a mesma quota que acabou de falhar. Causa provavel: quota de embedQuery, nao o indice."
+        return 1
+    fi
+    log "SELF-HEAL: cobertura ${emb}/${tot} orphans=${orph} — vectorize e aplicavel"
+    # --- fim COVERAGE-GATE -------------------------------------------------
     log "SELF-HEAL: starting vectorize (trigger=${reason})"
     local heal_out
     heal_out=$(cd /root/.openclaw/workspace/tools/nox-mem && \
@@ -197,7 +249,7 @@ if [ "$SEMANTIC" = "0" ]; then
 fi
 
 # Also verify /health.vectorCoverage hasn't developed orphans
-HEALTH=$(curl -sf --max-time 5 "http://127.0.0.1:${NOX_API_PORT:-18802}/api/health" 2>/dev/null)
+HEALTH=$(curl -sf --max-time 20 "http://127.0.0.1:${NOX_API_PORT:-18802}/api/health" 2>/dev/null)
 ORPHANS=$(echo "$HEALTH" | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("vectorCoverage",{}).get("orphans",-1))' 2>/dev/null || echo "-1")
 
 if [ "$ORPHANS" != "0" ] && [ "$ORPHANS" != "-1" ] && [ "${ORPHANS}" -gt 3 ] 2>/dev/null; then
