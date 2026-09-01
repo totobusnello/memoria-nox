@@ -2016,6 +2016,122 @@ def deposito_check(root: Path) -> list[str]:
     return fails
 
 
+def comecou_check(root: Path) -> list[str]:
+    """Se o ensaio começou, nenhum documento VIVO pode dizer que não começou.
+
+    Em 2026-09-01 o Epoch 1 entrou no ar e **oito** documentos ainda afirmavam que o
+    estudo não havia começado. O guarda que existia — perna (7) de `estimando_check` —
+    cobria **um** deles, e pela frase literal `"zero epochs randomizados"`, que os
+    outros sete não usam. Guarda ancorado à frase cobre a frase; ancorado ao fato cobre
+    a classe.
+
+    A distinção que este guarda precisa fazer, e que um `grep` cego não faz:
+
+      * documento DATADO (`PROSPECTIVE-ESTIMAND`, `ASSIGN-SEED`, `DESIGN-REVISION`) —
+        a afirmação "nenhum epoch existe" é a **prova de precedência** e tem de ficar.
+        Reescrevê-la destruiria o valor do registro prospectivo.
+      * documento VIVO (`README`, `NEXT-STEPS`, `PAPER-SPLIT`, a description do
+        depósito) — a mesma frase é estado, e estado que envelheceu é mentira.
+
+    Por isso a isenção é por **arquivo nomeado com razão**, não por heurística de data
+    no texto: um arquivo vivo pode conter uma data e continuar sendo estado.
+
+    ⚠️ `NEXT-STEPS.md` já tinha sido reescrito em 2026-08-15 exatamente por afirmar o
+    oposto do estado real — e o próprio documento chama isso de "a pior coisa que um
+    documento de estado pode fazer". Reincidiu em 17 dias. É o argumento de que a
+    disciplina não basta e o guarda é necessário.
+    """
+    if not (root / "ASSIGNMENT.json").exists():
+        return []                      # o ensaio não começou: a afirmação é verdadeira
+
+    # isentos, com a razão pela qual a afirmação PERTENCE ao documento
+    DATADOS = {
+        "PROSPECTIVE-ESTIMAND-2026-08-30.md": "registro prospectivo — a afirmação é a precedência",
+        "ASSIGN-SEED-2026-08-30.md": "declaração time-gated — idem",
+        "DESIGN-REVISION-2026-08-30.md": "revisão datada — idem",
+        "PLANO-2026-08-30.md": "plano datado",
+        "PAPER-SPLIT-2026-08-28.md": "o título foi corrigido; o corpo é histórico datado",
+    }
+    PADROES = (
+        r"[Oo] estudo \*\*não começou\*\*(?! *—? *⚠️)",
+        r"[Oo] estudo não começou",
+        r"nenhum epoch randomizado existe",
+        r"nenhum braço foi atribuído",
+        r"zero epochs randomizados",
+    )
+    fails: list[str] = []
+    for p in sorted(list(root.rglob("*.md")) + list(root.rglob("*.html"))):
+        rel = p.relative_to(root).as_posix()
+        if "_archive" in rel or "/_archive/" in rel:
+            continue
+        if p.name in DATADOS:
+            continue
+        texto = p.read_text(encoding="utf-8", errors="replace")
+        for pat in PADROES:
+            for m in re.finditer(pat, texto):
+                # tachado ou marcado como superado não conta
+                ctx = texto[max(0, m.start() - 120): m.end() + 200]
+                if "~~" in ctx or "superad" in ctx.lower() or "COMEÇOU" in ctx:
+                    continue
+                ln = texto[: m.start()].count("\n") + 1
+                fails.append(
+                    f"{rel}:{ln}: afirma que o ensaio não começou, e ASSIGNMENT.json "
+                    f"existe (Epoch 1 no ar desde 2026-09-01) — /{pat}/")
+                break
+    return fails
+
+
+def estrutura_check(root: Path) -> list[str]:
+    """Toda subseção `N.M[.K]` tem de morar dentro da seção `## N.`.
+
+    Achado em 2026-09-01, DEPOIS do depósito: a `#### 5.7.2` estava encravada no meio
+    do Abstract — 100 linhas entre a primeira metade do resumo e o seu fecho — e a §5
+    terminava na 5.7.1, sem ela. Quem lia o Abstract caía numa tabela de âncora de
+    replay; quem ia à §5 procurar o terceiro eixo não o encontrava.
+
+    ⚠️ Nenhum guarda pegou, e `terceiro_eixo_check` passava verde: ele confere que o
+    CONTEÚDO da 5.7.2 existe e casa com os artefatos, não ONDE ele está. Presença sem
+    posição — a mesma família do guarda que busca substring no corpus concatenado.
+
+    Este é genérico de propósito. Travar "a 5.7.2 fica entre a 5.7.1 e a §6" resolveria
+    o caso e deixaria a classe viva; a classe é *subseção fora da sua seção*.
+    """
+    texto = (root / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    linhas = texto.splitlines()
+    fails: list[str] = []
+
+    # limites de cada seção de topo: "## N. titulo"
+    secoes: list[tuple[int, int]] = []          # (numero, linha)
+    for i, l in enumerate(linhas):
+        if m := re.match(r"^## (\d+)\. ", l):
+            secoes.append((int(m.group(1)), i))
+    if not secoes:
+        return ["MANUSCRIPT: nenhuma seção `## N.` encontrada — a varredura de estrutura "
+                "não pode afirmar nada, e silêncio aqui não é aprovação"]
+
+    def dona(linha: int) -> int | None:
+        """Número da seção de topo que contém esta linha."""
+        atual = None
+        for num, ini in secoes:
+            if ini < linha:
+                atual = num
+            else:
+                break
+        return atual
+
+    for i, l in enumerate(linhas):
+        m = re.match(r"^#{3,4} (\d+)\.(\d+)", l)
+        if not m:
+            continue
+        pertence, hospeda = int(m.group(1)), dona(i)
+        if hospeda != pertence:
+            onde = f"§{hospeda}" if hospeda else "ANTES da §1 (Abstract ou frontmatter)"
+            fails.append(
+                f"MANUSCRIPT:{i + 1}: `{l.strip()[:52]}` é subseção da §{pertence} "
+                f"mas está dentro de {onde} — subseção fora da sua seção")
+    return fails
+
+
 def inicio_check(root: Path) -> list[str]:
     """TRIAL-START: every derived number in it recomputed from the live artefact.
 
@@ -2232,6 +2348,8 @@ def main() -> int:
     failures.extend(remissao_check(Path(args.root)))
     failures.extend(deposito_check(Path(args.root)))
     failures.extend(inicio_check(Path(args.root)))
+    failures.extend(estrutura_check(Path(args.root)))
+    failures.extend(comecou_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

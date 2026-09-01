@@ -4,7 +4,11 @@
 
 ## Onde estamos
 
-O **pré-registro está pronto para o OSF** (v1.11). Nenhum `[TO LOCK]` espera análise. Em 15/08 medir a dose expôs e fechou um termo indefinido no braço de tratamento (`linked`) — ver `LINK-FEASIBILITY-2026-08-15.md`. O estudo **não começou** — nenhum epoch randomizado existe, e tudo que foi medido é pré-tratamento, sobre corpus histórico sem atribuição de braço.
+O **pré-registro está pronto para o OSF** (v1.11). Nenhum `[TO LOCK]` espera análise. Em 15/08 medir a dose expôs e fechou um termo indefinido no braço de tratamento (`linked`) — ver `LINK-FEASIBILITY-2026-08-15.md`. ~~O estudo **não começou**~~ — ⚠️ **superado em 2026-09-01: começou.** Epoch 1 no ar desde
+10:25:39Z (`treatment`, `w = 4.0`); ver `TRIAL-START-2026-09-01.md`. O que foi medido **até
+30/08** é pré-tratamento, sobre corpus histórico sem atribuição de braço — e essa parte segue
+valendo. Este documento já foi reescrito uma vez, em 15/08, exatamente por afirmar o oposto do
+estado real; a segunda vez custou 7 horas em vez de semanas porque um guarda passou a olhar.
 
 O gate do arXiv ID do Paper 1 **não bloqueia mais o Paper 2**. Ele bloqueava a *publicação*; o pré-registro e o piloto seguiram sem ele, e o moderador respondeu em 13/08 que o atraso é volume — sem ação nossa. Não recontatar.
 
