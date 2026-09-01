@@ -60,7 +60,7 @@ The healthcheck `/api/health.services["nox-mem-watcher"]` returns `false` becaus
 
 | Consumer | Parses the key? | Action |
 |---|---|---|
-| `scripts/vps-mirror/morning-report.sh` | No (only chunks/orphans/canary) | None |
+| `morning-report.sh` (canônico em `openclaw-vps/infra/scripts/`) | No (only chunks/orphans/canary) | None |
 | `sdk/python/tests/test_client.py` line 45 | Test fixture only | Updated in this PR |
 | `sdk/typescript/src/__tests__/client.test.ts` line 74 | Test fixture only | Updated in this PR |
 | Discord nox-mem-alerts cron | Uses morning-report output | None |
