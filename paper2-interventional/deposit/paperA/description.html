@@ -42,7 +42,12 @@ reescrito a cada execução sendo citado como fonte histórica; e um guarda cuja
 regular o tornava incapaz de falhar.</p>
 
 <h3>O pacote</h3>
-<p>Além do manuscrito, o depósito inclui o verificador (<code>claims_check.py</code>, 19
+<!-- A contagem de guardas é recomputada da FONTE por claims_check.py::deposito_check,
+     e por isso muda quando um guarda entra. O depósito já publicado descreve 19: era o
+     número verdadeiro no instante do depósito, e um depósito é um snapshot. Este arquivo
+     é o rascunho do PRÓXIMO depósito e acompanha a fonte. O 20º guarda é inicio_check,
+     que ancora TRIAL-START-2026-09-01.md ao sha256 da atribuição servida. -->
+<p>Além do manuscrito, o depósito inclui o verificador (<code>claims_check.py</code>, 20
 guardas que recomputam as alegações numéricas contra os artefatos), os seis censos
 mecânicos, os 58 artefatos de medição, os 53 scripts que os geram e os três módulos de
 serving pinados por <code>sha256</code> dos blobs. A intenção é que cada número do paper

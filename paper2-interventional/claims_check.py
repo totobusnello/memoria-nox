@@ -2016,6 +2016,72 @@ def deposito_check(root: Path) -> list[str]:
     return fails
 
 
+def inicio_check(root: Path) -> list[str]:
+    """TRIAL-START: every derived number in it recomputed from the live artefact.
+
+    The file records the instant the trial left `shadow`. Three of its numbers are
+    NOT observations — they are read off files that can change underneath it:
+
+      * the `sha256` of ASSIGNMENT-SERVING.json — regenerate the assignment and the
+        document silently points at a hash the serving no longer loads;
+      * `w = 4.0` for 2026-09-01 — a fact about the assignment, not about the log;
+      * the shadow churn 151/4.037 = 3,74%, whose artefact this repo already owns.
+
+    A number copied out of a file is a cache, and this is its invalidation. The
+    burst rate (672/day, 4x7) and the boost count (19) stay as prose: they are
+    observations of a log, reproducible only by re-reading production.
+    """
+    doc = root / "TRIAL-START-2026-09-01.md"
+    if not doc.exists():
+        return []                      # optional file; absent is not a failure
+    texto = doc.read_text(encoding="utf-8")
+    fails: list[str] = []
+
+    serv = root / "ASSIGNMENT-SERVING.json"
+    if not serv.exists():
+        fails.append("TRIAL-START cita ASSIGNMENT-SERVING.json e o arquivo não existe")
+    else:
+        cru = serv.read_bytes()
+        sha = hashlib.sha256(cru).hexdigest()
+        if sha not in texto:
+            fails.append(
+                f"TRIAL-START: o sha256 de ASSIGNMENT-SERVING.json é {sha[:16]}… e o "
+                f"documento não o contém — foi regenerado sem atualizar o registro")
+        eps = {e["epoch_inicio"]: e for e in json.loads(cru)["epochs"]}
+        e1 = eps.get("2026-09-01")
+        if e1 is None:
+            fails.append("TRIAL-START: 2026-09-01 ausente da atribuição servida")
+        else:
+            # o texto tem de nomear a dose que a atribuição de fato manda servir
+            if not re.search(rf"`w = {re.escape(str(e1['w']))}`", texto):
+                fails.append(
+                    f"TRIAL-START: a atribuição dá w = {e1['w']} para 2026-09-01 e o "
+                    f"documento não diz isso ancorado (`w = {e1['w']}`)")
+            if e1["arm"] != "treatment" and "servido=tratado" in texto:
+                fails.append(
+                    f"TRIAL-START: mostra `servido=tratado` mas a atribuição diz "
+                    f"{e1['arm']} para 2026-09-01")
+
+    art = root / "out" / "SHADOW-CHURN-2026-08-30.json"
+    if art.exists():
+        s = json.loads(art.read_text(encoding="utf-8"))
+        # TRIAL-START é escrito em inglês (decimal com ponto); os documentos PT-BR
+        # do repo usam vírgula. Aceitar as duas formas é o certo aqui — exigir a
+        # vírgula faria o guarda morder o documento por ser inglês, não por mentir.
+        taxa = f"{100 * s['taxa_churn']:.2f}"
+        if not re.search(rf"{re.escape(taxa[:-3])}[.,]{taxa[-2:]}%", texto):
+            fails.append(
+                f"TRIAL-START: o churn do shadow recomputa {taxa}% e o documento "
+                f"não diz isso — o número foi copiado e envelheceu")
+        esperado = s["taxa_churn"] * 7
+        if not re.search(rf"expected count in 7 briefs is {esperado:.2f}"
+                         .replace(".", r"\."), texto):
+            fails.append(
+                f"TRIAL-START: a contagem esperada em 7 briefs recomputa "
+                f"{esperado:.2f} e o documento não diz isso ancorado")
+    return fails
+
+
 def sizing_check(root: Path) -> list[str]:
     """Re-run `sizing.py` and `assign_arms.py` and assert the locked outputs.
 
@@ -2165,6 +2231,7 @@ def main() -> int:
     failures.extend(terceiro_eixo_check(Path(args.root)))
     failures.extend(remissao_check(Path(args.root)))
     failures.extend(deposito_check(Path(args.root)))
+    failures.extend(inicio_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)
