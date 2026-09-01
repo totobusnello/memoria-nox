@@ -19,7 +19,7 @@ corrigir isso tem teto de 4,86% dos briefs — teto que é, em boa medida, fato 
 Nada dessa tese depende de rodar intervenção nenhuma. Tudo é medição sobre o serving real
 e replay do código real.
 
-## Paper B — o estudo interventivo (ainda não começou)
+## Paper B — o estudo interventivo (⚠️ COMEÇOU em 2026-09-01, ver `TRIAL-START-2026-09-01.md`)
 
 Registro prospectivo do estimando → `ASSIGNMENT.json` → `active` → Epoch 1 → janelas de
 tratamento. Pré-registro já público (OSF `yf7d2`, Zenodo `10.5281/zenodo.22110203`).

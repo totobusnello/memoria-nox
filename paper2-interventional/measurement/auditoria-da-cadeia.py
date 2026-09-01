@@ -119,9 +119,13 @@ def main():
     # artefatos (o ASSIGNMENT servido, o sha256 dele). Sem ele na lista, um artefato
     # declarado ali aparecia como órfão — o guarda acusava o inocente por varrer o
     # conjunto errado de citantes, não por o artefato estar solto.
-    CITANTES = ["MANUSCRIPT.md", "PROSPECTIVE-ESTIMAND-2026-08-30.md",
+    # ⚠️ Esta lista é o UNIVERSO da auditoria: um artefato citado por documento fora
+    # dela é reportado como órfão, e um documento novo que cite artefatos entra aqui
+    # ou a auditoria mente por omissão. Já mordeu duas vezes — `ASSIGN-SEED` e, em
+    # 2026-09-01, `MANUSCRIPT-en.md` e `TRIAL-START`, ambos citando artefatos reais.
+    CITANTES = ["MANUSCRIPT.md", "MANUSCRIPT-en.md", "PROSPECTIVE-ESTIMAND-2026-08-30.md",
                 "DEVIATIONS-FOR-PAPER.md", "DESIGN-REVISION-2026-08-30.md",
-                "ASSIGN-SEED-2026-08-30.md"]
+                "ASSIGN-SEED-2026-08-30.md", "TRIAL-START-2026-09-01.md"]
     texto = "\n".join((raiz / n).read_text(encoding="utf-8")
                       for n in CITANTES if (raiz / n).exists())
     verificador = (raiz / "claims_check.py").read_text(encoding="utf-8") \

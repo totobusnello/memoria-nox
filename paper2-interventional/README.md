@@ -2,7 +2,11 @@
 
 > **Status (2026-08-15): pré-registro PRONTO para o OSF.** O último termo indefinido — `linked`, no braço de tratamento — foi travado como **identidade**: o chunk escrito a partir do episódio, com `episode_id`. A escrita acontece nos **dois braços**; só o boost de serving difere. Ver `LINK-FEASIBILITY-2026-08-15.md`. Não é mais planejamento — o piloto rodou, 7.184 pares (episódio, painelista) foram adjudicados, e quatro dos seis `[TO LOCK]` estão fechados. Os dois restantes não esperam análise: `T_seed_assign` se resolve ao registrar; a data-limite, no primeiro epoch randomizado.
 >
-> **O que ainda não aconteceu:** nenhum epoch randomizado. O estudo não começou. Tudo abaixo é pré-tratamento.
+> **⚠️ Status superado em 2026-09-01: o estudo COMEÇOU.** `NOX_P2_OUTCOME=active` desde
+> 10:25:39Z; Epoch 1 = 2026-09-01, braço `treatment`, `w = 4.0`, sob a rodada drand 31774052.
+> Ver `TRIAL-START-2026-09-01.md`. O bloco acima é de 2026-08-15 e fica como registro do que
+> era verdade então — mas **o que estiver abaixo dele e disser "pré-tratamento" precisa ser
+> lido com data**: vale para o corpus histórico, não para o que está sendo servido agora.
 
 ## Em uma frase
 

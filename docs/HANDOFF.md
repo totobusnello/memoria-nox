@@ -1,5 +1,84 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-01 — Epoch 1 no ar; Paper A publicado; o canary mentia
+
+### ▶️ ESTADO / PRÓXIMO PASSO
+
+**O ensaio do Paper 2 começou.** `NOX_P2_OUTCOME=active` desde
+**2026-09-01T10:25:39Z**; primeiro brief tratado 10:37:01Z. Epoch 1 = 2026-09-01 →
+`treatment, w = 4.0`, sob a rodada drand quicknet **31774052**. Registro e evidência
+em `paper2-interventional/TRIAL-START-2026-09-01.md`, guardado por
+`claims_check.py::inicio_check` (20º guarda).
+
+| verificação | resultado |
+|---|---|
+| `servido` no log | `tratado`, 35 de 35 briefs em `active` |
+| `boosts` por brief | **19, sem exceção** — um por grupo de assinatura do `p2_verdict` |
+| churn sob tratamento | 2 de 35 (o shadow media 3,74% com `w=2`) |
+| calendário | 234 epochs, 2026-09-01 → **2027-04-22** |
+
+⚠️ `churn` com n=35 não é resultado. E confirmar ativação é pelo campo `servido`,
+**nunca** por `systemctl is-active`, que já mentiu duas vezes aqui.
+
+**Próximo passo aberto:** o Paper A está publicado **em português**
+(`languages: [por]`), e o Toto decidiu em 01/09 que documentos de paper e depósito
+passam a ser **em inglês** — "mais fácil pra Zenodo, arXiv e outros fins". Traduzir
+o `MANUSCRIPT.md` (1.914 linhas) é o que destrava o arXiv. Não iniciado.
+
+### Paper A — PUBLICADO, e o readback local mente
+
+**DOI `10.5281/zenodo.22181415`**, v1.0, 13 arquivos, criado 2026-08-30T21:39:24Z.
+Relações: `iscontinuedby` → `10.5281/zenodo.22110203` (Paper 2 v1.12),
+`references` → OSF `yf7d2`, `issupplementedby` → o diretório no GitHub.
+
+⚠️ `deposit/paperA/.readback-{rdm,legacy}.json` dizem `draft` / `unsubmitted`. São
+snapshots **anteriores** ao publish e não foram reescritos. Conferir estado de
+depósito **sempre** pela API (`GET /api/records/<id>` → 200 público = publicado),
+nunca por readback em disco — é a mesma classe de "série viva citada como instante".
+
+### T_seed_assign consumido, com precedência verificável
+
+`ASSIGN-SEED-2026-08-30.md` pushado 21:18:35Z (commit `57980ed`) com a rodada 31774052
+ainda em HTTP 425; a rodada emitiu 21:32:04Z, 13 min 29 s depois. Git e beacon são
+fontes independentes.
+
+⚠️ **A regra de designação declarada na primeira versão era INVENTADA** (ordenação
+global) e foi retratada: a registrada é a estratificada de `assign_arms.py`, commitada
+em 2026-08-16 e depositada na v1.12 — duas semanas antes do sorteio, o que salvou a
+precedência. **As duas distribuições davam 117/39/39/39**, então conferir contagem não
+teria pego. `ASSIGNMENT.json` foi regenerado pela ferramenta canônica;
+`ASSIGNMENT-SERVING.json` é a tradução mecânica para a forma que o `resolverBraco` lê,
+com round-trip verificado.
+
+### Duas armadilhas de ativação, medidas
+
+**A fronteira do epoch é 09:00 UTC, não meia-noite** (`epochInicioISO`,
+`brief-outcome.ts:420`). Às 07:08Z de 01/09 o epoch corrente ainda era `2026-08-31`,
+ausente da sequência: ligar ali serviria **controle em todo brief por 1h52**, com o
+`is-active` dizendo `active`. Ativação foi segurada até depois das 09:00Z.
+
+**`/api/brief` é chamado em rajadas**, não em fluxo — cron `7,22,37,52`, quatro por
+hora de ~7 briefs, o que reconstrói os 672/dia. Uma janela de verificação de 8 min
+pode cair inteira no vão e devolver zero sem que haja defeito.
+
+### O canary dava RED falso — e uma lição de agosto foi retratada
+
+Seis RED em 01/09 com a busca **saudável**. O `semantic-canary.sh` reimplementava um
+predicado do `search.ts` sem o rótulo `hybrid` (que `:701` atribui a quem veio das duas
+listas, e que `:711` já lia corretamente). Corrigido, mais um gate que impede o
+`vectorize` inútil no self-heal. PRs: `openclaw-vps#28`, `#453`, `#454`.
+
+⚠️ **A entrada de INCIDENTS de 2026-08-17 afirmava que `total=2/semantic=0/fts=0` "é a
+assinatura de Gemini rejeitando toda chamada". Não é** — retratada no local. Distinguir
+exige a **mensagem** do 429: `prepayment credits are depleted` (billing) contra
+`Quota exceeded … per_minute` (rate limit que o retry absorve).
+
+`scripts/vps-mirror/` foi removido (#454): era a quarta cópia dos scripts, sem fonte de
+deploy. Restam **sete scripts duplicados** com `openclaw-vps/infra/scripts/`, três já
+divergentes — avisada a sessão `openclaw-vps-a0`, a limpeza é lá.
+
+---
+
 ## 2026-08-29 — o gate REPROVOU, e o §4.3.1 foi substituído
 
 `ciclo-do-lote.py --esperar-zero-em 2026-08-29` saiu **`exit 1`, REFUTADA**: o lote foi
