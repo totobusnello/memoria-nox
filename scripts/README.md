@@ -150,17 +150,23 @@ echo "$NOX_VPS_HOST" > .vps-current-ip
 
 ## Other scripts
 
+> ⚠️ **Sete scripts saíram daqui em 2026-09-01** — `activate-salience.sh`,
+> `analyze-shadow-telemetry.sh`, `check-discord-heartbeat-validation.sh`,
+> `rollback-zero-downtime.sh`, `upgrade-zero-downtime.sh`, `reapply-monkey-patch.sh`
+> e `upgrade-v29-deltas.sh`. Eram duplicatas de `openclaw-vps/infra/scripts/`, que é a
+> **fonte de deploy** e o único lugar coberto pelo `sync-audit-cron.sh`. Procure-os lá.
+> Em dois deles a cópia daqui era a obsoleta e nem rodava
+> (`check-discord-heartbeat-validation.sh` tinha `VPS_HOST="root@your-vps-host"`
+> literal; `upgrade-zero-downtime.sh` estava 303 linhas atrás, sem o fix `grep -l`).
+
+
 | Script | Purpose |
 |--------|---------|
-| `activate-salience.sh` | Flip `NOX_SALIENCE_MODE=active` on VPS and restart API |
-| `analyze-shadow-telemetry.sh` | Aggregate `search_telemetry` shadow vs active comparison |
 | `check-nox-mem.sh` | Quick health check: vectorCoverage, schema version, ops audit |
 | `deploy-validator/` | Node.js CI helper for deployment smoke tests |
 | `migrate-flat-to-entities.py` | One-time: migrate flat memory files to entity file format |
 | `migrate-projects-to-entities.py` | One-time: migrate project chunks to entity files |
-| `rollback-zero-downtime.sh` | Rollback OpenClaw upgrade with zero restart overlap |
 | `sync-obsidian-vault.sh` | Rsync Obsidian vault from VPS to local (dry-run safe) |
-| `upgrade-zero-downtime.sh` | Zero-downtime OpenClaw upgrade with monkey-patch reapply |
 
 ---
 
