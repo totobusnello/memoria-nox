@@ -183,7 +183,9 @@ ssh root@<NOX_TAILSCALE_IP> 'tail -3 /var/log/nox-schema-invariants.log'
 
 ### Sintoma
 
-- Após rodar `activate-salience.sh --apply` ou setar `NOX_SALIENCE_MODE=active`
+- Após rodar `activate-salience.sh --apply` (o script vive em
+  `openclaw-vps/infra/scripts/` desde 2026-09-01, não mais neste repo) ou setar
+  `NOX_SALIENCE_MODE=active`
 - Resultados de search claramente piores (chunks triviais no top, conteúdo importante enterrado)
 - `/api/health.salience.mode` mostra `active` mas promote/archive stats parecem incoerentes
 - Usuário reporta "memórias erradas" nas respostas dos agents
