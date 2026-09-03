@@ -274,6 +274,83 @@ congelamento falhou três vezes, e sempre do mesmo modo: **pinar o identificador
 artefato não o preserva**. A regra que sai disto, e que vale para todo depósito futuro, é
 depositar o **blob**, não o hash.
 
+### 10. O Epoch 1 é heterogêneo, e o braço de controle não deixa rastro (2026-09-01/03)
+
+Dois desvios que só apareceram com o ensaio no ar. O primeiro é de execução; o segundo
+é de instrumento e o mais consequente dos dois.
+
+#### 10.1 O Epoch 1 tem 42 briefs servidos como CONTROLE dentro de um epoch de tratamento
+
+A fronteira do epoch é **09:00 UTC** (`epochInicioISO`, `brief-outcome.ts`), e a
+ativação aconteceu às **10:25:39Z** — uma hora e vinte e cinco minutos depois de o
+epoch abrir. Nesse intervalo o serving ainda estava em `shadow`, e os briefs foram
+servidos como controle. Medido no log:
+
+| epoch | n | modo | w | servido |
+|---|---:|---|---|---|
+| 2026-08-29 | 672 | `shadow` 672 | 2 | controle 672 |
+| 2026-08-30 | 672 | `shadow` 672 | 2 | controle 672 |
+| 2026-08-31 | 672 | `shadow` 672 | 2 | controle 672 |
+| **2026-09-01** | **672** | **`shadow` 42 · `active` 630** | **2 e 4** | **controle 42 · tratado 630** |
+
+**6,25% do Epoch 1 recebeu o braço errado.** O gatilho `p2-saturacao-da-dose` acusou
+corretamente em 09-02 09:12Z: `modo-no-log=['active','shadow'] != active`.
+
+⚠️ **A ativação não foi tardia por descuido — foi adiada de propósito, e o adiamento
+evitou um defeito pior.** Às 07:08Z o epoch corrente era `2026-08-31`, data ausente da
+sequência de atribuição; ligar ali faria `resolverBraco` devolver
+`epoch ... ausente da sequência` e servir controle em **todo** brief por 1h52, com
+`systemctl is-active` dizendo `active`. Esperar até depois das 09:00Z era o certo. O que
+faltou foi ligar **na** fronteira, não depois dela.
+
+**A escolha de análise fica registrada como aberta, não decidida aqui:** descartar o
+Epoch 1, tratá-lo por intention-to-treat com a contaminação declarada, ou reportar os
+dois estratos. Qualquer das três é defensável; escolher depois de ver o resultado não é.
+
+**Para os 233 epochs restantes o problema não se repete:** a transição de modo já
+aconteceu e não há outra prevista. Um reinício do serviço no meio de um epoch **não**
+recria o defeito — o modo vem do drop-in e a designação do `ASSIGNMENT-SERVING.json`.
+
+#### 10.2 O braço de controle não produz nenhuma linha de log
+
+Os epochs `2026-09-02` e `2026-09-03` são `control`/`w=0` por sorteio, e o log de
+serving não tem **uma única linha** deles. Não é falha: é o que o código faz.
+
+```ts
+if (provedorDeBoost && cfg.freshSlots > 0) { … altBoosted = … }   // brief.ts:836
+if (logDiff && diffP2 && altBoosted) { logarDecisaoDeServing({…}) }   // brief.ts:980
+```
+
+Sem boost não há `provedorDeBoost`; sem ele não há `altBoosted`; sem `altBoosted` não há
+linha. Consequências, em ordem de gravidade:
+
+1. **o `n` do braço de controle não é observável** — 117 dos 234 epochs são controle, e
+   nenhum deles deixa registro de quantos briefs serviu;
+2. **não se pode auditar que o controle foi servido corretamente** — a ausência de linha
+   é compatível com "serviu controle como devia" e com "não serviu nada";
+3. **"epoch de controle" é indistinguível de "serving parado"** — foi a primeira leitura
+   ao ver o log parar em 09-02T08:52Z, e foram necessárias três medições para descartar.
+
+É a mesma classe da regra 9 do `CLAUDE.md`: o gatilho que mede a janela precisa do dado,
+e o dado não existe em controle.
+
+⚠️ **O crédito de o silêncio não ter sido total é do `YELLOW n=0`.** O gatilho tem uma
+perna que alarma quando a janela vem vazia — `janela-com-n-insuficiente n=0 minimo=30`,
+disparada em 09-03 09:12Z. Sem ela, 117 epochs de controle passariam calados e o silêncio
+pareceria saúde.
+
+**Correção classificada como instrumentação, não emenda**, e a razão é verificável: a
+linha nova registra o que **já** é servido, não altera designação, dose, ordenação nem
+composição. Nenhum braço muda de conteúdo. O que muda é haver registro do que antes não
+tinha. Declarado aqui em vez de emendado no registro, pela decisão do item 7.
+
+#### 10.3 O morning report lê um status escrito 21 horas antes
+
+`morning-report.sh` roda **06:30** e `run-saturacao.sh` roda **09:12**. O report de um
+dia lê o status gravado às 09:12 do dia **anterior** — o RED de 09-02 apareceu no report
+de 09-03, quando o estado corrente já era YELLOW. Não é dado errado, é dado velho
+apresentado como corrente, que na prática dá no mesmo para quem lê o alerta.
+
 ## Se a decisão mudar
 
 A máquina do depósito está pronta e **não executada**: `deposit/PLAN-v1.13.md` e
