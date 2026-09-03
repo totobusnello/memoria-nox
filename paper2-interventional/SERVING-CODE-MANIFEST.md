@@ -22,6 +22,30 @@ declarada"*.
 | `serving-brief-outcome.ts` | `src/paper2/brief-outcome.ts` | 21213 | `b3a3b1a8c72fe79144f401003b89a10455eeea9115275a80449679c2c07f48aa` |
 | `serving-p2-outcome-test.ts` | `src/__tests__/p2-outcome.test.ts` | 22673 | `62ba78d141aafe4c2ac86795c96b39704518f175e7f9ed3c0c199d0164a4fe6e` |
 
+> 🔴 **PRODUCTION HAS MOVED PAST THIS PIN — 2026-09-03.** `src/api/brief.ts` on the
+> serving host is now **46253 bytes**, `sha256 519fa6ab28c36910…`, against the 44748 /
+> `27dbe996…` pinned above. The pin is **not** wrong: it records the code **as measured**,
+> and every figure in the paper was produced by that version. What changed is production,
+> after the measurement closed.
+>
+> **What changed and why:** an epoch assigned to *control* produced no serving-log line at
+> all — `altBoosted` only exists under `provedorDeBoost`, so 117 of the 234 epochs had no
+> observable `n` and the absence was indistinguishable from a stopped service. The fix adds
+> **32 lines**, purely additive: it logs what is already served and touches no assignment,
+> dose, ordering or composition. Declared in `DEVIATIONS-FOR-PAPER.md §10.2` as
+> instrumentation rather than an amendment, on exactly that ground.
+>
+> ⚠️ **One line citation shifted.** The insert lands at line ~1005, so of the 21
+> `brief.ts:NNNN` citations across this repository, only **`brief.ts:1086`** moved — it is
+> line **1118** in the live file. The other 20 sit below the insertion point. The citations
+> in the paper resolve against the **deposited blob**, which is unchanged, so they remain
+> correct as published; this note exists for whoever opens the live file instead.
+>
+> ⚠️ **`blob_check` passed green through this**, and correctly: it compares the deposited
+> blobs against this manifest, and those did not change. Nothing in this repository
+> compares the manifest against **what is running**. That gap is real and is why this note
+> is hand-written rather than raised by a guard.
+
 Unchanged since v1.12, and re-verified at the same commit:
 
 | deposited as | original path | commit | committed | bytes | sha256 |
