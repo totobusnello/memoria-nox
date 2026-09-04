@@ -352,6 +352,21 @@ DEPENDENTES = [
         "exige": r"GPT-4\.1-mini|backbones differ|not a state|obtained on",
     },
     {
+        # 🔴 Sítio que ESCAPOU e que este guarda existe por isso: em 2026-09-04 a
+        # decisão foi retirar "corpus-structural property" de todos os sítios, e eu
+        # corrigi a §5.4 e a linha do §5.1, deixando o ABSTRACT. Dois de três. O
+        # `dual_sota_classico` não pega porque dispara em par de números, não em frase.
+        # É a lição `prose-stating-a-computed-result-is-a-cache-without-invalidation`
+        # cometida por mim depois de escrever o guarda contra ela.
+        "id": "fmh_corpus_structural",
+        "porque": "com 10-12 pp de headroom no cenário clássico, parte do gap pode "
+                  "ser do sistema e não do corpus; a atribuição forte foi retirada "
+                  "em 2026-09-04",
+        "gatilho": [r"corpus-structural"],
+        "exige": r"not primarily|principally|leading candidate|does not establish|"
+                 r"cannot be attributed|proposed",
+    },
+    {
         "id": "locomo_cross_metric",
         "porque": "74,52 é retrieval@10 e 66,88 é answer F1 end-to-end — "
                   "métricas diferentes, não comparáveis",
