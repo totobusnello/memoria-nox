@@ -2016,6 +2016,69 @@ def deposito_check(root: Path) -> list[str]:
     return fails
 
 
+def escolha_check(root: Path) -> list[str]:
+    """A escolha de análise do Epoch 1 está FECHADA; nenhum documento pode reabri-la.
+
+    Fechada em 2026-09-04, sem que desfecho algum fosse consultado — e é justamente
+    isso que lhe dá valor. Uma escolha de análise reaberta depois de dados existirem
+    vale zero, mesmo que se chegue à mesma conclusão, porque o leitor não pode
+    distinguir "decidiu antes" de "decidiu e diz que decidiu antes".
+
+    Duas direções, porque lista de um lado só apodrece em falso verde:
+
+      1. o texto da decisão tem de CONTINUAR no `DEVIATIONS-FOR-PAPER.md`. Se
+         desaparecer numa reescrita, o guarda falha — a decisão é o artefato, não a
+         lembrança dela;
+      2. nenhum documento pode voltar a chamá-la de aberta. Ancorado ao FATO (a
+         decisão existe) e não a uma frase literal — foi a lição do `comecou_check`,
+         cujo antecessor cobria 1 de 8 documentos por casar frase em vez de fato.
+
+    ⚠️ Isenção por arquivo NOMEADO, nunca por heurística: num documento datado a frase
+    "a escolha fica aberta" é registro histórico verdadeiro do que se sabia então, e
+    apagá-la destruiria a cronologia. Num documento vivo, a mesma frase é estado, e
+    estado que envelheceu é mentira.
+    """
+    dev = root / "DEVIATIONS-FOR-PAPER.md"
+    if not dev.exists():
+        return [f"{dev.name}: ausente — a decisão de análise do Epoch 1 vive nele"]
+
+    fails: list[str] = []
+    texto = dev.read_text()
+
+    # (1) a decisão tem de continuar escrita
+    for marca, oque in [
+        ("FECHADA em 2026-09-04", "a data e o fato do fechamento"),
+        ("não é excluído", "a decisão de inclusão do Epoch 1"),
+        ("Mandatory ITT co-estimate", "a citação da estrutura registrada"),
+        ("pré-especificada aqui", "a terceira análise, de sensibilidade"),
+    ]:
+        if marca not in texto:
+            fails.append(
+                f"{dev.name}: perdeu `{marca}` — {oque}. A decisão é o artefato; "
+                f"se o texto sai, a precedência não é mais verificável"
+            )
+
+    # (2) nenhum documento VIVO pode reabri-la
+    DATADOS = {
+        "DEVIATIONS-FOR-PAPER.md": "contém a decisão e a retratação da 1ª redação",
+    }
+    REABRE = re.compile(
+        r"(escolha de an[áa]lise|an[áa]lise do Epoch 1)[^.]{0,80}"
+        r"(fica|permanece|segue|continua)[^.]{0,20}abert",
+        re.I,
+    )
+    for md in sorted(root.glob("*.md")):
+        if md.name in DATADOS:
+            continue
+        for i, linha in enumerate(md.read_text().split("\n"), 1):
+            if REABRE.search(linha):
+                fails.append(
+                    f"{md.name}:{i}: volta a chamar a escolha de análise do Epoch 1 "
+                    f"de aberta, e ela foi fechada em 2026-09-04 — `{linha.strip()[:70]}`"
+                )
+    return fails
+
+
 def comecou_check(root: Path) -> list[str]:
     """Se o ensaio começou, nenhum documento VIVO pode dizer que não começou.
 
@@ -2350,6 +2413,7 @@ def main() -> int:
     failures.extend(inicio_check(Path(args.root)))
     failures.extend(estrutura_check(Path(args.root)))
     failures.extend(comecou_check(Path(args.root)))
+    failures.extend(escolha_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

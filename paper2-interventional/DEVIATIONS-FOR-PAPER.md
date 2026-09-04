@@ -303,9 +303,65 @@ sequência de atribuição; ligar ali faria `resolverBraco` devolver
 `systemctl is-active` dizendo `active`. Esperar até depois das 09:00Z era o certo. O que
 faltou foi ligar **na** fronteira, não depois dela.
 
-**A escolha de análise fica registrada como aberta, não decidida aqui:** descartar o
-Epoch 1, tratá-lo por intention-to-treat com a contaminação declarada, ou reportar os
-dois estratos. Qualquer das três é defensável; escolher depois de ver o resultado não é.
+##### A escolha de análise, FECHADA em 2026-09-04 sem que desfecho algum fosse consultado
+
+> **Precedência.** Decidido em **2026-09-04**, com o ensaio no seu quarto epoch. Nenhum
+> desfecho foi computado, consultado ou estimado antes desta decisão — nem por mim nem a
+> pedido meu. O que foi medido para decidir é **exclusivamente estrutura de exposição**:
+> quantos briefs, em que braço, em que instante, lidos do log de serving. A densidade de
+> falhas repetidas, que é o desfecho, não foi tocada. Quem auditar pode conferir pelo
+> `git log` que este parágrafo antecede qualquer artefato de desfecho no repositório.
+
+✅ **A decisão usa a estrutura que o registro JÁ tem, em vez de criar uma paralela.**
+`PREREG-DRAFT.md` §"Mandatory ITT co-estimate" determina que *"the primary is reported
+alongside an intention-to-treat estimate over all post-washout epochs with no coverage
+exclusion whatsoever. Agreement between the two is the strength of the claim; divergence
+is reported as-is and is not adjudicated in favour of either."* A disciplina de reportar
+duas análises, tratar concordância como força e divergência como achado não-adjudicado,
+portanto, **é registrada, não inventada agora**.
+
+> ⚠️ A primeira redação desta seção dizia "primária: ITT", o que **renomeava** a
+> estrutura registrada — ali o *primary* é distinto do co-estimador ITT. Corrigido no
+> mesmo dia, ao reler o §1042. Registrado porque descrever errado o próprio plano de
+> análise é o defeito que este documento existe para não cometer.
+
+**A decisão, então, é de inclusão e não de estrutura:** o Epoch 1 **não é excluído** nem
+do *primary* nem do co-estimador ITT. Os seus 672 briefs entram no braço `w = 4,0`
+conforme designado, incluindo os 42 servidos como controle.
+
+**Acrescenta-se uma terceira análise, pré-especificada aqui:** o mesmo par de estimativas
+com o Epoch 1 excluído, reportado sob a mesma regra do §1042 — concordância é força,
+divergência é reportada como está e não é adjudicada a favor de nenhuma das duas.
+
+**Por que ITT e não descartar.** O custo estatístico de descartar é desprezível — a
+alocação é `117/39/39/39`, o Epoch 1 é `w = 4,0`, logo seria 1 de 39, e com o *design
+effect* de 21,9 (ICC 0,0985) o epoch é a unidade efetiva: o erro-padrão inflaria
+`√(39/38)` = **1,3%**. A decisão, portanto, **não é sobre poder**.
+
+O que decide é outra coisa: a lista registrada de eventos intercorrentes tem **três**
+entradas — epochs anulados pela regra de aborto, *downtime* da frota, e epochs sobrepostos
+a intervenção manual de memória em `ops_audit` (PREREG §5). **Contaminação parcial de
+braço não está entre elas.** Descartar o Epoch 1 significaria criar critério de exclusão
+novo com o ensaio já em curso, que é precisamente o grau de liberdade que o pré-registro
+existe para eliminar. Pagar 1,3% de intervalo por manter a lista intacta é troca boa.
+
+E a direção do viés é conhecida: 6,25% de um epoch de tratamento recebeu controle, o que
+**atenua** a diferença medida. Se houver efeito, a contaminação não o fabricou; se não
+houver, ela está declarada entre as razões. ITT é conservadora nas duas pontas — e é por
+isso que a sensibilidade importa: se as duas análises concordam, a contaminação é
+irrelevante e isso fica demonstrado; se divergem, a divergência é o achado, e foi
+pré-especificada antes de ser vista.
+
+**Por que os 42 não são reatribuídos ao controle.** Seria análise *per-protocol*, e
+quebraria a randomização: esses 42 não são um subconjunto aleatório do controle, são a
+primeira hora e meia de um dia específico. A designação do braço vem do sorteio, não do
+que o serving fez.
+
+⚠️ **O epoch contaminado não está no braço que carrega a hipótese principal.** `w = 4,0`
+é a dose intermediária; a condição de detectabilidade (§2 do registro prospectivo) mostra
+que a dose que testa H1 é `w = 2,0`, onde apenas **3,14%** dos briefs mudam de composição.
+Isso enfraquece ainda mais o caso para descartar, e é observação de desenho, não de
+resultado.
 
 **Para os 233 epochs restantes o problema não se repete:** a transição de modo já
 aconteceu e não há outra prevista. Um reinício do serviço no meio de um epoch **não**
