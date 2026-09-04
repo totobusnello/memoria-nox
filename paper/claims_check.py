@@ -116,12 +116,23 @@ SISTEMAS_QA_CLASSICO = re.compile(r"Beam Retrieval|FE2H|EX\(SA\)|IRCoT|DPR|FiD",
 # linha). Verificado nas DUAS direções: ocorrência sem entrada = alegação nova
 # não auditada; entrada sem ocorrência = obsoleta, e lista obsoleta é falso
 # verde. Manter curtíssima: se crescer, a regra está errada.
+#
+# 🔑 O valor é (razão, CONTAGEM ESPERADA), não só a razão. Isenção por substring
+# sem contagem tem um buraco: uma alegação NOVA e falsa que contenha o trecho
+# isento passa de graça. Declarar quantas ocorrências se espera fecha isso — uma
+# segunda aparição da mesma frase é sítio novo e precisa de revisão.
+#
+# ⚠️ Contagem ESPERADA, e não unicidade universal. Um `assert count == 1`
+# uniforme reprova âncora que casa legitimamente em dois sítios — foi o que
+# aconteceu num patch analisado em 2026-09-04, cuja 12ª âncora casava duas vezes
+# nos dois lugares certos. O guarda que exige unicidade em tudo bloqueia
+# aplicação correta; o que declara a contagem por âncora não.
 SUPERLATIVO_PERMITIDO = {
-    "reader SOTA numbers are published":
+    "reader SOTA numbers are published": (
         "§5.2 metodologia — descreve que existe SOTA publicado de terceiros, "
-        "não alega o nosso",
-    "Published SOTA (split noted)":
-        "§5.4 cabeçalho de tabela — nomeia a coluna, não afirma nada",
+        "não alega o nosso", 1),
+    "Published SOTA (split noted)": (
+        "§5.4 cabeçalho de tabela — nomeia a coluna, não afirma nada", 1),
 }
 
 
@@ -170,7 +181,7 @@ def superlativo_check(root: Path) -> list[str]:
     """
     md = (root / PAPER).read_text()
     fails = []
-    vistos: set[str] = set()
+    contagem: dict[str, int] = {k: 0 for k in SUPERLATIVO_PERMITIDO}
     for ln, linha in _linhas_de_prosa(md):
         for f in _frases(linha):
             if not SUPERLATIVO.search(f):
@@ -183,19 +194,30 @@ def superlativo_check(root: Path) -> list[str]:
                 (k for k in SUPERLATIVO_PERMITIDO if k in f), None
             )
             if permitido:
-                vistos.add(permitido)
+                contagem[permitido] += 1
                 continue
             fails.append(
                 f"{PAPER}:{ln}: alegação superlativa própria sem limitador na "
                 f"frase — `{f.strip()[:88]}`"
             )
 
-    # Direção inversa: entrada que não casa mais com nada é falso verde.
-    for k in sorted(set(SUPERLATIVO_PERMITIDO) - vistos):
-        fails.append(
-            f"claims_check.py: SUPERLATIVO_PERMITIDO tem `{k}`, que já não "
-            f"aparece em {PAPER} — remover (entrada obsoleta = falso verde)"
-        )
+    # Direção inversa E contagem: entrada sem ocorrência é falso verde; entrada
+    # com ocorrência A MAIS é sítio novo que herdou a isenção por substring.
+    for k, (razao, esperado) in SUPERLATIVO_PERMITIDO.items():
+        visto = contagem[k]
+        if visto == esperado:
+            continue
+        if visto == 0:
+            fails.append(
+                f"claims_check.py: SUPERLATIVO_PERMITIDO tem `{k}`, que já não "
+                f"aparece em {PAPER} — remover (entrada obsoleta = falso verde)"
+            )
+        else:
+            fails.append(
+                f"{PAPER}: `{k}` aparece {visto}x, isenção declarada para "
+                f"{esperado}x ({razao}) — uma ocorrência a mais é sítio NOVO "
+                f"herdando a isenção por substring, e precisa de revisão"
+            )
     return fails
 
 
