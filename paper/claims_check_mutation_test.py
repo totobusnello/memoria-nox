@@ -62,6 +62,15 @@ CASOS = [
         "SUPERLATIVO_PERMITIDO",
     ),
     (
+        "sitio NOVO herdando a isencao por substring",
+        # Alegação falsa que CONTÉM o trecho isento. Sem contagem esperada por
+        # âncora, a isenção por substring a absolvia em silêncio — buraco real,
+        # achado em 2026-09-04 ao generalizar a análise de um patch alheio.
+        PAPER, None,
+        "\nnox-mem is SOTA, and reader SOTA numbers are published elsewhere.\n",
+        "herdando a isenção por substring",
+    ),
+    (
         "tabela de QA classico sem declarar split",
         PAPER, None, "\n| Beam Retrieval | 69.20% | +10.58 pp |\n",
         "não declara split",
