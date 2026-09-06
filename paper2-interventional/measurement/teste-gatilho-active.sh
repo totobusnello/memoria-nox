@@ -14,6 +14,14 @@
 # Uso: teste-gatilho-active.sh [caminho-do-gatilho]
 set -uo pipefail
 GAT="${1:-$(dirname "$0")/gatilho-saturacao.sh}"
+# Alvo inexistente faz TODO caso sair com corpo VAZIO — 11 falhas idênticas que
+# parecem defeito do gatilho e são defeito de invocação. Aconteceu 2026-09-06, ao
+# rodar este arquivo copiado para /var/tmp sem argumento: o default `dirname "$0"`
+# apontou para um diretório sem gatilho e a suíte inteira "reprovou" o alvo errado.
+# É a mesma família que o dia inteiro tratou — guarda que fica calado por não ter o
+# que precisa —, aqui do lado do teste. Falhar alto separa "o alvo está quebrado"
+# de "você não passou o alvo".
+[ -x "$GAT" ] || { echo "ERRO: gatilho inexistente ou não executável: $GAT" >&2; exit 2; }
 T="$(mktemp -d /var/tmp/teste-gatilho-XXXXXX)"
 trap 'rm -rf "$T"' EXIT
 FALHAS=0
