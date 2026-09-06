@@ -496,6 +496,23 @@ instrumento consegue enxergar:
    `erros == 0`. Hoje ele falha; depois da correção 1, passa. Sem ele a correção fica sem
    nada que a proteja — ausência deliberada precisa de teste que a defenda.
 
+**Controle positivo da correção — o critério foi o número, não o verde.** Rodado o
+mesmo `--modo dose` sobre a mesma janela (`sha256` conferido idêntico ao do veredito
+RED), com o `idDoBrief` corrigido:
+
+| | antes | depois |
+|---|---|---|
+| `estados` | 640 | **672** |
+| `erros` | 32 | **0** |
+| `mexeu` (w = 2,0) | 0 | **33** |
+| `churn_total` (w = 2,0) | 0 | **35** |
+| `mexeu` (w = 100000) | 14 | 47 |
+
+Os dois números da dose servida — **33** e **35** — reproduzem exatamente o que o log
+de serving registrou de forma independente para o epoch, e é isso que valida a
+correção: um veredito GREEN por si não distinguiria "consertado" de "quebrado de
+outro jeito". A folga passa a `33/47 = 0,70`, dentro da faixa responsiva.
+
 ⚠️ **Uma comparação que este item NÃO faz.** Os `35/672` são *briefs com churn*; os
 `3,14%` da condição de detectabilidade foram medidos como *estados que movem* (`11/350`).
 Denominador e unidade diferentes; dizer "acima do previsto" antes de casar a unidade
