@@ -338,10 +338,20 @@ if s is None or a is None:
 # briefs em que a dose mordeu (§10.4 do DEVIATIONS-FOR-PAPER.md), o que torna o
 # viés anticorrelacionado com o efeito: perda silenciosa aqui empurra o veredito
 # para "inerte". Por isso vem ANTES de `inerte` — inércia é o sintoma.
+# ⚠️ O predicado é `!=`, não `<`, e isto é deliberado. Um replay que afirma ter
+# respondido MAIS estados do que a janela tem também é incoerente, e não é
+# hipotético: o stub do `teste-gatilho-active.sh` devolvia `estados: 672` fixo
+# sobre janelas de 40 registros, e foi esta perna que o pegou (2 dos 9 casos
+# existentes falharam ao ela entrar — o stub mentia, a perna estava certa).
+# Trocar por `<` cegaria justamente essa direção. Em produção o excesso é
+# latente: `briefs` é filtrado por `ids_controle.length === 10`, subconjunto dos
+# `p2_outcome` que o `n_janela` conta, logo `estados <= n_janela`.
 njan_i = int(njan)
 if s["estados"] != njan_i:
+    d = njan_i - s["estados"]
+    quanto = f"faltam={d}" if d > 0 else f"excedem={-d}"
     print(f'RED|motivo=erros-no-replay: a janela nao foi respondida inteira '
-          f'faltam={njan_i - s["estados"]} estados={s["estados"]} n_janela={njan_i} '
+          f'{quanto} estados={s["estados"]} n_janela={njan_i} '
           f'w_servido={wserv} sha256={sha}')
     raise SystemExit
 # `saturado` é a identidade, não um limiar: a dose servida já produz tudo.
