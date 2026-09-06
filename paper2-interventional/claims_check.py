@@ -2369,6 +2369,87 @@ def show() -> None:
         print()
 
 
+def assinatura_check(root: Path) -> list[str]:
+    """O replay tem de casar o brief pelo conjunto SERVIDO, não pelo de controle.
+
+    Por que este guarda existe (2026-09-06). Nos epochs 2026-09-04 e 2026-09-05 o
+    gatilho de saturação reportou RED `dose-servida-inerte`. Não era saturação: o
+    replay localizava cada brief no `brief_log` pela assinatura `ids_controle`, e em
+    `active`/tratamento o conjunto servido é o TRATADO. Resultado — falhava em casar
+    exatamente os briefs nos quais o boost mudou a composição, descartava-os como
+    `erro` antes do laço de doses, e media `mexeu` sobre os sobreviventes, onde por
+    construção nada se move. Medido: das 33 decisões com `churn > 0` da janela, 1
+    casava por `ids_controle` e 33 por `ids_tratado`, e `33 − 1 = 32` era o
+    `n_janela 672 − estados 640` reportado. Ver `DEVIATIONS-FOR-PAPER.md` §10.4.
+
+    ⚠️ O que torna esta classe perigosa, e o motivo de um guarda em vez de só a
+    correção: **o viés era anticorrelacionado com o efeito medido.** Quanto mais a
+    dose funcionasse, mais briefs saíam da população, e mais perto de zero ficava o
+    veredito. Um erro de seleção que se disfarça precisamente de resultado nulo.
+
+    Três pernas, porque cada uma morre de um jeito diferente:
+
+      1. a chave nova tem de existir (`servidoDe`, condicionada a `servido`);
+      2. a chave ANTIGA não pode voltar — é a perna que morde numa reversão, e é a
+         única que um `git revert` distraído acionaria;
+      3. a perna de runtime no gatilho (`estados != n_janela ⇒ RED`) tem de
+         continuar lá. Ela é independente da correção: protege contra QUALQUER
+         causa futura de brief não respondido, não só esta. O gatilho carregava os
+         dois números lado a lado e nenhum predicado os comparava — guarda que tem
+         o dado e não pergunta.
+    """
+    mjs = root / "measurement" / "replay-oportunidade.mjs"
+    sh = root / "measurement" / "gatilho-saturacao.sh"
+    fails: list[str] = []
+
+    if not mjs.exists():
+        return [f"{mjs.name}: ausente — é o harness de replay do ensaio"]
+    if not sh.exists():
+        return [f"{sh.name}: ausente — é o gatilho de saturação"]
+
+    fonte = mjs.read_text()
+
+    # (1) a chave nova existe e é condicionada ao campo `servido`
+    if "const servidoDe = (r) =>" not in fonte:
+        fails.append(
+            f"{mjs.name}: não tem `servidoDe` — a chave de casamento do brief "
+            f"voltou a ser incondicional (§10.4)"
+        )
+    elif not re.search(r'r\.servido === "tratado".*?r\.ids_tratado', fonte, re.S):
+        fails.append(
+            f"{mjs.name}: `servidoDe` existe mas não condiciona ao campo "
+            f"`servido == \"tratado\"` — sem isso ele não distingue os braços"
+        )
+
+    # (2) a chave ANTIGA não pode reaparecer dentro de `idDoBrief`
+    corpo = fonte.split("const idDoBrief = (r) => {", 1)
+    if len(corpo) < 2:
+        fails.append(f"{mjs.name}: `idDoBrief` desapareceu — o guarda não sabe o que checar")
+    else:
+        alcance = corpo[1].split("\n  };", 1)[0]
+        if re.search(r"const alvo = r\.ids_controle", alcance):
+            fails.append(
+                f"{mjs.name}: `idDoBrief` voltou a montar a assinatura com "
+                f"`r.ids_controle` — é o defeito de §10.4 reintroduzido, e ele "
+                f"aparece como resultado nulo, não como erro"
+            )
+
+    # (3) a perna de runtime no gatilho
+    gat = sh.read_text()
+    if not re.search(r'if s\["estados"\] != njan_i', gat):
+        fails.append(
+            f"{sh.name}: perdeu a perna `estados != n_janela` — sem ela um brief "
+            f"não respondido volta a empurrar o veredito para `inerte` em silêncio"
+        )
+    elif "erros-no-replay" not in gat:
+        fails.append(
+            f"{sh.name}: a perna existe mas não emite `erros-no-replay` — um guarda "
+            f"que falha sem dizer o motivo certo custa o mesmo que não falhar"
+        )
+
+    return fails
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--show", action="store_true", help="print the recomputed table")
@@ -2414,6 +2495,7 @@ def main() -> int:
     failures.extend(estrutura_check(Path(args.root)))
     failures.extend(comecou_check(Path(args.root)))
     failures.extend(escolha_check(Path(args.root)))
+    failures.extend(assinatura_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

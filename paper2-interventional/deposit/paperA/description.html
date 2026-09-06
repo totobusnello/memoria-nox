@@ -58,8 +58,17 @@ regular o tornava incapaz de falhar.</p>
      sem que desfecho algum fosse consultado, e o guarda impede tanto que o
      texto da decisão desapareça numa reescrita quanto que algum documento
      volte a chamá-la de aberta — uma escolha reaberta depois de os dados
-     existirem vale zero, mesmo chegando à mesma conclusão. -->
-<p>Além do manuscrito, o depósito inclui o verificador (<code>claims_check.py</code>, 23
+     existirem vale zero, mesmo chegando à mesma conclusão. O 24º é
+     assinatura_check: o replay localizava cada brief no brief_log pela
+     assinatura do conjunto de CONTROLE, e em active/tratamento o servido é o
+     TRATADO — então ele falhava em casar exatamente os briefs nos quais o boost
+     mudou a composição, descartava-os, e concluía que a dose era inerte. O
+     viés era ANTICORRELACIONADO com o efeito: quanto mais a dose funcionasse,
+     menos evidência sobrava. Corrigido em 2026-09-06; o guarda exige a chave
+     nova, proíbe o retorno da antiga dentro de idDoBrief, e exige a perna de
+     runtime `estados != n_janela ⇒ RED` no gatilho — que é independente da
+     causa e teria dado o motivo certo dois dias antes. -->
+<p>Além do manuscrito, o depósito inclui o verificador (<code>claims_check.py</code>, 24
 guardas que recomputam as alegações numéricas contra os artefatos), os seis censos
 mecânicos, os 58 artefatos de medição, os 53 scripts que os geram e os três módulos de
 serving pinados por <code>sha256</code> dos blobs. A intenção é que cada número do paper

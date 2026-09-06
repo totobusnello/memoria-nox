@@ -407,6 +407,113 @@ dia lê o status gravado às 09:12 do dia **anterior** — o RED de 09-02 aparec
 de 09-03, quando o estado corrente já era YELLOW. Não é dado errado, é dado velho
 apresentado como corrente, que na prática dá no mesmo para quem lê o alerta.
 
+#### 10.4 O gatilho de saturação descartava exatamente os briefs em que a dose mordeu
+
+Nos dois primeiros epochs de tratamento medidos em `active`, o gatilho `p2-saturacao-da-dose`
+reportou **RED `dose-servida-inerte: nenhum estado se move`**. Os dois vereditos ficam
+preservados aqui com a procedência de cada janela, porque o que este item registra é um
+alarme **diagnosticado**, não um alarme silenciado:
+
+| epoch | janela | `sha256` do recorte | `n_janela` | `estados` | `mexem_servido` | `mexem_absurdo` |
+|---|---|---|---|---|---|---|
+| 2026-09-04 | `[09-04T09:00Z, 09-05T09:00Z)` | `64da3be2…20d59e` | 672 | 638 | 0 | 11 |
+| 2026-09-05 | `[09-05T09:00Z, 09-06T09:00Z)` | `a17ceafd…d84c7027` | 672 | 640 | 0 | 14 |
+
+**A leitura natural — e errada — é "a dose servida saturou".** O log de serving, que é
+independente do replay, diz o contrário na mesma janela: no epoch de controle `w = 0`,
+**0 de 441** briefs têm `churn > 0`; nos dois de tratamento `w = 2,0`, **35 de 672** e
+**33 de 672**.
+
+**Causa raiz.** O replay localiza cada brief no `brief_log` pela assinatura
+`(agente, segundo, conjunto dos 10 `chunk_id`)`, e a assinatura que ele usa é
+`ids_controle` (`replay-oportunidade.mjs:549`). Em `active`/tratamento o conjunto
+**servido** é o **tratado**. Logo, em todo brief no qual o boost mudou a composição, a
+assinatura procurada não existe no `brief_log`: `cands.length === 0`, o item vira `erro`
+e o `continue` de `:561` o remove **antes** do laço de doses (`:622`). Na agregação, itens
+com `erro` não entram no `estados` da tabela.
+
+Medido sobre a janela do epoch 09-05, casando o `brief_log` inteiro da janela em memória:
+
+| grupo | n | casa por `ids_controle` | casa por `ids_tratado` |
+|---|---|---|---|
+| `churn > 0` | 33 | **1** | 33 |
+| `churn = 0` | 639 | 634 | 634 |
+
+`33 − 1 = 32`, exatamente o `672 − 640` da tabela acima. A interseção é exata: das 33 com
+churn, 32 falham e **1** casa (`2026-09-05T21:52:02.445Z`, `nox`, `churn = 2`); falhas
+entre as sem churn: **0**.
+
+Confirmação por rota independente, que não usa o campo em que a correção se apoia:
+reconstruindo o servido a partir do próprio log como
+`(ids_controle − would_leave) ∪ would_enter`, o casamento vai de **640/672** (regra atual)
+para **672/672**. Como subproduto, isso é uma âncora nova: `would_enter`/`would_leave` do
+log de serving são exatamente consistentes com o que o `brief_log` registra como servido,
+nos 672.
+
+**O defeito é puramente de seleção — não há ponta a montante.** Rodado o harness em
+modo de fidelidade (`--modo campo`, que compara o controle reconstruído com o que a
+produção gravou) sobre a mesma janela: `bate_controle` **640/640**, `bate_churn`
+**639/640**, `erros` **32**. Ou seja, o pipeline reproduz a produção em tudo que
+consegue alcançar; o que falha é só *quais* briefs ele alcança.
+
+⚠️ E o próprio número da fidelidade tem de ser citado sobre a população **pretendida**,
+não sobre a que sobrou: `639/640` é 99,8% de uma população já encolhida pelo defeito, e
+sobre os 672 da janela é **639/672 = 95,1%**, com 32 briefs sem resposta nenhuma. Citar
+o primeiro seria medir a fidelidade no denominador que o defeito produziu — a mesma
+armadilha de população que este documento registra em outra unidade.
+
+> ⚠️ **O viés é anticorrelacionado com o efeito que o instrumento mede.** Quanto mais a
+> dose funciona, mais briefs saem da população, e mais perto de zero fica o resultado. É
+> um erro de seleção que se disfarça precisamente de resultado nulo — a mesma forma do
+> classificador de SOTA que usava "menciona um baseline" como prova de ser de terceiro.
+
+**Por que não foi visto por dois dias.** O gatilho carregava os dois números lado a lado
+na própria linha de status — `n_janela=672` e `estados=640` — e **nenhum predicado os
+comparava**. Não é a família "guarda calado por não ter o dado" (regra 9 do `CLAUDE.md`):
+é o agravante dela, guarda que **tem** o dado e não pergunta.
+
+**Alcance do dano, e o limite honesto da varredura.** O defeito é exclusivo do modo
+`active`: em `shadow` o servido *era* o controle, a assinatura casava, e `estados ==
+n_janela == 672` nas **seis** rodadas shadow — a série mostra o descolamento aparecendo
+só nas duas rodadas `active`. Todo número derivado de replay já escrito rastreia para a
+calibração de **2026-08-27** (`11/350 = 3,1429%`, `15`, `17`, teto `17/350 = 4,86%`,
+`w_min = 4,4`, saturação em `(4,0 ; 4,4]`), cuja janela `[2026-08-26T20:28Z,
+2026-08-27T09:00Z)` é anterior à ativação — portanto não contaminada. Único consumidor
+automático do replay é o próprio gatilho de saturação. A varredura cobre os artefatos
+versionados e os consumidores automáticos; **não** cobre uma rodada ad-hoc cujo número
+tenha ido direto para prosa sem deixar arquivo.
+
+**Correções, classificadas como instrumentação e não emenda**, pelo mesmo critério do
+§10.2 — nenhuma toca designação, dose, ordenação ou composição; o que muda é o que o
+instrumento consegue enxergar:
+
+1. `idDoBrief` passa a chavear pelo conjunto **efetivamente servido**, usando o campo
+   `servido` que o log já grava (`ids_tratado` quando `servido == "tratado"`, senão
+   `ids_controle`). Nada é reconstruído.
+2. Perna nova no gatilho: `estados != n_janela ⇒ RED erros-no-replay=N`. Independente da
+   correção 1, e é a que impede a próxima confusão desta família.
+3. Teste de regressão que morde **este** defeito: sobre janela de epoch tratado, exigir
+   `erros == 0`. Hoje ele falha; depois da correção 1, passa. Sem ele a correção fica sem
+   nada que a proteja — ausência deliberada precisa de teste que a defenda.
+
+⚠️ **Uma comparação que este item NÃO faz.** Os `35/672` são *briefs com churn*; os
+`3,14%` da condição de detectabilidade foram medidos como *estados que movem* (`11/350`).
+Denominador e unidade diferentes; dizer "acima do previsto" antes de casar a unidade
+repetiria o defeito "número certo, população errada" já registrado neste documento. O que
+se afirma aqui é só o contraste interno, mesma fonte e mesma unidade: `0/441` no controle
+contra `35/672` e `33/672` no tratamento.
+
+**Procedência.** Divergência notada em 2026-09-06 ao conferir a série viva do ensaio.
+Duas explicações minhas foram levantadas e **falsificadas** antes desta: (i) "ponto fixo
+— em `active` o boost já está aplicado, reaplicar não move nada", incompatível com o
+código, já que a linha de base do replay é o controle reconstruído (`out.alt`, comparado
+a `ids_controle` em `:745`); (ii) "o snapshot de corpus deixou de cobrir a janela após a
+mudança de fronteira de 28/08", falsificada por medição — dos 141 `chunk_id` distintos da
+janela, **zero** ausentes no corpus, e os 84 registros posteriores ao snapshot não batem
+com o gap de 32 nem em contagem nem em direção. O sítio do descarte e a perna
+`estados != n_janela` foram localizados em paralelo pela sessão vizinha; a conferência por
+reconstrução do servido e a varredura de contaminação são dela.
+
 ## Se a decisão mudar
 
 A máquina do depósito está pronta e **não executada**: `deposit/PLAN-v1.13.md` e

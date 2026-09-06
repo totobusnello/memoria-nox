@@ -542,11 +542,30 @@ if (MODO === "campo" || MODO === "dose" || MODO === "porque" || MODO === "canal"
       WHERE served_at IN (?,?,?) AND COALESCE(agent,'') = ? AND brief_id IS NOT NULL
       GROUP BY brief_id`,
   );
+  /**
+   * A assinatura tem de ser a do conjunto EFETIVAMENTE SERVIDO, não a do
+   * controle. Em `shadow` os dois coincidem e a distinção é inerte; em
+   * `active`/tratamento o servido é o TRATADO, e casar por `ids_controle` falha
+   * exatamente nos briefs em que o boost mudou a composição — o replay
+   * descartava a evidência e depois concluía que a dose era inerte.
+   *
+   * Medido em 2026-09-06 na janela do epoch 2026-09-05: das 33 decisões com
+   * `churn > 0`, **1** casava por `ids_controle` e **33** por `ids_tratado`;
+   * `33 − 1 = 32` era exatamente o `n_janela 672 − estados 640` que o gatilho
+   * reportava. O viés era anticorrelacionado com o efeito: quanto mais a dose
+   * funcionasse, mais briefs sumiam. Ver `DEVIATIONS-FOR-PAPER.md` §10.4.
+   *
+   * `servido` é campo do próprio log (o gatilho já o consome ao comparar
+   * designado × servido); nada aqui é reconstruído.
+   */
+  const servidoDe = (r) =>
+    (r.servido === "tratado" && Array.isArray(r.ids_tratado)) ? r.ids_tratado : r.ids_controle;
   const idDoBrief = (r) => {
-    if (r.ids_controle.length !== 10) return null;
+    const ids = servidoDe(r);
+    if (!Array.isArray(ids) || ids.length !== 10) return null;
     const seg = (dt) => new Date(dt).toISOString().slice(0, 19).replace("T", " ");
     const t = msDe(r.ts);
-    const alvo = r.ids_controle.slice().sort((a, b) => a - b).join(",");
+    const alvo = ids.slice().sort((a, b) => a - b).join(",");
     const cands = gruposNoSegundo.all(seg(t), seg(t + 1000), seg(t + 2000), r.agent ?? "")
       .filter((g) => String(g.ids).split(",").map(Number).sort((a, b) => a - b).join(",") === alvo);
     return cands.length === 1 ? cands[0].mi : null;

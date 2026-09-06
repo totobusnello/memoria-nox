@@ -325,6 +325,25 @@ s, a = tab.get(wserv), tab.get(100000.0) or tab.get(100000)
 if s is None or a is None:
     print(f'RED|motivo=dose-ausente-na-tabela doses={sorted(tab)} sha256={sha}')
     raise SystemExit
+# ─── O replay respondeu sobre a janela INTEIRA? ──────────────────────────────
+# Perna acrescentada em 2026-09-06. Este gatilho carregava `n_janela` e `estados`
+# lado a lado na própria linha de status e NENHUM predicado os comparava — e foi
+# por isso que dois dias de RED saíram com o motivo errado. Não é a família
+# "guarda calado por não ter o dado" (regra 9 do CLAUDE.md): é o agravante dela,
+# guarda que TEM o dado e não pergunta.
+#
+# Um brief que o replay não consegue localizar vira `erro` e sai da população
+# ANTES do laço de doses, então `mexeu` passa a ser medido sobre os
+# sobreviventes. O defeito que motivou esta perna descartava precisamente os
+# briefs em que a dose mordeu (§10.4 do DEVIATIONS-FOR-PAPER.md), o que torna o
+# viés anticorrelacionado com o efeito: perda silenciosa aqui empurra o veredito
+# para "inerte". Por isso vem ANTES de `inerte` — inércia é o sintoma.
+njan_i = int(njan)
+if s["estados"] != njan_i:
+    print(f'RED|motivo=erros-no-replay: a janela nao foi respondida inteira '
+          f'faltam={njan_i - s["estados"]} estados={s["estados"]} n_janela={njan_i} '
+          f'w_servido={wserv} sha256={sha}')
+    raise SystemExit
 # `saturado` é a identidade, não um limiar: a dose servida já produz tudo.
 saturado = s["churn_total"] == a["churn_total"] and s["mexeu"] == a["mexeu"]
 inerte = s["mexeu"] == 0
