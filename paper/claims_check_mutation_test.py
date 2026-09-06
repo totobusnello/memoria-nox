@@ -139,7 +139,61 @@ def _roda(tmp: Path) -> tuple[int, str]:
     return p.returncode, p.stdout + p.stderr
 
 
+def _classifica(rc: int, saida: str, marcador: str) -> str:
+    """Veredicto de um caso de mutação: extraído para poder ser TESTADO.
+
+    Existe por um furo que eu mesmo declarei e não havia fechado: os casos
+    mutam o arquivo do paper, que é o input do PROCESSO FILHO, enquanto esta
+    classificação roda no PAI. Envenenar o filho nunca exercita o pai — então
+    se a checagem de marcador quebrasse, um guarda falhando pelo motivo errado
+    passaria por 'mordeu' e a bateria diria 15/15.
+
+    A forma que fecha isso é infrator sintético contra ESTA função, no próprio
+    processo (ver `_meta_controle`). Diagnóstico e forma vindos da sessão do
+    7_problems, onde a mesma classe apareceu como `${2@Q}` abortando o corpo da
+    função antes do contador de falhas.
+    """
+    if rc == 0:
+        return "nao_mordeu"
+    if marcador not in saida:
+        return "marcador_errado"
+    return "ok"
+
+
+def _meta_controle() -> list[str]:
+    """Prova que `_classifica` distingue as três respostas, antes de qualquer caso.
+
+    Sem isto, "15/15" é compatível com a classificação estar quebrada.
+    """
+    casos = [
+        ((0, "ok — tudo verde", "qualquer"), "nao_mordeu",
+         "exit 0 tem de ser 'não mordeu', mesmo com marcador ausente"),
+        ((1, "FAIL — divergência: superlativa própria", "superlativa própria"),
+         "ok", "exit 1 com o marcador presente tem de ser 'ok'"),
+        ((1, "FAIL — divergência: outra coisa qualquer",
+          "MARCADOR-QUE-NAO-PODE-APARECER"), "marcador_errado",
+         "exit 1 SEM o marcador tem de ser 'marcador errado' — é esta perna "
+         "que prova que a checagem de marcador está viva"),
+    ]
+    fails = []
+    for (rc, saida, marcador), esperado, porque in casos:
+        got = _classifica(rc, saida, marcador)
+        if got != esperado:
+            fails.append(f"_classifica({rc}, ...) deu {got!r}, esperado "
+                         f"{esperado!r} — {porque}")
+    return fails
+
+
 def main() -> int:
+    meta = _meta_controle()
+    if meta:
+        print("FAIL — o meta-controle reprovou; nenhum caso foi rodado, "
+              "porque um resultado verde não significaria nada:", file=sys.stderr)
+        for m in meta:
+            print(f"  {m}", file=sys.stderr)
+        return 1
+    print("meta-controle ................. ✅ _classifica distingue as 3 respostas")
+
     with tempfile.TemporaryDirectory() as d:
         base = Path(d) / "base"
         base.mkdir()
@@ -170,10 +224,11 @@ def main() -> int:
                 alvo.write_text(txt.replace(de, para, 1))
 
             rc, saida = _roda(tmp)
-            if rc == 0:
+            v = _classifica(rc, saida, marcador)
+            if v == "nao_mordeu":
                 falhas.append(f"{nome}: guarda NÃO mordeu")
                 print(f"{nome[:44]:<46} 🔴 não mordeu")
-            elif marcador not in saida:
+            elif v == "marcador_errado":
                 falhas.append(
                     f"{nome}: falhou, mas sem o marcador `{marcador}` — "
                     f"pode ter falhado pelo motivo errado")
