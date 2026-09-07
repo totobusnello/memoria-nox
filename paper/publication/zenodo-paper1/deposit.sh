@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # deposit.sh — cria o rascunho do Paper 1 no Zenodo e para. NÃO publica.
 #
+# 🔴 JÁ FOI PUBLICADO em 2026-09-07: DOI 10.5281/zenodo.22649269 (concept
+# 10.5281/zenodo.22649268), record 22649269. Ver PUBLISHED.md nesta pasta.
+# Rodar este script de novo com o `.draft-id` apagado cria um registro NOVO e um DOI
+# NOVO — não é o que se quer para corrigir metadados do existente. Para o registro
+# publicado: metadados são editáveis (link `draft` do record), arquivos NÃO.
+#
 # Por que Zenodo, e não TechRxiv: em 2026-09-07 o TechRxiv está com submissões
 # FECHADAS ("preparing a transition to a new platform"), sem prazo, e o preprint mais
 # recente listado é de 6 de março de 2026. Ver `../techrxiv-submission-runbook.md`.

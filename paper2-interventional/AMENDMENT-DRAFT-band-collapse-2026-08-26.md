@@ -262,6 +262,18 @@ não — sustenta uma constante de registro. Medido em
 Varredura offline no caminho de produção, 7 agentes, `n = 10`: `churn` **0** em
 `w ∈ {2,0 · 4,0 · 7,5 · 1.000 · 100.000}`, com 19 boosts emitidos por chamada.
 
+> 🔴 **CORREÇÃO 2026-09-07 — a conclusão está certa, a razão está errada.** O número
+> acima não é verdadeiro-porém-vácuo: ele é **falso**. O `dose2.mjs` que o produziu
+> foi refutado em 27/08 — reimplementa a ordenação e não passa por `interleaveFresh`
+> nem por `pickDedup`, então "caminho de produção" ali é o corpus certo com o
+> pipeline **reconstruído**. O real dá **11 / 15 / 17** estados de 350 em
+> `w ∈ {2,0 · 4,0 · 7,5}`, monótono, com saturação em `(4,0 ; 4,4]`.
+>
+> O parágrafo abaixo fica como registro. Ele acerta ao recusar valor probatório, mas
+> pela razão **menos grave** — e justificativa que protege menos do que parece é
+> exatamente a que se reaproveita sem reler. Ver `measurement/README.md:75` e
+> `REPLAY-OPORTUNIDADE-2026-08-27.md`.
+
 ⚠️ **Isto tem valor probatório NULO para a afirmação geral**, e a primeira redação
 a apresentava como *"demonstração direta da dominância"*. No estado medido não há
 grupo qualificável na fronteira; nesse estado `churn = 0` é **garantido pela

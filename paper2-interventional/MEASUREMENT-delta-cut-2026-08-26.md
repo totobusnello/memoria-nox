@@ -5,9 +5,15 @@
 > emenda **retrata**: a auto-extinção como "REFUTADA" (retratação 36), "3 sondas / 15
 > linhas" (37), a descontaminação por corte temporal (38), `11/310` de janela aberta
 > (39), `132/2.212 = 5,9675%` (40), o rótulo do `8,05%` (41) e a linha de base diluída
-> `4,1693%` (34). Fica no pacote **como registro do que foi medido e como**, não como
-> fonte de número. Para os números vigentes, ler `REMEDIATION-2026-08-27.md` e a tabela
-> de retratações da emenda.
+> `4,1693%` (34) — **e a tabela de varredura de dose** (linhas 114-118: `churn` 0 nas
+> três doses com 19 boosts, apresentada como *"demonstração direta da dominância
+> lexicográfica"*), cujo número é **falso**: o `dose2.mjs` que a produziu foi refutado
+> em 27/08 e o real é **11 / 15 / 17**.
+>
+> Fica **no repositório** como registro do que foi medido e como, não como fonte de
+> número — e **não** está no depósito publicado: não consta dos 121 itens do
+> `MANIFEST.json`. Para os números vigentes, ler `REMEDIATION-2026-08-27.md` e a
+> tabela de retratações da emenda.
 
 > **Medição, não decisão.** A `AMENDMENT-v1.12.md` §1.5 declara `Δ_cut = 0,043`
 > como *pendente de definição operacional e de medição*, e o item 3 do §5.3 pede
