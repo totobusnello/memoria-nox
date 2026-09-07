@@ -51,7 +51,17 @@ for it in man["itens"]:
     if hashlib.sha256(b).hexdigest() != it["sha256"]:
         print(f"  MUDOU    {it['path']}"); ruim += 1
 if ruim:
-    raise SystemExit(f"{ruim} divergência(s) — o pacote mudou desde a montagem; remonte")
+    # 🔴 Não diz mais "remonte". Desde 2026-08-30 este registro está PUBLICADO
+    # (DOI 10.5281/zenodo.22181415) e os arquivos são IMUTÁVEIS, então o MANIFEST
+    # deixou de ser um plano de montagem e passou a ser a única prova local do que
+    # foi efetivamente depositado. Recomputá-lo apaga essa prova e deixa a cópia
+    # local descrevendo um pacote que não existe. Divergência aqui significa que o
+    # DISCO mudou; o conserto é no disco, ou é declarar a divergência deliberada
+    # em POST-PUBLISH.md — nunca recomputar o item.
+    raise SystemExit(
+        f"{ruim} divergência(s) — o disco não é mais o que foi publicado.\n"
+        "NÃO recompute o MANIFEST: ele é a prova do conteúdo publicado.\n"
+        "Ver POST-PUBLISH.md nesta pasta.")
 print(f"  ok  {len(man['itens'])} arquivos, sha256 conferido um a um")
 PY
 
