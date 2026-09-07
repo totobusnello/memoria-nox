@@ -6,8 +6,9 @@
  "envio": {
   "soltos": 10,
   "artefatos.zip": {
-   "itens": 57,
-   "bytes": 184682
+   "itens": 58,
+   "bytes": 184682,
+   "bytes_nota": "tamanho do ZIP COMPRIMIDO, nao a soma dos membros; recomputado na montagem do pacote. Fica defasado por 1 artefato acrescentado em 2026-09-07 (ORDEM-SEQUENCIAS-2026-09-07.json, 5,4 KB)"
   },
   "scripts.zip": {
    "itens": 53,
