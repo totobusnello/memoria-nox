@@ -352,6 +352,43 @@ DEPENDENTES = [
         "exige": r"GPT-4\.1-mini|backbones differ|not a state|obtained on",
     },
     {
+        # 🔴 Buraco fechado em 2026-09-07, achado por revisão adversarial. O gatilho
+        # acima exige o PAR (`63.28` E `88.42`), porque `dependentes_check` avalia
+        # `all(...)`. Uma frase que cite só o Overall nunca era examinada — e o
+        # abstract que eu havia reescrito dizia exatamente isso: 63,28% "above every
+        # published MemOS number", sem backbone. O `claims_check` deu **8/8 verde**
+        # sobre esse texto. Contagem de guardas não é margem de segurança; a proteção
+        # existia por sorte da redação.
+        # ⚠️ O gatilho NÃO pode ser `63\.28` sozinho: a primeira versão deste guarda
+        # acusou as linhas 577 e 766, que são CÉLULAS DE TABELA
+        # (`| **Overall** | **63.28%** | 42.55% | …`), onde o enquadramento de
+        # backbone vive na legenda e não dentro da linha. Dois falsos positivos. O
+        # que torna a citação perigosa não é o número, é o número acompanhado de
+        # asserção comparativa — então o gatilho exige as duas coisas.
+        "id": "memos_overall_sozinho",
+        "porque": "63,28 é Gemini-3-flash contra MemOS em GPT-4.1-mini; citar o "
+                  "Overall com asserção comparativa e sem nomear o backbone é "
+                  "cross-backbone disfarçado de SOTA",
+        "gatilho": [r"63\.28",
+                    r"above|exceed|outperform|beat|surpass|higher than|best|SOTA|"
+                    r"state-of-the-art"],
+        "exige": r"GPT-4\.1-mini|backbones differ|not a state|obtained on",
+    },
+    {
+        # A outra metade do mesmo defeito: eu troquei "above every MemOS **Table 4**
+        # number" por "above every **published** MemOS number". Table 4 é artefato
+        # CONGELADO; "published" é quantificador universal sobre toda a literatura
+        # MemOS, presente e futura — série viva, indefensável, e é a forma exata do
+        # claim que a retratação de 03/09 matou. `superlativo_check` não alcança
+        # porque seu regex não cobre "above every".
+        "id": "memos_quantificador_universal",
+        "porque": "comparar-se a 'every published' número de um sistema é alegação "
+                  "sobre literatura futura; o referente tem de ser um artefato "
+                  "congelado (Table 4)",
+        "gatilho": [r"above every", r"MemOS"],
+        "exige": r"Table 4",
+    },
+    {
         # 🔴 Sítio que ESCAPOU e que este guarda existe por isso: em 2026-09-04 a
         # decisão foi retirar "corpus-structural property" de todos os sítios, e eu
         # corrigi a §5.4 e a linha do §5.1, deixando o ABSTRACT. Dois de três. O
