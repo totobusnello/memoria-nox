@@ -1,0 +1,74 @@
+{
+  "metadata": {
+    "resource_type": {
+      "id": "publication-preprint"
+    },
+    "title": "nox-mem: Pain-Weighted Hybrid Memory for LLM Agents",
+    "publication_date": "2026-09-07",
+    "version": "1.0",
+    "publisher": "Zenodo",
+    "languages": [
+      {
+        "id": "eng"
+      }
+    ],
+    "creators": [
+      {
+        "person_or_org": {
+          "type": "personal",
+          "name": "Busnello, Luiz Antonio",
+          "given_name": "Luiz Antonio",
+          "family_name": "Busnello"
+        },
+        "affiliations": [
+          {
+            "name": "Independent Researcher"
+          }
+        ]
+      }
+    ],
+    "rights": [
+      {
+        "id": "cc-by-4.0"
+      }
+    ],
+    "subjects": [
+      {
+        "subject": "agent memory"
+      },
+      {
+        "subject": "hybrid retrieval"
+      },
+      {
+        "subject": "reciprocal rank fusion"
+      },
+      {
+        "subject": "SQLite"
+      },
+      {
+        "subject": "retrieval-augmented generation"
+      },
+      {
+        "subject": "salience ranking"
+      },
+      {
+        "subject": "self-hosted"
+      },
+      {
+        "subject": "cross-system benchmark"
+      }
+    ],
+    "related_identifiers": [
+      {
+        "identifier": "https://github.com/totobusnello/memoria-nox",
+        "scheme": "url",
+        "relation_type": {
+          "id": "issupplementedby"
+        },
+        "resource_type": {
+          "id": "software"
+        }
+      }
+    ]
+  }
+}

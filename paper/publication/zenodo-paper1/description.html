@@ -1,0 +1,81 @@
+<p><strong>An open-source memory layer for LLM agents, measured against five other
+systems on two public benchmarks, in a single-file SQLite store you can host
+yourself.</strong> The paper reports nine ablation generations, one pre-registered
+cross-system comparison, and three findings that cut against its own headline.</p>
+
+<h3>Abstract</h3>
+
+<p>LLM-agent memory systems often trade retrieval quality or portability for developer
+ergonomics, and cross-system benchmarks remain scarce. We present nox-mem, an open-source
+hybrid memory layer combining FTS5 keyword retrieval, sqlite-vec dense retrieval, and
+Reciprocal Rank Fusion over a single-file SQLite store; the default embedding layer is a
+swappable cloud provider, with an FTS5-only offline fallback. Its pain-weighted salience
+score adds incident severity as a retrieval signal (weights 0.55 importance / 0.15
+recency / 0.10 pain / 0.20 access). Pain-weighting is a design signal whose isolated
+effect is directional and <strong>not statistically significant</strong>; section-aware
+ranking is the empirical driver. We also introduce a Conditional Hard Mutex (G10d) that
+gates section and source-type boosts when a query names at most two entities, recovering
+multi-hop (+1.58% nDCG@10) and adversarial (+3.04% nDCG@10, +6.25% MRR) regressions. We
+pre-register methodology, report nine ablation generations (G3-G10d) on an n=100 golden
+set, and benchmark five memory systems (Mem0, Zep, Letta, agentmemory, EverMind-AI): two
+(Mem0, agentmemory) produce head-to-head quality numbers on LongMemEval and LoCoMo; three
+are documented deployment non-runs. Under each system's native embedder the two leaders
+split &mdash; Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426), nox-mem wins LongMemEval. An
+embedding-matched variant (both Gemini 3072-d, n=2,482) inverts the split: nox-mem leads
+LongMemEval (0.526 vs 0.406) and LoCoMo (0.495 vs 0.441) and all five populated query
+categories. This is an embedding match rather than a clean architecture isolation, and
+three residual confounds are declared. On EverMemBench the F_MH multi-hop track sits at
+3-7%, against 18.88% strict EM for the best published system on that track.
+Contributions: pain-weighted salience, the Conditional Hard Mutex boost-interaction
+ablation, an open five-system benchmark, and single-file self-hosted deployment.</p>
+
+<h3>Three findings that cut against the headline</h3>
+<ul>
+  <li><strong>Pain-weighting, the title's own signal, is not statistically
+      significant</strong> in isolation (&sect;7.1). It is directional. The paper says so
+      in the abstract, not only in the limitations.</li>
+  <li><strong>Section-aware ranking, not pain, is the dominant empirical driver</strong>
+      (&sect;5.1.3).</li>
+  <li><strong>On the EverMemBench F_MH multi-hop track the system sits at 3&ndash;7%,</strong>
+      against 18.88% strict EM for the best published system on that track. &sect;5.4
+      attributes this principally to task setup &mdash; which is an explanation, not a
+      defence.</li>
+</ul>
+
+<h3>What the cross-system numbers do and do not establish</h3>
+
+<p>The embedding-matched comparison (&sect;6) is an <strong>embedding match, not a clean
+architecture isolation</strong> &mdash; the paper states this in &sect;6.3.2 and declares
+three residual confounds. Three of the five systems benchmarked never ran: they are
+reported as <strong>documented deployment non-runs</strong>, not as losses. And in the
+native-embedder configuration nox-mem <strong>loses</strong> LoCoMo (0.469 vs 0.426);
+that number is in the abstract for the same reason as the rest.</p>
+
+<h3>Status of this manuscript</h3>
+
+<p>This is a <strong>preprint. It has not been peer reviewed.</strong></p>
+
+<p>It was submitted to arXiv on 2026-09-03 and <strong>not accepted</strong>, with the
+stated reason that it <em>"would benefit from additional review and revision that is
+outside of the services we provide"</em>. arXiv does not assess scientific correctness,
+so that sentence means the manuscript needs peer review and arXiv does not perform peer
+review; it is not a finding about any specific claim. It is recorded here because a
+reader deciding how much weight to give a preprint should not have to discover it
+elsewhere.</p>
+
+<p>An earlier version of this manuscript asserted state-of-the-art results on two
+benchmarks simultaneously. That claim was <strong>retracted</strong> during an honesty
+pass on 2026-09-03&ndash;04, together with five others; the retraction list and the
+mechanical checks that now block their reintroduction are in the repository
+(<code>paper/claims_check.py</code>, <code>paper/publication/</code>).</p>
+
+<h3>Code, data and license</h3>
+
+<p>Implementation, evaluation harness, golden sets and the ablation scripts:
+<a href="https://github.com/totobusnello/memoria-nox">github.com/totobusnello/memoria-nox</a>
+(MIT). This document: CC BY 4.0. The PDF is reproducible from the Markdown source with
+<code>./scripts/build-paper.sh</code> (pandoc + xelatex).</p>
+
+<p>⚠️ One build artefact worth knowing before reading: the warning glyphs (⚠️) used in the
+Markdown source are dropped by the PDF font. The text of every caveat survives; only the
+visual marker is missing.</p>
