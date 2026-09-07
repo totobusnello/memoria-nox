@@ -1,0 +1,5 @@
+# efêmeros do depósito: id do rascunho, readbacks e a metadata montada
+.draft-id
+.metadata-final.json
+.readback-rdm.json
+.readback-legacy.json
