@@ -117,8 +117,26 @@ que o qualificam, então o limitador tem de viajar dentro dele.
 
 - atualizar `CITATION.cff` com o DOI;
 - badge no `README`;
-- ⚠️ o PR no `AgentMemoryWorld/Awesome-Agent-Memory` ficou travado por falta de
-  identificador estável — com o DOI do TechRxiv ele **destrava**;
+- 🔴 **`AgentMemoryWorld/Awesome-Agent-Memory`: esta linha estava errada, e o DOI não
+  destrava nada.** Medido em 2026-09-07, com o DOI já emitido:
+
+  | fato | número |
+  |---|---|
+  | entradas de 2026 na lista | **911** |
+  | quantas apontam para fora do arXiv | **0** |
+  | PRs externos já mergeados na história do repo | **0** |
+  | PR externo mais antigo ainda aberto, sem um comentário | `#1`, desde **2026-02-10** |
+  | último commit do repo | **2026-07-23** |
+
+  A lista é arXiv-only na prática (o próprio formato da entrada embute o rótulo
+  `[arxiv 2026]`), não tem `CONTRIBUTING`, e nenhuma contribuição de terceiro jamais
+  entrou. O que travava **nunca foi** identificador estável — era estar no arXiv, e um
+  DOI de repositório não resolve isso. Nenhum PR foi aberto: seria abrir uma exceção a
+  uma convenção de 911/911 num repo que não lê PR há seis semanas.
+
+  ⚠️ E é a **segunda vez no mesmo documento**: conferi que um DOI é identificador
+  estável e não conferi o que a lista aceita — a mesma forma do erro do TechRxiv, onde
+  conferi os requisitos e não a porta. Requisito conferido não é aceitação conferida.
 - ⚠️ **não** reabrir o arXiv com base neste DOI: a condição de lá é endosso de *journal*,
   e DOI de repositório não a satisfaz. Isso está medido, não suposto.
 
