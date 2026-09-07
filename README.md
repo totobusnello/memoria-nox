@@ -21,7 +21,7 @@
   <a href="https://github.com/totobusnello/memoria-nox/actions/workflows/lint-and-typecheck.yml"><img src="https://img.shields.io/github/actions/workflow/status/totobusnello/memoria-nox/lint-and-typecheck.yml?style=for-the-badge&color=00C896&label=ci" alt="CI"></a>
   <a href="https://www.bestpractices.dev/projects/12896"><img src="https://img.shields.io/cii/level/12896?style=for-the-badge&color=00C896&label=OpenSSF" alt="OpenSSF Best Practices: passing"></a>
   <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.0-00C896?style=for-the-badge" alt="Paper v1.0.0"></a>
-  <img src="https://img.shields.io/badge/arXiv-pending%20(cs.IR)-b31b1b?style=for-the-badge" alt="arXiv preprint cs.IR, submission pending">
+  <a href="https://doi.org/10.5281/zenodo.22649269"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.22649269-00C896?style=for-the-badge" alt="DOI 10.5281/zenodo.22649269"></a>
   <img src="https://img.shields.io/badge/version-1.0.0-00C896?style=for-the-badge" alt="version 1.0.0">
 </p>
 
@@ -148,7 +148,7 @@ Most agent memory systems force a trade you should not have to make: send your d
 
 The moat is not just portability. It is **shadow discipline**: every ranking change ships in shadow mode for at least seven days, with salience scores exposed on `/api/health` for offline comparison, before it is ever allowed to influence a real query. The pain field on each chunk (`severity 0.1 trivial → 1.0 prod-outage`) ensures that incidents stay retrievable when their lessons matter, not when their dates are fresh. The retrieval logic is small enough to read in one sitting, and every score in the eval harness is auditable from the SQL up.
 
-memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* (v1.0.0, arXiv cs.IR target) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **94.9k chunks** and **~15.6k entities / ~21.5k relations** with a monthly OPEX under **$11**.
+memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* ([10.5281/zenodo.22649269](https://doi.org/10.5281/zenodo.22649269), preprint, not peer reviewed) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **94.9k chunks** and **~15.6k entities / ~21.5k relations** with a monthly OPEX under **$11**.
 
 ## Architecture
 
@@ -352,17 +352,30 @@ Per-agent setup: [`docs/integrations/`](docs/integrations/). The MCP server expo
 
 **Title:** *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents*
 
-**Status:** v1.0.0 (2026-06-30, frozen for submission) &middot; arXiv target: cs.IR &middot; Q4 gate passed (D43) &middot; submitted to arXiv, in moderation (ID pending)
+**DOI:** [`10.5281/zenodo.22649269`](https://doi.org/10.5281/zenodo.22649269) &middot; concept DOI (always latest): [`10.5281/zenodo.22649268`](https://doi.org/10.5281/zenodo.22649268)
+
+**Status:** preprint on Zenodo, 2026-09-07, CC BY 4.0. **Not peer reviewed.**
+
+⚠️ **It is not on arXiv, and that is settled, not pending.** arXiv did **not accept** the
+manuscript on 2026-09-03, stating it *"would benefit from additional review and revision
+that is outside of the services we provide"*. arXiv does not assess scientific
+correctness, so that sentence means "needs peer review, which we do not perform" — it is
+not a finding against any specific claim. A repository DOI does **not** satisfy that
+condition. Earlier versions of this README said "submission pending"; that had been false
+since 2026-09-03.
 
 **PDF:** [`paper/build/paper-tecnico-nox-mem.pdf`](paper/build/paper-tecnico-nox-mem.pdf) &middot; changelog: [`paper/CHANGELOG.md`](paper/CHANGELOG.md)
 
 ```bibtex
 @article{busnello2026noxmempaper,
-  title   = {nox-mem: Pain-Weighted Hybrid Memory for LLM Agents},
-  author  = {Busnello, Luiz Antonio},
-  year    = {2026},
-  journal = {arXiv preprint (cs.IR, submission pending)},
-  url     = {https://github.com/totobusnello/memoria-nox}
+  title     = {nox-mem: Pain-Weighted Hybrid Memory for LLM Agents},
+  author    = {Busnello, Luiz Antonio},
+  year      = {2026},
+  month     = {9},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.22649269},
+  url       = {https://doi.org/10.5281/zenodo.22649269},
+  note      = {Preprint, not peer reviewed}
 }
 ```
 
@@ -378,7 +391,8 @@ If you use nox-mem in your research or production:
   month   = {6},
   url     = {https://github.com/totobusnello/memoria-nox},
   version = {1.0.0},
-  note    = {arXiv: cs.IR (submission pending)}
+  doi     = {10.5281/zenodo.22649269},
+  note    = {Paper DOI; the software itself is MIT on GitHub}
 }
 ```
 

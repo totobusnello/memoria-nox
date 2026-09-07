@@ -19,7 +19,7 @@ type: software
 repository-code: "https://github.com/totobusnello/memoria-nox"
 url: "https://github.com/totobusnello/memoria-nox"
 license: MIT
-date-released: "2026-06-30"  # v1.0.0 — frozen for arXiv submission (update arXiv ID after submit)
+date-released: "2026-06-30"  # v1.0.0 — código. O paper tem DOI próprio: ver preferred-citation
 version: "1.0.0"
 keywords:
   - memory
@@ -38,7 +38,23 @@ preferred-citation:
     - family-names: "Busnello"
       given-names: "Luiz Antonio"
   year: 2026
+  month: 9
+  publisher:
+    name: "Zenodo"
+  doi: "10.5281/zenodo.22649269"
+  url: "https://doi.org/10.5281/zenodo.22649269"
+  # Preprint. NOT peer reviewed. Deposited on Zenodo 2026-09-07 under CC BY 4.0.
+  #
+  # It is NOT on arXiv, and that is a fact about the manuscript, not a pending task:
+  # arXiv did not accept it on 2026-09-03, stating it "would benefit from additional
+  # review and revision that is outside of the services we provide". arXiv does not
+  # assess scientific correctness, so that sentence means "needs peer review, which we
+  # do not perform". A repository DOI does NOT satisfy that condition — do not replace
+  # this DOI with an arXiv ID unless one actually exists.
   identifiers:
-    - type: other
-      value: "arXiv: cs.IR (submission pending)"
-      description: "arXiv preprint — update with the real arXiv ID after submission"
+    - type: doi
+      value: "10.5281/zenodo.22649269"
+      description: "This version (v1.0), 2026-09-07"
+    - type: doi
+      value: "10.5281/zenodo.22649268"
+      description: "Concept DOI — always resolves to the latest version"

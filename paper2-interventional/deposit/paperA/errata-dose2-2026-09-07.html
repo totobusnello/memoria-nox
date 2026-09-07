@@ -1,0 +1,33 @@
+
+<h3>⛔ Errata 2026-09-07 — um script do pacote é registro de erro, não instrumento</h3>
+
+<p><strong>O arquivo <code>measurement/dose2.mjs</code>, dentro de
+<code>scripts.zip</code>, foi refutado em 2026-08-27 e o número que ele produz é
+falso.</strong> Ele está no depósito como registro do erro, e nada dentro dele diz isso —
+esta errata existe para que quem abrir o pacote saiba antes de executá-lo.</p>
+
+<ul>
+  <li><strong>O que ele produz:</strong> <code>churn</code> 0 em
+      <code>w ∈ {2,0 · 4,0 · 7,5}</code>, com 19 boosts emitidos.</li>
+  <li><strong>O que o pipeline real produz:</strong> <strong>11 / 15 / 17</strong> estados
+      de 350, monótono, com saturação em <code>(4,0 ; 4,4]</code>.</li>
+  <li><strong>Por quê:</strong> "caminho de produção" ali era o corpus certo com a
+      ordenação <strong>reimplementada</strong> — não passa por
+      <code>interleaveFresh</code> nem por <code>pickDedup</code>. Um controle positivo
+      sobre pipeline reconstruído não prova nada sobre o pipeline.</li>
+</ul>
+
+<p>⚠️ O agravante: o cabeçalho do próprio arquivo <strong>afirma</strong> o que foi
+refutado — <em>"agora no caminho que prod REALMENTE usa"</em> — e narra um defeito de
+harness já consertado, o que induz a concluir que aquela versão está sã. Não está.</p>
+
+<p><strong>Nenhum número deste paper depende dele.</strong> Os textos vigentes
+(<code>MANUSCRIPT.md</code> §5.4 e <code>DEVIATIONS-FOR-PAPER.md</code> §1), ambos
+depositados, trazem 11 / 15 / 17. O risco é exclusivamente para quem reexecutar o script
+tomando-o por instrumento.</p>
+
+<p>A ressalva existia desde 27/08 em <code>measurement/README.md</code>, que
+<strong>não</strong> faz parte do depósito — o artefato viajou e a ressalva ficou. Os
+arquivos de um registro publicado são imutáveis, então a correção vem por aqui.
+Detalhe: <code>paper2-interventional/deposit/paperA/POST-PUBLISH.md</code> no
+repositório.</p>

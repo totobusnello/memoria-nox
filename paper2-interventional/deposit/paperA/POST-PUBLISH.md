@@ -70,7 +70,21 @@ No Zenodo, metadados de registro publicado são editáveis; arquivos não.
 Nenhuma das duas fecha o buraco residual: quem já baixou o `scripts.zip` e o lê offline.
 Nova versão também não.
 
-**Decisão pendente do Toto.** Nada publicado se move sem ele.
+✅ **Resolvido 2026-09-07 pela via da description**, autorizado pelo Toto. A errata foi
+anexada à description do registro publicado e **republicada**: mesmo DOI
+`10.5281/zenodo.22181415`, `versions.index` continua **1** (não é versão nova), os **13**
+arquivos intactos, description 3.942 → 5.846 B. Fonte do texto:
+`errata-dose2-2026-09-07.html` nesta pasta.
+
+Gate rodado **antes** do publish, comparando o rascunho de edição contra a cópia do
+registro publicado: título, data, versão, publisher, creators, rights, subjects,
+languages e related_identifiers **idênticos**; a description publicada preservada como
+prefixo (não substituída); a errata presente; e as frases do texto original conferidas
+uma a uma. Só então o `publish`.
+
+⚠️ Buraco residual, que nenhuma via fecha: quem já baixou o `scripts.zip` e o lê offline
+não vê a errata. Nova versão também não alcançaria essa pessoa — e custaria um DOI novo e
+permanente.
 
 ## Cabeçalho preparado, para a nova versão se houver uma
 

@@ -1,0 +1,9 @@
+# efêmeros do depósito e dos readbacks
+.draft-id
+.metadata-final.json
+.metadata-errata.json
+.readback-*.json
+.published-before.json
+.description-published.html
+.put-resp.json
+.publish-resp.json
