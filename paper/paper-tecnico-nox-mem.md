@@ -1186,7 +1186,7 @@ To prevent retroactive selection bias:
 
 - **All 6 categories reported.** None is omitted because the result is unfavorable.
 - **Both datasets reported.** LongMemEval n=100 + LoCoMo full, side by side. We do not cherry-pick whichever benefits nox-mem.
-- **Worst-case latency reported.** p50 + p95 + p99 explicit. We do not publish only p50.
+- **Latency — this principle is declared UNMET for the cross-system comparison, and the gap is stated rather than the principle quietly dropped.** Per-system latency percentiles were **not** captured uniformly in the 2026-06-15 run (§6.3), so this section reports **no** cross-system latency at all — not a favourable subset of it. nox-mem's own paths are reported separately in §5.7 with p50 **and p95** (KG path 2.9 / 5.7 ms; hybrid 653 / 706 ms); **p99 is not reported for every path**, and the opt-in cross-encoder row carries p50 only. An earlier version of this bullet claimed "p50 + p95 + p99 explicit", which was contradicted by §6.3 in this same section and was not true of §5.7 either.
 - **Per-system per-category transparency.** The §6.4 table exposes every combination; there is no aggregate row that masks a pattern.
 - **Gaps documented.** Systems that fail setup receive an explicit note; the comparison runs without the missing system, but the gap is recorded in `docs/COMPARISON.md`.
 - **Explicit per-dataset breakdown (PR #318, 2026-05-23 — rev3).** The Gemini hybrid@500 run revealed that the aggregate (0.0918) masks a decisive per-dataset result. We report all three rows explicitly:
