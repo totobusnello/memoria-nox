@@ -1,0 +1,261 @@
+{
+ "procedencia": {
+  "gerado_em": "2026-09-07T14:52:00Z",
+  "script": "measurement/ordem.mjs",
+  "porque": "A alegacao de README.md:69 (28 casos, 0 com ordem diferente) nao tinha artefato: vivia em prosa em tres lugares. E o par de insumos de 2026-08-26 esta incompleto — o snapshot de epoch daquele dia foi podado (so restam os .manifest.json). Este artefato NAO reproduz a rodada de 26/08: reestabelece a alegacao num par de insumos preservado e pinado. Ver DEVIATIONS-FOR-PAPER.md 10.6.",
+  "live": {
+   "path": "/var/lib/nox-mem/p2/corpus/p2-ord-ro-2026-08-26.db",
+   "sha256": "74ef0d308a57d8248e150efda80666a8308e77100521cb9a19fff6778127ed83",
+   "bytes": 1716289536,
+   "estado": "corpus congelado, MAX(created_at)=2026-08-24 01:06:35"
+  },
+  "corpus": {
+   "path": "/var/lib/nox-mem/epochs/e20260907T060001Z.db",
+   "sha256": "4ec7e182a6360db2bcff068abfd7ae6096a5b636017eef19ad297401fe721345",
+   "bytes": 1258987520
+  },
+  "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76"
+ },
+ "resumo": {
+  "casos": 28,
+  "doses": [
+   2,
+   4,
+   7.5,
+   100000
+  ],
+  "agentes": 7,
+  "mesmaOrdem_true": 28,
+  "mesmaOrdem_false": 0,
+  "mesmoConjunto_true": 28,
+  "churn_maior_que_zero": 0,
+  "posicoes_diferentes_maior_que_zero": 0
+ },
+ "ressalva_de_poder": "mesmoConjunto=True nos 28 e a PRE-CONDICAO do teste, nao um defeito: a objecao que ele responde e 'se churn=0, um boost que REORDENA dentro do conjunto fica invisivel'. Mas o artefato NAO registra se um boost foi de fato emitido em cada estado, entao a refutacao vale condicionada a isso e o poder do teste fica sem medida. Declarado em vez de silenciado.",
+ "resultados": [
+  {
+   "w": 2,
+   "agent": "nox",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 2,
+   "agent": "lex",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 2,
+   "agent": "atlas",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 2,
+   "agent": "boris",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 2,
+   "agent": "cipher",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 2,
+   "agent": "forge",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 2,
+   "agent": null,
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 4,
+   "agent": "nox",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 4,
+   "agent": "lex",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 4,
+   "agent": "atlas",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 4,
+   "agent": "boris",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 4,
+   "agent": "cipher",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 4,
+   "agent": "forge",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 4,
+   "agent": null,
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 7.5,
+   "agent": "nox",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 7.5,
+   "agent": "lex",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 7.5,
+   "agent": "atlas",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 7.5,
+   "agent": "boris",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 7.5,
+   "agent": "cipher",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 7.5,
+   "agent": "forge",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 7.5,
+   "agent": null,
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 100000,
+   "agent": "nox",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 100000,
+   "agent": "lex",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 100000,
+   "agent": "atlas",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 100000,
+   "agent": "boris",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 100000,
+   "agent": "cipher",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 100000,
+   "agent": "forge",
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  },
+  {
+   "w": 100000,
+   "agent": null,
+   "churn": 0,
+   "mesmoConjunto": true,
+   "mesmaOrdem": true,
+   "posicoes_diferentes": 0
+  }
+ ]
+}

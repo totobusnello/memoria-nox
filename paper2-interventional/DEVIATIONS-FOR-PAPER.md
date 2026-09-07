@@ -657,9 +657,43 @@ caminho volátil por convenção, por dependência publicada fora do depósito e
 agente de faxina que perguntou mas podia não ter perguntado — **não** por deleção
 iminente.
 
-**Fica aberto:** se o pacote passa a carregar o próprio insumo. 1,6 GB é grande, e o
-que a alegação exige são os **28 casos**, não o corpus inteiro — depositar o recorte
-resolve a reprodutibilidade sem o volume.
+**Resolução, e ela falsificou a minha própria proposta.** Eu havia sugerido "depositar
+o recorte de 28 casos em vez do corpus de 1,6 GB". Ao executar, dois fatos derrubaram
+isso:
+
+1. **não havia recorte a depositar, porque não havia artefato nenhum.** A alegação vivia
+   só em prosa, em três lugares (`measurement/README.md:69`,
+   `AMENDMENT-DRAFT-band-collapse-2026-08-26.md:862` e este documento). É a classe já
+   catalogada no §6 — *um valor citado em vários lugares sem nenhum artefato que o
+   contivesse*;
+2. **e o recorte não seria recortável:** `ordem.mjs` passa o handle do DB **para dentro**
+   do código de produção (`boostsParaCandidatos`, `buildBriefDiverse`), então "só as
+   linhas de que ele precisa" exigiria reimplementar o que a produção lê — a
+   reconstrução que este trabalho já pagou para não fazer.
+
+⚠️ **Pior: a rodada de 2026-08-26 não é mais reproduzível, e não por causa do arquivo que
+eu salvei.** O par de insumos é `live` + `corpus`. O `live` está preservado; o `corpus`
+apontava para `/var/lib/nox-mem/epochs/current.db`, e os snapshots de epoch de 08-24 a
+09-02 **foram podados** — restam apenas os `*.manifest.json`. Salvei metade do insumo.
+
+**O que ficou feito:** a comparação foi **reestabelecida** num par preservado e pinado, e
+gravada como `out/ORDEM-SEQUENCIAS-2026-09-07.json` (5,4 KB — não 1,6 GB), com
+`sha256` dos dois insumos, o resumo e os 28 resultados. Resultado: **`mesmaOrdem` = true
+em 28 de 28**, `mesmoConjunto` = true em 28 de 28. O artefato entra no MANIFEST (item
+121), e o `sha256` do próprio `ordem.mjs` foi recomputado ali, porque a edição do caminho
+o havia desatualizado — o gate 0 do `deposit.sh` teria falhado, corretamente.
+
+⚠️ **Este artefato NÃO reproduz a rodada de 26/08** — reestabelece a alegação em outro
+par de insumos, e diz isso no próprio campo `procedencia.porque`. O `README.md:69` foi
+alterado para carregar a ressalva junto do número, em vez de apresentá-lo como se fosse a
+medição original.
+
+⚠️ **Ressalva de poder, declarada no artefato em vez de silenciada.** `mesmoConjunto =
+true` nos 28 é a **pré-condição** do teste, não defeito: a objeção que ele responde é *"se
+`churn = 0`, um boost que **reordena** dentro do conjunto fica invisível"*. Mas o artefato
+**não registra se um boost foi de fato emitido** em cada estado, então a refutação vale
+condicionada a isso e o poder do teste fica sem medida. Fechar essa ponta exige gravar
+`boosts_emitidos` por caso — trabalho declarado, não feito.
 
 ## Se a decisão mudar
 

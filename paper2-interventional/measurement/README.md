@@ -66,7 +66,7 @@ reprodução de âncora **nas duas** configurações de sonda.
 |---|---|---|
 | `mede-delta.mjs` | pool de cobertura com `last_served` e `salience`, marcando quem é do estudo | pool 108 · 55/55 do estudo · 0 nunca-servidos · 44 grupos. ⚠️ usa `julianday('now')` e o **DB vivo** como corpus — produção serve do snapshot de epoch |
 | `gap-defs.mjs` | o mesmo pool, mas **determinístico**: corpus = snapshot explícito, `T_REF` obrigatório (entra na elegibilidade, no serve-state **e** no `calculateSalience`), sondas excluíveis por `brief_id` — e as **três** definições de "par" lado a lado | reproduz as 6 âncoras publicadas; a definição certa é **adjacentes dentro do grupo de empate**: 38 pares · 11 zeros · 27 positivos · máx. 0,031808734967844865 (bate na 9ª decimal) |
-| `ordem.mjs` | compara as **sequências** servidas, não os conjuntos | 28 casos, 0 com ordem diferente — refuta o canal de reordenação |
+| `ordem.mjs` | compara as **sequências** servidas, não os conjuntos | **28 casos, 0 com ordem diferente** — refuta o canal de reordenação. Artefato: `out/ORDEM-SEQUENCIAS-2026-09-07.json` (insumos pinados por `sha256`). ⚠️ A rodada original de 26/08 **não tinha artefato** e **não é reproduzível** — o snapshot de epoch daquele dia foi podado; este número é do par de insumos preservado, não da rodada original. Ver `DEVIATIONS-FOR-PAPER.md` §10.6 |
 
 ### Efeito da dose
 
