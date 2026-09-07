@@ -325,6 +325,29 @@ s, a = tab.get(wserv), tab.get(100000.0) or tab.get(100000)
 if s is None or a is None:
     print(f'RED|motivo=dose-ausente-na-tabela doses={sorted(tab)} sha256={sha}')
     raise SystemExit
+# ─── O replay respondeu sobre a janela INTEIRA? ──────────────────────────────
+# Perna acrescentada em 2026-09-06. Este gatilho carregava `n_janela` e `estados`
+# lado a lado na própria linha de status e NENHUM predicado os comparava — e foi
+# por isso que dois dias de RED saíram com o motivo errado. Não é a família
+# "guarda calado por não ter o dado" (regra 9 do CLAUDE.md): é o agravante dela,
+# guarda que TEM o dado e não pergunta.
+#
+# Um brief que o replay não consegue localizar vira `erro` e sai da população
+# ANTES do laço de doses, então `mexeu` passa a ser medido sobre os
+# sobreviventes. O defeito que motivou esta perna descartava precisamente os
+# briefs em que a dose mordeu (§10.4 do DEVIATIONS-FOR-PAPER.md), o que torna o
+# viés anticorrelacionado com o efeito: perda silenciosa aqui empurra o veredito
+# para "inerte". Por isso vem ANTES de `inerte` — inércia é o sintoma.
+# ⚠️ O predicado é `!=`, não `<`, e isto é deliberado. Um replay que afirma ter
+# respondido MAIS estados do que a janela tem também é incoerente, e não é
+# hipotético: o stub do `teste-gatilho-active.sh` devolvia `estados: 672` fixo
+# sobre janelas de 40 registros, e foi esta perna que o pegou (2 dos 9 casos
+# existentes falharam ao ela entrar — o stub mentia, a perna estava certa).
+# Trocar por `<` cegaria justamente essa direção. Em produção o excesso é
+# latente: `briefs` é filtrado por `ids_controle.length === 10`, subconjunto dos
+# `p2_outcome` que o `n_janela` conta, logo `estados <= n_janela`.
+njan_i = int(njan)
+faltantes = njan_i - s["estados"]
 # `saturado` é a identidade, não um limiar: a dose servida já produz tudo.
 saturado = s["churn_total"] == a["churn_total"] and s["mexeu"] == a["mexeu"]
 inerte = s["mexeu"] == 0
@@ -339,6 +362,32 @@ elif folga is not None and folga >= 0.9:
     estado, motivo = "YELLOW", "folga<=10%: a dose servida esta perto de saturar"
 else:
     estado, motivo = "GREEN", "dose dentro da faixa responsiva"
+
+# ─── Janela incompleta: ALARMA e PRESERVA o veredito ─────────────────────────
+# A primeira versão desta perna (2026-09-06) abortava aqui, e no dia seguinte isso
+# custou caro: UM brief com escrita incompleta no `brief_log` (1 linha de 10, em
+# 2026-09-06T23:07:02.425Z) suprimiu um veredito substantivo — no epoch 09-06,
+# `w=7,5` e `w=100000` deram resultado IDÊNTICO (`mexeu=38`, `churn_total=44`), isto
+# é `saturado`, na dose mais alta do desenho.
+#
+# A lição que motivou a perna era "não medir sobre população reduzida EM SILÊNCIO",
+# não "nunca medir". Com a redução declarada e quantificada, o veredito é
+# utilizável — e jogá-lo fora por 1 em 672 transforma o guarda em ruído que suprime
+# sinal. Então: o estado continua RED (o morning report tem de ver), e o veredito de
+# dose viaja junto, com a população sobre a qual foi computado explícita.
+#
+# ⚠️ A comparação é `!= 0`, não `> 0`, e isto é deliberado: um replay que afirma ter
+# respondido MAIS estados do que a janela tem também é incoerente, e não é
+# hipotético — o stub do `teste-gatilho-active.sh` devolvia `estados: 672` fixo sobre
+# janelas de 40 registros, e foi esta perna que o pegou. Em produção o excesso é
+# latente, porque `briefs` é filtrado por `ids_controle.length === 10`, subconjunto
+# dos `p2_outcome` que o `n_janela` conta.
+if faltantes != 0:
+    quanto = f"faltam={faltantes}" if faltantes > 0 else f"excedem={-faltantes}"
+    motivo = (f'erros-no-replay: a janela nao foi respondida inteira {quanto}; '
+              f'veredito_dose={estado}:{motivo} '
+              f'populacao_do_veredito={s["estados"]}/{njan_i}')
+    estado = "RED"
 # `semantica` existe para impedir uma leitura errada previsível: `mexem_servido` NÃO
 # é "quantas oportunidades ocorreram na janela". O replay aplica a designação ATUAL
 # aos estados de ontem, então é "quantos estados MOVERIAM sob a regra de hoje". Numa

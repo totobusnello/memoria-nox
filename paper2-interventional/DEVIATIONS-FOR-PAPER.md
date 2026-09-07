@@ -407,6 +407,294 @@ dia lê o status gravado às 09:12 do dia **anterior** — o RED de 09-02 aparec
 de 09-03, quando o estado corrente já era YELLOW. Não é dado errado, é dado velho
 apresentado como corrente, que na prática dá no mesmo para quem lê o alerta.
 
+#### 10.4 O gatilho de saturação descartava exatamente os briefs em que a dose mordeu
+
+Nos dois primeiros epochs de tratamento medidos em `active`, o gatilho `p2-saturacao-da-dose`
+reportou **RED `dose-servida-inerte: nenhum estado se move`**. Os dois vereditos ficam
+preservados aqui com a procedência de cada janela, porque o que este item registra é um
+alarme **diagnosticado**, não um alarme silenciado:
+
+| epoch | janela | `sha256` do recorte | `n_janela` | `estados` | `mexem_servido` | `mexem_absurdo` |
+|---|---|---|---|---|---|---|
+| 2026-09-04 | `[09-04T09:00Z, 09-05T09:00Z)` | `64da3be2…20d59e` | 672 | 638 | 0 | 11 |
+| 2026-09-05 | `[09-05T09:00Z, 09-06T09:00Z)` | `a17ceafd…d84c7027` | 672 | 640 | 0 | 14 |
+
+**A leitura natural — e errada — é "a dose servida saturou".** O log de serving, que é
+independente do replay, diz o contrário na mesma janela: no epoch de controle `w = 0`,
+**0 de 441** briefs têm `churn > 0`; nos dois de tratamento `w = 2,0`, **35 de 672** e
+**33 de 672**.
+
+**Causa raiz.** O replay localiza cada brief no `brief_log` pela assinatura
+`(agente, segundo, conjunto dos 10 `chunk_id`)`, e a assinatura que ele usa é
+`ids_controle` (`replay-oportunidade.mjs:549`). Em `active`/tratamento o conjunto
+**servido** é o **tratado**. Logo, em todo brief no qual o boost mudou a composição, a
+assinatura procurada não existe no `brief_log`: `cands.length === 0`, o item vira `erro`
+e o `continue` de `:561` o remove **antes** do laço de doses (`:622`). Na agregação, itens
+com `erro` não entram no `estados` da tabela.
+
+Medido sobre a janela do epoch 09-05, casando o `brief_log` inteiro da janela em memória:
+
+| grupo | n | casa por `ids_controle` | casa por `ids_tratado` |
+|---|---|---|---|
+| `churn > 0` | 33 | **1** | 33 |
+| `churn = 0` | 639 | 634 | 634 |
+
+`33 − 1 = 32`, exatamente o `672 − 640` da tabela acima. A interseção é exata: das 33 com
+churn, 32 falham e **1** casa (`2026-09-05T21:52:02.445Z`, `nox`, `churn = 2`); falhas
+entre as sem churn: **0**.
+
+Confirmação por rota independente, que não usa o campo em que a correção se apoia:
+reconstruindo o servido a partir do próprio log como
+`(ids_controle − would_leave) ∪ would_enter`, o casamento vai de **640/672** (regra atual)
+para **672/672**. Como subproduto, isso é uma âncora nova: `would_enter`/`would_leave` do
+log de serving são exatamente consistentes com o que o `brief_log` registra como servido,
+nos 672.
+
+**O defeito é puramente de seleção — não há ponta a montante.** Rodado o harness em
+modo de fidelidade (`--modo campo`, que compara o controle reconstruído com o que a
+produção gravou) sobre a mesma janela: `bate_controle` **640/640**, `bate_churn`
+**639/640**, `erros` **32**. Ou seja, o pipeline reproduz a produção em tudo que
+consegue alcançar; o que falha é só *quais* briefs ele alcança.
+
+⚠️ E o próprio número da fidelidade tem de ser citado sobre a população **pretendida**,
+não sobre a que sobrou: `639/640` é 99,8% de uma população já encolhida pelo defeito, e
+sobre os 672 da janela é **639/672 = 95,1%**, com 32 briefs sem resposta nenhuma. Citar
+o primeiro seria medir a fidelidade no denominador que o defeito produziu — a mesma
+armadilha de população que este documento registra em outra unidade.
+
+> ⚠️ **O viés é anticorrelacionado com o efeito que o instrumento mede.** Quanto mais a
+> dose funciona, mais briefs saem da população, e mais perto de zero fica o resultado. É
+> um erro de seleção que se disfarça precisamente de resultado nulo — a mesma forma do
+> classificador de SOTA que usava "menciona um baseline" como prova de ser de terceiro.
+
+**Por que não foi visto por dois dias.** O gatilho carregava os dois números lado a lado
+na própria linha de status — `n_janela=672` e `estados=640` — e **nenhum predicado os
+comparava**. Não é a família "guarda calado por não ter o dado" (regra 9 do `CLAUDE.md`):
+é o agravante dela, guarda que **tem** o dado e não pergunta.
+
+**Alcance do dano, e o limite honesto da varredura.** O defeito é exclusivo do modo
+`active`: em `shadow` o servido *era* o controle, a assinatura casava, e `estados ==
+n_janela == 672` nas **seis** rodadas shadow — a série mostra o descolamento aparecendo
+só nas duas rodadas `active`. Todo número derivado de replay já escrito rastreia para a
+calibração de **2026-08-27** (`11/350 = 3,1429%`, `15`, `17`, teto `17/350 = 4,86%`,
+`w_min = 4,4`, saturação em `(4,0 ; 4,4]`), cuja janela `[2026-08-26T20:28Z,
+2026-08-27T09:00Z)` é anterior à ativação — portanto não contaminada. Único consumidor
+automático do replay é o próprio gatilho de saturação. A varredura cobre os artefatos
+versionados e os consumidores automáticos; **não** cobre uma rodada ad-hoc cujo número
+tenha ido direto para prosa sem deixar arquivo.
+
+**Correções, classificadas como instrumentação e não emenda**, pelo mesmo critério do
+§10.2 — nenhuma toca designação, dose, ordenação ou composição; o que muda é o que o
+instrumento consegue enxergar:
+
+1. `idDoBrief` passa a chavear pelo conjunto **efetivamente servido**, usando o campo
+   `servido` que o log já grava (`ids_tratado` quando `servido == "tratado"`, senão
+   `ids_controle`). Nada é reconstruído.
+2. Perna nova no gatilho: `estados != n_janela ⇒ RED erros-no-replay=N`. Independente da
+   correção 1, e é a que impede a próxima confusão desta família.
+3. Teste de regressão que morde **este** defeito: sobre janela de epoch tratado, exigir
+   `erros == 0`. Hoje ele falha; depois da correção 1, passa. Sem ele a correção fica sem
+   nada que a proteja — ausência deliberada precisa de teste que a defenda.
+
+**Adendo de 2026-09-07 — a perna nova era estrita demais, e custou um sinal no dia
+seguinte.** Na primeira versão ela abortava, e no epoch `2026-09-06` **um** brief com
+escrita incompleta no `brief_log` (1 linha de 10, em `23:07:02.425Z`) suprimiu um
+veredito substantivo: `w = 7,5` e `w = 100000` produziram resultado **idêntico**
+(`mexeu = 38`, `churn_total = 44`, `folga = 1,0`), isto é **`saturado`** — na dose mais
+alta do desenho, subir `w` não muda mais nada.
+
+A lição que motivou a perna era "não medir sobre população reduzida **em silêncio**", não
+"nunca medir". Descartar o veredito por 1 em 672 transforma o guarda em ruído que suprime
+sinal — a fadiga de alarme que ele existia para evitar. Corrigido para **emitir os dois**:
+o estado continua `RED` (o *morning report* tem de ver), e o veredito de dose viaja junto
+com a população explícita. A linha, verificada rodando o próprio bloco de decisão do
+script implantado sobre os números reais do epoch:
+
+```
+RED|motivo=erros-no-replay: a janela nao foi respondida inteira faltam=1;
+veredito_dose=RED:SATURADO: dose servida == dose absurda; a dose nao esta identificada
+populacao_do_veredito=671/672 … mexem_servido=38 mexem_absurdo=38 folga=1.0 n_janela=672
+```
+
+⚠️ E um erro de contagem **meu** no diagnóstico desse `faltam=1`, registrado porque a
+causa é transferível: minha reconstrução independente acusou **4** briefs não
+respondidos contra o **1** do gatilho, e o gatilho estava certo. O código faz
+`GROUP BY brief_id` sobre a janela de 3 s; eu agrupei **por segundo**, e três dos quatro
+briefs têm os 10 chunks atravessando a fronteira do segundo (10 linhas, 2 `served_at`
+distintos), então meu agrupamento os partia em 5 + 5 e nenhum casava a assinatura. É
+invariante verificado sobre o conjunto errado.
+
+**Controle positivo da correção — o critério foi o número, não o verde.** Rodado o
+mesmo `--modo dose` sobre a mesma janela (`sha256` conferido idêntico ao do veredito
+RED), com o `idDoBrief` corrigido:
+
+| | antes | depois |
+|---|---|---|
+| `estados` | 640 | **672** |
+| `erros` | 32 | **0** |
+| `mexeu` (w = 2,0) | 0 | **33** |
+| `churn_total` (w = 2,0) | 0 | **35** |
+| `mexeu` (w = 100000) | 14 | 47 |
+
+Os dois números da dose servida — **33** e **35** — reproduzem exatamente o que o log
+de serving registrou de forma independente para o epoch, e é isso que valida a
+correção: um veredito GREEN por si não distinguiria "consertado" de "quebrado de
+outro jeito". A folga passa a `33/47 = 0,70`, dentro da faixa responsiva.
+
+⚠️ **Uma comparação que este item NÃO faz.** Os `35/672` são *briefs com churn*; os
+`3,14%` da condição de detectabilidade foram medidos como *estados que movem* (`11/350`).
+Denominador e unidade diferentes; dizer "acima do previsto" antes de casar a unidade
+repetiria o defeito "número certo, população errada" já registrado neste documento. O que
+se afirma aqui é só o contraste interno, mesma fonte e mesma unidade: `0/441` no controle
+contra `35/672` e `33/672` no tratamento.
+
+**Procedência.** Divergência notada em 2026-09-06 ao conferir a série viva do ensaio.
+Duas explicações minhas foram levantadas e **falsificadas** antes desta: (i) "ponto fixo
+— em `active` o boost já está aplicado, reaplicar não move nada", incompatível com o
+código, já que a linha de base do replay é o controle reconstruído (`out.alt`, comparado
+a `ids_controle` em `:745`); (ii) "o snapshot de corpus deixou de cobrir a janela após a
+mudança de fronteira de 28/08", falsificada por medição — dos 141 `chunk_id` distintos da
+janela, **zero** ausentes no corpus, e os 84 registros posteriores ao snapshot não batem
+com o gap de 32 nem em contagem nem em direção. O sítio do descarte e a perna
+`estados != n_janela` foram localizados em paralelo pela sessão vizinha; a conferência por
+reconstrução do servido e a varredura de contaminação são dela.
+
+#### 10.5 O corpus esteve congelado durante os seis primeiros epochs — por defeito
+
+`MAX(created_at)` em `chunks` esteve cravado em **2026-08-24 01:06:35** até
+**2026-09-07T14:06:13Z**. A série diária não declina: **corta**.
+
+| dia | chunks com `created_at` nesse dia |
+|---|---|
+| 2026-08-21 | 118 |
+| 2026-08-22 | 15 |
+| 2026-08-23 | 57 |
+| 2026-08-24 | 40 |
+| 2026-08-25 … 2026-09-06 | **0** (14 dias) |
+| 2026-09-07 | 182 |
+
+Causa: `nox-mem-watch.sh:52` invocava `/usr/local/bin/nox-mem ingest`, binário
+ausente há ~15 dias — o mesmo que havia quebrado o *nightly*. O journal do watcher
+registra `No such file or directory`. As **buscas nunca pararam** (`updated_at`
+seguia andando); só a ingestão.
+
+⚠️ **Discrepância de contagem que fica declarada em vez de resolvida por escolha.**
+O total foi de 67.187 para 67.224 (**+37 líquidos**), e há **182** linhas com
+`created_at` de 2026-09-07 — logo ~145 substituíram versões existentes. O relatório
+do próprio *catch-up* diz **124** chunks em 13 arquivos. Os 58 de diferença entre
+124 e 182 não estão explicados; "criados", "tocados" e "reingeridos" são três
+grandezas e aqui divergem.
+
+**O congelamento não alcança o alvo da intervenção.** Os **19** chunks designados
+foram todos criados no mesmo instante — `2026-08-21 22:51:23`, lote único —, todos
+anteriores ao congelamento: **zero** designados com `created_at` posterior a
+2026-08-24. O conjunto que recebe boost nunca ia mudar.
+
+**O que o congelamento alcança é contra quem o boost compete.** Chunks passando o
+piso do canal fresco (`importance ≥ 0,7` e `pain ≥ 0,7`) são **17** para
+`created_at ≥ 2026-08-24`, **17** para `≥ 2026-08-31` e **17** para `≥ 2026-09-07`
+— os três contam os **mesmos 17**, todos criados em 2026-09-07. Ou seja o pool
+fresco esteve **vazio o ensaio inteiro** até 14:06 daquele dia, o que também
+explica os **246** registros horários do gatilho de composição reportando
+`agent_fresh_elegiveis=0` para os seis agentes desde 2026-08-27 — número que até
+então estava sem causa nomeada.
+
+Epochs afetados: `2026-09-01` (w = 4,0), `09-02` e `09-03` (controle), `09-04` e
+`09-05` (w = 2,0), `09-06` (w = 7,5) — **6 de 234**.
+
+**Decisão: nota de limitação com a fronteira cravada, sem alterar a análise.** Três
+razões, todas medidas e não retóricas:
+
+1. o alvo da intervenção é fixo e anterior ao congelamento (acima), logo o
+   congelamento não muda quem é tratado;
+2. o congelamento é propriedade do **tempo de calendário**, e o braço é sorteado
+   sobre o calendário ⇒ é covariável **balanceada em expectativa**, não
+   confundidor. Ele estreita a validade **externa** (o ensaio mediu um ambiente de
+   ordenação estático), não a interna;
+3. são 6 de 234 epochs.
+
+⚠️ **Por que não virar dois regimes com regime como fator.** Seria decisão de
+análise tomada **depois** de os dados existirem — exatamente o grau de liberdade que
+o pré-registro existe para eliminar. Uma escolha reaberta com dados na mesa vale
+zero mesmo chegando à mesma conclusão, porque o leitor não pode distinguir "decidiu
+antes" de "decidiu e diz que decidiu antes". É o mesmo argumento do §10.1.
+
+**Isto é o inverso de um fato registrado antes**, e a contradição é aparente, não
+real: em 2026-08-15 foi medido que o corpus do piloto **não** era estacionário. Era
+verdade então; o congelamento é posterior e tem causa operacional. Série viva citada
+como instante envelhece para falsa — aqui a fronteira fica cravada por isso.
+
+#### 10.6 Um script DEPOSITADO dependia de um insumo fora do depósito, em caminho volátil
+
+`measurement/ordem.mjs` é o **item 115** de `deposit/paperA/MANIFEST.json` — script
+publicado, que um terceiro deveria conseguir executar. Ele abria, por **caminho
+fixo**, `/var/tmp/p2-ord-ro.db`: **1,6 GB**, e o MANIFEST não contém **nenhum**
+`.db`. O resultado que ele sustenta está citado em `measurement/README.md:69` —
+*28 casos, 0 com ordem diferente*, que é o que **refuta o canal de reordenação**.
+
+O arquivo quase foi apagado num varrimento de espaço em disco em 2026-09-07. E
+**naquele mesmo dia deixou de ser recriável**: o descongelamento do §10.5, às
+14:06:13Z, fez o `main` deixar de ser o de 2026-08-26. Até 14:06 "recriar a partir
+do `main`" ainda era caminho; depois, não.
+
+Isto é literalmente o defeito que o texto do próprio depósito declara já ter
+cometido: *"um corpus pinado por identificador já foi perdido neste mesmo trabalho,
+levando 280 episódios adjudicados junto"*.
+
+**Correção aplicada.** Movido para
+`/var/lib/nox-mem/p2/corpus/p2-ord-ro-2026-08-26.db`, com `sha256` conferido
+**antes** de remover a fonte e `mtime` preservado; verificado depois por terceiro:
+`PRAGMA quick_check` **ok**, **67.187** chunks, `MAX(created_at)` =
+**2026-08-24 01:06:35** — o estado congelado exato. O `-wal` órfão tinha **0
+bytes**, logo não havia transação pendente. O caminho passou a ser parametrizável
+por `NOX_P2_ORD_LIVE`, com o novo local como default.
+
+⚠️ **Uma premissa que foi medida e caiu, e fica registrada porque enfraquece a
+urgência que eu alegava:** não existe regra de idade para `/var/tmp` neste sistema
+(`systemd-tmpfiles --cat-config` só traz `x /var/tmp/systemd-private-%b-*` e
+`X …/tmp`). O arquivo **não** estava com prazo correndo. A correção se justifica por
+caminho volátil por convenção, por dependência publicada fora do depósito e por um
+agente de faxina que perguntou mas podia não ter perguntado — **não** por deleção
+iminente.
+
+**Resolução, e ela falsificou a minha própria proposta.** Eu havia sugerido "depositar
+o recorte de 28 casos em vez do corpus de 1,6 GB". Ao executar, dois fatos derrubaram
+isso:
+
+1. **não havia recorte a depositar, porque não havia artefato nenhum.** A alegação vivia
+   só em prosa, em três lugares (`measurement/README.md:69`,
+   `AMENDMENT-DRAFT-band-collapse-2026-08-26.md:862` e este documento). É a classe já
+   catalogada no §6 — *um valor citado em vários lugares sem nenhum artefato que o
+   contivesse*;
+2. **e o recorte não seria recortável:** `ordem.mjs` passa o handle do DB **para dentro**
+   do código de produção (`boostsParaCandidatos`, `buildBriefDiverse`), então "só as
+   linhas de que ele precisa" exigiria reimplementar o que a produção lê — a
+   reconstrução que este trabalho já pagou para não fazer.
+
+⚠️ **Pior: a rodada de 2026-08-26 não é mais reproduzível, e não por causa do arquivo que
+eu salvei.** O par de insumos é `live` + `corpus`. O `live` está preservado; o `corpus`
+apontava para `/var/lib/nox-mem/epochs/current.db`, e os snapshots de epoch de 08-24 a
+09-02 **foram podados** — restam apenas os `*.manifest.json`. Salvei metade do insumo.
+
+**O que ficou feito:** a comparação foi **reestabelecida** num par preservado e pinado, e
+gravada como `out/ORDEM-SEQUENCIAS-2026-09-07.json` (5,4 KB — não 1,6 GB), com
+`sha256` dos dois insumos, o resumo e os 28 resultados. Resultado: **`mesmaOrdem` = true
+em 28 de 28**, `mesmoConjunto` = true em 28 de 28. O artefato entra no MANIFEST (item
+121), e o `sha256` do próprio `ordem.mjs` foi recomputado ali, porque a edição do caminho
+o havia desatualizado — o gate 0 do `deposit.sh` teria falhado, corretamente.
+
+⚠️ **Este artefato NÃO reproduz a rodada de 26/08** — reestabelece a alegação em outro
+par de insumos, e diz isso no próprio campo `procedencia.porque`. O `README.md:69` foi
+alterado para carregar a ressalva junto do número, em vez de apresentá-lo como se fosse a
+medição original.
+
+⚠️ **Ressalva de poder, declarada no artefato em vez de silenciada.** `mesmoConjunto =
+true` nos 28 é a **pré-condição** do teste, não defeito: a objeção que ele responde é *"se
+`churn = 0`, um boost que **reordena** dentro do conjunto fica invisível"*. Mas o artefato
+**não registra se um boost foi de fato emitido** em cada estado, então a refutação vale
+condicionada a isso e o poder do teste fica sem medida. Fechar essa ponta exige gravar
+`boosts_emitidos` por caso — trabalho declarado, não feito.
+
 ## Se a decisão mudar
 
 A máquina do depósito está pronta e **não executada**: `deposit/PLAN-v1.13.md` e

@@ -14,6 +14,14 @@
 # Uso: teste-gatilho-active.sh [caminho-do-gatilho]
 set -uo pipefail
 GAT="${1:-$(dirname "$0")/gatilho-saturacao.sh}"
+# Alvo inexistente faz TODO caso sair com corpo VAZIO — 11 falhas idênticas que
+# parecem defeito do gatilho e são defeito de invocação. Aconteceu 2026-09-06, ao
+# rodar este arquivo copiado para /var/tmp sem argumento: o default `dirname "$0"`
+# apontou para um diretório sem gatilho e a suíte inteira "reprovou" o alvo errado.
+# É a mesma família que o dia inteiro tratou — guarda que fica calado por não ter o
+# que precisa —, aqui do lado do teste. Falhar alto separa "o alvo está quebrado"
+# de "você não passou o alvo".
+[ -x "$GAT" ] || { echo "ERRO: gatilho inexistente ou não executável: $GAT" >&2; exit 2; }
 T="$(mktemp -d /var/tmp/teste-gatilho-XXXXXX)"
 trap 'rm -rf "$T"' EXIT
 FALHAS=0
@@ -21,13 +29,22 @@ FALHAS=0
 # Stub de harness: devolve uma tabela de dose plausível, com as duas doses que o
 # gatilho pediu. Grava os argumentos recebidos para o T5 poder conferir a dose.
 cat > "$T/harness-stub.mjs" <<'EOF'
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync } from "node:fs";
 const a = process.argv.slice(2);
 const ws = a.map((x, i) => (x === "--w" ? Number(a[i + 1]) : null)).filter((x) => x !== null);
 const out = a[a.indexOf("--out") + 1];
 writeFileSync(process.env.STUB_ARGS || "/dev/null", JSON.stringify({ ws }));
+// `estados` sai do TAMANHO DA JANELA que o gatilho passou, não de uma constante.
+// Antes era `672` fixo, e com log sintético de 40 linhas isso é um replay que
+// afirma ter respondido 672 estados sobre 40 registros — incoerência que a perna
+// `erros-no-replay` (2026-09-06) passou a pegar, quebrando T5 e T9. O stub é que
+// estava errado: um replay fiel responde a janela que recebeu. `STUB_FALTAM`
+// permite a um caso PEDIR a incoerência, que é o que T10 exercita.
+const jan = a[a.indexOf("--log-campo") + 1];
+const n = readFileSync(jan, "utf8").split("\n").filter((l) => l.trim()).length;
+const estados = n - Number(process.env.STUB_FALTAM || 0);
 writeFileSync(out, JSON.stringify({ dose: { tabela: ws.map((w) => ({
-  w, mexeu: w >= 100000 ? 52 : 25, churn_total: w >= 100000 ? 90 : 40, estados: 672,
+  w, mexeu: w >= 100000 ? 52 : 25, churn_total: w >= 100000 ? 90 : 40, estados,
 })) } }));
 EOF
 
@@ -133,6 +150,32 @@ fi
 log_sintetico "$T/log9.ndjson" "$(date -u -d yesterday +%Y-%m-%d)" shadow 2 controle 40
 espera "T9 shadow inalterado" GREEN "w_servido=2.0" \
   --modo shadow --log "$T/log9.ndjson" --w-servido 2
+
+# ── T10: o replay não respondeu a janela inteira ⇒ RED com o motivo CERTO.
+#        É o caso que os dois RED de 05-06/09 deviam ter produzido e não produziram:
+#        o gatilho carregava `n_janela` e `estados` na mesma linha e não os comparava.
+#        Exige a mensagem específica E os três números — casar só por "RED" deixaria
+#        passar um RED de inércia, que é justamente o veredito errado que motivou a perna.
+log_sintetico "$T/log10.ndjson" "$E" active 4 tratado 100
+L10="$(STUB_FALTAM=32 roda --modo active --log "$T/log10.ndjson" \
+        --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+if [ "${L10%% *}" = RED ] && [[ "$L10" == *"erros-no-replay"* ]] \
+   && [[ "$L10" == *"faltam=32"* ]] && [[ "$L10" == *"estados=68"* ]] \
+   && [[ "$L10" == *"n_janela=100"* ]]; then
+  echo "ok   T10 janela incompleta ⇒ RED erros-no-replay com faltam/estados/n_janela certos"
+else
+  echo "FALHA T10 janela incompleta"; echo "      obtido: $L10"; FALHAS=$((FALHAS + 1))
+fi
+
+# ── T11: controle de T10 — janela respondida INTEIRA não dispara a perna.
+#        Sem isto, um predicado que disparasse sempre passaria em T10.
+L11="$(roda --modo active --log "$T/log10.ndjson" \
+        --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+if [[ "$L11" != *"erros-no-replay"* ]] && [ "${L11%% *}" = GREEN ]; then
+  echo "ok   T11 janela completa não dispara erros-no-replay"
+else
+  echo "FALHA T11 janela completa"; echo "      obtido: $L11"; FALHAS=$((FALHAS + 1))
+fi
 
 echo
 [ "$FALHAS" -eq 0 ] && echo "TODOS OS CASOS PASSARAM" || echo "$FALHAS CASO(S) FALHARAM"

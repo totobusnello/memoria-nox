@@ -6,7 +6,26 @@ import { buildBriefDiverse } from "../dist/api/brief.js";
 import { boostsParaCandidatos } from "../dist/paper2/brief-outcome.js";
 import { DIVERSITY_DEFAULTS } from "../dist/api/brief-diversity.js";
 const corpus = new Database("/var/lib/nox-mem/epochs/current.db", { readonly: true });
-const live   = new Database("/var/tmp/p2-ord-ro.db", { readonly: true });
+/**
+ * ⚠️ Este script é o item 115 do `deposit/paperA/MANIFEST.json` — é publicado, e
+ * um terceiro deveria conseguir rodá-lo. Até 2026-09-07 ele lia um insumo de 1,6G
+ * em `/var/tmp`: fora do depósito (o MANIFEST não contém nenhum `.db`) e num
+ * diretório sujeito a faxina de disco. O arquivo quase foi apagado num varrimento
+ * de espaço em 2026-09-07.
+ *
+ * E nesse mesmo dia ele deixou de ser recriável: o watcher foi consertado às
+ * 14:06:13Z e o corpus do `main` descongelou (67187 → 67224 chunks), então
+ * "recriar a partir do main" já não reproduz o snapshot de 2026-08-26 que sustenta
+ * a alegação de `README.md:69` — 28 casos, 0 com ordem diferente, que é o que
+ * refuta o canal de reordenação.
+ *
+ * Movido para `/var/lib/nox-mem/p2/corpus/`, que não é varrido, e o caminho ficou
+ * parametrizável para um terceiro apontar para a própria cópia.
+ * Ver `DEVIATIONS-FOR-PAPER.md` §10.6.
+ */
+const LIVE = process.env.NOX_P2_ORD_LIVE
+  ?? "/var/lib/nox-mem/p2/corpus/p2-ord-ro-2026-08-26.db";
+const live   = new Database(LIVE, { readonly: true });
 const cfg = { mode: "active", ...DIVERSITY_DEFAULTS };
 const env = {
   NOX_P2_DESIGNATION: "/root/.openclaw/paper2/DESIGNATION-2026-08-26.json",
