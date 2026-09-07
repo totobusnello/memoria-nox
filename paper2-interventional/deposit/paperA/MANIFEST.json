@@ -2,7 +2,7 @@
  "gerado_por": "montagem do pacote do Paper A",
  "nota": "o Zenodo limita 100 arquivos por registro; artefatos e scripts vão compactados, e o sha256 aqui é de CADA arquivo individual, não do zip. Nada que vá solto se repete dentro de um zip.",
  "arquivos": 121,
- "bytes_totais": 4250735,
+ "bytes_totais": 4303199,
  "envio": {
   "soltos": 10,
   "artefatos.zip": {
@@ -17,26 +17,26 @@
  "itens": [
   {
    "path": "MANUSCRIPT.md",
-   "bytes": 126564,
-   "sha256": "e59f00730d7cb968b39098850aff7e602605fa0c5bacc9f650701a2a12832dc8",
+   "bytes": 126563,
+   "sha256": "339dbcd6e47dfefd2dd42dc18424d83a3967d2d515734ac3cc5bc751635899f3",
    "no_deposito": "solto"
   },
   {
    "path": "claims_check.py",
-   "bytes": 117840,
-   "sha256": "fff34edd48b1bc9b15c4efc1076bee3fa791fcaa77a553f21eb9461e3380e82f",
+   "bytes": 139410,
+   "sha256": "442c24fbe226032add0aa2376f605228efd6df11cb2e232c7149fcf048eb1990",
    "no_deposito": "solto"
   },
   {
    "path": "SERVING-CODE-MANIFEST.md",
-   "bytes": 6297,
-   "sha256": "effdb8f010260aee6359f1dacef50076912dfd6d8efad90749b0de5a809596dc",
+   "bytes": 7971,
+   "sha256": "3aeab31f074d57e241011814c277d85b86b642136148c08806b7c5347cf68cee",
    "no_deposito": "solto"
   },
   {
    "path": "DEVIATIONS-FOR-PAPER.md",
-   "bytes": 18933,
-   "sha256": "0a900adf5b6ab01e2496671da42d23ef5adbb9caea5735b39c1f0ebcb8eedfa6",
+   "bytes": 44978,
+   "sha256": "afb6ffaf8c6bc9d398736fd6e2123822c7f8e6d0cf9878d2661ee9f752f6852c",
    "no_deposito": "solto"
   },
   {
@@ -425,8 +425,8 @@
   },
   {
    "path": "measurement/auditoria-da-cadeia.py",
-   "bytes": 11974,
-   "sha256": "eac067fdeeba8da62361e7f67be217df9fd02cd08139e2c8747b74b1ddb9e65e",
+   "bytes": 12744,
+   "sha256": "2914af599166072aaf6216c9d5647997d5d42399eef9bec705d152b640221c0b",
    "no_deposito": "scripts.zip"
   },
   {
@@ -707,8 +707,8 @@
   },
   {
    "path": "measurement/ordem.mjs",
-   "bytes": 2993,
-   "sha256": "6711bb865ca5ffa830ac0c89a8490b632133c87101ddd48cfbb7fcf580548148",
+   "bytes": 3930,
+   "sha256": "084a977525d29d357fcbaf9a86093a169fa8eaab190657798f0a3886b157b0e7",
    "no_deposito": "scripts.zip"
   },
   {
@@ -725,8 +725,8 @@
   },
   {
    "path": "measurement/replay-oportunidade.mjs",
-   "bytes": 48726,
-   "sha256": "4540906a0b8d1da256d12a0180e74a55ea20aecb247036d2f9e1c2dbd37fe91d",
+   "bytes": 49809,
+   "sha256": "4f44e2b9d905d9da4b417bff1576457634e2f87963fd7b41811e8ed59de2ac26",
    "no_deposito": "scripts.zip"
   },
   {
@@ -737,8 +737,8 @@
   },
   {
    "path": "out/ORDEM-SEQUENCIAS-2026-09-07.json",
-   "bytes": 5423,
-   "sha256": "682bf283279d04e8159cee46ae12282daf5bee48c05ede136be45cd3a11710de",
+   "bytes": 5809,
+   "sha256": "9a109b5800c11bda18808a3274548942c1794465cfba028ddba12f14010068c9",
    "no_deposito": "artefatos.zip"
   }
  ]

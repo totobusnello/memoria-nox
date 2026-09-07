@@ -67,8 +67,17 @@ regular o tornava incapaz de falhar.</p>
      menos evidência sobrava. Corrigido em 2026-09-06; o guarda exige a chave
      nova, proíbe o retorno da antiga dentro de idDoBrief, e exige a perna de
      runtime `estados != n_janela ⇒ RED` no gatilho — que é independente da
-     causa e teria dado o motivo certo dois dias antes. -->
-<p>Além do manuscrito, o depósito inclui o verificador (<code>claims_check.py</code>, 24
+     causa e teria dado o motivo certo dois dias antes. O 25o e pino_check:
+     um artefato criado em 07/09 para consertar uma alegacao sem artefato pinou
+     epochs/e20260907T060001Z.db — arquivo com 68 h de vida, marcado para poda em
+     3 dias, porque epochs/ retem 3 dias e current.db e symlink reapontado as
+     06:01. O conserto de uma armadilha de reprodutibilidade caiu na MESMA
+     armadilha, do outro lado do par de insumos. Medido no mesmo dia: 30
+     ocorrencias de pino neste repositorio apontam para corpora que JA nao
+     existem, e a busca pelo de 26/08 foi esgotada. O guarda tem ratchet sobre a
+     contagem (29, medida) e uma regra precisa sobre procedencia.corpus.path, que
+     e o campo que um terceiro de fato abre. -->
+<p>Além do manuscrito, o depósito inclui o verificador (<code>claims_check.py</code>, 25
 guardas que recomputam as alegações numéricas contra os artefatos), os seis censos
 mecânicos, os 59 artefatos de medição, os 53 scripts que os geram e os três módulos de
 serving pinados por <code>sha256</code> dos blobs. A intenção é que cada número do paper

@@ -2479,6 +2479,80 @@ def assinatura_check(root: Path) -> list[str]:
     return fails
 
 
+#: Artefatos em `out/` que citam um caminho sob `epochs/`. **Medido** em 2026-09-07,
+#: não estimado: 29. Destes, 30 ocorrências de pino apontam para corpora que **já não
+#: existem** (27 no `e20260826T060003Z.db`, 1 no `e20260827`, 2 no `e20260830`) — e a
+#: busca pelo de 26/08 foi esgotada (tamanho exato sem `-xdev`, nome nos três mounts,
+#: censo de todo `.db` acima de 1 GB). O ratchet existe para que esse número **não
+#: cresça**; reduzi-lo exige preservar arquivo, que é trabalho, não edição de texto.
+PINO_EPOCHS_BASELINE = 29
+
+
+def pino_check(root: Path) -> list[str]:
+    """Artefato não pode pinar um corpus que a retenção vai apagar.
+
+    `epochs/current.db` é **symlink reapontado às 06:01**, e `epochs/` retém 3 dias
+    (`nox-epoch.log` registra `"podados":1` por dia). Daí duas formas de pino inútil:
+
+      - pinar `current.db` é pino **vazio**: o caminho sobrevive, o conteúdo muda;
+      - pinar o alvo **datado** é pino que **pendura** em três dias.
+
+    Como isto foi achado (2026-09-07): eu criei `ORDEM-SEQUENCIAS-2026-09-07.json` às
+    14:52 justamente para consertar uma alegação sem artefato, e pinei
+    `epochs/e20260907T060001Z.db` — um arquivo com 68 h de vida, marcado para poda em
+    2026-09-10 06:00 UTC. Ou seja: o conserto de uma armadilha de reprodutibilidade caiu
+    na **mesma** armadilha, um turno depois, do outro lado do par de insumos. Achado por
+    revisão de terceiro, não por mim.
+
+    Duas pernas, porque uma só erra em direções opostas:
+
+      1. **ratchet** sobre a contagem de artefatos que citam `epochs/`. Amplo e cego a
+         nuance, mas pega descuido novo em qualquer artefato;
+      2. **regra precisa** sobre `procedencia.corpus.path`, que é o campo que um terceiro
+         de fato **abre**: ele não pode estar sob `epochs/`. Esta perna é a que protege
+         reprodutibilidade; o ratchet só impede a piora.
+
+    ⚠️ Um artefato PODE conter um caminho `epochs/` legitimamente, em
+    `procedencia.corpus.path_original` — registrar de onde o arquivo veio é procedência,
+    e apagar isso seria destruir o rastro. Por isso a perna 2 olha o campo lido, não a
+    presença da string.
+    """
+    fails: list[str] = []
+    out = root / "out"
+    if not out.is_dir():
+        return [f"{out}: ausente — é onde vivem os artefatos"]
+
+    marca = "/var/lib/nox-mem/epochs/"
+    citam = [p for p in sorted(out.glob("*.json"))
+             if marca in p.read_text(errors="replace")]
+    if len(citam) > PINO_EPOCHS_BASELINE:
+        novos = len(citam) - PINO_EPOCHS_BASELINE
+        fails.append(
+            f"out/: {len(citam)} artefatos citam `epochs/` — AUMENTOU {novos} sobre a "
+            f"linha de base medida ({PINO_EPOCHS_BASELINE}). `epochs/` retém 3 dias; "
+            f"pino novo ali nasce com prazo. Preserve o arquivo fora de `epochs/` e "
+            f"pine o caminho preservado"
+        )
+
+    # Perna 2: o caminho que um terceiro abre não pode estar sob `epochs/`.
+    for p in sorted(out.glob("*.json")):
+        try:
+            d = json.loads(p.read_text(errors="replace"))
+        except Exception:
+            continue
+        corpus = (d.get("procedencia") or {}).get("corpus")
+        if not isinstance(corpus, dict) or "path" not in corpus:
+            continue
+        if corpus["path"].startswith(marca):
+            fails.append(
+                f"out/{p.name}: `procedencia.corpus.path` aponta para `epochs/` "
+                f"(`{corpus['path']}`) — a retenção de 3 dias vai apagá-lo e o pino "
+                f"pendura. Aponte para a cópia preservada e guarde o caminho antigo "
+                f"em `path_original`"
+            )
+    return fails
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--show", action="store_true", help="print the recomputed table")
@@ -2525,6 +2599,7 @@ def main() -> int:
     failures.extend(comecou_check(Path(args.root)))
     failures.extend(escolha_check(Path(args.root)))
     failures.extend(assinatura_check(Path(args.root)))
+    failures.extend(pino_check(Path(args.root)))
 
     if failures:
         print(f"FAIL — {len(failures)} divergence(s):", file=sys.stderr)

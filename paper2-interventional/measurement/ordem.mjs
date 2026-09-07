@@ -5,7 +5,24 @@ import Database from "better-sqlite3";
 import { buildBriefDiverse } from "../dist/api/brief.js";
 import { boostsParaCandidatos } from "../dist/paper2/brief-outcome.js";
 import { DIVERSITY_DEFAULTS } from "../dist/api/brief-diversity.js";
-const corpus = new Database("/var/lib/nox-mem/epochs/current.db", { readonly: true });
+/**
+ * ⚠️ NÃO ler `epochs/current.db` num script que produz artefato pinado. `current.db`
+ * é **symlink reapontado às 06:01** e `epochs/` retém 3 dias (`nox-epoch.log`
+ * registra `"podados":1` por dia), então:
+ *
+ *   - pinar `current.db` é pino **vazio** — o caminho sobrevive, o conteúdo muda;
+ *   - pinar o alvo datado é pino que **pendura** em 3 dias.
+ *
+ * Medido em 2026-09-07: **30** arquivos deste repositório pinam corpora de epoch que
+ * **já não existem** (27 no `e20260826T060003Z.db`, 1 no `e20260827`, 2 no
+ * `e20260830`), e a busca pelo de 26/08 foi esgotada — por tamanho exato sem
+ * `-xdev`, por nome nos três mounts, e por censo de todo `.db` acima de 1 GB.
+ * É a mesma frase que o texto do depósito já confessa sobre corpus perdido por
+ * identificador, recorrendo em escala. Ver `DEVIATIONS-FOR-PAPER.md` §10.6.
+ */
+const CORPUS = process.env.NOX_P2_ORD_CORPUS
+  ?? "/var/lib/nox-mem/p2/corpus/e20260907T060001Z.db";
+const corpus = new Database(CORPUS, { readonly: true });
 /**
  * ⚠️ Este script é o item 115 do `deposit/paperA/MANIFEST.json` — é publicado, e
  * um terceiro deveria conseguir rodá-lo. Até 2026-09-07 ele lia um insumo de 1,6G
