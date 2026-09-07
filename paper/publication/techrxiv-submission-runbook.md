@@ -1,8 +1,32 @@
-# TechRxiv — runbook de submissão do Paper 1
+# Preprint com DOI para o Paper 1 — runbook (TechRxiv BLOQUEADO)
 
-> **Estado: PACOTE PRONTO, NADA SUBMETIDO.** A submissão é do Toto. Este documento existe
-> para que o passo de submeter seja mecânico e para que o que foi verificado esteja
-> separado do que foi suposto.
+> 🔴 **BLOQUEADO em 2026-09-07: o TechRxiv NÃO está aceitando submissões.** Aviso na
+> própria home: *"We are currently preparing a transition to a new platform.
+> **Submissions are temporarily closed during this process.** All previously published
+> content will remain accessible and DOIs will continue to resolve."* Sem prazo
+> anunciado. E o sinal que muda a leitura: o preprint mais recente listado é de
+> **6 de março de 2026** — **seis meses** sem nada publicado, o que não descreve uma
+> janela curta de manutenção.
+>
+> ⚠️ **Erro de método que produziu este documento, e vale mais que o documento.** Eu
+> verifiquei as **regras** do TechRxiv — formato de arquivo, DOI, licença, membership,
+> se aceita manuscrito recusado no arXiv — e **não verifiquei se a porta estava
+> aberta**. Requisito conferido não é disponibilidade conferida. O §1 abaixo continua
+> correto e continua inútil enquanto a submissão estiver fechada.
+>
+> **Alternativas verificadas no mesmo dia, no navegador:**
+>
+> | via | estado | DOI | conta |
+> |---|---|---|---|
+> | OSF Preprints | ✅ aberto (botão "Add A Preprint" ativo; *Engineering* entre os assuntos) | sim | já existe — o pré-registro do Paper 2 vive no OSF `yf7d2` |
+> | Zenodo | ✅ aberto, sem moderação | imediato | já usado duas vezes (Paper A e o pré-registro) |
+>
+> Nenhuma das duas satisfaz a condição do arXiv (endosso de *journal*), então a escolha
+> entre elas não afeta aquele caminho — afeta só onde o DOI nasce.
+>
+> **Estado: PACOTE PRONTO, NADA SUBMETIDO.** O PDF, os metadados e as verificações dos
+> §2–§3 **não dependem do veículo** e servem para qualquer um dos três. A submissão é do
+> Toto.
 
 ## Por que TechRxiv
 
