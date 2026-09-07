@@ -128,101 +128,58 @@
 \section{nox-mem: Pain-Weighted Hybrid Memory for LLM
 Agents}\label{nox-mem-pain-weighted-hybrid-memory-for-llm-agents}
 
-\textbf{Technical report --- v1.0.0 (arXiv preprint)}
+\textbf{Luiz Antonio Busnello} \emph{Independent Researcher}
 
-\textbf{Paper version:} v1.0.0 (2026-06-30) --- frozen for arXiv
-submission; changelog in \texttt{paper/CHANGELOG.md}
+\textbf{Version} v1.0.1 (2026-09-04) --- changelog in
+\texttt{paper/CHANGELOG.md}
 
-\textbf{Author:} Luiz Antonio Busnello (Toto) \textbf{Platform:}
-OpenClaw Autonomous Agent Platform \textbf{Infrastructure:} Hostinger
-KVM4, Tailscale VPN, Debian Linux
+The system described here runs on a single 4-vCPU / 8 GB virtual private
+server under Debian Linux, serving six agents over a private overlay
+network. Concrete hardware and hosting details are immaterial to every
+result reported below and are omitted; §5.7 states the operational
+envelope in machine-independent terms (latency percentiles, resident set
+size, cost per query).
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
 \subsection{Abstract}\label{abstract}
 
 We introduce \textbf{nox-mem}, a persistent memory system for autonomous
-LLM agents organized around a single design principle:
-\textbf{pain-weighted hybrid memory with shadow discipline --- yours by
-design}. Every retrieval and retention decision is governed by an
-evidence-weighted salience formula in which \emph{pain} --- an
-operator-assigned severity in {[}0.1, 1.0{]}, persisted on every chunk
---- is a first-class signal (its isolated retrieval effect is
-directional and not yet statistically significant, §7.1, and
-section-aware ranking is the dominant empirical driver, §5.1.3); the
-formula itself evolved from multiplicative to additive form through the
-system's own shadow-mode telemetry (§5.1.2), and every ranking change is
-gated by a mandatory shadow phase before production activation. Compared
-to existing memory systems (mem0, Letta, Zep, EverOS, LightRAG, and
-MeMo), nox-mem offers several advantages: \textbf{(a)} \emph{live
-writeback with sub-second indexing} (inotifywait-driven, no batch
-retrain or daily reindex required), \textbf{(b)} \emph{typed temporal
-decay} (per-\texttt{chunk\_type} retention windows with never-decay for
-feedback/person --- see §2 and §8.2), \textbf{(c)} \emph{full provenance
-to chunk and source} (every retrieval result carries \texttt{chunk\_id}
-+ \texttt{source\_file}, every destructive op is wrapped in
-\texttt{withOpAudit()} with a VACUUM INTO pre-snapshot), \textbf{(d)}
-\emph{first-class self-evolution} through a
-\texttt{crystallize}/\texttt{reflect}/\texttt{consolidate} triad that
-promotes high-hit pending items to durable lessons and synthesizes
-cross-session insights nightly (§3.4), and \textbf{(e)} \emph{zero
-vendor lock-in}: a single SQLite file, MIT-licensed, with
-provider-agnostic embeddings (Gemini default, swappable). Deployed in
-production since March 14, 2026, the system manages 94.9k+ memory chunks
-with \textasciitilde99.99\% vector coverage, \textasciitilde15.6k
-knowledge graph entities with \textasciitilde21.5k relations (as of
-2026-06-04, post corpus-hygiene pass), and serves 6 specialized AI
-agents with isolated yet interconnectable memory spaces. On the
-entity-flavored golden set (n=100), the full ablation stack reaches
-\textbf{nDCG@10 = 0.6237} (+78.8\% over the G3 pre-Wave-A baseline;
-§5.1.1). A \textbf{Conditional Hard Mutex} (G10d) gates section and
-source-type boosts by query entity count, recovering multi-hop (+1.58\%
-nDCG@10) and adversarial (+3.04\% nDCG@10, +6.25\% MRR) regressions
-(§5.1.4). On the EverMemBench cross-system benchmark (5-batch, n=3,121),
-nox-mem scores \textbf{62.22\%} with Gemini-2.5-flash (+2.95 pp over
-MemOS; §5.1.5), \textbf{51.68\%} with GPT-4.1-mini (+9.13 pp over MemOS,
-95\% CI {[}49.88, 53.49{]}; §5.1.6), and \textbf{63.28\% Overall +
-88.42\% Memory Awareness composite with Gemini-3-flash --- both SOTA
-versus the published MemOS Table 4 baseline (GPT-4.1-mini)} (+20.73 pp
-Overall, +32.74 pp MA; §5.1.10). On classical multi-hop QA, nox-mem
-achieves dual SOTA without specialized fine-tuning: \textbf{MuSiQue dev
-F1 58.62\%} (+22.82 pp over IRCoT, +8.92 pp over EX(SA); §5.2.1) and
-\textbf{HotPotQA dev distractor ans\_F1 73.37\%} (above DPR+FiD reader
-SOTA; §5.2.2). LoCoMo cross-bench retrieval@10 strict reaches
-\textbf{74.52\%}, above Mem0's \emph{published} end-to-end answer-F1
-SOTA of 66.88\% (a different metric, not a same-corpus head-to-head;
-§5.3.1); the F1 push is rank-5 (51.85\%, above Zep / LangMem)
-constrained by a verbosity gap (§5.3.2). The §5.4 resolution of the
-EverMemBench F\_MH paradox shows the 3--7\% absolute is a
-corpus-structural property, not a multi-hop reasoning ceiling.
-Production characteristics are strong across three self-hosted
-operational axes: \textbf{KG path retrieval p50 = 2.9 ms} (sub-10 ms
-class, §5.7.1), \textbf{cost \$0/query KG path and \textasciitilde667×
-cheaper than Mem0 Cloud on hybrid} (§5.7.2), and \textbf{399 MB RSS}
-(resident set size) \textbf{self-hosted single-process} footprint
-(§5.7.3). The cross-bench LongMemEval validation (n=300, §5.6) confirms
-the same per-category fingerprint across an orthogonal benchmark
-distribution. Wave 2 (2026-05-31 -- 2026-06-02, §5.5.4--§5.5.8)
-contributes an empirical per-backbone × per-knob composability study:
-three Wave A single-stage retrieval knobs (KG path, AC, MQ) transfer at
-only 0--40\% efficiency from gpt-4.1-mini to Gemini-3-flash (D75),
-establishing that retrieval-stage compensation mechanisms attenuate on
-stronger backbones; IterB ReAct (§5.5.2) remains the sole validated
-F\_MH lever on Gemini-3-flash at +2.01 pp.~An architectural lock
-discovery (§5.5.7) reveals that composability projections must account
-for both backbone-portability and code-level architectural composability
---- two independent non-trivial requirements. The Q4 cross-system
-comparison (§6) provides pre-registered, same-corpus results against
-five competing memory systems (two, Mem0 and agentmemory, produced
-head-to-head quality numbers; three were documented deployment
-non-runs). Under each system's native embedder the two leaders
-\textbf{split} --- Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426), nox-mem
-wins LongMemEval (§6.3); controlling the embedding provider (both
-Gemini-3072d, full n=2,482) \textbf{inverts the split}, with nox-mem
-outperforming Mem0 on both datasets (LongMemEval 0.526 vs 0.406; LoCoMo
-0.495 vs 0.441) and all five represented categories --- a task-type
-ablation rules out the one asymmetry favoring nox-mem, with three
-residual confounds declared (§6.3.2).
+LLM agents built on one principle: \textbf{pain-weighted hybrid memory
+with shadow discipline}. Retrieval and retention are governed by an
+additive salience formula in which \emph{pain} --- an operator-assigned
+severity in {[}0.1, 1.0{]}, persisted on every chunk --- is a
+first-class signal, and ranking changes pass a mandatory shadow phase
+before production activation. The system is a single SQLite file with
+provider-swappable embeddings, MIT-licensed: no vendor lock-in,
+sub-second writeback (inotifywait-driven), per-\texttt{chunk\_type}
+retention windows, chunk-level provenance, and a policy-gated
+pre-snapshot before destructive operations. Deployed in production since
+March 14, 2026, it serves six specialized agents at KG-path p50 = 2.9
+ms, \$0 per KG-path query, and a 399 MB resident set in a single
+self-hosted process (§5.7).
+
+Our central result is a pre-registered, same-corpus comparison against
+five competing memory systems, of which two produced head-to-head
+quality numbers and three were documented deployment non-runs (§6).
+Under each system's native embedder the two leaders \textbf{split} ---
+Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426), nox-mem wins LongMemEval. An
+embedding-matched variant (both Gemini 3072-d, full n = 2,482) ---
+planned rather than post-hoc (§6.7), and an embedding match rather than
+a clean architecture isolation (§6.3.2) --- \textbf{inverts the split}:
+nox-mem leads on both datasets (LongMemEval 0.526 vs 0.406; LoCoMo 0.495
+vs 0.441) and in all five represented categories, with three residual
+confounds declared. On EverMemBench, nox-mem reaches \textbf{63.28\%
+Overall} with Gemini-3-flash, above every MemOS Table 4 number --- all
+of which were obtained on GPT-4.1-mini, so the backbones differ and this
+is not a state-of-the-art claim (§5.1.10).
+
+Three findings cut against our own headline: \emph{pain}'s isolated
+retrieval effect is directional but not statistically significant
+(§7.1); section-aware ranking, not pain, is the dominant empirical
+driver (§5.1.3); and on the same EverMemBench run the F\_MH multi-hop
+track sits at 3--7\%, against 18.88\% strict EM for the best published
+system on that track, which §5.4 attributes principally to task setup.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -316,8 +273,20 @@ Across these systems, six recurring gaps appear in the design space.
 Each gap motivates a concrete subsystem of nox-mem. Table 1 summarizes
 who covers what:
 
-\textbf{Table 1 --- Comparison of desirable memory-system properties
-(Six Gaps).}
+\textbf{Table 1 --- Design-space coverage of the six gaps, as reported
+by each system's own documentation.}
+
+⚠️ \textbf{What this table is and is not.} Only the \texttt{nox-mem}
+column is measured here. Every other cell records what that system's
+paper, README, or API reference \emph{states} about itself, read between
+2026-05 and 2026-06; we did not deploy the other six systems to verify
+their claims, and §6 explains why only two of them (Mem0 and
+agentmemory) could be brought to a same-corpus comparison at all. A cell
+therefore answers ``does the system claim this property?'', not ``does
+the system have it?''. \texttt{n/r} means the source material does not
+address the gap either way --- it is an absence of documentation, not a
+negative finding. Read the table as a map of the design space that
+motivates §§2--4, and not as an evaluation of competing systems.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
@@ -336,7 +305,7 @@ who covers what:
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Gap
 \end{minipage} & \begin{minipage}[b]{\linewidth}\centering
-nox-mem
+nox-mem (measured)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\centering
 mem0
 \end{minipage} & \begin{minipage}[b]{\linewidth}\centering
@@ -354,20 +323,48 @@ MeMo
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-1 & Static injection & PASS: live writeback & NB: partial & PASS & PASS
-& PASS & FAIL batch & FAIL retrain \\
-2 & No temporal decay & PASS: salience + retention & FAIL & FAIL & PASS
-& NB: partial & FAIL & FAIL \\
-3 & No provenance & PASS: chunk\_id + source\_file & NB: partial & PASS
-& PASS & PASS & PASS & FAIL baked-in \\
-4 & Flat memory & PASS: KG + section\_boost & FAIL & FAIL & PASS & PASS
-hyper & PASS dual-level & FAIL \\
-5 & No writeback & PASS: crystallize/reflect/consolidate & NB: partial &
-PASS & PASS & PASS EvoAgent & FAIL & FAIL \\
-6 & Indexing delay & PASS: inotifywait \textless1s & NB: & PASS & PASS &
-NB: & NB: batch & FAIL retrain \\
+1 & Static injection & yes --- live writeback & partial & yes & yes &
+yes & no --- batch & no --- retrain \\
+2 & No temporal decay & yes --- salience + retention & no & no & yes &
+partial & no & no \\
+3 & No provenance & yes --- chunk\_id + source\_file & partial & yes &
+yes & yes & yes & no --- baked-in \\
+4 & Flat memory & yes --- KG + section\_boost & no & no & yes & yes ---
+hypergraph & yes --- dual-level & no \\
+5 & No writeback & yes --- crystallize/reflect/consolidate & partial &
+yes & yes & yes --- EvoAgent & no & no \\
+6 & Indexing delay & yes --- inotifywait \textless1 s & \texttt{n/r} &
+yes & yes & \texttt{n/r} & partial --- batch & no --- retrain \\
 \end{longtable}
 }
+
+Sources for the non-\texttt{nox-mem} columns: mem0 \footnote{mem0ai/mem0
+  --- open-source memory layer for LLM agents (PostgreSQL + Qdrant
+  backend, OpenAI embeddings by default). github.com/mem0ai/mem0. Used
+  in §1.4, §6.3, Table 2.}, Letta \footnote{Letta (formerly MemGPT) ---
+  agent-loop memory architecture with archival/recall memory separation.
+  github.com/letta-ai/letta. Used in §1.4, §6.3, Table 2.}, Zep
+\footnote{Zep --- temporal knowledge-graph memory service with
+  summarization. github.com/getzep/zep. OpenAI embedding is the
+  hardcoded default in the OSS distribution. Used in §1.4, §6.3, Table
+  2.}, EverOS \footnote{EverMind-AI / EverOS --- github.com/EverMind-AI
+  (\textasciitilde5k stars, Apache 2.0). Publishes EverMemBench dataset
+  and an EvoAgentBench-framed evolution loop. The only memory-OS peer in
+  our taxonomy that publishes its own benchmark; §3.4 is the direct
+  narrative counter to EvoAgent framing. Honest-comparison action item:
+  run nox-mem on EverMemBench (queued as F4 in §7.2).}, LightRAG
+\footnote{Guo et al., \emph{LightRAG: Simple and Fast
+  Retrieval-Augmented Generation}, EMNLP 2025 (HKU).
+  github.com/HKUDS/LightRAG (\textasciitilde35k stars, MIT). Cited in
+  §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized
+  incremental KG-merge pattern as a forward-looking optimization
+  (LightRAG-style summarization parking-lotted until KG density
+  \textgreater=10× current; see
+  \texttt{docs/COMPETITIVE-ANALYSIS-2026-05-19.md}).}, MeMo \footnote{arXiv
+  2605.15156v2, \emph{MeMo: Towards Language Models with Associative
+  Memory Mechanisms} (parametric reflections folded into model weights).
+  Cited as the design opposite of nox-mem's externalized, inspectable
+  memory paradigm. §1.4, abstract.}.
 
 \textbf{Why each gap matters, and how nox-mem closes it:}
 
@@ -390,7 +387,7 @@ NB: & NB: batch & FAIL retrain \\
   window (V8 schema column; \texttt{feedback}/\texttt{person} =
   never-decay, \texttt{lesson} = 180d,
   \texttt{decision}/\texttt{project} = 365d, \texttt{daily} = 90d) and
-  folds it into the salience formula (§8.2).
+  folds it into the salience formula (Appendix A.2).
 \item
   \textbf{No provenance.} Parametric and opaque-vector memories cannot
   answer ``\emph{why} did you return this?''. Every nox-mem result
@@ -403,8 +400,8 @@ NB: & NB: batch & FAIL retrain \\
   \textbf{Flat memory.} Without structure, hybrid search collapses to
   ``more recent or more frequent wins''. nox-mem layers (a) FTS5 (SQLite
   full-text search) over chunk text, (b) typed retention, (c) an
-  LLM-extracted knowledge graph (§8), and (d) an entity-file format
-  (\texttt{frontmatter} / \texttt{compiled} / \texttt{timeline}
+  LLM-extracted knowledge graph (Appendix A), and (d) an entity-file
+  format (\texttt{frontmatter} / \texttt{compiled} / \texttt{timeline}
   sections) with section-aware \texttt{section\_boost} --- the dominant
   driver of the +78.8\% gain in §5.
 \item
@@ -1208,8 +1205,7 @@ shared documents that appear across multiple agent databases.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{5. Empirical Evaluation (May--June 2026, fifth
-revision)}\label{empirical-evaluation-mayjune-2026-fifth-revision}
+\subsection{5. Empirical Evaluation}\label{empirical-evaluation}
 
 \begin{quote}
 \textbf{Headlines (2026-05-29/06-02, 5-batch canonical, four-benchmark
@@ -1243,36 +1239,46 @@ INDETERMINATE --- infrastructure constraint, NOT scientific failure
 Hostinger VPS CPU steal 51--97\% sustained. Batch 004 (n=49) preserved;
 5-batch statistical threshold not reached. Capstone deferred to
 dedicated CPU infrastructure (§5.5.8). - \textbf{EverMemBench Overall
-SOTA (Gemini-3-flash, Backbone Matrix):} nox-mem \textbf{63.28\%} vs
-MemOS 42.55\% (Table 4 baseline) = \textbf{+20.73 pp WIN} (PR \#397). -
-\textbf{EverMemBench Memory Awareness composite SOTA (Gemini-3-flash):}
-nox-mem \textbf{88.42\%} vs MemOS 55.68\% = \textbf{+32.74 pp WIN} (PR
-\#397). - \textbf{MuSiQue SOTA (multi-hop QA, classical):} dev F1
+(Gemini-3-flash, Backbone Matrix):} nox-mem \textbf{63.28\%} vs MemOS
+42.55\% (Table 4 baseline, GPT-4.1-mini) = \textbf{+20.73 pp}; backbones
+differ, see §5.1.10. - \textbf{EverMemBench Memory Awareness composite
+(Gemini-3-flash):} nox-mem \textbf{88.42\%} vs MemOS 55.68\%
+(GPT-4.1-mini) = \textbf{+32.74 pp}; backbones differ, see §5.1.10. -
+\textbf{MuSiQue-Ans (multi-hop QA, classical):} dev answer F1
 \textbf{58.62\%} = \textbf{+22.82 pp vs IRCoT 35.80\%} and \textbf{+8.92
-pp vs EX(SA) 49.70\%} (PR \#407). - \textbf{HotPotQA SOTA (multi-hop QA,
-classical):} dev distractor ans\_F1 \textbf{73.37\%} above DPR+FiD
-reader SOTA range 65--72\% (PR \#408). - \textbf{LoCoMo retrieval@10
-SOTA (cross-bench memory):} strict \textbf{74.52\%} above Mem0 SOTA F1
-66.88\% (PR \#396); F1 push 51.85\% (rank-5, above Zep/LangMem) due to
-verbosity gap (PR \#404). - \textbf{Phase D (Gemini-2.5-flash):} nox-mem
-\textbf{62.22\%} vs MemOS 59.27\% = \textbf{+2.95 pp WIN} (PR \#365). -
-\textbf{Phase H v2 (GPT-4.1-mini cross-backbone):} nox-mem
-\textbf{51.68\%} vs MemOS 42.55\% = \textbf{+9.13 pp WIN} (95\% CI
-{[}49.88, 53.49{]}, PR \#377). - \textbf{Backbone portability:} nox-mem
-regresses −10.54 pp on Gemini-2.5-flash → GPT-4.1-mini swap vs MemOS
-−16.72 pp = \textbf{1.6× more portable} (§5.8). - \textbf{Wave B/C
-composability (D68 + D69):} KG+MAP additive on F\_MH +4.04 pp
-(different-stage compose); same-stage retrieval knobs cap at
-\textasciitilde7.25 pp F\_MH (D69 Wave C ceiling, PRs \#393, \#399). -
-\textbf{EverMemBench F\_MH paradox REFINED:} MuSiQue 58.62\% F1 and
-HotPotQA 73.37\% ans\_F1 prove multi-hop reasoning is SOTA; EverMemBench
-F\_MH 3--7\% remains largely structural (very long conversation chains +
-strict scoring), but MAS orchestration (Q3 IterB ReAct, this revision)
-adds \textbf{+2 pp on top of strongest backbone} above the retrieval
-ceiling (§5.4, §5.5). - \textbf{Operational (self-hosted):} KG path p50
-\textbf{2.9 ms}, \textbf{\$0/query}, \textbf{399 MB RSS} self-hosted
-single-process (§5.7, PR \#403). - \textbf{Methodology:} all claims use
-the \textbf{5-batch + 95\% CI canonical protocol} (PR \#371 + PR \#376).
+pp vs EX(SA) 49.70\%}; \textasciitilde10 pp below Beam Retrieval (69.2,
+test set) (§5.2.1). - \textbf{HotPotQA (multi-hop QA, classical):} dev
+distractor answer F1 \textbf{73.37\%}, above the DPR+FiD reader range
+65--72\%; \textasciitilde12 pp below Beam Retrieval (85.04) and FE2H
+(84.44), both blind test (§5.2.2). - \textbf{LoCoMo retrieval@10
+(cross-bench memory):} strict \textbf{74.52\%}. Mem0's published 66.88\%
+is an end-to-end \textbf{answer F1} and therefore not comparable to a
+retrieval@10 figure; our own F1 push is 51.85\% (rank-5, above
+Zep/LangMem), constrained by a verbosity gap (§5.3.1--§5.3.2). -
+\textbf{Phase D (Gemini-2.5-flash):} nox-mem \textbf{62.22\%} vs MemOS
+59.27\% = \textbf{+2.95 pp WIN} (PR \#365). - \textbf{Phase H v2
+(GPT-4.1-mini cross-backbone):} nox-mem \textbf{51.68\%} vs MemOS
+42.55\% = \textbf{+9.13 pp WIN} (95\% CI {[}49.88, 53.49{]}, PR \#377).
+- \textbf{Backbone portability:} nox-mem regresses −10.54 pp on
+Gemini-2.5-flash → GPT-4.1-mini swap vs MemOS −16.72 pp = \textbf{1.6×
+more portable} (§5.8). - \textbf{Wave B/C composability (D68 + D69):}
+KG+MAP additive on F\_MH +4.04 pp (different-stage compose); same-stage
+retrieval knobs cap at \textasciitilde7.25 pp F\_MH (D69 Wave C ceiling,
+PRs \#393, \#399). - \textbf{EverMemBench F\_MH paradox REFINED:}
+MuSiQue 58.62\% F1 and HotPotQA 73.37\% answer F1 --- above their
+conventional reference readers, roughly 10--12 pp below current SOTA
+(Beam Retrieval) --- show multi-hop composition is not where this
+pipeline fails, which rules out a wholesale reasoning failure as the
+explanation for F\_MH; the difficulty of the track itself is visible
+same-metric, with the best published system (MemOS) at \textbf{18.88\%}
+strict EM. EverMemBench F\_MH 3--7\% is therefore attributed principally
+to the task setup (very long conversation chains + strict scoring), and
+MAS orchestration (Q3 IterB ReAct, this revision) adds \textbf{+2 pp on
+top of strongest backbone} above the retrieval ceiling (§5.4, §5.5). -
+\textbf{Operational (self-hosted):} KG path p50 \textbf{2.9 ms},
+\textbf{\$0/query}, \textbf{399 MB RSS} self-hosted single-process
+(§5.7, PR \#403). - \textbf{Methodology:} all claims use the
+\textbf{5-batch + 95\% CI canonical protocol} (PR \#371 + PR \#376).
 Single-batch overstates effects 3--6×. - \textbf{Dual-baseline honest
 reporting (D74):} orchestration-mechanism claims report against both (a)
 project-convention baseline (Phase H v2 GPT-4.1-mini, conflates backbone
@@ -1288,8 +1294,9 @@ exercising the V10 schema's section/source-type/salience drivers; the
 queries, task-accuracy vs MemOS Table 4 baselines) covering Phase D / H
 v2 / G / Lab Q1 standalone knobs / Wave B/C composability / Backbone
 Matrix; and the \textbf{classical multi-hop QA series} (§5.2, MuSiQue +
-HotPotQA) confirming that multi-hop reasoning is SOTA on standard
-benchmarks where corpus structure and scoring are not adversarial. §5.3
+HotPotQA) bounding multi-hop reasoning as competent on standard
+benchmarks, above their conventional reference readers and below current
+SOTA where corpus structure and scoring are not adversarial. §5.3
 cross-validates on LoCoMo (memory-bench, conversational), §5.4 resolves
 the EverMemBench F\_MH paradox using the §5.2 and §5.3 evidence, §5.5
 reports Q3 orchestration mechanism-class findings --- including the
@@ -1929,8 +1936,9 @@ orchestration-stage mechanisms (Q3, §5.5) or backbone upgrades
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\paragraph{5.1.10 Backbone Matrix --- Gemini-3-flash SOTA on
-EverMemBench}\label{backbone-matrix-gemini-3-flash-sota-on-evermembench}
+\paragraph{5.1.10 Backbone Matrix --- Gemini-3-flash on EverMemBench,
+above the published MemOS
+numbers}\label{backbone-matrix-gemini-3-flash-on-evermembench-above-the-published-memos-numbers}
 
 \textbf{Config:} phaseB adapter, top\_k=20, rerank OFF, Gemini-3-flash
 backbone (frontier reasoning tier). 5-batch n=3,121. PR \#397.
@@ -1958,24 +1966,33 @@ MemOS Table 4 baseline (GPT-4.1-mini col)
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{Overall} & \textbf{63.28\%} & 42.55\% & \textbf{+20.73 pp SOTA}
-& +11.60 pp \\
-\textbf{MA composite} & \textbf{88.42\%} & 55.68\% & \textbf{+32.74 pp
-SOTA} & +15.08 pp \\
+\textbf{Overall} & \textbf{63.28\%} & 42.55\% & \textbf{+20.73 pp} &
++11.60 pp \\
+\textbf{MA composite} & \textbf{88.42\%} & 55.68\% & \textbf{+32.74 pp}
+& +15.08 pp \\
 MA\_C & \textasciitilde95\% & 69.90\% & +25 pp class & +10 pp class \\
 MA\_P & \textasciitilde83\% & 51.99\% & +31 pp class & +18 pp class \\
 MA\_U & \textasciitilde87\% & 45.15\% & +42 pp class & +17 pp class \\
 \end{longtable}
 }
 
-Gemini-3-flash crushes both the Overall and Memory Awareness composite
-tracks. The MA composite SOTA at \textbf{+32.74 pp over MemOS}
-establishes nox-mem's structural advantage: the V10 schema's
-section/source-type/salience drivers deliver compounding gains when
-paired with a frontier-tier reasoning backbone. This is the
-\textbf{strongest cross-system claim in the paper} --- backbone choice +
-memory architecture together yield SOTA on the canonical memory
-benchmark.
+Gemini-3-flash leads on both the Overall and Memory Awareness composite
+tracks. The MA composite at \textbf{+32.74 pp over the published MemOS
+numbers} is consistent with a structural advantage from the V10 schema's
+section/source-type/salience drivers when paired with a frontier-tier
+reasoning backbone.
+
+⚠️ \textbf{The backbones differ, and the deltas are not SOTA claims.}
+The MemOS column is the published Table 4 result obtained on
+\textbf{GPT-4.1-mini}; our column is \textbf{Gemini-3-flash}. Beating a
+published number produced on a weaker backbone is a cross-backbone
+comparison, not a state-of-the-art result, and §5.5.4--§5.5.8 measure
+directly how much backbone choice alone can move these metrics
+(single-stage retrieval knobs transfer at only 0--40\% between these two
+backbones). The split-matched comparison against MemOS is the
+GPT-4.1-mini row in §5.1.6 (+9.13 pp, 95\% CI {[}49.88, 53.49{]}); that
+one holds the backbone fixed and is the number to cite when the question
+is architecture rather than backbone.
 
 \textbf{Backbone Matrix interpretation.} The +20.73 pp Overall and
 +32.74 pp MA composite lifts vs gpt-4.1-mini baseline are not
@@ -2034,7 +2051,8 @@ Full Context baseline (GPT-4.1-mini Full Context: 37.44\%, MemOS:
 (72.61\%) was a catastrophe zone for MemOS and other systems (regress
 −13 to −21 pp); nox-mem's Backbone Matrix run (§5.1.10) shows nox-mem
 \textbf{does not regress} under Gemini-3-flash but reaches 63.28\%
-Overall and 88.42\% MA composite, both SOTA. The structural difference:
+Overall and 88.42\% MA composite --- above every MemOS Table 4 number,
+which were obtained on GPT-4.1-mini. The structural difference:
 nox-mem's adapter framework separates retrieval (backbone-agnostic FTS5
 + dense + RRF) from generation, while MemOS's tighter coupling amplifies
 regression on frontier-backbone swaps. Llama-4-Scout remains a weak
@@ -2074,17 +2092,24 @@ from retrieval-side mechanisms: cross-encoder rerank (§5.1.7) +1.61 pp
 retrieval-stage stacking at \textasciitilde+7.25 pp F\_MH.
 
 \textbf{Reframing (see §5.4):} the §5.2 classical multi-hop QA results
-(MuSiQue F1 58.62\%, HotPotQA ans\_F1 73.37\%) demonstrate that
-nox-mem's multi-hop reasoning is SOTA on standard benchmarks --- the
-EverMemBench F\_MH 3--7\% absolute is therefore a
-\emph{corpus-structural} property (very long conversation chains +
-strict scoring + entity-anchor sparsity), not a multi-hop reasoning
-ceiling. The §5.4 section resolves this paradox in detail.
+(MuSiQue-Ans dev answer F1 58.62\%, HotPotQA distractor dev answer F1
+73.37\%) place nox-mem's multi-hop reasoning well above the specialized
+readers these datasets are conventionally compared against and roughly
+10--12 points below current published SOTA --- competent, with headroom.
+That rules out a wholesale multi-hop reasoning failure as the
+explanation for the EverMemBench F\_MH 3--7\% absolute, and points to
+the task setup (very long conversation chains + strict scoring +
+entity-anchor sparsity) as the principal factor; the same-metric
+evidence for the track's difficulty is that the best published system on
+it, MemOS, reaches only 18.88\% strict EM. It does not establish that
+the corpus accounts for the entire gap. The §5.4 section develops what
+the evidence supports.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsubsection{5.2 Classical multi-hop QA --- MuSiQue and HotPotQA dual
-SOTA}\label{classical-multi-hop-qa-musique-and-hotpotqa-dual-sota}
+\subsubsection{5.2 Classical multi-hop QA --- competitive without
+fine-tuning, below current
+SOTA}\label{classical-multi-hop-qa-competitive-without-fine-tuning-below-current-sota}
 
 The EverMemBench F\_MH gap raised an open question: is nox-mem's
 multi-hop reasoning genuinely limited, or is the EverMemBench F\_MH
@@ -2097,11 +2122,16 @@ with distractor paragraphs). Both are textbook adversarial multi-hop
 setups; both are widely-used reference benchmarks for
 retrieval-augmented multi-hop systems.
 
-The result: nox-mem achieves SOTA on both benchmarks without specialized
-fine-tuning.
+The result: on both benchmarks nox-mem performs multi-hop QA competently
+without any benchmark-specific fine-tuning, landing above the
+specialized multi-hop readers conventionally used as reference points
+for each dataset, and below the current state of the art. The purpose
+here is diagnostic --- establishing whether multi-hop composition is a
+capability floor for the system --- not a leaderboard claim.
 
-\paragraph{5.2.1 MuSiQue --- F1 58.62\% beats IRCoT and
-EX(SA)}\label{musique-f1-58.62-beats-ircot-and-exsa}
+\paragraph{5.2.1 MuSiQue-Ans dev --- answer F1 58.62\%, above EX(SA),
+below Beam
+Retrieval}\label{musique-ans-dev-answer-f1-58.62-above-exsa-below-beam-retrieval}
 
 \textbf{Config:} nox-mem hybrid retrieval (FTS5 + Gemini-embedding-001 +
 RRF, top\_k=20), GPT-4.1-mini generation backbone, MuSiQue dev set with
@@ -2110,15 +2140,18 @@ match. PR \#407.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2143}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2857}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2857}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2143}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1765}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1765}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2353}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2353}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1765}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 System
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Split
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Dev F1
+Answer F1
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 Δ vs nox-mem
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -2128,18 +2161,39 @@ Source
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{nox-mem (hybrid, no rerank)} & \textbf{58.62\%} & --- & PR
-\#407 \\
-EX(SA) (Trivedi et al.~2022) & 49.70\% & \textbf{−8.92 pp} & MuSiQue
-paper (arxiv:2108.00573) \\
-IRCoT (Trivedi et al.~2022) & 35.80\% & \textbf{−22.82 pp} & IRCoT paper
+Beam Retrieval (Zhang et al., NAACL 2024) & \textbf{test} &
+\textbf{69.20\%} & \textbf{+10.58 pp} & Table 4 (arxiv:2308.08973) \\
+\textbf{nox-mem (hybrid, no rerank)} & \textbf{dev} & \textbf{58.62\%} &
+--- & \texttt{audits/2026-05-30-musique-dev-full.md} \\
+EX(SA) (Trivedi et al.~2022) & dev & 49.70\% & −8.92 pp & MuSiQue paper
+(arxiv:2108.00573) \\
+IRCoT (Trivedi et al.~2023) & dev & 35.80\% & −22.82 pp & IRCoT paper
 (arxiv:2212.10509) \\
 \end{longtable}
 }
 
-The +22.82 pp gap over IRCoT and +8.92 pp gap over EX(SA) (the strongest
-specialized multi-hop reader in the MuSiQue paper) are unambiguous SOTA
-on the dev set. nox-mem's gain stems from two structural factors:
+\textbf{Splits differ in the top row.} Beam Retrieval reports answer F1
+on the MuSiQue-Ans \emph{test} set (their Table 4); its development-set
+table reports \emph{retrieval} EM/F1 (77.37/79.31), not answer F1, so no
+split-matched answer figure is published for that system. Dev/test
+variance on this benchmark is on the order of one point, well inside the
+\textasciitilde10-point gap, but the mismatch is stated rather than
+elided.
+
+nox-mem lands above both readers published with the benchmark, and 10.58
+pp below Beam Retrieval, the current published state of the art on this
+metric. Two cautions apply to the margins over EX(SA) and IRCoT. First,
+both are 2022--2023 systems while our reader is GPT-4.1-mini: the
+comparison confounds retrieval design with three years of backbone
+progress, and we do not claim the delta measures the former. Second,
+EX(SA) at 49.70 is essentially the baseline Beam Retrieval itself
+improved upon (49.0 → 69.2), so ``strongest specialized reader in the
+MuSiQue paper'' is a statement about that paper, not about the field.
+Protocol also differs: Beam Retrieval selects from a per-question
+candidate set of 10--20 passages, while we retrieve top\_k=20 over the
+full paragraph corpus. What the number does support is narrower and
+sufficient for §5.4 --- multi-hop composition is not a capability floor
+for this pipeline. Two structural factors contribute:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -2158,8 +2212,9 @@ Per-hop and per-type breakdowns confirm the gain is broad (not driven by
 a single hop count or question template); detailed numbers in
 \texttt{audits/2026-05-30-musique-dev-full.md}.
 
-\paragraph{5.2.2 HotPotQA --- ans\_F1 73.37\% above DPR+FiD reader
-SOTA}\label{hotpotqa-ans_f1-73.37-above-dprfid-reader-sota}
+\paragraph{5.2.2 HotPotQA distractor --- answer F1 73.37\%, above
+DPR+FiD, below Beam Retrieval and
+FE2H}\label{hotpotqa-distractor-answer-f1-73.37-above-dprfid-below-beam-retrieval-and-fe2h}
 
 \textbf{Config:} nox-mem hybrid retrieval (same config as §5.2.1),
 GPT-4.1-mini generation backbone, HotPotQA dev distractor (Yang et
@@ -2168,15 +2223,18 @@ answer match. PR \#408.
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2143}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2857}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2857}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2143}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1765}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1765}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2353}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2353}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1765}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 System
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Split
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Dev distractor ans\_F1
+Answer F1
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 Δ vs nox-mem
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
@@ -2186,23 +2244,38 @@ Source
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{nox-mem (hybrid, no rerank)} & \textbf{73.37\%} & --- & PR
-\#408 \\
-DPR+FiD reader SOTA (range, published) & 65--72\% & \textbf{+1.37 to
-+8.37 pp} & DPR (arxiv:2004.04906) + FiD (arxiv:2007.01282) papers \\
-BERT reader (Yang et al.~2018) & \textasciitilde58\% & +15+ pp &
-HotPotQA paper (arxiv:1809.09600) \\
+Beam Retrieval (Zhang et al., NAACL 2024) & \textbf{blind test} &
+\textbf{85.04\%} & \textbf{+11.67 pp} & Table 5 (arxiv:2308.08973) \\
+FE2H on ALBERT & \textbf{blind test} & 84.44\% & +11.07 pp &
+hotpotqa.github.io leaderboard \\
+\textbf{nox-mem (hybrid, no rerank)} & \textbf{dev} & \textbf{73.37\%} &
+--- & \texttt{audits/} HotPotQA dev run \\
+DPR+FiD reader (range, published) & dev & 65--72\% & −1.37 to −8.37 pp &
+DPR (arxiv:2004.04906) + FiD (arxiv:2007.01282) \\
+BERT reader, original dataset baseline (Yang et al.~2018) & dev &
+\textasciitilde58\% & −15+ pp & HotPotQA paper (arxiv:1809.09600) \\
 \end{longtable}
 }
 
-The ans\_F1 of 73.37\% sits above the published DPR+FiD reader SOTA
-range without specialized training or HotPotQA-specific fine-tuning. The
-result corroborates §5.2.1: nox-mem's general-purpose hybrid retrieval +
-GPT-4.1-mini generation achieves classical multi-hop QA SOTA without
-bespoke pipelines.
+\textbf{Splits differ in the top two rows.} The official HotPotQA
+leaderboard reports the blind test set only; our figure is dev
+distractor. As with §5.2.1, the mismatch is smaller than the gap by an
+order of magnitude, and is stated rather than elided.
 
-\paragraph{5.2.3 Why classical-QA SOTA matters for the F\_MH
-narrative}\label{why-classical-qa-sota-matters-for-the-f_mh-narrative}
+The answer F1 of 73.37\% sits above the DPR+FiD reader range without
+specialized training or HotPotQA-specific fine-tuning, and roughly 11.7
+points below the leaderboard's leading entries. Note that DPR (2020) and
+FiD (2021) are later general-purpose systems, not the reader published
+with HotPotQA in 2018 --- that baseline is the BERT reader at
+\textasciitilde58\%. The result corroborates §5.2.1 in the narrow sense
+that matters for §5.4: general-purpose hybrid retrieval with an
+off-the-shelf reader clears classical multi-hop QA competently, well
+short of purpose-built systems that optimize the retrieval chain
+end-to-end for these datasets.
+
+\paragraph{5.2.3 What the classical-QA results do and do not license for
+the F\_MH
+narrative}\label{what-the-classical-qa-results-do-and-do-not-license-for-the-f_mh-narrative}
 
 The MuSiQue and HotPotQA results establish a critical decoupling: -
 \textbf{Multi-hop reasoning quality} is a property of the reader
@@ -2213,9 +2286,16 @@ histories, with strict exact-match scoring.
 
 On benchmarks where multi-hop reasoning quality is the question and
 corpus structure is friendly to general-purpose hybrid retrieval
-(MuSiQue, HotPotQA), nox-mem is SOTA. The EverMemBench F\_MH gap is
-therefore not a reasoning ceiling --- it is a structural challenge
-specific to the EverMemBench task setup. §5.4 develops this in detail.
+(MuSiQue, HotPotQA), nox-mem performs in the same regime as published
+specialized systems without matching the leaders. That licenses a
+bounded claim --- multi-hop composition is not where this pipeline fails
+--- and not an unbounded one. The 10--12 point shortfall against Beam
+Retrieval means classical multi-hop still has headroom for this system
+too, so the EverMemBench F\_MH gap cannot be attributed to task
+structure alone on the strength of these two results. The same-metric
+evidence that the F\_MH track is intrinsically hard is separate and
+stronger: the best published system on it reaches 18.88\% strict EM.
+§5.4 develops what remains.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -2277,8 +2357,8 @@ This is the retrieval \textbf{ceiling} for the corpus --- the best a
 prompt-level F1 push can hope for from candidates retrieved at
 top\_k=10. The multi-hop sub-track at 82.21\% strict / 92.91\%
 adjacency-2 confirms that multi-hop retrieval on LoCoMo is structurally
-easier than on EverMemBench (consistent with the §5.4 corpus-structural
-argument).
+easier than on EverMemBench (consistent with the task-setup account
+proposed in §5.4, which we do not establish as the whole explanation).
 
 \paragraph{5.3.2 F1 push --- 51.85\% rank-5 (above Zep / LangMem, below
 Mem0
@@ -2353,11 +2433,12 @@ reframing of the EverMemBench F\_MH absolute number:
 
 {\def\LTcaptype{none} % do not increment counter
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1765}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1765}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2353}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.2353}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 8\tabcolsep) * \real{0.1765}}@{}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1429}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1429}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1905}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1905}}
+  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1905}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1429}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Benchmark
@@ -2366,7 +2447,9 @@ Multi-hop metric
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
 nox-mem score
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Reader SOTA range
+Conventional reference readers
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
+Published SOTA (split noted)
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Verdict
 \end{minipage} \\
@@ -2374,31 +2457,46 @@ Verdict
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-\textbf{MuSiQue dev} & F1 (multi-hop decomposable) & \textbf{58.62\%} &
-35.80\% (IRCoT) -- 49.70\% (EX(SA)) & \textbf{nox-mem SOTA} \\
-\textbf{HotPotQA dev distractor} & ans\_F1 (multi-hop bridge) &
-\textbf{73.37\%} & 65--72\% (DPR+FiD reader SOTA) & \textbf{nox-mem
+\textbf{MuSiQue-Ans dev} & answer F1 (multi-hop decomposable) &
+\textbf{58.62\%} & 35.80\% (IRCoT) -- 49.70\% (EX(SA)) & 69.20\% (Beam
+Retrieval, \emph{test}) & +8.92 pp vs EX(SA); \textbf{−10.58 pp vs
 SOTA} \\
+\textbf{HotPotQA dev distractor} & answer F1 (multi-hop bridge) &
+\textbf{73.37\%} & 65--72\% (DPR+FiD) & 85.04\% (Beam Retrieval,
+\emph{blind test}) & above DPR+FiD; \textbf{−11.67 pp vs SOTA} \\
 \textbf{LoCoMo dev} & retrieval@10 strict & \textbf{74.52\%} & 66.88\%
 (Mem0 answer-F1, different metric) & \textbf{retrieval ceiling; not
-comparable to Mem0 F1} \\
+comparable to Mem0 F1} & \\
 \textbf{LoCoMo dev (F1 push)} & F1 (verbosity-sensitive) & 51.85\% &
-66.88\% (Mem0 SOTA) & rank-5, verbosity gap \\
+66.88\% (Mem0 SOTA) & rank-5, verbosity gap & \\
 \textbf{EverMemBench F\_MH} & strict EM (multi-hop chain on long conv) &
-3--7\% (5-batch) & 18.88\% (MemOS Table 4) & \textbf{−13 to −16 pp
-gap} \\
+3--7\% (5-batch) & 18.88\% (MemOS Table 4) & \textbf{−13 to −16 pp gap}
+& \\
 \end{longtable}
 }
 
 If nox-mem's multi-hop reasoning were structurally weak, the MuSiQue and
-HotPotQA SOTA results would not be possible. They demonstrate the
-reverse: nox-mem's hybrid retrieval + GPT-4.1-mini reader pipeline is
-SOTA on the canonical multi-hop QA benchmarks. The LoCoMo retrieval
-ceiling at 74.52\% strict (82.21\% multi-hop sub-track) further confirms
-that multi-hop retrieval over long conversations is achievable.
+HotPotQA results would sit near the original benchmark readers rather
+than well above them. They do not: the pipeline composes multi-hop
+answers competently on both. That rules out a wholesale reasoning
+failure as the explanation for F\_MH, which is what this argument
+requires. It does \textbf{not} establish that classical multi-hop is
+saturated for this system --- the 10--12 point shortfall against Beam
+Retrieval says the opposite --- so the contrast with EverMemBench F\_MH
+is a contrast between \emph{competent-with-headroom} and \emph{3--7\%},
+not between \emph{solved} and \emph{broken}. The quantitative evidence
+that the F\_MH track is intrinsically hard does not come from
+cross-metric comparison at all: it is the 18.88\% strict EM that the
+best published system on this same track and same metric attains. The
+LoCoMo retrieval ceiling at 74.52\% strict (82.21\% multi-hop sub-track)
+further confirms that multi-hop retrieval over long conversations is
+achievable.
 
-\textbf{The resolution.} The EverMemBench F\_MH 3--7\% number measures a
-corpus-structural challenge specific to the EverMemBench task setup:
+\textbf{The proposed explanation.} Four features of the EverMemBench
+task setup are candidates for the F\_MH 3--7\% number, and we present
+them as the leading account rather than an established attribution ---
+nothing below separates a corpus effect from a system limitation, and
+§5.2 leaves 10--12 points of headroom on classical multi-hop:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -2590,13 +2688,17 @@ sequential refinement).
 \textbf{Ceiling refinement --- D74 vs D69 / D72.} D69 established the
 Wave A/B/C single-stage retrieval ceiling at +7.25 pp F\_MH (§5.1.9).
 D72 (PR \#410, third revision) framed F\_MH as ``structural challenge of
-EverMemBench'' given MuSiQue / HotPotQA / LoCoMo retrieval SOTA. D74
-refines this framing: F\_MH is \textbf{still largely structural} (long
-chains × cross-session compression × strict EM scoring), but MAS
-orchestration via ReAct adds \textbf{+2 pp clean F\_MH on top of the
-strongest backbone above the retrieval-stage ceiling}. The paradox is
-refined rather than dissolved --- closing the EverMemBench F\_MH gap now
-has both a backbone path (Backbone Matrix, §5.1.10) and an orchestration
+EverMemBench'' on the strength of the MuSiQue / HotPotQA / LoCoMo
+retrieval results, which that revision described as SOTA; §5.2 now
+states them as competent-but-below-SOTA, and the structural framing
+rests instead on the same-metric observation that the best published
+system on this track reaches 18.88\% strict EM. D74 refines this
+framing: F\_MH is \textbf{still largely structural} (long chains ×
+cross-session compression × strict EM scoring), but MAS orchestration
+via ReAct adds \textbf{+2 pp clean F\_MH on top of the strongest
+backbone above the retrieval-stage ceiling}. The paradox is refined
+rather than dissolved --- closing the EverMemBench F\_MH gap now has
+both a backbone path (Backbone Matrix, §5.1.10) and an orchestration
 path (Q3 IterB ReAct, this section), in addition to retrieval-stage
 mechanisms (Wave A/B/C, §5.1.8/§5.1.9).
 
@@ -3052,7 +3154,7 @@ lift on Gemini-3-flash (§5.5.2); (2) D75 3-knob NO-REPLICATE
 backbone-conditional pattern (§5.5.5); (3) MQ MA backbone flip
 sub-finding (§5.5.6); (4) architectural composability lock discovery
 (§5.5.7); (5) this D76 honest infrastructure framing (§5.5.8). The 12
-SOTA-tier dimensions documented in §5.1--§5.7 are unaffected by the
+measured dimensions documented in §5.1--§5.7 are unaffected by the
 capstone outcome.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
@@ -3410,11 +3512,14 @@ claims}\label{honest-scope-of-evermembench-locomo-and-classical-qa-claims}
   V10 retrieval stack and frontier-tier reasoning, not exclusively
   backbone-driven (§5.1.10).
 \item
-  \textbf{MuSiQue F1 58.62\%} (§5.2.1) and \textbf{HotPotQA ans\_F1
-  73.37\%} (§5.2.2) are both above published reader SOTA without
-  specialized fine-tuning, validating the architecture's multi-hop
-  reasoning quality on classical benchmarks. Comparison ranges are from
-  the public IRCoT, EX(SA), and DPR+FiD literature.
+  \textbf{MuSiQue-Ans dev answer F1 58.62\%} (§5.2.1) and
+  \textbf{HotPotQA distractor dev answer F1 73.37\%} (§5.2.2) sit above
+  the specialized readers these datasets are conventionally compared
+  against (IRCoT, EX(SA), DPR+FiD) and roughly 10--12 points below
+  current published SOTA (Beam Retrieval), without specialized
+  fine-tuning. This bounds the architecture's multi-hop reasoning as
+  competent rather than state-of-the-art, and is the sense in which §5.4
+  uses it.
 \item
   \textbf{LoCoMo retrieval@10 strict 74.52\%} (§5.3) above Mem0 SOTA F1
   66.88\% is the retrieval ceiling on LoCoMo; the F1 push of 51.85\% is
@@ -3467,13 +3572,16 @@ work}\label{honest-limitations-and-open-work}
 \tightlist
 \item
   \textbf{EverMemBench F\_MH absolute (3--7\%) gap vs MemOS Table 4
-  (18.88\%)} remains, but the §5.4 reframing demonstrates this is a
-  corpus-structural property, not a multi-hop reasoning ceiling. Closing
-  it requires either Q3 IterB ReAct (multi-round refinement on long
-  conversation chains, §5.5.2) or backbone upgrade (Backbone Matrix
-  §5.1.10 shows the gap narrows with Gemini-3-flash). Retrieval-stage
-  knobs cap at \textasciitilde+7.25 pp F\_MH (D69 Wave C ceiling §5.1.9)
-  and show low backbone-portability to Gemini-3-flash (D75 §5.5.5).
+  (18.88\%)} remains, and the §5.4 reframing argues it is not primarily
+  a multi-hop reasoning failure, attributing it principally to the task
+  setup --- with the difficulty of the track visible same-metric in the
+  18.88\% that the best published system reaches on it, rather than
+  inferred from the classical benchmarks. Closing it requires either Q3
+  IterB ReAct (multi-round refinement on long conversation chains,
+  §5.5.2) or backbone upgrade (Backbone Matrix §5.1.10 shows the gap
+  narrows with Gemini-3-flash). Retrieval-stage knobs cap at
+  \textasciitilde+7.25 pp F\_MH (D69 Wave C ceiling §5.1.9) and show low
+  backbone-portability to Gemini-3-flash (D75 §5.5.5).
 \item
   \textbf{IterB composability with Wave A/B/C knobs on Gemini-3-flash}
   is an open question. The D76 capstone (§5.5.8) was
@@ -4779,399 +4887,7 @@ Ref: \texttt{docs/ROADMAP.md} GTM Phase 2, \texttt{docs/gtm/},
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
-\subsection{8. Knowledge Graph v2}\label{knowledge-graph-v2}
-
-\subsubsection{8.1 Entity Extraction}\label{entity-extraction}
-
-\textbf{v1 (Regex-based)}: Used hardcoded regular expressions for 3
-entity types (person, project, agent) with a static alias map for name
-normalization. Limited to predefined names, producing 26 entities.
-
-\textbf{v2 (LLM-powered)}: Uses Ollama llama3.2:3b with a structured
-extraction prompt. Each chunk is processed with temperature 0.1 for
-deterministic output. The LLM returns JSON with entities (name + type)
-and relations (source + relation + target).
-
-Extraction results after processing 866 chunks:
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}llll@{}}
-\toprule\noalign{}
-Metric & Regex v1 & LLM v2 & Improvement \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-Entities & 26 & 384 & 14.8x \\
-Relations & 59 & 529 & 9.0x \\
-Entity Types & 3 & 11 & 3.7x \\
-\end{longtable}
-}
-
-\textbf{Entity Type Distribution:}
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}lll@{}}
-\toprule\noalign{}
-Type & Count & Description \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-project & 109 & Software projects, products, repos \\
-tool & 67 & Libraries, frameworks, CLI tools \\
-concept & 54 & Abstract ideas, patterns, methodologies \\
-person & 53 & Team members, contacts, stakeholders \\
-organization & 50 & Companies, teams, departments \\
-agent & 45 & AI agents in the fleet \\
-location & 2 & Geographic references \\
-other & 4 & Device, currency, date, computer \\
-\end{longtable}
-}
-
-\subsubsection{8.2 Temporal Decay and TTL}\label{temporal-decay-and-ttl}
-
-Relations have a 90-day time-to-live (TTL) from creation. The confidence
-decay mechanism operates as follows:
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  Relations start with confidence 0.8 (extracted) or 0.9 (confirmed)
-\item
-  Every 30 days without re-confirmation, confidence drops by 0.1
-\item
-  Relations below 0.3 confidence receive accelerated 7-day expiry
-\item
-  Expired relations are deleted during \texttt{kg-prune} execution
-\item
-  Re-confirmation (observing the same relation in new chunks) resets
-  confidence to 0.9 and extends TTL by 90 days
-\end{enumerate}
-
-This mechanism ensures the knowledge graph naturally forgets stale
-information while reinforcing actively observed patterns.
-
-\subsubsection{8.3 Decision Versioning}\label{decision-versioning}
-
-Architectural decisions are tracked with full version history in the
-\texttt{decision\_versions} table. Each decision has a unique key (e.g.,
-\texttt{dedup-strategy}, \texttt{fallback-chain}) and supports:
-
-\begin{itemize}
-\tightlist
-\item
-  Version chains with supersession tracking
-\item
-  Authorship attribution
-\item
-  Source file provenance
-\item
-  Current vs.~historical querying
-\end{itemize}
-
-10 decisions are currently tracked, covering API key management, LLM
-fallback chains, embedding model selection, agent isolation strategy,
-and synchronization schedules.
-
-\subsubsection{8.4 Graph Traversal}\label{graph-traversal}
-
-The \texttt{findPath()} function implements BFS (Breadth-First Search)
-to discover shortest paths between any two entities. This enables
-queries like ``How is Toto connected to nox-mem?'' which traverses
-person → project → tool → agent relationships. Maximum depth is
-configurable (default: 4 hops).
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{9. Cross-Agent Intelligence}\label{cross-agent-intelligence}
-
-\subsubsection{9.1 Agent Expertise
-Profiling}\label{agent-expertise-profiling}
-
-Each agent's memory is analyzed to determine its unique expertise based
-on chunk type distribution. The dominant chunk type determines the
-agent's strength category:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{daily} → ``Daily operations \& activity logging''
-\item
-  \textbf{team} → ``Team coordination \& shared knowledge''
-\item
-  \textbf{decision} → ``Decision tracking \& rationale''
-\item
-  \textbf{lesson} → ``Lessons learned \& pattern recognition''
-\end{itemize}
-
-Profiles include chunk counts, type breakdowns, top topics (via FTS5
-term frequency), and last activity dates.
-
-\subsubsection{9.2 Knowledge Sharing}\label{knowledge-sharing}
-
-The \texttt{pullInsightsFrom()} function enables any agent to query
-lessons and decisions from other agents without direct database access.
-This creates a knowledge transfer mechanism where, for example, Cipher
-(Security) can learn from Forge's (Code Reviewer) past code review
-decisions.
-
-\texttt{pullAllInsights()} aggregates insights across all agents, sorted
-by date, providing a fleet-wide learning feed.
-
-\subsubsection{9.3 Cross-Agent Knowledge Graph
-Merge}\label{cross-agent-knowledge-graph-merge}
-
-\texttt{mergeCrossKnowledgeGraphs()} scans all agent databases for
-kg\_entities and kg\_relations tables, merging them into a unified
-entity view. Entities are matched by type + lowercase name. The output
-shows which entities are known to which agents and their combined
-mention counts, enabling identification of shared knowledge
-vs.~agent-specific expertise.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{10. MCP Server Interface}\label{mcp-server-interface}
-
-nox-mem exposes 14 tools via the Model Context Protocol (MCP) over stdio
-(JSON-RPC 2.0):
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2069}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3448}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4483}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-Tool
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Category
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Description
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-nox\_mem\_search & Retrieval & Hybrid search (FTS5 + semantic + RRF) \\
-nox\_mem\_stats & Monitoring & Database statistics and health \\
-nox\_mem\_primer & Context & Session recovery summary
-(\textasciitilde500 tokens) \\
-nox\_mem\_ingest & Ingestion & Index a file into memory \\
-nox\_mem\_cross\_search & Cross-Agent & Search across all 7 databases \\
-nox\_mem\_cross\_stats & Cross-Agent & Chunk counts per agent \\
-nox\_mem\_metrics & Monitoring & Daily observability metrics \\
-nox\_mem\_kg\_build & KG & Build knowledge graph from chunks \\
-nox\_mem\_kg\_query & KG & Query entity and its relations \\
-nox\_mem\_kg\_stats & KG & Knowledge graph statistics \\
-nox\_mem\_agent\_profiles & Intelligence & Agent expertise profiles \\
-nox\_mem\_cross\_kg & Intelligence & Merged cross-agent knowledge
-graph \\
-nox\_mem\_kg\_path & Intelligence & BFS path between entities \\
-nox\_mem\_self\_improve & Analysis & Contradiction detection, pattern
-analysis \\
-\end{longtable}
-}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{11. HTTP API Server}\label{http-api-server}
-
-A lightweight HTTP API (Node.js built-in \texttt{http} module, zero
-dependencies) runs on port 18800, exposing memory data to the React
-dashboard:
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3571}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2857}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3571}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-Endpoint
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Method
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Response
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-\texttt{/api/health} & GET & System health: chunks, consolidation,
-vector coverage, services, KG stats, DB size \\
-\texttt{/api/agents} & GET & Agent expertise profiles array \\
-\texttt{/api/kg} & GET & Knowledge graph entities and relations \\
-\texttt{/api/kg/path?from=X\&to=Y} & GET & BFS shortest path between
-entities \\
-\texttt{/api/search?q=QUERY\&limit=N} & GET & Hybrid search results \\
-\texttt{/api/cross-kg} & GET & Merged cross-agent knowledge graph \\
-\end{longtable}
-}
-
-CORS headers are set for cross-origin access from the Vercel-hosted
-dashboard.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{12. Operational
-Infrastructure}\label{operational-infrastructure}
-
-\subsubsection{12.1 Cron Schedule}\label{cron-schedule}
-
-24 cron jobs manage automated operations:
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1935}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3548}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1613}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2903}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-Time
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Frequency
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Job
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Details
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-23:00-23:25 & Daily & Agent consolidation & 6 agents, 5-min stagger,
-reindex→consolidate \\
-23:30 & Daily & Workspace consolidation & Central workspace daily
-notes \\
-23:35 & Daily & Session wrap-up & SESSION-STATE.md, Notion sync, git
-commit \\
-04:00 & Weekly (Sun) & Vectorize & Gemini embeddings for new/changed
-chunks \\
-*/5 min & Continuous & Health check & Watcher heartbeat, service
-liveness \\
-02:00 & Daily & SQLite backup & Online backup API, 7-day retention
-pruning \\
-*/6 hours & Continuous & Git backup & Auto-commit memory file changes \\
-09:00 & Weekly (Mon) & Token check & Forge CC token verification \\
-\end{longtable}
-}
-
-\subsubsection{12.2 Backup Strategy}\label{backup-strategy}
-
-Three backup mechanisms operate independently:
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  \textbf{SQLite Online Backup}: Uses better-sqlite3's backup API for
-  crash-consistent copies. Daily at 02:00, 7-day retention with
-  automatic pruning.
-\item
-  \textbf{Git Auto-Commit}: Memory directory changes are committed every
-  6 hours, providing full change history.
-\item
-  \textbf{File System}: WAL mode ensures database consistency during
-  concurrent reads/writes.
-\end{enumerate}
-
-\subsubsection{12.3 LLM Fallback Chain}\label{llm-fallback-chain}
-
-To ensure continuous operation regardless of provider availability:
-
-\textbf{Paid Tier}: Claude Opus → Sonnet → Haiku → GPT-5.1 → Gemini 2.5
-\textbf{Free Tier}: Nemotron → Groq Llama70B → Healer → Hunter → Trinity
-→ Gemma27B
-
-The fallback is configured in the environment and selected at runtime
-based on task complexity and availability.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{13. Dashboard Integration}\label{dashboard-integration}
-
-The TotoClaw Command Center (React 18 + TypeScript + Vite + shadcn/ui)
-provides 11 pages including 4 nox-mem-specific views:
-
-\begin{itemize}
-\tightlist
-\item
-  \textbf{Memory Health} (\texttt{/memory}): Real-time system stats,
-  vector coverage progress bar, service status indicators, agent
-  breakdown table
-\item
-  \textbf{Knowledge Graph} (\texttt{/knowledge-graph}): Interactive
-  force-directed canvas graph, entity type filters, BFS path finder
-\item
-  \textbf{Agent Intel} (\texttt{/agent-intel}): Agent expertise cards
-  with type distribution bars, hybrid search interface, cross-agent
-  knowledge entities
-\item
-  \textbf{System Paper} (\texttt{/system-paper}): Live technical
-  analysis with Recharts visualizations (pie, bar, radar, area charts),
-  auto-refresh every 60 seconds
-\end{itemize}
-
-All data is fetched from the nox-mem API server via TanStack React Query
-with configurable polling intervals.
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{14. Evolution History}\label{evolution-history}
-
-{\def\LTcaptype{none} % do not increment counter
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3214}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2143}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4643}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-Version
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Date
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Key Changes
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
-v1.0 & Mar 14 & SQLite FTS5, basic search, consolidation, Notion sync \\
-v2.0 & Mar 17 & MCP server, systemd services, watcher heartbeat,
-primer \\
-v2.2 & Mar 20 & Cross-agent search, KG v1 (regex), self-improve,
-decision versioning \\
-v2.5 & Mar 22 & Multi-agent workspace fix (OPENCLAW\_WORKSPACE), gateway
-supervision \\
-v2.6 & Mar 22 & Hybrid search default (FTS5+Gemini+RRF), 866/866
-vectorized \\
-v3.0 & Mar 23 & KG v2 (LLM, 384 entities), Cross-Agent Intelligence,
-HTTP API, dashboard \\
-v3.7 & Apr 23 & Schema V10 (\texttt{retention\_days} v8 + \texttt{pain}
-v9 + \texttt{section} v10), entity file format, section\_boost \\
-Wave A & May 19 & Additive salience formula, \texttt{tier\_boost}
-off-by-default, \texttt{source\_type} backfill (67,949 chunks), G5 V3
-ablation (PRs \#150 / \#151 / \#153) \\
-G10 Hard Mutex & May 20 & \texttt{section/source\_type} mutex deployed
-against \texttt{g9.db} 69,495 chunks (PRs \#181 / \#182) \\
-G10d ACTIVE-T2 & May 21 & Conditional mutex gated by
-\texttt{query\_entity\_count\ \textless{}=\ 2}, deployed via systemd
-drop-in \texttt{NOX\_MUTEX\_QUERY\_ENTITY\_THRESHOLD=2} (PR \#198,
-decision D51); multi-hop +1.58\% nDCG / adversarial +3.04\% nDCG
-recovered \\
-F10 Phase A + B & May 21 & Foundation observability dashboards
-(\texttt{/observability/health.html} +
-\texttt{/observability/evals.html}) deployed via Tailscale tunnel (PRs
-\#207 / \#212, decision D53) \\
-\end{longtable}
-}
-
-\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
-
-\subsection{15. Conclusion}\label{conclusion}
+\subsection{8. Conclusion}\label{conclusion}
 
 nox-mem demonstrates that persistent, searchable, and shareable memory
 for AI agent fleets is achievable with commodity infrastructure (single
@@ -5219,6 +4935,415 @@ full observability into the collective memory of the agent organization.
 \textbf{Dashboard:} github.com/totobusnello/agent-hub-dashboard
 \textbf{Spec:}
 Projetos/memoria-nox/specs/2026-03-14-nox-memory-system-design.md
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Appendices}\label{appendices}
+
+The material below documents interfaces and operational history of the
+deployed system. It is not part of any claim in §§1--8 and is included
+for reproducibility.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Appendix A. Knowledge Graph
+v2}\label{appendix-a.-knowledge-graph-v2}
+
+\subsubsection{A.1 Entity Extraction}\label{a.1-entity-extraction}
+
+\textbf{v1 (Regex-based)}: Used hardcoded regular expressions for 3
+entity types (person, project, agent) with a static alias map for name
+normalization. Limited to predefined names, producing 26 entities.
+
+\textbf{v2 (LLM-powered)}: Uses Ollama llama3.2:3b with a structured
+extraction prompt. Each chunk is processed with temperature 0.1 for
+deterministic output. The LLM returns JSON with entities (name + type)
+and relations (source + relation + target).
+
+Extraction results after processing 866 chunks:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}llll@{}}
+\toprule\noalign{}
+Metric & Regex v1 & LLM v2 & Improvement \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Entities & 26 & 384 & 14.8x \\
+Relations & 59 & 529 & 9.0x \\
+Entity Types & 3 & 11 & 3.7x \\
+\end{longtable}
+}
+
+\textbf{Entity Type Distribution:}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+Type & Count & Description \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+project & 109 & Software projects, products, repos \\
+tool & 67 & Libraries, frameworks, CLI tools \\
+concept & 54 & Abstract ideas, patterns, methodologies \\
+person & 53 & Team members, contacts, stakeholders \\
+organization & 50 & Companies, teams, departments \\
+agent & 45 & AI agents in the fleet \\
+location & 2 & Geographic references \\
+other & 4 & Device, currency, date, computer \\
+\end{longtable}
+}
+
+\subsubsection{A.2 Temporal Decay and
+TTL}\label{a.2-temporal-decay-and-ttl}
+
+Relations have a 90-day time-to-live (TTL) from creation. The confidence
+decay mechanism operates as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Relations start with confidence 0.8 (extracted) or 0.9 (confirmed)
+\item
+  Every 30 days without re-confirmation, confidence drops by 0.1
+\item
+  Relations below 0.3 confidence receive accelerated 7-day expiry
+\item
+  Expired relations are deleted during \texttt{kg-prune} execution
+\item
+  Re-confirmation (observing the same relation in new chunks) resets
+  confidence to 0.9 and extends TTL by 90 days
+\end{enumerate}
+
+This mechanism ensures the knowledge graph naturally forgets stale
+information while reinforcing actively observed patterns.
+
+\subsubsection{A.3 Decision Versioning}\label{a.3-decision-versioning}
+
+Architectural decisions are tracked with full version history in the
+\texttt{decision\_versions} table. Each decision has a unique key (e.g.,
+\texttt{dedup-strategy}, \texttt{fallback-chain}) and supports:
+
+\begin{itemize}
+\tightlist
+\item
+  Version chains with supersession tracking
+\item
+  Authorship attribution
+\item
+  Source file provenance
+\item
+  Current vs.~historical querying
+\end{itemize}
+
+10 decisions are currently tracked, covering API key management, LLM
+fallback chains, embedding model selection, agent isolation strategy,
+and synchronization schedules.
+
+\subsubsection{A.4 Graph Traversal}\label{a.4-graph-traversal}
+
+The \texttt{findPath()} function implements BFS (Breadth-First Search)
+to discover shortest paths between any two entities. This enables
+queries like ``How is Toto connected to nox-mem?'' which traverses
+person → project → tool → agent relationships. Maximum depth is
+configurable (default: 4 hops).
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Appendix B. Cross-Agent
+Intelligence}\label{appendix-b.-cross-agent-intelligence}
+
+\subsubsection{B.1 Agent Expertise
+Profiling}\label{b.1-agent-expertise-profiling}
+
+Each agent's memory is analyzed to determine its unique expertise based
+on chunk type distribution. The dominant chunk type determines the
+agent's strength category:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{daily} → ``Daily operations \& activity logging''
+\item
+  \textbf{team} → ``Team coordination \& shared knowledge''
+\item
+  \textbf{decision} → ``Decision tracking \& rationale''
+\item
+  \textbf{lesson} → ``Lessons learned \& pattern recognition''
+\end{itemize}
+
+Profiles include chunk counts, type breakdowns, top topics (via FTS5
+term frequency), and last activity dates.
+
+\subsubsection{B.2 Knowledge Sharing}\label{b.2-knowledge-sharing}
+
+The \texttt{pullInsightsFrom()} function enables any agent to query
+lessons and decisions from other agents without direct database access.
+This creates a knowledge transfer mechanism where, for example, Cipher
+(Security) can learn from Forge's (Code Reviewer) past code review
+decisions.
+
+\texttt{pullAllInsights()} aggregates insights across all agents, sorted
+by date, providing a fleet-wide learning feed.
+
+\subsubsection{B.3 Cross-Agent Knowledge Graph
+Merge}\label{b.3-cross-agent-knowledge-graph-merge}
+
+\texttt{mergeCrossKnowledgeGraphs()} scans all agent databases for
+kg\_entities and kg\_relations tables, merging them into a unified
+entity view. Entities are matched by type + lowercase name. The output
+shows which entities are known to which agents and their combined
+mention counts, enabling identification of shared knowledge
+vs.~agent-specific expertise.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Appendix C. MCP Server
+Interface}\label{appendix-c.-mcp-server-interface}
+
+nox-mem exposes 14 tools via the Model Context Protocol (MCP) over stdio
+(JSON-RPC 2.0):
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2069}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3448}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4483}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Tool
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Category
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Description
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+nox\_mem\_search & Retrieval & Hybrid search (FTS5 + semantic + RRF) \\
+nox\_mem\_stats & Monitoring & Database statistics and health \\
+nox\_mem\_primer & Context & Session recovery summary
+(\textasciitilde500 tokens) \\
+nox\_mem\_ingest & Ingestion & Index a file into memory \\
+nox\_mem\_cross\_search & Cross-Agent & Search across all 7 databases \\
+nox\_mem\_cross\_stats & Cross-Agent & Chunk counts per agent \\
+nox\_mem\_metrics & Monitoring & Daily observability metrics \\
+nox\_mem\_kg\_build & KG & Build knowledge graph from chunks \\
+nox\_mem\_kg\_query & KG & Query entity and its relations \\
+nox\_mem\_kg\_stats & KG & Knowledge graph statistics \\
+nox\_mem\_agent\_profiles & Intelligence & Agent expertise profiles \\
+nox\_mem\_cross\_kg & Intelligence & Merged cross-agent knowledge
+graph \\
+nox\_mem\_kg\_path & Intelligence & BFS path between entities \\
+nox\_mem\_self\_improve & Analysis & Contradiction detection, pattern
+analysis \\
+\end{longtable}
+}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Appendix D. HTTP API
+Server}\label{appendix-d.-http-api-server}
+
+A lightweight HTTP API (Node.js built-in \texttt{http} module, zero
+dependencies) runs on port 18800, exposing memory data to the React
+dashboard:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3571}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2857}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3571}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Endpoint
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Method
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Response
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\texttt{/api/health} & GET & System health: chunks, consolidation,
+vector coverage, services, KG stats, DB size \\
+\texttt{/api/agents} & GET & Agent expertise profiles array \\
+\texttt{/api/kg} & GET & Knowledge graph entities and relations \\
+\texttt{/api/kg/path?from=X\&to=Y} & GET & BFS shortest path between
+entities \\
+\texttt{/api/search?q=QUERY\&limit=N} & GET & Hybrid search results \\
+\texttt{/api/cross-kg} & GET & Merged cross-agent knowledge graph \\
+\end{longtable}
+}
+
+CORS headers are set for cross-origin access from the Vercel-hosted
+dashboard.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Appendix E. Operational
+Infrastructure}\label{appendix-e.-operational-infrastructure}
+
+\subsubsection{E.1 Cron Schedule}\label{e.1-cron-schedule}
+
+24 cron jobs manage automated operations:
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1935}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.3548}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.1613}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 6\tabcolsep) * \real{0.2903}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Time
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Frequency
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Job
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Details
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+23:00-23:25 & Daily & Agent consolidation & 6 agents, 5-min stagger,
+reindex→consolidate \\
+23:30 & Daily & Workspace consolidation & Central workspace daily
+notes \\
+23:35 & Daily & Session wrap-up & SESSION-STATE.md, Notion sync, git
+commit \\
+04:00 & Weekly (Sun) & Vectorize & Gemini embeddings for new/changed
+chunks \\
+*/5 min & Continuous & Health check & Watcher heartbeat, service
+liveness \\
+02:00 & Daily & SQLite backup & Online backup API, 7-day retention
+pruning \\
+*/6 hours & Continuous & Git backup & Auto-commit memory file changes \\
+09:00 & Weekly (Mon) & Token check & Forge CC token verification \\
+\end{longtable}
+}
+
+\subsubsection{E.2 Backup Strategy}\label{e.2-backup-strategy}
+
+Three backup mechanisms operate independently:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{SQLite Online Backup}: Uses better-sqlite3's backup API for
+  crash-consistent copies. Daily at 02:00, 7-day retention with
+  automatic pruning.
+\item
+  \textbf{Git Auto-Commit}: Memory directory changes are committed every
+  6 hours, providing full change history.
+\item
+  \textbf{File System}: WAL mode ensures database consistency during
+  concurrent reads/writes.
+\end{enumerate}
+
+\subsubsection{E.3 LLM Fallback Chain}\label{e.3-llm-fallback-chain}
+
+To ensure continuous operation regardless of provider availability:
+
+\textbf{Paid Tier}: Claude Opus → Sonnet → Haiku → GPT-5.1 → Gemini 2.5
+\textbf{Free Tier}: Nemotron → Groq Llama70B → Healer → Hunter → Trinity
+→ Gemma27B
+
+The fallback is configured in the environment and selected at runtime
+based on task complexity and availability.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Appendix F. Dashboard
+Integration}\label{appendix-f.-dashboard-integration}
+
+The TotoClaw Command Center (React 18 + TypeScript + Vite + shadcn/ui)
+provides 11 pages including 4 nox-mem-specific views:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Memory Health} (\texttt{/memory}): Real-time system stats,
+  vector coverage progress bar, service status indicators, agent
+  breakdown table
+\item
+  \textbf{Knowledge Graph} (\texttt{/knowledge-graph}): Interactive
+  force-directed canvas graph, entity type filters, BFS path finder
+\item
+  \textbf{Agent Intel} (\texttt{/agent-intel}): Agent expertise cards
+  with type distribution bars, hybrid search interface, cross-agent
+  knowledge entities
+\item
+  \textbf{System Paper} (\texttt{/system-paper}): Live technical
+  analysis with Recharts visualizations (pie, bar, radar, area charts),
+  auto-refresh every 60 seconds
+\end{itemize}
+
+All data is fetched from the nox-mem API server via TanStack React Query
+with configurable polling intervals.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Appendix G. Evolution
+History}\label{appendix-g.-evolution-history}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3214}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.2143}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4643}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Version
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Date
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Key Changes
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+v1.0 & Mar 14 & SQLite FTS5, basic search, consolidation, Notion sync \\
+v2.0 & Mar 17 & MCP server, systemd services, watcher heartbeat,
+primer \\
+v2.2 & Mar 20 & Cross-agent search, KG v1 (regex), self-improve,
+decision versioning \\
+v2.5 & Mar 22 & Multi-agent workspace fix (OPENCLAW\_WORKSPACE), gateway
+supervision \\
+v2.6 & Mar 22 & Hybrid search default (FTS5+Gemini+RRF), 866/866
+vectorized \\
+v3.0 & Mar 23 & KG v2 (LLM, 384 entities), Cross-Agent Intelligence,
+HTTP API, dashboard \\
+v3.7 & Apr 23 & Schema V10 (\texttt{retention\_days} v8 + \texttt{pain}
+v9 + \texttt{section} v10), entity file format, section\_boost \\
+Wave A & May 19 & Additive salience formula, \texttt{tier\_boost}
+off-by-default, \texttt{source\_type} backfill (67,949 chunks), G5 V3
+ablation (PRs \#150 / \#151 / \#153) \\
+G10 Hard Mutex & May 20 & \texttt{section/source\_type} mutex deployed
+against \texttt{g9.db} 69,495 chunks (PRs \#181 / \#182) \\
+G10d ACTIVE-T2 & May 21 & Conditional mutex gated by
+\texttt{query\_entity\_count\ \textless{}=\ 2}, deployed via systemd
+drop-in \texttt{NOX\_MUTEX\_QUERY\_ENTITY\_THRESHOLD=2} (PR \#198,
+decision D51); multi-hop +1.58\% nDCG / adversarial +3.04\% nDCG
+recovered \\
+F10 Phase A + B & May 21 & Foundation observability dashboards
+(\texttt{/observability/health.html} +
+\texttt{/observability/evals.html}) deployed via Tailscale tunnel (PRs
+\#207 / \#212, decision D53) \\
+\end{longtable}
+}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
