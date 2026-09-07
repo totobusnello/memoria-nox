@@ -2436,16 +2436,45 @@ def assinatura_check(root: Path) -> list[str]:
 
     # (3) a perna de runtime no gatilho
     gat = sh.read_text()
-    if not re.search(r'if s\["estados"\] != njan_i', gat):
+    if not re.search(r"faltantes = njan_i - s\[.estados.\]", gat):
         fails.append(
             f"{sh.name}: perdeu a perna `estados != n_janela` — sem ela um brief "
             f"não respondido volta a empurrar o veredito para `inerte` em silêncio"
+        )
+    elif not re.search(r"if faltantes != 0:", gat):
+        fails.append(
+            f"{sh.name}: calcula `faltantes` e não o testa. A comparação tem de ser "
+            f"`!= 0` e não `> 0`: um replay que afirma ter respondido MAIS estados do "
+            f"que a janela tem também é incoerente, e foi essa direção que pegou o "
+            f"stub inflado do teste"
         )
     elif "erros-no-replay" not in gat:
         fails.append(
             f"{sh.name}: a perna existe mas não emite `erros-no-replay` — um guarda "
             f"que falha sem dizer o motivo certo custa o mesmo que não falhar"
         )
+
+    # (4) e o veredito de dose tem de VIAJAR junto — a correção de 2026-09-07.
+    #
+    # A primeira versão da perna abortava, e no dia seguinte UM brief com escrita
+    # incompleta no `brief_log` suprimiu o achado de que a dose mais alta do desenho
+    # está SATURADA (w=7,5 e w=1e5 idênticos, folga 1,0). Descartar o veredito por 1
+    # em 672 é a fadiga de alarme que a perna existia para evitar: a lição era "não
+    # medir sobre população reduzida EM SILÊNCIO", não "nunca medir". Sem estas duas
+    # chaves, uma reescrita "simplificadora" volta a jogar o sinal fora — e some com
+    # ele exatamente nos dias em que há algo a reportar. Ver §10.4, adendo.
+    for chave, oque in [
+        ("veredito_dose",
+         "o veredito de dose, que passa a viajar junto do alarme"),
+        ("populacao_do_veredito",
+         "a população sobre a qual o veredito foi computado — sem ela o número "
+         "voltaria a ser lido como se cobrisse a janela inteira"),
+    ]:
+        if chave not in gat:
+            fails.append(
+                f"{sh.name}: não emite `{chave}` — falta {oque}. A janela incompleta "
+                f"tem de ALARMAR e PRESERVAR o veredito, não substituí-lo"
+            )
 
     return fails
 

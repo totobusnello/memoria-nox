@@ -496,6 +496,34 @@ instrumento consegue enxergar:
    `erros == 0`. Hoje ele falha; depois da correção 1, passa. Sem ele a correção fica sem
    nada que a proteja — ausência deliberada precisa de teste que a defenda.
 
+**Adendo de 2026-09-07 — a perna nova era estrita demais, e custou um sinal no dia
+seguinte.** Na primeira versão ela abortava, e no epoch `2026-09-06` **um** brief com
+escrita incompleta no `brief_log` (1 linha de 10, em `23:07:02.425Z`) suprimiu um
+veredito substantivo: `w = 7,5` e `w = 100000` produziram resultado **idêntico**
+(`mexeu = 38`, `churn_total = 44`, `folga = 1,0`), isto é **`saturado`** — na dose mais
+alta do desenho, subir `w` não muda mais nada.
+
+A lição que motivou a perna era "não medir sobre população reduzida **em silêncio**", não
+"nunca medir". Descartar o veredito por 1 em 672 transforma o guarda em ruído que suprime
+sinal — a fadiga de alarme que ele existia para evitar. Corrigido para **emitir os dois**:
+o estado continua `RED` (o *morning report* tem de ver), e o veredito de dose viaja junto
+com a população explícita. A linha, verificada rodando o próprio bloco de decisão do
+script implantado sobre os números reais do epoch:
+
+```
+RED|motivo=erros-no-replay: a janela nao foi respondida inteira faltam=1;
+veredito_dose=RED:SATURADO: dose servida == dose absurda; a dose nao esta identificada
+populacao_do_veredito=671/672 … mexem_servido=38 mexem_absurdo=38 folga=1.0 n_janela=672
+```
+
+⚠️ E um erro de contagem **meu** no diagnóstico desse `faltam=1`, registrado porque a
+causa é transferível: minha reconstrução independente acusou **4** briefs não
+respondidos contra o **1** do gatilho, e o gatilho estava certo. O código faz
+`GROUP BY brief_id` sobre a janela de 3 s; eu agrupei **por segundo**, e três dos quatro
+briefs têm os 10 chunks atravessando a fronteira do segundo (10 linhas, 2 `served_at`
+distintos), então meu agrupamento os partia em 5 + 5 e nenhum casava a assinatura. É
+invariante verificado sobre o conjunto errado.
+
 **Controle positivo da correção — o critério foi o número, não o verde.** Rodado o
 mesmo `--modo dose` sobre a mesma janela (`sha256` conferido idêntico ao do veredito
 RED), com o `idDoBrief` corrigido:
@@ -530,6 +558,108 @@ janela, **zero** ausentes no corpus, e os 84 registros posteriores ao snapshot n
 com o gap de 32 nem em contagem nem em direção. O sítio do descarte e a perna
 `estados != n_janela` foram localizados em paralelo pela sessão vizinha; a conferência por
 reconstrução do servido e a varredura de contaminação são dela.
+
+#### 10.5 O corpus esteve congelado durante os seis primeiros epochs — por defeito
+
+`MAX(created_at)` em `chunks` esteve cravado em **2026-08-24 01:06:35** até
+**2026-09-07T14:06:13Z**. A série diária não declina: **corta**.
+
+| dia | chunks com `created_at` nesse dia |
+|---|---|
+| 2026-08-21 | 118 |
+| 2026-08-22 | 15 |
+| 2026-08-23 | 57 |
+| 2026-08-24 | 40 |
+| 2026-08-25 … 2026-09-06 | **0** (14 dias) |
+| 2026-09-07 | 182 |
+
+Causa: `nox-mem-watch.sh:52` invocava `/usr/local/bin/nox-mem ingest`, binário
+ausente há ~15 dias — o mesmo que havia quebrado o *nightly*. O journal do watcher
+registra `No such file or directory`. As **buscas nunca pararam** (`updated_at`
+seguia andando); só a ingestão.
+
+⚠️ **Discrepância de contagem que fica declarada em vez de resolvida por escolha.**
+O total foi de 67.187 para 67.224 (**+37 líquidos**), e há **182** linhas com
+`created_at` de 2026-09-07 — logo ~145 substituíram versões existentes. O relatório
+do próprio *catch-up* diz **124** chunks em 13 arquivos. Os 58 de diferença entre
+124 e 182 não estão explicados; "criados", "tocados" e "reingeridos" são três
+grandezas e aqui divergem.
+
+**O congelamento não alcança o alvo da intervenção.** Os **19** chunks designados
+foram todos criados no mesmo instante — `2026-08-21 22:51:23`, lote único —, todos
+anteriores ao congelamento: **zero** designados com `created_at` posterior a
+2026-08-24. O conjunto que recebe boost nunca ia mudar.
+
+**O que o congelamento alcança é contra quem o boost compete.** Chunks passando o
+piso do canal fresco (`importance ≥ 0,7` e `pain ≥ 0,7`) são **17** para
+`created_at ≥ 2026-08-24`, **17** para `≥ 2026-08-31` e **17** para `≥ 2026-09-07`
+— os três contam os **mesmos 17**, todos criados em 2026-09-07. Ou seja o pool
+fresco esteve **vazio o ensaio inteiro** até 14:06 daquele dia, o que também
+explica os **246** registros horários do gatilho de composição reportando
+`agent_fresh_elegiveis=0` para os seis agentes desde 2026-08-27 — número que até
+então estava sem causa nomeada.
+
+Epochs afetados: `2026-09-01` (w = 4,0), `09-02` e `09-03` (controle), `09-04` e
+`09-05` (w = 2,0), `09-06` (w = 7,5) — **6 de 234**.
+
+**Decisão: nota de limitação com a fronteira cravada, sem alterar a análise.** Três
+razões, todas medidas e não retóricas:
+
+1. o alvo da intervenção é fixo e anterior ao congelamento (acima), logo o
+   congelamento não muda quem é tratado;
+2. o congelamento é propriedade do **tempo de calendário**, e o braço é sorteado
+   sobre o calendário ⇒ é covariável **balanceada em expectativa**, não
+   confundidor. Ele estreita a validade **externa** (o ensaio mediu um ambiente de
+   ordenação estático), não a interna;
+3. são 6 de 234 epochs.
+
+⚠️ **Por que não virar dois regimes com regime como fator.** Seria decisão de
+análise tomada **depois** de os dados existirem — exatamente o grau de liberdade que
+o pré-registro existe para eliminar. Uma escolha reaberta com dados na mesa vale
+zero mesmo chegando à mesma conclusão, porque o leitor não pode distinguir "decidiu
+antes" de "decidiu e diz que decidiu antes". É o mesmo argumento do §10.1.
+
+**Isto é o inverso de um fato registrado antes**, e a contradição é aparente, não
+real: em 2026-08-15 foi medido que o corpus do piloto **não** era estacionário. Era
+verdade então; o congelamento é posterior e tem causa operacional. Série viva citada
+como instante envelhece para falsa — aqui a fronteira fica cravada por isso.
+
+#### 10.6 Um script DEPOSITADO dependia de um insumo fora do depósito, em caminho volátil
+
+`measurement/ordem.mjs` é o **item 115** de `deposit/paperA/MANIFEST.json` — script
+publicado, que um terceiro deveria conseguir executar. Ele abria, por **caminho
+fixo**, `/var/tmp/p2-ord-ro.db`: **1,6 GB**, e o MANIFEST não contém **nenhum**
+`.db`. O resultado que ele sustenta está citado em `measurement/README.md:69` —
+*28 casos, 0 com ordem diferente*, que é o que **refuta o canal de reordenação**.
+
+O arquivo quase foi apagado num varrimento de espaço em disco em 2026-09-07. E
+**naquele mesmo dia deixou de ser recriável**: o descongelamento do §10.5, às
+14:06:13Z, fez o `main` deixar de ser o de 2026-08-26. Até 14:06 "recriar a partir
+do `main`" ainda era caminho; depois, não.
+
+Isto é literalmente o defeito que o texto do próprio depósito declara já ter
+cometido: *"um corpus pinado por identificador já foi perdido neste mesmo trabalho,
+levando 280 episódios adjudicados junto"*.
+
+**Correção aplicada.** Movido para
+`/var/lib/nox-mem/p2/corpus/p2-ord-ro-2026-08-26.db`, com `sha256` conferido
+**antes** de remover a fonte e `mtime` preservado; verificado depois por terceiro:
+`PRAGMA quick_check` **ok**, **67.187** chunks, `MAX(created_at)` =
+**2026-08-24 01:06:35** — o estado congelado exato. O `-wal` órfão tinha **0
+bytes**, logo não havia transação pendente. O caminho passou a ser parametrizável
+por `NOX_P2_ORD_LIVE`, com o novo local como default.
+
+⚠️ **Uma premissa que foi medida e caiu, e fica registrada porque enfraquece a
+urgência que eu alegava:** não existe regra de idade para `/var/tmp` neste sistema
+(`systemd-tmpfiles --cat-config` só traz `x /var/tmp/systemd-private-%b-*` e
+`X …/tmp`). O arquivo **não** estava com prazo correndo. A correção se justifica por
+caminho volátil por convenção, por dependência publicada fora do depósito e por um
+agente de faxina que perguntou mas podia não ter perguntado — **não** por deleção
+iminente.
+
+**Fica aberto:** se o pacote passa a carregar o próprio insumo. 1,6 GB é grande, e o
+que a alegação exige são os **28 casos**, não o corpus inteiro — depositar o recorte
+resolve a reprodutibilidade sem o volume.
 
 ## Se a decisão mudar
 
