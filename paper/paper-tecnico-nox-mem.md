@@ -1089,7 +1089,7 @@ Canonical cross-system × cross-dataset table. K cutoff fixed at 10 across all s
 | **nox-mem** | **0.5234** | 0.6535 | **0.5494** | **$0 (local)** | 100%; hybrid FTS5 + Gemini-3072d + RRF |
 | Mem0 | 0.4764 | 0.6372 | 0.5107 | subscription + OpenAI embed | 100%; faiss backend, OpenAI text-embedding-3-small 1536d |
 | agentmemory | 0.2803 | n/c | n/c | $0 (local) | daemon REST; weak retriever |
-| Zep | `[GAP — see §6.3.1: requires Docker; impossible on unprivileged pod kernel]` | — | — | — | — |
+| Zep | `[GAP in this run — see §6.3.1: Docker impossible on the unprivileged pod. Did run in the superseded 05-25 smoke; artifact in `output/zep.json`]` | — | — | — | — |
 | Letta | `[GAP — see §6.3.1: agent-OS latency ~16 min/query; impractical for n=100]` | — | — | — | — |
 | EverMind-AI | `[GAP — see §6.3.1: requires OpenRouter + DeepInfra keys + external-repo install authorization]` | — | — | — | — |
 
@@ -1111,6 +1111,8 @@ Canonical cross-system × cross-dataset table. K cutoff fixed at 10 across all s
 Per §6.6, systems that fail setup receive an explicit reason rather than silent omission. The 2026-06-15 run hit three:
 
 - **Zep** — requires a Docker stack (Zep + Postgres). Docker is **impossible on the unprivileged benchmark pod**: `dockerd` fails on `iptables ... Permission denied` (no `NET_ADMIN`), and every documented workaround (`--iptables=false --bridge=none`, `--storage-driver=vfs`) fails on kernel-namespace syscalls blocked by the pod seccomp profile. This is a privilege constraint, not a configuration error; Zep requires a host with real Docker (privileged VM or its hosted Cloud).
+
+  ⚠️ **Zep is a non-run of the 2026-06-15 canonical run specifically — it did run earlier, and the artifact is in this repository.** `eval/q4-comparison/output/zep.json` (2026-05-25, `zep-python==1.5.0` + `ghcr.io/getzep/zep:0.27.2` OSS via Docker) holds **20 queries, 20 with results, 0 errors** — from the superseded 500-chunk-cap smoke (§6.3, "Preliminary smoke"), on a host that did have Docker, not on the benchmark pod. We state this because the repository is public and linked from this paper: a reader who opens `output/` finds a Zep run, and "Zep did not run" without this note would read as a contradiction. The smoke is not comparable to the canonical run (different corpus cap, n=20 vs n=100/dataset, no same-namespace re-query), so its numbers are not promoted into §6.3 — but its existence is disclosed rather than left for the reader to discover.
 - **Letta (ex-MemGPT)** — installs and runs natively (CLI unblocked via `click<8.2`, server starts without Docker), but is an **agent-OS**: retrieval routes through a full LLM agent turn (`archival_memory_search` tool call), measured at **~16 min/query** — n=100 × 2 datasets would take days. Ingest also degrades catastrophically (stalls at ~94% after ~12 h on a sequential archival-memory insert). Letta *validates* (it runs) but is impractical for a 100-query benchmark in this configuration.
 - **EverMind-AI / EverOS** — runs only as an HTTP service and requires **two third-party credentials not available to this study** (OpenRouter for LLM extraction + DeepInfra for embedding/rerank, the latter provider-specific); installation also requires authorizing an external-repo `pip install -e`. Out of scope for the time-box.
 
