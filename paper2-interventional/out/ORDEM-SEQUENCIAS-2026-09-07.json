@@ -10,9 +10,11 @@
    "estado": "corpus congelado, MAX(created_at)=2026-08-24 01:06:35"
   },
   "corpus": {
-   "path": "/var/lib/nox-mem/epochs/e20260907T060001Z.db",
+   "path": "/var/lib/nox-mem/p2/corpus/e20260907T060001Z.db",
    "sha256": "4ec7e182a6360db2bcff068abfd7ae6096a5b636017eef19ad297401fe721345",
-   "bytes": 1258987520
+   "bytes": 1258987520,
+   "path_original": "/var/lib/nox-mem/epochs/e20260907T060001Z.db",
+   "porque_movido": "epochs/ retem 3 dias (nox-epoch.log: podados:1 por dia), entao o caminho original deixa de existir em 2026-09-10 06:00 UTC. O sha256 e o mesmo (conferido apos a copia); mudou o caminho, nao o objeto. Mesma classe do insumo `live`, um turno depois e do outro lado do par. Ver DEVIATIONS 10.6."
   },
   "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76"
  },
