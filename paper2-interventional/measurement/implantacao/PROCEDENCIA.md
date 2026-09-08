@@ -10,6 +10,9 @@ item 8 do protocolo existe para evitar.
 | `replay-oportunidade.mjs` | 1 — a harness canônica | sob demanda + chamada por (a) |
 | `gatilho-composicao.mjs`  | 7(b) — composição do canal | horária |
 | `gatilho-saturacao.sh`    | 7(a) — saturação da dose | diária |
+| `gatilho-designados.mjs`  | — · integridade dos designados (2026-09-08) | horária |
+| `gatilho-corpus-alinhado.sh` | — · de qual **inode** o serving lê (§10.10) | horária |
+| `restart-realinha-corpus.sh` | — · realinha o corpus na fronteira de epoch | **ONESHOT 2026-09-15 09:00Z** |
 
 Status em `/var/lib/nox-mem/p2/`, lido pelo `morning-report.sh` às 06:30Z.
 `node_modules` é symlink para o do nox-mem — os gatilhos não têm deps próprias.

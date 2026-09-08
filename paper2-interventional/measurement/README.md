@@ -32,7 +32,10 @@ tabelas ninguém pode recomputar.
 |---|---|---|---|
 | `gatilho-saturacao.sh` | 7(a) | diária 05:41Z | `churn(w_servido) == churn(w_absurdo)` ⇒ RED (dose não identificada); folga ≥ 0,9 ⇒ YELLOW |
 | `gatilho-composicao.mjs` | 7(b) | horária :09 | **um** chunk elegível para `agentFresh` ⇒ RED (a escala de dose pressupõe vazio) |
-| `teste-gatilho-active.sh` | — | sob demanda | 10 casos de mutação do caminho `--modo active` do (a) |
+| `gatilho-designados.mjs` | — | horária :24 | **ausência** de um designado ⇒ RED · id vivo com **texto ou arquivo** alterado ⇒ YELLOW. Criado 2026-09-08 depois de medir que reingestão por arquivo mata ids servidos (53 de `memory/lessons.md`); os 19 designados sobreviveram, mas nada vigiava isso. Baseline **imutável** — o guarda cria e nunca sobrescreve |
+| `gatilho-corpus-alinhado.sh` | — | horária :39 | compara o **inode** que o processo tem aberto com o de `current.db`. Criado 2026-09-08 após medir que o serving lia um snapshot de 03/09 já podado do disco, vivo só pelo fd (§10.10) — e que todo instrumento resolvia o symlink por conta própria, medindo outro arquivo |
+| `implantacao/restart-realinha-corpus.sh` | — | **ONESHOT** `2026-09-15 09:00Z` | realinha o corpus na fronteira de epoch. Cinco pré-condições que **abortam**: fronteira de epoch, há o que realinhar, `agentFresh == 0` (é o que fixa a data — os 253 chunks saem da janela de 7 d em `2026-09-15 00:00Z`), 19/19 designados no corpus novo, e cópia íntegra do corpus antigo recuperada do fd antes de mexer |
+| `teste-gatilho-active.sh` | — | sob demanda | **15** casos de mutação do caminho `--modo active` do (a). ⚠️ Este número já esteve **errado** aqui (dizia 10 quando eram 12) — e contá-lo por `grep -c '^# ── T'` dá **14**, porque o T5b não tem marcador próprio. O censo é a saída: `bash teste-gatilho-active.sh <gatilho> | grep -cE '^(ok|FALHA) +T'`. T12–T14 cobrem a gravação do NDJSON pelos atalhos (§10.8 do `DEVIATIONS-FOR-PAPER.md`) |
 
 **`--modo active` do (a), implantado 28/08.** A dose deixa de vir de flag e passa a
 vir do `ASSIGNMENT.json` (caminho + `sha256`, o mesmo par que o `resolverBraco` usa);

@@ -139,6 +139,63 @@ T0="$(date -u +%s)"
 TMP="$(mktemp -d "$TMPBASE/p2-gatilho-saturacao-XXXXXX")"
 trap 'rm -rf "$TMP"' EXIT
 
+# ─── Registro estruturado dos vereditos que NÃO passam pelo bloco de dose ────
+#
+# Achado em 2026-09-08 (§10.8 do DEVIATIONS-FOR-PAPER.md): `emitir()` gravava
+# `stdout` e o arquivo de `--status`, e NUNCA o `--ndjson`. Só o caminho normal
+# persistia linha, porque quem gravava era o bloco `python3` do veredito. Logo
+# todo veredito por atalho — `log-de-serving-ausente`, `assignment-*`,
+# `janela-com-n-insuficiente`, `log-diverge-do-assignment`, `epoch-de-controle`,
+# `replay-falhou`, `dose-ausente-na-tabela`, `interrompido-por-sinal` — ficava
+# APENAS no arquivo de status, que a execução seguinte SOBRESCREVE. É perda
+# permanente, não atraso: medido, 12 execuções no log de texto contra 9 linhas
+# `p2_gatilho_saturacao` no NDJSON, e nenhuma linha de 09-07 nem de 09-08.
+#
+# E entre os motivos que só existiam no log de texto estava
+# `log-diverge-do-assignment` — o que o cabeçalho deste arquivo chama de "o
+# alarme mais valioso deste script … a única coisa aqui que compara o que devia
+# ser servido com o que foi". O mais valioso era o que não deixava rastro
+# analisável.
+#
+# ⚠️ Duas disciplinas de construção:
+#
+# 1. **Sentinela, não contagem de linhas.** A escrita dupla no caminho normal é
+#    impedida por um arquivo em `$TMP` que o bloco de veredito cria DEPOIS de
+#    gravar. Comparar a contagem de linhas antes/depois seria frágil: o
+#    `gatilho-composicao.mjs` escreve no MESMO NDJSON a cada hora, e uma rodada
+#    de saturação leva ~15 min — a linha de outro gatilho entraria no meio e
+#    seria lida como "já gravei".
+# 2. **O registro de atalho NÃO finge ter os campos do veredito.** `servido`,
+#    `absurdo` e `folga` só existem se o bloco de dose rodou; aqui saem `null`,
+#    com `via: "atalho"` dizendo por quê. Preencher com zero fabricaria
+#    `mexeu = 0`, isto é `dose-servida-inerte` — exatamente o veredito errado que
+#    o §10.4 documenta ter custado dois dias de RED com o motivo trocado.
+gravar_ndjson_atalho() {  # $1=estado $2=resto da linha
+  [ -n "$NDJSON" ] || return 0
+  [ -e "$TMP/.ndjson-gravado" ] && return 0
+  python3 - "$NDJSON" "$1" "$2" "$TS" "$INICIO" "$FIM" "$MODO" "${EPOCH_ALVO:-}" "${ARM:-}" <<'PYND' 2>/dev/null || true
+import json, re, sys
+nd, estado, resto, ts, ini, fim, modo, epoch, arm = sys.argv[1:10]
+m = re.match(r'motivo=(.*?)(?=\s+[a-z_0-9]+=|$)', resto)
+try:
+    with open(nd, "a") as f:
+        f.write(json.dumps({
+            "ts": ts, "tag": "p2_gatilho_saturacao", "estado": estado,
+            "motivo": m.group(1) if m else None,
+            "janela": [ini or None, fim or None],
+            "modo": modo, "epoch": epoch or None, "arm": arm or None,
+            "servido": None, "absurdo": None, "folga": None,
+            "via": "atalho",
+            "nota": "veredito por atalho: o bloco de dose nao rodou, logo servido/absurdo/folga nao existem",
+            "linha_status": resto,
+        }, ensure_ascii=False) + "\n")
+except Exception:
+    pass
+PYND
+  return 0
+}
+
+
 # Um gatilho morto por SIGTERM/SIGINT (tipicamente o `timeout` do wrapper) fica
 # SILENCIOSO — e status ausente é indistinguível de status verde para quem não
 # checar frescura. O morning report checa, mas depender disso é deixar a mensagem
@@ -147,6 +204,8 @@ morte_por_sinal() {
   local l="RED p2-saturacao-da-dose motivo=interrompido-por-sinal:$1 (provavel timeout do wrapper; a janela pode ter crescido) janela=[$INICIO,$FIM) ts_inicio=$TS ts_fim=$(date -u +%Y-%m-%dT%H:%M:%SZ) duracao_s=$(( $(date -u +%s) - T0 ))"
   echo "$l"
   [ -n "$STATUS" ] && printf '%s\n' "$l" > "$STATUS"
+  # Antes do `rm -rf`: a sentinela e o NDJSON de atalho vivem em $TMP.
+  gravar_ndjson_atalho RED "motivo=interrompido-por-sinal:$1"
   rm -rf "$TMP"
   exit 0
 }
@@ -157,6 +216,7 @@ emitir() {  # $1=estado $2=resto da linha
   local linha="$1 p2-saturacao-da-dose $2 janela=[$INICIO,$FIM) ts_inicio=$TS ts_fim=$(date -u +%Y-%m-%dT%H:%M:%SZ) duracao_s=$(( $(date -u +%s) - T0 ))"
   echo "$linha"
   [ -n "$STATUS" ] && printf '%s\n' "$linha" > "$STATUS"
+  gravar_ndjson_atalho "$1" "$2"
   return 0
 }
 
@@ -315,9 +375,9 @@ if [ ! -s "$OUT" ]; then
   exit 0
 fi
 
-python3 - "$OUT" "$W_SERV" "$N_JAN" "$SHA_JAN" "${NDJSON:-}" "$TS" "$INICIO" "$FIM" <<'PY' > "$TMP/veredito"
+python3 - "$OUT" "$W_SERV" "$N_JAN" "$SHA_JAN" "${NDJSON:-}" "$TS" "$INICIO" "$FIM" "$TMP" <<'PY' > "$TMP/veredito"
 import json, sys
-out, wserv, njan, sha, ndjson, ts, ini, fim = sys.argv[1:9]
+out, wserv, njan, sha, ndjson, ts, ini, fim, tmpdir = sys.argv[1:10]
 wserv = float(wserv)
 d = json.load(open(out))["dose"]
 tab = {r["w"]: r for r in d["tabela"]}
@@ -406,7 +466,11 @@ if ndjson:
             "janela": [ini, fim], "n_janela": int(njan), "sha256_janela": sha,
             "w_servido": wserv, "servido": s, "absurdo": a, "folga": folga,
             "semantica": "contrafactual sob a designacao ATUAL, nao taxa historica da janela",
+            "via": "veredito-de-dose",
         }) + "\n")
+    # Sentinela: `emitir()` grava o NDJSON de ATALHO, e sem isto o caminho normal
+    # sairia duas vezes — uma estruturada, uma com `servido: null`.
+    open(tmpdir + "/.ndjson-gravado", "w").close()
 PY
 
 VER="$(cat "$TMP/veredito")"
