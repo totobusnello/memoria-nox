@@ -697,6 +697,14 @@ condicionada a isso e o poder do teste fica sem medida. Fechar essa ponta exige 
 
 #### 10.7 O canal de tratamento mudou de composição no meio do ensaio — por conserto
 
+> 🔴 **CORRIGIDO PELO §10.10, no mesmo dia.** O `agentFresh = 219` é real no corpus que
+> o *gatilho* lê e **falso** no canal que o *serving* usa: o processo serve de um snapshot
+> aberto por *file descriptor* em 03/09, onde `agentFresh = 0`. Não houve mudança de
+> composição no canal servido, e os 7 epochs listados abaixo **não foram afetados**. O
+> item fica no registro porque a medição, o mecanismo do `interleave` e a regra de
+> tratamento continuam corretos *como raciocínio* — e porque um item retirado esconde o
+> erro em vez de o mostrar.
+
 O gatilho de composição (item 7(b)) virou `RED` em **2026-09-08T06:09:04.208Z**, com
 `agent_fresh_elegiveis = 219` (`nox:0 atlas:0 boris:205 cipher:8 forge:6 lex:0`). A
 transição é **única e limpa**: desde a primeira linha do gatilho
@@ -988,6 +996,12 @@ tratamento do painel é a mesma família do guarda que fica calado por não ter 
 
 #### 10.9 Reingestão por arquivo mata a identidade dos chunks servidos — a auditoria de janela tem meia-vida
 
+> 🔴 **PARCIALMENTE CORRIGIDO PELO §10.10.** Os 53 ids não estão mortos *para o serving*:
+> eles vivem no snapshot que o processo tem aberto. A irreprodutibilidade medida é
+> **desalinhamento** entre o corpus do serving e o corpus que o replay recebe, e não
+> perda de dados — o que a torna consertável. A reingestão por arquivo **existe** e mata
+> ids de verdade no banco vivo; o guarda dos designados segue justificado por isso.
+
 Achado em 2026-09-08 ao conferir se o corpus cobria a janela **antes** de rodar a medição
 do §10.7. Ele a cancelou, e vale mais que ela.
 
@@ -1102,6 +1116,106 @@ O comentário que fixa o teto de idade dizia *"Se der < 1, o guarda esta CEGO"*,
 
 Cego ⟺ `rodadas_toleradas ≥ 1`, o inverso do que estava escrito. Quem calibrasse pela
 regra, e não pelos exemplos, escolheria o teto ao contrário. Corrigido no mesmo dia.
+
+#### 10.10 🔴 O serving lê um snapshot congelado por *file descriptor* — e isso reescreve §10.7
+
+Achado em 2026-09-08, ao investigar por que o log de serving registrava ids que **não
+existem** no banco. Domina os dois itens anteriores e corrige uma conclusão do §10.5.
+
+**Medido.** `nox-mem-api` está no ar desde `2026-09-03 17:23:30 UTC` e roda com
+`NOX_EPOCH_SNAPSHOT=active`, isto é, serve de um snapshot de epoch. O caminho é o symlink
+`/var/lib/nox-mem/epochs/current.db`, que o cron reaponta às 06:00Z todo dia.
+
+| o quê | inode |
+|---|---|
+| `current.db` → `e20260908T060004Z.db` (hoje) | **524930** |
+| fd 26 do processo: `e20260903T060001Z.db` **(deleted)** | **553124** |
+
+O processo **resolveu o symlink uma vez**, em 03/09 17:30, abriu o arquivo apontado então e
+nunca reabriu. O symlink mudou cinco vezes desde aí e os snapshots antigos foram podados
+do disco — o arquivo que o serving lê **só existe pelo descriptor**.
+
+⚠️ **Recuperado antes de qualquer restart**, via `cat /proc/<pid>/fd/26`, em
+`/var/lib/nox-mem/p2/corpus-SERVING-REAL-e20260903-recuperado.db` (1.197 MB,
+`quick_check = ok`). Era a única cópia do corpus que serviu 5 dias de ensaio; um restart a
+teria apagado para sempre.
+
+##### O que o corpus do serving realmente contém
+
+| medida | valor |
+|---|---|
+| total de `chunks` | **67.187** |
+| `MAX(created_at)` | **2026-08-24 01:06:35** |
+| os 53 ids "mortos" do §10.9 | **presentes** |
+| chunks de sessão de 08/09 | **0** |
+| `agentFresh` elegível | **0** |
+
+##### 🔴 Correção do §10.7: o canal NÃO mudou de composição para o serving
+
+O `gatilho-composicao.mjs` lê `current.db` e resolve o symlink **a cada execução horária**;
+o serving lê o inode de 03/09. Hoje os dois divergiram pela primeira vez: o gatilho vê
+**219** candidatos de `agentFresh`, o serving vê **0**.
+
+Logo o `RED` de `2026-09-08T06:09:04Z` é **verdadeiro sobre o corpus do gatilho e falso
+sobre o canal que o ensaio serve**. `interleaveFresh` continua sendo função-zero. **Não
+existe "regime intercalado"**, e os 7 epochs que o §10.7 lista como afetados **não foram
+afetados**. A decisão de tratamento registrada ali (nenhum epoch sai) fica **sem objeto**
+— e não é revogada, porque não havia o que tratar.
+
+⚠️ **O gatilho funcionou por coincidência até hoje.** Os dois corpora concordavam em
+`agentFresh = 0` porque o banco estava congelado (§10.5) — não porque o gatilho vigiasse a
+grandeza certa. Vigiar o corpus **do symlink** quando o serving tem um **fd** é a mesma
+família de "monitor que reimplementa o predicado do código": ele mede uma coisa parecida,
+que coincide até deixar de coincidir.
+
+##### 🔴 Correção do §10.5: o congelamento não terminou em 07/09 — está em curso
+
+O §10.5 mediu que o corpus estava congelado em `2026-08-24 01:06:35` por defeito do
+watcher, e datou o conserto em `2026-09-07T14:06:13Z`. O conserto descongelou o **banco
+vivo** e os **snapshots** seguintes. Não descongelou o **serving**: para ele
+`MAX(created_at)` segue `2026-08-24`, e seguirá até o processo reabrir o arquivo.
+
+Os "6 de 234 epochs afetados" do §10.5 estão portanto **subcontados**: o congelamento
+alcança todo epoch servido por este processo, do `2026-09-01` em diante e **sem fim
+declarado**.
+
+##### O que este achado NÃO explica — delimitado por medição, não por suposição
+
+| snapshot | total | `MAX(created_at)` | `agentFresh` |
+|---|---:|---|---:|
+| serving real (03/09) | 67.187 | 2026-08-24 01:06:35 | 0 |
+| `e20260906T060001Z` | 67.187 | 2026-08-24 01:06:35 | 0 |
+| `e20260907T060001Z` | 67.187 | 2026-08-24 01:06:35 | 0 |
+| `e20260908T060004Z` | **67.606** | **2026-09-08 02:37:34** | **253** |
+
+Os snapshots de 03/09 a 07/09 são **equivalentes em conteúdo** — o banco esteve congelado
+desde 24/08, então qual deles se usa era **inerte**. A divergência começa **exatamente** no
+snapshot de `2026-09-08 06:00Z`. Consequências:
+
+- os vereditos de dose até o epoch `2026-09-06` foram medidos em 07/09 09:12Z com o
+  snapshot de 07/09 ⇒ corpus **equivalente** ao do serving ⇒ **não** são invalidados por
+  este achado;
+- o `faltam=1` do §10.9 e o `dose-servida-inerte` de 09-04/09-05 **não** se explicam pelo
+  fd, pelo mesmo motivo. O primeiro segue sem causa confirmada;
+- o que este achado invalida é o `RED` de composição de hoje e a medição do §10.7 —
+  ambos posteriores a 08/09 06:00Z.
+
+⚠️ Registro deste raciocínio porque a tentação era atribuir **tudo** ao fd, que é uma
+causa vistosa e recém-achada. Três dos quatro sintomas do dia são anteriores à divergência
+e continuam com as suas próprias causas.
+
+##### A decisão que isto abre, e ela não é minha
+
+Reiniciar o `nox-mem-api` realinha o corpus — e faz o canal do serving pular de 67.187
+para 67.606 chunks e de `agentFresh = 0` para 253, **de uma vez, no meio do ensaio**. Não
+reiniciar mantém o ambiente estável e consistente com os epochs já servidos, ao custo de
+uma validade externa presa a 24/08 pelo resto do estudo. As duas escolhas precisam ser
+declaradas, e a fronteira do restart — se houver — tem de cair numa fronteira de epoch,
+não no meio de um.
+
+E há um **fix de código** por trás: o serving deveria reabrir o snapshot na virada de
+epoch, ou seguir o symlink em vez de manter o descriptor. Implementá-lo **muda o
+comportamento do ensaio**, e por isso não é conserto rotineiro.
 
 ## Se a decisão mudar
 
