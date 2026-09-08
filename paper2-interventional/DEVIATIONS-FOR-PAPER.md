@@ -800,11 +800,26 @@ não é tocado. Qualquer afirmação sobre "a dose no regime intercalado" fica l
 `219` são do gatilho, que lê os limiares de `DIVERSITY_DEFAULTS` no `dist` e confere as
 duas cláusulas do predicado contra `src/api/brief.ts` antes de medir — e o valor que eu
 havia reconstruído à mão para os seis agentes bate com ele, o que valida os patterns de
-sessão. Para o sub-pool global eu tinha escrito `%lessons.md`, mais frouxo que o real: o
-literal é `GLOBAL_FRESH_PATTERNS = ["memory/entities/%", "memory/lessons.md"]`, e o
-`replay-oportunidade.mjs` o **extrai do fonte e aborta se divergir**, em vez de confiar na
-cópia. Remedido com o pattern exato, o sub-pool global dá **60** — o mesmo número, aqui
-por coincidência de conteúdo, não por os patterns serem equivalentes.
+sessão. Para o sub-pool global eu errei **duas** coisas. O pattern: escrevi `%lessons.md`, e o
+literal é `GLOBAL_FRESH_PATTERNS = ["memory/entities/%", "memory/lessons.md"]` — que o
+`replay-oportunidade.mjs` **extrai do fonte e aborta se divergir**, em vez de confiar na
+cópia. E a **janela de idade**: usei os 7 dias de `freshMaxAgeDays`, mas o segundo
+`fetchFreshCandidates` é chamado com `{ ...cfg, freshMaxAgeDays: cfg.freshGlobalMaxAgeDays }`
+⇒ o sub-pool global usa **30 dias**, não 7.
+
+Com pattern e janela corretos o global dá **108** no corpus que o serving usa e **115** no
+snapshot de hoje — não 60. E os **108** batem exatamente com o número que o cabeçalho do
+`gatilho-composicao.mjs` documenta (*"108 candidatos de `memory/entities/%` + `memory/lessons.md`"*),
+o que é a conferência que eu devia ter feito antes de publicar um número reconstruído.
+
+⚠️ **A janela errada quase produziu uma conclusão invertida.** Com 7 dias, os 19
+designados — do lote de `2026-08-21`, portanto com 17 dias — **não** passariam, e o pool
+fresco apareceria como *inteiro vazio*: eu cheguei a escrever que o canal de cobertura
+estava inerte e que o boost não teria onde agir. Com os 30 dias reais, os 19 estão **todos**
+no pool nos dois corpora, o mecanismo funciona, e o `mexeu = 38` medido no epoch 09-06
+deixa de ser contraditório. Quarta ocorrência da classe *reconstrução que modela regra que
+o código não aplica* — e a primeira em que o parâmetro errado apontava para "o ensaio não
+mede nada".
 
 Um terceiro número que o gatilho **não** conta e que não é defeito dele: **34** chunks
 elegíveis em `sessions/main/%`. `main` não é um dos seis agentes do ensaio, e o gatilho
