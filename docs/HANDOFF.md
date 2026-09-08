@@ -1,5 +1,157 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-08 — Stanford ENVIADO; errata nº 2 publicada; um epoch do ensaio foi PERDIDO
+
+### ▶️ ESTADO / PRÓXIMO PASSO
+
+**Ordem que o Toto fixou:** Stanford ✅ → **#3 errata** ✅ → **#2 apelação do arXiv** ⬅️ é
+aqui que amanhã começa.
+
+**Nada foi commitado** — tudo está no disco, num único repo (`paper2-interventional/` é
+diretório, não submódulo). `claims_check.py` está **verde**
+(`ok — 13 band-dependent claims recomputed and matched; sweep clean`).
+
+Para ver o que falta commitar, **rodar** — não ler lista:
+
+```sh
+git branch --show-current   # tem de ser main
+git status --short
+```
+
+⚠️ A primeira versão desta seção trazia a lista escrita à mão, e ela ficou falsa **na
+mesma sessão**: faltavam o próprio `docs/HANDOFF.md` e o
+`deposit/paperA/.gitignore` (criados depois), e ela listava
+`.description-published.html`, que é **gitignored** e nunca vai a commit. Lista de estado
+vivo escrita como instante envelhece — inclusive em 40 minutos. O comando não envelhece.
+
+Estado em 2026-09-08 23:05 BRT, **para conferência, não para confiar**: 5 modificados
+(`docs/HANDOFF.md`, `docs/STANFORD-A1-A3-MESSAGE.md`,
+`paper2-interventional/claims_check.py`, `deposit/paperA/.gitignore`,
+`deposit/paperA/POST-PUBLISH.md`) e 3 novos (`docs/stanford-email-a1-a3.txt`,
+`paper2-interventional/INCIDENT-2026-09-02-epoch-perdido.md`,
+`deposit/paperA/errata-ensaio-iniciado-2026-09-08.html`).
+
+Os readbacks da API do Zenodo (`.live-*.json`, `.put2-resp.json`, `.readback2.json`…)
+**não** entram: o `.gitignore` da pasta passou de nomes exatos para **glob** hoje,
+justamente porque `.put-resp.json` não casava com `.put2-resp.json` e 7 JSONs
+apareceram como untracked num repo público. Foram conferidos (sem token, sem campo
+sensível, sem PII/IP).
+
+---
+
+### 🔴 O que NÃO pode esperar: um epoch randomizado do ensaio não tem dado
+
+`INCIDENT-2026-09-02-epoch-perdido.md`. Medido, não inferido:
+
+| epoch | briefs | w |
+|---|---:|---|
+| 2026-09-01 | 672 | 2 **e** 4 (virada shadow→active às 10:25:39Z) |
+| **2026-09-02** | **0** | **nunca abriu** |
+| 2026-09-03 | 441 | 0 — parcial, começa 17:23:39Z |
+| 2026-09-04 / 05 / 06 / 07 | 672 / 672 / 672 / 462 | 2 / 2 / 7,5 / 0 |
+
+Lacuna de **32,5 h**: `2026-09-02T08:52:06Z` → `2026-09-03T17:23:39Z`. Dia completo = 672.
+
+Três negativos que descartam o fácil: **(1)** não foi queda — `provider_telemetry` tem
+tráfego contínuo e plano, 2 chamadas/hora, sem um buraco na janela inteira; **(2)** não foi
+desenho — dias de controle logam (09-03 e 09-07 são `w=0` e estão lá); **(3)** não foi
+degradado — `degradados=0` nos 17 epochs. O systemd registra **um** stop/start, e é no
+**fim** (`17:23:30Z`); o log volta 9 s depois ⇒ o serviço atendia tráfego sem produzir brief
+registrado, e **saiu do estado por restart**. Causa **não** estabelecida.
+
+**Ação, e ela é de registro antes de ser de código:** a regra de tratamento (epoch parcial
+entra, entra com peso, ou sai) tem de ir para `DEVIATIONS-FOR-PAPER.md` **antes** de
+qualquer análise. ⚠️ Não decidir isso vendo os números — é exatamente o que o pré-registro
+existe para impedir. Deixei **sem decidir** de propósito.
+
+**Segundo buraco, de instrumento:** não existe alarme para *"o log de serving parou"*. A
+lacuna durou 32,5 h e só apareceu 6 dias depois, porque fui medir outra coisa. O guarda
+precisa de perna própria — *nenhuma linha nova em N horas, medido contra o relógio* — e não
+"o último epoch tem a dose certa", que fica calado quando não há epoch nenhum. Terceira vez
+da classe **guarda cujo predicado exige o dado que falta**.
+
+---
+
+### #2 — apelação do arXiv: o que está medido, hoje
+
+`paper/paper-tecnico-nox-mem.md` — **1.600 linhas, 27.157 palavras**. Não existe PDF em
+`paper/`; o rebuild é passo próprio.
+
+**🔴 Achado novo, e ele não é typo — é confundidor declarado que não existe.**
+
+| onde | o que diz |
+|---|---|
+| linha **1069** (tabela) | `mem0ai==0.1.114` / `0.1.114` |
+| `output/rc4/mem0.json` → `meta.version` | `mem0ai==0.1.114` |
+| linha **1134** (prosa) | *"the Mem0 client changed major version … (0.1.x → 2.0.10)"* |
+
+A tabela do paper e o artefato **concordam** em 0.1.114 — que **é** 0.1.x. Só a prosa
+afirma 2.0.10, e a usa como **confundidor residual (a)** para explicar a inversão do rc4.
+⚠️ Corrigir isso **remove** um confundidor e faz o resultado ficar **mais forte** — logo
+merece mais suspeita, não menos. Antes de editar: estabelecer qual versão o rc4 de fato
+rodou (o `meta` é evidência; a §6.3 canônica **não tem artefato**, então a metade "canonical
+usou 0.1.x" é inverificável nos dois sentidos). Não reescrever para o que convém.
+
+**Sweep de forma — contagens de hoje** (as de memória tinham envelhecido: `Dnn` era 79,
+agora 80; rótulos de fase era 207, agora 196):
+
+- `PR #N`: **67** ocorrências
+- `Dnn`: **80**
+- rótulos de fase (`A1`,`F10`,`G10d`,`W2`,`Q4`,`T4`…): **196** ocorrências, **29 distintos**,
+  e o parágrafo de nomenclatura que os define **não existe** — o primeiro uso é sem definição
+
+**Por que isso é a apelação e não gosto pessoal:** a política de moderação exige conformidade
+*"in form"*, e diz que quem já teve trabalho recusado *"should anticipate closer scrutiny"*.
+67 + 80 + 196 referências a artefatos internos de um repo privado-de-contexto é a leitura mais
+plausível do que "não conforma em forma".
+
+**Restante do #2, na ordem:** parágrafo de nomenclatura → decidir a densidade de `PR #N`/`Dnn`
+→ corrigir o Mem0 (acima) → rebuild do PDF → carta de apelação respondendo os **seis** campos
+exigidos (identificadores, correspondência anterior, justificativa, descrição detalhada do
+conteúdo de pesquisa, argumento de adequação de categoria, PDF) → submeter pelo portal.
+
+⚠️ **A apelação é ativo de USO ÚNICO.** Negada = permanente. Não submeter até os seis campos
+estarem respondidos e o paper conformar em forma.
+
+---
+
+### ✅ Stanford — enviado, e criou um compromisso
+
+Enviado pelo Toto em **2026-09-08 ~23:00 BRT** para `yomri@stanford.edu`, assunto
+`arXiv:2606.06448 — phase-attributed memory telemetry from 32 days in production`.
+Texto em `docs/stanford-email-a1-a3.txt`; auditoria completa (números, alegações sobre o
+paper deles conferidas verbatim, e as 6 falsidades corrigidas antes do envio) em
+`docs/STANFORD-A1-A3-MESSAGE.md`.
+
+**Se houver resposta pedindo os dados:** o e-mail oferece *"the telemetry as a dataset with
+its schema"*. É export real de `provider_telemetry` — 13 colunas, janela fechada
+`2026-08-07T00:00Z → 2026-09-08T00:00Z`, **3.544** linhas. Verificado: **nenhuma coluna com
+texto de query**, só hash ⇒ nada a sanitizar. Montar **com gate** — o `dose2.mjs` e o epoch
+perdido são as duas lições de exportar sem verificação.
+
+---
+
+### Lições do dia que valem fora daqui
+
+1. **`.env` é intenção; env do processo é estado.** Concluí que o ensaio podia não estar
+   rodando porque o `.env` só tem `NOX_P2_WRITE_PATH=on`. As variáveis vivem em **drop-ins
+   do systemd** (`zz-p2-active.conf` → `NOX_P2_OUTCOME=active`), e o env real do
+   `MainPID` mostra tudo. Confirmar por estado observável.
+2. **"Parou" foi mudança de endereço, de novo (4ª vez).** Procurei o log de serving em
+   `workspace/logs/`; ele vive em `/root/.openclaw/logs/p2-serving.ndjson`.
+3. **A serialização que se lê limita o que se pode verificar (3ª vez).** O readback RDM do
+   Zenodo devolve `doi: None` — o DOI está em `pids.doi.identifier`. E meu regex não achou a
+   errata anterior que **estava** lá; a marcação era outra.
+4. **Um guarda pode acusar a própria correção.** Ao acrescentar a errata, o `claims_check`
+   foi de 2 para 4 falhas: a errata **cita** a frase falsa para corrigi-la, e substring não
+   distingue afirmar de citar. Predicado agora é de **documento**, e a isenção ancora no
+   **fato medido** (`2026-09-01T10:25:39Z`, `rodada 31774052`) — não em `"Errata"`, que daria
+   passe livre a qualquer texto que contivesse a palavra. Mutação confirmada nos dois
+   sentidos.
+5. **`|| echo "ok"` depois de um comando que falhou por path imprime verde sobre a falta do
+   dado.** Aconteceu no meu próprio verificador do e-mail, minutos depois de eu citar a
+   regra que proíbe isso.
+
 ## 2026-09-01 — Epoch 1 no ar; Paper A publicado; o canary mentia
 
 ### ▶️ ESTADO / PRÓXIMO PASSO
