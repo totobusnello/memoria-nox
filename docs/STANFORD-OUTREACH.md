@@ -70,7 +70,7 @@ A posição precisa nos quatro eixos, para a mensagem: construção **mista** (d
 
 Ordenado por raridade, não por esforço:
 
-1. **Telemetria de fases em produção contínua**, sobre uma fleet de 7 agentes, com custo e latência por fase. Caracterização de bancada não captura amortização real por volume de query nem o padrão de manutenção ao longo de semanas — e ambos estão entre as recomendações deles.
+1. **Telemetria de fases em produção contínua**, no **store compartilhado do workspace** que os 6 agentes consultam, com custo e latência por fase. 🔴 **Corrigido 2026-09-07:** este item dizia *"fleet de 7 agentes"* e as duas coisas estavam erradas. O paper conta **6** agentes (Nox, Atlas, Boris, Cipher, Forge, Lex), e a telemetria **não** é fleet-wide: medido hoje, os **6 bancos por agente não têm a tabela `provider_telemetry`** — os 3.545 registros são todos do store compartilhado. Oferecer "telemetria de fleet" a quem escreveu o harness de perfilamento por fase seria pego na primeira pergunta. Caracterização de bancada não captura amortização real por volume de query nem o padrão de manutenção ao longo de semanas — e ambos estão entre as recomendações deles.
 2. **Um experimento randomizado pré-registrado** rodando sobre essa mesma fleet (Paper 2), com seed declarada antes do round existir e outcome adjudicado por painel multi-modelo com κ registrado.
 3. **Uma política de esquecimento em produção** — `retention_days` tipado, decay por salience, `pruneEpochs`, `kg-prune` — que é literalmente a **Recomendação 9** deles, e que **nenhum dos 10 sistemas caracterizados possui**. Com o incidente de 25/07 documentado: ter operado a política vale mais que anunciá-la.
 4. **Um sistema completo, self-hosted, auditável**, com snapshots atômicos, audit log append-only e provenance por chunk — candidato a 11º sistema **quando** o harness for liberado.
@@ -85,7 +85,7 @@ Ordenado por raridade, não por esforço:
 
 | # | Aproximação | Pedido concreto | Força | Risco |
 |---|---|---|---|---|
-| **A1** | **Dados de produção como complemento à caracterização.** "Vocês caracterizaram 10 sistemas em bancada; temos o mesmo perfilamento de fases rodando em produção há N dias numa fleet de 7 agentes. Interessa?" | Oferecer o dataset de telemetria de fases. Sem pedir nada em troca na primeira mensagem. | **Maior.** É o único ativo que ninguém replica sem operar um sistema em produção. Não depende do arXiv ID. Não toca no território do MemoryArena. | Nenhum óbvio. Pode simplesmente não haver resposta. |
+| **A1** | **Dados de produção como complemento à caracterização.** "Vocês caracterizaram 10 sistemas em bancada; temos o mesmo perfilamento de fases rodando em produção há 33 dias no store compartilhado que 6 agentes consultam. Interessa?" | Oferecer o dataset de telemetria de fases. Sem pedir nada em troca na primeira mensagem. | **Maior.** É o único ativo que ninguém replica sem operar um sistema em produção. Não depende do arXiv ID. Não toca no território do MemoryArena. | Nenhum óbvio. Pode simplesmente não haver resposta. |
 | ~~**A2**~~ | ~~**Ser o 11º sistema no harness.**~~ **MORTO por ora (verificado 15/08):** o paper diz *"(to be open-sourced)"* — o harness **não existe publicamente**. | — | — | Não se pede ponteiro para o que não foi liberado. Sobrevive só como uma frase de disponibilidade futura dentro de A1. |
 | **A3** | **A célula vazia — CONFIRMADA e mais forte que a conjectura (15/08).** Os 4 eixos são construction/storage/retrieval/**mutability**; nenhum dos 10 sistemas tem política de esquecimento, e a **Recomendação 9 deles pede exatamente isso**. | Mostrar `retention_days` tipado + decay + prune **e o incidente de 25/07** (decay com compounding drenou o grafo 21,5k→554, com recuperação documentada). | **Subiu para alta.** Deixou de ser conversa: é a recomendação deles já implementada, com a fatura de tê-la operado. | Nenhum. Não depende de arXiv ID nem do harness. |
 | **A4** | **Via survey / James Zou.** A §9.6 descreve o desenho que já implementamos. | Diferente em natureza: é sobre o Paper 2, não sobre sistemas. Pessoas diferentes. | Média-alta, mas **outro canal e outro momento**. | Misturar com A1–A3 confunde a mensagem. Mandar depois, não junto. |
@@ -101,7 +101,7 @@ A mensagem segue **oferecendo, sem pedir nada** — a única mudança é que ago
 ## 5. O que não escrever
 
 - ❌ Não reivindicar que identificamos o gap de "memória guia decisão" — **é prior art do próprio grupo** (MemoryArena, 02/2026, com He e Pentland).
-- ❌ Não citar o Paper 1 como "publicado" nem prometer link — está em moderação sem ID.
+- ⛔ **~~Não citar o Paper 1 como "publicado" nem prometer link — está em moderação sem ID.~~ VENCIDO DUAS VEZES.** O arXiv **recusou** em 2026-09-03, e desde 2026-09-07 o Paper 1 tem DOI: `10.5281/zenodo.22649269` (preprint, CC BY 4.0, **sem** peer review). A regra agora é o oposto: **citar o DOI** e dizer que é preprint não revisado. Quem seguisse a versão antiga omitiria o único identificador que existe.
 - ❌ Não pedir endosso, co-autoria ou revisão na primeira mensagem. A primeira mensagem **oferece**.
 - ❌ Não enviar antes de 21/08: com menos de 14 dias, o número que sustenta A1 ainda não existe.
 
@@ -109,12 +109,12 @@ A mensagem segue **oferecendo, sem pedir nada** — a única mudança é que ago
 
 ## 6. Antes de enviar — checklist
 
-- [ ] 21/08: confirmar 14 dias completos de telemetria e extrair os números finais (custo/query, ratio de construction, custo de manutenção)
+- [x] **21/08: gate cumprido; números extraídos 2026-09-07** — 3.545 registros, 33 dias (07/08→08/09), custo total USD 0,1352. Atribuição por fase: construction **3,16% das ops e 55,7% do custo**. ⚠️ Três correções que a extração forçou, em `STANFORD-A1-A3-MESSAGE.md`: não é fleet-wide, são 6 agentes e **não** há amortização demonstrada.
 - [x] Ler **2606.06448** integralmente — ✅ 15/08. Eixos: construction/storage/retrieval/**mutability**. Célula vazia confirmada, e a Recomendação 9 pede o que temos.
 - [x] Verificar se o harness é público e onde — ✅ 15/08. **Não é**: "(to be open-sourced)". A2 descartado.
 - [x] Confirmar afiliações — ✅ Stanford (`yomri@stanford.edu`, Marlowe cluster, PORTAL/MemoryDAX, Knight-Hennessy). Falta decidir **para quem** escrever: correspondência é Omri, mas o cluster que liga ao MemoryArena é He/Pentland.
 - [x] Toto: cortar e ordenar as aproximações do §4 — ✅ 15/08, **A1 + A3**.
-- [ ] Redigir a mensagem de A1 e revisar contra o §5
+- [x] **Redigir a mensagem de A1+A3 e revisar contra o §5** — ✅ 2026-09-07, rascunho em `STANFORD-A1-A3-MESSAGE.md`, checklist do §5 conferido item a item. **NÃO enviado — envio é do Toto.**
 
 ---
 
