@@ -152,6 +152,26 @@ perdido são as duas lições de exportar sem verificação.
    dado.** Aconteceu no meu próprio verificador do e-mail, minutos depois de eu citar a
    regra que proíbe isso.
 
+### 📌 Deixado para 2026-09-08 (infra, não paper)
+
+Trabalho de infra fechado na noite de 07-09 — **vive em `nox-workspace` e no pacote
+`nox-mem`, não neste repo**; está aqui porque este é o arquivo que se lê ao retomar.
+
+| # | pendência | por quê |
+|---|---|---|
+| 1 | **Versionar o wrapper `/usr/local/bin/nox-mem`** | É a peça que faz o `nox-mem` existir no PATH da VPS (o pacote não é instalado global lá) e sem ela o EOD volta a concluir "CLI indisponível". Hoje vive **fora de qualquer git** — uma nova migração o apaga e o defeito de 07-09 volta inteiro. Versionar em `nox-workspace:tools/nox-mem/bin/` e instalar por symlink. |
+| 2 | **Confirmar o EOD das 22h** | O prompt do cron `end-of-day` (`ee15b430`) ganhou os nomes reais dos serviços, a regra de que `which` não testa disponibilidade, e a do contador de dias. Só se prova quando o cron rodar: o relatório das 23h deve vir **sem** "CLI indisponível" e **sem** contador de dias zumbi. |
+| 3 | **Limpar `/var/tmp` da VPS, se o item 2 fechar verde** | `eod-payload.bak-20260908T022642.json` (prompt antigo do EOD) e `session-distill.ts.bak-20260908T021659` (redundante — o git tem). Só apagar **depois** de confirmar o item 2; até lá o `.bak` do prompt é a rota de volta. |
+
+O que foi consertado, com o "por quê" nos commits: `nox-workspace` `52a6335d` e `0c2a0aa8`
+(o `session-distill` lia o endereço que a migração esvaziou e o schema que o Claude CLI
+não usa; 382 memórias ingeridas onde antes eram 0), e `nox-mem#27` → publicado como
+**`nox-mem@3.3.0`** (mesmo fix generalizado + `better-sqlite3` `^11` → `^12.11.1`, porque
+o `11.10.0` não compila em Node 26 e o `13.x` exigiria Node ≥ 22, quebrando o
+`engines: node>=20` do pacote).
+
+⚠️ Aberto e **não** desta linha de trabalho: PR `#452` (`fix(probe+embed)`), anterior.
+
 ## 2026-09-01 — Epoch 1 no ar; Paper A publicado; o canary mentia
 
 ### ▶️ ESTADO / PRÓXIMO PASSO
