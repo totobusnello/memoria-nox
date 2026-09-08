@@ -2,6 +2,62 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-09-03 06:00 → descoberto 2026-09-08 (5 dias) — o serving servia um corpus DELETADO, vivo só pelo descritor de arquivo
+
+### Severity: yellow — zero degradação de serviço; o custo é que 5 dias de exposição do ensaio saíram de um corpus congelado, e a inferência óbvia sobre o RED de composição estava invertida
+
+### TL;DR
+O `nox-mem-api` mantinha aberto o `fd` 26 sobre
+`/var/lib/nox-mem/epochs/e20260903T060001Z.db`, marcado **`(deleted)`** em
+`/proc/<PID>/fd`. O symlink `current.db` foi repontado nos dias seguintes e o arquivo
+antigo foi podado; o processo resolveu o symlink **uma vez**, no `open()`, e seguiu
+lendo aquele inode. `inode_fd=553124` contra `inode_link=524930`.
+
+Consequência medida: o corpus que o serving via estava parado em
+`MAX(created_at) = 2026-08-24` — **5 dias** de defasagem, com `/api/health` em 200 e
+nenhum alerta disparando, porque **nenhum guarda comparava o inode aberto com o link**.
+
+### Por que nenhum instrumento viu
+Mesma família da regra 9 do `CLAUDE.md`: os guardas existentes leem o corpus **pelo
+caminho** (`current.db`), que estava correto. O predicado deles nunca podia divergir,
+porque não olhava o que o processo tinha em mãos. O gatilho de saturação, em
+particular, passa `--corpus current.db` — que **não é** o que o serving lê.
+
+### Delimitação — o que isto NÃO invalida
+Os snapshots de 03/09 a 07/09 são **equivalentes em conteúdo** (67 187 chunks,
+`MAX(created_at) = 2026-08-24`, `agentFresh = 0`). A divergência começa **exatamente**
+no snapshot de 08/09 (67 606 / 2026-09-08 / 253 chunks de sessão).
+
+⇒ Os vereditos de dose **até o epoch 09-06 seguem válidos**. O que a falha invalida é
+o RED de composição de 08/09 e a medição que ele abortou. Sem essa delimitação, a
+conclusão fácil descartaria 5 epochs íntegros.
+
+⚠️ Isto **corrige** o §10.7 e o §10.5 do `paper2-interventional/DEVIATIONS-FOR-PAPER.md`.
+A correção entrou como **§10.10**, com banner nas seções antigas — não apagando-as.
+
+### Fix
+1. **Corpus recuperado pelo `fd` ANTES de qualquer restart**:
+   `cat /proc/<PID>/fd/26 > copia.db`, `quick_check = ok`, 1 254 526 976 B, em
+   `/var/lib/nox-mem/p2/corpus-SERVING-REAL-e20260903-recuperado.db`. Um restart teria
+   destruído o único exemplar do que foi efetivamente servido.
+2. **`gatilho-corpus-alinhado.sh`** (cron `39 * * * *`, teto 3 no morning report) —
+   compara o inode aberto pelo processo com o `current.db`; a perna RED
+   `corpus-DELETADO-e-vivo-so-pelo-fd` já vem com a ação de recuperação escrita.
+3. **Restart agendado para a fronteira**, não imediato — `2026-09-15 09:00Z`, com 5
+   pré-condições que abortam. Motivo em `docs/HANDOFF.md` (2026-09-08 tarde).
+
+### Aprendizados
+- **Processo longo pode servir de um snapshot que já foi podado.** Diagnóstico:
+  `ls -l /proc/$PID/fd | grep deleted`. E a ordem importa — **recuperar com `cat`
+  antes** de reiniciar, senão o dado morre com o processo.
+- **Guarda que lê pelo caminho não pode ver divergência de inode.** Quando há duas
+  representações do mesmo recurso (link e descritor), o guarda tem de comparar **as
+  duas**, não reler a que já está certa.
+- **`/api/health` em 200 não é evidência de corpus atual** — ele responde do inode
+  aberto, e o inode aberto responde bem.
+
+---
+
 ## 2026-09-01 04:52 → 11:07 UTC — Seis RED do canário com a camada semântica intacta: a assinatura `total=2/semantic=0/fts=0` NÃO é diagnóstica
 
 ### Severity: yellow — zero degradação de serviço; o custo foi ruído de alerta, `vectorize` desnecessário 2×/hora e uma lição anterior que se provou incompleta

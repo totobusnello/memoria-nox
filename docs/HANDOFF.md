@@ -1,5 +1,171 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-08 (tarde) — o corpus servido estava congelado há 5 dias, e o guarda que veria isso não existia
+
+### ▶️ ESTADO / PRÓXIMO PASSO
+
+Tudo commitado e mergeado (PR #478, squash `9b2a80e`). CI verde nos 11 checks.
+
+**Nada a fazer hoje.** O próximo evento é automático:
+
+| quando | o quê |
+|---|---|
+| **2026-09-15 09:00Z** (ter, 06:00 BRT) | cron one-shot `0 9 15 9 *` reinicia o `nox-mem-api` e realinha o corpus |
+| depois de disparar | **remover esse cron** — está marcado `ONESHOT ... remover depois` |
+
+⚠️ **Duas proibições até 15/09**, ambas medidas nesta sessão:
+
+1. **Não rodar `session-distill` à mão.** Ele repõe `agentFresh` e o script de restart
+   aborta na pré-condição 3 — por desenho, mas o restart não acontece e a fronteira se perde.
+2. Se o `nox-mem-api` **reiniciar sozinho** antes disso, o realinhamento cai num momento
+   arbitrário. O `gatilho-corpus-alinhado.sh` detecta; o corpus servido já está salvo em
+   `/var/lib/nox-mem/p2/corpus-SERVING-REAL-e20260903-recuperado.db` (1 254 526 976 B,
+   `quick_check ok`).
+
+---
+
+### Os dois RED do morning report não eram o que diziam
+
+**`p2 composicao-do-canal` RED, `agent_fresh_elegiveis=219`.** A escala de dose de 27/08 foi
+calibrada supondo `agentFresh` vazio. O RED estava certo sobre o número e a transição foi
+datada em `2026-09-08T06:09:04Z`, rastreada ao **`session-distill` rodado à mão** (não existe
+cron dele). Mas a inferência óbvia — "o canal mudou, a calibração caiu" — **está errada**, e
+a razão é o segundo achado.
+
+**`p2 saturacao-da-dose` RED, `faltam=1`.** Era status de **21 h antes**, de uma versão do
+script já superada. A causa que o §10.4 dava para `faltam=1` foi **falsificada** aqui:
+agrupei `brief_log` por `served_at` e vi 12 grupos "anômalos"; `served_at` tem resolução de
+segundo e **colide entre briefs**. A chave certa é `brief_id` — reagrupado, **672 briefs com
+exatamente 10 linhas cada, zero anomalias**. `faltam=1` segue **sem causa estabelecida**.
+
+---
+
+### O achado: o serving lê um inode que já não existe
+
+O processo tem aberto o `fd` 26 apontando para
+`/var/lib/nox-mem/epochs/e20260903T060001Z.db` **`(deleted)`**. O symlink `current.db` foi
+repontado e o arquivo antigo foi podado; o processo resolveu o symlink **uma vez**, no
+`open()`, e seguiu lendo aquele inode. `inode_fd=553124` contra `inode_link=524930`.
+
+Consequência medida: o corpus que o serving via estava parado em
+`MAX(created_at) = 2026-08-24` havia **5 dias**.
+
+⚠️ Isto **corrige** o §10.7 e o §10.5 do `DEVIATIONS-FOR-PAPER.md`, e a correção entrou como
+**§10.10** — com banner nas seções antigas, não apagando-as. *Um item retirado esconde o erro
+em vez de o mostrar.*
+
+O corpus foi recuperado pelo `fd` **antes** de qualquer restart poder destruí-lo:
+`cat /proc/<PID>/fd/26 > copia.db`, `quick_check = ok`.
+
+---
+
+### A delimitação que impede super-atribuição
+
+Os snapshots de 03/09 a 07/09 são **equivalentes em conteúdo** (67 187 chunks,
+`MAX(created_at) = 2026-08-24`, `agentFresh = 0`). A divergência começa **exatamente** no
+snapshot de 08/09 (67 606 / 2026-09-08 / 253).
+
+⇒ Os vereditos de dose **até o epoch 09-06 não estão invalidados**. O que esta falha
+invalida é o RED de composição de hoje e a medição que ele abortou. Sem essa delimitação, a
+conclusão fácil seria descartar 5 epochs que estão íntegros.
+
+---
+
+### Defeito no gatilho de saturação: o NDJSON perdia exatamente o alarme
+
+`emitir()` escrevia stdout **e** `--status`, e **nunca** `--ndjson`. O arquivo de status é
+sobrescrito a cada corrida ⇒ toda saída por atalho (que é onde vivem os RED de exceção) era
+**perda permanente**. Classe já conhecida: *caminho de saída por atalho pode não persistir o
+que o normal persiste*.
+
+Corrigido com `gravar_ndjson_atalho()` chamada de `emitir()` e de `morte_por_sinal()` antes
+do `rm -rf`, com sentinela **por arquivo** e não por contagem de linhas — o
+`gatilho-composicao.mjs` escreve no mesmo ndjson de hora em hora, e uma corrida de saturação
+leva ~15 min.
+
+Suíte `teste-gatilho-active.sh`: **12 → 15 casos**. Mutação confirmada — pré-patch mata T12
+(`n=0`), T13 (`via=None`) e T14 (`n=0`); remover só a sentinela mata **apenas** T13, com
+`n=2 vias=['veredito-de-dose','atalho']`.
+
+---
+
+### Dois guardas novos, ambos com suíte e mutação
+
+| guarda | cron | o que vigia | estado |
+|---|---|---|---|
+| `gatilho-designados.mjs` | `24 * * * *` | os **19 chunks designados** — o único ativo insubstituível do ensaio | **GREEN** 19/19, baseline `e43fbc9076fd` |
+| `gatilho-corpus-alinhado.sh` | `39 * * * *` | o **inode que o processo tem aberto** contra o `current.db` | **RED** (correto — é o `fd` pinado) |
+
+O de designados tem duas pernas: ausência ⇒ RED com a lista de ids; drift (`sha256` do
+`chunk_text`, ou `source_file` mudado) com id vivo ⇒ YELLOW. Lê o **DB vivo**, que é onde a
+morte acontece. **Baseline é imutável**: cria se não existe, nunca sobrescreve, e recusa
+criar sobre estado já quebrado.
+
+⚠️ A mutação "baseline sobrescrevível" passava por motivo errado — em T3b/T7b há ausência e
+o bloco de criação recusa de todo jeito. Só depois de acrescentar **T10** (drift persiste na
+2ª corrida com baseline intacto) a mutação mata 5 casos. Suíte: 12 casos, 4 mutações.
+
+O RED do `corpus-alinhado` **vai persistir até 15/09** — ele está relatando fielmente que o
+processo lê um inode que já não é o `current.db`. Só some com o restart.
+
+---
+
+### Por que 15/09 09:00Z e não hoje
+
+Com as janelas que o código usa **de fato** — e a primeira medição errou isto, porque o
+sub-pool global não usa 7 dias, usa `freshGlobalMaxAgeDays = 30`:
+
+| | corpus **servido** (03/09) | corpus **atual** (08/09) |
+|---|---:|---:|
+| `agentFresh` (7 d) | **0** | 253 |
+| `globalFresh` (**30 d**) | 108 | 115 |
+| designados no pool | 19/19 | 19/19 |
+
+Os 253 chunks de sessão têm todos `source_date = '2026-09-08'` e saem da janela de 7 dias em
+**2026-09-15 00:00:00Z** — nove horas antes da virada do epoch. Nessa hora o restart é **puro
+update de corpus**: a forma do canal vai de `interleaveFresh([], 108)` para
+`interleaveFresh([], 115)`, idêntica em estrutura, a calibração de 27/08 segue valendo e
+nenhum epoch entra em regime diferente.
+
+Reiniciar hoje levaria a `interleaveFresh(253, 115)`, empurrando cada candidato global
+designado da posição `i` para `2i+1`.
+
+⚠️ A derivação da expiração também errou uma vez: usei `date(...,'+7 days')` → 15/09 e
+**incluí** o epoch de 15/09. O predicado é `julianday('now') − julianday(source_date) <= 7`
+**com hora**, e `source_date` é meia-noite ⇒ expiração às 00:00:00Z. Corrigido: **7 epochs**
+no regime intercalado (3 de tratamento inteiros, 1 parcial, 3 de controle), e **nenhum**
+epoch `w=7.5` cai dentro.
+
+`restart-realinha-corpus.sh` tem **5 pré-condições que abortam**: (1) fronteira de epoch
+09:00–09:05Z; (2) guarda de alinhamento em RED; (3) `agentFresh == 0` no corpus-alvo — é isto
+que fixa a data; (4) 19/19 designados presentes; (5) recuperar o corpus antigo do `fd` e
+verificar `quick_check = ok`. Dry-run abortou na (1); com mutação válida da checagem de hora,
+abortou na (3) com `n=253`.
+
+---
+
+### Correções no morning report (VPS-only, backups `.pre-designados-2026-09-08` e `.pre-corpus-alinhado`)
+
+Dois gatilhos novos acrescentados com teto de idade 3. E a **regra de teto estava invertida**:
+dizia *"se der < 1, o guarda está CEGO"* quando é `CEGO ⟺ rodadas_toleradas >= 1` — o texto
+original **contradizia os próprios dois exemplos** que trazia.
+
+---
+
+### O que fica ABERTO
+
+1. **`faltam=1` sem causa.** A causa que o §10.4 afirmava foi falsificada aqui.
+2. **O veredito `SATURADO` em `w = 7.5` não foi reproduzido** em janela auditável
+   (`mexeu=38`, `churn_total=44`, idênticos a `w=100000`).
+3. **Remedição de `w_min`** é sem efeito até o serving ver o corpus novo. Scripts prontos
+   (`medicao-canal-epoch-0908.sh`, `cobertura-janela.py`, `tira-agentfresh.mjs`) e conferem
+   cobertura antes de gastar ~30 min.
+4. **Fix estrutural declarado e não feito:** o gatilho de saturação passa
+   `--corpus current.db`, que **não é** o que o serving lê. Enquanto o `fd` estiver pinado
+   isso é a diferença entre medir o mundo e medir o link.
+
+---
+
 ## 2026-09-08 — Stanford ENVIADO; errata nº 2 publicada; um epoch do ensaio foi PERDIDO
 
 ### ▶️ ESTADO / PRÓXIMO PASSO
