@@ -71,10 +71,18 @@ mechanical checks that now block their reintroduction are in the repository
 
 <h3>Code, data and license</h3>
 
-<p>Implementation, evaluation harness, golden sets and the ablation scripts:
-<a href="https://github.com/totobusnello/memoria-nox">github.com/totobusnello/memoria-nox</a>
-(MIT). This document: CC BY 4.0. The PDF is reproducible from the Markdown source with
+<p><a href="https://github.com/totobusnello/memoria-nox">github.com/totobusnello/memoria-nox</a>
+(MIT) holds the <strong>evaluation harness, golden sets, ablation scripts, the
+per-query result artefacts</strong> of the embedding-matched comparison
+(<code>eval/q4-comparison/output/rc4/</code>, 2,482 queries per system) and this paper's
+source. This document: CC BY 4.0. The PDF is reproducible from the Markdown source with
 <code>./scripts/build-paper.sh</code> (pandoc + xelatex).</p>
+
+<p>⚠️ <strong>The system implementation itself is not published in that repository</strong>
+&mdash; it runs on a private host, and an earlier version of this description said
+&ldquo;Implementation&rdquo;, which was wrong. What is reproducible from the public
+repository is the <em>evaluation</em>, not the system under test. The paper cites source
+files by path for provenance; those paths refer to the private tree.</p>
 
 <p>⚠️ One build artefact worth knowing before reading: the warning glyphs (⚠️) used in the
 Markdown source are dropped by the PDF font. The text of every caveat survives; only the

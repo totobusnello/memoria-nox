@@ -250,7 +250,7 @@ The `pain` field on `chunks` is an explicit severity in [0.1, 1.0] (0.1 trivial,
 
 **3.4.3 Salience decay continuous in background — `recency × pain × importance`.**
 
-The salience function lives in `src/lib/salience.ts` [^salience-src] (and is mirrored in the staged copy at `staged/1.7a/edits/salience.ts`). Its underlying principle is multiplicative — a memory scores high only when it is *simultaneously* recent, painful, and important:
+The salience function lives in `src/salience.ts` [^salience-src] (and is mirrored in the staged copy at `staged/1.7a/edits/salience.ts`). Its underlying principle is multiplicative — a memory scores high only when it is *simultaneously* recent, painful, and important:
 
 ```
 salience = recency × pain × importance
@@ -1578,7 +1578,7 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 [^reflect-src]: `src/reflect.ts` exporting `reflect()` and `getReflectCacheStats()` (confirmed in `staged/1.6/edits/api-server.ts:12`). Cache statistics surfaced in `/api/health.reflectCache`. See also `docs/POSTMAN.md` for the API contract.
 
-[^salience-src]: `src/lib/salience.ts` — canonical implementation of the salience formula (multiplicative principle in §3.4.3; weighted-additive v2 production form `W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access_score` in §5.1), mirrored in the staged copy at `staged/1.7a/edits/salience.ts` (lines 1–80 contain the module docstring spelling out the formula, the three-state mode gate, and the per-type retention defaults).
+[^salience-src]: `src/salience.ts` — canonical implementation of the salience formula (multiplicative principle in §3.4.3; weighted-additive v2 production form `W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access_score` in §5.1), mirrored in the staged copy at `staged/1.7a/edits/salience.ts` (lines 1–80 contain the module docstring spelling out the formula, the three-state mode gate, and the per-type retention defaults).
 
 [^retention-defaults]: V8 schema typed retention defaults (in `chunks.retention_days`): `feedback` = 0 (never-decay), `person` = 0 (never-decay), `lesson` = 180d, `decision` = 365d, `project` = 365d, `team` = 120d, `daily` = 90d, `pending` = 30d, `graph_node` = 60d, fallback = 90d. See `staged/1.7a/edits/salience.ts:46–56` (`DEFAULT_RETENTION_BY_TYPE`) and `CLAUDE.md` §"Schema v10".
 
