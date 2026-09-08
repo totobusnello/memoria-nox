@@ -1,0 +1,21 @@
+<p><strong>Errata (2026-09-08) — o ensaio intervencional começou.</strong>
+A seção <em>Relação com o pré-registro</em> acima afirma que o ensaio pré-registrado em
+<a href="https://doi.org/10.5281/zenodo.22110203">10.5281/zenodo.22110203</a>
+&ldquo;ainda não começou: nenhum epoch randomizado existe, nenhum braço foi atribuído&rdquo;.
+Isso era verdade quando este registro foi publicado e <strong>deixou de ser</strong> em
+2026-09-01. Os 234 epochs foram randomizados prospectivamente numa única operação
+(<code>ASSIGNMENT.json</code>; beacon drand quicknet, rodada 31774052, semente
+<code>SHA256(ascii(randomness_hex))</code>), com balanceamento 117 controle / 39 <em>w</em>=2 /
+39 <em>w</em>=4 / 39 <em>w</em>=7,5, e o Epoch 1 entrou em modo <code>active</code> em
+2026-09-01T10:25:39Z. Nenhum resultado do ensaio está contido neste registro, e nenhuma
+conclusão deste estudo observacional depende do estado do ensaio — a afirmação corrigida é
+descritiva, não analítica.</p>
+
+<p>Duas notas de honestidade sobre esta correção. Primeira: o defeito é de
+<strong>envelhecimento</strong>, não de erro no momento da escrita — uma frase sobre uma
+série viva, publicada como se fosse um instante, tornou-se falsa por passagem do tempo.
+Ela foi detectada por um verificador automático que compara as alegações do texto contra o
+estado dos artefatos (<code>claims_check.py</code>), e não por releitura. Segunda: os
+arquivos deste depósito permanecem imutáveis e <strong>não</strong> foram alterados; esta
+errata é acrescentada à descrição, que é metadado. O <code>MANIFEST</code> continua sendo a
+prova do conteúdo publicado e não deve ser recomputado.</p>

@@ -129,3 +129,38 @@ contradiz nominalmente:
 (3.535.811 B, 19× maior). O depósito publicado confirma, por fora, que aquele campo é o
 **tamanho do ZIP comprimido**. A reversão estava certa, e o `bytes_nota` descreve o que o
 número é.
+
+## Errata nº 2 — 2026-09-08, o ensaio começou
+
+A `description` publicada afirmava que o ensaio intervencional *"ainda não começou:
+nenhum epoch randomizado existe, nenhum braço foi atribuído"*. Verdade em 2026-08-30,
+**falsa desde 2026-09-01T10:25:39Z**, quando o Epoch 1 entrou em modo `active`.
+
+Defeito de **envelhecimento**, não de erro na escrita: frase sobre série viva publicada
+como se fosse instante. Não foi pego por releitura — foi pego pelo `claims_check.py`,
+que compara a alegação contra `ASSIGNMENT.json`. A disciplina não pegaria; o guarda
+pegou.
+
+Publicada como `errata-ensaio-iniciado-2026-09-08.html`, acrescentada à description.
+Verificado no readback do publicado: DOI `10.5281/zenodo.22181415` inalterado,
+`versions.index` = 1, `publisher`/`rights`/`creators`/`publication_date`/`version`
+preservados, **as duas** erratas presentes, description 5.846 → 7.496 B.
+
+### O guarda acusou a própria correção, e o predicado estava errado
+
+Ao acrescentar a errata, o `claims_check` foi de 2 para **4** falhas: a errata **cita** a
+frase falsa para corrigi-la, e busca de substring não distingue **afirmar** de **citar**.
+
+Corrigido para predicado de **documento** — falha se o documento afirma e **não** traz a
+correção. E o marcador da isenção ancora no **fato medido** (`2026-09-01T10:25:39Z`,
+`Epoch 1 entrou em modo`, `rodada 31774052`), não em palavra-chave: `"Errata"` ou
+`"corrigido"` soltos dariam passe livre a qualquer documento que contivesse a palavra,
+sobre uma alegação genuinamente envelhecida. Quem não sabe o fato não consegue escrevê-lo.
+
+Mutação confirmada nas duas direções: suprimir as âncoras devolve as 4 falhas; um
+documento vivo que afirme sem correção continua falhando.
+
+⚠️ Nota de precedência que **não** deve ser apagada: a frase original permanece na
+description. Texto publicado não se reescreve — se errata. Quem lê a description vê a
+afirmação de 2026-08-30 **e** a sua correção datada, que é o registro correto do que foi
+afirmado e quando deixou de valer.

@@ -1,9 +1,18 @@
-# efêmeros do depósito e dos readbacks
+# Efêmeros do depósito e dos readbacks da API do Zenodo.
+#
+# ⚠️ Padrões GLOB, não nomes exatos. A lista anterior nomeava
+# `.put-resp.json` / `.publish-resp.json` / `.readback-*.json`, e a errata de
+# 2026-09-08 gerou `.put2-resp.json`, `.publish2-resp.json`, `.readback2.json`,
+# `.draft2-resp.json`, `.live-*.json` e `.metadata-errata2.json` — todos
+# escaparam e apareceram como untracked num repo PÚBLICO. Foram conferidos
+# (sem token, sem campo sensível, sem PII/IP), mas a próxima errata geraria
+# `.put3-resp.json` e o furo voltaria. Padrão, não instância.
 .draft-id
-.metadata-final.json
-.metadata-errata.json
-.readback-*.json
+.draft*-resp.json
+.metadata-*.json
+.readback*.json
 .published-before.json
+.live-*.json
+.put*-resp.json
+.publish*-resp.json
 .description-published.html
-.put-resp.json
-.publish-resp.json

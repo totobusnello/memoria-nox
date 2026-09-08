@@ -2122,6 +2122,25 @@ def comecou_check(root: Path) -> list[str]:
         r"nenhum braço foi atribuído",
         r"zero epochs randomizados",
     )
+
+    # 🔴 Um documento pode CITAR a frase para corrigi-la. Afirmar e citar são coisas
+    # diferentes, e busca de substring não as distingue: quando a errata de 2026-09-08
+    # foi acrescentada à description do Paper A, este guarda passou de 2 para 4 falhas
+    # — ele acusou a própria correção.
+    #
+    # A isenção é de DOCUMENTO (a description corrigida é honesta como um todo, mesmo
+    # com a frase original preservada — texto publicado não se reescreve, se errata),
+    # e o marcador tem de ancorar no FATO MEDIDO, não numa palavra-chave. "Errata" ou
+    # "corrigido" soltos seriam decoração: qualquer documento com a palavra ganharia
+    # passe livre sobre uma alegação genuinamente envelhecida. Exigir o instante da
+    # virada OU a rodada drand torna o passe falsificável — quem não sabe o fato não
+    # consegue escrevê-lo.
+    CORRECAO = re.compile(
+        r"2026-09-01T10:25:39Z"          # instante em que o Epoch 1 virou `active`
+        r"|Epoch 1 entrou em modo"       # a frase da errata, ancorada ao evento
+        r"|rodada 31774052",             # a rodada drand da randomização
+    )
+
     fails: list[str] = []
     for p in sorted(list(root.rglob("*.md")) + list(root.rglob("*.html"))):
         rel = p.relative_to(root).as_posix()
@@ -2130,6 +2149,8 @@ def comecou_check(root: Path) -> list[str]:
         if p.name in DATADOS:
             continue
         texto = p.read_text(encoding="utf-8", errors="replace")
+        if CORRECAO.search(texto):
+            continue                     # documento traz a correção datada e verificável
         for pat in PADROES:
             for m in re.finditer(pat, texto):
                 # tachado ou marcado como superado não conta

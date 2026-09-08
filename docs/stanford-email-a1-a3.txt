@@ -1,0 +1,71 @@
+Para:     yomri@stanford.edu
+Assunto:  arXiv:2606.06448 — phase-attributed memory telemetry from 32 days in production
+
+
+Dear Yasmine Omri,
+
+I read Agent Memory: Characterization and System Implications of Stateful
+Long-Horizon Workloads in full. I run a memory system in continuous production
+and instrumented it along phases close to yours. I am writing to offer the data,
+not to ask for anything.
+
+The overlap is partial, and the difference is why I am writing. We share
+construction and retrieval. We do not measure generation — our telemetry only
+sees calls the memory system itself makes, not the agents' own LLM turns. In
+exchange we attribute a phase your harness does not: maintenance, the stage your
+Section 2.1 defines and then notes is weak or absent in many current systems.
+
+The system serves six agents on a single VPS. Over the 32 complete days from
+7 August, every one of which has data, the shared store logged 3,544 provider
+calls costing USD 0.1352 in total: construction is 3.16% of operations and 55.7%
+of cost, query 94.6% and 30.5%, maintenance 2.3% and 13.8%.
+
+The reason behind that split is more useful than the split, and it is a caution
+about phase-level cost attribution generally. Per thousand input tokens the
+three phases are indistinguishable — 0.000122, 0.000150 and 0.000157 USD. The
+entire difference is input size: 5,500 tokens on an average construction call
+against 82 on a query. And the aggregate rests on very few events. Three digest
+calls, of 142k, 125k and 125k input tokens, are 0.08% of operations and 29.7% of
+all cost; dropping just those three moves construction from 55.7% to 37.0%. Half
+the total spend sits in 31 calls, 0.87% of the series.
+
+I do not think your harness could have surfaced that, and the reason is in your
+protocol rather than your instrumentation: histories are streamed in fixed
+4096-token chunks to match MAB, so the per-call input size distribution is
+constant by construction and cannot exhibit a tail. The Section 4.7 sweep does
+vary input, but along total history size for one user, which is a different axis
+— it moves how much is built, not how unevenly each call is sized. In production
+the two come apart, and phase-level cost tracks the size distribution rather
+than the phase.
+
+Your Recommendation 6 conditions amortization on high-volume query workloads
+against stable histories. Neither condition holds here, so I cannot test it: a
+hundred queries a day is not high volume, and the history is not stable —
+construction only runs when documents change, by design, which lands on 19 of
+the 32 days, maintenance on 11.
+
+Your Recommendation 9 asks operators to add independent pruning or forgetting
+policies, since none of the evaluated systems prune or forget by default. This
+system has one — retention windows typed per content class, salience decay,
+epoch and graph pruning — and, more usefully, the record of it failing: a
+compounding error in the decay drained the knowledge graph from about 21,500
+nodes to 554 before it was diagnosed and recovered.
+
+That policy also puts pressure on one axis of your taxonomy. In Table 1
+mutability travels with agent control: the three systems marked mutate are all
+Paradigm IV. Here the store mutates, deletes, decays and prunes with no LLM in
+the loop — maintenance is deterministic cron. If that is a real position rather
+than a mislabel on my part, mutability and control may be separable axes rather
+than one.
+
+I can share the telemetry as a dataset with its schema. It holds no query text,
+only hashes, so there is nothing to scrub. The forgetting-policy post-mortem
+also exists, if the operational side of Recommendation 9 is of interest. None of
+these numbers appear in the technical report on the system, which predates the
+instrumentation; it is at https://doi.org/10.5281/zenodo.22649269 if the
+architecture is worth a look.
+
+With respect for the work,
+
+Luiz Antonio Busnello
+Independent Researcher
