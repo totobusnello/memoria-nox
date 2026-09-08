@@ -695,6 +695,414 @@ true` nos 28 é a **pré-condição** do teste, não defeito: a objeção que el
 condicionada a isso e o poder do teste fica sem medida. Fechar essa ponta exige gravar
 `boosts_emitidos` por caso — trabalho declarado, não feito.
 
+#### 10.7 O canal de tratamento mudou de composição no meio do ensaio — por conserto
+
+O gatilho de composição (item 7(b)) virou `RED` em **2026-09-08T06:09:04.208Z**, com
+`agent_fresh_elegiveis = 219` (`nox:0 atlas:0 boris:205 cipher:8 forge:6 lex:0`). A
+transição é **única e limpa**: desde a primeira linha do gatilho
+(`2026-08-27T17:55:21.650Z`) todas as execuções horárias anteriores reportaram `0` para
+os seis agentes, sem uma exceção. Este é o alarme que o item 7(b) foi escrito para dar, e
+ele deu — a ameaça que ele vigia é *"a única que muda a escala de dose **durante** o
+estudo, em silêncio"*.
+
+**Não é rajada de trabalho dos agentes. É ingest em bloco.** Os 219 chunks foram criados
+numa janela de **18 minutos**, `2026-09-08 02:19:44` → `02:37:23` (UTC), e a série diária
+de `chunks` com `source_file LIKE 'sessions/%'` no banco vivo mostra corte e volta:
+
+| dia | chunks `sessions/%` criados | passam o piso do canal |
+|---|---:|---:|
+| 2026-08-01 … 08-10 | 67 · 105 · 143 · 55 · 39 · 77 | 44 · 81 · 102 · 39 · 21 · 54 |
+| 2026-08-11 … 09-07 | **0** (28 dias) | **0** |
+| 2026-09-08 | **382** | **253** |
+
+**Causa: o conserto do `session-distill` em 2026-09-07** — a migração da VPS havia movido
+o endereço *e* o schema dos transcripts, e o cron reportava `ok` com `exit 0` por 28 dias
+imprimindo `No unprocessed sessions found`. Consertado o parser, o distill foi rodado
+**à mão** naquela noite. **Não existe entrada de cron para ele** — conferido no
+`crontab -l` completo da VPS, onde estão os 30 jobs de manutenção e os dois gatilhos do
+P2, e nenhum `distill`.
+
+Este é o **segundo passo** do descongelamento descrito em §10.5, e não o mesmo. Lá o
+conserto de `nox-mem-watch.sh` (2026-09-07T14:06:13Z) reencheu o sub-pool **global**
+(`memory/entities/%`, `lessons.md`) — e o gatilho de composição seguiu reportando `0`,
+porque ele mede `sessions/<agente>/%`, que é a outra perna. O `agentFresh` só deixou de
+ser vazio com o distill, ~12 h depois.
+
+##### Por que isto atinge o desenho, e não só o corpus
+
+`interleaveFresh(agentFresh, globalFresh)` era **função-zero** — `interleaveFresh([], g)
+=== g`, todo o canal era o sub-pool global. Toda a calibração de dose de 27/08 (a
+distribuição de `w_min`, o teto de 17/350) foi medida **nesse** regime. Com `agentFresh`
+povoado, `interleaveFresh` passa a intercalar de fato, e o `w_min` de qualquer estado
+afetado deixa de valer. Não é ruído a tolerar: é a premissa da calibração caindo, que é
+exatamente o texto que o gatilho imprime como ação.
+
+E a mudança não pegou um epoch de controle:
+
+| fato | valor | fonte |
+|---|---|---|
+| epoch de **2026-09-08** | **`treatment`, `w = 2,0`** | `ASSIGNMENT-SERVING.json` |
+| abertura do epoch | `09:00Z` | fronteira `epochInicioISO` |
+| entrada dos chunks | `02:19Z`–`02:37Z` | `created_at` |
+| snapshot que os capturou | `e20260908T060004Z.db` (`06:00Z`) | `current.db` |
+
+Isto é, o epoch de hoje é o **primeiro epoch de tratamento servido com o canal
+intercalado**, e ele foi servido inteiro nesse regime — a ordem dos três horários não
+deixa ambiguidade.
+
+##### O regime é transitório, e a data de saída está cravada
+
+`freshMaxAgeDays = 7`, e os **253** chunks elegíveis de `sessions/%` têm todos
+`source_date = '2026-09-08'` ⇒ deixam de passar o predicado em **2026-09-15 00:00:00Z**,
+todos no mesmo instante. Sem cron para o distill, `agentFresh` volta a vazio ali.
+
+⚠️ **A primeira versão deste parágrafo errou o conjunto de epochs**, e o erro tem forma
+reconhecível: derivei a expiração com `date(…, '+7 days')`, que devolve **2026-09-15**, e
+tratei o dia como se o epoch daquela data estivesse dentro. O predicado é
+`julianday('now') − julianday(source_date) <= 7` — **com hora** —, `source_date` é
+meia-noite, e os epochs abrem às **09:00Z**. Logo o epoch `09-15`
+(`[09-15T09:00Z, 09-16T09:00Z)`) começa **9 h depois** da expiração e está **inteiro** no
+regime antigo. Resolução de dia contra fronteira de nove horas: mesma família de
+"número certo, população errada".
+
+Medido corretamente, o regime `[2026-09-08T02:19Z, 2026-09-15T00:00Z)` cobre:
+
+| epoch | braço | dose | cobertura pelo regime novo |
+|---|---|---:|---|
+| 2026-09-08 | treatment | 2,0 | inteiro |
+| 2026-09-09 | treatment | 2,0 | inteiro |
+| 2026-09-10 | control | 0 | inteiro |
+| 2026-09-11 | control | 0 | inteiro |
+| 2026-09-12 | treatment | 4,0 | inteiro |
+| 2026-09-13 | control | 0 | inteiro |
+| 2026-09-14 | treatment | 4,0 | **parcial** — 15 h de 24 |
+| 2026-09-15 | treatment | 4,0 | **nenhuma** |
+
+São **7 epochs de 234**: 3 de tratamento inteiros, 1 de tratamento **atravessado pela
+fronteira** e 3 de controle. O `09-14` é heterogêneo por dentro, como o Epoch 1 (§10.1) e
+o `09-03` (§10), e herda a mesma questão de tratamento.
+
+⚠️ **E o regime novo não exercita a dose alta.** As doses cobertas são `{2,0; 2,0; 4,0}`
+inteiras mais `{4,0}` parcial — **nenhum epoch de `w = 7,5`** cai dentro. A curva
+dose-resposta no regime novo tem, no máximo, **dois** pontos de dose, e o teto do desenho
+não é tocado. Qualquer afirmação sobre "a dose no regime intercalado" fica limitada a
+`w ∈ {2,0; 4,0}`.
+
+⚠️ **Um dos números começou como reconstrução minha e foi remedido contra o fonte.** Os
+`219` são do gatilho, que lê os limiares de `DIVERSITY_DEFAULTS` no `dist` e confere as
+duas cláusulas do predicado contra `src/api/brief.ts` antes de medir — e o valor que eu
+havia reconstruído à mão para os seis agentes bate com ele, o que valida os patterns de
+sessão. Para o sub-pool global eu tinha escrito `%lessons.md`, mais frouxo que o real: o
+literal é `GLOBAL_FRESH_PATTERNS = ["memory/entities/%", "memory/lessons.md"]`, e o
+`replay-oportunidade.mjs` o **extrai do fonte e aborta se divergir**, em vez de confiar na
+cópia. Remedido com o pattern exato, o sub-pool global dá **60** — o mesmo número, aqui
+por coincidência de conteúdo, não por os patterns serem equivalentes.
+
+Um terceiro número que o gatilho **não** conta e que não é defeito dele: **34** chunks
+elegíveis em `sessions/main/%`. `main` não é um dos seis agentes do ensaio, e o gatilho
+vigia os seis.
+
+##### O mecanismo é derivável do código, e a direção não é a intuitiva
+
+`interleaveFresh(a, b)` é alternância estrita — `a[0], b[0], a[1], b[1], …`, com
+deduplicação por `row.id` —, `a` é o `agentFresh` e `b` o `globalFresh`. Duas
+consequências caem direto disso:
+
+1. **Nada é cortado por teto.** `FRESH_CANDIDATE_POOL = 400` e o canal passou de `0 + 60`
+   para `219 + 60 = 279`. O pool continua cabendo inteiro; o que mudou não é *quem entra*.
+2. **A posição de cada candidato global no `freshPool` passou de `i` para `2i + 1`.** Com
+   `agentFresh` vazio, `interleaveFresh([], b) === b` e o i-ésimo global ficava na posição
+   `i`. Com 219 à frente na alternância, ele vai para `2i + 1` — a distância até os
+   `freshSlots` **dobra**.
+
+⚠️ **E os 19 chunks designados são todos do sub-pool global** (`memory/entities/%`,
+criados no lote único de `2026-08-21 22:51:23`). Logo a derivação prevê que a mesma dose
+alcance **menos**, não mais: o boost tem o dobro de distância para cobrir. Se essa
+previsão se confirmar, a mudança de canal **reduz** a exposição do tratamento — o
+contrário do que "o canal ficou mais rico" sugere.
+
+Isto está escrito como **derivação sobre o código, não como resultado**. A posição na
+ordem de entrada do `freshPool` não é necessariamente a grandeza que decide o pick, e
+"reconstrução que modela regra que o código nunca aplica" é defeito já cometido três vezes
+neste projeto. A medição que decide está descrita abaixo.
+
+##### A medição, e o que dela ficou impossível
+
+⚠️ **A âncora de 27/08 não é reproduzível.** A distribuição publicada (`w_min` mín 0,02 ·
+mediana 1,7 · máx 4,4, espalhamento 220×; teto 17/350 = 4,86%) foi medida sobre o snapshot
+de corpus daquele dia, e `/var/lib/nox-mem/epochs/` tem hoje **16 manifests e 3 `.db`** —
+os snapshots antigos foram podados, como já ocorreu no §10.6. Logo **não existe** a
+comparação "mesma janela, corpus de 27/08 contra corpus de hoje": qualquer diferença
+contra aquele número confundiria mudança de corpus com mudança de janela.
+
+O que ainda é possível, e é mais limpo que o delta histórico, é um **contraste interno com
+a janela fixa**:
+
+| corpus | `agentFresh` | `globalFresh` | chunks de sessão |
+|---|---:|---:|---:|
+| **C3** — produção, `e20260908T060004Z.db` | **219** | 60 | 14.838 |
+| **C2** — C3 menos os 382 ingeridos em 08/09 | **0** | 60 | 14.456 |
+
+C2 não é um snapshot antigo: é C3 com os 382 chunks removidos, e por isso difere de C3
+**apenas** naquilo que se quer isolar. Duas conferências antes de rodar: `14.838 − 382 =
+14.456` é **exatamente** a contagem de sessões do snapshot real de 2026-09-07, o que prova
+que os 382 são todos novos e **nenhum substituiu** versão anterior; e `global_elegivel`
+fica em 60 nos dois, `quick_check = ok`.
+
+⚠️ **Por que o snapshot real de 07/09 NÃO serve como braço de comparação.** Ele é de
+`06:00Z`, anterior ao conserto do watcher das `14:06Z`, e tem `global_elegivel = 0`.
+Usá-lo misturaria o reenchimento do pool global (§10.5) com o do `agentFresh` (este item)
+— dois fatores num contraste de dois pontos, que é a forma de não medir nenhum dos dois.
+
+A rodada usa o próprio gatilho de saturação (que já carrega o `sha256` do recorte e o
+cruzamento designado × servido), com `--epoch 2026-09-06` e a janela
+`[2026-09-06T09:00:00Z, 2026-09-07T09:00:00Z)`, `n_janela = 672` — reproduzido, igual ao
+que o gatilho publicou. **Grava em arquivos próprios**, nunca no
+`status-saturacao.txt` nem no `gatilhos.ndjson` de produção: rodada de medição
+contaminando a série de vigilância é o defeito que este repositório já carrega no nome de
+`p2-write-path.CONTAMINADO-por-verificacao-20260818.ndjson`.
+
+##### A regra de tratamento, FECHADA em 2026-09-08 sem que desfecho algum fosse consultado
+
+> **Precedência.** Decidida em **2026-09-08**, no oitavo epoch do ensaio. Nenhum desfecho
+> foi computado, consultado ou estimado antes desta decisão. O que foi medido para decidir
+> é **exclusivamente estrutura de exposição** — contagens de candidatos elegíveis por
+> sub-pool, posição na ordem do `freshPool`, e quantos estados **mudam de conteúdo** no
+> brief (`mexeu`/`churn_total`) sob doses contrafactuais. A densidade de falhas repetidas,
+> que é o desfecho, **não foi tocada**. Confere-se pelo `git log` que este parágrafo
+> antecede qualquer artefato de desfecho no repositório.
+
+✅ **A decisão reusa a estrutura já registrada, em vez de criar uma paralela** — o mesmo
+fundamento que fechou o Epoch 1 (§10.1). O `PREREG-DRAFT.md` §"Mandatory ITT co-estimate"
+determina que o *primary* seja reportado ao lado de um co-estimador ITT sobre todos os
+epochs pós-washout **sem exclusão de cobertura alguma**, com concordância como força da
+alegação e divergência reportada como está, não adjudicada a favor de nenhuma das duas.
+
+**Nenhum epoch sai.** Os 7 epochs do regime intercalado entram no *primary* e no
+co-estimador ITT, no braço e na dose designados. **Acrescenta-se uma terceira análise,
+pré-especificada aqui:** o mesmo par de estimativas com os epochs do regime novo
+excluídos, sob a mesma regra do §1042.
+
+**Por que não descartar — e a razão é viés, não poder.** Duas coisas, medidas:
+
+1. **Excluir seria seleção correlacionada com o mecanismo.** A derivação acima prevê que
+   no regime intercalado a mesma dose alcance **menos**. Se ela se confirmar, os epochs
+   afetados são os de **menor** efeito, e removê-los **infla** a estimativa. É a mesma
+   classe de defeito do §10.4 — onde o replay descartava justamente os briefs em que a
+   dose mordeu — com o sinal trocado. Filtrar por uma variável que o efeito move é vício
+   independentemente da direção.
+2. **O custo estatístico de descartar é desprezível**, logo não compra nada em troca. Com
+   a alocação `117/39/39/39`, os afetados são 2 de 39 em `w = 2,0` e 1 inteiro + 1 parcial
+   de 39 em `w = 4,0`; o erro-padrão inflaria `√(39/37)` = **2,7%**. Como no Epoch 1, a
+   decisão não é sobre poder.
+
+E não há viés a remover em troca: o regime é propriedade do **tempo de calendário** e o
+braço é sorteado sobre o calendário ⇒ covariável balanceada em expectativa, não
+confundidor. É o mesmo argumento que o §10.5 aceitou para o corpus congelado, e ele
+estreita a validade **externa**, não a interna.
+
+##### O indicador de regime é MECÂNICO, não uma lista de datas
+
+O regime entra na análise como indicador por epoch, definido por **medição** e não por
+data escrita à mão: `agent_fresh_elegiveis > 0` na linha
+`p2_gatilho_composicao` do NDJSON, que roda a cada hora e persiste. Para o epoch
+atravessado, a **fração de horas** cobertas.
+
+⚠️ **Isto não é preciosismo: a primeira versão desta seção errou a lista de datas** —
+`date(…, '+7 days')` devolveu `2026-09-15` e eu incluí o epoch daquele dia, que abre 9 h
+**depois** da expiração. Uma lista de datas escrita à mão também não sobrevive ao distill
+rodar de novo; o predicado medido sobrevive. Mesma disciplina do estado vivo que só se lê
+por comando, nunca por lista transcrita.
+
+##### O que fica em aberto, e é decisão operacional, não de análise
+
+Pôr o distill em cron estabiliza o canal no regime intercalado pelos 227 epochs
+restantes; não pôr deixa o canal oscilar por ação manual não registrada, que é pior que
+congelado. A escolha tem **gatilho quantitativo**: se `w = 2,0` continua movendo estados
+no regime intercalado, estabilizar é preferível a oscilar; se `w = 2,0` fica **inerte**,
+estabilizar tornaria um terço dos epochs de tratamento não-informativos pelo resto do
+ensaio, e aí o certo é preservar o regime da calibração até o fim ou emendar as doses —
+o que exigiria a emenda ao pré-registro que hoje está preparada e **não** executada.
+
+#### 10.8 Dois defeitos no gatilho de saturação, achados ao ler o RED de hoje
+
+**(a) `emitir()` não grava o NDJSON — e é por onde saem os alarmes mais valiosos.** A
+função escreve `stdout` e o arquivo de `--status`, e nunca o `--ndjson`. Só o caminho
+normal (o bloco `python3` do veredito) persiste linha. Logo todo veredito que sai por
+atalho — `log-de-serving-ausente`, `assignment-nao-existe`, `assignment-sha256-divergente`,
+`janela-com-n-insuficiente`, `log-diverge-do-assignment`, `epoch-de-controle`,
+`replay-falhou` — fica **apenas** no arquivo de status, que é **sobrescrito** na execução
+seguinte. É perda permanente, não atraso.
+
+Medido: `/var/log/nox-p2-gatilhos.log` tem **12** execuções de `p2-saturacao-da-dose`
+contra **9** linhas `p2_gatilho_saturacao` no `gatilhos.ndjson`, e o NDJSON **não tem
+nenhuma linha de 2026-09-07 nem de 2026-09-08**, embora as duas existam no log e a de
+09-08 esteja no status agora. Entre os motivos que existem só no log de texto está
+`log-diverge-do-assignment` — que o próprio comentário do script chama de *"o alarme mais
+valioso deste script … a única coisa aqui que compara o que devia ser servido com o que
+foi"*. O alarme mais valioso é o que não deixa rastro estruturado.
+
+**Consertado em 2026-09-08, com mutação.** `emitir()` e `morte_por_sinal()` passam a
+gravar uma linha de atalho; a escrita dupla no caminho normal é impedida por uma
+**sentinela** em `$TMP` que o bloco de veredito cria depois de gravar — e não por contagem
+de linhas, porque o `gatilho-composicao.mjs` escreve no **mesmo** NDJSON a cada hora e uma
+rodada de saturação leva ~15 min, de modo que a linha do outro gatilho entraria no meio e
+seria lida como *"já gravei"*.
+
+O registro de atalho **não finge ter os campos do veredito**: `servido`, `absurdo` e
+`folga` saem `null`, com `via: "atalho"` dizendo por quê. Preenchê-los com zero fabricaria
+`mexeu = 0`, isto é `dose-servida-inerte` — precisamente o veredito errado que o §10.4
+documenta ter custado dois dias de RED com o motivo trocado.
+
+Cobertura: `teste-gatilho-active.sh` vai de 12 para **15** casos (T12 atalho grava com
+`via=atalho` e sem campos fabricados; T13 o caminho normal grava **uma** linha com os
+campos reais; T14 o `log-diverge-do-assignment` persiste). **Duas mutações confirmam que
+os casos mordem, e em pontos distintos:** contra a versão pré-patch falham T12 (`n=0`),
+T13 (`via=None`) e T14 (`n=0`), e os 12 antigos seguem verdes; removendo **só** a
+sentinela, falha **apenas** T13, com `n=2 vias=['veredito-de-dose','atalho']`. Produção e
+repo no mesmo `sha256` (`61b56d69aeec…`), 15/15 verdes contra o script implantado; a
+versão anterior ficou em `gatilho-saturacao.sh.pre-ndjson-2026-09-08`.
+
+⚠️ **O que o conserto NÃO recupera.** As linhas dos atalhos já ocorridos estão perdidas —
+o arquivo de status foi sobrescrito. O log de texto (`/var/log/nox-p2-gatilhos.log`)
+guarda as linhas cruas dessas execuções e é a única fonte para elas; qualquer análise da
+série de vereditos anterior a 2026-09-08 tem de ler o log, não o NDJSON, e sabendo que o
+log não é estruturado nem tem garantia de retenção.
+
+**(b) O patch de 2026-09-07 ainda não foi exercitado em produção.** A perna que
+*alarma e preserva* o veredito (§10.4, adendo) entrou em `gatilho-saturacao.sh` às
+**2026-09-07T14:30:14Z** — **5 h depois** do `RED` das `09:12` daquele dia. Aquele `RED`
+saiu da versão anterior, a que **abortava**, e é por isso que ele não carrega
+`veredito_dose=`, `mexem_*` nem `folga=` na linha, e que não há linha dele no NDJSON. Da
+implantação até agora o gatilho rodou **uma** vez, em `2026-09-08T09:12:01Z`, sobre o
+epoch `2026-09-07` de **controle** — que sai por atalho, antes do bloco que a perna nova
+habita.
+
+⚠️ **Consequência de leitura, e ela é a armadilha:** o `RED` de 09-07 saiu do morning
+report de hoje substituído por um `GREEN`, e o `GREEN` é
+`motivo=epoch-de-controle-sem-dose-a-saturar semantica=pergunta-indefinida-nao-verificada`
+— isto é, **verde por pergunta indefinida, não por defeito resolvido**. O `faltam=1` de
+09-06 (o brief com 1 linha de 10 em `2026-09-06T23:07:02.425Z`) e o veredito `SATURADO`
+que ele encobria continuam onde estavam. Um epoch de controle limpando um `RED` de
+tratamento do painel é a mesma família do guarda que fica calado por não ter o dado.
+
+#### 10.9 Reingestão por arquivo mata a identidade dos chunks servidos — a auditoria de janela tem meia-vida
+
+Achado em 2026-09-08 ao conferir se o corpus cobria a janela **antes** de rodar a medição
+do §10.7. Ele a cancelou, e vale mais que ela.
+
+**Medido.** Dos **141** `chunk_id` distintos que o canal serviu na janela do epoch
+`2026-09-07`, **53** já não existem no banco vivo — todos de `memory/lessons.md`, ids
+**contíguos** `308444..308496`, todos com `created_at 2026-08-22 02:01:58`. O arquivo
+reaparece com **60** chunks em ids **novos**, `309034..309093`,
+`created_at 2026-09-07 23:01:36`.
+
+| snapshot | `memory/lessons.md` | ids |
+|---|---:|---|
+| `e20260906T060001Z` | 53 | `308444..308496` |
+| `e20260907T060001Z` | 53 | `308444..308496` |
+| `e20260908T060004Z` | **60** | **`309034..309093`** |
+| banco vivo (agora) | 60 | `309034..309093` |
+
+Isto é **reingestão de arquivo**, não perda de dados: o conteúdo permanece, a
+**identidade** muda. O ingest apaga os chunks daquele `source_file` e cria outros. Uma
+única reingestão em 16 dias — a taxa é baixa, o evento é destrutivo para a auditoria.
+
+##### O efeito é sobre o que se pode REPRODUZIR, e ele é grande
+
+O replay localiza cada estado pelos ids que o log de serving registrou. Ids mortos ⇒
+estados não localizáveis ⇒ o brief vira `erro` e **sai da população antes do laço de
+doses**:
+
+| janela | briefs | com ao menos um id morto |
+|---|---:|---:|
+| epoch 2026-09-05 | 672 | **400 (59,5%)** |
+| epoch 2026-09-06 | 672 | **436 (64,9%)** |
+| epoch 2026-09-07 | 672 | **440 (65,5%)** |
+
+⚠️ **Por isso a medição do §10.7 foi abortada em vez de concluída.** Ela ia gastar ~30 min
+para produzir um veredito de dose sobre ~35% da população, com a perda concentrada
+justamente nos estados que a dose alcança — o viés anticorrelacionado com o efeito que o
+§10.4 documenta. Um número assim é pior que nenhum: parece resultado.
+
+**A consequência de método, e ela vai ao paper:** a auditoria de uma janela tem **meia-vida
+curta**. O `gatilho-saturacao.sh` roda 09:12Z, 12 min após o fecho do epoch, e é por isso
+que ele funciona; **re-análise retroativa de uma janela é impossível** depois da primeira
+reingestão dos arquivos do canal. O `run-saturacao.sh` já declara uma aproximação vizinha
+("um dia UTC atravessa DOIS corpora e este replay usa um só"), mas essa nota é sobre
+**qual** corpus escolher, não sobre o corpus **deixar de conter** o que a janela referencia.
+
+##### Uma causa registrada neste documento que a medição NÃO reproduz
+
+O §10.4 atribui o `faltam=1` do epoch `2026-09-06` a *"UM brief com escrita incompleta no
+`brief_log` (1 linha de 10, em `2026-09-06T23:07:02.425Z`)"*. Medido agora, **não se
+sustenta**:
+
+- agrupando por **`brief_id`** — a chave certa —, a janela tem **672 briefs, todos com
+  exatamente 10 linhas**, zero `brief_id` nulo, zero fora de 10;
+- os dois contadores que a perna `estados != n_janela` compara **não** divergem por
+  critério: `p2_outcome` na janela = **672**, e com `ids_controle.length == 10` = **672**;
+- e a reingestão de `lessons.md` (23:01:36 de 07/09) é **14 h posterior** ao gatilho que
+  emitiu o `faltam=1` (09:12Z de 07/09) — no snapshot que ele usou, os 141 ids estavam
+  **todos** presentes (0 ausentes, conferido).
+
+Fica **sem causa confirmada**, e é assim que entra no registro. Trocar uma hipótese não
+verificada por outra minha seria o mesmo defeito com outro nome.
+
+⚠️ **Armadilha de medição no caminho, que quase virou um número falso.** Agrupei
+primeiro por `served_at` e obtive uma distribuição com 12 grupos "anômalos" (n = 1, 2, 11,
+12, 18, 19). Não há anomalia alguma: `served_at` tem resolução de **segundo** e colide
+entre briefs distintos. A chave é `brief_id`, que existe na tabela. Chave de agrupamento
+errada fabrica anomalia.
+
+##### O risco que isto expôs, e que não tinha guarda nenhum
+
+Os **19 designados estão íntegros** — conferido em quatro corpora, 19/19 em vivo, 06/09,
+07/09 e 08/09. Eles vivem em **19 arquivos DISTINTOS** de `memory/entities/lessons/`, um
+chunk designado por arquivo, todos do lote `2026-08-21 22:51:23`, **nunca reingeridos**.
+
+Mas a reingestão é **por arquivo**. Editar um daqueles 19 mata aquele designado, e a
+designação — sorteada uma vez, com semente pública, e que **não se refaz** — quebra **em
+silêncio**. Nada vigiava isso.
+
+**Implantado 2026-09-08: `gatilho-designados.mjs`**, cadência horária no minuto `:24`, lido
+pelo `morning-report.sh` com teto de 3 h. Duas pernas, porque uma não cobre a outra:
+
+1. **ausência** de um id ⇒ `RED` com a lista — é o que a reingestão produz;
+2. **deriva** com id vivo (`sha256` do `chunk_text`, ou o `source_file`, diferente do
+   baseline) ⇒ `YELLOW` — um `UPDATE` no mesmo id altera o alvo e deixa a perna 1 calada,
+   que é a forma de defeito da regra 9 do `CLAUDE.md`.
+
+O **baseline é imutável**: o guarda cria se não existir e **nunca** sobrescreve — uma
+referência reescrita pelo próprio guarda o faria comparar o estado corrompido consigo
+mesmo e dizer `GREEN` para sempre. Baseline criado em `2026-09-08T14:51:49Z`, 19/19,
+`sha256 = e43fbc9076fdd91f2d24a5fe8b008aca1eb3a5f61b31724529d90312bdfedeaa`. Trocá-lo
+exige ação humana explícita.
+
+Cobertura: `teste-gatilho-designados.sh`, **12** casos, com quatro mutações conferidas
+(ausência, deriva, imutabilidade do baseline, conferência de `sha256` do DESIGNATION).
+
+⚠️ **Uma delas corrigiu o próprio teste.** A mutação "baseline passa a ser sobrescrito"
+deixava `T3b` e `T7b` **verdes** — os dois casos que eu havia escrito justamente para
+proteger a imutabilidade. Motivo: nos dois há **ausência**, e o bloco de criação recusa
+criar sobre estado quebrado, então o baseline fica intacto de qualquer forma. O caso que
+prova a imutabilidade é outro — deriva detectada e **segunda** execução ainda `YELLOW`
+(`T10`) —, e com ele a mutação passa a derrubar 5 casos. Teste que morde a mutação **pelo
+motivo errado** não protege o que se pensa.
+
+##### E uma regra de calibração que estava invertida no `morning-report.sh`
+
+O comentário que fixa o teto de idade dizia *"Se der < 1, o guarda esta CEGO"*, e
+**contradiz os dois exemplos que ele mesmo dá três linhas abaixo**. Computado:
+
+| gatilho | teto | idade normal | intervalo | `rodadas_toleradas` | 1 falha | o comentário chama de |
+|---|---:|---:|---:|---:|---|---|
+| saturação 09:12Z | 30 h | 21,3 h | 24 h | **0,36** | 45,3 h ⇒ dispara | OK |
+| saturação 05:41Z | 30 h | 0,8 h | 24 h | **1,22** | 24,8 h ⇒ silêncio | CEGO |
+
+Cego ⟺ `rodadas_toleradas ≥ 1`, o inverso do que estava escrito. Quem calibrasse pela
+regra, e não pelos exemplos, escolheria o teto ao contrário. Corrigido no mesmo dia.
+
 ## Se a decisão mudar
 
 A máquina do depósito está pronta e **não executada**: `deposit/PLAN-v1.13.md` e

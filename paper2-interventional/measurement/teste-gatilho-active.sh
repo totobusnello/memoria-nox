@@ -177,6 +177,81 @@ else
   echo "FALHA T11 janela completa"; echo "      obtido: $L11"; FALHAS=$((FALHAS + 1))
 fi
 
+# ── T12: veredito por ATALHO grava linha no NDJSON (§10.8, achado 2026-09-08).
+#        Antes do patch este caso produzia ZERO linhas: `emitir()` escrevia
+#        `stdout` e o `--status`, nunca o `--ndjson`. Exige a linha E o `via`, E
+#        que `servido/absurdo/folga` sejam `null` — preenchê-los com zero
+#        fabricaria `mexeu = 0`, isto é `dose-servida-inerte`, que é o veredito
+#        errado que o §10.4 documenta ter custado dois dias de RED trocado.
+assign "$T/c12.json" "$E" control 0
+SHA_C12="$(sha256sum "$T/c12.json" | cut -d' ' -f1)"
+log_sintetico "$T/log12.ndjson" "$E" active 0 controle 40
+: > "$T/nd12.ndjson"
+L12="$(roda --modo active --log "$T/log12.ndjson" --assignment "$T/c12.json" \
+        --assignment-sha256 "$SHA_C12" --ndjson "$T/nd12.ndjson")"
+V12="$(python3 - "$T/nd12.ndjson" <<'PYT'
+import json, sys
+ls = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+if len(ls) != 1: print(f"n={len(ls)}"); raise SystemExit
+o = ls[0]
+nulos = all(o.get(k) is None for k in ("servido", "absurdo", "folga"))
+print(f'n=1 via={o.get("via")} motivo={o.get("motivo")} arm={o.get("arm")} nulos={nulos}')
+PYT
+)"
+if [[ "$L12" == GREEN* ]] && [[ "$V12" == "n=1 via=atalho motivo=epoch-de-controle-sem-dose-a-saturar arm=control nulos=True" ]]; then
+  echo "ok   T12 atalho grava NDJSON com via=atalho e sem campos de dose fabricados"
+else
+  echo "FALHA T12 atalho no NDJSON"; echo "      status: $L12"; echo "      ndjson: $V12"
+  FALHAS=$((FALHAS + 1))
+fi
+
+# ── T13: controle de T12 — o caminho NORMAL grava UMA linha, não duas.
+#        `emitir()` é chamado depois do bloco de veredito, que já gravou; sem a
+#        sentinela em `$TMP` o caminho normal sairia duplicado, uma vez
+#        estruturado e uma vez com `servido: null`. Casar só por "existe linha"
+#        deixaria a duplicação passar, e um NDJSON com dois registros do mesmo
+#        instante é pior que um registro faltando: os dois discordam.
+: > "$T/nd13.ndjson"
+L13="$(roda --modo active --log "$T/log10.ndjson" --assignment "$T/a.json" \
+        --assignment-sha256 "$SHA" --ndjson "$T/nd13.ndjson")"
+V13="$(python3 - "$T/nd13.ndjson" <<'PYT'
+import json, sys
+ls = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+if len(ls) != 1: print(f"n={len(ls)} vias={[x.get('via') for x in ls]}"); raise SystemExit
+o = ls[0]
+print(f'n=1 via={o.get("via")} tem_servido={o.get("servido") is not None} folga={o.get("folga") is not None}')
+PYT
+)"
+if [[ "$L13" == GREEN* ]] && [[ "$V13" == "n=1 via=veredito-de-dose tem_servido=True folga=True" ]]; then
+  echo "ok   T13 caminho normal grava UMA linha, com os campos de dose reais"
+else
+  echo "FALHA T13 escrita dupla ou campos ausentes"; echo "      status: $L13"; echo "      ndjson: $V13"
+  FALHAS=$((FALHAS + 1))
+fi
+
+# ── T14: o atalho mais valioso do script é o que tem de deixar rastro.
+#        `log-diverge-do-assignment` é, pelas palavras do cabeçalho do gatilho,
+#        "a única coisa aqui que compara o que devia ser servido com o que foi" —
+#        e era um dos que só existiam no log de texto. T3 já cobre o veredito;
+#        este cobre a PERSISTÊNCIA dele.
+: > "$T/nd14.ndjson"
+log_sintetico "$T/log14.ndjson" "$E" active 4 controle 40
+L14="$(roda --modo active --log "$T/log14.ndjson" --assignment "$T/a.json" \
+        --assignment-sha256 "$SHA" --ndjson "$T/nd14.ndjson")"
+V14="$(python3 - "$T/nd14.ndjson" <<'PYT'
+import json, sys
+ls = [json.loads(l) for l in open(sys.argv[1]) if l.strip()]
+print(f'n={len(ls)} estado={ls[0].get("estado") if ls else None} motivo={ls[0].get("motivo") if ls else None}')
+PYT
+)"
+if [[ "$L14" == RED* ]] && [[ "$V14" == "n=1 estado=RED motivo=log-diverge-do-assignment" ]]; then
+  echo "ok   T14 log-diverge-do-assignment persiste no NDJSON"
+else
+  echo "FALHA T14 alarme mais valioso sem rastro"; echo "      status: $L14"; echo "      ndjson: $V14"
+  FALHAS=$((FALHAS + 1))
+fi
+
+
 echo
 [ "$FALHAS" -eq 0 ] && echo "TODOS OS CASOS PASSARAM" || echo "$FALHAS CASO(S) FALHARAM"
 exit 0
