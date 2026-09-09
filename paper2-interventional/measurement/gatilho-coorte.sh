@@ -220,7 +220,9 @@ BASE="corpus=$(basename "$CORPUS") pool_global=$POOL nunca_servidos=$NUNCA fresh
 
 case "$PERNA" in
   corpus-ilegivel|vivo-ilegivel|pool-vazio)
-    emitir YELLOW "motivo=$PERNA detalhe=$(le extra) corpus=$(basename "$CORPUS")" ;;
+    # `basename` de um caminho /proc/PID/fd/N é só o número, inútil num guarda
+    # de proveniência — nesta perna vale o argumento inteiro.
+    emitir YELLOW "motivo=$PERNA detalhe=$(le extra) corpus=$CORPUS" ;;
   canal-alcancavel)
     emitir GREEN "motivo=canal-alcancavel semantica=nunca-servidos-abaixo-dos-slots-logo-a-dose-tem-como-morder $BASE" ;;
 esac

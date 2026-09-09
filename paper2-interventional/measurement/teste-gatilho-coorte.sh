@@ -186,16 +186,27 @@ fi
 # ABRE com sucesso e apresenta banco VAZIO (`sqlite_master` = 0 objetos) — logo
 # uma consulta a `chunks` falha com `no such table`, e o veredito `corpus-ilegivel`
 # sairia por ACIDENTE, não por desenho. Um probe escrito
-# `SELECT count(*) FROM sqlite_master` passaria calado. E uma ESCRITA por esse
-# caminho cria arquivo real no disco com o nome do texto do symlink, sufixo
-# incluído: `real.db (deleted)`, 8192 B, banco válido — em produção seria dentro
-# de `/var/lib/nox-mem/epochs/`, o diretório do ensaio.
+# `SELECT count(*) FROM sqlite_master` passaria calado.
+#
+# 🔴 E o `connect()` SOZINHO — sem query, sem `INSERT`, sem `commit` — MATERIALIZA
+# arquivo no disco, porque o modo padrão de abertura é read-write-CREATE. O nome
+# é o texto do symlink, sufixo incluído: `orig.db (deleted)`, banco válido. Em
+# produção isso nasceria dentro de `/var/lib/nox-mem/epochs/`, o diretório do
+# ensaio, disparado por um guarda estritamente READ-ONLY.
+#
+# ⚠️ Correção de 2026-09-09, e as duas sessões erraram a mesma atribuição antes:
+# escrevemos "é a escrita que cria". NÃO É. Isolado em três etapas contra o
+# mesmo fd, com a listagem impressa DEPOIS DE CADA UMA e o diretório limpo entre
+# elas: `file:…?mode=ro` → exceção, listagem `[]`; `connect(p)` sem query →
+# nenhuma exceção, listagem `[orig.db (deleted)]`; `connect(p)` + SELECT → `no
+# such table`, listagem igual. A atribuição anterior vinha de inferir causa da
+# ORDEM da saída, sem listagem intermediária — medição que não discriminava.
 #
 # ⇒ (ii) exige que a recusa venha do MODO DE ABERTURA (`file:…?mode=ro` falha
-#   ALTO, "unable to open database file") e não de tabela ausente. Sem ela,
-#   trocar `ro()` por `connect()` simples passa em todos os outros casos.
-# ⇒ (iii) é asserção de EFEITO COLATERAL: nenhuma perna pode materializar
-#   arquivo no diretório do fd. A suíte não tinha nenhuma asserção desta classe.
+#   ALTO, "unable to open database file") e não de tabela ausente.
+# ⇒ (iii) e (iv) são asserções de EFEITO COLATERAL — as primeiras desta suíte.
+#   Medido: sob `ro()` → `connect(p)` as TRÊS morrem (a listagem passa de `[]`
+#   para `[ap.db (deleted)]`), não só a (ii).
 python3 - "$T/epocas" <<'PYD' >/dev/null 2>&1 &
 import os, sqlite3, sys, time
 d = sys.argv[1]
