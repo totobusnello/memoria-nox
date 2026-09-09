@@ -71,7 +71,20 @@ LIMITADOR = re.compile(
 
 # Séries vivas: números que envelhecem sozinhos. O grafo de KG deste projeto já
 # drenou de ~21,5k para 554 por bug de decay — o número no paper não mudou.
-SERIE_VIVA = re.compile(r"94\.9k|15\.6k|21\.5k|99\.99%|67[.,]187|69[.,]261")
+# ⚠️ 2026-09-09: esta regex era DECORAÇÃO para o número mais citado do paper. Ela
+# casava `94.9k`, forma que o paper NÃO usa: o texto escreve `~95k` (2×) e `94,936`
+# (1×), e `grep -c '94\.9k'` no manuscrito dava **zero**. Os 8 guardas passavam com o
+# defeito presente em três sítios — e um deles atribuía o mesmo número a duas
+# populações incompatíveis (main store em L178, soma dos 7 bancos em L1280).
+# Ancorar em UMA grafia de um número que a prosa escreve de três formas é a mesma
+# classe do guarda que busca substring e não encontra porque o texto diz o mesmo com
+# outras letras. Agora casa as três grafias, mais os valores medidos que as
+# substituem — porque estes também são série viva e vão envelhecer igual.
+SERIE_VIVA = re.compile(
+    r"94\.9k|~?95k|94[.,]936"          # o corpus, nas três grafias usadas
+    r"|67[.,]724|79[.,]220"             # medidos 2026-09-09; série viva também
+    r"|15\.6k|21\.5k|99\.99%|67[.,]187|69[.,]261"
+)
 DATADO = re.compile(r"as of|20\d\d-\d\d-\d\d")
 
 # IDs arXiv citados inline que ainda não têm entrada bibliográfica.
@@ -455,6 +468,87 @@ def aritmetica_check(root: Path) -> list[str]:
     return fails
 
 
+# Populações que uma contagem de corpus pode descrever. Nomeadas explicitamente
+# porque a diferença entre elas NÃO aparece na prosa: "the corpus is N chunks" é a
+# mesma frase em inglês para o banco principal e para a soma dos sete.
+POPULACAO = {
+    "main_store": re.compile(r"main store|main DB|main database|principal", re.I),
+    "soma_dos_7": re.compile(r"across (?:all )?(?:the )?\d+ databases|summed across|"
+                             r"soma dos|combined across", re.I),
+    "por_agente": re.compile(r"per[- ]agent|each agent|por agente", re.I),
+}
+
+
+def populacao_check(root: Path) -> list[str]:
+    """A MESMA contagem não pode ser atribuída a duas populações diferentes.
+
+    ⚠️ Este guarda existe porque o `serie_viva_check` não alcança o defeito: ele
+    pergunta "a frase tem data?", e **data não torna a população certa**. Em
+    2026-09-09 o paper dizia `~95k` do *main store* (L178) e `~95k` *across 7
+    databases* (L1280) — a segunda COM data, logo aprovada. As duas não podem ser
+    ambas verdadeiras: medido no mesmo dia, main store = 67.724 e soma dos 7 =
+    79.220, uma diferença de 11.496.
+
+    É a classe "número certo carregado por frase errada": o erro não está no número
+    nem na data, está na atribuição — e por isso nem releitura nem o guarda de data
+    o pegam. Artefato: `paper/measurement/out/censo-corpus-2026-09-09.json`.
+
+    ⚠️ FALSO POSITIVO CORRIGIDO na primeira corrida contra o texto já consertado: a
+    versão inicial casava o PRIMEIRO número da frase com TODOS os marcadores dela, e
+    acusava justamente a frase que DISTINGUE as populações ("79,220 summed across 7
+    databases — 67,724 of them in the main store"). Essa frase é a correta, e o
+    guarda a chamava de defeito. Instrumento enviesado num sentido só é o pior caso,
+    porque a direção do viés é a da conclusão forte — aqui, acusar. Agora cada número
+    fica com o texto até o número seguinte: a população de uma contagem é declarada
+    JUNTO a ela, não em qualquer lugar da frase.
+    """
+    fails = []
+    visto: dict[str, dict[str, int]] = {}
+    for ln, linha in _linhas_de_prosa((root / PAPER).read_text()):
+        for f in _frases(linha):
+            achados = list(SERIE_VIVA.finditer(f))
+            if not achados:
+                continue
+            # Corte no PONTO MÉDIO entre números vizinhos. Nem "texto antes" nem
+            # "texto depois" serve: em inglês o marcador aparece dos dois lados —
+            # "the main store measured N" e "N of them in the main store". Cortar
+            # só à frente atribuiu "summed across 7 databases" ao número errado na
+            # segunda corrida; o ponto médio deixa cada marcador com o número mais
+            # próximo, que é o que a prosa significa.
+            for i, m in enumerate(achados):
+                centro = (m.start() + m.end()) // 2
+                if i > 0:
+                    ant = achados[i - 1]
+                    ini = (centro + (ant.start() + ant.end()) // 2) // 2
+                else:
+                    ini = 0
+                if i + 1 < len(achados):
+                    prox = achados[i + 1]
+                    fim = (centro + (prox.start() + prox.end()) // 2) // 2
+                else:
+                    fim = len(f)
+                seg = f[ini:fim]
+                # ⚠️ A chave e' NORMALIZADA, nao o texto casado. A primeira versao
+                # usava `m.group(0)` cru, e por isso `~95k` e `95k` eram chaves
+                # DIFERENTES: a mesma grandeza escrita de duas formas nunca colidia,
+                # e a mutacao que insere "~95k across 7 databases" passou incolume
+                # com "main store near 95k" ja no texto. Achado pela suite de
+                # mutacao, nao por leitura -- guarda cuja chave e' a grafia mede
+                # grafia, nao grandeza.
+                chave = m.group(0).lstrip("~").replace(",", "").replace(".", "")
+                for nome, rx in POPULACAO.items():
+                    if rx.search(seg):
+                        visto.setdefault(chave, {}).setdefault(nome, ln)
+    for num, pops in visto.items():
+        if len(pops) > 1:
+            onde = ", ".join(f"{k}:L{v}" for k, v in sorted(pops.items(), key=lambda x: x[1]))
+            fails.append(
+                f"{PAPER}: `{num}` atribuído a {len(pops)} populações diferentes "
+                f"({onde}) — uma contagem descreve UMA população"
+            )
+    return fails
+
+
 GUARDAS = [
     fence_check,
     superlativo_check,
@@ -464,6 +558,7 @@ GUARDAS = [
     serie_viva_check,
     dependentes_check,
     aritmetica_check,
+    populacao_check,
 ]
 
 
