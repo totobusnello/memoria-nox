@@ -2608,8 +2608,16 @@ do p2 anexam ao **mesmo** `gatilhos.ndjson`, cada um com seu `tag`. Distribuiç�
 | `p2_gatilho_coorte` | 12 / 4 | 3 / 2 |
 | `p2_restart_realinha` | 4 | 2 |
 
-⇒ **a forma de 4 chaves está viva em `corpus_alinhado` (27 linhas) e `heartbeat` (9)** —
-a mesma forma pré-conserto do `coorte`. As contagens variáveis dentro de um tag são
+⇒ **a forma de 4 chaves está viva em QUATRO sítios**: `corpus_alinhado` (27 linhas),
+`heartbeat` (9), `restart_realinha` (2) e o `coorte` antes do conserto dela (2). A sessão
+par consertou **um de quatro**.
+
+> ⚠️ **A primeira versão desta frase dizia "dois sítios" e "um de três"** — e a tabela
+> logo acima, escrita por mim no mesmo minuto, já trazia `p2_restart_realinha | 4 | 2`.
+> Número certo na tabela, contagem errada na prosa: a família
+> `a-correct-number-carried-by-a-wrong-sentence`, quarta vez no dia, e a única que
+> **releitura** não pegaria porque os dois artefatos são meus e concordam entre si em
+> tudo menos no total. Quem pegou foi a par recontando do zero. As contagens variáveis dentro de um tag são
 versões do mesmo dia (o `saturacao` 11/12/13 são as minhas v1/v2/v3; o `coorte` 4/12 é o
 antes e depois do conserto dela), não heterogeneidade de defeito.
 
