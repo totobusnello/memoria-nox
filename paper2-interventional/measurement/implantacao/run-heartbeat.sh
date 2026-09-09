@@ -13,7 +13,11 @@
 # 3,85x. Se a cadência do brief-refresh mudar, este teto tem de ser remedido:
 # ele é 4x o intervalo entre rajadas, não um número redondo.
 #
-# ⚠️ ESPERADO = 672 registros por epoch = 4 rajadas/h x 24 h x 7 agentes.
+# ⚠️ ESPERADO = 672 registros por epoch = 4 rajadas/h x 24 h x 7 BRIEFS POR
+# RAJADA. Sao 6 agentes, nao 7: medido no epoch 2026-09-08, nox=192 e
+# atlas/boris/cipher/forge/lex=96 cada (28 briefs/h). O `nox` entra DUAS vezes
+# por rajada. O 672 estava certo e a derivacao atribuia a populacao errada --
+# mesma classe do caso `au[0]`; corrigido 2026-09-09 apos contar por agente.
 # Vale na era `active` e valeu em todo epoch completo medido (08-29 a 09-01,
 # 09-05 a 09-08). O `677` de 27/08 é pré-active, de outro regime.
 #
