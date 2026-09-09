@@ -86,6 +86,75 @@ The single design principle that ties these closures together is **pain weightin
 
 ---
 
+### 1.5 Related Work
+
+§1.4 compares nox-mem against deployable memory *products*. This section situates it in
+the *literature*, and its purpose is as much to mark what is **not** novel here as to
+locate the contribution.
+
+**Retrieval substrate: deliberately conventional.** Layer 1 is FTS5 BM25[^bm25], Layer 2
+is dense retrieval over a single embedding model, and the two are combined by Reciprocal
+Rank Fusion[^rrf] at the standard `k=60`. Each of those choices has a canonical source and
+a stronger alternative we did not adopt. Dense retrieval for open-domain QA was
+established by DPR[^dpr] and extended to unsupervised training by Contriever[^contriever];
+late-interaction scoring as in ColBERT[^colbert] is more expressive than the single-vector
+cosine we use; generative fusion over retrieved passages as in FiD[^fid] and the original
+RAG formulation[^rag] moves work into the reader, which nox-mem does not do at all — it
+returns ranked chunks and leaves generation to the calling agent. On the index side we run
+**exact** search via sqlite-vec[^sqlitevec] rather than an approximate structure such as
+HNSW[^hnsw]; §7.1 records that this is the binding constraint past ~100k vectors, and it
+is a scaling limitation, not a design claim. **The contribution of this paper is not the
+retriever.** Nothing in Layers 1–2 would surprise an IR reader, and that is intentional:
+it isolates what does change, which is the retention and ranking policy above them.
+
+**Memory scoring: the closest prior art, and the delta.** Generative
+Agents[^genagents] scores a memory stream by recency, importance and relevance, and
+retrieves the top-scoring items into a limited context — structurally the same shape as
+the additive salience formula of §3.4. We do not claim the shape as novel. Two things
+differ. First, nox-mem adds **pain**, an operator-assigned severity in [0.1, 1.0]
+*persisted on the chunk* rather than inferred by the model at write time; the operator, not
+the LLM, decides what hurt. Second, the score is not consumed by a paging loop but by a
+ranking layer whose changes must pass a shadow phase before activation (§3.4.3) — the
+policy is auditable and reversible in a way an in-prompt scoring heuristic is not.
+
+**Forgetting: also prior art, with a different granularity.** MemoryBank[^memorybank]
+implements decay on an Ebbinghaus-style curve, a single forgetting function applied
+uniformly. nox-mem instead uses **typed retention windows** per `chunk_type` (§2.3), with
+`NULL` meaning never-decay for the `feedback` and `person` types. The trade is
+expressiveness for inspectability: a per-type integer in a column is coarser than a curve,
+and it is also legible in `sqlite3` and changeable without re-deriving anything.
+
+**Agent-memory architectures.** MemGPT[^letta] frames memory as an operating-system
+problem, paging between a fixed context window and archival storage. nox-mem does not page:
+the context window is populated by a brief (§3.5) assembled from a ranked query, and there
+is no eviction loop. The distinction matters for failure modes — a paging architecture can
+lose an item by evicting it, while a ranking architecture loses it by ranking it low, which
+is recoverable by changing the ranker and is exactly what §3.4.3's shadow gate exists to
+control.
+
+**Graph-augmented retrieval.** HippoRAG[^hipporag] applies Personalized PageRank over an
+entity-relation graph, and HippoRAG 2[^hipporag2] extends the approach toward
+non-parametric continual learning; LightRAG[^lightrag] merges an incremental KG using
+LLM-generated summaries. nox-mem's KG path (§4.1) is far weaker by design: a SQL + regex
+entity walk over `kg_relations`, with **no PPR and no LLM call**, which is why it costs $0
+and runs at single-digit milliseconds (§5.7). It buys latency and cost at the price of
+multi-hop expressiveness, and §5.4 quantifies that price rather than hiding it.
+
+**Benchmarks and evaluation.** The long-term conversational memory setting is measured
+here on LoCoMo[^locomo] and LongMemEval[^longmemeval]; classical multi-hop QA on
+MuSiQue[^musique] against the IRCoT[^ircot] baseline. Retrieval-quality methodology follows
+the zero-shot heterogeneous-benchmark discipline of BEIR[^beir] and the embedding-model
+evaluation conventions of MTEB[^mteb], which is why §6 reports nDCG@10 under each system's
+native embedder *and* an embedding-matched variant — a single-embedder comparison conflates
+retriever quality with embedder quality. Multi-party long-horizon collaborative memory,
+evaluated by Hu et al.[^longhorizon], is a setting nox-mem has **not** been measured on and
+is named here as an open gap rather than a claimed capability.
+
+**Agent reasoning loops.** The orchestration experiments of §5.5 are implementations of
+published loops, not new ones: IterB follows ReAct[^react] and IterC follows the
+Self-Ask[^selfask] decomposition. Their contribution in this paper is the measurement of
+where each loop's ceiling sits on top of this retriever, not the loops themselves.
+
 ## 2. System Architecture
 
 ### 2.1 Infrastructure Overview
@@ -1562,7 +1631,7 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 [^lightrag]: Guo et al., *LightRAG: Simple and Fast Retrieval-Augmented Generation*, EMNLP 2025 (HKU); arXiv:2410.05779. github.com/HKUDS/LightRAG (~35k stars, MIT). Cited in §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized incremental KG-merge pattern as a forward-looking optimization (LightRAG-style summarization parking-lotted until KG density >=10× current; see `docs/COMPETITIVE-ANALYSIS-2026-05-19.md`).
 
-[^hipporag2]: HippoRAG2 — graph-augmented retrieval with Personalized PageRank over an entity-relation graph. Cited as a graph-baseline peer in §1.4 and §6.
+[^hipporag2]: Gutiérrez, Shu, Yasunaga, Gu & Su, *From RAG to Memory: Non-Parametric Continual Learning for Large Language Models* (HippoRAG 2), ICML 2025. arXiv:2502.14802. Graph-augmented retrieval with Personalized PageRank over an entity-relation graph; cited as a graph-baseline peer in §1.4, §1.5 and §6. ⚠️ This footnote carried **no locator at all** until 2026-09-09 — an irresolvable reference is indistinguishable from an invented one, which is why `footnotes_check` now requires one.
 
 [^memo]: arXiv 2605.15156v2, *MeMo: Towards Language Models with Associative Memory Mechanisms* (parametric reflections folded into model weights). Cited as the design opposite of nox-mem's externalized, inspectable memory paradigm. §1.4, abstract.
 
@@ -1591,6 +1660,34 @@ first author and title checked to match, rather than transcribed from memory.
 [^locomo]: Maharana, Lee, Tulyakov, Bansal, Barbieri & Fang, *Evaluating Very Long-Term Conversational Memory of LLM Agents*, ACL 2024. aclanthology.org/2024.acl-long.747. The LoCoMo benchmark used in §5.5 and §6.
 
 [^longmemeval]: Wu, Wang, Yin, Ni, Peng, Yu & others, *LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory*, 2024. arXiv:2410.10813. The cross-bench validation set of §5.6.
+
+[^rag]: Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal, Küttler, Lewis, Yih, Rocktäschel, Riedel & Kiela, *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*, NeurIPS 2020. arXiv:2005.11401. Engaged in §1.5 as the formulation nox-mem does **not** adopt: it returns ranked chunks and leaves generation to the caller.
+
+[^dpr]: Karpukhin, Oğuz, Min, Lewis, Wu, Edunov, Chen & Yih, *Dense Passage Retrieval for Open-Domain Question Answering*, EMNLP 2020. arXiv:2004.04906. The canonical source for the dense-retrieval half of Layer 2 (§1.5).
+
+[^fid]: Izacard & Grave, *Leveraging Passage Retrieval with Generative Models for Open Domain Question Answering*, EACL 2021. arXiv:2007.01282. Cited in §1.5 as generative fusion in the reader, which nox-mem does not perform.
+
+[^colbert]: Khattab & Zaharia, *ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT*, SIGIR 2020. arXiv:2004.12832. Cited in §1.5 as the more expressive alternative to the single-vector scoring used here.
+
+[^contriever]: Izacard, Caron, Hosseini, Riedel, Bojanowski, Joulin & Grave, *Unsupervised Dense Information Retrieval with Contrastive Learning*, 2021. arXiv:2112.09118. Cited in §1.5 for unsupervised dense-retriever training.
+
+[^hnsw]: Malkov & Yashunin, *Efficient and Robust Approximate Nearest Neighbor Search Using Hierarchical Navigable Small World Graphs*, 2016. arXiv:1603.09320. Cited in §1.5 and §7.1 as the approximate index nox-mem does **not** use — the exact-search ceiling of §7.1 is a direct consequence.
+
+[^genagents]: Park, O'Brien, Cai, Morris, Liang & Bernstein, *Generative Agents: Interactive Simulacra of Human Behavior*, UIST 2023. arXiv:2304.03442. The closest prior art to the salience formula of §3.4 (recency × importance × relevance over a memory stream); §1.5 states the delta explicitly.
+
+[^memorybank]: Zhong, Guo, Gao, Ye & Wang, *MemoryBank: Enhancing Large Language Models with Long-Term Memory*, 2023. arXiv:2305.10250. The closest prior art to typed retention (§2.3), via Ebbinghaus-curve decay; §1.5 states the granularity difference.
+
+[^hipporag]: Gutiérrez, Shu, Gu, Yasunaga & Su, *HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models*, NeurIPS 2024. arXiv:2405.14831. Cited in §1.5 as the PPR-over-entity-graph approach the KG path deliberately does not implement.
+
+[^beir]: Thakur, Reimers, Rücklé, Srivastava & Gurevych, *BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models*, NeurIPS 2021 (Datasets & Benchmarks). arXiv:2104.08663. The zero-shot evaluation discipline §6 follows.
+
+[^mteb]: Muennighoff, Tazi, Magne & Reimers, *MTEB: Massive Text Embedding Benchmark*, EACL 2023. arXiv:2210.07316. The embedding-evaluation convention behind §6's native-embedder plus embedding-matched design.
+
+[^react]: Yao, Zhao, Yu, Du, Shafran, Narasimhan & Cao, *ReAct: Synergizing Reasoning and Acting in Language Models*, ICLR 2023. arXiv:2210.03629. The loop implemented as IterB in §5.5.
+
+[^selfask]: Press, Zhang, Min, Schmidt, Smith & Lewis, *Measuring and Narrowing the Compositionality Gap in Language Models*, 2022. arXiv:2210.03350. The decomposition implemented as IterC in §5.5.
+
+[^longhorizon]: Hu et al., *Evaluating Long-Horizon Memory for Multi-Party Collaborative Agents*, 2026. arXiv:2602.01313. Named in §1.5 as a setting nox-mem has not been measured on — an open gap, not a claimed capability.
 
 ### Internal references
 
