@@ -175,7 +175,7 @@ Each of the 6 agents operates with an isolated database at `/root/.openclaw/agen
 | Lex | Legal/Compliance | 31 | 132 KB | other (12) |
 | **Workspace** | **Shared** | **874** | **25.2 MB** | **team (499)** |
 
-Total system memory: 1,481 chunks across 7 databases (initial-deployment snapshot, March 2026; the main store has since grown to ~95k chunks — see Abstract).
+Total system memory: 1,481 chunks across 7 databases (initial-deployment snapshot, March 2026; the main store measured 67,724 chunks on 2026-09-09).
 
 ### 2.5 User-Facing Primitives
 
@@ -1277,7 +1277,7 @@ The semantic retrieval layer (Layer 2) depends on Google's `gemini-embedding-001
 
 #### L3 — Single-instance architecture (no distributed sharding or replication)
 
-The system runs on a single SQLite file per agent database. WAL mode provides concurrent read safety, but there is no horizontal sharding, no replication across nodes, and no distributed coordination layer. The current production corpus (~95k chunks across 7 databases on a 4-vCPU / 8GB KVM4, as of 2026-06-04) operates comfortably within these bounds, but the architecture does not generalize to multi-tenant deployments or corpora significantly exceeding the single-node memory/storage envelope. Distributed SQLite extensions (e.g., `cr-sqlite` CRDT-based replication) exist but are explicitly out of scope for v1. This is a known architectural decision, not an oversight. Ref: `docs/DECISIONS.md` (single-instance rationale).
+The system runs on a single SQLite file per agent database. WAL mode provides concurrent read safety, but there is no horizontal sharding, no replication across nodes, and no distributed coordination layer. The current production corpus (79,220 chunks summed across 7 databases — 67,724 of them in the main store — on a 4-vCPU / 8GB KVM4, as of 2026-09-09) operates comfortably within these bounds, but the architecture does not generalize to multi-tenant deployments or corpora significantly exceeding the single-node memory/storage envelope. Distributed SQLite extensions (e.g., `cr-sqlite` CRDT-based replication) exist but are explicitly out of scope for v1. This is a known architectural decision, not an oversight. Ref: `docs/DECISIONS.md` (single-instance rationale).
 
 #### L4 — No write-side concurrency control (last-writer-wins)
 
@@ -1325,7 +1325,7 @@ The current retrieval stack terminates at RRF fusion (§4.1). A cross-encoder re
 
 #### F6 — Lab Q1 scale validation: 250k chunk corpus
 
-The current production corpus is 94,936 chunks (as of 2026-06-04) — already approaching the ~100k-vector threshold where exact search latency degrades. The Lab Q1 roadmap targets a 250k chunk corpus to validate: (a) sqlite-vec ANN recall at scale (current exact-search; approximate search becomes necessary past ~100k vectors at reasonable latency targets); (b) salience formula stability (the recency component decays over a longer history window); (c) FTS5 BM25 IDF calibration (with more documents, rare-term IDF weights shift). The `lab-q1-scale-250k` item has no committed spec yet; it is gated on `NOX_SALIENCE_MODE=active` remaining stable through the GTM Phase 2 feedback cycle. Ref: `docs/ROADMAP.md` Lab Q1, `q-a-p-pillars-strategic-pivot-2026-05-17`.
+The main store held 67,724 chunks with complete vector coverage as of 2026-09-09, which is below the ~100k-vector threshold at which exact-search latency begins to degrade. An earlier internal record placed the main store near 95k as of 2026-06-04; that figure is not re-verifiable from the current corpus, and the net direction of change since has been downward (retention-based pruning), so the threshold is further away than the June figure implied. The Lab Q1 roadmap targets a 250k chunk corpus to validate: (a) sqlite-vec ANN recall at scale (current exact-search; approximate search becomes necessary past ~100k vectors at reasonable latency targets); (b) salience formula stability (the recency component decays over a longer history window); (c) FTS5 BM25 IDF calibration (with more documents, rare-term IDF weights shift). The `lab-q1-scale-250k` item has no committed spec yet; it is gated on `NOX_SALIENCE_MODE=active` remaining stable through the GTM Phase 2 feedback cycle. Ref: `docs/ROADMAP.md` Lab Q1, `q-a-p-pillars-strategic-pivot-2026-05-17`.
 
 #### F7 — Multilingual corpus coverage: Portuguese and Spanish
 

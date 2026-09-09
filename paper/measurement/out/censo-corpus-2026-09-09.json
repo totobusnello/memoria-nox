@@ -1,0 +1,107 @@
+{
+  "instrumento": "censo-corpus",
+  "versao": 1,
+  "ts": "2026-09-09T18:54:48Z",
+  "raiz": "/root/.openclaw",
+  "main_path": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+  "arquivos_examinados": 13,
+  "com_tabela_chunks": 7,
+  "sem_tabela_chunks": 6,
+  "arquivos": [
+    {
+      "path": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+      "chunks": 67724,
+      "erro": null,
+      "mtime": "2026-09-09T18:37:06Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/agents/nox/tools/nox-mem/nox-mem.db",
+      "chunks": 3610,
+      "erro": null,
+      "mtime": "2026-09-07T23:01:04Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/agents/cipher/tools/nox-mem/nox-mem.db",
+      "chunks": 3090,
+      "erro": null,
+      "mtime": "2026-09-07T23:00:30Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/agents/forge/tools/nox-mem/nox-mem.db",
+      "chunks": 1894,
+      "erro": null,
+      "mtime": "2026-09-07T23:00:41Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/agents/boris/tools/nox-mem/nox-mem.db",
+      "chunks": 1422,
+      "erro": null,
+      "mtime": "2026-09-07T23:00:19Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/agents/atlas/tools/nox-mem/nox-mem.db",
+      "chunks": 1054,
+      "erro": null,
+      "mtime": "2026-09-07T23:00:07Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/agents/lex/tools/nox-mem/nox-mem.db",
+      "chunks": 426,
+      "erro": null,
+      "mtime": "2026-09-07T23:00:52Z"
+    },
+    {
+      "path": "/root/.openclaw/nox-mem.db",
+      "chunks": null,
+      "erro": "no such table: chunks",
+      "mtime": "2026-05-07T16:53:12Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/agents/atlas/nox-mem.db",
+      "chunks": null,
+      "erro": "no such table: chunks",
+      "mtime": "2026-06-21T02:35:59Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/agents/cipher/nox-mem.db",
+      "chunks": null,
+      "erro": "no such table: chunks",
+      "mtime": "2026-08-02T18:23:24Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/agents/nox/nox-mem.db",
+      "chunks": null,
+      "erro": "no such table: chunks",
+      "mtime": "2026-07-26T01:02:59Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/memory/nox-mem.db",
+      "chunks": null,
+      "erro": "no such table: chunks",
+      "mtime": "2026-04-01T00:16:12Z"
+    },
+    {
+      "path": "/root/.openclaw/workspace/nox-mem.db",
+      "chunks": null,
+      "erro": "no such table: chunks",
+      "mtime": "2026-06-15T09:40:52Z"
+    }
+  ],
+  "main_store": 67724,
+  "agentes": {
+    "nox": 3610,
+    "cipher": 3090,
+    "forge": 1894,
+    "boris": 1422,
+    "atlas": 1054,
+    "lex": 426
+  },
+  "n_agentes": 6,
+  "soma_dos_7": 79220,
+  "bancos_somados": 7,
+  "api_total": 67724,
+  "api_embedded": 67724,
+  "api_concorda_com_main": true,
+  "veredito": "GREEN",
+  "motivo": "duas-populacoes-medidas-e-nomeadas"
+}

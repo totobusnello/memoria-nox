@@ -42,6 +42,24 @@ SCRIPT = "claims_check.py"
 # `de=None` => append ao fim do arquivo.
 CASOS = [
     (
+        # A regex de serie viva casava SO `94.9k`, forma que o paper nunca usou:
+        # ele escrevia `~95k` e `94,936`, e os 8 guardas passavam com o defeito
+        # presente em tres sitios. Este caso prende as grafias reais.
+        "numero de serie viva na grafia que o paper REALMENTE usa",
+        PAPER, None,
+        "\nThe production corpus is now 67,724 chunks after the latest pass.\n",
+        "número de série viva sem data na frase",
+    ),
+    (
+        # O guarda de data NAO alcanca isto: a frase pode ter data e ainda
+        # atribuir a contagem a populacao errada. Medido no mesmo dia, main store
+        # = 67.724 e soma dos 7 = 79.220 -- 11.496 de diferenca.
+        "mesma contagem atribuida a DUAS populacoes, ambas datadas",
+        PAPER, None,
+        "\nThe corpus held ~95k chunks across 7 databases as of 2026-09-09.\n",
+        "populações diferentes",
+    ),
+    (
         "fence impar quebra toda varredura",
         PAPER, None, "\n```\n",
         "code fence",
