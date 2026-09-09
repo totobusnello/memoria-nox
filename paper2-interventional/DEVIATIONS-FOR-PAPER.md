@@ -1730,7 +1730,17 @@ releitura.
 ### O que isto muda, e o que NÃO muda
 
 **Muda:** o argumento *"prolongar não tem valor porque o canal está morto"* **cai**.
-Reiniciar custaria ~1-2 h de intervenção bloqueada, não 214 epochs inertes.
+
+⚠️ **Força da afirmação, corrigida:** o precedente é **um**. O que os dados sustentam é
+*"a única coorte medida drenou em 1,2 h"*, **não** *"custaria ~1-2 h"*. A taxa depende de
+quantos slots a rajada gasta em chunk repetido, e isso não foi medido (as rajadas do mesmo
+segundo veem o mesmo serve-state). Ressalva da `memoria-nox-21`, e é de força, não de
+direção.
+
+O que **está** observado é o **ciclo inteiro**: coorte chega (22/08) → bloqueia → drena
+entre 19:23 e 20:37 → e o canal **volta a responder**, que é a série GREEN de 27/08 a
+01/09 (`mexeu` = 25, 15, 11, 30, 20, 11). Chegada, bloqueio, dreno e recuperação, todos
+no registro — mais forte que a duração sozinha.
 
 **Não muda:** a **expiração de 2026-09-20** encerra o ensaio nos dois cenários (o
 predicado usa o relógio de request), e cobrir abril/2027 exige janela ≥ 244 d que
@@ -1753,6 +1763,58 @@ mecanismo nomeado.
 computável em **uma consulta**, segundos em vez de 931 s. Com a duração medida, ele ganha
 um segundo patamar: se **não** desarmar em ~2 h, aí sim há algo estrutural. Teria dado
 alarme em **07/09**, dois dias antes de qualquer um de nós olhar.
+
+
+#### 10.16 🔴 A superfície servida é um conjunto FECHADO de 141 chunks — 0,21 % do corpus
+
+**Medido em 2026-09-09.** Apareceu ao investigar o dreno de coortes (§10.15) e é
+independente dele. Achado da sessão `memoria-nox-21`; verificado e estendido aqui.
+
+| dia | chunks **distintos** servidos | linhas | serves/chunk |
+|---|---:|---:|---:|
+| 28/08 … 08/09 (12 dias) | **141**, todos os dias | 6.720/dia | **47,7** |
+| acumulado desde 31/08 | **141** | — | — |
+
+O acumulado igual ao diário é o ponto: **não é que 141 sejam servidos por dia e o
+conjunto rode** — é o **mesmo** conjunto de 141, dia após dia, por 9 dias, sem uma única
+substituição. `6.720 = 672 briefs × 10 itens`, e cada chunk é servido ~48 vezes ao dia.
+
+**141 de 67.187 = 0,21 % do corpus servido.**
+
+⚠️ Isto **não** é efeito do congelamento por `fd`: a constância começa em **28/08**, seis
+dias antes de o `fd` pinar (03/09 17:30). Também não é efeito da era `active` (01/09).
+
+### Por que isto importa mais que qualquer coisa medida hoje
+
+O reframe de 27/08 fixou que a manchete do paper é a **superfície de exposição**, não a
+intervenção. Este número **é** a superfície, medida: um sistema com 67 mil chunks expõe
+**141**, e os expõe 48 vezes por dia cada.
+
+Consequências que precisam entrar no enquadramento:
+
+1. **A intervenção age sobre 0,21 % do corpus.** Qualquer efeito medido é efeito *dentro*
+   dessa fatia — e o denominador honesto do ensaio não é o corpus, é a superfície.
+2. **Os 19 designados são 13,5 % da superfície** (19/141), não 0,03 % do corpus
+   (19/67.187). A dose age sobre uma fração muito maior do que a leitura por corpus
+   sugere — em qualquer direção que o efeito aponte.
+3. **Explica o dreno instantâneo do §10.15 sem invocar nada:** 2 `freshSlots` × 672
+   briefs = 1.344 oportunidades/dia contra uma coorte de 53. O estrato NULL não *pode*
+   sobreviver a um dia de tráfego — quando o corpus é aberto.
+4. **E explica o zero de estreias desde 26/08:** com o conjunto fechado, nenhum chunk
+   novo entra na superfície. O estrato NULL vazio no corpus servido não é virtude, é
+   **consequência de o corpus estar fechado** (leitura da `memoria-nox-21`, e ela está
+   certa).
+
+### O que NÃO está medido
+
+**Por que** o conjunto é fechado. Candidatos não testados: o `CANDIDATE_POOL = 500` com
+ordenação estável sobre salience que não muda; a quota `floor(n/2)` por pool; o
+`novelty-penalty` suave que deixou de excluir. Nenhum foi medido, e a constância exata
+(**141**, sem ±1, por 12 dias) sugere determinismo, não equilíbrio dinâmico — mas
+sugerir não é medir.
+
+Isto é território de enquadramento do paper, não de desvio de protocolo, e fica
+registrado aqui porque foi medido dentro da janela do ensaio.
 
 
 ## Se a decisão mudar
