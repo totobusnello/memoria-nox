@@ -142,7 +142,34 @@ Scoring é feature work (prefix `tune(search):` ou `feat(search):`). Boost multi
 
 ### 6. Operações destrutivas em chunks só com `--dry-run` ou snapshot atômico
 
-Lição do incident 2026-04-25 (reindex.ts wipou section/retention de 183 entities; root cause = end-of-day cron diário rodava `nox-mem reindex` sem rede de proteção). Antes de `reindex`, `consolidate`, `compact`, `crystallize`, `kg-prune` em prod: ou rodar com `--dry-run` (preview JSON, não muta) OU usar `withOpAudit()` wrapper que cria snapshot atômico em `/var/backups/nox-mem/pre-op/<op>-<ts>-<pid>-<uuid>.db` (retention 7d, ACL 0600, dir 0700, snapshot path validation symlink-aware via realpathSync). Backup-all.sh 02:00 NÃO conta — é diário, não pré-op. Ingest-router unified (Fase A2 v1.6) rota entity files via `ingestEntityFile()` automaticamente; sem ele, `ingestFile()` genérico zera section/retention. Validar pós-op com `/api/health.sectionDistribution.compiled == 183`.
+Lição do incident 2026-04-25 (reindex.ts wipou section/retention de 183 entities; root cause = end-of-day cron diário rodava `nox-mem reindex` sem rede de proteção). Antes de `reindex`, `consolidate`, `compact`, `crystallize`, `kg-prune` em prod: ou rodar com `--dry-run` (preview JSON, não muta) OU usar `withOpAudit()` wrapper que cria snapshot atômico em `/var/backups/nox-mem/pre-op/<op>-<ts>-<pid>-<uuid>.db` (retention 7d, ACL 0600, dir 0700, snapshot path validation symlink-aware via realpathSync). Backup-all.sh 02:00 NÃO conta — é diário, não pré-op. Ingest-router unified (Fase A2 v1.6) rota entity files via `ingestEntityFile()` automaticamente; sem ele, `ingestFile()` genérico zera section/retention.
+
+**Validação pós-op — duas pernas, porque nenhuma sozinha cobre as duas classes de dano:**
+
+| perna | predicado | dano que vê | dano que NÃO vê |
+|---|---|---|---|
+| igualdade | `sectionDistribution.compiled == sectionDistribution.frontmatter` | **desigual** — parte dos chunks perdeu `section` | **uniforme** — zerar as duas mantém a igualdade |
+| não-regressão | `compiled` pós-op **≥** `compiled` do snapshot pré-op | uniforme | crescimento espúrio |
+
+A igualdade vale **por construção**: `ingestEntityFile()` produz exatamente 1 chunk
+`frontmatter` + 1 `compiled` por arquivo (+ N `timeline`).
+
+⚠️ **Número absoluto não entra no predicado.** Esta regra dizia `compiled == 183` desde
+04/2026 e hoje são **239** (medido 2026-09-09 em `epochs/current.db`, confere com
+`/api/health`: compiled 239, frontmatter 239, timeline 387, NULL 66.859). Invariante que
+envelhece valida errado nas duas direções — passa quando devia falhar, e falha quando o
+corpus só cresceu.
+
+```sh
+sqlite3 -readonly /var/lib/nox-mem/epochs/current.db \
+  "SELECT (SELECT COUNT(*) FROM chunks WHERE section='compiled'),
+          (SELECT COUNT(*) FROM chunks WHERE section='frontmatter');"
+```
+
+⚠️ O ponteiro é `/var/lib/nox-mem/epochs/current.db` — **dentro** de `epochs/`, não no
+pai. Apontar `sqlite3` para caminho inexistente **cria banco vazio** e devolve
+`no such table: chunks`, erro que se lê como fato sobre o schema e é fato sobre o
+caminho (medido 2026-09-09: criou arquivo de 0 byte em produção, removido no mesmo minuto).
 
 **Recovery via `safeRestore()`** em `src/lib/op-audit.ts` — valida `user_version` match + restaura main DB primeiro + remove WAL/SHM órfãos depois (W2-4 fix 04-26: ordem importa). NÃO fazer `cp snapshot.db nox-mem.db` direto (corrompe se WAL stale).
 
