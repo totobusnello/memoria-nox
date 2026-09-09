@@ -2241,3 +2241,36 @@ pendurado é o caminho de T25 (`nao-calculado` ⇒ `indeterminada`), consistente
 Nada a acrescentar ao recibo: o rótulo do nome original já está lá — `corpus=` na linha
 de status é o `basename` do `readlink`, e `corpus_path` no NDJSON é o caminho resolvido
 inteiro. Para fd deletado é onde o nome original aparece.
+
+
+### E o cenário que o symlink pendurado NÃO cobre
+
+A sessão par propôs registrar que a correção também cobriria a janela de relink diária,
+porque *"na janela entre o relink e o arquivo novo existir, `current.db` é exatamente um
+symlink pendurado"* — e que esse caso é muito mais provável que o do fd deletado. **Fui
+ver a rotação antes de escrever, e a premissa não se sustenta.**
+
+`nox-epoch-boundary.sh`, ordem literal das chamadas: `snapshotForEpoch` (linha 31) →
+`pointCurrentTo` (37) → `pruneEpochs` (38). E `pointCurrentTo`
+(`src/lib/epoch-snapshot.ts:209`) faz, nesta ordem:
+
+```ts
+if (!existsSync(alvo)) throw new Error(`… recusando apontar current`);   // 212
+const man = readEpochManifest(epochId, dir);
+if (!man || man.integrityCheck !== "ok") throw new Error(`… mantendo o current anterior`);
+symlinkSync(basename(alvo), tmp);
+renameSync(tmp, link);   // atômico
+```
+
+⇒ o alvo tem de **existir** e passar o **integrity check** antes de o link se mover, e o
+movimento é um `rename` **atômico**. Conferido também que **nenhum outro** script ou
+fonte faz `ln -s`, `rm -f`, `unlink` ou `symlink` sobre `current.db` — `pointCurrentTo`
+é o único escritor. **Não existe janela em que `current.db` esteja pendurado.**
+
+A perna do symlink pendurado (T25 ⇒ `nao-calculado` ⇒ `indeterminada`) segue legítima
+como defesa, mas o que a justifica é o caso do fd, não o relink. A janela real que a
+intuição dela tateava é outra e já está documentada: um leitor que mantenha o `fd`
+aberto **através** do `rename` — §10.10, exatamente o que a produção vive desde 03/09.
+
+⚠️ Sexta afirmação plausível do dia — de uma de nós — derrubada por **uma** consulta ao
+código, e esta ia entrar no registro como fato operacional.
