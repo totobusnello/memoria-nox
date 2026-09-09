@@ -1,5 +1,142 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-09 — a data do realinhamento era premissa falsa: `agentFresh` não volta a zero
+
+### ▶️ ESTADO / PRÓXIMO PASSO
+
+| quando | o quê |
+|---|---|
+| **2026-09-10 09:00Z** (qui, 06:00 BRT) | cron one-shot `0 9 10 9 *` reinicia o `nox-mem-api` e realinha o corpus |
+| depois de disparar | **remover esse cron** — marcado `ONESHOT 2026-09-10 remover depois` |
+
+**A proibição de ontem sobre `session-distill` CAIU.** Ela existia porque a
+pré-condição 3 exigia `agentFresh == 0`; a pré-condição mudou de natureza. Rodar o
+distill não atrapalha mais nada.
+
+Continua valendo: se o `nox-mem-api` reiniciar sozinho antes de amanhã 09:00Z, o
+realinhamento cai num momento arbitrário. O guarda detecta e o corpus servido segue
+salvo em `/var/lib/nox-mem/p2/corpus-SERVING-REAL-e20260903-recuperado.db`.
+
+---
+
+### O que caiu, e por quê
+
+Os dois RED do morning report de hoje são os esperados — mas um número mudou:
+`agent_fresh_elegiveis` foi de **219 → 285**. Isso matou a aritmética que fixou o
+restart em 15/09.
+
+**Medido hoje** (predicado copiado do fonte do gatilho, não reconstruído):
+
+| fato | medição |
+|---|---|
+| elegíveis na janela | **285** = 219 (`source_date` 08/09) + **66 (09/09)** |
+| entrada dos 66 | `created_at` 01:01:00 → 01:02:13, 3 arquivos `sessions/boris/*` |
+| cron responsável | **nenhum** — a ingestão é por *hook* (`nox-mem-ingest.sh`), dirigida por **atividade de agente** |
+| `session-distill` do nightly | **`Phase 4: Sunday`** ⇒ roda **13/09** |
+| ingestão de sessão nos últimos 60 d | rajadas em jul/ago, **nada de 11/08 a 07/09** (28 d), retomada em 08/09 |
+
+**(a) O script abortaria para sempre.** A pré-condição 3 exigia `agentFresh == 0`. Com o
+*hook* injetando a cada sessão e o distill rodando domingo, a condição não se satisfaz
+em 15/09 — nem depois. Script de ação cujo predicado exige estado que não retorna **não
+falha: fica calado**. É a regra 9 do `CLAUDE.md` aplicada a um caminho de **ação**, onde
+o silêncio é indistinguível de "ainda não é hora".
+
+**(b) O regime da calibração era o regime QUEBRADO.** O buraco de 28 dias coincide com a
+migração que moveu endereço e schema das sessões, consertada em 07/09. A medição de
+`agentFresh` **vazio** de 26/08 — base da escala de dose de 27/08 — foi feita **dentro**
+desse buraco. Não há volta ao regime da calibração sem quebrar a ingestão de novo.
+
+⇒ Esperar não é conservador, é **indefinido**.
+
+---
+
+### Meu erro no caminho: reimplementei o predicado e deu 18 em vez de 285
+
+Primeira medição usou `AND` entre os pisos, só `source_date`, e o **DB vivo**. O
+predicado real é `(importance >= 0.7 **OR** pain >= 0.7)`, com
+`COALESCE(source_date, created_at)`, restrito a `sessions/<agente>/%`, sobre o
+**snapshot `current.db`**. Com o predicado literal do fonte: **285**, batendo com o
+gatilho.
+
+Quinta ocorrência da classe *reconstrução modela regra que o código nunca aplica*. O
+sinal ignorado: eu tinha o fonte à mão e escrevi o `WHERE` de cabeça.
+
+---
+
+### Delimitação honesta do custo de esperar
+
+O congelamento do corpus atinge **os dois braços igualmente** — mesmo corpus para
+tratamento e controle. **Não** enviesa a comparação interna; degrada **validade
+externa**. Já a composição do canal muda a **posição** dos designados no `interleave`,
+o que afeta a **dose efetiva** — essa é interna. Logo a pressa não se justifica pelo
+congelamento; o que se justifica é não esperar por um evento que não vem.
+
+---
+
+### Por que a fronteira de **10/09** e não a próxima qualquer
+
+| epoch | dia | arm | |
+|---|---|---|---|
+| 2026-09-09 | qua | treatment `w=2.0` | **em curso** — não se corta epoch no meio |
+| **2026-09-10** | **qui** | **control `w=0`** | ⬅️ escolhida |
+| 2026-09-11 | sex | control `w=0` | 2º controle limpo no regime novo |
+| 2026-09-12 | sáb | treatment `w=4.0` | 1º tratamento **inteiro** dentro do regime novo |
+
+O regime novo estreia em **controle**, com dois controles antes do primeiro tratamento.
+Estrear numa fronteira de tratamento faria o regime começar já sob dose.
+
+---
+
+### A mudança na pré-condição 3, e como foi testada
+
+Deixa de exigir `agentFresh == 0`; passa a **medir e registrar** `agentFresh`/`globalFresh`
+no `ndjson` e no STATUS, abortando **só se a medição falhar** — um realinhamento sem
+registro da composição de partida é irrecuperável depois. As outras quatro seguem
+abortivas.
+
+**Teste com mutação validada** (mutante conferido: 2 mutações, `bash -n` ok, contagem de
+linhas preservada — a validação existe porque em 08/09 um `sed` produziu arquivo **vazio**
+e o `cmp -s` aceitou como mutação aplicada):
+
+| corrida | resultado |
+|---|---|
+| original, 09:48Z | `ABORTADO-fora-da-fronteira-de-epoch hora=09:48Z` ✓ |
+| mutante (hora aberta + designados inexistentes) | `ABORTADO-designados-incompletos n=0/19` ✓ |
+| serviço reiniciado? | **não** — `MainPID` inalterado ✓ |
+
+A segunda linha é a prova: com a hora aberta, o script **passou pela pré-condição 3 com
+`agentFresh = 285`** — que antes abortaria ali — e parou na (4). A mutação faz abortar num
+ponto **posterior** ao que está sob teste; é assim que se prova passagem sem executar a
+ação.
+
+---
+
+### Falso alarme que NÃO é defeito
+
+`integrity` no report mostra `2026-09-06`, 3 dias atrás. O cron é `53 5 * * 0` —
+**semanal, domingo**. 06/09 foi domingo. Está correto.
+
+---
+
+### Registro
+
+**§10.11** do `DEVIATIONS-FOR-PAPER.md`, com a nota de que nenhum desfecho foi computado,
+consultado ou estimado antes da decisão — o que foi medido é **proveniência do fluxo de
+ingestão e distribuição temporal do pool**. O §10.10 ganhou banner apontando para ela; o
+parágrafo aritmético superado ficou no lugar, com a nota de superação.
+
+**A regra de tratamento não muda.** O §10.7 já pré-especificou *primary* + co-estimador
+ITT com todos os epochs, **mais** o par com os epochs do regime intercalado excluídos. O
+que o §10.11 acrescenta é que a fronteira do regime novo passa a ser
+**`2026-09-10 09:00Z`**.
+
+---
+
+
+> ⚠️ **A DATA desta seção foi corrigida em 2026-09-09: é `2026-09-10 09:00Z`, não 15/09.**
+> A aritmética da expiração está certa; a premissa de que nada mais entra no pool é falsa.
+> A proibição sobre `session-distill` **caiu**. Ver a seção de 09/09, acima.
+
 ## 2026-09-08 (tarde) — o corpus servido estava congelado há 5 dias, e o guarda que veria isso não existia
 
 ### ▶️ ESTADO / PRÓXIMO PASSO
