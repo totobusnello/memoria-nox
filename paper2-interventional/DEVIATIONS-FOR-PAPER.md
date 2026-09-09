@@ -2579,3 +2579,59 @@ O padrão vale para os outros e fica registrado como precedente implantado: **GR
 motivo diz "a pergunta não se aplica mais"** — nem silêncio, nem vermelho.
 
 `desliga-dose-p2.sh` sha `5179ea30c605b36e3e299a6c7e69fe2b026f37e2fd11278c0f740cda03a3e97f`.
+
+
+---
+
+## §10.24 — O censo que o corolário obriga: a classe está viva em dois outros sítios
+
+A sessão par formulou o corolário que fecha as duas ocorrências independentes do §10.17
+(o recibo dela de 4 chaves e o meu `recibo()` descartando `$3+`, ambos em código escrito
+**depois** do §10.17):
+
+> A correção é **local por construção**. O que generaliza não é o conserto — é o
+> **hábito de conferir a saída**. Ao fechar defeito de classe, a última ação não é o
+> commit do fix: é o **censo dos outros sítios da mesma forma**. Sem o censo, o fix é
+> verdadeiro e a frase *"está resolvido"* é falsa.
+
+Registrar isso sem **rodar** o censo seria o próprio defeito, então rodei. Sete wrappers
+do p2 anexam ao **mesmo** `gatilhos.ndjson`, cada um com seu `tag`. Distribuição real das
+395 linhas:
+
+| tag | chaves | linhas |
+|---|---:|---:|
+| `p2_gatilho_composicao` | 7 | 313 |
+| `p2_gatilho_designados` | 10 / 11 | 28 / 1 |
+| **`p2_gatilho_corpus_alinhado`** | **4** | **27** |
+| **`p2_gatilho_heartbeat`** | **4** | **9** |
+| `p2_gatilho_saturacao` | 12 / 11 / 13 | 7 / 2 / 1 |
+| `p2_gatilho_coorte` | 12 / 4 | 3 / 2 |
+| `p2_restart_realinha` | 4 | 2 |
+
+⇒ **a forma de 4 chaves está viva em `corpus_alinhado` (27 linhas) e `heartbeat` (9)** —
+a mesma forma pré-conserto do `coorte`. As contagens variáveis dentro de um tag são
+versões do mesmo dia (o `saturacao` 11/12/13 são as minhas v1/v2/v3; o `coorte` 4/12 é o
+antes e depois do conserto dela), não heterogeneidade de defeito.
+
+⚠️ **E os dois sondadores que eu escrevi para este censo eram INVÁLIDOS**, os dois na
+direção de acusar:
+
+1. *"a função descarta `$3+`?"* medido por **contagem de palavras** depois do nome da
+   função. Palavras dentro de aspas contam como argumentos separados, e nenhum
+   `emitir GREEN "motivo=… campo=…"` passa mais de dois argumentos. O sondador acusou
+   **11 emissores** e não sustenta nenhum.
+2. *"o wrapper enterra em `linha_status`?"* por `grep` no **wrapper**, quando quem emite a
+   linha é o **gatilho**. Deu "campos estruturados" para `corpus_alinhado` e `heartbeat`,
+   que são justamente os dois que emitem 4 chaves.
+
+A única parte confiável do censo é a tabela acima, que sai do **artefato emitido** e não
+de leitura de fonte. É a lição do dia aplicada ao instrumento que a verifica: sondador
+grosseiro produz veredito confiante, e a saída real desmente os dois.
+
+**Não consertei os dois sítios**, e a razão é explícita: eles se aposentam em 21/09
+(§10.23), e mexer em wrapper de produção agora, para um defeito de forma num ensaio que
+fecha, é escopo que ninguém pediu. O que fica é o **requisito** para o que os substituir:
+
+> A suíte precisa de um caso que **olhe o artefato emitido** — não o fonte, não a linha
+> impressa. As duas suítes passavam verdes com e sem o defeito porque **nenhum caso abria
+> o NDJSON**.
