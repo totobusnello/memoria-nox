@@ -2220,3 +2220,24 @@ afetada.
 |---|---|---|
 | `gatilho-saturacao.sh` | `f3dcfb1de659087d` | `754e3eb939c27c3f9e8b3f696180c055a2003371cd5a7e672a859722dfcebe4e` |
 | `teste-gatilho-active.sh` | `7c184ca657c76df0` | `72b6188d19400e01eede77dc0c3900d852bd362beaa41755b0ac48dd41ecbff8` |
+
+
+### Premissa da correção, medida (não raciocinada)
+
+Eu havia justificado a v3 com *"se o argumento resolve, ler dele lê o alvo"* — afirmação
+por raciocínio. Medida:
+
+| entrada | `sha256sum` | `readlink -f` |
+|---|---|---|
+| arquivo | `a11ee0f7407d82f9` | o próprio caminho |
+| symlink para ele | **mesmo hash** | o alvo |
+| symlink para symlink | **mesmo hash** | o alvo final |
+| symlink pendurado | `No such file or directory` | o alvo pretendido, ausente |
+
+⇒ `sha256sum` **segue** symlink, inclusive em cadeia; hashear o argumento nunca é pior
+que hashear o alvo resolvido, e para `current.db` os dois coincidem (T17). O symlink
+pendurado é o caminho de T25 (`nao-calculado` ⇒ `indeterminada`), consistente.
+
+Nada a acrescentar ao recibo: o rótulo do nome original já está lá — `corpus=` na linha
+de status é o `basename` do `readlink`, e `corpus_path` no NDJSON é o caminho resolvido
+inteiro. Para fd deletado é onde o nome original aparece.
