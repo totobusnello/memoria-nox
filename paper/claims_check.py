@@ -549,6 +549,55 @@ def populacao_check(root: Path) -> list[str]:
     return fails
 
 
+def footnotes_check(root: Path) -> list[str]:
+    """Duas invariantes das footnotes, nas duas direcoes.
+
+    (1) BALANCO: toda footnote citada tem definicao, e toda definicao e' citada.
+        Citacao sem definicao rende marcador cru no PDF; definicao sem citacao e'
+        referencia que o paper nao usa — enchimento de bibliografia, que e' o que
+        eu recusei fazer com HotpotQA/DPR/FiD (estao no refs.bib e a prosa nao os
+        menciona, entao NAO foram citados).
+
+    (2) LOCALIZADOR: toda footnote definida sob `### Academic references` precisa de
+        arXiv ID, DOI ou link ACL. Esta perna existe por causa de `[^hipporag2]`,
+        que afirmava um sistema academico e nao tinha localizador NENHUM — um leitor
+        externo nao consegue chegar ao trabalho, e uma referencia irresolvivel e'
+        indistinguivel de uma inventada.
+
+    ⚠️ A perna (2) so vale sob o cabecalho academico. Footnotes internas
+    (`src/salience.ts`, env vars) e de sistema (repos) tem outro contrato: as
+    internas apontam para este repo, as de sistema para o repositorio do sistema.
+    Exigir DOI delas seria o guarda pedindo o que a categoria nao tem.
+    """
+    md = (root / PAPER).read_text()
+    fails = []
+
+    defs = {m.group(1) for m in re.finditer(r"^\[\^([A-Za-z0-9_-]+)\]:", md, re.M)}
+    usos = {m.group(1) for m in re.finditer(r"\[\^([A-Za-z0-9_-]+)\](?!:)", md)}
+    for k in sorted(usos - defs):
+        fails.append(f"{PAPER}: footnote `[^{k}]` e' citada e nao tem definicao")
+    for k in sorted(defs - usos):
+        fails.append(
+            f"{PAPER}: footnote `[^{k}]` e' definida e nunca citada — "
+            f"referencia nao usada e' enchimento de bibliografia"
+        )
+
+    # (2) so o bloco academico
+    m = re.search(r"^### Academic references$(.*?)^### ", md, re.M | re.S)
+    if m:
+        for d in re.finditer(r"^\[\^([A-Za-z0-9_-]+)\]:(.*)$", m.group(1), re.M):
+            chave, corpo = d.group(1), d.group(2)
+            tem = re.search(r"arXiv:\d{4}\.\d{4,5}|doi:|aclanthology\.org|"
+                            r"github\.com|ai\.google\.dev", corpo, re.I)
+            if not tem:
+                fails.append(
+                    f"{PAPER}: footnote academica `[^{chave}]` sem localizador "
+                    f"resolvivel (arXiv/DOI/ACL) — irresolvivel e' indistinguivel "
+                    f"de inventada"
+                )
+    return fails
+
+
 GUARDAS = [
     fence_check,
     superlativo_check,
@@ -559,6 +608,7 @@ GUARDAS = [
     dependentes_check,
     aritmetica_check,
     populacao_check,
+    footnotes_check,
 ]
 
 
