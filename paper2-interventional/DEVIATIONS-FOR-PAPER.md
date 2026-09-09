@@ -2272,5 +2272,27 @@ como defesa, mas o que a justifica é o caso do fd, não o relink. A janela real
 intuição dela tateava é outra e já está documentada: um leitor que mantenha o `fd`
 aberto **através** do `rename` — §10.10, exatamente o que a produção vive desde 03/09.
 
+**Verificado nos dois artefatos, independentemente:** eu li `src/lib/epoch-snapshot.ts`,
+a sessão par leu `dist/lib/epoch-snapshot.js` — o que a produção realmente executa —, e
+os dois concordam (`existsSync` lança em :168-170, o integrity check em :171-174,
+`symlinkSync` + `renameSync` em :182-183; o `rmSync` toca só o nome **tmp**, nunca o
+link). O par vale mais que qualquer das duas leituras: `src` diz a intenção, `dist` diz o
+que corre, e a lição
+`what-production-runs-proves-what-runs-not-which-version-is-correct` é sobre exatamente a
+possibilidade de divergirem.
+
+### A simetria que isto fecha
+
+**O mesmo `rename` atômico que impede o symlink pendurado é o que cria o inode órfão.**
+A troca de nome não toca no inode antigo — é daí que vem a garantia de que o link nunca
+aponta para nada, e é daí que vem o fd que segue servindo bytes de um arquivo já podado
+(§10.10). A propriedade que dá a garantia é a que produz o hazard, e não há como ter uma
+sem a outra: um relink que apagasse o inode antigo eliminaria o órfão e introduziria a
+janela pendurada, além de matar leitores no meio da leitura.
+
+⇒ o §10.10 não é defeito da rotação. É o preço da atomicidade dela, e o que faltava era
+**enxergá-lo** — que é o que a perna (b) passou a fazer.
+
 ⚠️ Sexta afirmação plausível do dia — de uma de nós — derrubada por **uma** consulta ao
-código, e esta ia entrar no registro como fato operacional.
+código, e esta ia entrar no registro como fato operacional. Nenhuma das seis veio de
+concordância; todas de alguém rodar a consulta em vez de aceitar a frase.
