@@ -1414,7 +1414,10 @@ Boost é **aditivo** (regra 5 do `CLAUDE.md`); se a dose absurda não move, **ne
 move**. Isto **não** é falha de calibração — é falta de capacidade do canal. Recalibrar
 `w` sobre o corpus novo não recupera nada.
 
-**Mecanismo NÃO estabelecido.** Candidato lido no código, **não verificado**: a Fase 0 de
+**Mecanismo NÃO estabelecido, e o candidato do `agentFresh` está FALSIFICADO**
+(2026-09-09, sessão `memoria-nox-21`): 384 de 672 briefs são de agentes com sub-pool
+vazio nos **dois** corpora, para quem o freshPool é estruturalmente idêntico, e `mexeu`
+é 0 sobre os 672. Ver §10.14. Outro candidato lido no código, **não verificado**: a Fase 0 de
 `pickDedup` reserva `pinned` (high-pain já presentes no brief) que *"entram primeiro e
 nunca são expulsos pelo freshness slot"*, e *"pinned excedente come dos fresh slots"* —
 com `freshSlots = 2`, dois pinned zeram o canal. Não meço isso aqui, e **não atribuo**:
@@ -1465,6 +1468,11 @@ ativo**. Perna nova é necessária.
 
 Escolhido: **alargar a janela do pool global** e **manter o cron do realinhamento
 desarmado**.
+
+> ⚠️ **A primeira metade desta decisão foi REVERTIDA no mesmo dia — ver §10.14.** O que a
+> reverteu: o corpus congelado não protege da expiração (o predicado usa o relógio de
+> **request**), logo alargar não prolonga o ensaio, prolonga o registro de um ensaio
+> inerte. O cron segue desarmado.
 
 Alargar resolve **(B)**. Medido, sobre o corpus atual:
 
@@ -1523,6 +1531,97 @@ Medido **direto do `p2-serving.ndjson`**, sem replay (sessão `memoria-nox-21`):
 epoch 09-08.
 
 **Nada foi aplicado.** O que está feito: ativo salvo, cron desarmado, medições acima.
+
+
+#### 10.14 Decisão revisada (2026-09-09, tarde): **não alargar a janela**. O ensaio termina em 2026-09-20
+
+**Registrado antes de qualquer ação e sem consultar desfecho.**
+
+A decisão de manhã (§10.13) foi *alargar `freshGlobalMaxAgeDays`*. Ela está **revertida**,
+e o que a reverteu é uma medição que faltava: **o corpus congelado não protege da
+expiração.**
+
+O predicado do sub-pool usa `julianday('now')` (`dist/api/brief.js:470`) — relógio de
+**request**. O `fd` pinado congela os **dados**, não o **tempo**. Medido no próprio
+corpus servido (o recuperado):
+
+| data | designados no `globalFresh` |
+|---|---|
+| 2026-09-09 | 19/19 |
+| 2026-09-15 | 19/19 |
+| 2026-09-20 | 19/19 |
+| **2026-09-21** | **0/19** |
+
+⇒ Os dois cenários terminam no **mesmo dia**:
+
+| cenário | epochs úteis |
+|---|---|
+| **não alargar** | **até 2026-09-20**, ~20 epochs, com canal medidamente ativo (`churn>0` em 20/672 no epoch 09-08) |
+| alargar | os mesmos ~20 **mais** 214 epochs cujo valor **não está estabelecido**, ao custo de triplicar o pool |
+
+⚠️ **O que eu NÃO posso afirmar, e quase afirmei.** A primeira versão desta seção dizia
+que alargar daria *"214 epochs de zero"*, apoiada no `mexem_absurdo = 0` sobre o
+`current.db`. Isso **não** se sustenta, e a refutação veio da sessão `memoria-nox-21`:
+
+- **A hipótese do `agentFresh` está falsificada.** **384 de 672 briefs (57,1%)** são de
+  agentes com sub-pool **vazio nos dois corpora** (`nox:0, atlas:0, lex:0`), para quem
+  `interleaveFresh([], globalFresh) === globalFresh` — freshPool estruturalmente
+  idêntico. Se o deslocamento fosse a causa, esses 384 continuariam se movendo. `mexeu`
+  é 0 sobre os **672**.
+- **O replay rastreava a produção até 01/09 e parou quando o corpus divergiu.** Em 29/08:
+  `mexeu(2) = 30` contra `churn>0 = 30`. Os três REDs (05, 06 e 09/09) são os três dias
+  em que deixou de rastrear, e o `fd` pinado tem mtime `2026-09-03 17:30`.
+
+⇒ A leitura sustentada é que **`mexeu = 0` aparece quando o corpus do replay não é o que
+serviu**, não que o corpus novo seja inerte. E a distinção **não é decidível hoje**:
+mediria-se replayando um epoch servido *a partir* do corpus novo, e nenhum existe — o
+serving nunca o leu. A única forma de saber é reiniciar e observar, que é a ação
+irreversível.
+
+**Por isso a decisão não se apoia mais nisso.** O fundamento que resta, e que basta:
+
+1. A expiração de 2026-09-20 encerra o ensaio **nos dois cenários** — o corpus congelado
+   congela dados, não o tempo.
+2. Cobrir abril/2027 exige janela ≥ 244 d, que **triplica** o pool global (115 → 305),
+   mudando a composição do canal para **todos** os candidatos, em ensaio pré-registrado.
+3. O que se compraria com isso são 214 epochs de valor **desconhecido**, contra um custo
+   **conhecido** de mudança de desenho.
+
+Trocar composição de pool sob incerteza sobre o resultado é o oposto do que um
+pré-registro serve para prevenir.
+
+### O que fica decidido
+
+1. **Nada é alargado.** `freshGlobalMaxAgeDays` permanece em 30 (default).
+2. **O cron de realinhamento permanece desarmado.** Reiniciar antecipa a inércia sem
+   comprar nada.
+3. **O ensaio encerra em `2026-09-20 22:51Z`**, por expiração dos alvos, com os epochs
+   de `2026-09-01` a `2026-09-20`. O que se reporta é o que esses epochs contêm, com a
+   limitação declarada — não os 234 pré-registrados.
+4. **Os 11 dias restantes vão para os consertos de instrumento**, que não tocam o
+   serving: `corpus_path`/`corpus_sha256` no recibo, e `--corpus` apontando para snapshot
+   de epoch fechado em vez do symlink que anda (§10.13, i e ii).
+
+### O que o ensaio entrega, dito sem eufemismo
+
+**~20 epochs de 234 (8,5%).** A potência cai proporcionalmente e a alocação `117/39/39/39`
+não se realiza — o que existe é o prefixo dela. A causa é **defeito de desenho**, não
+circunstância: alvos fixos designados sobre um pool que só admite os últimos 30 dias
+nunca poderiam sustentar 8 meses, e isso era verdade desde a designação de 2026-08-26.
+
+⚠️ **O que NÃO é conclusão sobre a intervenção.** O mecanismo **funcionou** onde pôde
+agir: `churn>0` em 20 de 672 no epoch 09-08 e 38 de 672 no 09-06, por duas vias
+independentes (log de produção e replay sobre o corpus servido). A limitação é de
+**duração**, não de efeito — e escrever "a intervenção não se sustentou" seria a conclusão
+nula tirada de um prazo, que é a classe que este documento persegue desde o §10.4.
+
+### Se um ensaio futuro for desenhado
+
+O erro a não repetir: **designação por id fixo é incompatível com pool por janela de
+recência.** Ou a designação acompanha uma coorte rotativa, ou o alvo tem de estar num
+pool sem janela. E o guarda tem de vigiar **elegibilidade**, não só presença — o
+`gatilho-designados.mjs` dizia GREEN 19/19 todos os dias enquanto o prazo corria, e
+estava **certo** pelo seu predicado.
 
 
 ## Se a decisão mudar
