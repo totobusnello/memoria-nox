@@ -534,6 +534,41 @@ else
   FALHAS=$((FALHAS + 1))
 fi
 
+# ── T26: `--corpus` apontando para um fd DELETADO tem sha calculado, não
+#        `nao-calculado`. `readlink -f` devolve o nome original com ` (deleted)`, e
+#        esse caminho não existe; hashear o resultado do readlink degradaria a
+#        leitura a `indeterminada` num caso em que o dado está disponível. O rótulo
+#        continua vindo do readlink (é informativo: `orig.db (deleted)`), o hash vem
+#        do argumento. Para symlink comum os dois coincidem — T17 é esse controle, e
+#        precisa seguir passando.
+cp "$T/corpusA.db" "$T/epocas/paraofd.db"
+exec 8< "$T/epocas/paraofd.db"
+rm -f "$T/epocas/paraofd.db"
+sleep 300 < /proc/self/fd/8 8<&- &
+SLEEP_FD=$!
+exec 8<&-
+FDN="$(ls -l "/proc/$SLEEP_FD/fd" 2>/dev/null | sed -nE 's#^.* ([0-9]+) -> .*paraofd\.db( \(deleted\))?$#\1#p' | head -1)"
+if [ -z "$FDN" ]; then
+  echo "FALHA T26 fixture quebrada: nenhum fd para paraofd.db"; FALHAS=$((FALHAS + 1))
+else
+  echo "$SLEEP_FD" > "$T/mainpid-fdcorpus"
+  : > "$T/ndFdC.ndjson"
+  LFC="$(PATH="$T/bin:$PATH" FAKE_MAINPID="$T/mainpid-fdcorpus" FD_PREFIX="$T/epocas/" \
+        "$GAT" --raiz "$T" --harness "$T/harness-stub.mjs" \
+          --corpus "/proc/$SLEEP_FD/fd/$FDN" --vivo "$T/vivo.db" \
+          --designacao "$T/desig.json" --designacao-sha256 deadbeef \
+          --tmp "$T" --ndjson "$T/ndFdC.ndjson" --modo active --log "$T/log.ndjson" \
+          --assignment "$T/a.json" --assignment-sha256 "$SHA" 2>/dev/null)"
+  VFC="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["corpus_sha256"])' "$T/ndFdC.ndjson" 2>/dev/null)"
+  if [ "$VFC" = "$SHA_A" ] && [[ "$LFC" == *"corpus_sha256=${SHA_A:0:12}"* ]]; then
+    echo "ok   T26 corpus vindo de fd deletado tem sha do ARGUMENTO, não nao-calculado"
+  else
+    echo "FALHA T26 sha degradado: $VFC (esperado $SHA_A)"; echo "      status: $LFC"
+    FALHAS=$((FALHAS + 1))
+  fi
+fi
+kill "$SLEEP_FD" 2>/dev/null
+
 echo
 [ "$FALHAS" -eq 0 ] && echo "TODOS OS CASOS PASSARAM" || echo "$FALHAS CASO(S) FALHARAM"
 exit 0

@@ -116,8 +116,15 @@ done
 #     É o SHA DOS BYTES, não o caminho: `current.db` é symlink e às 06:02 aponta para
 #     outros bytes sem que arquivo nenhum mude. Em 2026-09-09 ele era `084bef6c…`.
 FD_PREFIX="${FD_PREFIX:-/var/lib/nox-mem/epochs/}"
+# `readlink -f` serve ao RÓTULO; o hash lê o ARGUMENTO. Achado 09/09 ao medir o
+# instrumento contra um fd deletado: `readlink -f /proc/PID/fd/N` devolve o nome
+# original com o sufixo — `/…/orig.db (deleted)` — e esse caminho NÃO existe, então
+# hashear o resultado dá `nao-calculado` enquanto o argumento é perfeitamente
+# legível. Para `current.db` (symlink comum) os dois são idênticos; a diferença só
+# aparece no caso que o instrumento existe para cobrir. Hashear o argumento é
+# estritamente melhor: se ele resolve, ler dele lê o alvo.
 CORPUS_REAL="$(readlink -f "$CORPUS" 2>/dev/null || printf '%s' "$CORPUS")"
-CORPUS_SHA="$(sha256sum "$CORPUS_REAL" 2>/dev/null | cut -d' ' -f1)"
+CORPUS_SHA="$(sha256sum "$CORPUS" 2>/dev/null | cut -d' ' -f1)"
 [ -n "$CORPUS_SHA" ] || CORPUS_SHA="nao-calculado"
 
 # ─── (b) A APROXIMAÇÃO É VÁLIDA HOJE? — o cabeçalho do wrapper diz "inerte não é

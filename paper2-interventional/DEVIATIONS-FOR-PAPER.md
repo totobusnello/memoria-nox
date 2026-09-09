@@ -2180,3 +2180,43 @@ vezes.
 não impede reaplicar o defeito**, porque o que falha é o reflexo de escrever
 `stat <nome>`, não o conhecimento. O que quebrou o ciclo foi imprimir a listagem
 (`ls -A`) — a única consulta que responde "apareceu algo?" sem precisar acertar o nome.
+
+---
+
+## §10.20 — v3: o hash lia o resultado do `readlink`, não o argumento
+
+A sessão par achou, na saída do teste do próprio mutante, que a perna 1 do guarda dela
+imprimia `corpus=$(basename "$CORPUS")` — para `/proc/PID/fd/3` isso sai `corpus=3`, o
+número do fd, num guarda cujo objeto é proveniência. Fui medir se o meu instrumento
+tinha a mesma cara, pela regra de que classe de defeito não fica consertada onde foi
+achada. **Não tinha essa, tinha outra:**
+
+```
+argumento           /proc/2372055/fd/3
+readlink -f devolve /var/tmp/bn/d/orig.db (deleted)     ← o nome ORIGINAL, com sufixo
+basename disso      orig.db (deleted)                   ← rótulo informativo, ok
+sha256 do argumento 529bb8c2700a38be…                   ← legível
+sha256 do readlink  <FALHOU>                            ← o caminho não existe
+```
+
+O código hasheava `$CORPUS_REAL`, isto é o resultado do `readlink`. Para um fd deletado
+esse caminho **não existe**, então `CORPUS_SHA` saía `nao-calculado` — e a leitura
+degradava a `aproximacao_valida=indeterminada` num caso em que o dado estava
+**disponível**. Não é perigoso (graças à perna de §10.18 dizer `indeterminada` e não
+`nao`), mas é leitura pior que a possível, no caso exato que o instrumento existe para
+cobrir.
+
+Corrigido: **o rótulo vem do `readlink`, o hash vem do argumento.** Para `current.db`
+(symlink comum) os dois coincidem, e T17 é esse controle. Se o argumento resolve, ler
+dele lê o alvo — hashear o argumento é estritamente melhor, nunca pior.
+
+**26/26.** Mutação M11 (voltar a hashear `$CORPUS_REAL`) mata **só T26**.
+
+Latente, não vivo: `run-saturacao.sh` passa `--corpus /var/lib/nox-mem/epochs/current.db`,
+symlink para arquivo real, nunca um caminho `/proc`. Nenhuma leitura publicada foi
+afetada.
+
+| arquivo | v2 | v3 |
+|---|---|---|
+| `gatilho-saturacao.sh` | `f3dcfb1de659087d` | `754e3eb939c27c3f9e8b3f696180c055a2003371cd5a7e672a859722dfcebe4e` |
+| `teste-gatilho-active.sh` | `7c184ca657c76df0` | `72b6188d19400e01eede77dc0c3900d852bd362beaa41755b0ac48dd41ecbff8` |
