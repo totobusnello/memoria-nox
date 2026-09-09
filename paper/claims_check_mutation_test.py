@@ -42,6 +42,30 @@ SCRIPT = "claims_check.py"
 # `de=None` => append ao fim do arquivo.
 CASOS = [
     (
+        # Citacao sem definicao rende marcador cru no PDF.
+        "footnote citada e NAO definida",
+        PAPER, None,
+        "\nThis mechanism follows prior work[^naoexiste] on retrieval fusion.\n",
+        "citada e nao tem defini",
+    ),
+    (
+        # Definicao nunca citada = enchimento de bibliografia, que e' o defeito
+        # que eu recusei cometer com HotpotQA/DPR/FiD.
+        "footnote definida e NUNCA citada",
+        PAPER, None,
+        "\n[^orfa]: Some Author, *Some Paper*, 2024. arXiv:2401.00001.\n",
+        "nunca citada",
+    ),
+    (
+        # `[^hipporag2]` afirmava sistema academico sem localizador nenhum:
+        # irresolvivel e' indistinguivel de inventada.
+        "footnote ACADEMICA sem localizador resolvivel",
+        PAPER,
+        "doi:10.1561/1500000019. Cited in \u00a73.1",
+        "Cited in \u00a73.1",
+        "sem localizador",
+    ),
+    (
         # A regex de serie viva casava SO `94.9k`, forma que o paper nunca usou:
         # ele escrevia `~95k` e `94,936`, e os 8 guardas passavam com o defeito
         # presente em tres sitios. Este caso prende as grafias reais.

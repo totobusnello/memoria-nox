@@ -114,7 +114,7 @@ The primary storage is SQLite 3 with WAL (Write-Ahead Logging) mode for concurre
 
 - `chunks_fts` — FTS5 virtual table with porter unicode61 tokenizer
   - Content-sync triggers (INSERT, UPDATE, DELETE) maintain index consistency
-  - BM25 ranking with configurable column weights (1.0, 0.5, 0.5)
+  - BM25 ranking[^bm25] with configurable column weights (1.0, 0.5, 0.5)
 
 - `consolidated_files` — Processing state tracker
   - `source_file` (TEXT PK), `status` (INTEGER: 0=pending, 1=done, -1=failed)
@@ -135,7 +135,7 @@ The primary storage is SQLite 3 with WAL (Write-Ahead Logging) mode for concurre
 - `decision_versions` — Architectural decision version history
   - Supersession chain via `is_current` flag and `superseded_at` timestamp
 
-**Vector Tables (sqlite-vec):**
+**Vector Tables (sqlite-vec[^sqlitevec]):**
 
 - `vec_chunks` — Virtual table storing float32 embeddings (3072 dimensions)
 - `vec_chunk_map` — Rowid-to-chunk_id mapping (sqlite-vec requires rowid-based access)
@@ -181,7 +181,7 @@ Total system memory: 1,481 chunks across 7 databases (initial-deployment snapsho
 
 nox-mem exposes a deliberately small public contract: **three primitives**, all backed by the same SQLite store and surfaced identically across three transport layers (CLI, HTTP API, MCP). Every advanced verb (`reflect`, `cross-search`, `kg-path`, `crystallize`) decomposes internally into sequences of these three primitives.
 
-**Primitive 1 — `search` (hybrid retrieval).** FTS5 BM25 + Gemini semantic (3072d) → Reciprocal Rank Fusion (RRF), k=60, with optional Hard Mutex section gating and SOURCE\_TYPE\_BOOST overlays. Returns ranked chunks with `score`, `match_type`, and provenance fields (`source_file`, `section`, `created_at`, `updated_at`). Detailed in §4.
+**Primitive 1 — `search` (hybrid retrieval).** FTS5 BM25 + Gemini semantic (3072d) → Reciprocal Rank Fusion (RRF)[^rrf], k=60, with optional Hard Mutex section gating and SOURCE\_TYPE\_BOOST overlays. Returns ranked chunks with `score`, `match_type`, and provenance fields (`source_file`, `section`, `created_at`, `updated_at`). Detailed in §4.
 
 **Primitive 2 — `answer` (grounded RAG).** Internally calls `search` with `topK = 10`, builds a citation-anchored prompt over the retrieved chunks, invokes the configured LLM (`gemini-2.5-flash-lite` by default per D41), and parses inline `[chunk_<id>]` citations. Anti-hallucination guard: citations pointing to chunks outside the retrieved set trigger a single retry with a stricter prompt; a second failure raises `AnswerError('hallucination_after_retry')`. Empty-retrieval short-circuit avoids LLM spend when no chunks match. Measured p95 latency: 101.74 ms on the offline mock-LLM bench (PR #40, 42× under the 4.3 s budget); live p95 with Gemini Flash Lite ranges 1.5–2.5 s. Implementation: `staged/P1/edits/src/lib/answer/{index,retrieval,prompt,provider,config}.ts`.
 
@@ -305,7 +305,7 @@ The query sanitizer strips special characters but preserves hyphens for compound
 
 **Layer 2 — Gemini Semantic (Vector)**
 
-Each chunk is embedded using Google's gemini-embedding-001 model (3072 dimensions) with task type RETRIEVAL_DOCUMENT. Query embeddings use task type RETRIEVAL_QUERY for asymmetric similarity optimization.
+Each chunk is embedded using Google's gemini-embedding-001 model[^geminiembed] (3072 dimensions) with task type RETRIEVAL_DOCUMENT. Query embeddings use task type RETRIEVAL_QUERY for asymmetric similarity optimization.
 
 Vectors are stored in sqlite-vec virtual tables. Retrieval uses cosine distance with a map table (vec_chunk_map) bridging vec_chunks rowids to chunks.id values due to sqlite-vec's rowid-only constraint.
 
@@ -347,9 +347,9 @@ The `crossSearch()` function opens all 7 databases in read-only mode, executes F
 > - **Wave 2 Capstone INDETERMINATE — infrastructure constraint, NOT scientific failure (D76, PR #426 draft):** IterB+KG+rerank composability test aborted after Hostinger VPS CPU steal 51–97% sustained. Batch 004 (n=49) preserved; 5-batch statistical threshold not reached. Capstone deferred to dedicated CPU infrastructure (§5.5.8).
 > - **EverMemBench Overall (Gemini-3-flash, Backbone Matrix):** nox-mem **63.28%** vs MemOS 42.55% (Table 4 baseline, GPT-4.1-mini) = **+20.73 pp**; backbones differ, see §5.1.10.
 > - **EverMemBench Memory Awareness composite (Gemini-3-flash):** nox-mem **88.42%** vs MemOS 55.68% (GPT-4.1-mini) = **+32.74 pp**; backbones differ, see §5.1.10.
-> - **MuSiQue-Ans (multi-hop QA, classical):** dev answer F1 **58.62%** = **+22.82 pp vs IRCoT 35.80%** and **+8.92 pp vs EX(SA) 49.70%**; ~10 pp below Beam Retrieval (69.2, test set) (§5.2.1).
+> - **MuSiQue-Ans[^musique] (multi-hop QA, classical):** dev answer F1 **58.62%** = **+22.82 pp vs IRCoT[^ircot] 35.80%** and **+8.92 pp vs EX(SA) 49.70%**; ~10 pp below Beam Retrieval[^beamretrieval] (69.2, test set) (§5.2.1).
 > - **HotPotQA (multi-hop QA, classical):** dev distractor answer F1 **73.37%**, above the DPR+FiD reader range 65–72%; ~12 pp below Beam Retrieval (85.04) and FE2H (84.44), both blind test (§5.2.2).
-> - **LoCoMo retrieval@10 (cross-bench memory):** strict **74.52%**. Mem0's published 66.88% is an end-to-end **answer F1** and therefore not comparable to a retrieval@10 figure; our own F1 push is 51.85% (rank-5, above Zep/LangMem), constrained by a verbosity gap (§5.3.1–§5.3.2).
+> - **LoCoMo[^locomo] retrieval@10 (cross-bench memory):** strict **74.52%**. Mem0's published 66.88% is an end-to-end **answer F1** and therefore not comparable to a retrieval@10 figure; our own F1 push is 51.85% (rank-5, above Zep/LangMem), constrained by a verbosity gap (§5.3.1–§5.3.2).
 > - **Phase D (Gemini-2.5-flash):** nox-mem **62.22%** vs MemOS 59.27% = **+2.95 pp WIN** (PR #365).
 > - **Phase H v2 (GPT-4.1-mini cross-backbone):** nox-mem **51.68%** vs MemOS 42.55% = **+9.13 pp WIN** (95% CI [49.88, 53.49], PR #377).
 > - **Backbone portability:** nox-mem regresses −10.54 pp on Gemini-2.5-flash → GPT-4.1-mini swap vs MemOS −16.72 pp = **1.6× more portable** (§5.8).
@@ -922,7 +922,7 @@ The capstone abort falls in the second category. The hypothesis (IterB + KG + re
 
 ---
 
-### 5.6 Cross-bench validation — LongMemEval (n=300)
+### 5.6 Cross-bench validation — LongMemEval[^longmemeval] (n=300)
 
 **Config:** Phase D production config (FTS5 + Gemini-embedding-001 + RRF, rerank OFF, top_k=20), GPT-4.1-mini backbone, Gemini-2.5-flash judge, oracle session retrieval, stratified n=300 queries. PR #378.
 
@@ -1556,17 +1556,41 @@ All data is fetched from the nox-mem API server via TanStack React Query with co
 
 [^mem0]: mem0ai/mem0 — open-source memory layer for LLM agents (PostgreSQL + Qdrant backend, OpenAI embeddings by default). github.com/mem0ai/mem0. Used in §1.4, §6.3, Table 2.
 
-[^letta]: Letta (formerly MemGPT) — agent-loop memory architecture with archival/recall memory separation. github.com/letta-ai/letta. Used in §1.4, §6.3, Table 2.
+[^letta]: Letta (formerly MemGPT) — agent-loop memory architecture with archival/recall memory separation. Original system paper: Packer et al., *MemGPT: Towards LLMs as Operating Systems*, arXiv:2310.08560. github.com/letta-ai/letta. Used in §1.4, §6.3, Table 2.
 
 [^zep]: Zep — temporal knowledge-graph memory service with summarization. github.com/getzep/zep. OpenAI embedding is the hardcoded default in the OSS distribution. Used in §1.4, §6.3, Table 2.
 
-[^lightrag]: Guo et al., *LightRAG: Simple and Fast Retrieval-Augmented Generation*, EMNLP 2025 (HKU). github.com/HKUDS/LightRAG (~35k stars, MIT). Cited in §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized incremental KG-merge pattern as a forward-looking optimization (LightRAG-style summarization parking-lotted until KG density >=10× current; see `docs/COMPETITIVE-ANALYSIS-2026-05-19.md`).
+[^lightrag]: Guo et al., *LightRAG: Simple and Fast Retrieval-Augmented Generation*, EMNLP 2025 (HKU); arXiv:2410.05779. github.com/HKUDS/LightRAG (~35k stars, MIT). Cited in §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized incremental KG-merge pattern as a forward-looking optimization (LightRAG-style summarization parking-lotted until KG density >=10× current; see `docs/COMPETITIVE-ANALYSIS-2026-05-19.md`).
 
 [^hipporag2]: HippoRAG2 — graph-augmented retrieval with Personalized PageRank over an entity-relation graph. Cited as a graph-baseline peer in §1.4 and §6.
 
 [^memo]: arXiv 2605.15156v2, *MeMo: Towards Language Models with Associative Memory Mechanisms* (parametric reflections folded into model weights). Cited as the design opposite of nox-mem's externalized, inspectable memory paradigm. §1.4, abstract.
 
 [^everos]: EverMind-AI / EverOS — github.com/EverMind-AI (~5k stars, Apache 2.0). Publishes EverMemBench dataset and an EvoAgentBench-framed evolution loop. The only memory-OS peer in our taxonomy that publishes its own benchmark; §3.4 is the direct narrative counter to EvoAgent framing. Honest-comparison action item: run nox-mem on EverMemBench (queued as F4 in §7.2).
+
+### Academic references
+
+Every entry below carries a resolvable identifier (arXiv ID or DOI). Full BibTeX in
+`paper/refs.bib`. arXiv IDs were verified against the arXiv API on 2026-09-09 — ID,
+first author and title checked to match, rather than transcribed from memory.
+
+[^bm25]: Robertson & Zaragoza, *The Probabilistic Relevance Framework: BM25 and Beyond*, Foundations and Trends in Information Retrieval 3(4), 2009. doi:10.1561/1500000019. Cited in §3.1 for the BM25 ranking used by Layer 1 (FTS5).
+
+[^rrf]: Cormack, Clarke & Buettcher, *Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods*, SIGIR 2009. doi:10.1145/1571941.1572114. Cited in §3.2 — this is the source of the `k=60` constant used by the fusion layer.
+
+[^sqlitevec]: Garcia, *sqlite-vec: A Vector Search Extension for SQLite*, 2024. github.com/asg017/sqlite-vec. Cited in §3.1 as the vector-table implementation; a software reference, so the repository is the identifier.
+
+[^geminiembed]: Google, *Gemini Embedding Model (`gemini-embedding-001`)*, 2024. ai.google.dev — model card. Cited in §3.3 for the 3072-dimension embedding used by Layer 2; a service reference, so the model card is the identifier.
+
+[^musique]: Trivedi, Balasubramanian, Khot & Sabharwal, *MuSiQue: Multihop Questions via Single-hop Question Composition*, TACL 2022. arXiv:2108.00573. The multi-hop QA dataset used in §5.2.
+
+[^ircot]: Trivedi, Balasubramanian, Khot & Sabharwal, *Interleaving Retrieval with Chain-of-Thought Reasoning for Knowledge-Intensive Multi-Step Questions*, ACL 2023. arXiv:2212.10509. The IRCoT baseline compared against in §5.2.
+
+[^beamretrieval]: Zhang, Zhang, Zhang, Yin & Zhang, *End-to-End Beam Retrieval for Multi-Hop Question Answering*, NAACL 2024. arXiv:2308.08973. The MuSiQue leaderboard system referenced as the upper bound in §5.2.1.
+
+[^locomo]: Maharana, Lee, Tulyakov, Bansal, Barbieri & Fang, *Evaluating Very Long-Term Conversational Memory of LLM Agents*, ACL 2024. aclanthology.org/2024.acl-long.747. The LoCoMo benchmark used in §5.5 and §6.
+
+[^longmemeval]: Wu, Wang, Yin, Ni, Peng, Yu & others, *LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory*, 2024. arXiv:2410.10813. The cross-bench validation set of §5.6.
 
 ### Internal references
 
