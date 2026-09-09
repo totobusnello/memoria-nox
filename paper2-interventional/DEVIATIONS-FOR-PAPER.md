@@ -2306,9 +2306,12 @@ Achado ao verificar a premissa de uma pergunta da sessão par — ela queria apo
 wrapper do guarda de coorte para "o corpus recuperado de 03/09". Fui ver onde esse
 arquivo vivia.
 
-**Varredura por sha256 em todo o disco** (`find / -xdev -type f -size +500M`, comparando
+> ⛔ **ERRATA (2026-09-09 14:53Z) — AS DUAS FRASES ABAIXO SÃO FALSAS.** Ficam à vista,
+> tachadas, com o mecanismo do erro. Ver *Errata* no fim desta seção.
+
+~~**Varredura por sha256 em todo o disco** (`find / -xdev -type f -size +500M`, comparando
 cada um): **zero** arquivos com `23378a9e…`. O corpus que o ensaio serve desde 03/09
-17:30 existia **exclusivamente** como o inode apagado mantido pelo `fd 26` do pid 546151.
+17:30 existia **exclusivamente** como o inode apagado mantido pelo `fd 26` do pid 546151.~~
 
 ⇒ Qualquer restart do `nox-mem-api` — deploy, OOM, `systemctl` de outra sessão, reboot —
 destruiria permanentemente **o corpus sobre o qual todos os vereditos do ensaio foram
@@ -2339,12 +2342,64 @@ que exige SQL, sobre um arquivo que **não existia** no disco quando eu varri. O
 cópia temporária já removida, ou o número veio de outra fonte. Perguntado a ela; até a
 resposta, `pool=108` é **não-reproduzível**, e é justificativa do PR #484.
 
-⚠️ **A lição operacional, que é a terceira vez que esta família aparece:** o §10.10
-documentou em 08/09 que o serving lia um inode apagado, e a lição em memória diz
-*"recuperar com `cat` ANTES de restart"*. Passaram-se **32 h** entre saber disso e
-alguém copiar. Saber que um ativo está a um restart de desaparecer não é o mesmo que
-tê-lo copiado, e o intervalo entre as duas coisas é risco puro — não havia nada a
-decidir, só a fazer.
+~~⚠️ **A lição operacional:** … Passaram-se **32 h** entre saber disso e alguém
+copiar.~~ ⛔ **TAMBÉM FALSO** — a cópia foi feita em 08/09 15:01:05Z, no mesmo dia da
+descoberta. Quem não sabia dela era eu.
+
+### Errata (2026-09-09 14:53Z): o arquivo existia, e o defeito é a varredura
+
+A sessão par apontou, e verifiquei:
+
+```
+-rw-r--r-- 1 root root 1254526976 Sep  8 15:01 /var/lib/nox-mem/p2/corpus-SERVING-REAL-e20260903-recuperado.db
+mtime = 2026-09-08 15:01:05.803665541 +0000   fs = /   sha = 23378a9ea83cd27d…
+```
+
+**24 h antes da minha varredura, no mesmo filesystem, mesmo sha, mesmo tamanho.** As
+três frases tachadas acima são falsas.
+
+**Por que a varredura não o viu — e é pior que o erro:** o pipeline
+`find / -xdev … | while read … sha256sum` leva **mais que os 120 s** do timeout da
+ferramenta. Ele foi mandado para segundo plano, o arquivo de saída tinha **só a linha de
+cabeçalho** quando eu o li, e eu tratei a ausência de linhas `ACHADO` como **negativa
+concluída**. A tarefa depois reportou `exit 0` e eu nunca reli.
+
+Rodada de novo, agora **contando o que examina**:
+
+```
+  ACHADO: /var/backups/nox-mem/p2-corpus-servido/servido-e20260903T060001Z.db
+  ACHADO: /var/lib/nox-mem/p2/corpus-SERVING-REAL-e20260903-recuperado.db
+  arquivos examinados: 31   com o sha alvo: 2
+```
+
+⇒ a mesma varredura, **quando termina**, acha os dois. A minha não tinha **contador** nem
+**controle positivo**, então *"examinei 0 arquivos e não achei"* e *"examinei todos e não
+achei"* produziam **saída idêntica**. É a formulação da par, e ela generaliza:
+
+> **Varredura que conclui ausência precisa de controle positivo** — um arquivo que ela
+> **deveria** achar. Sem isso, "não achei" e "não procurei onde estava" são
+> indistinguíveis pela saída.
+
+E é a minha própria família do dia inteiro, agora aplicada ao meu instrumento de
+verificação: ausência de dado lida como dado sobre ausência. A diferença é que esta
+entrou no registro do paper como **afirmação positiva**, que é a versão agravada (§10.18).
+
+### O que a errata NÃO derruba
+
+**A cópia continua justificada, e a par concorda:** `/var/lib/nox-mem/p2/` não é lugar
+protegido — não tem modo restritivo, está no caminho de scripts do p2, e nada garante que
+sobreviva a limpeza. Uma segunda cópia `0400`, fora do escopo do `pruneEpochs(3)` e fora
+de `/var/tmp`, é estritamente melhor. O que precisava de errata é a **afirmação**, não a
+decisão.
+
+### E uma retratação que eu devo à sessão par
+
+Com base nessa varredura eu escrevi que o `pool=108 nunca_servidos=0` dela estava
+*"sem lastro"* e *"não-reproduzível"*, e perguntei de onde teria saído. **Retiro.** Ele
+vinha de `--corpus /var/lib/nox-mem/p2/corpus-SERVING-REAL-e20260903-recuperado.db`, que
+estava no disco o tempo todo. Pus em dúvida a evidência dela com base numa medição que
+**nunca rodou** — e a assimetria importa: eu tinha o ônus, porque a afirmação negativa
+era minha.
 
 ---
 
