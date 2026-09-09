@@ -179,6 +179,63 @@ else
   falha "T11" "status=$( [ -s "$T/st.txt" ] && echo sim || echo NAO) ndjson=$(grep -c . "$T/nd.ndjson" 2>/dev/null || echo 0)"
 fi
 
+# ── T13: `--corpus` apontando para o fd de um DB APAGADO. Tres asserções, e a
+#        (ii) é a que importa.
+#
+# 🔴 Medido 2026-09-09: `sqlite3.connect("/proc/PID/fd/N")` SEM o prefixo `file:`
+# ABRE com sucesso e apresenta banco VAZIO (`sqlite_master` = 0 objetos) — logo
+# uma consulta a `chunks` falha com `no such table`, e o veredito `corpus-ilegivel`
+# sairia por ACIDENTE, não por desenho. Um probe escrito
+# `SELECT count(*) FROM sqlite_master` passaria calado. E uma ESCRITA por esse
+# caminho cria arquivo real no disco com o nome do texto do symlink, sufixo
+# incluído: `real.db (deleted)`, 8192 B, banco válido — em produção seria dentro
+# de `/var/lib/nox-mem/epochs/`, o diretório do ensaio.
+#
+# ⇒ (ii) exige que a recusa venha do MODO DE ABERTURA (`file:…?mode=ro` falha
+#   ALTO, "unable to open database file") e não de tabela ausente. Sem ela,
+#   trocar `ro()` por `connect()` simples passa em todos os outros casos.
+# ⇒ (iii) é asserção de EFEITO COLATERAL: nenhuma perna pode materializar
+#   arquivo no diretório do fd. A suíte não tinha nenhuma asserção desta classe.
+python3 - "$T/epocas" <<'PYD' >/dev/null 2>&1 &
+import os, sqlite3, sys, time
+d = sys.argv[1]
+p = os.path.join(d, "apagado.db")
+c = sqlite3.connect(p); c.execute("CREATE TABLE chunks (id INTEGER PRIMARY KEY)")
+c.execute("INSERT INTO chunks VALUES (1)"); c.commit(); c.close()
+f = open(p, "rb"); os.unlink(p)
+time.sleep(90)
+PYD
+PIDD=$!
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+  ls -l "/proc/$PIDD/fd" 2>/dev/null | grep -q "apagado.db" && break
+  sleep 0.3
+done
+FDD="$(ls -l "/proc/$PIDD/fd" 2>/dev/null | sed -nE 's#^.* ([0-9]+) -> .*apagado\.db( \(deleted\))?$#\1#p' | head -1)"
+if [ -z "$FDD" ]; then
+  falha "T13" "nao consegui montar fixture de fd apagado"
+else
+  ANTES="$(ls -la "$T/epocas" | tail -n +2)"
+  L="$(roda "$G" --corpus "/proc/$PIDD/fd/$FDD" --vivo "$V_OK")"
+  DEPOIS="$(ls -la "$T/epocas" | tail -n +2)"
+  checa "T13 fd apagado como corpus" "$L" YELLOW corpus-ilegivel
+  case "$L" in
+    *"unable to open"*) ok "T13b recusa vem do MODO DE ABERTURA, nao de tabela ausente" ;;
+    *"no such table"*) falha "T13b" "abriu banco VAZIO e culpou a tabela: $L" ;;
+    *) falha "T13b" "detalhe inesperado: $L" ;;
+  esac
+  if [ "$ANTES" = "$DEPOIS" ]; then
+    ok "T13c nenhum arquivo materializado no diretorio do fd"
+  else
+    falha "T13c" "EFEITO COLATERAL: a listagem mudou"
+  fi
+  if ls -1 "$T/epocas" | grep -qF "(deleted)"; then
+    falha "T13d" "criou arquivo com sufixo (deleted) no nome"
+  else
+    ok "T13d sem arquivo de nome '(deleted)'"
+  fi
+fi
+kill "$PIDD" 2>/dev/null
+
 echo
 echo "== mutacoes =="
 # morre(): so conta morte se o mutante IMPRIMIU status valido (GREEN|YELLOW|RED)
@@ -227,6 +284,37 @@ O="$(morre "M5" 's/out\["oportunidades"\] = briefs \* fslots/out["oportunidades"
       env PATH="$T/bin:$PATH" "$T/mut.sh" --agora "$AGORA" --fd-prefix "$T/epocas/" --corpus "$C_60" --vivo "$V_60G")"
 case "$O" in YELLOW*bloqueio-de-reingestao*) ok "M5 mata T8 (oportunidade != brief; 400 briefs = 800 slots)";; *) falha "M5" "nao matou: ${O:0:90}";; esac
 kill "$PID" 2>/dev/null
+
+# M6: `ro()` deixa de usar a forma URI `file:…?mode=ro` e passa a `connect()`
+#     simples. Sob ele o fd apagado ABRE (banco vazio) e o veredito ainda sai
+#     `corpus-ilegivel` — por `no such table`, não por recusa. Nenhum dos outros
+#     12 casos morre; só T13b, que asserta a ORIGEM da recusa. Mutante proposto
+#     pela sessão par, e ele mira o que este script IA fazer antes da medição do
+#     `/proc` obrigar a reformular.
+python3 - "$T/epocas" <<'PYE' >/dev/null 2>&1 &
+import os, sqlite3, sys, time
+d = sys.argv[1]; p = os.path.join(d, "apagado2.db")
+c = sqlite3.connect(p); c.execute("CREATE TABLE chunks (id INTEGER PRIMARY KEY)")
+c.commit(); c.close()
+f = open(p, "rb"); os.unlink(p); time.sleep(60)
+PYE
+PIDE=$!
+for _ in 1 2 3 4 5 6 7 8 9 10; do
+  ls -l "/proc/$PIDE/fd" 2>/dev/null | grep -q "apagado2.db" && break
+  sleep 0.3
+done
+FDE="$(ls -l "/proc/$PIDE/fd" 2>/dev/null | sed -nE 's#^.* ([0-9]+) -> .*apagado2\.db( \(deleted\))?$#\1#p' | head -1)"
+if [ -z "$FDE" ]; then
+  falha "M6" "nao consegui montar fixture"
+else
+  O="$(morre "M6" 's#return sqlite3.connect\(f"file:\{p\}\?mode=ro", uri=True\)#return sqlite3.connect(p)#' \
+        env PATH="$T/bin:$PATH" "$T/mut.sh" --agora "$AGORA" --fd-prefix "$T/epocas/" --corpus "/proc/$PIDE/fd/$FDE" --vivo "$V_OK")"
+  case "$O" in
+    *"no such table"*) ok "M6 mata T13b (connect simples abre banco vazio; recusa vira acidente)" ;;
+    *) falha "M6" "nao matou: ${O:0:110}" ;;
+  esac
+fi
+kill "$PIDE" 2>/dev/null
 
 echo
 [ "$FALHAS" -eq 0 ] && echo "TODOS OS CASOS PASSARAM" || echo "$FALHAS FALHA(S)"
