@@ -153,6 +153,48 @@ a janela de casamento"**, não como perda de dado.
 
 ---
 
+### 🟡 55 entity files têm chunks no banco e não existem no disco — e a regra 6 do `CLAUDE.md` envelheceu
+
+Medido em 09/09 ao cruzar um número do Paper 1 (§5.1.3 afirma *"769 entity files × 3
+sections ≈ 2.307 boost-bearing chunks"*):
+
+| grandeza | valor |
+|---|---:|
+| arquivos `.md` em `memory/entities/` **no disco** | **184** |
+| `source_file` distintos com `compiled` **no banco** | **239** |
+| `source_file` distintos com `timeline` no banco | **184** |
+| dos 239, existem no disco | **184** |
+| dos 239, **não** existem | **55** |
+
+A assimetria é **unidirecional** — `compiled` sem `timeline` = **55**, `timeline` sem
+`compiled` = **0** — e os 55 são todos `memory/entities/lessons/<hash>.md`. São chunks
+`compiled`+`frontmatter` de arquivos **removidos**, que ficaram no banco. É o inverso do
+§10.9: lá a reingestão **mata** ids servidos; aqui a remoção **deixa** ids.
+
+**Causa não medida.** Pode ser remoção manual, poda de `lessons`, ou resíduo do bulk
+import do workspace do Mac de junho. O que está estabelecido é a assimetria, medida nos
+dois sentidos.
+
+⚠️ **Efeito colateral que precisa de decisão do Toto, não minha:** a **regra 6** do
+`CLAUDE.md` deste repo manda validar operação destrutiva com
+`/api/health.sectionDistribution.compiled == 183`. **Hoje é 239.** Constante memorizada
+dentro de um guarda envelheceu: quem validar por ela hoje vê `239 ≠ 183` e conclui que a
+operação falhou — falso positivo garantido. E se algum dia for reescrita como `>= 183`,
+passa a valer sempre.
+
+O conserto certo não é atualizar 183 → 239 (envelhece igual). É trocar por **invariantes
+relacionais**, que não têm prazo:
+
+- `compiled == frontmatter` — vale hoje (239 = 239);
+- `{arquivos com timeline} ⊆ {arquivos com compiled}` — vale hoje (inverso = 0);
+- `{source_file com section} == {arquivos .md no disco}` — **falha hoje** (239 ≠ 184), e é
+  exatamente o defeito acima; serviria como perna de alarme, não de validação pós-op.
+
+**Não editei o `CLAUDE.md`** — ele é instrução do Toto sobre como trabalhar, e trocar um
+critério de validação de operação destrutiva é decisão dele. Fica sinalizado aqui.
+
+---
+
 ### Divisão de trabalho com a sessão `memoria-nox-21`
 
 | dela | minha |
