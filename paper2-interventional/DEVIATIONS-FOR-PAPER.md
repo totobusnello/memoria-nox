@@ -1322,6 +1322,73 @@ snapshots equivalentes (03/09–07/09) e a validade dos vereditos de dose até o
 e muda porque a justificativa aritmética da data supunha um mundo sem ingestão.
 
 
+#### 10.12 A causa do `faltam=1`: o replay descarta briefs **lentos**
+
+**Medido em 2026-09-09.** Fecha o item que o §10.4 deixava aberto e que o HANDOFF
+registrava como "sem causa estabelecida". Nenhum desfecho foi consultado: o que se mediu
+é o **mecanismo de casamento** entre o log de serving e o `brief_log`.
+
+Distribuição de `cands.length` em `idDoBrief()` sobre a janela de 09-06: **`{0: 1, 1: 671}`**
+— reproduz `estados=671 / n_janela=672 / faltam=1` exato. O único descartado é
+`ts=2026-09-06T23:07:02.425Z`, `agent=nox`, `churn=0`.
+
+O `brief_id=a1ebbe3f-3567-4169-a6c5-84e601bd0aa7` tem as **dez** linhas. O que se
+espalha é o `served_at`:
+
+| `id` | `served_at` | `chunk_id` |
+|---|---|---|
+| 647955 | `2026-09-06 23:07:02` | 116467 |
+| 647956 … 647964 | `2026-09-06 23:07:09` | os outros nove |
+
+`idDoBrief()` casa por `served_at IN (t, t+1s, t+2s)`. As nove de `:09` ficam **fora**, o
+`GROUP_CONCAT` devolve **um** id, não casa com os dez do ndjson, `cands.length === 0`, e o
+estado sai por `continue`.
+
+**Span por brief na janela:** 670 com span 0 s, 1 com 1 s, **1 com 7 s**. Um outlier, e é ele.
+
+### Três afirmações anteriores que isto corrige
+
+1. **O comentário do `gatilho-saturacao.sh`** atribuía o descarte a *"escrita incompleta
+   no `brief_log` (1 linha de 10)"*. **Errado na causa, certo no alvo:** o brief tem as
+   dez linhas; "1 linha de 10" é o que se **vê** de dentro da janela de 3 s. Sintoma
+   lido como causa. Corrigido no próprio arquivo, com o mecanismo.
+2. **A medição por `brief_id` de 08/09** (672 briefs, dez linhas cada, zero incompletos)
+   está **certa** e refuta *incompletude* — mas não localiza o defeito, e concluir dali
+   que "a explicação está falsificada, logo não há defeito ali" inverte o sentido. As
+   duas medições são verdadeiras sobre **populações diferentes**: a janela do epoch
+   inteira contra uma janela de 3 s.
+3. **A hipótese de ambiguidade** (`cands.length > 1`, plausível porque `served_at` tem
+   resolução de segundo e colide entre briefs) está **morta**: deu 0, não 2.
+
+### Por que é viés, e não ruído
+
+O critério de exclusão não é composição do brief — é **latência de escrita**. Latência
+não é independente de carga, e carga não é independente de quanto trabalho o brief deu.
+⇒ O descarte é potencialmente **correlacionado ao que se mede**. É a mesma classe do
+`estados=640` (`672 − 32`) do §10.4 — *regra que exclui em vez de atribuir* — na versão
+de tamanho 1, com um critério novo.
+
+Com `n=1` e `churn=0`, o dano **neste** epoch é nulo, e o veredito de 09-06 segue
+utilizável. A classe é que fica registrada.
+
+### O que o conserto **não** é
+
+Casar por `brief_id`: o `p2_outcome` do ndjson **não tem** esse campo — medido, 0/672. Os
+campos são `ts, tag, epoch, modo, w, servido, scope, agent, ids_controle, ids_tratado,
+churn, would_enter, would_leave, fresh_added, designated_ids, boost_by_id`. A
+reconstrução por (agent, segundo, ids) é hoje necessária.
+
+Duas frentes, nenhuma executada nesta entrada:
+
+- **histórico** — alargar a janela de casamento e desambiguar pelos ids. Exige medir o
+  custo em ambiguidade **antes**: alargar aumenta `cands.length > 1`, que é a *outra*
+  saída para `null`. Trocar um descarte por outro não é conserto.
+- **raiz** — emitir `brief_id` no `p2_outcome`, eliminando a reconstrução para frente.
+
+⚠️ Enquanto nenhuma das duas estiver feita, todo `faltam=N` do gatilho deve ser lido como
+**"N briefs cuja escrita atravessou a janela de casamento"**, e não como perda de dado.
+
+
 ## Se a decisão mudar
 
 A máquina do depósito está pronta e **não executada**: `deposit/PLAN-v1.13.md` e

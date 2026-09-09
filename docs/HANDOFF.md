@@ -111,6 +111,61 @@ ação.
 
 ---
 
+### ✅ `faltam=1` — causa ESTABELECIDA (fechado hoje, com a outra sessão)
+
+A outra sessão do repo (`memoria-nox-21`) trouxe a metade que faltava: a janela de 09-06
+é **byte-idêntica** hoje (`sha256 = d7a39c96e7e766011461481d`, verificado por mim
+independentemente, extraindo do `p2-serving.ndjson` com o predicado literal), com `n=672`
+e `ids_controle` de tamanho 10 em todos ⇒ o estado foi descartado **dentro** do replay.
+
+Isolando a perna: distribuição de `cands.length` em `idDoBrief()` = **`{0: 1, 1: 671}`**,
+reproduzindo `estados=671 / n_janela=672 / faltam=1` exato. O descartado é
+`ts=2026-09-06T23:07:02.425Z`, `agent=nox`, `churn=0`.
+
+**O brief tem as dez linhas.** O `served_at` delas se espalha por **7 segundos** — 1 em
+`23:07:02`, 9 em `23:07:09`. `idDoBrief()` casa por `served_at IN (t, t+1s, t+2s)`; as
+nove ficam fora; o `GROUP_CONCAT` devolve um id; não casa. Span na janela: 670 com 0 s,
+1 com 1 s, **1 com 7 s**.
+
+⇒ **A perna descarta briefs LENTOS**, não aleatórios. Latência não é independente de
+carga ⇒ descarte potencialmente **correlacionado** ao que se mede. Mesma classe do
+`estados=640` (`672 − 32`), com critério novo.
+
+**Duas hipóteses mortas, e uma delas era minha:**
+
+| hipótese | veredito |
+|---|---|
+| "escrita incompleta no `brief_log`, 1 linha de 10" (comentário do gatilho) | **errada na causa, certa no alvo** — "1 linha" é o que se vê de dentro da janela de 3 s |
+| ambiguidade, `cands.length > 1` (minha, plausível pela colisão de `served_at`) | **morta** — deu 0, não 2 |
+
+E uma correção na minha própria afirmação de ontem: eu registrei que a explicação do
+§10.4 estava "falsificada" e que `faltam=1` seguia sem causa. A medição por `brief_id`
+(672 × 10, zero incompletos) está **certa** e refuta *incompletude* — mas não localiza o
+defeito, e concluir dali que não há defeito ali inverte o sentido. As duas medições são
+verdadeiras sobre **populações diferentes**: a janela do epoch contra uma de 3 s.
+
+O conserto **não** é casar por `brief_id`: o `p2_outcome` não tem esse campo (0/672).
+Registrado no **§10.12** com as duas frentes possíveis (alargar a janela medindo o custo
+em ambiguidade; ou emitir `brief_id` na raiz), **nenhuma executada**.
+
+⚠️ Enquanto isso, todo `faltam=N` deve ser lido como **"N briefs cuja escrita atravessou
+a janela de casamento"**, não como perda de dado.
+
+---
+
+### Divisão de trabalho com a sessão `memoria-nox-21`
+
+| dela | minha |
+|---|---|
+| guarda de heartbeat (`gatilho-heartbeat.*`, `teste-gatilho-heartbeat.sh`, `implantacao/run-heartbeat.sh`) + cron | `docs/HANDOFF.md`, `docs/INCIDENTS.md`, `DEVIATIONS-FOR-PAPER.md`, cron de realinhamento, regra do epoch 09-02, `gatilho-saturacao.sh`, `replay-oportunidade.mjs` |
+| levantamento do arXiv + lista alegação-por-alegação do Paper 1 com procedência de cada número | — |
+
+Ela vai mandar a lista do Paper 1 com a procedência de cada número (banco vivo /
+snapshot de epoch / `/api/health`). Os dois que já sei que divergem: `67724` (vivo) contra
+`67187` (servido).
+
+---
+
 ### Falso alarme que NÃO é defeito
 
 `integrity` no report mostra `2026-09-06`, 3 dias atrás. O cron é `53 5 * * 0` —
@@ -291,7 +346,7 @@ original **contradizia os próprios dois exemplos** que trazia.
 
 ### O que fica ABERTO
 
-1. **`faltam=1` sem causa.** A causa que o §10.4 afirmava foi falsificada aqui.
+1. ~~**`faltam=1` sem causa.**~~ **FECHADO em 09/09** — ver a seção de hoje.
 2. **O veredito `SATURADO` em `w = 7.5` não foi reproduzido** em janela auditável
    (`mexeu=38`, `churn_total=44`, idênticos a `w=100000`).
 3. **Remedição de `w_min`** é sem efeito até o serving ver o corpus novo. Scripts prontos
