@@ -1572,20 +1572,55 @@ que alargar daria *"214 epochs de zero"*, apoiada no `mexem_absurdo = 0` sobre o
   `mexeu(2) = 30` contra `churn>0 = 30`. Os três REDs (05, 06 e 09/09) são os três dias
   em que deixou de rastrear, e o `fd` pinado tem mtime `2026-09-03 17:30`.
 
-⇒ A leitura sustentada é que **`mexeu = 0` aparece quando o corpus do replay não é o que
-serviu**, não que o corpus novo seja inerte. E a distinção **não é decidível hoje**:
-mediria-se replayando um epoch servido *a partir* do corpus novo, e nenhum existe — o
-serving nunca o leu. A única forma de saber é reiniciar e observar, que é a ação
-irreversível.
+⚠️ **E a correção da correção (mesma tarde).** Eu havia concluído daí que *"`mexeu = 0`
+aparece quando o corpus do replay não é o que serviu"* — e **retirei uma afirmação
+verdadeira**. `mexeu` é **interno ao corpus**, verificado no código:
 
-**Por isso a decisão não se apoia mais nisso.** O fundamento que resta, e que basta:
+```js
+// dist/api/brief.js:628
+diffP2 = diffBriefs(alt.items.map(i=>i.id), altBoosted.items.map(i=>i.id), …)
+```
+
+`alt` (sem boost) e `altBoosted` (com boost) saem **ambos** de
+`buildBriefDiverse(corpus, …)`, o **mesmo** banco; e o replay lê `churn: out.diffP2.churn`.
+Logo `mexeu` conta estados em que a dose muda a saída **contra a saída sem dose no mesmo
+corpus** — não depende de casar com o corpus servido.
+
+⇒ **`mexem_absurdo = 0` é afirmação verdadeira sobre o `current.db`.** O par que rodei é
+contraste isolado com **uma** variável (mesma janela `sha256 d5ba483d…`, mesmo
+`estados=672`, mesmo serve-state, mesmos `t_ref`):
+
+| corpus | `mexeu(2)` | `mexeu(10⁵)` | leitura |
+|---|---:|---:|---|
+| recuperado (o que **serviu**) | **20** | **37** | canal existe e responde |
+| `current.db` (realinhado) | **0** | **0** | canal ausente |
+
+E o **20** bate exato com o `churn>0 = 20` que a produção registrou, por via independente
+do replay ⇒ **validação externa**: no corpus que serviu, o harness reproduz o mundo.
+
+**Conclusão que os dois números sustentam:** não é que o replay falhe no corpus novo — é
+que **o corpus novo mata o mecanismo**, medido até em dose absurda. O que fica
+indecidível é a **magnitude sob serving real**, não o **sinal**. (E a "quebra de
+rastreamento" a partir de 05/09 é compatível: o harness sempre calcula certo sobre o
+corpus que **recebe**; o que mudou é que o corpus recebido deixou de ser o servido.)
+
+**Então o fundamento é mais forte do que eu havia escrito.** Alargar a janela exige
+restart; o restart faz o serving abrir um snapshot construído do vivo **realinhado** — a
+família medida com `mexeu(10⁵) = 0`. Não são 214 epochs de valor *desconhecido*: há
+medição apontando para valor **nulo**. Somado a:
 
 1. A expiração de 2026-09-20 encerra o ensaio **nos dois cenários** — o corpus congelado
    congela dados, não o tempo.
 2. Cobrir abril/2027 exige janela ≥ 244 d, que **triplica** o pool global (115 → 305),
    mudando a composição do canal para **todos** os candidatos, em ensaio pré-registrado.
-3. O que se compraria com isso são 214 epochs de valor **desconhecido**, contra um custo
-   **conhecido** de mudança de desenho.
+3. O que se compraria são 214 epochs num corpus onde o canal **não responde nem a dose
+   absurda**, contra um custo conhecido de mudança de desenho.
+
+⚠️ O que **não** está estabelecido: **por que** o corpus realinhado mata o mecanismo.
+`agentFresh` está **excluído** (os 384 briefs de sub-pool vazio); sobram `globalFresh`
+108 → 115 e a deriva de +537 chunks no pool principal, e nenhuma das duas foi medida. E
+não se sabe se um epoch **servido** do corpus novo se comportaria como o replay dele —
+isso exigiria o restart.
 
 Trocar composição de pool sob incerteza sobre o resultado é o oposto do que um
 pré-registro serve para prevenir.
