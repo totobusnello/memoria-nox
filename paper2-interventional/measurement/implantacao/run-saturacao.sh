@@ -20,6 +20,29 @@ morre() {  # status YELLOW/RED sem rodar nada, para o morning report ver o motiv
   echo "$l"; printf '%s\n' "$l" > "$STATUS"; exit 0
 }
 
+# ─── (c) O LOCK É DAQUI, NÃO DO CRON — achado 2026-09-09.
+# A linha do cron era `flock -n /tmp/nox-p2-saturacao.lock run-saturacao.sh`, e
+# `flock -n` que não pega o lock sai com código 1 e **corpo vazio**: nenhuma linha,
+# nenhum recibo, `$STATUS` intacto com o veredito de ontem. Resultado medido: cinco
+# rodadas puladas (02, 03, 04, 07 e 08/09) das quais NADA no disco dá notícia — o
+# morning report leu um GREEN velho como se fosse de hoje cinco vezes. É a mesma
+# família do dia todo: guarda que fica calado por não ter o dado, aqui porque o
+# processo que devia produzir o dado nunca chegou a nascer.
+#
+# Trazer o lock para dentro custa uma consequência que fica declarada: um skip
+# SOBRESCREVE `$STATUS` com YELLOW, apagando o veredito da véspera. É deliberado —
+# "a rodada de hoje não aconteceu" é informação sobre hoje, e um GREEN de ontem
+# apresentado como de hoje é pior que um YELLOW que diz a verdade. A instância que
+# está rodando sobrescreve com o veredito real quando termina.
+LOCK=/var/lib/nox-mem/p2/saturacao.lock
+mkdir -p "$(dirname "$LOCK")" 2>/dev/null
+exec 9>"$LOCK" || morre RED nao-abri-o-lock:"$LOCK"
+if ! flock -n 9; then
+  morre YELLOW rodada-anterior-ainda-em-execucao-lock="$LOCK"
+fi
+# `exec timeout ...` no fim substitui a imagem do processo e o fd 9 SOBREVIVE ao
+# exec (não tem O_CLOEXEC), então o lock cobre a rodada inteira, não só o preâmbulo.
+
 # Environment do unit, uma var por linha. `--value` devolve tudo numa linha
 # separada por espaço; valores desta unidade não contêm espaço (são caminhos e
 # números), e se passarem a conter isto quebra ALTO em vez de silenciosamente.

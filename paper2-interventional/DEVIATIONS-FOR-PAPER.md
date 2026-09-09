@@ -1827,3 +1827,124 @@ o protocolo prospectivo) custa o token e um `prepare`.
 ⚠️ Se o depósito acontecer meses depois, **reconferir os 6 arquivos substituídos por
 md5 antes do `prepare`** — `claims_check.py` e a emenda continuarão recebendo edições, e
 o `sync` só corrige o que sabe comparar.
+
+---
+
+## §10.17 — Os três consertos do instrumento, implantados 2026-09-09
+
+Registrado depois de medir; a decisão de §10.14 (encerrar em 2026-09-20, sem alargar
+a janela) não muda. Isto não altera o ensaio: altera o que o **recibo** do vigilante
+diz. Os três defeitos foram achados em 08-09/09 e todos são da mesma família — guarda
+que fica calado por não ter o dado, em vez de dizer que não tem.
+
+### O que motivou cada um
+
+**(a) O recibo não dizia sobre qual corpus o replay correu.** Os 13 campos gravados
+eram `absurdo, estado, folga, janela, motivo, n_janela, semantica, servido,
+sha256_janela, tag, ts, via, w_servido` — nenhum de corpus. Consequência **medida** em
+09/09: duas corridas com `sha256_janela` idêntico (`d5ba483d…`), `estados=672`
+idêntico, mesmo epoch (`2026-09-08`, `arm=treatment`) e mesma janela produziram
+vereditos **opostos** — GREEN `20/37/folga=0.5405` sobre o corpus que o serving tinha
+aberto, RED `0/0` sobre `current.db`. Recibos indistinguíveis para resultados
+contrários: o par não permitia decidir qual era o veredito do ensaio.
+
+**(b) O cabeçalho do wrapper prometia uma aproximação declarada e nada a media.**
+Texto vigente desde 27/08: *"`current.db` roda às 06:00Z, então um dia UTC inteiro
+atravessa DOIS corpora e este replay usa um só. Medido em 27/08 … resultado IDÊNTICO —
+a escolha de corpus foi inerte. **Inerte não é garantido**, e a aproximação fica em
+cada linha do NDJSON em vez de silenciosa."* Ela **não** ficava em linha nenhuma, e
+desde 03/09 17:30 deixara de ser inerte: o serving lê um inode já apagado do disco
+(§10.10) enquanto o symlink seguiu relinkando. O conserto não muda a aproximação —
+mede se ela vale, por dia, e grava o veredito.
+
+**(c) `flock -n` no cron pula a rodada em silêncio.** A linha era
+`flock -n /tmp/nox-p2-saturacao.lock run-saturacao.sh`. `flock -n` que não pega o lock
+sai com código 1 e **corpo vazio**: nenhuma linha, nenhum recibo, `$STATUS` intacto com
+o veredito da véspera. Cinco rodadas puladas (02, 03, 04, 07 e 08/09) das quais nada no
+disco dá notícia — o morning report leu um veredito velho como se fosse do dia, cinco
+vezes.
+
+### O que passou a existir
+
+| campo novo | conteúdo | onde |
+|---|---|---|
+| `corpus_path` | caminho **resolvido** (`readlink -f`) | NDJSON |
+| `corpus_sha256` | sha256 dos **bytes**, não do caminho | NDJSON + linha de status (12 hex) |
+| `serving_fd_sha256` | sha256 do que o serving tem aberto no `fd`, lido por `/proc/<pid>/fd/<n>` | NDJSON |
+| `aproximacao_valida` | `sim` / `nao` / `indeterminada` | NDJSON + linha de status |
+
+`sim` exige **bytes iguais**, não caminho igual: o corpus recuperado de 03/09 tem
+caminho diferente do `fd` e é byte-idêntico a ele; e `current.db` é symlink que às
+06:02 passa a apontar para outros bytes sem que arquivo nenhum mude de nome. Gravar o
+caminho e chamar aquilo de proveniência é a lição
+`a_commit_hash_is_not_a_stable_pin` na versão do corpus.
+
+`indeterminada` quando não há serving vivo ou o `fd` não pode ser lido — **nunca**
+`sim` por omissão. Um default otimista aqui reproduziria exatamente o silêncio que se
+está consertando.
+
+O lock passou do cron para dentro do `run-saturacao.sh` (`exec 9>`, `flock -n 9`; o fd
+sobrevive ao `exec` final porque não tem `O_CLOEXEC`, então cobre a rodada inteira e
+não só o preâmbulo). Consequência declarada: um skip **sobrescreve** `$STATUS` com
+YELLOW, apagando o veredito da véspera. É deliberado — "a rodada de hoje não
+aconteceu" é informação sobre hoje, e um GREEN de ontem apresentado como de hoje é
+pior que um YELLOW que diz a verdade.
+
+### Verificação
+
+Suíte de 21 casos, **21/21** na VPS. Os 7 novos (T15–T21) exigem a **linha de status**,
+não só o código de saída — é a linha que o morning report lê, e um campo que só
+existisse no NDJSON deixaria o report tão cego quanto era. Teste de mutação, 4 mutantes,
+todos confirmados aplicados (`cmp` antes de rodar) e todos mortos:
+
+| mutante | casos que morreram |
+|---|---|
+| M1 `aproximacao_valida` fixa em `sim` | T19, T20 |
+| M2 grava sha do **caminho** em vez dos bytes | T15, T17, T18, T21 |
+| M3 campos só no NDJSON, fora do status | T15, T17, T18, T19, T20, T21 |
+| M4 atalho sem os campos novos | T21 |
+
+⚠️ Duas das minhas previsões de "quem morde" estavam erradas, e nos dois casos o
+**teste** estava certo:
+
+- previ que **T16** cairia em M2; não cai, e não deve — hash de caminho é *estável*
+  para o mesmo caminho, e T16 é controle de **estabilidade**, não de bytes;
+- previ **T19** em M2 e caiu **T18**. Sob M2 os dois shas nunca podem coincidir ⇒
+  `aproximacao_valida` fica presa em `nao`, e T19 (que espera `nao`) **passa pelo
+  motivo errado**. É para isso que T18 existe. T19 sozinho seria enganado por M2.
+
+Registro as duas porque a lição é sobre o método: *prever qual caso morde é hipótese,
+e a mutação a testa como testa o código.* Um mutante que mata os casos que eu previa
+confirma menos que um que mata outros e me obriga a explicar por quê.
+
+Verificação de (c) na VPS, com o lock segurado à mão: `rc=0`, `dur=0s`, e a linha
+`YELLOW … motivo=rodada-anterior-ainda-em-execucao-lock=…` em stdout **e** em
+`$STATUS`. O `$STATUS` de produção foi salvo antes e restaurado depois.
+
+### Pinos
+
+Duas eras do instrumento, com fronteira datada em **2026-09-09 ~12:20Z**. Leituras
+anteriores a ela **não** têm proveniência de corpus, e essa ausência é fato do
+instrumento, não do ensaio.
+
+| arquivo | sha256 antes (16 hex) | sha256 depois (completo) |
+|---|---|---|
+| `gatilho-saturacao.sh` | `561d81a328f34c59` | `b08fc330edaa8c574d12fbadd44aebb935e13e5f32a150670007d34032ac0692` |
+| `run-saturacao.sh` | `b25a937137ff2c46` | `59c158a55f2f739c2dbf1ad85efdbe41a0b30843dfec40f47f6740f677cd2ffb` |
+| `teste-gatilho-active.sh` | — (14 casos) | `3dccf80a1b59938f6c53b9f79828dba3e546e25660981591434a41190c9cc01c` |
+
+Cópias das versões substituídas em `/var/backups/nox-mem/p2-scripts/`. Crontab: saiu o
+`flock -n` externo, uma linha alterada, contagem de linhas conferida antes de instalar.
+
+### Primeira leitura de produção com os campos novos
+
+O estado que (b) passou a enxergar, medido no momento da implantação:
+
+```
+fd=26 -> /var/lib/nox-mem/epochs/e20260903T060001Z.db
+sha do fd      : 23378a9ea83cd27d0360cfe148207167aee30a376f29ef89d4bcfae415d04131
+sha current.db : 084bef6c441cbcbf67b120884644cdbc9880100adc52744b4451293456f10586
+```
+
+⇒ `aproximacao_valida=nao`. Divergentes desde 03/09 17:30, seis dias antes de existir
+qualquer campo capaz de dizer isso.

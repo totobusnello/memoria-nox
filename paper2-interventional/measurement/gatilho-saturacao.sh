@@ -106,6 +106,49 @@ for v in RAIZ HARNESS LOG CORPUS VIVO DESIG DESIG_SHA; do
   eval "x=\${$v}"
   [ -n "$x" ] || { echo "FALTA --$(echo "$v" | tr 'A-Z_' 'a-z-')" >&2; exit 2; }
 done
+# ─── (a) IDENTIDADE DO CORPUS — o cabeçalho do wrapper promete que a aproximação
+#     "fica em cada linha do NDJSON em vez de silenciosa", e até 2026-09-09 ela NÃO
+#     ficava: os 13 campos do recibo não traziam nada de corpus. Consequência medida
+#     nesse dia: duas corridas com `sha256_janela` IDÊNTICO, `estados=672` idêntico,
+#     mesma janela e mesmo epoch produziram GREEN 20/37 e RED 0/0 — vereditos opostos
+#     com recibos indistinguíveis. Isto cumpre a promessa que já estava escrita.
+#
+#     É o SHA DOS BYTES, não o caminho: `current.db` é symlink e às 06:02 aponta para
+#     outros bytes sem que arquivo nenhum mude. Em 2026-09-09 ele era `084bef6c…`.
+FD_PREFIX="${FD_PREFIX:-/var/lib/nox-mem/epochs/}"
+CORPUS_REAL="$(readlink -f "$CORPUS" 2>/dev/null || printf '%s' "$CORPUS")"
+CORPUS_SHA="$(sha256sum "$CORPUS_REAL" 2>/dev/null | cut -d' ' -f1)"
+[ -n "$CORPUS_SHA" ] || CORPUS_SHA="nao-calculado"
+
+# ─── (b) A APROXIMAÇÃO É VÁLIDA HOJE? — o cabeçalho do wrapper diz "inerte não é
+#     garantido", e não havia nada medindo quando deixou de ser. O serving resolve
+#     `current.db` UMA vez, no open(); desde 2026-09-03 17:30 ele lê um inode já
+#     podado do disco (§10.10) enquanto o symlink seguiu relinkando. Compara-se por
+#     BYTES, não por caminho: o corpus recuperado tem caminho diferente do fd e é
+#     byte-idêntico a ele.
+#     O prefixo é PARÂMETRO com default de produção: sem isso a perna só poderia
+#     ser exercitada escrevendo arquivo de teste dentro de `/var/lib/nox-mem/epochs/`,
+#     que é o diretório do ensaio em curso. Um teste que precisa sujar produção para
+#     rodar não roda — e perna não exercitada é crença, não guarda.
+SERV_PID="$(systemctl show -p MainPID --value nox-mem-api 2>/dev/null)"
+SERV_FD=""; SERV_SHA=""
+case "$SERV_PID" in
+  ''|0|*[!0-9]*) SERV_SHA="sem-pid" ;;
+  *)
+    SERV_FD="$(ls -l "/proc/$SERV_PID/fd" 2>/dev/null \
+      | grep -oE "${FD_PREFIX}[^ ]+\.db" | head -1)"
+    if [ -n "$SERV_FD" ]; then
+      FDNUM="$(ls -l "/proc/$SERV_PID/fd" 2>/dev/null | grep -F "$SERV_FD" \
+        | head -1 | sed -E 's#.* ([0-9]+) ->.*#\1#')"
+      [ -n "$FDNUM" ] && SERV_SHA="$(sha256sum "/proc/$SERV_PID/fd/$FDNUM" 2>/dev/null | cut -d' ' -f1)"
+    fi
+    [ -n "$SERV_SHA" ] || SERV_SHA="fd-nao-lido"
+    ;;
+esac
+if [ "$CORPUS_SHA" = "$SERV_SHA" ]; then APROX="sim"
+elif [ "$SERV_SHA" = "sem-pid" ] || [ "$SERV_SHA" = "fd-nao-lido" ]; then APROX="indeterminada"
+else APROX="nao"; fi
+
 case "$MODO" in
   shadow)
     [ -n "$W_SERV" ] || { echo "FALTA --w-servido (obrigatório em shadow)" >&2; exit 2; }
@@ -173,9 +216,10 @@ trap 'rm -rf "$TMP"' EXIT
 gravar_ndjson_atalho() {  # $1=estado $2=resto da linha
   [ -n "$NDJSON" ] || return 0
   [ -e "$TMP/.ndjson-gravado" ] && return 0
-  python3 - "$NDJSON" "$1" "$2" "$TS" "$INICIO" "$FIM" "$MODO" "${EPOCH_ALVO:-}" "${ARM:-}" <<'PYND' 2>/dev/null || true
+  python3 - "$NDJSON" "$1" "$2" "$TS" "$INICIO" "$FIM" "$MODO" "${EPOCH_ALVO:-}" "${ARM:-}" \
+    "${CORPUS_REAL:-$CORPUS}" "${CORPUS_SHA:-?}" "${APROX:-indeterminada}" "${SERV_SHA:-?}" <<'PYND' 2>/dev/null || true
 import json, re, sys
-nd, estado, resto, ts, ini, fim, modo, epoch, arm = sys.argv[1:10]
+nd, estado, resto, ts, ini, fim, modo, epoch, arm, cpath, csha, aprox, ssha = sys.argv[1:14]
 m = re.match(r'motivo=(.*?)(?=\s+[a-z_0-9]+=|$)', resto)
 try:
     with open(nd, "a") as f:
@@ -184,6 +228,8 @@ try:
             "motivo": m.group(1) if m else None,
             "janela": [ini or None, fim or None],
             "modo": modo, "epoch": epoch or None, "arm": arm or None,
+            "corpus_path": cpath or None, "corpus_sha256": csha,
+            "aproximacao_valida": aprox, "serving_fd_sha256": ssha,
             "servido": None, "absurdo": None, "folga": None,
             "via": "atalho",
             "nota": "veredito por atalho: o bloco de dose nao rodou, logo servido/absurdo/folga nao existem",
@@ -213,7 +259,7 @@ trap 'morte_por_sinal TERM' TERM
 trap 'morte_por_sinal INT' INT
 
 emitir() {  # $1=estado $2=resto da linha
-  local linha="$1 p2-saturacao-da-dose $2 janela=[$INICIO,$FIM) ts_inicio=$TS ts_fim=$(date -u +%Y-%m-%dT%H:%M:%SZ) duracao_s=$(( $(date -u +%s) - T0 ))"
+  local linha="$1 p2-saturacao-da-dose $2 janela=[$INICIO,$FIM) corpus=$(basename "${CORPUS_REAL:-$CORPUS}") corpus_sha256=$(printf '%.12s' "${CORPUS_SHA:-?}") aproximacao_valida=${APROX:-indeterminada} ts_inicio=$TS ts_fim=$(date -u +%Y-%m-%dT%H:%M:%SZ) duracao_s=$(( $(date -u +%s) - T0 ))"
   echo "$linha"
   [ -n "$STATUS" ] && printf '%s\n' "$linha" > "$STATUS"
   gravar_ndjson_atalho "$1" "$2"
@@ -375,9 +421,10 @@ if [ ! -s "$OUT" ]; then
   exit 0
 fi
 
-python3 - "$OUT" "$W_SERV" "$N_JAN" "$SHA_JAN" "${NDJSON:-}" "$TS" "$INICIO" "$FIM" "$TMP" <<'PY' > "$TMP/veredito"
+python3 - "$OUT" "$W_SERV" "$N_JAN" "$SHA_JAN" "${NDJSON:-}" "$TS" "$INICIO" "$FIM" "$TMP" \
+  "${CORPUS_REAL:-$CORPUS}" "${CORPUS_SHA:-?}" "${APROX:-indeterminada}" "${SERV_SHA:-?}" <<'PY' > "$TMP/veredito"
 import json, sys
-out, wserv, njan, sha, ndjson, ts, ini, fim, tmpdir = sys.argv[1:10]
+out, wserv, njan, sha, ndjson, ts, ini, fim, tmpdir, cpath, csha, aprox, ssha = sys.argv[1:14]
 wserv = float(wserv)
 d = json.load(open(out))["dose"]
 tab = {r["w"]: r for r in d["tabela"]}
@@ -486,6 +533,8 @@ if ndjson:
         f.write(json.dumps({
             "ts": ts, "tag": "p2_gatilho_saturacao", "estado": estado, "motivo": motivo,
             "janela": [ini, fim], "n_janela": int(njan), "sha256_janela": sha,
+            "corpus_path": cpath, "corpus_sha256": csha,
+            "aproximacao_valida": aprox, "serving_fd_sha256": ssha,
             "w_servido": wserv, "servido": s, "absurdo": a, "folga": folga,
             "semantica": "contrafactual sob a designacao ATUAL, nao taxa historica da janela",
             "via": "veredito-de-dose",

@@ -252,6 +252,164 @@ else
 fi
 
 
+# ══ (a) IDENTIDADE DO CORPUS NO RECIBO — consertos de 2026-09-09 ══════════════
+#
+# O critério destes casos é o PAR DE FIXTURES de 09/09: duas corridas com vereditos
+# OPOSTOS (GREEN 20/37/0.5405 e RED 0/0), `sha256_janela` idêntico, `estados=672`
+# idêntico, mesmo epoch e mesma janela — e recibos indistinguíveis, porque nenhum
+# dos 13 campos dizia sobre QUAL corpus o replay correu. Os casos abaixo passam se,
+# e somente se, esse par se torna distinguível.
+#
+# ⚠️ Exigem a LINHA DE STATUS, não só o código de saída: o veredito que o morning
+#    report lê é a linha. Um campo que só existisse no NDJSON deixaria o report
+#    exatamente tão cego quanto era.
+
+# ── T15: corpora com BYTES diferentes ⇒ recibos distinguíveis (status e NDJSON).
+cp "$T/corpus.db" "$T/corpusA.db"; printf 'A' >> "$T/corpusA.db"
+cp "$T/corpus.db" "$T/corpusB.db"; printf 'BB' >> "$T/corpusB.db"
+SHA_A="$(sha256sum "$T/corpusA.db" | cut -d' ' -f1)"
+SHA_B="$(sha256sum "$T/corpusB.db" | cut -d' ' -f1)"
+roda_corpus() {  # $1=corpus $2=ndjson $3...=args
+  local c="$1" nd="$2"; shift 2
+  "$GAT" --raiz "$T" --harness "$T/harness-stub.mjs" \
+    --corpus "$c" --vivo "$T/vivo.db" \
+    --designacao "$T/desig.json" --designacao-sha256 deadbeef \
+    --tmp "$T" --ndjson "$nd" "$@" 2>/dev/null
+}
+: > "$T/ndA.ndjson"; : > "$T/ndB.ndjson"
+LA="$(roda_corpus "$T/corpusA.db" "$T/ndA.ndjson" --modo active --log "$T/log.ndjson" \
+       --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+LB="$(roda_corpus "$T/corpusB.db" "$T/ndB.ndjson" --modo active --log "$T/log.ndjson" \
+       --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+VA="$(python3 -c 'import json,sys;print(json.loads(open(sys.argv[1]).readline())["corpus_sha256"])' "$T/ndA.ndjson" 2>/dev/null)"
+VB="$(python3 -c 'import json,sys;print(json.loads(open(sys.argv[1]).readline())["corpus_sha256"])' "$T/ndB.ndjson" 2>/dev/null)"
+if [ "$VA" = "$SHA_A" ] && [ "$VB" = "$SHA_B" ] && [ "$VA" != "$VB" ] \
+   && [[ "$LA" == *"corpus_sha256=${SHA_A:0:12}"* ]] \
+   && [[ "$LB" == *"corpus_sha256=${SHA_B:0:12}"* ]] \
+   && [[ "$LA" == *"corpus=corpusA.db"* ]]; then
+  echo "ok   T15 corpora diferentes ⇒ recibos distinguíveis no status E no NDJSON"
+else
+  echo "FALHA T15 o par de fixtures segue indistinguível"
+  echo "      ndjson: A=$VA B=$VB (esperado A=$SHA_A B=$SHA_B)"
+  echo "      statusA: $LA"; FALHAS=$((FALHAS + 1))
+fi
+
+# ── T16: controle de T15 — o MESMO corpus tem de dar o MESMO sha. Sem este caso,
+#        um campo que sorteasse valor a cada corrida passaria em T15 e o campo
+#        seria ruído com cara de proveniência.
+: > "$T/ndA2.ndjson"
+roda_corpus "$T/corpusA.db" "$T/ndA2.ndjson" --modo active --log "$T/log.ndjson" \
+  --assignment "$T/a.json" --assignment-sha256 "$SHA" >/dev/null
+VA2="$(python3 -c 'import json,sys;print(json.loads(open(sys.argv[1]).readline())["corpus_sha256"])' "$T/ndA2.ndjson" 2>/dev/null)"
+if [ -n "$VA2" ] && [ "$VA2" = "$VA" ]; then
+  echo "ok   T16 mesmo corpus ⇒ mesmo sha (o campo é proveniência, não ruído)"
+else
+  echo "FALHA T16 sha instável para o mesmo corpus: $VA vs $VA2"; FALHAS=$((FALHAS + 1))
+fi
+
+# ── T17: o sha é dos BYTES, não do caminho. `current.db` é symlink e às 06:02 passa
+#        a apontar para outros bytes sem que arquivo nenhum mude de nome — gravar o
+#        caminho e chamar aquilo de proveniência é o defeito que a lição
+#        `a_commit_hash_is_not_a_stable_pin` descreve, na versão do corpus.
+ln -sf "$T/corpusB.db" "$T/andarilho.db"
+: > "$T/ndLink.ndjson"
+LL="$(roda_corpus "$T/andarilho.db" "$T/ndLink.ndjson" --modo active --log "$T/log.ndjson" \
+       --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+VL="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["corpus_sha256"],o["corpus_path"])' "$T/ndLink.ndjson" 2>/dev/null)"
+if [[ "$VL" == "$SHA_B "*"corpusB.db" ]] && [[ "$LL" == *"corpus=corpusB.db"* ]]; then
+  echo "ok   T17 symlink é resolvido: grava os bytes apontados, não o nome do link"
+else
+  echo "FALHA T17 symlink não resolvido: $VL"; echo "      status: $LL"; FALHAS=$((FALHAS + 1))
+fi
+
+# ══ (b) A APROXIMAÇÃO DECLARADA É VÁLIDA HOJE? ════════════════════════════════
+#
+# O cabeçalho do wrapper diz, desde 27/08, que a escolha de corpus "foi inerte" e
+# que "inerte não é garantido". Nada media quando deixara de ser. Desde 03/09 17:30
+# o serving lê um inode já apagado do disco enquanto `current.db` seguiu relinkando
+# (§10.10) — o estado em que a aproximação é FALSA, sem alarme.
+#
+# `systemctl` e o prefixo do fd são substituídos pelo teste. O que está sob teste é
+# a COMPARAÇÃO POR BYTES: caminho diferente com bytes iguais tem de dar `sim`.
+mkdir -p "$T/bin" "$T/epocas"
+cat > "$T/bin/systemctl" <<'EOF'
+#!/bin/sh
+cat "$FAKE_MAINPID"
+EOF
+chmod +x "$T/bin/systemctl"
+
+cp "$T/corpusA.db" "$T/epocas/servido.db"        # bytes iguais a corpusA, nome outro
+sleep 300 < "$T/epocas/servido.db" &
+SLEEP_PID=$!
+trap 'kill "$SLEEP_PID" 2>/dev/null; rm -rf "$T"' EXIT
+echo "$SLEEP_PID" > "$T/mainpid"
+
+roda_serving() {  # $1=corpus $2=ndjson $3...=args
+  local c="$1" nd="$2"; shift 2
+  PATH="$T/bin:$PATH" FAKE_MAINPID="$T/mainpid" FD_PREFIX="$T/epocas/" \
+  "$GAT" --raiz "$T" --harness "$T/harness-stub.mjs" \
+    --corpus "$c" --vivo "$T/vivo.db" \
+    --designacao "$T/desig.json" --designacao-sha256 deadbeef \
+    --tmp "$T" --ndjson "$nd" "$@" 2>/dev/null
+}
+
+# T18: corpus com os MESMOS bytes que o fd, caminho DIFERENTE ⇒ `sim`.
+: > "$T/ndOk.ndjson"
+LO="$(roda_serving "$T/corpusA.db" "$T/ndOk.ndjson" --modo active --log "$T/log.ndjson" \
+       --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+VO="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["aproximacao_valida"])' "$T/ndOk.ndjson" 2>/dev/null)"
+if [ "$VO" = sim ] && [[ "$LO" == *"aproximacao_valida=sim"* ]]; then
+  echo "ok   T18 bytes iguais em caminho diferente ⇒ aproximacao_valida=sim"
+else
+  echo "FALHA T18 comparação por caminho, não por bytes: ndjson=$VO"
+  echo "      status: $LO"; FALHAS=$((FALHAS + 1))
+fi
+
+# T19: corpus com bytes DIFERENTES do que o serving tem aberto ⇒ `nao`.
+#      É o estado de produção em 09/09. Sem este caso, um campo fixo em "sim"
+#      passaria em T18 e a perna inteira seria decoração.
+: > "$T/ndNao.ndjson"
+LN="$(roda_serving "$T/corpusB.db" "$T/ndNao.ndjson" --modo active --log "$T/log.ndjson" \
+       --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+VN="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["aproximacao_valida"],o["serving_fd_sha256"])' "$T/ndNao.ndjson" 2>/dev/null)"
+if [[ "$VN" == "nao $SHA_A" ]] && [[ "$LN" == *"aproximacao_valida=nao"* ]]; then
+  echo "ok   T19 bytes divergentes ⇒ aproximacao_valida=nao, com o sha do fd no recibo"
+else
+  echo "FALHA T19 divergência não detectada: $VN"; echo "      status: $LN"; FALHAS=$((FALHAS + 1))
+fi
+
+# T20: sem serving vivo ⇒ `indeterminada`, NUNCA `sim`. Ausência de dado não é
+#      evidência de concordância — é a família de defeito do dia inteiro. Um
+#      default otimista aqui reproduziria o silêncio que se está consertando.
+echo 0 > "$T/mainpid-morto"
+: > "$T/ndInd.ndjson"
+LI="$(PATH="$T/bin:$PATH" FAKE_MAINPID="$T/mainpid-morto" FD_PREFIX="$T/epocas/" \
+      "$GAT" --raiz "$T" --harness "$T/harness-stub.mjs" \
+        --corpus "$T/corpusA.db" --vivo "$T/vivo.db" \
+        --designacao "$T/desig.json" --designacao-sha256 deadbeef \
+        --tmp "$T" --ndjson "$T/ndInd.ndjson" --modo active --log "$T/log.ndjson" \
+        --assignment "$T/a.json" --assignment-sha256 "$SHA" 2>/dev/null)"
+VI="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["aproximacao_valida"],o["serving_fd_sha256"])' "$T/ndInd.ndjson" 2>/dev/null)"
+if [[ "$VI" == "indeterminada sem-pid" ]] && [[ "$LI" == *"aproximacao_valida=indeterminada"* ]]; then
+  echo "ok   T20 serving ausente ⇒ indeterminada (não 'sim' por omissão)"
+else
+  echo "FALHA T20 ausência de dado tratada como concordância: $VI"
+  echo "      status: $LI"; FALHAS=$((FALHAS + 1))
+fi
+
+# ── T21: os campos novos aparecem também no recibo de ATALHO. T12 provou que o
+#        atalho grava linha; se a proveniência só existisse no caminho normal, todo
+#        epoch de controle (117 dos 234 do ensaio, metade) sairia sem ela.
+: > "$T/ndAtalho.ndjson"
+LT="$(roda_corpus "$T/corpusB.db" "$T/ndAtalho.ndjson" --modo active --log "$T/log12.ndjson" \
+       --assignment "$T/c12.json" --assignment-sha256 "$SHA_C12")"
+VT="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["via"],o["corpus_sha256"],o["aproximacao_valida"])' "$T/ndAtalho.ndjson" 2>/dev/null)"
+if [[ "$VT" == "atalho $SHA_B "* ]] && [[ "$LT" == *"corpus_sha256=${SHA_B:0:12}"* ]]; then
+  echo "ok   T21 atalho também carrega corpus_sha256 e aproximacao_valida"
+else
+  echo "FALHA T21 atalho sem proveniência: $VT"; echo "      status: $LT"; FALHAS=$((FALHAS + 1))
+fi
+
 echo
 [ "$FALHAS" -eq 0 ] && echo "TODOS OS CASOS PASSARAM" || echo "$FALHAS CASO(S) FALHARAM"
 exit 0

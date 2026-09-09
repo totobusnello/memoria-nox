@@ -1,5 +1,51 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-09 (tarde) — os três consertos do instrumento estão no ar
+
+Autorizado pelo Toto, coordenado com a sessão par (os dois braços do replay dela
+fecharam com zero divergência antes do deploy; ela retoma agora que o instrumento
+parou). Registro completo em `paper2-interventional/DEVIATIONS-FOR-PAPER.md` §10.17.
+
+**Nada disto muda o ensaio.** Muda o que o recibo do vigilante diz. A decisão de
+§10.14 continua: encerrar em 2026-09-20, sem alargar a janela.
+
+| conserto | defeito | agora |
+|---|---|---|
+| (a) | os 13 campos do recibo não diziam sobre **qual corpus** o replay correu ⇒ duas corridas com `sha256_janela`, `estados` e janela idênticos deram GREEN 20/37 e RED 0/0, indistinguíveis | `corpus_path` + `corpus_sha256` (dos **bytes**, com `readlink -f`) no NDJSON e na linha de status |
+| (b) | o cabeçalho prometia que a aproximação de corpus "fica em cada linha do NDJSON"; não ficava, e desde 03/09 17:30 ela era **falsa** | `serving_fd_sha256` + `aproximacao_valida` (`sim`/`nao`/`indeterminada`, por **bytes**) |
+| (c) | `flock -n` no cron pulava a rodada em silêncio — 5 skips (02, 03, 04, 07, 08/09) sem nada no disco | lock dentro do `run-saturacao.sh`, YELLOW com motivo no stdout **e** no `$STATUS` |
+
+**Verificação:** 21/21 na suíte (7 casos novos, todos exigindo a **linha de status** e
+não só o exit code — é a linha que o morning report lê). 4 mutantes, confirmados
+aplicados por `cmp`, todos mortos. Duas previsões minhas de "quem morde" estavam
+erradas e nos dois casos o teste estava certo; uma delas revelou que **T19 sozinho
+passaria pelo motivo errado** — é o par T18/T19 que fecha a porta. Detalhe em §10.17 e
+em `[[predicting-which-test-dies-is-a-hypothesis-the-mutation-tests]]`.
+
+**Primeira leitura de produção com os campos novos:** `fd=26` →
+`e20260903T060001Z.db`, sha `23378a9e…` contra `current.db` `084bef6c…` ⇒
+`aproximacao_valida=nao`. Divergentes há seis dias, sem que existisse campo capaz de
+dizer isso.
+
+**Pinos** (fronteira das duas eras do instrumento: **2026-09-09 ~12:20Z**; leituras
+anteriores não têm proveniência de corpus, e isso é fato do instrumento, não do
+ensaio):
+
+| arquivo | antes | depois |
+|---|---|---|
+| `gatilho-saturacao.sh` | `561d81a328f34c59` | `b08fc330edaa8c57` |
+| `run-saturacao.sh` | `b25a937137ff2c46` | `59c158a55f2f739c` |
+| `teste-gatilho-active.sh` | — (14 casos) | `3dccf80a1b59938f` (21 casos) |
+
+Substituídos guardados em `/var/backups/nox-mem/p2-scripts/`. Crontab: saiu o
+`flock -n` externo, uma linha, contagem conferida antes de instalar.
+
+**Pendente:** o cron one-shot de alargamento segue **desarmado**
+(`#DESARMADO-2026-09-09 canal-sem-capacidade medido`) — remover, não rearmar. E a regra
+6 do CLAUDE.md (`compiled == 183`, hoje 239) continua esperando decisão do Toto.
+
+---
+
 ## 2026-09-09 — a data do realinhamento era premissa falsa: `agentFresh` não volta a zero
 
 ### ▶️ ESTADO / PRÓXIMO PASSO
