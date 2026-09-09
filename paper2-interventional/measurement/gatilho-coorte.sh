@@ -256,8 +256,28 @@ fi
 # Comparar por bytes e não por caminho é obrigatório aqui: o corpus recuperado
 # de 03/09 tem caminho diferente do fd e é byte-idêntico a ele (sha256
 # 23378a9e…, conferido nos dois).
+# ⚠️ RÓTULO do `readlink`, HASH do argumento — e nesta ordem, por medição:
+#
+#   argumento            /proc/2375670/fd/3
+#   readlink -f          /var/tmp/sl/orig.db (deleted)   ← nome ORIGINAL + sufixo
+#   basename do readlink orig.db (deleted)               ← rótulo informativo
+#   sha256 do argumento  654ef766ec882e6d…               ← LÊ
+#   sha256 do readlink   FALHOU                          ← o caminho não existe
+#
+# Hashear o resultado do `readlink` degrada a `nao-calculado` exatamente no fd
+# deletado, que é o caso que a perna existe para cobrir. E hashear o argumento
+# nunca é pior: `sha256sum` SEGUE symlink — medido, `alvo.db` e `link.db` dão o
+# mesmo `654ef766…` —, então para `current.db` os dois caminhos coincidem.
+#
+# ⚠️ Honestidade sobre cobertura: hoje esta linha é INALCANÇÁVEL por um caminho
+# `/proc`, porque a perna 1 (`corpus-ilegivel`) roda antes e o SQLite recusa
+# abrir `file:/proc/…?mode=ro`. Ou seja: o defeito era LATENTE, não vivo, e eu
+# NÃO tenho caso que exercite esta correção — dizer o contrário seria alegar
+# cobertura inexistente. O que a protege é a ORDEM das pernas, e é T13 que
+# prende a ordem: se alguém puser a perna 5 antes da 1, T13 falha. A correção
+# existe para que um reordenamento futuro não transforme o latente em vivo.
 CORPUS_REAL="$(readlink -f "$CORPUS" 2>/dev/null || printf '%s' "$CORPUS")"
-CORPUS_SHA="$(sha256sum "$CORPUS_REAL" 2>/dev/null | cut -d' ' -f1)"
+CORPUS_SHA="$(sha256sum "$CORPUS" 2>/dev/null | cut -d' ' -f1)"
 [ -n "$CORPUS_SHA" ] || CORPUS_SHA="nao-calculado"
 
 ALCANCAVEL="nao"
@@ -276,7 +296,7 @@ if [ "$CORPUS_SHA" = "nao-calculado" ]; then
   emitir YELLOW "motivo=corpus-sem-sha semantica=sem-ler-os-bytes-do-corpus-nao-se-afirma-divergencia $BASE fds_abertos=$SERV_N"
 fi
 
-BASE="$BASE fds_abertos=$SERV_N corpus_sha256=$(printf '%.12s' "$CORPUS_SHA") fd_sha256s=$FD_SHAS corpus_e_o_servido=$ALCANCAVEL"
+BASE="$BASE fds_abertos=$SERV_N corpus_real=$(basename "${CORPUS_REAL:-$CORPUS}") corpus_sha256=$(printf '%.12s' "$CORPUS_SHA") fd_sha256s=$FD_SHAS corpus_e_o_servido=$ALCANCAVEL"
 
 if [ "$ALCANCAVEL" = "nao" ]; then
   emitir RED "motivo=corpus-nao-e-o-servido semantica=nenhum-fd-aberto-tem-estes-bytes-logo-esta-medicao-de-coorte-NAO-fala-sobre-producao $BASE"
