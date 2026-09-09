@@ -1425,8 +1425,14 @@ repo.
 
 ### (B) Os alvos saem do pool em 2026-09-20, e o desenho não fecha
 
-Os 19 designados têm `source_date = 2026-08-21 22:51:23`. A janela do sub-pool global é
-`freshGlobalMaxAgeDays = 30` ⇒ saem em **2026-09-20 22:51:23**. Depois disso **nenhuma
+Os 19 designados têm **`source_date` = NULL**; o `2026-08-21 22:51:23` é o
+**`created_at`**, e é um **único** valor para os 19 — eles saem da janela **juntos**.
+(Medi com `COALESCE(source_date, created_at)` e reportei como `source_date`; a
+desambiguação é da sessão `memoria-nox-21`, e **fortalece** a conclusão: caindo no
+`created_at`, o predicado não se renova nem por reingestão parcial — só criando chunk
+novo, que é exatamente o que troca o id.) A janela do sub-pool global é
+`freshGlobalMaxAgeDays = 30` (default; nenhum `NOX_BRIEF_DIV_FRESH_*` no env do unit)
+⇒ saem em **2026-09-20 22:51:23**. Depois disso **nenhuma
 dose os alcança, em nenhum corpus** — não é questão de capacidade, é elegibilidade.
 
 | | |
@@ -1476,6 +1482,45 @@ abril/2027 sem esse salto: ele acontece entre 90 d e 180 d, e o mínimo necessá
 muda com restart**. Logo alargar a janela **exige o restart** que a segunda decisão mantém
 desarmado — e o restart traz o corpus atual, que é onde **(A)** vale. As duas decisões,
 como escolhidas, são **incompatíveis** sem resolver (A) primeiro.
+
+### Delimitação: o instrumento **não** expira; o ensaio expira
+
+O harness de replay compensa a idade (`cfgEm` soma `desloc` a
+`freshGlobalMaxAgeDays`), como o cabeçalho promete. Depois de 2026-09-20 o replay
+**continua respondendo certo** — quem deixa de morder é a **produção**. Sem esta
+delimitação, o item acima se leria como se a medição também fosse expirar.
+
+### Dois defeitos do instrumento, achados ao investigar (A) — consertos pendentes
+
+**(i) O recibo não registra o corpus.** Os campos gravados são `absurdo, estado, folga,
+janela, motivo, n_janela, semantica, servido, sha256_janela, tag, ts, via, w_servido`.
+Há `sha256` **do log** e **nada** do corpus. Consequência medida: o GREEN `20/37` e o RED
+`0/0` têm o **mesmo** `sha256_janela = d5ba483d…`, a mesma janela e o mesmo
+`estados=672` — **dois vereditos opostos com recibos indistinguíveis**. Enquanto
+existirem três corpora em jogo (o `fd` pinado, o symlink que anda, os snapshots), nenhum
+veredito de saturação é interpretável. Conserto: gravar `corpus_path` **e**
+`corpus_sha256` no ndjson e no status.
+
+**(ii) `--corpus current.db` é um symlink que anda.** O relink acontece às 06:02, então o
+gatilho replaya o epoch **fechado de 08/09** contra o snapshot de **09/09**, e o alvo
+troca sozinho todo dia. Conserto: apontar para o snapshot do epoch que fechou. É a lição
+do cabeçalho do próprio harness (*"a primeira remediação usou o DB vivo como corpus
+quando a produção serve o snapshot de epoch"*) reaparecida na **fiação do wrapper**.
+
+### Evidência independente do instrumento
+
+Medido **direto do `p2-serving.ndjson`**, sem replay (sessão `memoria-nox-21`):
+
+| epoch | n | w | servido | `churn>0` | desig. controle → tratado |
+|---|---:|---|---|---:|---|
+| 2026-09-06 | 672 | 7,5 | tratado | **38** | 124 → 144 |
+| 2026-09-07 | 672 | 0 | controle | 0 | 175 → 0 |
+| **2026-09-08** | **672** | **2** | **tratado** | **20** | **172 → 187** |
+
+`churn > 0` em **20** de 672 (2,98%, contra 3,74% da era shadow) — **o mesmo 20** do
+`mexem_servido`. Duas vias independentes, e esta **não depende de escolher corpus**, que
+é justamente o parâmetro que estragou a outra. ⇒ O mecanismo **mordeu em produção** no
+epoch 09-08.
 
 **Nada foi aplicado.** O que está feito: ativo salvo, cron desarmado, medições acima.
 
