@@ -1,0 +1,197 @@
+{
+  "decisao": {
+    "data": "2026-09-09T14:38-03:00",
+    "literal": "encerra 20/09 mesmo, e desliga a dose depois",
+    "fonte": "instrução direta do Toto; primeira explícita sobre o desfecho"
+  },
+  "premissas_medidas": {
+    "active_primeira_linha_servida": "2026-09-01T10:37:01.943000+00:00",
+    "designados_created_at": "2026-08-21T22:51:23+00:00",
+    "designados_n": 19,
+    "fresh_global_max_age_days": 30,
+    "expira_em": "2026-09-20T22:51:23+00:00",
+    "fronteira_de_epoch_utc": "09:00Z",
+    "corpus_de_referencia": "servido-e20260903T060001Z.db",
+    "corpus_sha256": "23378a9ea83cd27d0360cfe148207167aee30a376f29ef89d4bcfae415d04131"
+  },
+  "janela_elegivel": {
+    "inteiros_n": 18,
+    "inteiros_de": "2026-09-02",
+    "inteiros_ate": "2026-09-19",
+    "parciais": [
+      {
+        "epoch": "2026-09-01",
+        "fracao_exposta": 0.932616,
+        "exposto_h": 22.38
+      },
+      {
+        "epoch": "2026-09-20",
+        "fracao_exposta": 0.57735,
+        "exposto_h": 13.86
+      }
+    ],
+    "prereg_previa_epochs": 234
+  },
+  "epochs": [
+    {
+      "epoch": "2026-09-01",
+      "inicio": "2026-09-01T09:00:00+00:00",
+      "fim": "2026-09-02T09:00:00+00:00",
+      "fracao_exposta": 0.932616,
+      "classe": "parcial",
+      "exposto_h": 22.38
+    },
+    {
+      "epoch": "2026-09-02",
+      "inicio": "2026-09-02T09:00:00+00:00",
+      "fim": "2026-09-03T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-03",
+      "inicio": "2026-09-03T09:00:00+00:00",
+      "fim": "2026-09-04T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-04",
+      "inicio": "2026-09-04T09:00:00+00:00",
+      "fim": "2026-09-05T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-05",
+      "inicio": "2026-09-05T09:00:00+00:00",
+      "fim": "2026-09-06T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-06",
+      "inicio": "2026-09-06T09:00:00+00:00",
+      "fim": "2026-09-07T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-07",
+      "inicio": "2026-09-07T09:00:00+00:00",
+      "fim": "2026-09-08T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-08",
+      "inicio": "2026-09-08T09:00:00+00:00",
+      "fim": "2026-09-09T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-09",
+      "inicio": "2026-09-09T09:00:00+00:00",
+      "fim": "2026-09-10T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-10",
+      "inicio": "2026-09-10T09:00:00+00:00",
+      "fim": "2026-09-11T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-11",
+      "inicio": "2026-09-11T09:00:00+00:00",
+      "fim": "2026-09-12T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-12",
+      "inicio": "2026-09-12T09:00:00+00:00",
+      "fim": "2026-09-13T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-13",
+      "inicio": "2026-09-13T09:00:00+00:00",
+      "fim": "2026-09-14T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-14",
+      "inicio": "2026-09-14T09:00:00+00:00",
+      "fim": "2026-09-15T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-15",
+      "inicio": "2026-09-15T09:00:00+00:00",
+      "fim": "2026-09-16T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-16",
+      "inicio": "2026-09-16T09:00:00+00:00",
+      "fim": "2026-09-17T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-17",
+      "inicio": "2026-09-17T09:00:00+00:00",
+      "fim": "2026-09-18T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-18",
+      "inicio": "2026-09-18T09:00:00+00:00",
+      "fim": "2026-09-19T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-19",
+      "inicio": "2026-09-19T09:00:00+00:00",
+      "fim": "2026-09-20T09:00:00+00:00",
+      "fracao_exposta": 1.0,
+      "classe": "inteiro",
+      "exposto_h": 24.0
+    },
+    {
+      "epoch": "2026-09-20",
+      "inicio": "2026-09-20T09:00:00+00:00",
+      "fim": "2026-09-21T09:00:00+00:00",
+      "fracao_exposta": 0.57735,
+      "classe": "parcial",
+      "exposto_h": 13.86
+    }
+  ]
+}

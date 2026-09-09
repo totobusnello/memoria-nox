@@ -2345,3 +2345,98 @@ documentou em 08/09 que o serving lia um inode apagado, e a lição em memória 
 alguém copiar. Saber que um ativo está a um restart de desaparecer não é o mesmo que
 tê-lo copiado, e o intervalo entre as duas coisas é risco puro — não havia nada a
 decidir, só a fazer.
+
+---
+
+## §10.22 — Desfecho: decisão explícita, janela elegível e o desligamento armado
+
+### A decisão, literal
+
+Toto, 2026-09-09 14:38 BRT:
+
+> **"encerra 20/09 mesmo, e desliga a dose depois"**
+
+É a **primeira instrução explícita** sobre o desfecho. O que existia antes era o §10.14,
+que funda a reversão numa **medição** e cita uma pergunta retórica dele
+(*"prolonga ne? melhor nao acha?"*) — registro honesto de uma inferência, não de uma
+ordem. As duas coisas agora existem separadas, e o §10.14 permanece como o que era.
+
+O segundo membro (*"desliga a dose depois"*) é item novo: eu o havia formulado como
+pergunta em aberto porque **muda o que os 6 agentes recebem** e nenhuma leitura dos
+registros anteriores o cobria.
+
+### A janela elegível — as duas pontas são epochs PARCIAIS
+
+Computada em `measurement/janela-elegivel.py`, artefato em
+`out/JANELA-ELEGIVEL-2026-09-09.json`. Premissas todas **medidas**, não presumidas:
+
+| premissa | valor | fonte |
+|---|---|---|
+| primeira linha `p2_outcome` em `active` | `2026-09-01T10:37:01.943Z` | `p2-serving.ndjson` |
+| `created_at` dos 19 designados | `2026-08-21 22:51:23`, **idêntico nos 19** | corpus servido preservado |
+| janela do sub-pool global | 30 d, relógio de **request** | `dist/api/brief.js:470` |
+| expiração | **`2026-09-20 22:51:23Z`** | `created_at + 30d`, computado no corpus |
+| fronteira de epoch | `09:00Z` | `epochInicioISO`, `brief-outcome.ts` |
+
+| classe | epochs | observação |
+|---|---:|---|
+| **inteiros** | **18** | `2026-09-02` … `2026-09-19` |
+| parcial inicial | 1 | `2026-09-01`: **22,38 h de 24** (93,26%) — o active entrou 1h37m depois da fronteira |
+| parcial final | 1 | `2026-09-20`: **13,86 h de 24** (57,74%) — os designados expiram 13h51m dentro do epoch |
+| total | **20** | de **234** pré-registrados = **8,5%** |
+
+⚠️ Os dois parciais ficam registrados **separadamente**, não arredondados para dentro
+nem para fora. Um epoch de exposição **mista** — alvo alcançável em parte dele — não é o
+mesmo objeto que um de exposição uniforme, e fundir os dois é a família do número certo
+atribuído à população errada. Quem analisar decide se os usa; o que não pode é não saber
+que são diferentes.
+
+### O desligamento
+
+Armado, não executado: `43 9 21 9 *` UTC (a VPS roda `Etc/UTC`, medido — não presumido),
+isto é **2026-09-21 09:43Z**. Script em
+`measurement/implantacao/desliga-dose-p2.sh`, instalado em
+`/root/.openclaw/scripts/p2/`, sha `9830e743b3d946b4`.
+
+**O procedimento não é invenção minha:** está escrito no próprio `zz-p2-active.conf`,
+seção *Rollback* — *"rm this file, systemctl daemon-reload, restart nox-mem-api. Effect:
+NOX_P2_OUTCOME falls back to shadow (p2s2-shadow.conf), no brief gets treatment, and
+everything already served stays on the record."* Duas diferenças deliberadas: **move em
+vez de apagar** (o drop-in é o registro do que foi armado; apagá-lo apaga a prova) e
+pré-condições com recibo.
+
+**Por que 09:43Z e não meia-noite,** e por que depois e não antes da saturação:
+
+- o mesmo drop-in avisa que a fronteira é 09:00Z e que reiniciar antes dela resolve o
+  epoch do dia **anterior**. O epoch de 09-20 fecha em 09-21 09:00Z;
+- a saturação de 09-21 corre às 09:12Z e levou **927 s** medidos — ela reporta o último
+  epoch parcial e precisa do estado do ensaio **intacto**. Desligar antes dela mediria a
+  janela de ontem com a dose de hoje.
+
+**Pré-condições, cada uma com recibo em `$STATUS` e no NDJSON:**
+
+| perna | aborta se | por quê |
+|---|---|---|
+| 1 | a janela ainda está aberta | desligamento antecipado **trunca** epoch elegível — dano irreversível, pior que atraso |
+| 2 | o drop-in já saiu, ou `OUTCOME != active` | idempotência: o one-shot dispara todo 21/09 |
+| 3 | a cópia do corpus servido falta ou tem sha divergente | **o restart derruba o fd**, e até 09/09 15:25Z ele era a única cópia (§10.21) |
+| 4 | `mv`, `daemon-reload` ou `restart` falham | o recibo diz onde o drop-in ficou |
+| 5 | o `OUTCOME` não caiu para `shadow`, ou a API não responde | *conferir o efeito, não presumi-lo* — `systemctl is-active` já conviveu com drop-in silenciosamente desabilitado (lição de 19/08, no próprio drop-in) |
+
+**Verificado a seco, hoje, sem tocar em nada:** rodar agora dá
+`YELLOW … motivo=janela-ainda-aberta-faltam-279h`, com o drop-in no lugar e
+`OUTCOME=active` intactos. Duas mutações: cópia do corpus ausente ⇒ `RED
+corpus-servido-sem-copia-ABORTANDO-restart` **com o drop-in preservado**; `OUTCOME` já
+`shadow` ⇒ `GREEN ja-desligado`. O `$STATUS` de produção foi salvo e restaurado.
+
+`NOX_P2_SHADOW_W=2.0` já vem de `p2s2-shadow.conf`, logo o guarda de saturação segue
+funcionando depois da troca — sem RED crônico por variável ausente.
+
+### ⚠️ Pendência que o desligamento NÃO resolve
+
+Depois de 2026-09-21 há **cinco** guardas de cron reportando sobre um ensaio encerrado, e
+**três** deles já estão cronicamente vermelhos (`composicao` com `agent_fresh=285`,
+`corpus-alinhado` com o fd, e `designados` que passará a 0/19 **por desenho**, porque
+expiraram). Alarme perpetuamente vermelho sobre pergunta encerrada é o que ensina a
+ignorar alarme — e é o defeito que o §10.17 inteiro tratou. Aposentar ou reformular os
+cinco é decisão separada, não coberta por *"faz os 3"*.
