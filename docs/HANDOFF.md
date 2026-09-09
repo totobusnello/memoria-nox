@@ -40,9 +40,25 @@ ensaio):
 Substituídos guardados em `/var/backups/nox-mem/p2-scripts/`. Crontab: saiu o
 `flock -n` externo, uma linha, contagem conferida antes de instalar.
 
-**Pendente:** o cron one-shot de alargamento segue **desarmado**
-(`#DESARMADO-2026-09-09 canal-sem-capacidade medido`) — remover, não rearmar. E a regra
-6 do CLAUDE.md (`compiled == 183`, hoje 239) continua esperando decisão do Toto.
+**Revisão da sessão par, 40 min depois (§10.18):** pedi um mutante que os 7 casos não
+matassem; ela achou **três**, e os três sobrevivem (rodei — ela declarou não ter
+rodado). Um era **defeito**: corpus ilegível com serving vivo fazia o recibo **afirmar**
+`aproximacao_valida=nao` sem ter lido um dos operandos — não o silêncio da regra 9, o
+agravante dela. Consertados os três, mais um meu: ao trocar `grep -oE` por `sed -nE`
+ancorei `$` depois de `.db` e **excluiria exatamente o fd `(deleted)`** que a perna
+existe para ver. A escolha de fd deixou de ser `head -1` (que sobre `ls` lexicográfico
+pega o 26 quando há 26 e 9) e passou a coletar **todos** — `serving_fd_sha256s` (lista)
++ `serving_fd_n`. **25/25**, 6 mutantes, cada um morrendo no caso desenhado. v2 no ar:
+`gatilho` `f3dcfb1de659087d`, `teste` `7c184ca657c76df0`.
+
+**O que a perna diz sobre o RED de hoje:** corrida real sobre o epoch `2026-09-08`
+(`arm=treatment`) deu RED `canal-sem-capacidade` com `corpus=e20260909T060001Z.db`,
+`corpus_sha256=084bef6c…`, `serving_fd_sha256=23378a9e…`, `aproximacao_valida=nao`.
+O RED foi computado sobre um corpus que o serving **não** tem aberto — o artefato de
+§10.13(A) passou de inferência reconstruída a campo gravado.
+
+**Pendente:** o cron one-shot de alargamento foi **removido** (não rearmar — §10.14). E
+a regra 6 do CLAUDE.md (`compiled == 183`, hoje 239) continua esperando decisão do Toto.
 
 ---
 

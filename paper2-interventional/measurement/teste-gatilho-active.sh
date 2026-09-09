@@ -371,7 +371,7 @@ fi
 : > "$T/ndNao.ndjson"
 LN="$(roda_serving "$T/corpusB.db" "$T/ndNao.ndjson" --modo active --log "$T/log.ndjson" \
        --assignment "$T/a.json" --assignment-sha256 "$SHA")"
-VN="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["aproximacao_valida"],o["serving_fd_sha256"])' "$T/ndNao.ndjson" 2>/dev/null)"
+VN="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["aproximacao_valida"],",".join(o["serving_fd_sha256s"]) if isinstance(o["serving_fd_sha256s"],list) else o["serving_fd_sha256s"])' "$T/ndNao.ndjson" 2>/dev/null)"
 if [[ "$VN" == "nao $SHA_A" ]] && [[ "$LN" == *"aproximacao_valida=nao"* ]]; then
   echo "ok   T19 bytes divergentes ⇒ aproximacao_valida=nao, com o sha do fd no recibo"
 else
@@ -389,7 +389,7 @@ LI="$(PATH="$T/bin:$PATH" FAKE_MAINPID="$T/mainpid-morto" FD_PREFIX="$T/epocas/"
         --designacao "$T/desig.json" --designacao-sha256 deadbeef \
         --tmp "$T" --ndjson "$T/ndInd.ndjson" --modo active --log "$T/log.ndjson" \
         --assignment "$T/a.json" --assignment-sha256 "$SHA" 2>/dev/null)"
-VI="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["aproximacao_valida"],o["serving_fd_sha256"])' "$T/ndInd.ndjson" 2>/dev/null)"
+VI="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["aproximacao_valida"],",".join(o["serving_fd_sha256s"]) if isinstance(o["serving_fd_sha256s"],list) else o["serving_fd_sha256s"])' "$T/ndInd.ndjson" 2>/dev/null)"
 if [[ "$VI" == "indeterminada sem-pid" ]] && [[ "$LI" == *"aproximacao_valida=indeterminada"* ]]; then
   echo "ok   T20 serving ausente ⇒ indeterminada (não 'sim' por omissão)"
 else
@@ -408,6 +408,130 @@ if [[ "$VT" == "atalho $SHA_B "* ]] && [[ "$LT" == *"corpus_sha256=${SHA_B:0:12}
   echo "ok   T21 atalho também carrega corpus_sha256 e aproximacao_valida"
 else
   echo "FALHA T21 atalho sem proveniência: $VT"; echo "      status: $LT"; FALHAS=$((FALHAS + 1))
+fi
+
+# ══ OS TRÊS MUTANTES QUE OS 7 CASOS NÃO ALCANÇAVAM ═══════════════════════════
+#
+# Achados pela sessão par horas depois do deploy, por análise estática, e os três
+# CONFIRMADOS sobreviventes rodando a suíte (21/21 com cada mutante aplicado). Um
+# deles não era só mutante sobrevivente: era defeito.
+#
+# ⚠️ A nota de método que ficou: num predicado de TRÊS valores, o caso que prova a
+#    perna é o que espera o valor MENOS acessível por acidente. `nao` é o default de
+#    qualquer coisa quebrada; `sim` exige que a comparação acerte. T18 cobria M2 por
+#    isso, e T19 sozinho não cobriria.
+
+# ── T22: fd marcado `(deleted)` TEM de ser lido. É o estado de produção desde
+#        03/09 17:30 — o único fd que a perna existe para enxergar. Escrevi a
+#        primeira versão do filtro com `$` ancorado logo após `.db`, o que o
+#        excluiria; a versão com `grep -oE` não ancorava e não tinha o defeito.
+#        Trocar de ferramenta trouxe um defeito que não existia.
+cp "$T/corpusA.db" "$T/epocas/apagado.db"
+exec 7< "$T/epocas/apagado.db"
+rm -f "$T/epocas/apagado.db"          # inode vivo só pelo fd, como em produção
+# `7<&-` fecha o fd herdado NO FILHO: sem isso o sleep recebe 0 e 7 sobre o mesmo
+# inode e o recibo diz `serving_fd_n=2` — dois fds, um inode. Defeito da fixture,
+# não do gatilho, mas mostra que a contagem conta FDS e não INODES distintos.
+sleep 300 < /proc/self/fd/7 7<&- &
+SLEEP_DEL=$!
+echo "$SLEEP_DEL" > "$T/mainpid-del"
+exec 7<&-
+: > "$T/ndDel.ndjson"
+LD="$(PATH="$T/bin:$PATH" FAKE_MAINPID="$T/mainpid-del" FD_PREFIX="$T/epocas/" \
+      "$GAT" --raiz "$T" --harness "$T/harness-stub.mjs" --corpus "$T/corpusA.db" \
+        --vivo "$T/vivo.db" --designacao "$T/desig.json" --designacao-sha256 deadbeef \
+        --tmp "$T" --ndjson "$T/ndDel.ndjson" --modo active --log "$T/log.ndjson" \
+        --assignment "$T/a.json" --assignment-sha256 "$SHA" 2>/dev/null)"
+VD="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["aproximacao_valida"],o["serving_fd_n"])' "$T/ndDel.ndjson" 2>/dev/null)"
+kill "$SLEEP_DEL" 2>/dev/null
+if [[ "$VD" == "sim 1" ]] && [[ "$LD" == *"aproximacao_valida=sim"* ]]; then
+  echo "ok   T22 fd (deleted) é lido — o único fd que importa em produção"
+else
+  echo "FALHA T22 fd (deleted) ignorado: $VD"; echo "      status: $LD"; FALHAS=$((FALHAS + 1))
+fi
+
+# ── T23: mata M5 (`head -1` → `tail -1`). DOIS `.db` distintos abertos pelo mesmo
+#        pid ⇒ os dois shas no recibo, e `sim` se o corpus está ENTRE eles.
+#        Nenhum caso anterior montava dois fds, então `head` e `tail` eram
+#        behaviouralmente idênticos em toda a suíte. E `ls -l /proc/PID/fd` ordena
+#        LEXICOGRAFICAMENTE (`10` antes de `2`, medido na VPS): "o primeiro" não é
+#        o menor fd, é acidente. A perna passou a coletar todos — o `head`/`tail`
+#        deixa de existir em vez de ser escolhido certo.
+cp "$T/corpusB.db" "$T/epocas/outro.db"
+sleep 300 < "$T/epocas/servido.db" 9< "$T/epocas/outro.db" &
+SLEEP_2=$!
+echo "$SLEEP_2" > "$T/mainpid-2"
+: > "$T/nd2fd.ndjson"
+L2="$(PATH="$T/bin:$PATH" FAKE_MAINPID="$T/mainpid-2" FD_PREFIX="$T/epocas/" \
+      "$GAT" --raiz "$T" --harness "$T/harness-stub.mjs" --corpus "$T/corpusB.db" \
+        --vivo "$T/vivo.db" --designacao "$T/desig.json" --designacao-sha256 deadbeef \
+        --tmp "$T" --ndjson "$T/nd2fd.ndjson" --modo active --log "$T/log.ndjson" \
+        --assignment "$T/a.json" --assignment-sha256 "$SHA" 2>/dev/null)"
+V2="$(python3 -c '
+import json,sys
+o=json.loads(open(sys.argv[1]).readline())
+l=o["serving_fd_sha256s"]
+print(o["aproximacao_valida"], o["serving_fd_n"], len(l) if isinstance(l,list) else -1, sorted(l)==sorted(sys.argv[2:]) if isinstance(l,list) else False)
+' "$T/nd2fd.ndjson" "$SHA_A" "$SHA_B" 2>/dev/null)"
+kill "$SLEEP_2" 2>/dev/null
+if [[ "$V2" == "sim 2 2 True" ]] && [[ "$L2" == *"serving_fd_n=2"* ]]; then
+  echo "ok   T23 dois fds ⇒ os dois shas no recibo; sim porque o corpus está entre eles"
+else
+  echo "FALHA T23 escolha arbitrária de fd: $V2"; echo "      status: $L2"; FALHAS=$((FALHAS + 1))
+fi
+
+# ── T24: mata M7 (tirar o `\.db` do filtro). Um `.json` aberto junto de um `.db`.
+#        `[^ ]+` é guloso, então com ou sem o sufixo o resultado é idêntico em
+#        qualquer fixture que só tenha `.db` — o mutante era indistinguível. O
+#        diretório real dos epochs tem 4 `.db` contra 17 `.json` (manifests): sem
+#        o sufixo, a perna compararia o corpus com um manifest.
+printf '{"manifest":true}' > "$T/epocas/manifesto.json"
+sleep 300 < "$T/epocas/servido.db" 9< "$T/epocas/manifesto.json" &
+SLEEP_J=$!
+echo "$SLEEP_J" > "$T/mainpid-j"
+: > "$T/ndJson.ndjson"
+LJ="$(PATH="$T/bin:$PATH" FAKE_MAINPID="$T/mainpid-j" FD_PREFIX="$T/epocas/" \
+      "$GAT" --raiz "$T" --harness "$T/harness-stub.mjs" --corpus "$T/corpusA.db" \
+        --vivo "$T/vivo.db" --designacao "$T/desig.json" --designacao-sha256 deadbeef \
+        --tmp "$T" --ndjson "$T/ndJson.ndjson" --modo active --log "$T/log.ndjson" \
+        --assignment "$T/a.json" --assignment-sha256 "$SHA" 2>/dev/null)"
+VJ="$(python3 -c '
+import json,sys
+o=json.loads(open(sys.argv[1]).readline())
+l=o["serving_fd_sha256s"]
+print(o["aproximacao_valida"], o["serving_fd_n"], l==[sys.argv[2]] if isinstance(l,list) else False)
+' "$T/ndJson.ndjson" "$SHA_A" 2>/dev/null)"
+kill "$SLEEP_J" 2>/dev/null
+if [[ "$VJ" == "sim 1 True" ]] && [[ "$LJ" == *"serving_fd_n=1"* ]]; then
+  echo "ok   T24 manifest .json é ignorado — só o .db entra na comparação"
+else
+  echo "FALHA T24 .json entrou na comparação: $VJ"; echo "      status: $LJ"; FALHAS=$((FALHAS + 1))
+fi
+
+# ── T25: mata M6, que era DEFEITO, não só mutante sobrevivente. Corpus ILEGÍVEL
+#        (symlink pendurado) com serving VIVO caía no `else` e o recibo AFIRMAVA
+#        `aproximacao_valida=nao` — afirmação positiva de divergência sem ter lido
+#        um dos dois operandos. Não é o silêncio da regra 9 do CLAUDE.md; é o
+#        agravante dela, e no campo que o morning report lê. Cenário banal:
+#        `current.db` relinkado às 06:02 para arquivo ainda não criado.
+#        Simétrico a T20: sem corpus lido dá `indeterminada`, NUNCA `nao`.
+ln -sf "$T/nao-existe-nenhum.db" "$T/pendurado.db"
+sleep 300 < "$T/epocas/servido.db" &
+SLEEP_P=$!
+echo "$SLEEP_P" > "$T/mainpid-p"
+: > "$T/ndPend.ndjson"
+LP="$(PATH="$T/bin:$PATH" FAKE_MAINPID="$T/mainpid-p" FD_PREFIX="$T/epocas/" \
+      "$GAT" --raiz "$T" --harness "$T/harness-stub.mjs" --corpus "$T/pendurado.db" \
+        --vivo "$T/vivo.db" --designacao "$T/desig.json" --designacao-sha256 deadbeef \
+        --tmp "$T" --ndjson "$T/ndPend.ndjson" --modo active --log "$T/log.ndjson" \
+        --assignment "$T/a.json" --assignment-sha256 "$SHA" 2>/dev/null)"
+VP="$(python3 -c 'import json,sys;o=json.loads(open(sys.argv[1]).readline());print(o["aproximacao_valida"],o["corpus_sha256"])' "$T/ndPend.ndjson" 2>/dev/null)"
+kill "$SLEEP_P" 2>/dev/null
+if [[ "$VP" == "indeterminada nao-calculado" ]] && [[ "$LP" == *"aproximacao_valida=indeterminada"* ]]; then
+  echo "ok   T25 corpus ilegível ⇒ indeterminada (não afirma 'nao' sem ler o operando)"
+else
+  echo "FALHA T25 afirmou divergência sem ler o corpus: $VP"; echo "      status: $LP"
+  FALHAS=$((FALHAS + 1))
 fi
 
 echo

@@ -1930,8 +1930,13 @@ instrumento, não do ensaio.
 | arquivo | sha256 antes (16 hex) | sha256 depois (completo) |
 |---|---|---|
 | `gatilho-saturacao.sh` | `561d81a328f34c59` | `b08fc330edaa8c574d12fbadd44aebb935e13e5f32a150670007d34032ac0692` |
+| `gatilho-saturacao.sh` **v2** | `b08fc330edaa8c57` | `f3dcfb1de659087df7f60aa87c0af227b16b13c2c2d678ecf33ab29ae2ddbd0f` |
 | `run-saturacao.sh` | `b25a937137ff2c46` | `59c158a55f2f739c2dbf1ad85efdbe41a0b30843dfec40f47f6740f677cd2ffb` |
-| `teste-gatilho-active.sh` | — (14 casos) | `3dccf80a1b59938f6c53b9f79828dba3e546e25660981591434a41190c9cc01c` |
+| `teste-gatilho-active.sh` | — (14 casos) | `3dccf80a1b59938f` (21 casos) → `7c184ca657c76df02f75ccb3f77f035665350d999a8aa8628508b3765f7b08ab` (25) |
+
+⚠️ **Houve v2 no mesmo dia, ~40 min depois** — ver §10.18. A tabela acima é a v1; as
+leituras entre ~12:20Z e ~12:55Z saíram do gatilho v1, que tem `serving_fd_sha256`
+singular e não tem a perna do corpus ilegível.
 
 Cópias das versões substituídas em `/var/backups/nox-mem/p2-scripts/`. Crontab: saiu o
 `flock -n` externo, uma linha alterada, contagem de linhas conferida antes de instalar.
@@ -1948,3 +1953,111 @@ sha current.db : 084bef6c441cbcbf67b120884644cdbc9880100adc52744b4451293456f1058
 
 ⇒ `aproximacao_valida=nao`. Divergentes desde 03/09 17:30, seis dias antes de existir
 qualquer campo capaz de dizer isso.
+
+
+---
+
+## §10.18 — A revisão da sessão par: 3 mutantes sobreviventes, 1 deles defeito
+
+Quarenta minutos depois do deploy de §10.17 pedi à sessão par um terceiro mutante que
+os 7 casos novos não matassem. Ela achou **três**, por análise estática do fonte
+implantado mais duas medições na VPS, e declarou não ter rodado nenhum. **Rodei os
+três: os três sobrevivem** — 21/21 com cada mutante aplicado.
+
+### M6 não era mutante sobrevivente: era defeito
+
+Corpus ilegível (`sha256sum` falha ⇒ `CORPUS_SHA="nao-calculado"`) com serving **vivo**
+caía no `else` final:
+
+| | valor |
+|---|---|
+| `CORPUS_SHA` | `nao-calculado` |
+| `SERV_SHA` | hash real |
+| 1ª perna (`=`) | falsa |
+| 2ª (`sem-pid`/`fd-nao-lido`) | **falsa** |
+| ⇒ | **`APROX="nao"`** |
+
+O recibo **afirmava divergência sem ter lido um dos dois operandos**. Não é o silêncio
+da regra 9 do CLAUDE.md — é o agravante dela: **afirmação positiva sobre dado
+ausente**, no campo exato que o morning report lê. E o cenário é banal, não exótico:
+`current.db` relinkado às 06:02 para arquivo ainda não criado ⇒ `readlink -f` devolve
+caminho, `sha256sum` falha. O replay também falha e sai RED `replay-falhou`, mas o
+recibo sobrevive à análise com um `nao` infundado.
+
+Corrigido com uma terceira perna **antes** das outras duas, simétrica à regra do
+serving: *sem corpus lido dá `indeterminada`, nunca `nao`* — como *sem serving vivo dá
+`indeterminada`, nunca `sim`*.
+
+### M5: a escolha de fd era arbitrária, e o cenário de N fds já aconteceu
+
+`head -1` sobre `ls -l /proc/PID/fd`. Dois fatos medidos na VPS:
+
+- `ls` ali ordena **lexicograficamente**: `0 1 10 11 12 13` — o `10` vem antes do `2`.
+  Com os fds 26 e 9 abertos, `head -1` pega o **26**. "O primeiro" não é o menor fd;
+  é acidente de ordenação, e não estava declarado em lugar nenhum.
+- hoje há **1** fd casando o prefixo, mas foi exatamente o acúmulo de snapshot por
+  epoch sem fechar o velho que produziu o §10.10. Um serving nesse estado tem N.
+
+Um `serving_fd_sha256` **singular** sobre N fds seria número certo atribuído a
+população errada. A perna passou a coletar **todos**, ordenados numericamente, e a
+aproximação vale se o corpus está **entre** os abertos:
+`serving_fd_sha256s` (lista) + `serving_fd_n` (no NDJSON **e** na linha de status — a
+contagem é a assinatura do §10.10, e quem lê o report tem de vê-la). O `head`/`tail`
+deixou de existir em vez de ser escolhido certo.
+
+### M7: `\.db` não é decoração
+
+`[^ ]+` é guloso, então casa `…/e2026….db` com ou sem o sufixo — o mutante era
+indistinguível em qualquer fixture que só tivesse `.db` aberto. Mas
+`/var/lib/nox-mem/epochs/` tem **4 `.db` e 17 `.json`** (manifests): sem o sufixo, um
+manifest aberto pelo serving entraria na comparação e a perna reportaria divergência
+por comparar coisas de tipos diferentes.
+
+### E um defeito meu, achado ao reescrever a perna
+
+Troquei `grep -oE` por `sed -nE` com `$` ancorado logo depois de `\.db` — o que
+**excluiria exatamente o fd que a perna existe para enxergar**: desde 03/09 17:30 o
+que o serving mantém aberto é um inode apagado, e `ls -l` o anota
+`-> …e20260903T060001Z.db (deleted)`. A versão com `grep -oE` não ancorava e por isso
+não tinha o problema. **Trocar de ferramenta trouxe de volta um defeito que não
+existia**, e ele só apareceu porque escrevi a fixture com um fd deletado de verdade.
+
+### Verificação da v2
+
+**25/25.** Seis mutantes, cada um morrendo no caso desenhado para ele:
+
+| mutante | morre em |
+|---|---|
+| M5 escolhe **um** fd em vez de todos | T23 |
+| M6 sem a perna do corpus ilegível | T25 |
+| M7 sem o sufixo `\.db` | T24 |
+| M8 `$` ancorado sem aceitar ` (deleted)` | T22 |
+| M9 `serving_fd_n` fora da linha de status | T23, T24 |
+| M10 `sim` sem o corpus estar na lista | T19 |
+
+⚠️ **A primeira aplicação do M8 não era o mutante pretendido.** Troquei `\$#` por
+`$#` e o shell expandiu `$#` dentro das aspas duplas, destruindo o regex inteiro —
+morreram T18, T19, T22, T23 e T24, e eu quase registrei isso como "o mutante mata cinco
+casos". Refeito mantendo o `$` escapado, mata **só T22**, que é a perna que ele ataca.
+É a lição `a-mutation-test-can-pass-while-verifying-nothing` na direção oposta: o
+mutante **falhou** verificando outra coisa. Conferir o `diff` do regex antes de rodar é
+o que separou os dois casos.
+
+### O que a perna passou a dizer sobre o RED de hoje
+
+Primeira corrida real com proveniência (status e NDJSON em `/var/tmp`, sem tocar no
+ensaio), sobre o epoch `2026-09-08`, `arm=treatment`:
+
+```
+estado             RED  (canal-sem-capacidade)
+corpus             e20260909T060001Z.db
+corpus_sha256      084bef6c441cbcbf67b120884644cdbc9880100adc52744b4451293456f10586
+serving_fd_sha256  23378a9ea83cd27d0360cfe148207167aee30a376f29ef89d4bcfae415d04131
+aproximacao_valida nao
+servido            w=2      estados=672  mexeu=0  churn_total=0  boosts=19
+absurdo            w=100000 estados=672  mexeu=0  churn_total=0  boosts=19
+```
+
+⇒ o RED de 09/09 foi computado sobre um corpus que o serving **não** tem aberto, e
+agora o próprio recibo diz isso. É o artefato de §10.13(A), passando de inferência
+reconstruída a campo gravado.

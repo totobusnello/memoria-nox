@@ -130,23 +130,54 @@ CORPUS_SHA="$(sha256sum "$CORPUS_REAL" 2>/dev/null | cut -d' ' -f1)"
 #     ser exercitada escrevendo arquivo de teste dentro de `/var/lib/nox-mem/epochs/`,
 #     que é o diretório do ensaio em curso. Um teste que precisa sujar produção para
 #     rodar não roda — e perna não exercitada é crença, não guarda.
+#     ⚠️ TODOS os fds, não o primeiro. A primeira versão desta perna (implantada e
+#     revista no mesmo dia, 09/09) fazia `head -1` sobre `ls -l /proc/PID/fd`, e
+#     `ls` ali ordena LEXICOGRAFICAMENTE — `10` vem antes de `2`, medido na VPS. Com
+#     os fds 26 e 9 abertos, `head -1` pega o 26: escolha arbitrária e não
+#     declarada. Pior, o cenário de N fds não é hipotético — foi o acúmulo de
+#     snapshot por epoch sem fechar o velho que produziu o §10.10. Um
+#     `serving_fd_sha256` singular sobre N fds seria número certo atribuído a
+#     população errada. Então: coleta todos, ordena por número de fd, e a
+#     aproximação vale se o corpus está ENTRE os que o serving tem abertos.
 SERV_PID="$(systemctl show -p MainPID --value nox-mem-api 2>/dev/null)"
-SERV_FD=""; SERV_SHA=""
+SERV_SHAS=""; SERV_N=0
 case "$SERV_PID" in
-  ''|0|*[!0-9]*) SERV_SHA="sem-pid" ;;
+  ''|0|*[!0-9]*) SERV_SHAS="sem-pid" ;;
   *)
-    SERV_FD="$(ls -l "/proc/$SERV_PID/fd" 2>/dev/null \
-      | grep -oE "${FD_PREFIX}[^ ]+\.db" | head -1)"
-    if [ -n "$SERV_FD" ]; then
-      FDNUM="$(ls -l "/proc/$SERV_PID/fd" 2>/dev/null | grep -F "$SERV_FD" \
-        | head -1 | sed -E 's#.* ([0-9]+) ->.*#\1#')"
-      [ -n "$FDNUM" ] && SERV_SHA="$(sha256sum "/proc/$SERV_PID/fd/$FDNUM" 2>/dev/null | cut -d' ' -f1)"
-    fi
-    [ -n "$SERV_SHA" ] || SERV_SHA="fd-nao-lido"
+    # `\.db` é obrigatório: o diretório dos epochs tem 4 `.db` e 17 `.json`
+    # (manifests). Sem o sufixo, `[^ ]+` guloso casaria um manifest e a perna
+    # compararia coisas de tipos diferentes, reportando divergência.
+    #
+    # ⚠️ ` (deleted)` OPCIONAL, e é o caso que importa: desde 03/09 17:30 o fd que
+    # o serving mantém aberto é justamente de um inode apagado, e `ls -l` o
+    # anota com esse sufixo. Ancorar `$` logo depois de `.db` — que foi o que eu
+    # escrevi na primeira tentativa — excluiria exatamente o único fd que a perna
+    # existe para enxergar. A versão anterior com `grep -oE` não ancorava e por
+    # isso não tinha o problema; trocar de ferramenta trouxe o defeito de volta.
+    while read -r n alvo; do
+      [ -n "$n" ] || continue
+      s="$(sha256sum "/proc/$SERV_PID/fd/$n" 2>/dev/null | cut -d' ' -f1)"
+      [ -n "$s" ] || s="fd-$n-nao-lido"
+      SERV_SHAS="${SERV_SHAS:+$SERV_SHAS,}$s"
+      SERV_N=$((SERV_N + 1))
+    done <<EOFFD
+$(ls -l "/proc/$SERV_PID/fd" 2>/dev/null \
+  | sed -nE "s#^.* ([0-9]+) -> (${FD_PREFIX}[^ ]+\.db)( \(deleted\))?\$#\1 \2#p" | sort -n)
+EOFFD
+    [ "$SERV_N" -gt 0 ] || SERV_SHAS="fd-nao-lido"
     ;;
 esac
-if [ "$CORPUS_SHA" = "$SERV_SHA" ]; then APROX="sim"
-elif [ "$SERV_SHA" = "sem-pid" ] || [ "$SERV_SHA" = "fd-nao-lido" ]; then APROX="indeterminada"
+
+# ⚠️ ORDEM DAS PERNAS: a de "não li o corpus" vem PRIMEIRO. Achada pela sessão par
+# horas depois do deploy: sem ela, corpus ilegível (`sha256sum` falha ⇒
+# `nao-calculado`) com serving vivo caía no `else` e o recibo AFIRMAVA
+# `aproximacao_valida=nao` — afirmação positiva de divergência sem ter lido um dos
+# dois operandos. Não é o silêncio da regra 9 do CLAUDE.md; é o agravante dela. E o
+# cenário é banal: `current.db` relinkado às 06:02 para arquivo ainda não criado.
+# Simétrica à regra do serving: sem corpus lido dá `indeterminada`, nunca `nao`.
+if [ "$CORPUS_SHA" = "nao-calculado" ]; then APROX="indeterminada"
+elif [ "$SERV_SHAS" = "sem-pid" ] || [ "$SERV_SHAS" = "fd-nao-lido" ]; then APROX="indeterminada"
+elif printf '%s' ",$SERV_SHAS," | grep -qF ",$CORPUS_SHA,"; then APROX="sim"
 else APROX="nao"; fi
 
 case "$MODO" in
@@ -217,9 +248,9 @@ gravar_ndjson_atalho() {  # $1=estado $2=resto da linha
   [ -n "$NDJSON" ] || return 0
   [ -e "$TMP/.ndjson-gravado" ] && return 0
   python3 - "$NDJSON" "$1" "$2" "$TS" "$INICIO" "$FIM" "$MODO" "${EPOCH_ALVO:-}" "${ARM:-}" \
-    "${CORPUS_REAL:-$CORPUS}" "${CORPUS_SHA:-?}" "${APROX:-indeterminada}" "${SERV_SHA:-?}" <<'PYND' 2>/dev/null || true
+    "${CORPUS_REAL:-$CORPUS}" "${CORPUS_SHA:-?}" "${APROX:-indeterminada}" "${SERV_SHAS:-?}" "${SERV_N:-0}" <<'PYND' 2>/dev/null || true
 import json, re, sys
-nd, estado, resto, ts, ini, fim, modo, epoch, arm, cpath, csha, aprox, ssha = sys.argv[1:14]
+nd, estado, resto, ts, ini, fim, modo, epoch, arm, cpath, csha, aprox, sshas, sn = sys.argv[1:15]
 m = re.match(r'motivo=(.*?)(?=\s+[a-z_0-9]+=|$)', resto)
 try:
     with open(nd, "a") as f:
@@ -229,7 +260,9 @@ try:
             "janela": [ini or None, fim or None],
             "modo": modo, "epoch": epoch or None, "arm": arm or None,
             "corpus_path": cpath or None, "corpus_sha256": csha,
-            "aproximacao_valida": aprox, "serving_fd_sha256": ssha,
+            "aproximacao_valida": aprox,
+            "serving_fd_sha256s": sshas.split(",") if sshas not in ("sem-pid", "fd-nao-lido", "?") else sshas,
+            "serving_fd_n": int(sn),
             "servido": None, "absurdo": None, "folga": None,
             "via": "atalho",
             "nota": "veredito por atalho: o bloco de dose nao rodou, logo servido/absurdo/folga nao existem",
@@ -259,7 +292,7 @@ trap 'morte_por_sinal TERM' TERM
 trap 'morte_por_sinal INT' INT
 
 emitir() {  # $1=estado $2=resto da linha
-  local linha="$1 p2-saturacao-da-dose $2 janela=[$INICIO,$FIM) corpus=$(basename "${CORPUS_REAL:-$CORPUS}") corpus_sha256=$(printf '%.12s' "${CORPUS_SHA:-?}") aproximacao_valida=${APROX:-indeterminada} ts_inicio=$TS ts_fim=$(date -u +%Y-%m-%dT%H:%M:%SZ) duracao_s=$(( $(date -u +%s) - T0 ))"
+  local linha="$1 p2-saturacao-da-dose $2 janela=[$INICIO,$FIM) corpus=$(basename "${CORPUS_REAL:-$CORPUS}") corpus_sha256=$(printf '%.12s' "${CORPUS_SHA:-?}") aproximacao_valida=${APROX:-indeterminada} serving_fd_n=${SERV_N:-0} ts_inicio=$TS ts_fim=$(date -u +%Y-%m-%dT%H:%M:%SZ) duracao_s=$(( $(date -u +%s) - T0 ))"
   echo "$linha"
   [ -n "$STATUS" ] && printf '%s\n' "$linha" > "$STATUS"
   gravar_ndjson_atalho "$1" "$2"
@@ -422,9 +455,9 @@ if [ ! -s "$OUT" ]; then
 fi
 
 python3 - "$OUT" "$W_SERV" "$N_JAN" "$SHA_JAN" "${NDJSON:-}" "$TS" "$INICIO" "$FIM" "$TMP" \
-  "${CORPUS_REAL:-$CORPUS}" "${CORPUS_SHA:-?}" "${APROX:-indeterminada}" "${SERV_SHA:-?}" <<'PY' > "$TMP/veredito"
+  "${CORPUS_REAL:-$CORPUS}" "${CORPUS_SHA:-?}" "${APROX:-indeterminada}" "${SERV_SHAS:-?}" "${SERV_N:-0}" <<'PY' > "$TMP/veredito"
 import json, sys
-out, wserv, njan, sha, ndjson, ts, ini, fim, tmpdir, cpath, csha, aprox, ssha = sys.argv[1:14]
+out, wserv, njan, sha, ndjson, ts, ini, fim, tmpdir, cpath, csha, aprox, sshas, sn = sys.argv[1:15]
 wserv = float(wserv)
 d = json.load(open(out))["dose"]
 tab = {r["w"]: r for r in d["tabela"]}
@@ -534,7 +567,9 @@ if ndjson:
             "ts": ts, "tag": "p2_gatilho_saturacao", "estado": estado, "motivo": motivo,
             "janela": [ini, fim], "n_janela": int(njan), "sha256_janela": sha,
             "corpus_path": cpath, "corpus_sha256": csha,
-            "aproximacao_valida": aprox, "serving_fd_sha256": ssha,
+            "aproximacao_valida": aprox,
+            "serving_fd_sha256s": sshas.split(",") if sshas not in ("sem-pid", "fd-nao-lido", "?") else sshas,
+            "serving_fd_n": int(sn),
             "w_servido": wserv, "servido": s, "absurdo": a, "folga": folga,
             "semantica": "contrafactual sob a designacao ATUAL, nao taxa historica da janela",
             "via": "veredito-de-dose",
