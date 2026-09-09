@@ -2296,3 +2296,52 @@ janela pendurada, além de matar leitores no meio da leitura.
 ⚠️ Sexta afirmação plausível do dia — de uma de nós — derrubada por **uma** consulta ao
 código, e esta ia entrar no registro como fato operacional. Nenhuma das seis veio de
 concordância; todas de alguém rodar a consulta em vez de aceitar a frase.
+
+
+---
+
+## §10.21 — O corpus servido não tinha cópia em disco (2026-09-09 15:25Z)
+
+Achado ao verificar a premissa de uma pergunta da sessão par — ela queria apontar o
+wrapper do guarda de coorte para "o corpus recuperado de 03/09". Fui ver onde esse
+arquivo vivia.
+
+**Varredura por sha256 em todo o disco** (`find / -xdev -type f -size +500M`, comparando
+cada um): **zero** arquivos com `23378a9e…`. O corpus que o ensaio serve desde 03/09
+17:30 existia **exclusivamente** como o inode apagado mantido pelo `fd 26` do pid 546151.
+
+⇒ Qualquer restart do `nox-mem-api` — deploy, OOM, `systemctl` de outra sessão, reboot —
+destruiria permanentemente **o corpus sobre o qual todos os vereditos do ensaio foram
+computados**. E o §10.19 estabelece que o conteúdo era inalcançável por SQL enquanto
+estivesse só no `fd`: a única via era `cat`.
+
+Cópia feita antes de qualquer discussão, porque a discussão não sobrevive à perda:
+
+```
+/var/backups/nox-mem/p2-corpus-servido/servido-e20260903T060001Z.db
+sha256  23378a9ea83cd27d0360cfe148207167aee30a376f29ef89d4bcfae415d04131   (== fd 26)
+1,2G · modo 0400 · 67.187 chunks · abre por SQL
+```
+
+Localização escolhida por exclusão: **não** em `/var/lib/nox-mem/epochs/` (o
+`pruneEpochs(3)` a apagaria como se fosse epoch velho) e **não** em `/var/tmp` (limpeza
+periódica). Ler `/proc/PID/fd/26` não perturba o serving. 26G livres depois.
+
+### O que isto destrava e o que denuncia
+
+**Destrava:** o corpus do ensaio passa a ser **auditável** — 67.187 chunks consultáveis
+por SQL contra os 19 designados, o que era impossível ontem. Toda análise que dependia de
+"o corpus servido" e só podia usar `current.db` como proxy agora tem o objeto real.
+
+**Denuncia:** um número já publicado ficou sem lastro. A sessão par reportou
+`recuperado (bytes == fd): GREEN canal-alcancavel pool=108 nunca_servidos=0` — medição
+que exige SQL, sobre um arquivo que **não existia** no disco quando eu varri. Ou havia
+cópia temporária já removida, ou o número veio de outra fonte. Perguntado a ela; até a
+resposta, `pool=108` é **não-reproduzível**, e é justificativa do PR #484.
+
+⚠️ **A lição operacional, que é a terceira vez que esta família aparece:** o §10.10
+documentou em 08/09 que o serving lia um inode apagado, e a lição em memória diz
+*"recuperar com `cat` ANTES de restart"*. Passaram-se **32 h** entre saber disso e
+alguém copiar. Saber que um ativo está a um restart de desaparecer não é o mesmo que
+tê-lo copiado, e o intervalo entre as duas coisas é risco puro — não havia nada a
+decidir, só a fazer.
