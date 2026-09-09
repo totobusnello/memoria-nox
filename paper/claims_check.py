@@ -114,7 +114,14 @@ BIB_DIVIDA: dict[str, str] = {
 # ⚠️ 67 é MEDIDO, não estimado. A primeira versão deste arquivo trouxe 24, que
 # era o número de sítios que EU havia inspecionado — não o total. Baseline
 # chutado é ratchet frouxo: aceitaria 43 inserções novas em silêncio.
-PR_BASELINE = 67
+# ⚠️ REBAIXADO 67 -> 66 em 2026-09-09. A saida dos apendices C-G levou UMA mencao
+# `PR #NNN` para o suplemento, e a contagem caiu para 66. Manter 67 deixaria o ratchet
+# FROUXO: ele permitiria a divida voltar a crescer de 66 para 67 em silencio, que e'
+# exatamente o que um ratchet existe para impedir. Um ratchet so vale se acompanhar a
+# queda -- baseline que nao desce vira teto, nao trava.
+# Foi a suite de mutacao que apontou: o caso "evidencia nao-arquivavel AUMENTOU" deixou
+# de morder no momento em que a folga apareceu.
+PR_BASELINE = 66
 
 # Tabelas de comparação externa que ainda usam `PR #NNN` como fonte. Dívida
 # HERDADA e declarada, não isenção: qualquer sítio novo falha. Resolver com
