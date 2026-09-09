@@ -188,24 +188,43 @@ menção.
 superada. Dois valores para a mesma grandeza no mesmo parágrafo é a primeira coisa que
 um revisor circula.
 
-### 3.3 🔴 Contagem de entity files defasada
+### 3.3 🔴 Entity files: o paper não diz de qual população o número saiu — e nem eu dizia
 
 §5.1.3 afirma *"769 entity files × 3 sections ~ 2.307 boost-bearing chunks"* e atribui a
-elas a maioria do ganho da headline. Medido hoje:
+elas a maioria do ganho da headline.
 
-| grandeza | no paper | medido 2026-09-09 |
-|---|---:|---:|
-| entity files | 769 | **184** (em `memory/entities/**/*.md`) |
-| `source_file` distintos com `section` não-nula | — | 239 |
-| chunks `compiled` | — | 239 |
-| chunks `frontmatter` | — | 239 |
-| chunks `timeline` | — | 387 |
-| **chunks com `section`** | **~2.307** | **865** |
+🔴 **Correção de uma medição minha.** A primeira versão desta seção punha "**184**
+arquivos" e "**865** chunks" lado a lado, o que sugere 4,7 seções por arquivo — não é a
+geometria do formato. Os dois números são de **populações diferentes**: 184 é o **disco**,
+239 é o **banco**. A sessão par apontou a inconsistência. Medido em detalhe:
 
-865 contra 2.307, e 184 arquivos contra 769 — queda de ~4×, consistente com a limpeza de
-skills aposentadas de junho. O mecanismo da headline (`section_boost` explica 99,85% de
-A8) está apoiado nesse volume, então o número não é decorativo: se for remedido no corpus
-de hoje, a força do argumento muda. Datar ou remedir — não deixar como está.
+| section | chunks | `source_file` distintos | por arquivo |
+|---|---:|---:|---:|
+| `compiled` | 239 | **239** | 1,0 |
+| `frontmatter` | 239 | **239** | 1,0 |
+| `timeline` | 387 | **184** | 2,1 |
+| **total** | **865** | — | — |
+
+Arquivos `.md` em `memory/entities/` **no disco**: **184**.
+
+**A geometria fecha, e ao fechar revela um segundo defeito.** O formato é `frontmatter`
+(1) + `compiled` (1) + `timeline` (N eventos) — daí 2,1 timeline por arquivo, não 1. E:
+
+- **55 arquivos têm `compiled` sem `timeline`; zero têm `timeline` sem `compiled`.** A
+  assimetria é unidirecional.
+- 239 (banco) − 184 (disco) = **55**. São chunks de entity files **removidos do disco que
+  ficaram no banco** — o inverso do §10.9 do `DEVIATIONS-FOR-PAPER.md` (lá a reingestão
+  por arquivo *mata* ids servidos; aqui a remoção *deixa* ids órfãos). **Causa não
+  estabelecida** — pode ser remoção manual, poda de `lessons`, ou resíduo do bulk import
+  de junho. O que está medido é a assimetria, não a origem.
+
+⚠️ Portanto o "**769 entity files**" não é só desatualizado: **a frase não diz de qual
+população o 769 saiu.** Se era o disco, caiu para 184 (−76%); se era o banco, caiu para
+239 (−69%). E o mecanismo da headline (`section_boost` explica 99,85% de A8) está apoiado
+nesse volume: se for remedido no corpus de hoje, a força do argumento muda.
+
+⇒ **Segundo exemplo independente da classe do §3.1 dentro do mesmo manuscrito**: número
+certo, população não declarada. Conserto: datar, dizer *disco* ou *banco*, e remedir.
 
 ### 3.4 🟡 Três de cinco competidores não rodaram
 
@@ -284,7 +303,7 @@ nunca foi excesso de otimismo — é que a forma esconde o rigor.
 | 67.724 chunks, 865 com section, 3,92% tier core | `SELECT` no banco **vivo** `/root/.openclaw/workspace/tools/nox-mem/nox-mem.db`, 2026-09-09 |
 | 67.187 chunks servidos, `MAX(created_at)=2026-08-24` | snapshot `corpus-SERVING-REAL-e20260903-recuperado.db` — o corpus que o serving lê pelo `fd`, congelado desde 03/09 |
 
-### 6.1 Duas medições minhas que estavam erradas, e como cada uma foi pega
+### 6.1 Três medições minhas que estavam erradas, e como cada uma foi pega
 
 Ficam registradas porque a classe se repete e o registro é o que impede a terceira vez.
 
@@ -292,10 +311,15 @@ Ficam registradas porque a classe se repete e o registro é o que impede a terce
 |---|---|---|
 | **"MemMachine tem 1 autor"** | `re.findall` devolve todos os nomes; eu imprimi `au[0]` e li como "o autor". Sustentava a frase mais forte do documento | cruzar com a **API de metadados**, que devolve `author` como lista. Duas fontes para a mesma grandeza |
 | **"densidade de alegação alta: 20× SOTA"** | contagem correta, caracterização errada — quase toda ocorrência é *ressalva* (*"below current SOTA"*, *"not SOTA claims"*) | **ler os 20 contextos** em vez de confiar no contador. E normalizar por palavra, o que inverteu o sinal em "outperform" |
+| **"184 arquivos, 865 chunks"** no §3.3 | os dois medidos certos, mas **de populações diferentes** (disco × banco) e postos lado a lado como se fossem a mesma — sugeria 4,7 seções/arquivo, que não é a geometria do formato | a **sessão par** notou a inconsistência aritmética. Ao abrir, apareceu um defeito que nenhum dos dois números mostrava: **55 arquivos vivos só no banco** |
 
-Nas duas, o número estava certo e a frase que o carregava estava errada. É a classe
-*número certo atribuído à população errada*, duas vezes em um documento — e as duas
-foram pegas por olhar a mesma grandeza por uma segunda via.
+Nas três, o número estava certo e a frase que o carregava estava errada. É a classe
+*número certo carregado por frase errada*, três vezes num documento — e nenhuma foi pega
+por releitura: duas por **cruzar a mesma grandeza com uma segunda via**, e a terceira por
+**alguém de fora conferir a aritmética entre dois números meus**.
+
+⚠️ A terceira é a mais instrutiva das três, porque o erro não estava em nenhum dos dois
+números — estava em **pôr os dois juntos**. Nenhuma verificação de número isolado pegaria.
 
 ⚠️ **Os dois últimos são grandezas diferentes e o paper precisa dizer qual usa.** Até o
 realinhamento de 2026-09-10 09:00Z, o `nox-mem-api` serve de um snapshot congelado: o
