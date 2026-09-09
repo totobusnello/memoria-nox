@@ -96,18 +96,42 @@ done
 [ -n "$VIVO" ]   || { echo "FALTA --vivo" >&2; exit 2; }
 [ -n "$AGORA" ]  || AGORA="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
+# ⚠️ O sha do corpus nasce AQUI, antes de qualquer perna poder emitir. Ele estava
+# sendo calculado na perna de alcançabilidade (:279), o que deixava TODO veredito
+# anterior — inclusive o GREEN `canal-alcancavel`, que é o caminho comum — com um
+# recibo que identificava o corpus só por `basename`. Basename nomeia um caminho;
+# sha identifica bytes, e é o que distingue os dois corpora deste ensaio. Foi o
+# defeito do §10.17, e ele voltou aqui: recibo cuja entrada decisiva é invisível.
+# Sha é sobre o ARGUMENTO, nunca sobre o `readlink` dele (§10.20).
+CORPUS_SHA="$(sha256sum "$CORPUS" 2>/dev/null | cut -d" " -f1)"
+[ -n "$CORPUS_SHA" ] || CORPUS_SHA="nao-calculado"
+
 emitir() {  # $1=estado $2=resto
-  local linha="$1 p2-coorte-nunca-servida $2 ts=$AGORA"
+  # `corpus_sha256` entra AQUI, no único ponto por onde toda perna passa: o
+  # morning-report imprime a linha de status inteira, e sem o sha nela um veredito
+  # YELLOW/RED chega ao leitor sem dizer sobre QUAL corpus fala. Basename não serve —
+  # os dois corpora deste ensaio já tiveram basename igual (`current.db` é symlink).
+  local linha="$1 p2-coorte-nunca-servida $2 corpus_sha256=${CORPUS_SHA:0:12} ts=$AGORA"
   echo "$linha"
   [ -n "$STATUS" ] && printf '%s\n' "$linha" > "$STATUS"
   if [ -n "$NDJSON" ]; then
-    python3 - "$NDJSON" "$1" "$2" "$AGORA" <<'PYND' 2>/dev/null || true
+    python3 - "$NDJSON" "$1" "$2" "$AGORA" "$CORPUS" "$CORPUS_SHA" <<'PYND' 2>/dev/null || true
 import json, sys
-nd, estado, resto, ts = sys.argv[1:5]
+nd, estado, resto, ts, corpus, corpus_sha = sys.argv[1:7]
+# Os `k=v` do texto viram CAMPOS. Antes, as 4 chaves eram ts/tag/estado/linha_status
+# e todo o medido — corpus, sha, pool, coorte — ficava dentro de um blob de texto,
+# inconsultável. `linha_status` permanece para leitura humana e para não quebrar
+# quem já lê o campo; os campos são o que se consulta.
+rec = {"ts": ts, "tag": "p2_gatilho_coorte", "estado": estado,
+       "corpus_path": corpus, "corpus_sha256": corpus_sha, "linha_status": resto}
+for par in resto.split():
+    if "=" in par:
+        k, v = par.split("=", 1)
+        if k not in rec:            # campo explícito nunca é sobrescrito pelo texto
+            rec[k] = v
 try:
     with open(nd, "a") as f:
-        f.write(json.dumps({"ts": ts, "tag": "p2_gatilho_coorte",
-                            "estado": estado, "linha_status": resto}) + "\n")
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 except Exception:
     pass
 PYND
@@ -277,8 +301,7 @@ fi
 # prende a ordem: se alguém puser a perna 5 antes da 1, T13 falha. A correção
 # existe para que um reordenamento futuro não transforme o latente em vivo.
 CORPUS_REAL="$(readlink -f "$CORPUS" 2>/dev/null || printf '%s' "$CORPUS")"
-CORPUS_SHA="$(sha256sum "$CORPUS" 2>/dev/null | cut -d' ' -f1)"
-[ -n "$CORPUS_SHA" ] || CORPUS_SHA="nao-calculado"
+# CORPUS_SHA já foi calculado no topo, para que TODA perna o carregue no recibo.
 
 ALCANCAVEL="nao"
 FD_SHAS=""
@@ -296,7 +319,7 @@ if [ "$CORPUS_SHA" = "nao-calculado" ]; then
   emitir YELLOW "motivo=corpus-sem-sha semantica=sem-ler-os-bytes-do-corpus-nao-se-afirma-divergencia $BASE fds_abertos=$SERV_N"
 fi
 
-BASE="$BASE fds_abertos=$SERV_N corpus_real=$(basename "${CORPUS_REAL:-$CORPUS}") corpus_sha256=$(printf '%.12s' "$CORPUS_SHA") fd_sha256s=$FD_SHAS corpus_e_o_servido=$ALCANCAVEL"
+BASE="$BASE fds_abertos=$SERV_N corpus_real=$(basename "${CORPUS_REAL:-$CORPUS}") fd_sha256s=$FD_SHAS corpus_e_o_servido=$ALCANCAVEL"
 
 if [ "$ALCANCAVEL" = "nao" ]; then
   emitir RED "motivo=corpus-nao-e-o-servido semantica=nenhum-fd-aberto-tem-estes-bytes-logo-esta-medicao-de-coorte-NAO-fala-sobre-producao $BASE"

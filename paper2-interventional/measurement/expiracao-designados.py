@@ -131,6 +131,31 @@ def main():
         grade.append({"fronteira_utc": t, "elegiveis": len(passam)})
     rec["grade"] = grade
 
+    # ── O INSTANTE da expiração, e o aviso de que o último epoch é PARCIAL ──
+    # A grade mede FRONTEIRAS de epoch (09:00Z). A expiração cai no aniversário da
+    # âncora, que não é 09:00 — logo o último epoch elegível é MISTO: começa com os
+    # 19 alcançáveis e termina sem nenhum. Ler "19 elegíveis no epoch de 20/09" como
+    # exposição uniforme de 24 h é a família do número certo com população errada, e
+    # é o leitor que erra se o artefato não disser. Exposição mista e exposição
+    # uniforme não são o mesmo objeto; fundi-las é decisão de quem analisa, não
+    # minha — e não se decide o que não se sabe que difere.
+    if rec["ancora_unica"]:
+        anc = dt.datetime.fromisoformat(ancoras[0]).replace(tzinfo=dt.timezone.utc)
+        exp = anc + dt.timedelta(days=a.janela_global_d)
+        rec["expiracao_utc"] = exp.strftime("%Y-%m-%dT%H:%M:%SZ")
+        hh, mm, ss = (int(x) for x in a.hora_fronteira.split(":"))
+        fronteira = exp.replace(hour=hh, minute=mm, second=ss)
+        if fronteira > exp:
+            fronteira -= dt.timedelta(days=1)
+        horas = (exp - fronteira).total_seconds() / 3600
+        rec["ultimo_epoch"] = {
+            "abre_utc": fronteira.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "expira_em_utc": rec["expiracao_utc"],
+            "horas_elegiveis": round(horas, 2),
+            "horas_do_epoch": 24.0,
+            "parcial": abs(horas - 24.0) > 1e-9,
+        }
+
     # ── último dia elegível e o primeiro zero, lidos DA grade, não deduzidos ──
     ult = [g for g in grade if g["elegiveis"] > 0]
     zer = [g for g in grade if g["elegiveis"] == 0]
@@ -141,7 +166,10 @@ def main():
     if not zer:
         rec.update(veredito="YELLOW", motivo="grade-curta-nao-alcanca-o-zero")
     elif ult and len(ult[-1:]) and ult[-1]["elegiveis"] == len(ids):
-        rec.update(veredito="GREEN", motivo="expiracao-em-bloco-datada")
+        parcial = rec.get("ultimo_epoch", {}).get("parcial")
+        rec.update(veredito="GREEN",
+                   motivo=("expiracao-em-bloco-datada-ultimo-epoch-PARCIAL" if parcial
+                           else "expiracao-em-bloco-datada"))
     else:
         rec.update(veredito="YELLOW", motivo="expiracao-escalonada")
     emitir(rec, a.out)
@@ -150,7 +178,9 @@ def emitir(rec, out):
     lin = (f'{rec["veredito"]} p2-expiracao-designados motivo={rec["motivo"]} '
            f'corpus_sha256={rec["corpus_sha256"][:12]} '
            f'ultima={rec.get("ultima_fronteira_elegivel")} '
-           f'primeira_zero={rec.get("primeira_fronteira_zerada")}')
+           f'primeira_zero={rec.get("primeira_fronteira_zerada")} '
+           f'expira={rec.get("expiracao_utc")} '
+           f'ultimo_epoch_h={rec.get("ultimo_epoch",{}).get("horas_elegiveis")}/24')
     print(lin)
     if out:
         with open(out, "w") as f: json.dump(rec, f, indent=2, ensure_ascii=False)
