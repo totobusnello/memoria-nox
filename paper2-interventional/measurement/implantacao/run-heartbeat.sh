@@ -31,12 +31,28 @@ set -uo pipefail
 # pergunta encerrada e' o alarme cronicamente vermelho -- o que ensina a ignorar
 # alarme, que e' o defeito tratado no §10.17.
 #
-# ⚠️ ESTA PERNA E' A PRIMEIRA COISA DO SCRIPT, DE PROPOSITO. O `desliga-dose-p2.sh`
-# ARQUIVA o drop-in `zz-p2-active.conf`, e com ele desaparecem do unit as vars
-# `NOX_P2_*`. Qualquer checagem posta antes desta veria a var ausente e emitiria o
-# seu proprio erro -- no `run-designados.sh`, literalmente
-# `RED designacao-ausente-no-unit`, para sempre. Guarda posterior ao uso que ele
-# protege nao e' guarda.
+# A PERNA E' A PRIMEIRA COISA DO SCRIPT: qualquer pre-condicao que possa disparar
+# antes dela transforma um estado-final-ESPERADO em alarme. Custa nada e e' defensivo.
+#
+# ⚠️ ERRATA 2026-09-09, e a razao original estava ERRADA. Eu escrevi aqui que o
+# `desliga-dose-p2.sh` faria as vars `NOX_P2_*` desaparecerem do unit, e que sem esta
+# ordenacao o `run-designados.sh` sairia `RED designacao-ausente-no-unit` para sempre.
+# MEDIDO nos drop-ins, apos a sessao par contestar:
+#
+#   p2-designation.conf   NOX_P2_DESIGNATION, NOX_P2_DESIGNATION_SHA256
+#   p2s2-shadow.conf      NOX_P2_OUTCOME=shadow, NOX_P2_SERVING_LOG, NOX_P2_SHADOW_W
+#   zz-p2-active.conf     NOX_P2_ASSIGNMENT, NOX_P2_ASSIGNMENT_SHA256, NOX_P2_OUTCOME=active
+#
+# O desliga arquiva SO o `zz-`. `DESIGNATION` sobrevive e `OUTCOME` sobrevive como
+# `shadow` -- que e' justamente o que faz esta perna disparar. Nenhum dos 4 wrappers
+# fica falsamente RED por var ausente.
+#
+# O `RED` que a minha mutacao mostrou era ARTEFATO DA FIXTURE: o `systemctl` stubado
+# devolvia so `OUTRA=1`, sem nenhuma `NOX_P2_*`. Ela provou "unit sem a variavel =>
+# RED", que e' verdadeiro e NAO e' o estado sobre o qual eu concluia. O cenario
+# testado nao reproduzia o estado da conclusao -- e um mutante pode matar o caso pelo
+# motivo errado. A perna e a ordenacao continuam certas; a justificativa e' que era
+# falsa, e ficar sem correcao seria mecanismo falso documentado em producao.
 #
 # ⚠️ E ela e' INERTE enquanto o ensaio corre: so dispara com `outcome != active`.
 # Instalada 11 dias antes do encerramento sem alterar comportamento nenhum hoje.
