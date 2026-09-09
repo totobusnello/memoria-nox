@@ -2643,3 +2643,69 @@ fecha, é escopo que ninguém pediu. O que fica é o **requisito** para o que os
 > A suíte precisa de um caso que **olhe o artefato emitido** — não o fonte, não a linha
 > impressa. As duas suítes passavam verdes com e sem o defeito porque **nenhum caso abria
 > o NDJSON**.
+
+---
+
+## §10.25 — A perna de auto-aposentadoria: onde entrou, onde não, e uma previsão medida como falsa
+
+A sessão par implantou a perna *"o ensaio acabou, não há o que vigiar"* nos quatro guardas
+que ela mantém (`composicao`, `designados`, `corpus-alinhado`, `heartbeat`), com 12
+asserções — 3 por wrapper, incluindo o **par A/B completo**: A o caminho de encerramento
+(stub `outcome=shadow`), B o caminho normal (tem de **seguir** para o guarda). Sem o B,
+uma perna que engolisse tudo passaria em A. Rodados os quatro em produção depois de
+implantar: os quatro vereditos inalterados, zero caindo no caminho novo — inerte hoje,
+como tem de ser.
+
+### A previsão que motivava urgência é falsa, e medi antes de aplicar
+
+Ela previu que, depois de o `desliga-dose-p2.sh` arquivar o `zz-p2-active.conf`, as vars
+`NOX_P2_*` sumiriam do unit e os wrappers passariam a `RED designacao-ausente-no-unit` —
+"vermelho enganoso causado pelo próprio arquivamento". Medido:
+
+| drop-in | vars |
+|---|---|
+| `p2-designation.conf` | `NOX_P2_DESIGNATION`, `NOX_P2_DESIGNATION_SHA256` |
+| `p2s2-shadow.conf` | `NOX_P2_OUTCOME`, `NOX_P2_SERVING_LOG`, `NOX_P2_SHADOW_W` |
+| **`zz-p2-active.conf`** (o arquivado) | `NOX_P2_ASSIGNMENT`, `NOX_P2_ASSIGNMENT_SHA256`, `NOX_P2_OUTCOME` |
+
+⇒ **`DESIGNATION` sobrevive** — vem de outro drop-in, que não é tocado. O
+`run-saturacao.sh` pós-arquivamento passa as linhas 59-61 (`DESIG`), pula 73-75
+(`ASSIGNMENT`, dentro do ramo `active`, e o modo será `shadow`) e satisfaz 77
+(`SHADOW_W`, sobrevive). **Roda normal em shadow, não RED.** O mesmo para o
+`run-designados.sh` dela.
+
+O `RED designacao-ausente-no-unit` do mutante dela é, com alta probabilidade, **artefato
+do stub**: um `systemctl` stubado que devolve apenas `NOX_P2_OUTCOME=shadow` deixa `DESIG`
+vazio **no stub**, não na realidade. É a família do dia migrada para a fixture — *o
+cenário testado não reproduz o estado sobre o qual se conclui*.
+
+⚠️ **A regra de ordenação dela continua válida por outro motivo:** qualquer pré-condição
+que possa disparar antes da perna transforma um estado-final-esperado em alarme. O
+princípio se sustenta com a instância errada removida.
+
+### Por que o `run-saturacao.sh` fica sem a perna, com a razão à vista
+
+Autorização existe (Toto, 2026-09-09 14:46: *"aposenta os guardas junto no 21"*). O
+impedimento é risco, não mandato:
+
+**O `run-saturacao.sh` é o guarda que reporta os últimos epochs da janela elegível**,
+inclusive o parcial de 20/09 — o último dado do ensaio. Editá-lo a 11 dias do fim arrisca
+exatamente a medição sobre a qual o ensaio fecha, e o ganho é **nulo** enquanto a
+aposentadoria (§10.23) remove o cron dele.
+
+O único caminho em que a lacuna importa é a aposentadoria **abortar** (alguém editou o
+report), e aí os sete ficam de pé: os quatro dela dirão `GREEN ensaio-encerrado` e o meu
+dará um veredito válido sobre uma dose que não é mais servida — enganoso, inofensivo e
+visível no report.
+
+⇒ Lacuna **documentada**, não omitida: a perna entra depois de 21/09, se e quando alguém
+rearmar o cron. É a mesma razão pela qual todo o resto parou hoje — não se mexe no
+instrumento nos últimos dias da janela que ele mede.
+
+### Terceira instância do dia da mesma sonda
+
+O `grep -q 'NOX_P2_OUTCOME'` dela concluiu que o `run-saturacao.sh` **tinha** a perna. Ele
+lê a var, sim — como `MODO`, para repassar ao guarda (linha 54). A sonda respondeu
+**presença-de-nome** em vez da pergunta feita. Somado aos meus dois sondadores do §10.24,
+são **três instrumentos diferentes, no mesmo dia, todos medindo o fonte para responder
+pergunta sobre comportamento** — e os três escritos *depois* de a lição estar registrada.
