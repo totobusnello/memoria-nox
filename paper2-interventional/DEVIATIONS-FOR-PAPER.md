@@ -1389,6 +1389,97 @@ Duas frentes, nenhuma executada nesta entrada:
 **"N briefs cuja escrita atravessou a janela de casamento"**, e não como perda de dado.
 
 
+#### 10.13 🔴 Dois defeitos que o desenho não previa: o canal perde capacidade no corpus atual, e os designados saem do pool em 2026-09-20
+
+**Registrado em 2026-09-09, antes de qualquer ação e sem consultar desfecho.** O que se
+mediu é **capacidade do canal** e **elegibilidade dos alvos** — nunca resultado.
+
+### (A) O RED de produção é artefato de instrumento — e o número inverte para o lado ruim
+
+O `run-saturacao.sh` passa `--corpus /var/lib/nox-mem/epochs/current.db`. O serving **não
+lê** esse corpus desde 03/09 (§10.10). Rodando o **mesmo** gatilho, **mesmo** log
+(`sha256 d5ba483d…`), **mesmo** `estados=672`, **mesma** janela, variando **só** o corpus:
+
+| corpus | veredito | `mexem_servido` | `mexem_absurdo` | folga |
+|---|---|---:|---:|---:|
+| o que o serving **leu** (recuperado do `fd`, `agentFresh=0`) | **GREEN** dose responsiva | **20** | **37** | **0,5405** |
+| `current.db` (produção usou, `agentFresh=285`) | RED sem capacidade | **0** | **0** | — |
+
+⇒ **A intervenção está viva no epoch 09-08.** O par utilizável é `20 / 37 / 0,5405`, do
+corpus servido. O RED diário do gatilho é **falso positivo** enquanto o `fd` estiver
+pinado, e conta no `red=` do morning report.
+
+⚠️ **E a dose não conserta.** A corrida de produção testou `w = 100 000`: `mexem_absurdo=0`.
+Boost é **aditivo** (regra 5 do `CLAUDE.md`); se a dose absurda não move, **nenhum `w`
+move**. Isto **não** é falha de calibração — é falta de capacidade do canal. Recalibrar
+`w` sobre o corpus novo não recupera nada.
+
+**Mecanismo NÃO estabelecido.** Candidato lido no código, **não verificado**: a Fase 0 de
+`pickDedup` reserva `pinned` (high-pain já presentes no brief) que *"entram primeiro e
+nunca são expulsos pelo freshness slot"*, e *"pinned excedente come dos fresh slots"* —
+com `freshSlots = 2`, dois pinned zeram o canal. Não meço isso aqui, e **não atribuo**:
+os dois corpora diferem em `agentFresh` (0 → 285), `globalFresh` (108 → 115) e 419
+chunks. Atribuir a `agentFresh` seria inferência sobre o `interleaveFresh`, e a classe
+*reconstrução modela regra que o código nunca aplica* já apareceu **cinco vezes** neste
+repo.
+
+### (B) Os alvos saem do pool em 2026-09-20, e o desenho não fecha
+
+Os 19 designados têm `source_date = 2026-08-21 22:51:23`. A janela do sub-pool global é
+`freshGlobalMaxAgeDays = 30` ⇒ saem em **2026-09-20 22:51:23**. Depois disso **nenhuma
+dose os alcança, em nenhum corpus** — não é questão de capacidade, é elegibilidade.
+
+| | |
+|---|---|
+| epoch 1 no ar | 2026-09-01 |
+| alvos elegíveis até | **2026-09-20** |
+| último epoch previsto | 2027-04-22 |
+| ⇒ fração do ensaio **com alvo alcançável** | **8,2 %** (19 dias de 232) |
+
+Um ensaio de 234 epochs com alvos fixos é **incompatível** com um pool que só admite os
+últimos 30 dias. É inconsistência **interna** do desenho, descoberta agora — não mudança
+de circunstância.
+
+**E o `source_date` não pode ser renovado.** Os **19 de 19** arquivos-fonte
+(`memory/entities/lessons/<hash>.md`) estão **apagados do disco**, **nunca foram
+versionados** (`git log --all --diff-filter=AD` vazio; `git ls-files` devolve 42, que são
+os que existem) e **não estão nos checkpoints** (0 arquivos em `entities/lessons/`).
+Renovar exigiria reingestão, que **troca os ids** e mata a designação (§10.9).
+
+⇒ Os 19 chunks no banco são a **única cópia** do ativo. Salvos em
+`/var/lib/nox-mem/p2/DESIGNADOS-CONTEUDO-20260909T103409Z.json` (19/19, `sha256 92060a9f…`,
+modo 600).
+
+⚠️ **O guarda de designados diz GREEN 19/19 e está certo pelo seu predicado** — ele lê o
+**banco**, onde os chunks estão. É cego para "o arquivo-fonte não existe", que é a regra 9
+do `CLAUDE.md` reaparecendo **dentro do guarda escrito em 08/09 para proteger este
+ativo**. Perna nova é necessária.
+
+### Decisão do Toto (2026-09-09) e a dependência que a condiciona
+
+Escolhido: **alargar a janela do pool global** e **manter o cron do realinhamento
+desarmado**.
+
+Alargar resolve **(B)**. Medido, sobre o corpus atual:
+
+| janela | pool global | designados em 21/09 | cobre 22/04/2027 |
+|---|---:|---|---|
+| 30 d (atual) | 115 | **0/19** | não |
+| 90 d | **116** | 19/19 | não — só até 19/11/2026 |
+| ≥ 244 d | **305** | 19/19 | sim |
+
+Cobrir o ensaio inteiro **triplica** o pool (115 → 305). Não existe valor que cubra
+abril/2027 sem esse salto: ele acontece entre 90 d e 180 d, e o mínimo necessário é 244 d.
+
+🔴 **A dependência:** `diversityConfigFromEnv()` é chamado **por request**
+(`dist/api/brief.js:819`) mas lê `process.env`, e o env de um processo em execução **só
+muda com restart**. Logo alargar a janela **exige o restart** que a segunda decisão mantém
+desarmado — e o restart traz o corpus atual, que é onde **(A)** vale. As duas decisões,
+como escolhidas, são **incompatíveis** sem resolver (A) primeiro.
+
+**Nada foi aplicado.** O que está feito: ativo salvo, cron desarmado, medições acima.
+
+
 ## Se a decisão mudar
 
 A máquina do depósito está pronta e **não executada**: `deposit/PLAN-v1.13.md` e
