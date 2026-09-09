@@ -1134,6 +1134,12 @@ regra, e não pelos exemplos, escolheria o teto ao contrário. Corrigido no mesm
 
 #### 10.10 🔴 O serving lê um snapshot congelado por *file descriptor* — e isso reescreve §10.7
 
+> ⚠️ **A DATA deste item foi corrigida pelo §10.11 (2026-09-09).** O achado, a
+> delimitação dos snapshots equivalentes e a validade dos vereditos até o epoch 09-06
+> seguem de pé. O que caiu foi a justificativa aritmética de `2026-09-15`: ela supunha
+> que nada mais entra no pool, e a ingestão de sessões é por *hook* dirigido por
+> atividade de agente. Data vigente: **`2026-09-10 09:00Z`**.
+
 Achado em 2026-09-08, ao investigar por que o log de serving registrava ids que **não
 existem** no banco. Domina os dois itens anteriores e corrige uma conclusão do §10.5.
 
@@ -1231,6 +1237,90 @@ não no meio de um.
 E há um **fix de código** por trás: o serving deveria reabrir o snapshot na virada de
 epoch, ou seguir o symlink em vez de manter o descriptor. Implementá-lo **muda o
 comportamento do ensaio**, e por isso não é conserto rotineiro.
+
+#### 10.11 🔴 A data do realinhamento era premissa falsa: `agentFresh` **não** volta a zero
+
+**Registrado em 2026-09-09, antes de qualquer ação e antes de consultar qualquer
+desfecho.** O que foi medido para decidir é **exclusivamente** a proveniência do fluxo
+de ingestão e a distribuição temporal do pool. Nenhum resultado do ensaio foi
+computado, consultado ou estimado.
+
+O §10.10 fixou o realinhamento em `2026-09-15 09:00Z` sob a premissa de que os 253
+chunks de sessão de 08/09 sairiam da janela de 7 dias às `2026-09-15 00:00:00Z` e
+`agentFresh` **voltaria a 0 por expiração**, tornando o restart uma pura atualização de
+corpus. A premissa supõe que **nada mais entra**. Está falsa.
+
+**Medido em 2026-09-09:**
+
+| fato | medição |
+|---|---|
+| elegíveis na janela | **285** = 219 (`source_date` 08/09) + **66 (09/09)** |
+| entrada dos 66 | `created_at` 01:01:00 → 01:02:13, **3 arquivos** `sessions/boris/*` |
+| cron responsável | **nenhum** — a ingestão é por *hook* (`nox-mem-ingest.sh`), disparada por **atividade de agente** |
+| `session-distill` do nightly | **`Phase 4: Sunday`** — próximo domingo é **2026-09-13** |
+| histórico de ingestão de sessão (60 d) | rajadas em jul/ago, **nada de 11/08 a 07/09** (28 d), retomada em 08/09 |
+
+Duas consequências, e a segunda é mais importante que a primeira.
+
+**(a) O script abortaria para sempre.** A pré-condição 3 exigia `agentFresh == 0`. Com
+`session-distill` rodando domingo 13/09 e o *hook* injetando a cada sessão de agente, a
+condição não se satisfaz em 15/09 — nem depois. Um script de ação cujo predicado exige
+um estado que não retorna não falha: **fica calado**. É a regra 9 do `CLAUDE.md`
+(*guarda cujo predicado exige o dado que falta não cobre a falta do dado*) aplicada a um
+caminho de **ação**, onde o silêncio é indistinguível de "ainda não chegou a hora".
+
+**(b) O regime da calibração era o regime QUEBRADO.** O buraco de 28 dias na ingestão de
+sessões coincide com a migração que moveu endereço e schema das sessões, consertada em
+07/09. A medição de `agentFresh` **vazio** de 26/08 — que fundamenta a escala de dose de
+27/08 — foi feita **dentro** desse buraco. Não existe "voltar ao regime da calibração"
+sem quebrar a ingestão de novo. O canal com `agentFresh` não-vazio é o comportamento
+**correto** do sistema; o outro era o defeito.
+
+⇒ Esperar a expiração não é conservador, é **indefinido**. E cada dia de espera é um dia
+em que o serving expõe a partir de um corpus congelado em `MAX(created_at) = 2026-08-24`.
+
+**Delimitação honesta do custo de esperar.** O congelamento atinge **os dois braços
+igualmente** — é o mesmo corpus para tratamento e controle. Ele **não** enviesa a
+comparação interna; degrada **validade externa** (o ensaio mede sobre um corpus que
+envelhece). Já a composição do canal muda a **posição** dos designados no `interleave`,
+o que afeta a **dose efetiva** — e essa é interna. Portanto a pressa não se justifica
+pelo congelamento; o que se justifica é **não esperar por um evento que não vem**.
+
+### Decisão
+
+**Realinhar em `2026-09-10 09:00Z`** (quinta), não em 15/09. Escolha da fronteira:
+
+| epoch | dia | arm | por que importa |
+|---|---|---|---|
+| 2026-09-09 | qua | treatment `w=2.0` | **em curso** — não se corta epoch no meio |
+| **2026-09-10** | **qui** | **control `w=0`** | ⬅️ **fronteira escolhida** |
+| 2026-09-11 | sex | control `w=0` | 2º epoch de controle limpo no regime novo |
+| 2026-09-12 | sáb | treatment `w=4.0` | 1º tratamento **inteiramente** dentro do regime novo |
+
+O regime novo estreia em **controle**, com dois epochs de controle antes do primeiro
+epoch de tratamento — o contraste dentro do regime começa sem dose, e o primeiro
+tratamento nasce inteiro. Estrear numa fronteira de tratamento faria o regime novo
+começar já sob dose.
+
+**A pré-condição 3 muda de natureza:** deixa de exigir `agentFresh == 0` e passa a
+**medir e registrar** `agentFresh`/`globalFresh` no `ndjson`, abortando apenas se a
+**medição** falhar. As outras quatro seguem intactas e abortivas: fronteira de epoch,
+guarda de alinhamento em RED, 19/19 designados presentes, recuperação do corpus antigo
+com `quick_check = ok`.
+
+**Regra de tratamento — inalterada.** A análise já pré-especificada no §10.7 é o
+instrumento para isto e não precisa de emenda: *primary* + co-estimador ITT com todos os
+epochs, **mais** o mesmo par com os epochs do regime intercalado excluídos. O que o
+§10.11 acrescenta é que a fronteira do regime novo passa a ser **`2026-09-10 09:00Z`**, e
+que o conjunto "regime intercalado" é `{09-08 … 09-09}` do canal congelado mais tudo a
+partir de `09-10` no canal realinhado — a serem enumerados a partir do `ndjson` dos
+guardas, não de contagem à mão.
+
+⚠️ **Isto não retira nada do §10.10.** O achado do *file descriptor*, a delimitação dos
+snapshots equivalentes (03/09–07/09) e a validade dos vereditos de dose até o epoch
+09-06 continuam de pé. O que muda é **só a data** e o **predicado da pré-condição 3** —
+e muda porque a justificativa aritmética da data supunha um mundo sem ingestão.
+
 
 ## Se a decisão mudar
 

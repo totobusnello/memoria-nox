@@ -43,7 +43,10 @@ A correção entrou como **§10.10**, com banner nas seções antigas — não a
 2. **`gatilho-corpus-alinhado.sh`** (cron `39 * * * *`, teto 3 no morning report) —
    compara o inode aberto pelo processo com o `current.db`; a perna RED
    `corpus-DELETADO-e-vivo-so-pelo-fd` já vem com a ação de recuperação escrita.
-3. **Restart agendado para a fronteira**, não imediato — `2026-09-15 09:00Z`, com 5
+3. **Restart agendado para a fronteira**, não imediato — **`2026-09-10 09:00Z`**
+   (corrigido em 09/09: a data 15/09 supunha que `agentFresh` voltaria a zero por
+   expiração, e a ingestão de sessões é por *hook* dirigido por atividade de agente
+   ⇒ não volta. Ver §10.11 do `DEVIATIONS-FOR-PAPER.md`), com 5
    pré-condições que abortam. Motivo em `docs/HANDOFF.md` (2026-09-08 tarde).
 
 ### Aprendizados

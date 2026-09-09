@@ -6,7 +6,24 @@
 # snapshot já podado do disco. Só um restart realinha — e o restart é MUDANÇA DE
 # REGIME, não conserto rotineiro.
 #
-# ─── Por que 2026-09-15 09:00Z, e não hoje ─────────────────────────────────
+# ─── Por que 2026-09-10 09:00Z (CORRIGIDO 2026-09-09) ─────────────────────
+#
+# A data anterior (15/09) era PREMISSA FALSA. Ver §10.11 do DEVIATIONS. Medido em
+# 09/09: `agentFresh` NÃO volta a zero — a ingestão de sessões é por *hook*
+# (`nox-mem-ingest.sh`) dirigido por ATIVIDADE DE AGENTE, não por cron: 66 elegíveis
+# novos entraram às 01:01Z de 09/09, de 3 arquivos `sessions/boris/*`. E o
+# `session-distill` do nightly é `Phase 4: Sunday` — roda 13/09. Em 15/09 a
+# pré-condição 3 abortaria, e abortaria PARA SEMPRE: script de ação cujo predicado
+# exige estado que não retorna não falha, fica calado.
+#
+# Além disso o buraco de 28 dias na ingestão (11/08→07/09) mostra que o regime
+# `agentFresh` VAZIO — o da calibração de 27/08 — era o regime QUEBRADO. Não há volta.
+#
+# Fronteira escolhida: 10/09 é epoch de CONTROLE (`w=0`), e 11/09 também. O regime
+# novo estreia sem dose, com dois controles limpos antes do primeiro tratamento
+# (12/09, `w=4.0`), que nasce inteiro dentro dele.
+#
+# ─── O raciocínio ORIGINAL, preservado porque a medição que o sustentava é válida ──
 #
 # Medido em 08/09, com as janelas que o código realmente usa
 # (`freshMaxAgeDays = 7` para o agente, `freshGlobalMaxAgeDays = 30` para o global):
@@ -26,6 +43,12 @@
 # fica idêntica (`interleaveFresh([], 115)`), a calibração continua válida, e
 # nenhum epoch entra em regime diferente. Nove horas depois abre o epoch `09-15`,
 # que é a primeira fronteira limpa após a expiração.
+#
+# ⚠️ O PARÁGRAFO ACIMA ESTÁ SUPERADO. A expiração acontece de fato às
+# `2026-09-15 00:00:00Z` para AQUELES 253 chunks — a aritmética está certa. O que é
+# falso é a conclusão: `agentFresh` não volta a 0, porque ENTRA dado novo. Fica
+# preservado porque a medição das duas janelas (7 d agente / 30 d global) é o achado
+# que continua valendo, e porque item retirado esconde o erro em vez de o mostrar.
 #
 # ─── As pré-condições ABORTAM. Nenhuma delas é decorativa. ─────────────────
 set -uo pipefail
@@ -65,14 +88,19 @@ case "$AL" in
   *) abortar "guarda-de-alinhamento-inconclusivo detalhe=$(printf '%s' "$AL" | tr '|' '/')";;
 esac
 
-# (3) A PRÉ-CONDIÇÃO QUE DEFINE A DATA: `agentFresh` tem de estar VAZIO no corpus
-#     que o processo vai passar a ler. É isto que faz o restart não mudar a forma
-#     do canal. Se alguém rodar o `session-distill` à mão antes desta data, o pool
-#     reenche e a condição falha — de propósito.
+# (3) MEDIR E REGISTRAR `agentFresh` — não exigir que seja zero.
+#     REVISADO 2026-09-09 (§10.11). A versão anterior exigia `agentFresh == 0`, sob a
+#     premissa de que o pool esvaziaria por expiração. A premissa supõe que nada mais
+#     entra, e a ingestão é por *hook* dirigido por atividade de agente ⇒ a condição
+#     nunca se satisfaz e o script abortaria indefinidamente, em silêncio.
+#     O que continua abortivo é a FALHA DA MEDIÇÃO: sem o número, não há o que
+#     registrar, e um realinhamento sem registro da composição de partida é
+#     irrecuperável depois. O número vai ao `ndjson` e ao STATUS.
 ALVO="$(readlink -f "$LINK")"
 AF="$(sqlite3 "$ALVO" "SELECT COUNT(*) FROM chunks WHERE source_file LIKE 'sessions/%' AND (COALESCE(importance,0)>=0.7 OR COALESCE(pain,0)>=0.7) AND julianday('now')-julianday(COALESCE(source_date,created_at))<=7;" 2>/dev/null)"
 case "$AF" in ''|*[!0-9]*) abortar "nao-medi-agentFresh alvo=$ALVO";; esac
-[ "$AF" -eq 0 ] || abortar "agentFresh-nao-esta-vazio n=$AF alvo=$(basename "$ALVO") ACAO=reiniciar agora mudaria a forma do canal e invalidaria a calibracao de 27/08"
+# `agentFresh` não-vazio é o REGIME NOVO, não um defeito: segue em frente e fica no
+# recibo. Zero também é registrado — o que não se admite é seguir sem saber.
 
 GF="$(sqlite3 "$ALVO" "SELECT COUNT(*) FROM chunks WHERE (source_file LIKE 'memory/entities/%' OR source_file='memory/lessons.md') AND (COALESCE(importance,0)>=0.7 OR COALESCE(pain,0)>=0.7) AND julianday('now')-julianday(COALESCE(source_date,created_at))<=30;" 2>/dev/null)"
 DES="$(sqlite3 "$ALVO" "SELECT COUNT(*) FROM chunks WHERE id IN (308216,308218,308222,308230,308238,308240,308256,308264,308270,308274,308280,308284,308286,308292,308296,308300,308306,308312,308316);" 2>/dev/null)"
