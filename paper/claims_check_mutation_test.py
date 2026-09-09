@@ -123,8 +123,17 @@ CASOS = [
         "não tem entrada",
     ),
     (
-        "divida bib ja paga e nao removida da lista",
-        BIB, None, "\n@misc{x, note = {arXiv:2104.08663.}}\n",
+        # ⚠️ Este caso mutava o BIB para criar a condicao "divida ja paga". Deixou de
+        # morder em 2026-09-09, quando as cinco dividas foram pagas e a BIB_DIVIDA
+        # ficou VAZIA: com a lista vazia, nenhuma mutacao sobre o paper ou o bib
+        # alcanca a perna -- ela continua correta e ficou sem caso. Correcao que
+        # nenhum teste alcanca exige nomear o que a protege, e o que protege aqui e'
+        # mutar o PROPRIO guarda: reintroduzir na lista um ID que ja tem entrada.
+        # `_prepara` copia SCRIPT junto do paper e do bib, entao isso e' alcancavel.
+        "divida bib ja paga e nao removida da lista (muta o GUARDA, lista vazia)",
+        SCRIPT,
+        "BIB_DIVIDA: dict[str, str] = {",
+        'BIB_DIVIDA: dict[str, str] = {\n    "2104.08663": "reintroduzida pela mutacao",',
         "BIB_DIVIDA",
     ),
     (

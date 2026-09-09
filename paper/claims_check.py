@@ -90,12 +90,21 @@ DATADO = re.compile(r"as of|20\d\d-\d\d-\d\d")
 # IDs arXiv citados inline que ainda não têm entrada bibliográfica.
 # ⚠️ Isto é DÍVIDA DECLARADA, não isenção permanente: resolver antes de
 # submissão a journal. O guarda falha para qualquer ID novo fora desta lista.
-BIB_DIVIDA = {
-    "2104.08663": "BEIR — citado inline no honesty pass de 2026-07-01",
-    "2210.07316": "MTEB — idem",
-    "2210.03629": "ReAct — citado em §5.5 (IterB)",
-    "2402.17753": "citado inline; verificar título/venue antes de criar entrada",
-    "2602.01313": "citado inline; verificar título/venue antes de criar entrada",
+BIB_DIVIDA: dict[str, str] = {
+    # ⚠️ LISTA ZERADA em 2026-09-09: as cinco dívidas foram PAGAS, não perdoadas.
+    # Cada ID passou a ter entrada em refs.bib com título e lista de autores vindos
+    # da API do arXiv (nunca transcritos), e o §1.5 passou a ENGAJAR os trabalhos em
+    # vez de só citá-los inline:
+    #
+    #   2104.08663 -> thakur2021beir          2210.07316 -> muennighoff2022mteb
+    #   2210.03629 -> yao2022react            2602.01313 -> hu2026longhorizon
+    #   2402.17753 -> maharana2024locomo   (era o LoCoMo, que já estava no bib pelo
+    #                                       link da ACL e sem o eprint)
+    #
+    # A lista fica VAZIA de propósito, e o guarda segue nas duas direções: ID novo
+    # citado sem entrada falha, e entrada de dívida já resolvida também falha. Foi
+    # a segunda direção que apontou estas cinco no momento em que foram pagas —
+    # sem ela a lista viraria isenção permanente disfarçada de dívida declarada.
 }
 
 # Ratchet de evidência não-arquivável. `PR #NNN` não é resolvível por leitor
