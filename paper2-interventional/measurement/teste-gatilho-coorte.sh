@@ -247,6 +247,39 @@ else
 fi
 kill "$PIDD" 2>/dev/null
 
+# ── T14: o RECIBO carrega o corpus como CAMPO, no caminho comum (GREEN) ──
+# O sha nascia na perna de alcançabilidade, então todo veredito anterior — incluindo
+# o GREEN `canal-alcancavel`, que é o caminho comum — saía com o corpus identificado
+# só por `basename` dentro de um blob de texto. Basename nomeia caminho; sha
+# identifica bytes, e bytes é o que distingue os dois corpora deste ensaio.
+# Este caso existe porque a suíte ficava VERDE com e sem a correção: nenhum caso
+# olhava o NDJSON, só a linha de status.
+sem_serving
+ND="$T/recibo.ndjson"; : > "$ND"
+L="$(roda "$G" --corpus "$C_OK" --vivo "$V_OK" --ndjson "$ND")"
+checa "T14 recibo no caminho comum" "$L" GREEN canal-alcancavel
+SHA_ESPERADO="$(sha256sum "$C_OK" | cut -d' ' -f1)"
+R="$(python3 -c "
+import json
+r=json.loads(open('$ND').read().strip().splitlines()[-1])
+falta=[k for k in ('corpus_path','corpus_sha256','pool_global','nunca_servidos') if k not in r]
+print('FALTAM=' + ','.join(falta) if falta else 'CAMPOS=ok')
+print('SHA=' + r.get('corpus_sha256',''))
+print('PATH=' + r.get('corpus_path',''))
+" 2>/dev/null)"
+case "$R" in
+  *CAMPOS=ok*) ok "T14a corpus_path/corpus_sha256/pool_global/nunca_servidos sao CAMPOS" ;;
+  *) falha "T14a" "recibo sem campos: $(printf '%s' "$R" | tr '\n' ' ')" ;;
+esac
+case "$R" in
+  *"SHA=$SHA_ESPERADO"*) ok "T14b corpus_sha256 e o sha REAL do argumento" ;;
+  *) falha "T14b" "sha divergente; esperava $SHA_ESPERADO em: $(printf '%s' "$R" | tr '\n' ' ')" ;;
+esac
+case "$R" in
+  *"PATH=$C_OK"*) ok "T14c corpus_path e o argumento, nao o basename" ;;
+  *) falha "T14c" "corpus_path errado: $(printf '%s' "$R" | tr '\n' ' ')" ;;
+esac
+
 echo
 echo "== mutacoes =="
 # morre(): so conta morte se o mutante IMPRIMIU status valido (GREEN|YELLOW|RED)
@@ -326,6 +359,35 @@ else
   esac
 fi
 kill "$PIDE" 2>/dev/null
+
+# M7: os campos do recibo voltam a ser blob de texto -> T14a tem de morrer.
+# Mutação SEMÂNTICA (troca de expressão), nunca `d` de faixa: apagar linhas aqui
+# cairia DENTRO do heredoc PYND, o mutante morreria de syntax error e "mataria"
+# todo caso — evidência sobre perna nenhuma (a variante (c) da lição de mutação).
+M7="$T/mut7.sh"
+sed -E 's/^        if k not in rec:/        if False and k not in rec:/' "$G" > "$M7"
+chmod +x "$M7"
+if cmp -s "$G" "$M7"; then
+  falha "M7" "mutacao NAO aplicada"
+elif ! bash -n "$M7" 2>/dev/null; then
+  falha "M7" "mutante nao compila"
+else
+  sem_serving; ND7="$T/recibo7.ndjson"; : > "$ND7"
+  O7="$(roda "$M7" --corpus "$C_OK" --vivo "$V_OK" --ndjson "$ND7")"
+  case "$O7" in
+    GREEN*|YELLOW*|RED*)
+      R7="$(python3 -c "
+import json
+r=json.loads(open('$ND7').read().strip().splitlines()[-1])
+print('TEM' if 'pool_global' in r else 'SEM')
+" 2>/dev/null)"
+      case "$R7" in
+        SEM) ok "M7 mata T14a (sem os campos, o recibo volta a ser texto)" ;;
+        *)   falha "M7" "nao matou: pool_global segue campo" ;;
+      esac ;;
+    *) falha "M7" "mutante nao imprimiu status valido: '${O7:0:80}'" ;;
+  esac
+fi
 
 echo
 [ "$FALHAS" -eq 0 ] && echo "TODOS OS CASOS PASSARAM" || echo "$FALHAS FALHA(S)"

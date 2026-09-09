@@ -1,7 +1,7 @@
 {
   "instrumento": "expiracao-designados",
   "versao": 1,
-  "ts": "2026-09-09T15:30:25Z",
+  "ts": "2026-09-09T17:46:27Z",
   "corpus_path": "/var/backups/nox-mem/p2-corpus-servido/servido-e20260903T060001Z.db",
   "corpus_sha256": "23378a9ea83cd27d0360cfe148207167aee30a376f29ef89d4bcfae415d04131",
   "designacao_path": "/root/.openclaw/paper2/DESIGNATION-2026-08-26.json",
@@ -292,9 +292,17 @@
       "elegiveis": 0
     }
   ],
+  "expiracao_utc": "2026-09-20T22:51:23Z",
+  "ultimo_epoch": {
+    "abre_utc": "2026-09-20T09:00:00Z",
+    "expira_em_utc": "2026-09-20T22:51:23Z",
+    "horas_elegiveis": 13.86,
+    "horas_do_epoch": 24.0,
+    "parcial": true
+  },
   "ultima_fronteira_elegivel": "2026-09-20 09:00:00",
   "primeira_fronteira_zerada": "2026-09-21 09:00:00",
   "grade_alcanca_o_zero": true,
   "veredito": "GREEN",
-  "motivo": "expiracao-em-bloco-datada"
+  "motivo": "expiracao-em-bloco-datada-ultimo-epoch-PARCIAL"
 }
