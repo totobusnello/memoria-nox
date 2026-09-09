@@ -2061,3 +2061,80 @@ absurdo            w=100000 estados=672  mexeu=0  churn_total=0  boosts=19
 ⇒ o RED de 09/09 foi computado sobre um corpus que o serving **não** tem aberto, e
 agora o próprio recibo diz isso. É o artefato de §10.13(A), passando de inferência
 reconstruída a campo gravado.
+
+
+---
+
+## §10.19 — Por que a perna (b) compara BYTES: o SQLite não abre banco por `/proc/PID/fd/N`
+
+A sessão par mediu isto ao construir o guarda de coorte (PR #484, não implantado), e eu
+reproduzi de forma independente com fixture de arquivo apagado de verdade. Não é
+preferência de implementação: é a única via que funciona.
+
+| via | resultado |
+|---|---|
+| `sha256sum /proc/PID/fd/N` | **lê** os bytes do inode apagado |
+| `sqlite3 "file:/proc/PID/fd/N?mode=ro"` | `unable to open database file` |
+| `sqlite3 "file:…?mode=ro&immutable=1"` | `unable to open database file` |
+| `sqlite3 /proc/PID/fd/N` (caminho simples) | **abre**, e apresenta banco **VAZIO** |
+| `cat /proc/PID/fd/N > copia.db` e abrir a cópia | lê tudo (controle positivo) |
+
+⇒ o **conteúdo** do corpus servido é inalcançável por query enquanto ele existir só no
+`fd`; só copiando 1,2 GB. Comparar hashes é o que dá para fazer, e agora com motivo
+medido.
+
+### O caso perigoso é o quarto, não os dois erros
+
+`file:…?mode=ro` falha **alto** — não há ambiguidade. O caminho **simples** abre com
+sucesso e reporta `sqlite_master = 0 objetos`: um banco vazio, silenciosamente. Uma
+consulta subsequente só falha porque a tabela esperada não existe (`no such table:
+chunks`) — isto é, o alarme vem da **sorte**, não do desenho. Um probe escrito como
+`SELECT count(*) FROM sqlite_master` ou `CREATE TABLE IF NOT EXISTS` passaria calado.
+
+E uma **escrita** através dele cria arquivo de verdade no disco, com nome igual ao
+**texto do symlink** — incluindo o sufixo:
+
+```
+$ exec 3< real.db; rm real.db
+$ python3 -c "import sqlite3;c=sqlite3.connect('/proc/$$/fd/3');c.execute('CREATE TABLE intruso(x)');c.commit()"
+$ ls -A
+'real.db (deleted)'      ← 8192 bytes, banco SQLite válido, tabela `intruso`
+```
+
+Em produção isso criaria, no diretório do ensaio,
+`/var/lib/nox-mem/epochs/e20260903T060001Z.db (deleted)`. Conferido: **não existe
+nenhum arquivo com `(deleted)` no nome em `/var/lib/nox-mem/epochs/`** — nada foi criado
+lá; todas as fixtures rodaram em `/var/tmp` e foram removidas.
+
+### Uma ambiguidade que isto revela no meu próprio filtro
+
+Um arquivo **real** chamado `X.db (deleted)` e o **inode apagado** de `X.db` produzem a
+**mesma linha** em `ls -l /proc/PID/fd`, e o meu `sed` os captura idênticos:
+
+```
+26 -> /var/lib/nox-mem/epochs/e20260903T060001Z.db (deleted)   → captura "…e2026….db"
+```
+
+Hoje isso é remoto (o arquivo teria de existir *e* estar aberto pelo serving), mas o
+caminho para criá-lo é exatamente o descrito acima. Registrado como limitação conhecida
+do filtro; distinguir exigiria `stat` do `fd` contra `nlink == 0`.
+
+### E dois erros meus de observação, no mesmo achado
+
+Medi o arquivo aparecer, e então "não consegui reproduzir" duas vezes seguidas — as três
+corridas eram consistentes e o método de observação é que mudou:
+
+1. `ls -la | awk '{print $5, $9}'` imprimiu `8192 real.db`: o campo 9 é `real.db` e o
+   ` (deleted)` está nos campos 10-11, **cortado**. Número certo, nome errado.
+2. Nas duas verificações seguintes procurei por `stat alvo.db` / `ls alvo.db` — o nome
+   que eu tinha lido, não o nome real. Ausência do arquivo errado lida como ausência do
+   efeito.
+
+É a família `a-correct-number-carried-by-a-wrong-sentence` duas vezes em quinze minutos,
+e a segunda foi **causada** pela primeira: ler o nome truncado me deu o predicado errado
+para a verificação. Só ficou visível ao imprimir o diretório inteiro (`ls -A`) em vez de
+perguntar por um nome.
+
+⚠️ **Consequência de método:** verificar a ausência de um efeito colateral perguntando
+pelo nome que se espera é o mesmo defeito de guarda cujo predicado exige o dado que
+falta. Listar o diretório e comparar com o estado anterior — não interrogar um nome.
