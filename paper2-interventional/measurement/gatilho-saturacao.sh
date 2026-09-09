@@ -424,9 +424,31 @@ else:
     estado, motivo = "GREEN", "dose dentro da faixa responsiva"
 
 # ─── Janela incompleta: ALARMA e PRESERVA o veredito ─────────────────────────
+#
+# ⚠️ CAUSA DO `faltam=1` — MEDIDA 2026-09-09, e NÃO é o que este comentário dizia
+# antes ("escrita incompleta no brief_log, 1 linha de 10"). O brief tem as DEZ
+# linhas. O que se espalha é o `served_at` delas:
+#
+#     647955 | 2026-09-06 23:07:02 | 116467      <- 1 linha
+#     647956 | 2026-09-06 23:07:09 | 112241      <- e 9 linhas SETE SEGUNDOS depois
+#     ...
+#
+# `idDoBrief()` em `replay-oportunidade.mjs` casa por
+# `served_at IN (t, t+1s, t+2s)`; as nove de `:09` ficam fora, o `GROUP_CONCAT`
+# devolve UM id, não casa com os 10 do ndjson, e `cands.length === 0` ⇒ descarte.
+# "1 linha de 10" é o que se VÊ de dentro da janela de 3 s — sintoma lido como causa.
+#
+# Span por brief na janela de 09-06: 670 com span 0 s, 1 com 1 s, **1 com 7 s**.
+# ⇒ Esta perna descarta briefs LENTOS, não briefs aleatórios. Latência de escrita
+# não é independente de carga, logo o descarte é potencialmente CORRELACIONADO ao
+# que se mede. Com n=1 e `churn=0` o dano neste epoch é nulo; a CLASSE é o problema,
+# e é a mesma do `estados=640` (`672 − 32`): regra que EXCLUI em vez de atribuir.
+#
+# Não é conserto de casar por `brief_id`: o `p2_outcome` do ndjson não tem esse
+# campo (medido: 0/672). Ver §10.12 do DEVIATIONS-FOR-PAPER.md.
 # A primeira versão desta perna (2026-09-06) abortava aqui, e no dia seguinte isso
-# custou caro: UM brief com escrita incompleta no `brief_log` (1 linha de 10, em
-# 2026-09-06T23:07:02.425Z) suprimiu um veredito substantivo — no epoch 09-06,
+# custou caro: UM brief descartado pelo replay (`ts=2026-09-06T23:07:02.425Z`)
+# suprimiu um veredito substantivo — no epoch 09-06,
 # `w=7,5` e `w=100000` deram resultado IDÊNTICO (`mexeu=38`, `churn_total=44`), isto
 # é `saturado`, na dose mais alta do desenho.
 #
