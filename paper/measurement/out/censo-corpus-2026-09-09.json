@@ -1,7 +1,7 @@
 {
   "instrumento": "censo-corpus",
   "versao": 1,
-  "ts": "2026-09-09T18:54:48Z",
+  "ts": "2026-09-09T19:02:30Z",
   "raiz": "/root/.openclaw",
   "main_path": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
   "arquivos_examinados": 13,
@@ -99,6 +99,19 @@
   "n_agentes": 6,
   "soma_dos_7": 79220,
   "bancos_somados": 7,
+  "entity": {
+    "por_section": {
+      "(NULL)": 66859,
+      "compiled": 239,
+      "frontmatter": 239,
+      "timeline": 387
+    },
+    "chunks_com_section": 865,
+    "arquivos_no_banco": 239,
+    "secoes_por_arquivo": 3.62,
+    "arquivos_no_disco": 184,
+    "divergencia_disco_banco": 55
+  },
   "api_total": 67724,
   "api_embedded": 67724,
   "api_concorda_com_main": true,

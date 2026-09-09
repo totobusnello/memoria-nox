@@ -68,7 +68,7 @@ def main():
             p = os.path.join(base, "nox-mem.db")
             n, err = conta(p)
             achados.append({"path": p, "chunks": n, "erro": err,
-                            "mtime": dt.datetime.utcfromtimestamp(os.path.getmtime(p))
+                            "mtime": dt.datetime.fromtimestamp(os.path.getmtime(p), dt.timezone.utc)
                                        .strftime("%Y-%m-%dT%H:%M:%SZ")})
     achados.sort(key=lambda x: (-(x["chunks"] or -1), x["path"]))
     rec["arquivos_examinados"] = len(achados)          # <- contador: sem ele, "0 achados" é ambíguo
@@ -89,6 +89,37 @@ def main():
     rec["n_agentes"] = len(agentes)
     rec["soma_dos_7"] = rec["main_store"] + sum(x["chunks"] for x in agentes)
     rec["bancos_somados"] = 1 + len(agentes)
+
+    # ── entity files: DUAS populações outra vez, e a razão medida, não modelada ──
+    # O paper dizia "769 entity files x 3 sections ~ 2.307 boost-bearing chunks" e, 63
+    # linhas antes, "184 of 184 eligible entity files" — contradição INTERNA. E "entity
+    # file" tem duas populações: o que existe no disco e o que está representado no
+    # banco. Elas divergem porque arquivo apagado do disco deixa os chunks no store.
+    # A razão seções/arquivo também é medida: o formato sugere 3 (frontmatter +
+    # compiled + timeline), mas timeline é 1..N, então a média real não é 3.
+    try:
+        db = sqlite3.connect(f"file:{a.main}?mode=ro", uri=True)
+        secs = dict(db.execute(
+            "SELECT COALESCE(section,'(NULL)'), COUNT(*) FROM chunks GROUP BY 1").fetchall())
+        arqs_db = db.execute(
+            "SELECT COUNT(DISTINCT source_file) FROM chunks WHERE section IS NOT NULL"
+        ).fetchone()[0]
+        db.close()
+        com_section = sum(v for k, v in secs.items() if k != "(NULL)")
+        rec["entity"] = {
+            "por_section": secs,
+            "chunks_com_section": com_section,
+            "arquivos_no_banco": arqs_db,
+            "secoes_por_arquivo": round(com_section / arqs_db, 2) if arqs_db else None,
+        }
+        d = os.path.join(a.raiz, "workspace/memory/entities")
+        no_disco = sum(len([x for x in arqs if x.endswith(".md")])
+                       for _b, _d, arqs in os.walk(d)) if os.path.isdir(d) else None
+        rec["entity"]["arquivos_no_disco"] = no_disco
+        rec["entity"]["divergencia_disco_banco"] = (
+            None if no_disco is None else arqs_db - no_disco)
+    except Exception as e:
+        rec["entity"] = {"erro": str(e)}
 
     # ── controle positivo: a API tem de concordar com o main store ──
     # Sem isto, "main_store" é só a contagem de um arquivo que EU escolhi. A API é a
@@ -117,7 +148,11 @@ def main():
 def emitir(rec, out):
     print(f'{rec["veredito"]} paper1-censo-corpus motivo={rec["motivo"]} '
           f'main_store={rec.get("main_store")} soma_dos_7={rec.get("soma_dos_7")} '
-          f'bancos={rec.get("bancos_somados")} examinados={rec["arquivos_examinados"]} '
+          f'bancos={rec.get("bancos_somados")} '
+          f'entity_chunks={rec.get("entity",{}).get("chunks_com_section")} '
+          f'entity_arq_banco={rec.get("entity",{}).get("arquivos_no_banco")} '
+          f'entity_arq_disco={rec.get("entity",{}).get("arquivos_no_disco")} '
+          f'examinados={rec["arquivos_examinados"]} '
           f'sem_tabela={rec["sem_tabela_chunks"]} api={rec.get("api_total")} ts={rec["ts"]}')
     if out:
         with open(out, "w") as f:
