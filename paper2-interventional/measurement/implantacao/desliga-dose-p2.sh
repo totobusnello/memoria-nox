@@ -29,12 +29,17 @@ FIM_DA_JANELA=2026-09-21T09:00:00Z   # o epoch de 09-20 fecha aqui
 
 mkdir -p "$(dirname "$STATUS")" 2>/dev/null
 
-recibo() {  # $1=estado $2=motivo  — TODO caminho passa por aqui, inclusive os abortos
-  local l="$1 p2-desliga-dose motivo=$2 ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+recibo() {  # $1=estado $2=motivo $3...=campos medidos
+  # ⚠️ `$3+` ENTRAM na linha. A primeira versao usava so `$2` e descartava
+  # `outcome=`, `dropin-arquivado-em=` e o resumo da aposentadoria — o recibo saia
+  # sem o que foi medido, que e' exatamente o defeito que o §10.17 inteiro tratou,
+  # reaparecendo no script escrito depois dele. Achado pelo sandbox, nao pela leitura.
+  local est="$1" mot="$2"; shift 2
+  local l="$est p2-desliga-dose motivo=$mot ${*:+$* }ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   echo "$l"
   printf '%s\n' "$l" > "$STATUS"
-  printf '{"ts":"%s","estado":"%s","motivo":"%s"}\n' \
-    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$1" "$2" >> "$NDJSON"
+  printf '{"ts":"%s","estado":"%s","motivo":"%s","campos":"%s"}\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$est" "$mot" "$*" >> "$NDJSON"
   exit 0
 }
 
@@ -74,4 +79,89 @@ PORTA="${NOX_API_PORT:-18802}"
 curl -fsS --max-time 20 "http://127.0.0.1:$PORTA/api/health" >/dev/null 2>&1 \
   || recibo RED api-nao-responde-apos-restart outcome="$OUT_NOVO"
 
-recibo GREEN dose-desligada outcome="$OUT_NOVO" dropin-arquivado-em="$DESTINO"
+# ═══ APOSENTADORIA DOS GUARDAS ═══════════════════════════════════════════════
+# Ordenado pelo Toto em 2026-09-09 14:46 BRT: **"aposenta os guardas junto no 21"**.
+#
+# ⚠️ POR QUE ISTO NÃO É SÓ TIRAR LINHAS DO CRON: o `morning-report.sh` chama
+# `p2_gatilho <rotulo> <status> <idade_max_h>` para cada guarda, e essa função dá
+# **YELLOW `sem status` / `gatilho parado?`** quando o arquivo falta ou envelhece.
+# Parar os crons sem tocar no report trocaria **três REDs crônicos por seis YELLOWs
+# crônicos** — ruído por ruído, com o propósito invertido. Medido: com o report
+# editado a saída volta a `all green`.
+#
+# ⚠️ E POR QUE NÃO APAGAR AS CHAMADAS: silêncio sobre algo que era vigiado e deixou
+# de ser é o defeito que custou seis dias no §10.10. As seis chamadas ficam
+# **comentadas** com marca datada (preservando a calibragem dos tetos, que o bloco de
+# regra logo acima referencia) e entra **uma** linha informativa `⚪` que não conta
+# como RED nem YELLOW: a ausência aparece em vez de ser silêncio.
+#
+# ORDEM ESCOLHIDA POR QUAL FALHA É MENOS PIOR:
+#   report primeiro, cron depois ⇒ falha deixa guardas rodando e o report AFIRMANDO
+#     que foram aposentados. Silencioso e FALSO.
+#   cron primeiro, report depois ⇒ falha deixa o report reclamando de guarda parado.
+#     Ruidoso e HONESTO.
+# Escolhido o segundo. E o arquivo novo é **pré-gerado e conferido hoje**, fora de
+# `/var/tmp` (que some em 11 dias), de modo que o único passo restante é `install`.
+REPORT=/root/.openclaw/scripts/morning-report.sh
+REPORT_SHA_ESPERADO=20a5b63fda32c93b186a424d2b4444c03146dde7c86c38a451c2c981920f740f
+REPORT_NOVO=/root/.openclaw/paper2/aposentadoria/morning-report.p2-aposentado.sh
+REPORT_NOVO_SHA=d1da7f703295478991e970345e8312fb06de4706e3fef0c7531751a527d18b45
+
+aposenta() {
+  # Pré-condição do report ANTES de mexer no cron: se alguém editou o
+  # `morning-report.sh` entre hoje e 21/09, instalar a minha versão apagaria a
+  # edição dessa pessoa. Nesse caso a aposentadoria inteira é abortada e os guardas
+  # ficam — ruidosos e honestos, que é o estado menos pior.
+  local sha_r sha_n
+  sha_r="$(sha256sum "$REPORT" 2>/dev/null | cut -d' ' -f1)"
+  [ "$sha_r" = "$REPORT_SHA_ESPERADO" ] || {
+    echo "APOSENTADORIA-ABORTADA report-divergiu sha=${sha_r:-vazio}"; return 1; }
+  [ -f "$REPORT_NOVO" ] || { echo "APOSENTADORIA-ABORTADA report-novo-ausente"; return 1; }
+  sha_n="$(sha256sum "$REPORT_NOVO" 2>/dev/null | cut -d' ' -f1)"
+  [ "$sha_n" = "$REPORT_NOVO_SHA" ] || {
+    echo "APOSENTADORIA-ABORTADA report-novo-divergente sha=${sha_n:-vazio}"; return 1; }
+  bash -n "$REPORT_NOVO" 2>/dev/null || { echo "APOSENTADORIA-ABORTADA report-novo-sem-sintaxe"; return 1; }
+
+  # ── cron: arquivo + `crontab <arquivo>`, NUNCA `crontab -l | ... | crontab -`.
+  #    Esse pipe já zerou o crontab uma vez.
+  local antes depois na nd np
+  antes=/root/.openclaw/paper2/aposentadoria/crontab.antes-$(date -u +%Y%m%dT%H%M%SZ)
+  depois="${antes}.depois"
+  crontab -l > "$antes" 2>/dev/null || { echo "APOSENTADORIA-ABORTADA nao-li-o-crontab"; return 1; }
+  np="$(grep -cE '# p2-' "$antes")"
+  # ⚠️ ZERO linhas p2 NAO e' erro — e' a parte do cron ja feita, e o report pode
+  #    continuar precisando de edicao. A primeira versao abortava aqui e dizia
+  #    "guardas NAO aposentados" sobre guardas que ja nao existiam: veredito certo
+  #    pelo motivo errado. Achado pelo sandbox (caso C).
+  na="$(wc -l < "$antes")"
+  if [ "$np" -gt 0 ]; then
+    grep -vE '# p2-' "$antes" > "$depois"
+    nd="$(wc -l < "$depois")"
+    [ $((na - nd)) -eq "$np" ] || {
+      echo "APOSENTADORIA-ABORTADA delta=$((na-nd))-esperava=$np"; return 1; }
+    crontab "$depois" || { echo "APOSENTADORIA-ABORTADA crontab-recusou backup=$antes"; return 1; }
+    [ "$(crontab -l | grep -cE '# p2-')" -eq 0 ] || {
+      echo "APOSENTADORIA-PARCIAL cron-ainda-tem-p2 backup=$antes"; return 1; }
+  else
+    nd="$na"
+  fi
+
+  # ── report: `install` atômico, com backup do antigo ao lado do crontab antigo.
+  cp -p "$REPORT" "/root/.openclaw/paper2/aposentadoria/morning-report.antes-$(date -u +%Y%m%dT%H%M%SZ).sh"
+  install -m 0755 "$REPORT_NOVO" "$REPORT" || {
+    echo "APOSENTADORIA-PARCIAL cron-limpo-mas-report-nao-instalou backup=$antes"; return 1; }
+
+  echo "guardas=$np cron-linhas=$na->$nd report-instalado=$REPORT_NOVO_SHA backup=$antes"
+  return 0
+}
+
+if APOS="$(aposenta)"; then
+  recibo GREEN dose-desligada-e-guardas-aposentados outcome="$OUT_NOVO" \
+    dropin-arquivado-em="$DESTINO" "$APOS"
+else
+  # A dose está desligada — isso é o que o Toto ordenou primeiro e já vale. A
+  # aposentadoria falhou e os guardas seguem no ar: YELLOW, não RED, porque o
+  # estado é ruidoso e honesto, não perigoso. O motivo vai na linha.
+  recibo YELLOW dose-desligada-mas-guardas-NAO-aposentados outcome="$OUT_NOVO" \
+    dropin-arquivado-em="$DESTINO" "${APOS:-aposenta-sem-saida}"
+fi

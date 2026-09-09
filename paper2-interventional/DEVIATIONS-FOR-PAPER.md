@@ -2495,3 +2495,87 @@ Depois de 2026-09-21 há **cinco** guardas de cron reportando sobre um ensaio en
 expiraram). Alarme perpetuamente vermelho sobre pergunta encerrada é o que ensina a
 ignorar alarme — e é o defeito que o §10.17 inteiro tratou. Aposentar ou reformular os
 cinco é decisão separada, não coberta por *"faz os 3"*.
+
+
+---
+
+## §10.23 — Aposentadoria dos guardas, acoplada ao desligamento
+
+Toto, 2026-09-09 14:46 BRT: **"aposenta os guardas junto no 21"**. Implementado dentro do
+`desliga-dose-p2.sh`, condicionado ao desligamento ter dado GREEN.
+
+### Por que não é só tirar linhas do cron
+
+O `morning-report.sh` chama `p2_gatilho <rótulo> <status> <idade_max_h>` por guarda, e
+essa função dá **YELLOW** quando o arquivo de status falta (`sem status`) ou envelheceu
+além do teto (`gatilho parado?`). Parar os crons sem tocar no report trocaria **três REDs
+crônicos por seis YELLOWs crônicos** — ruído por ruído, com o propósito invertido.
+Verificado: com o report editado a saída volta a `all green`, com uma linha `⚪`
+informativa.
+
+**As seis chamadas ficam comentadas, não apagadas**, com marca datada
+(`#APOSENTADO-2026-09-21 …`). Duas razões: o bloco de *regra do teto de idade* logo acima
+referencia cada guarda pelo nome e a calibragem se perderia; e silêncio sobre algo que era
+vigiado e deixou de ser é o defeito que custou seis dias no §10.10. A ausência **aparece**,
+sem contar como RED nem YELLOW.
+
+### A ordem foi escolhida por qual falha é menos pior
+
+| ordem | falha deixa | veredito |
+|---|---|---|
+| report → cron | guardas rodando e o report **afirmando** que foram aposentados | silencioso e **falso** |
+| **cron → report** | o report reclamando de guarda parado | ruidoso e **honesto** |
+
+Escolhida a segunda. E o arquivo novo é **pré-gerado e conferido hoje**, guardado em
+`/root/.openclaw/paper2/aposentadoria/` (**não** em `/var/tmp`, que some em 11 dias), de
+modo que o único passo restante em 21/09 é um `install`.
+
+### Pré-condição que protege terceiros
+
+`REPORT_SHA_ESPERADO` está pinado. Se alguém editar o `morning-report.sh` entre hoje e
+21/09, instalar a minha versão **apagaria a edição dessa pessoa** — então a aposentadoria
+inteira aborta e os guardas ficam. ⚠️ Consequência a comunicar: **qualquer edição do
+report antes de 21/09 exige regerar a versão staged**, senão o recibo sai
+`YELLOW dose-desligada-mas-guardas-NAO-aposentados`.
+
+### Verificação em sandbox, sem tocar produção
+
+Variante gerada por **substituição exata em Python, não `sed`** — o delimitador `#`
+colide com o literal `# p2-` no próprio script, e a primeira tentativa quebrou em
+silêncio produzindo um "teste" que não exercitava a função. As 17 âncoras são conferidas
+por contagem (`==1`) antes de aplicar; âncora que não casa aborta a geração.
+
+| caso | resultado |
+|---|---|
+| caminho feliz | `GREEN`, cron p2 **7 → 0**, total 63 → 56, report instalado com o sha certo, drop-in movido |
+| report divergiu | `YELLOW dose-desligada-mas-guardas-NAO-aposentados`, e **o cron não foi tocado** |
+| zero linhas p2 no cron | `GREEN`, `guardas=0 cron-linhas=56->56`, report instalado |
+| em produção, hoje | `YELLOW janela-ainda-aberta-faltam-278h`, com cron/report/drop-in/outcome **intactos** |
+
+### Dois defeitos que o sandbox achou e a leitura não
+
+1. **`recibo()` descartava `$3+`.** A linha saía só com `motivo=`, e `outcome=`,
+   `dropin-arquivado-em=` e o resumo da aposentadoria (`guardas=`, `cron-linhas=`,
+   `report-instalado=`, `backup=`) **desapareciam**. É o defeito que o §10.17 inteiro
+   tratou — recibo sem o que foi medido — reaparecendo no script escrito **depois** dele.
+2. **`nenhuma-linha-p2-no-cron` abortava.** Zero linhas não é erro: é a parte do cron já
+   feita, e o report podia continuar precisando de edição. O recibo dizia
+   *"guardas NÃO aposentados"* sobre guardas que já não existiam — veredito certo pelo
+   motivo errado.
+
+Nenhum dos dois apareceria por leitura: os dois são sobre o que o script **produz**. É a
+terceira via da tabela do §10.19, agora aplicada por mim ao meu próprio script.
+
+### O `p2-coorte` sai da conta por outro caminho
+
+A sessão par implantou o #484 no meio disto (7 linhas p2 no cron, 6ª chamada no report) e
+lhe deu uma perna própria: `[ "$OUT" = active ] || morre GREEN
+ensaio-encerrado-dose-desligada`. Sem ela, o desligamento das 09:43Z deixaria o guarda
+dela `RED corpus-nao-e-o-servido` **a cada hora, para sempre**. A aposentadoria remove a
+linha do cron de todo modo — a perna dela é a segunda camada, não a redundante: se
+alguém rearmar o cron depois, ela ainda cala o alarme.
+
+O padrão vale para os outros e fica registrado como precedente implantado: **GREEN cujo
+motivo diz "a pergunta não se aplica mais"** — nem silêncio, nem vermelho.
+
+`desliga-dose-p2.sh` sha `5179ea30c605b36e3e299a6c7e69fe2b026f37e2fd11278c0f740cda03a3e97f`.
