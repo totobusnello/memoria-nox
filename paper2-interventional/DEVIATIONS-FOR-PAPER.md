@@ -1535,6 +1535,13 @@ epoch 09-08.
 
 #### 10.14 Decisão revisada (2026-09-09, tarde): **não alargar a janela**. O ensaio termina em 2026-09-20
 
+> ⚠️ **O FUNDAMENTO desta seção foi corrigido pelo §10.15 (mesma tarde).** O argumento de
+> que o corpus realinhado mataria o mecanismo é **verdadeiro sobre o estado e falso sobre
+> o corpus**: o zero vem de uma coorte nunca-servida ocupando os `freshSlots`, e esse
+> estado **dura ~1,2 h** (medido em coorte histórica). A decisão pode se sustentar pela
+> **expiração de 20/09** e pelo custo de triplicar o pool — não pelo que está escrito
+> abaixo sobre valor nulo.
+
 **Registrado antes de qualquer ação e sem consultar desfecho.**
 
 A decisão de manhã (§10.13) foi *alargar `freshGlobalMaxAgeDays`*. Ela está **revertida**,
@@ -1657,6 +1664,95 @@ recência.** Ou a designação acompanha uma coorte rotativa, ou o alvo tem de e
 pool sem janela. E o guarda tem de vigiar **elegibilidade**, não só presença — o
 `gatilho-designados.mjs` dizia GREEN 19/19 todos os dias enquanto o prazo corria, e
 estava **certo** pelo seu predicado.
+
+
+#### 10.15 O mecanismo do zero: coorte nunca-servida ocupa os `freshSlots` — e o estado dura ~1,2 h
+
+**Medido em 2026-09-09 (tarde), com a sessão `memoria-nox-21`.** Fecha o "mecanismo NÃO
+estabelecido" do §10.13 (A) e **corrige o §10.14 pela quarta vez**. Nenhum desfecho
+consultado: o que se mediu é ordem de pool e histórico de `last_served`.
+
+### O mecanismo
+
+`fetchFreshCandidates` ordena por **`last_served ASC`** e só depois pela salience
+(`dist/api/brief.js:551`; o comentário em `:537` diz *"o LIMIT corta pelos
+MENOS-recentemente-servidos (`last_served ASC` ⇒ NULLs…"*). O boost é **aditivo** ⇒
+desempata **dentro** de um estrato, nunca atravessa estratos.
+
+`memory/lessons.md` foi **reingerido em 2026-09-07**: 60 chunks novos entraram (idade
+2,50 d) e ~53 ids morreram. Estado dos dois pools, medido inteiro:
+
+| pool | tamanho | **nunca-servidos** |
+|---|---:|---:|
+| corpus **servido** (recuperado do `fd`) | 108 = 55 `entities/*` + 53 `lessons.md` | **0** |
+| `current.db` | 115 | **60** |
+
+⇒ Não é "60 entraram num pool de 108": é **60 nunca-servidos entraram num pool que tinha
+zero**. Com `freshSlots = 2`, 60 candidatos em `last_served = NULL` ocupam os dois slots
+em qualquer brief, e **nenhum `w` promove um designado** — todos os 19 têm `last_served`
+preenchido (último `2026-09-09 11:52:06`). Não é preciso invocar dose.
+
+⇒ **`mexem_absurdo = 0` não significa "o canal não existe".** Significa *"o canal está
+atrás de uma coorte que o bônus não pode atravessar"*. Duas leituras opostas do mesmo
+zero, e `--modo dose` sozinho não as separa — o que separa é consultar `last_served` dos
+dois conjuntos.
+
+### O estado dura ~1,2 hora — e isso desfaz a inferência sobre o restart
+
+A coorte de `lessons.md` criada em 22/08 (os mesmos 53) estreou assim, no `brief_log`:
+
+```
+2026-08-22 19  →  20 chunks estrearam
+2026-08-22 20  →  33 chunks estrearam
+span: 19:23:13 → 20:37:18  =  1,2 h
+```
+
+**53 nunca-servidos consumidos em 1,2 h**, com a produção em regime normal.
+
+⇒ `mexem_absurdo = 0` descreve um **estado**, não uma propriedade do corpus. O replay não
+o vê dissolver porque reproduz **672 vezes o mesmo serve-state inicial**; na produção o
+estado evolui e o estrato esvazia.
+
+### Quatro versões deste parágrafo, e por que isso é o registro e não vergonha
+
+| versão | afirmava | caiu por |
+|---|---|---|
+| 1 | alargar dá "214 epochs de zero" | hipótese do `agentFresh` falsificada (384 briefs de sub-pool vazio) |
+| 2 | `mexeu = 0` é artefato de corpus descasado | `mexeu` é **interno ao corpus** (`brief.js:628`, `alt` e `altBoosted` do mesmo `db`) |
+| 3 | o corpus novo **mata** o mecanismo | verdadeiro sobre o **estado**, falso sobre o **corpus** — o estado dura 1,2 h |
+| **4 (esta)** | coorte nunca-servida ocupa os slots; estado transitório de ~1-2 h | — |
+
+As quatro foram publicadas no repositório. O padrão é claro e é o achado
+meta-metodológico do dia: **conclusão escrita antes de esgotar a medição**, quatro vezes,
+por duas sessões, sobre o mesmo zero. Cada inversão veio de **uma consulta**, nunca de
+releitura.
+
+### O que isto muda, e o que NÃO muda
+
+**Muda:** o argumento *"prolongar não tem valor porque o canal está morto"* **cai**.
+Reiniciar custaria ~1-2 h de intervenção bloqueada, não 214 epochs inertes.
+
+**Não muda:** a **expiração de 2026-09-20** encerra o ensaio nos dois cenários (o
+predicado usa o relógio de request), e cobrir abril/2027 exige janela ≥ 244 d que
+**triplica** o pool. A decisão de não alargar pode se sustentar por **esses** fundamentos
+— não pelo que eu havia escrito.
+
+⇒ A decisão volta ao Toto com a premissa corrigida.
+
+### Consequência operacional que vale além do ensaio
+
+O bloqueio não é propriedade deste corpus: é propriedade de **qualquer reingestão** em
+`memory/entities/%` ou `memory/lessons.md` — exatamente os caminhos que o watcher mexe.
+Enquanto o ensaio rodar, **toda reingestão nesses caminhos bloqueia a intervenção por
+~1-2 h**. É a lição do *fix operacional que anula premissa de ensaio em curso*, agora com
+mecanismo nomeado.
+
+**O guarda que falta** (proposto pela `memoria-nox-21`, e não implementado aqui):
+`COUNT(*)` de chunks no `globalFresh` com `last_served IS NULL` contra `freshSlots`. Se
+`>= freshSlots`, a intervenção está bloqueada naquele instante, **independente de `w`** —
+computável em **uma consulta**, segundos em vez de 931 s. Com a duração medida, ele ganha
+um segundo patamar: se **não** desarmar em ~2 h, aí sim há algo estrutural. Teria dado
+alarme em **07/09**, dois dias antes de qualquer um de nós olhar.
 
 
 ## Se a decisão mudar
