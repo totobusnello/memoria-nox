@@ -1449,3 +1449,28 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   `reindex`. Logo o ganho **persiste** depois de feito, e esperar não o degrada.
 - **Cross-links:** `paper2-interventional/VEC0-REEMPACOTAMENTO-2026-08-28.md`,
   regras 9/10/11 do `CLAUDE.md`, `docs/INCIDENTS.md#2026-08-27` (os 2.074).
+
+---
+
+### 2026-09-09 — Enquadramento do Paper 2: método na manchete, contraste como piloto declarado (D76)
+
+**Decisão do Toto** (09/09, 16:01 BRT), sobre a única frente que dependia dele.
+Detalhe completo em `paper2-interventional/ENQUADRAMENTO-2026-09-09.md`.
+
+- **Manchete:** o **método** — taxonomia dos defeitos de instrumento, teste de
+  suficiência de guarda, protocolo de mutação.
+- **Contraste pré-registrado:** apêndice, como **piloto subdimensionado declarado**,
+  com ponto estimado, intervalo e `n` por braço na mesma linha, e a frase explícita de
+  que **não é evidência de ausência de efeito**.
+- **Números recontados** de `ASSIGNMENT-SERVING.json` (sha `8957cc5fe8696204…`):
+  registrado 117/39/39/39 em 234 epochs; entregue **9 controle × 11 tratamento** em 20
+  (w=0:9 · 2,0:6 · 4,0:4 · **7,5:1**). Nos 18 inteiros: 8 × 10 (0:8 · 2,0:6 · 4,0:3 ·
+  **7,5:1**). Parciais: 09-01 tratamento w=4,0 (22,38 h) e 09-20 controle (13,86 h).
+- **Por quê:** com `n=1` no topo da dose-resposta, reportar o contraste como resultado
+  seria reportar um nulo que é **artefato de poder** — a família de defeito que este
+  próprio trabalho documenta.
+- **NÃO FAZEMOS:** redesignar e reiniciar (~8 meses). O desenho não falhou por acaso
+  estatístico, falhou por instrumento; reiniciar antes de consertar o instrumento compra
+  a mesma falha mais caro.
+- ⚠️ **A conferir:** o único epoch w=7,5 é **2026-09-06**, mesma data do defeito de
+  seleção do replay. Associação a verificar antes de o paper apoiar peso nele.

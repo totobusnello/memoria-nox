@@ -2103,4 +2103,25 @@ tail -5 /var/log/nox-schema-invariants.log
 
 ---
 
+## 2026-09-09 — enquadramento decidido; ensaio fecha em 11d
+
+- **Paper 2 (D76):** método na manchete, contraste pré-registrado como piloto
+  subdimensionado declarado. Ver `paper2-interventional/ENQUADRAMENTO-2026-09-09.md`.
+  Recontado: **9 × 11 em 20 epochs**, w=7,5 com **n=1**.
+- **Ensaio:** encerra **2026-09-20 22:51:23Z**. Desligamento da dose + aposentadoria dos
+  guardas armados para **21/09 09:43Z** (5 pré-condições, recibo em todo caminho).
+  Conferir depois: `/var/lib/nox-mem/p2/status-desliga-dose.txt` deve ler
+  `GREEN dose-desligada-e-guardas-aposentados`.
+- **Regra 6 do CLAUDE.md:** o invariante absoluto (`compiled == 183`, hoje 239) saiu.
+  Agora são duas pernas — igualdade `compiled == frontmatter` (dano desigual) e
+  não-regressão contra o snapshot pré-op (dano uniforme).
+- **Infra (openclaw-vps PR #32):** o `crontab-rebuild.sh` tinha 2 das 7 linhas do ensaio
+  e apagaria o desligamento de 21/09. Reconciliado, com retirada presa ao **recibo** e
+  não ao relógio. `/usr/local/bin/nox-mem` versionado (estava em git nenhum).
+- **NÃO reiniciar** o `nox-mem-api` antes de 20/09: partiria os 20 epochs em dois
+  regimes. O `restart-realinha-corpus.sh` está armado para 10/09 09:00Z e **não tem
+  cron** — não dispara sozinho, e a recomendação é não disparar.
+
+---
+
 **Próxima atualização:** quando o estado mudar (arXiv submetido, gate passar, incident).
