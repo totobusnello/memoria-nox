@@ -2091,7 +2091,11 @@ consulta subsequente só falha porque a tabela esperada não existe (`no such ta
 chunks`) — isto é, o alarme vem da **sorte**, não do desenho. Um probe escrito como
 `SELECT count(*) FROM sqlite_master` ou `CREATE TABLE IF NOT EXISTS` passaria calado.
 
-E uma **escrita** através dele cria arquivo de verdade no disco, com nome igual ao
+⚠️ **A frase abaixo, publicada às ~13:10Z, está ERRADA e fica à vista** — a
+atribuição causal é minha e caiu no mesmo dia. Correção medida no fim desta seção: não
+é a escrita, é o **`connect()` sozinho**.
+
+~~E uma **escrita** através dele cria arquivo de verdade no disco~~, com nome igual ao
 **texto do symlink** — incluindo o sufixo:
 
 ```
@@ -2138,3 +2142,41 @@ perguntar por um nome.
 ⚠️ **Consequência de método:** verificar a ausência de um efeito colateral perguntando
 pelo nome que se espera é o mesmo defeito de guarda cujo predicado exige o dado que
 falta. Listar o diretório e comparar com o estado anterior — não interrogar um nome.
+
+
+### ⚠️ Correção da mesma tarde: é o `connect()`, não a escrita
+
+Medido com fixture válida, isolando as três etapas contra o **mesmo** fd deletado,
+limpando o diretório entre elas:
+
+| etapa | exceção | listagem do diretório depois |
+|---|---|---|
+| `sqlite3.connect("file:…?mode=ro", uri=True)` | `unable to open database file` | `[]` |
+| `sqlite3.connect(p)` — **só isso, nenhuma query** | nenhuma | **`[x.db (deleted)]`** |
+| `sqlite3.connect(p)` + `SELECT` | `no such table: chunks` | `[x.db (deleted)]` |
+
+⇒ **o `connect()` simples materializa o arquivo por si**, porque o modo padrão de
+abertura é read-write-**create**. Não precisa de `INSERT`, `CREATE` nem `commit`.
+
+**Isto eleva a severidade.** A frase corrigida acima dizia que era preciso escrever; a
+sessão par disse o mesmo com outras palavras ("nasce na escrita, não no `connect()`") e
+concluiu que uma asserção de listagem não mataria o mutante do guarda dela, porque o
+guarda só lê. **Errado nos dois lados:** um guarda estritamente read-only que use o
+caminho simples cria arquivo no diretório do ensaio só por abrir. Medido na suíte dela:
+sob o mutante `ro()` → `connect(p)` morrem **T13b, T13c e T13d** — as três, não só a do
+modo de abertura.
+
+### Como o erro sobreviveu a duas verificações
+
+A corrida que eu tratei como isolamento definitivo — a que concluiu "nem a escrita cria"
+— conferiu o efeito com `stat alvo.db`. **O nome real é `alvo.db (deleted)`.** É o mesmo
+defeito de observação que eu havia acabado de documentar duas células antes, aplicado
+justamente no teste desenhado para dirimir a causa; e as duas etapas do isolamento
+usaram o predicado errado, então concordaram entre si. Concordância entre duas medições
+que compartilham a premissa defeituosa não é confirmação — é o mesmo erro contado duas
+vezes.
+
+⇒ terceira ocorrência do dia da mesma família, e a mais instrutiva: **documentar a lição
+não impede reaplicar o defeito**, porque o que falha é o reflexo de escrever
+`stat <nome>`, não o conhecimento. O que quebrou o ciclo foi imprimir a listagem
+(`ls -A`) — a única consulta que responde "apareceu algo?" sem precisar acertar o nome.
