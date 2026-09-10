@@ -912,6 +912,236 @@ def densidade_check(root: Path) -> list[str]:
     return fails
 
 
+
+NUM_TEXTO = {0: "zero", 1: "one", 2: "two", 3: "three",
+             4: "four", 5: "five", 6: "six", 7: "seven"}
+
+
+def _forma_numero(v: int, forma: str) -> str:
+    if forma == "digito":
+        return str(v)
+    palavra = NUM_TEXTO[v]
+    return palavra.capitalize() if forma == "palavra_capitalizada" else palavra
+
+
+# Varredura de completude da L5. Calibrada contra o manuscrito de 2026-09-10:
+# so palavra-numero junto de "competitors|systems", com um substantivo de desfecho
+# a ate 90 caracteres a frente. Digito cru fica de fora porque casava `§6.3.1` e
+# `§7.2` — instrumento enviesado a acusar acaba desligado, que e' pior que cego.
+# Controle positivo obrigatorio: ver a mutacao "sitio de contagem NOVO fora do censo".
+_PAL_NUM = r"(?:two|three|four|five|six)"
+VARRE_CONTAGEM = re.compile(
+    rf"\b{_PAL_NUM}\b[ \w,*—-]{{0,45}}?\b(?:competitors?|systems?)\b"
+    rf"|\b\d/6 systems\b|\b\d documented gaps\b|\b\d produced numbers\b",
+    re.I)
+# A janela e' dos DOIS lados. A primeira versao so olhava para a frente e perdeu
+# "...has a number in every cell of §6.3 and three competitors do not": o termo de
+# desfecho estava ATRAS da contagem. Ponto cego direcional num instrumento de
+# completude e' o mesmo defeito que o instrumento existe para pegar.
+DESFECHO = re.compile(
+    r"produce|produced|non-run|did not run|documented gap|evaluated|numbers?", re.I)
+JANELA = 120
+
+
+def _moldes_no_corpo(corpo: str, censo: dict) -> list[tuple[int, int]]:
+    """Onde cada sitio ocorre, casando o molde com QUALQUER numero — nao com o
+    derivado. Assim a L5 sabe o vao mesmo quando a contagem esta velha e a L4 ja
+    acusou; senao a L4 falhando faria a L5 acusar o mesmo sitio de novo."""
+    vaos = []
+    for s in censo["sitios"]:
+        pad = re.escape(s["template"])
+        for marc in s["marcadores"]:
+            pad = pad.replace(re.escape("{" + marc + "}"), r"[A-Za-z0-9]+")
+        vaos += [(m.start(), m.end()) for m in re.finditer(pad, corpo)]
+    return vaos
+
+
+CENSO_CORRIDAS = "q4-corridas-census.json"
+
+NUM_PALAVRA = {
+    "zero": 0, "one": 1, "two": 2, "three": 3,
+    "four": 4, "five": 5, "six": 6, "seven": 7,
+}
+
+
+def _base_artefatos(root: Path) -> Path | None:
+    """Onde vive `eval/q4-comparison`. Devolve None se em lugar nenhum — e quem
+    chama ACUSA, em vez de ficar calado por falta do dado (regra 9 do CLAUDE.md:
+    guarda cujo predicado exige o dado que falta nao cobre a falta do dado)."""
+    for cand in (root, root.parent):
+        if (cand / "eval" / "q4-comparison").is_dir():
+            return cand
+    return None
+
+
+def _ndcg_do_artefato(caminho: Path, alias: list[str]) -> float | None:
+    try:
+        d = json.loads(caminho.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    baixo = {a.lower() for a in alias}
+    for s in d.get("systems", []) or []:
+        if str(s.get("system", "")).lower() in baixo:
+            v = (s.get("overall") or {}).get("ndcg@k")
+            if isinstance(v, (int, float)):
+                return float(v)
+    return None
+
+
+def _sistemas_em_disco(base: Path) -> list[tuple[str, str, float]]:
+    """(sistema, caminho relativo, ndcg) de TODO json sob eval/q4-comparison que
+    carregue system + overall['ndcg@k']. Nao tenta derivar a verdade — so exige
+    que o que existe esteja declarado."""
+    achados: list[tuple[str, str, float]] = []
+    raiz = base / "eval" / "q4-comparison"
+    for f in sorted(raiz.rglob("*.json")):
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(d, dict):
+            continue
+        for s in d.get("systems", []) or []:
+            v = (s.get("overall") or {}).get("ndcg@k")
+            nome = str(s.get("system", "")).strip()
+            if nome and isinstance(v, (int, float)):
+                achados.append((nome, str(f.relative_to(base)), float(v)))
+    return achados
+
+
+def contagem_sistemas_check(root: Path) -> list[str]:
+    """O numero de competidores 'que produziram numero' e' afirmado em oito
+    lugares do manuscrito, com DOIS escopos: quatro presos a corrida canonica de
+    2026-06-15 (onde 2/3 continua verdade quando um gap fecha depois) e quatro
+    globais (que viram falsos). Reler os oito quando um gap fecha nao pega frase
+    errada com numero certo. Esta guarda deriva de `q4-corridas-census.json`.
+
+    L1 sistema declarado com artefato -> artefato existe e traz aquele ndcg
+    L2 TODO artefato em disco com system+ndcg esta declarado  <- acusa gap que fechou
+    L3 cada sitio de prosa declara o numero que o escopo dele exige
+    L4 cada ancora ocorre exatamente uma vez no manuscrito
+    """
+    falhas: list[str] = []
+    cam = root / CENSO_CORRIDAS
+    if not cam.exists():
+        return [f"contagem: {CENSO_CORRIDAS} ausente — a guarda nao pode se calar por falta dele"]
+    censo = json.loads(cam.read_text(encoding="utf-8"))
+    comp = censo["competidores"]
+    fora = {a.lower() for a in censo["fora_do_paragrafo6"]}
+    corpo = (root / PAPER).read_text(encoding="utf-8")
+
+    base = _base_artefatos(root)
+    if base is None:
+        return ["contagem: eval/q4-comparison nao encontrado a partir de "
+                f"{root} nem {root.parent} — L1/L2 nao podem correr, e calar seria pior"]
+
+    # --- L1: declaracao com artefato tem lastro ---
+    for c in comp:
+        art = c.get("artefato")
+        if not art:
+            continue
+        p_art = base / art
+        if not p_art.exists():
+            falhas.append(f"contagem/L1: {c['nome']} declara artefato {art}, inexistente")
+            continue
+        v = _ndcg_do_artefato(p_art, c["alias"])
+        if v is None:
+            falhas.append(f"contagem/L1: {art} nao traz ndcg@k para {c['nome']} "
+                          f"(alias {c['alias']})")
+        elif abs(v - float(c["ndcg10_no_artefato"])) > 1e-9:
+            falhas.append(f"contagem/L1: {c['nome']} declara ndcg {c['ndcg10_no_artefato']}, "
+                          f"artefato {art} traz {v}")
+
+    # --- L2: nada em disco fica por declarar ---
+    declarados = {}
+    for c in comp:
+        for a in c["alias"]:
+            declarados[a.lower()] = c
+    for nome, rel, v in _sistemas_em_disco(base):
+        chave = nome.lower()
+        if chave in fora:
+            continue
+        c = declarados.get(chave)
+        if c is None:
+            falhas.append(f"contagem/L2: artefato {rel} traz o sistema '{nome}' "
+                          f"(ndcg {v:.4f}) que o censo nao declara nem exclui")
+        elif not c["produziu_numero"]:
+            falhas.append(f"contagem/L2: artefato {rel} traz ndcg {v:.4f} para "
+                          f"{c['nome']}, que o censo ainda declara SEM numero — "
+                          f"um gap fechou e as contagens do manuscrito estao velhas")
+
+    # --- derivacao das contagens ---
+    canonica = [c for c in comp
+                if any("2026-06-15" in r for r in c["corridas"])]
+    global_com = [c for c in comp if c["produziu_numero"]]
+    derivado = {
+        ("canonica", "produziram_competidores"): len(canonica),
+        ("canonica", "nao_produziram_competidores"): len(comp) - len(canonica),
+        ("global", "produziram_competidores"): len(global_com),
+        ("global", "nao_produziram_competidores"): len(comp) - len(global_com),
+        # nox-mem entra como sexto sistema nessas duas frases
+        ("canonica", "par_incl_noxmem"): len(canonica) + 1,
+    }
+
+    # --- L3 + L4: template com a contagem derivada tem de ocorrer exatamente 1x ---
+    #
+    # A forma anterior ("algum numero da ancora bate com o derivado") passava pelo
+    # `6.3.1` do proprio titulo da secao: 4 numeros extraidos, 1 deles por acaso.
+    # Template nao tem essa folga — todo numero da frase e' marcador, nenhum literal.
+    for s in censo["sitios"]:
+        sid, tmpl, forma = s["id"], s["template"], s["forma"]
+        subs = {}
+        erro = False
+        for marcador, (esc, qtd) in s["marcadores"].items():
+            v = derivado.get((esc, qtd))
+            if v is None:
+                falhas.append(f"contagem/L3: sitio '{sid}' pede ({esc}, {qtd}), "
+                              f"quantidade que a guarda nao deriva")
+                erro = True
+                break
+            subs[marcador] = _forma_numero(v, forma)
+        if erro:
+            continue
+        esperado = tmpl.format(**subs)
+        n = corpo.count(esperado)
+        if n == 1:
+            continue
+        # mensagem acionavel: o que ESTA la, no lugar do que devia estar
+        padrao = re.escape(tmpl)
+        for marcador in s["marcadores"]:
+            padrao = padrao.replace(re.escape("{" + marcador + "}"), r"([A-Za-z0-9]+)")
+        vistos = re.findall(padrao, corpo)
+        falhas.append(
+            f"contagem/L4: sitio '{sid}' — esperado exatamente 1x {esperado!r}, "
+            f"achado {n}x" + (f"; no manuscrito esta {vistos}" if vistos
+                              else "; e o molde da frase nao ocorre — foi reescrita ou removida")
+        )
+
+    # --- L5: completude. Nenhuma frase de contagem fica fora do censo ---
+    vaos = _moldes_no_corpo(corpo, censo)
+    # Um isento e' um VAO do manuscrito que cobre o achado, nao uma substring do
+    # achado: "x in m.group(0)" testava ao contrario, e uma isencao curta calaria
+    # sitios legitimos por acidente.
+    isentos: list[tuple[int, int]] = []
+    for e in censo.get("excluidos_da_completude", []):
+        for m_i in re.finditer(re.escape(e["texto"]), corpo):
+            isentos.append((m_i.start(), m_i.end()))
+    for m in VARRE_CONTAGEM.finditer(corpo):
+        if any(a <= m.start() and m.end() <= b for a, b in vaos):
+            continue
+        volta = corpo[max(0, m.start() - JANELA):m.end() + JANELA]
+        if not DESFECHO.search(volta):
+            continue
+        if any(a <= m.start() and m.end() <= b for a, b in isentos):
+            continue
+        ln = corpo[:m.start()].count("\n") + 1
+        falhas.append(
+            f"contagem/L5: L{ln} diz {m.group(0)[:60]!r} — frase de contagem de "
+            f"sistemas fora do censo. Ou vira sitio em q4-corridas-census.json, ou "
+            f"entra em excluidos_da_completude com razao."
+        )
+    return falhas
+
 GUARDAS = [
     fence_check,
     superlativo_check,
@@ -928,6 +1158,7 @@ GUARDAS = [
     autoria_inline_check,
     corpus_bench_check,
     densidade_check,
+    contagem_sistemas_check,
 ]
 
 
