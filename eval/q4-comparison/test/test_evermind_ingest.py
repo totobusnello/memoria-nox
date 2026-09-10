@@ -1,355 +1,550 @@
 """
-Tests for EverMind-AI adapter — dual-path (CLI + Python module).
+Tests for the EverOS adapter (`adapters/evermind.py`), everos==1.3.1.
 
 Run:
     python -m pytest eval/q4-comparison/test/test_evermind_ingest.py -v
 
+⚠️ REPLACES a 355-line suite written against a CLI (`evermind retrieve`) and a
+module hook (`EVERMIND_PYTHON_MODULE`) that DO NOT EXIST in any published
+EverOS. Those tests faked the subprocess and the module, so they passed while
+verifying nothing about the real system — the failure mode this file exists to
+avoid. Every fake below is built from the REAL `SearchHit`/`DocumentContext`
+classes imported from `everos`, so a shape change upstream breaks the test
+instead of being papered over by a hand-rolled stub.
+
 Focus areas:
-  1. validate() — fails when neither path configured
-  2. setup() / _resolve_path() — picks CLI when available, falls back to module
-  3. ingest_corpus() — CLI path mode subprocess flow
-  4. ingest_corpus() — Python module path via fake module
-  5. ingest_corpus() — returns mode=skip when neither path available
-  6. search() — round-trips ids natively (no map needed)
+  1. validate() — resolves every LATE import, and does so BEFORE the env leg
+  2. mutation — a wrong module path must be named as such, never masked by env
+  3. setup() — pins EVEROS_ROOT to an adapter-owned dir; one event loop
+  4. ingest_corpus() — refuses the PAID run without the gate, returns estimate
+  5. search() — topic hits collapse to k distinct doc_ids, best rank wins
 """
 
 from __future__ import annotations
 
 import importlib
+import types
 import json
 import os
-import subprocess
 import sys
-import types
 from pathlib import Path
-from unittest import mock
 
 import pytest
 
 HERE = Path(__file__).parent.parent
 sys.path.insert(0, str(HERE))
 
+pytest.importorskip("everos", reason="pip install everos==1.3.1")
+pytest.importorskip("everalgo", reason="everalgo ships with everos")
 
-def _import_fresh():
-    mod_name = "adapters.evermind"
-    if mod_name in sys.modules:
-        del sys.modules[mod_name]
-    return importlib.import_module(mod_name)
+ADAPTER = HERE / "adapters" / "evermind.py"
 
-
-def _proc(returncode: int = 0, stdout: str = "", stderr: str = "") -> subprocess.CompletedProcess:
-    return subprocess.CompletedProcess(args=[], returncode=returncode, stdout=stdout, stderr=stderr)
-
-
-# ---------------------------------------------------------------------------
-# validate()
-# ---------------------------------------------------------------------------
+_ENV_OK = {
+    "EVEROS_LLM__API_KEY": "fake",
+    "EVEROS_LLM__BASE_URL": "http://127.0.0.1:1/v1",
+    "EVEROS_EMBEDDING__API_KEY": "fake",
+    "EVEROS_EMBEDDING__BASE_URL": "http://127.0.0.1:1/v1",
+}
 
 
-class TestValidate:
-    def test_fail_when_no_cli_and_no_module(self):
-        mod = _import_fresh()
-        env = {k: v for k, v in os.environ.items() if k != "EVERMIND_PYTHON_MODULE"}
-        with (
-            mock.patch.dict(os.environ, env, clear=True),
-            mock.patch.object(mod.shutil, "which", return_value=None),
-        ):
-            result = mod.validate()
-        assert result["ok"] is False
-        assert "neither" in (result["error"] or "")
-
-    def test_ok_when_cli_works(self):
-        mod = _import_fresh()
-        with (
-            mock.patch.object(mod.shutil, "which", return_value="/usr/local/bin/evermind"),
-            mock.patch.object(
-                mod.subprocess,
-                "run",
-                return_value=_proc(returncode=0, stdout="evermind 0.3.1"),
-            ),
-        ):
-            result = mod.validate()
-        assert result["ok"] is True
-        assert "0.3.1" in result["version"]
-
-    def test_fallback_to_module_when_cli_fails(self, tmp_path):
-        mod = _import_fresh()
-        # Create a fake python module
-        fake_mod = types.ModuleType("fake_evermind")
-        fake_mod.retrieve = lambda **_kw: []  # type: ignore[attr-defined]
-
-        with (
-            mock.patch.dict(os.environ, {"EVERMIND_PYTHON_MODULE": "fake_evermind"}),
-            mock.patch.object(mod.shutil, "which", return_value=None),
-            mock.patch.dict(sys.modules, {"fake_evermind": fake_mod}),
-        ):
-            result = mod.validate()
-        assert result["ok"] is True
-        assert "module:" in result["version"]
+@pytest.fixture
+def ad(monkeypatch, tmp_path):
+    """Fresh adapter module with credentials present and an isolated root."""
+    for key, value in _ENV_OK.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.setenv("EVEROS_EVAL_ROOT", str(tmp_path / "everos-eval"))
+    monkeypatch.delenv("EVEROS_ALLOW_PAID_INGEST", raising=False)
+    mod = importlib.import_module("adapters.evermind")
+    importlib.reload(mod)
+    yield mod
+    mod.teardown()
 
 
-# ---------------------------------------------------------------------------
-# _resolve_path / setup
-# ---------------------------------------------------------------------------
+def _mutante(velho: str, novo: str):
+    """Compile the adapter with one substitution and return its validate().
+
+    ``__file__`` is injected because the module body resolves paths from it; a
+    namespace without it raises NameError at import, and a mutant that cannot
+    import "kills" every case while proving nothing.
+    """
+    src = ADAPTER.read_text()
+    mut = src.replace(velho, novo)
+    assert mut != src, f"mutation did not apply: {velho!r}"
+    ns = {"__name__": "mutante", "__file__": str(ADAPTER)}
+    exec(compile(mut, str(ADAPTER), "exec"), ns)
+    return ns
 
 
-class TestResolvePath:
-    def test_prefers_cli_when_both_available(self):
-        mod = _import_fresh()
-        fake_mod = types.ModuleType("fake_evermind")
-        with (
-            mock.patch.dict(os.environ, {"EVERMIND_PYTHON_MODULE": "fake_evermind"}),
-            mock.patch.object(mod.shutil, "which", return_value="/usr/local/bin/evermind"),
-            mock.patch.object(mod.subprocess, "run", return_value=_proc(returncode=0)),
-            mock.patch.dict(sys.modules, {"fake_evermind": fake_mod}),
-        ):
-            mod._resolve_path()
-        assert mod._path_mode == "cli"
-
-    def test_falls_back_to_python_when_cli_broken(self):
-        mod = _import_fresh()
-        fake_mod = types.ModuleType("fake_evermind")
-        with (
-            mock.patch.dict(os.environ, {"EVERMIND_PYTHON_MODULE": "fake_evermind"}),
-            mock.patch.object(mod.shutil, "which", return_value=None),
-            mock.patch.dict(sys.modules, {"fake_evermind": fake_mod}),
-        ):
-            mod._resolve_path()
-        assert mod._path_mode == "python"
-
-    def test_none_when_neither_available(self):
-        mod = _import_fresh()
-        env = {k: v for k, v in os.environ.items() if k != "EVERMIND_PYTHON_MODULE"}
-        with (
-            mock.patch.dict(os.environ, env, clear=True),
-            mock.patch.object(mod.shutil, "which", return_value=None),
-        ):
-            mod._resolve_path()
-        assert mod._path_mode == "none"
+# ── 1. validate ──────────────────────────────────────────────────────────────
 
 
-# ---------------------------------------------------------------------------
-# ingest_corpus() — CLI path
-# ---------------------------------------------------------------------------
+def test_validate_ok_with_env(ad):
+    v = ad.validate()
+    assert v["ok"] is True, v.get("error")
+    assert v["version"] == "1.3.1"
+    assert "service.knowledge" in v["notes"]
+    assert "GATED" in v["notes"], "the paid gate must be visible in the smoke test"
 
 
-class TestIngestCorpusCLI:
-    def test_skip_when_neither_path(self):
-        mod = _import_fresh()
-        env = {k: v for k, v in os.environ.items() if k != "EVERMIND_PYTHON_MODULE"}
-        with (
-            mock.patch.dict(os.environ, env, clear=True),
-            mock.patch.object(mod.shutil, "which", return_value=None),
-        ):
-            mod._resolve_path()
-            result = mod.ingest_corpus([{"id": "c1", "text": "x"}])
-        assert result["mode"] == "skip"
-        assert result["path_used"] == "none"
-        assert "error" in result
-
-    def test_cli_inserts_chunks(self):
-        mod = _import_fresh()
-        mod._path_mode = "cli"
-        calls: list[list[str]] = []
-
-        def run_stub(argv, **_kw):
-            calls.append(list(argv))
-            if "list" in argv:  # idempotency probe
-                return _proc(returncode=1)
-            return _proc(returncode=0)
-
-        with (
-            mock.patch.object(mod.shutil, "which", return_value="/usr/local/bin/evermind"),
-            mock.patch.object(mod.subprocess, "run", side_effect=run_stub),
-        ):
-            result = mod.ingest_corpus(
-                [
-                    {"id": "c1", "text": "alpha"},
-                    {"id": "c2", "text": "beta"},
-                ]
-            )
-
-        assert result["path_used"] == "cli"
-        assert result["ingested"] == 2
-        assert result["errors"] == 0
-        add_calls = [c for c in calls if "add" in c]
-        assert any("c1" in c for c in add_calls)
-
-    def test_cli_idempotent_when_count_matches(self):
-        mod = _import_fresh()
-        mod._path_mode = "cli"
-
-        def run_stub(argv, **_kw):
-            if "list" in argv:
-                return _proc(returncode=0, stdout=json.dumps([{"id": "x"}, {"id": "y"}]))
-            return _proc(returncode=0)
-
-        with (
-            mock.patch.object(mod.shutil, "which", return_value="/usr/local/bin/evermind"),
-            mock.patch.object(mod.subprocess, "run", side_effect=run_stub),
-        ):
-            result = mod.ingest_corpus(
-                [{"id": "c1", "text": "a"}, {"id": "c2", "text": "b"}]
-            )
-
-        assert result["mode"] == "idempotent-skip"
-        assert result["skipped"] == 2
+def test_validate_reports_missing_env(ad, monkeypatch):
+    monkeypatch.delenv("EVEROS_LLM__API_KEY")
+    v = ad.validate()
+    assert v["ok"] is False
+    assert "EVEROS_LLM__API_KEY" in v["error"]
 
 
-# ---------------------------------------------------------------------------
-# ingest_corpus() — Python module path
-# ---------------------------------------------------------------------------
+def test_validate_makes_no_network_call(ad, monkeypatch):
+    """validate() must not burn quota: no socket may be opened."""
+    import socket
+
+    def proibido(*_a, **_k):  # pragma: no cover - only runs on regression
+        raise AssertionError("validate() opened a socket")
+
+    monkeypatch.setattr(socket.socket, "connect", proibido)
+    monkeypatch.setattr(socket.socket, "connect_ex", proibido)
+    assert ad.validate()["ok"] is True
 
 
-class TestIngestCorpusPython:
-    def test_python_module_add_called(self):
-        mod = _import_fresh()
-        mod._path_mode = "python"
-
-        # Build a fake module with an `add` function
-        fake = types.ModuleType("fake_evermind")
-        records: list[dict] = []
-
-        def add(**kwargs):
-            records.append(kwargs)
-            return {"id": kwargs["id"]}
-
-        fake.add = add  # type: ignore[attr-defined]
-        # No list_fn → idempotency probe disabled, ingest proceeds
-
-        with (
-            mock.patch.dict(os.environ, {"EVERMIND_PYTHON_MODULE": "fake_evermind"}),
-            mock.patch.dict(sys.modules, {"fake_evermind": fake}),
-        ):
-            result = mod.ingest_corpus(
-                [
-                    {"id": "c1", "text": "alpha"},
-                    {"id": "c2", "text": "beta"},
-                ]
-            )
-
-        assert result["path_used"] == "python"
-        assert result["ingested"] == 2
-        assert {r["id"] for r in records} == {"c1", "c2"}
-
-    def test_python_idempotent_via_list(self):
-        mod = _import_fresh()
-        mod._path_mode = "python"
-
-        fake = types.ModuleType("fake_evermind")
-        fake.add = lambda **_kw: None  # type: ignore[attr-defined]
-        fake.list = lambda: [{"id": "x"}, {"id": "y"}]  # type: ignore[attr-defined]
-
-        with (
-            mock.patch.dict(os.environ, {"EVERMIND_PYTHON_MODULE": "fake_evermind"}),
-            mock.patch.dict(sys.modules, {"fake_evermind": fake}),
-        ):
-            result = mod.ingest_corpus(
-                [{"id": "c1", "text": "a"}, {"id": "c2", "text": "b"}]
-            )
-
-        assert result["mode"] == "idempotent-skip"
-
-    def test_python_module_missing_add_returns_error(self):
-        mod = _import_fresh()
-        mod._path_mode = "python"
-        fake = types.ModuleType("fake_evermind")
-        # No add/upsert/insert
-        with (
-            mock.patch.dict(os.environ, {"EVERMIND_PYTHON_MODULE": "fake_evermind"}),
-            mock.patch.dict(sys.modules, {"fake_evermind": fake}),
-        ):
-            result = mod.ingest_corpus([{"id": "c1", "text": "x"}])
-        assert result["errors"] == 1
-        assert "no add/upsert/insert" in (result.get("error") or "")
-
-    def test_python_handles_legacy_positional_signature(self):
-        mod = _import_fresh()
-        mod._path_mode = "python"
-
-        called: list[tuple] = []
-
-        def legacy_add(*args, **kwargs):
-            if kwargs:
-                raise TypeError("legacy expects positional")
-            called.append(args)
-
-        fake = types.ModuleType("fake_evermind")
-        fake.add = legacy_add  # type: ignore[attr-defined]
-
-        with (
-            mock.patch.dict(os.environ, {"EVERMIND_PYTHON_MODULE": "fake_evermind"}),
-            mock.patch.dict(sys.modules, {"fake_evermind": fake}),
-        ):
-            result = mod.ingest_corpus([{"id": "c1", "text": "alpha"}])
-
-        assert result["ingested"] == 1
-        assert called == [("c1", "alpha")]
+# ── 2. mutation: the import leg, and its position ────────────────────────────
 
 
-# ---------------------------------------------------------------------------
-# search()
-# ---------------------------------------------------------------------------
+def test_mutation_wrong_module_path_is_named(ad):
+    """A wrong module path must be reported AS a module path.
+
+    This is the defect that shipped: `MemoryRoot` was taken from
+    `everos.config.settings` (it lives in `everos.core.persistence`) and
+    `ParsedContent` from `everos.component.parser` (it is in `everalgo.types`).
+    """
+    ns = _mutante(
+        '("everos.core.persistence", "MemoryRoot"),',
+        '("everos.config.settings", "MemoryRoot"),',
+    )
+    v = ns["validate"]()
+    assert v["ok"] is False
+    assert "MemoryRoot unresolvable" in v["error"], v["error"]
 
 
-class TestSearch:
-    def test_cli_search_round_trips_id(self):
-        mod = _import_fresh()
-        mod._path_mode = "cli"
-        payload = [
-            {"id": "conv-48::D2:13", "score": 0.91, "text": "beach text"},
-            {"id": "conv-48::D2:14", "score": 0.85, "text": "garden text"},
-        ]
-        with (
-            mock.patch.object(mod.shutil, "which", return_value="/usr/local/bin/evermind"),
-            mock.patch.object(
-                mod.subprocess,
-                "run",
-                return_value=_proc(returncode=0, stdout=json.dumps(payload)),
-            ),
-        ):
-            results = mod.search("places of peace", k=10)
+def test_mutation_import_leg_survives_missing_env(ad, monkeypatch):
+    """With env ABSENT the import defect must still surface.
 
-        assert results[0]["id"] == "conv-48::D2:13"
-        assert results[0]["score"] == 0.91
-
-    def test_python_search(self):
-        mod = _import_fresh()
-        mod._path_mode = "python"
-
-        fake = types.ModuleType("fake_evermind")
-        fake.retrieve = lambda **kw: [  # type: ignore[attr-defined]
-            {"id": "c1", "score": 0.7, "text": "alpha"}
-        ]
-        with (
-            mock.patch.dict(os.environ, {"EVERMIND_PYTHON_MODULE": "fake_evermind"}),
-            mock.patch.dict(sys.modules, {"fake_evermind": fake}),
-        ):
-            results = mod.search("q", k=10)
-
-        assert len(results) == 1
-        assert results[0]["id"] == "c1"
-
-    def test_raises_when_no_path(self):
-        mod = _import_fresh()
-        env = {k: v for k, v in os.environ.items() if k != "EVERMIND_PYTHON_MODULE"}
-        with (
-            mock.patch.dict(os.environ, env, clear=True),
-            mock.patch.object(mod.shutil, "which", return_value=None),
-        ):
-            mod._path_mode = "none"
-            with pytest.raises(RuntimeError, match="not configured"):
-                mod.search("q", k=10)
+    The original guard put the env leg first, so `ok: false — missing env` was
+    returned for the right reason while two wrong import paths sat behind it,
+    unreachable until setup(). A leg that decides first hides every leg after it.
+    """
+    monkeypatch.delenv("EVEROS_LLM__API_KEY")
+    ns = _mutante(
+        '("everos.core.persistence", "MemoryRoot"),',
+        '("everos.config.settings", "MemoryRoot"),',
+    )
+    v = ns["validate"]()
+    assert "unresolvable" in v["error"], f"env leg masked the import defect: {v['error']}"
 
 
-# ---------------------------------------------------------------------------
-# teardown
-# ---------------------------------------------------------------------------
+def test_import_leg_precedes_env_leg_in_source():
+    src = ADAPTER.read_text()
+    assert src.index('("everos.core.persistence", "MemoryRoot")') < src.index(
+        "missing = [v for v in REQUIRES_ENV"
+    ), "the import leg must run before the env leg"
 
 
-class TestTeardown:
-    def test_resets_path_mode(self):
-        mod = _import_fresh()
-        mod._path_mode = "cli"
-        mod.teardown()
-        assert mod._path_mode == "none"
+def test_validate_covers_every_late_import():
+    """Every module imported inside setup/ingest/search must appear in validate().
+
+    Otherwise validate() green-lights an adapter that dies mid-run — which is
+    what happened: the two wrong paths were only reached by setup().
+    """
+    import re
+
+    src = ADAPTER.read_text()
+    corpo = src[src.index("def setup(") :]
+    tardios = set(re.findall(r"^\s+from ((?:everos|everalgo)[\w.]*) import", corpo, re.M))
+    bloco = src[src.index("for _mod, _sym in (") : src.index("missing = [v for v in REQUIRES_ENV")]
+    cobertos = set(re.findall(r'\("((?:everos|everalgo)[\w.]*)"', bloco))
+    assert tardios <= cobertos, f"late imports not covered by validate(): {tardios - cobertos}"
+
+
+# ── 3. setup: isolation ──────────────────────────────────────────────────────
+
+
+def test_setup_pins_root_and_does_not_touch_home(ad, tmp_path):
+    home = Path.home() / ".everos"
+    existia = home.exists()
+    ad.setup()
+    alvo = tmp_path / "everos-eval"
+    assert alvo.exists()
+    assert os.environ["EVEROS_ROOT"] == str(alvo)
+    assert str(ad._knowledge_dir).startswith(str(alvo))
+    assert home.exists() == existia, "adapter wrote into the user's ~/.everos"
+
+
+def test_setup_is_idempotent_single_loop(ad):
+    ad.setup()
+    primeiro = ad._loop
+    ad.setup()
+    assert ad._loop is primeiro, "a new loop per call would land inside the timed region"
+
+
+def test_teardown_is_idempotent(ad):
+    ad.setup()
+    ad.teardown()
+    assert ad._loop is None
+    ad.teardown()
+
+
+# ── 4. the paid gate ─────────────────────────────────────────────────────────
+
+
+def _corpus():
+    chunks = []
+    for nome in ("locomo.jsonl", "longmemeval.jsonl"):
+        caminho = HERE / "cache" / nome
+        if not caminho.exists():
+            pytest.skip(f"corpus cache missing: {caminho}")
+        with caminho.open() as fh:
+            for linha in fh:
+                linha = linha.strip()
+                if linha:
+                    chunks.append(json.loads(linha))
+    return chunks
+
+
+def test_ingest_refuses_without_gate_and_reports_the_estimate(ad):
+    chunks = _corpus()
+    r = ad.ingest_corpus(chunks)
+    assert r["ingested"] == 0
+    assert r["reason"] == "paid-ingest-gated"
+    assert r["gate"] == "EVEROS_ALLOW_PAID_INGEST=1"
+    est = r["estimate"]
+    assert est["documents"] == est["llm_calls"] == len(chunks)
+    assert est["approx_input_tokens"] == est["chars"] // 4
+    ad.setup()
+    assert not any(ad._knowledge_dir.rglob("*")), "gated ingest wrote to the store"
+
+
+def test_corpus_is_6830_documents_not_the_query_count(ad):
+    """Guards the population, not just the number.
+
+    `cache/queries-rc4-all.jsonl` has 2.482 lines and that figure was quoted as
+    the ingest size. The corpus is 5.882 + 948 = 6.830 documents, and the token
+    cost is dominated by LongMemEval (14% of documents, ~95% of characters).
+    """
+    est = ad.ingest_corpus(_corpus())["estimate"]
+    assert est["documents"] == 6830, est["documents"]
+    queries = HERE / "cache" / "queries-rc4-all.jsonl"
+    if queries.exists():
+        n = sum(1 for l in queries.open() if l.strip())
+        assert est["documents"] != n, "corpus size must not equal the query count"
+
+
+def test_gate_is_what_holds_the_paid_call(ad):
+    """Removing the gate must change behaviour — else the gate is decoration."""
+    src = ADAPTER.read_text()
+    assert 'if not os.environ.get("EVEROS_ALLOW_PAID_INGEST"):' in src
+    assert src.index('if not os.environ.get("EVEROS_ALLOW_PAID_INGEST"):') < src.index(
+        "from everos.service.knowledge import create_document"
+    ), "the gate must precede the import of the paid call path"
+
+
+# ── 5. search: topic hits → k distinct doc_ids ───────────────────────────────
+
+
+def test_search_dedupes_topics_to_distinct_doc_ids(ad, monkeypatch):
+    """Several topics can share one document; the adapter must return k docs.
+
+    Hits are built from the real `SearchHit` / `DocumentContext` dataclasses so
+    the fake cannot drift from the shape the service actually returns.
+    """
+    from everos.service.knowledge import DocumentContext, SearchHit, SearchKnowledgeResult
+
+    def hit(doc_id, score, topico):
+        return SearchHit(
+            topic_id=f"t-{topico}",
+            category_id="c1",
+            topic_name=topico,
+            topic_path=f"/{topico}",
+            depth=1,
+            summary=f"summary {topico}",
+            content=f"content {topico}",
+            score=score,
+            retrieval_method="hybrid",
+            source="knowledge",
+            document=DocumentContext(doc_id=doc_id, title=doc_id, summary=""),
+        )
+
+    # A ranks first; B appears twice; C and D fill the tail.
+    hits = [
+        hit("conv-1::D1:1", 0.90, "a1"),
+        hit("conv-2::D1:1", 0.85, "b1"),
+        hit("conv-2::D1:1", 0.80, "b2"),  # same doc, worse rank → dropped
+        hit("conv-1::D1:1", 0.75, "a2"),  # same doc, worse rank → dropped
+        hit("conv-3::D1:1", 0.70, "c1"),
+        hit("conv-4::D1:1", 0.65, "d1"),
+    ]
+    capturado = {}
+
+    async def falso(**kwargs):
+        capturado.update(kwargs)
+        return SearchKnowledgeResult(hits=hits, total=len(hits), took_ms=1.0)
+
+    import everos.service.knowledge as K
+
+    monkeypatch.setattr(K, "search_knowledge", falso)
+    ad.setup()
+    out = ad.search("quando foi?", k=3)
+
+    assert [i["id"] for i in out] == ["conv-1::D1:1", "conv-2::D1:1", "conv-3::D1:1"]
+    assert len({i["id"] for i in out}) == 3, "duplicate doc_ids would inflate nDCG@k"
+    assert out[0]["score"] == 0.90, "best-ranked topic must carry the document"
+    assert all(i["source"] == "everos:knowledge" for i in out)
+    assert out[0]["topics_seen"] == len(hits), "the realised collapse must be reported"
+
+
+def test_search_overfetches_topics(ad, monkeypatch):
+    """top_k sent upstream must exceed k, else granularity caps the result set."""
+    from everos.service.knowledge import SearchKnowledgeResult
+
+    capturado = {}
+
+    async def falso(**kwargs):
+        capturado.update(kwargs)
+        return SearchKnowledgeResult(hits=[], total=0, took_ms=1.0)
+
+    import everos.service.knowledge as K
+
+    monkeypatch.setattr(K, "search_knowledge", falso)
+    monkeypatch.setenv("EVEROS_OVERFETCH", "5")
+    ad.setup()
+    ad.search("q", k=10)
+    assert capturado["top_k"] == 50, capturado
+    assert capturado["app_id"] == "q4eval"
+
+
+def test_search_without_overfetch_would_under_return(ad, monkeypatch):
+    """The 'no' half of the pair: overfetch=1 cannot recover k distinct docs."""
+    from everos.service.knowledge import DocumentContext, SearchHit, SearchKnowledgeResult
+
+    def hit(doc_id, score, topico):
+        return SearchHit(
+            topic_id=f"t-{topico}", category_id="c", topic_name=topico,
+            topic_path="/x", depth=1, summary="", content="", score=score,
+            retrieval_method="hybrid", source="knowledge",
+            document=DocumentContext(doc_id=doc_id, title=doc_id, summary=""),
+        )
+
+    async def falso(**kwargs):
+        # Only as many hits as asked for, three of them from one document.
+        todos = [hit("d1", 0.9, "1"), hit("d1", 0.8, "2"), hit("d1", 0.7, "3"),
+                 hit("d2", 0.6, "4"), hit("d3", 0.5, "5")]
+        return SearchKnowledgeResult(hits=todos[: kwargs["top_k"]], total=5, took_ms=1.0)
+
+    import everos.service.knowledge as K
+
+    monkeypatch.setattr(K, "search_knowledge", falso)
+    ad.setup()
+
+    monkeypatch.setenv("EVEROS_OVERFETCH", "1")
+    assert len(ad.search("q", k=3)) == 1, "3 topics from 1 doc collapse to 1"
+
+    monkeypatch.setenv("EVEROS_OVERFETCH", "5")
+    assert len(ad.search("q", k=3)) == 3, "overfetch recovers the k distinct docs"
+
+
+# ── 6. o índice é DERIVADO: create_document só escreve markdown ──────────────
+
+
+def test_ingest_calls_the_index_step(ad, monkeypatch, tmp_path):
+    """`create_document()` escreve markdown; sem `sync_once()` a busca vê 0 hits.
+
+    Medido 2026-09-10: 5 documentos "created" com sucesso deixaram
+    `knowledge_documents` em 0 linhas, `knowledge_topic` (LanceDB) em 0, e
+    `search_knowledge()` devolveu 0. Em produção um watcher alimenta a fila; num
+    processo só, o passo é `cascade sync`. Este teste prende a chamada.
+    """
+    chamou = {"sync": 0}
+
+    class OrqFalso:
+        def __init__(self, **_kw):
+            pass
+
+        async def sync_once(self):
+            chamou["sync"] += 1
+            return 42
+
+    import everos.memory.cascade as C
+
+    monkeypatch.setattr(C, "CascadeOrchestrator", OrqFalso)
+    monkeypatch.setenv("EVEROS_ALLOW_PAID_INGEST", "1")
+
+    # create_document falso: sem LLM, sem custo.
+    import everos.service.knowledge as K
+
+    class Res:
+        doc_id = "x"
+        topic_count = 1
+
+    async def cd_falso(**_kw):
+        return Res()
+
+    monkeypatch.setattr(K, "create_document", cd_falso)
+    monkeypatch.setattr(ad, "_extractor", object())
+
+    r = ad.ingest_corpus([{"id": "c1", "text": "algum texto"}])
+    assert chamou["sync"] == 1, "ingest não derivou o índice — a busca veria 0 hits"
+    assert r["indexed_rows"] == 42
+    assert r["ingested"] == 1
+
+
+def test_index_step_refuses_keyword_only_mode(ad, monkeypatch):
+    """Sem embedding o cascade indexa em keyword-only e o híbrido mede meio pipeline."""
+    import everos.component.embedding as E
+
+    class CapOff:
+        available = False
+
+    monkeypatch.setattr(E, "get_embedding_capability", lambda: CapOff())
+    ad.setup()
+    with pytest.raises(RuntimeError, match="keyword-only"):
+        ad._loop.run_until_complete(ad._indexa())
+
+
+# ── 7. o bootstrap replica sequência PRIVADA do upstream ─────────────────────
+
+
+def _fonte_upstream_runtime() -> str:
+    import inspect
+
+    from everos.entrypoints.cli.commands import cascade
+
+    return inspect.getsource(cascade._runtime)
+
+
+def test_bootstrap_mirrors_upstream_runtime():
+    """Alarme de drift: replicamos `cascade._runtime`, que é símbolo PRIVADO.
+
+    Se o upstream mudar a sequência de arranque, este teste falha em vez de o
+    adapter passar a subir um estado diferente do que a API sobe — uma suposição
+    com alarme, em vez de invisível.
+    """
+    up = _fonte_upstream_runtime()
+    nosso = ADAPTER.read_text()
+
+    sequencia = ["create_all", "connect()", "verify_business_schemas()", "ensure_business_indexes()"]
+    pos_up = [up.index(s) for s in sequencia]
+    assert pos_up == sorted(pos_up), f"upstream mudou a ordem: {sequencia}"
+
+    corpo = nosso[nosso.index("async def _bootstrap(") :]
+    corpo = corpo[: corpo.index("\ndef ") if "\ndef " in corpo else len(corpo)]
+    pos_nosso = [corpo.index(s) for s in sequencia]
+    assert pos_nosso == sorted(pos_nosso), "nosso _bootstrap está fora de ordem"
+
+
+def test_teardown_mirrors_upstream_finally():
+    """`_runtime` faz shutdown() e depois dispose_engine() no finally."""
+    up = _fonte_upstream_runtime()
+    assert up.index("shutdown()") < up.index("dispose_engine()"), "upstream mudou a ordem"
+    nosso = ADAPTER.read_text()
+    corpo = nosso[nosso.index("async def _encerra(") :]
+    assert corpo.index("shutdown()") < corpo.index("dispose_engine()")
+
+
+# ── 8. o extractor tem de existir no MÓDULO, não numa variável local ─────────
+
+
+def test_setup_populates_the_module_level_extractor(ad, monkeypatch):
+    """Com o gate ligado, `setup()` tem de deixar `_extractor` no MÓDULO.
+
+    Este é o teste que faltava. O bloco que construía o extractor ficou, por uma
+    edição, dentro de `_bootstrap()` — função sem `global _extractor`. Python
+    aceitou a atribuição como LOCAL, em silêncio, e `_extractor` continuou `None`.
+    A suíte ficou verde porque todos os casos passavam por `ingest_corpus()`, que
+    tinha um caminho de reparo; um script chamando `create_document` direto morria
+    em `'NoneType' object has no attribute 'aextract'`, 5.815 vezes.
+    """
+    monkeypatch.setenv("EVEROS_ALLOW_PAID_INGEST", "1")
+    assert ad._extractor is None, "fixture deve começar sem extractor"
+    ad.setup()
+    assert ad._extractor is not None, (
+        "setup() com o gate ligado não populou o módulo — provavelmente a "
+        "atribuição caiu numa função sem `global _extractor`"
+    )
+    assert hasattr(ad._extractor, "aextract"), "não é um KnowledgeExtractor"
+
+
+def test_extractor_accessor_is_the_only_builder(ad):
+    """Só um lugar constrói o extractor — caminho de reparo mascara defeito.
+
+    Se `KnowledgeExtractor(` aparecer fora de `extractor()`, existe um segundo
+    construtor, e um deles pode curar em silêncio o defeito do outro.
+    """
+    src = ADAPTER.read_text()
+    corpo_acessor = src[src.index("def extractor(") : src.index("async def _bootstrap(")]
+    assert corpo_acessor.count("_Extractor(llm=") == 1
+    assert src.count("_Extractor(llm=") == 1, "há mais de um construtor de extractor"
+
+
+def test_extractor_accessor_is_idempotent(ad, monkeypatch):
+    monkeypatch.setenv("EVEROS_ALLOW_PAID_INGEST", "1")
+    ad.setup()
+    primeiro = ad.extractor()
+    assert ad.extractor() is primeiro, "reconstruir por chamada gastaria cliente novo"
+
+
+# ── Teto de rerank: o limite verdadeiro não é o que tem o nome de limite ──────
+
+
+def test_teto_de_rerank_vem_do_min_entre_rerank_n_e_top_k_cap(ad, monkeypatch):
+    """
+    O teto tem de ser `min(rerank_n, top_k_cap)`, não o `top_k_cap`.
+
+    Medido 2026-09-10 em `everos==1.3.1`: `rerank_n=50`, `top_k_cap=100`. Ler o
+    `top_k_cap` — o campo cujo NOME diz "cap" — dá 100 e é falso: o
+    `acategory_retrieve` recebe `rerank_n` e não pode devolver mais que isso.
+    """
+
+    class _Cfg:
+        recall_n, rerank_n, mass_top_m, top_k_cap = 200, 50, 50, 100
+
+    mod = types.ModuleType("everos.config.settings")
+    mod.KnowledgeSearchSettings = lambda: _Cfg()
+    monkeypatch.setitem(sys.modules, "everos.config.settings", mod)
+
+    assert ad._teto_de_rerank() == 50, "leu o top_k_cap em vez do gargalo"
+
+
+def test_search_recusa_overfetch_acima_do_teto_em_vez_de_devolver_menos(ad, monkeypatch):
+    """
+    `k=20` com over-fetch 5 pede 100 e o pipeline devolve 50: a dedupe entregaria
+    < 20 doc_ids por TETO DE CONFIGURAÇÃO. O adapter tem de abortar, não medir o
+    teto e chamar-lhe retrieval.
+    """
+    monkeypatch.setattr(ad, "setup", lambda: None)
+    import asyncio
+
+    monkeypatch.setattr(ad, "_loop", asyncio.new_event_loop())
+    monkeypatch.setattr(ad, "_overfetch", lambda: 5)
+    monkeypatch.setattr(ad, "_teto_de_rerank", lambda: 50)
+
+    with pytest.raises(RuntimeError) as exc:
+        ad.search("qualquer", k=20)
+    msg = str(exc.value)
+    assert "teto de rerank" in msg, msg
+    assert "SILENCIO" in msg or "silencio" in msg.lower(), msg
+    # E tem de dizer o que fazer COM NUMERO, senão o operador reduz k por
+    # adivinhação. A mutação M-teto-3 (trocar a segunda metade da frase por
+    # "reduza o k") passava com a asserção só do nome da variável: nomear a
+    # alavanca sem dar o valor não é acionável.
+    assert "EVEROS_OVERFETCH" in msg, msg
+    assert "<= 2" in msg, f"falta o teto concreto (50//20=2): {msg}"
+
+
+def test_search_com_k10_e_overfetch5_cabe_exatamente_no_teto(ad, monkeypatch):
+    """
+    A configuração em uso (k=10 × 5 = 50) está EXATAMENTE no teto de 50 — zero
+    folga. Este caso existe para que subir o `k` do harness quebre aqui em vez de
+    silenciosamente medir menos.
+    """
+    monkeypatch.setattr(ad, "_overfetch", lambda: 5)
+    monkeypatch.setattr(ad, "_teto_de_rerank", lambda: 50)
+    assert 10 * ad._overfetch() == ad._teto_de_rerank(), (
+        "se esta igualdade deixar de valer, reveja o over-fetch antes de medir"
+    )

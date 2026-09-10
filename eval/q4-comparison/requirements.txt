@@ -31,8 +31,13 @@ letta-client==0.1.46
 # --- agentmemory ---
 # CLI-only; no Python package. See REQUIREMENTS.md for `npm install -g @agentmemory/agentmemory`.
 
-# --- EverMind-AI ---
-# Repo-only as of 2026-05-21 (no PyPI). See REQUIREMENTS.md for `git clone + pip install -e .`.
+# --- EverOS (registry key `evermind`) ---
+# ERRATA 2026-09-10: "Repo-only (no PyPI)" estava errado — o pacote e' `everos` no PyPI e
+# o repo e' EverMind-AI/EverOS (org e repo estavam trocados nas cinco sondas de 05-23).
+# Traz `everalgo` + LanceDB como dependencias, por isso fica COMENTADO: instalar so quando
+# for correr este sistema, num venv proprio, para nao pesar o env dos outros adapters.
+#   pip install everos==1.3.1
+# everos==1.3.1
 
 # --- dev / scoring + tests ---
 pytest==8.2.2  # needed for test/test_zep_ingest.py (and future test files)

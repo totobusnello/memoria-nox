@@ -12,3 +12,6 @@ cache/
 
 # mem0 Chroma persistent stores (rc4 + smoke). Large, regenerable from re-ingest.
 .mem0-chroma*/
+
+# venv isolado do Zep (zep-python 1.5.0)
+.venv-zep/
