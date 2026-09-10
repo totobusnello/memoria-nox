@@ -281,15 +281,75 @@ denominador, 200 lê-se como o tamanho do corpus.
 (`output/rc4/{nox_mem,mem0}.json`, `output/rc4-ablation/`). Conferido **antes**
 de qualquer conserto.
 
-## 7. nDCG@10 — PENDENTE
+## 7. nDCG@10 — EverOS FECHADO, Zep pendente
 
-| coluna | retenção | nDCG@10 | recibo |
-|---|---|---|---|
-| nox-mem | 6.822 | *(publicado, rc4)* | `output/rc4/nox_mem.json` |
-| mem0 | 6.830 | *(publicado, rc4)* | `output/rc4/mem0.json` |
-| **Zep** | 6.830 | **PENDENTE** | `out/zep-busca/zep.json` |
-| **EverOS** | 6.822 | **PENDENTE** | `out/everos-busca/evermind.json` |
+| coluna | corrida | retenção | nDCG@10 | recibo |
+|---|---|---|---|---|
+| nox-mem | rc4 2026-06-15 | 6.822 | *(publicado, rc4)* | `output/rc4/nox_mem.json` |
+| mem0 | rc4 2026-06-15 | 6.830 | *(publicado, rc4)* | `output/rc4/mem0.json` |
+| **Zep** | **2026-09-10** | 6.830 | **PENDENTE** | `out/zep-busca/zep.json` |
+| **EverOS** | **2026-09-10** | 6.822 | **0,6455** | `output-2026-09-10/evermind.json` |
+
+⚠️ A coluna `corrida` não é decoração: as duas primeiras linhas e as duas últimas
+são populações diferentes. Comparar **mecanismos** entre corridas é legítimo;
+atribuir os **números** a uma só população não é.
 
 **Não preencher por estimativa.** Cada célula só entra com o `meta` do artefato
 ao lado, e o `meta` tem de declarar `n_queries`, `limite` e
 `queries_file_linhas`.
+
+### 7.1 EverOS — fechado 2026-09-10T22:49:43Z
+
+**`meta` do artefato, verbatim:**
+
+```
+system = evermind                       n_queries = 2482
+version = everos==1.3.1                 limite = None
+k = 10                                  queries_file_linhas = 2482
+n_errors = 0                            queries_file = cache/queries-rc4-all.jsonl
+started_at = 2026-09-10T21:34:34Z       datasets = ['locomo', 'longmemeval']
+finished_at = 2026-09-10T22:49:43Z
+```
+
+| métrica | valor |
+|---|---|
+| **nDCG@10** | **0,6455** |
+| recall@10 | 0,7629 |
+| MRR | 0,6403 |
+| locomo (n=1982) | nDCG 0,6585 |
+| longmemeval (n=500) | nDCG 0,5942 |
+| latência p50 / p95 / p99 | 1.592 / 2.986 / 4.214 ms |
+
+Calculado pelo `aggregate.py` **committado** (`ndcg_at_k`, relevância binária),
+não por conta ad-hoc: monitor que reimplementa predicado do código omite caso.
+Instrumento exercitado antes em entrada conhecida (o smoke de n=20 de 25/05, que
+devolveu 0,3909) — para descobrir defeito da ferramenta antes de ter o artefato
+real na mão, não depois.
+
+**Quatro verificações de integridade, todas passadas:**
+
+| # | verificação | resultado |
+|---|---|---|
+| 1 | `n_queries` / `limite` / `queries_file_linhas` / `n_errors` | 2482 / `None` / 2482 / 0 |
+| 2 | entradas e **`question_id` distintos** | 2482 e **2482**, 0 repetidos |
+| 3 | por dataset | locomo **1982** + longmemeval **500** |
+| 4 | com gold · com resultado · `len(results)` | 2482 · 2482 · **10 em todas** |
+| — | `n_scored == n_queries` (agregador) | 2482 == 2482 |
+
+⚠️ A perna 2 nasceu de um susto meu: a primeira sonda devolveu **`ids distintos =
+1`**, que é a assinatura exata do bug das 100 duplicadas. O campo chama-se
+`question_id`; eu pedi `query_id` e `id`, ambos ausentes, e
+`set([None]*2482)` tem tamanho 1. **"2.482 ids idênticos" e "sonda com o nome
+errado" produzem o mesmo `1`** — e o `1` é plausível como medição. Resolvido por
+listar as chaves de uma entrada antes de concluir, que é a única perna que separa
+os dois casos.
+
+⚠️ **2.470 textos** de query distintos contra 2.482 ids: 12 queries partilham
+enunciado com outra. É propriedade do conjunto de queries, análoga aos 8 ids
+ambíguos do corpus, e não afeta contagem nem denominador.
+
+🔑 **Sobre o teto do §4:** o log do serviço mostra `hits=50` em todas as 2.482
+queries (100% de saturação do `rerank_n`), e o artefato tem `len(results) == 10`
+em todas. Não é contradição: 50 é o conjunto de candidatos que o reranker
+devolve, 10 é o `k` do harness. O teto que morde a **qualidade** é o 50, porque
+é ele que limita o que pode chegar ao top-10.
