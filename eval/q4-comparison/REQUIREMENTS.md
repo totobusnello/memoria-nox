@@ -92,36 +92,65 @@ status code: 401: Incorrect API key provided: ...)"  max_retries=5
 porta atende; o embedder é uma tarefa assíncrona que estoura depois, com 5
 retentativas, e a busca então devolve 500. As duas coisas são independentes.
 
-### O `LLM.OpenAIEndpoint` NÃO redireciona o embedding — negativo COM controle positivo
+### 🔴 RETRATAÇÃO no mesmo dia — a culpa era da MINHA grafia, e o schema publicado mente
 
-Hipótese testada: usar a chave prepaid do Gemini pelo endpoint OpenAI-compat,
-apontando `LLM.OpenAIEndpoint` — o único campo de endpoint que o schema expõe.
+Escrevi aqui, horas antes, que o `LLM.OpenAIEndpoint` **não alcança o caminho de
+embedding**. **Falso.** A sessão par cruzou com o fonte `v0.27.2` e mostrou o
+mecanismo no código (`llm_openai.go`: `case cfg.LLM.OpenAIEndpoint != "" →
+openai.WithBaseURL(...)`, no **mesmo** cliente que `EmbedTexts` usa). Remedi e ela
+está certa.
 
-Montagem: um coletor HTTP que registra `{path, model, keys, input_n, dimensions}`
-e devolve 400, **dentro da rede do Docker** (`--network-alias coletor`). Foi
-preciso estar dentro: com o coletor no host, o `ufw` (`INPUT policy DROP`, só
-22/tcp) **descarta** o pacote da bridge — e descarte pendura em vez de recusar,
-o que se lê como "o Zep não chamou". Nenhuma regra de firewall foi alterada.
+**O que a minha medição realmente mostrou.** Dump da config efetiva, com a chave
+substituída por sentinela:
 
-**Controle positivo aceso:** do container do Zep, um POST por `/dev/tcp` ao
-coletor devolveu `HTTP/1.0 400` e o coletor registrou a linha. O caminho existe e
-grava.
+```
+"AzureOpenAIEndpoint": "",
+"OpenAIEndpoint": "",            ← VAZIO, com o yaml declarando o endpoint
+```
 
-**Resultado:** três formas de endpoint — `http://coletor:9911/v1`,
-`http://coletor:9911`, `http://coletor:9911/v1/` — e **zero** chegadas ao
-coletor. Em todas, o log do Zep continuou a citar
-`https://platform.openai.com/account/api-keys`, isto é, foi a `api.openai.com`.
+O yaml **é** lido — provei por um discriminador independente: troquei
+`Server.Port` para 8123 e o processo passou a escutar em 8123
+(`msg="Listening on: 0.0.0.0:8123"`). Logo o arquivo chega ao binário e ainda
+assim aquele campo ficava vazio.
 
-⇒ **Em 0.27.2 o `OpenAIEndpoint` não alcança o caminho de embedding.** O Zep não
-embeda por endpoint OpenAI-compat de terceiro, e portanto **não** por Gemini.
+**A causa:** a grafia da chave. Com `openai_endpoint:` (snake_case) o dump passa a
+mostrar `"OpenAIEndpoint": "http://…"`. Com `OpenAIEndpoint:` — **a grafia que o
+próprio `zep json-schema` publica** — o viper ignora, sem aviso.
 
-**O bloqueio, nomeado com precisão:** não é Docker (o stack corre e está
-`healthy` na kvm8), não é RAM, e não é substituível por Gemini. É **uma chave
-OpenAI válida** — a que está no `.env` devolve 401 verificado direto em
-`api.openai.com/v1/models` e `/v1/embeddings`, sem o Zep no caminho.
+> ⚠️ **`zep json-schema` publica chaves em CamelCase que o loader NÃO aceita.** O
+> schema é gerado das tags JSON da struct; o carregamento usa mapstructure em
+> snake_case. Um arquivo de config escrito **a partir do schema publicado** é
+> silenciosamente ignorado nesses campos, e o efeito é indistinguível de "o
+> recurso não existe".
 
-Config restaurado byte a byte do backup
-(`zep-config.yaml.pre-coletor-20260910T184909Z`, mode 400) e coletor removido.
+**Erro de método, e é o que importa levar:** o meu controle positivo provava que o
+**coletor** recebia e gravava — não que a **config** tinha chegado ao campo. Três
+formas de sufixo (`/v1`, sem sufixo, `/v1/`) não discriminam nada se a chave nunca
+liga: as três falham igual. Sem uma perna que prove que o valor **tomou**, "não
+suportado" e "a minha config não chegou" têm saída idêntica.
+
+**Estado da pergunta:** se o Zep embeda por endpoint OpenAI-compat de terceiro
+(Gemini) **fica NÃO TESTADO** — e saiu do caminho crítico, porque há chave OpenAI
+válida (abaixo). Não afirmar nem negar isso no manuscrito.
+
+### ✅ 2026-09-10 — o Zep RODA, e a busca devolve distância real
+
+Com uma chave OpenAI válida instalada (`/root/q4-zep/.env`, mode 600), medido na
+kvm8 **sem** nenhuma alteração ao `zep-config.yaml` original:
+
+```
+POST /api/v1/sessions/<s>/memory  -> 200
+erros de embedding no minuto seguinte -> 0
+POST /api/v1/sessions/<s>/search  -> 200 | 2 hits | dist=0,9172
+```
+
+`text-embedding-3-small` confirmado a **1536d** direto na API, o que casa com o
+`Dimensions: 1536` do config. ⇒ **O Zep deixa de ser competidor não-executado.**
+
+⚠️ Consequência para o manuscrito: as frases que atribuem ao Zep *"never ran"* e
+*"requires a privileged Docker host"* são **duplamente** falsas — ele rodou em
+2026-05-25 (artefato em `output/zep.json`) e corre hoje num host não privilegiado.
+
 
 ---
 
