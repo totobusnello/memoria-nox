@@ -298,7 +298,17 @@ Adapter: `adapters/agentmemory.py` — REST `POST /agentmemory/remember` + `POST
 
 ---
 
-## 6. EverMind-AI (EverOS) — GAP, e a razão de 2026-05-23 estava ERRADA
+## 6. EverMind-AI (EverOS) — deixou de ser GAP em 2026-09-10
+
+> 🟢 **ESTADO 2026-09-10.** O cabeçalho desta seção dizia **"GAP"** até hoje e a
+> alegação venceu: a ingestão fechou (`fecho ok=6826 falhas=4`, 4 h 11 min) e
+> **6.822** documentos estão no índice sqlite (`knowledge_documents`), com
+> `missing ∩ gold = ∅`. A busca das 2.482 queries corre agora. O texto abaixo é
+> **histórico** — fica porque descreve como o GAP foi diagnosticado e por que a
+> razão de 2026-05-23 estava errada, e apagá-lo apagaria a prova do que esteve
+> publicado. Números vivos: `RESULTADOS-Q4-2026-09-10.md`.
+
+### 6.0 Histórico — como era, e a razão errada de 2026-05-23
 
 ⚠️ **ERRATA 2026-09-10.** Esta seção dizia que o repo **não existia** (404 em 2026-05-23,
 cinco sondas). **Ele existe, e existia então.** As cinco sondas erraram do mesmo jeito:
@@ -358,7 +368,8 @@ sleep 5 && curl http://localhost:3111/agentmemory/livez   # verify {"status":"ok
 docker compose -f compose/docker-compose.yml up -d zep postgres
 # add --profile letta or --profile noxmem if desired
 
-# EverOS (registry key `evermind`) — adapter PRONTO, ingestao PAGA e barrada:
+# EverOS (registry key `evermind`) — adapter PRONTO; ingestao EXECUTADA em 2026-09-10
+# sob ordem explicita do Toto. O gate abaixo continua a valer para QUALQUER nova corrida:
 pip install everos==1.3.1
 export EVEROS_LLM__API_KEY=... EVEROS_LLM__BASE_URL=...          # OpenAI-compativel (Gemini serve)
 export EVEROS_EMBEDDING__API_KEY=... EVEROS_EMBEDDING__BASE_URL=...
