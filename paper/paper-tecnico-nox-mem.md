@@ -513,9 +513,9 @@ The 5-batch methodology (§5.8) is canonical for this claim. Single-batch estima
 
 #### 5.1.7 EverMemBench Phase G — Cross-encoder rerank trade-off study (5-batch)
 
-**Config:** MiniLM-L-6-v2 cross-encoder rerank (22M params), top_k=20 pool rescored, Gemini-2.5-flash backbone. 5-batch, n=3,121. PRs #367, #369.
+**Config:** MiniLM[^minilm]-L-6-v2 cross-encoder rerank (22M params), top_k=20 pool rescored, Gemini-2.5-flash backbone. 5-batch, n=3,121. PRs #367, #369.
 
-Cross-encoder reranking exposes a **4-dimensional trade-off** across retrieval workload types:
+Cross-encoder reranking[^sbert] exposes a **4-dimensional trade-off** across retrieval workload types:
 
 | Category type | Δ vs Phase D (no rerank) | Direction |
 |---|---:|---|
@@ -1263,7 +1263,7 @@ The Q4 per-method benchmark (§6, `specs/2026-05-21-per-method-benchmark-compari
 
 #### F5 — Neural reranker: cross-encoder rerank post-RRF
 
-The current retrieval stack terminates at RRF fusion (§4.1). A cross-encoder reranker — receiving the top-K RRF candidates and the original query as a pair — is the standard next step in multi-stage retrieval and typically yields +3–8% nDCG@10 over bi-encoder baselines (see e.g., Nogueira & Cho 2019 on MS MARCO). The Autonomy constraint (`neural-reranker-evolution-vector`) favors a locally-runnable cross-encoder (e.g., `cross-encoder/ms-marco-MiniLM-L-6-v2` via sentence-transformers, ~66MB) over a cloud inference call, keeping the retrieval stack fully offline-capable. Estimated Lab Q1/Q2. Ref: `neural-reranker-as-vetor-evolutivo-pos-rrf`, `docs/ROADMAP.md` Lab Q1.
+The current retrieval stack terminates at RRF fusion (§4.1). A cross-encoder reranker — receiving the top-K RRF candidates and the original query as a pair — is the standard next step in multi-stage retrieval and typically yields +3–8% nDCG@10 over bi-encoder baselines (see e.g., Nogueira & Cho[^nogueira] on MS MARCO; the current open-weight candidate is the Qwen3 reranker[^qwen3embed]). The Autonomy constraint (`neural-reranker-evolution-vector`) favors a locally-runnable cross-encoder (e.g., `cross-encoder/ms-marco-MiniLM-L-6-v2` via sentence-transformers, ~66MB) over a cloud inference call, keeping the retrieval stack fully offline-capable. Estimated Lab Q1/Q2. Ref: `neural-reranker-as-vetor-evolutivo-pos-rrf`, `docs/ROADMAP.md` Lab Q1.
 
 #### F6 — Lab Q1 scale validation: 250k chunk corpus
 
@@ -1441,6 +1441,14 @@ first author and title checked to match, rather than transcribed from memory.
 [^amem]: Xu et al., *A-Mem: Agentic Memory for LLM Agents*, 2025. arXiv:2502.12110. Used in §1.4.
 
 [^halumem]: *HaluMem: Evaluating Hallucinations in Memory Systems of Agents*, 2025. arXiv:2511.03506. Used in §1.4 as a declared evaluation gap.
+
+[^minilm]: Wang, Wei, Dong, Bao, Yang & Zhou, *MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers*, NeurIPS 2020. arXiv:2002.10957. The cross-encoder checkpoint reranked in §5.1.7 and §5.1.9 is the `ms-marco-MiniLM-L-6-v2` distillation of this model (22M params).
+
+[^sbert]: Reimers & Gurevych, *Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks*, EMNLP 2019. arXiv:1908.10084. Source of the bi-encoder / cross-encoder distinction used throughout §5.1.7 and §7.2 F5.
+
+[^nogueira]: Nogueira & Cho, *Passage Re-ranking with BERT*, 2019. arXiv:1901.04085. The MS MARCO result cited in §7.2 F5.
+
+[^qwen3embed]: Zhang, Li, Long, Zhang, Xie *et al.*, *Qwen3 Embedding: Advancing Text Embedding and Reranking Through Foundation Models*, 2025. arXiv:2506.05176. Named in §7.2 F5 as the current open-weight reranker candidate; **not run in this study**.
 
 [^musique]: Trivedi, Balasubramanian, Khot & Sabharwal, *MuSiQue: Multihop Questions via Single-hop Question Composition*, TACL 2022. arXiv:2108.00573. The multi-hop QA dataset used in §5.2.
 
