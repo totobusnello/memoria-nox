@@ -1410,7 +1410,7 @@ oversight.
 
 [^lightrag]: Guo et al., *LightRAG: Simple and Fast Retrieval-Augmented Generation*, EMNLP 2025 (HKU); arXiv:2410.05779. github.com/HKUDS/LightRAG (~35k stars, MIT). Cited in §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized incremental KG-merge pattern as a forward-looking optimization (LightRAG-style summarization parking-lotted until KG density >=10× current; see `docs/COMPETITIVE-ANALYSIS-2026-05-19.md`).
 
-[^hipporag2]: Gutiérrez, Shu, Yasunaga, Gu & Su, *From RAG to Memory: Non-Parametric Continual Learning for Large Language Models* (HippoRAG 2), ICML 2025. arXiv:2502.14802. Graph-augmented retrieval with Personalized PageRank over an entity-relation graph; cited as a graph-baseline peer in §1.4, §1.5 and §6. ⚠️ This footnote carried **no locator at all** until 2026-09-09 — an irresolvable reference is indistinguishable from an invented one, which is why `footnotes_check` now requires one.
+[^hipporag2]: Gutiérrez, Shu, Qi, Zhou & Su, *From RAG to Memory: Non-Parametric Continual Learning for Large Language Models* (HippoRAG 2), ICML 2025. arXiv:2502.14802. Graph-augmented retrieval with Personalized PageRank over an entity-relation graph; cited as a graph-baseline peer in §1.4, §1.5 and §6. ⚠️ This footnote carried **no locator at all** until 2026-09-09 — an irresolvable reference is indistinguishable from an invented one, which is why `footnotes_check` now requires one. ⚠️ And requiring a locator is not sufficient: until 2026-09-10 this same footnote named two authors who are not on that paper, and the check passed because it verifies the *presence* of an identifier and not its *correspondence* to the names beside it. Three of the manuscript's 32 arXiv-bearing footnotes carried wrong author surnames under a green check.
 
 [^memo]: arXiv 2605.15156v2, *MeMo: Towards Language Models with Associative Memory Mechanisms* (parametric reflections folded into model weights). Cited as the design opposite of nox-mem's externalized, inspectable memory paradigm. §1.4, abstract.
 
@@ -1434,9 +1434,9 @@ first author and title checked to match, rather than transcribed from memory.
 
 [^hotpotqa]: Yang, Qi, Zhang, Bengio, Cohen, Salakhutdinov & Manning, *HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering*, EMNLP 2018. arXiv:1809.09600. Used in §5.2.2, §5.4.
 
-[^lostmiddle]: Liu, Lin, Hewitt, Paranjape, Bevilacqua, Petroni & Liang, *Lost in the Middle: How Language Models Use Long Contexts*, TACL 2024. Used in §1.4 as the bound on context-window scaling.
+[^lostmiddle]: Liu, Lin, Hewitt, Paranjape, Bevilacqua, Petroni & Liang, *Lost in the Middle: How Language Models Use Long Contexts*, TACL 2024. arXiv:2307.03172. Used in §1.4 as the bound on context-window scaling.
 
-[^reflexion]: Shinn, Cassano, Gopinath, Narasimhan & Yao, *Reflexion: Language Agents with Verbal Reinforcement Learning*, NeurIPS 2023 (vol. 36). Used in §1.4.
+[^reflexion]: Shinn, Cassano, Berman, Gopinath, Narasimhan & Yao, *Reflexion: Language Agents with Verbal Reinforcement Learning*, NeurIPS 2023 (vol. 36). arXiv:2303.11366. Used in §1.4.
 
 [^amem]: Xu et al., *A-Mem: Agentic Memory for LLM Agents*, 2025. arXiv:2502.12110. Used in §1.4.
 
@@ -1454,11 +1454,11 @@ first author and title checked to match, rather than transcribed from memory.
 
 [^ircot]: Trivedi, Balasubramanian, Khot & Sabharwal, *Interleaving Retrieval with Chain-of-Thought Reasoning for Knowledge-Intensive Multi-Step Questions*, ACL 2023. arXiv:2212.10509. The IRCoT baseline compared against in §5.2.
 
-[^beamretrieval]: Zhang, Zhang, Zhang, Yin & Zhang, *End-to-End Beam Retrieval for Multi-Hop Question Answering*, NAACL 2024. arXiv:2308.08973. The MuSiQue leaderboard system referenced as the upper bound in §5.2.1.
+[^beamretrieval]: Zhang, Zhang, Zhang, Liu & Huang, *End-to-End Beam Retrieval for Multi-Hop Question Answering*, NAACL 2024. arXiv:2308.08973. The MuSiQue leaderboard system referenced as the upper bound in §5.2.1.
 
 [^locomo]: Maharana, Lee, Tulyakov, Bansal, Barbieri & Fang, *Evaluating Very Long-Term Conversational Memory of LLM Agents*, ACL 2024. aclanthology.org/2024.acl-long.747. The LoCoMo benchmark used in §5.5 and §6.
 
-[^longmemeval]: Wu, Wang, Yin, Ni, Peng, Yu & others, *LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory*, 2024. arXiv:2410.10813. The cross-bench validation set of §5.6.
+[^longmemeval]: Wu, Wang, Yu, Zhang, Chang & Yu, *LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory*, ICLR 2025. arXiv:2410.10813. The cross-bench validation set of §5.6.
 
 [^rag]: Lewis, Perez, Piktus, Petroni, Karpukhin, Goyal, Küttler, Lewis, Yih, Rocktäschel, Riedel & Kiela, *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*, NeurIPS 2020. arXiv:2005.11401. Engaged in §1.5 as the formulation nox-mem does **not** adopt: it returns ranked chunks and leaves generation to the caller.
 
