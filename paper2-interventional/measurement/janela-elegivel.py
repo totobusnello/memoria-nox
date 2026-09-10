@@ -173,8 +173,13 @@ def main() -> None:
             unidade = "inteira"
         else:
             unidade = "parcial"
+        motivos = [m for m, cond in (
+            ("relogio", j["classe_janela"] == "parcial"),
+            ("volume", e["classe_entrega"] == "parcial"),
+            ("vazio", e["classe_entrega"] == "vazio"),
+        ) if cond]
         epochs.append({"epoch": ep, "inicio": ini.isoformat(), "fim": fim.isoformat(),
-                       **j, **e, "unidade": unidade})
+                       **j, **e, "unidade": unidade, "motivos": motivos})
         dia += timedelta(days=1)
 
     inteiros = [e for e in epochs if e["unidade"] == "inteira"]

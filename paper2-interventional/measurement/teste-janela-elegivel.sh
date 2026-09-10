@@ -78,6 +78,18 @@ val "T15 09-01 e' o UNICO de modo misto" \
 val "T16 09-01 e' parcial pelas DUAS pernas" \
   "$(q "[x['motivos'] for x in d['unidades_de_analise']['parciais'] if x['epoch']=='2026-09-01'][0]")" "['relogio', 'volume']"
 
+# T18-T20: o motivo tem de estar declarado NO REGISTRO DO EPOCH, nao so no resumo.
+# Quem consome o artefato itera `epochs`; obrigar a derivar de classe_janela+classe_entrega
+# e' informacao recuperavel-mas-nao-declarada, que e' como o `exposto_h` chegou onde chegou.
+val "T18 09-01 declara motivos no proprio epoch" \
+  "$(q "[e['motivos'] for e in d['epochs'] if e['epoch']=='2026-09-01'][0]")" "['relogio', 'volume']"
+val "T19 09-02 declara o motivo VAZIO" \
+  "$(q "[e['motivos'] for e in d['epochs'] if e['epoch']=='2026-09-02'][0]")" "['vazio']"
+val "T20 unidade INTEIRA nao tem motivo nenhum" \
+  "$(q "all(e['motivos']==[] for e in d['epochs'] if e['unidade']=='inteira')")" "True"
+val "T21 motivos do epoch coincidem com os do resumo" \
+  "$(q "all(any(e['epoch']==x['epoch'] and e['motivos']==x['motivos'] for e in d['epochs']) for x in d['unidades_de_analise']['parciais'])")" "True"
+
 # T17: censo com registro sem `modo` e' recusado (impede separar active de shadow)
 python3 -c "
 import json;d=json.load(open('$CENSO'));d['sem_modo']=3
