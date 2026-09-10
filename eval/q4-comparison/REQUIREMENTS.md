@@ -152,7 +152,7 @@ Medido 2026-09-10:
 | Repo | https://github.com/EverMind-AI/EverOS — **12.856 ★**, Apache-2.0, push 2026-09-09 |
 | Org | `EverMind-AI` — HTTP 200, **16 repos públicos** (inclui `EverMemBench`, que o paper cita) |
 | Install | `pip install everos` → **v1.3.1** (PyPI HTTP 200); importa sem credencial |
-| Forma | README: *"Python library and **local-first** memory runtime"*, *"**No API key or server setup required**"* |
+| Forma | README **afirma** *"No API key or server setup required"* — ⚠️ **falso para a busca**: `service/search.py` instancia cliente de LLM, e `create_document()` roda extração de LLM por documento. Instala e importa sem credencial; **correr** exige provedor de LLM + embedding (ambos configuráveis) |
 | Embedding | agnóstico por protocolo OpenAI: nomeia **Ollama** e **vLLM** locais; DeepInfra é **um default** (`settings.py:403`), não requisito |
 | `docker-compose.yml` na raiz | **404** — o stack de 5 serviços que o paper conta em `[^everos-stack]` não está mais lá |
 
@@ -161,8 +161,21 @@ saiu de **enumerar nomes** em vez de **listar o espaço**. `GET /orgs/EverMind-A
 responde de uma vez o que cinco palpites não responderam — e uma varredura que conclui
 ausência precisa de controle positivo, que aqui seria justamente listar a org.
 
-**Status atual: GAP ainda aberto (não rodado), mas VIÁVEL.** Ver
-`paper/publication/spike-item6-2026-09-10.md`.
+**Status atual: GAP aberto (não rodado), VIÁVEL, adapter PRONTO.**
+
+`adapters/evermind.py` reescrito 2026-09-10 contra a API medida da v1.3.1 — a versão
+anterior falava com um CLI `evermind retrieve` e um `EVERMIND_PYTHON_MODULE` que **não
+existem** (as CLI commands são `init · demo · server · cascade · config`). Superfície
+escolhida: `service.knowledge`, porque `create_document(doc_id=…)` e
+`SearchHit.document.doc_id` fazem o id do chunk voltar — sem isso o nDCG por
+`gold_chunk_ids` é indefinido. A superfície de **memória** (`service.memorize` /
+`service.search`) devolve episódios derivados, sem essa proveniência, e por isso não é
+comparável. Suíte: `test/test_evermind_ingest.py`, 16 casos, 7 mutações mordem.
+
+⚠️ **O que falta é decisão, não código:** a ingestão custa **6.830** extrações de LLM
+(~3,54 M tokens de entrada; o LongMemEval é 14% dos documentos e ~95% dos caracteres) e
+está barrada por `EVEROS_ALLOW_PAID_INGEST=1`. Ver
+`paper/publication/spike-item6-2026-09-10.md` (adenda de 10-09).
 
 ## Quick reference
 
@@ -179,7 +192,13 @@ sleep 5 && curl http://localhost:3111/agentmemory/livez   # verify {"status":"ok
 docker compose -f compose/docker-compose.yml up -d zep postgres
 # add --profile letta or --profile noxmem if desired
 
-# EverMind-AI: SKIPPED — repo does not exist (see §6 above)
+# EverOS (registry key `evermind`) — adapter PRONTO, ingestao PAGA e barrada:
+pip install everos==1.3.1
+export EVEROS_LLM__API_KEY=... EVEROS_LLM__BASE_URL=...          # OpenAI-compativel (Gemini serve)
+export EVEROS_EMBEDDING__API_KEY=... EVEROS_EMBEDDING__BASE_URL=...
+python adapters/evermind.py                                       # validate(), zero rede
+# Para RODAR a ingestao (6.830 docs x 1 extracao de LLM), so com ordem explicita:
+# export EVEROS_ALLOW_PAID_INGEST=1
 
 # Set env (paste into shell or .env.q4):
 export OPENAI_API_KEY=...
@@ -195,8 +214,13 @@ export GEMINI_API_KEY=...
 
 - [x] **agentmemory iii-engine daemon** — RESOLVED 2026-05-23. iii-engine auto-installs
       from npm bundle (ELv2, not paid). REST API verified working. Adapter updated to REST.
-- [x] **EverMind-AI retrieve API** — RESOLVED 2026-05-23. Repo EverOS-AI/EverMind-AI
-      does not exist. System SKIPPED. COMPARISON.md will show "no data / repo unavailable".
+- [ ] **EverOS retrieve API** — ⚠️ **RETRATADO 2026-09-10.** Este item esteve marcado
+      `[x] RESOLVED` por 3,5 meses afirmando que o repo *"does not exist"* e que o sistema
+      seria `SKIPPED`. **O repo existe** (`EverMind-AI/EverOS`, 12.856 ★) e existia então;
+      as cinco sondas trocaram org e repo (§6). Uma caixa marcada errada é pior que uma
+      caixa vazia: fecha a pergunta. Estado real: adapter pronto contra a v1.3.1, ingestão
+      **paga** (6.830 extrações de LLM) e barrada por `EVEROS_ALLOW_PAID_INGEST=1`.
+      Falta **ordem do Toto para gastar**, não trabalho.
 - [ ] **OpenAI quota** — Mem0 + Letta both default to OpenAI embeddings.
       Estimate: ~600 queries × 2 datasets × 2 systems = 2,400 embedding
       calls. Budget < $1 at current ada pricing, but confirm before run.
