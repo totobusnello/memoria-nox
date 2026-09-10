@@ -629,6 +629,12 @@ def footnotes_check(root: Path) -> list[str]:
     #
     # ⚠️ ID ausente do manifesto NAO conta como aprovado: e reportado como
     # NAO-VERIFICADO. Ausencia de dado nao e ausencia de problema.
+    # A extracao de ids e' case-INSENSITIVE de proposito: o manuscrito trazia
+    # `arxiv:2402.17753` em minusculas para o LoCoMo — o benchmark central do §6 —
+    # e um `arXiv:` case-sensitive fazia esse id escapar desta perna INTEIRA. A
+    # autoria dele estava certa, mas por sorte: a perna nunca a olhou. O
+    # `refs_check` ja' usava re.I, logo duas pernas do mesmo guarda liam o mesmo
+    # manuscrito com semanticas diferentes.
     man_path = root / "authors-manifest.json"
     if not man_path.exists():
         fails.append(f"{PAPER}: paper/authors-manifest.json ausente — "
@@ -648,7 +654,7 @@ def footnotes_check(root: Path) -> list[str]:
 
         for d in re.finditer(r"^\[\^([A-Za-z0-9_-]+)\]:(.*)$", md, re.M):
             chave, corpo = d.group(1), d.group(2)
-            aids = re.findall(r"arXiv:(\d{4}\.\d{4,5})", corpo)
+            aids = re.findall(r"arxiv:\s*(\d{4}\.\d{4,5})", corpo, re.I)
             if not aids:
                 continue
             # os nomes vivem antes do titulo em *italico*
@@ -746,6 +752,52 @@ def bib_promessa_check(root: Path) -> list[str]:
     return fails
 
 
+def autoria_inline_check(root: Path) -> list[str]:
+    """Citacao inline em PROSA, com `X et al.` e id arXiv, tem a autoria conferida.
+
+    A perna de autoria do `footnotes_check` varre so corpos de footnote
+    (`^\\[\\^chave\\]:`). O manuscrito tem **11 linhas de prosa** que citam id arXiv
+    com o autor ao lado — tabelas de baseline e o paragrafo do LoCoMo — e nenhuma
+    delas passava por perna alguma. Foi assim que `arxiv:2402.17753` (o benchmark
+    central do §6) ficou fora do manifesto sem alarme: a autoria estava certa,
+    mas por sorte, porque ninguem a olhou.
+
+    ⚠️ **Cobertura declarada, e e' parcial de proposito.** So verifica linha com
+    EXATAMENTE um id e EXATAMENTE um `et al.` — com dois ids na mesma linha
+    (`DPR (arxiv:...) + FiD (arxiv:...)`) nao ha' como associar o nome ao id certo,
+    e associar ao errado produziria acusacao falsa. Linhas com 2+ ids ou sem
+    `et al.` ficam **sem cobertura**; isso e' um limite conhecido, nao um
+    silencio que se leia como aprovacao.
+    """
+    fails: list[str] = []
+    md = (root / PAPER).read_text(encoding="utf-8")
+    cam = root / "authors-manifest.json"
+    if not cam.exists():
+        return [f"{PAPER}: paper/authors-manifest.json ausente — a perna de autoria "
+                f"inline nao pode correr"]
+    man = json.loads(cam.read_text(encoding="utf-8"))
+
+    for ln, linha in enumerate(md.splitlines(), 1):
+        if linha.lstrip().startswith("[^"):
+            continue                                    # footnote: outra perna
+        ids = re.findall(r"arxiv:\s*(\d{4}\.\d{4,5})", linha, re.I)
+        etal = re.findall(r"\b([A-Z][a-zA-Z'\u2019-]{2,})\s+et\s+al\.", linha)
+        if len(ids) != 1 or len(etal) != 1:
+            continue
+        aid, nome = ids[0], etal[0]
+        if aid not in man:
+            fails.append(
+                f"{PAPER}:{ln}: prosa cita arXiv:{aid} com `{nome} et al.` e o id NAO "
+                f"esta no authors-manifest.json — autoria NAO VERIFICADA (rodar "
+                f"gen-authors-manifest.py)")
+            continue
+        if nome not in man[aid]["surnames"]:
+            fails.append(
+                f"{PAPER}:{ln}: prosa atribui arXiv:{aid} a `{nome} et al.`, que nao "
+                f"consta da autoria ({', '.join(man[aid]['surnames'][:6])})")
+    return fails
+
+
 GUARDAS = [
     fence_check,
     superlativo_check,
@@ -759,6 +811,7 @@ GUARDAS = [
     footnotes_check,
     censo_bibitem_check,
     bib_promessa_check,
+    autoria_inline_check,
 ]
 
 

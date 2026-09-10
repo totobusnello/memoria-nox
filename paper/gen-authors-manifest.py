@@ -45,7 +45,8 @@ def busca(aid: str) -> dict | None:
 
 def main() -> int:
     checar = "--check" in sys.argv
-    ids = sorted(set(re.findall(r"arXiv:(\d{4}\.\d{4,5})", PAPER.read_text())))
+    ids = sorted(set(re.findall(r"arxiv:\s*(\d{4}\.\d{4,5})",
+                            PAPER.read_text(), re.I)))
     print(f"IDs no manuscrito: {len(ids)}")
 
     ctl = busca(CONTROLE)
