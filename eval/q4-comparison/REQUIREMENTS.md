@@ -132,45 +132,37 @@ Adapter: `adapters/agentmemory.py` — REST `POST /agentmemory/remember` + `POST
 
 ---
 
-## 6. EverMind-AI (EverOS) — SKIPPED
+## 6. EverMind-AI (EverOS) — GAP, e a razão de 2026-05-23 estava ERRADA
+
+⚠️ **ERRATA 2026-09-10.** Esta seção dizia que o repo **não existia** (404 em 2026-05-23,
+cinco sondas). **Ele existe, e existia então.** As cinco sondas erraram do mesmo jeito:
+trocaram **org** e **repo**.
+
+| sonda de 2026-05-23 | resultado |
+|---|---|
+| `EverOS-AI/EverMind-AI` | 404 |
+| `EverMind-AI/EverMind-AI` | 404 |
+| `EverOS/EverMind` | 404 |
+| **`EverMind-AI/EverOS`** ← nunca tentada | **HTTP 200** |
+
+Medido 2026-09-10:
 
 | Field | Value |
 |---|---|
-| Repo | https://github.com/EverOS-AI/EverMind-AI — **DOES NOT EXIST** (404 on 2026-05-23 probe) |
-| License | N/A |
-| Stars | 0 (repo not found) |
-| Install | N/A |
+| Repo | https://github.com/EverMind-AI/EverOS — **12.856 ★**, Apache-2.0, push 2026-09-09 |
+| Org | `EverMind-AI` — HTTP 200, **16 repos públicos** (inclui `EverMemBench`, que o paper cita) |
+| Install | `pip install everos` → **v1.3.1** (PyPI HTTP 200); importa sem credencial |
+| Forma | README: *"Python library and **local-first** memory runtime"*, *"**No API key or server setup required**"* |
+| Embedding | agnóstico por protocolo OpenAI: nomeia **Ollama** e **vLLM** locais; DeepInfra é **um default** (`settings.py:403`), não requisito |
+| `docker-compose.yml` na raiz | **404** — o stack de 5 serviços que o paper conta em `[^everos-stack]` não está mais lá |
 
-**Probe results (2026-05-23) — SKIP:**
+🔑 **A lição do método, e é a que importa mais que o fato:** a conclusão *"não existe"*
+saiu de **enumerar nomes** em vez de **listar o espaço**. `GET /orgs/EverMind-AI/repos`
+responde de uma vez o que cinco palpites não responderam — e uma varredura que conclui
+ausência precisa de controle positivo, que aqui seria justamente listar a org.
 
-- `gh repo view EverOS-AI/EverMind-AI` → "Could not resolve to a Repository"
-- `curl https://api.github.com/repos/EverOS-AI/EverMind-AI` → 404
-- GitHub org `EverOS-AI` does not exist.
-- `pip install evermind-ai` → "No matching distribution found" (not on PyPI)
-- Searched all variants: `EverMind-AI/EverMind-AI`, `EverMindAI/EverMindAI`, `EverOS/EverMind` — none found.
-
-**What was found instead:**
-
-The 2026-05-19 audit memory (`[[everos-benchmark-publisher-competitor]]`) referenced a competitor
-that has since been made private, deleted, or the name was incorrectly captured. What exists in
-2026-05 public GitHub:
-
-- `evermemos/evermemos-python` — Python SDK for **EverMemOS cloud API** (`pip install evermemos`),
-  requires `EVERMEMOS_API_KEY`. Cloud-only, not self-hostable, no benchmark-runnable OSS core.
-- `evermindai/public_website` — marketing website only.
-- ~43 repos with "EverMemOS" in name — all are community integrations (OpenClaw plugins, MCP
-  wrappers), none are the core EverMemOS OSS engine itself.
-
-**Decision: SKIP agentmemory EverMind from Q4 run.**
-
-COMPARISON.md will show "no data" for EverMind with honest note: "repo unavailable / cloud-only".
-This does not affect the narrative — the key benchmark competitors (Mem0, Zep, Letta) are verified.
-agentmemory is the 4th system (now unblocked).
-
-Adapter: `adapters/evermind.py` — kept in repo for future use if repo surfaces; validate() returns
-`ok=False` cleanly (no crash). Runner skips it per spec §4 stop condition handling.
-
----
+**Status atual: GAP ainda aberto (não rodado), mas VIÁVEL.** Ver
+`paper/publication/spike-item6-2026-09-10.md`.
 
 ## Quick reference
 
