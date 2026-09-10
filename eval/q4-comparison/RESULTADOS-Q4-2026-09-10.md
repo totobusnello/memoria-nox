@@ -348,6 +348,54 @@ os dois casos.
 enunciado com outra. É propriedade do conjunto de queries, análoga aos 8 ids
 ambíguos do corpus, e não afeta contagem nem denominador.
 
+### 7.2 🔴 Confound de pipeline — e a sua magnitude NÃO é medida
+
+Levantado pela sessão par, e ela está certa que existe. Verifiquei na biblioteca
+instalada e o achado é **mais forte** do que "nós configurámos generosamente":
+
+```
+everos/service/knowledge.py:1264  def _require_search_providers() -> tuple[EmbeddingProvider, RerankProvider]
+everos/service/knowledge.py:1363      embedder, reranker = _require_search_providers()
+```
+
+⇒ **O EverOS recusa buscar sem reranker** (`ProviderNotConfiguredError`). Dar-lhe
+o `Qwen/Qwen3-Reranker-4B` não foi escolha nossa de generosidade — é a
+configuração **mínima viável** do sistema. É propriedade dos sistemas comparados,
+não do experimentador.
+
+Do outro lado, o adapter do nox-mem **não tem estágio de cross-encoder nenhum**:
+o que ele chama "rerank" é re-ordenação por RRF e multiplicação de score por
+vizinhança de 1-hop no KG (`adapters/nox_mem.py`, caminhos E+F+H). Logo a
+comparação confunde *arquitetura de retrieval* com *ter um cross-encoder no
+pipeline*.
+
+⚠️ **Mas a magnitude do confound é NÃO MEDIDA neste benchmark**, e afirmar que ela
+é "do tamanho do efeito" vai além do que temos. A única medição que possuímos do
+efeito de um cross-encoder neste sistema é de **outro** benchmark
+(EverMemBench, 5-batch) e por **outras** métricas:
+
+| categoria | Δ com cross-encoder |
+|---|---|
+| **overall** | **−0,96pp** |
+| hard-recall (multi-hop / high-level / temporal) | +1,6 a +2,6pp |
+| Memory Awareness (constancy / proactivity / update) | **−2,8 a −4,0pp** |
+
+Ela **não transfere** — benchmark diferente, métrica diferente, caminho de código
+diferente (produto, não este harness). Mas é a única evidência que temos sobre o
+tamanho da contribuição de um cross-encoder aqui, e ela não sustenta uma diferença
+de dois dígitos; sustenta ~1pp, com sinal negativo no agregado. Foi por isso que o
+cross-encoder foi enviado **opt-in** e não por omissão.
+
+⇒ **Como se resolveria:** acrescentar um estágio de cross-encoder ao adapter do
+nox-mem e correr o mesmo corpus. **Não é virar uma flag** — o estágio não existe
+neste harness. É código novo e uma corrida paga, logo é decisão de escopo do Toto,
+não minha.
+
+⇒ **Enquanto não for medido**, a frase correta declara o confound e diz que a
+magnitude é desconhecida. Dizer "é do tamanho do efeito" erra na direção de
+subdeclarar a nossa própria coluna, o que é a direção honesta de errar — mas
+continua a ser um número que a nossa evidência não produz.
+
 🔑 **Sobre o teto do §4:** o log do serviço mostra `hits=50` em todas as 2.482
 queries (100% de saturação do `rerank_n`), e o artefato tem `len(results) == 10`
 em todas. Não é contradição: 50 é o conjunto de candidatos que o reranker
