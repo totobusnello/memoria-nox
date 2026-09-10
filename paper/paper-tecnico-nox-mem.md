@@ -1402,11 +1402,11 @@ oversight.
 
 ### Related-systems references
 
-[^mem0]: mem0ai/mem0 — open-source memory layer for LLM agents (PostgreSQL + Qdrant backend, OpenAI embeddings by default). github.com/mem0ai/mem0. Used in §1.4, §6.3, Table 2.
+[^mem0]: Chhikara, Khant, Aryan, Singh & Yadav, *Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory*, arXiv:2504.19413, 2025. Implementation: `mem0ai/mem0` — open-source memory layer for LLM agents (PostgreSQL + Qdrant backend, OpenAI embeddings by default), github.com/mem0ai/mem0. Used in §1.4, §6.3, Table 2.
 
 [^letta]: Letta (formerly MemGPT) — agent-loop memory architecture with archival/recall memory separation. Original system paper: Packer et al., *MemGPT: Towards LLMs as Operating Systems*, arXiv:2310.08560. github.com/letta-ai/letta. Used in §1.4, §6.3, Table 2.
 
-[^zep]: Zep — temporal knowledge-graph memory service with summarization. github.com/getzep/zep. Requires one paid LLM key to boot (OpenAI by default, Anthropic selectable); embeddings may run keyless against its own local embedder service. Verified in the v0.27.2 source — see [^zep-stack]. Used in §1.4, §6.3, Table 2.
+[^zep]: Rasmussen, Paliychuk, Beauvais, Ryan & Chalef, *Zep: A Temporal Knowledge Graph Architecture for Agent Memory*, arXiv:2501.13956, 2025. Implementation: github.com/getzep/zep. Requires one paid LLM key to boot (OpenAI by default, Anthropic selectable); embeddings may run keyless against its own local embedder service. Verified in the v0.27.2 source — see [^zep-stack]. Used in §1.4, §6.3, Table 2.
 
 [^lightrag]: Guo et al., *LightRAG: Simple and Fast Retrieval-Augmented Generation*, EMNLP 2025 (HKU); arXiv:2410.05779. github.com/HKUDS/LightRAG (~35k stars, MIT). Cited in §1.4 as a KG-augmented baseline; §3.4 references its LLM-summarized incremental KG-merge pattern as a forward-looking optimization (LightRAG-style summarization parking-lotted until KG density >=10× current; see `docs/COMPETITIVE-ANALYSIS-2026-05-19.md`).
 
@@ -1414,7 +1414,7 @@ oversight.
 
 [^memo]: arXiv 2605.15156v2, *MeMo: Towards Language Models with Associative Memory Mechanisms* (parametric reflections folded into model weights). Cited as the design opposite of nox-mem's externalized, inspectable memory paradigm. §1.4, abstract.
 
-[^everos]: EverMind-AI / EverOS — github.com/EverMind-AI (~5k stars, Apache 2.0). Publishes EverMemBench dataset and an EvoAgentBench-framed evolution loop. The only memory-OS peer in our taxonomy that publishes its own benchmark; §3.4 is the direct narrative counter to EvoAgent framing. Honest-comparison action item: run nox-mem on EverMemBench (queued as F4 in §7.2).
+[^everos]: Hu, Gao, Zhou, Xu, Bai, Li, Zhang, Li, Zhang, Bing & Deng, *EverMemOS: A Self-Organizing Memory Operating System for Structured Long-Horizon Reasoning*, arXiv:2601.02163, 2026. Implementation: github.com/EverMind-AI (~5k stars, Apache 2.0). Publishes EverMemBench dataset and an EvoAgentBench-framed evolution loop. The only memory-OS peer in our taxonomy that publishes its own benchmark; §3.4 is the direct narrative counter to EvoAgent framing. Honest-comparison action item: run nox-mem on EverMemBench (queued as F4 in §7.2).
 
 ### Academic references
 
