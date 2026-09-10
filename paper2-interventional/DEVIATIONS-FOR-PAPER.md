@@ -2973,3 +2973,70 @@ isso significaria que a explicação desta retratação está errada.
 ⚠️ E o aviso do denominador sobrevive à correção: `presC` varia de 124 a 177 (razão
 1,43×), a anomalia de 09-06 existe **também** nesta variável dose-independente — logo não
 é causada pela dose — e continua **sem explicação**.
+
+## §10.28 — O evento terminal do ensaio escreve num recibo que nada lê, e sai `exit 0` até no RED
+
+**Achado em 2026-09-10, 11 dias antes do disparo.** Fui conferir as pré-condições do
+`desliga-dose-p2.sh` — o `ONESHOT` do cron (`43 9 21 9`) que encerra o ensaio — e o que
+apareceu não foi uma pré-condição frágil, foi a ausência de canal de entrega.
+
+- Toda saída do script passa por `recibo()`, que grava a linha em
+  `/var/lib/nox-mem/p2/status-desliga-dose.txt`, anexa ao NDJSON e **`exit 0`** — inclusive
+  nos ramos RED. O veredito viaja no **arquivo**; o código de saída não o carrega.
+- O `morning-report.sh` lê **seis** recibos p2: `composicao`, `coorte`, `corpus-alinhado`,
+  `designados`, `heartbeat`, `saturacao`. O sétimo **não está na lista**. E o
+  `/var/log/nox-p2-gatilhos.log` aparece apenas como destino de redirect nas linhas do
+  cron, nunca como fonte de leitura em script algum.
+- Evidência de que ninguém lê: um teste manual de **2026-09-09 17:42:31Z** deixou lá
+  `YELLOW p2-desliga-dose motivo=janela-ainda-aberta-faltam-279h`. O morning report da
+  manhã seguinte não o mencionou.
+
+**O dano não é perder um alarme.** As pré-condições do script **abortam** o desligamento
+quando falham. Se isso acontecer calado, o drop-in `zz-p2-active.conf` fica no lugar,
+`NOX_P2_OUTCOME` segue `active`, e o ensaio **continua dosando depois do fim
+pré-registrado** — contaminando a fronteira dos 234 epochs, que é exatamente o objeto do
+§10.22.
+
+### Por que o helper existente não serve
+
+`p2_gatilho <rótulo> <arquivo> <idade_max_h>` marca YELLOW quando `idade > max`, com a
+mensagem *"gatilho parado?"*. O status de um one-shot é velho **por desenho** depois de
+disparar: um GREEN de 21/09 lido em 25/09 tem 96 h. Registrar o sétimo recibo pelo helper
+produziria YELLOW todo dia — hoje inclusive, porque o resíduo de ontem tem ~21 h. **Recibo
+de evento único não cabe em teste de idade.**
+
+### A perna, e a mutação que a prende
+
+Três ramos, não um limiar:
+
+| ramo | predicado | veredito |
+|---|---|---|
+| 1 | agora < 2026-09-21T09:43Z | silêncio — não é devido |
+| 2 | recibo presente | prefixo `GREEN*` passa; qualquer outro é RED |
+| 3 | **recibo ausente E agora ≥ o prazo** | **RED** — o oneshot não rodou |
+
+O ramo 3 existe porque, depois do prazo, *"recibo ausente"* e *"nada a fazer"* deixam de
+ser o mesmo estado — a mesma classe do §10.9 e da regra 9 do `CLAUDE.md`.
+
+Verificado em cinco casos contra o arquivo montado: `GREEN`+prazo passado → `RED=0`;
+não-GREEN+prazo passado → `RED=1`; ausente+prazo passado → `RED=1`; ausente+prazo aberto →
+`RED=0`; e **o resíduo YELLOW real de hoje** → `RED=0`, isto é, aplicar a perna **não muda o
+report de hoje**. Mutação (apagar o ramo 3): mutante válido — 368→365 linhas, ocorrências de
+`recibo AUSENTE` 1→0 — e o caso "ausente+prazo passado" cai de `RED=1` para `RED=0`, com a
+assinatura de um contador **negativo** de horas restantes (`faltam -1h`).
+
+### Estado, e o que ficou medido de bom
+
+As demais pré-condições **passam hoje**, conferidas 11 dias antes em vez de descobertas na
+hora: a cópia do corpus servido bate no sha esperado (`23378a9e…`, 1.254.526.976 B, modo
+400), o drop-in existe, e `NOX_P2_OUTCOME=active`. E a idempotência do script é **por
+estado, não por recibo** — `recibo()` sobrescreve com `>` e uma re-execução após sucesso
+morre na pré-condição do drop-in já arquivado. Logo o resíduo YELLOW de ontem **não**
+desarma o disparo de 21/09; seria sobrescrito.
+
+**Desvio permanece aberto.** O patch está verificado mas **não aplicado**: o
+`morning-report.sh` está sob congelamento de hash acordado entre as duas sessões
+(`20a5b63fda32c93b`) enquanto o ensaio corre, e a escrita em script de produção foi barrada.
+Registrado aqui porque o achado é independente do conserto: durante os 234 epochs, o único
+evento terminal do ensaio esteve sem canal de entrega.
+
