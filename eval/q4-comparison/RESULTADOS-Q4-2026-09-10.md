@@ -39,15 +39,29 @@ do recibo a marcar 2,03 s/doc e um ETA cego à mudança de regime.
 
 ## 2. Retenção por adapter — o denominador não é o mesmo nas quatro
 
-| coluna | retenção | mecanismo | como foi medida |
-|---|---|---|---|
-| nox-mem | **6.822** | `INSERT OR IGNORE INTO eval_chunks(id,…)` | contagem na tabela |
-| **EverOS** | **6.822** | `DuplicateDocumentError` no 2º write do id | `SELECT COUNT(*) FROM knowledge_documents` **após o sync final** |
-| mem0 | **6.830** | sem dedupe (6.822 `chunk_id` distintos) | contagem no store |
-| Zep | **6.830** | sem dedupe | `COUNT(*)` em `message` no Postgres (`-U zep -d zep`; 6.830 linhas e 6.830 em `message_embedding`) |
+> 🔴 **A coluna `corrida` não é decoração.** As quatro medições vêm de **duas
+> populações**: nox-mem e mem0 são do **rc4** (2026-06-15), EverOS e Zep são da
+> corrida de **2026-09-10**. Juntá-las numa tabela sem nomear a corrida por
+> linha convida a ler o 6.822 do EverOS como número do rc4 — e foi o que a
+> minha primeira versão desta tabela fez. Comparar mecanismos entre corridas é
+> legítimo; atribuir os números à mesma população não é.
 
-⇒ **2 contra 2.** O EverOS chega ao mesmo 6.822 do nox-mem por mecanismo
-**diferente** — erro explícito em vez de ignorar em silêncio. Qual dos dois
+| coluna | corrida | retenção | mecanismo | como foi medida |
+|---|---|---|---|---|
+| nox-mem | **rc4**, 2026-06-15 | **6.822** | `INSERT OR IGNORE INTO eval_chunks(id,…)` | contagem na tabela |
+| mem0 | **rc4**, 2026-06-15 | **6.830** | sem dedupe (6.822 `chunk_id` distintos) | contagem no store |
+| **EverOS** | **2026-09-10** | **6.822** | `DuplicateDocumentError` no 2º write do id | `SELECT COUNT(*) FROM knowledge_documents` **após o sync final** |
+| **Zep** | **2026-09-10** | **6.830** | sem dedupe | `COUNT(*)` em `message` no Postgres (`-U zep -d zep`; 6.830 linhas e 6.830 em `message_embedding`) |
+
+⇒ **Dois sistemas, dois mecanismos, um número.** O EverOS chega ao mesmo 6.822
+do nox-mem por caminho **diferente** — erro explícito em vez de ignorar em
+silêncio — o que faz de 6.822 a consequência de **honrar a unicidade do id**, e
+não idiossincrasia do nosso loader.
+
+⚠️ Isto **não** diminui a assimetria do rc4: lá, dentro da mesma corrida, o
+nox-mem retinha 6.822 contra os 6.830 do mem0, e essa comparação continua de pé
+com a sua própria população. O EverOS é evidência sobre o **mecanismo**, não uma
+quarta coluna do confound (e). Qual dos dois
 documentos de um id colidido sobrevive depende da **ordem de ingestão** nas duas
 colunas que deduplicam, e isso é desfavorável a nós tanto quanto ao EverOS.
 
