@@ -444,3 +444,45 @@ def test_teardown_mirrors_upstream_finally():
     nosso = ADAPTER.read_text()
     corpo = nosso[nosso.index("async def _encerra(") :]
     assert corpo.index("shutdown()") < corpo.index("dispose_engine()")
+
+
+# ── 8. o extractor tem de existir no MÓDULO, não numa variável local ─────────
+
+
+def test_setup_populates_the_module_level_extractor(ad, monkeypatch):
+    """Com o gate ligado, `setup()` tem de deixar `_extractor` no MÓDULO.
+
+    Este é o teste que faltava. O bloco que construía o extractor ficou, por uma
+    edição, dentro de `_bootstrap()` — função sem `global _extractor`. Python
+    aceitou a atribuição como LOCAL, em silêncio, e `_extractor` continuou `None`.
+    A suíte ficou verde porque todos os casos passavam por `ingest_corpus()`, que
+    tinha um caminho de reparo; um script chamando `create_document` direto morria
+    em `'NoneType' object has no attribute 'aextract'`, 5.815 vezes.
+    """
+    monkeypatch.setenv("EVEROS_ALLOW_PAID_INGEST", "1")
+    assert ad._extractor is None, "fixture deve começar sem extractor"
+    ad.setup()
+    assert ad._extractor is not None, (
+        "setup() com o gate ligado não populou o módulo — provavelmente a "
+        "atribuição caiu numa função sem `global _extractor`"
+    )
+    assert hasattr(ad._extractor, "aextract"), "não é um KnowledgeExtractor"
+
+
+def test_extractor_accessor_is_the_only_builder(ad):
+    """Só um lugar constrói o extractor — caminho de reparo mascara defeito.
+
+    Se `KnowledgeExtractor(` aparecer fora de `extractor()`, existe um segundo
+    construtor, e um deles pode curar em silêncio o defeito do outro.
+    """
+    src = ADAPTER.read_text()
+    corpo_acessor = src[src.index("def extractor(") : src.index("async def _bootstrap(")]
+    assert corpo_acessor.count("_Extractor(llm=") == 1
+    assert src.count("_Extractor(llm=") == 1, "há mais de um construtor de extractor"
+
+
+def test_extractor_accessor_is_idempotent(ad, monkeypatch):
+    monkeypatch.setenv("EVEROS_ALLOW_PAID_INGEST", "1")
+    ad.setup()
+    primeiro = ad.extractor()
+    assert ad.extractor() is primeiro, "reconstruir por chamada gastaria cliente novo"

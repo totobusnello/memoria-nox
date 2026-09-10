@@ -252,6 +252,33 @@ def setup() -> None:
     # vez de ficar invisível.
     _loop.run_until_complete(_bootstrap())
 
+    if os.environ.get("EVEROS_ALLOW_PAID_INGEST"):
+        extractor()
+
+
+def extractor() -> Any:
+    """Extractor de conhecimento, construído uma vez. ACESSOR ÚNICO.
+
+    ⚠️ Este acessor existe porque a alternativa já falhou: o bloco que construía o
+    extractor ficou, por uma edição minha, DENTRO de `_bootstrap()`, que não declara
+    `global _extractor`. Python aceitou a atribuição como variável LOCAL, em silêncio,
+    e `_extractor` continuou `None` no módulo.
+
+    E o defeito ficou invisível porque `ingest_corpus()` tinha um caminho de REPARO
+    (`if _extractor is None: reconstrói`). O preflight passa por lá e curava-se; um
+    script que chama `create_document` direto morria em
+    `'NoneType' object has no attribute 'aextract'` — 5.815 falhas instantâneas.
+    Caminho de reparo encobrindo defeito do caminho principal: o reparo saiu, este
+    acessor é agora o único lugar que constrói.
+    """
+    global _extractor
+    if _extractor is None:
+        from everalgo.knowledge import KnowledgeExtractor as _Extractor
+        from everos.component.llm.client import get_llm_client
+
+        _extractor = _Extractor(llm=get_llm_client())
+    return _extractor
+
 
 async def _bootstrap() -> None:
     """Sobe sqlite + lancedb como o lifespan da API faz."""
@@ -270,14 +297,6 @@ async def _bootstrap() -> None:
     await connect()
     await verify_business_schemas()
     await ensure_business_indexes()
-
-    # Extractor is only needed for ingest; building it here surfaces a bad LLM
-    # config at setup time instead of after the first paid call.
-    if os.environ.get("EVEROS_ALLOW_PAID_INGEST"):
-        from everalgo.knowledge import KnowledgeExtractor as _Extractor
-        from everos.component.llm.client import get_llm_client
-
-        _extractor = _Extractor(llm=get_llm_client())
 
 
 def ingest_corpus(chunks: Iterable[dict]) -> dict:
@@ -309,11 +328,7 @@ def ingest_corpus(chunks: Iterable[dict]) -> dict:
 
     setup()
     assert _loop is not None and _knowledge_dir is not None
-    if _extractor is None:  # gate flipped after setup() already ran
-        from everalgo.knowledge import KnowledgeExtractor as _Extractor
-        from everos.component.llm.client import get_llm_client
-
-        globals()["_extractor"] = _Extractor(llm=get_llm_client())
+    extr = extractor()  # acessor único; ver o docstring de `extractor()`
 
     from everalgo.types import ParsedContent
     from everos.service.knowledge import create_document
@@ -325,7 +340,7 @@ def ingest_corpus(chunks: Iterable[dict]) -> dict:
         try:
             result = _loop.run_until_complete(
                 create_document(
-                    extractor=_extractor,
+                    extractor=extr,
                     parsed=ParsedContent(text=c["text"]),
                     title=str(c["id"]),
                     knowledge_dir=_knowledge_dir,
