@@ -614,6 +614,78 @@ def footnotes_check(root: Path) -> list[str]:
     return fails
 
 
+# ── (11) alegação UNIVERSAL sobre a literatura, e promoção retórica ──────────────
+#
+# Duas classes que o diagnóstico do arXiv de 09-09 nomeou e que a suíte não via:
+#
+#  (a) universal sobre o publicado — "no published competitor reports X". Não é
+#      verificável sem survey exaustivo, e é dispensável: o fato medido sustenta-se só.
+#      Aceita-se apenas se a frase NOMEAR o conjunto comparado (então é bounded).
+#  (b) palavra promocional sobre trabalho próprio ("breakthrough"). O paper critica
+#      exactamente essa retórica no §7.1, citando um "breakthrough" passado como
+#      exemplo cautelar.
+#
+# ⚠️ E a isenção de (b) tem de ancorar no FATO MEDIDO, nunca em palavra-chave: uma das
+# três ocorrências é **citação de um overclaim sendo retratado** (*"labelled
+# 'breakthrough'; the 5-batch reality was +1.61 pp"*). Substring não distingue afirmar
+# de citar, e apagar essa linha destruiria a passagem de honestidade. A isenção exige
+# que a MESMA frase carregue a retratação — o número de 5 batches contra o de 1.
+UNIVERSAL = re.compile(
+    r"\bno published (?:competitor|system|work)\b|\bno other system\b|"
+    r"\bno competitor (?:reports|achieves|matches)\b|\bnenhum competidor\b",
+    re.I,
+)
+# Conjunto nomeado: a frase cita quem foi comparado, logo a alegação é limitada.
+# ⚠️ `\bamong\b` sozinho era buraco, e uma mutação minha caiu nele por acidente:
+# *"Among all memory systems, no published competitor reports…"* é um universal, e a
+# palavra `among` isentava-o. O quantificador universal tem de EXCLUIR a isenção.
+CONJUNTO_NOMEADO = re.compile(
+    r"\bamong the (?:\w+ )?(?:systems|models)\b(?![^.;]*\ball\b)|"
+    r"\bof the (?:\w+ )?systems (?:we|compared)\b|\bin our comparison set\b|"
+    r"\bthe \w+ systems benchmarked\b|\bcompared here\b|\bamong the \w+ compared\b",
+    re.I,
+)
+UNIVERSAL_ABSOLUTO = re.compile(r"\ball (?:memory )?systems\b|\bany published\b|\bever\b", re.I)
+PROMOCIONAL = re.compile(r"\bbreakthrough\b", re.I)
+# Num paper de sistema único, presume-se trabalho PRÓPRIO; isenta quem nomeia
+# terceiro. Usar `PROPRIO` aqui (nox-mem|our|we) deixava passar a prosa que descreve o
+# próprio mecanismo sem dizer "we" — previ 3 capturas e obtive 2, e a falha apontou isto.
+TERCEIRO = re.compile(
+    r"\bmem0\b|\bLetta\b|\bZep\b|\bEver(?:OS|Mind|MemBench)\b|\bLightRAG\b|"
+    r"\bMeMo\b|\bMemOS\b|\bHippoRAG\b|\bLangMem\b|\bagentmemory\b|"
+    r"\bMemMachine\b|\bmemanto\b",
+    re.I,
+)
+# Marca de retratação: a frase reporta o desmentido POR MEDIÇÃO (5-batch contra 1).
+RETRATACAO = re.compile(
+    r"5-batch reality|labelled\s+\S{0,2}breakthrough|overstatement|"
+    r"would have been overclaimed",
+    re.I,
+)
+
+
+def universal_check(root: Path) -> list[str]:
+    """Universal sobre a literatura precisa de conjunto nomeado; promoção precisa de retratação."""
+    md = (root / PAPER).read_text()
+    fails = []
+    for ln, linha in _linhas_de_prosa(md):
+        for f in _frases(linha):
+            if UNIVERSAL.search(f) and (
+                UNIVERSAL_ABSOLUTO.search(f) or not CONJUNTO_NOMEADO.search(f)
+            ):
+                fails.append(
+                    f"{PAPER}:{ln}: universal sobre a literatura sem conjunto "
+                    f"nomeado — `{f.strip()[:88]}`"
+                )
+            if (PROMOCIONAL.search(f) and not TERCEIRO.search(f)
+                    and not RETRATACAO.search(f)):
+                fails.append(
+                    f"{PAPER}:{ln}: palavra promocional sobre trabalho próprio sem "
+                    f"retratação na frase — `{f.strip()[:88]}`"
+                )
+    return fails
+
+
 GUARDAS = [
     fence_check,
     superlativo_check,
@@ -625,6 +697,7 @@ GUARDAS = [
     aritmetica_check,
     populacao_check,
     footnotes_check,
+    universal_check,
 ]
 
 
