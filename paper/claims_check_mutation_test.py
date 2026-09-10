@@ -202,6 +202,28 @@ CASOS = [
         "nao existe mais no manuscrito",
     ),
     (
+        # O manuscrito trazia `arxiv:2402.17753` em MINUSCULAS (o LoCoMo, benchmark
+        # central do §6) e a perna de autoria casava `arXiv:` case-sensitive. A/B
+        # medido: com re.I a autoria inventada e' apanhada; sem, escapa inteira —
+        # e os nomes deste caso sao os MESMOS tres que o #519 achou inventados.
+        "footnote com id em MINUSCULAS e autoria inventada",
+        PAPER, None,
+        "\nA prior benchmark[^mut-caixa] motivates this.\n"
+        "\n[^mut-caixa]: Yin, Ni & Peng, *Evaluating Very Long-Term Conversational "
+        "Memory of LLM Agents*, ACL 2024. arxiv:2402.17753.\n",
+        "nao constam da autoria",
+    ),
+    (
+        # A perna de autoria do footnotes_check varre so corpos de footnote. As 11
+        # linhas de PROSA que citam id com o autor ao lado nao passavam por perna
+        # alguma — foi como 2402.17753 ficou fora do manifesto sem alarme.
+        "prosa atribui id arXiv a autor que nao consta",
+        PAPER,
+        "LoCoMo (Maharana et al. 2024; arxiv:2402.17753)",
+        "LoCoMo (Yin et al. 2024; arxiv:2402.17753)",
+        "nao consta da autoria",
+    ),
+    (
         # A entrada do NOSSO sistema prometia "update with arXiv ID after
         # submission" enquanto o CITATION.cff registra a ausencia no arXiv como
         # FATO, nao tarefa. Duas fontes do mesmo repo em contradicao, e a que o
