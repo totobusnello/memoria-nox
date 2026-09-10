@@ -41,7 +41,9 @@ Saída binária, no padrão do Paper A: 0 = limpo, 1 = divergência(s) em stderr
 from __future__ import annotations
 
 import argparse
+import json
 import re
+import unicodedata
 import sys
 from pathlib import Path
 
@@ -597,6 +599,67 @@ def footnotes_check(root: Path) -> list[str]:
             f"{PAPER}: footnote `[^{k}]` e' definida e nunca citada — "
             f"referencia nao usada e' enchimento de bibliografia"
         )
+
+    # (3) CORRESPONDENCIA: os sobrenomes ao lado do localizador sao os da obra?
+    #
+    # Esta perna existe porque as pernas (1) e (2) passaram VERDES sobre tres
+    # footnotes com autoria inventada (2026-09-10): [^longmemeval] dizia
+    # "Yin, Ni, Peng" numa autoria de seis nomes que nao os contem, [^hipporag2]
+    # dizia "Yasunaga, Gu" onde sao "Qi, Zhou", e [^beamretrieval] dizia
+    # "Yin & Zhang" onde sao "Liu & Huang". Exigir a PRESENCA de um identificador
+    # nao verifica a CORRESPONDENCIA dele com os nomes ao lado — e a ironia e que
+    # a propria [^hipporag2] avisava que "uma referencia irresolvivel e
+    # indistinguivel de uma inventada" enquanto carregava dois nomes inventados.
+    #
+    # Roda OFFLINE contra paper/authors-manifest.json, gerado por
+    # paper/gen-authors-manifest.py (que vai a rede) e commitado. Isso e
+    # deliberado: guarda de CI que depende de rede falha por rede e ensina a
+    # ignorar o guarda.
+    #
+    # ⚠️ ID ausente do manifesto NAO conta como aprovado: e reportado como
+    # NAO-VERIFICADO. Ausencia de dado nao e ausencia de problema.
+    man_path = root / "authors-manifest.json"
+    if not man_path.exists():
+        fails.append(f"{PAPER}: paper/authors-manifest.json ausente — "
+                     f"a perna de correspondencia de autoria nao pode correr")
+    else:
+        man = json.loads(man_path.read_text())
+        # tokens que parecem nome proprio mas nao sao autor
+        NAO_AUTOR = {
+            "Letta", "MemGPT", "Original", "Implementation", "Used", "Requires",
+            "Verified", "Named", "Source", "Counts", "Google", "OpenAI", "Anthropic",
+            "The", "This", "And", "Its", "Graph", "Code", "Data", "Cited",
+        }
+        def normaliza(x: str) -> str:
+            x = unicodedata.normalize("NFKD", x)
+            x = "".join(c for c in x if not unicodedata.combining(c))
+            return re.sub(r"[^a-z]", "", x.lower())
+
+        for d in re.finditer(r"^\[\^([A-Za-z0-9_-]+)\]:(.*)$", md, re.M):
+            chave, corpo = d.group(1), d.group(2)
+            aids = re.findall(r"arXiv:(\d{4}\.\d{4,5})", corpo)
+            if not aids:
+                continue
+            # os nomes vivem antes do titulo em *italico*
+            pre = corpo.split("*")[0]
+            nossos = [n for n in re.findall(r"\b([A-Z][A-Za-z'\u2019-]+)\b", pre)
+                      if n not in NAO_AUTOR and len(n) >= 2]
+            if not nossos:
+                continue
+            for aid in aids:
+                if aid not in man:
+                    fails.append(
+                        f"{PAPER}: footnote `[^{chave}]` cita arXiv:{aid} que NAO esta no "
+                        f"manifesto — autoria NAO VERIFICADA (rode paper/gen-authors-manifest.py)"
+                    )
+                    continue
+                reais = {normaliza(a) for a in man[aid]["surnames"]}
+                orfaos = [n for n in nossos if normaliza(n) not in reais]
+                if orfaos:
+                    fails.append(
+                        f"{PAPER}: footnote `[^{chave}]` nomeia {orfaos} que nao constam da "
+                        f"autoria de arXiv:{aid} ({', '.join(man[aid]['surnames'])})"
+                    )
 
     # (2) so o bloco academico
     m = re.search(r"^### Academic references$(.*?)^### ", md, re.M | re.S)
