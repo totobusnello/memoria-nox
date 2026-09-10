@@ -539,20 +539,42 @@ da classe **guarda cujo predicado exige o dado que falta**.
 `paper/paper-tecnico-nox-mem.md` — **1.600 linhas, 27.157 palavras**. Não existe PDF em
 `paper/`; o rebuild é passo próprio.
 
-**🔴 Achado novo, e ele não é typo — é confundidor declarado que não existe.**
+**✅ RESOLVIDO 2026-09-10 — e o veredito é "inverificável", não "typo".** O aviso que
+estava aqui ("não reescrever para o que convém") acertou: a conclusão conveniente não se
+sustenta.
 
-| onde | o que diz |
-|---|---|
-| linha **1069** (tabela) | `mem0ai==0.1.114` / `0.1.114` |
-| `output/rc4/mem0.json` → `meta.version` | `mem0ai==0.1.114` |
-| linha **1134** (prosa) | *"the Mem0 client changed major version … (0.1.x → 2.0.10)"* |
+| onde | o que diz | o que isso É |
+|---|---|---|
+| tabela §6.2 | `mem0ai==0.1.114` | o **pin declarado** |
+| `output/rc4/mem0.json` → `meta.version` | `mem0ai==0.1.114` | **o mesmo pin**, ecoado pelo adapter |
+| prosa §6.3.2 (antes) | *"0.1.x → 2.0.10"* | o pin **pós-corrida**, lido como se fosse a corrida |
 
-A tabela do paper e o artefato **concordam** em 0.1.114 — que **é** 0.1.x. Só a prosa
-afirma 2.0.10, e a usa como **confundidor residual (a)** para explicar a inversão do rc4.
-⚠️ Corrigir isso **remove** um confundidor e faz o resultado ficar **mais forte** — logo
-merece mais suspeita, não menos. Antes de editar: estabelecer qual versão o rc4 de fato
-rodou (o `meta` é evidência; a §6.3 canônica **não tem artefato**, então a metade "canonical
-usou 0.1.x" é inverificável nos dois sentidos). Não reescrever para o que convém.
+Tabela e artefato **não se corroboram — são uma fonte só.** O `meta.version` recebe o
+`VERSION_PIN` do adapter (intenção); quem lê o `mem0.__version__` real é o `validate()`, e
+a saída dele **nunca foi persistida**.
+
+O que ficou medido:
+
+- `VERSION_PIN` virou `2.0.10` em **b34ecca, 2026-06-29T18:44:38Z** — **3h47 depois** do
+  `finished_at` da corrida (14:57:04Z). O dual-compat (`filters=`, `try/except`) veio em
+  **7da11c6, 16:47:58Z**, 1h51 depois. No commit vigente ao fim da corrida (`a6e7e4d`) o
+  adapter só falava 0.1.x e o pin dizia `0.1.114`. Ou seja: o `2.0.10` da prosa descreve o
+  repositório **depois** da corrida.
+- Isso **não decide**, porque em v2.0.10 `search`/`get_all` são keyword-only **com
+  `**kwargs`**: `search(query=…, user_id=…, limit=k)` seria **engolido em silêncio**, não
+  rejeitado. Logo `n_errors: 0` sobre n=2.482 é compatível com as duas versões.
+- E o discriminador óbvio — comprimento da lista devolvida — morre no `items[:k]` do
+  próprio adapter: as 2.482 queries dão exatamente 10 **por construção**, não por resposta
+  do mem0.
+
+⚠️ **O risco é maior do que "drift".** Se 2.0.x estava instalado, `user_id` e `limit` foram
+descartados ⇒ busca com `filters=None` (sem filtro) e `top_k=20`. Isso tornaria a coluna do
+mem0 no rc4 **inválida**, não apenas deslocada. Não afirmamos que aconteceu; registramos que
+os artefatos não excluem.
+
+§6.3.2, README, COMPARISON e REQUIREMENTS reescritos nesse sentido — o confundidor (a) saiu
+**mais forte**, não mais fraco. Requisito para qualquer corrida futura: persistir o
+`mem0.__version__` de runtime em `meta`, **ao lado** do pin, não em vez dele.
 
 **Sweep de forma — contagens de hoje** (as de memória tinham envelhecido: `Dnn` era 79,
 agora 80; rótulos de fase era 207, agora 196):
@@ -1815,7 +1837,7 @@ O `prune-claude-sessions.sh` roda 04:23 BRT — entre a passada das 03:40 e a da
 **Paper `v1.0.0` frozen + repo PÚBLICO e polido. arXiv submetido até o gate de endorsement.** (Detalhe técnico do paper preservado nos bullets abaixo.)
 
 - **§5 — 12 dimensões SOTA** (EverMemBench 5-batch, MuSiQue, HotPotQA, LoCoMo, LongMemEval cross-bench, produção). Sustenta o paper sozinha.
-- **§6 — Q4 head-to-head FEITO + controlled-embedding (rc4) FEITO.** §6.3 (canonical n=100, 06-15): split honesto as-configured — nox ganha LME (0.5234 vs 0.4764), Mem0 ganha LoCoMo (0.4686 vs 0.4263). **§6.3.2 nova (rc4, 06-29, ambos Gemini 3072d, full n=2.482): o split inverte — nox supera o mem0 em AMBOS** (LME 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407; overall 0.5013 vs 0.4337) **e as 5 categorias** (§6.4 preenchido = rc2 done). 3 confounds residuais declarados (mem0 0.1.x→2.0.10; backend faiss→Chroma; sample scope). **Task-type ablacionado (06-30):** nox com embedding genérico (sem task-type, igual ao mem0) cai só −0.34 pp (0.4979) e ainda ganha em tudo → confound (d) neutralizado, vitória é arquitetural. Zep/Letta/EverMind = 3 gaps documentados.
+- **§6 — Q4 head-to-head FEITO + controlled-embedding (rc4) FEITO.** §6.3 (canonical n=100, 06-15): split honesto as-configured — nox ganha LME (0.5234 vs 0.4764), Mem0 ganha LoCoMo (0.4686 vs 0.4263). **§6.3.2 nova (rc4, 06-29, ambos Gemini 3072d, full n=2.482): o split inverte — nox supera o mem0 em AMBOS** (LME 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407; overall 0.5013 vs 0.4337) **e as 5 categorias** (§6.4 preenchido = rc2 done). 3 confounds residuais declarados (versão do mem0 **não registrada** — corrigido 2026-09-10, o artefato guarda o pin e não o `mem0.__version__`; backend faiss→Chroma; sample scope). **Task-type ablacionado (06-30):** nox com embedding genérico (sem task-type, igual ao mem0) cai só −0.34 pp (0.4979) e ainda ganha em tudo → confound (d) neutralizado, vitória é arquitetural. Zep/Letta/EverMind = 3 gaps documentados.
 - **D2 (brief diversity) FECHADO** — coverage-sampling `active`, gate 24h 100% (190 chunks / 184-de-184 files), §3.5 cravado.
 - **HyDE testado e REJEITADO** (−2.72pp overall, 06-27) — não entra como feature; `eval/*/RESULTS-HYDE.md` cravados.
 - **prod v3.8** — 94.9k chunks, ~99.99% vector coverage, salience `active`.

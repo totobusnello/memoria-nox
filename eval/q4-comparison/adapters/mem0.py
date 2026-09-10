@@ -48,7 +48,12 @@ from pathlib import Path
 from typing import Any, Iterator
 
 NAME = "mem0"
-VERSION_PIN = "mem0ai==2.0.10"  # rc4 (2026-06-29); API changed from 0.1.x (search/get_all)
+# ATENCAO: este pin foi elevado a 2.0.10 em 2026-06-29T18:44:38Z, 3h47 DEPOIS de o rc4
+# terminar (finished_at 14:57:04Z) — ele NAO descreve a versao que o rc4 rodou, e o
+# `meta.version` do artefato ecoa este literal (intencao), nao o `mem0.__version__`
+# (estado). A versao real do rc4 e inverificavel; ver §6.3.2 do paper. Corrida futura
+# deve persistir o `mem0.__version__` lido em validate() ao lado deste pin.
+VERSION_PIN = "mem0ai==2.0.10"  # declarado para corridas NOVAS; API 2.0.x (search/get_all)
 # Default (as-configured) embedder is OpenAI → OPENAI_API_KEY. Under the rc4
 # all-Gemini variant the embedder is repointed via lib/all_gemini_config and the
 # requirement becomes GOOGLE_API_KEY (or GEMINI_API_KEY); see §6.3.2.

@@ -44,6 +44,14 @@ so the only setup cost is the OpenAI key.
 
 Adapter: `adapters/mem0.py` — `from mem0 import Memory; Memory().search(...)`.
 
+> **⚠️ Requisito de recibo (2026-09-10).** `meta.version` do artefato hoje recebe o
+> `VERSION_PIN` do adapter — **intenção**, não estado. `validate()` já lê o
+> `mem0.__version__` real, mas a saída dele nunca foi persistida, e por isso a versão
+> que o rc4 (2026-06-29) de fato rodou é **inverificável** — ver §6.3.2 do paper.
+> Qualquer corrida futura deve gravar o `mem0.__version__` de runtime em `meta`, ao
+> lado do pin, e não em vez dele. Sem isso, tabela e artefato continuam sendo **uma**
+> fonte, e a concordância entre eles não corrobora nada.
+
 ---
 
 ## 3. Zep (getzep)
