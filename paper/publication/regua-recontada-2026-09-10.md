@@ -66,15 +66,45 @@ Com 30 referências fixas, a razão é função só do tamanho:
 (Wave A/B/C, D48, IterB/IterC), não o resultado que o leitor precisa. É o mesmo gênero dos
 apêndices C-G, que já saíram por #494: processo interno, não material experimental.
 
-## O alvo, aritmético e verificável
+## O alvo — e a retratação da minha própria aritmética
 
-1. **§5.1 + §5.5 → suplemento**, preservando os números-manchete numa tabela: −5.159
-   palavras ⇒ **18.846** (deixa de ser o mais longo) e razão **1,59**.
-2. **+6 referências reais** ⇒ 36 refs a 18.846 palavras = **1,91/mil**, dentro da faixa.
-   O diagnóstico registra ~25 IDs de 2025-26 da vizinhança ainda não citados, e a corrida
-   do EverOS (item 6, em execução) traz citação própria.
+> 🔴 **A projeção abaixo, publicada por mim mais cedo hoje, estava ERRADA.** Ela dizia:
+> *"§5.1 + §5.5 → suplemento: −5.159 palavras ⇒ 18.846 e razão 1,59"*. **§5.1 não pode
+> sair.** §5.1.2 (salience aditiva) e §5.1.3 (`section_boost`) são a evidência do **próprio
+> título** do paper, e §5.1.9/§5.1.10 são citadas **12** e **17** vezes como premissa do
+> resto do texto. Eu tratei "5.159 palavras" como se fossem fungíveis; metade delas é
+> carga estrutural. O erro é de espécie, não de conta.
 
-Isso fecha os itens 1, 3 e 5 do plano do diagnóstico por medição, não por opinião.
+**O que de fato saiu** (PR #508): §5.1.11–§5.1.12 (433 palavras, **zero** citações) e
+§5.5.4–§5.5.8 (1.534 palavras, o bloco Wave 2), verbatim, para
+`supplement-wave2-and-cross-backbone.md`, com **stub por anchor** carregando o
+número-manchete — 31 anchors §5.x citados, todos resolvem, zero pendurados.
+
+| | antes | **depois (medido)** | aceitos |
+|---|---:|---:|---|
+| palavras de prosa | 24.005 | **22.469** | 5.787–18.956 |
+| refs / 1.000 palavras | 1,25 | **1,34** | 1,90–2,69 |
+| × o mais longo aceito | 1,27 | **1,19** | 1,00 |
+| §5.5 | 2.391 | **1.219** (−49%) | — |
+
+⚠️ A mensagem do commit mergeado no #508 diz **22.487** palavras e razão **1,33** — foi
+contada antes do ajuste final de um stub, e a emenda não chegou ao remoto antes do merge.
+O valor medido é **22.469 / 1,34**; o corpo do PR já carrega a errata, e este documento é
+a referência.
+
+**O que resta para entrar na faixa**, agora com números reais:
+
+| alavanca | efeito |
+|---|---|
+| chegar a 18.956 (deixar de ser o mais longo) | faltam **3.513** palavras |
+| chegar a 1,90 refs/mil com 30 refs | faltam **6.680** palavras (alvo 15.789) |
+| chegar a 1,90 refs/mil a 22.469 palavras | faltam **13 referências** (alvo 43) |
+| combinação plausível | cortar ~3.500 fora de §5.1/§5.5 **e** somar ~7 refs ⇒ 37 refs a 18.969 = **1,95** |
+
+Os candidatos de corte fora de §5.1/§5.5, medidos: §6 (4.527), §7 Limitations (1.900),
+§5.8 metodologia (1.250). A corrida do EverOS (item 6) traz citação própria e reforça §6,
+o que empurra na direção oposta em palavras — é trade-off a decidir com o número na mão,
+não antes.
 
 ## O que a bibliografia ainda tem de defeito, e é pequeno
 
