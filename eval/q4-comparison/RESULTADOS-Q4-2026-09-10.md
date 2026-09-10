@@ -179,6 +179,55 @@ server in this stack"*, e não há bloco `NLP` no `zep-config.yaml`. O Zep 0.27.
 de **comparabilidade** — embedar com `text-embedding-3-small` a 1536d como as
 outras colunas —, não restrição do Zep.
 
+### 5.4 Superfície paga por query, e o que ela custou
+
+Simétrica à do EverOS (§4): declarada pela **configuração em serviço**, não por
+suposição sobre a arquitetura.
+
+| sistema | superfície paga por query | preço |
+|---|---|---|
+| EverOS | embedding (Gemini) + **rerank** de 50 pares (DeepInfra) | $0,025/1M |
+| **Zep** | embedding da **query** (`text-embedding-3-small`, 1536d, OpenAI) | $0,02/1M |
+
+O Zep **não** rerankeia: o `limit=10` por sessão sai do índice pgvector e a fusão
+é nossa. O EverOS **não** classifica por LLM: a assinatura de `search_knowledge`
+não tem `category_id`.
+
+**Custo, e o que é medição e o que é cota superior:**
+
+| linha | valor | natureza |
+|---|---|---|
+| DeepInfra rerank (EverOS) | $0,43 | **medido** — 2.482 × 50 × ~140 tok |
+| OpenAI embed, ingestão do Zep | $0,027 | **medido** — 6.830 msgs × ~200 tok |
+| OpenAI embed, query do Zep | **≤ $0,51** | **cota superior** |
+| Gemini embed (EverOS) | prepago | fora de fatura marginal |
+
+⚠️ A terceira linha é **cota, não medição**. O piso é $0,001 (uma embedagem por
+query, reusada nas 510 sessões) e o teto é $0,51 (uma por *sessão*, zero cache:
+2.482 × 510 × ~20 tok = 25,3 M). Não sabemos onde cai: o medidor autoritativo é
+`/v1/organization/usage/embeddings` e a chave deste projeto **não tem o escopo
+`api.usage.read`**. O log do container só registra o router — `grep -ci embed`
+devolve `0` com `exit 1`, que é um zero legítimo do `grep` e **mudo** sobre a
+camada perguntada. Reportar $0,51 como "o custo" seria dar a uma cota o estatuto
+de medição; a decisão que ela sustenta (o gasto está dentro do aprovado) não
+precisa de mais precisão que isso.
+
+### 5.5 As 17 falhas de sessão, por origem
+
+Contá-las não diz nada; **classificá-las** diz. Sobre 522.750 varreduras
+(0,0033%):
+
+| origem | n | de quem é |
+|---|---|---|
+| `timed out` | 13 | nosso cliente |
+| `[Errno 9] Bad file descriptor` | 2 | pool do nosso cliente |
+| OpenAI 500 em `/v1/embeddings` (após 6 tentativas) | 2 | provedor externo |
+
+⇒ **Nenhuma é falha de retrieval do Zep.** Cada uma retira **uma** das 510
+sessões do conjunto de candidatos daquela query; nenhuma query passou do limiar
+de aborto (>5 de 510). O efeito no nDCG é, no pior caso, a ausência de um
+candidato entre 510 em 17 queries — declarado, não corrigido.
+
 ## 6. Piso de integridade da varredura — duas condições, não uma
 
 | piso | condição | a falha que cobre |
