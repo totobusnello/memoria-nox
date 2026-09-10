@@ -482,3 +482,50 @@ class TestIntegrationIngestAndSearch(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ── A espera de embeddings comparava GLOBAL contra INCREMENTO (2026-09-10) ────
+
+
+def test_espera_de_embeddings_usa_linha_de_base_e_nao_o_incremento():
+    """
+    A espera tem de comparar `base + adicionadas`, nunca só `adicionadas`.
+
+    Medido 2026-09-10: o código comparava o total GLOBAL de `message_embedding`
+    contra o incremento DAQUELA chamada, e imprimia `embeddings ready: 170/1`.
+    Depois das primeiras conversas o global é sempre muito maior que o incremento,
+    logo `count >= expected` era verdade IMEDIATAMENTE — a espera nunca esperava,
+    e a corrida seguia sobre um corpus meio embedado, que é exactamente o que o
+    docstring dela diz que existe para impedir.
+
+    Guarda cujo predicado não pode detectar o estado que ele existe para detectar
+    (regra 9 do CLAUDE.md).
+    """
+    fonte = Path(__file__).resolve().parent.parent / "adapters" / "zep.py"
+    src = fonte.read_text()
+    assert "_wait_for_embeddings(_base_embeddings + messages_added" in src, (
+        "a espera voltou a comparar o total global contra o incremento"
+    )
+    # A base tem de ser lida ANTES da escrita, senão já inclui o que se escreveu.
+    #
+    # ⚠️ Ancorar DENTRO de `ingest_corpus`. A primeira versão deste probe usava
+    # `src.index("client.memory.add_memory(")` e casava a MENÇÃO no docstring do
+    # módulo (offset 927), não a chamada — e por isso falhava com e sem a mutação,
+    # isto é, não discriminava nada.
+    corpo = src[src.index("def ingest_corpus(") : src.index("def _conta_embeddings")]
+    i_base = corpo.index("_base_embeddings = _conta_embeddings()")
+    i_add = corpo.index("client.memory.add_memory(")
+    assert i_base < i_add, "a linha de base é lida DEPOIS de escrever — inútil"
+
+
+def test_conta_embeddings_devolve_zero_quando_nao_consegue_medir():
+    """
+    Não inventar número quando a medição falha: 0 faz a espera exigir apenas o
+    incremento (comportamento antigo, conservador), enquanto um valor fabricado
+    faria a espera exigir algo que nunca chega e travar até o timeout.
+    """
+    fonte = Path(__file__).resolve().parent.parent / "adapters" / "zep.py"
+    src = fonte.read_text()
+    i = src.index("def _conta_embeddings")
+    corpo = src[i : src.index("def _wait_for_embeddings")]
+    assert "except Exception:" in corpo and "return 0" in corpo, corpo[-200:]

@@ -246,6 +246,10 @@ def ingest_corpus(chunks: list[dict[str, Any]]) -> dict[str, Any]:
 
     client = _get_client()
 
+    # Contagem de vetores ANTES de escrever nada: e' contra ela que a espera do
+    # fim mede "as mensagens DESTA chamada foram embedadas".
+    _base_embeddings = _conta_embeddings()
+
     # Group chunks by conversation.
     from collections import defaultdict
 
@@ -304,13 +308,34 @@ def ingest_corpus(chunks: list[dict[str, Any]]) -> dict[str, Any]:
     # here until every ingested message has its embedding row, so search()
     # does not race a half-embedded corpus and return artificially low recall.
     wait_secs = int(os.environ.get("ZEP_EMBED_WAIT_SECS", "600"))
-    _wait_for_embeddings(messages_added, wait_secs)
+    # ⚠️ A LINHA DE BASE e' obrigatoria. Medido 2026-09-10: esta espera comparava o
+    # total GLOBAL de vetores contra o incremento DESTA chamada, e imprimia
+    # `embeddings ready: 170/1`. Depois das primeiras conversas o global e' sempre
+    # muito maior que o incremento, logo `count >= expected` era verdade
+    # IMEDIATAMENTE e a espera NUNCA esperava -- guarda cujo predicado nao pode
+    # detectar o estado que ele existe para detectar (regra 9).
+    _wait_for_embeddings(_base_embeddings + messages_added, wait_secs)
 
     return {
         "sessions_created": sessions_created,
         "messages_added": messages_added,
         "errors": errors,
     }
+
+
+def _conta_embeddings() -> int:
+    """Vetores gravados agora. 0 quando nao se consegue medir — nunca inventa."""
+    import subprocess
+
+    try:
+        out = subprocess.run(
+            ["docker", "exec", "q4-postgres", "psql", "-U", "zep", "-d", "zep",
+             "-t", "-A", "-c", "SELECT count(*) FROM message_embedding;"],
+            capture_output=True, text=True, timeout=10,
+        )
+        return int(out.stdout.strip() or "0")
+    except Exception:
+        return 0
 
 
 def _wait_for_embeddings(expected: int, max_secs: int) -> None:
