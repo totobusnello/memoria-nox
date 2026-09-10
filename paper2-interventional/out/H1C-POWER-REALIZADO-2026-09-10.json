@@ -1,0 +1,47 @@
+{
+  "gerado_por": "measurement/potencia-h1c.py",
+  "pergunta": "o N já registrado sustenta H1c como primária?",
+  "entradas": {
+    "p0": 0.0782,
+    "oportunidades_por_dia": 213.0,
+    "epochs": 234,
+    "icc": 0.098459
+  },
+  "oportunidades_por_braco_bruto": 1704,
+  "design_effect": 21.87,
+  "n_efetivo_por_braco": 90,
+  "bracos_desbalanceados": {
+    "epochs_tratamento": 11,
+    "epochs_controle": 8,
+    "n_efetivo_tratamento": 107,
+    "n_efetivo_controle": 77,
+    "criterio": "media harmonica dos n efetivos; aritmetica sobrestimaria"
+  },
+  "detectavel_no_limite_p1_igual_zero": false,
+  "nota_saturacao": "rel satura em 1,0 por construcao (bissecao em [0,p0]); se detectavel_no_limite for false, NAO existe efeito detectavel -- nem a eliminacao total das falhas repetidas",
+  "p1_detectavel": 0.0,
+  "mde_relativo_h1c": 1.0,
+  "mde_registrado_h1": 0.3,
+  "cenarios": {
+    "todas as cobertas": {
+      "cobertura": 0.4,
+      "efeito_necessario_nas_cobertas": 2.5,
+      "possivel": false
+    },
+    "só as informativas": {
+      "cobertura": 0.025,
+      "efeito_necessario_nas_cobertas": 40.0,
+      "possivel": false
+    }
+  },
+  "comparacao_com_h1_incondicional": {
+    "fracao_de_briefs_alterada": 0.0314,
+    "efeito_necessario": 9.55,
+    "possivel": false
+  },
+  "aproximacoes": [
+    "ICC estimado para densidade por session-hour, não para proporção por oportunidade",
+    "p0 e oportunidades/dia do archive VIVO — o congelado não existe mais",
+    "is_error é proxy do veredito do painel a τ=S1"
+  ]
+}

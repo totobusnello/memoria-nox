@@ -1,0 +1,224 @@
+# Especificação de análise — Paper 2
+
+> **Escrita em 2026-09-10, dez dias antes do fecho da janela** (`2026-09-20 22:51:23Z`).
+> A data importa mais que o conteúdo: uma especificação de análise redigida **depois** do
+> fecho é post-hoc por construção, e nenhuma redação a salva. Tudo aqui é anterior a
+> qualquer desfecho adjudicado.
+
+## 0. O que este documento NÃO decide
+
+O **enquadramento já está decidido** — instrução do Toto em 2026-09-09 16:01 BRT,
+registrada em `ENQUADRAMENTO-2026-09-09.md`: *o método vira a manchete; o contraste
+pré-registrado entra como piloto subdimensionado declarado, com intervalo à vista e a
+frase explícita de que não é evidência de ausência de efeito.*
+
+Este documento não reabre isso. Ele especifica **o que exactamente será computado e
+reportado** sob esse enquadramento, e o que fica proibido.
+
+---
+
+## 1. Conjunto de análise — medido, não estimado
+
+Artefato: `measurement/out/JANELA-ELEGIVEL-2026-09-10.json`, com censo de entrega de
+procedência declarada (`out/CENSO-SERVIDO-2026-09-10.json`: host `srv1826603`, log
+sha256 `03de9eb714dc6c39…`, 12.173 linhas, 0 divergências entre as duas chaves de epoch).
+
+**Janela elegível: 20 epochs de 234 pré-registrados (8,5%).** A restrição não é escolha —
+os 19 designados têm `created_at` idêntico e a janela global de frescor é de 30 d.
+
+| unidade | n | epochs |
+|---|---:|---|
+| **inteira** (relógio inteiro **e** entrega cheia) | 15* | `09-04`…`09-09`, `09-11`…`09-19` |
+| **parcial por relógio** | 2 | `09-01` (22,38 h/24), `09-20` (13,86 h/24) |
+| **parcial por volume** | 1 | `09-03` (441 de 672 briefs) |
+| **vazia** | 1 | `09-02` — **0 briefs, epoch nunca abriu** |
+
+\* 6 confirmadas em 10/09; as 9 de `09-11`…`09-19` são projeção sob entrega cheia e serão
+reclassificadas pelo censo no fecho. O artefato marca-as `futuro`, não `inteira` — não
+projeta.
+
+⚠️ **`09-01` é o único epoch de exposição MISTA de toda a janela:** 630 briefs em `active`
+sob a dose designada (w=4,0) e 42 em `shadow` (w=2,0). Medido; não é suposição.
+
+### Composição de braços — realizada contra desenhada
+
+| dose | desenho (234) | alocado na janela (20) | **servido** |
+|---|---:|---:|---:|
+| controle w=0 | 117 | 9 | **8** |
+| w=2,0 | 39 | 6 | 6 |
+| w=4,0 | 39 | 4 | 4 |
+| **w=7,5** | 39 | **1** | **1** |
+
+**11 tratamento / 8 controle servidos.** A diferença é 3 epochs, **≤ 5**, logo o gatilho
+pré-comprometido do PREREG §5 (*"se os tamanhos realizados diferirem em mais de 5 epochs,
+o intervalo estratificado é reportado **ao lado** de um não-estratificado"*) **não dispara**
+— o bootstrap estratificado permanece o primário. Isto é o desfecho de um ramo já
+registrado, não uma escolha nova.
+
+---
+
+## 2. Regras para os parciais e o vazio — pré-comprometidas
+
+| epoch | classe | regra | por quê |
+|---|---|---|---|
+| `09-02` | vazia | **excluída do conjunto de análise**, contada e reportada | zero exposição e zero desfecho. Não é dado ausente, é unidade não realizada. É controle, logo excluí-la **piora** o desbalanço (9→8) e isso é declarado, não compensado |
+| `09-03` | parcial por volume | **incluída, com offset**; e a cobertura do PREREG §5 é computada e reportada **antes** de qualquer decisão de exclusão | `441/672` mede *uptime de serving*, **não** a cobertura de `brief_log` do prereg. São grandezas diferentes e a segunda é que governa o piso de 95% |
+| `09-01` | parcial por relógio **e** exposição mista | **incluída no ITT** pelo braço designado (tratamento, w=4,0), e reportada **em separado** numa sensibilidade que a remove | o offset absorve truncamento de relógio; **não** absorve contaminação de dose. 42 briefs a w=2,0 dentro de um epoch designado w=4,0 é exposição mista, e fundir mista com uniforme é a família "número certo, população errada" |
+| `09-20` | parcial por relógio | **incluída, com offset** | truncamento puro; o corte cai **dentro** do epoch, às 22:51:23Z |
+
+**Nenhum parcial é arredondado para dentro ou para fora.** Os três entram declarados, e a
+sensibilidade que os remove é reportada ao lado — divergência entre as duas é reportada
+como está, nunca adjudicada em favor de uma.
+
+---
+
+## 3. 🔴 Potência realizada: H1c não tem resultado possível
+
+Artefato: `out/H1C-POWER-REALIZADO-2026-09-10.json` (`measurement/potencia-h1c.py`,
+estendido para braços desbalanceados via **média harmónica** dos N efetivos — a
+aritmética sobrestimaria, e `epochs//2` inventaria simetria que o desenho perdeu).
+
+**Controle positivo do próprio script:** re-executado no desenho de 234 balanceados,
+reproduz o artefato de 2026-08-30 nos quatro valores — `n_efetivo 1139`, `DE 21,87`,
+`MDE 0,3668`, `oportunidades 24.921`. A extensão não moveu a via balanceada.
+
+| | desenho (117/117) | **realizado (11/8)** |
+|---|---:|---:|
+| N efetivo por braço | 1.139 | **90** |
+| MDE relativo em H1c | 36,7% | **saturado em 100%** |
+| detectável no limite (p1 = 0) | sim | **não** |
+| efeito necessário nas cobertas (cenário ótimo, 40%) | 91,7% | **250%** |
+
+**Leitura, e ela é a conclusão central desta especificação:** no N realizado **não existe
+efeito detectável a 80% de potência — nem a eliminação total das falhas repetidas.** É a
+mesma razão que retirou H1 de primária em 2026-08-30 (exigia 955%), agora aplicada a H1c
+pelo encurtamento da janela.
+
+> Uma perna própria foi acrescentada ao script para isto: `mde()` bissecta em `[0, p0]`,
+> logo o MDE relativo **satura em 1,0 por construção** e *"MDE = 100%"* ficava
+> indistinguível de *"nem eliminar tudo é detectável"*. São estados diferentes do mundo, e
+> o segundo lê-se como "precisa de efeito enorme" em vez de "não há resultado possível".
+> O campo `detectavel_no_limite_p1_igual_zero` separa os dois.
+
+⚠️ **E o artefato passou a ser emitido ANTES dos guardas do script.** Os guardas devolvem
+`1` quando H1c é inalcançável e, na versão anterior, retornavam **antes** do `--out`: o
+veredito mais importante era o único que não deixava lastro. Em 2026-08-30 o guarda barrava
+uma *decisão de desenho* e abortar era certo; hoje o mesmo predicado é um **achado** que
+precisa de evidência. Mesmo conselho, ação oposta. Contrato agora: **o código de saída
+carrega o veredito, o artefato carrega a evidência.**
+
+---
+
+## 4. Re-randomização: redesenhar os 234, nunca permutar dentro dos 20
+
+O PREREG §5 trava **10.000 permutações** sobre o desfecho residualizado por tendência.
+Com a janela truncada há uma armadilha que invalidaria o teste:
+
+> A randomização foi feita sobre **234 epochs**, com estratos `metade-de-calendário ×
+> dia-útil/fim-de-semana` e apportionment por maior resto. Permutar os braços **entre os 20**
+> não reproduz essa distribuição — os 20 caem todos na primeira metade de calendário, onde
+> a estratificação colapsa a dia-útil/fim-de-semana.
+
+**Pré-comprometido:** cada réplica re-executa `assign_arms.py assign --seed <novo>
+--start 2026-09-01` sobre os 234 epochs e **restringe** a realização à janela de análise.
+A distribuição de referência é a do desenho, não a de uma permutação conveniente.
+
+**Medido em 300 sementes** (17,9 s ⇒ 10.000 ≈ 10 min, viável):
+
+- **300 padrões distintos em 300 corridas, zero colisões** ⇒ o espaço **não é enumerável**;
+  as 10.000 réplicas do prereg continuam a ser a implementação correta, não um exato.
+- **`n_tratamento = 11` é típico:** a moda é 10 e o 11 ocorre em 47/300.
+- 🔴 **`n` de `w=7,5` igual a 1 está na cauda esquerda:** ocorre em **23/300 = 7,7%**,
+  contra moda 3-4. O braço de dose máxima ficou com n=1 **por sorteio infeliz somado ao
+  truncamento**, e essa decomposição vai no relato — não é "o desenho é ruim".
+
+---
+
+## 5. Controles — o positivo passa; o negativo estava mal enunciado
+
+Artefato: `out/CONTROLES-2026-09-10.json`. Semântica declarada: `mexeu` compara
+`ids_tratado` com `ids_controle` por **pertencimento** (`set`), não por lista — a
+comparação de lista mistura reordenação com entrada/saída e no epoch `09-08` dá **48**
+contra **20** (errata da sessão par, reproduzida aqui por via independente: 20).
+
+**Controle positivo — PASSA em 6 de 6 epochs de tratamento servidos.** A dose alterou o
+conjunto servido em todos: 2,83% · 2,98% · 3,57% · 4,91% · 5,21% · 5,65%. Se algum epoch
+de tratamento tivesse dado 0, o nulo seria do **instrumento** e não do efeito.
+
+🔴 **Controle negativo: o enunciado óbvio é inválido.** Eu ia pré-comprometer *"epoch de
+controle tem `mexeu == 0`"*. Nos epochs de controle os campos `ids_controle`/`ids_tratado`
+**não existem** — `sem_ids == n` em `09-03` (441/441), `09-07` (672/672) e `09-10`
+(140/140). Logo `mexeu == 0` é indistinguível de *"o campo nunca foi escrito"*, que é a
+**regra 9** do `CLAUDE.md`: predicado que exige o dado que falta não cobre a falta do dado.
+
+**Enunciado válido, e é o que fica pré-comprometido:** *epoch de controle tem
+`sem_ids == n`* — o dual-compute **não corre** onde `w=0`, que é o que o desenho prevê.
+Verificável, e **passa em 3 de 3**.
+
+⚠️ **Consequência que não se contorna:** não existe controle negativo **intra-braço** no
+log, porque o contrafactual só é computado onde a dose age. Qualquer afirmação de
+*especificidade* terá de vir de outra fonte, e **nunca** de `mexeu == 0` no controle.
+
+---
+
+## 6. O que será reportado
+
+1. **Ponto estimado com intervalo e `n` por braço na mesma linha.** O número entra —
+   esconder é o outro jeito de mentir sobre ele.
+2. **A declaração de subdimensionamento com o artefato**, incluindo `MDE saturado` e
+   `detectavel_no_limite = false`, e a frase de que ausência de significância **não é**
+   evidência de ausência de efeito. No abstract, não em nota.
+3. **A decomposição da cobertura por assinatura**, já pré-comprometida em
+   `DESIGN-REVISION-2026-08-30.md`: um nulo em H1c **não distingue** *"o mecanismo não
+   funciona"* de *"as lições que ele promove são genéricas demais"* — 93,8% da cobertura
+   é a assinatura-balde `Bash|shell:outro`.
+4. **O ITT sobre todos os epochs pós-washout sem exclusão de cobertura**, ao lado do
+   primário (PREREG §5, obrigatório porque cobertura é pós-randomização).
+5. **A correlação braço-cobertura com IC, incondicionalmente** (M10).
+6. **`09-01` em separado** por exposição mista, e a sensibilidade que o remove.
+7. **A decomposição sorteio × truncamento** do `n=1` no `w=7,5` (7,7% da distribuição).
+
+## 7. O que fica PROIBIDO
+
+- **Promover qualquer subgrupo a primária.** Com 19 unidades, procurar o recorte que
+  atinge significância é garantia de o encontrar.
+- **Fundir doses para comprar `n`.** `w=2,0`, `w=4,0` e `w=7,5` são níveis desenhados;
+  colapsá-los em "tratamento" para uma alegação de **dose-resposta** é a alegação a
+  destruir a sua própria premissa. Para o contraste binário ITT o pool é legítimo e está
+  registrado — a proibição é sobre dose-resposta.
+- **Ler dose-resposta.** O topo (5,65%, n=1) fica acima do topo do braço `w=2` (5,21%),
+  mas com n=1 no topo e sobreposição em 2,83–5,21 **não há gradiente a ler**. Fechado em
+  `ENQUADRAMENTO-2026-09-09.md`.
+- **Apoiar o estimador no replay.** Medição da sessão par: o replay descarta **100% do
+  sinal registrado do braço `w=7,5`** (38 de 672). Um estimador que dependa dele mede o
+  controle e chama-o de tratamento.
+- **Arredondar parcial para inteiro.** Nem para dentro, nem para fora.
+- **Reportar um nulo sem os itens 2 e 3 do §6.** Nulo subdimensionado apresentado como
+  resultado é a exata família de defeito que este trabalho passou oito semanas a
+  documentar.
+
+## 8. Regras pré-registradas que ficam INAVALIÁVEIS
+
+Declaradas aqui, antes do fecho, para que a sua ausência no paper não pareça omissão:
+
+| regra (PREREG §5) | por que não é avaliável | o que fica no lugar |
+|---|---|---|
+| **TOST braço×cobertura** a `\|r\| ≤ 0,15` | trava exige **K ≥ 30** epochs analisados; teremos ≤ 19 | a correlação e o IC são reportados incondicionalmente (M10). O relato é *"não avaliável no K realizado"*, que **não** é o mesmo que *"equivalência não estabelecida"* |
+| **dose-resposta / H3** | `n=1` no topo | efeito por dose com `n` na mesma linha, sem gradiente |
+| **leave-one-agent-out** | 6 agentes sobre 19 epochs | reportado como exploratório, sem inferência |
+| **primeira vs segunda metade de calendário** | os 20 epochs caem **todos** na primeira metade | inavaliável por construção do recorte |
+
+## 9. Aberto — precisa de decisão do Toto
+
+1. **A sensibilidade de `09-01`** (exposição mista) é reportada como sensibilidade ou o
+   epoch sai do primário? A minha recomendação é **entrar no ITT e sair na sensibilidade**,
+   porque o braço designado é fato do desenho e a contaminação é fato da execução — as duas
+   coisas merecem aparecer, e o ITT é o que respeita a randomização.
+2. **Se `09-03` cair pelo piso de cobertura de 95%**, o controle desce a 7 epochs e a
+   diferença de braços vai a 4 — ainda `≤ 5`, logo o ramo do bootstrap não muda. Registrado
+   para que o cálculo não seja feito depois de se ver o resultado.
+
+---
+
+*Nada neste documento depende de desfecho adjudicado. As medições que o sustentam são de
+serving, alocação e potência — todas anteriores à adjudicação, e todas com artefato.*

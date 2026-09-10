@@ -44,6 +44,10 @@ def main():
     ap.add_argument("--p0", type=float, required=True)
     ap.add_argument("--op-dia", type=float, required=True)
     ap.add_argument("--epochs", type=int, default=234)
+    ap.add_argument("--epochs-tratamento", type=int,
+                    help="epochs ANALISADOS no braco de tratamento (desbalanceado)")
+    ap.add_argument("--epochs-controle", type=int,
+                    help="epochs ANALISADOS no braco de controle (desbalanceado)")
     ap.add_argument("--icc", type=float, default=0.098459)
     ap.add_argument("--cobertura", type=float, required=True)
     ap.add_argument("--cobertura-informativa", type=float, required=True)
@@ -51,9 +55,27 @@ def main():
     a = ap.parse_args()
     z_a, z_b = 1.959964, 0.8416
 
-    bruto = (a.epochs // 2) * a.op_dia
     DE = 1 + (a.op_dia - 1) * a.icc
-    n_ef = bruto / DE
+    if a.epochs_tratamento is not None or a.epochs_controle is not None:
+        if a.epochs_tratamento is None or a.epochs_controle is None:
+            sys.exit("RED informe os DOIS bracos ou nenhum")
+        nt = a.epochs_tratamento * a.op_dia / DE
+        nc = a.epochs_controle * a.op_dia / DE
+        n_ef = 2 * nt * nc / (nt + nc)      # media harmonica, nao aritmetica
+        bruto = min(a.epochs_tratamento, a.epochs_controle) * a.op_dia
+        desbal = {"epochs_tratamento": a.epochs_tratamento,
+                  "epochs_controle": a.epochs_controle,
+                  "n_efetivo_tratamento": int(nt), "n_efetivo_controle": int(nc),
+                  "criterio": "media harmonica dos n efetivos; aritmetica sobrestimaria"}
+    else:
+        bruto = (a.epochs // 2) * a.op_dia
+        n_ef = bruto / DE
+        desbal = None
+    # Perna propria: `mde()` bisseca em [0, p0], logo rel SATURA em 1,0 e "MDE = 100%"
+    # fica indistinguivel de "nem eliminar tudo e detectavel". A segunda e' um estado
+    # diferente do mundo -- nao ha resultado possivel, nem em principio -- e tem de
+    # aparecer, senao le-se como "precisa de efeito enorme" em vez de "impossivel".
+    detectavel_no_limite = poder_z(a.p0, 0.0, n_ef, z_a) >= z_b
     p1 = mde(a.p0, n_ef, z_a, z_b)
     rel = (a.p0 - p1) / a.p0
 
@@ -75,6 +97,11 @@ def main():
         "oportunidades_por_braco_bruto": int(bruto),
         "design_effect": round(DE, 2),
         "n_efetivo_por_braco": int(n_ef),
+        "bracos_desbalanceados": desbal,
+        "detectavel_no_limite_p1_igual_zero": detectavel_no_limite,
+        "nota_saturacao": ("rel satura em 1,0 por construcao (bissecao em [0,p0]); se "
+                           "detectavel_no_limite for false, NAO existe efeito detectavel "
+                           "-- nem a eliminacao total das falhas repetidas"),
         "p1_detectavel": round(p1, 4),
         "mde_relativo_h1c": round(rel, 4),
         "mde_registrado_h1": 0.30,
@@ -90,6 +117,17 @@ def main():
             "is_error é proxy do veredito do painel a τ=S1",
         ],
     }
+
+    # ⚠️ O ARTEFATO SAI ANTES DOS GUARDAS (corrigido 2026-09-10). Os guardas abaixo
+    # devolvem 1 e, na versão anterior, `return`avam antes do `--out` — logo o veredito
+    # MAIS importante ("nem o cenário otimista é alcançável") era o único que não deixava
+    # artefato. Em 2026-08-30 o guarda barrava uma decisão de desenho e abortar era certo;
+    # com o ensaio a encerrar em 20 epochs o mesmo predicado passou a ser um ACHADO que
+    # precisa de lastro. Mesmo conselho, ação oposta.
+    #
+    # Contrato: o código de saída carrega o veredito, o artefato carrega a evidência.
+    if a.out:
+        json.dump(saida, open(a.out, "w"), indent=2, ensure_ascii=False)
 
     # ── guardas ────────────────────────────────────────────────────────────
     # (1) o ponto inteiro da opção C é que H1c é POSSÍVEL onde H1 não é. Se o cenário
@@ -118,7 +156,6 @@ def main():
           f"{100*0.30/0.0314:>7.1f}%  🔴 IMPOSSÍVEL")
 
     if a.out:
-        json.dump(saida, open(a.out, "w"), indent=2, ensure_ascii=False)
         print(f"\n→ {a.out}")
     return 0
 
