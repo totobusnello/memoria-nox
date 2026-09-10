@@ -1,5 +1,78 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-10 (noite) — a densidade de referências fechou; o tamanho não, e é decisão separada
+
+Cinco PRs no Paper 1 (#519-#522 e o #520), todos merged. **A dimensão de densidade
+deixou de ser outlier**; a de tamanho piorou por construção e a decisão sobre ela é do
+Toto.
+
+| | antes de hoje | agora |
+|---|---:|---:|
+| obras citadas | 30 *(sem método declarado)* | **54** |
+| palavras (cru, método declarado) | 24.126 | **25.967** |
+| densidade | 1,24/mil *(medida errada)* | **2,08/mil** ✓ dentro de 2,06–2,95 |
+| tamanho | 1,40× o maior aceito | **1,50×** |
+| guardas / mutações | 8 / 15 (bateria **vermelha**) | **13 / 27** |
+
+### O que estava errado na medição, e nos dois lados
+
+O `30` não tinha método: ficava **entre** 24 obras e 43 footnotes. Dois defeitos em
+direções opostas — o numerador contava **auto-referência** (14 das 53 footnotes são
+ponteiros para o nosso código), e o tokenizador do §5 remove tags HTML, o que em
+markdown faz `<[^>]+>` apagar o texto entre um `<` matemático e o `>` seguinte (−38%).
+Controle: sem remoção de tags devolve 24.111 no commit que publicou 24.126.
+
+Detalhe em `paper/publication/regua-do-nosso-lado-2026-09-10.md`; o censo é artefato
+(`paper/bibitem-census.json`) e tem guarda.
+
+### As 15 referências: mineradas, não escolhidas
+
+Das **535** obras que o survey TMLR `2602.06052v4` cita, citávamos **17** — e entre as
+ausentes estava o survey do nosso tema exato (ACM TOIS `2404.13501`), citado em seis
+seções do próprio survey. Centralidade lida do `Cited by:` que o LaTeXML embute em cada
+bibitem; presença com controle positivo (5 obras, 2 por id e 3 por título — um
+classificador só por id reportaria 6 em vez de 17) e controle negativo.
+
+**6 recusadas com o motivo escrito**, incluindo PagedAttention: «memória» ali é KV
+cache. Critério: discussão real no corpo, não localizador disponível.
+
+Autoria e título das 15 **resolvidos pela API do arXiv com controle positivo** antes de
+qualquer escrita; footnotes e entradas `.bib` **geradas** desse resultado. É o
+procedimento que existe porque o #519 achou **três autorias inventadas** — incluindo a
+do LongMemEval, o benchmark que o paper usa 32 vezes.
+
+### Três guardas novos, dois deles por defeito que eu deixara passar
+
+| guarda | o que prende |
+|---|---|
+| `censo_bibitem_check` | footnote sem classificação em `bibitem-census.json` ⇒ o numerador não muda em silêncio |
+| `bib_promessa_check` | entrada `.bib` que promete atualização futura (contradizia o `CITATION.cff`) |
+| `autoria_inline_check` | as **11 citações em prosa** com autor ao lado, que nenhuma perna varria |
+
+E dois defeitos de instrumento: o ratchet de `PR #NNN` estava **frouxo por 13**
+(baseline 66 contra 53 reais), e a **bateria de mutação estava vermelha desde o #519**
+porque instalei uma perna e não copiei o manifesto para o tempdir dos casos — ficou um
+PR inteiro sem dizer nada, corretamente, e por isso o ratchet não aparecia.
+
+Um `arxiv:` em **minúsculas** (o LoCoMo, benchmark central do §6) fazia o id escapar da
+perna de autoria enquanto o `refs_check` já usava `re.I`. A autoria dele estava certa —
+**por sorte**, porque nenhuma perna a olhou.
+
+### Próxima ação, e a que NÃO é minha
+
+**Aberto para o Toto:** a dimensão de **tamanho**. Chegar ao teto de 17.265 palavras
+exigiria cortar **8.702** (34% do documento), o que não é uma edição. As alternativas
+são declarar 1,50× como escolha, ou um corte grande e separado.
+
+**Pendente de artefato** (sessão par conduz as corridas):
+- §6.9 — quando o nDCG do Zep existir, *"three of five competitors could not produce a
+  number"* passa a **dois** e a nota de escopo do #510 sai;
+- `[^qwen3embed]` — quando a coluna do EverOS fechar, *"not run in this study"* fica
+  falso (o Qwen3-Reranker roda **dentro** do EverOS);
+- §6.3.1 — dois rascunhos prontos e fora do manuscrito (fan-out do Zep, assimetria do
+  reranker do EverOS), mais a frase de método do **piso de contagem de queries**.
+
+
 ## 2026-09-09 (tarde) — os três consertos do instrumento estão no ar
 
 Autorizado pelo Toto, coordenado com a sessão par (os dois braços do replay dela
