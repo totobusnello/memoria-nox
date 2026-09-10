@@ -24,7 +24,25 @@ for e in f.get('primeiros_erros') or []:
     print('  FALHA:', e)
 " "$FECHO"
 
-echo "== 2. retencao: o que o INDICE tem (nao o que o corpus tinha) =="
+echo "== 2. retencao: TRES contadores, e so um e' o que a busca ve =="
+# 🔴 Medido 2026-09-10 a meio da corrida: ledger 6.654 | dirs 6.652 | sqlite 6.500.
+# Tres numeros para "quanto foi ingerido", e divergem por desenho:
+#   ledger        = o meu registro de ESCRITA, apos create_document() retornar
+#   dirs no disco = os markdown que o extractor escreveu (fica atras do ledger
+#                   pelo que esta em voo)
+#   sqlite        = o INDICE PESQUISAVEL, atualizado so por sincroniza()
+# ⇒ A retencao publicavel e' a do sqlite APOS o sync final. Ler antes dele
+# subdeclara -- aqui, por 154 documentos.
+SQL=/var/lib/everos-q4/.index/sqlite/system.db
+echo "  sqlite knowledge_documents: $(sqlite3 -readonly "$SQL" 'SELECT COUNT(*) FROM knowledge_documents;' 2>/dev/null || echo '?')"
+echo "  sqlite knowledge_topics   : $(sqlite3 -readonly "$SQL" 'SELECT COUNT(*) FROM knowledge_topics;' 2>/dev/null || echo '?')"
+echo "  dirs de documento no disco: $(find /var/lib/everos-q4/q4eval/default_project/knowledge -mindepth 2 -maxdepth 2 -type d 2>/dev/null | wc -l)"
+ULT_SYNC=$(grep '"evento": "sync"' "$PROG" 2>/dev/null | tail -1)
+echo "  ultimo sync: ${ULT_SYNC:-nenhum}"
+case "$ULT_SYNC" in
+  *'"final"'*) echo "  ✔ sync FINAL feito — a contagem do sqlite e' a publicavel";;
+  *) echo "  🔴 o ultimo sync NAO e' o final: a contagem do sqlite esta ATRASADA e nao e' reportavel";;
+esac
 python3 - <<'PY'
 import json, subprocess
 ledger = set()

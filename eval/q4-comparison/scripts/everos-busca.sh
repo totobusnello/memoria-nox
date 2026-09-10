@@ -23,7 +23,9 @@ set -uo pipefail
 
 RAIZ="${EVEROS_EVAL_ROOT:-/var/lib/everos-q4}"
 QUERIES="${QUERIES:-cache/queries-rc4-all.jsonl}"
-SAIDA="${SAIDA:-out/busca}"
+# ⚠️ `out/everos-busca`, nao `out/busca`: o vigia e o classificador observam
+# este caminho. Artefato num caminho que ninguem observa le-se como AUSENTE.
+SAIDA="${SAIDA:-out/everos-busca}"
 K="${K:-10}"
 
 # ⚠️ ORDEM: este guarda vem DEPOIS da credencial por acidente na 1a versao, e o
