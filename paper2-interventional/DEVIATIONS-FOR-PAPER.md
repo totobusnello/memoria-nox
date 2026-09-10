@@ -2787,3 +2787,53 @@ dentro do bloco de errata.
 
 É o par simétrico do §10.20: lá o guarda não distinguia **afirmar de citar** e *acusava*;
 aqui não distinguia e *absolvia*.
+
+### Adendo — a sonda de uma mutação está acoplada aos DADOS, não só ao código
+
+Consequência medida do conserto acima, e é uma classe de defeito que eu não tinha
+registrada: **um conserto em qualquer lugar pode tornar uma mutação inerte sem ninguém a
+tocar, e o relatório da corrida anterior continua a dizer que ela morde.**
+
+A mutação M2 da sessão par troca `and` por `or` na composição
+`unidade = inteira se (janela == inteiro) and (entrega == cheio)`. Antes do conserto da
+perna de entrega, quem a discriminava era `2026-09-01`. Depois, não mais — verificado por
+cálculo direto sobre o artefato em `e7dd3dcb`:
+
+| epoch | `janela == inteiro` | `entrega == cheio` | `and` | `or` | |
+|---|---|---|---|---|---|
+| 09-01 **antes** do conserto | falso | **verdadeiro** | falso | verdadeiro | discriminava |
+| 09-01 **depois** | falso | **falso** | falso | falso | **inerte** |
+| 09-03 | verdadeiro | falso | falso | verdadeiro | **discrimina** |
+
+Com as duas metades falsas, o `or` deixa de promover: a mutação passa e não prova nada. A
+propriedade que separa `and` de `or` é **exatamente uma metade verdadeira** — e o conserto
+mudou de qual epoch a tem.
+
+Note que esta é a **segunda** troca de sonda da mesma mutação, e por motivo diferente da
+primeira. A primeira foi hipótese errada (sondava `2026-09-02`, esperando o veredito que o
+original já dá, num ramo inalcançável). Esta não teve hipótese errada nenhuma: os dados
+mudaram debaixo de uma sonda que estava certa.
+
+> **Comentar na mutação qual PROPRIEDADE dos dados a torna discriminante**, não só qual
+> caso. "Relógio inteiro + entrega parcial" sobrevive ao conserto; "09-01" não. O caso
+> muda; a propriedade é o que se procura de novo.
+
+⇒ E o corolário operacional: **relatório de mutação tem prazo de validade que expira em
+qualquer commit**, não só nos que tocam o guarda. Um `21/21` de ontem não é evidência sobre
+o código de hoje se qualquer coisa mudou os dados que as sondas atravessam.
+
+### O que o conserto da perna de entrega ganhou, e uma discrepância
+
+Verificado no artefato de `e7dd3dcb`: `classe_entrega` de 09-01 passou de `cheio` para
+`parcial`; `modo_misto` é campo próprio (`True` só em 09-01); `servidos_total` e `por_modo`
+ficam preservados ao lado em vez de fundidos; e a `semantica` do artefato declara
+explicitamente que `por_campo_epoch` é o **total e inclui `shadow`**. Unidades inalteradas:
+6 inteiras, 2 parciais, 1 vazia, 1 em curso, 10 futuras = 20.
+
+⚠️ **Discrepância anotada:** o relato do conserto diz `motivo` → `motivos` (lista), com
+09-01 parcial pelas **duas** pernas. O artefato em `e7dd3dcb` **não tem** campo `motivos` —
+os campos são `classe_entrega, classe_janela, epoch, esperado, fim, fracao_da_janela,
+horas_na_janela, inicio, modo_misto, por_modo, servidos, servidos_total, unidade`. Ou está
+no script e não é emitido, ou ficou de fora. Registrado como pendência, não como defeito:
+a informação das duas pernas é recuperável de `classe_janela` + `classe_entrega`, mas quem
+lê o artefato não recebe o **motivo** declarado.
