@@ -508,6 +508,74 @@ POPULACAO = {
 }
 
 
+# --- eixo 2 do populacao_check: contagem de corpus de BENCHMARK -------------
+# 6.822/6.830 nao sao serie viva (o corpus do benchmark esta congelado), logo nao
+# entram no SERIE_VIVA — exigir data neles produziria frase com data inutil. Mas
+# estao sujeitos ao MESMO defeito de atribuicao: desde 2026-09-10 o paper diz
+# `6,822` do corpus do rc4 (§6.3.2, §6.9) E do indice do EverOS (§6.3.1), que sao
+# medicoes diferentes que por acaso coincidem. A coincidencia e' o achado; ler as
+# duas como uma medicao e' o defeito. Medido: retirar "different run ... not rc4"
+# da frase do EverOS deixava os tres guardas verdes.
+CORPUS_BENCH = re.compile(r"\b6[.,]822\b|\b6[.,]830\b")
+SISTEMA_CORPUS = {
+    "nox_mem": re.compile(r"nox-mem|eval loader|INSERT OR IGNORE|eval_chunks", re.I),
+    "mem0": re.compile(r"\bMem0\b|Chroma|faiss", re.I),
+    "everos": re.compile(r"EverOS|EverMind", re.I),
+    "zep": re.compile(r"\bZep\b", re.I),
+}
+# Nomear a corrida e' o que desfaz a ambiguidade — nao nomear o sistema.
+MARCA_CORRIDA = re.compile(r"\brc4\b|different run|canonical run|"
+                           r"20\d\d-\d\d-\d\d run|of the 20\d\d-\d\d-\d\d", re.I)
+
+
+def corpus_bench_check(root: Path) -> list[str]:
+    """Contagem de corpus atribuida a 2+ sistemas exige que a corrida seja nomeada.
+
+    Dois sistemas retendo o MESMO numero por mecanismos diferentes e' um achado —
+    mostra que 6.822 e' consequencia de honrar unicidade de id, nao idiossincrasia
+    do nosso loader. O defeito e' a frase que permite ler as duas medicoes como
+    uma. Este guarda nao proibe a coincidencia; exige que a frase diga de que
+    corrida cada lado veio.
+
+    ⚠️ Deliberadamente NAO amplia o padrao para qualquer numero de 4 digitos:
+    medido, um padrao amplo produz 18 acusacoes em 55 numeros, quase todas falsas
+    (`2,482` aparece em 17 contextos legitimos), e instrumento enviesado a acusar
+    e' pior que instrumento cego — a direcao do vies seria a da conclusao forte.
+    """
+    # ⚠️ A janela e' o PARAGRAFO, nao a frase. A primeira versao exigia os dois
+    # sistemas na MESMA frase, e a mutacao real — tirar "different run ... not rc4"
+    # do paragrafo do confound (e) — passava incolume, porque deixava `nox-mem` numa
+    # frase e `EverOS` na seguinte. O leitor funde as duas medicoes pela vizinhanca,
+    # nao pela pontuacao.
+    fails = []
+    for ln, linha in _linhas_de_prosa((root / PAPER).read_text()):
+        atrib = []                       # (frase, sistema, tem_corrida)
+        for f in _frases(linha):
+            if not CORPUS_BENCH.search(f):
+                continue
+            for n, rx in SISTEMA_CORPUS.items():
+                if rx.search(f):
+                    atrib.append((f, n, bool(MARCA_CORRIDA.search(f))))
+        sis = {n for _, n, _ in atrib}
+        if len(sis) < 2:
+            continue
+        # Exigir a corrida em CADA frase gera redundancia — o paragrafo do confound
+        # (e) declara `rc4` na abertura e nao repete a cada frase. O que o defeito
+        # exige e' que o paragrafo nomeie **tantas corridas quantas existem**: com
+        # 2+ sistemas atribuidos, uma unica marca de corrida no paragrafo significa
+        # que a segunda medicao esta a ser lida sob a corrida da primeira.
+        marcas = {m.group(0).lower().replace("of the ", "")
+                  for m in MARCA_CORRIDA.finditer(linha)}
+        if len(marcas) < 2:
+            fails.append(
+                f"{PAPER}:{ln}: o paragrafo atribui a contagem de corpus a "
+                f"{len(sis)} sistemas ({', '.join(sorted(sis))}) e nomeia "
+                f"{len(marcas)} corrida(s) ({', '.join(sorted(marcas)) or 'nenhuma'})"
+                f" — a segunda medicao fica a ser lida sob a corrida da primeira"
+            )
+    return fails
+
+
 def populacao_check(root: Path) -> list[str]:
     """A MESMA contagem não pode ser atribuída a duas populações diferentes.
 
@@ -812,6 +880,7 @@ GUARDAS = [
     censo_bibitem_check,
     bib_promessa_check,
     autoria_inline_check,
+    corpus_bench_check,
 ]
 
 
