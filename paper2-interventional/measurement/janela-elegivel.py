@@ -66,10 +66,13 @@ def carrega_censo(caminho: str | None = None) -> dict:
             f"RED censo-de-entrega-ausente caminho={caminho}\n"
             "  rode: python3 censo-servido-por-epoch.py > out/CENSO-SERVIDO-<data>.json")
     c = json.load(open(caminho))
-    for k in ("por_campo_epoch", "host", "log_sha256", "linhas",
-              "divergencia_campo_vs_ts", "semantica"):
+    for k in ("por_campo_epoch", "por_epoch_e_modo", "host", "log_sha256", "linhas",
+              "divergencia_campo_vs_ts", "sem_modo", "semantica"):
         if k not in c:
             raise SystemExit(f"RED censo-sem-campo-{k} caminho={caminho}")
+    if c["sem_modo"] != 0:
+        raise SystemExit("RED censo-com-registro-sem-modo "
+                         f"n={c['sem_modo']} (impede separar active de shadow)")
     if c["divergencia_campo_vs_ts"] != 0:
         raise SystemExit("RED censo-com-chave-de-epoch-divergente "
                          f"n={c['divergencia_campo_vs_ts']}")
@@ -105,28 +108,40 @@ def classifica_janela(ini: datetime, fim: datetime) -> dict:
             "horas_na_janela": round(dentro_s / 3600, 2)}
 
 
-def classifica_entrega(epoch: str, servidos: dict, hoje: str,
+def classifica_entrega(epoch: str, por_modo: dict, hoje: str,
                        fim: datetime | None = None,
                        agora: datetime | None = None) -> dict:
     """Classe de ENTREGA do epoch, do censo de serving. Fail-closed por construção.
 
-    `servidos` é `por_campo_epoch` do `censo-servido-por-epoch.py`. Epoch AUSENTE do censo
-    é `vazio` (0 servidos) — nunca `cheio` por omissão, que é a regra 9 do CLAUDE.md:
-    guarda cujo predicado exige o dado que falta não cobre a falta do dado.
+    `por_modo` é `por_epoch_e_modo` do `censo-servido-por-epoch.py`. Epoch AUSENTE do
+    censo é `vazio` (0 servidos) — nunca `cheio` por omissão, que é a regra 9 do
+    CLAUDE.md: guarda cujo predicado exige o dado que falta não cobre a falta do dado.
+
+    ⚠️ **Conta só o `active`.** A primeira versão usava o TOTAL e para `2026-09-01`
+    declarava `cheio` com 672, quando 630 foram sob a dose designada (w=4,0) e 42 em
+    `shadow` (w=2,0). O veredito do epoch continuava `parcial`, mas chegava pela perna do
+    **relógio** — logo a perna de entrega errava exactamente no único epoch capaz de a
+    testar (medido: 09-01 é o único de modo misto da janela). Perna correta encoberta por
+    outra perna correta não tem teste que a alcance, e por isso `classe_entrega` de 09-01
+    é asserção própria na suíte, separada de `unidade`.
     """
     if epoch > hoje:
         return {"servidos": None, "classe_entrega": "futuro"}
-    n = int(servidos.get(epoch, 0))
+    modos = por_modo.get(epoch, {})
+    n = int(modos.get("active", 0))
+    total = int(sum(modos.values()))
+    extra = {"servidos_total": total, "por_modo": modos,
+             "modo_misto": len([m for m, v in modos.items() if v > 0]) > 1}
     if fim is not None and agora is not None and fim > agora:
         return {"servidos": n, "esperado": ESPERADO_POR_EPOCH,
-                "classe_entrega": "em_curso"}
+                "classe_entrega": "em_curso", **extra}
     if n == 0:
         c = "vazio"
     elif n >= ESPERADO_POR_EPOCH:
         c = "cheio"
     else:
         c = "parcial"
-    return {"servidos": n, "esperado": ESPERADO_POR_EPOCH, "classe_entrega": c}
+    return {"servidos": n, "esperado": ESPERADO_POR_EPOCH, "classe_entrega": c, **extra}
 
 
 def main() -> None:
@@ -134,7 +149,7 @@ def main() -> None:
     if primeiro > ACTIVE_EM:
         primeiro -= timedelta(days=1)
     censo = carrega_censo()
-    servidos = censo["por_campo_epoch"]
+    por_modo = censo["por_epoch_e_modo"]
     agora = datetime.now(U)
     hoje = agora.date().isoformat()
 
@@ -143,7 +158,7 @@ def main() -> None:
         ini, fim = epoch_de(dia)
         ep = ini.date().isoformat()
         j = classifica_janela(ini, fim)
-        e = classifica_entrega(ep, servidos, hoje, fim=fim, agora=agora)
+        e = classifica_entrega(ep, por_modo, hoje, fim=fim, agora=agora)
         # A unidade de análise só é INTEIRA se o relógio E a entrega o forem. Uma delas
         # sozinha já classificou errado em produção.
         if j["classe_janela"] == "fora":
@@ -194,13 +209,18 @@ def main() -> None:
             "inteiras_n": len(inteiros),
             "inteiras_de": inteiros[0]["epoch"] if inteiros else None,
             "inteiras_ate": inteiros[-1]["epoch"] if inteiros else None,
-            "parciais": [{"epoch": e["epoch"], "motivo": (
-                "relogio" if e["classe_janela"] == "parcial" else "volume"),
+            "parciais": [{"epoch": e["epoch"],
+                "motivos": ([m for m, cond in (
+                    ("relogio", e["classe_janela"] == "parcial"),
+                    ("volume", e["classe_entrega"] == "parcial")) if cond]),
                 "fracao_da_janela": e["fracao_da_janela"],
                 "horas_na_janela": e["horas_na_janela"],
-                "servidos": e["servidos"], "esperado": e.get("esperado")}
+                "servidos_active": e["servidos"], "servidos_total": e.get("servidos_total"),
+                "esperado": e.get("esperado"), "modo_misto": e.get("modo_misto")}
                 for e in parciais],
             "vazias": [{"epoch": e["epoch"], "servidos": e["servidos"]} for e in vazias],
+            "modo_misto": [{"epoch": e["epoch"], "por_modo": e.get("por_modo")}
+                           for e in epochs if e.get("modo_misto")],
             "futuras_n": len(futuras),
             "em_curso": [{"epoch": e["epoch"], "servidos": e["servidos"]}
                          for e in epochs if e["unidade"] == "em_curso"],

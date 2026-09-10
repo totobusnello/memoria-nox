@@ -17,10 +17,10 @@
   "censo_de_entrega": {
     "host": "srv1826603",
     "log": "/root/.openclaw/logs/p2-serving.ndjson",
-    "log_sha256": "03de9eb714dc6c39dad18dd943241268e3ee956d03a6f41e2476b3379509639a",
-    "linhas": 12173,
+    "log_sha256": "57e402e9cb196cec9f0935a02b4d518072e5b388df5b6a3cbfd2dbd8e4fee53a",
+    "linhas": 12180,
     "divergencia_campo_vs_ts": 0,
-    "semantica": "briefs-REGISTRADOS-no-log-de-serving-por-chave-epoch; NAO e' sobreposicao de relogio nem contrafactual recomputado"
+    "semantica": "briefs-REGISTRADOS-no-log-de-serving-por-chave-epoch; NAO e' sobreposicao de relogio nem contrafactual recomputado. `por_campo_epoch` e' o TOTAL e inclui `shadow`; a exposicao SOB A DESIGNACAO esta em `por_epoch_e_modo[epoch]['active']`. Medido 2026-09-10: 2026-09-01 e' o UNICO epoch de modo misto da janela (630 active w=4,0 + 42 shadow w=2,0), logo o total 672 sobrestima a entrega designada em 42."
   },
   "unidades_de_analise": {
     "semantica": "INTEIRA exige relogio inteiro E entrega cheia; as duas classes ficam separadas no vetor `epochs`",
@@ -30,19 +30,28 @@
     "parciais": [
       {
         "epoch": "2026-09-01",
-        "motivo": "relogio",
+        "motivos": [
+          "relogio",
+          "volume"
+        ],
         "fracao_da_janela": 0.932616,
         "horas_na_janela": 22.38,
-        "servidos": 672,
-        "esperado": 672
+        "servidos_active": 630,
+        "servidos_total": 672,
+        "esperado": 672,
+        "modo_misto": true
       },
       {
         "epoch": "2026-09-03",
-        "motivo": "volume",
+        "motivos": [
+          "volume"
+        ],
         "fracao_da_janela": 1.0,
         "horas_na_janela": 24.0,
-        "servidos": 441,
-        "esperado": 672
+        "servidos_active": 441,
+        "servidos_total": 441,
+        "esperado": 672,
+        "modo_misto": false
       }
     ],
     "vazias": [
@@ -51,11 +60,20 @@
         "servidos": 0
       }
     ],
+    "modo_misto": [
+      {
+        "epoch": "2026-09-01",
+        "por_modo": {
+          "shadow": 42,
+          "active": 630
+        }
+      }
+    ],
     "futuras_n": 10,
     "em_curso": [
       {
         "epoch": "2026-09-10",
-        "servidos": 133
+        "servidos": 140
       }
     ],
     "prereg_previa_epochs": 234
@@ -68,9 +86,15 @@
       "fracao_da_janela": 0.932616,
       "classe_janela": "parcial",
       "horas_na_janela": 22.38,
-      "servidos": 672,
+      "servidos": 630,
       "esperado": 672,
-      "classe_entrega": "cheio",
+      "classe_entrega": "parcial",
+      "servidos_total": 672,
+      "por_modo": {
+        "shadow": 42,
+        "active": 630
+      },
+      "modo_misto": true,
       "unidade": "parcial"
     },
     {
@@ -83,6 +107,9 @@
       "servidos": 0,
       "esperado": 672,
       "classe_entrega": "vazio",
+      "servidos_total": 0,
+      "por_modo": {},
+      "modo_misto": false,
       "unidade": "vazia"
     },
     {
@@ -95,6 +122,11 @@
       "servidos": 441,
       "esperado": 672,
       "classe_entrega": "parcial",
+      "servidos_total": 441,
+      "por_modo": {
+        "active": 441
+      },
+      "modo_misto": false,
       "unidade": "parcial"
     },
     {
@@ -107,6 +139,11 @@
       "servidos": 672,
       "esperado": 672,
       "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
       "unidade": "inteira"
     },
     {
@@ -119,6 +156,11 @@
       "servidos": 672,
       "esperado": 672,
       "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
       "unidade": "inteira"
     },
     {
@@ -131,6 +173,11 @@
       "servidos": 672,
       "esperado": 672,
       "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
       "unidade": "inteira"
     },
     {
@@ -143,6 +190,11 @@
       "servidos": 672,
       "esperado": 672,
       "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
       "unidade": "inteira"
     },
     {
@@ -155,6 +207,11 @@
       "servidos": 672,
       "esperado": 672,
       "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
       "unidade": "inteira"
     },
     {
@@ -167,6 +224,11 @@
       "servidos": 672,
       "esperado": 672,
       "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
       "unidade": "inteira"
     },
     {
@@ -176,9 +238,14 @@
       "fracao_da_janela": 1.0,
       "classe_janela": "inteiro",
       "horas_na_janela": 24.0,
-      "servidos": 133,
+      "servidos": 140,
       "esperado": 672,
       "classe_entrega": "em_curso",
+      "servidos_total": 140,
+      "por_modo": {
+        "active": 140
+      },
+      "modo_misto": false,
       "unidade": "em_curso"
     },
     {

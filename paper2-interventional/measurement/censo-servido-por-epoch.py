@@ -34,7 +34,9 @@ with open(p, "rb") as f:
     for b in iter(lambda: f.read(1 << 20), b""):
         h.update(b)
 porcampo = collections.Counter(); ports = collections.Counter(); cal = collections.Counter()
-n = 0; malformadas = 0; div = 0; semts = 0
+pormodo = collections.defaultdict(collections.Counter)
+wpor = collections.defaultdict(set)
+n = 0; malformadas = 0; div = 0; semts = 0; semmodo = 0
 for ln in open(p):
     ln = ln.strip()
     if not ln:
@@ -56,6 +58,12 @@ for ln in open(p):
     cal[t.date().isoformat()] += 1
     if ep is not None:
         porcampo[str(ep)] += 1
+        m = r.get("modo")
+        if m is None:
+            semmodo += 1
+        else:
+            pormodo[str(ep)][str(m)] += 1
+            wpor[str(ep) + "|" + str(m)].add(str(r.get("w")))
         if str(ep) != der:
             div += 1
 print(json.dumps({
@@ -65,7 +73,10 @@ print(json.dumps({
     "log_bytes": os.path.getsize(p),
     "linhas": n, "malformadas": malformadas, "sem_ts": semts,
     "divergencia_campo_vs_ts": div,
+    "sem_modo": semmodo,
     "por_campo_epoch": dict(porcampo),
+    "por_epoch_e_modo": {k: dict(v) for k, v in pormodo.items()},
+    "w_por_epoch_e_modo": {k: sorted(v) for k, v in wpor.items()},
     "por_ts_menos_9h": dict(ports),
     "por_dia_calendario": dict(cal),
 }))
@@ -96,7 +107,9 @@ def main() -> None:
             for b in iter(lambda: f.read(1 << 20), b""):
                 h.update(b)
         porcampo = collections.Counter(); ports = collections.Counter()
-        cal = collections.Counter(); n = mal = div = semts = 0
+        cal = collections.Counter(); n = mal = div = semts = semmodo = 0
+        pormodo = collections.defaultdict(collections.Counter)
+        wpor = collections.defaultdict(set)
         for ln in open(a.local):
             ln = ln.strip()
             if not ln:
@@ -118,21 +131,35 @@ def main() -> None:
             cal[t.date().isoformat()] += 1
             if ep is not None:
                 porcampo[str(ep)] += 1
+                m = r.get("modo")
+                if m is None:
+                    semmodo += 1
+                else:
+                    pormodo[str(ep)][str(m)] += 1
+                    wpor[str(ep) + "|" + str(m)].add(str(r.get("w")))
                 if str(ep) != der:
                     div += 1
         bruto = {"host": "local", "log": a.local, "log_sha256": h.hexdigest(),
                  "log_bytes": os.path.getsize(a.local), "linhas": n, "malformadas": mal,
                  "sem_ts": semts, "divergencia_campo_vs_ts": div,
-                 "por_campo_epoch": dict(porcampo), "por_ts_menos_9h": dict(ports),
-                 "por_dia_calendario": dict(cal)}
+                 "sem_modo": semmodo,
+                 "por_campo_epoch": dict(porcampo),
+                 "por_epoch_e_modo": {k: dict(v) for k, v in pormodo.items()},
+                 "w_por_epoch_e_modo": {k: sorted(v) for k, v in wpor.items()},
+                 "por_ts_menos_9h": dict(ports), "por_dia_calendario": dict(cal)}
     else:
         bruto = colhe(a.host, a.log)
 
     # A concordância entre as duas vias é PERNA PRÓPRIA, antes de qualquer conclusão:
     # se elas divergirem, a chave de agrupamento não é confiável e o censo não vale.
     estado = "GREEN" if bruto["divergencia_campo_vs_ts"] == 0 else "RED"
-    bruto["semantica"] = ("briefs-REGISTRADOS-no-log-de-serving-por-chave-epoch; "
-                          "NAO e' sobreposicao de relogio nem contrafactual recomputado")
+    bruto["semantica"] = (
+        "briefs-REGISTRADOS-no-log-de-serving-por-chave-epoch; "
+        "NAO e' sobreposicao de relogio nem contrafactual recomputado. "
+        "`por_campo_epoch` e' o TOTAL e inclui `shadow`; a exposicao SOB A DESIGNACAO "
+        "esta em `por_epoch_e_modo[epoch]['active']`. Medido 2026-09-10: 2026-09-01 e' o "
+        "UNICO epoch de modo misto da janela (630 active w=4,0 + 42 shadow w=2,0), logo "
+        "o total 672 sobrestima a entrega designada em 42.")
     bruto["esperado_por_epoch"] = ESPERADO_POR_EPOCH
     bruto["estado"] = estado
     bruto["ts_censo"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
