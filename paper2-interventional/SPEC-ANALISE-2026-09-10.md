@@ -37,8 +37,33 @@ os 19 designados têm `created_at` idêntico e a janela global de frescor é de 
 reclassificadas pelo censo no fecho. O artefato marca-as `futuro`, não `inteira` — não
 projeta.
 
-⚠️ **`09-01` é o único epoch de exposição MISTA de toda a janela:** 630 briefs em `active`
-sob a dose designada (w=4,0) e 42 em `shadow` (w=2,0). Medido; não é suposição.
+### `09-01` — errata da própria spec, 2026-09-10
+
+A primeira versão deste documento chamou `09-01` de **"exposição MISTA"**, e isso
+sobrestima o problema. Medido depois, e a medição muda a regra:
+
+| fase | n | de | até |
+|---|---:|---|---|
+| `shadow` (w=2,0) | 42 | `09:07:01.808Z` | `10:22:05.961Z` |
+| `active` (w=4,0) | 630 | `10:37:01.943Z` | `2026-09-02T08:52:06.139Z` |
+
+**Zero sobreposição nos dois sentidos** (`shadow` após o 1º `active`: 0; `active` antes do
+último `shadow`: 0). Não é exposição intercalada — é **sequencial**, e a distinção decide
+a regra: intercalada invalidaria o offset, sequencial torna-o exato.
+
+E as duas quantidades que eu tratava como problemas separados são **o mesmo fato medido
+por duas vias, e concordam**: `630/672 = 93,75%` de briefs contra `22,38/24 = 93,25%` de
+relógio — 0,5 pp de diferença. `09-01` tem **um** defeito (arranque tardio), não dois.
+
+⚠️ O rótulo veio de eu ver dois modos no mesmo epoch e escrever a palavra que implica
+intercalação, sem conferir se havia sobreposição. O número (dois modos) estava certo; a
+palavra afirmava mais do que o número. Família de
+`feedback_a_correct_number_carried_by_a_wrong_sentence`.
+
+**Nota sobre o que a fase `shadow` é:** em `shadow` o contrafactual é computado e o brief
+**servido é o de controle**. Logo os 42 briefs são **exposição de controle dentro de um
+epoch designado tratamento** — 6,25% de diluição **na direção do nulo**, isto é,
+conservadora contra a hipótese. Isso é declarado, não corrigido.
 
 ### Composição de braços — realizada contra desenhada
 
@@ -63,7 +88,7 @@ registrado, não uma escolha nova.
 |---|---|---|---|
 | `09-02` | vazia | **excluída do conjunto de análise**, contada e reportada | zero exposição e zero desfecho. Não é dado ausente, é unidade não realizada. É controle, logo excluí-la **piora** o desbalanço (9→8) e isso é declarado, não compensado |
 | `09-03` | parcial por volume | **incluída, com offset**; e a cobertura do PREREG §5 é computada e reportada **antes** de qualquer decisão de exclusão | `441/672` mede *uptime de serving*, **não** a cobertura de `brief_log` do prereg. São grandezas diferentes e a segunda é que governa o piso de 95% |
-| `09-01` | parcial por relógio **e** exposição mista | **incluída no ITT** pelo braço designado (tratamento, w=4,0), e reportada **em separado** numa sensibilidade que a remove | o offset absorve truncamento de relógio; **não** absorve contaminação de dose. 42 briefs a w=2,0 dentro de um epoch designado w=4,0 é exposição mista, e fundir mista com uniforme é a família "número certo, população errada" |
+| `09-01` | parcial por relógio (arranque tardio, fases **sequenciais**) | **incluída no ITT** pelo braço designado, com offset sobre a exposição tratada (630 briefs / 22,38 h); a sensibilidade que a remove é reportada ao lado | ITT respeita a randomização, e excluir por causa do que aconteceu **depois** dela é conditioning pós-tratamento — o mesmo erro que o PREREG §5 já pré-comprometeu contra no caso da cobertura. As fases não se intercalam, logo o offset é exato e não há contaminação a remover; a diluição de 6,25% aponta para o nulo |
 | `09-20` | parcial por relógio | **incluída, com offset** | truncamento puro; o corte cai **dentro** do epoch, às 22:51:23Z |
 
 **Nenhum parcial é arredondado para dentro ou para fora.** Os três entram declarados, e a
@@ -175,7 +200,8 @@ log, porque o contrafactual só é computado onde a dose age. Qualquer afirmaç�
 4. **O ITT sobre todos os epochs pós-washout sem exclusão de cobertura**, ao lado do
    primário (PREREG §5, obrigatório porque cobertura é pós-randomização).
 5. **A correlação braço-cobertura com IC, incondicionalmente** (M10).
-6. **`09-01` em separado** por exposição mista, e a sensibilidade que o remove.
+6. **`09-01` com as duas fases declaradas** (42 `shadow` até 10:22Z, 630 `active` desde
+   10:37Z, sem sobreposição) e a sensibilidade que o remove.
 7. **A decomposição sorteio × truncamento** do `n=1` no `w=7,5` (7,7% da distribuição).
 
 ## 7. O que fica PROIBIDO
