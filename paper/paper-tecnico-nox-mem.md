@@ -92,6 +92,17 @@ The single design principle that ties these closures together is **pain weightin
 the *literature*, and its purpose is as much to mark what is **not** novel here as to
 locate the contribution.
 
+**Where this sits on the map.** Two surveys chart the area this work belongs to. Zhang et
+al.[^memsurvey] taxonomise agent memory by *what* is stored and *how* it is written, read
+and managed; Gao et al.[^selfevolsurvey] survey self-evolving agents along *what, when, how
+and where* to evolve. Read against either taxonomy, nox-mem is a narrow instance: a
+single-substrate store (SQLite, one embedding model) with a **hand-specified** write and
+retention policy, no learned component anywhere in the loop, and self-evolution limited to
+two operator-invoked primitives (§3.4). Most of the axes those surveys enumerate are, for
+this system, fixed at their simplest setting. That is the point of comparison worth making
+— the results in §5–§6 come from a system that declines nearly every degree of freedom the
+literature has opened.
+
 **Retrieval substrate: deliberately conventional.** Layer 1 is FTS5 BM25[^bm25], Layer 2
 is dense retrieval over a single embedding model, and the two are combined by Reciprocal
 Rank Fusion[^rrf] at the standard `k=60`. Each of those choices has a canonical source and
@@ -103,7 +114,11 @@ RAG formulation[^rag] moves work into the reader, which nox-mem does not do at a
 returns ranked chunks and leaves generation to the calling agent. On the index side we run
 **exact** search via sqlite-vec[^sqlitevec] rather than an approximate structure such as
 HNSW[^hnsw]; §7.1 records that this is the binding constraint past ~100k vectors, and it
-is a scaling limitation, not a design claim. **The contribution of this paper is not the
+is a scaling limitation, not a design claim. One assumption underneath all of it is untested here: nox-mem
+retrieves on **every** query. Mallen et al.[^whennottotrust] show that for sufficiently
+popular facts a model's parametric knowledge beats retrieval, and that retrieving anyway
+can make the answer worse — which makes always-retrieve a policy choice this paper never
+evaluates against the alternative. **The contribution of this paper is not the
 retriever.** Nothing in Layers 1–2 would surprise an IR reader, and that is intentional:
 it isolates what does change, which is the retention and ranking policy above them.
 
@@ -117,6 +132,39 @@ the LLM, decides what hurt. Second, the score is not consumed by a paging loop b
 ranking layer whose changes must pass a shadow phase before activation (§3.4.3) — the
 policy is auditable and reversible in a way an in-prompt scoring heuristic is not.
 
+**Learning the memory policy instead of fixing it.** A recent line of work makes the
+memory policy itself the object of training. Mem-α[^memalpha] learns *construction* — what
+to write and how to structure it — by reinforcement learning; Memory-R1[^memoryr1] learns
+the management operations (add, update, delete, retain) with outcome rewards; Memory as
+Action[^memaction] treats context curation as an action in the agent's own action space;
+MEM1[^mem1] trains memory and reasoning jointly so that the retained state stays constant
+in size across turns. Every one of them replaces a hand-written rule with a learned one,
+and reports gains from doing so.
+
+nox-mem takes the opposite position, and the trade is worth stating plainly rather than
+defending. The salience weights of §3.4 are **constants chosen by hand**; `pain` is
+assigned by the operator; retention windows are integers per type. Nothing here adapts.
+What that buys is a policy an operator can read in one screen, diff in git, and revert —
+and a change process (the shadow gate of §3.4.3) that can hold a proposed ranking change
+against production traffic before it takes effect. What it costs is precisely what those
+four papers demonstrate: a fixed policy cannot discover, per corpus, what a trained one
+finds. This paper does not measure that gap, and the gap is real.
+
+**Self-evolution: the same two moves, without a training loop.** ReasoningBank[^reasoningbank]
+distils reusable reasoning strategies out of an agent's own successes and failures and
+retrieves them on later tasks — structurally what `crystallize` (§3.4.1) does when it turns
+a solved incident into a procedure. Reflective Memory Management[^rmm] splits the problem
+into *prospective* reflection (deciding at write time what will matter) and *retrospective*
+reflection (re-ranking retrieved evidence after the fact), which maps onto the write-side
+`pain` assignment and the read-side `reflect` (§3.4.2) respectively. In both cases the
+mechanism in this paper is the cheaper half: `crystallize` is **invoked by the operator**
+rather than triggered by a trained policy, and `reflect` is a synchronous call over already
+ranked chunks rather than a learned re-ranking step. WebCoach[^webcoach] closes the loop across *sessions*, feeding distilled
+advice from past episodes into a fresh agent that has no memory of them — the same
+cross-session role that §3.5's brief plays, except that its advice is produced by a trained
+component while the brief is a ranked assembly. The shapes are prior art; what is new
+here is neither shape but the accounting of what they cost at $0 of training.
+
 **Forgetting: also prior art, with a different granularity.** MemoryBank[^memorybank]
 implements decay on an Ebbinghaus-style curve, a single forgetting function applied
 uniformly. nox-mem instead uses **typed retention windows** per `chunk_type` (§2.3), with
@@ -124,13 +172,25 @@ uniformly. nox-mem instead uses **typed retention windows** per `chunk_type` (§
 expressiveness for inspectability: a per-type integer in a column is coarser than a curve,
 and it is also legible in `sqlite3` and changeable without re-deriving anything.
 
+**Structure of the store.** Rezazadeh et al.[^treemem] grow a *dynamic* tree of schemas
+over a conversation, deepening it as material accumulates. nox-mem's entity files (§2.3)
+are the degenerate case of that idea: a **fixed** three-section shape — frontmatter,
+compiled truth, timeline — with a per-section retrieval boost and no restructuring at all.
+On the multi-agent side, MIRIX[^mirix] coordinates several specialised memory components
+behind one interface; the architecture of §2.4 instead gives each of six agents its own
+database and reads across them with a single fan-out query (`cross_search`), which keeps
+per-agent provenance at the cost of any shared consolidation between them.
+
 **Agent-memory architectures.** MemGPT[^letta] frames memory as an operating-system
 problem, paging between a fixed context window and archival storage. nox-mem does not page:
 the context window is populated by a brief (§3.5) assembled from a ranked query, and there
 is no eviction loop. The distinction matters for failure modes — a paging architecture can
 lose an item by evicting it, while a ranking architecture loses it by ranking it low, which
 is recoverable by changing the ranker and is exactly what §3.4.3's shadow gate exists to
-control.
+control. MemAgent[^memagent] attacks the same context limit from a third direction,
+training an agent to rewrite a fixed-size memory across successive chunks of a long input;
+that is a *reading* strategy for one long document, where nox-mem's brief is an *assembly*
+strategy over a persistent multi-source store.
 
 **Graph-augmented retrieval.** HippoRAG[^hipporag] applies Personalized PageRank over an
 entity-relation graph, and HippoRAG 2[^hipporag2] extends the approach toward
@@ -141,7 +201,8 @@ and runs at single-digit milliseconds (§5.7). It buys latency and cost at the p
 multi-hop expressiveness, and §5.4 quantifies that price rather than hiding it.
 
 **Benchmarks and evaluation.** The long-term conversational memory setting is measured
-here on LoCoMo[^locomo] and LongMemEval[^longmemeval]; classical multi-hop QA on
+here on LoCoMo[^locomo] and LongMemEval[^longmemeval], both of which descend from the
+multi-session setup introduced by Beyond Goldfish Memory[^goldfish]; classical multi-hop QA on
 MuSiQue[^musique] against the IRCoT[^ircot] baseline. Retrieval-quality methodology follows
 the zero-shot heterogeneous-benchmark discipline of BEIR[^beir] and the embedding-model
 evaluation conventions of MTEB[^mteb], which is why §6 reports nDCG@10 under each system's
@@ -153,7 +214,11 @@ is named here as an open gap rather than a claimed capability.
 **Agent reasoning loops.** The orchestration experiments of §5.5 are implementations of
 published loops, not new ones: IterB follows ReAct[^react] and IterC follows the
 Self-Ask[^selfask] decomposition. Their contribution in this paper is the measurement of
-where each loop's ceiling sits on top of this retriever, not the loops themselves.
+where each loop's ceiling sits on top of this retriever, not the loops themselves. The
+newer alternative is to train the loop rather than script it: MemSearcher[^memsearcher]
+learns jointly to reason, issue searches and prune its own context end-to-end. Untrained
+scripted loops are what §5.5 measures, and the ceilings it reports should be read as
+ceilings *of that class*.
 
 ## 2. System Architecture
 
@@ -1422,6 +1487,21 @@ Every entry below carries a resolvable identifier (arXiv ID or DOI). Full BibTeX
 `paper/refs.bib`. arXiv IDs were verified against the arXiv API on 2026-09-09 — ID,
 first author and title checked to match, rather than transcribed from memory.
 
+[^memsurvey]: Zhang, Bo, Ma, Li, Chen *et al.*, *A Survey on the Memory Mechanism of Large Language Model based Agents*, ACM TOIS 2025. arXiv:2404.13501. Used in §1.5.
+[^selfevolsurvey]: Gao, Geng, Hua, Hu, Juan *et al.*, *A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence*, TMLR 2026. arXiv:2507.21046. Used in §1.5.
+[^reasoningbank]: Ouyang, Yan, Hsu, Chen, Jiang *et al.*, *ReasoningBank: Scaling Agent Self-Evolving with Reasoning Memory*, ICLR 2026. arXiv:2509.25140. Used in §1.5 and §3.4.
+[^rmm]: Tan, Yan, Hsu, Han, Wang *et al.*, *In Prospect and Retrospect: Reflective Memory Management for Long-term Personalized Dialogue Agents*, ACL 2025. arXiv:2503.08026. Used in §1.5 and §3.4.
+[^mirix]: Wang & Chen, *MIRIX: Multi-Agent Memory System for LLM-Based Agents*, 2025. arXiv:2507.07957. Used in §1.5 and §2.4.
+[^treemem]: Rezazadeh, Li, Wei & Bao, *From Isolated Conversations to Hierarchical Schemas: Dynamic Tree Memory Representation for LLMs*, 2024. arXiv:2410.14052. Used in §1.5 and §2.3.
+[^goldfish]: Xu, Szlam & Weston, *Beyond Goldfish Memory: Long-Term Open-Domain Conversation*, ACL 2022. arXiv:2107.07567. Used in §1.5 and §6.
+[^memalpha]: Wang, Takanobu, Liang, Mao, Hu *et al.*, *Mem-α: Learning Memory Construction via Reinforcement Learning*, 2025. arXiv:2509.25911. Used in §1.5.
+[^memoryr1]: Yan, Yang, Huang, Nie, Ding *et al.*, *Memory-R1: Enhancing Large Language Model Agents to Manage and Utilize Memories via Reinforcement Learning*, 2025. arXiv:2508.19828. Used in §1.5.
+[^memaction]: Zhang, Shu, Ma, Lin, Wu & Sang, *Memory as Action: Autonomous Context Curation for Long-Horizon Agentic Tasks*, 2025. arXiv:2510.12635. Used in §1.5.
+[^mem1]: Zhou, Qu, Wu, Kim, Prakash *et al.*, *MEM1: Learning to Synergize Memory and Reasoning for Efficient Long-Horizon Agents*, 2025. arXiv:2506.15841. Used in §1.5.
+[^memagent]: Yu, Chen, Feng, Chen, Dai *et al.*, *MemAgent: Reshaping Long-Context LLM with Multi-Conv RL-based Memory Agent*, ICLR 2026. arXiv:2507.02259. Used in §1.5.
+[^whennottotrust]: Mallen, Asai, Zhong, Das, Khashabi & Hajishirzi, *When Not to Trust Language Models: Investigating Effectiveness of Parametric and Non-Parametric Memories*, ACL 2023. arXiv:2212.10511. Used in §1.5.
+[^memsearcher]: Yuan, Lou, Li, Chen, Lu *et al.*, *MemSearcher: Training LLMs to Reason, Search and Manage Memory via End-to-End Reinforcement Learning*, ACL 2026. arXiv:2511.02805. Used in §1.5.
+[^webcoach]: Liu, Geng, Li, Cui, Zhang *et al.*, *WebCoach: Self-Evolving Web Agents with Cross-Session Memory Guidance*, 2025. arXiv:2511.12997. Used in §1.5.
 [^bm25]: Robertson & Zaragoza, *The Probabilistic Relevance Framework: BM25 and Beyond*, Foundations and Trends in Information Retrieval 3(4), 2009. doi:10.1561/1500000019. Cited in §3.1 for the BM25 ranking used by Layer 1 (FTS5).
 
 [^rrf]: Cormack, Clarke & Buettcher, *Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods*, SIGIR 2009. doi:10.1145/1571941.1572114. Cited in §3.2 — this is the source of the `k=60` constant used by the fusion layer.
