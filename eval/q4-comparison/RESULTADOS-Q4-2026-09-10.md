@@ -127,6 +127,34 @@ logo não dispara a classificação por LLM que outras funções do mesmo módul
 oferecem. Custo: 2.482 × 50 pares × ~140 tokens ≈ 17,4 M tokens a $0,025/1M
 ⇒ **~$0,43**.
 
+### 4.1 A configuração de retrieval não está no `meta` — recibo à parte
+
+O `meta` do artefato registra `datasets, finished_at, harness_version, k,
+n_errors, n_queries, started_at, system, version` (+ `limite`, `queries_file`,
+`queries_file_linhas`, acrescentados hoje). **Nada sobre modelo, reranker ou
+dimensão.** Um nDCG publicado só com isso não diz sob que configuração foi
+produzido — é a lição "medição em artefato versionado nomeia o commit" aplicada
+a variável de ambiente em vez de commit.
+
+Capturado do `/proc/<pid>/environ` do processo **vivo**, porque depois do fecho
+deixa de ser observável (`everos-config-retrieval-2026-09-10.txt`):
+
+| | valor |
+|---|---|
+| embedding | `gemini-embedding-001`, **3072d** |
+| LLM | `gemini-2.5-flash-lite` |
+| reranker | **`Qwen/Qwen3-Reranker-4B`** via DeepInfra |
+| `EVEROS_SEARCH_METHOD` | **não definida** ⇒ default |
+| `EVEROS_OVERFETCH` | **não definida** ⇒ default |
+
+⚠️ `method=hybrid` é **observado no log do serviço** (2.482 ocorrências, valor
+único), não inferido do env — o env prova o que pedimos, o log prova o que
+correu. As duas chaves de Gemini têm o mesmo `sha256` de prefixo: é uma chave só,
+usada nas duas superfícies.
+
+⇒ O `meta` devia carregar isto. Enquanto não carrega, o recibo fica ao lado e a
+célula do §7 aponta para ele.
+
 ## 5. Configuração de busca do Zep — fan-out por sessão
 
 | parâmetro | valor |
@@ -179,7 +207,12 @@ server in this stack"*, e não há bloco `NLP` no `zep-config.yaml`. O Zep 0.27.
 de **comparabilidade** — embedar com `text-embedding-3-small` a 1536d como as
 outras colunas —, não restrição do Zep.
 
-### 5.4 Superfície paga por query, e o que ela custou
+### 5.4 Superfície paga por query — tabela CRUZADA, e o custo total
+
+> ⚠️ Esta subseção **não é do Zep**, apesar da numeração: compara as duas
+> colunas e só pode vir depois de ambas as configurações estarem declaradas
+> (§4 EverOS, §5 Zep). Cada linha nomeia o sistema. A numeração fica para não
+> quebrar as referências que a sessão par já escreveu.
 
 Simétrica à do EverOS (§4): declarada pela **configuração em serviço**, não por
 suposição sobre a arquitetura.
