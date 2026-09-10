@@ -183,7 +183,18 @@ def setup() -> None:
     (`runner.py --skip-ingest`) so the fan-out search still works.
     """
     _get_client()
-    if os.environ.get("NOX_ZEP_RESCAN_SESSIONS") == "1":
+    # ⚠️ INVERTIDO 2026-09-10: o rescan era opt-in (`NOX_ZEP_RESCAN_SESSIONS=1`) e
+    # sem ele um processo NOVO tinha `_sessions == []`, logo `search()` devolvia
+    # lista VAZIA -- indistinguivel de "o Zep nao achou nada relevante". A fase de
+    # busca roda noutro processo que a ingestao, entao esse era o caminho NORMAL:
+    # a coluna do Zep sairia nDCG=0 e leria-se como qualidade do sistema.
+    #
+    # Medido: `search()` devolveu `hits=0` em 5 de 5 consultas num indice com
+    # dados, e nada no retorno dizia por que.
+    #
+    # Passa a rescanear por DEFAULT. Opt-out explicito para quem precise do
+    # comportamento antigo.
+    if os.environ.get("NOX_ZEP_RESCAN_SESSIONS") != "0":
         _rescan_sessions_from_zep()
 
 
@@ -372,7 +383,7 @@ def _wait_for_embeddings(expected: int, max_secs: int) -> None:
             count = int(out.stdout.strip() or "0")
         except Exception as exc:
             print(f"[zep wait] poll error: {exc}")
-            time.sleep(5)
+            time.sleep(float(os.environ.get("ZEP_EMBED_POLL_SECS", "1")))
             continue
         if count >= expected:
             print(f"[zep wait] embeddings ready: {count}/{expected}")
@@ -387,7 +398,12 @@ def _wait_for_embeddings(expected: int, max_secs: int) -> None:
         if stagnant_polls >= 6:  # 6 polls × 10s = 60s no progress
             print("[zep wait] no progress for 60s — proceeding with partial embeddings")
             return
-        time.sleep(10)
+        # ⚠️ 10 s era caro no caminho POR CONVERSA: 510 conversas x ~2 polls
+        # = ~2,7 h de espera, medido. A correcao do predicado (base+incremento)
+        # tornou a espera REAL, e uma espera real com granularidade grosseira
+        # paga o arredondamento 510 vezes. O predicado e' que garante correcao;
+        # a granularidade so custa tempo.
+        time.sleep(float(os.environ.get("ZEP_EMBED_POLL_SECS", "1")))
     print(f"[zep wait] timeout after {max_secs}s; proceeding with partial embeddings")
 
 
@@ -415,7 +431,26 @@ def search(query: str, k: int = 10) -> list[dict]:
     if not _sessions:
         fallback = os.environ.get("ZEP_SESSION_ID")
         if not fallback:
-            return []
+            # ⚠️ AQUI estava `return []`, e era o caminho NORMAL da fase de busca:
+            # ela roda noutro processo que a ingestao, `_sessions` nasce vazio, e
+            # cada query devolvia lista vazia. A coluna do Zep sairia nDCG=0 e
+            # leria-se como QUALIDADE DO SISTEMA. Medido: 5 de 5 consultas com
+            # `hits=0` sobre um indice com dados, e nada no retorno dizia por que.
+            #
+            # "Nenhuma sessao para varrer" e' falha de CONFIGURACAO. Um zero por
+            # configuracao e um zero por retrieval tem de ser distinguiveis, e a
+            # unica forma honesta e' abortar alto.
+            #
+            # ⚠️ E o guarda tem de estar NESTE ramo. A minha primeira tentativa
+            # pos o `raise` DEPOIS deste `if`, onde era inalcancavel -- o ramo que
+            # decide primeiro escondia-o, e o teste dizia "DID NOT RAISE".
+            raise RuntimeError(
+                "zep search sem sessao nenhuma para varrer: `_sessions` esta vazio "
+                "e ZEP_SESSION_ID nao esta definido. Num processo novo, `setup()` "
+                "tem de rescanear o servidor (default desde 2026-09-10; desligado "
+                "por NOX_ZEP_RESCAN_SESSIONS=0). Devolver [] aqui seria publicar "
+                "nDCG=0 como se fosse resultado do Zep."
+            )
         return _search_one(client, fallback, query, k)
 
     from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -432,12 +467,24 @@ def search(query: str, k: int = 10) -> list[dict]:
             return sid, exc
 
     all_results: list[tuple[float, dict]] = []
+    erros_sessao: list[str] = []
     with ThreadPoolExecutor(max_workers=workers) as pool:
         futures = [pool.submit(_one, sid) for sid in _sessions]
         for fut in as_completed(futures):
             sid, results = fut.result()
             if isinstance(results, Exception):
-                # Log + skip; do not let one bad session kill the whole query
+                # ⚠️ MEDIDO 2026-09-10 com 192 workers: sessoes falham com
+                # `[Errno 9] Bad file descriptor`. `print + continue` e' robusto
+                # para producao e FATAL para medicao: uma query respondida por 480
+                # de 510 sessoes produz uma lista de hits com MENOS recall, e nada
+                # no retorno dizia isso. Em 2.482 queries, falhas silenciosas por
+                # sessao deprimem o nDCG do Zep e publicam-se como QUALIDADE dele.
+                #
+                # Continua a nao deixar uma sessao ruim matar a query -- mas passa
+                # a CONTAR, a expor a contagem em cada item, e a abortar quando a
+                # fracao de falhas passa do limite (default 1%), porque acima disso
+                # o numero nao e' comparavel com o de uma varredura completa.
+                erros_sessao.append(str(sid))
                 print(f"[zep search] session={sid} error: {results}")
                 continue
             for r in results:
@@ -467,6 +514,22 @@ def search(query: str, k: int = 10) -> list[dict]:
                     )
                 )
 
+    # ⚠️ GUARDA DE VARREDURA COMPLETA. Acima do limite, a lista de hits vem de um
+    # fan-out DEGRADADO e nao e' comparavel com a de uma varredura inteira -- e o
+    # numero sairia como qualidade do Zep. Default 1%: uma sessao ruim entre 510
+    # nao invalida a query, 6 invalidam.
+    limite = float(os.environ.get("ZEP_MAX_ERRO_SESSAO", "0.01"))
+    fracao = len(erros_sessao) / max(len(_sessions), 1)
+    if fracao > limite:
+        raise RuntimeError(
+            f"zep fan-out degradado: {len(erros_sessao)} de {len(_sessions)} sessoes "
+            f"falharam ({fracao:.1%} > {limite:.1%}). A lista de hits teria menos "
+            f"recall por FALHA DE VARREDURA, nao por retrieval, e o nDCG sairia como "
+            f"qualidade do Zep. Baixe NOX_ZEP_SEARCH_WORKERS (medido 2026-09-10: 96 "
+            f"limpo, 192 com 'Bad file descriptor') ou suba ZEP_MAX_ERRO_SESSAO se a "
+            f"degradacao for aceitavel e DECLARADA. Primeiras: {erros_sessao[:3]}"
+        )
+
     # Sort by similarity (higher = closer) and dedupe by id.
     all_results.sort(key=lambda x: x[0], reverse=True)
     seen: set[str] = set()
@@ -475,6 +538,10 @@ def search(query: str, k: int = 10) -> list[dict]:
         if item["id"] in seen:
             continue
         seen.add(item["id"])
+        # Proveniencia da varredura, por item: quem le o artefato nao tem de
+        # supor que o fan-out foi completo.
+        item["sessoes_varridas"] = len(_sessions)
+        item["sessoes_com_erro"] = len(erros_sessao)
         deduped.append(item)
         if len(deduped) >= k:
             break

@@ -33,6 +33,22 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
+def _censo_zep() -> tuple[int, int]:
+    """(mensagens, vetores) no Postgres do Zep. (0,0) quando não se consegue medir."""
+    import subprocess
+
+    try:
+        out = subprocess.run(
+            ["docker", "exec", "q4-postgres", "psql", "-U", "zep", "-d", "zep", "-t", "-A",
+             "-c", "SELECT (SELECT count(*) FROM message)||' '||(SELECT count(*) FROM message_embedding);"],
+            capture_output=True, text=True, timeout=15,
+        )
+        a, b = out.stdout.strip().split()
+        return int(a), int(b)
+    except Exception:
+        return 0, 0
+
+
 def agora() -> str:
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
@@ -150,12 +166,34 @@ def main() -> int:
 
     ad.teardown()
 
-    # O embedding é assíncrono: sem esta espera, a contagem de prontidão mede a
-    # espera e não o índice.
-    print(f"⏳ esperando {a.espera_final}s para o embedder assíncrono drenar...", flush=True)
-    time.sleep(a.espera_final)
+    # ⚠️ A ESPERA PERTENCE À FRONTEIRA, e é por ESTADO, não por relógio.
+    #
+    # Duas correções aqui. (i) `time.sleep(N)` mede o relógio, não o índice: se N
+    # for curto o `fecho` afirma prontidão que não existe, e se for longo paga-se
+    # tempo sem saber por quê. (ii) A espera do adapter é POR CHAMADA, e este
+    # script chama `ingest_corpus` uma vez por conversa — 510 arredondamentos de
+    # granularidade, medidos em ~2,7 h. Logo desligamos a espera por chamada
+    # (`ZEP_EMBED_WAIT_SECS=0`, feito no envelope) e esperamos UMA vez, aqui, que
+    # é a fronteira real: depois deste ponto alguém vai buscar.
+    print("⏳ prontidão do índice, medida no banco (não no relógio)...", flush=True)
+    limite_prontidao = time.time() + a.espera_final
+    while time.time() < limite_prontidao:
+        msg, emb = _censo_zep()
+        if msg > 0 and emb >= msg:
+            print(f"✅ índice pronto: EMB={emb} >= MSG={msg}", flush=True)
+            break
+        print(f"   EMB={emb} de MSG={msg}", flush=True)
+        time.sleep(5)
+    else:
+        msg, emb = _censo_zep()
+        print(f"⚠️ prazo de prontidão esgotado com EMB={emb} de MSG={msg} — "
+              f"o `fecho` vai DIZER isso em vez de afirmar prontidão", flush=True)
 
+    msg_fim, emb_fim = _censo_zep()
     fecho = {"ts": agora(), "evento": "fecho", "mensagens_ok": ok_msgs, "erros": erros,
+             # Prontidão é campo do recibo, não suposição de quem o lê.
+             "mensagens_no_banco": msg_fim, "vetores_no_banco": emb_fim,
+             "indice_pronto": bool(msg_fim > 0 and emb_fim >= msg_fim),
              "conversas_no_ledger": len({l.strip() for l in ledger.read_text().splitlines() if l.strip()})
              if ledger.exists() else 0,
              "documentos_no_corpus": total, "conversas_no_corpus": len(grupos)}

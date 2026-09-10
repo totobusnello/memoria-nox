@@ -404,16 +404,34 @@ class TestSearchFallbackSingleSession(unittest.TestCase):
         self.assertEqual(args[0], "my-custom-session")
         self.assertIsInstance(results, list)
 
-    def test_fallback_returns_empty_when_no_env(self):
+    def test_fallback_aborta_em_vez_de_devolver_vazio_quando_nao_ha_env(self):
+        """
+        ⚠️ ESTE TESTE FIXAVA O DEFEITO. Ele chamava-se
+        `test_fallback_returns_empty_when_no_env` e exigia `results == []` quando
+        não há sessões nem `ZEP_SESSION_ID` — isto é, garantia por contrato o
+        comportamento que fazia a coluna do Zep sair **nDCG=0**.
+
+        A fase de busca do harness roda noutro processo que a ingestão, logo
+        `_sessions` nasce vazio e este era o caminho **normal**, não uma borda.
+        Medido 2026-09-10: 5 de 5 consultas devolveram `hits=0` sobre um índice
+        COM dados, e nada no retorno dizia por quê.
+
+        Um zero por **configuração** e um zero por **retrieval** têm de ser
+        distinguíveis. Invertido de propósito: agora exige o `raise`.
+
+        🔑 Teste que fixa o comportamento errado é pior que teste nenhum — ele
+        transforma o defeito em contrato e faz a correção parecer regressão.
+        """
         zep = _fresh_adapter()
-        mock_client = MagicMock()
-        zep._client = mock_client
+        zep._client = MagicMock()
+        zep._sessions = []
 
         env = os.environ.copy()
         env.pop("ZEP_SESSION_ID", None)
         with patch.dict(os.environ, env, clear=True):
-            results = zep.search("test", k=5)
-        self.assertEqual(results, [])
+            with self.assertRaises(RuntimeError) as ctx:
+                zep.search("test", k=5)
+        self.assertIn("sessao", str(ctx.exception).lower())
 
 
 # ---------------------------------------------------------------------------
@@ -529,3 +547,145 @@ def test_conta_embeddings_devolve_zero_quando_nao_consegue_medir():
     i = src.index("def _conta_embeddings")
     corpo = src[i : src.index("def _wait_for_embeddings")]
     assert "except Exception:" in corpo and "return 0" in corpo, corpo[-200:]
+
+
+# ── search() devolvendo [] por falta de sessão publica nDCG=0 (2026-09-10) ────
+
+
+def test_search_recusa_quando_nao_ha_sessao_para_varrer(monkeypatch):
+    """
+    `_sessions` vazio é falha de CONFIGURAÇÃO, não resultado de retrieval.
+
+    Medido 2026-09-10: num processo novo o rescan era opt-in, `_sessions` ficava
+    `[]`, e `search()` devolvia lista vazia em 5 de 5 consultas sobre um índice
+    COM dados. A fase de busca roda noutro processo que a ingestão ⇒ esse era o
+    caminho NORMAL, e a coluna do Zep sairia nDCG=0, publicada como qualidade do
+    sistema.
+
+    Um zero por configuração e um zero por retrieval têm de ser distinguíveis.
+    """
+    mod = importlib.import_module("adapters.zep")
+    monkeypatch.setattr(mod, "_sessions", [], raising=False)
+    monkeypatch.setattr(mod, "_client", object(), raising=False)
+    monkeypatch.delenv("ZEP_SESSION_ID", raising=False)
+    monkeypatch.setattr(mod, "setup", lambda: None)
+
+    with pytest.raises(RuntimeError) as exc:
+        mod.search("qualquer coisa", k=10)
+    msg = str(exc.value)
+    assert "sessao" in msg.lower(), msg
+    assert "NOX_ZEP_RESCAN_SESSIONS" in msg, "a mensagem tem de dizer a alavanca"
+    assert "nDCG" in msg, "tem de dizer POR QUE devolver [] seria pior"
+
+
+def test_rescan_de_sessoes_e_o_default_e_nao_opt_in():
+    """
+    O rescan tem de correr por DEFAULT. Opt-in significa que o caminho normal
+    (processo novo na fase de busca) nasce sem sessões — e falha calada.
+    """
+    fonte = Path(__file__).resolve().parent.parent / "adapters" / "zep.py"
+    src = fonte.read_text()
+    corpo = src[src.index("def setup()") : src.index("def _rescan_sessions_from_zep")]
+    assert 'NOX_ZEP_RESCAN_SESSIONS") != "0"' in corpo, (
+        "o rescan voltou a ser opt-in: " + corpo[-300:]
+    )
+
+
+def test_espera_de_embeddings_tem_granularidade_configuravel():
+    """
+    O predicado garante correção; a granularidade só custa tempo — e custava
+    ~2,7 h (510 conversas × ~2 polls × 10 s), medido.
+    """
+    fonte = Path(__file__).resolve().parent.parent / "adapters" / "zep.py"
+    src = fonte.read_text()
+    assert 'ZEP_EMBED_POLL_SECS' in src
+    assert "time.sleep(10)" not in src, "o sleep fixo de 10s voltou"
+
+
+# ── fan-out degradado publica menos recall como qualidade (2026-09-10) ────────
+
+
+def test_search_aborta_quando_o_fanout_degrada_acima_do_limite():
+    """
+    Medido com 192 workers: sessões falham com `[Errno 9] Bad file descriptor`, e
+    o código fazia `print + continue`. Robusto para produção, **fatal para
+    medição**: uma query respondida por 480 de 510 sessões devolve menos recall
+    por FALHA DE VARREDURA, e nada no retorno dizia isso.
+
+    O guarda e a proveniência por item têm de existir os dois: o guarda impede o
+    número inválido, a proveniência deixa o artefato auditável quando a
+    degradação está abaixo do limite.
+    """
+    fonte = Path(__file__).resolve().parent.parent / "adapters" / "zep.py"
+    src = fonte.read_text()
+    assert "ZEP_MAX_ERRO_SESSAO" in src, "o guarda de varredura desapareceu"
+    assert "erros_sessao.append" in src, "os erros voltaram a ser só impressos"
+    assert '"sessoes_com_erro"' in src and '"sessoes_varridas"' in src, (
+        "a proveniência da varredura não está em cada item"
+    )
+    # O guarda tem de vir ANTES da montagem da lista, senão devolve-se o número
+    # degradado e só depois se reclama.
+    corpo = src[src.index("def search(") : src.index("def _search_one")]
+    assert corpo.index("ZEP_MAX_ERRO_SESSAO") < corpo.index("all_results.sort"), (
+        "o guarda está DEPOIS da montagem — devolveria a lista degradada"
+    )
+
+
+def _adapter_com_sessoes(monkeypatch, n_sessoes: int, n_falhas: int):
+    """Monta o fan-out real com `n_falhas` sessões que estouram. Stub por SUBTRAÇÃO."""
+    mod = importlib.import_module("adapters.zep")
+    sessoes = [f"q4-s{i:04d}" for i in range(n_sessoes)]
+    ruins = set(sessoes[:n_falhas])
+
+    class _Mem:
+        def search_memory(self, sid, payload, limit=10):
+            if sid in ruins:
+                raise OSError(9, "Bad file descriptor")
+            return []  # sessão sã, sem hits — o guarda é sobre VARREDURA, não recall
+
+    # ⚠️ O `search()` importa `zep_python` TARDE (dentro da função). Sem injetar o
+    # módulo em `sys.modules`, o teste morre de `ModuleNotFoundError` antes de
+    # alcançar o guarda — que é a causa das 11 falhas pré-existentes desta suíte.
+    # Stub por SUBTRAÇÃO: só o que o caminho real toca.
+    falso = types.ModuleType("zep_python")
+    falso.MemorySearchPayload = lambda text=None, **kw: types.SimpleNamespace(text=text)
+    monkeypatch.setitem(sys.modules, "zep_python", falso)
+
+    cli = types.SimpleNamespace(memory=_Mem())
+    monkeypatch.setattr(mod, "_sessions", sessoes, raising=False)
+    monkeypatch.setattr(mod, "_get_client", lambda: cli)
+    monkeypatch.setattr(mod, "setup", lambda: None)
+    monkeypatch.setenv("NOX_ZEP_SEARCH_WORKERS", "4")
+    return mod
+
+
+def test_fanout_com_5pct_de_falhas_aborta(monkeypatch):
+    """5 de 100 sessões falhando (5% > 1%) ⇒ o número não é comparável ⇒ aborta."""
+    mod = _adapter_com_sessoes(monkeypatch, 100, 5)
+    with pytest.raises(RuntimeError) as exc:
+        mod.search("qualquer", k=10)
+    m = str(exc.value)
+    assert "degradado" in m and "5 de 100" in m, m
+    assert "NOX_ZEP_SEARCH_WORKERS" in m, "não diz a alavanca"
+
+
+def test_fanout_com_1pct_de_falhas_nao_aborta(monkeypatch):
+    """
+    1 de 100 (1%, NÃO maior que o limite) tem de passar — o par completo
+    `aborta`/`não aborta` é o que prova que o limite é o limite, e não que o
+    guarda dispara sempre.
+    """
+    mod = _adapter_com_sessoes(monkeypatch, 100, 1)
+    assert mod.search("qualquer", k=10) == []
+
+
+def test_limite_default_e_um_por_cento(monkeypatch):
+    """
+    O DEFAULT é parte do guarda. Uma mutação que troque `"0.01"` por `1.0` deixa o
+    guarda presente e inerte — e um teste que só procura o NOME da variável no
+    fonte aprova isso (foi o que aconteceu: a mutação M3 não mordeu).
+    """
+    mod = _adapter_com_sessoes(monkeypatch, 100, 2)
+    monkeypatch.delenv("ZEP_MAX_ERRO_SESSAO", raising=False)
+    with pytest.raises(RuntimeError):
+        mod.search("qualquer", k=10)   # 2% > 1% default
