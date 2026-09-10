@@ -44,10 +44,12 @@ def main():
     ap.add_argument("--p0", type=float, required=True)
     ap.add_argument("--op-dia", type=float, required=True)
     ap.add_argument("--epochs", type=int, default=234)
-    ap.add_argument("--epochs-tratamento", type=int,
-                    help="epochs ANALISADOS no braco de tratamento (desbalanceado)")
-    ap.add_argument("--epochs-controle", type=int,
-                    help="epochs ANALISADOS no braco de controle (desbalanceado)")
+    ap.add_argument("--epochs-tratamento", type=float,
+                    help=("epochs-EQUIVALENTES no braco de tratamento; aceita fracao, "
+                          "porque contar um epoch parcial como 1 atribui exposicao que "
+                          "nao houve (09-01 entregou 630/672)"))
+    ap.add_argument("--epochs-controle", type=float,
+                    help="epochs-EQUIVALENTES no braco de controle; aceita fracao")
     ap.add_argument("--icc", type=float, default=0.098459)
     ap.add_argument("--cobertura", type=float, required=True)
     ap.add_argument("--cobertura-informativa", type=float, required=True)
@@ -62,11 +64,18 @@ def main():
         nt = a.epochs_tratamento * a.op_dia / DE
         nc = a.epochs_controle * a.op_dia / DE
         n_ef = 2 * nt * nc / (nt + nc)      # media harmonica, nao aritmetica
-        bruto = min(a.epochs_tratamento, a.epochs_controle) * a.op_dia
+        bruto = None   # nao existe "por braco" quando os bracos diferem
         desbal = {"epochs_tratamento": a.epochs_tratamento,
                   "epochs_controle": a.epochs_controle,
-                  "n_efetivo_tratamento": int(nt), "n_efetivo_controle": int(nc),
-                  "criterio": "media harmonica dos n efetivos; aritmetica sobrestimaria"}
+                  "oportunidades_tratamento": round(a.epochs_tratamento * a.op_dia),
+                  "oportunidades_controle": round(a.epochs_controle * a.op_dia),
+                  "n_efetivo_tratamento": round(nt, 1), "n_efetivo_controle": round(nc, 1),
+                  "criterio": ("media harmonica dos n efetivos (2/n = 1/nt + 1/nc); a "
+                               "aritmetica sobrestima o poder. ⚠️ A harmonica tambem "
+                               "sobrestima contra o calculo de dois grupos desiguais em "
+                               "forma geral (~0,09 de z), logo e' o estimador GENEROSO "
+                               "com a hipotese a refutar -- um veredito negativo sob ela "
+                               "fica mais firme, nao menos, se refeito pela forma geral.")}
     else:
         bruto = (a.epochs // 2) * a.op_dia
         n_ef = bruto / DE
@@ -76,6 +85,27 @@ def main():
     # diferente do mundo -- nao ha resultado possivel, nem em principio -- e tem de
     # aparecer, senao le-se como "precisa de efeito enorme" em vez de "impossivel".
     detectavel_no_limite = poder_z(a.p0, 0.0, n_ef, z_a) >= z_b
+    # A afirmacao "nao existe efeito detectavel" e' categorica e o veredito e' proximo da
+    # fronteira; sem a margem ela nao e' defensavel. Duas quantidades criticas:
+    lo, hi = 1.0, 1e6
+    for _ in range(300):
+        mid = (lo + hi) / 2
+        if poder_z(a.p0, 0.0, mid, z_a) >= z_b: hi = mid
+        else: lo = mid
+    n_ef_critico = hi
+    lo_i, hi_i = 0.0, a.icc
+    for _ in range(300):
+        mid = (lo_i + hi_i) / 2
+        DEm = 1 + (a.op_dia - 1) * mid
+        if a.epochs_tratamento is not None:
+            ntm = a.epochs_tratamento * a.op_dia / DEm
+            ncm = a.epochs_controle * a.op_dia / DEm
+            nm = 2 * ntm * ncm / (ntm + ncm)
+        else:
+            nm = (a.epochs // 2) * a.op_dia / DEm
+        if poder_z(a.p0, 0.0, nm, z_a) >= z_b: lo_i = mid
+        else: hi_i = mid
+    icc_critico = lo_i
     p1 = mde(a.p0, n_ef, z_a, z_b)
     rel = (a.p0 - p1) / a.p0
 
@@ -94,11 +124,27 @@ def main():
         "pergunta": "o N já registrado sustenta H1c como primária?",
         "entradas": {"p0": a.p0, "oportunidades_por_dia": a.op_dia,
                      "epochs": a.epochs, "icc": a.icc},
-        "oportunidades_por_braco_bruto": int(bruto),
+        "oportunidades_por_braco_bruto": (int(bruto) if bruto is not None else None),
+        "nota_bruto": ("nulo quando os bracos diferem: nao existe 'por braco' unico. As "
+                       "duas contagens estao em bracos_desbalanceados. O campo ja carregou "
+                       "o valor do braco MENOR sob um nome que dizia 'por braco' -- mesma "
+                       "classe do `exposto_h`, corrigido 2026-09-10."),
         "design_effect": round(DE, 2),
         "n_efetivo_por_braco": int(n_ef),
         "bracos_desbalanceados": desbal,
         "detectavel_no_limite_p1_igual_zero": detectavel_no_limite,
+        "sensibilidade_do_veredito": {
+            "n_efetivo_critico_para_p1_zero": round(n_ef_critico, 2),
+            "n_efetivo_realizado": round(n_ef, 2),
+            "fator_que_falta": round(n_ef_critico / n_ef, 3),
+            "icc_critico": round(icc_critico, 6),
+            "icc_usado": a.icc,
+            "queda_de_icc_que_vira_o_veredito_pct": round(100 * (1 - icc_critico / a.icc), 1),
+            "porque_importa": ("o ICC vem do PREREG e foi estimado para DENSIDADE por "
+                               "session-hour, nao para proporcao por oportunidade -- uma "
+                               "margem estreita num parametro estimado para outra grandeza "
+                               "nao sustenta afirmacao categorica"),
+        },
         "nota_saturacao": ("rel satura em 1,0 por construcao (bissecao em [0,p0]); se "
                            "detectavel_no_limite for false, NAO existe efeito detectavel "
                            "-- nem a eliminacao total das falhas repetidas"),

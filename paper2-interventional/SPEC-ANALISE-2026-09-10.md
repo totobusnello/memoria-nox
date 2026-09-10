@@ -114,10 +114,51 @@ reproduz o artefato de 2026-08-30 nos quatro valores — `n_efetivo 1139`, `DE 2
 | detectável no limite (p1 = 0) | sim | **não** |
 | efeito necessário nas cobertas (cenário ótimo, 40%) | 91,7% | **250%** |
 
-**Leitura, e ela é a conclusão central desta especificação:** no N realizado **não existe
-efeito detectável a 80% de potência — nem a eliminação total das falhas repetidas.** É a
-mesma razão que retirou H1 de primária em 2026-08-30 (exigia 955%), agora aplicada a H1c
-pelo encurtamento da janela.
+**Leitura — e ela é CONDICIONAL, corrigida em 2026-09-10 após a sessão par medir a
+margem.** A primeira versão afirmava categoricamente *"não existe efeito detectável"*.
+Isso não se sustenta, e o motivo está na lista de aproximações do próprio script.
+
+`n_efetivo` **crítico** para `p1 = 0` ser detectável a 80%: **95,26**. Os três recortes
+defensáveis:
+
+| recorte | epochs-equivalentes | `n_ef` | fator que falta | **ICC crítico** | queda que vira o veredito |
+|---|---|---:|---:|---:|---:|
+| exposição **fracionária** (o honesto) | 10,938 T / 7,234 C | 84,8 | 1,123× | 0,087133 | **11,5%** |
+| epochs inteiros (1ª versão) | 11 T / 8 C | 90,2 | 1,056× | 0,092987 | **5,6%** |
+| `09-03` excluído pelo piso | 11 T / 7 C | 83,3 | 1,143× | 0,085523 | **13,1%** |
+
+⚠️ **Por que a margem importa:** o ICC vem do PREREG e foi estimado para **densidade por
+session-hour**, não para proporção por oportunidade — é a aproximação nº 1 da lista do
+script. Margem estreita num parâmetro declaradamente estimado *para outra grandeza* não
+sustenta afirmação categórica.
+
+**Enunciado que fica pré-comprometido, e diz a mesma coisa de forma defensável:**
+
+> Sob o critério de inclusão realizado e `ICC = 0,0985`, **nem a eliminação total das
+> falhas repetidas é detectável a 80% de potência**. O veredito viraria com uma queda de
+> **11,5%** no ICC sob a contagem fracionária (5,6% sob a contagem por epochs inteiros).
+> Nenhum critério de inclusão defensável o inverte.
+
+Três coisas sustentam o "nenhum":
+
+1. **A contagem por epochs inteiros era generosa.** Somar 1 por epoch atribui exposição que
+   não houve — `09-01` entregou 630/672, `09-03` 441/672, `09-20` entrega 13,86/24. A
+   contagem fracionária **dobra a margem**, de 5,6% para 11,5%. O script passou a aceitar
+   fração.
+2. **A média harmónica também é generosa.** Ela é a substituição exata para o termo de
+   variância agrupada (`2/n_eff = 1/n_t + 1/n_c`), mas na forma implementada
+   (`pb` não ponderado) sobrestima o poder em ~0,09 de `z` contra o cálculo de dois grupos
+   desiguais em forma geral. Um revisor que refaça pela forma geral encontra o veredito
+   **mais** firme. Declarado no artefato.
+3. **O recorte que inverteria exige contar `09-02`.** Um cenário `9` epochs de controle
+   daria `n_ef = 96,4` e `z = 0,8587` ⇒ detectável. Mas só **8** epochs de controle foram
+   servidos: os 9 alocados incluem `2026-09-02`, que entregou **0 briefs**. Um epoch com
+   zero oportunidades não adiciona oportunidades, logo **não existe regra de inclusão que
+   alcance 9**. As duas decisões abertas do §9 movem entre 7 e 8, e os dois extremos dão
+   `não detectável`.
+
+É a mesma razão que retirou H1 de primária em 2026-08-30 (exigia 955%), agora aplicada a
+H1c pelo encurtamento da janela.
 
 > Uma perna própria foi acrescentada ao script para isto: `mde()` bissecta em `[0, p0]`,
 > logo o MDE relativo **satura em 1,0 por construção** e *"MDE = 100%"* ficava
@@ -180,9 +221,27 @@ controle tem `mexeu == 0`"*. Nos epochs de controle os campos `ids_controle`/`id
 `sem_ids == n`* — o dual-compute **não corre** onde `w=0`, que é o que o desenho prevê.
 Verificável, e **passa em 3 de 3**.
 
-⚠️ **Consequência que não se contorna:** não existe controle negativo **intra-braço** no
-log, porque o contrafactual só é computado onde a dose age. Qualquer afirmação de
-*especificidade* terá de vir de outra fonte, e **nunca** de `mexeu == 0` no controle.
+⚠️ **Não existe controle negativo intra-braço no log — confirmado por três vias**, e a
+proposta óbvia falha de duas formas distintas:
+
+| candidato | resultado medido | por que não serve |
+|---|---|---|
+| `mexeu == 0` nos epochs de **controle** | passa 3/3 | os campos `ids_*` **não existem** em `w=0` ⇒ regra 9 |
+| condicionar em *"designado presente no conjunto **servido**"* | 0 movimentos em 2.908 briefs | **tautológico**: "servido" é `ids_tratado`, que é **pós-dose** — o churn *cria* a presença, logo churn-sem-presença é impossível **por construção** |
+| condicionar em *"designado presente no conjunto de **controle**"* (independente da dose) | **119 movimentos** em 3.027 briefs sem presença | não é falha de instrumento — é **o mecanismo**: a dose age promovendo chunk que **não** estava no baseline. Ausência do controle é onde ela tem **mais** o que fazer |
+| `boost_by_id` vazio ⇒ `mexeu` deve ser 0 | `sem_boost = 0` em **3.990** briefs | o estrato é **vazio**: o boost sempre aplica a algo |
+
+⚠️ **A terceira linha inverte a premissa da segunda**, e é o achado: condicionar em
+presença **pós-dose** não é um controle, e condicionar em presença **pré-dose** mede o
+mecanismo em vez de o negar. O `mexeu | ausente-do-controle` por epoch: 13 · 26 · 26 · 20 ·
+15 · 19.
+
+**Pré-comprometido:** a especificidade vem do **replay com designação-sham** — 19 chunks
+aleatórios **não** designados, mesmo `w` — e o argumento que o valida é da sessão par: o
+viés do replay é **anticorrelacionado com o efeito** (descarta os briefs em que a dose
+agiu), logo **sob a nula ele desaparece**. Isso torna o replay válido como **teste de
+especificidade** sem quebrar a proibição do §7, que continua a valer para o **estimador**.
+A distinção é: o replay não pode *medir* o efeito, mas pode *falsificar* a especificidade.
 
 ---
 
@@ -234,15 +293,27 @@ Declaradas aqui, antes do fecho, para que a sua ausência no paper não pareça 
 | **leave-one-agent-out** | 6 agentes sobre 19 epochs | reportado como exploratório, sem inferência |
 | **primeira vs segunda metade de calendário** | os 20 epochs caem **todos** na primeira metade | inavaliável por construção do recorte |
 
-## 9. Aberto — precisa de decisão do Toto
+## 9. Recomendado ao Toto — e medido que nenhuma das duas inverte o veredito
 
-1. **A sensibilidade de `09-01`** (exposição mista) é reportada como sensibilidade ou o
-   epoch sai do primário? A minha recomendação é **entrar no ITT e sair na sensibilidade**,
-   porque o braço designado é fato do desenho e a contaminação é fato da execução — as duas
-   coisas merecem aparecer, e o ITT é o que respeita a randomização.
-2. **Se `09-03` cair pelo piso de cobertura de 95%**, o controle desce a 7 epochs e a
-   diferença de braços vai a 4 — ainda `≤ 5`, logo o ramo do bootstrap não muda. Registrado
-   para que o cálculo não seja feito depois de se ver o resultado.
+1. **`09-01` entra no ITT** pelo braço designado, com offset sobre a exposição tratada, e
+   **sem** sensibilidade de contaminação — porque as fases são sequenciais e não há
+   contaminação (ver errata do §1). Excluir seria conditioning pós-randomização, o mesmo
+   erro que o PREREG §5 já pré-comprometeu contra no caso da cobertura; e a diluição de
+   6,25% aponta para o **nulo**, logo incluir não pode fabricar efeito. Fica só a
+   sensibilidade padrão que remove **todos** os parciais em bloco.
+2. **O ITT sem exclusão de cobertura é a estimativa de manchete**, com o conjunto do piso
+   de 95% como sensibilidade — invertendo a ordem default. Justificação no próprio PREREG
+   §5, que diz que o papel do piso é *"precisão, não identificação"*: com o MDE saturado
+   **não há precisão a proteger**, e `09-03` é **controle** (excluí-lo leva o controle de 8
+   a 7). ⚠️ Isto tem de ser fixado **antes** de computar a cobertura — `441/672` é *uptime
+   de serving*, não a cobertura do prereg (denominador em **sessões**), e escolher o
+   conjunto primário depois de ver o número é a jogada post-hoc que esta spec existe para
+   impedir.
+
+**Medido: nenhuma das duas inverte o veredito do §3.** Os extremos são `11T/8C`
+(`09-03` dentro, ICC crítico a 5,6%) e `11T/7C` (`09-03` fora, 13,1%), e ambos dão
+`não detectável`. O único recorte que inverteria precisa de **9** epochs de controle, o que
+exige contar `2026-09-02` — zero briefs entregues.
 
 ---
 
