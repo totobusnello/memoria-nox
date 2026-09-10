@@ -37,7 +37,16 @@ AQUI = Path(__file__).parent
 PAPER = "paper-tecnico-nox-mem.md"
 BIB = "refs.bib"
 SCRIPT = "claims_check.py"
-MANIFESTOS = ("authors-manifest.json", "bibitem-census.json")
+MANIFESTOS = ("authors-manifest.json", "bibitem-census.json", "q4-corridas-census.json")
+
+# `contagem_sistemas_check` le artefatos FORA de paper/. Sem copia-los, a guarda
+# acusa "eval/q4-comparison nao encontrado" em TODA mutacao — e a bateria inteira
+# passaria pelo motivo errado, que e' o defeito que este arquivo existe para pegar.
+ARTEFATOS = (
+    "eval/q4-comparison/output/_aggregate.json",
+    "eval/q4-comparison/output-2026-09-10/_aggregate.json",
+)
+RAIZ_REPO = AQUI.parent
 
 # (nome, arquivo, de, para, marcador esperado na mensagem)
 # `de=None` => append ao fim do arquivo.
@@ -274,6 +283,59 @@ CASOS = [
         '"evidencia": {', '"evidencia": {\n  "mem0": "duplicada",',
         "em duas classes",
     ),
+    (
+        # L5 (completude). Sem este caso, "a L5 nao acusa nada" seria
+        # indistinguivel de "a L5 nao olha". Ela ja achou dois sitios que a
+        # primeira versao do censo, montada a mao, tinha perdido — mas isso e'
+        # historia, nao teste.
+        "sitio de contagem NOVO, fora do censo",
+        PAPER, None,
+        "\n\nIn this revision four competitors could not produce a number at all.\n",
+        "contagem/L5",
+    ),
+    (
+        # A perna que importa: um gap FECHOU (artefato com numero em disco) e o
+        # censo ainda diz que o sistema nao produziu. E' o cenario do Zep quando
+        # a corrida dele fechar. Mutar o censo reproduz o estado sem mexer no disco.
+        "gap fechou e o censo ainda diz SEM numero",
+        "q4-corridas-census.json",
+        '"produziu_numero": true,\n      "corridas": [\n        "2026-09-10"',
+        '"produziu_numero": false,\n      "corridas": [\n        "2026-09-10"',
+        "contagem/L2",
+    ),
+    (
+        "censo declara ndcg que o artefato nao tem",
+        "q4-corridas-census.json",
+        '"ndcg10_no_artefato": 0.64553667642804',
+        '"ndcg10_no_artefato": 0.7',
+        "contagem/L1",
+    ),
+    (
+        # Artefato em disco cujo sistema o censo nao declara NEM exclui.
+        "alias do sistema sumiu do censo",
+        "q4-corridas-census.json",
+        '        "evermind",\n        "everos"',
+        '        "evermind-com-outro-nome"',
+        "contagem/L2",
+    ),
+    (
+        # Sem este caso, "os quatro sitios canonicos passam" seria indistinguivel
+        # de "a guarda os pula em silencio".
+        "contagem presa a corrida canonica adulterada",
+        PAPER,
+        "**Two of the five competitors produced head-to-head quality numbers**",
+        "**Three of the five competitors produced head-to-head quality numbers**",
+        "canonica-produziram",
+    ),
+    (
+        # A guarda tem de ACUSAR quando nao acha os artefatos, nao ficar calada
+        # por falta do dado (regra 9 do CLAUDE.md).
+        "guarda perde os artefatos e teria de calar",
+        SCRIPT,
+        '    for cand in (root, root.parent):\n        if (cand / "eval" / "q4-comparison").is_dir():\n            return cand\n    return None',
+        "    return None",
+        "eval/q4-comparison nao encontrado",
+    ),
 ]
 
 # Controle NEGATIVO: texto inócuo não pode disparar nada.
@@ -283,6 +345,10 @@ CONTROLE = (PAPER, "\nThe pipeline indexes files as they change.\n")
 def _prepara(tmp: Path) -> None:
     for f in (PAPER, BIB, SCRIPT, *MANIFESTOS):
         shutil.copy2(AQUI / f, tmp / f)
+    for rel in ARTEFATOS:
+        dst = tmp / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(RAIZ_REPO / rel, dst)
 
 
 def _roda(tmp: Path) -> tuple[int, str]:

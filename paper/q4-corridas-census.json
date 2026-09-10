@@ -1,0 +1,241 @@
+{
+  "_proposito": "Censo das corridas do §6 e dos sítios de prosa que declaram CONTAGEM de sistemas. Existe porque o número de sistemas 'que produziram número' muda quando um gap fecha, e o manuscrito o afirma em sete lugares com escopos diferentes — quatro presos à corrida canônica de 2026-06-15 (que não mudam) e três globais (que mudam). Reler os sete não pega frase errada com número certo; derivar da declaração, pega.",
+  "_metodo": "sistemas[] é declaração humana revisada, não derivação. A guarda contagem_sistemas_check confere: (L1) todo sistema declarado com número tem artefato existente com esse ndcg; (L2) todo artefato em eval/q4-comparison/** que carregue system+overall.ndcg@k está declarado aqui — é a perna que acusa artefato NOVO contra censo velho; (L3) cada sítio declara o número que o escopo dele exige; (L4) cada âncora ocorre exatamente uma vez no manuscrito.",
+  "_medido": "2026-09-10",
+  "_nota_l2": "hipporag2 e lightrag têm artefato mas NÃO são competidores do §6 (§6.3.1, último parágrafo: são referências de KG/RAG do §5). Ficam em fora_do_paragrafo6 para a L2 não os acusar.",
+  "competidores": [
+    {
+      "nome": "Mem0",
+      "alias": [
+        "mem0"
+      ],
+      "produziu_numero": true,
+      "corridas": [
+        "2026-06-15 canônica",
+        "rc4 2026-06-29"
+      ],
+      "artefato": null,
+      "nota_artefato": "números nas tabelas do §6.3/§6.3.2; artefatos da corrida canônica arquivados fora de eval/q4-comparison/ (q4-partial-cross-system-sat-2026-05-24 e o pod dedicado). Sem artefato aqui, a L1 não tem o que conferir — declarado explicitamente em vez de omitido."
+    },
+    {
+      "nome": "agentmemory",
+      "alias": [
+        "agentmemory"
+      ],
+      "produziu_numero": true,
+      "corridas": [
+        "2026-06-15 canônica"
+      ],
+      "artefato": "eval/q4-comparison/output/_aggregate.json",
+      "ndcg10_no_artefato": 0.12871279917539155,
+      "nota_artefato": "⚠️ o artefato é do SMOKE de 2026-05-24 (n=20, ndcg 0,1287), NÃO do canônico (n=100, ndcg 0,2803). Populações distintas; a L1 confere o número do artefato contra este campo, não contra o do manuscrito."
+    },
+    {
+      "nome": "Zep",
+      "alias": [
+        "zep"
+      ],
+      "produziu_numero": false,
+      "corridas": [],
+      "artefato": null,
+      "nota_artefato": "eval/q4-comparison/output/zep.json existe (smoke 2026-05-25, 20 queries) mas NÃO carrega ndcg — é o corpo cru das queries. Por isso não conta como número e a L2 não o vê. Corrida de 2026-09-10 em curso; quando fechar com número, a L2 acusa este registro."
+    },
+    {
+      "nome": "Letta",
+      "alias": [
+        "letta",
+        "memgpt"
+      ],
+      "produziu_numero": false,
+      "corridas": [],
+      "artefato": null,
+      "nota_artefato": "~16 min/query; nunca corrido em escala."
+    },
+    {
+      "nome": "EverMind-AI",
+      "alias": [
+        "evermind",
+        "everos"
+      ],
+      "produziu_numero": true,
+      "corridas": [
+        "2026-09-10"
+      ],
+      "artefato": "eval/q4-comparison/output-2026-09-10/_aggregate.json",
+      "ndcg10_no_artefato": 0.64553667642804,
+      "nota_artefato": "everos==1.3.1, n=2482, 0 erros. NÃO é a corrida canônica de 2026-06-15 — não entra nas contagens de escopo 'canonica'."
+    }
+  ],
+  "fora_do_paragrafo6": [
+    "hipporag2",
+    "lightrag",
+    "noxmem",
+    "nox-mem",
+    "nox_mem"
+  ],
+  "sitios": [
+    {
+      "id": "abstract-produziram",
+      "template": "of which {prod} produced head-to-head quality numbers",
+      "marcadores": {
+        "prod": [
+          "global",
+          "produziram_competidores"
+        ]
+      },
+      "forma": "palavra"
+    },
+    {
+      "id": "abstract-nao",
+      "template": "and {nao} were documented deployment non-runs",
+      "marcadores": {
+        "nao": [
+          "global",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "palavra"
+    },
+    {
+      "id": "canonica-produziram",
+      "template": "**{prod} of the five competitors produced head-to-head quality numbers**",
+      "marcadores": {
+        "prod": [
+          "canonica",
+          "produziram_competidores"
+        ]
+      },
+      "forma": "palavra_capitalizada"
+    },
+    {
+      "id": "canonica-nao",
+      "template": "**the other {nao} are documented deployment non-runs**",
+      "marcadores": {
+        "nao": [
+          "canonica",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "palavra"
+    },
+    {
+      "id": "titulo-631",
+      "template": "#### 6.3.1 Documented gaps — {nao} systems that did not run",
+      "marcadores": {
+        "nao": [
+          "global",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "palavra"
+    },
+    {
+      "id": "l6-1244",
+      "template": "It produced real numbers for {prod}/6 systems",
+      "marcadores": {
+        "prod": [
+          "canonica",
+          "par_incl_noxmem"
+        ]
+      },
+      "forma": "digito"
+    },
+    {
+      "id": "penalidade-1286",
+      "template": "the dimension on which these {nao} systems could not produce a number",
+      "marcadores": {
+        "nao": [
+          "global",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "palavra"
+    },
+    {
+      "id": "bound-68a",
+      "template": "than these {nao} systems",
+      "marcadores": {
+        "nao": [
+          "global",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "palavra"
+    },
+    {
+      "id": "bound-68b",
+      "template": "**{nao} of five competitors could not be made to produce a single result**",
+      "marcadores": {
+        "nao": [
+          "global",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "palavra"
+    },
+    {
+      "id": "lim-1326",
+      "template": "{nao} of five competitors could not be evaluated at all",
+      "marcadores": {
+        "nao": [
+          "global",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "palavra_capitalizada"
+    },
+    {
+      "id": "l5-canonica",
+      "template": "{prod}/6 systems producing numbers + {nao} documented gaps",
+      "marcadores": {
+        "prod": [
+          "canonica",
+          "par_incl_noxmem"
+        ],
+        "nao": [
+          "canonica",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "digito"
+    },
+    {
+      "id": "apendice-canonica",
+      "template": "6 systems: {prod} produced numbers, {nao} documented gaps",
+      "marcadores": {
+        "prod": [
+          "canonica",
+          "par_incl_noxmem"
+        ],
+        "nao": [
+          "canonica",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "digito"
+    },
+    {
+      "id": "bound-final",
+      "template": "a number in every cell of §6.3 and {nao} competitors do not",
+      "marcadores": {
+        "nao": [
+          "global",
+          "nao_produziram_competidores"
+        ]
+      },
+      "forma": "palavra"
+    }
+  ],
+  "_forma_sitio": "Cada sítio é um TEMPLATE com marcadores nomeados; a guarda substitui cada marcador pela contagem derivada e exige que o texto resultante ocorra EXATAMENTE 1x no manuscrito. Não é 'algum número da âncora bate' — essa forma passava pelo '6.3.1' do próprio título da seção, ou seja, por sorte. Todo número da frase entra como marcador; nenhum fica literal.",
+  "excluidos_da_completude": [
+    {
+      "texto": "five competing memory systems",
+      "razao": "5 é o número FIXO de competidores do §6.2, não uma contagem de desfecho. Não muda quando um gap fecha."
+    },
+    {
+      "texto": "Two systems, two mechanisms, one count",
+      "razao": "conta SISTEMAS mas o desfecho é retenção de chunks (6.822 em nox-mem e EverOS), não 'produziu número'. A varredura casa por vizinhança de palavras; esta é falso positivo legítimo."
+    }
+  ],
+  "_perna_completude": "L5 varre o manuscrito por frases de contagem sobre sistemas e exige que cada achado caia dentro do molde de algum sítio, ou esteja em excluidos_da_completude com razão. Existe porque a primeira versão deste censo foi montada de uma LISTA À MÃO e perdeu 4 sítios; lista à mão é amostra vendida como censo. Na primeira corrida a L5 achou o 12º (penalidade-1286)."
+}
