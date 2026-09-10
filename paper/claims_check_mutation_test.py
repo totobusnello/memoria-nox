@@ -37,6 +37,7 @@ AQUI = Path(__file__).parent
 PAPER = "paper-tecnico-nox-mem.md"
 BIB = "refs.bib"
 SCRIPT = "claims_check.py"
+MANIFESTOS = ("authors-manifest.json", "bibitem-census.json")
 
 # (nome, arquivo, de, para, marcador esperado na mensagem)
 # `de=None` => append ao fim do arquivo.
@@ -142,6 +143,15 @@ CASOS = [
         "AUMENTOU",
     ),
     (
+        # Este caso existe porque o de cima NAO mordia: PR_BASELINE estava em 66
+        # contra 53 reais, e somar 1 cabia na folga. Um ratchet cujo baseline
+        # esta acima do valor medido admite a diferenca em silencio, e a
+        # bateria nao ve porque a mutacao e' menor que a folga.
+        "baseline do ratchet AFROUXADO acima do real",
+        SCRIPT, "PR_BASELINE = 53", "PR_BASELINE = 66",
+        "FROUXO",
+    ),
+    (
         "PR # como fonte em tabela de comparacao externa",
         PAPER, None, "\n| MemOS | 42.55% | dev | fonte (PR #998) |\n",
         "usa `PR #NNN` como fonte",
@@ -171,6 +181,43 @@ CASOS = [
         PAPER, None, "\nThat leaves a 55 pp gap between F1 and strict EM.\n",
         "mistura F1 e EM",
     ),
+    (
+        # A perna de censo. A footnote e' CITADA e a autoria casa o manifesto de
+        # proposito: sem isso o balanco e a correspondencia acusam primeiro, e a
+        # prova nao distinguiria "a perna morde" de "outra decidiu antes".
+        "footnote nova, citada e com autoria certa, FORA do censo de bibitems",
+        PAPER, None,
+        "\nA fourth axis follows prior work[^mutante-censo].\n"
+        "\n[^mutante-censo]: Hu, Li, Gao, Chen, Bai, Xu, Lin, Li, Han, Pei & Deng, "
+        "*Evaluating Long-Horizon Memory for Multi-Party Collaborative Dialogues*, "
+        "2026. arXiv:2602.01313.\n",
+        "nao esta no bibitem-census",
+    ),
+    (
+        # Censo que classifica chave morta: o numerador da densidade fica maior
+        # do que a bibliografia real.
+        "censo classifica footnote que nao existe mais",
+        "bibitem-census.json",
+        '"obra": [', '"obra": [\n  "chave-fantasma",',
+        "nao existe mais no manuscrito",
+    ),
+    (
+        # A entrada do NOSSO sistema prometia "update with arXiv ID after
+        # submission" enquanto o CITATION.cff registra a ausencia no arXiv como
+        # FATO, nao tarefa. Duas fontes do mesmo repo em contradicao, e a que o
+        # leitor segue e' a bibliografia.
+        "entrada de bibliografia promete atualizacao futura",
+        BIB, "doi          = {10.5281/zenodo.22649268},",
+        "note2        = {update with arXiv ID after submission},",
+        "promete atualizacao futura",
+    ),
+    (
+        # Chave nas duas classes: a soma nao fecha e o numerador fica ambiguo.
+        "censo classifica a mesma chave como obra E evidencia",
+        "bibitem-census.json",
+        '"evidencia": {', '"evidencia": {\n  "mem0": "duplicada",',
+        "em duas classes",
+    ),
 ]
 
 # Controle NEGATIVO: texto inócuo não pode disparar nada.
@@ -178,7 +225,7 @@ CONTROLE = (PAPER, "\nThe pipeline indexes files as they change.\n")
 
 
 def _prepara(tmp: Path) -> None:
-    for f in (PAPER, BIB, SCRIPT):
+    for f in (PAPER, BIB, SCRIPT, *MANIFESTOS):
         shutil.copy2(AQUI / f, tmp / f)
 
 

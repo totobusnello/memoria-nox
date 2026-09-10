@@ -123,7 +123,11 @@ BIB_DIVIDA: dict[str, str] = {
 # queda -- baseline que nao desce vira teto, nao trava.
 # Foi a suite de mutacao que apontou: o caso "evidencia nao-arquivavel AUMENTOU" deixou
 # de morder no momento em que a folga apareceu.
-PR_BASELINE = 66
+# Medido 2026-09-10 no manuscrito: 53. Estava em 66 desde antes dos cortes do
+# #494/#507, e um ratchet cujo baseline esta ACIMA do real nao e ratchet — dava
+# folga para 13 evidencias nao-arquivaveis novas em silencio, e a mutacao da
+# bateria (que soma 1) cabia na folga. Preso agora nos DOIS sentidos.
+PR_BASELINE = 53
 
 # Tabelas de comparação externa que ainda usam `PR #NNN` como fonte. Dívida
 # HERDADA e declarada, não isenção: qualquer sítio novo falha. Resolver com
@@ -318,6 +322,13 @@ def evidencia_check(root: Path) -> list[str]:
         fails.append(
             f"{PAPER}: {n} ocorrências de `PR #NNN` (baseline {PR_BASELINE}) — "
             f"evidência não-arquivável AUMENTOU; usar artefato ou commit pinado"
+        )
+    elif n < PR_BASELINE:
+        fails.append(
+            f"{PAPER}: {n} ocorrências de `PR #NNN` contra baseline {PR_BASELINE} — "
+            f"o ratchet ficou FROUXO por {PR_BASELINE - n}; apertar PR_BASELINE para "
+            f"{n} no mesmo commit que removeu, senão a folga admite {PR_BASELINE - n} "
+            f"evidências não-arquiváveis novas sem alarme"
         )
 
     vistos: set[str] = set()
@@ -677,6 +688,64 @@ def footnotes_check(root: Path) -> list[str]:
     return fails
 
 
+def censo_bibitem_check(root: Path) -> list[str]:
+    """Toda footnote definida tem de estar classificada no censo de bibitems.
+
+    A densidade de referencias por mil palavras usa SO a classe `obra` no
+    numerador — auto-referencia (ponteiro para o nosso proprio codigo ou
+    medicao) nao aparece na bibliografia de nenhum dos aceitos, logo conta-la
+    infla o nosso lado da regua. Sem esta perna, acrescentar footnote muda o
+    numerador em silencio e a densidade publicada envelhece sem alarme.
+    """
+    fails: list[str] = []
+    md = (root / PAPER).read_text(encoding="utf-8")
+    definidas = set(re.findall(r"^\[\^([A-Za-z0-9_-]+)\]:", md, re.M))
+
+    cam = root / "bibitem-census.json"
+    if not cam.exists():
+        return [f"{PAPER}: paper/bibitem-census.json ausente — a perna de censo "
+                f"de bibitems nao pode correr, e a densidade publicada fica sem lastro"]
+    censo = json.loads(cam.read_text(encoding="utf-8"))
+    obra = set(censo.get("obra", []))
+    evid = set(censo.get("evidencia", {}))
+
+    ambas = obra & evid
+    if ambas:
+        fails.append(f"{PAPER}: bibitem-census.json classifica {sorted(ambas)} em duas "
+                     f"classes — a soma nao fecha e o numerador fica ambiguo")
+    for k in sorted(definidas - (obra | evid)):
+        fails.append(f"{PAPER}: footnote `[^{k}]` nao esta no bibitem-census.json — "
+                     f"classificar como `obra` (trabalho de terceiro) ou `evidencia` "
+                     f"(ponteiro para o nosso artefato) antes de citar densidade")
+    for k in sorted((obra | evid) - definidas):
+        fails.append(f"{PAPER}: bibitem-census.json classifica `[^{k}]`, que nao existe "
+                     f"mais no manuscrito — censo desatualizado")
+    return fails
+
+
+def bib_promessa_check(root: Path) -> list[str]:
+    """Uma entrada de bibliografia nao pode prometer atualizacao futura.
+
+    `busnello2026noxmem` trazia *"update with arXiv ID after submission"* enquanto
+    o CITATION.cff registra, tres linhas de comentario abaixo do DOI, que a
+    ausencia no arXiv e' **um fato sobre o manuscrito, nao uma tarefa pendente**.
+    Duas fontes do mesmo repo diziam coisas opostas, e a que o leitor segue e' a
+    bibliografia. Promessa em bibliografia envelhece: ou a acao acontece e a nota
+    fica falsa, ou nao acontece e a nota vira divida visivel ao revisor.
+    """
+    bib = (root / BIB).read_text(encoding="utf-8")
+    fails = []
+    for m in re.finditer(r"@\w+\{([^,]+),(.*?)\n\}", bib, re.S):
+        chave, corpo = m.group(1).strip(), m.group(2)
+        p = re.search(r"(update with|after submission|once (?:it is )?published|"
+                      r"\bTODO\b|\bTBD\b|to be (?:added|updated|filled))", corpo, re.I)
+        if p:
+            fails.append(f"{BIB}: entrada `{chave}` promete atualizacao futura "
+                         f"(\"{p.group(1)}\") — bibliografia registra o que existe; "
+                         f"promessa aqui envelhece e o leitor segue a bibliografia")
+    return fails
+
+
 GUARDAS = [
     fence_check,
     superlativo_check,
@@ -688,6 +757,8 @@ GUARDAS = [
     aritmetica_check,
     populacao_check,
     footnotes_check,
+    censo_bibitem_check,
+    bib_promessa_check,
 ]
 
 

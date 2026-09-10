@@ -96,7 +96,7 @@ quem lê rápido, indistinguível de documentação de produto — independentem
 qualidade do que está medido dentro.
 
 Isto é o item mais barato de consertar e o de maior efeito: a vizinhança já está mapeada
-em `EXTERNAL-REFERENCES.md` e na memória (`project_agent_memory_survey_tmlr_2602_06052`
+neste diretório (`bibliografia-minerada-2026-09-10.md`, `data/candidatas-survey-2026-09-10.json`) e na memória (`project_agent_memory_survey_tmlr_2602_06052`
 lista Evo-Memory `2511.20857`, LifelongAgentBench `2505.11942`, OdysseyBench
 `2508.09124`, InterruptBench `2604.00892`, HaluMem `2511.03506`, MemoryArena
 `2602.16313`), e o levantamento de hoje acrescenta ~25 IDs de 2025-2026 que ainda não

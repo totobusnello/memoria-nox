@@ -1,0 +1,328 @@
+{
+ "_fonte": "arXiv:2602.06052v4 — A Survey of Agent Memory in the Second Half (TMLR)",
+ "_metodo": "535 bibitems do HTML LaTeXML. Centralidade = numero de secoes distintas no 'Cited by:' que o proprio bibitem embute (483 dos 535 o trazem). Presenca verificada contra os nossos 35 arXiv IDs e os titulos canonicos do authors-manifest.json, com controle positivo de 5 obras que citamos (2 por id, 3 por titulo) e controle negativo de obra inventada. Corte: >=4 secoes.",
+ "_medido": "2026-09-10",
+ "_intersecao": {
+  "bibitems_do_survey": 535,
+  "ja_citadas_por_nos": 17,
+  "nota": "17 de 535 — as bibliografias sao quase disjuntas"
+ },
+ "candidatas": [
+  {
+   "titulo": "A survey of self-evolving agents: on path to artificial super intelligence",
+   "arxiv": "2507.21046",
+   "n_sec": 6,
+   "secoes": [
+    "1",
+    "2.1",
+    "2.2",
+    "3.2",
+    "3.2.2",
+    "9.1"
+   ],
+   "grupo": "A",
+   "porque": "auto-evolucao — nosso crystallize/reflect",
+   "raw": "Gao et al. (2025a) H. Gao, J. Geng, W. Hua, M. Hu, X. Juan, H. Liu, S. Liu, J. Qiu, X. Qi, Y. Wu, et al. A survey of self-evolving agents: on path to artificial super intelligence . arXiv preprint arXiv:2507.21046 ."
+  },
+  {
+   "titulo": "A survey on the memory mechanism of large language model-based agents . ACM Transactions on Information Systems 43 ( 6 ), pp. 1–47",
+   "arxiv": "2404.13501",
+   "n_sec": 6,
+   "secoes": [
+    "1",
+    "2.1",
+    "3.1.1",
+    "3.3",
+    "4.1.1",
+    "4.1.2"
+   ],
+   "grupo": "A",
+   "porque": "survey do nosso proprio tema; §1.5 Related Work",
+   "raw": "Zhang et al. (2025p) Z. Zhang, Q. Dai, X. Bo, C. Ma, R. Li, X. Chen, J. Zhu, Z. Dong, and J. Wen A survey on the memory mechanism of large language model-based agents . ACM Transactions on Information Systems 43 ( 6 ), pp. 1–47 .",
+   "venue": "ACM TOIS 2025",
+   "_localizador": "resolvido em 2026-09-10 pela API do arXiv, com controle positivo"
+  },
+  {
+   "titulo": "WebArena: a realistic web environment for building autonomous agents",
+   "arxiv": null,
+   "n_sec": 6,
+   "secoes": [
+    "3.3.2",
+    "7.1",
+    "7.2",
+    "7.2.2",
+    "8",
+    "9.6"
+   ],
+   "grupo": "X",
+   "porque": "benchmark de agente web — nao medimos",
+   "raw": "Zhou et al. (2024) S. Zhou, F. F. Xu, H. Zhu, X. Zhou, R. Lo, A. Sridhar, X. Cheng, T. Ou, Y. Bisk, D. Fried, et al. WebArena: a realistic web environment for building autonomous agents . In The Twelfth International Conference on Learning Representations ,"
+  },
+  {
+   "titulo": "SWE-bench: can language models resolve real-world github issues?",
+   "arxiv": null,
+   "n_sec": 5,
+   "secoes": [
+    "3.3.2",
+    "6.1",
+    "7.1",
+    "7.2.2",
+    "8"
+   ],
+   "grupo": "X",
+   "porque": "benchmark de codigo — nao medimos",
+   "raw": "Jimenez et al. (2024) C. E. Jimenez, J. Yang, A. Wettig, S. Yao, K. Pei, O. Press, and K. R. Narasimhan SWE-bench: can language models resolve real-world github issues? . In The Twelfth International Conference on Learning Representations ,"
+  },
+  {
+   "titulo": "WebCoach: self-evolving web agents with cross-session memory guidance",
+   "arxiv": "2511.12997",
+   "n_sec": 5,
+   "secoes": [
+    "1",
+    "3.2.3",
+    "4.2.3",
+    "5.1.2",
+    "8"
+   ],
+   "grupo": "C",
+   "porque": "memoria cross-session, mas em agente web (fora do nosso setup)",
+   "raw": "Liu et al. (2025b) G. Liu, S. Geng, S. Li, H. Cui, S. Zhang, X. Liu, and T. Liu WebCoach: self-evolving web agents with cross-session memory guidance . arXiv preprint arXiv:2511.12997 ."
+  },
+  {
+   "titulo": "Reasoningbank: scaling agent self-evolving with reasoning memory",
+   "arxiv": "2509.25140",
+   "n_sec": 5,
+   "secoes": [
+    "1",
+    "3.2.3",
+    "3.2.5",
+    "4.1.3",
+    "5.1.2"
+   ],
+   "grupo": "A",
+   "porque": "destila estrategia de experiencia = analogo do nosso crystallize",
+   "raw": "Ouyang et al. (2025) S. Ouyang, J. Yan, I. Hsu, Y. Chen, K. Jiang, Z. Wang, R. Han, L. T. Le, S. Daruki, X. Tang, et al. Reasoningbank: scaling agent self-evolving with reasoning memory . arXiv preprint arXiv:2509.25140 ."
+  },
+  {
+   "titulo": "Voyager: an open-ended embodied agent with large language models",
+   "arxiv": null,
+   "n_sec": 5,
+   "secoes": [
+    "1",
+    "3.2.5",
+    "3.3.2",
+    "8",
+    "9.5"
+   ],
+   "grupo": "X",
+   "porque": "agente embodied — fora",
+   "raw": "Wang et al. (2025c) G. Wang, Y. Xie, Y. Jiang, A. Mandlekar, C. Xiao, Y. Zhu, L. Fan, and A. Anandkumar Voyager: an open-ended embodied agent with large language models . Transactions on Machine Learning Research ."
+  },
+  {
+   "titulo": "Mem- α \\alpha : learning memory construction via reinforcement learning",
+   "arxiv": "2509.25911",
+   "n_sec": 5,
+   "secoes": [
+    "3.1.1",
+    "4.1.2",
+    "4.1.5",
+    "5.3.1",
+    "9.3"
+   ],
+   "grupo": "B",
+   "porque": "RL aprende a construir memoria vs. nossa formula fixa de salience",
+   "raw": "Wang et al. (2025p) Y. Wang, R. Takanobu, Z. Liang, Y. Mao, Y. Hu, J. McAuley, and X. Wu Mem- α \\alpha : learning memory construction via reinforcement learning . arXiv preprint arXiv:2509.25911 ."
+  },
+  {
+   "titulo": "MemAgent: reshaping long-context llm with multi-conv rl-based memory agent",
+   "arxiv": "2507.02259",
+   "n_sec": 5,
+   "secoes": [
+    "1",
+    "2.1",
+    "3.2.2",
+    "3.3.2",
+    "5.3.1"
+   ],
+   "grupo": "B",
+   "porque": "long-context via memoria",
+   "raw": "Yu et al. (2025b) H. Yu, T. Chen, J. Feng, J. Chen, W. Dai, Q. Yu, Y. Zhang, W. Ma, J. Liu, M. Wang, et al. MemAgent: reshaping long-context llm with multi-conv rl-based memory agent . arXiv preprint arXiv:2507.02259 ."
+  },
+  {
+   "titulo": "Efficient memory management for large language model serving with pagedattention",
+   "arxiv": null,
+   "n_sec": 4,
+   "secoes": [
+    "3.1.2",
+    "3.2.2",
+    "4.1.1",
+    "9.3"
+   ],
+   "grupo": "X",
+   "porque": "PagedAttention: 'memoria' de KV cache, HOMONIMO",
+   "raw": "Kwon et al. (2023) W. Kwon, Z. Li, S. Zhuang, Y. Sheng, L. Zheng, C. H. Yu, J. Gonzalez, H. Zhang, and I. Stoica Efficient memory management for large language model serving with pagedattention . In Proceedings of the 29th symposium on operating systems principles , pp. 611–626 ."
+  },
+  {
+   "titulo": "When not to trust language models: investigating effectiveness of parametric and non-parametric memories",
+   "arxiv": "2212.10511",
+   "n_sec": 4,
+   "secoes": [
+    "3.1.1",
+    "3.1.2",
+    "4.1.1",
+    "4.1.2"
+   ],
+   "grupo": "B",
+   "porque": "quando recuperar vs. parametrico — §1.4",
+   "raw": "Mallen et al. (2023) A. Mallen, A. Asai, V. Zhong, R. Das, D. Khashabi, and H. Hajishirzi When not to trust language models: investigating effectiveness of parametric and non-parametric memories . In Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (Volume 1: L",
+   "venue": "ACL 2023",
+   "_localizador": "resolvido em 2026-09-10 pela API do arXiv, com controle positivo"
+  },
+  {
+   "titulo": "From isolated conversations to hierarchical schemas: dynamic tree memory representation for llms",
+   "arxiv": "2410.14052",
+   "n_sec": 4,
+   "secoes": [
+    "3.1.1",
+    "3.2.4",
+    "4.1.1",
+    "4.1.4"
+   ],
+   "grupo": "A",
+   "porque": "memoria hierarquica de conversa vs. nosso entity/section",
+   "raw": "Rezazadeh et al. (2025b) A. Rezazadeh, Z. Li, W. Wei, and Y. Bao From isolated conversations to hierarchical schemas: dynamic tree memory representation for llms . In The Thirteenth International Conference on Learning Representations ,",
+   "venue": "2024",
+   "_localizador": "resolvido em 2026-09-10 pela API do arXiv, com controle positivo"
+  },
+  {
+   "titulo": "In prospect and retrospect: reflective memory management for long-term personalized dialogue agents",
+   "arxiv": "2503.08026",
+   "n_sec": 4,
+   "secoes": [
+    "3.3.1",
+    "4.1.3",
+    "5.3.1",
+    "9.4"
+   ],
+   "grupo": "B",
+   "porque": "reflexao prospectiva/retrospectiva — nosso reflect",
+   "raw": "Tan et al. (2025c) Z. Tan, J. Yan, I. Hsu, R. Han, Z. Wang, L. Le, Y. Song, Y. Chen, H. Palangi, G. Lee, et al. In prospect and retrospect: reflective memory management for long-term personalized dialogue agents . In Proceedings of the 63rd Annual Meeting of the Association for Computational Linguis",
+   "venue": "NAACL 2025",
+   "_localizador": "resolvido em 2026-09-10 pela API do arXiv, com controle positivo"
+  },
+  {
+   "titulo": "Mirix: multi-agent memory system for llm-based agents",
+   "arxiv": "2507.07957",
+   "n_sec": 4,
+   "secoes": [
+    "3.1.1",
+    "3.2.5",
+    "4.2.1",
+    "5.1.1"
+   ],
+   "grupo": "A",
+   "porque": "memoria multi-agente — nosso cross_search entre 6 agentes",
+   "raw": "Wang and Chen (2025) Y. Wang and X. Chen Mirix: multi-agent memory system for llm-based agents . arXiv preprint arXiv:2507.07957 ."
+  },
+  {
+   "titulo": "Osworld: benchmarking multimodal agents for open-ended tasks in real computer environments",
+   "arxiv": null,
+   "n_sec": 4,
+   "secoes": [
+    "6.2.3",
+    "7.2",
+    "7.2.2",
+    "9.6"
+   ],
+   "grupo": "X",
+   "porque": "benchmark de SO — nao medimos",
+   "raw": "Xie et al. (2024) T. Xie, D. Zhang, J. Chen, X. Li, S. Zhao, R. Cao, T. J. Hua, Z. Cheng, D. Shin, F. Lei, et al. Osworld: benchmarking multimodal agents for open-ended tasks in real computer environments . Advances in Neural Information Processing Systems 37 , pp. 52040–52094 ."
+  },
+  {
+   "titulo": "Beyond goldfish memory: long-term open-domain conversation",
+   "arxiv": "2107.07567",
+   "n_sec": 4,
+   "secoes": [
+    "6.2.1",
+    "7.1",
+    "7.2",
+    "7.2.1"
+   ],
+   "grupo": "A",
+   "porque": "antecessor direto do LoCoMo/LongMemEval que usamos no §6",
+   "raw": "Xu et al. (2022a) J. Xu, A. Szlam, and J. Weston Beyond goldfish memory: long-term open-domain conversation . In Proceedings of the 60th annual meeting of the association for computational linguistics (volume 1: long papers) , pp. 5180–5197 .",
+   "venue": "ACL 2022",
+   "_localizador": "resolvido em 2026-09-10 pela API do arXiv, com controle positivo"
+  },
+  {
+   "titulo": "Memory-r1: enhancing large language model agents to manage and utilize memories via reinforcement learning",
+   "arxiv": "2508.19828",
+   "n_sec": 4,
+   "secoes": [
+    "3.2.4",
+    "4.1.5",
+    "4.2.3",
+    "5.3.1"
+   ],
+   "grupo": "B",
+   "porque": "RL para operacoes de memoria — mesmo contraste",
+   "raw": "Yan et al. (2025b) S. Yan, X. Yang, Z. Huang, E. Nie, Z. Ding, Z. Li, X. Ma, K. Kersting, J. Z. Pan, H. Schütze, et al. Memory-r1: enhancing large language model agents to manage and utilize memories via reinforcement learning . arXiv preprint arXiv:2508.19828 ."
+  },
+  {
+   "titulo": "Learning on the job: an experience-driven self-evolving agent for long-horizon tasks",
+   "arxiv": "2510.08002",
+   "n_sec": 4,
+   "secoes": [
+    "1",
+    "3.1.1",
+    "3.2.3",
+    "3.3.2"
+   ],
+   "grupo": "X",
+   "porque": "conducao autonoma — fora",
+   "raw": "Yang et al. (2025a) C. Yang, X. Yang, L. Wen, D. Fu, J. Mei, R. Wu, P. Cai, Y. Shen, N. Deng, B. Shi, et al. Learning on the job: an experience-driven self-evolving agent for long-horizon tasks . arXiv preprint arXiv:2510.08002 ."
+  },
+  {
+   "titulo": "MemSearcher: training llms to reason, search and manage memory via end-to-end reinforcement learning",
+   "arxiv": "2511.02805",
+   "n_sec": 4,
+   "secoes": [
+    "1",
+    "3.2.2",
+    "5.3.2",
+    "8"
+   ],
+   "grupo": "C",
+   "porque": "agentic retrieval, ao lado de IRCoT/Self-Ask que ja citamos",
+   "raw": "Yuan et al. (2025a) Q. Yuan, J. Lou, Z. Li, J. Chen, Y. Lu, H. Lin, L. Sun, D. Zhang, and X. Han MemSearcher: training llms to reason, search and manage memory via end-to-end reinforcement learning . arXiv preprint arXiv:2511.02805 ."
+  },
+  {
+   "titulo": "Memory as action: autonomous context curation for long-horizon agentic tasks",
+   "arxiv": "2510.12635",
+   "n_sec": 4,
+   "secoes": [
+    "1",
+    "3.2.2",
+    "3.3.2",
+    "5.3.1"
+   ],
+   "grupo": "B",
+   "porque": "curadoria de contexto vs. nosso retention tipado",
+   "raw": "Zhang et al. (2025o) Y. Zhang, J. Shu, Y. Ma, X. Lin, S. Wu, and J. Sang Memory as action: autonomous context curation for long-horizon agentic tasks . arXiv preprint arXiv:2510.12635 ."
+  },
+  {
+   "titulo": "MEM1: learning to synergize memory and reasoning for efficient long-horizon agents",
+   "arxiv": "2506.15841",
+   "n_sec": 4,
+   "secoes": [
+    "1",
+    "3.2.2",
+    "3.3.2",
+    "9.3"
+   ],
+   "grupo": "B",
+   "porque": "idem, com consolidacao",
+   "raw": "Zhou et al. (2025c) Z. Zhou, A. Qu, Z. Wu, S. Kim, A. Prakash, D. Rus, J. Zhao, B. K. H. Low, and P. P. Liang MEM1: learning to synergize memory and reasoning for efficient long-horizon agents . arXiv preprint arXiv:2506.15841 ."
+  }
+ ]
+}
