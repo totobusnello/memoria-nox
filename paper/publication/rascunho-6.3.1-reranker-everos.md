@@ -67,3 +67,67 @@
    executado **pelo EverOS** na sua própria coluna. Editar junto.
 3. **A cifra de $0,43 é do estágio de rerank apenas**, não da corrida — não somar com o custo
    de ingestão sem dizer qual é qual.
+
+---
+
+## Atualização 2026-09-10 — o teto foi MEDIDO, e a retenção fechou
+
+O que este rascunho antecipava como leitura do fonte está medido na varredura viva.
+
+### O teto satura em 100% das queries
+
+| | |
+|---|---:|
+| `rerank_n` (o que liga) | **50** |
+| `top_k_cap` (o nome que sobredeclara) | 100 |
+| hits devolvidos por query, `method=hybrid` | **50** |
+| queries que saturam no teto | **100%** |
+| latência por query | ~1,3–1,8 s |
+
+⇒ **Não é previsão do fonte, é medição da corrida.** Todo hit sai com
+`saturou_no_teto = true`, e o parâmetro cujo nome anuncia 100 nunca é o que decide.
+Consequência para qualquer nDCG@10 daquele serviço: é computado sobre um conjunto de
+candidatos **truncado em 50**.
+
+### Retenção: 6.822, e as 4 falhas são os pares colididos
+
+`ok: 6.826 · falhas: 4 · 250,9 min`, e os quatro erros são
+`DuplicateDocumentError` nos ids que nomeiam dois documentos distintos. Os cinco
+contadores batem: índice pesquisável 6.822, `doc_id` distintos no ledger 6.822, ids
+distintos no corpus 6.822 (de 6.830 linhas), diretórios no disco 6.823, `knowledge_topics`
+11.414 (1,67 por documento).
+
+**Documentos ausentes que são gold: 0.** Predicado:
+`corpus_ids − indexed_ids ∩ ⋃ gold_chunk_ids = ∅`. ⇒ **sem ressalva de nDCG** por falha de
+ingestão. *"Zero falhas"* e *"quatro falhas, nenhuma alcançável"* são estados diferentes e
+este é o segundo — declarar o predicado é o que impede ler o silêncio como o primeiro.
+
+### A tabela de retenção, agora completa — e é 2 contra 2
+
+| coluna | retenção | mecanismo |
+|---|---:|---|
+| nox-mem | **6.822** | `INSERT OR IGNORE`, guarda um em silêncio |
+| **EverOS** | **6.822** | `DuplicateDocumentError`, recusa o segundo |
+| mem0 | 6.830 | sem dedupe (6.822 `chunk_id` distintos) |
+| Zep | 6.830 | sem dedupe |
+
+Não é 3-contra-1 nem 1-contra-3. **Dois sistemas, dois mecanismos, um número** — o que faz
+de 6.822 a consequência de honrar unicidade de id, e não idiossincrasia do nosso loader.
+Entrou no confound (e) do §6.3.2 com a corrida nomeada dos dois lados, e o
+`corpus_bench_check` prende essa frase: parágrafo que atribui a contagem a 2+ sistemas
+nomeando **uma** corrida falha.
+
+⚠️ **O que NÃO escrever.** Dos 8 ids colididos, o segundo write foi aceito em 4 e recusado
+em 4 — mesma operação, resultados opostos. A hipótese de mecanismo (quem atravessou um
+`sincroniza()` está no índice e é recusado; quem estava no buffer é sobrescrito) **não está
+medida** e não entra no paper. O publicável é o efeito: a retenção final é 6.822 pelos dois
+caminhos, e **qual dos dois documentos sobrevive num id colidido depende da ordem de
+ingestão** — a mesma frase que já publicamos sobre o nosso `INSERT OR IGNORE`, e que
+continua desfavorável a nós, o que é bom declarar.
+
+### O que continua fora do manuscrito
+
+O **nDCG do EverOS**. A varredura estava a correr quando o §6.3.1 foi escrito, e o que
+entrou lá é só o que fecha sem ela: a retenção, o predicado das falhas e o teto. O §6.9
+continua com a contagem *"as of this revision"*, e passa a **dois** só contra artefato
+fechado.

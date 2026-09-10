@@ -224,6 +224,27 @@ CASOS = [
         "nao consta da autoria",
     ),
     (
+        # Desde 2026-09-10 o paper diz `6,822` do corpus do rc4 (§6.3.2, §6.9) E do
+        # indice do EverOS (§6.3.1) — medicoes diferentes que coincidem. A
+        # coincidencia e' o achado; ler as duas como uma e' o defeito. A primeira
+        # versao do guarda exigia os dois sistemas na MESMA frase e esta mutacao
+        # passava incolume, porque deixa `nox-mem` numa frase e `EverOS` na
+        # seguinte: a janela tem de ser o PARAGRAFO.
+        "contagem de corpus de 2 sistemas com uma corrida so nomeada",
+        PAPER,
+        "from a **different run** (the 2026-09-10 EverOS ingest of \u00a76.3.1, not rc4, "
+        "and therefore not a fourth column here): offered the same corpus, EverOS also "
+        "retained **6,822**",
+        "EverOS also retained **6,822**",
+        "nomeia 1 corrida",
+    ),
+    (
+        "paragrafo novo com 2 sistemas e nenhuma corrida nomeada",
+        PAPER, None,
+        "\nBoth nox-mem and EverOS retained 6,822 documents; Mem0 kept 6,830.\n",
+        "nomeia 0 corrida",
+    ),
+    (
         # A entrada do NOSSO sistema prometia "update with arXiv ID after
         # submission" enquanto o CITATION.cff registra a ausencia no arXiv como
         # FATO, nao tarefa. Duas fontes do mesmo repo em contradicao, e a que o
