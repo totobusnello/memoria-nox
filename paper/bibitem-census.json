@@ -1,9 +1,10 @@
 {
  "_metodo": "Censo de bibitems. 'obra' = trabalho ou artefato de TERCEIRO citado, analogo do ltx_bibitem contado nos quatro aceitos. 'evidencia' = ponteiro para o nosso proprio codigo, medicao ou decisao; nenhum dos aceitos tem essa categoria na bibliografia, logo conta-la infla o nosso lado da regua. A densidade de referencias por mil palavras usa SO 'obra' no numerador.",
  "_medido": "2026-09-10",
- "_palavras_cru": 25967,
+ "_palavras_cru": 26329,
  "_tokenizador": "markdown cru, SEM remocao de tags (o metodo do §5 da regua-simetrica remove tags porque os aceitos sao HTML; aplicar essa remocao a markdown faz '<[^>]+>' engolir o texto entre '<' e '>' matematicos). Token = separado por espaco com >=1 alfanumerico. Controle: reproduz 24.126 do commit fa3d28e com delta 15.",
  "obra": [
+  "acon",
   "amem",
   "beamretrieval",
   "beir",

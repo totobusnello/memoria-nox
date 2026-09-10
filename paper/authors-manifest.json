@@ -562,6 +562,19 @@
   ],
   "title": "Mem-{\\alpha}: Learning Memory Construction via Reinforcement Learning"
  },
+ "2510.00615": {
+  "surnames": [
+   "Kang",
+   "Chen",
+   "Han",
+   "Inan",
+   "Wutschitz",
+   "Chen",
+   "Sim",
+   "Rajmohan"
+  ],
+  "title": "ACON: Optimizing Context Compression for Long-horizon LLM Agents"
+ },
  "2510.12635": {
   "surnames": [
    "Zhang",

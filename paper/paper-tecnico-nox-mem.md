@@ -190,7 +190,13 @@ is recoverable by changing the ranker and is exactly what §3.4.3's shadow gate 
 control. MemAgent[^memagent] attacks the same context limit from a third direction,
 training an agent to rewrite a fixed-size memory across successive chunks of a long input;
 that is a *reading* strategy for one long document, where nox-mem's brief is an *assembly*
-strategy over a persistent multi-source store.
+strategy over a persistent multi-source store. A fourth direction compresses instead of
+selecting: ACON[^acon] optimises *how* long-horizon context is condensed, trading fidelity
+for room. The brief does neither — it ranks and truncates at K, keeping every retained
+chunk verbatim. That is what makes a brief auditable (every line in it exists in the store,
+unaltered) and it is also why it cannot fit more evidence into the same token budget than
+selection allows. Whether compression would beat selection at equal budget is untested
+here.
 
 **Graph-augmented retrieval.** HippoRAG[^hipporag] applies Personalized PageRank over an
 entity-relation graph, and HippoRAG 2[^hipporag2] extends the approach toward
@@ -1059,7 +1065,6 @@ Concurrent agent operations during Lab Q1 benchmarking caused a batch contaminat
 
 ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
-> **Summary of this section's runs.** The canonical cross-system run executed on a dedicated pod 2026-06-15 (n=100/dataset, k=10, same-namespace fair), resolving the 2026-05-24 infrastructure abort (§7.1 L5). **3/6 systems with real data** (nox-mem, Mem0, agentmemory) + **3 documented gaps** (Zep = Docker impossible on unprivileged-pod kernel; Letta = agent-OS ~16 min/query; EverMind-AI = third-party keys + external-repo auth — all §6.3.1). **As-configured result: split** — nox-mem wins LongMemEval (nDCG@10 0.5234 vs Mem0 0.4764), Mem0 wins LoCoMo (0.4686 vs nox-mem 0.4263); agentmemory distant third (0.2803 / 0.1587). **Controlled-embedding variant (rc4, §6.3.2, 2026-06-29):** with both systems on Gemini 3072d over the full n=2,482 set, the split **inverts** — nox-mem outperforms Mem0 on both datasets (LongMemEval 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407) and all five represented categories (§6.4); the residual confounds declared in §6.3.2, and the task-type asymmetry ablated away (generic-embedding nox-mem still wins, −0.34 pp). Quality tables §6.3; gaps §6.3.1; operational-cost axis §6.8; reproducibility-as-evidence §6.9. Principles (§6.5), anti-cherry-pick (§6.6), and pre-registration (§6.7) immutable.
 
 ### 6.1 Methodology summary
 
@@ -1524,6 +1529,7 @@ first author and title checked to match, rather than transcribed from memory.
 [^whennottotrust]: Mallen, Asai, Zhong, Das, Khashabi & Hajishirzi, *When Not to Trust Language Models: Investigating Effectiveness of Parametric and Non-Parametric Memories*, ACL 2023. arXiv:2212.10511. Used in §1.5.
 [^memsearcher]: Yuan, Lou, Li, Chen, Lu *et al.*, *MemSearcher: Training LLMs to Reason, Search and Manage Memory via End-to-End Reinforcement Learning*, ACL 2026. arXiv:2511.02805. Used in §1.5.
 [^webcoach]: Liu, Geng, Li, Cui, Zhang *et al.*, *WebCoach: Self-Evolving Web Agents with Cross-Session Memory Guidance*, 2025. arXiv:2511.12997. Used in §1.5.
+[^acon]: Kang, Chen, Han, Inan, Wutschitz *et al.*, *ACON: Optimizing Context Compression for Long-horizon LLM Agents*, 2025. arXiv:2510.00615. Used in §1.5.
 [^bm25]: Robertson & Zaragoza, *The Probabilistic Relevance Framework: BM25 and Beyond*, Foundations and Trends in Information Retrieval 3(4), 2009. doi:10.1561/1500000019. Cited in §3.1 for the BM25 ranking used by Layer 1 (FTS5).
 
 [^rrf]: Cormack, Clarke & Buettcher, *Reciprocal Rank Fusion Outperforms Condorcet and Individual Rank Learning Methods*, SIGIR 2009. doi:10.1145/1571941.1572114. Cited in §3.2 — this is the source of the `k=60` constant used by the fusion layer.
