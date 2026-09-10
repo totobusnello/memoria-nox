@@ -2887,3 +2887,89 @@ a próxima forma de divergirem.
 ⇒ Fica a distinção que eu deveria ter feito na primeira vez: **claim de ausência falsa,
 objeção de desenho procedente.** Reportar as duas juntas fez a objeção parecer sustentada
 pela claim, quando ela se sustenta sozinha.
+
+---
+
+## §10.27 — Eu publiquei uma tautologia como controle negativo que passa
+
+**Retratação.** O PR #501, mergeado em 2026-09-10 14:19Z e retirado no mesmo dia,
+afirmava um controle negativo intra-braço:
+
+> ~~Brief de epoch de tratamento em que nenhum id designado aparece no conjunto
+> **servido** não pode mexer. Medido: 2.908 briefs sem alcance, **0 movimentos**. Passa.~~
+
+**Era tautológico.** Eu defini "servido" como `set(ids_controle) | set(ids_tratado)`, e
+`ids_tratado` é **pós-dose**. Se a dose promove um designado, ele entra em `ids_tratado`
+⇒ entra em "servido" ⇒ o brief cai no estrato "presente". O estrato "ausente" não pode
+conter movimento **por construção**.
+
+### O indício estava na minha própria saída
+
+`presença em (controle ∪ tratado)` é **numericamente idêntica** a `presença em tratado`,
+em todos os seis epochs:
+
+| epoch | `presUniao` | `presT` |
+|---|---:|---:|
+| 09-01 | 189 | 189 |
+| 09-04 | 185 | 185 |
+| 09-05 | 184 | 184 |
+| 09-06 | 144 | 144 |
+| 09-08 | 187 | 187 |
+| 09-09 | 193 | 193 |
+
+Seis igualdades exatas. O critério **nunca dependeu do controle** — e a sessão par
+identificou a via sem ver o meu código, reconhecendo o `144` de 09-06 como o `presT` dela.
+
+### E a premissa estava invertida
+
+Pelo critério **dose-independente** (presença no conjunto de controle), o estrato
+"ausente" tem **118 movimentos**, não 0:
+
+| epoch | w | `ausC` | mexeu | `presC` | mexeu | taxa em `presC` |
+|---|---|---:|---:|---:|---:|---:|
+| 09-01 | 4,0 | 453 | 12 | 177 | 10 | 5,6% |
+| 09-04 | 2,0 | 513 | 26 | 159 | 9 | 5,7% |
+| 09-05 | 2,0 | 514 | 26 | 158 | 7 | 4,4% |
+| **09-06** | **7,5** | 548 | 20 | 124 | 18 | **14,5%** |
+| 09-08 | 2,0 | 500 | 15 | 172 | 5 | 2,9% |
+| 09-09 | 2,0 | 498 | 19 | 174 | **0** | **0,0%** |
+
+Não é falha de instrumento — **é o mecanismo.** A dose age promovendo chunk que **não
+estava** no baseline; ausência do controle é onde ela tem **mais** o que fazer, não menos.
+
+> **Um estrato definido pelo desfecho não é controle.** O critério tem de ser
+> computável **sem** olhar o resultado — aqui, `ids_controle` sozinho. Bastava perguntar
+> *"este predicado usa alguma variável pós-tratamento?"*, e o `|` com `ids_tratado`
+> responde sozinho.
+
+### As taxas condicionais que eu reportei também caem
+
+Reportei 26,4% para `w=7,5` contra 9,8–18,9% para `w=2`, "condicionado a a dose ter
+alcance". Esse denominador era em parte **consequência do desfecho** — seleção sobre o
+desfecho. A versão dose-independente dá 14,5% contra 0–5,7%, separação **maior**, mas com
+variância dentro de `w=2` que vai de **zero** (09-09: 0 de 174) a 5,7%. Nada disso é
+estimando primário.
+
+### Não existe controle negativo intra-braço neste log, por três vias
+
+| via | por que falha |
+|---|---|
+| epoch de controle tem `mexeu == 0` | os campos não existem lá (`sem_ids == n`) — regra 9 |
+| presença de designado no servido | pós-dose ⇒ tautológico (esta seção) |
+| `boost_by_id` vazio ⇒ `mexeu` 0 | estrato vazio: `sem_boost == 0` em 3.990 briefs |
+
+O buraco fica **aberto e declarado**. A especificidade tem de vir de outra fonte — e a
+que sobrevive é o **replay com designação-sham**, porque o viés do replay é
+anticorrelacionado com o efeito e portanto **desaparece sob a nula**: o replay não pode
+medir o efeito, mas pode falsificar a especificidade.
+
+### O que fica versionado no lugar
+
+`measurement/estratos-por-presenca-de-designado.py` — **caracterização, não controle**,
+com o critério dose-independente, o aviso de que o estrato "ausente" ter movimento é o
+esperado, e uma perna que **falha (exit 1)** se `presUniao != presT` em algum epoch, porque
+isso significaria que a explicação desta retratação está errada.
+
+⚠️ E o aviso do denominador sobrevive à correção: `presC` varia de 124 a 177 (razão
+1,43×), a anomalia de 09-06 existe **também** nesta variável dose-independente — logo não
+é causada pela dose — e continua **sem explicação**.
