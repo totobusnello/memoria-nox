@@ -21,21 +21,12 @@ Recontado de `ASSIGNMENT-SERVING.json` (sha `8957cc5fe8696204…`) em 09/09:
 
 | recorte | controle (w=0) | w=2,0 | w=4,0 | w=7,5 |
 |---|---|---|---|---|
-| 20 epochs alocados | 9 | 6 | 4 | **1** |
-| unidades de análise (ver §10.26) | 8 | 6 | 3 | **1** |
+| 20 epochs (com os 2 parciais) | 9 | 6 | 4 | **1** |
+| 18 inteiros | 8 | 6 | 3 | **1** |
 
-⚠️ **A linha de baixo mudou em 10/09.** A primeira versão deste documento dizia
-"18 inteiros + 2 parciais", número herdado de um artefato que classificava por **relógio**
-e reportava como exposição servida — nele o epoch **2026-09-02 saía `inteiro` com
-`exposto_h=24.0` tendo servido zero briefs**, e a faixa de inteiros literalmente
-**começava** nele (`inteiros_de: "2026-09-02"`). Corrigido pela sessão par (PR #497) e
-verificado aqui: **15 inteiras + 3 parciais + 1 vazia**, projetando 09-11…09-19 cheios.
-Registro em `DEVIATIONS-FOR-PAPER.md` §10.26.
-
-Os três parciais são **2026-09-01** (tratamento, w=4,0 — relógio parcial, e só **630** dos
-672 em `active`; os 42 primeiros ainda em `shadow`), **2026-09-03** (controle — 441 de 672)
-e **2026-09-20** (controle — corte às 22:51Z). O vazio é **2026-09-02** (controle, nunca
-servido). O braço de dose máxima é **n=1 em todos os recortes**.
+Os parciais são **2026-09-01** (tratamento, w=4,0, 22,38 h de 24) e **2026-09-20**
+(controle, 13,86 h — o corte cai dentro do epoch). Descartá-los tira um do controle e
+um do w=4,0; o braço de dose máxima é **n=1 nos dois recortes**.
 
 **Reportar o contraste pré-registrado como resultado seria reportar um nulo que é
 artefato de poder** — a exata família de defeito que este trabalho passou oito semanas
