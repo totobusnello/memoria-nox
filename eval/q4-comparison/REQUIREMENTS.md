@@ -398,8 +398,32 @@ export GEMINI_API_KEY=...
       caixa vazia: fecha a pergunta. Estado real: adapter pronto contra a v1.3.1, ingestão
       **paga** (6.830 extrações de LLM) e barrada por `EVEROS_ALLOW_PAID_INGEST=1`.
       Falta **ordem do Toto para gastar**, não trabalho.
+      🟢 **FECHADO 2026-09-10.** A ordem veio, a ingestão correu (`fecho ok=6826
+      falhas=4`, 4 h 11 min) e 6.822 documentos estão no índice. A caixa fica `[ ]`
+      até a busca fechar com nDCG no §7 — marcar agora repetiria o erro que este
+      item denuncia, que é caixa marcada antes do estado.
 - [ ] **OpenAI quota** — Mem0 + Letta both default to OpenAI embeddings.
       Estimate: ~600 queries × 2 datasets × 2 systems = 2,400 embedding
       calls. Budget < $1 at current ada pricing, but confirm before run.
-- [ ] **Zep self-host RAM** — Postgres + Zep ~2 GB resident. VPS has 16 GB,
-      well-budgeted, but verify other services don't compete.
+      ⚠️ **2026-09-10 — este item não cobre o Zep, e o Zep também embeda pela
+      OpenAI.** O `zep-config.yaml` liga `Extractors.Messages.Embeddings` com
+      `Service: openai` (`text-embedding-3-small`, 1536d). A cota superior da
+      corrida de hoje está em `RESULTADOS-Q4-2026-09-10.md` §5.4, com a natureza de
+      cada linha declarada (medida vs cota) — o medidor autoritativo
+      (`/v1/organization/usage/embeddings`) recusa: a chave deste projeto não tem o
+      escopo `api.usage.read`.
+- [x] **Zep self-host RAM** — ✅ **MEDIDO 2026-09-10 sob carga de busca**, que é a
+      única janela em que isto se mede. A estimativa estava **8× alta** e a premissa
+      estava no host errado:
+
+      | | escrito aqui | medido |
+      |---|---|---|
+      | `q4-zep` + `q4-postgres` | "~2 GB resident" | **364 MiB** (100,9 + 262,9) |
+      | host | "VPS has 16 GB" | **32 GB — é o kvm8, não a VPS de produção** |
+      | maior consumidor de RAM | (implícito: o Zep) | **o nosso harness**, 2.249 MB |
+
+      ⇒ A preocupação inverte-se: quem competia por memória eram os nossos próprios
+      processos de busca, não o stack do Zep. E o item foi escrito sobre a VPS de
+      produção, que é **proibida** de hospedar benchmark até 2026-09-21 (ensaio do
+      Paper 2 em curso) — logo a premissa dele nunca descreveu onde a corrida ia
+      acontecer.
