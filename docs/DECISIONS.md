@@ -1486,3 +1486,17 @@ Detalhe completo em `paper2-interventional/ENQUADRAMENTO-2026-09-09.md`.
 - ⚠️ **Correção do número:** alocado 9×11, **servido 8×11**. O epoch **2026-09-02
   (controle) nunca foi servido** — 252 registros por `ts`, **zero** por chave `epoch`.
   Parciais servidos são **três**: 09-01, 09-03 (441/672) e 09-20.
+- 🔴 **2026-09-10 — a delimitação da janela também estava errada, e por outro mecanismo.**
+  O artefato de janela elegível classificava por **relógio** (active × designados frescos)
+  e reportava como **exposição servida**: `2026-09-02` saía `inteiro` com `exposto_h=24.0`
+  tendo servido **zero** briefs, e a faixa de inteiros literalmente **começava** nele
+  (`inteiros_de: "2026-09-02"`). Corrigido pela sessão par (PR #497), verificado aqui:
+  **15 inteiras + 3 parciais + 1 vazia**. Três mecanismos: o defeito morava no **nome do
+  campo** (`exposto_h` lê-se como entrega); a classe errada vinha da **ausência** do dado
+  (`inteiro` era o default — regra 9 com sinal invertido); e não faltava medição, faltava
+  **cruzamento** (o fato do 09-02 estava medido ao lado desde 08/09). Registro em
+  `DEVIATIONS-FOR-PAPER.md` §10.26 (PR #498).
+- ⚠️ **Resíduo no conserto, medido aqui:** o campo `servidos` do censo novo **não filtra por
+  `modo`** — para 09-01 conta 672 e declara entrega `cheio`, quando 630 foram em `active`
+  (w=4,0) e 42 em `shadow` (w=2,0). O veredito do epoch segue `parcial` pela perna do
+  relógio, logo a perna de **entrega** erra no único epoch de modo misto da janela.
