@@ -188,6 +188,10 @@ def validate() -> dict:
         ("everos.memory.cascade", "CascadeOrchestrator"),
         ("everos.component.tokenizer", "build_tokenizer"),
         ("everos.component.embedding", "get_embedding_capability"),
+        # `_teto_de_rerank()` importa isto tarde. Sem esta linha, o teste que
+        # DERIVA os imports tardios do fonte falha — e foi ele que pegou esta
+        # adição, que e' o proposito dele.
+        ("everos.config.settings", "KnowledgeSearchSettings"),
     ):
         try:
             getattr(importlib.import_module(_mod), _sym)
@@ -399,6 +403,32 @@ async def _indexa() -> int:
     return await orq.sync_once()
 
 
+def _teto_de_rerank() -> int:
+    """
+    Teto REAL de itens que a busca pode devolver, medido na config do EverOS.
+
+    ⚠️ NÃO é o `top_k_cap`. Medido 2026-09-10 em `everos==1.3.1`:
+
+        recall_n = 200   rerank_n = 50   mass_top_m = 50   top_k_cap = 100
+
+    e `_run_category_pipeline` faz `effective_k = min(top_k, top_k_cap)` e passa
+    `rerank_n=config.rerank_n` ao `acategory_retrieve`. Logo pedir `top_k=80`
+    passa o `min` (80 < 100) e ainda assim **não pode** devolver mais de
+    `rerank_n=50`: o estágio de rerank é o gargalo, e o `top_k_cap` — o nome que
+    parece ser o limite — mente por ser mais generoso que o limite verdadeiro.
+
+    Sem esta perna, `k=20` com over-fetch 5 pediria 100 e receberia 50 em
+    silêncio: a dedupe topo→doc_id devolveria menos de 20 doc_ids por um TETO
+    DE CONFIGURAÇÃO, e a coluna do EverOS mediria o teto em vez da retrieval.
+    """
+    try:
+        from everos.config.settings import KnowledgeSearchSettings
+        cfg = KnowledgeSearchSettings()
+        return int(min(cfg.rerank_n, cfg.top_k_cap))
+    except Exception:
+        return 50  # o default medido; melhor um teto conservador que nenhum
+
+
 def search(query: str, k: int = 10) -> list[dict]:
     """
     Search the knowledge surface and map hits back to corpus chunk ids.
@@ -413,6 +443,15 @@ def search(query: str, k: int = 10) -> list[dict]:
     from everos.service.knowledge import search_knowledge
 
     want = k * _overfetch()
+    teto = _teto_de_rerank()
+    if want > teto:
+        raise RuntimeError(
+            f"over-fetch pedido ({k}x{_overfetch()}={want}) excede o teto de rerank "
+            f"do EverOS ({teto}). A busca devolveria {teto} em SILENCIO e a dedupe "
+            f"topico->doc_id entregaria menos de k={k} doc_ids por teto de "
+            f"configuracao, nao por qualidade. Baixe EVEROS_OVERFETCH para "
+            f"<= {teto // max(k, 1)} ou suba EVEROS_RERANK_N no ambiente."
+        )
     try:
         res = _loop.run_until_complete(
             search_knowledge(
@@ -445,6 +484,10 @@ def search(query: str, k: int = 10) -> list[dict]:
                 # Provenance of the collapse, per call — so the write-up states
                 # the realised factor instead of assuming EVEROS_OVERFETCH held.
                 "topics_seen": len(hits),
+                # Saturacao: se a busca devolveu EXATAMENTE o teto, o over-fetch
+                # pode ter sido cortado pelo pipeline e nao pela oferta real de
+                # topicos. Distinguir "achou 50" de "cabia mais que 50".
+                "saturou_no_teto": len(hits) >= teto,
                 "topic_name": getattr(h, "topic_name", None),
                 "retrieval_method": getattr(h, "retrieval_method", None),
             }

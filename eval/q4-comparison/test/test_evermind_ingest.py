@@ -23,6 +23,7 @@ Focus areas:
 from __future__ import annotations
 
 import importlib
+import types
 import json
 import os
 import sys
@@ -486,3 +487,64 @@ def test_extractor_accessor_is_idempotent(ad, monkeypatch):
     ad.setup()
     primeiro = ad.extractor()
     assert ad.extractor() is primeiro, "reconstruir por chamada gastaria cliente novo"
+
+
+# ── Teto de rerank: o limite verdadeiro não é o que tem o nome de limite ──────
+
+
+def test_teto_de_rerank_vem_do_min_entre_rerank_n_e_top_k_cap(ad, monkeypatch):
+    """
+    O teto tem de ser `min(rerank_n, top_k_cap)`, não o `top_k_cap`.
+
+    Medido 2026-09-10 em `everos==1.3.1`: `rerank_n=50`, `top_k_cap=100`. Ler o
+    `top_k_cap` — o campo cujo NOME diz "cap" — dá 100 e é falso: o
+    `acategory_retrieve` recebe `rerank_n` e não pode devolver mais que isso.
+    """
+
+    class _Cfg:
+        recall_n, rerank_n, mass_top_m, top_k_cap = 200, 50, 50, 100
+
+    mod = types.ModuleType("everos.config.settings")
+    mod.KnowledgeSearchSettings = lambda: _Cfg()
+    monkeypatch.setitem(sys.modules, "everos.config.settings", mod)
+
+    assert ad._teto_de_rerank() == 50, "leu o top_k_cap em vez do gargalo"
+
+
+def test_search_recusa_overfetch_acima_do_teto_em_vez_de_devolver_menos(ad, monkeypatch):
+    """
+    `k=20` com over-fetch 5 pede 100 e o pipeline devolve 50: a dedupe entregaria
+    < 20 doc_ids por TETO DE CONFIGURAÇÃO. O adapter tem de abortar, não medir o
+    teto e chamar-lhe retrieval.
+    """
+    monkeypatch.setattr(ad, "setup", lambda: None)
+    import asyncio
+
+    monkeypatch.setattr(ad, "_loop", asyncio.new_event_loop())
+    monkeypatch.setattr(ad, "_overfetch", lambda: 5)
+    monkeypatch.setattr(ad, "_teto_de_rerank", lambda: 50)
+
+    with pytest.raises(RuntimeError) as exc:
+        ad.search("qualquer", k=20)
+    msg = str(exc.value)
+    assert "teto de rerank" in msg, msg
+    assert "SILENCIO" in msg or "silencio" in msg.lower(), msg
+    # E tem de dizer o que fazer COM NUMERO, senão o operador reduz k por
+    # adivinhação. A mutação M-teto-3 (trocar a segunda metade da frase por
+    # "reduza o k") passava com a asserção só do nome da variável: nomear a
+    # alavanca sem dar o valor não é acionável.
+    assert "EVEROS_OVERFETCH" in msg, msg
+    assert "<= 2" in msg, f"falta o teto concreto (50//20=2): {msg}"
+
+
+def test_search_com_k10_e_overfetch5_cabe_exatamente_no_teto(ad, monkeypatch):
+    """
+    A configuração em uso (k=10 × 5 = 50) está EXATAMENTE no teto de 50 — zero
+    folga. Este caso existe para que subir o `k` do harness quebre aqui em vez de
+    silenciosamente medir menos.
+    """
+    monkeypatch.setattr(ad, "_overfetch", lambda: 5)
+    monkeypatch.setattr(ad, "_teto_de_rerank", lambda: 50)
+    assert 10 * ad._overfetch() == ad._teto_de_rerank(), (
+        "se esta igualdade deixar de valer, reveja o over-fetch antes de medir"
+    )
