@@ -26,17 +26,41 @@ QUERIES="${QUERIES:-cache/queries-rc4-all.jsonl}"
 SAIDA="${SAIDA:-out/busca}"
 K="${K:-10}"
 
+# ⚠️ ORDEM: este guarda vem DEPOIS da credencial por acidente na 1a versao, e o
+# teste na kvm8 saiu `exit=2` na credencial sem NUNCA exercitar este guarda --
+# terceira vez hoje que uma perna que decide primeiro esconde a de tras. Mas a
+# ordem correta e' por DANO: credencial ausente e' inocua e o script apenas nao
+# roda; migracao de schema sobre uma ingestao viva estraga horas de corrida paga.
+# Logo o guarda de dano vem primeiro, e a credencial depois.
+#
+# guarda: a ingestao ainda corre?
+#
+# ⚠️ NAO usar `pgrep -f everos-corrida`. Medido 2026-09-10: o literal aparece na
+# propria linha de comando de quem invoca o pgrep, logo ele casa consigo mesmo e a
+# contagem nunca chega a zero -- o guarda ficaria PERMANENTEMENTE mordendo aqui, e
+# no vigia a perna simetrica (detectar morte) nunca poderia disparar. Mesma classe
+# da regra 9: predicado que nao alcanca o estado que devia detectar.
+#
+# Duas pernas que nao podem casar consigo: a sessao tmux, e o mtime do ledger
+# (progresso pega tambem o caso "vivo mas travado", que o pgrep nao ve).
+if tmux has-session -t everos 2>/dev/null; then
+  echo "🔴 a ingestao AINDA CORRE (sessao tmux 'everos' viva). Abortando para nao"
+  echo "   rodar migracao de schema por cima dela. Esperar o fecho."
+  exit 3
+fi
+LEDGER=out/corrida/ledger-criados.txt
+if [ -f "$LEDGER" ]; then
+  IDADE=$(( $(date +%s) - $(stat -c %Y "$LEDGER" 2>/dev/null || echo 0) ))
+  if [ "$IDADE" -lt 120 ]; then
+    echo "🔴 o ledger foi escrito ha ${IDADE}s — a ingestao esta' ativa. Abortando."
+    exit 3
+  fi
+fi
+
 [ -f ~/.deepinfra.env ] || { echo "FALTA ~/.deepinfra.env (DEEPINFRA_API_KEY)"; exit 2; }
 set -a; . ~/.deepinfra.env; [ -f ./.env ] && . ./.env; set +a
 : "${GEMINI_API_KEY:?GEMINI_API_KEY ausente}"
 : "${DEEPINFRA_API_KEY:?DEEPINFRA_API_KEY ausente}"
-
-# guarda: a ingestao ainda corre?
-if pgrep -f everos-corrida >/dev/null 2>&1; then
-  echo "🔴 a ingestao AINDA CORRE (everos-corrida vivo). Abortando para nao"
-  echo "   rodar migracao de schema por cima dela. Esperar o fecho."
-  exit 3
-fi
 
 BASE=https://generativelanguage.googleapis.com/v1beta/openai/
 export EVEROS_ROOT="$RAIZ" EVEROS_EVAL_ROOT="$RAIZ"
