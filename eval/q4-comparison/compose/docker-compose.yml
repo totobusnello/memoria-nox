@@ -65,7 +65,20 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8000/healthz"]
+      # ⚠️ CORRIGIDO 2026-09-10. O teste anterior era `wget -qO- .../healthz` e a
+      # imagem `ghcr.io/getzep/zep:0.27.2` NAO tem wget, nem curl, nem nc, nem
+      # busybox — medido com `docker exec`. O container ficava `Up (unhealthy)`
+      # PARA SEMPRE enquanto o /healthz respondia 200 de fora: falso negativo
+      # permanente, que e' a classe de alarme que ensina a ignorar alarme.
+      #
+      # `bash` existe na imagem e `/dev/tcp` funciona (o `/bin/sh` e' dash e NAO
+      # suporta /dev/tcp — dai o `bash` explicito).
+      #
+      # LIMITE DECLARADO: isto prova que a PORTA escuta, nao que `/healthz`
+      # devolve 200. A sonda de aplicacao tem de vir de FORA do container, onde
+      # existe cliente HTTP:
+      #     curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000/healthz
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8000"]
       interval: 10s
       timeout: 5s
       retries: 10

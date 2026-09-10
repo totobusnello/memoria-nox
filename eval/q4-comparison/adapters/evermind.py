@@ -1,447 +1,532 @@
 """
-EverMind-AI adapter — repo CLI (Python) OR Python module.
+EverOS adapter — `everos.service.knowledge` surface (document provenance).
 
-Repo: https://github.com/EverOS-AI/EverMind-AI  (license tracked in REQUIREMENTS.md, ~5k stars)
-Note: EverOS publishes EverMemBench + papers + their own benchmark numbers,
-which makes them the most-explicit "benchmark publisher competitor" of the
-five (see memory: `[[everos-benchmark-publisher-competitor]]`).
+Repo: https://github.com/EverMind-AI/EverOS   (org EverMind-AI, repo EverOS)
+Install: pip install everos==1.3.1
 
-Install: git clone + pip install -e . (no PyPI package as of 2026-05-21).
-Pinned commit recorded in REQUIREMENTS.md once Toto clones Saturday.
+⚠️ ERRATA 2026-09-10. This file previously targeted a CLI (`evermind retrieve`)
+and a module path (`EVERMIND_PYTHON_MODULE`) that DO NOT EXIST, and cited the
+repo as `EverOS-AI/EverMind-AI` — org and repo swapped. `REQUIREMENTS.md` §6
+declared the repo nonexistent for 3.5 months because all five probes queried the
+swapped name; `EverMind-AI/EverOS` was never tried. The package is on PyPI as
+`everos`; the CLI commands are `init · demo · server · cascade · config` — no
+`add`, no `retrieve`. Everything below is measured against v1.3.1, not assumed.
 
-INVOCATION PATHS (dual)
------------------------
-Per REQUIREMENTS.md §6: "evermind retrieve CLI assumed but not verified
-against public repo as of overnight." The adapter therefore implements
-TWO call paths:
+WHICH SURFACE, AND WHY IT MATTERS FOR FAIRNESS
+──────────────────────────────────────────────
+EverOS exposes two retrieval surfaces, and they are NOT interchangeable for a
+chunk-id nDCG comparison:
 
-  1. CLI (preferred): ``evermind retrieve --query "<q>" --k <k> --json``
-     plus ``evermind add --id <id> --text "..."`` for ingestion.
+  1. `service.memorize` + `service.search` — the *memory* surface. Ingest is a
+     conversation (`session_id` + `messages`); what comes back are DERIVED
+     episodes. There is no mapping from a hit back to the corpus chunk that
+     produced it, so `gold_chunk_ids` matching is undefined. Not usable here.
 
-  2. Python module (fallback): set ``EVERMIND_PYTHON_MODULE`` env var to
-     the importable path (e.g., ``evermind.retrieval``); the adapter
-     looks for ``retrieve``, ``add``/``upsert``/``insert`` callables.
+  2. `service.knowledge` — the *knowledge* surface. `create_document()` accepts
+     `doc_id=`, and `search_knowledge()` returns `SearchHit.document.doc_id`.
+     The corpus chunk id therefore ROUND-TRIPS, and nDCG@k over
+     `gold_chunk_ids` is well defined.
 
-setup() picks the working path via ``_resolve_path()`` and stores it in
-``_path_mode``. validate() reports which path will be used. ingest_corpus()
-and search() both use _path_mode. If NEITHER path works, ingest_corpus()
-returns mode="none" with a clear error and the runner can document the gap.
+This adapter uses (2). That choice is a limitation to declare, not a silent
+default: we are benchmarking EverOS's knowledge retrieval, not its episodic
+memory. Same class of disclosure as the mem0 corpus-cap framing already
+documented in the paper.
 
-PATH-USED reporting:
-  The ingest result includes ``path_used`` so the PR write-up can record
-  honestly which surface produced the numbers (per spec §6).
+GRANULARITY ASYMMETRY — the reason for over-fetch
+─────────────────────────────────────────────────
+`search_knowledge` ranks TOPICS, not documents. One document is extracted into
+`CreateDocumentResult.topic_count` topics, so `top_k=k` topics can collapse to
+FEWER than k distinct doc_ids — which would penalise EverOS for a granularity
+difference rather than for retrieval quality. The adapter therefore requests
+`k * EVEROS_OVERFETCH` topics (default 5), dedupes by `doc_id` keeping the best
+rank, and truncates to k. `search()` reports `topics_seen` per call so the
+write-up can state the realised collapse factor instead of guessing it.
 
-INGESTION MODEL
----------------
-EverMind stores user-supplied ids natively in default config, so no id-map
-indirection is needed (unlike Letta/Zep). search() reads .id from response
-directly. Idempotency probe via ``evermind list --json`` or ``module.list()``;
-if unavailable, we use --upsert / kwargs={"upsert": True}.
+This mirrors mem0's `threshold=0.0` decision already in this harness: remove a
+system-specific cutoff that would drop gold items BEFORE scoring.
+
+COST — THIS INGEST IS PAID, AND IT IS GATED
+───────────────────────────────────────────
+`create_document()` runs an LLM extraction per document (`AlgoKnowledgeExtractor
+(llm=get_llm_client())`), and `search_knowledge()` needs an embedding provider.
+Measured corpus, 2026-09-10:
+
+    cache/locomo.jsonl        5.882 chunks     767.654 chars   ~191.9k tokens
+    cache/longmemeval.jsonl     948 chunks  13.372.109 chars  ~3.343k tokens
+    ────────────────────────────────────────────────────────────────────────
+    total                     6.830 chunks  14.139.763 chars  ~3.535k tokens
+
+⚠️ Do NOT quote "~2.482 chunks" for this run: 2.482 is the QUERY count
+(`cache/queries-rc4-all.jsonl`), not the corpus. And note the cost is dominated
+by LongMemEval — 14% of the documents carry 95% of the tokens.
+
+`ingest_corpus()` REFUSES to run without `EVEROS_ALLOW_PAID_INGEST=1` and
+returns the estimate instead. No paid call happens by accident.
+
+CONFIGURATION (measured env bindings, prefix EVEROS_, delimiter __)
+───────────────────────────────────────────────────────────────────
+    EVEROS_ROOT                  memory root (this adapter pins its own)
+    EVEROS_LLM__MODEL            extraction model
+    EVEROS_LLM__API_KEY          required, else LLMNotConfiguredError
+    EVEROS_LLM__BASE_URL         required — OpenAI-compatible endpoint
+    EVEROS_EMBEDDING__MODEL      embedding model
+    EVEROS_EMBEDDING__API_KEY
+    EVEROS_EMBEDDING__BASE_URL
+    EVEROS_EMBEDDING__DIMENSIONS
+
+Both are OpenAI-compatible endpoints, so Gemini is reachable via its
+OpenAI-compat base_url — which keeps this comparable to the rc4 all-Gemini
+variant instead of introducing a second provider.
+
+ISOLATION
+─────────
+`setup()` pins `EVEROS_ROOT` to `EVEROS_EVAL_ROOT` (default
+`eval/q4-comparison/.everos-eval`) BEFORE any everos import that reads
+settings, so the harness never writes into the user's `~/.everos`. Same rule as
+the nox_mem adapter's explicit `NOX_DB_PATH`.
+
+ASYNC
+─────
+Both service calls are `async`. The adapter contract is synchronous, so
+`setup()` creates ONE event loop and every call reuses it. A fresh
+`asyncio.run()` per query would put loop construction inside the timed region
+and inflate the latency numbers.
 """
 
 from __future__ import annotations
 
-import json
+import asyncio
+import importlib
 import os
-import shutil
-import subprocess
+import sys
+from pathlib import Path
 from typing import Any, Iterable
 
-NAME = "evermind"
-VERSION_PIN = "EverMind-AI@git-sha-pinned-saturday (no PyPI as of 2026-05-21)"
-REQUIRES_ENV: list[str] = []  # EverMind defaults to local embeddings (sentence-transformers)
-INSTALL_HINT = (
-    "git clone https://github.com/EverOS-AI/EverMind-AI && "
-    "cd EverMind-AI && pip install -e . && evermind --version"
-)
+NAME = "evermind"  # registry key kept: ALL_ADAPTERS and output/<system>.json use it
+VERSION_PIN = "everos==1.3.1"  # PyPI, resolved 2026-09-10
+REQUIRES_ENV: list[str] = [
+    "EVEROS_LLM__API_KEY",
+    "EVEROS_LLM__BASE_URL",
+    "EVEROS_EMBEDDING__API_KEY",
+    "EVEROS_EMBEDDING__BASE_URL",
+]
+INSTALL_HINT = "pip install everos==1.3.1  # repo: EverMind-AI/EverOS"
 
-# Track which path the adapter is using (cli|python|none). Set by setup().
-_path_mode: str = "none"
+_HERE = Path(__file__).resolve().parent.parent
+_DEFAULT_EVAL_ROOT = _HERE / ".everos-eval"
+_APP_ID = "q4eval"
+_PROJECT_ID = "default"
+
+# Set by setup(); None means setup() has not run.
+_loop: asyncio.AbstractEventLoop | None = None
+_knowledge_dir: Path | None = None
+_extractor: Any = None
+_topics_ingested = 0
 
 
-def _cli_path() -> str | None:
-    return shutil.which(os.environ.get("EVERMIND_BIN") or "evermind")
+def _eval_root() -> Path:
+    return Path(os.environ.get("EVEROS_EVAL_ROOT") or _DEFAULT_EVAL_ROOT)
 
 
-def _python_module() -> str | None:
-    return os.environ.get("EVERMIND_PYTHON_MODULE")  # e.g., "evermind.retrieval"
-
-
-def _resolve_path() -> str:
-    """Pick the working invocation path. Sets _path_mode and returns it."""
-    global _path_mode
-    cli = _cli_path()
-    module = _python_module()
-
-    # Prefer CLI when available — it's the documented surface
-    if cli is not None:
-        try:
-            proc = subprocess.run(
-                [cli, "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10,
-                check=False,
-            )
-            if proc.returncode == 0:
-                _path_mode = "cli"
-                return _path_mode
-        except Exception:
-            pass
-
-    if module is not None:
-        try:
-            __import__(module)
-            _path_mode = "python"
-            return _path_mode
-        except ImportError:
-            pass
-
-    _path_mode = "none"
-    return _path_mode
+def _overfetch() -> int:
+    try:
+        return max(1, int(os.environ.get("EVEROS_OVERFETCH", "5")))
+    except ValueError:
+        return 5
 
 
 def validate() -> dict:
-    cli = _cli_path()
-    module = _python_module()
-
-    if cli is None and module is None:
+    """Imports + env checks ONLY. Makes no network call (no quota burn)."""
+    notes: list[str] = []
+    try:
+        import everos  # noqa: F401
+        from everos.service import knowledge as _k  # noqa: F401
+    except Exception as exc:
         return {
             "ok": False,
-            "error": "neither `evermind` CLI nor EVERMIND_PYTHON_MODULE configured",
+            "error": f"everos not importable: {type(exc).__name__}: {exc}",
             "version": None,
             "notes": INSTALL_HINT,
         }
 
-    if cli is not None:
-        try:
-            proc = subprocess.run(
-                [cli, "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10,
-                check=False,
-            )
-            if proc.returncode == 0:
-                version = (proc.stdout.strip() or proc.stderr.strip()).splitlines()[0]
-                return {
-                    "ok": True,
-                    "error": None,
-                    "version": version,
-                    "notes": "CLI mode — verify Saturday commit pinned in REQUIREMENTS.md",
-                }
-            error_note = proc.stderr.strip()[:200]
-        except Exception as exc:  # pragma: no cover
-            error_note = str(exc)
-        # Fall through to module check if CLI broken
-    else:
-        error_note = "no CLI on PATH"
+    try:
+        from importlib.metadata import version as _v
 
-    if module is not None:
+        resolved = _v("everos")
+    except Exception:
+        resolved = None
+
+    # Every symbol setup()/ingest_corpus()/search() import LATE is resolved here,
+    # and this leg runs BEFORE the env leg on purpose.
+    #
+    # ⚠️ 2026-09-10: two of these paths were originally GUESSED from proximity in
+    # everos's own API route (`MemoryRoot` from everos.config.settings,
+    # `ParsedContent` from everos.component.parser). Both were wrong —
+    # MemoryRoot lives in everos.core.persistence and ParsedContent is in
+    # `everalgo`, a different distribution. validate() returned ok:false for the
+    # RIGHT reason (missing env) and the wrong import paths stayed invisible,
+    # because they are only reached inside setup(). A guard whose failing leg
+    # decides first hides every leg behind it: the import leg must therefore run
+    # first, and it must name every module the adapter actually needs.
+    for _mod, _sym in (
+        ("everos.core.persistence", "MemoryRoot"),
+        ("everos.service.knowledge", "create_document"),
+        ("everos.service.knowledge", "search_knowledge"),
+        ("everos.component.llm.client", "get_llm_client"),
+        ("everalgo.types", "ParsedContent"),
+        ("everalgo.knowledge", "KnowledgeExtractor"),
+        # bootstrap do schema — sem estes, o primeiro create_document() morre
+        # em `no such table`, e o erro lê-se como defeito do adapter
+        ("everos.infra.persistence.index", "connect"),
+        ("everos.infra.persistence.index", "shutdown"),
+        ("everos.infra.persistence.index", "verify_business_schemas"),
+        ("everos.infra.persistence.index", "ensure_business_indexes"),
+        ("everos.infra.persistence.sqlite", "get_engine"),
+        ("everos.infra.persistence.sqlite", "dispose_engine"),
+        ("sqlmodel", "SQLModel"),
+        # derivacao do indice — `create_document` so escreve markdown
+        ("everos.memory.cascade", "CascadeOrchestrator"),
+        ("everos.component.tokenizer", "build_tokenizer"),
+        ("everos.component.embedding", "get_embedding_capability"),
+        # `_teto_de_rerank()` importa isto tarde. Sem esta linha, o teste que
+        # DERIVA os imports tardios do fonte falha — e foi ele que pegou esta
+        # adição, que e' o proposito dele.
+        ("everos.config.settings", "KnowledgeSearchSettings"),
+    ):
         try:
-            __import__(module)
-            return {
-                "ok": True,
-                "error": None,
-                "version": "module:" + module,
-                "notes": "Python module mode — confirm retrieve() signature",
-            }
-        except ImportError as exc:
+            getattr(importlib.import_module(_mod), _sym)
+        except Exception as exc:
             return {
                 "ok": False,
-                "error": f"EVERMIND_PYTHON_MODULE={module} import failed: {exc}",
-                "version": None,
-                "notes": "Set EVERMIND_PYTHON_MODULE to the importable path",
+                "error": f"{_mod}.{_sym} unresolvable: {type(exc).__name__}: {exc}",
+                "version": resolved,
+                "notes": "adapter targets everos 1.3.1 internals; a version bump can move these",
             }
 
-    return {
-        "ok": False,
-        "error": f"evermind CLI present but unusable: {error_note}",
-        "version": None,
-        "notes": "Pin EVERMIND_BIN or EVERMIND_PYTHON_MODULE explicitly",
-    }
+    missing = [v for v in REQUIRES_ENV if not os.environ.get(v)]
+    if missing:
+        return {
+            "ok": False,
+            "error": f"missing env: {', '.join(missing)}",
+            "version": resolved,
+            "notes": (
+                "everos search instantiates an LLM client and an embedding client; "
+                "both are OpenAI-compatible, so Gemini works via its openai-compat base_url"
+            ),
+        }
+
+    notes.append("surface=service.knowledge (doc_id round-trips; memory surface has no chunk provenance)")
+    notes.append(f"overfetch={_overfetch()}x (hits are topics, not documents)")
+    if not os.environ.get("EVEROS_ALLOW_PAID_INGEST"):
+        notes.append("ingest GATED: set EVEROS_ALLOW_PAID_INGEST=1 (6.830 docs x 1 LLM extraction)")
+    return {"ok": True, "error": None, "version": resolved, "notes": "; ".join(notes)}
 
 
 def setup() -> None:
-    _resolve_path()
+    """Idempotent. Pins EVEROS_ROOT, builds the loop, extractor and knowledge_dir."""
+    global _loop, _knowledge_dir, _extractor
+    if _loop is not None and not _loop.is_closed():
+        return
+
+    root = _eval_root()
+    root.mkdir(parents=True, exist_ok=True)
+    # Pin BEFORE importing anything that resolves settings.
+    os.environ["EVEROS_ROOT"] = str(root)
+
+    from everos.core.persistence import MemoryRoot
+
+    raiz_mem = MemoryRoot.resolve()
+    raiz_mem.ensure()
+    _knowledge_dir = raiz_mem.knowledge_dir(_APP_ID, _PROJECT_ID)
+    _knowledge_dir.mkdir(parents=True, exist_ok=True)
+
+    _loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(_loop)
+
+    # ⚠️ Criar os diretórios NÃO cria o schema. Sem este bootstrap, o primeiro
+    # `create_document()` morre em `no such table: knowledge_documents` — medido
+    # 2026-09-10, e apanhado por um preflight de 5 documentos antes da corrida de
+    # 6.830. O `sqlite_engine_built` sai no log e engana: o engine existe, as
+    # tabelas não.
+    #
+    # A sequência espelha `everos.entrypoints.cli.commands.cascade._runtime`,
+    # que é o que a CLI e o lifespan da API rodam. É símbolo PRIVADO lá; aqui é
+    # replicado com os públicos, e `test_bootstrap_mirrors_upstream_runtime` lê o
+    # fonte do upstream e falha se a ordem mudar — a suposição fica com alarme em
+    # vez de ficar invisível.
+    _loop.run_until_complete(_bootstrap())
+
+    if os.environ.get("EVEROS_ALLOW_PAID_INGEST"):
+        extractor()
 
 
-def teardown() -> None:
-    global _path_mode
-    _path_mode = "none"
+def extractor() -> Any:
+    """Extractor de conhecimento, construído uma vez. ACESSOR ÚNICO.
+
+    ⚠️ Este acessor existe porque a alternativa já falhou: o bloco que construía o
+    extractor ficou, por uma edição minha, DENTRO de `_bootstrap()`, que não declara
+    `global _extractor`. Python aceitou a atribuição como variável LOCAL, em silêncio,
+    e `_extractor` continuou `None` no módulo.
+
+    E o defeito ficou invisível porque `ingest_corpus()` tinha um caminho de REPARO
+    (`if _extractor is None: reconstrói`). O preflight passa por lá e curava-se; um
+    script que chama `create_document` direto morria em
+    `'NoneType' object has no attribute 'aextract'` — 5.815 falhas instantâneas.
+    Caminho de reparo encobrindo defeito do caminho principal: o reparo saiu, este
+    acessor é agora o único lugar que constrói.
+    """
+    global _extractor
+    if _extractor is None:
+        from everalgo.knowledge import KnowledgeExtractor as _Extractor
+        from everos.component.llm.client import get_llm_client
+
+        _extractor = _Extractor(llm=get_llm_client())
+    return _extractor
+
+
+async def _bootstrap() -> None:
+    """Sobe sqlite + lancedb como o lifespan da API faz."""
+    from sqlmodel import SQLModel
+
+    from everos.infra.persistence.index import (
+        connect,
+        ensure_business_indexes,
+        verify_business_schemas,
+    )
+    from everos.infra.persistence.sqlite import get_engine
+
+    engine = get_engine()
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+    await connect()
+    await verify_business_schemas()
+    await ensure_business_indexes()
 
 
 def ingest_corpus(chunks: Iterable[dict]) -> dict:
     """
-    Add chunks via CLI (preferred) or Python module fallback.
+    Create one EverOS knowledge document per corpus chunk, with doc_id = chunk id.
 
-    Args:
-        chunks: iterable of dicts with at least ``id`` and ``text``. Optional
-            keys ignored. Namespace pulled from env ``EVERMIND_NAMESPACE``
-            (or none) and passed through if the path supports it.
-
-    Returns:
-        {ingested, skipped, total, errors, path_used}
+    PAID: one LLM extraction call per document. Refuses unless
+    EVEROS_ALLOW_PAID_INGEST=1, returning the estimate so the runner records
+    the gap honestly instead of reporting an empty index as a result.
     """
-    if _path_mode == "none":
-        _resolve_path()
+    global _topics_ingested
+    items = [c for c in chunks if c.get("id") and c.get("text")]
+    chars = sum(len(c["text"]) for c in items)
+    estimate = {
+        "documents": len(items),
+        "chars": chars,
+        "approx_input_tokens": chars // 4,
+        "llm_calls": len(items),
+    }
 
-    chunks_list = list(chunks)
-    total = len(chunks_list)
-    namespace = os.environ.get("EVERMIND_NAMESPACE") or None
-
-    if total == 0:
+    if not os.environ.get("EVEROS_ALLOW_PAID_INGEST"):
         return {
             "ingested": 0,
-            "skipped": 0,
-            "total": 0,
-            "errors": 0,
-            "path_used": _path_mode,
-            "mode": "noop",
+            "skipped": len(items),
+            "reason": "paid-ingest-gated",
+            "gate": "EVEROS_ALLOW_PAID_INGEST=1",
+            "estimate": estimate,
         }
 
-    if _path_mode == "cli":
-        result = _ingest_cli(chunks_list, namespace)
-    elif _path_mode == "python":
-        result = _ingest_python(chunks_list, namespace)
-    else:
-        return {
-            "ingested": 0,
-            "skipped": 0,
-            "total": total,
-            "errors": total,
-            "path_used": "none",
-            "mode": "skip",
-            "error": "EverMind unavailable — neither CLI nor module configured",
-        }
-    result["path_used"] = _path_mode
-    return result
+    setup()
+    assert _loop is not None and _knowledge_dir is not None
+    extr = extractor()  # acessor único; ver o docstring de `extractor()`
 
+    from everalgo.types import ParsedContent
+    from everos.service.knowledge import create_document
 
-def _existing_count_cli(cli: str) -> int | None:
-    try:
-        proc = subprocess.run(
-            [cli, "list", "--json"], capture_output=True, text=True, timeout=10, check=False
-        )
-    except Exception:
-        return None
-    if proc.returncode != 0:
-        return None
-    try:
-        payload = json.loads(proc.stdout)
-    except json.JSONDecodeError:
-        return None
-    if isinstance(payload, list):
-        return len(payload)
-    if isinstance(payload, dict):
-        for key in ("count", "total", "memories", "items"):
-            value = payload.get(key)
-            if isinstance(value, int):
-                return value
-            if isinstance(value, list):
-                return len(value)
-    return None
-
-
-def _ingest_cli(chunks_list: list[dict], namespace: str | None) -> dict:
-    cli = _cli_path()
-    if cli is None:
-        return {
-            "ingested": 0,
-            "skipped": 0,
-            "total": len(chunks_list),
-            "errors": len(chunks_list),
-            "mode": "skip",
-        }
-
-    total = len(chunks_list)
-    existing = _existing_count_cli(cli)
-    if existing is not None and existing >= total:
-        return {
-            "ingested": 0,
-            "skipped": total,
-            "total": total,
-            "errors": 0,
-            "mode": "idempotent-skip",
-            "note": f"idempotent: existing={existing} >= total={total}",
-        }
-
-    ingested = 0
-    errors = 0
-    base_args = [cli, "add"]
-    if namespace:
-        base_args += ["--namespace", namespace]
-
-    for chunk in chunks_list:
-        nox_id = str(chunk.get("id") or "")
-        text = chunk.get("text") or ""
-        if not nox_id or not text:
-            errors += 1
-            continue
-        argv = base_args + ["--id", nox_id, "--text", text, "--upsert"]
+    ok = 0
+    failed: list[str] = []
+    topics = 0
+    for c in items:
         try:
-            proc = subprocess.run(argv, capture_output=True, text=True, timeout=60, check=False)
-        except Exception:
-            errors += 1
-            continue
-        if proc.returncode != 0:
-            # Retry without --upsert in case of older CLI
-            try:
-                proc2 = subprocess.run(
-                    [a for a in argv if a != "--upsert"],
-                    capture_output=True,
-                    text=True,
-                    timeout=60,
-                    check=False,
+            result = _loop.run_until_complete(
+                create_document(
+                    extractor=extr,
+                    parsed=ParsedContent(text=c["text"]),
+                    title=str(c["id"]),
+                    knowledge_dir=_knowledge_dir,
+                    source_name=str(c.get("dataset") or "q4"),
+                    source_type="text",
+                    doc_id=str(c["id"]),
                 )
-                if proc2.returncode != 0:
-                    errors += 1
-                    continue
-            except Exception:
-                errors += 1
-                continue
-        ingested += 1
+            )
+            ok += 1
+            topics += int(getattr(result, "topic_count", 0) or 0)
+        except Exception as exc:  # keep going; report the tail
+            if len(failed) < 10:
+                failed.append(f"{c['id']}: {type(exc).__name__}: {exc}")
+
+    _topics_ingested = topics
+
+    # ⚠️ `create_document()` escreve APENAS markdown. Medido 2026-09-10: depois de
+    # 5 documentos "created" com sucesso, `knowledge_documents` tinha 0 linhas,
+    # `knowledge_topic` no LanceDB tinha 0, e `search_knowledge()` devolvia 0 hits.
+    # Não é defeito do adapter — é a arquitetura local-first do EverOS: o markdown
+    # é a fonte de verdade e o índice é DERIVADO. Em produção o índice é alimentado
+    # por um watcher; num processo só, o passo é `cascade sync`.
+    #
+    # `sync_once()` = `scan_once()` (varre o disco, enfileira) + `drain_until_empty()`,
+    # e é aqui que as EMBEDDINGS são cobradas — o custo tem duas pernas, extração
+    # (por documento, acima) e embedding (por tópico, aqui).
+    indexadas = _loop.run_until_complete(_indexa())
 
     return {
-        "ingested": ingested,
-        "skipped": total - ingested - errors,
-        "total": total,
-        "errors": errors,
-        "mode": "subprocess",
+        "ingested": ok,
+        "failed": len(items) - ok,
+        "topics": topics,
+        "topics_per_doc": round(topics / ok, 2) if ok else None,
+        "indexed_rows": indexadas,
+        "first_errors": failed,
+        "estimate": estimate,
     }
 
 
-def _ingest_python(chunks_list: list[dict], namespace: str | None) -> dict:
-    module_name = _python_module()
-    if module_name is None:
-        return {
-            "ingested": 0,
-            "skipped": 0,
-            "total": len(chunks_list),
-            "errors": len(chunks_list),
-            "mode": "skip",
-        }
+async def _indexa() -> int:
+    """Deriva o índice a partir do markdown. Espelha `cascade sync`."""
+    from everos.component.embedding import get_embedding_capability
+    from everos.component.tokenizer import build_tokenizer
+    from everos.core.persistence import MemoryRoot
+    from everos.memory.cascade import CascadeOrchestrator
 
-    total = len(chunks_list)
-    mod = __import__(module_name, fromlist=["add", "list", "upsert", "insert"])
-    add_fn = (
-        getattr(mod, "add", None)
-        or getattr(mod, "upsert", None)
-        or getattr(mod, "insert", None)
-    )
-    list_fn = getattr(mod, "list", None) or getattr(mod, "list_all", None)
+    cap = get_embedding_capability()
+    if not cap.available:
+        # Sem embedding o cascade cai em "keyword-only mode" e o braço vetorial
+        # do híbrido fica vazio — resultado mediria outra coisa. Falar alto.
+        raise RuntimeError(
+            "embedding capability indisponivel: o cascade indexaria em keyword-only "
+            "e o hibrido mediria meio pipeline"
+        )
+    orq = CascadeOrchestrator(memory_root=MemoryRoot.resolve(), tokenizer=build_tokenizer())
+    return await orq.sync_once()
 
-    if add_fn is None:
-        return {
-            "ingested": 0,
-            "skipped": 0,
-            "total": total,
-            "errors": total,
-            "mode": "skip",
-            "error": f"{module_name} has no add/upsert/insert function",
-        }
 
-    # Idempotency probe via module
-    if callable(list_fn):
-        try:
-            existing = list_fn()
-            existing_count = len(existing) if hasattr(existing, "__len__") else None
-            if existing_count is not None and existing_count >= total:
-                return {
-                    "ingested": 0,
-                    "skipped": total,
-                    "total": total,
-                    "errors": 0,
-                    "mode": "idempotent-skip",
-                    "note": f"idempotent: existing={existing_count} >= total={total}",
-                }
-        except Exception:
-            pass
+def _teto_de_rerank() -> int:
+    """
+    Teto REAL de itens que a busca pode devolver, medido na config do EverOS.
 
-    ingested = 0
-    errors = 0
-    for chunk in chunks_list:
-        nox_id = str(chunk.get("id") or "")
-        text = chunk.get("text") or ""
-        if not nox_id or not text:
-            errors += 1
-            continue
-        try:
-            kwargs: dict[str, Any] = {"id": nox_id, "text": text, "upsert": True}
-            if namespace:
-                kwargs["namespace"] = namespace
-            add_fn(**kwargs)
-            ingested += 1
-        except TypeError:
-            # Older signature: try positional or strip upsert
-            try:
-                add_fn(nox_id, text)
-                ingested += 1
-            except Exception:
-                errors += 1
-        except Exception:
-            errors += 1
+    ⚠️ NÃO é o `top_k_cap`. Medido 2026-09-10 em `everos==1.3.1`:
 
-    return {
-        "ingested": ingested,
-        "skipped": total - ingested - errors,
-        "total": total,
-        "errors": errors,
-        "mode": "module",
-    }
+        recall_n = 200   rerank_n = 50   mass_top_m = 50   top_k_cap = 100
+
+    e `_run_category_pipeline` faz `effective_k = min(top_k, top_k_cap)` e passa
+    `rerank_n=config.rerank_n` ao `acategory_retrieve`. Logo pedir `top_k=80`
+    passa o `min` (80 < 100) e ainda assim **não pode** devolver mais de
+    `rerank_n=50`: o estágio de rerank é o gargalo, e o `top_k_cap` — o nome que
+    parece ser o limite — mente por ser mais generoso que o limite verdadeiro.
+
+    Sem esta perna, `k=20` com over-fetch 5 pediria 100 e receberia 50 em
+    silêncio: a dedupe topo→doc_id devolveria menos de 20 doc_ids por um TETO
+    DE CONFIGURAÇÃO, e a coluna do EverOS mediria o teto em vez da retrieval.
+    """
+    try:
+        from everos.config.settings import KnowledgeSearchSettings
+        cfg = KnowledgeSearchSettings()
+        return int(min(cfg.rerank_n, cfg.top_k_cap))
+    except Exception:
+        return 50  # o default medido; melhor um teto conservador que nenhum
 
 
 def search(query: str, k: int = 10) -> list[dict]:
-    if _path_mode == "none":
-        _resolve_path()
+    """
+    Search the knowledge surface and map hits back to corpus chunk ids.
 
-    if _path_mode == "cli":
-        cli = _cli_path()
-        if cli is not None:
-            return _search_cli(cli, query, k)
-    if _path_mode == "python":
-        module = _python_module()
-        if module is not None:
-            return _search_module(module, query, k)
-    raise RuntimeError("EverMind-AI not configured — run smoke_test.py")
+    Hits are TOPICS; several can share one doc_id. We over-fetch, dedupe by
+    doc_id keeping the best-ranked topic, and truncate to k — otherwise a
+    granularity difference, not retrieval quality, would set the ceiling.
+    """
+    setup()
+    assert _loop is not None
 
+    from everos.service.knowledge import search_knowledge
 
-def _search_cli(cli: str, query: str, k: int) -> list[dict]:
-    proc = subprocess.run(
-        [cli, "retrieve", "--query", query, "--k", str(k), "--json"],
-        capture_output=True,
-        text=True,
-        timeout=60,
-        check=False,
-    )
-    if proc.returncode != 0:
-        raise RuntimeError(f"evermind retrieve exit {proc.returncode}: {proc.stderr.strip()}")
+    want = k * _overfetch()
+    teto = _teto_de_rerank()
+    if want > teto:
+        raise RuntimeError(
+            f"over-fetch pedido ({k}x{_overfetch()}={want}) excede o teto de rerank "
+            f"do EverOS ({teto}). A busca devolveria {teto} em SILENCIO e a dedupe "
+            f"topico->doc_id entregaria menos de k={k} doc_ids por teto de "
+            f"configuracao, nao por qualidade. Baixe EVEROS_OVERFETCH para "
+            f"<= {teto // max(k, 1)} ou suba EVEROS_RERANK_N no ambiente."
+        )
     try:
-        payload = json.loads(proc.stdout)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(f"evermind output not JSON: {exc}") from exc
-    raw: list[dict[str, Any]] = (
-        payload if isinstance(payload, list) else payload.get("results", [])
-    )
-    return _normalize(raw, k)
+        res = _loop.run_until_complete(
+            search_knowledge(
+                query=query,
+                method=os.environ.get("EVEROS_SEARCH_METHOD", "hybrid"),
+                top_k=want,
+                include_content=True,
+                app_id=_APP_ID,
+                project_id=_PROJECT_ID,
+            )
+        )
+    except Exception as exc:
+        raise RuntimeError(f"everos search_knowledge failed: {exc}") from exc
+
+    hits = list(getattr(res, "hits", None) or [])
+    out: list[dict] = []
+    seen: set[str] = set()
+    for h in hits:
+        doc = getattr(h, "document", None)
+        doc_id = getattr(doc, "doc_id", None) if doc is not None else None
+        if not doc_id or doc_id in seen:
+            continue
+        seen.add(str(doc_id))
+        out.append(
+            {
+                "id": str(doc_id),
+                "score": float(getattr(h, "score", 0.0) or 0.0),
+                "text": getattr(h, "content", None) or getattr(h, "summary", "") or "",
+                "source": "everos:knowledge",
+                # Provenance of the collapse, per call — so the write-up states
+                # the realised factor instead of assuming EVEROS_OVERFETCH held.
+                "topics_seen": len(hits),
+                # Saturacao: se a busca devolveu EXATAMENTE o teto, o over-fetch
+                # pode ter sido cortado pelo pipeline e nao pela oferta real de
+                # topicos. Distinguir "achou 50" de "cabia mais que 50".
+                "saturou_no_teto": len(hits) >= teto,
+                "topic_name": getattr(h, "topic_name", None),
+                "retrieval_method": getattr(h, "retrieval_method", None),
+            }
+        )
+        if len(out) >= k:
+            break
+    return out
 
 
-def _search_module(module: str, query: str, k: int) -> list[dict]:
-    mod = __import__(module, fromlist=["retrieve"])
-    retrieve = getattr(mod, "retrieve", None)
-    if retrieve is None:
-        raise RuntimeError(f"{module}.retrieve not found")
-    raw = retrieve(query=query, k=k)
-    return _normalize(raw, k)
+def teardown() -> None:
+    """Idempotent. Releases lancedb + the sqlite engine, then closes the loop.
+
+    Symmetric with `_bootstrap()`: `_runtime` upstream does `shutdown()` then
+    `dispose_engine()` in its `finally`. Closing the loop without them leaves
+    the engine's pool holding the sqlite file.
+    """
+    global _loop
+    if _loop is not None and not _loop.is_closed():
+        try:
+            _loop.run_until_complete(_encerra())
+        except Exception:
+            pass
+        try:
+            _loop.close()
+        except Exception:
+            pass
+    _loop = None
 
 
-def _normalize(raw: list[dict[str, Any]], k: int) -> list[dict]:
-    return [
-        {
-            "id": str(item.get("id") or item.get("doc_id") or ""),
-            "score": float(item.get("score") or item.get("similarity") or 0.0),
-            "text": item.get("text") or item.get("content") or "",
-            "source": item.get("source") or None,
-        }
-        for item in (raw or [])[:k]
-    ]
+async def _encerra() -> None:
+    from everos.infra.persistence.index import shutdown
+    from everos.infra.persistence.sqlite import dispose_engine
+
+    await shutdown()
+    await dispose_engine()
+
+
+if __name__ == "__main__":
+    import json
+
+    print(json.dumps(validate(), indent=2, ensure_ascii=False))
+    sys.exit(0)

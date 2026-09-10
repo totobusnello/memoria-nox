@@ -49,6 +49,7 @@ override --queries-file to point at custom JSONL.
 
 from __future__ import annotations
 
+from collections import Counter
 import argparse
 import importlib
 import json
@@ -205,6 +206,9 @@ def run_system(
     dry_run: bool,
     corpus_chunks: list[dict[str, Any]] | None = None,
     skip_ingest: bool = False,
+    meta_limite: int | None = None,
+    meta_queries_file: Path | None = None,
+    meta_total_linhas: int | None = None,
 ) -> Path:
     """Drive a single adapter through all queries; persist JSON."""
     adapter = load_adapter(system)
@@ -287,6 +291,11 @@ def run_system(
             "k": k,
             "n_queries": len(queries),
             "n_errors": errors,
+            # sem `limite` e `queries_file_linhas` o `n_queries` nao distingue
+            # "o corpus tem este tamanho" de "foi truncado neste teto" (2026-09-10)
+            "limite": meta_limite,
+            "queries_file": str(meta_queries_file) if meta_queries_file else None,
+            "queries_file_linhas": meta_total_linhas,
             "datasets": sorted({r.dataset for r in queries}),
             "started_at": started_at,
             "finished_at": finished_at,
@@ -370,12 +379,57 @@ def main(argv: list[str] | None = None) -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Load all datasets up front (fail fast if missing)
+    #
+    # 🔴 DOIS DEFEITOS COMPOSTOS, medidos em 2026-09-10 (corrida do Zep):
+    #
+    # (1) `--limit` tem default 100 e era aplicado TAMBEM ao `--queries-file`
+    #     explicito. Uma corrida de 2.482 queries devolvia 100 e escrevia um
+    #     artefato completo com `(0 errors)`.
+    # (2) o laco `for ds in datasets` chamava load_dataset() UMA VEZ POR
+    #     DATASET passando o MESMO arquivo combinado -> as mesmas 100 primeiras
+    #     linhas entravam duas vezes. Como cada linha traz o seu proprio campo
+    #     `dataset`, as duas copias ficavam rotuladas igual e o `meta.datasets`
+    #     dizia `["locomo"]` sobre uma corrida que pedira os dois.
+    #
+    # Resultado medido no artefato: 200 registros = 100 question_id distintos,
+    # cada um DUPLICADO, todos locomo, de um arquivo com 1.982 locomo + 500
+    # longmemeval. O `meta.n_queries: 200` era honesto e ininterpretavel: sem
+    # denominador, 200 le-se como o tamanho do corpus e nao como um teto.
+    #
+    # Correcao: arquivo explicito e AUTOCONTIDO (cada linha diz o seu dataset),
+    # logo le-se UMA VEZ e sem teto -- a menos que `--limit` venha explicito na
+    # linha de comando. O default 100 continua a valer para o caminho de
+    # dry-run-sample, que e' onde ele foi desenhado para valer.
     queries: list[QueryRecord] = []
     queries_file = Path(args.queries_file) if args.queries_file else None
-    for ds in datasets:
-        qs = load_dataset(ds, queries_file, args.limit)
-        print(f"[load] {ds}: {len(qs)} queries (limit={args.limit})")
-        queries.extend(qs)
+    _argv = sys.argv[1:] if argv is None else argv
+    limite_explicito = any(a == "--limit" or a.startswith("--limit=") for a in _argv)
+    limite_efetivo: int | None = None
+
+    total_linhas_meta: int | None = None
+    if queries_file is not None and queries_file.exists():
+        total_linhas = sum(1 for linha in queries_file.open() if linha.strip())
+        total_linhas_meta = total_linhas
+        limite_efetivo = args.limit if limite_explicito else None
+        queries = _load_jsonl(queries_file, datasets[0], limite_efetivo)
+        por_ds = Counter(r.dataset for r in queries)
+        print(
+            f"[load] {queries_file}: {len(queries)} de {total_linhas} linhas "
+            f"(limite={'nenhum' if limite_efetivo is None else limite_efetivo}) "
+            f"-> {dict(sorted(por_ds.items()))}"
+        )
+        if limite_efetivo is None and len(queries) != total_linhas:
+            raise RuntimeError(
+                f"o arquivo de queries tem {total_linhas} linhas e o harness carregou "
+                f"{len(queries)} sem nenhum --limit pedido. Truncamento silencioso: "
+                "nao correr."
+            )
+    else:
+        for ds in datasets:
+            qs = load_dataset(ds, queries_file, args.limit)
+            print(f"[load] {ds}: {len(qs)} queries (limit={args.limit})")
+            queries.extend(qs)
+        limite_efetivo = args.limit
 
     # Resolve corpus file for ingest_corpus() adapters (zep, letta, evermind).
     # Auto-detect from cache/<dataset>.jsonl when a single dataset is requested
@@ -396,7 +450,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.dry_run:
         print(
             f"[plan] systems={systems} datasets={datasets} k={args.k} "
-            f"limit={args.limit} total_queries={len(queries)}"
+            f"limit={'nenhum' if limite_efetivo is None else limite_efetivo} "
+            f"total_queries={len(queries)}"
         )
 
     for sys_name in systems:
@@ -409,6 +464,9 @@ def main(argv: list[str] | None = None) -> int:
                 args.dry_run,
                 corpus_chunks=corpus_chunks,
                 skip_ingest=args.skip_ingest,
+                meta_limite=limite_efetivo,
+                meta_queries_file=queries_file,
+                meta_total_linhas=total_linhas_meta,
             )
         except Exception:
             print(f"[{sys_name}] FATAL", file=sys.stderr)
