@@ -92,6 +92,38 @@ sem quebrar a evidência da peça (a).*
 
 ---
 
+## Frase de método — o piso de contagem, ao lado do piso de erro
+
+> Acrescentada 2026-09-10 a pedido da sessão que conduz as corridas, depois de um artefato
+> falso: `WROTE out/zep-busca/zep.json (0 errors)`, `meta` bem formado, 899 KB — e **100
+> das 2.482 queries (4,0%), num só dos dois datasets, cada uma medida duas vezes**. Dois
+> defeitos que só juntos produzem algo plausível: um `--limit` com default 100, desenhado
+> para o caminho de amostra, aplicado também ao `--queries-file` explícito; e um laço por
+> dataset que relia o mesmo arquivo combinado. Corrigido em `f79dbbf`/`dca83da`, com os
+> artefatos `rc4` já publicados conferidos **antes** do conserto e intactos
+> (`n_queries: 2482`, ambos os datasets).
+
+Redação proposta, uma frase junto do piso de erro de sessão já declarado no §6.3.1:
+
+> The run declares `n_queries`, the requested `limit`, and the line count of the queries
+> file, and aborts when the number of queries measured differs from the file's line count
+> with no ceiling requested — a query-count floor alongside the 1% session-error floor.
+> Both are integrity conditions on the sweep, not on the system under test.
+
+**Por que a frase é necessária e não é enfeite.** O piso de erro de sessão cobre a falha
+que se **anuncia**; este cobre a que **não se anuncia**, porque cortar entrada não é erro:
+o artefato sai bem formado, com `meta` coerente, e o número que ele carrega descreve uma
+varredura que não aconteceu. `meta.n_queries: 200` era honesto e ininterpretável — sem
+denominador, 200 lê-se como o tamanho do corpus e não como um teto que alguém aplicou.
+
+⇒ **Um default é uma afirmação sobre o caso comum. Quando o chamador passa entrada
+explícita e autocontida, o default deixa de descrever o caso comum e passa a contradizer o
+pedido — em silêncio.** A mesma classe do `rerank_n=50` contra `top_k_cap=100` do rascunho
+irmão, com o sinal trocado: lá o nome **overstates** o limite; aqui o campo **subdeclara**
+que houve corte.
+
+---
+
 ## Notas de redação, para quando entrar
 
 1. **A hora de parede fica fora.** Três medições deram 2,34 h, 3,4 h e 4,1 h, e não se sabe
