@@ -3034,9 +3034,26 @@ estado, não por recibo** — `recibo()` sobrescreve com `>` e uma re-execução
 morre na pré-condição do drop-in já arquivado. Logo o resíduo YELLOW de ontem **não**
 desarma o disparo de 21/09; seria sobrescrito.
 
-**Desvio permanece aberto.** O patch está verificado mas **não aplicado**: o
-`morning-report.sh` está sob congelamento de hash acordado entre as duas sessões
-(`20a5b63fda32c93b`) enquanto o ensaio corre, e a escrita em script de produção foi barrada.
-Registrado aqui porque o achado é independente do conserto: durante os 234 epochs, o único
-evento terminal do ensaio esteve sem canal de entrega.
+**Fechado no mesmo dia, com autorização explícita.** A perna foi aplicada em produção em
+2026-09-10; o hash do `morning-report.sh` saiu de `20a5b63fda32c93b` para
+`4e515be61b5e49c2` (342 → 368 linhas), quebrando de propósito o congelamento acordado entre
+as duas sessões — o cálculo foi que hash congelado é reversível e documentável, e dosagem
+fora da janela não é. Espelhado no repo de infra no mesmo passe (`openclaw-vps#35`), senão
+reabriria o drift de espelho que o `#34` acabara de fechar.
+
+Verificado **depois** de aplicar, in situ, porque verificar o arquivo montado não é
+verificar o arquivo instalado:
+
+| verificação | resultado |
+|---|---|
+| diff contra o backup mode-400 | **1 hunk, 26 adições, 0 remoções** |
+| `set -u` e inicialização das variáveis | `set -u` na linha 6; `RED`/`YELLOW`/`DETAILS` nascem nas 100–102, a perna está na 312 ⇒ sem risco de variável não-ligada |
+| recibo real de hoje | `RED=0`, `DETAILS` vazio ⇒ o report de hoje **não muda** |
+| prazo forçado ao passado | `RED=1`, acusando a linha YELLOW real |
+| prazo passado **e** recibo ausente | `RED=1` com a mensagem do ramo 3 |
+
+**O desvio, porém, não deixa de existir por ter sido consertado.** Durante os primeiros ~9
+dias do ensaio — de 2026-09-01 a 2026-09-10 — o único evento terminal do desenho esteve sem
+canal de entrega. Se o disparo tivesse sido antecipado por qualquer motivo nesse intervalo,
+uma falha dele seria invisível. O conserto é posterior ao risco, não retroativo a ele.
 
