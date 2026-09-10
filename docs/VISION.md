@@ -1,8 +1,12 @@
 # Nox Neural Memory — Visão
 
-> Documento de visão — **v15 (2026-05-18, pós-D40 + D41)**
+> Documento de visão — **v16 (2026-09-10)**
 > Tagline: *"Pain-weighted hybrid memory with shadow discipline — yours by design."*
-> Substitui v14 (2026-04-25). v14 arquivada em `docs/_archive/VISION-v14-pre-Q-A-P-2026-05-18.md`.
+> Substitui v15 (2026-05-18, pós-D40 + D41), que ficou **115 dias** sem revisão. O que a v16
+> muda: os *marcos* (a v15 anunciava "2026 Q3 — GTM Phase 2 launched", que não aconteceu) e o
+> reconhecimento de que **os dois papers são o veículo de adoção hoje** — a v15 não os
+> mencionava uma única vez. Missão, moat, pilares e linhas vermelhas seguem válidos; é
+> vision, não sprint.
 >
 > **Canônicos vivos:** `docs/HANDOFF.md` (estado), `docs/ROADMAP.md` (sprints Q/A/P), `docs/DECISIONS.md` (D40 + D41 + raciocínio).
 > Este doc é **vision** — sprint-agnóstico, sobrevive a re-priorizações, fala da forma final do produto e do que recusamos virar pelo caminho.
@@ -87,9 +91,11 @@ Ninguém mais entrega simultaneamente: (a) arquivo SQLite seu portável, (b) qua
 
 Datas são intencionais — vision sem prazo é wishlist. Cada bloco é gated em medição empírica, não em vontade.
 
-**2026 Q3 — Quality declarado e GTM Phase 2 launched.** Q1 (LoCoMo), Q2 (LongMemEval) e Q3 (latência p95) com números que liderem ou empatem topo. Q4 (`COMPARISON.md` head-to-head) publicado se e somente se as três anteriores entregarem. GTM Phase 2 lança simultânea: README hero com tagline + COMPARISON table + 30s install demo. Asset production (banner + 6 stat SVGs + logo D minimal + accent `#00C896`) já está pronto (PR #19, completed D41), aguardando gate Q4.
+**2026 Q3 — Quality entregue; GTM não lançou; os papers viraram o veículo.** Q1 (LoCoMo), Q2 (LongMemEval) e Q3 (latência p95) entregaram, e o Q4 head-to-head inverteu o split com embedder controlado (rc4): nox lidera **os dois** datasets, gate D43 verificado. Mas **GTM Phase 2 não lançou** — e o motivo não foi material (assets, pricing Stripe-first e `COMPARISON.md` estão prontos desde maio), foi ordem: a atenção foi para a evidência publicável. O **Paper 1** ganhou DOI (`10.5281/zenodo.22649269`) e o **Paper 2** virou um ensaio intervencional pré-registrado de 234 epochs, no ar desde 2026-09-01. Registrar isso é parte da disciplina: a v15 prometeu um lançamento em Q3 e a v16 diz que ele não veio.
 
-**2026 Q4 — Product breadth no Tier A IDEs.** P1 (`nox-mem answer`) + P2 (hooks auto-capture Claude Code) + P3 (queries temporais) + P4 Tier A (Claude Code + Codex + Cursor connect) + P5 (real-time viewer porta 18802) entregues. Tier B (passive MCP pra outros IDEs) sai grátis porque MCP já está implementado. Foco: três IDEs com integration profunda > doze IDEs com adapter raso.
+**Os dois papers, e por que são vision e não sprint.** O Paper 1 é o argumento de **qualidade** — e a rota até ele ser lido é TMLR, não arXiv direto: a apelação no arXiv é ativo de **uso único** e o único sucesso documentado veio *com* peer review. O gap que resta nele é de **forma**, não de rigor: 7 referências (0,31 por mil palavras, contra 1,90–2,69 dos aceitos) e 7 apêndices contra 0. O Paper 2 é o argumento de **método** — mede o efeito de intervir na própria memória, com desenho pré-registrado, e a contribuição é o desenho: no N realizado o efeito de interesse não tem resultado possível (o MDE satura em 100%), e dizer isso em vez de esconder é o ponto. Os dois existem porque credibilidade técnica é o ativo do projeto, e essa é a mesma razão pela qual `COMPARISON.md` não sai quando perdemos.
+
+**2026 Q4 → 2026-11 — Paper 1 submetido, e então GTM.** Ordem decidida em 2026-09-10: (1) fechar a forma do Paper 1, (2) submeter ao TMLR, (3) **GTM Phase 2 em novembro** — depois do paper, não antes —, (4) Paper 2 como method paper em paralelo, com o desfecho do ensaio fechado em 20/09. Product breadth no Tier A (P1 `answer` já em prod, P2 hooks, P3 temporais, P4 connect Tier A, P5 viewer) continua sendo o alvo do pilar P, mas atrás dessa fila: três IDEs profundos > doze adapters rasos, e nenhum deles antes de haver um paper que justifique a visita ao repo.
 
 **2027 H1 — Federation prototype + Nox-Supermem comercialização.** Federation A2-extended: multiple Nox instances sync via P2P mesh, sem broker. Validação inicial Mac do Toto + VPS Hostinger + (eventual) segundo Mac. Encryption end-to-end no transporte. Nox-Supermem (productized layer pra brasileiros via Hotmart, tiers A/B/C) sai do `nox-supermem/` repo como produto comercializado — mesma engine, marketing nacional, instalador friendly, suporte português.
 
@@ -132,4 +138,4 @@ Esse é o ponto inteiro.
 
 ---
 
-*Última revisão: 2026-05-18 (pós-D40 + D41). Próxima revisão: pós-Q4 gate (2026 Q3 esperado) ou sempre que pivot estratégico justificar.*
+*Última revisão: 2026-09-10 (v16 — marcos reconciliados com o real + os dois papers). Próxima revisão: pós-submissão TMLR do Paper 1, ou pós-GTM Phase 2 (nov/2026), ou sempre que pivot estratégico justificar.*
