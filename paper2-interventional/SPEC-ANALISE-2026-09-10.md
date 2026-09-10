@@ -293,15 +293,22 @@ Declaradas aqui, antes do fecho, para que a sua ausência no paper não pareça 
 | **leave-one-agent-out** | 6 agentes sobre 19 epochs | reportado como exploratório, sem inferência |
 | **primeira vs segunda metade de calendário** | os 20 epochs caem **todos** na primeira metade | inavaliável por construção do recorte |
 
-## 9. Recomendado ao Toto — e medido que nenhuma das duas inverte o veredito
+## 9. ✅ DECIDIDO pelo Toto — 2026-09-10 11:21 BRT
 
-1. **`09-01` entra no ITT** pelo braço designado, com offset sobre a exposição tratada, e
+> **Frase literal:** *"aprovo"*, em resposta às duas recomendações abaixo apresentadas
+> juntas. É aprovação explícita das duas, não inferência a partir de silêncio nem de
+> pergunta retórica — a distinção que o §10.14 do `DEVIATIONS` custou a aprender.
+
+Medido antes da decisão, e por isso ela é sobre um efeito conhecido: **nenhuma das duas
+inverte o veredito de potência do §3.**
+
+1. ✅ **`09-01` entra no ITT** pelo braço designado, com offset sobre a exposição tratada, e
    **sem** sensibilidade de contaminação — porque as fases são sequenciais e não há
    contaminação (ver errata do §1). Excluir seria conditioning pós-randomização, o mesmo
    erro que o PREREG §5 já pré-comprometeu contra no caso da cobertura; e a diluição de
    6,25% aponta para o **nulo**, logo incluir não pode fabricar efeito. Fica só a
    sensibilidade padrão que remove **todos** os parciais em bloco.
-2. **O ITT sem exclusão de cobertura é a estimativa de manchete**, com o conjunto do piso
+2. ✅ **O ITT sem exclusão de cobertura é a estimativa de manchete**, com o conjunto do piso
    de 95% como sensibilidade — invertendo a ordem default. Justificação no próprio PREREG
    §5, que diz que o papel do piso é *"precisão, não identificação"*: com o MDE saturado
    **não há precisão a proteger**, e `09-03` é **controle** (excluí-lo leva o controle de 8
@@ -310,7 +317,7 @@ Declaradas aqui, antes do fecho, para que a sua ausência no paper não pareça 
    conjunto primário depois de ver o número é a jogada post-hoc que esta spec existe para
    impedir.
 
-**Medido: nenhuma das duas inverte o veredito do §3.** Os extremos são `11T/8C`
+**A medição que sustentou a decisão.** Os extremos são `11T/8C`
 (`09-03` dentro, ICC crítico a 5,6%) e `11T/7C` (`09-03` fora, 13,1%), e ambos dão
 `não detectável`. O único recorte que inverteria precisa de **9** epochs de controle, o que
 exige contar `2026-09-02` — zero briefs entregues.
