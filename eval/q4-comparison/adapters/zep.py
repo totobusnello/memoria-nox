@@ -120,7 +120,22 @@ def validate() -> dict:
 
     import zep_python
 
-    zep_version = getattr(zep_python, "__version__", "1.5.0")
+    # ⚠️ MEDIDO 2026-09-10: `zep_python` 1.5.0 NAO define `__version__`. O codigo
+    # anterior era `getattr(zep_python, "__version__", "1.5.0")` -- ou seja, devolvia
+    # a constante "1.5.0" QUALQUER QUE FOSSE a versao instalada, inclusive uma 2.x.
+    # Isso e' um numero de versao INVERIFICAVEL no recibo, e o recibo e' o que vai
+    # para o §6 do paper. Mesma classe do `meta.version` do adapter do mem0, que
+    # ecoava o VERSION_PIN (a INTENCAO) em vez da versao real: com o eco, o recibo
+    # nao distingue "rodou 1.5.0" de "rodou outra coisa".
+    #
+    # A distribuicao SEMPRE tem versao nos metadados, mesmo quando o modulo nao a
+    # expoe. Ler dali, e dizer explicitamente quando nao se sabe.
+    try:
+        from importlib.metadata import version as _dist_version
+
+        zep_version = _dist_version("zep-python")
+    except Exception:
+        zep_version = getattr(zep_python, "__version__", None) or "desconhecida"
     base = _base_url()
     try:
         import requests

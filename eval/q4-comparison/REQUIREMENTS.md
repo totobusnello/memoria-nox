@@ -54,33 +54,97 @@ Adapter: `adapters/mem0.py` — `from mem0 import Memory; Memory().search(...)`.
 | License | Apache-2.0 |
 | Stars (2026-05-21) | 1.8k+ |
 | Install (server) | Docker compose — `docker compose -f compose/docker-compose.yml up -d zep postgres` |
-| Install (client) | `pip install 'zep-python==2.4.0'` |
+| Install (client) | `pip install 'zep-python==1.5.0'` + **`pip install --upgrade httpcore httpx`** (ver nota) |
 | Version pin (server) | `ghcr.io/getzep/zep:0.27.2` |
-| Version pin (client) | `zep-python==2.4.0` |
-| Defaults | Postgres backend. ⚠️ **"FastEmbed for local embeddings (no OpenAI required)" é FALSO em 0.27.2** — ver errata abaixo. |
-| API keys | ⚠️ **`ZEP_OPENAI_API_KEY` é OBRIGATÓRIA e tem de ser VÁLIDA** — ver errata abaixo. |
+| Version pin (client) | **`zep-python==1.5.0`** — o `2.4.0` que estava aqui era deriva; ver nota |
+| Defaults | Postgres backend. Há caminho de embedding **local** (`Service: local` + container `zep-nlp`), que **este stack removeu por escolha** — ver errata. |
+| API keys | Uma chave **paga de LLM**, de **dois** fornecedores possíveis (OpenAI ou Anthropic), obrigatória no arranque — ver errata. |
 | Daemon | `zep` + `postgres` containers (see `compose/docker-compose.yml`) |
 
 **Pinning rationale:** Zep 0.27.x is the latest OSS line; 0.28 is roadmapped
 but not released. Self-hosted OSS is the fair comparison surface (Cloud is
 a paid tier).
 
-Adapter: `adapters/zep.py` — uses `zep_python.client.Zep.memory.search_session`.
+Adapter: `adapters/zep.py` — usa `ZepClient.memory.{add_session,add_memory,search_memory}`.
+
+### Pin do cliente — corrigido 2026-09-10 por EXERCÍCIO, não por leitura
+
+Este arquivo dizia `zep-python==2.4.0`. **Errado para o servidor OSS 0.27.x.** O `2.x`
+aponta para o **Zep Cloud** e tem outra superfície; o adapter usa a API `1.x`
+(`ZepClient(base_url, api_key)`, `Memory`/`Message`/`Session`/`MemorySearchPayload`), que
+é a do servidor auto-hospedado.
+
+Confirmado **rodando** contra o `q4-zep` vivo, não por conferir assinaturas:
+
+```
+add_session   -> ok
+add_memory    -> ok
+search_memory -> ok | hits=2 | dist=0,9123
+```
+
+⚠️ **Duas armadilhas de instalação, medidas em Python 3.14:**
+
+1. O `httpcore` que o `zep-python==1.5.0` arrasta **não importa** em 3.14 —
+   `AttributeError: 'typing.Union' object has no attribute '__module__'` dentro do
+   próprio `httpcore/__init__.py`. Resolve com `pip install --upgrade httpcore httpx`.
+2. Isso **viola o pin declarado** (`httpx<0.25.0,>=0.24.0`) e o pip avisa. Ainda assim
+   os cinco símbolos importam **e as três chamadas funcionam** contra o servidor. O pin
+   declarado é mais estreito que o necessário — mas isto é fato medido nesta
+   combinação, não garantia geral: quem reproduzir deve repetir o smoke test.
+
+### ⚠️ A suíte `test/test_zep_ingest.py` não exercita os imports reais (2026-09-10)
+
+11 dos 23 casos falham com `ModuleNotFoundError: No module named 'zep_python'`, e caem
+**dentro do adapter** (linhas 265, 398, 466) — os `from zep_python import ...` que vivem
+dentro de `ingest_corpus()` e `search()`. A suíte injeta um falso em `sys.modules` que
+não alcança esses caminhos tardios.
+
+⇒ **O verde/vermelho desta suíte diz pouco sobre o adapter.** Mesma classe do que foi
+corrigido em `test_evermind_ingest.py` no mesmo dia: um teste que faz mock do que não é
+o caminho real passa sem verificar nada. Medido que as 11 falhas são **pré-existentes**
+(idênticas com e sem a correção de versão abaixo), logo não são regressão.
 
 ### ⚠️ Errata 2026-09-10 — medido, e o bloqueio não é o que estava escrito
 
-Duas linhas da tabela acima vinham do README e são **falsas** para
-`ghcr.io/getzep/zep:0.27.2`. Medido na kvm8, com o stack no ar e `healthy`:
+Escrevi aqui, de manhã, que **duas** linhas do README eram falsas. Depois de a sessão
+par cruzar com o fonte `v0.27.2`, o saldo é outro: **uma das minhas "correções" era ela
+própria falsa**, e a outra estava certa mas imprecisa. Fica o que sobrevive à medição.
 
-**(1) Não há caminho de embedding local.** `zep json-schema` — o espaço listado,
-não adivinhado — dá `EmbeddingsConfig = {Enabled, Dimensions, Service, ChunkSize}`.
-**Nenhum campo de modelo e nenhum campo de endpoint próprio.** Com
-`Service: openai` (o único que embeda a 1536d) o embedder vai a
-`api.openai.com`, e é isso que o log diz.
+**(1) 🔴 RETRATADO — HÁ caminho de embedding local, e a minha inferência foi inválida.**
+Escrevi que não havia, porque `EmbeddingsConfig` não tem campo de modelo nem de
+endpoint. **A inferência é inválida:** o endpoint do caminho local vive em **outro
+bloco** de config (`NLP.ServerURL`), e o schema tem esse bloco. `embeddings.go@v0.27.2`:
 
-**(2) A chave tem de ser válida, não apenas presente.** Sem `ZEP_OPENAI_API_KEY`
-o binário aborta no arranque; com uma inválida, arranca `healthy` e **falha em
-segundo plano**:
+```go
+if model.Service == "local" { return embedTextsLocal(...) }
+return appState.LLMClient.EmbedTexts(ctx, text)
+```
+
+`embedTextsLocal` faz `POST {NLP.ServerURL}/embeddings/{message,document}` — o container
+`zep-nlp`, **sem chave nenhuma**. Confirmado no artefato: o binário contém
+`embeddings/document`, `embeddings/message` e o literal
+`"not implemented. use a local embedding model"` (a mensagem do `EmbedTexts` do
+Anthropic, que aponta o caminho local em texto).
+
+⇒ **Ausência do campo naquela struct não é ausência do recurso no artefato** — é
+[[feedback_absence_at_one_json_path_is_not_absence_in_the_artifact]] com uma struct no
+lugar do caminho de JSON. Cometi a minha própria lição, dois dias depois de a escrever.
+
+🔑 **O que é verdade sobre ESTE stack:** o nosso `docker-compose.yml` **removeu** o
+servidor NLP de propósito — comentário na linha 25: *"ZEP_NLP_SERVER_URL removed — no NLP
+server in this stack"*, e não há bloco `NLP` no `zep-config.yaml`. Logo o embedding por
+OpenAI a 1536d é **decisão nossa de comparabilidade**, não restrição do Zep. Isso muda a
+tabela de autonomia do paper na direção **favorável ao Zep**: ele não exige provedor pago
+para embedar.
+
+**(2) A chave é obrigatória no arranque — mas não é "chave OpenAI".**
+`NewLLMClient` liga em `cfg.LLM.Service`, e `case "anthropic"` é de primeira classe →
+`NewAnthropicLLM` → `log.Fatal(AnthropicAPIKeyNotSetError)`. O `log.Fatal` do OpenAI só é
+alcançado nos casos `"openai"` e `""` (retrocompat). ⇒ A afirmação defensável é **uma
+chave paga de LLM, de dois fornecedores possíveis**.
+
+Sem a chave do serviço escolhido o binário aborta no arranque; com uma inválida, arranca
+`healthy` e **falha em segundo plano**:
 
 ```
 level=error msg="Task HandleError error: MessageEmbedderTask embed messages failed:
@@ -134,6 +198,23 @@ suportado" e "a minha config não chegou" têm saída idêntica.
 válida (abaixo). Não afirmar nem negar isso no manuscrito.
 
 ### ✅ 2026-09-10 — o Zep RODA, e a busca devolve distância real
+
+**Preflight pago de 5 documentos** (`scripts/zep-preflight.py`), que responde o que
+assinatura não responde:
+
+| pergunta | resultado |
+|---|---|
+| o `gold_id` faz round-trip pelo `metadata` da mensagem? | **3/3** — e o documento esperado veio em **1º lugar** nas três consultas |
+| a distância é real (não zero, não vazia)? | sim — 0,9349 / 0,8602 / … |
+| quantas sessões o agrupamento cria? | **2** para 2 `conv_id` distintos |
+| mensagens gravadas | 5 de 5 |
+
+⚠️ O embedding do Zep é **assíncrono**: o preflight espera 15 s antes de buscar. Sem a
+espera, "0 hits" mede a espera e não a busca. E a busca do adapter faz **fan-out por
+sessão** — o custo e a latência da fase de busca crescem com o número de `conv_id`, não
+com o de documentos.
+
+⇒ `EXIT=0`: **o corpus inteiro pode correr.**
 
 Com uma chave OpenAI válida instalada (`/root/q4-zep/.env`, mode 600), medido na
 kvm8 **sem** nenhuma alteração ao `zep-config.yaml` original:
