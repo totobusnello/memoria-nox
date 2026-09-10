@@ -74,6 +74,32 @@ plausível. Combinando com corte, o esforço cai rápido:
 | +10 | 1.035 palavras (4,2%) |
 | **+14** | **nenhum** |
 
+## 3b. Realizado — e o ponto fixo acertou
+
+Executado no mesmo dia. As 15 obras entraram com discussão no §1.5 (quatro parágrafos
+novos e cinco inserções em parágrafos existentes).
+
+| | previsto | realizado |
+|---|---|---|
+| obras novas | 15 (a W≈90) | **15** |
+| custo por obra | 90 palavras | **76** |
+| palavras | 26.171 | **25.967** |
+| obras totais | 54 | **54** |
+| densidade | 2,06/mil | **2,08/mil** ✓ |
+| tamanho | 1,52× o teto | **1,50×** |
+
+O modelo do ponto fixo acertou o número, e o desvio ficou no custo por obra (76 contra 90
+previstas), a favor. Vale notar por que 14 não bastava: a **primeira** tentativa inseriu 14
+e parou em **2,05/mil** — 0,01 abaixo do piso. O ponto fixo já dizia 15 nessa faixa de
+custo; foi a minha estimativa de "14 é o alvo operacional" que arredondou para baixo o que
+o próprio modelo tinha calculado.
+
+⚠️ **A rota B fecha a densidade e agrava o tamanho**, exatamente como a tabela do §3
+previa: 1,44× → **1,50×** o maior aceito. As duas dimensões movem-se em sentidos opostos
+sob esta rota, e a decisão de fechar a segunda é separada — chegar ao teto de 17.265
+palavras exigiria cortar 8.702 (34% do documento), o que não é uma edição, é outro artigo.
+O que se afirma aqui é só que a dimensão de **densidade** deixou de ser outlier.
+
 ## 4. O censo agora é um artefato, e um guarda o prende
 
 `paper/bibitem-census.json` classifica cada uma das 53 footnotes como `obra` ou

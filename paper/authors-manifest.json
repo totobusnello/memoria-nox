@@ -97,6 +97,14 @@
   ],
   "title": "BEIR: A Heterogenous Benchmark for Zero-shot Evaluation of Information Retrieval Models"
  },
+ "2107.07567": {
+  "surnames": [
+   "Xu",
+   "Szlam",
+   "Weston"
+  ],
+  "title": "Beyond Goldfish Memory: Long-Term Open-Domain Conversation"
+ },
  "2108.00573": {
   "surnames": [
    "Trivedi",
@@ -158,6 +166,17 @@
    "Sabharwal"
   ],
   "title": "Interleaving Retrieval with Chain-of-Thought Reasoning for Knowledge-Intensive Multi-Step Questions"
+ },
+ "2212.10511": {
+  "surnames": [
+   "Mallen",
+   "Asai",
+   "Zhong",
+   "Das",
+   "Khashabi",
+   "Hajishirzi"
+  ],
+  "title": "When Not to Trust Language Models: Investigating Effectiveness of Parametric and Non-Parametric Memories"
  },
  "2303.11366": {
   "surnames": [
@@ -246,6 +265,20 @@
   ],
   "title": "Quati: A Brazilian Portuguese Information Retrieval Dataset from Native Speakers"
  },
+ "2404.13501": {
+  "surnames": [
+   "Zhang",
+   "Bo",
+   "Ma",
+   "Li",
+   "Chen",
+   "Dai",
+   "Zhu",
+   "Dong",
+   "Wen"
+  ],
+  "title": "A Survey on the Memory Mechanism of Large Language Model based Agents"
+ },
  "2405.14831": {
   "surnames": [
    "Gutiérrez",
@@ -276,6 +309,15 @@
    "Yu"
   ],
   "title": "LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory"
+ },
+ "2410.14052": {
+  "surnames": [
+   "Rezazadeh",
+   "Li",
+   "Wei",
+   "Bao"
+  ],
+  "title": "From Isolated Conversations to Hierarchical Schemas: Dynamic Tree Memory Representation for LLMs"
  },
  "2501.13956": {
   "surnames": [
@@ -308,6 +350,26 @@
   ],
   "title": "From RAG to Memory: Non-Parametric Continual Learning for Large Language Models"
  },
+ "2503.08026": {
+  "surnames": [
+   "Tan",
+   "Yan",
+   "Hsu",
+   "Han",
+   "Wang",
+   "Le",
+   "Song",
+   "Chen",
+   "Palangi",
+   "Lee",
+   "Iyer",
+   "Chen",
+   "Liu",
+   "Lee",
+   "Pfister"
+  ],
+  "title": "In Prospect and Retrospect: Reflective Memory Management for Long-term Personalized Dialogue Agents"
+ },
  "2504.19413": {
   "surnames": [
    "Chhikara",
@@ -334,6 +396,36 @@
    "Zhou"
   ],
   "title": "Qwen3 Embedding: Advancing Text Embedding and Reranking Through Foundation Models"
+ },
+ "2506.15841": {
+  "surnames": [
+   "Zhou",
+   "Qu",
+   "Wu",
+   "Kim",
+   "Prakash",
+   "Rus",
+   "Zhao",
+   "Low",
+   "Liang"
+  ],
+  "title": "MEM1: Learning to Synergize Memory and Reasoning for Efficient Long-Horizon Agents"
+ },
+ "2507.02259": {
+  "surnames": [
+   "Yu",
+   "Chen",
+   "Feng",
+   "Chen",
+   "Dai",
+   "Yu",
+   "Zhang",
+   "Ma",
+   "Liu",
+   "Wang",
+   "Zhou"
+  ],
+  "title": "MemAgent: Reshaping Long-Context LLM with Multi-Conv RL-based Memory Agent"
  },
  "2507.03724": {
   "surnames": [
@@ -379,6 +471,122 @@
   ],
   "title": "MemOS: A Memory OS for AI System"
  },
+ "2507.07957": {
+  "surnames": [
+   "Wang",
+   "Chen"
+  ],
+  "title": "MIRIX: Multi-Agent Memory System for LLM-Based Agents"
+ },
+ "2507.21046": {
+  "surnames": [
+   "Gao",
+   "Geng",
+   "Hua",
+   "Hu",
+   "Juan",
+   "Liu",
+   "Liu",
+   "Qiu",
+   "Qi",
+   "Wu",
+   "Wang",
+   "Xiao",
+   "Zhou",
+   "Zhang",
+   "Zhang",
+   "Xiang",
+   "Fang",
+   "Zhao",
+   "Liu",
+   "Ren",
+   "Qian",
+   "Wang",
+   "Hu",
+   "Wang",
+   "Wu",
+   "Ji",
+   "Wang"
+  ],
+  "title": "A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence"
+ },
+ "2508.19828": {
+  "surnames": [
+   "Yan",
+   "Yang",
+   "Huang",
+   "Nie",
+   "Ding",
+   "Li",
+   "Ma",
+   "Bi",
+   "Kersting",
+   "Pan",
+   "Schütze",
+   "Tresp",
+   "Ma"
+  ],
+  "title": "Memory-R1: Enhancing Large Language Model Agents to Manage and Utilize Memories via Reinforcement Learning"
+ },
+ "2509.25140": {
+  "surnames": [
+   "Ouyang",
+   "Yan",
+   "Hsu",
+   "Chen",
+   "Jiang",
+   "Wang",
+   "Han",
+   "Le",
+   "Daruki",
+   "Tang",
+   "Tirumalashetty",
+   "Lee",
+   "Rofouei",
+   "Lin",
+   "Han",
+   "Lee",
+   "Pfister"
+  ],
+  "title": "ReasoningBank: Scaling Agent Self-Evolving with Reasoning Memory"
+ },
+ "2509.25911": {
+  "surnames": [
+   "Wang",
+   "Takanobu",
+   "Liang",
+   "Mao",
+   "Hu",
+   "McAuley",
+   "Wu"
+  ],
+  "title": "Mem-{\\alpha}: Learning Memory Construction via Reinforcement Learning"
+ },
+ "2510.12635": {
+  "surnames": [
+   "Zhang",
+   "Shu",
+   "Ma",
+   "Lin",
+   "Wu",
+   "Sang"
+  ],
+  "title": "Memory as Action: Autonomous Context Curation for Long-Horizon Agentic Tasks"
+ },
+ "2511.02805": {
+  "surnames": [
+   "Yuan",
+   "Lou",
+   "Li",
+   "Chen",
+   "Lu",
+   "Lin",
+   "Sun",
+   "Zhang",
+   "Han"
+  ],
+  "title": "MemSearcher: Training LLMs to Reason, Search and Manage Memory via End-to-End Reinforcement Learning"
+ },
  "2511.03506": {
   "surnames": [
    "Chen",
@@ -392,6 +600,18 @@
    "Li"
   ],
   "title": "HaluMem: Evaluating Hallucinations in Memory Systems of Agents"
+ },
+ "2511.12997": {
+  "surnames": [
+   "Liu",
+   "Geng",
+   "Li",
+   "Cui",
+   "Zhang",
+   "Liu",
+   "Liu"
+  ],
+  "title": "WebCoach: Self-Evolving Web Agents with Cross-Session Memory Guidance"
  },
  "2601.02163": {
   "surnames": [
