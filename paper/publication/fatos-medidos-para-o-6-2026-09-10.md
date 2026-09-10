@@ -31,15 +31,22 @@ A busca do adapter varre **510 sessões por query**. Varredura de
 Acima de 96 o servidor degrada **e perde sessões** — a curva não é monotônica, e o ponto de
 inflexão é do pool do servidor, não do cliente.
 
-⚠️ **Duas grandezas diferentes de tempo de parede, não confundir:**
+🔴 **NÃO citar hora de parede no §6 por agora — o número move entre medições.**
 
-| | valor | o que é |
-|---|---|---|
-| isolado | 2,34 h | extrapolação da varredura, máquina livre |
-| **real** | **3,4 h** | medido no log do próprio Zep: **12,0 queries/min**, dividindo a máquina com a ingestão do EverOS |
+| medição | queries/min | extrapolação | condição |
+|---|---:|---|---|
+| varredura (isolada) | ~17 | 2,34 h | máquina livre |
+| log do Zep, ~19:50Z | 12,0 | 3,4 h | com a ingestão do EverOS a correr |
+| **container, janela de 60 s, ~20:10Z** | **10,1** | **4,1 h** | 5.130 buscas/min ÷ 510 sessões; 0 erros, todas `200`, 272–370 ms por sessão |
 
-Se o §6 citar tempo, citar **3,4 h com a nota de contenção**. O 2,34 h responde outra
-pergunta.
+Três medições, três números, e **não se sabe** se a diferença é contenção com a ingestão do
+EverOS ou variação da carga. ⇒ A única duração publicável é a **real medida no `fecho` do
+artefato**, quando existir. Até lá, o que está firme é a **varredura de workers**, que foi
+medida em condição controlada — essa sim entra no §6.3.1.
+
+⚠️ Isto substitui uma versão anterior deste arquivo que dizia *"se o §6 citar tempo, citar
+3,4 h"*. Instrução retirada: era número de uma medição intermediária carregando ordem de
+publicar.
 
 ### O caminho de embedding local existe — e nós o removemos por escolha
 
@@ -71,6 +78,17 @@ Os 8 ids ambíguos são todos do **LongMemEval**, que entra depois dos 5.882 do 
 ingestão em curso o par colidido ainda não chegou. `COUNT(*) == COUNT(DISTINCT doc_id)` hoje
 é **consistente com as duas hipóteses**, logo não decide nada. Se o EverOS sobrescrever por
 `doc_id` retém 6.822; se criar linha nova, 6.830.
+
+### Piso de integridade de varredura — `ZEP_MAX_ERRO_SESSAO=0.01`
+
+Instalado 2026-09-10: se **mais de 1%** das 510 sessões falhar a varredura, a corrida
+**aborta** em vez de devolver nDCG.
+
+A razão é a que interessa ao §6: uma query respondida a partir de 480 das 510 sessões tem
+menos recall **por falha de varredura**, não por qualidade de retrieval — e sairia publicada
+como qualidade do Zep. É a mesma classe do `0 hits` por espera não cumprida: nulo fabricado
+por artefato de medição, indistinguível de resultado. ⇒ A coluna do Zep tem um **piso de
+integridade declarado**, e isso vale uma frase no §6.3.1.
 
 ## 3. Referências que as colunas trazem
 
