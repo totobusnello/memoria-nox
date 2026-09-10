@@ -57,8 +57,8 @@ Adapter: `adapters/mem0.py` — `from mem0 import Memory; Memory().search(...)`.
 | Install (client) | `pip install 'zep-python==2.4.0'` |
 | Version pin (server) | `ghcr.io/getzep/zep:0.27.2` |
 | Version pin (client) | `zep-python==2.4.0` |
-| Defaults | Postgres backend; FastEmbed for local embeddings (no OpenAI required in OSS mode) |
-| API keys | None for OSS self-host. `ZEP_API_KEY` only for Zep Cloud variant. |
+| Defaults | Postgres backend. ⚠️ **"FastEmbed for local embeddings (no OpenAI required)" é FALSO em 0.27.2** — ver errata abaixo. |
+| API keys | ⚠️ **`ZEP_OPENAI_API_KEY` é OBRIGATÓRIA e tem de ser VÁLIDA** — ver errata abaixo. |
 | Daemon | `zep` + `postgres` containers (see `compose/docker-compose.yml`) |
 
 **Pinning rationale:** Zep 0.27.x is the latest OSS line; 0.28 is roadmapped
@@ -66,6 +66,62 @@ but not released. Self-hosted OSS is the fair comparison surface (Cloud is
 a paid tier).
 
 Adapter: `adapters/zep.py` — uses `zep_python.client.Zep.memory.search_session`.
+
+### ⚠️ Errata 2026-09-10 — medido, e o bloqueio não é o que estava escrito
+
+Duas linhas da tabela acima vinham do README e são **falsas** para
+`ghcr.io/getzep/zep:0.27.2`. Medido na kvm8, com o stack no ar e `healthy`:
+
+**(1) Não há caminho de embedding local.** `zep json-schema` — o espaço listado,
+não adivinhado — dá `EmbeddingsConfig = {Enabled, Dimensions, Service, ChunkSize}`.
+**Nenhum campo de modelo e nenhum campo de endpoint próprio.** Com
+`Service: openai` (o único que embeda a 1536d) o embedder vai a
+`api.openai.com`, e é isso que o log diz.
+
+**(2) A chave tem de ser válida, não apenas presente.** Sem `ZEP_OPENAI_API_KEY`
+o binário aborta no arranque; com uma inválida, arranca `healthy` e **falha em
+segundo plano**:
+
+```
+level=error msg="Task HandleError error: MessageEmbedderTask embed messages failed:
+llm error: error while creating embedding (original error: API returned unexpected
+status code: 401: Incorrect API key provided: ...)"  max_retries=5
+```
+
+⚠️ **`healthy` não é evidência de que o Zep embeda.** O healthcheck prova que a
+porta atende; o embedder é uma tarefa assíncrona que estoura depois, com 5
+retentativas, e a busca então devolve 500. As duas coisas são independentes.
+
+### O `LLM.OpenAIEndpoint` NÃO redireciona o embedding — negativo COM controle positivo
+
+Hipótese testada: usar a chave prepaid do Gemini pelo endpoint OpenAI-compat,
+apontando `LLM.OpenAIEndpoint` — o único campo de endpoint que o schema expõe.
+
+Montagem: um coletor HTTP que registra `{path, model, keys, input_n, dimensions}`
+e devolve 400, **dentro da rede do Docker** (`--network-alias coletor`). Foi
+preciso estar dentro: com o coletor no host, o `ufw` (`INPUT policy DROP`, só
+22/tcp) **descarta** o pacote da bridge — e descarte pendura em vez de recusar,
+o que se lê como "o Zep não chamou". Nenhuma regra de firewall foi alterada.
+
+**Controle positivo aceso:** do container do Zep, um POST por `/dev/tcp` ao
+coletor devolveu `HTTP/1.0 400` e o coletor registrou a linha. O caminho existe e
+grava.
+
+**Resultado:** três formas de endpoint — `http://coletor:9911/v1`,
+`http://coletor:9911`, `http://coletor:9911/v1/` — e **zero** chegadas ao
+coletor. Em todas, o log do Zep continuou a citar
+`https://platform.openai.com/account/api-keys`, isto é, foi a `api.openai.com`.
+
+⇒ **Em 0.27.2 o `OpenAIEndpoint` não alcança o caminho de embedding.** O Zep não
+embeda por endpoint OpenAI-compat de terceiro, e portanto **não** por Gemini.
+
+**O bloqueio, nomeado com precisão:** não é Docker (o stack corre e está
+`healthy` na kvm8), não é RAM, e não é substituível por Gemini. É **uma chave
+OpenAI válida** — a que está no `.env` devolve 401 verificado direto em
+`api.openai.com/v1/models` e `/v1/embeddings`, sem o Zep no caminho.
+
+Config restaurado byte a byte do backup
+(`zep-config.yaml.pre-coletor-20260910T184909Z`, mode 400) e coletor removido.
 
 ---
 
