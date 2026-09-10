@@ -36,6 +36,22 @@
 > scan (`ZEP_MAX_ERRO_SESSAO=0.01`). The Zep column therefore carries a declared integrity
 > floor rather than a silent partial scan.
 
+> **Surface census (measured 2026-09-10 against the running 0.27.2 container, from the
+> host, with `/healthz → 200` as positive control).** The build exposes two retrieval
+> surfaces:
+>
+> | route | GET | POST | reading |
+> |---|---|---|---|
+> | `/api/v1/sessions/{id}/search` | 405 | **200** | per-session memory search — **the surface measured** |
+> | `/api/v1/collection` | **200** | 405 | collection index — returns `[]`: no collection was ever created |
+> | `/api/v1/collection/{name}/search` | 405 | 404 | corpus-wide document search — exists, **not exercised** |
+> | `/api/v1/search`, `/api/v1/documents`, `/api/v1/graph/search` | 404 | 404 | absent in this build (the last is Zep Cloud) |
+>
+> The `405` on a route is the router refusing the *method*, which is itself evidence the
+> route exists; a `404` on `/collection/{name}/search` is the named collection being absent,
+> not the route. The empty `/collection` listing is the direct evidence that the
+> document-collection surface was never populated.
+
 ## Peça (b) — prosa, migrável sem levar número
 
 *Para entrar como parágrafo do §6.3.1. Contém zero números: pode migrar para suplemento
@@ -50,16 +66,29 @@ sem quebrar a evidência da peça (a).*
 > corpus. A single long conversation and a thousand short ones can hold the same number of
 > tokens and cost order-of-magnitude different amounts to query.
 >
-> **Two things follow, and the second is a caveat against us.** First, this is a genuine
+> **Three things follow, and two of them are caveats against us.** First, this is a genuine
 > architectural distinction from the systems whose retrieval is corpus-scoped, including
 > nox-mem: our single-index design has no per-session multiplier, and Zep's has no
 > cross-session distractor problem. Neither property is strictly better — they answer
-> different questions about what a memory *is*. Second, the 510-way multiplier is a
-> function of **our corpus mapping** as much as of Zep's API: we mapped one benchmark
-> conversation to one Zep session, which is the faithful mapping, but a deployment that
-> pooled conversations into fewer sessions would pay a smaller multiplier and lose the
-> session semantics that motivate the design. The cost we report is therefore the cost of
-> *Zep used as intended on this corpus*, not a ceiling on Zep.
+> different questions about what a memory *is*.
+>
+> Second, the multiplier is a function of **our corpus mapping** as much as of Zep's API: we
+> mapped one benchmark conversation to one Zep session, which is the faithful mapping, but a
+> deployment that pooled conversations into fewer sessions would pay a smaller multiplier and
+> lose the session semantics that motivate the design.
+>
+> Third, and most important: **Zep offers two retrieval surfaces and we exercised one, by
+> choice.** The column measures Zep's *per-session memory surface*, which is where its
+> contribution lives — per-conversation summarization and temporal extraction. The same
+> build also exposes a *document-collection surface* with its own corpus-wide search, and we
+> created no collections against it, so it was never touched. Measuring that surface would
+> measure Zep as a vector store, which is not what the system proposes and not what our
+> question asks. We therefore report the cost and the quality of the **memory surface under
+> a faithful one-conversation-per-session mapping** — a declared choice of surface, not a
+> ceiling on Zep, and not the only search Zep offers.
+>
+> Whether the collection surface would score differently on this benchmark is **untested**.
+> We do not claim it would score the same, and we do not claim it would score worse.
 
 ---
 
