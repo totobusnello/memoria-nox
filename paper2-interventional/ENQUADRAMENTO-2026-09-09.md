@@ -33,6 +33,79 @@ artefato de poder** — a exata família de defeito que este trabalho passou oit
 documentando. Não é uma escolha de tom: com `n=1` no topo da dose-resposta, o estimando
 registrado **não pode ser estimado no poder registrado**.
 
+## Adendo 2026-09-10 — alocado ≠ servido, e a pendência do `w=7,5` está fechada
+
+Medido no `p2-serving.ndjson` (12.166 linhas, `modo` active 5.229 / shadow 6.937):
+
+| | alocado | **servido** |
+|---|---|---|
+| controle (w=0) | 9 | **8** |
+| tratamento | 11 | 11 |
+| parciais | 2 | **3** |
+
+**O epoch 2026-09-02 (controle) nunca foi servido.** Contado pelos dois métodos: por
+`ts` há 252 registros no dia 09-02, por chave `epoch` há **zero**. Como o epoch vira às
+09:00Z, esses 252 são as ~9 h de 00:00–09:00Z que pertencem ao epoch de 09-01 — e de
+09:00Z em diante o serving parou. Controle positivo: 09-06 dá 672 nos dois métodos.
+
+> Contar por dia-calendário diria *"09-02 serviu 252 briefs"*; contar por epoch diz
+> *"nunca servido"*. As duas respostas saem do **mesmo arquivo**. É a chave temporal
+> grosseira errando nos dois sentidos.
+
+Parciais servidos: **09-01** (tratamento, w=4,0 — 630 de 672 em active, os 42 primeiros
+ainda em shadow), **09-03** (controle, 441 de 672) e **09-20** (controle, corte às
+22:51Z). O braço de controle entregue é **8**, não 9.
+
+### A pendência do `w=7,5`: fechada, e não há dose-resposta a ler
+
+O epoch de **2026-09-06** foi servido **inteiro** — 672 linhas. A preocupação de que ele
+tivesse sido atingido por perda de dado é **falsa**.
+
+Briefs em que a dose mudou o **pertencimento** do conjunto servido
+(`set(ids_controle) != set(ids_tratado)`), por epoch de tratamento, `modo=active`:
+
+| epoch | w | pertencimento muda | só ordem | % de servidos |
+|---|---|---|---|---|
+| 09-01 | 4,0 | 22 (de 630) | 11 | 3,49 |
+| 09-04 | 2,0 | 35 | 5 | 5,21 |
+| 09-05 | 2,0 | 33 | 0 | 4,91 |
+| **09-06** | **7,5** | **38** | 0 | **5,65** |
+| 09-08 | 2,0 | 20 | 28 | 2,98 |
+| 09-09 | 2,0 | 19 | 20 | 2,83 |
+
+`w=2` varre **2,83–5,21%** com n=4; `w=4` dá 3,49% com n=1; `w=7,5` dá 5,65% com n=1.
+O extremo fica **acima** do topo do braço mínimo, e a dispersão dentro do próprio `w=2`
+(2,83 a 5,21) é da ordem da diferença entre braços.
+
+> **Com n=4 / n=1 / n=1 não há dose-resposta a ler.** Não é evidência de saturação e não
+> é evidência de efeito. É a mesma conclusão do corpo deste documento, agora com o
+> número que a produz.
+
+⚠️ **Erro registrado:** a primeira versão deste adendo dizia *"a dose máxima não moveu
+mais que a mínima"*, e era **falsa**. Vinha de comparar `ids_controle != ids_tratado` como
+**lista**, sensível a ordem — que mistura reordenação com entrada/saída. Em 09-08 isso dava
+48 onde o pertencimento muda em 20 (as outras 28 são só ordem). Reconstrução minha, não a
+regra do código.
+
+### Duas instrumentações, e a diferença é o achado
+
+O guarda `p2-saturacao-da-dose` reportou, para o epoch 09-08:
+`mexem_servido=0 churn_servido=0 estados=672`, com
+`semantica=contrafactual-sob-a-designacao-ATUAL`.
+
+O log de serving do **mesmo** epoch registra **20** mudanças de pertencimento e 20 com
+`churn>0`. Não é contradição: o guarda **recomputa** um contrafactual sob a designação de
+hoje, e o log guarda o que foi de fato servido no dia. O guarda rotula a própria semântica
+no campo — e é por isso que a divergência é legível em vez de silenciosa.
+
+Mas a implicação para o paper é direta: **um instrumento que recomputa reporta 0 onde o
+registro do dia mostra 19 a 38 por epoch.** Quem inferir saturação do contrafactual está
+lendo um zero que o serving não produziu. Os briefs que somem são os que a dose moveu —
+porque a assinatura de busca usada para casar é a do controle.
+
+Análise por replay do braço `n=1` perderia **100% do sinal registrado dele**. A associação
+que este documento marcou como a verificar não era perda de epoch: **é perda de método.**
+
 ⚠️ **A verificar antes de o paper apoiar peso naquele epoch:** o único w=7,5 é
 **2026-09-06**, a mesma data do defeito de seleção registrado no replay (o descarte
 recaía justamente sobre os briefs em que a dose agiu). Associação a conferir, não
