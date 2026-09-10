@@ -866,6 +866,52 @@ def autoria_inline_check(root: Path) -> list[str]:
     return fails
 
 
+# Faixa observada nos quatro artigos aceitos, medida com o metodo declarado em
+# publication/regua-simetrica-2026-09-10.md §5 (ltx_bibitem no HTML, tokens crus).
+# NAO e' um limiar de aceitacao — e' o piso e o teto de uma populacao de quatro,
+# pequena e nao amostrada ao acaso. Serve como alarme de deriva, nao como regra.
+DENSIDADE_PISO = 2.06
+DENSIDADE_TETO = 2.95
+
+
+def densidade_check(root: Path) -> list[str]:
+    """A densidade de referencias por mil palavras nao pode sair da faixa em silencio.
+
+    Instalado depois de acontecer: o PR que acrescentou 415 palavras ao §6.3.1 e ao
+    confound (e) — prosa densa e necessaria, sem referencia nova — levou a densidade
+    de **2,08 para 2,05**, fora do piso, e os 14 guardas ficaram verdes. Cada PR de
+    conteudo move o denominador, e sem esta perna a unica forma de descobrir e'
+    rodar o script da regua a mao e lembrar de o fazer.
+
+    O numerador vem do `bibitem-census.json` (classe `obra`), nao das footnotes: as
+    auto-referencias nao aparecem na bibliografia de nenhum dos aceitos.
+    """
+    fails: list[str] = []
+    md = (root / PAPER).read_text(encoding="utf-8")
+    cam = root / "bibitem-census.json"
+    if not cam.exists():
+        return [f"{PAPER}: paper/bibitem-census.json ausente — a perna de densidade "
+                f"nao pode correr"]
+    obras = len(json.loads(cam.read_text(encoding="utf-8"))["obra"])
+    pal = sum(1 for w in md.split() if any(c.isalnum() for c in w))
+    d = obras / (pal / 1000)
+    if d < DENSIDADE_PISO:
+        faltam = DENSIDADE_PISO * pal / 1000 - obras
+        corte = pal - obras / DENSIDADE_PISO * 1000
+        fails.append(
+            f"{PAPER}: densidade {d:.3f}/mil ({obras} obras / {pal} palavras) abaixo "
+            f"do piso {DENSIDADE_PISO} observado nos aceitos — fechar com "
+            f"+{faltam:.1f} obra(s) (⇒ {int(faltam + 0.999)} com discussao) ou "
+            f"−{corte:.0f} palavras"
+        )
+    elif d > DENSIDADE_TETO:
+        fails.append(
+            f"{PAPER}: densidade {d:.3f}/mil acima do teto {DENSIDADE_TETO} observado "
+            f"nos aceitos — referencia sem discussao e' enchimento de bibliografia"
+        )
+    return fails
+
+
 GUARDAS = [
     fence_check,
     superlativo_check,
@@ -881,6 +927,7 @@ GUARDAS = [
     bib_promessa_check,
     autoria_inline_check,
     corpus_bench_check,
+    densidade_check,
 ]
 
 

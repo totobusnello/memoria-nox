@@ -245,6 +245,19 @@ CASOS = [
         "nomeia 0 corrida",
     ),
     (
+        # Instalado depois de acontecer: o PR que acrescentou 415 palavras ao
+        # §6.3.1 — prosa densa e necessaria, sem referencia nova — levou a
+        # densidade de 2,08 para 2,05, fora do piso, e os 14 guardas ficaram
+        # verdes. A mutacao muta o MANUSCRITO e nao o censo: mutar o censo
+        # aciona tambem o censo_bibitem_check e a prova nao discriminaria.
+        # A frase e' neutra de proposito — nao dispara superlativo, serie viva,
+        # populacao nem contagem de corpus.
+        "prosa nova sem referencia derruba a densidade abaixo do piso",
+        PAPER, None,
+        "\n" + 'The pipeline processes each file as it changes, and the resulting record is stored for later reading by whichever component asks for it next. ' * 80 + "\n",
+        "abaixo do piso",
+    ),
+    (
         # A entrada do NOSSO sistema prometia "update with arXiv ID after
         # submission" enquanto o CITATION.cff registra a ausencia no arXiv como
         # FATO, nao tarefa. Duas fontes do mesmo repo em contradicao, e a que o
