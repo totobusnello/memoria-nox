@@ -175,6 +175,19 @@ def validate() -> dict:
         ("everos.component.llm.client", "get_llm_client"),
         ("everalgo.types", "ParsedContent"),
         ("everalgo.knowledge", "KnowledgeExtractor"),
+        # bootstrap do schema — sem estes, o primeiro create_document() morre
+        # em `no such table`, e o erro lê-se como defeito do adapter
+        ("everos.infra.persistence.index", "connect"),
+        ("everos.infra.persistence.index", "shutdown"),
+        ("everos.infra.persistence.index", "verify_business_schemas"),
+        ("everos.infra.persistence.index", "ensure_business_indexes"),
+        ("everos.infra.persistence.sqlite", "get_engine"),
+        ("everos.infra.persistence.sqlite", "dispose_engine"),
+        ("sqlmodel", "SQLModel"),
+        # derivacao do indice — `create_document` so escreve markdown
+        ("everos.memory.cascade", "CascadeOrchestrator"),
+        ("everos.component.tokenizer", "build_tokenizer"),
+        ("everos.component.embedding", "get_embedding_capability"),
     ):
         try:
             getattr(importlib.import_module(_mod), _sym)
@@ -218,11 +231,45 @@ def setup() -> None:
 
     from everos.core.persistence import MemoryRoot
 
-    _knowledge_dir = MemoryRoot.resolve().knowledge_dir(_APP_ID, _PROJECT_ID)
+    raiz_mem = MemoryRoot.resolve()
+    raiz_mem.ensure()
+    _knowledge_dir = raiz_mem.knowledge_dir(_APP_ID, _PROJECT_ID)
     _knowledge_dir.mkdir(parents=True, exist_ok=True)
 
     _loop = asyncio.new_event_loop()
     asyncio.set_event_loop(_loop)
+
+    # ⚠️ Criar os diretórios NÃO cria o schema. Sem este bootstrap, o primeiro
+    # `create_document()` morre em `no such table: knowledge_documents` — medido
+    # 2026-09-10, e apanhado por um preflight de 5 documentos antes da corrida de
+    # 6.830. O `sqlite_engine_built` sai no log e engana: o engine existe, as
+    # tabelas não.
+    #
+    # A sequência espelha `everos.entrypoints.cli.commands.cascade._runtime`,
+    # que é o que a CLI e o lifespan da API rodam. É símbolo PRIVADO lá; aqui é
+    # replicado com os públicos, e `test_bootstrap_mirrors_upstream_runtime` lê o
+    # fonte do upstream e falha se a ordem mudar — a suposição fica com alarme em
+    # vez de ficar invisível.
+    _loop.run_until_complete(_bootstrap())
+
+
+async def _bootstrap() -> None:
+    """Sobe sqlite + lancedb como o lifespan da API faz."""
+    from sqlmodel import SQLModel
+
+    from everos.infra.persistence.index import (
+        connect,
+        ensure_business_indexes,
+        verify_business_schemas,
+    )
+    from everos.infra.persistence.sqlite import get_engine
+
+    engine = get_engine()
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+    await connect()
+    await verify_business_schemas()
+    await ensure_business_indexes()
 
     # Extractor is only needed for ingest; building it here surfaces a bad LLM
     # config at setup time instead of after the first paid call.
@@ -294,14 +341,47 @@ def ingest_corpus(chunks: Iterable[dict]) -> dict:
                 failed.append(f"{c['id']}: {type(exc).__name__}: {exc}")
 
     _topics_ingested = topics
+
+    # ⚠️ `create_document()` escreve APENAS markdown. Medido 2026-09-10: depois de
+    # 5 documentos "created" com sucesso, `knowledge_documents` tinha 0 linhas,
+    # `knowledge_topic` no LanceDB tinha 0, e `search_knowledge()` devolvia 0 hits.
+    # Não é defeito do adapter — é a arquitetura local-first do EverOS: o markdown
+    # é a fonte de verdade e o índice é DERIVADO. Em produção o índice é alimentado
+    # por um watcher; num processo só, o passo é `cascade sync`.
+    #
+    # `sync_once()` = `scan_once()` (varre o disco, enfileira) + `drain_until_empty()`,
+    # e é aqui que as EMBEDDINGS são cobradas — o custo tem duas pernas, extração
+    # (por documento, acima) e embedding (por tópico, aqui).
+    indexadas = _loop.run_until_complete(_indexa())
+
     return {
         "ingested": ok,
         "failed": len(items) - ok,
         "topics": topics,
         "topics_per_doc": round(topics / ok, 2) if ok else None,
+        "indexed_rows": indexadas,
         "first_errors": failed,
         "estimate": estimate,
     }
+
+
+async def _indexa() -> int:
+    """Deriva o índice a partir do markdown. Espelha `cascade sync`."""
+    from everos.component.embedding import get_embedding_capability
+    from everos.component.tokenizer import build_tokenizer
+    from everos.core.persistence import MemoryRoot
+    from everos.memory.cascade import CascadeOrchestrator
+
+    cap = get_embedding_capability()
+    if not cap.available:
+        # Sem embedding o cascade cai em "keyword-only mode" e o braço vetorial
+        # do híbrido fica vazio — resultado mediria outra coisa. Falar alto.
+        raise RuntimeError(
+            "embedding capability indisponivel: o cascade indexaria em keyword-only "
+            "e o hibrido mediria meio pipeline"
+        )
+    orq = CascadeOrchestrator(memory_root=MemoryRoot.resolve(), tokenizer=build_tokenizer())
+    return await orq.sync_once()
 
 
 def search(query: str, k: int = 10) -> list[dict]:
@@ -360,14 +440,31 @@ def search(query: str, k: int = 10) -> list[dict]:
 
 
 def teardown() -> None:
-    """Idempotent. Closes the loop; leaves the knowledge dir for reuse."""
+    """Idempotent. Releases lancedb + the sqlite engine, then closes the loop.
+
+    Symmetric with `_bootstrap()`: `_runtime` upstream does `shutdown()` then
+    `dispose_engine()` in its `finally`. Closing the loop without them leaves
+    the engine's pool holding the sqlite file.
+    """
     global _loop
     if _loop is not None and not _loop.is_closed():
+        try:
+            _loop.run_until_complete(_encerra())
+        except Exception:
+            pass
         try:
             _loop.close()
         except Exception:
             pass
     _loop = None
+
+
+async def _encerra() -> None:
+    from everos.infra.persistence.index import shutdown
+    from everos.infra.persistence.sqlite import dispose_engine
+
+    await shutdown()
+    await dispose_engine()
 
 
 if __name__ == "__main__":

@@ -346,3 +346,101 @@ def test_search_without_overfetch_would_under_return(ad, monkeypatch):
 
     monkeypatch.setenv("EVEROS_OVERFETCH", "5")
     assert len(ad.search("q", k=3)) == 3, "overfetch recovers the k distinct docs"
+
+
+# ── 6. o índice é DERIVADO: create_document só escreve markdown ──────────────
+
+
+def test_ingest_calls_the_index_step(ad, monkeypatch, tmp_path):
+    """`create_document()` escreve markdown; sem `sync_once()` a busca vê 0 hits.
+
+    Medido 2026-09-10: 5 documentos "created" com sucesso deixaram
+    `knowledge_documents` em 0 linhas, `knowledge_topic` (LanceDB) em 0, e
+    `search_knowledge()` devolveu 0. Em produção um watcher alimenta a fila; num
+    processo só, o passo é `cascade sync`. Este teste prende a chamada.
+    """
+    chamou = {"sync": 0}
+
+    class OrqFalso:
+        def __init__(self, **_kw):
+            pass
+
+        async def sync_once(self):
+            chamou["sync"] += 1
+            return 42
+
+    import everos.memory.cascade as C
+
+    monkeypatch.setattr(C, "CascadeOrchestrator", OrqFalso)
+    monkeypatch.setenv("EVEROS_ALLOW_PAID_INGEST", "1")
+
+    # create_document falso: sem LLM, sem custo.
+    import everos.service.knowledge as K
+
+    class Res:
+        doc_id = "x"
+        topic_count = 1
+
+    async def cd_falso(**_kw):
+        return Res()
+
+    monkeypatch.setattr(K, "create_document", cd_falso)
+    monkeypatch.setattr(ad, "_extractor", object())
+
+    r = ad.ingest_corpus([{"id": "c1", "text": "algum texto"}])
+    assert chamou["sync"] == 1, "ingest não derivou o índice — a busca veria 0 hits"
+    assert r["indexed_rows"] == 42
+    assert r["ingested"] == 1
+
+
+def test_index_step_refuses_keyword_only_mode(ad, monkeypatch):
+    """Sem embedding o cascade indexa em keyword-only e o híbrido mede meio pipeline."""
+    import everos.component.embedding as E
+
+    class CapOff:
+        available = False
+
+    monkeypatch.setattr(E, "get_embedding_capability", lambda: CapOff())
+    ad.setup()
+    with pytest.raises(RuntimeError, match="keyword-only"):
+        ad._loop.run_until_complete(ad._indexa())
+
+
+# ── 7. o bootstrap replica sequência PRIVADA do upstream ─────────────────────
+
+
+def _fonte_upstream_runtime() -> str:
+    import inspect
+
+    from everos.entrypoints.cli.commands import cascade
+
+    return inspect.getsource(cascade._runtime)
+
+
+def test_bootstrap_mirrors_upstream_runtime():
+    """Alarme de drift: replicamos `cascade._runtime`, que é símbolo PRIVADO.
+
+    Se o upstream mudar a sequência de arranque, este teste falha em vez de o
+    adapter passar a subir um estado diferente do que a API sobe — uma suposição
+    com alarme, em vez de invisível.
+    """
+    up = _fonte_upstream_runtime()
+    nosso = ADAPTER.read_text()
+
+    sequencia = ["create_all", "connect()", "verify_business_schemas()", "ensure_business_indexes()"]
+    pos_up = [up.index(s) for s in sequencia]
+    assert pos_up == sorted(pos_up), f"upstream mudou a ordem: {sequencia}"
+
+    corpo = nosso[nosso.index("async def _bootstrap(") :]
+    corpo = corpo[: corpo.index("\ndef ") if "\ndef " in corpo else len(corpo)]
+    pos_nosso = [corpo.index(s) for s in sequencia]
+    assert pos_nosso == sorted(pos_nosso), "nosso _bootstrap está fora de ordem"
+
+
+def test_teardown_mirrors_upstream_finally():
+    """`_runtime` faz shutdown() e depois dispose_engine() no finally."""
+    up = _fonte_upstream_runtime()
+    assert up.index("shutdown()") < up.index("dispose_engine()"), "upstream mudou a ordem"
+    nosso = ADAPTER.read_text()
+    corpo = nosso[nosso.index("async def _encerra(") :]
+    assert corpo.index("shutdown()") < corpo.index("dispose_engine()")
