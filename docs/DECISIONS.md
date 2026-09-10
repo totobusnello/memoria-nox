@@ -1474,3 +1474,15 @@ Detalhe completo em `paper2-interventional/ENQUADRAMENTO-2026-09-09.md`.
   a mesma falha mais caro.
 - ⚠️ **A conferir:** o único epoch w=7,5 é **2026-09-06**, mesma data do defeito de
   seleção do replay. Associação a verificar antes de o paper apoiar peso nele.
+- ✅ **2026-09-10 — conferido.** 09-06 servido **inteiro** (672); não houve perda de
+  epoch. Pertencimento movido pela dose: `w=2` 2,83–5,21% (n=4), `w=4` 3,49% (n=1),
+  `w=7,5` **5,65%** (n=1) ⇒ **não há dose-resposta a ler** com esses n. Não é saturação
+  nem efeito.
+- 🔴 **Duas instrumentações divergem por desenho, e é isso o achado:** o guarda
+  `p2-saturacao-da-dose` dá `mexem_servido=0` para o epoch 09-08 sob
+  `semantica=contrafactual-sob-a-designacao-ATUAL`; o log do serving do mesmo epoch
+  registra **20**. Quem inferir saturação do contrafactual lê um zero que o serving não
+  produziu — replay do braço n=1 perde 100% do sinal registrado.
+- ⚠️ **Correção do número:** alocado 9×11, **servido 8×11**. O epoch **2026-09-02
+  (controle) nunca foi servido** — 252 registros por `ts`, **zero** por chave `epoch`.
+  Parciais servidos são **três**: 09-01, 09-03 (441/672) e 09-20.
