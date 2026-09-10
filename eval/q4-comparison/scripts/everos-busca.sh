@@ -43,7 +43,16 @@ K="${K:-10}"
 #
 # Duas pernas que nao podem casar consigo: a sessao tmux, e o mtime do ledger
 # (progresso pega tambem o caso "vivo mas travado", que o pgrep nao ve).
-if tmux has-session -t everos 2>/dev/null; then
+# ⚠️ `-t=NOME` com SINAL DE IGUAL, e a razao e' um defeito medido em 2026-09-10.
+# `tmux has-session -t zep` casa POR PREFIXO e portanto casa a sessao `zep-busca`
+# -- que e' a propria sessao que executa este guarda. Provado: uma sessao
+# `alvo-teste-sufixo` faz `has-session -t alvo-teste` devolver verdadeiro, e
+# `-t=alvo-teste` devolver falso; controle positivo com o nome exato passa.
+#
+# Isto e' o auto-casamento do `pgrep -f` outra vez, por outro mecanismo -- e eu
+# troquei um pelo outro justamente por acreditar que este nao podia casar consigo.
+# O predicado nao pode ser satisfeito pelo proprio observador.
+if tmux has-session -t=everos 2>/dev/null; then
   echo "🔴 a ingestao AINDA CORRE (sessao tmux 'everos' viva). Abortando para nao"
   echo "   rodar migracao de schema por cima dela. Esperar o fecho."
   exit 3
@@ -79,7 +88,7 @@ echo "documentos no indice: $(sqlite3 -readonly "$RAIZ/.index/sqlite/system.db" 
   'SELECT COUNT(*) FROM knowledge_documents;' 2>/dev/null || echo '?')"
 
 mkdir -p "$SAIDA"
-exec .venv/bin/python runner.py \
+exec .venv/bin/python -u runner.py \
   --systems evermind \
   --queries-file "$QUERIES" \
   --skip-ingest \
