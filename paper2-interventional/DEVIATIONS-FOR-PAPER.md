@@ -2830,10 +2830,60 @@ ficam preservados ao lado em vez de fundidos; e a `semantica` do artefato declar
 explicitamente que `por_campo_epoch` é o **total e inclui `shadow`**. Unidades inalteradas:
 6 inteiras, 2 parciais, 1 vazia, 1 em curso, 10 futuras = 20.
 
-⚠️ **Discrepância anotada:** o relato do conserto diz `motivo` → `motivos` (lista), com
-09-01 parcial pelas **duas** pernas. O artefato em `e7dd3dcb` **não tem** campo `motivos` —
-os campos são `classe_entrega, classe_janela, epoch, esperado, fim, fracao_da_janela,
-horas_na_janela, inicio, modo_misto, por_modo, servidos, servidos_total, unidade`. Ou está
-no script e não é emitido, ou ficou de fora. Registrado como pendência, não como defeito:
-a informação das duas pernas é recuperável de `classe_janela` + `classe_entrega`, mas quem
-lê o artefato não recebe o **motivo** declarado.
+⛔ **ERRATA (2026-09-10) — O PARÁGRAFO ABAIXO ERA FALSO.** Fica à vista, tachado, com o
+mecanismo do erro.
+
+> ~~**Discrepância anotada:** o relato do conserto diz `motivo` → `motivos` (lista), com
+> 09-01 parcial pelas duas pernas. O artefato em `e7dd3dcb` **não tem** campo `motivos` —
+> os campos são `classe_entrega, classe_janela, epoch, esperado, fim, fracao_da_janela,
+> horas_na_janela, inicio, modo_misto, por_modo, servidos, servidos_total, unidade`. Ou
+> está no script e não é emitido, ou ficou de fora.~~
+
+**O campo existia.** Em `e7dd3dcb`, dentro de `unidades_de_analise.parciais`:
+
+```json
+{"epoch": "2026-09-01", "motivos": ["relogio", "volume"],
+ "servidos_active": 630, "servidos_total": 672, "modo_misto": true}
+{"epoch": "2026-09-03", "motivos": ["volume"],
+ "servidos_active": 441, "servidos_total": 441, "modo_misto": false}
+```
+
+A lista de campos que eu colei era a de **um objeto do vetor `epochs`** — e ali, de fato,
+`motivos` não estava. Concluí sobre o **artefato** a partir das chaves de **um objeto
+dentro dele**.
+
+> **Ausência num caminho não é ausência no artefato.** Antes de reportar falta num JSON,
+> listar as chaves de topo e procurar em todas.
+
+⚠️ **O agravante:** as chaves de topo estavam **na minha própria saída**, duas horas antes —
+`['censo_de_entrega', 'decisao', 'epochs', 'premissas_medidas', 'unidades_de_analise']`. Eu
+imprimi o caminho que me corrigia, li a linha, e depois concluí ausência olhando só
+`epochs`. Não faltava evidência; faltava usar a que eu já tinha no recibo. É a mesma forma
+do §10.26 acima — *não faltava medição, faltava cruzamento* — cometida por mim ao registrar
+essa exata lição.
+
+E o registro `servidos_active: 630` estava nesse mesmo objeto: o split `active`/`total` que
+eu media à mão já vinha declarado no artefato.
+
+### O que sobrevive da minha objeção, e o que a par fez com ela
+
+O **argumento** estava certo mesmo com a claim falsa: quem consome o artefato **itera
+`epochs`**, que é a coisa natural a fazer, e um campo que só existe no resumo não protege o
+leitor do vetor. Obrigar a derivar o motivo de `classe_janela` + `classe_entrega` é
+informação recuperável-mas-não-declarada — o mecanismo exato pelo qual o `exposto_h` chegou
+onde chegou.
+
+Corrigido pela sessão par em `e88a8db`, e verificado aqui: cada registro de `epochs` agora
+declara `motivos`, com três valores (`relogio` para janela parcial, `volume` para entrega
+parcial, `vazio` para entrega zero), unidade inteira com lista vazia, e um caso que exige
+que **epoch e resumo concordem** — porque duas declarações da mesma coisa em dois lugares é
+a próxima forma de divergirem.
+
+| | `e7dd3dcb` | `e88a8db` |
+|---|---|---|
+| `unidades_de_analise.parciais[].motivos` | presente | presente |
+| `epochs[].motivos` | **ausente** | `["relogio","volume"]` em 09-01 |
+
+⇒ Fica a distinção que eu deveria ter feito na primeira vez: **claim de ausência falsa,
+objeção de desenho procedente.** Reportar as duas juntas fez a objeção parecer sustentada
+pela claim, quando ela se sustenta sozinha.
