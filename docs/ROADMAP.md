@@ -20,7 +20,8 @@
 | **A — Autonomy** | Data sua, provider sua escolha, zero vendor lock-in | A1-A4+A1.1 | A1 impl staged; **A1.1 BR PII shipped**; A2+A3 impl completo (T1-T18); **A4 100% runnable em CI**; **A2 Tier 3 P0+P1+P2 merged** |
 | **P — Product** | UX que ganha | P1-P10 | P1 LIVE em prod (answer API); P2 impl completo; P3 staged; P4 spec; **P5 impl completo** + P5a event bus; **F10 Phase C Phase 1+2 LIVE prod** |
 | **Lab — Retrieval Research** | Paper-grade improvements, 40% capacity | L1-L4 + G-series | L1 paused; **L2+L3+L4 impl completo**; G-series ablation ativa (G7 cravado, G8 pendente); **D49 phase 2 rolling** (~7d shadow, D50 ETA 2026-05-27); **Phase G EverMemBench CLOSED** — rerank REJECT default, opt-in SHIP (D60); 5-batch methodology canonical (D62) |
-| **GTM Phase 2** | Viral launch | conditional | **Gate D43 VERIFIED** (nDCG@10 0.6380 exceeds +15% threshold); assets + pricing + Docker prontos; COMPARISON.md credible; **desbloqueada condicionalmente** |
+| **GTM Phase 2** | Viral launch | conditional → **calendarizada** | Gate D43 VERIFIED; assets + pricing + Docker prontos. **Entra em novembro/2026, depois do Paper 1** (decidido 2026-09-10) — o que faltava era ordem, não material |
+| **Papers** | O veículo de adoção hoje | Paper 1 + Paper 2 | **Paper 1** tem DOI `10.5281/zenodo.22649269`; próximo passo é **submissão TMLR** (rota ao arXiv é via TMLR aceito). **Paper 2** é ensaio intervencional no ar desde 01/09, encerra 20/09 — **method paper**, a contribuição é o método |
 
 ---
 
@@ -319,7 +320,24 @@ Quando o gate abrir (Q4 comparison wins):
 
 ---
 
-## 8. Calendário (updated 2026-05-24 pós Q4 LIVE validation)
+## 8. Calendário
+
+> **Vigente — 2026-09-10.** O bloco de maio, logo abaixo, é **snapshot histórico**: ele
+> anuncia "arXiv submit Tue 2026-06-02" e "Launch Wed 2026-06-03", nenhum dos dois
+> aconteceu como escrito. O que vale é esta tabela.
+
+| quando | o quê | estado |
+|---|---|---|
+| **feito** | Paper 1 com DOI `10.5281/zenodo.22649269`; Q4/rc4 (nox lidera LongMemEval **e** LoCoMo; gate D43 verificado); ensaio do Paper 2 no ar desde 2026-09-01, 234 epochs pré-registrados | ✅ |
+| **2026-09-20** | fim da janela do ensaio do Paper 2 (desfecho) | armado |
+| **2026-09-21 09:43Z** | desligamento da dose + aposentadoria dos guardas (`ONESHOT`) | armado; 5 pré-condições conferidas em 10/09 — e o recibo terminal **não é lido por nada** hoje (§10.28 do Paper 2) |
+| **2026 Q4 (out)** | **Paper 1 → submissão TMLR.** A rota ao arXiv é *via* TMLR aceito, não direta — a apelação no arXiv é ativo de **uso único** e o único sucesso documentado veio **com** peer review | próxima ação |
+| **2026-11** | **GTM Phase 2 entra no calendário** — depois do Paper 1, não antes. Assets, pricing Stripe-first (D44) e `COMPARISON.md` estão prontos desde maio; o que faltava era ordem, não material | decidido 2026-09-10 |
+| **paralelo** | Paper 2 como **method paper** — a contribuição é o método, não o efeito (H1c não tem resultado possível no N realizado: o MDE satura em 100%) | em redação |
+| **2027 H1** | Federation (A2-extended) + Nox-Supermem comercializado | inalterado |
+| **2027 H2** | API platform com autonomia preservada (single-tenant, o arquivo mora onde você manda) | inalterado |
+
+<details><summary>Snapshot histórico — 2026-05-24 (pós Q4 LIVE validation)</summary>
 
 ```
 FEITO (2026-05-17 → 2026-05-24):
@@ -373,6 +391,8 @@ NOTES:
  • Pricing strategy Stripe-first (D44 + PR #69 already merged)
  • Paper v1.0 publication-ready (§6 skeleton filled Sat evening)
 ```
+
+</details>
 
 ---
 
@@ -449,7 +469,17 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 
 ---
 
-## 12. Próxima ação concreta — Sun 2026-05-25 morning → Wed 2026-06-03 launch (atualizado Sat 2026-05-24 EOD + Sun 2026-05-25 06h)
+## 12. Próxima ação concreta — 2026-09-10
+
+| ordem | ação | depende de |
+|---|---|---|
+| 1 | **Paper 1 — fechar o gap de forma.** Medido em 09/09 contra os aceitos do arXiv: **7 referências** (0,31/mil palavras, contra 1,90–2,69) e **7 apêndices** contra 0. O outlier é **forma**, não rigor | medição feita |
+| 2 | **Paper 1 → submissão TMLR** | (1) |
+| 3 | **2026-09-21 09:43Z** — conferir `GREEN dose-desligada-e-guardas-aposentados` em `/var/lib/nox-mem/p2/status-desliga-dose.txt`. ⚠️ Conferir **à mão**: nada lê esse arquivo hoje (§10.28) | automático |
+| 4 | **Paper 2 method paper** — redação com o desfecho fechado (15 epochs inteiros + 3 parciais + 1) | (3) |
+| 5 | **2026-11 — GTM Phase 2** | (2) |
+
+### Histórico arquivado — Mai/2026 (o calendário abaixo não vale mais)
 
 > **Nota:** Q4 LIVE validation complete Sat 2026-05-24 evening — nDCG@10 **0.6380** (prod instance LoCoMo n=100) exceeds D43 gate (+83.0%). **Wave 1–18 cumulative:** ~50+ PRs merged Sat + Sun (Waves 1–13 Sat afternoon/evening; Waves 14–18 continuing); **4 production deploys Sat:** F10 Phase C Phase 2 (#283), A2 Tier 3 P0+P1+P2 (#276/#280), opsAudit hygiene (#193), mem0 canonical (#285). **Sun priorities:** validate Wave 14–18 PRs landing, execute Gemini hybrid@500 comparison (P2 priority), finalize launch comms rev3, monitor D49 phase 2 baseline (rolling, ETA D50 ~2026-05-27). **L4 watchpoint:** first trigger Mon 2026-05-25 post-cron. **GTM P0 manual (Toto):** arXiv endorsement Mon 2026-06-01, demo GIF Sat 2026-05-30, Product Hunt draft Tue 2026-06-02. **No blockers for Wed 2026-06-03 10h BRT launch.** Readiness 99%+ expected.
 
@@ -521,7 +551,7 @@ Se confusão, consultar `docs/_archive/ROADMAP-v1-pre-Q-A-P-2026-05-17.md` § Si
 | **Roadmap (este)** | `docs/ROADMAP.md` |
 | **Decisões + NÃO FAZEMOS** | `docs/DECISIONS.md` |
 | **Regras críticas operacionais** | `CLAUDE.md` |
-| **Visão estratégica longo prazo** | `docs/VISION.md` (v14) |
+| **Visão estratégica longo prazo** | `docs/VISION.md` (v16) |
 | **Histórico de versões (v1.0 → v3.7)** | `docs/EVOLUTION.md` |
 | **Incidents (memoria-only)** | `docs/INCIDENTS.md` |
 | **Paper técnico** | `paper/publication/latex/paper.pdf` (v1.1) |
