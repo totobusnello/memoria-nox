@@ -90,3 +90,23 @@
 
 To resume this session: kimi -r session_bc155d8b-9944-4cb6-8d07-d872f17843bc
 
+
+---
+
+## Recibo adversarial — prova de que a voz rodou
+
+O contrato do painel: **sem recibo com `exit: 0`, reportar a falha e nunca
+escrever um veredito no lugar da voz.** Este é o recibo desta corrida, copiado
+verbatim da saída — o arquivo original vive em `.remember/`, que não acompanha
+este diretório.
+
+```
+=== ADVERSARY RECEIPT ===
+receipt: /Users/lab/claude/projetos/memoria-nox/.remember/adversary-receipt-kimi-2026-09-11T071130-92796.txt
+voice: kimi
+model: assinatura(Moonshot/K2)
+transport: harness/nativo
+exit: 0
+output_bytes: 19550
+=== END RECEIPT ===
+```

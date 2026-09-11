@@ -45,3 +45,25 @@ Riscos que o plano também não precifica:
 
 **O plano está errado na alocação, não só na margem.** Inverter: não gastar a apelação; parar de otimizar densidade; cortar/reformatar §1.4 (tabela+“gaps”), E, F, footnotes, histórico Wave; *preservar* arquitetura, números de sistema (numa tabela, não em 927 palavras), ablações-chave, o loss, §6 e §6.6. Comprimento-alvo: parecer article de sistemas, não 1,202× o maior vizinho. Se precisam de timestamp já, a via que o e-mail deu é journal/workshop primeiro — não uma apelação de uso único apostada numa régua que o moderador não usa.
 
+
+---
+
+## Recibo adversarial — prova de que a voz rodou
+
+O contrato do painel: **sem recibo com `exit: 0`, reportar a falha e nunca
+escrever um veredito no lugar da voz.** Este é o recibo desta corrida, copiado
+verbatim da saída — o arquivo original vive em `.remember/`, que não acompanha
+este diretório.
+
+```
+=== ADVERSARY RECEIPT ===
+receipt: /Users/lab/claude/projetos/memoria-nox/.remember/adversary-receipt-grok-2026-09-11T071122-92361.txt
+voice: grok
+model: grok-4.6
+transport: http-direto
+model_returned: grok-4.6
+usage: prompt=2528 completion=1936 reasoning=4758 total=9222
+exit: 0
+output_bytes: 7131
+=== END RECEIPT ===
+```
