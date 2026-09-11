@@ -298,6 +298,59 @@ atribuir os **números** a uma só população não é.
 ao lado, e o `meta` tem de declarar `n_queries`, `limite` e
 `queries_file_linhas`.
 
+### 7.0 ⚠️ Zep — onde o artefato está se a sessão fechar antes dele
+
+Escrito **antes** do fecho, de propósito: se a sessão que conduz a corrida
+terminar primeiro, este parágrafo é a única coisa que sabe onde o artefato ficou.
+Nenhum CI o encontra — a perna `contagem/L2` varre `eval/q4-comparison/**` do
+repositório, não uma máquina remota.
+
+⚠️ **Este repositório é público.** O host da corrida é identificado por
+**capacidade**, nunca por endereço: hostname e IP de tailnet não entram no git.
+O valor vive fora daqui — no `~/.ssh/config` de quem opera, ou na variável
+`NOX_Q4_HOST` do ambiente. Um `chore(repo): public-readiness — infra scrub`
+(`d5bba83`) já removeu endereços deste repositório uma vez; reintroduzi-los
+desfaria uma decisão tomada.
+
+**Estado em 2026-09-10 21:11 BRT:** `2.150/2482`, `ZEP_FALHA=0`,
+`ZEP_ERRO_SESSAO=41` em ~1,1 M varreduras (0,0033%, sem tendência por janela).
+ETA ~21:43 a ~10 q/min.
+
+**Onde ele aterra** (o runner escreve `output_dir / "{system}.json"`):
+
+```
+host:    $NOX_Q4_HOST        (o host do benchmark do Q4 — NÃO é a VPS de
+                              produção, que está proibida de hospedar benchmark
+                              até 2026-09-21 pelo ensaio do Paper 2)
+caminho: /root/q4-everos/out/zep-busca/zep.json
+tmux:    zep-busca           (capture com -t zep-busca:0.0, NÃO -t=)
+console: /root/q4-everos/out/zep-busca-console.log
+```
+
+**Recuperação, na ordem que importa:**
+
+```sh
+# 1. fechou de verdade? sessão morta NÃO distingue fecho de morte a meio
+ssh root@"$NOX_Q4_HOST" 'cd /root/q4-everos && bash scripts/classifica-erro-busca.sh out/zep-busca-console.log ZEP && ls -l out/zep-busca/*.json'
+
+# 2. trazer para um diretório PRÓPRIO — nunca `output/zep.json`, que o
+#    manuscrito cita nominalmente (paper-tecnico linhas 1161 e 1184)
+scp root@"$NOX_Q4_HOST":/root/q4-everos/out/zep-busca/zep.json eval/q4-comparison/output-2026-09-10/
+
+# 3. as quatro verificações do §7.1, depois o agregador COMMITADO
+python3 eval/q4-comparison/aggregate.py --output-dir eval/q4-comparison/output-2026-09-10 --k 10
+```
+
+⚠️ **Não preencher a célula sem as quatro verificações.** O campo de id chama-se
+`question_id` — pedir `query_id` devolve `1 id distinto` sobre 2.482, que é a
+assinatura exata do bug de truncamento e é **falso**.
+
+⚠️ **A configuração de retrieval não está no `meta`.** Para o Zep ela é
+`text-embedding-3-small` a 1536d pela OpenAI (`zep-config.yaml`,
+`Extractors.Messages.Embeddings`), sem reranker. Se o processo ainda estiver vivo,
+capturar do `/proc/<pid>/environ` **antes** de ele morrer, como foi feito para o
+EverOS.
+
 ### 7.1 EverOS — fechado 2026-09-10T22:49:43Z
 
 **`meta` do artefato, verbatim:**
