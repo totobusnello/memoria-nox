@@ -1,5 +1,5 @@
 {
-  "gerado_por": "medicao read-only sobre /root/.openclaw/logs/p2-serving.ndjson em srv1826603",
+  "gerado_por": "medicao read-only sobre /root/.openclaw/logs/p2-serving.ndjson na VPS de produção",
   "ts": "2026-09-10",
   "semantica": "`mexeu` = ids_tratado != ids_controle por PERTENCIMENTO (set), nao por lista. A comparacao de lista mistura reordenacao com entrada/saida: no epoch 09-08 da 48 contra 20. O codigo mede pertencimento.",
   "por_epoch": {
