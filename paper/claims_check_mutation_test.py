@@ -52,6 +52,35 @@ RAIZ_REPO = AQUI.parent
 # `de=None` => append ao fim do arquivo.
 CASOS = [
     (
+        # O universal sobre a literatura nao e' verificavel sem survey exaustivo, e e'
+        # dispensavel: o fato medido sustenta-se so.
+        "universal sobre a literatura reintroduzido",
+        PAPER, None,
+        "\nAmong all memory systems, no published competitor reports retrieval latency in this band.\n",
+        "universal sobre a literatura",
+    ),
+    (
+        # Palavra promocional sobre trabalho proprio, num paper cujo §7.1 cita um
+        # "breakthrough" passado como exemplo cautelar.
+        "palavra promocional reintroduzida",
+        PAPER, None,
+        "\nThe Q3 IterC result is a breakthrough for high-level synthesis.\n",
+        "palavra promocional",
+    ),
+    (
+        # ⚠️ ESTA e' a que prova a ISENCAO, nao a deteccao. A L1079 contem a palavra
+        # "breakthrough" como CITACAO de um overclaim sendo retratado, e sobrevive
+        # porque a frase carrega a retratacao medida (5-batch contra 1). Quebrando o
+        # marcador de retratacao NO GUARDA, a citacao tem de passar a ser acusada --
+        # e' isso que mostra que a isencao esta a sustentar peso, em vez de a linha
+        # apenas nao casar por acidente.
+        "marcador de RETRATACAO quebrado no guarda",
+        SCRIPT,
+        "r\"5-batch reality|labelled\\s+\\S{0,2}breakthrough|overstatement|\"\n    r\"would have been overclaimed\"",
+        "r\"NUNCA-CASA-NADA-XYZ\"",
+        "palavra promocional",
+    ),
+    (
         # Citacao sem definicao rende marcador cru no PDF.
         "footnote citada e NAO definida",
         PAPER, None,

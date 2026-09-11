@@ -1,0 +1,391 @@
+{
+  "decisao": {
+    "data": "2026-09-09T14:38-03:00",
+    "literal": "encerra 20/09 mesmo, e desliga a dose depois",
+    "fonte": "instrução direta do Toto; primeira explícita sobre o desfecho"
+  },
+  "premissas_medidas": {
+    "active_primeira_linha_servida": "2026-09-01T10:37:01.943000+00:00",
+    "designados_created_at": "2026-08-21T22:51:23+00:00",
+    "designados_n": 19,
+    "fresh_global_max_age_days": 30,
+    "expira_em": "2026-09-20T22:51:23+00:00",
+    "fronteira_de_epoch_utc": "09:00Z",
+    "corpus_de_referencia": "servido-e20260903T060001Z.db",
+    "corpus_sha256": "23378a9ea83cd27d0360cfe148207167aee30a376f29ef89d4bcfae415d04131"
+  },
+  "censo_de_entrega": {
+    "host": "srv1826603",
+    "log": "/root/.openclaw/logs/p2-serving.ndjson",
+    "log_sha256": "57e402e9cb196cec9f0935a02b4d518072e5b388df5b6a3cbfd2dbd8e4fee53a",
+    "linhas": 12180,
+    "divergencia_campo_vs_ts": 0,
+    "semantica": "briefs-REGISTRADOS-no-log-de-serving-por-chave-epoch; NAO e' sobreposicao de relogio nem contrafactual recomputado. `por_campo_epoch` e' o TOTAL e inclui `shadow`; a exposicao SOB A DESIGNACAO esta em `por_epoch_e_modo[epoch]['active']`. Medido 2026-09-10: 2026-09-01 e' o UNICO epoch de modo misto da janela (630 active w=4,0 + 42 shadow w=2,0), logo o total 672 sobrestima a entrega designada em 42."
+  },
+  "unidades_de_analise": {
+    "semantica": "INTEIRA exige relogio inteiro E entrega cheia; as duas classes ficam separadas no vetor `epochs`",
+    "inteiras_n": 6,
+    "inteiras_de": "2026-09-04",
+    "inteiras_ate": "2026-09-09",
+    "parciais": [
+      {
+        "epoch": "2026-09-01",
+        "motivos": [
+          "relogio",
+          "volume"
+        ],
+        "fracao_da_janela": 0.932616,
+        "horas_na_janela": 22.38,
+        "servidos_active": 630,
+        "servidos_total": 672,
+        "esperado": 672,
+        "modo_misto": true
+      },
+      {
+        "epoch": "2026-09-03",
+        "motivos": [
+          "volume"
+        ],
+        "fracao_da_janela": 1.0,
+        "horas_na_janela": 24.0,
+        "servidos_active": 441,
+        "servidos_total": 441,
+        "esperado": 672,
+        "modo_misto": false
+      }
+    ],
+    "vazias": [
+      {
+        "epoch": "2026-09-02",
+        "servidos": 0
+      }
+    ],
+    "modo_misto": [
+      {
+        "epoch": "2026-09-01",
+        "por_modo": {
+          "shadow": 42,
+          "active": 630
+        }
+      }
+    ],
+    "futuras_n": 10,
+    "em_curso": [
+      {
+        "epoch": "2026-09-10",
+        "servidos": 140
+      }
+    ],
+    "prereg_previa_epochs": 234
+  },
+  "epochs": [
+    {
+      "epoch": "2026-09-01",
+      "inicio": "2026-09-01T09:00:00+00:00",
+      "fim": "2026-09-02T09:00:00+00:00",
+      "fracao_da_janela": 0.932616,
+      "classe_janela": "parcial",
+      "horas_na_janela": 22.38,
+      "servidos": 630,
+      "esperado": 672,
+      "classe_entrega": "parcial",
+      "servidos_total": 672,
+      "por_modo": {
+        "shadow": 42,
+        "active": 630
+      },
+      "modo_misto": true,
+      "unidade": "parcial",
+      "motivos": [
+        "relogio",
+        "volume"
+      ]
+    },
+    {
+      "epoch": "2026-09-02",
+      "inicio": "2026-09-02T09:00:00+00:00",
+      "fim": "2026-09-03T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": 0,
+      "esperado": 672,
+      "classe_entrega": "vazio",
+      "servidos_total": 0,
+      "por_modo": {},
+      "modo_misto": false,
+      "unidade": "vazia",
+      "motivos": [
+        "vazio"
+      ]
+    },
+    {
+      "epoch": "2026-09-03",
+      "inicio": "2026-09-03T09:00:00+00:00",
+      "fim": "2026-09-04T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": 441,
+      "esperado": 672,
+      "classe_entrega": "parcial",
+      "servidos_total": 441,
+      "por_modo": {
+        "active": 441
+      },
+      "modo_misto": false,
+      "unidade": "parcial",
+      "motivos": [
+        "volume"
+      ]
+    },
+    {
+      "epoch": "2026-09-04",
+      "inicio": "2026-09-04T09:00:00+00:00",
+      "fim": "2026-09-05T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": 672,
+      "esperado": 672,
+      "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
+      "unidade": "inteira",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-05",
+      "inicio": "2026-09-05T09:00:00+00:00",
+      "fim": "2026-09-06T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": 672,
+      "esperado": 672,
+      "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
+      "unidade": "inteira",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-06",
+      "inicio": "2026-09-06T09:00:00+00:00",
+      "fim": "2026-09-07T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": 672,
+      "esperado": 672,
+      "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
+      "unidade": "inteira",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-07",
+      "inicio": "2026-09-07T09:00:00+00:00",
+      "fim": "2026-09-08T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": 672,
+      "esperado": 672,
+      "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
+      "unidade": "inteira",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-08",
+      "inicio": "2026-09-08T09:00:00+00:00",
+      "fim": "2026-09-09T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": 672,
+      "esperado": 672,
+      "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
+      "unidade": "inteira",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-09",
+      "inicio": "2026-09-09T09:00:00+00:00",
+      "fim": "2026-09-10T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": 672,
+      "esperado": 672,
+      "classe_entrega": "cheio",
+      "servidos_total": 672,
+      "por_modo": {
+        "active": 672
+      },
+      "modo_misto": false,
+      "unidade": "inteira",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-10",
+      "inicio": "2026-09-10T09:00:00+00:00",
+      "fim": "2026-09-11T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": 140,
+      "esperado": 672,
+      "classe_entrega": "em_curso",
+      "servidos_total": 140,
+      "por_modo": {
+        "active": 140
+      },
+      "modo_misto": false,
+      "unidade": "em_curso",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-11",
+      "inicio": "2026-09-11T09:00:00+00:00",
+      "fim": "2026-09-12T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-12",
+      "inicio": "2026-09-12T09:00:00+00:00",
+      "fim": "2026-09-13T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-13",
+      "inicio": "2026-09-13T09:00:00+00:00",
+      "fim": "2026-09-14T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-14",
+      "inicio": "2026-09-14T09:00:00+00:00",
+      "fim": "2026-09-15T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-15",
+      "inicio": "2026-09-15T09:00:00+00:00",
+      "fim": "2026-09-16T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-16",
+      "inicio": "2026-09-16T09:00:00+00:00",
+      "fim": "2026-09-17T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-17",
+      "inicio": "2026-09-17T09:00:00+00:00",
+      "fim": "2026-09-18T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-18",
+      "inicio": "2026-09-18T09:00:00+00:00",
+      "fim": "2026-09-19T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-19",
+      "inicio": "2026-09-19T09:00:00+00:00",
+      "fim": "2026-09-20T09:00:00+00:00",
+      "fracao_da_janela": 1.0,
+      "classe_janela": "inteiro",
+      "horas_na_janela": 24.0,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": []
+    },
+    {
+      "epoch": "2026-09-20",
+      "inicio": "2026-09-20T09:00:00+00:00",
+      "fim": "2026-09-21T09:00:00+00:00",
+      "fracao_da_janela": 0.57735,
+      "classe_janela": "parcial",
+      "horas_na_janela": 13.86,
+      "servidos": null,
+      "classe_entrega": "futuro",
+      "unidade": "futuro",
+      "motivos": [
+        "relogio"
+      ]
+    }
+  ]
+}

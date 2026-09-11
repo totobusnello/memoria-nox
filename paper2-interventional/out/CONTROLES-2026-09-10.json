@@ -1,0 +1,157 @@
+{
+  "gerado_por": "medicao read-only sobre /root/.openclaw/logs/p2-serving.ndjson em srv1826603",
+  "ts": "2026-09-10",
+  "semantica": "`mexeu` = ids_tratado != ids_controle por PERTENCIMENTO (set), nao por lista. A comparacao de lista mistura reordenacao com entrada/saida: no epoch 09-08 da 48 contra 20. O codigo mede pertencimento.",
+  "por_epoch": {
+    "2026-09-01": {
+      "braco": "treatment",
+      "w": [
+        2.0,
+        4.0
+      ],
+      "modo": [
+        "active",
+        "shadow"
+      ],
+      "n": 672,
+      "mexeu": 24,
+      "pct": 3.57,
+      "sem_ids": 0
+    },
+    "2026-09-02": {
+      "braco": "control",
+      "w": [
+        0
+      ],
+      "n": 0,
+      "nao_servido": true
+    },
+    "2026-09-03": {
+      "braco": "control",
+      "w": [
+        0
+      ],
+      "modo": [
+        "active"
+      ],
+      "n": 441,
+      "mexeu": 0,
+      "pct": 0.0,
+      "sem_ids": 441
+    },
+    "2026-09-04": {
+      "braco": "treatment",
+      "w": [
+        2.0
+      ],
+      "modo": [
+        "active"
+      ],
+      "n": 672,
+      "mexeu": 35,
+      "pct": 5.21,
+      "sem_ids": 0
+    },
+    "2026-09-05": {
+      "braco": "treatment",
+      "w": [
+        2.0
+      ],
+      "modo": [
+        "active"
+      ],
+      "n": 672,
+      "mexeu": 33,
+      "pct": 4.91,
+      "sem_ids": 0
+    },
+    "2026-09-06": {
+      "braco": "treatment",
+      "w": [
+        7.5
+      ],
+      "modo": [
+        "active"
+      ],
+      "n": 672,
+      "mexeu": 38,
+      "pct": 5.65,
+      "sem_ids": 0
+    },
+    "2026-09-07": {
+      "braco": "control",
+      "w": [
+        0
+      ],
+      "modo": [
+        "active"
+      ],
+      "n": 672,
+      "mexeu": 0,
+      "pct": 0.0,
+      "sem_ids": 672
+    },
+    "2026-09-08": {
+      "braco": "treatment",
+      "w": [
+        2.0
+      ],
+      "modo": [
+        "active"
+      ],
+      "n": 672,
+      "mexeu": 20,
+      "pct": 2.98,
+      "sem_ids": 0
+    },
+    "2026-09-09": {
+      "braco": "treatment",
+      "w": [
+        2.0
+      ],
+      "modo": [
+        "active"
+      ],
+      "n": 672,
+      "mexeu": 19,
+      "pct": 2.83,
+      "sem_ids": 0
+    },
+    "2026-09-10": {
+      "braco": "control",
+      "w": [
+        0
+      ],
+      "modo": [
+        "active"
+      ],
+      "n": 140,
+      "mexeu": 0,
+      "pct": 0.0,
+      "sem_ids": 140,
+      "em_curso": true
+    }
+  },
+  "controle_positivo": {
+    "enunciado": "epoch de tratamento tem `mexeu` > 0; se der 0, a dose nao agiu e o nulo e' do instrumento",
+    "resultado": "PASSA em 6 de 6 epochs de tratamento servidos (2,83% a 5,65%)"
+  },
+  "controle_negativo": {
+    "enunciado_INVALIDO": "epoch de controle tem `mexeu` == 0",
+    "porque_invalido": "nos epochs de controle os campos ids_controle/ids_tratado NAO EXISTEM -- sem_ids == n em 09-03 (441), 09-07 (672) e 09-10 (140). `mexeu == 0` e' portanto indistinguivel de 'o campo nunca foi escrito', que e' a regra 9 do CLAUDE.md: predicado que exige o dado que falta nao cobre a falta do dado.",
+    "enunciado_VALIDO": "epoch de controle tem sem_ids == n, isto e', o dual-compute NAO CORRE. Isso e' verificavel e e' o que o desenho preve para w=0.",
+    "resultado": "PASSA em 3 de 3 epochs de controle servidos (441/441, 672/672, 140/140)",
+    "consequencia": "nao existe controle negativo INTRA-BRACO no log: o contrafactual so e' computado onde a dose age. Qualquer afirmacao de especificidade tem de vir de outra fonte, nunca de `mexeu == 0` no controle."
+  },
+  "ordenacao_por_dose": {
+    "w=7.5 (n=1)": 5.65,
+    "w=2.0 (n=4)": [
+      2.83,
+      2.98,
+      4.91,
+      5.21
+    ],
+    "w=4.0 misto (n=1)": 3.57,
+    "leitura": "o topo (5,65%) fica ACIMA do topo do braco w=2 (5,21%), mas com n=1 no topo e sobreposicao entre 2,83-5,21 e 5,65 nao ha dose-resposta a ler"
+  }
+}

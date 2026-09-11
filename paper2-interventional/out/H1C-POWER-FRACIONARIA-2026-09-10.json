@@ -1,0 +1,59 @@
+{
+  "gerado_por": "measurement/potencia-h1c.py",
+  "pergunta": "o N já registrado sustenta H1c como primária?",
+  "entradas": {
+    "p0": 0.0782,
+    "oportunidades_por_dia": 213.0,
+    "epochs": 234,
+    "icc": 0.098459
+  },
+  "oportunidades_por_braco_bruto": null,
+  "nota_bruto": "nulo quando os bracos diferem: nao existe 'por braco' unico. As duas contagens estao em bracos_desbalanceados. O campo ja carregou o valor do braco MENOR sob um nome que dizia 'por braco' -- mesma classe do `exposto_h`, corrigido 2026-09-10.",
+  "design_effect": 21.87,
+  "n_efetivo_por_braco": 84,
+  "bracos_desbalanceados": {
+    "epochs_tratamento": 10.9375,
+    "epochs_controle": 7.23375,
+    "oportunidades_tratamento": 2330,
+    "oportunidades_controle": 1541,
+    "n_efetivo_tratamento": 106.5,
+    "n_efetivo_controle": 70.4,
+    "criterio": "media harmonica dos n efetivos (2/n = 1/nt + 1/nc); a aritmetica sobrestima o poder. ⚠️ A harmonica tambem sobrestima contra o calculo de dois grupos desiguais em forma geral (~0,09 de z), logo e' o estimador GENEROSO com a hipotese a refutar -- um veredito negativo sob ela fica mais firme, nao menos, se refeito pela forma geral."
+  },
+  "detectavel_no_limite_p1_igual_zero": false,
+  "sensibilidade_do_veredito": {
+    "n_efetivo_critico_para_p1_zero": 95.26,
+    "n_efetivo_realizado": 84.8,
+    "fator_que_falta": 1.123,
+    "icc_critico": 0.087133,
+    "icc_usado": 0.098459,
+    "queda_de_icc_que_vira_o_veredito_pct": 11.5,
+    "porque_importa": "o ICC vem do PREREG e foi estimado para DENSIDADE por session-hour, nao para proporcao por oportunidade -- uma margem estreita num parametro estimado para outra grandeza nao sustenta afirmacao categorica"
+  },
+  "nota_saturacao": "rel satura em 1,0 por construcao (bissecao em [0,p0]); se detectavel_no_limite for false, NAO existe efeito detectavel -- nem a eliminacao total das falhas repetidas",
+  "p1_detectavel": 0.0,
+  "mde_relativo_h1c": 1.0,
+  "mde_registrado_h1": 0.3,
+  "cenarios": {
+    "todas as cobertas": {
+      "cobertura": 0.4,
+      "efeito_necessario_nas_cobertas": 2.5,
+      "possivel": false
+    },
+    "só as informativas": {
+      "cobertura": 0.025,
+      "efeito_necessario_nas_cobertas": 40.0,
+      "possivel": false
+    }
+  },
+  "comparacao_com_h1_incondicional": {
+    "fracao_de_briefs_alterada": 0.0314,
+    "efeito_necessario": 9.55,
+    "possivel": false
+  },
+  "aproximacoes": [
+    "ICC estimado para densidade por session-hour, não para proporção por oportunidade",
+    "p0 e oportunidades/dia do archive VIVO — o congelado não existe mais",
+    "is_error é proxy do veredito do painel a τ=S1"
+  ]
+}
