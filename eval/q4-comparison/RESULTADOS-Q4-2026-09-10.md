@@ -40,7 +40,7 @@ do recibo a marcar 2,03 s/doc e um ETA cego à mudança de regime.
 ## 2. Retenção por adapter — o denominador não é o mesmo nas quatro
 
 > 🔴 **A coluna `corrida` não é decoração.** As quatro medições vêm de **duas
-> populações**: nox-mem e mem0 são do **rc4** (2026-06-15), EverOS e Zep são da
+> populações**: nox-mem e mem0 são do **rc4** (2026-06-29), EverOS e Zep são da
 > corrida de **2026-09-10**. Juntá-las numa tabela sem nomear a corrida por
 > linha convida a ler o 6.822 do EverOS como número do rc4 — e foi o que a
 > minha primeira versão desta tabela fez. Comparar mecanismos entre corridas é
@@ -48,8 +48,8 @@ do recibo a marcar 2,03 s/doc e um ETA cego à mudança de regime.
 
 | coluna | corrida | retenção | mecanismo | como foi medida |
 |---|---|---|---|---|
-| nox-mem | **rc4**, 2026-06-15 | **6.822** | `INSERT OR IGNORE INTO eval_chunks(id,…)` | contagem na tabela |
-| mem0 | **rc4**, 2026-06-15 | **6.830** | sem dedupe (6.822 `chunk_id` distintos) | contagem no store |
+| nox-mem | **rc4**, 2026-06-29 | **6.822** | `INSERT OR IGNORE INTO eval_chunks(id,…)` | contagem na tabela |
+| mem0 | **rc4**, 2026-06-29 | **6.830** | sem dedupe (6.822 `chunk_id` distintos) | contagem no store |
 | **EverOS** | **2026-09-10** | **6.822** | `DuplicateDocumentError` no 2º write do id | `SELECT COUNT(*) FROM knowledge_documents` **após o sync final** |
 | **Zep** | **2026-09-10** | **6.830** | sem dedupe | `COUNT(*)` em `message` no Postgres (`-U zep -d zep`; 6.830 linhas e 6.830 em `message_embedding`) |
 
@@ -285,10 +285,17 @@ de qualquer conserto.
 
 | coluna | corrida | retenção | nDCG@10 | recibo |
 |---|---|---|---|---|
-| nox-mem | rc4 2026-06-15 | 6.822 | *(publicado, rc4)* | `output/rc4/nox_mem.json` |
-| mem0 | rc4 2026-06-15 | 6.830 | *(publicado, rc4)* | `output/rc4/mem0.json` |
+| nox-mem | rc4 2026-06-29 | 6.822 | *(publicado, rc4)* | `output/rc4/nox_mem.json` |
+| mem0 | rc4 2026-06-29 | 6.830 | *(publicado, rc4)* | `output/rc4/mem0.json` |
 | **Zep** | **2026-09-10** | 6.830 | **PENDENTE** | `out/zep-busca/zep.json` |
 | **EverOS** | **2026-09-10** | 6.822 | **0,6455** | `output-2026-09-10/evermind.json` |
+
+⚠️ **Errata 2026-09-10:** estas linhas diziam `rc4 2026-06-15` até agora. **15/06
+é a corrida canônica; o rc4 rodou em 29/06**, provado pelo `finished_at` dos
+próprios artefatos (`output/rc4/nox_mem.json` → `2026-06-29T13:58:58Z`,
+`mem0.json` → `2026-06-29T14:57:04Z`). Eu criei esta coluna hoje justamente para
+impedir que duas populações se misturassem, e rotulei a corrida com a data da
+outra — o rótulo errado no instrumento feito contra rótulos errados.
 
 ⚠️ A coluna `corrida` não é decoração: as duas primeiras linhas e as duas últimas
 são populações diferentes. Comparar **mecanismos** entre corridas é legítimo;
