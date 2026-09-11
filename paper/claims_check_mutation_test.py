@@ -185,12 +185,14 @@ CASOS = [
         "AUMENTOU",
     ),
     (
-        # Este caso existe porque o de cima NAO mordia: PR_BASELINE estava em 66
-        # contra 53 reais, e somar 1 cabia na folga. Um ratchet cujo baseline
-        # esta acima do valor medido admite a diferenca em silencio, e a
-        # bateria nao ve porque a mutacao e' menor que a folga.
+        # Este caso existe porque o de cima NAO mordia quando o baseline estava
+        # acima do valor medido (66 contra 53 reais): somar 1 cabia na folga.
+        # Um ratchet afrouxado admite a diferenca em silencio, e a bateria nao
+        # ve porque a mutacao e' menor que a folga. Com o baseline em 0
+        # (2026-09-11, todas as referencias a PR removidas do manuscrito),
+        # afrouxar passou a ser SUBIR o baseline, nao baixa-lo.
         "baseline do ratchet AFROUXADO acima do real",
-        SCRIPT, "PR_BASELINE = 40", "PR_BASELINE = 66",
+        SCRIPT, "PR_BASELINE = 0", "PR_BASELINE = 26",
         "FROUXO",
     ),
     (
