@@ -1,5 +1,58 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-10 (noite, 21h) — um COMPETIDOR bate o nox-mem; o Secret Scan era decorativo; guarda de contagem instalada
+
+Três PRs merged depois do bloco abaixo: **#526** (CI), **#528** (§6.3.3 + guarda), **#529** (correção de uma frase do #528).
+
+### 1. O EverOS foi medido e ganha de nós
+
+`everos==1.3.1`, **n = 2.482**, 0 erros, mesmo corpus e mesmo conjunto de queries do rc4.
+
+| | Overall | LoCoMo | LongMemEval | p50 |
+|---|---:|---:|---:|---:|
+| **EverOS 1.3.1** (10/09) | **0,6455** | **0,6585** | **0,5942** | 1.592 ms |
+| nox-mem (rc4, 29/06) | 0,5013 | 0,4952 | 0,5255 | 653 ms |
+| Mem0 (rc4, 29/06) | 0,4337 | 0,4407 | 0,4061 | — |
+
+Artefato: `eval/q4-comparison/output-2026-09-10/_aggregate.json`. Está no **§6.3.3** novo, com o confound declarado no mesmo parágrafo do número: o EverOS **exige** cross-encoder (`_require_search_providers()` aborta sem), o rc4 corre sem.
+
+⚠️ **A magnitude desse confound é DESCONHECIDA e o texto diz isso.** A única medição que temos é o §5.1.7 (−0,96 pp), com um **MiniLM de 22 M** contra um **Qwen3-Reranker de 4 B** — ~180×, outro benchmark, outro caminho de código. O #528 dizia que ela "aponta para ~1 ponto"; o #529 retirou, porque tratava a medição como estimativa. Fechar a pergunta exige acrescentar o estágio ao adapter e recorrer o corpus (§7.2) — **não é virar flag**, o estágio não existe no harness. Código novo + corrida paga ⇒ decisão do Toto.
+
+### 2. `contagem_sistemas_check` — a 16ª guarda, e por que precisou existir
+
+O manuscrito afirmava *"No retrieval quality number for EverOS appears in this revision"* **depois** de o EverOS ter rodado. A contagem "quantos competidores produziram número" vivia em **13** lugares, em dois escopos: quatro presos à corrida canônica de 2026-06-15 (onde 2/3 continua verdade) e nove globais.
+
+Cinco pernas, sobre `paper/q4-corridas-census.json`:
+
+| perna | exige |
+|---|---|
+| L1 | sistema declarado com artefato → artefato existe e traz aquele ndcg |
+| L2 | **todo** artefato em disco com `system`+`ndcg` está declarado |
+| L3 | cada sítio declara o número que o **escopo** dele exige |
+| L4 | o template com a contagem derivada ocorre exatamente 1× |
+| L5 | nenhuma frase de contagem fica fora do censo |
+
+**Três defeitos meus, corrigidos no caminho** — é o que dá confiança nas pernas: (1) montei o censo de uma **lista à mão**, 8 sítios quando eram 13; (2) a varredura da L5 só olhava **para a frente** e perdeu uma frase cujo termo de desfecho estava atrás; (3) a L3 casava "algum número da âncora bate" e passava pelo `6.3.1` do próprio título — **por sorte**.
+
+### 3. CI: o Secret Scan reportava SUCCESS por cima de `exit 1`
+
+Medido no run do #525: `failed to scan Git repository` / `scanned ~0 bytes` / `Unexpected exit code [1]` → conclusão **SUCCESS**, porque o job tinha `continue-on-error: true`. A causa do erro era **não ser required**: merge às 21:51:31Z, run criado 21:51:37Z, branch já apagado, sem ref para resolver.
+
+#526 tirou o flag (só do gitleaks; `npm-audit` e `trivy` seguem advisory) e a `main` **passou a ter branch protection**, que não tinha nenhuma: `Secret Scan (gitleaks)` required, `enforce_admins: false` (preserva commit direto na main), sem review exigida, sem force-push. Depois disso dois PRs varreram **17,02 MB** e **34,3 KB** reais.
+
+### ▶️ PRÓXIMA AÇÃO
+
+1. **Zep — medido 21:11: `2.150/2482`, zero falhas, taxa de erro 0,0033% sem tendência por janela; previsão ~21:43.** Quando o artefato aterrar no repo com `overall.ndcg@k` dentro, a **L2 acusa sozinha** e as nove contagens globais vão de 2 para 1. Para fechar: em `paper/q4-corridas-census.json`, `"nome": "Zep"` → `"produziu_numero": true` + `artefato` + `ndcg10_no_artefato`; a mensagem da guarda diz o que falta.
+
+   ⚠️ **A L2 é portão, não vigia** — ela corre no CI de um PR, não por tempo. Isso é suficiente **porque o artefato só chega na `main` por PR**, logo o portão está sobre o único caminho que existe; e se nenhum PR abrir, não há contagem velha para proteger. Deliberadamente **não** há alarme por tempo: alarme cronicamente possível ensina a ignorar.
+
+   ⚠️ **O buraco que isso deixa:** enquanto o artefato estiver só no host da corrida do Q4 e não no repositório, **nenhum CI sabe que ele existe** — a L2 varre `eval/q4-comparison/**`, não uma VPS. O comando de recuperação está em `eval/q4-comparison/RESULTADOS-Q4-2026-09-10.md` §7. O endereço do host **não está no git** (repo público): vem de `$NOX_VPS_HOST`.
+2. **#497 está `DIRTY`** e precisa de "Update branch"; leva 27 commits de eval que não são sobre a janela do Paper 2.
+3. **Densidade com folga de 0,65 obra** (2,084/mil, piso 2,06): prosa nova sem referência nova reprova o CI.
+4. **Não ler o `paper/` da árvore compartilhada** `~/Claude/Projetos/memoria-nox` — está num branch **31 commits atrás** (11 guardas contra 16). Clonar `origin/main` em `/tmp` para qualquer leitura que vire conclusão.
+5. ⚠️ **Sessão `git difftool -y -x vimdiff HEAD` (PID 56102) aberta desde 09/09 12:27** sobre `DEVIATIONS-FOR-PAPER.md`. O buffer **não tem edição** (swap parado em 16.384 B, mtime = criação), mas o arquivo em disco foi reescrito em 10/09 10:51 — **um `:w!` ali apaga 22 h de conteúdo mais novo**. `:qa!` ou `:e!`, nunca `:w!`.
+6. **Rotacionar a chave OpenAI** colada no chat mais cedo, terminadas as corridas.
+
 ## 2026-09-10 (noite) — a densidade de referências fechou; o tamanho não, e é decisão separada
 
 Cinco PRs no Paper 1 (#519-#522 e o #520), todos merged. **A dimensão de densidade
