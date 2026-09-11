@@ -5,9 +5,11 @@
 > sessão que redige. A separação existe para que um corte futuro no texto não
 > leve a medição com ele.
 >
-> **Estado:** ingestões fechadas nas quatro colunas; buscas do Zep e do EverOS
-> em curso em 2026-09-10. As células de nDCG estão marcadas `PENDENTE` e **não
-> devem ser preenchidas por estimativa**.
+> **Estado (2026-09-11T00:43Z):** as quatro colunas fechadas. EverOS **0,6455**
+> e Zep **0,4546**, ambos n=2.482 com zero erros de query; nenhuma célula ficou
+> preenchida por estimativa. O §7.0, escrito como recibo de recuperação enquanto
+> a busca do Zep corria, fica onde está — o procedimento que ele descreve não
+> deixa de valer por esta corrida ter terminado.
 
 ## 1. Corpus e queries — idênticos nas quatro colunas
 
@@ -261,6 +263,14 @@ sessões do conjunto de candidatos daquela query; nenhuma query passou do limiar
 de aborto (>5 de 510). O efeito no nDCG é, no pior caso, a ausência de um
 candidato entre 510 em 17 queries — declarado, não corrigido.
 
+⚠️ **Este denominador é de uma JANELA, não da corrida.** 522.750 = **1.025** × 510:
+a contagem foi feita com a busca ainda a rodar, e **não foi recontada no fecho**
+(2.482 queries ⇒ 1.265.820 varreduras). Escrever "17 falhas na corrida" seria
+atribuir um número certo à população errada. O que se afirma é: *até a query
+1.025, 17 falhas, nenhuma de retrieval*. O lastro para recontar é o log da sessão
+`zep-busca` no `$NOX_Q4_HOST`; enquanto ele não for lido, o total do fecho é
+**desconhecido**, e desconhecido não é zero.
+
 ## 6. Piso de integridade da varredura — duas condições, não uma
 
 | piso | condição | a falha que cobre |
@@ -281,13 +291,13 @@ denominador, 200 lê-se como o tamanho do corpus.
 (`output/rc4/{nox_mem,mem0}.json`, `output/rc4-ablation/`). Conferido **antes**
 de qualquer conserto.
 
-## 7. nDCG@10 — EverOS FECHADO, Zep pendente
+## 7. nDCG@10 — as quatro colunas FECHADAS
 
 | coluna | corrida | retenção | nDCG@10 | recibo |
 |---|---|---|---|---|
 | nox-mem | rc4 2026-06-29 | 6.822 | *(publicado, rc4)* | `output/rc4/nox_mem.json` |
 | mem0 | rc4 2026-06-29 | 6.830 | *(publicado, rc4)* | `output/rc4/mem0.json` |
-| **Zep** | **2026-09-10** | 6.830 | **PENDENTE** | `out/zep-busca/zep.json` |
+| **Zep** | **2026-09-10** | 6.830 | **0,4546** | `output-2026-09-10/zep.json` |
 | **EverOS** | **2026-09-10** | 6.822 | **0,6455** | `output-2026-09-10/evermind.json` |
 
 ⚠️ **Errata 2026-09-10:** estas linhas diziam `rc4 2026-06-15` até agora. **15/06
@@ -407,6 +417,74 @@ os dois casos.
 ⚠️ **2.470 textos** de query distintos contra 2.482 ids: 12 queries partilham
 enunciado com outra. É propriedade do conjunto de queries, análoga aos 8 ids
 ambíguos do corpus, e não afeta contagem nem denominador.
+
+### 7.3 Zep — fechado 2026-09-11T00:43:33Z
+
+**`meta` do artefato, verbatim:**
+
+```
+system = zep                            n_queries = 2482
+version = zep-python==1.5.0 +           limite = None
+          ghcr.io/getzep/zep:0.27.2     queries_file_linhas = 2482
+          (OSS, Docker)                 queries_file = cache/queries-rc4-all.jsonl
+k = 10                                  datasets = ['locomo', 'longmemeval']
+n_errors = 0                            harness_version = 1.0
+started_at = 2026-09-10T20:30:57Z
+finished_at = 2026-09-11T00:43:33Z      (4 h 12 min 36 s)
+```
+
+| métrica | valor | contra EverOS | contra nox-mem rc4 |
+|---|---|---|---|
+| **nDCG@10** | **0,4546** | −0,1909 | −0,0467 |
+| recall@10 | 0,6108 | −0,1521 | — |
+| MRR | 0,4279 | −0,2124 | — |
+| locomo (n=1982) | nDCG 0,4793 | −0,1792 | −0,0159 |
+| **longmemeval (n=500)** | **nDCG 0,3567** | −0,2375 | **−0,1688** |
+| latência p50 / p95 / p99 | **6.002** / 8.819 / 11.846 ms | p50 3,8× | p50 9,2× |
+
+Mesmo `aggregate.py` committado, mesma entrada (`cache/queries-rc4-all.jsonl`),
+mesmo `k`. **Ordenação final das quatro colunas:** EverOS 0,6455 > nox-mem 0,5013
+> Zep 0,4546 > mem0 0,4337.
+
+O 0,3567 de longmemeval é o **menor número que qualquer coluna produz em qualquer
+dataset** — e o vão interno do próprio Zep (locomo − longmemeval = 0,123) é o
+maior da tabela. Não atribuo causa: o que está medido é o par de números.
+
+**Por categoria, do artefato:**
+
+| categoria | n | nDCG@10 |
+|---|---:|---:|
+| open-domain | 841 | 0,5783 |
+| multi-hop | 454 | 0,5230 |
+| single-hop | 438 | 0,3700 |
+| adversarial | 524 | 0,3595 |
+| **temporal** | 225 | **0,2410** |
+
+⚠️ O pior estrato é o **temporal** — na arquitetura que se apresenta como *temporal
+knowledge graph*. Registro a coincidência e **não** a converto em explicação: as
+queries temporais do LoCoMo já foram medidas aqui como 87,5% sem data explícita no
+enunciado, o que é um confound da própria categoria, não do sistema.
+
+**Quatro verificações de integridade, todas passadas:**
+
+| # | verificação | resultado |
+|---|---|---|
+| 1 | `n_queries` / `limite` / `queries_file_linhas` / `n_errors` | 2482 / `None` / 2482 / 0 |
+| 2 | entradas e **`question_id` distintos** | 2482 e **2482**, 0 `None` |
+| 3 | por dataset | locomo **1982** + longmemeval **500** |
+| 4 | com gold · com resultado · `len(results)` | 2482 · 2482 · **10 em todas** |
+| — | campo `error` não-nulo | **0** |
+
+Os **2.470 textos distintos** contra 2.482 ids aparecem aqui também, com o mesmo
+valor do EverOS — o que era de esperar, porque é propriedade do arquivo de queries
+e não da corrida.
+
+⚠️ **`n_errors: 0` é de query, e as 17 falhas de sessão do §5.5 continuam onde
+estão.** Nenhuma delas é falha de retrieval do Zep (13 timeout do nosso cliente, 2
+`Bad file descriptor` do nosso pool, 2 HTTP 500 da OpenAI em `/v1/embeddings`), e
+nenhuma query cruzou o limiar de aborto — cada uma tirou 1 das 510 sessões do
+conjunto de candidatos daquela query. Declaradas, não corrigidas: as duas
+contagens medem coisas diferentes e as duas ficam à vista.
 
 ### 7.2 🔴 Confound de pipeline — e a sua magnitude NÃO é medida
 

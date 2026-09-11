@@ -35,10 +35,13 @@
       "alias": [
         "zep"
       ],
-      "produziu_numero": false,
-      "corridas": [],
-      "artefato": null,
-      "nota_artefato": "eval/q4-comparison/output/zep.json existe (smoke 2026-05-25, 20 queries) mas NÃO carrega ndcg — é o corpo cru das queries. Por isso não conta como número e a L2 não o vê. Corrida de 2026-09-10 em curso; quando fechar com número, a L2 acusa este registro."
+      "produziu_numero": true,
+      "corridas": [
+        "2026-09-10"
+      ],
+      "artefato": "eval/q4-comparison/output-2026-09-10/_aggregate.json",
+      "nota_artefato": "zep-python==1.5.0 + ghcr.io/getzep/zep:0.27.2 OSS, n=2482, 0 erros, 4 h 13 min. NAO e' a corrida canonica de 2026-06-15 — nao entra nas contagens de escopo 'canonica'. eval/q4-comparison/output/zep.json continua sendo o smoke de 2026-05-25 (20 queries, sem ndcg) e e' citado pelo manuscrito em §6.3.1 (bullet do Zep) e em §6.3.4 (nota do artefato); nao confundir. Referencia por SECAO, nao por numero de linha: a linha muda a cada edicao e o ponteiro envelhece em silencio.",
+      "ndcg10_no_artefato": 0.4546332111329803
     },
     {
       "nome": "Letta",
@@ -87,7 +90,7 @@
     },
     {
       "id": "abstract-nao",
-      "template": "and {nao} were documented deployment non-runs",
+      "template": "and {nao} was a documented deployment non-run",
       "marcadores": {
         "nao": [
           "global",
@@ -120,7 +123,7 @@
     },
     {
       "id": "titulo-631",
-      "template": "#### 6.3.1 Documented gaps — {nao} systems that did not run",
+      "template": "#### 6.3.1 Documented gaps — {nao} system that did not run",
       "marcadores": {
         "nao": [
           "global",
@@ -142,7 +145,7 @@
     },
     {
       "id": "penalidade-1286",
-      "template": "the dimension on which these {nao} systems could not produce a number",
+      "template": "the dimension on which this {nao} system could not produce a number",
       "marcadores": {
         "nao": [
           "global",
@@ -153,7 +156,7 @@
     },
     {
       "id": "bound-68a",
-      "template": "than these {nao} systems",
+      "template": "than this {nao} system",
       "marcadores": {
         "nao": [
           "global",
@@ -216,7 +219,7 @@
     },
     {
       "id": "bound-final",
-      "template": "a number in every cell of §6.3 and {nao} competitors do not",
+      "template": "a number in every cell of §6.3 and {nao} competitor does not",
       "marcadores": {
         "nao": [
           "global",
@@ -237,5 +240,6 @@
       "razao": "conta SISTEMAS mas o desfecho é retenção de chunks (6.822 em nox-mem e EverOS), não 'produziu número'. A varredura casa por vizinhança de palavras; esta é falso positivo legítimo."
     }
   ],
-  "_perna_completude": "L5 varre o manuscrito por frases de contagem sobre sistemas e exige que cada achado caia dentro do molde de algum sítio, ou esteja em excluidos_da_completude com razão. Existe porque a primeira versão deste censo foi montada de uma LISTA À MÃO e perdeu 4 sítios; lista à mão é amostra vendida como censo. Na primeira corrida a L5 achou o 12º (penalidade-1286)."
+  "_perna_completude": "L5 varre o manuscrito por frases de contagem sobre sistemas e exige que cada achado caia dentro do molde de algum sítio, ou esteja em excluidos_da_completude com razão. Existe porque a primeira versão deste censo foi montada de uma LISTA À MÃO e perdeu 4 sítios; lista à mão é amostra vendida como censo. Na primeira corrida a L5 achou o 12º (penalidade-1286).",
+  "nota_concordancia": "Os templates de escopo global estao no SINGULAR porque a contagem chegou a 1 (so Letta). Se ela voltar a ser plural, a L4 falha com a mensagem 'o molde da frase nao ocorre' — e o conserto inclui repluralizar template e frase juntos."
 }

@@ -60,7 +60,9 @@
   "treemem",
   "webcoach",
   "whennottotrust",
-  "zep"
+  "zep",
+    "bertrank",
+    "qwen3rerank"
  ],
  "evidencia": {
   "memos": "convencao de notacao — remete a [^longhorizon], nao e obra propria",
