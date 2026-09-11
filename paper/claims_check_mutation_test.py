@@ -190,7 +190,7 @@ CASOS = [
         # esta acima do valor medido admite a diferenca em silencio, e a
         # bateria nao ve porque a mutacao e' menor que a folga.
         "baseline do ratchet AFROUXADO acima do real",
-        SCRIPT, "PR_BASELINE = 53", "PR_BASELINE = 66",
+        SCRIPT, "PR_BASELINE = 40", "PR_BASELINE = 66",
         "FROUXO",
     ),
     (
@@ -402,6 +402,18 @@ CASOS = [
         '"zep"\n      ],\n      "produziu_numero": true',
         '"zep"\n      ],\n      "produziu_numero": false',
         "abs-produziram",
+    ),
+    (
+        # A perna de unicidade. A mutacao faz DUAS footnotes ja classificadas como
+        # `obra` apontarem para o mesmo arXiv id — que e' exatamente o estado em que
+        # a densidade publicada (2,078) era na verdade 1,937. Mutar por id, e nao
+        # acrescentando footnote nova, e' deliberado: footnote nova cairia primeiro
+        # no `censo_bibitem_check` e a morte seria por outro motivo.
+        "duas obras do censo apontando para o mesmo arXiv id",
+        PAPER,
+        "*MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers*, NeurIPS 2020. arXiv:2002.10957.",
+        "*MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers*, NeurIPS 2020. arXiv:1901.04085.",
+        "e' UMA obra contada",
     ),
 ]
 

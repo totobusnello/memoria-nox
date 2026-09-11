@@ -127,7 +127,10 @@ BIB_DIVIDA: dict[str, str] = {
 # #494/#507, e um ratchet cujo baseline esta ACIMA do real nao e ratchet — dava
 # folga para 13 evidencias nao-arquivaveis novas em silencio, e a mutacao da
 # bateria (que soma 1) cabia na folga. Preso agora nos DOIS sentidos.
-PR_BASELINE = 53
+# 2026-09-11: 40. Os 13 que sairam foram com §5.1.4, §5.1.8, §5.1.9, §5.3.3,
+# §5.5.2 e §5.5.3 para o suplemento; o ratchet acusou a folga duas vezes no
+# mesmo trabalho, que e' o comportamento que ele existe para ter.
+PR_BASELINE = 40
 
 # Tabelas de comparação externa que ainda usam `PR #NNN` como fonte. Dívida
 # HERDADA e declarada, não isenção: qualquer sítio novo falha. Resolver com
@@ -1283,6 +1286,48 @@ def abstract_espelha_check(root: Path) -> list[str]:
     return fails
 
 
+
+_LOCALIZADOR = re.compile(r"arXiv:(\d{4}\.\d{4,5})|doi:([0-9./A-Za-z-]+)", re.I)
+
+
+def obra_unica_check(root: Path) -> list[str]:
+    """Duas footnotes com o MESMO localizador sao uma obra, nao duas.
+
+    Instalado em 2026-09-11 depois de a densidade publicada (2,078/mil, celebrada
+    como "fechou") ser medida errada: o numerador contava FOOTNOTES classificadas
+    como `obra`, e quatro obras estavam citadas duas vezes com chaves diferentes
+    (`bertrank`/`nogueira`, `qwen3rerank`/`qwen3embed`, `evermemos`/`everos`,
+    `evermembench`/`longhorizon`). 59 declaradas eram 55, e a densidade real era
+    1,937 — abaixo do piso. Duas das quatro entraram no mesmo dia, por eu ter
+    verificado a fonte EXTERNA (a obra existe? os autores conferem?) e nunca a
+    INTERNA (ela ja esta citada aqui?).
+
+    `censo_bibitem_check` exige que toda footnote esteja classificada; presenca no
+    censo nao diz nada sobre unicidade da obra por tras dela.
+    """
+    md = (root / PAPER).read_text(encoding="utf-8")
+    cam = root / "bibitem-census.json"
+    if not cam.exists():
+        return [f"{PAPER}: bibitem-census.json ausente — a perna de unicidade nao pode correr"]
+    obras = set(json.loads(cam.read_text(encoding="utf-8"))["obra"])
+    defs = dict(re.findall(r"^\[\^([A-Za-z0-9_-]+)\]:\s*(.+)$", md, re.M))
+    por_loc: dict[str, list[str]] = {}
+    for chave, corpo in defs.items():
+        if chave not in obras:
+            continue
+        for m in _LOCALIZADOR.finditer(corpo):
+            loc = (m.group(1) or m.group(2)).lower().rstrip(".")
+            por_loc.setdefault(loc, []).append(chave)
+    fails = []
+    for loc, chaves in sorted(por_loc.items()):
+        if len(chaves) > 1:
+            fails.append(
+                f"{PAPER}: o localizador `{loc}` aparece em {len(chaves)} footnotes de "
+                f"classe `obra` ({sorted(chaves)}) — e' UMA obra contada {len(chaves)}x, "
+                f"e a densidade sai inflada")
+    return fails
+
+
 GUARDAS = [
     fence_check,
     universal_check,
@@ -1302,6 +1347,7 @@ GUARDAS = [
     densidade_check,
     contagem_sistemas_check,
     abstract_espelha_check,
+    obra_unica_check,
 ]
 
 
