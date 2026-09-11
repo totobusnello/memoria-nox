@@ -27,6 +27,8 @@ USO
 """
 from __future__ import annotations
 
+import json
+import re
 import shutil
 import subprocess
 import sys
@@ -42,6 +44,49 @@ MANIFESTOS = ("authors-manifest.json", "bibitem-census.json", "q4-corridas-censu
 # acusa "ausente" em TODOS os casos e o baseline fica vermelho por falta de
 # fixture, nao por defeito — a suite acusou isso na primeira corrida.
 ABSTRACT = "abstract.md"
+
+
+# O tamanho desta mutacao nao pode ser um literal. Ela ja morreu uma vez
+# (2026-09-11): com a densidade em 2,08 bastavam ~200 palavras para furar o
+# piso e 80 repeticoes sobravam; depois do corte para 2,47 passaram a faltar
+# mais de 4.000 e a mutacao deixou de morder -- sem falhar, so parando de
+# verificar. Derivar do estado fecha a classe: quantas palavras faltam HOJE
+# para a densidade cair abaixo do piso, mais margem.
+_FRASE_NEUTRA = (
+    "The pipeline processes each file as it changes, and the resulting record "
+    "is stored for later reading by whichever component asks for it next. "
+)
+
+
+def _repeticoes_para_furar_o_piso() -> int:
+    """Repeticoes de `_FRASE_NEUTRA` que levam a densidade abaixo de DENSIDADE_PISO.
+
+    Usa o MESMO tokenizador do guarda (`claims_check._densidade_check`): palavra
+    e' todo token com ao menos um alfanumerico.
+    """
+    raiz = Path(__file__).resolve().parent
+    md = (raiz / PAPER).read_text(encoding="utf-8")
+    censo = json.loads((raiz / "bibitem-census.json").read_text(encoding="utf-8"))
+    piso = float(
+        re.search(r"^DENSIDADE_PISO\s*=\s*([0-9.]+)", (raiz / SCRIPT).read_text(encoding="utf-8"), re.M).group(1)
+    )
+    def conta(texto: str) -> int:
+        return sum(1 for w in texto.split() if any(c.isalnum() for c in w))
+    obras = len(censo["obra"])
+    atual = conta(md)
+    teto_de_palavras = obras / piso * 1000.0          # acima disto a densidade fura o piso
+    faltam = teto_de_palavras - atual
+    por_repeticao = conta(_FRASE_NEUTRA)
+    reps = int(faltam / por_repeticao) + 12           # margem
+    if reps <= 0:
+        raise SystemExit(
+            f"mutacao de densidade impossivel: o manuscrito ({atual} palavras) ja esta "
+            f"acima do teto de {teto_de_palavras:.0f} com {obras} obras"
+        )
+    return reps
+
+
+_REPS_PISO = _repeticoes_para_furar_o_piso()
 
 # `contagem_sistemas_check` le artefatos FORA de paper/. Sem copia-los, a guarda
 # acusa "eval/q4-comparison nao encontrado" em TODA mutacao — e a bateria inteira
@@ -185,12 +230,14 @@ CASOS = [
         "AUMENTOU",
     ),
     (
-        # Este caso existe porque o de cima NAO mordia: PR_BASELINE estava em 66
-        # contra 53 reais, e somar 1 cabia na folga. Um ratchet cujo baseline
-        # esta acima do valor medido admite a diferenca em silencio, e a
-        # bateria nao ve porque a mutacao e' menor que a folga.
+        # Este caso existe porque o de cima NAO mordia quando o baseline estava
+        # acima do valor medido (66 contra 53 reais): somar 1 cabia na folga.
+        # Um ratchet afrouxado admite a diferenca em silencio, e a bateria nao
+        # ve porque a mutacao e' menor que a folga. Com o baseline em 0
+        # (2026-09-11, todas as referencias a PR removidas do manuscrito),
+        # afrouxar passou a ser SUBIR o baseline, nao baixa-lo.
         "baseline do ratchet AFROUXADO acima do real",
-        SCRIPT, "PR_BASELINE = 40", "PR_BASELINE = 66",
+        SCRIPT, "PR_BASELINE = 0", "PR_BASELINE = 26",
         "FROUXO",
     ),
     (
@@ -296,7 +343,7 @@ CASOS = [
         # populacao nem contagem de corpus.
         "prosa nova sem referencia derruba a densidade abaixo do piso",
         PAPER, None,
-        "\n" + 'The pipeline processes each file as it changes, and the resulting record is stored for later reading by whichever component asks for it next. ' * 80 + "\n",
+        "\n" + 'The pipeline processes each file as it changes, and the resulting record is stored for later reading by whichever component asks for it next. ' * _REPS_PISO + "\n",
         "abaixo do piso",
     ),
     (
@@ -414,6 +461,42 @@ CASOS = [
         "*MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers*, NeurIPS 2020. arXiv:2002.10957.",
         "*MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers*, NeurIPS 2020. arXiv:1901.04085.",
         "e' UMA obra contada",
+    ),
+    (
+        # Guarda 20 — referencia pendente. O caso REAL que a instalou: 8 numeros
+        # citados 28x sem secao, entre eles §5.1.10, que o ABSTRACT cita para
+        # sustentar o headline de 63,28%.
+        "referencia a secao que nao existe",
+        PAPER, None,
+        "\nThe corpus-cap effect is characterised in §9.7.\n",
+        "e' citado 1x e NAO tem cabecalho",
+    ),
+    (
+        # ⚠️ A perna que importa mais: se o extrator de cabecalhos parar de ler,
+        # "todas as referencias resolvem" fica indistinguivel de "nao consegui ler
+        # os cabecalhos". Quebrando o padrao de cabecalho NO GUARDA, a guarda tem
+        # de acusar a propria cegueira em vez de passar calada.
+        "extrator de cabecalhos cego (perna de completude)",
+        SCRIPT,
+        '_SECAO_NO_CABECALHO = re.compile(r"(?m)^#{2,6}\\s+(\\d+(?:\\.\\d+)*)")',
+        '_SECAO_NO_CABECALHO = re.compile(r"(?m)^#{9,9}\\s+(\\d+(?:\\.\\d+)*)")',
+        "seria indistinguivel de",
+    ),
+    (
+        # Guarda 21 — o caso real: a nota sobre o PROPRIO corte entrou de carona
+        # com a tabela restaurada, e le-se como prosa plausivel no lugar errado.
+        "voz de suplemento no manuscrito",
+        PAPER, None,
+        "\nRelocated from §1.4 of the main paper during the length pass.\n",
+        "voz de suplemento no manuscrito",
+    ),
+    (
+        # A segunda perna: cabecalho de nivel 1 vindo de outro documento. No
+        # corpo existe exatamente um `# `, o titulo.
+        "cabecalho de nivel 1 estranho ao manuscrito",
+        PAPER, None,
+        "\n# Moved 2026-09-11 — length pass\n",
+        "cabecalhos de nivel 1",
     ),
 ]
 

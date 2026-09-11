@@ -130,15 +130,17 @@ BIB_DIVIDA: dict[str, str] = {
 # 2026-09-11: 40. Os 13 que sairam foram com §5.1.4, §5.1.8, §5.1.9, §5.3.3,
 # §5.5.2 e §5.5.3 para o suplemento; o ratchet acusou a folga duas vezes no
 # mesmo trabalho, que e' o comportamento que ele existe para ter.
-PR_BASELINE = 40
+PR_BASELINE = 0
 
 # Tabelas de comparação externa que ainda usam `PR #NNN` como fonte. Dívida
 # HERDADA e declarada, não isenção: qualquer sítio novo falha. Resolver com
 # artefato citável antes de submissão a journal.
-PR_EM_TABELA_DIVIDA = {
-    "Above Zep 50.40% / LangMem 50.21%":
-        "§5.3.2 LoCoMo F1 push — trocar (PR #404) por artefato de audit",
-}
+# Dívida ZERADA em 2026-09-11: as 64 referências a PR do próprio repositório
+# saíram do manuscrito na correção de forma para a apelação no arXiv (cláusula
+# "Scholarly Standards", conformidade *in form*). O ratchet abaixo está em 0 e
+# esta lista fica vazia de propósito — reintroduzir uma referência a PR agora
+# falha no ratchet, que é o comportamento desejado.
+PR_EM_TABELA_DIVIDA: dict[str, str] = {}
 
 SISTEMAS_EXTERNOS = re.compile(
     r"Beam Retrieval|FE2H|EX\(SA\)|IRCoT|DPR|FiD|MemOS|Mem0|Zep|LangMem", re.I
@@ -169,6 +171,9 @@ SUPERLATIVO_PERMITIDO = {
     "reader SOTA numbers are published": (
         "§5.2 metodologia — descreve que existe SOTA publicado de terceiros, "
         "não alega o nosso", 1),
+    # Reinstalada em 2026-09-11: a isenção saiu quando a tabela do §5.4 foi ao
+    # suplemento e voltou quando a tabela voltou ao corpo para o TMLR. O sítio é
+    # o CABEÇALHO de uma coluna — nomeia a coluna, não afirma nada sobre nós.
     "Published SOTA (split noted)": (
         "§5.4 cabeçalho de tabela — nomeia a coluna, não afirma nada", 1),
 }
@@ -1327,6 +1332,116 @@ def obra_unica_check(root: Path) -> list[str]:
                 f"e a densidade sai inflada")
     return fails
 
+_SECAO_NO_CABECALHO = re.compile(r"(?m)^#{2,6}\s+(\d+(?:\.\d+)*)")
+_SECAO_FAIXA = re.compile(r"(?m)^#{2,6}\s+(\d+(?:\.\d+)*)\s*[\u2013\u2014-]\s*(\d+(?:\.\d+)*)")
+_SECAO_CITADA = re.compile(r"\u00a7\s?(\d+(?:\.\d+)*)")
+
+
+def secao_citada_check(root: Path) -> list[str]:
+    """Toda referencia `§X.Y` tem de resolver num cabecalho deste documento.
+
+    Instalada em 2026-09-11 depois de a varredura achar **8 numeros citados 28
+    vezes sem secao nenhuma** — e o pior deles era `§5.1.10`, citado 8x,
+    inclusive pelo **abstract**, para sustentar o headline de 63,28%.
+
+    Duas origens distintas, que esta guarda nao distingue de proposito (as duas
+    sao o mesmo defeito para quem le):
+
+      (a) `§3.4.1`–`§3.4.3` nunca existiram: o §3.4 jamais foi subdividido, e as
+          citacoes foram escritas na granularidade que o autor tinha na cabeca;
+      (b) `§5.1.7`, `§5.1.9`, `§5.1.10`, `§5.5.8`, `§5.8.6` existiam e foram ao
+          suplemento num corte de tamanho — a secao saiu, a referencia ficou.
+
+    A classe (b) e pior do que parece sob **double blind**: o ponteiro para
+    `paper/publication/supplement-*.md` e' inalcancavel para o revisor, logo
+    "esta no suplemento" equivale a "nao esta".
+
+    ⚠️ Perna de completude antes de qualquer veredito: se o extrator de
+    cabecalhos devolver pouca coisa, "tudo resolve" e' indistinguivel de "nao
+    consegui ler os cabecalhos". A guarda aborta nesse caso em vez de passar.
+
+    Nota de escopo: referencias `§S5.5.4` (prefixo S) apontam para FORA do
+    documento e nao entram aqui; enquanto existirem, a evidencia que elas
+    guardam nao esta no PDF.
+    """
+    md = (root / PAPER).read_text(encoding="utf-8")
+
+    existe: set[str] = set(_SECAO_NO_CABECALHO.findall(md))
+    for a, b in _SECAO_FAIXA.findall(md):
+        existe.update((a, b))
+
+    # perna de completude: este manuscrito tem dezenas de secoes numeradas
+    if len(existe) < 20:
+        return [f"{PAPER}: o extrator achou so {len(existe)} cabecalhos numerados — "
+                f"'todas as referencias resolvem' seria indistinguivel de "
+                f"'nao consegui ler os cabecalhos'"]
+
+    citadas: dict[str, int] = {}
+    for m in _SECAO_CITADA.finditer(md):
+        citadas[m.group(1)] = citadas.get(m.group(1), 0) + 1
+    if not citadas:
+        return [f"{PAPER}: nenhuma referencia § encontrada — o manuscrito tem "
+                f"centenas; o padrao de citacao quebrou"]
+
+    fails = []
+    for num in sorted(citadas, key=lambda t: [int(x) for x in t.split(".")]):
+        if num not in existe:
+            fails.append(
+                f"{PAPER}: §{num} e' citado {citadas[num]}x e NAO tem cabecalho — "
+                f"referencia pendente (secao cortada, ou granularidade que nunca existiu)")
+    return fails
+
+# Frases que so fazem sentido num SUPLEMENTO a falar do artigo, ou num registo
+# de mudanca. Se aparecem no manuscrito, e' porque texto de outro documento
+# entrou de carona — que e' exatamente o que um passe de restauracao faz.
+VOZ_DE_SUPLEMENTO = (
+    "Relocated from",
+    "Moved verbatim",
+    "the main paper",
+    "length pass",
+    "arXiv appeal",
+    "moved out of the main",
+    "The blocks below",
+)
+
+
+def voz_de_suplemento_check(root: Path) -> list[str]:
+    """O manuscrito nao fala de si na terceira pessoa, nem do proprio corte.
+
+    Instalada em 2026-09-11, no mesmo passe que a instalou como necessaria: ao
+    trazer de volta ao corpo os blocos que tinham ido ao suplemento, quatro
+    pedacos entraram de carona, porque o recorte para no proximo `## ` e o
+    suplemento tem cabecalho de nivel 1 no meio:
+
+      - a nota "Relocated from §1.4 of the main paper during the form and length
+        pass for the arXiv appeal" (74 palavras);
+      - a frase dos seis gaps, repetida (25);
+      - o cabecalho `# Moved 2026-09-11 — §5–§7 length pass for the arXiv appeal`
+        e a sua explicacao do criterio do corte (58);
+      - os stubs de uma linha de §5.1.8/§5.1.9 que o suplemento guardava como
+        registo, duplicando as secoes restauradas (37).
+
+    Nenhum deles e' detetavel por contagem de palavras nem por referencia
+    pendente: cada um le-se como prosa plausivel no lugar errado. As duas pernas
+    sao a lista de frases e o cabecalho de nivel 1 — no corpo existe exatamente
+    um `# `, o titulo.
+    """
+    md = (root / PAPER).read_text(encoding="utf-8")
+    fails = []
+    for linha_n, linha in _linhas_de_prosa(md):
+        for frase in VOZ_DE_SUPLEMENTO:
+            if frase in linha:
+                fails.append(
+                    f"{PAPER}:{linha_n}: voz de suplemento no manuscrito — "
+                    f"`{frase}` em `{linha.strip()[:80]}`")
+    h1 = [(n, l) for n, l in _linhas_de_prosa(md) if re.match(r"^# [^#]", l)]
+    if len(h1) != 1:
+        fails.append(
+            f"{PAPER}: ha {len(h1)} cabecalhos de nivel 1 — o manuscrito tem "
+            f"exatamente um, o titulo; os outros vieram de outro documento "
+            f"({[n for n, _ in h1]})")
+    return fails
+
 
 GUARDAS = [
     fence_check,
@@ -1348,6 +1463,8 @@ GUARDAS = [
     contagem_sistemas_check,
     abstract_espelha_check,
     obra_unica_check,
+    secao_citada_check,
+    voz_de_suplemento_check,
 ]
 
 
