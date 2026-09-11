@@ -217,7 +217,7 @@ com o de documentos.
 ⇒ `EXIT=0`: **o corpus inteiro pode correr.**
 
 Com uma chave OpenAI válida instalada (`/root/q4-zep/.env`, mode 600), medido na
-kvm8 **sem** nenhuma alteração ao `zep-config.yaml` original:
+o host do benchmark **sem** nenhuma alteração ao `zep-config.yaml` original:
 
 ```
 POST /api/v1/sessions/<s>/memory  -> 200
@@ -419,7 +419,7 @@ export GEMINI_API_KEY=...
       | | escrito aqui | medido |
       |---|---|---|
       | `q4-zep` + `q4-postgres` | "~2 GB resident" | **364 MiB** (100,9 + 262,9) |
-      | host | "VPS has 16 GB" | **32 GB — é o kvm8, não a VPS de produção** |
+      | host | "VPS has 16 GB" | **32 GB — é o host do benchmark, não a VPS de produção** |
       | maior consumidor de RAM | (implícito: o Zep) | **o nosso harness**, 2.249 MB |
 
       ⇒ A preocupação inverte-se: quem competia por memória eram os nossos próprios
