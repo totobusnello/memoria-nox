@@ -1,0 +1,60 @@
+CONTEXTO (auto-contido; não há ferramentas, tudo o que você precisa está aqui).
+
+Um manuscrito técnico ("Paper 1") sobre um sistema de memória para agentes LLM foi RECUSADO pelo arXiv em 2026-09-03. O email de recusa trouxe apenas o template genérico ("would benefit from additional review and revision that is outside of the services we provide") e nomeou a condição de reconsideração: "reconsider this material via appeal if it is published in a conventional journal".
+
+Fatos verificados sobre a política de apelação do arXiv:
+- A condição de journal é discricionária ("In some cases, we may require").
+- "repeated requests with no additional information cannot be considered" — informação adicional é o critério operante.
+- A apelação exige "a detailed description of the research content of your article, and how the content of your paper directly applies to your requested category".
+- Apelação negada por appellate moderator: "no further appeal is possible" — PERMANENTE. Ativo de uso único.
+- Section Chair revê apenas questões PROCEDIMENTAIS, não de conteúdo.
+- Regra do arXiv de 2025-10-31: survey/review/position paper em CS exige peer review PRÉVIO. Hipótese (não verificável) é que o manuscrito foi classificado como survey.
+
+RÉGUA MEDIDA contra os 4 papers de agent-memory aceitos no arXiv em 2026 (MemMachine, MERIT, Human-Inspired Memory Architecture, Theoria):
+- tamanho dos aceitos: 5.335 a 17.265 palavras
+- densidade de referências dos aceitos: 2,06 a 2,95 obras por mil palavras
+- apêndices dos aceitos: ZERO
+
+ESTADO DO MANUSCRITO:
+- na recusa (03/09): 23.200 palavras (1,34x o maior aceito), 20 footnotes, 11 arXiv IDs citados, 47 ocorrências de "SOTA"
+- hoje (11/09): 26.222 palavras (1,52x), 69 footnotes, 52 arXiv IDs, 55 obras distintas, densidade 2,097/mil, 17 ocorrências de "SOTA"
+- ou seja: a bibliografia foi consertada, e o COMPRIMENTO PIOROU 13% desde a recusa.
+- restrição dura: com 55 obras, a densidade tem de ficar em [2,06; 2,95], logo o número de palavras tem de ficar em [18.644; 26.699]. Cortar abaixo de 18.644 ESTOURA o teto de densidade.
+
+CONTEÚDO: o paper descreve um sistema de memória (SQLite + FTS5 + sqlite-vec + Reciprocal Rank Fusion), reporta 9 gerações de ablação, e traz um benchmark head-to-head pré-registrado contra 5 sistemas concorrentes sobre o MESMO corpus e as MESMAS 2.482 queries. Quatro concorrentes produziram número; um deles (EverOS, 0,6455 nDCG@10) BATE o nosso sistema (0,5013), e isso está reportado no paper. Um (Letta) não roda em tempo viável.
+
+DECISÃO TOMADA pelo dono do projeto: cortar o manuscrito até 1,20x o maior aceito (20.718 palavras, ou seja cortar 5.504 palavras) e então apelar SEM journal, usando "informação adicional" como o critério que a própria política nomeia.
+
+PLANO DE CORTE PROPOSTO (critério: só seções com ZERO citações de obras, para não deixar footnote órfã nem mexer no numerador da densidade; "§cit" = quantas vezes a seção é referenciada internamente):
+
+A) §5.7.1-5.7.4 (latência, custo, footprint, observabilidade) + §5.8.1-5.8.4 (metodologia 5-batch) -> suplemento externo. 927 palavras, ganho 777. Fica um resumo com os números (sub-10 ms, $0/query, 399 MB).
+B) §3.5 "Session Priming: the read-side of self-evolution" condensada de 986 para ~300. Ganho 686. Zero refs, citada 2x. É DESCRIÇÃO DE ARQUITETURA.
+C) Apêndices A e B -> suplemento. 506 palavras, ganho 506.
+D) §5.8.5 "Honest scope of claims" (466) + §5.8.6 "Honest limitations and open work" (330) consolidados dentro de §7.1 Limitations (que já tem 8 itens L1-L8, 961 palavras). Ganho 596. É TEXTO DE HONESTIDADE.
+E) §7.2 Future Work F1-F8 (769 palavras, 8 subseções, nenhuma citada) -> um parágrafo. Ganho 600.
+F) §5.5.1 + §5.5.4-5.5.8 (histórico da campanha "Wave 2") -> suplemento. 478 palavras, ganho 478.
+G) §5.1.1-5.1.3, §5.1.5, §5.1.6 (série de ablação "Wave A") -> suplemento, mantendo §5.1.10 que é o resultado acima dos números publicados pelo concorrente. 799 palavras, ganho 649.
+H) §5.4 "EverMemBench F_MH paradox — resolved" condensada de 637 para ~300. Ganho 337. Citada 14x.
+I) §5.2.1 (MuSiQue) + §5.2.2 (HotPotQA) condensadas. 592 palavras, ganho 392.
+J) §8 Conclusion de 401 para ~200. Ganho 200.
+K) §2.5 "User-Facing Primitives" de 395 para ~150. Ganho 245.
+
+TOTAL: 5.466 palavras -> 20.756 palavras = 1,202x, densidade 2,650.
+
+NÃO ENTROU NO PLANO, de propósito: §6 inteiro (o benchmark, 150 referências internas), §6.6 "anti-cherry-pick statement", §7.1 L1-L8 (limitações), as 4 seções de referências (2.639 palavras — são o numerador da densidade), §1.5 Related Work (1.587 palavras, 40 refs), §3.4 Self-Evolution (823, 5 refs, citada 20x), §1.4 "Related Memory Systems and the Six Gaps" (768 palavras, 13 refs, tabela de 9 colunas).
+
+O QUE EU QUERO DE VOCÊ — seja adversarial e específico:
+
+1. O plano de corte ATACA a causa provável da recusa, ou só o sintoma que eu sei medir? Se o problema for outro, qual, e o que no plano é desperdício de esforço?
+
+2. Bloco B: condensar 986 palavras de DESCRIÇÃO DE ARQUITETURA num paper de sistema. Isso enfraquece o paper como "system paper" e portanto ENFRAQUECE o argumento de que não é survey? Ou é irrelevante?
+
+3. Bloco D: consolidar duas seções de honestidade dentro das limitações. Ganha 596 palavras e remove duplicação real. Risco de parecer que estamos ESCONDENDO ressalvas, exatamente numa apelação? Ou o §7.1 basta?
+
+4. §1.4 "Six Gaps" é o trecho com mais aparência de survey (tabela de 9 colunas comparando sistemas) e é justamente o que pode ter disparado a classificação. Ele carrega 13 refs, então cortá-lo mexeria na bibliografia. Reformatar sem ganhar palavras vale a pena, ou é superstição?
+
+5. Existe algum erro de raciocínio na ESTRATÉGIA inteira? Especificamente: a apelação é de USO ÚNICO e permanente. O plano é gastá-la sem journal, apostando em "informação adicional" + reclassificação de tipo. Zero casos documentados de vitória sem peer review; o único sucesso conhecido (Abel Chen, 2024) apelou DEPOIS de ter DOI de conferência IEEE. O que você faria diferente, e por quê?
+
+6. Qual é o MAIOR risco que eu não mencionei?
+
+Responda direto, sem preâmbulo. Se achar que o plano está errado, diga onde e o que fazer em vez dele.

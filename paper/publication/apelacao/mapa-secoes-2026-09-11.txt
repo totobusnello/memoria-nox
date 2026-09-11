@@ -1,0 +1,120 @@
+palavras refs  §cit  secao
+     334    1     0  ## Abstract
+       0    0    39  ## 1. Introduction
+      64    0     0    ### 1.1 Problem Statement
+      50    0     0    ### 1.2 Design Goals
+      49    0     0    ### 1.3 Scope
+     768   13    11    ### 1.4 Related Memory Systems and the Six Gaps
+    1587   40    27    ### 1.5 Related Work
+       0    0     8  ## 2. System Architecture
+      56    0     0    ### 2.1 Infrastructure Overview
+     174    2     0    ### 2.2 Database Schema
+      84    0     4    ### 2.3 Chunk Type Taxonomy
+     126    0     2    ### 2.4 Multi-Agent Memory Architecture
+     395    1     1    ### 2.5 User-Facing Primitives
+       0    0    31  ## 3. Memory Pipeline
+     156    0     6    ### 3.1 Ingestion
+      86    0     2    ### 3.2 Consolidation
+      41    0     1    ### 3.3 Deduplication
+     823    5    20    ### 3.4 Self-Evolution: How nox-mem Improves Over Time
+     986    0     2    ### 3.5 Session Priming: the read-side of self-evolution
+       0    0     7  ## 4. Hybrid Search System
+     196    1     2    ### 4.1 Architecture
+      52    0     0    ### 4.2 Performance Characteristics
+      35    0     1    ### 4.3 Cross-Agent Search
+     901    4   154  ## 5. Empirical Evaluation
+       0    0    43    ### 5.1 EverMemBench + Wave A ablation series
+     231    0     1      #### 5.1.1 Wave A ablation — setup and headline
+     128    0     1      #### 5.1.2 Wave A — Claim 1: Additive salience outperforms multiplicative
+     195    0     3      #### 5.1.3 Wave A — Claim 2: `section_boost` is the moat (99.85% of the ga
+      20    0     5      #### 5.1.4 Wave A — Claims 3 & 4: `tier_boost` and `source_type` calibrati
+      97    0     3      #### 5.1.5 EverMemBench Phase D — Gemini-2.5-flash headline (5-batch)
+     148    0     2      #### 5.1.6 EverMemBench Phase H v2 — GPT-4.1-mini cross-backbone (5-batch)
+     218    2     4      #### 5.1.7 EverMemBench Phase G — Cross-encoder rerank trade-off study (5-
+      13    0     2      #### 5.1.8 EverMemBench Lab Q1 — Retrieval augmentation standalone knobs (
+      22    0     6      #### 5.1.9 Wave B + Wave C composability — additive F_MH and the retrieval
+     292    0    11      #### 5.1.10 Backbone Matrix — Gemini-3-flash on EverMemBench, above the pu
+      49    0     0      #### 5.1.11–5.1.12 Cross-backbone analysis and the F_MH retrieval-bound fi
+     136    0    14    ### 5.2 Classical multi-hop QA — competitive without fine-tuning, below cu
+     360    0     6      #### 5.2.1 MuSiQue-Ans dev — answer F1 58.62%, above EX(SA), below Beam Re
+     232    1     3      #### 5.2.2 HotPotQA distractor — answer F1 73.37%, above DPR+FiD, below Be
+     158    0     0      #### 5.2.3 What the classical-QA results do and do not license for the F_M
+      51    0    10    ### 5.3 LoCoMo cross-bench — retrieval ceiling; F1 constrained competitive
+     143    0     2      #### 5.3.1 Retrieval@10 ceiling — strict 74.52% (not comparable to Mem0's 
+     177    0     4      #### 5.3.2 F1 push — 51.85% rank-5 (above Zep / LangMem, below Mem0 SOTA)
+      15    0     0      #### 5.3.3 Path to >=55% F1 — composition orchestration (Q3)
+     637    0    14    ### 5.4 EverMemBench F_MH paradox — resolved
+      79    0    40    ### 5.5 Q3 orchestration — IterC Self-Ask F_HL +35.84 pp, IterB ReAct ceil
+     159    0     1      #### 5.5.1 Q3 IterC — Self-Ask parallel decomposition (F_HL +35.84 pp)
+      21    0     6      #### 5.5.2 Q3 IterB ReAct — F_MH retrieval-stage ceiling break on best bac
+      22    0     2      #### 5.5.3 Mechanism-class distinction — parallel decomposition vs sequent
+      43    0     5      #### 5.5.4 Wave 2 closure — empirical composability matrix (detail in supp
+      86    0     4      #### 5.5.5 Wave 2 — Single-stage knob backbone-portability (D75)
+      50    0     2      #### 5.5.6 Wave 2 — MQ multi-axis backbone-conditional behavior (PR #425)
+      58    0     3      #### 5.5.7 Architectural composability vs mechanism composability
+      82    0     5      #### 5.5.8 Wave 2 Capstone — D76 infrastructure abort (INDETERMINATE)
+     252    0     3    ### 5.6 Cross-bench validation — LongMemEval[^longmemeval] (n=300)
+      37    0    15    ### 5.7 Operational characteristics — latency, cost, and footprint (self-h
+     253    0     0      #### 5.7.1 Latency — sub-10 ms KG path
+     160    0     0      #### 5.7.2 Cost — $0/query KG path; hybrid vs managed SaaS is list-price, 
+      70    0     0      #### 5.7.3 Footprint — 399 MB RSS, single-process, self-hosted
+      50    0     2      #### 5.7.4 Observability layer
+       0    0     6    ### 5.8 Methodology, 5-batch protocol, and honest caveats
+      76    0     0      #### 5.8.1 5-batch + 95% CI canonical methodology
+     190    0     0      #### 5.8.2 Why single-batch gates overstate effects 3–6×
+      75    0     0      #### 5.8.3 MA dimension is mandatory in every eval report
+      53    0     0      #### 5.8.4 Search error rate monitoring
+     466    0     0      #### 5.8.5 Honest scope of EverMemBench, LoCoMo, and classical-QA claims
+     330    0     2      #### 5.8.6 Honest limitations and open work
+       0    0   150  ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
+      87    0     0    ### 6.1 Methodology summary
+     148    0     2    ### 6.2 Competitors
+     649    0    88    ### 6.3 Per-system per-dataset results
+     784    0    16      #### 6.3.1 Documented gaps — one system that did not run
+    1355    0    19      #### 6.3.2 Embedding-matched variant (rc4 — all-Gemini, full eval)
+     711    3    17      #### 6.3.3 EverOS measured (2026-09-10) — a competitor that outperforms no
+     493    1     8      #### 6.3.4 Zep measured (2026-09-10) — the last Docker gap closed, and the
+     346    0     6    ### 6.4 Per-category breakdown
+     276    0    10    ### 6.5 Fair-comparison principles
+     428    0    17    ### 6.6 Anti-cherry-pick statement
+     309    0     2    ### 6.7 Pre-registration
+     670    7     9    ### 6.8 Autonomy quantified — operational cost per memory system
+     884    1     0    ### 6.9 Operational reproducibility as evidence
+       0    0    22  ## 7. Limitations and Future Work
+       0    0     9    ### 7.1 Limitations
+      98    0     0      #### L1 — Explicit-ingestion dependency (no zero-shot corpus coverage)
+     138    0     0      #### L2 — Gemini API dependency for embeddings (cost + outbound network)
+     108    0     0      #### L3 — Single-instance architecture (no distributed sharding or replica
+     115    0     0      #### L4 — No write-side concurrency control (last-writer-wins)
+     153    0     0      #### L5 — Evaluation sample size and canonical run gap (resolved 2026-06-1
+     153    0     0      #### L6 — Cross-system comparison is methodologically partial
+      91    0     0      #### L7 — Latency comparison conflates transport classes
+     105    0     0      #### L8 — Pain signal is directional but not statistically significant in 
+       0    0    11    ### 7.2 Future Work
+      79    0     0      #### F1 — A2 Tier 3 P5: production-ready encrypted memory (in flight)
+     106    0     0      #### F2 — F10 Phase C/D: shadow tracker empirical A/B for ranking changes
+      59    0     0      #### F3 — Per-method benchmark Phase B: cross-method nDCG optimization
+      64    0     0      #### F4 — EverMemBench equivalence: honest comparison against EverMind-AI 
+      87    2     0      #### F5 — Neural reranker: cross-encoder rerank post-RRF
+     153    0     0      #### F6 — Lab Q1 scale validation: 250k chunk corpus
+     113    0     0      #### F7 — Multilingual corpus coverage: Portuguese and Spanish
+     108    0     0      #### F8 — GTM Phase 2 launch and community feedback intake
+     401    0     0  ## 8. Conclusion
+      26    0     0  ## Appendices
+       0    0     0  ## Appendix A. Knowledge Graph v2
+     138    0     0    ### A.1 Entity Extraction
+      86    0     0    ### A.2 Temporal Decay and TTL
+      58    0     0    ### A.3 Decision Versioning
+      39    0     0    ### A.4 Graph Traversal
+       0    0     0  ## Appendix B. Cross-Agent Intelligence
+      59    0     0    ### B.1 Agent Expertise Profiling
+      53    0     0    ### B.2 Knowledge Sharing
+      47    0     0    ### B.3 Cross-Agent Knowledge Graph Merge
+     100    0     0  ## Appendices C–G — moved out
+       0    0     0  ## References and Footnotes
+     452    8     0    ### Related-systems references
+    1544   49     0    ### Academic references
+     187    7     0    ### Internal references
+     456    6     0    ### Autonomy table (Table 2) sources
+
+TOTAL prosa medida: 25413  (documento: 26222)
