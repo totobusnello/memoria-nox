@@ -171,8 +171,6 @@ SUPERLATIVO_PERMITIDO = {
     "reader SOTA numbers are published": (
         "§5.2 metodologia — descreve que existe SOTA publicado de terceiros, "
         "não alega o nosso", 1),
-    "Published SOTA (split noted)": (
-        "§5.4 cabeçalho de tabela — nomeia a coluna, não afirma nada", 1),
 }
 
 

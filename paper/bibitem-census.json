@@ -69,13 +69,7 @@
     "reflect-src": "nosso src/reflect.ts",
     "salience-src": "nosso src/salience.ts",
     "retention-defaults": "nosso schema V8 chunks.retention_days",
-    "q-a-p-pivot": "nossa decisao interna de 2026-05-17",
-    "nox-mem-rss": "nossa medicao de RSS em 2026-05-24",
-    "mem0-stack": "requisito de deployment do mem0, medido por nos",
-    "letta-stack": "requisito de deployment do Letta, medido por nos",
-    "zep-stack": "requisito de deployment do Zep, medido por nos",
-    "everos-stack": "requisito de deployment do EverOS, medido por nos",
-    "lightrag-stack": "requisito de deployment do LightRAG, medido por nos"
+    "zep-stack": "requisito de deployment do Zep, medido por nos"
   },
   "_duplicatas_fundidas_2026_09_11": {
     "pares": {
@@ -85,5 +79,16 @@
       "evermembench": "longhorizon"
     },
     "por_que": "Quatro obras estavam contadas DUAS vezes — duas footnotes distintas com o mesmo arXiv id. O numerador da densidade contava footnotes, nao obras: 59 declaradas eram 55. A densidade publicada como 2,078 era 1,937, ABAIXO do piso 2,06. Duas dos pares (bertrank, qwen3rerank) foram criadas por mim em 2026-09-11 sem conferir se a obra ja estava citada: verifiquei a fonte EXTERNA e nao a interna."
+  },
+  "_movidas_ao_suplemento_2026_09_11": {
+    "motivo": "Passe de forma e tamanho para a apelacao no arXiv: §6.8 (custo operacional por sistema, Table 2) e as fontes da Table 2 foram ao suplemento. Nenhuma delas era classificada como 'obra' — sao descricoes de stack e uma medicao de RSS — logo as 55 obras e a densidade nao mudam.",
+    "footnotes": [
+      "everos-stack",
+      "letta-stack",
+      "lightrag-stack",
+      "mem0-stack",
+      "nox-mem-rss",
+      "q-a-p-pivot"
+    ]
   }
 }

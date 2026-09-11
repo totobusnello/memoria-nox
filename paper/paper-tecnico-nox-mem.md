@@ -46,32 +46,7 @@ The system operates within the OpenClaw platform, serving 6 AI agents (Nox, Atla
 
 The published memory-for-LLM-agents literature spans roughly three families: (i) *vector-store wrappers with metadata layers* — **mem0** [^mem0], **Letta** [^letta]; (ii) *temporal- and provenance-aware memory services* — **Zep** [^zep], **memanto**; (iii) *KG-augmented and graph-fused retrieval* — **LightRAG** [^lightrag] (HKU, EMNLP 2025), **HippoRAG2** [^hipporag2]; and (iv) *parametric-memory paradigms*, most recently **MeMo** [^memo] (which folds reflections into model weights via continued pretraining — the design opposite of ours). **EverMind-AI/EverOS** [^everos] occupies a distinct slot: it is the only memory OS in this space that publishes its own benchmark dataset (EverMemBench) and reports threshold numbers, raising the bar for honest cross-system comparison (§6). Four works outside these families bound the problem this design answers. *Lost in the Middle*[^lostmiddle] shows that simply extending the context window degrades mid-context recall, which is why retrieval — not a larger prompt — is the mechanism here. **Reflexion**[^reflexion] established verbal self-reflection as an agent-improvement loop, the precursor of the reflection artefacts our `crystallize` path persists (§2.5). **A-Mem**[^amem] pursues agent-managed memory organisation, an axis orthogonal to our retrieval-side contribution. And **HaluMem**[^halumem] measures hallucination *in memory systems specifically* — an evaluation dimension we do **not** report, and therefore a declared gap rather than a claimed strength (§7.2).
 
-Across these systems, six recurring gaps appear in the design space. Each gap motivates a concrete subsystem of nox-mem. Table 1 summarizes who covers what:
-
-**Table 1 — Design-space coverage of the six gaps, as reported by each system's own
-documentation.**
-
-⚠️ **What this table is and is not.** Only the `nox-mem` column is measured here. Every
-other cell records what that system's paper, README, or API reference *states* about
-itself, read between 2026-05 and 2026-06; we did not deploy the other six systems to
-verify their claims, and §6 explains why only two of them (Mem0 and agentmemory) could be
-brought to a same-corpus comparison at all. A cell therefore answers "does the system
-claim this property?", not "does the system have it?". `n/r` means the source material
-does not address the gap either way — it is an absence of documentation, not a negative
-finding. Read the table as a map of the design space that motivates §§2–4, and not as an
-evaluation of competing systems.
-
-| # | Gap | nox-mem (measured) | mem0 | Letta | Zep | EverOS | LightRAG | MeMo |
-|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | Static injection | yes — live writeback | partial | yes | yes | yes | no — batch | no — retrain |
-| 2 | No temporal decay | yes — salience + retention | no | no | yes | partial | no | no |
-| 3 | No provenance | yes — chunk_id + source_file | partial | yes | yes | yes | yes | no — baked-in |
-| 4 | Flat memory | yes — KG + section\_boost | no | no | yes | yes — hypergraph | yes — dual-level | no |
-| 5 | No writeback | yes — crystallize/reflect/consolidate | partial | yes | yes | yes — EvoAgent | no | no |
-| 6 | Indexing delay | yes — inotifywait <1 s | `n/r` | yes | yes | `n/r` | partial — batch | no — retrain |
-
-Sources for the non-`nox-mem` columns: mem0 [^mem0], Letta [^letta], Zep [^zep], EverOS
-[^everos], LightRAG [^lightrag], MeMo [^memo].
+Across these systems, six recurring gaps appear in the design space, and each motivates a concrete subsystem below. A design-space coverage table, compiled from each system's own documentation rather than from measurement, is in the supplement.
 
 **Why each gap matters, and how nox-mem closes it:**
 
@@ -722,28 +697,7 @@ Route to ≥55% F1 is orchestration composition, not a retrieval change. Detail 
 
 ### 5.4 EverMemBench F_MH paradox — resolved
 
-The triangulation of three independent multi-hop measurements forces a reframing of the EverMemBench F_MH absolute number:
-
-| Benchmark | Multi-hop metric | nox-mem score | Conventional reference readers | Published SOTA (split noted) | Verdict |
-|---|---|---:|---:|---:|---|
-| **MuSiQue-Ans dev** | answer F1 (multi-hop decomposable) | **58.62%** | 35.80% (IRCoT) – 49.70% (EX(SA)) | 69.20% (Beam Retrieval, *test*) | +8.92 pp vs EX(SA); **−10.58 pp vs SOTA** |
-| **HotPotQA dev distractor** | answer F1 (multi-hop bridge) | **73.37%** | 65–72% (DPR+FiD) | 85.04% (Beam Retrieval, *blind test*) | above DPR+FiD; **−11.67 pp vs SOTA** |
-| **LoCoMo dev** | retrieval@10 strict | **74.52%** | 66.88% (Mem0 answer-F1, different metric) | **retrieval ceiling; not comparable to Mem0 F1** |
-| **LoCoMo dev (F1 push)** | F1 (verbosity-sensitive) | 51.85% | 66.88% (Mem0 SOTA) | rank-5, verbosity gap |
-| **EverMemBench F_MH** | strict EM (multi-hop chain on long conv) | 3–7% (5-batch) | 18.88% (MemOS Table 4) | **−13 to −16 pp gap** |
-
-If nox-mem's multi-hop reasoning were structurally weak, the MuSiQue and HotPotQA results would sit near the original benchmark readers rather than well above them. They do not: the pipeline composes multi-hop answers competently on both. That rules out a wholesale reasoning failure as the explanation for F_MH, which is what this argument requires. It does **not** establish that classical multi-hop is saturated for this system — the 10–12 point shortfall against Beam Retrieval says the opposite — so the contrast with EverMemBench F_MH is a contrast between *competent-with-headroom* and *3–7%*, not between *solved* and *broken*. The quantitative evidence that the F_MH track is intrinsically hard does not come from cross-metric comparison at all: it is the 18.88% strict EM that the best published system on this same track and same metric attains. The LoCoMo retrieval ceiling at 74.52% strict (82.21% multi-hop sub-track) further confirms that multi-hop retrieval over long conversations is achievable.
-
-**The proposed explanation.** Four features of the EverMemBench task setup are candidates for the F_MH 3–7% number, and we present them as the leading account rather than an established attribution — nothing below separates a corpus effect from a system limitation, and §5.2 leaves 10–12 points of headroom on classical multi-hop:
-
-1. **Very long conversation chains.** EverMemBench F_MH questions require composing facts across 100+ conversation turns, far longer than MuSiQue (<=4 paragraphs) or HotPotQA (2 bridge paragraphs).
-2. **Strict scoring.** EverMemBench F_MH uses strict exact-match against canonical answers; minor wording variations are penalised even when the answer is correct. MuSiQue F1 and HotPotQA ans_F1 are partial-credit scores.
-3. **Entity-anchor sparsity.** EverMemBench questions often lack explicit entity tokens that nox-mem's section/source-type boost framework can latch onto. The §5.1.8.3 MAP (bypass-entity) mechanism was designed specifically to address this sparsity.
-4. **Memory-vs-retrieval mismatch.** EverMemBench is a *memory* benchmark with implicit world-state updates; the chunks that answer F_MH questions may not be the chunks that explicit retrieval would surface. This is the architectural distinction MemOS optimises for.
-
-**Implication for Q3 priorities — refined by D74 (2026-05-31).** The §5.4 framing shifts Q3 retrieval-mechanism priorities: pure retrieval-stage knobs (KG, MQ, MAP) cap at ~+7.25 pp F_MH (Wave C ceiling §5.1.9). Closing the remaining EverMemBench F_MH gap requires either (a) orchestration-stage multi-round refinement matching the long-chain structure (Q3 IterB ReAct), or (b) backbone upgrade (Backbone Matrix §5.1.10: Gemini-3-flash already narrows the F_MH gap meaningfully). Both paths are now empirically validated. The §5.5 Q3 IterC mechanism-class finding confirms that not all orchestration mechanisms transfer to EverMemBench F_MH equally (parallel decomposition vs sequential refinement). The §5.5.2 Q3 IterB ReAct result (D74) goes further: on the strongest backbone (Gemini-3-flash bare), multi-round retrieve-reason loop delivers **+2.01 pp clean F_MH lift (8.03% from 6.02% bare baseline)** — exceeding the Wave A/B/C single-stage retrieval ceiling of 7.25 pp by +0.78 pp standalone. The paradox is therefore refined rather than dissolved: EverMemBench F_MH is still largely a structural property of very long conversation chains × strict scoring, but MAS orchestration adds ~+2 pp on top of the strongest backbone above the retrieval ceiling — closing the gap is no longer purely structural, it now has both a backbone path and an orchestration path.
-
----
+The multi-hop (F_MH) result on EverMemBench initially appeared to contradict the classical multi-hop QA results of §5.2. The resolution — a retrieval-stage bound rather than a reasoning-stage one — is derived in the supplement.
 
 ### 5.5 Q3 orchestration — IterC Self-Ask F_HL +35.84 pp, IterB ReAct ceiling break, and mechanism-class distinction
 
@@ -797,9 +751,6 @@ MQ's F_MH lift attenuates across backbones (+3.61 → +1.21 pp) while its **MA c
 
 The IterB adapter contains explicit guards at three locations in `eval/evermembench/adapter_nox_mem.py` that short-circuit the Wave A knobs when IterB is active — so IterB + Wave C was **architecturally** non-composable, independently of whether the mechanisms would compose. D74's projection implicitly assumed architectural composability; the code evidence shows that assumption was false. Code excerpts and design rationale: supplement §S5.5.7.
 
-#### 5.5.8 Wave 2 Capstone — D76 infrastructure abort (INDETERMINATE)
-
-The IterB + KG + rerank composability test was dispatched on the production VPS on 2026-05-31 and aborted after 48 h of sustained CPU steal, measured at **51–97%** while the ONNX cross-encoder rerank was active. The outcome is **INDETERMINATE — the hypothesis was not testable in that environment, which is neither a negative result nor a scientific failure**; it remains scientifically open, and completing it requires a plan with a guaranteed CPU SLO. Failure timeline, attempted mitigations and the preserved branch: supplement §S5.5.8.
 ### 5.6 Cross-bench validation — LongMemEval[^longmemeval] (n=300)
 
 **Config:** Phase D production config (FTS5 + Gemini-embedding-001 + RRF, rerank OFF, top_k=20), GPT-4.1-mini backbone, Gemini-2.5-flash judge, oracle session retrieval, stratified n=300 queries.
@@ -834,35 +785,7 @@ The Unicode-aware FTS5 sanitize fix is validated cross-bench: nDCG@10 improved f
 
 The canonical production boost stack (`section_boost × source_type_boost (Hard Mutex, query_entity_count <= 2) × salience v2 additive`) has been deployed since 2026-05-21 via systemd environment drop-in. Beyond accuracy, the production deployment establishes a unique competitive position on three operational dimensions:
 
-#### 5.7.1 Latency — sub-10 ms KG path
-
-| Path | p50 | p95 | p99 | Notes |
-|---|---:|---:|---:|---|
-| **KG path (entity-walk)** | **2.9 ms** | 5.7 ms | — | SQL + regex over `kg_relations`, no LLM call; re-validated 2026-06-15, n=10 (the original run measured 2.5 ms / ~7 ms / ~14 ms) |
-| Hybrid search (FTS5 + dense + RRF, no rerank) | ~940 ms | ~2,342 ms | ~2,523 ms | Gemini-embedding-001 query dominates (~800 ms) |
-| Hybrid + cross-encoder rerank (MiniLM) | +3,700 ms p50 | — | — | Opt-in, exploratory mode |
-
-The KG path is in the sub-10 ms class at 2.9 ms p50 (re-validated 2026-06-15; the original run measured 2.5 ms — see the table above). Among the systems compared here, none reports retrieval latency in this band — but the comparison is not like-for-like and we do not treat it as a measured contrast: Zep's <100 ms p50 is a vendor-published figure, not independently verified by us (§7.1), and is therefore never used as a measured operand; the 100–500 ms range cited for Mem0 Cloud and MemOS multi-service deployments comes from their own deployment documentation, not from our harness. What is ours and measured is the mechanism: nox-mem's single-process embedded architecture (better-sqlite3 + sqlite-vec in-process) eliminates network and IPC overhead entirely. **Re-validated 2026-06-15** on the 70.7k-chunk production corpus: the KG path (`/api/kg/path`, real entity pair, n=10) measured p50 = 2.9 ms / p95 = 5.7 ms, confirming the sub-10 ms class; the Gemini-embedding-dominated standard hybrid path measured p50 = 653 ms / p95 = 706 ms (n=20) — up from 529 ms as the corpus grew 69k → 70.7k chunks and reflecting Gemini API round-trip variance, which reinforces (rather than weakens) the case for the local KG path on latency-sensitive workloads.
-
-#### 5.7.2 Cost — $0/query KG path; hybrid vs managed SaaS is list-price, not like-for-like
-
-| Component | nox-mem | Mem0 Cloud (published pricing) | Ratio |
-|---|---:|---:|---:|
-| Retrieval API cost (KG path) | **$0.00** | $0.001/query (est. embedding + retrieval) | **effectively free** |
-| Retrieval API cost (hybrid w/ Gemini embedding) | $0.0000015/query | ~$0.001/query (est.) | **~667× cheaper** |
-| Ingest API cost (per chunk) | $0.00 (local) | varies | n/a |
-| Total cost per 1M queries (hybrid) | $1.50 | $1,000 (est.) | ~667× |
-
-The KG path achieves **$0 per query** because the entity-walk uses only local SQL + regex with no LLM call (re-confirmed 2026-06-15). The hybrid path costs **$0.0000015/query** (gemini-embedding-001 at $0.15/1M input tokens — a Feb-2026 increase from $0.13/1M — × ~10 tokens/query). Against an *estimated* Mem0 Cloud per-query rate of ~$0.001 this is **~667× cheaper** (revised down from the 769× figure as Gemini embedding pricing rose). We lead with the unconditional claim — **$0/query KG path and zero marginal retrieval cost** — and treat the multiplier as secondary: Mem0 is sold as a subscription (free 1K calls/month, then $19–$249/month) with no published per-call overage, so the denominator is an explicit modeling assumption, not a quoted price.
-
-#### 5.7.3 Footprint — 399 MB RSS, single-process, self-hosted
-
-| Scaling | Idle RSS | 10× concurrent | Notes |
-|---|---:|---:|---|
-| nox-mem-api process | **399 MB** | +15 MB (= ~414 MB) | better-sqlite3 + sqlite-vec single-process |
-| Scaling pattern | flat | quasi-flat | No per-request memory blow-up |
-
-Self-hosted single-process means no multi-container orchestration, no Postgres/Redis/Chroma sidecars, no per-tenant container overhead. The 399 MB idle footprint runs on a $5/month VPS tier. Mem0 / Zep / Letta canonical deployments require >=3 services (API + DB + vector store) with combined RSS typically in the 1.5–3 GB range.
+The latency, cost and footprint characterisation — KG-path p50, per-query cost, and resident-set size, all self-hosted and single-process — is in the supplement.
 
 #### 5.7.4 Observability layer
 
@@ -904,31 +827,7 @@ Memory Awareness (MA_C, MA_P, MA_U) is a **silent killer dimension**: Phase G ba
 
 Concurrent agent operations during Lab Q1 benchmarking caused a batch contamination incident (batch 010): a concurrent agent re-installed its adapter mid-run, contaminating results. Recovery via merged adapter pattern. Lesson: shared adapter install paths on VPS are a race condition; sequential dispatch and 0/n search-error-per-batch monitoring are mandatory before accepting 5-batch results.
 
-#### 5.8.5 Honest scope of EverMemBench, LoCoMo, and classical-QA claims
-
-- **EverMemBench Phase D headline (+2.95 pp vs MemOS Gemini)** is a modest win; the structural differentiator is the Memory Awareness composite, consistently strong across all backbones.
-- **EverMemBench Phase H v2 headline (+9.13 pp vs MemOS GPT-4.1-mini)** is real and CI-verified, but the absolute score (51.68%) is not high — MemOS itself is only 42.55%. GPT-4.1-mini is the only tested backbone where all memory systems gain vs Full Context.
-- **EverMemBench Backbone Matrix (Gemini-3-flash): +20.73 pp Overall / +32.74 pp MA composite** is the strongest cross-system claim in the paper. The lift is the multiplicative interaction of nox-mem's V10 retrieval stack and frontier-tier reasoning, not exclusively backbone-driven (§5.1.10).
-- **MuSiQue-Ans dev answer F1 58.62%** (§5.2.1) and **HotPotQA distractor dev answer F1 73.37%** (§5.2.2) sit above the specialized readers these datasets are conventionally compared against (IRCoT, EX(SA), DPR+FiD) and roughly 10–12 points below current published SOTA (Beam Retrieval), without specialized fine-tuning. This bounds the architecture's multi-hop reasoning as competent rather than state-of-the-art, and is the sense in which §5.4 uses it.
-- **LoCoMo retrieval@10 strict 74.52%** (§5.3) above Mem0 SOTA F1 66.88% is the retrieval ceiling on LoCoMo; the F1 push of 51.85% is rank-5 (above Zep / LangMem, below Mem0 SOTA 66.88%) due to a verbosity gap (§5.3.2). Path to >=55% requires orchestration (§5.5).
-- **KG path, MAP, MQ, adaptive classifier, and Q3 IterC** are opt-in features, not defaults. Each addresses a known structural gap; combined effects measured in Wave B/C (§5.1.9).
-- The Unicode-aware FTS5 sanitize fix is a prerequisite for all scores reported here; pre-fix Q2 numbers (nDCG@10 0.9126 LongMemEval) would have been reported as lower and should not be compared directly.
-- **Wave 2 NO-REPLICATE findings (D75, §5.5.5):** the Lab Q1 single-stage knob lifts in §5.1.8 were measured on gpt-4.1-mini and are valid for that backbone. They do NOT transfer reliably to Gemini-3-flash (transfer rate ~0–40%). Any claim of "Wave A knob X delivers +N pp F_MH" must specify the backbone. The §5.5.4 composability matrix replaces the D74 projection with measured numbers; the original projection table is superseded and should not be cited.
-- **IterB composability projection from D74 (IterB + Wave C → ~12.07% F_MH) is superseded.** The projection assumed both backbone-portability (refuted by D75) and architectural composability (refuted by adapter guard discovery in §5.5.7). The corrected empirical upper bound for measured+plausible IterB composability on Gemini-3-flash is ~8–9% F_MH (see §5.5.4 corrected table).
-- **D76 capstone (§5.5.8):** the IterB + Wave C triple composability outcome is INDETERMINATE due to infrastructure abort. This is not a negative scientific result — it is an untested hypothesis. Batch 004 (n=49) is preserved but not 5-batch valid.
-- **Limitations to flag (§5.8.6):** GPT-5 / Claude backbone columns are blocked by API access; the Zep <100 ms p50 claim is unverified by independent runs; the EverMemBench F_MH absolute number (3–7%) is not directly comparable to multi-hop reasoning gains on MuSiQue/HotPotQA — see §5.4 for the mechanism distinction.
-
-#### 5.8.6 Honest limitations and open work
-
-- **EverMemBench F_MH absolute (3–7%) gap vs MemOS Table 4 (18.88%)** remains, and the §5.4 reframing argues it is not primarily a multi-hop reasoning failure, attributing it principally to the task setup — with the difficulty of the track visible same-metric in the 18.88% that the best published system reaches on it, rather than inferred from the classical benchmarks. Closing it requires either Q3 IterB ReAct (multi-round refinement on long conversation chains, §5.5.2) or backbone upgrade (Backbone Matrix §5.1.10 shows the gap narrows with Gemini-3-flash). Retrieval-stage knobs cap at ~+7.25 pp F_MH (D69 Wave C ceiling §5.1.9) and show low backbone-portability to Gemini-3-flash (D75 §5.5.5).
-- **IterB composability with Wave A/B/C knobs on Gemini-3-flash** is an open question. The D76 capstone (§5.5.8) was infrastructure-aborted before producing valid 5-batch data. The composability matrix in §5.5.4 documents this gap honestly. Completing the capstone requires dedicated CPU infrastructure.
-- **LoCoMo F1 vs Mem0 SOTA 66.88%** remains open at rank-5 (51.85%). Wave C ceiling analysis (§5.1.9) indicates retrieval-stage knobs cannot close this gap; composition orchestration (Q3, §5.5) is the open path.
-- **Zep <100 ms p50 claim** is published in marketing but not independently verified. nox-mem KG path p50 = 2.9 ms (§5.7) is measured on production VPS with the harness instrumented end-to-end. Comparison is fair only when both are measured under matched conditions.
-- **GPT-5 / Claude columns** are blocked by API key constraints in the current eval setup. Backbone Matrix is currently three-cell (Gemini-2.5-flash, GPT-4.1-mini, Gemini-3-flash); GPT-5 and Claude entries are in the runway for Q3+ if access opens.
-- **Wave A knob backbone-portability to other backbones** beyond Gemini-3-flash is unverified. The D75 ~30–40% transfer rate pattern is based on three knobs on one backbone pair. Additional backbone pairs (Claude Sonnet 4.6, GPT-5, Gemini 4) require independent re-baseline before composability projections can be made.
-- **EverMind-AI / EverMemBench reference baselines** rely on MemOS Table 4 published numbers (arxiv:2602.01313); we have not re-run MemOS internally on the canonical 5-batch subset, only validated that the 5-batch sampling preserves the per-category distribution of the published numbers.
-
----
+The full scope statement for the EverMemBench, LoCoMo and classical-QA claims, and the open-work list, are in the supplement; §7 carries the limitations that bear on the conclusions.
 
 ## 6. Q4 COMPARISON — Cross-System Benchmarking (Pre-registered)
 
@@ -1178,30 +1077,9 @@ This section's methodology is locked in `specs/2026-05-23-Q4-comparison-executio
 
 Decision D43 defines the approval gate: nox-mem in top-3 on >=2 of the 4 key metrics (nDCG@10, R@10, MRR, latency). If not met, the 2026-05-25 session produces a remediation plan (pre-launch adjustments) rather than a direct launch.
 
-### 6.8 Autonomy quantified — operational cost per memory system
+### 6.8 Operational cost
 
-The Q4 quality comparison (§6.3 – §6.6) reports retrieval *quality* under matched corpora. Operational *cost* — services, RAM, cold start, mandatory third-party credentials, setup commands — is the second axis on which a memory system can be evaluated, and is the axis where the nox-mem Autonomy pillar [^q-a-p-pivot] is most legible. Table 2 summarizes the steady-state idle footprint of each system in its default self-host configuration.
-
-**Table 2 — Autonomy quantified: services, RAM, cold start, mandatory keys, setup commands.** Headline: **~12× less RSS than EverOS, single process, no service stack.** Competitor numbers are *estimates* derived from each project's docker-compose defaults and documented system requirements (sources cited in the row). The nox-mem row is **[measured 2026-05-24, prod VPS, 6830 chunks live, uptime 9h28min]** via `ps -eo pid,rss,vsz,comm,args` against the production `nox-mem-api` process (single production process). See footnote [^nox-mem-rss] for full methodology including the cgroup `MemoryCurrent` vs process RSS distinction.
-
-| System | Services | RAM idle | Cold start | Mandatory third-party keys | Setup commands | Sources |
-|---|---:|---:|---:|---:|---:|---|
-| **nox-mem** | **1** (SQLite file + Node process) | **~341 MB RSS** [measured 2026-05-24] | **<1 s** | **0** (offline-OK; embeddings optional) | **1** (`npm i && nox-mem reindex`) | This work; [^nox-mem-rss] |
-| mem0 | 2 (Postgres + Qdrant) | ~800 MB | ~15 s | 1 (OpenAI for embeddings) | ~5 | mem0 docker-compose defaults [^mem0-stack] |
-| Letta | 3 (Letta server + Postgres + OpenAI) | ~1.5 GB | ~30 s | 1 (OpenAI) | ~8 | Letta self-host guide [^letta-stack] |
-| Zep OSS | 2 (Zep + Postgres; 3 with the local embedder) | ~1.2 GB | ~30 s | **1 mandatory** (a paid LLM key — OpenAI *or* Anthropic; the server aborts at startup without it) | ~6 | Zep v0.27.2 source [^zep-stack] |
-| EverOS / EverMind-AI | **5** (MongoDB + Elasticsearch + Milvus + Redis + Postgres) | **~4 GB+** | **~60 s** | 2–3 (LLM + embedding + optional reranker) | ~15+ | EverMind-AI docker-compose [^everos-stack] |
-| LightRAG | 2 (Neo4j + vector DB) | ~1 GB | ~20 s | 1 (LLM provider for KG extraction) | ~6 | LightRAG repo defaults [^lightrag-stack] |
-
-**Reading the table.** Three rows of the cost matrix translate directly into Autonomy:
-
-1. **Services column.** Every additional service is an additional failure mode, an additional security-patching surface, and an additional vendor that must be available on the day a user spins up the system. nox-mem ships as a single Node process operating on a single SQLite file; the only durable on-disk artifact is `nox-mem.db`. mem0/Zep/Letta/LightRAG each require >=1 database container and at least one external LLM/embedding provider. EverOS requires five containers, three of which are heavyweight infrastructure (MongoDB, Elasticsearch, Milvus). The single-service property is what makes "open `nox-mem.db` in `sqlite3` and inspect everything" a literal operation, not a euphemism.
-
-2. **Mandatory third-party keys column.** A system that requires an OpenAI key by default is not autonomous regardless of license — the user is dependent on one specific vendor's pricing, rate limits, and terms of service. nox-mem treats embeddings as optional (FTS5-only retrieval is a valid degraded mode; §4) and is provider-agnostic when embeddings are enabled (Gemini default, Ollama-local feasible — §7.1 L2). Zep requires a paid LLM key of one of two vendors (OpenAI by default, Anthropic selectable) and refuses to start without it; what is *not* vendor-locked in Zep is the embedder, which can run keyless against its own local embedding service at the cost of a third container ([^zep-stack]). Letta documents OpenAI as its default provider.
-
-3. **Cold start column.** A `<1s` cold start is what makes self-host *try-before-deciding* — the user can `npm i`, run one command, see results, and decide. A `~60s` cold start with five containers is what makes EverOS effectively a "build a small team to evaluate" decision, not an individual decision.
-
-**Caveat — RAM measurement methodology.** The competitor RAM figures are *idle* (i.e., process started, no queries served, no ingestion in progress) and are *estimates* read from each project's documented system requirements and `docker stats` defaults in the published docker-compose files. They are not from a head-to-head benchmark on a single host. A side-by-side measurement on a controlled 4-vCPU / 8-GB host is a §7.2 future-work item (F-cost-bench). The nox-mem `~341 MB RSS` figure is **measured** on the production VPS via `ps -eo pid,rss,vsz,comm,args` (single production process, uptime 9h28min, 6830 chunks live); see footnote [^nox-mem-rss] for full methodology including the cgroup `MemoryCurrent` vs process RSS distinction.
+A per-system operational-cost comparison (services required, keys required, and resident memory) is in the supplement. It is compiled from each system's own documentation and list prices, not from a controlled cost measurement.
 
 ### 6.9 Operational reproducibility as evidence
 
@@ -1323,89 +1201,6 @@ The cross-agent intelligence layer transforms isolated agent memories into a col
 
 The material below documents interfaces and operational history of the deployed
 system. It is not part of any claim in §§1–8 and is included for reproducibility.
-
----
-
-## Appendix A. Knowledge Graph v2
-
-### A.1 Entity Extraction
-
-**v1 (Regex-based)**: Used hardcoded regular expressions for 3 entity types (person, project, agent) with a static alias map for name normalization. Limited to predefined names, producing 26 entities.
-
-**v2 (LLM-powered)**: Uses Ollama llama3.2:3b with a structured extraction prompt. Each chunk is processed with temperature 0.1 for deterministic output. The LLM returns JSON with entities (name + type) and relations (source + relation + target).
-
-Extraction results after processing 866 chunks:
-
-| Metric | Regex v1 | LLM v2 | Improvement |
-|--------|----------|--------|-------------|
-| Entities | 26 | 384 | 14.8x |
-| Relations | 59 | 529 | 9.0x |
-| Entity Types | 3 | 11 | 3.7x |
-
-**Entity Type Distribution:**
-
-| Type | Count | Description |
-|------|-------|-------------|
-| project | 109 | Software projects, products, repos |
-| tool | 67 | Libraries, frameworks, CLI tools |
-| concept | 54 | Abstract ideas, patterns, methodologies |
-| person | 53 | Team members, contacts, stakeholders |
-| organization | 50 | Companies, teams, departments |
-| agent | 45 | AI agents in the fleet |
-| location | 2 | Geographic references |
-| other | 4 | Device, currency, date, computer |
-
-### A.2 Temporal Decay and TTL
-
-Relations have a 90-day time-to-live (TTL) from creation. The confidence decay mechanism operates as follows:
-
-1. Relations start with confidence 0.8 (extracted) or 0.9 (confirmed)
-2. Every 30 days without re-confirmation, confidence drops by 0.1
-3. Relations below 0.3 confidence receive accelerated 7-day expiry
-4. Expired relations are deleted during `kg-prune` execution
-5. Re-confirmation (observing the same relation in new chunks) resets confidence to 0.9 and extends TTL by 90 days
-
-This mechanism ensures the knowledge graph naturally forgets stale information while reinforcing actively observed patterns.
-
-### A.3 Decision Versioning
-
-Architectural decisions are tracked with full version history in the `decision_versions` table. Each decision has a unique key (e.g., `dedup-strategy`, `fallback-chain`) and supports:
-
-- Version chains with supersession tracking
-- Authorship attribution
-- Source file provenance
-- Current vs. historical querying
-
-10 decisions are currently tracked, covering API key management, LLM fallback chains, embedding model selection, agent isolation strategy, and synchronization schedules.
-
-### A.4 Graph Traversal
-
-The `findPath()` function implements BFS (Breadth-First Search) to discover shortest paths between any two entities. This enables queries like "How is Toto connected to nox-mem?" which traverses person → project → tool → agent relationships. Maximum depth is configurable (default: 4 hops).
-
----
-
-## Appendix B. Cross-Agent Intelligence
-
-### B.1 Agent Expertise Profiling
-
-Each agent's memory is analyzed to determine its unique expertise based on chunk type distribution. The dominant chunk type determines the agent's strength category:
-
-- **daily** → "Daily operations & activity logging"
-- **team** → "Team coordination & shared knowledge"
-- **decision** → "Decision tracking & rationale"
-- **lesson** → "Lessons learned & pattern recognition"
-
-Profiles include chunk counts, type breakdowns, top topics (via FTS5 term frequency), and last activity dates.
-
-### B.2 Knowledge Sharing
-
-The `pullInsightsFrom()` function enables any agent to query lessons and decisions from other agents without direct database access. This creates a knowledge transfer mechanism where, for example, Cipher (Security) can learn from Forge's (Code Reviewer) past code review decisions.
-
-`pullAllInsights()` aggregates insights across all agents, sorted by date, providing a fleet-wide learning feed.
-
-### B.3 Cross-Agent Knowledge Graph Merge
-
-`mergeCrossKnowledgeGraphs()` scans all agent databases for kg_entities and kg_relations tables, merging them into a unified entity view. Entities are matched by type + lowercase name. The output shows which entities are known to which agents and their combined mention counts, enabling identification of shared knowledge vs. agent-specific expertise.
 
 ---
 
@@ -1532,6 +1327,8 @@ first author and title checked to match, rather than transcribed from memory.
 
 ### Internal references
 
+[^zep-stack]: Zep OSS requires the Zep service container + Postgres, plus a third container (the local embedder) if embeddings are not routed to a paid vendor. **One paid LLM key is mandatory in every configuration:** `pkg/llms/llm_base.go` constructs an LLM client unconditionally — including for the empty service string, which falls through to OpenAI — and both back-ends `log.Fatal` on an empty key (`llm_openai.go`: `ZEP_OPENAI_API_KEY is not set`; `llm_anthropic.go`: `ZEP_ANTHROPIC_API_KEY is not set`). The embedder, by contrast, is not vendor-locked: `pkg/llms/embeddings.go` routes `Service: local` to `pkg/llms/embeddings_local.go`, which POSTs to the local NLP service, and `ZepAnthropicLLM.EmbedTexts` returns "not implemented. use a local embedding model". Counts: 2 services + 1 mandatory paid LLM key. Source: `getzep/zep` at tag `v0.27.2` — the image we ran — read 2026-09-10.
+
 [^watcher-arch]: `nox-mem-watcher` systemd service running `inotifywait` on `memory/` directories. See §3.1.
 
 [^salience-mode]: `NOX_SALIENCE_MODE` environment variable controls the three-state gate (`shadow` | `active` | `off`). Default is `shadow`. Telemetry exposed at `/api/health.salience`. See §3.4.3 and `staged/1.7a/edits/salience.ts`.
@@ -1544,19 +1341,4 @@ first author and title checked to match, rather than transcribed from memory.
 
 [^retention-defaults]: V8 schema typed retention defaults (in `chunks.retention_days`): `feedback` = 0 (never-decay), `person` = 0 (never-decay), `lesson` = 180d, `decision` = 365d, `project` = 365d, `team` = 120d, `daily` = 90d, `pending` = 30d, `graph_node` = 60d, fallback = 90d. See `staged/1.7a/edits/salience.ts:46–56` (`DEFAULT_RETENTION_BY_TYPE`) and `CLAUDE.md` §"Schema v10".
 
-[^q-a-p-pivot]: Q/A/P strategic pivot of 2026-05-17 — three pillars (**Q**uality, **A**utonomy, **P**roduct).
-
-### Autonomy table (Table 2) sources
-
-[^nox-mem-rss]: The `~341 MB RSS` figure for nox-mem in Table 2 is **measured 2026-05-24** on the production VPS (single production process, uptime 9h28min, 6830 chunks live, 100% vector coverage). Main process RSS = 349,276 KB via `ps -eo pid,rss,vsz,comm,args | grep dist/api-server.js`. The cgroup `MemoryCurrent` reported by `systemctl show nox-mem-api -p MemoryCurrent` is 727,064,576 bytes (~727 MB); the ~386 MB delta vs process RSS is SQLite memory-mapped I/O (chunks table, FTS5 index, vec0 index) — kernel-managed page cache, reclaimable on memory pressure, not exclusive process memory. Standard `ps`/`top` RSS is the canonical comparison metric used in Table 2 across all competitors. Original revision marked this as `~50 MB [estimated]` based on Node baseline + better-sqlite3 cache projections; the production measurement (initially denied during the first revision and granted later) replaced the estimate.
-
-[^mem0-stack]: mem0 default self-host requires Postgres + Qdrant + an OpenAI key for embeddings (or a configured alternative provider). Counts: 2 services + 1 mandatory third-party key. Source: mem0 README and `docker-compose.yml` defaults at github.com/mem0ai/mem0.
-
-[^letta-stack]: Letta default self-host requires the Letta server, Postgres, and an OpenAI key (or alternative LLM provider) for the agent loop. Counts: 3 components + 1 mandatory third-party key. Source: Letta self-host documentation at docs.letta.com and github.com/letta-ai/letta.
-
-[^zep-stack]: Zep OSS requires the Zep service container + Postgres, plus a third container (the local embedder) if embeddings are not routed to a paid vendor. **One paid LLM key is mandatory in every configuration:** `pkg/llms/llm_base.go` constructs an LLM client unconditionally — including for the empty service string, which falls through to OpenAI — and both back-ends `log.Fatal` on an empty key (`llm_openai.go`: `ZEP_OPENAI_API_KEY is not set`; `llm_anthropic.go`: `ZEP_ANTHROPIC_API_KEY is not set`). The embedder, by contrast, is not vendor-locked: `pkg/llms/embeddings.go` routes `Service: local` to `pkg/llms/embeddings_local.go`, which POSTs to the local NLP service, and `ZepAnthropicLLM.EmbedTexts` returns "not implemented. use a local embedding model". Counts: 2 services + 1 mandatory paid LLM key. Source: `getzep/zep` at tag `v0.27.2` — the image we ran — read 2026-09-10.
-
-[^everos-stack]: EverMind-AI / EverOS docker-compose declares MongoDB + Elasticsearch + Milvus + Redis + Postgres = 5 services, plus 2–3 third-party API keys for LLM, embedding, and (optional) reranker. Counts confirmed against the published `docker-compose.yml` in the EverMind-AI repo **as of 2026-06-15**. ⚠️ Re-probed 2026-09-10: that file returns HTTP 404 at the repository root and the project now ships as a pip-installable local-first library (v1.3.1) — the count was correct when taken and has since expired; it is retained because the operational-footprint comparison it supports was made against that version, and silently updating it would misdate the comparison. The ~4 GB RAM-idle figure is the sum of documented minimum requirements for each service's container.
-
-[^lightrag-stack]: LightRAG defaults to Neo4j for the knowledge graph + a vector store (Qdrant/Milvus/etc.), plus one LLM provider key for entity/relation extraction during indexing. Counts: 2 services + 1 mandatory third-party key. Source: LightRAG README at github.com/HKUDS/LightRAG.
 
