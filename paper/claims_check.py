@@ -130,15 +130,17 @@ BIB_DIVIDA: dict[str, str] = {
 # 2026-09-11: 40. Os 13 que sairam foram com §5.1.4, §5.1.8, §5.1.9, §5.3.3,
 # §5.5.2 e §5.5.3 para o suplemento; o ratchet acusou a folga duas vezes no
 # mesmo trabalho, que e' o comportamento que ele existe para ter.
-PR_BASELINE = 40
+PR_BASELINE = 0
 
 # Tabelas de comparação externa que ainda usam `PR #NNN` como fonte. Dívida
 # HERDADA e declarada, não isenção: qualquer sítio novo falha. Resolver com
 # artefato citável antes de submissão a journal.
-PR_EM_TABELA_DIVIDA = {
-    "Above Zep 50.40% / LangMem 50.21%":
-        "§5.3.2 LoCoMo F1 push — trocar (PR #404) por artefato de audit",
-}
+# Dívida ZERADA em 2026-09-11: as 64 referências a PR do próprio repositório
+# saíram do manuscrito na correção de forma para a apelação no arXiv (cláusula
+# "Scholarly Standards", conformidade *in form*). O ratchet abaixo está em 0 e
+# esta lista fica vazia de propósito — reintroduzir uma referência a PR agora
+# falha no ratchet, que é o comportamento desejado.
+PR_EM_TABELA_DIVIDA: dict[str, str] = {}
 
 SISTEMAS_EXTERNOS = re.compile(
     r"Beam Retrieval|FE2H|EX\(SA\)|IRCoT|DPR|FiD|MemOS|Mem0|Zep|LangMem", re.I
