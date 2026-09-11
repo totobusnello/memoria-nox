@@ -435,7 +435,9 @@ The hybrid approach provides significant quality improvements over single-method
 |-------|-----------|--------|----------|
 | "qual o proximo passo" | 0 results | ROADMAP + PHASE-3 | Semantic captures intent without keyword match |
 | "nox-mem" | 0 results | decisions.md + docs | Vector bypasses tokenizer hyphen issues |
-| "quem e o Toto" | people.md | people.md + TEAM_MEMORY | RRF combines exact match + semantic context |
+| "quem e o [name]" | people.md | people.md + TEAM_MEMORY | RRF combines exact match + semantic context |
+
+The three queries are verbatim from production usage and are in Portuguese, the operator's working language; they are reported unchanged because the FTS5 and hybrid outcomes in the table were measured on these exact strings. In the third query a personal name occurring in the corpus is redacted as `[name]`; the retrieval behaviour reported for it was measured on the unredacted string.
 
 ### 4.3 Cross-Agent Search
 
