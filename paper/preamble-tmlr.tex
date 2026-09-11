@@ -1,0 +1,53 @@
+% =============================================================================
+% Preambulo da variante TMLR (submissao anonima, double blind), xelatex.
+%
+% Entra via `pandoc -H`, portanto DEPOIS dos pacotes do template do pandoc
+% (que ja carrega fontspec, amsmath, amssymb, longtable, booktabs, array e
+% hyperref). Aqui fica so o que e do venue e o que e nosso.
+%
+% Por que `tmlr` e carregado aqui e nao num wrapper .tex com marcadores: o
+% template default do pandoc ja emite exatamente a estrutura que o
+% `tmlr.sty` espera — \title, \author, \maketitle, \begin{abstract} — e
+% duplicar essa estrutura a mao significa mante-la em dois lugares.
+%
+% ⚠️ `\usepackage{tmlr}` SEM opcao = submissao anonima. Verificado no PDF, nao
+% so no .sty: o nome real declarado no \author{} nao aparece no texto extraido,
+% e sai "Anonymous authors / Paper under double-blind review". O build trata
+% isso como pos-condicao e falha se o nome reaparecer.
+%
+% `tmlr.sty` faz \RequirePackage{natbib}. Este manuscrito carrega as
+% referencias como footnotes escritas a mao, nao chaves BibTeX
+% (`grep -c '[@' paper-tecnico-nox-mem.md` = 0), logo natbib e tmlr.bst ficam
+% carregados e nao exercitados. Um camera-ready que converta as footnotes em
+% BibTeX tem de usar `paper/tmlr/tmlr.bst`.
+% =============================================================================
+
+\usepackage{tmlr}
+
+% ---------------------------------------------------------------------------
+% Tabelas largas: o manuscrito tem tabelas de comparacao de 9 colunas, e a
+% coluna de prosa colapsa para uma palavra por linha na largura do TMLR.
+% Mesmo tratamento do preambulo do arXiv (paper/preamble.tex).
+% ---------------------------------------------------------------------------
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\footnotesize}
+\setlength{\tabcolsep}{4pt}
+
+% ---------------------------------------------------------------------------
+% Margem: medido em 2026-09-11, a variante TMLR saia com 5 overfull \hbox, dois
+% deles grandes (62,2pt e 54,5pt) — texto a invadir a margem. As duas causas
+% sao (a) caminho absoluto longo em \texttt{}, que nao tem ponto de quebra, e
+% (b) celula de tabela larga. `\emergencystretch` autoriza o TeX a esticar o
+% espaco de uma linha antes de estourar a margem, e nao precisa de pacote.
+%
+% O remedio proprio para \texttt{} seria `hyphenat[htt]`, que NAO existe nesta
+% TeX Live; depender dele tornaria o build nao-hermetico. O que sobrar de
+% overfull se resolve no texto — um caminho absoluto de producao no meio da
+% prosa ja e um cheiro antes de ser um problema de composicao.
+%
+% ⚠️ Conferir o numero de overfull depois de mexer aqui, e conferir ANTES que o
+% build produziu paginas: na primeira tentativa o `hyphenat` ausente parou o
+% LaTeX e o contador de overfull deu 0 — zero por nao ter medido, que se le
+% igual a zero por estar limpo.
+% ---------------------------------------------------------------------------
+\emergencystretch=3em

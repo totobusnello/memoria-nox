@@ -15,11 +15,7 @@ are omitted; §5.7 states the operational envelope in machine-independent terms
 
 ## Abstract
 
-We introduce **nox-mem**, a persistent memory system for autonomous LLM agents built on one principle: **pain-weighted hybrid memory with shadow discipline**. Retrieval and retention are governed by an additive salience formula in which *pain* — an operator-assigned severity in [0.1, 1.0], persisted on every chunk — is a first-class signal, and ranking changes pass a mandatory shadow phase before production activation. The system is a single SQLite file with provider-swappable embeddings, MIT-licensed: no vendor lock-in, sub-second writeback (inotifywait-driven), per-`chunk_type` retention windows, chunk-level provenance, and a policy-gated pre-snapshot before destructive operations. Deployed in production since March 14, 2026, it serves six specialized agents at KG-path p50 = 2.9 ms, $0 per KG-path query, and a 399 MB resident set in a single self-hosted process (§5.7).
-
-Our central result is a pre-registered, same-corpus comparison against five competing memory systems, of which four produced head-to-head quality numbers — two in the 2026-06-15 canonical run and two (EverOS and Zep) in later runs over the same corpus and query set — and one was a documented deployment non-run (§6). Under each system's native embedder the two leaders **split** — Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426), nox-mem wins LongMemEval. An embedding-matched variant (both Gemini 3072-d, full n = 2,482) — planned rather than post-hoc (§6.7), and an embedding match rather than a clean architecture isolation (§6.3.2) — **inverts the split**: nox-mem leads on both datasets (LongMemEval 0.526 vs 0.406; LoCoMo 0.495 vs 0.441) and in all five represented categories, with four residual confounds declared. On EverMemBench, nox-mem reaches **63.28% Overall** with Gemini-3-flash, above every MemOS Table 4 number[^memos] — all of which were obtained on GPT-4.1-mini, so the backbones differ and this is not a state-of-the-art claim (§5.1.10).
-
-Three findings cut against our own headline: *pain*'s isolated retrieval effect is directional but not statistically significant (§7.1); section-aware ranking, not pain, is the dominant empirical driver (§5.1.3); and on the same EverMemBench run the F_MH multi-hop track sits at 3–7%, against 18.88% strict EM for the best published system on that track, which §5.4 attributes principally to task setup.
+We introduce **nox-mem**, a persistent memory system for autonomous LLM agents built on one principle: **pain-weighted hybrid memory with shadow discipline**. Retrieval and retention are governed by an additive salience formula in which *pain* — an operator-assigned severity in [0.1, 1.0], persisted on every chunk — is a first-class signal, and ranking changes pass a mandatory shadow phase before production activation. The system is a single SQLite file with provider-swappable embeddings, MIT-licensed: no vendor lock-in, sub-second writeback (inotifywait-driven), per-`chunk_type` retention windows, chunk-level provenance, and a policy-gated pre-snapshot before destructive operations. Deployed in production since March 14, 2026, it serves six specialized agents at KG-path p50 = 2.9 ms, $0 per KG-path query, and a 399 MB resident set in a single self-hosted process (§5.7). Our central result is a pre-registered, same-corpus comparison against five competing memory systems, of which four produced head-to-head quality numbers — two in the 2026-06-15 canonical run and two (EverOS and Zep) in later runs over the same corpus and query set — and one was a documented deployment non-run (§6). Under each system's native embedder the two leaders **split** — Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426), nox-mem wins LongMemEval. An embedding-matched variant (both Gemini 3072-d, full n = 2,482) — planned rather than post-hoc (§6.7), and an embedding match rather than a clean architecture isolation (§6.3.2) — **inverts the split**: nox-mem leads on both datasets (LongMemEval 0.526 vs 0.406; LoCoMo 0.495 vs 0.441) and in all five represented categories, with four residual confounds declared. On EverMemBench, nox-mem reaches **63.28% Overall** with Gemini-3-flash, above every MemOS Table 4 number — all of which were obtained on GPT-4.1-mini, so the backbones differ and this is not a state-of-the-art claim (§5.1.10). Three findings cut against our own headline: *pain*'s isolated retrieval effect is directional but not statistically significant (§7.1); section-aware ranking, not pain, is the dominant empirical driver (§5.1.3); and on the same EverMemBench run the F_MH multi-hop track sits at 3–7%, against 18.88% strict EM for the best published system on that track, which §5.4 attributes principally to task setup.
 
 ---
 
@@ -269,7 +265,8 @@ Memory chunks are classified into 10 types based on source file path patterns:
 
 ### 2.4 Multi-Agent Memory Architecture
 
-Each of the 6 agents operates with an isolated database at `/root/.openclaw/agents/{name}/tools/nox-mem/nox-mem.db`. The `OPENCLAW_WORKSPACE` environment variable controls path resolution across all modules, enabling the same nox-mem binary to operate on different databases depending on the calling context.
+Each of the 6 agents operates with an isolated database at `agents/{name}/tools/nox-mem/nox-mem.db`, relative to the
+workspace root. The `OPENCLAW_WORKSPACE` environment variable controls path resolution across all modules, enabling the same nox-mem binary to operate on different databases depending on the calling context.
 
 **Agent Memory Distribution (as of March 23, 2026):**
 
@@ -467,7 +464,7 @@ The `crossSearch()` function opens all 7 databases in read-only mode, executes F
 > - **Methodology:** all claims use the **5-batch + 95% CI canonical protocol**. Single-batch overstates effects 3–6×.
 > - **Dual-baseline honest reporting (D74):** orchestration-mechanism claims report against both (a) project-convention baseline (Phase H v2 GPT-4.1-mini, conflates backbone + mechanism) and (b) the strongest in-matrix bare baseline (Gemini-3-flash, isolates mechanism). Ceiling-break claims load on (b).
 
-This section documents three evaluation tracks that triangulate the same architectural claims from complementary directions: the **Wave A ablation series** (§5.1.1–§5.1.4, entity-flavored golden set, nDCG@10) exercising the V10 schema's section/source-type/salience drivers; the **EverMemBench cross-system series** (§5.1.5–§5.1.10, n=3,121 queries, task-accuracy vs MemOS Table 4 baselines) covering Phase D / H v2 / G / Lab Q1 standalone knobs / Wave B/C composability / Backbone Matrix; and the **classical multi-hop QA series** (§5.2, MuSiQue + HotPotQA) bounding multi-hop reasoning as competent on standard benchmarks, above their conventional reference readers and below current SOTA where corpus structure and scoring are not adversarial. §5.3 cross-validates on LoCoMo (memory-bench, conversational), §5.4 resolves the EverMemBench F_MH paradox using the §5.2 and §5.3 evidence, §5.5 reports Q3 orchestration mechanism-class findings — including the **Q3 IterB ReAct ceiling break** (§5.5.2), the **Wave 2 backbone-conditional knob portability study** (§5.5.5–§5.5.6), the **architectural composability lock discovery** (§5.5.7), and the **Wave 2 capstone deferral** (§5.5.8) — §5.6 cross-validates on LongMemEval, §5.7 reports operational characteristics (latency / cost / footprint), §5.8 documents the methodology and honest limitations.
+This section documents three evaluation tracks that triangulate the same architectural claims from complementary directions: the **Wave A ablation series** (§5.1.1–§5.1.4, entity-flavored golden set, nDCG@10) exercising the V10 schema's section/source-type/salience drivers; the **EverMemBench cross-system series** (§5.1.5–§5.1.10, n=3,121 queries, task-accuracy vs MemOS Table 4 baselines[^memos]) covering Phase D / H v2 / G / Lab Q1 standalone knobs / Wave B/C composability / Backbone Matrix; and the **classical multi-hop QA series** (§5.2, MuSiQue + HotPotQA) bounding multi-hop reasoning as competent on standard benchmarks, above their conventional reference readers and below current SOTA where corpus structure and scoring are not adversarial. §5.3 cross-validates on LoCoMo (memory-bench, conversational), §5.4 resolves the EverMemBench F_MH paradox using the §5.2 and §5.3 evidence, §5.5 reports Q3 orchestration mechanism-class findings — including the **Q3 IterB ReAct ceiling break** (§5.5.2), the **Wave 2 backbone-conditional knob portability study** (§5.5.5–§5.5.6), the **architectural composability lock discovery** (§5.5.7), and the **Wave 2 capstone deferral** (§5.5.8) — §5.6 cross-validates on LongMemEval, §5.7 reports operational characteristics (latency / cost / footprint), §5.8 documents the methodology and honest limitations.
 
 **Dual-baseline reporting convention (D74, 2026-05-31).** Orchestration-mechanism evaluations in this revision report against **two** baselines: (a) the project-convention Phase H v2 GPT-4.1-mini baseline, which preserves comparability with prior revisions but **conflates mechanism lift with any backbone swap**; and (b) the strongest in-matrix bare baseline (Gemini-3-flash, §5.1.10), which **isolates the mechanism's clean effect** on the best available reasoning substrate. Any claim of breaking the retrieval-stage F_MH ceiling load-bears on the (b) clean number — reporting only (a) would conflate ReAct mechanism lift with the +20.73 pp Overall and +32.74 pp MA composite lifts that the Gemini-3-flash backbone already provides standalone (§5.1.10). The convention applies forward to §5.5 Q3 IterB (this revision) and any future MAS-class orchestration evaluations.
 
@@ -486,8 +483,8 @@ Progression vs prior ablation generations:
 | Generation | Date | A8 nDCG@10 | Δ vs G3 baseline | Notes |
 |---|---|---|---|---|
 | G3 baseline (pre-Wave A) | 2026-05-15 | 0.3488 | — | Multiplicative salience, tier_boost on, section_boost only via legacy code path |
-| G4 mid-deployment | 2026-05-18 | 0.5702 | +63.5% | Additive salience wired but `active < shadow` puzzle observed |
-| **G5 V3 canonical** | **2026-05-19** | **0.6237** | **+78.8%** | Wave A fully deployed; reversal `active > shadow` confirmed |
+| G4 mid-deployment | 2026-05-18 | 0.5702 | +63.5% | Additive salience wired but *active < shadow* puzzle observed |
+| **G5 V3 canonical** | **2026-05-19** | **0.6237** | **+78.8%** | Wave A fully deployed; reversal *active > shadow* confirmed |
 
 The four sub-claims below decompose the +78.8% total into measurable contributions; the full G5 V3 matrix (12 configurations) is archived under `audits/`.
 
@@ -496,7 +493,8 @@ The four sub-claims below decompose the +78.8% total into measurable contributio
 The Wave A formula replaces the legacy multiplicative `salience = recency × pain × importance` with a weighted-additive form:
 
 ```
-salience = W_IMPORTANCE·importance + W_RECENCY·recency + W_PAIN·pain + W_ACCESS·access_score
+salience = W_IMPORTANCE·importance + W_RECENCY·recency
+         + W_PAIN·pain + W_ACCESS·access_score
 W_IMPORTANCE = 0.55   W_RECENCY = 0.15   W_PAIN = 0.10   W_ACCESS = 0.20
 ```
 
@@ -560,7 +558,7 @@ The result: on both benchmarks nox-mem performs multi-hop QA competently without
 | System | Split | Answer F1 | Δ vs nox-mem | Source |
 |---|---|---:|---:|---|
 | Beam Retrieval (Zhang et al., NAACL 2024) | **test** | **69.20%** | **+10.58 pp** | Table 4 (arxiv:2308.08973) |
-| **nox-mem (hybrid, no rerank)** | **dev** | **58.62%** | — | `eval/musique/RESULTS-MUSIQUE.md` |
+| **nox-mem (hybrid, no rerank)** | **dev** | **58.62%** | — | this work (§5.2.1) |
 | EX(SA) (Trivedi et al. 2022) | dev | 49.70% | −8.92 pp | MuSiQue paper (arxiv:2108.00573) |
 | IRCoT (Trivedi et al. 2023) | dev | 35.80% | −22.82 pp | IRCoT paper (arxiv:2212.10509) |
 
@@ -1106,7 +1104,7 @@ The Q4 per-method benchmark (§6) establishes the cross-system baseline. Phase B
 
 #### F4 — EverMemBench equivalence: honest comparison against EverMind-AI dataset
 
-EverMind-AI publishes standardized results on EverMemBench (EverCore 83% LongMemEval / 93% LoCoMo; HyperMem 92.73% LongMemEval). Running nox-mem on EverMemBench with the same evaluation protocol closes the benchmark gap and provides a reviewer-grade comparison for the arXiv submission. This is gated on EverMind-AI repository availability (currently unavailable) or an alternative comparable dataset. Estimated Lab Q1 priority if the repository returns.
+EverMind-AI publishes standardized results on EverMemBench (EverCore 83% LongMemEval / 93% LoCoMo; HyperMem 92.73% LongMemEval). Running nox-mem on EverMemBench with the same evaluation protocol closes the benchmark gap and provides a reviewer-grade comparison for this submission. This is gated on EverMind-AI repository availability (currently unavailable) or an alternative comparable dataset. Estimated Lab Q1 priority if the repository returns.
 
 #### F5 — Neural reranker: cross-encoder rerank post-RRF
 
