@@ -48,14 +48,7 @@ The published memory-for-LLM-agents literature spans roughly three families: (i)
 
 Across these systems, six recurring gaps appear in the design space, and each motivates a concrete subsystem below. A design-space coverage table, compiled from each system's own documentation rather than from measurement, is in the supplement.
 
-**Why each gap matters, and how nox-mem closes it:**
-
-1. **Static injection.** A memory system that only reads at the start of a session cannot observe what the agent does *during* the session. nox-mem's watcher [^watcher-arch] re-ingests every modified `.md` / `.json` file within ~1 second of the write, with idempotent chunk replacement (§3.1).
-2. **No temporal decay.** Treating a daily note from 91 days ago the same as a crystallized decision floods retrieval with stale noise. nox-mem assigns each `chunk_type` a `retention_days` window (V8 schema column; `feedback`/`person` = never-decay, `lesson` = 180d, `decision`/`project` = 365d, `daily` = 90d) and folds it into the salience formula (Appendix A.2).
-3. **No provenance.** Parametric and opaque-vector memories cannot answer "*why* did you return this?". Every nox-mem result carries the originating `chunk_id` and `source_file`, every destructive operation goes through `withOpAudit()` with a `VACUUM INTO` pre-snapshot to `/var/backups/nox-mem/pre-op/`, and the `ops_audit` table is append-only.
-4. **Flat memory.** Without structure, hybrid search collapses to "more recent or more frequent wins". nox-mem layers (a) FTS5 (SQLite full-text search) over chunk text, (b) typed retention, (c) an LLM-extracted knowledge graph (Appendix A), and (d) an entity-file format (`frontmatter` / `compiled` / `timeline` sections) with section-aware `section_boost` — the dominant driver of the +78.8% gain in §5.
-5. **No writeback.** A system that can only *be read* cannot grow. nox-mem's self-evolution triad — `crystallize`, `reflect`, `consolidate` — is described in §3.4 and is the most direct counter to EverOS's EvoAgentBench framing [^everos].
-6. **Indexing delay.** Daily-batch reindex makes "new memory" a 24h-resolution operation. inotifywait makes it sub-second (§3.1), and `--dry-run` mode plus `withOpAudit()` snapshots make destructive ops (reindex, consolidate, compact, crystallize, kg-prune) reversible.
+**How each gap is closed.** Live writeback addresses static injection (§3.1); typed `retention_days` folded into the salience formula addresses the absence of temporal decay (§3.4.3); `chunk_id` and `source_file` on every result, plus an append-only `ops_audit` table behind `withOpAudit()`, address provenance (§3.3); FTS5, typed retention, an extracted knowledge graph and section-aware `section_boost` address flat memory (§4.1); the `crystallize`/`reflect`/`consolidate` triad addresses the absence of writeback (§3.4); and sub-second re-ingestion addresses indexing delay (§3.1).
 
 The single design principle that ties these closures together is **pain weighting under shadow discipline**: every chunk carries an explicit `pain` severity, every ranking change rolls out first in `NOX_SALIENCE_MODE=shadow` with /api/health telemetry [^salience-mode], and only graduates to `active` after operator review.
 
@@ -304,15 +297,13 @@ nox-mem exposes a deliberately small public contract: **three primitives**, all 
 
 **Composition.** The three primitives compose orthogonally — for example, `answer "what incidents happened last week?" --changed-since 7d` retrieves only chunks updated in the last seven days, then synthesizes a grounded answer over that restricted candidate set. This closure property — three small primitives, deterministic semantics, identical surface across transports — is the contract that makes nox-mem composable from agent runtimes that have no prior knowledge of the implementation.
 
-**Tagline.** *3 primitives, 1 file, any LLM.* The three primitives are search + answer + temporal filter; the one file is the SQLite database on the operator's disk; the LLM provider is swappable via the `LLMProvider` interface (Gemini default, OpenAI / Anthropic / Ollama / vLLM available) without code changes.
-
 ---
 
 ## 3. Memory Pipeline
 
 ### 3.1 Ingestion
 
-Files created or modified in monitored directories trigger the inotifywait-based watcher service. The watcher implements:
+Files created or modified in monitored directories trigger the inotifywait-based watcher service[^watcher-arch]. The watcher implements:
 
 - **Debounce logic**: 2-second delay to batch rapid successive writes
 - **File filtering**: Only `.md` and `.json` files are processed
@@ -549,57 +540,7 @@ The 5-batch methodology (§5.8) is canonical for this claim. Single-batch estima
 
 ---
 
-#### 5.1.7 EverMemBench Phase G — Cross-encoder rerank trade-off study (5-batch)
-
-**Config:** MiniLM[^minilm]-L-6-v2 cross-encoder rerank (22M params), top_k=20 pool rescored, Gemini-2.5-flash backbone. 5-batch, n=3,121.
-
-Cross-encoder reranking[^sbert] exposes a **4-dimensional trade-off** across retrieval workload types:
-
-| Category type | Δ vs Phase D (no rerank) | Direction |
-|---|---:|---|
-| Hard-recall: F_MH (multi-hop) | **+1.61 pp** (95% CI [3.97, 9.69] — overlaps baseline) | marginal gain |
-| Hard-recall: F_HL (high-level) | +2.58 pp | marginal gain |
-| Hard-recall: F_TP (temporal) | +2.00 pp | marginal gain |
-| Head-precision: F_SH (single-hop) | +0.40 pp | quasi-neutral |
-| Head-precision: MC (multi-choice) | −2.63 pp | regression |
-| Memory Awareness: MA_C | **−4.00 pp** | significant regression |
-| Memory Awareness: MA_P | **−2.80 pp** | significant regression |
-| Memory Awareness: MA_U | **−3.84 pp** | significant regression |
-| Overall | −0.96 pp | net regression |
-
-The F_MH gain of +1.61 pp closes only **11.7% of the MemOS F_MH gap** (Phase D baseline 5.22% → Phase G 6.83% vs MemOS 18.94%). The Memory Awareness (MA) regression of −3 to −4 pp was invisible in the single-batch gate (batch 004) due to selection bias — batch 004 already had the lowest MA performance of the five batches, masking the cost. The −0.96 pp overall regression is real across all 5 batches (2.3× smaller than the single-batch −2.24 pp estimate, but consistent in direction).
-
-**Verdict:** REJECT as default. Ship opt-in via `--rerank` flag / `NOX_RERANKER_ENABLED=1` / `/api/answer?mode=exploratory`. Documented latency cost: +3.7 s p50. Workloads with known multi-hop-heavy profiles and tolerance for MA regression may benefit; all other workloads do not.
-
----
-
-#### 5.1.8 EverMemBench Lab Q1 — Retrieval augmentation standalone knobs (5-batch)
-
-Four standalone retrieval knobs on Gemini-2.5-flash; none significant alone. Campaign in `publication/supplement-wave2-and-cross-backbone.md` §S5.1.8.
-
-#### 5.1.9 Wave B + Wave C composability — additive F_MH and the retrieval-stage ceiling
-
-Wave B and Wave C compose additively on F_MH; the ceiling is the retrieval stage, not the orchestrator. Detail in `publication/supplement-wave2-and-cross-backbone.md` §S5.1.9.
-
-#### 5.1.10 Backbone Matrix — Gemini-3-flash on EverMemBench, above the published MemOS numbers
-
-**Config:** phaseB adapter, top_k=20, rerank OFF, Gemini-3-flash backbone (frontier reasoning tier). 5-batch n=3,121.
-
-| Metric | nox-mem (Gemini-3-flash) | MemOS Table 4 baseline (GPT-4.1-mini col) | Δ vs MemOS | Δ vs nox-mem gpt-4.1-mini (Phase H v2) |
-|---|---:|---:|---:|---:|
-| **Overall** | **63.28%** | 42.55% | **+20.73 pp** | +11.60 pp |
-| **MA composite** | **88.42%** | 55.68% | **+32.74 pp** | +15.08 pp |
-| MA_C | ~95% | 69.90% | +25 pp class | +10 pp class |
-| MA_P | ~83% | 51.99% | +31 pp class | +18 pp class |
-| MA_U | ~87% | 45.15% | +42 pp class | +17 pp class |
-
-Gemini-3-flash leads on both the Overall and Memory Awareness composite tracks. The MA composite at **+32.74 pp over the published MemOS numbers** is consistent with a structural advantage from the V10 schema's section/source-type/salience drivers when paired with a frontier-tier reasoning backbone.
-
-⚠️ **The backbones differ, and the deltas are not SOTA claims.** The MemOS column is the published Table 4 result obtained on **GPT-4.1-mini**; our column is **Gemini-3-flash**. Beating a published number produced on a weaker backbone is a cross-backbone comparison, not a state-of-the-art result, and §5.5.4–§5.5.8 measure directly how much backbone choice alone can move these metrics (single-stage retrieval knobs transfer at only 0–40% between these two backbones). The split-matched comparison against MemOS is the GPT-4.1-mini row in §5.1.6 (+9.13 pp, 95% CI [49.88, 53.49]); that one holds the backbone fixed and is the number to cite when the question is architecture rather than backbone.
-
-**Backbone Matrix interpretation.** The +20.73 pp Overall and +32.74 pp MA composite lifts vs gpt-4.1-mini baseline are not exclusively backbone-driven: nox-mem's V10 retrieval stack contributes ~+9.13 pp Overall and ~+25 pp MA composite at the gpt-4.1-mini tier alone (Phase H v2, §5.1.6). The incremental +11.60 pp Overall and +15.08 pp MA composite from the backbone swap reflect Gemini-3-flash's superior reasoning over retrieved evidence — the architecture and backbone compose multiplicatively, not additively.
-
----
+The cross-encoder[^sbert] rerank trade-off study — a quality gain on some dimensions against a latency cost, reported as a four-dimensional trade-off rather than a single delta — is in the supplement.
 
 #### 5.1.11–5.1.12 Cross-backbone analysis and the F_MH retrieval-bound finding
 
@@ -1197,25 +1138,9 @@ The cross-agent intelligence layer transforms isolated agent memories into a col
 
 ---
 
-## Appendices
+## Appendices — moved out
 
-The material below documents interfaces and operational history of the deployed
-system. It is not part of any claim in §§1–8 and is included for reproducibility.
-
----
-
-## Appendices C–G — moved out
-
-The five operational appendices of earlier revisions — **C.** MCP Server Interface,
-**D.** HTTP API Server, **E.** Operational Infrastructure, **F.** Dashboard Integration,
-**G.** Evolution History — were moved out of the manuscript on 2026-09-09 and are
-preserved verbatim in `paper/publication/supplement-operational-appendices.md`.
-
-They document how the deployment is wired rather than what was measured, and none of the
-four comparable agent-memory papers accepted by arXiv in 2026 carries an appendix. Each
-one is **named here rather than silently dropped**: absence of something that used to be
-present has to be visible, or a reader who was looking for it cannot tell removal from
-oversight.
+The manuscript carries no appendix. The seven operational appendices of earlier revisions — **A.** Knowledge Graph v2, **B.** Cross-Agent Intelligence, **C.** MCP Server Interface, **D.** HTTP API Server, **E.** Operational Infrastructure, **F.** Dashboard Integration, **G.** Evolution History — are preserved verbatim in `paper/publication/supplement-operational-appendices.md` (C–G, moved 2026-09-09) and `paper/publication/supplement-wave2-and-cross-backbone.md` (A–B, moved 2026-09-11). They document how the deployment is wired rather than what was measured. Each is **named here rather than silently dropped**: absence of something that used to be present has to be visible, or a reader who was looking for it cannot tell removal from oversight.
 
 ## References and Footnotes
 

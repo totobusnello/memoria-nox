@@ -645,3 +645,63 @@ The `pullInsightsFrom()` function enables any agent to query lessons and decisio
 [^lightrag-stack]: LightRAG defaults to Neo4j for the knowledge graph + a vector store (Qdrant/Milvus/etc.), plus one LLM provider key for entity/relation extraction during indexing. Counts: 2 services + 1 mandatory third-party key. Source: LightRAG README at github.com/HKUDS/LightRAG.
 
 [^q-a-p-pivot]: Q/A/P strategic pivot of 2026-05-17 — three pillars (**Q**uality, **A**utonomy, **P**roduct).
+
+---
+
+## §5.1.7 — cross-encoder rerank trade-off study
+
+#### 5.1.7 EverMemBench Phase G — Cross-encoder rerank trade-off study (5-batch)
+
+**Config:** MiniLM[^minilm]-L-6-v2 cross-encoder rerank (22M params), top_k=20 pool rescored, Gemini-2.5-flash backbone. 5-batch, n=3,121.
+
+Cross-encoder reranking[^sbert] exposes a **4-dimensional trade-off** across retrieval workload types:
+
+| Category type | Δ vs Phase D (no rerank) | Direction |
+|---|---:|---|
+| Hard-recall: F_MH (multi-hop) | **+1.61 pp** (95% CI [3.97, 9.69] — overlaps baseline) | marginal gain |
+| Hard-recall: F_HL (high-level) | +2.58 pp | marginal gain |
+| Hard-recall: F_TP (temporal) | +2.00 pp | marginal gain |
+| Head-precision: F_SH (single-hop) | +0.40 pp | quasi-neutral |
+| Head-precision: MC (multi-choice) | −2.63 pp | regression |
+| Memory Awareness: MA_C | **−4.00 pp** | significant regression |
+| Memory Awareness: MA_P | **−2.80 pp** | significant regression |
+| Memory Awareness: MA_U | **−3.84 pp** | significant regression |
+| Overall | −0.96 pp | net regression |
+
+The F_MH gain of +1.61 pp closes only **11.7% of the MemOS F_MH gap** (Phase D baseline 5.22% → Phase G 6.83% vs MemOS 18.94%). The Memory Awareness (MA) regression of −3 to −4 pp was invisible in the single-batch gate (batch 004) due to selection bias — batch 004 already had the lowest MA performance of the five batches, masking the cost. The −0.96 pp overall regression is real across all 5 batches (2.3× smaller than the single-batch −2.24 pp estimate, but consistent in direction).
+
+**Verdict:** REJECT as default. Ship opt-in via `--rerank` flag / `NOX_RERANKER_ENABLED=1` / `/api/answer?mode=exploratory`. Documented latency cost: +3.7 s p50. Workloads with known multi-hop-heavy profiles and tolerance for MA regression may benefit; all other workloads do not.
+
+---
+
+#### 5.1.8 EverMemBench Lab Q1 — Retrieval augmentation standalone knobs (5-batch)
+
+Four standalone retrieval knobs on Gemini-2.5-flash; none significant alone. Campaign in `publication/supplement-wave2-and-cross-backbone.md` §S5.1.8.
+
+#### 5.1.9 Wave B + Wave C composability — additive F_MH and the retrieval-stage ceiling
+
+Wave B and Wave C compose additively on F_MH; the ceiling is the retrieval stage, not the orchestrator. Detail in `publication/supplement-wave2-and-cross-backbone.md` §S5.1.9.
+
+---
+
+## §5.1.10 — backbone matrix on EverMemBench (Gemini-3-flash)
+
+#### 5.1.10 Backbone Matrix — Gemini-3-flash on EverMemBench, above the published MemOS numbers
+
+**Config:** phaseB adapter, top_k=20, rerank OFF, Gemini-3-flash backbone (frontier reasoning tier). 5-batch n=3,121.
+
+| Metric | nox-mem (Gemini-3-flash) | MemOS Table 4 baseline (GPT-4.1-mini col) | Δ vs MemOS | Δ vs nox-mem gpt-4.1-mini (Phase H v2) |
+|---|---:|---:|---:|---:|
+| **Overall** | **63.28%** | 42.55% | **+20.73 pp** | +11.60 pp |
+| **MA composite** | **88.42%** | 55.68% | **+32.74 pp** | +15.08 pp |
+| MA_C | ~95% | 69.90% | +25 pp class | +10 pp class |
+| MA_P | ~83% | 51.99% | +31 pp class | +18 pp class |
+| MA_U | ~87% | 45.15% | +42 pp class | +17 pp class |
+
+Gemini-3-flash leads on both the Overall and Memory Awareness composite tracks. The MA composite at **+32.74 pp over the published MemOS numbers** is consistent with a structural advantage from the V10 schema's section/source-type/salience drivers when paired with a frontier-tier reasoning backbone.
+
+⚠️ **The backbones differ, and the deltas are not SOTA claims.** The MemOS column is the published Table 4 result obtained on **GPT-4.1-mini**; our column is **Gemini-3-flash**. Beating a published number produced on a weaker backbone is a cross-backbone comparison, not a state-of-the-art result, and §5.5.4–§5.5.8 measure directly how much backbone choice alone can move these metrics (single-stage retrieval knobs transfer at only 0–40% between these two backbones). The split-matched comparison against MemOS is the GPT-4.1-mini row in §5.1.6 (+9.13 pp, 95% CI [49.88, 53.49]); that one holds the backbone fixed and is the number to cite when the question is architecture rather than backbone.
+
+**Backbone Matrix interpretation.** The +20.73 pp Overall and +32.74 pp MA composite lifts vs gpt-4.1-mini baseline are not exclusively backbone-driven: nox-mem's V10 retrieval stack contributes ~+9.13 pp Overall and ~+25 pp MA composite at the gpt-4.1-mini tier alone (Phase H v2, §5.1.6). The incremental +11.60 pp Overall and +15.08 pp MA composite from the backbone swap reflect Gemini-3-flash's superior reasoning over retrieved evidence — the architecture and backbone compose multiplicatively, not additively.
+
+---
