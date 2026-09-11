@@ -27,6 +27,8 @@ from __future__ import annotations
 
 import argparse
 import re
+import os
+import pathlib
 import sys
 from pathlib import Path
 
@@ -45,10 +47,16 @@ PADROES: list[tuple[str, str]] = [
     ("host de producao",     r"srv\d{6,}|\broot@[\w.-]+|(?<![§.\d])\b(?:\d{1,3}\.){3}\d{1,3}\b(?![.\d])"),
 ]
 
+# ⚠️ A sentinela usa endereco de DOCUMENTACAO (RFC 5737, 203.0.113.0/24) e um
+# nome de host obviamente falso. A primeira versao trazia o IP do host de
+# benchmark e o hostname da VPS REAIS — num repositorio PUBLICO, e o controle
+# positivo nao precisa deles para nada: precisa de algo que CASE o padrao.
+# Colocar o valor real num arquivo versionado para testar o detetor de valores
+# reais e' o proprio defeito que o detetor existe para pegar.
 SENTINELA = (
     "Luiz Antonio Busnello <lab@example.com> github.com/totobusnello/x "
-    "Toto 10.5281/zenodo.22649269 Nuvini /Users/lab root@host srv1826603 "
-    "100.87.8.44\n"
+    "Toto 10.5281/zenodo.22649269 Nuvini /Users/lab root@host srv000000 "
+    "203.0.113.7\n"
 )
 
 # Sentinela NEGATIVA: cada item TEM de passar ilesa. Sem esta perna, apertar um
@@ -63,7 +71,7 @@ _IPV4 = re.compile(r"^(?:\d{1,3}\.){3}\d{1,3}$")
 
 
 def _e_numeracao(s: str) -> bool:
-    """`5.1.8.3` e' numero de secao; `100.87.8.44` e' endereco.
+    """`5.1.8.3` e' numero de secao; `203.0.113.7` e' endereco.
 
     Um endereco real quase sempre tem um octeto de 3 digitos (100.x, 127.x,
     192.x) ou pelo menos dois de 2 digitos. A numeracao deste manuscrito chega a
@@ -93,6 +101,108 @@ SUBSTITUICOES: list[tuple[str, str]] = [
      "and identifiers inside code offered as reproducible — and the identified "
      "repository will be cited in the camera-ready version."),
 ]
+
+
+# ---------------------------------------------------------------------------
+# Modo --check-tree: host REAL em arquivo versionado.
+#
+# Existe por defeito proprio: a primeira sentinela deste script trazia o IP do
+# host de benchmark e o hostname da VPS reais, e foi commitada num repositorio
+# PUBLICO. O detetor de valores reais carregava os valores reais.
+#
+# Em vez de lista de excecoes (que envelhece), o discriminador e' "endereco
+# especifico e roteavel": loopback, privado, CGNAT, documentacao (RFC 5737) e
+# placeholder ficam de fora por SEREM o que sao, nao por estarem numa lista de
+# perdao.
+#
+# ⚠️ A perna que confirma que isto acusa o valor real precisa DO valor real, e
+# escrever o valor real aqui seria repetir o defeito. Entao ela le
+# `NOX_HOST_PROIBIDO` do ambiente e, sem a variavel, DECLARA que nao correu —
+# nunca reporta "ok" por nao ter tido com que testar.
+# ---------------------------------------------------------------------------
+_PLACEHOLDER = re.compile(
+    r"^root@(?:host|\.\.\.|VPS(?:_IP)?|your-[\w.-]+|<[\w.-]+>|\$\w+)$", re.I)
+
+
+def _host_especifico(achado: str) -> bool:
+    """True se parece endereco REAL e especifico, nao placeholder nem reservado."""
+    if achado.startswith("root@"):
+        if _PLACEHOLDER.match(achado):
+            return False
+        alvo = achado[5:]
+        # dominio reservado para exemplo (RFC 2606 / RFC 6761) nao e' host real
+        if re.search(r"\.(?:example\.(?:com|org|net)|example|invalid|test|localhost)$",
+                     alvo, re.I) or alvo.lower() in {"localhost", "example.com"}:
+            return False
+        # `root@<ip>` herda o julgamento do proprio ip
+        return _host_especifico(alvo) if _IPV4.match(alvo) else True
+    if achado.startswith("srv"):
+        return set(achado[3:]) != {"0"}
+    if not _IPV4.match(achado):
+        return True
+    o = [int(x) for x in achado.split(".")]
+    if _e_numeracao(achado):
+        return False
+    reservado = (
+        o[0] in (0, 10, 127) or
+        (o[0] == 192 and o[1] == 168) or (o[0] == 169 and o[1] == 254) or
+        (o[0] == 172 and 16 <= o[1] <= 31) or
+        (o[0] == 100 and 64 <= o[1] <= 127 and o[2] == 0 and o[3] == 0) or
+        (o[0] == 192 and o[1] == 0 and o[2] == 2) or
+        (o[0] == 198 and o[1] == 51 and o[2] == 100) or
+        (o[0] == 203 and o[1] == 0 and o[2] == 113)
+    )
+    return not reservado
+
+
+_EXT_TEXTO = {".py", ".sh", ".md", ".json", ".tex", ".txt", ".yml", ".yaml",
+              ".bst", ".sty", ".cff", ".ts", ".js", ".mjs", ".sql"}
+
+
+def check_tree(subarvores: list[str]) -> int:
+    import subprocess
+    raiz = RAIZ
+    saida = subprocess.run(["git", "-C", str(raiz), "ls-files", *subarvores],
+                           capture_output=True, text=True)
+    if saida.returncode != 0:
+        print(f"git ls-files falhou: {saida.stderr.strip()}", file=sys.stderr)
+        return 3
+    arquivos = [raiz / r for r in saida.stdout.split()
+                if pathlib_suffix(r) in _EXT_TEXTO]
+    if not arquivos:
+        print("nenhum arquivo de texto versionado nessas subarvores — "
+              "'0 hosts' seria indistinguivel de 'nao li nada'", file=sys.stderr)
+        return 3
+
+    # perna de confirmacao, com valor que NAO vive neste arquivo
+    proibido = os.environ.get("NOX_HOST_PROIBIDO", "").strip()
+    if proibido:
+        if not _host_especifico(proibido):
+            print(f"controle falhou: `{proibido}` do ambiente NAO foi "
+                  f"classificado como host especifico", file=sys.stderr)
+            return 3
+        print(f"controle: o valor de NOX_HOST_PROIBIDO e' classificado como host real")
+    else:
+        print("⚠️  sem NOX_HOST_PROIBIDO no ambiente: a perna que confirma a "
+              "deteccao de um host REAL nao correu")
+
+    rx = re.compile(dict(PADROES)["host de producao"])
+    achados = 0
+    for f in arquivos:
+        try:
+            texto = f.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        for m in rx.finditer(texto):
+            if _host_especifico(m.group(0)):
+                achados += 1
+                print(f"  🔴 {f.relative_to(raiz)}: host especifico `{m.group(0)}`")
+    print(f"{len(arquivos)} arquivos versionados varridos, {achados} host(s) especifico(s)")
+    return 4 if achados else 0
+
+
+def pathlib_suffix(rel: str) -> str:
+    return pathlib.PurePosixPath(rel).suffix
 
 
 def audita(texto: str) -> list[tuple[str, str]]:
@@ -144,7 +254,14 @@ def main() -> int:
     ap.add_argument("--check", nargs="*", metavar="ARQUIVO")
     ap.add_argument("--write", metavar="SAIDA")
     ap.add_argument("--autoteste", action="store_true")
+    ap.add_argument("--check-tree", nargs="*", metavar="SUBARVORE",
+                    help="varre arquivos VERSIONADOS procurando host real "
+                         "(default: paper scripts)")
     a = ap.parse_args()
+
+    if a.check_tree is not None:
+        controle_positivo()
+        return check_tree(a.check_tree or ["paper", "scripts"])
 
     if a.autoteste:
         controle_positivo()
