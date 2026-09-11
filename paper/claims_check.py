@@ -1070,18 +1070,7 @@ def contagem_sistemas_check(root: Path) -> list[str]:
                           f"{c['nome']}, que o censo ainda declara SEM numero — "
                           f"um gap fechou e as contagens do manuscrito estao velhas")
 
-    # --- derivacao das contagens ---
-    canonica = [c for c in comp
-                if any("2026-06-15" in r for r in c["corridas"])]
-    global_com = [c for c in comp if c["produziu_numero"]]
-    derivado = {
-        ("canonica", "produziram_competidores"): len(canonica),
-        ("canonica", "nao_produziram_competidores"): len(comp) - len(canonica),
-        ("global", "produziram_competidores"): len(global_com),
-        ("global", "nao_produziram_competidores"): len(comp) - len(global_com),
-        # nox-mem entra como sexto sistema nessas duas frases
-        ("canonica", "par_incl_noxmem"): len(canonica) + 1,
-    }
+    derivado = _deriva_contagens(comp)
 
     # --- L3 + L4: template com a contagem derivada tem de ocorrer exatamente 1x ---
     #
@@ -1219,6 +1208,81 @@ def universal_check(root: Path) -> list[str]:
     return fails
 
 
+
+def _deriva_contagens(comp: list[dict]) -> dict:
+    """Contagens derivadas do censo, em DOIS escopos. Extraida de
+    `contagem_sistemas_check` para que a perna do abstract use a MESMA derivacao:
+    monitor que reimplementa o predicado do codigo omite caso."""
+    canonica = [c for c in comp if any("2026-06-15" in r for r in c["corridas"])]
+    global_com = [c for c in comp if c["produziu_numero"]]
+    return {
+        ("canonica", "produziram_competidores"): len(canonica),
+        ("canonica", "nao_produziram_competidores"): len(comp) - len(canonica),
+        ("global", "produziram_competidores"): len(global_com),
+        ("global", "nao_produziram_competidores"): len(comp) - len(global_com),
+        # nox-mem entra como sexto sistema nessas duas frases
+        ("canonica", "par_incl_noxmem"): len(canonica) + 1,
+    }
+
+
+ABSTRACT = "abstract.md"
+
+
+def abstract_espelha_check(root: Path) -> list[str]:
+    """O abstract STANDALONE tem de declarar as mesmas contagens que o manuscrito.
+
+    `contagem_sistemas_check` le so o PAPER. O `abstract.md` ficou em "two/three"
+    depois de o manuscrito ir para "four/one" precisamente por isso: guarda que le
+    um documento nao cobre o gemeo dele, e o abstract standalone e' o que vai para
+    o formulario de submissao.
+
+    Os sitios vivem em `sitios_abstract` do mesmo censo, com a mesma maquina de
+    template e a mesma derivacao — nao uma segunda implementacao da regra.
+    """
+    fails: list[str] = []
+    cam_censo = root / CENSO_CORRIDAS
+    cam_abs = root / ABSTRACT
+    if not cam_abs.exists():
+        return [f"{ABSTRACT}: ausente — a perna de espelho nao pode se calar por falta dele"]
+    if not cam_censo.exists():
+        return [f"abstract/espelho: {CENSO_CORRIDAS} ausente"]
+    censo = json.loads(cam_censo.read_text(encoding="utf-8"))
+    sitios = censo.get("sitios_abstract")
+    if not sitios:
+        return [f"abstract/espelho: o censo nao declara `sitios_abstract` — sem eles a "
+                f"perna nao verifica nada e o verde seria decoracao"]
+    derivado = _deriva_contagens(censo["competidores"])
+    corpo = cam_abs.read_text(encoding="utf-8")
+    for s in sitios:
+        sid, tmpl, forma = s["id"], s["template"], s["forma"]
+        subs = {}
+        erro = False
+        for marcador, (esc, qtd) in s["marcadores"].items():
+            v = derivado.get((esc, qtd))
+            if v is None:
+                fails.append(f"abstract/espelho: sitio '{sid}' pede ({esc}, {qtd}), "
+                             f"quantidade que a guarda nao deriva")
+                erro = True
+                break
+            subs[marcador] = _forma_numero(v, forma)
+        if erro:
+            continue
+        esperado = tmpl.format(**subs)
+        n = corpo.count(esperado)
+        if n == 1:
+            continue
+        padrao = re.escape(tmpl)
+        for marcador in s["marcadores"]:
+            padrao = padrao.replace(re.escape("{" + marcador + "}"), r"([A-Za-z0-9]+)")
+        vistos = re.findall(padrao, corpo)
+        fails.append(
+            f"abstract/espelho: sitio '{sid}' — esperado exatamente 1x {esperado!r} em "
+            f"{ABSTRACT}, achado {n}x" +
+            (f"; no abstract esta {vistos}" if vistos
+             else "; e o molde da frase nao ocorre — foi reescrita ou removida"))
+    return fails
+
+
 GUARDAS = [
     fence_check,
     universal_check,
@@ -1237,6 +1301,7 @@ GUARDAS = [
     corpus_bench_check,
     densidade_check,
     contagem_sistemas_check,
+    abstract_espelha_check,
 ]
 
 

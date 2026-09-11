@@ -241,5 +241,30 @@
     }
   ],
   "_perna_completude": "L5 varre o manuscrito por frases de contagem sobre sistemas e exige que cada achado caia dentro do molde de algum sítio, ou esteja em excluidos_da_completude com razão. Existe porque a primeira versão deste censo foi montada de uma LISTA À MÃO e perdeu 4 sítios; lista à mão é amostra vendida como censo. Na primeira corrida a L5 achou o 12º (penalidade-1286).",
-  "nota_concordancia": "Os templates de escopo global estao no SINGULAR porque a contagem chegou a 1 (so Letta). Se ela voltar a ser plural, a L4 falha com a mensagem 'o molde da frase nao ocorre' — e o conserto inclui repluralizar template e frase juntos."
+  "nota_concordancia": "Os templates de escopo global estao no SINGULAR porque a contagem chegou a 1 (so Letta). Se ela voltar a ser plural, a L4 falha com a mensagem 'o molde da frase nao ocorre' — e o conserto inclui repluralizar template e frase juntos.",
+  "sitios_abstract": [
+    {
+      "id": "abs-produziram",
+      "forma": "palavra",
+      "template": "{prod} (Mem0, agentmemory, EverOS, Zep) produce head-to-head quality numbers",
+      "marcadores": {
+        "prod": [
+          "global",
+          "produziram_competidores"
+        ]
+      }
+    },
+    {
+      "id": "abs-nao",
+      "forma": "palavra",
+      "template": "{nao} (Letta) is a documented deployment non-run",
+      "marcadores": {
+        "nao": [
+          "global",
+          "nao_produziram_competidores"
+        ]
+      }
+    }
+  ],
+  "nota_sitios_abstract": "O abstract.md e' o texto que vai para o formulario de submissao e NAO era lido por guarda nenhuma — ficou em 'two/three' depois de o manuscrito ir para 'four/one'. Os nomes entre parenteses estao no template de proposito: se um sistema mudar de lado, o molde deixa de casar e a guarda acusa, em vez de contar certo uma lista errada."
 }

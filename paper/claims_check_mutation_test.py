@@ -38,6 +38,10 @@ PAPER = "paper-tecnico-nox-mem.md"
 BIB = "refs.bib"
 SCRIPT = "claims_check.py"
 MANIFESTOS = ("authors-manifest.json", "bibitem-census.json", "q4-corridas-census.json")
+# O abstract standalone entrou na copia em 2026-09-10: sem ele a perna de espelho
+# acusa "ausente" em TODOS os casos e o baseline fica vermelho por falta de
+# fixture, nao por defeito — a suite acusou isso na primeira corrida.
+ABSTRACT = "abstract.md"
 
 # `contagem_sistemas_check` le artefatos FORA de paper/. Sem copia-los, a guarda
 # acusa "eval/q4-comparison nao encontrado" em TODA mutacao — e a bateria inteira
@@ -365,6 +369,40 @@ CASOS = [
         "    return None",
         "eval/q4-comparison nao encontrado",
     ),
+    (
+        # O abstract standalone e' o texto que vai para o formulario de submissao e
+        # nao era lido por guarda nenhuma — ficou em "two/three" enquanto o
+        # manuscrito ja dizia "four/one".
+        "abstract standalone com a contagem velha",
+        ABSTRACT,
+        "four (Mem0, agentmemory, EverOS, Zep)",
+        "three (Mem0, agentmemory, EverOS, Zep)",
+        "abs-produziram",
+    ),
+    (
+        "abstract standalone com o numero de non-runs errado",
+        ABSTRACT,
+        "one (Letta) is a documented deployment non-run",
+        "two (Letta) is a documented deployment non-run",
+        "abs-nao",
+    ),
+    (
+        # Sem sitios declarados a perna nao verifica nada; o verde seria decoracao.
+        "censo sem sitios_abstract",
+        "q4-corridas-census.json",
+        '"sitios_abstract"',
+        '"sitios_abstract_DESLIGADO"',
+        "nao declara `sitios_abstract`",
+    ),
+    (
+        # Prova que a perna usa a DERIVACAO do censo e nao um literal: reabrir o gap
+        # do Zep muda o esperado de four para three sem tocar no abstract.
+        "gap do Zep reaberto no censo — derivacao 4 volta a 3",
+        "q4-corridas-census.json",
+        '"zep"\n      ],\n      "produziu_numero": true',
+        '"zep"\n      ],\n      "produziu_numero": false',
+        "abs-produziram",
+    ),
 ]
 
 # Controle NEGATIVO: texto inócuo não pode disparar nada.
@@ -372,7 +410,7 @@ CONTROLE = (PAPER, "\nThe pipeline indexes files as they change.\n")
 
 
 def _prepara(tmp: Path) -> None:
-    for f in (PAPER, BIB, SCRIPT, *MANIFESTOS):
+    for f in (PAPER, BIB, SCRIPT, ABSTRACT, *MANIFESTOS):
         shutil.copy2(AQUI / f, tmp / f)
     for rel in ARTEFATOS:
         dst = tmp / rel
