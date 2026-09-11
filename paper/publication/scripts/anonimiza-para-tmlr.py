@@ -51,15 +51,47 @@ SENTINELA = (
     "100.87.8.44\n"
 )
 
+# Sentinela NEGATIVA: cada item TEM de passar ilesa. Sem esta perna, apertar um
+# padrao para tirar um falso positivo poderia tirar tambem o verdadeiro, e o
+# "0 vazamentos" seguinte continuaria a parecer boa noticia.
+SENTINELA_LIMPA = (
+    "sections 5.1.8.1 5.1.8.2 5.1.8.3 and 5.1.8.4 report the knob series; "
+    "version 1.2.3.4 of the schema; nDCG 0.6455 on n=2,482\n"
+)
+
+_IPV4 = re.compile(r"^(?:\d{1,3}\.){3}\d{1,3}$")
+
+
+def _e_numeracao(s: str) -> bool:
+    """`5.1.8.3` e' numero de secao; `100.87.8.44` e' endereco.
+
+    Um endereco real quase sempre tem um octeto de 3 digitos (100.x, 127.x,
+    192.x) ou pelo menos dois de 2 digitos. A numeracao deste manuscrito chega a
+    quatro niveis e nunca passa de um digito por nivel.
+
+    A regra e' INCOMPLETA de proposito: um host `4.5.6.7` passaria. As outras
+    duas pernas do padrao (srv+digitos e root@...) cobrem os hosts que este
+    projeto de facto nomeia, e declarar o buraco aqui e' melhor do que finge-lo
+    fechado. Instalada em 2026-09-11 depois de o auditor acusar `5.1.8.1`–`.4`
+    como host ao varrer o suplemento.
+    """
+    octetos = s.split(".")
+    return not (any(len(o) == 3 for o in octetos)
+                or sum(1 for o in octetos if len(o) >= 2) >= 2)
+
+
 # Substituicoes aplicadas para gerar a variante anonima.
 SUBSTITUICOES: list[tuple[str, str]] = [
     # linha de autoria
     (r"^\*\*Luiz Antonio Busnello\*\*.*$", "**Anonymous authors**  \nPaper under double-blind review"),
     # ponteiro do repositorio: o usuario do github E' o nome do autor
     (r"^\*\*Repository:\*\* github\.com/totobusnello/[A-Za-z0-9_.-]+$",
-     "**Code and evaluation harness:** submitted as anonymized supplementary material "
-     "(source, adapters and the full evaluation harness). The identified repository is "
-     "withheld for double-blind review and will be cited in the camera-ready version."),
+     "**Supplementary material (anonymized):** the sections this manuscript cites as "
+     "§S\\*, the aggregate result artifacts behind the §6 tables, and the claim-guard "
+     "apparatus described in §6.9. The source tree and evaluation harness are withheld "
+     "for double-blind review — anonymizing them would require rewriting host addresses "
+     "and identifiers inside code offered as reproducible — and the identified "
+     "repository will be cited in the camera-ready version."),
 ]
 
 
@@ -68,12 +100,26 @@ def audita(texto: str) -> list[tuple[str, str]]:
     achados: list[tuple[str, str]] = []
     for rotulo, rx in PADROES:
         for m in re.finditer(rx, texto, re.M):
-            achados.append((rotulo, m.group(0)))
+            achado = m.group(0)
+            if rotulo == "host de producao" and _IPV4.match(achado) and _e_numeracao(achado):
+                continue
+            achados.append((rotulo, achado))
     return achados
 
 
 def controle_positivo() -> None:
-    """Aborta se o auditor nao acusar TODOS os padroes na sentinela."""
+    """Duas pernas: acusa tudo o que deve, e nada do que nao deve.
+
+    A perna negativa existe porque apertar um padrao para matar um falso
+    positivo pode matar o verdadeiro junto — e o "0 vazamentos" seguinte
+    continuaria a ler-se como boa noticia.
+    """
+    limpos = audita(SENTINELA_LIMPA)
+    if limpos:
+        sys.exit(
+            "controle NEGATIVO falhou: o auditor acusou "
+            f"{[a for _, a in limpos]} numa sentinela sem vazamento nenhum — "
+            "o padrao esta a acusar numeracao de secao como endereco")
     vistos = {r for r, _ in audita(SENTINELA)}
     faltando = [r for r, _ in PADROES if r not in vistos]
     if faltando:

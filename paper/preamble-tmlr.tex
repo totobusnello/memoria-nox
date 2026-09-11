@@ -51,3 +51,48 @@
 % igual a zero por estar limpo.
 % ---------------------------------------------------------------------------
 \emergencystretch=3em
+
+% ---------------------------------------------------------------------------
+% A CAUSA de todo glifo perdido: `fontspec` carregado e nunca instruido.
+%
+% O template do pandoc faz \usepackage{fontspec} sob XeTeX mas NAO chama
+% \setmainfont, e sem isso o fontspec mantem a Latin Modern *Type1/EC*, de 256
+% slots. Medido em 2026-09-11 neste manuscrito: 63 "Missing character" em
+% ec-lmr10, ec-lmr8, ec-lmbx8, ec-lmtt8, ec-lmtt10 — os glifos alpha, seta,
+% en dash, em dash, reticencias, menos, conjunto vazio, intersecao, aproximado
+% e maior-ou-igual. Cada um **desaparece do PDF sem erro**: o build sai 0 e o
+% caractere nao esta la.
+%
+% A Latin Modern OpenType traz todos e vem na TeX Live. Carregada pelo NOME DO
+% ARQUIVO porque por nome de familia o fontspec nao a encontra nesta
+% instalacao ("The font ... cannot be found").
+%
+% Isto substitui quatro remendos que eu tinha empilhado um a um, cada um a
+% revelar o glifo seguinte: era UM defeito, nao cinco.
+% ---------------------------------------------------------------------------
+\setmainfont{lmroman10-regular.otf}[
+  BoldFont       = lmroman10-bold.otf,
+  ItalicFont     = lmroman10-italic.otf,
+  BoldItalicFont = lmroman10-bolditalic.otf]
+\setsansfont{lmsans10-regular.otf}[
+  BoldFont   = lmsans10-bold.otf,
+  ItalicFont = lmsans10-oblique.otf]
+\setmonofont{lmmono10-regular.otf}[
+  BoldFont   = lmmonolt10-bold.otf,
+  ItalicFont = lmmono10-italic.otf,
+  Scale      = MatchLowercase]
+
+% ---------------------------------------------------------------------------
+% Um glifo que nem a Latin Modern OpenType tem em modo texto: o alpha de
+% "Mem-alpha", NOME de um sistema citado — soletra-lo seria errar o nome de
+% quem se cita. Vem da Latin Modern Math, com `\char` porque o caractere e'
+% ativo e reentraria.
+%
+% Os outros cinco (conjunto vazio, intersecao, uniao n-aria, aproximadamente,
+% maior-ou-igual) foram reescritos em ASCII no fonte, e nao por preferencia: o
+% construto `{\glifomat\char"..}` QUEBRA dentro de `\texttt{}` no documento
+% completo ("Missing $ inserted"), embora compile isolado. Tres deles estavam
+% exatamente la, num predicado de teoria de conjuntos num code span.
+% ---------------------------------------------------------------------------
+\newfontfamily\glifomat{latinmodern-math.otf}
+\catcode`\α=\active \defα{{\glifomat\char"03B1}}
