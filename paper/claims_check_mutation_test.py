@@ -27,6 +27,8 @@ USO
 """
 from __future__ import annotations
 
+import json
+import re
 import shutil
 import subprocess
 import sys
@@ -42,6 +44,49 @@ MANIFESTOS = ("authors-manifest.json", "bibitem-census.json", "q4-corridas-censu
 # acusa "ausente" em TODOS os casos e o baseline fica vermelho por falta de
 # fixture, nao por defeito — a suite acusou isso na primeira corrida.
 ABSTRACT = "abstract.md"
+
+
+# O tamanho desta mutacao nao pode ser um literal. Ela ja morreu uma vez
+# (2026-09-11): com a densidade em 2,08 bastavam ~200 palavras para furar o
+# piso e 80 repeticoes sobravam; depois do corte para 2,47 passaram a faltar
+# mais de 4.000 e a mutacao deixou de morder -- sem falhar, so parando de
+# verificar. Derivar do estado fecha a classe: quantas palavras faltam HOJE
+# para a densidade cair abaixo do piso, mais margem.
+_FRASE_NEUTRA = (
+    "The pipeline processes each file as it changes, and the resulting record "
+    "is stored for later reading by whichever component asks for it next. "
+)
+
+
+def _repeticoes_para_furar_o_piso() -> int:
+    """Repeticoes de `_FRASE_NEUTRA` que levam a densidade abaixo de DENSIDADE_PISO.
+
+    Usa o MESMO tokenizador do guarda (`claims_check._densidade_check`): palavra
+    e' todo token com ao menos um alfanumerico.
+    """
+    raiz = Path(__file__).resolve().parent
+    md = (raiz / PAPER).read_text(encoding="utf-8")
+    censo = json.loads((raiz / "bibitem-census.json").read_text(encoding="utf-8"))
+    piso = float(
+        re.search(r"^DENSIDADE_PISO\s*=\s*([0-9.]+)", (raiz / SCRIPT).read_text(encoding="utf-8"), re.M).group(1)
+    )
+    def conta(texto: str) -> int:
+        return sum(1 for w in texto.split() if any(c.isalnum() for c in w))
+    obras = len(censo["obra"])
+    atual = conta(md)
+    teto_de_palavras = obras / piso * 1000.0          # acima disto a densidade fura o piso
+    faltam = teto_de_palavras - atual
+    por_repeticao = conta(_FRASE_NEUTRA)
+    reps = int(faltam / por_repeticao) + 12           # margem
+    if reps <= 0:
+        raise SystemExit(
+            f"mutacao de densidade impossivel: o manuscrito ({atual} palavras) ja esta "
+            f"acima do teto de {teto_de_palavras:.0f} com {obras} obras"
+        )
+    return reps
+
+
+_REPS_PISO = _repeticoes_para_furar_o_piso()
 
 # `contagem_sistemas_check` le artefatos FORA de paper/. Sem copia-los, a guarda
 # acusa "eval/q4-comparison nao encontrado" em TODA mutacao — e a bateria inteira
@@ -298,7 +343,7 @@ CASOS = [
         # populacao nem contagem de corpus.
         "prosa nova sem referencia derruba a densidade abaixo do piso",
         PAPER, None,
-        "\n" + 'The pipeline processes each file as it changes, and the resulting record is stored for later reading by whichever component asks for it next. ' * 80 + "\n",
+        "\n" + 'The pipeline processes each file as it changes, and the resulting record is stored for later reading by whichever component asks for it next. ' * _REPS_PISO + "\n",
         "abaixo do piso",
     ),
     (
