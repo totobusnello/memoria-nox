@@ -1,0 +1,23 @@
+# Divergências a arbitrar — plano de corte do Paper 1
+
+Contexto mínimo: manuscrito de sistema de memória para agentes LLM, RECUSADO pelo arXiv em 2026-09-03 com template genérico. A apelação é de USO ÚNICO e permanente. Duas vozes adversariais (Grok e Kimi) criticaram meu plano de cortar 5.504 palavras (de 26.222 para 20.718, ou seja 1,20x o maior dos 4 papers aceitos). Restrição aritmética: 55 obras distintas na bibliografia, e a densidade obras/mil-palavras tem de ficar entre 2,06 e 2,95 — logo o total de palavras tem de ficar entre 18.644 e 26.699.
+
+MEDIÇÃO NOVA, feita depois dos pareceres (use este dado, ele não estava com as vozes):
+- experimentos próprios (secoes 5 e 6): 14.427 palavras = 55,3%
+- método/arquitetura própria (secoes 2, 3, 4): 3.255 = 12,5%
+- bibliografia: 2.650 = 10,2%
+- trabalho alheio (related work, secoes 1.4 e 1.5): 2.366 = 9,1%
+- limitações e futuro (secao 7): 1.866 = 7,1%
+- razão contribuição-própria : discussão-de-outros = 7,5 : 1
+
+AS QUATRO DIVERGÊNCIAS. Para CADA uma: escolha um lado, e diga por que o outro está errado (ou sob que condição estaria certo). Proibido dizer que os dois têm razão.
+
+D1. ALVO DE COMPRIMENTO. Eu propus 1,20x o maior aceito = 20.718 palavras. Grok diz que o alvo deve ser a MEDIANA dos aceitos (8-12 mil palavras), não 1,20x do máximo. Kimi diz que a régua inteira é precisão falsa (n=4, e os 4 foram aceitos na PRIMEIRA tentativa, logo são evidência sobre o que passa de primeira e não sobre o que reverte recusa). Qual é o alvo numérico final? Note que abaixo de 18.644 palavras a densidade estoura o teto de 2,95 com 55 obras — se recomendar menos, diga quantas obras acrescentar.
+
+D2. BLOCO B. Condensar a secao 3.5 (Session Priming, descrição de arquitetura) de 986 para ~300 palavras, ganhando 686. As duas vozes dizem que é o pior corte do plano, porque reduz a razão contribuição-própria/discussão-alheia justamente sob a hipótese de que o paper foi lido como survey. Cancelo o bloco B? Se cancelar, de onde tiro as 686 palavras?
+
+D3. A CONDIÇÃO DE JOURNAL. O email de recusa diz: reconsideração 'via appeal if it is published in a conventional journal'. A política geral diz 'In some cases, we may require'. Grok: a condição DEIXOU de ser discricionária quando veio nomeada no email, logo apelar sem journal é pedir waiver e o moderador nega. Kimi: continua discricionária, e há uma via processual ao Section Chair (que revê questão PROCESSUAL, e classificação de tipo é processual) para obter informação SEM gastar o ativo. Apelamos agora, apelamos depois de um venue peer-reviewed, ou tentamos a via processual primeiro?
+
+D4. HIPÓTESE CAUSAL. (A) o paper foi classificado como survey/review/position (regra do arXiv de 2025-10-31 exige peer review prévio para esses tipos em CS). (B) o paper foi lido como whitepaper de produto / vendor benchmark — o repositório tem SDKs, diretório de GTM, launch assets, benchmark contra concorrentes nomeados. As correções são DIFERENTES. Qual é mais provável, e qual evidência mediria a diferença?
+
+Responda em português do Brasil, direto, numerado D1 a D4, com números em cada recomendação. No fim, uma lista ordenada de execução: o que fazer primeiro, o que é reversível, e o que é decisão do dono do projeto.
