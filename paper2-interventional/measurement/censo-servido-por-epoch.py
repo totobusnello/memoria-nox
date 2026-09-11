@@ -21,7 +21,7 @@ reportada, nunca silenciada (medido 2026-09-10: 0 de 12.173).
 Procedência vai no artefato: host, caminho, sha256 e nº de linhas do log. Sem isso o censo
 é transcrição — e transcrição não se recomputa.
 """
-import argparse, collections, datetime, json, shlex, subprocess, sys
+import argparse, collections, datetime, json, os, shlex, subprocess, sys
 
 ESPERADO_POR_EPOCH = 672      # 4 rajadas/h x 24 h x 7 briefs/rajada (6 agentes, nox 2x)
 FRONTEIRA_H = 9
@@ -94,14 +94,20 @@ def colhe(host: str, log: str) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--host", default="root@100.92.12.18",
-                    help="produção é srv1826603; identidade prova-se por artefato datado")
+    ap.add_argument("--host", default=os.environ.get("NOX_VPS_HOST", ""),
+                    help="alvo SSH da VPS de produção; sem default no git — vem de $NOX_VPS_HOST. Identidade prova-se por artefato datado, nunca por nome")
     ap.add_argument("--log", default="/root/.openclaw/logs/p2-serving.ndjson")
     ap.add_argument("--local", help="ler NDJSON local em vez de ssh (para teste)")
+
     a = ap.parse_args()
+    if not a.local and not a.host:
+        sys.exit("RED sem-alvo: defina $NOX_VPS_HOST (o nome do host nao vive no git) "
+                 "ou passe --host/--local. Sem isso o ssh falha com 'Host key "
+                 "verification failed', que nao nomeia a pre-condicao que faltou.")
 
     if a.local:
-        import hashlib, os
+        import hashlib  # `os` vem do import do módulo (linha 24);
+        # reimportá-lo aqui tornava o nome LOCAL e quebrava o default do --host
         h = hashlib.sha256()
         with open(a.local, "rb") as f:
             for b in iter(lambda: f.read(1 << 20), b""):

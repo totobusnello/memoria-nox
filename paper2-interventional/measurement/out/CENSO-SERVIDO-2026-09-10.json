@@ -1,5 +1,5 @@
 {
-  "host": "srv1826603",
+  "host": "<vps-producao>",
   "log": "/root/.openclaw/logs/p2-serving.ndjson",
   "log_sha256": "57e402e9cb196cec9f0935a02b4d518072e5b388df5b6a3cbfd2dbd8e4fee53a",
   "log_bytes": 8538381,

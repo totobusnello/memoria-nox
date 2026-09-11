@@ -20,7 +20,7 @@ reportado** sob esse enquadramento, e o que fica proibido.
 ## 1. Conjunto de análise — medido, não estimado
 
 Artefato: `measurement/out/JANELA-ELEGIVEL-2026-09-10.json`, com censo de entrega de
-procedência declarada (`out/CENSO-SERVIDO-2026-09-10.json`: host `srv1826603`, log
+procedência declarada (`out/CENSO-SERVIDO-2026-09-10.json`: host de produção (identificado por capacidade; o nome vive em `$NOX_VPS_HOST`, fora do git), log
 sha256 `03de9eb714dc6c39…`, 12.173 linhas, 0 divergências entre as duas chaves de epoch).
 
 **Janela elegível: 20 epochs de 234 pré-registrados (8,5%).** A restrição não é escolha —
