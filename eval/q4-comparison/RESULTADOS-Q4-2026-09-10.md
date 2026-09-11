@@ -247,29 +247,39 @@ camada perguntada. Reportar $0,51 como "o custo" seria dar a uma cota o estatuto
 de medição; a decisão que ela sustenta (o gasto está dentro do aprovado) não
 precisa de mais precisão que isso.
 
-### 5.5 As 17 falhas de sessão, por origem
+### 5.5 As 47 falhas de sessão da corrida inteira, por origem
 
-Contá-las não diz nada; **classificá-las** diz. Sobre 522.750 varreduras
-(0,0033%):
+Contá-las não diz nada; **classificá-las** diz. Recontadas no fecho sobre
+`out/zep-busca-console.log`, que cobre de `25/2482` até o `WROTE`, ou seja
+**1.265.820** varreduras (2.482 queries × 510 sessões) — **0,0037%**:
 
 | origem | n | de quem é |
 |---|---|---|
-| `timed out` | 13 | nosso cliente |
-| `[Errno 9] Bad file descriptor` | 2 | pool do nosso cliente |
-| OpenAI 500 em `/v1/embeddings` (após 6 tentativas) | 2 | provedor externo |
+| `timed out` | 35 | nosso cliente |
+| OpenAI 500 em `/v1/embeddings` (após 6 tentativas) | 8 | provedor externo |
+| `[Errno 9] Bad file descriptor` | 4 | pool do nosso cliente |
+| **total** | **47** | em **46** sessões distintas (uma falhou 2×) |
 
 ⇒ **Nenhuma é falha de retrieval do Zep.** Cada uma retira **uma** das 510
 sessões do conjunto de candidatos daquela query; nenhuma query passou do limiar
-de aborto (>5 de 510). O efeito no nDCG é, no pior caso, a ausência de um
-candidato entre 510 em 17 queries — declarado, não corrigido.
+de aborto (>5 de 510) — se tivesse passado, teria virado erro de query, e
+`n_errors` fechou em **0**. Declarado, não corrigido.
 
-⚠️ **Este denominador é de uma JANELA, não da corrida.** 522.750 = **1.025** × 510:
-a contagem foi feita com a busca ainda a rodar, e **não foi recontada no fecho**
-(2.482 queries ⇒ 1.265.820 varreduras). Escrever "17 falhas na corrida" seria
-atribuir um número certo à população errada. O que se afirma é: *até a query
-1.025, 17 falhas, nenhuma de retrieval*. O lastro para recontar é o log da sessão
-`zep-busca` no `$NOX_Q4_HOST`; enquanto ele não for lido, o total do fecho é
-**desconhecido**, e desconhecido não é zero.
+⚠️ **Errata 2026-09-11 — esta seção dizia 17 falhas sobre 522.750 varreduras.**
+Era verdade quando foi escrita, **com a busca ainda rodando**: 522.750 = 1.025 ×
+510, isto é, a contagem parou na query 1.025 e nunca foi retomada. Um contador
+colhido no meio de um processo longo vira, no fecho, um número sobre a população
+errada — e o numerador não avisa que parou de crescer. O que tornava o erro pior
+do que um número velho: eu já havia copiado o numerador da janela para o
+manuscrito debaixo do denominador da corrida inteira, produzindo uma taxa
+**menor** que a medida, na direção que nos favorece.
+
+⚠️ **E o classificador ad-hoc contaria 33, não 47.** `session=q4-[0-9a-f-]+` não
+casa `q4-gpt4_…` nem `q4-conv-…`, porque `o`, `n`, `v`, `g`, `p` e `t` não estão
+em `a-f` — **10 sessões `gpt4` e 4 `conv` ficavam invisíveis**, de novo na direção
+tranquilizadora. A contagem acima usa `session=[^ ]+`, e o classificador antigo
+fica registrado aqui como controle negativo: uma sonda que devolve um número
+plausível e menor é indistinguível de uma medição, até alguém listar o espaço.
 
 ## 6. Piso de integridade da varredura — duas condições, não uma
 
@@ -479,12 +489,41 @@ Os **2.470 textos distintos** contra 2.482 ids aparecem aqui também, com o mesm
 valor do EverOS — o que era de esperar, porque é propriedade do arquivo de queries
 e não da corrida.
 
-⚠️ **`n_errors: 0` é de query, e as 17 falhas de sessão do §5.5 continuam onde
-estão.** Nenhuma delas é falha de retrieval do Zep (13 timeout do nosso cliente, 2
-`Bad file descriptor` do nosso pool, 2 HTTP 500 da OpenAI em `/v1/embeddings`), e
+⚠️ **`n_errors: 0` é de query, e as 47 falhas de sessão do §5.5 continuam onde
+estão.** Nenhuma delas é falha de retrieval do Zep (35 timeout do nosso cliente, 4
+`Bad file descriptor` do nosso pool, 8 HTTP 500 da OpenAI em `/v1/embeddings`), e
 nenhuma query cruzou o limiar de aborto — cada uma tirou 1 das 510 sessões do
 conjunto de candidatos daquela query. Declaradas, não corrigidas: as duas
 contagens medem coisas diferentes e as duas ficam à vista.
+
+### 7.4 O stack do Zep fica de pé — custo medido contra custo de refazer
+
+Medido no host de benchmark em 2026-09-11T01:11Z, com as duas corridas já fechadas:
+
+| grandeza | medido | proporção |
+|---|---|---|
+| RSS `q4-zep` | 89,8 MiB | |
+| RSS `q4-postgres` | 266 MiB | |
+| **RAM total do stack** | **356 MiB** | **1,1%** de 31,34 GiB |
+| disco (imagens + volume) | ~1,2 GB | 194 GB livres de 387 |
+| CPU em repouso | 2,2% + 0,4% | load average 0,22 |
+
+Contra isso, refazer custa **4 h 13 min** de busca, mais a ingestão das 510
+sessões / 6.830 mensagens, mais a chave paga da OpenAI outra vez. E há um custo
+que não é de tempo nem de dinheiro: um corpus reingerido **não é garantidamente
+byte-idêntico** ao que produziu estes números, o que transformaria qualquer
+re-medição pedida por revisor numa corrida diferente em vez de um recorte da
+mesma.
+
+⇒ **Fica de pé até a submissão.**
+
+⚠️ **Interação com a rotação da chave da OpenAI.** A chave viva está em **um só
+lugar** — `OPENAI_API_KEY` em `/root/q4-zep/.env`, entregue ao container como
+`ZEP_OPENAI_API_KEY`; o `zep-config.yaml` só declara `Service: openai` e não
+carrega segredo. Rotacionar a chave **derruba a busca do Zep** até esse arquivo
+ser atualizado e o container recriado. As duas tarefas são independentes na
+intenção e acopladas na execução: rotacionar primeiro e recriar o container em
+seguida, ou o stack fica de pé e inútil.
 
 ### 7.2 🔴 Confound de pipeline — e a sua magnitude NÃO é medida
 

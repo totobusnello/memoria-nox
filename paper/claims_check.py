@@ -127,7 +127,10 @@ BIB_DIVIDA: dict[str, str] = {
 # #494/#507, e um ratchet cujo baseline esta ACIMA do real nao e ratchet — dava
 # folga para 13 evidencias nao-arquivaveis novas em silencio, e a mutacao da
 # bateria (que soma 1) cabia na folga. Preso agora nos DOIS sentidos.
-PR_BASELINE = 53
+# 2026-09-11: 40. Os 13 que sairam foram com §5.1.4, §5.1.8, §5.1.9, §5.3.3,
+# §5.5.2 e §5.5.3 para o suplemento; o ratchet acusou a folga duas vezes no
+# mesmo trabalho, que e' o comportamento que ele existe para ter.
+PR_BASELINE = 40
 
 # Tabelas de comparação externa que ainda usam `PR #NNN` como fonte. Dívida
 # HERDADA e declarada, não isenção: qualquer sítio novo falha. Resolver com
@@ -1070,18 +1073,7 @@ def contagem_sistemas_check(root: Path) -> list[str]:
                           f"{c['nome']}, que o censo ainda declara SEM numero — "
                           f"um gap fechou e as contagens do manuscrito estao velhas")
 
-    # --- derivacao das contagens ---
-    canonica = [c for c in comp
-                if any("2026-06-15" in r for r in c["corridas"])]
-    global_com = [c for c in comp if c["produziu_numero"]]
-    derivado = {
-        ("canonica", "produziram_competidores"): len(canonica),
-        ("canonica", "nao_produziram_competidores"): len(comp) - len(canonica),
-        ("global", "produziram_competidores"): len(global_com),
-        ("global", "nao_produziram_competidores"): len(comp) - len(global_com),
-        # nox-mem entra como sexto sistema nessas duas frases
-        ("canonica", "par_incl_noxmem"): len(canonica) + 1,
-    }
+    derivado = _deriva_contagens(comp)
 
     # --- L3 + L4: template com a contagem derivada tem de ocorrer exatamente 1x ---
     #
@@ -1219,6 +1211,123 @@ def universal_check(root: Path) -> list[str]:
     return fails
 
 
+
+def _deriva_contagens(comp: list[dict]) -> dict:
+    """Contagens derivadas do censo, em DOIS escopos. Extraida de
+    `contagem_sistemas_check` para que a perna do abstract use a MESMA derivacao:
+    monitor que reimplementa o predicado do codigo omite caso."""
+    canonica = [c for c in comp if any("2026-06-15" in r for r in c["corridas"])]
+    global_com = [c for c in comp if c["produziu_numero"]]
+    return {
+        ("canonica", "produziram_competidores"): len(canonica),
+        ("canonica", "nao_produziram_competidores"): len(comp) - len(canonica),
+        ("global", "produziram_competidores"): len(global_com),
+        ("global", "nao_produziram_competidores"): len(comp) - len(global_com),
+        # nox-mem entra como sexto sistema nessas duas frases
+        ("canonica", "par_incl_noxmem"): len(canonica) + 1,
+    }
+
+
+ABSTRACT = "abstract.md"
+
+
+def abstract_espelha_check(root: Path) -> list[str]:
+    """O abstract STANDALONE tem de declarar as mesmas contagens que o manuscrito.
+
+    `contagem_sistemas_check` le so o PAPER. O `abstract.md` ficou em "two/three"
+    depois de o manuscrito ir para "four/one" precisamente por isso: guarda que le
+    um documento nao cobre o gemeo dele, e o abstract standalone e' o que vai para
+    o formulario de submissao.
+
+    Os sitios vivem em `sitios_abstract` do mesmo censo, com a mesma maquina de
+    template e a mesma derivacao — nao uma segunda implementacao da regra.
+    """
+    fails: list[str] = []
+    cam_censo = root / CENSO_CORRIDAS
+    cam_abs = root / ABSTRACT
+    if not cam_abs.exists():
+        return [f"{ABSTRACT}: ausente — a perna de espelho nao pode se calar por falta dele"]
+    if not cam_censo.exists():
+        return [f"abstract/espelho: {CENSO_CORRIDAS} ausente"]
+    censo = json.loads(cam_censo.read_text(encoding="utf-8"))
+    sitios = censo.get("sitios_abstract")
+    if not sitios:
+        return [f"abstract/espelho: o censo nao declara `sitios_abstract` — sem eles a "
+                f"perna nao verifica nada e o verde seria decoracao"]
+    derivado = _deriva_contagens(censo["competidores"])
+    corpo = cam_abs.read_text(encoding="utf-8")
+    for s in sitios:
+        sid, tmpl, forma = s["id"], s["template"], s["forma"]
+        subs = {}
+        erro = False
+        for marcador, (esc, qtd) in s["marcadores"].items():
+            v = derivado.get((esc, qtd))
+            if v is None:
+                fails.append(f"abstract/espelho: sitio '{sid}' pede ({esc}, {qtd}), "
+                             f"quantidade que a guarda nao deriva")
+                erro = True
+                break
+            subs[marcador] = _forma_numero(v, forma)
+        if erro:
+            continue
+        esperado = tmpl.format(**subs)
+        n = corpo.count(esperado)
+        if n == 1:
+            continue
+        padrao = re.escape(tmpl)
+        for marcador in s["marcadores"]:
+            padrao = padrao.replace(re.escape("{" + marcador + "}"), r"([A-Za-z0-9]+)")
+        vistos = re.findall(padrao, corpo)
+        fails.append(
+            f"abstract/espelho: sitio '{sid}' — esperado exatamente 1x {esperado!r} em "
+            f"{ABSTRACT}, achado {n}x" +
+            (f"; no abstract esta {vistos}" if vistos
+             else "; e o molde da frase nao ocorre — foi reescrita ou removida"))
+    return fails
+
+
+
+_LOCALIZADOR = re.compile(r"arXiv:(\d{4}\.\d{4,5})|doi:([0-9./A-Za-z-]+)", re.I)
+
+
+def obra_unica_check(root: Path) -> list[str]:
+    """Duas footnotes com o MESMO localizador sao uma obra, nao duas.
+
+    Instalado em 2026-09-11 depois de a densidade publicada (2,078/mil, celebrada
+    como "fechou") ser medida errada: o numerador contava FOOTNOTES classificadas
+    como `obra`, e quatro obras estavam citadas duas vezes com chaves diferentes
+    (`bertrank`/`nogueira`, `qwen3rerank`/`qwen3embed`, `evermemos`/`everos`,
+    `evermembench`/`longhorizon`). 59 declaradas eram 55, e a densidade real era
+    1,937 — abaixo do piso. Duas das quatro entraram no mesmo dia, por eu ter
+    verificado a fonte EXTERNA (a obra existe? os autores conferem?) e nunca a
+    INTERNA (ela ja esta citada aqui?).
+
+    `censo_bibitem_check` exige que toda footnote esteja classificada; presenca no
+    censo nao diz nada sobre unicidade da obra por tras dela.
+    """
+    md = (root / PAPER).read_text(encoding="utf-8")
+    cam = root / "bibitem-census.json"
+    if not cam.exists():
+        return [f"{PAPER}: bibitem-census.json ausente — a perna de unicidade nao pode correr"]
+    obras = set(json.loads(cam.read_text(encoding="utf-8"))["obra"])
+    defs = dict(re.findall(r"^\[\^([A-Za-z0-9_-]+)\]:\s*(.+)$", md, re.M))
+    por_loc: dict[str, list[str]] = {}
+    for chave, corpo in defs.items():
+        if chave not in obras:
+            continue
+        for m in _LOCALIZADOR.finditer(corpo):
+            loc = (m.group(1) or m.group(2)).lower().rstrip(".")
+            por_loc.setdefault(loc, []).append(chave)
+    fails = []
+    for loc, chaves in sorted(por_loc.items()):
+        if len(chaves) > 1:
+            fails.append(
+                f"{PAPER}: o localizador `{loc}` aparece em {len(chaves)} footnotes de "
+                f"classe `obra` ({sorted(chaves)}) — e' UMA obra contada {len(chaves)}x, "
+                f"e a densidade sai inflada")
+    return fails
+
+
 GUARDAS = [
     fence_check,
     universal_check,
@@ -1237,6 +1346,8 @@ GUARDAS = [
     corpus_bench_check,
     densidade_check,
     contagem_sistemas_check,
+    abstract_espelha_check,
+    obra_unica_check,
 ]
 
 
