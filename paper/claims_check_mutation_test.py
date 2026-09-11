@@ -462,6 +462,42 @@ CASOS = [
         "*MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers*, NeurIPS 2020. arXiv:1901.04085.",
         "e' UMA obra contada",
     ),
+    (
+        # Guarda 20 — referencia pendente. O caso REAL que a instalou: 8 numeros
+        # citados 28x sem secao, entre eles §5.1.10, que o ABSTRACT cita para
+        # sustentar o headline de 63,28%.
+        "referencia a secao que nao existe",
+        PAPER, None,
+        "\nThe corpus-cap effect is characterised in §9.7.\n",
+        "e' citado 1x e NAO tem cabecalho",
+    ),
+    (
+        # ⚠️ A perna que importa mais: se o extrator de cabecalhos parar de ler,
+        # "todas as referencias resolvem" fica indistinguivel de "nao consegui ler
+        # os cabecalhos". Quebrando o padrao de cabecalho NO GUARDA, a guarda tem
+        # de acusar a propria cegueira em vez de passar calada.
+        "extrator de cabecalhos cego (perna de completude)",
+        SCRIPT,
+        '_SECAO_NO_CABECALHO = re.compile(r"(?m)^#{2,6}\\s+(\\d+(?:\\.\\d+)*)")',
+        '_SECAO_NO_CABECALHO = re.compile(r"(?m)^#{9,9}\\s+(\\d+(?:\\.\\d+)*)")',
+        "seria indistinguivel de",
+    ),
+    (
+        # Guarda 21 — o caso real: a nota sobre o PROPRIO corte entrou de carona
+        # com a tabela restaurada, e le-se como prosa plausivel no lugar errado.
+        "voz de suplemento no manuscrito",
+        PAPER, None,
+        "\nRelocated from §1.4 of the main paper during the length pass.\n",
+        "voz de suplemento no manuscrito",
+    ),
+    (
+        # A segunda perna: cabecalho de nivel 1 vindo de outro documento. No
+        # corpo existe exatamente um `# `, o titulo.
+        "cabecalho de nivel 1 estranho ao manuscrito",
+        PAPER, None,
+        "\n# Moved 2026-09-11 — length pass\n",
+        "cabecalhos de nivel 1",
+    ),
 ]
 
 # Controle NEGATIVO: texto inócuo não pode disparar nada.
