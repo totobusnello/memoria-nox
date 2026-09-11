@@ -37,6 +37,16 @@ AQUI = Path(__file__).parent
 PAPER = "paper-tecnico-nox-mem.md"
 BIB = "refs.bib"
 SCRIPT = "claims_check.py"
+MANIFESTOS = ("authors-manifest.json", "bibitem-census.json", "q4-corridas-census.json")
+
+# `contagem_sistemas_check` le artefatos FORA de paper/. Sem copia-los, a guarda
+# acusa "eval/q4-comparison nao encontrado" em TODA mutacao — e a bateria inteira
+# passaria pelo motivo errado, que e' o defeito que este arquivo existe para pegar.
+ARTEFATOS = (
+    "eval/q4-comparison/output/_aggregate.json",
+    "eval/q4-comparison/output-2026-09-10/_aggregate.json",
+)
+RAIZ_REPO = AQUI.parent
 
 # (nome, arquivo, de, para, marcador esperado na mensagem)
 # `de=None` => append ao fim do arquivo.
@@ -171,6 +181,15 @@ CASOS = [
         "AUMENTOU",
     ),
     (
+        # Este caso existe porque o de cima NAO mordia: PR_BASELINE estava em 66
+        # contra 53 reais, e somar 1 cabia na folga. Um ratchet cujo baseline
+        # esta acima do valor medido admite a diferenca em silencio, e a
+        # bateria nao ve porque a mutacao e' menor que a folga.
+        "baseline do ratchet AFROUXADO acima do real",
+        SCRIPT, "PR_BASELINE = 53", "PR_BASELINE = 66",
+        "FROUXO",
+    ),
+    (
         "PR # como fonte em tabela de comparacao externa",
         PAPER, None, "\n| MemOS | 42.55% | dev | fonte (PR #998) |\n",
         "usa `PR #NNN` como fonte",
@@ -200,6 +219,152 @@ CASOS = [
         PAPER, None, "\nThat leaves a 55 pp gap between F1 and strict EM.\n",
         "mistura F1 e EM",
     ),
+    (
+        # A perna de censo. A footnote e' CITADA e a autoria casa o manifesto de
+        # proposito: sem isso o balanco e a correspondencia acusam primeiro, e a
+        # prova nao distinguiria "a perna morde" de "outra decidiu antes".
+        "footnote nova, citada e com autoria certa, FORA do censo de bibitems",
+        PAPER, None,
+        "\nA fourth axis follows prior work[^mutante-censo].\n"
+        "\n[^mutante-censo]: Hu, Li, Gao, Chen, Bai, Xu, Lin, Li, Han, Pei & Deng, "
+        "*Evaluating Long-Horizon Memory for Multi-Party Collaborative Dialogues*, "
+        "2026. arXiv:2602.01313.\n",
+        "nao esta no bibitem-census",
+    ),
+    (
+        # Censo que classifica chave morta: o numerador da densidade fica maior
+        # do que a bibliografia real.
+        "censo classifica footnote que nao existe mais",
+        "bibitem-census.json",
+        '"obra": [', '"obra": [\n  "chave-fantasma",',
+        "nao existe mais no manuscrito",
+    ),
+    (
+        # O manuscrito trazia `arxiv:2402.17753` em MINUSCULAS (o LoCoMo, benchmark
+        # central do §6) e a perna de autoria casava `arXiv:` case-sensitive. A/B
+        # medido: com re.I a autoria inventada e' apanhada; sem, escapa inteira —
+        # e os nomes deste caso sao os MESMOS tres que o #519 achou inventados.
+        "footnote com id em MINUSCULAS e autoria inventada",
+        PAPER, None,
+        "\nA prior benchmark[^mut-caixa] motivates this.\n"
+        "\n[^mut-caixa]: Yin, Ni & Peng, *Evaluating Very Long-Term Conversational "
+        "Memory of LLM Agents*, ACL 2024. arxiv:2402.17753.\n",
+        "nao constam da autoria",
+    ),
+    (
+        # A perna de autoria do footnotes_check varre so corpos de footnote. As 11
+        # linhas de PROSA que citam id com o autor ao lado nao passavam por perna
+        # alguma — foi como 2402.17753 ficou fora do manifesto sem alarme.
+        "prosa atribui id arXiv a autor que nao consta",
+        PAPER,
+        "LoCoMo (Maharana et al. 2024; arxiv:2402.17753)",
+        "LoCoMo (Yin et al. 2024; arxiv:2402.17753)",
+        "nao consta da autoria",
+    ),
+    (
+        # Desde 2026-09-10 o paper diz `6,822` do corpus do rc4 (§6.3.2, §6.9) E do
+        # indice do EverOS (§6.3.1) — medicoes diferentes que coincidem. A
+        # coincidencia e' o achado; ler as duas como uma e' o defeito. A primeira
+        # versao do guarda exigia os dois sistemas na MESMA frase e esta mutacao
+        # passava incolume, porque deixa `nox-mem` numa frase e `EverOS` na
+        # seguinte: a janela tem de ser o PARAGRAFO.
+        "contagem de corpus de 2 sistemas com uma corrida so nomeada",
+        PAPER,
+        "from a **different run** (the 2026-09-10 EverOS ingest of \u00a76.3.1, not rc4, "
+        "and therefore not a fourth column here): offered the same corpus, EverOS also "
+        "retained **6,822**",
+        "EverOS also retained **6,822**",
+        "nomeia 1 corrida",
+    ),
+    (
+        "paragrafo novo com 2 sistemas e nenhuma corrida nomeada",
+        PAPER, None,
+        "\nBoth nox-mem and EverOS retained 6,822 documents; Mem0 kept 6,830.\n",
+        "nomeia 0 corrida",
+    ),
+    (
+        # Instalado depois de acontecer: o PR que acrescentou 415 palavras ao
+        # §6.3.1 — prosa densa e necessaria, sem referencia nova — levou a
+        # densidade de 2,08 para 2,05, fora do piso, e os 14 guardas ficaram
+        # verdes. A mutacao muta o MANUSCRITO e nao o censo: mutar o censo
+        # aciona tambem o censo_bibitem_check e a prova nao discriminaria.
+        # A frase e' neutra de proposito — nao dispara superlativo, serie viva,
+        # populacao nem contagem de corpus.
+        "prosa nova sem referencia derruba a densidade abaixo do piso",
+        PAPER, None,
+        "\n" + 'The pipeline processes each file as it changes, and the resulting record is stored for later reading by whichever component asks for it next. ' * 80 + "\n",
+        "abaixo do piso",
+    ),
+    (
+        # A entrada do NOSSO sistema prometia "update with arXiv ID after
+        # submission" enquanto o CITATION.cff registra a ausencia no arXiv como
+        # FATO, nao tarefa. Duas fontes do mesmo repo em contradicao, e a que o
+        # leitor segue e' a bibliografia.
+        "entrada de bibliografia promete atualizacao futura",
+        BIB, "doi          = {10.5281/zenodo.22649268},",
+        "note2        = {update with arXiv ID after submission},",
+        "promete atualizacao futura",
+    ),
+    (
+        # Chave nas duas classes: a soma nao fecha e o numerador fica ambiguo.
+        "censo classifica a mesma chave como obra E evidencia",
+        "bibitem-census.json",
+        '"evidencia": {', '"evidencia": {\n  "mem0": "duplicada",',
+        "em duas classes",
+    ),
+    (
+        # L5 (completude). Sem este caso, "a L5 nao acusa nada" seria
+        # indistinguivel de "a L5 nao olha". Ela ja achou dois sitios que a
+        # primeira versao do censo, montada a mao, tinha perdido — mas isso e'
+        # historia, nao teste.
+        "sitio de contagem NOVO, fora do censo",
+        PAPER, None,
+        "\n\nIn this revision four competitors could not produce a number at all.\n",
+        "contagem/L5",
+    ),
+    (
+        # A perna que importa: um gap FECHOU (artefato com numero em disco) e o
+        # censo ainda diz que o sistema nao produziu. E' o cenario do Zep quando
+        # a corrida dele fechar. Mutar o censo reproduz o estado sem mexer no disco.
+        "gap fechou e o censo ainda diz SEM numero",
+        "q4-corridas-census.json",
+        '"produziu_numero": true,\n      "corridas": [\n        "2026-09-10"',
+        '"produziu_numero": false,\n      "corridas": [\n        "2026-09-10"',
+        "contagem/L2",
+    ),
+    (
+        "censo declara ndcg que o artefato nao tem",
+        "q4-corridas-census.json",
+        '"ndcg10_no_artefato": 0.64553667642804',
+        '"ndcg10_no_artefato": 0.7',
+        "contagem/L1",
+    ),
+    (
+        # Artefato em disco cujo sistema o censo nao declara NEM exclui.
+        "alias do sistema sumiu do censo",
+        "q4-corridas-census.json",
+        '        "evermind",\n        "everos"',
+        '        "evermind-com-outro-nome"',
+        "contagem/L2",
+    ),
+    (
+        # Sem este caso, "os quatro sitios canonicos passam" seria indistinguivel
+        # de "a guarda os pula em silencio".
+        "contagem presa a corrida canonica adulterada",
+        PAPER,
+        "**Two of the five competitors produced head-to-head quality numbers**",
+        "**Three of the five competitors produced head-to-head quality numbers**",
+        "canonica-produziram",
+    ),
+    (
+        # A guarda tem de ACUSAR quando nao acha os artefatos, nao ficar calada
+        # por falta do dado (regra 9 do CLAUDE.md).
+        "guarda perde os artefatos e teria de calar",
+        SCRIPT,
+        '    for cand in (root, root.parent):\n        if (cand / "eval" / "q4-comparison").is_dir():\n            return cand\n    return None',
+        "    return None",
+        "eval/q4-comparison nao encontrado",
+    ),
 ]
 
 # Controle NEGATIVO: texto inócuo não pode disparar nada.
@@ -207,8 +372,12 @@ CONTROLE = (PAPER, "\nThe pipeline indexes files as they change.\n")
 
 
 def _prepara(tmp: Path) -> None:
-    for f in (PAPER, BIB, SCRIPT):
+    for f in (PAPER, BIB, SCRIPT, *MANIFESTOS):
         shutil.copy2(AQUI / f, tmp / f)
+    for rel in ARTEFATOS:
+        dst = tmp / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(RAIZ_REPO / rel, dst)
 
 
 def _roda(tmp: Path) -> tuple[int, str]:

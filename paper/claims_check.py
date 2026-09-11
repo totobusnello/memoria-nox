@@ -41,7 +41,9 @@ Saída binária, no padrão do Paper A: 0 = limpo, 1 = divergência(s) em stderr
 from __future__ import annotations
 
 import argparse
+import json
 import re
+import unicodedata
 import sys
 from pathlib import Path
 
@@ -121,7 +123,11 @@ BIB_DIVIDA: dict[str, str] = {
 # queda -- baseline que nao desce vira teto, nao trava.
 # Foi a suite de mutacao que apontou: o caso "evidencia nao-arquivavel AUMENTOU" deixou
 # de morder no momento em que a folga apareceu.
-PR_BASELINE = 66
+# Medido 2026-09-10 no manuscrito: 53. Estava em 66 desde antes dos cortes do
+# #494/#507, e um ratchet cujo baseline esta ACIMA do real nao e ratchet — dava
+# folga para 13 evidencias nao-arquivaveis novas em silencio, e a mutacao da
+# bateria (que soma 1) cabia na folga. Preso agora nos DOIS sentidos.
+PR_BASELINE = 53
 
 # Tabelas de comparação externa que ainda usam `PR #NNN` como fonte. Dívida
 # HERDADA e declarada, não isenção: qualquer sítio novo falha. Resolver com
@@ -317,6 +323,13 @@ def evidencia_check(root: Path) -> list[str]:
             f"{PAPER}: {n} ocorrências de `PR #NNN` (baseline {PR_BASELINE}) — "
             f"evidência não-arquivável AUMENTOU; usar artefato ou commit pinado"
         )
+    elif n < PR_BASELINE:
+        fails.append(
+            f"{PAPER}: {n} ocorrências de `PR #NNN` contra baseline {PR_BASELINE} — "
+            f"o ratchet ficou FROUXO por {PR_BASELINE - n}; apertar PR_BASELINE para "
+            f"{n} no mesmo commit que removeu, senão a folga admite {PR_BASELINE - n} "
+            f"evidências não-arquiváveis novas sem alarme"
+        )
 
     vistos: set[str] = set()
     for ln, linha in _linhas_de_prosa(md):
@@ -495,6 +508,74 @@ POPULACAO = {
 }
 
 
+# --- eixo 2 do populacao_check: contagem de corpus de BENCHMARK -------------
+# 6.822/6.830 nao sao serie viva (o corpus do benchmark esta congelado), logo nao
+# entram no SERIE_VIVA — exigir data neles produziria frase com data inutil. Mas
+# estao sujeitos ao MESMO defeito de atribuicao: desde 2026-09-10 o paper diz
+# `6,822` do corpus do rc4 (§6.3.2, §6.9) E do indice do EverOS (§6.3.1), que sao
+# medicoes diferentes que por acaso coincidem. A coincidencia e' o achado; ler as
+# duas como uma medicao e' o defeito. Medido: retirar "different run ... not rc4"
+# da frase do EverOS deixava os tres guardas verdes.
+CORPUS_BENCH = re.compile(r"\b6[.,]822\b|\b6[.,]830\b")
+SISTEMA_CORPUS = {
+    "nox_mem": re.compile(r"nox-mem|eval loader|INSERT OR IGNORE|eval_chunks", re.I),
+    "mem0": re.compile(r"\bMem0\b|Chroma|faiss", re.I),
+    "everos": re.compile(r"EverOS|EverMind", re.I),
+    "zep": re.compile(r"\bZep\b", re.I),
+}
+# Nomear a corrida e' o que desfaz a ambiguidade — nao nomear o sistema.
+MARCA_CORRIDA = re.compile(r"\brc4\b|different run|canonical run|"
+                           r"20\d\d-\d\d-\d\d run|of the 20\d\d-\d\d-\d\d", re.I)
+
+
+def corpus_bench_check(root: Path) -> list[str]:
+    """Contagem de corpus atribuida a 2+ sistemas exige que a corrida seja nomeada.
+
+    Dois sistemas retendo o MESMO numero por mecanismos diferentes e' um achado —
+    mostra que 6.822 e' consequencia de honrar unicidade de id, nao idiossincrasia
+    do nosso loader. O defeito e' a frase que permite ler as duas medicoes como
+    uma. Este guarda nao proibe a coincidencia; exige que a frase diga de que
+    corrida cada lado veio.
+
+    ⚠️ Deliberadamente NAO amplia o padrao para qualquer numero de 4 digitos:
+    medido, um padrao amplo produz 18 acusacoes em 55 numeros, quase todas falsas
+    (`2,482` aparece em 17 contextos legitimos), e instrumento enviesado a acusar
+    e' pior que instrumento cego — a direcao do vies seria a da conclusao forte.
+    """
+    # ⚠️ A janela e' o PARAGRAFO, nao a frase. A primeira versao exigia os dois
+    # sistemas na MESMA frase, e a mutacao real — tirar "different run ... not rc4"
+    # do paragrafo do confound (e) — passava incolume, porque deixava `nox-mem` numa
+    # frase e `EverOS` na seguinte. O leitor funde as duas medicoes pela vizinhanca,
+    # nao pela pontuacao.
+    fails = []
+    for ln, linha in _linhas_de_prosa((root / PAPER).read_text()):
+        atrib = []                       # (frase, sistema, tem_corrida)
+        for f in _frases(linha):
+            if not CORPUS_BENCH.search(f):
+                continue
+            for n, rx in SISTEMA_CORPUS.items():
+                if rx.search(f):
+                    atrib.append((f, n, bool(MARCA_CORRIDA.search(f))))
+        sis = {n for _, n, _ in atrib}
+        if len(sis) < 2:
+            continue
+        # Exigir a corrida em CADA frase gera redundancia — o paragrafo do confound
+        # (e) declara `rc4` na abertura e nao repete a cada frase. O que o defeito
+        # exige e' que o paragrafo nomeie **tantas corridas quantas existem**: com
+        # 2+ sistemas atribuidos, uma unica marca de corrida no paragrafo significa
+        # que a segunda medicao esta a ser lida sob a corrida da primeira.
+        marcas = {m.group(0).lower().replace("of the ", "")
+                  for m in MARCA_CORRIDA.finditer(linha)}
+        if len(marcas) < 2:
+            fails.append(
+                f"{PAPER}:{ln}: o paragrafo atribui a contagem de corpus a "
+                f"{len(sis)} sistemas ({', '.join(sorted(sis))}) e nomeia "
+                f"{len(marcas)} corrida(s) ({', '.join(sorted(marcas)) or 'nenhuma'})"
+                f" — a segunda medicao fica a ser lida sob a corrida da primeira"
+            )
+    return fails
+
+
 def populacao_check(root: Path) -> list[str]:
     """A MESMA contagem não pode ser atribuída a duas populações diferentes.
 
@@ -598,6 +679,73 @@ def footnotes_check(root: Path) -> list[str]:
             f"referencia nao usada e' enchimento de bibliografia"
         )
 
+    # (3) CORRESPONDENCIA: os sobrenomes ao lado do localizador sao os da obra?
+    #
+    # Esta perna existe porque as pernas (1) e (2) passaram VERDES sobre tres
+    # footnotes com autoria inventada (2026-09-10): [^longmemeval] dizia
+    # "Yin, Ni, Peng" numa autoria de seis nomes que nao os contem, [^hipporag2]
+    # dizia "Yasunaga, Gu" onde sao "Qi, Zhou", e [^beamretrieval] dizia
+    # "Yin & Zhang" onde sao "Liu & Huang". Exigir a PRESENCA de um identificador
+    # nao verifica a CORRESPONDENCIA dele com os nomes ao lado — e a ironia e que
+    # a propria [^hipporag2] avisava que "uma referencia irresolvivel e
+    # indistinguivel de uma inventada" enquanto carregava dois nomes inventados.
+    #
+    # Roda OFFLINE contra paper/authors-manifest.json, gerado por
+    # paper/gen-authors-manifest.py (que vai a rede) e commitado. Isso e
+    # deliberado: guarda de CI que depende de rede falha por rede e ensina a
+    # ignorar o guarda.
+    #
+    # ⚠️ ID ausente do manifesto NAO conta como aprovado: e reportado como
+    # NAO-VERIFICADO. Ausencia de dado nao e ausencia de problema.
+    # A extracao de ids e' case-INSENSITIVE de proposito: o manuscrito trazia
+    # `arxiv:2402.17753` em minusculas para o LoCoMo — o benchmark central do §6 —
+    # e um `arXiv:` case-sensitive fazia esse id escapar desta perna INTEIRA. A
+    # autoria dele estava certa, mas por sorte: a perna nunca a olhou. O
+    # `refs_check` ja' usava re.I, logo duas pernas do mesmo guarda liam o mesmo
+    # manuscrito com semanticas diferentes.
+    man_path = root / "authors-manifest.json"
+    if not man_path.exists():
+        fails.append(f"{PAPER}: paper/authors-manifest.json ausente — "
+                     f"a perna de correspondencia de autoria nao pode correr")
+    else:
+        man = json.loads(man_path.read_text())
+        # tokens que parecem nome proprio mas nao sao autor
+        NAO_AUTOR = {
+            "Letta", "MemGPT", "Original", "Implementation", "Used", "Requires",
+            "Verified", "Named", "Source", "Counts", "Google", "OpenAI", "Anthropic",
+            "The", "This", "And", "Its", "Graph", "Code", "Data", "Cited",
+        }
+        def normaliza(x: str) -> str:
+            x = unicodedata.normalize("NFKD", x)
+            x = "".join(c for c in x if not unicodedata.combining(c))
+            return re.sub(r"[^a-z]", "", x.lower())
+
+        for d in re.finditer(r"^\[\^([A-Za-z0-9_-]+)\]:(.*)$", md, re.M):
+            chave, corpo = d.group(1), d.group(2)
+            aids = re.findall(r"arxiv:\s*(\d{4}\.\d{4,5})", corpo, re.I)
+            if not aids:
+                continue
+            # os nomes vivem antes do titulo em *italico*
+            pre = corpo.split("*")[0]
+            nossos = [n for n in re.findall(r"\b([A-Z][A-Za-z'\u2019-]+)\b", pre)
+                      if n not in NAO_AUTOR and len(n) >= 2]
+            if not nossos:
+                continue
+            for aid in aids:
+                if aid not in man:
+                    fails.append(
+                        f"{PAPER}: footnote `[^{chave}]` cita arXiv:{aid} que NAO esta no "
+                        f"manifesto — autoria NAO VERIFICADA (rode paper/gen-authors-manifest.py)"
+                    )
+                    continue
+                reais = {normaliza(a) for a in man[aid]["surnames"]}
+                orfaos = [n for n in nossos if normaliza(n) not in reais]
+                if orfaos:
+                    fails.append(
+                        f"{PAPER}: footnote `[^{chave}]` nomeia {orfaos} que nao constam da "
+                        f"autoria de arXiv:{aid} ({', '.join(man[aid]['surnames'])})"
+                    )
+
     # (2) so o bloco academico
     m = re.search(r"^### Academic references$(.*?)^### ", md, re.M | re.S)
     if m:
@@ -613,6 +761,386 @@ def footnotes_check(root: Path) -> list[str]:
                 )
     return fails
 
+
+def censo_bibitem_check(root: Path) -> list[str]:
+    """Toda footnote definida tem de estar classificada no censo de bibitems.
+
+    A densidade de referencias por mil palavras usa SO a classe `obra` no
+    numerador — auto-referencia (ponteiro para o nosso proprio codigo ou
+    medicao) nao aparece na bibliografia de nenhum dos aceitos, logo conta-la
+    infla o nosso lado da regua. Sem esta perna, acrescentar footnote muda o
+    numerador em silencio e a densidade publicada envelhece sem alarme.
+    """
+    fails: list[str] = []
+    md = (root / PAPER).read_text(encoding="utf-8")
+    definidas = set(re.findall(r"^\[\^([A-Za-z0-9_-]+)\]:", md, re.M))
+
+    cam = root / "bibitem-census.json"
+    if not cam.exists():
+        return [f"{PAPER}: paper/bibitem-census.json ausente — a perna de censo "
+                f"de bibitems nao pode correr, e a densidade publicada fica sem lastro"]
+    censo = json.loads(cam.read_text(encoding="utf-8"))
+    obra = set(censo.get("obra", []))
+    evid = set(censo.get("evidencia", {}))
+
+    ambas = obra & evid
+    if ambas:
+        fails.append(f"{PAPER}: bibitem-census.json classifica {sorted(ambas)} em duas "
+                     f"classes — a soma nao fecha e o numerador fica ambiguo")
+    for k in sorted(definidas - (obra | evid)):
+        fails.append(f"{PAPER}: footnote `[^{k}]` nao esta no bibitem-census.json — "
+                     f"classificar como `obra` (trabalho de terceiro) ou `evidencia` "
+                     f"(ponteiro para o nosso artefato) antes de citar densidade")
+    for k in sorted((obra | evid) - definidas):
+        fails.append(f"{PAPER}: bibitem-census.json classifica `[^{k}]`, que nao existe "
+                     f"mais no manuscrito — censo desatualizado")
+    return fails
+
+
+def bib_promessa_check(root: Path) -> list[str]:
+    """Uma entrada de bibliografia nao pode prometer atualizacao futura.
+
+    `busnello2026noxmem` trazia *"update with arXiv ID after submission"* enquanto
+    o CITATION.cff registra, tres linhas de comentario abaixo do DOI, que a
+    ausencia no arXiv e' **um fato sobre o manuscrito, nao uma tarefa pendente**.
+    Duas fontes do mesmo repo diziam coisas opostas, e a que o leitor segue e' a
+    bibliografia. Promessa em bibliografia envelhece: ou a acao acontece e a nota
+    fica falsa, ou nao acontece e a nota vira divida visivel ao revisor.
+    """
+    bib = (root / BIB).read_text(encoding="utf-8")
+    fails = []
+    for m in re.finditer(r"@\w+\{([^,]+),(.*?)\n\}", bib, re.S):
+        chave, corpo = m.group(1).strip(), m.group(2)
+        p = re.search(r"(update with|after submission|once (?:it is )?published|"
+                      r"\bTODO\b|\bTBD\b|to be (?:added|updated|filled))", corpo, re.I)
+        if p:
+            fails.append(f"{BIB}: entrada `{chave}` promete atualizacao futura "
+                         f"(\"{p.group(1)}\") — bibliografia registra o que existe; "
+                         f"promessa aqui envelhece e o leitor segue a bibliografia")
+    return fails
+
+
+def autoria_inline_check(root: Path) -> list[str]:
+    """Citacao inline em PROSA, com `X et al.` e id arXiv, tem a autoria conferida.
+
+    A perna de autoria do `footnotes_check` varre so corpos de footnote
+    (`^\\[\\^chave\\]:`). O manuscrito tem **11 linhas de prosa** que citam id arXiv
+    com o autor ao lado — tabelas de baseline e o paragrafo do LoCoMo — e nenhuma
+    delas passava por perna alguma. Foi assim que `arxiv:2402.17753` (o benchmark
+    central do §6) ficou fora do manifesto sem alarme: a autoria estava certa,
+    mas por sorte, porque ninguem a olhou.
+
+    ⚠️ **Cobertura declarada, e e' parcial de proposito.** So verifica linha com
+    EXATAMENTE um id e EXATAMENTE um `et al.` — com dois ids na mesma linha
+    (`DPR (arxiv:...) + FiD (arxiv:...)`) nao ha' como associar o nome ao id certo,
+    e associar ao errado produziria acusacao falsa. Linhas com 2+ ids ou sem
+    `et al.` ficam **sem cobertura**; isso e' um limite conhecido, nao um
+    silencio que se leia como aprovacao.
+    """
+    fails: list[str] = []
+    md = (root / PAPER).read_text(encoding="utf-8")
+    cam = root / "authors-manifest.json"
+    if not cam.exists():
+        return [f"{PAPER}: paper/authors-manifest.json ausente — a perna de autoria "
+                f"inline nao pode correr"]
+    man = json.loads(cam.read_text(encoding="utf-8"))
+
+    for ln, linha in enumerate(md.splitlines(), 1):
+        if linha.lstrip().startswith("[^"):
+            continue                                    # footnote: outra perna
+        ids = re.findall(r"arxiv:\s*(\d{4}\.\d{4,5})", linha, re.I)
+        etal = re.findall(r"\b([A-Z][a-zA-Z'\u2019-]{2,})\s+et\s+al\.", linha)
+        if len(ids) != 1 or len(etal) != 1:
+            continue
+        aid, nome = ids[0], etal[0]
+        if aid not in man:
+            fails.append(
+                f"{PAPER}:{ln}: prosa cita arXiv:{aid} com `{nome} et al.` e o id NAO "
+                f"esta no authors-manifest.json — autoria NAO VERIFICADA (rodar "
+                f"gen-authors-manifest.py)")
+            continue
+        if nome not in man[aid]["surnames"]:
+            fails.append(
+                f"{PAPER}:{ln}: prosa atribui arXiv:{aid} a `{nome} et al.`, que nao "
+                f"consta da autoria ({', '.join(man[aid]['surnames'][:6])})")
+    return fails
+
+
+# Faixa observada nos quatro artigos aceitos, medida com o metodo declarado em
+# publication/regua-simetrica-2026-09-10.md §5 (ltx_bibitem no HTML, tokens crus).
+# NAO e' um limiar de aceitacao — e' o piso e o teto de uma populacao de quatro,
+# pequena e nao amostrada ao acaso. Serve como alarme de deriva, nao como regra.
+DENSIDADE_PISO = 2.06
+DENSIDADE_TETO = 2.95
+
+
+def densidade_check(root: Path) -> list[str]:
+    """A densidade de referencias por mil palavras nao pode sair da faixa em silencio.
+
+    Instalado depois de acontecer: o PR que acrescentou 415 palavras ao §6.3.1 e ao
+    confound (e) — prosa densa e necessaria, sem referencia nova — levou a densidade
+    de **2,08 para 2,05**, fora do piso, e os 14 guardas ficaram verdes. Cada PR de
+    conteudo move o denominador, e sem esta perna a unica forma de descobrir e'
+    rodar o script da regua a mao e lembrar de o fazer.
+
+    O numerador vem do `bibitem-census.json` (classe `obra`), nao das footnotes: as
+    auto-referencias nao aparecem na bibliografia de nenhum dos aceitos.
+    """
+    fails: list[str] = []
+    md = (root / PAPER).read_text(encoding="utf-8")
+    cam = root / "bibitem-census.json"
+    if not cam.exists():
+        return [f"{PAPER}: paper/bibitem-census.json ausente — a perna de densidade "
+                f"nao pode correr"]
+    obras = len(json.loads(cam.read_text(encoding="utf-8"))["obra"])
+    pal = sum(1 for w in md.split() if any(c.isalnum() for c in w))
+    d = obras / (pal / 1000)
+    if d < DENSIDADE_PISO:
+        faltam = DENSIDADE_PISO * pal / 1000 - obras
+        corte = pal - obras / DENSIDADE_PISO * 1000
+        fails.append(
+            f"{PAPER}: densidade {d:.3f}/mil ({obras} obras / {pal} palavras) abaixo "
+            f"do piso {DENSIDADE_PISO} observado nos aceitos — fechar com "
+            f"+{faltam:.1f} obra(s) (⇒ {int(faltam + 0.999)} com discussao) ou "
+            f"−{corte:.0f} palavras"
+        )
+    elif d > DENSIDADE_TETO:
+        fails.append(
+            f"{PAPER}: densidade {d:.3f}/mil acima do teto {DENSIDADE_TETO} observado "
+            f"nos aceitos — referencia sem discussao e' enchimento de bibliografia"
+        )
+    return fails
+
+
+
+NUM_TEXTO = {0: "zero", 1: "one", 2: "two", 3: "three",
+             4: "four", 5: "five", 6: "six", 7: "seven"}
+
+
+def _forma_numero(v: int, forma: str) -> str:
+    if forma == "digito":
+        return str(v)
+    palavra = NUM_TEXTO[v]
+    return palavra.capitalize() if forma == "palavra_capitalizada" else palavra
+
+
+# Varredura de completude da L5. Calibrada contra o manuscrito de 2026-09-10:
+# so palavra-numero junto de "competitors|systems", com um substantivo de desfecho
+# a ate 90 caracteres a frente. Digito cru fica de fora porque casava `§6.3.1` e
+# `§7.2` — instrumento enviesado a acusar acaba desligado, que e' pior que cego.
+# Controle positivo obrigatorio: ver a mutacao "sitio de contagem NOVO fora do censo".
+_PAL_NUM = r"(?:two|three|four|five|six)"
+VARRE_CONTAGEM = re.compile(
+    rf"\b{_PAL_NUM}\b[ \w,*—-]{{0,45}}?\b(?:competitors?|systems?)\b"
+    rf"|\b\d/6 systems\b|\b\d documented gaps\b|\b\d produced numbers\b",
+    re.I)
+# A janela e' dos DOIS lados. A primeira versao so olhava para a frente e perdeu
+# "...has a number in every cell of §6.3 and three competitors do not": o termo de
+# desfecho estava ATRAS da contagem. Ponto cego direcional num instrumento de
+# completude e' o mesmo defeito que o instrumento existe para pegar.
+DESFECHO = re.compile(
+    r"produce|produced|non-run|did not run|documented gap|evaluated|numbers?", re.I)
+JANELA = 120
+
+
+def _moldes_no_corpo(corpo: str, censo: dict) -> list[tuple[int, int]]:
+    """Onde cada sitio ocorre, casando o molde com QUALQUER numero — nao com o
+    derivado. Assim a L5 sabe o vao mesmo quando a contagem esta velha e a L4 ja
+    acusou; senao a L4 falhando faria a L5 acusar o mesmo sitio de novo."""
+    vaos = []
+    for s in censo["sitios"]:
+        pad = re.escape(s["template"])
+        for marc in s["marcadores"]:
+            pad = pad.replace(re.escape("{" + marc + "}"), r"[A-Za-z0-9]+")
+        vaos += [(m.start(), m.end()) for m in re.finditer(pad, corpo)]
+    return vaos
+
+
+CENSO_CORRIDAS = "q4-corridas-census.json"
+
+NUM_PALAVRA = {
+    "zero": 0, "one": 1, "two": 2, "three": 3,
+    "four": 4, "five": 5, "six": 6, "seven": 7,
+}
+
+
+def _base_artefatos(root: Path) -> Path | None:
+    """Onde vive `eval/q4-comparison`. Devolve None se em lugar nenhum — e quem
+    chama ACUSA, em vez de ficar calado por falta do dado (regra 9 do CLAUDE.md:
+    guarda cujo predicado exige o dado que falta nao cobre a falta do dado)."""
+    for cand in (root, root.parent):
+        if (cand / "eval" / "q4-comparison").is_dir():
+            return cand
+    return None
+
+
+def _ndcg_do_artefato(caminho: Path, alias: list[str]) -> float | None:
+    try:
+        d = json.loads(caminho.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    baixo = {a.lower() for a in alias}
+    for s in d.get("systems", []) or []:
+        if str(s.get("system", "")).lower() in baixo:
+            v = (s.get("overall") or {}).get("ndcg@k")
+            if isinstance(v, (int, float)):
+                return float(v)
+    return None
+
+
+def _sistemas_em_disco(base: Path) -> list[tuple[str, str, float]]:
+    """(sistema, caminho relativo, ndcg) de TODO json sob eval/q4-comparison que
+    carregue system + overall['ndcg@k']. Nao tenta derivar a verdade — so exige
+    que o que existe esteja declarado."""
+    achados: list[tuple[str, str, float]] = []
+    raiz = base / "eval" / "q4-comparison"
+    for f in sorted(raiz.rglob("*.json")):
+        try:
+            d = json.loads(f.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(d, dict):
+            continue
+        for s in d.get("systems", []) or []:
+            v = (s.get("overall") or {}).get("ndcg@k")
+            nome = str(s.get("system", "")).strip()
+            if nome and isinstance(v, (int, float)):
+                achados.append((nome, str(f.relative_to(base)), float(v)))
+    return achados
+
+
+def contagem_sistemas_check(root: Path) -> list[str]:
+    """O numero de competidores 'que produziram numero' e' afirmado em oito
+    lugares do manuscrito, com DOIS escopos: quatro presos a corrida canonica de
+    2026-06-15 (onde 2/3 continua verdade quando um gap fecha depois) e quatro
+    globais (que viram falsos). Reler os oito quando um gap fecha nao pega frase
+    errada com numero certo. Esta guarda deriva de `q4-corridas-census.json`.
+
+    L1 sistema declarado com artefato -> artefato existe e traz aquele ndcg
+    L2 TODO artefato em disco com system+ndcg esta declarado  <- acusa gap que fechou
+    L3 cada sitio de prosa declara o numero que o escopo dele exige
+    L4 cada ancora ocorre exatamente uma vez no manuscrito
+    """
+    falhas: list[str] = []
+    cam = root / CENSO_CORRIDAS
+    if not cam.exists():
+        return [f"contagem: {CENSO_CORRIDAS} ausente — a guarda nao pode se calar por falta dele"]
+    censo = json.loads(cam.read_text(encoding="utf-8"))
+    comp = censo["competidores"]
+    fora = {a.lower() for a in censo["fora_do_paragrafo6"]}
+    corpo = (root / PAPER).read_text(encoding="utf-8")
+
+    base = _base_artefatos(root)
+    if base is None:
+        return ["contagem: eval/q4-comparison nao encontrado a partir de "
+                f"{root} nem {root.parent} — L1/L2 nao podem correr, e calar seria pior"]
+
+    # --- L1: declaracao com artefato tem lastro ---
+    for c in comp:
+        art = c.get("artefato")
+        if not art:
+            continue
+        p_art = base / art
+        if not p_art.exists():
+            falhas.append(f"contagem/L1: {c['nome']} declara artefato {art}, inexistente")
+            continue
+        v = _ndcg_do_artefato(p_art, c["alias"])
+        if v is None:
+            falhas.append(f"contagem/L1: {art} nao traz ndcg@k para {c['nome']} "
+                          f"(alias {c['alias']})")
+        elif abs(v - float(c["ndcg10_no_artefato"])) > 1e-9:
+            falhas.append(f"contagem/L1: {c['nome']} declara ndcg {c['ndcg10_no_artefato']}, "
+                          f"artefato {art} traz {v}")
+
+    # --- L2: nada em disco fica por declarar ---
+    declarados = {}
+    for c in comp:
+        for a in c["alias"]:
+            declarados[a.lower()] = c
+    for nome, rel, v in _sistemas_em_disco(base):
+        chave = nome.lower()
+        if chave in fora:
+            continue
+        c = declarados.get(chave)
+        if c is None:
+            falhas.append(f"contagem/L2: artefato {rel} traz o sistema '{nome}' "
+                          f"(ndcg {v:.4f}) que o censo nao declara nem exclui")
+        elif not c["produziu_numero"]:
+            falhas.append(f"contagem/L2: artefato {rel} traz ndcg {v:.4f} para "
+                          f"{c['nome']}, que o censo ainda declara SEM numero — "
+                          f"um gap fechou e as contagens do manuscrito estao velhas")
+
+    # --- derivacao das contagens ---
+    canonica = [c for c in comp
+                if any("2026-06-15" in r for r in c["corridas"])]
+    global_com = [c for c in comp if c["produziu_numero"]]
+    derivado = {
+        ("canonica", "produziram_competidores"): len(canonica),
+        ("canonica", "nao_produziram_competidores"): len(comp) - len(canonica),
+        ("global", "produziram_competidores"): len(global_com),
+        ("global", "nao_produziram_competidores"): len(comp) - len(global_com),
+        # nox-mem entra como sexto sistema nessas duas frases
+        ("canonica", "par_incl_noxmem"): len(canonica) + 1,
+    }
+
+    # --- L3 + L4: template com a contagem derivada tem de ocorrer exatamente 1x ---
+    #
+    # A forma anterior ("algum numero da ancora bate com o derivado") passava pelo
+    # `6.3.1` do proprio titulo da secao: 4 numeros extraidos, 1 deles por acaso.
+    # Template nao tem essa folga — todo numero da frase e' marcador, nenhum literal.
+    for s in censo["sitios"]:
+        sid, tmpl, forma = s["id"], s["template"], s["forma"]
+        subs = {}
+        erro = False
+        for marcador, (esc, qtd) in s["marcadores"].items():
+            v = derivado.get((esc, qtd))
+            if v is None:
+                falhas.append(f"contagem/L3: sitio '{sid}' pede ({esc}, {qtd}), "
+                              f"quantidade que a guarda nao deriva")
+                erro = True
+                break
+            subs[marcador] = _forma_numero(v, forma)
+        if erro:
+            continue
+        esperado = tmpl.format(**subs)
+        n = corpo.count(esperado)
+        if n == 1:
+            continue
+        # mensagem acionavel: o que ESTA la, no lugar do que devia estar
+        padrao = re.escape(tmpl)
+        for marcador in s["marcadores"]:
+            padrao = padrao.replace(re.escape("{" + marcador + "}"), r"([A-Za-z0-9]+)")
+        vistos = re.findall(padrao, corpo)
+        falhas.append(
+            f"contagem/L4: sitio '{sid}' — esperado exatamente 1x {esperado!r}, "
+            f"achado {n}x" + (f"; no manuscrito esta {vistos}" if vistos
+                              else "; e o molde da frase nao ocorre — foi reescrita ou removida")
+        )
+
+    # --- L5: completude. Nenhuma frase de contagem fica fora do censo ---
+    vaos = _moldes_no_corpo(corpo, censo)
+    # Um isento e' um VAO do manuscrito que cobre o achado, nao uma substring do
+    # achado: "x in m.group(0)" testava ao contrario, e uma isencao curta calaria
+    # sitios legitimos por acidente.
+    isentos: list[tuple[int, int]] = []
+    for e in censo.get("excluidos_da_completude", []):
+        for m_i in re.finditer(re.escape(e["texto"]), corpo):
+            isentos.append((m_i.start(), m_i.end()))
+    for m in VARRE_CONTAGEM.finditer(corpo):
+        if any(a <= m.start() and m.end() <= b for a, b in vaos):
+            continue
+        volta = corpo[max(0, m.start() - JANELA):m.end() + JANELA]
+        if not DESFECHO.search(volta):
+            continue
+        if any(a <= m.start() and m.end() <= b for a, b in isentos):
+            continue
+        ln = corpo[:m.start()].count("\n") + 1
+        falhas.append(
+            f"contagem/L5: L{ln} diz {m.group(0)[:60]!r} — frase de contagem de "
+            f"sistemas fora do censo. Ou vira sitio em q4-corridas-census.json, ou "
+            f"entra em excluidos_da_completude com razao."
+        )
+    return falhas
 
 # ── (11) alegação UNIVERSAL sobre a literatura, e promoção retórica ──────────────
 #
@@ -635,6 +1163,7 @@ UNIVERSAL = re.compile(
     r"\bno competitor (?:reports|achieves|matches)\b|\bnenhum competidor\b",
     re.I,
 )
+
 # Conjunto nomeado: a frase cita quem foi comparado, logo a alegação é limitada.
 # ⚠️ `\bamong\b` sozinho era buraco, e uma mutação minha caiu nele por acidente:
 # *"Among all memory systems, no published competitor reports…"* é um universal, e a
@@ -645,8 +1174,11 @@ CONJUNTO_NOMEADO = re.compile(
     r"\bthe \w+ systems benchmarked\b|\bcompared here\b|\bamong the \w+ compared\b",
     re.I,
 )
+
 UNIVERSAL_ABSOLUTO = re.compile(r"\ball (?:memory )?systems\b|\bany published\b|\bever\b", re.I)
+
 PROMOCIONAL = re.compile(r"\bbreakthrough\b", re.I)
+
 # Num paper de sistema único, presume-se trabalho PRÓPRIO; isenta quem nomeia
 # terceiro. Usar `PROPRIO` aqui (nox-mem|our|we) deixava passar a prosa que descreve o
 # próprio mecanismo sem dizer "we" — previ 3 capturas e obtive 2, e a falha apontou isto.
@@ -656,6 +1188,7 @@ TERCEIRO = re.compile(
     r"\bMemMachine\b|\bmemanto\b",
     re.I,
 )
+
 # Marca de retratação: a frase reporta o desmentido POR MEDIÇÃO (5-batch contra 1).
 RETRATACAO = re.compile(
     r"5-batch reality|labelled\s+\S{0,2}breakthrough|overstatement|"
@@ -688,6 +1221,7 @@ def universal_check(root: Path) -> list[str]:
 
 GUARDAS = [
     fence_check,
+    universal_check,
     superlativo_check,
     split_metrica_check,
     refs_check,
@@ -697,7 +1231,12 @@ GUARDAS = [
     aritmetica_check,
     populacao_check,
     footnotes_check,
-    universal_check,
+    censo_bibitem_check,
+    bib_promessa_check,
+    autoria_inline_check,
+    corpus_bench_check,
+    densidade_check,
+    contagem_sistemas_check,
 ]
 
 

@@ -2709,3 +2709,351 @@ lê a var, sim — como `MODO`, para repassar ao guarda (linha 54). A sonda resp
 **presença-de-nome** em vez da pergunta feita. Somado aos meus dois sondadores do §10.24,
 são **três instrumentos diferentes, no mesmo dia, todos medindo o fonte para responder
 pergunta sobre comportamento** — e os três escritos *depois* de a lição estar registrada.
+
+---
+
+## §10.26 — A janela elegível classificava por RELÓGIO e reportava como exposição servida
+
+**Enunciado (sessão par, PR #497, verificado aqui por via independente):** a delimitação
+da janela elegível classificava cada epoch por **sobreposição de relógio** (active no ar ×
+designados frescos) e reportava o resultado como **exposição entregue**. Corrigido para
+classe composta com censo de entrega: **15 inteiras + 3 parciais + 1 vazia**, projetando
+09-11…09-19 cheios — não as "18 inteiras + 2 parciais" do artefato anterior.
+
+### Verificado no artefato anterior, campo por campo
+
+| epoch | o que o artefato dizia | o que o serving diz |
+|---|---|---|
+| 2026-09-01 | `parcial`, `exposto_h=22.38` | 630 de 672 sob a dose designada |
+| **2026-09-02** | **`inteiro`, `fracao_exposta=1.0`, `exposto_h=24.0`** | **0 briefs** |
+| 2026-09-03 | `inteiro`, `exposto_h=24.0` | 441 de 672 |
+| 2026-09-20 | `parcial`, `exposto_h=13.86` | futuro |
+
+O modo mais nítido de dizer está num campo só: **`inteiros_de: "2026-09-02"`**. A faixa de
+epochs "inteiros" **começava no epoch que nunca foi servido.**
+
+### Três mecanismos, e nenhum é "conta errada"
+
+1. **O defeito morava no NOME do campo.** `exposto_h` lê-se como exposição entregue, e o
+   docstring dizia *"fração do epoch em que a dose foi servida"* — mas o valor era
+   sobreposição de relógio. **Nome errado em artefato é pior que frase errada em prosa**,
+   porque viaja no JSON e todo consumidor herda a leitura sem ter como suspeitar.
+
+2. **A classe errada vinha da AUSÊNCIA do dado, não de um valor errado.** Sem perna de
+   entrega, `inteiro` era o *default*. É a regra 9 com o sinal invertido: não um guarda
+   calado por não ter o dado, mas um guarda **afirmando a classe mais forte** por não o ter.
+
+3. **Não faltava medição, faltava cruzamento.** O fato do 09-02 estava medido ao lado desde
+   08/09, no `INCIDENT-2026-09-02-epoch-perdido.md`. Dois artefatos no mesmo diretório, um
+   certo e um errado, e a análise ia consumir o errado.
+
+### O que o conserto ganhou, e o que ainda erra
+
+Ganhou: censo separado com procedência (host, caminho, sha256, linhas), três vias de
+contagem declaradas, `classe_janela × classe_entrega ⇒ unidade` com as duas metades
+preservadas, aborto sem censo, epoch ausente do censo é `vazio` e nunca `cheio` por
+omissão, e perna `em_curso` para epoch cujo fim não chegou. O artefato novo não projeta:
+marca futuro como `futuro`, o que é mais honesto que a prosa que o resume.
+
+⚠️ **Defeito residual medido aqui em 2026-09-10:** o campo `servidos` **não filtra por
+`modo`**. Para 2026-09-01 ele conta **672** e declara `classe_entrega=cheio`, quando
+**630** foram servidos em `active` sob a dose designada (w=4,0) e **42** ainda em `shadow`
+(w=2,0). O veredito final do epoch continua `parcial`, mas chega pela perna do **relógio**
+— então a perna de **entrega** está errada exatamente no único epoch em que ela podia ser
+testada. Medido: 09-01 é o **único** epoch de modo misto na janela.
+
+> Guarda cuja perna correta é encoberta por outra perna correta não tem teste que a
+> alcance. Um caso, e ele é o caso.
+
+### A mutação tinha duas metades e só uma estava escrita
+
+Registro da sessão par, porque é a mesma família do meu `grep -c`, no fim desta seção: a mutação
+M2 dela nasceu falsa porque a **sonda** era 09-02, esperando `vazia` — que é o veredito que
+o original **já dá**. A perna de `vazio` precede a composição na cadeia `elif`, logo o ramo
+mutado era inalcançável pela sonda. Mutante válido, compilando, aplicado, e testando nada.
+
+Critério barato que pega a classe toda: **conferir que `espera != veredito_original` para
+aquela sonda.** Resondada em 09-01 (relógio parcial + entrega cheia), onde o `or` promoveria
+a inteira um epoch de exposição mista, a mutação morde.
+
+### E o meu próprio grep absolveu por quebra de linha
+
+No mesmo dia, corrigindo a errata do adendo de enquadramento, rodei `grep -c` pela frase
+falsa para confirmar que ela saíra: **0** nos dois arquivos. Mas eu havia mantido a frase
+**como citação** dentro do bloco de errata — o zero vinha de ela estar quebrada em duas
+linhas, não de ter saído. **Mesmo `0` para "removida" e para "presente e invisível ao
+grep".** Conferência válida exigiu normalizar espaço e exigir que a ocorrência estivesse
+dentro do bloco de errata.
+
+É o par simétrico do §10.20: lá o guarda não distinguia **afirmar de citar** e *acusava*;
+aqui não distinguia e *absolvia*.
+
+### Adendo — a sonda de uma mutação está acoplada aos DADOS, não só ao código
+
+Consequência medida do conserto acima, e é uma classe de defeito que eu não tinha
+registrada: **um conserto em qualquer lugar pode tornar uma mutação inerte sem ninguém a
+tocar, e o relatório da corrida anterior continua a dizer que ela morde.**
+
+A mutação M2 da sessão par troca `and` por `or` na composição
+`unidade = inteira se (janela == inteiro) and (entrega == cheio)`. Antes do conserto da
+perna de entrega, quem a discriminava era `2026-09-01`. Depois, não mais — verificado por
+cálculo direto sobre o artefato em `e7dd3dcb`:
+
+| epoch | `janela == inteiro` | `entrega == cheio` | `and` | `or` | |
+|---|---|---|---|---|---|
+| 09-01 **antes** do conserto | falso | **verdadeiro** | falso | verdadeiro | discriminava |
+| 09-01 **depois** | falso | **falso** | falso | falso | **inerte** |
+| 09-03 | verdadeiro | falso | falso | verdadeiro | **discrimina** |
+
+Com as duas metades falsas, o `or` deixa de promover: a mutação passa e não prova nada. A
+propriedade que separa `and` de `or` é **exatamente uma metade verdadeira** — e o conserto
+mudou de qual epoch a tem.
+
+Note que esta é a **segunda** troca de sonda da mesma mutação, e por motivo diferente da
+primeira. A primeira foi hipótese errada (sondava `2026-09-02`, esperando o veredito que o
+original já dá, num ramo inalcançável). Esta não teve hipótese errada nenhuma: os dados
+mudaram debaixo de uma sonda que estava certa.
+
+> **Comentar na mutação qual PROPRIEDADE dos dados a torna discriminante**, não só qual
+> caso. "Relógio inteiro + entrega parcial" sobrevive ao conserto; "09-01" não. O caso
+> muda; a propriedade é o que se procura de novo.
+
+⇒ E o corolário operacional: **relatório de mutação tem prazo de validade que expira em
+qualquer commit**, não só nos que tocam o guarda. Um `21/21` de ontem não é evidência sobre
+o código de hoje se qualquer coisa mudou os dados que as sondas atravessam.
+
+### O que o conserto da perna de entrega ganhou, e uma discrepância
+
+Verificado no artefato de `e7dd3dcb`: `classe_entrega` de 09-01 passou de `cheio` para
+`parcial`; `modo_misto` é campo próprio (`True` só em 09-01); `servidos_total` e `por_modo`
+ficam preservados ao lado em vez de fundidos; e a `semantica` do artefato declara
+explicitamente que `por_campo_epoch` é o **total e inclui `shadow`**. Unidades inalteradas:
+6 inteiras, 2 parciais, 1 vazia, 1 em curso, 10 futuras = 20.
+
+⛔ **ERRATA (2026-09-10) — O PARÁGRAFO ABAIXO ERA FALSO.** Fica à vista, tachado, com o
+mecanismo do erro.
+
+> ~~**Discrepância anotada:** o relato do conserto diz `motivo` → `motivos` (lista), com
+> 09-01 parcial pelas duas pernas. O artefato em `e7dd3dcb` **não tem** campo `motivos` —
+> os campos são `classe_entrega, classe_janela, epoch, esperado, fim, fracao_da_janela,
+> horas_na_janela, inicio, modo_misto, por_modo, servidos, servidos_total, unidade`. Ou
+> está no script e não é emitido, ou ficou de fora.~~
+
+**O campo existia.** Em `e7dd3dcb`, dentro de `unidades_de_analise.parciais`:
+
+```json
+{"epoch": "2026-09-01", "motivos": ["relogio", "volume"],
+ "servidos_active": 630, "servidos_total": 672, "modo_misto": true}
+{"epoch": "2026-09-03", "motivos": ["volume"],
+ "servidos_active": 441, "servidos_total": 441, "modo_misto": false}
+```
+
+A lista de campos que eu colei era a de **um objeto do vetor `epochs`** — e ali, de fato,
+`motivos` não estava. Concluí sobre o **artefato** a partir das chaves de **um objeto
+dentro dele**.
+
+> **Ausência num caminho não é ausência no artefato.** Antes de reportar falta num JSON,
+> listar as chaves de topo e procurar em todas.
+
+⚠️ **O agravante:** as chaves de topo estavam **na minha própria saída**, duas horas antes —
+`['censo_de_entrega', 'decisao', 'epochs', 'premissas_medidas', 'unidades_de_analise']`. Eu
+imprimi o caminho que me corrigia, li a linha, e depois concluí ausência olhando só
+`epochs`. Não faltava evidência; faltava usar a que eu já tinha no recibo. É a mesma forma
+do §10.26 acima — *não faltava medição, faltava cruzamento* — cometida por mim ao registrar
+essa exata lição.
+
+E o registro `servidos_active: 630` estava nesse mesmo objeto: o split `active`/`total` que
+eu media à mão já vinha declarado no artefato.
+
+### O que sobrevive da minha objeção, e o que a par fez com ela
+
+O **argumento** estava certo mesmo com a claim falsa: quem consome o artefato **itera
+`epochs`**, que é a coisa natural a fazer, e um campo que só existe no resumo não protege o
+leitor do vetor. Obrigar a derivar o motivo de `classe_janela` + `classe_entrega` é
+informação recuperável-mas-não-declarada — o mecanismo exato pelo qual o `exposto_h` chegou
+onde chegou.
+
+Corrigido pela sessão par em `e88a8db`, e verificado aqui: cada registro de `epochs` agora
+declara `motivos`, com três valores (`relogio` para janela parcial, `volume` para entrega
+parcial, `vazio` para entrega zero), unidade inteira com lista vazia, e um caso que exige
+que **epoch e resumo concordem** — porque duas declarações da mesma coisa em dois lugares é
+a próxima forma de divergirem.
+
+| | `e7dd3dcb` | `e88a8db` |
+|---|---|---|
+| `unidades_de_analise.parciais[].motivos` | presente | presente |
+| `epochs[].motivos` | **ausente** | `["relogio","volume"]` em 09-01 |
+
+⇒ Fica a distinção que eu deveria ter feito na primeira vez: **claim de ausência falsa,
+objeção de desenho procedente.** Reportar as duas juntas fez a objeção parecer sustentada
+pela claim, quando ela se sustenta sozinha.
+
+---
+
+## §10.27 — Eu publiquei uma tautologia como controle negativo que passa
+
+**Retratação.** O PR #501, mergeado em 2026-09-10 14:19Z e retirado no mesmo dia,
+afirmava um controle negativo intra-braço:
+
+> ~~Brief de epoch de tratamento em que nenhum id designado aparece no conjunto
+> **servido** não pode mexer. Medido: 2.908 briefs sem alcance, **0 movimentos**. Passa.~~
+
+**Era tautológico.** Eu defini "servido" como `set(ids_controle) | set(ids_tratado)`, e
+`ids_tratado` é **pós-dose**. Se a dose promove um designado, ele entra em `ids_tratado`
+⇒ entra em "servido" ⇒ o brief cai no estrato "presente". O estrato "ausente" não pode
+conter movimento **por construção**.
+
+### O indício estava na minha própria saída
+
+`presença em (controle ∪ tratado)` é **numericamente idêntica** a `presença em tratado`,
+em todos os seis epochs:
+
+| epoch | `presUniao` | `presT` |
+|---|---:|---:|
+| 09-01 | 189 | 189 |
+| 09-04 | 185 | 185 |
+| 09-05 | 184 | 184 |
+| 09-06 | 144 | 144 |
+| 09-08 | 187 | 187 |
+| 09-09 | 193 | 193 |
+
+Seis igualdades exatas. O critério **nunca dependeu do controle** — e a sessão par
+identificou a via sem ver o meu código, reconhecendo o `144` de 09-06 como o `presT` dela.
+
+### E a premissa estava invertida
+
+Pelo critério **dose-independente** (presença no conjunto de controle), o estrato
+"ausente" tem **118 movimentos**, não 0:
+
+| epoch | w | `ausC` | mexeu | `presC` | mexeu | taxa em `presC` |
+|---|---|---:|---:|---:|---:|---:|
+| 09-01 | 4,0 | 453 | 12 | 177 | 10 | 5,6% |
+| 09-04 | 2,0 | 513 | 26 | 159 | 9 | 5,7% |
+| 09-05 | 2,0 | 514 | 26 | 158 | 7 | 4,4% |
+| **09-06** | **7,5** | 548 | 20 | 124 | 18 | **14,5%** |
+| 09-08 | 2,0 | 500 | 15 | 172 | 5 | 2,9% |
+| 09-09 | 2,0 | 498 | 19 | 174 | **0** | **0,0%** |
+
+Não é falha de instrumento — **é o mecanismo.** A dose age promovendo chunk que **não
+estava** no baseline; ausência do controle é onde ela tem **mais** o que fazer, não menos.
+
+> **Um estrato definido pelo desfecho não é controle.** O critério tem de ser
+> computável **sem** olhar o resultado — aqui, `ids_controle` sozinho. Bastava perguntar
+> *"este predicado usa alguma variável pós-tratamento?"*, e o `|` com `ids_tratado`
+> responde sozinho.
+
+### As taxas condicionais que eu reportei também caem
+
+Reportei 26,4% para `w=7,5` contra 9,8–18,9% para `w=2`, "condicionado a a dose ter
+alcance". Esse denominador era em parte **consequência do desfecho** — seleção sobre o
+desfecho. A versão dose-independente dá 14,5% contra 0–5,7%, separação **maior**, mas com
+variância dentro de `w=2` que vai de **zero** (09-09: 0 de 174) a 5,7%. Nada disso é
+estimando primário.
+
+### Não existe controle negativo intra-braço neste log, por três vias
+
+| via | por que falha |
+|---|---|
+| epoch de controle tem `mexeu == 0` | os campos não existem lá (`sem_ids == n`) — regra 9 |
+| presença de designado no servido | pós-dose ⇒ tautológico (esta seção) |
+| `boost_by_id` vazio ⇒ `mexeu` 0 | estrato vazio: `sem_boost == 0` em 3.990 briefs |
+
+O buraco fica **aberto e declarado**. A especificidade tem de vir de outra fonte — e a
+que sobrevive é o **replay com designação-sham**, porque o viés do replay é
+anticorrelacionado com o efeito e portanto **desaparece sob a nula**: o replay não pode
+medir o efeito, mas pode falsificar a especificidade.
+
+### O que fica versionado no lugar
+
+`measurement/estratos-por-presenca-de-designado.py` — **caracterização, não controle**,
+com o critério dose-independente, o aviso de que o estrato "ausente" ter movimento é o
+esperado, e uma perna que **falha (exit 1)** se `presUniao != presT` em algum epoch, porque
+isso significaria que a explicação desta retratação está errada.
+
+⚠️ E o aviso do denominador sobrevive à correção: `presC` varia de 124 a 177 (razão
+1,43×), a anomalia de 09-06 existe **também** nesta variável dose-independente — logo não
+é causada pela dose — e continua **sem explicação**.
+
+## §10.28 — O evento terminal do ensaio escreve num recibo que nada lê, e sai `exit 0` até no RED
+
+**Achado em 2026-09-10, 11 dias antes do disparo.** Fui conferir as pré-condições do
+`desliga-dose-p2.sh` — o `ONESHOT` do cron (`43 9 21 9`) que encerra o ensaio — e o que
+apareceu não foi uma pré-condição frágil, foi a ausência de canal de entrega.
+
+- Toda saída do script passa por `recibo()`, que grava a linha em
+  `/var/lib/nox-mem/p2/status-desliga-dose.txt`, anexa ao NDJSON e **`exit 0`** — inclusive
+  nos ramos RED. O veredito viaja no **arquivo**; o código de saída não o carrega.
+- O `morning-report.sh` lê **seis** recibos p2: `composicao`, `coorte`, `corpus-alinhado`,
+  `designados`, `heartbeat`, `saturacao`. O sétimo **não está na lista**. E o
+  `/var/log/nox-p2-gatilhos.log` aparece apenas como destino de redirect nas linhas do
+  cron, nunca como fonte de leitura em script algum.
+- Evidência de que ninguém lê: um teste manual de **2026-09-09 17:42:31Z** deixou lá
+  `YELLOW p2-desliga-dose motivo=janela-ainda-aberta-faltam-279h`. O morning report da
+  manhã seguinte não o mencionou.
+
+**O dano não é perder um alarme.** As pré-condições do script **abortam** o desligamento
+quando falham. Se isso acontecer calado, o drop-in `zz-p2-active.conf` fica no lugar,
+`NOX_P2_OUTCOME` segue `active`, e o ensaio **continua dosando depois do fim
+pré-registrado** — contaminando a fronteira dos 234 epochs, que é exatamente o objeto do
+§10.22.
+
+### Por que o helper existente não serve
+
+`p2_gatilho <rótulo> <arquivo> <idade_max_h>` marca YELLOW quando `idade > max`, com a
+mensagem *"gatilho parado?"*. O status de um one-shot é velho **por desenho** depois de
+disparar: um GREEN de 21/09 lido em 25/09 tem 96 h. Registrar o sétimo recibo pelo helper
+produziria YELLOW todo dia — hoje inclusive, porque o resíduo de ontem tem ~21 h. **Recibo
+de evento único não cabe em teste de idade.**
+
+### A perna, e a mutação que a prende
+
+Três ramos, não um limiar:
+
+| ramo | predicado | veredito |
+|---|---|---|
+| 1 | agora < 2026-09-21T09:43Z | silêncio — não é devido |
+| 2 | recibo presente | prefixo `GREEN*` passa; qualquer outro é RED |
+| 3 | **recibo ausente E agora ≥ o prazo** | **RED** — o oneshot não rodou |
+
+O ramo 3 existe porque, depois do prazo, *"recibo ausente"* e *"nada a fazer"* deixam de
+ser o mesmo estado — a mesma classe do §10.9 e da regra 9 do `CLAUDE.md`.
+
+Verificado em cinco casos contra o arquivo montado: `GREEN`+prazo passado → `RED=0`;
+não-GREEN+prazo passado → `RED=1`; ausente+prazo passado → `RED=1`; ausente+prazo aberto →
+`RED=0`; e **o resíduo YELLOW real de hoje** → `RED=0`, isto é, aplicar a perna **não muda o
+report de hoje**. Mutação (apagar o ramo 3): mutante válido — 368→365 linhas, ocorrências de
+`recibo AUSENTE` 1→0 — e o caso "ausente+prazo passado" cai de `RED=1` para `RED=0`, com a
+assinatura de um contador **negativo** de horas restantes (`faltam -1h`).
+
+### Estado, e o que ficou medido de bom
+
+As demais pré-condições **passam hoje**, conferidas 11 dias antes em vez de descobertas na
+hora: a cópia do corpus servido bate no sha esperado (`23378a9e…`, 1.254.526.976 B, modo
+400), o drop-in existe, e `NOX_P2_OUTCOME=active`. E a idempotência do script é **por
+estado, não por recibo** — `recibo()` sobrescreve com `>` e uma re-execução após sucesso
+morre na pré-condição do drop-in já arquivado. Logo o resíduo YELLOW de ontem **não**
+desarma o disparo de 21/09; seria sobrescrito.
+
+**Fechado no mesmo dia, com autorização explícita.** A perna foi aplicada em produção em
+2026-09-10; o hash do `morning-report.sh` saiu de `20a5b63fda32c93b` para
+`4e515be61b5e49c2` (342 → 368 linhas), quebrando de propósito o congelamento acordado entre
+as duas sessões — o cálculo foi que hash congelado é reversível e documentável, e dosagem
+fora da janela não é. Espelhado no repo de infra no mesmo passe (`openclaw-vps#35`), senão
+reabriria o drift de espelho que o `#34` acabara de fechar.
+
+Verificado **depois** de aplicar, in situ, porque verificar o arquivo montado não é
+verificar o arquivo instalado:
+
+| verificação | resultado |
+|---|---|
+| diff contra o backup mode-400 | **1 hunk, 26 adições, 0 remoções** |
+| `set -u` e inicialização das variáveis | `set -u` na linha 6; `RED`/`YELLOW`/`DETAILS` nascem nas 100–102, a perna está na 312 ⇒ sem risco de variável não-ligada |
+| recibo real de hoje | `RED=0`, `DETAILS` vazio ⇒ o report de hoje **não muda** |
+| prazo forçado ao passado | `RED=1`, acusando a linha YELLOW real |
+| prazo passado **e** recibo ausente | `RED=1` com a mensagem do ramo 3 |
+
+**O desvio, porém, não deixa de existir por ter sido consertado.** Durante os primeiros ~9
+dias do ensaio — de 2026-09-01 a 2026-09-10 — o único evento terminal do desenho esteve sem
+canal de entrega. Se o disparo tivesse sido antecipado por qualquer motivo nesse intervalo,
+uma falha dele seria invisível. O conserto é posterior ao risco, não retroativo a ele.
+

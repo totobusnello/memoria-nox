@@ -1,5 +1,131 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-10 (noite, 21h) — um COMPETIDOR bate o nox-mem; o Secret Scan era decorativo; guarda de contagem instalada
+
+Três PRs merged depois do bloco abaixo: **#526** (CI), **#528** (§6.3.3 + guarda), **#529** (correção de uma frase do #528).
+
+### 1. O EverOS foi medido e ganha de nós
+
+`everos==1.3.1`, **n = 2.482**, 0 erros, mesmo corpus e mesmo conjunto de queries do rc4.
+
+| | Overall | LoCoMo | LongMemEval | p50 |
+|---|---:|---:|---:|---:|
+| **EverOS 1.3.1** (10/09) | **0,6455** | **0,6585** | **0,5942** | 1.592 ms |
+| nox-mem (rc4, 29/06) | 0,5013 | 0,4952 | 0,5255 | 653 ms |
+| Mem0 (rc4, 29/06) | 0,4337 | 0,4407 | 0,4061 | — |
+
+Artefato: `eval/q4-comparison/output-2026-09-10/_aggregate.json`. Está no **§6.3.3** novo, com o confound declarado no mesmo parágrafo do número: o EverOS **exige** cross-encoder (`_require_search_providers()` aborta sem), o rc4 corre sem.
+
+⚠️ **A magnitude desse confound é DESCONHECIDA e o texto diz isso.** A única medição que temos é o §5.1.7 (−0,96 pp), com um **MiniLM de 22 M** contra um **Qwen3-Reranker de 4 B** — ~180×, outro benchmark, outro caminho de código. O #528 dizia que ela "aponta para ~1 ponto"; o #529 retirou, porque tratava a medição como estimativa. Fechar a pergunta exige acrescentar o estágio ao adapter e recorrer o corpus (§7.2) — **não é virar flag**, o estágio não existe no harness. Código novo + corrida paga ⇒ decisão do Toto.
+
+### 2. `contagem_sistemas_check` — a 16ª guarda, e por que precisou existir
+
+O manuscrito afirmava *"No retrieval quality number for EverOS appears in this revision"* **depois** de o EverOS ter rodado. A contagem "quantos competidores produziram número" vivia em **13** lugares, em dois escopos: quatro presos à corrida canônica de 2026-06-15 (onde 2/3 continua verdade) e nove globais.
+
+Cinco pernas, sobre `paper/q4-corridas-census.json`:
+
+| perna | exige |
+|---|---|
+| L1 | sistema declarado com artefato → artefato existe e traz aquele ndcg |
+| L2 | **todo** artefato em disco com `system`+`ndcg` está declarado |
+| L3 | cada sítio declara o número que o **escopo** dele exige |
+| L4 | o template com a contagem derivada ocorre exatamente 1× |
+| L5 | nenhuma frase de contagem fica fora do censo |
+
+**Três defeitos meus, corrigidos no caminho** — é o que dá confiança nas pernas: (1) montei o censo de uma **lista à mão**, 8 sítios quando eram 13; (2) a varredura da L5 só olhava **para a frente** e perdeu uma frase cujo termo de desfecho estava atrás; (3) a L3 casava "algum número da âncora bate" e passava pelo `6.3.1` do próprio título — **por sorte**.
+
+### 3. CI: o Secret Scan reportava SUCCESS por cima de `exit 1`
+
+Medido no run do #525: `failed to scan Git repository` / `scanned ~0 bytes` / `Unexpected exit code [1]` → conclusão **SUCCESS**, porque o job tinha `continue-on-error: true`. A causa do erro era **não ser required**: merge às 21:51:31Z, run criado 21:51:37Z, branch já apagado, sem ref para resolver.
+
+#526 tirou o flag (só do gitleaks; `npm-audit` e `trivy` seguem advisory) e a `main` **passou a ter branch protection**, que não tinha nenhuma: `Secret Scan (gitleaks)` required, `enforce_admins: false` (preserva commit direto na main), sem review exigida, sem force-push. Depois disso dois PRs varreram **17,02 MB** e **34,3 KB** reais.
+
+### ▶️ PRÓXIMA AÇÃO
+
+1. **Zep — medido 21:11: `2.150/2482`, zero falhas, taxa de erro 0,0033% sem tendência por janela; previsão ~21:43.** Quando o artefato aterrar no repo com `overall.ndcg@k` dentro, a **L2 acusa sozinha** e as nove contagens globais vão de 2 para 1. Para fechar: em `paper/q4-corridas-census.json`, `"nome": "Zep"` → `"produziu_numero": true` + `artefato` + `ndcg10_no_artefato`; a mensagem da guarda diz o que falta.
+
+   ⚠️ **A L2 é portão, não vigia** — ela corre no CI de um PR, não por tempo. Isso é suficiente **porque o artefato só chega na `main` por PR**, logo o portão está sobre o único caminho que existe; e se nenhum PR abrir, não há contagem velha para proteger. Deliberadamente **não** há alarme por tempo: alarme cronicamente possível ensina a ignorar.
+
+   ⚠️ **O buraco que isso deixa:** enquanto o artefato estiver só no host da corrida do Q4 e não no repositório, **nenhum CI sabe que ele existe** — a L2 varre `eval/q4-comparison/**`, não uma VPS. O comando de recuperação está em `eval/q4-comparison/RESULTADOS-Q4-2026-09-10.md` §7. O endereço do host **não está no git** (repo público): vem de `$NOX_VPS_HOST`.
+2. **#497 está `DIRTY`** e precisa de "Update branch"; leva 27 commits de eval que não são sobre a janela do Paper 2.
+3. **Densidade com folga de 0,65 obra** (2,084/mil, piso 2,06): prosa nova sem referência nova reprova o CI.
+4. **Não ler o `paper/` da árvore compartilhada** `~/Claude/Projetos/memoria-nox` — está num branch **31 commits atrás** (11 guardas contra 16). Clonar `origin/main` em `/tmp` para qualquer leitura que vire conclusão.
+5. ⚠️ **Sessão `git difftool -y -x vimdiff HEAD` (PID 56102) aberta desde 09/09 12:27** sobre `DEVIATIONS-FOR-PAPER.md`. O buffer **não tem edição** (swap parado em 16.384 B, mtime = criação), mas o arquivo em disco foi reescrito em 10/09 10:51 — **um `:w!` ali apaga 22 h de conteúdo mais novo**. `:qa!` ou `:e!`, nunca `:w!`.
+6. **Rotacionar a chave OpenAI** colada no chat mais cedo, terminadas as corridas.
+
+## 2026-09-10 (noite) — a densidade de referências fechou; o tamanho não, e é decisão separada
+
+Cinco PRs no Paper 1 (#519-#522 e o #520), todos merged. **A dimensão de densidade
+deixou de ser outlier**; a de tamanho piorou por construção e a decisão sobre ela é do
+Toto.
+
+| | antes de hoje | agora |
+|---|---:|---:|
+| obras citadas | 30 *(sem método declarado)* | **54** |
+| palavras (cru, método declarado) | 24.126 | **25.967** |
+| densidade | 1,24/mil *(medida errada)* | **2,08/mil** ✓ dentro de 2,06–2,95 |
+| tamanho | 1,40× o maior aceito | **1,50×** |
+| guardas / mutações | 8 / 15 (bateria **vermelha**) | **13 / 27** |
+
+### O que estava errado na medição, e nos dois lados
+
+O `30` não tinha método: ficava **entre** 24 obras e 43 footnotes. Dois defeitos em
+direções opostas — o numerador contava **auto-referência** (14 das 53 footnotes são
+ponteiros para o nosso código), e o tokenizador do §5 remove tags HTML, o que em
+markdown faz `<[^>]+>` apagar o texto entre um `<` matemático e o `>` seguinte (−38%).
+Controle: sem remoção de tags devolve 24.111 no commit que publicou 24.126.
+
+Detalhe em `paper/publication/regua-do-nosso-lado-2026-09-10.md`; o censo é artefato
+(`paper/bibitem-census.json`) e tem guarda.
+
+### As 15 referências: mineradas, não escolhidas
+
+Das **535** obras que o survey TMLR `2602.06052v4` cita, citávamos **17** — e entre as
+ausentes estava o survey do nosso tema exato (ACM TOIS `2404.13501`), citado em seis
+seções do próprio survey. Centralidade lida do `Cited by:` que o LaTeXML embute em cada
+bibitem; presença com controle positivo (5 obras, 2 por id e 3 por título — um
+classificador só por id reportaria 6 em vez de 17) e controle negativo.
+
+**6 recusadas com o motivo escrito**, incluindo PagedAttention: «memória» ali é KV
+cache. Critério: discussão real no corpo, não localizador disponível.
+
+Autoria e título das 15 **resolvidos pela API do arXiv com controle positivo** antes de
+qualquer escrita; footnotes e entradas `.bib` **geradas** desse resultado. É o
+procedimento que existe porque o #519 achou **três autorias inventadas** — incluindo a
+do LongMemEval, o benchmark que o paper usa 32 vezes.
+
+### Três guardas novos, dois deles por defeito que eu deixara passar
+
+| guarda | o que prende |
+|---|---|
+| `censo_bibitem_check` | footnote sem classificação em `bibitem-census.json` ⇒ o numerador não muda em silêncio |
+| `bib_promessa_check` | entrada `.bib` que promete atualização futura (contradizia o `CITATION.cff`) |
+| `autoria_inline_check` | as **11 citações em prosa** com autor ao lado, que nenhuma perna varria |
+
+E dois defeitos de instrumento: o ratchet de `PR #NNN` estava **frouxo por 13**
+(baseline 66 contra 53 reais), e a **bateria de mutação estava vermelha desde o #519**
+porque instalei uma perna e não copiei o manifesto para o tempdir dos casos — ficou um
+PR inteiro sem dizer nada, corretamente, e por isso o ratchet não aparecia.
+
+Um `arxiv:` em **minúsculas** (o LoCoMo, benchmark central do §6) fazia o id escapar da
+perna de autoria enquanto o `refs_check` já usava `re.I`. A autoria dele estava certa —
+**por sorte**, porque nenhuma perna a olhou.
+
+### Próxima ação, e a que NÃO é minha
+
+**Aberto para o Toto:** a dimensão de **tamanho**. Chegar ao teto de 17.265 palavras
+exigiria cortar **8.702** (34% do documento), o que não é uma edição. As alternativas
+são declarar 1,50× como escolha, ou um corte grande e separado.
+
+**Pendente de artefato** (sessão par conduz as corridas):
+- §6.9 — quando o nDCG do Zep existir, *"three of five competitors could not produce a
+  number"* passa a **dois** e a nota de escopo do #510 sai;
+- `[^qwen3embed]` — quando a coluna do EverOS fechar, *"not run in this study"* fica
+  falso (o Qwen3-Reranker roda **dentro** do EverOS);
+- §6.3.1 — dois rascunhos prontos e fora do manuscrito (fan-out do Zep, assimetria do
+  reranker do EverOS), mais a frase de método do **piso de contagem de queries**.
+
+
 ## 2026-09-09 (tarde) — os três consertos do instrumento estão no ar
 
 Autorizado pelo Toto, coordenado com a sessão par (os dois braços do replay dela
@@ -539,20 +665,42 @@ da classe **guarda cujo predicado exige o dado que falta**.
 `paper/paper-tecnico-nox-mem.md` — **1.600 linhas, 27.157 palavras**. Não existe PDF em
 `paper/`; o rebuild é passo próprio.
 
-**🔴 Achado novo, e ele não é typo — é confundidor declarado que não existe.**
+**✅ RESOLVIDO 2026-09-10 — e o veredito é "inverificável", não "typo".** O aviso que
+estava aqui ("não reescrever para o que convém") acertou: a conclusão conveniente não se
+sustenta.
 
-| onde | o que diz |
-|---|---|
-| linha **1069** (tabela) | `mem0ai==0.1.114` / `0.1.114` |
-| `output/rc4/mem0.json` → `meta.version` | `mem0ai==0.1.114` |
-| linha **1134** (prosa) | *"the Mem0 client changed major version … (0.1.x → 2.0.10)"* |
+| onde | o que diz | o que isso É |
+|---|---|---|
+| tabela §6.2 | `mem0ai==0.1.114` | o **pin declarado** |
+| `output/rc4/mem0.json` → `meta.version` | `mem0ai==0.1.114` | **o mesmo pin**, ecoado pelo adapter |
+| prosa §6.3.2 (antes) | *"0.1.x → 2.0.10"* | o pin **pós-corrida**, lido como se fosse a corrida |
 
-A tabela do paper e o artefato **concordam** em 0.1.114 — que **é** 0.1.x. Só a prosa
-afirma 2.0.10, e a usa como **confundidor residual (a)** para explicar a inversão do rc4.
-⚠️ Corrigir isso **remove** um confundidor e faz o resultado ficar **mais forte** — logo
-merece mais suspeita, não menos. Antes de editar: estabelecer qual versão o rc4 de fato
-rodou (o `meta` é evidência; a §6.3 canônica **não tem artefato**, então a metade "canonical
-usou 0.1.x" é inverificável nos dois sentidos). Não reescrever para o que convém.
+Tabela e artefato **não se corroboram — são uma fonte só.** O `meta.version` recebe o
+`VERSION_PIN` do adapter (intenção); quem lê o `mem0.__version__` real é o `validate()`, e
+a saída dele **nunca foi persistida**.
+
+O que ficou medido:
+
+- `VERSION_PIN` virou `2.0.10` em **b34ecca, 2026-06-29T18:44:38Z** — **3h47 depois** do
+  `finished_at` da corrida (14:57:04Z). O dual-compat (`filters=`, `try/except`) veio em
+  **7da11c6, 16:47:58Z**, 1h51 depois. No commit vigente ao fim da corrida (`a6e7e4d`) o
+  adapter só falava 0.1.x e o pin dizia `0.1.114`. Ou seja: o `2.0.10` da prosa descreve o
+  repositório **depois** da corrida.
+- Isso **não decide**, porque em v2.0.10 `search`/`get_all` são keyword-only **com
+  `**kwargs`**: `search(query=…, user_id=…, limit=k)` seria **engolido em silêncio**, não
+  rejeitado. Logo `n_errors: 0` sobre n=2.482 é compatível com as duas versões.
+- E o discriminador óbvio — comprimento da lista devolvida — morre no `items[:k]` do
+  próprio adapter: as 2.482 queries dão exatamente 10 **por construção**, não por resposta
+  do mem0.
+
+⚠️ **O risco é maior do que "drift".** Se 2.0.x estava instalado, `user_id` e `limit` foram
+descartados ⇒ busca com `filters=None` (sem filtro) e `top_k=20`. Isso tornaria a coluna do
+mem0 no rc4 **inválida**, não apenas deslocada. Não afirmamos que aconteceu; registramos que
+os artefatos não excluem.
+
+§6.3.2, README, COMPARISON e REQUIREMENTS reescritos nesse sentido — o confundidor (a) saiu
+**mais forte**, não mais fraco. Requisito para qualquer corrida futura: persistir o
+`mem0.__version__` de runtime em `meta`, **ao lado** do pin, não em vez dele.
 
 **Sweep de forma — contagens de hoje** (as de memória tinham envelhecido: `Dnn` era 79,
 agora 80; rótulos de fase era 207, agora 196):
@@ -1815,7 +1963,7 @@ O `prune-claude-sessions.sh` roda 04:23 BRT — entre a passada das 03:40 e a da
 **Paper `v1.0.0` frozen + repo PÚBLICO e polido. arXiv submetido até o gate de endorsement.** (Detalhe técnico do paper preservado nos bullets abaixo.)
 
 - **§5 — 12 dimensões SOTA** (EverMemBench 5-batch, MuSiQue, HotPotQA, LoCoMo, LongMemEval cross-bench, produção). Sustenta o paper sozinha.
-- **§6 — Q4 head-to-head FEITO + controlled-embedding (rc4) FEITO.** §6.3 (canonical n=100, 06-15): split honesto as-configured — nox ganha LME (0.5234 vs 0.4764), Mem0 ganha LoCoMo (0.4686 vs 0.4263). **§6.3.2 nova (rc4, 06-29, ambos Gemini 3072d, full n=2.482): o split inverte — nox supera o mem0 em AMBOS** (LME 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407; overall 0.5013 vs 0.4337) **e as 5 categorias** (§6.4 preenchido = rc2 done). 3 confounds residuais declarados (mem0 0.1.x→2.0.10; backend faiss→Chroma; sample scope). **Task-type ablacionado (06-30):** nox com embedding genérico (sem task-type, igual ao mem0) cai só −0.34 pp (0.4979) e ainda ganha em tudo → confound (d) neutralizado, vitória é arquitetural. Zep/Letta/EverMind = 3 gaps documentados.
+- **§6 — Q4 head-to-head FEITO + controlled-embedding (rc4) FEITO.** §6.3 (canonical n=100, 06-15): split honesto as-configured — nox ganha LME (0.5234 vs 0.4764), Mem0 ganha LoCoMo (0.4686 vs 0.4263). **§6.3.2 nova (rc4, 06-29, ambos Gemini 3072d, full n=2.482): o split inverte — nox supera o mem0 em AMBOS** (LME 0.5255 vs 0.4061; LoCoMo 0.4952 vs 0.4407; overall 0.5013 vs 0.4337) **e as 5 categorias** (§6.4 preenchido = rc2 done). 3 confounds residuais declarados (versão do mem0 **não registrada** — corrigido 2026-09-10, o artefato guarda o pin e não o `mem0.__version__`; backend faiss→Chroma; sample scope). **Task-type ablacionado (06-30):** nox com embedding genérico (sem task-type, igual ao mem0) cai só −0.34 pp (0.4979) e ainda ganha em tudo → confound (d) neutralizado, vitória é arquitetural. Zep/Letta/EverMind = 3 gaps documentados.
 - **D2 (brief diversity) FECHADO** — coverage-sampling `active`, gate 24h 100% (190 chunks / 184-de-184 files), §3.5 cravado.
 - **HyDE testado e REJEITADO** (−2.72pp overall, 06-27) — não entra como feature; `eval/*/RESULTS-HYDE.md` cravados.
 - **prod v3.8** — 94.9k chunks, ~99.99% vector coverage, salience `active`.

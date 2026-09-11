@@ -17,7 +17,7 @@
 # mexer no conjunto de tabelas e' invisivel para handles em cache (ha' um OME
 # lock). Um segundo processo sobre a mesma raiz pode estragar a corrida paga.
 #
-# Uso (na kvm8):
+# Uso (no host do benchmark do Q4; endereco fora do git, ver $NOX_Q4_HOST):
 #     cd /root/q4-everos && bash scripts/everos-busca.sh
 set -uo pipefail
 
@@ -29,7 +29,7 @@ SAIDA="${SAIDA:-out/everos-busca}"
 K="${K:-10}"
 
 # ⚠️ ORDEM: este guarda vem DEPOIS da credencial por acidente na 1a versao, e o
-# teste na kvm8 saiu `exit=2` na credencial sem NUNCA exercitar este guarda --
+# teste no host do benchmark saiu `exit=2` na credencial sem NUNCA exercitar este guarda --
 # terceira vez hoje que uma perna que decide primeiro esconde a de tras. Mas a
 # ordem correta e' por DANO: credencial ausente e' inocua e o script apenas nao
 # roda; migracao de schema sobre uma ingestao viva estraga horas de corrida paga.

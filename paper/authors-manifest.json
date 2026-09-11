@@ -1,0 +1,661 @@
+{
+ "1603.09320": {
+  "surnames": [
+   "Malkov",
+   "Yashunin"
+  ],
+  "title": "Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs"
+ },
+ "1809.09600": {
+  "surnames": [
+   "Yang",
+   "Qi",
+   "Zhang",
+   "Bengio",
+   "Cohen",
+   "Salakhutdinov",
+   "Manning"
+  ],
+  "title": "HotpotQA: A Dataset for Diverse, Explainable Multi-hop Question Answering"
+ },
+ "1901.04085": {
+  "surnames": [
+   "Nogueira",
+   "Cho"
+  ],
+  "title": "Passage Re-ranking with BERT"
+ },
+ "1908.10084": {
+  "surnames": [
+   "Reimers",
+   "Gurevych"
+  ],
+  "title": "Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks"
+ },
+ "2002.10957": {
+  "surnames": [
+   "Wang",
+   "Wei",
+   "Dong",
+   "Bao",
+   "Yang",
+   "Zhou"
+  ],
+  "title": "MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers"
+ },
+ "2004.04906": {
+  "surnames": [
+   "Karpukhin",
+   "Oğuz",
+   "Min",
+   "Lewis",
+   "Wu",
+   "Edunov",
+   "Chen",
+   "Yih"
+  ],
+  "title": "Dense Passage Retrieval for Open-Domain Question Answering"
+ },
+ "2004.12832": {
+  "surnames": [
+   "Khattab",
+   "Zaharia"
+  ],
+  "title": "ColBERT: Efficient and Effective Passage Search via Contextualized Late Interaction over BERT"
+ },
+ "2005.11401": {
+  "surnames": [
+   "Lewis",
+   "Perez",
+   "Piktus",
+   "Petroni",
+   "Karpukhin",
+   "Goyal",
+   "Küttler",
+   "Lewis",
+   "Yih",
+   "Rocktäschel",
+   "Riedel",
+   "Kiela"
+  ],
+  "title": "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks"
+ },
+ "2007.01282": {
+  "surnames": [
+   "Izacard",
+   "Grave"
+  ],
+  "title": "Leveraging Passage Retrieval with Generative Models for Open Domain Question Answering"
+ },
+ "2104.08663": {
+  "surnames": [
+   "Thakur",
+   "Reimers",
+   "Rücklé",
+   "Srivastava",
+   "Gurevych"
+  ],
+  "title": "BEIR: A Heterogenous Benchmark for Zero-shot Evaluation of Information Retrieval Models"
+ },
+ "2107.07567": {
+  "surnames": [
+   "Xu",
+   "Szlam",
+   "Weston"
+  ],
+  "title": "Beyond Goldfish Memory: Long-Term Open-Domain Conversation"
+ },
+ "2108.00573": {
+  "surnames": [
+   "Trivedi",
+   "Balasubramanian",
+   "Khot",
+   "Sabharwal"
+  ],
+  "title": "MuSiQue: Multihop Questions via Single-hop Question Composition"
+ },
+ "2112.09118": {
+  "surnames": [
+   "Izacard",
+   "Caron",
+   "Hosseini",
+   "Riedel",
+   "Bojanowski",
+   "Joulin",
+   "Grave"
+  ],
+  "title": "Unsupervised Dense Information Retrieval with Contrastive Learning"
+ },
+ "2210.03350": {
+  "surnames": [
+   "Press",
+   "Zhang",
+   "Min",
+   "Schmidt",
+   "Smith",
+   "Lewis"
+  ],
+  "title": "Measuring and Narrowing the Compositionality Gap in Language Models"
+ },
+ "2210.03629": {
+  "surnames": [
+   "Yao",
+   "Zhao",
+   "Yu",
+   "Du",
+   "Shafran",
+   "Narasimhan",
+   "Cao"
+  ],
+  "title": "ReAct: Synergizing Reasoning and Acting in Language Models"
+ },
+ "2210.07316": {
+  "surnames": [
+   "Muennighoff",
+   "Tazi",
+   "Magne",
+   "Reimers"
+  ],
+  "title": "MTEB: Massive Text Embedding Benchmark"
+ },
+ "2212.10509": {
+  "surnames": [
+   "Trivedi",
+   "Balasubramanian",
+   "Khot",
+   "Sabharwal"
+  ],
+  "title": "Interleaving Retrieval with Chain-of-Thought Reasoning for Knowledge-Intensive Multi-Step Questions"
+ },
+ "2212.10511": {
+  "surnames": [
+   "Mallen",
+   "Asai",
+   "Zhong",
+   "Das",
+   "Khashabi",
+   "Hajishirzi"
+  ],
+  "title": "When Not to Trust Language Models: Investigating Effectiveness of Parametric and Non-Parametric Memories"
+ },
+ "2303.11366": {
+  "surnames": [
+   "Shinn",
+   "Cassano",
+   "Berman",
+   "Gopinath",
+   "Narasimhan",
+   "Yao"
+  ],
+  "title": "Reflexion: Language Agents with Verbal Reinforcement Learning"
+ },
+ "2304.03442": {
+  "surnames": [
+   "Park",
+   "O'Brien",
+   "Cai",
+   "Morris",
+   "Liang",
+   "Bernstein"
+  ],
+  "title": "Generative Agents: Interactive Simulacra of Human Behavior"
+ },
+ "2305.10250": {
+  "surnames": [
+   "Zhong",
+   "Guo",
+   "Gao",
+   "Ye",
+   "Wang"
+  ],
+  "title": "MemoryBank: Enhancing Large Language Models with Long-Term Memory"
+ },
+ "2307.03172": {
+  "surnames": [
+   "Liu",
+   "Lin",
+   "Hewitt",
+   "Paranjape",
+   "Bevilacqua",
+   "Petroni",
+   "Liang"
+  ],
+  "title": "Lost in the Middle: How Language Models Use Long Contexts"
+ },
+ "2308.08973": {
+  "surnames": [
+   "Zhang",
+   "Zhang",
+   "Zhang",
+   "Liu",
+   "Huang"
+  ],
+  "title": "End-to-End Beam Retrieval for Multi-Hop Question Answering"
+ },
+ "2310.08560": {
+  "surnames": [
+   "Packer",
+   "Wooders",
+   "Lin",
+   "Fang",
+   "Patil",
+   "Stoica",
+   "Gonzalez"
+  ],
+  "title": "MemGPT: Towards LLMs as Operating Systems"
+ },
+ "2402.17753": {
+  "surnames": [
+   "Maharana",
+   "Lee",
+   "Tulyakov",
+   "Bansal",
+   "Barbieri",
+   "Fang"
+  ],
+  "title": "Evaluating Very Long-Term Conversational Memory of LLM Agents"
+ },
+ "2404.06976": {
+  "surnames": [
+   "Bueno",
+   "de Oliveira",
+   "Nogueira",
+   "Lotufo",
+   "Pereira"
+  ],
+  "title": "Quati: A Brazilian Portuguese Information Retrieval Dataset from Native Speakers"
+ },
+ "2404.13501": {
+  "surnames": [
+   "Zhang",
+   "Bo",
+   "Ma",
+   "Li",
+   "Chen",
+   "Dai",
+   "Zhu",
+   "Dong",
+   "Wen"
+  ],
+  "title": "A Survey on the Memory Mechanism of Large Language Model based Agents"
+ },
+ "2405.14831": {
+  "surnames": [
+   "Gutiérrez",
+   "Shu",
+   "Gu",
+   "Yasunaga",
+   "Su"
+  ],
+  "title": "HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models"
+ },
+ "2410.05779": {
+  "surnames": [
+   "Guo",
+   "Xia",
+   "Yu",
+   "Ao",
+   "Huang"
+  ],
+  "title": "LightRAG: Simple and Fast Retrieval-Augmented Generation"
+ },
+ "2410.10813": {
+  "surnames": [
+   "Wu",
+   "Wang",
+   "Yu",
+   "Zhang",
+   "Chang",
+   "Yu"
+  ],
+  "title": "LongMemEval: Benchmarking Chat Assistants on Long-Term Interactive Memory"
+ },
+ "2410.14052": {
+  "surnames": [
+   "Rezazadeh",
+   "Li",
+   "Wei",
+   "Bao"
+  ],
+  "title": "From Isolated Conversations to Hierarchical Schemas: Dynamic Tree Memory Representation for LLMs"
+ },
+ "2501.13956": {
+  "surnames": [
+   "Rasmussen",
+   "Paliychuk",
+   "Beauvais",
+   "Ryan",
+   "Chalef"
+  ],
+  "title": "Zep: A Temporal Knowledge Graph Architecture for Agent Memory"
+ },
+ "2502.12110": {
+  "surnames": [
+   "Xu",
+   "Liang",
+   "Mei",
+   "Gao",
+   "Tan",
+   "Zhang"
+  ],
+  "title": "A-MEM: Agentic Memory for LLM Agents"
+ },
+ "2502.14802": {
+  "surnames": [
+   "Gutiérrez",
+   "Shu",
+   "Qi",
+   "Zhou",
+   "Su"
+  ],
+  "title": "From RAG to Memory: Non-Parametric Continual Learning for Large Language Models"
+ },
+ "2503.08026": {
+  "surnames": [
+   "Tan",
+   "Yan",
+   "Hsu",
+   "Han",
+   "Wang",
+   "Le",
+   "Song",
+   "Chen",
+   "Palangi",
+   "Lee",
+   "Iyer",
+   "Chen",
+   "Liu",
+   "Lee",
+   "Pfister"
+  ],
+  "title": "In Prospect and Retrospect: Reflective Memory Management for Long-term Personalized Dialogue Agents"
+ },
+ "2504.19413": {
+  "surnames": [
+   "Chhikara",
+   "Khant",
+   "Aryan",
+   "Singh",
+   "Yadav"
+  ],
+  "title": "Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory"
+ },
+ "2506.05176": {
+  "surnames": [
+   "Zhang",
+   "Li",
+   "Long",
+   "Zhang",
+   "Lin",
+   "Yang",
+   "Xie",
+   "Yang",
+   "Liu",
+   "Lin",
+   "Huang",
+   "Zhou"
+  ],
+  "title": "Qwen3 Embedding: Advancing Text Embedding and Reranking Through Foundation Models"
+ },
+ "2506.15841": {
+  "surnames": [
+   "Zhou",
+   "Qu",
+   "Wu",
+   "Kim",
+   "Prakash",
+   "Rus",
+   "Zhao",
+   "Low",
+   "Liang"
+  ],
+  "title": "MEM1: Learning to Synergize Memory and Reasoning for Efficient Long-Horizon Agents"
+ },
+ "2507.02259": {
+  "surnames": [
+   "Yu",
+   "Chen",
+   "Feng",
+   "Chen",
+   "Dai",
+   "Yu",
+   "Zhang",
+   "Ma",
+   "Liu",
+   "Wang",
+   "Zhou"
+  ],
+  "title": "MemAgent: Reshaping Long-Context LLM with Multi-Conv RL-based Memory Agent"
+ },
+ "2507.03724": {
+  "surnames": [
+   "Li",
+   "Xi",
+   "Li",
+   "Chen",
+   "Chen",
+   "Song",
+   "Niu",
+   "Wang",
+   "Yang",
+   "Tang",
+   "Yu",
+   "Zhao",
+   "Wang",
+   "Liu",
+   "Lin",
+   "Wang",
+   "Huo",
+   "Chen",
+   "Chen",
+   "Li",
+   "Tao",
+   "Lai",
+   "Wu",
+   "Tang",
+   "Wang",
+   "Fan",
+   "Zhang",
+   "Zhang",
+   "Yan",
+   "Yang",
+   "Xu",
+   "Xu",
+   "Chen",
+   "Wang",
+   "Yang",
+   "Zhang",
+   "Xu",
+   "Chen",
+   "Xiong"
+  ],
+  "title": "MemOS: A Memory OS for AI System"
+ },
+ "2507.07957": {
+  "surnames": [
+   "Wang",
+   "Chen"
+  ],
+  "title": "MIRIX: Multi-Agent Memory System for LLM-Based Agents"
+ },
+ "2507.21046": {
+  "surnames": [
+   "Gao",
+   "Geng",
+   "Hua",
+   "Hu",
+   "Juan",
+   "Liu",
+   "Liu",
+   "Qiu",
+   "Qi",
+   "Wu",
+   "Wang",
+   "Xiao",
+   "Zhou",
+   "Zhang",
+   "Zhang",
+   "Xiang",
+   "Fang",
+   "Zhao",
+   "Liu",
+   "Ren",
+   "Qian",
+   "Wang",
+   "Hu",
+   "Wang",
+   "Wu",
+   "Ji",
+   "Wang"
+  ],
+  "title": "A Survey of Self-Evolving Agents: What, When, How, and Where to Evolve on the Path to Artificial Super Intelligence"
+ },
+ "2508.19828": {
+  "surnames": [
+   "Yan",
+   "Yang",
+   "Huang",
+   "Nie",
+   "Ding",
+   "Li",
+   "Ma",
+   "Bi",
+   "Kersting",
+   "Pan",
+   "Schütze",
+   "Tresp",
+   "Ma"
+  ],
+  "title": "Memory-R1: Enhancing Large Language Model Agents to Manage and Utilize Memories via Reinforcement Learning"
+ },
+ "2509.25140": {
+  "surnames": [
+   "Ouyang",
+   "Yan",
+   "Hsu",
+   "Chen",
+   "Jiang",
+   "Wang",
+   "Han",
+   "Le",
+   "Daruki",
+   "Tang",
+   "Tirumalashetty",
+   "Lee",
+   "Rofouei",
+   "Lin",
+   "Han",
+   "Lee",
+   "Pfister"
+  ],
+  "title": "ReasoningBank: Scaling Agent Self-Evolving with Reasoning Memory"
+ },
+ "2509.25911": {
+  "surnames": [
+   "Wang",
+   "Takanobu",
+   "Liang",
+   "Mao",
+   "Hu",
+   "McAuley",
+   "Wu"
+  ],
+  "title": "Mem-{\\alpha}: Learning Memory Construction via Reinforcement Learning"
+ },
+ "2510.00615": {
+  "surnames": [
+   "Kang",
+   "Chen",
+   "Han",
+   "Inan",
+   "Wutschitz",
+   "Chen",
+   "Sim",
+   "Rajmohan"
+  ],
+  "title": "ACON: Optimizing Context Compression for Long-horizon LLM Agents"
+ },
+ "2510.12635": {
+  "surnames": [
+   "Zhang",
+   "Shu",
+   "Ma",
+   "Lin",
+   "Wu",
+   "Sang"
+  ],
+  "title": "Memory as Action: Autonomous Context Curation for Long-Horizon Agentic Tasks"
+ },
+ "2511.02805": {
+  "surnames": [
+   "Yuan",
+   "Lou",
+   "Li",
+   "Chen",
+   "Lu",
+   "Lin",
+   "Sun",
+   "Zhang",
+   "Han"
+  ],
+  "title": "MemSearcher: Training LLMs to Reason, Search and Manage Memory via End-to-End Reinforcement Learning"
+ },
+ "2511.03506": {
+  "surnames": [
+   "Chen",
+   "Niu",
+   "Li",
+   "Liu",
+   "Zheng",
+   "Tang",
+   "Li",
+   "Xiong",
+   "Li"
+  ],
+  "title": "HaluMem: Evaluating Hallucinations in Memory Systems of Agents"
+ },
+ "2511.12997": {
+  "surnames": [
+   "Liu",
+   "Geng",
+   "Li",
+   "Cui",
+   "Zhang",
+   "Liu",
+   "Liu"
+  ],
+  "title": "WebCoach: Self-Evolving Web Agents with Cross-Session Memory Guidance"
+ },
+ "2601.02163": {
+  "surnames": [
+   "Hu",
+   "Gao",
+   "Zhou",
+   "Xu",
+   "Bai",
+   "Li",
+   "Zhang",
+   "Li",
+   "Zhang",
+   "Bing",
+   "Deng"
+  ],
+  "title": "EverMemOS: A Self-Organizing Memory Operating System for Structured Long-Horizon Reasoning"
+ },
+ "2602.01313": {
+  "surnames": [
+   "Hu",
+   "Li",
+   "Gao",
+   "Chen",
+   "Bai",
+   "Xu",
+   "Lin",
+   "Li",
+   "Han",
+   "Pei",
+   "Deng"
+  ],
+  "title": "Evaluating Long-Horizon Memory for Multi-Party Collaborative Dialogues"
+ }
+}

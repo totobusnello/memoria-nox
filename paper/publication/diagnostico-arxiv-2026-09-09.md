@@ -1,5 +1,13 @@
 # O que o Paper 1 tem de diferente dos papers que o arXiv aceitou — medido
 
+> ⚠️ **Os números da régua (§2) estão SUPERADOS — ver `regua-recontada-2026-09-10.md`.**
+> Os PRs #491, #492, #494 e o `5885acc` executaram os itens 1, 3 e 4 **depois** desta
+> medição: referências 7 → **30**, refs/mil 0,31 → **1,25**, arXiv IDs 2 → **23**,
+> apêndices 7 → **2**. O plano de 6 itens do fim deste documento segue valendo; a tabela
+> de diferenças não. Agir sobre ela hoje leva a refazer trabalho já feito — e, no caso dos
+> apêndices, a fazê-lo na **direção oposta** (o achado era cortar, não criar).
+
+
 > Levantamento de 2026-09-09. Comparação do nosso manuscrito contra a população de
 > papers de *agent memory* efetivamente aceitos no arXiv em 2026, medida por script
 > sobre os HTML canônicos (`arxiv.org/html/<id>`) e sobre a API de metadados.
@@ -88,7 +96,7 @@ quem lê rápido, indistinguível de documentação de produto — independentem
 qualidade do que está medido dentro.
 
 Isto é o item mais barato de consertar e o de maior efeito: a vizinhança já está mapeada
-em `EXTERNAL-REFERENCES.md` e na memória (`project_agent_memory_survey_tmlr_2602_06052`
+neste diretório (`bibliografia-minerada-2026-09-10.md`, `data/candidatas-survey-2026-09-10.json`) e na memória (`project_agent_memory_survey_tmlr_2602_06052`
 lista Evo-Memory `2511.20857`, LifelongAgentBench `2505.11942`, OdysseyBench
 `2508.09124`, InterruptBench `2604.00892`, HaluMem `2511.03506`, MemoryArena
 `2602.16313`), e o levantamento de hoje acrescenta ~25 IDs de 2025-2026 que ainda não
