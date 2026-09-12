@@ -25,14 +25,17 @@ per-query nem conteudo de corpus.
 | que o arquivo no disco hoje e byte-a-byte o que foi medido | que ele existe em outro lugar -- manifesto **nao e backup** |
 | que a medicao citada foi extraida deste artefato | que a corrida estava correta |
 | **ausencia**: sai `!=0` quando um artefato citado desaparece | que o que sobrou nao mudou de significado |
+| que a sonda de contagem nao alterou os bytes (hash reconferido depois) | que existe copia fora desta maquina |
 
 Um manifesto e um detector de perda, nao um remedio. O backup e decisao do dono.
 """
 import hashlib
 import json
 import os
+import shutil
 import sqlite3
 import sys
+import tempfile
 from datetime import datetime, timezone
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,18 +56,57 @@ LASTRO = {
         "§6.3.2 ablacao", "corpus da corrida de task-type generico"),
     "eval/q4-comparison/.mem0-chroma-rc4/chroma.sqlite3": (
         "§6.3.2 confound (e)", "embeddings = 6.830, com 6.822 chunk_id distintos"),
+    # ⚠️ O sqlite do Chroma NAO e o vector store inteiro: os vetores vivem em
+    # arquivos HNSW binarios num subdiretorio por colecao. Uma primeira versao
+    # deste manifesto listava so o sqlite -- era manifesto de METADE do artefato,
+    # e uma voz adversarial apontou a falta antes de a perda acontecer.
+    "eval/q4-comparison/.mem0-chroma-rc4/"
+    "5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/data_level0.bin": (
+        "§6.3.2 confound (e)", "os vetores HNSW propriamente ditos (73 MB)"),
+    "eval/q4-comparison/.mem0-chroma-rc4/"
+    "5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/length.bin": (
+        "§6.3.2 confound (e)", "comprimentos do indice HNSW"),
+    "eval/q4-comparison/.mem0-chroma-rc4/"
+    "5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/header.bin": (
+        "§6.3.2 confound (e)", "cabecalho do indice HNSW"),
+    "eval/q4-comparison/.mem0-chroma-rc4/"
+    "5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/link_lists.bin": (
+        "§6.3.2 confound (e)", "listas de ligacao do HNSW"),
+    "eval/q4-comparison/.mem0-chroma-rc4/"
+    "5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/index_metadata.pickle": (
+        "§6.3.2 confound (e)", "metadados do indice HNSW"),
 }
+
+# Sidecars do SQLite. O hash do arquivo principal sozinho e de um estado que pode
+# estar incompleto -- o que esta no `-wal` ainda nao foi aplicado. Entram no
+# manifesto quando existem.
+SIDECARS = ("-wal", "-shm")
 
 # medicoes que o paper cita e que este script RECOMPUTA do artefato
 def conta_sqlite(caminho, sql):
+    """Conta numa COPIA em /var/tmp, nunca no artefato.
+
+    Abrir um SQLite -- ainda que `mode=ro` -- pode disparar checkpoint do WAL e
+    MUDAR os bytes, logo mudar o sha256 que este mesmo manifesto acabou de
+    registrar. Sondar escreveria o estado que mede. A copia isola isso; e fica em
+    /var/tmp e nao em /tmp de proposito.
+    """
+    tmp = tempfile.mkdtemp(prefix="manifesto-lastro-", dir="/var/tmp")
     try:
-        con = sqlite3.connect(f"file:{caminho}?mode=ro", uri=True)
+        copia = os.path.join(tmp, os.path.basename(caminho))
+        shutil.copy2(caminho, copia)
+        for suf in SIDECARS:
+            if os.path.exists(caminho + suf):
+                shutil.copy2(caminho + suf, copia + suf)
+        con = sqlite3.connect(f"file:{copia}?mode=ro", uri=True)
         try:
             return con.execute(sql).fetchone()[0]
         finally:
             con.close()
-    except sqlite3.Error as e:
+    except (sqlite3.Error, OSError) as e:
         return f"erro: {e}"
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
 
 RECOMPUTA = {
     "eval/q4-comparison/cache/rc4-nox-hybrid.db":
@@ -110,8 +152,16 @@ def main():
                 d = json.load(fh)
             e["meta"] = d.get("meta")
             e["n_queries_no_artefato"] = len(d.get("queries", []))
+        for suf in SIDECARS:
+            if os.path.exists(abs_ + suf):
+                e.setdefault("sidecars", {})[suf] = {
+                    "bytes": os.path.getsize(abs_ + suf),
+                    "sha256": sha256(abs_ + suf),
+                }
         for nome, sql in RECOMPUTA.get(rel, []):
             e.setdefault("recomputado", {})[nome] = conta_sqlite(abs_, sql)
+        e["sha256_reconferido_apos_sonda"] = sha256(abs_)
+        e["sonda_alterou_os_bytes"] = e["sha256_reconferido_apos_sonda"] != e["sha256"]
         entradas[rel] = e
 
     saida = {

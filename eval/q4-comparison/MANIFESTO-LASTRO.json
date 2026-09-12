@@ -1,8 +1,58 @@
 {
   "_o_que_e": "manifesto do lastro citado pelo manuscrito e nao versionado; prova integridade, NAO e backup",
-  "_gerado_em": "2026-09-12T21:49:28Z",
+  "_gerado_em": "2026-09-12T21:54:45Z",
   "_gerado_por": "scripts/manifesto-lastro.py",
   "artefatos": {
+    "eval/q4-comparison/.mem0-chroma-rc4/5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/data_level0.bin": {
+      "secao": "§6.3.2 confound (e)",
+      "mede": "os vetores HNSW propriamente ditos (73 MB)",
+      "estado": "presente",
+      "bytes": 74568000,
+      "mtime_utc": "2026-06-29T14:34:50Z",
+      "sha256": "fbf8b57cada3380a093bf6f392670050ae82175cc0dc93a9a78544aeaf001ca4",
+      "sha256_reconferido_apos_sonda": "fbf8b57cada3380a093bf6f392670050ae82175cc0dc93a9a78544aeaf001ca4",
+      "sonda_alterou_os_bytes": false
+    },
+    "eval/q4-comparison/.mem0-chroma-rc4/5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/header.bin": {
+      "secao": "§6.3.2 confound (e)",
+      "mede": "cabecalho do indice HNSW",
+      "estado": "presente",
+      "bytes": 100,
+      "mtime_utc": "2026-06-29T14:34:50Z",
+      "sha256": "884a99c2080ecfc2202949da4f3d3af0bf9e6d96108e92ceea5c5ecba85d3c87",
+      "sha256_reconferido_apos_sonda": "884a99c2080ecfc2202949da4f3d3af0bf9e6d96108e92ceea5c5ecba85d3c87",
+      "sonda_alterou_os_bytes": false
+    },
+    "eval/q4-comparison/.mem0-chroma-rc4/5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/index_metadata.pickle": {
+      "secao": "§6.3.2 confound (e)",
+      "mede": "metadados do indice HNSW",
+      "estado": "presente",
+      "bytes": 552152,
+      "mtime_utc": "2026-06-29T14:34:50Z",
+      "sha256": "ed5f5409207c472997d7170bed2c05fad8dffa8f95837eebd98f9fb2090b8c82",
+      "sha256_reconferido_apos_sonda": "ed5f5409207c472997d7170bed2c05fad8dffa8f95837eebd98f9fb2090b8c82",
+      "sonda_alterou_os_bytes": false
+    },
+    "eval/q4-comparison/.mem0-chroma-rc4/5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/length.bin": {
+      "secao": "§6.3.2 confound (e)",
+      "mede": "comprimentos do indice HNSW",
+      "estado": "presente",
+      "bytes": 24000,
+      "mtime_utc": "2026-06-29T14:34:50Z",
+      "sha256": "38f036e928c2c7dc9001a50091196e481ad651a0d05539a2c28488b1d9f0b362",
+      "sha256_reconferido_apos_sonda": "38f036e928c2c7dc9001a50091196e481ad651a0d05539a2c28488b1d9f0b362",
+      "sonda_alterou_os_bytes": false
+    },
+    "eval/q4-comparison/.mem0-chroma-rc4/5cf0506f-0f17-4dd4-8964-ea1faaaaa5c9/link_lists.bin": {
+      "secao": "§6.3.2 confound (e)",
+      "mede": "listas de ligacao do HNSW",
+      "estado": "presente",
+      "bytes": 0,
+      "mtime_utc": "2026-06-29T13:59:02Z",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sha256_reconferido_apos_sonda": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sonda_alterou_os_bytes": false
+    },
     "eval/q4-comparison/.mem0-chroma-rc4/chroma.sqlite3": {
       "secao": "§6.3.2 confound (e)",
       "mede": "embeddings = 6.830, com 6.822 chunk_id distintos",
@@ -13,7 +63,9 @@
       "recomputado": {
         "embeddings": 6830,
         "chunk_id_distintos": 6822
-      }
+      },
+      "sha256_reconferido_apos_sonda": "8307b9ecfbe1f9965342a7e49675f86a1859a8cfbd315277ff091c8cd7115f83",
+      "sonda_alterou_os_bytes": false
     },
     "eval/q4-comparison/cache/rc4-nox-generic.db": {
       "secao": "§6.3.2 ablacao",
@@ -21,7 +73,9 @@
       "estado": "presente",
       "bytes": 109084672,
       "mtime_utc": "2026-06-30T08:49:28Z",
-      "sha256": "109214c6cdcf1d01943afaea7f16217ac253b7641f9a90ca54d5f25fbbe39dc0"
+      "sha256": "109214c6cdcf1d01943afaea7f16217ac253b7641f9a90ca54d5f25fbbe39dc0",
+      "sha256_reconferido_apos_sonda": "109214c6cdcf1d01943afaea7f16217ac253b7641f9a90ca54d5f25fbbe39dc0",
+      "sonda_alterou_os_bytes": false
     },
     "eval/q4-comparison/cache/rc4-nox-hybrid.db": {
       "secao": "§6.3.2 confound (e)",
@@ -30,9 +84,21 @@
       "bytes": 109436928,
       "mtime_utc": "2026-06-29T13:58:58Z",
       "sha256": "6fb913644ce445046860a1e3211e6044d7e49787c43e1b7256924c4655cad96f",
+      "sidecars": {
+        "-wal": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "-shm": {
+          "bytes": 32768,
+          "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+        }
+      },
       "recomputado": {
         "eval_chunks": 6822
-      }
+      },
+      "sha256_reconferido_apos_sonda": "6fb913644ce445046860a1e3211e6044d7e49787c43e1b7256924c4655cad96f",
+      "sonda_alterou_os_bytes": false
     },
     "eval/q4-comparison/output/rc4-ablation/mem0.json": {
       "secao": "§6.3.2 ablacao",
@@ -55,7 +121,9 @@
         "finished_at": "2026-06-29T14:57:04Z",
         "harness_version": "1.0"
       },
-      "n_queries_no_artefato": 2482
+      "n_queries_no_artefato": 2482,
+      "sha256_reconferido_apos_sonda": "20fbe5ebe0d6d29aee2f3295d40887d9a719cbdcdb37bd54efa290a1c2af9182",
+      "sonda_alterou_os_bytes": false
     },
     "eval/q4-comparison/output/rc4-ablation/nox_mem.json": {
       "secao": "§6.3.2 ablacao",
@@ -78,7 +146,9 @@
         "finished_at": "2026-06-30T08:49:28Z",
         "harness_version": "1.0"
       },
-      "n_queries_no_artefato": 2482
+      "n_queries_no_artefato": 2482,
+      "sha256_reconferido_apos_sonda": "bfeb4f5b0f1f5928e1626f8cd7d040d4e16da3a23fdb75f9b6d09de0deeeab9f",
+      "sonda_alterou_os_bytes": false
     },
     "eval/q4-comparison/output/rc4/mem0.json": {
       "secao": "§6.3.2 confound (a)",
@@ -101,7 +171,9 @@
         "finished_at": "2026-06-29T14:57:04Z",
         "harness_version": "1.0"
       },
-      "n_queries_no_artefato": 2482
+      "n_queries_no_artefato": 2482,
+      "sha256_reconferido_apos_sonda": "20fbe5ebe0d6d29aee2f3295d40887d9a719cbdcdb37bd54efa290a1c2af9182",
+      "sonda_alterou_os_bytes": false
     },
     "eval/q4-comparison/output/rc4/nox_mem.json": {
       "secao": "§6.3.2",
@@ -124,7 +196,9 @@
         "finished_at": "2026-06-29T13:58:58Z",
         "harness_version": "1.0"
       },
-      "n_queries_no_artefato": 2482
+      "n_queries_no_artefato": 2482,
+      "sha256_reconferido_apos_sonda": "760a8f0cf0de05c7570f1a4f0b4f5256ce77f4d82127db9b9cc248a2be17f98f",
+      "sonda_alterou_os_bytes": false
     }
   }
 }
