@@ -1,0 +1,46 @@
+name: guarda-lastro
+
+# Duas guardas sobre o lastro de benchmark, num repositorio PUBLICO:
+#
+#  1. blob novo e grande nao entra -- a regra de ignore protege ate alguem
+#     escrever `git add -f`, e o historico do git nao esquece;
+#  2. o manuscrito nao aponta para o vazio -- todo caminho que ele cita ou
+#     existe, ou o censo falha.
+#
+# ⚠️ Nenhum passo leva `continue-on-error`: um check que reporta SUCCESS por cima
+# de um `exit 1` ja passou 3,3 meses verde sobre falha real neste repositorio.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  blob-grande:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: blob novo acima do limite
+        run: ./scripts/guarda-blob-grande.sh tudo
+
+  manuscrito-sem-vazio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: todo caminho citado pelo manuscrito existe
+        # O censo sai 1 se o manuscrito cita arquivo que nao existe, e 2 se os
+        # proprios controles nao medirem. Os artefatos grandes nao estao no
+        # checkout, e por isso o censo classifica em vez de exigir presenca: o
+        # que ele barra e CITACAO PARA O VAZIO, o que e verificavel sem eles.
+        run: python3 scripts/censo-lastro-do-manuscrito.py
