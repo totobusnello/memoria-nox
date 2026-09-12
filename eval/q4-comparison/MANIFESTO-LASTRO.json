@@ -1,0 +1,130 @@
+{
+  "_o_que_e": "manifesto do lastro citado pelo manuscrito e nao versionado; prova integridade, NAO e backup",
+  "_gerado_em": "2026-09-12T21:49:28Z",
+  "_gerado_por": "scripts/manifesto-lastro.py",
+  "artefatos": {
+    "eval/q4-comparison/.mem0-chroma-rc4/chroma.sqlite3": {
+      "secao": "§6.3.2 confound (e)",
+      "mede": "embeddings = 6.830, com 6.822 chunk_id distintos",
+      "estado": "presente",
+      "bytes": 103747584,
+      "mtime_utc": "2026-06-29T15:03:16Z",
+      "sha256": "8307b9ecfbe1f9965342a7e49675f86a1859a8cfbd315277ff091c8cd7115f83",
+      "recomputado": {
+        "embeddings": 6830,
+        "chunk_id_distintos": 6822
+      }
+    },
+    "eval/q4-comparison/cache/rc4-nox-generic.db": {
+      "secao": "§6.3.2 ablacao",
+      "mede": "corpus da corrida de task-type generico",
+      "estado": "presente",
+      "bytes": 109084672,
+      "mtime_utc": "2026-06-30T08:49:28Z",
+      "sha256": "109214c6cdcf1d01943afaea7f16217ac253b7641f9a90ca54d5f25fbbe39dc0"
+    },
+    "eval/q4-comparison/cache/rc4-nox-hybrid.db": {
+      "secao": "§6.3.2 confound (e)",
+      "mede": "eval_chunks = 6.822 (INSERT OR IGNORE colapsou 8 pares)",
+      "estado": "presente",
+      "bytes": 109436928,
+      "mtime_utc": "2026-06-29T13:58:58Z",
+      "sha256": "6fb913644ce445046860a1e3211e6044d7e49787c43e1b7256924c4655cad96f",
+      "recomputado": {
+        "eval_chunks": 6822
+      }
+    },
+    "eval/q4-comparison/output/rc4-ablation/mem0.json": {
+      "secao": "§6.3.2 ablacao",
+      "mede": "baseline Mem0 = 0,4337",
+      "estado": "presente",
+      "bytes": 43573949,
+      "mtime_utc": "2026-06-30T08:49:30Z",
+      "sha256": "20fbe5ebe0d6d29aee2f3295d40887d9a719cbdcdb37bd54efa290a1c2af9182",
+      "meta": {
+        "system": "mem0",
+        "version": "mem0ai==0.1.114",
+        "k": 10,
+        "n_queries": 2482,
+        "n_errors": 0,
+        "datasets": [
+          "locomo",
+          "longmemeval"
+        ],
+        "started_at": "2026-06-29T13:59:00Z",
+        "finished_at": "2026-06-29T14:57:04Z",
+        "harness_version": "1.0"
+      },
+      "n_queries_no_artefato": 2482
+    },
+    "eval/q4-comparison/output/rc4-ablation/nox_mem.json": {
+      "secao": "§6.3.2 ablacao",
+      "mede": "nDCG@10 generico = 0,4979 (-0,34 pp)",
+      "estado": "presente",
+      "bytes": 10932378,
+      "mtime_utc": "2026-06-30T08:49:28Z",
+      "sha256": "bfeb4f5b0f1f5928e1626f8cd7d040d4e16da3a23fdb75f9b6d09de0deeeab9f",
+      "meta": {
+        "system": "nox-mem",
+        "version": "git-sha (resolve at runtime via `git rev-parse HEAD`)",
+        "k": 10,
+        "n_queries": 2482,
+        "n_errors": 0,
+        "datasets": [
+          "locomo",
+          "longmemeval"
+        ],
+        "started_at": "2026-06-29T18:47:39Z",
+        "finished_at": "2026-06-30T08:49:28Z",
+        "harness_version": "1.0"
+      },
+      "n_queries_no_artefato": 2482
+    },
+    "eval/q4-comparison/output/rc4/mem0.json": {
+      "secao": "§6.3.2 confound (a)",
+      "mede": "meta.version = 'mem0ai==0.1.114' (pin, nao leitura de runtime)",
+      "estado": "presente",
+      "bytes": 43573949,
+      "mtime_utc": "2026-06-29T14:57:04Z",
+      "sha256": "20fbe5ebe0d6d29aee2f3295d40887d9a719cbdcdb37bd54efa290a1c2af9182",
+      "meta": {
+        "system": "mem0",
+        "version": "mem0ai==0.1.114",
+        "k": 10,
+        "n_queries": 2482,
+        "n_errors": 0,
+        "datasets": [
+          "locomo",
+          "longmemeval"
+        ],
+        "started_at": "2026-06-29T13:59:00Z",
+        "finished_at": "2026-06-29T14:57:04Z",
+        "harness_version": "1.0"
+      },
+      "n_queries_no_artefato": 2482
+    },
+    "eval/q4-comparison/output/rc4/nox_mem.json": {
+      "secao": "§6.3.2",
+      "mede": "nDCG@10 = 0,5013 sobre n=2.482",
+      "estado": "presente",
+      "bytes": 10894673,
+      "mtime_utc": "2026-06-29T13:58:58Z",
+      "sha256": "760a8f0cf0de05c7570f1a4f0b4f5256ce77f4d82127db9b9cc248a2be17f98f",
+      "meta": {
+        "system": "nox-mem",
+        "version": "git-sha (resolve at runtime via `git rev-parse HEAD`)",
+        "k": 10,
+        "n_queries": 2482,
+        "n_errors": 0,
+        "datasets": [
+          "locomo",
+          "longmemeval"
+        ],
+        "started_at": "2026-06-29T12:49:22Z",
+        "finished_at": "2026-06-29T13:58:58Z",
+        "harness_version": "1.0"
+      },
+      "n_queries_no_artefato": 2482
+    }
+  }
+}
