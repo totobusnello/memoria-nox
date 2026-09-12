@@ -327,8 +327,27 @@ Gate na CI: `.github/workflows/guarda-lastro.yml`, sem `continue-on-error`. Agen
 `~/Library/LaunchAgents/com.toto.nox-mem.verifica-lastro.plist`, 09h40, recibos em
 `~/Backups/memoria-nox-lastro-2026-09-12/recibos/`.
 
-🔴 **A cópia de hoje está no MESMO disco da origem** — protege contra `rm`/`git clean`,
-**não** contra falha de disco. Cópia off-machine é decisão em aberto.
+**Duas cópias, verificadas por hash no destino:**
+
+| cópia | onde | verificada |
+|---|---|---|
+| local | `~/Backups/memoria-nox-lastro-2026-09-12/` | 12 artefatos, 0 divergentes |
+| off-machine | `$NOX_LASTRO_HOST:/var/backups/nox-mem/paper1-lastro-rc4` | 12 + 2 sidecars, 0 divergentes |
+
+O host vem de `NOX_LASTRO_HOST` no ambiente e **nunca** fica escrito em arquivo
+versionado — este repositório é público. Sem a variável, a perna remota é **declarada
+como não verificada**, nunca silenciosamente omitida.
+
+🔴 **A máquina de armazenamento NÃO é a que serve o ensaio.** Provado por artefato
+datado: ela tem `epochs/current.db` congelado em 23-08 (o ensaio começou em 01-09), sem
+serviço, sem `/root/.openclaw`, e backups com prefixo de outra origem. A que serve o
+ensaio responde `active` e serve o epoch do dia. Identificar host por **capacidade**,
+nunca por endereço.
+
+⚠️ **Não usar `timeout` em script que o launchd chama.** No macOS ele vem do Homebrew, e
+o `PATH` do launchd é `/usr/bin:/bin:/usr/sbin:/sbin`. A perna remota saía «host
+inalcançável» num agendamento onde o `ssh` funciona perfeitamente — falha do **agendador**
+lida como falha do **host**. O limite de tempo vem das opções do próprio `ssh`.
 
 🔑 Um manifesto prova que os bytes são os bytes. **Não** prova que existe cópia: manifesto
 é detector de perda, não remédio. E **hash calculado na origem não verifica a cópia** — o

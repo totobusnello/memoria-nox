@@ -16,14 +16,42 @@ set -uo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BACKUP="${1:-$HOME/Backups/memoria-nox-lastro-2026-09-12}"
+
+# Segunda copia, off-machine. O host vem do ambiente e NUNCA fica escrito aqui:
+# este arquivo e versionado num repositorio publico.
+#   export NOX_LASTRO_HOST=root@<host-de-armazenamento>
+#   export NOX_LASTRO_DIR=/var/backups/nox-mem/paper1-lastro-rc4
+# Ausente a variavel, a perna remota e DECLARADA COMO NAO VERIFICADA, nunca
+# silenciosamente omitida -- "nao verifiquei" e "verifiquei e esta bem" nao podem
+# ter a mesma saida.
+REMOTO_HOST="${NOX_LASTRO_HOST:-}"
+REMOTO_DIR="${NOX_LASTRO_DIR:-/var/backups/nox-mem/paper1-lastro-rc4}"
 RECIBOS="$BACKUP/recibos"
 mkdir -p "$RECIBOS" 2>/dev/null
 
-python3 - "$REPO" "$BACKUP" "$RECIBOS" <<'PY'
+# ---- perna remota: hashes calculados NO DESTINO, nao na origem
+REMOTO_SHA=""
+if [ -n "$REMOTO_HOST" ]; then
+  REMOTO_SHA=$(mktemp /var/tmp/lastro-remoto.XXXXXX)
+  # ⚠️ Sem `timeout`: no macOS ele vem do Homebrew e o PATH do launchd e minimo
+  # (/usr/bin:/bin:/usr/sbin:/sbin). Usar `timeout` aqui fazia a perna remota
+  # sair "host inalcancavel" num agendamento onde o ssh funciona perfeitamente --
+  # falha do agendador lida como falha do host. Mesma familia do "cron nao tem
+  # /sbin". O limite de tempo vem das opcoes do proprio ssh.
+  if ! /usr/bin/ssh -o ConnectTimeout=15 -o BatchMode=yes \
+       -o ServerAliveInterval=10 -o ServerAliveCountMax=6 "$REMOTO_HOST" \
+       "cd '$REMOTO_DIR' 2>/dev/null && find . -type f -print0 | xargs -0 sha256sum" \
+       > "$REMOTO_SHA" 2>/dev/null; then
+    echo "⚠️ perna remota NAO verificada: falha ao consultar $REMOTO_HOST" >&2
+    rm -f "$REMOTO_SHA"; REMOTO_SHA="INDISPONIVEL"
+  fi
+fi
+
+python3 - "$REPO" "$BACKUP" "$RECIBOS" "${REMOTO_SHA:-SEM_HOST}" <<'PY'
 import hashlib, json, os, sys, tempfile
 from datetime import datetime, timezone
 
-repo, backup, recibos = sys.argv[1:4]
+repo, backup, recibos, remoto_sha = sys.argv[1:5]
 agora = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H%M%SZ")
 
 def sha(p):
@@ -53,7 +81,23 @@ if not os.path.exists(mp):
 with open(mp, encoding="utf-8") as fh:
     arte = json.load(fh)["artefatos"]
 
+# hashes da copia remota, se a perna correu
+remoto = {}
+perna_remota = "sem host configurado (NOX_LASTRO_HOST)"
+if remoto_sha == "INDISPONIVEL":
+    perna_remota = "NAO VERIFICADA -- host inalcancavel"
+elif remoto_sha not in ("SEM_HOST", ""):
+    try:
+        with open(remoto_sha, encoding="utf-8") as fh:
+            for linha in fh:
+                h, _, cam = linha.strip().partition("  ")
+                remoto[cam.lstrip("./")] = h
+        perna_remota = f"verificada: {len(remoto)} arquivo(s) lidos no destino"
+    except OSError:
+        perna_remota = "NAO VERIFICADA -- nao consegui ler os hashes remotos"
+
 perdidos_origem, perdidos_backup, divergentes, ok = [], [], [], []
+rem_ok, rem_div, rem_falta = [], [], []
 for rel, e in sorted(arte.items()):
     if e.get("estado") != "presente":
         continue
@@ -66,6 +110,14 @@ for rel, e in sorted(arte.items()):
         perdidos_backup.append(rel); continue
     obtido = sha(c)
     (ok if obtido == esperado else divergentes).append(rel)
+    if remoto:
+        g = remoto.get(rel)
+        if g is None:
+            rem_falta.append(rel)
+        elif g != esperado:
+            rem_div.append(rel)
+        else:
+            rem_ok.append(rel)
 
 recibo = {
     "quando_utc": agora,
@@ -75,11 +127,19 @@ recibo = {
     "divergentes": divergentes,
     "perdidos_na_origem": perdidos_origem,
     "perdidos_no_backup": perdidos_backup,
+    "copia_remota": {
+        "estado": perna_remota,
+        "ok": len(rem_ok),
+        "divergentes": rem_div,
+        "faltando": rem_falta,
+    },
 }
 with open(os.path.join(recibos, f"recibo-{agora}.json"), "w", encoding="utf-8") as fh:
     json.dump(recibo, fh, indent=2, ensure_ascii=False)
 
-print(f"sentinela: passou  ·  integros no backup: {len(ok)}")
+print(f"sentinela: passou  ·  integros no backup local: {len(ok)}")
+print(f"copia remota: {perna_remota}"
+      + (f"  ·  integros: {len(rem_ok)}" if remoto else ""))
 if perdidos_origem:
     print(f"⚠️ AUSENTES NA ORIGEM ({len(perdidos_origem)}) — o backup e a unica copia:",
           file=sys.stderr)
@@ -90,5 +150,14 @@ if perdidos_backup:
 if divergentes:
     print(f"🔴 DIVERGEM DO MANIFESTO ({len(divergentes)}):", file=sys.stderr)
     for r in divergentes: print("   " + r, file=sys.stderr)
-sys.exit(1 if (perdidos_backup or divergentes) else 0)
+if rem_div or rem_falta:
+    print(f"🔴 COPIA REMOTA: {len(rem_div)} divergente(s), {len(rem_falta)} faltando",
+          file=sys.stderr)
+    for r in rem_div + rem_falta:
+        print("   " + r, file=sys.stderr)
+sys.exit(1 if (perdidos_backup or divergentes or rem_div or rem_falta) else 0)
 PY
+
+ec=$?
+[ -f "${REMOTO_SHA:-}" ] && rm -f "$REMOTO_SHA"
+exit $ec
