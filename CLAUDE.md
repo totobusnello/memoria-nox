@@ -284,6 +284,56 @@ confusão que custou 3,3 meses no `top_chunk_ids`. O teste implantado lê a `INS
 do fonte e exige que `query_text` **não** esteja e que as outras duas **estejam**;
 mutação confirmada (reintroduzir `query_text` faz falhar).
 
+### 13. O lastro do §6 vive FORA do git, e apagar "cache" pode apagar o paper (2026-09-12)
+
+O `.gitignore` de `eval/q4-comparison/output/` diz `*.json` porque os outputs são
+grandes — e **nove** deles foram versionados à força de todo modo, justamente os que o
+manuscrito cita. Os da corrida **`rc4` ficaram fora**, e o §6.3.2 cita três deles
+nominalmente como fonte de números publicados:
+
+| artefato | o que o paper mede nele |
+|---|---|
+| `output/rc4/mem0.json` | `meta.version` — a evidência do confound (a) |
+| `cache/rc4-nox-hybrid.db` | `eval_chunks` = **6.822** |
+| `.mem0-chroma-rc4/chroma.sqlite3` | `embeddings` = **6.830**, 6.822 ids distintos |
+
+⚠️ **O sqlite do Chroma não é o vector store**: os vetores vivem em arquivos HNSW num
+subdiretório por coleção. Backup só do sqlite é backup de metade — 12 artefatos, 506 MB.
+
+**A corrida não se repete igual** — pod efêmero, versão do mem0 não registrada,
+non-determinismo do provider. *Reproducibility* não é *replicability*, e o paper cita
+números **desta** corrida. E `rc4/nox_mem.json` traz
+`"version": "git-sha (resolve at runtime…)"`: o placeholder **nunca foi resolvido**, logo
+a versão do nox-mem também não ficou registrada.
+
+**Antes de apagar peso não versionado, classificar por custo de refazer**, nunca por nome
+de diretório:
+
+```sh
+python3 scripts/classifica-peso-nao-versionado.py
+# gratis 1635 MB (venvs) · pagando 18 MB · irrecuperavel 674 MB · nao classificado 151 MB
+```
+
+**Os quatro instrumentos:**
+
+| script | o que faz | sai `!=0` quando |
+|---|---|---|
+| `manifesto-lastro.py` | sha256 + meta + a medição citada; conta numa cópia em `/var/tmp` para a sonda não escrever o que mede | um artefato citado desaparece |
+| `censo-lastro-do-manuscrito.py` | enumera todo caminho que o manuscrito cita (não uma lista de mão) | o paper cita o que não existe, nem versionado nem declarado |
+| `guarda-blob-grande.sh` | barra blob **novo** > 5 MB; isenta o já versionado | um `git add -f` traria bytes grandes para um repo **público** |
+| `verifica-backup-lastro.sh` | confere a **cópia** contra o manifesto, com **recibo datado** | cópia ausente ou divergente |
+
+Gate na CI: `.github/workflows/guarda-lastro.yml`, sem `continue-on-error`. Agendamento:
+`~/Library/LaunchAgents/com.toto.nox-mem.verifica-lastro.plist`, 09h40, recibos em
+`~/Backups/memoria-nox-lastro-2026-09-12/recibos/`.
+
+🔴 **A cópia de hoje está no MESMO disco da origem** — protege contra `rm`/`git clean`,
+**não** contra falha de disco. Cópia off-machine é decisão em aberto.
+
+🔑 Um manifesto prova que os bytes são os bytes. **Não** prova que existe cópia: manifesto
+é detector de perda, não remédio. E **hash calculado na origem não verifica a cópia** — o
+`backup-lastro.sh` recalcula no destino.
+
 ## Roadmap canônico
 
 **Single source of truth:** `docs/ROADMAP.md`.
