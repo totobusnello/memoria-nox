@@ -40,7 +40,9 @@
 
 import Database from "better-sqlite3";
 import { readFileSync, writeFileSync, appendFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
 
 function args(argv) {
   const o = {};
@@ -59,6 +61,52 @@ const exigir = (k) => {
 const RAIZ = resolve(exigir("raiz"));
 const CORPUS = resolve(exigir("corpus"));
 const AGENTES = exigir("agentes").split(",").map((x) => x.trim()).filter(Boolean);
+const SERVICO = A.servico || "nox-mem-api";
+const AQUI = dirname(fileURLToPath(import.meta.url));
+// Parametro, nao caminho fixo: uma perna que so pode ser exercitada com o serving
+// real de producao aberto nao e exercitada nunca — e perna nao exercitada e
+// crenca, nao guarda. Mesma razao do `FD_PREFIX` no `gatilho-saturacao.sh`.
+const ALINHAMENTO = A["alinhamento-script"] || join(AQUI, "gatilho-corpus-alinhado.sh");
+
+/**
+ * ─── Por que este gatilho pergunta pelo alinhamento (2026-09-14) ────────────
+ *
+ * Ele conta sobre o corpus que recebe em `--corpus` — em producao,
+ * `/var/lib/nox-mem/epochs/current.db`. O serving resolve esse symlink UMA vez, no
+ * `open()`, e desde `2026-09-03 17:23` le um inode ja podado (§10.10). Ou seja: a
+ * contagem pode ser exata e mesmo assim descrever um corpus que NINGUEM serve.
+ * Medido em 14/09: `agent_fresh_elegiveis=327` no `current.db` contra **0** no
+ * corpus efetivamente servido. RED verdadeiro sobre o corpus errado — o proprio
+ * cabecalho deste arquivo ja nomeava o risco, sem nada medindo.
+ *
+ * A pergunta NAO e reimplementada aqui. Quem a responde e o
+ * `gatilho-corpus-alinhado.sh`, que compara INODE do fd aberto contra o do
+ * arquivo — e recebe `--link $CORPUS`, o mesmo arquivo que esta contagem leu, para
+ * que a resposta seja sobre o operando certo e nao sobre `current.db` por
+ * coincidencia. Monitor que reimplementa predicado de outro omite caso.
+ *
+ * Fail-closed: SO o RED do alinhamento rebaixa. GREEN, YELLOW, script ausente,
+ * timeout ou linha ilegivel mantem o RED e declaram `INDETERMINADO` — porque
+ * "nao consegui medir" e "medi e esta alinhado" tem de ter saidas diferentes.
+ */
+function alinhamentoDoServing() {
+  let bruto;
+  try {
+    bruto = execFileSync(ALINHAMENTO, ["--link", CORPUS, "--servico", SERVICO], {
+      encoding: "utf8", timeout: 20000,
+    });
+  } catch (e) {
+    const m = String(e && e.message || e).replace(/\s+/g, " ").slice(0, 100);
+    return { estado: "INDETERMINADO", motivo: `nao-rodou:${m}` };
+  }
+  const linha = bruto.trim().split("\n").filter(Boolean).pop() || "";
+  const tok = linha.split(/\s+/);
+  if (!["GREEN", "YELLOW", "RED"].includes(tok[0])) {
+    return { estado: "INDETERMINADO", motivo: `linha-ilegivel:${linha.slice(0, 60) || "vazia"}` };
+  }
+  const mot = tok.find((t) => t.startsWith("motivo=")) || "motivo=nao-declarado";
+  return { estado: tok[0], motivo: mot.slice("motivo=".length) };
+}
 
 const brief = await import(join(RAIZ, "dist", "api", "brief.js"));
 const div = await import(join(RAIZ, "dist", "api", "brief-diversity.js"));
@@ -114,15 +162,29 @@ for (const ag of AGENTES) {
  * qualquer estado afetado deixa de valer. Isto não é ruído a tolerar — é a
  * premissa da calibração caindo.
  */
-const estado = elegiveis > 0 ? "RED" : "GREEN";
+const bruto = elegiveis > 0 ? "RED" : "GREEN";
+const alin = alinhamentoDoServing();
+/**
+ * O rebaixamento nao apaga a contagem — ela continua na linha, com o mesmo numero.
+ * Muda a LEITURA: enquanto o serving le outro inode, este RED nao e "a premissa da
+ * calibracao caiu", e sim "a premissa caiu no corpus que ninguem esta servindo". As
+ * duas coisas exigem acoes diferentes, e tres RED fixos por dias seguidos e o
+ * regime em que um RED novo entra no meio e nao e lido.
+ */
+const rebaixa = bruto === "RED" && alin.estado === "RED";
+const estado = rebaixa ? "YELLOW" : bruto;
 const ts = new Date().toISOString();
 const linha =
   `${estado} p2-composicao-do-canal agent_fresh_elegiveis=${elegiveis} ` +
   `piso_imp=${cfg.freshMinImp} piso_pain=${cfg.freshMinPain} janela_dias=${cfg.freshMaxAgeDays} ` +
-  `por_agente=${AGENTES.map((a) => `${a}:${porAgente[a].elegiveis}`).join(",")} ts=${ts}` +
-  (estado === "RED"
-    ? " ACAO=a escala de dose de 27/08 pressupoe agentFresh vazio; remedir w_min antes de qualquer inferencia"
-    : "");
+  `por_agente=${AGENTES.map((a) => `${a}:${porAgente[a].elegiveis}`).join(",")} ` +
+  `alinhamento_do_serving=${alin.estado}:${alin.motivo} ts=${ts}` +
+  (rebaixa
+    ? " rebaixado=RED->YELLOW semantica=contagem-sobre-corpus-que-o-serving-nao-le" +
+      " ACAO=nada a fazer enquanto o fd estiver pinado; o RED real volta sozinho no realinhamento"
+    : estado === "RED"
+      ? " ACAO=a escala de dose de 27/08 pressupoe agentFresh vazio; remedir w_min antes de qualquer inferencia"
+      : "");
 
 console.log(linha);
 if (A.status) writeFileSync(resolve(A.status), linha + "\n");
@@ -131,5 +193,7 @@ if (A.ndjson) {
     ts, tag: "p2_gatilho_composicao", estado, elegiveis,
     cfg: { freshMinImp: cfg.freshMinImp, freshMinPain: cfg.freshMinPain, freshMaxAgeDays: cfg.freshMaxAgeDays },
     corpus: CORPUS, por_agente: porAgente,
+    estado_bruto: bruto, rebaixado: rebaixa,
+    alinhamento_do_serving: { estado: alin.estado, motivo: alin.motivo, via: ALINHAMENTO },
   }) + "\n");
 }

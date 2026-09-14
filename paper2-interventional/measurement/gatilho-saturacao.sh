@@ -597,5 +597,32 @@ case "$EST" in GREEN|YELLOW|RED) ;; *) EST=RED; RESTO="motivo=veredito-ilegivel 
 # diferentes são indistinguíveis, e a dose varia POR EPOCH — ler a folga sem saber
 # de qual epoch ela é não significa nada.
 [ "$MODO" = "active" ] && RESTO="$RESTO modo=active epoch=$EPOCH_ALVO arm=$ARM"
+
+# ─── Rebaixamento quando o veredito NAO e sobre o corpus servido (2026-09-14) ──
+#
+# `APROX=nao` ja e computado e ja viaja na linha desde 09/09, mas so como campo: o
+# estado seguia RED. Desde 03/09 o serving le um inode podado (§10.10), entao o
+# replay responde sobre um corpus que ninguem serve, e `canal-sem-capacidade` com
+# `mexem_servido=0 mexem_absurdo=0` descreve ESSE corpus. RED fixo por dias e o
+# regime em que o RED novo chega e nao e lido.
+#
+# ⚠️ O rebaixamento e ESTREITO por desenho, em duas direcoes:
+#
+# 1. So os tres motivos cujo valor-verdade DEPENDE do corpus lido. `erros-no-replay`
+#    e sobre a integridade da janela, `assignment-*` e `log-diverge-*` sao sobre a
+#    designacao — nenhum deles fica menos verdadeiro por o corpus ser outro, e
+#    rebaixa-los seria esconder o alarme mais valioso deste script. Os RED de
+#    excecao saem por `emitir` proprio e nem passam por aqui.
+# 2. So `APROX=nao`. `indeterminada` — sem PID, fd ilegivel, corpus nao lido —
+#    MANTEM RED: "nao consegui medir o alinhamento" nao pode ter a mesma saida que
+#    "medi e o corpus nao e o servido".
+case "$RESTO" in
+  motivo=canal-sem-capacidade*|motivo=dose-servida-inerte*|motivo=SATURADO*) DEPENDE_DO_CORPUS=sim ;;
+  *) DEPENDE_DO_CORPUS=nao ;;
+esac
+if [ "$EST" = "RED" ] && [ "${APROX:-indeterminada}" = "nao" ] && [ "$DEPENDE_DO_CORPUS" = "sim" ]; then
+  EST=YELLOW
+  RESTO="$RESTO rebaixado=RED->YELLOW leitura=veredito-sobre-corpus-que-o-serving-nao-le"
+fi
 emitir "$EST" "$RESTO"
 exit 0
