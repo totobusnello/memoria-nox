@@ -1,5 +1,100 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-14 — o one-shot que realinharia o corpus foi APAGADO antes de disparar; três RED fixos há 6 dias
+
+### ▶️ ESTADO / PRÓXIMO PASSO
+
+**Decisão do Toto: não reiniciar o `nox-mem-api` até o fim do ensaio.** O corpus servido
+fica congelado no inode de 03/09 até `2026-09-21 09:43Z`, quando o
+`desliga-dose-p2.sh` (cron `43 9 21 9 *`) faz `systemctl restart` por conta própria —
+o realinhamento vem de graça, depois do epoch de 09-20 fechar. Nenhuma ação pendente.
+
+Motivo da escolha: reiniciar hoje partiria os 18 epochs em **dois regimes de corpus** no
+meio do voo. Congelado, o ensaio inteiro é servido do mesmo corpus — a defasagem é
+conhecida, datada e declarável, e é **um confound a menos**, não a mais.
+
+### O achado: o cron de realinhamento foi apagado, não executado
+
+O bloco de 08/09 (mais abaixo) diz que um one-shot reiniciaria o serviço. **Ele nunca
+rodou.** Medido hoje:
+
+| evidência | valor |
+|---|---|
+| `crontab.bak-20260909T100533Z` linha 61 | `0 9 10 9 * … restart-realinha-corpus.sh … ONESHOT` |
+| `stat` do `/var/spool/cron/crontabs/root` | `2026-09-09 17:44:52Z` — **~15 h antes** do disparo |
+| `diff` backup × atual | a linha 61 foi **substituída** por `p2-heartbeat` + `p2-desliga-dose` + `p2-coorte` |
+| `journalctl -u cron` em 10/09 09:00Z | só `health-probe` e `canary-bundle`; a linha já não existia |
+| uptime do `nox-mem-api` | `Thu Sep 3 17:23:29` (pid 546151), fd 26 → `e20260903T060001Z.db (deleted)` |
+| `grep -rl restart-realinha /etc/cron* /var/spool/cron`, `atq`, `systemctl list-timers` | **nada** |
+
+⚠️ A classe: **edição que reescreve o crontab inteiro apaga linha que ninguém revisou**.
+O one-shot não falhou nem abortou numa pré-condição — ele deixou de existir, e a saída
+disso é idêntica à de "ainda não chegou a hora". Quem lesse só o HANDOFF concluiria que
+o realinhamento estava agendado; o `crontab -l` é que responde, e ninguém o interrogou
+por 4 dias.
+
+### Os três RED não são três problemas
+
+Dois dos três leem `current.db`, que **não é o corpus servido**:
+
+| gatilho | lê | veredito |
+|---|---|---|
+| `corpus-alinhado` | o `fd` do processo | RED **correto e literal** |
+| `composicao-do-canal` | `--corpus current.db` | RED sobre corpus que ninguém serve (327 lá, **0** no servido) |
+| `saturacao-da-dose` | `current.db` (já declarava `aproximacao_valida=nao`) | idem |
+
+`coorte` e `heartbeat`, que leem o corpus **servido**, seguem GREEN.
+
+### O que foi implantado hoje: rebaixamento RED→YELLOW, fail-closed
+
+Não silencia nada — muda a LEITURA, mantendo a contagem na linha. Três RED fixos por
+dias é o regime em que um RED **novo** entra no meio e não é lido.
+
+- **`gatilho-composicao.mjs`**: chama o `gatilho-corpus-alinhado.sh` com `--link $CORPUS`
+  — o mesmo arquivo que contou, não `current.db` por coincidência — e rebaixa só se a
+  resposta for RED. O predicado **não é reimplementado**; quem responde é o guarda que
+  já compara inode. Caminho novo parametrizado (`--alinhamento-script`) para a perna ser
+  exercitável sem o serving de produção aberto.
+- **`gatilho-saturacao.sh`**: rebaixa no ponto do veredito (linha do `emitir "$EST"`), e
+  **só** para `canal-sem-capacidade`, `dose-servida-inerte` e `SATURADO` — os três motivos
+  cujo valor-verdade depende do corpus lido. `erros-no-replay`, `assignment-*` e
+  `log-diverge-*` continuam RED: rebaixá-los esconderia o alarme mais valioso do script.
+- **Fail-closed nos dois**: `indeterminada` / `INDETERMINADO` (sem PID, script ausente,
+  timeout, linha ilegível) **mantém RED**. "Não consegui medir o alinhamento" não pode
+  ter a mesma saída que "medi e diverge".
+
+Linha viva em `2026-09-14T14:25:26Z`:
+
+```
+YELLOW p2-composicao-do-canal agent_fresh_elegiveis=327 … alinhamento_do_serving=RED:corpus-DELETADO-e-vivo-so-pelo-fd
+  rebaixado=RED->YELLOW semantica=contagem-sobre-corpus-que-o-serving-nao-le
+```
+
+### Suítes: 8 casos novos + 4, com mutação e sentinela negativa
+
+| suíte | casos | mutações mortas |
+|---|---|---|
+| `teste-gatilho-composicao.sh` (**nova**) | 8 | 3/3 (`rebaixa` sem o alinhamento ⇒ 4 casos; sem a contagem ⇒ 1; `!== GREEN` ⇒ 3) |
+| `teste-gatilho-active.sh` (T27–T30) | 26 → **30** | 3/3 (escopo largo ⇒ T29 **e T10**; `!= sim` ⇒ T30; sem `APROX` ⇒ T28+T30) |
+
+**Sentinela negativa**: a suíte nova contra o gatilho **antigo** mata exatamente T27 (o
+caso positivo) e passa T28–T30 — que asseveram *não* rebaixar, e o código antigo nunca
+rebaixava. A sentinela prova que o caso positivo vê o patch; os outros três provam o
+escopo.
+
+⚠️ Dois achados de fora do alvo, durante as mutações:
+
+1. **T10 morreu na mutação S1** e isso não era previsto: os casos que usam o helper
+   `roda` (sem stub de `systemctl`) enxergam o **serving real de produção** na perna de
+   aproximação, e por isso `APROX=nao` neles. Inofensivo (o gatilho só faz `sha256sum`
+   do fd), mas a suíte **não é hermética** nesses casos — prever qual teste morre é
+   hipótese; a mutação é que testa.
+2. **`teste-gatilho-active.sh` terminava em `exit 0` fixo** — imprimia "3 CASO(S)
+   FALHARAM" e saía com sucesso. Corrigido para `exit "$FALHAS"`. Recibo que não cabe no
+   canal em que é lido não é recibo.
+
+---
+
 ## 2026-09-10 (noite, 21h) — um COMPETIDOR bate o nox-mem; o Secret Scan era decorativo; guarda de contagem instalada
 
 Três PRs merged depois do bloco abaixo: **#526** (CI), **#528** (§6.3.3 + guarda), **#529** (correção de uma frase do #528).
@@ -428,6 +523,14 @@ que o §10.11 acrescenta é que a fronteira do regime novo passa a ser
 
 Tudo commitado e mergeado (PR #478, squash `9b2a80e`). CI verde nos 11 checks.
 
+> 🔴 **CORRIGIDO EM 2026-09-14: este one-shot NUNCA RODOU.** A data foi corrigida para
+> `0 9 10 9 *` em 09/09 e a linha foi **apagada do crontab** em `2026-09-09 17:44:52Z`,
+> ~15 h antes de disparar, pela edição que acrescentou `p2-heartbeat`, `p2-desliga-dose`
+> e `p2-coorte`. O `nox-mem-api` segue de pé desde `03/09 17:23` com o fd pinado. O
+> realinhamento passou a ser o `restart` que o `desliga-dose-p2.sh` faz em
+> `2026-09-21 09:43Z`. Ver a seção de 14/09, no topo. A tabela abaixo fica como estava —
+> item retirado esconde o erro em vez de o mostrar.
+
 **Nada a fazer hoje.** O próximo evento é automático:
 
 | quando | o quê |
@@ -527,7 +630,7 @@ criar sobre estado já quebrado.
 o bloco de criação recusa de todo jeito. Só depois de acrescentar **T10** (drift persiste na
 2ª corrida com baseline intacto) a mutação mata 5 casos. Suíte: 12 casos, 4 mutações.
 
-O RED do `corpus-alinhado` **vai persistir até 15/09** — ele está relatando fielmente que o
+O RED do `corpus-alinhado` **vai persistir até 15/09** *(corrigido em 14/09: até **21/09**, o restart do `desliga-dose`)* — ele está relatando fielmente que o
 processo lê um inode que já não é o `current.db`. Só some com o restart.
 
 ---

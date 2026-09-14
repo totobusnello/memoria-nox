@@ -346,8 +346,8 @@ echo "$SLEEP_PID" > "$T/mainpid"
 
 roda_serving() {  # $1=corpus $2=ndjson $3...=args
   local c="$1" nd="$2"; shift 2
-  PATH="$T/bin:$PATH" FAKE_MAINPID="$T/mainpid" FD_PREFIX="$T/epocas/" \
-  "$GAT" --raiz "$T" --harness "$T/harness-stub.mjs" \
+  PATH="$T/bin:$PATH" FAKE_MAINPID="${FAKE_PID:-$T/mainpid}" FD_PREFIX="$T/epocas/" \
+  "$GAT" --raiz "$T" --harness "${HARNESS:-$T/harness-stub.mjs}" \
     --corpus "$c" --vivo "$T/vivo.db" \
     --designacao "$T/desig.json" --designacao-sha256 deadbeef \
     --tmp "$T" --ndjson "$nd" "$@" 2>/dev/null
@@ -569,6 +569,75 @@ else
 fi
 kill "$SLEEP_FD" 2>/dev/null
 
+
+# ─── T27-T30: rebaixamento RED→YELLOW quando o veredito não é sobre o corpus
+#     servido (2026-09-14). O par completo: um caso onde rebaixa, e TRÊS onde não
+#     pode rebaixar. Um guarda que só é testado onde ele age não distingue
+#     "rebaixa quando deve" de "rebaixa sempre".
+cat > "$T/harness-inerte.mjs" <<'EOF'
+import { writeFileSync, readFileSync } from "node:fs";
+const a = process.argv.slice(2);
+const ws = a.map((x, i) => (x === "--w" ? Number(a[i + 1]) : null)).filter((x) => x !== null);
+const out = a[a.indexOf("--out") + 1];
+const jan = a[a.indexOf("--log-campo") + 1];
+const n = readFileSync(jan, "utf8").split("\n").filter((l) => l.trim()).length;
+const estados = n - Number(process.env.STUB_FALTAM || 0);
+// canal-sem-capacidade: nem a dose absurda move nada.
+writeFileSync(out, JSON.stringify({ dose: { tabela: ws.map((w) => ({
+  w, mexeu: 0, churn_total: 0, estados,
+})) } }));
+EOF
+
+# T27: corpus divergente do fd + canal-sem-capacidade ⇒ YELLOW rebaixado.
+: > "$T/ndReb.ndjson"
+LR="$(HARNESS="$T/harness-inerte.mjs" roda_serving "$T/corpusB.db" "$T/ndReb.ndjson" \
+      --modo active --log "$T/log.ndjson" --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+if [ "${LR%% *}" = YELLOW ] && [[ "$LR" == *"rebaixado=RED->YELLOW"* ]] \
+   && [[ "$LR" == *"motivo=canal-sem-capacidade"* ]]; then
+  echo "ok   T27 veredito sobre corpus nao servido ⇒ YELLOW, com o motivo preservado"
+else
+  echo "FALHA T27 nao rebaixou: $LR"; FALHAS=$((FALHAS + 1))
+fi
+
+# T28: MESMO veredito, corpus alinhado com o fd ⇒ RED de verdade. É o caso que
+#      separa "rebaixa quando o corpus diverge" de "rebaixa sempre".
+: > "$T/ndNaoReb.ndjson"
+LNR="$(HARNESS="$T/harness-inerte.mjs" roda_serving "$T/corpusA.db" "$T/ndNaoReb.ndjson" \
+       --modo active --log "$T/log.ndjson" --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+if [ "${LNR%% *}" = RED ] && [[ "$LNR" != *"rebaixado="* ]]; then
+  echo "ok   T28 mesmo veredito com corpus alinhado ⇒ RED"
+else
+  echo "FALHA T28 rebaixou um RED legitimo: $LNR"; FALHAS=$((FALHAS + 1))
+fi
+
+# T29: corpus divergente, mas o RED é `erros-no-replay` — sobre a INTEGRIDADE DA
+#      JANELA, não sobre o corpus. Não pode rebaixar: o escopo estreito é o ponto.
+: > "$T/ndJan.ndjson"
+LJ="$(STUB_FALTAM=1 roda_serving "$T/corpusB.db" "$T/ndJan.ndjson" \
+      --modo active --log "$T/log.ndjson" --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+if [ "${LJ%% *}" = RED ] && [[ "$LJ" == *"erros-no-replay"* ]] && [[ "$LJ" != *"rebaixado="* ]]; then
+  echo "ok   T29 RED de integridade da janela nao e rebaixado por corpus divergente"
+else
+  echo "FALHA T29 rebaixou um RED que nao depende do corpus: $LJ"; FALHAS=$((FALHAS + 1))
+fi
+
+# T30: sem serving vivo ⇒ `indeterminada`, e indeterminada NAO rebaixa. "Nao
+#      consegui medir o alinhamento" nao pode ter a mesma saida que "medi e diverge".
+: > "$T/ndIndReb.ndjson"
+LIR="$(HARNESS="$T/harness-inerte.mjs" FAKE_PID="$T/mainpid-morto" \
+       roda_serving "$T/corpusA.db" "$T/ndIndReb.ndjson" \
+       --modo active --log "$T/log.ndjson" --assignment "$T/a.json" --assignment-sha256 "$SHA")"
+if [ "${LIR%% *}" = RED ] && [[ "$LIR" == *"aproximacao_valida=indeterminada"* ]] \
+   && [[ "$LIR" != *"rebaixado="* ]]; then
+  echo "ok   T30 alinhamento indeterminado nao rebaixa"
+else
+  echo "FALHA T30 rebaixou sob indeterminada: $LIR"; FALHAS=$((FALHAS + 1))
+fi
+
 echo
 [ "$FALHAS" -eq 0 ] && echo "TODOS OS CASOS PASSARAM" || echo "$FALHAS CASO(S) FALHARAM"
-exit 0
+# ⚠️ O exit code CARREGA o veredito. Ate 14/09 esta linha era `exit 0` fixo: a suite
+# imprimia "3 CASO(S) FALHARAM" e saia 0, e qualquer chamador que conferisse `$?`
+# — CI, wrapper, sessao com pressa — lia sucesso. Recibo que nao cabe no canal em
+# que e lido nao e recibo.
+exit "$FALHAS"
