@@ -59,6 +59,42 @@ A correção entrou como **§10.10**, com banner nas seções antigas — não a
 - **`/api/health` em 200 não é evidência de corpus atual** — ele responde do inode
   aberto, e o inode aberto responde bem.
 
+### Seguimento 2026-09-14 — o fix agendado NUNCA RODOU, e ninguém soube por 4 dias
+
+O item 3 do Fix diz "restart agendado para a fronteira — `2026-09-10 09:00Z`". O cron
+existia (`crontab.bak-20260909T100533Z`, linha 61) e foi **apagado** em
+`2026-09-09 17:44:52Z` — ~15 h antes de disparar — pela edição que acrescentou
+`p2-heartbeat`, `p2-desliga-dose` e `p2-coorte`. O `diff` contra o backup mostra a
+linha 61 **substituída** pelas três novas.
+
+Provas de que não rodou, não de que "talvez não tenha rodado":
+
+| evidência | valor |
+|---|---|
+| `stat -c %y /var/spool/cron/crontabs/root` | `2026-09-09 17:44:52Z` |
+| `journalctl -u cron` em 10/09 09:00Z | só `health-probe` e `canary-bundle` |
+| uptime do `nox-mem-api` | `Thu Sep 3 17:23:29`, fd 26 ainda `(deleted)` |
+| `grep -rl restart-realinha /etc/cron*`, `atq`, `systemctl list-timers` | nada |
+
+⇒ O corpus servido ficou congelado **11 dias** (03/09 → 14/09), não 5. A defasagem é
+homogênea: todos os epochs do ensaio foram servidos do mesmo inode.
+
+**A classe:** um agendamento que some não falha, não aborta e não deixa recibo —
+*"ainda não chegou a hora"* e *"não existe mais"* têm a mesma saída. Um documento que
+promete evento futuro envelhece para afirmação falsa sem nada disparar. Interrogar o
+**agendador** (`crontab -l`, `atq`, `list-timers`), nunca o documento. E ao editar
+crontab que contém one-shot, `diff` contra o backup: a linha de 1 evento é a que a
+reescrita perde.
+
+**Decisão:** não reiniciar. O realinhamento passou a ser o `systemctl restart` que o
+`desliga-dose-p2.sh` já faz em `2026-09-21 09:43Z` — depois do epoch de 09-20 fechar.
+Ver `docs/DECISIONS.md` (D-2026-09-14) e `docs/HANDOFF.md`.
+
+**Mitigação do ruído:** os dois gatilhos que leem `current.db` passaram a rebaixar
+RED→YELLOW quando o serving lê outro inode (PR #539). Não silencia — a contagem segue
+na linha, com `alinhamento_do_serving=` e `rebaixado=` explícitos; `indeterminada`
+mantém RED.
+
 ---
 
 ## 2026-09-01 04:52 → 11:07 UTC — Seis RED do canário com a camada semântica intacta: a assinatura `total=2/semantic=0/fts=0` NÃO é diagnóstica

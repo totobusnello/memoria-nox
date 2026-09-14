@@ -1500,3 +1500,36 @@ Detalhe completo em `paper2-interventional/ENQUADRAMENTO-2026-09-09.md`.
   `modo`** — para 09-01 conta 672 e declara entrega `cheio`, quando 630 foram em `active`
   (w=4,0) e 42 em `shadow` (w=2,0). O veredito do epoch segue `parcial` pela perna do
   relógio, logo a perna de **entrega** erra no único epoch de modo misto da janela.
+
+---
+
+### D-2026-09-14 — Não reiniciar o `nox-mem-api` até o ensaio fechar; realinhamento vem do `desliga-dose`
+
+**Contexto.** O serving lê, desde `2026-09-03 17:23`, um inode já podado (fd 26 →
+`e20260903T060001Z.db (deleted)`, §10.10). O one-shot que realinharia isso em
+`2026-09-10 09:00Z` foi **apagado do crontab** em `2026-09-09 17:44:52Z`, ~15 h antes de
+disparar, e nunca rodou (ver `docs/INCIDENTS.md`, seguimento de 14/09). Na descoberta, o
+corpus servido estava congelado havia 11 dias.
+
+**Decisão.** Não reiniciar. O realinhamento passa a ser o `systemctl restart` que o
+`desliga-dose-p2.sh` (cron `43 9 21 9 *`) já faz em `2026-09-21 09:43Z`, depois do epoch
+de 09-20 fechar. O script aborta antes de reiniciar se a cópia preservada do corpus
+servido não existir — a pré-condição que protege o artefato já está escrita.
+
+**Por quê.** Reiniciar no meio partiria os 18 epochs em **dois regimes de corpus**. Com o
+fd pinado, o ensaio inteiro é servido do mesmo inode: a defasagem é conhecida, datada e
+declarável, e é **um confound a menos**. Os 19 designados estão no pool servido
+(`coorte` GREEN: `nunca_servidos=0`, `fresh_slots=2`), logo a dose tem como morder.
+
+**O que NÃO fazemos, e por quê:** nada de `systemctl restart` manual, nada de repontar
+`current.db` e nada de rodar `session-distill` esperando efeito no serving — o processo
+não relê o symlink. Se o serviço cair sozinho, o realinhamento acontece num momento
+arbitrário; o `gatilho-corpus-alinhado.sh` detecta, e o corpus servido já está salvo em
+`/var/lib/nox-mem/p2/corpus-SERVING-REAL-e20260903-recuperado.db`.
+
+**Custo aceito e mitigado.** Uma semana de RED fixo é o regime em que um RED **novo** não
+é lido. Mitigação no PR #539: os dois gatilhos que leem `current.db`
+(`composicao-do-canal`, `saturacao-da-dose`) rebaixam RED→YELLOW quando o serving lê
+outro inode, preservando a contagem na linha e declarando `alinhamento_do_serving=` /
+`rebaixado=`. Fail-closed: `indeterminada` mantém RED. `corpus-alinhado` segue RED, que é
+o guarda cujo veredito é literalmente verdadeiro.
