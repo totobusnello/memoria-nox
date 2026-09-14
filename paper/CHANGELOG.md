@@ -30,7 +30,7 @@ Paper completo e auto-suficiente, zero `[PENDING]`:
 
 - **§6.3.2 nova — controlled-embedding:** ambos os sistemas em `gemini-embedding-001` @ **3072d** (não 768d — preflight refutou a premissa do plano original, commit `a6e7e4d`; medido nox=3072 / mem0=3072 com a key real). **nox-mem supera o mem0 nos dois**: LongMemEval 0.5255 vs 0.4061 (+0.119); **LoCoMo 0.4952 vs 0.4407 (+0.055) — inverte** o split as-configured do §6.3. Overall 0.5013 vs 0.4337.
 - **§6.4 per-category preenchido** (era 100% `[deferred]`): nox-mem supera o mem0 nas 5 categorias representadas; maiores margens em **adversarial** (+0.142) e **temporal** (+0.118), menor em single-hop (+0.006); `numeric` = n/a (n<10). Consistente com a tese §5 (vantagem vem da fusão multi-sinal, não só do embedding).
-- **Confounds residuais declarados** (§6.3.2, per §6.6): (a) mem0 mudou de 0.1.x→2.0.10 entre a canonical e o rc4 (exigiu fix de compat na API `search`/`get_all`) → 0.4337 ≠ o mem0 0.4686 do §6.3; **[corrigido em 2026-09-10 — esta afirmação era falsa: o pin subiu para 2.0.10 3h47 DEPOIS da corrida e a versão que o rc4 rodou é inverificável, porque `meta.version` guarda o pin e não o `mem0.__version__`. Ver §6.3.2 reescrita.]**; (b) vector backend faiss→Chroma; (c) sample scope n=100→2.482. rc4 ≠ isolamento de arquitetura puro.
+- **Confounds residuais declarados** (§6.3.2, per §6.6): (a) mem0 mudou de 0.1.x→2.0.10 entre a canonical e o rc4 (exigiu fix de compat na API `search`/`get_all`) → 0.4337 ≠ o mem0 0.4686 do §6.3; **[retificado 2026-09-14 — a versão É estabelecível pelos artefatos e é `mem0ai 2.0.10`; a nota de 2026-09-10, que dizia "inverificável", está retratada. O drift 0.1.x→2.0.10 entre a canonical e o rc4 continua de pé como confound; o *risco de invalidez* que ela declarava, não. Ver a entrada de 2026-09-14 no fim deste Histórico e o §6.3.2 reescrito.]**; (b) vector backend faiss→Chroma; (c) sample scope n=100→2.482. rc4 ≠ isolamento de arquitetura puro.
 - **Abstract `[Q4 NUMBERS]` preenchidos** (split as-configured + controlled) em `abstract.md` e `arxiv-submission-ready.md`.
 - **Tese atualizada (não substituída):** §6.3 mantém o split honesto as-configured; §6.3.2 mostra que sob embedding controlado a vantagem do nox é robusta (supera o mem0 nos dois). As duas leituras coexistem — mais defensável que apagar o split.
 
@@ -51,6 +51,45 @@ Sweep final de claims (revisão adversarial multi-voice GLM + Codex + Kimi, read
 - **Confounds residuais:** 3 declarados (mem0 version drift, backend, sample scope) + task-type ablacionado/neutralizado.
 - **PDF:** `paper/build/paper-tecnico-nox-mem.pdf`, 0 glyph warnings. arXiv abstract 296 palavras.
 - **Pendente (logística, não-conteúdo):** endorsement cs.IR + rebuild do pacote de submissão a partir de `paper/build/` (o `arxiv-package-2026-05-24/` é pré-rc4) + submit → depois preencher arXiv ID em CITATION.cff + README badge.
+
+### Retificação — 2026-09-14 (confound (a): duas revisões erradas, em sentidos opostos)
+
+Commit `18c1bba`. O §6.3.2 afirmava três coisas falsas sobre o confound (a), e a nota
+de 2026-09-10 acima afirmava uma quarta. Todas retratadas, com o que os artefatos da
+própria corrida medem:
+
+- **A versão É estabelecível — `mem0ai 2.0.10`.** A corrida persistiu a versão duas
+  vezes, em strings exclusivas da linha 2.x: `output/rc4-run.log` traz o aviso do
+  próprio mem0 de que *"the 'chroma' vector store does not support keyword search"*, e
+  `.mem0-chroma-rc4/chroma.sqlite3` traz `text_lemmatized` em **6.830 de 6.830** linhas
+  de metadata. Nenhuma das duas ocorre na sdist de 0.1.114 — conferido com controle
+  positivo (`def search` em 23 arquivos dela, `user_id` em 21).
+- **2.0.10 REJEITA, não absorve.** O texto antigo dizia que uma chamada na forma 0.1.x
+  seria *silenciosamente absorvida* por `**kwargs` e buscaria sem filtro a `top_k=20`.
+  Não é: 2.0.10 chama `_reject_top_level_entity_params` na entrada e levanta
+  `ValueError: Top-level entity parameters frozenset({'user_id'}) are not supported in
+  search()`. `**kwargs` na assinatura não é absorção — o corpo pode rejeitar.
+- **`n_errors: 0` É discriminador** — o parágrafo negava explicitamente que fosse. O
+  adapter embrulha a chamada em `except Exception → RuntimeError` e o `runner.py` conta
+  cada exceção em `n_errors`; o artefato traz `error: null` nas 2.482 queries e
+  `n_errors: 0`. Sob a forma 0.1.x, as 2.482 carregariam `RuntimeError`.
+- **Réplica end-to-end**, sob os três controles assertados a cada rodada (filtro que não
+  nomeia usuário → 0 resultados; `top_k=3` → 3; forma 0.1.x → levanta), contra uma
+  **cópia** do store preservado: **2.375/2.482 (95,69%)** reproduzem o top-10 gravado em
+  ordem idêntica, overlap médio **9,8348/10**, nDCG@10 **0,433733 → 0,444576**
+  (delta **+0,011**). O delta **não é atribuído** — ANN aproximado e queries
+  re-embeddadas contribuem plausivelmente e esta medição não os separa. Recibo do
+  replay: `exit 0`, n=2.482, 0 desistidos.
+- `meta.version = "mem0ai==0.1.114"` é o `VERSION_PIN` declarado do adapter — *intenção*,
+  não leitura de runtime. ⇒ a tabela §6.2 e o artefato são **uma fonte, não duas**.
+
+**Exigência para qualquer corrida futura, inalterada:** persistir o
+`mem0.__version__` que o `validate()` lê dentro de `meta`. Aqui a versão foi recuperável
+de uma linha de log e de uma coluna de metadata, o que é sorte, não desenho.
+
+⚠️ **A regra que fica:** nunca escrever *"os artefatos não podem excluir X"* antes de
+varrer o que os artefatos de fato registram. Os dois decisivos estavam preservados desde
+2026-06-29.
 
 ---
 
