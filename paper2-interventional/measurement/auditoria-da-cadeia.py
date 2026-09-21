@@ -123,7 +123,11 @@ def main():
     # dela é reportado como órfão, e um documento novo que cite artefatos entra aqui
     # ou a auditoria mente por omissão. Já mordeu duas vezes — `ASSIGN-SEED` e, em
     # 2026-09-01, `MANUSCRIPT-en.md` e `TRIAL-START`, ambos citando artefatos reais.
-    CITANTES = ["MANUSCRIPT.md", "MANUSCRIPT-en.md", "PROSPECTIVE-ESTIMAND-2026-08-30.md",
+    # MANUSCRIPT-B.md entrou em 2026-09-21: o Paper B nasceu nesse dia e os seus
+    # artefatos apareciam como ÓRFÃOS por o auditor não o ler — «ninguém cita» e
+    # «não olhei para quem cita» têm a mesma saída.
+    CITANTES = ["MANUSCRIPT.md", "MANUSCRIPT-B.md", "MANUSCRIPT-en.md",
+                "PROSPECTIVE-ESTIMAND-2026-08-30.md",
                 "DEVIATIONS-FOR-PAPER.md", "DESIGN-REVISION-2026-08-30.md",
                 "ASSIGN-SEED-2026-08-30.md", "TRIAL-START-2026-09-01.md"]
     texto = "\n".join((raiz / n).read_text(encoding="utf-8")

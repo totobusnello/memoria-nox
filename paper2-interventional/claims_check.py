@@ -1247,7 +1247,8 @@ def superficie_check(root: Path) -> list[str]:
     for padrao, rotulo, valor in (
         (rf"\*\*{mil(conc['slots_historicos_ATE_AGORA_serie_viva'])} slots\*\*",
          "slots acumulados", conc["slots_historicos_ATE_AGORA_serie_viva"]),
-        (rf"Serviu \*\*{mil(cum['brief'])}\s*\n?distintos", "distintos no brief", cum["brief"]),
+        (rf"Serviu \*\*{mil(cum['brief'] - cum['servidos_no_brief_e_depois_apagados'])}\s*\n?distintos",
+         "distintos no brief (VIVO)", cum["brief"] - cum["servidos_no_brief_e_depois_apagados"]),
         (rf"exposto na busca \(histórico\) \| {mil(cum['busca'])}", "expostos na busca", cum["busca"]),
         (rf"\*\*apagados depois\*\* \| {cum['servidos_no_brief_e_depois_apagados']}",
          "servidos e apagados", cum["servidos_no_brief_e_depois_apagados"]),
@@ -1273,7 +1274,7 @@ def superficie_check(root: Path) -> list[str]:
     # ⚠️ "8,7 vezes" subiu para 3 em 30/08 (achado Codex): o §9 dizia "capacidade para
     # mostrar tudo NOVE vezes", e 583.763/67.187 = 8,69 — nove passagens exigiriam
     # 604.683 slots. Três lugares diziam nove; agora dizem o que a divisão dá.
-    OCORRENCIAS = {"8,7 vezes": 3, "47,16%": 3, "2,66%": 5, "583.763": 7,
+    OCORRENCIAS = {"8,7 vezes": 3, "47,16%": 3, "2,43%": 6, "583.763": 7,
                    # ⚠️ +1 em 30/08: o §4.3.1 passou a citar 10.899 para OUTRA
                    # grandeza (chunks de `sessions/%` que passam o piso), cujo
                    # tamanho coincide com o da união viva neste instante. A
@@ -1286,7 +1287,7 @@ def superficie_check(root: Path) -> list[str]:
                    # ponto de uso — "a linha dos 152 é o que faz a ponte" sem dizer
                    # ponte entre o quê. A reconciliação `11.051 − 152 = 10.899` e
                    # `67.187 − 10.899 = 56.288` voltou para o corpo.
-                   "10.899": 12}
+                   "10.899": 15}   # 12 -> 15 em 2026-09-21: a errata da interseção acrescenta 3
 
     def conta(literal: str, rotulo: str) -> None:
         esperado = OCORRENCIAS.get(literal)
@@ -1301,7 +1302,13 @@ def superficie_check(root: Path) -> list[str]:
 
     mult = conc["slots_historicos_ATE_AGORA_serie_viva"] / corpus
     conta(f"{mult:.1f}".replace(".", ",") + " vezes", "slots/corpus recomputado")
-    pct = 100 * cum["brief"] / corpus
+    # 🔴 Até 2026-09-21 isto era `100 * cum["brief"] / corpus` — numerador HISTÓRICO
+    # (inclui os servidos-e-apagados) sobre denominador VIVO, dando 2,66%. O guarda
+    # recomputava fielmente a conta errada: recomputar protege contra o texto
+    # envelhecer, nunca contra a fórmula estar errada desde o início. A regra do §4.1
+    # ("o percentual citado é sobre o corpus vivo") não estava codificada aqui.
+    brief_vivo = cum["brief"] - cum["servidos_no_brief_e_depois_apagados"]
+    pct = 100 * brief_vivo / corpus
     conta(f"{pct:.2f}".replace(".", ",") + "%", "cobertura do brief recomputada")
     conta(mil(conc["slots_historicos_ATE_AGORA_serie_viva"]), "slots acumulados")
     conta(str(conc["pct_top10"]).replace(".", ",") + "%", "fração do top-10")

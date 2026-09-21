@@ -54,7 +54,8 @@ sobe. Os 3 chunks presentes em **100%** dos 4.632 briefs da semana foram acessad
 posições **2, 3 e 5** — determinadas pelo tráfego de busca de meses atrás, e o top-10 leva **47,16%** dos slots. Os outros 2 slots são um canal de
 *cobertura*, cuja finalidade declarada é servir o nunca-servido — e **congela** por outra razão:
 sua população elegível é de **108 chunks num corpus de 67.187** — 0,16%, recortados por
-dois padrões de caminho — e ele a esgota **inteira, todo dia**, com 12,4 slots por
+dois padrões de caminho — e ele a esgota **inteira, todo dia**, com 12,4 slots **em dia
+fechado** (5,6 em dia parcial, e os dois não se comparam — §4.3.1) por
 candidato. Não sobra nunca-servido a servir. O canal que responderia a um ajuste de score é o que ninguém ajusta; o desenhado
 para compensar o outro é o que não responde a score.
 
@@ -266,8 +267,20 @@ expôs, ao ser escrito, que a soma ingênua excede o corpus em 152.
 | brief | `brief_log` | vida inteira do endpoint (subiu 2026-06-04) e **sem poda** — a única `DELETE FROM brief_log` do repositório está num teste |
 | busca | `chunks.access_count`, incrementado no caminho de resultados da busca | desde sempre; o brief **nunca** escreve nessa coluna |
 
-Como as duas cobrem desde o início, a união é contagem **exata** de
-já-exposto-alguma-vez, e o complemento também. Nenhum dos dois é *bound*.
+Como as duas cobrem desde o início, o **complemento** — nunca exposto por nenhuma das
+duas, sobre o corpus vivo — é contagem exata.
+
+🔴 **A união não é**, e a versão anterior desta frase dizia que sim (corrigido 2026-09-21,
+por revisão adversarial). As duas pernas têm durabilidades diferentes e a tabela acima
+mostra porquê: `brief_log` é **log durável e sem poda**, logo registra exposição de chunks
+que já foram apagados — são os 152 do §4.1. `chunks.access_count` é **coluna da linha
+viva**: um chunk exposto pela busca e apagado depois leva o contador junto, e a telemetria
+por chunk que poderia tê-lo preservado está sem escritor desde 2026-05-19 (§6). Exposição
+por busca seguida de apagamento é portanto **invisível por construção**.
+
+⇒ A união histórica de 11.051 é um **limite inferior**; só o complemento vivo é exato. A
+assimetria não muda nenhum número deste paper — os 83,78% saem do complemento — mas muda
+o que se pode dizer da união, e dizê-lo é a diferença entre um bound e uma contagem.
 
 ### 3.2 Disciplina de medição
 
@@ -587,6 +600,7 @@ Janela fechada `[2026-08-20 , 2026-08-27)`:
 | | |
 |---|---|
 | slots servidos | **46.295** em **4.632** briefs |
+| — déficit contra 10 por brief | **25** = `4.632 × 10 − 46.295` |
 | chunks distintos | **201** |
 | presentes em **100%** dos briefs | **3** |
 | top-10 | **47,16%** dos slots · top-20 **61,46%** |
@@ -595,6 +609,20 @@ Janela fechada `[2026-08-20 , 2026-08-27)`:
 (rank × share cumulativo dos slots), com marca nos 3 constantes — que sozinhos tomam
 **30,0%** dos slots — e no corte do top-10. Gerada por `fig2-concentracao.py --dados
 out/superficie.json`, e o script aborta se a curva não somar `slots_7d`.
+
+⚠️ **Os 25 slots em falta, e o que eles sugerem** (acrescentado 2026-09-21, por revisão
+adversarial). O §2 diz que o brief vem *"sempre com 10 itens"*, e `4.632 × 10 = 46.320`
+contra os 46.295 medidos. O §5.7.2 estabelece que as sondas de saúde são briefs **de 5
+linhas** e que são **cinco** — e `5 × 5 = 25`, exatamente o défice. A leitura que a
+aritmética sugere é que os 4.632 **incluem as cinco sondas**, isto é, que o denominador
+desta seção carrega a mesma contaminação que o §5.7.2 transforma em manchete noutro lugar.
+
+🔑 **Declarado como hipótese, não como facto:** a igualdade `25 = 5 × 5` é exata, mas não
+confirmámos a identidade das cinco sondas dentro desta janela de 7 dias — só que
+`ancora-sondas.json` lista cinco. Duas quantidades iguais por construção e duas iguais por
+calendário têm a mesma aparência, e este paper já pagou para aprender isso (§4.3.1, os
+dois 10.899). A reconciliação fica **aberta**; o que não fica aberto é a contradição com o
+§2, que é textual: *"sempre com 10 itens"* é falso para briefs de sonda.
 
 🔴 **Os 201 são o medido, não o teto.** Cabiam **46.295** — um por slot. Tratar o medido
 como teto transformaria um resultado em pigeonhole e ensinaria o leitor a achar a curva
@@ -635,6 +663,15 @@ registrados contra o que o manuscrito de fato carrega.
 
 Sobre ambos incide o piso `importance ≥ 0,7 OR pain ≥ 0,7`. Medido em quatro dias
 (`measurement/pool-elegivel.py`, `POOL-ELEGIVEL-2026-08-28.json`):
+
+⚠️ **O artefato cobre UM dia, e a afirmação abaixo cobre quatro.** Verificado em
+2026-09-21 por revisão adversarial: o ficheiro tem `"dia": "2026-08-28"` e
+`"dia_parcial": false`, e **não existe artefato para 26, 27 e 29/08**. A tabela é
+sustentada por artefato apenas na coluna de 28/08; os outros três dias foram medidos
+pela mesma via e **não preservados**, o que é exatamente a lacuna que a disciplina de
+lastro do §6.1 existe para impedir. A revisão suspeitou de reescrita in loco — não houve:
+o ficheiro no disco é idêntico ao versionado. O defeito é mais simples e mais comum,
+**um artefato citado para sustentar mais do que contém**.
 
 | | |
 |---|---:|
@@ -750,7 +787,13 @@ zero (`measurement/contrafactual-do-topo.py`, `out/TOP-COUNTERFACTUAL-2026-08-29
 os três **saem do top-10 e caem para além da centésima posição**.
 
 ⚠️ **A população do contrafactual são 149, e o §4.3 fala em 201 distintos na mesma
-janela — a diferença precisa ser dita.** São os mesmos 201; **52 foram apagados desde
+janela — a diferença precisa ser dita.** ⚠️ E o número **52** aparece duas vezes nesta
+seção sobre populações diferentes: um único dia (`20/08`, 85 distintos → 33 sobrevivem ao
+JOIN) e a **semana inteira** (201 → 149) têm ambos 52 apagados. Ou é o mesmo conjunto — e
+então toda a poda da semana concentra num dia, que é um facto a reportar — ou é
+coincidência de calendário **não conferida**, a classe exata dos dois 10.899 que esta
+mesma seção trata com interseção medida. Não a conferimos; fica declarada (2026-09-21,
+por revisão adversarial). São os mesmos 201; **52 foram apagados desde
 então**, e chunk apagado não tem `importance`, `pain` nem `access_count` para recompor a
 salience. O recompute é sobre os 149 sobreviventes, e isso **reforça** a leitura
 conservadora abaixo: os 52 ausentes seriam competidores a mais.
@@ -859,7 +902,9 @@ Seção obrigatória, e ela vem **antes** da discussão de propósito. O limite 
 importante é o primeiro, e ele vale para tudo que este paper reporta:
 
 - **nada aqui diz que a exposição faltante importa.** Não há desfecho a jusante
-  instrumentado: três tabelas de qualidade voltada ao agente com **0 linhas**; a
+  instrumentado: três tabelas de qualidade voltada ao agente com **0 linhas** — medido
+  em 2026-08-30 e **não re-verificado após o fecho do ensaio** em 2026-09-20, o que é
+  dívida declarada e não facto corrente; a
   telemetria de busca registra sobretudo a **sonda de saúde do cron** — em janela fechada
   de 7 dias, **325 de 343 linhas (94,8%)** caem nos dois minutos por hora em que o cron
   dispara, sobrando **2,6 linha/dia** atribuível a agente; e das 25 colunas dessa tabela,
@@ -1275,6 +1320,17 @@ sabíamos:
 | `churn` total | 20 | **13** |
 | estados sensíveis em comum | — | **1** |
 
+🔴 **E o controlo que valida esta comparação verifica a estatística que esta mesma
+tabela acabou de desqualificar** (acrescentado 2026-09-21, por revisão adversarial). A
+comparabilidade entre corpora foi validada mostrando que o braço sem exclusão devolve
+*exatamente* 17/350 no corpus novo — uma igualdade de **contagem**. A linha
+«estados sensíveis em comum: **1**» prova, três linhas acima, que **totais iguais podem
+esconder conjuntos quase disjuntos**. Um controlo por contagem, numa seção cuja
+descoberta é que contagem não identifica conjunto, verifica coincidência de total e não
+comparabilidade. O desenho pareado continua válido; o controlo que o coroa é do tipo que
+o próprio parágrafo desqualifica, e a verificação ao nível de **identidade** está por
+fazer.
+
 Duas leituras, e a segunda é a mais forte.
 
 **O teto cai cerca de um quarto.** Os 4,86% publicados incluem o efeito das nossas
@@ -1440,7 +1496,10 @@ o manuscrito afirmava **583.973** slots acumulados em cinco lugares. O artefato 
 e nada que acusasse — era
 o número mais citado do paper, base da tese de capacidade, e o menos protegido. ⚠️ Pior:
 o campo se chama `slots_historicos_ATE_AGORA_serie_viva` e a grandeza **cresce ~7.500 por
-dia** (hoje a série viva vale 591.323). Citar uma série viva sem fixar o instante é
+dia** (em 2026-08-30 a série viva valia 591.323 — e a frase dizia *"hoje"*, o que a
+própria taxa aqui publicada refuta: a ~7.500/dia, três semanas depois o valor seria
+~750 mil. Corrigido em 2026-09-21; a instância estava **neste mesmo parágrafo** que
+enuncia a regra). Citar uma série viva sem fixar o instante é
 escrever um número que envelhece para falso sozinho; por isso a alegação carrega os
 **84,7 dias** e o `T_REF` do artefato, e o guarda novo **recomputa** os derivados (8,7× e
 2,43%) em vez de só conferir que o texto não mudou.
@@ -1653,7 +1712,7 @@ jeito que nenhum documento de desenho previu.
 
 **Segunda: os dois canais congelam, e a assimetria entre eles é o achado.** O de
 cobertura — 2 dos 10 slots — falha por **população**: 108 elegíveis num corpus de 67.187,
-com zero nunca-servidos restando e 12,4 slots por candidato
+com zero nunca-servidos restando e 12,4 slots por candidato **em dia fechado**
 e por ser **estruturalmente surdo ao score**, com **teto analítico** de 4,86% derivável
 do código antes de qualquer experimento. O pool principal — os outros 8 — falha pelo
 motivo contrário: ali o score **é** a coordenada dominante, e três dos seus quatro termos

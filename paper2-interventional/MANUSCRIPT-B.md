@@ -847,6 +847,12 @@ nobody corrects unprompted an error that favours them.
 | `ensaio-20260921-PRIMARIO-3fam.jsonl` | 3 592 verdicts, three families |
 | `ensaio-20260921-SENSIB-deepseek.jsonl` | 1 195 verdicts, fourth family (sensitivity) |
 | `COBERTURA-M10-2026-09-21.json` · `cobertura_e_m10.py` | coverage by arm, per-signature share, M10 and its four legs |
+| `RERANDOMIZACAO-2026-09-21.json` · `rerandomizacao.py` | the registered sharp-null test, 10 000 redesigns (§4.0.1a, §4.0.2) |
+| `CONTROLES-JANELA-COMPLETA-2026-09-21.json` · `controles_instrumento.py` | instrument controls over all 20 epochs (§4.0.1b) |
+| `out/CONTROLES-2026-09-10.json` | the same controls at the trial's midpoint — 6/6 and 3/3, superseded by the row above |
+| `out/H1C-POWER-REALIZADO-2026-09-10.json` | the MDE saturation of §4.1, computed before the window closed |
+| `out/H1C-POWER-FRACIONARIA-2026-09-10.json` · `out/H1C-POWER-SEM-0903-2026-09-10.json` | the two other inclusion cuts of the power margin (§4.1.1) |
+| `out/expiracao-designados-2026-09-09.json` | the designation's expiry measurement of §3.0.1 — `created_at` and the 30-day window |
 | `MANIFESTO-LASTRO-P2.json` | sha256 of every artifact above, for loss detection |
 
 ### B.1 Where each number in the text comes from

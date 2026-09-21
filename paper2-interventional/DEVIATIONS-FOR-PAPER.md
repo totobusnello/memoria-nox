@@ -2423,7 +2423,9 @@ registros anteriores o cobria.
 ### A janela elegível — as duas pontas são epochs PARCIAIS
 
 Computada em `measurement/janela-elegivel.py`, artefato em
-`out/JANELA-ELEGIVEL-2026-09-09.json`. Premissas todas **medidas**, não presumidas:
+`measurement/out/JANELA-ELEGIVEL-2026-09-09.json` (⚠️ o caminho dizia `out/…` até
+2026-09-21; o ficheiro sempre esteve em `measurement/out/`, e a `auditoria-da-cadeia`
+acusava-o como **inexistente** — que é o diagnóstico errado para um ponteiro partido). Premissas todas **medidas**, não presumidas:
 
 | premissa | valor | fonte |
 |---|---|---|
