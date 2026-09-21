@@ -1533,3 +1533,44 @@ arbitrário; o `gatilho-corpus-alinhado.sh` detecta, e o corpus servido já est�
 outro inode, preservando a contagem na linha e declarando `alinhamento_do_serving=` /
 `rebaixado=`. Fail-closed: `indeterminada` mantém RED. `corpus-alinhado` segue RED, que é
 o guarda cujo veredito é literalmente verdadeiro.
+
+---
+
+### D-2026-09-21 — Desfecho do ensaio P2 executado; guardas aposentados a partir do report VIVO, não do staged
+
+**Contexto.** O `desliga-dose-p2.sh` (cron `43 9 21 9 *`) correu em `2026-09-21 09:43:05Z`
+e desligou a dose: drop-in arquivado, unit reiniciado, `NOX_P2_OUTCOME=shadow` conferido no
+**env do processo**. O `fd` do serving realinhou para o epoch do dia — o que **fecha** o
+incident de 03/09. A aposentadoria dos seis guardas, porém, **abortou**:
+`APOSENTADORIA-ABORTADA report-divergiu`, porque o `morning-report.sh` fora editado por nós
+em 10/09 para ganhar a perna do recibo do evento terminal (§10.28).
+
+**Decisão.** Aposentar os guardas **hoje**, refazendo a edição **a partir do report vivo**
+em vez de instalar o `morning-report.p2-aposentado.sh` pré-gerado em 09/09.
+
+**Por quê.** O staged é anterior à perna de 10/09; instalá-lo comentaria os seis gatilhos
+**e apagaria o único canal que reporta o desfecho do ensaio**. A pré-condição de sha que
+abortou o one-shot não era burocracia — o valor estava no alvo, não no aplicador. Segundo
+motivo: a linha informativa do staged trazia `18 epochs inteiros + 2 parciais`, números
+**projetados** em 09/09; o realizado, recontado sobre `p2-serving.ndjson` por janela
+`[09:00Z,09:00Z)`, é **17 inteiros + 2 parciais, com `09-02` vazio**. Publicar projeção
+como medição num artefato que só passa a ser lido depois do fim é o defeito de §10.26.
+
+**Fazer agora, e não depois.** A perna de 10/09 conta **RED** quando o recibo não começa
+por `GREEN`; o nosso dizia `YELLOW … APOSENTADORIA-ABORTADA`. Sem a aposentadoria, o report
+de 22/09 abriria com `🚨 1 RED` — vermelho honesto e auto-referente, que só se apaga
+fazendo o trabalho.
+
+**O que NÃO fizemos.** Não apagámos as seis chamadas: ficam **comentadas** com marca
+`#APOSENTADO-2026-09-21`, preservando a calibragem dos tetos que o bloco de regra acima
+referencia, e entra **uma** linha `⚪` que não conta como RED nem YELLOW — a ausência
+aparece em vez de virar silêncio (§10.10). Não apagámos o recibo YELLOW: o `.txt` é o canal
+do report e foi reescrito, mas o anterior ficou no `desliga-dose.ndjson`, append-only.
+
+**Reversão.** Backups datados em `/root/.openclaw/paper2/aposentadoria/`
+(`morning-report.sh.bak-20260921T133214Z`, `crontab.bak-20260921T133214Z`). Estado final
+verificado por dry-run: `✅ all green`, exit 0, contra exit 2 antes.
+
+**Pendência criada, não resolvida:** o `morning-report.p2-aposentado.sh` continua em disco e
+agora está **duplamente obsoleto**. Ou se apaga, ou se marca como não-instalável — aplicador
+staged que sobrevive ao seu alvo é armadilha para a próxima sessão.

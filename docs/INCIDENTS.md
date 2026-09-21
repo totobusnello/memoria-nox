@@ -95,6 +95,24 @@ RED→YELLOW quando o serving lê outro inode (PR #539). Não silencia — a con
 na linha, com `alinhamento_do_serving=` e `rebaixado=` explícitos; `indeterminada`
 mantém RED.
 
+### ✅ FECHADO em 2026-09-21 09:43:06Z — 18 dias aberto
+
+O realinhamento veio do `systemctl restart` que o `desliga-dose-p2.sh` faz por conta
+própria ao desarmar a dose, como decidido em D-2026-09-14 — nenhuma ação manual. Verificado
+no mesmo dia: `fd` 26 → `/var/lib/nox-mem/epochs/e20260921T060001Z.db`, **sem** a marca
+`(deleted)`, e o `gatilho-corpus-alinhado` passou a GREEN.
+
+**Custo total, agora mensurável:** 03/09 17:23 → 21/09 09:43 — **18 dias** servindo do
+inode `e20260903T060001Z.db`. Isso cobre **toda** a janela do ensaio P2, o que é o desenho
+que se escolheu deliberadamente (um regime de corpus, não dois) e não um dano: a defasagem
+ficou conhecida, datada e declarável no §10.10.
+
+⚠️ **O que este incident deixou, e que não se fecha com ele:** dos 18 dias, 11 só existiram
+porque o one-shot de realinhamento de 10/09 **foi apagado do crontab** 15 h antes de
+disparar — «ainda não é hora» e «não existe mais» produzem a mesma saída. A lição é do
+crontab, não do `fd`, e continua a valer: interrogar `crontab -l`, nunca o documento que
+diz que a tarefa existe.
+
 ---
 
 ## 2026-09-01 04:52 → 11:07 UTC — Seis RED do canário com a camada semântica intacta: a assinatura `total=2/semantic=0/fts=0` NÃO é diagnóstica

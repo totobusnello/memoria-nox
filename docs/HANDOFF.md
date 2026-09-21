@@ -1,5 +1,64 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-21 — ENSAIO P2 ENCERRADO: dose desligada, guardas aposentados, incident do `fd` fechado
+
+### ▶️ ESTADO / PRÓXIMO PASSO
+
+**Nada pendente na operação.** O ensaio acabou, a VPS de produção não tem mais nenhum cron do P2, e o
+morning report está `✅ all green`. O próximo passo é **análise**, não operação: rodar a
+spec de `project_paper2_spec_analise_2026_09_10` sobre os **17 epochs inteiros + 2 parciais**.
+
+⚠️ **Antes de analisar, ler o §10.29** — a janela realizada **não** é a projetada em 09/09.
+
+### O que correu hoje
+
+| evento | instante (UTC) |
+|---|---|
+| dose desligada (drop-in arquivado, unit reiniciado) | `09:43:05–06Z` |
+| aposentadoria dos 6 guardas (à mão, one-shot abortara) | `13:33Z` |
+
+`NOX_P2_OUTCOME=shadow` conferido no **env do processo**, não no `.env`. O `fd` 26
+realinhou para `e20260921T060001Z.db` ⇒ **fecha o incident de 03/09**, 18 dias aberto.
+
+### A janela REALIZADA (recontada, não projetada)
+
+Sobre `p2-serving.ndjson`, agrupando por janela real `[09:00Z, 09:00Z)`:
+
+| | projetado 09/09 | **realizado** |
+|---|---:|---:|
+| inteiros (672/672) | 18 | **17** |
+| parciais | 2 | **2** — `09-01` (misto: 630 active w=4 + 42 shadow), `09-03` (441/672, w=0) |
+| vazios | 0 | **1** — `09-02` |
+
+Doses dos 17 inteiros: `w=0` ×7 · `w=2` ×6 · `w=4` ×3 · `w=7,5` ×1.
+`09-20` registou 672/672 e é **`w=0`** ⇒ a expiração das 22:51Z caiu num epoch de
+**controlo** e não truncou dose. Admissibilidade é decisão da spec, não da operação.
+
+### Três coisas que a próxima sessão precisa saber
+
+1. **O `morning-report.p2-aposentado.sh` NÃO deve ser instalado, nunca.** Foi congelado em
+   09/09, é anterior à perna do recibo do desfecho (10/09) e instalá-lo **apagaria** esse
+   instrumento. Foi por isso que o one-shot abortou com `report-divergiu` — a pré-condição
+   estava certa. A aposentadoria foi refeita a partir do report **vivo**. Ou se apaga o
+   staged, ou se marca como não-instalável; hoje ele continua em disco, obsoleto.
+2. **As 6 chamadas estão comentadas, não apagadas** (`#APOSENTADO-2026-09-21`), e há uma
+   linha `⚪` no corpo do report dizendo o que saiu de vigilância. Reversão numa linha, com
+   backups datados em `/root/.openclaw/paper2/aposentadoria/`.
+3. **Não rodar cópia do `morning-report.sh` achando que uma variável a cala.** Ele faz
+   `set -a; . /root/.openclaw/.env; set +a` na linha 12 e recupera o `DISCORD_WEBHOOK` de
+   lá — `DISCORD_WEBHOOK= bash copia.sh` **publica**. Aconteceu hoje: uma sonda que só queria
+   imprimir o `BODY` postou no Discord do Toto 17 h fora do slot. Cortar o `curl` no **texto**
+   da cópia e conferir com
+   `grep -c 'curl -sf -X POST "$DISCORD_WEBHOOK"'` → tem de dar **0**.
+
+### Registos
+
+`§10.29` em `paper2-interventional/DEVIATIONS-FOR-PAPER.md` (o substantivo) ·
+`D-2026-09-21` em `docs/DECISIONS.md` · fecho do incident em `docs/INCIDENTS.md`.
+
+---
+
+
 ## 2026-09-14 — o one-shot que realinharia o corpus foi APAGADO antes de disparar; três RED fixos há 6 dias
 
 ### ▶️ ESTADO / PRÓXIMO PASSO

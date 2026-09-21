@@ -3057,3 +3057,108 @@ dias do ensaio — de 2026-09-01 a 2026-09-10 — o único evento terminal do de
 canal de entrega. Se o disparo tivesse sido antecipado por qualquer motivo nesse intervalo,
 uma falha dele seria invisível. O conserto é posterior ao risco, não retroativo a ele.
 
+
+---
+
+## §10.29 — Desfecho EXECUTADO (2026-09-21): o realizado não é o projetado, e o aplicador staged teria apagado o instrumento
+
+O §10.22 registrou a decisão e a janela **projetada**; o §10.23, a aposentadoria
+**planeada**. Esta seção registra o que de facto aconteceu, e as três divergências.
+
+### O desligamento correu como escrito
+
+| evento | instante (UTC) | evidência |
+|---|---|---|
+| drop-in arquivado | `2026-09-21 09:43:05Z` | `…/desarmado/zz-p2-active.conf.desarmado-20260921T094305Z` |
+| unit reiniciado | `09:43:06Z` | `ExecMainStartTimestamp` |
+| recibo escrito | `09:43:12Z` | `status-desliga-dose.txt` |
+
+`NOX_P2_OUTCOME=shadow` conferido no **env do processo** (`/proc/<MainPID>/environ`), não
+no `.env` — a distinção do `[[feedback_dotenv_is_intent_process_env_is_state]]`. E o `fd`
+26 realinhou para `e20260921T060001Z.db`: **fecha o §10.10**, aberto desde 03/09.
+
+### Divergência 1 — a janela realizada é menor que a projetada
+
+Recontada em 21/09 sobre `p2-serving.ndjson`, agrupando pela janela real
+`[09:00Z, 09:00Z)` e **não** por dia de calendário:
+
+| | projetado (09/09) | **realizado** |
+|---|---:|---:|
+| epochs inteiros (672/672) | 18 | **17** |
+| parciais | 2 — `09-01`, `09-20` | **2 — `09-01`, `09-03`** |
+| vazios | 0 | **1 — `09-02`** |
+
+- `09-01`: 672 registos, mas **mistos** — 630 `active` (`w=4,0`) + 42 `shadow` (`w=2,0`);
+  o `active` entrou 1h37 depois da fronteira. É o mesmo epoch de modo misto que o §10.26
+  já apontara.
+- `09-03`: **441/672** (65,6 %), `w=0`.
+- `09-02`: **zero registos**. O §10.22 contava-o como inteiro; o incidente que o esvaziou
+  está em `INCIDENT-2026-09-02-epoch-perdido.md` e **não** foi propagado à tabela da janela
+  elegível. A projeção herdou um epoch que já não existia quando foi escrita.
+- `09-20`, que se esperava **parcial** (13,86 h de exposição), registou **672/672** — e é
+  **`w=0`**. Logo a expiração dos designados às `22:51:23Z` caiu dentro de um epoch de
+  **controlo**, e não truncou dose nenhuma. É observação sobre o log; a admissibilidade do
+  epoch é decisão da spec de análise, não desta seção.
+
+Dose dos 17 inteiros: `w=0` em **7** (`09-07,10,11,13,17,18,20`) · `w=2` em **6**
+(`09-04,05,08,09,16,19`) · `w=4` em **3** (`09-12,14,15`) · `w=7,5` em **1** (`09-06`).
+
+### Divergência 2 — o one-shot abortou a aposentadoria, e estava certo
+
+Recibo de 09:43:12Z: `YELLOW … APOSENTADORIA-ABORTADA report-divergiu sha=4e515be6…`
+contra o esperado `20a5b63f…`. A pré-condição disparou porque **nós** editámos o
+`morning-report.sh` em **2026-09-10 17:59** — é exatamente a mudança que o §10.28 descreve,
+a perna que dá o recibo do evento terminal. O §10.28 previra isto por escrito (*"mexer no
+report antes de 21/09 exige regerar a versão staged"*) e a regeração não foi feita.
+
+🔑 **E a pré-condição não foi burocracia: instalar o staged era o dano.** O
+`morning-report.p2-aposentado.sh` foi congelado em 09/09 e, por construção, **não contém a
+perna de 10/09**. Instalá-lo comentaria os seis gatilhos *e apagaria o único canal que
+reporta o desfecho do ensaio* — trocaria ruído por cegueira no evento terminal. A
+aposentadoria foi portanto refeita **a partir do report vivo**, preservando a perna.
+
+> **Aplicador staged e alvo divergem com o tempo; o hash detecta a divergência mas não diz
+> de que lado está o valor.** Aqui o valor estava no alvo. Mesma forma de
+> `[[feedback_a_versioned_mirror_of_an_applier_can_delete_what_matters]]`.
+
+### Divergência 3 — o número projetado ia ser publicado como medido
+
+A linha informativa do staged dizia, literalmente, `18 epochs inteiros + 2 parciais`:
+números de 09/09 escritos num artefato que só seria lido a partir de 21/09. Substituída
+pelo medido, com a proveniência na própria fonte (`p2-serving.ndjson`, janela
+`[09:00Z,09:00Z)`). Cf. §10.26 e
+`[[feedback_a_measured_ruler_can_go_stale_and_send_work_in_the_opposite_direction]]`.
+
+### Estado final, verificado
+
+Aposentadoria aplicada `13:33Z`; `morning-report.sh` passa a `012a1649dfa732d5…`.
+
+| verificação | resultado |
+|---|---|
+| chamadas `p2_gatilho` ativas | **0** (6 comentadas com `#APOSENTADO-2026-09-21`) |
+| definição da função `p2_gatilho()` | **preservada** |
+| perna do `desliga-dose` (10/09) | **preservada**, 3 ocorrências |
+| crons `scripts/p2/` | 7 → **0** (crontab 63 → 56 linhas) |
+| `morning-report` ainda agendado | sim |
+| dry-run **antes** do recibo novo | `exit 2` — **1 RED**, acusando o YELLOW |
+| dry-run **depois** | `exit 0` — **`✅ all green`** |
+| linha `⚪` no corpo entregue | **presente** (conferida imprimindo `BODY`, não inferida) |
+
+O YELLOW original **não foi apagado**: o `.txt` é o canal do report e foi reescrito, mas o
+recibo anterior ficou em `desliga-dose.ndjson`, que é append-only. Backups datados em
+`/root/.openclaw/paper2/aposentadoria/`.
+
+### Um defeito próprio, no aplicador
+
+O script abortou a meio com `ABORTA: sobrou chamada ativa`, depois de já ter gravado a
+edição. A edição estava **correta**; o predicado é que era frouxo:
+
+```sh
+grep -c '^p2_gatilho'   # deu 1 — e o 1 era a linha 247, a DEFINIÇÃO da função
+```
+
+Contar um símbolo pelo **nome** soma definição e chamadas. O par que fecha as duas pontas —
+`^p2_gatilho[[:space:]]+"` → 0 e `^p2_gatilho\(\)` → 1 — e a perna que impede retomada
+destrutiva (`linha informativa presente == 1`, senão uma segunda passagem duplicava-a).
+Sobreviveu sem dano porque a ordem era *report primeiro, cron depois* e havia backup
+datado, **não** porque o abort foi cuidadoso.
