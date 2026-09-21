@@ -40,6 +40,15 @@ parameter space was detectable. The realized estimate is **−0.0199** (treatmen
 control 0.0896; 95% CI [−0.0560; +0.0086], cluster bootstrap with the epoch as unit),
 containing zero on both the locked and the sensitivity leg.
 
+🔴 **And our two estimates of uncertainty contradict each other.** The pre-committed power
+statement says not even total elimination of repeated failures is detectable here; the
+observed 95% interval *excludes* total elimination. Both are ours. The interval is too
+narrow — percentile bootstrap at ~10 clusters under-covers, and it never resamples the
+stratum-B draw — and the power figure rests on an ICC estimated for a different quantity.
+We report both and adjudicate neither: **this study does not have a trustworthy measure of
+its own uncertainty**, and the null rests on the point estimate and the design rather than
+on the interval.
+
 **Absence of significance is not evidence of absence of effect**, and at this N it is not
 evidence of anything at all. We report the trial in full regardless, because the parts
 that do carry information are not the effect estimate: a hypothesis that was demoted from
@@ -92,9 +101,37 @@ was computed** — the timestamps are in `DEVIATIONS-FOR-PAPER.md` §10.32 (16:1
 We state this first because it is the claim in this paper most dependent on our own
 bookkeeping, and §9 of the analysis specification exists precisely to forbid the opposite
 order: *"choosing the primary set after seeing the number is the post-hoc play that this
-spec exists to prevent."* A reader who does not believe the ordering should read
-everything downstream of it as exploratory. We would rather hand over that lever than
-assert good faith.
+spec exists to prevent."*
+
+🔴 **And the evidence for it is weaker than the evidence for everything else, by a gap we
+created ourselves.** We anchored the *assignment* in a public drand beacon precisely so
+that no one would have to trust us about it — and then anchored the decision log in
+nothing but our own commit timestamps, which are forgeable in seconds. Append-only is
+process discipline, not a cryptographic property. An adversarial reviewer put it as an
+asymmetry, and the asymmetry is real: we knew how to do this and did it for the easier
+claim.
+
+**What a reader can check without trusting us at all:**
+
+- the MDE saturation of §4.1 is arithmetic over the realized N, the pre-registered ICC and
+  `p̂0` — outcome-independent, and reproducible from the artifacts;
+- the assignment, from drand round 31774052 through `assign_arms.py` to the served arms;
+- every estimate, from the artifacts of Appendix B.
+
+**What requires trusting us:** the two estimand decisions of §4.2 and §4.4 preceded the
+estimates. Two things make that more credible than a bare timestamp, and neither is proof:
+the spec omits `09-10` and marks nine epochs as projection, which a fabricator writing
+after the close would have had no reason to do; and the spec contains a commitment the
+data later **refuted** (§4.5). Writing a commitment your data go on to contradict is not
+how a post-hoc account is built.
+
+The core claim — under-powered by construction — sits entirely in the first list. A reader
+who disbelieves the second list loses §4.2 and §4.4 and keeps the paper.
+
+⚠️ One phrase in §8 overstates even so: *"we knew this ten days before the window
+closed."* On 2026-09-10 nine of the epochs were still projection. The spec's own extremes
+analysis covers that — the bounding cases still return not-detectable — so the conclusion
+holds, but it was **projection-robust**, not known.
 
 ---
 
@@ -160,6 +197,23 @@ denominator applied to the ITT, and it is the family of error this project catal
 requires: 42 briefs in `shadow` until 10:22Z and 630 in `active` from 10:37Z, with no
 overlap. The sensitivity leg that removes it is reported alongside.
 
+### 3.0 The stopping rule, and a feasibility question we cannot yet answer
+
+The trial closed at the `2026-09-20` epoch by a decision taken on 2026-09-21, executed by
+`desliga-dose-p2.sh` at 09:43:05Z. It was not a data-dependent stop: no outcome had been
+computed, and the analysis specification that governs this report was written on
+2026-09-10, eleven days earlier. It was a calendar decision, and saying so is the whole of
+the stopping rule.
+
+🔴 **What we cannot answer, raised by adversarial review and left open here.** The
+designation was fixed on 2026-08-26, and the coverage channel's global sub-pool carries a
+**30-day freshness window** (Paper A §4.3.1). If designated chunks age out of eligibility
+on that clock, then a 234-epoch trial on a fixed designation was **never feasible**, and
+the under-powering would not be a consequence of stopping early but of an internal
+inconsistency in the registration itself — a larger specimen of this paper's own thesis
+than the H1b collision. We have not measured it, we are not going to assert either way,
+and it is on the working list. Should it prove true, §8 needs rewriting, not amending.
+
 ### 3.1 Two classification errors of ours, and what they cost
 
 🔴 **We classified `09-20` with the wrong ruler.** We first published *16+3+1* as
@@ -203,18 +257,115 @@ lineages, as locked in PREREG §682. Coverage 100%. Horvitz-Thompson weight for 
 that is **directional bias toward the null**, not indeterminacy, and it is the direction
 that makes a null easier to obtain.
 
+**The combined estimator, written out** — the first draft omitted it, and without it a
+reader cannot tell a ratio-of-totals from a mean-of-ratios. Per arm, over epochs in the
+window and episodes past washout satisfying condition (i):
+
+```
+opportunities = Σ w(e)                 repeats = Σ w(e)·1[state = failure]
+                                       w(e) = 1        if e ∈ stratum A (census)
+H1c = repeats / opportunities          w(e) = 6.945    if e ∈ stratum B (sampled)
+                                       e skipped       if in neither
+```
+
+`unknown` verdicts count in the denominator and not in the numerator, per §5 of the spec.
+It is a **ratio of weighted totals**, not an average of per-epoch ratios.
+
 **Uncertainty.** Cluster bootstrap with the **epoch** as the resampling unit, 10 000
 replicates, seed `20260921` declared.
 
+### 4.0.1 🔴 Two registered analyses we did not run, declared as deviations
+
+Both were found by adversarial review of this manuscript, not by us.
+
+**(a) The registered inference test is re-randomization, not bootstrap.** §4 of the
+analysis spec locks **10 000 re-randomizations** — *"redesign the 234, never permute
+within the 20"* — over the trend-residualized outcome, and records that this is feasible
+(300 seeds in 17.9 s ⇒ 10 000 in ≈10 min). We reported cluster bootstrap and **did not
+declare the substitution**. That is the worse half of the error: the bootstrap assumes an
+iid draw of epochs, whereas the design's own randomization is stratified with exact
+controlled rounding, so the reference distribution we used is **not the one the design
+generates**. Re-randomization would also let the exposure imbalance of §4.2 vary across
+draws, which is precisely the discipline H1 and H1a need. It is the first item of the
+working list, and until it is run every interval here is from the wrong reference
+distribution as well as under-covering.
+
+**(b) The pre-committed instrument controls are not reported.** §5 of the spec defines a
+positive control, its negative dual, and a sham-designation replay as a specificity test.
+None appears above. A paper whose stated contribution is *"the reportable results are
+about instruments"* cannot omit the validation of its instruments, and we are not going to
+argue otherwise.
+
+### 4.4.1 What the bootstrap does not resample
+
+There are **two** layers of randomness: the assignment of epochs to arms, and the
+hash-ordered sampling of 800 episodes from 5 556 in stratum B. The cluster bootstrap
+resamples the first with the second **frozen**. The component `E[Var_sampling(B) | epochs]`
+is therefore absent from every interval in this paper, and it is not negligible: a single
+sampled failure in B enters as **6.945** failures, which is unbiased in expectation and
+heavy in the tail. The finite-population correction is ≈0.856, not zero.
+
+We also treat a systematic (hash-ordered) sample as if it were simple random. If the hash
+order correlates with time, session or agent, the bootstrap does not correct for it.
+
+Both push the intervals in the same direction: **too narrow**. Combined with §4.1.1, the
+intervals reported here are, if anything, optimistic — and the primary result is a null
+that survives them being optimistic.
+
 ### 4.1 H1c — the primary outcome, null and undetectable
 
-| | treatment | control | difference | 95% CI | |
+| leg | treatment | control | difference | 95% CI | |
 |---|---:|---:|---:|---|---|
-| **locked (all epochs)** | 0.0696 | 0.0896 | **−0.0199** | [−0.0560; +0.0086] | contains zero |
-| sensitivity (without `09-14`) | — | — | −0.0244 | [−0.0619; +0.0051] | contains zero |
+| **locked (all 20 epochs)** | 0.0696 | 0.0896 | **−0.0199** | [−0.0560; +0.0086] | contains zero |
+| **pre-committed sensitivity** — all partials removed | 0.0721 | 0.0994 | −0.0273 | [−0.0725; +0.0061] | contains zero |
+| post-hoc sensitivity — without `09-14` | — | — | −0.0244 | [−0.0619; +0.0051] | contains zero |
 
-This is the stable outcome of the study, and it is what §3 of the analysis spec predicted
-**before** the window closed: not detectable, MDE saturated at 100%.
+🔴 **Which sensitivity is the registered one, and our error in the first draft.** §9.1 of
+the analysis spec pre-commits *"the standard sensitivity that removes **all** the partials
+as a block"* — `09-01`, `09-03`, `09-20`. The first draft of this paper reported instead a
+sensitivity that removes `09-14`, which was **chosen after seeing that one epoch dominates
+exposure** and was never pre-committed. Both are now reported, the registered one first
+and labelled as such. The direction is worth stating: the pre-committed leg is *more*
+favourable to our reading than the post-hoc one we had picked, so the substitution gained
+us nothing — which is what makes it a process failure rather than a self-serving one, and
+does not make it less of a failure.
+
+This is the stable outcome of the study, and all three legs agree.
+
+### 4.1.1 🔴 Our two uncertainty estimates contradict each other
+
+§3 of the analysis spec pre-commits this sentence:
+
+> *"Under the realized inclusion criterion and `ICC = 0.0985`, **not even total
+> elimination of repeated failures is detectable at 80% power**."*
+
+Control sits at `H1c = 0.0896`, so "total elimination" is an effect of **−0.0896**. For
+that sentence to hold, an interval must be unable to separate −0.0896 from 0 — it would
+have to contain both, hence span at least 0.0896.
+
+**The observed interval spans 0.0646, which is 72% of that, and excludes −0.0896 by
+0.0335.** The empirical interval *rejects* the effect the power calculation calls
+undetectable. Both statements are ours; they cannot both be right.
+
+We do not adjudicate, and we name the defect on each side:
+
+| estimate | known defect |
+|---|---|
+| **MDE saturated at 100%** | the `ICC = 0.0985` comes from the pre-registration and was estimated for **density per session-hour**, not for proportion per opportunity. The spec flags this itself and computes the margin: the verdict flips on an **11.5%** drop in ICC (5.6% under whole-epoch counting) |
+| **95% CI of [−0.0560; +0.0086]** | percentile cluster bootstrap at 11 and 9 clusters under-covers — real coverage falls well below nominal at this K — and, separately, the resampling does not re-draw the stratum-B sample (§4.4.1), so one component of variance is missing entirely. Both make the interval **too narrow** |
+
+Both defects were known to us before this section existed; what was not done was putting
+the two numbers side by side. **The honest reading is that this study does not have a
+trustworthy measure of its own uncertainty**, and that the null in H1c rests on the point
+estimate and the design, not on the interval. A reader should treat every interval in this
+paper as indicative of sign and order of magnitude, not as calibrated coverage.
+
+⚠️ This also disciplines §4.3: an interval "excluding zero" on H1 or H1a is a claim made
+with the same under-covering machinery, which is a further reason — independent of the
+denominator argument — not to read those as findings. **The caveat applies to every
+interval here, including the null one, and not only where it is convenient.** The first
+draft attached it only to H1; an adversarial reviewer pointed out that a method cannot be
+optimistic selectively.
 
 🔴 **The under-powering is structural, not bad luck.** With 19 analyzable clusters there
 is no effect size in the registered parameter space that this design distinguishes from
@@ -602,13 +753,26 @@ does not prove a copy exists.
    off-machine copy** — one machine is not a backup. The trial cannot be re-run: ephemeral
    pod, non-deterministic provider, and `rc4/nox_mem.json` already shows what an unresolved
    version placeholder costs.
-2. **Adversarial review** of this manuscript — **in progress**, five families, 2026-09-21.
-   One has returned; its findings produced the corrections now in §1, §3, §4.3, §4.4 and
-   this appendix. Four pending. Disjoint defect class from mechanical census, and §6 is the
-   evidence.
-3. **Figures**: the H1a sensitivity (the single-epoch inversion) and the §4.7 seed
+2. **Run the registered re-randomization** (§4.0.1a) — 10 000 redesigns of the 234, which
+   the spec measures at ≈10 min. Until then every interval is from the wrong reference
+   distribution. **Blocks deposit.**
+3. **Report the pre-committed instrument controls** (§4.0.1b): positive control, negative
+   dual, sham-designation replay. **Blocks deposit** — the paper's thesis is about
+   instruments.
+4. **Measure the 30-day freshness question** of §3.0. If a fixed designation ages out,
+   `N = 234` was infeasible from the start and §8 changes.
+5. **Adversarial review** of this manuscript — **in progress**, five families, 2026-09-21.
+   Three have returned; their findings produced §1.1, §3.0, §4.0.1, §4.1.1, §4.4.1, the
+   corrections in §4.3 and §4.4, and this appendix. Two pending. Disjoint defect class from
+   mechanical census, and §6 is the evidence.
+6. **Figures**: the H1a sensitivity (the single-epoch inversion) and the §4.7 seed
    distribution. Both derive from locked artifacts.
-4. **Related work** — Paper A's §8 covers the surface literature, not trials of memory
+7. **Related work** — Paper A's §8 covers the surface literature, not trials of memory
    interventions.
-5. **Deposit** as a new version of the registration, declaring the deviations **and** the
-   result in one record.
+8. **Deposit** as a new version of the registration, declaring the deviations **and** the
+   result in one record. Blocked by 1 (off-machine), 2 and 3.
+
+⚠️ Items 2 and 3 are **registered analyses that were not run**, not enhancements. A
+manuscript that omits its own pre-registered inference test and its own instrument
+controls is not ready, and the fact that three adversarial reviewers had to tell us is
+itself the §6 pattern repeating on this document.
