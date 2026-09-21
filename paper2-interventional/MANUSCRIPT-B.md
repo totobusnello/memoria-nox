@@ -278,17 +278,51 @@ replicates, seed `20260921` declared.
 
 Both were found by adversarial review of this manuscript, not by us.
 
-**(a) The registered inference test is re-randomization, not bootstrap.** §4 of the
-analysis spec locks **10 000 re-randomizations** — *"redesign the 234, never permute
-within the 20"* — over the trend-residualized outcome, and records that this is feasible
-(300 seeds in 17.9 s ⇒ 10 000 in ≈10 min). We reported cluster bootstrap and **did not
-declare the substitution**. That is the worse half of the error: the bootstrap assumes an
-iid draw of epochs, whereas the design's own randomization is stratified with exact
-controlled rounding, so the reference distribution we used is **not the one the design
-generates**. Re-randomization would also let the exposure imbalance of §4.2 vary across
-draws, which is precisely the discipline H1 and H1a need. It is the first item of the
-working list, and until it is run every interval here is from the wrong reference
-distribution as well as under-covering.
+**(a) The registered inference test is re-randomization, not bootstrap — and we have now
+run it.** §4 of the analysis spec locks **10 000 re-randomizations**, *"redesign the 234,
+never permute within the 20"*, over the trend-residualized outcome. The first draft
+reported cluster bootstrap and **did not declare the substitution**. That was the worse
+half of the error: the bootstrap assumes an iid draw of epochs, whereas the design
+randomizes with stratification and exact controlled rounding, so its reference
+distribution is **not the one the design generates**.
+
+`rerandomizacao.py` imports `assign_arms.assign` and redesigns all 234 epochs per
+replicate, restricting to the window — never permuting labels among the 20, which the spec
+pre-commits against because the 20 fall entirely in the first calendar half, where the
+stratification collapses. **Control: 300 distinct arm patterns in 300 replicates**, which
+reproduces the spec's own measurement of zero collisions; at 10 000 it is 9 941 distinct.
+
+### 4.0.2 🔴 The registered test disagrees with the bootstrap on H1a
+
+| outcome | re-randomization *p* (registered) | reject sharp null at 5%? | what the bootstrap said |
+|---|---:|---|---|
+| **H1c** (primary) | **0.1603** | no | contains zero — **agree** |
+| **H1a** | **0.0855** | **no** | excluded zero — 🔴 **disagree** |
+| `H1` | **0.0127** | yes | excluded zero — agree |
+
+⚠️ **Different estimand, stated so the numbers are not compared naively.** The permutation
+statistic is a difference of arm means over per-epoch outcomes residualized on study-day;
+the ITT of §4.1 is a ratio of weighted totals. They answer related questions, not the same
+one, and the observed statistic here (−0.0323 for H1c) is **not** the −0.0199 of §4.1.
+What transfers is the verdict, not the magnitude — and the registered scope is narrow by
+construction: this tests the sharp null of *zero total effect*, and rejection alone does
+not attribute magnitude.
+
+**What this settles, and it is not in our favour rhetorically.** §4.2 argued that H1a
+"does not bear weight" from the sparse-session mechanism. The registered test reaches the
+same verdict by a route that does not need that argument at all — and in doing so shows
+that the bootstrap interval which *excluded* zero for H1a was the artifact, exactly as
+§4.1.1 predicts an under-covering interval would behave. We would rather have found this
+before an adversarial reviewer told us the test was missing.
+
+`H1` rejects under both. It remains excluded from interpretation for the reason of §4.3 —
+the effect it would imply is outside what the mechanism can produce — and that reason is
+now the *only* one standing, since the inference no longer supports dismissing it as a
+bootstrap artifact. **We report it as an unexplained rejection**, which is the honest
+category for a result that survives the registered test on a hypothesis whose magnitude
+the design rules out.
+
+Artifact: `RERANDOMIZACAO-2026-09-21.json`; seed prefix `p2-rerand-2026-09-21` declared.
 
 **(b) The pre-committed instrument controls are not reported.** §5 of the spec defines a
 positive control, its negative dual, and a sham-designation replay as a specificity test.
@@ -753,9 +787,10 @@ does not prove a copy exists.
    off-machine copy** — one machine is not a backup. The trial cannot be re-run: ephemeral
    pod, non-deterministic provider, and `rc4/nox_mem.json` already shows what an unresolved
    version placeholder costs.
-2. **Run the registered re-randomization** (§4.0.1a) — 10 000 redesigns of the 234, which
-   the spec measures at ≈10 min. Until then every interval is from the wrong reference
-   distribution. **Blocks deposit.**
+2. ~~**Run the registered re-randomization**~~ → ✅ **done 2026-09-21** (§4.0.1a, §4.0.2):
+   10 000 redesigns, 9 941 distinct patterns, control of 300/300 reproducing the spec. It
+   **disagrees with the bootstrap on H1a**, and `H1` is now reported as an unexplained
+   rejection.
 3. **Report the pre-committed instrument controls** (§4.0.1b): positive control, negative
    dual, sham-designation replay. **Blocks deposit** — the paper's thesis is about
    instruments.
