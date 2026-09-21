@@ -4,9 +4,21 @@
 
 ### ▶️ ESTADO / PRÓXIMO PASSO
 
+🔬 **Painel de adjudicação CORRIDO em 21/09** (não estava previsto neste handoff): 1.195
+episódios (395 estrato A + 800 estrato B), 3 famílias do PREREG §682, cobertura 100%.
+Vereditos **fora do repo**: `~/.paper2-verdicts/ensaio-20260921-PRIMARIO-3fam.jsonl`
+(sha `ccff1a14…`) e `…-SENSIB-deepseek.jsonl` (sha `c7ae6714…`). O **estimador do efeito
+não existe** — tem de ser COMPOSTO a partir de `carregar_verdicts` (`pilot_replay.py`),
+`severidade_consolidada` (`reachable_share.py`), `sig()` (`extract_episodes.py`) e o
+bootstrap de `icc_bootstrap.py`. Nunca reimplementado: duas cópias da mesma regra é o
+defeito de classe que este repo já pagou.
+
 **Nada pendente na operação.** O ensaio acabou, a VPS de produção não tem mais nenhum cron do P2, e o
 morning report está `✅ all green`. O próximo passo é **análise**, não operação: rodar a
-spec de `project_paper2_spec_analise_2026_09_10` sobre os **17 epochs inteiros + 2 parciais**.
+spec de `project_paper2_spec_analise_2026_09_10` sobre os **16 epochs inteiros + 3 parciais**
+(`09-01`, `09-03`, `09-20`). ⚠️ Corrigido em 21/09 após revisão adversarial: eu publicara
+"17+2", classificando `09-20` por volume de entrega quando a spec o classifica por
+**relógio** (13,86 h/24). Ver `DEVIATIONS-FOR-PAPER.md` §10.31 e `D-2026-09-21b`.
 
 ⚠️ **Antes de analisar, ler o §10.29** — a janela realizada **não** é a projetada em 09/09.
 
@@ -30,9 +42,12 @@ Sobre `p2-serving.ndjson`, agrupando por janela real `[09:00Z, 09:00Z)`:
 | parciais | 2 | **2** — `09-01` (misto: 630 active w=4 + 42 shadow), `09-03` (441/672, w=0) |
 | vazios | 0 | **1** — `09-02` |
 
-Doses dos 17 inteiros: `w=0` ×7 · `w=2` ×6 · `w=4` ×3 · `w=7,5` ×1.
-`09-20` registou 672/672 e é **`w=0`** ⇒ a expiração das 22:51Z caiu num epoch de
-**controlo** e não truncou dose. Admissibilidade é decisão da spec, não da operação.
+Doses **por designação** (`ASSIGNMENT-SERVING.json`, seed do beacon round 31774052 —
+não inferidas dos dados): `w=0` ×8 · `w=2` ×6 · `w=4` ×4 · `w=7,5` ×1 nos 19 servidos.
+Confrontado com o observado: **0 divergências em 19 epochs**.
+`09-20` registou 672/672 de **entrega**, mas a spec classifica-o **parcial por relógio**
+(13,86 h/24): a expiração às 22:51Z corta dentro do epoch. Ser `w=0` **não** anula o
+offset — a spec conta exposição, não dose.
 
 ### Três coisas que a próxima sessão precisa saber
 

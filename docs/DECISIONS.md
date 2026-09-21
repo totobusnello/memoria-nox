@@ -44,6 +44,7 @@
 | 28 | **Trocar embedding primário de gemini-embedding-001 para multilingual-e5-base** | Baseline E5 n=60 replicado 3×: nDCG@10=0.3070 vs hybrid 0.5213 (lift 1.7×). Gemini é 1.7× melhor; redução de custo 12× não compensa. E5 vence em 2/8 categorias (cross-agent +0.013, temporal +0.017) mas margens estão dentro do MOE. | GPU + volume <10K chunks + reviewer exigir comparison específica | D28 — 2026-05-04 |
 | 29 | **Buscar match com mem0 no cap@500 via ingest-side concentration** (chunk summarizer, query rewrite, ou expansão+rerank no query path) | 3 caminhos independentes falharam: PR #337 query rewrite Gemini Flash Lite (−11.8%), PR #339 E+F+H combo KG+RRF+top-k expansion (NEUTRAL +2.4%, gap persiste), PR #341 A2 chunk summarizer (−34% full corpus / −69% gap@500). mem0's cap@500 advantage é **structural** (extracted-fact concentration sobre 500 facts extraídos LLM-side, NÃO 500 raw turns) — não replicável dentro da arquitetura hybrid sem trocar mecanismo de ingest. Custo total dos 3 experimentos: $0.30 Gemini + ~14h compute. | Lab Q1 "hybrid-of-hybrids" router (index both raw + summarized, route by intent) com nDCG@10 + coverage two-metric gate | D59 — 2026-05-24 |
 | 30 | **Memória paramétrica/latente e memory controller treinado por RL** (§9.3 do survey TMLR 2602.06052v4 — MEM1, Mem-α) | Três razões, em ordem de peso: **(i)** exige treino, quebrando o "roda local, custo zero" que é o pilar A; **(ii)** torna a memória **não-inspecionável pelo usuário**, contradizendo o próprio §9.4 do survey (inspeção, edição e revogação user-controllable como objetivo de primeira classe) — que hoje satisfazemos e vendemos; **(iii)** custo de pesquisa não cabe nos 40% de capacity. Registrado **porque o survey tornou a omissão visível no mapa canônico da área**: sem esta linha, a ausência lê-se como descuido em vez de escolha. | GPU dedicada disponível **e** gap de qualidade atribuível à memória externa **e** demanda real por footprint constante — os três juntos, não qualquer um | S-series — 2026-08-13 |
+| 31 | **Adotar TypeSafe Jev (System One) no caminho de retrieval — como reranker ou como terceira perna do RRF** | Avaliado 2026-09-21 contra dois benchmarks independentes com resposta crua publicada. **(i) O ganho de ranking não existe:** `jev-rerank-bench` (8 datasets EN, 1.617 questões) dá Jev rubric **0,692** contra Cohere Rerank 4 Pro **0,691** — Δ +0,001, IC95 [−0,009, +0,012], que não estabelece vencedor **nem** equivalência; com peso igual por query Cohere passa na frente (0,756 × 0,738). Quatro rerankers de arquiteturas distintas empatados entre 0,682 e 0,692 dizem que o teto está no pipeline, não no modelo. **(ii) Sozinho perde de embedding denso:** `jev-search-rerank-eval` (9.831 pares graduados) mede `jev-score(bge-m3@30) − bge-m3` = +0,012 [−0,013, +0,037], e sob juiz independente **−0,028** [−0,052, −0,004] — intervalo que não cruza zero, na direção errada. **(iii) O sinal multilíngue aponta contra nós:** Cohere lidera o Choice do Jev por **6,4 pontos** em MIRACL francês, o proxy mais próximo de um corpus PT-BR. **(iv) Pilar A:** um reranker hospedado vê a **query** junto com o chunk — divulgação estritamente maior que a dos embeddings que já saem pro Gemini, e isso barra o caminho default. **(v) Custo de oportunidade:** as duas frentes boas (MA-protection, `kg-confirm` semântico) competem com o TMLR, que é o que está na mesa. | Os três juntos, não qualquer um: (a) Lab Q1 #2 (MA-protection) sair do parking lot como trabalho priorizado; (b) PT-BR medido **não-inferior** num golden set nosso; (c) o uso entrar como **opt-in explícito**, nunca no default | D-2026-09-21c |
 
 ## 2. Q5 Cross-encoder reranker — DEFERRED (5 razões)
 
@@ -1574,3 +1575,130 @@ verificado por dry-run: `✅ all green`, exit 0, contra exit 2 antes.
 **Pendência criada, não resolvida:** o `morning-report.p2-aposentado.sh` continua em disco e
 agora está **duplamente obsoleto**. Ou se apaga, ou se marca como não-instalável — aplicador
 staged que sobrevive ao seu alvo é armadilha para a próxima sessão.
+
+---
+
+### D-2026-09-21b — Errata ao `D-2026-09-21`; painel de adjudicação corrido; DeepSeek é SUBSTITUTO, não 4.º voto
+
+> Este log é **append-only**: a entrada `D-2026-09-21` fica como está. O que vale é isto.
+
+**Errata de facto.** O `D-2026-09-21` diz *"17 inteiros + 2 parciais, com `09-02` vazio"*.
+**É 16 inteiros + 3 parciais + 1 vazio.** `09-20` é **parcial por relógio** (13,86 h/24) na
+`SPEC-ANALISE-2026-09-10.md` l.32/92, porque os designados expiram às 22:51:23Z **dentro** do
+epoch. Eu classifiquei por volume de entrega (672/672 registos) em vez de por exposição, que
+é a régua pré-registada — e `09-20` ser `w=0` não anula o offset, porque a spec conta
+exposição e não dose. A tabela da spec omitia `09-10` (escrita com o epoch ainda aberto);
+com ele as inteiras são 16. Detalhe em `DEVIATIONS-FOR-PAPER.md` §10.31.
+
+**Painel corrido.** 1.195 episódios — estrato A em censo (395 `is_error`) + 800 do estrato B
+pela regra de hash de `PILOT-PROJECTION.md` l.105-134, `SEED_B` derivada da seed de
+calibração publicada. Painel de 3 famílias do PREREG §682 (`glm-5.2`, `grok-4.5`,
+`gemini-2.5-pro`), prompt `5b22f02c…`, **cobertura 100%** após retry do `xai`. Vereditos
+fora do repo: `~/.paper2-verdicts/ensaio-20260921-PRIMARIO-3fam.jsonl`
+(sha `ccff1a1458b1d739…`) e `…-SENSIB-deepseek.jsonl` (sha `c7ae6714b07fe8c4…`).
+
+**Decisão sobre a 4.ª família, corrigida.** O Toto autorizou sentar o DeepSeek. A forma
+como eu a implementei — 4.º voto em todos os episódios — gera 28 empates 2-2 onde três
+votos nunca empatam, e a escolha de reverter para três **depois** de contar esses empates é
+post-hoc pela própria `SPEC-ANALISE` §9. **Fica:** DeepSeek como **substituto** apenas onde
+faltam 3 vereditos substantivos (a função que o PREREG §695 lhe dá), nunca como voto
+adicional. O conjunto de 4 é publicado como **sensibilidade declarada**, com a leitura de
+2-2 nomeada (`pilot_replay.py` l.145: empate ⇒ `not_failure`, viés para o nulo).
+
+**Por que a decisão original não se sustenta como estava.** Justifiquei-a com «zero
+inversões», que é **tautologia** — acrescentar um voto a painel ímpar sob maioria estrita
+nunca inverte, só mantém ou empata. A métrica real é **97,0% de concordância** (1111/1145)
+com a maioria das três.
+
+**Braço por designação.** O censo do `D-2026-09-21` derivava o braço da moda do `w` em
+`active` — conditioning pós-randomização. A fonte é `ASSIGNMENT-SERVING.json` (seed do
+beacon, round 31774052). Confrontados: **0 divergências em 19 epochs**; composição 8
+controlo / 11 tratamento inalterada. Muda a premissa, não o número.
+
+**Origem destas correções:** revisão adversarial de duas famílias em 2026-09-21 — Kimi
+(recibo `exit 0`, `.remember/adversary-receipt-kimi-2026-09-21T151031-81638.txt`) e uma
+segunda leitura. Seis achados, todos a afirmações minhas.
+---
+
+### D-2026-09-21c — TypeSafe Jev (System One) avaliado e recusado para o caminho de retrieval
+
+**Contexto.** O Toto trouxe `typesafe.ai` — modelo **Jev**, primeiro "System One model":
+recebe um `state` e **perguntas tipadas** (`Choice`, `Score`, `Noul`) e devolve
+probabilidade calibrada, sem gerar texto. Preço **$0,042/Mtok** de input, output grátis;
+64k de contexto (32k pro `state` + maior pergunta); `jev-1.13.0`; acesso público aberto
+**no mesmo dia**. Rerank é um *uso*, não o produto. A pergunta era se ajuda o nox-mem.
+
+**Decisão: não entra.** Nem como reranker, nem como terceira perna do RRF, nem agora.
+Registrado como item **31** do inventário NÃO FAZEMOS, com trigger de três pernas.
+
+**A evidência, de dois benchmarks independentes com resposta crua publicada.**
+
+`anessbelbati/jev-rerank-bench` — 8 datasets EN, 1.617 questões pontuadas, ~$61 de API,
+medições a partir de 2026-09-16, `jev-latest` reportando 1.13.0:
+
+| setup | nDCG@10 | top-1 | latência | $/1k q | AUROC "nada aqui" |
+|---|---:|---:|---:|---:|---:|
+| Jev rubric 4 níveis, 30 numa chamada | 0,692 | 74% | 422 ms | 0,45 | 0,75 |
+| Cohere Rerank 4 Pro | 0,691 | 73% | 844 ms | 2,51 | **0,78** |
+| ZeroEntropy zerank-2 | 0,682 | 72% | 1,8 s | 0,22 | 0,74 |
+| Jev yes/no **por par** (o padrão do cookbook oficial) | 0,670 | 70% | **8,2 s** | 0,81 | 0,73 |
+| BM25 (piso) | 0,486 | 45% | — | 0 | 0,58 |
+
+`zhuyansen/jev-search-rerank-eval` — Agent Skills Hub (33.047 itens), 164 queries zh/en,
+9.831 pares com relevância graduada, $2,60 a corrida inteira:
+
+| comparação | rótulos finais | **sob juiz independente** |
+|---|---:|---:|
+| `jev-score(bge-m3@30)` − `bge-m3` | +0,012 [−0,013, +0,037] | **−0,028** [−0,052, −0,004] |
+| `rrf(bge-m3, jev@30)` − `bge-m3` | +0,090 [+0,077, +0,104] | +0,064 [+0,052, +0,077] |
+
+**Por quê não, em ordem de peso.** (1) O ganho de ranking **não existe** contra o que já
+é padrão de mercado, e quatro rerankers de famílias distintas empatados entre 0,682 e
+0,692 indicam teto de **pipeline**, não de modelo. (2) Sozinho **perde** de embedding
+denso sob juiz que ele não ajudou a rotular, com intervalo que não cruza zero. (3) O
+proxy multilíngue aponta contra: −6,4 pontos em francês, e o nosso corpus é PT-BR — foi
+exatamente por PT-BR que fomos atrás do `bge-reranker-v2-m3` em maio (D01-v2). (4) Pilar
+A: reranker hospedado vê a **query**, não só o chunk — divulgação maior que a dos
+embeddings que já saem. (5) Custo de oportunidade contra o TMLR.
+
+**O que era tentador e não bastou.** Jev é ~2× mais rápido e ~5× mais barato que o Cohere
+Pro, e contra o **nosso** reranker opt-in (MiniLM-L-6-v2, **+3,7 s p50 warm em CPU**) seria
+~9× mais rápido sem RAM nenhuma — o que dissolveria o bloqueio de infra que matou o D01-v2
+por OOM (15 GB RSS numa VPS de 15 GB). Velocidade e custo, porém, não eram o gate; o gate
+era qualidade e Pilar A, e nenhum dos dois passou.
+
+**Duas frentes ficam no parking lot, não recusadas pelo mérito.** (a) **MA-protection**
+(`specs/2026-05-28-ma-protection-rerank.md`, parado desde maio): um cross-encoder pontua
+similaridade tópica e **não pode** ser instruído a não rebaixar uma preferência declarada
+do usuário — foi isso que produziu o −3 a −4 pp em MA_C/P/U no Phase G. Uma `Noul` pode,
+em prosa literal, e o failure mode #1 do Jev ("responde a pergunta que você escreveu, não
+a que você quis dizer") vira aliado quando o critério **é** a spec. (b) **`kg-confirm`
+semântico e exaustivo**: 17.934 relações × ~200 tok ≈ $0,15, julgamento single-hop que
+evita os failure modes de data e indireção. As duas voltam pela perna (a) do trigger.
+
+**Três coisas medidas que valem guardar mesmo sem adotar nada.**
+
+1. **O padrão recomendado pela doc oficial é o pior da lista.** Eles prescrevem um par por
+   request "para manter os scores comparáveis"; medido, par-a-par dá 0,670 a **8,2 s** e
+   30-numa-chamada dá 0,692 a **422 ms** — mesma qualidade, 20× menos wall-clock. Prescrição
+   de vendor não substitui medição.
+2. **Probabilidade calibrada não entrega abstenção de graça.** A intuição é forte e é falsa:
+   AUROC de "nada relevante" dá Jev 0,72–0,75 contra Cohere **0,78**.
+3. 🔑 **Circularidade do juiz tem nome, método e magnitude.** A mesma comparação lê **+0,053**
+   sob rótulos do próprio Jev, **+0,012** sob rótulos misturados e **−0,028** sob rótulos de
+   outro modelo — a diferença entre "ganhou" e "perdeu", produzida só por quem rotula. O
+   método é re-pontuar **todo** sistema sob três conjuntos de rótulos e só contar a alegação
+   que sobrevive ao conjunto de que o modelo sob teste **não participou**. Isso vale pra nós
+   sempre que um LLM rotular a nossa própria eval, e **independe** de qualquer adoção do Jev.
+
+**Corroboração externa de graça pro Paper 1 §5.** O §5 já enquadra rerank como trade-off de
+4 dimensões, não universal-win. Quatro rerankers independentes empatados dentro do ruído é
+datapoint externo que sustenta esse enquadramento — **sem corrida nova**. ⛔ E nada disso
+encosta em `rc4`, que é lastro congelado do §6.
+
+**O que NÃO foi feito.** Nenhum código, nenhuma dependência, nenhuma chave, nenhuma corrida.
+A avaliação foi por leitura das duas fontes + a página oficial de failure modes
+(`model-jaggedness/jev-1.13`, revisada 2026-09-17). Se algum dia reabrir: o arm que a
+evidência favorece é **`rrf(hybrid, jev@30)`** — fusão, não reordenação — com 30 candidatos
+numa chamada e `jev-1.13.0` **pinado**, nunca o alias `jev-latest`, que reintroduziria o
+confound de versão que custou o §6.3.2 na corrida do mem0.

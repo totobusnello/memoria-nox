@@ -3162,3 +3162,181 @@ Contar um símbolo pelo **nome** soma definição e chamadas. O par que fecha as
 destrutiva (`linha informativa presente == 1`, senão uma segunda passagem duplicava-a).
 Sobreviveu sem dano porque a ordem era *report primeiro, cron depois* e havia backup
 datado, **não** porque o abort foi cuidadoso.
+
+---
+
+## §10.30 — Quarta família no painel do estudo vivo (2026-09-21) — desvio autorizado, com o que custou
+
+⚠️ **Números de efeito abaixo são PARCIAIS** (lote-00 de 12) e serão fechados quando o
+passe terminar. A decisão, o mecanismo e o parâmetro alterado não mudam.
+
+### O que muda em relação ao registado
+
+O §682 do `PREREG-DRAFT.md` travou o painel do estudo vivo em **três famílias alcançadas
+por API** — `glm-5.2`, `grok-4.5`, `gemini-2.5-pro`. Esta corrida acrescenta uma quarta,
+**`deepseek-v4-pro`**, por decisão explícita do Toto em 2026-09-21 ("pode colocar"),
+tomada depois de lhe ser apresentado o trade-off.
+
+### Por que — a fragilidade prevista ocorreu, e foi medida
+
+O próprio §695 declarou o ponto fraco de três painelistas: *"a single abstention drops an
+episode below the 3-verdict floor"*, medido em **8 de 300 (2,67%)** na calibração,
+*"inside the 10% ceiling but fragile"*. E registou a mitigação, então impossível: *"seat a
+fourth API family — not adopted here because it needs a credential that does not exist
+yet"*. **A credencial passou a existir.**
+
+Medido em campo no primeiro lote deste passe: **3 de 100 episódios (3,00%) abaixo do
+piso**, e **100% das abstenções são do `xai`, todas por cota**. Não é conjetura sobre um
+risco: é o modo de falha previsto, a ocorrer, na mesma ordem de grandeza da calibração.
+
+### O parâmetro que teve de mudar, e a evidência que o obrigou
+
+`MAX_TOKENS_OVERRIDE["deepseek"]` sobe de **1500 para 6000**. Motivo medido, não
+suposto — com 1500, 1 de 3 chamadas devolvia:
+
+```
+status=missing  detail='resposta 200 sem texto — {"served":"deepseek-v4-pro","stop":"max_tokens",...}'
+```
+
+HTTP **200**, `stop_reason: max_tokens`, **zero blocos de texto**: o bloco de *thinking*
+consome o orçamento inteiro antes do veredicto. É a armadilha que o próprio ficheiro já
+documenta para o Gemini e para o zhipu; o teto de 1500 resolveu-a no piloto e **não basta
+para os episódios deste corpus**. Com 6000: **12/12 ok, 0 missing, 0 quota**.
+
+O passe do DeepSeek corre por **`run_panel_deepseek6k.py`**, cópia que difere do original
+em **uma linha** — a do teto. O `run_panel.py` ficou **intocado** durante a corrida das
+três famílias, para que o instrumento não mude a meio. **O prompt é o mesmo em todos os
+passes: `5b22f02c…`**, idêntico ao travado no registo.
+
+### Que espécie de painelista ele é — medido antes de ser admitido
+
+Nos 12 episódios que as três famílias já tinham julgado, o DeepSeek concorda em **10/12**
+na distinção `failure`/`not_failure`. Nos 2 divergentes **quem destoa é o `zhipu`**: xAI,
+Google e DeepSeek dizem `failure`, o zhipu diz `not_failure`. Ou seja, a quarta família
+**reforça a maioria já existente** em vez de criar uma nova — não desloca o veredito
+majoritário em nenhum dos 12.
+
+### Efeito (PARCIAL — lote-00)
+
+| | sem DeepSeek | com DeepSeek |
+|---|---:|---:|
+| episódios abaixo do piso, no lote que ele cobriu | **3** | **0** |
+
+Os 3 resgatados são exatamente os 3 em que o `xai` abstivera. Taxa de recuperação 3/3.
+
+### O que isto NÃO autoriza
+
+Não muda τ (segue **S1**), não muda a calibração (que continua assente em **cinco**
+famílias, §699), não muda o prompt e não muda a regra de maioria. A comparação de
+confiabilidade (κ/α) com o painel de três tem de ser recomputada com a quarta dentro, e a
+análise **leave-one-family-out** passa a ter quatro folhas em vez de três. Um leitor tem
+de conseguir ler o resultado com e sem o DeepSeek: ambos os conjuntos de vereditos ficam
+versionados separadamente (`ensaio-20260921-lote-*.jsonl` contra
+`ensaio-20260921-ds-lote-*.jsonl`), precisamente para que a sensibilidade seja calculável.
+
+---
+
+## §10.31 — ERRATA ao §10.29 e §10.30, após revisão adversarial (2026-09-21)
+
+Duas vozes independentes (Kimi/Moonshot por casca adversarial com recibo `exit 0`;
+segunda leitura em Fable) reviram o trabalho deste dia. **Seis correções**, todas a
+afirmações minhas. O §10.29 e o §10.30 ficam como estão — este registo é append-only —
+e o que vale é o que se lê aqui.
+
+### (1) 🔴 `09-20` é parcial, não inteiro — e eu usei uma régua que não é a da spec
+
+| | classificação |
+|---|---|
+| eu publiquei (§10.29, `D-2026-09-21`, HANDOFF, commit `c0e49c3`) | **17 inteiros + 2 parciais + 1 vazio** |
+| **correto, pela régua da `SPEC-ANALISE-2026-09-10.md`** | **16 inteiros + 3 parciais + 1 vazio** |
+
+A spec classifica `09-20` como **parcial por relógio, 13,86 h/24** (l.32) e fixa a regra
+*"incluída, com offset; truncamento puro; o corte cai dentro do epoch, às 22:51:23Z"*
+(l.92). Eu medi **volume de entrega** (672/672 registos de serving) e concluí «inteiro».
+São réguas diferentes: a spec conta **exposição**, eu contei **entrega**. A
+pré-registada é a que vale, e usá-la não era opcional.
+
+Agravante: apresentei o resultado como *"bate exatamente com a spec"*. Coincidia no
+total (19 com dado) e divergia na decomposição, que é o que decide se o epoch entra com
+offset. **`09-20` ser `w=0` não anula o offset** — a spec conta exposição, não dose.
+
+⚠️ E a tabela da spec **omite `09-10`**: soma 15+2+1+1 = 19 contra 20 alocados. Foi
+escrita em 10/09 21:40, com esse epoch ainda aberto — nem confirmado nem projetado.
+Com ele, as inteiras são **16**. A errata corrige o meu erro **e** fecha essa lacuna.
+
+### (2) 🔴 Braço por DESIGNAÇÃO, não por moda dos dados
+
+Derivei o braço de cada epoch como «a dose do modo `active` mais frequente». Isso é
+**conditioning pós-randomização**: a moda é função de quando o `active` entrou. O braço
+vem de `ASSIGNMENT-SERVING.json` (derivado de `ASSIGNMENT.json`, `assign_arms.py`, seed
+do beacon round **31774052**).
+
+**Confrontado agora: 0 divergências em 19 epochs.** A composição servida — 8 controlo /
+11 tratamento (`w=0`×8, `w=2`×6, `w=4`×4, `w=7,5`×1) — não muda. Muda a **premissa**, e
+é esta que vai ao paper. Isto é também a validação cruzada que o §10.29 alegou ter e não
+tinha: comparar o meu censo com a tabela da spec não era segunda via, porque ambos saem
+da mesma designação.
+
+### (3) 🔴 «Zero inversões» é tautologia, não qualidade
+
+O §10.30 apresenta «em 0 episódios ele inverte um veredito já decidido» como evidência de
+que a 4.ª família não corrompe nada. **É estruturalmente impossível haver inversão**:
+acrescentar um voto a painel ímpar sob maioria estrita só pode manter (3-0 → 3-1) ou
+empatar (2-1 → 2-2). Uma moeda daria zero. A métrica com conteúdo é a concordância com
+a maioria das três: **1111/1145 = 97,0%**.
+
+### (4) 🔴 «100% das abstenções são do `xai`» é falso no corpus completo
+
+Medido nos 1.195: **`xai` 26 abstenções + 6 cotas + 1 missing · `zhipu` 13 · `google`
+11**. O «100%» era verdade no **lote-00** (100 episódios) e foi generalizado a 1.195 sem
+ser remedido.
+
+### (5) 🔴 Os dados NÃO «confirmam» τ=S1 — e a metade citada é a errada
+
+O §10.29/§10.30 e o relato do dia dizem que a distribuição de severidade sustenta τ=S1.
+Três defeitos: **τ está travado desde julho** sobre a calibração de **cinco** famílias
+(PREREG §697-699) e um parâmetro travado não se «confirma» com dados do período de
+desfecho — é post-hoc; o que chamei «concordância em S0 (57-69%)» são **taxas
+marginais**, não concordância; e citei a fronteira **S1/S2**, que τ absorve, calando a
+**S0/S1**, que τ **não** absorve e onde há um desvio de **12 pp** (`google` 42,3%
+failure contra `zhipu` 30,4%).
+
+### (6) 🔴 A explicação do saldo +7 → −8 era racionalização
+
+Afirmei que o retry do `xai` «recuperou por outra via o que o DeepSeek resgatava». Os
+conjuntos são **disjuntos**: os 7 do retry não estão entre os resgates dele. E o sinal
+vem das **perdas** (28), não dos ganhos — creditando os 7 ao DeepSeek, 27 contra 28
+continua negativo. A explicação mirava a variável errada.
+
+**O saldo, com a regra publicada** (piso ≥3 vereditos substantivos; maioria estrita;
+abstenção conta como ausente): **ganhos 20 · perdas 28 · saldo −8**. Uma das vozes
+recomputou 16/28/−12; re-executado com o predicado acima, dá 20/28/−8. O sinal é o
+mesmo nas duas contas; **a regra tinha de estar escrita** para não haver duas.
+
+⚠️ «Perda» é rótulo meu e é impreciso: `pilot_replay.py` l.145-148 fixa que **2-2
+resolve para `not_failure`** — *"a tie is not a majority. Conservative: it underestimates
+failures"*. Não é indefinição, é **viés direcional para o nulo**. E o §10.30 afirma «não
+muda a regra de maioria», o que é falso em efeito: a mediana inferior de 4 não é a de 3,
+e é ela que alimenta a condição (i) com τ=S1.
+
+### O que substitui a decisão do §10.30
+
+A decisão de compor o painel **depois de contar empates nos vereditos do ensaio** é
+post-hoc — a `SPEC-ANALISE` §9 diz que *"escolher o conjunto primário depois de ver o
+número é a jogada post-hoc que esta spec existe para impedir"*. Fica registado como tal.
+
+**O que passa a valer:** o DeepSeek entra como **substituto** apenas nos episódios sem
+piso de 3 vereditos substantivos — a função que o PREREG §695 lhe atribui — e **nunca
+como 4.º voto** onde os três responderam. Assim não gera empate nenhum, e o efeito dele
+é o resgate, que é o que o §695 previa. O conjunto de 4 votos fica publicado como
+**sensibilidade declarada**, com a regra de 2-2 nomeada.
+
+### O predicado de processo zumbi mata escrita legítima (registo operacional)
+
+Fora do âmbito do paper, mas medido no mesmo dia: o critério *"transcript parado E
+escreve >20 MB em 8 s"* que usei na VPS **exclui o modo de falha que observei** (o zumbi
+original tinha socket vivo e não escrevia nada) e **inclui trabalho legítimo** — o
+próprio `run_panel.py` a escrever vereditos satisfaz 2,5 MB/s trivialmente, e matá-lo a
+meio corromperia o ficheiro. O sinal está todo em «transcript parado»; a cláusula de
+bytes só acrescenta erro. Corrigir para *stall timeout* calibrado contra a chamada
+legítima mais longa, medido antes de adotado.
