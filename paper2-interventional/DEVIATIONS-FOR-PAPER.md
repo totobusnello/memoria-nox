@@ -3340,3 +3340,129 @@ próprio `run_panel.py` a escrever vereditos satisfaz 2,5 MB/s trivialmente, e m
 meio corromperia o ficheiro. O sinal está todo em «transcript parado»; a cláusula de
 bytes só acrescenta erro. Corrigir para *stall timeout* calibrado contra a chamada
 legítima mais longa, medido antes de adotado.
+
+---
+
+## §10.32 — Dois locks do pré-registro colidem em `Opportunity`; H1b fica INAVALIÁVEL
+
+**Registado ANTES de computar qualquer estimativa da família H1a-c.** A decisão do Toto é
+de 2026-09-21 16:14, tomada sobre os três ramos apresentados com os seus custos, e nenhum
+número da família tinha sido produzido nessa altura. A ordem importa: escolher o estimando
+depois de ver o desfecho é o que a `SPEC-ANALISE` §9 existe para impedir.
+
+### A colisão
+
+| lock | data | o que diz |
+|---|---|---|
+| `Opportunity` (§3, *Pilot metric definitions*) | **2026-07-29** | *"An **executed action `a`** … for which the serving snapshot at session start contained ≥ 1 failure episode `a_past` with `sig(a_past) = sig(a)`…"* |
+| H1b (§1) | **2026-08-16** | *"An opportunity yields a repeat attempt if the **session** emits at least one action whose signature `sig()` equals that of `a_past` — whatever its outcome"* |
+
+São **estimandos diferentes**. Sob o lock de julho a oportunidade **é** a ação, e a ação
+carrega `sig(a_past)` por definição ⇒ **H1b = 1,0 por construção**, e o aninhamento
+`H1c ⊆ H1b ⊆ H1a` — que o próprio §1 chama *"the nesting that makes the joint reporting
+work"* — deixa de existir. Para H1b ter conteúdo, `Opportunity` teria de ser propriedade da
+**sessão**, e aí o denominador muda para **toda** a família, não só para H1b.
+
+Nenhum documento posterior resolve: a `SPEC-ANALISE-2026-09-10` **não menciona H1b uma única
+vez**, e não existe artefato em `out/` que o tenha computado.
+
+### A decisão, e por que esta e não a outra
+
+**Vale o lock de 2026-07-29 — `Opportunity` é a AÇÃO.** Razão decisiva, e ela já está
+escrita no próprio pré-registro: o §420 regista que **`r̂`, `p̂0` e o ICC foram todos
+computados pelo replay sob o modelo do §3**, e que a construção então travada foi a que
+*"keeps every locked number valid — the alternative constructions would have invalidated
+them"*. Adotar a leitura de sessão agora invalidaria esses três números e, por dependência,
+o `N_epochs` que o `sizing.py` deles derivou. O documento já enfrentou uma escolha análoga e
+resolveu-a na mesma direção; esta decisão é consistente com esse precedente, não nova.
+
+### Consequência declarada
+
+**H1b passa para a lista de INAVALIÁVEIS da `SPEC-ANALISE` §8**, ao lado do TOST
+braço×cobertura, da dose-resposta, do leave-one-agent-out e do contraste primeira/segunda
+metade. Motivo a constar no paper: **colisão entre dois locks, não reconciliada antes do
+fecho da janela** — não «não medimos», nem «deu não-significativo».
+
+⚠️ **O que se perde, dito com clareza.** H1b era o membro da família que distinguia *"o
+tratamento faz o agente **parar de tentar**"* de *"faz o agente tentar e **acertar**"* — o
+próprio §1 chama a isto *"the substantive one for this paper"*. Essa distinção **não é
+reportável** neste estudo. A perda é de **mecanismo**, não de potência: H1c já estava
+declarado sem resultado possível no N realizado (§3 da spec, MDE saturado), logo nada aqui
+piora o que já se sabia sobre detetabilidade.
+
+### O que fica computável, e sob que definição
+
+`H1` (densidade incondicional de falhas repetidas por hora de sessão) e `H1a` (taxa de
+oportunidades elegíveis por hora de sessão) não dependem da leitura em disputa — ambos
+assentam no lock de julho, que é o que vale. `H1c` é computável e será reportado com ponto,
+IC e `n` por braço na mesma linha, acompanhado da declaração de subdimensionamento que o §6
+da spec torna obrigatória.
+
+---
+
+## §10.33 — O denominador de exposição mede OCIOSIDADE; um epoch decide H1a
+
+### O que o denominador mede, e o que se julga que mede
+
+`H1` e `H1a` dividem por **horas de sessão**, computadas por `span_por_sessao`
+(`pilot_replay.py` l.226) como `max(ts) − min(ts)` dos episódios da sessão. Isso é a
+**distância entre o primeiro e o último episódio**, não tempo de trabalho: uma sessão que
+age, adormece e volta seis horas depois conta seis horas de exposição.
+
+**Medido na janela do ensaio:** dezanove epochs têm entre **0,32 e 0,97 h**; o `2026-09-14`
+tem **7,13 h** — sozinho, **56%** de toda a exposição do braço de tratamento. A causa está
+isolada numa sessão (`d37a5964…`) com **três** episódios: um às 13:52 e dois às 20:12, span
+6,33 h. As sessões que de facto trabalharam nesse epoch fizeram 74, 65 e 56 episódios em
+**9 a 10 minutos** cada.
+
+⚠️ **O artefacto não é deste ficheiro.** A função é a do `pilot_replay`, logo o
+`hours_per_epoch` do piloto (1,1144) carrega a mesma propriedade. Não é defeito introduzido
+na análise do estudo; é uma propriedade da definição registada que só se manifesta quando
+um epoch tem sessão esparsa.
+
+### A decisão, e por que NÃO se troca o denominador
+
+Decisão do Toto, 2026-09-21 16:20: **manter a definição travada**, com a perna de
+sensibilidade reportada ao lado. Não é invenção — é o padrão que a `SPEC-ANALISE` §2 já
+pré-compromete: *"a sensibilidade que os remove é reportada ao lado — divergência entre as
+duas é reportada como está, **nunca adjudicada em favor de uma**"*.
+
+Trocar o denominador por «trabalho efetivo» foi **recusado**: seria mudar definição travada
+**depois** de ver que ela dá resultado incómodo, e invalidaria `r̂`, o ICC e o `N` do
+`sizing.py`. Mandar `H1`/`H1a` para inavaliáveis foi recusado por deitar fora informação
+que existe.
+
+### O resultado, com as duas pernas
+
+Bootstrap por **epoch inteiro**, 10.000 réplicas, seed `20260921` declarada; peso
+Horvitz-Thompson do estrato B = **6,945** (5.556/800).
+
+| | primário (travado) | sensibilidade (sem `09-14`) |
+|---|---|---|
+| horas trat. / ctrl | 12,70 / 5,16 | **5,57 / 5,16** |
+| `H1` (repeats/h) | −14,62 · IC [−20,51; −4,79] · exclui zero | −9,74 · IC [−16,21; −2,99] · exclui zero |
+| **`H1a`** (oport/h) | −143,92 · IC [−209,80; −15,34] · **exclui zero** | −63,04 · IC [−120,45; **+1,76**] · **contém zero** |
+| `H1c` (repeats/oport) | −0,0199 · IC [−0,0560; +0,0086] · contém zero | −0,0244 · IC [−0,0619; +0,0051] · contém zero |
+
+🔴 **`H1a` inverte de conclusão com a remoção de um epoch.** Um epoch cuja exposição vem de
+uma sessão de três episódios é a diferença entre «exclui zero» e «contém zero». O número
+**não suporta peso**, e é esta linha — não a do primário — que o leitor tem de ver.
+
+⚠️ **E um IC que exclui zero em `H1` não é achado.** `H1` foi **retirada de primária em
+2026-08-30** por exigir **955%** de efeito (`DESIGN-REVISION-2026-08-30.md` l.196,
+*"impossível por construção"*). Um intervalo que exclui zero numa hipótese declarada
+indetetável é sinal de artefacto no denominador, não de efeito — e com 9 e 11 epochs o
+bootstrap por cluster tem poucos graus de liberdade e produz intervalo otimista.
+
+### O que o estudo entrega
+
+**`H1c`: 0,0696 no tratamento contra 0,0896 no controlo, diferença −0,0199, IC
+[−0,0560; +0,0086] — contendo zero nas duas pernas.** É o desfecho estável, e é o que o §3
+da spec previra: **não detetável**, com MDE saturado em 100%. Vai acompanhado da declaração
+de subdimensionamento que o §6 torna obrigatória, e **ausência de significância não é
+evidência de ausência de efeito**.
+
+Artefacto: `ITT-2026-09-21.json` (fora do repo, com os episódios). Instrumento:
+`estimador_itt.py` — **composição**, não reimplementação: importa `carregar_verdicts`,
+`carregar_episodios` e `span_por_sessao` do `pilot_replay`, e o braço vem de
+`ASSIGNMENT-SERVING.json`, nunca inferido dos dados.
