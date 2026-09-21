@@ -41,8 +41,16 @@ import sys
 UNIVERSO = {
     "67.187":  ("corpus vivo",              "corpus",     False),
     "583.763": ("slots entregues",          "slots",      False),
-    "1.787":   ("distintos no brief",       "brief",      False),
-    "2,66":    ("cobertura do brief",       "brief",      True),
+    "1.787":   ("distintos no brief, HISTORICO", "brief-hist", False),
+    "1.635":   ("distintos no brief, VIVO",  "brief",      False),
+    # ⚠️ 2,66 = 1.787/67.187 mistura numerador historico com denominador vivo.
+    # Ficou aqui rotulado so' "brief" ate' 2026-09-21, e este ficheiro — que existe
+    # para apanhar mistura de universos — nao o apanhou: ele compara os universos
+    # DECLARADOS de numeros ADJACENTES, e a mistura dentro de UM quociente tem um
+    # rotulo so'. Mantido como sentinela: se reaparecer no texto, o par
+    # brief-hist x corpus deve acusar.
+    "2,66":    ("cobertura do brief, MISTA (retirada)", "brief-hist", True),
+    "2,43":    ("cobertura do brief, vivo/vivo", "brief",  True),
     "9.755":   ("expostos pela busca",      "busca",      False),
     "10.899":  ("união das superfícies",    "união",      False),
     "56.288":  ("nunca expostos",           "união",      False),

@@ -32,7 +32,8 @@ superfícies pelas quais um sistema de memória em operação entrega conteúdo 
 de 6 agentes: um brief proativo de 10 itens e a busca sob demanda.
 
 O brief entregou **583.763 slots** — **8,7 vezes** o tamanho do corpus, o suficiente para
-servir cada um dos 67.187 chunks oito vezes. Entregou **1.787 chunks distintos: 2,66%**. A
+servir cada um dos 67.187 chunks oito vezes. Entregou **1.635 chunks distintos vivos:
+2,43%** (1.787 contando os 152 servidos e apagados depois — ver §4.1). A
 capacidade **agregada**, portanto, não obrigava esse resultado: havia espaço para mostrar
 o corpus inteiro oito vezes. Não se conclui daí que a ordenação esteja errada — só que
 não foi a falta de espaço que produziu o número. A capacidade **por sessão** (10 itens)
@@ -49,8 +50,8 @@ A superfície que o sistema decide, o brief, expôs 1.787. Toda alegação deste
 capacidade.** Os 8 slots do pool principal são ordenados por um score cujos termos, com
 uma exceção, **não decaem** — o componente de acesso é monótono num contador que só
 sobe. Os 3 chunks presentes em **100%** dos 4.632 briefs da semana foram acessados pela
-última vez há 90, 30 e 42 dias: **as três primeiras posições** do brief são determinadas
-pelo tráfego de busca de meses atrás, e o top-10 leva **47,16%** dos slots. Os outros 2 slots são um canal de
+última vez há 90, 30 e 42 dias (medido no fecho da janela, 2026-08-28) e ocupam as
+posições **2, 3 e 5** — determinadas pelo tráfego de busca de meses atrás, e o top-10 leva **47,16%** dos slots. Os outros 2 slots são um canal de
 *cobertura*, cuja finalidade declarada é servir o nunca-servido — e **congela** por outra razão:
 sua população elegível é de **108 chunks num corpus de 67.187** — 0,16%, recortados por
 dois padrões de caminho — e ele a esgota **inteira, todo dia**, com 12,4 slots por
@@ -104,8 +105,9 @@ instrumentar. Aqui são duas: um brief proativo de 10 itens no início de cada s
 busca sob demanda.
 
 **A resposta esperada seria "não cabe". Não é.** Em 84,7 dias o brief entregou **583.763
-slots** a 67.187 chunks — capacidade para servir cada chunk **8,7 vezes**. Serviu **1.787
-distintos, 2,66% do corpus**; sob serviço uniforme a cobertura esperada seria 99,98%.
+slots** a 67.187 chunks — capacidade para servir cada chunk **8,7 vezes**. Serviu **1.635
+distintos vivos, 2,43% do corpus** (1.787 na contagem histórica, que inclui 152 apagados
+depois — a razão de os dois números existirem está no §4.1); sob serviço uniforme a cobertura esperada seria 99,98%.
 Somando a busca, **83,78% do corpus nunca foi exposto**. A não-exposição não é imposta
 pelo número de slots. ⚠️ **A parte que a ordenação explica é a do brief** — o §4.1.1
 delimita o que se pode atribuir a cada superfície. A alegação sobre mecanismo é sobre o brief, e o número
@@ -181,7 +183,7 @@ outra é iniciada pelo agente e responde pela maior parte da exposição (§4.1.
   melhorar ranking não melhora exposição, e a área otimiza a coordenada errada.~~ **Essa
   era a hipótese com que este trabalho começou, e a medição a contradiz:** a superfície
   não é pequena — é 8,7× o corpus. O que importa é o que sobra depois disso: uma
-  superfície com folga entrega 2,66%, e o canal que existiria para compensar isso é
+  superfície com folga entrega 2,43%, e o canal que existiria para compensar isso é
   governado por dois padrões de caminho que enxergam 0,16% do corpus, e por uma ordem
   lexicográfica em que o score não decide. Se outros sistemas têm essa forma é pergunta em aberto — não uma alegação
   deste paper — e o diagnóstico publicado existe para que seja respondida.
@@ -420,6 +422,12 @@ só o brief (1.787) é entrega que o sistema decide sozinho. Isso não invalida 
 complemento — "nunca exposto" continua sendo ausência de registro nas duas — mas
 restringe o que se pode dizer da causa: o número de 83,78% mede **o que não chegou**, e
 não **o que o ranker recusou**. As alegações sobre mecanismo (§5) valem para o brief.
+
+⚠️ **E as duas superfícies intersectam-se**, o que a decomposição «9.755 vieram da busca,
+1.787 do brief» esconde: `1.787 + 9.755 = 11.542` contra uma união histórica de
+**11.051** ⇒ **491 chunks estão nas duas**. Os dois números não particionam os 10.899, e
+apresentá-los lado a lado como se particionassem é a mesma mistura de universos que a
+errata H-3.2 corrigiu noutro lugar. Acrescentado em 2026-09-21 por revisão adversarial.
 
 ⚠️ **As duas linhas contam populações diferentes**, e a soma denuncia: 11.051 + 56.288
 = 67.339, **152 a mais** que o corpus. A união conta o que já foi exposto *alguma vez*,
@@ -1435,7 +1443,19 @@ o campo se chama `slots_historicos_ATE_AGORA_serie_viva` e a grandeza **cresce ~
 dia** (hoje a série viva vale 591.323). Citar uma série viva sem fixar o instante é
 escrever um número que envelhece para falso sozinho; por isso a alegação carrega os
 **84,7 dias** e o `T_REF` do artefato, e o guarda novo **recomputa** os derivados (8,7× e
-2,66%) em vez de só conferir que o texto não mudou.
+2,43%) em vez de só conferir que o texto não mudou.
+
+🔴 **E recomputar não bastou.** O valor recomputado era `1.787 / 67.187 = 2,66%`, que
+mistura um numerador **histórico** (inclui os 152 apagados depois) com um denominador
+**vivo** — o defeito que o H-3.2 corrigiu nos 83,78% e que a regra da l. 428 (*"o
+percentual citado é sobre o corpus vivo"*) proíbe. O guarda recomputava fielmente a conta
+errada. Corrigido em 2026-09-21 para `1.635 / 67.187 = 2,43%`, por revisão adversarial.
+
+⚠️ **Por que o censo de universos também não pegou.** O `censo-de-universos-no-paragrafo.py`
+existe para esta família e tem o `2,66` na sua tabela — rotulado `("cobertura do brief",
+"brief")`. Ele compara os universos **declarados** de números **adjacentes**, e um número
+só tem um rótulo: a mistura que vive **dentro** de um único quociente é invisível para
+ele por construção. Um guarda que compara rótulos não vê o cálculo que o rótulo resume.
 
 ⚠️ **E a contagem de ocorrências virou parte do guarda**, porque `valor in texto` é
 satisfeito por qualquer ocorrência: três mutações passaram no primeiro teste por eu ter
@@ -1574,9 +1594,18 @@ metodológica inteira, não de um termo.
 
 🔴 **E este paper não reivindica ser esse precedente**, porque não seria honesto. O
 registro prospectivo que depositamos (OSF `yf7d2`) é de **outro estudo**: um crossover
-randomizado sobre o **comportamento** do agente, que não rodou — as três tabelas que
-mediriam desfecho a jusante estão vazias (§4.5). O que este manuscrito reporta é
-**descritivo** e não foi pré-registrado.
+randomizado sobre o **comportamento** do agente. ⚠️ **Corrigido em 2026-09-21:** uma
+versão anterior desta frase dizia que ele *"não rodou"*. Rodou — de 2026-09-01 a
+2026-09-20, 20 epochs designados, 19 servidos — e os resultados são o Paper B, não este.
+O que continua valendo, e é o que a frase queria dizer, é que **este manuscrito não é
+aquele estudo**: o que ele reporta é **descritivo** e não foi pré-registrado.
+
+🔴 A afirmação ficou falsa por três semanas num parágrafo cuja função é corrigir o
+registro público. Um revisor que abrisse o OSF `yf7d2`, visse as datas e cruzasse com esta
+linha desqualificaria a tese de auto-auditoria do paper inteiro com um único
+contrafactual. Foi encontrada por revisão adversarial, não pela varredura que o item 5 da
+lista de pendências declara aberta — o que é a evidência de que declarar uma varredura
+aberta não é o mesmo que fazê-la.
 
 O Apêndice A registra os desvios daquele registro assim mesmo, e a razão é estreita:
 enquanto o depósito público existir afirmando coisas que a medição contradiz — inclusive
@@ -1634,7 +1663,7 @@ topo do brief é determinado por tráfego de busca de meses atrás — contrafac
 
 **O canal que responderia a ajuste de score é o que ninguém ajusta; o desenhado para
 compensar o outro é o que não responde a score.** É essa tesoura, e não a capacidade, que
-produz os 2,66%.
+produz os 2,43%.
 
 ⚠️ E vale distinguir isto do laço de realimentação clássico de recomendação: aqui a
 exposição no brief **não** se auto-reforça — `access_count` só é incrementado pela busca,
@@ -1642,7 +1671,11 @@ e o brief é declaradamente read-only sobre ele. O que existe não é um laço, 
 **codificação permanente e sem decaimento de tráfego passado**.
 
 A consequência de desenho é desconfortável e vale dizer inteira: **projetamos uma
-intervenção cujo teto era derivável do código **antes de qualquer coisa ser servida** — e, no fechamento deste manuscrito, nada ainda foi. Quem for
+intervenção cujo teto era derivável do código **antes de qualquer coisa ser servida**.
+⚠️ **Corrigido em 2026-09-21:** a frase terminava com *"e, no fechamento deste manuscrito,
+nada ainda foi"*, o que deixou de ser verdade em 2026-09-01. Dezanove epochs foram
+servidos. O ponto sobrevive à correção e fica mais forte: o teto era derivável antes de a
+intervenção correr, e a intervenção correu sem o mover. Quem for
 intervir num ranker deveria ler o comparador primeiro e perguntar *em que coordenada
 minha alavanca age*; custa uma tarde e economiza uma rodada experimental.
 
