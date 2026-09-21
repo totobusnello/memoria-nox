@@ -25,8 +25,17 @@ or to one of three dose levels by constrained randomization seeded from a public
 beacon, with the assignment script and its hash registered before the seed was drawn
 (OSF `yf7d2`, 2026-08-18T07:56:44Z; Zenodo `10.5281/zenodo.22110203`).
 
-The registered design called for 234 epochs. **Twenty were realized** before the trial was
-closed on 2026-09-20, of which nineteen served data.
+The registered design called for 234 epochs. **Twenty were realized**, of which nineteen
+served data.
+
+🔴 **The trial did not stop early: 234 was infeasible from the start.** All 19 designated
+chunks share one `created_at` and sit in a sub-pool with a 30-day window, so they leave
+eligibility together at 2026-09-20 22:51:23 — **20 of the 234 registered epochs, 8.5%**.
+Past that instant no value of the dose reaches them, because the boost is addressed by id
+and they are no longer in the candidate list; treatment and control would have been the
+same intervention for 214 epochs. The under-powering of this study is therefore a property
+of **the registration**, not of the realized window: `sizing.py` sized for 234 epochs on an
+intervention that existed for 20.
 
 **The primary outcome is null and the study could not have found otherwise** — a claim
 about **H1c**, the primary, and not about every quantity the trial produced. Two secondary
@@ -205,14 +214,58 @@ computed, and the analysis specification that governs this report was written on
 2026-09-10, eleven days earlier. It was a calendar decision, and saying so is the whole of
 the stopping rule.
 
-🔴 **What we cannot answer, raised by adversarial review and left open here.** The
-designation was fixed on 2026-08-26, and the coverage channel's global sub-pool carries a
-**30-day freshness window** (Paper A §4.3.1). If designated chunks age out of eligibility
-on that clock, then a 234-epoch trial on a fixed designation was **never feasible**, and
-the under-powering would not be a consequence of stopping early but of an internal
-inconsistency in the registration itself — a larger specimen of this paper's own thesis
-than the H1b collision. We have not measured it, we are not going to assert either way,
-and it is on the working list. Should it prove true, §8 needs rewriting, not amending.
+### 3.0.1 🔴 `N = 234` was infeasible by construction, and the trial ran exactly as long as it could
+
+An adversarial reviewer asked whether the fixed designation ages out of eligibility. It
+does, and the measurement is unambiguous.
+
+All 19 designated chunks live in `memory/entities/lessons/*.md` — the **global** sub-pool,
+whose window is `freshGlobalMaxAgeDays = 30`. Their `source_date` is NULL in all 19, so
+the predicate falls through to `created_at`, which is a **single value for all nineteen**:
+
+```
+created_at = 2026-08-21 22:51:23   (identical across all 19)
++ 30 days  = 2026-09-20 22:51:23   ← they leave the window together, in one instant
+```
+
+| | |
+|---|---:|
+| epochs registered | **234** (2026-09-01 → 2027-04-22) |
+| epochs in which the designation is eligible | **20** (2026-09-01 → 2026-09-20) |
+| share of the registered design that could carry an intervention | **8.5%** |
+
+**After that instant the intervention is not weak — it does not exist.** A chunk that
+fails `fetchFreshCandidates` never reaches the list handed to the boost provider, and the
+boost is addressed **by id**. No value of `w` and no number of `freshSlots` reaches a
+chunk that is not in the candidate list. For 214 of the 234 registered epochs, the
+treatment arm and the control arm would have been **the same intervention**.
+
+**This reframes the stopping rule and the headline.** The trial did not stop early. It ran
+for the entire interval in which it could have an effect, and closed 51 minutes before the
+designation expired. The `09-20` epoch is partial for this reason and not by arbitrary
+truncation: the analysis spec's cut *"falls inside the epoch, at 22:51:23Z"* is that
+instant.
+
+⚠️ **So the under-powering is not a consequence of the realized window. It is a property
+of the registration.** `sizing.py` computed `N = 234` from the pilot; nothing in that
+computation knew that the designation it would act on had a 30-day life. Both numbers are
+ours, both were locked, and they are incompatible — the same shape as the H1b collision of
+§4.4, on a larger object. A trial cannot be sized for 234 epochs on an intervention that
+exists for 20.
+
+We record two further facts so the finding is not overstated. The designation **passed**
+the full eligibility predicate — file pattern, `importance/pain ≥ 0.7`, age ≤ 30 d — in
+19 of 19 on 2026-09-09, in both the served corpus and `current.db`; expiry was a future
+event, not a live defect. And the replay harness compensates for the window
+(`cfgEm` offsets `freshGlobalMaxAgeDays`), so what stops biting is the **trial**, not the
+instrument.
+
+🔑 **This was measurable on 2026-09-09 and was measured then** — eleven days before the
+close, in a session that recorded it and left the design decision open. It did not reach
+this manuscript until an adversarial reviewer asked the question from the outside. The
+finding is ours; noticing that it belonged in the paper was not.
+
+### 3.1 Two classification errors of ours, and what they cost
 
 ### 3.1 Two classification errors of ours, and what they cost
 
@@ -737,10 +790,14 @@ discovering it afterwards. What remains is not an effect estimate but three obse
 about instruments, each of which cost us a published error to find:
 
 **A pre-registration can contradict itself, and the contradiction can survive to the
-outcome.** Two locks three weeks apart defined one estimand incompatibly, neither review
-caught it, and the analysis specification written a month later did not mention the
-affected hypothesis once. The failure mode is not a missing lock — it is two locks that
-each look complete alone.
+outcome.** It happened twice here, at two scales. Two locks three weeks apart defined one
+estimand incompatibly (§4.4), and neither review caught it. And the sample size was
+computed for 234 epochs while the intervention it would act on had a 30-day life —
+**8.5% of the registered design** (§3.0.1). The second is the more instructive, because
+each number is correct in isolation: `sizing.py` did its arithmetic faithfully, and the
+30-day window is a documented default. Neither document was wrong; they were never read
+against each other. The failure mode is not a missing lock — it is two locks that each
+look complete alone, and no step in the process whose job is to cross them.
 
 **An interval that excludes zero can be the artifact, and the null the sound result.** The
 only significance this trial produced is on the hypothesis previously ruled out as
@@ -836,8 +893,9 @@ does not prove a copy exists.
    (§4.0.1b): positive **11/11**, negative dual **8/8**, both re-measured over the full
    window. 🔴 **Still open: the sham replay**, which needs the serving code re-executed;
    our attempt to do it by counting over the log was invalid and is recorded as such.
-4. **Measure the 30-day freshness question** of §3.0. If a fixed designation ages out,
-   `N = 234` was infeasible from the start and §8 changes.
+4. ~~**Measure the 30-day freshness question**~~ → ✅ **done 2026-09-21** (§3.0.1):
+   `N = 234` **was** infeasible — the designation expires 2026-09-20 22:51:23, giving 20
+   eligible epochs of 234. §8 rewritten around it.
 5. **Adversarial review** of this manuscript — **in progress**, five families, 2026-09-21.
    Three have returned; their findings produced §1.1, §3.0, §4.0.1, §4.1.1, §4.4.1, the
    corrections in §4.3 and §4.4, and this appendix. Two pending. Disjoint defect class from
