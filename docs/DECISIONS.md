@@ -1705,7 +1705,7 @@ confound de versão que custou o §6.3.2 na corrida do mem0.
 
 ---
 
-### D-2026-09-21c — Sete workflows desarmados: SDK morto e três publicações armadas num repo público
+### D-2026-09-21d — Sete workflows desarmados: SDK morto e três publicações armadas num repo público
 
 **Medido antes de decidir.** Dos **22** workflows ativos, só **11** correram nos últimos 30
 dias. Dos que não correm, cinco tinham terminado em **falha** e ficado assim: `CodeQL`
