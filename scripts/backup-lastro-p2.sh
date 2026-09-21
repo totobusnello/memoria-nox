@@ -75,7 +75,16 @@ while IFS=$'\t' read -r nome caminho esperado tipo; do
   if [ "$obtido" = "$esperado" ]; then
     CONF=$((CONF+1)); echo "  ✅ $nome" | tee -a "$REC"
   else
-    FALHAS=$((FALHAS+1)); echo "  🔴 $nome — esperado ${esperado:0:12}… obtido ${obtido:0:12}…" | tee -a "$REC"
+    FALHAS=$((FALHAS+1))
+    # ⚠️ AUSENTE e DIVERGENTE sao estados diferentes e pedem accoes diferentes:
+    # o 1o e' «a copia nao tem», o 2o e' «a copia tem outra coisa». Um hash vazio
+    # impresso como se fosse hash le-se como divergencia, e manda consertar o que
+    # nao esta' partido.
+    if [ -z "$obtido" ]; then
+      echo "  🔴 $nome — AUSENTE da cópia (está no manifesto, não no destino)" | tee -a "$REC"
+    else
+      echo "  🔴 $nome — DIVERGE: esperado ${esperado:0:12}… obtido ${obtido:0:12}…" | tee -a "$REC"
+    fi
   fi
 done < <(python3 -c '
 import json,sys

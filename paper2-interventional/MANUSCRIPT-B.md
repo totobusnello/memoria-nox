@@ -902,10 +902,13 @@ does not prove a copy exists.
 4. ~~**Measure the 30-day freshness question**~~ → ✅ **done 2026-09-21** (§3.0.1):
    `N = 234` **was** infeasible — the designation expires 2026-09-20 22:51:23, giving 20
    eligible epochs of 234. §8 rewritten around it.
-5. **Adversarial review** of this manuscript — **in progress**, five families, 2026-09-21.
-   Three have returned; their findings produced §1.1, §3.0, §4.0.1, §4.1.1, §4.4.1, the
-   corrections in §4.3 and §4.4, and this appendix. Two pending. Disjoint defect class from
-   mechanical census, and §6 is the evidence.
+5. ~~**Adversarial review** of this manuscript~~ → ✅ **done 2026-09-21**: five families
+   launched, **four delivered with `exit: 0` receipts** (DeepSeek, Grok, GLM on this paper;
+   Kimi on Paper A). Their findings produced §1.1, §3.0, §3.0.1, §4.0.1, §4.0.2, §4.1.1,
+   §4.4.1, Appendix B.1 and the corrections in §3.1, §4.1–4.5. The fifth (Codex) returned a
+   parecer whose citations do not resolve against the file and is recorded as invalid in
+   `REVISAO-ADVERSARIAL-2026-09-21.md` — a review that cites sections the document does not
+   have is not evidence about the document.
 6. **Figures**: the H1a sensitivity (the single-epoch inversion) and the §4.7 seed
    distribution. Both derive from locked artifacts.
 7. **Related work** — Paper A's §8 covers the surface literature, not trials of memory
