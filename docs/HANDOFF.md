@@ -3,6 +3,25 @@
 ## 2026-09-21 — ENSAIO P2 ENCERRADO: dose desligada, guardas aposentados, incident do `fd` fechado
 
 ### ▶️ ESTADO / PRÓXIMO PASSO
+✅ **ANÁLISE ITT FECHADA em 21/09.** Os sete reportáveis do `SPEC-ANALISE-2026-09-10 §6`
+estão todos medidos — 1–4 e 6 em `DEVIATIONS` §10.32/§10.33, **5 e 7 em §10.34**.
+Instrumento: `paper2-interventional/estimador_itt.py` (composição, não reimplementação).
+
+| hipótese | tratamento | controlo | diferença | IC95 | leitura |
+|---|---:|---:|---:|---|---|
+| **H1c** (repeats/oportunidade) | 0,0696 | 0,0896 | −0,0199 | [−0,0560; +0,0086] | **não detectável**, como o §3 previa com MDE saturado |
+| **H1a** (oportunidades/hora) | — | — | — | inverte ao remover `09-14` | reportada nas duas pernas |
+| **H1** (repeats/hora) | — | — | — | exclui zero | ⚠️ **rebaixada de primária em 30/08** (exigia 955%) |
+| **H1b** | — | — | — | — | **INAVALIÁVEL** — colisão de locks (§10.32) |
+
+Cobertura por braço: tratamento 28,0% · controlo 26,9%, com as 19 assinaturas designadas
+servidas de forma **uniforme** (~5,3% cada) — o que **contradiz** a projeção de 93,8%
+concentrada de `DESIGN-REVISION-2026-08-30` e portanto **enfraquece** a leitura «as lições
+são genéricas demais». M10 (braço×cobertura): `r=+0,113`, IC contém zero, e **troca de
+sinal** para −0,187 sem o `09-20` parcial. O `n=1` em `w=7,5` é **sorteio** (101% do
+défice), não truncamento (1,0%).
+
+**O que falta é escrita, não medição:** levar §10.29–§10.34 ao manuscrito do Paper 2.
 
 🔬 **Painel de adjudicação CORRIDO em 21/09** (não estava previsto neste handoff): 1.195
 episódios (395 estrato A + 800 estrato B), 3 famílias do PREREG §682, cobertura 100%.
