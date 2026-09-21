@@ -324,11 +324,52 @@ the design rules out.
 
 Artifact: `RERANDOMIZACAO-2026-09-21.json`; seed prefix `p2-rerand-2026-09-21` declared.
 
-**(b) The pre-committed instrument controls are not reported.** §5 of the spec defines a
-positive control, its negative dual, and a sham-designation replay as a specificity test.
-None appears above. A paper whose stated contribution is *"the reportable results are
-about instruments"* cannot omit the validation of its instruments, and we are not going to
-argue otherwise.
+**(b) The pre-committed instrument controls — two run, one not runnable.** §5 of the spec
+defines three. The first draft reported none, which for a paper whose stated contribution
+is *"the reportable results are about instruments"* was the worst omission in it.
+
+⚠️ The spec measured the first two on **2026-09-10, with the trial still running** — 6/6
+and 3/3 over a partial window. We re-measured over all 20 epochs, because a control
+measured midway does not cover what came after.
+
+**Semantics, declared before the numbers:** `mexeu` compares `ids_tratado` with
+`ids_controle` by **membership** (`set`), never as a list. List comparison mixes reordering
+with entry/exit and at epoch `09-08` returns 48 against 20.
+
+| control | statement | result |
+|---|---|---|
+| **positive** | a served treatment epoch has `mexeu > 0` | ✅ **11 / 11** (was 6/6 at midpoint) |
+| **negative dual** | a control epoch has `sem_ids == n` | ✅ **8 / 8** (was 3/3) |
+| **specificity (sham)** | replay 19 non-designated chunks at the same `w` | ⏭ **not run** — see below |
+
+The positive control ranges from **2.83% to 6.85%** of briefs altered per treatment epoch
+(`09-09` lowest, `09-14` highest). Had any treatment epoch returned 0, **the null would be
+the instrument's and not the effect's** — that is the whole purpose of the control, and it
+is the reason the null of §4.1 can be read as being about the treatment at all.
+
+The negative dual is stated that way for a reason the spec works out and we repeat: the
+obvious form, *"a control epoch has `mexeu == 0`"*, is **invalid**, because at `w=0` the
+`ids_*` fields do not exist at all — so `mexeu == 0` is indistinguishable from *"the field
+was never written"*. A predicate that needs the data that is missing does not cover the
+data being missing.
+
+🔴 **The specificity control was not run, and our first attempt at it was invalid.** We
+counted how many briefs contain a sham chunk in `ids_tratado` and compared against the
+designated set. It returned real 2 069 against a sham median of 5 832 and read as a
+**failed instrument**. The failure was the test's. `ids_tratado` is **post-dose**, so
+counting presence inside it is the candidate the spec's own table already labels
+*tautological*; with a universe of 141 ids, the non-designated set includes the chunks
+that enter nearly every brief, while the designated are one per signature group and
+therefore rarer. The quantity measured is **chunk frequency**, not specificity.
+
+The pre-committed sham is a **replay**: re-execute the dose mechanism with 19
+non-designated chunks at the same `w` and compare the churn it produces. That requires
+running the serving code, not reading its log — the log only contains the outcome of the
+designation that actually ran. It stays on the working list, **declared as not run rather
+than reported as failed**, which is the difference between the two that this near-miss
+exists to make.
+
+Artifact: `CONTROLES-JANELA-COMPLETA-2026-09-21.json`.
 
 ### 4.4.1 What the bootstrap does not resample
 
@@ -791,9 +832,10 @@ does not prove a copy exists.
    10 000 redesigns, 9 941 distinct patterns, control of 300/300 reproducing the spec. It
    **disagrees with the bootstrap on H1a**, and `H1` is now reported as an unexplained
    rejection.
-3. **Report the pre-committed instrument controls** (§4.0.1b): positive control, negative
-   dual, sham-designation replay. **Blocks deposit** — the paper's thesis is about
-   instruments.
+3. ~~**Report the pre-committed instrument controls**~~ → ✅ **two of three, 2026-09-21**
+   (§4.0.1b): positive **11/11**, negative dual **8/8**, both re-measured over the full
+   window. 🔴 **Still open: the sham replay**, which needs the serving code re-executed;
+   our attempt to do it by counting over the log was invalid and is recorded as such.
 4. **Measure the 30-day freshness question** of §3.0. If a fixed designation ages out,
    `N = 234` was infeasible from the start and §8 changes.
 5. **Adversarial review** of this manuscript — **in progress**, five families, 2026-09-21.
