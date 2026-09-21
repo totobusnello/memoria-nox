@@ -3466,3 +3466,75 @@ Artefacto: `ITT-2026-09-21.json` (fora do repo, com os episódios). Instrumento:
 `estimador_itt.py` — **composição**, não reimplementação: importa `carregar_verdicts`,
 `carregar_episodios` e `span_por_sessao` do `pilot_replay`, e o braço vem de
 `ASSIGNMENT-SERVING.json`, nunca inferido dos dados.
+
+---
+
+## 10.34 — Itens 5 e 7 do §6: a correlação braço×cobertura troca de SINAL ao tirar o parcial, e o `n=1` no topo da dose é sorteio inteiro, não truncamento (2026-09-21)
+
+Fecham os dois últimos dos sete reportáveis do `SPEC-ANALISE-2026-09-10 §6`.
+
+### Item 5 — M10: correlação braço × cobertura, reportada INCONDICIONALMENTE
+
+A trava original (PREREG 5) pedia um TOST de equivalência; o `§8` da spec já o
+declara **não avaliável no K realizado** — o que não é o mesmo que «equivalência
+não estabelecida». Reporta-se então a correlação e o seu IC, com as pernas
+declaradas:
+
+| perna | K | r | IC95 (bootstrap por epoch, 10 000) | |
+|---|---:|---:|---|---|
+| primária — todos | 19 | **+0,1130** | [−0,4773; +0,5088] | contém zero |
+| sem `09-20` (o parcial de 13,86 h) | 18 | **−0,1871** | [−0,5704; +0,3353] | contém zero |
+| sem os dois parciais | 17 | −0,1114 | [−0,5114; +0,4518] | contém zero |
+| sem `09-14` (perna do ITT) | 18 | +0,0837 | [−0,5180; +0,4932] | contém zero |
+
+⚠️ **O sinal troca.** `09-20` é controlo e tem cobertura de 14,6% contra ~28% em
+todos os outros — é o epoch de 13,86 h, e a cobertura baixa é artefacto do
+relógio, não do braço. Ele sozinho puxa `r` de −0,19 para +0,11. As quatro pernas
+contêm zero e o IC tem meia-largura ~0,5 em todas: **a K=19 esta correlação não
+distingue nada**, e é isso que há para dizer. Reportar só a primária teria vendido
+um sinal que é de um epoch truncado.
+
+Cobertura por epoch, para o leitor: 14,6% (`09-20`) e depois 21,4%–31,8%, sem
+padrão por braço. Correlação com a **dose** (`w`, não o braço binário): −0,0521.
+
+### Item 7 — o `n=1` em `w=7,5`: 1% truncamento, 99% sorteio
+
+Dos 20 epochs designados na janela, a alocação saiu `control 9 · w2 6 · w4 4 ·
+w7,5 1`. **O frame não importa aqui**: `09-02` (o que nunca foi servido) era
+`control`, logo `w7,5 = 1` nos 20 designados e nos 19 realizados.
+
+Decomposição, contra o défice total de **−2,333** face ao desenho:
+
+| perna | valor | quota |
+|---|---:|---:|
+| esperado pelo desenho (20 × 39/234) | 3,333 | — |
+| **truncamento** — condicionar nas datas realizadas | **+0,023** | **1,0 %** |
+| **sorteio** — da média condicional ao realizado | **−2,357** | **101,0 %** |
+
+Medido em **2 000 sementes** sobre as **mesmas datas**, com o `assign_arms.py`
+publicado (`build_epochs("2026-09-01", 234)` + `assign`): média condicional
+**3,357**, moda **3** (25,3%), `P(n=1) = 10,15%`, `P(n≤1) = 11,95%`. A média de
+`control` condicional é 9,991 contra 9 realizado — a truncatura também não
+desloca esse.
+
+⚠️ **A truncatura não explica o défice.** A intuição de que parar em 20 de 234
+epochs enviesaria contra a dose de topo é falsa por construção: a estratificação
+é `(metade do calendário) × (dia útil|fim-de-semana)`, e os 20 primeiros dias caem
+todos em `h1`, onde a alocação já é balanceada — condicionar move a esperança em
+**+0,023**, e no sentido contrário ao que a intuição previa. O `n=1` é uma cauda
+de ~10%, e nada mais.
+
+Isto **concorda** com a medição anterior da spec (23/300 = 7,67%, moda 3–4): o
+IC95 daquela proporção sobre 300 sementes é [4,7%; 10,7%], e 10,15% cai dentro.
+Duas medições com frames diferentes, mesmo resultado — o que aqui é novo é a
+**separação** das duas causas, que a spec afirmava sem a medir.
+
+Artefacto: `ITEM7-DOSE-TOPO-2026-09-21.json` (fora do repo, com a distribuição
+inteira das 2 000 sementes).
+
+### Estado do §6
+
+Os sete reportáveis estão fechados: 1–4 em 10.32/10.33, **5 e 7 aqui**, 6 na
+decomposição de cobertura por assinatura de 10.33. Nenhum conjunto primário foi
+escolhido depois de ver número — as pernas de sensibilidade estavam declaradas na
+spec de 10-09, dez dias antes do fecho da janela.
