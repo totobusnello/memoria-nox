@@ -1,43 +1,46 @@
 # Próximos passos — Paper 2
 
-> **Reescrito 2026-08-15.** A versão anterior abria com *"Nada de execução do Paper 2 começa antes de o Paper 1 sair do hold"* — e a execução tinha começado: o piloto rodou, 7.184 pares foram adjudicados, quatro locks fecharam. O documento afirmava o oposto do estado real, que é a pior coisa que um documento de estado pode fazer. Histórico dos gates originais: `git log -- NEXT-STEPS.md`.
+> ⚠️ **REESCRITO 2026-09-21 — pela TERCEIRA vez pelo mesmo motivo.** A versão de 01/09
+> declarava *"O próximo passo: **registrar no OSF**"*, e o registro `yf7d2` existia desde
+> **2026-08-18T07:56:44Z** (`OSF-SUBMISSION.md`) — onze dias **antes**. Não envelheceu:
+> nasceu errado. As duas reescritas anteriores (15/08 e 01/09) foram pelo mesmo defeito —
+> o documento afirmando o oposto do estado real. Histórico: `git log -- NEXT-STEPS.md`.
+>
+> 🔑 **A lição que a terceira repetição impõe:** este documento não deve reafirmar estado
+> que vive noutro lugar. O estado do depósito está em `OSF-SUBMISSION.md`; o do ensaio,
+> em `DEVIATIONS-FOR-PAPER.md`; o do manuscrito, na lista dele. Aqui fica **só a ordem**,
+> com ponteiro para quem sabe.
 
-## Onde estamos
+## Onde estamos — 2026-09-21
 
-O **pré-registro está pronto para o OSF** (v1.11). Nenhum `[TO LOCK]` espera análise. Em 15/08 medir a dose expôs e fechou um termo indefinido no braço de tratamento (`linked`) — ver `LINK-FEASIBILITY-2026-08-15.md`. ~~O estudo **não começou**~~ — ⚠️ **superado em 2026-09-01: começou.** Epoch 1 no ar desde
-10:25:39Z (`treatment`, `w = 4.0`); ver `TRIAL-START-2026-09-01.md`. O que foi medido **até
-30/08** é pré-tratamento, sobre corpus histórico sem atribuição de braço — e essa parte segue
-valendo. Este documento já foi reescrito uma vez, em 15/08, exatamente por afirmar o oposto do
-estado real; a segunda vez custou 7 horas em vez de semanas porque um guarda passou a olhar.
+| frente | estado | fonte da verdade |
+|---|---|---|
+| pré-registro | ✅ OSF `yf7d2` (18/08) + Zenodo v1.12 `10.5281/zenodo.22110203` | `OSF-SUBMISSION.md` |
+| **ensaio interventivo** | ✅ **CORRIDO E FECHADO** — 01/09 10:25:39Z a 20/09; 20 epochs designados, 19 servidos | `DEVIATIONS-FOR-PAPER.md` §10.29 |
+| **análise ITT** | ✅ **FECHADA 21/09** — 7/7 reportáveis do `SPEC-ANALISE-2026-09-10 §6` | `DEVIATIONS` §10.32–§10.34 |
+| Paper A (superfície) | manuscrito completo; faltam revisão adversarial, varredura de frases envelhecidas e depósito | lista no fim de `MANUSCRIPT.md` |
+| **Paper B (interventivo)** | ❌ **não existe como documento** | — |
 
-O gate do arXiv ID do Paper 1 **não bloqueia mais o Paper 2**. Ele bloqueava a *publicação*; o pré-registro e o piloto seguiram sem ele, e o moderador respondeu em 13/08 que o atraso é volume — sem ação nossa. Não recontatar.
+**Resultado principal do ensaio:** H1c dá −0,0199 (IC95 [−0,0560; +0,0086]) — **não
+detectável**, como o §3 da spec previa com MDE saturado. H1b é **inavaliável** por colisão
+de locks. H1 exclui zero mas foi rebaixada de primária em 30/08 por exigir 955% de efeito.
 
-## ✅ PUBLICADO no Zenodo — 17/08/2026
+## O próximo passo, e por que é este
 
-**DOI do conceito** `10.5281/zenodo.21964093` — resolve sempre para a última
-versão, e é o único que se cita. **v1.9** foi publicada em 17/08 sob o DOI de
-versão `10.5281/zenodo.21964094`, com 38 arquivos, CC-BY-4.0. O carimbo público
-existe e é anterior a qualquer epoch, que é a propriedade que o desenho precisa.
+**Escrever o Paper B.** O split de 28/08 decidiu que o interventivo é trabalho próprio, e
+a medição dele acabou em 21/09 — os números existem, verificados, e vivem hoje num log de
+desvios, que não é onde um resultado se publica. Tudo o mais está feito ou depende disto.
 
-**v1.11 é uma versão nova**, com 39 arquivos: as quatro afirmações do §2 que
-ficaram obsoletas quando a banda mudou, os três portões do fresh pool, os quatro
-travamentos que faltavam, e `claims_check.py` — o guarda que recomputa cada
-afirmação dependente da banda e varre o pacote atrás das frases superadas. Ela
-recebe DOI de versão próprio na publicação; anotar aqui quando sair.
+⚠️ **O Paper B não pode ser escrito a partir deste documento nem de memória.** A matéria
+é `DEVIATIONS-FOR-PAPER.md` §10.29–§10.34 e a `SPEC-ANALISE-2026-09-10`, que pré-comprometeu
+o que é reportável — inclusive as pernas de sensibilidade, declaradas dez dias antes do
+fecho da janela. Escolher o conjunto primário depois de ver número é a jogada que aquela
+spec existe para impedir.
 
-⚠️ **Os arquivos ficaram imutáveis.** Qualquer conserto daqui em diante é uma
-versão nova, nunca uma edição — o custo de um defeito subiu, e a auditoria
-arquivo-a-arquivo passa a ser pré-requisito de cada versão. A v1.10 foi a primeira
-prova disso: ela existe porque a v1.9 saiu com uma frase falsa na linha 306.
+---
 
-⚠️ **Ainda falta o OSF, e não é formalidade.** O pré-registro nomeia OSF 15
-vezes, incluindo *"becomes binding only when registered on OSF with a public
-timestamp"*, e o `T_seed_assign` está definido como *"strictly after the OSF
-registration timestamp"*. Sem o registro no OSF esse âncora não tem a que se
-prender, e um revisor que lê "OSF" e acha só um preprint no Zenodo tem uma
-pergunta sobre procedimento — a pior de responder. Registrar no OSF apontando
-para o DOI do Zenodo resolve, sem desfazer nada: o carimbo do Zenodo é anterior e
-só reforça a precedência.
+<details>
+<summary>Histórico — o texto de 01/09, preservado</summary>
 
 ## O próximo passo, e por que é este
 
@@ -81,3 +84,6 @@ Ambas ficaram no registro **antes** do primeiro epoch, e existem para serem veri
 
 1. **`N = 174` provavelmente é conservador.** Os parâmetros do regime maduro do corpus dariam N=46 a MDE 25% (106 no limite superior do ICC) — e o lock é mais folgado ainda, por dimensionar a 30% no limite superior. Se estiver certo, o estudo chega ao horizonte com mais poder que o planejado. Ver `PREREG-DRAFT.md`, Apêndice B, nota de não-estacionariedade.
 2. **O painel não pode provar que julgou com glm-5.2** nos 3.348 vereditos anteriores a 14/08. `model_served` passou a ser gravado, mas não é retroativo. Se a composição do painel virar questão de revisão, esta é a resposta honesta.
+
+
+</details>

@@ -1667,9 +1667,17 @@ alcança, não um prejuízo. E que a exposição mude o comportamento do agente:
 
 Há um pré-registro público (OSF `yf7d2`, Zenodo `10.5281/zenodo.22110203`) e **este paper
 não é o estudo que ele registra.** O registro cobre um estudo **interventivo** — designar
-chunks, servir uma dose, estimar efeito — que no fechamento deste manuscrito **não havia
-começado**: o serving nunca saiu de shadow e nenhuma alocação de braço foi emitida. Os
-resultados interventivos serão reportados separadamente.
+chunks, servir uma dose, estimar efeito — que **começou em 2026-09-01 10:25:39Z e fechou
+em 2026-09-20**, com 20 epochs designados (19 servidos; `09-02` nunca foi servido). No
+fechamento da primeira versão deste manuscrito ele ainda não havia começado, e o texto
+abaixo foi escrito sob essa condição; ela deixou de valer. **Os resultados interventivos
+não estão aqui**: são o Paper B, e vivem em `DEVIATIONS-FOR-PAPER.md` §10.29–§10.34 até
+que ele exista.
+
+⚠️ Nada do que este paper mede depende de o ensaio ter corrido — a superfície, o
+carrossel, o mecanismo e o teto são medição sobre o serving real e replay do código real,
+toda ela **pré-tratamento**. O que muda com o fecho do ensaio é apenas que a frase «não
+havia começado» não pode mais ser lida no presente.
 
 O que este paper reporta são as medições feitas **enquanto** aquele estudo era construído:
 a superfície, o carrossel, o mecanismo e seu teto. Elas não estavam pré-registradas, e
@@ -1901,13 +1909,29 @@ Apêndice E. Sem paper de métodos separado.
 
 Falta:
 
-1. **figura de arquitetura** do §2 — corpus → dois canais → 10 slots, com o comparador
-   anotado no canal de cobertura. É a única figura que não deriva de artefato, porque
+~~1. **figura de arquitetura** do §2~~ → ✅ **feita em 28/08**: Figura 0,
+   `out/fig0-arquitetura.svg`. É a única figura que não deriva de artefato, porque
    descreve estrutura e não dado;
-2. **verificar a predição de 29/08** — se a leva de 21–22/08 não secar, o §4.3.1 está
-   errado e tem de ser reescrito antes de qualquer depósito;
+~~2. **verificar a predição de 29/08**~~ → ✅ **feita em 29/08, e a predição foi
+   REFUTADA**: o gate saiu `exit 1`, o §4.3.1 foi reescrito em torno do que a
+   investigação achou (dois sub-pools; pool elegível de 108 de 67.187 = 0,161%, esgotado
+   100% todo dia), e a nova explicação foi validada por teste diferencial
+   `freshSlots=2` vs `freshSlots=0`. Resolvido **por substituição, não por confirmação**;
+
+⚠️ **Os dois itens acima ficaram três semanas por riscar, e em 21/09 essa lista mandou
+uma sessão inteira na direção errada** — ler uma lista de trabalho de 28/08 e concluir
+sobre o estado de hoje. Uma lista de pendências que não se rasura é uma régua que
+envelhece. Falta de facto:
+
 3. **passagem de revisão adversarial** — vozes de famílias distintas sobre o manuscrito
    inteiro; a lição registrada é que revisão adversarial e censo mecânico pegam classes
    **disjuntas** de defeito, e só o segundo foi feito até aqui;
 4. **depósito** com o manuscrito + artefatos, e aí a emenda agrupada faz sentido: um
    registro só, declarando os desvios **e** o resultado novo.
+
+5. ⚠️ **varredura das afirmações que envelheceram com o fecho do ensaio** (aberta em
+   21/09). O Apêndice A dizia que o estudo interventivo «não havia começado» — verdadeiro
+   em 01/09, falso desde então; corrigido. **Essa não é necessariamente a única**: qualquer
+   frase escrita no presente sobre o estado do ensaio precisa ser relida antes do depósito.
+   Não é busca por substring — é leitura das seções que falam do ensaio (§4.5, Apêndice A,
+   Apêndice C, §9).
