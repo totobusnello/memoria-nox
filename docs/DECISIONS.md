@@ -1745,3 +1745,106 @@ ali; o problema nunca foi armazenamento.
 ⚠️ **Pendência que este trabalho não resolve:** o único *required status check* é
 `Secret Scan (gitleaks)`, e ele corre com `continue-on-error` — ou seja, **nada gateia** o
 merge neste repo. Registado, não corrigido; é decisão separada.
+
+### D-2026-09-21e — Análise ITT fechada, Paper B aberto, e os dois manuscritos revistos por 5 vozes
+
+**O que foi decidido, e o que apenas foi medido.** Esta entrada cobre o dia de análise que
+se seguiu ao fecho do ensaio. As decisões de estimando estão em `DEVIATIONS-FOR-PAPER.md`
+§10.32 e §10.33 e foram tomadas **antes** de qualquer número da família H1 existir; o resto
+aqui é medição e correção.
+
+#### 1. `Opportunity` = a AÇÃO (lock de 2026-07-29); H1b sai da lista de hipóteses
+
+Dois locks do pré-registro definem o estimando de forma incompatível. Mantivemos o de
+julho, porque o §420 regista que `r̂`, `p̂0` e o ICC foram **todos** computados sob ele e a
+construção travada era a que *"keeps every locked number valid"*. Consequência declarada:
+sob esse lock **H1b = 1,0 por construção** — é trivial, não inavaliável, e chamá-la de
+inavaliável (como fizemos na 1.ª redação) faz uma trivialidade definicional soar como dado
+em falta. O que se perde é a **pergunta** que H1b carregava, que o próprio PREREG chama
+*"the substantive one for this paper"*.
+
+#### 2. O denominador travado fica, com a sensibilidade ao lado — e o que isso custa
+
+`span_por_sessao` mede `max(ts) − min(ts)`, isto é **ociosidade**. Um epoch (`09-14`) com
+7,13 h vindas de uma sessão de três episódios carrega 56% da exposição do braço de
+tratamento. **Não trocámos o denominador**: seria mudar definição travada depois de ver o
+resultado. ⚠️ Mas isso corta nos dois sentidos, e a 1.ª redação não o dizia: `r̂`, o ICC e o
+`N` do `sizing.py` vêm da **mesma** medida, logo a alegação de subdimensionamento assenta
+numa quantidade que esta decisão mina. Direção desconhecida.
+
+#### 3. O resultado
+
+**H1c: 0,0696 contra 0,0896, diferença −0,0199, IC [−0,0560; +0,0086]** — contém zero nas
+três pernas (travada, sensibilidade **pré-comprometida**, sensibilidade post-hoc). É o que
+a `SPEC-ANALISE §3` previra com MDE saturado. A re-randomização registada concorda
+(p = 0,1603).
+
+🔴 **Mas as duas medidas de incerteza contradizem-se**: a spec diz que nem a eliminação
+total é detectável, e o IC **exclui** a eliminação total (−0,0896) por 0,0335 — precisaria
+de largura ≥ 0,0896 e tem 0,0646. Reportadas as duas, com o defeito de cada uma nomeado, e
+**nenhuma adjudicada**. Este estudo não tem medida fiável da própria incerteza.
+
+#### 4. 🔑 `N = 234` era inviável por construção — o achado maior do dia
+
+Os 19 designados vivem em `memory/entities/lessons/%` (sub-pool global, janela de 30 d),
+`source_date` NULL, e `created_at` é um **valor único**: `2026-08-21 22:51:23`. Expiram
+juntos em `2026-09-20 22:51:23` ⇒ **20 dos 234 epochs, 8,5%**. Depois disso a intervenção
+não é fraca, **não existe**: o chunk não entra em `fetchFreshCandidates`, e o boost endereça
+por id. Por 214 epochs, tratamento e controlo seriam a mesma intervenção.
+
+⇒ O ensaio **não parou cedo**; correu todo o intervalo em que podia agir e fechou 51 min
+antes da expiração. O subdimensionamento é propriedade do **registro**, não da janela.
+Mesma forma da colisão do H1b, num objeto maior — e cada número está certo isolado: a
+aritmética do `sizing.py` é fiel, a janela de 30 d é default documentado, e **nunca foram
+lidos um contra o outro**.
+
+⚠️ Isto foi medido em **09/09** e ficou numa memória com a decisão em aberto. Só chegou ao
+manuscrito porque uma voz adversarial perguntou de fora.
+
+#### 5. Duas análises REGISTADAS que não tinham sido corridas — agora corridas
+
+| | estado antes | agora |
+|---|---|---|
+| re-randomização (PREREG §5, 10.000 redesenhos) | substituída por bootstrap **sem declarar** | corrida; controlo 300/300 padrões distintos reproduz a spec. **Contradiz o bootstrap em H1a** |
+| controles de instrumento (SPEC §5) | nenhum reportado | positivo **11/11**, dual negativo **8/8**, sobre a janela completa |
+
+O terceiro controlo (replay sham) fica **declarado não executado**: exige re-executar o
+mecanismo. A nossa tentativa de o fazer por contagem sobre o log deu «FALHA» e a falha era
+do teste — `ids_tratado` é pós-dose, e a SPEC §5 já rotulava esse candidato de tautológico.
+**Não executado e falhado são estados diferentes**; só um é sobre o sistema.
+
+#### 6. Revisão adversarial: 5 vozes, 4 válidas
+
+DeepSeek, Grok e GLM no Paper B; Kimi no Paper A — todas com recibo `exit: 0`. **Codex
+devolveu parecer inválido**: quatro citações que não resolvem contra o ficheiro, incluindo
+*"não há seção §4.3.1"* (existe, l. 596). Registado com a evidência em
+`REVISAO-ADVERSARIAL-2026-09-21.md`, porque «a voz não achou nada» e «a voz não leu» são
+coisas diferentes.
+
+No Paper A, o Kimi achou o que cinco revisões e dois censos não tinham achado: o **2,66%
+que abria o abstract** divide numerador histórico por denominador vivo (vivo/vivo dá
+2,43%), e o §8.3 dizia que o estudo pré-registado *"não rodou"* três semanas depois de ele
+fechar.
+
+#### 7. Os guardas, consertados na raiz
+
+- `claims_check.py` fazia `100 * cum['brief'] / corpus` — **recomputava fielmente a conta
+  errada**. Recomputar protege contra o texto envelhecer, nunca contra a fórmula estar
+  errada de origem.
+- `censo-de-universos-no-paragrafo.py`, escrito **para** esta família, não a apanhou:
+  compara universos **declarados** de números **adjacentes**, e a mistura dentro de um
+  quociente tem um rótulo só.
+- `auditoria-da-cadeia.py` não lia `MANUSCRIPT-B.md` ⇒ os artefatos do Paper B apareciam
+  como órfãos. «Ninguém cita» e «não olhei para quem cita» tinham a mesma saída.
+- `backup-lastro-p2.sh` imprimia hash vazio como hash ⇒ **ausente** lia-se como
+  **divergente**. E a sua 1.ª versão re-sincronizava **antes** de verificar, o que tornava
+  impossível detectar corrupção pré-existente.
+
+#### 8. Lastro
+
+14 → 17 artefatos, 154 MiB, irreproduzíveis. Perna local **12/0 verificada no destino**.
+🔴 **Perna off-machine declarada NÃO VERIFICADA** — `NOX_LASTRO_HOST` ausente do ambiente,
+logo o lastro existe hoje em **uma máquina**. Declarar, nunca omitir: «não copiei» e
+«copiei e está bem» não podem ter a mesma saída.
+
+**O que fica pendente e bloqueia depósito:** o replay sham, e a cópia off-machine.

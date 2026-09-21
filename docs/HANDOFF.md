@@ -1,5 +1,61 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-21 (noite) — ANÁLISE FECHADA · Paper B aberto · 2 bloqueadores de depósito
+
+### ▶️ PRÓXIMO PASSO
+
+**Dois, e nenhum é grande:**
+
+1. 🔴 **Cópia off-machine do lastro** — `NOX_LASTRO_HOST` não está no ambiente, logo o
+   lastro do ensaio (17 artefatos, 154 MiB, **irreproduzíveis**: pod efémero, provider
+   não-determinista, vereditos pagos) existe hoje em **UMA máquina**. A perna local está
+   `12/0 verificada no destino`. Com a variável, `bash scripts/backup-lastro-p2.sh` fecha
+   as duas sozinho. É literalmente uma env var.
+2. **Replay com designação-sham** (Paper B §4.0.1b) — 19 chunks não designados, mesmo `w`.
+   Exige **re-executar o mecanismo de serving**, não ler o log dele. ⚠️ A tentativa por
+   contagem sobre o log é inválida e já foi feita: deu «FALHA» e a falha era do teste
+   (`ids_tratado` é pós-dose — a `SPEC-ANALISE §5` já rotula esse candidato de tautológico).
+
+Depois disso: figuras, related work, depósito. Paper A tem a lista própria no fim dele.
+
+### O que fechou hoje
+
+| | |
+|---|---|
+| análise ITT | **7/7** reportáveis do `SPEC-ANALISE §6` |
+| working list do Paper B | **5 de 8** |
+| revisão adversarial | 5 vozes, **4 válidas** (Codex inválido, registado) |
+| commits | 12 |
+
+**Resultado:** `H1c = −0,0199`, IC [−0,0560; +0,0086], **contém zero nas três pernas** —
+travada, pré-comprometida e post-hoc. A re-randomização registada concorda (p = 0,1603).
+
+### ⚠️ Quatro coisas para ler ANTES de mexer nisto
+
+1. **`N = 234` era inviável por construção.** Os designados expiram `2026-09-20 22:51:23`
+   (um `created_at` único + janela de 30 d) ⇒ 20 de 234 epochs. O ensaio **não parou
+   cedo**. `DEVIATIONS` §3.0.1 do Paper B, `D-2026-09-21e` §4.
+2. **As duas medidas de incerteza contradizem-se** e **não** foram adjudicadas: o IC exclui
+   a eliminação total que a spec declara indetectável. Nenhum intervalo deste estudo é
+   coverage calibrada — ler sinal e ordem de grandeza, nunca o intervalo.
+3. **A sensibilidade a usar é a PRÉ-COMPROMETIDA** (remove todos os parciais em bloco,
+   `SPEC §9.1`), não a «sem `09-14`», que foi escolhida depois de ver o dado.
+4. **H1 rejeita sob os dois testes e continua fora da interpretação** — é a hipótese que
+   exigia 955%. Está classificada como **rejeição inexplicada**, não como achado.
+
+### Onde está cada coisa
+
+| | |
+|---|---|
+| Paper B (interventivo) | `paper2-interventional/MANUSCRIPT-B.md` |
+| Paper A (superfície) | `paper2-interventional/MANUSCRIPT.md` |
+| resultados e desvios | `DEVIATIONS-FOR-PAPER.md` §10.29–§10.34 |
+| a rodada adversarial | `REVISAO-ADVERSARIAL-2026-09-21.md` |
+| instrumentos novos | `estimador_itt.py` · `rerandomizacao.py` · `controles_instrumento.py` · `cobertura_e_m10.py` |
+| lastro | `scripts/manifesto-lastro-p2.py` · `scripts/backup-lastro-p2.sh` |
+
+---
+
 ## 2026-09-21 — ENSAIO P2 ENCERRADO: dose desligada, guardas aposentados, incident do `fd` fechado
 
 ### ▶️ ESTADO / PRÓXIMO PASSO
