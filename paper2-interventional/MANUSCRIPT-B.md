@@ -1,8 +1,13 @@
 # Under-powered by construction: intention-to-treat results from a pre-registered interventional trial of agent-memory dosing
 
 > **STATUS — DRAFT opened 2026-09-21.** Every number below is measured and traceable to
-> an artifact; nothing here is projected. What is *not* done: adversarial review, figures,
-> related work, and deposit. The working list is at the end, and the rule of this project
+> an artifact, and §B names the artifact for each. What is *not* done: figures, related
+> work, and deposit.
+>
+> ⚠️ **Two different adversarial reviews, and the distinction matters.** The numbers in §6
+> were reviewed adversarially before this manuscript existed — that is how six of those
+> seven defects were found. **This manuscript** is under review as of 2026-09-21 by five
+> model families; §4.3, §4.4 and §3 already carry corrections it produced. The working list is at the end, and the rule of this project
 > applies to it — **an item is struck in the same commit that closes it.**
 >
 > This is **Paper B** of the split decided on 2026-08-28 (`PAPER-SPLIT-2026-08-28.md`).
@@ -23,7 +28,11 @@ beacon, with the assignment script and its hash registered before the seed was d
 The registered design called for 234 epochs. **Twenty were realized** before the trial was
 closed on 2026-09-20, of which nineteen served data.
 
-**The primary outcome is null and the study could not have found otherwise.** The
+**The primary outcome is null and the study could not have found otherwise** — a claim
+about **H1c**, the primary, and not about every quantity the trial produced. Two secondary
+quantities *do* return intervals excluding zero, and §4.3 argues they are properties of a
+shared denominator rather than of the treatment; a reader who rejects that argument should
+read them as unexplained. The
 pre-registered analysis specification, written on 2026-09-10 — ten days before the window
 closed and before any outcome was computed — recorded that the minimum detectable effect
 for H1c was **saturated at 100%** at the realized N, i.e. no effect size within the
@@ -38,8 +47,9 @@ primary for requiring a 955% effect nonetheless returns an interval excluding ze
 is a measurement of the *denominator*, not of the treatment; a second hypothesis inverts
 its conclusion on the removal of a **single** epoch whose exposure comes from one session
 with three episodes; and the member of the hypothesis family that carried the substantive
-mechanism question is **unevaluable**, because two locks of our own pre-registration
-define its estimand incompatibly and neither of us noticed until the window had closed.
+mechanism question collapses to **1.0 by construction**, because two locks of our own
+pre-registration define its estimand incompatibly and neither of us noticed until the
+window had closed.
 
 We take the position that these are the reportable results of an under-powered trial, and
 that publishing them is the alternative to the two things a null of this shape is usually
@@ -64,7 +74,7 @@ pre-registration calls that nesting *"the nesting that makes the joint reporting
 |---|---|---|
 | `H1` | density of repeated failures per session-hour | **computable**; demoted from primary 2026-08-30 |
 | `H1a` | rate of eligible opportunities per session-hour | **computable**; does not bear weight (§4.2) |
-| `H1b` | share of opportunities yielding a repeat attempt | **UNEVALUABLE** (§4.4) |
+| `H1b` | share of opportunities yielding a repeat attempt | **trivially 1.0**; the question it carried is unanswerable (§4.4) |
 | `H1c` | share of opportunities yielding a repeated *failure* | **primary**; null, and undetectable by construction |
 
 This paper reports the intention-to-treat analysis of that family and nothing else. The
@@ -133,7 +143,18 @@ The trial went `active` on **2026-09-01 at 10:25:39Z** and the dose was switched
 | empty | **1** (`09-02`, never served) |
 
 Realized allocation over the 20 designated: **9 control · 6 at `w=2` · 4 at `w=4` · 1 at
-`w=7.5`**. Over the 19 with data: 8 control, 11 treatment — `09-02` was a control epoch.
+`w=7.5`**, i.e. 9 control and 11 treatment.
+
+🔴 **Two different denominators, both correct, and we first wrote one number for both.**
+
+| analysis | epochs | why |
+|---|---:|---|
+| **ITT (§4.1–4.4)** | **20** | every designated epoch. `09-02` served no brief but its sessions produced **88 episodes**; it was designated control, and dropping it would be post-randomization conditioning — the exact defect §3.1 records us committing once already |
+| **coverage and M10 (§4.5–4.6)** | **19** | coverage is defined over served briefs, and `09-02` has none. The quantity does not exist there, which is not the same as being zero |
+
+An earlier draft said "19 analyzable clusters" throughout. That is the coverage
+denominator applied to the ITT, and it is the family of error this project catalogues as
+*a correct number attributed to the wrong population*.
 
 **`09-01` is reported with both phases declared**, as §6 item 6 of the analysis spec
 requires: 42 briefs in `shadow` until 10:22Z and 630 in `active` from 10:37Z, with no
@@ -223,7 +244,18 @@ the registered definition that only manifests when an epoch contains a sparse se
 
 **We did not change the denominator.** Replacing it with "effective work" would be
 altering a locked definition *after* seeing that it yields an uncomfortable result, and
-would invalidate `r̂`, the ICC and the `N` that `sizing.py` derived from them. The
+would invalidate `r̂`, the ICC and the `N` that `sizing.py` derived from them.
+
+🔴 **But that cuts both ways, and we did not say so in the first draft.** If the exposure
+measure counts idleness, then `r̂`, the ICC and the sample size derived **from that same
+measure** inherit the defect. The power calculation that tells us this study is
+under-powered was computed on a denominator we are now calling artifactual. We do not know
+the direction: a denominator inflated by sparse sessions could have made the pilot's event
+rate look lower than it is, which would have **over**-sized the study, or the reverse. The
+honest statement is that **the under-powering claim of §4.1 rests on a quantity this
+section undermines**, and that resolving it requires recomputing the pilot — which is
+future work, not a footnote. It does not rescue the trial either way: the realized N is 20
+clusters regardless of what N *should* have been. The
 sensitivity is reported alongside and **the divergence is not adjudicated in favour of
 either leg** — the rule that says so was pre-committed in §2 of the analysis spec. The
 line the reader must take away is the sensitivity one: a conclusion that turns on one
@@ -234,16 +266,52 @@ sparse session is not a conclusion.
 `H1` returns **−14.62**, CI [−20.51; −4.79], excluding zero on both legs (sensitivity
 −9.74, CI [−16.21; −2.99]).
 
-⚠️ This is **not** presented as a result. `H1` was **removed from primary on 2026-08-30**
-for requiring a **955%** effect — `DESIGN-REVISION-2026-08-30.md` l.196 calls it
-*"impossible by construction"*. An interval excluding zero on a hypothesis already
-declared undetectable is a signal about the denominator of §4.2, not about the treatment.
-With 9 and 11 epochs the cluster bootstrap has few degrees of freedom and returns
-optimistic intervals.
+⚠️ This is **not** presented as a result — and the reason is structural, not rhetorical.
 
-A reader who wants one sentence: **the only place this trial produced significance is the
-hypothesis we had already ruled out as impossible**, and that coincidence is the finding,
-not the number.
+🔑 **`H1` is not an independent hypothesis. It is the product of the other two:**
+
+```
+H1  =  repeats / hours  =  (repeats / opportunities) × (opportunities / hours)  =  H1c × H1a
+```
+
+Verified on the estimates, relative error ≈ 5×10⁻⁶ in all four arm-by-leg cells — the
+residue is the JSON rounding to six places, not a discrepancy. This is an algebraic
+identity, so `H1` carries no information that `H1a` and `H1c` do not already carry.
+
+**And the split falls exactly along the denominator.** `H1` and `H1a` both divide by
+session-hours; `H1c` does not — it is a ratio of two counts. The two quantities that
+exclude zero are **precisely the two that divide by the measure §4.2 shows to be
+idleness**, and the one quantity free of that denominator is the null one. That is not a
+coincidence we are asserting away; it is visible in the arithmetic above.
+
+⚠️ **What this argument does NOT do, stated because an adversarial reviewer caught us
+short here.** It does not explain why `H1` still excludes zero *without* `09-14`. Removing
+that epoch nearly equalizes hours per epoch across arms (0.557 treatment against 0.573
+control) and `H1` remains at −9.74. So the residual gap is **not** the sparse session. It
+is volume: the control arm carries **132.3 opportunities and 11.85 repeats per epoch**
+against **93.4 and 6.08** in treatment.
+
+Two readings survive that, and this design does not separate them:
+
+1. the treatment reduces the **volume** of failure activity without moving the **rate** at
+   which opportunities become repeated failures (which is what `H1c` measures, and `H1c`
+   is null);
+2. the arms differ in baseline volume by chance — with 20 clusters and between-epoch
+   volume spanning 73 to 234 episodes, that is entirely available.
+
+We cannot adjudicate between them, and we will not pick the flattering one. What we will
+say is narrower and survives both: `H1` was **removed from primary on 2026-08-30** for
+requiring a **955%** effect (`DESIGN-REVISION-2026-08-30.md` l.196, *"impossible by
+construction"*), so an interval excluding zero there cannot be read as the treatment
+working — the effect it would imply is outside what the mechanism can produce. And with 9
+and 11 epochs the cluster bootstrap has few degrees of freedom and returns optimistic
+intervals.
+
+⚠️ **We also owe a note on our own criterion.** §4.2 discards `H1a` because it turns on one
+sparse session. `H1` does *not* turn on that session and is discarded anyway, on different
+grounds. Applying one standard where it bites and another where it does not is how a ruler
+gets chosen by its result. The grounds above are stated separately so a reader can reject
+either without the other.
 
 ### 4.4 H1b — unevaluable, because two of our own locks collide
 
@@ -258,8 +326,14 @@ nesting the pre-registration calls load-bearing ceases to exist. For H1b to have
 `Opportunity` would have to be a property of the *session* — which changes the denominator
 for the **whole** family, not just for H1b.
 
-No later document resolves it: the analysis spec does not mention H1b once, and no
-artifact computing it exists.
+No later document resolves it: the analysis spec does not mention H1b once.
+
+⚠️ **Correction of our own phrasing (2026-09-21, adversarial review).** We first wrote
+that H1b is *"unevaluable"*. That conflates two things. Under the lock we kept, **H1b is
+perfectly evaluable and equals 1.0** — it is *trivial*, not unmeasurable, and no artifact
+computes it because none is needed. What is unanswerable is the **question** H1b was
+written to carry. Saying "unevaluable" made a definitional triviality sound like missing
+data, which is the more flattering of the two readings and the wrong one.
 
 **We kept the July lock** — `Opportunity` is the action — because PREREG §420 records that
 `r̂`, `p̂0` and the ICC were **all computed by replay under that model**, and that the
@@ -489,21 +563,49 @@ nobody corrects unprompted an error that favours them.
 | `p2-serving.ndjson` · `episodios-ensaio-20260921.jsonl` | serving log and episodes |
 | `ensaio-20260921-PRIMARIO-3fam.jsonl` | 3 592 verdicts, three families |
 | `ensaio-20260921-SENSIB-deepseek.jsonl` | 1 195 verdicts, fourth family (sensitivity) |
+| `COBERTURA-M10-2026-09-21.json` · `cobertura_e_m10.py` | coverage by arm, per-signature share, M10 and its four legs |
+| `MANIFESTO-LASTRO-P2.json` | sha256 of every artifact above, for loss detection |
 
-⚠️ Several of these are **outside the repository** and several are large. Paper A's ballast
-discipline applies here and is not yet executed for these: a manifest proves the bytes are
-the bytes, it does **not** prove a copy exists. This is the first item of the working list.
+### B.1 Where each number in the text comes from
+
+Added 2026-09-21 after an adversarial reviewer observed that the header promised universal
+traceability and several numbers had no artifact named beside them. **That review was
+right, and understated: two of them had no artifact at all** — the coverage figures and
+the whole of M10 were computed by an ad-hoc script and never saved. `cobertura_e_m10.py`
+now produces them, and reproduces the ad-hoc values exactly.
+
+| number | §  | artifact |
+|---|---|---|
+| H1, H1a, H1c and every interval | 4.1–4.3 | `ITT-2026-09-21.json` |
+| session-hours per arm, opportunities, repeats | 4.2 | idem |
+| 7.13 h at `09-14`; session `d37a5964…`, 3 episodes, span 6.33 h; 74/65/56 episodes | 4.2 | `episodios-ensaio-20260921.jsonl` |
+| coverage 27.98% / 26.92%; 4 324 occurrences; 19/19 signatures at ≈5.3% | 4.5 | `COBERTURA-M10-2026-09-21.json` |
+| the fabricated 139 650 that `boost_by_id` would yield | 4.5 | idem, field `nota_boost` |
+| `r` and all four legs; −0.0521 against dose | 4.6 | idem, field `M10` |
+| truncation/chance split, 2 000 seeds | 4.7 | `ITEM7-DOSE-TOPO-2026-09-21.json` |
+| agreement 1 111/1 145; abstentions 26+6+1 / 13 / 11; gains 20, losses 28 | 6 | `ensaio-20260921-*.jsonl`, recomputed in `DEVIATIONS-FOR-PAPER.md` §10.31 |
+| 20 designated, 19 served, 16+3+1 | 3 | `ASSIGNMENT-SERVING.json` + `p2-serving.ndjson` |
+
+⚠️ Several of these are **outside the repository** and several are large.
+`scripts/manifesto-lastro-p2.py` hashes all 14 (154 MiB) and
+`scripts/backup-lastro-p2.sh` copies them with the hash recomputed **at the destination**.
+🔴 **The off-machine leg is declared unverified**: the environment has no host set, so the
+ballast currently exists on **one machine**. A manifest proves the bytes are the bytes; it
+does not prove a copy exists.
 
 ---
 
 ## Working list — struck in the commit that closes it
 
-1. **Ballast**: manifest + two verified copies for the artifacts of Appendix B, with the
-   hash recomputed **at the destination**. The trial cannot be re-run: ephemeral pod, the
-   provider is non-deterministic, and `rc4/nox_mem.json` already shows what an unresolved
+1. ~~**Ballast**: manifest~~ → ✅ **done 2026-09-21** (14 artifacts, 154 MiB, verified at
+   the destination; two defects of ours found by mutation and fixed). 🔴 **Still open: the
+   off-machine copy** — one machine is not a backup. The trial cannot be re-run: ephemeral
+   pod, non-deterministic provider, and `rc4/nox_mem.json` already shows what an unresolved
    version placeholder costs.
-2. **Adversarial review** of this manuscript by families distinct from the author's —
-   disjoint defect class from mechanical census, and §6 above is the evidence.
+2. **Adversarial review** of this manuscript — **in progress**, five families, 2026-09-21.
+   One has returned; its findings produced the corrections now in §1, §3, §4.3, §4.4 and
+   this appendix. Four pending. Disjoint defect class from mechanical census, and §6 is the
+   evidence.
 3. **Figures**: the H1a sensitivity (the single-epoch inversion) and the §4.7 seed
    distribution. Both derive from locked artifacts.
 4. **Related work** — Paper A's §8 covers the surface literature, not trials of memory

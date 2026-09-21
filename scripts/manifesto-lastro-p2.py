@@ -91,6 +91,12 @@ def main() -> int:
         print(sha256_dir(d)[0]); return 0
 
     nomes = citados()
+    # ⚠️ O manifesto NAO se hasheia a si mesmo. O sha256 seria o do conteudo
+    # ANTERIOR a esta escrita, logo divergiria em toda verificacao — um
+    # instrumento que se inclui no que mede reporta uma falha que e' dele
+    # proprio. Excluido por nome, e o recibo do backup di-lo.
+    AUTO = "MANIFESTO-LASTRO-P2.json"
+    nomes = [x for x in nomes if x != AUTO]
     if not nomes:
         print("ABORTA: o Apêndice B não citou artefato nenhum — o censo leu 0 bytes,",
               "o que é indistinguível de 'nada a proteger'.", file=sys.stderr)
