@@ -1702,3 +1702,46 @@ A avaliação foi por leitura das duas fontes + a página oficial de failure mod
 evidência favorece é **`rrf(hybrid, jev@30)`** — fusão, não reordenação — com 30 candidatos
 numa chamada e `jev-1.13.0` **pinado**, nunca o alias `jev-latest`, que reintroduziria o
 confound de versão que custou o §6.3.2 na corrida do mem0.
+
+---
+
+### D-2026-09-21c — Sete workflows desarmados: SDK morto e três publicações armadas num repo público
+
+**Medido antes de decidir.** Dos **22** workflows ativos, só **11** correram nos últimos 30
+dias. Dos que não correm, cinco tinham terminado em **falha** e ficado assim: `CodeQL`
+(22/06), `Docker` (30/06), `Visual Regression` (30/06), `SDK — .NET` e `SDK — Rust`
+(26/08). Vermelho crónico é o regime em que um vermelho **novo** não é lido — a mesma razão
+que motivou a aposentadoria dos guardas do P2 em `D-2026-09-21`.
+
+**O SDK está morto, por três sinais independentes:** `sdk/` não é tocado desde **2026-05-24**
+e esse commit é `fix(ci): unrot SDK Build & Publish workflow (6-day chronic failure)`; são 5
+commits em 6 meses; e **não é citado em nenhum documento vivo** (`HANDOFF`, `ROADMAP`,
+`DECISIONS`, `CLAUDE.md`). É herança da fase do `openapi.yaml`/WAVE-L, sem relação com o
+nox-mem de hoje.
+
+🔴 **O que isto fecha, e é o motivo real:** três workflows publicavam em **registries
+públicos** — `nuget push`, `cargo publish`, `npm publish` — disparados por `push` em
+`sdk/**`, caminho que **existe** (680 KB). As guardas estavam corretas (linha comentada,
+`if: … && false  # remove && false to enable`, exigência de tag `v*`) e `gh secret list` vem
+**vazio**, logo não havia risco ativo. Mas era proteção que dependia de ninguém «limpar o
+código morto» — um `&& false` num comentário. Desarmado o gatilho, a proteção deixa de
+depender de disciplina.
+
+**Desarmados (7):** `SDK — .NET`, `SDK — Go`, `SDK — Java`, `SDK — Rust`,
+`SDK Build & Publish`, `Docker — Build + Push + Smoke Test`, `Visual Regression — P5 Viewer`.
+
+**Mantidos armados (4 dos que não correm):** `CodeQL` e `Release` aceitam só
+`workflow_dispatch`; `Deploy Validator` correu com **sucesso em 01/09**; `Perf Regression
+Gate` filtra em `staged/**`, que é vivo. Estão mudos por não serem tocados, não por estarem
+podres.
+
+**Forma escolhida:** `gh workflow disable`, não `git rm`. Os ficheiros ficam no repo e a
+reversão é `gh workflow enable "<nome>"`. Apagar exigiria commit e `git revert` para desfazer.
+
+**O que NÃO foi tocado:** os 82 artefactos de Actions (**268 KB** no total) ficam — o maior
+é `gitleaks-results.sarif` com 190 KB e todos expiram por retenção. Não há espaço a poupar
+ali; o problema nunca foi armazenamento.
+
+⚠️ **Pendência que este trabalho não resolve:** o único *required status check* é
+`Secret Scan (gitleaks)`, e ele corre com `continue-on-error` — ou seja, **nada gateia** o
+merge neste repo. Registado, não corrigido; é decisão separada.
