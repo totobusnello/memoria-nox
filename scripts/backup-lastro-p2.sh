@@ -129,10 +129,10 @@ else
       esac
       if [ "$tipo" = "diretorio" ]; then
         # o MESMO script corre no destino (copiado acima) — nunca uma 2ª regra
-        obtido=$(ssh -o ConnectTimeout=15 "$NOX_LASTRO_HOST" \
+        obtido=$(ssh -n -o ConnectTimeout=15 "$NOX_LASTRO_HOST" \
           "python3 $DEST_R/manifesto-lastro-p2.py --hash-dir $DEST_R/$rel" 2>/dev/null)
       else
-        obtido=$(ssh -o ConnectTimeout=15 "$NOX_LASTRO_HOST" \
+        obtido=$(ssh -n -o ConnectTimeout=15 "$NOX_LASTRO_HOST" \
           "sha256sum $DEST_R/$rel 2>/dev/null | cut -d' ' -f1")
       fi
       if [ "$obtido" = "$esperado" ]; then RC=$((RC+1)); else RF=$((RF+1)); echo "  🔴 remoto $nome" | tee -a "$REC"; fi
@@ -141,8 +141,18 @@ import json,sys
 m=json.load(open(sys.argv[1]))
 for a in m["artefatos"]:
     print("\t".join([a["nome"],a["caminho"],a["sha256"],a["tipo"]]))' "$MAN")
-    echo "  remoto: $RC conferem, $RF divergem" | tee -a "$REC"
-    REMOTO=$([ "$RF" -eq 0 ] && echo 0 || echo 1)
+    echo "  remoto: $RC conferem, $RF divergem (de $CONF que a perna local viu)" | tee -a "$REC"
+    # ⚠️ INVARIANTE: a perna remota tem de examinar o MESMO número de artefatos que
+    # a local. Sem isto, «1 confere, 0 divergem» lê-se como sucesso quando são 11
+    # não examinados — foi o que aconteceu em 2026-09-22T01:47Z, porque o `ssh`
+    # dentro do `while read` consumia o stdin do loop e engolia as linhas. O `-n`
+    # corrige a causa; este teste é a rede para a próxima variante dela.
+    if [ "$((RC+RF))" -ne "$CONF" ]; then
+      echo "  🔴 a perna remota examinou $((RC+RF)) de $CONF — NÃO é um veredito sobre a cópia" | tee -a "$REC"
+      REMOTO=1
+    else
+      REMOTO=$([ "$RF" -eq 0 ] && echo 0 || echo 1)
+    fi
   fi
 fi
 

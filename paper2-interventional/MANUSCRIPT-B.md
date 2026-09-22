@@ -905,19 +905,23 @@ now produces them, and reproduces the ad-hoc values exactly.
 ⚠️ Several of these are **outside the repository** and several are large.
 `scripts/manifesto-lastro-p2.py` hashes all 14 (154 MiB) and
 `scripts/backup-lastro-p2.sh` copies them with the hash recomputed **at the destination**.
-🔴 **The off-machine leg is declared unverified**: the environment has no host set, so the
-ballast currently exists on **one machine**. A manifest proves the bytes are the bytes; it
-does not prove a copy exists.
+✅ **Both legs now verified at the destination** (2026-09-22 01:48Z): local **12/12**,
+off-machine **12/12** on a host that is not the one that served the trial — it has no
+`/root/.openclaw`, its epoch pointer is frozen at 2026-08-23, and it already holds Paper
+1's ballast. Identified by **capability, never by address**. A manifest proves the bytes
+are the bytes; it does not prove a copy exists, which is why the copy is verified
+separately and carries a dated receipt.
 
 ---
 
 ## Working list — struck in the commit that closes it
 
-1. ~~**Ballast**: manifest~~ → ✅ **done 2026-09-21** (14 artifacts, 154 MiB, verified at
-   the destination; two defects of ours found by mutation and fixed). 🔴 **Still open: the
-   off-machine copy** — one machine is not a backup. The trial cannot be re-run: ephemeral
-   pod, non-deterministic provider, and `rc4/nox_mem.json` already shows what an unresolved
-   version placeholder costs.
+1. ~~**Ballast**: manifest + two verified copies~~ → ✅ **done 2026-09-22**: 17 artifacts,
+   154 MiB, **both legs 12/12 recomputed at the destination**. Three defects of ours found
+   and fixed along the way — a directory hash reimplemented in shell that diverged by one
+   trailing newline, an `rsync` that ran *before* the check and so restored the corrupted
+   byte it was meant to detect, and an `ssh` inside a `while read` that ate the loop's
+   stdin and verified **1 of 12** while reporting "0 divergem".
 2. ~~**Run the registered re-randomization**~~ → ✅ **done 2026-09-21** (§4.0.1a, §4.0.2):
    10 000 redesigns, 9 941 distinct patterns, control of 300/300 reproducing the spec. It
    **disagrees with the bootstrap on H1a**, and `H1` is now reported as an unexplained
