@@ -1,5 +1,65 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-22 (manhã) — o sham queimou 12h e mediu ZERO; loop abortado, calibração no ar
+
+### ▶️ PRÓXIMO PASSO
+
+🔄 **Job desacoplado na VPS OpenClaw** (`ppid=1`, sobrevive a fechar sessão/Mac), lançado
+`2026-09-22 13:46:32Z`, teto de **8h** ⇒ decide até `21:46Z` (18:46 BRT).
+
+```sh
+ssh -n root@<VPS-OpenClaw> 'cat /tmp/calibra-real/RECIBO.txt; tail -3 /tmp/calibra-real/PROGRESSO.ndjson'
+```
+
+Ele responde **uma** pergunta, e é a que bloqueia tudo: **quanto tempo UMA corrida do
+replay realmente precisa.** Instrumento: `/root/calibra-real.sh`.
+
+| ler assim | |
+|---|---|
+| `REAL exit=0 dur=Ns out_existe=sim` | temos o número: o sham inteiro custa `21 × N` sequencial |
+| `exit=124` a 28.800s | ainda **não medido** — mas aí a série do `PROGRESSO.ndjson` diz se estava progredindo ou travado |
+| `PROGRESSO.ndjson` com `cpu_s` parado entre amostras | travou; não é lentidão |
+
+### O que aconteceu com o sham lançado ontem
+
+**12 corridas, 12 × `exit=124`, ZERO `.json` produzidos.** O loop rodou das 01:40Z às
+13:45Z e não mediu nada. Abortado à mão, com a razão gravada em `/tmp/sham-out/RECIBO.txt`.
+
+Dois defeitos, e nenhum é do replay:
+
+1. **O `roda-sham.sh` promete no comentário o que não implementa.** Está escrito *"a corrida
+   REAL primeiro: é o baseline, e se ela falhar nada do resto vale"* — mas não há `exit` ali.
+   O REAL saiu 124 na primeira hora e o loop seguiu por mais onze. Promessa no cabeçalho
+   não é implementação.
+2. **O teto de 3600s veio de uma projeção que nunca foi medida** (o cabeçalho projeta
+   "21 corridas ≈ 5h de CPU", ou seja ~14 min cada). O medido é ≥60 min. Não é contenção:
+   o replay fica em **96,7% de um core** com load 1,47 em 2 vCPU.
+3. **O replay não emite progresso até o fim.** Foi isso que tornou as 12 horas ilegíveis —
+   «morreu a 5%» e «morreu a 95%» têm saída idêntica. Daí o amostrador na calibração.
+
+⚠️ **`pkill -f <padrão>` casa a linha de comando do próprio shell que o executa.** Ao matar
+o loop, o `pkill -f "replay-oportunidade.mjs"` matou o `bash -c` do ssh antes do `printf`, e
+o recibo ficou sem a nota de abort até eu gravá-la numa segunda chamada.
+
+### Se a duração inviabilizar K=20
+
+Otimizar o replay **é legítimo aqui**, ao contrário do que a intuição diz sobre mexer em
+instrumento de ensaio: o sham compara o REAL contra a distribuição dos 20 shams, e `p` só
+exige que **as 21 corridas usem a mesma versão do instrumento**. Não há comparação com
+número publicado antes. O que **não** é legítimo é rodar shams numa versão e o REAL noutra.
+
+### Decisões do Toto em 2026-09-22
+
+| | |
+|---|---|
+| job do sham | **matar e calibrar o REAL** — feito |
+| qual paper vai a depósito primeiro | **decidir depois do sham**. A pergunta A-vs-B continua aberta e é dele |
+
+⚠️ As 20 designações sham e o `sham-sem-exclusao.txt` vivem em `/tmp` da VPS (em `/dev/sda1`,
+não tmpfs — mas um reboot com limpeza de `/tmp` as apaga). `gera-shams.py` refaz, com seed.
+
+---
+
 ## 2026-09-21 (noite) — ANÁLISE FECHADA · Paper B aberto · 2 bloqueadores de depósito
 
 ### ▶️ PRÓXIMO PASSO
