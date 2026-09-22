@@ -4,17 +4,49 @@
 
 ### ▶️ PRÓXIMO PASSO
 
-**Dois, e nenhum é grande:**
+🔄 **Há um job A CORRER na VPS que ninguém está vigiando.** Lançado 2026-09-22 01:40Z,
+`setsid` com `ppid=1`, logo sobrevive a fechar sessão/terminal/Mac. **Termina sozinho por
+volta de 06:40Z (03:40 BRT) e o resultado não se lê sozinho.**
 
-1. 🔴 **Cópia off-machine do lastro** — `NOX_LASTRO_HOST` não está no ambiente, logo o
-   lastro do ensaio (17 artefatos, 154 MiB, **irreproduzíveis**: pod efémero, provider
-   não-determinista, vereditos pagos) existe hoje em **UMA máquina**. A perna local está
-   `12/0 verificada no destino`. Com a variável, `bash scripts/backup-lastro-p2.sh` fecha
-   as duas sozinho. É literalmente uma env var.
-2. **Replay com designação-sham** (Paper B §4.0.1b) — 19 chunks não designados, mesmo `w`.
-   Exige **re-executar o mecanismo de serving**, não ler o log dele. ⚠️ A tentativa por
-   contagem sobre o log é inválida e já foi feita: deu «FALHA» e a falha era do teste
-   (`ids_tratado` é pós-dose — a `SPEC-ANALISE §5` já rotula esse candidato de tautológico).
+```sh
+ssh -n root@<VPS-OpenClaw> 'cat /tmp/sham-out/RECIBO.txt'   # 21 linhas + "fim" = acabou
+```
+
+| o que é | replay com designação-**sham**, o 3.º controlo pré-comprometido (`SPEC §5`) |
+|---|---|
+| onde | `/tmp/sham-out/` na VPS OpenClaw · instrumentos em `measurement/roda-sham.sh` e `gera-shams.py` |
+| o que responde | com 19 chunks NÃO designados e o mesmo `w`, o mecanismo move tanto quanto com os 19 reais? Se sim, o que medimos é churn de fundo, não a designação |
+| como ler | `REAL.json` é o baseline; `SHAM-000..019.json` a distribuição nula. `p = #{sham ≥ real} / 21` |
+
+⚠️ **Antes de interpretar, conferir o recibo linha a linha.** Ele grava `exit` e `dur` de
+cada corrida **de propósito**: a 1.ª tentativa morreu com `exit 124` a 900 s sem terminar,
+e 124 é o **nosso** teto de tempo, nunca um veredito. Uma corrida em 124 é **não medida**,
+não «não moveu» — contá-la como zero inverteria o resultado na direcção confortável.
+
+⚠️ **E `p ≥ 0,05` aqui não é «o mecanismo não funciona».** Com `K = 20` o menor p atingível
+é `1/21 = 4,8%`; o teste tem uma casa decimal de resolução e nada mais. Ele falsifica
+especificidade, não a estabelece.
+
+**Depois do sham, o que falta do Paper B:** figuras, related work, depósito.
+
+---
+
+### ✅ Fechado em 2026-09-22 01:48Z — o lastro
+
+Era o único bloqueador com perda **permanente**. **Local 12/12 · off-machine 12/12**,
+recalculados **no destino**, recibo datado em
+`~/Backups/paper2-ensaio-2026-09-21/recibos/`.
+
+🔑 O host de lastro **não** é a máquina que serve o ensaio, e identifica-se por
+**capacidade, nunca por endereço**: sem `/root/.openclaw`, epoch congelado em 2026-08-23, e
+já hospeda o lastro do Paper 1. Vai em `NOX_LASTRO_HOST` no ambiente e **nunca** em ficheiro
+versionado — este repositório é público.
+
+⚠️ A 1.ª corrida da perna remota reportou `remoto: 1 conferem, 0 divergem` sobre **12**
+artefatos: o `ssh` dentro do `while read` comia o stdin do loop. Corrigido com `ssh -n`
+**e** com um invariante de cobertura, porque o `-n` só fecha esta instância.
+
+### O que ainda bloqueia depósito
 
 Depois disso: figuras, related work, depósito. Paper A tem a lista própria no fim dele.
 
