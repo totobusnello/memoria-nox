@@ -393,7 +393,7 @@ with entry/exit and at epoch `09-08` returns 48 against 20.
 |---|---|---|
 | **positive** | a served treatment epoch has `mexeu > 0` | ✅ **11 / 11** (was 6/6 at midpoint) |
 | **negative dual** | a control epoch has `sem_ids == n` | ✅ **8 / 8** (was 3/3) |
-| **specificity (sham)** | replay 19 non-designated chunks at the same `w` | ⏭ **not run** — see below |
+| **specificity (sham)** | replay 19 non-designated chunks at the same `w` | 🔄 **running since 2026-09-22 01:40Z** — see below |
 
 The positive control ranges from **2.83% to 6.85%** of briefs altered per treatment epoch
 (`09-09` lowest, `09-14` highest). Had any treatment epoch returned 0, **the null would be
@@ -418,9 +418,36 @@ therefore rarer. The quantity measured is **chunk frequency**, not specificity.
 The pre-committed sham is a **replay**: re-execute the dose mechanism with 19
 non-designated chunks at the same `w` and compare the churn it produces. That requires
 running the serving code, not reading its log — the log only contains the outcome of the
-designation that actually ran. It stays on the working list, **declared as not run rather
-than reported as failed**, which is the difference between the two that this near-miss
-exists to make.
+designation that actually ran. It was **declared as not run rather than reported as
+failed**, which is the difference between the two that the near-miss above exists to make.
+
+🔄 **It is now running** (launched 2026-09-22 01:40Z, `measurement/roda-sham.sh`).
+21 runs of `replay-oportunidade.mjs --modo dose` at `w = 4` — one with the real
+designation as baseline, 20 with sham designations — sequential, `nice -n 19 ionice -c3`,
+because each run exceeds 15 min and the host serves production on 2 vCPU. Expected wall
+clock ≈ 5 h.
+
+Three choices in that design, each with its reason:
+
+- **`K = 20` is the minimum, not a round number.** With 21 runs the smallest attainable
+  randomization p-value is `1/21 = 4.8%` — fewer shams and the test cannot reject at 5%
+  no matter what it finds.
+- **The shams are drawn from the eligible pool, not from the corpus.** A sham chunk that
+  fails the eligibility predicate never reaches the candidate list, so it would "not move"
+  **by construction** — the test would report specificity where there was only
+  ineligibility. That is the mirror image of the tautological candidate the spec rejects,
+  and it is why `gera-shams.py` applies the 30-day window as well as the path and floor
+  predicates.
+- **The predicate has an independent control.** Our SQL with the age window returns
+  **115** eligible chunks, and the replay independently *observes* `pool: 115` at the same
+  `t-ref`. Two routes, one number — without that agreement we would not know whether the
+  pool we sample from is the pool the mechanism sees.
+
+⚠️ **One limitation, declared.** The corpus of the published anchor
+(`e20260826T060003Z.db`) **no longer exists** — it was pruned. This runs on
+`corpus-preservado-20260908.db`, the deliberately preserved corpus of the trial, so it
+cannot reproduce the published anchor and does not try to: the comparison is internal,
+real against sham on **one** corpus, which is what specificity needs.
 
 Artifact: `CONTROLES-JANELA-COMPLETA-2026-09-21.json`.
 
