@@ -2015,13 +2015,42 @@ uma sessão inteira na direção errada** — ler uma lista de trabalho de 28/08
 sobre o estado de hoje. Uma lista de pendências que não se rasura é uma régua que
 envelhece. Falta de facto:
 
-3. **passagem de revisão adversarial** — vozes de famílias distintas sobre o manuscrito
+~~3. **passagem de revisão adversarial**~~ → ✅ **feita em 2026-09-21**: Kimi (Moonshot),
+   recibo `exit: 0`, 682 s, 76 KB sobre as 1.937 linhas. Achados **aplicados inteiros** —
+   ver o histórico de correções e `REVISAO-ADVERSARIAL-2026-09-21.md`. O Codex correu no
+   mesmo lote e devolveu **parecer inválido** (quatro citações que não resolvem contra este
+   ficheiro, incluindo *"não há seção §4.3.1"*); registado com a evidência, porque «a voz
+   não achou nada» e «a voz não leu» não são a mesma coisa.
+
+   ⚠️ **Uma voz não é as cinco.** A revisão adversarial deste manuscrito foi feita por
+   **uma** família; o Paper B levou três. Se o depósito exigir mais, isto reabre.
+
+   ~~passagem original:~~ vozes de famílias distintas sobre o manuscrito
    inteiro; a lição registrada é que revisão adversarial e censo mecânico pegam classes
    **disjuntas** de defeito, e só o segundo foi feito até aqui;
 4. **depósito** com o manuscrito + artefatos, e aí a emenda agrupada faz sentido: um
    registro só, declarando os desvios **e** o resultado novo.
 
-5. ⚠️ **varredura das afirmações que envelheceram com o fecho do ensaio** (aberta em
+5. 🟡 **PARCIAL — varredura das afirmações que envelheceram** (aberta em 21/09, três
+   instâncias fechadas em 21/09 **por revisão adversarial, não pela varredura**): o §8.3
+   (*"que não rodou"*), o §9 (*"nada ainda foi"*) e o §4.5 (*"0 linhas"*, agora datado e
+   marcado como não re-verificado). ⚠️ **A varredura sistemática continua por fazer** — três
+   instâncias achadas por leitura externa não são um censo, e a lição de hoje é precisamente
+   que declarar uma varredura aberta não é o mesmo que fazê-la.
+
+   **Abertas e declaradas no texto, do mesmo parecer:** a reconciliação `52 = 52` (§4.3.1
+   vs §4.3.2), os 25 slots das sondas (§4.3), o `POOL-ELEGIVEL` que cobre um dia para uma
+   afirmação de quatro (§4.3.1), o controlo de comparabilidade do §5.7.2 que valida por
+   contagem, o `[FALTA]` do DOI no Apêndice D, e os ponteiros para
+   `DEVIATIONS-FOR-PAPER.md` que o Apêndice D não lista entre os artefatos depositados.
+
+6. ⚠️ **os sete filtros em série não são desagregados** (aberto 21/09, do parecer do Codex —
+   a única crítica dele que não depende de citação). O §4.3.1 atribui a não-exposição do
+   **canal de cobertura** a padrões de caminho; o **pool principal**, 8 dos 10 slots, não
+   recebe a mesma decomposição. A tese «política, não capacidade» é sustentada para o canal
+   e **assumida** para o principal.
+
+~~(o antigo item 5 dizia:)~~ ⚠️ varredura das afirmações que envelheceram (aberta em
    21/09). O Apêndice A dizia que o estudo interventivo «não havia começado» — verdadeiro
    em 01/09, falso desde então; corrigido. **Essa não é necessariamente a única**: qualquer
    frase escrita no presente sobre o estado do ensaio precisa ser relida antes do depósito.
