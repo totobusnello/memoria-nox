@@ -29,6 +29,16 @@ especificidade, não a estabelece.
 
 **Depois do sham, o que falta do Paper B:** figuras, related work, depósito.
 
+⛔ **PARAR AQUI E PERGUNTAR AO TOTO** — pedido explícito dele em 2026-09-21 23:08:
+*"me pergunte amanhã"*. A decisão é **qual paper vai a depósito primeiro**, e ela é dele,
+não minha. Eu tinha recomendado fechar o **B** (duas pendências mecânicas contra seis
+reconciliações de resultado incerto no A); o contra-argumento é que a decisão de 28/08 diz
+que o **A** é que vai primeiro e ele está completo desde 01/09.
+
+⚠️ Não seguir a recomendação por inércia. Uma recomendação escrita por mim ontem lê-se
+amanhã como se fosse uma decisão tomada — e é exactamente a forma de erro que este ficheiro
+registou hoje três vezes.
+
 ---
 
 ### ✅ Fechado em 2026-09-22 01:48Z — o lastro
