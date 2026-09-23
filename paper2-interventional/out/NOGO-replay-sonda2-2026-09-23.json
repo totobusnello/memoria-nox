@@ -1,0 +1,89 @@
+{
+  "procedencia": {
+    "gerado_em": "2026-09-23T00:36:10.017Z",
+    "modo": "dose",
+    "corte_serve_state": "inclusivo",
+    "granularidade_last_served": "seg",
+    "corpus": "/var/lib/nox-mem/p2/corpus-preservado-20260908.db",
+    "corpus_sha256_primeiros_1MB": "a7b18997adf6eb90cded24b28eb4a833605387cde5c367eaf9ec719ed2a79c16",
+    "vivo": "/root/.openclaw/workspace/tools/nox-mem/nox-mem.db",
+    "designacao": "/root/.openclaw/paper2/DESIGNATION-2026-08-26.json",
+    "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+    "designados": 19,
+    "sondas_excluidas": [],
+    "fonte_brief_ts_sha256": "519fa6ab28c36910cd40ed81c2a19a1c4fbf58c0f731e33422681850c40337ee"
+  },
+  "dose": {
+    "log": "/root/.openclaw/logs/p2-serving.ndjson",
+    "estados": 1,
+    "tabela": [
+      {
+        "w": 4,
+        "estados": 1,
+        "mexeu": 0,
+        "churn_total": 0,
+        "boosts": 19
+      },
+      {
+        "w": 100000,
+        "estados": 1,
+        "mexeu": 0,
+        "churn_total": 0,
+        "boosts": 19
+      }
+    ],
+    "detalhe": [
+      {
+        "ts": "2026-09-01T11:07:04.196Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": null,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          309062,
+          309034,
+          285037,
+          288200,
+          303592,
+          309216,
+          285044
+        ]
+      },
+      {
+        "ts": "2026-09-01T11:07:04.196Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": null,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          309062,
+          309034,
+          285037,
+          288200,
+          303592,
+          309216,
+          285044
+        ]
+      }
+    ],
+    "controle_positivo": {
+      "doses_absurdas": [
+        100000
+      ],
+      "mexeu_em_algum_estado": false,
+      "veredito": "NO-GO — dose absurda não move nada; o canal não existe"
+    }
+  }
+}

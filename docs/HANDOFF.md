@@ -1,5 +1,69 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-23 (00:40Z) — o sham não precisa de 82h: 3 minutos mostram que ele não teria poder
+
+### ▶️ PRÓXIMO PASSO
+
+**Não lançar as 21 corridas.** O que elas produziriam já é conhecido, e custaria de 82h
+(desenho de ontem) a 165h (desenho corrigido, com controle positivo).
+
+### O que foi medido, e em quanto tempo
+
+| corrida | escopo | resultado | custo |
+|---|---|---|---|
+| calibração | 20.232 estados, `--w 4` | `exit=0`, **3h55** · `mexeu=0` | 3h55 |
+| sonda 2 | **1** estado de tratamento, `--w 4 --w 100000` | `mexeu=0` nas duas doses | **21 s** |
+| sonda 3 | **132** estados — TODOS em que a produção registrou alteração | `mexeu=0` nas duas doses | **2m49s** |
+
+Artefatos: `out/NOGO-replay-sonda{2,3}-2026-09-23.json` + a lista de ts.
+
+### 🔴 O achado, e como NÃO o ler
+
+O replay, rodado hoje, devolve `churn = 0` **nos 132 estados em que a produção registrou
+`ids_tratado ≠ ids_controle`** — inclusive com dose absurda (`w = 100.000`). O instrumento
+imprime:
+
+> ⛔ NO-GO: `w ≥ 100.000` não movimentou nenhum estado. […] Isto é um RESULTADO.
+
+⚠️ **Não é.** Ou melhor: não é *esse* resultado. O veredito do script pressupõe que o
+replay é fiel. O `SPEC-ANALISE §5` já registra que **não é, exactamente aqui**: *"o viés do
+replay é **anticorrelacionado com o efeito** (descarta os briefs em que a dose agiu)"*.
+O que medi é o viés documentado se manifestando na sua forma extrema — o replay é cego
+precisamente nos estados onde a dose agiu. Ler isto como *"o canal não existe"*
+contradiria o controle positivo do próprio §5, que **passa em 6 de 6** epochs de
+tratamento (2,83% a 5,65%).
+
+### Consequência para o sham — e é ela que dispensa as 82h
+
+O sham compara o REAL contra 20 shams **através do replay**. Se o replay devolve zero onde
+a dose age, então:
+
+- o REAL é **0** (medido);
+- cada sham é 0 (não podem ser mais que o real, por construção do viés);
+- `p = #{sham ≥ real} / 21 = 21/21 = 1,0`, **por construção, não por medida**.
+
+⇒ O sham não pode falsificar especificidade, porque o seu instrumento é cego ao efeito
+cuja especificidade ele deveria testar. Não é "resultado nulo": é **teste sem poder**, e
+a diferença tem de estar no texto do Paper B.
+
+### Duas correções minhas, registadas
+
+1. **Não é expiração dos designados.** `boosts_emitidos: 19` em todos os estados — a
+   designação carrega e os boosts aplicam. A hipótese do relógio (`julianday('now')` +
+   janela de 30 d encerrada em 20-09) está **descartada por medição**.
+2. **O custo é por-estado, ~0,7 s, com setup de ~20 s.** Logo `--so-ts-file` corta o custo
+   proporcionalmente — foi o que tornou as sondas viáveis. Recortar a janela **era** uma
+   opção válida; o que a dispensou foi o achado, não o custo.
+
+### ⚠️ E o `--w` tem uma armadilha que custou a calibração inteira
+
+`replay-oportunidade.mjs:491` — `const doses = MODO === "dose" ? (A.w ?? [2, 100000]) : [null]`.
+O **default já traz o controle positivo**. Passar `--w 4` não acrescenta: **substitui**, e
+desliga a dose absurda. Foi o que fez a corrida de 3h55 devolver um zero ininterpretável.
+Quem rodar `--modo dose` à mão passa **sempre** a dose absurda junto.
+
+---
+
 ## 2026-09-22 (manhã) — o sham queimou 12h e mediu ZERO; loop abortado, calibração no ar
 
 ### ▶️ PRÓXIMO PASSO
