@@ -25,13 +25,25 @@ imprime:
 
 > ⛔ NO-GO: `w ≥ 100.000` não movimentou nenhum estado. […] Isto é um RESULTADO.
 
-⚠️ **Não é.** Ou melhor: não é *esse* resultado. O veredito do script pressupõe que o
-replay é fiel. O `SPEC-ANALISE §5` já registra que **não é, exactamente aqui**: *"o viés do
-replay é **anticorrelacionado com o efeito** (descarta os briefs em que a dose agiu)"*.
-O que medi é o viés documentado se manifestando na sua forma extrema — o replay é cego
-precisamente nos estados onde a dose agiu. Ler isto como *"o canal não existe"*
+⚠️ **Não é.** Ou melhor: não é *esse* resultado — ler isto como *"o canal não existe"*
 contradiria o controle positivo do próprio §5, que **passa em 6 de 6** epochs de
-tratamento (2,83% a 5,65%).
+tratamento (2,83% a 5,65%). Duas medidas do mesmo fenómeno em contradição direta.
+
+🔴 **ERRATA, 20 min depois e por medição.** A primeira versão desta entrada atribuiu o
+zero ao viés do `SPEC §5` — *"o replay descarta os briefs em que a dose agiu"*
+([[feedback_replay_drops_exactly_the_briefs_where_the_dose_worked]], 06-09). **Está
+errado, e o próprio artefato desmente:** aquele defeito produz `erro` + `continue`, e nos
+264 itens de `sonda3` há **zero** campos `erro`. O replay processou os 132 estados
+limpos, emitiu `boosts_emitidos: 19` em cada um, e mediu `churn: 0`.
+
+**A hipótese que resta** (não medida, não concluir sem a testar): o §5 diz que o
+comparador é lexicográfico em `(last_served, −salience)` e o bónus entra na coordenada
+**subordinada**. Se o serve-state derivado hoje não reproduz os **empates de
+`last_served`** que existiam quando a produção rodou, os estratos ficam singletons e a
+coordenada subordinada nunca decide ⇒ `churn = 0` para qualquer `w`, inclusive 100.000.
+Isso seria infidelidade do **serve-state**, não do casamento do brief. Teste barato:
+comparar a distribuição de tamanhos de estrato de `last_served` no serve-state derivado
+contra a que a produção viu.
 
 ### Consequência para o sham — e é ela que dispensa as 82h
 
