@@ -1848,3 +1848,32 @@ logo o lastro existe hoje em **uma máquina**. Declarar, nunca omitir: «não co
 «copiei e está bem» não podem ter a mesma saída.
 
 **O que fica pendente e bloqueia depósito:** o replay sham, e a cópia off-machine.
+
+---
+
+### D-2026-09-23
+
+**Decisão do Toto, 2026-09-22 22:36 BRT: o Paper A vai a depósito primeiro; o B depois.**
+
+Reafirma a decisão de 28/08, que o A-vs-B de 21/09 tinha reaberto. Tomada **depois** de o
+sham resolver, e com o dado que faltava: o terceiro controle pré-comprometido não é
+questão de CPU.
+
+**O que a sustenta:**
+
+| | |
+|---|---|
+| o A não depende do sham | está completo desde 01/09 |
+| o B carrega contradição aberta | o `§5` passa o controle positivo em 6/6 epochs (2,83%–5,65%) e o replay devolve `churn=0` nos **132** estados correspondentes, com `w=100.000` inclusive |
+| custo evitado | 82h (desenho de 21/09) a 165h (com controle positivo) — dispensadas por 3 min de sonda |
+
+⚠️ **O sham fica declarado NÃO EXECUTADO no Paper B, agora com a razão medida:** REAL=0 e
+shams=0 por construção ⇒ `p = 21/21 = 1,0` sem medir nada. É **teste sem poder**, não
+resultado nulo, e a distinção tem de estar no texto — escrever «não houve especificidade»
+seria afirmar o que o instrumento não pode ver.
+
+⚠️ **Não é a minha recomendação que decide.** Eu recomendei o B em 21/09 e o A em 22/09;
+as duas eram recomendações, e o que fica registado aqui é a escolha dele.
+
+Artefatos: `paper2-interventional/out/NOGO-replay-sonda{2,3}-2026-09-23.json`.
+Detalhe e errata: `docs/HANDOFF.md`, entradas de 2026-09-22/23.

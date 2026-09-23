@@ -4,6 +4,10 @@
 
 ### ▶️ PRÓXIMO PASSO
 
+✅ **DECIDIDO pelo Toto em 2026-09-22 22:36 BRT — o Paper A vai primeiro, o B depois**
+(`D-2026-09-23`). O próximo trabalho é a lista do fim do `MANUSCRIPT.md`: as seis
+reconciliações do A. O B não está cancelado, está **a seguir**.
+
 **Não lançar as 21 corridas.** O que elas produziriam já é conhecido, e custaria de 82h
 (desenho de ontem) a 165h (desenho corrigido, com controle positivo).
 
