@@ -173,7 +173,10 @@ Response:
 
 Time-travel and recency-window selectors. **Hard SQL pre-filter**, not a
 ranking boost — chunks outside the window simply don't appear in results.
-Layered onto `search` (and therefore `answer`) without changing any score.
+Layered onto `search` (CLI, HTTP, MCP) without changing any score. `answer`
+does not accept the temporal flags yet.
+
+> **Release status:** implemented in [`totobusnello/nox-mem`](https://github.com/totobusnello/nox-mem) for 3.4.0, which is **not on npm yet**. `nox-mem@3.3.0` rejects `--as-of` / `--changed-since` and ignores `as_of` / `changed_since` over HTTP.
 
 This closes **Gap #2 (temporal decay)** of the Six Gaps reframe: most
 agent-memory systems either ignore time entirely or bolt on opaque
@@ -184,15 +187,24 @@ selector**: ask exactly the window you want, get back exactly that window.
 
 | Flag | SQL semantics | Use case |
 |---|---|---|
-| `--as-of <date>` | `created_at <= date AND (deleted_at IS NULL OR deleted_at > date)` | Time-travel: "what did we know on date X?" |
+| `--as-of <date>` | `created_at IS NULL OR created_at <= date` | Time-travel: "which chunks existed on date X?" |
 | `--changed-since <date>` | `updated_at > date OR created_at > date` | Recency: "what's changed since date X?" |
 | Both flags | AND of the two clauses | "Chunks that existed on `as-of` AND have been modified since `changed-since`" |
 
+Both sides of every comparison go through SQLite `datetime()`: the columns hold
+`datetime('now')` text (`YYYY-MM-DD HH:MM:SS`) and a raw string comparison with an
+ISO value (`…T…Z`) is wrong (`' '` sorts before `'T'`).
+
+`as-of` answers *which chunks existed then*, not *what they said then*: there is no
+version history, so a chunk edited after the date comes back with its current text.
+
 ### Accepted date formats
 
-- ISO 8601 full:   `2026-05-01T00:00:00Z`
-- ISO 8601 date:   `2026-05-01`
+- ISO 8601 full:   `2026-05-01T00:00:00Z` (a time without an offset is read as UTC)
+- ISO 8601 date:   `2026-05-01` — the whole day in UTC: `--as-of` includes 23:59:59.999, `--changed-since` starts at 00:00
 - Relative:        `7d`, `1w`, `30d`, `2h`, `15m`
+
+An unparseable date is an error on every surface (exit 2 / HTTP 400 / MCP `isError`), never a silently unfiltered search.
 
 **Note:** `1mo` is NOT supported — use `30d`. (Documented in `src/lib/dates.ts`.)
 
@@ -242,8 +254,10 @@ curl -X POST http://localhost:18802/api/search \
 - **No ranking changes** — the filter applies as a `WHERE` clause before scoring.
   This is distinct from the E13 temporal proximity boost (`NOX_TEMPORAL_PATH`),
   which **adds** a recency boost to rankings.
-- **`deleted_at` guarded with `COALESCE`** — safe even if column doesn't exist
-  in older schema versions.
+- **No soft delete** — the schema has no `deleted_at` column, so `as-of` cannot
+  bring back a chunk that was deleted since. (An earlier staged patch referenced
+  `deleted_at`; `COALESCE` does not make a missing column legal — it fails at
+  prepare time.)
 - **`created_at IS NULL` treated as "always existed"** — legacy chunks without
   timestamps are not silently dropped.
 - **KG paths NOT covered** — `kg_entities` and `kg_relations` do not have
@@ -260,8 +274,9 @@ The three primitives compose orthogonally:
 # search + temporal: time-windowed retrieval
 nox-mem search "incidents" --as-of 2026-05-15 --changed-since 7d
 
-# answer + temporal: grounded synthesis over a time window
-nox-mem answer "what incidents happened last week?" --changed-since 7d
+# answer + temporal: grounded synthesis over a time window (NOT YET — answer
+# does not take the temporal flags; planned)
+# nox-mem answer "what incidents happened last week?" --changed-since 7d
 
 # answer + custom top-k: deeper retrieval before synthesis
 nox-mem answer "explain the pain weighting evolution" --top-k 20
