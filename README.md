@@ -96,46 +96,61 @@
 
 ## Quick start
 
+> **Where the code lives.** This repository is the research lab (paper, eval harnesses, specs). The engine itself is developed in [`totobusnello/nox-mem`](https://github.com/totobusnello/nox-mem) and published to npm as [`nox-mem`](https://www.npmjs.com/package/nox-mem). You do **not** need to clone this repo to use it.
+
 ```bash
-# 1. Install (CLI + MCP server + HTTP API in one binary)
+# 1. Install (Node 20+; the SQLite driver compiles on first install)
 npm install -g nox-mem
 
-# 2. Set your embedding provider key (Gemini default; OpenAI and local swappable)
-export GEMINI_API_KEY=sk-...
+# 2. Point it at a directory of your own (nothing is written anywhere else)
+export NOX_DB_PATH="$HOME/.nox-mem/nox.db"
+export NOX_MEM_DIR="$HOME/.nox-mem/memory"
+mkdir -p "$NOX_MEM_DIR"
 
-# 3. Initialize a memory store
-nox-mem init ~/my-memory
+# 3. Optional: embedding key for semantic search (without it, search falls back to FTS5 keyword)
+export GEMINI_API_KEY=AIza...        # https://aistudio.google.com/apikey
 
-# 4. Ingest a directory of markdown — entity files, plain markdown, or graphify input
-nox-mem ingest ~/notes
+# 4. Ingest markdown — one file per call
+nox-mem ingest ~/notes/decisions.md
+for f in ~/notes/*.md; do nox-mem ingest "$f"; done
 
-# 5. Hybrid search (FTS5 BM25 + Gemini semantic + RRF fusion k=60)
-nox-mem search "what is the salience formula?"
+# 5. Embed the chunks (needs GEMINI_API_KEY), then search
+nox-mem vectorize
+nox-mem search "what did we decide about deploys?" --limit 5
 
-# 6. Grounded answer with citations (the answer primitive, P1)
-nox-mem answer "how does pain affect ranking?"
-
-# 7. Time-travel + recency window (the temporal primitive, P3)
-nox-mem search "deployment decisions" --as-of 2026-04-01
-nox-mem search "OpenClaw fixes" --changed-since 7d
+# 6. Check the store
+nox-mem stats
+nox-mem doctor
 ```
 
-Requires Node 20+. SQLite ships bundled via `better-sqlite3`. 26+ CLI subcommands via `nox-mem --help`. MCP server exposes 16 tools (`nox_mem_search`, `kg_build`, `cross_search`, `reflect`, `nox_mem_answer`, ...). HTTP API listens on `NOX_API_PORT` (default `18802`).
+`nox-mem --help` lists all subcommands (knowledge graph, decisions, cross-agent search, reflect, crystallize, ...). In `doctor`, the Ollama, Notion and file-watcher checks are optional integrations — a red mark there does not block ingest or search.
 
-Full reference: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
+**MCP server** (Claude Code, Cursor, Cline, ...) — 20 tools (`nox_mem_search`, `nox_mem_ingest`, `nox_mem_kg_query`, `nox_mem_reflect`, ...):
+
+```bash
+claude mcp add nox-mem \
+  -e NOX_DB_PATH="$HOME/.nox-mem/nox.db" -e GEMINI_API_KEY="$GEMINI_API_KEY" \
+  -- node "$(npm root -g)/nox-mem/dist/mcp-server.js"
+```
+
+**HTTP API** — `NOX_API_PORT=18802 node "$(npm root -g)/nox-mem/dist/api-server.js"`, then `curl localhost:18802/api/health` and `curl 'localhost:18802/api/search?q=deploy&limit=3'`.
+
+Full walkthrough: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
 ## 3 primitives, 1 file, any LLM
 
 The entire user-facing contract surface fits on a card. Three primitives, surfaced identically across CLI, HTTP API, and MCP, all backed by one SQLite file on your disk &mdash; and the LLM provider is swappable without code changes.
 
-| Primitive | What it does | Surfaces | Spec |
-|---|---|---|---|
-| **`search`** | Hybrid retrieval &mdash; FTS5 BM25 &#8741; Gemini 3072d semantic &rarr; RRF fusion (k=60), Hard Mutex section gating, SOURCE_TYPE_BOOST overlays. Returns ranked chunks with scores + provenance. | `nox-mem search` &middot; `POST /api/search` &middot; `nox_mem_search` | [Paper &sect;4](paper/paper-tecnico-nox-mem.md), [`specs/2026-03-14-nox-memory-system-design.md`](specs/2026-03-14-nox-memory-system-design.md) |
-| **`answer`** | Grounded RAG with citations &mdash; wraps `search` (top-K=10) &rarr; LLM (Gemini Flash Lite by default, D41-locked) &rarr; parses inline `[chunk_<id>]` citations &rarr; anti-hallucination retry. Empty-retrieval short-circuit avoids LLM spend. **p95 = 101.74ms** on offline bench (42&times; under 4.3s budget). | `nox-mem answer` &middot; `POST /api/answer` &middot; `nox_mem_answer` | [`staged/P1/README.md`](staged/P1/edits/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
-| **Temporal filter** | `--as-of <date>` (time-travel) and `--changed-since <date>` (recency window) as **hard SQL pre-filters**, not ranking boosts. Closes Gap #2 (temporal decay) of the Six Gaps reframe &mdash; time is a first-class selector, not an opaque multiplier. ISO 8601 or relative (`7d`, `1w`, `30d`, `2h`, `15m`). | `--as-of` / `--changed-since` on `search` (and therefore `answer`) &middot; `?as_of=`, `?changed_since=` on HTTP &middot; `as_of` / `changed_since` on MCP | [`staged/P3/DEPLOY.md`](staged/P3/DEPLOY.md), PRs #2 #167 |
+> **🚧 Status in the published package (`nox-mem@3.3.0`):** `search` ships on all three surfaces. `answer` is reachable only over HTTP (`POST /api/answer` with `{"question": "..."}`; needs `GEMINI_API_KEY`) &mdash; there is no `nox-mem answer` CLI command and no `nox_mem_answer` MCP tool yet. The temporal filter is **not** in the release: the CLI rejects `--as-of` / `--changed-since`, and the HTTP API accepts `as_of` / `changed_since` but ignores them. Both are implemented as staged patch sets in [`staged/P1/`](staged/P1/) and [`staged/P3/`](staged/P3/) and are in development.
+
+| Primitive | Status | What it does | Surfaces | Spec |
+|---|---|---|---|---|
+| **`search`** | ✅ shipped | Hybrid retrieval &mdash; FTS5 BM25 &#8741; Gemini 3072d semantic &rarr; RRF fusion (k=60), Hard Mutex section gating, SOURCE_TYPE_BOOST overlays. Returns ranked chunks with scores + provenance. | `nox-mem search` &middot; `POST /api/search` &middot; `nox_mem_search` | [Paper &sect;4](paper/paper-tecnico-nox-mem.md), [`archive/specs/2026-03-14-nox-memory-system-design.md`](archive/specs/2026-03-14-nox-memory-system-design.md) |
+| **`answer`** | 🟡 HTTP only | Grounded RAG with citations &mdash; wraps `search` (top-K=10) &rarr; LLM (Gemini Flash Lite by default, D41-locked) &rarr; parses inline `[chunk_<id>]` citations &rarr; anti-hallucination retry. Empty-retrieval short-circuit avoids LLM spend. **p95 = 101.74ms** on offline bench (42&times; under 4.3s budget). | `nox-mem answer` &middot; `POST /api/answer` &middot; `nox_mem_answer` | [`staged/P1/README.md`](staged/P1/edits/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
+| **Temporal filter** | 🚧 in development | `--as-of <date>` (time-travel) and `--changed-since <date>` (recency window) as **hard SQL pre-filters**, not ranking boosts. Closes Gap #2 (temporal decay) of the Six Gaps reframe &mdash; time is a first-class selector, not an opaque multiplier. ISO 8601 or relative (`7d`, `1w`, `30d`, `2h`, `15m`). | `--as-of` / `--changed-since` on `search` (and therefore `answer`) &middot; `?as_of=`, `?changed_since=` on HTTP &middot; `as_of` / `changed_since` on MCP | [`staged/P3/DEPLOY.md`](staged/P3/DEPLOY.md), PRs #2 #167 |
 
 ```bash
-# Compose them — every advanced verb decomposes into these three
+# Target composition once answer + temporal ship on the CLI (does NOT run on nox-mem@3.3.0)
 nox-mem answer "what incidents happened last week?" --changed-since 7d
 nox-mem search "schema migration" --as-of 2026-05-01 --changed-since 30d
 ```
@@ -233,7 +248,7 @@ The "yours by design" claim, made tangible and auditable. A1 (privacy filter pre
 
 ### P &mdash; Product (P1&ndash;P5 + P5a)
 
-UX that ships without compromising Q or A. P1 (`answer` primitive with CLI + HTTP + MCP surfaces, anti-hallucination guard, citation parsing, telemetry on schema v11) measured **p95 = 101.74ms** on the latency benchmark, 42&times; under the 4.3s budget. P3 (`--as-of` / `--changed-since` temporal queries as hard pre-filters, not boosts) is implemented. P5 (real-time SSE viewer with four panels, default-deny redaction, multi-client fan-out, Last-Event-ID resume) shipped a **11.7KB** vanilla-JS frontend &mdash; HTML+JS+CSS combined, no bundler, no React. P5a is the event-bus refactor that P5 depends on. P2 (Claude Code hooks for zero-manual-ingest auto-capture, five privacy layers) is the active sprint.
+UX that ships without compromising Q or A. P1 (`answer` primitive with CLI + HTTP + MCP surfaces, anti-hallucination guard, citation parsing, telemetry on schema v11) measured **p95 = 101.74ms** on the latency benchmark, 42&times; under the 4.3s budget. P3 (`--as-of` / `--changed-since` temporal queries as hard pre-filters, not boosts) is implemented as a staged patch set. In the npm release, P1 is reachable over HTTP only and P3 is not shipped yet (see the status note under [3 primitives](#3-primitives-1-file-any-llm)). P5 (real-time SSE viewer with four panels, default-deny redaction, multi-client fan-out, Last-Event-ID resume) shipped a **11.7KB** vanilla-JS frontend &mdash; HTML+JS+CSS combined, no bundler, no React. P5a is the event-bus refactor that P5 depends on. P2 (Claude Code hooks for zero-manual-ingest auto-capture, five privacy layers) is the active sprint.
 
 ### Lab &mdash; Retrieval research (40% capacity)
 
@@ -346,7 +361,7 @@ The two axes with **zero coverage in the memory-systems literature** &mdash; **p
 
 **Tier B &mdash; works via MCP or HTTP:** Continue, Aider, Codex, Roo, Tabnine, Windsurf, Goose, Zed, Open Interpreter, LangChain, LlamaIndex, CrewAI, AutoGen, custom.
 
-Per-agent setup: [`docs/integrations/`](docs/integrations/). The MCP server exposes 16 tools. The HTTP API exposes `/api/{health,search,kg,kg/path,agents,cross-kg,reflect,procedures,answer,crystallize}`.
+Per-agent setup: [`integrations/`](integrations/) · MCP/HTTP wiring: [`docs/QUICKSTART.md` §3](docs/QUICKSTART.md#3-connect-an-agent). The MCP server exposes 20 tools. The HTTP API exposes `/api/{health,search,kg,kg/path,agents,cross-kg,reflect,procedures,crystallize,brief}` plus `POST /api/answer`.
 
 ## Paper and citation
 
@@ -431,7 +446,7 @@ The repo is a research lab and a working product; the tree reflects both.
 | VPS health monitoring (IP swap + API outage detector) | [`scripts/vps-healthcheck.sh`](scripts/vps-healthcheck.sh) |
 | Observability dashboard (F10 Phase A + B, deployed 2026-05-21) | [`specs/2026-05-01-F10-observability-dashboard.md`](specs/2026-05-01-F10-observability-dashboard.md) &mdash; live `/observability/{health,evals}.html` on the API server |
 
-The retrieval logic is intentionally small. Start at [`src/lib/search.ts`](src/lib/search.ts) and read until you are bored &mdash; it should not take long.
+The retrieval logic is intentionally small. Start at [`nox-mem/src/search.ts`](https://github.com/totobusnello/nox-mem/blob/main/nox-mem/src/search.ts) in the engine repo and read until you are bored &mdash; it should not take long.
 
 ### Configuration
 
