@@ -8,8 +8,15 @@ ablation, or feature, kept here so every claim in the paper is traceable to the
 exact diff that produced it.
 
 > These are **not** dead code or scratch. They are cited from the paper and from
-> `docs/`, and the build (`Dockerfile`) reads some of them for module stitching.
-> If you are reorganizing, update the references — do not delete.
+> `docs/` and `audits/`. If you are reorganizing, update the references — do not
+> delete.
+>
+> They are also **frozen snapshots, not shipped code**: nothing builds or runs
+> from `staged/`. The engine people install is the `nox-mem` npm package
+> ([github.com/totobusnello/nox-mem](https://github.com/totobusnello/nox-mem)),
+> and fixes land there and in the production tree, not here. For that reason
+> CodeQL skips this directory (`.github/codeql/codeql-config.yml`); its alerts
+> here would describe patches as they were, not code anyone executes.
 
 ## Naming convention
 

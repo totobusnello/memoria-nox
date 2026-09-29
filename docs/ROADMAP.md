@@ -20,7 +20,7 @@
 | **A — Autonomy** | Data sua, provider sua escolha, zero vendor lock-in | A1-A4+A1.1 | A1 impl staged; **A1.1 BR PII shipped**; A2+A3 impl completo (T1-T18); **A4 100% runnable em CI**; **A2 Tier 3 P0+P1+P2 merged** |
 | **P — Product** | UX que ganha | P1-P10 | P1 LIVE em prod (answer API); P2 impl completo; P3 staged; P4 spec; **P5 impl completo** + P5a event bus; **F10 Phase C Phase 1+2 LIVE prod** |
 | **Lab — Retrieval Research** | Paper-grade improvements, 40% capacity | L1-L4 + G-series | L1 paused; **L2+L3+L4 impl completo**; G-series ablation ativa (G7 cravado, G8 pendente); **D49 phase 2 rolling** (~7d shadow, D50 ETA 2026-05-27); **Phase G EverMemBench CLOSED** — rerank REJECT default, opt-in SHIP (D60); 5-batch methodology canonical (D62) |
-| **GTM Phase 2** | Viral launch | conditional → **calendarizada** | Gate D43 VERIFIED; assets + pricing + Docker prontos. **Entra em novembro/2026, depois do Paper 1** (decidido 2026-09-10) — o que faltava era ordem, não material |
+| **GTM Phase 2** | Viral launch | conditional → **calendarizada** | Gate D43 VERIFIED; assets + pricing prontos (instalação via `npm install -g nox-mem`; o Docker do repo nunca buildou e foi removido em 2026-09-29). **Entra em novembro/2026, depois do Paper 1** (decidido 2026-09-10) — o que faltava era ordem, não material |
 | **Papers** | O veículo de adoção hoje | Paper 1 + Paper 2 | **Paper 1** tem DOI `10.5281/zenodo.23041503` (v1.0.2, 2026-09-29; v1.0 = `22649269`); próximo passo é **submeter ao TMLR** — ⚠️ **INVERTIDO EM 2026-09-12:** o Toto decidiu **TMLR primeiro** («vamos fazer o tmlr»); a apelação fica para depois, com o status em mãos, porque ela é de uso único e nos 6 precedentes há **zero** vitórias sem peer review. Bloqueio atual: conta OpenReview em moderação. Ver `docs/ESTADO-DOS-PAPERS-2026-09-12.md`. (a rota «encurtar §5 e apelar no arXiv» foi decidida 2026-09-10 e está revogada; a apelação é de uso único e a condição do email de recusa é journal — restrições registradas no §8) (rota ao arXiv é via TMLR aceito). **Paper 2** é ensaio intervencional no ar desde 01/09, encerra 20/09 — **method paper**, a contribuição é o método |
 
 ---
@@ -84,7 +84,7 @@ Features CORTADAS (lições em DECISIONS.md):
 Wave A→H entregues (2026-05-17 noite → 2026-05-18):
  69 PRs merged | ~55.000 LOC | 1.100+ testes | 5 schema migrations (v11/v19/v20/v21/v22)
  CI verde (eval harnesses + privacy filter + zero-vendor + typecheck + cross-pillar)
- Docker: Dockerfile + docker-compose + CI build image
+ Docker: Dockerfile + docker-compose + CI build image (nunca buildou — sem package.json na raiz; removido 2026-09-29)
  Ops: DR + BACKUP + MONITORING runbooks
  Security: THREAT-MODEL.md v1.1, G1-G17 todos endereçados
  GTM: pricing strategy + ROI calculator + demo video script + README final

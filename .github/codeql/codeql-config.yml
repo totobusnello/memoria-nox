@@ -1,0 +1,7 @@
+name: memoria-nox CodeQL config
+
+# staged/ holds frozen implementation snapshots that the paper cites
+# (see staged/README.md). Nothing builds or runs from it, so alerts there
+# describe historical patches, not executed code.
+paths-ignore:
+  - staged
