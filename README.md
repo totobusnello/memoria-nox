@@ -99,41 +99,42 @@
 > **Where the code lives.** This repository is the research lab (paper, eval harnesses, specs). The engine itself is developed in [`totobusnello/nox-mem`](https://github.com/totobusnello/nox-mem) and published to npm as [`nox-mem`](https://www.npmjs.com/package/nox-mem). You do **not** need to clone this repo to use it.
 
 ```bash
-# 1. Install (Node 20+; the SQLite driver compiles on first install)
+# 1. Install (Node 20+; the SQLite driver compiles on first install if no prebuilt binary matches)
 npm install -g nox-mem
 
-# 2. Point it at a directory of your own (nothing is written anywhere else)
-export NOX_DB_PATH="$HOME/.nox-mem/nox.db"
-export NOX_MEM_DIR="$HOME/.nox-mem/memory"
-mkdir -p "$NOX_MEM_DIR"
-
-# 3. Optional: embedding key for semantic search (without it, search falls back to FTS5 keyword)
+# 2. Optional: embedding key for semantic search. Without it, search is keyword (FTS5)
+#    and still answers natural-language questions.
 export GEMINI_API_KEY=AIza...        # https://aistudio.google.com/apikey
 
-# 4. Ingest markdown — one file per call
+# 3. Ingest markdown — one file per call. The store lives in ~/.nox-mem/nox.db
+#    (override with NOX_DB_PATH).
 nox-mem ingest ~/notes/decisions.md
 for f in ~/notes/*.md; do nox-mem ingest "$f"; done
 
-# 5. Embed the chunks (needs GEMINI_API_KEY), then search
+# 4. Embed (needs the key), then search — hybrid, or keyword-only without a key
 nox-mem vectorize
 nox-mem search "what did we decide about deploys?" --limit 5
 
-# 6. Check the store
-nox-mem stats
+# 5. Time-travel and recency window (hard SQL pre-filters, not ranking boosts)
+nox-mem search "deploy" --as-of 2026-04-01
+nox-mem search "deploy" --changed-since 7d
+
+# 6. Grounded answer with citations (needs the key)
+nox-mem answer "what did we decide about deploys?"
+
+# 7. Health check
 nox-mem doctor
 ```
 
-`nox-mem --help` lists all subcommands (knowledge graph, decisions, cross-agent search, reflect, crystallize, ...). In `doctor`, the Ollama, Notion and file-watcher checks are optional integrations — a red mark there does not block ingest or search.
+`nox-mem --help` lists all subcommands (knowledge graph, decisions, cross-agent search, reflect, crystallize, ...). In `doctor`, anything under *Optional integrations* marked ⚪ (Ollama, Notion, file watcher) is simply not set up — fine to skip.
 
-**MCP server** (Claude Code, Cursor, Cline, ...) — 20 tools (`nox_mem_search`, `nox_mem_ingest`, `nox_mem_kg_query`, `nox_mem_reflect`, ...):
+**MCP server** (Claude Code, Cursor, Cline, ...) — 20 tools (`nox_mem_search` with `as_of` / `changed_since`, `nox_mem_ingest`, `nox_mem_kg_query`, `nox_mem_reflect`, ...):
 
 ```bash
-claude mcp add nox-mem \
-  -e NOX_DB_PATH="$HOME/.nox-mem/nox.db" -e GEMINI_API_KEY="$GEMINI_API_KEY" \
-  -- node "$(npm root -g)/nox-mem/dist/mcp-server.js"
+claude mcp add nox-mem -e GEMINI_API_KEY="$GEMINI_API_KEY" -- nox-mem-mcp
 ```
 
-**HTTP API** — `NOX_API_PORT=18802 node "$(npm root -g)/nox-mem/dist/api-server.js"`, then `curl localhost:18802/api/health` and `curl 'localhost:18802/api/search?q=deploy&limit=3'`.
+**HTTP API** — `NOX_API_PORT=18802 nox-mem-api`, then `curl localhost:18802/api/health` and `curl 'localhost:18802/api/search?q=deploy&limit=3'`.
 
 Full walkthrough: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
@@ -141,17 +142,16 @@ Full walkthrough: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
 The entire user-facing contract surface fits on a card. Three primitives, surfaced identically across CLI, HTTP API, and MCP, all backed by one SQLite file on your disk &mdash; and the LLM provider is swappable without code changes.
 
-> **🚧 Status in the published package (`nox-mem@3.3.0`):** `search` ships on all three surfaces. `answer` is reachable only over HTTP (`POST /api/answer` with `{"question": "..."}`; needs `GEMINI_API_KEY`) &mdash; there is no `nox-mem answer` CLI command and no `nox_mem_answer` MCP tool yet. The temporal filter is **not** in the release: the CLI rejects `--as-of` / `--changed-since`, and the HTTP API accepts `as_of` / `changed_since` but ignores them. Both are implemented as staged patch sets in [`staged/P1/`](staged/P1/) and [`staged/P3/`](staged/P3/) and are in development.
+> **Status in the published package (`nox-mem@3.4.0`):** `search` and the temporal filter ship on all three surfaces (CLI, HTTP, MCP). `answer` ships on the CLI (`nox-mem answer`) and HTTP (`POST /api/answer`); there is no `nox_mem_answer` MCP tool yet, and `answer` does not take the temporal flags yet.
 
 | Primitive | Status | What it does | Surfaces | Spec |
 |---|---|---|---|---|
 | **`search`** | ✅ shipped | Hybrid retrieval &mdash; FTS5 BM25 &#8741; Gemini 3072d semantic &rarr; RRF fusion (k=60), Hard Mutex section gating, SOURCE_TYPE_BOOST overlays. Returns ranked chunks with scores + provenance. | `nox-mem search` &middot; `POST /api/search` &middot; `nox_mem_search` | [Paper &sect;4](paper/paper-tecnico-nox-mem.md), [`archive/specs/2026-03-14-nox-memory-system-design.md`](archive/specs/2026-03-14-nox-memory-system-design.md) |
-| **`answer`** | 🟡 HTTP only | Grounded RAG with citations &mdash; wraps `search` (top-K=10) &rarr; LLM (Gemini Flash Lite by default, D41-locked) &rarr; parses inline `[chunk_<id>]` citations &rarr; anti-hallucination retry. Empty-retrieval short-circuit avoids LLM spend. **p95 = 101.74ms** on offline bench (42&times; under 4.3s budget). | `nox-mem answer` &middot; `POST /api/answer` &middot; `nox_mem_answer` | [`staged/P1/README.md`](staged/P1/edits/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
-| **Temporal filter** | 🚧 in development | `--as-of <date>` (time-travel) and `--changed-since <date>` (recency window) as **hard SQL pre-filters**, not ranking boosts. Closes Gap #2 (temporal decay) of the Six Gaps reframe &mdash; time is a first-class selector, not an opaque multiplier. ISO 8601 or relative (`7d`, `1w`, `30d`, `2h`, `15m`). | `--as-of` / `--changed-since` on `search` &middot; `?as_of=`, `?changed_since=` on HTTP &middot; `as_of` / `changed_since` on MCP | [`staged/P3/DEPLOY.md`](staged/P3/DEPLOY.md), PRs #2 #167 |
+| **`answer`** | ✅ CLI + HTTP (MCP pending) | Grounded RAG with citations &mdash; wraps `search` (top-K=10) &rarr; LLM (Gemini Flash Lite by default, D41-locked) &rarr; parses inline `[chunk_<id>]` citations &rarr; anti-hallucination retry. Empty-retrieval short-circuit avoids LLM spend. **p95 = 101.74ms** on offline bench (42&times; under 4.3s budget). | `nox-mem answer` &middot; `POST /api/answer` | [`staged/P1/README.md`](staged/P1/edits/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
+| **Temporal filter** | ✅ shipped | `--as-of <date>` (time-travel) and `--changed-since <date>` (recency window) as **hard SQL pre-filters**, not ranking boosts. Closes Gap #2 (temporal decay) of the Six Gaps reframe &mdash; time is a first-class selector, not an opaque multiplier. ISO 8601 or relative (`7d`, `1w`, `30d`, `2h`, `15m`). | `--as-of` / `--changed-since` on `search` &middot; `?as_of=`, `?changed_since=` on HTTP &middot; `as_of` / `changed_since` on MCP | [`staged/P3/DEPLOY.md`](staged/P3/DEPLOY.md), PRs #2 #167 |
 
 ```bash
-# Target composition once answer + temporal ship on the CLI (does NOT run on nox-mem@3.3.0)
-nox-mem answer "what incidents happened last week?" --changed-since 7d
+# search + temporal runs on nox-mem@3.4.0; answer does not take the temporal flags yet
 nox-mem search "schema migration" --as-of 2026-05-01 --changed-since 30d
 ```
 
@@ -248,7 +248,7 @@ The "yours by design" claim, made tangible and auditable. A1 (privacy filter pre
 
 ### P &mdash; Product (P1&ndash;P5 + P5a)
 
-UX that ships without compromising Q or A. P1 (`answer` primitive with CLI + HTTP + MCP surfaces, anti-hallucination guard, citation parsing, telemetry on schema v11) measured **p95 = 101.74ms** on the latency benchmark, 42&times; under the 4.3s budget. P3 (`--as-of` / `--changed-since` temporal queries as hard pre-filters, not boosts) is implemented as a staged patch set. In the npm release, P1 is reachable over HTTP only and P3 is not shipped yet (see the status note under [3 primitives](#3-primitives-1-file-any-llm)). P5 (real-time SSE viewer with four panels, default-deny redaction, multi-client fan-out, Last-Event-ID resume) shipped a **11.7KB** vanilla-JS frontend &mdash; HTML+JS+CSS combined, no bundler, no React. P5a is the event-bus refactor that P5 depends on. P2 (Claude Code hooks for zero-manual-ingest auto-capture, five privacy layers) is the active sprint.
+UX that ships without compromising Q or A. P1 (`answer` primitive with CLI + HTTP + MCP surfaces, anti-hallucination guard, citation parsing, telemetry on schema v11) measured **p95 = 101.74ms** on the latency benchmark, 42&times; under the 4.3s budget. P3 (`--as-of` / `--changed-since` temporal queries as hard pre-filters, not boosts) is implemented as a staged patch set. Both ship in `nox-mem@3.4.0`: P1 on the CLI and HTTP (MCP tool pending), P3 on CLI, HTTP and MCP (see the status note under [3 primitives](#3-primitives-1-file-any-llm)). P5 (real-time SSE viewer with four panels, default-deny redaction, multi-client fan-out, Last-Event-ID resume) shipped a **11.7KB** vanilla-JS frontend &mdash; HTML+JS+CSS combined, no bundler, no React. P5a is the event-bus refactor that P5 depends on. P2 (Claude Code hooks for zero-manual-ingest auto-capture, five privacy layers) is the active sprint.
 
 ### Lab &mdash; Retrieval research (40% capacity)
 
@@ -457,8 +457,9 @@ Top environment variables. Full reference: [`docs/CONFIGURATION.md`](docs/CONFIG
 | `NOX_API_PORT` | `18802` | HTTP API port. Never hardcode &mdash; Chrome squats on 18800. |
 | `NOX_SALIENCE_MODE` | `shadow` | Salience ranking mode: `shadow` (default) or `active`. Active requires 7d baseline. |
 | `NOX_EMBED_PROVIDER` | `gemini` | Embedding provider: `gemini`, `openai`, or `local`. |
-| `GEMINI_API_KEY` | _required_ | Default embedding provider key. BYO &mdash; never proxied. |
-| `NOX_DB_PATH` | `./nox-mem.db` | SQLite store location. `cp` is your backup. |
+| `GEMINI_API_KEY` | _optional_ | Default embedding provider key. BYO &mdash; never proxied. Without any embedding key, search is keyword-only (FTS5) and `answer` / `vectorize` are unavailable. |
+| `NOX_FTS_OR_FALLBACK` | `auto` | When a keyword (AND) query finds nothing, retry with OR of the content terms. `auto` = only when no embedding key is set; `on` / `off` force it. |
+| `NOX_DB_PATH` | `~/.nox-mem/nox.db` | SQLite store location (an existing `<package>/nox-mem.db` from ≤3.3 keeps being used). `cp` is your backup. |
 | `NOX_LANG_AWARE_RRF` | `1` | Language-aware RRF fusion weights (D, +1.92pp on PT/EN mix). |
 | `NOX_SEARCH_LOG_TEXT` | `0` | Persist query text in `search_telemetry` for eval harness. |
 | `NOX_L4_REGEX_ENABLED` | `0` | Enable regex-first typed-link extraction (Lab sprint L4). |

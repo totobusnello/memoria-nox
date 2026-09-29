@@ -176,7 +176,7 @@ ranking boost — chunks outside the window simply don't appear in results.
 Layered onto `search` (CLI, HTTP, MCP) without changing any score. `answer`
 does not accept the temporal flags yet.
 
-> **Release status:** implemented in [`totobusnello/nox-mem`](https://github.com/totobusnello/nox-mem) for 3.4.0, which is **not on npm yet**. `nox-mem@3.3.0` rejects `--as-of` / `--changed-since` and ignores `as_of` / `changed_since` over HTTP.
+> **Release status:** shipped in [`nox-mem@3.4.0`](https://www.npmjs.com/package/nox-mem) on the CLI (`--as-of` / `--changed-since`), HTTP (`as_of` / `changed_since` on `/api/search`, GET or POST) and MCP (`nox_mem_search`).
 
 This closes **Gap #2 (temporal decay)** of the Six Gaps reframe: most
 agent-memory systems either ignore time entirely or bolt on opaque
@@ -315,8 +315,8 @@ workflow you need from just these three calls.
 
 | Layer | Spec / source |
 |---|---|
-| **`search` (hybrid)** | [`specs/2026-03-14-nox-memory-system-design.md`](../specs/2026-03-14-nox-memory-system-design.md), `paper/paper-tecnico-nox-mem.md` §4 |
-| **`answer` (P1)** | [`staged/P1/README.md`](../staged/P1/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
+| **`search` (hybrid)** | [`specs/2026-03-14-nox-memory-system-design.md`](../archive/specs/2026-03-14-nox-memory-system-design.md), `paper/paper-tecnico-nox-mem.md` §4 |
+| **`answer` (P1)** | [`staged/P1/README.md`](../staged/P1/edits/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
 | **Temporal (P3)** | [`staged/P3/DEPLOY.md`](../staged/P3/DEPLOY.md), PRs #2 #167 |
 | **E13 temporal boost (distinct from P3 filter)** | [`staged/temporal-spike/edits/temporal-retrieval.ts`](../staged/temporal-spike/edits/temporal-retrieval.ts) |
 
