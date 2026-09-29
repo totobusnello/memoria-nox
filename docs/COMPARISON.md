@@ -1,5 +1,7 @@
 # nox-mem vs the field — public benchmark comparison
 
+> ⚠️ **Historical document — superseded (2026-09-28).** The "SOTA" labels below predate the paper's honesty pass (commit `9c11c33`, 2026-09-04, which retracted "dual SOTA"). Current, caveated numbers: the [README headline table](../README.md#headline-results) and paper §5–§6. In short: EverMemBench +9.13 pp over MemOS is the like-for-like (same-backbone) result; the Gemini-3-flash deltas mix backbones; MuSiQue and HotPotQA sit above their benchmark readers but 10–12 pp below published SOTA (Beam Retrieval); LoCoMo retrieval@10 is not comparable to Mem0's answer F1; on the full n=2,482 cross-system set nox-mem places second of four, behind EverOS. Kept unedited below as a record.
+
 > **Status: rev8 2026-06-02 — Wave 2 CLOSED. 12 SOTA-tier dimensions canonical (no 13th). D75 + D76 cravados.**
 > **Wave 2 closure (rev8, Tue 2026-06-02, PRs #423-#427):** 3-knob NO-REPLICATE pattern confirmed (D75) — single-stage retrieval knobs transfer at ~24-40% from gpt-4.1-mini to Gemini-3-flash (KG 0% / AC ~40% / MQ ~34%). D74 composability projection substantially refuted at single-stage layer. Orchestration-stage capstone (PR #426) aborted due to infrastructure constraint — Hostinger CPU steal 51-97% sustained (D76); infrastructure abort, NOT scientific failure. IterB ReAct (+2.01pp clean, PR #419) remains the only validated F_MH lever on Gemini-3-flash. Q1 priorities: HyDE bench + Claude Sonnet 4.6 / Opus 4.7 backbone bench.
 > **Prior (rev7, 2026-05-31):** 12 SOTA-tier dimensions consolidated (PRs #413 #419).

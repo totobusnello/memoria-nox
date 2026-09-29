@@ -1,5 +1,7 @@
 # Competitive positioning — nox-mem GTM narrative
 
+> ⚠️ **Historical document — superseded (2026-09-28).** The "SOTA" labels below predate the paper's honesty pass (commit `9c11c33`, 2026-09-04, which retracted "dual SOTA"). Current, caveated numbers: the [README headline table](../README.md#headline-results) and paper §5–§6. In short: EverMemBench +9.13 pp over MemOS is the like-for-like (same-backbone) result; the Gemini-3-flash deltas mix backbones; MuSiQue and HotPotQA sit above their benchmark readers but 10–12 pp below published SOTA (Beam Retrieval); LoCoMo retrieval@10 is not comparable to Mem0's answer F1; on the full n=2,482 cross-system set nox-mem places second of four, behind EverOS. Kept unedited below as a record.
+
 > **The honest, backbone-portable memory layer that holds 12 SOTA-tier dimensions across research + production + orchestration benchmarks.**
 >
 > **Status:** rev4 2026-06-02 — Wave 2 CLOSED. 12 SOTA-tier dimensions canonical (no 13th). D75 + D76 cravados.
