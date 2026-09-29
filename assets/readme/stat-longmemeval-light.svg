@@ -1,5 +1,5 @@
-<svg width="220" height="80" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LongMemEval 1.0 oracle validated">
-  <title>LongMemEval 1.0 oracle validated</title>
+<svg width="220" height="80" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LongMemEval 68.2% task accuracy">
+  <title>LongMemEval 68.2% task accuracy</title>
   <defs>
     <linearGradient id="bg-lme-l" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#FFFFFF"/>
@@ -22,7 +22,7 @@
     <circle cx="12" cy="12" r="6"/>
     <circle cx="12" cy="12" r="2" fill="#00A87A"/>
   </g>
-  <text x="56" y="38" fill="#007458" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,monospace" font-size="22" font-weight="700" letter-spacing="-0.5">1.0</text>
-  <text x="56" y="56" fill="#5A5F6E" font-family="'Inter',ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="500">oracle validated</text>
+  <text x="56" y="38" fill="#007458" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,monospace" font-size="22" font-weight="700" letter-spacing="-0.5">68.2<tspan font-size="14">%</tspan></text>
+  <text x="56" y="56" fill="#5A5F6E" font-family="'Inter',ui-sans-serif,system-ui,sans-serif" font-size="11" font-weight="500">task accuracy (n=201)</text>
   <text x="20" y="70" fill="#9094A0" font-family="'JetBrains Mono','SFMono-Regular',ui-monospace,monospace" font-size="9" font-weight="500" letter-spacing="1.4">LONGMEMEVAL</text>
 </svg>
