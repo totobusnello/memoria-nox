@@ -242,8 +242,10 @@ export function formatMarkdown(report: ValidationReport): string {
 
   for (const e of report.entries) {
     const icon = STATUS_ICONS[e.status] ?? e.status;
-    const label = e.label.replace(/\|/g, "\\|");
-    const detail = e.detail.replace(/\|/g, "\\|").slice(0, 120);
+    // Escape backslashes first, or a backslash already in the text would swallow the
+    // escape added for the next "|" and break the table row.
+    const label = e.label.replace(/\\/g, "\\\\").replace(/\|/g, "\\|");
+    const detail = e.detail.replace(/\\/g, "\\\\").replace(/\|/g, "\\|").slice(0, 120);
     lines.push(`| ${icon} | ${e.category} | ${label} | ${detail} |`);
   }
 
