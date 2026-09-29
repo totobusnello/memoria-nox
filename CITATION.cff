@@ -41,12 +41,11 @@ preferred-citation:
   month: 9
   publisher:
     name: "Zenodo"
-  doi: "10.5281/zenodo.22649269"
-  url: "https://doi.org/10.5281/zenodo.22649269"
-  # Preprint. NOT peer reviewed. Deposited on Zenodo 2026-09-07 under CC BY 4.0.
-  # The manuscript in this repo is v1.0.2 (2026-09-29, see paper/CHANGELOG.md); the
-  # version DOI below is the 2026-09-07 deposit. Until a new Zenodo version exists,
-  # cite the concept DOI to always resolve to the latest deposited version.
+  doi: "10.5281/zenodo.23041503"
+  url: "https://doi.org/10.5281/zenodo.23041503"
+  # Preprint. NOT peer reviewed. CC BY 4.0. v1.0 deposited on Zenodo 2026-09-07;
+  # v1.0.2 (the manuscript in this repo, see paper/CHANGELOG.md) deposited 2026-09-29.
+  # The concept DOI always resolves to the latest deposited version.
   #
   # It is NOT on arXiv, and that is a fact about the manuscript, not a pending task:
   # arXiv did not accept it on 2026-09-03, stating it "would benefit from additional
@@ -56,8 +55,11 @@ preferred-citation:
   # this DOI with an arXiv ID unless one actually exists.
   identifiers:
     - type: doi
+      value: "10.5281/zenodo.23041503"
+      description: "This version (v1.0.2), 2026-09-29"
+    - type: doi
       value: "10.5281/zenodo.22649269"
-      description: "This version (v1.0), 2026-09-07"
+      description: "Previous version (v1.0), 2026-09-07"
     - type: doi
       value: "10.5281/zenodo.22649268"
       description: "Concept DOI — always resolves to the latest version"

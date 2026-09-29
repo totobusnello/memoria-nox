@@ -1,5 +1,11 @@
 # Paper 1 — publicado no Zenodo em 2026-09-07
 
+> **Versão atual: v1.0.2**, DOI [`10.5281/zenodo.23041503`](https://doi.org/10.5281/zenodo.23041503),
+> publicada em 2026-09-29 (registro <https://zenodo.org/records/23041503>). Conferido pela API
+> logo após o publish: `is_published` true, `is_latest` true, versão 1.0.2, PDF
+> `md5:0d4059bf07363980f0de71dde830f149` (332.314 B, igual ao `paper/build/` em `ca83841`),
+> único related identifier = o repo memoria-nox. O resto deste arquivo descreve a v1.0.
+
 **DOI: [`10.5281/zenodo.22649269`](https://doi.org/10.5281/zenodo.22649269)**
 Concept DOI (sempre a última versão): [`10.5281/zenodo.22649268`](https://doi.org/10.5281/zenodo.22649268)
 Registro: <https://zenodo.org/records/22649269>
