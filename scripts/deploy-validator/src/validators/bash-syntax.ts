@@ -54,7 +54,9 @@ export function checkBashSyntax(cmd: CategorizedCommand): BashSyntaxResult {
   const content = sanitizeForBashCheck(block.content);
 
   // Write to tmp file
-  const tmpFile = path.join(os.tmpdir(), `deploy-validator-bash-${Date.now()}-${Math.random().toString(36).slice(2)}.sh`);
+  // Private directory (mkdtemp, mode 0700) instead of a guessable name in the shared tmp dir.
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "deploy-validator-bash-"));
+  const tmpFile = path.join(tmpDir, "block.sh");
   try {
     fs.writeFileSync(tmpFile, `#!/usr/bin/env bash\n${content}\n`, "utf8");
 
@@ -72,7 +74,7 @@ export function checkBashSyntax(cmd: CategorizedCommand): BashSyntaxResult {
       durationMs: Date.now() - start,
     };
   } finally {
-    try { fs.unlinkSync(tmpFile); } catch { /* ignore */ }
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }
   }
 }
 
