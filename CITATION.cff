@@ -12,9 +12,9 @@ abstract: >-
 authors:
   - family-names: "Busnello"
     given-names: "Luiz Antonio"
-    name-suffix: "Toto"
+    alias: "Toto"
     email: "lab@nuvini.com.br"
-    affiliation: "Independent"
+    affiliation: "Independent Researcher"
 type: software
 repository-code: "https://github.com/totobusnello/memoria-nox"
 url: "https://github.com/totobusnello/memoria-nox"
