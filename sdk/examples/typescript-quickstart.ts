@@ -8,7 +8,9 @@
  */
 
 import { NoxMemClient, NoxMemApiError } from "@nox-mem/client";
-import { writeFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const client = new NoxMemClient({
   baseUrl: process.env.NOX_API_URL ?? "http://127.0.0.1:18802",
@@ -42,8 +44,9 @@ try {
 // 4. Export archive (requires NOX_ARCHIVE_ENABLED=1)
 try {
   const archive = await client.export({ format: "tar", exclude_embeddings: true });
-  writeFileSync("/tmp/nox-mem-export.tar.gz", Buffer.from(await archive.arrayBuffer()));
-  console.log("Exported archive to /tmp/nox-mem-export.tar.gz");
+  const out = join(mkdtempSync(join(tmpdir(), "nox-mem-export-")), "export.tar.gz");
+  writeFileSync(out, Buffer.from(await archive.arrayBuffer()));
+  console.log(`Exported archive to ${out}`);
 } catch (e) {
   if (e instanceof NoxMemApiError && e.isFeatureDisabled) {
     console.log("Archive feature not enabled (NOX_ARCHIVE_ENABLED=1 required)");

@@ -50,11 +50,13 @@ interface SubCheckResult {
 // ---------------------------------------------------------------------------
 
 const ALLOWED_EGRESS_PATTERNS: ReadonlyArray<RegExp> = [
-  /generativelanguage\.googleapis\.com/,
-  /oauth2\.googleapis\.com/, // auth only — acceptable
-  /localhost/,
-  /127\.0\.0\.1/,
-  /::1/, // IPv6 localhost
+  // Anchored: a destination is "host" or "host:port"; an unanchored pattern
+  // would also accept e.g. "evil.example/generativelanguage.googleapis.com".
+  /^generativelanguage\.googleapis\.com(:\d+)?$/,
+  /^oauth2\.googleapis\.com(:\d+)?$/, // auth only — acceptable
+  /^localhost(:\d+)?$/,
+  /^127\.0\.0\.1(:\d+)?$/,
+  /^\[?::1\]?(:\d+)?$/, // IPv6 localhost
 ];
 
 const EXPECTED_GEMINI_HOST = "generativelanguage.googleapis.com";
