@@ -738,8 +738,6 @@ Route to >=55% F1 is orchestration composition, not a retrieval change. Detail i
 
 ### 5.4 EverMemBench F_MH paradox — resolved
 
-### 5.4 EverMemBench F_MH paradox — resolved
-
 The triangulation of three independent multi-hop measurements forces a reframing of the EverMemBench F_MH absolute number:
 
 | Benchmark | Multi-hop metric | nox-mem score | Conventional reference readers | Published SOTA (split noted) | Verdict |
