@@ -275,11 +275,9 @@ export async function runRuntimeDepsCheck(opts: {
   const newOnlineConns = afterOnline.filter(
     (c) => !beforeOnline.includes(c)
   );
-  const unexpectedOnline = newOnlineConns.filter(
-    (c) =>
-      !isAllowedEgress(c) &&
-      !c.includes(EXPECTED_GEMINI_HOST)
-  );
+  // The anchored allowlist already admits the Gemini host; a substring test on
+  // top of it would re-admit "evil.example/generativelanguage.googleapis.com".
+  const unexpectedOnline = newOnlineConns.filter((c) => !isAllowedEgress(c));
 
   const geminiOnlyEgress: SubCheckResult = {
     passed: unexpectedOnline.length === 0,
