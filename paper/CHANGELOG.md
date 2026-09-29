@@ -52,6 +52,15 @@ Sweep final de claims (revisão adversarial multi-voice GLM + Codex + Kimi, read
 - **PDF:** `paper/build/paper-tecnico-nox-mem.pdf`, 0 glyph warnings. arXiv abstract 296 palavras.
 - **Pendente (logística, não-conteúdo):** endorsement cs.IR + rebuild do pacote de submissão a partir de `paper/build/` (o `arxiv-package-2026-05-24/` é pré-rc4) + submit → depois preencher arXiv ID em CITATION.cff + README badge.
 
+### v1.0.1 — 2026-09-04 (honesty pass; entry added retroactively on 2026-09-29)
+
+The paper header carried "v1.0.1 (2026-09-04)" from commit `9c11c33` onward, but this
+file stopped at v1.0.0. Recorded here so the label points at something.
+
+- **Retracted "dual SOTA"** and every cross-metric SOTA line; installed `paper/claims_check.py` with 8 mechanical guards (`9c11c33`, #458).
+- Research-paper form (header, Table 1, appendices; #461) and abstract cut from 807 to 320 words (#463).
+- **Zenodo:** record `10.5281/zenodo.22649269` (labelled "v1.0" on Zenodo; concept DOI `10.5281/zenodo.22649268`) was deposited on 2026-09-07 while the header read v1.0.1. The text kept changing under that same label afterwards, which is why v1.0.2 exists.
+
 ### Retificação — 2026-09-14 (confound (a): duas revisões erradas, em sentidos opostos)
 
 Commit `18c1bba`. O §6.3.2 afirmava três coisas falsas sobre o confound (a), e a nota
@@ -92,6 +101,38 @@ varrer o que os artefatos de fato registram. Os dois decisivos estavam preservad
 2026-06-29.
 
 ---
+
+### v1.0.2 — 2026-09-29 (latency figures back on artifacts; version labels reconciled)
+
+Everything that changed under the v1.0.1 label after the 2026-09-07 Zenodo deposit, plus
+three corrections found in a 2026-09-28 README audit.
+
+**Changes since the deposit (2026-09-08 → 2026-09-14):** §1.5 Related Work and the
+bibliography wired into the prose (#491, #492); appendices C–G and the Wave 2 /
+cross-backbone material moved verbatim to supplements (#494, #508); EverOS measured —
+a competitor that outperforms nox-mem (§6.3.3, #528) — and Zep measured, placing fourth
+(§6.3.4, #534); confounds 3 → 4 and the density guard (#535); TMLR template and
+anonymity gate (`fe49755`); the §6.3.2 confound (a) retraction of 2026-09-14 (above).
+
+**Corrections in this version:**
+- **Latency without an artifact removed.** §5.7 and the places that cite it (abstract, §5 headline box, §5.8.6, §6.3, §6.3.3, §6.3.4, §6.6, §6.9, §7 L7) quoted a
+  2026-06-15 re-check (KG path 2.9 / 5.7 ms, n=10; hybrid 653 / 706 ms, n=20) that was
+  never archived; §5.7's own table meanwhile showed ~940 ms, so "653 ms (§5.7)" pointed at
+  a section that said something else. Every latency now comes from a versioned artifact:
+  KG path 2.5 / 6.1 / 7.9 ms (p50/p95/p99, n=120) and hybrid 529 / 698 / 744 ms (n=100),
+  both `benchmark/latency-cost/results/RESULTS-PRODUCTION-SOTA.json` (2026-05-29); hybrid
+  ~940 / 2,342 / 2,523 ms (n=95, 2026-05-18, `paper/publication/results/latency-benchmark-summary.json`)
+  kept as the earlier run. Ratios built on 653 ms were recomputed: Zep vs nox-mem 9.2×
+  is dropped (different harness); EverOS vs nox-mem 2.4× becomes "above both archived
+  runs"; "5–6 orders of magnitude" vs Letta becomes ~3 (hybrid) to 5.6 (KG path).
+  An erratum was added to `paper/publication/supplement-wave2-and-cross-backbone.md`,
+  whose body stays verbatim.
+- **5-batch scope.** The headline said "all claims use the 5-batch protocol"; §5.8.1 already
+  limited it to EverMemBench. MuSiQue and HotPotQA are single full-dev runs — now stated.
+- **LoCoMo.** One summary line still read "74.52% retrieval@10 … above Mem0 SOTA F1
+  66.88%"; it now says, like the other five places, that the two are different metrics.
+- Header, README badge and `CITATION.cff` note aligned to v1.0.2. The Zenodo record is
+  still the 2026-09-07 deposit; a new Zenodo version is the author's action.
 
 ## Roadmap rumo à v1.0.0 (evoluir-antes-de-publicar)
 
