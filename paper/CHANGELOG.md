@@ -60,6 +60,7 @@ file stopped at v1.0.0. Recorded here so the label points at something.
 - **Retracted "dual SOTA"** and every cross-metric SOTA line; installed `paper/claims_check.py` with 8 mechanical guards (`9c11c33`, #458).
 - Research-paper form (header, Table 1, appendices; #461) and abstract cut from 807 to 320 words (#463).
 - **Zenodo:** record `10.5281/zenodo.22649269` (labelled "v1.0" on Zenodo; concept DOI `10.5281/zenodo.22649268`) was deposited on 2026-09-07 while the header read v1.0.1. The text kept changing under that same label afterwards, which is why v1.0.2 exists.
+- **Zenodo v1.0.2:** record `10.5281/zenodo.23041503`, published 2026-09-29 as a new version under the same concept DOI; PDF `md5:0d4059bf07363980f0de71dde830f149` (332,314 B), identical to `paper/build/paper-tecnico-nox-mem.pdf` at `ca83841`.
 
 ### Retificação — 2026-09-14 (confound (a): duas revisões erradas, em sentidos opostos)
 
