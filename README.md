@@ -321,7 +321,7 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 | System | Overall nDCG@10 | LoCoMo (n=1,982) | LongMemEval (n=500) | p50 latency |
 |---|---:|---:|---:|---:|
 | EverOS 1.3.1 (2026-09-10) | **0.6455** | **0.6585** | **0.5942** | 1,592 ms |
-| **nox-mem** (rc4, 2026-06-29) | 0.5013 | 0.4952 | 0.5255 | not captured (standalone 529–940 ms, paper §5.7) |
+| **nox-mem** (rc4, 2026-06-29) | 0.5013 | 0.4952 | 0.5255 | not captured in rc4 (standalone: 529 / ~940 ms p50 in two archived runs, paper §5.7) |
 | Zep 0.27.2 (2026-09-10) | 0.4546 | 0.4793 | 0.3567 | 6,002 ms |
 | Mem0 (rc4, 2026-06-29) | 0.4337 | 0.4407 | 0.4061 | not captured |
 

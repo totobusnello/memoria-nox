@@ -2911,14 +2911,14 @@ Notes
 + regex over \texttt{kg\_relations}, no LLM call; n=120, 2026-05-29,
 \texttt{benchmark/latency-cost/results/RESULTS-PRODUCTION-SOTA.json} \\
 Hybrid search (FTS5 + dense + RRF, no rerank) & 529 ms & 698 ms & 744 ms
-& n=100 after a 10-query warm-up, 2026-05-29, same artifact;
-Gemini-embedding-001 query dominates \\
+& n=100 after a 10-query warm-up, 2026-05-29, same artifact (corpus
+69,135 chunks); the Gemini query-embedding call dominates \\
 Hybrid search, earlier run & \textasciitilde940 ms &
 \textasciitilde2,342 ms & \textasciitilde2,523 ms & n=95, 2026-05-18,
 \texttt{paper/publication/results/latency-benchmark-summary.json}; same
-path, different day --- the spread is Gemini round-trip variance \\
+path, a different query mix (see below) \\
 Hybrid + cross-encoder rerank (MiniLM) & +3,700 ms p50 & --- & --- &
-Opt-in, exploratory mode \\
+Opt-in, exploratory mode; no archived artifact --- indicative only \\
 \end{longtable}
 }
 
@@ -2935,11 +2935,17 @@ architecture (better-sqlite3 + sqlite-vec in-process) eliminates network
 and IPC overhead entirely. \textbf{Correction (v1.0.2).} Earlier
 revisions quoted a 2026-06-15 re-check on the 70.7k-chunk corpus (KG
 path 2.9 / 5.7 ms, n=10; hybrid 653 / 706 ms, n=20). That run was not
-archived, so no figure in this paper rests on it any more; every latency
-above is read from a versioned artifact. The two archived hybrid runs
-(529 ms and \textasciitilde940 ms p50, eleven days apart) differ by the
-Gemini round-trip, which is the case for the local KG path on
-latency-sensitive workloads.
+archived, so no figure in this paper rests on it any more; every KG-path
+and standard-hybrid latency above is read from a versioned artifact (the
+cross-encoder row is an unarchived exploratory figure). The two archived
+hybrid runs (529 ms and \textasciitilde940 ms p50, eleven days apart)
+are not a drift measurement: they used different query mixes. The
+2026-05-18 run is dominated by long decision, procedure, incident and
+architecture queries (per-category p50 \textasciitilde900--1,100 ms),
+while on the categories both runs share the gap stays within
+\textasciitilde100 ms (short 578 vs 505 ms; entity 504 vs 603 ms). The
+Gemini query-embedding call dominates both runs, which is the case for
+the local KG path on latency-sensitive workloads.
 
 \paragraph{5.7.2 Cost --- \$0/query KG path; hybrid vs managed SaaS is
 list-price, not
@@ -3352,7 +3358,8 @@ cross-dataset distractor confound that inflated an early union-store
 reading (14.6\% of nox-mem's raw top-10 were off-dataset chunks).
 Per-system latency percentiles were not captured uniformly in this run;
 nox-mem operational latency is reported independently in §5.7 (KG path
-2.5 ms p50; hybrid 529--940 ms p50 across two archived runs).
+2.5 ms p50; hybrid 529 and \textasciitilde940 ms p50 in two archived
+runs).
 
 \textbf{LongMemEval n=100 (canonical):}
 
@@ -3840,7 +3847,8 @@ p50 latency
 \textbf{EverOS 1.3.1} (2026-09-10) & \textbf{0.6455} & \textbf{0.6585} &
 \textbf{0.5942} & 0.7629 & 0.6403 & 1,592 ms \\
 nox-mem (rc4, 2026-06-29) & 0.5013 & 0.4952 & 0.5255 & --- & --- & not
-captured in rc4 (standalone: 529--940 ms, §5.7) \\
+captured in rc4 (standalone: 529 / \textasciitilde940 ms p50 in two
+archived runs, §5.7) \\
 Mem0 (rc4, 2026-06-29) & 0.4337 & 0.4407 & 0.4061 & --- & --- & not
 captured \\
 \end{longtable}
@@ -3893,16 +3901,16 @@ date} --- rc4 ran 2026-06-29, EverOS 2026-09-10; corpus, query set,
 embedding model and dimensionality (\texttt{gemini-embedding-001}, 3072
 d) are the same, the calendar is not. (b) \emph{Operational axis} ---
 EverOS's p50 (1,592 ms, this harness) is above both archived standalone
-nox-mem hybrid runs (529--940 ms, §5.7; a different harness, so
-indicative only), and every EverOS query is paid on two providers
-(DeepInfra rerank + Gemini), against \$0 on the nox-mem KG path and one
-embedding call on its hybrid path (§6.8); the quality column and the
-cost column point in opposite directions here, which is the whole reason
-§6.8 exists. (c) \emph{Configuration provenance} --- the artifact's
-\texttt{meta} records what was asked of the harness and nothing about
-model, dimensionality or reranker; the configuration named above was
-captured from the live process's environment before it exited. That
-omission is recorded as a debt, not reconstructed after the fact.
+nox-mem hybrid runs (529 and \textasciitilde940 ms p50, §5.7; a
+different harness, so indicative only), and every EverOS query is paid
+on two providers (DeepInfra rerank + Gemini), against \$0 on the nox-mem
+KG path and one embedding call on its hybrid path (§6.8); the quality
+column and the cost column point in opposite directions here, which is
+the whole reason §6.8 exists. (c) \emph{Configuration provenance} ---
+the artifact's \texttt{meta} records what was asked of the harness and
+nothing about model, dimensionality or reranker; the configuration named
+above was captured from the live process's environment before it exited.
+That omission is recorded as a debt, not reconstructed after the fact.
 
 \textbf{On what this number is, and is not, relative to the vendor's
 own.} EverMind-AI reports EverMemOS\footnote{Hu, Gao, Zhou, Xu, Bai, Li,
@@ -3987,7 +3995,8 @@ p50 latency
 EverOS 1.3.1 (2026-09-10) & 0.6455 & 0.6585 & 0.5942 & 0.7629 & 0.6403 &
 1,592 ms \\
 nox-mem (rc4, 2026-06-29) & 0.5013 & 0.4952 & 0.5255 & --- & --- & not
-captured in rc4 (standalone: 529--940 ms, §5.7) \\
+captured in rc4 (standalone: 529 / \textasciitilde940 ms p50 in two
+archived runs, §5.7) \\
 \textbf{Zep 0.27.2} (2026-09-10) & \textbf{0.4546} & \textbf{0.4793} &
 \textbf{0.3567} & 0.6108 & 0.4279 & \textbf{6,002 ms} \\
 Mem0 (rc4, 2026-06-29) & 0.4337 & 0.4407 & 0.4061 & --- & --- & not
@@ -4000,7 +4009,8 @@ LongMemEval number (0.3567) is the lowest any system in this table
 records on either dataset --- below its own LoCoMo by 0.123, the widest
 per-dataset spread here. Its p50 of 6,002 ms is \textbf{3.8×} EverOS's
 1,592 ms in the same harness, and far above nox-mem's standalone hybrid
-p50 (529--940 ms, §5.7, a different harness); the p99 is 11,846 ms.
+p50 (529 and \textasciitilde940 ms in two archived runs, §5.7; a
+different harness); the p99 is 11,846 ms.
 
 \textbf{Why the latency, and why it is a property of the design rather
 than of our host.} Zep has no cross-corpus index: retrieval is per
@@ -4637,9 +4647,10 @@ configuration; the server calls \texttt{log.Fatal} at startup without it
 process, \textbf{0 mandatory keys}, FTS5-only is a valid degraded
 mode \\
 Letta & ran, but retrieval routes through a full LLM agent turn at
-\textasciitilde16 min/query & query efficiency & 2.5 ms KG path /
-529--940 ms hybrid --- roughly \textbf{3 (hybrid) to 5.6 (KG path)
-orders of magnitude faster} \\
+\textasciitilde16 min/query & query efficiency & 2.5 ms KG path / 529
+and \textasciitilde940 ms hybrid (two archived runs) --- roughly
+\textbf{3 (hybrid) to 5.6 (KG path) orders of magnitude faster}
+(different harness, indicative only) \\
 EverMind-AI \emph{(as of 2026-06-15; see note)} & needed 5 services + 2
 mandatory paid third-party keys (OpenRouter + DeepInfra) & dependency
 footprint / autonomy & 1 process, \textbf{0 mandatory keys},
@@ -4812,9 +4823,9 @@ the superseded 2026-05-24 smoke --- compared nox-mem localhost retrieval
 against a Docker-in-Docker HTTP call, i.e.~different transport classes,
 not a head-to-head speed claim. nox-mem's operational latency is
 therefore reported standalone in §5.7 (KG path p50 2.5 ms; hybrid p50
-529--940 ms across two archived runs), not as a cross-system comparison.
-A normalized-transport latency benchmark (all systems behind one
-gateway) is future work (§7.2).
+529 and \textasciitilde940 ms in two archived runs), not as a
+cross-system comparison. A normalized-transport latency benchmark (all
+systems behind one gateway) is future work (§7.2).
 
 \paragraph{L8 --- Pain signal is directional but not statistically
 significant in

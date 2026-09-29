@@ -118,11 +118,13 @@ anonymity gate (`fe49755`); the §6.3.2 confound (a) retraction of 2026-09-14 (a
 - **Latency without an artifact removed.** §5.7 and the places that cite it (abstract, §5 headline box, §5.8.6, §6.3, §6.3.3, §6.3.4, §6.6, §6.9, §7 L7) quoted a
   2026-06-15 re-check (KG path 2.9 / 5.7 ms, n=10; hybrid 653 / 706 ms, n=20) that was
   never archived; §5.7's own table meanwhile showed ~940 ms, so "653 ms (§5.7)" pointed at
-  a section that said something else. Every latency now comes from a versioned artifact:
+  a section that said something else. Every KG-path and standard-hybrid latency now comes from a versioned artifact:
   KG path 2.5 / 6.1 / 7.9 ms (p50/p95/p99, n=120) and hybrid 529 / 698 / 744 ms (n=100),
   both `benchmark/latency-cost/results/RESULTS-PRODUCTION-SOTA.json` (2026-05-29); hybrid
   ~940 / 2,342 / 2,523 ms (n=95, 2026-05-18, `paper/publication/results/latency-benchmark-summary.json`)
-  kept as the earlier run. Ratios built on 653 ms were recomputed: Zep vs nox-mem 9.2×
+  kept as the earlier run; the two hybrid runs used different query mixes, so their gap is
+  not a drift measurement (per-category comparison in §5.7). The cross-encoder row
+  (+3,700 ms) has no archived artifact and is now marked indicative. Ratios built on 653 ms were recomputed: Zep vs nox-mem 9.2×
   is dropped (different harness); EverOS vs nox-mem 2.4× becomes "above both archived
   runs"; "5–6 orders of magnitude" vs Letta becomes ~3 (hybrid) to 5.6 (KG path).
   An erratum was added to `paper/publication/supplement-wave2-and-cross-backbone.md`,
@@ -131,6 +133,13 @@ anonymity gate (`fe49755`); the §6.3.2 confound (a) retraction of 2026-09-14 (a
   limited it to EverMemBench. MuSiQue and HotPotQA are single full-dev runs — now stated.
 - **LoCoMo.** One summary line still read "74.52% retrieval@10 … above Mem0 SOTA F1
   66.88%"; it now says, like the other five places, that the two are different metrics.
+- **Adversarial review (Grok, Kimi) of this diff:** accepted — model name removed from the
+  hybrid row (the artifact's own label disagrees), corpus size declared, the 529/940 gap
+  re-explained as query mix instead of Gemini variance, cross-encoder row marked
+  unarchived, "529–940 ms" ranges rewritten as two runs, harness caveat added to the
+  Letta row, erratum scope widened. Rejected after checking the text: "p99 caveat is
+  stale" (the cross-encoder row still has p50 only) and "CHANGELOG omits the LoCoMo fix"
+  (it does not; that reviewer received a condensed prompt).
 - Header, README badge and `CITATION.cff` note aligned to v1.0.2. The Zenodo record is
   still the 2026-09-07 deposit; a new Zenodo version is the author's action.
 
