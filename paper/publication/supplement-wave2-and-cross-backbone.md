@@ -5,6 +5,12 @@
 > as a stub carrying the headline number, so the manuscript's ~21 internal references to
 > these subsections still resolve.
 
+> **Erratum (paper v1.0.2, 2026-09-29).** The latency figures KG path 2.9 / 5.7 ms and
+> hybrid 653 / 706 ms ("re-validated 2026-06-15"), wherever they appear below (§5.7 and the
+> limitations list), come from a run that was never archived. The main paper now reports only artifact-backed figures (KG path
+> 2.5 ms p50, n=120; hybrid 529 ms and ~940 ms p50 on two dates; §5.7). The text below is
+> left verbatim, as stated above.
+
 ## Why these were moved out
 
 Both blocks are **ablation history**, not the result a reader needs in order to evaluate

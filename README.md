@@ -20,7 +20,7 @@
   <a href="https://github.com/totobusnello/memoria-nox/stargazers"><img src="https://img.shields.io/github/stars/totobusnello/memoria-nox?style=for-the-badge&color=00C896" alt="Stars"></a>
   <a href="https://github.com/totobusnello/memoria-nox/actions/workflows/lint-and-typecheck.yml"><img src="https://img.shields.io/github/actions/workflow/status/totobusnello/memoria-nox/lint-and-typecheck.yml?style=for-the-badge&color=00C896&label=ci" alt="CI"></a>
   <a href="https://www.bestpractices.dev/projects/12896"><img src="https://img.shields.io/cii/level/12896?style=for-the-badge&color=00C896&label=OpenSSF" alt="OpenSSF Best Practices: passing"></a>
-  <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.0-00C896?style=for-the-badge" alt="Paper v1.0.0"></a>
+  <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.2-00C896?style=for-the-badge" alt="Paper v1.0.2"></a>
   <a href="https://doi.org/10.5281/zenodo.22649269"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.22649269-00C896?style=for-the-badge" alt="DOI 10.5281/zenodo.22649269"></a>
   <img src="https://img.shields.io/badge/version-1.0.0-00C896?style=for-the-badge" alt="version 1.0.0">
 </p>
@@ -61,7 +61,7 @@
 
 | Dimension | nox-mem | Note | Paper |
 |---|---:|---|---|
-| KG path latency p50 | **2.9 ms** | SQL + regex over `kg_relations`, no LLM call; re-validated 2026-06-15, n=10 | §5.7.1 |
+| KG path latency p50 | **2.5 ms** | SQL + regex over `kg_relations`, no LLM call; n=120, 2026-05-29 | §5.7.1 |
 | KG path cost per query | **$0.00** | local SQL only | §5.7.2 |
 | Hybrid path cost per query | $0.0000015 | Gemini embedding list price. The "~667× cheaper than Mem0 Cloud" ratio rests on an *estimated* Mem0 rate | §5.7.2 |
 | API process memory | **399 MB RSS**, single process | one SQLite file; no separate database, vector store or queue service | §5.7.3 |
@@ -193,7 +193,7 @@ A1 · A2 · A3 · A4
 <td align="center" width="33%">
 <h3>P &mdash; Product</h3>
 <sub>Self-hosted operational profile</sub><br><br>
-<strong>KG path 2.9 ms p50 · $0/query · 399 MB RSS</strong><br>
+<strong>KG path 2.5 ms p50 · $0/query · 399 MB RSS</strong><br>
 <sub>$0 marginal cost on the KG path · one process, one SQLite file</sub><br><br>
 P1 · P3 · P5 · P5a
 </td>
@@ -321,7 +321,7 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 | System | Overall nDCG@10 | LoCoMo (n=1,982) | LongMemEval (n=500) | p50 latency |
 |---|---:|---:|---:|---:|
 | EverOS 1.3.1 (2026-09-10) | **0.6455** | **0.6585** | **0.5942** | 1,592 ms |
-| **nox-mem** (rc4, 2026-06-29) | 0.5013 | 0.4952 | 0.5255 | 653 ms |
+| **nox-mem** (rc4, 2026-06-29) | 0.5013 | 0.4952 | 0.5255 | not captured in rc4 (standalone: 529 / ~940 ms p50 in two archived runs, paper §5.7) |
 | Zep 0.27.2 (2026-09-10) | 0.4546 | 0.4793 | 0.3567 | 6,002 ms |
 | Mem0 (rc4, 2026-06-29) | 0.4337 | 0.4407 | 0.4061 | not captured |
 
@@ -345,7 +345,7 @@ The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep 
 | Typed knowledge graph with edge reasons | partial | &times; | &check; | &times; | &check; |
 | Shadow-mode ranking discipline | &times; | &times; | &times; | &times; | &check; |
 | Pain-weighted salience | &times; | &times; | &times; | &times; | &check; |
-| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.0.0) |
+| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.0.2) |
 | MIT, no usage caps, no telemetry phone-home | partial | &check; | &check; | &check; | &check; |
 
 ## Works with every agent
