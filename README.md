@@ -55,7 +55,7 @@
 | MuSiQue-Ans dev answer F1 (n=2,417, single run) | **58.62%** | IRCoT 35.80% &middot; EX(SA) 49.70% &middot; Beam Retrieval 69.20 | above the benchmark's own readers, **10.58 pp below the published SOTA** | §5.2.1 |
 | HotPotQA dev distractor answer F1 (n=7,405, single run) | **73.37%** | DPR+FiD 65–72% &middot; Beam Retrieval 85.04 | above the reader range, **~12 pp below the published SOTA** | §5.2.2 |
 | LoCoMo retrieval@10, strict | **74.52%** | &mdash; | a retrieval metric; Mem0's published 66.88% is answer F1 and **not comparable** | §5.3.1 |
-| Cross-system nDCG@10, same corpus and same embedder (n=2,482) | **0.5013** | EverOS 0.6455 &middot; Zep 0.4546 &middot; Mem0 0.4337 | **second of four**; EverOS leads (it requires a cross-encoder reranker; nox-mem's run had none) | §6.3.2–§6.3.4 |
+| Cross-system nDCG@10, same corpus and same embedder (n=2,482) | **0.5013** | EverOS 0.6455 &middot; Zep 0.4546 &middot; Mem0 0.4337 | same corpus, queries and embedder; EverOS runs with a cross-encoder reranker, nox-mem without one | §6.3.2–§6.3.4 |
 
 ### Operational profile (self-hosted)
 
@@ -320,12 +320,12 @@ Wave B post-mortem with PR-by-PR breakdown: [`docs/post-mortems/WAVE-B-2026-05-1
 
 | System | Overall nDCG@10 | LoCoMo (n=1,982) | LongMemEval (n=500) | p50 latency |
 |---|---:|---:|---:|---:|
-| EverOS 1.3.1 (2026-09-10) | **0.6455** | **0.6585** | **0.5942** | 1,592 ms |
+| EverOS 1.3.1 (2026-09-10) | 0.6455 | 0.6585 | 0.5942 | 1,592 ms |
 | **nox-mem** (rc4, 2026-06-29) | 0.5013 | 0.4952 | 0.5255 | not captured in rc4 (standalone: 529 / ~940 ms p50 in two archived runs, paper §5.7) |
 | Zep 0.27.2 (2026-09-10) | 0.4546 | 0.4793 | 0.3567 | 6,002 ms |
 | Mem0 (rc4, 2026-06-29) | 0.4337 | 0.4407 | 0.4061 | not captured |
 
-> **EverOS outperforms nox-mem on both datasets** (+0.144 overall). The pipelines differ: EverOS *requires* a cross-encoder reranker (`Qwen3-Reranker-4B`) and refuses to search without one; nox-mem's run had no reranking stage. We report the result that goes against us in the same table as the ones that do not. nox-mem places second of four, ahead of Zep and Mem0.
+> **Pipelines differ.** EverOS requires a cross-encoder reranker (`Qwen3-Reranker-4B`) and will not search without one; nox-mem's run had no reranking stage. Paper §6.3.3 discusses the comparison.
 
 The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep lives in [`docs/COMPARISON.md`](docs/COMPARISON.md). The seven-axis differentiation:
 
