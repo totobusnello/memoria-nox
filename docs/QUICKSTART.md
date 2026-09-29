@@ -4,7 +4,7 @@
 
 **Where the code lives.** This repository (`memoria-nox`) is the research lab: paper, eval harnesses, specs. It has no `package.json` at the root and is **not** meant to be cloned and built. The engine is developed in [`totobusnello/nox-mem`](https://github.com/totobusnello/nox-mem) and published to npm as [`nox-mem`](https://www.npmjs.com/package/nox-mem). Everything below uses the npm package.
 
-Install, ingest, keyword and temporal search, `reindex`, `doctor`, `answer --help`, the MCP server and the HTTP API were run against `nox-mem@3.4.0` installed from npm into a clean directory (2026-09-28). Steps that need a Gemini key (`vectorize`, `kg-build`, an `answer` that calls the LLM) were not exercised in that run.
+Install, ingest, keyword and temporal search, `reindex`, `doctor`, `answer --help`, the MCP server and the HTTP API were run against `nox-mem@3.4.0` installed from npm into a clean directory (2026-09-28); the 3.5.0 additions (answer over MCP and with the temporal filter, multi-file `ingest`, the query-embedding time budget) were re-checked against `nox-mem@3.5.0` from npm on 2026-09-29. Steps that need a Gemini key (`vectorize`, `kg-build`, an `answer` that calls the LLM) were not exercised in that run.
 
 ---
 
@@ -24,7 +24,7 @@ SQLite, FTS5 and `sqlite-vec` ship inside the package — no system SQLite neede
 
 ```bash
 npm install -g nox-mem
-nox-mem --version            # 3.4.0
+nox-mem --version            # 3.5.0
 
 # Optional — enables semantic search, KG extraction and answer
 export GEMINI_API_KEY=AIza...
@@ -40,13 +40,13 @@ The store is created on first use at **`~/.nox-mem/nox.db`**. To put it elsewher
 
 ### Ingest markdown
 
-`ingest` takes **one file** per call (a directory raises `EISDIR`):
+`ingest` takes one or more **files** (not directories). A path that is a directory or does not exist is reported by name, the other files are still ingested, and the command exits 1 at the end:
 
 ```bash
 nox-mem ingest ~/notes/decisions.md
 
 # A whole folder
-for f in ~/notes/*.md; do nox-mem ingest "$f"; done
+nox-mem ingest ~/notes/*.md
 ```
 
 The ingest router auto-detects entity files (`memory/entities/<type>/<slug>.md`) and applies section boosts. Plain markdown goes through the standard chunker. A date in the filename (`2026-09-27.md`) becomes the chunk's `source_date`.
@@ -67,7 +67,9 @@ nox-mem search "salience formula" --limit 10
 nox-mem search "salience formula" --no-hybrid    # keyword-only (FTS5)
 ```
 
-Without embeddings you will see `Vector index empty — run 'nox-mem vectorize' first. Falling back to FTS5.` — search still works. Keyword search needs every term to match, so when a question finds nothing, nox-mem retries with any of its content words (`NOX_FTS_OR_FALLBACK`, on by default only when no embedding key is set).
+Without embeddings you will see `Vector index empty — run 'nox-mem vectorize' first. Falling back to FTS5.` — search still works. Keyword search needs every term to match, so when a question finds nothing, nox-mem retries with any of its content words (`NOX_FTS_OR_FALLBACK`, on by default only when the key of your embedding provider — Gemini by default — is missing; a stray `OPENAI_API_KEY` does not switch it off).
+
+With embeddings, the query embedding has a time budget (`NOX_QUERY_EMBED_TIMEOUT_MS`, default 5000 ms, `0` = off): if the provider is slower than that, search answers from FTS5 instead of waiting.
 
 ### Time-travel and recency window
 
@@ -88,7 +90,7 @@ nox-mem answer "what did we decide about deploys?"
 nox-mem answer --help        # --top-k, --json, --no-cite, ...
 ```
 
-`answer` does not take `--as-of` / `--changed-since` yet.
+`answer` takes the same `--as-of` / `--changed-since` filter as `search`.
 
 ### Inspect
 
@@ -115,7 +117,7 @@ nox-mem kg-path "entity A" "entity B"
 
 ### MCP server (Claude Code, Cursor, Cline, ...)
 
-`nox-mem-mcp` starts the MCP server over stdio: 20 tools (`nox_mem_search` with `as_of` / `changed_since`, `nox_mem_ingest`, `nox_mem_stats`, `nox_mem_kg_query`, `nox_mem_kg_path`, `nox_mem_reflect`, `nox_mem_decision_*`, ...).
+`nox-mem-mcp` starts the MCP server over stdio: 21 tools (`nox_mem_search` and `nox_mem_answer` with `as_of` / `changed_since`, `nox_mem_ingest`, `nox_mem_stats`, `nox_mem_kg_query`, `nox_mem_kg_path`, `nox_mem_reflect`, `nox_mem_decision_*`, ...).
 
 ```bash
 # Claude Code
@@ -176,8 +178,8 @@ Chunks ingested from outside the workspace are still treated as orphans by a rei
 | Symptom | Fix |
 |---|---|
 | `Done: 0 embedded, N errors` | `GEMINI_API_KEY` is not set in this shell |
-| `Error: EISDIR` on ingest | You passed a directory — ingest one file at a time |
-| `unknown command 'answer'` / `unknown option '--as-of'` | You are on ≤3.3 — `npm install -g nox-mem@latest` |
+| `is a directory` on ingest | Pass the files, e.g. `nox-mem ingest ~/notes/*.md` |
+| `unknown command 'answer'` / `unknown option '--as-of'` | You are on an old version — `npm install -g nox-mem@latest` |
 | `REFUSED before touching the DB` on reindex | Expected on a standalone install — see §4 |
 | `database is inside node_modules` warning | Move the DB — see the upgrade note in §1 |
 | `Could not locate the bindings file` (better-sqlite3) | `npm rebuild -g better-sqlite3`; install a C/C++ toolchain if it tries to compile |

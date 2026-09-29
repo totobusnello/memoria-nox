@@ -92,10 +92,10 @@ npm install -g nox-mem
 #    and still answers natural-language questions.
 export GEMINI_API_KEY=AIza...        # https://aistudio.google.com/apikey
 
-# 3. Ingest markdown — one file per call. The store lives in ~/.nox-mem/nox.db
+# 3. Ingest markdown files (not directories). The store lives in ~/.nox-mem/nox.db
 #    (override with NOX_DB_PATH).
 nox-mem ingest ~/notes/decisions.md
-for f in ~/notes/*.md; do nox-mem ingest "$f"; done
+nox-mem ingest ~/notes/*.md
 
 # 4. Embed (needs the key), then search — hybrid, or keyword-only without a key
 nox-mem vectorize
@@ -114,7 +114,7 @@ nox-mem doctor
 
 `nox-mem --help` lists all subcommands (knowledge graph, decisions, cross-agent search, reflect, crystallize, ...). In `doctor`, anything under *Optional integrations* marked ⚪ (Ollama, Notion, file watcher) is simply not set up — fine to skip.
 
-**MCP server** (Claude Code, Cursor, Cline, ...) — 20 tools (`nox_mem_search` with `as_of` / `changed_since`, `nox_mem_ingest`, `nox_mem_kg_query`, `nox_mem_reflect`, ...):
+**MCP server** (Claude Code, Cursor, Cline, ...) — 21 tools (`nox_mem_search` and `nox_mem_answer` with `as_of` / `changed_since`, `nox_mem_ingest`, `nox_mem_kg_query`, `nox_mem_reflect`, ...):
 
 ```bash
 claude mcp add nox-mem -e GEMINI_API_KEY="$GEMINI_API_KEY" -- nox-mem-mcp
@@ -128,16 +128,16 @@ Full walkthrough: [`docs/QUICKSTART.md`](docs/QUICKSTART.md).
 
 The entire user-facing contract surface fits on a card. Three primitives, surfaced identically across CLI, HTTP API, and MCP, all backed by one SQLite file on your disk &mdash; and the LLM provider is swappable without code changes.
 
-> **Status in the published package (`nox-mem@3.4.0`):** `search` and the temporal filter ship on all three surfaces (CLI, HTTP, MCP). `answer` ships on the CLI (`nox-mem answer`) and HTTP (`POST /api/answer`); there is no `nox_mem_answer` MCP tool yet, and `answer` does not take the temporal flags yet.
+> **Status in the published package (`nox-mem@3.5.0`):** all three primitives ship on all three surfaces (CLI, HTTP, MCP), and the temporal filter applies to both `search` and `answer`.
 
 | Primitive | Status | What it does | Surfaces | Spec |
 |---|---|---|---|---|
 | **`search`** | ✅ shipped | Hybrid retrieval &mdash; FTS5 BM25 &#8741; Gemini 3072d semantic &rarr; RRF fusion (k=60), Hard Mutex section gating, SOURCE_TYPE_BOOST overlays. Returns ranked chunks with scores + provenance. | `nox-mem search` &middot; `POST /api/search` &middot; `nox_mem_search` | [Paper &sect;4](paper/paper-tecnico-nox-mem.md), [`archive/specs/2026-03-14-nox-memory-system-design.md`](archive/specs/2026-03-14-nox-memory-system-design.md) |
-| **`answer`** | ✅ CLI + HTTP (MCP pending) | Grounded RAG with citations &mdash; wraps `search` (top-K=10) &rarr; LLM (Gemini Flash Lite by default, D41-locked) &rarr; parses inline `[chunk_<id>]` citations &rarr; anti-hallucination retry. Empty-retrieval short-circuit avoids LLM spend. **p95 = 101.74ms** on offline bench (42&times; under 4.3s budget). | `nox-mem answer` &middot; `POST /api/answer` | [`staged/P1/README.md`](staged/P1/edits/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
+| **`answer`** | ✅ shipped | Grounded RAG with citations &mdash; wraps `search` (top-K=10) &rarr; LLM (Gemini Flash Lite by default, D41-locked) &rarr; parses inline `[chunk_<id>]` citations &rarr; anti-hallucination retry. Empty-retrieval short-circuit avoids LLM spend. **p95 = 101.74ms** on offline bench (42&times; under 4.3s budget). | `nox-mem answer` &middot; `POST /api/answer` | [`staged/P1/README.md`](staged/P1/edits/README.md), PRs #3 #18 #31 #34 #40 #114 #283 |
 | **Temporal filter** | ✅ shipped | `--as-of <date>` (time-travel) and `--changed-since <date>` (recency window) as **hard SQL pre-filters**, not ranking boosts. Closes Gap #2 (temporal decay) of the Six Gaps reframe &mdash; time is a first-class selector, not an opaque multiplier. ISO 8601 or relative (`7d`, `1w`, `30d`, `2h`, `15m`). | `--as-of` / `--changed-since` on `search` &middot; `?as_of=`, `?changed_since=` on HTTP &middot; `as_of` / `changed_since` on MCP | [`staged/P3/DEPLOY.md`](staged/P3/DEPLOY.md), PRs #2 #167 |
 
 ```bash
-# search + temporal runs on nox-mem@3.4.0; answer does not take the temporal flags yet
+# search and answer both take the temporal filter (nox-mem@3.5.0)
 nox-mem search "schema migration" --as-of 2026-05-01 --changed-since 30d
 ```
 
@@ -354,7 +354,7 @@ The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep 
 
 **Tier B &mdash; works via MCP or HTTP:** Continue, Aider, Codex, Roo, Tabnine, Windsurf, Goose, Zed, Open Interpreter, LangChain, LlamaIndex, CrewAI, AutoGen, custom.
 
-Per-agent setup: [`integrations/`](integrations/) · MCP/HTTP wiring: [`docs/QUICKSTART.md` §3](docs/QUICKSTART.md#3-connect-an-agent). The MCP server exposes 20 tools. The HTTP API exposes `/api/{health,search,kg,kg/path,agents,cross-kg,reflect,procedures,crystallize,brief}` plus `POST /api/answer`.
+Per-agent setup: [`integrations/`](integrations/) · MCP/HTTP wiring: [`docs/QUICKSTART.md` §3](docs/QUICKSTART.md#3-connect-an-agent). The MCP server exposes 21 tools. The HTTP API exposes `/api/{health,search,kg,kg/path,agents,cross-kg,reflect,procedures,crystallize,brief}` plus `POST /api/answer`.
 
 ## Paper and citation
 

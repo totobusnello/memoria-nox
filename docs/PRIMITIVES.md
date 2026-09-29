@@ -173,10 +173,9 @@ Response:
 
 Time-travel and recency-window selectors. **Hard SQL pre-filter**, not a
 ranking boost — chunks outside the window simply don't appear in results.
-Layered onto `search` (CLI, HTTP, MCP) without changing any score. `answer`
-does not accept the temporal flags yet.
+Layered onto `search` and `answer` (CLI, HTTP, MCP) without changing any score.
 
-> **Release status:** shipped in [`nox-mem@3.4.0`](https://www.npmjs.com/package/nox-mem) on the CLI (`--as-of` / `--changed-since`), HTTP (`as_of` / `changed_since` on `/api/search`, GET or POST) and MCP (`nox_mem_search`).
+> **Release status:** `search` shipped in [`nox-mem@3.4.0`](https://www.npmjs.com/package/nox-mem) on the CLI (`--as-of` / `--changed-since`), HTTP (`as_of` / `changed_since` on `/api/search`, GET or POST) and MCP (`nox_mem_search`). `answer` gained the same filter in `nox-mem@3.5.0` (CLI flags, `as_of` / `changed_since` in the `POST /api/answer` body and on `nox_mem_answer`); a bad or blank date is exit 2 / HTTP 400 / `isError`, never a silently unfiltered answer.
 
 This closes **Gap #2 (temporal decay)** of the Six Gaps reframe: most
 agent-memory systems either ignore time entirely or bolt on opaque
@@ -274,9 +273,8 @@ The three primitives compose orthogonally:
 # search + temporal: time-windowed retrieval
 nox-mem search "incidents" --as-of 2026-05-15 --changed-since 7d
 
-# answer + temporal: grounded synthesis over a time window (NOT YET — answer
-# does not take the temporal flags; planned)
-# nox-mem answer "what incidents happened last week?" --changed-since 7d
+# answer + temporal: grounded synthesis over a time window
+nox-mem answer "what incidents happened last week?" --changed-since 7d
 
 # answer + custom top-k: deeper retrieval before synthesis
 nox-mem answer "explain the pain weighting evolution" --top-k 20
