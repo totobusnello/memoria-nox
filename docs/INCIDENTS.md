@@ -2,6 +2,53 @@
 
 > Histórico de incidents do **nox-mem core** (chunks, vectorize, reindex, schema migration, semantic layer) e **graph-memory plugin** (KG extract/recall, plugin custom v1.5.8). Incidents de plataforma OpenClaw (gateway, fratricide, RelayPlane, credentials) ficam em `~/Claude/Projetos/openclaw-vps/infra/docs/INCIDENTS.md`.
 
+## 2026-09-29 — três vigias calados: um nunca rodou, um rodava sem função, um testava uma query deformada
+
+### Severity: yellow — nenhuma degradação de serviço; o custo é que dois guardas ficaram meses sem cobrir nada, e um terceiro quebrou por causa de um conserto nosso
+
+### TL;DR
+Auditoria dos 39 crons da produção, feita depois de um achado ao acaso:
+
+1. **`nox-decay-watch.sh` nunca rodou.** Criado em 26/07 depois do KG cair 97% sem alarme,
+   o cron redirecionava para `/var/log/nox-mem/decay-watch.log`, e `/var/log/nox-mem` não
+   existia. O shell abre o redirect **antes** de executar o comando; falha, e o script — cujo
+   `mkdir -p` criaria o diretório — nem começa. `journalctl -u cron` mostrava `CMD (...)` todo
+   dia, o que parece execução e não é. Nenhum `decay-watch.jsonl` existia.
+2. **`seh-report-daily.sh` rodava sem função desde 19/05.** O comando `nox-mem seh-report`
+   saiu do CLI no reparo de 19/05 (`7fdaab4f`); além disso o `nox-mem` não está no `PATH` do
+   cron (`/usr/bin:/bin`) e o `set -e` saía antes de o script gravar o próprio log.
+3. **O semantic-canary testava uma query deformada desde sempre.** Ele manda a query por
+   `curl --data-urlencode` (espaço vira `+`), e a API lia `+` como literal: a query chegava
+   como `como+funciona+a+memória+…`, com 0 entidades para o vault-facts. O conserto do parser
+   (nox-workspace#51, 19:50 UTC) fez a query chegar certa; o vault-facts (`active` desde 19/08)
+   casou 2 entidades e a resposta virou `{results, vaultFacts}`, que o canário não aceitava —
+   `FORMAT_ERROR` às 20:16 UTC, 26 min depois do deploy.
+
+### Por que nenhum instrumento viu
+Nos três casos o sinal de "está rodando" existia e mentia: a linha `CMD` do cron (1 e 2) e o
+verde do canário (3). O smoke que fiz depois do deploy #51 aceitava os dois formatos de
+resposta (`d.get("results", d)`), então não podia ver a mudança de contrato que o consumidor
+rejeitava.
+
+### Fix
+1. `mkdir -p /var/log/nox-mem` + uma execução manual (baseline pós-limpeza). Em 30/09 06:13
+   rodou sozinho: "nenhum decaimento acima do limiar".
+2. Cron apagado (decisão do Toto), script e log removidos; espelho em openclaw-vps#37.
+3. Parser do canário aceita os dois formatos (VPS + openclaw-vps#36). Distribuição passou de
+   semantic 8 / fts 2 para 4 / 6; o único gatilho é `semantic=0`.
+
+Na mesma auditoria: `bvv-extract` (Kaption/Mac 404 desde 19/06) apagado, e o
+`crontab-rebuild.sh` ainda trazia as 7 linhas `p2-` do ensaio encerrado — rodá-lo teria
+religado o P2. Aplicador, runbook e crontab vivo agora batem 37/37.
+
+### Aprendizados
+- Auditar cron pela **saída** (o arquivo existe e cresce?), não pela linha `CMD` do journal.
+- Consertar parsing/encoding de uma API muda o que os consumidores automatizados recebem:
+  listar os consumidores (`grep -rl "api/<rota>"` em scripts e crons) e rodar **cada um**
+  contra o deploy, com o parser **dele**. Smoke que tolera formato não detecta mudança de formato.
+
+---
+
 ## 2026-09-03 06:00 → descoberto 2026-09-08 (5 dias) — o serving servia um corpus DELETADO, vivo só pelo descritor de arquivo
 
 ### Severity: yellow — zero degradação de serviço; o custo é que 5 dias de exposição do ensaio saíram de um corpus congelado, e a inferência óbvia sobre o RED de composição estava invertida

@@ -1892,3 +1892,48 @@ as duas eram recomendações, e o que fica registado aqui é a escolha dele.
 
 Artefatos: `paper2-interventional/out/NOGO-replay-sonda{2,3}-2026-09-23.json`.
 Detalhe e errata: `docs/HANDOFF.md`, entradas de 2026-09-22/23.
+
+---
+
+### D-2026-09-30 — Higiene do corpus: o que sai, o que fica, e o critério
+
+**Contexto.** Em 29–30/09 o banco de produção passou de **66.878 para 43.255** chunks em três
+operações aprovadas pelo Toto, cada uma com dry-run, snapshot pré-op (`withOpAudit`) e checks
+pós-op (total, `compiled == frontmatter`, vetores, FTS).
+
+| op | critério | apagados | ops_audit |
+|---|---|---|---|
+| duplicatas no mesmo arquivo | mesmo `source_file` + mesmo `chunk_text` | 6.720 | 317 |
+| duplicatas entre arquivos | mesmo texto em arquivos diferentes, **só cópias que não voltam** | 8.239 | 318 |
+| importação estática de abril | `shared/imports/Claude/skills/` + 2 cópias dos planos do memoria-nox | 8.682 | 322 |
+
+**O critério que decide se uma cópia pode sair:** ela **volta** se o arquivo existe numa pasta
+que o watcher ou o reindex releem (`memory/`, `shared/`, `agents/<6>/` exceto `sessions/`),
+porque `ingestFile` apaga e reinsere todos os chunks do arquivo. Apagar uma cópia assim só
+dura até a próxima ingestão. Saíram apenas cópias de `sessions/`, de arquivos que já não
+existem no disco, e de `events/`/`tools/`. Em cada grupo ficou ao menos uma cópia — a
+contagem de textos distintos (50.961) foi conferida igual antes e depois da 318.
+
+**Sempre protegidos:** entity sections (`compiled`/`frontmatter`/`timeline`) e linhas
+referenciadas por `brief_log`, `p2_verdict`, `kg_relations.evidence_chunk_id` ou pelos
+goldens (`eval_queries.expected_chunk_ids`). Na 322, 34 chunks ficaram por isso.
+
+**Fica, por decisão do Toto (não reabrir):**
+- `memory/mac-docs/PESSOAL` e `BANCOS` — os arquivos de origem já não existem no disco, mas
+  o conteúdo continua na memória dos agentes, de propósito.
+- o resto de `shared/imports/` (3.095 chunks do restante de `Claude/`, 1.218 de outros
+  projetos) — pode ser contexto útil; é decisão de conteúdo, não de higiene.
+- os **579 grupos** de texto repetido em arquivos vivos (691 cópias extras, 1,3% do banco,
+  90% em `shared/imports/`) — impacto pequeno, e a busca já junta textos quase idênticos.
+
+**NÃO FAZEMOS:**
+- `DELETE` de cópia cujo arquivo está vivo numa pasta observada — ela volta.
+- Remover arquivo do disco esperando que o chunk suma — o watcher **ignora** deleção; o banco
+  precisa de operação própria.
+- Reempacotar o vec0 quando o ganho previsto é pequeno: depois da 322 o índice caiu sozinho
+  de 51 para 47 blocos (o vec0 devolve os que esvaziam por inteiro) e reempacotar para 43
+  daria ~8%, que não paga parar a API.
+
+**Onde está o detalhe:** `docs/HANDOFF.md` (2026-09-29/30), `D77` (reempacotamento de 30/09),
+`docs/INCIDENTS.md#2026-09-29`. Scripts de cada operação ficaram em `/root/` na VPS
+(`nox-dedupe-same-file-*`, `nox-dedupe-cross-file-*`, `nox-purge-imports-*`).
