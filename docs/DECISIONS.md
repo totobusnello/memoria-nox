@@ -1430,6 +1430,21 @@ Lista de constraints que **NÃO mudam sem ADR explícito**:
   **é** necessário DEPOIS do repack, porque o `DROP` deixou 317.209 páginas livres e
   o arquivo havia crescido para 2.432 MB. Isso não contradiz o item 2 abaixo:
   `VACUUM` não recupera o vazio *dentro* do blob, só as páginas livres.
+- **✅ 2ª EXECUÇÃO 2026-09-30 01:21–01:23 UTC** (Toto: *"faz o reempacotamento"*),
+  depois das duas limpezas de duplicatas exatas de 29/09 (ops_audit 317 e 318) terem
+  deixado **68** chunks para **51.810** vetores (25% de slots vazios). Resultado:
+  68 → **51** chunks, 816 → 612 MB, 0 sem-map descartados, arquivo 1.314 → **1.068 MB**
+  após `VACUUM`; `ops_audit` 320 `success | affected=51810`; snapshot pré-op em
+  `/var/backups/nox-mem/pre-op/rebuild-vec0-index-main-20260930012102-*.db`. Checks:
+  `quick_check ok`, map == rowids == 51.810, 0 map sem vetor, compiled == frontmatter
+  == 239; canário OK logo depois. **Latência KNN (k=10, 30 queries fixas, 3 de
+  aquecimento descartadas):** medianas **469 / 434 ms** antes (2 rodadas) contra
+  **334 / 403 / 344 / 358 / 391 ms** depois (5 rodadas) ⇒ **~−20%** (mínimos 386–420
+  → 303–333 ms). Medida menos limpa que a de 28/08: antes/depois em vez de A/B
+  intercalado no mesmo arquivo, com a API e o watcher religando e load ~2,5.
+  Executado com API e watcher **parados** e a trava de manutenção, na janela xx:21–29
+  sem health-probe/canário: a `/api/search` lê o banco principal, e o DROP/CREATE da
+  tabela vec0 ocorre fora de uma transação única.
 - **Recomendação: FAZER**, porque os três argumentos agora são medidos e não
   supostos — latência (−33,1%), espaço (420 MB / 1,64 GB) e limpeza dos **2.074**
   vetores fora do map, classe que **nenhum** guarda atual alcança (regra 9).
