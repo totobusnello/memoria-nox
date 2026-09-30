@@ -1,5 +1,60 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-09-29/30 — faxina: corpus 66.878 → 43.255, índice vec0, crons, nox-mem 3.5.1, Paper 1 v1.0.2 no Zenodo
+
+### ▶️ PRÓXIMO PASSO
+
+Nada pendente do lado técnico. Único item aberto é do Toto: conferir em
+openreview.net/profile se a conta do TMLR saiu da moderação (bloqueio desde 12/09).
+
+### O que mudou em produção (VPS `srv1826603`)
+
+| quando (UTC) | o quê | registro |
+|---|---|---|
+| 29/09 10:29 | duplicatas exatas **no mesmo arquivo** apagadas (66.878 → 60.158) | ops_audit 317 |
+| 29/09 10:42 | timeout no embedding da query (`NOX_QUERY_EMBED_TIMEOUT_MS`, 5 s → FTS5) | nox-workspace#49 |
+| 29/09 19:50 | query string da API via `URLSearchParams` | nox-workspace#51 |
+| 29/09 20:13 | duplicatas exatas **entre arquivos** que não voltam no ingest (→ 51.919; textos distintos inalterados) | ops_audit 318 |
+| 29/09 20:37 | semantic-canary aceita o envelope `{results, vaultFacts}` (quebra causada pelo #51) | openclaw-vps#36 |
+| 29/09 20:30 | `decay-watch` voltou a rodar (diretório do log não existia) | — |
+| 29/09 ~23:00 | crons `seh-report-daily` e `bvv-extract` apagados; aplicador sem as 7 linhas `p2-` | openclaw-vps#37, nox-workspace#52 |
+| 30/09 01:21 | índice vec0 reempacotado (68 → 51 blocos; KNN ~−20%) | ops_audit 320, D77 |
+| 30/09 15:42 | importação estática de abril removida: `shared/imports/Claude/skills/` + 2 cópias dos planos do memoria-nox (→ 43.255; 34 protegidos ficaram) | ops_audit 322, nox-workspace#53 |
+
+Estado ao fechar: **43.255** chunks, 43.255 vetores, 0 órfãos, `compiled == frontmatter == 239`,
+índice em **47** blocos (o vec0 devolveu sozinho os que a última limpeza esvaziou), KNN mediana
+~297–323 ms, canário OK, epoch de 30/09 com integridade ok. Snapshots pré-op em
+`/var/backups/nox-mem/pre-op/` (retenção 7 d).
+
+### Fora da VPS
+
+- **nox-mem 3.5.0 e 3.5.1 publicados no npm** (3.5.1 = parser de query + CodeQL no repo; tag
+  `v3.5.1` em `75e6733`). Publicar = `npm stage publish` aqui + `npm stage approve` do Toto.
+- **Paper 1 v1.0.2 no Zenodo**: DOI `10.5281/zenodo.23041503` (v1.0 = `22649269`, concept =
+  `22649268`); citações do repo apontam para ele; tag `paper-v1.0.2` em `ca83841`.
+- **memoria-nox**: CodeQL religado (estava manual desde 22/06 e os alertas congelados em 15/06);
+  Docker removido (nunca buildou); `staged/` fora do CodeQL e documentado como snapshot congelado;
+  `abstract.md` e bloco do TechRxiv alinhados ao paper.
+
+### Decidido pelo Toto (não reabrir) — detalhe em `D-2026-09-30`
+
+- Ficam na memória: `memory/mac-docs/PESSOAL` e `BANCOS` (arquivos de origem já não existem no
+  disco), o resto de `shared/imports/` (3.095 + 1.218 chunks) e os 579 grupos de texto repetido
+  em arquivos vivos (1,3% do banco).
+- O token npm de id `61c1ff` não será revogado.
+
+### ⚠️ Armadilhas descobertas (valem para a próxima sessão)
+
+- O watcher **ignora arquivo apagado**: tirar o arquivo do disco não tira o chunk do banco.
+- A `/api/search` lê o **banco principal**; o epoch serve só o `/api/brief`. Mexer em `vec_chunks`
+  exige parar API e watcher (janela xx:21–29, sem health-probe nem canário).
+- `withOpAudit` recusa `opName` fora de `^[a-z0-9-]{1,32}$` — aborta antes do snapshot.
+- `shared/imports/Claude` é um clone embutido do repo `Claude` (gitlink sem `.gitmodules`,
+  parado em 24/04), não um submódulo.
+- A rede do escritório do Toto (Fortinet) bloqueia porta 22 e Tailscale: VPS só de casa.
+
+---
+
 ## 2026-09-23 (00:40Z) — o sham não precisa de 82h: 3 minutos mostram que ele não teria poder
 
 ### ▶️ PRÓXIMO PASSO
