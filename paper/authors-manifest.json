@@ -6,6 +6,13 @@
   ],
   "title": "Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs"
  },
+ "1710.10723": {
+  "surnames": [
+   "Clark",
+   "Gardner"
+  ],
+  "title": "Simple and Effective Multi-Paragraph Reading Comprehension"
+ },
  "1809.09600": {
   "surnames": [
    "Yang",
@@ -350,6 +357,58 @@
   ],
   "title": "From RAG to Memory: Non-Parametric Continual Learning for Large Language Models"
  },
+ "2503.07891": {
+  "surnames": [
+   "Lee",
+   "Chen",
+   "Dua",
+   "Cer",
+   "Shanbhogue",
+   "Naim",
+   "Ábrego",
+   "Li",
+   "Chen",
+   "Vera",
+   "Ren",
+   "Zhang",
+   "Salz",
+   "Boratko",
+   "Han",
+   "Chen",
+   "Huang",
+   "Rao",
+   "Suganthan",
+   "Han",
+   "Doumanoglou",
+   "Gupta",
+   "Moiseev",
+   "Yip",
+   "Jain",
+   "Baumgartner",
+   "Shahi",
+   "Gomez",
+   "Mariserla",
+   "Choi",
+   "Shah",
+   "Goenka",
+   "Chen",
+   "Xia",
+   "Chen",
+   "Duddu",
+   "Chen",
+   "Walker",
+   "Zhou",
+   "Ghiya",
+   "Gleicher",
+   "Gill",
+   "Dong",
+   "Seyedhosseini",
+   "Sung",
+   "Hoffmann",
+   "Duerig"
+  ],
+  "title": "Gemini Embedding: Generalizable Embeddings from Gemini"
+ },
  "2503.08026": {
   "surnames": [
    "Tan",
@@ -657,5 +716,32 @@
    "Deng"
   ],
   "title": "Evaluating Long-Horizon Memory for Multi-Party Collaborative Dialogues"
+ },
+ "2604.08256": {
+  "surnames": [
+   "Yue",
+   "Hu",
+   "Sheng",
+   "Zhou",
+   "Zhang",
+   "Liu",
+   "Guo",
+   "Deng"
+  ],
+  "title": "HyperMem: Hypergraph Memory for Long-Term Conversations"
+ },
+ "2605.15156": {
+  "surnames": [
+   "Quek",
+   "Lee",
+   "Leong",
+   "Verma",
+   "Prakash",
+   "Chen",
+   "Low",
+   "Rus",
+   "Solar-Lezama"
+  ],
+  "title": "MeMo: Memory as a Model"
  }
 }

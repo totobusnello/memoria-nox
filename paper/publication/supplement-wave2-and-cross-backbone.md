@@ -11,6 +11,52 @@
 > 2.5 ms p50, n=120; hybrid 529 ms and ~940 ms p50 on two dates; §5.7). The text below is
 > left verbatim, as stated above.
 
+> **Erratum (paper v1.0.3, 2026-10-03).** Unlike the latency erratum above, these
+> corrections were made **in place**, and are listed here so the departure from the
+> verbatim body is visible. (1) The KG+MQ F_MH lift read +3.93 pp, a value no artifact
+> holds; `eval/evermembench/RESULTS-WAVE-B-KG-MQ.md` gives +4.81 pp (F_MH 8.02%).
+> (2) MemOS F_MH was cited as 18.94% (the S5.1.12 table and the moved §5.1.7); Table 4 of the
+> EverMemBench paper (arXiv:2602.01313v3) gives 18.88%, in its GPT-4.1-mini column, and
+> has no Gemini-2.5-flash column. The Gemini-2.5-flash row of the S5.1.12 table
+> therefore compares across backbones (−13.66 pp, was −13.72), so that table alone does
+> not show the gap to be backbone-invariant; the rerank share is 11.8% (was 11.7%).
+> (3) The F_MH metric was called "strict EM" / "strict exact-match". The benchmark
+> scores fine-grained recall, F_MH included, with an LLM judge that returns CORRECT or
+> WRONG for semantic equivalence (its §4.1 and Appendix C.2), and our runs use its
+> harness with Gemini-2.5-flash as judge; the text now says so. Composition statements
+> that the main paper has since revised (a retrieval-stage "ceiling" near +7.25 pp,
+> "~24%" gap closure for KG+MAP) are left as written here; §5.1.9 of the main paper
+> supersedes them.
+
+> **Erratum (paper v1.0.3, part E — audit, 2026-10-04).** Further in-place corrections, mirroring the
+> audit pass recorded in `paper/CHANGELOG.md` (v1.0.3, part E). (4) EverMemBench F_MH is stated per backbone
+> (3.21% gpt-4.1-mini, 6.02% Gemini-3-flash) against MemOS on the same backbone (18.88% / 10.84%, Table 4
+> of arXiv:2602.01313v3), replacing "3–7%" and "−13 to −16 pp". (5) MuSiQue references read from the source
+> tables: EX(SA) 49.80% dev (was 49.70), IRCoT 36.50% (was 35.80). (6) The HotpotQA "DPR+FiD 65–72%" range,
+> which neither cited paper reports, is replaced by the dataset's original 58.28% baseline. (7) Mem0's 66.88%
+> is an LLM-judge score (J), not F1, and the "rank-5" F1 ranking is withdrawn. (8) Phase G Memory Awareness
+> regressions and the −0.96 pp overall are not significant on paired per-batch CIs (MA_P borderline), and the
+> MA miss in the batch-004 gate came from the missing Phase D MA baseline, not selection bias. (9) The Wave 2
+> +2.01 pp is an arithmetic sum of standalone lifts, 24% of the same knobs' gpt-4.1-mini sum, not of a
+> projection; the Gemini-3-flash MQ MA movement lies inside its CI. (10) §5.7 latency, cost and footprint
+> statements follow `RESULTS-PRODUCTION-SOTA.json`: 423 MB peak (was "~414 MB"), measured on a 4-vCPU / 16 GB
+> host (not a "$5/month tier"), Zep's "<100 ms" carries no percentile, Mem0 documents "<200 ms", and the
+> MiniLM rerank row cites `RESULTS-PHASEG.md` (+3,674 ms p50). (11) Table 2's nox-mem RSS is the 399 MB
+> measurement of 2026-05-29 (headline ~10×, was ~12× on 341 MB). (12) Table 1's MeMo cells and the §1.4
+> deployment sentence follow the main paper.
+
+> **Erratum (paper v1.0.3, part F — final review and classical-QA/LoCoMo audit, 2026-10-04).** In-place
+> corrections, mirroring `paper/CHANGELOG.md` (v1.0.3, part F). (13) S5.3.3: no run measured a route to >=55%
+> token-F1 on LoCoMo; the Wave C analysis it cited is an EverMemBench result. (14) §5.4 copy: "LoCoMo dev" →
+> "LoCoMo" (`locomo10.json` is the public release, not a dev split); 74.52% is an evidence any-hit rate@10, not
+> a retrieval ceiling (adversarial F1 65.78% exceeds its 60.18% hit@10), and multi-hop evidence recall@10 is
+> 51.59%; the "100+ conversation turns" figure, absent from arXiv:2602.01313v3, is replaced by its own
+> description. (15) §5.7.2: the $0 claim is restricted to the KG path; ingest embeddings are billed.
+> (16) §5.8.5: the MuSiQue/HotPotQA runs give each question its own 10–20 candidate paragraphs, so they measure
+> the reader, not retrieval. (17) Table 2 and its footnote: LightRAG's default storage is in-process
+> (`JsonKVStorage`, `NanoVectorDBStorage`, `NetworkXStorage`, `JsonDocStatusStorage`), so 1 service, RAM and
+> cold start not estimated (was 2 services, ~1 GB, ~20 s).
+
 ## Why these were moved out
 
 Both blocks are **ablation history**, not the result a reader needs in order to evaluate
@@ -55,12 +101,12 @@ The F_MH (multi-hop) gap vs MemOS is **backbone-invariant**:
 
 | Backbone | nox-mem F_MH (5-batch) | MemOS F_MH (Table 4) | Gap |
 |---|---:|---:|---:|
-| Gemini-2.5-flash | 5.22% (Phase D) | 18.94% | −13.72 pp |
+| Gemini-2.5-flash | 5.22% (Phase D) | 18.88% (GPT-4.1-mini column; Table 4 has no Gemini-2.5-flash column) | −13.66 pp, across backbones |
 | GPT-4.1-mini | ~3–5% (Phase H v2) | 18.88% | −13 to −16 pp |
 
-The same gap magnitude on two independent backbones implies the gap on the EverMemBench corpus specifically is **retrieval-bound** (the right multi-hop chunks are not surfacing in the structured Memory Awareness sub-tracks), NOT generation (the LLM can reason multi-hop when given the right evidence). This was confirmed by partial gap closure from retrieval-side mechanisms: cross-encoder rerank (§5.1.7) +1.61 pp (11.7%), KG path (§5.1.8.1) +2.81 pp (17%), KG+MAP composed (§5.1.9) +4.04 pp (~24%). The Wave C ceiling (§5.1.9) caps retrieval-stage stacking at ~+7.25 pp F_MH.
+The same gap magnitude on two independent backbones implies the gap on the EverMemBench corpus specifically is **retrieval-bound** (the right multi-hop chunks are not surfacing in the structured Memory Awareness sub-tracks), NOT generation (the LLM can reason multi-hop when given the right evidence). This was confirmed by partial gap closure from retrieval-side mechanisms: cross-encoder rerank (§5.1.7) +1.61 pp (11.8%), KG path (§5.1.8.1) +2.81 pp (17%), KG+MAP composed (§5.1.9) +4.04 pp (~24%). The Wave C ceiling (§5.1.9) caps retrieval-stage stacking at ~+7.25 pp F_MH.
 
-**Reframing (see §5.4):** the §5.2 classical multi-hop QA results (MuSiQue-Ans dev answer F1 58.62%, HotPotQA distractor dev answer F1 73.37%) place nox-mem's multi-hop reasoning well above the specialized readers these datasets are conventionally compared against and roughly 10–12 points below current published SOTA — competent, with headroom. That rules out a wholesale multi-hop reasoning failure as the explanation for the EverMemBench F_MH 3–7% absolute, and points to the task setup (very long conversation chains + strict scoring + entity-anchor sparsity) as the principal factor; the same-metric evidence for the track's difficulty is that the best published system on it, MemOS, reaches only 18.88% strict EM. It does not establish that the corpus accounts for the entire gap. The §5.4 section develops what the evidence supports.
+**Reframing (see §5.4):** the §5.2 classical multi-hop QA results (MuSiQue-Ans dev answer F1 58.62%, HotPotQA distractor dev answer F1 73.37%) place nox-mem's multi-hop reasoning well above the specialized readers these datasets are conventionally compared against and roughly 10–12 points below current published SOTA — competent, with headroom. That rules out a wholesale multi-hop reasoning failure as the explanation for the EverMemBench F_MH 3–7% absolute, and points to the task setup (very long conversation chains + all-or-nothing scoring + entity-anchor sparsity) as the principal factor; the same-metric evidence for the track's difficulty is that the best published system on it, MemOS, reaches only 18.88%, also LLM-judged. It does not establish that the corpus accounts for the entire gap. The §5.4 section develops what the evidence supports.
 
 ---
 
@@ -88,7 +134,7 @@ The D74 revision of this section contained a projection table assuming Wave A/B/
 
 > ¹ **D76 capstone deferral footnote (§5.5.8):** The IterB + Wave C triple composability test (PR #426) was aborted due to Hostinger VPS CPU steal 51–97% sustained, not due to scientific failure. Batch 004 (n=49) preserved. 5-batch threshold not reached. Outcome is INDETERMINATE; composability claim is neither confirmed nor refuted. Capstone deferred to future stable infrastructure with dedicated CPU SLO.
 
-**Headline numbers.** The 3-knob sum on Gemini-3-flash (KG −0.01 pp + AC +0.81 pp + MQ +1.21 pp) = **+2.01 pp aggregate** = 24% of the D74 pessimistic projection of +8.43 pp. All three individual knob CIs fully overlap the Gemini-3-flash baseline (6.02%), meaning no single knob clears statistical significance at the +1.5 pp gate. IterB ReAct standalone (+2.01 pp clean, §5.5.2) equals the entire 3-knob aggregate while being structurally distinct — an orchestration-stage mechanism rather than retrieval-stage augmentation.
+**Headline numbers.** The arithmetic sum of the three standalone lifts on Gemini-3-flash (KG −0.01 pp + AC +0.81 pp + MQ +1.21 pp) is +2.01 pp, 24% of the +8.43 pp the same three knobs sum to on gpt-4.1-mini; no knob combination was run. All three individual knob CIs fully overlap the Gemini-3-flash baseline (6.02%), meaning no single knob clears statistical significance at the +1.5 pp gate. IterB ReAct standalone (+2.01 pp clean, §5.5.2) equals the entire 3-knob aggregate while being structurally distinct — an orchestration-stage mechanism rather than retrieval-stage augmentation.
 
 **Corrected composability landscape.** The original D74 projection table (IterB + Wave C triple → ~12.07% F_MH = ~41% MemOS gap closure) assumed backbone-invariant transfer of all knob lifts. That assumption is empirically refuted on Gemini-3-flash for all three tested retrieval-stage knobs. The current empirically supported picture:
 
@@ -130,7 +176,7 @@ The MQ re-baseline (PR #425) revealed a sub-finding that is paper-worthy indepen
 |---|---|---|---|
 | F_MH lift | +3.61 pp (biggest single retrieval knob) | +1.21 pp (borderline, CI overlap) | Attenuates |
 | MA composite | −1.38 pp (regression) | **+0.12 pp (preserved)** | **Flips sign** |
-| MA_U (Memory Update) | modest | **+3.10 pp** (strongest MA gain in Wave 2) | Inverts entirely |
+| MA_U (Memory Update) | modest | +3.10 pp (95% CI contains the bare baseline; not a measured gain) | Inverts entirely |
 
 On gpt-4.1-mini, MQ sub-query decomposition multiplies retrieval breadth but introduces noise that the backbone cannot fully filter — manifesting as MA composite regression. On Gemini-3-flash with stronger filtering and broader context integration, the wider retrieval pool from MQ sub-queries is interpretable rather than noisy, yielding MA_U improvement (Unrelated detection benefits from additional diversity in retrieved context).
 
@@ -284,9 +330,9 @@ MQ is the **biggest single retrieval-side F_MH knob** measured in Lab Q1 (2× KG
 
 #### S5.1.9 Wave B + Wave C composability — additive F_MH and the retrieval-stage ceiling
 
-The Lab Q1 standalones identified four orthogonal mechanisms with overlapping F_MH lift profiles. Wave B (D68, PR #393) and Wave C (D69, PR #399) measure composability — do they stack, or do they overlap?
+The Lab Q1 standalones (§5.1.8) and a separate MAP (section-bypass) run identified four mechanisms, each with an F_MH lift of its own. Wave B (D68, PR #393) and Wave C (D69, PR #399) measure composability — do they stack, or do they overlap?
 
-**D68 KG + MQ co-fire analysis (same-stage retrieval):** KG path and MQ expansion overlap at **90.8% co-fire rate** on EverMemBench queries — both activate on the same query population (entity-bearing multi-hop queries). Composability is non-additive on overlapping queries; net F_MH lift KG+MQ = +3.93 pp (vs predicted +6.42 pp), confirming the overlap.
+**D68 KG + MQ co-fire analysis (same-stage retrieval):** KG path and MQ expansion overlap at **90.8% co-fire rate** on EverMemBench queries — both activate on the same query population (entity-bearing multi-hop queries). Composability is non-additive on overlapping queries; net F_MH lift KG+MQ = +4.81 pp, F_MH 8.02% (vs predicted +6.42 pp; `eval/evermembench/RESULTS-WAVE-B-KG-MQ.md`), confirming the overlap.
 
 **D68 KG + MAP composability (different-stage):** KG (entity-walk) and MAP (section bypass) operate at different retrieval stages and compose additively:
 
@@ -331,7 +377,7 @@ KG+MAP closes **~24% of the MemOS F_MH gap** while staying within MA tolerance o
 
 **Mechanism instrumentation (Set E).** The 5-batch run reports IterB applied to 99.6% of queries (3,107 of 3,121, zero errors, zero generation-backbone fallbacks), mean 4.25 rounds with p95=5, 99.5% terminated via `answer` action versus 0.5% via `max_rounds` exhaustion, and round-2 chunk overlap mean of 0.257 with round-1 (LOW overlap — ReAct explores new evidence rather than re-fetching the same chunks, the sweet-spot mechanism profile for sequential refinement).
 
-**Ceiling refinement — D74 vs D69 / D72.** D69 established the Wave A/B/C single-stage retrieval ceiling at +7.25 pp F_MH (§5.1.9). D72 (PR #410, third revision) framed F_MH as "structural challenge of EverMemBench" on the strength of the MuSiQue / HotPotQA / LoCoMo retrieval results, which that revision described as SOTA; §5.2 now states them as competent-but-below-SOTA, and the structural framing rests instead on the same-metric observation that the best published system on this track reaches 18.88% strict EM. D74 refines this framing: F_MH is **still largely structural** (long chains × cross-session compression × strict EM scoring), but MAS orchestration via ReAct adds **+2 pp clean F_MH on top of the strongest backbone above the retrieval-stage ceiling**. The paradox is refined rather than dissolved — closing the EverMemBench F_MH gap now has both a backbone path (Backbone Matrix, §5.1.10) and an orchestration path (Q3 IterB ReAct, this section), in addition to retrieval-stage mechanisms (Wave A/B/C, §5.1.8/§5.1.9).
+**Ceiling refinement — D74 vs D69 / D72.** D69 established the Wave A/B/C single-stage retrieval ceiling at +7.25 pp F_MH (§5.1.9). D72 (PR #410, third revision) framed F_MH as "structural challenge of EverMemBench" on the strength of the MuSiQue / HotPotQA / LoCoMo retrieval results, which that revision described as SOTA; §5.2 now states them as competent-but-below-SOTA, and the structural framing rests instead on the same-metric observation that the best published system on this track reaches 18.88%, also LLM-judged. D74 refines this framing: F_MH is **still largely structural** (long chains × cross-session compression × all-or-nothing LLM-judged scoring), but MAS orchestration via ReAct adds **+2 pp clean F_MH on top of the strongest backbone above the retrieval-stage ceiling**. The paradox is refined rather than dissolved — closing the EverMemBench F_MH gap now has both a backbone path (Backbone Matrix, §5.1.10) and an orchestration path (Q3 IterB ReAct, this section), in addition to retrieval-stage mechanisms (Wave A/B/C, §5.1.8/§5.1.9).
 
 #### S5.1.4 Wave A — Claims 3 & 4: `tier_boost` and `source_type` calibration
 
@@ -359,9 +405,9 @@ The Q3 IterC F_MH no-lift (−0.40 pp, §5.5.1) and Q3 IterB F_MH +2.01 pp clean
 
 **Practical reading.** Workloads with high F_HL share benefit from IterC; workloads with high F_MH share benefit from IterB. Both ship opt-in. Routing a query to the appropriate orchestration mechanism (parallel vs sequential) is an open Q1 work item.
 
-#### S5.3.3 Path to >=55% F1 — composition orchestration (Q3)
+#### S5.3.3 Path to >=55% F1 — not measured
 
-Wave C ceiling analysis (§5.1.9) demonstrates that retrieval-stage knobs cannot lift LoCoMo F1 above the verbosity gap. The path to >=55% F1 (rank-3 territory) requires **orchestration-stage** mechanisms: prompt-level fact extraction, iterative refinement (Q3 IterB ReAct), or explicit answer-shaping. §5.5 reports the first measurement on this axis.
+No run measured a route to >=55% token-F1 on LoCoMo. The run report names retrieval changes (iterative retrieval) or a stronger generator as candidates (`eval/locomo/RESULTS-LOCOMO-SOTA-PUSH.md`); neither was tested on LoCoMo. (An earlier text here cited the Wave C analysis of §5.1.9, an EverMemBench result, as if it bore on LoCoMo; see the part F erratum.)
 
 ---
 
@@ -383,9 +429,10 @@ documentation.**
 
 ⚠️ **What this table is and is not.** Only the `nox-mem` column is measured here. Every
 other cell records what that system's paper, README, or API reference *states* about
-itself, read between 2026-05 and 2026-06; we did not deploy the other six systems to
-verify their claims, and §6 explains why only two of them (Mem0 and agentmemory) could be
-brought to a same-corpus comparison at all. A cell therefore answers "does the system
+itself, read between 2026-05 and 2026-06; we did not verify these claims by deployment.
+§6 deploys four of these six (Mem0, Zep, EverOS, Letta); three of them (Mem0, EverOS, Zep)
+produced same-corpus retrieval numbers, which test retrieval quality, not the properties
+tabulated here, and agentmemory, the fourth system with numbers in §6, is not in this table. A cell therefore answers "does the system
 claim this property?", not "does the system have it?". `n/r` means the source material
 does not address the gap either way — it is an absence of documentation, not a negative
 finding. Read the table as a map of the design space that motivates §§2–4, and not as an
@@ -393,12 +440,12 @@ evaluation of competing systems.
 
 | # | Gap | nox-mem (measured) | mem0 | Letta | Zep | EverOS | LightRAG | MeMo |
 |---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 1 | Static injection | yes — live writeback | partial | yes | yes | yes | no — batch | no — retrain |
+| 1 | Static injection | yes — live writeback | partial | yes | yes | yes | no — batch | no — memory-model training |
 | 2 | No temporal decay | yes — salience + retention | no | no | yes | partial | no | no |
 | 3 | No provenance | yes — chunk_id + source_file | partial | yes | yes | yes | yes | no — baked-in |
 | 4 | Flat memory | yes — KG + section\_boost | no | no | yes | yes — hypergraph | yes — dual-level | no |
 | 5 | No writeback | yes — crystallize/reflect/consolidate | partial | yes | yes | yes — EvoAgent | no | no |
-| 6 | Indexing delay | yes — inotifywait <1 s | `n/r` | yes | yes | `n/r` | partial — batch | no — retrain |
+| 6 | Indexing delay | yes — inotifywait <1 s | `n/r` | yes | yes | `n/r` | partial — batch | no — memory-model training |
 
 Sources for the non-`nox-mem` columns: mem0 [^mem0], Letta [^letta], Zep [^zep], EverOS
 [^everos], LightRAG [^lightrag], MeMo [^memo].
@@ -416,28 +463,28 @@ that §7 already carries, or an appendix.
 
 ## §5.4 — F_MH paradox derivation
 
-### 5.4 EverMemBench F_MH paradox — resolved
+### 5.4 EverMemBench F_MH paradox — refined
 
 The triangulation of three independent multi-hop measurements forces a reframing of the EverMemBench F_MH absolute number:
 
 | Benchmark | Multi-hop metric | nox-mem score | Conventional reference readers | Published SOTA (split noted) | Verdict |
 |---|---|---:|---:|---:|---|
-| **MuSiQue-Ans dev** | answer F1 (multi-hop decomposable) | **58.62%** | 35.80% (IRCoT) – 49.70% (EX(SA)) | 69.20% (Beam Retrieval, *test*) | +8.92 pp vs EX(SA); **−10.58 pp vs SOTA** |
-| **HotPotQA dev distractor** | answer F1 (multi-hop bridge) | **73.37%** | 65–72% (DPR+FiD) | 85.04% (Beam Retrieval, *blind test*) | above DPR+FiD; **−11.67 pp vs SOTA** |
-| **LoCoMo dev** | retrieval@10 strict | **74.52%** | 66.88% (Mem0 answer-F1, different metric) | **retrieval ceiling; not comparable to Mem0 F1** |
-| **LoCoMo dev (F1 push)** | F1 (verbosity-sensitive) | 51.85% | 66.88% (Mem0 SOTA) | rank-5, verbosity gap |
-| **EverMemBench F_MH** | strict EM (multi-hop chain on long conv) | 3–7% (5-batch) | 18.88% (MemOS Table 4) | **−13 to −16 pp gap** |
+| **MuSiQue-Ans dev** | answer F1 (multi-hop decomposable) | **58.62%** | 36.50% (IRCoT) – 49.80% (EX(SA)) | 69.20% (Beam Retrieval, *test*) | +8.82 pp vs EX(SA); **−10.58 pp vs SOTA** |
+| **HotPotQA dev distractor** | answer F1 (multi-hop bridge) | **73.37%** | 58.28% (original baseline) | 85.04% (Beam Retrieval, *blind test*) | above original baseline; **−11.67 pp vs SOTA** |
+| **LoCoMo** | evidence hit@10 strict | **74.52%** | 66.88% (Mem0 LLM-judge J, different metric) | — | **any-hit rate; not comparable to Mem0 J** |
+| **LoCoMo (F1 push)** | token-F1 | 51.85% | 66.88% (Mem0 J, different metric) | — | not ranked |
+| **EverMemBench F_MH** | LLM-judged, binary (multi-hop chain on long conv) | 3.21% (gpt-4.1-mini) / 6.02% (Gemini-3-flash), 5-batch | — | 18.88% (MemOS, GPT-4.1-mini) / 10.84% (MemOS, Gemini-3-Flash), Table 4 | **−15.67 / −4.82 pp, same backbone** |
 
-If nox-mem's multi-hop reasoning were structurally weak, the MuSiQue and HotPotQA results would sit near the original benchmark readers rather than well above them. They do not: the pipeline composes multi-hop answers competently on both. That rules out a wholesale reasoning failure as the explanation for F_MH, which is what this argument requires. It does **not** establish that classical multi-hop is saturated for this system — the 10–12 point shortfall against Beam Retrieval says the opposite — so the contrast with EverMemBench F_MH is a contrast between *competent-with-headroom* and *3–7%*, not between *solved* and *broken*. The quantitative evidence that the F_MH track is intrinsically hard does not come from cross-metric comparison at all: it is the 18.88% strict EM that the best published system on this same track and same metric attains. The LoCoMo retrieval ceiling at 74.52% strict (82.21% multi-hop sub-track) further confirms that multi-hop retrieval over long conversations is achievable.
+If nox-mem's multi-hop reasoning were structurally weak, the MuSiQue and HotPotQA results would sit near the original benchmark readers rather than well above them. They do not: the pipeline composes multi-hop answers competently on both. That rules out a wholesale reasoning failure as the explanation for F_MH, which is what this argument requires. It does **not** establish that classical multi-hop is saturated for this system — the 10–12 point shortfall against Beam Retrieval says the opposite — so the contrast with EverMemBench F_MH is a contrast between *competent-with-headroom* and *3–6%*, not between *solved* and *broken*. The quantitative evidence that the F_MH track is intrinsically hard does not come from cross-metric comparison at all: it is the 18.88% that the best published system attains on this same track and metric (LLM-judged; the benchmark paper does not name its judge model). The LoCoMo evidence hit@10 of 74.52% strict (82.21% on multi-hop) shows that at least one gold turn usually reaches the prompt, while multi-hop evidence recall@10 is 51.59%.
 
-**The proposed explanation.** Four features of the EverMemBench task setup are candidates for the F_MH 3–7% number, and we present them as the leading account rather than an established attribution — nothing below separates a corpus effect from a system limitation, and §5.2 leaves 10–12 points of headroom on classical multi-hop:
+**The proposed explanation.** Four features of the EverMemBench task setup are candidates for the F_MH 3–6% numbers, and we present them as the leading account rather than an established attribution — nothing below separates a corpus effect from a system limitation, and §5.2 leaves 10–12 points of headroom on classical multi-hop:
 
-1. **Very long conversation chains.** EverMemBench F_MH questions require composing facts across 100+ conversation turns, far longer than MuSiQue (<=4 paragraphs) or HotPotQA (2 bridge paragraphs).
-2. **Strict scoring.** EverMemBench F_MH uses strict exact-match against canonical answers; minor wording variations are penalised even when the answer is correct. MuSiQue F1 and HotPotQA ans_F1 are partial-credit scores.
+1. **Very long conversation chains.** EverMemBench F_MH questions require chaining evidence across speakers, groups and days in a corpus of about 1M tokens per project (arXiv:2602.01313v3), far beyond MuSiQue (<=4 supporting paragraphs) or HotPotQA (2 gold paragraphs).
+2. **All-or-nothing scoring.** An LLM judge labels each F_MH answer CORRECT or WRONG for semantic equivalence with the gold answer, the benchmark's protocol (our runs: its harness, Gemini-2.5-flash as judge). Wording is not penalised, but a partly resolved chain scores zero. MuSiQue F1 and HotPotQA ans_F1 give partial credit.
 3. **Entity-anchor sparsity.** EverMemBench questions often lack explicit entity tokens that nox-mem's section/source-type boost framework can latch onto. The §5.1.8.3 MAP (bypass-entity) mechanism was designed specifically to address this sparsity.
 4. **Memory-vs-retrieval mismatch.** EverMemBench is a *memory* benchmark with implicit world-state updates; the chunks that answer F_MH questions may not be the chunks that explicit retrieval would surface. This is the architectural distinction MemOS optimises for.
 
-**Implication for Q3 priorities — refined by D74 (2026-05-31).** The §5.4 framing shifts Q3 retrieval-mechanism priorities: pure retrieval-stage knobs (KG, MQ, MAP) cap at ~+7.25 pp F_MH (Wave C ceiling §5.1.9). Closing the remaining EverMemBench F_MH gap requires either (a) orchestration-stage multi-round refinement matching the long-chain structure (Q3 IterB ReAct), or (b) backbone upgrade (Backbone Matrix §5.1.10: Gemini-3-flash already narrows the F_MH gap meaningfully). Both paths are now empirically validated. The §5.5 Q3 IterC mechanism-class finding confirms that not all orchestration mechanisms transfer to EverMemBench F_MH equally (parallel decomposition vs sequential refinement). The §5.5.2 Q3 IterB ReAct result (D74) goes further: on the strongest backbone (Gemini-3-flash bare), multi-round retrieve-reason loop delivers **+2.01 pp clean F_MH lift (8.03% from 6.02% bare baseline)** — exceeding the Wave A/B/C single-stage retrieval ceiling of 7.25 pp by +0.78 pp standalone. The paradox is therefore refined rather than dissolved: EverMemBench F_MH is still largely a structural property of very long conversation chains × strict scoring, but MAS orchestration adds ~+2 pp on top of the strongest backbone above the retrieval ceiling — closing the gap is no longer purely structural, it now has both a backbone path and an orchestration path.
+**Implication for Q3 priorities — refined by D74 (2026-05-31).** The §5.4 framing shifts Q3 retrieval-mechanism priorities: pure retrieval-stage knobs (KG, MQ, MAP) cap at ~+7.25 pp F_MH (Wave C ceiling §5.1.9). Closing the remaining EverMemBench F_MH gap requires either (a) orchestration-stage multi-round refinement matching the long-chain structure (Q3 IterB ReAct), or (b) backbone upgrade (Backbone Matrix §5.1.10: Gemini-3-flash already narrows the F_MH gap meaningfully). Both paths are now empirically validated. The §5.5 Q3 IterC mechanism-class finding confirms that not all orchestration mechanisms transfer to EverMemBench F_MH equally (parallel decomposition vs sequential refinement). The §5.5.2 Q3 IterB ReAct result (D74) goes further: on the strongest backbone (Gemini-3-flash bare), multi-round retrieve-reason loop delivers **+2.01 pp clean F_MH lift (8.03% from 6.02% bare baseline)** — exceeding the Wave A/B/C single-stage retrieval ceiling of 7.25 pp by +0.78 pp standalone. The paradox is therefore refined rather than dissolved: EverMemBench F_MH is still largely a structural property of very long conversation chains × all-or-nothing scoring, but MAS orchestration adds ~+2 pp on top of the strongest backbone above the retrieval ceiling — closing the gap is no longer purely structural, it now has both a backbone path and an orchestration path.
 
 ---
 
@@ -459,29 +506,29 @@ The IterB + KG + rerank composability test was dispatched on the production VPS 
 |---|---:|---:|---:|---|
 | **KG path (entity-walk)** | **2.9 ms** | 5.7 ms | — | SQL + regex over `kg_relations`, no LLM call; re-validated 2026-06-15, n=10 (the original run measured 2.5 ms / ~7 ms / ~14 ms) |
 | Hybrid search (FTS5 + dense + RRF, no rerank) | ~940 ms | ~2,342 ms | ~2,523 ms | Gemini-embedding-001 query dominates (~800 ms) |
-| Hybrid + cross-encoder rerank (MiniLM) | +3,700 ms p50 | — | — | Opt-in, exploratory mode |
+| Hybrid + cross-encoder rerank (MiniLM) | +3,674 ms p50 (1,109 → 4,783 ms) | 6,784 ms | 8,696 ms | Opt-in, exploratory; eval-harness run on EverMemBench batch 004 (`eval/evermembench/RESULTS-PHASEG.md`) |
 
-The KG path is in the sub-10 ms class at 2.9 ms p50 (re-validated 2026-06-15; the original run measured 2.5 ms — see the table above). Among the systems compared here, none reports retrieval latency in this band — but the comparison is not like-for-like and we do not treat it as a measured contrast: Zep's <100 ms p50 is a vendor-published figure, not independently verified by us (§7.1), and is therefore never used as a measured operand; the 100–500 ms range cited for Mem0 Cloud and MemOS multi-service deployments comes from their own deployment documentation, not from our harness. What is ours and measured is the mechanism: nox-mem's single-process embedded architecture (better-sqlite3 + sqlite-vec in-process) eliminates network and IPC overhead entirely. **Re-validated 2026-06-15** on the 70.7k-chunk production corpus: the KG path (`/api/kg/path`, real entity pair, n=10) measured p50 = 2.9 ms / p95 = 5.7 ms, confirming the sub-10 ms class; the Gemini-embedding-dominated standard hybrid path measured p50 = 653 ms / p95 = 706 ms (n=20) — up from 529 ms as the corpus grew 69k → 70.7k chunks and reflecting Gemini API round-trip variance, which reinforces (rather than weakens) the case for the local KG path on latency-sensitive workloads.
+The KG path is in the sub-10 ms class at 2.9 ms p50 (re-validated 2026-06-15; the original run measured 2.5 ms — see the table above). Among the systems compared here, none reports retrieval latency in this band — but the comparison is not like-for-like and we do not treat it as a measured contrast: Zep's published '<100 ms' latency claim (no percentile stated) is a vendor figure, not independently verified by us (§5.8.6), and is therefore never used as a measured operand; Mem0's documentation states '<200 ms' without a percentile, and MemOS publishes no latency figure; neither number comes from our harness. What is ours and measured is the mechanism: nox-mem's single-process embedded architecture (better-sqlite3 + sqlite-vec in-process) removes inter-service hops: the KG path makes no network call beyond the measured localhost HTTP round trip (estimated 1–3 ms), while the hybrid path still pays one remote query-embedding call (~400–600 ms). **Re-validated 2026-06-15** on the 70.7k-chunk production corpus: the KG path (`/api/kg/path`, real entity pair, n=10) measured p50 = 2.9 ms / p95 = 5.7 ms, confirming the sub-10 ms class; the Gemini-embedding-dominated standard hybrid path measured p50 = 653 ms / p95 = 706 ms (n=20) — up from 529 ms as the corpus grew 69k → 70.7k chunks and reflecting Gemini API round-trip variance, which reinforces (rather than weakens) the case for the local KG path on latency-sensitive workloads.
 
 #### 5.7.2 Cost — $0/query KG path; hybrid vs managed SaaS is list-price, not like-for-like
 
-| Component | nox-mem | Mem0 Cloud (published pricing) | Ratio |
+| Component | nox-mem | Mem0 Cloud (modeled per-call rate; plans published, per-call price assumed) | Ratio |
 |---|---:|---:|---:|
 | Retrieval API cost (KG path) | **$0.00** | $0.001/query (est. embedding + retrieval) | **effectively free** |
 | Retrieval API cost (hybrid w/ Gemini embedding) | $0.0000015/query | ~$0.001/query (est.) | **~667× cheaper** |
-| Ingest API cost (per chunk) | $0.00 (local) | varies | n/a |
+| Ingest API cost (per chunk) | $0.00 for FTS5 indexing; the chunk embedding is billed per token | varies | n/a |
 | Total cost per 1M queries (hybrid) | $1.50 | $1,000 (est.) | ~667× |
 
-The KG path achieves **$0 per query** because the entity-walk uses only local SQL + regex with no LLM call (re-confirmed 2026-06-15). The hybrid path costs **$0.0000015/query** (gemini-embedding-001 at $0.15/1M input tokens — a Feb-2026 increase from $0.13/1M — × ~10 tokens/query). Against an *estimated* Mem0 Cloud per-query rate of ~$0.001 this is **~667× cheaper** (revised down from the 769× figure as Gemini embedding pricing rose). We lead with the unconditional claim — **$0/query KG path and zero marginal retrieval cost** — and treat the multiplier as secondary: Mem0 is sold as a subscription (free 1K calls/month, then $19–$249/month) with no published per-call overage, so the denominator is an explicit modeling assumption, not a quoted price.
+The KG path achieves **$0 per query** because the entity-walk uses only local SQL + regex with no LLM call (re-confirmed 2026-06-15). The hybrid path costs **$0.0000015/query** (gemini-embedding-001 at $0.15/1M input tokens as listed at the time of writing; the 2026-05-29 artifact recorded $0.13/1M, i.e. $0.0000013/query — × ~10 tokens/query). Against an *estimated* Mem0 Cloud per-query rate of ~$0.001 this is **~667× cheaper** (revised down from the 769× figure as Gemini embedding pricing rose). We lead with the KG-path claim — **$0 per query on the KG path**; the hybrid path pays the embedding call above — and treat the multiplier as secondary: Mem0 is sold as a subscription (free 1K calls/month, then $19–$249/month) with no published per-call overage, so the denominator is an explicit modeling assumption, not a quoted price.
 
 #### 5.7.3 Footprint — 399 MB RSS, single-process, self-hosted
 
 | Scaling | Idle RSS | 10× concurrent | Notes |
 |---|---:|---:|---|
-| nox-mem-api process | **399 MB** | +15 MB (= ~414 MB) | better-sqlite3 + sqlite-vec single-process |
+| nox-mem-api process | **399 MB** | 423 MB peak (+24 MB; the artifact's separate delta field reads 15 MB) | better-sqlite3 + sqlite-vec single-process |
 | Scaling pattern | flat | quasi-flat | No per-request memory blow-up |
 
-Self-hosted single-process means no multi-container orchestration, no Postgres/Redis/Chroma sidecars, no per-tenant container overhead. The 399 MB idle footprint runs on a $5/month VPS tier. Mem0 / Zep / Letta canonical deployments require >=3 services (API + DB + vector store) with combined RSS typically in the 1.5–3 GB range.
+Self-hosted single-process means no multi-container orchestration, no Postgres/Redis/Chroma sidecars, no per-tenant container overhead. The 399 MB idle footprint was measured on a 4-vCPU, 16 GB VPS; we have not measured it on a smaller tier. Table 2 (§6.8) estimates 2–3 services and ~0.8–1.5 GB idle for the Mem0, Zep and Letta self-host defaults — estimates from their documentation, not measurements.
 
 ---
 
@@ -490,25 +537,25 @@ Self-hosted single-process means no multi-container orchestration, no Postgres/R
 #### 5.8.5 Honest scope of EverMemBench, LoCoMo, and classical-QA claims
 
 - **EverMemBench Phase D headline (+2.95 pp vs MemOS Gemini)** is a modest win; the structural differentiator is the Memory Awareness composite, consistently strong across all backbones.
-- **EverMemBench Phase H v2 headline (+9.13 pp vs MemOS GPT-4.1-mini)** is real and CI-verified, but the absolute score (51.68%) is not high — MemOS itself is only 42.55%. GPT-4.1-mini is the only tested backbone where all memory systems gain vs Full Context.
+- **EverMemBench Phase H v2 headline (+9.13 pp vs MemOS GPT-4.1-mini)** is real and CI-verified, but the absolute score (51.68%) is not high — MemOS itself is only 42.55%. GPT-4.1-mini has the weakest full-context baseline in Table 4 (37.44%); on it MemOS (+5.11 pp) and Zep (+2.52 pp) beat full context, while MemoBase (−3.18 pp) and Mem0 (−0.36 pp) do not.
 - **EverMemBench Backbone Matrix (Gemini-3-flash): +20.73 pp Overall / +32.74 pp MA composite** is the strongest cross-system claim in the paper. The lift is the multiplicative interaction of nox-mem's V10 retrieval stack and frontier-tier reasoning, not exclusively backbone-driven (§5.1.10).
-- **MuSiQue-Ans dev answer F1 58.62%** (§5.2.1) and **HotPotQA distractor dev answer F1 73.37%** (§5.2.2) sit above the specialized readers these datasets are conventionally compared against (IRCoT, EX(SA), DPR+FiD) and roughly 10–12 points below current published SOTA (Beam Retrieval), without specialized fine-tuning. This bounds the architecture's multi-hop reasoning as competent rather than state-of-the-art, and is the sense in which §5.4 uses it.
-- **LoCoMo retrieval@10 strict 74.52%** (§5.3) above Mem0 SOTA F1 66.88% is the retrieval ceiling on LoCoMo; the F1 push of 51.85% is rank-5 (above Zep / LangMem, below Mem0 SOTA 66.88%) due to a verbosity gap (§5.3.2). Path to >=55% requires orchestration (§5.5).
-- **KG path, MAP, MQ, adaptive classifier, and Q3 IterC** are opt-in features, not defaults. Each addresses a known structural gap; combined effects measured in Wave B/C (§5.1.9).
-- The Unicode-aware FTS5 sanitize fix is a prerequisite for all scores reported here; pre-fix Q2 numbers (nDCG@10 0.9126 LongMemEval) would have been reported as lower and should not be compared directly.
+- **MuSiQue-Ans dev answer F1 58.62%** (§5.2.1) and **HotPotQA distractor dev answer F1 73.37%** (§5.2.2) sit above the specialized readers these datasets are conventionally compared against (IRCoT, EX(SA), the original HotpotQA baseline) and roughly 10–12 points below current published SOTA (Beam Retrieval), without specialized fine-tuning. Each question brings its own 10–20 candidate paragraphs, so these runs measure the reader over that set, not retrieval. This bounds the pipeline's multi-hop composition as competent rather than state-of-the-art, and is the sense in which §5.4 uses it.
+- **LoCoMo evidence hit@10 strict 74.52%** (§5.3) is the share of questions with at least one gold turn in the top 10, not an upper bound on token-F1, and not comparable to Mem0's published LLM-judge score (J) of 66.88%; the token-F1 push of 51.85% is not ranked against published J scores, and no run measured a route to >=55% (§5.3.3).
+- **KG path, MAP, MQ, adaptive classifier, and Q3 IterC** are opt-in features, not defaults. Each addresses a known structural gap; combined effects of KG, MQ and MAP are measured in §5.1.9, and the adaptive classifier and IterC were not tested in combination with them.
+- The Unicode-aware FTS5 sanitize fix is a prerequisite for all scores reported here; pre-fix numbers from the 2026-05-19 oracle run (nDCG@10 0.9126 LongMemEval) would have been reported as lower and should not be compared directly.
 - **Wave 2 NO-REPLICATE findings (D75, §5.5.5):** the Lab Q1 single-stage knob lifts in §5.1.8 were measured on gpt-4.1-mini and are valid for that backbone. They do NOT transfer reliably to Gemini-3-flash (transfer rate ~0–40%). Any claim of "Wave A knob X delivers +N pp F_MH" must specify the backbone. The §5.5.4 composability matrix replaces the D74 projection with measured numbers; the original projection table is superseded and should not be cited.
 - **IterB composability projection from D74 (IterB + Wave C → ~12.07% F_MH) is superseded.** The projection assumed both backbone-portability (refuted by D75) and architectural composability (refuted by adapter guard discovery in §5.5.7). The corrected empirical upper bound for measured+plausible IterB composability on Gemini-3-flash is ~8–9% F_MH (see §5.5.4 corrected table).
 - **D76 capstone (§5.5.8):** the IterB + Wave C triple composability outcome is INDETERMINATE due to infrastructure abort. This is not a negative scientific result — it is an untested hypothesis. Batch 004 (n=49) is preserved but not 5-batch valid.
-- **Limitations to flag (§5.8.6):** GPT-5 / Claude backbone columns are blocked by API access; the Zep <100 ms p50 claim is unverified by independent runs; the EverMemBench F_MH absolute number (3–7%) is not directly comparable to multi-hop reasoning gains on MuSiQue/HotPotQA — see §5.4 for the mechanism distinction.
+- **Limitations to flag (§5.8.6):** GPT-5 / Claude backbone columns are blocked by API access; Zep's '<100 ms' claim (no percentile stated) is unverified by independent runs; the EverMemBench F_MH absolute number (3.21% on gpt-4.1-mini, 6.02% on Gemini-3-flash) is not directly comparable to multi-hop reasoning gains on MuSiQue/HotPotQA — see §5.4 for the mechanism distinction.
 
 #### 5.8.6 Honest limitations and open work
 
-- **EverMemBench F_MH absolute (3–7%) gap vs MemOS Table 4 (18.88%)** remains, and the §5.4 reframing argues it is not primarily a multi-hop reasoning failure, attributing it principally to the task setup — with the difficulty of the track visible same-metric in the 18.88% that the best published system reaches on it, rather than inferred from the classical benchmarks. Closing it requires either Q3 IterB ReAct (multi-round refinement on long conversation chains, §5.5.2) or backbone upgrade (Backbone Matrix §5.1.10 shows the gap narrows with Gemini-3-flash). Retrieval-stage knobs cap at ~+7.25 pp F_MH (D69 Wave C ceiling §5.1.9) and show low backbone-portability to Gemini-3-flash (D75 §5.5.5).
+- **EverMemBench F_MH absolute gap vs MemOS in Table 4** (3.21% vs 18.88% on GPT-4.1-mini; 6.02% vs 10.84% on Gemini-3-Flash) remains, and the §5.4 reframing argues it is not primarily a multi-hop reasoning failure, attributing it principally to the task setup — with the difficulty of the track visible same-metric in the 18.88% that the best published memory-augmented system reaches on it (MemOS on GPT-4.1-mini; 10.84% on Gemini-3-Flash), rather than inferred from the classical benchmarks. Closing it requires either Q3 IterB ReAct (multi-round refinement on long conversation chains, §5.5.2) or backbone upgrade (Backbone Matrix §5.1.10 shows the gap narrows with Gemini-3-flash). Retrieval-stage knobs cap at ~+7.25 pp F_MH (D69 Wave C ceiling §5.1.9) and show low backbone-portability to Gemini-3-flash (D75 §5.5.5).
 - **IterB composability with Wave A/B/C knobs on Gemini-3-flash** is an open question. The D76 capstone (§5.5.8) was infrastructure-aborted before producing valid 5-batch data. The composability matrix in §5.5.4 documents this gap honestly. Completing the capstone requires dedicated CPU infrastructure.
-- **LoCoMo F1 vs Mem0 SOTA 66.88%** remains open at rank-5 (51.85%). Wave C ceiling analysis (§5.1.9) indicates retrieval-stage knobs cannot close this gap; composition orchestration (Q3, §5.5) is the open path.
-- **Zep <100 ms p50 claim** is published in marketing but not independently verified. nox-mem KG path p50 = 2.9 ms (§5.7) is measured on production VPS with the harness instrumented end-to-end. Comparison is fair only when both are measured under matched conditions.
+- **LoCoMo end-to-end accuracy** remains open: nox-mem's 51.85% token-F1 has no same-metric published comparator (Mem0's 66.88% is J). Wave C ceiling analysis (§5.1.9) indicates retrieval-stage knobs cannot close this gap; composition orchestration (Q3, §5.5) is the open path.
+- **Zep's published '<100 ms' latency claim** (no percentile stated) is marketing and not independently verified. nox-mem KG path p50 = 2.9 ms (§5.7) is measured on production VPS with the harness instrumented end-to-end. Comparison is fair only when both are measured under matched conditions.
 - **GPT-5 / Claude columns** are blocked by API key constraints in the current eval setup. Backbone Matrix is currently three-cell (Gemini-2.5-flash, GPT-4.1-mini, Gemini-3-flash); GPT-5 and Claude entries are in the runway for Q3+ if access opens.
-- **Wave A knob backbone-portability to other backbones** beyond Gemini-3-flash is unverified. The D75 ~30–40% transfer rate pattern is based on three knobs on one backbone pair. Additional backbone pairs (Claude Sonnet 4.6, GPT-5, Gemini 4) require independent re-baseline before composability projections can be made.
+- **Lab Q1 knob backbone-portability to other backbones** beyond Gemini-3-flash is unverified. The D75 ~30–40% transfer rate pattern is based on three knobs on one backbone pair. Additional backbone pairs (Claude Sonnet 4.6, GPT-5, Gemini 4) require independent re-baseline before composability projections can be made.
 - **EverMind-AI / EverMemBench reference baselines** rely on MemOS Table 4 published numbers (arxiv:2602.01313); we have not re-run MemOS internally on the canonical 5-batch subset, only validated that the 5-batch sampling preserves the per-category distribution of the published numbers.
 
 ---
@@ -521,26 +568,26 @@ Self-hosted single-process means no multi-container orchestration, no Postgres/R
 
 The Q4 quality comparison (§6.3 – §6.6) reports retrieval *quality* under matched corpora. Operational *cost* — services, RAM, cold start, mandatory third-party credentials, setup commands — is the second axis on which a memory system can be evaluated, and is the axis where the nox-mem Autonomy pillar [^q-a-p-pivot] is most legible. Table 2 summarizes the steady-state idle footprint of each system in its default self-host configuration.
 
-**Table 2 — Autonomy quantified: services, RAM, cold start, mandatory keys, setup commands.** Headline: **~12× less RSS than EverOS, single process, no service stack.** Competitor numbers are *estimates* derived from each project's docker-compose defaults and documented system requirements (sources cited in the row). The nox-mem row is **[measured 2026-05-24, prod VPS, 6830 chunks live, uptime 9h28min]** via `ps -eo pid,rss,vsz,comm,args` against the production `nox-mem-api` process (single production process). See footnote [^nox-mem-rss] for full methodology including the cgroup `MemoryCurrent` vs process RSS distinction.
+**Table 2 — Autonomy quantified: services, RAM, cold start, mandatory keys, setup commands.** Headline: **~10× less RSS than EverOS's 2026-06-15 configuration (estimated), single process, no service stack.** Competitor numbers are *estimates* derived from each project's docker-compose defaults and documented system requirements (sources cited in the row). The nox-mem row is **[measured 2026-05-29, prod VPS, 69,135 chunks live]** from `/proc/<pid>/status` of the production `nox-mem-api` process (`benchmark/latency-cost/results/RESULTS-PRODUCTION-SOTA.json`); an earlier reading of ~341 MB (2026-05-24, ~62k chunks live) is superseded. See footnote [^nox-mem-rss] for full methodology including the cgroup `MemoryCurrent` vs process RSS distinction.
 
 | System | Services | RAM idle | Cold start | Mandatory third-party keys | Setup commands | Sources |
 |---|---:|---:|---:|---:|---:|---|
-| **nox-mem** | **1** (SQLite file + Node process) | **~341 MB RSS** [measured 2026-05-24] | **<1 s** | **0** (offline-OK; embeddings optional) | **1** (`npm i && nox-mem reindex`) | This work; [^nox-mem-rss] |
+| **nox-mem** | **1** (SQLite file + Node process) | **~399 MB RSS** [measured 2026-05-29] | **<1 s** | **0** (offline-OK; embeddings optional) | **1** (`npm i && nox-mem reindex`) | This work; [^nox-mem-rss] |
 | mem0 | 2 (Postgres + Qdrant) | ~800 MB | ~15 s | 1 (OpenAI for embeddings) | ~5 | mem0 docker-compose defaults [^mem0-stack] |
 | Letta | 3 (Letta server + Postgres + OpenAI) | ~1.5 GB | ~30 s | 1 (OpenAI) | ~8 | Letta self-host guide [^letta-stack] |
 | Zep OSS | 2 (Zep + Postgres; 3 with the local embedder) | ~1.2 GB | ~30 s | **1 mandatory** (a paid LLM key — OpenAI *or* Anthropic; the server aborts at startup without it) | ~6 | Zep v0.27.2 source [^zep-stack] |
 | EverOS / EverMind-AI | **5** (MongoDB + Elasticsearch + Milvus + Redis + Postgres) | **~4 GB+** | **~60 s** | 2–3 (LLM + embedding + optional reranker) | ~15+ | EverMind-AI docker-compose [^everos-stack] |
-| LightRAG | 2 (Neo4j + vector DB) | ~1 GB | ~20 s | 1 (LLM provider for KG extraction) | ~6 | LightRAG repo defaults [^lightrag-stack] |
+| LightRAG | 1 (in-process library; JSON, NanoVectorDB and NetworkX storage by default) | not estimated | not estimated | 1 (LLM provider for KG extraction) | ~6 | LightRAG source defaults [^lightrag-stack] |
 
 **Reading the table.** Three rows of the cost matrix translate directly into Autonomy:
 
-1. **Services column.** Every additional service is an additional failure mode, an additional security-patching surface, and an additional vendor that must be available on the day a user spins up the system. nox-mem ships as a single Node process operating on a single SQLite file; the only durable on-disk artifact is `nox-mem.db`. mem0/Zep/Letta/LightRAG each require >=1 database container and at least one external LLM/embedding provider. EverOS requires five containers, three of which are heavyweight infrastructure (MongoDB, Elasticsearch, Milvus). The single-service property is what makes "open `nox-mem.db` in `sqlite3` and inspect everything" a literal operation, not a euphemism.
+1. **Services column.** Every additional service is an additional failure mode, an additional security-patching surface, and an additional vendor that must be available on the day a user spins up the system. nox-mem ships as a single Node process operating on a single SQLite file; the only durable on-disk artifact is `nox-mem.db`. mem0, Zep and Letta each require >=1 database container; LightRAG's default storage is in-process; all four need at least one external LLM/embedding provider. EverOS requires five containers, three of which are heavyweight infrastructure (MongoDB, Elasticsearch, Milvus). The single-service property is what makes "open `nox-mem.db` in `sqlite3` and inspect everything" a literal operation, not a euphemism.
 
 2. **Mandatory third-party keys column.** A system that requires an OpenAI key by default is not autonomous regardless of license — the user is dependent on one specific vendor's pricing, rate limits, and terms of service. nox-mem treats embeddings as optional (FTS5-only retrieval is a valid degraded mode; §4) and is provider-agnostic when embeddings are enabled (Gemini default, Ollama-local feasible — §7.1 L2). Zep requires a paid LLM key of one of two vendors (OpenAI by default, Anthropic selectable) and refuses to start without it; what is *not* vendor-locked in Zep is the embedder, which can run keyless against its own local embedding service at the cost of a third container ([^zep-stack]). Letta documents OpenAI as its default provider.
 
 3. **Cold start column.** A `<1s` cold start is what makes self-host *try-before-deciding* — the user can `npm i`, run one command, see results, and decide. A `~60s` cold start with five containers is what makes EverOS effectively a "build a small team to evaluate" decision, not an individual decision.
 
-**Caveat — RAM measurement methodology.** The competitor RAM figures are *idle* (i.e., process started, no queries served, no ingestion in progress) and are *estimates* read from each project's documented system requirements and `docker stats` defaults in the published docker-compose files. They are not from a head-to-head benchmark on a single host. A side-by-side measurement on a controlled 4-vCPU / 8-GB host is a §7.2 future-work item (F-cost-bench). The nox-mem `~341 MB RSS` figure is **measured** on the production VPS via `ps -eo pid,rss,vsz,comm,args` (single production process, uptime 9h28min, 6830 chunks live); see footnote [^nox-mem-rss] for full methodology including the cgroup `MemoryCurrent` vs process RSS distinction.
+**Caveat — RAM measurement methodology.** The competitor RAM figures are *idle* (i.e., process started, no queries served, no ingestion in progress) and are *estimates* read from each project's documented system requirements and `docker stats` defaults in the published docker-compose files. They are not from a head-to-head benchmark on a single host. A side-by-side measurement on a controlled 4-vCPU / 8-GB host is a §7.2 future-work item (F-cost-bench). The nox-mem `~399 MB RSS` figure is **measured** on the production VPS (2026-05-29, 69,135 chunks live; the earlier 341 MB reading of 2026-05-24 was taken at ~62k chunks); see footnote [^nox-mem-rss] for full methodology including the cgroup `MemoryCurrent` vs process RSS distinction.
 
 ---
 
@@ -639,7 +686,7 @@ The `pullInsightsFrom()` function enables any agent to query lessons and decisio
 
 ### Autonomy table (Table 2) sources
 
-[^nox-mem-rss]: The `~341 MB RSS` figure for nox-mem in Table 2 is **measured 2026-05-24** on the production VPS (single production process, uptime 9h28min, 6830 chunks live, 100% vector coverage). Main process RSS = 349,276 KB via `ps -eo pid,rss,vsz,comm,args | grep dist/api-server.js`. The cgroup `MemoryCurrent` reported by `systemctl show nox-mem-api -p MemoryCurrent` is 727,064,576 bytes (~727 MB); the ~386 MB delta vs process RSS is SQLite memory-mapped I/O (chunks table, FTS5 index, vec0 index) — kernel-managed page cache, reclaimable on memory pressure, not exclusive process memory. Standard `ps`/`top` RSS is the canonical comparison metric used in Table 2 across all competitors. Original revision marked this as `~50 MB [estimated]` based on Node baseline + better-sqlite3 cache projections; the production measurement (initially denied during the first revision and granted later) replaced the estimate.
+[^nox-mem-rss]: The `~399 MB RSS` figure for nox-mem in Table 2 is **measured 2026-05-29** on the production VPS at 69,135 chunks (`rss_idle_mb` in `benchmark/latency-cost/results/RESULTS-PRODUCTION-SOTA.json`), which attributes the rise from the earlier reading to corpus growth. The earlier reading, **2026-05-24** (single production process, uptime 9h28min, ~62k chunks live per that artifact's `note_341mb_paper` field, 100% vector coverage), was ~341 MB: main process RSS = 349,276 KB via `ps -eo pid,rss,vsz,comm,args | grep dist/api-server.js`. The cgroup `MemoryCurrent` reported by `systemctl show nox-mem-api -p MemoryCurrent` is 727,064,576 bytes (~727 MB); the ~386 MB delta vs process RSS is SQLite memory-mapped I/O (chunks table, FTS5 index, vec0 index) — kernel-managed page cache, reclaimable on memory pressure, not exclusive process memory. Standard `ps`/`top` RSS is the canonical comparison metric used in Table 2 across all competitors. Original revision marked this as `~50 MB [estimated]` based on Node baseline + better-sqlite3 cache projections; the production measurement (initially denied during the first revision and granted later) replaced the estimate.
 
 [^mem0-stack]: mem0 default self-host requires Postgres + Qdrant + an OpenAI key for embeddings (or a configured alternative provider). Counts: 2 services + 1 mandatory third-party key. Source: mem0 README and `docker-compose.yml` defaults at github.com/mem0ai/mem0.
 
@@ -648,7 +695,7 @@ The `pullInsightsFrom()` function enables any agent to query lessons and decisio
 
 [^everos-stack]: EverMind-AI / EverOS docker-compose declares MongoDB + Elasticsearch + Milvus + Redis + Postgres = 5 services, plus 2–3 third-party API keys for LLM, embedding, and (optional) reranker. Counts confirmed against the published `docker-compose.yml` in the EverMind-AI repo **as of 2026-06-15**. ⚠️ Re-probed 2026-09-10: that file returns HTTP 404 at the repository root and the project now ships as a pip-installable local-first library (v1.3.1) — the count was correct when taken and has since expired; it is retained because the operational-footprint comparison it supports was made against that version, and silently updating it would misdate the comparison. The ~4 GB RAM-idle figure is the sum of documented minimum requirements for each service's container.
 
-[^lightrag-stack]: LightRAG defaults to Neo4j for the knowledge graph + a vector store (Qdrant/Milvus/etc.), plus one LLM provider key for entity/relation extraction during indexing. Counts: 2 services + 1 mandatory third-party key. Source: LightRAG README at github.com/HKUDS/LightRAG.
+[^lightrag-stack]: LightRAG's default storage backends are in-process: `JsonKVStorage`, `NanoVectorDBStorage`, `NetworkXStorage` and `JsonDocStatusStorage` (`lightrag/lightrag.py`, `main` branch of github.com/HKUDS/LightRAG, read 2026-10-04). Neo4j and external vector databases, which an earlier revision counted as two services, are optional backends. One LLM provider key is needed for entity/relation extraction during indexing. Counts: 1 service (the host process) + 1 mandatory third-party key; RAM and cold start are not estimated for this configuration.
 
 [^q-a-p-pivot]: Q/A/P strategic pivot of 2026-05-17 — three pillars (**Q**uality, **A**utonomy, **P**roduct).
 
@@ -664,19 +711,19 @@ Cross-encoder reranking[^sbert] exposes a **4-dimensional trade-off** across ret
 
 | Category type | Δ vs Phase D (no rerank) | Direction |
 |---|---:|---|
-| Hard-recall: F_MH (multi-hop) | **+1.61 pp** (95% CI [3.97, 9.69] — overlaps baseline) | marginal gain |
+| Hard-recall: F_MH (multi-hop) | **+1.61 pp** (Phase G level 6.83%, 95% CI [3.97, 9.69], which contains Phase D's 5.22%) | marginal gain |
 | Hard-recall: F_HL (high-level) | +2.58 pp | marginal gain |
 | Hard-recall: F_TP (temporal) | +2.00 pp | marginal gain |
 | Head-precision: F_SH (single-hop) | +0.40 pp | quasi-neutral |
 | Head-precision: MC (multi-choice) | −2.63 pp | regression |
-| Memory Awareness: MA_C | **−4.00 pp** | significant regression |
-| Memory Awareness: MA_P | **−2.80 pp** | significant regression |
-| Memory Awareness: MA_U | **−3.84 pp** | significant regression |
+| Memory Awareness: MA_C | **−4.00 pp** | regression, not significant (paired per-batch 95% CI ~[−11.0, +3.0] pp) |
+| Memory Awareness: MA_P | **−2.80 pp** | regression (paired per-batch 95% CI ~[−5.5, −0.1] pp, borderline) |
+| Memory Awareness: MA_U | **−3.84 pp** | regression, not significant (paired per-batch 95% CI ~[−8.8, +1.4] pp) |
 | Overall | −0.96 pp | net regression |
 
-The F_MH gain of +1.61 pp closes only **11.7% of the MemOS F_MH gap** (Phase D baseline 5.22% → Phase G 6.83% vs MemOS 18.94%). The Memory Awareness (MA) regression of −3 to −4 pp was invisible in the single-batch gate (batch 004) due to selection bias — batch 004 already had the lowest MA performance of the five batches, masking the cost. The −0.96 pp overall regression is real across all 5 batches (2.3× smaller than the single-batch −2.24 pp estimate, but consistent in direction).
+The F_MH gain of +1.61 pp closes only **11.8% of the MemOS F_MH gap** (Phase D baseline 5.22% → Phase G 6.83% vs MemOS 18.88%, a GPT-4.1-mini figure: Table 4 has no Gemini-2.5-flash column). The Memory Awareness (MA) regression of −3 to −4 pp was not seen in the single-batch gate (batch 004) because the Phase D baseline it was compared against had no MA scores, so no MA delta could be computed (§5.8.3); batch 004 in fact shows the largest MA_C drop of the five (80% → 68%). The −0.96 pp overall regression appears in four of the five batches (batch 005 improves by +2.13 pp) and is not statistically significant (paired per-batch 95% CI ~[−3.4, +1.5] pp); it is 2.3× smaller than the single-batch −2.24 pp estimate.
 
-**Verdict:** REJECT as default. Ship opt-in via `--rerank` flag / `NOX_RERANKER_ENABLED=1` / `/api/answer?mode=exploratory`. Documented latency cost: +3.7 s p50. Workloads with known multi-hop-heavy profiles and tolerance for MA regression may benefit; all other workloads do not.
+**Verdict:** REJECT as default. Ship opt-in via `--rerank` flag / `NOX_RERANKER_ENABLED=1` / `/api/answer?mode=exploratory`. Documented latency cost: search p50 rose from ~1.1 s to 4.8 s on batch 004 (+3.7 s; `eval/evermembench/RESULTS-PHASEG.md`). Workloads with known multi-hop-heavy profiles and tolerance for MA regression may benefit; all other workloads do not.
 
 ---
 
@@ -706,7 +753,7 @@ Wave B and Wave C compose additively on F_MH; the ceiling is the retrieval stage
 
 Gemini-3-flash leads on both the Overall and Memory Awareness composite tracks. The MA composite at **+32.74 pp over the published MemOS numbers** is consistent with a structural advantage from the V10 schema's section/source-type/salience drivers when paired with a frontier-tier reasoning backbone.
 
-⚠️ **The backbones differ, and the deltas are not SOTA claims.** The MemOS column is the published Table 4 result obtained on **GPT-4.1-mini**; our column is **Gemini-3-flash**. Beating a published number produced on a weaker backbone is a cross-backbone comparison, not a state-of-the-art result, and §5.5.4–§5.5.8 measure directly how much backbone choice alone can move these metrics (single-stage retrieval knobs transfer at only 0–40% between these two backbones). The split-matched comparison against MemOS is the GPT-4.1-mini row in §5.1.6 (+9.13 pp, 95% CI [49.88, 53.49]); that one holds the backbone fixed and is the number to cite when the question is architecture rather than backbone.
+⚠️ **The backbones differ, and the deltas are not SOTA claims.** The MemOS column is the published Table 4 result obtained on **GPT-4.1-mini**; our column is **Gemini-3-flash**. Beating a published number produced on a weaker backbone is a cross-backbone comparison, not a state-of-the-art result, and §5.5.4–§5.5.8 measure directly how much backbone choice alone can move these metrics (single-stage retrieval knobs transfer at only 0–40% between these two backbones). The split-matched comparison against MemOS is the GPT-4.1-mini row in §5.1.6 (+9.13 pp, 95% CI [49.87, 53.48]); that one holds the backbone fixed and is the number to cite when the question is architecture rather than backbone.
 
 **Backbone Matrix interpretation.** The +20.73 pp Overall and +32.74 pp MA composite lifts vs gpt-4.1-mini baseline are not exclusively backbone-driven: nox-mem's V10 retrieval stack contributes ~+9.13 pp Overall and ~+25 pp MA composite at the gpt-4.1-mini tier alone (Phase H v2, §5.1.6). The incremental +11.60 pp Overall and +15.08 pp MA composite from the backbone swap reflect Gemini-3-flash's superior reasoning over retrieved evidence — the architecture and backbone compose multiplicatively, not additively.
 

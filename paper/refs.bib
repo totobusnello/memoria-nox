@@ -1,9 +1,9 @@
 % refs.bib -- canonical references for the nox-mem paper
-% Used in: G10d (Sec 5.5), ablations (Sec 5.6/5.7), Q4 cross-system comparison (Sec 6)
+% Used in: G10d (Sec 5.5), ablations (Sec 5.6/5.7), cross-system comparison (Sec 6)
 % URL/DOI/arXiv verification log: paper/refs-verification-log.md
 
 % ============================================================
-% §6 Q4 COMPARISON — sistemas concorrentes
+% §6 cross-system comparison — competing systems
 % ============================================================
 
 @misc{mem0_2024,
@@ -59,14 +59,15 @@
 }
 
 % ============================================================
-% §5 / §6 — KG e busca híbrida
+% §5 / §6 — KG and hybrid search
 % ============================================================
 
 @article{guo2024lightrag,
   author       = {Guo, Zirui and Xia, Lianghao and Yu, Yanhua and Ao, Tu and Huang, Chao},
   title        = {{LightRAG}: Simple and Fast Retrieval-Augmented Generation},
-  journal      = {arXiv preprint arXiv:2410.05779},
-  year         = {2024},
+  journal      = {Findings of the Association for Computational Linguistics: EMNLP 2025},
+  pages        = {10746--10761},
+  year         = {2025},
   eprint       = {2410.05779},
   archivePrefix = {arXiv},
   primaryClass = {cs.IR},
@@ -75,7 +76,7 @@
 }
 
 % ============================================================
-% Benchmarks usados em §5 (LongMemEval, LoCoMo)
+% Benchmarks used in §5 (LongMemEval, LoCoMo)
 % ============================================================
 
 @article{wu2024longmemeval,
@@ -103,7 +104,7 @@
 }
 
 % ============================================================
-% Algoritmos de retrieval — §3 fundamentos
+% Retrieval algorithms — §3 foundations
 % ============================================================
 
 @inproceedings{cormack2009rrf,
@@ -133,7 +134,7 @@
 }
 
 % ============================================================
-% Infraestrutura — §3 stack
+% Infrastructure — §3 stack
 % ============================================================
 
 @misc{garcia2024sqlitevec,
@@ -145,15 +146,44 @@
 }
 
 @misc{google2024geminiembedding,
-  author       = {{Google DeepMind}},
-  title        = {Gemini Embedding Model: \texttt{gemini-embedding-001}},
-  year         = {2024},
-  howpublished = {\url{https://ai.google.dev/gemini-api/docs/models}},
-  note         = {Embedding model used for 3072-dimensional vectors.}
+  author       = {Lee, Jinhyuk and Chen, Feiyang and Dua, Sahil and others},
+  title        = {Gemini Embedding: Generalizable Embeddings from {Gemini}},
+  year         = {2025},
+  eprint       = {2503.07891},
+  archivePrefix = {arXiv},
+  url          = {https://arxiv.org/abs/2503.07891},
+  note         = {Served as \texttt{gemini-embedding-001}; the 3072-dimensional embedding model used by Layer 2.}
+}
+
+@misc{quek2026memo,
+  author       = {Quek, Ryan Wei Heng and Lee, Sanghyuk and Leong, Alfred Wei Lun and Verma, Arun and Prakash, Alok and Chen, Nancy F. and Low, Bryan Kian Hsiang and Rus, Daniela and Solar-Lezama, Armando},
+  title        = {{MeMo}: Memory as a Model},
+  year         = {2026},
+  eprint       = {2605.15156},
+  archivePrefix = {arXiv},
+  url          = {https://arxiv.org/abs/2605.15156v2}
+}
+
+@misc{yue2026hypermem,
+  author       = {Yue, Juwei and Hu, Chuanrui and Sheng, Jiawei and Zhou, Zuyi and Zhang, Wenyuan and Liu, Tingwen and Guo, Li and Deng, Yafeng},
+  title        = {{HyperMem}: Hypergraph Memory for Long-Term Conversations},
+  year         = {2026},
+  eprint       = {2604.08256},
+  archivePrefix = {arXiv},
+  url          = {https://arxiv.org/abs/2604.08256v2}
+}
+
+@misc{clark2017simple,
+  author       = {Clark, Christopher and Gardner, Matt},
+  title        = {Simple and Effective Multi-Paragraph Reading Comprehension},
+  year         = {2017},
+  eprint       = {1710.10723},
+  archivePrefix = {arXiv},
+  url          = {https://arxiv.org/abs/1710.10723}
 }
 
 % ============================================================
-% Referência interna — sistema nox-mem
+% Internal reference — the nox-mem system
 % ============================================================
 
 @misc{busnello2026noxmem,
@@ -256,8 +286,8 @@
   url           = {https://arxiv.org/abs/2007.01282}
 }
 
-% ── Related work (§1.5). IDs verificados contra a API do arXiv em 2026-09-09;
-% titulo e lista de autores vindos da propria API, nao transcritos.
+% ── Related work (§1.5). IDs verified against the arXiv API on 2026-09-09;
+% title and author list taken from the API itself, not transcribed.
 
 @article{lewis2020rag,
   title         = {Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks},
@@ -373,14 +403,15 @@
   year          = {2026},
   eprint        = {2602.01313},
   archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2602.01313}
+  note          = {arXiv:2602.01313v3},
+  url           = {https://arxiv.org/abs/2602.01313v3}
 }
 
 % ============================================================
-% Entradas acrescentadas 2026-09-10 — geradas a partir de
-% paper/authors-manifest.json, que e' colhido do arXiv por
-% paper/gen-authors-manifest.py. NAO digitadas a mao: tres footnotes
-% do manuscrito carregavam autoria inventada sob guarda verde.
+% Entries added 2026-09-10 — generated from
+% paper/authors-manifest.json, which is harvested from arXiv by
+% paper/gen-authors-manifest.py. NOT typed by hand: three footnotes
+% of the manuscript carried invented authorship under a passing check.
 % ============================================================
 
 @misc{nogueira_2019,
@@ -481,9 +512,9 @@
   archivePrefix = {arXiv}
 }
 
-% --- Referências acrescentadas 2026-09-10: mineradas do survey TMLR
-% arXiv:2602.06052v4 e resolvidas pela API do arXiv (autoria e título
-% canônicos, não digitados). Ver publication/candidatas-survey-2026-09-10.md
+% --- References added 2026-09-10: mined from the TMLR survey
+% arXiv:2602.06052v4 and resolved through the arXiv API (canonical authorship
+% and title, not typed). See publication/candidatas-survey-2026-09-10.md
 
 @article{zhang2025memsurvey,
   author       = {Zhang, Zeyu and Bo, Xiaohe and Ma, Chen and Li, Rui and Chen, Xu and Dai, Quanyu and Zhu, Jieming and Dong, Zhenhua and Wen, Ji-Rong},
@@ -666,5 +697,6 @@
   title = {Evaluating Long-Horizon Memory for Multi-Party Collaborative Dialogues},
   year = {2026},
   eprint = {2602.01313},
-  archivePrefix = {arXiv}
+  archivePrefix = {arXiv},
+  note = {arXiv:2602.01313v3}
 }

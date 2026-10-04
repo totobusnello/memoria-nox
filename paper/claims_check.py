@@ -496,7 +496,13 @@ def aritmetica_check(root: Path) -> list[str]:
             if not re.search(r"\d+(\.\d+)?\s*pp\b", f):
                 continue
             tem_f1 = re.search(r"\bF1\b|ans_F1|answer F1", f, re.I)
-            tem_em = re.search(r"strict EM|exact[-\s]match|\bEM\b", f, re.I)
+            # 2026-10-03 (v1.0.3): o F_MH do EverMemBench NAO e' strict EM -- o
+            # benchmark (arXiv:2602.01313v3, sec. 4.1 e Ap. C.2) e o nosso harness
+            # pontuam com juiz LLM binario. O paper passou a dizer "LLM-judged";
+            # sem estes termos o guarda ficaria cego exatamente para a forma nova
+            # da mesma subtracao cross-metric.
+            tem_em = re.search(r"strict EM|exact[-\s]match|\bEM\b|LLM[-\s]judge|"
+                               r"judged accuracy", f, re.I)
             if tem_f1 and tem_em:
                 fails.append(
                     f"{PAPER}:{ln}: aritmética em `pp` numa frase que mistura "
