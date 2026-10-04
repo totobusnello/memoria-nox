@@ -48,9 +48,9 @@ reescrito em 2026-10-04 para caber em 1.920 caracteres) — é o texto que o `cl
 `../publication/sota-retraction-patch-2026-09-03.md` para a classe de defeito.
 
     We introduce nox-mem, a persistent memory system for LLM agents. Retrieval and
-    retention use an additive salience score in which pain, an operator-assignable
-    severity in [0.1, 1.0] otherwise set at ingest by a keyword rule, is a first-class
-    signal; ranking changes pass a mandatory shadow phase. Each store is one SQLite
+    retention use an additive salience score in which pain is a first-class signal. Pain
+    is a severity in [0.1, 1.0], set by an operator or otherwise by a keyword rule at
+    ingest. Ranking changes pass a mandatory shadow phase. Each store is one SQLite
     file, with swappable embeddings, event-driven writeback, per-type retention,
     chunk-level provenance and a pre-snapshot before destructive operations (MIT
     license). In production since March 2026, it serves six agents at KG-path p50 2.5
@@ -58,23 +58,23 @@ reescrito em 2026-10-04 para caber em 1.920 caracteres) — é o texto que o `cl
     pre-specified (plan committed publicly before the first run), same-corpus comparison
     against five memory systems: four (Mem0, agentmemory, EverOS, Zep) produce
     head-to-head quality numbers; one (Letta) is a documented deployment non-run. Under
-    native embedders nox-mem and Mem0 split: Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426),
-    nox-mem wins LongMemEval. An embedding-matched variant run as a planned side
-    experiment (both Gemini 3072-d, n=2,482), an embedding match rather than an
-    architecture isolation, inverts the split: nox-mem leads on both datasets
-    (LongMemEval 0.526 vs 0.406; LoCoMo 0.495 vs 0.441) and in all five represented
-    categories, with four residual confounds declared. EverOS outperforms nox-mem on
-    both (overall 0.646 vs 0.501), with a cross-encoder stage nox-mem lacks, whose share
-    of the gap is unmeasured; Zep ranks third, ahead of Mem0. On EverMemBench nox-mem
-    reaches 63.28% Overall with Gemini-3-flash, 4.01 pp above the published MemOS figure
-    on that backbone and below its 72.61% full-context baseline, so this is not a
+    native embedders, nox-mem and Mem0 split: Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426)
+    and nox-mem wins LongMemEval. An embedding-matched variant (both Gemini 3072-d,
+    n=2,482) was a planned side experiment; it matches the embedder but does not isolate
+    architecture. It inverts the split: nox-mem leads on both datasets (LongMemEval
+    0.526 vs 0.406; LoCoMo 0.495 vs 0.441) and in all five represented categories, with
+    four residual confounds declared. EverOS outperforms nox-mem on both (overall 0.646
+    vs 0.501), with a cross-encoder stage nox-mem lacks, whose share of the gap is
+    unmeasured; Zep ranks third, ahead of Mem0. On EverMemBench nox-mem reaches 63.28%
+    Overall with Gemini-3-flash, 4.01 pp above the published MemOS figure on that
+    backbone and below its 72.61% full-context baseline, so this is not a
     state-of-the-art claim. Against our headline: pain's isolated effect is directional,
     not significant; section-aware ranking is the dominant driver; and multi-hop F_MH is
     6.02%, against 10.84% for MemOS on the same backbone.
 
 ⚠️ **Nenhum limite de tamanho de abstract está estabelecido nas páginas oficiais do
 TechRxiv** (o 150–250 palavras que se encontra por aí é de *journals* IEEE, não do
-repositório). O bloco acima tem 1.902 caracteres (v1.0.3 parte G), dentro do limite de 1.920 do arXiv. Os
+repositório). O bloco acima tem 1.912 caracteres (v1.0.4; v1.0.3 parte G: 1.902), dentro do limite de 1.920 do arXiv. Os
 limitadores **não** são candidatos a corte.
 
 ## Keywords sugeridas
