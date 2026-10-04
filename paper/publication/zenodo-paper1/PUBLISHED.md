@@ -75,3 +75,9 @@ paper próprio para a TMLR.
 - Conteúdo: partes A–G do `paper/CHANGELOG.md` (declaração de uso de IA generativa, retirada da linguagem de produto, correções verificadas contra artefatos e fontes, auditoria completa, revisão Fable, revisão de regressão do Codex). Nenhum resultado de manchete mudou.
 
 **Atualização da nota abaixo (2026-10-04):** o Toto decidiu usar a apelação do arXiv com esta versão, porque a rota TMLR ficou bloqueada (sem acesso). A carta está fora do repositório público.
+
+## v1.0.4 — publicada 2026-10-04 (~19:10 BRT)
+
+- Registro **23146205**, DOI da versão **`10.5281/zenodo.23146205`** (o conceito `10.5281/zenodo.22649268` agora resolve para ela).
+- Arquivo único `paper-tecnico-nox-mem.pdf`, 73 páginas, `md5:d02ba2d6e4a40f6ee6b00ee733005a0b`, conferido pela API pública depois do publish; `doi.org` responde 200.
+- Revisão só de escrita (skill `avoid-ai-writing`): paridade mecânica idêntica à v1.0.3 em números, notas, referências, citações, links, cabeçalhos e tabelas (`paper2-interventional/_sprint-2026-10-04/noxmem-v104/parity-v104.py`); revisão de regressão do Codex com 1 achado corrigido. Rascunho por `deposit-v104.py`; Publish do Toto. É a versão anexada à apelação do arXiv.

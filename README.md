@@ -20,8 +20,8 @@
   <a href="https://github.com/totobusnello/memoria-nox/stargazers"><img src="https://img.shields.io/github/stars/totobusnello/memoria-nox?style=for-the-badge&color=00C896" alt="Stars"></a>
   <a href="https://github.com/totobusnello/memoria-nox/actions/workflows/lint-and-typecheck.yml"><img src="https://img.shields.io/github/actions/workflow/status/totobusnello/memoria-nox/lint-and-typecheck.yml?style=for-the-badge&color=00C896&label=ci" alt="CI"></a>
   <a href="https://www.bestpractices.dev/projects/12896"><img src="https://img.shields.io/cii/level/12896?style=for-the-badge&color=00C896&label=OpenSSF" alt="OpenSSF Best Practices: passing"></a>
-  <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.3-00C896?style=for-the-badge" alt="Paper v1.0.3"></a>
-  <a href="https://doi.org/10.5281/zenodo.23130276"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23130276-00C896?style=for-the-badge" alt="DOI 10.5281/zenodo.23130276"></a>
+  <a href="paper/build/paper-tecnico-nox-mem.pdf"><img src="https://img.shields.io/badge/paper-v1.0.4-00C896?style=for-the-badge" alt="Paper v1.0.4"></a>
+  <a href="https://doi.org/10.5281/zenodo.23146205"><img src="https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23146205-00C896?style=for-the-badge" alt="DOI 10.5281/zenodo.23146205"></a>
   <img src="https://img.shields.io/badge/version-1.0.0-00C896?style=for-the-badge" alt="version 1.0.0">
 </p>
 
@@ -42,7 +42,7 @@
 <p align="center">
   <strong>Every number below is quoted from the paper together with its comparator and its caveat. When a row compares different backbones or different metrics, it says so.</strong>
   <br>
-  <sub>Paper v1.0.3 &middot; DOI <a href="https://doi.org/10.5281/zenodo.23130276">10.5281/zenodo.23130276</a> &middot; section references in the last column</sub>
+  <sub>Paper v1.0.4 &middot; DOI <a href="https://doi.org/10.5281/zenodo.23146205">10.5281/zenodo.23146205</a> &middot; section references in the last column</sub>
 </p>
 
 ### Headline results
@@ -149,7 +149,7 @@ Most agent memory systems force a trade you should not have to make: send your d
 
 The moat is not just portability. It is **shadow discipline**: every ranking change ships in shadow mode for at least seven days, with salience scores exposed on `/api/health` for offline comparison, before it is ever allowed to influence a real query. The pain field on each chunk (`severity 0.1 trivial → 1.0 prod-outage`) ensures that incidents stay retrievable when their lessons matter, not when their dates are fresh. The retrieval logic is small enough to read in one sitting, and every score in the eval harness is auditable from the SQL up.
 
-memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* ([10.5281/zenodo.23130276](https://doi.org/10.5281/zenodo.23130276), preprint, not peer reviewed) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **~51.9k chunks** and **~15.6k entities / ~17.8k relations** (2026-09-29) with a monthly OPEX under **$11**.
+memoria-nox is a research lab and a working product. The paper *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents* ([10.5281/zenodo.23146205](https://doi.org/10.5281/zenodo.23146205), preprint, not peer reviewed) documents the formulae and the experiments that killed our own bad ideas. The repo ships the harnesses that produced those numbers, plus the same retrieval stack running against a live corpus of **~51.9k chunks** and **~15.6k entities / ~17.8k relations** (2026-09-29) with a monthly OPEX under **$11**.
 
 ## Architecture
 
@@ -345,7 +345,7 @@ The full head-to-head matrix against agentmemory, memanto, mem0, Letta, and Zep 
 | Typed knowledge graph with edge reasons | partial | &times; | &check; | &times; | &check; |
 | Shadow-mode ranking discipline | &times; | &times; | &times; | &times; | &check; |
 | Pain-weighted salience | &times; | &times; | &times; | &times; | &check; |
-| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.0.3) |
+| Published reproducible paper + harness | &times; | &check; | &check; | &times; | &check; (v1.0.4) |
 | MIT, no usage caps, no telemetry phone-home | partial | &check; | &check; | &check; | &check; |
 
 ## Works with every agent
@@ -360,9 +360,9 @@ Per-agent setup: [`integrations/`](integrations/) · MCP/HTTP wiring: [`docs/QUI
 
 **Title:** *nox-mem: Pain-Weighted Hybrid Memory for LLM Agents*
 
-**DOI (v1.0.3):** [`10.5281/zenodo.23130276`](https://doi.org/10.5281/zenodo.23130276) &middot; v1.0.2: [`10.5281/zenodo.23041503`](https://doi.org/10.5281/zenodo.23041503) &middot; v1.0: [`10.5281/zenodo.22649269`](https://doi.org/10.5281/zenodo.22649269) &middot; concept DOI (always latest): [`10.5281/zenodo.22649268`](https://doi.org/10.5281/zenodo.22649268)
+**DOI (v1.0.4):** [`10.5281/zenodo.23146205`](https://doi.org/10.5281/zenodo.23146205) &middot; v1.0.3: [`10.5281/zenodo.23130276`](https://doi.org/10.5281/zenodo.23130276) &middot; v1.0.2: [`10.5281/zenodo.23041503`](https://doi.org/10.5281/zenodo.23041503) &middot; v1.0: [`10.5281/zenodo.22649269`](https://doi.org/10.5281/zenodo.22649269) &middot; concept DOI (always latest): [`10.5281/zenodo.22649268`](https://doi.org/10.5281/zenodo.22649268)
 
-**Status:** preprint on Zenodo (v1.0.3, 2026-10-04; v1.0.2, 2026-09-29; v1.0, 2026-09-07), CC BY 4.0. **Not peer reviewed.**
+**Status:** preprint on Zenodo (v1.0.4, 2026-10-04, writing-only; v1.0.3, 2026-10-04; v1.0.2, 2026-09-29; v1.0, 2026-09-07), CC BY 4.0. **Not peer reviewed.**
 
 ⚠️ **It is not on arXiv, and that is settled, not pending.** arXiv did **not accept** the
 manuscript on 2026-09-03, stating it *"would benefit from additional review and revision
@@ -381,8 +381,8 @@ since 2026-09-03.
   year      = {2026},
   month     = {10},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.23130276},
-  url       = {https://doi.org/10.5281/zenodo.23130276},
+  doi       = {10.5281/zenodo.23146205},
+  url       = {https://doi.org/10.5281/zenodo.23146205},
   note      = {Preprint, not peer reviewed}
 }
 ```
@@ -399,7 +399,7 @@ If you use nox-mem in your research or production:
   month   = {6},
   url     = {https://github.com/totobusnello/memoria-nox},
   version = {1.0.0},
-  doi     = {10.5281/zenodo.23130276},
+  doi     = {10.5281/zenodo.23146205},
   note    = {Paper DOI; the software itself is MIT on GitHub}
 }
 ```

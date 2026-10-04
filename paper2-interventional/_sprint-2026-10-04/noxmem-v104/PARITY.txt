@@ -1,0 +1,24 @@
+baseline: /private/tmp/claude-501/-Users-lab-Claude-Projetos-memoria-nox/de3857d1-533c-4471-8b2a-ae1c53eff923/scratchpad/v103-final/paper-tecnico-nox-mem.md
+new:      paper/paper-tecnico-nox-mem.md
+
+version line: baseline ('1.0.3', '2026-10-03')  new ('1.0.4', '2026-10-04')
+  ok (format kept; excluded from the checks below)
+ok   numeric tokens (multiset, sign/% attached): baseline 3612 (846 distinct) / new 3612 (846 distinct)
+ok   numeric tokens (multiset, digits only): baseline 3612 (760 distinct) / new 3612 (760 distinct)
+ok   footnote markers [^x] (multiset): baseline 174 (72 distinct) / new 174 (72 distinct)
+ok   footnote definitions (lines, byte-exact): baseline 72 (72 distinct) / new 72 (72 distinct)
+ok   § references (multiset): baseline 469 (73 distinct) / new 469 (73 distinct)
+ok   backtick spans (multiset): baseline 503 (355 distinct) / new 503 (355 distinct)
+ok   link targets (multiset): baseline 87 (80 distinct) / new 87 (80 distinct)
+ok   headings (ordered list, byte-exact): baseline 112 / new 112
+ok   table rows (lines starting with |): baseline 215 / new 215
+ok   tables (header separator rows): baseline 32 / new 32
+ok   references/footnotes block byte-identical (20115 bytes)
+
+descriptive (not invariants):
+  em-dashes: baseline 318 / new 142
+  bold markers **: baseline 885 / new 525
+  words: baseline 28104 / new 28008
+  lines: baseline 1440 / new 1438
+
+RESULT: PASS — all invariants identical

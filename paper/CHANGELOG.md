@@ -16,6 +16,50 @@ Cada rc: bump no header do paper (`**Paper version:**`) + entrada aqui + (opcion
 
 ## Histórico
 
+### v1.0.4 — 2026-10-04 (writing pass; no number, claim, reference or citation changed)
+
+Writing pass over the manuscript with the `avoid-ai-writing` skill, run in ten slices
+(Abstract through §8; the References and Footnotes block was left untouched and is
+byte-identical to v1.0.3). The pass splits long em-dash chains into separate sentences,
+drops emphasis bold from running prose, turns rhetorical questions and "not X but Y"
+constructions into plain statements, and cuts throat-clearing openers. Em-dashes go from
+318 to 142 and `**` markers from 885 to 525. **No number, claim, reference or citation
+changed**, and the only intended non-prose change is the version line on the first page.
+
+Restored from v1.0.3 during assembly, because they broke an invariant: all 32 section
+headings the slices had re-punctuated (the headings list must stay byte-identical); the two
+§2.5 sentences that had gained a backtick span (`search`, `answer`); and the §6.3.2
+sentence "One external datum bears on how to read this, from a **different run** …", which
+`claims_check_mutation_test.py` uses as an anchor.
+
+**Mechanical parity, whole document, v1.0.3 → v1.0.4:** numeric-token multiset, footnote
+markers and definitions, § references, backtick spans, link targets (bare hosts, DOIs,
+arXiv ids), the ordered headings list, table rows and tables, and the references block are
+all identical. Script: `paper2-interventional/_sprint-2026-10-04/noxmem-v104/parity-v104.py`.
+Output: `paper2-interventional/_sprint-2026-10-04/noxmem-v104/PARITY.txt`. Baseline sha256
+`5e20fc05…7a7b36` (v1.0.3 as deposited).
+
+**Abstract mirrors.** `paper/abstract.md` §2, `paper/arxiv-metadata.txt` and
+`publication/techrxiv-metadata.md` carry the same condensed block, re-worded to match the
+manuscript abstract (pain in its own sentence, the native split, the embedding-matched
+variant): 1,912 characters / 288 words (v1.0.3 part G: 1,902 / 281), within the arXiv
+limit of 1,920.
+
+**Checks:** `claims_check.py` 21 guards green; `claims_check_mutation_test.py` green;
+`build-paper.sh` 0 "Missing character" warnings, 73 pages; density 59 works / 26,205
+words = 2.251 per thousand (v1.0.3: 2.259). `censo-lastro-do-manuscrito.py` exits 0 (the
+cited smoke outputs are versioned since PR #560).
+
+**Regression review (Codex, receipt
+`.remember/adversary-receipt-codex-2026-10-04T185304-2756.txt`, exit 0; question limited to
+meaning changes introduced by the writing pass).** One finding, confirmed and fixed: §8 had
+turned "a provider-agnostic embedding layer — Gemini in every configuration measured here"
+into a standalone "Every configuration measured here used Gemini", which widened the scope
+from nox-mem's embedding layer to every measured configuration (FTS5-only runs and
+competitors with other embedders). The sentence now keeps the v1.0.3 scope: "…embedding
+layer, which used Gemini in every configuration measured here; FTS5-only retrieval is a valid
+keyless degraded mode (§4)." Parity, build and guards re-run green after the fix.
+
 ### v1.0.0-rc1 — 2026-06-28 (BASELINE atual)
 
 Paper completo e auto-suficiente, zero `[PENDING]`:
