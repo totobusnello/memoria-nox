@@ -175,7 +175,7 @@ Agents}\label{nox-mem-pain-weighted-hybrid-memory-for-llm-agents}
 
 \textbf{Luiz Antonio Busnello} \emph{Independent Researcher}
 
-\textbf{Version} v1.0.2 (2026-09-29) --- changelog in
+\textbf{Version} v1.0.3 (2026-10-03) --- changelog in
 \texttt{paper/CHANGELOG.md}
 
 The system described here runs on a single 4-vCPU / 8 GB virtual private
@@ -190,40 +190,39 @@ size, cost per query).
 \subsection{Abstract}\label{abstract}
 
 We introduce \textbf{nox-mem}, a persistent memory system for autonomous
-LLM agents built on one principle: \textbf{pain-weighted hybrid memory
-with shadow discipline}. Retrieval and retention are governed by an
-additive salience formula in which \emph{pain} --- an operator-assigned
-severity in {[}0.1, 1.0{]}, persisted on every chunk --- is a
-first-class signal, and ranking changes pass a mandatory shadow phase
-before production activation. The system is a single SQLite file with
-provider-swappable embeddings, MIT-licensed: no vendor lock-in,
-sub-second writeback (inotifywait-driven), per-\texttt{chunk\_type}
-retention windows, chunk-level provenance, and a policy-gated
-pre-snapshot before destructive operations. Deployed in production since
-March 14, 2026, it serves six specialized agents at KG-path p50 = 2.5
-ms, \$0 per KG-path query, and a 399 MB resident set in a single
-self-hosted process (§5.7). Our central result is a pre-registered,
-same-corpus comparison against five competing memory systems, of which
-four produced head-to-head quality numbers --- two in the 2026-06-15
-canonical run and two (EverOS and Zep) in later runs over the same
-corpus and query set --- and one was a documented deployment non-run
-(§6). Under each system's native embedder the two leaders \textbf{split}
---- Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426), nox-mem wins LongMemEval.
-An embedding-matched variant (both Gemini 3072-d, full n = 2,482) ---
-planned rather than post-hoc (§6.7), and an embedding match rather than
-a clean architecture isolation (§6.3.2) --- \textbf{inverts the split}:
-nox-mem leads on both datasets (LongMemEval 0.526 vs 0.406; LoCoMo 0.495
-vs 0.441) and in all five represented categories, with four residual
-confounds declared. On EverMemBench, nox-mem reaches \textbf{63.28\%
-Overall} with Gemini-3-flash, above every MemOS Table 4 number --- all
-of which were obtained on GPT-4.1-mini, so the backbones differ and this
-is not a state-of-the-art claim (§5.1.10). Three findings cut against
-our own headline: \emph{pain}'s isolated retrieval effect is directional
-but not statistically significant (§7.1); section-aware ranking, not
-pain, is the dominant empirical driver (§5.1.3); and on the same
-EverMemBench run the F\_MH multi-hop track sits at 3--7\%, against
-18.88\% strict EM for the best published system on that track, which
-§5.4 attributes principally to task setup.
+LLM agents. Retrieval and retention are governed by an additive salience
+formula in which \emph{pain} --- an operator-assigned severity in
+{[}0.1, 1.0{]}, persisted on every chunk --- is a first-class signal,
+and ranking changes pass a mandatory shadow phase before production
+activation. The system is a single SQLite file with provider-swappable
+embeddings, sub-second writeback (inotifywait-driven),
+per-\texttt{chunk\_type} retention windows, chunk-level provenance, and
+a policy-gated pre-snapshot before destructive operations; the code is
+MIT-licensed. It has run in production since March 14, 2026, serving six
+specialized agents at KG-path p50 = 2.5 ms, \$0 per KG-path query, and a
+399 MB resident set in a single self-hosted process (§5.7). Our central
+result is a pre-registered, same-corpus comparison against five
+competing memory systems, of which four produced head-to-head quality
+numbers --- two in the 2026-06-15 canonical run and two (EverOS and Zep)
+in later runs over the same corpus and query set --- and one was a
+documented deployment non-run (§6). Under each system's native embedder
+the two leaders \textbf{split} --- Mem0 wins LoCoMo (nDCG@10 0.469 vs
+0.426), nox-mem wins LongMemEval. An embedding-matched variant (both
+Gemini 3072-d, full n = 2,482) --- planned rather than post-hoc (§6.7),
+and an embedding match rather than a clean architecture isolation
+(§6.3.2) --- \textbf{inverts the split}: nox-mem leads on both datasets
+(LongMemEval 0.526 vs 0.406; LoCoMo 0.495 vs 0.441) and in all five
+represented categories, with four residual confounds declared. On
+EverMemBench, nox-mem reaches \textbf{63.28\% Overall} with
+Gemini-3-flash, above every MemOS Table 4 number --- all of which were
+obtained on GPT-4.1-mini, so the backbones differ and this is not a
+state-of-the-art claim (§5.1.10). Three findings cut against our own
+headline: \emph{pain}'s isolated retrieval effect is directional but not
+statistically significant (§7.1); section-aware ranking, not pain, is
+the dominant empirical driver (§5.1.3); and on the same EverMemBench run
+the F\_MH multi-hop track sits at 3--7\%, against 18.88\% strict EM for
+the best published system on that track, which §5.4 attributes
+principally to task setup.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -263,11 +262,10 @@ nox-mem was designed with four core objectives:
 
 \subsubsection{1.3 Scope}\label{scope}
 
-The system operates within the OpenClaw platform, serving 6 AI agents
-(Nox, Atlas, Boris, Cipher, Forge, Lex) on a single VPS with 4 vCPUs and
-8GB RAM. Each agent has a distinct role and memory profile. The
-workspace (shared memory) and individual agent databases form a
-federated memory architecture.
+The system runs inside an agent-hosting platform (OpenClaw) and serves 6
+AI agents on a single VPS with 4 vCPUs and 8GB RAM. Each agent has a
+distinct role and memory profile. The workspace (shared memory) and
+individual agent databases form a federated memory architecture.
 
 \subsubsection{1.4 Related Memory Systems and the Six
 Gaps}\label{related-memory-systems-and-the-six-gaps}
@@ -1847,8 +1845,8 @@ spikes and importance heuristics without requiring all three factors to
 be simultaneously non-default.
 
 \paragraph{\texorpdfstring{5.1.3 Wave A --- Claim 2:
-\texttt{section\_boost} is the moat (99.85\% of the
-gain)}{5.1.3 Wave A --- Claim 2: section\_boost is the moat (99.85\% of the gain)}}\label{wave-a-claim-2-section_boost-is-the-moat-99.85-of-the-gain}
+\texttt{section\_boost} accounts for 99.85\% of the
+gain}{5.1.3 Wave A --- Claim 2: section\_boost accounts for 99.85\% of the gain}}\label{wave-a-claim-2-section_boost-accounts-for-99.85-of-the-gain}
 
 Isolating \texttt{section\_boost} alone (A3 ablation: section enabled,
 tier off, source\_type off, salience shadow) yields \textbf{nDCG@10 =
@@ -3033,10 +3031,10 @@ store) with combined RSS typically in the 1.5--3 GB range.
 The F10 observability layer (Phase A:
 \texttt{/observability/health.html}; Phase B:
 \texttt{/observability/evals.html}) renders the full G3→G10d ablation
-trajectory in real time over Chart.js, with gate annotations for D43,
-D48, D51, D67, D68, and D69. Three rollback paths are documented
-(conditional layer only, full mutex, drop-in removal), each executable
-in under five minutes.
+trajectory in real time over Chart.js, with an annotation at each
+recorded decision gate. Three rollback paths are documented (conditional
+layer only, full mutex, drop-in removal), each executable in under five
+minutes.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -3252,8 +3250,8 @@ work}\label{honest-limitations-and-open-work}
   published numbers.
 \end{itemize}
 
-\subsection{6. Q4 COMPARISON --- Cross-System Benchmarking
-(Pre-registered)}\label{q4-comparison-cross-system-benchmarking-pre-registered}
+\subsection{6. Cross-System Comparison
+(Pre-registered)}\label{cross-system-comparison-pre-registered}
 
 \subsubsection{6.1 Methodology summary}\label{methodology-summary}
 
@@ -3264,9 +3262,8 @@ documented in \texttt{specs/2026-05-23-Q4-comparison-execution-plan.md}
 principles (§6.5), anti-cherry-pick guarantees (§6.6), and formal
 pre-registration (§6.7) are locked in this section before execution;
 only the tables in §6.2/§6.3/§6.4 receive numbers after the run. The
-objective is to satisfy the D43 approval gate --- nox-mem in top-3 on
-\textgreater=2 of the 4 key metrics (nDCG@10, R@10, MRR, latency) ---
-unlocking GTM Phase 2.
+pre-registered success criterion (§6.7) is nox-mem in top-3 on
+\textgreater=2 of the 4 key metrics (nDCG@10, R@10, MRR, latency).
 
 \subsubsection{6.2 Competitors}\label{competitors}
 
@@ -4257,7 +4254,7 @@ To prevent retroactive selection bias:
   \textbf{Mandatory disclosure:} the aggregate ±0.05 falls within the
   inconclusive interval for n=20. The definitive arbiter is the
   canonical full-corpus run (uniform corpus without cap, full LoCoMo +
-  LongMemEval for all systems). \textbf{Phase 2 gate uses BOTH}
+  LongMemEval for all systems). \textbf{The success criterion uses BOTH}
   per-dataset + aggregate from the canonical run --- not only the number
   that favors nox-mem.
 \end{itemize}
@@ -4294,27 +4291,21 @@ post-run. Any methodological adjustment identified during execution is
 documented as an explicit follow-up rather than retroactively applied
 here.
 
-Decision D43 defines the approval gate: nox-mem in top-3 on
-\textgreater=2 of the 4 key metrics (nDCG@10, R@10, MRR, latency). If
-not met, the 2026-05-25 session produces a remediation plan (pre-launch
-adjustments) rather than a direct launch.
+The success criterion is nox-mem in top-3 on \textgreater=2 of the 4 key
+metrics (nDCG@10, R@10, MRR, latency). If it was not met, the 2026-05-25
+session was to produce a remediation plan.
 
-\subsubsection{6.8 Operational cost}\label{operational-cost}
+\subsubsection{6.8 Operational cost per memory
+system}\label{operational-cost-per-memory-system}
 
-\subsubsection{6.8 Autonomy quantified --- operational cost per memory
-system}\label{autonomy-quantified-operational-cost-per-memory-system}
-
-The Q4 quality comparison (§6.3 -- §6.6) reports retrieval
-\emph{quality} under matched corpora. Operational \emph{cost} ---
-services, RAM, cold start, mandatory third-party credentials, setup
-commands --- is the second axis on which a memory system can be
-evaluated, and is the axis where the nox-mem Autonomy pillar \footnote{Q/A/P
-  strategic pivot of 2026-05-17 --- three pillars (\textbf{Q}uality,
-  \textbf{A}utonomy, \textbf{P}roduct).} is most legible. Table 2
+The quality comparison (§6.3 -- §6.6) reports retrieval \emph{quality}
+under matched corpora. Operational \emph{cost} --- services, RAM, cold
+start, mandatory third-party credentials, setup commands --- is the
+second axis on which a memory system can be evaluated. Table 2
 summarizes the steady-state idle footprint of each system in its default
 self-host configuration.
 
-\textbf{Table 2 --- Autonomy quantified: services, RAM, cold start,
+\textbf{Table 2 --- Operational cost: services, RAM, cold start,
 mandatory keys, setup commands.} Headline: \textbf{\textasciitilde12×
 less RSS than EverOS, single process, no service stack.} Competitor
 numbers are \emph{estimates} derived from each project's docker-compose
@@ -4453,8 +4444,8 @@ LightRAG & 2 (Neo4j + vector DB) & \textasciitilde1 GB &
 \end{longtable}
 }
 
-\textbf{Reading the table.} Three rows of the cost matrix translate
-directly into Autonomy:
+\textbf{Reading the table.} Three rows of the cost matrix bear directly
+on operational autonomy:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
@@ -4688,11 +4679,11 @@ comparison --- it is the reason nox-mem has a number in every cell of
 
 The reproducibility of nox-mem's run --- one file, one process, one
 command, re-confirmed live at \textbf{415 MB RSS on the 70.7k-chunk
-production corpus} on 2026-06-15 --- is the operational expression of
-the Autonomy pillar quantified in §6.8. \textbf{A memory system you can
-run from a single file you own is a different category of dependency
-than one that requires Docker, a vector database, a telemetry pipeline,
-and a third-party embedding key to return its first result.}
+production corpus} on 2026-06-15 --- is the operational counterpart of
+the cost profile in §6.8. \textbf{A memory system you can run from a
+single file you own is a different category of dependency than one that
+requires Docker, a vector database, a telemetry pipeline, and a
+third-party embedding key to return its first result.}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -4726,14 +4717,13 @@ access and a valid \texttt{GEMINI\_API\_KEY}, meaning an air-gapped
 deployment falls back to FTS5-only retrieval with no semantic recall;
 (b) API cost scales with corpus size --- at the 2026-05-24 corpus of
 \textasciitilde69k chunks, a full re-vectorization pass takes
-approximately 30--40 minutes at quota limits of the free tier. The
-Autonomy pillar of the Q/A/P strategy explicitly calls out ``provider
-your choice, zero vendor lock-in'' as a long-term goal; local embedding
-substitution (e.g., \texttt{nomic-embed-text} via Ollama) is
-architecturally feasible but not validated against the canonical eval
-set. bring-your-own-key (BYOK) partial autonomy is available: users who
-supply their own Gemini API key operate without per-query billing
-exposure in the default free tier.
+approximately 30--40 minutes at quota limits of the free tier. Provider
+independence is a stated design goal; local embedding substitution
+(e.g., \texttt{nomic-embed-text} via Ollama) is architecturally feasible
+but not validated against the canonical eval set. bring-your-own-key
+(BYOK) partial autonomy is available: users who supply their own Gemini
+API key operate without per-query billing exposure in the default free
+tier.
 
 \paragraph{L3 --- Single-instance architecture (no distributed sharding
 or
@@ -4855,7 +4845,7 @@ operations (\texttt{reindex}, \texttt{consolidate},
 \texttt{crystallize}) without requiring a central trust authority. P5
 closes the Tier 3 arc by integrating encryption key management with the
 existing \texttt{withOpAudit()} wrapper and the Tier 3 reads-audit
-layer. Target deployment: post-GTM Phase 2 launch, estimated 2026-05-25.
+layer. Target deployment: estimated 2026-05-25.
 
 \paragraph{F2 --- F10 Phase C/D: shadow tracker empirical A/B for
 ranking
@@ -4874,13 +4864,12 @@ endpoint. This closes the observability gap --- currently the shadow
 mode is a flag toggle, not an integrated eval pipeline. \#\#\#\# F3 ---
 Per-method benchmark Phase B: cross-method nDCG optimization
 
-The Q4 per-method benchmark (§6) establishes the cross-system baseline.
-Phase B targets per-query-type boost calibration: given that keyword
-queries respond differently from natural-language queries (G10c §5.1.4),
-and single-hop vs multi-hop have opposing mutex trade-offs (G10b
-§5.1.4), a routing layer that selects ranking parameters based on
-query-type classification has measurable potential upside. Estimated Lab
-Q1 item.
+The cross-system benchmark (§6) establishes the baseline. Phase B
+targets per-query-type boost calibration: given that keyword queries
+respond differently from natural-language queries (G10c §5.1.4), and
+single-hop vs multi-hop have opposing mutex trade-offs (G10b §5.1.4), a
+routing layer that selects ranking parameters based on query-type
+classification has measurable potential upside. Estimated Lab Q1 item.
 
 \paragraph{F4 --- EverMemBench equivalence: honest comparison against
 EverMind-AI
@@ -4919,11 +4908,11 @@ candidate is the Qwen3 reranker\footnote{Zhang, Li, Long, Zhang, Xie
   from this study: EverOS reranks internally with a Qwen3 reranker, and
   §6.3.1 records the \texttt{rerank\_n\ =\ 50} ceiling that this imposes
   on the candidate set measured there. The model appears here as a
-  component of a \emph{compared system}, never of ours.}). The Autonomy
-constraint favors a locally-runnable cross-encoder (e.g.,
-\texttt{cross-encoder/ms-marco-MiniLM-L-6-v2} via sentence-transformers,
-\textasciitilde66MB) over a cloud inference call, keeping the retrieval
-stack fully offline-capable. Estimated Lab Q1/Q2.
+  component of a \emph{compared system}, never of ours.}). The
+provider-independence goal favors a locally-runnable cross-encoder
+(e.g., \texttt{cross-encoder/ms-marco-MiniLM-L-6-v2} via
+sentence-transformers, \textasciitilde66MB) over a cloud inference call,
+keeping the retrieval stack fully offline-capable. Estimated Lab Q1/Q2.
 
 \paragraph{F6 --- Lab Q1 scale validation: 250k chunk
 corpus}\label{f6-lab-q1-scale-validation-250k-chunk-corpus}
@@ -4942,7 +4931,7 @@ formula stability (the recency component decays over a longer history
 window); (c) FTS5 BM25 IDF calibration (with more documents, rare-term
 IDF weights shift). This scale-validation item has no committed spec
 yet; it is gated on \texttt{NOX\_SALIENCE\_MODE=active} remaining stable
-through the GTM Phase 2 feedback cycle.
+in production.
 
 \paragraph{F7 --- Multilingual corpus coverage: Portuguese and
 Spanish}\label{f7-multilingual-corpus-coverage-portuguese-and-spanish}
@@ -4958,21 +4947,16 @@ multilingual evaluation. A Portuguese golden set is a natural next step
 given the production operational language of the corpus; \textbf{Quati}
 (Bueno et al., 2024, arXiv:2404.06976), a Brazilian-Portuguese IR
 dataset annotated by native speakers, is a strong candidate benchmark
-for that evaluation. This is deferred to post-launch community feedback
-intake.
+for that evaluation. This evaluation is deferred.
 
-\paragraph{F8 --- GTM Phase 2 launch and community feedback
-intake}\label{f8-gtm-phase-2-launch-and-community-feedback-intake}
+\paragraph{F8 --- Feedback from use outside the author's
+deployment}\label{f8-feedback-from-use-outside-the-authors-deployment}
 
-The Q/A/P roadmap defines GTM Phase 2 as gated on D43 (nox-mem top-3 in
-at least 2 of 4 key metrics --- nDCG@10, R@10, MRR, latency). With the
-canonical and rc4 runs complete, D43 is satisfied; the public OSS
-release is the remaining gate-dependent step. Post-launch, community
-feedback from the OSS release is expected to surface real-world
-limitation patterns not visible in the synthetic golden sets (e.g.,
-corpora with high image-to-text OCR content, multi-language mixes, or
-very short memory fragments \textless{} 20 words that the current
-chunker merges). The feedback cycle directly informs Lab Q2 priorities.
+Use of the system by others is expected to surface real-world limitation
+patterns not visible in the synthetic golden sets (e.g., corpora with
+high image-to-text OCR content, multi-language mixes, or very short
+memory fragments \textless{} 20 words that the current chunker merges).
+That feedback informs Lab Q2 priorities.
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 
@@ -5006,7 +4990,7 @@ makes production state verifiable at any time via the Phase A dashboard
 (\texttt{/observability/health.html}) + Phase B dashboard
 (\texttt{/observability/evals.html}).
 
-The §6 Q4 COMPARISON is pre-registered
+The cross-system comparison of §6 is pre-registered
 (\texttt{specs/2026-05-23-Q4-comparison-execution-plan.md}). After a
 methodology smoke (2026-05-24, n=20) and an infrastructure abort
 (incident D76, §7.1 L5), the \textbf{canonical run executed 2026-06-15}
@@ -5018,17 +5002,48 @@ LongMemEval (§6.3); with the embedding provider equalized, nox-mem
 outperforms Mem0 on both datasets and all five represented categories
 (§6.3.2). Both readings are reported side by side per §6.6, with four
 residual confounds declared and the task-type asymmetry ablated away.
-The D43 gate (top-3 on at least 2 of the 4 key metrics) is satisfied,
-unlocking the GTM Phase 2 pre-launch defense.
+The pre-registered success criterion of §6.7 (top-3 on at least 2 of the
+4 key metrics) is met.
 
-The cross-agent intelligence layer transforms isolated agent memories
-into a collaborative knowledge base, enabling institutional learning
-across the fleet. Combined with the live dashboard, the system provides
-full observability into the collective memory of the agent organization.
+A cross-agent layer searches all agent databases in one query and
+attributes each result to its agent (§4.3), and the live dashboard
+exposes that shared memory for inspection.
 
 \textbf{Repository:} github.com/totobusnello/memoria-nox
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\subsection{Disclosure of Generative AI
+Use}\label{disclosure-of-generative-ai-use}
+
+Generative AI tools were used in preparing this work in two roles,
+reported here as arXiv's moderation policy asks for text-to-text
+generative AI.
+
+\emph{Engineering and writing assistance.} Anthropic's Claude models
+(Opus and Sonnet versions), used through the Claude Code command-line
+agent, assisted with writing and running code, evaluation scripts, and
+the mechanical checks that test this manuscript's claims against the
+experiment artifacts, and with drafting and editing the manuscript text.
+Most commits that changed the manuscript source record a Claude model as
+co-author.
+
+\emph{Review.} Drafts and revisions were reviewed read-only by LLM-based
+reviewers from other model families (GLM, Grok, Kimi and Codex) to check
+statements against the stored artifacts. Findings were checked against
+the artifacts before being accepted or rejected;
+\texttt{paper/CHANGELOG.md} records two such rounds.
+
+Models that are components of the system or of the evaluation (the
+embedding model, the knowledge-graph extraction model, and the
+answer-generation backbones) belong to the method and are specified
+where they are used.
+
+The research questions, the design decisions and the reported numbers
+are the author's, and the author takes responsibility for the full text.
+
+\textless\textless TOTO: confirmar a extensão do uso de
+IA\textgreater\textgreater{}
 
 \begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
 

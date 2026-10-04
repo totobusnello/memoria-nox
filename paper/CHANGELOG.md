@@ -144,6 +144,45 @@ anonymity gate (`fe49755`); the §6.3.2 confound (a) retraction of 2026-09-14 (a
 - Header, README badge and `CITATION.cff` note aligned to v1.0.2. The Zenodo record is
   still the 2026-09-07 deposit; a new Zenodo version is the author's action.
 
+### v1.0.3 — 2026-10-03 (generative-AI disclosure; product framing removed)
+
+Prepared for the arXiv appeal of `submit/7771319`. Form and framing only: no result,
+measurement, citation or scientific claim changed.
+
+- **Added: "Disclosure of Generative AI Use"**, an unnumbered section after the
+  Conclusion. arXiv's moderation policy asks authors to report significant use of
+  text-to-text generative AI; v1.0.2 had no such statement. It ends with an author
+  confirmation marker that must be resolved before deposit.
+- **Product/roadmap framing removed (pacote b1):** the D43 "approval gate" and
+  "GTM Phase 2" language in §6.1, §6.6, §6.7, §7.2 F1/F6/F7/F8 and the Conclusion; the
+  gate annotation labels (D43, D48, D51, D67, D68, D69) in §5.7.4. The pre-registered
+  criterion itself (top-3 on >=2 of the 4 key metrics) stays, in §6.1, §6.7 and the
+  Conclusion, now named as a success criterion. F8 is retitled "Feedback from use
+  outside the author's deployment".
+- **Abstract (b2):** tagline sentence and "no vendor lock-in" removed; MIT license and the
+  production envelope (since March 14, 2026, six agents, 2.5 ms, $0, 399 MB) kept.
+- **Labels (b3):** §6 heading "Q4 COMPARISON" → "Cross-System Comparison
+  (Pre-registered)"; §5.1.3 "is the moat" → "accounts for 99.85% of the gain"; §6.8
+  "Autonomy quantified" and every "Autonomy pillar" / "Q/A/P" reference neutralised; the
+  `[^q-a-p-pivot]` footnote removed (it was `evidencia`, not `obra`: 55 works and the
+  density are unchanged; `bibitem-census.json` updated). File paths containing `q4`
+  are unchanged.
+- **Form defect (b4):** the empty duplicate "### 6.8 Operational cost" heading removed.
+- **Scope (b5):** §1.3 no longer lists the agents' names (they remain in the §2 data
+  table); the third Conclusion paragraph rewritten without "institutional learning" /
+  "agent organization" phrasing, pointing at §4.3.
+- **Number parity, v1.0.2 → v1.0.3 (multiset of numerals in the `.md`):** removed only
+  the version/date (1.0.2, 2026-09-29), the internal labels D43 ×6, D48/D51/D67/D68/D69,
+  "Q4" ×4, "rc4" ×1 (F8), "Phase 2" ×7, the gate restatement in F8 (top-3 / 2 / 4 /
+  nDCG@10 / R@10), the footnote date 2026-05-17, and the duplicate "6.8"; added only
+  1.0.3, 2026-10-03 and the cross-references §6.7 ×2 and §4.3. Spelled-out numbers:
+  "three" (footnote) and "zero" (L2, "zero vendor lock-in") removed; "two" ×2 added
+  (disclosure). In the PDF, footnote numbering shifts by one after the removed footnote.
+- `claims_check.py`: 21 guards green; `claims_check_mutation_test.py`: 48 mutations bitten.
+- Not yet done (author's action): Zenodo version under concept DOI
+  `10.5281/zenodo.22649268`; README badge and `CITATION.cff` still point at v1.0.2 until
+  that deposit exists.
+
 ## Roadmap rumo à v1.0.0 (evoluir-antes-de-publicar)
 
 | rc | Incremento | O que agrega ao paper | ETA | Custo |
