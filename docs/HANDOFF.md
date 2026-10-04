@@ -1,5 +1,31 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-04 — bancos do ensaio P2 saíram da produção (−5,2 GB)
+
+Conferido antes: a análise ITT fechada (`estimador_itt.py`, `rerandomizacao.py`,
+`controles_instrumento.py`, `cobertura_e_m10.py`) **não lê banco nenhum**. As entradas dela são
+episódios, vereditos, `p2-serving.ndjson`, a designação e o assignment, e todas estão no lastro
+(Mac + Pesquisa). Banco só entra no sham/replay do B e em medições do `DEVIATIONS`.
+
+| banco | antes | agora |
+|---|---|---|
+| `corpus-preservado-20260908.db` | `srv1826603:/var/lib/nox-mem/p2/` (cópia única) | `srv1465941:/var/backups/nox-mem/paper2-bancos-ensaio/` |
+| `corpus-SERVING-REAL-e20260903-recuperado.db` | idem | idem |
+| `corpus/e20260907T060001Z.db` | `srv1826603:/var/lib/nox-mem/p2/corpus/` | `…/paper2-bancos-ensaio/corpus/` |
+| `corpus/p2-ord-ro-2026-08-26.db` | idem | idem |
+
+sha256 recalculado **no destino** (4/4) + `quick_check` ok + `RECIBO.txt`; manifesto
+`p2-bancos-ensaio.sha256` nas duas pontas; aviso `ONDE-ESTAO-OS-BANCOS.txt` na produção.
+Disco da produção: 26 → **31 GB livres** (69%).
+
+⚠️ `measurement/gera-shams.py`, `measurement/roda-sham.sh` e o `scripts/ordem.mjs` da VPS têm o
+caminho antigo fixo. Para rodá-los, copiar o banco de volta (~5 min) ou rodar na Pesquisa.
+Os caminhos citados no `DEVIATIONS` são registro histórico e ficam como estão.
+
+🔴 **Pendência do Paper A:** `MANUSCRIPT.md:1150` cita `e20260826T060003Z.db` como procedência de
+uma rodada, e esse banco **não existe em lugar nenhum** (foi podado; procurei nas duas VPS e no Mac).
+O B já declara isso (`MANUSCRIPT-B.md:447`); o A precisa da mesma declaração.
+
 ## 2026-09-29/30 — faxina: corpus 66.878 → 43.255, índice vec0, crons, nox-mem 3.5.1, Paper 1 v1.0.2 no Zenodo
 
 ### ▶️ PRÓXIMO PASSO
