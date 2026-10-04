@@ -1,0 +1,21 @@
+{
+ "findings": [
+  {
+   "pt_line": 445,
+   "section": "§4.1 (also table l.321, §2 l.213-214, §4.2 l.540)",
+   "quote_pt": "o complemento conta o que existe *hoje* e nunca foi.",
+   "problem": "NEEDS-DATE: 'hoje' and 'corpus vivo' mean the measurement instant (2026-08-28). The live corpus today is 43,255 chunks, so a reader in October reads a false present. §4.2 'pending tem 6 dias de idade' is relative too.",
+   "proposed_en": "[§4.1.1] …the complement counts what existed **at the measurement instant (2026-08-28 09:52Z)** and had never been exposed.\n[§4.1 table label] live corpus at 2026-08-28\n[§2] …at the measurement instant (2026-08-28), **67,187** chunks.\n[§4.2] (`pending` was 6 days old at the measurement instant; `procedure` has 3 chunks)",
+   "evidence": "out/superficie.json gerado_em 2026-08-28T10:02:23Z, ate 2026-08-28 09:52:08; docs/HANDOFF.md 2026-09-29/30: 43,255 chunks.",
+   "source_task": "aging-sweep"
+  }
+ ],
+ "doubts": [
+  "Code spans com aritmética (`11.051 − 152 = 10.899`, `67.187 − 10.899 = 56.288`, `1.787 + 9.755 = 11.542`, `importance ≥ 0,7 OR pain ≥ 0,7`) mantidos em notação PT, conforme regra; em EN leem-se como 11.051 (onze ponto zero cinco um). Decida se quer converter dentro desses spans.",
+  "O título 4.1 diz que 74,75% é 'do que passa o piso', mas a tabela e o texto dizem 10.008/13.388 = 74,75%; consistente. Já a frase 'reduz a taxa em 9 pontos e o valor absoluto em 5,6×' (83,78→74,75; 56.288/10.008=5,62) está ok.",
+  "'~~...~~' não aparece neste trecho; nenhum texto riscado a preservar.",
+  "Referência 'oito vezes' (583.763/67.187 = 8,69): PT diz oito vezes; traduzido literalmente 'eight times over', sem corrigir.",
+  "Parágrafo 'Condicionar à relevância... não a dissolve': 'it does not dissolve it' traduzido literalmente.",
+  "Linhas 'do que passa o piso': H-2/H-3.x ficaram como âncoras (↩ H-3.2 etc.) idênticas ao PT."
+ ]
+}

@@ -1,0 +1,8616 @@
+{
+  "procedencia": {
+    "gerado_em": "2026-10-04T01:31:19.648Z",
+    "modo": "dose",
+    "corte_serve_state": "rowid",
+    "granularidade_last_served": "seg",
+    "corpus": "/var/tmp/sprint-sham-v2-w/db/corpus-SERVING-REAL-e20260903-recuperado.db",
+    "corpus_sha256_primeiros_1MB": "16d128169436cbf852dfe658270c5eef050d182c983c2c22e4049f6e0d4a100c",
+    "vivo": "/var/tmp/sprint-sham-v2-w/db/vivo-v2.db",
+    "designacao": "/var/tmp/sprint-sham-v2-w/in/DESIGNATION-2026-08-26.json",
+    "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+    "designados": 19,
+    "sondas_excluidas": [],
+    "fonte_brief_ts_sha256": "519fa6ab28c36910cd40ed81c2a19a1c4fbf58c0f731e33422681850c40337ee"
+  },
+  "dose": {
+    "log": "/var/tmp/sprint-sham-v2-w/in/p2-serving.ndjson",
+    "estados": 110,
+    "tabela": [
+      {
+        "w": 2,
+        "estados": 110,
+        "mexeu": 87,
+        "churn_total": 97,
+        "boosts": 19
+      },
+      {
+        "w": 4,
+        "estados": 110,
+        "mexeu": 110,
+        "churn_total": 122,
+        "boosts": 19
+      },
+      {
+        "w": 100000,
+        "estados": 110,
+        "mexeu": 110,
+        "churn_total": 126,
+        "boosts": 19
+      }
+    ],
+    "detalhe": [
+      {
+        "ts": "2026-09-16T08:37:02.239Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 711095,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308220,
+          117887,
+          265170,
+          298214,
+          273772,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-16T08:37:02.239Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 711095,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308220,
+          117887,
+          265170,
+          298214,
+          273772,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-16T08:37:02.239Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 711095,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308220,
+          117887,
+          265170,
+          298214,
+          273772,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-16T06:37:03.105Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710555,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308220,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-16T06:37:03.105Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710555,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308220,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-16T06:37:03.105Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710555,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308220,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-16T06:22:06.280Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710525,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308250,
+          308457,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T06:22:06.280Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710525,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308457
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308250,
+          308457,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T06:22:06.280Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710525,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308457
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308250,
+          308457,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T06:07:05.697Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710445,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308316
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          285483,
+          308316
+        ]
+      },
+      {
+        "ts": "2026-09-16T06:07:05.697Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710445,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308456
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          285483,
+          308316
+        ]
+      },
+      {
+        "ts": "2026-09-16T06:07:05.697Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710445,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308456
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          285483,
+          308316
+        ]
+      },
+      {
+        "ts": "2026-09-16T05:37:03.769Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710275,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308236,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-16T05:37:03.769Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710275,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308236,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-16T05:37:03.769Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710275,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308236,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-16T05:22:02.651Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710195,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308252,
+          117886,
+          308472,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-16T05:22:02.651Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710195,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308472
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308252,
+          117886,
+          308472,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-16T05:22:02.651Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 710195,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308472
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308252,
+          117886,
+          308472,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-16T03:52:02.877Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709775,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          265170,
+          298214,
+          273772,
+          308224,
+          308276
+        ]
+      },
+      {
+        "ts": "2026-09-16T03:52:02.877Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709775,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          265170,
+          298214,
+          273772,
+          308224,
+          308276
+        ]
+      },
+      {
+        "ts": "2026-09-16T03:52:02.877Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709775,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          265170,
+          298214,
+          273772,
+          308224,
+          308276
+        ]
+      },
+      {
+        "ts": "2026-09-16T03:22:04.014Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709655,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308252,
+          308472,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-16T03:22:04.014Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709655,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308472
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308252,
+          308472,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-16T03:22:04.014Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709655,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308472
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308252,
+          308472,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-16T02:37:06.406Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709475,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308220,
+          308232,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T02:37:06.406Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709475,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308220,
+          308232,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T02:37:06.406Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709475,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308220,
+          308232,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T02:22:06.190Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709405,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          308282,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T02:22:06.190Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709405,
+        "churn": 1,
+        "would_enter": [
+          308218
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          308282,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T02:22:06.190Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709405,
+        "churn": 2,
+        "would_enter": [
+          308218,
+          308264
+        ],
+        "would_leave": [
+          308304,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          308282,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T01:22:05.851Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709125,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308260
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308252,
+          308260,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T01:22:05.851Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709125,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308260
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308252,
+          308260,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T01:22:05.851Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 709125,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308260
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308252,
+          308260,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T00:52:03.336Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708925,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308458,
+          308298,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-16T00:52:03.336Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708925,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308298
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308458,
+          308298,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-16T00:52:03.336Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708925,
+        "churn": 2,
+        "would_enter": [
+          308270,
+          308286
+        ],
+        "would_leave": [
+          308458,
+          308298
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308458,
+          308298,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-16T00:37:03.736Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708875,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308304,
+          308290
+        ]
+      },
+      {
+        "ts": "2026-09-16T00:37:03.736Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708875,
+        "churn": 1,
+        "would_enter": [
+          308218
+        ],
+        "would_leave": [
+          308290
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308304,
+          308290
+        ]
+      },
+      {
+        "ts": "2026-09-16T00:37:03.736Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708875,
+        "churn": 1,
+        "would_enter": [
+          308218
+        ],
+        "would_leave": [
+          308290
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308304,
+          308290
+        ]
+      },
+      {
+        "ts": "2026-09-16T00:07:06.515Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708775,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308278,
+          308300,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T00:07:06.515Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708775,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308278,
+          308300,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T00:07:06.515Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708775,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308278,
+          308300,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T23:52:05.385Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708695,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          285483,
+          308224,
+          308276
+        ]
+      },
+      {
+        "ts": "2026-09-15T23:52:05.385Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708695,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          285483,
+          308224,
+          308276
+        ]
+      },
+      {
+        "ts": "2026-09-15T23:52:05.385Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708695,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          285483,
+          308224,
+          308276
+        ]
+      },
+      {
+        "ts": "2026-09-15T22:52:04.595Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708395,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308266
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308458,
+          288200,
+          303592,
+          285044,
+          308266,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T22:52:04.595Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708395,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308266
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308458,
+          288200,
+          303592,
+          285044,
+          308266,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T22:52:04.595Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708395,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308266
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308458,
+          288200,
+          303592,
+          285044,
+          308266,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T21:52:04.600Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708115,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          308236,
+          298048,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-15T21:52:04.600Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708115,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          308236,
+          298048,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-15T21:52:04.600Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 708115,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          308236,
+          298048,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-15T20:37:03.594Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707755,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308316
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308456,
+          308316
+        ]
+      },
+      {
+        "ts": "2026-09-15T20:37:03.594Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707755,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308456
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308456,
+          308316
+        ]
+      },
+      {
+        "ts": "2026-09-15T20:37:03.594Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707755,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308456
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308456,
+          308316
+        ]
+      },
+      {
+        "ts": "2026-09-15T19:07:02.632Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707325,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308458,
+          308220,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T19:07:02.632Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707325,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308220
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308458,
+          308220,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T19:07:02.632Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707325,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308220
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308458,
+          308220,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T18:07:03.568Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707065,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308224,
+          308276
+        ]
+      },
+      {
+        "ts": "2026-09-15T18:07:03.568Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707065,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308224,
+          308276
+        ]
+      },
+      {
+        "ts": "2026-09-15T18:07:03.568Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707065,
+        "churn": 1,
+        "would_enter": [
+          308312
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308224,
+          308276
+        ]
+      },
+      {
+        "ts": "2026-09-15T18:07:01.640Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707035,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          308236,
+          265170,
+          298214,
+          273772,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-15T18:07:01.640Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707035,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          308236,
+          265170,
+          298214,
+          273772,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-15T18:07:01.640Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 707035,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          308236,
+          265170,
+          298214,
+          273772,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-15T17:07:04.104Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706785,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308458,
+          288200,
+          303592,
+          308220,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T17:07:04.104Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706785,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308220
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308458,
+          288200,
+          303592,
+          308220,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T17:07:04.104Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706785,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308220
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308458,
+          288200,
+          303592,
+          308220,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T16:52:03.491Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706705,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308477
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308282,
+          308477
+        ]
+      },
+      {
+        "ts": "2026-09-15T16:52:03.491Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706705,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308477
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308282,
+          308477
+        ]
+      },
+      {
+        "ts": "2026-09-15T16:52:03.491Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706705,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308477
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308282,
+          308477
+        ]
+      },
+      {
+        "ts": "2026-09-15T16:37:06.035Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706675,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308316
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308456,
+          308316,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T16:37:06.035Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706675,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308456
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308456,
+          308316,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T16:37:06.035Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706675,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308456
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308456,
+          308316,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T15:52:05.868Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706455,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308252,
+          118081,
+          308494,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-15T15:52:05.868Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706455,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308252,
+          118081,
+          308494,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-15T15:52:05.868Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706455,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308252,
+          118081,
+          308494,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-15T15:07:05.970Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706255,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308246,
+          308232,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T15:07:05.970Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706255,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308246,
+          308232,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T15:07:05.970Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 706255,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308246,
+          308232,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T13:22:03.843Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705725,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308242
+        ]
+      },
+      {
+        "ts": "2026-09-15T13:22:03.843Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705725,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308242
+        ]
+      },
+      {
+        "ts": "2026-09-15T13:22:03.843Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705725,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308242
+        ]
+      },
+      {
+        "ts": "2026-09-15T12:07:03.592Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705375,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308252,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-15T12:07:03.592Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705375,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308252,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-15T12:07:03.592Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705375,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308252,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-15T11:52:03.878Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705315,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308322,
+          308468,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T11:52:03.878Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705315,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308322,
+          308468,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T11:52:03.878Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705315,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308322,
+          308468,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T11:07:02.836Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705085,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T11:07:02.836Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705085,
+        "churn": 1,
+        "would_enter": [
+          308216
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T11:07:02.836Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 705085,
+        "churn": 2,
+        "would_enter": [
+          308216,
+          308264
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T09:22:03.490Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704585,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308480
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308298,
+          117887,
+          265170,
+          298214,
+          273772,
+          308480
+        ]
+      },
+      {
+        "ts": "2026-09-15T09:22:03.490Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704585,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308480
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308298,
+          117887,
+          265170,
+          298214,
+          273772,
+          308480
+        ]
+      },
+      {
+        "ts": "2026-09-15T09:22:03.490Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704585,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308480
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308298,
+          117887,
+          265170,
+          298214,
+          273772,
+          308480
+        ]
+      },
+      {
+        "ts": "2026-09-15T09:07:04.305Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704545,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308456,
+          288200,
+          303592,
+          308282,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T09:07:04.305Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704545,
+        "churn": 1,
+        "would_enter": [
+          308216
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308456,
+          288200,
+          303592,
+          308282,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T09:07:04.305Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704545,
+        "churn": 2,
+        "would_enter": [
+          308216,
+          308264
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308456,
+          288200,
+          303592,
+          308282,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-15T07:37:03.703Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704115,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308242
+        ]
+      },
+      {
+        "ts": "2026-09-15T07:37:03.703Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704115,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308242
+        ]
+      },
+      {
+        "ts": "2026-09-15T07:37:03.703Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704115,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308242
+        ]
+      },
+      {
+        "ts": "2026-09-15T07:07:05.995Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704015,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308478
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308282,
+          308478,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T07:07:05.995Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704015,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308478
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308282,
+          308478,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T07:07:05.995Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 704015,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308478
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308282,
+          308478,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T05:22:03.099Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 703475,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308478
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772,
+          308478
+        ]
+      },
+      {
+        "ts": "2026-09-15T05:22:03.099Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 703475,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308478
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772,
+          308478
+        ]
+      },
+      {
+        "ts": "2026-09-15T05:22:03.099Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 703475,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308478
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772,
+          308478
+        ]
+      },
+      {
+        "ts": "2026-09-15T05:22:02.425Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 703465,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T05:22:02.425Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 703465,
+        "churn": 1,
+        "would_enter": [
+          308216
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T05:22:02.425Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 703465,
+        "churn": 1,
+        "would_enter": [
+          308216
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T05:07:03.834Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 703415,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308278,
+          308300
+        ]
+      },
+      {
+        "ts": "2026-09-15T05:07:03.834Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 703415,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308278,
+          308300
+        ]
+      },
+      {
+        "ts": "2026-09-15T05:07:03.834Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 703415,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308278,
+          308300
+        ]
+      },
+      {
+        "ts": "2026-09-15T03:22:03.665Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702915,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T03:22:03.665Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702915,
+        "churn": 2,
+        "would_enter": [
+          308316,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T03:22:03.665Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702915,
+        "churn": 2,
+        "would_enter": [
+          308316,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-15T02:52:03.375Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702785,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308248
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308248,
+          308256
+        ]
+      },
+      {
+        "ts": "2026-09-15T02:52:03.375Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702785,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308248
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308248,
+          308256
+        ]
+      },
+      {
+        "ts": "2026-09-15T02:52:03.375Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702785,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308248
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308248,
+          308256
+        ]
+      },
+      {
+        "ts": "2026-09-15T02:22:05.983Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702685,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308252,
+          308494,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T02:22:05.983Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702685,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308252,
+          308494,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T02:22:05.983Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702685,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308252,
+          308494,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T01:52:03.870Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702505,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308242
+        ]
+      },
+      {
+        "ts": "2026-09-15T01:52:03.870Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702505,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308242
+        ]
+      },
+      {
+        "ts": "2026-09-15T01:52:03.870Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702505,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308242
+        ]
+      },
+      {
+        "ts": "2026-09-15T01:37:03.530Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702435,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308266,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-15T01:37:03.530Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702435,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308266,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-15T01:37:03.530Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702435,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308266,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-15T01:22:05.959Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702405,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308290,
+          308310,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T01:22:05.959Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702405,
+        "churn": 1,
+        "would_enter": [
+          308216
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308290,
+          308310,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-15T01:22:05.959Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 702405,
+        "churn": 1,
+        "would_enter": [
+          308216
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308290,
+          308310,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T23:37:06.166Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701915,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          308457,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T23:37:06.166Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701915,
+        "churn": 1,
+        "would_enter": [
+          308218
+        ],
+        "would_leave": [
+          308457
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          308457,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T23:37:06.166Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701915,
+        "churn": 1,
+        "would_enter": [
+          308218
+        ],
+        "would_leave": [
+          308457
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          308457,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T23:37:03.105Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701865,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308290,
+          308310,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T23:37:03.105Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701865,
+        "churn": 1,
+        "would_enter": [
+          308216
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308290,
+          308310,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T23:37:03.105Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701865,
+        "churn": 1,
+        "would_enter": [
+          308216
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308290,
+          308310,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T22:37:04.387Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701605,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308252,
+          308494,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T22:37:04.387Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701605,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308252,
+          308494,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T22:37:04.387Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701605,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308252,
+          308494,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T22:37:02.361Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701575,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308491
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          117886,
+          308491,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T22:37:02.361Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701575,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308491
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          117886,
+          308491,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T22:37:02.361Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701575,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308491
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          117886,
+          308491,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:52:06.082Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701425,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308246,
+          308242,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:52:06.082Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701425,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308246,
+          308242,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:52:06.082Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701425,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308246,
+          308242,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:52:03.036Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701375,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          117886,
+          308457,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:52:03.036Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701375,
+        "churn": 1,
+        "would_enter": [
+          308218
+        ],
+        "would_leave": [
+          308457
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          117886,
+          308457,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:52:03.036Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701375,
+        "churn": 1,
+        "would_enter": [
+          308218
+        ],
+        "would_leave": [
+          308457
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          117886,
+          308457,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:37:06.077Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701355,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308266,
+          308232,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:37:06.077Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701355,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308266,
+          308232,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:37:06.077Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701355,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308266,
+          308232,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:37:03.632Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701315,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308282,
+          308310
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:37:03.632Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701315,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308282,
+          308310
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:37:03.632Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701315,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308282,
+          308310
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:22:05.931Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701285,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308456
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308456,
+          308306,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:22:05.931Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701285,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308456
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308456,
+          308306,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T21:22:05.931Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701285,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308456
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308456,
+          308306,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T20:52:03.372Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701095,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          308236,
+          265170,
+          298214,
+          273772,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-14T20:52:03.372Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701095,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          308236,
+          265170,
+          298214,
+          273772,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-14T20:52:03.372Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701095,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          308236,
+          265170,
+          298214,
+          273772,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-14T20:37:05.220Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701065,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308252,
+          118081,
+          308494,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-14T20:37:05.220Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701065,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308252,
+          118081,
+          308494,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-14T20:37:05.220Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 701065,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308252,
+          118081,
+          308494,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-14T20:07:03.240Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700885,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308246,
+          117887,
+          265170,
+          308242,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T20:07:03.240Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700885,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308246,
+          117887,
+          265170,
+          308242,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T20:07:03.240Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700885,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308242
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308246,
+          117887,
+          265170,
+          308242,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T19:52:04.244Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700835,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          285037,
+          308457,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T19:52:04.244Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700835,
+        "churn": 1,
+        "would_enter": [
+          308218
+        ],
+        "would_leave": [
+          308457
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          285037,
+          308457,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T19:52:04.244Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700835,
+        "churn": 1,
+        "would_enter": [
+          308218
+        ],
+        "would_leave": [
+          308457
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308304,
+          285037,
+          308457,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T19:52:03.022Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700815,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308266,
+          117887,
+          265170,
+          308232,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T19:52:03.022Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700815,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308266,
+          117887,
+          265170,
+          308232,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T19:52:03.022Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700815,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308266,
+          117887,
+          265170,
+          308232,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T18:52:04.276Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700555,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308236,
+          285044,
+          298048,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-14T18:52:04.276Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700555,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308236,
+          285044,
+          298048,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-14T18:52:04.276Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700555,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308236,
+          285044,
+          298048,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-14T17:37:06.443Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700235,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308282,
+          308310,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T17:37:06.443Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700235,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308282,
+          308310,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T17:37:06.443Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700235,
+        "churn": 1,
+        "would_enter": [
+          308238
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308282,
+          308310,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T17:37:05.804Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700225,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          308282,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-14T17:37:05.804Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700225,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          308282,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-14T17:37:05.804Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 700225,
+        "churn": 1,
+        "would_enter": [
+          308292
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          308282,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-14T16:52:03.448Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699985,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308252,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-14T16:52:03.448Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699985,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308252,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-14T16:52:03.448Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699985,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308252,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-14T16:37:02.950Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699905,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308222,
+          308468,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T16:37:02.950Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699905,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308222,
+          308468,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T16:37:02.950Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699905,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308222,
+          308468,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T15:52:05.449Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699735,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308266,
+          285483,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-14T15:52:05.449Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699735,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308266,
+          285483,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-14T15:52:05.449Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699735,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308266,
+          285483,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-14T15:52:02.977Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699695,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308290,
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308290,
+          308310,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T15:52:02.977Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699695,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308290,
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308290,
+          308310,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T15:52:02.977Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699695,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308290,
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308290,
+          308310,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T14:37:04.239Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699365,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308222,
+          308468,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T14:37:04.239Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699365,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308222,
+          308468,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T14:37:04.239Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699365,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308222,
+          308468,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T14:22:03.829Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699285,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308244
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308254,
+          308244
+        ]
+      },
+      {
+        "ts": "2026-09-14T14:22:03.829Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699285,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308244
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308254,
+          308244
+        ]
+      },
+      {
+        "ts": "2026-09-14T14:22:03.829Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699285,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308244
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308254,
+          308244
+        ]
+      },
+      {
+        "ts": "2026-09-14T14:07:02.159Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699195,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308266,
+          117887,
+          265170,
+          308232,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T14:07:02.159Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699195,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308266,
+          117887,
+          265170,
+          308232,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T14:07:02.159Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699195,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308266,
+          117887,
+          265170,
+          308232,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T13:52:04.212Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699155,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308290,
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308290,
+          308310,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T13:52:04.212Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699155,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308290,
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308290,
+          308310,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T13:52:04.212Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 699155,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308290,
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308290,
+          308310,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T12:07:03.130Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698655,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308266,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-14T12:07:03.130Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698655,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308266,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-14T12:07:03.130Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698655,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308266,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-14T11:52:04.732Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698595,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308456,
+          288200,
+          303592,
+          308282,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T11:52:04.732Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698595,
+        "churn": 2,
+        "would_enter": [
+          308306,
+          308316
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308456,
+          288200,
+          303592,
+          308282,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T11:52:04.732Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698595,
+        "churn": 2,
+        "would_enter": [
+          308306,
+          308316
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308456,
+          288200,
+          303592,
+          308282,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-14T11:07:07.563Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698415,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308314,
+          308276,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T11:07:07.563Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698415,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308314,
+          308276,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T11:07:07.563Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698415,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308314,
+          308276,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T10:52:02.651Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698285,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308222,
+          308468,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T10:52:02.651Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698285,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308222,
+          308468,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T10:52:02.651Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698285,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308222,
+          308468,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T10:37:01.930Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698215,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308463
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308254,
+          117887,
+          308463,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T10:37:01.930Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698215,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308463
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308254,
+          117887,
+          308463,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T10:37:01.930Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698215,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308463
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308254,
+          117887,
+          308463,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:52:06.829Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698065,
+        "churn": 1,
+        "would_enter": [
+          308316
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308282,
+          308310,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:52:06.829Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698065,
+        "churn": 1,
+        "would_enter": [
+          308316
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308282,
+          308310,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:52:06.829Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698065,
+        "churn": 1,
+        "would_enter": [
+          308316
+        ],
+        "would_leave": [
+          308310
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308282,
+          308310,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:52:06.231Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698055,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          308282,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:52:06.231Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698055,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          308282,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:52:06.231Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 698055,
+        "churn": 1,
+        "would_enter": [
+          308306
+        ],
+        "would_leave": [
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          308282,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:22:03.231Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 697875,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308314,
+          117887,
+          265170,
+          308276,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:22:03.231Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 697875,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308314,
+          117887,
+          265170,
+          308276,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:22:03.231Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 697875,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308314,
+          117887,
+          265170,
+          308276,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:07:05.918Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 697855,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308308,
+          308262,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:07:05.918Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 697855,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308308,
+          308262,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:07:05.918Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 697855,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308308,
+          308262,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:07:03.443Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 697815,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308234,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:07:03.443Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 697815,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308234,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-14T09:07:03.443Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 697815,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308234,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-13T08:22:04.006Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 690885,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308252,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-13T08:22:04.006Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 690885,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308252,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-13T08:22:04.006Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 690885,
+        "churn": 1,
+        "would_enter": [
+          308274
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308252,
+          308494
+        ]
+      },
+      {
+        "ts": "2026-09-13T07:52:06.047Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 690775,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308294,
+          118081,
+          308468,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-13T07:52:06.047Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 690775,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308294,
+          118081,
+          308468,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-13T07:52:06.047Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 690775,
+        "churn": 1,
+        "would_enter": [
+          308230
+        ],
+        "would_leave": [
+          308468
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308294,
+          118081,
+          308468,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-13T06:22:03.249Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 690315,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308234,
+          117886,
+          117887,
+          265170,
+          308276,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-13T06:22:03.249Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 690315,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308234,
+          117886,
+          117887,
+          265170,
+          308276,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-13T06:22:03.249Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 690315,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308234,
+          117886,
+          117887,
+          265170,
+          308276,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-13T03:37:06.369Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 689595,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308258
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308246,
+          308258,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-13T03:37:06.369Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 689595,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308258
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308246,
+          308258,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-13T03:37:06.369Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 689595,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308258
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308246,
+          308258,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-13T03:22:02.440Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 689465,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-13T03:22:02.440Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 689465,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-13T03:22:02.440Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 689465,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-13T01:52:03.692Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 689065,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308463
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308463
+        ]
+      },
+      {
+        "ts": "2026-09-13T01:52:03.692Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 689065,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308463
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308463
+        ]
+      },
+      {
+        "ts": "2026-09-13T01:52:03.692Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 689065,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308463
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308246,
+          308463
+        ]
+      },
+      {
+        "ts": "2026-09-13T01:22:04.107Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 688925,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308456,
+          308282
+        ]
+      },
+      {
+        "ts": "2026-09-13T01:22:04.107Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 688925,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308456,
+          308282
+        ]
+      },
+      {
+        "ts": "2026-09-13T01:22:04.107Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 688925,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308456,
+          308282
+        ]
+      },
+      {
+        "ts": "2026-09-13T01:07:04.967Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 688855,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308272,
+          308278
+        ]
+      },
+      {
+        "ts": "2026-09-13T01:07:04.967Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 688855,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308272,
+          308278
+        ]
+      },
+      {
+        "ts": "2026-09-13T01:07:04.967Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 688855,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308272,
+          308278
+        ]
+      },
+      {
+        "ts": "2026-09-12T23:07:04.345Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 688285,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308477
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          265170,
+          308288,
+          298214,
+          273772,
+          308477
+        ]
+      },
+      {
+        "ts": "2026-09-12T23:07:04.345Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 688285,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308477
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          265170,
+          308288,
+          298214,
+          273772,
+          308477
+        ]
+      },
+      {
+        "ts": "2026-09-12T23:07:04.345Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 688285,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308477
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          265170,
+          308288,
+          298214,
+          273772,
+          308477
+        ]
+      },
+      {
+        "ts": "2026-09-12T21:22:06.243Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687845,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308456,
+          308282,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-12T21:22:06.243Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687845,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308456,
+          308282,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-12T21:22:06.243Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687845,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308456,
+          308282,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-12T21:07:04.211Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687745,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308477
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308288,
+          308477
+        ]
+      },
+      {
+        "ts": "2026-09-12T21:07:04.211Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687745,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308477
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308288,
+          308477
+        ]
+      },
+      {
+        "ts": "2026-09-12T21:07:04.211Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687745,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308477
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308288,
+          308477
+        ]
+      },
+      {
+        "ts": "2026-09-12T20:07:02.756Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687445,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308463
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308246,
+          117887,
+          308463,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T20:07:02.756Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687445,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308463
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308246,
+          117887,
+          308463,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T20:07:02.756Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687445,
+        "churn": 1,
+        "would_enter": [
+          308270
+        ],
+        "would_leave": [
+          308463
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308246,
+          117887,
+          308463,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T19:22:07.341Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687285,
+        "churn": 2,
+        "would_enter": [
+          308300,
+          308316
+        ],
+        "would_leave": [
+          308226,
+          308448
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308226,
+          308448,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-12T19:22:07.341Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687285,
+        "churn": 2,
+        "would_enter": [
+          308300,
+          308316
+        ],
+        "would_leave": [
+          308226,
+          308448
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308226,
+          308448,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-12T19:22:07.341Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687285,
+        "churn": 2,
+        "would_enter": [
+          308300,
+          308316
+        ],
+        "would_leave": [
+          308226,
+          308448
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308226,
+          308448,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-12T19:07:06.730Z",
+        "agent": "lex",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687215,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308479
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308478,
+          308479,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-12T19:07:06.730Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687215,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308479
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308478,
+          308479,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-12T19:07:06.730Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687215,
+        "churn": 1,
+        "would_enter": [
+          308264
+        ],
+        "would_leave": [
+          308479
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308478,
+          308479,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-12T18:52:03.400Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687095,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308224
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308234,
+          117886,
+          117887,
+          265170,
+          308224,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T18:52:03.400Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687095,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308224
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308234,
+          117886,
+          117887,
+          265170,
+          308224,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T18:52:03.400Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687095,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308224
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308234,
+          117886,
+          117887,
+          265170,
+          308224,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T18:37:04.654Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687045,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-12T18:37:04.654Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687045,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-12T18:37:04.654Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 687045,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-12T17:37:03.312Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686745,
+        "churn": 2,
+        "would_enter": [
+          308300,
+          308316
+        ],
+        "would_leave": [
+          308226,
+          308448
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308226,
+          117886,
+          308448,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T17:37:03.312Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686745,
+        "churn": 2,
+        "would_enter": [
+          308300,
+          308316
+        ],
+        "would_leave": [
+          308226,
+          308448
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308226,
+          117886,
+          308448,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T17:37:03.312Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686745,
+        "churn": 2,
+        "would_enter": [
+          308300,
+          308316
+        ],
+        "would_leave": [
+          308226,
+          308448
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308226,
+          117886,
+          308448,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T17:22:05.683Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686715,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308306,
+          285483,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-12T17:22:05.683Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686715,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308306,
+          285483,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-12T17:22:05.683Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686715,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308306,
+          285483,
+          308232
+        ]
+      },
+      {
+        "ts": "2026-09-12T17:22:04.432Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686695,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308272,
+          308278,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-12T17:22:04.432Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686695,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308272,
+          308278,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-12T17:22:04.432Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686695,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          308272,
+          308278,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-12T16:37:05.246Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686505,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308322,
+          118081,
+          285483,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-12T16:37:05.246Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686505,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308322,
+          118081,
+          285483,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-12T16:37:05.246Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686505,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          308322,
+          118081,
+          285483,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-12T15:37:05.352Z",
+        "agent": "forge",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686225,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          308282,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-12T15:37:05.352Z",
+        "agent": "forge",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686225,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          308282,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-12T15:37:05.352Z",
+        "agent": "forge",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686225,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118077,
+          225312,
+          305685,
+          118081,
+          308456,
+          308282,
+          285483
+        ]
+      },
+      {
+        "ts": "2026-09-12T15:37:02.039Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686175,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308306,
+          117887,
+          265170,
+          308232,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T15:37:02.039Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686175,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308306,
+          117887,
+          265170,
+          308232,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T15:37:02.039Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 686175,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308232
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308306,
+          117887,
+          265170,
+          308232,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:52:02.083Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685685,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:52:02.083Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685685,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:52:02.083Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685685,
+        "churn": 2,
+        "would_enter": [
+          308292,
+          308238
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:37:03.938Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685645,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308320
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308318,
+          308320
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:37:03.938Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685645,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308320
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308318,
+          308320
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:37:03.938Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685645,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308320
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          288200,
+          303592,
+          285044,
+          298048,
+          308318,
+          308320
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:37:01.875Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685615,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308272,
+          308278,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:37:01.875Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685615,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308272,
+          308278,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:37:01.875Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685615,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308272,
+          308278,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:07:02.512Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685475,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308224
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308234,
+          117886,
+          117887,
+          265170,
+          308224,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:07:02.512Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685475,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308224
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308234,
+          117886,
+          117887,
+          265170,
+          308224,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T13:07:02.512Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685475,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308224
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308234,
+          117886,
+          117887,
+          265170,
+          308224,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T12:52:03.630Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685425,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308322,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-12T12:52:03.630Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685425,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308322,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-12T12:52:03.630Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685425,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308262
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308322,
+          308262
+        ]
+      },
+      {
+        "ts": "2026-09-12T11:52:03.335Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685135,
+        "churn": 2,
+        "would_enter": [
+          308300,
+          308316
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T11:52:03.335Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685135,
+        "churn": 2,
+        "would_enter": [
+          308300,
+          308316
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T11:52:03.335Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685135,
+        "churn": 2,
+        "would_enter": [
+          308300,
+          308316
+        ],
+        "would_leave": [
+          308456,
+          308282
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          308456,
+          308282,
+          117887,
+          265170,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T11:37:04.192Z",
+        "agent": "atlas",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685075,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308272,
+          308278
+        ]
+      },
+      {
+        "ts": "2026-09-12T11:37:04.192Z",
+        "agent": "atlas",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685075,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308272,
+          308278
+        ]
+      },
+      {
+        "ts": "2026-09-12T11:37:04.192Z",
+        "agent": "atlas",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 685075,
+        "churn": 1,
+        "would_enter": [
+          308296
+        ],
+        "would_leave": [
+          308278
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          118111,
+          118085,
+          118756,
+          119532,
+          119814,
+          308272,
+          308278
+        ]
+      },
+      {
+        "ts": "2026-09-12T11:07:04.750Z",
+        "agent": "boris",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 684945,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308234,
+          308494,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-12T11:07:04.750Z",
+        "agent": "boris",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 684945,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308234,
+          308494,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-12T11:07:04.750Z",
+        "agent": "boris",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 684945,
+        "churn": 1,
+        "would_enter": [
+          308284
+        ],
+        "would_leave": [
+          308494
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          285037,
+          308234,
+          308494,
+          288200,
+          303592,
+          285044,
+          298048
+        ]
+      },
+      {
+        "ts": "2026-09-12T09:52:02.703Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 684565,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308320
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          265170,
+          308318,
+          308320,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T09:52:02.703Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 684565,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308320
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          265170,
+          308318,
+          308320,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T09:52:02.703Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 684565,
+        "churn": 1,
+        "would_enter": [
+          308286
+        ],
+        "would_leave": [
+          308320
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          117886,
+          117887,
+          265170,
+          308318,
+          308320,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T09:07:02.699Z",
+        "agent": "nox",
+        "w": 2,
+        "boosts_emitidos": 19,
+        "rowid_corte": 684365,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          117886,
+          117887,
+          265170,
+          308276,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T09:07:02.699Z",
+        "agent": "nox",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 684365,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          117886,
+          117887,
+          265170,
+          308276,
+          298214,
+          273772
+        ]
+      },
+      {
+        "ts": "2026-09-12T09:07:02.699Z",
+        "agent": "nox",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 684365,
+        "churn": 1,
+        "would_enter": [
+          308280
+        ],
+        "would_leave": [
+          308276
+        ],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308322,
+          117886,
+          117887,
+          265170,
+          308276,
+          298214,
+          273772
+        ]
+      }
+    ],
+    "controle_positivo": {
+      "doses_absurdas": [
+        100000
+      ],
+      "mexeu_em_algum_estado": true,
+      "veredito": "PASSA — o canal existe e responde à dose"
+    }
+  }
+}

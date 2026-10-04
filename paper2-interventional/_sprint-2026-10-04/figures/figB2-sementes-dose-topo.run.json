@@ -1,0 +1,33 @@
+{
+ "svg": "_sprint-2026-10-04/figures/figB2-sementes-dose-topo.svg",
+ "sementes": 2000,
+ "K": 20,
+ "dist": {
+  "0": 36,
+  "1": 203,
+  "2": 355,
+  "3": 506,
+  "4": 447,
+  "5": 290,
+  "6": 114,
+  "7": 34,
+  "8": 13,
+  "9": 2
+ },
+ "moda": 3,
+ "media": 3.3565,
+ "esperado": 3.3333,
+ "desenho": {
+  "control": 117,
+  "w2": 39,
+  "w4": 39,
+  "w7.5": 39
+ },
+ "realizado": 1,
+ "realizado_serving": 1,
+ "deficit": -2.3333,
+ "quota_truncamento": -0.0099,
+ "quota_sorteio": 1.0099,
+ "ep_mc_media": 0.0347,
+ "png": "_sprint-2026-10-04/figures/figB2-sementes-dose-topo.png"
+}

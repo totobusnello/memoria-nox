@@ -1,0 +1,1750 @@
+{
+ "pares": {
+  "A_vs_B (26/08 vs 30/08, dose arm)": {
+   "L1_state_key_equal": 350,
+   "sensitive_x": 17,
+   "sensitive_y": 17,
+   "sensitive_in_common": 17,
+   "L2_sensitive_set_identical": true,
+   "L3_per_state_identical": 350,
+   "sensitive_states": [
+    {
+     "i": 40,
+     "ts": "2026-08-27T07:37:02.488Z",
+     "agent": "nox",
+     "enter_x": [
+      308284
+     ],
+     "leave_x": [
+      308282
+     ],
+     "enter_y": [
+      308284
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 49,
+     "ts": "2026-08-27T07:07:06.241Z",
+     "agent": "lex",
+     "enter_x": [
+      308292,
+      308230
+     ],
+     "leave_x": [
+      308494,
+      308234
+     ],
+     "enter_y": [
+      308292,
+      308230
+     ],
+     "leave_y": [
+      308494,
+      308234
+     ]
+    },
+    {
+     "i": 87,
+     "ts": "2026-08-27T05:52:07.837Z",
+     "agent": "boris",
+     "enter_x": [
+      308300
+     ],
+     "leave_x": [
+      308272
+     ],
+     "enter_y": [
+      308300
+     ],
+     "leave_y": [
+      308272
+     ]
+    },
+    {
+     "i": 94,
+     "ts": "2026-08-27T05:37:05.210Z",
+     "agent": "boris",
+     "enter_x": [
+      308284
+     ],
+     "leave_x": [
+      308282
+     ],
+     "enter_y": [
+      308284
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 97,
+     "ts": "2026-08-27T05:37:02.944Z",
+     "agent": "nox",
+     "enter_x": [
+      308280
+     ],
+     "leave_x": [
+      308252
+     ],
+     "enter_y": [
+      308280
+     ],
+     "leave_y": [
+      308252
+     ]
+    },
+    {
+     "i": 147,
+     "ts": "2026-08-27T03:37:06.760Z",
+     "agent": "lex",
+     "enter_x": [
+      308286
+     ],
+     "leave_x": [
+      308282
+     ],
+     "enter_y": [
+      308286
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 152,
+     "ts": "2026-08-27T03:37:03.158Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 203,
+     "ts": "2026-08-27T01:37:06.113Z",
+     "agent": "lex",
+     "enter_x": [
+      308222,
+      308284
+     ],
+     "leave_x": [
+      308322,
+      308278
+     ],
+     "enter_y": [
+      308222,
+      308284
+     ],
+     "leave_y": [
+      308322,
+      308278
+     ]
+    },
+    {
+     "i": 206,
+     "ts": "2026-08-27T01:37:04.300Z",
+     "agent": "boris",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 251,
+     "ts": "2026-08-27T00:07:02.076Z",
+     "agent": "nox",
+     "enter_x": [
+      308312
+     ],
+     "leave_x": [
+      308463
+     ],
+     "enter_y": [
+      308312
+     ],
+     "leave_y": [
+      308463
+     ]
+    },
+    {
+     "i": 257,
+     "ts": "2026-08-26T23:52:03.161Z",
+     "agent": "nox",
+     "enter_x": [
+      308222,
+      308284
+     ],
+     "leave_x": [
+      308322,
+      308278
+     ],
+     "enter_y": [
+      308222,
+      308284
+     ],
+     "leave_y": [
+      308322,
+      308278
+     ]
+    },
+    {
+     "i": 274,
+     "ts": "2026-08-26T23:07:05.650Z",
+     "agent": "forge",
+     "enter_x": [
+      308264
+     ],
+     "leave_x": [
+      308258
+     ],
+     "enter_y": [
+      308264
+     ],
+     "leave_y": [
+      308258
+     ]
+    },
+    {
+     "i": 314,
+     "ts": "2026-08-26T21:52:02.887Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 319,
+     "ts": "2026-08-26T21:37:04.182Z",
+     "agent": "atlas",
+     "enter_x": [
+      308270
+     ],
+     "leave_x": [
+      308494
+     ],
+     "enter_y": [
+      308270
+     ],
+     "leave_y": [
+      308494
+     ]
+    },
+    {
+     "i": 320,
+     "ts": "2026-08-26T21:37:03.493Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308491
+     ],
+     "enter_y": [
+      308292
+     ],
+     "leave_y": [
+      308491
+     ]
+    },
+    {
+     "i": 321,
+     "ts": "2026-08-26T21:37:02.736Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308468
+     ],
+     "enter_y": [
+      308292
+     ],
+     "leave_y": [
+      308468
+     ]
+    },
+    {
+     "i": 342,
+     "ts": "2026-08-26T20:52:04.856Z",
+     "agent": "nox",
+     "enter_x": [
+      308216
+     ],
+     "leave_x": [
+      308246
+     ],
+     "enter_y": [
+      308216
+     ],
+     "leave_y": [
+      308246
+     ]
+    }
+   ]
+  },
+  "A'_vs_B (26/08 sweep slice vs 30/08)": {
+   "L1_state_key_equal": 350,
+   "sensitive_x": 17,
+   "sensitive_y": 17,
+   "sensitive_in_common": 17,
+   "L2_sensitive_set_identical": true,
+   "L3_per_state_identical": 350,
+   "sensitive_states": [
+    {
+     "i": 40,
+     "ts": "2026-08-27T07:37:02.488Z",
+     "agent": "nox",
+     "enter_x": [
+      308284
+     ],
+     "leave_x": [
+      308282
+     ],
+     "enter_y": [
+      308284
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 49,
+     "ts": "2026-08-27T07:07:06.241Z",
+     "agent": "lex",
+     "enter_x": [
+      308292,
+      308230
+     ],
+     "leave_x": [
+      308494,
+      308234
+     ],
+     "enter_y": [
+      308292,
+      308230
+     ],
+     "leave_y": [
+      308494,
+      308234
+     ]
+    },
+    {
+     "i": 87,
+     "ts": "2026-08-27T05:52:07.837Z",
+     "agent": "boris",
+     "enter_x": [
+      308300
+     ],
+     "leave_x": [
+      308272
+     ],
+     "enter_y": [
+      308300
+     ],
+     "leave_y": [
+      308272
+     ]
+    },
+    {
+     "i": 94,
+     "ts": "2026-08-27T05:37:05.210Z",
+     "agent": "boris",
+     "enter_x": [
+      308284
+     ],
+     "leave_x": [
+      308282
+     ],
+     "enter_y": [
+      308284
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 97,
+     "ts": "2026-08-27T05:37:02.944Z",
+     "agent": "nox",
+     "enter_x": [
+      308280
+     ],
+     "leave_x": [
+      308252
+     ],
+     "enter_y": [
+      308280
+     ],
+     "leave_y": [
+      308252
+     ]
+    },
+    {
+     "i": 147,
+     "ts": "2026-08-27T03:37:06.760Z",
+     "agent": "lex",
+     "enter_x": [
+      308286
+     ],
+     "leave_x": [
+      308282
+     ],
+     "enter_y": [
+      308286
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 152,
+     "ts": "2026-08-27T03:37:03.158Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 203,
+     "ts": "2026-08-27T01:37:06.113Z",
+     "agent": "lex",
+     "enter_x": [
+      308222,
+      308284
+     ],
+     "leave_x": [
+      308322,
+      308278
+     ],
+     "enter_y": [
+      308222,
+      308284
+     ],
+     "leave_y": [
+      308322,
+      308278
+     ]
+    },
+    {
+     "i": 206,
+     "ts": "2026-08-27T01:37:04.300Z",
+     "agent": "boris",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 251,
+     "ts": "2026-08-27T00:07:02.076Z",
+     "agent": "nox",
+     "enter_x": [
+      308312
+     ],
+     "leave_x": [
+      308463
+     ],
+     "enter_y": [
+      308312
+     ],
+     "leave_y": [
+      308463
+     ]
+    },
+    {
+     "i": 257,
+     "ts": "2026-08-26T23:52:03.161Z",
+     "agent": "nox",
+     "enter_x": [
+      308222,
+      308284
+     ],
+     "leave_x": [
+      308322,
+      308278
+     ],
+     "enter_y": [
+      308222,
+      308284
+     ],
+     "leave_y": [
+      308322,
+      308278
+     ]
+    },
+    {
+     "i": 274,
+     "ts": "2026-08-26T23:07:05.650Z",
+     "agent": "forge",
+     "enter_x": [
+      308264
+     ],
+     "leave_x": [
+      308258
+     ],
+     "enter_y": [
+      308264
+     ],
+     "leave_y": [
+      308258
+     ]
+    },
+    {
+     "i": 314,
+     "ts": "2026-08-26T21:52:02.887Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 319,
+     "ts": "2026-08-26T21:37:04.182Z",
+     "agent": "atlas",
+     "enter_x": [
+      308270
+     ],
+     "leave_x": [
+      308494
+     ],
+     "enter_y": [
+      308270
+     ],
+     "leave_y": [
+      308494
+     ]
+    },
+    {
+     "i": 320,
+     "ts": "2026-08-26T21:37:03.493Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308491
+     ],
+     "enter_y": [
+      308292
+     ],
+     "leave_y": [
+      308491
+     ]
+    },
+    {
+     "i": 321,
+     "ts": "2026-08-26T21:37:02.736Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308468
+     ],
+     "enter_y": [
+      308292
+     ],
+     "leave_y": [
+      308468
+     ]
+    },
+    {
+     "i": 342,
+     "ts": "2026-08-26T20:52:04.856Z",
+     "agent": "nox",
+     "enter_x": [
+      308216
+     ],
+     "leave_x": [
+      308246
+     ],
+     "enter_y": [
+      308216
+     ],
+     "leave_y": [
+      308246
+     ]
+    }
+   ]
+  },
+  "C_vs_B (26/08 vs 30/08, control arm)": {
+   "L1_state_key_equal": 350,
+   "sensitive_x": 11,
+   "sensitive_y": 17,
+   "sensitive_in_common": 11,
+   "L2_sensitive_set_identical": false,
+   "L3_per_state_identical": 342,
+   "L4_control_ordered_identical": 350,
+   "L4_control_set_identical": 350,
+   "sensitive_states": [
+    {
+     "i": 40,
+     "ts": "2026-08-27T07:37:02.488Z",
+     "agent": "nox",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308284
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 49,
+     "ts": "2026-08-27T07:07:06.241Z",
+     "agent": "lex",
+     "enter_x": [
+      308292,
+      308230
+     ],
+     "leave_x": [
+      308494,
+      308234
+     ],
+     "enter_y": [
+      308292,
+      308230
+     ],
+     "leave_y": [
+      308494,
+      308234
+     ]
+    },
+    {
+     "i": 87,
+     "ts": "2026-08-27T05:52:07.837Z",
+     "agent": "boris",
+     "enter_x": [
+      308300
+     ],
+     "leave_x": [
+      308272
+     ],
+     "enter_y": [
+      308300
+     ],
+     "leave_y": [
+      308272
+     ]
+    },
+    {
+     "i": 94,
+     "ts": "2026-08-27T05:37:05.210Z",
+     "agent": "boris",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308284
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 97,
+     "ts": "2026-08-27T05:37:02.944Z",
+     "agent": "nox",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308280
+     ],
+     "leave_y": [
+      308252
+     ]
+    },
+    {
+     "i": 147,
+     "ts": "2026-08-27T03:37:06.760Z",
+     "agent": "lex",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308286
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 152,
+     "ts": "2026-08-27T03:37:03.158Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 203,
+     "ts": "2026-08-27T01:37:06.113Z",
+     "agent": "lex",
+     "enter_x": [
+      308222
+     ],
+     "leave_x": [
+      308322
+     ],
+     "enter_y": [
+      308222,
+      308284
+     ],
+     "leave_y": [
+      308322,
+      308278
+     ]
+    },
+    {
+     "i": 206,
+     "ts": "2026-08-27T01:37:04.300Z",
+     "agent": "boris",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 251,
+     "ts": "2026-08-27T00:07:02.076Z",
+     "agent": "nox",
+     "enter_x": [
+      308312
+     ],
+     "leave_x": [
+      308463
+     ],
+     "enter_y": [
+      308312
+     ],
+     "leave_y": [
+      308463
+     ]
+    },
+    {
+     "i": 257,
+     "ts": "2026-08-26T23:52:03.161Z",
+     "agent": "nox",
+     "enter_x": [
+      308222
+     ],
+     "leave_x": [
+      308322
+     ],
+     "enter_y": [
+      308222,
+      308284
+     ],
+     "leave_y": [
+      308322,
+      308278
+     ]
+    },
+    {
+     "i": 274,
+     "ts": "2026-08-26T23:07:05.650Z",
+     "agent": "forge",
+     "enter_x": [
+      308264
+     ],
+     "leave_x": [
+      308258
+     ],
+     "enter_y": [
+      308264
+     ],
+     "leave_y": [
+      308258
+     ]
+    },
+    {
+     "i": 314,
+     "ts": "2026-08-26T21:52:02.887Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 319,
+     "ts": "2026-08-26T21:37:04.182Z",
+     "agent": "atlas",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308270
+     ],
+     "leave_y": [
+      308494
+     ]
+    },
+    {
+     "i": 320,
+     "ts": "2026-08-26T21:37:03.493Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308491
+     ],
+     "enter_y": [
+      308292
+     ],
+     "leave_y": [
+      308491
+     ]
+    },
+    {
+     "i": 321,
+     "ts": "2026-08-26T21:37:02.736Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308468
+     ],
+     "enter_y": [
+      308292
+     ],
+     "leave_y": [
+      308468
+     ]
+    },
+    {
+     "i": 342,
+     "ts": "2026-08-26T20:52:04.856Z",
+     "agent": "nox",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308216
+     ],
+     "leave_y": [
+      308246
+     ]
+    }
+   ]
+  },
+  "C_vs_S (same corpus, other dose+designation; positive check on L4)": {
+   "L1_state_key_equal": 350,
+   "sensitive_x": 11,
+   "sensitive_y": 22,
+   "sensitive_in_common": 8,
+   "L2_sensitive_set_identical": false,
+   "L3_per_state_identical": 333,
+   "L4_control_ordered_identical": 350,
+   "L4_control_set_identical": 350,
+   "sensitive_states": [
+    {
+     "i": 3,
+     "ts": "2026-08-27T08:52:11.500Z",
+     "agent": "boris",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308262
+     ],
+     "leave_y": [
+      308260
+     ]
+    },
+    {
+     "i": 49,
+     "ts": "2026-08-27T07:07:06.241Z",
+     "agent": "lex",
+     "enter_x": [
+      308292,
+      308230
+     ],
+     "leave_x": [
+      308494,
+      308234
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 87,
+     "ts": "2026-08-27T05:52:07.837Z",
+     "agent": "boris",
+     "enter_x": [
+      308300
+     ],
+     "leave_x": [
+      308272
+     ],
+     "enter_y": [
+      308300
+     ],
+     "leave_y": [
+      308272
+     ]
+    },
+    {
+     "i": 97,
+     "ts": "2026-08-27T05:37:02.944Z",
+     "agent": "nox",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308280
+     ],
+     "leave_y": [
+      308252
+     ]
+    },
+    {
+     "i": 102,
+     "ts": "2026-08-27T05:22:03.821Z",
+     "agent": "atlas",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308270
+     ],
+     "leave_y": [
+      308230
+     ]
+    },
+    {
+     "i": 111,
+     "ts": "2026-08-27T05:07:01.945Z",
+     "agent": "nox",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308262
+     ],
+     "leave_y": [
+      308260
+     ]
+    },
+    {
+     "i": 116,
+     "ts": "2026-08-27T04:52:03.994Z",
+     "agent": "atlas",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308232
+     ],
+     "leave_y": [
+      308228
+     ]
+    },
+    {
+     "i": 147,
+     "ts": "2026-08-27T03:37:06.760Z",
+     "agent": "lex",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308286
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 152,
+     "ts": "2026-08-27T03:37:03.158Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 165,
+     "ts": "2026-08-27T03:07:04.213Z",
+     "agent": "atlas",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308262
+     ],
+     "leave_y": [
+      308260
+     ]
+    },
+    {
+     "i": 196,
+     "ts": "2026-08-27T01:52:09.998Z",
+     "agent": "lex",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308318
+     ],
+     "leave_y": [
+      308256
+     ]
+    },
+    {
+     "i": 203,
+     "ts": "2026-08-27T01:37:06.113Z",
+     "agent": "lex",
+     "enter_x": [
+      308222
+     ],
+     "leave_x": [
+      308322
+     ],
+     "enter_y": [
+      308222
+     ],
+     "leave_y": [
+      308322
+     ]
+    },
+    {
+     "i": 206,
+     "ts": "2026-08-27T01:37:04.300Z",
+     "agent": "boris",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 224,
+     "ts": "2026-08-27T00:52:10.891Z",
+     "agent": "lex",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308232
+     ],
+     "leave_y": [
+      308228
+     ]
+    },
+    {
+     "i": 251,
+     "ts": "2026-08-27T00:07:02.076Z",
+     "agent": "nox",
+     "enter_x": [
+      308312
+     ],
+     "leave_x": [
+      308463
+     ],
+     "enter_y": [
+      308312
+     ],
+     "leave_y": [
+      308463
+     ]
+    },
+    {
+     "i": 257,
+     "ts": "2026-08-26T23:52:03.161Z",
+     "agent": "nox",
+     "enter_x": [
+      308222
+     ],
+     "leave_x": [
+      308322
+     ],
+     "enter_y": [
+      308222
+     ],
+     "leave_y": [
+      308322
+     ]
+    },
+    {
+     "i": 274,
+     "ts": "2026-08-26T23:07:05.650Z",
+     "agent": "forge",
+     "enter_x": [
+      308264
+     ],
+     "leave_x": [
+      308258
+     ],
+     "enter_y": [
+      308264
+     ],
+     "leave_y": [
+      308258
+     ]
+    },
+    {
+     "i": 314,
+     "ts": "2026-08-26T21:52:02.887Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 319,
+     "ts": "2026-08-26T21:37:04.182Z",
+     "agent": "atlas",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308270
+     ],
+     "leave_y": [
+      308494
+     ]
+    },
+    {
+     "i": 320,
+     "ts": "2026-08-26T21:37:03.493Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308491
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 321,
+     "ts": "2026-08-26T21:37:02.736Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308468
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 332,
+     "ts": "2026-08-26T21:07:05.309Z",
+     "agent": "boris",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308232
+     ],
+     "leave_y": [
+      308228
+     ]
+    },
+    {
+     "i": 333,
+     "ts": "2026-08-26T21:07:04.209Z",
+     "agent": "atlas",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308232
+     ],
+     "leave_y": [
+      308236
+     ]
+    },
+    {
+     "i": 338,
+     "ts": "2026-08-26T20:52:11.504Z",
+     "agent": "cipher",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308224
+     ],
+     "leave_y": [
+      308254
+     ]
+    },
+    {
+     "i": 342,
+     "ts": "2026-08-26T20:52:04.856Z",
+     "agent": "nox",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308216
+     ],
+     "leave_y": [
+      308246
+     ]
+    }
+   ]
+  },
+  "B_vs_P (negative control: exclusion must break identity)": {
+   "L1_state_key_equal": 350,
+   "sensitive_x": 17,
+   "sensitive_y": 13,
+   "sensitive_in_common": 1,
+   "L2_sensitive_set_identical": false,
+   "L3_per_state_identical": 321,
+   "L4_control_ordered_identical": 1,
+   "L4_control_set_identical": 1,
+   "sensitive_states": [
+    {
+     "i": 36,
+     "ts": "2026-08-27T07:37:05.391Z",
+     "agent": "forge",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308316
+     ],
+     "leave_y": [
+      308272
+     ]
+    },
+    {
+     "i": 40,
+     "ts": "2026-08-27T07:37:02.488Z",
+     "agent": "nox",
+     "enter_x": [
+      308284
+     ],
+     "leave_x": [
+      308282
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 43,
+     "ts": "2026-08-27T07:22:08.602Z",
+     "agent": "forge",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308284
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 49,
+     "ts": "2026-08-27T07:07:06.241Z",
+     "agent": "lex",
+     "enter_x": [
+      308292,
+      308230
+     ],
+     "leave_x": [
+      308494,
+      308234
+     ],
+     "enter_y": [
+      308238
+     ],
+     "leave_y": [
+      308304
+     ]
+    },
+    {
+     "i": 87,
+     "ts": "2026-08-27T05:52:07.837Z",
+     "agent": "boris",
+     "enter_x": [
+      308300
+     ],
+     "leave_x": [
+      308272
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 89,
+     "ts": "2026-08-27T05:52:03.710Z",
+     "agent": "nox",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308300
+     ],
+     "leave_y": [
+      308272
+     ]
+    },
+    {
+     "i": 94,
+     "ts": "2026-08-27T05:37:05.210Z",
+     "agent": "boris",
+     "enter_x": [
+      308284
+     ],
+     "leave_x": [
+      308282
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 96,
+     "ts": "2026-08-27T05:37:03.755Z",
+     "agent": "nox",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308284
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 97,
+     "ts": "2026-08-27T05:37:02.944Z",
+     "agent": "nox",
+     "enter_x": [
+      308280
+     ],
+     "leave_x": [
+      308252
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 100,
+     "ts": "2026-08-27T05:22:08.343Z",
+     "agent": "cipher",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308280
+     ],
+     "leave_y": [
+      308252
+     ]
+    },
+    {
+     "i": 147,
+     "ts": "2026-08-27T03:37:06.760Z",
+     "agent": "lex",
+     "enter_x": [
+      308286
+     ],
+     "leave_x": [
+      308282
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 152,
+     "ts": "2026-08-27T03:37:03.158Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 155,
+     "ts": "2026-08-27T03:22:08.583Z",
+     "agent": "forge",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 203,
+     "ts": "2026-08-27T01:37:06.113Z",
+     "agent": "lex",
+     "enter_x": [
+      308222,
+      308284
+     ],
+     "leave_x": [
+      308322,
+      308278
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 204,
+     "ts": "2026-08-27T01:37:05.541Z",
+     "agent": "forge",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308286
+     ],
+     "leave_y": [
+      308282
+     ]
+    },
+    {
+     "i": 206,
+     "ts": "2026-08-27T01:37:04.300Z",
+     "agent": "boris",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 208,
+     "ts": "2026-08-27T01:37:02.862Z",
+     "agent": "nox",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308274
+     ],
+     "leave_y": [
+      308248
+     ]
+    },
+    {
+     "i": 251,
+     "ts": "2026-08-27T00:07:02.076Z",
+     "agent": "nox",
+     "enter_x": [
+      308312
+     ],
+     "leave_x": [
+      308463
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 253,
+     "ts": "2026-08-26T23:52:09.207Z",
+     "agent": "forge",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308312
+     ],
+     "leave_y": [
+      308463
+     ]
+    },
+    {
+     "i": 254,
+     "ts": "2026-08-26T23:52:08.658Z",
+     "agent": "cipher",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308312
+     ],
+     "leave_y": [
+      308463
+     ]
+    },
+    {
+     "i": 257,
+     "ts": "2026-08-26T23:52:03.161Z",
+     "agent": "nox",
+     "enter_x": [
+      308222,
+      308284
+     ],
+     "leave_x": [
+      308322,
+      308278
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 260,
+     "ts": "2026-08-26T23:37:05.109Z",
+     "agent": "forge",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308222
+     ],
+     "leave_y": [
+      308322
+     ]
+    },
+    {
+     "i": 274,
+     "ts": "2026-08-26T23:07:05.650Z",
+     "agent": "forge",
+     "enter_x": [
+      308264
+     ],
+     "leave_x": [
+      308258
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 276,
+     "ts": "2026-08-26T23:07:04.447Z",
+     "agent": "boris",
+     "enter_x": [],
+     "leave_x": [],
+     "enter_y": [
+      308264
+     ],
+     "leave_y": [
+      308258
+     ]
+    },
+    {
+     "i": 314,
+     "ts": "2026-08-26T21:52:02.887Z",
+     "agent": "nox",
+     "enter_x": [
+      308274
+     ],
+     "leave_x": [
+      308248
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 319,
+     "ts": "2026-08-26T21:37:04.182Z",
+     "agent": "atlas",
+     "enter_x": [
+      308270
+     ],
+     "leave_x": [
+      308494
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 320,
+     "ts": "2026-08-26T21:37:03.493Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308491
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 321,
+     "ts": "2026-08-26T21:37:02.736Z",
+     "agent": "nox",
+     "enter_x": [
+      308292
+     ],
+     "leave_x": [
+      308468
+     ],
+     "enter_y": [],
+     "leave_y": []
+    },
+    {
+     "i": 342,
+     "ts": "2026-08-26T20:52:04.856Z",
+     "agent": "nox",
+     "enter_x": [
+      308216
+     ],
+     "leave_x": [
+      308246
+     ],
+     "enter_y": [],
+     "leave_y": []
+    }
+   ]
+  }
+ },
+ "procedencia": {
+  "A gran-seg": {
+   "corpus": "/var/lib/nox-mem/epochs/e20260826T060003Z.db",
+   "corpus_sha256_primeiros_1MB": "56826f69d6bd32da6c114e2053ddf36f6011a554b7ea1a8986884f4fcafc7c04",
+   "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+   "sondas_excluidas": [],
+   "granularidade_last_served": "seg",
+   "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95",
+   "corte_serve_state": "rowid",
+   "gerado_em": "2026-08-28T11:10:43.716Z"
+  },
+  "A' dose-350-v3": {
+   "corpus": "/var/lib/nox-mem/epochs/e20260826T060003Z.db",
+   "corpus_sha256_primeiros_1MB": "56826f69d6bd32da6c114e2053ddf36f6011a554b7ea1a8986884f4fcafc7c04",
+   "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+   "sondas_excluidas": [],
+   "granularidade_last_served": null,
+   "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95",
+   "corte_serve_state": "rowid",
+   "gerado_em": "2026-08-27T15:48:51.677Z"
+  },
+  "B none-30/08": {
+   "corpus": "/var/lib/nox-mem/epochs/e20260830T060001Z.db",
+   "corpus_sha256_primeiros_1MB": "3679bca88bc8c0700d2d97bf25b9ec06bdd9e04cd6abaf3ce0b17290160549ca",
+   "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+   "sondas_excluidas": [],
+   "granularidade_last_served": "seg",
+   "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95",
+   "corte_serve_state": "rowid",
+   "gerado_em": "2026-08-30T14:20:43.947Z"
+  },
+  "C c-350-v3": {
+   "corpus": "/var/lib/nox-mem/epochs/e20260826T060003Z.db",
+   "corpus_sha256_primeiros_1MB": "56826f69d6bd32da6c114e2053ddf36f6011a554b7ea1a8986884f4fcafc7c04",
+   "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+   "sondas_excluidas": [],
+   "granularidade_last_served": null,
+   "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95",
+   "corte_serve_state": "rowid",
+   "gerado_em": "2026-08-27T15:32:01.142Z"
+  },
+  "P probes-30/08": {
+   "corpus": "/var/lib/nox-mem/epochs/e20260830T060001Z.db",
+   "corpus_sha256_primeiros_1MB": "3679bca88bc8c0700d2d97bf25b9ec06bdd9e04cd6abaf3ce0b17290160549ca",
+   "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+   "sondas_excluidas": [
+    "473f85e8-43ae-4883-baa2-2d76407af941",
+    "c48e8353-cd95-4bd5-997b-dc921e2a0cac",
+    "6ff2d9c4-79f2-4526-8eb5-c42d60bbeea6",
+    "90a105f5-ef33-4135-8e54-b4e978bbb1ee",
+    "66977ec1-2809-44df-91b8-c158ce0e68e8"
+   ],
+   "granularidade_last_served": "seg",
+   "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95",
+   "corte_serve_state": "rowid",
+   "gerado_em": "2026-08-30T14:20:45.936Z"
+  },
+  "S sens-01": {
+   "corpus": "/var/lib/nox-mem/epochs/e20260826T060003Z.db",
+   "corpus_sha256_primeiros_1MB": "56826f69d6bd32da6c114e2053ddf36f6011a554b7ea1a8986884f4fcafc7c04",
+   "designacao_sha256": "72e54b2b1e24a3597b7ba14f112346dcc6b427a894ce4def65352cd1f82a54e4",
+   "sondas_excluidas": [],
+   "granularidade_last_served": "seg",
+   "fonte_brief_ts_sha256": "27dbe9962a2903aaa3a5ead432a4f40e31e8f8f0ac5e42796dd4ec914f0e2e95",
+   "corte_serve_state": "rowid",
+   "gerado_em": "2026-08-28T12:36:22.237Z"
+  }
+ },
+ "veredito": "IDENTITY-LEVEL COMPARABILITY HOLDS"
+}

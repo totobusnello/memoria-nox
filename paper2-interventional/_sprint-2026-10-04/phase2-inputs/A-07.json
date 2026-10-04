@@ -1,0 +1,22 @@
+{
+ "findings": [
+  {
+   "pt_line": 910,
+   "section": "§4.5 (also §3.1 l.277-279, §6 table l.1431, §9 l.1745-1748)",
+   "quote_pt": "e das 25 colunas dessa tabela, **16 não têm escritor** hoje, entre elas a única com identificação por chunk.",
+   "problem": "STALE: the per-chunk writer (top_chunk_ids, top_scores) was restored in production on 2026-08-27 22:18Z (commit 32f78109; query_text deliberately dropped in ffb02a4f 22:39Z). §3.1 says it 'está sem escritor desde 2026-05-19'; the §6 table says 'nulo para sempre depois'; §9 l.1746 is undated. All four are true only for the measured window.",
+   "proposed_en": "[§4.5] …search telemetry recorded mostly the cron's health probe: in a closed 7-day window analysed on 2026-08-27, **325 of 343 rows (94.8%)** fall in the two minutes per hour when the cron fires, leaving **2.6 rows/day** attributable to agents. And of the 25 columns of that table, **16 had no writer** in a census taken on 2026-08-27, among them the only one with per-chunk identification (`top_chunk_ids`). Its writer was restored that night (commit `32f78109`, together with `top_scores`; `query_text` deliberately left out), after the window this paper measures.\n[§3.1] …and the per-chunk telemetry that could have preserved it had no writer from 2026-05-19 14:47Z until 2026-08-27 22:18Z, that is, for the whole exposure window of this paper (§6).\n[§6 table] per-chunk search telemetry **silent** from 2026-05-19 14:47:04, at a deploy boundary (a 1 h 19 min gap in the rows, then null until the writer was restored on 2026-08-27 22:18Z, commit `32f78109`), **without a `CUT`**…\n[§9] …**16 telemetry columns without a writer** during the measurement window (census of 2026-08-27), one of them exactly the one that recorded which chunks search returned. It was restored on 2026-08-27, too late for this window (§6).",
+   "evidence": "git -C ~/Claude/Projetos/nox-workspace log -S top_chunk_ids -> 32f78109 2026-08-27 22:18:34 +0000 'religa a telemetria por chunk', ffb02a4f 22:39:34 +0000; docs/HANDOFF.md l.1547-1549 ('commit 32f78109 na VPS … busca real gravou'); nox-workspace/tools/nox-mem/src/search.ts:641 INSERT includes top_chunk_ids, top_scores. Production writer state today NOT MEASURED.",
+   "source_task": "aging-sweep"
+  }
+ ],
+ "doubts": [
+  "PT linha ~858: 'Até 30/08 essa coluna vinha rotulada apenas (servido)'. Traduzi como 2026-08-30 pela regra do ano único. O ano não está explícito no PT.",
+  "PT 4.5: 'três tabelas de qualidade voltada ao agente com 0 linhas' fica sem nome de tabela. Mantive como está.",
+  "PT 4.5: 'o teto do §5' e 'ver Relação com o pré-registro'. Mantive §5 e traduzi o título da seção como 'Relation to the pre-registration'. Convém conferir se o heading EN dessa seção tem o mesmo nome.",
+  "PT 4.4: 'a dose em vigor no shadow' traduzida como 'the dose in force in the shadow'. 'Em vigor' não está no glossário. O rótulo '(servido)' ficou '(served)'.",
+  "PT 4.4: o item '(4,0 ; 4,4]' usa espaço antes e depois do ponto e vírgula. Mantive a grafia, só com ponto decimal.",
+  "PT 4.4: 'teto 17/350 = 4,86%' e 'w = 2 dá 11/350 = 3,1429%' são coerentes com a tabela. 11/350 = 3.1429% e 17/350 = 4.857%. Nada a corrigir.",
+  "PT 4.5: 'Que 83,78% do corpus nunca tenha chegado ao agente' tem número sem fonte neste trecho. Mantido tal como está."
+ ]
+}

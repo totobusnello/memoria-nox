@@ -1,0 +1,12 @@
+{
+ "findings": [],
+ "doubts": [
+  "PT linha ~480: 'Duas explicações competem' (curadoria vs tamanho) e depois 'O que os testes abaixo separam é artefato de filtro de sinal' - frase longa e um pouco truncada no PT; traduzi literalmente.",
+  "PT: 'dos 10 pequenos, 8 estão acima de 32,5% e 2 estão em zero' - na tabela de 15 tipos os pequenos incluem pending e procedure; a contagem 8+2=10 fecha, mas 'test' e 'lesson' (100%) estão 'acima de 32,5%' e `shared` está exatamente em 32,5% (não 'acima'). Mantive o texto como está.",
+  "PT: 'Os 5 tipos grandes ocupam 10,7-27,0%' e a tabela lista 5 tipos com n>=1.000 (graph_node, daily, team, distilled, other): confere. Mas a tabela lista só 13 tipos, enquanto o texto fala de 15; pending e procedure só aparecem no texto, o que é intencional.",
+  "PT: 'o aggregate de 83,78%' (other sozinho é 49% do corpus) - 83,78% não aparece na tabela nem é definido neste trecho; provavelmente o §4.1. Mantido.",
+  "PT: 'dobro' em 'contra ele −0,709 não seria quase inalterado, seria o dobro': -0,709 contra -0,334 é ~2,1x, ok, mas é dobro em magnitude, não em valor com sinal. Traduzi literalmente como 'double'.",
+  "PT: 'Deixar um tipo de fora move β para dentro de [−1,12 ; −0,51]' e depois 'um único coleção pode quase pela metade' (pode quase reduzir pela metade): -0,51 vs -0,961 é ~47% de redução, consistente. Traduzi como 'nearly halve'.",
+  "O verificador de paridade interpreta o número da seção '4.2' do título como 42 no PT; é artefato conhecido do verificador."
+ ]
+}

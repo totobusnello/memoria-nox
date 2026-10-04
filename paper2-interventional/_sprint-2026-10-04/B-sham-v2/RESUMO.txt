@@ -1,0 +1,22 @@
+[fd] sha=['23378a9ea83cd27d'] readings=12 first=2026-09-10T09:12:16Z last=2026-09-21T09:12:14Z fd_n=[1] equals_served_copy=True equals_preservado=False
+[fd] alinhamento_do_serving motives: {'corpus-DELETADO-e-vivo-so-pelo-fd': 164}
+[prod] states=19567
+[prod] churn>0 per (epoch, modo, w), trial only: 2026-09-01/w4:22, 2026-09-04/w2:35, 2026-09-05/w2:33, 2026-09-06/w7.5:38, 2026-09-08/w2:20, 2026-09-09/w2:19, 2026-09-12/w4:32, 2026-09-14/w4:46, 2026-09-15/w4:32, 2026-09-16/w2:27, 2026-09-19/w2:31
+[prod] churn>0 in w=4 epochs: 132 (= sonda3's 132 if equal); churn>0 in all active epochs: 335
+[prod] states in w=4 active epochs: 2646; active states with ts in [2026-09-03T17:23:30Z, 2026-09-21T09:00Z): 11865
+[campo-22] replayed=22 errors=0 control=22 churn=22 enter=22 boosts==prod=22
+[campo-110] replayed=110 errors=0 control=110 churn=110 enter=110 boosts==prod=110
+[dose-110] w=2 states=110 moved=87 churn_total=97 control==prod=110 churn&enter==prod=85 errors=0
+[dose-110] w=4 states=110 moved=110 churn_total=122 control==prod=110 churn&enter==prod=110 errors=0
+[dose-110] w=100000 states=110 moved=110 churn_total=126 control==prod=110 churn&enter==prod=106 errors=0
+[dose-110] positive control: PASSA — o canal existe e responde à dose
+[pool-22] states=22 errors=0 union=108 intersection=108 sizes={108: 22}
+[pool-110] states=110 errors=0 union=108 intersection=108 sizes={108: 110}
+[shams-impulsionavel] pool=108 non_designated=89 boostable_non_designated=36 sham_pool=36 real_sev={'S2': 9, 'S1': 10} real_mass/w=0.301 boostable_per_sham=[(19, 20)] mass/w range=[0.301, 0.301] pairwise_overlap={'min': 6, 'max': 14, 'media': 10.437}
+[shams-todos] pool=108 non_designated=89 boostable_non_designated=36 sham_pool=89 real_sev={'S2': 9, 'S1': 10} real_mass/w=0.301 boostable_per_sham=[(4, 1), (5, 3), (7, 5), (8, 7), (9, 3), (10, 1)] mass/w range=[0.0645, 0.1505] pairwise_overlap={'min': 0, 'max': 8, 'media': 3.968}
+[cal] REAL-1: states=1 wall=0:10.20 (10s) cpu=11s (user 8 sys 3) rss=1295MB wall/state=10.200s
+[cal] REAL-amostra200: states=200 wall=4:45.35 (285s) cpu=281s (user 138 sys 143) rss=1295MB wall/state=1.427s
+[cal] REAL-w4: states=2646 wall=1:00:31 (3631s) cpu=3592s (user 1737 sys 1855) rss=1295MB wall/state=1.372s
+[cal] REAL-w4 run: {"4.0": {"estados": 2646, "mexeu": 132, "churn_total": 146, "boosts": {"19": 2646}}, "100000.0": {"estados": 2646, "mexeu": 155, "churn_total": 173, "boosts": {"19": 2646}}, "erros": 0}
+[cal] REAL-w4 fidelity: {"estados": 2646, "controle_igual": 2646, "estados_com_w_de_producao": 2646, "churn_e_entra_iguais": 2646, "controle_por_epoch": {"2026-09-01": "630/630", "2026-09-12": "672/672", "2026-09-14": "672/672", "2026-09-15": "672/672"}}
+[cal] REAL-w4 first divergences: []

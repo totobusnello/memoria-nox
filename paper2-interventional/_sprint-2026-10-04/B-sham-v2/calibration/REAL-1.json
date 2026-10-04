@@ -1,0 +1,89 @@
+{
+  "procedencia": {
+    "gerado_em": "2026-10-04T01:46:39.244Z",
+    "modo": "dose",
+    "corte_serve_state": "rowid",
+    "granularidade_last_served": "seg",
+    "corpus": "/var/tmp/sprint-sham-v2-w/db/corpus-SERVING-REAL-e20260903-recuperado.db",
+    "corpus_sha256_primeiros_1MB": "16d128169436cbf852dfe658270c5eef050d182c983c2c22e4049f6e0d4a100c",
+    "vivo": "/var/tmp/sprint-sham-v2-w/db/vivo-v2.db",
+    "designacao": "/var/tmp/sprint-sham-v2-w/in/DESIGNATION-2026-08-26.json",
+    "designacao_sha256": "0a04d2d41c4e3f1c86088223ea834b79a39eaedfec4954595436d1632eda0a76",
+    "designados": 19,
+    "sondas_excluidas": [],
+    "fonte_brief_ts_sha256": "519fa6ab28c36910cd40ed81c2a19a1c4fbf58c0f731e33422681850c40337ee"
+  },
+  "dose": {
+    "log": "/var/tmp/sprint-sham-v2-w/in/p2-serving.ndjson",
+    "estados": 1,
+    "tabela": [
+      {
+        "w": 4,
+        "estados": 1,
+        "mexeu": 0,
+        "churn_total": 0,
+        "boosts": 19
+      },
+      {
+        "w": 100000,
+        "estados": 1,
+        "mexeu": 0,
+        "churn_total": 0,
+        "boosts": 19
+      }
+    ],
+    "detalhe": [
+      {
+        "ts": "2026-09-16T08:52:05.985Z",
+        "agent": "lex",
+        "w": 4,
+        "boosts_emitidos": 19,
+        "rowid_corte": 711225,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308484,
+          308485,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      },
+      {
+        "ts": "2026-09-16T08:52:05.985Z",
+        "agent": "lex",
+        "w": 100000,
+        "boosts_emitidos": 19,
+        "rowid_corte": 711225,
+        "churn": 0,
+        "would_enter": [],
+        "would_leave": [],
+        "ids_controle_replay": [
+          116467,
+          112241,
+          116107,
+          308484,
+          308485,
+          286000,
+          286003,
+          286004,
+          286005,
+          286006
+        ]
+      }
+    ],
+    "controle_positivo": {
+      "doses_absurdas": [
+        100000
+      ],
+      "mexeu_em_algum_estado": false,
+      "veredito": "NO-GO — dose absurda não move nada; o canal não existe"
+    }
+  }
+}

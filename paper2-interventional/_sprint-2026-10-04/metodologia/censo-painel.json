@@ -1,0 +1,63 @@
+{
+  "root": "/Users/lab/Claude/Projetos/7_problems",
+  "receipts": {
+    "source": ".remember/adversary-receipt-*.txt",
+    "files": 132,
+    "unparsed": 0,
+    "first_date": "2026-08-30",
+    "last_date": "2026-10-03",
+    "voice_by_exit": {
+      "codex|exit=0": 29,
+      "codex|exit=1": 6,
+      "codex|exit=124": 1,
+      "deepseek|exit=0": 6,
+      "deepseek|exit=1": 2,
+      "gemini|exit=0": 3,
+      "gemini|exit=1": 2,
+      "glm|exit=0": 18,
+      "glm|exit=1": 2,
+      "grok|exit=0": 14,
+      "grok|exit=1": 13,
+      "kimi|exit=0": 25,
+      "kimi|exit=1": 9,
+      "kimi|exit=124": 1,
+      "kimi|exit=143": 1
+    },
+    "exit0_with_output": {
+      "codex": 29,
+      "deepseek": 6,
+      "gemini": 3,
+      "glm": 18,
+      "grok": 14,
+      "kimi": 25
+    }
+  },
+  "call_log": {
+    "source": "07_MODEL_CALL_LOG.md",
+    "numbered_rows": 134,
+    "last_row_date": "2026-08-29"
+  },
+  "captures": {
+    "capture_manifest_rows": 124,
+    "notes_reviews_files": 67,
+    "notes_adjudications_files": 23
+  },
+  "postmortem": {
+    "source": "14_PROCESS_POSTMORTEM.md",
+    "lines": 1540,
+    "h3_E_entries": 21,
+    "h2_Padrao_sections": 14
+  },
+  "gates": {
+    "nums_py_files": 49,
+    "nums_py_referenced_in_numbers_sh": 48,
+    "present_but_unreferenced": [
+      "nums_gates_executados.py"
+    ],
+    "referenced_but_missing": []
+  },
+  "veripb_artifacts": {
+    "searched": "files named *.pbp or *.opb under PNP_AI/, tools/, verify_repo_stage/ (excl. .git, mathlib, .lake)",
+    "found": []
+  }
+}

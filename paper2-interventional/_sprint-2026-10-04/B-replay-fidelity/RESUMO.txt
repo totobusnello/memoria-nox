@@ -1,0 +1,19 @@
+[log] lines=19572
+[log] distinct ids > 308752 ever served: 93; earliest serve of any: 2026-09-21T09:52:04.072Z
+[sonda3] states=132 control==production (as set): 0
+[sonda3] |replay ∩ production| distribution: {7: 23, 8: 109}
+[sonda3] production fresh_added ids found in replay control: {0: 132}
+[sonda3] ids in replay control but not in production control: [(309062, 132), (309034, 123), (309216, 23), (309117, 9)]
+[sonda3] states where production's would_enter / would_leave id is in replay control: 0 / 0
+[sonda3] states by day: {'2026-09-01': 14, '2026-09-02': 8, '2026-09-12': 24, '2026-09-13': 8, '2026-09-14': 35, '2026-09-15': 29, '2026-09-16': 14}
+[stand-in] campo-preservado-inclusivo control == sonda3 control (ordered): 22/22
+[run] corpus=preservado cut=inclusivo campo(w=[4]): control 0/22 churn 0/22 enter 0/22 | dose: w=2: moved 0/22 (churn 0, boosts 19); w=100000: moved 0/22 (churn 0, boosts 19)
+[run] corpus=preservado cut=rowid     campo(w=[4]): control 0/22 churn 0/22 enter 0/22 | dose: w=2: moved 0/22 (churn 0, boosts 19); w=100000: moved 0/22 (churn 0, boosts 19)
+[run] corpus=servido    cut=inclusivo campo(w=[4]): control 2/22 churn 1/22 enter 0/22 | dose: w=2: moved 0/22 (churn 0, boosts 19); w=100000: moved 1/22 (churn 1, boosts 19)
+[run] corpus=servido    cut=rowid     campo(w=[4]): control 22/22 churn 22/22 enter 22/22 | dose: w=2: moved 17/22 (churn 18, boosts 19); w=100000: moved 22/22 (churn 24, boosts 19)
+[strata] corpus=servido    cut=rowid     n=22 pool=(108, 108.0, 108) never_served=(0, 0.0, 0) strata=(35, 39.0, 44) singletons=(0, 0.0, 1) boundary_size(min,med,max)=(3,4.0,4) boundary_NULL=0 states_with_designated_in_boundary=22 first_designated_pos=(0, 2.0, 3) enter_ties_leave=22 stratum_size_hist={1: 1, 2: 530, 3: 1, 4: 328}
+[strata] corpus=servido    cut=estrito   n=22 pool=(108, 108.0, 108) never_served=(0, 0.0, 0) strata=(35, 39.0, 44) singletons=(0, 0.0, 1) boundary_size(min,med,max)=(2,4.0,4) boundary_NULL=0 states_with_designated_in_boundary=18 first_designated_pos=(1, 2.0, 5) enter_ties_leave=22 stratum_size_hist={1: 1, 2: 530, 3: 1, 4: 328}
+[strata] corpus=servido    cut=inclusivo n=22 pool=(108, 108.0, 108) never_served=(0, 0.0, 0) strata=(36, 39.5, 44) singletons=(0, 0.0, 2) boundary_size(min,med,max)=(1,2.0,4) boundary_NULL=0 states_with_designated_in_boundary=9 first_designated_pos=(0, 2.5, 6) enter_ties_leave=8 stratum_size_hist={1: 4, 2: 544, 4: 321}
+[strata] corpus=preservado cut=rowid     n=22 pool=(115, 115.0, 115) never_served=(60, 60.0, 60) strata=(23, 27.0, 28) singletons=(3, 4.5, 7) boundary_size(min,med,max)=(60,60.0,60) boundary_NULL=22 states_with_designated_in_boundary=0 first_designated_pos=(60, 61.0, 63) enter_ties_leave=22 stratum_size_hist={1: 108, 2: 345, 3: 28, 4: 82, 60: 22}
+[strata] corpus=preservado cut=estrito   n=22 pool=(115, 115.0, 115) never_served=(60, 60.0, 60) strata=(23, 27.0, 28) singletons=(3, 4.5, 7) boundary_size(min,med,max)=(60,60.0,60) boundary_NULL=22 states_with_designated_in_boundary=0 first_designated_pos=(61, 61.5, 63) enter_ties_leave=22 stratum_size_hist={1: 108, 2: 345, 3: 28, 4: 82, 60: 22}
+[strata] corpus=preservado cut=inclusivo n=22 pool=(115, 115.0, 115) never_served=(60, 60.0, 60) strata=(24, 27.0, 29) singletons=(3, 5.0, 8) boundary_size(min,med,max)=(60,60.0,60) boundary_NULL=22 states_with_designated_in_boundary=0 first_designated_pos=(60, 62.0, 66) enter_ties_leave=8 stratum_size_hist={1: 111, 2: 359, 3: 27, 4: 75, 60: 22}

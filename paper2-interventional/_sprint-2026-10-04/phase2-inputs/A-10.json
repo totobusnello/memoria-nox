@@ -1,0 +1,40 @@
+{
+ "findings": [
+  {
+   "pt_line": 1534,
+   "section": "§6.2",
+   "quote_pt": "| corpus congelado do estudo interventivo | `sha256`, caminho e modo `0400` declarados | **não existe** — procurado por nome, tamanho e hash; nem o diretório. Com ele foram os **280 episódios adjudicados**, dos quais **zero** sobrevivem no archive vivo |",
+   "problem": "STALE/MISATTRIBUTED: the frozen corpus exists at its declared path on the research host $NOX_LASTRO_HOST, byte-identical to the pin (the 2026-08-30 search covered only the serving machine, DEVIATIONS §9 l.255-256). The 280 adjudicated episodes (adjudicated 2026-08-15 -> 08-21) were never in it: 0/280 ids in its 5,547-episode file. The same false 'does not exist' recurs at l.1542-1547 ('o material julgado sumiu' attributed to the lost corpus) and l.1554-1560 ('Tudo correto, e o arquivo não existe'). The section title 'três vezes' becomes two losses plus one mis-searched artifact.",
+   "proposed_en": "| frozen corpus of the interventional study (`action-archive-20260729T094609Z.tar.gz`) | `sha256`, path and mode `0400` declared | searched on 2026-08-30 by name, size and hash **on the serving machine only**, and reported missing. It is not: on 2026-10-03 it was at its declared path on the other host, with `sha256` equal to the pin (`ba5fcc81…`) and its 3,860-line manifest intact. The **280 adjudicated episodes** (`p2_verdict`, adjudicated 2026-08-15 → 08-21) were never in it (0 of 280 ids among its 5,547 episodes), and none of them survives in the live archive or in the trial lastro |\n\n[replace l.1542-1547:] ⚠️ **The third case shows the cost in its pure form, though not in the way we first wrote it.** The panel adjudicated 280 episodes between 2026-08-15 and 08-21. The table kept `sig_primary`, `severity` and `chunk_id`, and the judged material is gone: 0 of the 280 ids appear in the frozen July corpus or in the trial lastro (checked 2026-10-03). What remains is **verdict without evidence**. The frozen corpus itself was never lost. Our search looked at one host and reported 'does not exist'; the file was at its declared path on the other host, byte-identical to the pin. That search was a guard whose predicate lacked the data, the same class this section catalogues.\n\n[replace l.1557-1560:] A reviewer reading `CORPUS-FREEZE.md` sees a flawless document, and the file is where it says. Our own search still declared it missing, because it covered one host. **No reading distinguishes a valid pin from an orphaned one, and neither does a search scoped too narrowly; only retrieving the artifact does.**",
+   "evidence": "ssh $NOX_LASTRO_HOST: ls -la /var/backups/nox-mem/paper2-corpus/ -> action-archive-20260729T094609Z.tar.gz 111855897 B, born 2026-07-29; sha256sum -> ba5fcc81f43cede6e40572236be984bc0cc5e450325b115e2b994f5a24cdf382 (= CORPUS-FREEZE.md); manifest sha256 2fe8ba2b…6c5638, 3860 lines; verdicts/full.jsonl 5547 lines. p2_verdict from a /var/tmp copy of corpus-preservado-20260908.db: 280 ids, adjudicated_at 2026-08-15T09:30:20Z..2026-08-21T02:43:22Z; 0/280 in full.jsonl, 0/280 in calib300-FINAL/peca3-*, 0/280 as episode_id in ~/Backups/paper2-ensaio-2026-09-21/episodios-*.jsonl and alvo-painel. ids saved in _sprint-2026-10-04/A-aging/p2_verdict_ids-280.txt.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1581,
+   "section": "§7 (also Abstract l.66-69, §1 l.142-143, §4.4 l.859-861 and l.877)",
+   "quote_pt": "a intervenção correu em modo **shadow**: o contrafactual é observado, mas nada foi servido tratado. Toda taxa é **taxa de oportunidade**, não efeito.",
+   "problem": "STALE when read today: the separately registered trial served treated briefs from 2026-09-01 10:25:39Z to 2026-09-21 09:43:05Z (11 treatment epochs; w=2 was served active in 6 of them). §4.4 'a dose em vigor no shadow … nunca entregue a agente nenhum' and 'a dose em vigor no shadow reproduz a taxa' read as present-tense facts about the dose. The Abstract's 'o que o agente recebeu foi sempre o controle' has the same scope problem.",
+   "proposed_en": "[§7] - in the window this paper measures (through 2026-08-31), the intervention ran in **shadow** mode: the counterfactual is observed and nothing treated was served, so every rate here is a **rate of opportunity**, not an effect. From 2026-09-01 10:25:39Z to 2026-09-21 09:43:05Z the separately registered trial did serve treated briefs (11 treatment epochs out of 19 with data). Its results are Paper B, not this paper.\n[§4.4] The `w = 2` column is the dose configured for the shadow arm during the measured window: the treated composition under it, over these 350 historical states, was computed and logged and **never delivered to any agent**. (In the later trial, `w = 2` was served in six epochs. That is Paper B's data, not these 350 states.)\n[§4.4 bullet] - the shadow dose of the measured window reproduces the published rate: `w = 2` gives **11/350 = 3.1429%**.\n[Abstract] …and what the agent received during the measured window was always the control (§7).",
+   "evidence": "DEVIATIONS-FOR-PAPER.md §10.29 ('w=2 em 6 (09-04,05,08,09,16,19)'), §10.31(2) (8 control / 11 treatment, 0 divergences vs ASSIGNMENT-SERVING.json); MANUSCRIPT-B.md l.179-180; §10.1 table (shadow w=2 on 08-29..08-31).",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1498,
+   "section": "§6.1 (also l.1458)",
+   "quote_pt": "o campo se chama `slots_historicos_ATE_AGORA_serie_viva` e a grandeza **cresce ~7.500 por dia**",
+   "problem": "NEEDS-DATE: present tense on a live series, in the very paragraph that warns against it. l.1458 'hoje ele diz 10 de 32 — 31,2%' is still true (the artifact has not been rewritten since 2026-08-29 10:03) but undated.",
+   "proposed_en": "the field is named `slots_historicos_ATE_AGORA_serie_viva`, and the quantity **was growing by ~7,500 per day** at the time (583,763 on 2026-08-28 09:52Z; 591,323 on 2026-08-30) […] [l.1458] as of 2026-10-03 it still reads **10 of 32 (31.2%)**, which is the state after the 2026-08-29 round",
+   "evidence": "out/CLAIM-COVERAGE-2026-08-29.json pct_sem_guarda=31.2, alegacoes_curadas=32, mtime Aug 29 10:03; numbers 583,763/591,323 from MANUSCRIPT l.1494-1499 and out/superficie.json.",
+   "source_task": "aging-sweep"
+  }
+ ],
+ "doubts": [
+  "L.1411-1583: o caminho `measurement/censo-de-alegacoes-sem-guarda.py` aparece duplicado na mesma citação (provável erro de digitação no PT); mantido idêntico na tradução.",
+  "A tabela de §6 fala em 'oito' defeitos e o catálogo diz 17 entradas; as 8 linhas da tabela conferem, mas o cabeçalho do §6.1 também usa 'oito' para 'os oito defeitos acima' em §6.2, consistente.",
+  "Em §6.1, `censo-de-universos-no-paragrafo.py` 'tem o `2,66` na sua tabela': mantive `2,66` literal por estar em code span (é o valor como grafado no script), então o token difere de 2.66 de propósito.",
+  "Em §7, 'quebra de regime em 21–22/08' convertido para '08-21–22' (ano omitido, não ISO completo) para manter o intervalo compacto; pode ser trocado por 2026-08-21–22.",
+  "Em §6.1, 'l. 428' (regra citada) mantido como 'l. 428': a numeração de linha do PT pode ter mudado e não tem equivalente no EN.",
+  "Em §6.1 'a frase dizia hoje... três semanas depois seria ~750 mil': 84,7 dias x ~7.500/dia não bate com ~750 mil de forma óbvia; traduzido sem alterar, apenas sinalizo.",
+  "Em §6.1, '1.787 / 67.187 = 2,66%' estava em code span, mas converti para notação inglesa (1,787 / 67,187 = 2.66%) por ser aritmética de prosa, não código; a mesma conversão em '1,635 / 67,187 = 2.43%'."
+ ]
+}

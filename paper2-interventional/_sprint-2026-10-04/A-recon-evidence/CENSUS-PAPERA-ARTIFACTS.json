@@ -1,0 +1,2268 @@
+{
+ "summary": {
+  "manuscript": "paper2-interventional/MANUSCRIPT.md",
+  "manuscript_bytes": 137417,
+  "distinct_cited_tokens": 83,
+  "expanded_paths": 88,
+  "by_status": {
+   "FOUND (repo)": 77,
+   "FOUND (serving source tree, outside this repo)": 5,
+   "MISSING": 1,
+   "OUTSIDE BY DECLARATION": 5
+  },
+  "excluded_tokens": {
+   ".ndjson": [
+    [
+     1375,
+     "extension only, not a file"
+    ],
+    [
+     1938,
+     "extension only, not a file"
+    ]
+   ],
+   "/": [
+    [
+     1507,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1511,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1883,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1900,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1947,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "/api/brief": [
+    [
+     222,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "0/350": [
+    [
+     890,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "10.5281/zenodo.22110203": [
+    [
+     1760,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "17/350": [
+    [
+     882,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1182,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1209,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "20/08": [
+    [
+     791,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "entities/%": [
+    [
+     709,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1432,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "log1p(access_count)/log(1000": [
+    [
+     756,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "memory/entities/%": [
+    [
+     645,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     704,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "sessions/%": [
+    [
+     648,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1432,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "sessions/<agente>/%": [
+    [
+     644,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     703,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "sessions/boris/…": [
+    [
+     707,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ],
+   "slots/distintos": [
+    [
+     424,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1697,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ],
+    [
+     1886,
+     "slash but no file extension (ratio/date/endpoint/pattern)"
+    ]
+   ]
+  },
+  "controls": {
+   "sentinel": "MISSING as required",
+   "positive_bare_name": "ok",
+   "positive_brace_expansion": "ok (4/4)"
+  },
+  "deposit_reference": "Zenodo 10.5281/zenodo.22181415 v1.0 (published MANIFEST, 120 items)"
+ },
+ "rows": [
+  {
+   "cited_as": "BATCH-CYCLE-2026-08-28.json",
+   "path": "BATCH-CYCLE-2026-08-28.json",
+   "lines": [
+    1833
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/BATCH-CYCLE-2026-08-28.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "BATCH-CYCLE-2026-08-29.json",
+   "path": "BATCH-CYCLE-2026-08-29.json",
+   "lines": [
+    1833
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/BATCH-CYCLE-2026-08-29.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json",
+   "path": "CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json",
+   "lines": [
+    1217,
+    1830
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/CEILING-DESIGNATION-SENSITIVITY-2026-08-28.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "CEILING-GRANULARITY-2026-08-28.json",
+   "path": "CEILING-GRANULARITY-2026-08-28.json",
+   "lines": [
+    1184,
+    1828
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/CEILING-GRANULARITY-2026-08-28.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "CHANNEL-ATTRIBUTION-2026-08-29.json",
+   "path": "CHANNEL-ATTRIBUTION-2026-08-29.json",
+   "lines": [
+    723,
+    1832
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/CHANNEL-ATTRIBUTION-2026-08-29.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "CORPUS-FREEZE.md",
+   "path": "CORPUS-FREEZE.md",
+   "lines": [
+    1557
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/CORPUS-FREEZE.md"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "DEVIATIONS-FOR-PAPER.md",
+   "path": "DEVIATIONS-FOR-PAPER.md",
+   "lines": [
+    19,
+    660,
+    1766,
+    1798,
+    2045
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/DEVIATIONS-FOR-PAPER.md"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "DEVIATIONS-FOR-PAPER.md [solto]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "POOL-ELEGIVEL-2026-08-28.json",
+   "path": "POOL-ELEGIVEL-2026-08-28.json",
+   "lines": [
+    665,
+    1831
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/POOL-ELEGIVEL-2026-08-28.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "PREDICTION-2026-08-29.md",
+   "path": "PREDICTION-2026-08-29.md",
+   "lines": [
+    637,
+    1833
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/PREDICTION-2026-08-29.md"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "PROTOCOL-CALIBRATION-2026-08-27.md",
+   "path": "PROTOCOL-CALIBRATION-2026-08-27.md",
+   "lines": [
+    20
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/PROTOCOL-CALIBRATION-2026-08-27.md"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "RELATED-WORK.md",
+   "path": "RELATED-WORK.md",
+   "lines": [
+    1679
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/RELATED-WORK.md"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "REMEDIATION-2026-08-27.md",
+   "path": "REMEDIATION-2026-08-27.md",
+   "lines": [
+    19
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/REMEDIATION-2026-08-27.md"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "REPLAY-OPORTUNIDADE-2026-08-27.md",
+   "path": "REPLAY-OPORTUNIDADE-2026-08-27.md",
+   "lines": [
+    18
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/REPLAY-OPORTUNIDADE-2026-08-27.md"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "REVISAO-ADVERSARIAL-2026-09-21.md",
+   "path": "REVISAO-ADVERSARIAL-2026-09-21.md",
+   "lines": [
+    2020
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/REVISAO-ADVERSARIAL-2026-09-21.md"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "SUPERFICIE-2026-08-27.md",
+   "path": "SUPERFICIE-2026-08-27.md",
+   "lines": [
+    18
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/SUPERFICIE-2026-08-27.md"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "TIEBREAK-EXPOSURE-2026-08-29.json",
+   "path": "TIEBREAK-EXPOSURE-2026-08-29.json",
+   "lines": [
+    1259,
+    1829
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/TIEBREAK-EXPOSURE-2026-08-29.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "ancora-sem-exclusao.json",
+   "path": "ancora-sem-exclusao.json",
+   "lines": [
+    1305
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/out",
+   "repo_paths": [
+    "paper2-interventional/out/ancora-sem-exclusao.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/ancora-sem-exclusao.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "ancora-sondas.json",
+   "path": "ancora-sondas.json",
+   "lines": [
+    622
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/out",
+   "repo_paths": [
+    "paper2-interventional/out/ancora-sondas.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/ancora-sondas.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "brief-diversity.ts",
+   "path": "brief-diversity.ts",
+   "lines": [
+    352,
+    640,
+    1947
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (serving source tree, outside this repo)",
+   "how": "serving source: looked up in nox-mem src trees, not in this repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [
+    "nox-supermem/nox-mem/src/api/brief-diversity.ts",
+    "nox-workspace/tools/nox-mem/src/api/brief-diversity.ts"
+   ],
+   "in_deposit_v1_0": [
+    "serving-brief-diversity.ts [solto, renamed copy]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "brief.ts",
+   "path": "brief.ts",
+   "lines": [
+    350,
+    640,
+    1171,
+    1946
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (serving source tree, outside this repo)",
+   "how": "serving source: looked up in nox-mem src trees, not in this repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [
+    "nox-supermem/nox-mem/src/api/brief.ts",
+    "nox-workspace/tools/nox-mem/src/api/brief.ts"
+   ],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "campo-churn-sem-exclusao.json",
+   "path": "campo-churn-sem-exclusao.json",
+   "lines": [
+    1382
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "OUTSIDE BY DECLARATION",
+   "how": "not in repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": "on the serving machine per §5.7.2, which also declares the pair unusable"
+  },
+  {
+   "cited_as": "campo-churn.json",
+   "path": "campo-churn.json",
+   "lines": [
+    1382
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "OUTSIDE BY DECLARATION",
+   "how": "not in repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": "on the serving machine per §5.7.2, which also declares the pair unusable"
+  },
+  {
+   "cited_as": "censo-de-universos-no-paragrafo.py",
+   "path": "censo-de-universos-no-paragrafo.py",
+   "lines": [
+    1513
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/censo-de-universos-no-paragrafo.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/censo-de-universos-no-paragrafo.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "ciclo-do-lote.py",
+   "path": "ciclo-do-lote.py",
+   "lines": [
+    1833
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/ciclo-do-lote.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/ciclo-do-lote.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "claims_check.py",
+   "path": "claims_check.py",
+   "lines": [
+    1450
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/claims_check.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "claims_check.py [solto]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "e20260826T060003Z.db",
+   "path": "e20260826T060003Z.db",
+   "lines": [
+    1150,
+    1366,
+    1532,
+    1937
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "OUTSIDE BY DECLARATION",
+   "how": "not in repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": "epoch snapshot on the serving VPS; the manuscript (§5.7.2) states it was rotated"
+  },
+  {
+   "cited_as": "empates-por-granularidade.py",
+   "path": "empates-por-granularidade.py",
+   "lines": [
+    1829
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/empates-por-granularidade.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/empates-por-granularidade.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "fig1-capacidade.py",
+   "path": "fig1-capacidade.py",
+   "lines": [
+    577,
+    585
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/fig1-capacidade.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/fig1-capacidade.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "fig2-concentracao.py",
+   "path": "fig2-concentracao.py",
+   "lines": [
+    610
+   ],
+   "origin": [
+    "plain"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/fig2-concentracao.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/fig2-concentracao.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "fig3-dose-resposta.py",
+   "path": "fig3-dose-resposta.py",
+   "lines": [
+    882
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/fig3-dose-resposta.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/fig3-dose-resposta.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "gatilho-composicao.mjs",
+   "path": "gatilho-composicao.mjs",
+   "lines": [
+    1835
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/gatilho-composicao.mjs"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/gatilho-composicao.mjs [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "gatilho-saturacao.sh",
+   "path": "gatilho-saturacao.sh",
+   "lines": [
+    1835
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/gatilho-saturacao.sh"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "granularidade-do-teto.py",
+   "path": "granularidade-do-teto.py",
+   "lines": [
+    1828
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/granularidade-do-teto.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/granularidade-do-teto.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "implantacao/",
+   "path": "implantacao/",
+   "lines": [
+    1835
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/implantacao"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "irmaos-no-segundo.py",
+   "path": "irmaos-no-segundo.py",
+   "lines": [
+    1834
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/irmaos-no-segundo.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/irmaos-no-segundo.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "lessons.md",
+   "path": "lessons.md",
+   "lines": [
+    709,
+    1432
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "OUTSIDE BY DECLARATION",
+   "how": "not in repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": "corpus file of the production memory workspace, not a paper artifact"
+  },
+  {
+   "cited_as": "measurement/",
+   "path": "measurement/",
+   "lines": [
+    200,
+    1822
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/*.py",
+   "path": "measurement/*.py",
+   "lines": [
+    292
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "glob under paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/asof-sonda-vs-tempo.py",
+    "paper2-interventional/measurement/auditoria-da-cadeia.py",
+    "paper2-interventional/measurement/autoextincao.py",
+    "paper2-interventional/measurement/base-rate-h1c.py",
+    "paper2-interventional/measurement/baseline.py",
+    "paper2-interventional/measurement/censo-de-alegacoes-sem-guarda.py",
+    "paper2-interventional/measurement/censo-de-rotulos-de-populacao.py",
+    "paper2-interventional/measurement/censo-de-universos-no-paragrafo.py",
+    "paper2-interventional/measurement/censo-servido-por-epoch.py",
+    "paper2-interventional/measurement/censo-vocabulario-de-serving.py",
+    "paper2-interventional/measurement/ciclo-do-lote.py",
+    "paper2-interventional/measurement/coerencia-entre-documentos.py",
+    "paper2-interventional/measurement/composicao-do-piso.py",
+    "paper2-interventional/measurement/concentracao-de-oportunidades.py",
+    "paper2-interventional/measurement/contrafactual-do-topo.py",
+    "paper2-interventional/measurement/densidade-de-avisos.py",
+    "paper2-interventional/measurement/descontamina.py",
+    "paper2-interventional/measurement/empates-por-granularidade.py",
+    "paper2-interventional/measurement/estratos-por-presenca-de-designado.py",
+    "paper2-interventional/measurement/expiracao-designados.py",
+    "paper2-interventional/measurement/exposicao-por-coorte.py",
+    "paper2-interventional/measurement/fig0-arquitetura.py",
+    "paper2-interventional/measurement/fig1-capacidade.py",
+    "paper2-interventional/measurement/fig2-concentracao.py",
+    "paper2-interventional/measurement/fig3-dose-resposta.py",
+    "paper2-interventional/measurement/gera-shams.py",
+    "paper2-interventional/measurement/granularidade-do-teto.py",
+    "paper2-interventional/measurement/irmaos-no-segundo.py",
+    "paper2-interventional/measurement/janela-elegivel.py",
+    "paper2-interventional/measurement/lacuna-no-eixo-de-tamanho.py",
+    "paper2-interventional/measurement/paridade-de-traducao.py",
+    "paper2-interventional/measurement/pool-elegivel.py",
+    "paper2-interventional/measurement/pos-regra.py",
+    "paper2-interventional/measurement/potencia-h1c.py",
+    "paper2-interventional/measurement/rebase.py",
+    "paper2-interventional/measurement/regime-cobertura.py",
+    "paper2-interventional/measurement/remedia-descontamina.py",
+    "paper2-interventional/measurement/remedia-serie.py",
+    "paper2-interventional/measurement/replay-resumo.py",
+    "paper2-interventional/measurement/robustez-tamanho-exposicao.py",
+    "paper2-interventional/measurement/sensibilidade-da-designacao.py",
+    "paper2-interventional/measurement/serie.py",
+    "paper2-interventional/measurement/sprint-censo-artefatos-paperA.py",
+    "paper2-interventional/measurement/sprint-comparabilidade-identidade-572.py",
+    "paper2-interventional/measurement/sprint-paridade-A06.py",
+    "paper2-interventional/measurement/sprint-paridade-trecho.py",
+    "paper2-interventional/measurement/sprint-pool-elegivel-multidia.py",
+    "paper2-interventional/measurement/sprint-recon-52-e-sondas.py",
+    "paper2-interventional/measurement/superficie-de-exposicao.py",
+    "paper2-interventional/measurement/survey-string-count.py",
+    "paper2-interventional/measurement/tendencia.py",
+    "paper2-interventional/measurement/verifica.py",
+    "paper2-interventional/measurement/verifica2.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/asof-sonda-vs-tempo.py [scripts.zip]",
+    "measurement/auditoria-da-cadeia.py [scripts.zip]",
+    "measurement/autoextincao.py [scripts.zip]",
+    "measurement/base-rate-h1c.py [scripts.zip]",
+    "measurement/baseline.py [scripts.zip]",
+    "measurement/censo-de-alegacoes-sem-guarda.py [scripts.zip]",
+    "measurement/censo-de-rotulos-de-populacao.py [scripts.zip]",
+    "measurement/censo-de-universos-no-paragrafo.py [scripts.zip]",
+    "measurement/censo-vocabulario-de-serving.py [scripts.zip]",
+    "measurement/ciclo-do-lote.py [scripts.zip]",
+    "measurement/coerencia-entre-documentos.py [scripts.zip]",
+    "measurement/composicao-do-piso.py [scripts.zip]",
+    "measurement/concentracao-de-oportunidades.py [scripts.zip]",
+    "measurement/contrafactual-do-topo.py [scripts.zip]",
+    "measurement/densidade-de-avisos.py [scripts.zip]",
+    "measurement/descontamina.py [scripts.zip]",
+    "measurement/empates-por-granularidade.py [scripts.zip]",
+    "measurement/exposicao-por-coorte.py [scripts.zip]",
+    "measurement/fig0-arquitetura.py [scripts.zip]",
+    "measurement/fig1-capacidade.py [scripts.zip]",
+    "measurement/fig2-concentracao.py [scripts.zip]",
+    "measurement/fig3-dose-resposta.py [scripts.zip]",
+    "measurement/granularidade-do-teto.py [scripts.zip]",
+    "measurement/irmaos-no-segundo.py [scripts.zip]",
+    "measurement/lacuna-no-eixo-de-tamanho.py [scripts.zip]",
+    "measurement/pool-elegivel.py [scripts.zip]",
+    "measurement/pos-regra.py [scripts.zip]",
+    "measurement/potencia-h1c.py [scripts.zip]",
+    "measurement/rebase.py [scripts.zip]",
+    "measurement/regime-cobertura.py [scripts.zip]",
+    "measurement/remedia-descontamina.py [scripts.zip]",
+    "measurement/remedia-serie.py [scripts.zip]",
+    "measurement/replay-resumo.py [scripts.zip]",
+    "measurement/robustez-tamanho-exposicao.py [scripts.zip]",
+    "measurement/sensibilidade-da-designacao.py [scripts.zip]",
+    "measurement/serie.py [scripts.zip]",
+    "measurement/superficie-de-exposicao.py [scripts.zip]",
+    "measurement/survey-string-count.py [scripts.zip]",
+    "measurement/tendencia.py [scripts.zip]",
+    "measurement/verifica.py [scripts.zip]",
+    "measurement/verifica2.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/censo-de-alegacoes-sem-guarda.py",
+   "path": "measurement/censo-de-alegacoes-sem-guarda.py",
+   "lines": [
+    1452,
+    1453
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/censo-de-alegacoes-sem-guarda.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/censo-de-alegacoes-sem-guarda.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/composicao-do-piso.py",
+   "path": "measurement/composicao-do-piso.py",
+   "lines": [
+    376
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/composicao-do-piso.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/composicao-do-piso.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/contrafactual-do-topo.py",
+   "path": "measurement/contrafactual-do-topo.py",
+   "lines": [
+    786
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/contrafactual-do-topo.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/contrafactual-do-topo.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/densidade-de-avisos.py",
+   "path": "measurement/densidade-de-avisos.py",
+   "lines": [
+    1847,
+    1871
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/densidade-de-avisos.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/densidade-de-avisos.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/empates-por-granularidade.py",
+   "path": "measurement/empates-por-granularidade.py",
+   "lines": [
+    1259
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/empates-por-granularidade.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/empates-por-granularidade.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/exposicao-por-coorte.py",
+   "path": "measurement/exposicao-por-coorte.py",
+   "lines": [
+    385
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/exposicao-por-coorte.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/exposicao-por-coorte.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/lacuna-no-eixo-de-tamanho.py",
+   "path": "measurement/lacuna-no-eixo-de-tamanho.py",
+   "lines": [
+    504
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/lacuna-no-eixo-de-tamanho.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/lacuna-no-eixo-de-tamanho.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/pool-elegivel.py",
+   "path": "measurement/pool-elegivel.py",
+   "lines": [
+    665
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/pool-elegivel.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/pool-elegivel.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/robustez-tamanho-exposicao.py",
+   "path": "measurement/robustez-tamanho-exposicao.py",
+   "lines": [
+    480,
+    1479
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/robustez-tamanho-exposicao.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/robustez-tamanho-exposicao.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "measurement/survey-string-count.py",
+   "path": "measurement/survey-string-count.py",
+   "lines": [
+    160
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/measurement/survey-string-count.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/survey-string-count.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "memory/lessons.md",
+   "path": "memory/lessons.md",
+   "lines": [
+    645,
+    704
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "OUTSIDE BY DECLARATION",
+   "how": "not in repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": "corpus file of the production memory workspace, not a paper artifact"
+  },
+  {
+   "cited_as": "out/CEILING-PROBE-EXCLUSION-none-2026-08-30.json",
+   "path": "out/CEILING-PROBE-EXCLUSION-none-2026-08-30.json",
+   "lines": [
+    1362
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/CEILING-PROBE-EXCLUSION-none-2026-08-30.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/CEILING-PROBE-EXCLUSION-none-2026-08-30.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/CEILING-PROBE-EXCLUSION-probes-2026-08-30.json",
+   "path": "out/CEILING-PROBE-EXCLUSION-probes-2026-08-30.json",
+   "lines": [
+    1363
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/CEILING-PROBE-EXCLUSION-probes-2026-08-30.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/CEILING-PROBE-EXCLUSION-probes-2026-08-30.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/CLAIM-COVERAGE-2026-08-29.json",
+   "path": "out/CLAIM-COVERAGE-2026-08-29.json",
+   "lines": [
+    1457
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/CLAIM-COVERAGE-2026-08-29.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/CLAIM-COVERAGE-2026-08-29.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/EXPOSURE-BY-COHORT-2026-08-29.json",
+   "path": "out/EXPOSURE-BY-COHORT-2026-08-29.json",
+   "lines": [
+    386
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/EXPOSURE-BY-COHORT-2026-08-29.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/EXPOSURE-BY-COHORT-2026-08-29.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/FLOOR-COMPOSITION-2026-08-29.json",
+   "path": "out/FLOOR-COMPOSITION-2026-08-29.json",
+   "lines": [
+    377
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/FLOOR-COMPOSITION-2026-08-29.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/FLOOR-COMPOSITION-2026-08-29.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/SIZE-AXIS-GAP-2026-08-29.json",
+   "path": "out/SIZE-AXIS-GAP-2026-08-29.json",
+   "lines": [
+    504
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/SIZE-AXIS-GAP-2026-08-29.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/SIZE-AXIS-GAP-2026-08-29.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/SIZE-EXPOSURE-15-2026-08-29.json",
+   "path": "out/SIZE-EXPOSURE-15-2026-08-29.json",
+   "lines": [
+    577
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/SIZE-EXPOSURE-15-2026-08-29.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/SIZE-EXPOSURE-15-2026-08-29.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/SIZE-ROBUSTNESS-2026-08-30.json",
+   "path": "out/SIZE-ROBUSTNESS-2026-08-30.json",
+   "lines": [
+    1490
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/SIZE-ROBUSTNESS-2026-08-30.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/SIZE-ROBUSTNESS-2026-08-30.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/TOP-COUNTERFACTUAL-2026-08-29.json",
+   "path": "out/TOP-COUNTERFACTUAL-2026-08-29.json",
+   "lines": [
+    786
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/TOP-COUNTERFACTUAL-2026-08-29.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/TOP-COUNTERFACTUAL-2026-08-29.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/WARNING-DENSITY-2026-08-30.json",
+   "path": "out/WARNING-DENSITY-2026-08-30.json",
+   "lines": [
+    1847
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/WARNING-DENSITY-2026-08-30.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/WARNING-DENSITY-2026-08-30.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/ancora-sondas.json",
+   "path": "out/ancora-sondas.json",
+   "lines": [
+    1304
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/ancora-sondas.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/ancora-sondas.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/c-350-v3.json",
+   "path": "out/c-350-v3.json",
+   "lines": [
+    313,
+    1827
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/c-350-v3.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/c-350-v3.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/c-350.json",
+   "path": "out/c-350.json",
+   "lines": [
+    313
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/c-350.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/c-350.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/dose-350-v3.json",
+   "path": "out/dose-350-v3.json",
+   "lines": [
+    1827
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/dose-350-v3.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/dose-350-v3.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/fig0-arquitetura.svg",
+   "path": "out/fig0-arquitetura.svg",
+   "lines": [
+    248,
+    2005
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/fig0-arquitetura.svg"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/fig0-arquitetura.svg [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/fig1-capacidade.svg",
+   "path": "out/fig1-capacidade.svg",
+   "lines": [
+    574
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/fig1-capacidade.svg"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/fig1-capacidade.svg [solto]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/fig2-concentracao.svg",
+   "path": "out/fig2-concentracao.svg",
+   "lines": [
+    608
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/fig2-concentracao.svg"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/fig2-concentracao.svg [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/fig3-dose-resposta.svg",
+   "path": "out/fig3-dose-resposta.svg",
+   "lines": [
+    879
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/fig3-dose-resposta.svg"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/fig3-dose-resposta.svg [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "out/gaps.json",
+   "path": "out/gaps.json",
+   "lines": [
+    1827
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/gaps.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/gaps.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/gran-{seg,min,hora,dia}.json",
+   "path": "out/gran-seg.json",
+   "lines": [
+    1828
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/gran-seg.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/gran-seg.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/gran-{seg,min,hora,dia}.json",
+   "path": "out/gran-min.json",
+   "lines": [
+    1828
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/gran-min.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/gran-min.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/gran-{seg,min,hora,dia}.json",
+   "path": "out/gran-hora.json",
+   "lines": [
+    1828
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/gran-hora.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/gran-hora.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/gran-{seg,min,hora,dia}.json",
+   "path": "out/gran-dia.json",
+   "lines": [
+    1828
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/gran-dia.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/gran-dia.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/gran3-{seg,min,hora}.json",
+   "path": "out/gran3-seg.json",
+   "lines": [
+    1828
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/gran3-seg.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/gran3-seg.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/gran3-{seg,min,hora}.json",
+   "path": "out/gran3-min.json",
+   "lines": [
+    1828
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/gran3-min.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/gran3-min.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/gran3-{seg,min,hora}.json",
+   "path": "out/gran3-hora.json",
+   "lines": [
+    1828
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/gran3-hora.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/gran3-hora.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/limiar-17.json",
+   "path": "out/limiar-17.json",
+   "lines": [
+    1827
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/limiar-17.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/limiar-17.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/sens-*.json",
+   "path": "out/sens-*.json",
+   "lines": [
+    1830
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "glob under paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/sens-01.json",
+    "paper2-interventional/out/sens-02.json",
+    "paper2-interventional/out/sens-03.json",
+    "paper2-interventional/out/sens-04.json",
+    "paper2-interventional/out/sens-05.json",
+    "paper2-interventional/out/sens-06.json",
+    "paper2-interventional/out/sens-07.json",
+    "paper2-interventional/out/sens-08.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/sens-01.json [artefatos.zip]",
+    "out/sens-02.json [artefatos.zip]",
+    "out/sens-03.json [artefatos.zip]",
+    "out/sens-04.json [artefatos.zip]",
+    "out/sens-05.json [artefatos.zip]",
+    "out/sens-06.json [artefatos.zip]",
+    "out/sens-07.json [artefatos.zip]",
+    "out/sens-08.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "out/superficie.json",
+   "path": "out/superficie.json",
+   "lines": [
+    253,
+    611,
+    1826
+   ],
+   "origin": [
+    "backtick",
+    "plain"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional",
+   "repo_paths": [
+    "paper2-interventional/out/superficie.json"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "out/superficie.json [artefatos.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "pool-elegivel.py",
+   "path": "pool-elegivel.py",
+   "lines": [
+    1831
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/pool-elegivel.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/pool-elegivel.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "regime-cobertura.py",
+   "path": "regime-cobertura.py",
+   "lines": [
+    1833
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/regime-cobertura.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/regime-cobertura.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "replay-oportunidade.mjs",
+   "path": "replay-oportunidade.mjs",
+   "lines": [
+    1126,
+    1167,
+    1827,
+    1828,
+    1832
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/replay-oportunidade.mjs"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/replay-oportunidade.mjs [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "replay-resumo.py",
+   "path": "replay-resumo.py",
+   "lines": [
+    313,
+    1827
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/replay-resumo.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/replay-resumo.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "search.ts",
+   "path": "search.ts",
+   "lines": [
+    832,
+    1615
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (serving source tree, outside this repo)",
+   "how": "serving source: looked up in nox-mem src trees, not in this repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [
+    "nox-supermem/nox-mem/src/search.ts",
+    "nox-workspace/tools/nox-mem/src/search.ts"
+   ],
+   "in_deposit_v1_0": [
+    "serving-search.ts [solto, renamed copy]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "sensibilidade-da-designacao.py",
+   "path": "sensibilidade-da-designacao.py",
+   "lines": [
+    1830
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/sensibilidade-da-designacao.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/sensibilidade-da-designacao.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "src/api/brief-diversity.ts",
+   "path": "src/api/brief-diversity.ts",
+   "lines": [
+    941
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (serving source tree, outside this repo)",
+   "how": "serving source: looked up in nox-mem src trees, not in this repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [
+    "nox-supermem/nox-mem/src/api/brief-diversity.ts",
+    "nox-workspace/tools/nox-mem/src/api/brief-diversity.ts"
+   ],
+   "in_deposit_v1_0": [
+    "serving-brief-diversity.ts [solto, renamed copy]"
+   ],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "src/api/brief.ts",
+   "path": "src/api/brief.ts",
+   "lines": [
+    955
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (serving source tree, outside this repo)",
+   "how": "serving source: looked up in nox-mem src trees, not in this repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [
+    "nox-supermem/nox-mem/src/api/brief.ts",
+    "nox-workspace/tools/nox-mem/src/api/brief.ts"
+   ],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  },
+  {
+   "cited_as": "superficie-de-exposicao.py",
+   "path": "superficie-de-exposicao.py",
+   "lines": [
+    476,
+    1826
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "FOUND (repo)",
+   "how": "relative to paper2-interventional/measurement",
+   "repo_paths": [
+    "paper2-interventional/measurement/superficie-de-exposicao.py"
+   ],
+   "versioned": true,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [
+    "measurement/superficie-de-exposicao.py [scripts.zip]"
+   ],
+   "listed_in_appendix_D": true,
+   "note": null
+  },
+  {
+   "cited_as": "ts-350.txt",
+   "path": "ts-350.txt",
+   "lines": [
+    1126
+   ],
+   "origin": [
+    "backtick"
+   ],
+   "status": "MISSING",
+   "how": "not in repo",
+   "repo_paths": [],
+   "versioned": null,
+   "in_local_lastro": [],
+   "serving_source": [],
+   "in_deposit_v1_0": [],
+   "listed_in_appendix_D": false,
+   "note": null
+  }
+ ]
+}

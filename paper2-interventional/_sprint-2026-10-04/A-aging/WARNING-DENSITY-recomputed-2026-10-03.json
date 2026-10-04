@@ -1,0 +1,49 @@
+{
+  "linhas_do_documento": 2058,
+  "paragrafos": 363,
+  "paragrafos_marcados": 119,
+  "pct_paragrafos_marcados": 32.8,
+  "paragrafos_do_corpo": 307,
+  "corpo_marcados": 100,
+  "pct_corpo_marcado": 32.6,
+  "marcadores_por_tipo": {
+    "⚠️": 92,
+    "🔴": 21,
+    "🟡": 2,
+    "📌": 9,
+    "✅": 9,
+    "🟢": 0
+  },
+  "marcadores_total": 133,
+  "ressalvas_repetidas": {
+    "é um sistema / não generaliza": {
+      "ocorrencias": 4,
+      "linhas": [
+        83,
+        258,
+        1750
+      ]
+    },
+    "busca é iniciada pelo agente": {
+      "ocorrencias": 5,
+      "linhas": [
+        89,
+        152,
+        433,
+        1924
+      ]
+    },
+    "retratação de versão anterior": {
+      "ocorrencias": 10,
+      "linhas": [
+        273,
+        1459,
+        1657,
+        1885,
+        1899,
+        1929,
+        1941
+      ]
+    }
+  }
+}

@@ -32,6 +32,12 @@ cobre o scan full-history (fetch-depth:0) dos commits antigos (18/mai); só path
 - staged/A3/.../__tests__/gemini.test.ts — teste "redactSecrets": "AIzaABCDEFGHIJ...".
 - staged/privacy/.../__tests__/filter.test.ts — teste "PEM private key":
   "MIIEpAIBAAKCAQEAEXAMPLEKEY1234567890...".
+
+Falsos positivos confirmados 2026-10-04 (gitleaks local, 7 leaks, generic-api-key):
+- paper2-interventional/_sprint-2026-10-04/A-recon-evidence/zenodo-*.json — respostas
+  da API pública do Zenodo para os próprios depósitos do projeto. O campo `key` de cada
+  arquivo é o NOME DO ARQUIVO depositado (ex.: "AMENDMENT-v1.12.md",
+  "fig1-capacidade.svg"), não credencial.
 """
 # NOTE 2026-06-30: os diretórios staged-*/ foram renomeados para staged/ no reorg de
 # release público. Scans full-history ainda enxergam os paths ANTIGOS com hífen
@@ -44,4 +50,5 @@ paths = [
   '''staged[-/]P6-mobile/packages/nox_privacy/test/patterns_test\.dart''',
   '''staged[-/]A3/edits/src/providers/__tests__/gemini\.test\.ts''',
   '''staged[-/]privacy/edits/privacy/__tests__/filter\.test\.ts''',
+  '''paper2-interventional/_sprint-2026-10-04/A-recon-evidence/zenodo-[a-z]+-[0-9]+\.json''',
 ]

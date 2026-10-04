@@ -1,0 +1,30 @@
+== 1. sem SHAM_TETO_S / SHAM_PRAZO_S o script recusa ==
+  ok    recusou sem teto (rc=1) e sem prazo (rc=1)
+== 2. REAL em 124 PARA o script; nenhum sham roda ==
+  ok    parou no REAL (exit 124 do timeout real), 0 shams, STATUS=ABORTADO
+== 3. REAL sai 0 mas SEM saida tambem para ==
+  ok    exit 0 sem .json nao passa por sucesso
+== 4. um sham em 124 para o conjunto (sequencial) ==
+  ok    parou na SHAM-001, nao lancou a 002, sem CONCLUIDO
+== 5. caminho feliz fecha com contagem, CONCLUIDO e hashes ==
+  ok    4 saidas validadas (REAL + 3), STATUS=CONCLUIDO, CONCLUIDO confere
+== 6. saida PARCIAL (estados < esperado) NAO vira resultado ==
+  ok    parcial rejeitada: sem runs/SHAM-001.json, sem CONCLUIDO, STATUS=ABORTADO
+== 7. prazo de parede corta e o corte e ABORTADO, nao resultado ==
+  ok    teto efetivo = prazo restante; 124 -> ABORTADO
+== 8. SIGTERM no orquestrador: mata o que esta em curso e marca ABORTADO ==
+  ok    sinal -> ABORTADO, corrida em curso morta e marcada NAO MEDIDA
+== 9. instrumento que muda no meio aborta antes da proxima corrida ==
+  ok    drift de instrumento detectado antes de gastar CPU
+== 10. paralelismo: 3 em curso no maximo; 4 recusado ==
+  ok    7 validadas com concorrencia maxima 3 (<=3); PARALELO=4 recusado
+== 11. recusa sobrescrever um OUT que ja tem RECIBO ==
+  ok    segunda corrida no mesmo OUT recusada; o CONCLUIDO anterior ficou intacto
+== 12. leitor: so CONCLUIDO conta (SIGKILL deixa RODANDO e nenhum CONCLUIDO) ==
+sprint-testa-roda-sham-v2.sh: line 64: 53381 Killed                     env SHAM_TETO_S="${TETO:-10}" SHAM_PRAZO_S="${PRAZO:-60}" SHAM_TS_FILE="$T/ts.txt" SHAM_ESTADOS_ESPERADOS=2 SHAM_REPLAY="$T/replay.mjs" SHAM_RAIZ="$T/raiz" SHAM_CORPUS="$T/corpus.db" SHAM_VIVO="$T/vivo.db" SHAM_OUT="$T/out" SHAM_DESIG_REAL="$T/desig-real.json" SHAM_DIR="$T/shams" SHAM_LOG_CAMPO="$T/log.ndjson" SHAM_EXCLUIR="$T/excluir.txt" SHAM_TMP_BASE="$T/tmp" SHAM_NODE="$T/stub-node" SHAM_NICE= SHAM_PARALELO="${PAR:-1}" SHAM_K_ESPERADO="$K" SHAM_AMOSTRA_S=1 STUB_PLANO="$T/plano" STUB_TRACO="$T/traco" STUB_MUTA="${MUTA:-/dev/null}" bash "$1" > "$T/saida.txt" 2>&1
+  ok    SIGKILL: STATUS=RODANDO (heartbeat para), sem CONCLUIDO, 1/4 validada — o leitor trata como INCOMPLETO
+== 13. MUTACAO: sem as guardas, os casos 2 e 6 tem de FALHAR ==
+  ok    mutante seguiu apos o REAL falhar (3 shams) e promoveu a parcial — o teste tem poder
+
+falhas: 0
+exit=0

@@ -1,0 +1,4 @@
+amostra: 50 estados (passo 52 de 2646) sha=858ac113158a5b7d
+REAL      rc=0 estados=50/50 erros=0 parede=  1288.7s proc_cpu=  1292.6s instr_u=  150.11G instr_k=  49.35G ciclos_reais=   90.5s@3.25GHz host_busy=  509.9s host_steal= 8037.1s rss_max=1282MB
+SHAM-012  rc=0 estados=50/50 erros=0 parede=  1106.3s proc_cpu=  1113.7s instr_u=  150.27G instr_k=  49.23G ciclos_reais=   90.1s@3.25GHz host_busy=  441.1s host_steal= 6054.5s rss_max=1283MB
+SHAM-000  rc=0 estados=50/50 erros=0 parede=  1659.1s proc_cpu=  1592.6s instr_u=  150.58G instr_k=  49.61G ciclos_reais=   92.1s@3.25GHz host_busy=  706.6s host_steal=12277.1s rss_max=1283MB

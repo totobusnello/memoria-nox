@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 486" width="760" height="486" font-family="ui-sans-serif,system-ui,sans-serif" font-size="11">
+<style>:root{--ink:#1a1a1a;--mut:#6b6b6b;--grid:#e3e3e3;--bar:#a9a9a6;--hi:#b4472f;--bg:#fcfcfb}@media (prefers-color-scheme:dark){:root{--ink:#eaeaea;--mut:#9a9a9a;--grid:#333;--bar:#5c5c5a;--hi:#d47456;--bg:#1a1a19}}text{fill:var(--ink)}.mut{fill:var(--mut)}</style>
+<rect width="760" height="486" fill="var(--bg)"/>
+<text x="66" y="22" font-size="13" font-weight="600">One epoch at the top dose is a 10.15% draw, not a truncation effect</text>
+<text x="66" y="40" class="mut">epochs at w = 7.5 among the 20 realized, over 2 000 re-drawn designs conditioned on the same dates (assign_arms.py)</text>
+<line x1="66" y1="390.0" x2="720" y2="390.0" stroke="var(--grid)"/>
+<text x="58" y="394.0" text-anchor="end" class="mut">0%</text>
+<line x1="66" y1="283.3" x2="720" y2="283.3" stroke="var(--grid)"/>
+<text x="58" y="287.3" text-anchor="end" class="mut">10%</text>
+<line x1="66" y1="176.7" x2="720" y2="176.7" stroke="var(--grid)"/>
+<text x="58" y="180.7" text-anchor="end" class="mut">20%</text>
+<line x1="66" y1="70.0" x2="720" y2="70.0" stroke="var(--grid)"/>
+<text x="58" y="74.0" text-anchor="end" class="mut">30%</text>
+<path d="M67.0,390 V374.8 Q67.0,370.8 71.0,370.8 H126.4 Q130.4,370.8 130.4,374.8 V390 Z" fill="var(--bar)"><title>n = 0: 36 of 2000 seeds (1.80%)</title></path>
+<text x="98.7" y="406" text-anchor="middle" class="mut">0</text>
+<path d="M132.4,390 V285.7 Q132.4,281.7 136.4,281.7 H191.8 Q195.8,281.7 195.8,285.7 V390 Z" fill="var(--hi)"><title>n = 1: 203 of 2000 seeds (10.15%)</title></path>
+<text x="164.1" y="406" text-anchor="middle" class="mut">1</text>
+<text x="164.1" y="275.7" text-anchor="middle" font-size="10">10.2%</text>
+<path d="M197.8,390 V204.7 Q197.8,200.7 201.8,200.7 H257.2 Q261.2,200.7 261.2,204.7 V390 Z" fill="var(--bar)"><title>n = 2: 355 of 2000 seeds (17.75%)</title></path>
+<text x="229.5" y="406" text-anchor="middle" class="mut">2</text>
+<path d="M263.2,390 V124.1 Q263.2,120.1 267.2,120.1 H322.6 Q326.6,120.1 326.6,124.1 V390 Z" fill="var(--bar)"><title>n = 3: 506 of 2000 seeds (25.30%)</title></path>
+<text x="294.9" y="406" text-anchor="middle" class="mut">3</text>
+<text x="294.9" y="114.1" text-anchor="middle" font-size="10">25.3%</text>
+<path d="M328.6,390 V155.6 Q328.6,151.6 332.6,151.6 H388.0 Q392.0,151.6 392.0,155.6 V390 Z" fill="var(--bar)"><title>n = 4: 447 of 2000 seeds (22.35%)</title></path>
+<text x="360.3" y="406" text-anchor="middle" class="mut">4</text>
+<path d="M394.0,390 V239.3 Q394.0,235.3 398.0,235.3 H453.4 Q457.4,235.3 457.4,239.3 V390 Z" fill="var(--bar)"><title>n = 5: 290 of 2000 seeds (14.50%)</title></path>
+<text x="425.7" y="406" text-anchor="middle" class="mut">5</text>
+<path d="M459.4,390 V333.2 Q459.4,329.2 463.4,329.2 H518.8 Q522.8,329.2 522.8,333.2 V390 Z" fill="var(--bar)"><title>n = 6: 114 of 2000 seeds (5.70%)</title></path>
+<text x="491.1" y="406" text-anchor="middle" class="mut">6</text>
+<path d="M524.8,390 V375.9 Q524.8,371.9 528.8,371.9 H584.2 Q588.2,371.9 588.2,375.9 V390 Z" fill="var(--bar)"><title>n = 7: 34 of 2000 seeds (1.70%)</title></path>
+<text x="556.5" y="406" text-anchor="middle" class="mut">7</text>
+<path d="M590.2,390 V386.5 Q590.2,383.1 593.7,383.1 H650.1 Q653.6,383.1 653.6,386.5 V390 Z" fill="var(--bar)"><title>n = 8: 13 of 2000 seeds (0.65%)</title></path>
+<text x="621.9" y="406" text-anchor="middle" class="mut">8</text>
+<path d="M655.6,390 V389.5 Q655.6,388.9 656.1,388.9 H718.5 Q719.0,388.9 719.0,389.5 V390 Z" fill="var(--bar)"><title>n = 9: 2 of 2000 seeds (0.10%)</title></path>
+<text x="687.3" y="406" text-anchor="middle" class="mut">9</text>
+<text x="393.0" y="426" text-anchor="middle" class="mut">n = number of the 20 epochs assigned w = 7.5</text>
+<text x="16" y="230.0" class="mut" text-anchor="middle" transform="rotate(-90 16 230.0)">share of seeds</text>
+<line x1="316.7" y1="66" x2="316.7" y2="390" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="6 4"/>
+<line x1="318.2" y1="66" x2="318.2" y2="390" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="2 3"/>
+<text x="326.2" y="76" font-size="10">design expectation 20×39/234 = 3.333 (dashed)</text>
+<text x="326.2" y="90" font-size="10">conditional mean 3.357 (dotted) — the lines are 0.023 apart</text>
+<text style="fill:var(--hi)" x="164.1" y="259.7" text-anchor="middle" font-size="10" font-weight="600" fill="var(--hi)">realized n = 1</text>
+<text x="66" y="450" font-size="10.5">deficit −2.333 against the design = truncation +0.023 (−1.0% of it) + chance −2.357 (101.0% of it)</text>
+<text x="66" y="466" class="mut" font-size="10">P(n = 1) = 10.15% · P(n ≤ 1) = 11.95% · mode 3 (25.3%) · with n = 1 there is no dose-response to read (spec §7)</text>
+<text x="66" y="482" class="mut" font-size="10">Monte-Carlo s.e. of the conditional mean (2000 seeds) = 0.035; the truncation leg (+0.023) is 0.7 s.e.: its sign is not resolved</text>
+</svg>

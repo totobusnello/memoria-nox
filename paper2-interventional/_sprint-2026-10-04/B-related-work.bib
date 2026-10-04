@@ -1,0 +1,733 @@
+% B-related-work.bib -- Paper B (MANUSCRIPT-B.md) Related Work, sprint 2026-10-04.
+%
+% Every entry below was opened or machine-resolved on 2026-10-03/04 (BRT); the per-entry evidence
+% (URL opened, what was checked, depth of reading) is in B-related-work.verification-log.md.
+% Entries carry a `note` only where something is NOT fully established (venue, subtitle, pagination).
+% No ISBN is given for books: none was independently resolved.
+%
+% Reading-depth key used in the verification log:
+%   FULL-TEXT  = pdf fetched and the relevant sections read (and string-searched)
+%   PARTIAL    = pdf/html fetched, key sections + limitations read, string-searched
+%   ABSTRACT   = metadata + abstract resolved (arXiv API / Crossref / publisher page); body NOT read
+%
+% ---------------------------------------------------------------------------------------------
+% (iv) Agent-memory surveys and the telemetry paper
+% ---------------------------------------------------------------------------------------------
+
+@article{huang2026survey,
+  author  = {Huang, Wei-Chieh and Zhang, Weizhi and Liang, Yueqing and Bei, Yuanchen and Chen, Yankai and Feng, Tao and Pan, Xinyu and Tan, Zhen and Wang, Yu and Wei, Tianxin and Wu, Shanglin and Xu, Ruiyao and Yang, Liangwei and Yang, Rui and Yang, Wooseong and Yeh, Chin-Yuan and Zhang, Hanrong and others},
+  title   = {A Survey of Agent Memory in the Second Half: Towards Self-Evolving and Long-Horizon Agents},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2026},
+  note    = {Accepted by TMLR with Survey Certification; OpenReview page lists "Published: 04 Aug 2026"; PDF header reads "Published in TMLR (07/2026)". 60 authors in total (author list truncated here). arXiv:2602.06052v4, 4 Aug 2026.},
+  url     = {https://openreview.net/forum?id=XycbogUAeJ},
+  eprint  = {2602.06052},
+  archivePrefix = {arXiv},
+}
+
+@misc{omri2026agentmemory,
+  author  = {Omri, Yasmine and Gan, Ziyu and Broveak, Zachary and Geens, Robin and He, Zexue and Pentland, Alex and Verhelst, Marian and Weissman, Tsachy and Tambe, Thierry},
+  title   = {Agent Memory: Characterization and System Implications of Stateful Long-Horizon Workloads},
+  year    = {2026},
+  note    = {arXiv preprint, v1 4 Jun 2026, v2 22 Sep 2026 (cited version: v2). Not peer-reviewed as far as this sprint could establish.},
+  url     = {https://arxiv.org/abs/2606.06448},
+  eprint  = {2606.06448},
+  archivePrefix = {arXiv},
+}
+
+@misc{zhang2024memorysurvey,
+  author  = {Zhang, Zeyu and Bo, Xiaohe and Ma, Chen and Li, Rui and Chen, Xu and Dai, Quanyu and Zhu, Jieming and Dong, Zhenhua and Wen, Ji-Rong},
+  title   = {A Survey on the Memory Mechanism of Large Language Model based Agents},
+  year    = {2024},
+  note    = {arXiv preprint (v1, 21 Apr 2024). Publication venue not checked.},
+  url     = {https://arxiv.org/abs/2404.13501},
+  eprint  = {2404.13501},
+  archivePrefix = {arXiv},
+}
+
+@misc{hu2025memoryage,
+  author  = {Hu, Yuyang and Liu, Shichun and Yue, Yanwei and Zhang, Guibin and Liu, Boyang and Zhu, Fangyi and Lin, Jiahang and Guo, Honglin and Dou, Shihan and Xi, Zhiheng and others},
+  title   = {Memory in the Age of {AI} Agents},
+  year    = {2025},
+  note    = {arXiv preprint, v1 15 Dec 2025, v2 13 Jan 2026. Many more authors than listed. Publication venue not checked.},
+  url     = {https://arxiv.org/abs/2512.13564},
+  eprint  = {2512.13564},
+  archivePrefix = {arXiv},
+}
+
+@misc{du2026memoryautonomous,
+  author  = {Du, Pengfei},
+  title   = {Memory for Autonomous {LLM} Agents: Mechanisms, Evaluation, and Emerging Frontiers},
+  year    = {2026},
+  note    = {arXiv preprint, 8 Mar 2026. Single author. Publication venue not checked.},
+  url     = {https://arxiv.org/abs/2603.07670},
+  eprint  = {2603.07670},
+  archivePrefix = {arXiv},
+}
+
+% ---------------------------------------------------------------------------------------------
+% (i) Evaluation of agent memory: benchmarks, controlled/interventional studies
+% ---------------------------------------------------------------------------------------------
+
+@misc{he2026memoryarena,
+  author  = {He, Zexue and Wang, Yu and Zhi, Churan and Hu, Yuanzhe and Chen, Tzu-Ping and Yin, Lang and Chen, Ze and Wu, Tong Arthur and Ouyang, Siru and Wang, Zihan and Pei, Jiaxin and McAuley, Julian and Choi, Yejin and Pentland, Alex},
+  title   = {{MemoryArena}: Benchmarking Agent Memory in Interdependent Multi-Session Agentic Tasks},
+  year    = {2026},
+  note    = {arXiv preprint, v1 18 Feb 2026, v2 17 Sep 2026 (cited: v2 as listed today; the 2026-08-15 full read recorded in RELATED-WORK.md was of the earlier version).},
+  url     = {https://arxiv.org/abs/2602.16313},
+  eprint  = {2602.16313},
+  archivePrefix = {arXiv},
+}
+
+@misc{wei2025evomemory,
+  author  = {Wei, Tianxin and Sachdeva, Noveen and Coleman, Benjamin and He, Zhankui and Bei, Yuanchen and Ning, Xuying and Ai, Mengting and Li, Yunzhe and He, Jingrui and Chi, Ed H. and Wang, Chi and Chen, Shuo and Pereira, Fernando and Kang, Wang-Cheng and Cheng, Derek Zhiyuan},
+  title   = {{Evo-Memory}: Benchmarking {LLM} Agent Test-time Learning with Self-Evolving Memory},
+  year    = {2025},
+  note    = {arXiv preprint, v1 25 Nov 2025, v2 18 May 2026 (cited: v2).},
+  url     = {https://arxiv.org/abs/2511.20857},
+  eprint  = {2511.20857},
+  archivePrefix = {arXiv},
+}
+
+@misc{zheng2025lifelongagentbench,
+  author  = {Zheng, Junhao and Cai, Xidi and Li, Qiuke and Zhang, Duzhen and Li, ZhongZhi and Zhang, Yingying and Song, Le and Ma, Qianli},
+  title   = {{LifelongAgentBench}: Evaluating {LLM} Agents as Lifelong Learners},
+  year    = {2025},
+  note    = {arXiv preprint, v1 17 May 2025 (v3 30 May 2025). Publication venue not checked.},
+  url     = {https://arxiv.org/abs/2505.11942},
+  eprint  = {2505.11942},
+  archivePrefix = {arXiv},
+}
+
+@misc{zou2026interruptbench,
+  author  = {Zou, Henry Peng and Miao, Chunyu and Huang, Wei-Chieh and Chen, Yankai and Zhou, Yue and Zhang, Hanrong and Wu, Yaozu and Fang, Liancheng and Gu, Zhengyao and Zhang, Zhen and others},
+  title   = {When Users Change Their Mind: Evaluating Interruptible Agents in Long-Horizon Web Navigation},
+  year    = {2026},
+  note    = {arXiv preprint, 1 Apr 2026 (InterruptBench). Last author: Philip S. Yu.},
+  url     = {https://arxiv.org/abs/2604.00892},
+  eprint  = {2604.00892},
+  archivePrefix = {arXiv},
+}
+
+@misc{hu2025memoryagentbench,
+  author  = {Hu, Yuanzhe and Wang, Yu and McAuley, Julian},
+  title   = {Evaluating Memory in {LLM} Agents via Incremental Multi-Turn Interactions},
+  year    = {2025},
+  note    = {arXiv preprint (MemoryAgentBench), v1 7 Jul 2025, v4 28 Jun 2026. A conference-proceedings listing was seen in a search result but not opened, so no venue is asserted.},
+  url     = {https://arxiv.org/abs/2507.05257},
+  eprint  = {2507.05257},
+  archivePrefix = {arXiv},
+}
+
+@inproceedings{maharana2024locomo,
+  author    = {Maharana, Adyasha and Lee, Dong-Ho and Tulyakov, Sergey and Bansal, Mohit and Barbieri, Francesco and Fang, Yuwei},
+  title     = {Evaluating Very Long-Term Conversational Memory of {LLM} Agents},
+  booktitle = {Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)},
+  year      = {2024},
+  pages     = {13851--13870},
+  doi       = {10.18653/v1/2024.acl-long.747},
+  url       = {https://doi.org/10.18653/v1/2024.acl-long.747},
+}
+
+@misc{wu2025longmemeval,
+  author  = {Wu, Di and Wang, Hongwei and Yu, Wenhao and Zhang, Yuwei and Chang, Kai-Wei and Yu, Dong},
+  title   = {{LongMemEval}: Benchmarking Chat Assistants on Long-Term Interactive Memory},
+  year    = {2025},
+  note    = {arXiv preprint, v1 14 Oct 2024, v2 4 Mar 2025. Publication venue not checked.},
+  url     = {https://arxiv.org/abs/2410.10813},
+  eprint  = {2410.10813},
+  archivePrefix = {arXiv},
+}
+
+@misc{xiong2025memorymanagement,
+  author  = {Xiong, Zidi and Lin, Yuping and Xie, Wenya and He, Pengfei and Liu, Zirui and Tang, Jiliang and Lakkaraju, Himabindu and Xiang, Zhen},
+  title   = {How Memory Management Impacts {LLM} Agents: An Empirical Study of Experience-Following Behavior},
+  year    = {2025},
+  note    = {arXiv preprint, v1 21 May 2025, v2 10 Oct 2025. Publication venue not checked.},
+  url     = {https://arxiv.org/abs/2505.16067},
+  eprint  = {2505.16067},
+  archivePrefix = {arXiv},
+}
+
+@inproceedings{feng2026memorytransplants,
+  author    = {Feng, Zhaoxiang and Yao, Mingyang and Lewis, David Scott},
+  title     = {Memory Transplants for {LLM} Agents: Disentangling Architecture and Content Transfer under a Code-to-Math Shift},
+  booktitle = {ICLR 2026 Workshop on Memory for LLM-Based Agentic Systems (MemAgents)},
+  year      = {2026},
+  note      = {Workshop paper; OpenReview submission 106, published 3 Mar 2026, last modified 25 Apr 2026. Workshop (non-archival as far as this sprint could establish).},
+  url       = {https://openreview.net/forum?id=AIJsjIqfsp},
+}
+
+@misc{behnam2026cmp,
+  author  = {Behnam, Arman and Wang, Binghui},
+  title   = {Causal Memory Policy: Making Memory Utility Identifiable by Intervening on Retrieval},
+  year    = {2026},
+  note    = {arXiv preprint, 1 Oct 2026 (v1). Posted two days before this section was drafted; not peer-reviewed.},
+  url     = {https://arxiv.org/abs/2610.02070},
+  eprint  = {2610.02070},
+  archivePrefix = {arXiv},
+}
+
+@misc{srivastava2026cmi,
+  author  = {Srivastava, Saksham Sahai},
+  title   = {Causal Intervention-Based Memory Selection for Long-Horizon {LLM} Agents},
+  year    = {2026},
+  note    = {arXiv preprint, 17 May 2026. Single author; not peer-reviewed as far as established.},
+  url     = {https://arxiv.org/abs/2605.17641},
+  eprint  = {2605.17641},
+  archivePrefix = {arXiv},
+}
+
+@misc{sun2026experienceserving,
+  author  = {Sun, Lin and Zhang, Heming and Zhang, Xiangzheng},
+  title   = {External Experience Serving in Production {LLM} Systems: A Deployment-Oriented Study of Quality-Cost Trade-offs},
+  year    = {2026},
+  note    = {arXiv preprint, 10 Jun 2026.},
+  url     = {https://arxiv.org/abs/2606.11806},
+  eprint  = {2606.11806},
+  archivePrefix = {arXiv},
+}
+
+@misc{tablan2026learningonthejob,
+  author  = {Tablan, Valentin and Taylor, Scott and Bernhem, Kristoffer},
+  title   = {Learning on the Job: Continual Learning from Deployment Feedback for Frozen-Weights Agents},
+  year    = {2026},
+  note    = {arXiv preprint, 24 Jul 2026.},
+  url     = {https://arxiv.org/abs/2607.22157},
+  eprint  = {2607.22157},
+  archivePrefix = {arXiv},
+}
+
+@inproceedings{frauen2026causalmethods,
+  author    = {Frauen, Dennis and Brockschmidt, Marie and Hess, Konstantin and Ma, Haorui and Ma, Yuchen and Maarouf, Abdurahman and Schr{\"o}der, Maresa and Schweisthal, Jonas and Wang, Yuxin and Deviyani, Athiya and Parbhoo, Sonali and Krishnan, Rahul G. and Feuerriegel, Stefan},
+  title     = {Causal Methods for {LLM} Development and Evaluation},
+  booktitle = {Proceedings of the 32nd ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2},
+  year      = {2026},
+  pages     = {13170--13177},
+  doi       = {10.1145/3770855.3818647},
+  url       = {https://doi.org/10.1145/3770855.3818647},
+  note      = {arXiv:2605.25998 (25 May 2026). Position paper.},
+}
+
+@misc{peng2023copilot,
+  author  = {Peng, Sida and Kalliamvakou, Eirini and Cihon, Peter and Demirer, Mert},
+  title   = {The Impact of {AI} on Developer Productivity: Evidence from {GitHub} {Copilot}},
+  year    = {2023},
+  note    = {arXiv preprint, 13 Feb 2023. Publication venue not checked.},
+  url     = {https://arxiv.org/abs/2302.06590},
+  eprint  = {2302.06590},
+  archivePrefix = {arXiv},
+}
+
+@misc{becker2025metr,
+  author  = {Becker, Joel and Rush, Nate and Barnes, Elizabeth and Rein, David},
+  title   = {Measuring the Impact of Early-2025 {AI} on Experienced Open-Source Developer Productivity},
+  year    = {2025},
+  note    = {arXiv preprint, v1 12 Jul 2025, v2 25 Jul 2025. Publication venue not checked.},
+  url     = {https://arxiv.org/abs/2507.09089},
+  eprint  = {2507.09089},
+  archivePrefix = {arXiv},
+}
+
+@article{bean2026llmmedical,
+  author  = {Bean, Andrew M. and Payne, Rebecca Elizabeth and Parsons, Guy and Kirk, Hannah Rose and Ciro, Juan and Mosquera-G{\'o}mez, Rafael and Hincapi{\'e} M, Sara and Ekanayaka, Aruna S. and Tarassenko, Lionel and Rocher, Luc and Mahdi, Adam},
+  title   = {Reliability of {LLMs} as medical assistants for the general public: a randomized preregistered study},
+  journal = {Nature Medicine},
+  year    = {2026},
+  volume  = {32},
+  number  = {2},
+  pages   = {609--615},
+  doi     = {10.1038/s41591-025-04074-y},
+  url     = {https://doi.org/10.1038/s41591-025-04074-y},
+}
+
+% ---------------------------------------------------------------------------------------------
+% (ii) Online controlled experiments, interleaving, interference, switchback, power
+% ---------------------------------------------------------------------------------------------
+
+@book{kohavi2020trustworthy,
+  author    = {Kohavi, Ron and Tang, Diane and Xu, Ya},
+  title     = {Trustworthy Online Controlled Experiments: A Practical Guide to {A/B} Testing},
+  publisher = {Cambridge University Press},
+  year      = {2020},
+  doi       = {10.1017/9781108653985},
+  url       = {https://doi.org/10.1017/9781108653985},
+  note      = {Bibliographic record resolved via Crossref; the publisher page returned HTTP 429, so the table of contents was NOT inspected in this sprint.},
+}
+
+@article{kohavi2009controlled,
+  author  = {Kohavi, Ron and Longbotham, Roger and Sommerfield, Dan and Henne, Randal M.},
+  title   = {Controlled experiments on the web: survey and practical guide},
+  journal = {Data Mining and Knowledge Discovery},
+  year    = {2009},
+  volume  = {18},
+  number  = {1},
+  pages   = {140--181},
+  doi     = {10.1007/s10618-008-0114-1},
+  url     = {https://doi.org/10.1007/s10618-008-0114-1},
+  note    = {Crossref: online 30 Jul 2008, print issue Feb 2009.},
+}
+
+@inproceedings{kohavi2012puzzling,
+  author    = {Kohavi, Ron and Deng, Alex and Frasca, Brian and Longbotham, Roger and Walker, Toby and Xu, Ya},
+  title     = {Trustworthy online controlled experiments: five puzzling outcomes explained},
+  booktitle = {Proceedings of the 18th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+  year      = {2012},
+  pages     = {786--794},
+  doi       = {10.1145/2339530.2339653},
+  url       = {https://doi.org/10.1145/2339530.2339653},
+}
+
+@inproceedings{deng2013cuped,
+  author    = {Deng, Alex and Xu, Ya and Kohavi, Ron and Walker, Toby},
+  title     = {Improving the sensitivity of online controlled experiments by utilizing pre-experiment data},
+  booktitle = {Proceedings of the Sixth ACM International Conference on Web Search and Data Mining},
+  year      = {2013},
+  pages     = {123--132},
+  doi       = {10.1145/2433396.2433413},
+  url       = {https://doi.org/10.1145/2433396.2433413},
+}
+
+@inproceedings{fabijan2019srm,
+  author    = {Fabijan, Aleksander and Gupchup, Jayant and Gupta, Somit and Omhover, Jeff and Qin, Wen and Vermeer, Lukas and Dmitriev, Pavel},
+  title     = {Diagnosing Sample Ratio Mismatch in Online Controlled Experiments},
+  booktitle = {Proceedings of the 25th ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining},
+  year      = {2019},
+  pages     = {2156--2164},
+  doi       = {10.1145/3292500.3330722},
+  url       = {https://doi.org/10.1145/3292500.3330722},
+}
+
+@article{hofmann2016online,
+  author  = {Hofmann, Katja and Li, Lihong and Radlinski, Filip},
+  title   = {Online Evaluation for Information Retrieval},
+  journal = {Foundations and Trends in Information Retrieval},
+  year    = {2016},
+  volume  = {10},
+  number  = {1},
+  pages   = {1--117},
+  doi     = {10.1561/1500000051},
+  url     = {https://doi.org/10.1561/1500000051},
+}
+
+@inproceedings{radlinski2008clickthrough,
+  author    = {Radlinski, Filip and Kurup, Madhu and Joachims, Thorsten},
+  title     = {How does clickthrough data reflect retrieval quality?},
+  booktitle = {Proceedings of the 17th ACM Conference on Information and Knowledge Management},
+  year      = {2008},
+  pages     = {43--52},
+  doi       = {10.1145/1458082.1458092},
+  url       = {https://doi.org/10.1145/1458082.1458092},
+}
+
+@article{chapelle2012interleaved,
+  author  = {Chapelle, Olivier and Joachims, Thorsten and Radlinski, Filip and Yue, Yisong},
+  title   = {Large-scale validation and analysis of interleaved search evaluation},
+  journal = {ACM Transactions on Information Systems},
+  year    = {2012},
+  volume  = {30},
+  number  = {1},
+  pages   = {1--41},
+  doi     = {10.1145/2094072.2094078},
+  url     = {https://doi.org/10.1145/2094072.2094078},
+  note    = {Crossref gives pages 1--41 (article 6).},
+}
+
+@inproceedings{blake2014marketplace,
+  author    = {Blake, Thomas and Coey, Dominic},
+  title     = {Why marketplace experimentation is harder than it seems: the role of test-control interference},
+  booktitle = {Proceedings of the Fifteenth ACM Conference on Economics and Computation},
+  year      = {2014},
+  pages     = {567--582},
+  doi       = {10.1145/2600057.2602837},
+  url       = {https://doi.org/10.1145/2600057.2602837},
+  note      = {Crossref title field is the part before the colon; the subtitle is from Semantic Scholar.},
+}
+
+@article{johari2022twosided,
+  author  = {Johari, Ramesh and Li, Hannah and Liskovich, Inessa and Weintraub, Gabriel Y.},
+  title   = {Experimental Design in Two-Sided Platforms: An Analysis of Bias},
+  journal = {Management Science},
+  year    = {2022},
+  volume  = {68},
+  number  = {10},
+  pages   = {7069--7089},
+  doi     = {10.1287/mnsc.2021.4247},
+  url     = {https://doi.org/10.1287/mnsc.2021.4247},
+}
+
+@inproceedings{saveski2017network,
+  author    = {Saveski, Martin and Pouget-Abadie, Jean and Saint-Jacques, Guillaume and Duan, Weitao and Ghosh, Souvik and Xu, Ya and Airoldi, Edoardo M.},
+  title     = {Detecting Network Effects: Randomizing Over Randomized Experiments},
+  booktitle = {Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+  year      = {2017},
+  pages     = {1027--1035},
+  doi       = {10.1145/3097983.3098192},
+  url       = {https://doi.org/10.1145/3097983.3098192},
+}
+
+@article{aronow2017interference,
+  author  = {Aronow, Peter M. and Samii, Cyrus},
+  title   = {Estimating average causal effects under general interference, with application to a social network experiment},
+  journal = {The Annals of Applied Statistics},
+  year    = {2017},
+  volume  = {11},
+  number  = {4},
+  doi     = {10.1214/16-AOAS1005},
+  url     = {https://doi.org/10.1214/16-AOAS1005},
+}
+
+@article{bojinov2023switchback,
+  author  = {Bojinov, Iavor and Simchi-Levi, David and Zhao, Jinglong},
+  title   = {Design and Analysis of Switchback Experiments},
+  journal = {Management Science},
+  year    = {2023},
+  volume  = {69},
+  number  = {7},
+  pages   = {3759--3777},
+  doi     = {10.1287/mnsc.2022.4583},
+  url     = {https://doi.org/10.1287/mnsc.2022.4583},
+  note    = {arXiv:2009.00148 (v1 31 Aug 2020, v4 17 Sep 2025).},
+}
+
+@misc{hu2022switchback,
+  author  = {Hu, Yuchen and Wager, Stefan},
+  title   = {Switchback Experiments under Geometric Mixing},
+  year    = {2022},
+  note    = {arXiv preprint, v1 1 Sep 2022, v5 21 Sep 2026. Journal publication not established (a Crossref title search returned no match).},
+  url     = {https://arxiv.org/abs/2209.00197},
+  eprint  = {2209.00197},
+  archivePrefix = {arXiv},
+}
+
+@article{basse2023minimax,
+  author  = {Basse, Guillaume and Ding, Yi and Toulis, Panos},
+  title   = {Minimax designs for causal effects in temporal experiments with treatment habituation},
+  journal = {Biometrika},
+  year    = {2023},
+  volume  = {110},
+  pages   = {155--168},
+  doi     = {10.1093/biomet/asac024},
+  url     = {https://doi.org/10.1093/biomet/asac024},
+  note    = {Crossref: published online 5 May 2022; volume 110 is the 2023 volume. arXiv:1908.03531.},
+}
+
+@article{bojinov2019timeseries,
+  author  = {Bojinov, Iavor and Shephard, Neil},
+  title   = {Time Series Experiments and Causal Estimands: Exact Randomization Tests and Trading},
+  journal = {Journal of the American Statistical Association},
+  year    = {2019},
+  volume  = {114},
+  number  = {528},
+  pages   = {1665--1682},
+  doi     = {10.1080/01621459.2018.1527225},
+  url     = {https://doi.org/10.1080/01621459.2018.1527225},
+}
+
+@article{lewis2015unfavorable,
+  author  = {Lewis, Randall A. and Rao, Justin M.},
+  title   = {The Unfavorable Economics of Measuring the Returns to Advertising},
+  journal = {The Quarterly Journal of Economics},
+  year    = {2015},
+  volume  = {130},
+  number  = {4},
+  pages   = {1941--1973},
+  doi     = {10.1093/qje/qjv023},
+  url     = {https://doi.org/10.1093/qje/qjv023},
+}
+
+@article{gordon2019comparison,
+  author  = {Gordon, Brett R. and Zettelmeyer, Florian and Bhargava, Neha and Chapsky, Dan},
+  title   = {A Comparison of Approaches to Advertising Measurement: Evidence from Big Field Experiments at {Facebook}},
+  journal = {Marketing Science},
+  year    = {2019},
+  volume  = {38},
+  number  = {2},
+  pages   = {193--225},
+  doi     = {10.1287/mksc.2018.1135},
+  url     = {https://doi.org/10.1287/mksc.2018.1135},
+  note    = {Only the one-sentence summary (Semantic Scholar) was read; publisher page not opened.},
+}
+
+@article{johnson2017ghost,
+  author  = {Johnson, Garrett A. and Lewis, Randall A. and Nubbemeyer, Elmar I.},
+  title   = {Ghost Ads: Improving the Economics of Measuring Online Ad Effectiveness},
+  journal = {Journal of Marketing Research},
+  year    = {2017},
+  volume  = {54},
+  number  = {6},
+  pages   = {867--884},
+  doi     = {10.1509/jmr.15.0297},
+  url     = {https://doi.org/10.1509/jmr.15.0297},
+  note    = {Method description read from the authors' February 2016 conference draft (NBER), not from the published version.},
+}
+
+@inproceedings{garcin2014offline,
+  author    = {Garcin, Florent and Faltings, Boi and Donatsch, Olivier and Alazzawi, Ayar and Bruttin, Christophe and Huber, Amr},
+  title     = {Offline and online evaluation of news recommender systems at swissinfo.ch},
+  booktitle = {Proceedings of the 8th ACM Conference on Recommender Systems},
+  year      = {2014},
+  pages     = {169--176},
+  doi       = {10.1145/2645710.2645745},
+  url       = {https://doi.org/10.1145/2645710.2645745},
+}
+
+@inproceedings{rossetti2016contrasting,
+  author    = {Rossetti, Marco and Stella, Fabio and Zanker, Markus},
+  title     = {Contrasting Offline and Online Results when Evaluating Recommendation Algorithms},
+  booktitle = {Proceedings of the 10th ACM Conference on Recommender Systems},
+  year      = {2016},
+  pages     = {31--34},
+  doi       = {10.1145/2959100.2959176},
+  url       = {https://doi.org/10.1145/2959100.2959176},
+}
+
+@inproceedings{li2011unbiased,
+  author    = {Li, Lihong and Chu, Wei and Langford, John and Wang, Xuanhui},
+  title     = {Unbiased offline evaluation of contextual-bandit-based news article recommendation algorithms},
+  booktitle = {Proceedings of the Fourth ACM International Conference on Web Search and Data Mining},
+  year      = {2011},
+  pages     = {297--306},
+  doi       = {10.1145/1935826.1935878},
+  url       = {https://doi.org/10.1145/1935826.1935878},
+}
+
+% ---------------------------------------------------------------------------------------------
+% Inference with few clusters / randomization inference
+% ---------------------------------------------------------------------------------------------
+
+@article{cameron2008bootstrap,
+  author  = {Cameron, A. Colin and Gelbach, Jonah B. and Miller, Douglas L.},
+  title   = {Bootstrap-Based Improvements for Inference with Clustered Errors},
+  journal = {The Review of Economics and Statistics},
+  year    = {2008},
+  volume  = {90},
+  number  = {3},
+  pages   = {414--427},
+  doi     = {10.1162/rest.90.3.414},
+  url     = {https://doi.org/10.1162/rest.90.3.414},
+}
+
+@article{cameron2015practitioner,
+  author  = {Cameron, A. Colin and Miller, Douglas L.},
+  title   = {A Practitioner's Guide to Cluster-Robust Inference},
+  journal = {Journal of Human Resources},
+  year    = {2015},
+  volume  = {50},
+  number  = {2},
+  pages   = {317--372},
+  doi     = {10.3368/jhr.50.2.317},
+  url     = {https://doi.org/10.3368/jhr.50.2.317},
+}
+
+@techreport{webb2014reworking,
+  author      = {Webb, Matthew D.},
+  title       = {Reworking Wild Bootstrap Based Inference for Clustered Errors},
+  institution = {Queen's University, Department of Economics},
+  type        = {Queen's Economics Department Working Paper},
+  number      = {1315},
+  year        = {2014},
+  month       = {November},
+  url         = {http://qed.econ.queensu.ca/working_papers/papers/qed_wp_1315.pdf},
+}
+
+@book{imbens2015causal,
+  author    = {Imbens, Guido W. and Rubin, Donald B.},
+  title     = {Causal Inference for Statistics, Social, and Biomedical Sciences: An Introduction},
+  publisher = {Cambridge University Press},
+  year      = {2015},
+  doi       = {10.1017/CBO9781139025751},
+  url       = {https://doi.org/10.1017/CBO9781139025751},
+  note      = {Bibliographic record (title, subtitle, publisher, date) resolved via Crossref; the book itself was not opened.},
+}
+
+% ---------------------------------------------------------------------------------------------
+% (iii) Pre-registration, registered reports, power and null results
+% ---------------------------------------------------------------------------------------------
+
+@misc{bertinetto2020prereg,
+  author = {Bertinetto, Luca and Henriques, Jo{\~a}o and Albanie, Samuel and Paganini, Michela and Varol, G{\"u}l},
+  title  = {The pre-registration experiment: an alternative publication model for machine learning research},
+  howpublished = {NeurIPS 2020 Workshop},
+  year   = {2020},
+  note   = {Organizers as listed on the NeurIPS 2020 workshop page. The page states the pilot "follows a successful small-scale trial of pre-registration in computer vision".},
+  url    = {https://neurips.cc/virtual/2020/workshop/16158},
+}
+
+@proceedings{albanie2022prereg,
+  editor    = {Albanie, Samuel and Henriques, Jo{\~a}o F. and Bertinetto, Luca and Hern{\'a}ndez-Garc{\'\i}a, Alex and Doughty, Hazel and Varol, G{\"u}l},
+  title     = {Proceedings of the {NeurIPS} 2021 Workshop on Pre-registration in Machine Learning},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {181},
+  year      = {2022},
+  note      = {Workshop held 13 Dec 2021. The Preface (pp. i) reports 22 proposals, 10 accepted, 3 results papers.},
+  url       = {https://proceedings.mlr.press/v181/},
+}
+
+@inproceedings{vanmiltenburg2021prereg,
+  author    = {van Miltenburg, Emiel and van der Lee, Chris and Krahmer, Emiel},
+  title     = {Preregistering {NLP} research},
+  booktitle = {Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies},
+  year      = {2021},
+  doi       = {10.18653/v1/2021.naacl-main.51},
+  url       = {https://aclanthology.org/2021.naacl-main.51/},
+}
+
+@inproceedings{sogaard2023twosided,
+  author    = {S{\o}gaard, Anders and Hershcovich, Daniel and de Lhoneux, Miryam},
+  title     = {A Two-Sided Discussion of Preregistration of {NLP} Research},
+  booktitle = {Proceedings of the 17th Conference of the European Chapter of the Association for Computational Linguistics},
+  year      = {2023},
+  doi       = {10.18653/v1/2023.eacl-main.6},
+  url       = {https://aclanthology.org/2023.eacl-main.6/},
+}
+
+@misc{hofman2023prereg,
+  author  = {Hofman, Jake M. and Chatzimparmpas, Angelos and Sharma, Amit and Watts, Duncan J. and Hullman, Jessica},
+  title   = {Pre-registration for Predictive Modeling},
+  year    = {2023},
+  note    = {arXiv preprint, 30 Nov 2023. Publication venue not checked.},
+  url     = {https://arxiv.org/abs/2311.18807},
+  eprint  = {2311.18807},
+  archivePrefix = {arXiv},
+}
+
+@misc{vaccaro2026prereg,
+  author  = {Vaccaro, Michelle},
+  title   = {Preregistration for Experiments with {AI} Agents},
+  year    = {2026},
+  note    = {arXiv:2606.11217v1 [cs.CY]; the PDF stamp reads 3 May 2026 although the identifier is in the 2606 range (arXiv metadata as returned; not reconciled). Position paper.},
+  url     = {https://arxiv.org/abs/2606.11217},
+  eprint  = {2606.11217},
+  archivePrefix = {arXiv},
+}
+
+@misc{wilder2025evaluation,
+  author  = {Wilder, Bryan and Zhou, Angela},
+  title   = {Fostering the Ecosystem of {AI} for Social Impact Requires Expanding and Strengthening Evaluation Standards},
+  year    = {2025},
+  note    = {arXiv preprint, 21 Oct 2025. Only the preregistration passage returned by a search excerpt was read; the full paper was not.},
+  url     = {https://arxiv.org/abs/2510.18238},
+  eprint  = {2510.18238},
+  archivePrefix = {arXiv},
+}
+
+@article{bauer2023dagstuhl,
+  author  = {Bauer, Christine and Carterette, Ben and Ferro, Nicola and Fuhr, Norbert and others},
+  title   = {Report from Dagstuhl Seminar 23031: Frontiers of Information Access Experimentation for Research and Education},
+  journal = {Dagstuhl Reports},
+  year    = {2023},
+  volume  = {13},
+  number  = {1},
+  pages   = {68--154},
+  doi     = {10.4230/DagRep.13.1.68},
+  url     = {https://doi.org/10.4230/DagRep.13.1.68},
+  note    = {arXiv:2305.01509. Pagination 68--154 from the DataCite record (it lists the seminar organizers; the arXiv record lists Bauer, Carterette, Ferro, Fuhr).},
+}
+
+@article{nosek2018prereg,
+  author  = {Nosek, Brian A. and Ebersole, Charles R. and DeHaven, Alexander C. and Mellor, David T.},
+  title   = {The preregistration revolution},
+  journal = {Proceedings of the National Academy of Sciences},
+  year    = {2018},
+  volume  = {115},
+  number  = {11},
+  pages   = {2600--2606},
+  doi     = {10.1073/pnas.1708274114},
+  url     = {https://doi.org/10.1073/pnas.1708274114},
+}
+
+@article{munafo2017manifesto,
+  author  = {Munaf{\`o}, Marcus R. and Nosek, Brian A. and Bishop, Dorothy V. M. and Button, Katherine S. and Chambers, Christopher D. and Percie du Sert, Nathalie and Simonsohn, Uri and Wagenmakers, Eric-Jan and Ware, Jennifer J. and Ioannidis, John P. A.},
+  title   = {A manifesto for reproducible science},
+  journal = {Nature Human Behaviour},
+  year    = {2017},
+  volume  = {1},
+  number  = {1},
+  pages   = {0021},
+  doi     = {10.1038/s41562-016-0021},
+  url     = {https://doi.org/10.1038/s41562-016-0021},
+}
+
+@article{chambers2022registeredreports,
+  author  = {Chambers, Christopher D. and Tzavella, Loukia},
+  title   = {The past, present and future of Registered Reports},
+  journal = {Nature Human Behaviour},
+  year    = {2022},
+  volume  = {6},
+  number  = {1},
+  pages   = {29--42},
+  doi     = {10.1038/s41562-021-01193-7},
+  url     = {https://doi.org/10.1038/s41562-021-01193-7},
+  note    = {Crossref 'issued' 2021 (online); volume 6 is the 2022 volume.},
+}
+
+@article{kaplan2015nullnhlbi,
+  author  = {Kaplan, Robert M. and Irvin, Veronica L.},
+  title   = {Likelihood of Null Effects of Large {NHLBI} Clinical Trials Has Increased over Time},
+  journal = {PLOS ONE},
+  year    = {2015},
+  volume  = {10},
+  number  = {8},
+  pages   = {e0132382},
+  doi     = {10.1371/journal.pone.0132382},
+  url     = {https://doi.org/10.1371/journal.pone.0132382},
+}
+
+@article{ioannidis2005false,
+  author  = {Ioannidis, John P. A.},
+  title   = {Why Most Published Research Findings Are False},
+  journal = {PLoS Medicine},
+  year    = {2005},
+  volume  = {2},
+  number  = {8},
+  pages   = {e124},
+  doi     = {10.1371/journal.pmed.0020124},
+  url     = {https://doi.org/10.1371/journal.pmed.0020124},
+}
+
+@article{button2013power,
+  author  = {Button, Katherine S. and Ioannidis, John P. A. and Mokrysz, Claire and Nosek, Brian A. and Flint, Jonathan and Robinson, Emma S. J. and Munaf{\`o}, Marcus R.},
+  title   = {Power failure: why small sample size undermines the reliability of neuroscience},
+  journal = {Nature Reviews Neuroscience},
+  year    = {2013},
+  volume  = {14},
+  number  = {5},
+  pages   = {365--376},
+  doi     = {10.1038/nrn3475},
+  url     = {https://doi.org/10.1038/nrn3475},
+}
+
+@article{gelman2014beyond,
+  author  = {Gelman, Andrew and Carlin, John},
+  title   = {Beyond Power Calculations: Assessing Type {S} (Sign) and Type {M} (Magnitude) Errors},
+  journal = {Perspectives on Psychological Science},
+  year    = {2014},
+  volume  = {9},
+  number  = {6},
+  pages   = {641--651},
+  doi     = {10.1177/1745691614551642},
+  url     = {https://doi.org/10.1177/1745691614551642},
+}
+
+@article{hoenig2001abuse,
+  author  = {Hoenig, John M. and Heisey, Dennis M.},
+  title   = {The Abuse of Power: The Pervasive Fallacy of Power Calculations for Data Analysis},
+  journal = {The American Statistician},
+  year    = {2001},
+  volume  = {55},
+  number  = {1},
+  pages   = {19--24},
+  doi     = {10.1198/000313001300339897},
+  url     = {https://doi.org/10.1198/000313001300339897},
+}
+
+@inproceedings{urbano2019significance,
+  author    = {Urbano, Juli{\'a}n and Lima, Harlley and Hanjalic, Alan},
+  title     = {Statistical Significance Testing in Information Retrieval: An Empirical Analysis of Type {I}, Type {II} and Type {III} Errors},
+  booktitle = {Proceedings of the 42nd International ACM SIGIR Conference on Research and Development in Information Retrieval},
+  year      = {2019},
+  pages     = {505--514},
+  doi       = {10.1145/3331184.3331259},
+  url       = {https://doi.org/10.1145/3331184.3331259},
+}

@@ -1,0 +1,123 @@
+{
+ "findings": [
+  {
+   "pt_line": 653,
+   "section": "§4.3.1 (also §1 l.129-133, table l.676-682)",
+   "quote_pt": "Não é que o sistema não tenha memória de sessão relevante; é que a ingestão dessa família parou há três semanas, e a janela do sub-pool é de uma. **Metade do canal de cobertura está inerte por idade, não por desenho.**",
+   "problem": "Relative time ('há três semanas', as of 2026-08-30) plus a cause that was established later. Session ingestion produced 0 chunks from 2026-08-11 to 2026-09-07 because a VPS migration moved the address and schema of the transcripts (cron reported ok). ALL ingestion was frozen from 2026-08-24 01:06:35 to 2026-09-07 14:06:13Z by a watcher calling a missing binary. So the 108-chunk pool, its exhaustion on 26–29/08 and the 'five days with zero new items' were all measured inside a broken-ingestion regime. After the repair, per-agent eligibles were 219 -> 285 (2026-09-09).",
+   "proposed_en": "It is not that the system lacks relevant session memory: on 2026-08-30 the newest such chunk was 20.5 days old, and the sub-pool's window is 7 days. **We later established why** (`DEVIATIONS-FOR-PAPER.md` §10.5, §10.7). A host migration had moved both the address and the schema of the agents' session transcripts, and session ingestion produced zero chunks from 2026-08-11 until it was repaired on 2026-09-07, while its cron reported `ok`. Separately, all ingestion was frozen from 2026-08-24 01:06Z to 2026-09-07 14:06Z by a watcher invoking a missing binary. Half of the coverage channel was therefore inert **because of an ingestion defect, not by design and not because of the normal cadence of ingestion**. After the repair, the per-agent sub-pool held 285 eligible chunks (2026-09-09). Every coverage-channel number in this section was measured inside that broken regime: the 108-chunk pool, its daily exhaustion on 26–29/08, and the five days without new items. They describe the channel under defective ingestion, not its steady state.",
+   "evidence": "DEVIATIONS-FOR-PAPER.md §10.5 (l.562-580: MAX(created_at)=2026-08-24 01:06:35 until 2026-09-07T14:06:13Z, 0 chunks 08-25..09-06, nox-mem-watch.sh missing binary) and §10.7 (l.715-728: sessions/% 0 chunks 2026-08-11..09-07, migration of address+schema, repaired 09-07); docs/HANDOFF.md 2026-09-09 (agent_fresh_elegiveis 219 -> 285); grep -n -i 'congel|watch|08-24|distill|migra' MANUSCRIPT.md -> no mention of either defect.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 769,
+   "section": "§4.3.2",
+   "quote_pt": "**Foram acessados pela última vez há 90, 30 e 42 dias — e ganham todos os briefs de hoje.**",
+   "problem": "NEEDS-DATE: 'hoje' means the week ending 2026-08-27, and the day counts are relative to 2026-08-28 (the Abstract dates it, §4.3.2 does not). Same section: l.796-797 '52 foram apagados desde então' and l.819-821 '7.908 (81%) estão há mais de 60 dias sem serem acessados' are undated, and the 7,908 has no artifact.",
+   "proposed_en": "**They had last been accessed 90, 30 and 42 days before the window closed (2026-08-28), and they won every brief of that week.** […] They are the same 201; **52 had been deleted by 2026-08-29**, when the recompute ran […] Of the 9,755 chunks with any access, **7,908 (81%) had gone more than 60 days without being accessed as of 2026-08-28**, with the access component intact.",
+   "evidence": "2026-08-28 minus {2026-05-30, 07-29, 07-17} = {90, 30, 42}; out/TOP-COUNTERFACTUAL-2026-08-29.json (no gerado_em; date from filename); grep -rln '7908|7\\.908' out/*.json *.json measurement/*.json SUPERFICIE-2026-08-27.md -> 0 files (the 2026-08-28 instant for 7,908 is assumed from context, NOT MEASURED).",
+   "source_task": "aging-sweep"
+  },
+  {
+   "section": "§4.3.1",
+   "pt_line": 742,
+   "quote_pt": "`JOIN chunks` faz 20/08 aparecer com 33 distintos onde `brief_log` diz 85 — os outros **52 não existem mais** (servidos e apagados depois).",
+   "problem": "Wrong day. Measured per UTC day, and identically per BRT day: 20/08 = 87 distinct with 35 surviving the JOIN, 21/08 = 85 with 33, 22/08 = 193 with 141. The pair 85/33 belongs to 21/08. All three days lose the same 52 chunks. Also, 'servidos e apagados depois' is only partly true: 966 of their 2,600 slots were served after the chunks had already been deleted from the main DB. The 85/33 figure had no artifact; it came only from a docstring in regime-cobertura.py, lines 23-25.",
+   "proposed_en": "⚠️ **A counting trap, recorded because it nearly caught us.** Counting exposure with `JOIN chunks` makes 21/08 show 33 distinct chunks where `brief_log` says 85. The other **52 no longer exist**. The same 52 vanish from 20/08 (87 → 35) and 22/08 (193 → 141). They are one ingestion of `memory/lessons.md` (ids 308114–308165), replaced by a re-ingest on 2026-08-22 02:01:58 UTC, and the serving path kept handing them out for about 17 h afterwards (966 of their 2,600 slots). Exposure counts come from `brief_log`; only what needs chunk metadata uses the JOIN, and it declares the loss.",
+   "evidence": "_sprint-2026-10-04/A-recon/RECON-52-e-sondas-2026-10-04.json → c52.por_dia_utc, c52.identidade_no_pre_db, c52.servidos_depois_da_substituicao=[966,483]; produced by measurement/sprint-recon-52-e-sondas.py on copies of e20260907T060001Z.db (sha256 4ec7e182…, which matches p2-bancos-ensaio.sha256), daily-main 20260821060004 (gunzipped copy, sha256 40683f8e…) and pre-op kg-confirm-main-20260822020237 (sha256 fba69260…). The BRT grouping was checked with a separate sqlite3 query on the same copy.",
+   "source_task": "recon-52-slots"
+  },
+  {
+   "section": "§4.3.2",
+   "pt_line": 790,
+   "quote_pt": "⚠️ E o número **52** aparece duas vezes nesta seção sobre populações diferentes: um único dia (`20/08`, 85 distintos → 33 sobrevivem ao JOIN) e a **semana inteira** (201 → 149) têm ambos 52 apagados. Ou é o mesmo conjunto — e então toda a poda da semana concentra num dia, que é um facto a reportar — ou é coincidência de calendário **não conferida** [...] Não a conferimos; fica declarada (2026-09-21, por revisão adversarial). São os mesmos 201; **52 foram apagados desde então**",
+   "problem": "The reconciliation is now measured and both branches of the dilemma are false. The week's missing set is set-equal to the missing set of each of 20/08, 21/08 and 22/08. It is one coverage-channel batch served over about 46 h across three days, so it is neither a one-day concentration nor a coincidence. The paragraph also contradicts itself: it says 'Não a conferimos' and then asserts 'São os mesmos 201'.",
+   "proposed_en": "⚠️ **The population of the counterfactual is 149, while §4.3 counts 201 distinct chunks in the same window. The 52 missing are one identified set, not a coincidence.** As sets, the 52 absent from the week (201 → 149) are exactly the 52 absent from each of 20/08, 21/08 and 22/08. They are ids 308114–308165: one ingestion of `memory/lessons.md` (`lesson`, created 2026-08-20 02:02:03 UTC), served only by the coverage channel (2 per brief, 1,300 briefs, all six agents) from 20/08 21:38 to 22/08 19:07 UTC. The file was re-ingested on 22/08 02:01:58 UTC and the 52 were replaced by 53 new chunks. All 53 replacements were served in the window and are among the 149. A deleted chunk has no `importance`, `pain` or `access_count` to recompute salience from, so the 149-chunk recompute leaves them out. The 52 were restored from a backup taken while they existed; the result is below.",
+   "evidence": "RECON-52-e-sondas-2026-10-04.json → c52.por_dia_utc[*].ausentes_igual_ao_conjunto_da_semana (true for 20, 21 and 22/08), c52.ausentes_ids_min_max=[308114,308165], ausentes_contiguos=true, ausentes_servidos{primeiro 2026-08-20 21:38:47, ultimo 2026-08-22 19:07:46, slots 2600, briefs 1300, linhas_por_brief {2:1300}}, linhagem_do_arquivo (pre 52 ids @2026-08-20 02:02:03; post and serving 53 ids 308444–308496 @2026-08-22 02:01:58), substitutos_servidos_na_janela=[53,53]",
+   "source_task": "recon-52-slots"
+  },
+  {
+   "section": "§4.3.2",
+   "pt_line": 805,
+   "quote_pt": "128–131 é um **limite inferior** para a queda — sobre o pool completo os três cairiam igual ou mais. Quanto mais, não medimos, e fica declarado.",
+   "problem": "This can now be measured, and it was. The published 149-chunk result reproduces exactly (2/131, 3/129, 5/128) on the epoch copy at three pinned 'now' values on 2026-08-29. Restoring the 52 from the 2026-08-21 backup gives 183/181/180 on the full 201. Probe-only chunks also sit inside the 149; see the 25-slot finding.",
+   "proposed_en": "So 128–131 is a **lower bound** on the drop. It is now measured on the full pool: with the 52 deleted chunks restored from a backup taken while they existed (2026-08-21 06:00 UTC), and zeroing the access term, the three fall to **183, 181 and 180 of 201**. That is exactly 52 places lower, since every restored chunk outranks them. One caveat: the 52 are earlier versions of `lessons.md` whose replacements are already among the 149, so the 201-pool counts that content twice; it is nonetheless the population that was served. Excluding our five health probes (§4.3) the figures are 126/124/123 of 144 and 178/176/175 of 196. Every variant leaves the three beyond rank 100.",
+   "evidence": "RECON-52-e-sondas-2026-10-04.json → contrafactual.rodadas[0..2] (posicoes_149 equal to artefato_publicado; posicoes_201 = 183/181/180; identical for now = 2026-08-29 00:00:00, 12:00:00 and 23:59:59); ORGANICO-e-hashes-2026-10-04.txt → posicoes_144, posicoes_196. The access_count of the 3 in the epoch copy (911/414/363) equals out/TOP-COUNTERFACTUAL-2026-08-29.json.",
+   "source_task": "recon-52-slots"
+  },
+  {
+   "section": "§4.3",
+   "pt_line": 620,
+   "quote_pt": "🔑 **Declarado como hipótese, não como facto:** a igualdade `25 = 5 × 5` é exata, mas não confirmámos a identidade das cinco sondas dentro desta janela de 7 dias — só que `ancora-sondas.json` lista cinco. [...] A reconciliação fica **aberta**",
+   "problem": "Now confirmed by identity. In the window, the brief-size histogram is {10 rows: 4,627 briefs, 5 rows: 5 briefs}, with 0 NULL brief_ids. The 5 short briefs' brief_ids equal ancora-sondas.json sondas_excluidas as a set.",
+   "proposed_en": "🔑 **Confirmed by identity, not only by arithmetic.** The window holds exactly 5 briefs that do not have 10 rows. Each has 5 rows; the other 4,627 all have 10, and no row lacks a `brief_id`. Their `brief_id`s are, as a set, the five that `out/ancora-sondas.json` lists as `sondas_excluidas`. All are `scope=global` with no agent, issued on 2026-08-26 at 19:58:17–18 and 20:28:55–56 UTC. So the 4,632 briefs **do** include our five health probes, and `25 = 5 × 5` is an identity. The probes are also not neutral to the distinct count. Each carries the three constants plus two other chunks, and five of those chunks (307967–307970 from `memory/decisions.md`, 308443 from `memory/projects.md`) were served exactly once ever, inside a probe. Without the probes the window has **46,270 slots in 4,627 briefs and 196 distinct chunks**. Top-10 and top-20 shares are unchanged (47.16%, 61.46%), and the same 3 chunks appear in 100% of briefs. The contradiction with §2 remains textual: *\"always 10 items\"* is false for exactly these five probe briefs.",
+   "evidence": "RECON-52-e-sondas-2026-10-04.json → c25.histograma_linhas_por_brief={5:5,10:4627}, linhas_sem_brief_id=0, briefs_com_n_diferente_de_10 (5 entries), conjunto_igual_a_ancora_sondas=true, tabela_4_3_sem_sondas; ORGANICO-e-hashes-2026-10-04.txt → chunks_so_das_sondas=[307967,307968,307969,307970,308443]. A separate per-id query on the epoch copy confirmed each of these 5 has exactly 1 brief_log row ever.",
+   "source_task": "recon-52-slots"
+  },
+  {
+   "section": "§4.3",
+   "pt_line": 604,
+   "quote_pt": "| chunks distintos | **201** |",
+   "problem": "The 201 includes 5 chunks served only by our own health probes. The organic distinct count is 196. The section heading ('carrossel de 201 itens', line 596) and Figure 2 (201 ranks) carry the same contamination, although the shares do not change.",
+   "proposed_en": "| distinct chunks | **201**, of which 5 were served only by our five health probes; **196** organic |\n(and optionally add a row: | without the 5 probes | **46,270** slots in **4,627** briefs · deficit **0** · top-10 47.16% · top-20 61.46% |)",
+   "evidence": "RECON-52-e-sondas-2026-10-04.json → c25.tabela_4_3_como_publicada (equals out/superficie.json concentracao_do_brief: 46295/4632/201/3/47.16/61.46) vs c25.tabela_4_3_sem_sondas (46270/4627/196/3/47.16/61.46/deficit 0)",
+   "source_task": "recon-52-slots"
+  },
+  {
+   "section": "4.3.1",
+   "pt_line": 664,
+   "quote_pt": "Medido em quatro dias\n(`measurement/pool-elegivel.py`, `POOL-ELEGIVEL-2026-08-28.json`):",
+   "problem": "Cites only the one-day artifact for a four-day measurement. A four-day artifact now exists.",
+   "proposed_en": "Measured over four closed days (`measurement/pool-elegivel.py`, `POOL-ELEGIVEL-2026-08-28.json`; the four days are in `POOL-ELEGIVEL-2026-08-26-to-29.json`, produced by `measurement/sprint-pool-elegivel-multidia.py`):",
+   "evidence": "_sprint-2026-10-04/POOL-ELEGIVEL-2026-08-26-to-29.json (days[], positive_control all_equal=true)",
+   "source_task": "recon-pool-elegivel"
+  },
+  {
+   "section": "4.3.1",
+   "pt_line": 667,
+   "quote_pt": "⚠️ **O artefato cobre UM dia, e a afirmação abaixo cobre quatro.** Verificado em\n2026-09-21 por revisão adversarial: ... **um artefato citado para sustentar mais do que contém**.",
+   "problem": "The warning describes a gap that has now been closed by re-measurement from preserved data. Keeping it unchanged would misstate the current evidentiary status. It should become a short history note that says how the gap was closed.",
+   "proposed_en": "⚠️ **Until 2026-10-04 the artifact covered ONE day while the claim covered four.** Adversarial review on 2026-09-21 found that `POOL-ELEGIVEL-2026-08-28.json` holds only 2026-08-28. The other three days had been measured by the same route and not preserved. The review suspected in-place rewriting; there was none, because the file on disk is identical to the versioned one. The gap was closed by re-measuring from a preserved trial database (`corpus-SERVING-REAL-e20260903-recuperado.db`, sha256-verified copy) using the same predicate. A positive control came first: re-running 2026-08-28 reproduces all 12 fields of the original artifact. 2026-08-26, 2026-08-27 and 2026-08-29 then give the same pool of 108, 0 never served and 108 served (`POOL-ELEGIVEL-2026-08-26-to-29.json`). The set of pool ids is identical (same hash) in copies frozen on 2026-08-26, 2026-09-03 and 2026-09-07. A copy frozen on 2026-09-08, after the corpus was re-ingested, fails the control (pool 55) and is not used. Limit: importance and pain are read as stored in those copies, so they bracket the four days rather than observe each instant.",
+   "evidence": "A-pool-elegivel/out-serv0903.json, out-e0907.json, out-ord0826.json, out-pres0908.json; copies-sha256.txt (all four match p2-bancos-ensaio.sha256)",
+   "source_task": "recon-pool-elegivel"
+  },
+  {
+   "section": "4.3.1",
+   "pt_line": 682,
+   "quote_pt": "| slots de cobertura por candidato elegível | **12,4×** (dia fechado) |",
+   "problem": "12.4× holds for 27, 28 and 29/08. On 26/08 there were 677 brief_ids (672 ten-row briefs plus 5 five-row briefs at 19:58 and 20:28 UTC), which gives 12.5×.",
+   "proposed_en": "| coverage slots per eligible candidate | **12.4×** (closed day; 12.5× on 2026-08-26, which had 5 extra five-row briefs) |",
+   "evidence": "POOL-ELEGIVEL-2026-08-26-to-29.json days[0].briefs_no_dia=677, slots_por_candidato=12.5; A-pool-elegivel/sensitivity-ten-row-briefs-serv0903.json (672 ten-row briefs, 108/108 served)",
+   "source_task": "recon-pool-elegivel"
+  },
+  {
+   "section": "4.3.1",
+   "pt_line": 684,
+   "quote_pt": "⚠️ O último número é de **dia fechado**: em 29/08, medido com o dia ainda em curso, dá\n5,6× simplesmente porque menos briefs ocorreram.",
+   "problem": "The closed 29/08 is now measured (672 briefs, 12.4×). The partial-day 5.6× reading has no preserved artifact and could not be recovered.",
+   "proposed_en": "⚠️ The last number is for a **closed day**. The original 2026-08-29 reading was taken with the day still in progress and gave 5.6× only because fewer briefs had occurred; that partial reading was not preserved. Measured on the closed day, 2026-08-29 gives 12.4× (672 briefs). The script flags `dia_parcial` so that partial and closed days are not compared.",
+   "evidence": "POOL-ELEGIVEL-2026-08-26-to-29.json days[3]: briefs_no_dia=672, slots_por_candidato=12.4, dia_parcial=false; no artifact for the 5.6x partial run was found (searched: repo POOL-ELEGIVEL* files via find)",
+   "source_task": "recon-pool-elegivel"
+  },
+  {
+   "section": "4.3.1",
+   "pt_line": 737,
+   "quote_pt": "**Por que isso é resultado e não nota de rodapé:** a renovação da superfície não é governada por relevância nem pelo ranker. É governada por quais **caminhos de arquivo** o canal foi configurado para enxergar — e o corpus cresceu para fora deles.",
+   "problem": "§4.3.1 decomposes only the coverage channel. The main pool (8 of 10 slots) gets no per-filter decomposition, so «policy, not capacity» is assumed for it (open item 6). Insert the paragraph and table below right after this passage, before the 'counting trap' note.",
+   "proposed_en": "**The main pool, filter by filter.** The main pool reaches its 8 slots through seven serial stages (`brief.ts:202-215, 371-397, 420-468, 819-821`): (F1) routing, where the agent sub-pool sees only `sessions/<agent>/%` with quota 5 and the `scope=global` sub-pool sees the whole corpus; (F2) a `since` window, inactive because production sends none; (F3) a SQL proxy pre-rank with `LIMIT 500` per sub-pool; (F4) the exact `calculateSalience` re-rank; (F5) dedup by id, exact title/one-liner and near-duplicate containment ≥ 0.6; (F6) quotas capped at `mainTarget = n − freshSlots = 8`; and (F7) the high-pain floor, which picks first the items of the no-fresh brief with `pain ≥ 0.9`. We reimplemented them on the frozen corpus of these days (`p2-ord-ro-2026-08-26.db`, 67,187 chunks). The reconstruction reproduces the served main slots in **100%** of the 672 briefs of each day from 24/08 to 07/09. Counting exclusions is the wrong instrument here: F3 alone removes 95.7% of the corpus from candidacy and binds nothing. The question is answered by lifting **one** filter at a time and recomputing every brief:\n\n| lifted | briefs whose main set changes (of 672) | distinct main chunks per day |\n|---|---:|---:|\n| none (as served) | — | **33** |\n| F1 routing | 672 | **8** |\n| F2 `since` | — (inactive) | 33 |\n| F3 `LIMIT 500` | **0** | 33 |\n| F4 exact re-rank | 672 | 33 |\n| F5 dedup | 192 | 33 |\n| F6 quota split | 672 | **8** |\n| F7 high-pain floor | 672 | 33 |\n\nNo filter, lifted, widens the surface; the two that change its breadth **narrow** it, because routing by agent is the main pool's only source of variety. The breadth is exactly `3 + 6 agents × 5`: the 3 shared slots are taken by the high-pain floor (chunks 112241, 116107 and 116467, `pain = 1.0`, in every brief), and each agent gets the same 5 in every brief. A day has **5,376** main slots and they serve **33** distinct chunks, which is 0.61% of the slot capacity and 163 serves per chunk. These are the same 33 on every measurable day from 21/08 to 21/09, and the serving log alone, without the database, gives 37 for the whole month. A rotation over the same slots could serve 5,376 distinct chunks a day, or 8.0% of the corpus. So the main pool is **not** capacity-bound at the day, the unit at which §4.1 measures exposure. It is bound by its ranking: a deterministic top-k with no serve-history term, removed on purpose on 2026-06-26 (`brief.ts:786-792`). Both channels are therefore governed by policy rather than by slots, but by **different** policies. The coverage channel exhausts an eligibility predicate of 108 chunks; the main pool returns the same arg-max for the same route, with 99.95% of the corpus admitted to the ranking and never reached. Daily, the two surfaces are disjoint and add up to the whole: 33 + 108 = **141** distinct chunks, every day from 24/08 to 19/09.",
+   "evidence": "measurement/sprint-desagrega-filtros-pool-principal.py; _sprint-2026-10-04/A-filters-disaggregation/out-ord0826.json (per_epoch 2026-08-24..09-07: fidelity briefs_recon_subset_of_served_leaving_2 = briefs; leave_one_out; series; capacity), out-pres0908.json (trial corpus, same 33/8/33 pattern), out-ord0826-tzm3-0828.json (TZ sensitivity identical), observed-main-from-log.json (log-only: 33 per measurable epoch, union 37, distinct_all_10_slots 141), diag-out.txt (residual mismatches = boris, corpus-state). Report: _sprint-2026-10-04/A-filters-disaggregation.md",
+   "source_task": "filters-disaggregation"
+  }
+ ],
+ "doubts": [
+  "Linha ~611: a frase '230× de folga para não estar' foi traduzida literalmente; o 230× não é derivável direto de 46.295/201 (=230,3), parece ok, mas confirmar.",
+  "§4.3 abre com '25 = 4.632 × 10 − 46.295' em code span; convertí a notação para 4,632 × 10 − 46,295 por ser aritmética e não código. Reverter se preferir verbatim.",
+  "Datas dd/mm foram convertidas para ISO 2026-MM-DD, inclusive dentro de code spans (`20/08` virou `2026-08-20`) e em 'dia: 2026-08-28' que já era ISO.",
+  "O PT mistura 'tu/nós' de registro: 'confirmámos', 'facto', 'ficheiro' (português europeu) no bloco adicionado em 2026-09-21; traduzido normalmente, mas o bloco parece de outra mão.",
+  "O PT diz 'a coincidência é do calendário' e logo 'some no próximo dia', mas o parágrafo seguinte retoma 'Não é que o sistema não tenha memória...' sem quebra de linha; mantive a estrutura original.",
+  "'Uma leitura de arco' traduzido como 'an arc-level reading' (termo interno de retrospectiva); verificar se há termo canônico no Paper B.",
+  "Tabela 4.3.1 e a de 'Por que a predição falhou' repetem os mesmos dois sub-pools (padrões/janelas); preservado como no PT.",
+  "Inconsistência do PT: 'Os 52 apagados' e 'dos 201, 149 sobrevivem' implicam 201−149=52, mas 20/08 tem 85→33 (52 também); o PT já declara isso como não conferido, mantido.",
+  "Frase 'provavelmente do pool principal — provavelmente não: são, por dedução' é autocorreção retórica; traduzida mantendo o efeito."
+ ]
+}

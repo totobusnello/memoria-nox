@@ -1,0 +1,48 @@
+{
+ "receita_semente": "SHA256('sprint-figB-item7-crosscheck|<i>')",
+ "sementes": 20000,
+ "K": 20,
+ "janela": [
+  "2026-09-01",
+  "2026-09-20"
+ ],
+ "media_por_braco": {
+  "control": {
+   "media": 10.0124,
+   "ep_mc": 0.0146
+  },
+  "w2": {
+   "media": 3.3329,
+   "ep_mc": 0.0108
+  },
+  "w4": {
+   "media": 3.3283,
+   "ep_mc": 0.0108
+  },
+  "w7.5": {
+   "media": 3.3264,
+   "ep_mc": 0.0108
+  }
+ },
+ "P_n_eq_1_topo": 0.0911,
+ "ep_mc_P_n_eq_1": 0.002,
+ "P_n_le_1_topo": 0.1101,
+ "dist_topo": {
+  "0": 382,
+  "1": 1821,
+  "2": 3945,
+  "3": 5104,
+  "4": 4470,
+  "5": 2658,
+  "6": 1143,
+  "7": 364,
+  "8": 90,
+  "9": 20,
+  "10": 3
+ },
+ "comparar_com": {
+  "ITEM7 media_condicional w7.5": 3.3565,
+  "ITEM7 P_n_eq_1": 0.1015,
+  "manuscrito control (sem artefato)": 9.991
+ }
+}
