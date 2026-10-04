@@ -66,3 +66,12 @@ O arXiv **não aceitou** o manuscrito em 2026-09-03, e a condição que invocou 
 *journal*. **Nenhum DOI de repositório satisfaz aquela condição.** A apelação é ativo de
 uso único e, negada, é permanente — não gastar com este DOI na mão. O caminho é o §6 como
 paper próprio para a TMLR.
+
+## v1.0.3 — publicada 2026-10-04
+
+- Registro **23130276**, DOI da versão **`10.5281/zenodo.23130276`** (conceito `10.5281/zenodo.22649268`, que agora resolve para ela).
+- Arquivo único `paper-tecnico-nox-mem.pdf`, 73 páginas, `md5:c18493679afd999c698c2f3492a5bcbb`, conferido pela API pública depois do publish; `doi.org` responde 200.
+- Rascunho criado e preenchido por `deposit-v103.py` (nova versão a partir da v1.0.2 publicada, metadados normalizados para o shape RDM, ORCID no autor, bloco "What changed in v1.0.3"); o botão Publish foi do Toto.
+- Conteúdo: partes A–G do `paper/CHANGELOG.md` (declaração de uso de IA generativa, retirada da linguagem de produto, correções verificadas contra artefatos e fontes, auditoria completa, revisão Fable, revisão de regressão do Codex). Nenhum resultado de manchete mudou.
+
+**Atualização da nota abaixo (2026-10-04):** o Toto decidiu usar a apelação do arXiv com esta versão, porque a rota TMLR ficou bloqueada (sem acesso). A carta está fora do repositório público.

@@ -20,7 +20,7 @@
 
 ## Arquivo
 
-    paper/build/paper-tecnico-nox-mem.pdf   — 75 páginas, 332 KB, xelatex via pandoc (v1.0.2)
+    paper/build/paper-tecnico-nox-mem.pdf   — 73 páginas, 318 KB (318.365 B), xelatex via pandoc (v1.0.3, MD5 207e02545b3f5a4619789df11374aaf1)
     Reconstruível com: ./scripts/build-paper.sh
 
 ## Categoria
@@ -36,48 +36,46 @@ equivalente: `H.3.3; I.2.7`.
 campo de metadados é lido isolado, sem as seções que o qualificam, então cada limitador
 tem de viajar dentro dele.
 
-⚠️ **E ele NÃO é o bloco que foi ao arXiv.** O `paper/arxiv-metadata.txt` (local,
-gitignored) afirma *"architecture is the leading explanation"*, enquanto o corpo do paper
-diz o oposto — *"this is embedding-matching, **not** a clean architecture isolation"*
-(§6.3.2). Aquele bloco também trazia *"not **yet** significant"* e omitia o número da
-comparação em que nox-mem **perde**. As três coisas estão corrigidas abaixo.
+⚠️ **Histórico.** O bloco que foi ao arXiv em 2026-06-30 afirmava *"architecture is the
+leading explanation"*, *"not **yet** significant"* e omitia a comparação em que nox-mem
+**perde**. Desde a v1.0.3 parte F (2026-10-04) o `paper/arxiv-metadata.txt` (local,
+gitignored) traz o mesmo bloco de baixo, que condensa o abstract do manuscrito sem
+alegação nova e cabe no limite de 1.920 caracteres do arXiv.
 
-**Desde 2026-09-29 o bloco abaixo é o `paper/abstract.md` §2, palavra por palavra** — o
-`abstract.md` recebeu as mesmas três correções e é o texto que o `claims_check.py` confere
+**O bloco abaixo é o `paper/abstract.md` §2, palavra por palavra** (desde 2026-09-29;
+reescrito em 2026-10-04 para caber em 1.920 caracteres) — é o texto que o `claims_check.py` confere
 (contagens de sistemas). Editar lá e copiar para cá, nunca o contrário. Ver
 `../publication/sota-retraction-patch-2026-09-03.md` para a classe de defeito.
 
-    LLM-agent memory systems often trade retrieval quality or portability for developer
-    ergonomics, and cross-system benchmarks remain scarce. We present nox-mem, an
-    open-source hybrid memory layer combining FTS5 keyword retrieval, sqlite-vec dense
-    retrieval, and Reciprocal Rank Fusion over a single-file SQLite store; the default
-    embedding layer is a swappable cloud provider, with an FTS5-only offline fallback. Its
-    pain-weighted salience score (weights 0.55 importance / 0.15 recency / 0.10 pain / 0.20
-    access) adds incident severity as a retrieval signal. Pain-weighting is a design signal
-    whose isolated effect is directional and not statistically significant; section-aware
-    ranking is the empirical driver (99.85% of the ablated gain). We also introduce a
-    Conditional Hard Mutex (G10d) that gates section and source-type boosts when a query
-    names at most two entities, recovering multi-hop (+1.58% nDCG@10) and adversarial
-    (+3.04% nDCG@10, +6.25% MRR) regressions. We pre-register methodology, report the
-    G3→G10d ablation trajectory on an n=100 golden set, and benchmark five memory systems
-    (Mem0, Zep, Letta, agentmemory, EverMind-AI): four (Mem0, agentmemory, EverOS, Zep)
-    produce head-to-head quality numbers on LongMemEval and LoCoMo; one (Letta) is a
-    documented deployment non-run. Under each system's native embedder the two leaders
-    split: Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426), nox-mem wins LongMemEval. Under
-    controlled embedding (both Gemini-3072d, n=2,482) nox-mem beats Mem0 on LongMemEval
-    (nDCG@10 0.526 vs 0.406) and LoCoMo (0.495 vs 0.441) and on all five populated query
-    categories. This is an embedding match rather than a clean architecture isolation, and
-    four residual confounds are declared. On EverMemBench the F_MH multi-hop track sits at
-    3–7%, against 18.88% strict EM for the best published system on that track.
-    Contributions: pain-weighted salience, the Conditional Hard Mutex boost-interaction
-    ablation, an open five-system benchmark, and single-file self-hosted deployment. Code
-    (MIT) and evaluation harness: https://github.com/totobusnello/memoria-nox.
+    We introduce nox-mem, a persistent memory system for LLM agents. Retrieval and
+    retention use an additive salience score in which pain, an operator-assignable
+    severity in [0.1, 1.0] otherwise set at ingest by a keyword rule, is a first-class
+    signal; ranking changes pass a mandatory shadow phase. Each store is one SQLite
+    file, with swappable embeddings, event-driven writeback, per-type retention,
+    chunk-level provenance and a pre-snapshot before destructive operations (MIT
+    license). In production since March 2026, it serves six agents at KG-path p50 2.5
+    ms, $0 per KG-path query and a 399 MB resident set. Our central result is a
+    pre-specified (plan committed publicly before the first run), same-corpus comparison
+    against five memory systems: four (Mem0, agentmemory, EverOS, Zep) produce
+    head-to-head quality numbers; one (Letta) is a documented deployment non-run. Under
+    native embedders nox-mem and Mem0 split: Mem0 wins LoCoMo (nDCG@10 0.469 vs 0.426),
+    nox-mem wins LongMemEval. An embedding-matched variant run as a planned side
+    experiment (both Gemini 3072-d, n=2,482), an embedding match rather than an
+    architecture isolation, inverts the split: nox-mem leads on both datasets
+    (LongMemEval 0.526 vs 0.406; LoCoMo 0.495 vs 0.441) and in all five represented
+    categories, with four residual confounds declared. EverOS outperforms nox-mem on
+    both (overall 0.646 vs 0.501), with a cross-encoder stage nox-mem lacks, whose share
+    of the gap is unmeasured; Zep ranks third, ahead of Mem0. On EverMemBench nox-mem
+    reaches 63.28% Overall with Gemini-3-flash, 4.01 pp above the published MemOS figure
+    on that backbone and below its 72.61% full-context baseline, so this is not a
+    state-of-the-art claim. Against our headline: pain's isolated effect is directional,
+    not significant; section-aware ranking is the dominant driver; and multi-hop F_MH is
+    6.02%, against 10.84% for MemOS on the same backbone.
 
 ⚠️ **Nenhum limite de tamanho de abstract está estabelecido nas páginas oficiais do
 TechRxiv** (o 150–250 palavras que se encontra por aí é de *journals* IEEE, não do
-repositório). O bloco acima tem 2.087 caracteres — o que foi ao arXiv tinha 1.909, então
-está na mesma ordem. Se o formulário recusar, o corte a fazer primeiro é a frase do
-Conditional Hard Mutex; os limitadores **não** são candidatos a corte.
+repositório). O bloco acima tem 1.902 caracteres (v1.0.3 parte G), dentro do limite de 1.920 do arXiv. Os
+limitadores **não** são candidatos a corte.
 
 ## Keywords sugeridas
 

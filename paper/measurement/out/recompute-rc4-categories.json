@@ -1,0 +1,96 @@
+{
+  "k": 10,
+  "declared_locomo_map": {
+    "1": "multi-hop",
+    "2": "temporal",
+    "3": "open-domain",
+    "4": "single-hop",
+    "5": "adversarial"
+  },
+  "inputs": {
+    "rc4/nox-mem": {
+      "path": "eval/q4-comparison/output/rc4/nox_mem.json",
+      "sha256": "760a8f0cf0de05c7570f1a4f0b4f5256ce77f4d82127db9b9cc248a2be17f98f",
+      "n_queries": 2482
+    },
+    "rc4/mem0": {
+      "path": "eval/q4-comparison/output/rc4/mem0.json",
+      "sha256": "20fbe5ebe0d6d29aee2f3295d40887d9a719cbdcdb37bd54efa290a1c2af9182",
+      "n_queries": 2482
+    },
+    "rc4-ablation/nox-mem": {
+      "path": "eval/q4-comparison/output/rc4-ablation/nox_mem.json",
+      "sha256": "bfeb4f5b0f1f5928e1626f8cd7d040d4e16da3a23fdb75f9b6d09de0deeeab9f",
+      "n_queries": 2482
+    }
+  },
+  "cells": {
+    "rc4/nox-mem": {
+      "adversarial": {
+        "n": 524,
+        "ndcg10": 0.437039
+      },
+      "multi-hop": {
+        "n": 415,
+        "ndcg10": 0.364107
+      },
+      "open-domain": {
+        "n": 92,
+        "ndcg10": 0.259214
+      },
+      "single-hop": {
+        "n": 997,
+        "ndcg10": 0.592203
+      },
+      "temporal": {
+        "n": 454,
+        "ndcg10": 0.55018
+      }
+    },
+    "rc4/mem0": {
+      "adversarial": {
+        "n": 524,
+        "ndcg10": 0.295469
+      },
+      "multi-hop": {
+        "n": 415,
+        "ndcg10": 0.321827
+      },
+      "open-domain": {
+        "n": 92,
+        "ndcg10": 0.23505
+      },
+      "single-hop": {
+        "n": 997,
+        "ndcg10": 0.560704
+      },
+      "temporal": {
+        "n": 454,
+        "ndcg10": 0.457038
+      }
+    },
+    "rc4-ablation/nox-mem": {
+      "adversarial": {
+        "n": 524,
+        "ndcg10": 0.457329
+      },
+      "multi-hop": {
+        "n": 415,
+        "ndcg10": 0.351545
+      },
+      "open-domain": {
+        "n": 92,
+        "ndcg10": 0.236455
+      },
+      "single-hop": {
+        "n": 997,
+        "ndcg10": 0.577335
+      },
+      "temporal": {
+        "n": 454,
+        "ndcg10": 0.557109
+      }
+    }
+  },
+  "matches_paper_section_6_4": true
+}

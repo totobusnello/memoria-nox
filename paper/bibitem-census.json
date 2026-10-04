@@ -10,11 +10,13 @@
     "beamretrieval",
     "beir",
     "bm25",
+    "clarkgardner",
     "colbert",
     "contriever",
     "dpr",
     "everos",
     "fid",
+    "gbrain",
     "geminiembed",
     "genagents",
     "goldfish",
@@ -23,6 +25,7 @@
     "hipporag2",
     "hnsw",
     "hotpotqa",
+    "hypermem",
     "ircot",
     "letta",
     "lightrag",
@@ -45,6 +48,7 @@
     "mteb",
     "musique",
     "nogueira",
+    "quati",
     "qwen3embed",
     "rag",
     "react",
@@ -102,5 +106,14 @@
       "q-a-p-pivot"
     ],
     "motivo": "v1.0.3: o ponteiro para o pivot Q/A/P interno saiu do manuscrito junto com o vocabulario de produto (pillar). Era 'evidencia', nao 'obra', logo as 55 obras e a densidade nao mudam."
+  },
+  "_adicionadas_v1_0_3_parte_E_2026_10_04": {
+    "footnotes": [
+      "clarkgardner",
+      "hypermem",
+      "quati",
+      "gbrain"
+    ],
+    "motivo": "Auditoria v1.0.3 parte E: o baseline original do HotpotQA (reimplementacao do leitor de Clark & Gardner, arXiv:1710.10723) e o HyperMem (arXiv:2604.08256, citado em §7.2 F4) passaram a ser citados com identificador e discussao; sao obras de terceiro, logo entram em 'obra' (55 -> 57). Quati (arXiv:2404.06976, ja em refs.bib, antes citado inline sem footnote) e o relatorio gbrain-evals (artefato de terceiro citado em §5.6, antes inline) ganharam footnote propria: 57 -> 59."
   }
 }

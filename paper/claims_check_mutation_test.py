@@ -149,7 +149,7 @@ CASOS = [
         # irresolvivel e' indistinguivel de inventada.
         "footnote ACADEMICA sem localizador resolvivel",
         PAPER,
-        "doi:10.1561/1500000019. Cited in \u00a73.1",
+        "doi:10.1561/1500000019. Cited in \u00a71.5 and \u00a72.2",
         "Cited in \u00a73.1",
         "sem localizador",
     ),
@@ -268,6 +268,13 @@ CASOS = [
     (
         "aritmetica em pp misturando F1 e strict EM",
         PAPER, None, "\nThat leaves a 55 pp gap between F1 and strict EM.\n",
+        "mistura F1 e EM",
+    ),
+    (
+        # v1.0.3: o F_MH passou a ser descrito como "LLM-judged" (o que ele e').
+        # A mesma subtracao cross-metric escrita na grafia nova tem de morder.
+        "aritmetica em pp misturando F1 e accuracy LLM-judged",
+        PAPER, None, "\nThat leaves a 55 pp gap between F1 and LLM-judged accuracy.\n",
         "mistura F1 e EM",
     ),
     (
