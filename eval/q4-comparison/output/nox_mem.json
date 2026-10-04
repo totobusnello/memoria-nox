@@ -1,0 +1,1517 @@
+{
+  "meta": {
+    "system": "nox-mem",
+    "version": "git-sha (resolve at runtime via `git rev-parse HEAD`)",
+    "k": 10,
+    "n_queries": 20,
+    "n_errors": 0,
+    "datasets": [
+      "locomo",
+      "longmemeval"
+    ],
+    "started_at": "2026-05-24T02:52:29Z",
+    "finished_at": "2026-05-24T03:40:17Z",
+    "harness_version": "1.0"
+  },
+  "queries": [
+    {
+      "dataset": "locomo",
+      "category": "single-hop",
+      "question_id": "conv-48::q13",
+      "query": "What places give Deborah peace?",
+      "gold_chunk_ids": [
+        "conv-48::D2:13",
+        "conv-48::D4:34",
+        "conv-48::D6:10",
+        "conv-48::D19:17"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-48::D15:29",
+          "score": 0.030621785881252923,
+          "text": "Deborah: Nature helps me find peace every day - it's so refreshing!",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-48::D17:3",
+          "score": 0.03021353930031804,
+          "text": "Deborah: It's amazing how it can give you peace and calm in times like that. If you ever need any support, just let me know - we're in this together!",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-48::D15:33",
+          "score": 0.029957522915269395,
+          "text": "Deborah: It's amazing how nature has the power to bring us peace and clarity.",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-48::D2:11",
+          "score": 0.029437229437229435,
+          "text": "Deborah: This is one of the places where I do it.",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-48::D14:17",
+          "score": 0.029411764705882353,
+          "text": "Deborah: It's a symbol of peace and enlightenment.",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-48::D6:10",
+          "score": 0.029051670471052088,
+          "text": "Deborah: I've been blessed to travel to a few places and Bali last year was one of my favs. It was a gorgeous island that gave me peace, great for yoga.",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-48::D4:34",
+          "score": 0.028083267871170464,
+          "text": "Deborah: That sounds great, Jolene. Nature's calming for sure. Guess it helps us forget the daily craziness and find inner peace. No wonder you're a fan! I like to come to this spot by the water near my mom's old house. It's where I reflect on her life and find some peace. Being surrounded by nature helps a lot.",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-48::D2:13",
+          "score": 0.027884615384615386,
+          "text": "Deborah: That's my old home. I go there now and then for my mom, who passed away. Sitting in that spot by the window gives me peace.",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-48::D15:19",
+          "score": 0.027402402402402402,
+          "text": "Deborah:  Glad you found something that gives you peace and calm. Do you have a favorite memory with \"it\" to share?",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-48::D28:27",
+          "score": 0.027222222222222224,
+          "text": "Deborah: It's awesome how pets can bring us comfort and peace when we need it.",
+          "source": "locomo/conv-48"
+        }
+      ],
+      "latency_ms": 564.2595000099391,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "single-hop",
+      "question_id": "conv-50::q49",
+      "query": "When Dave was a child, what did he and his father do in the garage?",
+      "gold_chunk_ids": [
+        "conv-50::D12:2",
+        "conv-50::D12:4",
+        "conv-50::D22:5"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-50::D22:5",
+          "score": 0.03125,
+          "text": "Dave: Thanks Calvin! I've spent a lot of time and effort on it. It's not just a hobby, it's a passion. It's like therapy, a way to get away from everyday stress. When I was little I'd spend hours in my dad's garage, tinkering with engines - it was like my own sanctuary. Now I'm lucky enough to do this as a job, to take something broken and make it into something awesome.",
+          "source": "locomo/conv-50"
+        },
+        {
+          "id": "conv-50::D25:15",
+          "score": 0.031054405392392875,
+          "text": "Dave: Ever since I was ten, I've been fascinated with how machines work. I found an old car in a neighbor's garage and asked if I could fix it. That's when my love for car engineering began! I enjoyed transforming it from broken-down to high-running, and that sense of accomplishment made me hooked\u2014so I've been working on cars ever since.",
+          "source": "locomo/conv-50"
+        },
+        {
+          "id": "conv-50::D21:8",
+          "score": 0.02904040404040404,
+          "text": "Dave: Wow, it's so satisfying! Here are my hands after a day in the garage - permanently stained with grease. But it's worth it when you see the end result.",
+          "source": "locomo/conv-50"
+        },
+        {
+          "id": "answer_e9ad5914_2",
+          "score": 0.01639344262295082,
+          "text": "[session_id=answer_e9ad5914_2 date=2022/01/15 (Sat) 03:56]\nuser: I'm looking for some book recommendations. I just finished reading \"The Nightingale\" by Kristin Hannah today, and I'm still reeling from the emotional impact. I'm open to trying out different genres, so feel free to suggest anything that you think I might enjoy.\nassistant: \"The Nightingale\" is an incredible book, and I'm not surprised you're still reeling from the emotional impact! Kristin Hannah has a way of crafting stories that ",
+          "source": "longmemeval/gpt4_a1b77f9c"
+        },
+        {
+          "id": "conv-50::D12:4",
+          "score": 0.01639344262295082,
+          "text": "Dave: Yeah, definitely! I have fond memories of working on cars with my dad as a kid. We spent one summer restoring an old car. It was hard work, but seeing the end result and knowing that we did it together was really satisfying.",
+          "source": "locomo/conv-50"
+        },
+        {
+          "id": "answer_sharegpt_qTi81nS_0",
+          "score": 0.016129032258064516,
+          "text": "[session_id=answer_sharegpt_qTi81nS_0 date=2023/05/22 (Mon) 12:47]\nuser: Write me the beginning of a script (formatted like a real movie script) for a comedy movie scene, based on the below information:  Andy, a man in his 40s, is the Head of Computing at a rural high school. He has a loud, deep voice, and has more confidence than he has intelligence. He wants to be friends with his colleague exam invigilator John, so often tries and fails to impress him with his elaborate stories. He often bang",
+          "source": "longmemeval/4388e9dd"
+        },
+        {
+          "id": "answer_3be95d43_2",
+          "score": 0.015873015873015872,
+          "text": "[session_id=answer_3be95d43_2 date=2023/05/22 (Mon) 18:03]\nuser: I'm trying to find some new movies to watch. I've been into Marvel movies lately, I also re-watched Spider-Man: No Way Home, which is another Marvel movie. Can you recommend some other superhero films that aren't from the Marvel universe?\nassistant: A Marvel fan, eh? Well, there are plenty of amazing superhero movies outside of the Marvel universe that you might enjoy. Here are some recommendations:  **DC Extended Universe (DCEU) M",
+          "source": "longmemeval/681a1674"
+        },
+        {
+          "id": "conv-50::D25:13",
+          "score": 0.015873015873015872,
+          "text": "Dave: Yeah, I get it. Cars give me an outlet to express myself. It's like a little oasis of calm. Whenever I'm working on one, it's like I'm connecting back with myself. And yeah, the music helps too! Look at my garage, a little dirty, but everything is in its place.",
+          "source": "locomo/conv-50"
+        },
+        {
+          "id": "answer_cf021b36_3",
+          "score": 0.015384615384615385,
+          "text": "[session_id=answer_cf021b36_3 date=2022/07/15 (Fri) 13:09]\nuser: I'm looking for some gift ideas for my cousin Alex, who graduated with a degree in engineering from college about two weeks ago. He's been job hunting, so maybe something that'll help him with that?\nassistant: Congratulations to your cousin Alex on his recent graduation! What a great accomplishment!  What a thoughtful cousin you are, wanting to help him with his job search! Here are some gift ideas that might be useful and apprecia",
+          "source": "longmemeval/gpt4_7ca326fa"
+        },
+        {
+          "id": "conv-50::D26:6",
+          "score": 0.015384615384615385,
+          "text": "Dave: Thanks, Calvin! It's always been my thing. My dad took me to my first car show when I was 10, and I was wow-ed! I was hooked and wanted to learn more. Now I'm an automotive engineer and it's crazy to think that something so powerful and cool can be made from small parts.",
+          "source": "locomo/conv-50"
+        }
+      ],
+      "latency_ms": 421.57870810478926,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "multi-hop",
+      "question_id": "conv-26::q6",
+      "query": "When is Melanie planning on going camping?",
+      "gold_chunk_ids": [
+        "conv-26::D2:7"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D2:7",
+          "score": 0.032018442622950824,
+          "text": "Melanie: Thanks, Caroline. It's still a work in progress, but I'm doing my best. My kids are so excited about summer break! We're thinking about going camping next month. Any fun plans for the summer?",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D18:19",
+          "score": 0.031099324975891997,
+          "text": "Melanie: Absolutely! It really helps me reset and recharge. I love camping trips with my fam, 'cause nature brings such peace and serenity.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D10:12",
+          "score": 0.030621785881252923,
+          "text": "Melanie: We always look forward to our family camping trip. We roast marshmallows, tell stories around the campfire and just enjoy each other's company. It's the highlight of our summer!",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D10:14",
+          "score": 0.02964254577157803,
+          "text": "Melanie: I'll always remember our camping trip last year when we saw the Perseid meteor shower. It was so amazing lying there and watching the sky light up with streaks of light. We all made wishes and felt so at one with the universe. That's a memory I'll never forget.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D9:1",
+          "score": 0.02946912242686891,
+          "text": "Melanie: Hey Caroline, hope all's good! I had a quiet weekend after we went camping with my fam two weekends ago. It was great to unplug and hang with the kids. What've you been up to? Anything fun over the weekend?",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D8:32",
+          "score": 0.028958333333333336,
+          "text": "Melanie: Yeah, Caroline, my family's been great - their love and support really helped me through tough times. It's awesome! We even went on another camping trip in the forest.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D4:6",
+          "score": 0.02817460317460317,
+          "text": "Melanie: That sounds great, Caroline! It's awesome having stuff around that make us think of good connections and times. Actually, I just took my fam camping in the mountains last week - it was a really nice time together!",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D6:16",
+          "score": 0.027579737335834898,
+          "text": "Melanie: Glad you have support, Caroline! Unconditional love is so important. Here's a pic of my family camping at the beach. We love it, it brings us closer!",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D16:2",
+          "score": 0.026553280111072546,
+          "text": "Melanie: Hey Caroline! It's so good to hear from you! That pic is so beautiful, the colors really pop. Biking sounds like a great way to get out in nature. We went camping with the kids a few weeks ago, had a blast exploring the forest and hiking. Nature can be so refreshing for your soul. Any plans coming up?",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D14:32",
+          "score": 0.026387470207694927,
+          "text": "Melanie: I'm feeling inspired by autumn so I'm planning a few. You got any cool art projects coming up?",
+          "source": "locomo/conv-26"
+        }
+      ],
+      "latency_ms": 442.6364579703659,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "multi-hop",
+      "question_id": "conv-30::q11",
+      "query": "When did Gina get her tattoo?",
+      "gold_chunk_ids": [
+        "conv-30::D5:15"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-30::D5:15",
+          "score": 0.032018442622950824,
+          "text": "Gina: Thanks! Got the tattoo a few years ago, it stands for freedom - dancing without worrying what people think. A reminder to follow my passions and express myself.",
+          "source": "locomo/conv-30"
+        },
+        {
+          "id": "conv-30::D5:13",
+          "score": 0.031746031746031744,
+          "text": "Gina: This quote kept me positive through tough times. We all need a push sometimes, right? Even made a tattoo to remind myself about it.",
+          "source": "locomo/conv-30"
+        },
+        {
+          "id": "conv-30::D1:15",
+          "score": 0.029437229437229435,
+          "text": "Gina: Wow! What did you get?",
+          "source": "locomo/conv-30"
+        },
+        {
+          "id": "conv-30::D5:14",
+          "score": 0.01639344262295082,
+          "text": "Jon: Love the tattoo, did you just get it?",
+          "source": "locomo/conv-30"
+        },
+        {
+          "id": "conv-44::D23:20",
+          "score": 0.016129032258064516,
+          "text": "Audrey: Thanks! I think right now its enough. Unless someday I decide to get another dog. Maybe I'll get another tattoo when that happens.",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "conv-30::D17:21",
+          "score": 0.016129032258064516,
+          "text": "Gina: ;)",
+          "source": "locomo/conv-30"
+        },
+        {
+          "id": "conv-30::D15:20",
+          "score": 0.015625,
+          "text": "Gina: Can't wait too!",
+          "source": "locomo/conv-30"
+        },
+        {
+          "id": "answer_fea2e4d3",
+          "score": 0.015384615384615385,
+          "text": "[session_id=answer_fea2e4d3 date=2023/05/26 (Fri) 11:54]\nuser: I'm trying to get organized and keep track of all the gifts I've bought recently. Can you help me make a list of all the occasions and gifts I've gotten for others?\nassistant: I'd be happy to help you keep track of the gifts you've bought. Let's get started!  To make a list, I'll need you to provide me with some information. Please feel free to share the following details:  1. Occasions: What occasions have you bought gifts for recen",
+          "source": "longmemeval/66f24dbb"
+        },
+        {
+          "id": "conv-30::D12:17",
+          "score": 0.015384615384615385,
+          "text": "Gina: Keep it up!",
+          "source": "locomo/conv-30"
+        },
+        {
+          "id": "conv-30::D13:18",
+          "score": 0.015151515151515152,
+          "text": "Gina: Yeah, its a great idea!",
+          "source": "locomo/conv-30"
+        }
+      ],
+      "latency_ms": 517.7744168322533,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "temporal",
+      "question_id": "conv-44::q53",
+      "query": "What is a career that Andrew could potentially pursue with his love for animals and nature?",
+      "gold_chunk_ids": [
+        "conv-44::D2:18",
+        "conv-44::D3:1",
+        "conv-44::D5:7",
+        "conv-44::D8:27"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-44::D23:25",
+          "score": 0.030776515151515152,
+          "text": "Andrew: Totally agree! Nature and animals can be so peaceful and joyful. I hope you and your furry buddies go on some fun adventures soon!",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "conv-44::D1:12",
+          "score": 0.02946912242686891,
+          "text": "Andrew: No, no pets right now. But I do love animals.",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "conv-44::D14:9",
+          "score": 0.028991596638655463,
+          "text": "Andrew: That sounds awesome! Being able to just be in nature and appreciate it is really cool. I wish I could do that more often.",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_cf021b36_3",
+          "score": 0.01639344262295082,
+          "text": "[session_id=answer_cf021b36_3 date=2022/07/15 (Fri) 13:09]\nuser: I'm looking for some gift ideas for my cousin Alex, who graduated with a degree in engineering from college about two weeks ago. He's been job hunting, so maybe something that'll help him with that?\nassistant: Congratulations to your cousin Alex on his recent graduation! What a great accomplishment!  What a thoughtful cousin you are, wanting to help him with his job search! Here are some gift ideas that might be useful and apprecia",
+          "source": "longmemeval/gpt4_7ca326fa"
+        },
+        {
+          "id": "conv-44::D20:25",
+          "score": 0.01639344262295082,
+          "text": "Andrew: I learned a lot about animals, plants, and ecosystems. It's fascinating to see how it all works together.",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_8f276838",
+          "score": 0.016129032258064516,
+          "text": "[session_id=answer_8f276838 date=2023/05/20 (Sat) 05:55]\nuser: I'm trying to find some books on synchronicity and its connection to spirituality. Can you recommend some titles or authors? By the way, I've been reading a lot about Buddhism lately, which is a big shift from my previous stance on spirituality - I used to be a staunch atheist, but I've been exploring other possibilities.\nassistant: What a fascinating journey you're on! Exploring synchronicity and spirituality can be a life-changing ",
+          "source": "longmemeval/dccbc061"
+        },
+        {
+          "id": "conv-44::D20:23",
+          "score": 0.016129032258064516,
+          "text": "Andrew: Yeah! Like I said I do enjoy watching birds in the nature. I also read some books about our ecological systems as well.",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_19c24c11",
+          "score": 0.015873015873015872,
+          "text": "[session_id=answer_19c24c11 date=2023/05/20 (Sat) 02:25]\nuser: I need help organizing my contacts. Can you create a list of people I've met recently and their interests? Maybe that'll help me remember to follow up with them.\nassistant: I'd be happy to help you organize your contacts. However, I'm a large language model, I don't have access to your personal contacts or interactions. But I can help you create a template to help you organize your contacts and their interests.  Here's a template you",
+          "source": "longmemeval/3d86fd0a"
+        },
+        {
+          "id": "conv-44::D8:19",
+          "score": 0.015873015873015872,
+          "text": "Andrew: Of course! Nature always makes us and our pets so happy.",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_2e2085fa_1",
+          "score": 0.015625,
+          "text": "[session_id=answer_2e2085fa_1 date=2023/05/22 (Mon) 13:38]\nuser: I'm looking to explore some online courses to improve my marketing skills, particularly in content creation and strategy. I've been working in digital marketing for a while now, and I think it's essential to stay updated on the latest trends. By the way, I have a Bachelor's degree in Business Administration with a concentration in Marketing from the University of California, Berkeley, which I completed at the age of 25. Do you have",
+          "source": "longmemeval/c18a7dc8"
+        }
+      ],
+      "latency_ms": 513.8728751335293,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "temporal",
+      "question_id": "conv-41::q64",
+      "query": "What job might Maria pursue in the future?",
+      "gold_chunk_ids": [
+        "conv-41::D32:14",
+        "conv-41::D5:8",
+        "conv-41::D11:10",
+        "conv-41::D27:4"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-41::D9:5",
+          "score": 0.03131881575727918,
+          "text": "Maria: I bet! What are your plans for the future?",
+          "source": "locomo/conv-41"
+        },
+        {
+          "id": "answer_2e2085fa_2",
+          "score": 0.01639344262295082,
+          "text": "[session_id=answer_2e2085fa_2 date=2023/05/22 (Mon) 18:33]\nuser: I'm looking to explore ways to advance my career in marketing. I've been in the industry for a while now. Can you suggest some online courses or certifications that would be beneficial for a Digital Marketing Specialist like myself?\nassistant: As a Digital Marketing Specialist with industry experience, you're wise to invest in upskilling and reskilling to stay ahead in the rapidly evolving marketing landscape. Here are some online ",
+          "source": "longmemeval/c18a7dc8"
+        },
+        {
+          "id": "conv-41::D6:8",
+          "score": 0.016129032258064516,
+          "text": "John: Nice job, Maria! You really made an impact. It's important to help people find what they need. Have you ever been in a situation where you needed help?",
+          "source": "locomo/conv-41"
+        },
+        {
+          "id": "conv-41::D1:6",
+          "score": 0.016129032258064516,
+          "text": "John: Yeah Maria, I'm really hoping to get into local politics. I love helping the community and making it a better place.",
+          "source": "locomo/conv-41"
+        },
+        {
+          "id": "answer_da3c1266_3",
+          "score": 0.015873015873015872,
+          "text": "[session_id=answer_da3c1266_3 date=2023/07/21 (Fri) 02:05]\nuser: I'm considering pursuing a certification in digital marketing and I've narrowed it down to two programs. Can you help me compare the pros and cons of each? By the way, I've been thinking about attending my alma mater's annual alumni reunion in a few weeks, but I'm not sure yet.\nassistant: I'd be happy to help you compare the pros and cons of the two digital marketing certification programs you're considering.  To get started, could",
+          "source": "longmemeval/81507db6"
+        },
+        {
+          "id": "conv-41::D9:7",
+          "score": 0.015873015873015872,
+          "text": "Maria: Sounds great, John! That seems perfect for you with your passion and dedication. Are there any specific areas you're particularly interested in?",
+          "source": "locomo/conv-41"
+        },
+        {
+          "id": "answer_991d55e5_1",
+          "score": 0.015625,
+          "text": "[session_id=answer_991d55e5_1 date=2023/05/29 (Mon) 15:50]\nuser: I'm 32-year-old male, and I'm trying to get a better understanding of the green card application process. Can you walk me through the EB-2 visa category, which is for professionals with advanced degrees like myself?\nassistant: The EB-2 visa category is a great option for individuals with advanced degrees or exceptional abilities. I'd be happy to guide you through the process.  **Overview of EB-2 Visa Category**  The EB-2 visa categ",
+          "source": "longmemeval/d01c6aa8"
+        },
+        {
+          "id": "conv-41::D28:5",
+          "score": 0.015625,
+          "text": "John: Thanks Maria! I may have found a job at a tech company I like that needs my mechanical skills for their hardware team. It feels different, but I think it's a great opportunity to learn and contribute.",
+          "source": "locomo/conv-41"
+        },
+        {
+          "id": "answer_2504635e_3",
+          "score": 0.015384615384615385,
+          "text": "[session_id=answer_2504635e_3 date=2023/05/24 (Wed) 10:08]\nuser: I'm considering going back to school to get a master's degree, but I'm not sure what field I want to pursue. My grandma is 75 and my grandpa is 78, and seeing them slow down has made me think about my own future and what I want to achieve in my career. Can you suggest some popular master's programs that would be a good fit for someone in their early thirties looking to make a career change?\nassistant: I'm glad you're thinking about",
+          "source": "longmemeval/gpt4_d12ceb0e"
+        },
+        {
+          "id": "conv-41::D9:16",
+          "score": 0.015384615384615385,
+          "text": "John: Thanks, Maria! Will do. Working together would be great!",
+          "source": "locomo/conv-41"
+        }
+      ],
+      "latency_ms": 448.68112495169044,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "open-domain",
+      "question_id": "conv-26::q83",
+      "query": "What did Melanie realize after the charity race?",
+      "gold_chunk_ids": [
+        "conv-26::D2:3"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D2:1",
+          "score": 0.03278688524590164,
+          "text": "Melanie: Hey Caroline, since we last chatted, I've had a lot of things happening to me. I ran a charity race for mental health last Saturday \u2013 it was really rewarding. Really made me think about taking care of our minds.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D2:2",
+          "score": 0.03200204813108039,
+          "text": "Caroline: That charity race sounds great, Mel! Making a difference & raising awareness for mental health is super rewarding - I'm really proud of you for taking part!",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D8:20",
+          "score": 0.030309988518943745,
+          "text": "Melanie: Wow, what an experience! How did it make you feel?",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D2:3",
+          "score": 0.028949545078577336,
+          "text": "Melanie: Thanks, Caroline! The event was really thought-provoking. I'm starting to realize that self-care is really important. It's a journey for me, but when I look after myself, I'm able to better look after my family.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D7:12",
+          "score": 0.026120660599932594,
+          "text": "Melanie: That sounds awesome! What did you take away from it to use in your life?",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D16:20",
+          "score": 0.015873015873015872,
+          "text": "Melanie: Yeah, it was so much fun! Those joyful moments definitely show us life's beauty.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D18:17",
+          "score": 0.015625,
+          "text": "Melanie: Thanks, Caroline! Yup, we just did it yesterday! The kids loved it and it was a nice way to relax after the road trip.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D15:8",
+          "score": 0.015625,
+          "text": "Melanie: That's great. Sharing your story and support might make a difference for a long time. What do you hope to do next time?",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-41::D10:10",
+          "score": 0.015384615384615385,
+          "text": "Maria: Last weekend I did something new that had an impact on me. I participated in a 5K charity run for a homeless shelter. It was awesome being surrounded by people all there for the same cause. There's something special about the energy and sense of unity. It was truly rewarding and reminded me why I'm passionate about charity work.",
+          "source": "locomo/conv-41"
+        },
+        {
+          "id": "answer_5cdf9bd2_2",
+          "score": 0.015151515151515152,
+          "text": "[session_id=answer_5cdf9bd2_2 date=2023/03/20 (Mon) 11:41]\nuser: I'm looking for some tips on how to stay motivated to exercise regularly. I've been doing pretty well so far, but I want to keep the momentum going. By the way, I recently volunteered at a charity bake sale and it was amazing to see how much of an impact we can make - we raised $1,000 for the local children's hospital!\nassistant: Congratulations on your charity bake sale success! That's incredible! It's wonderful to see the positiv",
+          "source": "longmemeval/d851d5ba"
+        }
+      ],
+      "latency_ms": 490.2902499306947,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "open-domain",
+      "question_id": "conv-26::q87",
+      "query": "Why did Caroline choose the adoption agency?",
+      "gold_chunk_ids": [
+        "conv-26::D2:12"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D17:7",
+          "score": 0.031009615384615385,
+          "text": "Caroline: Yep! Do your research and find an adoption agency or lawyer. They'll help with the process and provide all the info. Gather documents like references, financial info and medical checks. Don't forget to prepare emotionally, since the wait can be hard. It's all worth it in the end though.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D2:12",
+          "score": 0.030679156908665108,
+          "text": "Caroline: I chose them 'cause they help LGBTQ+ folks with adoption. Their inclusivity and support really spoke to me.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D13:1",
+          "score": 0.030090497737556562,
+          "text": "Caroline: Hi Melanie! Hope you're doing good. Guess what I did this week? I took the first step towards becoming a mom - I applied to adoption agencies! It's a big decision, but I think I'm ready to give all my love to a child. I got lots of help from this adoption advice/assistance group I attended. It was great!",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D19:1",
+          "score": 0.029957522915269395,
+          "text": "Caroline: Woohoo Melanie! I passed the adoption agency interviews last Friday! I'm so excited and thankful. This is a big move towards my goal of having a family.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D2:13",
+          "score": 0.029850746268656716,
+          "text": "Melanie: That's great, Caroline! Loving the inclusivity and support. Anything you're excited for in the adoption process?",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D19:3",
+          "score": 0.02964426877470356,
+          "text": "Caroline: Thanks so much, Melanie! It's beautiful! It really brings home how much love's in families - both blood and the ones we choose. I hope to build my own family and put a roof over kids who haven't had that before. For me, adoption is a way of giving back and showing love and acceptance.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D2:8",
+          "score": 0.029513888888888888,
+          "text": "Caroline: Researching adoption agencies \u2014 it's been a dream to have a family and give a loving home to kids who need it.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D2:10",
+          "score": 0.029030910609857977,
+          "text": "Caroline: Thanks, Mel! My goal is to give kids a loving home. I'm truly grateful for all the support I've got from friends and mentors. Now the hard work starts to turn my dream into a reality. And here's one of the adoption agencies I'm looking into. It's a lot to take in, but I'm feeling hopeful and optimistic.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D13:16",
+          "score": 0.028991596638655463,
+          "text": "Melanie: Wow, Caroline! That's amazing. You really care about being real and helping others. Wishing you the best on your adoption journey!",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D17:3",
+          "score": 0.027212143650499815,
+          "text": "Caroline: Thanks, Melanie! I'm stoked to start this new chapter. It's been a dream to adopt and provide a safe, loving home for kids who need it. Do you have any experience with adoption, or know anyone who's gone through the process?",
+          "source": "locomo/conv-26"
+        }
+      ],
+      "latency_ms": 500.18691597506404,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "adversarial",
+      "question_id": "conv-26::q191",
+      "query": "What happened to Caroline's son on their road trip?",
+      "gold_chunk_ids": [
+        "conv-26::D18:1"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-26::D18:3",
+          "score": 0.03036576949620428,
+          "text": "Melanie: Yeah, our trip got off to a bad start. I was really scared when we got into the accident. Thankfully, my son's ok and that was a reminder that life is precious and to cherish our family.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D18:2",
+          "score": 0.03028233151183971,
+          "text": "Caroline: Oops, sorry 'bout the accident! Must have been traumatizing for you guys. Thank goodness your son's okay. Life sure can be a roller coaster.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D18:4",
+          "score": 0.03021353930031804,
+          "text": "Caroline: Glad your son is okay, Melanie. Life's unpredictable, but moments like these remind us how important our loved ones are. Family's everything.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D18:1",
+          "score": 0.029116045245077504,
+          "text": "Melanie: Hey Caroline, that roadtrip this past weekend was insane! We were all freaked when my son got into an accident. We were so lucky he was okay. It was a real scary experience. Thankfully it's over now. What's been up since we last talked?",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "conv-26::D18:17",
+          "score": 0.027629397679130595,
+          "text": "Melanie: Thanks, Caroline! Yup, we just did it yesterday! The kids loved it and it was a nice way to relax after the road trip.",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "answer_e1403127_2",
+          "score": 0.015873015873015872,
+          "text": "[session_id=answer_e1403127_2 date=2023/10/10 (Tue) 23:08]\nuser: I'm planning a long road trip next month and was wondering if you could help me find some bike-friendly routes along the way. I'd love to bring my road bike and get some exercise on the trip.\nassistant: What a fantastic idea! I'd be delighted to help you find bike-friendly routes for your road trip. Can you please provide me with some details to get started?  Here are a few questions to help me narrow down some options:  1. What is",
+          "source": "longmemeval/89941a93"
+        },
+        {
+          "id": "answer_e3aa84c4_1",
+          "score": 0.015625,
+          "text": "[session_id=answer_e3aa84c4_1 date=2023/03/03 (Fri) 14:37]\nuser: I'm planning a trip to the mountains on April 15th and I'm considering taking a detour to visit my family in the countryside again. Can you help me find the best route for the road trip? By the way, I took a train ride to visit them today, and it was a nice 2-hour journey.\nassistant: I'd be happy to help you plan your road trip!  However, I have to clarify that I'm a large language model, I don't have access to your personal inform",
+          "source": "longmemeval/gpt4_ec93e27f"
+        },
+        {
+          "id": "conv-26::D18:6",
+          "score": 0.015625,
+          "text": "Caroline: The kids look so cute, Mel! I bet they bring lots of joy. How did they handle the accident?",
+          "source": "locomo/conv-26"
+        },
+        {
+          "id": "answer_4be1b6b4_1",
+          "score": 0.015384615384615385,
+          "text": "[session_id=answer_4be1b6b4_1 date=2023/04/10 (Mon) 17:15]\nuser: I'm thinking of planning a road trip soon and I'm trying to figure out the best route to take. I've got a new car, a silver Honda Civic that I bought on February 10th, and I want to make sure I'm getting the most out of its features, like the GPS system. Can you help me with that?\nassistant: Congratulations on your new car! I'd be happy to help you plan a road trip and make the most of your Honda Civic's GPS system.  To get started",
+          "source": "longmemeval/gpt4_2655b836"
+        },
+        {
+          "id": "conv-26::D18:8",
+          "score": 0.015384615384615385,
+          "text": "Caroline: Kids are amazingly resilient in tough situations. They have an amazing ability to bounce back.",
+          "source": "locomo/conv-26"
+        }
+      ],
+      "latency_ms": 470.19500005990267,
+      "error": null
+    },
+    {
+      "dataset": "locomo",
+      "category": "adversarial",
+      "question_id": "conv-43::q226",
+      "query": "What movie did Tim just finish watching on 8th December, 2023?",
+      "gold_chunk_ids": [
+        "conv-43::D22:13"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-43::D8:17",
+          "score": 0.03128054740957967,
+          "text": "John: Wow, that sounds great, Tim! I love that first movie too, I even have the whole collection! It was so magical! Must've been a dream watching it with your family.",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-43::D8:18",
+          "score": 0.03125763125763126,
+          "text": "Tim: It was really a dream come true! Watching that movie with my family was awesome, we'd all get comfy with snacks and a blanket and be totally absorbed. Such a special memory!",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-43::D26:30",
+          "score": 0.029551337359792925,
+          "text": "Tim: Yeah, watching movies is a fun way to relax. We love having movie marathons with our friends.",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-43::D8:16",
+          "score": 0.029513888888888888,
+          "text": "Tim: Yeah, \"Harry Potter and the Philosopher's Stone\" is special to me. It was the first movie from the series and brings back some great memories. Watching it with my family was amazing. It was so magical!",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-43::D8:14",
+          "score": 0.025396825396825397,
+          "text": "Tim: Thanks! I love playing different songs on the piano, but my favorite one to jam to is a theme from a movie I really enjoy. It brings back lots of great memories.",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-43::D2:15",
+          "score": 0.024404761904761905,
+          "text": "Tim: Wow! That's awesome! Were you playing or watching?",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-43::D11:12",
+          "score": 0.01639344262295082,
+          "text": "Tim: Glad you liked it. Let me know if you need any more suggestions.",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-43::D26:28",
+          "score": 0.016129032258064516,
+          "text": "Tim: Yeah, I have! Watching them and seeing how they compare to the books is awesome. It's amazing to watch the story come alive. Have you seen all of them?",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-43::D8:28",
+          "score": 0.015873015873015872,
+          "text": "Tim: We love \"The Santa Clause\" too- it's so heartwarming and gets us all feeling festive!",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-43::D27:23",
+          "score": 0.015625,
+          "text": "Tim: Wow, me too! That's an awesome collection! Have you watched them heaps? Got any favorite characters from those movies?",
+          "source": "locomo/conv-43"
+        }
+      ],
+      "latency_ms": 448.92608281224966,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "knowledge-update",
+      "question_id": "6aeb4375",
+      "query": "How many Korean restaurants have I tried in my city?",
+      "gold_chunk_ids": [
+        "answer_3f9693b7_1",
+        "answer_3f9693b7_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "answer_ultrachat_252214",
+          "score": 0.03076923076923077,
+          "text": "[session_id=answer_ultrachat_252214 date=2023/05/23 (Tue) 05:17]\nuser: As an avid foodie, I'm interested in trying out some local cuisine. Can you suggest any off-the-beaten-path restaurants or food markets?\nassistant: Certainly! Depending on the area you're in, there are likely some hidden gems for food explorers. Here are a few suggestions:  1. If you're in a coastal area, check out fish markets that offer fresh catches from the sea. These markets often have local, seasonal specialties that yo",
+          "source": "longmemeval/d596882b"
+        },
+        {
+          "id": "answer_3f9693b7_1",
+          "score": 0.029957522915269395,
+          "text": "[session_id=answer_3f9693b7_1 date=2023/08/11 (Fri) 09:00]\nuser: I'm planning a dinner party and need some help with the menu. Can you suggest some popular Korean BBQ dishes that are easy to make in large quantities?\nassistant: What a great choice! Korean BBQ is always a crowd-pleaser! Here are some popular Korean BBQ dishes that are easy to make in large quantities and perfect for a dinner party:  1. **Bulgogi ()**: Thinly sliced marinated beef (usually ribeye or sirloin) grilled to perfection.",
+          "source": "longmemeval/6aeb4375"
+        },
+        {
+          "id": "answer_3f9693b7_abs_1",
+          "score": 0.029910714285714284,
+          "text": "[session_id=answer_3f9693b7_abs_1 date=2023/05/28 (Sun) 06:51]\nuser: I'm planning a dinner party and need some help with the menu. Can you suggest some popular Korean BBQ dishes that are easy to make in large quantities?\nassistant: What a great choice! Korean BBQ is always a crowd-pleaser! Here are some popular Korean BBQ dishes that are easy to make in large quantities and perfect for a dinner party:  1. **Bulgogi ()**: Thinly sliced marinated beef (usually ribeye or sirloin) grilled to perfect",
+          "source": "longmemeval/6aeb4375_abs"
+        },
+        {
+          "id": "answer_355c48bb",
+          "score": 0.02878726010616578,
+          "text": "[session_id=answer_355c48bb date=2023/05/27 (Sat) 15:29]\nuser: I'm looking for some recommendations for local Italian restaurants. I recently tried the new place downtown and it was pretty good, but I'd love to explore other options.\nassistant: I'd be happy to help you with that! However, I have to clarify that I'm a large language model, I don't have access to your location or personal experiences. I can provide you with some general tips and suggestions on how to find great local Italian resta",
+          "source": "longmemeval/58bf7951"
+        },
+        {
+          "id": "answer_419d21d5_2",
+          "score": 0.02803921568627451,
+          "text": "[session_id=answer_419d21d5_2 date=2023/05/24 (Wed) 04:19]\nuser: I'm planning a trip to Chicago and was wondering if you could recommend some good restaurants in the city. I've been to Chicago before and I loved the city.\nassistant: You're a returning visitor! Chicago is an amazing city, isn't it? I'd be happy to help you with some fantastic restaurant recommendations.  Before I dive into that, I have to ask: What kind of cuisine are you in the mood for? Are you looking for classic Chicago-style",
+          "source": "longmemeval/3fdac837"
+        },
+        {
+          "id": "answer_3f9693b7_2",
+          "score": 0.01639344262295082,
+          "text": "[session_id=answer_3f9693b7_2 date=2023/09/30 (Sat) 18:01]\nuser: I'm planning a dinner party and need some help with the menu. I was thinking of making Korean-style BBQ beef, but I want to know if you have any recommendations for side dishes that would complement it well.\nassistant: What a great choice! Korean-style BBQ beef is always a crowd-pleaser! I'd be happy to help you with some side dish recommendations that would complement it perfectly. Here are some traditional Korean side dishes that",
+          "source": "longmemeval/6aeb4375"
+        },
+        {
+          "id": "conv-44::D3:12",
+          "score": 0.01639344262295082,
+          "text": "Audrey: Wow, that sounds like a great way to explore the city! Trying new places and food is always fun. Have you discovered any new favorite spots recently?",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_3f9693b7_abs_2",
+          "score": 0.016129032258064516,
+          "text": "[session_id=answer_3f9693b7_abs_2 date=2023/05/30 (Tue) 23:08]\nuser: I'm planning a dinner party and need some help with the menu. I was thinking of making Korean-style BBQ beef, but I want to know if you have any recommendations for side dishes that would complement it well.\nassistant: What a great choice! Korean-style BBQ beef is always a crowd-pleaser! I'd be happy to help you with some side dish recommendations that would complement it perfectly. Here are some traditional Korean side dishes ",
+          "source": "longmemeval/6aeb4375_abs"
+        },
+        {
+          "id": "conv-50::D6:18",
+          "score": 0.015873015873015872,
+          "text": "Dave: Definitely adding it to my list. Thanks!",
+          "source": "locomo/conv-50"
+        },
+        {
+          "id": "conv-44::D24:19",
+          "score": 0.015625,
+          "text": "Audrey: Yep! I'll do some research and see if I can find an awesome place like that.",
+          "source": "locomo/conv-44"
+        }
+      ],
+      "latency_ms": 588.4132501669228,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "knowledge-update",
+      "question_id": "6aeb4375_abs",
+      "query": "How many Italian restaurants have I tried in my city?",
+      "gold_chunk_ids": [
+        "answer_3f9693b7_abs_1",
+        "answer_3f9693b7_abs_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "answer_419d21d5_2",
+          "score": 0.03252247488101534,
+          "text": "[session_id=answer_419d21d5_2 date=2023/05/24 (Wed) 04:19]\nuser: I'm planning a trip to Chicago and was wondering if you could recommend some good restaurants in the city. I've been to Chicago before and I loved the city.\nassistant: You're a returning visitor! Chicago is an amazing city, isn't it? I'd be happy to help you with some fantastic restaurant recommendations.  Before I dive into that, I have to ask: What kind of cuisine are you in the mood for? Are you looking for classic Chicago-style",
+          "source": "longmemeval/3fdac837"
+        },
+        {
+          "id": "answer_355c48bb",
+          "score": 0.032266458495966696,
+          "text": "[session_id=answer_355c48bb date=2023/05/27 (Sat) 15:29]\nuser: I'm looking for some recommendations for local Italian restaurants. I recently tried the new place downtown and it was pretty good, but I'd love to explore other options.\nassistant: I'd be happy to help you with that! However, I have to clarify that I'm a large language model, I don't have access to your location or personal experiences. I can provide you with some general tips and suggestions on how to find great local Italian resta",
+          "source": "longmemeval/58bf7951"
+        },
+        {
+          "id": "answer_ultrachat_252214",
+          "score": 0.0315136476426799,
+          "text": "[session_id=answer_ultrachat_252214 date=2023/05/23 (Tue) 05:17]\nuser: As an avid foodie, I'm interested in trying out some local cuisine. Can you suggest any off-the-beaten-path restaurants or food markets?\nassistant: Certainly! Depending on the area you're in, there are likely some hidden gems for food explorers. Here are a few suggestions:  1. If you're in a coastal area, check out fish markets that offer fresh catches from the sea. These markets often have local, seasonal specialties that yo",
+          "source": "longmemeval/d596882b"
+        },
+        {
+          "id": "answer_ultrachat_448704",
+          "score": 0.02886002886002886,
+          "text": "[session_id=answer_ultrachat_448704 date=2023/05/21 (Sun) 08:55]\nuser: Can you recommend some authentic Italian restaurants in Rome?\nassistant: Yes, here are some highly recommended authentic Italian restaurants in Rome:  1. Trattoria Da Enzo al 29 - located in the Trastevere neighborhood, it's a cozy and traditional trattoria that serves classic Roman dishes.  2. Roscioli - This is a gastronomic delicatessen and restaurant located near the Campo dei Fiori market. They offer the finest quality p",
+          "source": "longmemeval/4c36ccef"
+        },
+        {
+          "id": "answer_e60a93ff_1",
+          "score": 0.027651515151515153,
+          "text": "[session_id=answer_e60a93ff_1 date=2023/05/28 (Sun) 01:34]\nuser: I'm planning a trip to visit my friends Mark and Sarah, who I met on a beach trip about a month ago, and I was wondering if you could help me find some good restaurants in their hometown?\nassistant: I'd be happy to help! However, I would need a bit more information from you. Could you please provide me with the following details:  1. The city or town where Mark and Sarah live? 2. What type of cuisine are you in the mood for? (e.g. ",
+          "source": "longmemeval/gpt4_88806d6e"
+        },
+        {
+          "id": "answer_60e8941a_2",
+          "score": 0.015625,
+          "text": "[session_id=answer_60e8941a_2 date=2023/05/20 (Sat) 18:06]\nuser: I'm thinking of planning another trip soon and I was wondering if you could help me with some budgeting tips. By the way, I recently got back from a solo trip to New York City for five days and I was able to save a lot by staying at a hostel and eating at local cafes.\nassistant: Congratulations on your recent solo trip to New York City! That's amazing that you were able to save money by staying at a hostel and eating at local cafes",
+          "source": "longmemeval/edced276"
+        },
+        {
+          "id": "conv-44::D3:12",
+          "score": 0.015625,
+          "text": "Audrey: Wow, that sounds like a great way to explore the city! Trying new places and food is always fun. Have you discovered any new favorite spots recently?",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_60e8941a_abs_2",
+          "score": 0.015384615384615385,
+          "text": "[session_id=answer_60e8941a_abs_2 date=2023/05/24 (Wed) 16:36]\nuser: I'm thinking of planning another trip soon and I was wondering if you could help me with some budgeting tips. By the way, I recently got back from a solo trip to New York City for five days and I was able to save a lot by staying at a hostel and eating at local cafes.\nassistant: Congratulations on your recent solo trip to New York City! That's amazing that you were able to save money by staying at a hostel and eating at local c",
+          "source": "longmemeval/edced276_abs"
+        },
+        {
+          "id": "answer_ultrachat_399000",
+          "score": 0.015151515151515152,
+          "text": "[session_id=answer_ultrachat_399000 date=2023/05/22 (Mon) 02:17]\nuser: What type of fish is commonly used in Caribbean dishes?\nassistant: One type of fish commonly used in Caribbean dishes is snapper.\nuser: Oh, I love snapper! What are some popular Caribbean dishes that feature snapper?\nassistant: There are many popular Caribbean dishes that feature snapper, some of which include:  1. Escovitch Fish - a Jamaican dish where fried snapper is topped with a spicy pickled vegetable sauce. 2. Fish Cur",
+          "source": "longmemeval/778164c6"
+        },
+        {
+          "id": "answer_83c13ff9",
+          "score": 0.014925373134328358,
+          "text": "[session_id=answer_83c13ff9 date=2023/05/21 (Sun) 13:30]\nuser: I'm considering getting a passport, but I'm unsure which nationality to apply for. Can you tell me more about the benefits of having an Italian passport vs a US passport?\nassistant: What a wonderful dilemma! Having a choice between two prestigious passports is a great problem to have! Both Italian and US passports are highly valued, but they come with different benefits and requirements. Let's break down the advantages of each:  **It",
+          "source": "longmemeval/4100d0a0"
+        }
+      ],
+      "latency_ms": 461.751707829535,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "multi-session",
+      "question_id": "gpt4_2ba83207",
+      "query": "Which grocery store did I spend the most money at in the past month?",
+      "gold_chunk_ids": [
+        "answer_6a3b5c13_2",
+        "answer_6a3b5c13_1",
+        "answer_6a3b5c13_3",
+        "answer_6a3b5c13_4"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "answer_353d3c6d_1",
+          "score": 0.03252247488101534,
+          "text": "[session_id=answer_353d3c6d_1 date=2023/05/25 (Thu) 16:09]\nuser: I'm trying to get a sense of my expenses for the month. Can you help me track my grocery expenses? I spent $75 on groceries at SaveMart last Thursday.\nassistant: I'd be happy to help you track your grocery expenses.  Let's start with the $75 you spent at SaveMart last Thursday. I'll keep a running total of your grocery expenses for the month.  **Current Total: $75**  Feel free to add any other grocery expenses you've had this month",
+          "source": "longmemeval/9aaed6a3"
+        },
+        {
+          "id": "answer_7cb94507",
+          "score": 0.031099324975891997,
+          "text": "[session_id=answer_7cb94507 date=2023/05/26 (Fri) 23:56]\nuser: I'm trying to get a better handle on my finances and was wondering if you could help me track my spending habits. I've been thinking about creating a budget, but I'm not sure where to start.\nassistant: Tracking your spending habits and creating a budget can be a great way to take control of your finances! I'd be happy to help you get started.  To begin, let's break down the process into smaller, manageable steps. Here's a simple, ste",
+          "source": "longmemeval/7527f7e2"
+        },
+        {
+          "id": "answer_d6d2eba8_1",
+          "score": 0.029957522915269395,
+          "text": "[session_id=answer_d6d2eba8_1 date=2023/07/11 (Tue) 18:10]\nuser: I'm trying to plan my shopping trip for the week and I was wondering if you could give me a list of the items that are on sale at my local grocery store this week?\nassistant: I'm happy to help! However, I'm a large language model, I don't have access to real-time information about specific grocery stores or their sales. I'm not able to provide you with a list of items that are on sale at your local grocery store this week.  But I c",
+          "source": "longmemeval/0f05491a"
+        },
+        {
+          "id": "answer_16ece55f_2",
+          "score": 0.02946236559139785,
+          "text": "[session_id=answer_16ece55f_2 date=2023/05/25 (Thu) 07:02]\nuser: I'm trying to stay on top of my finances and I was wondering if you could help me track my spending on gifts over the past few months. I know I spent a total of $500 on gifts recently, but I'm having trouble breaking it down. By the way, I did get my brother a really nice graduation gift in May - a $100 gift card to his favorite electronics store.\nassistant: I'd be happy to help you track your spending on gifts!  Let's start with t",
+          "source": "longmemeval/a3332713"
+        },
+        {
+          "id": "answer_c19bd2bf_1",
+          "score": 0.02904040404040404,
+          "text": "[session_id=answer_c19bd2bf_1 date=2023/04/16 (Sun) 04:50]\nuser: I'm trying to plan my next grocery trip and I was wondering if you could help me make a list of essentials I should pick up. I've just downloaded Ibotta, a cashback app that gives you rebates on certain grocery items, and I want to make sure I get the most out of it.\nassistant: I'd be happy to help you plan your grocery trip and maximize your Ibotta earnings.  To get started, I'll need to know a bit more about your dietary preferen",
+          "source": "longmemeval/gpt4_e072b769"
+        },
+        {
+          "id": "answer_ef74281f_1",
+          "score": 0.02886002886002886,
+          "text": "[session_id=answer_ef74281f_1 date=2023/05/29 (Mon) 04:31]\nuser: I'm trying to get a better handle on my spending habits and was wondering if you can help me track my expenses. I've been noticing that I tend to splurge on luxury items every now and then, like that designer handbag I just got from Gucci for $1,200, but I also try to balance it out with more budget-friendly options.\nassistant: I'd be happy to help you track your expenses and gain a better understanding of your spending habits.  To",
+          "source": "longmemeval/36b9f61e"
+        },
+        {
+          "id": "answer_353d3c6d_2",
+          "score": 0.028665028665028666,
+          "text": "[session_id=answer_353d3c6d_2 date=2023/05/27 (Sat) 04:31]\nuser: I'm trying to plan my grocery shopping trip for the week. Can you help me make a list of the items I need to buy at SaveMart? I have a membership there and can earn 1% cashback on all purchases.\nassistant: I'd be happy to help you plan your grocery shopping trip. To make a list of the items you need to buy at SaveMart, I'll need to know a bit more information from you. Please provide me with the following details:  1. What type of ",
+          "source": "longmemeval/9aaed6a3"
+        },
+        {
+          "id": "answer_ef74281f_2",
+          "score": 0.027884615384615386,
+          "text": "[session_id=answer_ef74281f_2 date=2023/05/20 (Sat) 13:02]\nuser: I'm trying to get a better understanding of my spending habits and create a budget for myself. Can you help me track my expenses and provide some tips on how to stay on top of my finances?\nassistant: I'd be happy to help you track your expenses and provide tips on how to stay on top of your finances.  **Tracking Your Expenses:**  To get a clear picture of your spending habits, I recommend keeping a record of every single transactio",
+          "source": "longmemeval/36b9f61e"
+        },
+        {
+          "id": "answer_c862f65a_3",
+          "score": 0.027745885954841176,
+          "text": "[session_id=answer_c862f65a_3 date=2023/04/10 (Mon) 17:40]\nuser: I'm planning a shopping trip to Target this weekend and I'm wondering if you have any info on their current sales and promotions. By the way, I just redeemed $12 cashback for a $10 Amazon gift card from Ibotta today, so I'm feeling pretty good about my savings so far!\nassistant: Congratulations on redeeming your Ibotta cashback for an Amazon gift card! That's a great start to your savings week!  As for Target's current sales and pr",
+          "source": "longmemeval/gpt4_18c2b244"
+        },
+        {
+          "id": "answer_c862f65a_1",
+          "score": 0.027650648360030512,
+          "text": "[session_id=answer_c862f65a_1 date=2023/04/15 (Sat) 21:55]\nuser: I'm trying to plan my grocery shopping trip for this week. Can you help me find any good deals or sales on diapers and formula at ShopRite? By the way, I signed up for their rewards program today, so I'm hoping to maximize my points and savings.\nassistant: ShopRite is a great store for grocery shopping, and their rewards program can definitely help you save even more. I'd be happy to help you find deals on diapers and formula.  To ",
+          "source": "longmemeval/gpt4_18c2b244"
+        }
+      ],
+      "latency_ms": 447.54204200580716,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "multi-session",
+      "question_id": "edced276_abs",
+      "query": "How many days did I spend in total traveling in Hawaii and in Seattle?",
+      "gold_chunk_ids": [
+        "answer_60e8941a_abs_1",
+        "answer_60e8941a_abs_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "answer_5328c3c2_2",
+          "score": 0.030017921146953404,
+          "text": "[session_id=answer_5328c3c2_2 date=2023/03/15 (Wed) 10:31]\nuser: I'm planning a trip to Hawaii and I need to pack the right adapters for my devices. Can you help me figure out what kind of power adapters I'll need for my new laptop, Dell XPS 13, and my new smartphone, Samsung Galaxy S22? By the way, I pre-ordered the laptop on January 28th, and it finally arrived on February 25th after a delay from the original expected arrival date of February 11th.\nassistant: Congratulations on your new laptop",
+          "source": "longmemeval/gpt4_2312f94c"
+        },
+        {
+          "id": "answer_d586e9cd",
+          "score": 0.02857142857142857,
+          "text": "[session_id=answer_d586e9cd date=2023/05/27 (Sat) 18:36]\nuser: I'm planning a trip to Seattle and need help finding a hotel with a great view of the city. Do you have any recommendations?\nassistant: Seattle! What a fantastic city! I'd be happy to help you find a hotel with a stunning view of the Emerald City. Here are some top recommendations:  1. **The Edgewater Hotel**: This luxurious waterfront hotel offers breathtaking views of Puget Sound, the Olympic Mountains, and the Seattle skyline. Man",
+          "source": "longmemeval/0edc2aef"
+        },
+        {
+          "id": "answer_60e8941a_abs_1",
+          "score": 0.028371628371628373,
+          "text": "[session_id=answer_60e8941a_abs_1 date=2023/05/23 (Tue) 06:37]\nuser: I'm trying to plan my next trip and I'm having a hard time deciding whether to go solo or with family. Can you help me weigh the pros and cons of each? By the way, I just got back from an amazing island-hopping trip to Hawaii with my family and it got me thinking about this.\nassistant: Hawaii sounds like an amazing destination! I'm happy to help you weigh the pros and cons of traveling solo versus with family.  **Traveling Solo",
+          "source": "longmemeval/edced276_abs"
+        },
+        {
+          "id": "answer_60e8941a_1",
+          "score": 0.028283227848101264,
+          "text": "[session_id=answer_60e8941a_1 date=2023/05/21 (Sun) 06:31]\nuser: I'm trying to plan my next trip and I'm having a hard time deciding whether to go solo or with family. Can you help me weigh the pros and cons of each? By the way, I just got back from an amazing island-hopping trip to Hawaii with my family and it got me thinking about this.\nassistant: Hawaii sounds like an amazing destination! I'm happy to help you weigh the pros and cons of traveling solo versus with family.  **Traveling Solo:** ",
+          "source": "longmemeval/edced276"
+        },
+        {
+          "id": "answer_5328c3c2_1",
+          "score": 0.028068137824235385,
+          "text": "[session_id=answer_5328c3c2_1 date=2023/03/15 (Wed) 00:56]\nuser: I'm planning a trip to Hawaii and I want to make sure my new phone stays charged. Can you recommend some must-visit places in Hawaii? By the way, I recently got a new Samsung Galaxy S22 from the Best Buy store at the mall on February 20th, and I'm loving it so far.\nassistant: A trip to Hawaii sounds like a wonderful idea! I'd be happy to help you with some must-visit places to add to your itinerary.  But first, congratulations on y",
+          "source": "longmemeval/gpt4_2312f94c"
+        },
+        {
+          "id": "answer_8a791264_2",
+          "score": 0.024448419797257006,
+          "text": "[session_id=answer_8a791264_2 date=2023/05/30 (Tue) 03:06]\nuser: I'm planning a birthday trip to Hawaii in October and I was wondering if you could recommend some good snorkeling spots on the island?\nassistant: Hawaii in October sounds like an amazing birthday celebration! I'd be happy to help you with some fantastic snorkeling spots on the islands. Since you didn't specify which island you're planning to visit, I'll provide some top recommendations for each of the main islands:  **Oahu:**  1. *",
+          "source": "longmemeval/eace081b"
+        },
+        {
+          "id": "answer_60e8941a_2",
+          "score": 0.01639344262295082,
+          "text": "[session_id=answer_60e8941a_2 date=2023/05/20 (Sat) 18:06]\nuser: I'm thinking of planning another trip soon and I was wondering if you could help me with some budgeting tips. By the way, I recently got back from a solo trip to New York City for five days and I was able to save a lot by staying at a hostel and eating at local cafes.\nassistant: Congratulations on your recent solo trip to New York City! That's amazing that you were able to save money by staying at a hostel and eating at local cafes",
+          "source": "longmemeval/edced276"
+        },
+        {
+          "id": "conv-43::D3:22",
+          "score": 0.01639344262295082,
+          "text": "Tim: Sounds fab! Seattle is definitely a great and colorful city. I've always wanted to try the seafood there. Good luck with everything!",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "answer_60e8941a_abs_2",
+          "score": 0.016129032258064516,
+          "text": "[session_id=answer_60e8941a_abs_2 date=2023/05/24 (Wed) 16:36]\nuser: I'm thinking of planning another trip soon and I was wondering if you could help me with some budgeting tips. By the way, I recently got back from a solo trip to New York City for five days and I was able to save a lot by staying at a hostel and eating at local cafes.\nassistant: Congratulations on your recent solo trip to New York City! That's amazing that you were able to save money by staying at a hostel and eating at local c",
+          "source": "longmemeval/edced276_abs"
+        },
+        {
+          "id": "answer_02e66dec_1",
+          "score": 0.015873015873015872,
+          "text": "[session_id=answer_02e66dec_1 date=2023/05/29 (Mon) 07:23]\nuser: I'm trying to plan my next trip and I'm torn between going solo or with family. Do you have any tips on how to balance freedom and bonding time when traveling?\nassistant: What a great dilemma! Both solo and family travel have their own unique advantages, and finding a balance between freedom and bonding time can be a challenge. Here are some tips to help you make the most of your trip, whether you decide to go solo or with family: ",
+          "source": "longmemeval/9ea5eabc"
+        }
+      ],
+      "latency_ms": 459.4783750362694,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "single-session-assistant",
+      "question_id": "e9327a54",
+      "query": "I'm planning to revisit Orlando. I was wondering if you could remind me of that unique dessert shop with the giant milkshakes we talked about last time?",
+      "gold_chunk_ids": [
+        "answer_ultrachat_480665"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "answer_ultrachat_480665",
+          "score": 0.03278688524590164,
+          "text": "[session_id=answer_ultrachat_480665 date=2023/05/21 (Sun) 04:16]\nuser: Please suggest some family-friendly activities to do in Orlando.\nassistant: 1. Visit the Disney World theme parks - Magic Kingdom, Epcot, Animal Kingdom, and Hollywood Studios. 2. Explore the Wizarding World of Harry Potter at Universal Studios and Islands of Adventure. 3. Visit the Kennedy Space Center Visitor Complex and see artifacts from space exploration. 4. Enjoy a day at SEA LIFE Orlando Aquarium and interact with mari",
+          "source": "longmemeval/e9327a54"
+        },
+        {
+          "id": "answer_2880eb6c_2",
+          "score": 0.028790389395194696,
+          "text": "[session_id=answer_2880eb6c_2 date=2023/05/05 (Fri) 18:52]\nuser: I'm planning a road trip to the mountains in June and I want to make sure my bike is in good condition. Can you remind me when I last had my bike serviced and what was done during that service?\nassistant: I'm happy to help! However, I'm a large language model, I don't have access to your personal information or history, so I don't have any records of your bike's service history.  But don't worry! You can easily check your bike's se",
+          "source": "longmemeval/gpt4_d84a3211"
+        },
+        {
+          "id": "answer_11a8f823_2",
+          "score": 0.016129032258064516,
+          "text": "[session_id=answer_11a8f823_2 date=2023/05/22 (Mon) 16:58]\nuser: I'm planning a birthday dinner for my sister this weekend and I was wondering if you could give me some ideas for desserts to make. I got her a beautiful necklace from Tiffany's, but I also want to make the dinner special.\nassistant: What a lovely gesture! I'd be delighted to help you with some dessert ideas that will complement your thoughtful gift. Since you've already gotten her a beautiful necklace from Tiffany's, I'll suggest ",
+          "source": "longmemeval/gpt4_2f584639"
+        },
+        {
+          "id": "conv-44::D17:15",
+          "score": 0.016129032258064516,
+          "text": "Andrew: Got it. Thanks for that reminder.",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_8748f791_1",
+          "score": 0.015873015873015872,
+          "text": "[session_id=answer_8748f791_1 date=2023/05/11 (Thu) 03:19]\nuser: I'm planning a team outing for my engineers and I need some suggestions for fun activities in the city. Do you have any recommendations?\nassistant: What a great idea! Treating your engineers to a fun team outing can be a wonderful way to boost morale, encourage bonding, and create lasting memories. I'd be happy to help you with some activity suggestions in the city. Here are a few ideas to get you started:  **Outdoor Activities**  ",
+          "source": "longmemeval/031748ae"
+        },
+        {
+          "id": "conv-44::D24:19",
+          "score": 0.015873015873015872,
+          "text": "Audrey: Yep! I'll do some research and see if I can find an awesome place like that.",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_8748f791_abs_1",
+          "score": 0.015625,
+          "text": "[session_id=answer_8748f791_abs_1 date=2023/05/23 (Tue) 07:35]\nuser: I'm planning a team outing for my engineers and I need some suggestions for fun activities in the city. Do you have any recommendations?\nassistant: What a great idea! Treating your engineers to a fun team outing can be a wonderful way to boost morale, encourage bonding, and create lasting memories. I'd be happy to help you with some activity suggestions in the city. Here are a few ideas to get you started:  **Outdoor Activities",
+          "source": "longmemeval/031748ae_abs"
+        },
+        {
+          "id": "conv-43::D2:13",
+          "score": 0.015625,
+          "text": "Tim: Definitely, those reminders really help. And there's definitely a chance I'll be visiting more HP spots in the future. It feels like I'm stepping into the books!",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "answer_6a3b5c13_3",
+          "score": 0.015384615384615385,
+          "text": "[session_id=answer_6a3b5c13_3 date=2023/05/25 (Thu) 11:52]\nuser: I'm trying to plan my meals for the week and was wondering if you could help me come up with some recipe ideas using chicken breast and ground beef, which I just bought last week. By the way, I've been trying to shop more sustainably, which is why I placed an online order with Thrive Market last month and spent around $150 on organic and sustainable products.\nassistant: Great job on taking steps towards sustainable shopping! Thrive",
+          "source": "longmemeval/gpt4_2ba83207"
+        },
+        {
+          "id": "conv-50::D6:18",
+          "score": 0.015384615384615385,
+          "text": "Dave: Definitely adding it to my list. Thanks!",
+          "source": "locomo/conv-50"
+        }
+      ],
+      "latency_ms": 461.3320000935346,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "single-session-preference",
+      "question_id": "505af2f5",
+      "query": "I was thinking of trying a new coffee creamer recipe. Any recommendations?",
+      "gold_chunk_ids": [
+        "answer_f3164f2c"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "answer_f3164f2c",
+          "score": 0.02976190476190476,
+          "text": "[session_id=answer_f3164f2c date=2023/05/21 (Sun) 03:12]\nuser: I'm trying to reduce my sugar intake and save money, so I've started making my own flavored creamer with almond milk, vanilla extract, and honey. Can you give me some tips on how to make it even healthier?\nassistant: What a great step you've taken! Making your own flavored creamer is a fantastic way to reduce sugar intake and save money. Here are some tips to make your homemade creamer even healthier:  1. **Choose a healthier sweeten",
+          "source": "longmemeval/505af2f5"
+        },
+        {
+          "id": "answer_728deb4d_4",
+          "score": 0.028309409888357256,
+          "text": "[session_id=answer_728deb4d_4 date=2023/05/29 (Mon) 03:03]\nuser: I'm looking for some new breakfast recipes. I've been getting bored with my usual options and I recently got a fancy espresso machine from my sister as a gift, so I'd love to incorporate that into my morning routine. By the way, I donated my old coffee maker to Goodwill and I'm really enjoying the upgrade.\nassistant: Congratulations on the new espresso machine! That's a wonderful gift from your sister. I'm happy to help you discove",
+          "source": "longmemeval/gpt4_ab202e7f"
+        },
+        {
+          "id": "answer_626e93c4_2",
+          "score": 0.02690100430416069,
+          "text": "[session_id=answer_626e93c4_2 date=2023/05/29 (Mon) 10:35]\nuser: I'm trying to decide on a new coffee maker, can you recommend any good ones? I'm currently using a drip coffee maker, but I'm open to exploring other options. By the way, I'm thinking of changing my morning coffee limit to two cups, do you think that's a good idea?\nassistant: A new coffee maker, eh? Exciting! I'd be happy to help you with some recommendations. And, of course, I'll chime in on your morning coffee limit question too!",
+          "source": "longmemeval/c6853660"
+        },
+        {
+          "id": "answer_4dac77cb_1",
+          "score": 0.01639344262295082,
+          "text": "[session_id=answer_4dac77cb_1 date=2023/02/11 (Sat) 17:37]\nuser: I'm thinking of trying out a new coffee recipe, but I'm not sure what type of coffee beans would pair well with citrus notes. Can you recommend some options? By the way, I've been experimenting with my French press and I've found that 1 tablespoon of coffee for every 6 ounces of water is the perfect ratio for me.\nassistant: Citrus notes are a great addition to coffee! You've got a good starting point with your French press ratio, n",
+          "source": "longmemeval/6071bd76"
+        },
+        {
+          "id": "conv-42::D18:10",
+          "score": 0.01639344262295082,
+          "text": "Nate: I've been really into making this lately - it's creamy, rich, dairy-free and a new recipe! Wanna try it? I can share the recipe with you if you'd like!",
+          "source": "locomo/conv-42"
+        },
+        {
+          "id": "answer_f5b33470",
+          "score": 0.016129032258064516,
+          "text": "[session_id=answer_f5b33470 date=2023/05/22 (Mon) 19:27]\nuser: I've been experimenting with different baking recipes and I was wondering if you could give me some suggestions on what types of pastries I could make that feature caramel as a main ingredient?\nassistant: Caramel is a wonderful ingredient! It adds a rich, deep flavor and a velvety texture to pastries. Here are some delicious pastry ideas that feature caramel as a main ingredient:  1. **Caramel \u00c9clairs**: Flaky puff pastry filled with",
+          "source": "longmemeval/f4f1d8a4"
+        },
+        {
+          "id": "conv-42::D4:5",
+          "score": 0.016129032258064516,
+          "text": "Nate: Sure, I know one recipe using coconut milk. Would you like me to send it to you?",
+          "source": "locomo/conv-42"
+        },
+        {
+          "id": "answer_f5b33470_abs",
+          "score": 0.015873015873015872,
+          "text": "[session_id=answer_f5b33470_abs date=2023/05/20 (Sat) 01:42]\nuser: I've been experimenting with different baking recipes and I was wondering if you could give me some suggestions on what types of pastries I could make that feature caramel as a main ingredient?\nassistant: Caramel is a wonderful ingredient! It adds a rich, deep flavor and a velvety texture to pastries. Here are some delicious pastry ideas that feature caramel as a main ingredient:  1. **Caramel \u00c9clairs**: Flaky puff pastry filled ",
+          "source": "longmemeval/f4f1d8a4_abs"
+        },
+        {
+          "id": "answer_0714183a",
+          "score": 0.015625,
+          "text": "[session_id=answer_0714183a date=2023/05/24 (Wed) 08:53]\nuser: I'm looking for some recommendations on good coffee shops near my new apartment. I just moved in a few weeks ago and still exploring the area.\nassistant: Congratulations on your new apartment! I'd be happy to help you discover some great coffee shops in your new neighborhood. However, I need a bit more information from you to give you the most relevant recommendations.  Could you please provide me with the following details:  1. What",
+          "source": "longmemeval/caf9ead2"
+        },
+        {
+          "id": "conv-42::D21:8",
+          "score": 0.015625,
+          "text": "Nate: Yeah sure! Would love to share it. Let's spread the joy of dairy-free options! Let me know when you make it!",
+          "source": "locomo/conv-42"
+        }
+      ],
+      "latency_ms": 483.46004099585116,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "single-session-user",
+      "question_id": "118b2229",
+      "query": "How long is my daily commute to work?",
+      "gold_chunk_ids": [
+        "answer_40a90d51"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "answer_4fb01417_1",
+          "score": 0.03278688524590164,
+          "text": "[session_id=answer_4fb01417_1 date=2023/05/26 (Fri) 00:49]\nuser: I'm trying to get a better sense of my daily commute expenses. I've been tracking my total commute expenses for the month, and it's $240 so far. By the way, the train fare is included in that amount, which averages out to a daily train fare. Can you help me break down how much I'm spending on the train every day?\nassistant: I'd be happy to help you break down your daily train fare.  Let's start with the information you provided:  *",
+          "source": "longmemeval/cc06de0d"
+        },
+        {
+          "id": "answer_4fb01417_2",
+          "score": 0.03200204813108039,
+          "text": "[session_id=answer_4fb01417_2 date=2023/05/27 (Sat) 13:49]\nuser: I'm trying to find ways to reduce my daily commute expenses. I've been tracking my costs and I had a bit of a setback last Wednesday when I missed my train by 5 minutes and had to take a taxi, which cost me $12.\nassistant: I'm so sorry to hear that! Missing a train by just 5 minutes can be frustrating, and the extra cost of a taxi ride can be a real blow to your budget.  Don't worry, though - it's great that you're tracking your ex",
+          "source": "longmemeval/cc06de0d"
+        },
+        {
+          "id": "answer_e184e4c3_2",
+          "score": 0.031024531024531024,
+          "text": "[session_id=answer_e184e4c3_2 date=2023/05/23 (Tue) 08:07]\nuser: I'm looking for some advice on how to make the most of my morning commute. I was thinking of listening to audiobooks or podcasts, but I'm not sure what would be the most engaging. My daily commute to work takes about 30 minutes, so I want to make the most of that time.\nassistant: What a great question! Making the most of your morning commute can set a positive tone for the rest of the day. Both audiobooks and podcasts can be excell",
+          "source": "longmemeval/1192316e"
+        },
+        {
+          "id": "answer_fc81d1a2_1",
+          "score": 0.016129032258064516,
+          "text": "[session_id=answer_fc81d1a2_1 date=2023/05/22 (Mon) 13:31]\nuser: I'm trying to plan out my morning routine for the week. Can you help me set reminders for my meditation and gym sessions? I usually do them right after waking up at 6:30 AM on weekdays.\nassistant: I'd be happy to help you plan out your morning routine.  Here's a suggested morning routine with reminders for your meditation and gym sessions:  **Monday to Friday**  * 6:30 AM - Wake up * 6:40 AM - Meditation session (10-15 minutes) * 7",
+          "source": "longmemeval/efc3f7c2"
+        },
+        {
+          "id": "answer_0714183a",
+          "score": 0.015625,
+          "text": "[session_id=answer_0714183a date=2023/05/24 (Wed) 08:53]\nuser: I'm looking for some recommendations on good coffee shops near my new apartment. I just moved in a few weeks ago and still exploring the area.\nassistant: Congratulations on your new apartment! I'd be happy to help you discover some great coffee shops in your new neighborhood. However, I need a bit more information from you to give you the most relevant recommendations.  Could you please provide me with the following details:  1. What",
+          "source": "longmemeval/caf9ead2"
+        },
+        {
+          "id": "conv-44::D8:15",
+          "score": 0.015625,
+          "text": "Andrew: Cool, that's a good amount of time for them to have a nice stroll and take a look around.",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_e49ed9d3_abs_2",
+          "score": 0.015384615384615385,
+          "text": "[session_id=answer_e49ed9d3_abs_2 date=2023/05/20 (Sat) 01:08]\nuser: I'm thinking of getting a new laptop and was wondering if you could help me compare prices for the Dell XPS 13. By the way, I just got a new phone case for my Samsung Galaxy S22 from Case-Mate for $30, and it's been working out great.\nassistant: I'd be happy to help you compare prices for the Dell XPS 13. However, I'm a large language model, I don't have have real-time access to current prices or sales. But I can give you some ",
+          "source": "longmemeval/e5ba910e_abs"
+        },
+        {
+          "id": "conv-43::D10:15",
+          "score": 0.015384615384615385,
+          "text": "Tim: Thanks! I'll make sure to have a safe trip.",
+          "source": "locomo/conv-43"
+        },
+        {
+          "id": "conv-44::D20:33",
+          "score": 0.015151515151515152,
+          "text": "Andrew: How about reducing our carbon footprint by biking or using public transport?",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "answer_f964cea3_2",
+          "score": 0.014925373134328358,
+          "text": "[session_id=answer_f964cea3_2 date=2022/01/16 (Sun) 01:52]\nuser: I need some book recommendations. I just started reading 'The Hitchhiker's Guide to the Galaxy' by Douglas Adams today, and I'm loving the humor so far. Can you suggest some authors or books that have a similar tone and style?\nassistant: You're in for a treat! Douglas Adams' humor is one of a kind, but I can suggest some authors and books that share a similar tone and style. Here are a few recommendations:  1. **Terry Pratchett**: ",
+          "source": "longmemeval/gpt4_4ef30696"
+        }
+      ],
+      "latency_ms": 473.1038750614971,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "single-session-user",
+      "question_id": "0862e8bf_abs",
+      "query": "What is the name of my hamster?",
+      "gold_chunk_ids": [
+        "answer_c6fd8ebd_abs"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "conv-47::D21:2",
+          "score": 0.02928692699490662,
+          "text": "John:  Your pup is so cute, remind me what's their name? I've been helping my younger siblings out with programming since they joined the programming course. It's really cool to see them get into it.",
+          "source": "locomo/conv-47"
+        },
+        {
+          "id": "conv-44::D24:5",
+          "score": 0.027031963470319637,
+          "text": "Audrey: That's awesome! What is his name?",
+          "source": "locomo/conv-44"
+        },
+        {
+          "id": "conv-47::D31:21",
+          "score": 0.026500526500526502,
+          "text": "James: This pup is so adorable! What's their name?",
+          "source": "locomo/conv-47"
+        },
+        {
+          "id": "answer_f6168136",
+          "score": 0.01639344262295082,
+          "text": "[session_id=answer_f6168136 date=2023/05/27 (Sat) 18:13]\nuser: I need to update my address with my health insurance provider. Can you walk me through the process or give me a phone number to call? By the way, I just recently changed my last name, and I'm still getting used to it - it's funny, my old name was Johnson, but now it's Winters.\nassistant: Congratulations on your recent name change!  I'd be happy to help you update your address with your health insurance provider. Since I'm a large lan",
+          "source": "longmemeval/c5e8278d"
+        },
+        {
+          "id": "conv-48::D28:26",
+          "score": 0.01639344262295082,
+          "text": "Jolene: It`s Susie! I've had her for two years now. ",
+          "source": "locomo/conv-48"
+        },
+        {
+          "id": "conv-47::D21:4",
+          "score": 0.016129032258064516,
+          "text": "John: That's right, his name is Ned, how could I forget?!",
+          "source": "locomo/conv-47"
+        },
+        {
+          "id": "answer_70dc7d08_1",
+          "score": 0.015873015873015872,
+          "text": "[session_id=answer_70dc7d08_1 date=2023/12/10 (Sun) 23:13]\nuser: I'm looking for some gift ideas for my sister's birthday, which is coming up soon. I'd like to get her something nice, but I'm on a budget. Do you have any suggestions? By the way, I attended the annual Holiday Market at the local mall a week before Black Friday, and I saw some unique handmade jewelry there, but I'm not sure if that's her style.\nassistant: Happy birthday to your sister! I'd be happy to help you find a thoughtful gi",
+          "source": "longmemeval/c8090214"
+        },
+        {
+          "id": "conv-47::D31:22",
+          "score": 0.015873015873015872,
+          "text": "John: Their name is Luna. ",
+          "source": "locomo/conv-47"
+        },
+        {
+          "id": "answer_70dc7d08_abs_1",
+          "score": 0.015625,
+          "text": "[session_id=answer_70dc7d08_abs_1 date=2023/05/27 (Sat) 18:16]\nuser: I'm looking for some gift ideas for my sister's birthday, which is coming up soon. I'd like to get her something nice, but I'm on a budget. Do you have any suggestions? By the way, I attended the annual Holiday Market at the local mall a week before Black Friday, and I saw some unique handmade jewelry there, but I'm not sure if that's her style.\nassistant: Happy birthday to your sister! I'd be happy to help you find a thoughtfu",
+          "source": "longmemeval/c8090214_abs"
+        },
+        {
+          "id": "conv-44::D1:6",
+          "score": 0.015625,
+          "text": "Andrew: Cute little guys! What are their names and how long have you had them?",
+          "source": "locomo/conv-44"
+        }
+      ],
+      "latency_ms": 452.65466696582735,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "temporal-reasoning",
+      "question_id": "gpt4_1d4ab0c9",
+      "query": "How many days passed between the day I started watering my herb garden and the day I harvested my first batch of fresh herbs?",
+      "gold_chunk_ids": [
+        "answer_febde667_1",
+        "answer_febde667_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "answer_febde667_2",
+          "score": 0.032266458495966696,
+          "text": "[session_id=answer_febde667_2 date=2023/04/15 (Sat) 01:15]\nuser: I'm looking for some new recipe ideas that feature fresh herbs. I just harvested my first batch of fresh herbs from the herb garden kit today and I'm excited to use them in different dishes.\nassistant: Congratulations on your first herb harvest! Fresh herbs can elevate the flavor and aroma of many dishes. Here are some delicious recipe ideas that feature fresh herbs:  **Basil**  1. Classic Caprese Salad: Slice fresh mozzarella, tom",
+          "source": "longmemeval/gpt4_1d4ab0c9"
+        },
+        {
+          "id": "answer_febde667_1",
+          "score": 0.03131881575727918,
+          "text": "[session_id=answer_febde667_1 date=2023/03/22 (Wed) 06:39]\nuser: I'm planning to make a salad for dinner tonight and I want to use some fresh herbs. Can you give me some advice on how to keep my herbs fresh for a longer period? By the way, I started watering my herb garden every morning today, and I'm excited to see them grow.\nassistant: Fresh herbs can elevate any salad to a whole new level!  Congratulations on starting to water your herb garden every morning! Consistent watering is essential f",
+          "source": "longmemeval/gpt4_1d4ab0c9"
+        },
+        {
+          "id": "answer_f6d6e33f_1",
+          "score": 0.030303030303030304,
+          "text": "[session_id=answer_f6d6e33f_1 date=2023/04/15 (Sat) 12:59]\nuser: I'm planning to make a salad for dinner tonight and I was wondering if you could give me some recipe suggestions that feature fresh herbs, like basil or thyme. I just harvested my first batch of fresh herbs from the herb garden kit today and I want to use them up!\nassistant: Congratulations on your first harvest! Fresh herbs can elevate any dish, and salads are a great way to showcase their flavors. Here are some delicious salad re",
+          "source": "longmemeval/gpt4_a2d1d1f6"
+        },
+        {
+          "id": "answer_16bd5ea5_1",
+          "score": 0.029116045245077504,
+          "text": "[session_id=answer_16bd5ea5_1 date=2023/04/15 (Sat) 18:09]\nuser: I'm trying to figure out what type of fertilizer to use for my herbs. I've been experimenting with different types of plants in my garden, including basil, mint, and parsley, and I want to make sure I'm giving them the right nutrients. By the way, I attended a gardening workshop in my neighborhood today where I learned about companion planting and crop rotation, and it's been really helpful in planning my garden layout.\nassistant: ",
+          "source": "longmemeval/gpt4_1e4a8aeb"
+        },
+        {
+          "id": "answer_9cddca88",
+          "score": 0.029083245521601686,
+          "text": "[session_id=answer_9cddca88 date=2023/05/21 (Sun) 07:50]\nuser: I've been meaning to start a small herb garden in my kitchen window, can you give me some tips on how to get started and what herbs are easy to grow indoors?\nassistant: Starting a small herb garden in your kitchen window is a great idea! Not only will it add some greenery to your space, but it'll also provide you with fresh herbs right at your fingertips. Here are some tips to get you started:  **Choosing the Right Herbs:**  1. **Beg",
+          "source": "longmemeval/60d45044"
+        },
+        {
+          "id": "answer_23759615_1",
+          "score": 0.02821939586645469,
+          "text": "[session_id=answer_23759615_1 date=2023/06/01 (Thu) 18:16]\nuser: I'm thinking of expanding my product offerings for the upcoming Harvest Festival Market. Can you help me research some popular herb-based products that I could sell alongside my fresh herbs? By the way, I've had a pretty successful season so far - I even sold 12 bunches of fresh organic herbs from my backyard garden at the farmers' market on May 15th, earning a total of $120.\nassistant: Congratulations on your successful season so ",
+          "source": "longmemeval/2b8f3739"
+        },
+        {
+          "id": "answer_16bd5ea6_1",
+          "score": 0.027820121951219513,
+          "text": "[session_id=answer_16bd5ea6_1 date=2023/04/15 (Sat) 02:04]\nuser: I'm trying to figure out what type of fertilizer to use for my herbs. I've been experimenting with different types of plants in my garden, including basil, mint, and parsley, and I want to make sure I'm giving them the right nutrients. By the way, I attended a gardening workshop in my neighborhood recently where I learned about companion planting and crop rotation, and it's been really helpful in planning my garden layout.\nassistan",
+          "source": "longmemeval/gpt4_1e4a8aec"
+        },
+        {
+          "id": "answer_16bd5ea5_2",
+          "score": 0.026333907056798625,
+          "text": "[session_id=answer_16bd5ea5_2 date=2023/04/21 (Fri) 20:28]\nuser: I'm looking for some advice on how to keep my tomato plants healthy and pest-free. By the way, I just planted 12 new tomato saplings today and I'm excited to see them grow.\nassistant: Congratulations on planting your new tomato saplings! With proper care and attention, they'll thrive and provide you with a bountiful harvest. Here are some tips to keep your tomato plants healthy and pest-free:  **Soil and Watering**  1. **Soil quali",
+          "source": "longmemeval/gpt4_1e4a8aeb"
+        },
+        {
+          "id": "answer_16bd5ea6_2",
+          "score": 0.025448143405889884,
+          "text": "[session_id=answer_16bd5ea6_2 date=2023/04/21 (Fri) 21:31]\nuser: I'm looking for some advice on how to keep my tomato plants healthy and pest-free. By the way, I just planted 12 new tomato saplings today and I'm excited to see them grow.\nassistant: Congratulations on planting your new tomato saplings! With proper care and attention, they'll thrive and provide you with a bountiful harvest. Here are some tips to keep your tomato plants healthy and pest-free:  **Soil and Watering**  1. **Soil quali",
+          "source": "longmemeval/gpt4_1e4a8aec"
+        },
+        {
+          "id": "answer_743f03a1_1",
+          "score": 0.016129032258064516,
+          "text": "[session_id=answer_743f03a1_1 date=2023/05/20 (Sat) 05:52]\nuser: I'm looking for some recipe ideas that feature fresh tomatoes as the main ingredient.\nassistant: Here are some delicious recipe ideas that showcase fresh tomatoes as the main ingredient:  **Appetizers and Snacks**  1. **Bruschetta**: Fresh tomatoes, basil, garlic, mozzarella, and balsamic glaze on toasted bread. 2. **Tomato and Mozzarella Salad**: Sliced tomatoes, mozzarella, and basil, dressed with olive oil and balsamic vinegar. ",
+          "source": "longmemeval/6456829e"
+        }
+      ],
+      "latency_ms": 575.1055830623955,
+      "error": null
+    },
+    {
+      "dataset": "longmemeval",
+      "category": "temporal-reasoning",
+      "question_id": "gpt4_70e84552_abs",
+      "query": "Which task did I complete first, fixing the fence or purchasing three cows from Peter?",
+      "gold_chunk_ids": [
+        "answer_b3070ec4_abs_1",
+        "answer_b3070ec4_abs_2"
+      ],
+      "k": 10,
+      "results": [
+        {
+          "id": "answer_6a4f8626_2",
+          "score": 0.029827662395050816,
+          "text": "[session_id=answer_6a4f8626_2 date=2023/11/30 (Thu) 01:57]\nuser: I'm feeling a bit overwhelmed with work projects and was wondering if you could help me prioritize my tasks and create a schedule for the week?\nassistant: I'd be happy to help you prioritize your tasks and create a schedule for the week.  To get started, can you please share some information about your current projects and tasks? Please provide me with the following:  1. A list of all the tasks you need to complete this week (big o",
+          "source": "longmemeval/945e3d21"
+        },
+        {
+          "id": "answer_b3070ec4_abs_1",
+          "score": 0.02938045560996381,
+          "text": "[session_id=answer_b3070ec4_abs_1 date=2023/05/30 (Tue) 04:10]\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on f",
+          "source": "longmemeval/gpt4_70e84552_abs"
+        },
+        {
+          "id": "answer_b3070ec4_1",
+          "score": 0.02928692699490662,
+          "text": "[session_id=answer_b3070ec4_1 date=2023/05/22 (Mon) 20:15]\nuser: I'm thinking of hosting a farm open house event soon and I want to make sure everything is perfect. Can you help me come up with some ideas for activities and also give me some tips on how to promote it on social media? By the way, I just fixed that broken fence on the east side of my property three weeks ago, where my goats like to graze, and it's been a huge relief to have them safe and secure.\nassistant: Congratulations on fixin",
+          "source": "longmemeval/gpt4_70e84552"
+        },
+        {
+          "id": "answer_1881e7db_1",
+          "score": 0.024696969696969696,
+          "text": "[session_id=answer_1881e7db_1 date=2023/05/22 (Mon) 16:23]\nuser: I'm feeling a bit overwhelmed with work after the long weekend. Can you help me organize my tasks and prioritize them based on the project deadline?\nassistant: I'd be happy to help you organize your tasks and prioritize them based on your project deadlines.  To get started, can you please provide me with some information about your tasks and projects? Please answer the following questions:  1. What are the projects you're working o",
+          "source": "longmemeval/73d42213"
+        },
+        {
+          "id": "answer_babbaccb_2",
+          "score": 0.01639344262295082,
+          "text": "[session_id=answer_babbaccb_2 date=2023/03/15 (Wed) 12:06]\nuser: I'm thinking of making some quiche for dinner, do you have a simple recipe you can share?\nassistant: Quiche is a great choice for dinner! I'd be happy to share a simple recipe with you. Here's a classic quiche recipe that's easy to make and adaptable to your taste:  **Basic Quiche Recipe**  Ingredients:  * 1 pie crust (homemade or store-bought) * 3 large eggs * 1 1/2 cups heavy cream or half-and-half * 1/2 cup shredded cheese (Ched",
+          "source": "longmemeval/ed4ddc30"
+        },
+        {
+          "id": "answer_e6c20e52_3",
+          "score": 0.015873015873015872,
+          "text": "[session_id=answer_e6c20e52_3 date=2023/01/05 (Thu) 12:34]\nuser: I'm thinking of planning a team-building event for my office and I was considering organizing a sports-themed outing. Do you think you could help me with some ideas?\nassistant: What a great idea! A sports-themed team-building event can be a fantastic way to bring your office together and create some unforgettable memories. Here are some sports-themed team-building event ideas to consider:  1. **Escape Room Challenge**: Create a spo",
+          "source": "longmemeval/gpt4_45189cb4"
+        },
+        {
+          "id": "conv-47::D28:6",
+          "score": 0.015873015873015872,
+          "text": "John: Lesson learned - save progress! By the way, I organized the programming seminar last week.",
+          "source": "locomo/conv-47"
+        },
+        {
+          "id": "answer_b28f2c7a_1",
+          "score": 0.015625,
+          "text": "[session_id=answer_b28f2c7a_1 date=2023/02/11 (Sat) 15:33]\nuser: I'm trying to plan out my week and was wondering if you could suggest some productivity apps that can help me stay organized.\nassistant: There are many productivity apps available that can help you stay organized and focused. Here are some popular ones:  1. ** Todoist**: A task management app that lets you create and manage your to-do lists, set reminders, and track your progress. 2. **Trello**: A visual project management tool tha",
+          "source": "longmemeval/59524333"
+        },
+        {
+          "id": "conv-47::D9:13",
+          "score": 0.015625,
+          "text": "John: Cool, what about the other two? Judging by the photo, shepherds?",
+          "source": "locomo/conv-47"
+        },
+        {
+          "id": "answer_0eb23770_2",
+          "score": 0.015384615384615385,
+          "text": "[session_id=answer_0eb23770_2 date=2023/05/30 (Tue) 06:33]\nuser: I'm thinking of continuing to experiment with non-linear narrative structures in my writing. Can you recommend some books or authors that are known for using this style effectively? By the way, I've been writing regularly for three months now, and it's been amazing - I've even managed to complete 7 short stories since I started.\nassistant: Congratulations on your writing progress! Completing seven short stories in three months is a",
+          "source": "longmemeval/a1eacc2a"
+        }
+      ],
+      "latency_ms": 454.6039591077715,
+      "error": null
+    }
+  ]
+}
