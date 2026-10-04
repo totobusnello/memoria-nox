@@ -54,6 +54,15 @@ CONTROLES_POSITIVOS = {
 # ruido que casa o formato de caminho mas nao e caminho deste repo
 IGNORAR_PREFIXO = ("http", "www.", "10.5281/", "arxiv", "10.1038/")
 
+# Caminhos de OUTROS repositorios que o manuscrito cita em backticks e que colidem
+# com um diretorio de topo deste repo (aqui, `docs/`). Lista nominal, um por um, com
+# o repositorio dono: nunca prefixo nem padrao, para a excecao nao engolir citacao
+# nossa. Entrada nova exige o repositorio e o lugar do manuscrito que a cita.
+EXTERNOS = {
+    # [^gbrain]: garrytan/gbrain-evals, LongMemEval-S benchmark report (v1.0.3)
+    "docs/benchmarks/2026-05-07-longmemeval-s.md": "garrytan/gbrain-evals",
+}
+
 
 def topos(repo):
     saida = {p.split("/")[0] for p in subprocess.run(
@@ -94,6 +103,8 @@ def extrai(texto):
         if "/" not in cand or not RE_CAMINHO.match(cand):
             continue
         if cand.lower().startswith(IGNORAR_PREFIXO):
+            continue
+        if cand in EXTERNOS:
             continue
         achados.add(cand)
     return achados
