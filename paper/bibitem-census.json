@@ -74,8 +74,7 @@
     "letta-stack": "descricao do stack do Letta (§6.8/Table 2), nao obra de terceiro",
     "lightrag-stack": "descricao do stack do LightRAG (§6.8/Table 2), nao obra de terceiro",
     "mem0-stack": "descricao do stack do Mem0 (§6.8/Table 2), nao obra de terceiro",
-    "nox-mem-rss": "nossa medicao de RSS em producao (Table 2)",
-    "q-a-p-pivot": "nosso pivot Q/A/P interno, ponteiro nosso"
+    "nox-mem-rss": "nossa medicao de RSS em producao (Table 2)"
   },
   "_duplicatas_fundidas_2026_09_11": {
     "pares": {
@@ -97,5 +96,11 @@
       "q-a-p-pivot"
     ],
     "revertido_em": "2026-09-11, mesmo dia: os blocos VOLTARAM ao corpo para o TMLR. Sob double blind o ponteiro `paper/publication/supplement-*.md` e inalcancavel para o revisor, logo 'esta no suplemento' equivale a 'nao esta'. As seis footnotes voltaram a `evidencia`; nenhuma e 'obra', logo as 55 obras e a densidade nao mudam em nenhum dos dois sentidos."
+  },
+  "_removidas_v1_0_3_2026_10_03": {
+    "footnotes": [
+      "q-a-p-pivot"
+    ],
+    "motivo": "v1.0.3: o ponteiro para o pivot Q/A/P interno saiu do manuscrito junto com o vocabulario de produto (pillar). Era 'evidencia', nao 'obra', logo as 55 obras e a densidade nao mudam."
   }
 }
