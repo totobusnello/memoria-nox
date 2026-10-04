@@ -1,0 +1,36 @@
+{
+ "modo": "real-only (calibracao; NAO e resultado de especificidade)",
+ "arquivo": "cal/REAL-w4.json",
+ "run": {
+  "4.0": {
+   "estados": 2646,
+   "mexeu": 132,
+   "churn_total": 146,
+   "boosts": {
+    "19": 2646
+   }
+  },
+  "100000.0": {
+   "estados": 2646,
+   "mexeu": 155,
+   "churn_total": 173,
+   "boosts": {
+    "19": 2646
+   }
+  },
+  "erros": 0
+ },
+ "fidelidade_real": {
+  "estados": 2646,
+  "controle_igual": 2646,
+  "estados_com_w_de_producao": 2646,
+  "churn_e_entra_iguais": 2646,
+  "controle_por_epoch": {
+   "2026-09-01": "630/630",
+   "2026-09-12": "672/672",
+   "2026-09-14": "672/672",
+   "2026-09-15": "672/672"
+  },
+  "primeiras_divergencias": []
+ }
+}

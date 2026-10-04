@@ -1,0 +1,33 @@
+0
+29
+/var/tmp/sprint-sham-v2-w/db/corpus-SERVING-REAL-e20260903-recuperado.db: OK
+/var/tmp/sprint-sham-v2-w/db/vivo-v2.db: OK
+/var/tmp/sprint-sham-v2-w/db/corpus-SERVING-REAL-e20260903-recuperado.db 1254526976 2026-10-03 22:30:19.501974545 -0300
+/var/tmp/sprint-sham-v2-w/db/vivo-v2.db 107016192 2026-10-03 22:31:09.705126898 -0300
+/var/tmp/sprint-sham-v2-w/cal/ts-w4.txt 66150 2026-10-03 22:46:18.279797898 -0300
+/var/tmp/sprint-sham-v2-w/in/p2-serving.ndjson 12889236 2026-10-03 22:30:11.077242083 -0300
+8.0K	/var/tmp/dryrun-descartavel
+8.0K	/var/tmp/systemd-private-170b774acfad4c95a287ec888cf678f5-chrony.service-WlBl5D
+8.0K	/var/tmp/systemd-private-170b774acfad4c95a287ec888cf678f5-polkit.service-wIqJBH
+8.0K	/var/tmp/systemd-private-170b774acfad4c95a287ec888cf678f5-systemd-logind.service-qbfTny
+8.0K	/var/tmp/zep-antes.log
+8.0K	/var/tmp/zep-schema.json
+232K	/var/tmp/dist-pre-p2c2
+1.3M	/var/tmp/dl.txt
+44M	/var/tmp/zep-bin
+1.7G	/var/tmp/sprint-sham-v2-w
+total 2470968
+drwx------ 4 root root       4096 Oct  3 22:23 .
+drwxr-xr-x 9 root root       4096 Oct  3 21:22 ..
+-rw-r--r-- 1 root root         79 Oct  3 21:29 RECIBO.txt
+drwxr-xr-x 2 root root       4096 Oct  3 22:23 brief_log
+drwxr-xr-x 2 root root       4096 Oct  3 21:29 corpus
+-r-------- 1 root root 1254526976 Sep  8 12:01 corpus-SERVING-REAL-e20260903-recuperado.db
+-r-------- 1 root root 1275711488 Sep  8 11:58 corpus-preservado-20260908.db
+-r-------- 1 root root        397 Oct  3 21:22 p2-bancos-ensaio.sha256
+247: * O corpus NUNCA é copiado nem escrito — é aberto readonly. `brief_log` não
+254:  const d = new Database(p);
+360:const corpus = new Database(CORPUS, { readonly: true, fileMustExist: true });
+361:const vivoRO = new Database(VIVO, { readonly: true, fileMustExist: true });
+
+[exited with code 0]

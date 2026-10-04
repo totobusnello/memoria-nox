@@ -1,0 +1,69 @@
+{
+ "findings": [
+  {
+   "pt_line": 1149,
+   "section": "§5.6 (and Apêndice D)",
+   "quote_pt": "**Procedência da rodada.** Corpus = snapshot de epoch `e20260826T060003Z.db`, exclusão de sondas = nenhuma, corte por ordem de inserção, designação com `sha256` conferido — idênticos ao artefato de dose.",
+   "problem": "STALE by omission (the known item): the DB no longer exists anywhere searched, and Paper B l.447-450 declares it. The same input underlies EVERY replay artifact the paper cites (c-350.json, c-350-v3.json, dose-350-v3.json, limiar-17.json, gaps.json, gran-*.json, gran3-*.json, sens-*.json), so Appendix D needs the same declaration.",
+   "proposed_en": "[§5.6] **Provenance of the run.** Corpus = epoch snapshot `e20260826T060003Z.db` (`sha256` of its first MB `56826f69…`), probe exclusion = none, cut by insertion order, designation with `sha256` checked; all identical to the dose artifact. ⚠️ That corpus **no longer exists**: epoch retention pruned it, and it is not among the four preserved trial databases nor on either host or the author's machine (checked 2026-10-03/04). The run can be re-read from its artifacts but not re-executed on its original input.\n[Appendix D, after the table] ⚠️ **The outputs are preserved; the replay input is not.** Every replay artifact above (`c-350*`, `dose-350-v3`, `limiar-17`, `gaps`, `gran-*`, `gran3-*`, `sens-*`) records `e20260826T060003Z.db` as its corpus, and that snapshot was pruned (§5.7.2, §6.2). The measurements on the live database (`superficie.json`, `POOL-ELEGIVEL`, `CHANNEL-ATTRIBUTION`) are likewise tied to a corpus state that no longer exists (the live corpus was 43,255 chunks on 2026-09-30). The artifacts can be audited; they cannot be re-executed bit for bit.",
+   "evidence": "procedencia.corpus read from out/{c-350,c-350-v3,dose-350-v3,limiar-17,gaps,gran-seg,gran3-seg,sens-01}.json = /var/lib/nox-mem/epochs/e20260826T060003Z.db; $NOX_LASTRO_HOST find / -xdev -name 'e20260826*' -> 0; first-MB sha256 of the 4 preserved DBs (16d12816…, a7b18997…, 12dbfe57…, 0a78171f…) != 56826f69…; Mac find ~/Backups ~/Claude ~/Claude-archive -> 0; docs/HANDOFF.md l.25-27; MANUSCRIPT-B.md l.447-450.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1350,
+   "section": "§5.7.2",
+   "quote_pt": "**Como isto foi medido, já que a condição original se perdeu.** Desenho pareado: os dois braços correm sobre o mesmo corpus de 30/08, o mesmo log de 350 estados, a mesma designação",
+   "problem": "NEEDS-DECLARATION: the paired arms ran on e20260830T060001Z.db, an epoch snapshot under the same retention that pruned e20260826. It is not among the preserved trial DBs and was not found on $NOX_LASTRO_HOST or the Mac (production not searched). The section presents this sensitivity as 'recoverable' without saying its own input is perishable.",
+   "proposed_en": "⚠️ The paired arms ran on `e20260830T060001Z.db` (`sha256` of its first MB `3679bca8…`), an epoch snapshot under the same retention that pruned the one above. It is not among the preserved trial databases, and it was not found on the research host or on the author's machine on 2026-10-03; the production host was not searched. Both artifacts survive. The input that would let a third party re-run them is, as far as we know, gone.",
+   "evidence": "out/CEILING-PROBE-EXCLUSION-none-2026-08-30.json procedencia.corpus=/var/lib/nox-mem/epochs/e20260830T060001Z.db, corpus_sha256_primeiros_1MB=3679bca8…; $NOX_LASTRO_HOST find / -xdev -name 'e20260830*' -> 0; first-MB hashes of the 4 preserved DBs differ; Mac find -> 0. Production NOT MEASURED (task rule).",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1381,
+   "section": "§5.7.2",
+   "quote_pt": "**Um par de artefatos que parecia responder isso, e não responde.** Existem na máquina de serving um `campo-churn.json` e um `campo-churn-sem-exclusao.json`",
+   "problem": "NEEDS-DATE / NOT MEASURED: present-tense claim about files on the production host. They are not in the repository or the Mac lastro, and their current existence was not checked (production off-limits).",
+   "proposed_en": "**A pair of artifacts that seemed to answer this, and does not.** On 2026-08-30 the serving machine held a `campo-churn.json` and a `campo-churn-sem-exclusao.json` (not preserved in the repository or the trial lastro; their current existence is not verified)",
+   "evidence": "per-name find over paper2-interventional and parent (maxdepth 4) -> MISSING for both; PLANO-2026-08-30.md l.60-61 dates the observation.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1356,
+   "section": "§5.7.2",
+   "quote_pt": "⚠️ **O controle que valida a comparação com o número publicado:** o braço sem exclusão, rodado no corpus de 30/08, devolve **exatamente 17/350 = 4,86%** — o valor publicado sobre o corpus de 26/08. A troca de corpus não move o teto, logo o braço com exclusão é comparável ao publicado",
+   "problem": "The control is count-level (17 = 17), in a section whose own finding is that equal counts can hide nearly disjoint sets (17 vs 13, 1 in common). The identity-level check was measured and passes, so the text can now state it.",
+   "proposed_en": "⚠️ **The control that makes the comparison with the published number valid — at the level of identity, not count.** The no-exclusion arm, run on the 30/08 corpus, returns 17/350 = 4.86%, the value published on the 26/08 corpus. A matching total alone would be the kind of evidence this section has just disqualified (17 and 13 sensitive states share only one), so the comparison was redone state by state over the existing artifacts (`measurement/sprint-comparabilidade-identidade-572.py`, `COMPARABILITY-IDENTITY-5.7.2.json`). The 350 state keys `(ts, agent, rowid_corte)` coincide 350/350. The sensitive set is the same 17 states, not merely 17 states. In each of the 350 states the ids that would enter and leave are identical. The undosed control arm (the top-10 served at w = 0, which depends on corpus and serve-state but not on the dose) is identical, in order, in 350/350 states (`out/c-350-v3.json` on 26/08 against the 30/08 arm). Changing the corpus moves neither the count, nor which states are sensitive, nor the undosed ranking. The check can see a difference when one exists: applied to the probe-exclusion arm it keeps 1 of 17 sensitive states and 1 of 350 control lists, and a mutation that keeps the count at 17 but changes one entering id makes it fail. Without this control the difference would be attributable to the corpus as much as to the probes. It does not recover the **level** of the ceiling under exclusion on the original corpus, which remains unrecoverable (below).",
+   "evidence": "python3 measurement/sprint-comparabilidade-identidade-572.py → exit 0; A vs B: L1 350, sensitive 17/17/17 in common, L3 350; C vs B: L4 ordered 350/350; B vs P: 1 in common, L4 1/350; C vs S: L4 350/350; in-memory mutation → exit 1 (L3 349). Output: _sprint-2026-10-04/A-recon-evidence/COMPARABILITY-IDENTITY-5.7.2.json",
+   "source_task": "recon-5.7.2-and-appD"
+  },
+  {
+   "pt_line": 1323,
+   "section": "§5.7.2",
+   "quote_pt": "🔴 **E o controlo que valida esta comparação verifica a estatística que esta mesma tabela acabou de desqualificar** (acrescentado 2026-09-21, por revisão adversarial).",
+   "problem": "Open-defect paragraph in the body. The defect is now closed by the identity-level control. Per the manuscript's own convention (Appendix H), closed corrections leave the body.",
+   "proposed_en": "[Remove from §5.7.2 and add to Appendix H:] **H-x · §5.7.2: the comparability control checked a count, in the section whose finding is that counts do not identify sets.** Adversarial review raised this on 2026-09-21: the control validating the cross-corpus comparison was the equality 17/350 = 17/350, while three lines earlier the same section showed equal totals hiding nearly disjoint sets. It was closed on 2026-10-04 by an identity-level control over the existing artifacts: the same 17 sensitive states, the same entering and leaving ids in 350/350 states, and the same undosed top-10 in 350/350. The control includes a negative control (the exclusion arm breaks identity) and a mutation test. The conclusion did not change; the evidence for it did.",
+   "evidence": "same as the previous finding; MANUSCRIPT.md l.1323-1332 read on 2026-10-03",
+   "source_task": "recon-5.7.2-and-appD"
+  },
+  {
+   "pt_line": 1126,
+   "section": "§5.3 / Proposition 1 test",
+   "quote_pt": "`replay-oportunidade.mjs --modo porque --corte rowid --so-ts-file ts-350.txt`",
+   "problem": "ts-350.txt is the only cited path that resolves nowhere: not in the repo, the local lastro, or the research VPS /var/backups/nox-mem (maxdepth 4). out/porque-350-v3.json does not hash it: its fonte_brief_ts_sha256 hashes the script source, and none of 6 orderings of the 350 ts in c-350-v3 match it.",
+   "proposed_en": "`replay-oportunidade.mjs --modo porque --corte rowid --so-ts-file ts-350.txt` aborts if a single entry has no partner. (`ts-350.txt` is the list of the 350 state timestamps. It was not kept and its hash was not recorded. The same 350 timestamps are the `ts` fields of `out/c-350-v3.json`; that they match the original input byte for byte is not verified.)",
+   "evidence": "sprint-censo-artefatos-paperA.py → MISSING ts-350.txt L1126; ssh $NOX_LASTRO_HOST find (read-only) → nothing; replay-oportunidade.mjs:393 fonte_brief_ts_sha256 = sha256(FONTE); python sha256 test over c-350-v3 ts → no match",
+   "source_task": "recon-5.7.2-and-appD"
+  }
+ ],
+ "doubts": [
+  "Linha ~1218-1220 (§5.6): o texto diz 'está no §5.6' dentro da própria §5.6 (auto-referência; talvez devesse ser §6 ou outro). Traduzido como está.",
+  "§5.7 diz 'o resto do mecanismo A, substituído por cobertura no tune de 06-26' sem ano; assumi 2026 (ISO 2026-06-26).",
+  "§5.7.2 usa 'controlo' (variante europeia) em um trecho e 'controle' no resto; ambos traduzidos como 'control'.",
+  "§5.7.1: '12 dos 19 grupos são unitários, então nenhuma seed pode mexer em mais de 7 designados' — 19-12=7 ok, mas só vale se os não unitários tiverem 1 designado cada; não alterei.",
+  "§5.7.1: 'a mediana 5,71% é ponto de n = 8' mas a tabela mostra 17..26 / 350; mediana 20/350 = 5.71% confere. Também 'nove sorteios' (8 + o em vigor) consistente.",
+  "§5.7: 'exposição cresce 24× enquanto o teto cresce 20×': 1656/68 = 24.4 e 99,43/4,86 = 20.5; ok, mas confirmei só aritmeticamente.",
+  "§5.7.2: 'o menor em efeito sobre a contagem' e 'o maior dos três em efeito relativo' são alegações do PT que não verifiquei.",
+  "§5.7.2: 'duas rodadas de meia hora' vs 'dois dias' — mantido; sem inconsistência detectada.",
+  "O tabelão de granularidade usa 'teto' da linha 'minuto' 36,29% = 127/350 (conferido: 127/350=36.29%); 281/350=80.29%; 348/350=99.43%; 17/350=4.86%: consistentes."
+ ]
+}

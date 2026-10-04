@@ -1,0 +1,31 @@
+{
+ "findings": [
+  {
+   "section": "1 (abstract/introduction thesis)",
+   "pt_line": 120,
+   "quote_pt": "medido que ela é 8,7× maior que o corpus, a não-exposição vira uma **escolha de política**, e escolha se examina.",
+   "problem": "The thesis treats 'policy' as one mechanism. The numbers show two policies: an eligibility predicate in the coverage channel, and a deterministic top-k without rotation in the main pool, where none of the 7 filters binds breadth. The main-pool half used to be assumed and is now measured.",
+   "proposed_en": "once it is measured to be 8.7× the corpus, non-exposure becomes a **policy choice** — two of them, in fact, one per channel: the coverage channel exhausts a path-and-age eligibility predicate of 108 chunks, and the main pool serves the same 33 chunks every day from 5,376 daily slots because its ranking is a deterministic top-k with no serve-history term (§4.3.1). Choices can be examined.",
+   "evidence": "out-ord0826.json per_epoch[2026-08-28].capacity: main_slots 5376, distinct_main_chunks_recon 33, share_of_slot_capacity_used_for_distinct 0.00614, max_share_of_corpus_if_rotated_arith 0.08; leave_one_out: no lifted filter exceeds 33; observed-main-from-log.json: 33 in every measurable epoch 08-21..09-21",
+   "source_task": "filters-disaggregation"
+  },
+  {
+   "section": "1 (introduction, concentration)",
+   "pt_line": 123,
+   "quote_pt": "Os 8 slots do pool principal convergem: 3 chunks aparecem em **100%** dos briefs, e o top-10 leva **47,16%** dos slots de uma semana.",
+   "problem": "In the measured window (21/08–21/09), the 3 chunks present in 100% of briefs are placed by the high-pain pinned floor (F7, pain ≥ 0.9), not by salience convergence. The scope sub-pool gets 0 of the 3,360 non-pinned daily slot-fills. The 47.16% week was NOT re-measured here.",
+   "proposed_en": "The 8 slots of the main pool converge: 3 chunks appear in **100%** of briefs — placed there by the high-pain floor (`pain ≥ 0.9`, §4.3.1), which takes all three corpus-wide slots — and the top-10 takes **47.16%** of a week's slots.",
+   "evidence": "out-ord0826.json per_epoch[2026-08-28].picks: by_phase {0: 2016, 1: 3360}, by_subpool {scope: 2016, agent: 3360}, pinned_ids_seen [112241, 116107, 116467], pinned_per_brief_hist {3: 672}; leave_one_out.lift_F7_pinned mean_jaccard 0.7778 (without the floor, 116107 leaves and 227328 enters)",
+   "source_task": "filters-disaggregation"
+  }
+ ],
+ "doubts": [
+  "Dentro de code span, `w ∈ (4,0; 4,4]` ficou verbatim, com vírgula decimal PT, como a regra manda para code. Fora do code, o mesmo intervalo seria (4.0, 4.4]. Vale decidir se esse span deve ser convertido, porque em EN a notação fica inconsistente.",
+  "O ⚠️ da frase '⚠️ A parte que a ordenação explica é a do brief' foi mantido no mesmo lugar. A frase seguinte do PT ('A alegação sobre mecanismo é sobre o brief...') ficou redundante com a anterior, mas foi traduzida como está.",
+  "A frase PT 'Aplicar a janela de um ao lote do outro' é ambígua em 'um'/'outro' (sub-pools). Traduzi como 'one's window to the other's batch'. Considere reescrever em EN para deixar explícito: per-agent / global.",
+  "'a de `counterfactual`, aparece como direção futura sugerida' foi traduzido literalmente. O PT trata como fato sobre o survey e eu não verifiquei.",
+  "'não nos credenciam' foi traduzido como 'credential us', que soa estranho em EN. Alternativa: 'not because they establish our credentials'.",
+  "A intro afirma 'Em 84,7 dias ... 583.763 slots a 67.187 chunks' e '8,7 vezes'. 583,763 / 67,187 = 8.69, consistente. Também 1,635/67,187 = 2.43%, consistente. Não encontrei erro numérico no trecho.",
+  "O trecho PT termina na linha 207 e a 208 é uma linha em branco. A linha 209 já é '## 2. Sistema sob medição', fora do meu intervalo. O EN tem 114 linhas, ou 115 contando a linha em branco final, igual ao PT."
+ ]
+}

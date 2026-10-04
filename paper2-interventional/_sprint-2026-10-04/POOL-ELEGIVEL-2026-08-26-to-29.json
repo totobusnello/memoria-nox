@@ -1,0 +1,285 @@
+{
+  "artifact": "POOL-ELEGIVEL-2026-08-26-to-29 (sprint 2026-10-04, re-measurement)",
+  "measured_at_utc": "2026-10-04T00:51Z per out-*.json mtime 21:51 BRT (run on research VPS $NOX_LASTRO_HOST, copies in /var/tmp, removed after)",
+  "script": "measurement/sprint-pool-elegivel-multidia.py (predicate identical to measurement/pool-elegivel.py)",
+  "primary_source": {
+    "file": "corpus-SERVING-REAL-e20260903-recuperado.db",
+    "sha256": "23378a9ea83cd27d0360cfe148207167aee30a376f29ef89d4bcfae415d04131",
+    "sha256_matches_p2-bancos-ensaio.sha256": true
+  },
+  "positive_control_vs_POOL-ELEGIVEL-2026-08-28.json": {
+    "all_equal": true,
+    "fields": {
+      "corpus": {
+        "original": 67187,
+        "remeasured": 67187,
+        "equal": true
+      },
+      "sub_pool_global": {
+        "original": 108,
+        "remeasured": 108,
+        "equal": true
+      },
+      "sub_pool_por_agente": {
+        "original": 0,
+        "remeasured": 0,
+        "equal": true
+      },
+      "pool_elegivel": {
+        "original": 108,
+        "remeasured": 108,
+        "equal": true
+      },
+      "pct_do_corpus": {
+        "original": 0.161,
+        "remeasured": 0.161,
+        "equal": true
+      },
+      "nunca_servidos_no_pool": {
+        "original": 0,
+        "remeasured": 0,
+        "equal": true
+      },
+      "servidos_no_dia": {
+        "original": 108,
+        "remeasured": 108,
+        "equal": true
+      },
+      "cobertura_do_pool_no_dia": {
+        "original": 100.0,
+        "remeasured": 100.0,
+        "equal": true
+      },
+      "briefs_no_dia": {
+        "original": 672,
+        "remeasured": 672,
+        "equal": true
+      },
+      "slots_de_cobertura_no_dia": {
+        "original": 1344,
+        "remeasured": 1344,
+        "equal": true
+      },
+      "slots_por_candidato": {
+        "original": 12.4,
+        "remeasured": 12.4,
+        "equal": true
+      },
+      "dia_parcial": {
+        "original": false,
+        "remeasured": false,
+        "equal": true
+      }
+    }
+  },
+  "days": [
+    {
+      "dia": "2026-08-26",
+      "corpus": 67187,
+      "sub_pool_global": 108,
+      "sub_pool_por_agente": 0,
+      "pool_elegivel": 108,
+      "pct_do_corpus": 0.161,
+      "nunca_servidos_no_pool": 0,
+      "servidos_no_dia": 108,
+      "cobertura_do_pool_no_dia": 100.0,
+      "briefs_no_dia": 677,
+      "slots_de_cobertura_no_dia": 1354,
+      "slots_por_candidato": 12.5,
+      "dia_parcial": false,
+      "pool_ids_sha16": "924f2dc31a2c3c60",
+      "as_script_equals_time_bounded": true
+    },
+    {
+      "dia": "2026-08-27",
+      "corpus": 67187,
+      "sub_pool_global": 108,
+      "sub_pool_por_agente": 0,
+      "pool_elegivel": 108,
+      "pct_do_corpus": 0.161,
+      "nunca_servidos_no_pool": 0,
+      "servidos_no_dia": 108,
+      "cobertura_do_pool_no_dia": 100.0,
+      "briefs_no_dia": 672,
+      "slots_de_cobertura_no_dia": 1344,
+      "slots_por_candidato": 12.4,
+      "dia_parcial": false,
+      "pool_ids_sha16": "924f2dc31a2c3c60",
+      "as_script_equals_time_bounded": true
+    },
+    {
+      "dia": "2026-08-28",
+      "corpus": 67187,
+      "sub_pool_global": 108,
+      "sub_pool_por_agente": 0,
+      "pool_elegivel": 108,
+      "pct_do_corpus": 0.161,
+      "nunca_servidos_no_pool": 0,
+      "servidos_no_dia": 108,
+      "cobertura_do_pool_no_dia": 100.0,
+      "briefs_no_dia": 672,
+      "slots_de_cobertura_no_dia": 1344,
+      "slots_por_candidato": 12.4,
+      "dia_parcial": false,
+      "pool_ids_sha16": "924f2dc31a2c3c60",
+      "as_script_equals_time_bounded": true
+    },
+    {
+      "dia": "2026-08-29",
+      "corpus": 67187,
+      "sub_pool_global": 108,
+      "sub_pool_por_agente": 0,
+      "pool_elegivel": 108,
+      "pct_do_corpus": 0.161,
+      "nunca_servidos_no_pool": 0,
+      "servidos_no_dia": 108,
+      "cobertura_do_pool_no_dia": 100.0,
+      "briefs_no_dia": 672,
+      "slots_de_cobertura_no_dia": 1344,
+      "slots_por_candidato": 12.4,
+      "dia_parcial": false,
+      "pool_ids_sha16": "924f2dc31a2c3c60",
+      "as_script_equals_time_bounded": true
+    }
+  ],
+  "cross_db_agreement": {
+    "pool_ids_sha16_by_db_and_day": {
+      "ord0826": {
+        "2026-08-26": [
+          "924f2dc31a2c3c60",
+          108,
+          594
+        ],
+        "2026-08-27": [
+          "924f2dc31a2c3c60",
+          108,
+          0
+        ],
+        "2026-08-28": [
+          "924f2dc31a2c3c60",
+          108,
+          0
+        ],
+        "2026-08-29": [
+          "924f2dc31a2c3c60",
+          108,
+          0
+        ]
+      },
+      "serv0903": {
+        "2026-08-26": [
+          "924f2dc31a2c3c60",
+          108,
+          677
+        ],
+        "2026-08-27": [
+          "924f2dc31a2c3c60",
+          108,
+          672
+        ],
+        "2026-08-28": [
+          "924f2dc31a2c3c60",
+          108,
+          672
+        ],
+        "2026-08-29": [
+          "924f2dc31a2c3c60",
+          108,
+          672
+        ]
+      },
+      "e0907": {
+        "2026-08-26": [
+          "924f2dc31a2c3c60",
+          108,
+          677
+        ],
+        "2026-08-27": [
+          "924f2dc31a2c3c60",
+          108,
+          672
+        ],
+        "2026-08-28": [
+          "924f2dc31a2c3c60",
+          108,
+          672
+        ],
+        "2026-08-29": [
+          "924f2dc31a2c3c60",
+          108,
+          672
+        ]
+      },
+      "pres0908": {
+        "2026-08-26": [
+          "045150f72a8a3a82",
+          55,
+          677
+        ],
+        "2026-08-27": [
+          "045150f72a8a3a82",
+          55,
+          672
+        ],
+        "2026-08-28": [
+          "045150f72a8a3a82",
+          55,
+          672
+        ],
+        "2026-08-29": [
+          "045150f72a8a3a82",
+          55,
+          672
+        ]
+      }
+    },
+    "note": "ord0826 has no brief_log after 2026-08-26 21:07:02 UTC, so its 26/08 is a partial day (594 briefs) and 27-29/08 have no briefs (guard fired). pres0908 FAILS the positive control: its chunk table was re-ingested after 2026-09-07 (67,606 chunks, max created_at 2026-09-08), so the pattern chunks carry new dates and the time-bounded pool is 55, not 108; it is NOT a valid stand-in for late August and is reported only as the negative case."
+  },
+  "consistency_checks": {
+    "brief_log_26-29_serv0903_vs_e0907_symmetric_difference_rows": 0,
+    "brief_log_26_ord0826_rows_absent_from_serv0903": 0,
+    "brief_log_26_serv0903_rows_le_snapshot_end_not_in_ord0826": 3,
+    "brief_log_26_extra_rows_note": "3 rows at 2026-08-26 21:07:02, same second as the ord0826 snapshot end, one brief caught mid-write",
+    "pattern_chunks_with_changed_importance_pain_dates_or_path_ord0826_vs_serv0903": 0,
+    "pattern_chunks_count_ord0826_serv0903": [
+      918,
+      918
+    ],
+    "chunks_max_created_at_serv0903": "2026-08-24 01:06:35"
+  },
+  "sensitivity_excluding_five_row_briefs": {
+    "source": "A-pool-elegivel/sensitivity-ten-row-briefs-serv0903.json",
+    "result": {
+      "2026-08-26": {
+        "pool": 108,
+        "ten_row_briefs": 672,
+        "pool_served_by_ten_row_briefs_only": 108,
+        "distinct_utc_hours_with_serves": 24
+      },
+      "2026-08-27": {
+        "pool": 108,
+        "ten_row_briefs": 672,
+        "pool_served_by_ten_row_briefs_only": 108,
+        "distinct_utc_hours_with_serves": 24
+      },
+      "2026-08-28": {
+        "pool": 108,
+        "ten_row_briefs": 672,
+        "pool_served_by_ten_row_briefs_only": 108,
+        "distinct_utc_hours_with_serves": 24
+      },
+      "2026-08-29": {
+        "pool": 108,
+        "ten_row_briefs": 672,
+        "pool_served_by_ten_row_briefs_only": 108,
+        "distinct_utc_hours_with_serves": 24
+      }
+    },
+    "note": "26/08 has 677 distinct brief_ids: 672 ten-row briefs plus 5 five-row briefs at 19:58 and 20:28 UTC. Excluding the 5 small briefs, all 108 pool chunks are still served on 26/08; slots per candidate is 12.4x on 672 briefs, 12.5x on 677."
+  },
+  "limits": [
+    "importance/pain are read as stored in the 2026-08-26 and 2026-09-03/07 copies, not at each instant of 27-29/08. Identical pool id hash in DBs frozen on 26/08, 03/09 and 07/09 brackets the interval but does not observe it.",
+    "Day key is the UTC date prefix of served_at, identical to pool-elegivel.py.",
+    "The original 29/08 run was a PARTIAL day (5.6x per the manuscript); this re-measurement is the CLOSED day (672 briefs, 12.4x). The original partial-day output itself was not recovered (NOT MEASURED: no artifact of it exists)."
+  ]
+}

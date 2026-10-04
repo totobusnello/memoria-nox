@@ -1,0 +1,204 @@
+{
+  "label": "pres0908",
+  "db_copy": "pres0908.db",
+  "brief_log_range": [
+    "2026-06-04 17:51:26",
+    "2026-09-08 05:52:04",
+    656633
+  ],
+  "chunks_max_created_at": "2026-09-08 02:37:34",
+  "chunks_max_source_date": "2026-09-08",
+  "predicate": {
+    "patterns": [
+      "memory/entities/%",
+      "memory/lessons.md"
+    ],
+    "global_max_age_days": 30,
+    "agent_pattern": "sessions/%",
+    "agent_max_age_days": 7,
+    "floor": "importance >= 0.7 OR pain >= 0.7",
+    "fresh_slots_per_brief": 2
+  },
+  "days": [
+    {
+      "dia": "2026-08-26",
+      "briefs_no_dia": 677,
+      "brief_log_rows_no_dia": 6745,
+      "served_at_first": "2026-08-26 00:07:02",
+      "served_at_last": "2026-08-26 23:52:09",
+      "dia_parcial": false,
+      "corpus_in_copy": 67606,
+      "corpus_dated_le_ref": 67042,
+      "as_script": {
+        "sub_pool_global": 115,
+        "sub_pool_por_agente": 253,
+        "pool_elegivel": 368,
+        "pct_do_corpus": 0.544,
+        "nunca_servidos_no_pool": 60,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 47.8,
+        "slots_de_cobertura_no_dia": 1354,
+        "slots_por_candidato": 3.7,
+        "pool_ids_sha16": "f942e48d44b6b3e2",
+        "guard_served_le_pool": true
+      },
+      "time_bounded": {
+        "sub_pool_global": 55,
+        "sub_pool_por_agente": 0,
+        "pool_elegivel": 55,
+        "pct_do_corpus": 0.081,
+        "nunca_servidos_no_pool": 0,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 100.0,
+        "slots_de_cobertura_no_dia": 1354,
+        "slots_por_candidato": 24.6,
+        "pool_ids_sha16": "045150f72a8a3a82",
+        "guard_served_le_pool": true
+      }
+    },
+    {
+      "dia": "2026-08-27",
+      "briefs_no_dia": 672,
+      "brief_log_rows_no_dia": 6720,
+      "served_at_first": "2026-08-27 00:07:02",
+      "served_at_last": "2026-08-27 23:52:08",
+      "dia_parcial": false,
+      "corpus_in_copy": 67606,
+      "corpus_dated_le_ref": 67042,
+      "as_script": {
+        "sub_pool_global": 115,
+        "sub_pool_por_agente": 253,
+        "pool_elegivel": 368,
+        "pct_do_corpus": 0.544,
+        "nunca_servidos_no_pool": 60,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 47.8,
+        "slots_de_cobertura_no_dia": 1344,
+        "slots_por_candidato": 3.7,
+        "pool_ids_sha16": "f942e48d44b6b3e2",
+        "guard_served_le_pool": true
+      },
+      "time_bounded": {
+        "sub_pool_global": 55,
+        "sub_pool_por_agente": 0,
+        "pool_elegivel": 55,
+        "pct_do_corpus": 0.081,
+        "nunca_servidos_no_pool": 0,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 100.0,
+        "slots_de_cobertura_no_dia": 1344,
+        "slots_por_candidato": 24.4,
+        "pool_ids_sha16": "045150f72a8a3a82",
+        "guard_served_le_pool": true
+      }
+    },
+    {
+      "dia": "2026-08-28",
+      "briefs_no_dia": 672,
+      "brief_log_rows_no_dia": 6720,
+      "served_at_first": "2026-08-28 00:07:02",
+      "served_at_last": "2026-08-28 23:52:08",
+      "dia_parcial": false,
+      "corpus_in_copy": 67606,
+      "corpus_dated_le_ref": 67042,
+      "as_script": {
+        "sub_pool_global": 115,
+        "sub_pool_por_agente": 253,
+        "pool_elegivel": 368,
+        "pct_do_corpus": 0.544,
+        "nunca_servidos_no_pool": 60,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 47.8,
+        "slots_de_cobertura_no_dia": 1344,
+        "slots_por_candidato": 3.7,
+        "pool_ids_sha16": "f942e48d44b6b3e2",
+        "guard_served_le_pool": true
+      },
+      "time_bounded": {
+        "sub_pool_global": 55,
+        "sub_pool_por_agente": 0,
+        "pool_elegivel": 55,
+        "pct_do_corpus": 0.081,
+        "nunca_servidos_no_pool": 0,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 100.0,
+        "slots_de_cobertura_no_dia": 1344,
+        "slots_por_candidato": 24.4,
+        "pool_ids_sha16": "045150f72a8a3a82",
+        "guard_served_le_pool": true
+      }
+    },
+    {
+      "dia": "2026-08-29",
+      "briefs_no_dia": 672,
+      "brief_log_rows_no_dia": 6720,
+      "served_at_first": "2026-08-29 00:07:02",
+      "served_at_last": "2026-08-29 23:52:07",
+      "dia_parcial": false,
+      "corpus_in_copy": 67606,
+      "corpus_dated_le_ref": 67042,
+      "as_script": {
+        "sub_pool_global": 115,
+        "sub_pool_por_agente": 253,
+        "pool_elegivel": 368,
+        "pct_do_corpus": 0.544,
+        "nunca_servidos_no_pool": 60,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 47.8,
+        "slots_de_cobertura_no_dia": 1344,
+        "slots_por_candidato": 3.7,
+        "pool_ids_sha16": "f942e48d44b6b3e2",
+        "guard_served_le_pool": true
+      },
+      "time_bounded": {
+        "sub_pool_global": 55,
+        "sub_pool_por_agente": 0,
+        "pool_elegivel": 55,
+        "pct_do_corpus": 0.081,
+        "nunca_servidos_no_pool": 0,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 100.0,
+        "slots_de_cobertura_no_dia": 1344,
+        "slots_por_candidato": 24.4,
+        "pool_ids_sha16": "045150f72a8a3a82",
+        "guard_served_le_pool": true
+      }
+    },
+    {
+      "dia": "2026-08-30",
+      "briefs_no_dia": 672,
+      "brief_log_rows_no_dia": 6720,
+      "served_at_first": "2026-08-30 00:07:01",
+      "served_at_last": "2026-08-30 23:52:07",
+      "dia_parcial": false,
+      "corpus_in_copy": 67606,
+      "corpus_dated_le_ref": 67042,
+      "as_script": {
+        "sub_pool_global": 115,
+        "sub_pool_por_agente": 253,
+        "pool_elegivel": 368,
+        "pct_do_corpus": 0.544,
+        "nunca_servidos_no_pool": 60,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 47.8,
+        "slots_de_cobertura_no_dia": 1344,
+        "slots_por_candidato": 3.7,
+        "pool_ids_sha16": "f942e48d44b6b3e2",
+        "guard_served_le_pool": true
+      },
+      "time_bounded": {
+        "sub_pool_global": 55,
+        "sub_pool_por_agente": 0,
+        "pool_elegivel": 55,
+        "pct_do_corpus": 0.081,
+        "nunca_servidos_no_pool": 0,
+        "servidos_no_dia": 55,
+        "cobertura_do_pool_no_dia": 100.0,
+        "slots_de_cobertura_no_dia": 1344,
+        "slots_por_candidato": 24.4,
+        "pool_ids_sha16": "045150f72a8a3a82",
+        "guard_served_le_pool": true
+      }
+    }
+  ]
+}

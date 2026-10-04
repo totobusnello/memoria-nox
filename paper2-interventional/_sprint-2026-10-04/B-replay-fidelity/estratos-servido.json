@@ -1,0 +1,3130 @@
+{
+  "procedencia": {
+    "gerado_em": "2026-10-04T01:04:25.538Z",
+    "corpus": "/var/tmp/sprint-Breplay-fid/corpus-SERVING-REAL-e20260903-recuperado.db",
+    "brief_log": "/var/tmp/sprint-Breplay-fid/corpus-preservado-20260908.db",
+    "brief_log_max_served_at": "2026-09-08 05:52:04",
+    "estados": 22,
+    "fonte_brief_ts_sha256": "519fa6ab28c36910cd40ed81c2a19a1c4fbf58c0f731e33422681850c40337ee"
+  },
+  "detalhe": [
+    {
+      "ts": "2026-09-01T11:07:04.196Z",
+      "agent": "boris",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308300,
+        308316
+      ],
+      "rowid_proprio": 610955,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 610953,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 36,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 18,
+            "4": 18
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308300
+          ],
+          "topo_last_served": [
+            "2026-09-01 09:07:05",
+            "2026-09-01 09:07:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 09:07:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 09:07:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 09:07:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 610953,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 36,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 18,
+            "4": 18
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308300
+          ],
+          "topo_last_served": [
+            "2026-09-01 09:07:05",
+            "2026-09-01 09:07:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 09:07:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 09:07:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 09:07:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 610973,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 36,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 18,
+            "4": 18
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308280
+          ],
+          "topo_last_served": [
+            "2026-09-01 09:22:02",
+            "2026-09-01 09:22:02"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 09:22:02",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 11:07:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 11:07:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T11:22:02.320Z",
+      "agent": "nox",
+      "servido": "tratado",
+      "churn_producao": 2,
+      "fresh_added_producao": [
+        308312,
+        308286
+      ],
+      "rowid_proprio": 610995,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 610993,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 35,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 16,
+            "4": 19
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308268,
+            308288
+          ],
+          "topo_last_served": [
+            "2026-09-01 09:22:04",
+            "2026-09-01 09:22:04"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 09:22:04",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308312,
+              "last_served": "2026-09-01 09:22:04",
+              "designado": true
+            },
+            {
+              "id": 308286,
+              "last_served": "2026-09-01 09:22:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308268,
+              "last_served": "2026-09-01 09:22:04"
+            },
+            {
+              "id": 308288,
+              "last_served": "2026-09-01 09:22:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 610993,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 35,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 16,
+            "4": 19
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308268,
+            308288
+          ],
+          "topo_last_served": [
+            "2026-09-01 09:22:04",
+            "2026-09-01 09:22:04"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 09:22:04",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308312,
+              "last_served": "2026-09-01 09:22:04",
+              "designado": true
+            },
+            {
+              "id": 308286,
+              "last_served": "2026-09-01 09:22:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308268,
+              "last_served": "2026-09-01 09:22:04"
+            },
+            {
+              "id": 308288,
+              "last_served": "2026-09-01 09:22:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 611004,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 36,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 18,
+            "4": 18
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308268,
+            308288
+          ],
+          "topo_last_served": [
+            "2026-09-01 09:22:04",
+            "2026-09-01 09:22:04"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 09:22:04",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308312,
+              "last_served": "2026-09-01 11:22:02",
+              "designado": true
+            },
+            {
+              "id": 308286,
+              "last_served": "2026-09-01 11:22:02",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308268,
+              "last_served": "2026-09-01 09:22:04"
+            },
+            {
+              "id": 308288,
+              "last_served": "2026-09-01 09:22:04"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T13:07:03.167Z",
+      "agent": "nox",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308300,
+        308316
+      ],
+      "rowid_proprio": 611495,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 611493,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 37,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 20,
+            "4": 17
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308300
+          ],
+          "topo_last_served": [
+            "2026-09-01 11:07:04",
+            "2026-09-01 11:07:04"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 11:07:04",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 11:07:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 11:07:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 611493,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 37,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 20,
+            "4": 17
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308300
+          ],
+          "topo_last_served": [
+            "2026-09-01 11:07:04",
+            "2026-09-01 11:07:04"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 11:07:04",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 11:07:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 11:07:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 611513,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 37,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 20,
+            "4": 17
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308314
+          ],
+          "topo_last_served": [
+            "2026-09-01 11:07:05",
+            "2026-09-01 11:07:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 11:07:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 13:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 13:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T13:07:04.376Z",
+      "agent": "boris",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308280,
+        308284
+      ],
+      "rowid_proprio": 611515,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 611513,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 37,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 20,
+            "4": 17
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308314
+          ],
+          "topo_last_served": [
+            "2026-09-01 11:07:05",
+            "2026-09-01 11:07:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 11:07:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-01 11:07:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-01 11:07:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 611513,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 37,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 20,
+            "4": 17
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308314
+          ],
+          "topo_last_served": [
+            "2026-09-01 11:07:05",
+            "2026-09-01 11:07:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 11:07:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-01 11:07:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-01 11:07:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 611533,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 2,
+          "histograma_tamanho_estrato": {
+            "1": 2,
+            "2": 19,
+            "4": 17
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308314,
+            308286
+          ],
+          "topo_last_served": [
+            "2026-09-01 11:07:05",
+            "2026-09-01 11:22:02"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 11:22:02",
+            "tamanho": 1
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-01 13:07:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-01 13:07:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T14:22:03.230Z",
+      "agent": "atlas",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308258,
+        308264
+      ],
+      "rowid_proprio": 611855,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 611853,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308258,
+            308260
+          ],
+          "topo_last_served": [
+            "2026-09-01 12:22:05",
+            "2026-09-01 12:22:05"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 12:22:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 12:22:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308260,
+              "last_served": "2026-09-01 12:22:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 611853,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308258,
+            308260
+          ],
+          "topo_last_served": [
+            "2026-09-01 12:22:05",
+            "2026-09-01 12:22:05"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 12:22:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 12:22:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308260,
+              "last_served": "2026-09-01 12:22:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 611873,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 2,
+          "histograma_tamanho_estrato": {
+            "1": 2,
+            "2": 23,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308262,
+            308248
+          ],
+          "topo_last_served": [
+            "2026-09-01 12:22:05",
+            "2026-09-01 12:22:06"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 12:22:06",
+            "tamanho": 1
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 14:22:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308260,
+              "last_served": "2026-09-01 14:22:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T14:52:06.010Z",
+      "agent": "lex",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308300,
+        308316
+      ],
+      "rowid_proprio": 612035,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 612033,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308300
+          ],
+          "topo_last_served": [
+            "2026-09-01 13:07:03",
+            "2026-09-01 13:07:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 13:07:03",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 13:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 13:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 612033,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308300
+          ],
+          "topo_last_served": [
+            "2026-09-01 13:07:03",
+            "2026-09-01 13:07:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 13:07:03",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 13:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 13:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 612043,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308214
+          ],
+          "topo_last_served": [
+            "2026-09-01 13:07:03",
+            "2026-09-01 13:07:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 13:07:03",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 14:52:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 13:07:03"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T15:07:03.266Z",
+      "agent": "nox",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308280,
+        308284
+      ],
+      "rowid_proprio": 612055,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 612053,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308280
+          ],
+          "topo_last_served": [
+            "2026-09-01 13:07:04",
+            "2026-09-01 13:07:04"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 13:07:04",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 3,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-01 13:07:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-01 13:07:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 612053,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308280
+          ],
+          "topo_last_served": [
+            "2026-09-01 13:07:04",
+            "2026-09-01 13:07:04"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 13:07:04",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 3,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-01 13:07:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-01 13:07:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 612063,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 41,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 28,
+            "4": 13
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308312
+          ],
+          "topo_last_served": [
+            "2026-09-01 13:07:04",
+            "2026-09-01 13:07:04"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 13:07:04",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-01 15:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-01 13:07:04"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T16:07:04.637Z",
+      "agent": "boris",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308304,
+        308230
+      ],
+      "rowid_proprio": 612355,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 612353,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308304,
+            308491
+          ],
+          "topo_last_served": [
+            "2026-09-01 14:07:05",
+            "2026-09-01 14:07:05"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 14:07:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308230,
+              "last_served": "2026-09-01 14:07:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308491,
+              "last_served": "2026-09-01 14:07:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 612343,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308480,
+            308481
+          ],
+          "topo_last_served": [
+            "2026-09-01 14:07:04",
+            "2026-09-01 14:07:04"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 14:07:04",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 5,
+          "producao_entra": [
+            {
+              "id": 308230,
+              "last_served": "2026-09-01 14:07:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308491,
+              "last_served": "2026-09-01 14:07:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 612363,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308491,
+            308494
+          ],
+          "topo_last_served": [
+            "2026-09-01 14:07:05",
+            "2026-09-01 14:07:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 14:07:05",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 5,
+          "producao_entra": [
+            {
+              "id": 308230,
+              "last_served": "2026-09-01 16:07:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308491,
+              "last_served": "2026-09-01 14:07:05"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T16:22:02.659Z",
+      "agent": "nox",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308322,
+        308264
+      ],
+      "rowid_proprio": 612395,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 612393,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308322,
+            308258
+          ],
+          "topo_last_served": [
+            "2026-09-01 14:22:03",
+            "2026-09-01 14:22:03"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 14:22:03",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 14:22:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308258,
+              "last_served": "2026-09-01 14:22:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 612393,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308322,
+            308258
+          ],
+          "topo_last_served": [
+            "2026-09-01 14:22:03",
+            "2026-09-01 14:22:03"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 14:22:03",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 14:22:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308258,
+              "last_served": "2026-09-01 14:22:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 612403,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308258,
+            308260
+          ],
+          "topo_last_served": [
+            "2026-09-01 14:22:03",
+            "2026-09-01 14:22:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 14:22:03",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 6,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 16:22:02",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308258,
+              "last_served": "2026-09-01 14:22:03"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T18:22:03.147Z",
+      "agent": "nox",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308274,
+        308262
+      ],
+      "rowid_proprio": 612965,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 612963,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 1,
+          "histograma_tamanho_estrato": {
+            "1": 1,
+            "2": 22,
+            "3": 1,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308262,
+            308252
+          ],
+          "topo_last_served": [
+            "2026-09-01 16:22:04",
+            "2026-09-01 16:22:05"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 16:22:05",
+            "tamanho": 3
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308274,
+              "last_served": "2026-09-01 16:22:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308252,
+              "last_served": "2026-09-01 16:22:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 612963,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 1,
+          "histograma_tamanho_estrato": {
+            "1": 1,
+            "2": 22,
+            "3": 1,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308262,
+            308252
+          ],
+          "topo_last_served": [
+            "2026-09-01 16:22:04",
+            "2026-09-01 16:22:05"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 16:22:05",
+            "tamanho": 3
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308274,
+              "last_served": "2026-09-01 16:22:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308252,
+              "last_served": "2026-09-01 16:22:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 612983,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308222,
+            308270
+          ],
+          "topo_last_served": [
+            "2026-09-01 16:22:06",
+            "2026-09-01 16:22:06"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 16:22:06",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 0,
+          "producao_entra": [
+            {
+              "id": 308274,
+              "last_served": "2026-09-01 18:22:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308252,
+              "last_served": "2026-09-01 18:22:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T18:52:03.775Z",
+      "agent": "atlas",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308300,
+        308316
+      ],
+      "rowid_proprio": 613115,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 613113,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308300
+          ],
+          "topo_last_served": [
+            "2026-09-01 16:52:05",
+            "2026-09-01 16:52:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 16:52:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 16:52:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 16:52:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 613113,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308300
+          ],
+          "topo_last_served": [
+            "2026-09-01 16:52:05",
+            "2026-09-01 16:52:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 16:52:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 16:52:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 16:52:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 613123,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308214
+          ],
+          "topo_last_served": [
+            "2026-09-01 16:52:05",
+            "2026-09-01 16:52:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 16:52:05",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308300,
+              "last_served": "2026-09-01 18:52:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-01 16:52:05"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T18:52:06.637Z",
+      "agent": "lex",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308314,
+        308286
+      ],
+      "rowid_proprio": 613155,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 613153,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308314,
+            308268
+          ],
+          "topo_last_served": [
+            "2026-09-01 17:07:03",
+            "2026-09-01 17:07:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 17:07:03",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308286,
+              "last_served": "2026-09-01 17:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308288,
+              "last_served": "2026-09-01 17:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 613143,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308312
+          ],
+          "topo_last_served": [
+            "2026-09-01 17:07:02",
+            "2026-09-01 17:07:02"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 17:07:02",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308286,
+              "last_served": "2026-09-01 17:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308288,
+              "last_served": "2026-09-01 17:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 613163,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308268,
+            308288
+          ],
+          "topo_last_served": [
+            "2026-09-01 17:07:03",
+            "2026-09-01 17:07:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 17:07:03",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308286,
+              "last_served": "2026-09-01 18:52:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308288,
+              "last_served": "2026-09-01 17:07:03"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T22:07:03.085Z",
+      "agent": "nox",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308322,
+        308264
+      ],
+      "rowid_proprio": 614015,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 614013,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308322,
+            308258
+          ],
+          "topo_last_served": [
+            "2026-09-01 20:07:06",
+            "2026-09-01 20:07:06"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 20:07:06",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 20:07:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308258,
+              "last_served": "2026-09-01 20:07:06"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 614013,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308322,
+            308258
+          ],
+          "topo_last_served": [
+            "2026-09-01 20:07:06",
+            "2026-09-01 20:07:06"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 20:07:06",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 20:07:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308258,
+              "last_served": "2026-09-01 20:07:06"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 614033,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 40,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 26,
+            "4": 14
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308234,
+            308248
+          ],
+          "topo_last_served": [
+            "2026-09-01 20:07:07",
+            "2026-09-01 20:07:07"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 20:07:07",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 22:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308258,
+              "last_served": "2026-09-01 22:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        }
+      }
+    },
+    {
+      "ts": "2026-09-01T23:52:06.832Z",
+      "agent": "lex",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308322,
+        308264
+      ],
+      "rowid_proprio": 614555,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 614553,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 44,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 34,
+            "4": 10
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308322,
+            308258
+          ],
+          "topo_last_served": [
+            "2026-09-01 22:07:03",
+            "2026-09-01 22:07:03"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 22:07:03",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 22:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308258,
+              "last_served": "2026-09-01 22:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 614543,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 44,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 34,
+            "4": 10
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308482,
+            308483
+          ],
+          "topo_last_served": [
+            "2026-09-01 22:07:02",
+            "2026-09-01 22:07:02"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 22:07:02",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 5,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 22:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308258,
+              "last_served": "2026-09-01 22:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 614563,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 44,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 34,
+            "4": 10
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308258,
+            308260
+          ],
+          "topo_last_served": [
+            "2026-09-01 22:07:03",
+            "2026-09-01 22:07:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-01 22:07:03",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 5,
+          "producao_entra": [
+            {
+              "id": 308264,
+              "last_served": "2026-09-01 23:52:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308258,
+              "last_served": "2026-09-01 22:07:03"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-02T02:37:04.018Z",
+      "agent": "boris",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308280,
+        308284
+      ],
+      "rowid_proprio": 615295,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 615293,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308280
+          ],
+          "topo_last_served": [
+            "2026-09-02 00:37:05",
+            "2026-09-02 00:37:05"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 00:37:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 3,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-02 00:37:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-02 00:37:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 615293,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308280
+          ],
+          "topo_last_served": [
+            "2026-09-02 00:37:05",
+            "2026-09-02 00:37:05"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 00:37:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 3,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-02 00:37:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-02 00:37:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 615313,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308314,
+            308286
+          ],
+          "topo_last_served": [
+            "2026-09-02 00:52:02",
+            "2026-09-02 00:52:02"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 00:52:02",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-02 02:37:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-02 02:37:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        }
+      }
+    },
+    {
+      "ts": "2026-09-02T03:37:06.374Z",
+      "agent": "lex",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308294,
+        308238
+      ],
+      "rowid_proprio": 615605,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 615603,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 37,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 20,
+            "4": 17
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308294,
+            308491
+          ],
+          "topo_last_served": [
+            "2026-09-02 01:52:03",
+            "2026-09-02 01:52:03"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 01:52:03",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308238,
+              "last_served": "2026-09-02 01:52:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308491,
+              "last_served": "2026-09-02 01:52:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 615603,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 37,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 20,
+            "4": 17
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308294,
+            308491
+          ],
+          "topo_last_served": [
+            "2026-09-02 01:52:03",
+            "2026-09-02 01:52:03"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 01:52:03",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308238,
+              "last_served": "2026-09-02 01:52:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308491,
+              "last_served": "2026-09-02 01:52:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 615613,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308491,
+            308494
+          ],
+          "topo_last_served": [
+            "2026-09-02 01:52:03",
+            "2026-09-02 01:52:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 01:52:03",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308238,
+              "last_served": "2026-09-02 03:37:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308491,
+              "last_served": "2026-09-02 01:52:03"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-02T03:52:06.611Z",
+      "agent": "lex",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308222,
+        308270
+      ],
+      "rowid_proprio": 615675,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 615673,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308222,
+            308278
+          ],
+          "topo_last_served": [
+            "2026-09-02 02:07:03",
+            "2026-09-02 02:07:03"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 02:07:03",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 0,
+          "producao_entra": [
+            {
+              "id": 308270,
+              "last_served": "2026-09-02 02:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308278,
+              "last_served": "2026-09-02 02:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 615663,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308252,
+            308274
+          ],
+          "topo_last_served": [
+            "2026-09-02 02:07:02",
+            "2026-09-02 02:07:02"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 02:07:02",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308270,
+              "last_served": "2026-09-02 02:07:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308278,
+              "last_served": "2026-09-02 02:07:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 615683,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308278,
+            308262
+          ],
+          "topo_last_served": [
+            "2026-09-02 02:07:03",
+            "2026-09-02 02:07:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 02:07:03",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308270,
+              "last_served": "2026-09-02 03:52:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308278,
+              "last_served": "2026-09-02 02:07:03"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-02T04:37:02.911Z",
+      "agent": "nox",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308280,
+        308284
+      ],
+      "rowid_proprio": 615835,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 615833,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 41,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 28,
+            "4": 13
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308280
+          ],
+          "topo_last_served": [
+            "2026-09-02 02:37:04",
+            "2026-09-02 02:37:04"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 02:37:04",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 3,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-02 02:37:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-02 02:37:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 615823,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 41,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 28,
+            "4": 13
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308214
+          ],
+          "topo_last_served": [
+            "2026-09-02 02:37:03",
+            "2026-09-02 02:37:03"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 02:37:03",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-02 02:37:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-02 02:37:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 615843,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 41,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 28,
+            "4": 13
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308310,
+            308312
+          ],
+          "topo_last_served": [
+            "2026-09-02 02:37:04",
+            "2026-09-02 02:37:04"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 02:37:04",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308284,
+              "last_served": "2026-09-02 04:37:02",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308310,
+              "last_served": "2026-09-02 02:37:04"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-02T05:52:04.764Z",
+      "agent": "boris",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308222,
+        308274
+      ],
+      "rowid_proprio": 616205,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 616203,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 41,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 28,
+            "4": 13
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308252,
+            308222
+          ],
+          "topo_last_served": [
+            "2026-09-02 03:52:06",
+            "2026-09-02 03:52:06"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 03:52:06",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 3,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308222,
+              "last_served": "2026-09-02 03:52:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308252,
+              "last_served": "2026-09-02 03:52:06"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 616193,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 41,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 28,
+            "4": 13
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308258,
+            308260
+          ],
+          "topo_last_served": [
+            "2026-09-02 03:52:05",
+            "2026-09-02 03:52:05"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 03:52:05",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308222,
+              "last_served": "2026-09-02 03:52:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308252,
+              "last_served": "2026-09-02 03:52:06"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 616213,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 41,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 28,
+            "4": 13
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308252,
+            308270
+          ],
+          "topo_last_served": [
+            "2026-09-02 03:52:06",
+            "2026-09-02 03:52:06"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 03:52:06",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308222,
+              "last_served": "2026-09-02 05:52:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308252,
+              "last_served": "2026-09-02 03:52:06"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-02T06:22:06.313Z",
+      "agent": "forge",
+      "servido": "tratado",
+      "churn_producao": 2,
+      "fresh_added_producao": [
+        308280,
+        308284
+      ],
+      "rowid_proprio": 616365,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 616363,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 41,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 28,
+            "4": 13
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308214
+          ],
+          "topo_last_served": [
+            "2026-09-02 04:37:02",
+            "2026-09-02 04:37:02"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 04:37:02",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308280,
+              "last_served": "2026-09-02 04:37:02",
+              "designado": true
+            },
+            {
+              "id": 308284,
+              "last_served": "2026-09-02 04:37:02",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-02 04:37:02"
+            },
+            {
+              "id": 308214,
+              "last_served": "2026-09-02 04:37:02"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 616363,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 41,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 28,
+            "4": 13
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308214
+          ],
+          "topo_last_served": [
+            "2026-09-02 04:37:02",
+            "2026-09-02 04:37:02"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 04:37:02",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 2,
+          "posicao_primeiro_designado": 2,
+          "producao_entra": [
+            {
+              "id": 308280,
+              "last_served": "2026-09-02 04:37:02",
+              "designado": true
+            },
+            {
+              "id": 308284,
+              "last_served": "2026-09-02 04:37:02",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-02 04:37:02"
+            },
+            {
+              "id": 308214,
+              "last_served": "2026-09-02 04:37:02"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 616373,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 42,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 30,
+            "4": 12
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308272,
+            308214
+          ],
+          "topo_last_served": [
+            "2026-09-02 04:37:02",
+            "2026-09-02 04:37:02"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 04:37:02",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308280,
+              "last_served": "2026-09-02 06:22:06",
+              "designado": true
+            },
+            {
+              "id": 308284,
+              "last_served": "2026-09-02 06:22:06",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308272,
+              "last_served": "2026-09-02 04:37:02"
+            },
+            {
+              "id": 308214,
+              "last_served": "2026-09-02 04:37:02"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    },
+    {
+      "ts": "2026-09-02T07:37:03.028Z",
+      "agent": "atlas",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308294,
+        308238
+      ],
+      "rowid_proprio": 616685,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 616683,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 44,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 34,
+            "4": 10
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308294,
+            308491
+          ],
+          "topo_last_served": [
+            "2026-09-02 05:37:05",
+            "2026-09-02 05:37:05"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 05:37:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308238,
+              "last_served": "2026-09-02 05:37:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308491,
+              "last_served": "2026-09-02 05:37:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 616683,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 44,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 34,
+            "4": 10
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308294,
+            308491
+          ],
+          "topo_last_served": [
+            "2026-09-02 05:37:05",
+            "2026-09-02 05:37:05"
+          ],
+          "topo_contido_no_controle_producao": true,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 05:37:05",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308238,
+              "last_served": "2026-09-02 05:37:05",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308491,
+              "last_served": "2026-09-02 05:37:05"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 616703,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 44,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 34,
+            "4": 10
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308322,
+            308264
+          ],
+          "topo_last_served": [
+            "2026-09-02 05:37:06",
+            "2026-09-02 05:37:06"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 05:37:06",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 1,
+          "producao_entra": [
+            {
+              "id": 308238,
+              "last_served": "2026-09-02 07:37:03",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308491,
+              "last_served": "2026-09-02 07:37:03"
+            }
+          ],
+          "entra_empata_com_sai": true
+        }
+      }
+    },
+    {
+      "ts": "2026-09-02T08:37:01.900Z",
+      "agent": "nox",
+      "servido": "tratado",
+      "churn_producao": 1,
+      "fresh_added_producao": [
+        308314,
+        308286
+      ],
+      "rowid_proprio": 616945,
+      "por_corte": {
+        "rowid": {
+          "serve_state_linhas": 616943,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308314,
+            308268
+          ],
+          "topo_last_served": [
+            "2026-09-02 06:37:04",
+            "2026-09-02 06:37:04"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 06:37:04",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308286,
+              "last_served": "2026-09-02 06:37:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308288,
+              "last_served": "2026-09-02 06:37:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "estrito": {
+          "serve_state_linhas": 616943,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 38,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 22,
+            "4": 16
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308314,
+            308268
+          ],
+          "topo_last_served": [
+            "2026-09-02 06:37:04",
+            "2026-09-02 06:37:04"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 06:37:04",
+            "tamanho": 4
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 1,
+          "posicao_primeiro_designado": 3,
+          "producao_entra": [
+            {
+              "id": 308286,
+              "last_served": "2026-09-02 06:37:04",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308288,
+              "last_served": "2026-09-02 06:37:04"
+            }
+          ],
+          "entra_empata_com_sai": true
+        },
+        "inclusivo": {
+          "serve_state_linhas": 616953,
+          "pool": 108,
+          "nunca_servidos": 0,
+          "estratos": 39,
+          "estratos_singleton": 0,
+          "histograma_tamanho_estrato": {
+            "2": 24,
+            "4": 15
+          },
+          "fresh_slots": 2,
+          "topo_ids": [
+            308268,
+            308288
+          ],
+          "topo_last_served": [
+            "2026-09-02 06:37:04",
+            "2026-09-02 06:37:04"
+          ],
+          "topo_contido_no_controle_producao": false,
+          "estrato_fronteira": {
+            "last_served": "2026-09-02 06:37:04",
+            "tamanho": 2
+          },
+          "designados_no_pool": 19,
+          "designados_no_estrato_fronteira": 0,
+          "posicao_primeiro_designado": 5,
+          "producao_entra": [
+            {
+              "id": 308286,
+              "last_served": "2026-09-02 08:37:01",
+              "designado": true
+            }
+          ],
+          "producao_sai": [
+            {
+              "id": 308288,
+              "last_served": "2026-09-02 06:37:04"
+            }
+          ],
+          "entra_empata_com_sai": false
+        }
+      }
+    }
+  ]
+}

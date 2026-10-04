@@ -1,0 +1,387 @@
+{
+  "inputs": {
+    "serving_db": "e0907.db",
+    "pre_db": "d0821.db",
+    "post_db": "k0822.db",
+    "sondas": "ancora-sondas.json",
+    "janela": [
+      "2026-08-20",
+      "2026-08-27"
+    ]
+  },
+  "serving_db_state": {
+    "chunks": 67187,
+    "brief_log_max_served_at": "2026-09-07 05:52:05",
+    "access_count_dos_3": {
+      "112241": 414,
+      "116107": 363,
+      "116467": 911
+    }
+  },
+  "c52": {
+    "semana_distintos": 201,
+    "semana_existem": 149,
+    "semana_ausentes": 52,
+    "ausentes_ids_min_max": [
+      308114,
+      308165
+    ],
+    "ausentes_contiguos": true,
+    "por_dia_utc": [
+      {
+        "dia_utc": "2026-08-18",
+        "distintos_brief_log": 49,
+        "distintos_que_existem": 49,
+        "ausentes": 0,
+        "ausentes_igual_ao_conjunto_da_semana": false
+      },
+      {
+        "dia_utc": "2026-08-19",
+        "distintos_brief_log": 35,
+        "distintos_que_existem": 35,
+        "ausentes": 0,
+        "ausentes_igual_ao_conjunto_da_semana": false
+      },
+      {
+        "dia_utc": "2026-08-20",
+        "distintos_brief_log": 87,
+        "distintos_que_existem": 35,
+        "ausentes": 52,
+        "ausentes_igual_ao_conjunto_da_semana": true
+      },
+      {
+        "dia_utc": "2026-08-21",
+        "distintos_brief_log": 85,
+        "distintos_que_existem": 33,
+        "ausentes": 52,
+        "ausentes_igual_ao_conjunto_da_semana": true
+      },
+      {
+        "dia_utc": "2026-08-22",
+        "distintos_brief_log": 193,
+        "distintos_que_existem": 141,
+        "ausentes": 52,
+        "ausentes_igual_ao_conjunto_da_semana": true
+      },
+      {
+        "dia_utc": "2026-08-23",
+        "distintos_brief_log": 142,
+        "distintos_que_existem": 142,
+        "ausentes": 0,
+        "ausentes_igual_ao_conjunto_da_semana": false
+      },
+      {
+        "dia_utc": "2026-08-24",
+        "distintos_brief_log": 141,
+        "distintos_que_existem": 141,
+        "ausentes": 0,
+        "ausentes_igual_ao_conjunto_da_semana": false
+      },
+      {
+        "dia_utc": "2026-08-25",
+        "distintos_brief_log": 141,
+        "distintos_que_existem": 141,
+        "ausentes": 0,
+        "ausentes_igual_ao_conjunto_da_semana": false
+      },
+      {
+        "dia_utc": "2026-08-26",
+        "distintos_brief_log": 146,
+        "distintos_que_existem": 146,
+        "ausentes": 0,
+        "ausentes_igual_ao_conjunto_da_semana": false
+      },
+      {
+        "dia_utc": "2026-08-27",
+        "distintos_brief_log": 141,
+        "distintos_que_existem": 141,
+        "ausentes": 0,
+        "ausentes_igual_ao_conjunto_da_semana": false
+      },
+      {
+        "dia_utc": "2026-08-28",
+        "distintos_brief_log": 141,
+        "distintos_que_existem": 141,
+        "ausentes": 0,
+        "ausentes_igual_ao_conjunto_da_semana": false
+      },
+      {
+        "dia_utc": "2026-08-29",
+        "distintos_brief_log": 141,
+        "distintos_que_existem": 141,
+        "ausentes": 0,
+        "ausentes_igual_ao_conjunto_da_semana": false
+      }
+    ],
+    "ausentes_servidos": {
+      "primeiro": "2026-08-20 21:38:47",
+      "ultimo": "2026-08-22 19:07:46",
+      "slots": 2600,
+      "briefs": 1300,
+      "linhas_por_brief": {
+        "2": 1300
+      },
+      "slots_por_agente": {
+        "atlas": 370,
+        "boris": 370,
+        "cipher": 370,
+        "forge": 370,
+        "lex": 376,
+        "nox": 744
+      }
+    },
+    "identidade_no_pre_db": {
+      "encontrados": 52,
+      "source_file": {
+        "memory/lessons.md": 52
+      },
+      "chunk_type": {
+        "lesson": 52
+      },
+      "created_at": {
+        "2026-08-20 02:02:03": 52
+      },
+      "importance_pain": {
+        "0.9/0.4": 42,
+        "0.9/0.9": 10
+      }
+    },
+    "pre_db_brief_log_max": "2026-08-21 05:52:07",
+    "post_db_brief_log_max": "2026-08-22 01:52:05",
+    "presentes_no_post_db": 0,
+    "linhagem_do_arquivo": {
+      "memory/lessons.md": {
+        "pre": [
+          [
+            "2026-08-20 02:02:03",
+            52,
+            308114,
+            308165
+          ]
+        ],
+        "post": [
+          [
+            "2026-08-22 02:01:58",
+            53,
+            308444,
+            308496
+          ]
+        ],
+        "serving": [
+          [
+            "2026-08-22 02:01:58",
+            53,
+            308444,
+            308496
+          ]
+        ]
+      }
+    },
+    "substituicao_criada_em": "2026-08-22 02:01:58",
+    "servidos_depois_da_substituicao": [
+      966,
+      483
+    ],
+    "substitutos_servidos_na_janela": [
+      53,
+      53
+    ]
+  },
+  "c25": {
+    "histograma_linhas_por_brief": {
+      "5": 5,
+      "10": 4627
+    },
+    "linhas_sem_brief_id": 0,
+    "briefs_com_n_diferente_de_10": [
+      {
+        "brief_id": "473f85e8-43ae-4883-baa2-2d76407af941",
+        "linhas": 5,
+        "de": "2026-08-26 19:58:17",
+        "ate": "2026-08-26 19:58:17",
+        "agent": "(null)",
+        "scope": "global"
+      },
+      {
+        "brief_id": "c48e8353-cd95-4bd5-997b-dc921e2a0cac",
+        "linhas": 5,
+        "de": "2026-08-26 19:58:17",
+        "ate": "2026-08-26 19:58:17",
+        "agent": "(null)",
+        "scope": "global"
+      },
+      {
+        "brief_id": "6ff2d9c4-79f2-4526-8eb5-c42d60bbeea6",
+        "linhas": 5,
+        "de": "2026-08-26 19:58:18",
+        "ate": "2026-08-26 19:58:18",
+        "agent": "(null)",
+        "scope": "global"
+      },
+      {
+        "brief_id": "90a105f5-ef33-4135-8e54-b4e978bbb1ee",
+        "linhas": 5,
+        "de": "2026-08-26 20:28:55",
+        "ate": "2026-08-26 20:28:55",
+        "agent": "(null)",
+        "scope": "global"
+      },
+      {
+        "brief_id": "66977ec1-2809-44df-91b8-c158ce0e68e8",
+        "linhas": 5,
+        "de": "2026-08-26 20:28:56",
+        "ate": "2026-08-26 20:28:56",
+        "agent": "(null)",
+        "scope": "global"
+      }
+    ],
+    "conjunto_igual_a_ancora_sondas": true,
+    "sondas_na_ancora": 5,
+    "tabela_4_3_como_publicada": {
+      "slots": 46295,
+      "briefs": 4632,
+      "distintos": 201,
+      "deficit_contra_10_por_brief": 25,
+      "presentes_em_100pct": 3,
+      "pct_top10": 47.16,
+      "pct_top20": 61.46,
+      "pct_3_constantes": 30.02,
+      "soma_curva_confere": true
+    },
+    "tabela_4_3_sem_sondas": {
+      "slots": 46270,
+      "briefs": 4627,
+      "distintos": 196,
+      "deficit_contra_10_por_brief": 0,
+      "presentes_em_100pct": 3,
+      "pct_top10": 47.16,
+      "pct_top20": 61.46,
+      "pct_3_constantes": 30.0,
+      "soma_curva_confere": true
+    }
+  },
+  "contrafactual": {
+    "formula": "serving-salience.ts:220-233 via contrafactual-do-topo.py",
+    "artefato_publicado": {
+      "116467": [
+        2,
+        131
+      ],
+      "112241": [
+        3,
+        129
+      ],
+      "116107": [
+        5,
+        128
+      ]
+    },
+    "rodadas": [
+      {
+        "now": "2026-08-29 00:00:00",
+        "n_149": 149,
+        "n_201": 201,
+        "posicoes_149": {
+          "116467": [
+            2,
+            131
+          ],
+          "112241": [
+            3,
+            129
+          ],
+          "116107": [
+            5,
+            128
+          ]
+        },
+        "posicoes_201": {
+          "116467": [
+            2,
+            183
+          ],
+          "112241": [
+            3,
+            181
+          ],
+          "116107": [
+            5,
+            180
+          ]
+        },
+        "melhor_posicao_dos_52_sem_acesso": 12,
+        "melhor_posicao_dos_52_com_acesso": 32
+      },
+      {
+        "now": "2026-08-29 12:00:00",
+        "n_149": 149,
+        "n_201": 201,
+        "posicoes_149": {
+          "116467": [
+            2,
+            131
+          ],
+          "112241": [
+            3,
+            129
+          ],
+          "116107": [
+            5,
+            128
+          ]
+        },
+        "posicoes_201": {
+          "116467": [
+            2,
+            183
+          ],
+          "112241": [
+            3,
+            181
+          ],
+          "116107": [
+            5,
+            180
+          ]
+        },
+        "melhor_posicao_dos_52_sem_acesso": 12,
+        "melhor_posicao_dos_52_com_acesso": 32
+      },
+      {
+        "now": "2026-08-29 23:59:59",
+        "n_149": 149,
+        "n_201": 201,
+        "posicoes_149": {
+          "116467": [
+            2,
+            131
+          ],
+          "112241": [
+            3,
+            129
+          ],
+          "116107": [
+            5,
+            128
+          ]
+        },
+        "posicoes_201": {
+          "116467": [
+            2,
+            183
+          ],
+          "112241": [
+            3,
+            181
+          ],
+          "116107": [
+            5,
+            180
+          ]
+        },
+        "melhor_posicao_dos_52_sem_acesso": 12,
+        "melhor_posicao_dos_52_com_acesso": 32
+      }
+    ]
+  }
+}

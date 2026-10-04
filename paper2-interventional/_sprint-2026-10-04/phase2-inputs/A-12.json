@@ -1,0 +1,158 @@
+{
+ "findings": [
+  {
+   "pt_line": 1837,
+   "section": "Apêndice D",
+   "quote_pt": "**[FALTA]** DOI de um depósito que contenha **este** manuscrito e os artefatos na versão citada. Hoje o último depósito é a v1.12, anterior a tudo isto.",
+   "problem": "STALE: Paper A v1.0 has been published on Zenodo since 2026-08-30T21:39:24Z (DOI 10.5281/zenodo.22181415, concept 10.5281/zenodo.22181414, 13 files, language por, MANUSCRIPT.md 126,564 B). No later version exists. The manuscript never cites this DOI.",
+   "proposed_en": "**Deposit.** An earlier version of this manuscript (v1.0, in Portuguese: a 126,564-byte `MANUSCRIPT.md` plus 12 supporting files) is published on Zenodo as `10.5281/zenodo.22181415` (concept DOI `10.5281/zenodo.22181414`, 2026-08-30T21:39:24Z). The text cited here has changed since then (the 2026-09-21 corrections and this English translation). A new version of that record, containing this manuscript and the artifacts at the cited versions, has **not yet been deposited**. The pre-registration of the interventional study is a separate record (`10.5281/zenodo.22110203`, v1.12, still the latest version of that record as of 2026-10-03).",
+   "evidence": "curl https://zenodo.org/api/records/22181415 -> status published, version 1.0, created 2026-08-30T21:39:24Z, files incl. MANUSCRIPT.md 126564; .../22181415/versions/latest -> 22181415; .../22110203/versions/latest -> 22110203; grep '22181415|22181414' MANUSCRIPT.md MANUSCRIPT-B.md DEVIATIONS-FOR-PAPER.md -> 0; deposit/paperA/POST-PUBLISH.md l.3-4.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 2031,
+   "section": "O que falta",
+   "quote_pt": "4. **depósito** com o manuscrito + artefatos, e aí a emenda agrupada faz sentido: um registro só, declarando os desvios **e** o resultado novo.",
+   "problem": "STALE: v1.0 was deposited on 2026-08-30. What is pending is a NEW VERSION of that record. Item 5's open list (l.2044) also lists 'o [FALTA] do DOI no Apêndice D' as open.",
+   "proposed_en": "4. **New version of the Zenodo record `10.5281/zenodo.22181415`** (v1.0 published 2026-08-30, in Portuguese), carrying this manuscript and the artifacts at the cited versions. The grouped amendment of the pre-registration makes sense then: one record declaring both the deviations **and** the new result.",
+   "evidence": "Same Zenodo API reads as the Appendix D finding; MANUSCRIPT.md l.2044 lists the DOI [FALTA] as open.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1761,
+   "section": "Apêndice A (also §8.3 l.1657-1658, §4.5 l.906)",
+   "quote_pt": "que **começou em 2026-09-01 10:25:39Z e fechou em 2026-09-20**, com 20 epochs designados (19 servidos; `09-02` nunca foi servido).",
+   "problem": "IMPRECISE against the canonical record: the dose was switched off on 2026-09-21 09:43:05Z, closing the window at the 2026-09-20 epoch (designation expired 2026-09-20 22:51:23Z). The 19 epochs with data are 16 whole + 3 partial (09-01 mixed, 09-03 441/672, 09-20 partial by clock) + 1 empty (09-02), and 8 of the 19 are control. §8.3 ('de 2026-09-01 a 2026-09-20 … 19 servidos') and §4.5 ('fecho do ensaio em 2026-09-20') carry the same imprecision. Note: the '17 whole + 2 partial' in the task brief was retracted by DEVIATIONS §10.31(1).",
+   "proposed_en": "[Appendix A] …which went `active` on **2026-09-01 at 10:25:39Z** and whose dose was switched off on **2026-09-21 at 09:43:05Z**, closing the window at the `2026-09-20` epoch. Of 234 registered epochs, 20 were realized and 19 carry serving data (16 whole and 3 partial under the analysis spec's clock ruler; `09-02` is empty); 11 were in treatment arms and 8 in control.\n[§8.3] It did: from 2026-09-01 10:25:39Z until the dose was switched off on 2026-09-21 09:43:05Z (the window closed at the 2026-09-20 epoch; 20 epochs realized, 19 with data). Its results are Paper B, not this one.\n[§4.5] …measured on 2026-08-30 and **not re-verified after the trial closed** (dose switched off 2026-09-21 09:43:05Z), which is a declared debt and not a current fact;",
+   "evidence": "MANUSCRIPT-B.md l.179-180, 211-212, 227-234, 271-291; DEVIATIONS-FOR-PAPER.md §10.29 table (09:43:05Z), §10.31(1) (16+3+1) and (2) (8/11); docs/HANDOFF.md 2026-09-21 sections.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1765,
+   "section": "Apêndice A",
+   "quote_pt": "**Os resultados interventivos não estão aqui**: são o Paper B, e vivem em `DEVIATIONS-FOR-PAPER.md` §10.29–§10.34 até que ele exista.",
+   "problem": "STALE: Paper B exists (MANUSCRIPT-B.md, draft opened 2026-09-21, not yet deposited).",
+   "proposed_en": "**The interventional results are not here.** They are Paper B (`MANUSCRIPT-B.md`, a draft opened on 2026-09-21 and not yet deposited), whose underlying records are `DEVIATIONS-FOR-PAPER.md` §10.29–§10.34.",
+   "evidence": "MANUSCRIPT-B.md l.3 'STATUS — DRAFT opened 2026-09-21 … What is not done: figures, related work, and deposit.'",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1855,
+   "section": "Apêndice H",
+   "quote_pt": "No corpo — antes dos apêndices, que é o que um revisor lê primeiro — restam **91 de 297 parágrafos marcados (30,6%)**.",
+   "problem": "STALE: the artifact (out/WARNING-DENSITY-2026-08-30.json) was computed on a 1,914-line text. Recomputed today with the same script on the 2,058-line text: body 100/307 (32.6%), all paragraphs 119/363 (32.8%), 133 markers. That is above the 26.7% measured before the cleanup.",
+   "proposed_en": "In the body (before the appendices, which is what a reviewer reads first), **91 of 297 paragraphs were marked (30.6%)** on 2026-08-30, on the 1,914-line version (`out/WARNING-DENSITY-2026-08-30.json`). The 2026-09-21 corrections added marked paragraphs: recomputed on 2026-10-03 with the same script over the 2,058-line text, the body has **100 of 307 marked (32.6%)**, and the whole document 119 of 363 (32.8%), above the 26.7% measured before the cleanup. (The English translation needs its own measurement.)",
+   "evidence": "python3 measurement/densidade-de-avisos.py --doc MANUSCRIPT.md --json --out _sprint-2026-10-04/A-aging/WARNING-DENSITY-recomputed-2026-10-03.json -> linhas 2058, paragrafos 363, marcados 119 (32.8%), corpo 307, corpo_marcados 100 (32.6%), marcadores 133; old artifact: linhas_do_documento 1914, corpo 297, corpo_marcados 91.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1835,
+   "section": "Apêndice D",
+   "quote_pt": "| gatilhos de monitoramento | `gatilho-saturacao.sh` · `gatilho-composicao.mjs` | `implantacao/` |",
+   "problem": "NEEDS-DATE: the monitoring triggers were retired on 2026-09-21 13:33Z, and the p2- cron lines were removed from the applier on 2026-09-29. The table presents them as live instrumentation.",
+   "proposed_en": "| monitoring triggers (retired 2026-09-21; kept as record) | `gatilho-saturacao.sh` · `gatilho-composicao.mjs` | `measurement/implantacao/` |",
+   "evidence": "docs/HANDOFF.md 2026-09-21 ('aposentadoria dos 6 guardas … 13:33Z') and 2026-09-29/30 ('aplicador sem as 7 linhas p2-'); measurement/implantacao exists (ls).",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1811,
+   "section": "Apêndice C",
+   "quote_pt": "pertencem ao **estudo interventivo** e são reportados lá — inclusive o achado de que um `κ` agregado de 0,874 escondia concordância de apenas 0,31–0,53 na fronteira `≥ S2`",
+   "problem": "PARTIAL: Paper B now exists and carries the split κ (0.87–0.93 vs 0.31–0.53), but not the aggregate 0.874. 'são reportados lá' should point to the file and say what is and is not there. §6 l.1421-1423 ('vai reportada lá') has the same issue.",
+   "proposed_en": "belong to the **interventional study** and are reported in Paper B (`MANUSCRIPT-B.md`, list of deviations), which carries the split agreement, κ 0.87–0.93 at `≥ S1` against 0.31–0.53 at the `≥ S2` boundary. The aggregate κ of 0.874 that hid this split is recorded here and in `DEVIATIONS-FOR-PAPER.md`.",
+   "evidence": "MANUSCRIPT-B.md l.853-854 (κ split); grep -n '0\\.874\\|0,874' MANUSCRIPT-B.md -> 0.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "section": "O que falta, item 5",
+   "pt_line": 2041,
+   "quote_pt": "**Abertas e declaradas no texto, do mesmo parecer:** a reconciliação `52 = 52` (§4.3.1 vs §4.3.2), os 25 slots das sondas (§4.3),",
+   "problem": "Both items are now closed by measurement and should be struck, with a pointer to the evidence.",
+   "proposed_en": "~~the `52 = 52` reconciliation (§4.3.1 vs §4.3.2), the 25 probe slots (§4.3)~~ → ✅ **closed 2026-10-04 by identity measurement** (`_sprint-2026-10-04/A-recon-52-and-slots.md`, `measurement/sprint-recon-52-e-sondas.py`). The 52 are one `lessons.md` batch, missing identically on 20, 21 and 22/08; the '20/08: 85 → 33' was 21/08. The 25 slots are the five probes by `brief_id`, which also add 5 probe-only chunks (organic distinct = 196). Still open from the same review: …",
+   "evidence": "_sprint-2026-10-04/A-recon-52-and-slots.md",
+   "source_task": "recon-52-slots"
+  },
+  {
+   "section": "Appendix D",
+   "pt_line": 1831,
+   "quote_pt": "| pool elegível do canal de cobertura (§4.3.1) | `pool-elegivel.py` | `POOL-ELEGIVEL-2026-08-28.json` |",
+   "problem": "The appendix lists only the one-day artifact.",
+   "proposed_en": "| eligible pool of the coverage channel (§4.3.1) | `pool-elegivel.py`; `sprint-pool-elegivel-multidia.py` | `POOL-ELEGIVEL-2026-08-28.json`; `POOL-ELEGIVEL-2026-08-26-to-29.json` |",
+   "evidence": "measurement/sprint-pool-elegivel-multidia.py; _sprint-2026-10-04/POOL-ELEGIVEL-2026-08-26-to-29.json",
+   "source_task": "recon-pool-elegivel"
+  },
+  {
+   "section": "open items (item 5)",
+   "pt_line": 2042,
+   "quote_pt": "o `POOL-ELEGIVEL` que cobre um dia para uma\n   afirmação de quatro (§4.3.1),",
+   "problem": "This open item is now closed by re-measurement and should be removed from the open list or marked closed.",
+   "proposed_en": "(remove this clause from the open list; optionally append: \"the `POOL-ELEGIVEL` gap (§4.3.1) was closed on 2026-10-04 by re-measurement from a preserved database, with a positive control\")",
+   "evidence": "_sprint-2026-10-04/A-recon-pool-elegivel.md",
+   "source_task": "recon-pool-elegivel"
+  },
+  {
+   "pt_line": 1837,
+   "section": "Appendix D",
+   "quote_pt": "**[FALTA]** DOI de um depósito que contenha **este** manuscrito e os artefatos na versão citada. Hoje o último depósito é a v1.12, anterior a tudo isto.",
+   "problem": "The DOI meant is the Paper A deposit, not the pre-registration. A Paper A deposit has existed since 2026-08-30 (v1.0 10.5281/zenodo.22181415, concept 10.5281/zenodo.22181414), so 'the latest deposit is v1.12' has been false since then. The deposited v1.0 manuscript carries the same false sentence. v1.0 holds an older text (126,564 B against 137,417 B now) and an older DEVIATIONS (18,933 B, ends at §9), so the version DOI for this text comes only with the next deposit.",
+   "proposed_en": "Deposit: Zenodo, concept DOI **10.5281/zenodo.22181414** (resolves to the latest version). Version 1.0 (`10.5281/zenodo.22181415`, 2026-08-30) holds an earlier text of this manuscript (126,564 B) and an earlier `DEVIATIONS-FOR-PAPER.md` that stops at §9. It does **not** contain the §10.29–§10.34 cited in Appendix A, nor the consolidated artifacts of §4.3.1, §5.7 and §5.7.1 listed above. The version that matches this text is the next one under the same concept DOI. **[TODO at deposit: insert its version DOI here, or a pre-reserved DOI if one is created before deposit.]**",
+   "evidence": "curl https://zenodo.org/api/records/22181415 → 200, doi 10.5281/zenodo.22181415, conceptdoi 10.5281/zenodo.22181414, version 1.0; versions?allversions=true → total 1; record 22110203 = 'Interventional Memory…' v1.12, concept 21964093. Downloaded files with md5 = Zenodo checksums: A-recon-evidence/deposited-22181415/ (MANUSCRIPT.md 126,564 B sha256 e59f0073…; DEVIATIONS 18,933 B, last heading §9 at l.249; the deposited MANUSCRIPT l.1738-1739 has the same [FALTA] sentence). Current MANUSCRIPT.md 137,417 B sha256 8c3e1169…",
+   "source_task": "recon-5.7.2-and-appD"
+  },
+  {
+   "pt_line": 1822,
+   "section": "Appendix D",
+   "quote_pt": "Tudo em `measurement/`, com `--assert-json` travando cada número citado:",
+   "problem": "Location claim is false: 7 listed artifacts live at the root of paper2-interventional/ (CEILING-*, TIEBREAK-*, POOL-ELEGIVEL-*, BATCH-CYCLE-* ×2, PREDICTION-*), the out/* ones in paper2-interventional/out/, and only CHANNEL-ATTRIBUTION and the scripts in measurement/. The --assert-json claim was not measured.",
+   "proposed_en": "Scripts are in `measurement/`. Artifacts are in `out/`, in `measurement/` (`CHANNEL-ATTRIBUTION-2026-08-29.json`) and at the root of `paper2-interventional/` (`CEILING-*`, `TIEBREAK-*`, `POOL-ELEGIVEL-*`, `BATCH-CYCLE-*`, `PREDICTION-*`). [Keep the `--assert-json` clause only after verifying it.]",
+   "evidence": "python3 measurement/sprint-censo-artefatos-paperA.py → repo_paths per row in A-recon-evidence/CENSUS-PAPERA-ARTIFACTS.json; e.g. CEILING-GRANULARITY-2026-08-28.json → paper2-interventional/CEILING-GRANULARITY-2026-08-28.json",
+   "source_task": "recon-5.7.2-and-appD"
+  },
+  {
+   "pt_line": 1835,
+   "section": "Appendix D",
+   "quote_pt": "| gatilhos de monitoramento | `gatilho-saturacao.sh` · `gatilho-composicao.mjs` | `implantacao/` |",
+   "problem": "The manuscript cites 40 repo paths that Appendix D does not list. Among them: DEVIATIONS-FOR-PAPER.md (l.19, 660, 1766, 1798), the §5.7.2 artifacts, the §4.1/§4.2/§4.3.2/§6.1 artifacts with their scripts, the figures, and 7 source notes. Separately, 10 Appendix D entries are absent from the v1.0 deposit.",
+   "proposed_en": "[Rows to append to the Appendix D table:]\n| probe-exclusion axis of the ceiling (§5.7.2) | `replay-oportunidade.mjs --excluir-briefs` | `out/CEILING-PROBE-EXCLUSION-{none,probes}-2026-08-30.json` · `out/ancora-sondas.json` · `out/ancora-sem-exclusao.json` |\n| identity-level comparability control (§5.7.2) | `sprint-comparabilidade-identidade-572.py` | `COMPARABILITY-IDENTITY-5.7.2.json` |\n| floor composition, cohort exposure (§4.1) | `composicao-do-piso.py` · `exposicao-por-coorte.py` | `out/FLOOR-COMPOSITION-2026-08-29.json` · `out/EXPOSURE-BY-COHORT-2026-08-29.json` |\n| size axis (§4.2) | `lacuna-no-eixo-de-tamanho.py` · `robustez-tamanho-exposicao.py` · `fig1-capacidade.py` | `out/SIZE-AXIS-GAP-2026-08-29.json` · `out/SIZE-ROBUSTNESS-2026-08-30.json` · `out/SIZE-EXPOSURE-15-2026-08-29.json` |\n| top-of-pool counterfactual (§4.3.2) | `contrafactual-do-topo.py` | `out/TOP-COUNTERFACTUAL-2026-08-29.json` |\n| verifier coverage and warning density (§6.1, App. H) | `claims_check.py` · `censo-de-alegacoes-sem-guarda.py` · `censo-de-universos-no-paragrafo.py` · `densidade-de-avisos.py` | `out/CLAIM-COVERAGE-2026-08-29.json` · `out/WARNING-DENSITY-2026-08-30.json` |\n| survey count (§1) | `survey-string-count.py` | — |\n| figures 0–3 | `fig0-arquitetura.py` · `fig1-capacidade.py` · `fig2-concentracao.py` · `fig3-dose-resposta.py` | `out/fig{0..3}-*.svg` |\n| strict-cut field replay (§3.3) | `replay-resumo.py --campo-estrito` | `out/c-350.json` |\n| deviations from the registration, and the interventional results until Paper B exists | — | `DEVIATIONS-FOR-PAPER.md` |\n| source notes the text cites | — | `SUPERFICIE-2026-08-27.md` · `REPLAY-OPORTUNIDADE-2026-08-27.md` · `REMEDIATION-2026-08-27.md` · `PROTOCOL-CALIBRATION-2026-08-27.md` · `CORPUS-FREEZE.md` · `RELATED-WORK.md` · `REVISAO-ADVERSARIAL-2026-09-21.md` |",
+   "evidence": "CENSUS-PAPERA-ARTIFACTS.json rows with listed_in_appendix_D=false (40). Not in deposit v1.0: published MANIFEST.json (120 items), plus unzip -l of artefatos.zip (57) and scripts.zip (53): 0 matches for GRANULARITY, TIEBREAK, POOL-ELEGIVEL, CHANNEL, BATCH, PREDICTION, gatilho-saturacao, implantacao. The section labels in the 'what' column were mapped from census line numbers to headings; check them when integrating.",
+   "source_task": "recon-5.7.2-and-appD"
+  },
+  {
+   "pt_line": 1766,
+   "section": "Appendix A",
+   "quote_pt": "são o Paper B, e vivem em `DEVIATIONS-FOR-PAPER.md` §10.29–§10.34 até que ele exista.",
+   "problem": "The pointed sections exist only in the current, undeposited DEVIATIONS (204,857 B). The DEVIATIONS deposited in v1.0 (18,933 B) ends at §9, so the pointer resolves to nothing in any deposit today.",
+   "proposed_en": "…they are Paper B, and they live in `DEVIATIONS-FOR-PAPER.md` §10.29–§10.34 (in the version deposited with this text; the v1.0 deposit predates them) until it exists.",
+   "evidence": "grep in deposited-22181415/DEVIATIONS-FOR-PAPER.md: last headings §7, §8, §9 (l.185, 211, 249), no §10.x; current file: §10.29 at l.3065 … §10.34 at l.3474",
+   "source_task": "recon-5.7.2-and-appD"
+  },
+  {
+   "pt_line": 2043,
+   "section": "O que falta, item 5",
+   "quote_pt": "o controlo de comparabilidade do §5.7.2 que valida por contagem, o `[FALTA]` do DOI no Apêndice D, e os ponteiros para `DEVIATIONS-FOR-PAPER.md` que o Apêndice D não lista entre os artefatos depositados.",
+   "problem": "These three open items are resolved or reduced by this sprint, and the list should be struck through so it does not age (the manuscript's own lesson at l.2010-2013).",
+   "proposed_en": "~~the count-level comparability control of §5.7.2~~ → closed 2026-10-04 at identity level; ~~the DOI `[FALTA]` of Appendix D~~ → concept DOI cited, the version DOI comes with the deposit; ~~the `DEVIATIONS-FOR-PAPER.md` pointers missing from Appendix D~~ → listed. The artifact census (`sprint-censo-artefatos-paperA.py`) still reports 1 missing input (`ts-350.txt`) and 10 Appendix D entries absent from the v1.0 deposit. The next deposit must fix both.",
+   "evidence": "_sprint-2026-10-04/A-recon-5.7.2-appD.md; both scripts' outputs in A-recon-evidence/",
+   "source_task": "recon-5.7.2-and-appD"
+  },
+  {
+   "section": "Final list, item 6",
+   "pt_line": 2047,
+   "quote_pt": "6. ⚠️ **os sete filtros em série não são desagregados** (aberto 21/09, do parecer do Codex —",
+   "problem": "The item is now measured. It should be marked closed with a pointer, and the provenance limit stated: Codex's own list of seven was not preserved (receipt only), so the seven are the ones identified from the code.",
+   "proposed_en": "6. ✅ **the seven serial filters of the main pool are now disaggregated** (§4.3.1, sprint 2026-10-04). Leave-one-out on the frozen corpus reproduces the served briefs in 100% of the briefs of 24/08–07/09: no filter, lifted, widens the daily surface beyond 33 chunks; F3 (`LIMIT 500`) removes 95.7% of the corpus and changes 0 briefs; F1 and F6 narrow it to 8. The main pool is policy-bound (deterministic top-k, no rotation), not capacity-bound (0.61% of 5,376 daily slots). Caveat: the Codex output naming 'seven' was not preserved (only its receipt), so the seven are the stages read from `brief.ts`, not necessarily the reviewer's list.",
+   "evidence": "~/Claude/Projetos/memoria-nox/.remember/adversary-receipt-codex-2026-09-21T164555-79601.txt exists, output file not found under ~/Claude ~/.claude ~/Backups /private/tmp; A-filters-disaggregation.md §1, §6",
+   "source_task": "filters-disaggregation"
+  }
+ ],
+ "doubts": [
+  "Linha da tabela do Apêndice A: o registro diz 'designação é defeito aberto' e o PT diz 'fechada em 26/08 20:28Z' com precedência de 1.056 s; a declaração é 20:07:24Z e a rodada drand 20:25:00Z (Apêndice B), o que dá 1.056 s entre 20:07:24 e 20:25:00 — consistente (17 min 36 s = 1.056 s), mas o 'fechada às 20:28Z' vem depois da rodada, ok. Traduzido sem alterar.",
+  "H-1 repete quase literalmente o mesmo parágrafo duas vezes ('Uma versão anterior... razão 325' e o segundo parágrafo que remete ao §4.1.1); parece duplicação residual no PT. Mantive as duas.",
+  "H-3.2: '67.187 − 11.051' = 56.136, e o PT diz que o correto é 56.288; mantido como está (a diferença de 152 é a ponte descrita).",
+  "H-3.4: 205 vs 232 caracteres e '8.928' vs '14.456' distilled; não verificados, traduzidos como estão.",
+  "Seção 'O que falta': item 3 diz 'sobre as 1.937 linhas' (traduzido 1,937 lines) enquanto o manuscrito atual tem mais de 2.058 linhas; é o número histórico da revisão de 21/09, não corrigi.",
+  "Apêndice A: 'Apêndice B' em H-2 e 'Apêndice D' [FALTA] traduzido como [MISSING]; a marca [FALTA] do PT virou [MISSING] também na referência dentro do item 5 da lista.",
+  "Apêndice H menciona '91 de 297 parágrafos marcados (30,6%)' e '87 marcadores em 77 de 288 parágrafos 26,7%'; 77/288 = 26,7% confere, 91/297 = 30,6% confere.",
+  "No Apêndice E aparece 'eu publiquei' / 'eu esperaria' (primeira pessoa singular) em manuscrito de autor único; mantido como 'I'. Pode merecer 'we' por consistência com o resto do paper."
+ ]
+}

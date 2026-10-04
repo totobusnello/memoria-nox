@@ -1,0 +1,82 @@
+{
+ "svg": "_sprint-2026-10-04/figures/figB1-h1a-inversao.svg",
+ "horas_por_braco": {
+  "treatment": 12.699,
+  "control": 5.1601
+ },
+ "pico": "2026-09-14",
+ "pico_h": 7.1329,
+ "pico_share": 0.5617,
+ "outros_min_max": [
+  0.3203,
+  0.9726
+ ],
+ "sessao_esparsa": {
+  "id_prefix": "d37a5964",
+  "episodios": 3,
+  "span_h": 6.3267,
+  "ts": [
+   "2026-09-14T13:52:36.423000+00:00",
+   "2026-09-14T20:12:07.213000+00:00",
+   "2026-09-14T20:12:12.547000+00:00"
+  ]
+ },
+ "sessoes_ocupadas": [
+  {
+   "id_prefix": "ea84e8bd",
+   "episodios": 74,
+   "span_min": 9.71
+  },
+  {
+   "id_prefix": "e996a4c6",
+   "episodios": 65,
+   "span_min": 8.86
+  },
+  {
+   "id_prefix": "ddebd94e",
+   "episodios": 56,
+   "span_min": 8.03
+  }
+ ],
+ "legs": [
+  {
+   "leg": "locked",
+   "removidos": "all 20 epochs",
+   "dif_pontual": -143.922996,
+   "ic95": [
+    -209.79805,
+    -15.338629
+   ],
+   "n_replicas": 10000
+  },
+  {
+   "leg": "pre-committed sensitivity (spec §9.1)",
+   "removidos": "partials 09-01, 09-03, 09-20 removed",
+   "dif_pontual": -133.341314,
+   "ic95": [
+    -203.624332,
+    7.406617
+   ],
+   "n_replicas": 10000
+  },
+  {
+   "leg": "sensitivity",
+   "removidos": "09-14 removed",
+   "dif_pontual": -63.044112,
+   "ic95": [
+    -120.449755,
+    1.755672
+   ],
+   "n_replicas": 10000
+  }
+ ],
+ "rerand_H1a": {
+  "observado": -63.169739,
+  "p_bilateral": 0.0855,
+  "replicas_validas": 10000,
+  "nulo_p025": -70.706864,
+  "nulo_p975": 70.725442,
+  "rejeita_nulo_agudo_a_5pct": false
+ },
+ "png": "_sprint-2026-10-04/figures/figB1-h1a-inversao.png"
+}

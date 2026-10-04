@@ -1,0 +1,26 @@
+{
+ "2026-08-26": {
+  "pool": 108,
+  "ten_row_briefs": 672,
+  "pool_served_by_ten_row_briefs_only": 108,
+  "distinct_utc_hours_with_serves": 24
+ },
+ "2026-08-27": {
+  "pool": 108,
+  "ten_row_briefs": 672,
+  "pool_served_by_ten_row_briefs_only": 108,
+  "distinct_utc_hours_with_serves": 24
+ },
+ "2026-08-28": {
+  "pool": 108,
+  "ten_row_briefs": 672,
+  "pool_served_by_ten_row_briefs_only": 108,
+  "distinct_utc_hours_with_serves": 24
+ },
+ "2026-08-29": {
+  "pool": 108,
+  "ten_row_briefs": 672,
+  "pool_served_by_ten_row_briefs_only": 108,
+  "distinct_utc_hours_with_serves": 24
+ }
+}

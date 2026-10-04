@@ -1,0 +1,38 @@
+{
+ "findings": [
+  {
+   "pt_line": 211,
+   "section": "§2",
+   "quote_pt": "O sistema é a memória persistente de uma frota de **6 agentes** de codificação em operação contínua, servindo ~**670 briefs/dia**.",
+   "problem": "NEEDS-DATE: present tense. The measured week (2026-08-20 -> 08-27) had 4,632 briefs, i.e. 661.7/day. Today's rate NOT MEASURED (production off-limits).",
+   "proposed_en": "The system is the persistent memory of a fleet of **6** coding agents in continuous operation; during the measured week (2026-08-20 → 08-27) it served **4,632 briefs, ~660 per day**.",
+   "evidence": "out/superficie.json concentracao_do_brief.briefs_7d = 4632, janela_7d [2026-08-20, 2026-08-27]; 4632/7 = 661.7.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 300,
+   "section": "§3.3 (and code citations in §4.1, §4.3.1, §4.3.2, §5.1, §5.7)",
+   "quote_pt": "Ele importa a função de composição do binário de produção e é validado contra o que a produção **registrou**, brief a brief",
+   "problem": "NEEDS-PIN: production code changed after the replay (nox-workspace PRs #49–#53, 2026-09-29/30). The code line citations all still resolve today, both in nox-workspace 11296e3c and in the deposited serving-*.ts snapshots, but brief.ts is not pinned by hash anywhere in the paper.",
+   "proposed_en": "It imports the composition function from the production build as of 2026-08-27/28 and is validated, brief by brief, against what production **recorded**. (Code line citations in this paper refer to `brief.ts`, `brief-diversity.ts` and `search.ts` as deposited in `serving-*.ts`; `brief-diversity.ts` is pinned by `sha256 34c9aee5…`.)",
+   "evidence": "shasum -a 256: nox-workspace brief-diversity.ts = 34c9aee5… = SERVING-CODE-MANIFEST pin; salience.ts = 083399fc… = pin; search.ts 51f06b59… != pin d76034e2… (changed); line refs brief.ts:135,612,614,642 and search.ts:396 match both the current source and serving-brief.ts / serving-search.ts.",
+   "source_task": "aging-sweep"
+  },
+  {
+   "section": "§2",
+   "pt_line": 222,
+   "quote_pt": "o **brief proativo** (`/api/brief`), montado no início de cada sessão e **sempre com 10 itens**.",
+   "problem": "False for the five 5-item health-probe briefs inside the §4.3 window. It is true for all 4,627 organic briefs there.",
+   "proposed_en": "the **proactive brief** (`/api/brief`), assembled at the start of each session with **10 items**. Every organic brief in the §4.3 window has 10; the only exceptions are our own five 5-item health probes (§4.3).",
+   "evidence": "RECON-52-e-sondas-2026-10-04.json → c25.histograma_linhas_por_brief={5:5,10:4627}. Only the window [2026-08-20, 2026-08-27) was checked; other windows were NOT MEASURED.",
+   "source_task": "recon-52-slots"
+  }
+ ],
+ "doubts": [
+  "Linha ~246: o parágrafo ⚠️ 'Declarar explicitamente que é um sistema...' repete quase literalmente o ⚠️ 'É um sistema' do §2 e cita 'A generalização do §7', enquanto o primeiro cita '(§5)'. Referência inconsistente (§5 vs §7); traduzi como está.",
+  "O texto diz 'Três parâmetros ... o §5 os estabelece' e 'cinco dias seguidos (§4.3.1)': não verifiquei contra as seções, apenas traduzi.",
+  "Identidade `expostos-vivos + nunca-expostos = corpus` está em code span em PT; mantive verbatim (não traduzi), mas na prosa ao redor chamo de 'exposed-live / never-exposed' só implicitamente.",
+  "O texto afirma 'a soma ingênua excede o corpus em 152' e depois que os 152 do §4.1 são chunks já apagados (§3.1); coerência não checada.",
+  "A palavra 'sub-pool global' do glossário não aparece neste trecho; 'canal de cobertura' foi traduzido como 'coverage channel' e 'pool de cobertura' como 'coverage pool'."
+ ]
+}

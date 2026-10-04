@@ -1,0 +1,31 @@
+{
+ "findings": [
+  {
+   "pt_line": 1734,
+   "section": "§9",
+   "quote_pt": "o que deixou de ser verdade em 2026-09-01. Dezanove epochs foram servidos. O ponto sobrevive à correção e fica mais forte: o teto era derivável antes de a intervenção correr, e a intervenção correu sem o mover.",
+   "problem": "IMPRECISE + UNSUPPORTED: 8 of the 19 epochs with data were control (w=0), so 'nineteen epochs were served' overstates the intervention. 'The intervention ran without moving it [the ceiling]' has no artifact: Paper B does not measure the ceiling under the trial.",
+   "proposed_en": "⚠️ **Corrected on 2026-09-21:** the sentence ended with *\"and, at the close of this manuscript, nothing has been served yet\"*, which stopped being true on 2026-09-01. The trial produced 19 epochs with serving data, 11 of them in a treatment arm. The point survives the correction: the ceiling was derivable from the code before the intervention ran. Whether the served dose changed anything is Paper B's question, and its answer is not a measurement of this ceiling. This paper does not claim that the trial left the ceiling unchanged.",
+   "evidence": "grep -n -i 'ceiling\\|4\\.86\\|4,86' MANUSCRIPT-B.md -> 2 hits (l.99, l.157), neither measures the ceiling under the trial; DEVIATIONS §10.31(2) (8 control / 11 treatment).",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 1692,
+   "section": "§9",
+   "quote_pt": "583.763 slots — a série viva **no instante do congelamento, 2026-08-29** (§6.1) — contra 67.187 chunks",
+   "problem": "WRONG DATE: the artifact fixes the series at 2026-08-28 09:52:08 (field 'ate'; gerado_em 2026-08-28T10:02:23Z). The span is 84.67 days from 2026-06-04 17:51:26, which matches the '84,7 dias' the paper cites elsewhere.",
+   "proposed_en": "583,763 slots (the live series frozen at **2026-08-28 09:52:08Z**, the `ate` field of `out/superficie.json`, §6.1) against 67,187 chunks",
+   "evidence": "out/superficie.json concentracao_do_brief: desde 2026-06-04 17:51:26, ate 2026-08-28 09:52:08, slots_historicos_ATE_AGORA_serie_viva 583763; gerado_em 2026-08-28T10:02:23Z; computed span 84.667 days.",
+   "source_task": "aging-sweep"
+  }
+ ],
+ "doubts": [
+  "Linha 'projetamos uma intervenção cujo teto era derivável do código **antes de qualquer coisa ser servida**.' tem '**' desbalanceado no PT original (abre '**projetamos' e abre outro '**antes'). Mantive a estrutura como está.",
+  "§9 Segunda: 'com zero nunca-servidos restando e 12,4 slots por candidato **em dia fechado** e por ser **estruturalmente surdo ao score**' — a sintaxe do PT está truncada/ambígua (falta pontuação antes de 'e por ser'). Traduzi literalmente.",
+  "§8.3 menciona 'item 5 da lista de pendências' sem referência clara no trecho; mantido literal.",
+  "§9 Primeira: 'o brief serviu 1.787 distintos' traduzido como 1,787 distinct ones; o '1.787' é milhar PT, mas confirme que não é 1,787 decimal (improvável).",
+  "§8.3 'duas que subestimam o próprio desenho' refere-se a afirmações do OSF não detalhadas aqui; mantido literal.",
+  "A frase de provenância usa primeira pessoa do singular ('declaro', 'I declare') enquanto o resto usa 'we'; mantive como no PT.",
+  "Datas '15/08', '13/08', '28/08' convertidas para ISO 2026-08-NN assumindo ano 2026 (estudo todo em 2026)."
+ ]
+}

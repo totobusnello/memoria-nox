@@ -1,0 +1,31 @@
+{
+ "findings": [
+  {
+   "pt_line": 74,
+   "section": "Abstract",
+   "quote_pt": "🔴 **Um terceiro eixo existe e não foi medido**, e a auditoria de 30/08 o encontrou num artefato que gravamos e nunca lemos: excluir as linhas das nossas próprias sondas de saúde muda a âncora do replay, e o teto foi computado **sem** excluí-las (§5.7.2).",
+   "problem": "STALE inside the paper: §5.7.2 (l.1312-1321) reports the third axis measured on 2026-08-30 (17/350 -> 13/350, 4.86% -> 3.71%, 1 sensitive state in common). The Abstract was not updated.",
+   "proposed_en": "🔴 **A third axis exists**, and an audit on 2026-08-30 found it in an artifact we had recorded and never read: excluding the rows of our own health probes moves the replay's anchor. The ceiling above was computed **without** excluding them; measured the same day with a paired design, excluding them lowers it from 17/350 (4.86%) to 13/350 (3.71%), and only **one** sensitive state is common to the two arms (§5.7.2).",
+   "evidence": "MANUSCRIPT.md l.1312-1321; out/CEILING-PROBE-EXCLUSION-none-2026-08-30.json and out/CEILING-PROBE-EXCLUSION-probes-2026-08-30.json exist (find).",
+   "source_task": "aging-sweep"
+  },
+  {
+   "pt_line": 12,
+   "section": "Header",
+   "quote_pt": "> 🟡 **ESQUELETO, 2026-08-27.** Primeira versão do manuscrito do Paper 2, escrita depois do reframe.",
+   "problem": "STALE status banner: the manuscript was published as v1.0 on 2026-08-30 and was revised on 2026-09-21. Only one [FALTA] remains (l.1837), and it is itself stale.",
+   "proposed_en": "> **Status (2026-10-04).** v1.0 of this manuscript (Portuguese) was published on Zenodo on 2026-08-30 (`10.5281/zenodo.22181415`). This is the revised text after the 2026-09-21 corrections, translated to English, and not yet deposited as a new version. **Rule of this file:** every number comes from an artifact locked by `--assert-json`, and its reproduction command is cited.",
+   "evidence": "grep -n FALTA MANUSCRIPT.md -> l.15 (rule), l.1837, l.2044; Zenodo API as above.",
+   "source_task": "aging-sweep"
+  }
+ ],
+ "doubts": [
+  "Linha 93 do PT é em branco; o abstract termina em 'causa comum' (linha 92). O '## 1. Introdução' começa na 94, fora do meu trecho.",
+  "O 'Abstract' do PT cita 'a auditoria de 30/08'; traduzi como 2026-08-30 (ano inferido do estudo inteiro ser 2026).",
+  "O PT diz 'sorteio de designados' e 'o sorteio em vigor'; traduzi como 'draw of designated items' e 'the draw in force'.",
+  "O título do PT já está em inglês e foi mantido idêntico.",
+  "O abstract diz 'duas frases' ('mudança de universo entre as duas frases') mas, após a tradução, as duas sentenças referenciadas continuam sendo a de 'folga de capacidade' e a dos 83,78%; não alterei nada.",
+  "O abstract afirma '350 de 350 estados' e 'dois eixos que medimos' mas depois lista um 'terceiro eixo' (sondas de saúde, §5.7.2); mantido como no PT.",
+  "O texto diz '10 itens por sessão' como capacidade por sessão e '8 slots do pool principal' + '2 slots' de cobertura: consistente, apenas sinalizo que '12,4 slots em dia fechado por candidato' depende de §4.3.1 para ser verificado."
+ ]
+}

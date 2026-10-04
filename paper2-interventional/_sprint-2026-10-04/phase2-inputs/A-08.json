@@ -1,0 +1,22 @@
+{
+ "findings": [
+  {
+   "pt_line": 1005,
+   "section": "§5.3 (also §2 l.237-238, §9 l.1709-1711)",
+   "quote_pt": "é o default `DIVERSITY_DEFAULTS.freshSlots = 2`, sobrescrevível por `NOX_BRIEF_DIV_FRESH_SLOTS`, e **não há override** nem na unit systemd nem no `.env` — verificado;",
+   "problem": "NEEDS-DATE: present tense with no instant. The source is SUPERFICIE-2026-08-27.md:103. The unit later carried a trial drop-in (zz-p2-active.conf, the 8th of 8, 2026-09-01 -> 09-21). The current state was not re-verified.",
+   "proposed_en": "it is the default `DIVERSITY_DEFAULTS.freshSlots = 2`, overridable by `NOX_BRIEF_DIV_FRESH_SLOTS`, and **there was no override**, neither in the systemd unit nor in `.env`, verified on 2026-08-27 (`SUPERFICIE-2026-08-27.md`), i.e. within the measured window. The unit's configuration changed afterwards for the trial, and it is not re-verified here;",
+   "evidence": "grep NOX_BRIEF_DIV_FRESH_SLOTS / 'sem override' -> SUPERFICIE-2026-08-27.md:103; TRIAL-START-2026-09-01.md l.12-16 (drop-in zz-p2-active.conf, 8th of 8). Current production env NOT MEASURED.",
+   "source_task": "aging-sweep"
+  }
+ ],
+ "doubts": [
+  "O trecho cita §5.6 e §5.7 (corolário 2 e item 1 das consequências). As seções 5.6 e 5.7 não estão no intervalo traduzido, que termina em §5.5. Não verifiquei se existem em outra parte do PT.",
+  "A seção 5.1 diz que a banda de saturação é `(4,0; 4,4]` e a 5.4 diz `w ∈ (4,0 ; 4,4]`. Mantive o separador ponto e vírgula e o espaçamento de cada ocorrência, como está no PT.",
+  "No bloco de código de 5.4 (`b* = max sobre os estados ...`) e nos comentários do comparador (`menos-recentemente-servido primeiro`, `maior salience`) o texto está em português. Deixei verbatim, por serem código. Se o paper em EN deve ter esses comentários traduzidos, é decisão do Toto.",
+  "O PT diz 'sete linhas de código', mas os dois trechos citados somam 7 linhas executáveis só se não se contarem os comentários. Traduzi literalmente, sem checar a contagem.",
+  "O PT diz 'Item 7 do registro' (pré-registro); traduzi como 'Item 7 of the pre-registration'. Se 'registro' significar 'log', o sentido muda, mas pela frase sobre gatilho de monitoramento o pré-registro parece ser o correto.",
+  "O PT chama a primeira lista de 'Três consequências' e o item 1 contém '17/350 = 4,86%' e 'todas as 20 entradas'. Não conferi esses números contra o §4.4 ou §5.6, e a tarefa pede tradução apenas.",
+  "O texto 'seven lines of code' do início, 'Appendix B/C' e as referências cruzadas foram mantidos como no PT."
+ ]
+}
