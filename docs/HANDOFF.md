@@ -1,5 +1,13 @@
 # nox-mem HANDOFF — estado vivo
 
+## 2026-10-04 (noite) — apelação do arXiv ENVIADA: `MOD-107053`
+
+- **Enviada 22:38 BRT** pelo Toto: https://arxiv-org.atlassian.net/servicedesk/customer/portal/2/MOD-107053. Anexo: paper **v1.0.6** (`10.5281/zenodo.23147633`, PDF md5 `6bf378c01d8e35b672f5b66e899c6f86`). Uso único: aguardar a resposta, não reenviar.
+- **Evidência por query do §6 publicada:** `10.5281/zenodo.23146656` (saídas sem texto de benchmark, `verify_dataset.py` confere 135 números e afirmações: 132 contra arquivos, 3 aritméticos; 12 grupos declarados não recomputáveis).
+- **v1.0.6 (PR #562):** o scorer do §6 creditava id repetido a cada ocorrência (3 queries do Mem0 com nDCG > 1). Corrigido; nove valores do Mem0 caem no máximo 0,004, nenhuma ordem muda. §6.3.2 sem afirmação causal sobre colisão e ablação de tipo de tarefa ("the lead persisted").
+- **Recibo do arXiv de 1/7: `Categories: cs.IR`** (sem cs.LG). A oferta de tirar o cs.LG saiu da carta.
+- **Próximo:** Paper A (rc3 tem 14 achados confirmados de Grok/Gemini + 4 vozes a reexecutar com o `adversary-run.sh` novo, PR Claude#106); Paper B (sham v2 concluído, p = 1/21, resultado em `_sprint-2026-10-04/B-sham-v2/job-v2b/`); workdir do sham na VPS de Pesquisa (1,7 GB) a apagar.
+
 ## 2026-10-04 — bancos do ensaio P2 saíram da produção (−5,2 GB)
 
 Conferido antes: a análise ITT fechada (`estimador_itt.py`, `rerandomizacao.py`,
