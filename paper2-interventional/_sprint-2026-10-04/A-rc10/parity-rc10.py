@@ -32,7 +32,7 @@ so the tokenisation cannot drift):
               occurs in NEW outside the F-5 addenda
   dashes      em dashes in running prose outside the carve-outs <= 0 (as in rc9)
   addendum    the rc10 addendum exists exactly once, in place
-  deposit     deposit/paperA-v1.1/MANUSCRIPT-v1.1.md is byte-identical to NEW (F1: rc10 is the
+  deposit     deposit/paperA-v1.1/spare-capacity-narrow-surface-v1.1.md is byte-identical to NEW (F1: rc10 is the
               single source of the deposited text)
 
 Every DECLARED entry carries the finding ID that justifies it. A delta that is not declared, or a
@@ -51,7 +51,7 @@ HERE = Path(__file__).resolve().parent
 SPRINT = HERE.parent
 DEFAULT_OLD = SPRINT / "A-v1.1-rc9.md"
 DEFAULT_NEW = SPRINT / "A-v1.1-rc10.md"
-DEFAULT_DEPOSIT = SPRINT.parent / "deposit" / "paperA-v1.1" / "MANUSCRIPT-v1.1.md"
+DEFAULT_DEPOSIT = SPRINT.parent / "deposit" / "paperA-v1.1" / "spare-capacity-narrow-surface-v1.1.md"
 
 _spec = importlib.util.spec_from_file_location("parity_rc9", SPRINT / "A-rc9" / "parity-rc9.py")
 _rc9 = importlib.util.module_from_spec(_spec)

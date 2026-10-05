@@ -13,11 +13,11 @@
 
 | key | bytes | md5 | origem |
 |---|---:|---|---|
-| `MANUSCRIPT-v1.1.pdf` | 303.437 | `9c31328d7540cb4637c7c70108c22918` | novo, 50 páginas |
-| `MANUSCRIPT-v1.1.md` | 217.049 | `0e1eb38ee42e4f8d3fa31e5a5881d6a7` | novo, = rc14 byte a byte |
-| `MANIFEST-v1.1.json` | 23.437 | `2f2cb8033612c0fdc52809962db3f482` | novo |
-| `artefatos-v1.1.zip` | 268.770 | `c0ac131f3838bcaa8bfa718e4b1b5bd2` | novo, 52 membros |
-| `scripts-v1.1.zip` | 167.778 | `7b97f1ce0ca2b82b2d5723d7a3a389e3` | novo, 35 membros |
+| `spare-capacity-narrow-surface-v1.1.pdf` | 303.437 | `9c31328d7540cb4637c7c70108c22918` | novo, 50 páginas |
+| `spare-capacity-narrow-surface-v1.1.md` | 217.049 | `0e1eb38ee42e4f8d3fa31e5a5881d6a7` | novo, = rc14 byte a byte |
+| `MANIFEST-v1.1.json` | 23.345 | `b0433f76232fb2bcd9f559d39803f118` | novo |
+| `artefatos-v1.1.zip` | 268.812 | `9343c8d9c460d6ddb0a7c3628c7dd8d1` | novo, 52 membros |
+| `scripts-v1.1.zip` | 167.832 | `bd6b8a0ca66bff343fe920169e6f2c46` | novo, 35 membros |
 | `MANUSCRIPT.md` | 126.564 | `a08076709e14b13ecf148c53ffb8f863` | v1.0, files-import |
 | `MANIFEST.json` | 24.483 | `6b30ceafbd66332a933c18762cacf148` | v1.0, files-import |
 | `claims_check.py` | 117.840 | `76a75af212fb0e9fbcd00b44e8cbc9fe` | v1.0, files-import |
@@ -117,7 +117,7 @@ Medido numa cópia descartável da árvore (nada no repositório mudou):
 
 Recomendação, num PR próprio depois do publish:
 
-1. promover **a cópia depositada** (`deposit/paperA-v1.1/MANUSCRIPT-v1.1.md`, sha256
+1. promover **a cópia depositada** (`deposit/paperA-v1.1/spare-capacity-narrow-surface-v1.1.md`, sha256
    `8097bac9…`), não o rc8, para que `MANUSCRIPT.md` seja byte a byte o que o DOI serve;
 2. no **mesmo** PR, portar os guardas para o texto em inglês: caminho do manuscrito como
    parâmetro (o `densidade-de-avisos.py` já aceita `--doc`), âncoras em inglês e a normalização
@@ -134,7 +134,7 @@ bloco da description declara.
 
 ## Rodada de 2026-10-05 (tarde): status, description em inglês, scrub
 
-- **Bloco de status (linha 10)** reescrito no rc8 **e** no `MANUSCRIPT-v1.1.md`: agora diz que o
+- **Bloco de status (linha 10)** reescrito no rc8 **e** no `spare-capacity-narrow-surface-v1.1.md`: agora diz que o
   texto está depositado como v1.1, DOI `10.5281/zenodo.23163119` (versão 2 do conceito
   `10.5281/zenodo.22181414`), 2026-10-05. A única diferença entre os dois segue sendo o Apêndice D.
   PDF refeito: 47 páginas, 0 glifos ausentes. Zips idênticos aos anteriores (determinísticos);
@@ -164,7 +164,7 @@ bloco da description declara.
   `expanduser('<HOME>/…')` viraram `os.path.join(os.path.expanduser('~'), …)`. Não usei `~/`
   literal porque o `build-package.py` o redige de novo (R3) e o gate o rejeita: a cópia depositada
   voltaria a quebrar. O docstring mantém `<HOME>/`. Rodado (só leitura, sem `--json`) contra
-  `MANUSCRIPT-v1.1.md`: saída byte a byte igual à do original pré-scrub (exit 1 nos dois, que é
+  `spare-capacity-narrow-surface-v1.1.md`: saída byte a byte igual à do original pré-scrub (exit 1 nos dois, que é
   "algum caminho citado não resolve", não falha do instrumento). A cópia quebrada achava 0
   ocorrências no lastro e na árvore de serving; a corrigida acha 7, como o original. Os outros 6
   redigidos são JSON/markdown e ficam com o marcador. Novo sha256 em `SCRUBBED.txt`.
@@ -185,7 +185,7 @@ bloco da description declara.
   todos conferidos nos artefatos e aplicados com a redação proposta
   (`_sprint-2026-10-04/APPLY-A-rc11.md`). `A-rc11/parity-rc11.py --selftest`: PARITY OK,
   SELFTEST OK (20 mutações; 19 mordem, a de unidade segue como limite documentado). F-5 ganhou o
-  "Addendum, rc11". `MANUSCRIPT-v1.1.md` = rc11 byte a byte.
+  "Addendum, rc11". `spare-capacity-narrow-surface-v1.1.md` = rc11 byte a byte.
 - **Achado 1 (diag):** `diag-out.txt` entrou em `artefatos-v1.1.zip` e
   `diag-residual-mismatch.py` (quem o produziu: mesmo formato de saída; o cabeçalho do `.txt` o
   chama pelo nome de trabalho `diag.py`) em `scripts-v1.1.zip`. A exclusão foi estreitada para
@@ -250,7 +250,7 @@ bloco da description declara.
   - `A-rc12/parity-rc12.py --selftest`: **PARITY OK**, **SELFTEST OK** (19 mutações; 18 mordem,
     a de unidade segue como limite documentado). `withdrawn` carrega as 8 do rc11 e acrescenta 2
     (a frase antiga da l.899 e a ordem antiga do §9). F-5 ganhou o "Addendum, rc12".
-    `MANUSCRIPT-v1.1.md` = rc12 byte a byte.
+    `spare-capacity-narrow-surface-v1.1.md` = rc12 byte a byte.
 - **(3) Manifesto:** as duas declarações vivem em `EXCLUIDOS` do `build-package.py` (o rebuild as
   mantém): entrada nova para `.remember/adversary-receipt-codex-2026-10-05T100118-80790.txt`, e a
   entrada dos `.db` termina com "(nomes de trabalho em diag-out.txt: ord-0826.db,
@@ -290,7 +290,7 @@ bloco da description declara.
     global 108); "three shared main-pool slots".
   - `A-rc13/parity-rc13.py --selftest`: **PARITY OK**, **SELFTEST OK** (24 mutações; 23 mordem,
     a de unidade segue como limite documentado). `withdrawn` carrega as 10 do rc12 e acrescenta
-    10. F-5 ganhou o "Addendum, rc13". `MANUSCRIPT-v1.1.md` = rc13 byte a byte.
+    10. F-5 ganhou o "Addendum, rc13". `spare-capacity-narrow-surface-v1.1.md` = rc13 byte a byte.
 - **Pacote:** `FONTE` → rc13; entraram `REVIEW-A-rc12-2026-10-05.md` e `APPLY-A-rc13.md`
   (artefatos, 48 → 50) e `A-rc13/parity-rc13.py` (scripts, 33 → 34). **Censo:** 79 caminhos no
   escopo, **0 lacunas** (50 cobertos pela v1.1, 29 só pela v1.0). **Gate de privacidade: 0**
@@ -333,7 +333,7 @@ bloco da description declara.
     a de unidade segue como limite documentado). `history` exige rc5..rc12 idênticos e o
     addendum rc13 uma vez (ele foi corrigido no lugar, com deltas declarados); `withdrawn`
     carrega as 20 e acrescenta 8, entre elas "places them first". F-5 ganhou o "Addendum, rc14".
-    `MANUSCRIPT-v1.1.md` = rc14 byte a byte.
+    `spare-capacity-narrow-surface-v1.1.md` = rc14 byte a byte.
 - **Pacote:** `FONTE` → rc14; entraram `REVIEW-A-rc13-2026-10-05.md` e `APPLY-A-rc14.md`
   (artefatos, 50 → 52) e `A-rc14/parity-rc14.py` (scripts, 34 → 35). **Censo:** 82 caminhos no
   escopo, **0 lacunas** (53 cobertos pela v1.1, 29 só pela v1.0). **Gate de privacidade: 0**
@@ -349,3 +349,26 @@ bloco da description declara.
   rascunho. Readback: **22 de 22** campos ok, **18 de 18** arquivos com md5 conferido (13 da v1.0
   contra o registro 22181415, 5 novos contra o disco), membros dos zips conferidos contra o
   manifesto (tabela acima atualizada). **Não publicado.**
+
+## Renomeação do manuscrito (2026-10-05)
+
+- `MANUSCRIPT-v1.1.pdf` → `spare-capacity-narrow-surface-v1.1.pdf` e `MANUSCRIPT-v1.1.md` →
+  `spare-capacity-narrow-surface-v1.1.md`, só no nome: md5 `9c31328d7540cb4637c7c70108c22918` e
+  `0e1eb38ee42e4f8d3fa31e5a5881d6a7`, os mesmos de antes. O PDF não grava o próprio nome (sem
+  XMP, Info só com Title/Author/Creator/Producer/CreationDate; nenhum dos 77 streams
+  descomprimidos traz o nome), então não foi refeito. Neste documento, as menções anteriores
+  foram trocadas para o nome novo. O `MANUSCRIPT.md` da v1.0 (files-import) mantém o nome.
+- Referências atualizadas: `build-package.py` (`SOLTOS` e rótulos do gate), `deposit-v1.1.py`
+  (`NOVOS`, leitura do título e a lista `OBSOLETOS`, que apaga as chaves antigas do rascunho e
+  exige no readback que não existam), `build/build-pdf.sh` (entrada, jobname e saída),
+  `description-v1.1-block.html` (e, por regeneração, `description-v1.1.html`, md5
+  `855aa49c6064d4a71eba74cea8b0b3ea`), `SCRUBBED.txt`, `_sprint-2026-10-04/APPLY-A-rc14.md`, e o
+  `DEFAULT_DEPOSIT` de `A-rc10..A-rc14/parity-rc1x.py`. Notas históricas (`APPLY-A-rc9..rc13`,
+  `REVIEW-A-rc9`) ficaram com o nome da época.
+- `A-rc14/parity-rc14.py --selftest`: **PARITY OK**, **SELFTEST OK**. `build-package.py`:
+  **censo 82 no escopo, 0 lacunas**, **gate de privacidade 0**. Mudaram de hash, por conter os
+  arquivos editados: `scripts-v1.1.zip` (5 parity + `build-pdf.sh`), `artefatos-v1.1.zip`
+  (`APPLY-A-rc14.md`) e o manifesto.
+- **Rascunho 23163119:** chaves antigas apagadas, os 2 nomes novos + manifesto + 2 zips enviados,
+  metadata regravada. Readback: **24 de 24** campos ok (22 + as 2 chaves antigas ausentes),
+  **18 de 18** arquivos com md5 conferido, membros dos zips conferidos. **Não publicado.**

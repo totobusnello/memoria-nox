@@ -120,7 +120,7 @@ deposit/paperA-v1.1/build/build-pdf.sh
 deposit/paperA-v1.1/build/preamble-paperA-v1.1.tex
 """.split()
 
-SOLTOS = ["deposit/paperA-v1.1/MANUSCRIPT-v1.1.md", "deposit/paperA-v1.1/MANUSCRIPT-v1.1.pdf"]
+SOLTOS = ["deposit/paperA-v1.1/spare-capacity-narrow-surface-v1.1.md", "deposit/paperA-v1.1/spare-capacity-narrow-surface-v1.1.pdf"]
 FONTE = "_sprint-2026-10-04/A-v1.1-rc14.md"
 
 # Censo dos caminhos citados (rc11, mantido do rc12 ao rc14): todo caminho que o manuscrito cita e que resolve, no
@@ -324,9 +324,9 @@ def main():
     # texto do PDF: o que um leitor extrai dele
     txt = subprocess.run(["pdftotext", "-enc", "UTF-8", str(ROOT / SOLTOS[1]), "-"],
                          capture_output=True, check=True).stdout.decode("utf-8")
-    achados += [("MANUSCRIPT-v1.1.pdf (texto)", x) for x in privado(txt)]
+    achados += [("spare-capacity-narrow-surface-v1.1.pdf (texto)", x) for x in privado(txt)]
     raw = (ROOT / SOLTOS[1]).read_bytes().decode("latin-1")
-    achados += [("MANUSCRIPT-v1.1.pdf (bytes)", x) for x in re.findall(r"/Users/|Users-lab|claude-\d{3}", raw)]
+    achados += [("spare-capacity-narrow-surface-v1.1.pdf (bytes)", x) for x in re.findall(r"/Users/|Users-lab|claude-\d{3}", raw)]
     za = monta_zip("artefatos-v1.1.zip", ARTEFATOS, itens, achados)
     zs = monta_zip("scripts-v1.1.zip", SCRIPTS, itens, achados)
 

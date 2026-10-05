@@ -65,22 +65,22 @@
   "soltos": 2,
   "artefatos-v1.1.zip": {
    "itens": 52,
-   "bytes": 268770
+   "bytes": 268812
   },
   "scripts-v1.1.zip": {
    "itens": 35,
-   "bytes": 167778
+   "bytes": 167832
   }
  },
  "itens": [
   {
-   "path": "MANUSCRIPT-v1.1.md",
+   "path": "spare-capacity-narrow-surface-v1.1.md",
    "no_deposito": "solto",
    "bytes": 217049,
    "sha256": "73602894d33d554a4fda24e4188b59d4b79ce1d57b77a0dfd100e1cc7ea803fe"
   },
   {
-   "path": "MANUSCRIPT-v1.1.pdf",
+   "path": "spare-capacity-narrow-surface-v1.1.pdf",
    "no_deposito": "solto",
    "bytes": 303437,
    "sha256": "ff2eba942fd0cc4b3bc63807778635d1d3c91dbd35aecbb141e898bded8b4f3c"
@@ -306,8 +306,8 @@
   {
    "path": "_sprint-2026-10-04/APPLY-A-rc14.md",
    "no_deposito": "artefatos-v1.1.zip",
-   "bytes": 6340,
-   "sha256": "7e7dc1debb8e37c57980454a1c6722083b82c8427f75a809b67d51a4f57a3173"
+   "bytes": 6428,
+   "sha256": "19464db8ee43986a592a79cea5cb581f9e00de97ed4e867dc363389843b4d8c4"
   },
   {
    "path": "_sprint-2026-10-04/APPLY-A-rc4.md",
@@ -437,32 +437,32 @@
   {
    "path": "_sprint-2026-10-04/A-rc10/parity-rc10.py",
    "no_deposito": "scripts-v1.1.zip",
-   "bytes": 23269,
-   "sha256": "fe2b03a5b9618518f180cb55410f9a8ff18cf6b4698539ff21ae3e4b19afdf5a"
+   "bytes": 23307,
+   "sha256": "58b5497bbb8b6e3e14b59fc654a18b1efd287b620526ab273f7e3cfc1b511398"
   },
   {
    "path": "_sprint-2026-10-04/A-rc11/parity-rc11.py",
    "no_deposito": "scripts-v1.1.zip",
-   "bytes": 19432,
-   "sha256": "0e752199172f79a5f25e2e734d3428a4fbab2bb05e5baf127b4af8c9f9b808e8"
+   "bytes": 19470,
+   "sha256": "75eab543f702d345189f12e2309d840da4d221e9372ff232b9818d55562db253"
   },
   {
    "path": "_sprint-2026-10-04/A-rc12/parity-rc12.py",
    "no_deposito": "scripts-v1.1.zip",
-   "bytes": 17955,
-   "sha256": "537c8c4a09a7a260acbfb201b27a64ab7dba1daba2848bbe00da2ff82025f600"
+   "bytes": 17993,
+   "sha256": "b067aefc62e0b406abd39e9aeb1833a905fe7d81ceae4493e04c57936469a73b"
   },
   {
    "path": "_sprint-2026-10-04/A-rc13/parity-rc13.py",
    "no_deposito": "scripts-v1.1.zip",
-   "bytes": 22308,
-   "sha256": "4fd16b07f8541284280deec5d92f5cc07a752dcbef0e235df0149f968be95384"
+   "bytes": 22346,
+   "sha256": "24d154e9bafcb09de4bd8596e853d3ceca1e38c26b10cb1744aa2a3b3074c8b3"
   },
   {
    "path": "_sprint-2026-10-04/A-rc14/parity-rc14.py",
    "no_deposito": "scripts-v1.1.zip",
-   "bytes": 22641,
-   "sha256": "5e889b1437d5409fd94562614d27ae4b9f6e3254bcd054aa5c084f4f84d7c8e7"
+   "bytes": 22679,
+   "sha256": "15a7ac7e54ebb340d19982aaf20ccfff6a44a8f586840d72cb5a620a2f80ef4a"
   },
   {
    "path": "_sprint-2026-10-04/A-rc2/coverage-set-from-log.py",
@@ -485,8 +485,8 @@
   {
    "path": "pdf-build/build-pdf.sh",
    "no_deposito": "scripts-v1.1.zip",
-   "bytes": 1353,
-   "sha256": "954d0ce26fb7d778e4c4b110d1713a603460521423f7aa2482ad16b52db70cda"
+   "bytes": 1581,
+   "sha256": "eb91b17b05408273b076b0447b9dafdddb71c89e97acfb8ade86b5df6d93dad9"
   },
   {
    "path": "pdf-build/preamble-paperA-v1.1.tex",
