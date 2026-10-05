@@ -32,6 +32,7 @@ Uso:
 """
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
@@ -40,36 +41,41 @@ import sys
 # por regex sobre todos os dígitos do texto devolveria datas, números de linha, seções
 # e citações bibliográficas, e a taxa de cobertura resultante seria ficção.
 ALEGACOES = [
-    ("583.763", "slots acumulados na janela"),
-    ("8,7", "capacidade em múltiplos do corpus"),
-    ("67.187", "corpus vivo"),
-    ("1.787", "distintos servidos no brief"),
-    ("2,66%", "cobertura do brief"),
-    ("99,98%", "cobertura sob serviço uniforme"),
-    ("83,78%", "nunca exposto, agregado"),
-    ("56.288", "nunca expostos, absoluto"),
-    ("10.899", "união viva de expostos"),
-    ("9.755", "expostos pela busca"),
+    # 2026-10-05: valores na notação INGLESA do manuscrito da v1.1 (`583,763`, `8.7`).
+    # Uma substituição só, e ela é correção, não tradução: "2,66%" (1.787/67.187, a
+    # cobertura MISTA retirada em 2026-09-21) virou "2.43%" (1.635/67.187, a viva). O
+    # 2.66% ainda aparece no texto, mas só na frase do §6.1 que narra o erro — curá-lo
+    # aqui contaria como "coberta" uma alegação que o paper não faz mais.
+    ("583,763", "slots acumulados na janela"),
+    ("8.7", "capacidade em múltiplos do corpus"),
+    ("67,187", "corpus vivo"),
+    ("1,787", "distintos servidos no brief (histórico)"),
+    ("2.43%", "cobertura do brief (viva; o 2,66% misto foi retirado em 2026-09-21)"),
+    ("99.98%", "cobertura sob serviço uniforme"),
+    ("83.78%", "nunca exposto, agregado"),
+    ("56,288", "nunca expostos, absoluto"),
+    ("10,899", "união viva de expostos"),
+    ("9,755", "expostos pela busca"),
     ("152", "servidos e apagados depois"),
-    ("47,16%", "fração dos slots no top-10"),
-    ("4.632", "briefs na semana"),
+    ("47.16%", "fração dos slots no top-10"),
+    ("4,632", "briefs na semana"),
     ("108", "pool elegível do canal de cobertura"),
-    ("0,161%", "pool como fração do corpus"),
-    ("12,4", "slots por candidato elegível"),
-    ("10.008", "elegíveis e nunca expostos"),
-    ("74,75%", "taxa condicionada ao piso"),
-    ("13.388", "chunks que passam o piso"),
-    ("46.280", "nunca expostos ABAIXO do piso"),
-    ("82,2%", "fração dos nunca expostos abaixo do piso"),
-    ("8.928", "distilled entre os elegíveis"),
+    ("0.161%", "pool como fração do corpus"),
+    ("12.4", "slots por candidato elegível"),
+    ("10,008", "elegíveis e nunca expostos"),
+    ("74.75%", "taxa condicionada ao piso"),
+    ("13,388", "chunks que passam o piso"),
+    ("46,280", "nunca expostos ABAIXO do piso"),
+    ("82.2%", "fração dos nunca expostos abaixo do piso"),
+    ("8,928", "distilled entre os elegíveis"),
     ("232", "comprimento médio do subconjunto"),
-    ("85,50%", "coorte madura, nunca exposto"),
-    ("1,295", "maior lacuna no eixo, em décadas"),
-    ("32,1%", "lacuna como fração da amplitude"),
-    ("−0,961", "beta binomial, 15 tipos"),
-    ("−0,728", "Pearson, 13 tipos"),
-    ("0,471", "erro-padrão por jackknife"),
-    ("4,86%", "teto do canal, resolução de segundo"),
+    ("85.50%", "coorte madura, nunca exposto"),
+    ("1.295", "maior lacuna no eixo, em décadas"),
+    ("32.1%", "lacuna como fração da amplitude"),
+    ("−0.961", "beta binomial, 15 tipos"),
+    ("−0.728", "Pearson, 13 tipos"),
+    ("0.471", "erro-padrão por jackknife"),
+    ("4.86%", "teto do canal, resolução de segundo"),
     ("36%", "teto sob granularidade de minuto"),
     ("80%", "teto sob granularidade de hora"),
 ]
@@ -80,11 +86,14 @@ def main():
     ap.add_argument("--raiz", default=str(pathlib.Path(__file__).resolve().parent.parent))
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--out")
+    # o manuscrito: `--doc`, senão `$P2_MANUSCRIPT` (que o `claims_check --manuscript`
+    # exporta), senão RAIZ/MANUSCRIPT.md
+    ap.add_argument("--doc", default=os.environ.get("P2_MANUSCRIPT"))
     a = ap.parse_args()
 
     raiz = pathlib.Path(a.raiz)
     verificador = (raiz / "claims_check.py").read_text(encoding="utf-8")
-    doc = (raiz / "MANUSCRIPT.md").read_text(encoding="utf-8")
+    doc = pathlib.Path(a.doc or raiz / "MANUSCRIPT.md").read_text(encoding="utf-8")
 
     # artefatos que o verificador de fato abre — só estes podem cobrir um número
     # ⚠️ Os artefatos são lidos por DOIS caminhos no verificador — `out/` e
@@ -112,15 +121,22 @@ def main():
         if valor not in doc:
             linhas.append({"valor": valor, "rotulo": rotulo, "estado": "AUSENTE_DO_TEXTO"})
             continue
-        cru = valor.rstrip("%").replace(".", "").replace(",", ".").lstrip("−-")
+        # notação inglesa (2026-10-05): vírgula é milhar, ponto é decimal — o inverso
+        # da v1.0; ver `paridade-de-traducao.py::numeros(ingles=True)`.
+        cru = valor.rstrip("%").replace(",", "").lstrip("−-")
         # ⚠️ Comparar como STRING dá falso-negativo, e ele aparece de duas formas:
         # o verificador constrói o valor por f-string (`f"{x:.2f}"`), então o literal
         # nunca está no fonte; e o artefato guarda `85.5` onde o texto escreve
         # `85,50%`. Um censo assim reporta "sem guarda" para número protegido, e eu
         # iria "consertar" o que já estava coberto. Comparação por VALOR.
         alvo = float(cru)
+        # ⚠️ 2026-10-05: `cru` perde o sinal (`lstrip("−-")`) e o número achado no corpo
+        # o mantinha, então `-0.961` no código nunca casava com o alvo `0.961`. Na v1.0
+        # isso não aparecia porque o literal `−0,961` estava, por acaso, numa docstring
+        # do verificador (`valor in verificador`) — cobertura atribuída ao comentário,
+        # não ao guarda. Comparação em módulo, dos dois lados.
         def tem(corpo: str) -> bool:
-            return any(abs(float(m) - alvo) < 10 ** -9
+            return any(abs(abs(float(m)) - alvo) < 10 ** -9
                        for m in re.findall(r"-?\d+\.?\d*", corpo.replace(",", "")))
         no_verificador = valor in verificador or tem(verificador)
         no_artefato = tem(corpo_artefatos)

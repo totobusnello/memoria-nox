@@ -22,6 +22,7 @@ Uso:
 """
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
@@ -103,12 +104,15 @@ def main():
     ap.add_argument("--raiz", default=str(pathlib.Path(__file__).resolve().parent.parent))
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--out")
+    # o manuscrito: `--doc`, senão `$P2_MANUSCRIPT` (exportado pelo
+    # `claims_check --manuscript`), senão RAIZ/MANUSCRIPT.md
+    ap.add_argument("--doc", default=os.environ.get("P2_MANUSCRIPT"))
     a = ap.parse_args()
 
     raiz = pathlib.Path(a.raiz)
-    doc = raiz / "MANUSCRIPT.md"
+    doc = pathlib.Path(a.doc) if a.doc else raiz / "MANUSCRIPT.md"
     if not doc.exists():
-        print("⛔ MANUSCRIPT.md não encontrado", file=sys.stderr)
+        print(f"⛔ {doc} não encontrado", file=sys.stderr)
         return 1
     # ⚠️ O universo de documentos que CITAM artefatos cresceu com o Paper B. Enquanto
     # só existia o manuscrito, "citado" e "citado no manuscrito" eram a mesma coisa; o
@@ -126,7 +130,12 @@ def main():
     # MANUSCRIPT-B.md entrou em 2026-09-21: o Paper B nasceu nesse dia e os seus
     # artefatos apareciam como ÓRFÃOS por o auditor não o ler — «ninguém cita» e
     # «não olhei para quem cita» têm a mesma saída.
-    CITANTES = ["MANUSCRIPT.md", "MANUSCRIPT-B.md", "MANUSCRIPT-en.md",
+    # ⚠️ 2026-10-05: `MANUSCRIPT.md` passou a ser o texto inglês da v1.1; o português
+    # da v1.0 virou `MANUSCRIPT-v1.0-pt.md` e NÃO entra aqui de propósito — é registro
+    # congelado, e contá-lo como citante esconderia órfão que o texto vigente não lê.
+    # O primeiro citante é o manuscrito sob verificação (`doc`, absoluto se veio de
+    # `--doc`/`$P2_MANUSCRIPT`; `raiz / absoluto` devolve o absoluto).
+    CITANTES = [str(doc), "MANUSCRIPT-B.md", "MANUSCRIPT-en.md",
                 "PROSPECTIVE-ESTIMAND-2026-08-30.md",
                 "DEVIATIONS-FOR-PAPER.md", "DESIGN-REVISION-2026-08-30.md",
                 "ASSIGN-SEED-2026-08-30.md", "TRIAL-START-2026-09-01.md"]

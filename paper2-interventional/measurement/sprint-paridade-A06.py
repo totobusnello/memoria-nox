@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""One-off number-multiset parity for PT lines 596-851 vs EN chunk (sprint A-06)."""
+"""One-off number-multiset parity for PT lines 596-851 vs EN chunk (sprint A-06).
+
+2026-10-05: the PT line range is of the v1.0 Portuguese text, which moved from
+MANUSCRIPT.md (now the English v1.1) to MANUSCRIPT-v1.0-pt.md, byte for byte."""
 import re, subprocess, sys
 from collections import Counter
-pt = subprocess.check_output(['sed','-n','596,851p','MANUSCRIPT.md'],text=True)
+pt = subprocess.check_output(['sed','-n','596,851p','MANUSCRIPT-v1.0-pt.md'],text=True)
 en = open('_sprint-2026-10-04/translation/A-06-s4.3.md').read()
 def strip(t):
     t = re.sub(r'§[\d.]+','',t)

@@ -29,11 +29,22 @@ Uso:
 """
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
 
-MARCADORES = ("⚠️", "🔴", "🟡", "📌", "✅", "🟢")
+RAIZ = pathlib.Path(__file__).resolve().parent.parent
+
+MARCADORES_PT = ("⚠️", "🔴", "🟡", "📌", "✅", "🟢")
+# 2026-10-05: a v1.1 (inglês) não usa emoji; os avisos viraram rótulos em negrito no
+# início do parágrafo. Contar os emoji no texto inglês daria zero e o guarda (1)
+# acusaria "arquivo errado". Esta é uma medição NOVA, não a mesma régua: o Apêndice F
+# da v1.1 diz que as contagens publicadas (91/297, 100/307) são do texto português e
+# que a tradução precisa de medição própria — esta é ela, e não se compara às de lá.
+MARCADORES_EN = ("**Caveat:**", "**Caveat.**", "**Note:**", "**Note.**",
+                 "**Correction:**", "**Correction.**")
+MARCADORES = MARCADORES_PT
 
 # Assinaturas de repetição: ressalvas que o revisor apontou como repetidas até a
 # diluição. Cada uma é um conjunto de padrões alternativos da MESMA ideia.
@@ -51,11 +62,29 @@ REPETIDAS = {
         r"a legenda anterior", r"A legenda anterior",
     ],
 }
+# os mesmos três rótulos, padrão a padrão, no inglês da v1.1
+REPETIDAS_EN = {
+    "é um sistema / não generaliza": [
+        r"is \*\*one\*\* system", r"it is one system", r"a single system",
+        r"deductive generali[sz]ation", r"we claim nothing about the field",
+    ],
+    "busca é iniciada pelo agente": [
+        r"initiated by the agent", r"search[^.]{0,40}the agent (?:searched|initiates)",
+        r"the agent \*\*searched\*\*",
+    ],
+    "retratação de versão anterior": [
+        r"[Aa]n earlier version", r"earlier version of th(?:is|e)", r"[Tt]he earlier version",
+        r"the previous caption", r"[Tt]he earlier caption",
+    ],
+}
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--doc", default="MANUSCRIPT.md")
+    # 2026-10-05: default era relativo ao CWD; agora `$P2_MANUSCRIPT`, senão o
+    # MANUSCRIPT.md ao lado deste pacote.
+    ap.add_argument("--doc", default=os.environ.get("P2_MANUSCRIPT")
+                    or str(RAIZ / "MANUSCRIPT.md"))
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--out")
     a = ap.parse_args()
@@ -66,12 +95,15 @@ def main():
         return 1
     texto = doc.read_text(encoding="utf-8")
     linhas = texto.splitlines()
+    ingles = "## 1. Introduction" in texto
+    MARCADORES = MARCADORES_EN if ingles else MARCADORES_PT
+    REPETIDAS_ = REPETIDAS_EN if ingles else REPETIDAS
 
     por_marcador = {m: sum(l.count(m) for l in linhas) for m in MARCADORES}
     total = sum(por_marcador.values())
 
     repet = {}
-    for rotulo, pats in REPETIDAS.items():
+    for rotulo, pats in REPETIDAS_.items():
         ocorr = []
         for p in pats:
             for m in re.finditer(p, texto):
@@ -86,7 +118,7 @@ def main():
     # para um apêndice não muda o total, e o apêndice traz avisos próprios. A métrica
     # que decide se o argumento ficou legível é a densidade NO CORPO — o que um
     # revisor lê antes de chegar aos apêndices.
-    corte = texto.find("\n## Apêndice ")
+    corte = texto.find("\n## Appendix " if ingles else "\n## Apêndice ")
     corpo = [p for p in (texto[:corte] if corte > 0 else texto).split("\n\n") if p.strip()]
     corpo_marc = [p for p in corpo if any(m in p for m in MARCADORES)]
 
@@ -98,6 +130,7 @@ def main():
         "paragrafos_do_corpo": len(corpo),
         "corpo_marcados": len(corpo_marc),
         "pct_corpo_marcado": round(100 * len(corpo_marc) / len(corpo), 1) if corpo else None,
+        "lingua": "en" if ingles else "pt",
         "marcadores_por_tipo": por_marcador,
         "marcadores_total": total,
         "ressalvas_repetidas": repet,

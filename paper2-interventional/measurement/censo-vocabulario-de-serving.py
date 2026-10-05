@@ -45,29 +45,62 @@ Uso:
 """
 import argparse
 import json
+import os
 import pathlib
 import re
 import sys
+
+RAIZ = pathlib.Path(__file__).resolve().parent.parent
+
+# 2026-10-05: o manuscrito da v1.1 é inglês. Cada lista abaixo ganhou o equivalente
+# inglês de CADA termo português, termo a termo, e nada além disso — alargar uma
+# lista de NEGACAO ou LEGITIMO desliga o guarda, alargar ENTREGA o torna ruidoso. Os
+# termos portugueses ficam: o script também roda sobre `MANUSCRIPT-v1.0-pt.md`.
 
 # Verbos e locuções que afirmam entrega ao agente.
 ENTREGA = [
     r"\bservid[oa]s?\b", r"\bserviu\b", r"\bservir\b", r"\bentregue?s?\b",
     r"\bentregou\b", r"\bem produção\b", r"\bimplantad[oa]s?\b", r"\bimplantar\b",
     r"\bexperimento\b", r"\bteste em produção\b", r"\brodou em produção\b",
+    # inglês: servido(s)/serviu → served; servir → serve; entregue/entregou →
+    # delivered; em produção → in production; implantado/implantar → deployed/deploy;
+    # experimento → experiment; teste/rodou em produção → production test/ran in production
+    r"\bserved\b", r"\bserve\b", r"\bdelivered\b", r"\bin production\b",
+    r"\bdeployed\b", r"\bdeploy\b", r"\bexperiment\b", r"\bproduction test\b",
+    r"\bran in production\b",
 ]
 
 # Vizinhança que indica o OBJETO. A intervenção é o que não pode ser dito servido.
 INTERVENCAO = [
     r"\bdose\b", r"\bintervenção\b", r"\btratament\w+", r"\btratad[oa]s?\b",
     r"\bbônus\b", r"\bboost\b", r"\bbraço\b", r"\bw\s*=", r"\bdesignaç\w+",
+    r"\bintervention\b", r"\btreatment\w*", r"\btreated\b", r"\bbonus\b",
+    r"\barm\b", r"\bdesignat\w+",
 ]
 # Objetos para os quais o verbo é legítimo: os estados, o brief, o corpus, o sistema.
 LEGITIMO = [
     r"\bestados?\b", r"\bbrief\w*\b", r"\bchunks?\b", r"\bcorpus\b", r"\bslots?\b",
     r"\bsistema\b", r"\bagente\b", r"\bpool\b", r"\bcanal\b", r"\bcobertura\b",
     r"\bitens?\b", r"\bmemória\b",
+    r"\bstates?\b", r"\bsystem\b", r"\bagent\b", r"\bchannel\b", r"\bcoverage\b",
+    r"\bitems?\b", r"\bmemory\b",
 ]
 JANELA = 90  # caracteres de cada lado
+
+# 2026-10-05 — frases da v1.1 que aplicam verbo de entrega à intervenção e são
+# VERDADEIRAS. Isenção por FRASE EXATA (espaço normalizado), uma a uma e com a razão;
+# não por padrão, que é como uma isenção vira buraco. Se a frase sair do texto, o
+# censo falha (guarda 4) em vez de deixar a isenção apodrecer, e qualquer OUTRA
+# ocorrência do mesmo verbo continua julgada normalmente.
+VERDADEIRAS = {
+    "`w = 2` was served in six epochs":
+        "§4.4: o ensaio POSTERIOR (Paper B, modo active desde 2026-09-01) serviu w = 2 "
+        "em seis epochs (DEVIATIONS-FOR-PAPER.md §10.29); a frase seguinte diz que "
+        "não são estes 350 estados. Verdadeiro e delimitado.",
+    "the bonus decides which of them is served":
+        "§5.1: enunciado de MECANISMO — o que o ranker faz entre dois near-duplicates do "
+        "mesmo estrato —, não afirmação de que a dose deste paper foi servida.",
+}
 
 
 # ⚠️ Sem isto o script marca as PRÓPRIAS ressalvas como overclaim: "nada foi servido
@@ -78,6 +111,15 @@ NEGACAO = [
     r"\bn[ãa]o\s+(?:foi|foram|é|são|havia|chegou)\b", r"\bnada\s+(?:foi|ainda)\b",
     r"\bnunca\b", r"\bantes de\b", r"\bsem que\b", r"\bjamais\b",
     r"\bnenhum[ao]?\b", r"\bdeixa de\b",
+    # inglês, termo a termo: não foi/foram/é/são/havia/chegou → was/were/is/are/had/did
+    # not (e contrações); nada foi/ainda → nothing was/yet; nunca/jamais → never;
+    # antes de → before; sem que → without; nenhum(a) → no/none; deixa de → ceases to
+    r"\b(?:was|were|is|are|had|did)\s+not\b",
+    r"\b(?:wasn't|weren't|isn't|aren't|hadn't|didn't)\b",
+    # "nada foi servido tratado" ↔ "nothing treated was served": o inglês põe o
+    # adjetivo entre "nothing" e o verbo, então uma palavra intermediária é admitida
+    r"\bnothing(?:\s+\w+)?\s+(?:was|yet)\b", r"\bnever\b", r"\bbefore\b", r"\bwithout\b",
+    r"\bno\b", r"\bnone\b", r"\bceases? to\b",
 ]
 
 
@@ -139,7 +181,11 @@ def classifica(ctx: str, termo_citado: bool = False) -> str:
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--doc", default="MANUSCRIPT.md")
+    # 2026-10-05: o default era "MANUSCRIPT.md" RELATIVO AO CWD — rodado de outro
+    # diretório, o censo não achava o texto. Agora: `$P2_MANUSCRIPT` (exportado pelo
+    # `claims_check --manuscript`), senão o MANUSCRIPT.md ao lado deste pacote.
+    ap.add_argument("--doc", default=os.environ.get("P2_MANUSCRIPT")
+                    or str(RAIZ / "MANUSCRIPT.md"))
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--out")
     a = ap.parse_args()
@@ -149,6 +195,15 @@ def main():
         print(f"⛔ {doc} não existe", file=sys.stderr)
         return 1
     texto = doc.read_text(encoding="utf-8")
+
+    isentos = []                      # (ini, fim) das frases VERDADEIRAS no texto
+    sumidas = []
+    for frase in VERDADEIRAS:
+        pad = r"\s+".join(re.escape(w) for w in frase.split())
+        ms = list(re.finditer(pad, texto))
+        if not ms:
+            sumidas.append(frase)
+        isentos += [(m.start(), m.end()) for m in ms]
 
     achados = []
     vistos = set()
@@ -187,6 +242,8 @@ def main():
             # tabela, então o rótulo tem de bastar por si.
             if not citado and em_celula_isolada(texto, m.start(), m.end()):
                 classe = "ROTULO_DE_CELULA_SEM_DEFESA"
+            if any(i <= m.start() < f for i, f in isentos):
+                classe = "VERDADEIRO_DECLARADO"
             achados.append({
                 "linha": texto[:m.start()].count("\n") + 1,
                 "termo": m.group(0),
@@ -230,6 +287,13 @@ def main():
         print(f"⛔ todas as {len(achados)} ocorrências na mesma classe "
               f"({list(conta)[0]}) — o classificador não está discriminando.",
               file=sys.stderr)
+        return 1
+    # (4) 2026-10-05: isenção cuja frase sumiu do texto apodrece em silêncio — falha.
+    # Só no texto INGLÊS: as frases são da v1.1, e o texto português da v1.0 nunca as teve.
+    ingles = "## 1. Introduction" in texto
+    if sumidas and ingles:
+        print(f"⛔ frase(s) isenta(s) em VERDADEIRAS que não estão mais no texto: "
+              f"{sumidas} — remover a isenção, não deixá-la órfã.", file=sys.stderr)
         return 1
     # (3) ⚠️ O GUARDA QUE FALTAVA. A primeira versão deste script LISTAVA os overclaims
     #     e saía 0 — um censo que reporta sem reprovar não propaga nada, e o
